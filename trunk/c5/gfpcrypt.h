@@ -372,10 +372,6 @@ public:
 
 struct DSA;
 
-CRYPTOPP_DLL_TEMPLATE_CLASS DL_PublicKey_GFP<DL_GroupParameters_DSA>;
-CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_GFP<DL_GroupParameters_DSA>;
-CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_WithSignaturePairwiseConsistencyTest<DL_PrivateKey_GFP<DL_GroupParameters_DSA>, DSA>;
-
 //! .
 struct DL_Keys_DSA
 {
@@ -412,6 +408,10 @@ struct CRYPTOPP_DLL DSA : public DL_SS<
 #endif
 		MAX_PRIME_LENGTH = 1024, PRIME_LENGTH_MULTIPLE = 64};
 };
+
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_PublicKey_GFP<DL_GroupParameters_DSA>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_GFP<DL_GroupParameters_DSA>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_WithSignaturePairwiseConsistencyTest<DL_PrivateKey_GFP<DL_GroupParameters_DSA>, DSA>;
 
 //! .
 template <class MAC, bool DHAES_MODE>

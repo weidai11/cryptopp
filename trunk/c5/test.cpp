@@ -24,7 +24,7 @@
 #include <windows.h>
 #endif
 
-#ifdef USE_BERKELEY_STYLE_SOCKETS
+#if defined(USE_BERKELEY_STYLE_SOCKETS) && !defined(macintosh)
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #endif
