@@ -24,8 +24,8 @@ public:
 	void DEREncode(BufferedTransformation &bt) const;
 
 	Integer ApplyFunction(const Integer &x) const;
-	Integer PreimageBound() const {return m_n;}
-	Integer ImageBound() const {return ++(m_n>>1);}
+	Integer PreimageBound() const {return ++(m_n>>1);}
+	Integer ImageBound() const {return m_n;}
 
 	bool Validate(RandomNumberGenerator &rng, unsigned int level) const;
 	bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const;
