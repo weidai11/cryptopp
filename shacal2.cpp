@@ -38,11 +38,7 @@ void SHACAL2::Base::UncheckedSetKey(CipherDir dir, const byte *userKey, unsigned
 	word32 *rk = m_key;
 	unsigned int i;
 
-	GetUserKey(BIG_ENDIAN_ORDER, rk, keylen/4, userKey, keylen);
-	if (keylen != MAX_KEYLENGTH)
-	{
-		memset(rk + keylen/4, 0, MAX_KEYLENGTH - keylen);
-	}
+	GetUserKey(BIG_ENDIAN_ORDER, rk, m_key.size(), userKey, keylen);
 	for (i = 0; i < 48; i++, rk++)
 	{
 		rk[16] = rk[0] + s0(rk[1]) + rk[9] + s1(rk[14]);
