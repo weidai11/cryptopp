@@ -11,8 +11,8 @@ NAMESPACE_BEGIN(CryptoPP)
 class Gzip : public Deflator
 {
 public:
-	Gzip(BufferedTransformation *attachment=NULL, unsigned int deflateLevel=DEFAULT_DEFLATE_LEVEL, unsigned int log2WindowSize=DEFAULT_LOG2_WINDOW_SIZE)
-		: Deflator(attachment, deflateLevel, log2WindowSize) {}
+	Gzip(BufferedTransformation *attachment=NULL, unsigned int deflateLevel=DEFAULT_DEFLATE_LEVEL, unsigned int log2WindowSize=DEFAULT_LOG2_WINDOW_SIZE, bool detectUncompressible=true)
+		: Deflator(attachment, deflateLevel, log2WindowSize, detectUncompressible) {}
 	Gzip(const NameValuePairs &parameters, BufferedTransformation *attachment=NULL)
 		: Deflator(parameters, attachment) {}
 

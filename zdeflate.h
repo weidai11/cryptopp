@@ -57,8 +57,11 @@ class Deflator : public LowFirstBitWriter
 public:
 	enum {MIN_DEFLATE_LEVEL = 0, DEFAULT_DEFLATE_LEVEL = 6, MAX_DEFLATE_LEVEL = 9};
 	enum {MIN_LOG2_WINDOW_SIZE = 9, DEFAULT_LOG2_WINDOW_SIZE = 15, MAX_LOG2_WINDOW_SIZE = 15};
-	Deflator(BufferedTransformation *attachment=NULL, int deflateLevel=DEFAULT_DEFLATE_LEVEL, int log2WindowSize=DEFAULT_LOG2_WINDOW_SIZE);
-	//! possible parameter names: Log2WindowSize, DeflateLevel
+	/*! \note detectUncompressible makes it faster to process uncompressible files, but
+		if a file has both compressible and uncompressible parts, it may fail to compress some of the
+		compressible parts. */
+	Deflator(BufferedTransformation *attachment=NULL, int deflateLevel=DEFAULT_DEFLATE_LEVEL, int log2WindowSize=DEFAULT_LOG2_WINDOW_SIZE, bool detectUncompressible=true);
+	//! possible parameter names: Log2WindowSize, DeflateLevel, DetectUncompressible
 	Deflator(const NameValuePairs &parameters, BufferedTransformation *attachment=NULL);
 
 	//! this function can be used to set the deflate level in the middle of compression
@@ -70,7 +73,7 @@ public:
 	unsigned int Put2(const byte *inString, unsigned int length, int messageEnd, bool blocking);
 	bool IsolatedFlush(bool hardFlush, bool blocking);
 
-private:
+protected:
 	virtual void WritePrestreamHeader() {}
 	virtual void ProcessUncompressedData(const byte *string, unsigned int length) {}
 	virtual void WritePoststreamTail() {}
@@ -99,7 +102,8 @@ private:
 		unsigned distanceExtra : 13;
 	};
 
-	int m_deflateLevel, m_log2WindowSize;
+	int m_deflateLevel, m_log2WindowSize, m_compressibleDeflateLevel;
+	unsigned int m_detectSkip, m_detectCount;
 	unsigned int DSIZE, DMASK, HSIZE, HMASK, GOOD_MATCH, MAX_LAZYLENGTH, MAX_CHAIN_LENGTH;
 	bool m_headerWritten, m_matchAvailable;
 	unsigned int m_dictionaryEnd, m_stringStart, m_lookahead, m_minLookahead, m_previousMatch, m_previousLength;
