@@ -174,7 +174,7 @@ public:
 class CRYPTOPP_DLL OS_Error : public Exception
 {
 public:
-	OS_Error(ErrorType errorType, const std::string s, const std::string& operation, int errorCode)
+	OS_Error(ErrorType errorType, const std::string &s, const std::string& operation, int errorCode)
 		: Exception(errorType, s), m_operation(operation), m_errorCode(errorCode) {}
 	~OS_Error() throw() {}
 
@@ -225,7 +225,7 @@ public:
 	class CRYPTOPP_DLL ValueTypeMismatch : public InvalidArgument
 	{
 	public:
-		ValueTypeMismatch(std::string name, const std::type_info &stored, const std::type_info &retrieving)
+		ValueTypeMismatch(const std::string &name, const std::type_info &stored, const std::type_info &retrieving)
 			: InvalidArgument("NameValuePairs: type mismatch for '" + name + "', stored '" + stored.name() + "', trying to retrieve '" + retrieving.name() + "'")
 			, m_stored(stored), m_retrieving(retrieving) {}
 
