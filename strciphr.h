@@ -251,10 +251,19 @@ class CRYPTOPP_NO_VTABLE CFB_DecryptionTemplate : public CFB_CipherTemplate<BASE
 	void CombineMessageAndShiftRegister(byte *output, byte *reg, const byte *message, unsigned int length);
 };
 
+template <class BASE>
+class CFB_RequireFullDataBlocks : public BASE
+{
+public:
+	unsigned int MandatoryBlockSize() const {return OptimalBlockSize();}
+};
+
+/*
 CRYPTOPP_DLL_TEMPLATE_CLASS AbstractPolicyHolder<CFB_CipherAbstractPolicy, SymmetricCipher>;
 CRYPTOPP_DLL_TEMPLATE_CLASS CFB_CipherTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, SymmetricCipher> >;
 CRYPTOPP_DLL_TEMPLATE_CLASS CFB_EncryptionTemplate<>;
 CRYPTOPP_DLL_TEMPLATE_CLASS CFB_DecryptionTemplate<>;
+*/
 
 template <class BASE, class INFO = BASE>
 class SymmetricCipherFinal : public AlgorithmImpl<SimpleKeyingInterfaceImpl<BASE, INFO>, INFO>
