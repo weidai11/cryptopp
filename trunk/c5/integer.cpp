@@ -876,8 +876,9 @@ static void CpuId(word32 input, word32 *output)
 #ifdef __GNUC__
 	__asm__
 	(
-		"cpuid"
-		: "=a" (output[0]), "=b" (output[1]), "=c" (output[2]), "=d" (output[3])
+		// save ebx in case -fPIC is being used
+		"push %%ebx; cpuid; mov %%ebx, %%edi; pop %%ebx"
+		: "=a" (output[0]), "=D" (output[1]), "=c" (output[2]), "=d" (output[3])
 		: "a" (input)
 	);
 #else
