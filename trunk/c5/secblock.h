@@ -371,6 +371,15 @@ inline void swap(CryptoPP::SecBlock<T, A> &a, CryptoPP::SecBlock<T, A> &b)
 	a.swap(b);
 }
 
+#if defined(_STLPORT_VERSION) && !defined(_STLP_MEMBER_TEMPLATE_CLASSES)
+template <class _Tp1, class _Tp2>
+inline CryptoPP::AllocatorWithCleanup<_Tp2>&
+__stl_alloc_rebind(CryptoPP::AllocatorWithCleanup<_Tp1>& __a, const _Tp2*)
+{
+	return (CryptoPP::AllocatorWithCleanup<_Tp2>&)(__a);
+}
+#endif
+
 NAMESPACE_END
 
 #endif

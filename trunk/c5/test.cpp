@@ -19,6 +19,7 @@
 #include "osrng.h"
 #include "wait.h"
 #include "fips140.h"
+#include "factory.h"
 
 #include "validate.h"
 #include "bench.h"
@@ -77,6 +78,11 @@ void FIPS140_SampleApplication(const char *moduleFilename, const char *edcFilena
 void FIPS140_GenerateRandomFiles();
 
 bool Validate(int, bool, const char *);
+
+void RegisterFactories();
+bool RunTestDataFile(const char *filename);
+
+int (*AdhocTest)(int argc, char *argv[]) = NULL;
 
 #ifdef __BCPLUSPLUS__
 int cmain(int argc, char *argv[])
@@ -199,6 +205,10 @@ int main(int argc, char *argv[])
 			return 0;
 		case 't':
 		  {
+			if (command == "tv")
+			{
+				return !RunTestDataFile(argv[2]);
+			}
 			// VC60 workaround: use char array instead of std::string to workaround MSVC's getline bug
 			char passPhrase[MAX_PHRASE_LENGTH], plaintext[1024];
 
@@ -277,6 +287,11 @@ int main(int argc, char *argv[])
 			else if (command == "ft")
 				ForwardTcpPort(argv[2], argv[3], argv[4]);
 			return 0;
+		case 'a':
+			if (AdhocTest)
+				return (*AdhocTest)(argc, argv);
+			else
+				return 0;
 		default:
 			FileSource usage("usage.dat", true, new FileSink(cout));
 			return 1;

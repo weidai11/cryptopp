@@ -16,7 +16,7 @@ byte AdditiveCipherTemplate<S>::GenerateByte()
 		m_leftOver = policy.GetBytesPerIteration();
 	}
 
-	return KeystreamBufferEnd()[-m_leftOver--];
+	return *(KeystreamBufferEnd()-m_leftOver--);
 }
 
 template <class S>
