@@ -26,13 +26,14 @@ protected:
 
 /// <a href="http://www.weidai.com/scan-mirror/md.html#Panama">Panama Hash</a>
 template <class B = LittleEndian>
-class PanamaHash : protected Panama<B>, public IteratedHash<word32, NativeByteOrder, 32>
+class PanamaHash : protected Panama<B>, public AlgorithmImpl<IteratedHash<word32, NativeByteOrder, 32>, PanamaHash<B> >
 {
 public:
 	enum {DIGESTSIZE = 32};
 	PanamaHash() {Panama<B>::Reset();}
 	unsigned int DigestSize() const {return DIGESTSIZE;}
 	void TruncatedFinal(byte *hash, unsigned int size);
+	static const char * StaticAlgorithmName() {return "Panama";}
 
 protected:
 	void Init() {Panama<B>::Reset();}
