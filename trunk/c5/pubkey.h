@@ -747,13 +747,13 @@ void DL_PublicKey<T>::AssignFrom(const NameValuePairs &source)
 class OID;
 
 //! .
-template <class PK, class GP>
+template <class PK, class GP, class O = OID>
 class DL_KeyImpl : public PK
 {
 public:
 	typedef GP GroupParameters;
 
-	OID GetAlgorithmID() const {return GetGroupParameters().GetAlgorithmID();}
+	O GetAlgorithmID() const {return GetGroupParameters().GetAlgorithmID();}
 //	void BERDecode(BufferedTransformation &bt)
 //		{PK::BERDecode(bt);}
 //	void DEREncode(BufferedTransformation &bt) const
