@@ -226,7 +226,7 @@ bool TestOS_RNG()
 	member_ptr<RandomNumberGenerator> rng;
 #ifdef BLOCKING_RNG_AVAILABLE
 	try {rng.reset(new BlockingRng);}
-	catch (OS_RNG_Err &e) {}
+	catch (OS_RNG_Err &) {}
 #endif
 
 	if (rng.get())
@@ -304,7 +304,7 @@ bool TestOS_RNG()
 	rng.reset(NULL);
 #ifdef NONBLOCKING_RNG_AVAILABLE
 	try {rng.reset(new NonblockingRng);}
-	catch (OS_RNG_Err &e) {}
+	catch (OS_RNG_Err &) {}
 #endif
 
 	if (rng.get())

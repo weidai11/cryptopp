@@ -241,7 +241,7 @@ AssignFromHelperClass<T, T> AssignFromHelper(T *pObject, const NameValuePairs &s
 
 void AssignIntToInteger(void *pInteger, const void *pInt);
 
-extern const std::type_info &g_typeidInteger;
+const std::type_info & IntegerTypeId();
 
 template <class BASE, class T>
 class AlgorithmParameters : public NameValuePairs
@@ -283,7 +283,7 @@ public:
 		else if (strcmp(name, m_name) == 0)
 		{
 			// special case for retrieving an Integer parameter when an int was passed in
-			if (valueType == g_typeidInteger && typeid(T) == typeid(int))
+			if (valueType == IntegerTypeId() && typeid(T) == typeid(int))
 				AssignIntToInteger(pValue, &m_value);
 			else
 			{

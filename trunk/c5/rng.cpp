@@ -51,20 +51,29 @@ byte LC_RNG::GenerateByte()
 
 // ********************************************************
 
-X917RNG::X917RNG(BlockTransformation *c, const byte *seed)
+X917RNG::X917RNG(BlockTransformation *c, const byte *seed, unsigned long deterministicTimeVector)
 	: cipher(c),
 	  S(cipher->BlockSize()),
 	  dtbuf(S),
 	  randseed(seed, S),
 	  randbuf(S),
-	  randbuf_counter(0)
+	  randbuf_counter(0),
+	  m_deterministicTimeVector(deterministicTimeVector)
 {
-	time_t tstamp1 = time(0);
-	xorbuf(dtbuf, (byte *)&tstamp1, STDMIN((int)sizeof(tstamp1), S));
-	cipher->ProcessBlock(dtbuf);
-	clock_t tstamp2 = clock();
-	xorbuf(dtbuf, (byte *)&tstamp2, STDMIN((int)sizeof(tstamp2), S));
-	cipher->ProcessBlock(dtbuf);
+	if (m_deterministicTimeVector)
+	{
+		memset(dtbuf, 0, S);
+		memcpy(dtbuf, (byte *)&m_deterministicTimeVector, STDMIN((int)sizeof(m_deterministicTimeVector), S));
+	}
+	else
+	{
+		time_t tstamp1 = time(0);
+		xorbuf(dtbuf, (byte *)&tstamp1, STDMIN((int)sizeof(tstamp1), S));
+		cipher->ProcessBlock(dtbuf);
+		clock_t tstamp2 = clock();
+		xorbuf(dtbuf, (byte *)&tstamp2, STDMIN((int)sizeof(tstamp2), S));
+		cipher->ProcessBlock(dtbuf);
+	}
 }
 
 byte X917RNG::GenerateByte()
@@ -72,8 +81,16 @@ byte X917RNG::GenerateByte()
 	if (randbuf_counter==0)
 	{
 		// calculate new enciphered timestamp
-		clock_t tstamp = clock();
-		xorbuf(dtbuf, (byte *)&tstamp, STDMIN((int)sizeof(tstamp), S));
+		if (m_deterministicTimeVector)
+		{
+			xorbuf(dtbuf, (byte *)&m_deterministicTimeVector, STDMIN((int)sizeof(m_deterministicTimeVector), S));
+			while (++m_deterministicTimeVector == 0) {}	// skip 0
+		}
+		else
+		{
+			clock_t tstamp = clock();
+			xorbuf(dtbuf, (byte *)&tstamp, STDMIN((int)sizeof(tstamp), S));
+		}
 		cipher->ProcessBlock(dtbuf);
 
 		// combine enciphered timestamp with seed

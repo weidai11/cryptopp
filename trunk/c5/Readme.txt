@@ -1,5 +1,5 @@
 Crypto++: a C++ Class Library of Cryptographic Primitives
-Version 5.0 9/11/2002
+Version 5.1 (in development)
 
 This library includes:
 
@@ -241,3 +241,9 @@ History
     - is being evaluated for FIPS 140-2 compliance
     - fixed a bug in HMAC::TruncatedFinal()
     - fixed SKIPJACK byte ordering following NIST clarification dated 5/9/02
+
+5.01 (special FIPS 140-2 release, in development)
+	- added known answer test for X9.17 RNG in FIPS 140 power-up self test
+
+5.1 (in development)
+	- fixed a bug in CBC and ECB modes with processing non-aligned data

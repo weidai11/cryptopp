@@ -144,11 +144,11 @@ void BlockOrientedCipherModeBase::ProcessData(byte *outString, const byte *inStr
 	unsigned int s = BlockSize();
 	assert(length % s == 0);
 	unsigned int alignment = m_cipher->BlockAlignment();
-	bool requireAlignedInput = RequireAlignedInput();
+	bool inputAlignmentOk = !RequireAlignedInput() || IsAlignedOn(inString, alignment);
 
 	if (IsAlignedOn(outString, alignment))
 	{
-		if (!requireAlignedInput || IsAlignedOn(inString, alignment))
+		if (inputAlignmentOk)
 			ProcessBlocks(outString, inString, length / s);
 		else
 		{
@@ -160,7 +160,7 @@ void BlockOrientedCipherModeBase::ProcessData(byte *outString, const byte *inStr
 	{
 		while (length)
 		{
-			if (!requireAlignedInput || IsAlignedOn(inString, alignment))
+			if (inputAlignmentOk)
 				ProcessBlocks(m_buffer, inString, 1);
 			else
 			{
@@ -168,6 +168,8 @@ void BlockOrientedCipherModeBase::ProcessData(byte *outString, const byte *inStr
 				ProcessBlocks(m_buffer, m_buffer, 1);
 			}
 			memcpy(outString, m_buffer, s);
+			inString += s;
+			outString += s;
 			length -= s;
 		}
 	}

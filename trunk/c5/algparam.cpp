@@ -6,7 +6,11 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-const std::type_info &g_typeidInteger = typeid(Integer);
+const std::type_info & IntegerTypeId()
+{
+	static const std::type_info &s_typeidInteger = typeid(Integer);
+	return s_typeidInteger;
+}
 
 void AssignIntToInteger(void *pInteger, const void *pInt)
 {

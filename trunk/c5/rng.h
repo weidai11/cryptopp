@@ -32,8 +32,8 @@ private:
 class X917RNG : public RandomNumberGenerator
 {
 public:
-	// cipher will be deleted by destructor
-	X917RNG(BlockTransformation *cipher, const byte *seed);
+	// cipher will be deleted by destructor, deterministicTimeVector = 0 means obtain time vector from system
+	X917RNG(BlockTransformation *cipher, const byte *seed, unsigned long deterministicTimeVector = 0);
 
 	byte GenerateByte();
 
@@ -43,6 +43,7 @@ private:
 	SecByteBlock dtbuf; 	// buffer for enciphered timestamp
 	SecByteBlock randseed, randbuf;
 	int randbuf_counter;	// # of unused bytes left in randbuf
+	unsigned long m_deterministicTimeVector;
 };
 
 /** This class implements Maurer's Universal Statistical Test for Random Bit Generators
