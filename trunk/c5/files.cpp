@@ -144,7 +144,7 @@ unsigned int FileStore::CopyRangeTo2(BufferedTransformation &target, unsigned lo
 unsigned long FileStore::Skip(unsigned long skipMax)
 {
 	unsigned long oldPos = m_stream->tellg();
-	m_stream->seekg(skipMax, ios_base::cur);
+	m_stream->seekg(skipMax, ios::cur);
 	return (unsigned long)m_stream->tellg() - oldPos;
 }
 
