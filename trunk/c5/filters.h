@@ -398,7 +398,7 @@ public:
 	void Initialize(const NameValuePairs &parameters, int propagation)
 		{ChannelInitialize(NULL_CHANNEL, parameters, propagation);}
 	byte * CreatePutSpace(unsigned int &size)
-		{return m_target ? m_target->CreatePutSpace(size) : (size=0, NULL);}
+		{return m_target ? m_target->CreatePutSpace(size) : (byte *)(size=0, NULL);}
 	unsigned int Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking)
 		{return m_target ? m_target->Put2(begin, length, GetPassSignals() ? messageEnd : 0, blocking) : 0;}
 	bool Flush(bool hardFlush, int propagation=-1, bool blocking=true)
@@ -408,7 +408,7 @@ public:
 
 	void ChannelInitialize(const std::string &channel, const NameValuePairs &parameters=g_nullNameValuePairs, int propagation=-1);
 	byte * ChannelCreatePutSpace(const std::string &channel, unsigned int &size)
-		{return m_target ? m_target->ChannelCreatePutSpace(channel, size) : (size=0, NULL);}
+		{return m_target ? m_target->ChannelCreatePutSpace(channel, size) : (byte *)(size=0, NULL);}
 	unsigned int ChannelPut2(const std::string &channel, const byte *begin, unsigned int length, int messageEnd, bool blocking)
 		{return m_target ? m_target->ChannelPut2(channel, begin, length, GetPassSignals() ? messageEnd : 0, blocking) : 0;}
 	unsigned int ChannelPutModifiable2(const std::string &channel, byte *begin, unsigned int length, int messageEnd, bool blocking)
