@@ -33,7 +33,7 @@ public:
 		c2.swap(a.c2);
 	}
 
-	static GFP2Element & Zero();
+	static const GFP2Element & Zero();
 
 	Integer c1, c2;
 };

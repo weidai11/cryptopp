@@ -127,8 +127,8 @@ private:
 	static const HuffmanDecoder *FixedLiteralDecoder();
 	static const HuffmanDecoder *FixedDistanceDecoder();
 
-	const HuffmanDecoder *GetLiteralDecoder() const;
-	const HuffmanDecoder *GetDistanceDecoder() const;
+	const HuffmanDecoder& GetLiteralDecoder() const;
+	const HuffmanDecoder& GetDistanceDecoder() const;
 
 	enum State {PRE_STREAM, WAIT_HEADER, DECODING_BODY, POST_STREAM, AFTER_END};
 	State m_state;

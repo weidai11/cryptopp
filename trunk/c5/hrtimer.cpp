@@ -40,7 +40,7 @@ word64 Timer::GetCurrentTimerValue()
 word64 Timer::TicksPerSecond()
 {
 #if defined(CRYPTOPP_WIN32_AVAILABLE)
-	static LARGE_INTEGER freq;
+	static LARGE_INTEGER freq = {0};
 	if (freq.QuadPart == 0)
 	{
 		if (!QueryPerformanceFrequency(&freq))

@@ -8,10 +8,9 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-GFP2Element & GFP2Element::Zero()
+const GFP2Element & GFP2Element::Zero()
 {
-	static GFP2Element zero;
-	return zero;
+	return Singleton<GFP2Element>().Ref();
 }
 
 void XTR_FindPrimesAndGenerator(RandomNumberGenerator &rng, Integer &p, Integer &q, GFP2Element &g, unsigned int pbits, unsigned int qbits)

@@ -414,7 +414,7 @@ public:
 
 protected:
 	const typename BASE::MessageEncodingInterface & GetMessageEncodingInterface() const 
-		{static typename SCHEME_OPTIONS::MessageEncodingMethod messageEncodingMethod; return messageEncodingMethod;}
+		{return Singleton<CPP_TYPENAME SCHEME_OPTIONS::MessageEncodingMethod>().Ref();}
 	const TrapdoorFunctionBounds & GetTrapdoorFunctionBounds() const 
 		{return GetKey();}
 	const typename BASE::TrapdoorFunctionInterface & GetTrapdoorFunctionInterface() const 
@@ -1322,17 +1322,17 @@ public:
 
 protected:
 	const DL_ElgamalLikeSignatureAlgorithm<Element> & GetSignatureAlgorithm() const
-		{static typename SCHEME_OPTIONS::SignatureAlgorithm a; return a;}
+		{return Singleton<CPP_TYPENAME SCHEME_OPTIONS::SignatureAlgorithm>().Ref();}
 	const DL_KeyAgreementAlgorithm<Element> & GetKeyAgreementAlgorithm() const
-		{static typename SCHEME_OPTIONS::KeyAgreementAlgorithm a; return a;}
+		{return Singleton<CPP_TYPENAME SCHEME_OPTIONS::KeyAgreementAlgorithm>().Ref();}
 	const DL_KeyDerivationAlgorithm<Element> & GetKeyDerivationAlgorithm() const
-		{static typename SCHEME_OPTIONS::KeyDerivationAlgorithm a; return a;}
+		{return Singleton<CPP_TYPENAME SCHEME_OPTIONS::KeyDerivationAlgorithm>().Ref();}
 	const DL_SymmetricEncryptionAlgorithm & GetSymmetricEncryptionAlgorithm() const
-		{static typename SCHEME_OPTIONS::SymmetricEncryptionAlgorithm a; return a;}
+		{return Singleton<CPP_TYPENAME SCHEME_OPTIONS::SymmetricEncryptionAlgorithm>().Ref();}
 	HashIdentifier GetHashIdentifier() const
 		{return HashIdentifier();}
 	const PK_SignatureMessageEncodingMethod & GetMessageEncodingInterface() const 
-		{static typename SCHEME_OPTIONS::MessageEncodingMethod a; return a;}
+		{return Singleton<CPP_TYPENAME SCHEME_OPTIONS::MessageEncodingMethod>().Ref();}
 };
 
 //! .

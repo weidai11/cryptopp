@@ -15,36 +15,39 @@ NAMESPACE_BEGIN(CryptoPP)
 
 const word s_lastSmallPrime = 32719;
 
-std::vector<word16> * NewPrimeTable()
+struct NewPrimeTable
 {
-	const unsigned int maxPrimeTableSize = 3511;
-
-	std::auto_ptr<std::vector<word16> > pPrimeTable(new std::vector<word16>);
-	std::vector<word16> &primeTable = *pPrimeTable;
-	primeTable.reserve(maxPrimeTableSize);
-
-	primeTable.push_back(2);
-	unsigned int testEntriesEnd = 1;
-	
-	for (unsigned int p=3; p<=s_lastSmallPrime; p+=2)
+	std::vector<word16> * operator()() const
 	{
-		unsigned int j;
-		for (j=1; j<testEntriesEnd; j++)
-			if (p%primeTable[j] == 0)
-				break;
-		if (j == testEntriesEnd)
-		{
-			primeTable.push_back(p);
-			testEntriesEnd = STDMIN((size_t)54U, primeTable.size());
-		}
-	}
+		const unsigned int maxPrimeTableSize = 3511;
 
-	return pPrimeTable.release();
-}
+		std::auto_ptr<std::vector<word16> > pPrimeTable(new std::vector<word16>);
+		std::vector<word16> &primeTable = *pPrimeTable;
+		primeTable.reserve(maxPrimeTableSize);
+
+		primeTable.push_back(2);
+		unsigned int testEntriesEnd = 1;
+		
+		for (unsigned int p=3; p<=s_lastSmallPrime; p+=2)
+		{
+			unsigned int j;
+			for (j=1; j<testEntriesEnd; j++)
+				if (p%primeTable[j] == 0)
+					break;
+			if (j == testEntriesEnd)
+			{
+				primeTable.push_back(p);
+				testEntriesEnd = STDMIN((size_t)54U, primeTable.size());
+			}
+		}
+
+		return pPrimeTable.release();
+	}
+};
 
 const word16 * GetPrimeTable(unsigned int &size)
 {
-	std::vector<word16> &primeTable = StaticObject<std::vector<word16> >(&NewPrimeTable);
+	const std::vector<word16> &primeTable = Singleton<std::vector<word16>, NewPrimeTable>().Ref();
 	size = primeTable.size();
 	return &primeTable[0];
 }
@@ -218,13 +221,19 @@ bool IsStrongLucasProbablePrime(const Integer &n)
 	return false;
 }
 
+struct NewLastSmallPrimeSquared
+{
+	Integer * operator()() const
+	{
+		return new Integer(Integer(s_lastSmallPrime).Squared());
+	}
+};
+
 bool IsPrime(const Integer &p)
 {
-	static const Integer lastSmallPrimeSquared = Integer(s_lastSmallPrime).Squared();
-
 	if (p <= s_lastSmallPrime)
 		return IsSmallPrime(p);
-	else if (p <= lastSmallPrimeSquared)
+	else if (p <= Singleton<Integer, NewLastSmallPrimeSquared>().Ref())
 		return SmallDivisorsTest(p);
 	else
 		return SmallDivisorsTest(p) && IsStrongProbablePrime(p, 3) && IsStrongLucasProbablePrime(p);
