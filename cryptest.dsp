@@ -188,10 +188,6 @@ SOURCE=.\diamond.dat
 # End Source File
 # Begin Source File
 
-SOURCE=.\digest.dat
-# End Source File
-# Begin Source File
-
 SOURCE=.\dsa1024.dat
 # End Source File
 # Begin Source File

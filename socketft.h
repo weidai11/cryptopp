@@ -200,8 +200,8 @@ private:
 class SocketSink : public NetworkSink, public Socket
 {
 public:
-	SocketSink(socket_t s = INVALID_SOCKET, unsigned int maxBufferSize=0, bool autoFlush=false)
-		: NetworkSink(maxBufferSize, autoFlush), Socket(s), m_sender(*this) {}
+	SocketSink(socket_t s=INVALID_SOCKET, unsigned int maxBufferSize=0, unsigned int autoFlushBound=16*1024)
+		: NetworkSink(maxBufferSize, autoFlushBound), Socket(s), m_sender(*this) {}
 
 	void SendEof() {ShutDown(SD_SEND);}
 

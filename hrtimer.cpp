@@ -21,9 +21,10 @@ NAMESPACE_BEGIN(CryptoPP)
 word64 Timer::GetCurrentTimerValue()
 {
 #if defined(CRYPTOPP_WIN32_AVAILABLE)
-	FILETIME now;
-	GetSystemTimeAsFileTime(&now);
-	return now.dwLowDateTime + ((word64)now.dwHighDateTime << 32);
+	LARGE_INTEGER now;
+	if (!QueryPerformanceCounter(&now))
+		throw Exception(Exception::OTHER_ERROR, "Timer: QueryPerformanceCounter failed with error " + IntToString(GetLastError()));
+	return now.QuadPart;
 #elif defined(CRYPTOPP_UNIX_AVAILABLE)
 	timeval now;
 	gettimeofday(&now, NULL);
@@ -35,20 +36,33 @@ word64 Timer::GetCurrentTimerValue()
 #endif
 }
 
-unsigned long Timer::ConvertTo(word64 t, Unit unit)
+word64 Timer::TicksPerSecond()
 {
-	switch (unit)
+#if defined(CRYPTOPP_WIN32_AVAILABLE)
+	static LARGE_INTEGER freq;
+	if (freq.QuadPart == 0)
 	{
-	case SECONDS:
-		return (unsigned long)(t / (TicksPerMillisecond() * 1000));
-	case MILLISECONDS:
-		return (unsigned long)(t / TicksPerMillisecond());
-	case MICROSECONDS:
-		assert(TicksPerMillisecond() % 1000 == 0);
-		return (unsigned long)(t / (TicksPerMillisecond() / 1000));
+		if (!QueryPerformanceFrequency(&freq))
+			throw Exception(Exception::OTHER_ERROR, "Timer: QueryPerformanceFrequency failed with error " + IntToString(GetLastError()));
 	}
-	assert(false);
-	return 0;
+	return freq.QuadPart;
+#elif defined(CRYPTOPP_UNIX_AVAILABLE) || defined(macintosh)
+	return 1000000;
+#endif
+}
+
+word64 Timer::ConvertTo(word64 t, Unit unit)
+{
+	static unsigned long unitsPerSecondTable[] = {1, 1000, 1000*1000, 1000*1000*1000};
+
+	assert(unit < sizeof(unitsPerSecondTable) / sizeof(unitsPerSecondTable[0]));
+	unsigned long unitsPerSecond = unitsPerSecondTable[unit];
+	const word64 freq = TicksPerSecond();
+
+	if (freq % unitsPerSecond == 0)
+		return t / (freq / unitsPerSecond);
+	else
+		return word64((double)t * unitsPerSecond / freq);
 }
 
 void Timer::StartTimer()
@@ -57,7 +71,7 @@ void Timer::StartTimer()
 	m_started = true;
 }
 
-unsigned long Timer::ElapsedTime()
+word64 Timer::ElapsedTimeInWord64()
 {
 	if (m_stuckAtZero)
 		return 0;
@@ -68,6 +82,13 @@ unsigned long Timer::ElapsedTime()
 		StartTimer();
 		return 0;
 	}
+}
+
+unsigned long Timer::ElapsedTime()
+{
+	word64 elapsed = ElapsedTimeInWord64();
+	assert(elapsed <= ULONG_MAX);
+	return (unsigned long)elapsed;
 }
 
 NAMESPACE_END

@@ -234,9 +234,15 @@ void ByteQueue::LazyPut(const byte *inString, unsigned int size)
 {
 	if (m_lazyLength > 0)
 		FinalizeLazyPut();
-	m_lazyString = const_cast<byte *>(inString);
-	m_lazyLength = size;
-	m_lazyStringModifiable = false;
+
+	if (inString == m_tail->buf+m_tail->m_tail)
+		Put(inString, size);
+	else
+	{
+		m_lazyString = const_cast<byte *>(inString);
+		m_lazyLength = size;
+		m_lazyStringModifiable = false;
+	}
 }
 
 void ByteQueue::LazyPutModifiable(byte *inString, unsigned int size)
