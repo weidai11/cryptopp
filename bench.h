@@ -3,6 +3,8 @@
 
 #include "cryptlib.h"
 
-void BenchMarkAll(double t=1.0);
+extern const double CLOCK_TICKS_PER_SECOND;
+
+void BenchmarkAll(double t=1.0);
 
 #endif

@@ -388,6 +388,10 @@ SOURCE=.\bench.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\bench2.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\datatest.cpp
 # End Source File
 # Begin Source File
