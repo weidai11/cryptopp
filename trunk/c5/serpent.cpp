@@ -428,13 +428,12 @@ void Serpent::Base::UncheckedSetKey(CipherDir direction, const byte *userKey, un
 	word32 *k = m_key;
 	GetUserKey(LITTLE_ENDIAN_ORDER, k, 8, userKey, keylen);
 
-	word32	i,a,b,c,d,e;
-
 	if (keylen < 32)
 		k[keylen/4] |= word32(1) << ((keylen%4)*8);
 
 	k += 8;
 	word32 t = k[-1];
+	signed int i;
 	for (i = 0; i < 132; ++i)
 		k[i] = t = rotlFixed(k[i-8] ^ k[i-5] ^ k[i-3] ^ t ^ 0x9e3779b9 ^ i, 11);
 	k -= 20;
@@ -451,6 +450,7 @@ void Serpent::Base::UncheckedSetKey(CipherDir direction, const byte *userKey, un
 	k[(8-r)*4 + 6] = c;		\
 	k[(8-r)*4 + 7] = d;}	\
 
+	word32 a,b,c,d,e;
 	for (i=0; i<4; i++)
 	{
 		afterS2(LK); afterS2(S3); afterS3(SK);
