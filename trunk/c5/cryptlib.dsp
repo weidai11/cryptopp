@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Intermediate_Dir "release"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /GB /Gd /MT /W3 /GX /Zi /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "USE_PRECOMPILED_HEADERS" /Yu"pch.h" /FD /c
+# ADD CPP /nologo /MT /W3 /GX /Zi /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "USE_PRECOMPILED_HEADERS" /Yu"pch.h" /FD /c
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409
 BSC32=bscmake.exe
@@ -457,10 +457,6 @@ SOURCE=.\rw.cpp
 # Begin Source File
 
 SOURCE=.\safer.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\sapphire.cpp
 # End Source File
 # Begin Source File
 
@@ -917,10 +913,6 @@ SOURCE=.\rw.h
 # Begin Source File
 
 SOURCE=.\safer.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\sapphire.h
 # End Source File
 # Begin Source File
 
