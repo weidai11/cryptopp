@@ -252,10 +252,20 @@ void DoPowerUpSelfTest(const char *moduleFilename, const byte *expectedModuleSha
 					break;
 				case IMAGE_SCN_CNT_CODE | IMAGE_SCN_MEM_EXECUTE | IMAGE_SCN_MEM_READ:
 				case IMAGE_SCN_CNT_INITIALIZED_DATA | IMAGE_SCN_MEM_READ:
-					file.TransferTo(verifier, phs->PointerToRawData - currentFilePos);
-					verifier.Put((const byte *)h + phs->VirtualAddress, sectionSize);
+					const byte *memStart = (const byte *)h + phs->VirtualAddress;
+					DWORD fileStart = phs->PointerToRawData;
+					if (phs->VirtualAddress == phnt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IAT].VirtualAddress)
+					{
+						// read IAT, which is changed during DLL loading, from disk
+						DWORD iatSize = phnt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IAT].Size;
+						fileStart += iatSize;
+						memStart += iatSize;
+						sectionSize -= iatSize;
+					}
+					file.TransferTo(verifier, fileStart - currentFilePos);
+					verifier.Put(memStart, sectionSize);
 					file.Skip(sectionSize);
-					currentFilePos = phs->PointerToRawData + sectionSize;
+					currentFilePos = fileStart + sectionSize;
 				}
 				phs++;
 			}
