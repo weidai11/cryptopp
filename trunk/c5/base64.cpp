@@ -13,6 +13,8 @@ void Base64Encoder::IsolatedInitialize(const NameValuePairs &parameters)
 {
 	bool insertLineBreaks = parameters.GetValueWithDefault("InsertLineBreaks", true);
 	int maxLineLength = parameters.GetIntValueWithDefault("MaxLineLength", 72);
+
+	const char *lineBreak = insertLineBreaks ? "\n" : "";
 	
 	m_filter->Initialize(CombinedNameValuePairs(
 		parameters,
@@ -20,8 +22,8 @@ void Base64Encoder::IsolatedInitialize(const NameValuePairs &parameters)
 			("PaddingByte", s_padding)
 			("Log2Base", 6)
 			("GroupSize", insertLineBreaks ? maxLineLength : 0)
-			("Separator", ConstByteArrayParameter("\n"))
-			("Terminator", ConstByteArrayParameter("\n"))));
+			("Separator", ConstByteArrayParameter(lineBreak))
+			("Terminator", ConstByteArrayParameter(lineBreak))));
 }
 
 const int *Base64Decoder::GetDecodingLookupArray()
