@@ -927,14 +927,14 @@ public:
 	static word CRYPTOPP_CDECL Add(word *C, const word *A, const word *B, unsigned int N);
 	static word CRYPTOPP_CDECL Subtract(word *C, const word *A, const word *B, unsigned int N);
 #ifdef SSE2_INTRINSICS_AVAILABLE
-	static void Multiply4(word *C, const word *A, const word *B);
-	static void Multiply8(word *C, const word *A, const word *B);
-	static void Multiply8Bottom(word *C, const word *A, const word *B);
+	static void CRYPTOPP_CDECL Multiply4(word *C, const word *A, const word *B);
+	static void CRYPTOPP_CDECL Multiply8(word *C, const word *A, const word *B);
+	static void CRYPTOPP_CDECL Multiply8Bottom(word *C, const word *A, const word *B);
 #endif
 };
 
 typedef word (CRYPTOPP_CDECL * PAddSub)(word *C, const word *A, const word *B, unsigned int N);
-typedef void (* PMul)(word *C, const word *A, const word *B);
+typedef void (CRYPTOPP_CDECL * PMul)(word *C, const word *A, const word *B);
 
 static PAddSub s_pAdd, s_pSub;
 #ifdef SSE2_INTRINSICS_AVAILABLE
@@ -981,9 +981,9 @@ void DisableSSE2()
 class LowLevel : public PentiumOptimized
 {
 public:
-	inline static word CRYPTOPP_CDECL Add(word *C, const word *A, const word *B, unsigned int N)
+	inline static word Add(word *C, const word *A, const word *B, unsigned int N)
 		{return s_pAdd(C, A, B, N);}
-	inline static word CRYPTOPP_CDECL Subtract(word *C, const word *A, const word *B, unsigned int N)
+	inline static word Subtract(word *C, const word *A, const word *B, unsigned int N)
 		{return s_pSub(C, A, B, N);}
 	inline static void Square4(word *R, const word *A)
 		{Multiply4(R, A, A);}
