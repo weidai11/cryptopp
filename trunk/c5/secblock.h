@@ -218,11 +218,19 @@ public:
 		{return m_ptr;}
 	operator void *()
 		{return m_ptr;}
+#if defined(__GNUC__) && __GNUC__ < 3	// reduce warnings
+	operator const void *()
+		{return m_ptr;}
+#endif
 
 	operator const T *() const
 		{return m_ptr;}
 	operator T *()
 		{return m_ptr;}
+#if defined(__GNUC__) && __GNUC__ < 3	// reduce warnings
+	operator const T *()
+		{return m_ptr;}
+#endif
 
 	template <typename I>
 	T *operator +(I offset)
