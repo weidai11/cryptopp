@@ -134,14 +134,14 @@ public:
 		{ChannelInitialize(NULL_CHANNEL, parameters, propagation);}
 	bool Flush(bool hardFlush, int propagation=-1, bool blocking=true)
 		{return ChannelFlush(NULL_CHANNEL, hardFlush, propagation, blocking);}
-	void MessageSeriesEnd(int propagation)
-		{ChannelMessageSeriesEnd(NULL_CHANNEL, propagation);}
+	bool MessageSeriesEnd(int propagation=-1, bool blocking=true)
+		{return ChannelMessageSeriesEnd(NULL_CHANNEL, propagation, blocking);}
 	byte * CreatePutSpace(unsigned int &size)
 		{return ChannelCreatePutSpace(NULL_CHANNEL, size);}
 	unsigned int Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking)
 		{return ChannelPut2(NULL_CHANNEL, begin, length, messageEnd, blocking);}
-	unsigned int PutModifiable2(byte *begin, byte *end, int messageEnd, bool blocking)
-		{return ChannelPutModifiable2(NULL_CHANNEL, begin, end, messageEnd, blocking);}
+	unsigned int PutModifiable2(byte *inString, unsigned int length, int messageEnd, bool blocking)
+		{return ChannelPutModifiable2(NULL_CHANNEL, inString, length, messageEnd, blocking);}
 
 //	void ChannelMessageSeriesEnd(const std::string &channel, int propagation=-1)
 //		{PropagateMessageSeriesEnd(propagation, channel);}

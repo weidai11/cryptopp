@@ -36,9 +36,10 @@ NAMESPACE_BEGIN(CryptoPP)
 template <class POLICY_INTERFACE, class BASE = Empty>
 class AbstractPolicyHolder : public BASE
 {
-protected:
+public:
 	typedef POLICY_INTERFACE PolicyInterface;
 
+protected:
 	virtual const POLICY_INTERFACE & GetPolicy() const =0;
 	virtual POLICY_INTERFACE & AccessPolicy() =0;
 };
@@ -130,9 +131,9 @@ public:
 	bool IsRandomAccess() const {return GetPolicy().IsRandomAccess();}
 	void Seek(dword position);
 
-protected:
 	typedef typename BASE::PolicyInterface PolicyInterface;
 
+protected:
 	void UncheckedSetKey(const NameValuePairs &params, const byte *key, unsigned int length);
 
 	unsigned int GetBufferByteSize(const PolicyInterface &policy) const {return policy.GetBytesPerIteration() * policy.GetIterationsToBuffer();}
@@ -220,9 +221,9 @@ public:
 	bool IsRandomAccess() const {return false;}
 	bool IsSelfInverting() const {return false;}
 
-protected:
 	typedef typename BASE::PolicyInterface PolicyInterface;
 
+protected:
 	virtual void CombineMessageAndShiftRegister(byte *output, byte *reg, const byte *message, unsigned int length) =0;
 
 	void UncheckedSetKey(const NameValuePairs &params, const byte *key, unsigned int length);
@@ -262,7 +263,7 @@ public:
 		UncheckedSetKey(params, key, length);
 	}
 
-	Clonable * Clone() {return new SymmetricCipherFinalTemplate<BASE, INFO>(*this);}
+	Clonable * Clone() const {return static_cast<SymmetricCipher *>(new SymmetricCipherFinalTemplate<BASE, INFO>(*this));}
 };
 
 template <class S>
