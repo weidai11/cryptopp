@@ -16,7 +16,7 @@ class Integer;
 // abcd = group.Add(a, group.Add(b, group.Add(c,d));
 
 //! Abstract Group
-template <class T> class AbstractGroup
+template <class T> class CRYPTOPP_NO_VTABLE AbstractGroup
 {
 public:
 	typedef T Element;
@@ -41,7 +41,7 @@ public:
 };
 
 //! Abstract Ring
-template <class T> class AbstractRing : public AbstractGroup<T>
+template <class T> class CRYPTOPP_NO_VTABLE AbstractRing : public AbstractGroup<T>
 {
 public:
 	typedef T Element;
@@ -135,7 +135,7 @@ template <class Element, class Iterator>
 // ********************************************************
 
 //! Abstract Euclidean Domain
-template <class T> class AbstractEuclideanDomain : public AbstractRing<T>
+template <class T> class CRYPTOPP_NO_VTABLE AbstractEuclideanDomain : public AbstractRing<T>
 {
 public:
 	typedef T Element;

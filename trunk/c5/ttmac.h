@@ -10,7 +10,7 @@ NAMESPACE_BEGIN(CryptoPP)
 //! <a href="http://www.eskimo.com/~weidai/scan-mirror/mac.html#Two-Track-MAC">Two-Track-MAC</a>
 /*! 160 Bit MAC with 160 Bit Key */
 
-class TTMAC_Base : public FixedKeyLength<20>, public IteratedHash<word32, LittleEndian, 64, MessageAuthenticationCode>
+class CRYPTOPP_NO_VTABLE TTMAC_Base : public FixedKeyLength<20>, public IteratedHash<word32, LittleEndian, 64, MessageAuthenticationCode>
 {
 public:
 	static std::string StaticAlgorithmName() {return std::string("Two-Track-MAC");}

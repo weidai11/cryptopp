@@ -7,7 +7,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 //! a Source class that can pump from a device for a specified amount of time.
-class NonblockingSource : public AutoSignaling<Source>
+class CRYPTOPP_NO_VTABLE NonblockingSource : public AutoSignaling<Source>
 {
 public:
 	NonblockingSource(BufferedTransformation *attachment)
@@ -40,7 +40,7 @@ private:
 };
 
 //! Network Receiver
-class NetworkReceiver : public Waitable
+class CRYPTOPP_NO_VTABLE NetworkReceiver : public Waitable
 {
 public:
 	virtual bool MustWaitToReceive() {return false;}
@@ -51,7 +51,7 @@ public:
 };
 
 //! a Sink class that queues input and can flush to a device for a specified amount of time.
-class NonblockingSink : public Sink
+class CRYPTOPP_NO_VTABLE NonblockingSink : public Sink
 {
 public:
 	bool IsolatedFlush(bool hardFlush, bool blocking);
@@ -76,7 +76,7 @@ public:
 };
 
 //! Network Sender
-class NetworkSender : public Waitable
+class CRYPTOPP_NO_VTABLE NetworkSender : public Waitable
 {
 public:
 	virtual bool MustWaitToSend() {return false;}
@@ -89,7 +89,7 @@ public:
 #ifdef HIGHRES_TIMER_AVAILABLE
 
 //! Network Source
-class NetworkSource : public NonblockingSource
+class CRYPTOPP_NO_VTABLE NetworkSource : public NonblockingSource
 {
 public:
 	NetworkSource(BufferedTransformation *attachment);
@@ -113,7 +113,7 @@ private:
 };
 
 //! Network Sink
-class NetworkSink : public NonblockingSink
+class CRYPTOPP_NO_VTABLE NetworkSink : public NonblockingSink
 {
 public:
 	NetworkSink(unsigned int maxBufferSize, bool autoFlush)

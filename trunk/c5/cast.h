@@ -24,7 +24,7 @@ struct CAST128_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 5, 
 /// <a href="http://www.weidai.com/scan-mirror/cs.html#CAST-128">CAST-128</a>
 class CAST128 : public CAST128_Info, public BlockCipherDocumentation
 {
-	class Base : public CAST, public BlockCipherBaseTemplate<CAST128_Info>
+	class CRYPTOPP_NO_VTABLE Base : public CAST, public BlockCipherBaseTemplate<CAST128_Info>
 	{
 	public:
 		void UncheckedSetKey(CipherDir direction, const byte *userKey, unsigned int length);
@@ -34,13 +34,13 @@ class CAST128 : public CAST128_Info, public BlockCipherDocumentation
 		FixedSizeSecBlock<word32, 32> K;
 	};
 
-	class Enc : public Base
+	class CRYPTOPP_NO_VTABLE Enc : public Base
 	{
 	public:
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
 	};
 
-	class Dec : public Base
+	class CRYPTOPP_NO_VTABLE Dec : public Base
 	{
 	public:
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
@@ -60,7 +60,7 @@ struct CAST256_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 16
 //! <a href="http://www.weidai.com/scan-mirror/cs.html#CAST-256">CAST-256</a>
 class CAST256 : public CAST256_Info, public BlockCipherDocumentation
 {
-	class Base : public CAST, public BlockCipherBaseTemplate<CAST256_Info>
+	class CRYPTOPP_NO_VTABLE Base : public CAST, public BlockCipherBaseTemplate<CAST256_Info>
 	{
 	public:
 		void UncheckedSetKey(CipherDir direction, const byte *userKey, unsigned int length = 8);

@@ -10,7 +10,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 /// base class, do not use directly
 template <class B>
-class Panama
+class CRYPTOPP_NO_VTABLE Panama
 {
 public:
 	void Reset();
@@ -42,7 +42,7 @@ protected:
 
 //! .
 template <class B = LittleEndian>
-class PanamaMAC_Base : public PanamaHash<B>, public VariableKeyLength<32, 0, UINT_MAX>, public MessageAuthenticationCode
+class CRYPTOPP_NO_VTABLE PanamaMAC_Base : public PanamaHash<B>, public VariableKeyLength<32, 0, UINT_MAX>, public MessageAuthenticationCode
 {
 public:
 	void UncheckedSetKey(const byte *userKey, unsigned int keylength)

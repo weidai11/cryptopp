@@ -18,7 +18,7 @@ struct RC6_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 0, 255
 /// <a href="http://www.weidai.com/scan-mirror/cs.html#RC6">RC6</a>
 class RC6 : public RC6_Info, public BlockCipherDocumentation
 {
-	class Base : public BlockCipherBaseTemplate<RC6_Info>
+	class CRYPTOPP_NO_VTABLE Base : public BlockCipherBaseTemplate<RC6_Info>
 	{
 	public:
 		void UncheckedSetKey(CipherDir direction, const byte *userKey, unsigned int length, unsigned int rounds);
@@ -28,13 +28,13 @@ class RC6 : public RC6_Info, public BlockCipherDocumentation
 		SecBlock<RC6_WORD> sTable;  // expanded key table
 	};
 
-	class Enc : public Base
+	class CRYPTOPP_NO_VTABLE Enc : public Base
 	{
 	public:
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
 	};
 
-	class Dec : public Base
+	class CRYPTOPP_NO_VTABLE Dec : public Base
 	{
 	public:
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;

@@ -6,7 +6,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 template <class T>
-class DMAC_Base : public SameKeyLengthAs<T>, public MessageAuthenticationCode
+class CRYPTOPP_NO_VTABLE DMAC_Base : public SameKeyLengthAs<T>, public MessageAuthenticationCode
 {
 public:
 	static std::string StaticAlgorithmName() {return std::string("DMAC(") + T::StaticAlgorithmName() + ")";}

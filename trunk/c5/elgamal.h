@@ -6,7 +6,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-class ElGamalBase : public DL_KeyAgreementAlgorithm_DH<Integer, NoCofactorMultiplication>, 
+class CRYPTOPP_NO_VTABLE ElGamalBase : public DL_KeyAgreementAlgorithm_DH<Integer, NoCofactorMultiplication>, 
 					public DL_KeyDerivationAlgorithm<Integer>, 
 					public DL_SymmetricEncryptionAlgorithm
 {
@@ -75,7 +75,7 @@ public:
 };
 
 template <class BASE, class SCHEME_OPTIONS, class KEY>
-class ElGamalObjectImpl : public DL_ObjectImplBase<BASE, SCHEME_OPTIONS, KEY>, public ElGamalBase
+class CRYPTOPP_NO_VTABLE ElGamalObjectImpl : public DL_ObjectImplBase<BASE, SCHEME_OPTIONS, KEY>, public ElGamalBase
 {
 public:
 	unsigned int FixedMaxPlaintextLength() const {return MaxPlaintextLength(FixedCiphertextLength());}
@@ -106,14 +106,14 @@ struct ElGamal
 
 	static const char * StaticAlgorithmName() {return "ElgamalEnc/Crypto++Padding";}
 
-	class EncryptorImpl : public ElGamalObjectImpl<DL_EncryptorBase<Integer, PK_FixedLengthEncryptor>,  SchemeOptions, SchemeOptions::PublicKey>, public PublicKeyCopier<SchemeOptions>
+	class CRYPTOPP_NO_VTABLE EncryptorImpl : public ElGamalObjectImpl<DL_EncryptorBase<Integer, PK_FixedLengthEncryptor>,  SchemeOptions, SchemeOptions::PublicKey>, public PublicKeyCopier<SchemeOptions>
 	{
 	public:
 		void CopyKeyInto(SchemeOptions::PublicKey &key) const
 			{key = GetKey();}
 	};
 
-	class DecryptorImpl : public ElGamalObjectImpl<DL_DecryptorBase<Integer, PK_FixedLengthDecryptor>, SchemeOptions, SchemeOptions::PrivateKey>, public PrivateKeyCopier<SchemeOptions>
+	class CRYPTOPP_NO_VTABLE DecryptorImpl : public ElGamalObjectImpl<DL_DecryptorBase<Integer, PK_FixedLengthDecryptor>, SchemeOptions, SchemeOptions::PrivateKey>, public PrivateKeyCopier<SchemeOptions>
 	{
 	public:
 		void CopyKeyInto(SchemeOptions::PublicKey &key) const

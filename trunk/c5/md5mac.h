@@ -10,7 +10,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 //! .
-class MD5MAC_Base : public FixedKeyLength<16>, public IteratedHash<word32, LittleEndian, 64, MessageAuthenticationCode>
+class CRYPTOPP_NO_VTABLE MD5MAC_Base : public FixedKeyLength<16>, public IteratedHash<word32, LittleEndian, 64, MessageAuthenticationCode>
 {
 public:
 	static std::string StaticAlgorithmName() {return "MD5-MAC";}

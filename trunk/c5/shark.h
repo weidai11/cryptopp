@@ -21,7 +21,7 @@ struct SHARK_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 1, 16
 /// <a href="http://www.weidai.com/scan-mirror/cs.html#SHARK-E">SHARK-E</a>
 class SHARK : public SHARK_Info, public BlockCipherDocumentation
 {
-	class Base : public BlockCipherBaseTemplate<SHARK_Info>
+	class CRYPTOPP_NO_VTABLE Base : public BlockCipherBaseTemplate<SHARK_Info>
 	{
 	public:
 		void UncheckedSetKey(CipherDir dir, const byte *key, unsigned int length, unsigned int rounds);
@@ -31,7 +31,7 @@ class SHARK : public SHARK_Info, public BlockCipherDocumentation
 		SecBlock<word64> m_roundKeys;
 	};
 
-	class Enc : public Base
+	class CRYPTOPP_NO_VTABLE Enc : public Base
 	{
 	public:
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
@@ -44,7 +44,7 @@ class SHARK : public SHARK_Info, public BlockCipherDocumentation
 		static const word64 cbox[8][256];
 	};
 
-	class Dec : public Base
+	class CRYPTOPP_NO_VTABLE Dec : public Base
 	{
 	public:
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;

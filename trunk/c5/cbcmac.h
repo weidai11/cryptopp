@@ -7,7 +7,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 template <class T>
-class CBC_MAC_Base : public SameKeyLengthAs<T>, public MessageAuthenticationCode
+class CRYPTOPP_NO_VTABLE CBC_MAC_Base : public SameKeyLengthAs<T>, public MessageAuthenticationCode
 {
 public:
 	static std::string StaticAlgorithmName() {return std::string("CBC-MAC(") + T::StaticAlgorithmName() + ")";}

@@ -18,7 +18,7 @@ struct RC2_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 1, 128>
 /// <a href="http://www.weidai.com/scan-mirror/cs.html#RC2">RC2</a>
 class RC2 : public RC2_Info, public BlockCipherDocumentation
 {
-	class Base : public BlockCipherBaseTemplate<RC2_Info>
+	class CRYPTOPP_NO_VTABLE Base : public BlockCipherBaseTemplate<RC2_Info>
 	{
 	public:
 		void UncheckedSetKey(CipherDir direction, const byte *key, unsigned int length, unsigned int effectiveKeyLength);
@@ -36,13 +36,13 @@ class RC2 : public RC2_Info, public BlockCipherDocumentation
 		FixedSizeSecBlock<word16, 64> K;  // expanded key table
 	};
 
-	class Enc : public Base
+	class CRYPTOPP_NO_VTABLE Enc : public Base
 	{
 	public:
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
 	};
 
-	class Dec : public Base
+	class CRYPTOPP_NO_VTABLE Dec : public Base
 	{
 	public:
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;

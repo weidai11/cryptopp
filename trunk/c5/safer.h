@@ -13,7 +13,7 @@ NAMESPACE_BEGIN(CryptoPP)
 class SAFER
 {
 public:
-	class Base : public BlockCipher
+	class CRYPTOPP_NO_VTABLE Base : public BlockCipher
 	{
 	public:
 		unsigned int GetAlignment() const {return 1;}
@@ -25,13 +25,13 @@ public:
 		static const byte log_tab[256];
 	};
 
-	class Enc : public Base
+	class CRYPTOPP_NO_VTABLE Enc : public Base
 	{
 	public:
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
 	};
 
-	class Dec : public Base
+	class CRYPTOPP_NO_VTABLE Dec : public Base
 	{
 	public:
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
@@ -47,13 +47,13 @@ struct SAFER_K_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 8, 
 /// <a href="http://www.weidai.com/scan-mirror/cs.html#SAFER-K">SAFER-K</a>
 class SAFER_K : public SAFER_K_Info, public SAFER, public BlockCipherDocumentation
 {
-	class Enc : public BlockCipherBaseTemplate<SAFER_K_Info, SAFER::Enc>
+	class CRYPTOPP_NO_VTABLE Enc : public BlockCipherBaseTemplate<SAFER_K_Info, SAFER::Enc>
 	{
 	public:
 		Enc() {strengthened = false;}
 	};
 
-	class Dec : public BlockCipherBaseTemplate<SAFER_K_Info, SAFER::Dec>
+	class CRYPTOPP_NO_VTABLE Dec : public BlockCipherBaseTemplate<SAFER_K_Info, SAFER::Dec>
 	{
 	public:
 		Dec() {strengthened = false;}
@@ -73,13 +73,13 @@ struct SAFER_SK_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 8,
 /// <a href="http://www.weidai.com/scan-mirror/cs.html#SAFER-SK">SAFER-SK</a>
 class SAFER_SK : public SAFER_SK_Info, public SAFER, public BlockCipherDocumentation
 {
-	class Enc : public BlockCipherBaseTemplate<SAFER_SK_Info, SAFER::Enc>
+	class CRYPTOPP_NO_VTABLE Enc : public BlockCipherBaseTemplate<SAFER_SK_Info, SAFER::Enc>
 	{
 	public:
 		Enc() {strengthened = true;}
 	};
 
-	class Dec : public BlockCipherBaseTemplate<SAFER_SK_Info, SAFER::Dec>
+	class CRYPTOPP_NO_VTABLE Dec : public BlockCipherBaseTemplate<SAFER_SK_Info, SAFER::Dec>
 	{
 	public:
 		Dec() {strengthened = true;}
