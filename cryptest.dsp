@@ -381,8 +381,8 @@ SOURCE=.\adhoc.cpp.proto
 InputPath=.\adhoc.cpp.proto
 
 "adhoc.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	if exist adhoc.cpp touch adhoc.cpp 
-	if not exist adhoc.cpp copy $(InputPath) adhoc.cpp 
+	if exist adhoc.cpp echo: >> adhoc.cpp 
+	if not exist adhoc.cpp copy "$(InputPath)" adhoc.cpp 
 	
 # End Custom Build
 
@@ -392,8 +392,8 @@ InputPath=.\adhoc.cpp.proto
 InputPath=.\adhoc.cpp.proto
 
 "adhoc.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	if exist adhoc.cpp touch adhoc.cpp 
-	if not exist adhoc.cpp copy $(InputPath) adhoc.cpp 
+	if exist adhoc.cpp echo: >> adhoc.cpp 
+	if not exist adhoc.cpp copy "$(InputPath)" adhoc.cpp 
 	
 # End Custom Build
 
@@ -403,8 +403,8 @@ InputPath=.\adhoc.cpp.proto
 InputPath=.\adhoc.cpp.proto
 
 "adhoc.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	if exist adhoc.cpp touch adhoc.cpp 
-	if not exist adhoc.cpp copy $(InputPath) adhoc.cpp 
+	if exist adhoc.cpp echo: >> adhoc.cpp 
+	if not exist adhoc.cpp copy "$(InputPath)" adhoc.cpp 
 	
 # End Custom Build
 
@@ -414,8 +414,8 @@ InputPath=.\adhoc.cpp.proto
 InputPath=.\adhoc.cpp.proto
 
 "adhoc.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	if exist adhoc.cpp touch adhoc.cpp 
-	if not exist adhoc.cpp copy $(InputPath) adhoc.cpp 
+	if exist adhoc.cpp echo: >> adhoc.cpp 
+	if not exist adhoc.cpp copy "$(InputPath)" adhoc.cpp 
 	
 # End Custom Build
 
