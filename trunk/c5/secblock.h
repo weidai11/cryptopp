@@ -32,7 +32,14 @@ public:
 	const_pointer address(const_reference r) const {return (&r); }
 	void construct(pointer p, const T& val) {new (p) T(val);}
 	void destroy(pointer p) {p->~T();}
-	size_type max_size() const {return size_type(-1)/sizeof(T);}
+	size_type max_size() const {return ~size_type(0)/sizeof(T);}	// switch to std::numeric_limits<T>::max later
+
+protected:
+	static void CheckSize(size_t n)
+	{
+		if (n > ~size_t(0) / sizeof(T))
+			throw InvalidArgument("AllocatorBase: requested size would cause integer overflow");
+	}
 };
 
 #define CRYPTOPP_INHERIT_ALLOCATOR_TYPES	\
@@ -72,10 +79,10 @@ public:
 
 	pointer allocate(size_type n, const void * = NULL)
 	{
-		if (n > 0)
-			return new T[n];
-		else
+		CheckSize(n);
+		if (n == 0)
 			return NULL;
+		return new T[n];
 	}
 
 	void deallocate(void *p, size_type n)
