@@ -28,7 +28,7 @@ struct CipherModeDocumentation : public SymmetricCipherDocumentation
 {
 };
 
-class CipherModeBase : public SymmetricCipher
+class CRYPTOPP_NO_VTABLE CipherModeBase : public SymmetricCipher
 {
 public:
 	unsigned int MinKeyLength() const {return m_cipher->MinKeyLength();}
@@ -63,7 +63,7 @@ protected:
 };
 
 template <class POLICY_INTERFACE>
-class ModePolicyCommonTemplate : public CipherModeBase, public POLICY_INTERFACE
+class CRYPTOPP_NO_VTABLE ModePolicyCommonTemplate : public CipherModeBase, public POLICY_INTERFACE
 {
 	unsigned int GetAlignment() const {return m_cipher->BlockAlignment();}
 	void CipherSetKey(const NameValuePairs &params, const byte *key, unsigned int length)
@@ -75,7 +75,7 @@ class ModePolicyCommonTemplate : public CipherModeBase, public POLICY_INTERFACE
 	}
 };
 
-class CFB_ModePolicy : public ModePolicyCommonTemplate<CFB_CipherAbstractPolicy>
+class CRYPTOPP_NO_VTABLE CFB_ModePolicy : public ModePolicyCommonTemplate<CFB_CipherAbstractPolicy>
 {
 public:
 	IV_Requirement IVRequirement() const {return RANDOM_IV;}
@@ -118,7 +118,7 @@ inline void CopyOrZero(void *dest, const void *src, size_t s)
 		memset(dest, 0, s);
 }
 
-class OFB_ModePolicy : public ModePolicyCommonTemplate<AdditiveCipherAbstractPolicy>
+class CRYPTOPP_NO_VTABLE OFB_ModePolicy : public ModePolicyCommonTemplate<AdditiveCipherAbstractPolicy>
 {
 	unsigned int GetBytesPerIteration() const {return BlockSize();}
 	unsigned int GetIterationsToBuffer() const {return 1;}
@@ -135,7 +135,7 @@ class OFB_ModePolicy : public ModePolicyCommonTemplate<AdditiveCipherAbstractPol
 	IV_Requirement IVRequirement() const {return STRUCTURED_IV;}
 };
 
-class CTR_ModePolicy : public ModePolicyCommonTemplate<AdditiveCipherAbstractPolicy>
+class CRYPTOPP_NO_VTABLE CTR_ModePolicy : public ModePolicyCommonTemplate<AdditiveCipherAbstractPolicy>
 {
 	unsigned int GetBytesPerIteration() const {return BlockSize();}
 	unsigned int GetIterationsToBuffer() const {return m_cipher->OptimalNumberOfParallelBlocks();}
@@ -153,7 +153,7 @@ class CTR_ModePolicy : public ModePolicyCommonTemplate<AdditiveCipherAbstractPol
 	SecByteBlock m_counterArray;
 };
 
-class BlockOrientedCipherModeBase : public CipherModeBase
+class CRYPTOPP_NO_VTABLE BlockOrientedCipherModeBase : public CipherModeBase
 {
 public:
 	void UncheckedSetKey(const NameValuePairs &params, const byte *key, unsigned int length, const byte *iv);
@@ -176,7 +176,7 @@ protected:
 	SecByteBlock m_buffer;
 };
 
-class ECB_OneWay : public BlockOrientedCipherModeBase
+class CRYPTOPP_NO_VTABLE ECB_OneWay : public BlockOrientedCipherModeBase
 {
 public:
 	IV_Requirement IVRequirement() const {return NOT_RESYNCHRONIZABLE;}
@@ -185,7 +185,7 @@ public:
 		{m_cipher->ProcessAndXorMultipleBlocks(inString, NULL, outString, numberOfBlocks);}
 };
 
-class CBC_ModeBase : public BlockOrientedCipherModeBase
+class CRYPTOPP_NO_VTABLE CBC_ModeBase : public BlockOrientedCipherModeBase
 {
 public:
 	IV_Requirement IVRequirement() const {return UNPREDICTABLE_RANDOM_IV;}
@@ -193,13 +193,13 @@ public:
 	unsigned int MinLastBlockSize() const {return 0;}
 };
 
-class CBC_Encryption : public CBC_ModeBase
+class CRYPTOPP_NO_VTABLE CBC_Encryption : public CBC_ModeBase
 {
 public:
 	void ProcessBlocks(byte *outString, const byte *inString, unsigned int numberOfBlocks);
 };
 
-class CBC_CTS_Encryption : public CBC_Encryption
+class CRYPTOPP_NO_VTABLE CBC_CTS_Encryption : public CBC_Encryption
 {
 public:
 	void SetStolenIV(byte *iv) {m_stolenIV = iv;}
@@ -216,7 +216,7 @@ protected:
 	byte *m_stolenIV;
 };
 
-class CBC_Decryption : public CBC_ModeBase
+class CRYPTOPP_NO_VTABLE CBC_Decryption : public CBC_ModeBase
 {
 public:
 	void ProcessBlocks(byte *outString, const byte *inString, unsigned int numberOfBlocks);
@@ -230,7 +230,7 @@ protected:
 	SecByteBlock m_temp;
 };
 
-class CBC_CTS_Decryption : public CBC_Decryption
+class CRYPTOPP_NO_VTABLE CBC_CTS_Decryption : public CBC_Decryption
 {
 public:
 	unsigned int MinLastBlockSize() const {return BlockSize()+1;}

@@ -9,7 +9,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 template <class T>
-class HMAC_Base : public VariableKeyLength<16, 0, UINT_MAX>, public MessageAuthenticationCode
+class CRYPTOPP_NO_VTABLE HMAC_Base : public VariableKeyLength<16, 0, UINT_MAX>, public MessageAuthenticationCode
 {
 public:
 	static std::string StaticAlgorithmName() {return std::string("HMAC(") + T::StaticAlgorithmName() + ")";}

@@ -23,7 +23,7 @@ struct LR_Info : public VariableKeyLength<16, 0, 2*(UINT_MAX/2), 2>, public Fixe
 template <class T>
 class LR : public LR_Info<T>, public BlockCipherDocumentation
 {
-	class Base : public BlockCipherBaseTemplate<LR_Info<T> >
+	class CRYPTOPP_NO_VTABLE Base : public BlockCipherBaseTemplate<LR_Info<T> >
 	{
 	public:
 		// VC60 workaround: have to define these functions within class definition
@@ -46,7 +46,7 @@ class LR : public LR_Info<T>, public BlockCipherDocumentation
 		mutable SecByteBlock buffer, digest;
 	};
 
-	class Enc : public Base
+	class CRYPTOPP_NO_VTABLE Enc : public Base
 	{
 	public:
 
@@ -88,7 +88,7 @@ class LR : public LR_Info<T>, public BlockCipherDocumentation
 		}
 	};
 
-	class Dec : public Base
+	class CRYPTOPP_NO_VTABLE Dec : public Base
 	{
 	public:
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const

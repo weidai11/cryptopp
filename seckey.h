@@ -139,7 +139,7 @@ static inline void CheckedSetKey(T *obj, CipherDir dir, const byte *key, unsigne
 
 //! .
 template <class BASE, class INFO = BASE>
-class SimpleKeyingInterfaceImpl : public BASE
+class CRYPTOPP_NO_VTABLE SimpleKeyingInterfaceImpl : public BASE
 {
 public:
 	unsigned int MinKeyLength() const {return INFO::MIN_KEYLENGTH;}
@@ -153,7 +153,7 @@ protected:
 };
 
 template <class INFO, class INTERFACE = BlockCipher>
-class BlockCipherBaseTemplate : public AlgorithmImpl<SimpleKeyingInterfaceImpl<TwoBases<INFO, INTERFACE> > >
+class CRYPTOPP_NO_VTABLE BlockCipherBaseTemplate : public AlgorithmImpl<SimpleKeyingInterfaceImpl<TwoBases<INFO, INTERFACE> > >
 {
 public:
 	unsigned int BlockSize() const {return BLOCKSIZE;}

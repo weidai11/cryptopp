@@ -18,7 +18,7 @@ struct TEA_Info : public FixedBlockSize<8>, public FixedKeyLength<16>, public Fi
 /// <a href="http://www.weidai.com/scan-mirror/cs.html#TEA">TEA</a>
 class TEA : public TEA_Info, public BlockCipherDocumentation
 {
-	class Base : public BlockCipherBaseTemplate<TEA_Info>
+	class CRYPTOPP_NO_VTABLE Base : public BlockCipherBaseTemplate<TEA_Info>
 	{
 	public:
 		void UncheckedSetKey(CipherDir direction, const byte *userKey, unsigned int length);
@@ -28,13 +28,13 @@ class TEA : public TEA_Info, public BlockCipherDocumentation
 		FixedSizeSecBlock<word32, 4> k;
 	};
 
-	class Enc : public Base
+	class CRYPTOPP_NO_VTABLE Enc : public Base
 	{
 	public:
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
 	};
 
-	class Dec : public Base
+	class CRYPTOPP_NO_VTABLE Dec : public Base
 	{
 	public:
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;

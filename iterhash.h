@@ -8,7 +8,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 template <class T, class BASE>
-class IteratedHashBase : public BASE
+class CRYPTOPP_NO_VTABLE IteratedHashBase : public BASE
 {
 public:
 	typedef T HashWordType;
@@ -40,7 +40,7 @@ private:
 
 //! .
 template <class T, class B, class BASE>
-class IteratedHashBase2 : public IteratedHashBase<T, BASE>
+class CRYPTOPP_NO_VTABLE IteratedHashBase2 : public IteratedHashBase<T, BASE>
 {
 public:
 	IteratedHashBase2(unsigned int blockSize, unsigned int digestSize)
@@ -64,7 +64,7 @@ protected:
 
 //! .
 template <class T, class B, unsigned int S, class BASE = HashTransformation>
-class IteratedHash : public IteratedHashBase2<T, B, BASE>
+class CRYPTOPP_NO_VTABLE IteratedHash : public IteratedHashBase2<T, B, BASE>
 {
 public:
 	enum {BLOCKSIZE = S};
@@ -78,7 +78,7 @@ protected:
 };
 
 template <class T, class B, unsigned int S, class M>
-class IteratedHashWithStaticTransform : public IteratedHash<T, B, S>
+class CRYPTOPP_NO_VTABLE IteratedHashWithStaticTransform : public IteratedHash<T, B, S>
 {
 protected:
 	IteratedHashWithStaticTransform(unsigned int digestSize) : IteratedHash<T, B, S>(digestSize) {}

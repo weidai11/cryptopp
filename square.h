@@ -17,7 +17,7 @@ struct Square_Info : public FixedBlockSize<16>, public FixedKeyLength<16>, Fixed
 /// <a href="http://www.weidai.com/scan-mirror/cs.html#Square">Square</a>
 class Square : public Square_Info, public BlockCipherDocumentation
 {
-	class Base : public BlockCipherBaseTemplate<Square_Info>
+	class CRYPTOPP_NO_VTABLE Base : public BlockCipherBaseTemplate<Square_Info>
 	{
 	public:
 		void UncheckedSetKey(CipherDir direction, const byte *userKey, unsigned int length);
@@ -26,7 +26,7 @@ class Square : public Square_Info, public BlockCipherDocumentation
 		FixedSizeSecBlock<word32[4], ROUNDS+1> roundkeys;
 	};
 
-	class Enc : public Base
+	class CRYPTOPP_NO_VTABLE Enc : public Base
 	{
 	public:
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
@@ -35,7 +35,7 @@ class Square : public Square_Info, public BlockCipherDocumentation
 		static const word32 Te[4][256];
 	};
 
-	class Dec : public Base
+	class CRYPTOPP_NO_VTABLE Dec : public Base
 	{
 	public:
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;

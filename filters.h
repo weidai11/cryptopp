@@ -11,7 +11,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 /// provides an implementation of BufferedTransformation's attachment interface
-class Filter : public BufferedTransformation, public NotCopyable
+class CRYPTOPP_NO_VTABLE Filter : public BufferedTransformation, public NotCopyable
 {
 public:
 	Filter(BufferedTransformation *attachment);
@@ -621,7 +621,7 @@ private:
 };
 
 //! A Filter that pumps data into its attachment as input
-class Source : public InputRejecting<Filter>
+class CRYPTOPP_NO_VTABLE Source : public InputRejecting<Filter>
 {
 public:
 	Source(BufferedTransformation *attachment)

@@ -18,7 +18,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 //! .
-class DL_GroupParameters_IntegerBased : public DL_GroupParameters<Integer>, public ASN1CryptoMaterial
+class CRYPTOPP_NO_VTABLE DL_GroupParameters_IntegerBased : public DL_GroupParameters<Integer>, public ASN1CryptoMaterial
 {
 	typedef DL_GroupParameters_IntegerBased ThisClass;
 	
@@ -78,7 +78,7 @@ private:
 
 //! .
 template <class GROUP_PRECOMP, class BASE_PRECOMP = DL_FixedBasePrecomputationImpl<CPP_TYPENAME GROUP_PRECOMP::Element> >
-class DL_GroupParameters_IntegerBasedImpl : public DL_GroupParametersImpl<GROUP_PRECOMP, BASE_PRECOMP, DL_GroupParameters_IntegerBased>
+class CRYPTOPP_NO_VTABLE DL_GroupParameters_IntegerBasedImpl : public DL_GroupParametersImpl<GROUP_PRECOMP, BASE_PRECOMP, DL_GroupParameters_IntegerBased>
 {
 	typedef DL_GroupParameters_IntegerBasedImpl<GROUP_PRECOMP, BASE_PRECOMP> ThisClass;
 

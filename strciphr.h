@@ -35,7 +35,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 template <class POLICY_INTERFACE, class BASE = Empty>
-class AbstractPolicyHolder : public BASE
+class CRYPTOPP_NO_VTABLE AbstractPolicyHolder : public BASE
 {
 public:
 	typedef POLICY_INTERFACE PolicyInterface;
@@ -55,7 +55,7 @@ protected:
 
 enum KeystreamOperation {WRITE_KEYSTREAM, XOR_KEYSTREAM, XOR_KEYSTREAM_INPLACE};
 
-struct AdditiveCipherAbstractPolicy
+struct CRYPTOPP_NO_VTABLE AdditiveCipherAbstractPolicy
 {
 	virtual unsigned int GetAlignment() const =0;
 	virtual unsigned int GetBytesPerIteration() const =0;
@@ -70,7 +70,7 @@ struct AdditiveCipherAbstractPolicy
 };
 
 template <typename WT, unsigned int W, unsigned int X = 1, class BASE = AdditiveCipherAbstractPolicy>
-struct AdditiveCipherConcretePolicy : public BASE
+struct CRYPTOPP_NO_VTABLE AdditiveCipherConcretePolicy : public BASE
 {
 	typedef WT WordType;
 
@@ -118,7 +118,7 @@ struct AdditiveCipherConcretePolicy : public BASE
 };
 
 template <class BASE = AbstractPolicyHolder<AdditiveCipherAbstractPolicy, TwoBases<SymmetricCipher, RandomNumberGenerator> > >
-class AdditiveCipherTemplate : public BASE
+class CRYPTOPP_NO_VTABLE AdditiveCipherTemplate : public BASE
 {
 public:
     byte GenerateByte();
@@ -146,7 +146,7 @@ protected:
 	unsigned int m_leftOver;
 };
 
-struct CFB_CipherAbstractPolicy
+struct CRYPTOPP_NO_VTABLE CFB_CipherAbstractPolicy
 {
 	virtual unsigned int GetAlignment() const =0;
 	virtual unsigned int GetBytesPerIteration() const =0;
@@ -159,7 +159,7 @@ struct CFB_CipherAbstractPolicy
 };
 
 template <typename WT, unsigned int W, class BASE = CFB_CipherAbstractPolicy>
-struct CFB_CipherConcretePolicy : public BASE
+struct CRYPTOPP_NO_VTABLE CFB_CipherConcretePolicy : public BASE
 {
 	typedef WT WordType;
 
@@ -211,7 +211,7 @@ struct CFB_CipherConcretePolicy : public BASE
 };
 
 template <class BASE>
-class CFB_CipherTemplate : public BASE
+class CRYPTOPP_NO_VTABLE CFB_CipherTemplate : public BASE
 {
 public:
 	void ProcessData(byte *outString, const byte *inString, unsigned int length);
@@ -233,14 +233,14 @@ protected:
 };
 
 template <class BASE = AbstractPolicyHolder<CFB_CipherAbstractPolicy, SymmetricCipher> >
-class CFB_EncryptionTemplate : public CFB_CipherTemplate<BASE>
+class CRYPTOPP_NO_VTABLE CFB_EncryptionTemplate : public CFB_CipherTemplate<BASE>
 {
 	bool IsForwardTransformation() const {return true;}
 	void CombineMessageAndShiftRegister(byte *output, byte *reg, const byte *message, unsigned int length);
 };
 
 template <class BASE = AbstractPolicyHolder<CFB_CipherAbstractPolicy, SymmetricCipher> >
-class CFB_DecryptionTemplate : public CFB_CipherTemplate<BASE>
+class CRYPTOPP_NO_VTABLE CFB_DecryptionTemplate : public CFB_CipherTemplate<BASE>
 {
 	bool IsForwardTransformation() const {return false;}
 	void CombineMessageAndShiftRegister(byte *output, byte *reg, const byte *message, unsigned int length);

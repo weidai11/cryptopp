@@ -16,7 +16,7 @@ struct Blowfish_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 1,
 //! <a href="http://www.weidai.com/scan-mirror/cs.html#Blowfish">Blowfish</a>
 class Blowfish : public Blowfish_Info, public BlockCipherDocumentation
 {
-	class Base : public BlockCipherBaseTemplate<Blowfish_Info>
+	class CRYPTOPP_NO_VTABLE Base : public BlockCipherBaseTemplate<Blowfish_Info>
 	{
 	public:
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;

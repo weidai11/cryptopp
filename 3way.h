@@ -17,7 +17,7 @@ struct ThreeWay_Info : public FixedBlockSize<12>, public FixedKeyLength<12>, pub
 /// <a href="http://www.weidai.com/scan-mirror/cs.html#3-Way">3-Way</a>
 class ThreeWay : public ThreeWay_Info, public BlockCipherDocumentation
 {
-	class Base : public BlockCipherBaseTemplate<ThreeWay_Info>
+	class CRYPTOPP_NO_VTABLE Base : public BlockCipherBaseTemplate<ThreeWay_Info>
 	{
 	public:
 		void UncheckedSetKey(CipherDir direction, const byte *key, unsigned int length, unsigned int rounds);
@@ -27,13 +27,13 @@ class ThreeWay : public ThreeWay_Info, public BlockCipherDocumentation
 		FixedSizeSecBlock<word32, 3> m_k;
 	};
 
-	class Enc : public Base
+	class CRYPTOPP_NO_VTABLE Enc : public Base
 	{
 	public:
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
 	};
 
-	class Dec : public Base
+	class CRYPTOPP_NO_VTABLE Dec : public Base
 	{
 	public:
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;

@@ -12,7 +12,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 template <class BASE, class ALGORITHM_INFO = BASE>
-class AlgorithmImpl : public BASE
+class CRYPTOPP_NO_VTABLE AlgorithmImpl : public BASE
 {
 public:
 	std::string AlgorithmName() const {return ALGORITHM_INFO::StaticAlgorithmName();}
@@ -32,7 +32,7 @@ public:
 	explicit InvalidRounds(const std::string &algorithm, unsigned int rounds) : InvalidArgument(algorithm + ": " + IntToString(rounds) + " is not a valid number of rounds") {}
 };
 
-class HashTransformationWithDefaultTruncation : public HashTransformation
+class CRYPTOPP_NO_VTABLE HashTransformationWithDefaultTruncation : public HashTransformation
 {
 public:
 	virtual void Final(byte *digest) =0;
@@ -53,7 +53,7 @@ public:
 // *****************************
 
 template <class T>
-class Bufferless : public T
+class CRYPTOPP_NO_VTABLE Bufferless : public T
 {
 public:
 	Bufferless() {}
@@ -62,7 +62,7 @@ public:
 };
 
 template <class T>
-class Unflushable : public T
+class CRYPTOPP_NO_VTABLE Unflushable : public T
 {
 public:
 	Unflushable() {}
@@ -87,7 +87,7 @@ protected:
 };
 
 template <class T>
-class InputRejecting : public T
+class CRYPTOPP_NO_VTABLE InputRejecting : public T
 {
 public:
 	InputRejecting() {}
@@ -109,7 +109,7 @@ protected:
 };
 
 template <class T>
-class CustomSignalPropagation : public T
+class CRYPTOPP_NO_VTABLE CustomSignalPropagation : public T
 {
 public:
 	CustomSignalPropagation() {}
@@ -124,7 +124,7 @@ private:
 };
 
 template <class T>
-class Multichannel : public CustomSignalPropagation<T>
+class CRYPTOPP_NO_VTABLE Multichannel : public CustomSignalPropagation<T>
 {
 public:
 	Multichannel() {}
@@ -159,7 +159,7 @@ public:
 };
 
 template <class T>
-class AutoSignaling : public T
+class CRYPTOPP_NO_VTABLE AutoSignaling : public T
 {
 public:
 	AutoSignaling(int propagation=-1) : m_autoSignalPropagation(propagation) {}
@@ -175,7 +175,7 @@ private:
 };
 
 //! A BufferedTransformation that only contains pre-existing data as "output"
-class Store : public AutoSignaling<InputRejecting<BufferedTransformation> >
+class CRYPTOPP_NO_VTABLE Store : public AutoSignaling<InputRejecting<BufferedTransformation> >
 {
 public:
 	Store() : m_messageEnd(false) {}
@@ -197,7 +197,7 @@ protected:
 };
 
 //! A BufferedTransformation that doesn't produce any retrievable output
-class Sink : public BufferedTransformation
+class CRYPTOPP_NO_VTABLE Sink : public BufferedTransformation
 {
 protected:
 	// make these functions protected to help prevent unintentional calls to them

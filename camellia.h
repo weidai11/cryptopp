@@ -21,7 +21,7 @@ struct Camellia_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 1
 /// <a href="http://www.weidai.com/scan-mirror/cs.html#Camellia">Camellia</a>
 class Camellia : public Camellia_Info, public BlockCipherDocumentation
 {
-	class Base : public BlockCipherBaseTemplate<Camellia_Info>
+	class CRYPTOPP_NO_VTABLE Base : public BlockCipherBaseTemplate<Camellia_Info>
 	{
 	public:
 		void UncheckedSetKey(CipherDir dir, const byte *key, unsigned int keylen);

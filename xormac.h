@@ -11,7 +11,7 @@ NAMESPACE_BEGIN(CryptoPP)
 template <class T> struct DigestSizeSubtract4Workaround {enum {RESULT = T::DIGESTSIZE-4};};	// VC60 workaround
 
 template <class T>
-class XMACC_Base : public FixedKeyLength<DigestSizeSubtract4Workaround<T>::RESULT, SimpleKeyingInterface::INTERNALLY_GENERATED_IV>, 
+class CRYPTOPP_NO_VTABLE XMACC_Base : public FixedKeyLength<DigestSizeSubtract4Workaround<T>::RESULT, SimpleKeyingInterface::INTERNALLY_GENERATED_IV>, 
 					public IteratedHash<typename T::HashWordType, typename T::ByteOrderClass, T::BLOCKSIZE, MessageAuthenticationCode>
 {
 public:

@@ -13,7 +13,7 @@ struct WAKE_Info : public FixedKeyLength<32>
 	static const char *StaticAlgorithmName() {return B::ToEnum() == LITTLE_ENDIAN_ORDER ? "WAKE-CFB-LE" : "WAKE-CFB-BE";}
 };
 
-class WAKE_Base
+class CRYPTOPP_NO_VTABLE WAKE_Base
 {
 protected:
 	word32 M(word32 x, word32 y);
@@ -24,7 +24,7 @@ protected:
 };
 
 template <class B = BigEndian>
-class WAKE_Policy : public WAKE_Info<B>
+class CRYPTOPP_NO_VTABLE WAKE_Policy : public WAKE_Info<B>
 				, public CFB_CipherConcretePolicy<word32, 1>
 				, public AdditiveCipherConcretePolicy<word32, 1, 64>
 				, protected WAKE_Base

@@ -17,7 +17,7 @@ struct Diamond2_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 1
 /// <a href="http://www.weidai.com/scan-mirror/cs.html#Diamond2">Diamond2</a>
 class Diamond2 : public Diamond2_Info, public BlockCipherDocumentation
 {
-	class Base : public BlockCipherBaseTemplate<Diamond2_Info>
+	class CRYPTOPP_NO_VTABLE Base : public BlockCipherBaseTemplate<Diamond2_Info>
 	{
 	public:
 		void UncheckedSetKey(CipherDir direction, const byte *userKey, unsigned int length, unsigned int rounds);
@@ -37,13 +37,13 @@ class Diamond2 : public Diamond2_Info, public BlockCipherDocumentation
 #endif
 	};
 
-	class Enc : public Base
+	class CRYPTOPP_NO_VTABLE Enc : public Base
 	{
 	public:
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
 	};
 
-	class Dec : public Base
+	class CRYPTOPP_NO_VTABLE Dec : public Base
 	{
 	public:
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
@@ -65,7 +65,7 @@ struct Diamond2Lite_Info : public FixedBlockSize<8>, public VariableKeyLength<16
 /// <a href="http://www.weidai.com/scan-mirror/cs.html#Diamond2">Diamond2Lite</a>
 class Diamond2Lite : public Diamond2Lite_Info, public BlockCipherDocumentation
 {
-	class Base : public BlockCipherBaseTemplate<Diamond2Lite_Info>
+	class CRYPTOPP_NO_VTABLE Base : public BlockCipherBaseTemplate<Diamond2Lite_Info>
 	{
 	public:
 		void UncheckedSetKey(CipherDir direction, const byte *userKey, unsigned int length, unsigned int rounds);
@@ -84,13 +84,13 @@ class Diamond2Lite : public Diamond2Lite_Info, public BlockCipherDocumentation
 	#endif
 	};
 
-	class Enc : public Base
+	class CRYPTOPP_NO_VTABLE Enc : public Base
 	{
 	public:
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
 	};
 
-	class Dec : public Base
+	class CRYPTOPP_NO_VTABLE Dec : public Base
 	{
 	public:
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
