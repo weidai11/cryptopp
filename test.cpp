@@ -428,7 +428,7 @@ void DigestFile(const char *filename)
 void HmacFile(const char *hexKey, const char *file)
 {
 	member_ptr<MessageAuthenticationCode> mac;
-	if (stricmp(hexKey, "selftest") == 0)
+	if (strcmp(hexKey, "selftest") == 0)
 	{
 		cerr << "Computing HMAC/SHA1 value for self test.\n";
 		mac.reset(NewIntegrityCheckingMAC());
