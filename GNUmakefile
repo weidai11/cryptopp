@@ -9,7 +9,7 @@ CXXFLAGS = -g
 ARFLAGS = -cr	# ar needs the dash on OpenBSD
 RANLIB = ranlib
 UNAME = $(shell uname)
-ISX86 = $(shell uname -m | grep -c "i.86")
+ISX86 = $(shell uname -m | grep -c "i.86\|x86_64")
 GCC33ORLATER = $(shell gcc -v 2>&1 | grep -c "gcc version \(3.[3-9]\|[4-9]\)")
 
 ifeq ($(ISX86) $(GCC33ORLATER),1 1)
