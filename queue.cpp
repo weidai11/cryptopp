@@ -462,11 +462,13 @@ byte ByteQueue::operator[](unsigned long i) const
 
 void ByteQueue::swap(ByteQueue &rhs)
 {
+	std::swap(m_autoNodeSize, rhs.m_autoNodeSize);
 	std::swap(m_nodeSize, rhs.m_nodeSize);
 	std::swap(m_head, rhs.m_head);
 	std::swap(m_tail, rhs.m_tail);
 	std::swap(m_lazyString, rhs.m_lazyString);
 	std::swap(m_lazyLength, rhs.m_lazyLength);
+	std::swap(m_lazyStringModifiable, rhs.m_lazyStringModifiable);
 }
 
 // ********************************************************
