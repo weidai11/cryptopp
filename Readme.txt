@@ -1,5 +1,5 @@
 Crypto++: a C++ Class Library of Cryptographic Schemes
-Version 6.0 (in development)
+Version 5.2.2 (in development)
 
 This library includes:
 
@@ -344,6 +344,7 @@ the mailing list.
       - fixed inability to instantiate PanamaMAC
       - fixed problems with inline documentation
 
-6.0 - added SHA-224
+5.2.2 - added SHA-224
+      - put SHA-256, SHA-384, SHA-512, RSASSA-PSS into DLL
 
 Written by Wei Dai

@@ -17,7 +17,7 @@ public:
 typedef SHA SHA1;
 
 //! implements the SHA-256 standard
-class SHA256 : public IteratedHashWithStaticTransform<word32, BigEndian, 64, 32, SHA256>
+class CRYPTOPP_DLL SHA256 : public IteratedHashWithStaticTransform<word32, BigEndian, 64, 32, SHA256>
 {
 public:
 	static void InitState(HashWordType *state);
@@ -29,7 +29,7 @@ protected:
 };
 
 //! implements the SHA-224 standard
-class SHA224 : public IteratedHashWithStaticTransform<word32, BigEndian, 64, 32, SHA224, 28>
+class CRYPTOPP_DLL SHA224 : public IteratedHashWithStaticTransform<word32, BigEndian, 64, 32, SHA224, 28>
 {
 public:
 	static void InitState(HashWordType *state);
@@ -40,7 +40,7 @@ public:
 #ifdef WORD64_AVAILABLE
 
 //! implements the SHA-512 standard
-class SHA512 : public IteratedHashWithStaticTransform<word64, BigEndian, 128, 64, SHA512>
+class CRYPTOPP_DLL SHA512 : public IteratedHashWithStaticTransform<word64, BigEndian, 128, 64, SHA512>
 {
 public:
 	static void InitState(HashWordType *state);
@@ -52,7 +52,7 @@ protected:
 };
 
 //! implements the SHA-384 standard
-class SHA384 : public IteratedHashWithStaticTransform<word64, BigEndian, 128, 64, SHA384, 48>
+class CRYPTOPP_DLL SHA384 : public IteratedHashWithStaticTransform<word64, BigEndian, 128, 64, SHA384, 48>
 {
 public:
 	static void InitState(HashWordType *state);

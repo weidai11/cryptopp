@@ -6,7 +6,8 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 //! <a href="http://www.weidai.com/scan-mirror/md.html#MD5">MD5</a>
-/*! 128 Bit Hash */
+/*! \warning MD5 is considered insecure, and should not be used
+	unless you absolutely need it for compatibility. */
 class MD5 : public IteratedHashWithStaticTransform<word32, LittleEndian, 64, 16, MD5>
 {
 public:

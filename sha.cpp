@@ -4,6 +4,9 @@
 // Both are in the public domain.
 
 #include "pch.h"
+
+#ifndef CRYPTOPP_IMPORTS
+
 #include "sha.h"
 #include "misc.h"
 
@@ -13,8 +16,6 @@ NAMESPACE_BEGIN(CryptoPP)
 
 #define blk0(i) (W[i] = data[i])
 #define blk1(i) (W[i&15] = rotlFixed(W[(i+13)&15]^W[(i+8)&15]^W[(i+2)&15]^W[i&15],1))
-
-#ifndef CRYPTOPP_IMPORTS
 
 void SHA::InitState(HashWordType *state)
 {
@@ -77,8 +78,6 @@ void SHA::Transform(word32 *state, const word32 *data)
     a = b = c = d = e = 0;
 	memset(W, 0, sizeof(W));
 }
-
-#endif	// #ifndef CRYPTOPP_IMPORTS
 
 // end of Steve Reid's code
 
@@ -291,3 +290,5 @@ void SHA384::InitState(HashWordType *state)
 #endif
 
 NAMESPACE_END
+
+#endif	// #ifndef CRYPTOPP_IMPORTS

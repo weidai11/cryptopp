@@ -15,7 +15,7 @@ public:
 	static const char * StaticAlgorithmName() {return "RIPEMD-160";}
 };
 
-/*! Digest Length = 320 bits, Security = 160 bits */
+/*! Digest Length = 320 bits, Security is similar to RIPEMD-160 */
 class RIPEMD320 : public IteratedHashWithStaticTransform<word32, LittleEndian, 64, 40, RIPEMD320>
 {
 public:
@@ -24,7 +24,8 @@ public:
 	static const char * StaticAlgorithmName() {return "RIPEMD-320";}
 };
 
-/*! Digest Length = 128 bits */
+/*! \warning RIPEMD-128 is considered insecure, and should not be used
+	unless you absolutely need it for compatibility. */
 class RIPEMD128 : public IteratedHashWithStaticTransform<word32, LittleEndian, 64, 16, RIPEMD128>
 {
 public:
@@ -33,7 +34,8 @@ public:
 	static const char * StaticAlgorithmName() {return "RIPEMD-128";}
 };
 
-/*! Digest Length = 256 bits, Security = 128 bits */
+/*! \warning RIPEMD-256 is considered insecure, and should not be used
+	unless you absolutely need it for compatibility. */
 class RIPEMD256 : public IteratedHashWithStaticTransform<word32, LittleEndian, 64, 32, RIPEMD256>
 {
 public:

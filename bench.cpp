@@ -231,6 +231,9 @@ void BenchmarkAll(double t)
 	BenchMarkKeyless<Tiger>("Tiger", t);
 #endif
 	BenchMarkKeyless<RIPEMD160>("RIPE-MD160", t);
+	BenchMarkKeyless<RIPEMD320>("RIPE-MD320", t);
+	BenchMarkKeyless<RIPEMD128>("RIPE-MD128", t);
+	BenchMarkKeyless<RIPEMD256>("RIPE-MD256", t);
 	BenchMarkKeyless<PanamaHash<LittleEndian> >("Panama Hash (little endian)", t);
 	BenchMarkKeyless<PanamaHash<BigEndian> >("Panama Hash (big endian)", t);
 #ifdef WORD64_AVAILABLE
@@ -280,7 +283,6 @@ void BenchmarkAll(double t)
 	BenchMarkKeyedVariable<SHACAL2::Encryption>("SHACAL-2 (512-bit key)", t, 64);
 #ifdef WORD64_AVAILABLE
 	BenchMarkKeyedVariable<Camellia::Encryption>("Camellia (128-bit key)", t, 16);
-	BenchMarkKeyedVariable<Camellia::Encryption>("Camellia (192-bit key)", t, 24);
 	BenchMarkKeyedVariable<Camellia::Encryption>("Camellia (256-bit key)", t, 32);
 #endif
 	BenchMarkKeyed<MD5MAC>("MD5-MAC", t);
