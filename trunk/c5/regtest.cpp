@@ -15,6 +15,7 @@
 #include "ttmac.h"
 #include "camellia.h"
 #include "shacal2.h"
+#include "tea.h"
 
 USING_NAMESPACE(CryptoPP)
 
@@ -47,4 +48,6 @@ void RegisterFactories()
 #ifdef WORD64_AVAILABLE
 	RegisterSymmetricCipherDefaultFactories<ECB_Mode<Camellia> >("Camellia(ECB)");
 #endif
+	RegisterSymmetricCipherDefaultFactories<ECB_Mode<TEA> >("TEA(ECB)");
+	RegisterSymmetricCipherDefaultFactories<ECB_Mode<XTEA> >("XTEA(ECB)");
 }

@@ -61,6 +61,18 @@ public:
 			*reinterpret_cast<int *>(pValue) = atoi(value.c_str());
 		else if (valueType == typeid(Integer))
 			*reinterpret_cast<Integer *>(pValue) = Integer((std::string(value) + "h").c_str());
+		else if (valueType == typeid(ConstByteArrayParameter))
+		{
+			m_temp.resize(0);
+			StringSource(value, true, new HexDecoder(new StringSink(m_temp)));
+			reinterpret_cast<ConstByteArrayParameter *>(pValue)->Assign((const byte *)m_temp.data(), m_temp.size(), true);
+		}
+		else if (valueType == typeid(const byte *))
+		{
+			m_temp.resize(0);
+			StringSource(value, true, new HexDecoder(new StringSink(m_temp)));
+			*reinterpret_cast<const byte * *>(pValue) = (const byte *)m_temp.data();
+		}
 		else
 			throw ValueTypeMismatch(name, typeid(std::string), valueType);
 
@@ -69,6 +81,7 @@ public:
 
 private:
 	const TestData &m_data;
+	mutable std::string m_temp;
 };
 
 const std::string & GetRequiredDatum(const TestData &data, const char *name)
@@ -243,14 +256,15 @@ void TestSymmetricCipher(TestData &v)
 	std::string test = GetRequiredDatum(v, "Test");
 
 	std::string key = GetDecodedDatum(v, "Key");
-	std::string iv = GetDecodedDatum(v, "IV");
 	std::string ciphertext = GetDecodedDatum(v, "Ciphertext");
 	std::string plaintext = GetDecodedDatum(v, "Plaintext");
+
+	TestDataNameValuePairs pairs(v);
 
 	if (test == "Encrypt")
 	{
 		std::auto_ptr<SymmetricCipher> encryptor(ObjectFactoryRegistry<SymmetricCipher, ENCRYPTION>::Registry().CreateObject(name.c_str()));
-		encryptor->SetKeyWithIV((const byte *)key.data(), key.size(), (const byte *)iv.data());
+		encryptor->SetKey((const byte *)key.data(), key.size(), pairs);
 		std::string encrypted;
 		StringSource ss(plaintext, true, new StreamTransformationFilter(*encryptor, new StringSink(encrypted), StreamTransformationFilter::NO_PADDING));
 		if (encrypted != ciphertext)
@@ -259,7 +273,7 @@ void TestSymmetricCipher(TestData &v)
 	else if (test == "Decrypt")
 	{
 		std::auto_ptr<SymmetricCipher> decryptor(ObjectFactoryRegistry<SymmetricCipher, DECRYPTION>::Registry().CreateObject(name.c_str()));
-		decryptor->SetKeyWithIV((const byte *)key.data(), key.size(), (const byte *)iv.data());
+		decryptor->SetKey((const byte *)key.data(), key.size(), pairs);
 		std::string decrypted;
 		StringSource ss(ciphertext, true, new StreamTransformationFilter(*decryptor, new StringSink(decrypted), StreamTransformationFilter::NO_PADDING));
 		if (decrypted != plaintext)
