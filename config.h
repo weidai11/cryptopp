@@ -91,77 +91,63 @@
 #	define __USE_W32_SOCKETS
 #endif
 
-typedef unsigned char byte;     // moved outside namespace for Borland C++Builder 5
+typedef unsigned char byte;		// put in global namespace to avoid ambiguity with other byte typedefs
 
 NAMESPACE_BEGIN(CryptoPP)
 
 typedef unsigned short word16;
-	typedef unsigned int word32;
+typedef unsigned int word32;
 
 #if defined(__GNUC__) || defined(__MWERKS__)
-#	define WORD64_AVAILABLE
+	#define WORD64_AVAILABLE
 	typedef unsigned long long word64;
-#	define W64LIT(x) x##LL
+	#define W64LIT(x) x##LL
 #elif defined(_MSC_VER) || defined(__BCPLUSPLUS__)
-#	define WORD64_AVAILABLE
+	#define WORD64_AVAILABLE
 	typedef unsigned __int64 word64;
-#	define W64LIT(x) x##ui64
+	#define W64LIT(x) x##ui64
 #endif
 
-#if defined(__alpha__) || defined(__ia64__) || defined(_ARCH_PPC64) || defined(__x86_64__) || defined(__mips64) || defined(__sparc_v9__) || defined(__sparcv9) || defined(__sparc_v8__) || defined(__sparcv8)
-#	define CRYPTOPP_64BIT_CPU
-#endif
-
-// defined this if your CPU is not 64-bit to use alternative code that avoids word64
-#if defined(WORD64_AVAILABLE) && !defined(CRYPTOPP_64BIT_CPU)
-#	define CRYPTOPP_SLOW_WORD64
-#endif
-
-// word should have the same size as your CPU registers
-// dword should be twice as big as word
-
-#if (defined(__GNUC__) && !defined(__alpha)) || defined(__MWERKS__)
-	typedef unsigned long word;
-	typedef unsigned long long dword;
-#elif defined(_MSC_VER) || defined(__BCPLUSPLUS__)
-	typedef unsigned __int32 word;
-	typedef unsigned __int64 dword;
+// define largest word type
+#ifdef WORD64_AVAILABLE
+	typedef word64 lword;
 #else
-	typedef unsigned int word;
-	typedef unsigned long dword;
+	typedef word32 lword;
+#endif
+
+#if defined(__alpha__) || defined(__ia64__) || defined(_ARCH_PPC64) || defined(__x86_64__) || defined(__mips64)
+	// These platforms have 64-bit CPU registers. Unfortunately most C++ compilers doesn't
+	// allow any way to access the 64-bit by 64-bit multiply instruction without using
+	// assembly, so in order to use word64 as word, the assembly instruction must be defined
+	// in Dword::Multiply().
+	typedef word32 hword;
+	typedef word64 word;
+#else
+	#define CRYPTOPP_NATIVE_DWORD_AVAILABLE
+	#ifdef WORD64_AVAILABLE
+		#define CRYPTOPP_SLOW_WORD64 // defined this if your CPU is not 64-bit to use alternative code that avoids word64
+		typedef word16 hword;
+		typedef word32 word;
+		typedef word64 dword;
+	#else
+		typedef word8 hword;
+		typedef word16 word;
+		typedef word32 dword;
+	#endif
 #endif
 
 const unsigned int WORD_SIZE = sizeof(word);
 const unsigned int WORD_BITS = WORD_SIZE * 8;
 
-#define LOW_WORD(x) (word)(x)
-
-union dword_union
-{
-	dword_union (const dword &dw) : dw(dw) {}
-	dword dw;
-	word w[2];
-};
-
-#ifdef IS_LITTLE_ENDIAN
-#	define HIGH_WORD(x) (dword_union(x).w[1])
-#else
-#	define HIGH_WORD(x) (dword_union(x).w[0])
-#endif
-
-// if the above HIGH_WORD macro doesn't work (if you are not sure, compile it
-// and run the validation tests), try this:
-// #define HIGH_WORD(x) (word)((x)>>WORD_BITS)
-
 #if defined(_MSC_VER) || defined(__BCPLUSPLUS__)
-#	define INTEL_INTRINSICS
-#	define FAST_ROTATE
+	#define INTEL_INTRINSICS
+	#define FAST_ROTATE
 #elif defined(__MWERKS__) && TARGET_CPU_PPC
-#	define PPC_INTRINSICS
-#	define FAST_ROTATE
+	#define PPC_INTRINSICS
+	#define FAST_ROTATE
 #elif defined(__GNUC__) && defined(__i386__)
 	// GCC does peephole optimizations which should result in using rotate instructions
-#	define FAST_ROTATE
+	#define FAST_ROTATE
 #endif
 
 NAMESPACE_END

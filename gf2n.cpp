@@ -143,7 +143,7 @@ void PolynomialMod2::Decode(BufferedTransformation &bt, unsigned int inputLen)
 	{
 		byte b;
 		bt.Get(b);
-		reg[(i-1)/WORD_SIZE] |= b << ((i-1)%WORD_SIZE)*8;
+		reg[(i-1)/WORD_SIZE] |= word(b) << ((i-1)%WORD_SIZE)*8;
 	}
 }
 

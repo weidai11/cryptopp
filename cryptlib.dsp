@@ -282,14 +282,6 @@ SOURCE=.\dh2.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\diamond.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\diamondt.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\dll.cpp
 # SUBTRACT CPP /YX /Yc /Yu
 # End Source File
@@ -748,15 +740,15 @@ SOURCE=.\dh2.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\diamond.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\dmac.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\dsa.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\dword.h
 # End Source File
 # Begin Source File
 

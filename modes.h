@@ -157,7 +157,7 @@ private:
 	bool CanOperateKeystream() const {return true;}
 	void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, unsigned int iterationCount);
 	void CipherResynchronize(byte *keystreamBuffer, const byte *iv);
-	void SeekToIteration(dword iterationCount);
+	void SeekToIteration(lword iterationCount);
 
 	inline void ProcessMultipleBlocks(byte *output, const byte *input, unsigned int n);
 

@@ -100,6 +100,11 @@ inline unsigned int BitsToWords(unsigned int bitCount)
 	return ((bitCount+WORD_BITS-1)/(WORD_BITS));
 }
 
+inline unsigned int BitsToDwords(unsigned int bitCount)
+{
+	return ((bitCount+2*WORD_BITS-1)/(2*WORD_BITS));
+}
+
 CRYPTOPP_DLL void xorbuf(byte *buf, const byte *mask, unsigned int count);
 CRYPTOPP_DLL void xorbuf(byte *output, const byte *input, const byte *mask, unsigned int count);
 
@@ -142,7 +147,7 @@ inline unsigned int GetAlignment(T *dummy=NULL)	// VC60 workaround
 
 inline bool IsAlignedOn(const void *p, unsigned int alignment)
 {
-	return IsPowerOf2(alignment) ? ModPowerOf2((unsigned int)p, alignment) == 0 : (unsigned int)p % alignment == 0;
+	return IsPowerOf2(alignment) ? ModPowerOf2((size_t)p, alignment) == 0 : (size_t)p % alignment == 0;
 }
 
 template <class T>

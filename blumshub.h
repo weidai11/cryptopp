@@ -46,7 +46,7 @@ public:
 	BlumBlumShub(const Integer &p, const Integer &q, const Integer &seed);
 	
 	bool IsRandomAccess() const {return true;}
-	void Seek(dword index);
+	void Seek(lword index);
 
 protected:
 	const Integer p, q;

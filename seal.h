@@ -23,7 +23,7 @@ protected:
 	void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, unsigned int iterationCount);
 	void CipherResynchronize(byte *keystreamBuffer, const byte *IV);
 	bool IsRandomAccess() const {return true;}
-	void SeekToIteration(dword iterationCount);
+	void SeekToIteration(lword iterationCount);
 
 private:
 	FixedSizeSecBlock<word32, 512> m_T;
