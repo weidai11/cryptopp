@@ -178,6 +178,12 @@ NAMESPACE_END
 #endif
 
 #ifdef _MSC_VER
+#define CRYPTOPP_NO_VTABLE __declspec(novtable)
+#else
+#define CRYPTOPP_NO_VTABLE
+#endif
+
+#ifdef _MSC_VER
 	// 4250: dominance
 	// 4660: explicitly instantiating a class that's already implicitly instantiated
 	// 4661: no suitable definition provided for explicit template instantiation request

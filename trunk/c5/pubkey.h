@@ -50,7 +50,7 @@ Integer DSA_EncodeDigest(unsigned int modulusBits, const byte *digest, unsigned 
 // ********************************************************
 
 //! .
-class TrapdoorFunctionBounds
+class CRYPTOPP_NO_VTABLE TrapdoorFunctionBounds
 {
 public:
 	virtual ~TrapdoorFunctionBounds() {}
@@ -62,7 +62,7 @@ public:
 };
 
 //! .
-class RandomizedTrapdoorFunction : public TrapdoorFunctionBounds
+class CRYPTOPP_NO_VTABLE RandomizedTrapdoorFunction : public TrapdoorFunctionBounds
 {
 public:
 	virtual Integer ApplyRandomizedFunction(RandomNumberGenerator &rng, const Integer &x) const =0;
@@ -70,7 +70,7 @@ public:
 };
 
 //! .
-class TrapdoorFunction : public RandomizedTrapdoorFunction
+class CRYPTOPP_NO_VTABLE TrapdoorFunction : public RandomizedTrapdoorFunction
 {
 public:
 	Integer ApplyRandomizedFunction(RandomNumberGenerator &rng, const Integer &x) const
@@ -81,7 +81,7 @@ public:
 };
 
 //! .
-class RandomizedTrapdoorFunctionInverse
+class CRYPTOPP_NO_VTABLE RandomizedTrapdoorFunctionInverse
 {
 public:
 	virtual ~RandomizedTrapdoorFunctionInverse() {}
@@ -91,7 +91,7 @@ public:
 };
 
 //! .
-class TrapdoorFunctionInverse : public RandomizedTrapdoorFunctionInverse
+class CRYPTOPP_NO_VTABLE TrapdoorFunctionInverse : public RandomizedTrapdoorFunctionInverse
 {
 public:
 	virtual ~TrapdoorFunctionInverse() {}
@@ -106,7 +106,7 @@ public:
 // ********************************************************
 
 //! .
-class PK_EncryptionMessageEncodingMethod
+class CRYPTOPP_NO_VTABLE PK_EncryptionMessageEncodingMethod
 {
 public:
 	virtual ~PK_EncryptionMessageEncodingMethod() {}
@@ -123,7 +123,7 @@ public:
 
 //! .
 template <class TFI, class MEI>
-class TF_Base
+class CRYPTOPP_NO_VTABLE TF_Base
 {
 protected:
 	virtual const TrapdoorFunctionBounds & GetTrapdoorFunctionBounds() const =0;
@@ -139,7 +139,7 @@ protected:
 
 //! .
 template <class INTERFACE, class BASE>
-class TF_CryptoSystemBase : public INTERFACE, protected BASE
+class CRYPTOPP_NO_VTABLE TF_CryptoSystemBase : public INTERFACE, protected BASE
 {
 public:
 	unsigned int FixedMaxPlaintextLength() const {return GetMessageEncodingInterface().MaxUnpaddedLength(PaddedBlockBitLength());}
@@ -151,14 +151,14 @@ protected:
 };
 
 //! .
-class TF_DecryptorBase : public TF_CryptoSystemBase<PK_FixedLengthDecryptor, TF_Base<TrapdoorFunctionInverse, PK_EncryptionMessageEncodingMethod> >
+class CRYPTOPP_NO_VTABLE TF_DecryptorBase : public TF_CryptoSystemBase<PK_FixedLengthDecryptor, TF_Base<TrapdoorFunctionInverse, PK_EncryptionMessageEncodingMethod> >
 {
 public:
 	DecodingResult FixedLengthDecrypt(RandomNumberGenerator &rng, const byte *cipherText, byte *plainText) const;
 };
 
 //! .
-class TF_EncryptorBase : public TF_CryptoSystemBase<PK_FixedLengthEncryptor, TF_Base<RandomizedTrapdoorFunction, PK_EncryptionMessageEncodingMethod> >
+class CRYPTOPP_NO_VTABLE TF_EncryptorBase : public TF_CryptoSystemBase<PK_FixedLengthEncryptor, TF_Base<RandomizedTrapdoorFunction, PK_EncryptionMessageEncodingMethod> >
 {
 public:
 	void Encrypt(RandomNumberGenerator &rng, const byte *plainText, unsigned int plainTextLength, byte *cipherText) const;
@@ -169,7 +169,7 @@ public:
 typedef std::pair<const byte *, unsigned int> HashIdentifier;
 
 //! .
-class PK_SignatureMessageEncodingMethod
+class CRYPTOPP_NO_VTABLE PK_SignatureMessageEncodingMethod
 {
 public:
 	virtual ~PK_SignatureMessageEncodingMethod() {}
@@ -232,7 +232,7 @@ public:
 	};
 };
 
-class PK_DeterministicSignatureMessageEncodingMethod : public PK_SignatureMessageEncodingMethod
+class CRYPTOPP_NO_VTABLE PK_DeterministicSignatureMessageEncodingMethod : public PK_SignatureMessageEncodingMethod
 {
 public:
 	bool VerifyMessageRepresentative(
@@ -240,7 +240,7 @@ public:
 		byte *representative, unsigned int representativeBitLength) const;
 };
 
-class PK_RecoverableSignatureMessageEncodingMethod : public PK_SignatureMessageEncodingMethod
+class CRYPTOPP_NO_VTABLE PK_RecoverableSignatureMessageEncodingMethod : public PK_SignatureMessageEncodingMethod
 {
 public:
 	bool VerifyMessageRepresentative(
@@ -266,7 +266,7 @@ public:
 		byte *representative, unsigned int representativeBitLength) const;
 };
 
-class PK_MessageAccumulatorBase : public PK_MessageAccumulator
+class CRYPTOPP_NO_VTABLE PK_MessageAccumulatorBase : public PK_MessageAccumulator
 {
 public:
 	PK_MessageAccumulatorBase() : m_empty(true) {}
@@ -293,7 +293,7 @@ public:
 
 //! .
 template <class INTERFACE, class BASE>
-class TF_SignatureSchemeBase : public INTERFACE, protected BASE
+class CRYPTOPP_NO_VTABLE TF_SignatureSchemeBase : public INTERFACE, protected BASE
 {
 public:
 	unsigned int SignatureLength() const 
@@ -318,7 +318,7 @@ protected:
 };
 
 //! .
-class TF_SignerBase : public TF_SignatureSchemeBase<PK_Signer, TF_Base<RandomizedTrapdoorFunctionInverse, PK_SignatureMessageEncodingMethod> >
+class CRYPTOPP_NO_VTABLE TF_SignerBase : public TF_SignatureSchemeBase<PK_Signer, TF_Base<RandomizedTrapdoorFunctionInverse, PK_SignatureMessageEncodingMethod> >
 {
 public:
 	void InputRecoverableMessage(PK_MessageAccumulator &messageAccumulator, const byte *recoverableMessage, unsigned int recoverableMessageLength) const;
@@ -326,7 +326,7 @@ public:
 };
 
 //! .
-class TF_VerifierBase : public TF_SignatureSchemeBase<PK_Verifier, TF_Base<TrapdoorFunction, PK_SignatureMessageEncodingMethod> >
+class CRYPTOPP_NO_VTABLE TF_VerifierBase : public TF_SignatureSchemeBase<PK_Verifier, TF_Base<TrapdoorFunction, PK_SignatureMessageEncodingMethod> >
 {
 public:
 	void InputSignature(PK_MessageAccumulator &messageAccumulator, const byte *signature, unsigned int signatureLength) const;
@@ -356,24 +356,26 @@ struct TF_SignatureSchemeOptions : public TF_CryptoSchemeOptions<T1, T2, T3>
 
 //! .
 template <class KEYS>
-class PublicKeyCopier
+class CRYPTOPP_NO_VTABLE PublicKeyCopier
 {
 public:
+	typedef KEYS::PublicKey KeyClass;
 	virtual void CopyKeyInto(typename KEYS::PublicKey &key) const =0;
 };
 
 //! .
 template <class KEYS>
-class PrivateKeyCopier
+class CRYPTOPP_NO_VTABLE PrivateKeyCopier
 {
 public:
+	typedef KEYS::PrivateKey KeyClass;
 	virtual void CopyKeyInto(typename KEYS::PublicKey &key) const =0;
 	virtual void CopyKeyInto(typename KEYS::PrivateKey &key) const =0;
 };
 
 //! .
 template <class BASE, class SCHEME_OPTIONS, class KEY>
-class TF_ObjectImplBase : public AlgorithmImpl<BASE, typename SCHEME_OPTIONS::AlgorithmInfo>
+class CRYPTOPP_NO_VTABLE TF_ObjectImplBase : public AlgorithmImpl<BASE, typename SCHEME_OPTIONS::AlgorithmInfo>
 {
 public:
 	typedef SCHEME_OPTIONS SchemeOptions;
@@ -389,6 +391,15 @@ public:
 	virtual KeyClass & AccessKey() =0;
 
 	const KeyClass & GetTrapdoorFunction() const {return GetKey();}
+
+	PK_MessageAccumulator * NewSignatureAccumulator(RandomNumberGenerator &rng) const
+	{
+		return new PK_MessageAccumulatorImpl<CPP_TYPENAME SCHEME_OPTIONS::HashFunction>;
+	}
+	PK_MessageAccumulator * NewVerificationAccumulator() const
+	{
+		return new PK_MessageAccumulatorImpl<CPP_TYPENAME SCHEME_OPTIONS::HashFunction>;
+	}
 
 protected:
 	const typename BASE::MessageEncodingInterface & GetMessageEncodingInterface() const 
@@ -422,79 +433,54 @@ public:
 	const KEY & GetKey() const {return *m_pKey;}
 	KEY & AccessKey() {throw NotImplemented("TF_ObjectImplExtRef: cannot modify refererenced key");}
 
-	void CopyKeyInto(typename SCHEME_OPTIONS::PrivateKey &key) const {assert(false);}
-	void CopyKeyInto(typename SCHEME_OPTIONS::PublicKey &key) const {assert(false);}
-
 private:
 	const KEY * m_pKey;
 };
 
 //! .
-template <class BASE, class SCHEME_OPTIONS, class KEY>
-class TF_ObjectImpl : public TF_ObjectImplBase<BASE, SCHEME_OPTIONS, KEY>
+template <class BASE, class SCHEME_OPTIONS, class KEY_COPIER>
+class CRYPTOPP_NO_VTABLE TF_ObjectImpl : public TF_ObjectImplBase<TwoBases<BASE, KEY_COPIER>, SCHEME_OPTIONS, typename KEY_COPIER::KeyClass>
 {
 public:
-	const KEY & GetKey() const {return m_trapdoorFunction;}
-	KEY & AccessKey() {return m_trapdoorFunction;}
+	typedef typename KEY_COPIER::KeyClass KeyClass;
 
-private:
-	KEY m_trapdoorFunction;
-};
+	const KeyClass & GetKey() const {return m_trapdoorFunction;}
+	KeyClass & AccessKey() {return m_trapdoorFunction;}
 
-//! .
-template <class BASE, class SCHEME_OPTIONS>
-class TF_PublicObjectImpl : public TF_ObjectImpl<BASE, SCHEME_OPTIONS, typename SCHEME_OPTIONS::PublicKey>, public PublicKeyCopier<SCHEME_OPTIONS>
-{
-public:
-	void CopyKeyInto(typename SCHEME_OPTIONS::PublicKey &key) const {key = GetKey();}
-};
-
-//! .
-template <class BASE, class SCHEME_OPTIONS>
-class TF_PrivateObjectImpl : public TF_ObjectImpl<BASE, SCHEME_OPTIONS, typename SCHEME_OPTIONS::PrivateKey>, public PrivateKeyCopier<SCHEME_OPTIONS>
-{
-public:
 	void CopyKeyInto(typename SCHEME_OPTIONS::PrivateKey &key) const {key = GetKey();}
 	void CopyKeyInto(typename SCHEME_OPTIONS::PublicKey &key) const {key = GetKey();}
+
+private:
+	KeyClass m_trapdoorFunction;
 };
 
 //! .
 template <class SCHEME_OPTIONS>
-class TF_DecryptorImpl : public TF_PrivateObjectImpl<TF_DecryptorBase, SCHEME_OPTIONS>
+class TF_DecryptorImpl : public TF_ObjectImpl<TF_DecryptorBase, SCHEME_OPTIONS, PrivateKeyCopier<typename SCHEME_OPTIONS::Keys> >
 {
 };
 
 //! .
 template <class SCHEME_OPTIONS>
-class TF_EncryptorImpl : public TF_PublicObjectImpl<TF_EncryptorBase, SCHEME_OPTIONS>
+class TF_EncryptorImpl : public TF_ObjectImpl<TF_EncryptorBase, SCHEME_OPTIONS, PublicKeyCopier<typename SCHEME_OPTIONS::Keys> >
 {
 };
 
 //! .
 template <class SCHEME_OPTIONS>
-class TF_SignerImpl : public TF_PrivateObjectImpl<TF_SignerBase, SCHEME_OPTIONS>
+class TF_SignerImpl : public TF_ObjectImpl<TF_SignerBase, SCHEME_OPTIONS, PrivateKeyCopier<typename SCHEME_OPTIONS::Keys> >
 {
-public:
-	PK_MessageAccumulator * NewSignatureAccumulator(RandomNumberGenerator &rng) const
-	{
-		return new PK_MessageAccumulatorImpl<CPP_TYPENAME SCHEME_OPTIONS::HashFunction>;
-	}
 };
 
 //! .
 template <class SCHEME_OPTIONS>
-class TF_VerifierImpl : public TF_PublicObjectImpl<TF_VerifierBase, SCHEME_OPTIONS>
+class TF_VerifierImpl : public TF_ObjectImpl<TF_VerifierBase, SCHEME_OPTIONS, PublicKeyCopier<typename SCHEME_OPTIONS::Keys> >
 {
-public:
-	PK_MessageAccumulator * NewVerificationAccumulator() const
-	{
-		return new PK_MessageAccumulatorImpl<CPP_TYPENAME SCHEME_OPTIONS::HashFunction>;
-	}
 };
 
 // ********************************************************
 
-class MaskGeneratingFunction
+class CRYPTOPP_NO_VTABLE MaskGeneratingFunction
 {
 public:
 	virtual ~MaskGeneratingFunction() {}
@@ -548,7 +534,7 @@ public:
 
 //! .
 template <class T>
-class DL_GroupParameters : public CryptoParameters
+class CRYPTOPP_NO_VTABLE DL_GroupParameters : public CryptoParameters
 {
 	typedef DL_GroupParameters<T> ThisClass;
 	
@@ -658,7 +644,7 @@ protected:
 
 //! .
 template <class T>
-class DL_Key
+class CRYPTOPP_NO_VTABLE DL_Key
 {
 public:
 	virtual const DL_GroupParameters<T> & GetAbstractGroupParameters() const =0;
@@ -667,7 +653,7 @@ public:
 
 //! .
 template <class T>
-class DL_PublicKey : public DL_Key<T>
+class CRYPTOPP_NO_VTABLE DL_PublicKey : public DL_Key<T>
 {
 	typedef DL_PublicKey<T> ThisClass;
 
@@ -702,7 +688,7 @@ public:
 
 //! .
 template <class T>
-class DL_PrivateKey : public DL_Key<T>
+class CRYPTOPP_NO_VTABLE DL_PrivateKey : public DL_Key<T>
 {
 	typedef DL_PrivateKey<T> ThisClass;
 
@@ -927,7 +913,7 @@ private:
 
 //! .
 template <class T>
-class DL_ElgamalLikeSignatureAlgorithm
+class CRYPTOPP_NO_VTABLE DL_ElgamalLikeSignatureAlgorithm
 {
 public:
 //	virtual Integer EncodeDigest(unsigned int modulusBits, const byte *digest, unsigned int digestLength) const =0;
@@ -943,7 +929,7 @@ public:
 
 //! .
 template <class T>
-class DL_KeyAgreementAlgorithm
+class CRYPTOPP_NO_VTABLE DL_KeyAgreementAlgorithm
 {
 public:
 	typedef T Element;
@@ -954,14 +940,14 @@ public:
 
 //! .
 template <class T>
-class DL_KeyDerivationAlgorithm
+class CRYPTOPP_NO_VTABLE DL_KeyDerivationAlgorithm
 {
 public:
 	virtual void Derive(const DL_GroupParameters<T> &params, byte *derivedKey, unsigned int derivedLength, const T &agreedElement, const T &ephemeralPublicKey) const =0;
 };
 
 //! .
-class DL_SymmetricEncryptionAlgorithm
+class CRYPTOPP_NO_VTABLE DL_SymmetricEncryptionAlgorithm
 {
 public:
 	virtual unsigned int GetSymmetricKeyLength(unsigned int plainTextLength) const =0;
@@ -973,7 +959,7 @@ public:
 
 //! .
 template <class KI>
-class DL_Base
+class CRYPTOPP_NO_VTABLE DL_Base
 {
 protected:
 	typedef KI KeyInterface;
@@ -988,7 +974,7 @@ protected:
 
 //! .
 template <class INTERFACE, class KEY_INTERFACE>
-class DL_SignatureSchemeBase : public INTERFACE, public DL_Base<KEY_INTERFACE>
+class CRYPTOPP_NO_VTABLE DL_SignatureSchemeBase : public INTERFACE, public DL_Base<KEY_INTERFACE>
 {
 public:
 	unsigned int SignatureLength() const
@@ -1020,7 +1006,7 @@ protected:
 
 //! .
 template <class T>
-class DL_SignerBase : public DL_SignatureSchemeBase<PK_Signer, DL_PrivateKey<T> >
+class CRYPTOPP_NO_VTABLE DL_SignerBase : public DL_SignatureSchemeBase<PK_Signer, DL_PrivateKey<T> >
 {
 public:
 	// for validation testing
@@ -1093,7 +1079,7 @@ protected:
 
 //! .
 template <class T>
-class DL_VerifierBase : public DL_SignatureSchemeBase<PK_Verifier, DL_PublicKey<T> >
+class CRYPTOPP_NO_VTABLE DL_VerifierBase : public DL_SignatureSchemeBase<PK_Verifier, DL_PublicKey<T> >
 {
 public:
 	void InputSignature(PK_MessageAccumulator &messageAccumulator, const byte *signature, unsigned int signatureLength) const
@@ -1161,7 +1147,7 @@ public:
 
 //! .
 template <class PK, class KI>
-class DL_CryptoSystemBase : public PK, public DL_Base<KI>
+class CRYPTOPP_NO_VTABLE DL_CryptoSystemBase : public PK, public DL_Base<KI>
 {
 public:
 	typedef typename DL_Base<KI>::Element Element;
@@ -1186,7 +1172,7 @@ protected:
 
 //! .
 template <class T, class PK = PK_Decryptor>
-class DL_DecryptorBase : public DL_CryptoSystemBase<PK, DL_PrivateKey<T> >
+class CRYPTOPP_NO_VTABLE DL_DecryptorBase : public DL_CryptoSystemBase<PK, DL_PrivateKey<T> >
 {
 public:
 	typedef T Element;
@@ -1222,7 +1208,7 @@ public:
 
 //! .
 template <class T, class PK = PK_Encryptor>
-class DL_EncryptorBase : public DL_CryptoSystemBase<PK, DL_PublicKey<T> >
+class CRYPTOPP_NO_VTABLE DL_EncryptorBase : public DL_CryptoSystemBase<PK, DL_PublicKey<T> >
 {
 public:
 	typedef T Element;
@@ -1288,19 +1274,18 @@ struct DL_CryptoSchemeOptions : public DL_KeyedSchemeOptions<T1, T2>
 
 //! .
 template <class BASE, class SCHEME_OPTIONS, class KEY>
-class DL_ObjectImplBase : public AlgorithmImpl<BASE, typename SCHEME_OPTIONS::AlgorithmInfo>
+class CRYPTOPP_NO_VTABLE DL_ObjectImplBase : public AlgorithmImpl<BASE, typename SCHEME_OPTIONS::AlgorithmInfo>
 {
 public:
 	typedef SCHEME_OPTIONS SchemeOptions;
-	typedef KEY KeyClass;
-	typedef typename KeyClass::Element Element;
+	typedef typename KEY::Element Element;
 
 	PrivateKey & AccessPrivateKey() {return m_key;}
 	PublicKey & AccessPublicKey() {return m_key;}
 
 	// KeyAccessor
-	const KeyClass & GetKey() const {return m_key;}
-	KeyClass & AccessKey() {return m_key;}
+	const KEY & GetKey() const {return m_key;}
+	KEY & AccessKey() {return m_key;}
 
 protected:
 	typename BASE::KeyInterface & AccessKeyInterface() {return m_key;}
@@ -1319,12 +1304,12 @@ protected:
 	}
 
 private:
-	KeyClass m_key;
+	KEY m_key;
 };
 
 //! .
 template <class BASE, class SCHEME_OPTIONS, class KEY>
-class DL_ObjectImpl : public DL_ObjectImplBase<BASE, SCHEME_OPTIONS, KEY>
+class CRYPTOPP_NO_VTABLE DL_ObjectImpl : public DL_ObjectImplBase<BASE, SCHEME_OPTIONS, KEY>
 {
 public:
 	typedef typename KEY::Element Element;
@@ -1346,7 +1331,7 @@ protected:
 
 //! .
 template <class BASE, class SCHEME_OPTIONS>
-class DL_PublicObjectImpl : public DL_ObjectImpl<BASE, SCHEME_OPTIONS, typename SCHEME_OPTIONS::PublicKey>, public PublicKeyCopier<SCHEME_OPTIONS>
+class CRYPTOPP_NO_VTABLE DL_PublicObjectImpl : public DL_ObjectImpl<BASE, SCHEME_OPTIONS, typename SCHEME_OPTIONS::PublicKey>, public PublicKeyCopier<SCHEME_OPTIONS>
 {
 public:
 	void CopyKeyInto(typename SCHEME_OPTIONS::PublicKey &key) const
@@ -1355,7 +1340,7 @@ public:
 
 //! .
 template <class BASE, class SCHEME_OPTIONS>
-class DL_PrivateObjectImpl : public DL_ObjectImpl<BASE, SCHEME_OPTIONS, typename SCHEME_OPTIONS::PrivateKey>, public PrivateKeyCopier<SCHEME_OPTIONS>
+class CRYPTOPP_NO_VTABLE DL_PrivateObjectImpl : public DL_ObjectImpl<BASE, SCHEME_OPTIONS, typename SCHEME_OPTIONS::PrivateKey>, public PrivateKeyCopier<SCHEME_OPTIONS>
 {
 public:
 	void CopyKeyInto(typename SCHEME_OPTIONS::PublicKey &key) const
@@ -1404,7 +1389,7 @@ class DL_DecryptorImpl : public DL_PrivateObjectImpl<DL_DecryptorBase<typename S
 
 //! .
 template <class T>
-class DL_SimpleKeyAgreementDomainBase : public SimpleKeyAgreementDomain
+class CRYPTOPP_NO_VTABLE DL_SimpleKeyAgreementDomainBase : public SimpleKeyAgreementDomain
 {
 public:
 	typedef T Element;

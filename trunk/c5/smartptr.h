@@ -6,6 +6,14 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+template<class T> class simple_ptr
+{
+public:
+	simple_ptr() : m_p(NULL) {}
+	~simple_ptr() {delete m_p;}
+	T *m_p;
+};
+
 template<class T> class member_ptr
 {
 public:

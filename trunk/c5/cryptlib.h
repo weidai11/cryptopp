@@ -198,7 +198,7 @@ struct DecodingResult
 	alternatively, call GetIntValue() with the value name, and if the type is not int, a
 	ValueTypeMismatch exception will be thrown and you can get the actual type from the exception object.
 */
-class NameValuePairs
+class CRYPTOPP_NO_VTABLE NameValuePairs
 {
 public:
 	virtual ~NameValuePairs() {}
@@ -306,7 +306,7 @@ extern const NullNameValuePairs g_nullNameValuePairs;
 // ********************************************************
 
 //! interface for cloning objects, this is not implemented by most classes yet
-class Clonable
+class CRYPTOPP_NO_VTABLE Clonable
 {
 public:
 	virtual ~Clonable() {}
@@ -316,7 +316,7 @@ public:
 
 //! interface for all crypto algorithms
 
-class Algorithm : public Clonable
+class CRYPTOPP_NO_VTABLE Algorithm : public Clonable
 {
 public:
 	/*! When FIPS 140-2 compliance is enabled and checkSelfTestStatus == true,
@@ -328,7 +328,7 @@ public:
 
 //! keying interface for crypto algorithms that take byte strings as keys
 
-class SimpleKeyingInterface
+class CRYPTOPP_NO_VTABLE SimpleKeyingInterface
 {
 public:
 	//! returns smallest valid key length in bytes */
@@ -399,7 +399,7 @@ protected:
 	These classes should not be used directly, but only in combination with
 	a mode class (see CipherModeDocumentation in modes.h).
 */
-class BlockTransformation : public Algorithm
+class CRYPTOPP_NO_VTABLE BlockTransformation : public Algorithm
 {
 public:
 	//! encrypt or decrypt inBlock, xor with xorBlock, and write to outBlock
@@ -435,7 +435,7 @@ public:
 
 //! interface for the data processing part of stream ciphers
 
-class StreamTransformation : public Algorithm
+class CRYPTOPP_NO_VTABLE StreamTransformation : public Algorithm
 {
 public:
 	//! return a reference to this object, 
@@ -498,7 +498,7 @@ public:
 	be hashed in pieces by calling Update() on each piece followed by
 	calling Final().
 */
-class HashTransformation : public Algorithm
+class CRYPTOPP_NO_VTABLE HashTransformation : public Algorithm
 {
 public:
 	//! process more input
@@ -559,7 +559,7 @@ protected:
 
 //! .
 template <class T>
-class SimpleKeyedTransformation : public T, public SimpleKeyingInterface
+class CRYPTOPP_NO_VTABLE SimpleKeyedTransformation : public T, public SimpleKeyingInterface
 {
 public:
 	void ThrowIfInvalidKeyLength(unsigned int length)
@@ -588,7 +588,7 @@ typedef SymmetricCipher StreamCipher;
 //! interface for random number generators
 /*! All return values are uniformly distributed over the range specified.
 */
-class RandomNumberGenerator : public Algorithm
+class CRYPTOPP_NO_VTABLE RandomNumberGenerator : public Algorithm
 {
 public:
 	//! generate new random byte and return it
@@ -632,7 +632,7 @@ class WaitObjectContainer;
 
 //! interface for objects that you can wait for
 
-class Waitable
+class CRYPTOPP_NO_VTABLE Waitable
 {
 public:
 	//! maximum number of wait objects that this object can return
@@ -670,7 +670,7 @@ public:
 
 	\nosubgrouping
 */
-class BufferedTransformation : public Algorithm, public Waitable
+class CRYPTOPP_NO_VTABLE BufferedTransformation : public Algorithm, public Waitable
 {
 public:
 	// placed up here for CW8
@@ -929,7 +929,7 @@ BufferedTransformation & TheBitBucket();
 
 //! interface for crypto material, such as public and private keys, and crypto parameters
 
-class CryptoMaterial : public NameValuePairs
+class CRYPTOPP_NO_VTABLE CryptoMaterial : public NameValuePairs
 {
 public:
 	//! exception thrown when invalid crypto material is detected
@@ -990,7 +990,7 @@ public:
 
 //! interface for generatable crypto material, such as private keys and crypto parameters
 
-class GeneratableCryptoMaterial : virtual public CryptoMaterial
+class CRYPTOPP_NO_VTABLE GeneratableCryptoMaterial : virtual public CryptoMaterial
 {
 public:
 	//! generate a random key or crypto parameters
@@ -1005,25 +1005,25 @@ public:
 
 //! interface for public keys
 
-class PublicKey : virtual public CryptoMaterial
+class CRYPTOPP_NO_VTABLE PublicKey : virtual public CryptoMaterial
 {
 };
 
 //! interface for private keys
 
-class PrivateKey : public GeneratableCryptoMaterial
+class CRYPTOPP_NO_VTABLE PrivateKey : public GeneratableCryptoMaterial
 {
 };
 
 //! interface for crypto prameters
 
-class CryptoParameters : public GeneratableCryptoMaterial
+class CRYPTOPP_NO_VTABLE CryptoParameters : public GeneratableCryptoMaterial
 {
 };
 
 //! interface for asymmetric algorithms
 
-class AsymmetricAlgorithm : public Algorithm
+class CRYPTOPP_NO_VTABLE AsymmetricAlgorithm : public Algorithm
 {
 public:
 	//! returns a reference to the crypto material used by this object
@@ -1041,7 +1041,7 @@ public:
 
 //! interface for asymmetric algorithms using public keys
 
-class PublicKeyAlgorithm : public AsymmetricAlgorithm
+class CRYPTOPP_NO_VTABLE PublicKeyAlgorithm : public AsymmetricAlgorithm
 {
 public:
 	// VC60 workaround: no co-variant return type
@@ -1054,7 +1054,7 @@ public:
 
 //! interface for asymmetric algorithms using private keys
 
-class PrivateKeyAlgorithm : public AsymmetricAlgorithm
+class CRYPTOPP_NO_VTABLE PrivateKeyAlgorithm : public AsymmetricAlgorithm
 {
 public:
 	CryptoMaterial & AccessMaterial() {return AccessPrivateKey();}
@@ -1066,7 +1066,7 @@ public:
 
 //! interface for key agreement algorithms
 
-class KeyAgreementAlgorithm : public AsymmetricAlgorithm
+class CRYPTOPP_NO_VTABLE KeyAgreementAlgorithm : public AsymmetricAlgorithm
 {
 public:
 	CryptoMaterial & AccessMaterial() {return AccessCryptoParameters();}
@@ -1081,18 +1081,18 @@ public:
 /*! This class provides an interface common to encryptors and decryptors
 	for querying their plaintext and ciphertext lengths.
 */
-class PK_CryptoSystem
+class CRYPTOPP_NO_VTABLE PK_CryptoSystem
 {
 public:
 	virtual ~PK_CryptoSystem() {}
 
 	//! maximum length of plaintext for a given ciphertext length
-	/*! \note This function returns 0 if cipherTextLength is not valid (too long or too short). */
-	virtual unsigned int MaxPlaintextLength(unsigned int cipherTextLength) const =0;
+	/*! \note This function returns 0 if ciphertextLength is not valid (too long or too short). */
+	virtual unsigned int MaxPlaintextLength(unsigned int ciphertextLength) const =0;
 
 	//! calculate length of ciphertext given length of plaintext
-	/*! \note This function returns 0 if plainTextLength is not valid (too long). */
-	virtual unsigned int CiphertextLength(unsigned int plainTextLength) const =0;
+	/*! \note This function returns 0 if plaintextLength is not valid (too long). */
+	virtual unsigned int CiphertextLength(unsigned int plaintextLength) const =0;
 
 #ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
 	unsigned int MaxPlainTextLength(unsigned int cipherTextLength) const {return MaxPlaintextLength(cipherTextLength);}
@@ -1102,7 +1102,7 @@ public:
 
 //! interface for public-key encryptors
 
-class PK_Encryptor : virtual public PK_CryptoSystem, public PublicKeyAlgorithm
+class CRYPTOPP_NO_VTABLE PK_Encryptor : public PK_CryptoSystem, public PublicKeyAlgorithm
 {
 public:
 	//! .
@@ -1113,10 +1113,10 @@ public:
 	};
 
 	//! encrypt a byte string
-	/*! \pre CipherTextLength(plainTextLength) != 0 (i.e., plainText isn't too long)
-		\pre size of cipherText == CipherTextLength(plainTextLength)
+	/*! \pre CiphertextLength(plaintextLength) != 0 (i.e., plaintext isn't too long)
+		\pre size of ciphertext == CiphertextLength(plaintextLength)
 	*/
-	virtual void Encrypt(RandomNumberGenerator &rng, const byte *plainText, unsigned int plainTextLength, byte *cipherText) const =0;
+	virtual void Encrypt(RandomNumberGenerator &rng, const byte *plaintext, unsigned int plaintextLength, byte *ciphertext) const =0;
 
 	//! create a new encryption filter
 	/*! \note caller is responsible for deleting the returned pointer
@@ -1126,14 +1126,14 @@ public:
 
 //! interface for public-key decryptors
 
-class PK_Decryptor : virtual public PK_CryptoSystem, public PrivateKeyAlgorithm
+class CRYPTOPP_NO_VTABLE PK_Decryptor : public PK_CryptoSystem, public PrivateKeyAlgorithm
 {
 public:
 	//! decrypt a byte string, and return the length of plaintext
-	/*! \pre size of plainText == MaxPlainTextLength(cipherTextLength) bytes.
+	/*! \pre size of plaintext == MaxPlaintextLength(ciphertextLength) bytes.
 		\return the actual length of the plaintext, or 0 if decryption fails.
 	*/
-	virtual DecodingResult Decrypt(RandomNumberGenerator &rng, const byte *cipherText, unsigned int cipherTextLength, byte *plainText) const =0;
+	virtual DecodingResult Decrypt(RandomNumberGenerator &rng, const byte *ciphertext, unsigned int ciphertextLength, byte *plaintext) const =0;
 
 	//! create a new decryption filter
 	/*! \note caller is responsible for deleting the returned pointer
@@ -1147,7 +1147,7 @@ public:
 	as RSA) whose ciphertext length and maximum plaintext length
 	depend only on the key.
 */
-class PK_FixedLengthCryptoSystem : virtual public PK_CryptoSystem
+class CRYPTOPP_NO_VTABLE PK_FixedLengthCryptoSystem
 {
 public:
 	//!
@@ -1155,9 +1155,6 @@ public:
 	//!
 	virtual unsigned int FixedCiphertextLength() const =0;
 
-	unsigned int MaxPlaintextLength(unsigned int cipherTextLength) const;
-	unsigned int CiphertextLength(unsigned int plainTextLength) const;
-	
 #ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
 	unsigned int MaxPlainTextLength(unsigned int cipherTextLength) const {return MaxPlaintextLength(cipherTextLength);}
 	unsigned int CipherTextLength(unsigned int plainTextLength) const {return CiphertextLength(plainTextLength);}
@@ -1166,25 +1163,34 @@ public:
 #endif
 };
 
+template <class BASE>
+class CRYPTOPP_NO_VTABLE PK_FixedLengthCryptoSystemImpl : public BASE, public PK_FixedLengthCryptoSystem
+{
+	unsigned int MaxPlaintextLength(unsigned int ciphertextLength) const
+		{return ciphertextLength == FixedCiphertextLength() ? FixedMaxPlaintextLength() : 0;}
+	unsigned int CiphertextLength(unsigned int plaintextLength) const
+		{return plaintextLength <= FixedMaxPlaintextLength() ? FixedCiphertextLength() : 0;}
+};
+
 //! interface for encryptors with fixed length ciphertext
 
-class PK_FixedLengthEncryptor : public PK_Encryptor, virtual public PK_FixedLengthCryptoSystem
+class CRYPTOPP_NO_VTABLE PK_FixedLengthEncryptor : public PK_FixedLengthCryptoSystemImpl<PK_Encryptor>
 {
 };
 
 //! interface for decryptors with fixed length ciphertext
 
-class PK_FixedLengthDecryptor : public PK_Decryptor, virtual public PK_FixedLengthCryptoSystem
+class CRYPTOPP_NO_VTABLE PK_FixedLengthDecryptor : public PK_FixedLengthCryptoSystemImpl<PK_Decryptor>
 {
 public:
 	//! decrypt a byte string, and return the length of plaintext
-	/*! \pre length of cipherText == CipherTextLength()
-		\pre size of plainText == MaxPlainTextLength()
+	/*! \pre length of ciphertext == FixedCiphertextLength()
+		\pre size of plaintext == FixedMaxPlaintextLength()
 		\return the actual length of the plaintext, or 0 if decryption fails.
 	*/
-	virtual DecodingResult FixedLengthDecrypt(RandomNumberGenerator &rng, const byte *cipherText, byte *plainText) const =0;
+	virtual DecodingResult FixedLengthDecrypt(RandomNumberGenerator &rng, const byte *ciphertext, byte *plaintext) const =0;
 
-	DecodingResult Decrypt(RandomNumberGenerator &rng, const byte *cipherText, unsigned int cipherTextLength, byte *plainText) const;
+	DecodingResult Decrypt(RandomNumberGenerator &rng, const byte *ciphertext, unsigned int ciphertextLength, byte *plaintext) const;
 };
 
 //! interface for public-key signers and verifiers
@@ -1192,7 +1198,7 @@ public:
 /*! This class provides an interface common to signers and verifiers
 	for querying scheme properties.
 */
-class PK_SignatureScheme
+class CRYPTOPP_NO_VTABLE PK_SignatureScheme
 {
 public:
 	//! invalid key exception, may be thrown by any function in this class if the private or public key has a length that can't be used
@@ -1241,7 +1247,7 @@ public:
 /*! Only Update() should be called
 	on this class. No other functions inherited from HashTransformation should be called.
 */
-class PK_MessageAccumulator : public HashTransformation
+class CRYPTOPP_NO_VTABLE PK_MessageAccumulator : public HashTransformation
 {
 public:
 	//! should not be called on PK_MessageAccumulator
@@ -1254,7 +1260,7 @@ public:
 
 //! interface for public-key signers
 
-class PK_Signer : virtual public PK_SignatureScheme, public PrivateKeyAlgorithm
+class CRYPTOPP_NO_VTABLE PK_Signer : public PK_SignatureScheme, public PrivateKeyAlgorithm
 {
 public:
 	//! create a new HashTransformation to accumulate the message to be signed
@@ -1295,7 +1301,7 @@ public:
 	recovery and the signature contains a non-empty recoverable message part. The
 	Recovery* functions should be used in that case.
 */
-class PK_Verifier : virtual public PK_SignatureScheme, public PublicKeyAlgorithm
+class CRYPTOPP_NO_VTABLE PK_Verifier : public PK_SignatureScheme, public PublicKeyAlgorithm
 {
 public:
 	//! create a new HashTransformation to accumulate the message to be verified
@@ -1338,7 +1344,7 @@ public:
 	by two parties in a key agreement protocol, along with the algorithms
 	for generating key pairs and deriving agreed values.
 */
-class SimpleKeyAgreementDomain : public KeyAgreementAlgorithm
+class CRYPTOPP_NO_VTABLE SimpleKeyAgreementDomain : public KeyAgreementAlgorithm
 {
 public:
 	//! return length of agreed value produced
@@ -1376,7 +1382,7 @@ public:
 	key pairs. The long-lived key pair is called the static key pair,
 	and the short-lived key pair is called the ephemeral key pair.
 */
-class AuthenticatedKeyAgreementDomain : public KeyAgreementAlgorithm
+class CRYPTOPP_NO_VTABLE AuthenticatedKeyAgreementDomain : public KeyAgreementAlgorithm
 {
 public:
 	//! return length of agreed value produced
@@ -1541,7 +1547,7 @@ public:
 };
 
 //! interface for encoding and decoding ASN1 objects
-class ASN1Object
+class CRYPTOPP_NO_VTABLE ASN1Object
 {
 public:
 	virtual ~ASN1Object() {}

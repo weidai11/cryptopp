@@ -277,7 +277,7 @@ void DoPowerUpSelfTest(const char *moduleFilename, const byte *expectedModuleSha
 			// hash from disk instead
 			if (!verifier.GetLastResult())
 			{
-				OutputDebugString("In memory EDC test failed. This may be caused by debug breakpoints.");
+				OutputDebugString("In memory EDC test failed. This may be caused by debug breakpoints or DLL relocation.\n");
 				verifier.Put(expectedModuleSha1Digest, sha.DigestSize());
 				file.Initialize(MakeParameters(Name::InputFileName(), moduleFilename));
 				file.TransferAllTo(verifier);
