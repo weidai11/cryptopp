@@ -4,7 +4,7 @@
 // ***************** Important Settings ********************
 
 // define this if running on a big-endian CPU
-#if !defined(IS_LITTLE_ENDIAN) && (defined(__sparc) || defined(__sparc__) || defined(__hppa__) || defined(__PPC__) || defined(__mips__) || (defined(__MWERKS__) && !defined(__INTEL__)))
+#if !defined(IS_LITTLE_ENDIAN) && (defined(__BIG_ENDIAN__) || defined(__sparc) || defined(__sparc__) || defined(__hppa__) || defined(__mips__) || (defined(__MWERKS__) && !defined(__INTEL__)))
 #	define IS_BIG_ENDIAN
 #endif
 
@@ -84,7 +84,7 @@
 // Unfortunately there is no way to tell whether or not socklen_t is defined.
 // To work around this, TYPE_OF_SOCKLEN_T is a macro so that you can change it from the makefile.
 #ifndef TYPE_OF_SOCKLEN_T
-#	if defined(_WIN32) || defined(__CYGWIN__)
+#	if defined(_WIN32) || defined(__CYGWIN__) || defined(__MACH__)
 #		define TYPE_OF_SOCKLEN_T int
 #	else
 #		define TYPE_OF_SOCKLEN_T ::socklen_t
@@ -194,11 +194,15 @@ NAMESPACE_END
 #define CRYPTOPP_WIN32_AVAILABLE
 #endif
 
-#if !defined(NO_OS_DEPENDENCE) && defined(WORD64_AVAILABLE) && (defined(_WIN32) || defined(__unix__) || defined(macintosh))
+#if defined(__unix__) || defined(__MACH__)
+#define CRYPTOPP_UNIX_AVAILABLE
+#endif
+
+#if defined(WORD64_AVAILABLE) && (defined(CRYPTOPP_WIN32_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE) || defined(macintosh))
 #	define HIGHRES_TIMER_AVAILABLE
 #endif
 
-#if defined(__unix__)
+#ifdef CRYPTOPP_UNIX_AVAILABLE
 #	define HAS_BERKELEY_STYLE_SOCKETS
 #endif
 
@@ -225,13 +229,10 @@ NAMESPACE_END
 #	define OS_RNG_AVAILABLE
 #endif
 
-#if (defined(__FreeBSD__) || defined(__linux__) || defined(__MACH__))
+#ifdef CRYPTOPP_UNIX_AVAILABLE
 #	define NONBLOCKING_RNG_AVAILABLE
 #	define BLOCKING_RNG_AVAILABLE
 #	define OS_RNG_AVAILABLE
-#endif
-
-#ifdef __unix__
 #	define HAS_PTHREADS
 #	define THREADS_AVAILABLE
 #endif

@@ -8,7 +8,7 @@
 
 #if defined(CRYPTOPP_WIN32_AVAILABLE)
 #include <windows.h>
-#elif defined(__unix__)
+#elif defined(CRYPTOPP_UNIX_AVAILABLE)
 #include <sys/time.h>
 #elif defined(macintosh)
 #include <Timer.h>
@@ -24,7 +24,7 @@ word64 Timer::GetCurrentTimerValue()
 	FILETIME now;
 	GetSystemTimeAsFileTime(&now);
 	return now.dwLowDateTime + ((word64)now.dwHighDateTime << 32);
-#elif defined(__unix__)
+#elif defined(CRYPTOPP_UNIX_AVAILABLE)
 	timeval now;
 	gettimeofday(&now, NULL);
 	return (word64)now.tv_sec * 1000000 + now.tv_usec;

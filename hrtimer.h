@@ -22,7 +22,7 @@ public:
 	{
 #if defined(CRYPTOPP_WIN32_AVAILABLE)
 		return 10000;
-#elif defined(__unix__) || defined(macintosh)
+#elif defined(CRYPTOPP_UNIX_AVAILABLE) || defined(macintosh)
 		return 1000;
 #endif
 	}
