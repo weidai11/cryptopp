@@ -11,11 +11,11 @@ class CRYPTOPP_DLL BaseN_Encoder : public Unflushable<Filter>
 {
 public:
 	BaseN_Encoder(BufferedTransformation *attachment=NULL)
-		: Unflushable<Filter>(attachment) {}
+		{Detach(attachment);}
 
 	BaseN_Encoder(const byte *alphabet, int log2base, BufferedTransformation *attachment=NULL, int padding=-1)
-		: Unflushable<Filter>(attachment)
 	{
+		Detach(attachment);
 		IsolatedInitialize(MakeParameters(Name::EncodingLookupArray(), alphabet)
 			(Name::Log2Base(), log2base)
 			(Name::Pad(), padding != -1)
@@ -36,11 +36,11 @@ class CRYPTOPP_DLL BaseN_Decoder : public Unflushable<Filter>
 {
 public:
 	BaseN_Decoder(BufferedTransformation *attachment=NULL)
-		: Unflushable<Filter>(attachment) {}
+		{Detach(attachment);}
 
 	BaseN_Decoder(const int *lookup, int log2base, BufferedTransformation *attachment=NULL)
-		: Unflushable<Filter>(attachment)
 	{
+		Detach(attachment);
 		IsolatedInitialize(MakeParameters(Name::DecodingLookupArray(), lookup)(Name::Log2Base(), log2base));
 	}
 
@@ -60,11 +60,11 @@ class CRYPTOPP_DLL Grouper : public Bufferless<Filter>
 {
 public:
 	Grouper(BufferedTransformation *attachment=NULL)
-		: Bufferless<Filter>(attachment) {}
+		{Detach(attachment);}
 
 	Grouper(int groupSize, const std::string &separator, const std::string &terminator, BufferedTransformation *attachment=NULL)
-		: Bufferless<Filter>(attachment)
 	{
+		Detach(attachment);
 		IsolatedInitialize(MakeParameters(Name::GroupSize(), groupSize)
 			(Name::Separator(), ConstByteArrayParameter(separator))
 			(Name::Terminator(), ConstByteArrayParameter(terminator)));

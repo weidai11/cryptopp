@@ -14,7 +14,7 @@ class RawIDA : public AutoSignaling<Unflushable<Multichannel<Filter> > >
 {
 public:
 	RawIDA(BufferedTransformation *attachment=NULL)
-		: AutoSignaling<Unflushable<Multichannel<Filter> > >(attachment) {}
+		{Detach(attachment);}
 
 	unsigned int GetThreshold() const {return m_threshold;}
 	void AddOutputChannel(word32 channelId);
@@ -57,8 +57,11 @@ class SecretSharing : public CustomFlushPropagation<Filter>
 {
 public:
 	SecretSharing(RandomNumberGenerator &rng, int threshold, int nShares, BufferedTransformation *attachment=NULL, bool addPadding=true)
-		: CustomFlushPropagation<Filter>(attachment), m_rng(rng), m_ida(new OutputProxy(*this, true))
-		{IsolatedInitialize(MakeParameters("RecoveryThreshold", threshold)("NumberOfShares", nShares)("AddPadding", addPadding));}
+		: m_rng(rng), m_ida(new OutputProxy(*this, true))
+	{
+		Detach(attachment);
+		IsolatedInitialize(MakeParameters("RecoveryThreshold", threshold)("NumberOfShares", nShares)("AddPadding", addPadding));
+	}
 
 	void IsolatedInitialize(const NameValuePairs &parameters=g_nullNameValuePairs);
 	unsigned int Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking);
@@ -92,8 +95,11 @@ class InformationDispersal : public CustomFlushPropagation<Filter>
 {
 public:
 	InformationDispersal(int threshold, int nShares, BufferedTransformation *attachment=NULL, bool addPadding=true)
-		: CustomFlushPropagation<Filter>(attachment), m_ida(new OutputProxy(*this, true))
-		{IsolatedInitialize(MakeParameters("RecoveryThreshold", threshold)("NumberOfShares", nShares)("AddPadding", addPadding));}
+		: m_ida(new OutputProxy(*this, true))
+	{
+		Detach(attachment);
+		IsolatedInitialize(MakeParameters("RecoveryThreshold", threshold)("NumberOfShares", nShares)("AddPadding", addPadding));
+	}
 
 	void IsolatedInitialize(const NameValuePairs &parameters=g_nullNameValuePairs);
 	unsigned int Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking);
@@ -127,7 +133,7 @@ class PaddingRemover : public Unflushable<Filter>
 {
 public:
 	PaddingRemover(BufferedTransformation *attachment=NULL)
-		: Unflushable<Filter>(attachment), m_possiblePadding(false) {}
+		: m_possiblePadding(false) {Detach(attachment);}
 
 	void IsolatedInitialize(const NameValuePairs &parameters) {m_possiblePadding = false;}
 	unsigned int Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking);

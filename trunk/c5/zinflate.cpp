@@ -209,9 +209,10 @@ bool HuffmanDecoder::Decode(LowFirstBitReader &reader, value_t &value) const
 // *************************************************************
 
 Inflator::Inflator(BufferedTransformation *attachment, bool repeat, int propagation)
-	: AutoSignaling<Filter>(attachment, propagation)
+	: AutoSignaling<Filter>(propagation)
 	, m_state(PRE_STREAM), m_repeat(repeat), m_reader(m_inQueue)
 {
+	Detach(attachment);
 }
 
 void Inflator::IsolatedInitialize(const NameValuePairs &parameters)

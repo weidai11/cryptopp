@@ -118,7 +118,7 @@ public:
 	const EllipticCurve& GetCurve() const {return m_groupPrecomputation.GetCurve();}
 
 	bool operator==(const ThisClass &rhs) const
-		{return DL_GroupParametersImpl<EcPrecomputation<EC> >::operator==(rhs);}
+		{return m_groupPrecomputation.GetCurve() == rhs.m_groupPrecomputation.GetCurve() && m_gpc.GetBase(m_groupPrecomputation) == rhs.m_gpc.GetBase(rhs.m_groupPrecomputation);}
 
 #ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
 	const Point& GetBasePoint() const {return GetSubgroupGenerator();}

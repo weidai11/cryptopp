@@ -40,14 +40,12 @@ const BufferedTransformation *Filter::AttachedTransformation() const
 void Filter::Detach(BufferedTransformation *newOut)
 {
 	m_attachment.reset(newOut);
-	NotifyAttachmentChange();
 }
 
 void Filter::Insert(Filter *filter)
 {
 	filter->m_attachment.reset(m_attachment.release());
 	m_attachment.reset(filter);
-	NotifyAttachmentChange();
 }
 
 unsigned int Filter::CopyRangeTo2(BufferedTransformation &target, unsigned long &begin, unsigned long end, const std::string &channel, bool blocking) const
@@ -896,14 +894,20 @@ unsigned int StringStore::CopyRangeTo2(BufferedTransformation &target, unsigned 
 	return blockedBytes;
 }
 
+void RandomNumberStore::StoreInitialize(const NameValuePairs &parameters)
+{
+	parameters.GetRequiredParameter("RandomNumberStore", "RandomNumberGeneratorPointer", m_rng);
+	parameters.GetRequiredIntParameter("RandomNumberStore", "RandomNumberStoreSize", m_length);
+}
+
 unsigned int RandomNumberStore::TransferTo2(BufferedTransformation &target, unsigned long &transferBytes, const std::string &channel, bool blocking)
 {
 	if (!blocking)
 		throw NotImplemented("RandomNumberStore: nonblocking transfer is not implemented by this object");
 
 	unsigned long transferMax = transferBytes;
-	for (transferBytes = 0; transferBytes<transferMax && m_count < m_length; ++transferBytes, ++m_count)
-		target.ChannelPut(channel, m_rng.GenerateByte());
+	for (transferBytes = 0; transferBytes<transferMax && m_count < (unsigned long)m_length; ++transferBytes, ++m_count)
+		target.ChannelPut(channel, m_rng->GenerateByte());
 	return 0;
 }
 

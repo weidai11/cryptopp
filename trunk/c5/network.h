@@ -11,7 +11,7 @@ class CRYPTOPP_NO_VTABLE NonblockingSource : public AutoSignaling<Source>
 {
 public:
 	NonblockingSource(BufferedTransformation *attachment)
-		: AutoSignaling<Source>(attachment), m_messageEndSent(false) {}
+		: m_messageEndSent(false) {Detach(attachment);}
 
 	//!	\name NONBLOCKING SOURCE
 	//@{
