@@ -17,11 +17,8 @@ using namespace std;
 
 NAMESPACE_BEGIN(CryptoPP)
 
-void RawIDA::ChannelInitialize(const string &channel, const NameValuePairs &parameters, int propagation)
+void RawIDA::IsolatedInitialize(const NameValuePairs &parameters)
 {
-	if (!channel.empty())
-		throw NotImplemented("RawIDA: can't reinitialize a channel");
-
 	if (!parameters.GetIntValue("RecoveryThreshold", m_threshold))
 		throw InvalidArgument("RawIDA: missing RecoveryThreshold argument");
 
@@ -48,10 +45,6 @@ void RawIDA::ChannelInitialize(const string &channel, const NameValuePairs &para
 		for (int i=0; i<nShares; i++)
 			AddOutputChannel(i);
 	}
-
-	if (propagation)
-		for (unsigned int i=0; i<m_outputChannelIds.size(); i++)
-			AttachedTransformation()->ChannelInitialize(m_outputChannelIdStrings[i], parameters, propagation-1);
 }
 
 unsigned int RawIDA::InsertInputChannel(word32 channelId)
@@ -240,10 +233,10 @@ void RawIDA::OutputMessageEnds()
 
 // ****************************************************************
 
-void SecretSharing::Initialize(const NameValuePairs &parameters, int propagation)
+void SecretSharing::IsolatedInitialize(const NameValuePairs &parameters)
 {
 	m_pad = parameters.GetValueWithDefault("AddPadding", true);
-	m_ida.Initialize(parameters, propagation);
+	m_ida.IsolatedInitialize(parameters);
 }
 
 unsigned int SecretSharing::Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking)
@@ -283,10 +276,10 @@ unsigned int SecretSharing::Put2(const byte *begin, unsigned int length, int mes
 	return 0;
 }
 
-void SecretRecovery::Initialize(const NameValuePairs &parameters, int propagation)
+void SecretRecovery::IsolatedInitialize(const NameValuePairs &parameters)
 {
 	m_pad = parameters.GetValueWithDefault("RemovePadding", true);
-	RawIDA::Initialize(CombinedNameValuePairs(parameters, MakeParameters("OutputChannelID", (word32)0xffffffff)), propagation);
+	RawIDA::IsolatedInitialize(CombinedNameValuePairs(parameters, MakeParameters("OutputChannelID", (word32)0xffffffff)));
 }
 
 void SecretRecovery::FlushOutputQueues()
@@ -311,11 +304,11 @@ void SecretRecovery::OutputMessageEnds()
 
 // ****************************************************************
 
-void InformationDispersal::Initialize(const NameValuePairs &parameters, int propagation)
+void InformationDispersal::IsolatedInitialize(const NameValuePairs &parameters)
 {
 	m_nextChannel = 0;
 	m_pad = parameters.GetValueWithDefault("AddPadding", true);
-	m_ida.Initialize(parameters, propagation);
+	m_ida.IsolatedInitialize(parameters);
 }
 
 unsigned int InformationDispersal::Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking)
@@ -344,10 +337,10 @@ unsigned int InformationDispersal::Put2(const byte *begin, unsigned int length, 
 	return 0;
 }
 
-void InformationRecovery::Initialize(const NameValuePairs &parameters, int propagation)
+void InformationRecovery::IsolatedInitialize(const NameValuePairs &parameters)
 {
 	m_pad = parameters.GetValueWithDefault("RemovePadding", true);
-	RawIDA::Initialize(parameters, propagation);
+	RawIDA::IsolatedInitialize(parameters);
 }
 
 void InformationRecovery::FlushOutputQueues()

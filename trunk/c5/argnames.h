@@ -33,6 +33,7 @@ CRYPTOPP_DEFINE_NAME_STRING(Cofactor)			//!< Integer
 CRYPTOPP_DEFINE_NAME_STRING(SubgroupGenerator)	//!< Integer, ECP::Point, or EC2N::Point
 CRYPTOPP_DEFINE_NAME_STRING(Curve)				//!< ECP or EC2N
 CRYPTOPP_DEFINE_NAME_STRING(GroupOID)			//!< OID
+CRYPTOPP_DEFINE_NAME_STRING(PointerToPrimeSelector)		//!< const PrimeSelector *
 CRYPTOPP_DEFINE_NAME_STRING(Prime1)				//!< Integer
 CRYPTOPP_DEFINE_NAME_STRING(Prime2)				//!< Integer
 CRYPTOPP_DEFINE_NAME_STRING(ModPrime1PrivateExponent)	//!< Integer
@@ -52,6 +53,8 @@ CRYPTOPP_DEFINE_NAME_STRING(InputBinaryMode)	//!< bool
 CRYPTOPP_DEFINE_NAME_STRING(OutputFileName)		//!< const char *
 CRYPTOPP_DEFINE_NAME_STRING(OutputStreamPointer)	//!< std::ostream *
 CRYPTOPP_DEFINE_NAME_STRING(OutputBinaryMode)	//!< bool
+CRYPTOPP_DEFINE_NAME_STRING(EncodingParameters)	//!< ConstByteArrayParameter
+CRYPTOPP_DEFINE_NAME_STRING(KeyDerivationParameters)	//!< ConstByteArrayParameter
 
 DOCUMENTED_NAMESPACE_END
 

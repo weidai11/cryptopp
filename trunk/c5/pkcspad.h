@@ -17,8 +17,8 @@ public:
 	static const char * StaticAlgorithmName() {return "EME-PKCS1-v1_5";}
 
 	unsigned int MaxUnpaddedLength(unsigned int paddedLength) const;
-	void Pad(RandomNumberGenerator &rng, const byte *raw, unsigned int inputLength, byte *padded, unsigned int paddedLength) const;
-	DecodingResult Unpad(const byte *padded, unsigned int paddedLength, byte *raw) const;
+	void Pad(RandomNumberGenerator &rng, const byte *raw, unsigned int inputLength, byte *padded, unsigned int paddedLength, const NameValuePairs &parameters) const;
+	DecodingResult Unpad(const byte *padded, unsigned int paddedLength, byte *raw, const NameValuePairs &parameters) const;
 };
 
 template <class H> class PKCS_DigestDecoration

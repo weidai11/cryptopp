@@ -95,10 +95,10 @@ bool Filter::MessageSeriesEnd(int propagation, bool blocking)
 	return false;
 }
 
-void Filter::PropagateInitialize(const NameValuePairs &parameters, int propagation, const std::string &channel)
+void Filter::PropagateInitialize(const NameValuePairs &parameters, int propagation)
 {
 	if (propagation)
-		AttachedTransformation()->ChannelInitialize(channel, parameters, propagation-1);
+		AttachedTransformation()->Initialize(parameters, propagation-1);
 }
 
 unsigned int Filter::OutputModifiable(int outputSite, byte *inString, unsigned int length, int messageEnd, bool blocking, const std::string &channel)
@@ -409,16 +409,13 @@ void FilterWithBufferedInput::NextPutMultiple(const byte *inString, unsigned int
 
 // *************************************************************
 
-void Redirector::ChannelInitialize(const std::string &channel, const NameValuePairs &parameters, int propagation)
+void Redirector::Initialize(const NameValuePairs &parameters, int propagation)
 {
-	if (channel.empty())
-	{
-		m_target = parameters.GetValueWithDefault("RedirectionTargetPointer", (BufferedTransformation*)NULL);
-		m_behavior = parameters.GetIntValueWithDefault("RedirectionBehavior", PASS_EVERYTHING);
-	}
+	m_target = parameters.GetValueWithDefault("RedirectionTargetPointer", (BufferedTransformation*)NULL);
+	m_behavior = parameters.GetIntValueWithDefault("RedirectionBehavior", PASS_EVERYTHING);
 
 	if (m_target && GetPassSignals())
-		m_target->ChannelInitialize(channel, parameters, propagation);
+		m_target->Initialize(parameters, propagation);
 }
 
 // *************************************************************

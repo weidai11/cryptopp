@@ -193,6 +193,8 @@ void Grouper::IsolatedInitialize(const NameValuePairs &parameters)
 	ConstByteArrayParameter separator, terminator;
 	if (m_groupSize)
 		parameters.GetRequiredParameter("Grouper", "Separator", separator);
+	else
+		parameters.GetValue("Separator", separator);
 	parameters.GetValue("Terminator", terminator);
 
 	m_separator.Assign(separator.begin(), separator.size());

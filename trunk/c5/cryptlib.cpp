@@ -10,6 +10,7 @@
 #include "algparam.h"
 #include "fips140.h"
 #include "argnames.h"
+#include "fltrimpl.h"
 
 #include <memory>
 
@@ -222,14 +223,6 @@ unsigned int BufferedTransformation::ChannelPutModifiable2(const std::string &ch
 		return PutModifiable2(begin, length, messageEnd, blocking);
 	else
 		return ChannelPut2(channel, begin, length, messageEnd, blocking);
-}
-
-void BufferedTransformation::ChannelInitialize(const std::string &channel, const NameValuePairs &parameters, int propagation)
-{
-	if (channel.empty())
-		Initialize(parameters, propagation);
-	else
-		throw NoChannelSupport();
 }
 
 bool BufferedTransformation::ChannelFlush(const std::string &channel, bool completeFlush, int propagation, bool blocking)
@@ -527,100 +520,89 @@ void GeneratableCryptoMaterial::GenerateRandomWithKeySize(RandomNumberGenerator 
 	GenerateRandom(rng, MakeParameters("KeySize", (int)keySize));
 }
 
-BufferedTransformation * PK_Encryptor::CreateEncryptionFilter(RandomNumberGenerator &rng, BufferedTransformation *attachment) const
+BufferedTransformation * PK_Encryptor::CreateEncryptionFilter(RandomNumberGenerator &rng, BufferedTransformation *attachment, const NameValuePairs &parameters) const
 {
-	struct EncryptionFilter : public Unflushable<FilterWithInputQueue>
+	struct EncryptionFilter : public Unflushable<Filter>
 	{
-		// VC60 complains if this function is missing
-		EncryptionFilter(const EncryptionFilter &x) : Unflushable<FilterWithInputQueue>(NULL), m_rng(x.m_rng), m_encryptor(x.m_encryptor) {}
-
-		EncryptionFilter(RandomNumberGenerator &rng, const PK_Encryptor &encryptor, BufferedTransformation *attachment)
-			: Unflushable<FilterWithInputQueue>(attachment), m_rng(rng), m_encryptor(encryptor)
+		EncryptionFilter(RandomNumberGenerator &rng, const PK_Encryptor &encryptor, BufferedTransformation *attachment, const NameValuePairs &parameters)
+			: Unflushable<Filter>(attachment), m_rng(rng), m_encryptor(encryptor), m_parameters(parameters)
 		{
 		}
 
-		bool IsolatedMessageEnd(bool blocking)
+		unsigned int Put2(const byte *inString, unsigned int length, int messageEnd, bool blocking)
 		{
-			switch (m_continueAt)
+			FILTER_BEGIN;
+			m_plaintextQueue.Put(inString, length);
+
+			if (messageEnd)
 			{
-			case 0:
 				{
-				unsigned int plaintextLength = m_inQueue.CurrentSize();
-				m_ciphertextLength = m_encryptor.CiphertextLength(plaintextLength);
+				unsigned int plaintextLength = m_plaintextQueue.CurrentSize();
+				unsigned int ciphertextLength = m_encryptor.CiphertextLength(plaintextLength);
 
 				SecByteBlock plaintext(plaintextLength);
-				m_inQueue.Get(plaintext, plaintextLength);
-				m_ciphertext.resize(m_ciphertextLength);
-				m_encryptor.Encrypt(m_rng, plaintext, plaintextLength, m_ciphertext);
+				m_plaintextQueue.Get(plaintext, plaintextLength);
+				m_ciphertext.resize(ciphertextLength);
+				m_encryptor.Encrypt(m_rng, plaintext, plaintextLength, m_ciphertext, m_parameters);
 				}
-
-			case 1:
-				if (!Output(1, m_ciphertext, m_ciphertextLength, 0, blocking))
-					return false;
-			};
-			return true;
+				
+				FILTER_OUTPUT(1, m_ciphertext, m_ciphertext.size(), messageEnd);
+			}
+			FILTER_END_NO_MESSAGE_END;
 		}
 
 		RandomNumberGenerator &m_rng;
 		const PK_Encryptor &m_encryptor;
-		unsigned int m_ciphertextLength;
+		const NameValuePairs &m_parameters;
+		ByteQueue m_plaintextQueue;
 		SecByteBlock m_ciphertext;
 	};
 
-	return new EncryptionFilter(rng, *this, attachment);
+	return new EncryptionFilter(rng, *this, attachment, parameters);
 }
 
-BufferedTransformation * PK_Decryptor::CreateDecryptionFilter(RandomNumberGenerator &rng, BufferedTransformation *attachment) const
+BufferedTransformation * PK_Decryptor::CreateDecryptionFilter(RandomNumberGenerator &rng, BufferedTransformation *attachment, const NameValuePairs &parameters) const
 {
-	struct DecryptionFilter : public Unflushable<FilterWithInputQueue>
+	struct DecryptionFilter : public Unflushable<Filter>
 	{
-		// VC60 complains if this function is missing
-		DecryptionFilter(const DecryptionFilter &x) : Unflushable<FilterWithInputQueue>(NULL), m_rng(x.m_rng), m_decryptor(x.m_decryptor) {}
-
-		DecryptionFilter(RandomNumberGenerator &rng, const PK_Decryptor &decryptor, BufferedTransformation *attachment)
-			: Unflushable<FilterWithInputQueue>(attachment), m_rng(rng), m_decryptor(decryptor)
+		DecryptionFilter(RandomNumberGenerator &rng, const PK_Decryptor &decryptor, BufferedTransformation *attachment, const NameValuePairs &parameters)
+			: Unflushable<Filter>(attachment), m_rng(rng), m_decryptor(decryptor), m_parameters(parameters)
 		{
 		}
 
-		bool IsolatedMessageEnd(bool blocking)
+		unsigned int Put2(const byte *inString, unsigned int length, int messageEnd, bool blocking)
 		{
-			switch (m_continueAt)
+			FILTER_BEGIN;
+			m_ciphertextQueue.Put(inString, length);
+
+			if (messageEnd)
 			{
-			case 0:
 				{
-				unsigned int ciphertextLength = m_inQueue.CurrentSize();
+				unsigned int ciphertextLength = m_ciphertextQueue.CurrentSize();
 				unsigned int maxPlaintextLength = m_decryptor.MaxPlaintextLength(ciphertextLength);
 
 				SecByteBlock ciphertext(ciphertextLength);
-				m_inQueue.Get(ciphertext, ciphertextLength);
+				m_ciphertextQueue.Get(ciphertext, ciphertextLength);
 				m_plaintext.resize(maxPlaintextLength);
-				m_result = m_decryptor.Decrypt(m_rng, ciphertext, ciphertextLength, m_plaintext);
+				m_result = m_decryptor.Decrypt(m_rng, ciphertext, ciphertextLength, m_plaintext, m_parameters);
 				if (!m_result.isValidCoding)
 					throw InvalidCiphertext(m_decryptor.AlgorithmName() + ": invalid ciphertext");
 				}
 
-			case 1:
-				if (!Output(1, m_plaintext, m_result.messageLength, 0, blocking))
-					return false;
+				FILTER_OUTPUT(1, m_plaintext, m_result.messageLength, messageEnd);
 			}
-			return true;
+			FILTER_END_NO_MESSAGE_END;
 		}
 
 		RandomNumberGenerator &m_rng;
 		const PK_Decryptor &m_decryptor;
+		const NameValuePairs &m_parameters;
+		ByteQueue m_ciphertextQueue;
 		SecByteBlock m_plaintext;
 		DecodingResult m_result;
 	};
 
-	return new DecryptionFilter(rng, *this, attachment);
-}
-
-DecodingResult PK_FixedLengthDecryptor::Decrypt(RandomNumberGenerator &rng, const byte *cipherText, unsigned int cipherTextLength, byte *plainText) const
-{
-	if (cipherTextLength != FixedCiphertextLength())
-		return DecodingResult();
-
-	return FixedLengthDecrypt(rng, cipherText, plainText);
+	return new DecryptionFilter(rng, *this, attachment, parameters);
 }
 
 unsigned int PK_Signer::Sign(RandomNumberGenerator &rng, PK_MessageAccumulator *messageAccumulator, byte *signature) const

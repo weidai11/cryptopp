@@ -21,7 +21,7 @@ public:
 	void ChannelData(word32 channelId, const byte *inString, unsigned int length, bool messageEnd);
 	unsigned int InputBuffered(word32 channelId) const;
 
-	void ChannelInitialize(const std::string &channel, const NameValuePairs &parameters=g_nullNameValuePairs, int propagation=-1);
+	void IsolatedInitialize(const NameValuePairs &parameters=g_nullNameValuePairs);
 	unsigned int ChannelPut2(const std::string &channel, const byte *begin, unsigned int length, int messageEnd, bool blocking)
 	{
 		if (!blocking)
@@ -53,14 +53,14 @@ protected:
 };
 
 /// a variant of Shamir's Secret Sharing Algorithm
-class SecretSharing : public CustomSignalPropagation<Filter>
+class SecretSharing : public CustomFlushPropagation<Filter>
 {
 public:
 	SecretSharing(RandomNumberGenerator &rng, int threshold, int nShares, BufferedTransformation *attachment=NULL, bool addPadding=true)
-		: CustomSignalPropagation<Filter>(attachment), m_rng(rng), m_ida(new OutputProxy(*this, true))
-		{Initialize(MakeParameters("RecoveryThreshold", threshold)("NumberOfShares", nShares)("AddPadding", addPadding), 0);}
+		: CustomFlushPropagation<Filter>(attachment), m_rng(rng), m_ida(new OutputProxy(*this, true))
+		{IsolatedInitialize(MakeParameters("RecoveryThreshold", threshold)("NumberOfShares", nShares)("AddPadding", addPadding));}
 
-	void Initialize(const NameValuePairs &parameters=g_nullNameValuePairs, int propagation=-1);
+	void IsolatedInitialize(const NameValuePairs &parameters=g_nullNameValuePairs);
 	unsigned int Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking);
 	bool Flush(bool hardFlush, int propagation=-1, bool blocking=true) {return m_ida.Flush(hardFlush, propagation, blocking);}
 
@@ -76,9 +76,9 @@ class SecretRecovery : public RawIDA
 public:
 	SecretRecovery(int threshold, BufferedTransformation *attachment=NULL, bool removePadding=true)
 		: RawIDA(attachment)
-		{Initialize(MakeParameters("RecoveryThreshold", threshold)("RemovePadding", removePadding), 0);}
+		{IsolatedInitialize(MakeParameters("RecoveryThreshold", threshold)("RemovePadding", removePadding));}
 
-	void Initialize(const NameValuePairs &parameters=g_nullNameValuePairs, int propagation=-1);
+	void IsolatedInitialize(const NameValuePairs &parameters=g_nullNameValuePairs);
 
 protected:
 	void FlushOutputQueues();
@@ -88,14 +88,14 @@ protected:
 };
 
 /// a variant of Rabin's Information Dispersal Algorithm
-class InformationDispersal : public CustomSignalPropagation<Filter>
+class InformationDispersal : public CustomFlushPropagation<Filter>
 {
 public:
 	InformationDispersal(int threshold, int nShares, BufferedTransformation *attachment=NULL, bool addPadding=true)
-		: CustomSignalPropagation<Filter>(attachment), m_ida(new OutputProxy(*this, true))
-		{Initialize(MakeParameters("RecoveryThreshold", threshold)("NumberOfShares", nShares)("AddPadding", addPadding), 0);}
+		: CustomFlushPropagation<Filter>(attachment), m_ida(new OutputProxy(*this, true))
+		{IsolatedInitialize(MakeParameters("RecoveryThreshold", threshold)("NumberOfShares", nShares)("AddPadding", addPadding));}
 
-	void Initialize(const NameValuePairs &parameters=g_nullNameValuePairs, int propagation=-1);
+	void IsolatedInitialize(const NameValuePairs &parameters=g_nullNameValuePairs);
 	unsigned int Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking);
 	bool Flush(bool hardFlush, int propagation=-1, bool blocking=true) {return m_ida.Flush(hardFlush, propagation, blocking);}
 
@@ -111,9 +111,9 @@ class InformationRecovery : public RawIDA
 public:
 	InformationRecovery(int threshold, BufferedTransformation *attachment=NULL, bool removePadding=true)
 		: RawIDA(attachment)
-		{Initialize(MakeParameters("RecoveryThreshold", threshold)("RemovePadding", removePadding), 0);}
+		{IsolatedInitialize(MakeParameters("RecoveryThreshold", threshold)("RemovePadding", removePadding));}
 
-	void Initialize(const NameValuePairs &parameters=g_nullNameValuePairs, int propagation=-1);
+	void IsolatedInitialize(const NameValuePairs &parameters=g_nullNameValuePairs);
 
 protected:
 	void FlushOutputQueues();

@@ -418,13 +418,14 @@ template <class MAC, bool DHAES_MODE>
 class DL_EncryptionAlgorithm_Xor : public DL_SymmetricEncryptionAlgorithm
 {
 public:
-	unsigned int GetSymmetricKeyLength(unsigned int plainTextLength) const
-		{return plainTextLength + MAC::DEFAULT_KEYLENGTH;}
-	unsigned int GetSymmetricCiphertextLength(unsigned int plainTextLength) const
-		{return plainTextLength + MAC::DIGESTSIZE;}
-	unsigned int GetMaxSymmetricPlaintextLength(unsigned int cipherTextLength) const
-		{return SaturatingSubtract(cipherTextLength, (unsigned int)MAC::DIGESTSIZE);}
-	void SymmetricEncrypt(RandomNumberGenerator &rng, const byte *key, const byte *plainText, unsigned int plainTextLength, byte *cipherText) const
+	bool ParameterSupported(const char *name) const {return strcmp(name, Name::EncodingParameters()) == 0;}
+	unsigned int GetSymmetricKeyLength(unsigned int plaintextLength) const
+		{return plaintextLength + MAC::DEFAULT_KEYLENGTH;}
+	unsigned int GetSymmetricCiphertextLength(unsigned int plaintextLength) const
+		{return plaintextLength + MAC::DIGESTSIZE;}
+	unsigned int GetMaxSymmetricPlaintextLength(unsigned int ciphertextLength) const
+		{return SaturatingSubtract(ciphertextLength, (unsigned int)MAC::DIGESTSIZE);}
+	void SymmetricEncrypt(RandomNumberGenerator &rng, const byte *key, const byte *plaintext, unsigned int plaintextLength, byte *ciphertext, const NameValuePairs &parameters) const
 	{
 		const byte *cipherKey, *macKey;
 		if (DHAES_MODE)
@@ -435,22 +436,27 @@ public:
 		else
 		{
 			cipherKey = key;
-			macKey = key + plainTextLength;
+			macKey = key + plaintextLength;
 		}
 
-		xorbuf(cipherText, plainText, cipherKey, plainTextLength);
+		ConstByteArrayParameter encodingParameters;
+		parameters.GetValue(Name::EncodingParameters(), encodingParameters);
+
+		xorbuf(ciphertext, plaintext, cipherKey, plaintextLength);
 		MAC mac(macKey);
-		mac.Update(cipherText, plainTextLength);
+		mac.Update(ciphertext, plaintextLength);
+		mac.Update(encodingParameters.begin(), encodingParameters.size());
 		if (DHAES_MODE)
 		{
-			const byte L[8] = {0,0,0,0,0,0,0,0};
+			byte L[8] = {0,0,0,0};
+			UnalignedPutWord(BIG_ENDIAN_ORDER, L+4, word32(encodingParameters.size()));
 			mac.Update(L, 8);
 		}
-		mac.Final(cipherText + plainTextLength);
+		mac.Final(ciphertext + plaintextLength);
 	}
-	DecodingResult SymmetricDecrypt(const byte *key, const byte *cipherText, unsigned int cipherTextLength, byte *plainText) const
+	DecodingResult SymmetricDecrypt(const byte *key, const byte *ciphertext, unsigned int ciphertextLength, byte *plaintext, const NameValuePairs &parameters) const
 	{
-		unsigned int plainTextLength = GetMaxSymmetricPlaintextLength(cipherTextLength);
+		unsigned int plaintextLength = GetMaxSymmetricPlaintextLength(ciphertextLength);
 		const byte *cipherKey, *macKey;
 		if (DHAES_MODE)
 		{
@@ -460,21 +466,26 @@ public:
 		else
 		{
 			cipherKey = key;
-			macKey = key + plainTextLength;
+			macKey = key + plaintextLength;
 		}
 
+		ConstByteArrayParameter encodingParameters;
+		parameters.GetValue(Name::EncodingParameters(), encodingParameters);
+
 		MAC mac(macKey);
-		mac.Update(cipherText, plainTextLength);
+		mac.Update(ciphertext, plaintextLength);
+		mac.Update(encodingParameters.begin(), encodingParameters.size());
 		if (DHAES_MODE)
 		{
-			const byte L[8] = {0,0,0,0,0,0,0,0};
+			byte L[8] = {0,0,0,0};
+			UnalignedPutWord(BIG_ENDIAN_ORDER, L+4, word32(encodingParameters.size()));
 			mac.Update(L, 8);
 		}
-		if (!mac.Verify(cipherText + plainTextLength))
+		if (!mac.Verify(ciphertext + plaintextLength))
 			return DecodingResult();
 
-		xorbuf(plainText, cipherText, cipherKey, plainTextLength);
-		return DecodingResult(plainTextLength);
+		xorbuf(plaintext, ciphertext, cipherKey, plaintextLength);
+		return DecodingResult(plaintextLength);
 	}
 };
 
@@ -483,7 +494,8 @@ template <class T, bool DHAES_MODE, class KDF>
 class DL_KeyDerivationAlgorithm_P1363 : public DL_KeyDerivationAlgorithm<T>
 {
 public:
-	void Derive(const DL_GroupParameters<T> &params, byte *derivedKey, unsigned int derivedLength, const T &agreedElement, const T &ephemeralPublicKey) const
+	bool ParameterSupported(const char *name) const {return strcmp(name, Name::KeyDerivationParameters()) == 0;}
+	void Derive(const DL_GroupParameters<T> &params, byte *derivedKey, unsigned int derivedLength, const T &agreedElement, const T &ephemeralPublicKey, const NameValuePairs &parameters) const
 	{
 		SecByteBlock agreedSecret;
 		if (DHAES_MODE)
@@ -498,7 +510,9 @@ public:
 			params.EncodeElement(false, agreedElement, agreedSecret);
 		}
 
-		KDF::DeriveKey(derivedKey, derivedLength, agreedSecret, agreedSecret.size());
+		ConstByteArrayParameter derivationParameters;
+		parameters.GetValue(Name::KeyDerivationParameters(), derivationParameters);
+		KDF::DeriveKey(derivedKey, derivedLength, agreedSecret, agreedSecret.size(), derivationParameters.begin(), derivationParameters.size());
 	}
 };
 

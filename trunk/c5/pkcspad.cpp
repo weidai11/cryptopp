@@ -33,7 +33,7 @@ unsigned int PKCS_EncryptionPaddingScheme::MaxUnpaddedLength(unsigned int padded
 	return SaturatingSubtract(paddedLength/8, 10U);
 }
 
-void PKCS_EncryptionPaddingScheme::Pad(RandomNumberGenerator &rng, const byte *input, unsigned int inputLen, byte *pkcsBlock, unsigned int pkcsBlockLen) const
+void PKCS_EncryptionPaddingScheme::Pad(RandomNumberGenerator &rng, const byte *input, unsigned int inputLen, byte *pkcsBlock, unsigned int pkcsBlockLen, const NameValuePairs &parameters) const
 {
 	assert (inputLen <= MaxUnpaddedLength(pkcsBlockLen));	// this should be checked by caller
 
@@ -55,7 +55,7 @@ void PKCS_EncryptionPaddingScheme::Pad(RandomNumberGenerator &rng, const byte *i
 	memcpy(pkcsBlock+pkcsBlockLen-inputLen, input, inputLen);
 }
 
-DecodingResult PKCS_EncryptionPaddingScheme::Unpad(const byte *pkcsBlock, unsigned int pkcsBlockLen, byte *output) const
+DecodingResult PKCS_EncryptionPaddingScheme::Unpad(const byte *pkcsBlock, unsigned int pkcsBlockLen, byte *output, const NameValuePairs &parameters) const
 {
 	bool invalid = false;
 	unsigned int maxOutputLen = MaxUnpaddedLength(pkcsBlockLen);

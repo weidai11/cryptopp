@@ -109,29 +109,38 @@ protected:
 };
 
 template <class T>
-class CRYPTOPP_NO_VTABLE CustomSignalPropagation : public T
+class CRYPTOPP_NO_VTABLE CustomFlushPropagation : public T
 {
 public:
-	CustomSignalPropagation() {}
-	CustomSignalPropagation(BufferedTransformation *q) : T(q) {}
+	CustomFlushPropagation() {}
+	CustomFlushPropagation(BufferedTransformation *q) : T(q) {}
 
-	virtual void Initialize(const NameValuePairs &parameters=g_nullNameValuePairs, int propagation=-1) =0;
 	virtual bool Flush(bool hardFlush, int propagation=-1, bool blocking=true) =0;
 
 private:
-	void IsolatedInitialize(const NameValuePairs &parameters) {assert(false);}
 	bool IsolatedFlush(bool hardFlush, bool blocking) {assert(false); return false;}
 };
 
 template <class T>
-class CRYPTOPP_NO_VTABLE Multichannel : public CustomSignalPropagation<T>
+class CRYPTOPP_NO_VTABLE CustomSignalPropagation : public CustomFlushPropagation<T>
+{
+public:
+	CustomSignalPropagation() {}
+	CustomSignalPropagation(BufferedTransformation *q) : CustomFlushPropagation<T>(q) {}
+
+	virtual void Initialize(const NameValuePairs &parameters=g_nullNameValuePairs, int propagation=-1) =0;
+
+private:
+	void IsolatedInitialize(const NameValuePairs &parameters) {assert(false);}
+};
+
+template <class T>
+class CRYPTOPP_NO_VTABLE Multichannel : public CustomFlushPropagation<T>
 {
 public:
 	Multichannel() {}
-	Multichannel(BufferedTransformation *q) : CustomSignalPropagation<T>(q) {}
+	Multichannel(BufferedTransformation *q) : CustomFlushPropagation<T>(q) {}
 
-	void Initialize(const NameValuePairs &parameters, int propagation)
-		{ChannelInitialize(NULL_CHANNEL, parameters, propagation);}
 	bool Flush(bool hardFlush, int propagation=-1, bool blocking=true)
 		{return ChannelFlush(NULL_CHANNEL, hardFlush, propagation, blocking);}
 	bool MessageSeriesEnd(int propagation=-1, bool blocking=true)
@@ -154,7 +163,6 @@ public:
 	unsigned int ChannelPutModifiable2(const std::string &channel, byte *begin, unsigned int length, int messageEnd, bool blocking)
 		{return ChannelPut2(channel, begin, length, messageEnd, blocking);}
 
-	virtual void ChannelInitialize(const std::string &channel, const NameValuePairs &parameters=g_nullNameValuePairs, int propagation=-1) =0;
 	virtual bool ChannelFlush(const std::string &channel, bool hardFlush, int propagation=-1, bool blocking=true) =0;
 };
 
