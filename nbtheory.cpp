@@ -28,7 +28,8 @@ std::vector<word> * NewPrimeTable()
 	
 	for (unsigned int p=3; p<=s_lastSmallPrime; p+=2)
 	{
-		for (unsigned int j=1; j<testEntriesEnd; j++)
+		unsigned int j;
+		for (j=1; j<testEntriesEnd; j++)
 			if (p%primeTable[j] == 0)
 				break;
 		if (j == testEntriesEnd)
