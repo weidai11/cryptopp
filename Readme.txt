@@ -1,57 +1,65 @@
 Crypto++: a C++ Class Library of Cryptographic Schemes
-Version 5.2 (in development)
+Version 5.2 6/29/2004
 
 This library includes:
 
-- a class hierarchy with an API defined by abstract base classes  
-- Proposed AES (Rijndael) and other AES candidates: RC6, MARS, Twofish, 
-  Serpent, CAST-256  
-- other symmetric block ciphers: IDEA, DES, Triple DES (DES-EDE2 and 
-  DES-EDE3), DESX (DES-XEX3), RC2, RC5, Blowfish, Diamond2, TEA, SAFER, 
-  3-WAY, GOST, SHARK, CAST-128, Square, Skipjack  
-- generic block cipher modes: ECB, CBC, CBC ciphertext stealing (CTS), 
-  CFB, OFB, counter (CTR) mode  
-- stream ciphers: Panama, ARC4, SEAL, WAKE, WAKE-OFB, BlumBlumShub
-- public key cryptography: RSA, DSA, ElGamal, Nyberg-Rueppel (NR), Rabin, 
-  Rabin-Williams (RW), LUC, LUCELG, DLIES (variants of DHAES), ESIGN  
-- padding schemes for public-key systems: PKCS#1 v2.0, OAEP, PSSR, IEEE 
-  P1363 EMSA2  
-- key agreement schemes: Diffie-Hellman (DH), Unified Diffie-Hellman 
-  (DH2), Menezes-Qu-Vanstone (MQV), LUCDIF, XTR-DH  
-- elliptic curve cryptography: ECDSA, ECNR, ECIES, ECDH, ECMQV (with 
-  optional cofactor multiplication for ECIES, ECDHC, ECMQVC)  
-- one-way hash functions: SHA-1, MD2, MD4, MD5, HAVAL, RIPEMD-160, Tiger, 
-  SHA-2 (SHA-256, SHA-384, and SHA-512), Panama  
-- public and private key validation for asymmetric algorithms  
-- message authentication codes: MD5-MAC, HMAC, XOR-MAC, CBC-MAC, DMAC  
-- cipher constructions based on hash functions: Luby-Rackoff, MDC  
-- pseudo random number generators (PRNG): ANSI X9.17 appendix C, PGP's 
-  RandPool  
-- Shamir's secret sharing scheme and Rabin's information dispersal 
-  algorithm (IDA)  
-- DEFLATE (RFC 1951) compression/decompression with gzip (RFC 1952) and 
-  zlib (RFC 1950) format support  
-- fast multi-precision integer (bignum) and polynomial operations  
-- finite field arithmetics, including GF(p) and GF(2^n)  
-- prime number generation and verification  
-- various miscellaneous modules such as base 64 coding and 32-bit CRC  
-- class wrappers for these operating system features (optional):  
-    - high resolution timers on Windows, Unix, and MacOS  
-    - Berkeley and Windows style sockets  
-    - Windows named pipes  
-    - /dev/random and /dev/urandom on Linux and FreeBSD  
-    - Microsoft's CryptGenRandom on Windows  
-- A high level interface for most of the above, using a filter/pipeline 
-  metaphor  
-- benchmarks and validation testing  
+- a class hierarchy with an API defined by abstract base classes
+- AES (Rijndael) and AES candidates: RC6, MARS, Twofish, Serpent,
+  CAST-256
+- other symmetric block ciphers: IDEA, DES, Triple-DES (DES-EDE2
+  and DES-EDE3), DESX (DES-XEX3), RC2, RC5, Blowfish, Diamond2,
+  TEA, SAFER, 3-WAY, GOST, SHARK, CAST-128, Square, Skipjack,
+  Camellia, SHACAL-2
+- generic cipher modes: ECB, CBC, CBC ciphertext stealing (CTS),
+  CFB, OFB, counter mode (CTR)
+- stream ciphers: Panama, ARC4, SEAL, WAKE, WAKE-OFB,
+  BlumBlumShub
+- public key cryptography: RSA, DSA, ElGamal, Nyberg-Rueppel
+  (NR), Rabin, Rabin-Williams (RW), LUC, LUCELG, DLIES (variants
+  of DHAES), ESIGN
+- padding schemes for public-key systems: PKCS#1 v2.0, OAEP,
+  PSSR, IEEE P1363 EMSA2
+- key agreement schemes: Diffie-Hellman (DH), Unified Diffie-
+  Hellman (DH2), Menezes-Qu-Vanstone (MQV), LUCDIF, XTR-DH
+- elliptic curve cryptography: ECDSA, ECNR, ECIES, ECDH, ECMQV
+- one-way hash functions: SHA-1, MD2, MD4, MD5, HAVAL, RIPEMD-
+  128, RIPEMD-256, RIPEMD-160, RIPEMD-320, Tiger, SHA-2 (SHA-256,
+  SHA-384, and SHA-512), Panama, Whirlpool
+- message authentication codes: MD5-MAC, HMAC, XOR-MAC, CBC-MAC,
+  DMAC, Two-Track-MAC
+- cipher constructions based on hash functions: Luby-Rackoff, MDC
+- pseudo random number generators (PRNG): ANSI X9.17 appendix C,
+  PGP's RandPool
+- password based key derivation functions: PBKDF1 and PBKDF2 from
+  PKCS #5
+- Shamir's secret sharing scheme and Rabin's information
+  dispersal algorithm (IDA)
+- DEFLATE (RFC 1951) compression/decompression with gzip (RFC
+  1952) and zlib (RFC 1950) format support
+- fast multi-precision integer (bignum) and polynomial
+  operations, with SSE2 optimizations for Pentium 4 processors
+- finite field arithmetics, including GF(p) and GF(2^n)
+- prime number generation and verification
+- various miscellaneous modules such as base 64 coding and 32-bit
+  CRC
+- class wrappers for these operating system features (optional):
+	- high resolution timers on Windows, Unix, and MacOS
+	- Berkeley and Windows style sockets
+	- Windows named pipes
+	- /dev/random and /dev/urandom on Linux and FreeBSD
+	- Microsoft's CryptGenRandom on Windows
+- A high level interface for most of the above, using a
+  filter/pipeline metaphor
+- benchmarks and validation testing
+- FIPS 140-2 Validated
 
 You are welcome to use it for any purpose without paying me, but see
 license.txt for the fine print.
 
-This version of Crypto++ has been compiled successfully with MSVC 6.0, .NET
-2002, and .NET 2003 on Windows XP, GCC 2.95.4 on FreeBSD 4.6, GCC 2.95.3 on
-Linux 2.4 and SunOS 5.8, GCC 3.2 on Cygwin 1.3.12, and Metrowerks
-CodeWarrior 8.2.
+This version of Crypto++ has been compiled successfully with MSVC 6.0 SP5
+and .NET 2003 on Windows XP, GCC 2.95.4 on FreeBSD 4.6, GCC 2.95.3 on
+Linux 2.4 and SunOS 5.8, GCC 3.4 on Cygwin 1.5.10, and Metrowerks
+CodeWarrior 8.3 for Windows and MacOS.
 
 *** MSVC-Specific Information ***
 
@@ -92,13 +100,13 @@ run-time libraries and calling conventions.
 Because it's possible for the Crypto++ DLL to delete objects allocated 
 by the calling application, they must use the same C++ memory heap. Three 
 methods are provided to achieve this.
-1.	The calling application can tell Crypto++ what heap to use. This method 
+1.  The calling application can tell Crypto++ what heap to use. This method 
     is required when the calling application uses a non-standard heap.
-2.	Crypto++ can tell the calling application what heap to use. This method 
+2.  Crypto++ can tell the calling application what heap to use. This method 
     is required when the calling application uses a statically linked C++ Run 
     Time Library. (Method 1 does not work in this case because the Crypto++ DLL 
     is initialized before the calling application's heap is initialized.)
-3.	Crypto++ can automatically use the heap provided by the calling application's 
+3.  Crypto++ can automatically use the heap provided by the calling application's 
     dynamically linked C++ Run Time Library. The calling application must
     make sure that the dynamically linked C++ Run Time Library is initialized
     before Crypto++ is loaded. (At this time it is not clear if it is possible
@@ -313,7 +321,7 @@ synchronization when multiple threads access a common Crypto++ object.
     - fixed a number of compiler warnings, minor bugs, and portability problems
     - removed Sapphire
 
-5.2 - Merged in changes for 5.01 - 5.0.4
+5.2 - merged in changes for 5.01 - 5.0.4
     - added support for using encoding parameters and key derivation parameters
       with public key encryption (implemented by OAEP and DL/ECIES)
     - added Camellia, SHACAL-2, Two-Track-MAC, Whirlpool, RIPEMD-320,
@@ -321,8 +329,8 @@ synchronization when multiple threads access a common Crypto++ object.
     - added ThreadUserTimer for timing thread CPU usage
     - added option for password-based key derivation functions
       to iterate until a mimimum elapsed thread CPU time is reached
-    - added option for DEFLATE compression to detect uncompressible
-      files and process them more quickly
+    - added option (on by default) for DEFLATE compression to detect
+      uncompressible files and process them more quickly
     - improved compatibility and performance on 64-bit platforms,
       including Alpha, IA-64, x86-64, PPC64, Sparc64, and MIPS64
     - fixed ONE_AND_ZEROS_PADDING to use 0x80 instead 0x01 as padding.

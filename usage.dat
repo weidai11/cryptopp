@@ -1,4 +1,4 @@
-Test Driver for Crypto++(TM) Library, a C++ Class Library of Cryptographic Schemes
+Test Driver for Crypto++(R) Library, a C++ Class Library of Cryptographic Schemes
 
 - To generate an RSA key
 	cryptest g
@@ -73,3 +73,6 @@ Test Driver for Crypto++(TM) Library, a C++ Class Library of Cryptographic Schem
 
 - To run benchmarks
 	cryptest b [time for each benchmark in seconds]
+
+- To run test vector file (available in TestVectors subdirectory)
+	cryptest tv filename
