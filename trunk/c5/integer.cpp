@@ -2736,14 +2736,11 @@ template <class T>
 static Integer StringToInteger(const T *str)
 {
 	word radix;
-#if (defined(__GNUC__) && __GNUC__ <= 3)		// GCC workaround
+	// GCC workaround
 	// std::char_traits doesn't exist in GCC 2.x
-	// std::char_traits<wchar_t>::length() not defined in GCC 3.2
+	// std::char_traits<wchar_t>::length() not defined in GCC 3.2 and STLport 4.5.3
 	unsigned int length;
 	for (length = 0; str[length] != 0; length++) {}
-#else
-	unsigned int length = std::char_traits<T>::length(str);
-#endif
 
 	Integer v;
 
