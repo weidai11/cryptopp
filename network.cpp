@@ -195,7 +195,7 @@ unsigned int NetworkSink::Put2(const byte *inString, unsigned int length, int me
 		inString += m_skipBytes;
 		length -= m_skipBytes;
 	}
-	LazyPutter lp(m_buffer, inString, length);
+	m_buffer.LazyPut(inString, length);
 
 	if (!blocking || m_buffer.CurrentSize() > m_autoFlushBound)
 		TimedFlush(0, 0);
@@ -209,10 +209,13 @@ unsigned int NetworkSink::Put2(const byte *inString, unsigned int length, int me
 		assert(!blocking);
 		unsigned int blockedBytes = STDMIN(m_buffer.CurrentSize() - targetSize, (unsigned long)length);
 		m_buffer.UndoLazyPut(blockedBytes);
+		m_buffer.FinalizeLazyPut();
 		m_wasBlocked = true;
 		m_skipBytes += length - blockedBytes;
 		return STDMAX(blockedBytes, 1U);
 	}
+
+	m_buffer.FinalizeLazyPut();
 	m_wasBlocked = false;
 	m_skipBytes = 0;
 
