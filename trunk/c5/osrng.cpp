@@ -15,7 +15,9 @@
 #endif
 #include <windows.h>
 #include <wincrypt.h>
-#else
+#endif
+
+#ifdef CRYPTOPP_UNIX_AVAILABLE
 #include <errno.h>
 #include <fcntl.h>
 #include <unistd.h>

@@ -1295,8 +1295,10 @@ carry2:
 class PentiumOptimized : public Portable
 {
 public:
+#ifndef __pic__		// -fpic uses up a register, leaving too few for the asm code
 	static word Add(word *C, const word *A, const word *B, unsigned int N);
 	static word Subtract(word *C, const word *A, const word *B, unsigned int N);
+#endif
 	static void Square4(word *R, const word *A);
 	static void Multiply4(word *C, const word *A, const word *B);
 	static void Multiply8(word *C, const word *A, const word *B);
@@ -1306,6 +1308,7 @@ typedef PentiumOptimized LowLevel;
 
 // Add and Subtract assembly code originally contributed by Alister Lee
 
+#ifndef __pic__
 __attribute__((regparm(3))) word PentiumOptimized::Add(word *C, const word *A, const word *B, unsigned int N)
 {
 	assert (N%2 == 0);
@@ -1381,6 +1384,7 @@ __attribute__((regparm(3))) word PentiumOptimized::Subtract(word *C, const word 
 
 	return carry;
 }
+#endif	// __pic__
 
 // Comba square and multiply assembly code originally contributed by Leonard Janke
 

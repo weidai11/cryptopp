@@ -26,7 +26,7 @@
 #include <iostream>
 #include <time.h>
 
-#if defined(_WIN32) || defined(__CYGWIN__)
+#ifdef CRYPTOPP_WIN32_AVAILABLE
 #include <windows.h>
 #endif
 
@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
 		{
 			edcFilename = "edc.dat";
 
-#if defined(_WIN32) || defined(__CYGWIN__)
+#ifdef CRYPTOPP_WIN32_AVAILABLE
 			TCHAR filename[MAX_PATH];
 			GetModuleFileName(GetModuleHandle(NULL), filename, sizeof(filename));
 			executableName = filename;
