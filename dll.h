@@ -61,8 +61,6 @@ typedef void (CRYPTOPP_CDECL * PGetNewAndDelete)(PNew &, PDelete &);
 typedef new_handler (CRYPTOPP_CDECL * PSetNewHandler)(new_handler);
 typedef void (CRYPTOPP_CDECL * PSetNewAndDelete)(PNew, PDelete, PSetNewHandler);
 
-CRYPTOPP_DLL void DoDllPowerUpSelfTest();
-
 NAMESPACE_END
 
 #endif

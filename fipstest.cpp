@@ -474,6 +474,44 @@ done:
 	return;
 }
 
+#ifdef CRYPTOPP_WIN32_AVAILABLE
+
+static const byte s_moduleMac[CryptoPP::HMAC<CryptoPP::SHA1>::DIGESTSIZE] = "reserved for mac";
+static HMODULE s_hModule = NULL;
+
+void DoDllPowerUpSelfTest()
+{
+	char moduleFileName[MAX_PATH];
+	GetModuleFileNameA(s_hModule, moduleFileName, sizeof(moduleFileName));
+	CryptoPP::DoPowerUpSelfTest(moduleFileName, s_moduleMac);
+}
+
+#else
+
+void DoDllPowerUpSelfTest()
+{
+	throw NotImplemented("DoDllPowerUpSelfTest() only available on Windows");
+}
+
+#endif	// #ifdef CRYPTOPP_WIN32_AVAILABLE
+
 NAMESPACE_END
 
-#endif
+#ifdef CRYPTOPP_WIN32_AVAILABLE
+
+// DllMain needs to be in the global namespace
+BOOL APIENTRY DllMain(HANDLE hModule, 
+                      DWORD  ul_reason_for_call, 
+                      LPVOID lpReserved)
+{
+	if (ul_reason_for_call == DLL_PROCESS_ATTACH)
+	{
+		CryptoPP::s_hModule = (HMODULE)hModule;
+		CryptoPP::DoDllPowerUpSelfTest();
+	}
+    return TRUE;
+}
+
+#endif	// #ifdef CRYPTOPP_WIN32_AVAILABLE
+
+#endif	// #ifndef CRYPTOPP_IMPORTS
