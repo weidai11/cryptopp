@@ -74,7 +74,7 @@ unsigned int PKCS5_PBKDF1<T>::DeriveKey(byte *derived, unsigned int derivedLen, 
 	if (timeInSeconds)
 		timer.StartTimer();
 
-	for (i=1; i<iterations || (timeInSeconds && (i%128!=0 || timer.ElapsedTimeAsDouble() < timeInSeconds)) : ; i++)
+	for (i=1; i<iterations || (timeInSeconds && (i%128!=0 || timer.ElapsedTimeAsDouble() < timeInSeconds)); i++)
 		hash.CalculateDigest(buffer, buffer, buffer.size());
 
 	memcpy(derived, buffer, derivedLen);
