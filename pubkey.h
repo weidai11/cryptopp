@@ -359,7 +359,7 @@ template <class KEYS>
 class CRYPTOPP_NO_VTABLE PublicKeyCopier
 {
 public:
-	typedef KEYS::PublicKey KeyClass;
+	typedef typename KEYS::PublicKey KeyClass;
 	virtual void CopyKeyInto(typename KEYS::PublicKey &key) const =0;
 };
 
@@ -368,7 +368,7 @@ template <class KEYS>
 class CRYPTOPP_NO_VTABLE PrivateKeyCopier
 {
 public:
-	typedef KEYS::PrivateKey KeyClass;
+	typedef typename KEYS::PrivateKey KeyClass;
 	virtual void CopyKeyInto(typename KEYS::PublicKey &key) const =0;
 	virtual void CopyKeyInto(typename KEYS::PrivateKey &key) const =0;
 };
