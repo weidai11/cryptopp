@@ -210,11 +210,11 @@ inline void HuffmanEncoder::Encode(LowFirstBitWriter &writer, value_t value) con
 	writer.PutBits(m_valueToCode[value].code, m_valueToCode[value].len);
 }
 
-Deflator::Deflator(BufferedTransformation *attachment, int deflateLevel, int log2WindowSize)
+Deflator::Deflator(BufferedTransformation *attachment, int deflateLevel, int log2WindowSize, bool detectUncompressible)
 	: LowFirstBitWriter(attachment)
 {
 	InitializeStaticEncoders();
-	IsolatedInitialize(MakeParameters("DeflateLevel", deflateLevel)("Log2WindowSize", log2WindowSize));
+	IsolatedInitialize(MakeParameters("DeflateLevel", deflateLevel)("Log2WindowSize", log2WindowSize)("DetectUncompressible", detectUncompressible));
 }
 
 Deflator::Deflator(const NameValuePairs &parameters, BufferedTransformation *attachment)
@@ -239,7 +239,6 @@ void Deflator::InitializeStaticEncoders()
 void Deflator::IsolatedInitialize(const NameValuePairs &parameters)
 {
 	int log2WindowSize = parameters.GetIntValueWithDefault("Log2WindowSize", DEFAULT_LOG2_WINDOW_SIZE);
-
 	if (!(MIN_LOG2_WINDOW_SIZE <= log2WindowSize && log2WindowSize <= MAX_LOG2_WINDOW_SIZE))
 		throw InvalidArgument("Deflator: " + IntToString(log2WindowSize) + " is an invalid window size");
 
@@ -252,9 +251,11 @@ void Deflator::IsolatedInitialize(const NameValuePairs &parameters)
 	m_head.New(HSIZE);
 	m_prev.New(DSIZE);
 	m_matchBuffer.New(DSIZE/2);
+	Reset(true);
 
 	SetDeflateLevel(parameters.GetIntValueWithDefault("DeflateLevel", DEFAULT_DEFLATE_LEVEL));
-	Reset(true);
+	bool detectUncompressible = parameters.GetValueWithDefault("DetectUncompressible", true);
+	m_compressibleDeflateLevel = detectUncompressible ? m_deflateLevel : 0;
 }
 
 void Deflator::Reset(bool forceReset)
@@ -270,11 +271,12 @@ void Deflator::Reset(bool forceReset)
 	m_stringStart = 0;
 	m_lookahead = 0;
 	m_minLookahead = MAX_MATCH;
-	m_previousMatch = 0;
-	m_previousLength = 0;
 	m_matchBufferEnd = 0;
 	m_blockStart = 0;
 	m_blockLength = 0;
+
+	m_detectCount = 1;
+	m_detectSkip = 0;
 
 	// m_prev will be initialized automaticly in InsertString
 	fill(m_head.begin(), m_head.end(), 0);
@@ -288,7 +290,12 @@ void Deflator::SetDeflateLevel(int deflateLevel)
 	if (!(MIN_DEFLATE_LEVEL <= deflateLevel && deflateLevel <= MAX_DEFLATE_LEVEL))
 		throw InvalidArgument("Deflator: " + IntToString(deflateLevel) + " is an invalid deflate level");
 
-	unsigned int configurationTable[10][4] = {
+	if (deflateLevel == m_deflateLevel)
+		return;
+
+	EndBlock(false);
+
+	static const unsigned int configurationTable[10][4] = {
 		/*      good lazy nice chain */
 		/* 0 */ {0,    0,  0,    0},  /* store only */
 		/* 1 */ {4,    3,  8,    4},  /* maximum speed, no lazy matches */
@@ -310,9 +317,9 @@ void Deflator::SetDeflateLevel(int deflateLevel)
 
 unsigned int Deflator::FillWindow(const byte *str, unsigned int length)
 {
-	unsigned int accepted = STDMIN(length, 2*DSIZE-(m_stringStart+m_lookahead));
+	unsigned int maxBlockSize = (unsigned int)STDMIN(2UL*DSIZE, 0xffffUL);
 
-	if (m_stringStart >= 2*DSIZE - MAX_MATCH)
+	if (m_stringStart >= maxBlockSize - MAX_MATCH)
 	{
 		if (m_blockStart < DSIZE)
 			EndBlock(false);
@@ -322,7 +329,7 @@ unsigned int Deflator::FillWindow(const byte *str, unsigned int length)
 		m_dictionaryEnd = m_dictionaryEnd < DSIZE ? 0 : m_dictionaryEnd-DSIZE;
 		assert(m_stringStart >= DSIZE);
 		m_stringStart -= DSIZE;
-		assert(m_previousMatch >= DSIZE || m_previousLength < MIN_MATCH);
+		assert(!m_matchAvailable || m_previousMatch >= DSIZE);
 		m_previousMatch -= DSIZE;
 		assert(m_blockStart >= DSIZE);
 		m_blockStart -= DSIZE;
@@ -334,11 +341,11 @@ unsigned int Deflator::FillWindow(const byte *str, unsigned int length)
 
 		for (i=0; i<DSIZE; i++)
 			m_prev[i] = SaturatingSubtract(m_prev[i], DSIZE);
-
-		accepted = STDMIN(accepted + DSIZE, length);
 	}
-	assert(accepted > 0);
 
+	assert(maxBlockSize > m_stringStart+m_lookahead);
+	unsigned int accepted = STDMIN(length, maxBlockSize-(m_stringStart+m_lookahead));
+	assert(accepted > 0);
 	memcpy(m_byteBuffer + m_stringStart + m_lookahead, str, accepted);
 	m_lookahead += accepted;
 	return accepted;
@@ -406,11 +413,10 @@ void Deflator::ProcessBuffer()
 
 	if (m_deflateLevel == 0)
 	{
-		while (m_lookahead > 0)
-		{
-			LiteralByte(m_byteBuffer[m_stringStart++]);
-			m_lookahead--;
-		}
+		m_stringStart += m_lookahead;
+		m_lookahead = 0;
+		m_blockLength = m_stringStart - m_blockStart;
+		m_matchAvailable = false;
 		return;
 	}
 
@@ -428,7 +434,7 @@ void Deflator::ProcessBuffer()
 			else
 			{
 				matchLength = LongestMatch(matchPosition);
-				usePreviousMatch = (m_previousLength > 0 && matchLength == 0);
+				usePreviousMatch = (matchLength == 0);
 			}
 			if (usePreviousMatch)
 			{
@@ -436,7 +442,6 @@ void Deflator::ProcessBuffer()
 				m_stringStart += m_previousLength-1;
 				m_lookahead -= m_previousLength-1;
 				m_matchAvailable = false;
-				m_previousLength = 0;
 			}
 			else
 			{
@@ -449,13 +454,19 @@ void Deflator::ProcessBuffer()
 		}
 		else
 		{
+			m_previousLength = 0;
 			m_previousLength = LongestMatch(m_previousMatch);
-			m_matchAvailable = true;
+			if (m_previousLength)
+				m_matchAvailable = true;
+			else
+				LiteralByte(m_byteBuffer[m_stringStart]);
 			m_stringStart++;
 			m_lookahead--;
 		}
+
+		assert(m_stringStart - (m_blockStart+m_blockLength) == (unsigned int)m_matchAvailable);
 	}
-	assert(m_stringStart - (m_blockStart+m_blockLength) <= 1);
+
 	if (m_minLookahead == 0 && m_matchAvailable)
 	{
 		LiteralByte(m_byteBuffer[m_stringStart-1]);
@@ -509,15 +520,19 @@ bool Deflator::IsolatedFlush(bool hardFlush, bool blocking)
 
 void Deflator::LiteralByte(byte b)
 {
+	if (m_matchBufferEnd == m_matchBuffer.size())
+		EndBlock(false);
+
 	m_matchBuffer[m_matchBufferEnd++].literalCode = b;
 	m_literalCounts[b]++;
-
-	if (m_blockStart+(++m_blockLength) == m_byteBuffer.size() || m_matchBufferEnd == m_matchBuffer.size())
-		EndBlock(false);
+	m_blockLength++;
 }
 
 void Deflator::MatchFound(unsigned int distance, unsigned int length)
 {
+	if (m_matchBufferEnd == m_matchBuffer.size())
+		EndBlock(false);
+
 	static const unsigned int lengthCodes[] = {
 		257, 258, 259, 260, 261, 262, 263, 264, 265, 265, 266, 266, 267, 267, 268, 268,
 		269, 269, 269, 269, 270, 270, 270, 270, 271, 271, 271, 271, 272, 272, 272, 272,
@@ -540,6 +555,7 @@ void Deflator::MatchFound(unsigned int distance, unsigned int length)
 		{1,2,3,4,5,7,9,13,17,25,33,49,65,97,129,193,257,385,513,769,1025,1537,2049,3073,4097,6145,8193,12289,16385,24577};
 
 	EncodedMatch &m = m_matchBuffer[m_matchBufferEnd++];
+	assert(length >= 3);
 	unsigned int lengthCode = lengthCodes[length-3];
 	m.literalCode = lengthCode;
 	m.literalExtra = length - lengthBases[lengthCode-257];
@@ -549,9 +565,7 @@ void Deflator::MatchFound(unsigned int distance, unsigned int length)
 
 	m_literalCounts[lengthCode]++;
 	m_distanceCounts[distanceCode]++;
-
-	if (m_blockStart+(m_blockLength+=length) == m_byteBuffer.size() || m_matchBufferEnd == m_matchBuffer.size())
-		EndBlock(false);
+	m_blockLength += length;
 }
 
 inline unsigned int CodeLengthEncode(const unsigned int *begin, 
@@ -604,6 +618,7 @@ void Deflator::EncodeBlock(bool eof, unsigned int blockType)
 	if (blockType == STORED)
 	{
 		assert(m_blockStart + m_blockLength <= m_byteBuffer.size());
+		assert(m_blockLength <= 0xffff);
 		FlushBitBuffer();
 		AttachedTransformation()->PutWord16(m_blockLength, LITTLE_ENDIAN_ORDER);
 		AttachedTransformation()->PutWord16(~m_blockLength, LITTLE_ENDIAN_ORDER);
@@ -701,29 +716,58 @@ void Deflator::EncodeBlock(bool eof, unsigned int blockType)
 
 void Deflator::EndBlock(bool eof)
 {
-	if (m_matchBufferEnd == 0 && !eof)
+	if (m_blockLength == 0 && !eof)
 		return;
 
 	if (m_deflateLevel == 0)
+	{
 		EncodeBlock(eof, STORED);
-	else if (m_blockLength < 128)
-		EncodeBlock(eof, STATIC);
+
+		if (m_compressibleDeflateLevel > 0 && ++m_detectCount == m_detectSkip)
+		{
+			m_deflateLevel = m_compressibleDeflateLevel;
+			m_detectCount = 1;
+		}
+	}
 	else
 	{
-		unsigned int storedLen = 8*(m_blockLength+4) + RoundUpToMultipleOf(m_bitsBuffered+3, 8U)-m_bitsBuffered;
+		unsigned long storedLen = 8*((unsigned long)m_blockLength+4) + RoundUpToMultipleOf(m_bitsBuffered+3, 8U)-m_bitsBuffered;
+
 		StartCounting();
 		EncodeBlock(eof, STATIC);
-		unsigned int staticLen = FinishCounting();
-		StartCounting();
-		EncodeBlock(eof, DYNAMIC);
-		unsigned int dynamicLen = FinishCounting();
+		unsigned long staticLen = FinishCounting();
+
+		unsigned long dynamicLen;
+		if (m_blockLength < 128 && m_deflateLevel < 8)
+			dynamicLen = ULONG_MAX;
+		else
+		{
+			StartCounting();
+			EncodeBlock(eof, DYNAMIC);
+			dynamicLen = FinishCounting();
+		}
 
 		if (storedLen <= staticLen && storedLen <= dynamicLen)
+		{
 			EncodeBlock(eof, STORED);
-		else if (staticLen <= dynamicLen)
-			EncodeBlock(eof, STATIC);
+
+			if (m_compressibleDeflateLevel > 0)
+			{
+				if (m_detectSkip)
+					m_deflateLevel = 0;
+				m_detectSkip = m_detectSkip ? STDMIN(2*m_detectSkip, 128U) : 1;
+			}
+		}
 		else
-			EncodeBlock(eof, DYNAMIC);
+		{
+			if (staticLen <= dynamicLen)
+				EncodeBlock(eof, STATIC);
+			else
+				EncodeBlock(eof, DYNAMIC);
+
+			if (m_compressibleDeflateLevel > 0)
+				m_detectSkip = 0;
+		}
 	}
 
 	m_matchBufferEnd = 0;

@@ -11,14 +11,14 @@ NAMESPACE_BEGIN(CryptoPP)
 class ZlibCompressor : public Deflator
 {
 public:
-	ZlibCompressor(BufferedTransformation *attachment=NULL, unsigned int deflateLevel=DEFAULT_DEFLATE_LEVEL, unsigned int log2WindowSize=DEFAULT_LOG2_WINDOW_SIZE)
-		: Deflator(attachment, deflateLevel, log2WindowSize) {}
+	ZlibCompressor(BufferedTransformation *attachment=NULL, unsigned int deflateLevel=DEFAULT_DEFLATE_LEVEL, unsigned int log2WindowSize=DEFAULT_LOG2_WINDOW_SIZE, bool detectUncompressible=true)
+		: Deflator(attachment, deflateLevel, log2WindowSize, detectUncompressible) {}
 	ZlibCompressor(const NameValuePairs &parameters, BufferedTransformation *attachment=NULL)
 		: Deflator(parameters, attachment) {}
 
 	unsigned int GetCompressionLevel() const;
 
-private:
+protected:
 	void WritePrestreamHeader();
 	void ProcessUncompressedData(const byte *string, unsigned int length);
 	void WritePoststreamTail();
