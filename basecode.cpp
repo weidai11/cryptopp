@@ -82,7 +82,7 @@ unsigned int BaseN_Encoder::Put2(const byte *begin, unsigned int length, int mes
 		FILTER_OUTPUT(2, m_outBuf, m_bytePos, messageEnd);
 		m_bytePos = m_bitPos = 0;
 	}
-	FILTER_END;
+	FILTER_END_NO_MESSAGE_END;
 }
 
 void BaseN_Decoder::IsolatedInitialize(const NameValuePairs &parameters)
