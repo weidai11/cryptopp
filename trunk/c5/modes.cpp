@@ -72,20 +72,57 @@ void CTR_ModePolicy::SeekToIteration(dword iterationCount)
 	}
 }
 
+static inline void IncrementCounterByOne(byte *inout, unsigned int s)
+{
+	for	(int i=s-1,	carry=1; i>=0 && carry; i--)
+		carry =	!++inout[i];
+}
+
+static inline void IncrementCounterByOne(byte *output, const byte *input, unsigned int s)
+{
+	for	(int i=s-1,	carry=1; i>=0; i--)
+		carry =	!(output[i] = input[i]+carry) && carry;
+}
+
+inline void	CTR_ModePolicy::ProcessMultipleBlocks(byte *output,	const byte *input, unsigned	int	n)
+{
+	unsigned int s = BlockSize(), j	= 0;
+	for	(unsigned int i=1; i<n;	i++, j+=s)
+		IncrementCounterByOne(m_counterArray + j + s, m_counterArray + j, s);
+	m_cipher->ProcessAndXorMultipleBlocks(m_counterArray, input, output, n);
+	IncrementCounterByOne(m_counterArray, m_counterArray + s*(n-1),	s);
+}
+
 void CTR_ModePolicy::OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, unsigned int iterationCount)
 {
 	unsigned int maxBlocks = m_cipher->OptimalNumberOfParallelBlocks();
-	unsigned int sizeIncrement = maxBlocks * m_cipher->BlockSize();
-	while (iterationCount >= maxBlocks)
+	if (maxBlocks == 1)
 	{
-		ProcessMultipleBlocks(output, input, maxBlocks);
-		output += sizeIncrement;
-		input += sizeIncrement;
-		iterationCount -= maxBlocks;
+		unsigned int sizeIncrement = BlockSize();
+		while (iterationCount)
+		{
+			m_cipher->ProcessAndXorBlock(m_counterArray, input, output);
+			IncrementCounterByOne(m_counterArray, sizeIncrement);
+			output += sizeIncrement;
+			input += sizeIncrement;
+			iterationCount -= 1;
+		}
 	}
-	if (iterationCount > 0)
-		ProcessMultipleBlocks(output, input, iterationCount);
+	else
+	{
+		unsigned int sizeIncrement = maxBlocks * BlockSize();
+		while (iterationCount >= maxBlocks)
+		{
+			ProcessMultipleBlocks(output, input, maxBlocks);
+			output += sizeIncrement;
+			input += sizeIncrement;
+			iterationCount -= maxBlocks;
+		}
+		if (iterationCount > 0)
+			ProcessMultipleBlocks(output, input, iterationCount);
+	}
 }
+
 void CTR_ModePolicy::CipherResynchronize(byte *keystreamBuffer, const byte *iv)
 {
 	unsigned int s = BlockSize();
