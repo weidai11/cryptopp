@@ -1205,46 +1205,36 @@ CRYPTOPP_NAKED word P4Optimized::Add(word *C, const word *A, const word *B, unsi
 
 	AS2(	mov		edi, [edx])
 	AS2(	mov		ebp, [ebx])
+	AS1(	jmp		carry1AddP4)
 
 	AS1(loopstartAddP4:)
+	AS2(	mov		edi, [edx+8])
+	AS2(	add		ecx, 8)
+	AS2(	add		edx, 8)
+	AS2(	mov		ebp, [ebx])
 	AS2(	add		edi, eax)
 	AS1(	jc		carry1AddP4)
-
 	AS2(	xor		eax, eax)
 
-	AS1(carry1continueAddP4:)
+	AS1(carry1AddP4:)
 	AS2(	add		edi, ebp)
 	AS2(	mov		ebp, 1)
 	AS2(	mov		[ecx], edi)
 	AS2(	mov		edi, [edx+4])
 	AS2(	cmovc	eax, ebp)
 	AS2(	mov		ebp, [ebx+4])
-	AS2(	lea		ebx, [ebx+8])
+	AS2(	add		ebx, 8)
 	AS2(	add		edi, eax)
 	AS1(	jc		carry2AddP4)
-
 	AS2(	xor		eax, eax)
 
-	AS1(carry2continueAddP4:)
+	AS1(carry2AddP4:)
 	AS2(	add		edi, ebp)
 	AS2(	mov		ebp, 1)
 	AS2(	cmovc	eax, ebp)
 	AS2(	mov		[ecx+4], edi)
-	AS2(	add		ecx, 8)
-	AS2(	mov		edi, [edx+8])
-	AS2(	add		edx, 8)
 	AS2(	add		esi, 2)
-	AS2(	mov		ebp, [ebx])
 	AS1(	jnz		loopstartAddP4)
-	AS1(	jmp		loopendAddP4)
-
-	AS1(carry1AddP4:)
-	AS2(	mov		eax, 1)
-	AS1(	jmp		carry1continueAddP4)
-
-	AS1(carry2AddP4:)
-	AS2(	mov		eax, 1)
-	AS1(	jmp		carry2continueAddP4)
 
 	AS1(loopendAddP4:)
 
@@ -1262,46 +1252,36 @@ CRYPTOPP_NAKED word P4Optimized::Subtract(word *C, const word *A, const word *B,
 
 	AS2(	mov		edi, [edx])
 	AS2(	mov		ebp, [ebx])
+	AS1(	jmp		carry1SubP4)
 
 	AS1(loopstartSubP4:)
+	AS2(	mov		edi, [edx+8])
+	AS2(	add		edx, 8)
+	AS2(	add		ecx, 8)
+	AS2(	mov		ebp, [ebx])
 	AS2(	sub		edi, eax)
 	AS1(	jc		carry1SubP4)
-
 	AS2(	xor		eax, eax)
 
-	AS1(carry1continueSubP4:)
+	AS1(carry1SubP4:)
 	AS2(	sub		edi, ebp)
 	AS2(	mov		ebp, 1)
 	AS2(	mov		[ecx], edi)
 	AS2(	mov		edi, [edx+4])
 	AS2(	cmovc	eax, ebp)
 	AS2(	mov		ebp, [ebx+4])
-	AS2(	lea		ebx, [ebx+8])
+	AS2(	add		ebx, 8)
 	AS2(	sub		edi, eax)
 	AS1(	jc		carry2SubP4)
-
 	AS2(	xor		eax, eax)
 
-	AS1(carry2continueSubP4:)
+	AS1(carry2SubP4:)
 	AS2(	sub		edi, ebp)
 	AS2(	mov		ebp, 1)
 	AS2(	cmovc	eax, ebp)
 	AS2(	mov		[ecx+4], edi)
-	AS2(	add		ecx, 8)
-	AS2(	mov		edi, [edx+8])
-	AS2(	add		edx, 8)
 	AS2(	add		esi, 2)
-	AS2(	mov		ebp, [ebx])
 	AS1(	jnz		loopstartSubP4)
-	AS1(	jmp		loopendSubP4)
-
-	AS1(carry1SubP4:)
-	AS2(	mov		eax, 1)
-	AS1(	jmp		carry1continueSubP4)
-
-	AS1(carry2SubP4:)
-	AS2(	mov		eax, 1)
-	AS1(	jmp		carry2continueSubP4)
 
 	AS1(loopendSubP4:)
 
