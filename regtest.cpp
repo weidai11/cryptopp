@@ -23,8 +23,10 @@ void RegisterFactories()
 	RegisterDefaultFactoryFor<SimpleKeyAgreementDomain, DH>("DH");
 	RegisterDefaultFactoryFor<HashTransformation, SHA1>("SHA-1");
 	RegisterDefaultFactoryFor<HashTransformation, SHA256>("SHA-256");
+#ifdef WORD64_AVAILABLE
 	RegisterDefaultFactoryFor<HashTransformation, SHA384>("SHA-384");
 	RegisterDefaultFactoryFor<HashTransformation, SHA512>("SHA-512");
+#endif
 	RegisterDefaultFactoryFor<HashTransformation, Whirlpool>("Whirlpool");
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, HMAC<MD5> >("HMAC(MD5)");
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, HMAC<SHA1> >("HMAC(SHA-1)");
@@ -41,6 +43,8 @@ void RegisterFactories()
 	RegisterSignatureSchemeDefaultFactories<RWSS<P1363_EMSA2, SHA1> >("RW/EMSA2(SHA-1)");
 	RegisterSignatureSchemeDefaultFactories<RSASS<PSS, SHA1> >("RSA/PSS-MGF1(SHA-1)");
 	RegisterSymmetricCipherDefaultFactories<SEAL<> >("SEAL-3.0-BE");
-	RegisterSymmetricCipherDefaultFactories<ECB_Mode<Camellia> >("Camellia(ECB)");
 	RegisterSymmetricCipherDefaultFactories<ECB_Mode<SHACAL2> >("SHACAL-2(ECB)");
+#ifdef WORD64_AVAILABLE
+	RegisterSymmetricCipherDefaultFactories<ECB_Mode<Camellia> >("Camellia(ECB)");
+#endif
 }

@@ -73,8 +73,6 @@ void Camellia::Base::UncheckedSetKey(CipherDir dir, const byte *key, unsigned in
 #define KA	(kw+4)
 #define KB	(kw+6)
 
-//???	GetBlock<word64, BigEndian> keyblock(key);
-//???	keyblock(KL[0])(KL[1]);
 	if (keylen == 16)
 	{
 		GetUserKey(BIG_ENDIAN_ORDER, kw, 2, key, keylen);
@@ -92,15 +90,6 @@ void Camellia::Base::UncheckedSetKey(CipherDir dir, const byte *key, unsigned in
 		{
 			GetUserKey(BIG_ENDIAN_ORDER, kw, 4, key, keylen);
 		}
-//???		keyblock(KR[0]);
-//???		if (keylen == 32)
-//???		{
-//???			keyblock(KR[1]);
-//???		}
-//???		else
-//???		{
-//???			KR[1] = ~KR[0];
-//???		}
 		KA[0] = KL[0] ^ KR[0];
 		KA[1] = KL[1] ^ KR[1];
 	}

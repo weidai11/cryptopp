@@ -135,6 +135,7 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
 # ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib Ws2_32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept /OPT:NOWIN98
+# SUBTRACT LINK32 /pdb:none
 
 !ENDIF 
 
@@ -154,10 +155,6 @@ SOURCE=.\3desval.dat
 # Begin Source File
 
 SOURCE=.\3wayval.dat
-# End Source File
-# Begin Source File
-
-SOURCE=.\anubisv.dat
 # End Source File
 # Begin Source File
 
@@ -230,10 +227,6 @@ SOURCE=.\havalcer.dat
 # Begin Source File
 
 SOURCE=.\ideaval.dat
-# End Source File
-# Begin Source File
-
-SOURCE=.\khazadv.dat
 # End Source File
 # Begin Source File
 
@@ -349,10 +342,6 @@ SOURCE=.\serpentv.dat
 # End Source File
 # Begin Source File
 
-SOURCE=.\shacal1v.dat
-# End Source File
-# Begin Source File
-
 SOURCE=.\shacal2v.dat
 # End Source File
 # Begin Source File
@@ -406,6 +395,10 @@ SOURCE=.\datatest.cpp
 # Begin Source File
 
 SOURCE=.\factory.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\fipsalgt.cpp
 # End Source File
 # Begin Source File
 
