@@ -1,4 +1,4 @@
-Compilation Copyright (c) 1995-2003 by Wei Dai.  All rights reserved.
+Compilation Copyright (c) 1995-2004 by Wei Dai.  All rights reserved.
 This copyright applies only to this software distribution package 
 as a compilation, and does not imply a copyright on any particular 
 file in the package.
