@@ -1,5 +1,5 @@
 # Microsoft Developer Studio Project File - Name="cryptest" - Package Owner=<4>
-# Microsoft Developer Studio Generated Build File, Format Version 60000
+# Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
@@ -369,11 +369,78 @@ SOURCE=.\xtrdh342.dat
 # PROP Default_Filter ".cpp;.h"
 # Begin Source File
 
+SOURCE=.\adhoc.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\adhoc.cpp.proto
+
+!IF  "$(CFG)" == "cryptest - Win32 FIPS 140 Release"
+
+# Begin Custom Build
+InputPath=.\adhoc.cpp.proto
+
+"adhoc.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	if exist adhoc.cpp touch adhoc.cpp 
+	if not exist adhoc.cpp copy $(InputPath) adhoc.cpp 
+	
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "cryptest - Win32 FIPS 140 Debug"
+
+# Begin Custom Build
+InputPath=.\adhoc.cpp.proto
+
+"adhoc.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	if exist adhoc.cpp touch adhoc.cpp 
+	if not exist adhoc.cpp copy $(InputPath) adhoc.cpp 
+	
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "cryptest - Win32 Release"
+
+# Begin Custom Build
+InputPath=.\adhoc.cpp.proto
+
+"adhoc.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	if exist adhoc.cpp touch adhoc.cpp 
+	if not exist adhoc.cpp copy $(InputPath) adhoc.cpp 
+	
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "cryptest - Win32 Debug"
+
+# Begin Custom Build
+InputPath=.\adhoc.cpp.proto
+
+"adhoc.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	if exist adhoc.cpp touch adhoc.cpp 
+	if not exist adhoc.cpp copy $(InputPath) adhoc.cpp 
+	
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
 SOURCE=.\bench.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\bench.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\datatest.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\factory.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\regtest.cpp
 # End Source File
 # Begin Source File
 
