@@ -264,11 +264,13 @@ NAMESPACE_END
 #endif
 
 #define CRYPTOPP_API __stdcall
+#define CRYPTOPP_CDECL _cdecl
 
 #else	// CRYPTOPP_WIN32_AVAILABLE
 
 #define CRYPTOPP_DLL
 #define CRYPTOPP_API
+#define CRYPTOPP_CDECL
 
 #endif	// CRYPTOPP_WIN32_AVAILABLE
 
