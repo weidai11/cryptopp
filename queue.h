@@ -16,7 +16,7 @@ class ByteQueueNode;
 class ByteQueue : public Bufferless<BufferedTransformation>
 {
 public:
-	ByteQueue(unsigned int m_nodeSize=256);
+	ByteQueue(unsigned int m_nodeSize=0);
 	ByteQueue(const ByteQueue &copy);
 	~ByteQueue();
 
@@ -99,6 +99,7 @@ private:
 	void CopyFrom(const ByteQueue &copy);
 	void Destroy();
 
+	bool m_autoNodeSize;
 	unsigned int m_nodeSize;
 	ByteQueueNode *m_head, *m_tail;
 	byte *m_lazyString;
