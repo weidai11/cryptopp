@@ -31,7 +31,7 @@ void HAVAL::Init()
 	m_digest[7] = 0xEC4E6C89;
 }
 
-inline void HAVAL::vTransform(const word32 *in)
+void HAVAL::vTransform(const word32 *in)
 {
 	if (pass==3)
 		HAVAL3::Transform(m_digest, in);
