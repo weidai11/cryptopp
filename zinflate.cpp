@@ -239,7 +239,7 @@ void Inflator::OutputString(const byte *string, unsigned int length)
 {
 	while (length)
 	{
-		unsigned int len = STDMIN(length, m_window.size() - m_current);
+		unsigned int len = STDMIN(length, unsigned int(m_window.size() - m_current));
 		memcpy(m_window + m_current, string, len);
 		m_current += len;
 		if (m_current == m_window.size())
