@@ -383,7 +383,7 @@ inline word32 ByteReverse(word32 value)
 #ifdef WORD64_AVAILABLE
 inline word64 ByteReverse(word64 value)
 {
-#ifdef SLOW_WORD64
+#ifdef CRYPTOPP_SLOW_WORD64
 	return (word64(ByteReverse(word32(value))) << 32) | ByteReverse(word32(value>>32));
 #else
 	value = ((value & W64LIT(0xFF00FF00FF00FF00)) >> 8) | ((value & W64LIT(0x00FF00FF00FF00FF)) << 8);
@@ -419,7 +419,7 @@ inline word32 BitReverse(word32 value)
 #ifdef WORD64_AVAILABLE
 inline word64 BitReverse(word64 value)
 {
-#ifdef SLOW_WORD64
+#ifdef CRYPTOPP_SLOW_WORD64
 	return (word64(BitReverse(word32(value))) << 32) | BitReverse(word32(value>>32));
 #else
 	value = ((value & W64LIT(0xAAAAAAAAAAAAAAAA)) >> 1) | ((value & W64LIT(0x5555555555555555)) << 1);

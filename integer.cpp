@@ -1703,18 +1703,20 @@ void PentiumOptimized::Multiply8(word* Z, const word* X, const word* Y)
 	);
 }
 
-#elif defined(__GNUC__) && (defined(__alpha__) || defined(__ia64__) || defined(_ARCH_PPC64) || defined(__x86_64__) || defined(__mips64))
+#elif defined(__GNUC__) && defined(CRYPTOPP_64BIT_CPU)
 
 #ifdef __alpha__
 #define MUL64x64(a, b, c, d) c = a*b; __asm__("umulh %1,%2,%0" : "=r" (d) : "r" (a), "r" (b))
-#else defined(__ia64__)
+#elif defined(__ia64__)
 #define MUL64x64(a, b, c, d) c = a*b; __asm__("xmpy.hu %0=%1,%2" : "=f" (d) : "f" (a), "f" (b))
-#else defined(_ARCH_PPC64)
+#elif defined(_ARCH_PPC64)
 #define MUL64x64(a, b, c, d) c = a*b; __asm__("mulhdu %0,%1,%2" : "=r" (d) : "r" (a), "r" (b) : "cc")
-#else defined(__x86_64__)
+#elif defined(__x86_64__)
 #define MUL64x64(a, b, c, d) __asm__("mulq %3" : "=d" (d), "=a" (c) : "a" (a), "rm" (b) : "cc")
-#else defined(__mips64)
+#elif defined(__mips64)
 #define MUL64x64(a, b, c, d) __asm__("dmultu %2,%3" : "=h" (d), "=l" (c) : "r" (a), "r" (b))
+#elif defined(__sparc_v9__) || defined(__sparcv9) || defined(__sparc_v8__) || defined(__sparcv8)
+#define MUL64x64(a, b, c, d) __asm__("umul %2,%3,%1;rd %%y,%0" : "=r" (d), "=r" (c) : "r" (a), "r" (b))
 #endif
 
 class OptimizedFor64BitCPU : public Portable

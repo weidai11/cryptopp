@@ -108,9 +108,13 @@ typedef unsigned short word16;
 #	define W64LIT(x) x##ui64
 #endif
 
-// defined this if your CPU is not 64-bit
-#if defined(WORD64_AVAILABLE) && !defined(__alpha)
-#	define SLOW_WORD64
+#if defined(__alpha__) || defined(__ia64__) || defined(_ARCH_PPC64) || defined(__x86_64__) || defined(__mips64) || defined(__sparc_v9__) || defined(__sparcv9) || defined(__sparc_v8__) || defined(__sparcv8)
+#	define CRYPTOPP_64BIT_CPU
+#endif
+
+// defined this if your CPU is not 64-bit to use alternative code that avoids word64
+#if defined(WORD64_AVAILABLE) && !defined(CRYPTOPP_64BIT_CPU)
+#	define CRYPTOPP_SLOW_WORD64
 #endif
 
 // word should have the same size as your CPU registers
