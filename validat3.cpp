@@ -16,9 +16,9 @@
 #include "panama.h"
 #include "whrlpool.h"
 
+#include "xormac.h"
 #include "md5mac.h"
 #include "hmac.h"
-#include "xormac.h"
 #include "ttmac.h"
 
 #include "integer.h"
