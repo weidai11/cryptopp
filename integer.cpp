@@ -155,7 +155,7 @@ public:
 		#elif defined(_ARCH_PPC64)
 			r.m_halfs.low = a*b; __asm__("mulhdu %0,%1,%2" : "=r" (r.m_halfs.high) : "r" (a), "r" (b) : "cc");
 		#elif defined(__x86_64__)
-			__asm__("mulq %3" : "=r.m_halfs.high" (r.m_halfs.high), "=a" (r.m_halfs.low) : "a" (a), "rm" (b) : "cc");
+			__asm__("mulq %3" : "=d" (r.m_halfs.high), "=a" (r.m_halfs.low) : "a" (a), "rm" (b) : "cc");
 		#elif defined(__mips64)
 			__asm__("dmultu %2,%3" : "=h" (r.m_halfs.high), "=l" (r.m_halfs.low) : "r" (a), "r" (b));
 		#elif defined(_M_IX86)
