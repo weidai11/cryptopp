@@ -11,7 +11,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 void xorbuf(byte *buf, const byte *mask, unsigned int count)
 {
-	if (((unsigned int)buf | (unsigned int)mask | count) % WORD_SIZE == 0)
+	if (((size_t)buf | (size_t)mask | count) % WORD_SIZE == 0)
 		XorWords((word *)buf, (const word *)mask, count/WORD_SIZE);
 	else
 	{
@@ -22,7 +22,7 @@ void xorbuf(byte *buf, const byte *mask, unsigned int count)
 
 void xorbuf(byte *output, const byte *input, const byte *mask, unsigned int count)
 {
-	if (((unsigned int)output | (unsigned int)input | (unsigned int)mask | count) % WORD_SIZE == 0)
+	if (((size_t)output | (size_t)input | (size_t)mask | count) % WORD_SIZE == 0)
 		XorWords((word *)output, (const word *)input, (const word *)mask, count/WORD_SIZE);
 	else
 	{
