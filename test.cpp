@@ -2,23 +2,15 @@
 
 #include "dll.h"
 #include "md5.h"
-#include "sha.h"
 #include "ripemd.h"
-#include "files.h"
 #include "rng.h"
-#include "hex.h"
 #include "gzip.h"
 #include "default.h"
-#include "rsa.h"
 #include "randpool.h"
 #include "ida.h"
 #include "base64.h"
 #include "socketft.h"
-#include "dsa.h"
-#include "rsa.h"
-#include "osrng.h"
 #include "wait.h"
-#include "fips140.h"
 #include "factory.h"
 
 #include "validate.h"
@@ -118,10 +110,8 @@ int main(int argc, char *argv[])
 		else
 			command = argv[1];
 
-		switch (command[0])
+		if (command == "g")
 		{
-		case 'g':
-		  {
 			char seed[1024], privFilename[128], pubFilename[128];
 			unsigned int keyLength;
 
@@ -139,103 +129,89 @@ int main(int argc, char *argv[])
 			cin.getline(seed, 1024);
 
 			GenerateRSAKey(keyLength, privFilename, pubFilename, seed);
-			return 0;
-		  }
-		case 'r':
-		  {
-			switch (argv[1][1])
+		}
+		else if (command == "rs")
+			RSASignFile(argv[2], argv[3], argv[4]);
+		else if (command == "rv")
+		{
+			bool verified = RSAVerifyFile(argv[2], argv[3], argv[4]);
+			cout << (verified ? "valid signature" : "invalid signature") << endl;
+		}
+		else if (command == "r")
+		{
+			char privFilename[128], pubFilename[128];
+			char seed[1024], message[1024];
+
+			cout << "Private key file: ";
+			cin >> privFilename;
+
+			cout << "\nPublic key file: ";
+			cin >> pubFilename;
+
+			cout << "\nRandom Seed: ";
+			ws(cin);
+			cin.getline(seed, 1024);
+
+			cout << "\nMessage: ";
+			cin.getline(message, 1024);
+
+			string ciphertext = RSAEncryptString(pubFilename, seed, message);
+			cout << "\nCiphertext: " << ciphertext << endl;
+
+			string decrypted = RSADecryptString(privFilename, ciphertext.c_str());
+			cout << "\nDecrypted: " << decrypted << endl;
+		}
+		else if (command == "mt")
+		{
+			MaurerRandomnessTest mt;
+			FileStore fs(argv[2]);
+			fs.TransferAllTo(mt);
+			cout << "Maurer Test Value: " << mt.GetTestValue() << endl;
+		}
+#ifdef CRYPTOPP_WIN32_AVAILABLE
+		else if (command == "mac_dll")
+		{
+			HMODULE hModule = LoadLibrary(argv[2]);
+			PGetPowerUpSelfTestStatus pGetPowerUpSelfTestStatus = (PGetPowerUpSelfTestStatus)GetProcAddress(hModule, "?GetPowerUpSelfTestStatus@CryptoPP@@YG?AW4PowerUpSelfTestStatus@1@XZ");
+			PGetActualMacAndLocation pGetActualMacAndLocation = (PGetActualMacAndLocation)GetProcAddress(hModule, "?GetActualMacAndLocation@CryptoPP@@YGPBEAAI0@Z");
+
+			PowerUpSelfTestStatus status = pGetPowerUpSelfTestStatus();
+			if (status == POWER_UP_SELF_TEST_PASSED)
 			{
-			case 's':
-				RSASignFile(argv[2], argv[3], argv[4]);
+				cout << "Crypto++ DLL MAC is valid. Nothing to do.\n";
 				return 0;
-			case 'v':
-			  {
-				bool verified = RSAVerifyFile(argv[2], argv[3], argv[4]);
-				cout << (verified ? "valid signature" : "invalid signature") << endl;
-				return 0;
-			  }
-			default:
-			  {
-				char privFilename[128], pubFilename[128];
-				char seed[1024], message[1024];
-
-				cout << "Private key file: ";
-				cin >> privFilename;
-
-				cout << "\nPublic key file: ";
-				cin >> pubFilename;
-
-				cout << "\nRandom Seed: ";
-				ws(cin);
-				cin.getline(seed, 1024);
-
-				cout << "\nMessage: ";
-				cin.getline(message, 1024);
-
-				string ciphertext = RSAEncryptString(pubFilename, seed, message);
-				cout << "\nCiphertext: " << ciphertext << endl;
-
-				string decrypted = RSADecryptString(privFilename, ciphertext.c_str());
-				cout << "\nDecrypted: " << decrypted << endl;
-
-				return 0;
-			  }
 			}
-		  }
-		case 'm':
-			if (command == "mac_dll")
-			{
-				HMODULE hModule = LoadLibrary(argv[2]);
-				PGetPowerUpSelfTestStatus pGetPowerUpSelfTestStatus = (PGetPowerUpSelfTestStatus)GetProcAddress(hModule, "?GetPowerUpSelfTestStatus@CryptoPP@@YG?AW4PowerUpSelfTestStatus@1@XZ");
-				PGetActualMacAndLocation pGetActualMacAndLocation = (PGetActualMacAndLocation)GetProcAddress(hModule, "?GetActualMacAndLocation@CryptoPP@@YGPBEAAI0@Z");
 
-				PowerUpSelfTestStatus status = pGetPowerUpSelfTestStatus();
-				if (status == POWER_UP_SELF_TEST_PASSED)
-				{
-					cout << "Crypto++ DLL MAC is valid. Nothing to do.\n";
-					return 0;
-				}
-
-				unsigned int macSize, macFileLocation;
-				const byte *pMac = pGetActualMacAndLocation(macSize, macFileLocation);
-				
-				if (macFileLocation == 0)
-				{
-					cerr << "Could not find MAC location in Crypto++ DLL.\n";
-					return 1;
-				}
-				else
-				{
-					SecByteBlock mac(pMac, macSize);	// copy MAC before freeing the DLL
-					BOOL r = FreeLibrary(hModule);
-					cout << "Placing MAC in file " << argv[2] << ", location " << macFileLocation << ".\n";
-					std::ofstream dllFile(argv[2], ios::in | ios::out | ios::binary);
-					dllFile.seekp(macFileLocation);
-					dllFile.write((const char *)mac.data(), macSize);
-					if (!dllFile.good())
-					{
-						cerr << "Error writing file.\n";
-						return 1;
-					}
-					return 0;
-				}
-			}
-			else if (command == "mt")
+			unsigned int macSize, macFileLocation;
+			const byte *pMac = pGetActualMacAndLocation(macSize, macFileLocation);
+			
+			if (macFileLocation == 0)
 			{
-				MaurerRandomnessTest mt;
-				FileStore fs(argv[2]);
-				fs.TransferAllTo(mt);
-				cout << "Maurer Test Value: " << mt.GetTestValue() << endl;
+				cerr << "Could not find MAC location in Crypto++ DLL.\n";
+				return 1;
 			}
 			else
-				DigestFile(argv[2]);
-			return 0;
-		case 't':
-		  {
-			if (command == "tv")
 			{
-				return !RunTestDataFile(argv[2]);
+				SecByteBlock mac(pMac, macSize);	// copy MAC before freeing the DLL
+				BOOL r = FreeLibrary(hModule);
+				cout << "Placing MAC in file " << argv[2] << ", location " << macFileLocation << ".\n";
+				std::ofstream dllFile(argv[2], ios::in | ios::out | ios::binary);
+				dllFile.seekp(macFileLocation);
+				dllFile.write((const char *)mac.data(), macSize);
+				if (!dllFile.good())
+				{
+					cerr << "Error writing file.\n";
+					return 1;
+				}
 			}
+		}
+#endif
+		else if (command == "m")
+			DigestFile(argv[2]);
+		else if (command == "tv")
+			return !RunTestDataFile(argv[2]);
+		else if (command == "t")
+		{
 			// VC60 workaround: use char array instead of std::string to workaround MSVC's getline bug
 			char passPhrase[MAX_PHRASE_LENGTH], plaintext[1024];
 
@@ -252,84 +228,81 @@ int main(int argc, char *argv[])
 			cout << "\nDecrypted: " << decrypted << endl;
 
 			return 0;
-		  }
-		case 'e':
-		case 'd':
-			if (command == "e64")
-				Base64Encode(argv[2], argv[3]);
-			else if (command == "d64")
-				Base64Decode(argv[2], argv[3]);
-			else if (command == "e16")
-				HexEncode(argv[2], argv[3]);
-			else if (command == "d16")
-				HexDecode(argv[2], argv[3]);
+		}
+		else if (command == "e64")
+			Base64Encode(argv[2], argv[3]);
+		else if (command == "d64")
+			Base64Decode(argv[2], argv[3]);
+		else if (command == "e16")
+			HexEncode(argv[2], argv[3]);
+		else if (command == "d16")
+			HexDecode(argv[2], argv[3]);
+		else if (command == "e" || command == "d")
+		{
+			char passPhrase[MAX_PHRASE_LENGTH];
+			cout << "Passphrase: ";
+			cin.getline(passPhrase, MAX_PHRASE_LENGTH);
+			if (command == "e")
+				EncryptFile(argv[2], argv[3], passPhrase);
 			else
-			{
-				char passPhrase[MAX_PHRASE_LENGTH];
-				cout << "Passphrase: ";
-				cin.getline(passPhrase, MAX_PHRASE_LENGTH);
-				if (command == "e")
-					EncryptFile(argv[2], argv[3], passPhrase);
-				else
-					DecryptFile(argv[2], argv[3], passPhrase);
-			}
-			return 0;
-		case 's':
-			if (argv[1][1] == 's')
-			{
-				char seed[1024];
-				cout << "\nRandom Seed: ";
-				ws(cin);
-				cin.getline(seed, 1024);
-				SecretShareFile(atoi(argv[2]), atoi(argv[3]), argv[4], seed);
-			}
-			else
-				SecretRecoverFile(argc-3, argv[2], argv+3);
-			return 0;
-		case 'i':
-			if (argv[1][1] == 'd')
-				InformationDisperseFile(atoi(argv[2]), atoi(argv[3]), argv[4]);
-			else
-				InformationRecoverFile(argc-3, argv[2], argv+3);
-			return 0;
-		case 'v':
+				DecryptFile(argv[2], argv[3], passPhrase);
+		}
+		else if (command == "ss")
+		{
+			char seed[1024];
+			cout << "\nRandom Seed: ";
+			ws(cin);
+			cin.getline(seed, 1024);
+			SecretShareFile(atoi(argv[2]), atoi(argv[3]), argv[4], seed);
+		}
+		else if (command == "sr")
+			SecretRecoverFile(argc-3, argv[2], argv+3);
+		else if (command == "id")
+			InformationDisperseFile(atoi(argv[2]), atoi(argv[3]), argv[4]);
+		else if (command == "ir")
+			InformationRecoverFile(argc-3, argv[2], argv+3);
+		else if (command == "v")
 			return !Validate(argc>2 ? atoi(argv[2]) : 0, argv[1][1] == 'v', argc>3 ? argv[3] : NULL);
-		case 'b':
+		else if (command == "b")
+		{
 			if (argc<3)
 				BenchMarkAll();
 			else
 				BenchMarkAll((float)atof(argv[2]));
-			return 0;
-		case 'z':
+		}
+		else if (command == "z")
 			GzipFile(argv[3], argv[4], argv[2][0]-'0');
-			return 0;
-		case 'u':
+		else if (command == "u")
 			GunzipFile(argv[2], argv[3]);
-			return 0;
-		case 'f':
-			if (command == "fips")
-				FIPS140_SampleApplication();
-			else if (command == "fips-rand")
-				FIPS140_GenerateRandomFiles();
-			else if (command == "ft")
-				ForwardTcpPort(argv[2], argv[3], argv[4]);
-			return 0;
-		case 'a':
+		else if (command == "fips")
+			FIPS140_SampleApplication();
+		else if (command == "fips-rand")
+			FIPS140_GenerateRandomFiles();
+		else if (command == "ft")
+			ForwardTcpPort(argv[2], argv[3], argv[4]);
+		else if (command == "a")
+		{
 			if (AdhocTest)
 				return (*AdhocTest)(argc, argv);
 			else
-				return 0;
-		case 'h':
-			if (command == "hmac")
 			{
-				HmacFile(argv[2], argv[3]);
-				return 0;
+				cerr << "AdhocTest not defined.\n";
+				return 1;
 			}
-			// fall through
-		default:
+		}
+		else if (command == "hmac")
+			HmacFile(argv[2], argv[3]);
+		else if (command == "h")
+		{
 			FileSource usage("usage.dat", true, new FileSink(cout));
 			return 1;
 		}
+		else
+		{
+			cerr << "Unrecognized command.\n";
+			return 1;
+		}
+		return 0;
 	}
 	catch(CryptoPP::Exception &e)
 	{

@@ -248,6 +248,8 @@ History
 5.03 - created DLL version of Crypto++ for FIPS 140-2 validation
      - fixed vulnerabilities in GetNextIV for CTR and OFB modes
 
+5.0.4 - Removed DES, SHA-256, SHA-384, SHA-512 from DLL
+
 5.1 - added PSS padding and changed PSSR to track IEEE P1363a draft standard
     - added blinding for RSA and Rabin to defend against timing attacks
       on decryption operations
@@ -260,4 +262,4 @@ History
     - fixed a number of compiler warnings, minor bugs, and portability problems
     - removed Sapphire
 
-5.2 - Merged in changes for 5.01 - 5.03
+5.2 - Merged in changes for 5.01 - 5.04

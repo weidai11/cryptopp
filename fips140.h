@@ -6,6 +6,7 @@
 */
 
 #include "cryptlib.h"
+#include "secblock.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 

@@ -1,9 +1,6 @@
 // iterhash.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
-
-#ifndef CRYPTOPP_IMPORTS
-
 #include "iterhash.h"
 #include "misc.h"
 
@@ -108,5 +105,3 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::Restart()
 }
 
 NAMESPACE_END
-
-#endif

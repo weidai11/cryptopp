@@ -191,35 +191,6 @@ NAMESPACE_END
 #	pragma warning(disable: 4231 4250 4251 4275 4660 4661 4786 4355)
 #endif
 
-#ifdef _MSC_VER
-
-#ifdef CRYPTOPP_EXPORTS
-#define CRYPTOPP_IS_DLL
-#define CRYPTOPP_DLL __declspec(dllexport)
-#elif defined(CRYPTOPP_IMPORTS)
-#define CRYPTOPP_IS_DLL
-#define CRYPTOPP_DLL __declspec(dllimport)
-#else
-#define CRYPTOPP_DLL
-#endif
-
-#define CRYPTOPP_API __stdcall
-
-#else	// _MSC_VER
-
-#define CRYPTOPP_DLL
-#define CRYPTOPP_API
-
-#endif	// _MSC_VER
-
-#ifdef CRYPTOPP_MANUALLY_INSTANTIATE_TEMPLATES
-#define CRYPTOPP_MANUAL_EXTERN
-#else
-#define CRYPTOPP_MANUAL_EXTERN extern
-#endif
-
-#define CRYPTOPP_DLL_TEMPLATE_CLASS CRYPTOPP_MANUAL_EXTERN template class CRYPTOPP_DLL
-
 // ***************** determine availability of OS features ********************
 
 #ifndef NO_OS_DEPENDENCE
@@ -277,5 +248,41 @@ NAMESPACE_END
 #endif
 
 #endif	// NO_OS_DEPENDENCE
+
+// ***************** DLL related ********************
+
+#ifdef CRYPTOPP_WIN32_AVAILABLE
+
+#ifdef CRYPTOPP_EXPORTS
+#define CRYPTOPP_IS_DLL
+#define CRYPTOPP_DLL __declspec(dllexport)
+#elif defined(CRYPTOPP_IMPORTS)
+#define CRYPTOPP_IS_DLL
+#define CRYPTOPP_DLL __declspec(dllimport)
+#else
+#define CRYPTOPP_DLL
+#endif
+
+#define CRYPTOPP_API __stdcall
+
+#else	// CRYPTOPP_WIN32_AVAILABLE
+
+#define CRYPTOPP_NO_DLL
+#define CRYPTOPP_DLL
+#define CRYPTOPP_API
+
+#endif	// CRYPTOPP_WIN32_AVAILABLE
+
+#if defined(CRYPTOPP_MANUALLY_INSTANTIATE_TEMPLATES) && !defined(CRYPTOPP_IMPORTS)
+#define CRYPTOPP_DLL_TEMPLATE_CLASS template class CRYPTOPP_DLL
+#else
+#define CRYPTOPP_DLL_TEMPLATE_CLASS extern template class CRYPTOPP_DLL
+#endif
+
+#if defined(CRYPTOPP_MANUALLY_INSTANTIATE_TEMPLATES) && !defined(CRYPTOPP_EXPORTS)
+#define CRYPTOPP_STATIC_TEMPLATE_CLASS template class
+#else
+#define CRYPTOPP_STATIC_TEMPLATE_CLASS extern template class
+#endif
 
 #endif
