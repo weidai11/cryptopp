@@ -6,7 +6,10 @@
 #ifdef THREADS_AVAILABLE
 
 #include "trdlocal.h"
+
+#ifdef HAS_WINTHREADS
 #include <windows.h>
+#endif
 
 NAMESPACE_BEGIN(CryptoPP)
 
