@@ -51,6 +51,8 @@ bool RSAVerifyFile(const char *pubFilename, const char *messageFilename, const c
 void DigestFile(const char *file);
 void HmacFile(const char *hexKey, const char *file);
 
+void AES_CTR_Encrypt(const char *hexKey, const char *hexIV, const char *infile, const char *outfile);
+
 string EncryptString(const char *plaintext, const char *passPhrase);
 string DecryptString(const char *ciphertext, const char *passPhrase);
 
@@ -66,10 +68,10 @@ void InformationRecoverFile(int threshold, const char *outFilename, char *const 
 void GzipFile(const char *in, const char *out, int deflate_level);
 void GunzipFile(const char *in, const char *out);
 
-void Base64Encode(const char *in, const char *out);
-void Base64Decode(const char *in, const char *out);
-void HexEncode(const char *in, const char *out);
-void HexDecode(const char *in, const char *out);
+void Base64Encode(const char *infile, const char *outfile);
+void Base64Decode(const char *infile, const char *outfile);
+void HexEncode(const char *infile, const char *outfile);
+void HexDecode(const char *infile, const char *outfile);
 
 void ForwardTcpPort(const char *sourcePort, const char *destinationHost, const char *destinationPort);
 
@@ -291,6 +293,8 @@ int CRYPTOPP_CDECL main(int argc, char *argv[])
 		}
 		else if (command == "hmac")
 			HmacFile(argv[2], argv[3]);
+		else if (command == "ae")
+			AES_CTR_Encrypt(argv[2], argv[3], argv[4], argv[5]);
 		else if (command == "h")
 		{
 			FileSource usage("usage.dat", true, new FileSink(cout));
@@ -298,7 +302,7 @@ int CRYPTOPP_CDECL main(int argc, char *argv[])
 		}
 		else
 		{
-			cerr << "Unrecognized command.\n";
+			cerr << "Unrecognized command. Run \"cryptest h\" to obtain usage information.\n";
 			return 1;
 		}
 		return 0;
@@ -327,6 +331,14 @@ void FIPS140_GenerateRandomFiles()
 	cout << "OS provided RNG not available.\n";
 	exit(-1);
 #endif
+}
+
+SecByteBlock HexDecodeString(const char *hex)
+{
+	StringSource ss(hex, true, new HexDecoder);
+	SecByteBlock result(ss.MaxRetrievable());
+	ss.Get(result, result.size());
+	return result;
 }
 
 RandomPool & GlobalRNG()
@@ -440,6 +452,14 @@ void HmacFile(const char *hexKey, const char *file)
 		mac.reset(new HMAC<SHA1>((const byte *)decodedKey.data(), decodedKey.size()));
 	}
 	FileSource(file, true, new HashFilter(*mac, new HexEncoder(new FileSink(cout))));
+}
+
+void AES_CTR_Encrypt(const char *hexKey, const char *hexIV, const char *infile, const char *outfile)
+{
+	SecByteBlock key = HexDecodeString(hexKey);
+	SecByteBlock iv = HexDecodeString(hexIV);
+	CTR_Mode<AES>::Encryption aes(key, key.size(), iv);
+	FileSource(infile, true, new StreamTransformationFilter(aes, new FileSink(outfile)));
 }
 
 string EncryptString(const char *instr, const char *passPhrase)

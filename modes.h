@@ -275,19 +275,26 @@ template <class BASE>
 class CipherModeFinalTemplate_ExternalCipher : public BASE
 {
 public:
-	CipherModeFinalTemplate_ExternalCipher(BlockCipher &cipher);
+	CipherModeFinalTemplate_ExternalCipher() {}
+	CipherModeFinalTemplate_ExternalCipher(BlockCipher &cipher)
+		{SetCipher(cipher);}
+	CipherModeFinalTemplate_ExternalCipher(BlockCipher &cipher, const byte *iv, int feedbackSize = 0)
+		{SetCipherWithIV(cipher, iv, feedbackSize);}
 
-	CipherModeFinalTemplate_ExternalCipher(BlockCipher &cipher, const byte *iv, int feedbackSize = 0);
+	void SetCipher(BlockCipher &cipher);
+	void SetCipherWithIV(BlockCipher &cipher, const byte *iv, int feedbackSize = 0);
 };
 
-template <class BASE> CipherModeFinalTemplate_ExternalCipher<BASE>::CipherModeFinalTemplate_ExternalCipher(BlockCipher &cipher)
+template <class BASE>
+void CipherModeFinalTemplate_ExternalCipher<BASE>::SetCipher(BlockCipher &cipher)
 {
 	ThrowIfResynchronizable();
 	m_cipher = &cipher;
 	ResizeBuffers();
 }
 
-template <class BASE> CipherModeFinalTemplate_ExternalCipher<BASE>::CipherModeFinalTemplate_ExternalCipher(BlockCipher &cipher, const byte *iv, int feedbackSize)
+template <class BASE>
+void CipherModeFinalTemplate_ExternalCipher<BASE>::SetCipherWithIV(BlockCipher &cipher, const byte *iv, int feedbackSize)
 {
 	ThrowIfInvalidIV(iv);
 	m_cipher = &cipher;

@@ -67,7 +67,7 @@ private:
 	unsigned int m_size;
 };
 
-class CombinedNameValuePairs : public NameValuePairs
+class CRYPTOPP_DLL CombinedNameValuePairs : public NameValuePairs
 {
 public:
 	CombinedNameValuePairs(const NameValuePairs &pairs1, const NameValuePairs &pairs2)
@@ -323,6 +323,12 @@ public:
 		return AlgorithmParameters<AlgorithmParameters<PARENT,T>, R>(*this, name, value, m_throwIfNotUsed);
 	}
 
+	template <class R>
+	AlgorithmParameters<AlgorithmParameters<PARENT,T>, R> operator()(const char *name, const R &value, bool throwIfNotUsed) const
+	{
+		return AlgorithmParameters<AlgorithmParameters<PARENT,T>, R>(*this, name, value, throwIfNotUsed);
+	}
+
 private:
 	const NameValuePairs & GetParent() const {return m_parent;}
 	PARENT m_parent;
@@ -331,7 +337,11 @@ private:
 //! Create an object that implements NameValuePairs for passing parameters
 /*! \param throwIfNotUsed if true, the object will throw an exception if the value is not accessed
 	\note throwIfNotUsed is ignored if using a compiler that does not support std::uncaught_exception(),
-	such as MSVC 7.0 and earlier. */
+	such as MSVC 7.0 and earlier.
+	\note A NameValuePairs object containing an arbitrary number of name value pairs may be constructed by
+	repeatedly using operator() on the object returned by MakeParameters, for example:
+	const NameValuePairs &parameters = MakeParameters(name1, value1)(name2, value2)(name3, value3);
+*/
 template <class T>
 AlgorithmParameters<NullNameValuePairs,T> MakeParameters(const char *name, const T &value, bool throwIfNotUsed = true)
 {

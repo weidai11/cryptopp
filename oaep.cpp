@@ -1,8 +1,10 @@
 // oaep.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
-#include "oaep.h"
 
+#ifndef CRYPTOPP_IMPORTS
+
+#include "oaep.h"
 #include <functional>
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -91,3 +93,5 @@ DecodingResult OAEP_Base::Unpad(const byte *oaepBlock, unsigned int oaepBlockLen
 }
 
 NAMESPACE_END
+
+#endif

@@ -264,4 +264,6 @@ History
 
 5.2 - Merged in changes for 5.01 - 5.0.4
     - added support for using encoding parameters and key derivation parameters
-      with public key encryption (implemented by OAEP and DLIES)
+      with public key encryption (implemented by OAEP and DL/ECIES)
+    - added Camellia, SHACAL-2, Two-Track-MAC, Whirlpool, RIPEMD-320,
+	  RIPEMD-128, RIPEMD-256, Base 32 coding

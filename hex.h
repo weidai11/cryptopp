@@ -12,7 +12,7 @@ public:
 	HexEncoder(BufferedTransformation *attachment = NULL, bool uppercase = true, int outputGroupSize = 0, const std::string &separator = ":", const std::string &terminator = "")
 		: SimpleProxyFilter(new BaseN_Encoder(new Grouper), attachment)
 	{
-		IsolatedInitialize(MakeParameters("Uppercase", uppercase)("GroupSize", outputGroupSize)("Separator", ConstByteArrayParameter(separator)));
+		IsolatedInitialize(MakeParameters(Name::Uppercase(), uppercase)(Name::GroupSize(), outputGroupSize)(Name::Separator(), ConstByteArrayParameter(separator)));
 	}
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
@@ -23,12 +23,12 @@ class CRYPTOPP_DLL HexDecoder : public BaseN_Decoder
 {
 public:
 	HexDecoder(BufferedTransformation *attachment = NULL)
-		: BaseN_Decoder(GetDecodingLookupArray(), 4, attachment) {}
+		: BaseN_Decoder(GetDefaultDecodingLookupArray(), 4, attachment) {}
 
-	void IsolatedInitialize(const NameValuePairs &parameters) {}
+	void IsolatedInitialize(const NameValuePairs &parameters);
 
 private:
-	static const int *GetDecodingLookupArray();
+	static const int *GetDefaultDecodingLookupArray();
 };
 
 NAMESPACE_END

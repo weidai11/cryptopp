@@ -206,9 +206,11 @@ struct CRYPTOPP_DLL DecodingResult
 };
 
 //! interface for retrieving values given their names
-/*! This class is used to safely pass a variable number of arbitrarily typed arguments to functions
+/*! \note This class is used to safely pass a variable number of arbitrarily typed arguments to functions
 	and to read values from keys and crypto parameters.
-	To get a value, you need to know the name and the type of the value. 
+	\note To obtain an object that implements NameValuePairs for the purpose of parameter
+	passing, use the MakeParameters() function.
+	\note To get a value from NameValuePairs, you need to know the name and the type of the value. 
 	Call GetValueNames() on a NameValuePairs object to obtain a list of value names that it supports.
 	Then look at the Name namespace documentation to see what the type of each value is, or
 	alternatively, call GetIntValue() with the value name, and if the type is not int, a
@@ -779,7 +781,7 @@ public:
 		/*! There should be a MessageEnd immediately before MessageSeriesEnd. */
 		virtual bool MessageSeriesEnd(int propagation=-1, bool blocking=true);
 
-		//! set propagation of automatically generated and transfered signals
+		//! set propagation of automatically generated and transferred signals
 		/*! propagation == 0 means do not automaticly generate signals */
 		virtual void SetAutoSignalPropagation(int propagation) {}
 

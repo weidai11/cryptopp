@@ -41,6 +41,9 @@ Test Driver for Crypto++(TM) Library, a C++ Class Library of Cryptographic Schem
 - To gunzip a file
 	cryptest u input output
 
+- To encrypt a file with AES in CTR mode
+	cryptest ae input output
+
 - To base64 encode a file
 	cryptest e64 input output
 
