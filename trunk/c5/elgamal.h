@@ -79,9 +79,9 @@ class CRYPTOPP_NO_VTABLE ElGamalObjectImpl : public DL_ObjectImplBase<BASE, SCHE
 {
 public:
 	unsigned int FixedMaxPlaintextLength() const {return MaxPlaintextLength(FixedCiphertextLength());}
-	unsigned int FixedCiphertextLength() const {return CiphertextLength(0);}
+	unsigned int FixedCiphertextLength() const {return this->CiphertextLength(0);}
 
-	const DL_GroupParameters_GFP & GetGroupParameters() const {return GetKey().GetGroupParameters();}
+	const DL_GroupParameters_GFP & GetGroupParameters() const {return this->GetKey().GetGroupParameters();}
 
 	DecodingResult FixedLengthDecrypt(RandomNumberGenerator &rng, const byte *cipherText, byte *plainText) const
 		{return Decrypt(rng, cipherText, FixedCiphertextLength(), plainText);}

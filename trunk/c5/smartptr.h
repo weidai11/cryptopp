@@ -6,7 +6,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-template<class T> class simple_ptr
+template <class T> class simple_ptr
 {
 public:
 	simple_ptr() : m_p(NULL) {}
@@ -14,7 +14,7 @@ public:
 	T *m_p;
 };
 
-template<class T> class member_ptr
+template <class T> class member_ptr
 {
 public:
 	explicit member_ptr(T *p = NULL) : m_p(p) {}
@@ -62,14 +62,14 @@ public:
 	value_ptr<T>& operator=(const value_ptr<T>& rhs);
 	bool operator==(const value_ptr<T>& rhs)
 	{
-		return (!m_p && !rhs.m_p) || (m_p && rhs.m_p && *m_p == *rhs.m_p);
+		return (!this->m_p && !rhs.m_p) || (this->m_p && rhs.m_p && *this->m_p == *rhs.m_p);
 	}
 };
 
 template <class T> value_ptr<T>& value_ptr<T>::operator=(const value_ptr<T>& rhs)
 {
-	T *old_p = m_p;
-	m_p = rhs.m_p ? new T(*rhs.m_p) : NULL;
+	T *old_p = this->m_p;
+	this->m_p = rhs.m_p ? new T(*rhs.m_p) : NULL;
 	delete old_p;
 	return *this;
 }
@@ -89,8 +89,8 @@ public:
 
 template <class T> clonable_ptr<T>& clonable_ptr<T>::operator=(const clonable_ptr<T>& rhs)
 {
-	T *old_p = m_p;
-	m_p = rhs.m_p ? rhs.m_p->Clone() : NULL;
+	T *old_p = this->m_p;
+	this->m_p = rhs.m_p ? rhs.m_p->Clone() : NULL;
 	delete old_p;
 	return *this;
 }
@@ -190,32 +190,32 @@ template <class T> class vector_member_ptrs
 {
 public:
 	vector_member_ptrs(unsigned int size=0)
-		: _size(size) {ptr = new member_ptr<T>[_size];}
+		: m_size(size), m_ptr(new member_ptr<T>[size]) {}
 	~vector_member_ptrs()
-		{delete [] ptr;}
+		{delete [] this->m_ptr;}
 
 	member_ptr<T>& operator[](unsigned int index)
-		{assert(index<_size); return ptr[index];}
+		{assert(index<this->m_size); return this->m_ptr[index];}
 	const member_ptr<T>& operator[](unsigned int index) const
-		{assert(index<_size); return ptr[index];}
+		{assert(index<this->m_size); return this->m_ptr[index];}
 
-	unsigned int size() const {return _size;}
+	unsigned int size() const {return this->m_size;}
 	void resize(unsigned int newSize)
 	{
 		member_ptr<T> *newPtr = new member_ptr<T>[newSize];
-		for (unsigned int i=0; i<STDMIN(_size, newSize); i++)
-			newPtr[i].reset(ptr[i].release());
-		delete [] ptr;
-		_size = newSize;
-		ptr = newPtr;
+		for (unsigned int i=0; i<this->m_size && i<newSize; i++)
+			newPtr[i].reset(this->m_ptr[i].release());
+		delete [] this->m_ptr;
+		this->m_size = newSize;
+		this->m_ptr = newPtr;
 	}
 
 private:
 	vector_member_ptrs(const vector_member_ptrs<T> &c);	// copy not allowed
 	void operator=(const vector_member_ptrs<T> &x);		// assignment not allowed
 
-	unsigned int _size;
-	member_ptr<T> *ptr;
+	unsigned int m_size;
+	member_ptr<T> *m_ptr;
 };
 
 NAMESPACE_END

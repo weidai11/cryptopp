@@ -6,6 +6,7 @@
 #include "seckey.h"
 #include "iterhash.h"
 #include "argnames.h"
+#include "algparam.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -26,7 +27,7 @@ public:
 	void Resynchronize(const byte *IV)
 	{
 		GetWord(false, BIG_ENDIAN_ORDER, m_counter, IV);
-		Restart();
+		this->Restart();
 	}
 	unsigned int IVSize() const
 		{return 4;}
@@ -66,26 +67,26 @@ class XMACC : public ClonableImpl<XMACC<T>, MessageAuthenticationCodeImpl<XMACC_
 public:
 	XMACC() {}
 	XMACC(const byte *key, word32 counter = 0xffffffff)
-		{SetKey(key, KEYLENGTH, MakeParameters(Name::XMACC_Counter(), counter));}
+		{this->SetKey(key, this->KEYLENGTH, MakeParameters(Name::XMACC_Counter(), counter));}
 };
 
 template <class T> void XMACC_Base<T>::CheckedSetKey(void *, Empty empty, const byte *key, unsigned int length, const NameValuePairs &params)
 {
-	ThrowIfInvalidKeyLength(length);
+	this->ThrowIfInvalidKeyLength(length);
 	m_counter = 0xffffffff;
 	const byte *iv = NULL;
 	if (params.GetValue(Name::IV(), iv))
 		GetWord(false, BIG_ENDIAN_ORDER, m_counter, iv);
 	else
 		params.GetValue(Name::XMACC_Counter(), m_counter);
-	memcpy(m_key, key, KEYLENGTH);
+	memcpy(m_key, key, this->KEYLENGTH);
 	Init();
 }
 
 template <class T> void XMACC_Base<T>::Init()
 {
 	m_index = 0x80000000;
-	memset(m_digest, 0, T::DIGESTSIZE);
+	memset(this->m_digest, 0, T::DIGESTSIZE);
 }
 
 template <class T> inline void XMACC_Base<T>::WriteWord32(byte *output, word32 value)
@@ -104,65 +105,65 @@ template <class T> inline void XMACC_Base<T>::XorDigest(HashWordType *digest, co
 
 template <class T> void XMACC_Base<T>::HashEndianCorrectedBlock(const HashWordType *input)
 {
-	memcpy(m_buffer, m_key, KEYLENGTH);
-	WriteWord32((byte *)m_buffer.begin()+KEYLENGTH, ++m_index);
+	memcpy(m_buffer, m_key, this->KEYLENGTH);
+	WriteWord32((byte *)m_buffer.begin()+this->KEYLENGTH, ++m_index);
 	T::CorrectEndianess(m_buffer, m_buffer, T::DIGESTSIZE);
 	T::Transform(m_buffer, input);
-	XorDigest(m_digest, m_buffer);
+	XorDigest(this->m_digest, m_buffer);
 }
 
 template <class T> void XMACC_Base<T>::TruncatedFinal(byte *mac, unsigned int size)
 {
-	ThrowIfInvalidTruncatedSize(size);
+	this->ThrowIfInvalidTruncatedSize(size);
 	if (size < 4)
 		throw InvalidArgument("XMACC: truncating the MAC to less than 4 bytes will cause it to be unverifiable");
 	if (m_counter == 0xffffffff)
 		throw InvalidArgument("XMACC: the counter must be initialized to a valid value for MAC generation");
 
-	PadLastBlock(BLOCKSIZE - 2*sizeof(HashWordType));
-	CorrectEndianess(m_data, m_data, BLOCKSIZE - 2*sizeof(HashWordType));
-	m_data[m_data.size()-2] = ByteReverse(GetBitCountHi());	// byteReverse for backwards compatibility
-	m_data[m_data.size()-1] = ByteReverse(GetBitCountLo());
-	HashEndianCorrectedBlock(m_data);
+	PadLastBlock(this->BLOCKSIZE - 2*sizeof(HashWordType));
+	CorrectEndianess(this->m_data, this->m_data, this->BLOCKSIZE - 2*sizeof(HashWordType));
+	this->m_data[this->m_data.size()-2] = ByteReverse(this->GetBitCountHi());	// ByteReverse for backwards compatibility
+	this->m_data[this->m_data.size()-1] = ByteReverse(this->GetBitCountLo());
+	HashEndianCorrectedBlock(this->m_data);
 
-	memcpy(m_buffer, m_key, KEYLENGTH);
-	WriteWord32((byte *)m_buffer.begin()+KEYLENGTH, 0);
-	memset(m_data, 0, BLOCKSIZE-4);
-	WriteWord32((byte *)m_data.begin()+BLOCKSIZE-4, ++m_counter);
+	memcpy(m_buffer, m_key, this->KEYLENGTH);
+	WriteWord32((byte *)m_buffer.begin()+this->KEYLENGTH, 0);
+	memset(this->m_data, 0, this->BLOCKSIZE-4);
+	WriteWord32((byte *)this->m_data.begin()+this->BLOCKSIZE-4, ++m_counter);
 	T::CorrectEndianess(m_buffer, m_buffer, T::DIGESTSIZE);
-	T::CorrectEndianess(m_data, m_data, BLOCKSIZE);
-	T::Transform(m_buffer, m_data);
-	XorDigest(m_digest, m_buffer);
+	T::CorrectEndianess(this->m_data, this->m_data, this->BLOCKSIZE);
+	T::Transform(m_buffer, this->m_data);
+	XorDigest(this->m_digest, m_buffer);
 
 	WriteWord32(mac, m_counter);
-	T::CorrectEndianess(m_digest, m_digest, T::DIGESTSIZE);
-	memcpy(mac+4, m_digest, size-4);
+	T::CorrectEndianess(this->m_digest, this->m_digest, T::DIGESTSIZE);
+	memcpy(mac+4, this->m_digest, size-4);
 
-	Restart();		// reinit for next use
+	this->Restart();		// reinit for next use
 }
 
 template <class T> bool XMACC_Base<T>::TruncatedVerify(const byte *mac, unsigned int size)
 {
 	assert(4 <= size && size <= DIGESTSIZE);
 
-	PadLastBlock(BLOCKSIZE - 2*sizeof(HashWordType));
-	CorrectEndianess(m_data, m_data, BLOCKSIZE - 2*sizeof(HashWordType));
-	m_data[m_data.size()-2] = ByteReverse(GetBitCountHi());	// byteReverse for backwards compatibility
-	m_data[m_data.size()-1] = ByteReverse(GetBitCountLo());
-	HashEndianCorrectedBlock(m_data);
+	PadLastBlock(this->BLOCKSIZE - 2*sizeof(HashWordType));
+	CorrectEndianess(this->m_data, this->m_data, this->BLOCKSIZE - 2*sizeof(HashWordType));
+	this->m_data[this->m_data.size()-2] = ByteReverse(this->GetBitCountHi());	// ByteReverse for backwards compatibility
+	this->m_data[this->m_data.size()-1] = ByteReverse(this->GetBitCountLo());
+	HashEndianCorrectedBlock(this->m_data);
 
-	memcpy(m_buffer, m_key, KEYLENGTH);
-	WriteWord32((byte *)m_buffer.begin()+KEYLENGTH, 0);
-	memset(m_data, 0, BLOCKSIZE-4);
-	memcpy((byte *)m_data.begin()+BLOCKSIZE-4, mac, 4);
+	memcpy(m_buffer, m_key, this->KEYLENGTH);
+	WriteWord32((byte *)m_buffer.begin()+this->KEYLENGTH, 0);
+	memset(this->m_data, 0, this->BLOCKSIZE-4);
+	memcpy((byte *)this->m_data.begin()+this->BLOCKSIZE-4, mac, 4);
 	T::CorrectEndianess(m_buffer, m_buffer, T::DIGESTSIZE);
-	T::CorrectEndianess(m_data, m_data, BLOCKSIZE);
-	T::Transform(m_buffer, m_data);
-	XorDigest(m_digest, m_buffer);
+	T::CorrectEndianess(this->m_data, this->m_data, this->BLOCKSIZE);
+	T::Transform(m_buffer, this->m_data);
+	XorDigest(this->m_digest, m_buffer);
 
-	T::CorrectEndianess(m_digest, m_digest, T::DIGESTSIZE);
-	bool macValid = (memcmp(mac+4, m_digest, size-4) == 0);
-	Restart();		// reinit for next use
+	T::CorrectEndianess(this->m_digest, this->m_digest, T::DIGESTSIZE);
+	bool macValid = (memcmp(mac+4, this->m_digest, size-4) == 0);
+	this->Restart();		// reinit for next use
 	return macValid;
 }
 

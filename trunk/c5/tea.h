@@ -99,7 +99,7 @@ class BTEA : public BTEA_Info, public BlockCipherDocumentation
 		{
 			obj->ThrowIfInvalidKeyLength(length);
 			obj->m_blockSize = param.GetIntValueWithDefault("BlockSize", 60*4);
-			GetUserKey(BIG_ENDIAN_ORDER, obj->m_k.begin(), 4, userKey, KEYLENGTH);
+			GetUserKey(BIG_ENDIAN_ORDER, obj->m_k.begin(), 4, key, KEYLENGTH);
 		}
 
 		unsigned int BlockSize() const {return m_blockSize;}

@@ -1560,10 +1560,12 @@ typedef Portable LowLevel;
 #ifdef SSE2_INTRINSICS_AVAILABLE
 
 #ifdef __GNUC__
-#define __fastcall
+#define CRYPTOPP_FASTCALL
+#else
+#define CRYPTOPP_FASTCALL __fastcall
 #endif
 
-static void __fastcall P4_Mul(__m128i *C, const __m128i *A, const __m128i *B)
+static void CRYPTOPP_FASTCALL P4_Mul(__m128i *C, const __m128i *A, const __m128i *B)
 {
 	__m128i a3210 = _mm_load_si128(A);
 	__m128i b3210 = _mm_load_si128(B);

@@ -324,46 +324,46 @@ public:
 		{return a.Equals(b, m_ring);}
 
 	const Element& Identity() const
-		{return result = m_ring.Identity();}
+		{return this->result = m_ring.Identity();}
 
 	const Element& Add(const Element &a, const Element &b) const
-		{return result = a.Plus(b, m_ring);}
+		{return this->result = a.Plus(b, m_ring);}
 
 	Element& Accumulate(Element &a, const Element &b) const
 		{a.Accumulate(b, m_ring); return a;}
 
 	const Element& Inverse(const Element &a) const
-		{return result = a.Inverse(m_ring);}
+		{return this->result = a.Inverse(m_ring);}
 
 	const Element& Subtract(const Element &a, const Element &b) const
-		{return result = a.Minus(b, m_ring);}
+		{return this->result = a.Minus(b, m_ring);}
 
 	Element& Reduce(Element &a, const Element &b) const
 		{return a.Reduce(b, m_ring);}
 
 	const Element& Double(const Element &a) const
-		{return result = a.Doubled(m_ring);}
+		{return this->result = a.Doubled(m_ring);}
 
 	const Element& MultiplicativeIdentity() const
-		{return result = m_ring.MultiplicativeIdentity();}
+		{return this->result = m_ring.MultiplicativeIdentity();}
 
 	const Element& Multiply(const Element &a, const Element &b) const
-		{return result = a.Times(b, m_ring);}
+		{return this->result = a.Times(b, m_ring);}
 
 	const Element& Square(const Element &a) const
-		{return result = a.Squared(m_ring);}
+		{return this->result = a.Squared(m_ring);}
 
 	bool IsUnit(const Element &a) const
 		{return a.IsUnit(m_ring);}
 
 	const Element& MultiplicativeInverse(const Element &a) const
-		{return result = a.MultiplicativeInverse(m_ring);}
+		{return this->result = a.MultiplicativeInverse(m_ring);}
 
 	const Element& Divide(const Element &a, const Element &b) const
-		{return result = a.DividedBy(b, m_ring);}
+		{return this->result = a.DividedBy(b, m_ring);}
 
 	const Element& Mod(const Element &a, const Element &b) const
-		{return result = a.Modulo(b, m_ring);}
+		{return this->result = a.Modulo(b, m_ring);}
 
 	void DivisionAlgorithm(Element &r, Element &q, const Element &a, const Element &d) const
 		{Element::Divide(r, q, a, d, m_ring);}
@@ -399,7 +399,7 @@ Element BulkPolynomialInterpolateAt(const Ring &ring, const Element y[], const E
 //!
 template <class T, int instance>
 inline bool operator==(const CryptoPP::PolynomialOverFixedRing<T, instance> &a, const CryptoPP::PolynomialOverFixedRing<T, instance> &b)
-	{return a.Equals(b, ms_fixedRing);}
+	{return a.Equals(b, a.ms_fixedRing);}
 //!
 template <class T, int instance>
 inline bool operator!=(const CryptoPP::PolynomialOverFixedRing<T, instance> &a, const CryptoPP::PolynomialOverFixedRing<T, instance> &b)
@@ -425,23 +425,23 @@ inline bool operator<=(const CryptoPP::PolynomialOverFixedRing<T, instance> &a, 
 //!
 template <class T, int instance>
 inline CryptoPP::PolynomialOverFixedRing<T, instance> operator+(const CryptoPP::PolynomialOverFixedRing<T, instance> &a, const CryptoPP::PolynomialOverFixedRing<T, instance> &b)
-	{return CryptoPP::PolynomialOverFixedRing<T, instance>(a.Plus(b, ms_fixedRing));}
+	{return CryptoPP::PolynomialOverFixedRing<T, instance>(a.Plus(b, a.ms_fixedRing));}
 //!
 template <class T, int instance>
 inline CryptoPP::PolynomialOverFixedRing<T, instance> operator-(const CryptoPP::PolynomialOverFixedRing<T, instance> &a, const CryptoPP::PolynomialOverFixedRing<T, instance> &b)
-	{return CryptoPP::PolynomialOverFixedRing<T, instance>(a.Minus(b, ms_fixedRing));}
+	{return CryptoPP::PolynomialOverFixedRing<T, instance>(a.Minus(b, a.ms_fixedRing));}
 //!
 template <class T, int instance>
 inline CryptoPP::PolynomialOverFixedRing<T, instance> operator*(const CryptoPP::PolynomialOverFixedRing<T, instance> &a, const CryptoPP::PolynomialOverFixedRing<T, instance> &b)
-	{return CryptoPP::PolynomialOverFixedRing<T, instance>(a.Times(b, ms_fixedRing));}
+	{return CryptoPP::PolynomialOverFixedRing<T, instance>(a.Times(b, a.ms_fixedRing));}
 //!
 template <class T, int instance>
 inline CryptoPP::PolynomialOverFixedRing<T, instance> operator/(const CryptoPP::PolynomialOverFixedRing<T, instance> &a, const CryptoPP::PolynomialOverFixedRing<T, instance> &b)
-	{return CryptoPP::PolynomialOverFixedRing<T, instance>(a.DividedBy(b, ms_fixedRing));}
+	{return CryptoPP::PolynomialOverFixedRing<T, instance>(a.DividedBy(b, a.ms_fixedRing));}
 //!
 template <class T, int instance>
 inline CryptoPP::PolynomialOverFixedRing<T, instance> operator%(const CryptoPP::PolynomialOverFixedRing<T, instance> &a, const CryptoPP::PolynomialOverFixedRing<T, instance> &b)
-	{return CryptoPP::PolynomialOverFixedRing<T, instance>(a.Modulo(b, ms_fixedRing));}
+	{return CryptoPP::PolynomialOverFixedRing<T, instance>(a.Modulo(b, a.ms_fixedRing));}
 
 NAMESPACE_END
 

@@ -156,7 +156,7 @@ template <class INFO, class BASE = BlockCipher>
 class CRYPTOPP_NO_VTABLE BlockCipherImpl : public AlgorithmImpl<SimpleKeyingInterfaceImpl<BASE, INFO>, INFO>, public INFO
 {
 public:
-	unsigned int BlockSize() const {return BLOCKSIZE;}
+	unsigned int BlockSize() const {return this->BLOCKSIZE;}
 };
 
 //! .
@@ -166,11 +166,11 @@ class BlockCipherFinal : public ClonableImpl<BlockCipherFinal<DIR, BASE>, BASE>
 public:
  	BlockCipherFinal() {}
 	BlockCipherFinal(const byte *key)
-		{SetKey(key, DEFAULT_KEYLENGTH);}
+		{SetKey(key, this->DEFAULT_KEYLENGTH);}
 	BlockCipherFinal(const byte *key, unsigned int length)
 		{SetKey(key, length);}
 	BlockCipherFinal(const byte *key, unsigned int length, unsigned int rounds)
-		{SetKeyWithRounds(key, length, rounds);}
+		{this->SetKeyWithRounds(key, length, rounds);}
 
 	bool IsForwardTransformation() const {return DIR == ENCRYPTION;}
 
@@ -203,9 +203,9 @@ class MessageAuthenticationCodeFinal : public ClonableImpl<MessageAuthentication
 public:
  	MessageAuthenticationCodeFinal() {}
 	MessageAuthenticationCodeFinal(const byte *key)
-		{SetKey(key, DEFAULT_KEYLENGTH);}
+		{SetKey(key, this->DEFAULT_KEYLENGTH);}
 	MessageAuthenticationCodeFinal(const byte *key, unsigned int length)
-		{SetKey(key, length);}
+		{this->SetKey(key, length);}
 };
 
 // ************** documentation ***************

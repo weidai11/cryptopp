@@ -95,19 +95,19 @@ public:
 		{AssignFromHelper<DL_GroupParameters_IntegerBased>(this, source);}
 
 	// DL_GroupParameters
-	const DL_FixedBasePrecomputation<Element> & GetBasePrecomputation() const {return m_gpc;}
-	DL_FixedBasePrecomputation<Element> & AccessBasePrecomputation() {return m_gpc;}
+	const DL_FixedBasePrecomputation<Element> & GetBasePrecomputation() const {return this->m_gpc;}
+	DL_FixedBasePrecomputation<Element> & AccessBasePrecomputation() {return this->m_gpc;}
 
 	// IntegerGroupParameters
-	const Integer & GetModulus() const {return m_groupPrecomputation.GetModulus();}
-	const Integer & GetGenerator() const {return m_gpc.GetBase(GetGroupPrecomputation());}
+	const Integer & GetModulus() const {return this->m_groupPrecomputation.GetModulus();}
+    const Integer & GetGenerator() const {return this->m_gpc.GetBase(this->GetGroupPrecomputation());}
 
 	void SetModulusAndSubgroupGenerator(const Integer &p, const Integer &g)		// these have to be set together
-		{m_groupPrecomputation.SetModulus(p); m_gpc.SetBase(GetGroupPrecomputation(), g); ParametersChanged();}
+		{this->m_groupPrecomputation.SetModulus(p); this->m_gpc.SetBase(this->GetGroupPrecomputation(), g); this->ParametersChanged();}
 
 	// non-inherited
 	bool operator==(const DL_GroupParameters_IntegerBasedImpl<GROUP_PRECOMP, BASE_PRECOMP> &rhs) const
-		{return GetModulus() == rhs.GetModulus() && GetGenerator() == rhs.GetGenerator() && GetSubgroupOrder() == rhs.GetSubgroupOrder();}
+		{return GetModulus() == rhs.GetModulus() && GetGenerator() == rhs.GetGenerator() && this->GetSubgroupOrder() == rhs.GetSubgroupOrder();}
 	bool operator!=(const DL_GroupParameters_IntegerBasedImpl<GROUP_PRECOMP, BASE_PRECOMP> &rhs) const
 		{return !operator==(rhs);}
 };
@@ -211,17 +211,17 @@ class DL_PublicKey_GFP : public DL_PublicKeyImpl<GP>
 {
 public:
 	void Initialize(const DL_GroupParameters_IntegerBased &params, const Integer &y)
-		{AccessGroupParameters().Initialize(params); SetPublicElement(y);}
+		{this->AccessGroupParameters().Initialize(params); this->SetPublicElement(y);}
 	void Initialize(const Integer &p, const Integer &g, const Integer &y)
-		{AccessGroupParameters().Initialize(p, g); SetPublicElement(y);}
+		{this->AccessGroupParameters().Initialize(p, g); this->SetPublicElement(y);}
 	void Initialize(const Integer &p, const Integer &q, const Integer &g, const Integer &y)
-		{AccessGroupParameters().Initialize(p, q, g); SetPublicElement(y);}
+		{this->AccessGroupParameters().Initialize(p, q, g); this->SetPublicElement(y);}
 
 	// X509PublicKey
 	void BERDecodeKey(BufferedTransformation &bt)
-		{SetPublicElement(Integer(bt));}
+		{this->SetPublicElement(Integer(bt));}
 	void DEREncodeKey(BufferedTransformation &bt) const
-		{GetPublicElement().DEREncode(bt);}
+		{this->GetPublicElement().DEREncode(bt);}
 };
 
 //! .
@@ -230,17 +230,17 @@ class DL_PrivateKey_GFP : public DL_PrivateKeyImpl<GP>
 {
 public:
 	void Initialize(RandomNumberGenerator &rng, unsigned int modulusBits)
-		{GenerateRandomWithKeySize(rng, modulusBits);}
+		{this->GenerateRandomWithKeySize(rng, modulusBits);}
 	void Initialize(RandomNumberGenerator &rng, const Integer &p, const Integer &g)
-		{GenerateRandom(rng, MakeParameters("Modulus", p)("SubgroupGenerator", g));}
+		{this->GenerateRandom(rng, MakeParameters("Modulus", p)("SubgroupGenerator", g));}
 	void Initialize(RandomNumberGenerator &rng, const Integer &p, const Integer &q, const Integer &g)
-		{GenerateRandom(rng, MakeParameters("Modulus", p)("SubgroupOrder", q)("SubgroupGenerator", g));}
+		{this->GenerateRandom(rng, MakeParameters("Modulus", p)("SubgroupOrder", q)("SubgroupGenerator", g));}
 	void Initialize(const DL_GroupParameters_IntegerBased &params, const Integer &x)
-		{AccessGroupParameters().Initialize(params); SetPrivateExponent(x);}
+		{this->AccessGroupParameters().Initialize(params); this->SetPrivateExponent(x);}
 	void Initialize(const Integer &p, const Integer &g, const Integer &x)
-		{AccessGroupParameters().Initialize(p, g); SetPrivateExponent(x);}
+		{this->AccessGroupParameters().Initialize(p, g); this->SetPrivateExponent(x);}
 	void Initialize(const Integer &p, const Integer &q, const Integer &g, const Integer &x)
-		{AccessGroupParameters().Initialize(p, q, g); SetPrivateExponent(x);}
+		{this->AccessGroupParameters().Initialize(p, q, g); this->SetPrivateExponent(x);}
 };
 
 //! .
@@ -273,14 +273,14 @@ public:
 
 			if (seq.EndReached())
 			{
-				AccessGroupParameters().Initialize(v1, v1/2, v2);
-				SetPublicElement(v3);
+				this->AccessGroupParameters().Initialize(v1, v1/2, v2);
+				this->SetPublicElement(v3);
 			}
 			else
 			{
 				Integer v4(seq);
-				AccessGroupParameters().Initialize(v1, v2, v3);
-				SetPublicElement(v4);
+				this->AccessGroupParameters().Initialize(v1, v2, v3);
+				this->SetPublicElement(v4);
 			}
 
 		seq.MessageEnd();
@@ -289,11 +289,11 @@ public:
 	void DEREncode(BufferedTransformation &bt) const
 	{
 		DERSequenceEncoder seq(bt);
-			GetGroupParameters().GetModulus().DEREncode(seq);
-			if (GetGroupParameters().GetCofactor() != 2)
-				GetGroupParameters().GetSubgroupOrder().DEREncode(seq);
-			GetGroupParameters().GetGenerator().DEREncode(seq);
-			GetPublicElement().DEREncode(seq);
+			this->GetGroupParameters().GetModulus().DEREncode(seq);
+			if (this->GetGroupParameters().GetCofactor() != 2)
+				this->GetGroupParameters().GetSubgroupOrder().DEREncode(seq);
+			this->GetGroupParameters().GetGenerator().DEREncode(seq);
+			this->GetPublicElement().DEREncode(seq);
 		seq.MessageEnd();
 	}
 };
@@ -313,14 +313,14 @@ public:
 
 			if (seq.EndReached())
 			{
-				AccessGroupParameters().Initialize(v1, v1/2, v2);
-				SetPrivateExponent(v4 % (v1/2));	// some old keys may have x >= q
+				this->AccessGroupParameters().Initialize(v1, v1/2, v2);
+				this->SetPrivateExponent(v4 % (v1/2));	// some old keys may have x >= q
 			}
 			else
 			{
 				Integer v5(seq);
-				AccessGroupParameters().Initialize(v1, v2, v3);
-				SetPrivateExponent(v5);
+				this->AccessGroupParameters().Initialize(v1, v2, v3);
+				this->SetPrivateExponent(v5);
 			}
 
 		seq.MessageEnd();
@@ -329,12 +329,12 @@ public:
 	void DEREncode(BufferedTransformation &bt) const
 	{
 		DERSequenceEncoder seq(bt);
-			GetGroupParameters().GetModulus().DEREncode(seq);
-			if (GetGroupParameters().GetCofactor() != 2)
-				GetGroupParameters().GetSubgroupOrder().DEREncode(seq);
-			GetGroupParameters().GetGenerator().DEREncode(seq);
-			GetGroupParameters().ExponentiateBase(GetPrivateExponent()).DEREncode(seq);
-			GetPrivateExponent().DEREncode(seq);
+			this->GetGroupParameters().GetModulus().DEREncode(seq);
+			if (this->GetGroupParameters().GetCofactor() != 2)
+				this->GetGroupParameters().GetSubgroupOrder().DEREncode(seq);
+			this->GetGroupParameters().GetGenerator().DEREncode(seq);
+			this->GetGroupParameters().ExponentiateBase(this->GetPrivateExponent()).DEREncode(seq);
+			this->GetPrivateExponent().DEREncode(seq);
 		seq.MessageEnd();
 	}
 };

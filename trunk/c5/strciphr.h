@@ -124,12 +124,12 @@ public:
     byte GenerateByte();
     void ProcessData(byte *outString, const byte *inString, unsigned int length);
 	void Resynchronize(const byte *iv);
-	unsigned int OptimalBlockSize() const {return GetPolicy().GetBytesPerIteration();}
-	unsigned int GetOptimalNextBlockSize() const {return m_leftOver;}
-	unsigned int OptimalDataAlignment() const {return GetPolicy().GetAlignment();}
+	unsigned int OptimalBlockSize() const {return this->GetPolicy().GetBytesPerIteration();}
+	unsigned int GetOptimalNextBlockSize() const {return this->m_leftOver;}
+	unsigned int OptimalDataAlignment() const {return this->GetPolicy().GetAlignment();}
 	bool IsSelfInverting() const {return true;}
 	bool IsForwardTransformation() const {return true;}
-	bool IsRandomAccess() const {return GetPolicy().IsRandomAccess();}
+	bool IsRandomAccess() const {return this->GetPolicy().IsRandomAccess();}
 	void Seek(lword position);
 
 	typedef typename BASE::PolicyInterface PolicyInterface;
@@ -139,8 +139,8 @@ protected:
 
 	unsigned int GetBufferByteSize(const PolicyInterface &policy) const {return policy.GetBytesPerIteration() * policy.GetIterationsToBuffer();}
 
-	inline byte * KeystreamBufferBegin() {return m_buffer.data();}
-	inline byte * KeystreamBufferEnd() {return (m_buffer.data() + m_buffer.size());}
+	inline byte * KeystreamBufferBegin() {return this->m_buffer.data();}
+	inline byte * KeystreamBufferEnd() {return (this->m_buffer.data() + this->m_buffer.size());}
 
 	SecByteBlock m_buffer;
 	unsigned int m_leftOver;
@@ -171,7 +171,7 @@ struct CRYPTOPP_NO_VTABLE CFB_CipherConcretePolicy : public BASE
 	unsigned int GetAlignment() const {return sizeof(WordType);}
 	unsigned int GetBytesPerIteration() const {return sizeof(WordType) * W;}
 	bool CanIterate() const {return true;}
-	void TransformRegister() {Iterate(NULL, NULL, ENCRYPTION, 1);}
+	void TransformRegister() {this->Iterate(NULL, NULL, ENCRYPTION, 1);}
 
 	template <class B>
 	struct RegisterOutput
@@ -221,9 +221,9 @@ class CRYPTOPP_NO_VTABLE CFB_CipherTemplate : public BASE
 public:
 	void ProcessData(byte *outString, const byte *inString, unsigned int length);
 	void Resynchronize(const byte *iv);
-	unsigned int OptimalBlockSize() const {return GetPolicy().GetBytesPerIteration();}
+	unsigned int OptimalBlockSize() const {return this->GetPolicy().GetBytesPerIteration();}
 	unsigned int GetOptimalNextBlockSize() const {return m_leftOver;}
-	unsigned int OptimalDataAlignment() const {return GetPolicy().GetAlignment();}
+	unsigned int OptimalDataAlignment() const {return this->GetPolicy().GetAlignment();}
 	bool IsRandomAccess() const {return false;}
 	bool IsSelfInverting() const {return false;}
 
@@ -255,7 +255,7 @@ template <class BASE>
 class CFB_RequireFullDataBlocks : public BASE
 {
 public:
-	unsigned int MandatoryBlockSize() const {return OptimalBlockSize();}
+	unsigned int MandatoryBlockSize() const {return this->OptimalBlockSize();}
 };
 
 /*
@@ -271,16 +271,16 @@ class SymmetricCipherFinal : public AlgorithmImpl<SimpleKeyingInterfaceImpl<BASE
 public:
  	SymmetricCipherFinal() {}
 	SymmetricCipherFinal(const byte *key)
-		{SetKey(key, DEFAULT_KEYLENGTH);}
+		{SetKey(key, this->DEFAULT_KEYLENGTH);}
 	SymmetricCipherFinal(const byte *key, unsigned int length)
 		{SetKey(key, length);}
 	SymmetricCipherFinal(const byte *key, unsigned int length, const byte *iv)
-		{SetKeyWithIV(key, length, iv);}
+		{this->SetKeyWithIV(key, length, iv);}
 
 	void SetKey(const byte *key, unsigned int length, const NameValuePairs &params = g_nullNameValuePairs)
 	{
-		ThrowIfInvalidKeyLength(length);
-		UncheckedSetKey(params, key, length, GetIVAndThrowIfInvalid(params));
+		this->ThrowIfInvalidKeyLength(length);
+		this->UncheckedSetKey(params, key, length, this->GetIVAndThrowIfInvalid(params));
 	}
 
 	Clonable * Clone() const {return static_cast<SymmetricCipher *>(new SymmetricCipherFinal<BASE, INFO>(*this));}
@@ -289,22 +289,22 @@ public:
 template <class S>
 void AdditiveCipherTemplate<S>::UncheckedSetKey(const NameValuePairs &params, const byte *key, unsigned int length, const byte *iv)
 {
-	PolicyInterface &policy = AccessPolicy();
+	PolicyInterface &policy = this->AccessPolicy();
 	policy.CipherSetKey(params, key, length);
 	m_leftOver = 0;
 	m_buffer.New(GetBufferByteSize(policy));
 
-	if (IsResynchronizable())
+	if (this->IsResynchronizable())
 		policy.CipherResynchronize(m_buffer, iv);
 }
 
 template <class BASE>
 void CFB_CipherTemplate<BASE>::UncheckedSetKey(const NameValuePairs &params, const byte *key, unsigned int length, const byte *iv)
 {
-	PolicyInterface &policy = AccessPolicy();
+	PolicyInterface &policy = this->AccessPolicy();
 	policy.CipherSetKey(params, key, length);
 
-	if (IsResynchronizable())
+	if (this->IsResynchronizable())
 		policy.CipherResynchronize(iv);
 
 	m_leftOver = policy.GetBytesPerIteration();

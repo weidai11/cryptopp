@@ -114,14 +114,14 @@ retry:
 // ************** misc functions ***************
 
 // can't use std::min or std::max in MSVC60 or Cygwin 1.1.0
-template <class _Tp> inline const _Tp& STDMIN(const _Tp& __a, const _Tp& __b)
+template <class T> inline const T& STDMIN(const T& a, const T& b)
 {
-	return __b < __a ? __b : __a;
+	return b < a ? b : a;
 }
 
-template <class _Tp> inline const _Tp& STDMAX(const _Tp& __a, const _Tp& __b)
+template <class T> inline const T& STDMAX(const T& a, const T& b)
 {
-	return  __a < __b ? __b : __a;
+	return a < b ? b : a;
 }
 
 #define RETURN_IF_NONZERO(x) unsigned int returnedValue = x; if (returnedValue) return returnedValue

@@ -77,7 +77,7 @@ public:
 	CRYPTOPP_COMPILE_ASSERT((BLOCKSIZE & (BLOCKSIZE - 1)) == 0);		// blockSize is a power of 2
 
 protected:
-	IteratedHash() {SetBlockSize(T_BlockSize);}
+	IteratedHash() {this->SetBlockSize(T_BlockSize);}
 };
 
 template <class T_HashWordType, class T_Endianness, unsigned int T_BlockSize, unsigned int T_StateSize, class T_Transform, unsigned int T_DigestSize = T_StateSize>
@@ -91,30 +91,30 @@ public:
 protected:
 	IteratedHashWithStaticTransform()
 	{
-		SetStateSize(T_StateSize);
+		this->SetStateSize(T_StateSize);
 		Init();
 	}
-	void HashEndianCorrectedBlock(const T_HashWordType *data) {T_Transform::Transform(m_digest, data);}
-	void Init() {T_Transform::InitState(m_digest);}
+	void HashEndianCorrectedBlock(const T_HashWordType *data) {T_Transform::Transform(this->m_digest, data);}
+	void Init() {T_Transform::InitState(this->m_digest);}
 };
 
 // *************************************************************
 
 template <class T, class B, class BASE> void IteratedHashBase2<T, B, BASE>::TruncatedFinal(byte *digest, unsigned int size)
 {
-	ThrowIfInvalidTruncatedSize(size);
+	this->ThrowIfInvalidTruncatedSize(size);
 
-	PadLastBlock(BlockSize() - 2*sizeof(HashWordType));
-	CorrectEndianess(m_data, m_data, BlockSize() - 2*sizeof(HashWordType));
+	PadLastBlock(this->BlockSize() - 2*sizeof(HashWordType));
+	CorrectEndianess(this->m_data, this->m_data, this->BlockSize() - 2*sizeof(HashWordType));
 
-	m_data[m_data.size()-2] = B::ToEnum() ? GetBitCountHi() : GetBitCountLo();
-	m_data[m_data.size()-1] = B::ToEnum() ? GetBitCountLo() : GetBitCountHi();
+	this->m_data[this->m_data.size()-2] = B::ToEnum() ? this->GetBitCountHi() : this->GetBitCountLo();
+	this->m_data[this->m_data.size()-1] = B::ToEnum() ? this->GetBitCountLo() : this->GetBitCountHi();
 
-	HashEndianCorrectedBlock(m_data);
-	CorrectEndianess(m_digest, m_digest, DigestSize());
-	memcpy(digest, m_digest, size);
+	HashEndianCorrectedBlock(this->m_data);
+	CorrectEndianess(this->m_digest, this->m_digest, this->DigestSize());
+	memcpy(digest, this->m_digest, size);
 
-	Restart();		// reinit for next use
+	this->Restart();		// reinit for next use
 }
 
 template <class T, class B, class BASE> void IteratedHashBase2<T, B, BASE>::HashBlock(const HashWordType *input)
@@ -123,8 +123,8 @@ template <class T, class B, class BASE> void IteratedHashBase2<T, B, BASE>::Hash
 		HashEndianCorrectedBlock(input);
 	else
 	{
-		ByteReverse(m_data.begin(), input, BlockSize());
-		HashEndianCorrectedBlock(m_data);
+		ByteReverse(this->m_data.begin(), input, this->BlockSize());
+		HashEndianCorrectedBlock(this->m_data);
 	}
 }
 

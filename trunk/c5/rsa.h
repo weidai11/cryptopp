@@ -94,9 +94,6 @@ public:
 	void SetMultiplicativeInverseOfPrime2ModPrime1(const Integer &u) {m_u = u;}
 
 protected:
-	virtual void DEREncodeOptionalAttributes(BufferedTransformation &bt) const {}
-	virtual void BERDecodeOptionalAttributes(BufferedTransformation &bt) {}
-
 	Integer m_d, m_p, m_q, m_dp, m_dq, m_u;
 };
 

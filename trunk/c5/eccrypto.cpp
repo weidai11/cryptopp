@@ -375,7 +375,7 @@ template <class EC> void DL_GroupParameters_EC<EC>::Initialize(const OID &oid)
 	const EcRecommendedParameters<EllipticCurve> &param = *it;
 	m_oid = oid;
 	std::auto_ptr<EllipticCurve> ec(param.NewEC());
-	m_groupPrecomputation.SetCurve(*ec);
+	this->m_groupPrecomputation.SetCurve(*ec);
 
 	StringSource ssG(param.g, true, new HexDecoder);
 	Element G;
@@ -396,7 +396,7 @@ bool DL_GroupParameters_EC<EC>::GetVoidValue(const char *name, const std::type_i
 		if (m_oid.m_values.empty())
 			return false;
 
-		ThrowIfTypeMismatch(name, typeid(OID), valueType);
+		this->ThrowIfTypeMismatch(name, typeid(OID), valueType);
 		*reinterpret_cast<OID *>(pValue) = m_oid;
 		return true;
 	}
@@ -477,7 +477,7 @@ void DL_GroupParameters_EC<EC>::DEREncode(BufferedTransformation &bt) const
 		DERSequenceEncoder seq(bt);
 		DEREncodeUnsigned<word32>(seq, 1);	// version
 		GetCurve().DEREncode(seq);
-		GetCurve().DEREncodePoint(seq, GetSubgroupGenerator(), m_compress);
+		GetCurve().DEREncodePoint(seq, this->GetSubgroupGenerator(), m_compress);
 		m_n.DEREncode(seq);
 		if (m_k.NotZero())
 			m_k.DEREncode(seq);
@@ -531,12 +531,12 @@ bool DL_GroupParameters_EC<EC>::ValidateElement(unsigned int level, const Elemen
 	if (level >= 1)
 	{
 		if (gpc)
-			pass = pass && gpc->Exponentiate(GetGroupPrecomputation(), Integer::One()) == g;
+			pass = pass && gpc->Exponentiate(this->GetGroupPrecomputation(), Integer::One()) == g;
 	}
 	if (level >= 2)
 	{
 		const Integer &q = GetSubgroupOrder();
-		pass = pass && IsIdentity(gpc ? gpc->Exponentiate(GetGroupPrecomputation(), q) : ExponentiateElement(g, q));
+		pass = pass && IsIdentity(gpc ? gpc->Exponentiate(this->GetGroupPrecomputation(), q) : ExponentiateElement(g, q));
 	}
 	return pass;
 }
@@ -571,7 +571,7 @@ template <class EC>
 void DL_PublicKey_EC<EC>::BERDecodeKey2(BufferedTransformation &bt, bool parametersPresent, unsigned int size)
 {
 	typename EC::Point P;
-	if (!GetGroupParameters().GetCurve().DecodePoint(P, bt, size))
+	if (!this->GetGroupParameters().GetCurve().DecodePoint(P, bt, size))
 		BERDecodeError();
 	SetPublicElement(P);
 }
@@ -579,7 +579,7 @@ void DL_PublicKey_EC<EC>::BERDecodeKey2(BufferedTransformation &bt, bool paramet
 template <class EC>
 void DL_PublicKey_EC<EC>::DEREncodeKey(BufferedTransformation &bt) const
 {
-	GetGroupParameters().GetCurve().EncodePoint(bt, GetPublicElement(), GetGroupParameters().GetPointCompression());
+	this->GetGroupParameters().GetCurve().EncodePoint(bt, this->GetPublicElement(), this->GetGroupParameters().GetPointCompression());
 }
 
 // ******************************************************************
@@ -602,7 +602,7 @@ void DL_PrivateKey_EC<EC>::BERDecodeKey2(BufferedTransformation &bt, bool parame
 		if (!seq.EndReached() && seq.PeekByte() == (CONTEXT_SPECIFIC | CONSTRUCTED | 0))
 		{
 			BERGeneralDecoder parameters(seq, CONTEXT_SPECIFIC | CONSTRUCTED | 0);
-			AccessGroupParameters().BERDecode(parameters);
+			this->AccessGroupParameters().BERDecode(parameters);
 			parameters.MessageEnd();
 		}
 		if (!seq.EndReached())
@@ -614,12 +614,12 @@ void DL_PrivateKey_EC<EC>::BERDecodeKey2(BufferedTransformation &bt, bool parame
 			BERDecodeBitString(publicKey, subjectPublicKey, unusedBits);
 			publicKey.MessageEnd();
 			Element Q;
-			if (!(unusedBits == 0 && GetGroupParameters().GetCurve().DecodePoint(Q, subjectPublicKey, subjectPublicKey.size())))
+			if (!(unusedBits == 0 && this->GetGroupParameters().GetCurve().DecodePoint(Q, subjectPublicKey, subjectPublicKey.size())))
 				BERDecodeError();
 		}
 	seq.MessageEnd();
 
-	SetPrivateExponent(x);
+	this->SetPrivateExponent(x);
 }
 
 template <class EC>
@@ -629,7 +629,7 @@ void DL_PrivateKey_EC<EC>::DEREncodeKey(BufferedTransformation &bt) const
 		DEREncodeUnsigned<word32>(privateKey, 1);	// version
 		// SEC 1 ver 1.0 says privateKey (m_d) has the same length as order of the curve
 		// this will be changed to order of base point in a future version
-		GetPrivateExponent().DEREncodeAsOctetString(privateKey, GetGroupParameters().GetSubgroupOrder().ByteCount());
+		this->GetPrivateExponent().DEREncodeAsOctetString(privateKey, this->GetGroupParameters().GetSubgroupOrder().ByteCount());
 	privateKey.MessageEnd();
 }
 
