@@ -11,6 +11,7 @@
 #include <windows.h>
 #elif defined(CRYPTOPP_UNIX_AVAILABLE)
 #include <sys/time.h>
+#include <sys/times.h>
 #include <unistd.h>
 #endif
 
