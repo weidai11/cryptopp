@@ -204,7 +204,8 @@ int main(int argc, char *argv[])
 			if (command == "mt")
 			{
 				MaurerRandomnessTest mt;
-				FileStore(argv[2]).TransferAllTo(mt);
+				FileStore fs(argv[2]);
+				fs.TransferAllTo(mt);
 				cout << "Maurer Test Value: " << mt.GetTestValue() << endl;
 			}
 			else
