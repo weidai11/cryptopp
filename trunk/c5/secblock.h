@@ -114,23 +114,26 @@ public:
 	{
 		assert(false);
 	}
+
+	size_type max_size() const {return 0;}
 };
 
-// this allocator can't be used with standard collections
-template <class T, unsigned int S, class A = NullAllocator<T> >
+// This allocator can't be used with standard collections because
+// they require that all objects of the same allocator type are equivalent.
+// So this is for use with SecBlock only.
+template <class T, size_t S, class A = NullAllocator<T> >
 class FixedSizeAllocatorWithCleanup : public AllocatorBase<T>
 {
 public:
 	CRYPTOPP_INHERIT_ALLOCATOR_TYPES
 
+	FixedSizeAllocatorWithCleanup() : m_allocated(false) {}
+
 	pointer allocate(size_type n)
 	{
-		if (n <= S)
+		if (n <= S && !m_allocated)
 		{
-			assert(!m_allocated);
-#ifndef NDEBUG
 			m_allocated = true;
-#endif
 			return m_array;
 		}
 		else
@@ -139,12 +142,9 @@ public:
 
 	pointer allocate(size_type n, const void *hint)
 	{
-		if (n <= S)
+		if (n <= S && !m_allocated)
 		{
-			assert(!m_allocated);
-#ifndef NDEBUG
 			m_allocated = true;
-#endif
 			return m_array;
 		}
 		else
@@ -153,13 +153,11 @@ public:
 
 	void deallocate(void *p, size_type n)
 	{
-		if (n <= S)
+		if (p == m_array)
 		{
+			assert(n <= S);
 			assert(m_allocated);
-			assert(p == m_array);
-#ifndef NDEBUG
 			m_allocated = false;
-#endif
 			memset(p, 0, n*sizeof(T));
 		}
 		else
@@ -168,23 +166,23 @@ public:
 
 	pointer reallocate(pointer p, size_type oldSize, size_type newSize, bool preserve)
 	{
-		if (oldSize <= S && newSize <= S)
+		if (p == m_array && newSize <= S)
+		{
+			assert(oldSize <= S);
+			if (oldSize > newSize)
+				memset(p + newSize, 0, (oldSize-newSize)*sizeof(T));
 			return p;
+		}
 
 		return StandardReallocate(*this, p, oldSize, newSize, preserve);
 	}
 
-	size_type max_size() const {return m_fallbackAllocator.max_size();}
+	size_type max_size() const {return STDMAX(m_fallbackAllocator.max_size(), S);}
 
 private:
-	A m_fallbackAllocator;
 	T m_array[S];
-
-#ifndef NDEBUG
-public:
-	FixedSizeAllocatorWithCleanup() : m_allocated(false) {}
+	A m_fallbackAllocator;
 	bool m_allocated;
-#endif
 };
 
 //! a block of memory allocated using A
