@@ -93,17 +93,14 @@ public:
 		HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
 		byte *representative, unsigned int representativeBitLength) const
 	{
-		m_digest.New(hash.DigestSize());
-		hash.Final(m_digest);
+		SecByteBlock digest(hash.DigestSize());
+		hash.Final(digest);
 		unsigned int representativeByteLength = BitsToBytes(representativeBitLength);
 		T mgf;
-		mgf.GenerateAndMask(hash, representative, representativeByteLength, m_digest, m_digest.size(), false);
+		mgf.GenerateAndMask(hash, representative, representativeByteLength, digest, digest.size(), false);
 		if (representativeBitLength % 8 != 0)
 			representative[0] = (byte)Crop(representative[0], representativeBitLength % 8);
 	}
-
-private:
-	mutable SecByteBlock m_digest;
 };
 
 //! EMSA5, for use with ESIGN
