@@ -21,6 +21,8 @@
 	#ifdef __GNUC__
 		#include <xmmintrin.h>
 		#include <malloc.h>
+		#include <signal.h>
+		#include <setjmp.h>
 	#else
 		#include <emmintrin.h>
 	#endif
@@ -893,6 +895,15 @@ static void CpuId(word32 input, word32 *output)
 #endif
 }
 
+#ifdef SSE2_INTRINSICS_AVAILABLE
+#ifndef _MSC_VER
+static jmp_buf s_env;
+static void SigIllHandler(int)
+{
+	longjmp(s_env, 1);
+}
+#endif
+
 static bool HasSSE2()
 {
 	if (!s_sse2Enabled)
@@ -900,8 +911,37 @@ static bool HasSSE2()
 
 	word32 cpuid[4];
 	CpuId(1, cpuid);
-	return (cpuid[3] & (1 << 26)) != 0;
+	if ((cpuid[3] & (1 << 26)) == 0)
+		return false;
+
+#ifdef _MSC_VER
+    __try
+	{
+        __asm xorpd xmm0, xmm0        // executing SSE2 instruction
+	}
+    __except (1)
+	{
+		return false;
+    }
+	return true;
+#else
+	typedef void (*SigHandler)(int);
+
+	SigHandler oldHandler = signal(SIGILL, SigIllHandler);
+	if (oldHandler == SIG_ERR)
+		return false;
+
+	bool result = true;
+	if (setjmp(s_env))
+		result = false;
+	else
+		__asm __volatile ("xorps %xmm0, %xmm0");
+
+	signal(SIGILL, oldHandler);
+	return result;
+#endif
 }
+#endif
 
 static bool IsP4()
 {
