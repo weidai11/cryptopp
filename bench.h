@@ -5,6 +5,7 @@
 
 extern const double CLOCK_TICKS_PER_SECOND;
 
-void BenchmarkAll(double t=1.0);
+void BenchmarkAll(double t);
+void BenchmarkAll2(double t);
 
 #endif
