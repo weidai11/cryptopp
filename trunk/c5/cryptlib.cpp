@@ -22,7 +22,9 @@ CRYPTOPP_COMPILE_ASSERT(sizeof(word32) == 4);
 #ifdef WORD64_AVAILABLE
 CRYPTOPP_COMPILE_ASSERT(sizeof(word64) == 8);
 #endif
+#ifdef CRYPTOPP_NATIVE_DWORD_AVAILABLE
 CRYPTOPP_COMPILE_ASSERT(sizeof(dword) == 2*sizeof(word));
+#endif
 
 const std::string BufferedTransformation::NULL_CHANNEL;
 const NullNameValuePairs g_nullNameValuePairs;

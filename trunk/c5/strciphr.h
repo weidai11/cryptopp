@@ -66,7 +66,7 @@ struct CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AdditiveCipherAbstractPolicy
 	virtual void CipherSetKey(const NameValuePairs &params, const byte *key, unsigned int length) =0;
 	virtual void CipherResynchronize(byte *keystreamBuffer, const byte *iv) {throw NotImplemented("StreamTransformation: this object doesn't support resynchronization");}
 	virtual bool IsRandomAccess() const =0;
-	virtual void SeekToIteration(dword iterationCount) {assert(!IsRandomAccess()); throw NotImplemented("StreamTransformation: this object doesn't support random access");}
+	virtual void SeekToIteration(lword iterationCount) {assert(!IsRandomAccess()); throw NotImplemented("StreamTransformation: this object doesn't support random access");}
 };
 
 template <typename WT, unsigned int W, unsigned int X = 1, class BASE = AdditiveCipherAbstractPolicy>
@@ -130,7 +130,7 @@ public:
 	bool IsSelfInverting() const {return true;}
 	bool IsForwardTransformation() const {return true;}
 	bool IsRandomAccess() const {return GetPolicy().IsRandomAccess();}
-	void Seek(dword position);
+	void Seek(lword position);
 
 	typedef typename BASE::PolicyInterface PolicyInterface;
 

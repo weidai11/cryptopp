@@ -38,7 +38,7 @@ void CipherModeBase::GetNextIV(byte *IV)
 	memcpy(IV, m_register, BlockSize());
 }
 
-void CTR_ModePolicy::SeekToIteration(dword iterationCount)
+void CTR_ModePolicy::SeekToIteration(lword iterationCount)
 {
 	int carry=0;
 	for (int i=BlockSize()-1; i>=0; i--)

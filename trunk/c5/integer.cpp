@@ -60,8 +60,6 @@ void AlignedAllocator<T>::deallocate(void *p, size_type n)
 }
 #endif
 
-#define MAKE_DWORD(lowWord, highWord) ((dword(highWord)<<WORD_BITS) | (lowWord))
-
 static int Compare(const word *A, const word *B, unsigned int N)
 {
 	while (N--)
@@ -106,31 +104,303 @@ static void TwosComplement(word *A, unsigned int N)
 		A[i] = ~A[i];
 }
 
-static word LinearMultiply(word *C, const word *A, word B, unsigned int N)
+static word AtomicInverseModPower2(word A)
 {
-	word carry=0;
-	for(unsigned i=0; i<N; i++)
-	{
-		dword p = (dword)A[i] * B + carry;
-		C[i] = LOW_WORD(p);
-		carry = HIGH_WORD(p);
-	}
-	return carry;
-}
+	assert(A%2==1);
 
-static void AtomicInverseModPower2(word *C, word A0, word A1)
-{
-	assert(A0%2==1);
+	word R=A%8;
 
-	dword A=MAKE_DWORD(A0, A1), R=A0%8;
-
-	for (unsigned i=3; i<2*WORD_BITS; i*=2)
+	for (unsigned i=3; i<WORD_BITS; i*=2)
 		R = R*(2-R*A);
 
 	assert(R*A==1);
+	return R;
+}
 
-	C[0] = LOW_WORD(R);
-	C[1] = HIGH_WORD(R);
+// ********************************************************
+
+class DWord
+{
+public:
+	DWord() {}
+
+#ifdef CRYPTOPP_NATIVE_DWORD_AVAILABLE
+	explicit DWord(word low)
+	{
+		m_whole = low;
+	}
+#else
+	explicit DWord(word low)
+	{
+		m_halfs.low = low;
+		m_halfs.high = 0;
+	}
+#endif
+
+	DWord(word low, word high)
+	{
+		m_halfs.low = low;
+		m_halfs.high = high;
+	}
+
+	static DWord Multiply(word a, word b)
+	{
+		DWord r;
+		#ifdef CRYPTOPP_NATIVE_DWORD_AVAILABLE
+			r.m_whole = (dword)a * b;
+		#elif defined(__alpha__)
+			r.m_halfs.low = a*b; __asm__("umulh %1,%2,%0" : "=r" (r.m_halfs.high) : "r" (a), "r" (b));
+		#elif defined(__ia64__)
+			r.m_halfs.low = a*b; __asm__("xmpy.hu %0=%1,%2" : "=f" (r.m_halfs.high) : "f" (a), "f" (b));
+		#elif defined(_ARCH_PPC64)
+			r.m_halfs.low = a*b; __asm__("mulhdu %0,%1,%2" : "=r" (r.m_halfs.high) : "r" (a), "r" (b) : "cc");
+		#elif defined(__x86_64__)
+			__asm__("mulq %3" : "=r.m_halfs.high" (r.m_halfs.high), "=a" (r.m_halfs.low) : "a" (a), "rm" (b) : "cc");
+		#elif defined(__mips64)
+			__asm__("dmultu %2,%3" : "=h" (r.m_halfs.high), "=l" (r.m_halfs.low) : "r" (a), "r" (b));
+		#elif defined(_M_IX86)
+			// for testing
+			word64 t = (word64)a * b;
+			r.m_halfs.high = ((word32 *)(&t))[1];
+			r.m_halfs.low = (word32)t;
+		#else
+			#error can not implement DWord
+		#endif
+		return r;
+	}
+
+	static DWord MultiplyAndAdd(word a, word b, word c)
+	{
+		DWord r = Multiply(a, b);
+		return r += c;
+	}
+
+	DWord & operator+=(word a)
+	{
+		#ifdef CRYPTOPP_NATIVE_DWORD_AVAILABLE
+			m_whole = m_whole + a;
+		#else
+			m_halfs.low += a;
+			m_halfs.high += (m_halfs.low < a);
+		#endif
+		return *this;
+	}
+
+	DWord operator+(word a)
+	{
+		DWord r;
+		#ifdef CRYPTOPP_NATIVE_DWORD_AVAILABLE
+			r.m_whole = m_whole + a;
+		#else
+			r.m_halfs.low = m_halfs.low + a;
+			r.m_halfs.high = m_halfs.high + (r.m_halfs.low < a);
+		#endif
+		return r;
+	}
+
+	DWord operator-(DWord a)
+	{
+		DWord r;
+		#ifdef CRYPTOPP_NATIVE_DWORD_AVAILABLE
+			r.m_whole = m_whole - a.m_whole;
+		#else
+			r.m_halfs.low = m_halfs.low - a.m_halfs.low;
+			r.m_halfs.high = m_halfs.high - a.m_halfs.high - (r.m_halfs.low > m_halfs.low);
+		#endif
+		return r;
+	}
+
+	DWord operator-(word a)
+	{
+		DWord r;
+		#ifdef CRYPTOPP_NATIVE_DWORD_AVAILABLE
+			r.m_whole = m_whole - a;
+		#else
+			r.m_halfs.low = m_halfs.low - a;
+			r.m_halfs.high = m_halfs.high - (r.m_halfs.low > m_halfs.low);
+		#endif
+		return r;
+	}
+
+	// returns quotient, which must fit in a word
+	word operator/(word divisor);
+
+	word operator%(word a);
+
+	bool operator!() const
+	{
+	#ifdef CRYPTOPP_NATIVE_DWORD_AVAILABLE
+		return !m_whole;
+	#else
+		return !m_halfs.high && !m_halfs.low;
+	#endif
+	}
+
+	word GetLowHalf() const {return m_halfs.low;}
+	word GetHighHalf() const {return m_halfs.high;}
+	word GetHighHalfAsBorrow() const {return 0-m_halfs.high;}
+
+private:
+	union
+	{
+	#ifdef CRYPTOPP_NATIVE_DWORD_AVAILABLE
+		dword m_whole;
+	#endif
+		struct
+		{
+		#ifdef IS_LITTLE_ENDIAN
+			word low;
+			word high;
+		#else
+			word high;
+			word low;
+		#endif
+		} m_halfs;
+	};
+};
+
+class Word
+{
+public:
+	Word() {}
+
+	Word(word value)
+	{
+		m_whole = value;
+	}
+
+	Word(hword low, hword high)
+	{
+		m_whole = low | (word(high) << (WORD_BITS/2));
+	}
+
+	static Word Multiply(hword a, hword b)
+	{
+		Word r;
+		r.m_whole = (word)a * b;
+		return r;
+	}
+
+	Word operator-(Word a)
+	{
+		Word r;
+		r.m_whole = m_whole - a.m_whole;
+		return r;
+	}
+
+	Word operator-(hword a)
+	{
+		Word r;
+		r.m_whole = m_whole - a;
+		return r;
+	}
+
+	// returns quotient, which must fit in a word
+	hword operator/(hword divisor)
+	{
+		return hword(m_whole / divisor);
+	}
+
+	bool operator!() const
+	{
+		return !m_whole;
+	}
+
+	word GetWhole() const {return m_whole;}
+	hword GetLowHalf() const {return hword(m_whole);}
+	hword GetHighHalf() const {return hword(m_whole>>(WORD_BITS/2));}
+	hword GetHighHalfAsBorrow() const {return 0-hword(m_whole>>(WORD_BITS/2));}
+	
+private:
+	word m_whole;
+};
+
+// do a 3 word by 2 word divide, returns quotient and leaves remainder in A
+template <class S, class D>
+S DivideThreeWordsByTwo(S *A, S B0, S B1, D *dummy=NULL)
+{
+	// assert {A[2],A[1]} < {B1,B0}, so quotient can fit in a S
+	assert(A[2] < B1 || (A[2]==B1 && A[1] < B0));
+
+	// estimate the quotient: do a 2 S by 1 S divide
+	S Q;
+	if (S(B1+1) == 0)
+		Q = A[2];
+	else
+		Q = D(A[1], A[2]) / S(B1+1);
+
+	// now subtract Q*B from A
+	D p = D::Multiply(B0, Q);
+	D u = (D) A[0] - p.GetLowHalf();
+	A[0] = u.GetLowHalf();
+	u = (D) A[1] - p.GetHighHalf() - u.GetHighHalfAsBorrow() - D::Multiply(B1, Q);
+	A[1] = u.GetLowHalf();
+	A[2] += u.GetHighHalf();
+
+	// Q <= actual quotient, so fix it
+	while (A[2] || A[1] > B1 || (A[1]==B1 && A[0]>=B0))
+	{
+		u = (D) A[0] - B0;
+		A[0] = u.GetLowHalf();
+		u = (D) A[1] - B1 - u.GetHighHalfAsBorrow();
+		A[1] = u.GetLowHalf();
+		A[2] += u.GetHighHalf();
+		Q++;
+		assert(Q);	// shouldn't overflow
+	}
+
+	return Q;
+}
+
+// do a 4 word by 2 word divide, returns 2 word quotient in Q0 and Q1
+template <class S, class D>
+inline D DivideFourWordsByTwo(S *T, const D &Al, const D &Ah, const D &B)
+{
+	if (!B) // if divisor is 0, we assume divisor==2**(2*WORD_BITS)
+		return D(Ah.GetLowHalf(), Ah.GetHighHalf());
+	else
+	{
+		S Q[2];
+		T[0] = Al.GetLowHalf();
+		T[1] = Al.GetHighHalf(); 
+		T[2] = Ah.GetLowHalf();
+		T[3] = Ah.GetHighHalf();
+		Q[1] = DivideThreeWordsByTwo<S, D>(T+1, B.GetLowHalf(), B.GetHighHalf());
+		Q[0] = DivideThreeWordsByTwo<S, D>(T, B.GetLowHalf(), B.GetHighHalf());
+		return D(Q[0], Q[1]);
+	}
+}
+
+// returns quotient, which must fit in a word
+inline word DWord::operator/(word a)
+{
+	#ifdef CRYPTOPP_NATIVE_DWORD_AVAILABLE
+		return word(m_whole / a);
+	#else
+		hword r[4];
+		return DivideFourWordsByTwo<hword, Word>(r, m_halfs.low, m_halfs.high, a).GetWhole();
+	#endif
+}
+
+inline word DWord::operator%(word a)
+{
+	#ifdef CRYPTOPP_NATIVE_DWORD_AVAILABLE
+		return word(m_whole % a);
+	#else
+		if (a < (word(1) << (WORD_BITS/2)))
+		{
+			hword h = hword(a);
+			word r = m_halfs.high % h;
+			r = ((m_halfs.low >> (WORD_BITS/2)) + (r << (WORD_BITS/2))) % h;
+			return hword((hword(m_halfs.low) + (r << (WORD_BITS/2))) % h);
+		}
+		else
+		{
+			hword r[4];
+			DivideFourWordsByTwo<hword, Word>(r, m_halfs.low, m_halfs.high, a);
+			return Word(r[0], r[1]).GetWhole();
+		}
+	#endif
 }
 
 // ********************************************************
@@ -162,69 +432,30 @@ word Portable::Add(word *C, const word *A, const word *B, unsigned int N)
 {
 	assert (N%2 == 0);
 
-#ifdef IS_LITTLE_ENDIAN
-	if (sizeof(dword) == sizeof(size_t))	// dword is only register size
+	DWord u(0, 0);
+	for (unsigned int i = 0; i < N; i+=2)
 	{
-		dword carry = 0;
-		N >>= 1;
-		for (unsigned int i = 0; i < N; i++)
-		{
-			dword a = ((const dword *)A)[i] + carry;
-			dword c = a + ((const dword *)B)[i];
-			((dword *)C)[i] = c;
-			carry = (a < carry) | (c < a);
-		}
-		return (word)carry;
+		u = DWord(A[i]) + B[i] + u.GetHighHalf();
+		C[i] = u.GetLowHalf();
+		u = DWord(A[i+1]) + B[i+1] + u.GetHighHalf();
+		C[i+1] = u.GetLowHalf();
 	}
-	else
-#endif
-	{
-		word carry = 0;
-		for (unsigned int i = 0; i < N; i+=2)
-		{
-			dword u = (dword) carry + A[i] + B[i];
-			C[i] = LOW_WORD(u);
-			u = (dword) HIGH_WORD(u) + A[i+1] + B[i+1];
-			C[i+1] = LOW_WORD(u);
-			carry = HIGH_WORD(u);
-		}
-		return carry;
-	}
+	return u.GetHighHalf();
 }
 
 word Portable::Subtract(word *C, const word *A, const word *B, unsigned int N)
 {
 	assert (N%2 == 0);
 
-#ifdef IS_LITTLE_ENDIAN
-	if (sizeof(dword) == sizeof(size_t))	// dword is only register size
+	DWord u(0, 0);
+	for (unsigned int i = 0; i < N; i+=2)
 	{
-		dword borrow = 0;
-		N >>= 1;
-		for (unsigned int i = 0; i < N; i++)
-		{
-			dword a = ((const dword *)A)[i];
-			dword b = a - borrow;
-			dword c = b - ((const dword *)B)[i];
-			((dword *)C)[i] = c;
-			borrow = (b > a) | (c > b);
-		}
-		return (word)borrow;
+		u = (DWord) A[i] - B[i] - u.GetHighHalfAsBorrow();
+		C[i] = u.GetLowHalf();
+		u = (DWord) A[i+1] - B[i+1] - u.GetHighHalfAsBorrow();
+		C[i+1] = u.GetLowHalf();
 	}
-	else
-#endif
-	{
-		word borrow=0;
-		for (unsigned i = 0; i < N; i+=2)
-		{
-			dword u = (dword) A[i] - B[i] - borrow;
-			C[i] = LOW_WORD(u);
-			u = (dword) A[i+1] - B[i+1] - (word)(0-HIGH_WORD(u));
-			C[i+1] = LOW_WORD(u);
-			borrow = 0-HIGH_WORD(u);
-		}
-		return borrow;
-	}
+	return 0-u.GetHighHalf();
 }
 
 void Portable::Multiply2(word *C, const word *A, const word *B)
@@ -261,38 +492,28 @@ void Portable::Multiply2(word *C, const word *A, const word *B)
 	unsigned int ai = A[1] < A[0];
 	unsigned int bi = B[0] < B[1];
 	unsigned int di = ai & bi;
-	dword d = (dword)D[di]*D[di+2];
+	DWord d = DWord::Multiply(D[di], D[di+2]);
 	D[1] = D[3] = 0;
 	unsigned int si = ai + !bi;
 	word s = D[si];
 
-	dword A0B0 = (dword)A[0]*B[0];
-	C[0] = LOW_WORD(A0B0);
+	DWord A0B0 = DWord::Multiply(A[0], B[0]);
+	C[0] = A0B0.GetLowHalf();
 
-	dword A1B1 = (dword)A[1]*B[1];
-	dword t = (dword) HIGH_WORD(A0B0) + LOW_WORD(A0B0) + LOW_WORD(d) + LOW_WORD(A1B1);
-	C[1] = LOW_WORD(t);
+	DWord A1B1 = DWord::Multiply(A[1], B[1]);
+	DWord t = (DWord) A0B0.GetHighHalf() + A0B0.GetLowHalf() + d.GetLowHalf() + A1B1.GetLowHalf();
+	C[1] = t.GetLowHalf();
 
-	t = A1B1 + HIGH_WORD(t) + HIGH_WORD(A0B0) + HIGH_WORD(d) + HIGH_WORD(A1B1) - s;
-	C[2] = LOW_WORD(t);
-	C[3] = HIGH_WORD(t);
+	t = A1B1 + t.GetHighHalf() + A0B0.GetHighHalf() + d.GetHighHalf() + A1B1.GetHighHalf() - s;
+	C[2] = t.GetLowHalf();
+	C[3] = t.GetHighHalf();
 }
 
 inline void Portable::Multiply2Bottom(word *C, const word *A, const word *B)
 {
-#ifdef IS_LITTLE_ENDIAN
-	if (sizeof(dword) == sizeof(size_t))
-	{
-		dword a = *(const dword *)A, b = *(const dword *)B;
-		((dword *)C)[0] = a*b;
-	}
-	else
-#endif
-	{
-		dword t = (dword)A[0]*B[0];
-		C[0] = LOW_WORD(t);
-		C[1] = HIGH_WORD(t) + A[0]*B[1] + A[1]*B[0];
-	}
+	DWord t = DWord::Multiply(A[0], B[0]);
+	C[0] = t.GetLowHalf();
+	C[1] = t.GetHighHalf() + A[0]*B[1] + A[1]*B[0];
 }
 
 word Portable::Multiply2Add(word *C, const word *A, const word *B)
@@ -301,77 +522,77 @@ word Portable::Multiply2Add(word *C, const word *A, const word *B)
 	unsigned int ai = A[1] < A[0];
 	unsigned int bi = B[0] < B[1];
 	unsigned int di = ai & bi;
-	dword d = (dword)D[di]*D[di+2];
+	DWord d = DWord::Multiply(D[di], D[di+2]);
 	D[1] = D[3] = 0;
 	unsigned int si = ai + !bi;
 	word s = D[si];
 
-	dword A0B0 = (dword)A[0]*B[0];
-	dword t = A0B0 + C[0];
-	C[0] = LOW_WORD(t);
+	DWord A0B0 = DWord::Multiply(A[0], B[0]);
+	DWord t = A0B0 + C[0];
+	C[0] = t.GetLowHalf();
 
-	dword A1B1 = (dword)A[1]*B[1];
-	t = (dword) HIGH_WORD(t) + LOW_WORD(A0B0) + LOW_WORD(d) + LOW_WORD(A1B1) + C[1];
-	C[1] = LOW_WORD(t);
+	DWord A1B1 = DWord::Multiply(A[1], B[1]);
+	t = (DWord) t.GetHighHalf() + A0B0.GetLowHalf() + d.GetLowHalf() + A1B1.GetLowHalf() + C[1];
+	C[1] = t.GetLowHalf();
 
-	t = (dword) HIGH_WORD(t) + LOW_WORD(A1B1) + HIGH_WORD(A0B0) + HIGH_WORD(d) + HIGH_WORD(A1B1) - s + C[2];
-	C[2] = LOW_WORD(t);
+	t = (DWord) t.GetHighHalf() + A1B1.GetLowHalf() + A0B0.GetHighHalf() + d.GetHighHalf() + A1B1.GetHighHalf() - s + C[2];
+	C[2] = t.GetLowHalf();
 
-	t = (dword) HIGH_WORD(t) + HIGH_WORD(A1B1) + C[3];
-	C[3] = LOW_WORD(t);
-	return HIGH_WORD(t);
+	t = (DWord) t.GetHighHalf() + A1B1.GetHighHalf() + C[3];
+	C[3] = t.GetLowHalf();
+	return t.GetHighHalf();
 }
 
 #define MulAcc(x, y)								\
-	p = (dword)A[x] * B[y] + c; 					\
-	c = LOW_WORD(p);								\
-	p = (dword)d + HIGH_WORD(p);					\
-	d = LOW_WORD(p);								\
-	e += HIGH_WORD(p);
+	p = DWord::MultiplyAndAdd(A[x], B[y], c);		\
+	c = p.GetLowHalf();								\
+	p = (DWord) d + p.GetHighHalf();					\
+	d = p.GetLowHalf();								\
+	e += p.GetHighHalf();
 
 #define SaveMulAcc(s, x, y) 						\
 	R[s] = c;										\
-	p = (dword)A[x] * B[y] + d; 					\
-	c = LOW_WORD(p);								\
-	p = (dword)e + HIGH_WORD(p);					\
-	d = LOW_WORD(p);								\
-	e = HIGH_WORD(p);
+	p = DWord::MultiplyAndAdd(A[x], B[y], d);				\
+	c = p.GetLowHalf();								\
+	p = (DWord) e + p.GetHighHalf();					\
+	d = p.GetLowHalf();								\
+	e = p.GetHighHalf();
 
 #define SquAcc(x, y)								\
-	q = (dword)A[x] * A[y];	\
+	q = DWord::Multiply(A[x], A[y]);	\
 	p = q + c; 					\
-	c = LOW_WORD(p);								\
-	p = (dword)d + HIGH_WORD(p);					\
-	d = LOW_WORD(p);								\
-	e += HIGH_WORD(p);			\
+	c = p.GetLowHalf();								\
+	p = (DWord) d + p.GetHighHalf();					\
+	d = p.GetLowHalf();								\
+	e += p.GetHighHalf();			\
 	p = q + c; 					\
-	c = LOW_WORD(p);								\
-	p = (dword)d + HIGH_WORD(p);					\
-	d = LOW_WORD(p);								\
-	e += HIGH_WORD(p);
+	c = p.GetLowHalf();								\
+	p = (DWord) d + p.GetHighHalf();					\
+	d = p.GetLowHalf();								\
+	e += p.GetHighHalf();
 
 #define SaveSquAcc(s, x, y) 						\
 	R[s] = c;										\
-	q = (dword)A[x] * A[y];	\
+	q = DWord::Multiply(A[x], A[y]);	\
 	p = q + d; 					\
-	c = LOW_WORD(p);								\
-	p = (dword)e + HIGH_WORD(p);					\
-	d = LOW_WORD(p);								\
-	e = HIGH_WORD(p);			\
+	c = p.GetLowHalf();								\
+	p = (DWord) e + p.GetHighHalf();					\
+	d = p.GetLowHalf();								\
+	e = p.GetHighHalf();			\
 	p = q + c; 					\
-	c = LOW_WORD(p);								\
-	p = (dword)d + HIGH_WORD(p);					\
-	d = LOW_WORD(p);								\
-	e += HIGH_WORD(p);
+	c = p.GetLowHalf();								\
+	p = (DWord) d + p.GetHighHalf();					\
+	d = p.GetLowHalf();								\
+	e += p.GetHighHalf();
 
 void Portable::Multiply4(word *R, const word *A, const word *B)
 {
-	dword p;
+	DWord p;
 	word c, d, e;
 
-	p = (dword)A[0] * B[0];
-	R[0] = LOW_WORD(p);
-	c = HIGH_WORD(p);
+	p = DWord::Multiply(A[0], B[0]);
+	R[0] = p.GetLowHalf();
+	c = p.GetHighHalf();
 	d = e = 0;
 
 	MulAcc(0, 1);
@@ -394,38 +615,38 @@ void Portable::Multiply4(word *R, const word *A, const word *B)
 	MulAcc(3, 2);
 
 	R[5] = c;
-	p = (dword)A[3] * B[3] + d;
-	R[6] = LOW_WORD(p);
-	R[7] = e + HIGH_WORD(p);
+	p = DWord::MultiplyAndAdd(A[3], B[3], d);
+	R[6] = p.GetLowHalf();
+	R[7] = e + p.GetHighHalf();
 }
 
 void Portable::Square2(word *R, const word *A)
 {
-	dword p, q;
+	DWord p, q;
 	word c, d, e;
 
-	p = (dword)A[0] * A[0];
-	R[0] = LOW_WORD(p);
-	c = HIGH_WORD(p);
+	p = DWord::Multiply(A[0], A[0]);
+	R[0] = p.GetLowHalf();
+	c = p.GetHighHalf();
 	d = e = 0;
 
 	SquAcc(0, 1);
 
 	R[1] = c;
-	p = (dword)A[1] * A[1] + d;
-	R[2] = LOW_WORD(p);
-	R[3] = e + HIGH_WORD(p);
+	p = DWord::MultiplyAndAdd(A[1], A[1], d);
+	R[2] = p.GetLowHalf();
+	R[3] = e + p.GetHighHalf();
 }
 
 void Portable::Square4(word *R, const word *A)
 {
 	const word *B = A;
-	dword p, q;
+	DWord p, q;
 	word c, d, e;
 
-	p = (dword)A[0] * A[0];
-	R[0] = LOW_WORD(p);
-	c = HIGH_WORD(p);
+	p = DWord::Multiply(A[0], A[0]);
+	R[0] = p.GetLowHalf();
+	c = p.GetHighHalf();
 	d = e = 0;
 
 	SquAcc(0, 1);
@@ -442,19 +663,19 @@ void Portable::Square4(word *R, const word *A)
 	SaveSquAcc(4, 2, 3);
 
 	R[5] = c;
-	p = (dword)A[3] * A[3] + d;
-	R[6] = LOW_WORD(p);
-	R[7] = e + HIGH_WORD(p);
+	p = DWord::MultiplyAndAdd(A[3], A[3], d);
+	R[6] = p.GetLowHalf();
+	R[7] = e + p.GetHighHalf();
 }
 
 void Portable::Multiply8(word *R, const word *A, const word *B)
 {
-	dword p;
+	DWord p;
 	word c, d, e;
 
-	p = (dword)A[0] * B[0];
-	R[0] = LOW_WORD(p);
-	c = HIGH_WORD(p);
+	p = DWord::Multiply(A[0], B[0]);
+	R[0] = p.GetLowHalf();
+	c = p.GetHighHalf();
 	d = e = 0;
 
 	MulAcc(0, 1);
@@ -533,19 +754,19 @@ void Portable::Multiply8(word *R, const word *A, const word *B)
 	MulAcc(7, 6);
 
 	R[13] = c;
-	p = (dword)A[7] * B[7] + d;
-	R[14] = LOW_WORD(p);
-	R[15] = e + HIGH_WORD(p);
+	p = DWord::MultiplyAndAdd(A[7], B[7], d);
+	R[14] = p.GetLowHalf();
+	R[15] = e + p.GetHighHalf();
 }
 
 void Portable::Multiply4Bottom(word *R, const word *A, const word *B)
 {
-	dword p;
+	DWord p;
 	word c, d, e;
 
-	p = (dword)A[0] * B[0];
-	R[0] = LOW_WORD(p);
-	c = HIGH_WORD(p);
+	p = DWord::Multiply(A[0], B[0]);
+	R[0] = p.GetLowHalf();
+	c = p.GetHighHalf();
 	d = e = 0;
 
 	MulAcc(0, 1);
@@ -561,12 +782,12 @@ void Portable::Multiply4Bottom(word *R, const word *A, const word *B)
 
 void Portable::Multiply8Bottom(word *R, const word *A, const word *B)
 {
-	dword p;
+	DWord p;
 	word c, d, e;
 
-	p = (dword)A[0] * B[0];
-	R[0] = LOW_WORD(p);
-	c = HIGH_WORD(p);
+	p = DWord::Multiply(A[0], B[0]);
+	R[0] = p.GetLowHalf();
+	c = p.GetHighHalf();
 	d = e = 0;
 
 	MulAcc(0, 1);
@@ -620,6 +841,7 @@ class PentiumOptimized : public Portable
 public:
 	static word __fastcall Add(word *C, const word *A, const word *B, unsigned int N);
 	static word __fastcall Subtract(word *C, const word *A, const word *B, unsigned int N);
+// TODO test this with .NET #if _MSC_VER < 1300
 	static inline void Square4(word *R, const word *A)
 	{
 		// VC60 workaround: MSVC 6.0 has an optimization bug that makes
@@ -628,6 +850,7 @@ public:
 		// bug is fixed.
 		Multiply4(R, A, A);
 	}
+//#endif
 };
 
 typedef PentiumOptimized LowLevel;
@@ -1703,88 +1926,7 @@ void PentiumOptimized::Multiply8(word* Z, const word* X, const word* Y)
 	);
 }
 
-#elif defined(__GNUC__) && defined(CRYPTOPP_64BIT_CPU)
-
-#ifdef __alpha__
-#define MUL64x64(a, b, c, d) c = a*b; __asm__("umulh %1,%2,%0" : "=r" (d) : "r" (a), "r" (b))
-#elif defined(__ia64__)
-#define MUL64x64(a, b, c, d) c = a*b; __asm__("xmpy.hu %0=%1,%2" : "=f" (d) : "f" (a), "f" (b))
-#elif defined(_ARCH_PPC64)
-#define MUL64x64(a, b, c, d) c = a*b; __asm__("mulhdu %0,%1,%2" : "=r" (d) : "r" (a), "r" (b) : "cc")
-#elif defined(__x86_64__)
-#define MUL64x64(a, b, c, d) __asm__("mulq %3" : "=d" (d), "=a" (c) : "a" (a), "rm" (b) : "cc")
-#elif defined(__mips64)
-#define MUL64x64(a, b, c, d) __asm__("dmultu %2,%3" : "=h" (d), "=l" (c) : "r" (a), "r" (b))
-#elif defined(__sparc_v9__) || defined(__sparcv9) || defined(__sparc_v8__) || defined(__sparcv8)
-#define MUL64x64(a, b, c, d) __asm__("umul %2,%3,%1;rd %%y,%0" : "=r" (d), "=r" (c) : "r" (a), "r" (b))
-#endif
-
-class OptimizedFor64BitCPU : public Portable
-{
-public:
-	static inline void Multiply2(word *C, const word *A, const word *B);
-	static inline word Multiply2Add(word *C, const word *A, const word *B);
-	static inline void Multiply4(word *C, const word *A, const word *B);
-	static inline unsigned int MultiplyRecursionLimit() {return 4;}
-
-	static inline void Multiply4Bottom(word *C, const word *A, const word *B);
-	static inline unsigned int MultiplyBottomRecursionLimit() {return 4;}
-
-	static inline void Square4(word *R, const word *A)
-	{
-		Multiply4(R, A, A);
-	}
-};
-
-typedef OptimizedFor64BitCPU LowLevel;
-
-inline void OptimizedFor64BitCPU::Multiply2(word *C, const word *A, const word *B)
-{
-	register dword c, d, a = *(const dword *)A, b = *(const dword *)B;
-	MUL64x64(a, b, c, d);
-	((dword *)C)[0] = c;
-	((dword *)C)[1] = d;
-}
-
-inline word OptimizedFor64BitCPU::Multiply2Add(word *C, const word *A, const word *B)
-{
-	register dword c, d, e, a = *(const dword *)A, b = *(const dword *)B;
-	c = ((dword *)C)[0];
-	MUL64x64(a, b, d, e);
-	d += c;
-	((dword *)C)[0] = d;
-	d = (d < c);
-	c = ((dword *)C)[1] + d;
-	d = (c < d);
-	c += e;
-	((dword *)C)[1] = c;
-	d |= (c < e);
-	return d;
-}
-
-inline void OptimizedFor64BitCPU::Multiply4(word *R, const word *A, const word *B)
-{
-	Multiply2(R, A, B);
-	Multiply2(R+4, A+2, B+2);
-	word carry = Multiply2Add(R+2, A+0, B+2);
-	carry += Multiply2Add(R+2, A+2, B+0);
-	Increment(R+6, 2, carry);
-}
-
-static inline void Multiply2BottomAdd(word *C, const word *A, const word *B)
-{
-	register dword a = *(const dword *)A, b = *(const dword *)B;
-	((dword *)C)[0] = a*b + ((dword *)C)[0];
-}
-
-inline void OptimizedFor64BitCPU::Multiply4Bottom(word *R, const word *A, const word *B)
-{
-	Multiply2(R, A, B);
-	Multiply2BottomAdd(R+2, A+0, B+2);
-	Multiply2BottomAdd(R+2, A+2, B+0);
-}
-
-#else	// no processor specific code available
+#else	// no processor specific code at this layer
 
 typedef Portable LowLevel;
 
@@ -1970,13 +2112,12 @@ void RecursiveMultiplyTop(word *R, word *T, const word *L, const word *A, const 
 	if (N==4)
 	{
 		P::Multiply4(T, A, B);
-		((dword *)R)[0] = ((dword *)T)[2];
-		((dword *)R)[1] = ((dword *)T)[3];
+		memcpy(R, T+4, 4*WORD_SIZE);
 	}
 	else if (N==2)
 	{
 		P::Multiply2(T, A, B);
-		((dword *)R)[0] = ((dword *)T)[1];
+		memcpy(R, T+2, 2*WORD_SIZE);
 	}
 	else
 	{
@@ -2088,6 +2229,18 @@ inline void MultiplyTop(word *R, word *T, const word *L, const word *A, const wo
 		RecursiveMultiplyTop<LowLevel>(R, T, L, A, B, N);
 }
 
+static word LinearMultiply(word *C, const word *A, word B, unsigned int N)
+{
+	word carry=0;
+	for(unsigned i=0; i<N; i++)
+	{
+		DWord p = DWord::MultiplyAndAdd(A[i], B, carry);
+		C[i] = p.GetLowHalf();
+		carry = p.GetHighHalf();
+	}
+	return carry;
+}
+
 // R[NA+NB] - result = A*B
 // T[NA+NB] - temporary work space
 // A[NA] ---- multiplier
@@ -2153,7 +2306,14 @@ void AsymmetricMultiply(word *R, word *T, const word *A, unsigned int NA, const 
 void RecursiveInverseModPower2(word *R, word *T, const word *A, unsigned int N)
 {
 	if (N==2)
-		AtomicInverseModPower2(R, A[0], A[1]);
+	{
+		T[0] = AtomicInverseModPower2(A[0]);
+		T[1] = 0;
+		LowLevel::Multiply2Bottom(T+2, T, A);
+		TwosComplement(T+2, 2);
+		Increment(T+2, 2, 2);
+		LowLevel::Multiply2Bottom(R, T, T+2);
+	}
 	else
 	{
 		const unsigned int N2 = N/2;
@@ -2255,37 +2415,36 @@ void HalfMontgomeryReduce(word *R, word *T, const word *X, const word *M, const 
 #undef R2
 #undef R3
 
+/*
 // do a 3 word by 2 word divide, returns quotient and leaves remainder in A
 static word SubatomicDivide(word *A, word B0, word B1)
 {
 	// assert {A[2],A[1]} < {B1,B0}, so quotient can fit in a word
 	assert(A[2] < B1 || (A[2]==B1 && A[1] < B0));
 
-	dword p, u;
-	word Q;
-
 	// estimate the quotient: do a 2 word by 1 word divide
+	word Q;
 	if (B1+1 == 0)
 		Q = A[2];
 	else
-		Q = word(MAKE_DWORD(A[1], A[2]) / (B1+1));
+		Q = DWord(A[1], A[2]).DividedBy(B1+1);
 
 	// now subtract Q*B from A
-	p = (dword) B0*Q;
-	u = (dword) A[0] - LOW_WORD(p);
-	A[0] = LOW_WORD(u);
-	u = (dword) A[1] - HIGH_WORD(p) - (word)(0-HIGH_WORD(u)) - (dword)B1*Q;
-	A[1] = LOW_WORD(u);
-	A[2] += HIGH_WORD(u);
+	DWord p = DWord::Multiply(B0, Q);
+	DWord u = (DWord) A[0] - p.GetLowHalf();
+	A[0] = u.GetLowHalf();
+	u = (DWord) A[1] - p.GetHighHalf() - u.GetHighHalfAsBorrow() - DWord::Multiply(B1, Q);
+	A[1] = u.GetLowHalf();
+	A[2] += u.GetHighHalf();
 
 	// Q <= actual quotient, so fix it
 	while (A[2] || A[1] > B1 || (A[1]==B1 && A[0]>=B0))
 	{
-		u = (dword) A[0] - B0;
-		A[0] = LOW_WORD(u);
-		u = (dword) A[1] - B1 - (word)(0-HIGH_WORD(u));
-		A[1] = LOW_WORD(u);
-		A[2] += HIGH_WORD(u);
+		u = (DWord) A[0] - B0;
+		A[0] = u.GetLowHalf();
+		u = (DWord) A[1] - B1 - u.GetHighHalfAsBorrow();
+		A[1] = u.GetLowHalf();
+		A[2] += u.GetHighHalf();
 		Q++;
 		assert(Q);	// shouldn't overflow
 	}
@@ -2317,6 +2476,27 @@ static inline void AtomicDivide(word *Q, const word *A, const word *B)
 		assert(memcmp(P, A, 4*WORD_SIZE)==0);
 #endif
 	}
+}
+*/
+
+static inline void AtomicDivide(word *Q, const word *A, const word *B)
+{
+	word T[4];
+	DWord q = DivideFourWordsByTwo<word, DWord>(T, DWord(A[0], A[1]), DWord(A[2], A[3]), DWord(B[0], B[1]));
+	Q[0] = q.GetLowHalf();
+	Q[1] = q.GetHighHalf();
+
+#ifndef NDEBUG
+	if (B[0] || B[1])
+	{
+		// multiply quotient and divisor and add remainder, make sure it equals dividend
+		assert(!T[2] && !T[3] && (T[1] < B[1] || (T[1]==B[1] && T[0]<B[0])));
+		word P[4];
+		Portable::Multiply2(P, Q, B);
+		Add(P, P, T, 4);
+		assert(memcmp(P, A, 4*WORD_SIZE)==0);
+	}
+#endif
 }
 
 // for use by Divide(), corrects the underestimated quotient {Q1,Q0}
@@ -2570,6 +2750,13 @@ Integer::Integer(const Integer& t)
 	CopyWords(reg, t.reg, reg.size());
 }
 
+Integer::Integer(Sign s, lword value)
+	: reg(2), sign(s)
+{
+	reg[0] = word(value);
+	reg[1] = word(SafeRightShift<WORD_BITS>(value));
+}
+
 Integer::Integer(signed long value)
 	: reg(2)
 {
@@ -2581,7 +2768,7 @@ Integer::Integer(signed long value)
 		value = -value;
 	}
 	reg[0] = word(value);
-	reg[1] = word(SafeRightShift<WORD_BITS, unsigned long>(value));
+	reg[1] = word(SafeRightShift<WORD_BITS>((unsigned long)value));
 }
 
 Integer::Integer(Sign s, word high, word low)
@@ -2877,13 +3064,13 @@ void Integer::Decode(BufferedTransformation &bt, unsigned int inputLen, Signedne
 	for (unsigned int i=inputLen; i > 0; i--)
 	{
 		bt.Get(b);
-		reg[(i-1)/WORD_SIZE] |= b << ((i-1)%WORD_SIZE)*8;
+		reg[(i-1)/WORD_SIZE] |= word(b) << ((i-1)%WORD_SIZE)*8;
 	}
 
 	if (sign == NEGATIVE)
 	{
 		for (unsigned i=inputLen; i<reg.size()*WORD_SIZE; i++)
-			reg[i/WORD_SIZE] |= 0xff << (i%WORD_SIZE)*8;
+			reg[i/WORD_SIZE] |= word(0xff) << (i%WORD_SIZE)*8;
 		TwosComplement(reg, reg.size());
 	}
 }
@@ -3598,8 +3785,8 @@ void Integer::Divide(word &remainder, Integer &quotient, const Integer &dividend
 	remainder = 0;
 	while (i--)
 	{
-		quotient.reg[i] = word(MAKE_DWORD(dividend.reg[i], remainder) / divisor);
-		remainder = word(MAKE_DWORD(dividend.reg[i], remainder) % divisor);
+		quotient.reg[i] = DWord(dividend.reg[i], remainder) / divisor;
+		remainder = DWord(dividend.reg[i], remainder) % divisor;
 	}
 
 	if (dividend.NotNegative())
@@ -3640,16 +3827,16 @@ word Integer::Modulo(word divisor) const
 
 		if (divisor <= 5)
 		{
-			dword sum=0;
+			DWord sum(0, 0);
 			while (i--)
 				sum += reg[i];
-			remainder = word(sum%divisor);
+			remainder = sum % divisor;
 		}
 		else
 		{
 			remainder = 0;
 			while (i--)
-				remainder = word(MAKE_DWORD(reg[i], remainder) % divisor);
+				remainder = DWord(reg[i], remainder) % divisor;
 		}
 	}
 

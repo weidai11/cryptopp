@@ -188,7 +188,7 @@ bool TestSettings()
 		pass = false;
 	}
 	cout << "sizeof(word64) == " << sizeof(word64) << endl;
-#else
+#elif CRYPTOPP_NATIVE_DWORD_AVAILABLE
 	if (sizeof(dword) >= 8)
 	{
 		cout << "FAILED:  sizeof(dword) >= 8, but WORD64_AVAILABLE not defined" << endl;
@@ -198,6 +198,7 @@ bool TestSettings()
 		cout << "passed:  word64 not available" << endl;
 #endif
 
+#ifdef CRYPTOPP_NATIVE_DWORD_AVAILABLE
 	if (sizeof(dword) == 2*sizeof(word))
 		cout << "passed:  ";
 	else
@@ -206,16 +207,7 @@ bool TestSettings()
 		pass = false;
 	}
 	cout << "sizeof(word) == " << sizeof(word) << ", sizeof(dword) == " << sizeof(dword) << endl;
-
-	dword test = (dword(1)<<WORD_BITS) + 2;
-	if (HIGH_WORD(test) == 1 && LOW_WORD(test) == 2)
-		cout << "passed:  ";
-	else
-	{
-		cout << "FAILED:  ";
-		pass = false;
-	}
-	cout << "HIGH_WORD() and LOW_WORD() macros\n";
+#endif
 
 	if (!pass)
 	{

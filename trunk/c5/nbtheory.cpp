@@ -15,12 +15,12 @@ NAMESPACE_BEGIN(CryptoPP)
 
 const word s_lastSmallPrime = 32719;
 
-std::vector<word> * NewPrimeTable()
+std::vector<word16> * NewPrimeTable()
 {
 	const unsigned int maxPrimeTableSize = 3511;
 
-	std::auto_ptr<std::vector<word> > pPrimeTable(new std::vector<word>);
-	std::vector<word> &primeTable = *pPrimeTable;
+	std::auto_ptr<std::vector<word16> > pPrimeTable(new std::vector<word16>);
+	std::vector<word16> &primeTable = *pPrimeTable;
 	primeTable.reserve(maxPrimeTableSize);
 
 	primeTable.push_back(2);
@@ -42,9 +42,9 @@ std::vector<word> * NewPrimeTable()
 	return pPrimeTable.release();
 }
 
-const word * GetPrimeTable(unsigned int &size)
+const word16 * GetPrimeTable(unsigned int &size)
 {
-	std::vector<word> &primeTable = StaticObject<std::vector<word> >(&NewPrimeTable);
+	std::vector<word16> &primeTable = StaticObject<std::vector<word16> >(&NewPrimeTable);
 	size = primeTable.size();
 	return &primeTable[0];
 }
@@ -52,10 +52,10 @@ const word * GetPrimeTable(unsigned int &size)
 bool IsSmallPrime(const Integer &p)
 {
 	unsigned int primeTableSize;
-	const word * primeTable = GetPrimeTable(primeTableSize);
+	const word16 * primeTable = GetPrimeTable(primeTableSize);
 
 	if (p.IsPositive() && p <= primeTable[primeTableSize-1])
-		return std::binary_search(primeTable, primeTable+primeTableSize, (word)p.ConvertToLong());
+		return std::binary_search(primeTable, primeTable+primeTableSize, (word16)p.ConvertToLong());
 	else
 		return false;
 }
@@ -63,7 +63,7 @@ bool IsSmallPrime(const Integer &p)
 bool TrialDivision(const Integer &p, unsigned bound)
 {
 	unsigned int primeTableSize;
-	const word * primeTable = GetPrimeTable(primeTableSize);
+	const word16 * primeTable = GetPrimeTable(primeTableSize);
 
 	assert(primeTable[primeTableSize-1] >= bound);
 
@@ -81,7 +81,7 @@ bool TrialDivision(const Integer &p, unsigned bound)
 bool SmallDivisorsTest(const Integer &p)
 {
 	unsigned int primeTableSize;
-	const word * primeTable = GetPrimeTable(primeTableSize);
+	const word16 * primeTable = GetPrimeTable(primeTableSize);
 	return !TrialDivision(p, primeTable[primeTableSize-1]);
 }
 
@@ -278,7 +278,7 @@ public:
 	bool NextCandidate(Integer &c);
 
 	void DoSieve();
-	static void SieveSingle(std::vector<bool> &sieve, word p, const Integer &first, const Integer &step, word stepInv);
+	static void SieveSingle(std::vector<bool> &sieve, word16 p, const Integer &first, const Integer &step, word16 stepInv);
 
 	Integer m_first, m_last, m_step;
 	signed int m_delta;
@@ -315,12 +315,12 @@ bool PrimeSieve::NextCandidate(Integer &c)
 	}
 }
 
-void PrimeSieve::SieveSingle(std::vector<bool> &sieve, word p, const Integer &first, const Integer &step, word stepInv)
+void PrimeSieve::SieveSingle(std::vector<bool> &sieve, word16 p, const Integer &first, const Integer &step, word16 stepInv)
 {
 	if (stepInv)
 	{
 		unsigned int sieveSize = sieve.size();
-		word j = word((dword(p-(first%p))*stepInv) % p);
+		word j = word((word32(p-(first%p))*stepInv) % p);
 		// if the first multiple of p is p, skip it
 		if (first.WordCount() <= 1 && first + step*j == p)
 			j += p;
@@ -332,7 +332,7 @@ void PrimeSieve::SieveSingle(std::vector<bool> &sieve, word p, const Integer &fi
 void PrimeSieve::DoSieve()
 {
 	unsigned int primeTableSize;
-	const word * primeTable = GetPrimeTable(primeTableSize);
+	const word16 * primeTable = GetPrimeTable(primeTableSize);
 
 	const unsigned int maxSieveSize = 32768;
 	unsigned int sieveSize = STDMIN(Integer(maxSieveSize), (m_last-m_first)/m_step+1).ConvertToLong();
@@ -352,11 +352,11 @@ void PrimeSieve::DoSieve()
 		Integer halfStep = m_step >> 1;
 		for (unsigned int i = 0; i < primeTableSize; ++i)
 		{
-			word p = primeTable[i];
-			word stepInv = m_step.InverseMod(p);
+			word16 p = primeTable[i];
+			word16 stepInv = m_step.InverseMod(p);
 			SieveSingle(m_sieve, p, m_first, m_step, stepInv);
 
-			word halfStepInv = 2*stepInv < p ? 2*stepInv : 2*stepInv-p;
+			word16 halfStepInv = 2*stepInv < p ? 2*stepInv : 2*stepInv-p;
 			SieveSingle(m_sieve, p, qFirst, halfStep, halfStepInv);
 		}
 	}
@@ -380,11 +380,11 @@ bool FirstPrime(Integer &p, const Integer &max, const Integer &equiv, const Inte
 	}
 
 	unsigned int primeTableSize;
-	const word * primeTable = GetPrimeTable(primeTableSize);
+	const word16 * primeTable = GetPrimeTable(primeTableSize);
 
 	if (p <= primeTable[primeTableSize-1])
 	{
-		const word *pItr;
+		const word16 *pItr;
 
 		--p;
 		if (p.IsPositive())
@@ -441,7 +441,7 @@ static bool ProvePrime(const Integer &p, const Integer &q)
 		return false;
 
 	unsigned int primeTableSize;
-	const word * primeTable = GetPrimeTable(primeTableSize);
+	const word16 * primeTable = GetPrimeTable(primeTableSize);
 
 	assert(primeTableSize >= 50);
 	for (int i=0; i<50; i++) 
@@ -499,7 +499,7 @@ Integer MaurerProvablePrime(RandomNumberGenerator &rng, unsigned int bits)
 	Integer p;
 
 	unsigned int primeTableSize;
-	const word * primeTable = GetPrimeTable(primeTableSize);
+	const word16 * primeTable = GetPrimeTable(primeTableSize);
 
 	if (bits < smallPrimeBound)
 	{

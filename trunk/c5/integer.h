@@ -100,6 +100,9 @@ public:
 		//! convert from signed long
 		Integer(signed long value);
 
+		//! convert from lword
+		Integer(Sign s, lword value);
+
 		//! convert from two words
 		Integer(Sign s, word highWord, word lowWord);
 

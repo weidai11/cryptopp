@@ -91,7 +91,7 @@ void AdditiveCipherTemplate<S>::Resynchronize(const byte *iv)
 }
 
 template <class BASE>
-void AdditiveCipherTemplate<BASE>::Seek(dword position)
+void AdditiveCipherTemplate<BASE>::Seek(lword position)
 {
 	PolicyInterface &policy = AccessPolicy();
 	unsigned int bytesPerIteration = policy.GetBytesPerIteration();

@@ -496,7 +496,7 @@ public:
 	//! returns whether this cipher supports random access
 	virtual bool IsRandomAccess() const =0;
 	//! for random access ciphers, seek to an absolute position
-	virtual void Seek(dword n)
+	virtual void Seek(lword n)
 	{
 		assert(!IsRandomAccess());
 		throw NotImplemented("StreamTransformation: this object doesn't support random access");

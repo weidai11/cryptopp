@@ -9,7 +9,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 // obtain pointer to small prime table and get its size
-CRYPTOPP_DLL const word * GetPrimeTable(unsigned int &size);
+CRYPTOPP_DLL const word16 * GetPrimeTable(unsigned int &size);
 
 // ************ primality testing ****************
 
