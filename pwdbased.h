@@ -51,7 +51,7 @@ public:
 template <class T>
 void PKCS5_PBKDF1<T>::DeriveKey(byte *derived, unsigned int derivedLen, const byte *password, unsigned int passwordLen, const byte *salt, unsigned int saltLen, unsigned int iterations) const
 {
-	assert(derivedLen <= MaxDerivedLength());
+	assert(derivedLen <= MaxDerivedKeyLength());
 	assert(iterations > 0);
 
 	T hash;
