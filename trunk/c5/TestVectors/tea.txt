@@ -1,5 +1,5 @@
 AlgorithmType: SymmetricCipher
-Name: TEA(ECB)
+Name: TEA/ECB
 Source: http://www.cix.co.uk/~klockstone/teavect.htm
 Comment: test   1
 Plaintext: 00000000 00000000
@@ -387,7 +387,7 @@ Test: Encrypt
 Test: Decrypt
 
 AlgorithmType: SymmetricCipher
-Name: XTEA(ECB)
+Name: XTEA/ECB
 Source: http://www.cix.co.uk/~klockstone/teavect.htm
 Comment: test   1
 Plaintext: 00000000 00000000
