@@ -3,7 +3,12 @@
 // This file implements the various algorithm tests needed to pass FIPS 140 validation.
 // They're preserved here (commented out) in case Crypto++ needs to be revalidated.
 
-/*
+#if 0
+#include "dll.h"
+
+USING_NAMESPACE(CryptoPP)
+USING_NAMESPACE(std)
+
 class LineBreakParser : public AutoSignaling<Bufferless<Filter> >
 {
 public:
@@ -97,6 +102,21 @@ public:
 			m_nameToType["PT"] = OUTPUT;
 			m_nameToType["CT"] = INPUT;
 		}
+
+		if (m_algorithm == "AES")
+		{
+			if (encrypt)
+			{
+				m_trigger = "PLAINTEXT";
+				m_typeToName[OUTPUT] = "CIPHERTEXT";
+			}
+			else
+			{
+				m_trigger = "CIPHERTEXT";
+				m_typeToName[OUTPUT] = "PLAINTEXT";
+			}
+			m_count = 0;
+		}
 	}
 
 protected:
@@ -175,7 +195,7 @@ protected:
 	void OutputData(std::string &output, DataType t, const SecByteBlock &data)
 	{
 		std::string hexData;
-		StringSource(data, true, new HexEncoder(new StringSink(hexData), false));
+		StringSource(data.begin(), data.size(), true, new HexEncoder(new StringSink(hexData), false));
 		OutputData(output, t, hexData);
 	}
 
@@ -644,6 +664,8 @@ protected:
 						inputs[j+1] = outputs[j-1];
 				}
 
+				if (m_algorithm == "AES")
+					OutputData(output, COUNT, m_count++);
 				OutputData(output, KEY_T, KEY[i]);
 				if (m_mode != "ECB")
 					OutputData(output, IV, ivs[i]);
@@ -827,18 +849,17 @@ protected:
 	Map m_data;		// raw data
 	typedef std::map<DataType, SecByteBlock> Map2;
 	Map2 m_data2;
+	int m_count;
 
 	AutoSeededX917RNG<DES_EDE3> m_rng;
 	std::vector<unsigned int> m_compactString;
 };
-*/
 
-/*
 int main (int argc, char **argv)
 {
 	std::string algorithm = argv[1];
 	std::string pathname = argv[2];
-	i = pathname.find_last_of("\\/");
+	int i = pathname.find_last_of("\\/");
 	std::string filename = pathname.substr(i == std::string::npos ? 0 : i+1);
 	std::string mode;
 	if (filename[0] == 'S' || filename[0] == 'T')
@@ -873,5 +894,6 @@ int main (int argc, char **argv)
 		pSink = new FileSink(cout);
 
 	FileSource(pathname.c_str(), true, new LineBreakParser(new TestDataParser(algorithm, test, mode, feedbackSize, encrypt, pSink)), false);
+	return 0;
 }
-*/
+#endif
