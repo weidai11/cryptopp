@@ -156,7 +156,8 @@ void FIPS140_SampleApplication()
 	// try to use an invalid key length
 	try
 	{
-		encryption_DES_EDE3_CBC.SetKey(key, 5);
+		ECB_Mode<DES_EDE3>::Encryption encryption_DES_EDE3_ECB;
+		encryption_DES_EDE3_ECB.SetKey(key, 5);
 
 		// should not be here
 		cerr << "DES-EDE3 implementation did not detect use of invalid key length.\n";
@@ -170,6 +171,29 @@ void FIPS140_SampleApplication()
 
 	cout << "\nFIPS 140-2 Sample Application completed normally.\n";
 }
+
+#ifdef CRYPTOPP_IMPORTS
+
+static PNew s_pNew = NULL;
+static PDelete s_pDelete = NULL;
+
+extern "C" __declspec(dllexport) void CRYPTOPP_CDECL SetNewAndDeleteFromCryptoPP(PNew pNew, PDelete pDelete, PSetNewHandler pSetNewHandler)
+{
+	s_pNew = pNew;
+	s_pDelete = pDelete;
+}
+
+void * CRYPTOPP_CDECL operator new (size_t size)
+{
+	return s_pNew(size);
+}
+
+void CRYPTOPP_CDECL operator delete (void * p)
+{
+	s_pDelete(p);
+}
+
+#endif
 
 #ifdef CRYPTOPP_DLL_ONLY
 
