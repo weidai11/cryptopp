@@ -177,7 +177,7 @@ NAMESPACE_END
 #	pragma warning(disable: 4231 4250 4251 4275 4660 4661 4786 4355)
 #endif
 
-#if !(defined(_MSC_VER) && _MSC_VER <= 1300)
+#if !(defined(_MSC_VER) && _MSC_VER <= 1300) && !defined(__MWERKS__)
 #define CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE
 #endif
 
@@ -271,12 +271,16 @@ NAMESPACE_END
 
 #if defined(CRYPTOPP_MANUALLY_INSTANTIATE_TEMPLATES) && !defined(CRYPTOPP_IMPORTS)
 #define CRYPTOPP_DLL_TEMPLATE_CLASS template class CRYPTOPP_DLL
+#elif defined(__MWERKS__)
+#define CRYPTOPP_DLL_TEMPLATE_CLASS extern class CRYPTOPP_DLL
 #else
 #define CRYPTOPP_DLL_TEMPLATE_CLASS extern template class CRYPTOPP_DLL
 #endif
 
 #if defined(CRYPTOPP_MANUALLY_INSTANTIATE_TEMPLATES) && !defined(CRYPTOPP_EXPORTS)
 #define CRYPTOPP_STATIC_TEMPLATE_CLASS template class
+#elif defined(__MWERKS__)
+#define CRYPTOPP_STATIC_TEMPLATE_CLASS extern class
 #else
 #define CRYPTOPP_STATIC_TEMPLATE_CLASS extern template class
 #endif

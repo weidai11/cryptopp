@@ -5,8 +5,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#ifdef HIGHRES_TIMER_AVAILABLE
-
 class TimerBase
 {
 public:
@@ -28,22 +26,24 @@ private:
 	word64 m_start;
 };
 
-//! high resolution timer
-class Timer : public TimerBase
-{
-public:
-	Timer(Unit unit = TimerBase::SECONDS, bool stuckAtZero = false)	: TimerBase(unit, stuckAtZero) {}
-	word64 GetCurrentTimerValue();
-	word64 TicksPerSecond();
-};
-
 //! measure CPU time spent executing instructions of this thread (if supported by OS)
-/*! /note This only works correctly on Windows NT or later. On Unix it reports process time, and on Windows 98 wall clock time.
+/*! /note This only works correctly on Windows NT or later. On Unix it reports process time, and others wall clock time.
 */
 class ThreadUserTimer : public TimerBase
 {
 public:
 	ThreadUserTimer(Unit unit = TimerBase::SECONDS, bool stuckAtZero = false)	: TimerBase(unit, stuckAtZero) {}
+	word64 GetCurrentTimerValue();
+	word64 TicksPerSecond();
+};
+
+#ifdef HIGHRES_TIMER_AVAILABLE
+
+//! high resolution timer
+class Timer : public TimerBase
+{
+public:
+	Timer(Unit unit = TimerBase::SECONDS, bool stuckAtZero = false)	: TimerBase(unit, stuckAtZero) {}
 	word64 GetCurrentTimerValue();
 	word64 TicksPerSecond();
 };

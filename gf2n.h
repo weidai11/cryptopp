@@ -236,12 +236,6 @@ private:
 	SecWordBlock reg;
 };
 
-CRYPTOPP_DLL_TEMPLATE_CLASS AbstractGroup<PolynomialMod2>;
-CRYPTOPP_DLL_TEMPLATE_CLASS AbstractRing<PolynomialMod2>;
-CRYPTOPP_DLL_TEMPLATE_CLASS AbstractEuclideanDomain<PolynomialMod2>;
-CRYPTOPP_DLL_TEMPLATE_CLASS EuclideanDomainOf<PolynomialMod2>;
-CRYPTOPP_DLL_TEMPLATE_CLASS QuotientRing<EuclideanDomainOf<PolynomialMod2> >;
-
 //! GF(2^n) with Polynomial Basis
 class CRYPTOPP_DLL GF2NP : public QuotientRing<EuclideanDomainOf<PolynomialMod2> >
 {
@@ -352,6 +346,13 @@ inline CryptoPP::PolynomialMod2 operator*(const CryptoPP::PolynomialMod2 &a, con
 inline CryptoPP::PolynomialMod2 operator/(const CryptoPP::PolynomialMod2 &a, const CryptoPP::PolynomialMod2 &b) {return a.DividedBy(b);}
 //!
 inline CryptoPP::PolynomialMod2 operator%(const CryptoPP::PolynomialMod2 &a, const CryptoPP::PolynomialMod2 &b) {return a.Modulo(b);}
+
+// CodeWarrior 8 workaround: put these template instantiations after overloaded operator declarations
+CRYPTOPP_DLL_TEMPLATE_CLASS AbstractGroup<PolynomialMod2>;
+CRYPTOPP_DLL_TEMPLATE_CLASS AbstractRing<PolynomialMod2>;
+CRYPTOPP_DLL_TEMPLATE_CLASS AbstractEuclideanDomain<PolynomialMod2>;
+CRYPTOPP_DLL_TEMPLATE_CLASS EuclideanDomainOf<PolynomialMod2>;
+CRYPTOPP_DLL_TEMPLATE_CLASS QuotientRing<EuclideanDomainOf<PolynomialMod2> >;
 
 NAMESPACE_END
 
