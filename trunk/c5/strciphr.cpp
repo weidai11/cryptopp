@@ -119,6 +119,8 @@ void CFB_CipherTemplate<BASE>::Resynchronize(const byte *iv)
 template <class BASE>
 void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString, unsigned int length)
 {
+	assert(length % MandatoryBlockSize() == 0);
+
 	PolicyInterface &policy = AccessPolicy();
 	unsigned int bytesPerIteration = policy.GetBytesPerIteration();
 	unsigned int alignment = policy.GetAlignment();

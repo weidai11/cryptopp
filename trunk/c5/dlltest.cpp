@@ -60,20 +60,20 @@ void FIPS140_SampleApplication()
 	byte ciphertext[24];
 	byte decrypted[24];
 
-	CFB_Mode<DES_EDE3>::Encryption encryption_DES_EDE3_CBC;
-	encryption_DES_EDE3_CBC.SetKeyWithIV(key, sizeof(key), iv);
-	encryption_DES_EDE3_CBC.ProcessString(ciphertext, plaintext, 24);
+	CFB_FIPS_Mode<DES_EDE3>::Encryption encryption_DES_EDE3_CFB;
+	encryption_DES_EDE3_CFB.SetKeyWithIV(key, sizeof(key), iv);
+	encryption_DES_EDE3_CFB.ProcessString(ciphertext, plaintext, 23);
 
-	CFB_Mode<DES_EDE3>::Decryption decryption_DES_EDE3_CBC;
-	decryption_DES_EDE3_CBC.SetKeyWithIV(key, sizeof(key), iv);
-	decryption_DES_EDE3_CBC.ProcessString(decrypted, ciphertext, 24);
+	CFB_FIPS_Mode<DES_EDE3>::Decryption decryption_DES_EDE3_CFB;
+	decryption_DES_EDE3_CFB.SetKeyWithIV(key, sizeof(key), iv);
+	decryption_DES_EDE3_CFB.ProcessString(decrypted, ciphertext, 24);
 
 	if (memcmp(plaintext, decrypted, 24) != 0)
 	{
-		cerr << "DES-EDE3-CBC Encryption/decryption failed.\n";
+		cerr << "DES-EDE3-CFB Encryption/decryption failed.\n";
 		abort();
 	}
-	cout << "3. DES-EDE3-CBC Encryption/decryption succeeded.\n";
+	cout << "3. DES-EDE3-CFB Encryption/decryption succeeded.\n";
 
 	// hash
 	const byte message[] = {'a', 'b', 'c'};
