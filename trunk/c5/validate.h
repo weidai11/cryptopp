@@ -38,7 +38,6 @@ bool ValidateARC4();
 
 bool ValidateRC5();
 bool ValidateBlowfish();
-bool ValidateDiamond2();
 bool ValidateThreeWay();
 bool ValidateGOST();
 bool ValidateSHARK();

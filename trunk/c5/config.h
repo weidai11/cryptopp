@@ -39,10 +39,6 @@
 // and you want a (possibly) faster IDEA implementation using log tables
 // #define IDEA_LARGECACHE
 
-// Try this if you have a large cache or your CPU is slow manipulating
-// individual bytes.
-// #define DIAMOND_USE_PERMTABLE
-
 // Define this if, for the linear congruential RNG, you want to use
 // the original constants as specified in S.K. Park and K.W. Miller's
 // CACM paper.

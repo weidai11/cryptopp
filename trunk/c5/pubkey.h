@@ -1507,7 +1507,7 @@ public:
 
 //! A template implementing constructors for public key algorithm classes
 template <class BASE>
-class PK_FinalTemplate : public BASE
+class CRYPTOPP_NO_VTABLE PK_FinalTemplate : public BASE
 {
 public:
 	PK_FinalTemplate() {}

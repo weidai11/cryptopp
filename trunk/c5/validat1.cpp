@@ -15,7 +15,6 @@
 #include "arc4.h"
 #include "rc5.h"
 #include "blowfish.h"
-#include "diamond.h"
 #include "wake.h"
 #include "3way.h"
 #include "safer.h"
@@ -78,7 +77,6 @@ bool ValidateAll(bool thorough)
 	pass=ValidateARC4() && pass;
 	pass=ValidateRC5() && pass;
 	pass=ValidateBlowfish() && pass;
-	pass=ValidateDiamond2() && pass;
 	pass=ValidateThreeWay() && pass;
 	pass=ValidateGOST() && pass;
 	pass=ValidateSHARK() && pass;
@@ -1118,55 +1116,6 @@ bool ValidateBlowfish()
 		output.Put(outplain, 8);
 		cout << "  ";
 		output.Put(out, 8);
-		cout << endl;
-	}
-	return pass;
-}
-
-bool ValidateDiamond2()
-{
-	cout << "\nDiamond2 validation suite running...\n\n";
-
-	FileSource valdata("diamond.dat", true, new HexDecoder);
-	HexEncoder output(new FileSink(cout));
-	byte key[32], plain[16], cipher[16], out[16], outplain[16];
-	byte blocksize, rounds, keysize;
-	bool pass=true, fail;
-	member_ptr<BlockTransformation> diamond;	// VC60 workaround: auto_ptr lacks reset
-
-	while (valdata.MaxRetrievable() >= 1)
-	{
-		valdata.Get(blocksize);
-		valdata.Get(rounds);
-		valdata.Get(keysize);
-		valdata.Get(key, keysize);
-		valdata.Get(plain, blocksize);
-		valdata.Get(cipher, blocksize);
-
-		if (blocksize==16)
-			diamond.reset(new Diamond2Encryption(key, keysize, rounds));
-		else
-			diamond.reset(new Diamond2LiteEncryption(key, keysize, rounds));
-
-		diamond->ProcessBlock(plain, out);
-		fail=memcmp(out, cipher, blocksize) != 0;
-
-		if (blocksize==16)
-			diamond.reset(new Diamond2Decryption(key, keysize, rounds));
-		else
-			diamond.reset(new Diamond2LiteDecryption(key, keysize, rounds));
-
-		diamond->ProcessBlock(out, outplain);
-		fail=fail || memcmp(outplain, plain, blocksize);
-
-		pass = pass && !fail;
-
-		cout << (fail ? "FAILED    " : "passed    ");
-		output.Put(key, keysize);
-		cout << "\n          ";
-		output.Put(outplain, blocksize);
-		cout << "  ";
-		output.Put(out, blocksize);
 		cout << endl;
 	}
 	return pass;
