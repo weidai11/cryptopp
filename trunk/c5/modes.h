@@ -263,7 +263,12 @@ public:
 		m_cipher = &m_object;
 		SetKey(key, length);
 	}
-	CipherModeFinalTemplate_CipherHolder(const byte *key, unsigned int length, const byte *iv, int feedbackSize = 0)
+	CipherModeFinalTemplate_CipherHolder(const byte *key, unsigned int length, const byte *iv)
+	{
+		m_cipher = &m_object;
+		SetKey(key, length, MakeParameters(Name::IV(), iv));
+	}
+	CipherModeFinalTemplate_CipherHolder(const byte *key, unsigned int length, const byte *iv, int feedbackSize)
 	{
 		m_cipher = &m_object;
 		SetKey(key, length, MakeParameters(Name::IV(), iv)(Name::FeedbackSize(), feedbackSize));
