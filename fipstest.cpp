@@ -240,11 +240,13 @@ bool IntegrityCheckModule(const char *moduleFilename, const byte *expectedModule
 	macFileLocation = 0;
 
 	HashFilter verifier(*mac, new ArraySink(actualMac, actualMac.size()));
+//	FileSink verifier("c:\\dt.tmp");
 	FileStore file(moduleFilename);
 
 #ifdef CRYPTOPP_WIN32_AVAILABLE
 	// try to hash from memory first
 	HMODULE h = GetModuleHandle(moduleFilename);
+	const byte *memBase = (const byte *)h;
 	IMAGE_DOS_HEADER *ph = (IMAGE_DOS_HEADER *)h;
 	IMAGE_NT_HEADERS *phnt = (IMAGE_NT_HEADERS *)((byte *)h + ph->e_lfanew);
 	IMAGE_SECTION_HEADER *phs = IMAGE_FIRST_SECTION(phnt);
@@ -259,30 +261,44 @@ bool IntegrityCheckModule(const char *moduleFilename, const byte *expectedModule
 			break;
 		case IMAGE_SCN_CNT_CODE | IMAGE_SCN_MEM_EXECUTE | IMAGE_SCN_MEM_READ:
 		case IMAGE_SCN_CNT_INITIALIZED_DATA | IMAGE_SCN_MEM_READ:
-			DWORD sectionSize = STDMIN(phs->SizeOfRawData, phs->Misc.VirtualSize);
-			const byte *memStart = (const byte *)h + phs->VirtualAddress;
-			DWORD fileStart = phs->PointerToRawData;
-			if (phs->VirtualAddress == phnt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IAT].VirtualAddress)
+			unsigned int sectionSize = STDMIN(phs->SizeOfRawData, phs->Misc.VirtualSize);
+			const byte *sectionMemStart = memBase + phs->VirtualAddress;
+			unsigned int sectionFileStart = phs->PointerToRawData;
+			unsigned int subSectionStart = 0, nextSubSectionStart;
+
+			do
 			{
-				// read IAT, which is changed during DLL loading, from disk
-				DWORD iatSize = phnt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IAT].Size;
-				fileStart += iatSize;
-				memStart += iatSize;
-				sectionSize -= iatSize;
-			}
-			file.TransferTo(verifier, fileStart - currentFilePos);
-			if (memStart <= expectedModuleMac && expectedModuleMac < memStart + sectionSize)
-			{
-				// skip over the MAC
-				verifier.Put(memStart, expectedModuleMac - memStart);
-				verifier.Put(expectedModuleMac + macSize, sectionSize - macSize - (expectedModuleMac - memStart));
-				macFileLocation = fileStart + (expectedModuleMac - memStart);
-			}
-			else
-				verifier.Put(memStart, sectionSize);
-			::VirtualUnlock((LPVOID)memStart, sectionSize);		// release the memory from working set
-			file.Skip(sectionSize);
-			currentFilePos = fileStart + sectionSize;
+				const byte *subSectionMemStart = sectionMemStart + subSectionStart;
+				unsigned int subSectionFileStart = sectionFileStart + subSectionStart;
+				unsigned int subSectionSize = sectionSize - subSectionStart;
+				nextSubSectionStart = 0;
+
+				unsigned int entriesToReadFromDisk[] = {IMAGE_DIRECTORY_ENTRY_IMPORT, IMAGE_DIRECTORY_ENTRY_IAT};
+				for (unsigned int i=0; i<sizeof(entriesToReadFromDisk)/sizeof(entriesToReadFromDisk[0]); i++)
+				{
+					const IMAGE_DATA_DIRECTORY &entry = phnt->OptionalHeader.DataDirectory[entriesToReadFromDisk[i]];
+					const byte *entryMemStart = memBase + entry.VirtualAddress;
+					if (subSectionMemStart <= entryMemStart && entryMemStart < subSectionMemStart + subSectionSize)
+					{
+						subSectionSize = entryMemStart - subSectionMemStart;
+						nextSubSectionStart = entryMemStart - sectionMemStart + entry.Size;
+					}
+				}
+
+				file.TransferTo(verifier, subSectionFileStart - currentFilePos);
+				if (subSectionMemStart <= expectedModuleMac && expectedModuleMac < subSectionMemStart + subSectionSize)
+				{
+					// skip over the MAC
+					verifier.Put(subSectionMemStart, expectedModuleMac - subSectionMemStart);
+					verifier.Put(expectedModuleMac + macSize, subSectionSize - macSize - (expectedModuleMac - subSectionMemStart));
+					macFileLocation = subSectionFileStart + (expectedModuleMac - subSectionMemStart);
+				}
+				else
+					verifier.Put(subSectionMemStart, subSectionSize);
+				file.Skip(subSectionSize);
+				currentFilePos = subSectionFileStart + subSectionSize;
+				subSectionStart = nextSubSectionStart;
+			} while (nextSubSectionStart != 0);
 		}
 		phs++;
 	}
