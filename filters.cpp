@@ -133,19 +133,23 @@ bool Filter::OutputMessageSeriesEnd(int outputSite, int propagation, bool blocki
 
 unsigned int MeterFilter::Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking)
 {
-	FILTER_BEGIN;
-	m_currentMessageBytes += length;
-	m_totalBytes += length;
-
-	if (messageEnd)
+	if (m_transparent)
 	{
-		m_currentMessageBytes = 0;
-		m_currentSeriesMessages++;
-		m_totalMessages++;
+		FILTER_BEGIN;
+		m_currentMessageBytes += length;
+		m_totalBytes += length;
+
+		if (messageEnd)
+		{
+			m_currentMessageBytes = 0;
+			m_currentSeriesMessages++;
+			m_totalMessages++;
+		}
+		
+		FILTER_OUTPUT(1, begin, length, messageEnd);
+		FILTER_END_NO_MESSAGE_END;
 	}
-	
-	FILTER_OUTPUT(1, begin, length, messageEnd);
-	FILTER_END_NO_MESSAGE_END;
+	return 0;
 }
 
 bool MeterFilter::IsolatedMessageSeriesEnd(bool blocking)
