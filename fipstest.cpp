@@ -23,6 +23,34 @@ NAMESPACE_BEGIN(CryptoPP)
 
 extern PowerUpSelfTestStatus g_powerUpSelfTestStatus;
 
+void KnownAnswerTest(RandomNumberGenerator &rng, const char *output)
+{
+	EqualityComparisonFilter comparison;
+
+	RandomNumberStore(rng, strlen(output)/2).TransferAllTo(comparison, "0");
+	StringSource(output, true, new HexDecoder(new ChannelSwitch(comparison, "1")));
+
+	comparison.ChannelMessageSeriesEnd("0");
+	comparison.ChannelMessageSeriesEnd("1");
+}
+
+template <class CIPHER>
+void X917RNG_KnownAnswerTest(
+	const char *key, 
+	const char *seed, 
+	const char *output,
+	unsigned int deterministicTimeVector,
+	CIPHER *dummy = NULL)
+{
+	std::string decodedKey, decodedSeed;
+	StringSource(key, true, new HexDecoder(new StringSink(decodedKey)));
+	StringSource(seed, true, new HexDecoder(new StringSink(decodedSeed)));
+
+	AutoSeededX917RNG<CIPHER> rng;
+	rng.Reseed((const byte *)decodedKey.data(), decodedKey.size(), (const byte *)decodedSeed.data(), deterministicTimeVector);
+	KnownAnswerTest(rng, output);
+}
+
 void KnownAnswerTest(StreamTransformation &encryption, StreamTransformation &decryption, const char *plaintext, const char *ciphertext)
 {
 	EqualityComparisonFilter comparison;
@@ -207,6 +235,12 @@ void DoPowerUpSelfTest(const char *moduleFilename, const byte *expectedModuleSha
 		}
 
 		// algorithm tests
+
+		X917RNG_KnownAnswerTest<DES_EDE3>(
+			"48851090B4992453E83CDA86416534E53EA2FCE1A0B3A40C",						// key
+			"7D00BD0A79F6B0F5",														// seed
+			"22B590B08B53363AEB89AD65F81A5B6FB83F326CE06BF35751E6C41B43B729C4",		// output
+			1489728269);															// time vector
 
 		SymmetricEncryptionKnownAnswerTest<DES>(
 			"0123456789abcdef",	// key
