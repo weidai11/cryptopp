@@ -11,8 +11,7 @@
 #include <windows.h>
 #elif defined(CRYPTOPP_UNIX_AVAILABLE)
 #include <sys/time.h>
-#elif defined(macintosh)
-#include <Timer.h>
+#include <unistd.h>
 #endif
 
 #include <assert.h>
@@ -30,10 +29,6 @@ word64 Timer::GetCurrentTimerValue()
 	timeval now;
 	gettimeofday(&now, NULL);
 	return (word64)now.tv_sec * 1000000 + now.tv_usec;
-#elif defined(macintosh)
-	UnsignedWide now;
-	Microseconds(&now);
-	return now.lo + ((word64)now.hi << 32);
 #endif
 }
 
@@ -47,32 +42,64 @@ word64 Timer::TicksPerSecond()
 			throw Exception(Exception::OTHER_ERROR, "Timer: QueryPerformanceFrequency failed with error " + IntToString(GetLastError()));
 	}
 	return freq.QuadPart;
-#elif defined(CRYPTOPP_UNIX_AVAILABLE) || defined(macintosh)
+#elif defined(CRYPTOPP_UNIX_AVAILABLE)
 	return 1000000;
 #endif
 }
 
-word64 Timer::ConvertTo(word64 t, Unit unit)
+word64 ThreadUserTimer::GetCurrentTimerValue()
+{
+#if defined(CRYPTOPP_WIN32_AVAILABLE)
+	static bool getCurrentThreadImplemented = true;
+	if (getCurrentThreadImplemented)
+	{
+		FILETIME now, ignored;
+		if (!GetThreadTimes(GetCurrentThread(), &ignored, &ignored, &ignored, &now))
+		{
+			DWORD lastError = GetLastError();
+			if (lastError == ERROR_CALL_NOT_IMPLEMENTED)
+			{
+				getCurrentThreadImplemented = false;
+				goto GetCurrentThreadNotImplemented;
+			}
+			throw Exception(Exception::OTHER_ERROR, "ThreadUserTimer: GetThreadTimes failed with error " + IntToString(lastError));
+		}
+		return now.dwLowDateTime + ((word64)now.dwHighDateTime << 32);
+	}
+GetCurrentThreadNotImplemented:
+	return (word64)clock() * (10*1000*1000 / CLOCKS_PER_SEC);
+#elif defined(CRYPTOPP_UNIX_AVAILABLE)
+	tms now;
+	times(&now);
+	return now.tms_utime;
+#endif
+}
+
+word64 ThreadUserTimer::TicksPerSecond()
+{
+#if defined(CRYPTOPP_WIN32_AVAILABLE)
+	return 10*1000*1000;
+#elif defined(CRYPTOPP_UNIX_AVAILABLE)
+	static const long ticksPerSecond = sysconf(_SC_CLK_TCK);
+	return ticksPerSecond;
+#endif
+}
+
+double TimerBase::ConvertTo(word64 t, Unit unit)
 {
 	static unsigned long unitsPerSecondTable[] = {1, 1000, 1000*1000, 1000*1000*1000};
 
 	assert(unit < sizeof(unitsPerSecondTable) / sizeof(unitsPerSecondTable[0]));
-	unsigned long unitsPerSecond = unitsPerSecondTable[unit];
-	const word64 freq = TicksPerSecond();
-
-	if (freq % unitsPerSecond == 0)
-		return t / (freq / unitsPerSecond);
-	else
-		return word64((double)t * unitsPerSecond / freq);
+	return (double)t * unitsPerSecondTable[unit] / TicksPerSecond();
 }
 
-void Timer::StartTimer()
+void TimerBase::StartTimer()
 {
 	m_start = GetCurrentTimerValue();
 	m_started = true;
 }
 
-word64 Timer::ElapsedTimeInWord64()
+double TimerBase::ElapsedTimeAsDouble()
 {
 	if (m_stuckAtZero)
 		return 0;
@@ -85,9 +112,9 @@ word64 Timer::ElapsedTimeInWord64()
 	}
 }
 
-unsigned long Timer::ElapsedTime()
+unsigned long TimerBase::ElapsedTime()
 {
-	word64 elapsed = ElapsedTimeInWord64();
+	double elapsed = ElapsedTimeAsDouble();
 	assert(elapsed <= ULONG_MAX);
 	return (unsigned long)elapsed;
 }
