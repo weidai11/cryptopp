@@ -145,16 +145,16 @@ void RandomNumberGenerator::DiscardBytes(unsigned int n)
 		GenerateByte();
 }
 
+class ClassNullRNG : public RandomNumberGenerator
+{
+public:
+	std::string AlgorithmName() const {return "NullRNG";}
+	byte GenerateByte() {throw NotImplemented("NullRNG: NullRNG should only be passed to functions that don't need to generate random bytes");}
+};
+
 RandomNumberGenerator & NullRNG()
 {
-	class NullRNG : public RandomNumberGenerator
-	{
-	public:
-		std::string AlgorithmName() const {return "NullRNG";}
-		byte GenerateByte() {throw NotImplemented("NullRNG: NullRNG should only be passed to functions that don't need to generate random bytes");}
-	};
-
-	static NullRNG s_nullRNG;
+	static ClassNullRNG s_nullRNG;
 	return s_nullRNG;
 }
 
