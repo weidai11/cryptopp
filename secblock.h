@@ -59,9 +59,11 @@ typename A::pointer StandardReallocate(A& a, T *p, typename A::size_type oldSize
 
 	if (preserve)
 	{
-		typename A::pointer newPointer = a.allocate(newSize, NULL);
+		A b;
+		typename A::pointer newPointer = b.allocate(newSize, NULL);
 		memcpy(newPointer, p, sizeof(T)*STDMIN(oldSize, newSize));
 		a.deallocate(p, oldSize);
+		std::swap(a, b);
 		return newPointer;
 	}
 	else
@@ -181,7 +183,11 @@ public:
 			return p;
 		}
 
-		return StandardReallocate(*this, p, oldSize, newSize, preserve);
+		pointer newPointer = allocate(newSize, NULL);
+		if (preserve)
+			memcpy(newPointer, p, sizeof(T)*STDMIN(oldSize, newSize));
+		deallocate(p, oldSize);
+		return newPointer;
 	}
 
 	size_type max_size() const {return STDMAX(m_fallbackAllocator.max_size(), S);}

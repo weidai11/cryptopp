@@ -20,14 +20,18 @@
 #ifdef SSE2_INTRINSICS_AVAILABLE
 	#ifdef __GNUC__
 		#include <xmmintrin.h>
-		#include <malloc.h>
 		#include <signal.h>
 		#include <setjmp.h>
+		#ifdef CRYPTOPP_MEMALIGN_AVAILABLE
+			#include <malloc.h>
+		#else
+			#include <stdlib.h>
+		#endif
 	#else
 		#include <emmintrin.h>
 	#endif
 #elif defined(_MSC_VER) && defined(_M_IX86)
-	#pragma message("You do no seem to have the Visual C++ Processor Pack installed, so use of SSE2 intrinsics will be disabled.")
+	#pragma message("You do not seem to have the Visual C++ Processor Pack installed, so use of SSE2 intrinsics will be disabled.")
 #elif defined(__GNUC__) && defined(__i386__)
 	#warning "You do not have GCC 3.3 or later, or did not specify -msse2 compiler option, so use of SSE2 intrinsics will be disabled."
 #endif
@@ -44,26 +48,40 @@ bool FunctionAssignIntToInteger(const std::type_info &valueType, void *pInteger,
 
 static const char s_RunAtStartup = (AssignIntToInteger = FunctionAssignIntToInteger, 0);
 
-#if defined(SSE2_INTRINSICS_AVAILABLE) || defined(_MSC_VER)
+#ifdef SSE2_INTRINSICS_AVAILABLE
 template <class T>
 CPP_TYPENAME AllocatorBase<T>::pointer AlignedAllocator<T>::allocate(size_type n, const void *)
 {
 	CheckSize(n);
 	if (n == 0)
 		return NULL;
-#ifdef SSE2_INTRINSICS_AVAILABLE
 	if (n >= 4)
 	{
 		void *p;
-	#ifdef __GNUC__
-		while (!(p = memalign(16, sizeof(T)*n)))
-	#else
+	#ifdef CRYPTOPP_MM_MALLOC_AVAILABLE
 		while (!(p = _mm_malloc(sizeof(T)*n, 16)))
+	#elif defined(CRYPTOPP_MEMALIGN_AVAILABLE)
+		while (!(p = memalign(16, sizeof(T)*n)))
+	#elif defined(CRYPTOPP_MALLOC_ALIGNMENT_IS_16)
+		while (!(p = malloc(sizeof(T)*n)))
+	#else
+		while (!(p = (byte *)malloc(sizeof(T)*n + 8)))	// assume malloc alignment is at least 8
 	#endif
 			CallNewHandler();
+
+	#ifdef CRYPTOPP_NO_ALIGNED_ALLOC
+		assert(m_pBlock == NULL);
+		m_pBlock = p;
+		if (!IsAlignedOn(p, 16))
+		{
+			assert(IsAlignedOn(p, 8));
+			p = (byte *)p + 8;
+		}
+	#endif
+
+		assert(IsAlignedOn(p, 16));
 		return (T*)p;
 	}
-#endif
 	return new T[n];
 }
 
@@ -71,15 +89,19 @@ template <class T>
 void AlignedAllocator<T>::deallocate(void *p, size_type n)
 {
 	memset(p, 0, n*sizeof(T));
-#ifdef SSE2_INTRINSICS_AVAILABLE
 	if (n >= 4)
-		#ifdef __GNUC__
-			free(p);
-		#else
+	{
+		#ifdef CRYPTOPP_MM_MALLOC_AVAILABLE
 			_mm_free(p);
+		#elif defined(CRYPTOPP_NO_ALIGNED_ALLOC)
+			assert(m_pBlock == p || (byte *)m_pBlock+8 == p);
+			free(m_pBlock);
+			m_pBlock = NULL;
+		#else
+			free(p);
 		#endif
+	}
 	else
-#endif
 		delete [] (T *)p;
 }
 #endif

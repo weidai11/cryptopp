@@ -14,11 +14,13 @@
 #ifdef _M_IX86
 	#if (defined(__INTEL_COMPILER) && (__INTEL_COMPILER >= 500)) || (defined(__ICL) && (__ICL >= 500))
 		#define SSE2_INTRINSICS_AVAILABLE
+		#define CRYPTOPP_MM_MALLOC_AVAILABLE
 	#elif defined(_MSC_VER)
 		// _mm_free seems to be the only way to tell if the Processor Pack is installed or not
 		#include <malloc.h>
 		#if defined(_mm_free)
 			#define SSE2_INTRINSICS_AVAILABLE
+			#define CRYPTOPP_MM_MALLOC_AVAILABLE
 		#endif
 	#endif
 #endif
@@ -32,10 +34,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#if defined(SSE2_INTRINSICS_AVAILABLE) || defined(_MSC_VER)
-	// Defined this class for MSVC even if processor pack is not installed,
-	// so that the library can be compiled with processor pack, and calling app
-	// compiled without it.
+#if defined(SSE2_INTRINSICS_AVAILABLE)
 	template <class T>
 	class AlignedAllocator : public AllocatorBase<T>
 	{
@@ -48,11 +47,17 @@ NAMESPACE_BEGIN(CryptoPP)
 		{
 			return StandardReallocate(*this, p, oldSize, newSize, preserve);
 		}
+
+	#if !(defined(CRYPTOPP_MALLOC_ALIGNMENT_IS_16) || defined(CRYPTOPP_MEMALIGN_AVAILABLE) || defined(CRYPTOPP_MM_MALLOC_AVAILABLE))
+	#define CRYPTOPP_NO_ALIGNED_ALLOC
+		AlignedAllocator() : m_pBlock(NULL) {}
+	protected:
+		void *m_pBlock;
+	#endif
 	};
 
 	template class CRYPTOPP_DLL AlignedAllocator<word>;
 	typedef SecBlock<word, AlignedAllocator<word> > SecAlignedWordBlock;
-
 #else
 	typedef SecWordBlock SecAlignedWordBlock;
 #endif
