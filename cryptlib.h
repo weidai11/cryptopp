@@ -1555,11 +1555,9 @@ public:
 };
 
 #ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
-typedef PK_SignatureScheme PK_SignatureSystem
-typedef PK_SignatureSchemeWithRecovery PK_SignatureSystemWithRecovery
-typedef SimpleKeyAgreementDomain PK_SimpleKeyAgreementDomain
-typedef AuthenticatedKeyAgreementDomain PK_AuthenticatedKeyAgreementDomain
-typedef WithPrecomputation PK_WithPrecomputation
+typedef PK_SignatureScheme PK_SignatureSystem;
+typedef SimpleKeyAgreementDomain PK_SimpleKeyAgreementDomain;
+typedef AuthenticatedKeyAgreementDomain PK_AuthenticatedKeyAgreementDomain;
 #endif
 
 NAMESPACE_END

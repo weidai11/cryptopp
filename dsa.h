@@ -25,7 +25,7 @@ const int MIN_DSA_PRIME_LENGTH = DSA::MIN_PRIME_LENGTH;
 const int MAX_DSA_PRIME_LENGTH = DSA::MAX_PRIME_LENGTH;
 const int DSA_PRIME_LENGTH_MULTIPLE = DSA::PRIME_LENGTH_MULTIPLE;
 
-bool GenerateDSAPrimes(const byte *seed, unsigned int seedLength, int &counter, Integer &p, unsigned int primeLength, Integer &q)
+inline bool GenerateDSAPrimes(const byte *seed, unsigned int seedLength, int &counter, Integer &p, unsigned int primeLength, Integer &q)
 	{return DSA::GeneratePrimes(seed, seedLength, counter, p, primeLength, q);}
 
 #endif
