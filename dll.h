@@ -1,7 +1,7 @@
 #ifndef CRYPTOPP_DLL_H
 #define CRYPTOPP_DLL_H
 
-#if !defined(CRYPTOPP_IMPORTS) && !defined(CRYPTOPP_EXPORTS) && !defined(CRYPTOPP_NO_DLL)
+#if !defined(CRYPTOPP_IMPORTS) && !defined(CRYPTOPP_EXPORTS) && !defined(CRYPTOPP_DEFAULT_NO_DLL)
 #ifdef CRYPTOPP_CONFIG_H
 #error To use the DLL version of Crypto++, this file must be included before any other Crypto++ header files.
 #endif

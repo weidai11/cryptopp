@@ -1,5 +1,6 @@
 // test.cpp - written and placed in the public domain by Wei Dai
 
+#define CRYPTOPP_DEFAULT_NO_DLL
 #include "dll.h"
 #include "md5.h"
 #include "ripemd.h"
