@@ -123,8 +123,8 @@ private:
 class WindowsPipeSink : public WindowsHandle, public NetworkSink, public WindowsPipeSender
 {
 public:
-	WindowsPipeSink(HANDLE h=INVALID_HANDLE_VALUE, unsigned int maxBufferSize=0, bool autoFlush=false)
-		: WindowsHandle(h), NetworkSink(maxBufferSize, autoFlush) {}
+	WindowsPipeSink(HANDLE h=INVALID_HANDLE_VALUE, unsigned int maxBufferSize=0, unsigned int autoFlushBound=16*1024)
+		: WindowsHandle(h), NetworkSink(maxBufferSize, autoFlushBound) {}
 
 	NetworkSink::GetMaxWaitObjectCount;
 	NetworkSink::GetWaitObjects;

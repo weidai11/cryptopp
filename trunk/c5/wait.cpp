@@ -13,6 +13,12 @@
 #include <unistd.h>
 #endif
 
+#define TRACE_WAIT 0
+
+#if TRACE_WAIT
+#include "hrtimer.h"
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 unsigned int WaitObjectContainer::MaxWaitObjects()
@@ -25,9 +31,8 @@ unsigned int WaitObjectContainer::MaxWaitObjects()
 }
 
 WaitObjectContainer::WaitObjectContainer()
-#ifndef NDEBUG
-	: m_sameResultCount(0)
-	, m_timer(Timer::MILLISECONDS)
+#if CRYPTOPP_DETECT_NO_WAIT
+	: m_sameResultCount(0), m_timer(Timer::MILLISECONDS)
 #endif
 {
 	Clear();
@@ -43,6 +48,19 @@ void WaitObjectContainer::Clear()
 	FD_ZERO(&m_writefds);
 #endif
 	m_noWait = false;
+}
+
+void WaitObjectContainer::SetNoWait()
+{
+#if CRYPTOPP_DETECT_NO_WAIT
+	if (-1 == m_lastResult && m_timer.ElapsedTime() > 1000)
+	{
+		if (m_sameResultCount > m_timer.ElapsedTime())
+			try {throw 0;} catch (...) {}	// possible no-wait loop, break in debugger
+		m_timer.StartTimer();
+	}
+#endif
+	m_noWait = true;
 }
 
 #ifdef USE_WINDOWS_STYLE_SOCKETS
@@ -90,7 +108,7 @@ WaitObjectContainer::~WaitObjectContainer()
 
 void WaitObjectContainer::AddHandle(HANDLE handle)
 {
-#ifndef NDEBUG
+#if CRYPTOPP_DETECT_NO_WAIT
 	if (m_handles.size() == m_lastResult && m_timer.ElapsedTime() > 1000)
 	{
 		if (m_sameResultCount > m_timer.ElapsedTime())
@@ -165,7 +183,18 @@ void WaitObjectContainer::CreateThreads(unsigned int count)
 bool WaitObjectContainer::Wait(unsigned long milliseconds)
 {
 	if (m_noWait || m_handles.empty())
+	{
+#if CRYPTOPP_DETECT_NO_WAIT
+		if (-1 == m_lastResult)
+			m_sameResultCount++;
+		else
+		{
+			m_lastResult = -1;
+			m_sameResultCount = 0;
+		}
+#endif
 		return true;
+	}
 
 	if (m_handles.size() > MAXIMUM_WAIT_OBJECTS)
 	{
@@ -211,10 +240,23 @@ bool WaitObjectContainer::Wait(unsigned long milliseconds)
 	}
 	else
 	{
+#if TRACE_WAIT
+		static Timer t(Timer::MICROSECONDS);
+		static unsigned long lastTime = 0;
+		unsigned long timeBeforeWait = t.ElapsedTime();
+#endif
 		DWORD result = ::WaitForMultipleObjects(m_handles.size(), &m_handles[0], FALSE, milliseconds);
+#if TRACE_WAIT
+		if (milliseconds > 0)
+		{
+			unsigned long timeAfterWait = t.ElapsedTime();
+			OutputDebugString(("Handles " + IntToString(m_handles.size()) + ", Woke up by " + IntToString(result-WAIT_OBJECT_0) + ", Busied for " + IntToString(timeBeforeWait-lastTime) + " us, Waited for " + IntToString(timeAfterWait-timeBeforeWait) + " us, max " + IntToString(milliseconds) + "ms\n").c_str());
+			lastTime = timeAfterWait;
+		}
+#endif
 		if (result >= WAIT_OBJECT_0 && result < WAIT_OBJECT_0 + m_handles.size())
 		{
-#ifndef NDEBUG
+#if CRYPTOPP_DETECT_NO_WAIT
 			if (result == m_lastResult)
 				m_sameResultCount++;
 			else

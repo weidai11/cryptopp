@@ -51,8 +51,20 @@ public:
 	virtual bool EofReceived() const =0;
 };
 
+class CRYPTOPP_NO_VTABLE NonblockingSinkInfo
+{
+public:
+	virtual ~NonblockingSinkInfo() {}
+	virtual unsigned int GetMaxBufferSize() const =0;
+	virtual unsigned int GetCurrentBufferSize() const =0;
+	//! compute the current speed of this sink in bytes per second
+	virtual float ComputeCurrentSpeed() =0;
+	//! get the maximum observed speed of this sink in bytes per second
+	virtual float GetMaxObservedSpeed() const =0;
+};
+
 //! a Sink class that queues input and can flush to a device for a specified amount of time.
-class CRYPTOPP_NO_VTABLE NonblockingSink : public Sink
+class CRYPTOPP_NO_VTABLE NonblockingSink : public Sink, public NonblockingSinkInfo
 {
 public:
 	bool IsolatedFlush(bool hardFlush, bool blocking);
@@ -70,10 +82,8 @@ public:
 	virtual unsigned int TimedFlush(unsigned long maxTime, unsigned int targetSize = 0) =0;
 
 	virtual void SetMaxBufferSize(unsigned int maxBufferSize) =0;
-	virtual void SetAutoFlush(bool autoFlush = true) =0;
-
-	virtual unsigned int GetMaxBufferSize() const =0;
-	virtual unsigned int GetCurrentBufferSize() const =0;
+	//! set a bound which will cause sink to flush if exceeded by GetCurrentBufferSize()
+	virtual void SetAutoFlushBound(unsigned int bound) =0;
 };
 
 //! Network Sender
@@ -116,32 +126,39 @@ private:
 class CRYPTOPP_NO_VTABLE NetworkSink : public NonblockingSink
 {
 public:
-	NetworkSink(unsigned int maxBufferSize, bool autoFlush);
+	NetworkSink(unsigned int maxBufferSize, unsigned int autoFlushBound);
 
 	unsigned int GetMaxWaitObjectCount() const
 		{return GetSender().GetMaxWaitObjectCount();}
 	void GetWaitObjects(WaitObjectContainer &container)
-		{if (m_blockedBytes || !m_buffer.IsEmpty()) AccessSender().GetWaitObjects(container);}
+		{if (m_wasBlocked || !m_buffer.IsEmpty()) AccessSender().GetWaitObjects(container);}
 
 	unsigned int Put2(const byte *inString, unsigned int length, int messageEnd, bool blocking);
 
 	unsigned int TimedFlush(unsigned long maxTime, unsigned int targetSize = 0);
 
 	void SetMaxBufferSize(unsigned int maxBufferSize) {m_maxBufferSize = maxBufferSize;}
-	void SetAutoFlush(bool autoFlush = true) {m_autoFlush = autoFlush;}
+	void SetAutoFlushBound(unsigned int bound) {m_autoFlushBound = bound;}
 
 	unsigned int GetMaxBufferSize() const {return m_maxBufferSize;}
 	unsigned int GetCurrentBufferSize() const {return m_buffer.CurrentSize();}
+
+	//! compute the current speed of this sink in bytes per second
+	float ComputeCurrentSpeed();
+	//! get the maximum observed speed of this sink in bytes per second
+	float GetMaxObservedSpeed() const {return m_maxObservedSpeed;}
 
 protected:
 	virtual NetworkSender & AccessSender() =0;
 	const NetworkSender & GetSender() const {return const_cast<NetworkSink *>(this)->AccessSender();}
 
 private:
-	unsigned int m_maxBufferSize;
-	bool m_autoFlush, m_needSendResult;
+	unsigned int m_maxBufferSize, m_autoFlushBound;
+	bool m_needSendResult, m_wasBlocked;
 	ByteQueue m_buffer;
-	unsigned int m_blockedBytes;
+	unsigned int m_skipBytes;
+	Timer m_speedTimer;
+	float m_byteCountSinceLastTimerReset, m_currentSpeed, m_maxObservedSpeed;
 };
 
 #endif	// #ifdef HIGHRES_TIMER_AVAILABLE

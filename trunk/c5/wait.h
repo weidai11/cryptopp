@@ -14,7 +14,13 @@
 #include <sys/types.h>
 #endif
 
-#ifndef NDEBUG
+#ifdef NDEBUG
+#define CRYPTOPP_DETECT_NO_WAIT 0
+#else
+#define CRYPTOPP_DETECT_NO_WAIT 1
+#endif
+
+#if CRYPTOPP_DETECT_NO_WAIT
 #include "hrtimer.h"
 #endif
 
@@ -38,7 +44,7 @@ public:
 	WaitObjectContainer();
 
 	void Clear();
-	void SetNoWait() {m_noWait = true;}
+	void SetNoWait();
 	bool Wait(unsigned long milliseconds);
 
 #ifdef USE_WINDOWS_STYLE_SOCKETS
@@ -62,7 +68,7 @@ private:
 #endif
 	bool m_noWait;
 
-#ifndef NDEBUG
+#if CRYPTOPP_DETECT_NO_WAIT
 #ifdef USE_WINDOWS_STYLE_SOCKETS
 	DWORD m_lastResult;
 #else

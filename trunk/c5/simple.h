@@ -68,7 +68,7 @@ public:
 	Unflushable() {}
 	Unflushable(BufferedTransformation *q) : T(q) {}
 	bool Flush(bool completeFlush, int propagation=-1, bool blocking=true)
-		{return ChannelFlush(NULL_CHANNEL, completeFlush, propagation);}
+		{return ChannelFlush(NULL_CHANNEL, completeFlush, propagation, blocking);}
 	bool IsolatedFlush(bool hardFlush, bool blocking)
 		{assert(false); return false;}
 	bool ChannelFlush(const std::string &channel, bool hardFlush, int propagation=-1, bool blocking=true)

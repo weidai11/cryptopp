@@ -11,23 +11,16 @@ NAMESPACE_BEGIN(CryptoPP)
 class Timer
 {
 public:
-	enum Unit {SECONDS, MILLISECONDS, MICROSECONDS};
+	enum Unit {SECONDS = 0, MILLISECONDS, MICROSECONDS, NANOSECONDS};
 	Timer(Unit unit, bool stuckAtZero = false)	: m_timerUnit(unit), m_stuckAtZero(stuckAtZero), m_started(false) {}
 
 	static word64 GetCurrentTimerValue();	// GetCurrentTime is a macro in MSVC 6.0
-	static unsigned long ConvertTo(word64 t, Unit unit);
-
-	// this is not the resolution, just a conversion factor into milliseconds
-	static inline unsigned int TicksPerMillisecond()
-	{
-#if defined(CRYPTOPP_WIN32_AVAILABLE)
-		return 10000;
-#elif defined(CRYPTOPP_UNIX_AVAILABLE) || defined(macintosh)
-		return 1000;
-#endif
-	}
+	static word64 ConvertTo(word64 t, Unit unit);
+	// this is not the resolution, just a conversion factor into seconds
+	static word64 TicksPerSecond();
 
 	void StartTimer();
+	word64 ElapsedTimeInWord64();
 	unsigned long ElapsedTime();
 
 private:
