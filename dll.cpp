@@ -55,7 +55,7 @@ using std::set_new_handler;
 static PNew s_pNew = NULL;
 static PDelete s_pDelete = NULL;
 
-static void * _cdecl New (size_t size)
+static void * CRYPTOPP_CDECL New (size_t size)
 {
 	new_handler newHandler = set_new_handler(NULL);
 	if (newHandler)
@@ -124,7 +124,7 @@ static void SetNewAndDeleteFunctionPointers()
 	throw 0;
 }
 
-void * _cdecl operator new (size_t size)
+void * CRYPTOPP_CDECL operator new (size_t size)
 {
 	if (!s_pNew)
 		SetNewAndDeleteFunctionPointers();
@@ -132,7 +132,7 @@ void * _cdecl operator new (size_t size)
 	return s_pNew(size);
 }
 
-void _cdecl operator delete (void * p)
+void CRYPTOPP_CDECL operator delete (void * p)
 {
 	s_pDelete(p);
 }
