@@ -317,6 +317,12 @@ synchronization when multiple threads access a common Crypto++ object.
     - added support for using encoding parameters and key derivation parameters
       with public key encryption (implemented by OAEP and DL/ECIES)
     - added Camellia, SHACAL-2, Two-Track-MAC, Whirlpool, RIPEMD-320,
-	  RIPEMD-128, RIPEMD-256, Base 32 coding
+      RIPEMD-128, RIPEMD-256, Base-32 coding
+    - added ThreadUserTimer for timing thread CPU usage
+    - added option for password-based key derivation functions
+      to iterate until a mimimum elapsed thread CPU time is reached
+    - improved compatibility and performance on 64-bit platforms,
+      including Alpha, IA-64, x86-64, PPC64, Sparc64, and MIPS64
+    - fixed ONE_AND_ZEROS_PADDING to use 0x80 instead 0x01 as padding.
 
 Written by Wei Dai
