@@ -17,3 +17,4 @@ Test: rsa_pss.txt
 Test: rw.txt
 Test: seal.txt
 Test: sha.txt
+Test: panama.txt
