@@ -1703,9 +1703,21 @@ void PentiumOptimized::Multiply8(word* Z, const word* X, const word* Y)
 	);
 }
 
-#elif defined(__GNUC__) && defined(__alpha__)
+#elif defined(__GNUC__) && (defined(__alpha__) || defined(__ia64__) || defined(_ARCH_PPC64) || defined(__x86_64__) || defined(__mips64))
 
-class AlphaOptimized : public Portable
+#ifdef __alpha__
+#define MUL64x64(a, b, c, d) c = a*b; __asm__("umulh %1,%2,%0" : "=r" (d) : "r" (a), "r" (b))
+#else defined(__ia64__)
+#define MUL64x64(a, b, c, d) c = a*b; __asm__("xmpy.hu %0=%1,%2" : "=f" (d) : "f" (a), "f" (b))
+#else defined(_ARCH_PPC64)
+#define MUL64x64(a, b, c, d) c = a*b; __asm__("mulhdu %0,%1,%2" : "=r" (d) : "r" (a), "r" (b) : "cc")
+#else defined(__x86_64__)
+#define MUL64x64(a, b, c, d) __asm__("mulq %3" : "=d" (d), "=a" (c) : "a" (a), "rm" (b) : "cc")
+#else defined(__mips64)
+#define MUL64x64(a, b, c, d) __asm__("dmultu %2,%3" : "=h" (d), "=l" (c) : "r" (a), "r" (b))
+#endif
+
+class OptimizedFor64BitCPU : public Portable
 {
 public:
 	static inline void Multiply2(word *C, const word *A, const word *B);
@@ -1722,22 +1734,22 @@ public:
 	}
 };
 
-typedef AlphaOptimized LowLevel;
+typedef OptimizedFor64BitCPU LowLevel;
 
-inline void AlphaOptimized::Multiply2(word *C, const word *A, const word *B)
+inline void OptimizedFor64BitCPU::Multiply2(word *C, const word *A, const word *B)
 {
-	register dword c, a = *(const dword *)A, b = *(const dword *)B;
-	((dword *)C)[0] = a*b;
-	__asm__("umulh %1,%2,%0" : "=r" (c) : "r" (a), "r" (b));
-	((dword *)C)[1] = c;
+	register dword c, d, a = *(const dword *)A, b = *(const dword *)B;
+	MUL64x64(a, b, c, d);
+	((dword *)C)[0] = c;
+	((dword *)C)[1] = d;
 }
 
-inline word AlphaOptimized::Multiply2Add(word *C, const word *A, const word *B)
+inline word OptimizedFor64BitCPU::Multiply2Add(word *C, const word *A, const word *B)
 {
 	register dword c, d, e, a = *(const dword *)A, b = *(const dword *)B;
 	c = ((dword *)C)[0];
-	d = a*b + c;
-	__asm__("umulh %1,%2,%0" : "=r" (e) : "r" (a), "r" (b));
+	MUL64x64(a, b, d, e);
+	d += c;
 	((dword *)C)[0] = d;
 	d = (d < c);
 	c = ((dword *)C)[1] + d;
@@ -1748,7 +1760,7 @@ inline word AlphaOptimized::Multiply2Add(word *C, const word *A, const word *B)
 	return d;
 }
 
-inline void AlphaOptimized::Multiply4(word *R, const word *A, const word *B)
+inline void OptimizedFor64BitCPU::Multiply4(word *R, const word *A, const word *B)
 {
 	Multiply2(R, A, B);
 	Multiply2(R+4, A+2, B+2);
@@ -1763,7 +1775,7 @@ static inline void Multiply2BottomAdd(word *C, const word *A, const word *B)
 	((dword *)C)[0] = a*b + ((dword *)C)[0];
 }
 
-inline void AlphaOptimized::Multiply4Bottom(word *R, const word *A, const word *B)
+inline void OptimizedFor64BitCPU::Multiply4Bottom(word *R, const word *A, const word *B)
 {
 	Multiply2(R, A, B);
 	Multiply2BottomAdd(R+2, A+0, B+2);
