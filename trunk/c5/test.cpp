@@ -265,12 +265,9 @@ int CRYPTOPP_CDECL main(int argc, char *argv[])
 		else if (command == "v")
 			return !Validate(argc>2 ? atoi(argv[2]) : 0, argv[1][1] == 'v', argc>3 ? argv[3] : NULL);
 		else if (command == "b")
-		{
-			if (argc<3)
-				BenchmarkAll();
-			else
-				BenchmarkAll((float)atof(argv[2]));
-		}
+			BenchmarkAll(argc<3 ? 1 : atof(argv[2]));
+		else if (command == "b2")
+			BenchmarkAll2(argc<3 ? 1 : atof(argv[2]));
 		else if (command == "z")
 			GzipFile(argv[3], argv[4], argv[2][0]-'0');
 		else if (command == "u")

@@ -206,8 +206,6 @@ void BenchMarkKeyless(const char *name, double timeTotal, T *x=NULL)
 	BenchMark(name, c, timeTotal);
 }
 
-void BenchmarkAll2(double t);
-
 void BenchmarkAll(double t)
 {
 #if 1
