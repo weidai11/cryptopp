@@ -29,6 +29,8 @@ public:
 		Err(const std::string& s) : Exception(IO_ERROR, s) {}
 	};
 
+	static unsigned int MaxWaitObjects();
+
 	WaitObjectContainer();
 
 	void Clear();
