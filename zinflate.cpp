@@ -488,9 +488,9 @@ bool Inflator::DecodeBody()
 
 		switch (m_nextDecode)
 		{
+		case LITERAL:
 			while (true)
 			{
-		case LITERAL:
 				if (!pLiteralDecoder->Decode(m_reader, m_literal))
 				{
 					m_nextDecode = LITERAL;
