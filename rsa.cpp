@@ -147,13 +147,20 @@ void InvertibleRSAFunction::Initialize(RandomNumberGenerator &rng, unsigned int 
 
 void InvertibleRSAFunction::Initialize(const Integer &n, const Integer &e, const Integer &d)
 {
+	if (n.IsEven() || e.IsEven() | d.IsEven())
+		throw InvalidArgument("InvertibleRSAFunction: input is not a valid RSA private key");
+
 	m_n = n;
 	m_e = e;
 	m_d = d;
 
 	Integer r = --(d*e);
+	unsigned int s = 0;
 	while (r.IsEven())
+	{
 		r >>= 1;
+		s++;
+	}
 
 	ModularArithmetic modn(n);
 	for (Integer i = 2; ; ++i)
@@ -162,6 +169,7 @@ void InvertibleRSAFunction::Initialize(const Integer &n, const Integer &e, const
 		if (a == 1)
 			continue;
 		Integer b;
+		unsigned int j = 0;
 		while (a != -1)
 		{
 			b = modn.Square(a);
@@ -174,6 +182,8 @@ void InvertibleRSAFunction::Initialize(const Integer &n, const Integer &e, const
 				m_u = m_q.InverseMod(m_p);
 				return;
 			}
+			if (++j == s)
+				throw InvalidArgument("InvertibleRSAFunction: input is not a valid RSA private key");
 			a = b;
 		}
 	}
