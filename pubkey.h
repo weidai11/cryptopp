@@ -639,9 +639,6 @@ public:
 	const DL_FixedBasePrecomputation<Element> & GetBasePrecomputation() const {return m_gpc;}
 	DL_FixedBasePrecomputation<Element> & AccessBasePrecomputation() {return m_gpc;}
 
-	bool operator==(const DL_GroupParametersImpl<GROUP_PRECOMP, BASE_PRECOMP, BASE> &rhs) const
-		{return m_groupPrecomputation.GetCurve() == rhs.m_groupPrecomputation.GetCurve() && m_gpc.GetBase(m_groupPrecomputation) == rhs.m_gpc.GetBase(rhs.m_groupPrecomputation);}
-
 protected:
 	GROUP_PRECOMP m_groupPrecomputation;
 	BASE_PRECOMP m_gpc;

@@ -56,8 +56,6 @@ template <class T>
 class CRYPTOPP_NO_VTABLE Bufferless : public T
 {
 public:
-	Bufferless() {}
-	Bufferless(BufferedTransformation *q) : T(q) {}
 	bool IsolatedFlush(bool hardFlush, bool blocking) {return false;}
 };
 
@@ -65,8 +63,6 @@ template <class T>
 class CRYPTOPP_NO_VTABLE Unflushable : public T
 {
 public:
-	Unflushable() {}
-	Unflushable(BufferedTransformation *q) : T(q) {}
 	bool Flush(bool completeFlush, int propagation=-1, bool blocking=true)
 		{return ChannelFlush(NULL_CHANNEL, completeFlush, propagation, blocking);}
 	bool IsolatedFlush(bool hardFlush, bool blocking)
@@ -90,10 +86,6 @@ template <class T>
 class CRYPTOPP_NO_VTABLE InputRejecting : public T
 {
 public:
-	InputRejecting() {}
-	InputRejecting(BufferedTransformation *q) : T(q) {}
-
-protected:
 	struct InputRejected : public NotImplemented
 		{InputRejected() : NotImplemented("BufferedTransformation: this object doesn't allow input") {}};
 
@@ -112,9 +104,6 @@ template <class T>
 class CRYPTOPP_NO_VTABLE CustomFlushPropagation : public T
 {
 public:
-	CustomFlushPropagation() {}
-	CustomFlushPropagation(BufferedTransformation *q) : T(q) {}
-
 	virtual bool Flush(bool hardFlush, int propagation=-1, bool blocking=true) =0;
 
 private:
@@ -125,9 +114,6 @@ template <class T>
 class CRYPTOPP_NO_VTABLE CustomSignalPropagation : public CustomFlushPropagation<T>
 {
 public:
-	CustomSignalPropagation() {}
-	CustomSignalPropagation(BufferedTransformation *q) : CustomFlushPropagation<T>(q) {}
-
 	virtual void Initialize(const NameValuePairs &parameters=g_nullNameValuePairs, int propagation=-1) =0;
 
 private:
@@ -138,9 +124,6 @@ template <class T>
 class CRYPTOPP_NO_VTABLE Multichannel : public CustomFlushPropagation<T>
 {
 public:
-	Multichannel() {}
-	Multichannel(BufferedTransformation *q) : CustomFlushPropagation<T>(q) {}
-
 	bool Flush(bool hardFlush, int propagation=-1, bool blocking=true)
 		{return ChannelFlush(NULL_CHANNEL, hardFlush, propagation, blocking);}
 	bool MessageSeriesEnd(int propagation=-1, bool blocking=true)
@@ -171,7 +154,6 @@ class CRYPTOPP_NO_VTABLE AutoSignaling : public T
 {
 public:
 	AutoSignaling(int propagation=-1) : m_autoSignalPropagation(propagation) {}
-	AutoSignaling(BufferedTransformation *q, int propagation=-1) : T(q), m_autoSignalPropagation(propagation) {}
 
 	void SetAutoSignalPropagation(int propagation)
 		{m_autoSignalPropagation = propagation;}

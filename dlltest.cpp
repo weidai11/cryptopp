@@ -12,7 +12,7 @@ void FIPS140_SampleApplication()
 {
 	if (!FIPS_140_2_ComplianceEnabled())
 	{
-		cerr << "FIPS-140-2 compliance was turned off at compile time.\n";
+		cerr << "FIPS 140-2 compliance was turned off at compile time.\n";
 		abort();
 	}
 

@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Intermediate_Dir "FIPS_140_Release"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /G5 /Gz /MT /W3 /GX /Zi /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "USE_PRECOMPILED_HEADERS" /Yu"pch.h" /FD /c
-# ADD CPP /nologo /G5 /Gz /MT /W3 /GX /Zi /O2 /D "NDEBUG" /D "_WINDOWS" /D "USE_PRECOMPILED_HEADERS" /D "WIN32" /D "CRYPTOPP_IMPORTS" /Yu"pch.h" /Fd"FIPS_140_Release/cryptopp" /FD /c
+# ADD CPP /nologo /G5 /Gz /MT /W3 /GX /Zi /O1 /Ob2 /D "NDEBUG" /D "_WINDOWS" /D "USE_PRECOMPILED_HEADERS" /D "WIN32" /D "CRYPTOPP_IMPORTS" /Yu"pch.h" /Fd"FIPS_140_Release/cryptopp" /FD /c
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409
 BSC32=bscmake.exe
@@ -66,7 +66,7 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "FIPS_140_Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "USE_PRECOMPILED_HEADERS" /Yu"pch.h" /FD /c
-# ADD CPP /nologo /G5 /Gz /MTd /W3 /GX /ZI /Od /D "_DEBUG" /D "_WINDOWS" /D "USE_PRECOMPILED_HEADERS" /D "WIN32" /D "CRYPTOPP_IMPORTS" /Yu"pch.h" /Fd"FIPS_140_Debug/cryptopp" /FD /c
+# ADD CPP /nologo /G5 /Gz /MTd /W3 /GX /Zi /Od /D "_DEBUG" /D "_WINDOWS" /D "USE_PRECOMPILED_HEADERS" /D "WIN32" /D "CRYPTOPP_IMPORTS" /Yu"pch.h" /Fd"FIPS_140_Debug/cryptopp" /FD /c
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409
 BSC32=bscmake.exe
@@ -112,7 +112,7 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /Z7 /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /MTd /W3 /GX /ZI /Od /D "_DEBUG" /D "_WINDOWS" /D "USE_PRECOMPILED_HEADERS" /D "WIN32" /Yu"pch.h" /FD /c
+# ADD CPP /nologo /MTd /W3 /GX /Zi /Od /D "_DEBUG" /D "_WINDOWS" /D "USE_PRECOMPILED_HEADERS" /D "WIN32" /Yu"pch.h" /FD /c
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409
 BSC32=bscmake.exe

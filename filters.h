@@ -14,7 +14,7 @@ NAMESPACE_BEGIN(CryptoPP)
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Filter : public BufferedTransformation, public NotCopyable
 {
 public:
-	Filter(BufferedTransformation *attachment);
+	Filter(BufferedTransformation *attachment = NULL);
 
 	bool Attachable() {return true;}
 	BufferedTransformation *AttachedTransformation();
@@ -29,7 +29,6 @@ public:
 	bool MessageSeriesEnd(int propagation=-1, bool blocking=true);
 
 protected:
-	virtual void NotifyAttachmentChange() {}
 	virtual BufferedTransformation * NewDefaultAttachment() const;
 	void Insert(Filter *nextFilter);	// insert filter after this one
 
@@ -84,7 +83,7 @@ class CRYPTOPP_DLL MeterFilter : public Bufferless<Filter>
 {
 public:
 	MeterFilter(BufferedTransformation *attachment=NULL, bool transparent=true)
-		: Bufferless<Filter>(attachment), m_transparent(transparent) {ResetMeter();}
+		: m_transparent(transparent) {Detach(attachment); ResetMeter();}
 
 	void SetTransparent(bool transparent) {m_transparent = transparent;}
 	void ResetMeter() {m_currentMessageBytes = m_totalBytes = m_currentSeriesMessages = m_totalMessages = m_totalMessageSeries = 0;}
@@ -269,7 +268,7 @@ class CRYPTOPP_DLL HashFilter : public Bufferless<Filter>, private FilterPutSpac
 {
 public:
 	HashFilter(HashTransformation &hm, BufferedTransformation *attachment = NULL, bool putMessage=false)
-		: Bufferless<Filter>(attachment), m_hashModule(hm), m_putMessage(putMessage) {}
+		: m_hashModule(hm), m_putMessage(putMessage) {Detach(attachment);}
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
 	unsigned int Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking);
@@ -321,7 +320,7 @@ class CRYPTOPP_DLL SignerFilter : public Unflushable<Filter>
 {
 public:
 	SignerFilter(RandomNumberGenerator &rng, const PK_Signer &signer, BufferedTransformation *attachment = NULL, bool putMessage=false)
-		: Unflushable<Filter>(attachment), m_rng(rng), m_signer(signer), m_messageAccumulator(signer.NewSignatureAccumulator(rng)), m_putMessage(putMessage) {}
+		: m_rng(rng), m_signer(signer), m_messageAccumulator(signer.NewSignatureAccumulator(rng)), m_putMessage(putMessage) {Detach(attachment);}
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
 	unsigned int Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking);
@@ -597,8 +596,11 @@ private:
 class CRYPTOPP_DLL RandomNumberStore : public Store
 {
 public:
+	RandomNumberStore()
+		: m_rng(NULL), m_length(0), m_count(0) {}
+
 	RandomNumberStore(RandomNumberGenerator &rng, unsigned long length)
-		: m_rng(rng), m_length(length), m_count(0) {}
+		: m_rng(&rng), m_length(length), m_count(0) {}
 
 	bool AnyRetrievable() const {return MaxRetrievable() != 0;}
 	unsigned long MaxRetrievable() const {return m_length-m_count;}
@@ -610,10 +612,10 @@ public:
 	}
 
 private:
-	void StoreInitialize(const NameValuePairs &parameters) {m_count = 0;}
+	void StoreInitialize(const NameValuePairs &parameters);
 
-	RandomNumberGenerator &m_rng;
-	const unsigned long m_length;
+	RandomNumberGenerator *m_rng;
+	int m_length;
 	unsigned long m_count;
 };
 
@@ -635,8 +637,8 @@ private:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Source : public InputRejecting<Filter>
 {
 public:
-	Source(BufferedTransformation *attachment)
-		: InputRejecting<Filter>(attachment) {}
+	Source(BufferedTransformation *attachment = NULL)
+		{Detach(attachment);}
 
 	unsigned long Pump(unsigned long pumpMax=ULONG_MAX)
 		{Pump2(pumpMax); return pumpMax;}
@@ -665,8 +667,6 @@ class SourceTemplate : public Source
 public:
 	SourceTemplate<T>(BufferedTransformation *attachment)
 		: Source(attachment) {}
-	SourceTemplate<T>(BufferedTransformation *attachment, T store)
-		: Source(attachment), m_store(store) {}
 	void IsolatedInitialize(const NameValuePairs &parameters)
 		{m_store.IsolatedInitialize(parameters);}
 	unsigned int Pump2(unsigned long &byteCount, bool blocking=true)
@@ -704,8 +704,9 @@ public:
 class CRYPTOPP_DLL RandomNumberSource : public SourceTemplate<RandomNumberStore>
 {
 public:
-	RandomNumberSource(RandomNumberGenerator &rng, unsigned int length, bool pumpAll, BufferedTransformation *attachment = NULL)
-		: SourceTemplate<RandomNumberStore>(attachment, RandomNumberStore(rng, length)) {if (pumpAll) PumpAll();}
+	RandomNumberSource(RandomNumberGenerator &rng, int length, bool pumpAll, BufferedTransformation *attachment = NULL)
+		: SourceTemplate<RandomNumberStore>(attachment) 
+		{SourceInitialize(pumpAll, MakeParameters("RandomNumberGeneratorPointer", &rng)("RandomNumberStoreSize", length));}
 };
 
 NAMESPACE_END
