@@ -22,21 +22,21 @@ Test Driver for Crypto++(TM) Library, a C++ Class Library of Cryptographic Schem
 	cryptest e|d input output
 
 - To secret share a file (shares will be named file.000, file.001, etc)
-	cryptest ss <threshold> <number-of-shares> file
+	cryptest ss threshold number-of-shares file
 
 - To reconstruct a secret-shared file
 	cryptest sr file share1 share2 [....]
 	(number of shares given must be equal to threshold)
 
 - To information disperse a file (shares will be named file.000, file.001, etc)
-	cryptest id <threshold> <number-of-shares> file
+	cryptest id threshold number-of-shares file
 
 - To reconstruct an information-dispersed file
 	cryptest ir file share1 share2 [....]
 	(number of shares given must be equal to threshold)
 
 - To gzip a file
-	cryptest z <compression-level> input output
+	cryptest z compression-level input output
 
 - To gunzip a file
 	cryptest u input output
