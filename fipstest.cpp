@@ -239,12 +239,26 @@ void DoPowerUpSelfTest(const char *moduleFilename, const byte *expectedModuleSha
 			HMODULE h = GetModuleHandle(moduleFilename);
 			IMAGE_DOS_HEADER *ph = (IMAGE_DOS_HEADER *)h;
 			IMAGE_NT_HEADERS *phnt = (IMAGE_NT_HEADERS *)((byte *)h + ph->e_lfanew);
-			IMAGE_SECTION_HEADER *phs = (IMAGE_SECTION_HEADER *)((byte *)&phnt->OptionalHeader + phnt->FileHeader.SizeOfOptionalHeader);
-			DWORD SectionSize = STDMIN(phs->SizeOfRawData, phs->Misc.VirtualSize);
+			IMAGE_SECTION_HEADER *phs = IMAGE_FIRST_SECTION(phnt);
+			DWORD nSections = phnt->FileHeader.NumberOfSections;
+			DWORD currentFilePos = 0;
 
-			file.TransferTo(verifier, phs->PointerToRawData);
-			verifier.Put((const byte *)h + phs->VirtualAddress, SectionSize);
-			file.Skip(SectionSize);
+			while (nSections--)
+			{
+				DWORD sectionSize = STDMIN(phs->SizeOfRawData, phs->Misc.VirtualSize);
+				switch (phs->Characteristics)
+				{
+				default:
+					break;
+				case IMAGE_SCN_CNT_CODE | IMAGE_SCN_MEM_EXECUTE | IMAGE_SCN_MEM_READ:
+				case IMAGE_SCN_CNT_INITIALIZED_DATA | IMAGE_SCN_MEM_READ:
+					file.TransferTo(verifier, phs->PointerToRawData - currentFilePos);
+					verifier.Put((const byte *)h + phs->VirtualAddress, sectionSize);
+					file.Skip(sectionSize);
+					currentFilePos = phs->PointerToRawData + sectionSize;
+				}
+				phs++;
+			}
 #endif
 			file.TransferAllTo(verifier);
 
@@ -253,6 +267,7 @@ void DoPowerUpSelfTest(const char *moduleFilename, const byte *expectedModuleSha
 			// hash from disk instead
 			if (!verifier.GetLastResult())
 			{
+				OutputDebugString("In memory EDC test failed. This may be caused by debug breakpoints.");
 				verifier.Put(expectedModuleSha1Digest, sha.DigestSize());
 				file.Initialize(MakeParameters(Name::InputFileName(), moduleFilename));
 				file.TransferAllTo(verifier);
