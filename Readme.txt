@@ -246,7 +246,7 @@ History
     - added PSS padding and changed PSSR to track IEEE P1363a draft standard
     - added blinding for RSA and Rabin to defend against timing attacks
     - fixed a bug in CBC and ECB modes with processing non-aligned data
-    - fixed a standard conformance bug in DLIES/DHAES mode
-	  (fix is not backwards compatible)
+    - fixed standard conformance bugs in DLIES (DHAES mode) and RW/EMSA2
+	  signature scheme (these fixes are not backwards compatible)
 	- fixed a number of minor bugs and portability problems
 	- removed Sapphire
