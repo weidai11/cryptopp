@@ -17,11 +17,13 @@
 	FILTER_END_NO_MESSAGE_END_NO_RETURN	\
 	return 0;
 
+/*
 #define FILTER_END	\
 	case -1:	\
-		if (Output(-1, NULL, 0, messageEnd, blocking))	\
+		if (messageEnd && Output(-1, NULL, 0, messageEnd, blocking))	\
 			return 1;	\
 	FILTER_END_NO_MESSAGE_END
+*/
 
 #define FILTER_OUTPUT2(site, statement, output, length, messageEnd)	\
 	{\

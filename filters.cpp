@@ -145,7 +145,7 @@ unsigned int MeterFilter::Put2(const byte *begin, unsigned int length, int messa
 	}
 	
 	FILTER_OUTPUT(1, begin, length, messageEnd);
-	FILTER_END;
+	FILTER_END_NO_MESSAGE_END;
 }
 
 bool MeterFilter::IsolatedMessageSeriesEnd(bool blocking)
