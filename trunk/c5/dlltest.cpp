@@ -173,7 +173,7 @@ void FIPS140_SampleApplication()
 
 #ifdef CRYPTOPP_DLL_ONLY
 
-int __cdecl main()
+int CRYPTOPP_CDECL main()
 {
 	FIPS140_SampleApplication();
 	return 0;

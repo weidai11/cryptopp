@@ -6,7 +6,9 @@
 #include "dll.h"
 #pragma warning(default: 4660)
 
+#ifdef CRYPTOPP_WIN32_AVAILABLE
 #include <windows.h>
+#endif
 
 #include "iterhash.cpp"
 #include "strciphr.cpp"
@@ -23,13 +25,19 @@ template<> const byte PKCS_DigestDecoration<SHA>::decoration[] = {0x30,0x21,0x30
 template<> const unsigned int PKCS_DigestDecoration<SHA>::length = sizeof(PKCS_DigestDecoration<SHA>::decoration);
 
 static const byte s_moduleMac[CryptoPP::HMAC<CryptoPP::SHA1>::DIGESTSIZE] = "reserved for mac";
+#ifdef CRYPTOPP_WIN32_AVAILABLE
 static HMODULE s_hModule = NULL;
+#endif
 
 void DoDllPowerUpSelfTest()
 {
+#ifdef CRYPTOPP_WIN32_AVAILABLE
 	char moduleFileName[MAX_PATH];
 	GetModuleFileNameA(s_hModule, moduleFileName, sizeof(moduleFileName));
 	CryptoPP::DoPowerUpSelfTest(moduleFileName, s_moduleMac);
+#else
+	throw NotImplemented("DoDllPowerUpSelfTest() only available on Windows");
+#endif
 }
 
 NAMESPACE_END
