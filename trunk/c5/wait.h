@@ -14,6 +14,10 @@
 #include <sys/types.h>
 #endif
 
+#ifndef NDEBUG
+#include "hrtimer.h"
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 struct WaitingThreadData;
@@ -57,6 +61,16 @@ private:
 	int m_maxFd;
 #endif
 	bool m_noWait;
+
+#ifndef NDEBUG
+#ifdef USE_WINDOWS_STYLE_SOCKETS
+	DWORD m_lastResult;
+#else
+	int m_lastResult;
+#endif
+	unsigned int m_sameResultCount;
+	Timer m_timer;
+#endif
 };
 
 NAMESPACE_END

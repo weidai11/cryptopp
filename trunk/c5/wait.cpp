@@ -25,6 +25,7 @@ unsigned int WaitObjectContainer::MaxWaitObjects()
 }
 
 WaitObjectContainer::WaitObjectContainer()
+	: m_sameResultCount(0), m_timer(Timer::MILLISECONDS)
 {
 	Clear();
 }
@@ -86,6 +87,14 @@ WaitObjectContainer::~WaitObjectContainer()
 
 void WaitObjectContainer::AddHandle(HANDLE handle)
 {
+#ifndef NDEBUG
+	if (m_handles.size() == m_lastResult && m_timer.ElapsedTime() > 1000)
+	{
+		if (m_sameResultCount > m_timer.ElapsedTime())
+			try {throw 0;} catch (...) {}	// possible no-wait loop, break in debugger
+		m_timer.StartTimer();
+	}
+#endif
 	m_handles.push_back(handle);
 }
 
@@ -201,7 +210,18 @@ bool WaitObjectContainer::Wait(unsigned long milliseconds)
 	{
 		DWORD result = ::WaitForMultipleObjects(m_handles.size(), &m_handles[0], FALSE, milliseconds);
 		if (result >= WAIT_OBJECT_0 && result < WAIT_OBJECT_0 + m_handles.size())
+		{
+#ifndef NDEBUG
+			if (result == m_lastResult)
+				m_sameResultCount++;
+			else
+			{
+				m_lastResult = result;
+				m_sameResultCount = 0;
+			}
+#endif
 			return true;
+		}
 		else if (result == WAIT_TIMEOUT)
 			return false;
 		else
