@@ -7,6 +7,11 @@ NAMESPACE_BEGIN(CryptoPP)
 
 template<> const byte EMSA2HashId<SHA>::id = 0x33;
 template<> const byte EMSA2HashId<RIPEMD160>::id = 0x31;
+template<> const byte EMSA2HashId<RIPEMD128>::id = 0x32;
+template<> const byte EMSA2HashId<SHA256>::id = 0x34;
+template<> const byte EMSA2HashId<SHA384>::id = 0x36;
+template<> const byte EMSA2HashId<SHA512>::id = 0x35;
+template<> const byte EMSA2HashId<Whirlpool>::id = 0x37;
 
 unsigned int PSSR_MEM_Base::MaxRecoverableLength(unsigned int representativeBitLength, unsigned int hashIdentifierLength, unsigned int digestLength) const
 {

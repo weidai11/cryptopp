@@ -89,7 +89,7 @@ public:
 };
 
 //! EMSA2, for use with RW
-/*! The following hash functions are supported: SHA, RIPEMD160. */
+/*! See pssr.h for a list of hash functions supported by this signature standard. */
 struct P1363_EMSA2 : public SignatureStandard
 {
 	typedef EMSA2Pad SignatureMessageEncodingMethod;
