@@ -28,6 +28,15 @@ protected:
 	static const word32 K[64];
 };
 
+//! implements the SHA-224 standard
+class SHA224 : public IteratedHashWithStaticTransform<word32, BigEndian, 64, 32, SHA224, 28>
+{
+public:
+	static void InitState(HashWordType *state);
+	static void Transform(word32 *digest, const word32 *data) {SHA256::Transform(digest, data);}
+	static const char *StaticAlgorithmName() {return "SHA-224";}
+};
+
 #ifdef WORD64_AVAILABLE
 
 //! implements the SHA-512 standard

@@ -8,6 +8,13 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+//! exception thrown when trying to hash more data than is allowed by a hash function
+class CRYPTOPP_DLL HashInputTooLong : public InvalidDataFormat
+{
+public:
+	explicit HashInputTooLong(const std::string &alg);
+};
+
 //! _
 template <class T, class BASE>
 class CRYPTOPP_NO_VTABLE IteratedHashBase : public BASE

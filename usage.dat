@@ -68,11 +68,11 @@ Test Driver for Crypto++(R) Library, a C++ Class Library of Cryptographic Scheme
 - To run Maurer's randomness test on a file
 	cryptest mt input
 
+- To run a test script (available in TestVectors subdirectory)
+	cryptest tv filename
+
 - To run validation tests
 	cryptest v
 
 - To run benchmarks
 	cryptest b [time for each benchmark in seconds]
-
-- To run test vector file (available in TestVectors subdirectory)
-	cryptest tv filename

@@ -147,6 +147,11 @@ void SHA256::Transform(word32 *state, const word32 *data)
 	memset(T, 0, sizeof(T));
 }
 
+#undef S0
+#undef S1
+#undef s0
+#undef s1
+
 const word32 SHA256::K[64] = {
 	0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
 	0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
@@ -166,10 +171,17 @@ const word32 SHA256::K[64] = {
 	0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
 };
 
-#undef S0
-#undef S1
-#undef s0
-#undef s1
+void SHA224::InitState(HashWordType *state)
+{
+	state[0] = 0xc1059ed8;
+	state[1] = 0x367cd507;
+	state[2] = 0x3070dd17;
+	state[3] = 0xf70e5939;
+	state[4] = 0xffc00b31;
+	state[5] = 0x68581511;
+	state[6] = 0x64f98fa7;
+	state[7] = 0xbefa4fa4;
+}
 
 // *************************************************************
 

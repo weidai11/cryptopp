@@ -6,15 +6,22 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+HashInputTooLong::HashInputTooLong(const std::string &alg)
+	: InvalidDataFormat("IteratedHashBase: input data exceeds maximum allowed by hash function " + alg)
+{
+}
+
 template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte *input, unsigned int len)
 {
-	HashWordType tmp = m_countLo;
-	if ((m_countLo = tmp + len) < tmp)
+	HashWordType oldCountLo = m_countLo, oldCountHi = m_countHi;
+	if ((m_countLo = oldCountLo + len) < oldCountLo)
 		m_countHi++;             // carry from low to high
 	m_countHi += SafeRightShift<8*sizeof(HashWordType)>(len);
+	if (m_countHi < oldCountHi)
+		throw HashInputTooLong(AlgorithmName());
 
 	unsigned int blockSize = BlockSize();
-	unsigned int num = ModPowerOf2(tmp, blockSize);
+	unsigned int num = ModPowerOf2(oldCountLo, blockSize);
 
 	if (num != 0)	// process left over data
 	{

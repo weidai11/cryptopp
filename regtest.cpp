@@ -28,6 +28,7 @@ void RegisterFactories()
 
 	RegisterDefaultFactoryFor<SimpleKeyAgreementDomain, DH>();
 	RegisterDefaultFactoryFor<HashTransformation, SHA1>();
+	RegisterDefaultFactoryFor<HashTransformation, SHA224>();
 	RegisterDefaultFactoryFor<HashTransformation, SHA256>();
 #ifdef WORD64_AVAILABLE
 	RegisterDefaultFactoryFor<HashTransformation, SHA384>();
