@@ -2,6 +2,7 @@
 
 #include "pch.h"
 #include "hrtimer.h"
+#include "misc.h"
 #include <stddef.h>		// for NULL
 
 #ifdef HIGHRES_TIMER_AVAILABLE

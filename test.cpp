@@ -31,6 +31,10 @@
 #include <windows.h>
 #endif
 
+#ifdef USE_BERKELEY_STYLE_SOCKETS
+#include <netinet/in.h>
+#endif
+
 #if (_MSC_VER >= 1000)
 #include <crtdbg.h>		// for the debug heap
 #endif
