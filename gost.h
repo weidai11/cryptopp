@@ -9,6 +9,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+//! _
 struct GOST_Info : public FixedBlockSize<8>, public FixedKeyLength<32>
 {
 	static const char *StaticAlgorithmName() {return "GOST";}

@@ -5,6 +5,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+//! _
 template <class T>
 class CRYPTOPP_NO_VTABLE DMAC_Base : public SameKeyLengthAs<T>, public MessageAuthenticationCode
 {
@@ -32,7 +33,7 @@ private:
 
 //! DMAC
 /*! Based on "CBC MAC for Real-Time Data Sources" by Erez Petrank
-	and Charles Rackoff. T should be BlockTransformation class.
+	and Charles Rackoff. T should be a class derived from BlockCipherDocumentation.
 */
 template <class T>
 class DMAC : public MessageAuthenticationCodeFinal<DMAC_Base<T> >

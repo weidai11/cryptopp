@@ -93,6 +93,7 @@ public:
 	Integer GetMaxExponent() const {return GetSubgroupOrder()-1;}
 	bool IsIdentity(const Element &element) const {return element.identity;}
 	void SimultaneousExponentiate(Element *results, const Element &base, const Integer *exponents, unsigned int exponentsCount) const;
+	static std::string StaticAlgorithmNamePrefix() {return "EC";}
 
 	// ASN1Key
 	OID GetAlgorithmID() const;
@@ -141,7 +142,7 @@ CRYPTOPP_DLL_TEMPLATE_CLASS DL_GroupParameters_EC<EC2N>;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_PublicKeyImpl<DL_GroupParameters_EC<ECP> >;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_PublicKeyImpl<DL_GroupParameters_EC<EC2N> >;
 
-//! .
+//! EC public key
 template <class EC>
 class DL_PublicKey_EC : public DL_PublicKeyImpl<DL_GroupParameters_EC<EC> >
 {
@@ -163,7 +164,7 @@ CRYPTOPP_DLL_TEMPLATE_CLASS DL_PublicKey_EC<EC2N>;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKeyImpl<DL_GroupParameters_EC<ECP> >;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKeyImpl<DL_GroupParameters_EC<EC2N> >;
 
-//! .
+//! EC private key
 template <class EC>
 class DL_PrivateKey_EC : public DL_PrivateKeyImpl<DL_GroupParameters_EC<EC> >
 {
@@ -201,7 +202,7 @@ struct ECMQV
 	typedef MQV_Domain<DL_GroupParameters_EC<EC>, COFACTOR_OPTION> Domain;
 };
 
-//! .
+//! EC keys
 template <class EC>
 struct DL_Keys_EC
 {
@@ -212,7 +213,7 @@ struct DL_Keys_EC
 template <class EC, class H = SHA>
 struct ECDSA;
 
-//! .
+//! ECDSA keys
 template <class EC>
 struct DL_Keys_ECDSA
 {
@@ -223,7 +224,7 @@ struct DL_Keys_ECDSA
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_GDSA<ECP::Point>;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_GDSA<EC2N::Point>;
 
-//! .
+//! ECDSA algorithm
 template <class EC>
 class DL_Algorithm_ECDSA : public DL_Algorithm_GDSA<typename EC::Point>
 {
@@ -231,7 +232,7 @@ public:
 	static const char * StaticAlgorithmName() {return "ECDSA";}
 };
 
-//! .
+//! ECNR algorithm
 template <class EC>
 class DL_Algorithm_ECNR : public DL_Algorithm_NR<typename EC::Point>
 {

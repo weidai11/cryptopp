@@ -9,6 +9,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+//! _
 struct TEA_Info : public FixedBlockSize<8>, public FixedKeyLength<16>, public VariableRounds<32>
 {
 	static const char *StaticAlgorithmName() {return "TEA";}
@@ -47,6 +48,7 @@ public:
 typedef TEA::Encryption TEAEncryption;
 typedef TEA::Decryption TEADecryption;
 
+//! _
 struct XTEA_Info : public FixedBlockSize<8>, public FixedKeyLength<16>, public VariableRounds<32>
 {
 	static const char *StaticAlgorithmName() {return "XTEA";}
@@ -82,6 +84,7 @@ public:
 	typedef BlockCipherFinal<DECRYPTION, Dec> Decryption;
 };
 
+//! _
 struct BTEA_Info : public FixedKeyLength<16>
 {
 	static const char *StaticAlgorithmName() {return "BTEA";}

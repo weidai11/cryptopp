@@ -4,20 +4,22 @@
 	classes that provide a uniform interface to this library.
 */
 
-/*!	\mainpage <a href="http://www.cryptopp.com">Crypto++</a><sup><small>TM</small></sup> Library 5.2 Reference Manual
+/*!	\mainpage <a href="http://www.cryptopp.com">Crypto++</a><sup><small>TM</small></sup> Library 5.2.1 Reference Manual
 <dl>
 <dt>Abstract Base Classes<dd>
 	cryptlib.h
 <dt>Symmetric Ciphers<dd>
 	SymmetricCipherDocumentation
 <dt>Hash Functions<dd>
-	HAVAL, MD2, MD4, MD5, PanamaHash, RIPEMD160, SHA, SHA256, SHA384, SHA512, Tiger
+	HAVAL, MD2, MD4, MD5, PanamaHash, RIPEMD160, RIPEMD320, RIPEMD128, RIPEMD256, SHA, SHA256, SHA384, SHA512, Tiger, Whirlpool
 <dt>Non-Cryptographic Checksums<dd>
 	CRC32, Adler32
 <dt>Message Authentication Codes<dd>
-	#MD5MAC, XMACC, HMAC, CBC_MAC, DMAC, PanamaMAC
+	#MD5MAC, XMACC, HMAC, CBC_MAC, DMAC, PanamaMAC, TTMAC
 <dt>Random Number Generators<dd>
 	NullRNG(), LC_RNG, RandomPool, BlockingRng, NonblockingRng, AutoSeededRandomPool, AutoSeededX917RNG
+<dt>Password-based Cryptography<dd>
+	PasswordBasedKeyDerivationFunction
 <dt>Public Key Cryptosystems<dd>
 	DLIES, ECIES, LUCES, RSAES, RabinES, LUC_IES
 <dt>Public Key Signature Schemes<dd>
@@ -39,9 +41,9 @@
 <dt>Filter Wrappers<dd>
 	StreamTransformationFilter, HashFilter, HashVerificationFilter, SignerFilter, SignatureVerificationFilter
 <dt>Binary to Text Encoders and Decoders<dd>
-	HexEncoder, HexDecoder, Base64Encoder, Base64Decoder
+	HexEncoder, HexDecoder, Base64Encoder, Base64Decoder, Base32Encoder, Base32Decoder
 <dt>Wrappers for OS features<dd>
-	Timer, Socket, WindowsHandle, ThreadLocalStorage
+	Timer, Socket, WindowsHandle, ThreadLocalStorage, ThreadUserTimer
 <dt>FIPS 140 related<dd>
 	fips140.h
 </dl>
@@ -51,19 +53,19 @@ In the FIPS 140-2 validated DLL version of Crypto++, only the following implemen
 <dt>Block Ciphers<dd>
 	AES, DES_EDE2, DES_EDE3, SKIPJACK
 <dt>Cipher Modes (replace template parameter BC with one of the block ciphers above)<dd>
-	ECB_Mode <BC>, CTR_Mode <BC>, CBC_Mode <BC>, CFB_Mode <BC>, OFB_Mode <BC>
+	ECB_Mode\<BC\>, CTR_Mode\<BC\>, CBC_Mode\<BC\>, CFB_Mode\<BC\>, OFB_Mode\<BC\>
 <dt>Hash Functions<dd>
 	SHA
 <dt>Public Key Signature Schemes<dd>
-	RSASSA <PKCS1v15, SHA>, DSA, ECDSA <ECP, SHA>, ECDSA <EC2N, SHA>
+	RSASS\<PKCS1v15, SHA\>, DSA, ECDSA\<ECP, SHA\>, ECDSA\<EC2N, SHA\>
 <dt>Message Authentication Codes<dd>
-	HMAC <SHA>, CBC_MAC <DES_EDE2>, CBC_MAC <DES_EDE3>
+	HMAC\<SHA\>, CBC_MAC\<DES_EDE2\>, CBC_MAC\<DES_EDE3\>
 <dt>Random Number Generators<dd>
-	AutoSeededX917RNG <DES_EDE3>
+	AutoSeededX917RNG\<DES_EDE3\>
 <dt>Key Agreement<dd>
 	#DH
 <dt>Public Key Cryptosystems<dd>
-	RSAES <OAEP<SHA> >
+	RSAES\<OAEP\<SHA\> \>
 </dl>
 
 <p>This reference manual is a work in progress. Some classes are still lacking detailed descriptions.
@@ -311,14 +313,14 @@ DOCUMENTED_NAMESPACE_BEGIN(Name)
 // more names defined in argnames.h
 DOCUMENTED_NAMESPACE_END
 
-//! .
+//! empty set of name-value pairs
 class CRYPTOPP_DLL NullNameValuePairs : public NameValuePairs
 {
 public:
 	bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const {return false;}
 };
 
-//! .
+//! _
 extern CRYPTOPP_DLL const NullNameValuePairs g_nullNameValuePairs;
 
 // ********************************************************
@@ -578,7 +580,8 @@ protected:
 	void ThrowIfInvalidTruncatedSize(unsigned int size) const;
 };
 
-//! .
+typedef HashTransformation HashFunction;
+
 template <class T>
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE SimpleKeyedTransformation : public T, public SimpleKeyingInterface
 {
@@ -587,12 +590,11 @@ public:
 		{SimpleKeyingInterface::ThrowIfInvalidKeyLength(*this, length);}
 };
 
-//! .
-typedef HashTransformation HashFunction;
 #ifdef CRYPTOPP_DOXYGEN_PROCESSING
-//! These objects usually should not be used directly. See BlockTransformation for more details.
+//! interface for one direction (encryption or decryption) of a block cipher
+/*! \note These objects usually should not be used directly. See BlockTransformation for more details. */
 class BlockCipher : public BlockTransformation, public SimpleKeyingInterface {};
-//! interface for stream ciphers
+//! interface for one direction (encryption or decryption) of a stream cipher or cipher mode
 class SymmetricCipher : public StreamTransformation, public SimpleKeyingInterface {};
 //! interface for message authentication codes
 class MessageAuthenticationCode : public HashTransformation, public SimpleKeyingInterface {};
@@ -600,11 +602,11 @@ class MessageAuthenticationCode : public HashTransformation, public SimpleKeying
 typedef SimpleKeyedTransformation<BlockTransformation> BlockCipher;
 typedef SimpleKeyedTransformation<StreamTransformation> SymmetricCipher;
 typedef SimpleKeyedTransformation<HashTransformation> MessageAuthenticationCode;
+#endif
 
 CRYPTOPP_DLL_TEMPLATE_CLASS SimpleKeyedTransformation<BlockTransformation>;
 CRYPTOPP_DLL_TEMPLATE_CLASS SimpleKeyedTransformation<StreamTransformation>;
 CRYPTOPP_DLL_TEMPLATE_CLASS SimpleKeyedTransformation<HashTransformation>;
-#endif
 
 #ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
 typedef SymmetricCipher StreamCipher;
@@ -882,7 +884,6 @@ public:
 
 	//!	\name NON-BLOCKING TRANSFER OF OUTPUT
 	//@{
-		//! .
 		virtual unsigned int TransferTo2(BufferedTransformation &target, unsigned long &byteCount, const std::string &channel=NULL_CHANNEL, bool blocking=true) =0;
 		virtual unsigned int CopyRangeTo2(BufferedTransformation &target, unsigned long &begin, unsigned long end=ULONG_MAX, const std::string &channel=NULL_CHANNEL, bool blocking=true) const =0;
 		unsigned int TransferMessagesTo2(BufferedTransformation &target, unsigned int &messageCount, const std::string &channel=NULL_CHANNEL, bool blocking=true);
@@ -1140,7 +1141,7 @@ public:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_Encryptor : virtual public PK_CryptoSystem, public PublicKeyAlgorithm
 {
 public:
-	//! .
+	//! exception thrown when trying to encrypt plaintext of invalid length
 	class CRYPTOPP_DLL InvalidPlaintextLength : public Exception
 	{
 	public:

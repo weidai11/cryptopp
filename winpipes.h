@@ -57,7 +57,7 @@ protected:
 		{assert(result==TRUE || result==FALSE); if (!result) HandleError(operation);}
 };
 
-//! .
+//! pipe-based implementation of NetworkReceiver
 class WindowsPipeReceiver : public WindowsPipe, public NetworkReceiver
 {
 public:
@@ -79,7 +79,7 @@ private:
 	bool m_eofReceived;
 };
 
-//! .
+//! pipe-based implementation of NetworkSender
 class WindowsPipeSender : public WindowsPipe, public NetworkSender
 {
 public:

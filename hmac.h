@@ -8,6 +8,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+//! _
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE HMAC_Base : public VariableKeyLength<16, 0, UINT_MAX>, public MessageAuthenticationCode
 {
 public:

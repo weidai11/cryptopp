@@ -11,6 +11,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+//! _
 template <class T>
 struct MDC_Info : public FixedBlockSize<T::DIGESTSIZE>, public FixedKeyLength<T::BLOCKSIZE>
 {

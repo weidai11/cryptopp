@@ -109,14 +109,14 @@ private:
 	unsigned int m_currentSeriesMessages, m_totalMessages, m_totalMessageSeries;
 };
 
-//! .
+//! _
 class CRYPTOPP_DLL TransparentFilter : public MeterFilter
 {
 public:
 	TransparentFilter(BufferedTransformation *attachment=NULL) : MeterFilter(attachment, true) {}
 };
 
-//! .
+//! _
 class CRYPTOPP_DLL OpaqueFilter : public MeterFilter
 {
 public:
@@ -210,7 +210,7 @@ private:
 	BlockQueue m_queue;
 };
 
-//! .
+//! _
 class CRYPTOPP_DLL FilterWithInputQueue : public Filter
 {
 public:
@@ -571,7 +571,7 @@ public:
 	byte * CreatePutSpace(unsigned int &size) {return BufferedTransformation::CreatePutSpace(size);}
 };
 
-//! .
+//! string-based implementation of Store interface
 class StringStore : public Store
 {
 public:
@@ -592,7 +592,7 @@ private:
 	unsigned int m_length, m_count;
 };
 
-//! .
+//! RNG-based implementation of Source interface
 class CRYPTOPP_DLL RandomNumberStore : public Store
 {
 public:
@@ -619,7 +619,7 @@ private:
 	unsigned long m_count;
 };
 
-//! .
+//! empty store
 class CRYPTOPP_DLL NullStore : public Store
 {
 public:
@@ -638,7 +638,7 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Source : public InputRejecting<Filter>
 {
 public:
 	Source(BufferedTransformation *attachment = NULL)
-		{Detach(attachment);}
+		{Source::Detach(attachment);}
 
 	unsigned long Pump(unsigned long pumpMax=ULONG_MAX)
 		{Pump2(pumpMax); return pumpMax;}
@@ -686,7 +686,7 @@ protected:
 	T m_store;
 };
 
-//! .
+//! string-based implementation of Source interface
 class CRYPTOPP_DLL StringSource : public SourceTemplate<StringStore>
 {
 public:
@@ -700,7 +700,7 @@ public:
 		: SourceTemplate<StringStore>(attachment) {SourceInitialize(pumpAll, MakeParameters("InputBuffer", ConstByteArrayParameter(string)));}
 };
 
-//! .
+//! RNG-based implementation of Source interface
 class CRYPTOPP_DLL RandomNumberSource : public SourceTemplate<RandomNumberStore>
 {
 public:

@@ -145,6 +145,7 @@ void RandomNumberGenerator::DiscardBytes(unsigned int n)
 		GenerateByte();
 }
 
+//! see NullRNG()
 class ClassNullRNG : public RandomNumberGenerator
 {
 public:

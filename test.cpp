@@ -80,9 +80,6 @@ void FIPS140_GenerateRandomFiles();
 
 bool Validate(int, bool, const char *);
 
-void RegisterFactories();
-bool RunTestDataFile(const char *filename);
-
 int (*AdhocTest)(int argc, char *argv[]) = NULL;
 
 #ifdef __BCPLUSPLUS__

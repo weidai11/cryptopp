@@ -38,6 +38,7 @@ public:
 	};
 };
 
+//! _
 struct SAFER_K_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 8, 16, 8>, public VariableRounds<10, 1, 13>
 {
 	static const char *StaticAlgorithmName() {return "SAFER-K";}
@@ -64,6 +65,7 @@ public:
 	typedef BlockCipherFinal<DECRYPTION, Dec> Decryption;
 };
 
+//! _
 struct SAFER_SK_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 8, 16, 8>, public VariableRounds<10, 1, 13>
 {
 	static const char *StaticAlgorithmName() {return "SAFER-SK";}

@@ -19,7 +19,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_GroupParameters<Integer>;
 
-//! .
+//! _
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE DL_GroupParameters_IntegerBased : public DL_GroupParameters<Integer>, public ASN1CryptoMaterial
 {
 	typedef DL_GroupParameters_IntegerBased ThisClass;
@@ -57,6 +57,7 @@ public:
 	Integer ConvertElementToInteger(const Element &element) const
 		{return element;}
 	Integer GetMaxExponent() const;
+	static std::string StaticAlgorithmNamePrefix() {return "";}
 
 	OID GetAlgorithmID() const;
 
@@ -78,7 +79,7 @@ private:
 	Integer m_q;
 };
 
-//! .
+//! _
 template <class GROUP_PRECOMP, class BASE_PRECOMP = DL_FixedBasePrecomputationImpl<CPP_TYPENAME GROUP_PRECOMP::Element> >
 class CRYPTOPP_NO_VTABLE DL_GroupParameters_IntegerBasedImpl : public DL_GroupParametersImpl<GROUP_PRECOMP, BASE_PRECOMP, DL_GroupParameters_IntegerBased>
 {
@@ -114,7 +115,7 @@ public:
 
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_GroupParameters_IntegerBasedImpl<ModExpPrecomputation>;
 
-//! .
+//! GF(p) group parameters
 class CRYPTOPP_DLL DL_GroupParameters_GFP : public DL_GroupParameters_IntegerBasedImpl<ModExpPrecomputation>
 {
 public:
@@ -136,7 +137,7 @@ protected:
 	int GetFieldType() const {return 1;}
 };
 
-//! .
+//! GF(p) group parameters that default to same primes
 class CRYPTOPP_DLL DL_GroupParameters_GFP_DefaultSafePrime : public DL_GroupParameters_GFP
 {
 public:
@@ -146,7 +147,7 @@ protected:
 	unsigned int GetDefaultSubgroupOrderSize(unsigned int modulusSize) const {return modulusSize-1;}
 };
 
-//! .
+//! GDSA algorithm
 template <class T>
 class DL_Algorithm_GDSA : public DL_ElgamalLikeSignatureAlgorithm<T>
 {
@@ -178,7 +179,7 @@ public:
 
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_GDSA<Integer>;
 
-//! .
+//! NR algorithm
 template <class T>
 class DL_Algorithm_NR : public DL_ElgamalLikeSignatureAlgorithm<T>
 {
@@ -224,7 +225,7 @@ public:
 		{this->GetPublicElement().DEREncode(bt);}
 };
 
-//! .
+//! DL private key (in GF(p) groups)
 template <class GP>
 class DL_PrivateKey_GFP : public DL_PrivateKeyImpl<GP>
 {
@@ -243,7 +244,7 @@ public:
 		{this->AccessGroupParameters().Initialize(p, q, g); this->SetPrivateExponent(x);}
 };
 
-//! .
+//! DL signing/verification keys (in GF(p) groups)
 struct DL_SignatureKeys_GFP
 {
 	typedef DL_GroupParameters_GFP GroupParameters;
@@ -251,7 +252,7 @@ struct DL_SignatureKeys_GFP
 	typedef DL_PrivateKey_GFP<GroupParameters> PrivateKey;
 };
 
-//! .
+//! DL encryption/decryption keys (in GF(p) groups)
 struct DL_CryptoKeys_GFP
 {
 	typedef DL_GroupParameters_GFP_DefaultSafePrime GroupParameters;
@@ -359,20 +360,20 @@ struct NR : public DL_SS<
 {
 };
 
-//! .
+//! DSA group parameters, these are GF(p) group parameters that are allowed by the DSA standard
 class CRYPTOPP_DLL DL_GroupParameters_DSA : public DL_GroupParameters_GFP
 {
 public:
 	/*! also checks that the lengths of p and q are allowed by the DSA standard */
 	bool ValidateGroup(RandomNumberGenerator &rng, unsigned int level) const;
 	/*! parameters: (ModulusSize), or (Modulus, SubgroupOrder, SubgroupGenerator) */
-	/*! ModulusSize must be between 512 and 1024, and divisible by 64 */
+	/*! ModulusSize must be between DSA::MIN_PRIME_LENGTH and DSA::MAX_PRIME_LENGTH, and divisible by DSA::PRIME_LENGTH_MULTIPLE */
 	void GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &alg);
 };
 
 struct DSA;
 
-//! .
+//! DSA keys
 struct DL_Keys_DSA
 {
 	typedef DL_PublicKey_GFP<DL_GroupParameters_DSA> PublicKey;
@@ -400,6 +401,7 @@ struct CRYPTOPP_DLL DSA : public DL_SS<
 	static bool IsValidPrimeLength(unsigned int pbits)
 		{return pbits >= MIN_PRIME_LENGTH && pbits <= MAX_PRIME_LENGTH && pbits % PRIME_LENGTH_MULTIPLE == 0;}
 
+	//! FIPS 186-2 Change Notice 1 changed the minimum modulus length to 1024
 	enum {
 #if (DSA_1024_BIT_MODULUS_ONLY)
 		MIN_PRIME_LENGTH = 1024,
@@ -413,7 +415,7 @@ CRYPTOPP_DLL_TEMPLATE_CLASS DL_PublicKey_GFP<DL_GroupParameters_DSA>;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_GFP<DL_GroupParameters_DSA>;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_WithSignaturePairwiseConsistencyTest<DL_PrivateKey_GFP<DL_GroupParameters_DSA>, DSA>;
 
-//! .
+//! the XOR encryption method, for use with DL-based cryptosystems
 template <class MAC, bool DHAES_MODE>
 class DL_EncryptionAlgorithm_Xor : public DL_SymmetricEncryptionAlgorithm
 {
@@ -489,7 +491,7 @@ public:
 	}
 };
 
-//! .
+//! _
 template <class T, bool DHAES_MODE, class KDF>
 class DL_KeyDerivationAlgorithm_P1363 : public DL_KeyDerivationAlgorithm<T>
 {

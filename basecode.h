@@ -7,6 +7,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+//! base n encoder, where n is a power of 2
 class CRYPTOPP_DLL BaseN_Encoder : public Unflushable<Filter>
 {
 public:
@@ -32,6 +33,7 @@ private:
 	SecByteBlock m_outBuf;
 };
 
+//! base n decoder, where n is a power of 2
 class CRYPTOPP_DLL BaseN_Decoder : public Unflushable<Filter>
 {
 public:
@@ -56,6 +58,7 @@ private:
 	SecByteBlock m_outBuf;
 };
 
+//! filter that breaks input stream into groups of fixed size
 class CRYPTOPP_DLL Grouper : public Bufferless<Filter>
 {
 public:

@@ -25,6 +25,8 @@ CFG=cryptest - Win32 Debug
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
+# PROP Scc_ProjName ""
+# PROP Scc_LocalPath ""
 CPP=cl.exe
 RSC=rc.exe
 
@@ -395,10 +397,6 @@ SOURCE=.\datatest.cpp
 # Begin Source File
 
 SOURCE=.\dlltest.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\factory.h
 # End Source File
 # Begin Source File
 

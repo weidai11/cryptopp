@@ -33,11 +33,13 @@ class CRYPTOPP_DLL Empty
 {
 };
 
+//! _
 template <class BASE1, class BASE2>
 class CRYPTOPP_NO_VTABLE TwoBases : public BASE1, public BASE2
 {
 };
 
+//! _
 template <class BASE1, class BASE2, class BASE3>
 class CRYPTOPP_NO_VTABLE ThreeBases : public BASE1, public BASE2, public BASE3
 {
@@ -65,9 +67,10 @@ struct NewObject
 	T* operator()() const {return new T;}
 };
 
-// This function safely initializes a static object in a multithreaded environment without using locks.
-// It may leak memory when two threads try to initialize the static object at the same time
-// but this should be acceptable since each static object is only initialized once per session.
+/*! This function safely initializes a static object in a multithreaded environment without using locks.
+	It may leak memory when two threads try to initialize the static object at the same time
+	but this should be acceptable since each static object is only initialized once per session.
+*/
 template <class T, class F = NewObject<T>, int instance=0>
 class Singleton
 {

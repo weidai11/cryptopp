@@ -6,7 +6,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! .
+//! _
 class LowFirstBitWriter : public Filter
 {
 public:

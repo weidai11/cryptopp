@@ -11,7 +11,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! .
+//! _
 class RWFunction : virtual public TrapdoorFunction, public PublicKey
 {
 	typedef RWFunction ThisClass;
@@ -38,7 +38,7 @@ protected:
 	Integer m_n;
 };
 
-//! .
+//! _
 class InvertibleRWFunction : public RWFunction, public TrapdoorFunctionInverse, public PrivateKey
 {
 	typedef InvertibleRWFunction ThisClass;
@@ -74,7 +74,7 @@ protected:
 	Integer m_p, m_q, m_u;
 };
 
-//! .
+//! _
 class EMSA2Pad : public EMSA2HashIdLookup<PK_DeterministicSignatureMessageEncodingMethod>
 {
 public:
@@ -88,14 +88,18 @@ public:
 		byte *representative, unsigned int representativeBitLength) const;
 };
 
-//! EMSA2, for use with RW
-/*! See pssr.h for a list of hash functions supported by this signature standard. */
+//! EMSA2, for use with RWSS
+/*! Only the following hash functions are supported by this signature standard:
+	\dontinclude pssr.h
+	\skip can be instantiated
+	\until end of list
+*/
 struct P1363_EMSA2 : public SignatureStandard
 {
 	typedef EMSA2Pad SignatureMessageEncodingMethod;
 };
 
-//! .
+//! RW
 struct RW
 {
 	static std::string StaticAlgorithmName() {return "RW";}

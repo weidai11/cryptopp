@@ -13,6 +13,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+//! _
 struct SHARK_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 1, 16>, public VariableRounds<6, 2>
 {
 	static const char *StaticAlgorithmName() {return "SHARK-E";}

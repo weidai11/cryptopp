@@ -9,6 +9,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+//! _
 struct SHACAL2_Info : public FixedBlockSize<32>, public VariableKeyLength<16, 16, 64>
 {
 	static const char *StaticAlgorithmName() {return "SHACAL-2";}

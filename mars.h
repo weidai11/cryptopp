@@ -9,6 +9,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+//! _
 struct MARS_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 16, 56, 4>
 {
 	static const char *StaticAlgorithmName() {return "MARS";}

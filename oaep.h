@@ -6,7 +6,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! <a href="http://www.weidai.com/scan-mirror/ca.html#cem_OAEP-MGF1">EME-OAEP</a>, for use with RSAES
+//! _
 class CRYPTOPP_DLL OAEP_Base : public PK_EncryptionMessageEncodingMethod
 {
 public:
@@ -21,6 +21,7 @@ protected:
 	virtual MaskGeneratingFunction * NewMGF() const =0;
 };
 
+//! <a href="http://www.weidai.com/scan-mirror/ca.html#cem_OAEP-MGF1">EME-OAEP</a>, for use with classes derived from TF_ES
 template <class H, class MGF=P1363_MGF1>
 class OAEP : public OAEP_Base, public EncryptionStandard
 {

@@ -12,7 +12,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 template <class T> struct DigestSizeDoubleWorkaround {enum {RESULT = 2*T::DIGESTSIZE};};	// VC60 workaround
 
-//! .
+//! algorithm info
 template <class T>
 struct LR_Info : public VariableKeyLength<16, 0, 2*(UINT_MAX/2), 2>, public FixedBlockSize<DigestSizeDoubleWorkaround<T>::RESULT>
 {

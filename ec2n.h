@@ -89,7 +89,7 @@ CRYPTOPP_DLL_TEMPLATE_CLASS DL_GroupPrecomputation<EC2N::Point>;
 
 template <class T> class EcPrecomputation;
 
-//! .
+//! EC2N precomputation
 template<> class EcPrecomputation<EC2N> : public DL_GroupPrecomputation<EC2N::Point>
 {
 public:

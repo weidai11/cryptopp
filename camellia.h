@@ -13,6 +13,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+//! _
 struct Camellia_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 16, 32, 8>
 {
 	static const char *StaticAlgorithmName() {return "Camellia";}

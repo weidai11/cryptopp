@@ -49,7 +49,7 @@ protected:
 	Integer m_n, m_e;
 };
 
-//! .
+//! _
 class InvertibleLUCFunction : public LUCFunction, public TrapdoorFunctionInverse, public PrivateKey
 {
 	typedef InvertibleLUCFunction ThisClass;
@@ -127,7 +127,7 @@ private:
 	Integer m_p;
 };
 
-//! .
+//! _
 class DL_BasePrecomputation_LUC : public DL_FixedBasePrecomputation<Integer>
 {
 public:
@@ -146,7 +146,7 @@ private:
 	Integer m_g;
 };
 
-//! .
+//! _
 class DL_GroupParameters_LUC : public DL_GroupParameters_IntegerBasedImpl<DL_GroupPrecomputation_LUC, DL_BasePrecomputation_LUC>
 {
 public:
@@ -168,7 +168,7 @@ private:
 	int GetFieldType() const {return 2;}
 };
 
-//! .
+//! _
 class DL_GroupParameters_LUC_DefaultSafePrime : public DL_GroupParameters_LUC
 {
 public:
@@ -178,7 +178,7 @@ protected:
 	unsigned int GetDefaultSubgroupOrderSize(unsigned int modulusSize) const {return modulusSize-1;}
 };
 
-//! .
+//! _
 class DL_Algorithm_LUC_HMP : public DL_ElgamalLikeSignatureAlgorithm<Integer>
 {
 public:
@@ -191,7 +191,7 @@ public:
 		{return params.GetGroupOrder().ByteCount();}
 };
 
-//! .
+//! _
 struct DL_SignatureKeys_LUC
 {
 	typedef DL_GroupParameters_LUC GroupParameters;
@@ -205,7 +205,7 @@ struct LUC_HMP : public DL_SS<DL_SignatureKeys_LUC, DL_Algorithm_LUC_HMP, DL_Sig
 {
 };
 
-//! .
+//! _
 struct DL_CryptoKeys_LUC
 {
 	typedef DL_GroupParameters_LUC_DefaultSafePrime GroupParameters;
