@@ -25,7 +25,10 @@ unsigned int WaitObjectContainer::MaxWaitObjects()
 }
 
 WaitObjectContainer::WaitObjectContainer()
-	: m_sameResultCount(0), m_timer(Timer::MILLISECONDS)
+#ifndef NDEBUG
+	: m_sameResultCount(0)
+	, m_timer(Timer::MILLISECONDS)
+#endif
 {
 	Clear();
 }
