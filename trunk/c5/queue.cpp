@@ -34,19 +34,11 @@ public:
 		m_head = m_tail = 0;
 	}
 
-/*	inline unsigned int Put(byte inByte)
-	{
-		if (MaxSize()==m_tail)
-			return 0;
-
-		buf[m_tail++]=inByte;
-		return 1;
-	}
-*/
 	inline unsigned int Put(const byte *begin, unsigned int length)
 	{
 		unsigned int l = STDMIN(length, MaxSize()-m_tail);
-		memcpy(buf+m_tail, begin, l);
+		if (buf+m_tail != begin)
+			memcpy(buf+m_tail, begin, l);
 		m_tail += l;
 		return l;
 	}
@@ -166,9 +158,7 @@ ByteQueue::~ByteQueue()
 
 void ByteQueue::Destroy()
 {
-	ByteQueueNode *next;
-
-	for (ByteQueueNode *current=m_head; current; current=next)
+	for (ByteQueueNode *next, *current=m_head; current; current=next)
 	{
 		next=current->next;
 		delete current;
@@ -198,8 +188,15 @@ bool ByteQueue::IsEmpty() const
 
 void ByteQueue::Clear()
 {
-	Destroy();
-	m_head = m_tail = new ByteQueueNode(m_nodeSize);
+	for (ByteQueueNode *next, *current=m_head->next; current; current=next)
+	{
+		next=current->next;
+		delete current;
+	}
+
+	m_tail = m_head;
+	m_head->Clear();
+	m_head->next = NULL;
 	m_lazyLength = 0;
 }
 
@@ -211,10 +208,10 @@ unsigned int ByteQueue::Put2(const byte *inString, unsigned int length, int mess
 	unsigned int len;
 	while ((len=m_tail->Put(inString, length)) < length)
 	{
-		m_tail->next = new ByteQueueNode(m_nodeSize);
-		m_tail = m_tail->next;
 		inString += len;
 		length -= len;
+		m_tail->next = new ByteQueueNode(STDMAX(m_nodeSize, STDMIN(length, 16U*1024U)));
+		m_tail = m_tail->next;
 	}
 
 	return 0;
@@ -346,11 +343,17 @@ void ByteQueue::Unget(byte inByte)
 
 void ByteQueue::Unget(const byte *inString, unsigned int length)
 {
-	// TODO: make this more efficient
-	ByteQueueNode *newHead = new ByteQueueNode(length);
-	newHead->next = m_head;
-	m_head = newHead;
-	m_head->Put(inString, length);
+	unsigned int len = STDMIN(length, m_head->m_head);
+	memcpy(m_head->buf + m_head->m_head - len, inString + length - len, len);
+	length -= len;
+
+	if (length > 0)
+	{
+		ByteQueueNode *newHead = new ByteQueueNode(length);
+		newHead->next = m_head;
+		m_head = newHead;
+		m_head->Put(inString, length);
+	}
 }
 
 const byte * ByteQueue::Spy(unsigned int &contiguousSize) const
@@ -372,7 +375,7 @@ byte * ByteQueue::CreatePutSpace(unsigned int &size)
 
 	if (m_tail->m_tail == m_tail->MaxSize())
 	{
-		m_tail->next = new ByteQueueNode(size < m_nodeSize ? m_nodeSize : STDMAX(m_nodeSize, 1024U));
+		m_tail->next = new ByteQueueNode(STDMAX(m_nodeSize, size));
 		m_tail = m_tail->next;
 	}
 

@@ -554,7 +554,6 @@ void RSASignFile(const char *privFilename, const char *messageFilename, const ch
 {
 	FileSource privFile(privFilename, true, new HexDecoder);
 	RSASSA_PKCS1v15_SHA_Signer priv(privFile);
-	// RSASSA_PKCS1v15_SHA_Signer ignores the rng. Use a real RNG for other signature schemes!
 	FileSource f(messageFilename, true, new SignerFilter(GlobalRNG(), priv, new HexEncoder(new FileSink(signatureFilename))));
 }
 
