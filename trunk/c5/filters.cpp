@@ -617,7 +617,7 @@ void StreamTransformationFilter::LastPut(const byte *inString, unsigned int leng
 			}
 			else
 			{
-				space[length] = 1;
+				space[length] = 0x80;
 				memset(space+length+1, 0, s-length-1);
 			}
 			m_cipher.ProcessData(space, space, s);
@@ -637,9 +637,9 @@ void StreamTransformationFilter::LastPut(const byte *inString, unsigned int leng
 			}
 			else
 			{
-				while (length > 1 && space[length-1] == '\0')
+				while (length > 1 && space[length-1] == 0)
 					--length;
-				if (space[--length] != '\1')
+				if (space[--length] != 0x80)
 					throw InvalidCiphertext("StreamTransformationFilter: invalid ones-and-zeros padding found");
 			}
 			AttachedTransformation()->Put(space, length);
