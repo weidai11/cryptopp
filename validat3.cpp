@@ -748,7 +748,7 @@ bool TestPBKDF(PasswordBasedKeyDerivationFunction &pbkdf, const PBKDF_TestTuple 
 		StringSource(tuple.hexDerivedKey, true, new HexDecoder(new StringSink(derivedKey)));
 
 		SecByteBlock derived(derivedKey.size());
-		pbkdf.GeneralDeriveKey(derived, derived.size(), tuple.purpose, (byte *)password.data(), password.size(), (byte *)salt.data(), salt.size(), tuple.iterations);
+		pbkdf.DeriveKey(derived, derived.size(), tuple.purpose, (byte *)password.data(), password.size(), (byte *)salt.data(), salt.size(), tuple.iterations);
 		bool fail = memcmp(derived, derivedKey.data(), derived.size()) != 0;
 		pass = pass && !fail;
 
