@@ -30,6 +30,7 @@
 
 #include "seckey.h"
 #include "secblock.h"
+#include "argnames.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -134,7 +135,7 @@ public:
 	typedef typename BASE::PolicyInterface PolicyInterface;
 
 protected:
-	void UncheckedSetKey(const NameValuePairs &params, const byte *key, unsigned int length);
+	void UncheckedSetKey(const NameValuePairs &params, const byte *key, unsigned int length, const byte *iv);
 
 	unsigned int GetBufferByteSize(const PolicyInterface &policy) const {return policy.GetBytesPerIteration() * policy.GetIterationsToBuffer();}
 
@@ -226,7 +227,7 @@ public:
 protected:
 	virtual void CombineMessageAndShiftRegister(byte *output, byte *reg, const byte *message, unsigned int length) =0;
 
-	void UncheckedSetKey(const NameValuePairs &params, const byte *key, unsigned int length);
+	void UncheckedSetKey(const NameValuePairs &params, const byte *key, unsigned int length, const byte *iv);
 
 	unsigned int m_leftOver;
 };
@@ -255,31 +256,38 @@ public:
 	SymmetricCipherFinalTemplate(const byte *key, unsigned int length)
 		{SetKey(key, length);}
 	SymmetricCipherFinalTemplate(const byte *key, unsigned int length, const byte *iv)
-		{SetKey(key, length); Resynchronize(iv);}
+		{SetKeyWithIV(key, length, iv);}
 
 	void SetKey(const byte *key, unsigned int length, const NameValuePairs &params = g_nullNameValuePairs)
 	{
 		ThrowIfInvalidKeyLength(length);
-		UncheckedSetKey(params, key, length);
+		UncheckedSetKey(params, key, length, GetIVAndThrowIfInvalid(params));
 	}
 
 	Clonable * Clone() const {return static_cast<SymmetricCipher *>(new SymmetricCipherFinalTemplate<BASE, INFO>(*this));}
 };
 
 template <class S>
-void AdditiveCipherTemplate<S>::UncheckedSetKey(const NameValuePairs &params, const byte *key, unsigned int length)
+void AdditiveCipherTemplate<S>::UncheckedSetKey(const NameValuePairs &params, const byte *key, unsigned int length, const byte *iv)
 {
 	PolicyInterface &policy = AccessPolicy();
 	policy.CipherSetKey(params, key, length);
-	m_buffer.New(GetBufferByteSize(policy));
 	m_leftOver = 0;
+	m_buffer.New(GetBufferByteSize(policy));
+
+	if (IsResynchronizable())
+		policy.CipherResynchronize(m_buffer, iv);
 }
 
 template <class BASE>
-void CFB_CipherTemplate<BASE>::UncheckedSetKey(const NameValuePairs &params, const byte *key, unsigned int length)
+void CFB_CipherTemplate<BASE>::UncheckedSetKey(const NameValuePairs &params, const byte *key, unsigned int length, const byte *iv)
 {
 	PolicyInterface &policy = AccessPolicy();
 	policy.CipherSetKey(params, key, length);
+
+	if (IsResynchronizable())
+		policy.CipherResynchronize(iv);
+
 	m_leftOver = policy.GetBytesPerIteration();
 }
 

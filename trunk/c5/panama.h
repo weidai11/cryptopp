@@ -82,7 +82,7 @@ struct PanamaCipherInfo : public VariableKeyLength<32, 32, 64, 32, SimpleKeyingI
 
 //! .
 template <class B>
-class PanamaCipherPolicy : public AdditiveCipherConcretePolicy<word32, 32>, 
+class PanamaCipherPolicy : public AdditiveCipherConcretePolicy<word32, 8>, 
 							public PanamaCipherInfo<B>,
 							protected Panama<B>
 {

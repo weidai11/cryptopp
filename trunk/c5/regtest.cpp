@@ -9,6 +9,7 @@
 #include "rsa.h"
 #include "ripemd.h"
 #include "dsa.h"
+#include "seal.h"
 
 USING_NAMESPACE(CryptoPP)
 
@@ -22,8 +23,8 @@ void RegisterFactories()
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, HMAC<MD5> >("HMAC(MD5)");
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, HMAC<SHA1> >("HMAC(SHA-1)");
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, HMAC<RIPEMD160> >("HMAC(RIPEMD-160)");
-	RegisterPublicKeyCryptoSystemDefaultFactories<RSAES<OAEP<SHA1> > >("RSA/OAEP-MGF1(SHA-1)");
-	RegisterPublicKeyCryptoSystemDefaultFactories<DLIES<> >("DLIES(NoCofactorMultiplication, KDF2(SHA-1), XOR, HMAC(SHA-1), DHAES)");
+	RegisterAsymmetricCipherDefaultFactories<RSAES<OAEP<SHA1> > >("RSA/OAEP-MGF1(SHA-1)");
+	RegisterAsymmetricCipherDefaultFactories<DLIES<> >("DLIES(NoCofactorMultiplication, KDF2(SHA-1), XOR, HMAC(SHA-1), DHAES)");
 	RegisterSignatureSchemeDefaultFactories<DSA>("DSA(1363)");
 	RegisterSignatureSchemeDefaultFactories<NR<SHA1> >("NR(1363)/EMSA1(SHA-1)");
 	RegisterSignatureSchemeDefaultFactories<GDSA<SHA1> >("DSA-1363/EMSA1(SHA-1)");
@@ -32,4 +33,5 @@ void RegisterFactories()
 	RegisterSignatureSchemeDefaultFactories<ESIGN<SHA1> >("ESIGN/EMSA5-MGF1(SHA-1)");
 	RegisterSignatureSchemeDefaultFactories<RWSS<P1363_EMSA2, SHA1> >("RW/EMSA2(SHA-1)");
 	RegisterSignatureSchemeDefaultFactories<RSASS<PSS, SHA1> >("RSA/PSS-MGF1(SHA-1)");
+	RegisterSymmetricCipherDefaultFactories<SEAL<> >("SEAL-3.0-BE");
 }

@@ -21,7 +21,7 @@ ARC4_Base::~ARC4_Base()
 	m_x = m_y = 0;
 }
 
-void ARC4_Base::UncheckedSetKey(const NameValuePairs &params, const byte *key, unsigned int keyLen)
+void ARC4_Base::UncheckedSetKey(const NameValuePairs &params, const byte *key, unsigned int keyLen, const byte *iv)
 {
 	AssertValidKeyLength(keyLen);
 

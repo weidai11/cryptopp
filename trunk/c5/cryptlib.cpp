@@ -57,6 +57,28 @@ void SimpleKeyingInterface::ThrowIfInvalidKeyLength(const Algorithm &algorithm, 
 		throw InvalidKeyLength(algorithm.AlgorithmName(), length);
 }
 
+void SimpleKeyingInterface::ThrowIfResynchronizable()
+{
+	if (IsResynchronizable())
+		throw InvalidArgument("SimpleKeyingInterface: this object requires an IV");
+}
+
+void SimpleKeyingInterface::ThrowIfInvalidIV(const byte *iv)
+{
+	if (!iv && !(IVRequirement() == INTERNALLY_GENERATED_IV || IVRequirement() == STRUCTURED_IV || !IsResynchronizable()))
+		throw InvalidArgument("SimpleKeyingInterface: this object cannot use a null IV");
+}
+
+const byte * SimpleKeyingInterface::GetIVAndThrowIfInvalid(const NameValuePairs &params)
+{
+	const byte *iv;
+	if (params.GetValue(Name::IV(), iv))
+		ThrowIfInvalidIV(iv);
+	else
+		ThrowIfResynchronizable();
+	return iv;
+}
+
 void BlockTransformation::ProcessAndXorMultipleBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, unsigned int numberOfBlocks) const
 {
 	unsigned int blockSize = BlockSize();
