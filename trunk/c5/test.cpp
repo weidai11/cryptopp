@@ -357,11 +357,11 @@ void FIPS140_SampleApplication(const char *moduleFilename, const char *edcFilena
 	byte ciphertext[24];
 	byte decrypted[24];
 
-	CFB_Mode<DES>::Encryption encryption_DES_CBC;
+	CBC_Mode<DES>::Encryption encryption_DES_CBC;
 	encryption_DES_CBC.SetKeyWithIV(key, 8, iv);
 	encryption_DES_CBC.ProcessString(ciphertext, plaintext, 24);
 
-	CFB_Mode<DES>::Decryption decryption_DES_CBC;
+	CBC_Mode<DES>::Decryption decryption_DES_CBC;
 	decryption_DES_CBC.SetKeyWithIV(key, 8, iv);
 	decryption_DES_CBC.ProcessString(decrypted, ciphertext, 24);
 
