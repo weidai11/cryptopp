@@ -2,6 +2,7 @@
 #define CRYPTOPP_MISC_H
 
 #include "cryptlib.h"
+#include "smartptr.h"
 
 #ifdef INTEL_INTRINSICS
 #include <stdlib.h>
