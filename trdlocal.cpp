@@ -3,11 +3,10 @@
 #include "pch.h"
 
 #ifndef CRYPTOPP_IMPORTS
+#ifdef THREADS_AVAILABLE
 
 #include "trdlocal.h"
 #include <windows.h>
-
-#ifdef THREADS_AVAILABLE
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -68,5 +67,4 @@ void *ThreadLocalStorage::GetValue() const
 NAMESPACE_END
 
 #endif	// #ifdef THREADS_AVAILABLE
-
 #endif
