@@ -116,22 +116,24 @@ MaurerRandomnessTest::MaurerRandomnessTest()
 		tab[i] = 0;
 }
 
-inline void MaurerRandomnessTest::Put(byte inByte)
-{
-	if (n >= Q)
-		sum += log(double(n - tab[inByte]));
-	tab[inByte] = n;
-	n++;
-}
-
-void MaurerRandomnessTest::Put(const byte *inString, unsigned int length)
+unsigned int MaurerRandomnessTest::Put2(const byte *inString, unsigned int length, int messageEnd, bool blocking)
 {
 	while (length--)
-		Put(*inString++);
+	{
+		byte inByte = *inString++;
+		if (n >= Q)
+			sum += log(double(n - tab[inByte]));
+		tab[inByte] = n;
+		n++;
+	}
+	return 0;
 }
 
 double MaurerRandomnessTest::GetTestValue() const
 {
+	if (BytesNeeded() > 0)
+		throw Exception(Exception::OTHER_ERROR, "MaurerRandomnessTest: " + IntToString(BytesNeeded()) + " more bytes of input needed");
+
 	double fTu = (sum/(n-Q))/log(2.0);	// this is the test value defined by Maurer
 
 	double value = fTu * 0.1392;		// arbitrarily normalize it to

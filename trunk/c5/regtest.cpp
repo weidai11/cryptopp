@@ -1,5 +1,6 @@
 #include "factory.h"
 
+#include "modes.h"
 #include "dh.h"
 #include "esign.h"
 #include "md2.h"
@@ -10,6 +11,10 @@
 #include "ripemd.h"
 #include "dsa.h"
 #include "seal.h"
+#include "whrlpool.h"
+#include "ttmac.h"
+#include "camellia.h"
+#include "shacal2.h"
 
 USING_NAMESPACE(CryptoPP)
 
@@ -20,9 +25,11 @@ void RegisterFactories()
 	RegisterDefaultFactoryFor<HashTransformation, SHA256>("SHA-256");
 	RegisterDefaultFactoryFor<HashTransformation, SHA384>("SHA-384");
 	RegisterDefaultFactoryFor<HashTransformation, SHA512>("SHA-512");
+	RegisterDefaultFactoryFor<HashTransformation, Whirlpool>("Whirlpool");
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, HMAC<MD5> >("HMAC(MD5)");
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, HMAC<SHA1> >("HMAC(SHA-1)");
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, HMAC<RIPEMD160> >("HMAC(RIPEMD-160)");
+	RegisterDefaultFactoryFor<MessageAuthenticationCode, TTMAC >("Two-Track-MAC");
 	RegisterAsymmetricCipherDefaultFactories<RSAES<OAEP<SHA1> > >("RSA/OAEP-MGF1(SHA-1)");
 	RegisterAsymmetricCipherDefaultFactories<DLIES<> >("DLIES(NoCofactorMultiplication, KDF2(SHA-1), XOR, HMAC(SHA-1), DHAES)");
 	RegisterSignatureSchemeDefaultFactories<DSA>("DSA(1363)");
@@ -34,4 +41,6 @@ void RegisterFactories()
 	RegisterSignatureSchemeDefaultFactories<RWSS<P1363_EMSA2, SHA1> >("RW/EMSA2(SHA-1)");
 	RegisterSignatureSchemeDefaultFactories<RSASS<PSS, SHA1> >("RSA/PSS-MGF1(SHA-1)");
 	RegisterSymmetricCipherDefaultFactories<SEAL<> >("SEAL-3.0-BE");
+	RegisterSymmetricCipherDefaultFactories<ECB_Mode<Camellia> >("Camellia(ECB)");
+	RegisterSymmetricCipherDefaultFactories<ECB_Mode<SHACAL2> >("SHACAL-2(ECB)");
 }

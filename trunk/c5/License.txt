@@ -26,6 +26,7 @@ Chris Morgan - rijndael.cpp
 Paulo Baretto - rijndael.cpp, skipjack.cpp, square.cpp
 Richard De Moliner - safer.cpp
 Matthew Skala - twofish.cpp
+Kevin Springle - camellia.cpp, shacal2.cpp, ttmac.cpp, whrlpool.cpp, ripemd.cpp
 
 Permission to use, copy, modify, and distribute this compilation for
 any purpose, including commercial applications, is hereby granted

@@ -1,5 +1,9 @@
 AlgorithmType: FileList
 Name: all.txt collection
+Test: camelia.txt
+Test: shacal2.txt
+Test: ttmac.txt
+Test: whrlpool.txt
 Test: dlies.txt
 Test: dsa.txt
 Test: dsa_1363.txt

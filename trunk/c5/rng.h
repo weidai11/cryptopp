@@ -50,13 +50,12 @@ private:
     it is intended for measuring the randomness of *PHYSICAL* RNGs.
     For more details see his paper in Journal of Cryptology, 1992. */
 
-class MaurerRandomnessTest : public Sink
+class MaurerRandomnessTest : public Bufferless<Sink>
 {
 public:
 	MaurerRandomnessTest();
 
-	void Put(byte inByte);
-	void Put(const byte *inString, unsigned int length);
+	unsigned int Put2(const byte *inString, unsigned int length, int messageEnd, bool blocking);
 
 	// BytesNeeded() returns how many more bytes of input is needed by the test
 	// GetTestValue() should not be called before BytesNeeded()==0

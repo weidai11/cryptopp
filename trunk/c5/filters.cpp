@@ -381,10 +381,10 @@ void Redirector::ChannelInitialize(const std::string &channel, const NameValuePa
 	if (channel.empty())
 	{
 		m_target = parameters.GetValueWithDefault("RedirectionTargetPointer", (BufferedTransformation*)NULL);
-		m_passSignal = parameters.GetValueWithDefault("PassSignal", true);
+		m_behavior = parameters.GetIntValueWithDefault("RedirectionBehavior", PASS_EVERYTHING);
 	}
 
-	if (m_target && m_passSignal)
+	if (m_target && GetPassSignals())
 		m_target->ChannelInitialize(channel, parameters, propagation);
 }
 

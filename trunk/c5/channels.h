@@ -44,16 +44,48 @@ private:
 };
 #endif
 
-//! Route input to different and/or multiple channels based on channel ID
-class ChannelSwitch : public Multichannel<Sink>
+class ChannelSwitchTypedefs
 {
 public:
-	ChannelSwitch() {}
-	ChannelSwitch(BufferedTransformation &destination)
+	typedef std::pair<BufferedTransformation *, std::string> Route;
+	typedef std::multimap<std::string, Route> RouteMap;
+
+	typedef std::pair<BufferedTransformation *, value_ptr<std::string> > DefaultRoute;
+	typedef std::list<DefaultRoute> DefaultRouteList;
+
+	typedef RouteMap::const_iterator MapIterator;
+	typedef DefaultRouteList::const_iterator ListIterator;
+};
+
+class ChannelSwitch;
+
+class ChannelRouteIterator : public ChannelSwitchTypedefs
+{
+public:
+	ChannelSwitch& m_cs;
+	std::string m_channel;
+	bool m_useDefault;
+	MapIterator m_itMapCurrent, m_itMapEnd;
+	ListIterator m_itListCurrent, m_itListEnd;
+
+	ChannelRouteIterator(ChannelSwitch &cs) : m_cs(cs) {}
+	void Reset(const std::string &channel);
+	bool End() const;
+	void Next();
+	BufferedTransformation & Destination();
+	const std::string & Channel();
+};
+
+//! Route input to different and/or multiple channels based on channel ID
+class ChannelSwitch : public Multichannel<Sink>, public ChannelSwitchTypedefs
+{
+public:
+	ChannelSwitch() : m_it(*this), m_blocked(false) {}
+	ChannelSwitch(BufferedTransformation &destination) : m_it(*this), m_blocked(false)
 	{
 		AddDefaultRoute(destination);
 	}
-	ChannelSwitch(BufferedTransformation &destination, const std::string &outChannel)
+	ChannelSwitch(BufferedTransformation &destination, const std::string &outChannel) : m_it(*this), m_blocked(false)
 	{
 		AddDefaultRoute(destination, outChannel);
 	}
@@ -75,13 +107,11 @@ public:
 	void RemoveRoute(const std::string &inChannel, BufferedTransformation &destination, const std::string &outChannel);
 
 private:
-	typedef std::pair<BufferedTransformation *, std::string> Route;
-	typedef std::multimap<std::string, Route> RouteMap;
 	RouteMap m_routeMap;
-
-	typedef std::pair<BufferedTransformation *, value_ptr<std::string> > DefaultRoute;
-	typedef std::list<DefaultRoute> DefaultRouteList;
 	DefaultRouteList m_defaultRoutes;
+
+	ChannelRouteIterator m_it;
+	bool m_blocked;
 
 	friend class ChannelRouteIterator;
 };

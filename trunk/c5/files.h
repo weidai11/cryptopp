@@ -3,6 +3,7 @@
 
 #include "cryptlib.h"
 #include "filters.h"
+#include "argnames.h"
 
 #include <iostream>
 #include <fstream>
@@ -23,15 +24,16 @@ public:
 
 	FileStore() : m_stream(NULL) {}
 	FileStore(std::istream &in)
-		{StoreInitialize(MakeParameters("InputStreamPointer", &in));}
+		{StoreInitialize(MakeParameters(Name::InputStreamPointer(), &in));}
 	FileStore(const char *filename)
-		{StoreInitialize(MakeParameters("InputFileName", filename));}
+		{StoreInitialize(MakeParameters(Name::InputFileName(), filename));}
 
 	std::istream* GetStream() {return m_stream;}
 
 	unsigned long MaxRetrievable() const;
 	unsigned int TransferTo2(BufferedTransformation &target, unsigned long &transferBytes, const std::string &channel=NULL_CHANNEL, bool blocking=true);
 	unsigned int CopyRangeTo2(BufferedTransformation &target, unsigned long &begin, unsigned long end=ULONG_MAX, const std::string &channel=NULL_CHANNEL, bool blocking=true) const;
+	unsigned long Skip(unsigned long skipMax=ULONG_MAX);
 
 private:
 	void StoreInitialize(const NameValuePairs &parameters);
@@ -54,9 +56,9 @@ public:
 	FileSource(BufferedTransformation *attachment = NULL)
 		: SourceTemplate<FileStore>(attachment) {}
 	FileSource(std::istream &in, bool pumpAll, BufferedTransformation *attachment = NULL)
-		: SourceTemplate<FileStore>(attachment) {SourceInitialize(pumpAll, MakeParameters("InputStreamPointer", &in));}
+		: SourceTemplate<FileStore>(attachment) {SourceInitialize(pumpAll, MakeParameters(Name::InputStreamPointer(), &in));}
 	FileSource(const char *filename, bool pumpAll, BufferedTransformation *attachment = NULL, bool binary=true)
-		: SourceTemplate<FileStore>(attachment) {SourceInitialize(pumpAll, MakeParameters("InputFileName", filename)("InputBinaryMode", binary));}
+		: SourceTemplate<FileStore>(attachment) {SourceInitialize(pumpAll, MakeParameters(Name::InputFileName(), filename)(Name::InputBinaryMode(), binary));}
 
 	std::istream* GetStream() {return m_store.GetStream();}
 };
@@ -75,9 +77,9 @@ public:
 
 	FileSink() : m_stream(NULL) {}
 	FileSink(std::ostream &out)
-		{IsolatedInitialize(MakeParameters("OutputStreamPointer", &out));}
+		{IsolatedInitialize(MakeParameters(Name::OutputStreamPointer(), &out));}
 	FileSink(const char *filename, bool binary=true)
-		{IsolatedInitialize(MakeParameters("OutputFileName", filename)("OutputBinaryMode", binary));}
+		{IsolatedInitialize(MakeParameters(Name::OutputFileName(), filename)("OutputBinaryMode", binary));}
 
 	std::ostream* GetStream() {return m_stream;}
 

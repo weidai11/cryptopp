@@ -44,7 +44,7 @@ endif
 
 OBJS = $(SRCS:.cpp=.o)
 # test.o needs to be after bench.o for cygwin 1.1.4 (possible ld bug?)
-TESTOBJS = bench.o test.o validat1.o validat2.o validat3.o adhoc.o datatest.o regtest.o
+TESTOBJS = bench.o test.o validat1.o validat2.o validat3.o adhoc.o datatest.o regtest.o fipsalgt.o
 LIBOBJS = $(filter-out $(TESTOBJS),$(OBJS))
 
 all: cryptest.exe

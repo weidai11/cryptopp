@@ -59,6 +59,12 @@ Test Driver for Crypto++(TM) Library, a C++ Class Library of Cryptographic Schem
 - To run the FIPS 140-2 sample application
 	cryptest fips
 
+- To generate 100000 random files using FIPS Approved X.917 RNG
+	cryptest fips-rand
+
+- To run Maurer's randomness test on a file
+	cryptest mt input
+
 - To run validation tests
 	cryptest v
 

@@ -29,6 +29,8 @@
 #include "twofish.h"
 #include "serpent.h"
 #include "skipjack.h"
+#include "shacal2.h"
+#include "camellia.h"
 #include "osrng.h"
 #include "zdeflate.h"
 
@@ -58,10 +60,12 @@ bool ValidateAll(bool thorough)
 	pass=ValidateTiger() && pass;
 	pass=ValidateRIPEMD() && pass;
 	pass=ValidatePanama() && pass;
+	pass=ValidateWhirlpool() && pass;
 
 	pass=ValidateMD5MAC() && pass;
 	pass=ValidateHMAC() && pass;
 	pass=ValidateXMACC() && pass;
+	pass=ValidateTTMAC() && pass;
 
 	pass=ValidatePBKDF() && pass;
 
@@ -86,6 +90,8 @@ bool ValidateAll(bool thorough)
 	pass=ValidateRijndael() && pass;
 	pass=ValidateTwofish() && pass;
 	pass=ValidateSerpent() && pass;
+	pass=ValidateSHACAL2() && pass;
+	pass=ValidateCamellia() && pass;
 
 	pass=ValidateBBS() && pass;
 	pass=ValidateDH() && pass;
@@ -1307,4 +1313,32 @@ bool ValidateBaseCode()
 	pass = pass && !fail;
 
 	return pass;
+}
+
+bool ValidateSHACAL2()
+{
+	cout << "\nSHACAL-2 validation suite running...\n\n";
+
+	bool pass = true;
+	FileSource valdata("shacal2v.dat", true, new HexDecoder);
+	pass = BlockTransformationTest(FixedRoundsCipherFactory<SHACAL2Encryption, SHACAL2Decryption>(16), valdata, 4) && pass;
+	pass = BlockTransformationTest(FixedRoundsCipherFactory<SHACAL2Encryption, SHACAL2Decryption>(64), valdata, 10) && pass;
+	return pass;
+}
+
+bool ValidateCamellia()
+{
+	cout << "\nCamellia validation suite running...\n\n";
+
+#ifdef WORD64_AVAILABLE
+	bool pass = true;
+	FileSource valdata("camellia.dat", true, new HexDecoder);
+	pass = BlockTransformationTest(FixedRoundsCipherFactory<CamelliaEncryption, CamelliaDecryption>(16), valdata, 15) && pass;
+	pass = BlockTransformationTest(FixedRoundsCipherFactory<CamelliaEncryption, CamelliaDecryption>(24), valdata, 15) && pass;
+	pass = BlockTransformationTest(FixedRoundsCipherFactory<CamelliaEncryption, CamelliaDecryption>(32), valdata, 15) && pass;
+	return pass;
+#else
+	cout << "word64 not available, skipping Camellia validation." << endl;
+	return true;
+#endif
 }

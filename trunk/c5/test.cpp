@@ -201,7 +201,14 @@ int main(int argc, char *argv[])
 			}
 		  }
 		case 'm':
-			DigestFile(argv[2]);
+			if (command == "mt")
+			{
+				MaurerRandomnessTest mt;
+				FileStore(argv[2]).TransferAllTo(mt);
+				cout << "Maurer Test Value: " << mt.GetTestValue() << endl;
+			}
+			else
+				DigestFile(argv[2]);
 			return 0;
 		case 't':
 		  {
@@ -547,7 +554,7 @@ void RSASignFile(const char *privFilename, const char *messageFilename, const ch
 	FileSource privFile(privFilename, true, new HexDecoder);
 	RSASSA_PKCS1v15_SHA_Signer priv(privFile);
 	// RSASSA_PKCS1v15_SHA_Signer ignores the rng. Use a real RNG for other signature schemes!
-	FileSource f(messageFilename, true, new SignerFilter(NullRNG(), priv, new HexEncoder(new FileSink(signatureFilename))));
+	FileSource f(messageFilename, true, new SignerFilter(GlobalRNG(), priv, new HexEncoder(new FileSink(signatureFilename))));
 }
 
 bool RSAVerifyFile(const char *pubFilename, const char *messageFilename, const char *signatureFilename)
@@ -922,6 +929,10 @@ bool Validate(int alg, bool thorough, const char *seed)
 	case 57: result = ValidateESIGN(); break;
 	case 58: result = ValidateDLIES(); break;
 	case 59: result = ValidateBaseCode(); break;
+	case 60: result = ValidateSHACAL2(); break;
+	case 61: result = ValidateCamellia(); break;
+	case 62: result = ValidateWhirlpool(); break;
+	case 63: result = ValidateTTMAC(); break;
 	default: result = ValidateAll(thorough); break;
 	}
 
