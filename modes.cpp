@@ -63,9 +63,9 @@ void CipherModeBase::SetIV(const byte *iv)
 void CTR_ModePolicy::SeekToIteration(dword iterationCount)
 {
 	int carry=0;
-	for (int i=BlockSize()-1; i>=0 && (iterationCount || carry); i--)
+	for (int i=BlockSize()-1; i>=0; i--)
 	{
-		unsigned int sum = m_counterArray[i] + byte(iterationCount) + carry;
+		unsigned int sum = m_register[i] + byte(iterationCount) + carry;
 		m_counterArray[i] = (byte) sum;
 		carry = sum >> 8;
 		iterationCount >>= 8;
