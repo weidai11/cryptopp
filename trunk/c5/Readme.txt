@@ -325,7 +325,7 @@ the mailing list.
     - added support for using encoding parameters and key derivation parameters
       with public key encryption (implemented by OAEP and DL/ECIES)
     - added Camellia, SHACAL-2, Two-Track-MAC, Whirlpool, RIPEMD-320,
-      RIPEMD-128, RIPEMD-256, Base-32 coding
+      RIPEMD-128, RIPEMD-256, Base-32 coding, FIPS variant of CFB mode
     - added ThreadUserTimer for timing thread CPU usage
     - added option for password-based key derivation functions
       to iterate until a mimimum elapsed thread CPU time is reached
@@ -343,5 +343,7 @@ the mailing list.
       - fixed compiling with -msse2 on systems without memalign()
       - fixed inability to instantiate PanamaMAC
       - fixed problems with inline documentation
+
+6.0 - added SHA-224
 
 Written by Wei Dai

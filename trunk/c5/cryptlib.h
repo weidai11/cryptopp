@@ -144,7 +144,7 @@ public:
 	explicit InvalidArgument(const std::string &s) : Exception(INVALID_ARGUMENT, s) {}
 };
 
-//! exception thrown by decryption filters when trying to decrypt an invalid ciphertext
+//! exception thrown when input data is received that doesn't conform to expected format
 class CRYPTOPP_DLL InvalidDataFormat : public Exception
 {
 public:
