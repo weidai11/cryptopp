@@ -6,6 +6,8 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+static const unsigned int s_maxAutoNodeSize = 16*1024;
+
 // this class for use by ByteQueue only
 class ByteQueueNode
 {
@@ -123,8 +125,8 @@ public:
 
 // ********************************************************
 
-ByteQueue::ByteQueue(unsigned int m_nodeSize)
-	: m_nodeSize(m_nodeSize), m_lazyLength(0)
+ByteQueue::ByteQueue(unsigned int nodeSize)
+	: m_autoNodeSize(m_nodeSize==0), m_nodeSize(nodeSize ? nodeSize : 256), m_lazyLength(0)
 {
 	m_head = m_tail = new ByteQueueNode(m_nodeSize);
 }
@@ -137,6 +139,7 @@ ByteQueue::ByteQueue(const ByteQueue &copy)
 void ByteQueue::CopyFrom(const ByteQueue &copy)
 {
 	m_lazyLength = 0;
+	m_autoNodeSize = copy.m_autoNodeSize;
 	m_nodeSize = copy.m_nodeSize;
 	m_head = m_tail = new ByteQueueNode(*copy.m_head);
 
@@ -210,7 +213,13 @@ unsigned int ByteQueue::Put2(const byte *inString, unsigned int length, int mess
 	{
 		inString += len;
 		length -= len;
-		m_tail->next = new ByteQueueNode(STDMAX(m_nodeSize, STDMIN(length, 16U*1024U)));
+		if (m_autoNodeSize && m_nodeSize < s_maxAutoNodeSize)
+			do
+			{
+				m_nodeSize *= 2;
+			}
+			while (m_nodeSize < length && m_nodeSize < s_maxAutoNodeSize);
+		m_tail->next = new ByteQueueNode(STDMAX(m_nodeSize, length));
 		m_tail = m_tail->next;
 	}
 
