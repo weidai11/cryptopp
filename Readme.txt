@@ -1,5 +1,5 @@
 Crypto++: a C++ Class Library of Cryptographic Primitives
-Version 5.0 9/11/2002
+Version 5.2 (in development)
 
 This library includes:
 
