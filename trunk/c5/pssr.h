@@ -2,7 +2,7 @@
 #define CRYPTOPP_PSSR_H
 
 #include "pubkey.h"
-#include <functional>
+#include "emsa2.h"
 
 #ifdef CRYPTOPP_IS_DLL
 #include "sha.h"
@@ -18,6 +18,7 @@ class CRYPTOPP_DLL PSSR_MEM_Base : public PK_RecoverableSignatureMessageEncoding
 	virtual const MaskGeneratingFunction & GetMGF() const =0;
 
 public:
+	unsigned int MinRepresentativeBitLength(unsigned int hashIdentifierLength, unsigned int digestLength) const;
 	unsigned int MaxRecoverableLength(unsigned int representativeBitLength, unsigned int hashIdentifierLength, unsigned int digestLength) const;
 	bool IsProbabilistic() const;
 	bool AllowNonrecoverablePart() const;
@@ -30,45 +31,6 @@ public:
 		HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
 		byte *representative, unsigned int representativeBitLength,
 		byte *recoverableMessage) const;
-};
-
-template <class H> class EMSA2HashId
-{
-public:
-	static const byte id;
-};
-
-// EMSA2HashId can be instantiated with the following classes.
-class SHA;
-class RIPEMD160;
-class RIPEMD128;
-class SHA256;
-class SHA384;
-class SHA512;
-class Whirlpool;
-// end of list
-
-#ifdef CRYPTOPP_IS_DLL
-CRYPTOPP_DLL_TEMPLATE_CLASS EMSA2HashId<SHA>;
-CRYPTOPP_DLL_TEMPLATE_CLASS EMSA2HashId<SHA256>;
-CRYPTOPP_DLL_TEMPLATE_CLASS EMSA2HashId<SHA384>;
-CRYPTOPP_DLL_TEMPLATE_CLASS EMSA2HashId<SHA512>;
-#endif
-
-template <class BASE>
-class EMSA2HashIdLookup : public BASE
-{
-public:
-	struct HashIdentifierLookup
-	{
-		template <class H> struct HashIdentifierLookup2
-		{
-			static HashIdentifier Lookup()
-			{
-				return HashIdentifier(&EMSA2HashId<H>::id, 1);
-			}
-		};
-	};
 };
 
 template <bool USE_HASH_ID> class PSSR_MEM_BaseWithHashId;
@@ -84,7 +46,7 @@ class PSSR_MEM : public PSSR_MEM_BaseWithHashId<USE_HASH_ID>
 	virtual const MaskGeneratingFunction & GetMGF() const {static MGF mgf; return mgf;}
 
 public:
-	static std::string StaticAlgorithmName() {return std::string(ALLOW_RECOVERY ? "PSSR-" : "PSS-") + MGF::StaticAlgorithmName();}
+	static std::string CRYPTOPP_API StaticAlgorithmName() {return std::string(ALLOW_RECOVERY ? "PSSR-" : "PSS-") + MGF::StaticAlgorithmName();}
 };
 
 //! <a href="http://www.weidai.com/scan-mirror/sig.html#sem_PSSR-MGF1">PSSR-MGF1</a>

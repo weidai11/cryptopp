@@ -5,32 +5,9 @@
 #include "nbtheory.h"
 #include "asn.h"
 
+#ifndef CRYPTOPP_IMPORTS
+
 NAMESPACE_BEGIN(CryptoPP)
-
-void EMSA2Pad::ComputeMessageRepresentative(RandomNumberGenerator &rng, 
-	const byte *recoverableMessage, unsigned int recoverableMessageLength,
-	HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
-	byte *representative, unsigned int representativeBitLength) const
-{
-	if (representativeBitLength % 8 != 7)
-		throw PK_SignatureScheme::InvalidKeyLength("EMSA2: EMSA2 requires a key length that is a multiple of 8");
-
-	unsigned int digestSize = hash.DigestSize();
-	if (representativeBitLength < 8*digestSize + 31)
-		throw PK_SignatureScheme::KeyTooShort();
-
-	unsigned int representativeByteLength = BitsToBytes(representativeBitLength);
-
-	representative[0] = messageEmpty ? 0x4b : 0x6b;
-	memset(representative+1, 0xbb, representativeByteLength-digestSize-4);	// pad with 0xbb
-	byte *afterP2 = representative+representativeByteLength-digestSize-3;
-	afterP2[0] = 0xba;
-	hash.Final(afterP2+1);
-	representative[representativeByteLength-2] = *hashIdentifier.first;
-	representative[representativeByteLength-1] = 0xcc;
-}
-
-// *****************************************************************************
 
 void RWFunction::BERDecode(BufferedTransformation &bt)
 {
@@ -201,3 +178,5 @@ void InvertibleRWFunction::AssignFrom(const NameValuePairs &source)
 }
 
 NAMESPACE_END
+
+#endif

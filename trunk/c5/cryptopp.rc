@@ -1,4 +1,4 @@
-//Microsoft Developer Studio generated resource script.
+// Microsoft Visual C++ generated resource script.
 //
 #include "resource.h"
 
@@ -21,15 +21,14 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 #pragma code_page(1252)
 #endif //_WIN32
 
-#ifndef _MAC
 /////////////////////////////////////////////////////////////////////////////
 //
 // Version
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 5,2,0,0
- PRODUCTVERSION 5,2,0,0
+ FILEVERSION 5,2,3,0
+ PRODUCTVERSION 5,2,3,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -44,18 +43,16 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "Comments", "free crypto library, more information available at www.cryptopp.com\0"
-            VALUE "CompanyName", "Wei Dai\0"
-            VALUE "FileDescription", "Crypto++® Library DLL\0"
-            VALUE "FileVersion", "5, 2, 0, 0\0"
-            VALUE "InternalName", "cryptopp\0"
-            VALUE "LegalCopyright", "Copyright © 1995-2003 by Wei Dai\0"
-            VALUE "LegalTrademarks", "Crypto++®\0"
-            VALUE "OriginalFilename", "cryptopp.dll\0"
-            VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "Crypto++® Library\0"
-            VALUE "ProductVersion", "5, 2, 0, 0\0"
-            VALUE "SpecialBuild", "\0"
+            VALUE "Comments", "free crypto library, more information available at www.cryptopp.com"
+            VALUE "CompanyName", "Wei Dai"
+            VALUE "FileDescription", "Crypto++® Library DLL"
+            VALUE "FileVersion", "5, 2, 3, 0"
+            VALUE "InternalName", "cryptopp"
+            VALUE "LegalCopyright", "Copyright © 1995-2004 by Wei Dai"
+            VALUE "LegalTrademarks", "Crypto++®"
+            VALUE "OriginalFilename", "cryptopp.dll"
+            VALUE "ProductName", "Crypto++® Library"
+            VALUE "ProductVersion", "5, 2, 3, 0"
         END
     END
     BLOCK "VarFileInfo"
@@ -64,8 +61,6 @@ BEGIN
     END
 END
 
-#endif    // !_MAC
-
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -73,18 +68,18 @@ END
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE DISCARDABLE 
+1 TEXTINCLUDE 
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE DISCARDABLE 
+2 TEXTINCLUDE 
 BEGIN
     "#include ""afxres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE DISCARDABLE 
+3 TEXTINCLUDE 
 BEGIN
     "\r\n"
     "\0"

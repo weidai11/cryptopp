@@ -62,7 +62,7 @@ NAMESPACE_BEGIN(CryptoPP)
 	typedef SecWordBlock SecAlignedWordBlock;
 #endif
 
-void CRYPTOPP_DLL DisableSSE2();
+void CRYPTOPP_DLL CRYPTOPP_API DisableSSE2();
 
 //! multiple precision integer and basic arithmetics
 /*! This class can represent positive and negative integers
@@ -144,11 +144,11 @@ public:
 		Integer(RandomNumberGenerator &rng, unsigned int bitcount);
 
 		//! avoid calling constructors for these frequently used integers
-		static const Integer &Zero();
+		static const Integer & CRYPTOPP_API Zero();
 		//! avoid calling constructors for these frequently used integers
-		static const Integer &One();
+		static const Integer & CRYPTOPP_API One();
 		//! avoid calling constructors for these frequently used integers
-		static const Integer &Two();
+		static const Integer & CRYPTOPP_API Two();
 
 		//! create a random integer of special type
 		/*! Ideally, the random integer created should be uniformly distributed
@@ -164,7 +164,7 @@ public:
 		Integer(RandomNumberGenerator &rng, const Integer &min, const Integer &max, RandomNumberType rnType=ANY, const Integer &equiv=Zero(), const Integer &mod=One());
 
 		//! return the integer 2**e
-		static Integer Power2(unsigned int e);
+		static Integer CRYPTOPP_API Power2(unsigned int e);
 	//@}
 
 	//! \name ENCODE/DECODE
@@ -380,20 +380,20 @@ public:
 		Integer MultiplicativeInverse() const;
 
 		//! modular multiplication
-		CRYPTOPP_DLL friend Integer a_times_b_mod_c(const Integer &x, const Integer& y, const Integer& m);
+		CRYPTOPP_DLL friend Integer CRYPTOPP_API a_times_b_mod_c(const Integer &x, const Integer& y, const Integer& m);
 		//! modular exponentiation
-		CRYPTOPP_DLL friend Integer a_exp_b_mod_c(const Integer &x, const Integer& e, const Integer& m);
+		CRYPTOPP_DLL friend Integer CRYPTOPP_API a_exp_b_mod_c(const Integer &x, const Integer& e, const Integer& m);
 
 		//! calculate r and q such that (a == d*q + r) && (0 <= r < abs(d))
-		static void Divide(Integer &r, Integer &q, const Integer &a, const Integer &d);
+		static void CRYPTOPP_API Divide(Integer &r, Integer &q, const Integer &a, const Integer &d);
 		//! use a faster division algorithm when divisor is short
-		static void Divide(word &r, Integer &q, const Integer &a, word d);
+		static void CRYPTOPP_API Divide(word &r, Integer &q, const Integer &a, word d);
 
 		//! returns same result as Divide(r, q, a, Power2(n)), but faster
-		static void DivideByPowerOf2(Integer &r, Integer &q, const Integer &a, unsigned int n);
+		static void CRYPTOPP_API DivideByPowerOf2(Integer &r, Integer &q, const Integer &a, unsigned int n);
 
 		//! greatest common divisor
-		static Integer Gcd(const Integer &a, const Integer &n);
+		static Integer CRYPTOPP_API Gcd(const Integer &a, const Integer &n);
 		//! calculate multiplicative inverse of *this mod n
 		Integer InverseMod(const Integer &n) const;
 		//!
@@ -403,9 +403,9 @@ public:
 	//! \name INPUT/OUTPUT
 	//@{
 		//!
-		friend CRYPTOPP_DLL std::istream& operator>>(std::istream& in, Integer &a);
+		friend CRYPTOPP_DLL std::istream& CRYPTOPP_API operator>>(std::istream& in, Integer &a);
 		//!
-		friend CRYPTOPP_DLL std::ostream& operator<<(std::ostream& out, const Integer &a);
+		friend CRYPTOPP_DLL std::ostream& CRYPTOPP_API operator<<(std::ostream& out, const Integer &a);
 	//@}
 
 private:

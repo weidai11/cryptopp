@@ -29,6 +29,7 @@
 #include "pssr.h"
 #include "randpool.h"
 #include "rsa.h"
+#include "rw.h"
 #include "sha.h"
 #include "skipjack.h"
 #include "trdlocal.h"
@@ -56,11 +57,11 @@ NAMESPACE_BEGIN(CryptoPP)
 using std::new_handler;
 #endif
 
-typedef void * (CRYPTOPP_CDECL * PNew)(size_t);
-typedef void (CRYPTOPP_CDECL * PDelete)(void *);
-typedef void (CRYPTOPP_CDECL * PGetNewAndDelete)(PNew &, PDelete &);
-typedef new_handler (CRYPTOPP_CDECL * PSetNewHandler)(new_handler);
-typedef void (CRYPTOPP_CDECL * PSetNewAndDelete)(PNew, PDelete, PSetNewHandler);
+typedef void * (CRYPTOPP_API * PNew)(size_t);
+typedef void (CRYPTOPP_API * PDelete)(void *);
+typedef void (CRYPTOPP_API * PGetNewAndDelete)(PNew &, PDelete &);
+typedef new_handler (CRYPTOPP_API * PSetNewHandler)(new_handler);
+typedef void (CRYPTOPP_API * PSetNewAndDelete)(PNew, PDelete, PSetNewHandler);
 
 NAMESPACE_END
 

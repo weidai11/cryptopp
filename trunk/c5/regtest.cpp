@@ -17,6 +17,7 @@
 #include "shacal2.h"
 #include "tea.h"
 #include "panama.h"
+#include "pssr.h"
 
 USING_NAMESPACE(CryptoPP)
 

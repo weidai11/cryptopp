@@ -38,7 +38,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-bool FunctionAssignIntToInteger(const std::type_info &valueType, void *pInteger, const void *pInt)
+bool AssignIntToInteger(const std::type_info &valueType, void *pInteger, const void *pInt)
 {
 	if (valueType != typeid(Integer))
 		return false;
@@ -46,7 +46,7 @@ bool FunctionAssignIntToInteger(const std::type_info &valueType, void *pInteger,
 	return true;
 }
 
-static const char s_RunAtStartup = (AssignIntToInteger = FunctionAssignIntToInteger, 0);
+static const char s_RunAtStartup = (g_pAssignIntToInteger = AssignIntToInteger, 0);
 
 #ifdef SSE2_INTRINSICS_AVAILABLE
 template <class T>
@@ -983,27 +983,27 @@ static bool IsP4()
 class PentiumOptimized : public Portable
 {
 public:
-	static word CRYPTOPP_CDECL Add(word *C, const word *A, const word *B, unsigned int N);
-	static word CRYPTOPP_CDECL Subtract(word *C, const word *A, const word *B, unsigned int N);
-	static void CRYPTOPP_CDECL Multiply4(word *C, const word *A, const word *B);
-	static void CRYPTOPP_CDECL Multiply8(word *C, const word *A, const word *B);
-	static void CRYPTOPP_CDECL Multiply8Bottom(word *C, const word *A, const word *B);
+	static word Add(word *C, const word *A, const word *B, unsigned int N);
+	static word Subtract(word *C, const word *A, const word *B, unsigned int N);
+	static void Multiply4(word *C, const word *A, const word *B);
+	static void Multiply8(word *C, const word *A, const word *B);
+	static void Multiply8Bottom(word *C, const word *A, const word *B);
 };
 
 class P4Optimized
 {
 public:
-	static word CRYPTOPP_CDECL Add(word *C, const word *A, const word *B, unsigned int N);
-	static word CRYPTOPP_CDECL Subtract(word *C, const word *A, const word *B, unsigned int N);
+	static word Add(word *C, const word *A, const word *B, unsigned int N);
+	static word Subtract(word *C, const word *A, const word *B, unsigned int N);
 #ifdef SSE2_INTRINSICS_AVAILABLE
-	static void CRYPTOPP_CDECL Multiply4(word *C, const word *A, const word *B);
-	static void CRYPTOPP_CDECL Multiply8(word *C, const word *A, const word *B);
-	static void CRYPTOPP_CDECL Multiply8Bottom(word *C, const word *A, const word *B);
+	static void Multiply4(word *C, const word *A, const word *B);
+	static void Multiply8(word *C, const word *A, const word *B);
+	static void Multiply8Bottom(word *C, const word *A, const word *B);
 #endif
 };
 
-typedef word (CRYPTOPP_CDECL * PAddSub)(word *C, const word *A, const word *B, unsigned int N);
-typedef void (CRYPTOPP_CDECL * PMul)(word *C, const word *A, const word *B);
+typedef word (* PAddSub)(word *C, const word *A, const word *B, unsigned int N);
+typedef void (* PMul)(word *C, const word *A, const word *B);
 
 static PAddSub s_pAdd, s_pSub;
 #ifdef SSE2_INTRINSICS_AVAILABLE
@@ -2947,7 +2947,6 @@ static Integer StringToInteger(const T *str)
 {
 	word radix;
 	// GCC workaround
-	// std::char_traits doesn't exist in GCC 2.x
 	// std::char_traits<wchar_t>::length() not defined in GCC 3.2 and STLport 4.5.3
 	unsigned int length;
 	for (length = 0; str[length] != 0; length++) {}
@@ -3989,16 +3988,16 @@ ModularArithmetic::ModularArithmetic(BufferedTransformation &bt)
 	OID oid(seq);
 	if (oid != ASN1::prime_field())
 		BERDecodeError();
-	modulus.BERDecode(seq);
+	m_modulus.BERDecode(seq);
 	seq.MessageEnd();
-	result.reg.resize(modulus.reg.size());
+	m_result.reg.resize(m_modulus.reg.size());
 }
 
 void ModularArithmetic::DEREncode(BufferedTransformation &bt) const
 {
 	DERSequenceEncoder seq(bt);
 	ASN1::prime_field().DEREncode(seq);
-	modulus.DEREncode(seq);
+	m_modulus.DEREncode(seq);
 	seq.MessageEnd();
 }
 
@@ -4014,50 +4013,50 @@ void ModularArithmetic::BERDecodeElement(BufferedTransformation &in, Element &a)
 
 const Integer& ModularArithmetic::Half(const Integer &a) const
 {
-	if (a.reg.size()==modulus.reg.size())
+	if (a.reg.size()==m_modulus.reg.size())
 	{
-		CryptoPP::DivideByPower2Mod(result.reg.begin(), a.reg, 1, modulus.reg, a.reg.size());
-		return result;
+		CryptoPP::DivideByPower2Mod(m_result.reg.begin(), a.reg, 1, m_modulus.reg, a.reg.size());
+		return m_result;
 	}
 	else
-		return result1 = (a.IsEven() ? (a >> 1) : ((a+modulus) >> 1));
+		return m_result1 = (a.IsEven() ? (a >> 1) : ((a+m_modulus) >> 1));
 }
 
 const Integer& ModularArithmetic::Add(const Integer &a, const Integer &b) const
 {
-	if (a.reg.size()==modulus.reg.size() && b.reg.size()==modulus.reg.size())
+	if (a.reg.size()==m_modulus.reg.size() && b.reg.size()==m_modulus.reg.size())
 	{
-		if (CryptoPP::Add(result.reg.begin(), a.reg, b.reg, a.reg.size())
-			|| Compare(result.reg, modulus.reg, a.reg.size()) >= 0)
+		if (CryptoPP::Add(m_result.reg.begin(), a.reg, b.reg, a.reg.size())
+			|| Compare(m_result.reg, m_modulus.reg, a.reg.size()) >= 0)
 		{
-			CryptoPP::Subtract(result.reg.begin(), result.reg, modulus.reg, a.reg.size());
+			CryptoPP::Subtract(m_result.reg.begin(), m_result.reg, m_modulus.reg, a.reg.size());
 		}
-		return result;
+		return m_result;
 	}
 	else
 	{
-		result1 = a+b;
-		if (result1 >= modulus)
-			result1 -= modulus;
-		return result1;
+		m_result1 = a+b;
+		if (m_result1 >= m_modulus)
+			m_result1 -= m_modulus;
+		return m_result1;
 	}
 }
 
 Integer& ModularArithmetic::Accumulate(Integer &a, const Integer &b) const
 {
-	if (a.reg.size()==modulus.reg.size() && b.reg.size()==modulus.reg.size())
+	if (a.reg.size()==m_modulus.reg.size() && b.reg.size()==m_modulus.reg.size())
 	{
 		if (CryptoPP::Add(a.reg, a.reg, b.reg, a.reg.size())
-			|| Compare(a.reg, modulus.reg, a.reg.size()) >= 0)
+			|| Compare(a.reg, m_modulus.reg, a.reg.size()) >= 0)
 		{
-			CryptoPP::Subtract(a.reg, a.reg, modulus.reg, a.reg.size());
+			CryptoPP::Subtract(a.reg, a.reg, m_modulus.reg, a.reg.size());
 		}
 	}
 	else
 	{
 		a+=b;
-		if (a>=modulus)
-			a-=modulus;
+		if (a>=m_modulus)
+			a-=m_modulus;
 	}
 
 	return a;
@@ -4065,33 +4064,33 @@ Integer& ModularArithmetic::Accumulate(Integer &a, const Integer &b) const
 
 const Integer& ModularArithmetic::Subtract(const Integer &a, const Integer &b) const
 {
-	if (a.reg.size()==modulus.reg.size() && b.reg.size()==modulus.reg.size())
+	if (a.reg.size()==m_modulus.reg.size() && b.reg.size()==m_modulus.reg.size())
 	{
-		if (CryptoPP::Subtract(result.reg.begin(), a.reg, b.reg, a.reg.size()))
-			CryptoPP::Add(result.reg.begin(), result.reg, modulus.reg, a.reg.size());
-		return result;
+		if (CryptoPP::Subtract(m_result.reg.begin(), a.reg, b.reg, a.reg.size()))
+			CryptoPP::Add(m_result.reg.begin(), m_result.reg, m_modulus.reg, a.reg.size());
+		return m_result;
 	}
 	else
 	{
-		result1 = a-b;
-		if (result1.IsNegative())
-			result1 += modulus;
-		return result1;
+		m_result1 = a-b;
+		if (m_result1.IsNegative())
+			m_result1 += m_modulus;
+		return m_result1;
 	}
 }
 
 Integer& ModularArithmetic::Reduce(Integer &a, const Integer &b) const
 {
-	if (a.reg.size()==modulus.reg.size() && b.reg.size()==modulus.reg.size())
+	if (a.reg.size()==m_modulus.reg.size() && b.reg.size()==m_modulus.reg.size())
 	{
 		if (CryptoPP::Subtract(a.reg, a.reg, b.reg, a.reg.size()))
-			CryptoPP::Add(a.reg, a.reg, modulus.reg, a.reg.size());
+			CryptoPP::Add(a.reg, a.reg, m_modulus.reg, a.reg.size());
 	}
 	else
 	{
 		a-=b;
 		if (a.IsNegative())
-			a+=modulus;
+			a+=m_modulus;
 	}
 
 	return a;
@@ -4102,18 +4101,18 @@ const Integer& ModularArithmetic::Inverse(const Integer &a) const
 	if (!a)
 		return a;
 
-	CopyWords(result.reg.begin(), modulus.reg, modulus.reg.size());
-	if (CryptoPP::Subtract(result.reg.begin(), result.reg, a.reg, a.reg.size()))
-		Decrement(result.reg.begin()+a.reg.size(), 1, modulus.reg.size()-a.reg.size());
+	CopyWords(m_result.reg.begin(), m_modulus.reg, m_modulus.reg.size());
+	if (CryptoPP::Subtract(m_result.reg.begin(), m_result.reg, a.reg, a.reg.size()))
+		Decrement(m_result.reg.begin()+a.reg.size(), 1, m_modulus.reg.size()-a.reg.size());
 
-	return result;
+	return m_result;
 }
 
 Integer ModularArithmetic::CascadeExponentiate(const Integer &x, const Integer &e1, const Integer &y, const Integer &e2) const
 {
-	if (modulus.IsOdd())
+	if (m_modulus.IsOdd())
 	{
-		MontgomeryRepresentation dr(modulus);
+		MontgomeryRepresentation dr(m_modulus);
 		return dr.ConvertOut(dr.CascadeExponentiate(dr.ConvertIn(x), e1, dr.ConvertIn(y), e2));
 	}
 	else
@@ -4122,9 +4121,9 @@ Integer ModularArithmetic::CascadeExponentiate(const Integer &x, const Integer &
 
 void ModularArithmetic::SimultaneousExponentiate(Integer *results, const Integer &base, const Integer *exponents, unsigned int exponentsCount) const
 {
-	if (modulus.IsOdd())
+	if (m_modulus.IsOdd())
 	{
-		MontgomeryRepresentation dr(modulus);
+		MontgomeryRepresentation dr(m_modulus);
 		dr.SimultaneousExponentiate(results, dr.ConvertIn(base), exponents, exponentsCount);
 		for (unsigned int i=0; i<exponentsCount; i++)
 			results[i] = dr.ConvertOut(results[i]);
@@ -4135,75 +4134,75 @@ void ModularArithmetic::SimultaneousExponentiate(Integer *results, const Integer
 
 MontgomeryRepresentation::MontgomeryRepresentation(const Integer &m)	// modulus must be odd
 	: ModularArithmetic(m),
-	  u((word)0, modulus.reg.size()),
-	  workspace(5*modulus.reg.size())
+	  m_u((word)0, m_modulus.reg.size()),
+	  m_workspace(5*m_modulus.reg.size())
 {
-	if (!modulus.IsOdd())
+	if (!m_modulus.IsOdd())
 		throw InvalidArgument("MontgomeryRepresentation: Montgomery representation requires an odd modulus");
 
-	RecursiveInverseModPower2(u.reg, workspace, modulus.reg, modulus.reg.size());
+	RecursiveInverseModPower2(m_u.reg, m_workspace, m_modulus.reg, m_modulus.reg.size());
 }
 
 const Integer& MontgomeryRepresentation::Multiply(const Integer &a, const Integer &b) const
 {
-	word *const T = workspace.begin();
-	word *const R = result.reg.begin();
-	const unsigned int N = modulus.reg.size();
+	word *const T = m_workspace.begin();
+	word *const R = m_result.reg.begin();
+	const unsigned int N = m_modulus.reg.size();
 	assert(a.reg.size()<=N && b.reg.size()<=N);
 
 	AsymmetricMultiply(T, T+2*N, a.reg, a.reg.size(), b.reg, b.reg.size());
 	SetWords(T+a.reg.size()+b.reg.size(), 0, 2*N-a.reg.size()-b.reg.size());
-	MontgomeryReduce(R, T+2*N, T, modulus.reg, u.reg, N);
-	return result;
+	MontgomeryReduce(R, T+2*N, T, m_modulus.reg, m_u.reg, N);
+	return m_result;
 }
 
 const Integer& MontgomeryRepresentation::Square(const Integer &a) const
 {
-	word *const T = workspace.begin();
-	word *const R = result.reg.begin();
-	const unsigned int N = modulus.reg.size();
+	word *const T = m_workspace.begin();
+	word *const R = m_result.reg.begin();
+	const unsigned int N = m_modulus.reg.size();
 	assert(a.reg.size()<=N);
 
 	CryptoPP::Square(T, T+2*N, a.reg, a.reg.size());
 	SetWords(T+2*a.reg.size(), 0, 2*N-2*a.reg.size());
-	MontgomeryReduce(R, T+2*N, T, modulus.reg, u.reg, N);
-	return result;
+	MontgomeryReduce(R, T+2*N, T, m_modulus.reg, m_u.reg, N);
+	return m_result;
 }
 
 Integer MontgomeryRepresentation::ConvertOut(const Integer &a) const
 {
-	word *const T = workspace.begin();
-	word *const R = result.reg.begin();
-	const unsigned int N = modulus.reg.size();
+	word *const T = m_workspace.begin();
+	word *const R = m_result.reg.begin();
+	const unsigned int N = m_modulus.reg.size();
 	assert(a.reg.size()<=N);
 
 	CopyWords(T, a.reg, a.reg.size());
 	SetWords(T+a.reg.size(), 0, 2*N-a.reg.size());
-	MontgomeryReduce(R, T+2*N, T, modulus.reg, u.reg, N);
-	return result;
+	MontgomeryReduce(R, T+2*N, T, m_modulus.reg, m_u.reg, N);
+	return m_result;
 }
 
 const Integer& MontgomeryRepresentation::MultiplicativeInverse(const Integer &a) const
 {
 //	  return (EuclideanMultiplicativeInverse(a, modulus)<<(2*WORD_BITS*modulus.reg.size()))%modulus;
-	word *const T = workspace.begin();
-	word *const R = result.reg.begin();
-	const unsigned int N = modulus.reg.size();
+	word *const T = m_workspace.begin();
+	word *const R = m_result.reg.begin();
+	const unsigned int N = m_modulus.reg.size();
 	assert(a.reg.size()<=N);
 
 	CopyWords(T, a.reg, a.reg.size());
 	SetWords(T+a.reg.size(), 0, 2*N-a.reg.size());
-	MontgomeryReduce(R, T+2*N, T, modulus.reg, u.reg, N);
-	unsigned k = AlmostInverse(R, T, R, N, modulus.reg, N);
+	MontgomeryReduce(R, T+2*N, T, m_modulus.reg, m_u.reg, N);
+	unsigned k = AlmostInverse(R, T, R, N, m_modulus.reg, N);
 
 //	cout << "k=" << k << " N*32=" << 32*N << endl;
 
 	if (k>N*WORD_BITS)
-		DivideByPower2Mod(R, R, k-N*WORD_BITS, modulus.reg, N);
+		DivideByPower2Mod(R, R, k-N*WORD_BITS, m_modulus.reg, N);
 	else
-		MultiplyByPower2Mod(R, R, N*WORD_BITS-k, modulus.reg, N);
+		MultiplyByPower2Mod(R, R, N*WORD_BITS-k, m_modulus.reg, N);
 
-	return result;
+	return m_result;
 }
 
 NAMESPACE_END

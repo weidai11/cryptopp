@@ -135,10 +135,10 @@ template <class T> inline const T& STDMAX(const T& a, const T& b)
 // #define GETBYTE(x, y) (unsigned int)(((x)>>(8*(y)))&255)
 // #define GETBYTE(x, y) (((byte *)&(x))[y])
 
-CRYPTOPP_DLL unsigned int Parity(unsigned long);
-CRYPTOPP_DLL unsigned int BytePrecision(unsigned long);
-CRYPTOPP_DLL unsigned int BitPrecision(unsigned long);
-CRYPTOPP_DLL unsigned long Crop(unsigned long, unsigned int size);
+CRYPTOPP_DLL unsigned int CRYPTOPP_API Parity(unsigned long);
+CRYPTOPP_DLL unsigned int CRYPTOPP_API BytePrecision(unsigned long);
+CRYPTOPP_DLL unsigned int CRYPTOPP_API BitPrecision(unsigned long);
+CRYPTOPP_DLL unsigned long CRYPTOPP_API Crop(unsigned long, unsigned int size);
 
 inline unsigned int BitsToBytes(unsigned int bitCount)
 {
@@ -160,8 +160,8 @@ inline unsigned int BitsToDwords(unsigned int bitCount)
 	return ((bitCount+2*WORD_BITS-1)/(2*WORD_BITS));
 }
 
-CRYPTOPP_DLL void xorbuf(byte *buf, const byte *mask, unsigned int count);
-CRYPTOPP_DLL void xorbuf(byte *output, const byte *input, const byte *mask, unsigned int count);
+CRYPTOPP_DLL void CRYPTOPP_API xorbuf(byte *buf, const byte *mask, unsigned int count);
+CRYPTOPP_DLL void CRYPTOPP_API xorbuf(byte *output, const byte *input, const byte *mask, unsigned int count);
 
 template <class T>
 inline bool IsPowerOf2(T n)
@@ -227,7 +227,7 @@ inline bool NativeByteOrderIs(ByteOrder order)
 	return order == GetNativeByteOrder();
 }
 
-template <class T>		// can't use <sstream> because GCC 2.95.2 doesn't have it
+template <class T>
 std::string IntToString(T a, unsigned int base = 10)
 {
 	if (a == 0)
@@ -265,6 +265,20 @@ inline CipherDir GetCipherDir(const T &obj)
 }
 
 void CallNewHandler();
+
+inline void IncrementCounterByOne(byte *inout, unsigned int s)
+{
+	for (int i=s-1, carry=1; i>=0 && carry; i--)
+		carry = !++inout[i];
+}
+
+inline void IncrementCounterByOne(byte *output, const byte *input, unsigned int s)
+{
+	int i, carry;
+	for (i=s-1, carry=1; i>=0 && carry; i--)
+		carry = !(output[i] = input[i]+1);
+	memcpy(output, input, i+1);
+}
 
 // ************** rotate functions ***************
 

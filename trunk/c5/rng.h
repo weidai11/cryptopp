@@ -35,7 +35,7 @@ class CRYPTOPP_DLL X917RNG : public RandomNumberGenerator, public NotCopyable
 {
 public:
 	// cipher will be deleted by destructor, deterministicTimeVector = 0 means obtain time vector from system
-	X917RNG(BlockTransformation *cipher, const byte *seed, unsigned long deterministicTimeVector = 0);
+	X917RNG(BlockTransformation *cipher, const byte *seed, const byte *deterministicTimeVector = 0);
 
 	byte GenerateByte();
 
@@ -43,9 +43,8 @@ private:
 	member_ptr<BlockTransformation> cipher;
 	const int S;			// blocksize of cipher
 	SecByteBlock dtbuf; 	// buffer for enciphered timestamp
-	SecByteBlock randseed, randbuf;
+	SecByteBlock randseed, randbuf, m_deterministicTimeVector;
 	int randbuf_counter;	// # of unused bytes left in randbuf
-	unsigned long m_deterministicTimeVector;
 };
 
 /** This class implements Maurer's Universal Statistical Test for Random Bit Generators

@@ -95,7 +95,7 @@ unsigned int FileStore::CopyRangeTo2(BufferedTransformation &target, unsigned lo
 	if (begin == 0 && end == 1)
 	{
 		int result = m_stream->peek();
-		if (result == EOF)	// GCC workaround: 2.95.2 doesn't have char_traits<char>::eof()
+		if (result == char_traits<char>::eof())
 			return 0;
 		else
 		{

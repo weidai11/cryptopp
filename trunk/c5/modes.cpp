@@ -50,20 +50,6 @@ void CTR_ModePolicy::SeekToIteration(lword iterationCount)
 	}
 }
 
-static inline void IncrementCounterByOne(byte *inout, unsigned int s)
-{
-	for (int i=s-1, carry=1; i>=0 && carry; i--)
-		carry = !++inout[i];
-}
-
-static inline void IncrementCounterByOne(byte *output, const byte *input, unsigned int s)
-{
-	int i, carry;
-	for (i=s-1, carry=1; i>=0 && carry; i--)
-		carry = !(output[i] = input[i]+1);
-	memcpy(output, input, i+1);
-}
-
 void CTR_ModePolicy::GetNextIV(byte *IV)
 {
 	IncrementCounterByOne(IV, m_counterArray, BlockSize());

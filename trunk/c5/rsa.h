@@ -6,10 +6,11 @@
 	ciphers and signature schemes as defined in PKCS #1 v2.0.
 */
 
+#include "pubkey.h"
+#include "asn.h"
 #include "pkcspad.h"
 #include "oaep.h"
-#include "integer.h"
-#include "asn.h"
+#include "emsa2.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -97,10 +98,24 @@ protected:
 	Integer m_d, m_p, m_q, m_dp, m_dq, m_u;
 };
 
+class CRYPTOPP_DLL RSAFunction_ISO : public RSAFunction
+{
+public:
+	Integer ApplyFunction(const Integer &x) const;
+	Integer PreimageBound() const {return ++(m_n>>1);}
+};
+
+class CRYPTOPP_DLL InvertibleRSAFunction_ISO : public InvertibleRSAFunction
+{
+public:
+	Integer CalculateInverse(RandomNumberGenerator &rng, const Integer &x) const;
+	Integer PreimageBound() const {return ++(m_n>>1);}
+};
+
 //! RSA
 struct CRYPTOPP_DLL RSA
 {
-	static std::string StaticAlgorithmName() {return "RSA";}
+	static const char * CRYPTOPP_API StaticAlgorithmName() {return "RSA";}
 	typedef RSAFunction PublicKey;
 	typedef InvertibleRSAFunction PrivateKey;
 };
@@ -115,6 +130,18 @@ struct RSAES : public TF_ES<STANDARD, RSA>
 /*! See documentation of PKCS1v15 for a list of hash functions that can be used with it. */
 template <class STANDARD, class H>
 struct RSASS : public TF_SS<STANDARD, H, RSA>
+{
+};
+
+struct CRYPTOPP_DLL RSA_ISO
+{
+	static const char * CRYPTOPP_API StaticAlgorithmName() {return "RSA-ISO";}
+	typedef RSAFunction_ISO PublicKey;
+	typedef InvertibleRSAFunction_ISO PrivateKey;
+};
+
+template <class H>
+struct RSASS_ISO : public TF_SS<P1363_EMSA2, H, RSA_ISO>
 {
 };
 

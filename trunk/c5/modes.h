@@ -82,7 +82,7 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CFB_ModePolicy : public ModePolicyCommonTe
 {
 public:
 	IV_Requirement IVRequirement() const {return RANDOM_IV;}
-	static const char *StaticAlgorithmName() {return "CFB";}
+	static const char * CRYPTOPP_API StaticAlgorithmName() {return "CFB";}
 
 protected:
 	unsigned int GetBytesPerIteration() const {return m_feedbackSize;}
@@ -127,7 +127,7 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE OFB_ModePolicy : public ModePolicyCommonTe
 public:
 	bool IsRandomAccess() const {return false;}
 	IV_Requirement IVRequirement() const {return STRUCTURED_IV;}
-	static const char *StaticAlgorithmName() {return "OFB";}
+	static const char * CRYPTOPP_API StaticAlgorithmName() {return "OFB";}
 
 private:
 	unsigned int GetBytesPerIteration() const {return BlockSize();}
@@ -150,7 +150,7 @@ public:
 	bool IsRandomAccess() const {return true;}
 	IV_Requirement IVRequirement() const {return STRUCTURED_IV;}
 	void GetNextIV(byte *IV);
-	static const char *StaticAlgorithmName() {return "Counter-BE";}
+	static const char * CRYPTOPP_API StaticAlgorithmName() {return "Counter-BE";}
 
 private:
 	unsigned int GetBytesPerIteration() const {return BlockSize();}
@@ -197,7 +197,7 @@ public:
 	unsigned int OptimalBlockSize() const {return BlockSize() * m_cipher->OptimalNumberOfParallelBlocks();}
 	void ProcessBlocks(byte *outString, const byte *inString, unsigned int numberOfBlocks)
 		{m_cipher->ProcessAndXorMultipleBlocks(inString, NULL, outString, numberOfBlocks);}
-	static const char *StaticAlgorithmName() {return "ECB";}
+	static const char * CRYPTOPP_API StaticAlgorithmName() {return "ECB";}
 };
 
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CBC_ModeBase : public BlockOrientedCipherModeBase
@@ -206,7 +206,7 @@ public:
 	IV_Requirement IVRequirement() const {return UNPREDICTABLE_RANDOM_IV;}
 	bool RequireAlignedInput() const {return false;}
 	unsigned int MinLastBlockSize() const {return 0;}
-	static const char *StaticAlgorithmName() {return "CBC";}
+	static const char * CRYPTOPP_API StaticAlgorithmName() {return "CBC";}
 };
 
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CBC_Encryption : public CBC_ModeBase
@@ -221,7 +221,7 @@ public:
 	void SetStolenIV(byte *iv) {m_stolenIV = iv;}
 	unsigned int MinLastBlockSize() const {return BlockSize()+1;}
 	void ProcessLastBlock(byte *outString, const byte *inString, unsigned int length);
-	static const char *StaticAlgorithmName() {return "CBC/CTS";}
+	static const char * CRYPTOPP_API StaticAlgorithmName() {return "CBC/CTS";}
 
 protected:
 	void UncheckedSetKey(const NameValuePairs &params, const byte *key, unsigned int length, const byte *iv)
@@ -280,7 +280,7 @@ public:
 		this->SetKey(key, length, MakeParameters(Name::IV(), iv)(Name::FeedbackSize(), feedbackSize));
 	}
 
-	static std::string StaticAlgorithmName()
+	static std::string CRYPTOPP_API StaticAlgorithmName()
 		{return CIPHER::StaticAlgorithmName() + "/" + BASE::StaticAlgorithmName();}
 };
 

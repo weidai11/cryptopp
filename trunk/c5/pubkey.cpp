@@ -44,8 +44,13 @@ bool PK_RecoverableSignatureMessageEncodingMethod::VerifyMessageRepresentative(
 void TF_SignerBase::InputRecoverableMessage(PK_MessageAccumulator &messageAccumulator, const byte *recoverableMessage, unsigned int recoverableMessageLength) const
 {
 	PK_MessageAccumulatorBase &ma = static_cast<PK_MessageAccumulatorBase &>(messageAccumulator);
-	const MessageEncodingInterface &mei = GetMessageEncodingInterface();
-	unsigned int maxRecoverableLength = mei.MaxRecoverableLength(MessageRepresentativeBitLength(), GetHashIdentifier().second, ma.AccessHash().DigestSize());
+	HashIdentifier id = GetHashIdentifier();
+	const MessageEncodingInterface &encoding = GetMessageEncodingInterface();
+
+	if (MessageRepresentativeBitLength() < encoding.MinRepresentativeBitLength(id.second, ma.AccessHash().DigestSize()))
+		throw PK_SignatureScheme::KeyTooShort();
+
+	unsigned int maxRecoverableLength = encoding.MaxRecoverableLength(MessageRepresentativeBitLength(), GetHashIdentifier().second, ma.AccessHash().DigestSize());
 
 	if (maxRecoverableLength == 0)
 		{throw NotImplemented("TF_SignerBase: this algorithm does not support messsage recovery or the key is too short");}
@@ -53,7 +58,7 @@ void TF_SignerBase::InputRecoverableMessage(PK_MessageAccumulator &messageAccumu
 		throw InvalidArgument("TF_SignerBase: the recoverable message part is too long for the given key and algorithm");
 
 	ma.m_recoverableMessage.Assign(recoverableMessage, recoverableMessageLength);
-	mei.ProcessRecoverableMessage(
+	encoding.ProcessRecoverableMessage(
 		ma.AccessHash(), 
 		recoverableMessage, recoverableMessageLength,
 		NULL, 0, ma.m_semisignature);
@@ -62,10 +67,16 @@ void TF_SignerBase::InputRecoverableMessage(PK_MessageAccumulator &messageAccumu
 unsigned int TF_SignerBase::SignAndRestart(RandomNumberGenerator &rng, PK_MessageAccumulator &messageAccumulator, byte *signature, bool restart) const
 {
 	PK_MessageAccumulatorBase &ma = static_cast<PK_MessageAccumulatorBase &>(messageAccumulator);
+	HashIdentifier id = GetHashIdentifier();
+	const MessageEncodingInterface &encoding = GetMessageEncodingInterface();
+
+	if (MessageRepresentativeBitLength() < encoding.MinRepresentativeBitLength(id.second, ma.AccessHash().DigestSize()))
+		throw PK_SignatureScheme::KeyTooShort();
+
 	SecByteBlock representative(MessageRepresentativeLength());
-	GetMessageEncodingInterface().ComputeMessageRepresentative(rng, 
+	encoding.ComputeMessageRepresentative(rng, 
 		ma.m_recoverableMessage, ma.m_recoverableMessage.size(), 
-		ma.AccessHash(), GetHashIdentifier(), ma.m_empty,
+		ma.AccessHash(), id, ma.m_empty,
 		representative, MessageRepresentativeBitLength());
 	ma.m_empty = true;
 
@@ -78,6 +89,12 @@ unsigned int TF_SignerBase::SignAndRestart(RandomNumberGenerator &rng, PK_Messag
 void TF_VerifierBase::InputSignature(PK_MessageAccumulator &messageAccumulator, const byte *signature, unsigned int signatureLength) const
 {
 	PK_MessageAccumulatorBase &ma = static_cast<PK_MessageAccumulatorBase &>(messageAccumulator);
+	HashIdentifier id = GetHashIdentifier();
+	const MessageEncodingInterface &encoding = GetMessageEncodingInterface();
+
+	if (MessageRepresentativeBitLength() < encoding.MinRepresentativeBitLength(id.second, ma.AccessHash().DigestSize()))
+		throw PK_SignatureScheme::KeyTooShort();
+
 	ma.m_representative.New(MessageRepresentativeLength());
 	Integer x = GetTrapdoorFunctionInterface().ApplyFunction(Integer(signature, signatureLength));
 	if (x.BitCount() > MessageRepresentativeBitLength())
@@ -88,8 +105,14 @@ void TF_VerifierBase::InputSignature(PK_MessageAccumulator &messageAccumulator, 
 bool TF_VerifierBase::VerifyAndRestart(PK_MessageAccumulator &messageAccumulator) const
 {
 	PK_MessageAccumulatorBase &ma = static_cast<PK_MessageAccumulatorBase &>(messageAccumulator);
-	bool result = GetMessageEncodingInterface().VerifyMessageRepresentative(
-		ma.AccessHash(), GetHashIdentifier(), ma.m_empty, ma.m_representative, MessageRepresentativeBitLength());
+	HashIdentifier id = GetHashIdentifier();
+	const MessageEncodingInterface &encoding = GetMessageEncodingInterface();
+
+	if (MessageRepresentativeBitLength() < encoding.MinRepresentativeBitLength(id.second, ma.AccessHash().DigestSize()))
+		throw PK_SignatureScheme::KeyTooShort();
+
+	bool result = encoding.VerifyMessageRepresentative(
+		ma.AccessHash(), id, ma.m_empty, ma.m_representative, MessageRepresentativeBitLength());
 	ma.m_empty = true;
 	return result;
 }
@@ -97,8 +120,14 @@ bool TF_VerifierBase::VerifyAndRestart(PK_MessageAccumulator &messageAccumulator
 DecodingResult TF_VerifierBase::RecoverAndRestart(byte *recoveredMessage, PK_MessageAccumulator &messageAccumulator) const
 {
 	PK_MessageAccumulatorBase &ma = static_cast<PK_MessageAccumulatorBase &>(messageAccumulator);
-	DecodingResult result = GetMessageEncodingInterface().RecoverMessageFromRepresentative(
-		ma.AccessHash(), GetHashIdentifier(), ma.m_empty, ma.m_representative, MessageRepresentativeBitLength(), recoveredMessage);
+	HashIdentifier id = GetHashIdentifier();
+	const MessageEncodingInterface &encoding = GetMessageEncodingInterface();
+
+	if (MessageRepresentativeBitLength() < encoding.MinRepresentativeBitLength(id.second, ma.AccessHash().DigestSize()))
+		throw PK_SignatureScheme::KeyTooShort();
+
+	DecodingResult result = encoding.RecoverMessageFromRepresentative(
+		ma.AccessHash(), id, ma.m_empty, ma.m_representative, MessageRepresentativeBitLength(), recoveredMessage);
 	ma.m_empty = true;
 	return result;
 }

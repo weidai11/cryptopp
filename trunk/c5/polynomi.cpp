@@ -7,7 +7,7 @@
 #include "polynomi.h"
 #include "secblock.h"
 
-#include <strstream>	// can't use <sstream> because GCC 2.95.2 doesn't have it
+#include <sstream>
 #include <iostream>
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -23,7 +23,7 @@ void PolynomialOver<T>::Randomize(RandomNumberGenerator &rng, const Randomizatio
 template <class T>
 void PolynomialOver<T>::FromStr(const char *str, const Ring &ring)
 {
-	std::istrstream in((char *)str);
+	std::istringstream in((char *)str);
 	bool positive = true;
 	CoefficientType coef;
 	unsigned int power;

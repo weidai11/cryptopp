@@ -30,18 +30,20 @@ public:
 
 // PKCS_DigestDecoration can be instantiated with the following
 // classes as specified in PKCS#1 v2.0 and P1363a
-class SHA;
+class SHA1;
 class MD2;
 class MD5;
 class RIPEMD160;
 class Tiger;
+class SHA224;
 class SHA256;
 class SHA384;
 class SHA512;
 // end of list
 
 #ifdef CRYPTOPP_IS_DLL
-CRYPTOPP_DLL_TEMPLATE_CLASS PKCS_DigestDecoration<SHA>;
+CRYPTOPP_DLL_TEMPLATE_CLASS PKCS_DigestDecoration<SHA1>;
+CRYPTOPP_DLL_TEMPLATE_CLASS PKCS_DigestDecoration<SHA224>;
 CRYPTOPP_DLL_TEMPLATE_CLASS PKCS_DigestDecoration<SHA256>;
 CRYPTOPP_DLL_TEMPLATE_CLASS PKCS_DigestDecoration<SHA384>;
 CRYPTOPP_DLL_TEMPLATE_CLASS PKCS_DigestDecoration<SHA512>;
@@ -51,7 +53,10 @@ CRYPTOPP_DLL_TEMPLATE_CLASS PKCS_DigestDecoration<SHA512>;
 class CRYPTOPP_DLL PKCS1v15_SignatureMessageEncodingMethod : public PK_DeterministicSignatureMessageEncodingMethod
 {
 public:
-	static const char * StaticAlgorithmName() {return "EMSA-PKCS1-v1_5";}
+	static const char * CRYPTOPP_API StaticAlgorithmName() {return "EMSA-PKCS1-v1_5";}
+
+	unsigned int MinRepresentativeBitLength(unsigned int hashIdentifierSize, unsigned int digestSize) const
+		{return 8 * (digestSize + hashIdentifierSize + 10);}
 
 	void ComputeMessageRepresentative(RandomNumberGenerator &rng, 
 		const byte *recoverableMessage, unsigned int recoverableMessageLength,

@@ -6,13 +6,12 @@
 	Rabin-Williams signature schemes as defined in IEEE P1363.
 */
 
-#include "integer.h"
-#include "pssr.h"
+#include "pubkey.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
 //! _
-class RWFunction : virtual public TrapdoorFunction, public PublicKey
+class CRYPTOPP_DLL RWFunction : virtual public TrapdoorFunction, public PublicKey
 {
 	typedef RWFunction ThisClass;
 
@@ -39,7 +38,7 @@ protected:
 };
 
 //! _
-class InvertibleRWFunction : public RWFunction, public TrapdoorFunctionInverse, public PrivateKey
+class CRYPTOPP_DLL InvertibleRWFunction : public RWFunction, public TrapdoorFunctionInverse, public PrivateKey
 {
 	typedef InvertibleRWFunction ThisClass;
 
@@ -72,31 +71,6 @@ public:
 
 protected:
 	Integer m_p, m_q, m_u;
-};
-
-//! _
-class EMSA2Pad : public EMSA2HashIdLookup<PK_DeterministicSignatureMessageEncodingMethod>
-{
-public:
-	static const char *StaticAlgorithmName() {return "EMSA2";}
-	
-	unsigned int MaxUnpaddedLength(unsigned int paddedLength) const {return (paddedLength+1)/8-2;}
-
-	void ComputeMessageRepresentative(RandomNumberGenerator &rng, 
-		const byte *recoverableMessage, unsigned int recoverableMessageLength,
-		HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
-		byte *representative, unsigned int representativeBitLength) const;
-};
-
-//! EMSA2, for use with RWSS
-/*! Only the following hash functions are supported by this signature standard:
-	\dontinclude pssr.h
-	\skip can be instantiated
-	\until end of list
-*/
-struct P1363_EMSA2 : public SignatureStandard
-{
-	typedef EMSA2Pad SignatureMessageEncodingMethod;
 };
 
 //! RW

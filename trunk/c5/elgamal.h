@@ -75,7 +75,7 @@ public:
 };
 
 template <class BASE, class SCHEME_OPTIONS, class KEY>
-class CRYPTOPP_NO_VTABLE ElGamalObjectImpl : public DL_ObjectImplBase<BASE, SCHEME_OPTIONS, KEY>, public ElGamalBase
+class ElGamalObjectImpl : public DL_ObjectImplBase<BASE, SCHEME_OPTIONS, KEY>, public ElGamalBase
 {
 public:
 	unsigned int FixedMaxPlaintextLength() const {return MaxPlaintextLength(FixedCiphertextLength());}
@@ -106,27 +106,11 @@ struct ElGamal
 
 	static const char * StaticAlgorithmName() {return "ElgamalEnc/Crypto++Padding";}
 
-	class EncryptorImpl : public ElGamalObjectImpl<DL_EncryptorBase<Integer>,  SchemeOptions, SchemeOptions::PublicKey>, public PublicKeyCopier<SchemeOptions>
-	{
-	public:
-		void CopyKeyInto(SchemeOptions::PublicKey &key) const
-			{key = GetKey();}
-	};
-
-	class DecryptorImpl : public ElGamalObjectImpl<DL_DecryptorBase<Integer>, SchemeOptions, SchemeOptions::PrivateKey>, public PrivateKeyCopier<SchemeOptions>
-	{
-	public:
-		void CopyKeyInto(SchemeOptions::PublicKey &key) const
-			{GetKey().MakePublicKey(key);}
-		void CopyKeyInto(SchemeOptions::PrivateKey &key) const
-			{key = GetKey();}
-	};
-
 	typedef SchemeOptions::GroupParameters GroupParameters;
 	//! implements PK_Encryptor interface
-	typedef PK_FinalTemplate<EncryptorImpl> Encryptor;
+	typedef PK_FinalTemplate<ElGamalObjectImpl<DL_EncryptorBase<Integer>, SchemeOptions, SchemeOptions::PublicKey> > Encryptor;
 	//! implements PK_Decryptor interface
-	typedef PK_FinalTemplate<DecryptorImpl> Decryptor;
+	typedef PK_FinalTemplate<ElGamalObjectImpl<DL_DecryptorBase<Integer>, SchemeOptions, SchemeOptions::PrivateKey> > Decryptor;
 };
 
 typedef ElGamal::Encryptor ElGamalEncryptor;

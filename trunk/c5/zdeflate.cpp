@@ -97,6 +97,8 @@ struct FreqLessThan
 {
 	inline bool operator()(unsigned int lhs, const HuffmanNode &rhs) {return lhs < rhs.freq;}
 	inline bool operator()(const HuffmanNode &lhs, const HuffmanNode &rhs) const {return lhs.freq < rhs.freq;}
+	// needed for MSVC .NET 2005
+	inline bool operator()(const HuffmanNode &lhs, unsigned int rhs) {return lhs.freq < rhs;}
 };
 
 void HuffmanEncoder::GenerateCodeLengths(unsigned int *codeBits, unsigned int maxCodeBits, const unsigned int *codeCounts, unsigned int nCodes)

@@ -57,7 +57,7 @@ public:
 	Integer ConvertElementToInteger(const Element &element) const
 		{return element;}
 	Integer GetMaxExponent() const;
-	static std::string StaticAlgorithmNamePrefix() {return "";}
+	static std::string CRYPTOPP_API StaticAlgorithmNamePrefix() {return "";}
 
 	OID GetAlgorithmID() const;
 
@@ -152,7 +152,7 @@ template <class T>
 class DL_Algorithm_GDSA : public DL_ElgamalLikeSignatureAlgorithm<T>
 {
 public:
-	static const char * StaticAlgorithmName() {return "DSA-1363";}
+	static const char * CRYPTOPP_API StaticAlgorithmName() {return "DSA-1363";}
 
 	void Sign(const DL_GroupParameters<T> &params, const Integer &x, const Integer &k, const Integer &e, Integer &r, Integer &s) const
 	{
@@ -184,7 +184,7 @@ template <class T>
 class DL_Algorithm_NR : public DL_ElgamalLikeSignatureAlgorithm<T>
 {
 public:
-	static const char * StaticAlgorithmName() {return "NR";}
+	static const char * CRYPTOPP_API StaticAlgorithmName() {return "NR";}
 
 	void Sign(const DL_GroupParameters<T> &params, const Integer &x, const Integer &k, const Integer &e, Integer &r, Integer &s) const
 	{
@@ -388,17 +388,17 @@ struct CRYPTOPP_DLL DSA : public DL_SS<
 	SHA, 
 	DSA>
 {
-	static std::string StaticAlgorithmName() {return std::string("DSA");}
+	static const char * CRYPTOPP_API StaticAlgorithmName() {return "DSA";}
 
 	//! Generate DSA primes according to NIST standard
 	/*! Both seedLength and primeLength are in bits, but seedLength should
 		be a multiple of 8.
 		If useInputCounterValue == true, the counter parameter is taken as input, otherwise it's used for output
 	*/
-	static bool GeneratePrimes(const byte *seed, unsigned int seedLength, int &counter,
+	static bool CRYPTOPP_API GeneratePrimes(const byte *seed, unsigned int seedLength, int &counter,
 								Integer &p, unsigned int primeLength, Integer &q, bool useInputCounterValue = false);
 
-	static bool IsValidPrimeLength(unsigned int pbits)
+	static bool CRYPTOPP_API IsValidPrimeLength(unsigned int pbits)
 		{return pbits >= MIN_PRIME_LENGTH && pbits <= MAX_PRIME_LENGTH && pbits % PRIME_LENGTH_MULTIPLE == 0;}
 
 	//! FIPS 186-2 Change Notice 1 changed the minimum modulus length to 1024
@@ -528,7 +528,7 @@ struct DLIES
 		DL_EncryptionAlgorithm_Xor<HMAC<SHA1>, DHAES_MODE>,
 		DLIES<> >
 {
-	static std::string StaticAlgorithmName() {return "DLIES";}	// TODO: fix this after name is standardized
+	static std::string CRYPTOPP_API StaticAlgorithmName() {return "DLIES";}	// TODO: fix this after name is standardized
 };
 
 NAMESPACE_END

@@ -4,7 +4,7 @@
 	classes that provide a uniform interface to this library.
 */
 
-/*!	\mainpage <a href="http://www.cryptopp.com">Crypto++</a><sup><small>&reg;</small></sup> Library 5.2.2 Reference Manual
+/*!	\mainpage <a href="http://www.cryptopp.com">Crypto++</a><sup><small>&reg;</small></sup> Library 5.2.3 Reference Manual
 <dl>
 <dt>Abstract Base Classes<dd>
 	cryptlib.h
@@ -283,7 +283,7 @@ public:
 		{return GetValueWithDefault(name, defaultValue);}
 
 	//! used by derived classes to check for type mismatch
-	CRYPTOPP_DLL static void ThrowIfTypeMismatch(const char *name, const std::type_info &stored, const std::type_info &retrieving)
+	CRYPTOPP_DLL static void CRYPTOPP_API ThrowIfTypeMismatch(const char *name, const std::type_info &stored, const std::type_info &retrieving)
 		{if (stored != retrieving) throw ValueTypeMismatch(name, stored, retrieving);}
 
 	template <class T>
@@ -653,7 +653,7 @@ public:
 };
 
 //! returns a reference that can be passed to functions that ask for a RNG but doesn't actually use it
-CRYPTOPP_DLL RandomNumberGenerator & NullRNG();
+CRYPTOPP_DLL RandomNumberGenerator & CRYPTOPP_API NullRNG();
 
 class WaitObjectContainer;
 
@@ -823,9 +823,9 @@ public:
 		unsigned int GetWord32(word32 &value, ByteOrder order=BIG_ENDIAN_ORDER);
 
 		//! try to peek at a 16-bit word
-		unsigned int PeekWord16(word16 &value, ByteOrder order=BIG_ENDIAN_ORDER);
+		unsigned int PeekWord16(word16 &value, ByteOrder order=BIG_ENDIAN_ORDER) const;
 		//! try to peek at a 32-bit word
-		unsigned int PeekWord32(word32 &value, ByteOrder order=BIG_ENDIAN_ORDER);
+		unsigned int PeekWord32(word32 &value, ByteOrder order=BIG_ENDIAN_ORDER) const;
 
 		//! move transferMax bytes of the buffered output to target as input
 		unsigned long TransferTo(BufferedTransformation &target, unsigned long transferMax=ULONG_MAX, const std::string &channel=NULL_CHANNEL)

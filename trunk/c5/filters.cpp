@@ -656,6 +656,7 @@ void StreamTransformationFilter::LastPut(const byte *inString, unsigned int leng
 void HashFilter::IsolatedInitialize(const NameValuePairs &parameters)
 {
 	m_putMessage = parameters.GetValueWithDefault(Name::PutMessage(), false);
+	m_truncatedDigestSize = parameters.GetIntValueWithDefault(Name::TruncatedDigestSize(), -1);
 	m_hashModule.Restart();
 }
 
@@ -668,11 +669,14 @@ unsigned int HashFilter::Put2(const byte *inString, unsigned int length, int mes
 	if (messageEnd)
 	{
 		{
-			unsigned int size, digestSize = m_hashModule.DigestSize();
-			m_space = HelpCreatePutSpace(*AttachedTransformation(), NULL_CHANNEL, digestSize, digestSize, size = digestSize);
-			m_hashModule.Final(m_space);
+			unsigned int size;
+			m_digestSize = m_hashModule.DigestSize();
+			if (m_truncatedDigestSize >= 0 && (unsigned int)m_truncatedDigestSize < m_digestSize)
+				m_digestSize = m_truncatedDigestSize;
+			m_space = HelpCreatePutSpace(*AttachedTransformation(), NULL_CHANNEL, m_digestSize, m_digestSize, size = m_digestSize);
+			m_hashModule.TruncatedFinal(m_space, m_digestSize);
 		}
-		FILTER_OUTPUT(2, m_space, m_hashModule.DigestSize(), messageEnd);
+		FILTER_OUTPUT(2, m_space, m_digestSize, messageEnd);
 	}
 	FILTER_END_NO_MESSAGE_END;
 }

@@ -42,6 +42,7 @@ CRYPTOPP_DEFINE_NAME_STRING(MultiplicativeInverseOfPrime2ModPrime1)	//!< Integer
 CRYPTOPP_DEFINE_NAME_STRING(QuadraticResidueModPrime1)	//!< Integer
 CRYPTOPP_DEFINE_NAME_STRING(QuadraticResidueModPrime2)	//!< Integer
 CRYPTOPP_DEFINE_NAME_STRING(PutMessage)			//!< bool
+CRYPTOPP_DEFINE_NAME_STRING(TruncatedDigestSize)	//!< int
 CRYPTOPP_DEFINE_NAME_STRING(HashVerificationFilterFlags)		//!< word32
 CRYPTOPP_DEFINE_NAME_STRING(SignatureVerificationFilterFlags)	//!< word32
 CRYPTOPP_DEFINE_NAME_STRING(InputBuffer)		//!< ConstByteArrayParameter

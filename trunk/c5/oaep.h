@@ -26,7 +26,7 @@ template <class H, class MGF=P1363_MGF1>
 class OAEP : public OAEP_Base, public EncryptionStandard
 {
 public:
-	static std::string StaticAlgorithmName() {return std::string("OAEP-") + MGF::StaticAlgorithmName() + "(" + H::StaticAlgorithmName() + ")";}
+	static std::string CRYPTOPP_API StaticAlgorithmName() {return std::string("OAEP-") + MGF::StaticAlgorithmName() + "(" + H::StaticAlgorithmName() + ")";}
 	typedef OAEP<H, MGF> EncryptionMessageEncodingMethod;
 
 protected:

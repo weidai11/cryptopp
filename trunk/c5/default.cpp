@@ -33,7 +33,7 @@ static void Mash(const byte *in, word16 inLen, byte *out, word16 outLen, int ite
 	unsigned int i;
 	for(i=0; i<outLen; i+=DefaultHashModule::DIGESTSIZE)
 	{
-		b[0] = (byte) i >> 8;
+		b[0] = (byte) (i >> 8);
 		b[1] = (byte) i;
 		hash.Update(b, 2);
 		hash.Update(in, inLen);
@@ -45,7 +45,7 @@ static void Mash(const byte *in, word16 inLen, byte *out, word16 outLen, int ite
 		memcpy(buf, outBuf, bufSize);
 		for (i=0; i<bufSize; i+=DefaultHashModule::DIGESTSIZE)
 		{
-			b[0] = (byte) i >> 8;
+			b[0] = (byte) (i >> 8);
 			b[1] = (byte) i;
 			hash.Update(b, 2);
 			hash.Update(buf, bufSize);

@@ -237,10 +237,11 @@ AssignFromHelperClass<T, T> AssignFromHelper(T *pObject, const NameValuePairs &s
 
 // ********************************************************
 
-// This should allow the linker to discard Integer code if not needed.
-CRYPTOPP_DLL extern bool (*AssignIntToInteger)(const std::type_info &valueType, void *pInteger, const void *pInt);
+// to allow the linker to discard Integer code if not needed.
+typedef bool (CRYPTOPP_API * PAssignIntToInteger)(const std::type_info &valueType, void *pInteger, const void *pInt);
+CRYPTOPP_DLL extern PAssignIntToInteger g_pAssignIntToInteger;
 
-CRYPTOPP_DLL const std::type_info & IntegerTypeId();
+CRYPTOPP_DLL const std::type_info & CRYPTOPP_API IntegerTypeId();
 
 class CRYPTOPP_DLL AlgorithmParametersBase : public NameValuePairs
 {
@@ -292,7 +293,7 @@ public:
 	void AssignValue(const char *name, const std::type_info &valueType, void *pValue) const
 	{
 		// special case for retrieving an Integer parameter when an int was passed in
-		if (!(AssignIntToInteger != NULL && typeid(T) == typeid(int) && AssignIntToInteger(valueType, pValue, &m_value)))
+		if (!(g_pAssignIntToInteger != NULL && typeid(T) == typeid(int) && g_pAssignIntToInteger(valueType, pValue, &m_value)))
 		{
 			ThrowIfTypeMismatch(name, typeid(T), valueType);
 			*reinterpret_cast<T *>(pValue) = m_value;

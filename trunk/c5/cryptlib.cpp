@@ -474,7 +474,7 @@ unsigned int BufferedTransformation::PutWord32(word32 value, ByteOrder order, bo
 	return ChannelPutWord32(NULL_CHANNEL, value, order, blocking);
 }
 
-unsigned int BufferedTransformation::PeekWord16(word16 &value, ByteOrder order)
+unsigned int BufferedTransformation::PeekWord16(word16 &value, ByteOrder order) const
 {
 	byte buf[2] = {0, 0};
 	unsigned int len = Peek(buf, 2);
@@ -487,7 +487,7 @@ unsigned int BufferedTransformation::PeekWord16(word16 &value, ByteOrder order)
 	return len;
 }
 
-unsigned int BufferedTransformation::PeekWord32(word32 &value, ByteOrder order)
+unsigned int BufferedTransformation::PeekWord32(word32 &value, ByteOrder order) const
 {
 	byte buf[4] = {0, 0, 0, 0};
 	unsigned int len = Peek(buf, 4);

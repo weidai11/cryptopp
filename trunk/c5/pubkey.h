@@ -186,6 +186,8 @@ class CRYPTOPP_NO_VTABLE PK_SignatureMessageEncodingMethod
 public:
 	virtual ~PK_SignatureMessageEncodingMethod() {}
 
+	virtual unsigned int MinRepresentativeBitLength(unsigned int hashIdentifierLength, unsigned int digestLength) const
+		{return 0;}
 	virtual unsigned int MaxRecoverableLength(unsigned int representativeBitLength, unsigned int hashIdentifierLength, unsigned int digestLength) const
 		{return 0;}
 
@@ -236,7 +238,7 @@ public:
 	{
 		template <class H> struct HashIdentifierLookup2
 		{
-			static HashIdentifier Lookup()
+			static HashIdentifier CRYPTOPP_API Lookup()
 			{
 				return HashIdentifier(NULL, 0);
 			}
@@ -367,31 +369,12 @@ struct TF_SignatureSchemeOptions : public TF_CryptoSchemeOptions<T1, T2, T3>
 };
 
 //! _
-template <class KEYS>
-class CRYPTOPP_NO_VTABLE PublicKeyCopier
-{
-public:
-	typedef typename KEYS::PublicKey KeyClass;
-	virtual void CopyKeyInto(typename KEYS::PublicKey &key) const =0;
-};
-
-//! _
-template <class KEYS>
-class CRYPTOPP_NO_VTABLE PrivateKeyCopier
-{
-public:
-	typedef typename KEYS::PrivateKey KeyClass;
-	virtual void CopyKeyInto(typename KEYS::PublicKey &key) const =0;
-	virtual void CopyKeyInto(typename KEYS::PrivateKey &key) const =0;
-};
-
-//! _
-template <class BASE, class SCHEME_OPTIONS, class KEY>
+template <class BASE, class SCHEME_OPTIONS, class KEY_CLASS>
 class CRYPTOPP_NO_VTABLE TF_ObjectImplBase : public AlgorithmImpl<BASE, typename SCHEME_OPTIONS::AlgorithmInfo>
 {
 public:
 	typedef SCHEME_OPTIONS SchemeOptions;
-	typedef KEY KeyClass;
+	typedef KEY_CLASS KeyClass;
 
 	PublicKey & AccessPublicKey() {return AccessKey();}
 	const PublicKey & GetPublicKey() const {return GetKey();}
@@ -450,17 +433,14 @@ private:
 };
 
 //! _
-template <class BASE, class SCHEME_OPTIONS, class KEY_COPIER>
-class CRYPTOPP_NO_VTABLE TF_ObjectImpl : public TF_ObjectImplBase<TwoBases<BASE, KEY_COPIER>, SCHEME_OPTIONS, typename KEY_COPIER::KeyClass>
+template <class BASE, class SCHEME_OPTIONS, class KEY_CLASS>
+class CRYPTOPP_NO_VTABLE TF_ObjectImpl : public TF_ObjectImplBase<BASE, SCHEME_OPTIONS, KEY_CLASS>
 {
 public:
-	typedef typename KEY_COPIER::KeyClass KeyClass;
+	typedef KEY_CLASS KeyClass;
 
 	const KeyClass & GetKey() const {return m_trapdoorFunction;}
 	KeyClass & AccessKey() {return m_trapdoorFunction;}
-
-	void CopyKeyInto(typename SCHEME_OPTIONS::PrivateKey &key) const {key = GetKey();}
-	void CopyKeyInto(typename SCHEME_OPTIONS::PublicKey &key) const {key = GetKey();}
 
 private:
 	KeyClass m_trapdoorFunction;
@@ -468,25 +448,25 @@ private:
 
 //! _
 template <class SCHEME_OPTIONS>
-class TF_DecryptorImpl : public TF_ObjectImpl<TF_DecryptorBase, SCHEME_OPTIONS, PrivateKeyCopier<typename SCHEME_OPTIONS::Keys> >
+class TF_DecryptorImpl : public TF_ObjectImpl<TF_DecryptorBase, SCHEME_OPTIONS, typename SCHEME_OPTIONS::PrivateKey>
 {
 };
 
 //! _
 template <class SCHEME_OPTIONS>
-class TF_EncryptorImpl : public TF_ObjectImpl<TF_EncryptorBase, SCHEME_OPTIONS, PublicKeyCopier<typename SCHEME_OPTIONS::Keys> >
+class TF_EncryptorImpl : public TF_ObjectImpl<TF_EncryptorBase, SCHEME_OPTIONS, typename SCHEME_OPTIONS::PublicKey>
 {
 };
 
 //! _
 template <class SCHEME_OPTIONS>
-class TF_SignerImpl : public TF_ObjectImpl<TF_SignerBase, SCHEME_OPTIONS, PrivateKeyCopier<typename SCHEME_OPTIONS::Keys> >
+class TF_SignerImpl : public TF_ObjectImpl<TF_SignerBase, SCHEME_OPTIONS, typename SCHEME_OPTIONS::PrivateKey>
 {
 };
 
 //! _
 template <class SCHEME_OPTIONS>
-class TF_VerifierImpl : public TF_ObjectImpl<TF_VerifierBase, SCHEME_OPTIONS, PublicKeyCopier<typename SCHEME_OPTIONS::Keys> >
+class TF_VerifierImpl : public TF_ObjectImpl<TF_VerifierBase, SCHEME_OPTIONS, typename SCHEME_OPTIONS::PublicKey>
 {
 };
 
@@ -500,13 +480,13 @@ public:
 	virtual void GenerateAndMask(HashTransformation &hash, byte *output, unsigned int outputLength, const byte *input, unsigned int inputLength, bool mask = true) const =0;
 };
 
-CRYPTOPP_DLL void P1363_MGF1KDF2_Common(HashTransformation &hash, byte *output, unsigned int outputLength, const byte *input, unsigned int inputLength, const byte *derivationParams, unsigned int derivationParamsLength, bool mask, unsigned int counterStart);
+CRYPTOPP_DLL void CRYPTOPP_API P1363_MGF1KDF2_Common(HashTransformation &hash, byte *output, unsigned int outputLength, const byte *input, unsigned int inputLength, const byte *derivationParams, unsigned int derivationParamsLength, bool mask, unsigned int counterStart);
 
 //! _
 class P1363_MGF1 : public MaskGeneratingFunction
 {
 public:
-	static const char * StaticAlgorithmName() {return "MGF1";}
+	static const char * CRYPTOPP_API StaticAlgorithmName() {return "MGF1";}
 	void GenerateAndMask(HashTransformation &hash, byte *output, unsigned int outputLength, const byte *input, unsigned int inputLength, bool mask = true) const
 	{
 		P1363_MGF1KDF2_Common(hash, output, outputLength, input, inputLength, NULL, 0, mask, 0);
@@ -520,7 +500,7 @@ template <class H>
 class P1363_KDF2
 {
 public:
-	static void DeriveKey(byte *output, unsigned int outputLength, const byte *input, unsigned int inputLength, const byte *derivationParams, unsigned int derivationParamsLength)
+	static void CRYPTOPP_API DeriveKey(byte *output, unsigned int outputLength, const byte *input, unsigned int inputLength, const byte *derivationParams, unsigned int derivationParamsLength)
 	{
 		H h;
 		P1363_MGF1KDF2_Common(h, output, outputLength, input, inputLength, derivationParams, derivationParamsLength, false, 1);
@@ -1338,28 +1318,8 @@ protected:
 };
 
 //! _
-template <class BASE, class SCHEME_OPTIONS>
-class CRYPTOPP_NO_VTABLE DL_PublicObjectImpl : public DL_ObjectImpl<BASE, SCHEME_OPTIONS, typename SCHEME_OPTIONS::PublicKey>, public PublicKeyCopier<SCHEME_OPTIONS>
-{
-public:
-	void CopyKeyInto(typename SCHEME_OPTIONS::PublicKey &key) const
-		{key = this->GetKey();}
-};
-
-//! _
-template <class BASE, class SCHEME_OPTIONS>
-class CRYPTOPP_NO_VTABLE DL_PrivateObjectImpl : public DL_ObjectImpl<BASE, SCHEME_OPTIONS, typename SCHEME_OPTIONS::PrivateKey>, public PrivateKeyCopier<SCHEME_OPTIONS>
-{
-public:
-	void CopyKeyInto(typename SCHEME_OPTIONS::PublicKey &key) const
-		{this->GetKey().MakePublicKey(key);}
-	void CopyKeyInto(typename SCHEME_OPTIONS::PrivateKey &key) const
-		{key = this->GetKey();}
-};
-
-//! _
 template <class SCHEME_OPTIONS>
-class DL_SignerImpl : public DL_PrivateObjectImpl<DL_SignerBase<typename SCHEME_OPTIONS::Element>, SCHEME_OPTIONS>
+class DL_SignerImpl : public DL_ObjectImpl<DL_SignerBase<typename SCHEME_OPTIONS::Element>, SCHEME_OPTIONS, typename SCHEME_OPTIONS::PrivateKey>
 {
 public:
 	PK_MessageAccumulator * NewSignatureAccumulator(RandomNumberGenerator &rng) const
@@ -1372,7 +1332,7 @@ public:
 
 //! _
 template <class SCHEME_OPTIONS>
-class DL_VerifierImpl : public DL_PublicObjectImpl<DL_VerifierBase<typename SCHEME_OPTIONS::Element>, SCHEME_OPTIONS>
+class DL_VerifierImpl : public DL_ObjectImpl<DL_VerifierBase<typename SCHEME_OPTIONS::Element>, SCHEME_OPTIONS, typename SCHEME_OPTIONS::PublicKey>
 {
 public:
 	PK_MessageAccumulator * NewVerificationAccumulator() const
@@ -1383,13 +1343,13 @@ public:
 
 //! _
 template <class SCHEME_OPTIONS>
-class DL_EncryptorImpl : public DL_PublicObjectImpl<DL_EncryptorBase<typename SCHEME_OPTIONS::Element>, SCHEME_OPTIONS>
+class DL_EncryptorImpl : public DL_ObjectImpl<DL_EncryptorBase<typename SCHEME_OPTIONS::Element>, SCHEME_OPTIONS, typename SCHEME_OPTIONS::PublicKey>
 {
 };
 
 //! _
 template <class SCHEME_OPTIONS>
-class DL_DecryptorImpl : public DL_PrivateObjectImpl<DL_DecryptorBase<typename SCHEME_OPTIONS::Element>, SCHEME_OPTIONS>
+class DL_DecryptorImpl : public DL_ObjectImpl<DL_DecryptorBase<typename SCHEME_OPTIONS::Element>, SCHEME_OPTIONS, typename SCHEME_OPTIONS::PrivateKey>
 {
 };
 
@@ -1460,7 +1420,7 @@ class DL_KeyAgreementAlgorithm_DH : public DL_KeyAgreementAlgorithm<ELEMENT>
 public:
 	typedef ELEMENT Element;
 
-	static const char *StaticAlgorithmName()
+	static const char * CRYPTOPP_API StaticAlgorithmName()
 		{return COFACTOR_OPTION::ToEnum() == INCOMPATIBLE_COFACTOR_MULTIPLICTION ? "DHC" : "DH";}
 
 	Element AgreeWithEphemeralPrivateKey(const DL_GroupParameters<Element> &params, const DL_FixedBasePrecomputation<Element> &publicPrecomputation, const Integer &privateExponent) const
@@ -1514,20 +1474,17 @@ class CRYPTOPP_NO_VTABLE PK_FinalTemplate : public BASE
 public:
 	PK_FinalTemplate() {}
 
+	PK_FinalTemplate(const CryptoMaterial &key)
+		{this->AccessKey().AssignFrom(key);}
+
+	PK_FinalTemplate(BufferedTransformation &bt)
+		{this->AccessKey().BERDecode(bt);}
+
+	PK_FinalTemplate(const AsymmetricAlgorithm &algorithm)
+		{this->AccessKey().AssignFrom(algorithm.GetMaterial());}
+
 	PK_FinalTemplate(const Integer &v1)
 		{this->AccessKey().Initialize(v1);}
-
-	PK_FinalTemplate(const typename BASE::KeyClass &key)  {this->AccessKey().operator=(key);}
-
-	template <class T>
-	PK_FinalTemplate(const PublicKeyCopier<T> &key)
-		{key.CopyKeyInto(this->AccessKey());}
-
-	template <class T>
-	PK_FinalTemplate(const PrivateKeyCopier<T> &key)
-		{key.CopyKeyInto(this->AccessKey());}
-
-	PK_FinalTemplate(BufferedTransformation &bt) {this->AccessKey().BERDecode(bt);}
 
 #if (defined(_MSC_VER) && _MSC_VER < 1300)
 
@@ -1640,7 +1597,7 @@ public:
 	typedef STANDARD Standard;
 	typedef TF_CryptoSchemeOptions<ALG_INFO, KEYS, MessageEncodingMethod> SchemeOptions;
 
-	static std::string StaticAlgorithmName() {return KEYS::StaticAlgorithmName() + "/" + MessageEncodingMethod::StaticAlgorithmName();}
+	static std::string CRYPTOPP_API StaticAlgorithmName() {return std::string(KEYS::StaticAlgorithmName()) + "/" + MessageEncodingMethod::StaticAlgorithmName();}
 
 	//! implements PK_Decryptor interface
 	typedef PK_FinalTemplate<TF_DecryptorImpl<SchemeOptions> > Decryptor;
@@ -1661,7 +1618,7 @@ public:
 	typedef typename Standard::SignatureMessageEncodingMethod MessageEncodingMethod;
 	typedef TF_SignatureSchemeOptions<ALG_INFO, KEYS, MessageEncodingMethod, H> SchemeOptions;
 
-	static std::string StaticAlgorithmName() {return KEYS::StaticAlgorithmName() + "/" + MessageEncodingMethod::StaticAlgorithmName() + "(" + H::StaticAlgorithmName() + ")";}
+	static std::string CRYPTOPP_API StaticAlgorithmName() {return std::string(KEYS::StaticAlgorithmName()) + "/" + MessageEncodingMethod::StaticAlgorithmName() + "(" + H::StaticAlgorithmName() + ")";}
 
 	//! implements PK_Signer interface
 	typedef PK_FinalTemplate<TF_SignerImpl<SchemeOptions> > Signer;

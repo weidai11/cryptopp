@@ -97,12 +97,10 @@ struct RabinSS : public TF_SS<STANDARD, H, Rabin>
 {
 };
 
-class SHA;
-
 // More typedefs for backwards compatibility
-
-typedef RabinES<OAEP<SHA> >::Decryptor RabinDecryptor;
-typedef RabinES<OAEP<SHA> >::Encryptor RabinEncryptor;
+class SHA1;
+typedef RabinES<OAEP<SHA1> >::Decryptor RabinDecryptor;
+typedef RabinES<OAEP<SHA1> >::Encryptor RabinEncryptor;
 
 NAMESPACE_END
 
