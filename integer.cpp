@@ -27,7 +27,7 @@
 #elif defined(_MSC_VER) && defined(_M_IX86)
 	#pragma message("You do no seem to have the Visual C++ Processor Pack installed, so use of SSE2 intrinsics will be disabled.")
 #elif defined(__GNUC__) && defined(__i386__)
-	#pragma message("You do not have GCC 3.3 or later, or did not specify -msse2 compiler option, so use of SSE2 intrinsics will be disabled.")
+	#warning "You do not have GCC 3.3 or later, or did not specify -msse2 compiler option, so use of SSE2 intrinsics will be disabled."
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -859,22 +859,69 @@ void Portable::Multiply8Bottom(word *R, const word *A, const word *B)
 // CodeWarrior defines _MSC_VER
 #if (defined(_MSC_VER) && !defined(__MWERKS__) && defined(_M_IX86)) || (defined(__GNUC__) && defined(__i386__))
 
+// ************** x86 feature detection ***************
+
+static bool s_sse2Enabled = true;
+
+static void CpuId(word32 input, word32 *output)
+{
+#ifdef __GNUC__
+	__asm__
+	(
+		"cpuid"
+		: "=a" (output[0]), "=b" (output[1]), "=c" (output[2]), "=d" (output[3])
+		: "a" (input)
+	);
+#else
+	__asm
+	{
+		mov eax, input
+		cpuid
+		mov edi, output
+		mov [edi], eax
+		mov [edi+4], ebx
+		mov [edi+8], ecx
+		mov [edi+12], edx
+	}
+#endif
+}
+
+static bool HasSSE2()
+{
+	if (!s_sse2Enabled)
+		return false;
+
+	word32 cpuid[4];
+	CpuId(1, cpuid);
+	return (cpuid[3] & (1 << 26)) != 0;
+}
+
+static bool IsP4()
+{
+	word32 cpuid[4];
+
+	CpuId(0, cpuid);
+	std::swap(cpuid[2], cpuid[3]);
+	if (memcmp(cpuid+1, "GenuineIntel", 12) != 0)
+		return false;
+
+	CpuId(1, cpuid);
+	return ((cpuid[0] >> 8) & 0xf) == 0xf;
+}
+
+// ************** Pentium/P4 optimizations ***************
+
 class PentiumOptimized : public Portable
 {
 public:
 	static word CRYPTOPP_CDECL Add(word *C, const word *A, const word *B, unsigned int N);
 	static word CRYPTOPP_CDECL Subtract(word *C, const word *A, const word *B, unsigned int N);
-#ifdef __GNUC__
-	static void Square4(word *R, const word *A);
-	static void Multiply4(word *C, const word *A, const word *B);
-	static void Multiply8(word *C, const word *A, const word *B);
-#endif
+	static void CRYPTOPP_CDECL Multiply4(word *C, const word *A, const word *B);
+	static void CRYPTOPP_CDECL Multiply8(word *C, const word *A, const word *B);
+	static void CRYPTOPP_CDECL Multiply8Bottom(word *C, const word *A, const word *B);
 };
 
-typedef PentiumOptimized LowLevel;
-
-// this may be selected at run time
-class P4Optimized : public PentiumOptimized
+class P4Optimized
 {
 public:
 	static word CRYPTOPP_CDECL Add(word *C, const word *A, const word *B, unsigned int N);
@@ -883,7 +930,70 @@ public:
 	static void Multiply4(word *C, const word *A, const word *B);
 	static void Multiply8(word *C, const word *A, const word *B);
 	static void Multiply8Bottom(word *C, const word *A, const word *B);
-	static inline void Square4(word *R, const word *A) {Multiply4(R, A, A);}
+#endif
+};
+
+typedef word (CRYPTOPP_CDECL * PAddSub)(word *C, const word *A, const word *B, unsigned int N);
+typedef void (* PMul)(word *C, const word *A, const word *B);
+
+static PAddSub s_pAdd, s_pSub;
+#ifdef SSE2_INTRINSICS_AVAILABLE
+static PMul s_pMul4, s_pMul8, s_pMul8B;
+#endif
+
+static void SetPentiumFunctionPointers()
+{
+	if (IsP4())
+	{
+		s_pAdd = &P4Optimized::Add;
+		s_pSub = &P4Optimized::Subtract;
+	}
+	else
+	{
+		s_pAdd = &PentiumOptimized::Add;
+		s_pSub = &PentiumOptimized::Subtract;
+	}
+
+#ifdef SSE2_INTRINSICS_AVAILABLE
+	if (HasSSE2())
+	{
+		s_pMul4 = &P4Optimized::Multiply4;
+		s_pMul8 = &P4Optimized::Multiply8;
+		s_pMul8B = &P4Optimized::Multiply8Bottom;
+	}
+	else
+	{
+		s_pMul4 = &PentiumOptimized::Multiply4;
+		s_pMul8 = &PentiumOptimized::Multiply8;
+		s_pMul8B = &PentiumOptimized::Multiply8Bottom;
+	}
+#endif
+}
+
+static const char s_RunAtStartupSetPentiumFunctionPointers = (SetPentiumFunctionPointers(), 0);
+
+void DisableSSE2()
+{
+	s_sse2Enabled = false;
+	SetPentiumFunctionPointers();
+}
+
+class LowLevel : public PentiumOptimized
+{
+public:
+	inline static word CRYPTOPP_CDECL Add(word *C, const word *A, const word *B, unsigned int N)
+		{return s_pAdd(C, A, B, N);}
+	inline static word CRYPTOPP_CDECL Subtract(word *C, const word *A, const word *B, unsigned int N)
+		{return s_pSub(C, A, B, N);}
+	inline static void Square4(word *R, const word *A)
+		{Multiply4(R, A, A);}
+#ifdef SSE2_INTRINSICS_AVAILABLE
+	inline static void Multiply4(word *C, const word *A, const word *B)
+		{s_pMul4(C, A, B);}
+	inline static void Multiply8(word *C, const word *A, const word *B)
+		{s_pMul8(C, A, B);}
+	inline static void Multiply8Bottom(word *C, const word *A, const word *B)
+		{s_pMul8B(C, A, B);}
 #endif
 };
 
@@ -892,7 +1002,7 @@ public:
 	#define CRYPTOPP_NAKED __declspec(naked)
 	#define AS1(x) __asm x
 	#define AS2(x, y) __asm x, y
-	#define PentiumPrologue \
+	#define AddPrologue \
 		__asm	push ebp \
 		__asm	push ebx \
 		__asm	push esi \
@@ -901,55 +1011,67 @@ public:
 		__asm	mov		edx, [esp+24] \
 		__asm	mov		ebx, [esp+28] \
 		__asm	mov		esi, [esp+32]
-	#define PentiumEpilogue \
+	#define AddEpilogue \
 		__asm	pop edi \
 		__asm	pop esi \
 		__asm	pop ebx \
 		__asm	pop ebp \
 		__asm	ret
-	#define P4Prologue \
-		__asm	sub		esp, 16 \
-		__asm	mov		[esp], edi \
-		__asm	mov		[esp+4], esi \
-		__asm	mov		[esp+8], ebx \
-		__asm	mov		[esp+12], ebp \
-		__asm	mov		ecx, [esp+20] \
-		__asm	mov		edx, [esp+24] \
-		__asm	mov		ebx, [esp+28] \
-		__asm	mov		esi, [esp+32]
-	#define P4Epilogue \
-		__asm	mov		edi, [esp] \
-		__asm	mov		esi, [esp+4] \
-		__asm	mov		ebx, [esp+8] \
-		__asm	mov		ebp, [esp+12] \
-		__asm	add		esp, 16 \
+	#define MulPrologue \
+		__asm	push ebp \
+		__asm	push ebx \
+		__asm	push esi \
+		__asm	push edi \
+		__asm	mov ecx, [esp+28] \
+		__asm	mov esi, [esp+24] \
+		__asm	push [esp+20]
+	#define MulEpilogue \
+		__asm	add esp, 4 \
+		__asm	pop edi \
+		__asm	pop esi \
+		__asm	pop ebx \
+		__asm	pop ebp \
 		__asm	ret
 #else
 	#define CRYPTOPP_NAKED
 	#define AS1(x) #x ";"
 	#define AS2(x, y) #x ", " #y ";"
-	#define PentiumPrologue \
-		__asm__ \
+	#define AddPrologue \
+		__asm__ __volatile__ \
 		( \
-			".att_syntax prefix;" \
-			"mov %0, %%ecx;" \
-			"mov %1, %%edx;" \
+			"push %%ebx;"	/* save this manually, in case of -fPIC */ \
 			"mov %2, %%ebx;" \
-			"mov %3, %%esi;" \
-			".intel_syntax noprefix;"
-	#define PentiumEpilogue \
+			".intel_syntax noprefix;" \
+			"push ebp;"
+	#define AddEpilogue \
+			"pop ebp;" \
 			".att_syntax prefix;" \
+			"pop %%ebx;" \
 					: \
-					: "m" (C), "m" (A), "m" (B), "m" (N) \
-					: "%ecx", "%edx", "%ebx", "%esi", "%edi" \
+					: "c" (C), "d" (A), "m" (B), "S" (N) \
+					: "%edi", "memory", "cc" \
 		);
-	#define P4Prologue PentiumPrologue
-	#define P4Epilogue PentiumEpilogue
+	#define MulPrologue \
+		__asm__ __volatile__ \
+		( \
+			"push %%ebx;"	/* save this manually, in case of -fPIC */ \
+			"push %%ebp;" \
+			"push %0;" \
+			".intel_syntax noprefix;"
+	#define MulEpilogue \
+			"add esp, 4;" \
+			"pop ebp;" \
+			"pop ebx;" \
+			".att_syntax prefix;" \
+			: \
+			: "rm" (Z), "S" (X), "c" (Y) \
+			: "%eax", "%edx", "%edi", "memory", "cc" \
+		);
 #endif
 
 CRYPTOPP_NAKED word PentiumOptimized::Add(word *C, const word *A, const word *B, unsigned int N)
 {
-	PentiumPrologue
+	AddPrologue
 
 	// now: ebx = B, ecx = C, edx = A, esi = N
 	AS2(	sub ecx, edx)	// hold the distance between C & A so we can add this to A to get C
@@ -982,12 +1104,12 @@ CRYPTOPP_NAKED word PentiumOptimized::Add(word *C, const word *A, const word *B,
 	AS1(loopendAdd:)
 	AS2(	adc eax, 0)		// store carry into eax (return result register)
 
-	PentiumEpilogue
+	AddEpilogue
 }
 
 CRYPTOPP_NAKED word PentiumOptimized::Subtract(word *C, const word *A, const word *B, unsigned int N)
 {
-	PentiumPrologue
+	AddPrologue
 
 	// now: ebx = B, ecx = C, edx = A, esi = N
 	AS2(	sub ecx, edx)	// hold the distance between C & A so we can add this to A to get C
@@ -1020,12 +1142,14 @@ CRYPTOPP_NAKED word PentiumOptimized::Subtract(word *C, const word *A, const wor
 	AS1(loopendSub:)
 	AS2(	adc eax, 0)		// store carry into eax (return result register)
 
-	PentiumEpilogue
+	AddEpilogue
 }
+
+// On Pentium 4, the adc and sbb instructions are very expensive, so avoid them.
 
 CRYPTOPP_NAKED word P4Optimized::Add(word *C, const word *A, const word *B, unsigned int N)
 {
-	P4Prologue
+	AddPrologue
 
 	// now: ebx = B, ecx = C, edx = A, esi = N
 	AS2(	xor		eax, eax)
@@ -1077,12 +1201,12 @@ CRYPTOPP_NAKED word P4Optimized::Add(word *C, const word *A, const word *B, unsi
 
 	AS1(loopendAddP4:)
 
-	P4Epilogue
+	AddEpilogue
 }
 
 CRYPTOPP_NAKED word P4Optimized::Subtract(word *C, const word *A, const word *B, unsigned int N)
 {
-	P4Prologue
+	AddPrologue
 
 	// now: ebx = B, ecx = C, edx = A, esi = N
 	AS2(	xor		eax, eax)
@@ -1134,311 +1258,271 @@ CRYPTOPP_NAKED word P4Optimized::Subtract(word *C, const word *A, const word *B,
 
 	AS1(loopendSubP4:)
 
-	P4Epilogue
+	AddEpilogue
 }
 
-#if __GNUC__
-// Comba square and multiply assembly code originally contributed by Leonard Janke
-// These are not needed with MSVC, which does a good job of optimizing the C++ multiply code.
-
-#define SqrStartup \
-  "push %%ebp\n\t" \
-  "push %%esi\n\t" \
-  "push %%ebx\n\t" \
-  "xor %%ebp, %%ebp\n\t" \
-  "xor %%ebx, %%ebx\n\t" \
-  "xor %%ecx, %%ecx\n\t" 
-
-#define SqrShiftCarry \
-  "mov %%ebx, %%ebp\n\t" \
-  "mov %%ecx, %%ebx\n\t" \
-  "xor %%ecx, %%ecx\n\t"
-
-#define SqrAccumulate(i,j) \
-  "mov 4*"#j"(%%esi), %%eax\n\t" \
-  "mull 4*"#i"(%%esi)\n\t" \
-  "add %%eax, %%ebp\n\t" \
-  "adc %%edx, %%ebx\n\t" \
-  "adc %%ch, %%cl\n\t" \
-  "add %%eax, %%ebp\n\t" \
-  "adc %%edx, %%ebx\n\t" \
-  "adc %%ch, %%cl\n\t"
-
-#define SqrAccumulateCentre(i) \
-  "mov 4*"#i"(%%esi), %%eax\n\t" \
-  "mull 4*"#i"(%%esi)\n\t" \
-  "add %%eax, %%ebp\n\t" \
-  "adc %%edx, %%ebx\n\t" \
-  "adc %%ch, %%cl\n\t" 
-
-#define SqrStoreDigit(X)  \
-  "mov %%ebp, 4*"#X"(%%edi)\n\t" \
-
-#define SqrLastDiagonal(digits) \
-  "mov 4*("#digits"-1)(%%esi), %%eax\n\t" \
-  "mull 4*("#digits"-1)(%%esi)\n\t" \
-  "add %%eax, %%ebp\n\t" \
-  "adc %%edx, %%ebx\n\t" \
-  "mov %%ebp, 4*(2*"#digits"-2)(%%edi)\n\t" \
-  "mov %%ebx, 4*(2*"#digits"-1)(%%edi)\n\t" 
-
-#define SqrCleanup \
-  "pop %%ebx\n\t" \
-  "pop %%esi\n\t" \
-  "pop %%ebp\n\t" 
-
-void PentiumOptimized::Square4(word* Y, const word* X)
-{
-	__asm__ __volatile__(
-		SqrStartup
-
-		SqrAccumulateCentre(0)
-		SqrStoreDigit(0)
-		SqrShiftCarry
-
-		SqrAccumulate(1,0)
-		SqrStoreDigit(1)
-		SqrShiftCarry
-
-		SqrAccumulate(2,0)
-		SqrAccumulateCentre(1)
-		SqrStoreDigit(2)
-		SqrShiftCarry
-
-		SqrAccumulate(3,0)
-		SqrAccumulate(2,1)
-		SqrStoreDigit(3)
-		SqrShiftCarry
-
-		SqrAccumulate(3,1)
-		SqrAccumulateCentre(2)
-		SqrStoreDigit(4)
-		SqrShiftCarry
-
-		SqrAccumulate(3,2)
-		SqrStoreDigit(5)
-		SqrShiftCarry
-
-		SqrLastDiagonal(4)
-
-		SqrCleanup
-
-		:
-		: "D" (Y), "S" (X)
-		: "eax",  "ecx", "edx", "ebp",   "memory"
-	);
-}
+// multiply assembly code originally contributed by Leonard Janke
 
 #define MulStartup \
-  "push %%ebp\n\t" \
-  "push %%esi\n\t" \
-  "push %%ebx\n\t" \
-  "push %%edi\n\t" \
-  "mov %%eax, %%ebx \n\t" \
-  "xor %%ebp, %%ebp\n\t" \
-  "xor %%edi, %%edi\n\t" \
-  "xor %%ecx, %%ecx\n\t" 
+	AS2(xor ebp, ebp) \
+	AS2(xor edi, edi) \
+	AS2(xor ebx, ebx) 
 
 #define MulShiftCarry \
-  "mov %%edx, %%ebp\n\t" \
-  "mov %%ecx, %%edi\n\t" \
-  "xor %%ecx, %%ecx\n\t"
+	AS2(mov ebp, edx) \
+	AS2(mov edi, ebx) \
+	AS2(xor ebx, ebx)
+
+#define MulAccumulateBottom(i,j) \
+	AS2(mov eax, [ecx+4*j]) \
+	AS2(imul eax, dword ptr [esi+4*i]) \
+	AS2(add ebp, eax)
 
 #define MulAccumulate(i,j) \
-  "mov 4*"#j"(%%ebx), %%eax\n\t" \
-  "mull 4*"#i"(%%esi)\n\t" \
-  "add %%eax, %%ebp\n\t" \
-  "adc %%edx, %%edi\n\t" \
-  "adc %%ch, %%cl\n\t"
+	AS2(mov eax, [ecx+4*j]) \
+	AS1(mul dword ptr [esi+4*i]) \
+	AS2(add ebp, eax) \
+	AS2(adc edi, edx) \
+	AS2(adc bl, bh)
 
-#define MulStoreDigit(X)  \
-  "mov %%edi, %%edx \n\t" \
-  "mov (%%esp), %%edi \n\t" \
-  "mov %%ebp, 4*"#X"(%%edi)\n\t" \
-  "mov %%edi, (%%esp)\n\t" 
+#define MulStoreDigit(i)  \
+	AS2(mov edx, edi) \
+	AS2(mov edi, [esp]) \
+	AS2(mov [edi+4*i], ebp)
 
 #define MulLastDiagonal(digits) \
-  "mov 4*("#digits"-1)(%%ebx), %%eax\n\t" \
-  "mull 4*("#digits"-1)(%%esi)\n\t" \
-  "add %%eax, %%ebp\n\t" \
-  "adc %%edi, %%edx\n\t" \
-  "mov (%%esp), %%edi\n\t" \
-  "mov %%ebp, 4*(2*"#digits"-2)(%%edi)\n\t" \
-  "mov %%edx, 4*(2*"#digits"-1)(%%edi)\n\t" 
+	AS2(mov eax, [ecx+4*(digits-1)]) \
+	AS1(mul dword ptr [esi+4*(digits-1)]) \
+	AS2(add ebp, eax) \
+	AS2(adc edx, edi) \
+	AS2(mov edi, [esp]) \
+	AS2(mov [edi+4*(2*digits-2)], ebp) \
+	AS2(mov [edi+4*(2*digits-1)], edx)
 
-#define MulCleanup \
-  "pop %%edi\n\t" \
-  "pop %%ebx\n\t" \
-  "pop %%esi\n\t" \
-  "pop %%ebp\n\t" 
-
-void PentiumOptimized::Multiply4(word* Z, const word* X, const word* Y)
+CRYPTOPP_NAKED void PentiumOptimized::Multiply4(word* Z, const word* X, const word* Y)
 {
-	__asm__ __volatile__(
-		MulStartup
-		MulAccumulate(0,0)
-		MulStoreDigit(0)
-		MulShiftCarry
+	MulPrologue
+	// now: [esp] = Z, esi = X, ecx = Y
+	MulStartup
+	MulAccumulate(0,0)
+	MulStoreDigit(0)
+	MulShiftCarry
 
-		MulAccumulate(1,0)
-		MulAccumulate(0,1)
-		MulStoreDigit(1)
-		MulShiftCarry
+	MulAccumulate(1,0)
+	MulAccumulate(0,1)
+	MulStoreDigit(1)
+	MulShiftCarry
 
-		MulAccumulate(2,0)
-		MulAccumulate(1,1)
-		MulAccumulate(0,2)
-		MulStoreDigit(2)
-		MulShiftCarry
+	MulAccumulate(2,0)
+	MulAccumulate(1,1)
+	MulAccumulate(0,2)
+	MulStoreDigit(2)
+	MulShiftCarry
 
-		MulAccumulate(3,0)
-		MulAccumulate(2,1)
-		MulAccumulate(1,2)
-		MulAccumulate(0,3)
-		MulStoreDigit(3)
-		MulShiftCarry
+	MulAccumulate(3,0)
+	MulAccumulate(2,1)
+	MulAccumulate(1,2)
+	MulAccumulate(0,3)
+	MulStoreDigit(3)
+	MulShiftCarry
 
-		MulAccumulate(3,1)
-		MulAccumulate(2,2)
-		MulAccumulate(1,3)
-		MulStoreDigit(4)
-		MulShiftCarry
+	MulAccumulate(3,1)
+	MulAccumulate(2,2)
+	MulAccumulate(1,3)
+	MulStoreDigit(4)
+	MulShiftCarry
 
-		MulAccumulate(3,2)
-		MulAccumulate(2,3)
-		MulStoreDigit(5)
-		MulShiftCarry
+	MulAccumulate(3,2)
+	MulAccumulate(2,3)
+	MulStoreDigit(5)
+	MulShiftCarry
 
-		MulLastDiagonal(4)
-
-		MulCleanup
-
-		: 
-		: "D" (Z), "S" (X), "a" (Y)
-		: "%ecx", "%edx",  "memory"
-	);
+	MulLastDiagonal(4)
+	MulEpilogue
 }
 
-void PentiumOptimized::Multiply8(word* Z, const word* X, const word* Y)
+CRYPTOPP_NAKED void PentiumOptimized::Multiply8(word* Z, const word* X, const word* Y)
 {
-	__asm__ __volatile__(
-		MulStartup
-		MulAccumulate(0,0)
-		MulStoreDigit(0)
-		MulShiftCarry
+	MulPrologue
+	// now: [esp] = Z, esi = X, ecx = Y
+	MulStartup
+	MulAccumulate(0,0)
+	MulStoreDigit(0)
+	MulShiftCarry
 
-		MulAccumulate(1,0)
-		MulAccumulate(0,1)
-		MulStoreDigit(1)
-		MulShiftCarry
+	MulAccumulate(1,0)
+	MulAccumulate(0,1)
+	MulStoreDigit(1)
+	MulShiftCarry
 
-		MulAccumulate(2,0)
-		MulAccumulate(1,1)
-		MulAccumulate(0,2)
-		MulStoreDigit(2)
-		MulShiftCarry
+	MulAccumulate(2,0)
+	MulAccumulate(1,1)
+	MulAccumulate(0,2)
+	MulStoreDigit(2)
+	MulShiftCarry
 
-		MulAccumulate(3,0)
-		MulAccumulate(2,1)
-		MulAccumulate(1,2)
-		MulAccumulate(0,3)
-		MulStoreDigit(3)
-		MulShiftCarry
+	MulAccumulate(3,0)
+	MulAccumulate(2,1)
+	MulAccumulate(1,2)
+	MulAccumulate(0,3)
+	MulStoreDigit(3)
+	MulShiftCarry
 
-		MulAccumulate(4,0)
-		MulAccumulate(3,1)
-		MulAccumulate(2,2)
-		MulAccumulate(1,3)
-		MulAccumulate(0,4)
-		MulStoreDigit(4)
-		MulShiftCarry
+	MulAccumulate(4,0)
+	MulAccumulate(3,1)
+	MulAccumulate(2,2)
+	MulAccumulate(1,3)
+	MulAccumulate(0,4)
+	MulStoreDigit(4)
+	MulShiftCarry
 
-		MulAccumulate(5,0)
-		MulAccumulate(4,1)
-		MulAccumulate(3,2)
-		MulAccumulate(2,3)
-		MulAccumulate(1,4)
-		MulAccumulate(0,5)
-		MulStoreDigit(5)
-		MulShiftCarry
+	MulAccumulate(5,0)
+	MulAccumulate(4,1)
+	MulAccumulate(3,2)
+	MulAccumulate(2,3)
+	MulAccumulate(1,4)
+	MulAccumulate(0,5)
+	MulStoreDigit(5)
+	MulShiftCarry
 
-		MulAccumulate(6,0)
-		MulAccumulate(5,1)
-		MulAccumulate(4,2)
-		MulAccumulate(3,3)
-		MulAccumulate(2,4)
-		MulAccumulate(1,5)
-		MulAccumulate(0,6)
-		MulStoreDigit(6)
-		MulShiftCarry
+	MulAccumulate(6,0)
+	MulAccumulate(5,1)
+	MulAccumulate(4,2)
+	MulAccumulate(3,3)
+	MulAccumulate(2,4)
+	MulAccumulate(1,5)
+	MulAccumulate(0,6)
+	MulStoreDigit(6)
+	MulShiftCarry
 
-		MulAccumulate(7,0)
-		MulAccumulate(6,1)
-		MulAccumulate(5,2)
-		MulAccumulate(4,3)
-		MulAccumulate(3,4)
-		MulAccumulate(2,5)
-		MulAccumulate(1,6)
-		MulAccumulate(0,7)
-		MulStoreDigit(7)
-		MulShiftCarry
+	MulAccumulate(7,0)
+	MulAccumulate(6,1)
+	MulAccumulate(5,2)
+	MulAccumulate(4,3)
+	MulAccumulate(3,4)
+	MulAccumulate(2,5)
+	MulAccumulate(1,6)
+	MulAccumulate(0,7)
+	MulStoreDigit(7)
+	MulShiftCarry
 
-		MulAccumulate(7,1)
-		MulAccumulate(6,2)
-		MulAccumulate(5,3)
-		MulAccumulate(4,4)
-		MulAccumulate(3,5)
-		MulAccumulate(2,6)
-		MulAccumulate(1,7)
-		MulStoreDigit(8)
-		MulShiftCarry
+	MulAccumulate(7,1)
+	MulAccumulate(6,2)
+	MulAccumulate(5,3)
+	MulAccumulate(4,4)
+	MulAccumulate(3,5)
+	MulAccumulate(2,6)
+	MulAccumulate(1,7)
+	MulStoreDigit(8)
+	MulShiftCarry
 
-		MulAccumulate(7,2)
-		MulAccumulate(6,3)
-		MulAccumulate(5,4)
-		MulAccumulate(4,5)
-		MulAccumulate(3,6)
-		MulAccumulate(2,7)
-		MulStoreDigit(9)
-		MulShiftCarry
+	MulAccumulate(7,2)
+	MulAccumulate(6,3)
+	MulAccumulate(5,4)
+	MulAccumulate(4,5)
+	MulAccumulate(3,6)
+	MulAccumulate(2,7)
+	MulStoreDigit(9)
+	MulShiftCarry
 
-		MulAccumulate(7,3)
-		MulAccumulate(6,4)
-		MulAccumulate(5,5)
-		MulAccumulate(4,6)
-		MulAccumulate(3,7)
-		MulStoreDigit(10)
-		MulShiftCarry
+	MulAccumulate(7,3)
+	MulAccumulate(6,4)
+	MulAccumulate(5,5)
+	MulAccumulate(4,6)
+	MulAccumulate(3,7)
+	MulStoreDigit(10)
+	MulShiftCarry
 
-		MulAccumulate(7,4)
-		MulAccumulate(6,5)
-		MulAccumulate(5,6)
-		MulAccumulate(4,7)
-		MulStoreDigit(11)
-		MulShiftCarry
+	MulAccumulate(7,4)
+	MulAccumulate(6,5)
+	MulAccumulate(5,6)
+	MulAccumulate(4,7)
+	MulStoreDigit(11)
+	MulShiftCarry
 
-		MulAccumulate(7,5)
-		MulAccumulate(6,6)
-		MulAccumulate(5,7)
-		MulStoreDigit(12)
-		MulShiftCarry
+	MulAccumulate(7,5)
+	MulAccumulate(6,6)
+	MulAccumulate(5,7)
+	MulStoreDigit(12)
+	MulShiftCarry
 
-		MulAccumulate(7,6)
-		MulAccumulate(6,7)
-		MulStoreDigit(13)
-		MulShiftCarry
+	MulAccumulate(7,6)
+	MulAccumulate(6,7)
+	MulStoreDigit(13)
+	MulShiftCarry
 
-		MulLastDiagonal(8)
-
-		MulCleanup
-
-		: 
-		: "D" (Z), "S" (X), "a" (Y)
-		: "%ecx", "%edx",  "memory"
-	);
+	MulLastDiagonal(8)
+	MulEpilogue
 }
 
-#endif	// __GNUC__
+CRYPTOPP_NAKED void PentiumOptimized::Multiply8Bottom(word* Z, const word* X, const word* Y)
+{
+	MulPrologue
+	// now: [esp] = Z, esi = X, ecx = Y
+	MulStartup
+	MulAccumulate(0,0)
+	MulStoreDigit(0)
+	MulShiftCarry
+
+	MulAccumulate(1,0)
+	MulAccumulate(0,1)
+	MulStoreDigit(1)
+	MulShiftCarry
+
+	MulAccumulate(2,0)
+	MulAccumulate(1,1)
+	MulAccumulate(0,2)
+	MulStoreDigit(2)
+	MulShiftCarry
+
+	MulAccumulate(3,0)
+	MulAccumulate(2,1)
+	MulAccumulate(1,2)
+	MulAccumulate(0,3)
+	MulStoreDigit(3)
+	MulShiftCarry
+
+	MulAccumulate(4,0)
+	MulAccumulate(3,1)
+	MulAccumulate(2,2)
+	MulAccumulate(1,3)
+	MulAccumulate(0,4)
+	MulStoreDigit(4)
+	MulShiftCarry
+
+	MulAccumulate(5,0)
+	MulAccumulate(4,1)
+	MulAccumulate(3,2)
+	MulAccumulate(2,3)
+	MulAccumulate(1,4)
+	MulAccumulate(0,5)
+	MulStoreDigit(5)
+	MulShiftCarry
+
+	MulAccumulate(6,0)
+	MulAccumulate(5,1)
+	MulAccumulate(4,2)
+	MulAccumulate(3,3)
+	MulAccumulate(2,4)
+	MulAccumulate(1,5)
+	MulAccumulate(0,6)
+	MulStoreDigit(6)
+	MulShiftCarry
+
+	MulAccumulateBottom(7,0)
+	MulAccumulateBottom(6,1)
+	MulAccumulateBottom(5,2)
+	MulAccumulateBottom(4,3)
+	MulAccumulateBottom(3,4)
+	MulAccumulateBottom(2,5)
+	MulAccumulateBottom(1,6)
+	MulAccumulateBottom(0,7)
+	MulStoreDigit(7)
+	MulEpilogue
+}
+
+#undef AS1
+#undef AS2
 
 #else	// not x86 - no processor specific code at this layer
 
@@ -1446,42 +1530,7 @@ typedef Portable LowLevel;
 
 #endif
 
-bool g_sse2DetectionDone = false, g_sse2Detected, g_sse2Enabled = true;
-
-void DisableSSE2()
-{
-	g_sse2Enabled = false;
-}
-
 #ifdef SSE2_INTRINSICS_AVAILABLE
-
-static bool GetSSE2Capability()
-{
-	word32 b;
-
-#ifdef __GNUC__
-	__asm__("mov $1, %%eax; cpuid; mov %%edx, %0" : "=rm" (b) : : "%eax", "%edx");
-#else
-	__asm
-	{
-		mov		eax, 1
-		cpuid
-		mov		b, edx
-	}
-#endif
-
-	return (b & (1 << 26)) != 0;
-}
-
-static inline bool HasSSE2()
-{
-	if (g_sse2Enabled && !g_sse2DetectionDone)
-	{
-		g_sse2Detected = GetSSE2Capability();
-		g_sse2DetectionDone = true;
-	}
-	return g_sse2Enabled && g_sse2Detected;
-}
 
 #ifdef __GNUC__
 #define __fastcall
@@ -1891,119 +1940,101 @@ void P4Optimized::Multiply8Bottom(word *C, const word *A, const word *B)
 #define R2		(R+N)
 #define R3		(R+N+N2)
 
-//VC60 workaround: compiler bug triggered without the extra dummy parameters
-
 // R[2*N] - result = A*B
 // T[2*N] - temporary work space
 // A[N] --- multiplier
 // B[N] --- multiplicant
 
-template <class P>
-void DoRecursiveMultiply(word *R, word *T, const word *A, const word *B, unsigned int N, const P *dummy=NULL);
-
-template <class P>
-inline void RecursiveMultiply(word *R, word *T, const word *A, const word *B, unsigned int N, const P *dummy=NULL)
+void RecursiveMultiply(word *R, word *T, const word *A, const word *B, unsigned int N)
 {
 	assert(N>=2 && N%2==0);
 
-	if (P::MultiplyRecursionLimit() >= 8 && N==8)
-		P::Multiply8(R, A, B);
-	else if (P::MultiplyRecursionLimit() >= 4 && N==4)
-		P::Multiply4(R, A, B);
+	if (LowLevel::MultiplyRecursionLimit() >= 8 && N==8)
+		LowLevel::Multiply8(R, A, B);
+	else if (LowLevel::MultiplyRecursionLimit() >= 4 && N==4)
+		LowLevel::Multiply4(R, A, B);
 	else if (N==2)
-		P::Multiply2(R, A, B);
+		LowLevel::Multiply2(R, A, B);
 	else
-		DoRecursiveMultiply<P>(R, T, A, B, N, NULL);	// VC60 workaround: needs this NULL
-}
-
-template <class P>
-void DoRecursiveMultiply(word *R, word *T, const word *A, const word *B, unsigned int N, const P *dummy)
-{
-	const unsigned int N2 = N/2;
-	int carry;
-
-	int aComp = Compare(A0, A1, N2);
-	int bComp = Compare(B0, B1, N2);
-
-	switch (2*aComp + aComp + bComp)
 	{
-	case -4:
-		P::Subtract(R0, A1, A0, N2);
-		P::Subtract(R1, B0, B1, N2);
-		RecursiveMultiply<P>(T0, T2, R0, R1, N2);
-		P::Subtract(T1, T1, R0, N2);
-		carry = -1;
-		break;
-	case -2:
-		P::Subtract(R0, A1, A0, N2);
-		P::Subtract(R1, B0, B1, N2);
-		RecursiveMultiply<P>(T0, T2, R0, R1, N2);
-		carry = 0;
-		break;
-	case 2:
-		P::Subtract(R0, A0, A1, N2);
-		P::Subtract(R1, B1, B0, N2);
-		RecursiveMultiply<P>(T0, T2, R0, R1, N2);
-		carry = 0;
-		break;
-	case 4:
-		P::Subtract(R0, A1, A0, N2);
-		P::Subtract(R1, B0, B1, N2);
-		RecursiveMultiply<P>(T0, T2, R0, R1, N2);
-		P::Subtract(T1, T1, R1, N2);
-		carry = -1;
-		break;
-	default:
-		SetWords(T0, 0, N);
-		carry = 0;
+		const unsigned int N2 = N/2;
+		int carry;
+
+		int aComp = Compare(A0, A1, N2);
+		int bComp = Compare(B0, B1, N2);
+
+		switch (2*aComp + aComp + bComp)
+		{
+		case -4:
+			LowLevel::Subtract(R0, A1, A0, N2);
+			LowLevel::Subtract(R1, B0, B1, N2);
+			RecursiveMultiply(T0, T2, R0, R1, N2);
+			LowLevel::Subtract(T1, T1, R0, N2);
+			carry = -1;
+			break;
+		case -2:
+			LowLevel::Subtract(R0, A1, A0, N2);
+			LowLevel::Subtract(R1, B0, B1, N2);
+			RecursiveMultiply(T0, T2, R0, R1, N2);
+			carry = 0;
+			break;
+		case 2:
+			LowLevel::Subtract(R0, A0, A1, N2);
+			LowLevel::Subtract(R1, B1, B0, N2);
+			RecursiveMultiply(T0, T2, R0, R1, N2);
+			carry = 0;
+			break;
+		case 4:
+			LowLevel::Subtract(R0, A1, A0, N2);
+			LowLevel::Subtract(R1, B0, B1, N2);
+			RecursiveMultiply(T0, T2, R0, R1, N2);
+			LowLevel::Subtract(T1, T1, R1, N2);
+			carry = -1;
+			break;
+		default:
+			SetWords(T0, 0, N);
+			carry = 0;
+		}
+
+		RecursiveMultiply(R0, T2, A0, B0, N2);
+		RecursiveMultiply(R2, T2, A1, B1, N2);
+
+		// now T[01] holds (A1-A0)*(B0-B1), R[01] holds A0*B0, R[23] holds A1*B1
+
+		carry += LowLevel::Add(T0, T0, R0, N);
+		carry += LowLevel::Add(T0, T0, R2, N);
+		carry += LowLevel::Add(R1, R1, T0, N);
+
+		assert (carry >= 0 && carry <= 2);
+		Increment(R3, N2, carry);
 	}
-
-	RecursiveMultiply<P>(R0, T2, A0, B0, N2);
-	RecursiveMultiply<P>(R2, T2, A1, B1, N2);
-
-	// now T[01] holds (A1-A0)*(B0-B1), R[01] holds A0*B0, R[23] holds A1*B1
-
-	carry += P::Add(T0, T0, R0, N);
-	carry += P::Add(T0, T0, R2, N);
-	carry += P::Add(R1, R1, T0, N);
-
-	assert (carry >= 0 && carry <= 2);
-	Increment(R3, N2, carry);
 }
 
 // R[2*N] - result = A*A
 // T[2*N] - temporary work space
 // A[N] --- number to be squared
 
-template <class P>
-void DoRecursiveSquare(word *R, word *T, const word *A, unsigned int N, const P *dummy=NULL);
-
-template <class P>
-inline void RecursiveSquare(word *R, word *T, const word *A, unsigned int N, const P *dummy=NULL)
+void RecursiveSquare(word *R, word *T, const word *A, unsigned int N)
 {
 	assert(N && N%2==0);
-	if (P::SquareRecursionLimit() >= 8 && N==8)
-		P::Square8(R, A);
-	if (P::SquareRecursionLimit() >= 4 && N==4)
-		P::Square4(R, A);
+	if (LowLevel::SquareRecursionLimit() >= 8 && N==8)
+		LowLevel::Square8(R, A);
+	if (LowLevel::SquareRecursionLimit() >= 4 && N==4)
+		LowLevel::Square4(R, A);
 	else if (N==2)
-		P::Square2(R, A);
+		LowLevel::Square2(R, A);
 	else
-		DoRecursiveSquare<P>(R, T, A, N, NULL);	// VC60 workaround: needs this NULL
-}
+	{
+		const unsigned int N2 = N/2;
 
-template <class P>
-void DoRecursiveSquare(word *R, word *T, const word *A, unsigned int N, const P *dummy)
-{
-	const unsigned int N2 = N/2;
+		RecursiveSquare(R0, T2, A0, N2);
+		RecursiveSquare(R2, T2, A1, N2);
+		RecursiveMultiply(T0, T2, A0, A1, N2);
 
-	RecursiveSquare<P>(R0, T2, A0, N2);
-	RecursiveSquare<P>(R2, T2, A1, N2);
-	RecursiveMultiply<P>(T0, T2, A0, A1, N2);
-
-	word carry = P::Add(R1, R1, T0, N);
-	carry += P::Add(R1, R1, T0, N);
-	Increment(R3, N2, carry);
+		word carry = LowLevel::Add(R1, R1, T0, N);
+		carry += LowLevel::Add(R1, R1, T0, N);
+		Increment(R3, N2, carry);
+	}
 }
 
 // R[N] - bottom half of A*B
@@ -2011,33 +2042,25 @@ void DoRecursiveSquare(word *R, word *T, const word *A, unsigned int N, const P 
 // A[N] - multiplier
 // B[N] - multiplicant
 
-template <class P>
-void DoRecursiveMultiplyBottom(word *R, word *T, const word *A, const word *B, unsigned int N, const P *dummy=NULL);
-
-template <class P>
-inline void RecursiveMultiplyBottom(word *R, word *T, const word *A, const word *B, unsigned int N, const P *dummy=NULL)
+void RecursiveMultiplyBottom(word *R, word *T, const word *A, const word *B, unsigned int N)
 {
 	assert(N>=2 && N%2==0);
-	if (P::MultiplyBottomRecursionLimit() >= 8 && N==8)
-		P::Multiply8Bottom(R, A, B);
-	else if (P::MultiplyBottomRecursionLimit() >= 4 && N==4)
-		P::Multiply4Bottom(R, A, B);
+	if (LowLevel::MultiplyBottomRecursionLimit() >= 8 && N==8)
+		LowLevel::Multiply8Bottom(R, A, B);
+	else if (LowLevel::MultiplyBottomRecursionLimit() >= 4 && N==4)
+		LowLevel::Multiply4Bottom(R, A, B);
 	else if (N==2)
-		P::Multiply2Bottom(R, A, B);
+		LowLevel::Multiply2Bottom(R, A, B);
 	else
-		DoRecursiveMultiplyBottom<P>(R, T, A, B, N, NULL);
-}
+	{
+		const unsigned int N2 = N/2;
 
-template <class P>
-void DoRecursiveMultiplyBottom(word *R, word *T, const word *A, const word *B, unsigned int N, const P *dummy)
-{
-	const unsigned int N2 = N/2;
-
-	RecursiveMultiply<P>(R, T, A0, B0, N2);
-	RecursiveMultiplyBottom<P>(T0, T1, A1, B0, N2);
-	P::Add(R1, R1, T0, N2);
-	RecursiveMultiplyBottom<P>(T0, T1, A0, B1, N2);
-	P::Add(R1, R1, T0, N2);
+		RecursiveMultiply(R, T, A0, B0, N2);
+		RecursiveMultiplyBottom(T0, T1, A1, B0, N2);
+		LowLevel::Add(R1, R1, T0, N2);
+		RecursiveMultiplyBottom(T0, T1, A0, B1, N2);
+		LowLevel::Add(R1, R1, T0, N2);
+	}
 }
 
 // R[N] --- upper half of A*B
@@ -2046,19 +2069,18 @@ void DoRecursiveMultiplyBottom(word *R, word *T, const word *A, const word *B, u
 // A[N] --- multiplier
 // B[N] --- multiplicant
 
-template <class P>
-void RecursiveMultiplyTop(word *R, word *T, const word *L, const word *A, const word *B, unsigned int N, const P *dummy=NULL)
+void RecursiveMultiplyTop(word *R, word *T, const word *L, const word *A, const word *B, unsigned int N)
 {
 	assert(N>=2 && N%2==0);
 
 	if (N==4)
 	{
-		P::Multiply4(T, A, B);
+		LowLevel::Multiply4(T, A, B);
 		memcpy(R, T+4, 4*WORD_SIZE);
 	}
 	else if (N==2)
 	{
-		P::Multiply2(T, A, B);
+		LowLevel::Multiply2(T, A, B);
 		memcpy(R, T+2, 2*WORD_SIZE);
 	}
 	else
@@ -2072,29 +2094,29 @@ void RecursiveMultiplyTop(word *R, word *T, const word *L, const word *A, const 
 		switch (2*aComp + aComp + bComp)
 		{
 		case -4:
-			P::Subtract(R0, A1, A0, N2);
-			P::Subtract(R1, B0, B1, N2);
-			RecursiveMultiply<P>(T0, T2, R0, R1, N2);
-			P::Subtract(T1, T1, R0, N2);
+			LowLevel::Subtract(R0, A1, A0, N2);
+			LowLevel::Subtract(R1, B0, B1, N2);
+			RecursiveMultiply(T0, T2, R0, R1, N2);
+			LowLevel::Subtract(T1, T1, R0, N2);
 			carry = -1;
 			break;
 		case -2:
-			P::Subtract(R0, A1, A0, N2);
-			P::Subtract(R1, B0, B1, N2);
-			RecursiveMultiply<P>(T0, T2, R0, R1, N2);
+			LowLevel::Subtract(R0, A1, A0, N2);
+			LowLevel::Subtract(R1, B0, B1, N2);
+			RecursiveMultiply(T0, T2, R0, R1, N2);
 			carry = 0;
 			break;
 		case 2:
-			P::Subtract(R0, A0, A1, N2);
-			P::Subtract(R1, B1, B0, N2);
-			RecursiveMultiply<P>(T0, T2, R0, R1, N2);
+			LowLevel::Subtract(R0, A0, A1, N2);
+			LowLevel::Subtract(R1, B1, B0, N2);
+			RecursiveMultiply(T0, T2, R0, R1, N2);
 			carry = 0;
 			break;
 		case 4:
-			P::Subtract(R0, A1, A0, N2);
-			P::Subtract(R1, B0, B1, N2);
-			RecursiveMultiply<P>(T0, T2, R0, R1, N2);
-			P::Subtract(T1, T1, R1, N2);
+			LowLevel::Subtract(R0, A1, A0, N2);
+			LowLevel::Subtract(R1, B0, B1, N2);
+			RecursiveMultiply(T0, T2, R0, R1, N2);
+			LowLevel::Subtract(T1, T1, R1, N2);
 			carry = -1;
 			break;
 		default:
@@ -2102,18 +2124,18 @@ void RecursiveMultiplyTop(word *R, word *T, const word *L, const word *A, const 
 			carry = 0;
 		}
 
-		RecursiveMultiply<P>(T2, R0, A1, B1, N2);
+		RecursiveMultiply(T2, R0, A1, B1, N2);
 
 		// now T[01] holds (A1-A0)*(B0-B1), T[23] holds A1*B1
 
-		word c2 = P::Subtract(R0, L+N2, L, N2);
-		c2 += P::Subtract(R0, R0, T0, N2);
+		word c2 = LowLevel::Subtract(R0, L+N2, L, N2);
+		c2 += LowLevel::Subtract(R0, R0, T0, N2);
 		word t = (Compare(R0, T2, N2) == -1);
 
 		carry += t;
 		carry += Increment(R0, N2, c2+t);
-		carry += P::Add(R0, R0, T1, N2);
-		carry += P::Add(R0, R0, T3, N2);
+		carry += LowLevel::Add(R0, R0, T1, N2);
+		carry += LowLevel::Add(R0, R0, T3, N2);
 		assert (carry >= 0 && carry <= 2);
 
 		CopyWords(R1, T3, N2);
@@ -2133,42 +2155,22 @@ inline word Subtract(word *C, const word *A, const word *B, unsigned int N)
 
 inline void Multiply(word *R, word *T, const word *A, const word *B, unsigned int N)
 {
-#ifdef SSE2_INTRINSICS_AVAILABLE
-	if (HasSSE2())
-		RecursiveMultiply<P4Optimized>(R, T, A, B, N);
-	else
-#endif
-		RecursiveMultiply<LowLevel>(R, T, A, B, N);
+	RecursiveMultiply(R, T, A, B, N);
 }
 
 inline void Square(word *R, word *T, const word *A, unsigned int N)
 {
-#ifdef SSE2_INTRINSICS_AVAILABLE
-	if (HasSSE2())
-		RecursiveSquare<P4Optimized>(R, T, A, N);
-	else
-#endif
-		RecursiveSquare<LowLevel>(R, T, A, N);
+	RecursiveSquare(R, T, A, N);
 }
 
 inline void MultiplyBottom(word *R, word *T, const word *A, const word *B, unsigned int N)
 {
-#ifdef SSE2_INTRINSICS_AVAILABLE
-	if (HasSSE2())
-		RecursiveMultiplyBottom<P4Optimized>(R, T, A, B, N);
-	else
-#endif
-		RecursiveMultiplyBottom<LowLevel>(R, T, A, B, N);
+	RecursiveMultiplyBottom(R, T, A, B, N);
 }
 
 inline void MultiplyTop(word *R, word *T, const word *L, const word *A, const word *B, unsigned int N)
 {
-#ifdef SSE2_INTRINSICS_AVAILABLE
-	if (HasSSE2())
-		RecursiveMultiplyTop<P4Optimized>(R, T, L, A, B, N);
-	else
-#endif
-		RecursiveMultiplyTop<LowLevel>(R, T, L, A, B, N);
+	RecursiveMultiplyTop(R, T, L, A, B, N);
 }
 
 static word LinearMultiply(word *C, const word *A, word B, unsigned int N)
