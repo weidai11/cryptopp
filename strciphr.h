@@ -189,11 +189,16 @@ struct CRYPTOPP_NO_VTABLE CFB_CipherConcretePolicy : public BASE
 
 			if (m_dir == ENCRYPTION)
 			{
-				WordType ct = *(const WordType *)m_input ^ registerWord;
-				registerWord = ct;
-				*(WordType*)m_output = ct;
-				m_input += sizeof(WordType);
-				m_output += sizeof(WordType);
+				if (m_input == NULL)
+					assert(m_output == NULL);
+				else
+				{
+					WordType ct = *(const WordType *)m_input ^ registerWord;
+					registerWord = ct;
+					*(WordType*)m_output = ct;
+					m_input += sizeof(WordType);
+					m_output += sizeof(WordType);
+				}
 			}
 			else
 			{
