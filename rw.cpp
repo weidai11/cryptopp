@@ -7,82 +7,53 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-template<> const byte EMSA2DigestDecoration<SHA>::decoration = 0x33;
-template<> const byte EMSA2DigestDecoration<RIPEMD160>::decoration = 0x31;
-
-void EMSA2Pad::Pad(RandomNumberGenerator &, const byte *input, unsigned int inputLen, byte *emsa2Block, unsigned int emsa2BlockLen) const
+void EMSA2Pad::ComputeMessageRepresentative(RandomNumberGenerator &rng, 
+	const byte *recoverableMessage, unsigned int recoverableMessageLength,
+	HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
+	byte *representative, unsigned int representativeBitLength) const
 {
-	assert (inputLen > 0 && inputLen <= MaxUnpaddedLength(emsa2BlockLen));
+	if (representativeBitLength % 8 != 7)
+		throw PK_SignatureScheme::InvalidKeyLength("EMSA2: EMSA2 requires a key length that is a multiple of 8");
 
-	// convert from bit length to byte length
-	emsa2BlockLen++;
-	if (emsa2BlockLen % 8 > 1)
-	{
-		emsa2Block[0] = 0;
-		emsa2Block++;
-	}
-	emsa2BlockLen /= 8;
+	unsigned int digestSize = hash.DigestSize();
+	if (representativeBitLength < 8*digestSize + 31)
+		throw PK_SignatureScheme::KeyTooShort();
 
-	emsa2Block[0] = input[0];			// indicate empty or non-empty message
-	memset(emsa2Block+1, 0xbb, emsa2BlockLen-inputLen-2);	// padd with 0xbb
-	emsa2Block[emsa2BlockLen-inputLen-1] = 0xba;	// separator
-	memcpy(emsa2Block+emsa2BlockLen-inputLen, input+1, inputLen-1);
-	emsa2Block[emsa2BlockLen-1] = 0xcc;	// make it congruent to 12 mod 16
-}
+	unsigned int representativeByteLength = BitsToBytes(representativeBitLength);
 
-DecodingResult EMSA2Pad::Unpad(const byte *emsa2Block, unsigned int emsa2BlockLen, byte *output) const
-{
-	// convert from bit length to byte length
-	emsa2BlockLen++;
-	if (emsa2BlockLen % 8 > 1)
-	{
-		if (emsa2Block[0] != 0)
-			return DecodingResult();
-		emsa2Block++;
-	}
-	emsa2BlockLen /= 8;
-
-	// check last byte
-	if (emsa2Block[emsa2BlockLen-1] != 0xcc)
-		return DecodingResult();
-
-	// skip past the padding until we find the seperator
-	unsigned i=1;
-	while (i<emsa2BlockLen-1 && emsa2Block[i++] != 0xba)
-		if (emsa2Block[i-1] != 0xbb)     // not valid padding
-			return DecodingResult();
-	assert(i==emsa2BlockLen-1 || emsa2Block[i-1]==0xba);
-
-	unsigned int outputLen = emsa2BlockLen - i;
-	output[0] = emsa2Block[0];
-	memcpy (output+1, emsa2Block+i, outputLen-1);
-	return DecodingResult(outputLen);
+	representative[0] = messageEmpty ? 0x4b : 0x6b;
+	memset(representative+1, 0xbb, representativeByteLength-digestSize-4);	// padd with 0xbb
+	byte *afterP2 = representative+representativeByteLength-digestSize-3;
+	afterP2[0] = 0xba;
+	hash.Final(afterP2+1);
+	representative[representativeByteLength-2] = *hashIdentifier.first;
+	representative[representativeByteLength-1] = 0xcc;
 }
 
 // *****************************************************************************
 
-template <word r>
-void RWFunction<r>::BERDecode(BufferedTransformation &bt)
+void RWFunction::BERDecode(BufferedTransformation &bt)
 {
 	BERSequenceDecoder seq(bt);
 	m_n.BERDecode(seq);
 	seq.MessageEnd();
 }
 
-template <word r>
-void RWFunction<r>::DEREncode(BufferedTransformation &bt) const
+void RWFunction::DEREncode(BufferedTransformation &bt) const
 {
 	DERSequenceEncoder seq(bt);
 	m_n.DEREncode(seq);
 	seq.MessageEnd();
 }
 
-template <word r>
-Integer RWFunction<r>::ApplyFunction(const Integer &in) const
+Integer RWFunction::ApplyFunction(const Integer &in) const
 {
 	DoQuickSanityCheck();
 
 	Integer out = in.Squared()%m_n;
+	const word r = 12;
+	// this code was written to handle both r = 6 and r = 12,
+	// but now only r = 12 is used in P1363
 	const word r2 = r/2;
 	const word r3a = (16 + 5 - r) % 16;	// n%16 could be 5 or 13
 	const word r3b = (16 + 13 - r) % 16;
@@ -112,24 +83,21 @@ Integer RWFunction<r>::ApplyFunction(const Integer &in) const
 	return out;
 }
 
-template <word r>
-bool RWFunction<r>::Validate(RandomNumberGenerator &rng, unsigned int level) const
+bool RWFunction::Validate(RandomNumberGenerator &rng, unsigned int level) const
 {
 	bool pass = true;
 	pass = pass && m_n > Integer::One() && m_n%8 == 5;
 	return pass;
 }
 
-template <word r>
-bool RWFunction<r>::GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
+bool RWFunction::GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
 {
 	return GetValueHelper(this, name, valueType, pValue).Assignable()
 		CRYPTOPP_GET_FUNCTION_ENTRY(Modulus)
 		;
 }
 
-template <word r>
-void RWFunction<r>::AssignFrom(const NameValuePairs &source)
+void RWFunction::AssignFrom(const NameValuePairs &source)
 {
 	AssignFromHelper(this, source)
 		CRYPTOPP_SET_FUNCTION_ENTRY(Modulus)
@@ -140,8 +108,7 @@ void RWFunction<r>::AssignFrom(const NameValuePairs &source)
 // private key operations:
 
 // generate a random private key
-template <word r>
-void InvertibleRWFunction<r>::GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &alg)
+void InvertibleRWFunction::GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &alg)
 {
 	int modulusSize = 2048;
 	alg.GetIntValue("ModulusSize", modulusSize) || alg.GetIntValue("KeySize", modulusSize);
@@ -157,8 +124,7 @@ void InvertibleRWFunction<r>::GenerateRandom(RandomNumberGenerator &rng, const N
 	m_u = m_q.InverseMod(m_p);
 }
 
-template <word r>
-void InvertibleRWFunction<r>::BERDecode(BufferedTransformation &bt)
+void InvertibleRWFunction::BERDecode(BufferedTransformation &bt)
 {
 	BERSequenceDecoder seq(bt);
 	m_n.BERDecode(seq);
@@ -168,8 +134,7 @@ void InvertibleRWFunction<r>::BERDecode(BufferedTransformation &bt)
 	seq.MessageEnd();
 }
 
-template <word r>
-void InvertibleRWFunction<r>::DEREncode(BufferedTransformation &bt) const
+void InvertibleRWFunction::DEREncode(BufferedTransformation &bt) const
 {
 	DERSequenceEncoder seq(bt);
 	m_n.DEREncode(seq);
@@ -179,9 +144,10 @@ void InvertibleRWFunction<r>::DEREncode(BufferedTransformation &bt) const
 	seq.MessageEnd();
 }
 
-template <word r>
-Integer InvertibleRWFunction<r>::CalculateInverse(const Integer &in) const
+Integer InvertibleRWFunction::CalculateInverse(RandomNumberGenerator &rng, const Integer &in) const
 {
+	// no need to do blinding because RW is only used for signatures
+
 	DoQuickSanityCheck();
 
 	Integer cp=in%m_p, cq=in%m_q;
@@ -200,10 +166,9 @@ Integer InvertibleRWFunction<r>::CalculateInverse(const Integer &in) const
 	return STDMIN(out, m_n-out);
 }
 
-template <word r>
-bool InvertibleRWFunction<r>::Validate(RandomNumberGenerator &rng, unsigned int level) const
+bool InvertibleRWFunction::Validate(RandomNumberGenerator &rng, unsigned int level) const
 {
-	bool pass = RWFunction<r>::Validate(rng, level);
+	bool pass = RWFunction::Validate(rng, level);
 	pass = pass && m_p > Integer::One() && m_p%8 == 3 && m_p < m_n;
 	pass = pass && m_q > Integer::One() && m_q%8 == 7 && m_q < m_n;
 	pass = pass && m_u.IsPositive() && m_u < m_p;
@@ -217,27 +182,22 @@ bool InvertibleRWFunction<r>::Validate(RandomNumberGenerator &rng, unsigned int 
 	return pass;
 }
 
-template <word r>
-bool InvertibleRWFunction<r>::GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
+bool InvertibleRWFunction::GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
 {
-	return GetValueHelper<RWFunction<r> >(this, name, valueType, pValue).Assignable()
+	return GetValueHelper<RWFunction>(this, name, valueType, pValue).Assignable()
 		CRYPTOPP_GET_FUNCTION_ENTRY(Prime1)
 		CRYPTOPP_GET_FUNCTION_ENTRY(Prime2)
 		CRYPTOPP_GET_FUNCTION_ENTRY(MultiplicativeInverseOfPrime2ModPrime1)
 		;
 }
 
-template <word r>
-void InvertibleRWFunction<r>::AssignFrom(const NameValuePairs &source)
+void InvertibleRWFunction::AssignFrom(const NameValuePairs &source)
 {
-	AssignFromHelper<RWFunction<r> >(this, source)
+	AssignFromHelper<RWFunction>(this, source)
 		CRYPTOPP_SET_FUNCTION_ENTRY(Prime1)
 		CRYPTOPP_SET_FUNCTION_ENTRY(Prime2)
 		CRYPTOPP_SET_FUNCTION_ENTRY(MultiplicativeInverseOfPrime2ModPrime1)
 		;
 }
-
-template class RWFunction<IFSSA_R>;
-template class InvertibleRWFunction<IFSSA_R>;
 
 NAMESPACE_END

@@ -113,22 +113,41 @@ bool SignatureValidate(PK_Signer &priv, PK_Verifier &pub, bool thorough = false)
 
 	const byte *message = (byte *)"test message";
 	const int messageLen = 12;
-	byte buffer[512];
 
-	memset(buffer, 0, sizeof(buffer));
-	priv.SignMessage(GlobalRNG(), message, messageLen, buffer);
-	fail = !pub.VerifyMessage(message, messageLen, buffer);
+	SecByteBlock signature(priv.MaxSignatureLength());
+	unsigned int signatureLength = priv.SignMessage(GlobalRNG(), message, messageLen, signature);
+	fail = !pub.VerifyMessage(message, messageLen, signature, signatureLength);
 	pass = pass && !fail;
 
 	cout << (fail ? "FAILED    " : "passed    ");
 	cout << "signature and verification\n";
 
-	++buffer[0];
-	fail = pub.VerifyMessage(message, messageLen, buffer);
+	++signature[0];
+	fail = pub.VerifyMessage(message, messageLen, signature, signatureLength);
 	pass = pass && !fail;
 
 	cout << (fail ? "FAILED    " : "passed    ");
 	cout << "checking invalid signature" << endl;
+
+	if (priv.MaxRecoverableLength() > 0)
+	{
+		signatureLength = priv.SignMessageWithRecovery(GlobalRNG(), message, messageLen, NULL, 0, signature);
+		SecByteBlock recovered(priv.MaxRecoverableLengthFromSignatureLength(signatureLength));
+		DecodingResult result = pub.RecoverMessage(recovered, NULL, 0, signature, signatureLength);
+		fail = !(result.isValidCoding && result.messageLength == messageLen && memcmp(recovered, message, messageLen) == 0);
+		pass = pass && !fail;
+
+		cout << (fail ? "FAILED    " : "passed    ");
+		cout << "signature and verification with recovery" << endl;
+
+		++signature[0];
+		result = pub.RecoverMessage(recovered, NULL, 0, signature, signatureLength);
+		fail = result.isValidCoding;
+		pass = pass && !fail;
+
+		cout << (fail ? "FAILED    " : "passed    ");
+		cout << "recovery with invalid signature" << endl;
+	}
 
 	return pass;
 }
@@ -149,7 +168,7 @@ bool CryptoSystemValidate(PK_Decryptor &priv, PK_Encryptor &pub, bool thorough =
 	SecByteBlock plaintext(priv.MaxPlaintextLength(ciphertext.size()));
 
 	pub.Encrypt(GlobalRNG(), message, messageLen, ciphertext);
-	fail = priv.Decrypt(ciphertext, priv.CiphertextLength(messageLen), plaintext) != DecodingResult(messageLen);
+	fail = priv.Decrypt(GlobalRNG(), ciphertext, priv.CiphertextLength(messageLen), plaintext) != DecodingResult(messageLen);
 	fail = fail || memcmp(message, plaintext, messageLen);
 	pass = pass && !fail;
 
@@ -254,21 +273,21 @@ bool ValidateRSA()
 		RSASSA_PKCS1v15_MD2_Signer rsaPriv(keys);
 		RSASSA_PKCS1v15_MD2_Verifier rsaPub(rsaPriv);
 
-		rsaPriv.SignMessage(GlobalRNG(), (byte *)plain, strlen(plain), out);
+		unsigned int signatureLength = rsaPriv.SignMessage(GlobalRNG(), (byte *)plain, strlen(plain), out);
 		fail = memcmp(signature, out, 64) != 0;
 		pass = pass && !fail;
 
 		cout << (fail ? "FAILED    " : "passed    ");
 		cout << "signature check against test vector\n";
 
-		fail = !rsaPub.VerifyMessage((byte *)plain, strlen(plain), out);
+		fail = !rsaPub.VerifyMessage((byte *)plain, strlen(plain), out, signatureLength);
 		pass = pass && !fail;
 
 		cout << (fail ? "FAILED    " : "passed    ");
 		cout << "verification check against test vector\n";
 
 		out[10]++;
-		fail = rsaPub.VerifyMessage((byte *)plain, strlen(plain), out);
+		fail = rsaPub.VerifyMessage((byte *)plain, strlen(plain), out, signatureLength);
 		pass = pass && !fail;
 
 		cout << (fail ? "FAILED    " : "passed    ");
@@ -305,7 +324,7 @@ bool ValidateRSA()
 		memset(out, 0, 50);
 		memset(outPlain, 0, 8);
 		rsaPub.Encrypt(rng, plain, 8, out);
-		DecodingResult result = rsaPriv.FixedLengthDecrypt(encrypted, outPlain);
+		DecodingResult result = rsaPriv.FixedLengthDecrypt(GlobalRNG(), encrypted, outPlain);
 		fail = !result.isValidCoding || (result.messageLength!=8) || memcmp(out, encrypted, 50) || memcmp(plain, outPlain, 8);
 		pass = pass && !fail;
 
@@ -447,20 +466,20 @@ bool ValidateDSA(bool thorough)
 	cout << (fail ? "FAILED    " : "passed    ");
 	cout << "prime generation test\n";
 
-	priv.GetDigestSignatureScheme().RawSign(k, h, rOut, sOut);
+	priv.RawSign(k, h, rOut, sOut);
 	fail = (rOut != r) || (sOut != s);
 	pass = pass && !fail;
 
 	cout << (fail ? "FAILED    " : "passed    ");
 	cout << "signature check against test vector\n";
 
-	fail = !pub.VerifyMessage((byte *)"abc", 3, sig);
+	fail = !pub.VerifyMessage((byte *)"abc", 3, sig, sizeof(sig));
 	pass = pass && !fail;
 
 	cout << (fail ? "FAILED    " : "passed    ");
 	cout << "verification check against test vector\n";
 
-	fail = pub.VerifyMessage((byte *)"xyz", 3, sig);
+	fail = pub.VerifyMessage((byte *)"xyz", 3, sig, sizeof(sig));
 	pass = pass && !fail;
 	}
 	FileSource fs1("dsa1024.dat", true, new HexDecoder());
@@ -518,8 +537,8 @@ bool ValidateRabin()
 
 	{
 		FileSource f("rabi1024.dat", true, new HexDecoder);
-		RabinPSSR<SHA>::Signer priv(f);
-		RabinPSSR<SHA>::Verifier pub(priv);
+		RabinSS<PSSR, SHA>::Signer priv(f);
+		RabinSS<PSSR, SHA>::Verifier pub(priv);
 		pass = SignatureValidate(priv, pub) && pass;
 	}
 	{
@@ -535,8 +554,8 @@ bool ValidateRW()
 	cout << "\nRW validation suite running...\n\n";
 
 	FileSource f("rw1024.dat", true, new HexDecoder);
-	RWSSA<SHA>::Signer priv(f);
-	RWSSA<SHA>::Verifier pub(priv);
+	RWSS<PSSR, SHA>::Signer priv(f);
+	RWSS<PSSR, SHA>::Verifier pub(priv);
 
 	return SignatureValidate(priv, pub);
 }
@@ -681,20 +700,20 @@ bool ValidateECDSA()
 	Integer rOut, sOut;
 	bool fail, pass=true;
 
-	priv.GetDigestSignatureScheme().RawSign(k, h, rOut, sOut);
+	priv.RawSign(k, h, rOut, sOut);
 	fail = (rOut != r) || (sOut != s);
 	pass = pass && !fail;
 
 	cout << (fail ? "FAILED    " : "passed    ");
 	cout << "signature check against test vector\n";
 
-	fail = !pub.VerifyMessage((byte *)"abc", 3, sig);
+	fail = !pub.VerifyMessage((byte *)"abc", 3, sig, sizeof(sig));
 	pass = pass && !fail;
 
 	cout << (fail ? "FAILED    " : "passed    ");
 	cout << "verification check against test vector\n";
 
-	fail = pub.VerifyMessage((byte *)"xyz", 3, sig);
+	fail = pub.VerifyMessage((byte *)"xyz", 3, sig, sizeof(sig));
 	pass = pass && !fail;
 
 	pass = SignatureValidate(priv, pub) && pass;
@@ -723,7 +742,7 @@ bool ValidateESIGN()
 	fail = !SignatureValidate(signer, verifier);
 	pass = pass && !fail;
 
-	fail = !verifier.VerifyMessage((byte *)plain, strlen(plain), signature);
+	fail = !verifier.VerifyMessage((byte *)plain, strlen(plain), signature, verifier.SignatureLength());
 	pass = pass && !fail;
 
 	cout << (fail ? "FAILED    " : "passed    ");

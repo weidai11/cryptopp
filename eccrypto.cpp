@@ -542,13 +542,13 @@ void DL_GroupParameters_EC<EC>::SimultaneousExponentiate(Element *results, const
 }
 
 template <class EC>
-DL_GroupParameters_EC<EC>::Element DL_GroupParameters_EC<EC>::MultiplyElements(const Element &a, const Element &b) const
+CPP_TYPENAME DL_GroupParameters_EC<EC>::Element DL_GroupParameters_EC<EC>::MultiplyElements(const Element &a, const Element &b) const
 {
 	return GetCurve().Add(a, b);
 }
 
 template <class EC>
-DL_GroupParameters_EC<EC>::Element DL_GroupParameters_EC<EC>::CascadeExponentiate(const Element &element1, const Integer &exponent1, const Element &element2, const Integer &exponent2) const
+CPP_TYPENAME DL_GroupParameters_EC<EC>::Element DL_GroupParameters_EC<EC>::CascadeExponentiate(const Element &element1, const Integer &exponent1, const Element &element2, const Integer &exponent2) const
 {
 	return GetCurve().CascadeMultiply(exponent1, element1, exponent2, element2);
 }

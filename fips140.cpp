@@ -13,11 +13,11 @@ NAMESPACE_BEGIN(CryptoPP)
 #endif
 
 #if (CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2 && !defined(THREADS_AVAILABLE))
-#error FIPS-140-2 compliance requires the availability of thread local storage.
+#error FIPS 140-2 compliance requires the availability of thread local storage.
 #endif
 
 #if (CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2 && !defined(OS_RNG_AVAILABLE))
-#error FIPS-140-2 compliance requires the availability of OS provided RNG.
+#error FIPS 140-2 compliance requires the availability of OS provided RNG.
 #endif
 
 PowerUpSelfTestStatus g_powerUpSelfTestStatus = POWER_UP_SELF_TEST_NOT_DONE;
@@ -59,6 +59,20 @@ void SetPowerUpSelfTestInProgressOnThisThread(bool inProgress)
 {
 #if CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2
 	AccessPowerUpSelfTestInProgress().SetValue((void *)inProgress);
+#endif
+}
+
+void EncryptionPairwiseConsistencyTest_FIPS_140_Only(const PK_Encryptor &encryptor, const PK_Decryptor &decryptor)
+{
+#if CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2
+	EncryptionPairwiseConsistencyTest(encryptor, decryptor);
+#endif
+}
+
+void SignaturePairwiseConsistencyTest_FIPS_140_Only(const PK_Signer &signer, const PK_Verifier &verifier)
+{
+#if CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2
+	SignaturePairwiseConsistencyTest(signer, verifier);
 #endif
 }
 

@@ -6,16 +6,12 @@
 	Rabin-Williams signature schemes as defined in IEEE P1363.
 */
 
-#include "pubkey.h"
 #include "integer.h"
+#include "pssr.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
-const word IFSSR_R = 6;
-const word IFSSA_R = 12;
-
 //! .
-template <word r>
 class RWFunction : virtual public TrapdoorFunction, public PublicKey
 {
 	typedef RWFunction ThisClass;
@@ -43,8 +39,7 @@ protected:
 };
 
 //! .
-template <word r>
-class InvertibleRWFunction : public RWFunction<r>, public TrapdoorFunctionInverse, public PrivateKey
+class InvertibleRWFunction : public RWFunction, public TrapdoorFunctionInverse, public PrivateKey
 {
 	typedef InvertibleRWFunction ThisClass;
 
@@ -58,7 +53,7 @@ public:
 	void BERDecode(BufferedTransformation &bt);
 	void DEREncode(BufferedTransformation &bt) const;
 
-	Integer CalculateInverse(const Integer &x) const;
+	Integer CalculateInverse(RandomNumberGenerator &rng, const Integer &x) const;
 
 	// GeneratibleCryptoMaterial
 	bool Validate(RandomNumberGenerator &rng, unsigned int level) const;
@@ -80,80 +75,37 @@ protected:
 };
 
 //! .
-class EMSA2Pad : public PK_PaddingAlgorithm
+class EMSA2Pad : public EMSA2HashIdLookup<PK_DeterministicSignatureMessageEncodingMethod>
 {
 public:
 	static const char *StaticAlgorithmName() {return "EMSA2";}
 	
 	unsigned int MaxUnpaddedLength(unsigned int paddedLength) const {return (paddedLength+1)/8-2;}
 
-	void Pad(RandomNumberGenerator &rng, const byte *raw, unsigned int inputLength, byte *padded, unsigned int paddedLength) const;
-	DecodingResult Unpad(const byte *padded, unsigned int paddedLength, byte *raw) const;
-};
-
-//! .
-template <class H>
-class EMSA2DecoratedHashModule : public HashTransformationWithDefaultTruncation
-{
-public:
-	EMSA2DecoratedHashModule() : empty(true) {}
-	void Update(const byte *input, unsigned int length)
-		{h.Update(input, length); empty = empty && length==0;}
-	unsigned int DigestSize() const;
-	void Final(byte *digest);
-	void Restart() {h.Restart(); empty=true;}
-
-private:
-	H h;
-	bool empty;
-};
-
-template <class H> struct EMSA2DigestDecoration
-{
-	static const byte decoration;
+	void ComputeMessageRepresentative(RandomNumberGenerator &rng, 
+		const byte *recoverableMessage, unsigned int recoverableMessageLength,
+		HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
+		byte *representative, unsigned int representativeBitLength) const;
 };
 
 //! EMSA2, for use with RW
 /*! The following hash functions are supported: SHA, RIPEMD160. */
 struct P1363_EMSA2 : public SignatureStandard
 {
-	template <class H> struct SignaturePaddingAlgorithm {typedef EMSA2Pad type;};
-	template <class H> struct DecoratedHashingAlgorithm {typedef EMSA2DecoratedHashModule<H> type;};
+	typedef EMSA2Pad SignatureMessageEncodingMethod;
 };
 
-template<> struct CryptoStandardTraits<P1363_EMSA2> : public P1363_EMSA2 {};
-
-// EMSA2DecoratedHashModule can be instantiated with the following two classes.
-class SHA;
-class RIPEMD160;
-
-template <class H>
-void EMSA2DecoratedHashModule<H>::Final(byte *digest)
-{
-	digest[0] = empty ? 0x4b : 0x6b;
-	h.Final(digest+1);
-	digest[DigestSize()-1] = EMSA2DigestDecoration<H>::decoration;
-	empty=true;
-}
-
-template <class H>
-unsigned int EMSA2DecoratedHashModule<H>::DigestSize() const
-{
-	return h.DigestSize() + 2;
-}
-
 //! .
-template <word r>
 struct RW
 {
 	static std::string StaticAlgorithmName() {return "RW";}
-	typedef RWFunction<r> PublicKey;
-	typedef InvertibleRWFunction<r> PrivateKey;
+	typedef RWFunction PublicKey;
+	typedef InvertibleRWFunction PrivateKey;
 };
 
-//! RW
-template <class H, class STANDARD = P1363_EMSA2>
-struct RWSSA : public TF_SSA<STANDARD, H, RW<IFSSA_R> >
+//! RWSS
+template <class STANDARD, class H>
+struct RWSS : public TF_SS<STANDARD, H, RW>
 {
 };
 

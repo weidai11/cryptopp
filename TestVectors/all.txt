@@ -1,0 +1,13 @@
+AlgorithmType: FileList
+Name: all.txt collection
+Test: dlies.txt
+Test: dsa.txt
+Test: dsa_1363.txt
+Test: esign.txt
+Test: hmac.txt
+Test: nr.txt
+Test: rsa_oaep.txt
+Test: rsa_pkcs1_1_5.txt
+Test: rsa_pss.txt
+Test: rw.txt
+Test: sha.txt

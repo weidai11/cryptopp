@@ -23,6 +23,16 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+bool FunctionAssignIntToInteger(const std::type_info &valueType, void *pInteger, const void *pInt)
+{
+	if (valueType != typeid(Integer))
+		return false;
+	*reinterpret_cast<Integer *>(pInteger) = *reinterpret_cast<const int *>(pInt);
+	return true;
+}
+
+static int DummyAssignIntToInteger = (AssignIntToInteger = FunctionAssignIntToInteger, 0);
+
 #ifdef SSE2_INTRINSICS_AVAILABLE
 template <class T>
 AllocatorBase<T>::pointer AlignedAllocator<T>::allocate(size_type n, const void *)

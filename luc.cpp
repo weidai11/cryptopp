@@ -18,12 +18,11 @@ void LUC_TestInstantiations()
 	InvertibleLUCFunction t3;
 }
 
-bool DL_Algorithm_LUC_HMP::Sign(const DL_GroupParameters<Integer> &params, const Integer &x, const Integer &k, const Integer &e, Integer &r, Integer &s) const
+void DL_Algorithm_LUC_HMP::Sign(const DL_GroupParameters<Integer> &params, const Integer &x, const Integer &k, const Integer &e, Integer &r, Integer &s) const
 {
 	const Integer &q = params.GetSubgroupOrder();
 	r = params.ExponentiateBase(k);
 	s = (k + x*(r+e)) % q;
-	return true;
 }
 
 bool DL_Algorithm_LUC_HMP::Verify(const DL_GroupParameters<Integer> &params, const DL_PublicKey<Integer> &publicKey, const Integer &e, const Integer &r, const Integer &s) const
@@ -165,8 +164,9 @@ void InvertibleLUCFunction::DEREncode(BufferedTransformation &bt) const
 	seq.MessageEnd();
 }
 
-Integer InvertibleLUCFunction::CalculateInverse(const Integer &x) const
+Integer InvertibleLUCFunction::CalculateInverse(RandomNumberGenerator &rng, const Integer &x) const
 {
+	// not clear how to do blinding with LUC
 	DoQuickSanityCheck();
 	return InverseLucas(m_e, x, m_q, m_p, m_u);
 }

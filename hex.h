@@ -9,16 +9,16 @@ NAMESPACE_BEGIN(CryptoPP)
 class HexEncoder : public SimpleProxyFilter
 {
 public:
-	HexEncoder(BufferedTransformation *attachment = NULL, bool uppercase = true, int outputGroupSize = 0, const std::string &seperator = ":", const std::string &terminator = "")
+	HexEncoder(BufferedTransformation *attachment = NULL, bool uppercase = true, int outputGroupSize = 0, const std::string &separator = ":", const std::string &terminator = "")
 		: SimpleProxyFilter(new BaseN_Encoder(new Grouper), attachment)
 	{
-		IsolatedInitialize(MakeParameters("Uppercase", uppercase)("GroupSize", outputGroupSize)("Seperator", ConstByteArrayParameter(seperator)));
+		IsolatedInitialize(MakeParameters("Uppercase", uppercase)("GroupSize", outputGroupSize)("Separator", ConstByteArrayParameter(separator)));
 	}
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
 };
 
-//! Decode 16 bit data back to bytes
+//! Decode base 16 data back to bytes
 class HexDecoder : public BaseN_Decoder
 {
 public:

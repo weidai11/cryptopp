@@ -88,29 +88,33 @@ template <class T, class BASE>
 class GetValueHelperClass
 {
 public:
-	GetValueHelperClass(const T *pObject, const char *name, const std::type_info &valueType, void *pValue)
+	GetValueHelperClass(const T *pObject, const char *name, const std::type_info &valueType, void *pValue, const NameValuePairs *searchFirst)
 		: m_pObject(pObject), m_name(name), m_valueType(&valueType), m_pValue(pValue), m_found(false), m_getValueNames(false)
 	{
-		if (strcmp(name, "ValueNames") == 0)
+		if (strcmp(m_name, "ValueNames") == 0)
+		{
 			m_found = m_getValueNames = true;
-
-		std::string thisPointerName = std::string("ThisPointer:") + typeid(T).name();
-
-		if (m_getValueNames)
-		{
-			NameValuePairs::ThrowIfTypeMismatch(name, typeid(std::string), *m_valueType);
+			NameValuePairs::ThrowIfTypeMismatch(m_name, typeid(std::string), *m_valueType);
+			if (searchFirst)
+				searchFirst->GetVoidValue(m_name, valueType, pValue);
 			if (typeid(T) != typeid(BASE))
-				pObject->BASE::GetVoidValue(name, valueType, pValue);
-			(*reinterpret_cast<std::string *>(m_pValue) += thisPointerName) += ";";
+				pObject->BASE::GetVoidValue(m_name, valueType, pValue);
+			((*reinterpret_cast<std::string *>(m_pValue) += "ThisPointer:") += typeid(T).name()) += ';';
 		}
-		else if (name == thisPointerName)
+
+		if (!m_found && strncmp(m_name, "ThisPointer:", 12) == 0 && strcmp(m_name+12, typeid(T).name()) == 0)
 		{
-			NameValuePairs::ThrowIfTypeMismatch(name, typeid(T *), *m_valueType);
+			NameValuePairs::ThrowIfTypeMismatch(m_name, typeid(T *), *m_valueType);
 			*reinterpret_cast<const T **>(pValue) = pObject;
 			m_found = true;
+			return;
 		}
-		else if (typeid(T) != typeid(BASE))
-			m_found = pObject->BASE::GetVoidValue(name, valueType, pValue);
+
+		if (!m_found && searchFirst)
+			m_found = searchFirst->GetVoidValue(m_name, valueType, pValue);
+		
+		if (!m_found && typeid(T) != typeid(BASE))
+			m_found = pObject->BASE::GetVoidValue(m_name, valueType, pValue);
 	}
 
 	operator bool() const {return m_found;}
@@ -120,7 +124,7 @@ public:
 	{
 		if (m_getValueNames)
 			(*reinterpret_cast<std::string *>(m_pValue) += name) += ";";
-		else if (!m_found && strcmp(name, m_name) == 0)
+		if (!m_found && strcmp(name, m_name) == 0)
 		{
 			NameValuePairs::ThrowIfTypeMismatch(name, typeid(R), *m_valueType);
 			*reinterpret_cast<R *>(m_pValue) = (m_pObject->*pm)();
@@ -131,10 +135,9 @@ public:
 
 	GetValueHelperClass<T,BASE> &Assignable()
 	{
-		std::string thisObjectName = std::string("ThisObject:") + typeid(T).name();
 		if (m_getValueNames)
-			(*reinterpret_cast<std::string *>(m_pValue) += thisObjectName) += ";";
-		else if (!m_found && m_name == thisObjectName)
+			((*reinterpret_cast<std::string *>(m_pValue) += "ThisObject:") += typeid(T).name()) += ';';
+		if (!m_found && strncmp(m_name, "ThisObject:", 11) == 0 && strcmp(m_name+11, typeid(T).name()) == 0)
 		{
 			NameValuePairs::ThrowIfTypeMismatch(m_name, typeid(T), *m_valueType);
 			*reinterpret_cast<T *>(m_pValue) = *m_pObject;
@@ -152,15 +155,15 @@ private:
 };
 
 template <class BASE, class T>
-GetValueHelperClass<T, BASE> GetValueHelper(const T *pObject, const char *name, const std::type_info &valueType, void *pValue, BASE *dummy=NULL)
+GetValueHelperClass<T, BASE> GetValueHelper(const T *pObject, const char *name, const std::type_info &valueType, void *pValue, const NameValuePairs *searchFirst=NULL, BASE *dummy=NULL)
 {
-	return GetValueHelperClass<T, BASE>(pObject, name, valueType, pValue);
+	return GetValueHelperClass<T, BASE>(pObject, name, valueType, pValue, searchFirst);
 }
 
 template <class T>
-GetValueHelperClass<T, T> GetValueHelper(const T *pObject, const char *name, const std::type_info &valueType, void *pValue)
+GetValueHelperClass<T, T> GetValueHelper(const T *pObject, const char *name, const std::type_info &valueType, void *pValue, const NameValuePairs *searchFirst=NULL)
 {
-	return GetValueHelperClass<T, T>(pObject, name, valueType, pValue);
+	return GetValueHelperClass<T, T>(pObject, name, valueType, pValue, searchFirst);
 }
 
 // ********************************************************
@@ -239,7 +242,8 @@ AssignFromHelperClass<T, T> AssignFromHelper(T *pObject, const NameValuePairs &s
 
 // ********************************************************
 
-void AssignIntToInteger(void *pInteger, const void *pInt);
+// This should allow the linker to discard Integer code if not needed.
+extern bool (*AssignIntToInteger)(const std::type_info &valueType, void *pInteger, const void *pInt);
 
 const std::type_info & IntegerTypeId();
 
@@ -283,9 +287,7 @@ public:
 		else if (strcmp(name, m_name) == 0)
 		{
 			// special case for retrieving an Integer parameter when an int was passed in
-			if (valueType == IntegerTypeId() && typeid(T) == typeid(int))
-				AssignIntToInteger(pValue, &m_value);
-			else
+			if (!(AssignIntToInteger != NULL && typeid(T) == typeid(int) && AssignIntToInteger(valueType, pValue, &m_value)))
 			{
 				ThrowIfTypeMismatch(name, typeid(T), valueType);
 				*reinterpret_cast<T *>(pValue) = m_value;

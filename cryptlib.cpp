@@ -545,15 +545,15 @@ BufferedTransformation * PK_Encryptor::CreateEncryptionFilter(RandomNumberGenera
 	return new EncryptionFilter(rng, *this, attachment);
 }
 
-BufferedTransformation * PK_Decryptor::CreateDecryptionFilter(BufferedTransformation *attachment) const
+BufferedTransformation * PK_Decryptor::CreateDecryptionFilter(RandomNumberGenerator &rng, BufferedTransformation *attachment) const
 {
 	struct DecryptionFilter : public Unflushable<FilterWithInputQueue>
 	{
 		// VC60 complains if this function is missing
-		DecryptionFilter(const DecryptionFilter &x) : Unflushable<FilterWithInputQueue>(NULL), m_decryptor(x.m_decryptor) {}
+		DecryptionFilter(const DecryptionFilter &x) : Unflushable<FilterWithInputQueue>(NULL), m_rng(x.m_rng), m_decryptor(x.m_decryptor) {}
 
-		DecryptionFilter(const PK_Decryptor &decryptor, BufferedTransformation *attachment)
-			: Unflushable<FilterWithInputQueue>(attachment), m_decryptor(decryptor)
+		DecryptionFilter(RandomNumberGenerator &rng, const PK_Decryptor &decryptor, BufferedTransformation *attachment)
+			: Unflushable<FilterWithInputQueue>(attachment), m_rng(rng), m_decryptor(decryptor)
 		{
 		}
 
@@ -569,7 +569,7 @@ BufferedTransformation * PK_Decryptor::CreateDecryptionFilter(BufferedTransforma
 				SecByteBlock ciphertext(ciphertextLength);
 				m_inQueue.Get(ciphertext, ciphertextLength);
 				m_plaintext.resize(maxPlaintextLength);
-				m_result = m_decryptor.Decrypt(ciphertext, ciphertextLength, m_plaintext);
+				m_result = m_decryptor.Decrypt(m_rng, ciphertext, ciphertextLength, m_plaintext);
 				if (!m_result.isValidCoding)
 					throw InvalidCiphertext(m_decryptor.AlgorithmName() + ": invalid ciphertext");
 				}
@@ -581,12 +581,13 @@ BufferedTransformation * PK_Decryptor::CreateDecryptionFilter(BufferedTransforma
 			return true;
 		}
 
+		RandomNumberGenerator &m_rng;
 		const PK_Decryptor &m_decryptor;
 		SecByteBlock m_plaintext;
 		DecodingResult m_result;
 	};
 
-	return new DecryptionFilter(*this, attachment);
+	return new DecryptionFilter(rng, *this, attachment);
 }
 
 unsigned int PK_FixedLengthCryptoSystem::MaxPlaintextLength(unsigned int cipherTextLength) const
@@ -605,38 +606,64 @@ unsigned int PK_FixedLengthCryptoSystem::CiphertextLength(unsigned int plainText
 		return 0;
 }
 
-DecodingResult PK_FixedLengthDecryptor::Decrypt(const byte *cipherText, unsigned int cipherTextLength, byte *plainText) const
+DecodingResult PK_FixedLengthDecryptor::Decrypt(RandomNumberGenerator &rng, const byte *cipherText, unsigned int cipherTextLength, byte *plainText) const
 {
 	if (cipherTextLength != FixedCiphertextLength())
 		return DecodingResult();
 
-	return FixedLengthDecrypt(cipherText, plainText);
+	return FixedLengthDecrypt(rng, cipherText, plainText);
 }
 
-void PK_Signer::Sign(RandomNumberGenerator &rng, HashTransformation *messageAccumulator, byte *signature) const
+unsigned int PK_Signer::Sign(RandomNumberGenerator &rng, PK_MessageAccumulator *messageAccumulator, byte *signature) const
 {
-	std::auto_ptr<HashTransformation> m(messageAccumulator);
-	SignAndRestart(rng, *m, signature);
+	std::auto_ptr<PK_MessageAccumulator> m(messageAccumulator);
+	return SignAndRestart(rng, *m, signature, false);
 }
 
-void PK_Signer::SignMessage(RandomNumberGenerator &rng, const byte *message, unsigned int messageLen, byte *signature) const
+unsigned int PK_Signer::SignMessage(RandomNumberGenerator &rng, const byte *message, unsigned int messageLen, byte *signature) const
 {
-	std::auto_ptr<HashTransformation> accumulator(NewSignatureAccumulator());
-	accumulator->Update(message, messageLen);
-	SignAndRestart(rng, *accumulator, signature);
+	std::auto_ptr<PK_MessageAccumulator> m(NewSignatureAccumulator(rng));
+	m->Update(message, messageLen);
+	return SignAndRestart(rng, *m, signature, false);
 }
 
-bool PK_Verifier::Verify(HashTransformation *messageAccumulator, const byte *signature) const
+unsigned int PK_Signer::SignMessageWithRecovery(RandomNumberGenerator &rng, const byte *recoverableMessage, unsigned int recoverableMessageLength, 
+	const byte *nonrecoverableMessage, unsigned int nonrecoverableMessageLength, byte *signature) const
 {
-	std::auto_ptr<HashTransformation> m(messageAccumulator);
-	return VerifyAndRestart(*m, signature);
+	std::auto_ptr<PK_MessageAccumulator> m(NewSignatureAccumulator(rng));
+	InputRecoverableMessage(*m, recoverableMessage, recoverableMessageLength);
+	m->Update(nonrecoverableMessage, nonrecoverableMessageLength);
+	return SignAndRestart(rng, *m, signature, false);
 }
 
-bool PK_Verifier::VerifyMessage(const byte *message, unsigned int messageLen, const byte *sig) const
+bool PK_Verifier::Verify(PK_MessageAccumulator *messageAccumulator) const
 {
-	std::auto_ptr<HashTransformation> accumulator(NewVerificationAccumulator());
-	accumulator->Update(message, messageLen);
-	return VerifyAndRestart(*accumulator, sig);
+	std::auto_ptr<PK_MessageAccumulator> m(messageAccumulator);
+	return VerifyAndRestart(*m);
+}
+
+bool PK_Verifier::VerifyMessage(const byte *message, unsigned int messageLen, const byte *signature, unsigned int signatureLength) const
+{
+	std::auto_ptr<PK_MessageAccumulator> m(NewVerificationAccumulator());
+	InputSignature(*m, signature, signatureLength);
+	m->Update(message, messageLen);
+	return VerifyAndRestart(*m);
+}
+
+DecodingResult PK_Verifier::Recover(byte *recoveredMessage, PK_MessageAccumulator *messageAccumulator) const
+{
+	std::auto_ptr<PK_MessageAccumulator> m(messageAccumulator);
+	return RecoverAndRestart(recoveredMessage, *m);
+}
+
+DecodingResult PK_Verifier::RecoverMessage(byte *recoveredMessage, 
+	const byte *nonrecoverableMessage, unsigned int nonrecoverableMessageLength, 
+	const byte *signature, unsigned int signatureLength) const
+{
+	std::auto_ptr<PK_MessageAccumulator> m(NewVerificationAccumulator());
+	InputSignature(*m, signature, signatureLength);
+	m->Update(nonrecoverableMessage, nonrecoverableMessageLength);
+	return RecoverAndRestart(recoveredMessage, *m);
 }
 
 void SimpleKeyAgreementDomain::GenerateKeyPair(RandomNumberGenerator &rng, byte *privateKey, byte *publicKey) const

@@ -47,15 +47,6 @@ NAMESPACE_BEGIN(CryptoPP)
 Integer NR_EncodeDigest(unsigned int modulusBits, const byte *digest, unsigned int digestLen);
 Integer DSA_EncodeDigest(unsigned int modulusBits, const byte *digest, unsigned int digestLen);
 
-template <typename STANDARD>
-struct CryptoStandardTraits
-{
-	typedef typename STANDARD::EncryptionPaddingAlgorithm EncryptionPaddingAlgorithm;
-
-	template <class H> class SignaturePaddingAlgorithm {};
-	template <class H> class DecoratedHashingAlgorithm {};
-};
-
 // ********************************************************
 
 //! .
@@ -75,6 +66,7 @@ class RandomizedTrapdoorFunction : public TrapdoorFunctionBounds
 {
 public:
 	virtual Integer ApplyRandomizedFunction(RandomNumberGenerator &rng, const Integer &x) const =0;
+	virtual bool IsRandomized() const {return true;}
 };
 
 //! .
@@ -83,6 +75,7 @@ class TrapdoorFunction : public RandomizedTrapdoorFunction
 public:
 	Integer ApplyRandomizedFunction(RandomNumberGenerator &rng, const Integer &x) const
 		{return ApplyFunction(x);}
+	bool IsRandomized() const {return false;}
 
 	virtual Integer ApplyFunction(const Integer &x) const =0;
 };
@@ -94,6 +87,7 @@ public:
 	virtual ~RandomizedTrapdoorFunctionInverse() {}
 
 	virtual Integer CalculateRandomizedInverse(RandomNumberGenerator &rng, const Integer &x) const =0;
+	virtual bool IsRandomized() const {return true;}
 };
 
 //! .
@@ -103,50 +97,42 @@ public:
 	virtual ~TrapdoorFunctionInverse() {}
 
 	Integer CalculateRandomizedInverse(RandomNumberGenerator &rng, const Integer &x) const
-		{return CalculateInverse(x);}
+		{return CalculateInverse(rng, x);}
+	bool IsRandomized() const {return false;}
 
-	virtual Integer CalculateInverse(const Integer &x) const =0;
+	virtual Integer CalculateInverse(RandomNumberGenerator &rng, const Integer &x) const =0;
 };
 
 // ********************************************************
 
 //! .
-class PK_PaddingAlgorithm
+class PK_EncryptionMessageEncodingMethod
 {
 public:
-	virtual ~PK_PaddingAlgorithm() {}
+	virtual ~PK_EncryptionMessageEncodingMethod() {}
 
+	//! max size of unpadded message in bytes, given max size of padded message in bits (1 less than size of modulus)
 	virtual unsigned int MaxUnpaddedLength(unsigned int paddedLength) const =0;
 
 	virtual void Pad(RandomNumberGenerator &rng, const byte *raw, unsigned int inputLength, byte *padded, unsigned int paddedBitLength) const =0;
 
 	virtual DecodingResult Unpad(const byte *padded, unsigned int paddedBitLength, byte *raw) const =0;
-
-	virtual bool IsReversible() const {return true;}
-};
-
-//! .
-class PK_NonreversiblePaddingAlgorithm : public PK_PaddingAlgorithm
-{
-	DecodingResult Unpad(const byte *padded, unsigned int paddedBitLength, byte *raw) const {assert(false); return DecodingResult();}
-	bool IsReversible() const {return false;}
 };
 
 // ********************************************************
 
 //! .
-template <class TFI>
+template <class TFI, class MEI>
 class TF_Base
 {
 protected:
-	unsigned int PaddedBlockByteLength() const {return BitsToBytes(PaddedBlockBitLength());}
-
 	virtual const TrapdoorFunctionBounds & GetTrapdoorFunctionBounds() const =0;
-	virtual const PK_PaddingAlgorithm & GetPaddingAlgorithm() const =0;
-	virtual unsigned int PaddedBlockBitLength() const =0;
 
 	typedef TFI TrapdoorFunctionInterface;
 	virtual const TrapdoorFunctionInterface & GetTrapdoorFunctionInterface() const =0;
+
+	typedef MEI MessageEncodingInterface;
+	virtual const MessageEncodingInterface & GetMessageEncodingInterface() const =0;
 };
 
 // ********************************************************
@@ -156,22 +142,23 @@ template <class INTERFACE, class BASE>
 class TF_CryptoSystemBase : public INTERFACE, protected BASE
 {
 public:
-	unsigned int FixedMaxPlaintextLength() const {return GetPaddingAlgorithm().MaxUnpaddedLength(PaddedBlockBitLength());}
+	unsigned int FixedMaxPlaintextLength() const {return GetMessageEncodingInterface().MaxUnpaddedLength(PaddedBlockBitLength());}
 	unsigned int FixedCiphertextLength() const {return GetTrapdoorFunctionBounds().MaxImage().ByteCount();}
 
 protected:
+	unsigned int PaddedBlockByteLength() const {return BitsToBytes(PaddedBlockBitLength());}
 	unsigned int PaddedBlockBitLength() const {return GetTrapdoorFunctionBounds().PreimageBound().BitCount()-1;}
 };
 
 //! .
-class TF_DecryptorBase : public TF_CryptoSystemBase<PK_FixedLengthDecryptor, TF_Base<TrapdoorFunctionInverse> >
+class TF_DecryptorBase : public TF_CryptoSystemBase<PK_FixedLengthDecryptor, TF_Base<TrapdoorFunctionInverse, PK_EncryptionMessageEncodingMethod> >
 {
 public:
-	DecodingResult FixedLengthDecrypt(const byte *cipherText, byte *plainText) const;
+	DecodingResult FixedLengthDecrypt(RandomNumberGenerator &rng, const byte *cipherText, byte *plainText) const;
 };
 
 //! .
-class TF_EncryptorBase : public TF_CryptoSystemBase<PK_FixedLengthEncryptor, TF_Base<RandomizedTrapdoorFunction> >
+class TF_EncryptorBase : public TF_CryptoSystemBase<PK_FixedLengthEncryptor, TF_Base<RandomizedTrapdoorFunction, PK_EncryptionMessageEncodingMethod> >
 {
 public:
 	void Encrypt(RandomNumberGenerator &rng, const byte *plainText, unsigned int plainTextLength, byte *cipherText) const;
@@ -179,67 +166,192 @@ public:
 
 // ********************************************************
 
-//! .
-class DigestSignatureSystem
-{
-public:
-	virtual unsigned int MaxDigestLength() const =0;
-	virtual unsigned int DigestSignatureLength() const =0;
-};
+typedef std::pair<const byte *, unsigned int> HashIdentifier;
 
 //! .
-class DigestSigner : virtual public DigestSignatureSystem, public PrivateKeyAlgorithm
+class PK_SignatureMessageEncodingMethod
 {
 public:
-	virtual void SignDigest(RandomNumberGenerator &rng, const byte *digest, unsigned int digestLen, byte *signature) const =0;
+	virtual ~PK_SignatureMessageEncodingMethod() {}
+
+	virtual unsigned int MaxRecoverableLength(unsigned int representativeBitLength, unsigned int hashIdentifierLength, unsigned int digestLength) const
+		{return 0;}
+
+	bool IsProbabilistic() const 
+		{return true;}
+	bool AllowNonrecoverablePart() const
+		{throw NotImplemented("PK_MessageEncodingMethod: this signature scheme does not support message recovery");}
+	virtual bool RecoverablePartFirst() const
+		{throw NotImplemented("PK_MessageEncodingMethod: this signature scheme does not support message recovery");}
+
+	// for verification, DL
+	virtual void ProcessSemisignature(HashTransformation &hash, const byte *semisignature, unsigned int semisignatureLength) const {}
+
+	// for signature
+	virtual void ProcessRecoverableMessage(HashTransformation &hash, 
+		const byte *recoverableMessage, unsigned int recoverableMessageLength, 
+		const byte *presignature, unsigned int presignatureLength,
+		SecByteBlock &semisignature) const
+	{
+		if (RecoverablePartFirst())
+			assert(!"ProcessRecoverableMessage() not implemented");
+	}
+
+	virtual void ComputeMessageRepresentative(RandomNumberGenerator &rng, 
+		const byte *recoverableMessage, unsigned int recoverableMessageLength,
+		HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
+		byte *representative, unsigned int representativeBitLength) const =0;
+
+	virtual bool VerifyMessageRepresentative(
+		HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
+		byte *representative, unsigned int representativeBitLength) const =0;
+
+	virtual DecodingResult RecoverMessageFromRepresentative(	// for TF
+		HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
+		byte *representative, unsigned int representativeBitLength,
+		byte *recoveredMessage) const
+		{throw NotImplemented("PK_MessageEncodingMethod: this signature scheme does not support message recovery");}
+
+	virtual DecodingResult RecoverMessageFromSemisignature(		// for DL
+		HashTransformation &hash, HashIdentifier hashIdentifier,
+		const byte *presignature, unsigned int presignatureLength,
+		const byte *semisignature, unsigned int semisignatureLength,
+		byte *recoveredMessage) const
+		{throw NotImplemented("PK_MessageEncodingMethod: this signature scheme does not support message recovery");}
+
+	// VC60 workaround
+	struct HashIdentifierLookup
+	{
+		template <class H> struct HashIdentifierLookup2
+		{
+			static HashIdentifier Lookup()
+			{
+				return HashIdentifier(NULL, 0);
+			}
+		};
+	};
 };
 
-//! .
-class DigestVerifier : virtual public DigestSignatureSystem, public PublicKeyAlgorithm
+class PK_DeterministicSignatureMessageEncodingMethod : public PK_SignatureMessageEncodingMethod
 {
 public:
-	virtual bool VerifyDigest(const byte *digest, unsigned int digestLen, const byte *sig) const =0;
+	bool VerifyMessageRepresentative(
+		HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
+		byte *representative, unsigned int representativeBitLength) const;
 };
 
-// ********************************************************
+class PK_RecoverableSignatureMessageEncodingMethod : public PK_SignatureMessageEncodingMethod
+{
+public:
+	bool VerifyMessageRepresentative(
+		HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
+		byte *representative, unsigned int representativeBitLength) const;
+};
+
+class DL_SignatureMessageEncodingMethod_DSA : public PK_DeterministicSignatureMessageEncodingMethod
+{
+public:
+	void ComputeMessageRepresentative(RandomNumberGenerator &rng, 
+		const byte *recoverableMessage, unsigned int recoverableMessageLength,
+		HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
+		byte *representative, unsigned int representativeBitLength) const;
+};
+
+class DL_SignatureMessageEncodingMethod_NR : public PK_DeterministicSignatureMessageEncodingMethod
+{
+public:
+	void ComputeMessageRepresentative(RandomNumberGenerator &rng, 
+		const byte *recoverableMessage, unsigned int recoverableMessageLength,
+		HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
+		byte *representative, unsigned int representativeBitLength) const;
+};
+
+class PK_MessageAccumulatorBase : public PK_MessageAccumulator
+{
+public:
+	PK_MessageAccumulatorBase() : m_empty(true) {}
+
+	virtual HashTransformation & AccessHash() =0;
+
+	void Update(const byte *input, unsigned int length)
+	{
+		AccessHash().Update(input, length);
+		m_empty = m_empty && length == 0;
+	}
+
+	SecByteBlock m_recoverableMessage, m_representative, m_presignature, m_semisignature;
+	Integer m_k, m_s;
+	bool m_empty;
+};
+
+template <class HASH_ALGORITHM>
+class PK_MessageAccumulatorImpl : public PK_MessageAccumulatorBase, protected ObjectHolder<HASH_ALGORITHM>
+{
+public:
+	HashTransformation & AccessHash() {return m_object;}
+};
 
 //! .
 template <class INTERFACE, class BASE>
-class TF_DigestSignatureSystemBase : public INTERFACE, protected BASE
+class TF_SignatureSchemeBase : public INTERFACE, protected BASE
 {
 public:
-	unsigned int MaxDigestLength() const {return GetPaddingAlgorithm().MaxUnpaddedLength(PaddedBlockBitLength());}
-	unsigned int DigestSignatureLength() const {return GetTrapdoorFunctionBounds().MaxPreimage().ByteCount();}
+	unsigned int SignatureLength() const 
+		{return GetTrapdoorFunctionBounds().MaxPreimage().ByteCount();}
+	unsigned int MaxRecoverableLength() const 
+		{return GetMessageEncodingInterface().MaxRecoverableLength(MessageRepresentativeBitLength(), GetHashIdentifier().second, GetDigestSize());}
+	unsigned int MaxRecoverableLengthFromSignatureLength(unsigned int signatureLength) const
+		{return MaxRecoverableLength();}
+
+	bool IsProbabilistic() const 
+		{return GetTrapdoorFunctionInterface().IsRandomized() || GetMessageEncodingInterface().IsProbabilistic();}
+	bool AllowNonrecoverablePart() const 
+		{return GetMessageEncodingInterface().AllowNonrecoverablePart();}
+	bool RecoverablePartFirst() const 
+		{return GetMessageEncodingInterface().RecoverablePartFirst();}
 
 protected:
-	unsigned int PaddedBlockBitLength() const {return GetTrapdoorFunctionBounds().ImageBound().BitCount()-1;}
+	unsigned int MessageRepresentativeLength() const {return BitsToBytes(MessageRepresentativeBitLength());}
+	unsigned int MessageRepresentativeBitLength() const {return GetTrapdoorFunctionBounds().ImageBound().BitCount()-1;}
+	virtual HashIdentifier GetHashIdentifier() const =0;
+	virtual unsigned int GetDigestSize() const =0;
 };
 
 //! .
-class TF_DigestSignerBase : public TF_DigestSignatureSystemBase<DigestSigner, TF_Base<RandomizedTrapdoorFunctionInverse> >
+class TF_SignerBase : public TF_SignatureSchemeBase<PK_Signer, TF_Base<RandomizedTrapdoorFunctionInverse, PK_SignatureMessageEncodingMethod> >
 {
 public:
-	void SignDigest(RandomNumberGenerator &rng, const byte *message, unsigned int messageLength, byte *signature) const;
+	void InputRecoverableMessage(PK_MessageAccumulator &messageAccumulator, const byte *recoverableMessage, unsigned int recoverableMessageLength) const;
+	unsigned int SignAndRestart(RandomNumberGenerator &rng, PK_MessageAccumulator &messageAccumulator, byte *signature, bool restart=true) const;
 };
 
 //! .
-class TF_DigestVerifierBase : public TF_DigestSignatureSystemBase<DigestVerifier, TF_Base<TrapdoorFunction> >
+class TF_VerifierBase : public TF_SignatureSchemeBase<PK_Verifier, TF_Base<TrapdoorFunction, PK_SignatureMessageEncodingMethod> >
 {
 public:
-	bool VerifyDigest(const byte *digest, unsigned int digestLen, const byte *sig) const;
+	void InputSignature(PK_MessageAccumulator &messageAccumulator, const byte *signature, unsigned int signatureLength) const;
+	bool VerifyAndRestart(PK_MessageAccumulator &messageAccumulator) const;
+	DecodingResult RecoverAndRestart(byte *recoveredMessage, PK_MessageAccumulator &recoveryAccumulator) const;
 };
 
 // ********************************************************
 
 //! .
 template <class T1, class T2, class T3>
-struct TF_SchemeOptions
+struct TF_CryptoSchemeOptions
 {
 	typedef T1 AlgorithmInfo;
 	typedef T2 Keys;
 	typedef typename Keys::PrivateKey PrivateKey;
 	typedef typename Keys::PublicKey PublicKey;
-	typedef T3 PaddingAlgorithm;
+	typedef T3 MessageEncodingMethod;
+};
+
+//! .
+template <class T1, class T2, class T3, class T4>
+struct TF_SignatureSchemeOptions : public TF_CryptoSchemeOptions<T1, T2, T3>
+{
+	typedef T4 HashFunction;
 };
 
 //! .
@@ -279,9 +391,23 @@ public:
 	const KeyClass & GetTrapdoorFunction() const {return GetKey();}
 
 protected:
-	const PK_PaddingAlgorithm & GetPaddingAlgorithm() const {static typename SCHEME_OPTIONS::PaddingAlgorithm paddingScheme; return paddingScheme;}
-	const TrapdoorFunctionBounds & GetTrapdoorFunctionBounds() const {return GetKey();}
-	const typename BASE::TrapdoorFunctionInterface & GetTrapdoorFunctionInterface() const {return GetKey();}
+	const typename BASE::MessageEncodingInterface & GetMessageEncodingInterface() const 
+		{static typename SCHEME_OPTIONS::MessageEncodingMethod messageEncodingMethod; return messageEncodingMethod;}
+	const TrapdoorFunctionBounds & GetTrapdoorFunctionBounds() const 
+		{return GetKey();}
+	const typename BASE::TrapdoorFunctionInterface & GetTrapdoorFunctionInterface() const 
+		{return GetKey();}
+
+	// for signature scheme
+	HashIdentifier GetHashIdentifier() const
+	{
+		typedef CPP_TYPENAME SchemeOptions::MessageEncodingMethod::HashIdentifierLookup::HashIdentifierLookup2<CPP_TYPENAME SchemeOptions::HashFunction> L;
+		return L::Lookup();
+	}
+	unsigned int GetDigestSize() const
+	{
+		return SCHEME_OPTIONS::HashFunction::DIGESTSIZE;
+	}
 };
 
 //! .
@@ -345,41 +471,54 @@ class TF_EncryptorImpl : public TF_PublicObjectImpl<TF_EncryptorBase, SCHEME_OPT
 
 //! .
 template <class SCHEME_OPTIONS>
-class TF_DigestSignerImpl : public TF_PrivateObjectImpl<TF_DigestSignerBase, SCHEME_OPTIONS>
+class TF_SignerImpl : public TF_PrivateObjectImpl<TF_SignerBase, SCHEME_OPTIONS>
 {
+	PK_MessageAccumulator * NewSignatureAccumulator(RandomNumberGenerator &rng = NullRNG()) const
+	{
+		return new PK_MessageAccumulatorImpl<CPP_TYPENAME SCHEME_OPTIONS::HashFunction>;
+	}
 };
 
 //! .
 template <class SCHEME_OPTIONS>
-class TF_DigestVerifierImpl : public TF_PublicObjectImpl<TF_DigestVerifierBase, SCHEME_OPTIONS>
+class TF_VerifierImpl : public TF_PublicObjectImpl<TF_VerifierBase, SCHEME_OPTIONS>
 {
+	PK_MessageAccumulator * NewVerificationAccumulator() const
+	{
+		return new PK_MessageAccumulatorImpl<CPP_TYPENAME SCHEME_OPTIONS::HashFunction>;
+	}
 };
 
 // ********************************************************
 
-//! .
-template <class H>
-class P1363_MGF1
+class MaskGeneratingFunction
 {
 public:
-	static std::string StaticAlgorithmName() {return std::string("MGF1(") + H::StaticAlgorithmName() + ")";}
-	static void GenerateAndMask(byte *output, unsigned int outputLength, const byte *input, unsigned int inputLength);
+	virtual ~MaskGeneratingFunction() {}
+	virtual void GenerateAndMask(HashTransformation &hash, byte *output, unsigned int outputLength, const byte *input, unsigned int inputLength, bool mask = true) const =0;
 };
 
-template <class H>
-void P1363_MGF1<H>::GenerateAndMask(byte *output, unsigned int outputLength, const byte *input, unsigned int inputLength)
+void P1363_MGF1KDF2_Common(HashTransformation &hash, byte *output, unsigned int outputLength, const byte *input, unsigned int inputLength, bool mask, unsigned int counterStart);
+
+//! .
+class P1363_MGF1 : public MaskGeneratingFunction
 {
-	H h;
-	ArrayXorSink *sink;
-	HashFilter filter(h, sink = new ArrayXorSink(output, outputLength));
-	word32 counter = 0;
-	while (sink->AvailableSize() > 0)
+public:
+	static const char * StaticAlgorithmName() {return "MGF1";}
+#if 0
+	// VC60 workaround: this function causes internal compiler error
+	template <class H>
+	static void GenerateAndMaskTemplate(byte *output, unsigned int outputLength, const byte *input, unsigned int inputLength, H* dummy=NULL)
 	{
-		filter.Put(input, inputLength);
-		filter.PutWord32(counter++);
-		filter.MessageEnd();
+		H h;
+		P1363_MGF1KDF2_Common(h, output, outputLength, input, inputLength, mask, 0);
 	}
-}
+#endif
+	void GenerateAndMask(HashTransformation &hash, byte *output, unsigned int outputLength, const byte *input, unsigned int inputLength, bool mask = true) const
+	{
+		P1363_MGF1KDF2_Common(hash, output, outputLength, input, inputLength, mask, 0);
+	}
+};
 
 // ********************************************************
 
@@ -388,223 +527,12 @@ template <class H>
 class P1363_KDF2
 {
 public:
-	static void DeriveKey(byte *output, unsigned int outputLength, const byte *input, unsigned int inputLength);
-};
-
-template <class H>
-void P1363_KDF2<H>::DeriveKey(byte *output, unsigned int outputLength, const byte *input, unsigned int inputLength)
-{
-	H h;
-	ArraySink *sink;
-	HashFilter filter(h, sink = new ArraySink(output, outputLength));
-	word32 counter = 1;
-	while (sink->AvailableSize() > 0)
+	static void DeriveKey(byte *output, unsigned int outputLength, const byte *input, unsigned int inputLength)
 	{
-		filter.Put(input, inputLength);
-		filter.PutWord32(counter++);
-		filter.MessageEnd();
+		H h;
+		P1363_MGF1KDF2_Common(h, output, outputLength, input, inputLength, false, 1);
 	}
-}
-
-// ********************************************************
-
-//! .
-template <class H, class INTERFACE, class DS_INTERFACE>
-class PK_SignatureSchemeBase : public INTERFACE
-{
-public:
-	unsigned int SignatureLength() const {return GetDigestSignatureSchemeInterface().DigestSignatureLength();}
-	HashTransformation * NewMessageAccumulator() const {return new H;}
-
-	virtual const DS_INTERFACE & GetDigestSignatureSchemeInterface() const =0;
 };
-
-//! .
-template <class H>
-class PK_SignerBase : public PK_SignatureSchemeBase<H, PK_Signer, DigestSigner>
-{
-public:
-	void SignAndRestart(RandomNumberGenerator &rng, HashTransformation &messageAccumulator, byte *signature) const;
-};
-
-//! .
-template <class H>
-class PK_VerifierBase : public PK_SignatureSchemeBase<H, PK_Verifier, DigestVerifier>
-{
-public:
-	bool VerifyAndRestart(HashTransformation &messageAccumulator, const byte *sig) const;
-};
-
-template <class H>
-void PK_SignerBase<H>::SignAndRestart(RandomNumberGenerator &rng, HashTransformation &messageAccumulator, byte *signature) const
-{
-	if (messageAccumulator.DigestSize() > GetDigestSignatureSchemeInterface().MaxDigestLength())
-		throw PK_Signer::KeyTooShort();
-	SecByteBlock digest(messageAccumulator.DigestSize());
-	messageAccumulator.Final(digest);
-	GetDigestSignatureSchemeInterface().SignDigest(rng, digest, digest.size(), signature);
-}
-
-template <class H>
-bool PK_VerifierBase<H>::VerifyAndRestart(HashTransformation &messageAccumulator, const byte *sig) const
-{
-	SecByteBlock digest(messageAccumulator.DigestSize());
-	messageAccumulator.Final(digest);
-	return GetDigestSignatureSchemeInterface().VerifyDigest(digest, digest.size(), sig);
-}
-
-//! .
-template <class BASE, class DS>
-class PK_SignatureSchemeImpl : public BASE
-{
-public:
-	typedef typename DS::KeyClass KeyClass;
-
-	// PublicKeyAlgorithm or PrivateKeyAlgorithm
-	std::string AlgorithmName() const {return m_ds.AlgorithmName();}
-
-	PrivateKey & AccessPrivateKey() {return m_ds.AccessPrivateKey();}
-	const PrivateKey & GetPrivateKey() const {return m_ds.GetPrivateKey();}
-
-	PublicKey & AccessPublicKey() {return m_ds.AccessPublicKey();}
-	const PublicKey & GetPublicKey() const {return m_ds.GetPublicKey();}
-
-	KeyClass & AccessKey() {return m_ds.AccessKey();}
-	const KeyClass & GetKey() const {return m_ds.GetKey();}
-
-	const KeyClass & GetTrapdoorFunction() const {return m_ds.GetTrapdoorFunction();}
-
-	DS & AccessDigestSignatureScheme() {return m_ds;}
-	const DS & GetDigestSignatureScheme() const {return m_ds;}
-
-protected:
-	DS m_ds;
-};
-
-//! .
-template <class DS, class H>
-class PK_SignerImpl : public PK_SignatureSchemeImpl<PK_SignerBase<H>, DS>, public PrivateKeyCopier<typename DS::SchemeOptions>
-{
-	const DigestSigner & GetDigestSignatureSchemeInterface() const {return m_ds;}
-public:
-	// PrivateKeyCopier
-	void CopyKeyInto(typename DS::SchemeOptions::PublicKey &key) const
-		{m_ds.CopyKeyInto(key);}
-	void CopyKeyInto(typename DS::SchemeOptions::PrivateKey &key) const
-		{m_ds.CopyKeyInto(key);}
-};
-
-//! .
-template <class DS, class H>
-class PK_VerifierImpl : public PK_SignatureSchemeImpl<PK_VerifierBase<H>, DS>, public PublicKeyCopier<typename DS::SchemeOptions>
-{
-	const DigestVerifier & GetDigestSignatureSchemeInterface() const {return m_ds;}
-public:
-	// PublicKeyCopier
-	void CopyKeyInto(typename DS::SchemeOptions::PublicKey &key) const
-		{m_ds.CopyKeyInto(key);}
-};
-
-// ********************************************************
-
-//! .
-class SignatureEncodingMethodWithRecovery : public HashTransformationWithDefaultTruncation
-{
-public:
-	void Final(byte *digest) {}
-	virtual void Encode(RandomNumberGenerator &rng, byte *representative) =0;
-	virtual bool Verify(const byte *representative) =0;
-	virtual DecodingResult Decode(byte *message) =0;
-	virtual unsigned int MaximumRecoverableLength() const =0;
-};
-
-//! .
-template <class H>
-class SignatureSystemWithRecoveryBaseTemplate : virtual public PK_SignatureSchemeWithRecovery
-{
-public:
-	unsigned int SignatureLength() const {return GetTrapdoorFunctionBounds().MaxPreimage().ByteCount();}
-	HashTransformation * NewMessageAccumulator() const {return new H(PaddedBlockBitLength());}
-	unsigned int MaximumRecoverableLength() const {return H::MaximumRecoverableLength(PaddedBlockBitLength());}
-	bool AllowLeftoverMessage() const {return H::AllowLeftoverMessage();}
-
-protected:
-	unsigned int PaddedBlockByteLength() const {return BitsToBytes(PaddedBlockBitLength());}
-	unsigned int PaddedBlockBitLength() const {return GetTrapdoorFunctionBounds().ImageBound().BitCount()-1;}
-
-	virtual const TrapdoorFunctionBounds & GetTrapdoorFunctionBounds() const =0;
-};
-
-//! .
-template <class TF, class H>
-class SignerWithRecoveryTemplate : virtual public SignatureSystemWithRecoveryBaseTemplate<H>, virtual public PK_SignerWithRecovery, public TF
-{
-public:
-	typedef TF KeyClass;
-
-	const KeyClass & GetKey() const {return *this;}
-	KeyClass & AccessKey() {return *this;}
-
-	PrivateKey & AccessPrivateKey() {return *this;}
-
-	SignerWithRecoveryTemplate() {}
-	void SignAndRestart(RandomNumberGenerator &rng, HashTransformation &messageAccumulator, byte *signature) const;
-	const TrapdoorFunctionBounds & GetTrapdoorFunctionBounds() const {return *this;}
-};
-
-//! .
-template <class TF, class H>
-class VerifierWithRecoveryTemplate : virtual public SignatureSystemWithRecoveryBaseTemplate<H>, virtual public PK_VerifierWithRecovery, public TF
-{
-public:
-	typedef TF KeyClass;
-
-	const KeyClass & GetKey() const {return *this;}
-	KeyClass & AccessKey() {return *this;}
-
-	PublicKey & AccessPublicKey() {return *this;}
-
-	VerifierWithRecoveryTemplate() {}
-	bool VerifyAndRestart(HashTransformation &messageAccumulator, const byte *sig) const;
-	bool SignatureUpfrontForRecovery() const {return true;}
-	HashTransformation * NewRecoveryAccumulator(const byte *signature) const;
-	DecodingResult Recover(byte *recoveredMessage, HashTransformation *recoveryAccumulator, const byte *signature) const;
-	const TrapdoorFunctionBounds & GetTrapdoorFunctionBounds() const {return *this;}
-};
-
-template <class TF, class H>
-void SignerWithRecoveryTemplate<TF, H>::SignAndRestart(RandomNumberGenerator &rng, HashTransformation &messageAccumulator, byte *signature) const
-{
-	H &ma = static_cast<H&>(messageAccumulator);
-	if (ma.MaximumRecoverableLength() == 0)
-		throw KeyTooShort();
-	SecByteBlock representative(PaddedBlockByteLength());
-	ma.Encode(rng, representative);
-	CalculateInverse(Integer(representative, representative.size())).Encode(signature, SignatureLength());
-}
-
-template <class TF, class H>
-bool VerifierWithRecoveryTemplate<TF, H>::VerifyAndRestart(HashTransformation &messageAccumulator, const byte *signature) const
-{
-	SecByteBlock representative(PaddedBlockByteLength());
-	ApplyFunction(Integer(signature, SignatureLength())).Encode(representative, representative.size());
-	return messageAccumulator.Verify(representative);
-}
-
-template <class TF, class H>
-HashTransformation * VerifierWithRecoveryTemplate<TF, H>::NewRecoveryAccumulator(const byte *signature) const
-{
-	SecByteBlock representative(PaddedBlockByteLength());
-	ApplyFunction(Integer(signature, SignatureLength())).Encode(representative, representative.size());
-	return new H(representative, PaddedBlockBitLength());
-}
-
-template <class TF, class H>
-DecodingResult VerifierWithRecoveryTemplate<TF, H>::Recover(byte *recoveredMessage, HashTransformation *recoveryAccumulator, const byte *signature) const
-{
-	std::auto_ptr<H> ma(static_cast<H*>(recoveryAccumulator));
-	return ma->Decode(recoveredMessage);
-}
 
 // ********************************************************
 
@@ -745,8 +673,7 @@ public:
 
 	bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
 	{
-		return GetAbstractGroupParameters().GetVoidValue(name, valueType, pValue)
-			|| GetValueHelper(this, name, valueType, pValue)
+		return GetValueHelper(this, name, valueType, pValue, &GetAbstractGroupParameters())
 				CRYPTOPP_GET_FUNCTION_ENTRY(PublicElement);
 	}
 
@@ -787,8 +714,7 @@ public:
 
 	bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
 	{
-		return GetAbstractGroupParameters().GetVoidValue(name, valueType, pValue)
-			|| GetValueHelper(this, name, valueType, pValue)
+		return GetValueHelper(this, name, valueType, pValue, &GetAbstractGroupParameters())
 				CRYPTOPP_GET_FUNCTION_ENTRY(PrivateExponent);
 	}
 
@@ -930,7 +856,7 @@ public:
 		{
 			typename SIGNATURE_SCHEME::Signer signer(*this);
 			typename SIGNATURE_SCHEME::Verifier verifier(signer);
-			SignaturePairwiseConsistencyTest(signer, verifier);
+			SignaturePairwiseConsistencyTest_FIPS_140_Only(signer, verifier);
 		}
 	}
 };
@@ -1001,9 +927,11 @@ template <class T>
 class DL_ElgamalLikeSignatureAlgorithm
 {
 public:
-	virtual Integer EncodeDigest(unsigned int modulusBits, const byte *digest, unsigned int digestLength) const =0;
-	virtual bool Sign(const DL_GroupParameters<T> &params, const Integer &privateKey, const Integer &k, const Integer &e, Integer &r, Integer &s) const =0;
+//	virtual Integer EncodeDigest(unsigned int modulusBits, const byte *digest, unsigned int digestLength) const =0;
+	virtual void Sign(const DL_GroupParameters<T> &params, const Integer &privateKey, const Integer &k, const Integer &e, Integer &r, Integer &s) const =0;
 	virtual bool Verify(const DL_GroupParameters<T> &params, const DL_PublicKey<T> &publicKey, const Integer &e, const Integer &r, const Integer &s) const =0;
+	virtual Integer RecoverPresignature(const DL_GroupParameters<T> &params, const DL_PublicKey<T> &publicKey, const Integer &r, const Integer &s) const
+		{throw NotImplemented("DL_ElgamalLikeSignatureAlgorithm: this signature scheme does not support message recovery");}
 	virtual unsigned int RLen(const DL_GroupParameters<T> &params) const
 		{return params.GetSubgroupOrder().ByteCount();}
 	virtual unsigned int SLen(const DL_GroupParameters<T> &params) const
@@ -1057,23 +985,39 @@ protected:
 
 //! .
 template <class INTERFACE, class KEY_INTERFACE>
-class DL_DigestSignatureSystemBase : public INTERFACE, public DL_Base<KEY_INTERFACE>
+class DL_SignatureSchemeBase : public INTERFACE, public DL_Base<KEY_INTERFACE>
 {
 public:
-	unsigned int MaxDigestLength() const {return UINT_MAX;}
-	unsigned int DigestSignatureLength() const
+	unsigned int SignatureLength() const
 	{
 		return GetSignatureAlgorithm().RLen(GetAbstractGroupParameters())
 			+ GetSignatureAlgorithm().SLen(GetAbstractGroupParameters());
 	}
+	unsigned int MaxRecoverableLength() const 
+		{return GetMessageEncodingInterface().MaxRecoverableLength(0, GetHashIdentifier().second, GetDigestSize());}
+	unsigned int MaxRecoverableLengthFromSignatureLength(unsigned int signatureLength) const
+		{assert(false); return 0;}	// TODO
+
+	bool IsProbabilistic() const 
+		{return true;}
+	bool AllowNonrecoverablePart() const 
+		{return GetMessageEncodingInterface().AllowNonrecoverablePart();}
+	bool RecoverablePartFirst() const 
+		{return GetMessageEncodingInterface().RecoverablePartFirst();}
 
 protected:
+	unsigned int MessageRepresentativeLength() const {return BitsToBytes(MessageRepresentativeBitLength());}
+	unsigned int MessageRepresentativeBitLength() const {return GetAbstractGroupParameters().GetSubgroupOrder().BitCount();}
+
 	virtual const DL_ElgamalLikeSignatureAlgorithm<CPP_TYPENAME KEY_INTERFACE::Element> & GetSignatureAlgorithm() const =0;
+	virtual const PK_SignatureMessageEncodingMethod & GetMessageEncodingInterface() const =0;
+	virtual HashIdentifier GetHashIdentifier() const =0;
+	virtual unsigned int GetDigestSize() const =0;
 };
 
 //! .
 template <class T>
-class DL_DigestSignerBase : public DL_DigestSignatureSystemBase<DigestSigner, DL_PrivateKey<T> >
+class DL_SignerBase : public DL_SignatureSchemeBase<PK_Signer, DL_PrivateKey<T> >
 {
 public:
 	// for validation testing
@@ -1083,47 +1027,132 @@ public:
 		const DL_GroupParameters<T> &params = GetAbstractGroupParameters();
 		const DL_PrivateKey<T> &key = GetKeyInterface();
 
+		r = params.ConvertElementToInteger(params.ExponentiateBase(k));
 		alg.Sign(params, key.GetPrivateExponent(), k, e, r, s);
 	}
 
-	void SignDigest(RandomNumberGenerator &rng, const byte *digest, unsigned int digestLength, byte *signature) const
+	void InputRecoverableMessage(PK_MessageAccumulator &messageAccumulator, const byte *recoverableMessage, unsigned int recoverableMessageLength) const
 	{
+		PK_MessageAccumulatorBase &ma = static_cast<PK_MessageAccumulatorBase &>(messageAccumulator);
+		ma.m_recoverableMessage.Assign(recoverableMessage, recoverableMessageLength);
+		GetMessageEncodingInterface().ProcessRecoverableMessage(ma.AccessHash(), 
+			recoverableMessage, recoverableMessageLength, 
+			ma.m_presignature, ma.m_presignature.size(),
+			ma.m_semisignature);
+	}
+
+	unsigned int SignAndRestart(RandomNumberGenerator &rng, PK_MessageAccumulator &messageAccumulator, byte *signature, bool restart) const
+	{
+		GetMaterial().DoQuickSanityCheck();
+
+		PK_MessageAccumulatorBase &ma = static_cast<PK_MessageAccumulatorBase &>(messageAccumulator);
 		const DL_ElgamalLikeSignatureAlgorithm<T> &alg = GetSignatureAlgorithm();
 		const DL_GroupParameters<T> &params = GetAbstractGroupParameters();
 		const DL_PrivateKey<T> &key = GetKeyInterface();
 
-		GetMaterial().DoQuickSanityCheck();
-		const Integer &q = params.GetSubgroupOrder();
-		Integer e = alg.EncodeDigest(q.BitCount(), digest, digestLength);
-		Integer k, r, s;
+		SecByteBlock representative(MessageRepresentativeLength());
+		GetMessageEncodingInterface().ComputeMessageRepresentative(
+			rng, 
+			ma.m_recoverableMessage, ma.m_recoverableMessage.size(), 
+			ma.AccessHash(), GetHashIdentifier(), ma.m_empty, 
+			representative, MessageRepresentativeBitLength());
+		ma.m_empty = true;
+		Integer e(representative, representative.size());
 
-		do {k.Randomize(rng, 1, params.GetSubgroupOrder()-1);}
-		while (!alg.Sign(params, key.GetPrivateExponent(), k, e, r, s));
+		Integer r;
+		if (MaxRecoverableLength() > 0)
+			r.Decode(ma.m_semisignature, ma.m_semisignature.size());
+		else
+			r.Decode(ma.m_presignature, ma.m_presignature.size());
+		Integer s;
+		alg.Sign(params, key.GetPrivateExponent(), ma.m_k, e, r, s);
 
 		unsigned int rLen = alg.RLen(params);
 		r.Encode(signature, rLen);
 		s.Encode(signature+rLen, alg.SLen(params));
+
+		if (restart)
+			RestartMessageAccumulator(rng, ma);
+
+		return SignatureLength();
+	}
+
+protected:
+	void RestartMessageAccumulator(RandomNumberGenerator &rng, PK_MessageAccumulatorBase &ma) const
+	{
+		const DL_ElgamalLikeSignatureAlgorithm<T> &alg = GetSignatureAlgorithm();
+		const DL_GroupParameters<T> &params = GetAbstractGroupParameters();
+		ma.m_k.Randomize(rng, 1, params.GetSubgroupOrder()-1);
+		ma.m_presignature.New(params.GetEncodedElementSize(false));
+		params.ConvertElementToInteger(params.ExponentiateBase(ma.m_k)).Encode(ma.m_presignature, ma.m_presignature.size());
 	}
 };
 
 //! .
 template <class T>
-class DL_DigestVerifierBase : public DL_DigestSignatureSystemBase<DigestVerifier, DL_PublicKey<T> >
+class DL_VerifierBase : public DL_SignatureSchemeBase<PK_Verifier, DL_PublicKey<T> >
 {
 public:
-	bool VerifyDigest(const byte *digest, unsigned int digestLength, const byte *signature) const
+	void InputSignature(PK_MessageAccumulator &messageAccumulator, const byte *signature, unsigned int signatureLength) const
 	{
+		PK_MessageAccumulatorBase &ma = static_cast<PK_MessageAccumulatorBase &>(messageAccumulator);
+		const DL_ElgamalLikeSignatureAlgorithm<T> &alg = GetSignatureAlgorithm();
+		const DL_GroupParameters<T> &params = GetAbstractGroupParameters();
+
+		unsigned int rLen = alg.RLen(params);
+		ma.m_semisignature.Assign(signature, rLen);
+		ma.m_s.Decode(signature+rLen, alg.SLen(params));
+
+		GetMessageEncodingInterface().ProcessSemisignature(ma.AccessHash(), ma.m_semisignature, ma.m_semisignature.size());
+	}
+	
+	bool VerifyAndRestart(PK_MessageAccumulator &messageAccumulator) const
+	{
+		GetMaterial().DoQuickSanityCheck();
+
+		PK_MessageAccumulatorBase &ma = static_cast<PK_MessageAccumulatorBase &>(messageAccumulator);
 		const DL_ElgamalLikeSignatureAlgorithm<T> &alg = GetSignatureAlgorithm();
 		const DL_GroupParameters<T> &params = GetAbstractGroupParameters();
 		const DL_PublicKey<T> &key = GetKeyInterface();
 
+		SecByteBlock representative(MessageRepresentativeLength());
+		GetMessageEncodingInterface().ComputeMessageRepresentative(NullRNG(), ma.m_recoverableMessage, ma.m_recoverableMessage.size(), 
+			ma.AccessHash(), GetHashIdentifier(), ma.m_empty,
+			representative, MessageRepresentativeBitLength());
+		ma.m_empty = true;
+		Integer e(representative, representative.size());
+
+		Integer r(ma.m_semisignature, ma.m_semisignature.size());
+		return alg.Verify(params, key, e, r, ma.m_s);
+	}
+
+	DecodingResult RecoverAndRestart(byte *recoveredMessage, PK_MessageAccumulator &messageAccumulator) const
+	{
 		GetMaterial().DoQuickSanityCheck();
-		const Integer &q = params.GetSubgroupOrder();
-		Integer e = alg.EncodeDigest(q.BitCount(), digest, digestLength);
-		unsigned int rLen = alg.RLen(params);
-		Integer r(signature, rLen);
-		Integer s(signature+rLen, alg.SLen(params));
-		return alg.Verify(params, key, e, r, s);
+
+		PK_MessageAccumulatorBase &ma = static_cast<PK_MessageAccumulatorBase &>(messageAccumulator);
+		const DL_ElgamalLikeSignatureAlgorithm<T> &alg = GetSignatureAlgorithm();
+		const DL_GroupParameters<T> &params = GetAbstractGroupParameters();
+		const DL_PublicKey<T> &key = GetKeyInterface();
+
+		SecByteBlock representative(MessageRepresentativeLength());
+		GetMessageEncodingInterface().ComputeMessageRepresentative(
+			NullRNG(), 
+			ma.m_recoverableMessage, ma.m_recoverableMessage.size(), 
+			ma.AccessHash(), GetHashIdentifier(), ma.m_empty,
+			representative, MessageRepresentativeBitLength());
+		ma.m_empty = true;
+		Integer e(representative, representative.size());
+
+		ma.m_presignature.New(params.GetEncodedElementSize(false));
+		Integer r(ma.m_semisignature, ma.m_semisignature.size());
+		alg.RecoverPresignature(params, key, r, ma.m_s).Encode(ma.m_presignature, ma.m_presignature.size());
+
+		return GetMessageEncodingInterface().RecoverMessageFromSemisignature(
+			ma.AccessHash(), GetHashIdentifier(),
+			ma.m_presignature, ma.m_presignature.size(),
+			ma.m_semisignature, ma.m_semisignature.size(),
+			recoveredMessage);
 	}
 };
 
@@ -1159,7 +1188,7 @@ class DL_DecryptorBase : public DL_CryptoSystemBase<PK, DL_PrivateKey<T> >
 public:
 	typedef T Element;
 
-	DecodingResult Decrypt(const byte *cipherText, unsigned int cipherTextLength, byte *plainText) const
+	DecodingResult Decrypt(RandomNumberGenerator &rng, const byte *cipherText, unsigned int cipherTextLength, byte *plainText) const
 	{
 		try
 		{
@@ -1237,10 +1266,12 @@ struct DL_KeyedSchemeOptions : public DL_SchemeOptionsBase<T1, typename T2::Publ
 };
 
 //! .
-template <class T1, class T2, class T3>
+template <class T1, class T2, class T3, class T4, class T5>
 struct DL_SignatureSchemeOptions : public DL_KeyedSchemeOptions<T1, T2>
 {
 	typedef T3 SignatureAlgorithm;
+	typedef T4 MessageEncodingMethod;
+	typedef T5 HashFunction;
 };
 
 //! .
@@ -1272,6 +1303,17 @@ protected:
 	typename BASE::KeyInterface & AccessKeyInterface() {return m_key;}
 	const typename BASE::KeyInterface & GetKeyInterface() const {return m_key;}
 
+	// for signature scheme
+	HashIdentifier GetHashIdentifier() const
+	{
+		typedef CPP_TYPENAME SchemeOptions::MessageEncodingMethod::HashIdentifierLookup::HashIdentifierLookup2<CPP_TYPENAME SchemeOptions::HashFunction> L;
+		return L::Lookup();
+	}
+	unsigned int GetDigestSize() const
+	{
+		return SchemeOptions::HashFunction::DIGESTSIZE;
+	}
+
 private:
 	KeyClass m_key;
 };
@@ -1292,6 +1334,10 @@ protected:
 		{static typename SCHEME_OPTIONS::KeyDerivationAlgorithm a; return a;}
 	const DL_SymmetricEncryptionAlgorithm & GetSymmetricEncryptionAlgorithm() const
 		{static typename SCHEME_OPTIONS::SymmetricEncryptionAlgorithm a; return a;}
+	HashIdentifier GetHashIdentifier() const
+		{return HashIdentifier();}
+	const PK_SignatureMessageEncodingMethod & GetMessageEncodingInterface() const 
+		{static typename SCHEME_OPTIONS::MessageEncodingMethod a; return a;}
 };
 
 //! .
@@ -1316,14 +1362,24 @@ public:
 
 //! .
 template <class SCHEME_OPTIONS>
-class DL_DigestSignerImpl : public DL_PrivateObjectImpl<DL_DigestSignerBase<typename SCHEME_OPTIONS::Element>, SCHEME_OPTIONS>
+class DL_SignerImpl : public DL_PrivateObjectImpl<DL_SignerBase<typename SCHEME_OPTIONS::Element>, SCHEME_OPTIONS>
 {
+	PK_MessageAccumulator * NewSignatureAccumulator(RandomNumberGenerator &rng = NullRNG()) const
+	{
+		std::auto_ptr<PK_MessageAccumulatorBase> p(new PK_MessageAccumulatorImpl<CPP_TYPENAME SCHEME_OPTIONS::HashFunction>);
+		RestartMessageAccumulator(rng, *p);
+		return p.release();
+	}
 };
 
 //! .
 template <class SCHEME_OPTIONS>
-class DL_DigestVerifierImpl : public DL_PublicObjectImpl<DL_DigestVerifierBase<typename SCHEME_OPTIONS::Element>, SCHEME_OPTIONS>
+class DL_VerifierImpl : public DL_PublicObjectImpl<DL_VerifierBase<typename SCHEME_OPTIONS::Element>, SCHEME_OPTIONS>
 {
+	PK_MessageAccumulator * NewVerificationAccumulator() const
+	{
+		return new PK_MessageAccumulatorImpl<CPP_TYPENAME SCHEME_OPTIONS::HashFunction>;
+	}
 };
 
 //! .
@@ -1578,14 +1634,14 @@ class TF_ES;
 template <class STANDARD, class KEYS, class ALG_INFO = TF_ES<STANDARD, KEYS, int> >
 class TF_ES : public KEYS
 {
-	typedef typename STANDARD::EncryptionPaddingAlgorithm PaddingAlgorithm;
+	typedef typename STANDARD::EncryptionMessageEncodingMethod MessageEncodingMethod;
 
 public:
 	//! see EncryptionStandard for a list of standards
 	typedef STANDARD Standard;
-	typedef TF_SchemeOptions<ALG_INFO, KEYS, PaddingAlgorithm> SchemeOptions;
+	typedef TF_CryptoSchemeOptions<ALG_INFO, KEYS, MessageEncodingMethod> SchemeOptions;
 
-	static std::string StaticAlgorithmName() {return KEYS::StaticAlgorithmName() + "/" + PaddingAlgorithm::StaticAlgorithmName();}
+	static std::string StaticAlgorithmName() {return KEYS::StaticAlgorithmName() + "/" + MessageEncodingMethod::StaticAlgorithmName();}
 
 	//! implements PK_Decryptor interface
 	typedef PK_FinalTemplate<TF_DecryptorImpl<SchemeOptions> > Decryptor;
@@ -1594,55 +1650,42 @@ public:
 };
 
 template <class STANDARD, class H, class KEYS, class ALG_INFO>	// VC60 workaround: doesn't work if KEYS is first parameter
-class TF_SSA;
+class TF_SS;
 
-//! Trapdoor Function Based Signature Scheme With Appendix
-template <class STANDARD, class H, class KEYS, class ALG_INFO = TF_SSA<STANDARD, H, KEYS, int> >	// VC60 workaround: doesn't work if KEYS is first parameter
-class TF_SSA : public KEYS
+//! Trapdoor Function Based Signature Scheme
+template <class STANDARD, class H, class KEYS, class ALG_INFO = TF_SS<STANDARD, H, KEYS, int> >	// VC60 workaround: doesn't work if KEYS is first parameter
+class TF_SS : public KEYS
 {
-#ifdef __GNUC__
-	// GCC3 workaround: can't do this typedef in one line
-	typedef typename STANDARD::SignaturePaddingAlgorithm<H> Type1;
-	typedef typename Type1::type PaddingAlgorithm;
-	typedef typename STANDARD::DecoratedHashingAlgorithm<H> Type2;
 public:
-	typedef typename Type2::type DecoratedHashAlgorithm;
-#else
-	// VC60 workaround: using STANDARD directly causes internal compiler error
-	typedef CryptoStandardTraits<STANDARD> Traits;
-	typedef typename Traits::SignaturePaddingAlgorithm<H>::type PaddingAlgorithm;
-public:
-	typedef typename Traits::DecoratedHashingAlgorithm<H>::type DecoratedHashAlgorithm;
-#endif
-
 	//! see SignatureStandard for a list of standards
 	typedef STANDARD Standard;
-	typedef TF_SchemeOptions<ALG_INFO, KEYS, PaddingAlgorithm> SchemeOptions;
+	typedef typename Standard::SignatureMessageEncodingMethod MessageEncodingMethod;
+	typedef TF_SignatureSchemeOptions<ALG_INFO, KEYS, MessageEncodingMethod, H> SchemeOptions;
 
-	static std::string StaticAlgorithmName() {return KEYS::StaticAlgorithmName() + "/" + PaddingAlgorithm::StaticAlgorithmName() + "(" + H::StaticAlgorithmName() + ")";}
+	static std::string StaticAlgorithmName() {return KEYS::StaticAlgorithmName() + "/" + MessageEncodingMethod::StaticAlgorithmName() + "(" + H::StaticAlgorithmName() + ")";}
 
 	//! implements PK_Signer interface
-	typedef PK_FinalTemplate<PK_SignerImpl<TF_DigestSignerImpl<SchemeOptions>, DecoratedHashAlgorithm> > Signer;
+	typedef PK_FinalTemplate<TF_SignerImpl<SchemeOptions> > Signer;
 	//! implements PK_Verifier interface
-	typedef PK_FinalTemplate<PK_VerifierImpl<TF_DigestVerifierImpl<SchemeOptions>, DecoratedHashAlgorithm> > Verifier;
+	typedef PK_FinalTemplate<TF_VerifierImpl<SchemeOptions> > Verifier;
 };
 
-template <class KEYS, class SA, class H, class ALG_INFO>
-class DL_SSA;
+template <class KEYS, class SA, class MEM, class H, class ALG_INFO>
+class DL_SS;
 
-//! Discrete Log Based Signature Scheme With Appendix
-template <class KEYS, class SA, class H, class ALG_INFO = DL_SSA<KEYS, SA, H, int> >
-class DL_SSA : public KEYS
+//! Discrete Log Based Signature Scheme
+template <class KEYS, class SA, class MEM, class H, class ALG_INFO = DL_SS<KEYS, SA, MEM, H, int> >
+class DL_SS : public KEYS
 {
-	typedef DL_SignatureSchemeOptions<ALG_INFO, KEYS, SA> SchemeOptions;
+	typedef DL_SignatureSchemeOptions<ALG_INFO, KEYS, SA, MEM, H> SchemeOptions;
 
 public:
 	static std::string StaticAlgorithmName() {return SA::StaticAlgorithmName() + std::string("/EMSA1(") + H::StaticAlgorithmName() + ")";}
 
 	//! implements PK_Signer interface
-	typedef PK_FinalTemplate<PK_SignerImpl<DL_DigestSignerImpl<SchemeOptions>, H> > Signer;
+	typedef PK_FinalTemplate<DL_SignerImpl<SchemeOptions> > Signer;
 	//! implements PK_Verifier interface
-	typedef PK_FinalTemplate<PK_VerifierImpl<DL_DigestVerifierImpl<SchemeOptions>, H> > Verifier;
+	typedef PK_FinalTemplate<DL_VerifierImpl<SchemeOptions> > Verifier;
 };
 
 //! Discrete Log Based Encryption Scheme

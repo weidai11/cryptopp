@@ -83,8 +83,8 @@ public:
 
 	const DL_GroupParameters_GFP & GetGroupParameters() const {return GetKey().GetGroupParameters();}
 
-	DecodingResult FixedLengthDecrypt(const byte *cipherText, byte *plainText) const
-		{return Decrypt(cipherText, FixedCiphertextLength(), plainText);}
+	DecodingResult FixedLengthDecrypt(RandomNumberGenerator &rng, const byte *cipherText, byte *plainText) const
+		{return Decrypt(rng, cipherText, FixedCiphertextLength(), plainText);}
 
 protected:
 	const DL_KeyAgreementAlgorithm<Integer> & GetKeyAgreementAlgorithm() const {return *this;}

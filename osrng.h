@@ -113,13 +113,11 @@ void AutoSeededX917RNG<BLOCK_CIPHER>::Reseed(const byte *key, unsigned int keyle
 {
 	m_rng.reset(new X917RNG(new typename BLOCK_CIPHER::Encryption(key, keylength), seed, timeVector));
 
-	if (FIPS_140_2_ComplianceEnabled())
-	{
-		m_lastBlock.resize(16);
-		m_rng->GenerateBlock(m_lastBlock, m_lastBlock.size());
-		m_counter = 0;
-		m_isDifferent = false;
-	}
+	// for FIPS 140-2
+	m_lastBlock.resize(16);
+	m_rng->GenerateBlock(m_lastBlock, m_lastBlock.size());
+	m_counter = 0;
+	m_isDifferent = false;
 }
 
 template <class BLOCK_CIPHER>
@@ -142,18 +140,16 @@ byte AutoSeededX917RNG<BLOCK_CIPHER>::GenerateByte()
 {
 	byte b = m_rng->GenerateByte();
 
-	if (FIPS_140_2_ComplianceEnabled())
+	// for FIPS 140-2
+	m_isDifferent = m_isDifferent || b != m_lastBlock[m_counter];
+	m_lastBlock[m_counter] = b;
+	++m_counter;
+	if (m_counter == m_lastBlock.size())
 	{
-		m_isDifferent = m_isDifferent || b != m_lastBlock[m_counter];
-		m_lastBlock[m_counter] = b;
-		++m_counter;
-		if (m_counter == m_lastBlock.size())
-		{
-			if (!m_isDifferent)
-				throw SelfTestFailure("AutoSeededX917RNG: Continuous random number generator test failed.");
-			m_counter = 0;
-			m_isDifferent = false;
-		}
+		if (!m_isDifferent)
+			throw SelfTestFailure("AutoSeededX917RNG: Continuous random number generator test failed.");
+		m_counter = 0;
+		m_isDifferent = false;
 	}
 
 	return b;

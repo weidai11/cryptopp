@@ -13,7 +13,12 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! .
+//! The LUC function.
+/*! This class is here for historical and pedagogical interest. It has no
+	practical advantages over other trapdoor functions and probably shouldn't
+	be used in production software. The discrete log based LUC schemes
+	defined later in this .h file may be of more practical interest.
+*/
 class LUCFunction : public TrapdoorFunction, public PublicKey
 {
 	typedef LUCFunction ThisClass;
@@ -57,7 +62,7 @@ public:
 	void BERDecode(BufferedTransformation &bt);
 	void DEREncode(BufferedTransformation &bt) const;
 
-	Integer CalculateInverse(const Integer &x) const;
+	Integer CalculateInverse(RandomNumberGenerator &rng, const Integer &x) const;
 
 	bool Validate(RandomNumberGenerator &rng, unsigned int level) const;
 	bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const;
@@ -92,8 +97,8 @@ struct LUCES : public TF_ES<STANDARD, LUC>
 };
 
 //! LUC signature scheme with appendix
-template <class H, class STANDARD = PKCS1v15>
-struct LUCSSA : public TF_SSA<STANDARD, H, LUC>
+template <class STANDARD, class H>
+struct LUCSS : public TF_SS<STANDARD, H, LUC>
 {
 };
 
@@ -101,8 +106,8 @@ struct LUCSSA : public TF_SSA<STANDARD, H, LUC>
 typedef LUCES<OAEP<SHA> >::Decryptor LUCES_OAEP_SHA_Decryptor;
 typedef LUCES<OAEP<SHA> >::Encryptor LUCES_OAEP_SHA_Encryptor;
 
-typedef LUCSSA<SHA>::Signer LUCSSA_PKCS1v15_SHA_Signer;
-typedef LUCSSA<SHA>::Verifier LUCSSA_PKCS1v15_SHA_Verifier;
+typedef LUCSS<PKCS1v15, SHA>::Signer LUCSSA_PKCS1v15_SHA_Signer;
+typedef LUCSS<PKCS1v15, SHA>::Verifier LUCSSA_PKCS1v15_SHA_Verifier;
 
 // ********************************************************
 
@@ -179,10 +184,7 @@ class DL_Algorithm_LUC_HMP : public DL_ElgamalLikeSignatureAlgorithm<Integer>
 public:
 	static const char * StaticAlgorithmName() {return "LUC-HMP";}
 
-	Integer EncodeDigest(unsigned int modulusBits, const byte *digest, unsigned int digestLen) const
-		{return DSA_EncodeDigest(modulusBits, digest, digestLen);}
-
-	bool Sign(const DL_GroupParameters<Integer> &params, const Integer &x, const Integer &k, const Integer &e, Integer &r, Integer &s) const;
+	void Sign(const DL_GroupParameters<Integer> &params, const Integer &x, const Integer &k, const Integer &e, Integer &r, Integer &s) const;
 	bool Verify(const DL_GroupParameters<Integer> &params, const DL_PublicKey<Integer> &publicKey, const Integer &e, const Integer &r, const Integer &s) const;
 
 	unsigned int RLen(const DL_GroupParameters<Integer> &params) const
@@ -199,7 +201,7 @@ struct DL_SignatureKeys_LUC
 
 //! LUC-HMP, based on "Digital signature schemes based on Lucas functions" by Patrick Horster, Markus Michels, Holger Petersen
 template <class H>
-struct LUC_HMP : public DL_SSA<DL_SignatureKeys_LUC, DL_Algorithm_LUC_HMP, H>
+struct LUC_HMP : public DL_SS<DL_SignatureKeys_LUC, DL_Algorithm_LUC_HMP, DL_SignatureMessageEncodingMethod_DSA, H>
 {
 };
 

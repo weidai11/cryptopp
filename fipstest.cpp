@@ -164,7 +164,7 @@ void EncryptionPairwiseConsistencyTest(const PK_Encryptor &encryptor, const PK_D
 			new PK_EncryptorFilter(
 				rng, 
 				encryptor, 
-				new PK_DecryptorFilter(decryptor, new ChannelSwitch(comparison, "1"))));
+				new PK_DecryptorFilter(rng, decryptor, new ChannelSwitch(comparison, "1"))));
 
 		comparison.ChannelMessageSeriesEnd("0");
 		comparison.ChannelMessageSeriesEnd("1");
@@ -302,7 +302,7 @@ void DoPowerUpSelfTest(const char *moduleFilename, const byte *expectedModuleSha
 			"Sample #2",
 			"0922d3405faa3d194f82a45830737d5cc6c75d24");
 
-		SignatureKnownAnswerTest<RSASSA<PKCS1v15, SHA> >(
+		SignatureKnownAnswerTest<RSASS<PKCS1v15, SHA> >(
 			"30820150020100300d06092a864886f70d01010105000482013a3082013602010002400a66791dc6988168de7ab77419bb7fb0"
 			"c001c62710270075142942e19a8d8c51d053b3e3782a1de5dc5af4ebe99468170114a1dfe67cdc9a9af55d655620bbab0203010001"
 			"02400123c5b61ba36edb1d3679904199a89ea80c09b9122e1400c09adcf7784676d01d23356a7d44d6bd8bd50e94bfc723fa"

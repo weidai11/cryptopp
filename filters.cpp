@@ -733,7 +733,8 @@ void SignatureVerificationFilter::InitializeDerivedAndReturnNewSizes(const NameV
 {
 	m_flags = parameters.GetValueWithDefault(Name::SignatureVerificationFilterFlags(), (word32)DEFAULT_FLAGS);
 	m_messageAccumulator.reset(m_verifier.NewVerificationAccumulator());
-	unsigned int size = m_verifier.SignatureLength();
+	unsigned int size =	m_verifier.SignatureLength();
+	assert(size != 0);	// TODO: handle recoverable signature scheme
 	m_verified = false;
 	firstSize = m_flags & SIGNATURE_AT_BEGIN ? size : 0;
 	blockSize = 1;
@@ -744,8 +745,8 @@ void SignatureVerificationFilter::FirstPut(const byte *inString)
 {
 	if (m_flags & SIGNATURE_AT_BEGIN)
 	{
-		if (m_verifier.SignatureUpfrontForVerification())
-			m_verifier.InitializeVerificationAccumulator(*m_messageAccumulator, inString);
+		if (m_verifier.SignatureUpfront())
+			m_verifier.InputSignature(*m_messageAccumulator, inString, m_verifier.SignatureLength());
 		else
 		{
 			m_signature.New(m_verifier.SignatureLength());
@@ -757,7 +758,7 @@ void SignatureVerificationFilter::FirstPut(const byte *inString)
 	}
 	else
 	{
-		assert(!m_verifier.SignatureUpfrontForVerification());
+		assert(!m_verifier.SignatureUpfront());
 	}
 }
 
@@ -773,11 +774,13 @@ void SignatureVerificationFilter::LastPut(const byte *inString, unsigned int len
 	if (m_flags & SIGNATURE_AT_BEGIN)
 	{
 		assert(length == 0);
-		m_verified = m_verifier.Verify(m_messageAccumulator.release(), m_signature);
+		m_verifier.InputSignature(*m_messageAccumulator, m_signature, m_signature.size());
+		m_verified = m_verifier.VerifyAndRestart(*m_messageAccumulator);
 	}
 	else
 	{
-		m_verified = (length==m_verifier.SignatureLength() && m_verifier.Verify(m_messageAccumulator.release(), inString));
+		m_verifier.InputSignature(*m_messageAccumulator, inString, length);
+		m_verified = m_verifier.VerifyAndRestart(*m_messageAccumulator);
 		if (m_flags & PUT_SIGNATURE)
 			AttachedTransformation()->Put(inString, length);
 	}

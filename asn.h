@@ -236,13 +236,15 @@ public:
 	virtual bool DEREncodeAlgorithmParameters(BufferedTransformation &bt) const
 		{DEREncodeNull(bt); return false;}	// see RFC 2459, section 7.3.1
 	// one of the following two should be overriden
+	//! decode subjectPublicKey part of subjectPublicKeyInfo, or privateKey part of privateKeyInfo, without the BIT STRING or OCTET STRING header
 	virtual void BERDecodeKey(BufferedTransformation &bt) {assert(false);}
 	virtual void BERDecodeKey2(BufferedTransformation &bt, bool parametersPresent, unsigned int size)
 		{BERDecodeKey(bt);}
+	//! encode subjectPublicKey part of subjectPublicKeyInfo, or privateKey part of privateKeyInfo, without the BIT STRING or OCTET STRING header
 	virtual void DEREncodeKey(BufferedTransformation &bt) const =0;
 };
 
-//! .
+//! encodes/decodes subjectPublicKeyInfo
 class X509PublicKey : virtual public ASN1Key, public PublicKey
 {
 public:
@@ -250,7 +252,7 @@ public:
 	void DEREncode(BufferedTransformation &bt) const;
 };
 
-//! .
+//! encodes/decodes privateKeyInfo
 class PKCS8PrivateKey : virtual public ASN1Key, public PrivateKey
 {
 public:

@@ -151,6 +151,8 @@ public:
 		{ChannelPut(channel, inString, length); return false;}
 
 	virtual unsigned int ChannelPut2(const std::string &channel, const byte *begin, unsigned int length, int messageEnd, bool blocking) =0;
+	unsigned int ChannelPutModifiable2(const std::string &channel, byte *begin, unsigned int length, int messageEnd, bool blocking)
+		{return ChannelPut2(channel, begin, length, messageEnd, blocking);}
 
 	virtual void ChannelInitialize(const std::string &channel, const NameValuePairs &parameters=g_nullNameValuePairs, int propagation=-1) =0;
 	virtual bool ChannelFlush(const std::string &channel, bool hardFlush, int propagation=-1, bool blocking=true) =0;

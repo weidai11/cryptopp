@@ -57,7 +57,7 @@ public:
 	void BERDecode(BufferedTransformation &bt);
 	void DEREncode(BufferedTransformation &bt) const;
 
-	Integer CalculateInverse(const Integer &x) const;
+	Integer CalculateInverse(RandomNumberGenerator &rng, const Integer &x) const;
 
 	bool Validate(RandomNumberGenerator &rng, unsigned int level) const;
 	bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const;
@@ -92,16 +92,8 @@ struct RabinES : public TF_ES<STANDARD, Rabin>
 };
 
 //! .
-template <class EM>
-struct RabinSSR
-{
-	typedef PK_FinalTemplate<SignerWithRecoveryTemplate<InvertibleRabinFunction, EM> > Signer;
-	typedef PK_FinalTemplate<VerifierWithRecoveryTemplate<RabinFunction, EM> > Verifier;
-};
-
-//! .
-template <class H>
-struct RabinPSSR : public RabinSSR<PSSR<H> >
+template <class STANDARD, class H>
+struct RabinSS : public TF_SS<STANDARD, H, Rabin>
 {
 };
 
@@ -111,12 +103,6 @@ class SHA;
 
 typedef RabinES<OAEP<SHA> >::Decryptor RabinDecryptor;
 typedef RabinES<OAEP<SHA> >::Encryptor RabinEncryptor;
-
-#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
-// simulate template typedef
-#define RabinSignerWith(H) RabinPSSR<H>::Signer
-#define RabinVerifierWith(H) RabinPSSR<H>::Verifier
-#endif
 
 NAMESPACE_END
 

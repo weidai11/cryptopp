@@ -2,7 +2,7 @@
 #define CRYPTOPP_FIPS140_H
 
 /*! \file
-	FIPS-140 related functions and classes.
+	FIPS 140 related functions and classes.
 */
 
 #include "cryptlib.h"
@@ -16,7 +16,7 @@ public:
 	explicit SelfTestFailure(const std::string &s) : Exception(OTHER_ERROR, s) {}
 };
 
-//! returns whether FIPS-140-2 compliance features were enabled at compile time
+//! returns whether FIPS 140-2 compliance features were enabled at compile time
 bool FIPS_140_2_ComplianceEnabled();
 
 //! enum values representing status of the power-up self test
@@ -38,6 +38,9 @@ void SetPowerUpSelfTestInProgressOnThisThread(bool inProgress);
 
 void SignaturePairwiseConsistencyTest(const PK_Signer &signer, const PK_Verifier &verifier);
 void EncryptionPairwiseConsistencyTest(const PK_Encryptor &encryptor, const PK_Decryptor &decryptor);
+
+void SignaturePairwiseConsistencyTest_FIPS_140_Only(const PK_Signer &signer, const PK_Verifier &verifier);
+void EncryptionPairwiseConsistencyTest_FIPS_140_Only(const PK_Encryptor &encryptor, const PK_Decryptor &decryptor);
 
 NAMESPACE_END
 

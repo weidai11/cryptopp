@@ -187,28 +187,26 @@ void BaseN_Decoder::InitializeDecodingLookupArray(int *lookup, const byte *alpha
 void Grouper::IsolatedInitialize(const NameValuePairs &parameters)
 {
 	m_groupSize = parameters.GetIntValueWithDefault("GroupSize", 0);
-	ConstByteArrayParameter seperator, terminator;
+	ConstByteArrayParameter separator, terminator;
 	if (m_groupSize)
-		parameters.GetRequiredParameter("Grouper", "Seperator", seperator);
-	else
-		parameters.GetValue("Seperator", seperator);
+		parameters.GetRequiredParameter("Grouper", "Separator", separator);
 	parameters.GetValue("Terminator", terminator);
 
-	m_seperator.Assign(seperator.begin(), seperator.size());
+	m_separator.Assign(separator.begin(), separator.size());
 	m_terminator.Assign(terminator.begin(), terminator.size());
 	m_counter = 0;
 }
 
 unsigned int Grouper::Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking)
 {
+	FILTER_BEGIN;
 	if (m_groupSize)
 	{
-		FILTER_BEGIN;
 		while (m_inputPosition < length)
 		{
 			if (m_counter == m_groupSize)
 			{
-				FILTER_OUTPUT(1, m_seperator, m_seperator.size(), 0);
+				FILTER_OUTPUT(1, m_separator, m_separator.size(), 0);
 				m_counter = 0;
 			}
 
@@ -218,12 +216,13 @@ unsigned int Grouper::Put2(const byte *begin, unsigned int length, int messageEn
 			m_inputPosition += len;
 			m_counter += len;
 		}
-		if (messageEnd)
-			FILTER_OUTPUT(3, m_terminator, m_terminator.size(), messageEnd);
-		FILTER_END_NO_MESSAGE_END
 	}
 	else
-		return Output(0, begin, length, messageEnd, blocking);
+		FILTER_OUTPUT(3, begin, length, 0);
+
+	if (messageEnd)
+		FILTER_OUTPUT(4, m_terminator, m_terminator.size(), messageEnd);
+	FILTER_END_NO_MESSAGE_END
 }
 
 NAMESPACE_END

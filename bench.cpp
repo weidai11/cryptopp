@@ -229,7 +229,7 @@ void BenchMarkDecryption(const char *name, PK_Decryptor &priv, PK_Encryptor &pub
 	unsigned int i;
 	double timeTaken;
 	for (timeTaken=(double)0, i=0; timeTaken < timeTotal; timeTaken = double(clock() - start) / CLOCK_TICKS_PER_SECOND, i++)
-		priv.Decrypt(ciphertext, ciphertext.size(), plaintext);
+		priv.Decrypt(rng, ciphertext, ciphertext.size(), plaintext);
 
 	OutputResultOperations(name, "Decryption", false, i, timeTaken);
 }
@@ -268,7 +268,7 @@ void BenchMarkVerification(const char *name, const PK_Signer &priv, PK_Verifier 
 	unsigned int i;
 	double timeTaken;
 	for (timeTaken=(double)0, i=0; timeTaken < timeTotal; timeTaken = double(clock() - start) / CLOCK_TICKS_PER_SECOND, i++)
-		pub.VerifyMessage(message, len, signature);
+		pub.VerifyMessage(message, len, signature, signature.size());
 
 	OutputResultOperations(name, "Verification", pc, i, timeTaken);
 
@@ -555,10 +555,10 @@ void BenchMarkAll(double t)
 	BenchMarkCrypto<LUC_IES<> >("lucc1024.dat", "LUCELG 1024", t);
 
 	cout << "<TBODY style=\"background: yellow\">" << endl;
-	BenchMarkSignature<RSASSA<PKCS1v15, SHA> >("rsa1024.dat", "RSA 1024", t);
-	BenchMarkSignature<RabinPSSR<SHA> >("rabi1024.dat", "Rabin 1024", t);
-	BenchMarkSignature<RWSSA<SHA> >("rw1024.dat", "RW 1024", t);
-	BenchMarkSignature<LUCSSA<SHA> >("luc1024.dat", "LUC 1024", t);
+	BenchMarkSignature<RSASS<PSSR, SHA> >("rsa1024.dat", "RSA 1024", t);
+	BenchMarkSignature<RabinSS<PSSR, SHA> >("rabi1024.dat", "Rabin 1024", t);
+	BenchMarkSignature<RWSS<PSSR, SHA> >("rw1024.dat", "RW 1024", t);
+	BenchMarkSignature<LUCSS<PSSR, SHA> >("luc1024.dat", "LUC 1024", t);
 	BenchMarkSignature<NR<SHA> >("nr1024.dat", "NR 1024", t);
 	BenchMarkSignature<DSA>("dsa1024.dat", "DSA 1024", t);
 	BenchMarkSignature<LUC_HMP<SHA> >("lucs512.dat", "LUC-HMP 512", t);
@@ -566,10 +566,10 @@ void BenchMarkAll(double t)
 	BenchMarkSignature<ESIGN<SHA> >("esig1536.dat", "ESIGN 1536", t);
 
 	cout << "<TBODY style=\"background: white\">" << endl;
-	BenchMarkSignature<RSASSA<PKCS1v15, SHA> >("rsa2048.dat", "RSA 2048", t);
-	BenchMarkSignature<RabinPSSR<SHA> >("rabi2048.dat", "Rabin 2048", t);
-	BenchMarkSignature<RWSSA<SHA> >("rw2048.dat", "RW 2048", t);
-	BenchMarkSignature<LUCSSA<SHA> >("luc2048.dat", "LUC 2048", t);
+	BenchMarkSignature<RSASS<PSSR, SHA> >("rsa2048.dat", "RSA 2048", t);
+	BenchMarkSignature<RabinSS<PSSR, SHA> >("rabi2048.dat", "Rabin 2048", t);
+	BenchMarkSignature<RWSS<PSSR, SHA> >("rw2048.dat", "RW 2048", t);
+	BenchMarkSignature<LUCSS<PSSR, SHA> >("luc2048.dat", "LUC 2048", t);
 	BenchMarkSignature<NR<SHA> >("nr2048.dat", "NR 2048", t);
 	BenchMarkSignature<LUC_HMP<SHA> >("lucs1024.dat", "LUC-HMP 1024", t);
 	BenchMarkSignature<ESIGN<SHA> >("esig2046.dat", "ESIGN 2046", t);

@@ -30,7 +30,7 @@ class ObjectFactoryRegistry
 public:
 	~ObjectFactoryRegistry()
 	{
-		for (Map::iterator i = m_map.begin(); i != m_map.end(); ++i)
+		for (CPP_TYPENAME Map::iterator i = m_map.begin(); i != m_map.end(); ++i)
 		{
 			delete i->second;
 			i->second = NULL;
@@ -44,7 +44,7 @@ public:
 
 	const ObjectFactory<AbstractClass> * GetFactory(const char *name) const
 	{
-		Map::const_iterator i = m_map.find(name);
+		CPP_TYPENAME Map::const_iterator i = m_map.find(name);
 		return i == m_map.end() ? NULL : i->second;
 	}
 

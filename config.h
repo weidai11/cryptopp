@@ -171,7 +171,7 @@ union dword_union
 NAMESPACE_END
 
 // VC60 workaround: it doesn't allow typename in some places
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && (_MSC_VER < 1300)
 #define CPP_TYPENAME
 #else
 #define CPP_TYPENAME typename

@@ -56,7 +56,7 @@ Test Driver for Crypto++(TM) Library, a C++ Class Library of Cryptographic Schem
 - To forward a TCP connection
 	cryptest ft source-port destination-host destination-port
 
-- To run the FIPS-140-2 sample application
+- To run the FIPS 140-2 sample application
 	cryptest fips
 
 - To run validation tests

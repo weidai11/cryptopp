@@ -324,8 +324,8 @@ public:
 
 private:
 	RandomNumberGenerator &m_rng;
-	const PK_Signer &m_signer;
-	member_ptr<HashTransformation> m_messageAccumulator;
+	const PK_Signer	&m_signer;
+	member_ptr<PK_MessageAccumulator> m_messageAccumulator;
 	bool m_putMessage;
 	SecByteBlock m_buf;
 };
@@ -354,7 +354,7 @@ protected:
 
 private:
 	const PK_Verifier &m_verifier;
-	member_ptr<HashTransformation> m_messageAccumulator;
+	member_ptr<PK_MessageAccumulator> m_messageAccumulator;
 	word32 m_flags;
 	SecByteBlock m_signature;
 	bool m_verified;
@@ -474,8 +474,8 @@ public:
 class PK_DecryptorFilter : public SimpleProxyFilter
 {
 public:
-	PK_DecryptorFilter(const PK_Decryptor &decryptor, BufferedTransformation *attachment = NULL)
-		: SimpleProxyFilter(decryptor.CreateDecryptionFilter(), attachment) {}
+	PK_DecryptorFilter(RandomNumberGenerator &rng, const PK_Decryptor &decryptor, BufferedTransformation *attachment = NULL)
+		: SimpleProxyFilter(decryptor.CreateDecryptionFilter(rng), attachment) {}
 };
 
 //! Append input to a string object
@@ -491,9 +491,16 @@ public:
 
 	void IsolatedInitialize(const NameValuePairs &parameters)
 		{if (!parameters.GetValue("OutputStringPointer", m_output)) throw InvalidArgument("StringSink: OutputStringPointer not specified");}
+
 	unsigned int Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking)
 	{
-		m_output->append((const char_type *)begin, (const char_type *)begin+length);
+		if (length > 0)
+		{
+			typename T::size_type size = m_output->size();
+			if (length < size && size + length > m_output->capacity())
+				m_output->reserve(2*size);
+			m_output->append((const char_type *)begin, (const char_type *)begin+length);
+		}
 		return 0;
 	}
 

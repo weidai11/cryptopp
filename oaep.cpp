@@ -56,8 +56,10 @@ void OAEP<H,MGF,P,PLen>::Pad(RandomNumberGenerator &rng, const byte *input, unsi
 	memcpy(maskedDB+dbLen-inputLength, input, inputLength);
 
 	rng.GenerateBlock(maskedSeed, seedLen);
-	MGF::GenerateAndMask(maskedDB, dbLen, maskedSeed, seedLen);
-	MGF::GenerateAndMask(maskedSeed, seedLen, maskedDB, dbLen);
+	H h;
+	MGF mgf;
+	mgf.GenerateAndMask(h, maskedDB, dbLen, maskedSeed, seedLen);
+	mgf.GenerateAndMask(h, maskedSeed, seedLen, maskedDB, dbLen);
 }
 
 template <class H, class MGF, byte *P, unsigned int PLen>
@@ -82,8 +84,10 @@ DecodingResult OAEP<H,MGF,P,PLen>::Unpad(const byte *oaepBlock, unsigned int oae
 	byte *const maskedSeed = t;
 	byte *const maskedDB = t+seedLen;
 
-	MGF::GenerateAndMask(maskedSeed, seedLen, maskedDB, dbLen);
-	MGF::GenerateAndMask(maskedDB, dbLen, maskedSeed, seedLen);
+	H h;
+	MGF mgf;
+	mgf.GenerateAndMask(h, maskedSeed, seedLen, maskedDB, dbLen);
+	mgf.GenerateAndMask(h, maskedDB, dbLen, maskedSeed, seedLen);
 
 	// DB = pHash' || 00 ... || 01 || M
 

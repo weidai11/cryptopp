@@ -222,7 +222,7 @@ void TestEncryptionScheme(TestData &v)
 	if (test == "DecryptMatch")
 	{
 		std::string decrypted, expected = GetDecodedDatum(v, "Plaintext");
-		StringSource ss(GetDecodedDatum(v, "Ciphertext"), true, new PK_DecryptorFilter(*decryptor, new StringSink(decrypted)));
+		StringSource ss(GetDecodedDatum(v, "Ciphertext"), true, new PK_DecryptorFilter(GlobalRNG(), *decryptor, new StringSink(decrypted)));
 		if (decrypted != expected)
 			SignalTestFailure();
 	}
@@ -356,15 +356,12 @@ void OutputNameValuePairs(const NameValuePairs &v)
 	}
 }
 
-bool RunTestDataFile(const char *filename)
+void TestDataFile(const std::string &filename, unsigned int &totalTests, unsigned int &failedTests)
 {
-	RegisterFactories();
-
-	std::ifstream file(filename);
+	std::ifstream file(filename.c_str());
 	TestData v;
 	s_currentTestData = &v;
 	std::string name, value, lastAlgName;
-	unsigned int totalTests = 0, failedTests = 0;
 
 	while (file)
 	{
@@ -386,7 +383,7 @@ bool RunTestDataFile(const char *filename)
 			if (lastAlgName != GetRequiredDatum(v, "Name"))
 			{
 				lastAlgName = GetRequiredDatum(v, "Name");
-				cout << "Testing " << algType.c_str() << " algorithm " << lastAlgName.c_str() << ".\n";
+				cout << "\nTesting " << algType.c_str() << " algorithm " << lastAlgName.c_str() << ".\n";
 			}
 
 			try
@@ -399,6 +396,8 @@ bool RunTestDataFile(const char *filename)
 					TestDigestOrMAC(v, true);
 				else if (algType == "MAC")
 					TestDigestOrMAC(v, false);
+				else if (algType == "FileList")
+					TestDataFile(GetRequiredDatum(v, "Test"), totalTests, failedTests);
 				else
 					SignalTestError();
 				failed = false;
@@ -427,6 +426,13 @@ bool RunTestDataFile(const char *filename)
 			totalTests++;
 		}
 	}
+}
+
+bool RunTestDataFile(const char *filename)
+{
+	RegisterFactories();
+	unsigned int totalTests = 0, failedTests = 0;
+	TestDataFile(filename, totalTests, failedTests);
 	cout << "\nTests complete. Total tests = " << totalTests << ". Failed tests = " << failedTests << ".\n";
 	if (failedTests != 0)
 		cout << "SOME TESTS FAILED!\n";
