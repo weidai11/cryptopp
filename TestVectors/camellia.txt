@@ -1,8 +1,6 @@
 AlgorithmType: SymmetricCipher
 Name: Camellia(ECB)
 Source: NESSIE submission
-Comment: All vectors use NULL IV
-IV: 00000000000000000000000000000000
 Comment: Tests with 128-bit keys
 Comment:    Set 1, vector 0
 Key:        80000000000000000000000000000000
