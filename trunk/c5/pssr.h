@@ -4,9 +4,13 @@
 #include "pubkey.h"
 #include <functional>
 
+#ifdef CRYPTOPP_IS_DLL
+#include "sha.h"
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
-class PSSR_MEM_Base : public PK_RecoverableSignatureMessageEncodingMethod
+class CRYPTOPP_DLL PSSR_MEM_Base : public PK_RecoverableSignatureMessageEncodingMethod
 {
 	virtual bool AllowRecovery() const =0;
 	virtual unsigned int SaltLen(unsigned int hashLen) const =0;
@@ -28,8 +32,9 @@ public:
 		byte *recoverableMessage) const;
 };
 
-template <class H> struct EMSA2HashId
+template <class H> class EMSA2HashId
 {
+public:
 	static const byte id;
 };
 
@@ -42,6 +47,13 @@ class SHA384;
 class SHA512;
 class Whirlpool;
 // end of list
+
+#ifdef CRYPTOPP_IS_DLL
+CRYPTOPP_DLL_TEMPLATE_CLASS EMSA2HashId<SHA>;
+CRYPTOPP_DLL_TEMPLATE_CLASS EMSA2HashId<SHA256>;
+CRYPTOPP_DLL_TEMPLATE_CLASS EMSA2HashId<SHA384>;
+CRYPTOPP_DLL_TEMPLATE_CLASS EMSA2HashId<SHA512>;
+#endif
 
 template <class BASE>
 class EMSA2HashIdLookup : public BASE

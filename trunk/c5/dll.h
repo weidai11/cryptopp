@@ -26,6 +26,7 @@
 #include "nbtheory.h"
 #include "osrng.h"
 #include "pkcspad.h"
+#include "pssr.h"
 #include "randpool.h"
 #include "rsa.h"
 #include "sha.h"

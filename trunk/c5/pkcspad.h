@@ -40,6 +40,13 @@ class SHA384;
 class SHA512;
 // end of list
 
+#ifdef CRYPTOPP_IS_DLL
+CRYPTOPP_DLL_TEMPLATE_CLASS PKCS_DigestDecoration<SHA>;
+CRYPTOPP_DLL_TEMPLATE_CLASS PKCS_DigestDecoration<SHA256>;
+CRYPTOPP_DLL_TEMPLATE_CLASS PKCS_DigestDecoration<SHA384>;
+CRYPTOPP_DLL_TEMPLATE_CLASS PKCS_DigestDecoration<SHA512>;
+#endif
+
 //! <a href="http://www.weidai.com/scan-mirror/sig.html#sem_PKCS1-1.5">EMSA-PKCS1-v1_5</a>
 class CRYPTOPP_DLL PKCS1v15_SignatureMessageEncodingMethod : public PK_DeterministicSignatureMessageEncodingMethod
 {
@@ -74,10 +81,6 @@ struct PKCS1v15 : public SignatureStandard, public EncryptionStandard
 	typedef PKCS_EncryptionPaddingScheme EncryptionMessageEncodingMethod;
 	typedef PKCS1v15_SignatureMessageEncodingMethod SignatureMessageEncodingMethod;
 };
-
-#ifdef CRYPTOPP_IS_DLL
-CRYPTOPP_DLL_TEMPLATE_CLASS PKCS_DigestDecoration<SHA>;
-#endif
 
 NAMESPACE_END
 

@@ -6,11 +6,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-HashInputTooLong::HashInputTooLong(const std::string &alg)
-	: InvalidDataFormat("IteratedHashBase: input data exceeds maximum allowed by hash function " + alg)
-{
-}
-
 template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte *input, unsigned int len)
 {
 	HashWordType oldCountLo = m_countLo, oldCountHi = m_countHi;
@@ -80,9 +75,17 @@ template <class T, class BASE> byte * IteratedHashBase<T, BASE>::CreateUpdateSpa
 template <class T, class BASE> unsigned int IteratedHashBase<T, BASE>::HashMultipleBlocks(const T *input, unsigned int length)
 {
 	unsigned int blockSize = BlockSize();
+	bool noReverse = NativeByteOrderIs(GetByteOrder());
 	do
 	{
-		HashBlock(input);
+		if (noReverse)
+			HashEndianCorrectedBlock(input);
+		else
+		{
+			ByteReverse(this->m_data.begin(), input, this->BlockSize());
+			HashEndianCorrectedBlock(this->m_data);
+		}
+
 		input += blockSize/sizeof(T);
 		length -= blockSize;
 	}
@@ -109,6 +112,24 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::Restart()
 {
 	m_countLo = m_countHi = 0;
 	Init();
+}
+
+template <class T, class BASE> void IteratedHashBase<T, BASE>::TruncatedFinal(byte *digest, unsigned int size)
+{
+	this->ThrowIfInvalidTruncatedSize(size);
+
+	PadLastBlock(this->BlockSize() - 2*sizeof(HashWordType));
+	ByteOrder order = this->GetByteOrder();
+	ConditionalByteReverse<HashWordType>(order, this->m_data, this->m_data, this->BlockSize() - 2*sizeof(HashWordType));
+
+	this->m_data[this->m_data.size()-2] = order ? this->GetBitCountHi() : this->GetBitCountLo();
+	this->m_data[this->m_data.size()-1] = order ? this->GetBitCountLo() : this->GetBitCountHi();
+
+	HashEndianCorrectedBlock(this->m_data);
+	ConditionalByteReverse<HashWordType>(order, this->m_digest, this->m_digest, this->DigestSize());
+	memcpy(digest, this->m_digest, size);
+
+	this->Restart();		// reinit for next use
 }
 
 NAMESPACE_END

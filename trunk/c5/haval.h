@@ -6,6 +6,8 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 /// <a href="http://www.weidai.com/scan-mirror/md.html#HAVAL">HAVAL</a>
+/*! \warning HAVAL with 128-bit or 160-bit output is considered insecure, and should not be used
+	unless you absolutely need it for compatibility. */
 class HAVAL : public IteratedHash<word32, LittleEndian, 128>
 {
 public:
