@@ -47,6 +47,7 @@ public:
 		{SetKey(key, length);}
 
 	static std::string StaticAlgorithmName() {return std::string("HMAC(") + T::StaticAlgorithmName() + ")";}
+	std::string AlgorithmName() const {return std::string("HMAC(") + m_hash.AlgorithmName() + ")";}
 
 private:
 	HashTransformation & AccessHash() {return m_hash;}
