@@ -220,7 +220,7 @@ public:
 	virtual ~NameValuePairs() {}
 
 	//! exception thrown when trying to retrieve a value using a different type than expected
-	class ValueTypeMismatch : public InvalidArgument
+	class CRYPTOPP_DLL ValueTypeMismatch : public InvalidArgument
 	{
 	public:
 		ValueTypeMismatch(std::string name, const std::type_info &stored, const std::type_info &retrieving)
@@ -913,7 +913,6 @@ public:
 		virtual unsigned int ChannelPut2(const std::string &channel, const byte *begin, unsigned int length, int messageEnd, bool blocking);
 		virtual unsigned int ChannelPutModifiable2(const std::string &channel, byte *begin, unsigned int length, int messageEnd, bool blocking);
 
-		virtual void ChannelInitialize(const std::string &channel, const NameValuePairs &parameters=g_nullNameValuePairs, int propagation=-1);
 		virtual bool ChannelFlush(const std::string &channel, bool hardFlush, int propagation=-1, bool blocking=true);
 		virtual bool ChannelMessageSeriesEnd(const std::string &channel, int propagation=-1, bool blocking=true);
 
@@ -1117,6 +1116,18 @@ public:
 	/*! \note This function returns 0 if plaintextLength is not valid (too long). */
 	virtual unsigned int CiphertextLength(unsigned int plaintextLength) const =0;
 
+	//! this object supports the use of the parameter with the given name
+	/*! some possible parameter names: EncodingParameters, KeyDerivationParameters */
+	virtual bool ParameterSupported(const char *name) const =0;
+
+	//! return fixed ciphertext length, if one exists, otherwise return 0
+	/*! \note "Fixed" here means length of ciphertext does not depend on length of plaintext.
+		It usually does depend on the key length. */
+	virtual unsigned int FixedCiphertextLength() const {return 0;}
+
+	//! return maximum plaintext length given the fixed ciphertext length, if one exists, otherwise return 0
+	virtual unsigned int FixedMaxPlaintextLength() const {return 0;}
+
 #ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
 	unsigned int MaxPlainTextLength(unsigned int cipherTextLength) const {return MaxPlaintextLength(cipherTextLength);}
 	unsigned int CipherTextLength(unsigned int plainTextLength) const {return CiphertextLength(plainTextLength);}
@@ -1124,7 +1135,6 @@ public:
 };
 
 //! interface for public-key encryptors
-
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_Encryptor : virtual public PK_CryptoSystem, public PublicKeyAlgorithm
 {
 public:
@@ -1139,12 +1149,16 @@ public:
 	/*! \pre CiphertextLength(plaintextLength) != 0 (i.e., plaintext isn't too long)
 		\pre size of ciphertext == CiphertextLength(plaintextLength)
 	*/
-	virtual void Encrypt(RandomNumberGenerator &rng, const byte *plaintext, unsigned int plaintextLength, byte *ciphertext) const =0;
+	virtual void Encrypt(RandomNumberGenerator &rng, 
+		const byte *plaintext, unsigned int plaintextLength, 
+		byte *ciphertext, const NameValuePairs &parameters = g_nullNameValuePairs) const =0;
 
 	//! create a new encryption filter
-	/*! \note caller is responsible for deleting the returned pointer
+	/*! \note The caller is responsible for deleting the returned pointer.
+		\note Encoding parameters should be passed in the "EP" channel.
 	*/
-	virtual BufferedTransformation * CreateEncryptionFilter(RandomNumberGenerator &rng, BufferedTransformation *attachment=NULL) const;
+	virtual BufferedTransformation * CreateEncryptionFilter(RandomNumberGenerator &rng, 
+		BufferedTransformation *attachment=NULL, const NameValuePairs &parameters = g_nullNameValuePairs) const;
 };
 
 //! interface for public-key decryptors
@@ -1154,67 +1168,28 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_Decryptor : virtual public PK_CryptoSys
 public:
 	//! decrypt a byte string, and return the length of plaintext
 	/*! \pre size of plaintext == MaxPlaintextLength(ciphertextLength) bytes.
-		\return the actual length of the plaintext, or 0 if decryption fails.
+		\return the actual length of the plaintext, indication that decryption failed.
 	*/
-	virtual DecodingResult Decrypt(RandomNumberGenerator &rng, const byte *ciphertext, unsigned int ciphertextLength, byte *plaintext) const =0;
+	virtual DecodingResult Decrypt(RandomNumberGenerator &rng, 
+		const byte *ciphertext, unsigned int ciphertextLength, 
+		byte *plaintext, const NameValuePairs &parameters = g_nullNameValuePairs) const =0;
 
 	//! create a new decryption filter
 	/*! \note caller is responsible for deleting the returned pointer
 	*/
-	virtual BufferedTransformation * CreateDecryptionFilter(RandomNumberGenerator &rng, BufferedTransformation *attachment=NULL) const;
+	virtual BufferedTransformation * CreateDecryptionFilter(RandomNumberGenerator &rng, 
+		BufferedTransformation *attachment=NULL, const NameValuePairs &parameters = g_nullNameValuePairs) const;
+
+	//! decrypt a fixed size ciphertext
+	DecodingResult FixedLengthDecrypt(RandomNumberGenerator &rng, const byte *ciphertext, byte *plaintext, const NameValuePairs &parameters = g_nullNameValuePairs) const
+		{return Decrypt(rng, ciphertext, FixedCiphertextLength(), plaintext, parameters);}
 };
-
-//! interface for encryptors and decryptors with fixed length ciphertext
-
-/*! A simplified interface is provided for crypto systems (such
-	as RSA) whose ciphertext length and maximum plaintext length
-	depend only on the key.
-*/
-class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_FixedLengthCryptoSystem
-{
-public:
-	//!
-	virtual unsigned int FixedMaxPlaintextLength() const =0;
-	//!
-	virtual unsigned int FixedCiphertextLength() const =0;
 
 #ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
-	unsigned int MaxPlainTextLength(unsigned int cipherTextLength) const {return MaxPlaintextLength(cipherTextLength);}
-	unsigned int CipherTextLength(unsigned int plainTextLength) const {return CiphertextLength(plainTextLength);}
-	unsigned int MaxPlainTextLength() const {return FixedMaxPlaintextLength();}
-	unsigned int CipherTextLength() const {return FixedCiphertextLength();}
+typedef PK_CryptoSystem PK_FixedLengthCryptoSystem;
+typedef PK_Encryptor PK_FixedLengthEncryptor;
+typedef PK_Decryptor PK_FixedLengthDecryptor;
 #endif
-};
-
-template <class BASE>
-class CRYPTOPP_NO_VTABLE PK_FixedLengthCryptoSystemImpl : public BASE, public PK_FixedLengthCryptoSystem
-{
-	unsigned int MaxPlaintextLength(unsigned int ciphertextLength) const
-		{return ciphertextLength == FixedCiphertextLength() ? FixedMaxPlaintextLength() : 0;}
-	unsigned int CiphertextLength(unsigned int plaintextLength) const
-		{return plaintextLength <= FixedMaxPlaintextLength() ? FixedCiphertextLength() : 0;}
-};
-
-//! interface for encryptors with fixed length ciphertext
-
-class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_FixedLengthEncryptor : public PK_FixedLengthCryptoSystemImpl<PK_Encryptor>
-{
-};
-
-//! interface for decryptors with fixed length ciphertext
-
-class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_FixedLengthDecryptor : public PK_FixedLengthCryptoSystemImpl<PK_Decryptor>
-{
-public:
-	//! decrypt a byte string, and return the length of plaintext
-	/*! \pre length of ciphertext == FixedCiphertextLength()
-		\pre size of plaintext == FixedMaxPlaintextLength()
-		\return the actual length of the plaintext, or 0 if decryption fails.
-	*/
-	virtual DecodingResult FixedLengthDecrypt(RandomNumberGenerator &rng, const byte *ciphertext, byte *plaintext) const =0;
-
-	DecodingResult Decrypt(RandomNumberGenerator &rng, const byte *ciphertext, unsigned int ciphertextLength, byte *plaintext) const;
-};
 
 //! interface for public-key signers and verifiers
 

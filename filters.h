@@ -36,7 +36,7 @@ protected:
 	virtual bool ShouldPropagateMessageEnd() const {return true;}
 	virtual bool ShouldPropagateMessageSeriesEnd() const {return true;}
 
-	void PropagateInitialize(const NameValuePairs &parameters, int propagation, const std::string &channel=NULL_CHANNEL);
+	void PropagateInitialize(const NameValuePairs &parameters, int propagation);
 
 	unsigned int Output(int outputSite, const byte *inString, unsigned int length, int messageEnd, bool blocking, const std::string &channel=NULL_CHANNEL);
 	unsigned int OutputModifiable(int outputSite, byte *inString, unsigned int length, int messageEnd, bool blocking, const std::string &channel=NULL_CHANNEL);
@@ -395,8 +395,7 @@ public:
 	bool CanModifyInput() const
 		{return m_target ? m_target->CanModifyInput() : false;}
 
-	void Initialize(const NameValuePairs &parameters, int propagation)
-		{ChannelInitialize(NULL_CHANNEL, parameters, propagation);}
+	void Initialize(const NameValuePairs &parameters, int propagation);
 	byte * CreatePutSpace(unsigned int &size)
 		{return m_target ? m_target->CreatePutSpace(size) : (byte *)(size=0, NULL);}
 	unsigned int Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking)
@@ -406,7 +405,6 @@ public:
 	bool MessageSeriesEnd(int propagation=-1, bool blocking=true)
 		{return m_target && GetPassSignals() ? m_target->MessageSeriesEnd(propagation, blocking) : false;}
 
-	void ChannelInitialize(const std::string &channel, const NameValuePairs &parameters=g_nullNameValuePairs, int propagation=-1);
 	byte * ChannelCreatePutSpace(const std::string &channel, unsigned int &size)
 		{return m_target ? m_target->ChannelCreatePutSpace(channel, size) : (byte *)(size=0, NULL);}
 	unsigned int ChannelPut2(const std::string &channel, const byte *begin, unsigned int length, int messageEnd, bool blocking)
@@ -454,8 +452,6 @@ public:
 		{return m_owner.AttachedTransformation()->ChannelPut2(channel, begin, length, m_passSignal ? messageEnd : 0, blocking);}
 	unsigned int ChannelPutModifiable2(const std::string &channel, byte *begin, unsigned int length, int messageEnd, bool blocking)
 		{return m_owner.AttachedTransformation()->ChannelPutModifiable2(channel, begin, length, m_passSignal ? messageEnd : 0, blocking);}
-	void ChannelInitialize(const std::string &channel, const NameValuePairs &parameters, int propagation=-1)
-		{if (m_passSignal) m_owner.AttachedTransformation()->ChannelInitialize(channel, parameters, propagation);}
 	bool ChannelFlush(const std::string &channel, bool completeFlush, int propagation=-1, bool blocking=true)
 		{return m_passSignal ? m_owner.AttachedTransformation()->ChannelFlush(channel, completeFlush, propagation, blocking) : false;}
 	bool ChannelMessageSeriesEnd(const std::string &channel, int propagation=-1, bool blocking=true)

@@ -167,21 +167,11 @@ WasBlocked:
 	return 0;
 }
 
-void ChannelSwitch::ChannelInitialize(const std::string &channel, const NameValuePairs &parameters/* =g_nullNameValuePairs */, int propagation/* =-1 */)
+void ChannelSwitch::IsolatedInitialize(const NameValuePairs &parameters/* =g_nullNameValuePairs */)
 {
-	if (channel.empty())
-	{
-		m_routeMap.clear();
-		m_defaultRoutes.clear();
-	}
-
-	m_it.Reset(channel);
-
-	while (!m_it.End())
-	{
-		m_it.Destination().ChannelInitialize(m_it.Channel(), parameters, propagation);
-		m_it.Next();
-	}
+	m_routeMap.clear();
+	m_defaultRoutes.clear();
+	m_blocked = false;
 }
 
 bool ChannelSwitch::ChannelFlush(const std::string &channel, bool completeFlush, int propagation, bool blocking)

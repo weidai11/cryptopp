@@ -9,30 +9,12 @@ NAMESPACE_BEGIN(CryptoPP)
 
 // ********************************************************
 
-ANONYMOUS_NAMESPACE_BEGIN
-	template <class H, byte *P, unsigned int PLen>
-	struct PHashComputation
-	{
-		PHashComputation()	{H().CalculateDigest(pHash, P, PLen);}
-		byte pHash[H::DIGESTSIZE];
-	};
-
-	template <class H, byte *P, unsigned int PLen>
-	const byte *PHash()
-	{
-		static PHashComputation<H,P,PLen> pHash;
-		return pHash.pHash;
-	}
-NAMESPACE_END
-
-template <class H, class MGF, byte *P, unsigned int PLen>
-unsigned int OAEP<H,MGF,P,PLen>::MaxUnpaddedLength(unsigned int paddedLength) const
+unsigned int OAEP_Base::MaxUnpaddedLength(unsigned int paddedLength) const
 {
-	return paddedLength/8 > 1+2*H::DIGESTSIZE ? paddedLength/8-1-2*H::DIGESTSIZE : 0;
+	return SaturatingSubtract(paddedLength/8, 1+2*DigestSize());
 }
 
-template <class H, class MGF, byte *P, unsigned int PLen>
-void OAEP<H,MGF,P,PLen>::Pad(RandomNumberGenerator &rng, const byte *input, unsigned int inputLength, byte *oaepBlock, unsigned int oaepBlockLen) const
+void OAEP_Base::Pad(RandomNumberGenerator &rng, const byte *input, unsigned int inputLength, byte *oaepBlock, unsigned int oaepBlockLen, const NameValuePairs &parameters) const
 {
 	assert (inputLength <= MaxUnpaddedLength(oaepBlockLen));
 
@@ -44,26 +26,28 @@ void OAEP<H,MGF,P,PLen>::Pad(RandomNumberGenerator &rng, const byte *input, unsi
 	}
 	oaepBlockLen /= 8;
 
-	const unsigned int hLen = H::DIGESTSIZE;
+	std::auto_ptr<HashTransformation> pHash(NewHash());
+	const unsigned int hLen = pHash->DigestSize();
 	const unsigned int seedLen = hLen, dbLen = oaepBlockLen-seedLen;
 	byte *const maskedSeed = oaepBlock;
 	byte *const maskedDB = oaepBlock+seedLen;
 
+	ConstByteArrayParameter encodingParameters;
+	parameters.GetValue(Name::EncodingParameters(), encodingParameters);
+
 	// DB = pHash || 00 ... || 01 || M
-	memcpy(maskedDB, PHash<H,P,PLen>(), hLen);
+	pHash->CalculateDigest(maskedDB, encodingParameters.begin(), encodingParameters.size());
 	memset(maskedDB+hLen, 0, dbLen-hLen-inputLength-1);
 	maskedDB[dbLen-inputLength-1] = 0x01;
 	memcpy(maskedDB+dbLen-inputLength, input, inputLength);
 
 	rng.GenerateBlock(maskedSeed, seedLen);
-	H h;
-	MGF mgf;
-	mgf.GenerateAndMask(h, maskedDB, dbLen, maskedSeed, seedLen);
-	mgf.GenerateAndMask(h, maskedSeed, seedLen, maskedDB, dbLen);
+	std::auto_ptr<MaskGeneratingFunction> pMGF(NewMGF());
+	pMGF->GenerateAndMask(*pHash, maskedDB, dbLen, maskedSeed, seedLen);
+	pMGF->GenerateAndMask(*pHash, maskedSeed, seedLen, maskedDB, dbLen);
 }
 
-template <class H, class MGF, byte *P, unsigned int PLen>
-DecodingResult OAEP<H,MGF,P,PLen>::Unpad(const byte *oaepBlock, unsigned int oaepBlockLen, byte *output) const
+DecodingResult OAEP_Base::Unpad(const byte *oaepBlock, unsigned int oaepBlockLen, byte *output, const NameValuePairs &parameters) const
 {
 	bool invalid = false;
 
@@ -75,7 +59,8 @@ DecodingResult OAEP<H,MGF,P,PLen>::Unpad(const byte *oaepBlock, unsigned int oae
 	}
 	oaepBlockLen /= 8;
 
-	const unsigned int hLen = H::DIGESTSIZE;
+	std::auto_ptr<HashTransformation> pHash(NewHash());
+	const unsigned int hLen = pHash->DigestSize();
 	const unsigned int seedLen = hLen, dbLen = oaepBlockLen-seedLen;
 
 	invalid = (oaepBlockLen < 2*hLen+1) || invalid;
@@ -84,17 +69,18 @@ DecodingResult OAEP<H,MGF,P,PLen>::Unpad(const byte *oaepBlock, unsigned int oae
 	byte *const maskedSeed = t;
 	byte *const maskedDB = t+seedLen;
 
-	H h;
-	MGF mgf;
-	mgf.GenerateAndMask(h, maskedSeed, seedLen, maskedDB, dbLen);
-	mgf.GenerateAndMask(h, maskedDB, dbLen, maskedSeed, seedLen);
+	std::auto_ptr<MaskGeneratingFunction> pMGF(NewMGF());
+	pMGF->GenerateAndMask(*pHash, maskedSeed, seedLen, maskedDB, dbLen);
+	pMGF->GenerateAndMask(*pHash, maskedDB, dbLen, maskedSeed, seedLen);
+
+	ConstByteArrayParameter encodingParameters;
+	parameters.GetValue(Name::EncodingParameters(), encodingParameters);
 
 	// DB = pHash' || 00 ... || 01 || M
-
 	byte *M = std::find(maskedDB+hLen, maskedDB+dbLen, 0x01);
 	invalid = (M == maskedDB+dbLen) || invalid;
 	invalid = (std::find_if(maskedDB+hLen, M, std::bind2nd(std::not_equal_to<byte>(), 0)) != M) || invalid;
-	invalid = (memcmp(maskedDB, PHash<H,P,PLen>(), hLen) != 0) || invalid;
+	invalid = !pHash->VerifyDigest(maskedDB, encodingParameters.begin(), encodingParameters.size()) || invalid;
 
 	if (invalid)
 		return DecodingResult();

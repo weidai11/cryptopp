@@ -3026,7 +3026,7 @@ public:
 	{
 		UnalignedPutWord(BIG_ENDIAN_ORDER, m_counterAndSeed, m_counter);
 		++m_counter;
-		P1363_KDF2<SHA1>::DeriveKey(output, size, m_counterAndSeed, m_counterAndSeed.size());
+		P1363_KDF2<SHA1>::DeriveKey(output, size, m_counterAndSeed, m_counterAndSeed.size(), NULL, 0);
 	}
 
 private:
@@ -3095,7 +3095,7 @@ bool Integer::GenerateRandomNoThrow(RandomNumberGenerator &i_rng, const NameValu
 
 		case PRIME:
 		{
-			const PrimeSelector *pSelector = params.GetValueWithDefault("PointerToPrimeSelector", (const PrimeSelector *)NULL);
+			const PrimeSelector *pSelector = params.GetValueWithDefault(Name::PointerToPrimeSelector(), (const PrimeSelector *)NULL);
 
 			int i;
 			i = 0;

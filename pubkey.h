@@ -100,18 +100,20 @@ public:
 
 // ********************************************************
 
-//! .
+//! message encoding method for public key encryption
 class CRYPTOPP_NO_VTABLE PK_EncryptionMessageEncodingMethod
 {
 public:
 	virtual ~PK_EncryptionMessageEncodingMethod() {}
 
+	virtual bool ParameterSupported(const char *name) const {return false;}
+
 	//! max size of unpadded message in bytes, given max size of padded message in bits (1 less than size of modulus)
 	virtual unsigned int MaxUnpaddedLength(unsigned int paddedLength) const =0;
 
-	virtual void Pad(RandomNumberGenerator &rng, const byte *raw, unsigned int inputLength, byte *padded, unsigned int paddedBitLength) const =0;
+	virtual void Pad(RandomNumberGenerator &rng, const byte *raw, unsigned int inputLength, byte *padded, unsigned int paddedBitLength, const NameValuePairs &parameters) const =0;
 
-	virtual DecodingResult Unpad(const byte *padded, unsigned int paddedBitLength, byte *raw) const =0;
+	virtual DecodingResult Unpad(const byte *padded, unsigned int paddedBitLength, byte *raw, const NameValuePairs &parameters) const =0;
 };
 
 // ********************************************************
@@ -132,11 +134,25 @@ protected:
 
 // ********************************************************
 
-//! .
-template <class INTERFACE, class BASE>
-class CRYPTOPP_NO_VTABLE TF_CryptoSystemBase : public INTERFACE, protected BASE
+template <class BASE>
+class CRYPTOPP_NO_VTABLE PK_FixedLengthCryptoSystemImpl : public BASE
 {
 public:
+	unsigned int MaxPlaintextLength(unsigned int ciphertextLength) const
+		{return ciphertextLength == FixedCiphertextLength() ? FixedMaxPlaintextLength() : 0;}
+	unsigned int CiphertextLength(unsigned int plaintextLength) const
+		{return plaintextLength <= FixedMaxPlaintextLength() ? FixedCiphertextLength() : 0;}
+
+	virtual unsigned int FixedMaxPlaintextLength() const =0;
+	virtual unsigned int FixedCiphertextLength() const =0;
+};
+
+//! .
+template <class INTERFACE, class BASE>
+class CRYPTOPP_NO_VTABLE TF_CryptoSystemBase : public PK_FixedLengthCryptoSystemImpl<INTERFACE>, protected BASE
+{
+public:
+	bool ParameterSupported(const char *name) const {return GetMessageEncodingInterface().ParameterSupported(name);}
 	unsigned int FixedMaxPlaintextLength() const {return GetMessageEncodingInterface().MaxUnpaddedLength(PaddedBlockBitLength());}
 	unsigned int FixedCiphertextLength() const {return GetTrapdoorFunctionBounds().MaxImage().ByteCount();}
 
@@ -146,17 +162,17 @@ protected:
 };
 
 //! .
-class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE TF_DecryptorBase : public TF_CryptoSystemBase<PK_FixedLengthDecryptor, TF_Base<TrapdoorFunctionInverse, PK_EncryptionMessageEncodingMethod> >
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE TF_DecryptorBase : public TF_CryptoSystemBase<PK_Decryptor, TF_Base<TrapdoorFunctionInverse, PK_EncryptionMessageEncodingMethod> >
 {
 public:
-	DecodingResult FixedLengthDecrypt(RandomNumberGenerator &rng, const byte *cipherText, byte *plainText) const;
+	DecodingResult Decrypt(RandomNumberGenerator &rng, const byte *ciphertext, unsigned int ciphertextLength, byte *plaintext, const NameValuePairs &parameters = g_nullNameValuePairs) const;
 };
 
 //! .
-class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE TF_EncryptorBase : public TF_CryptoSystemBase<PK_FixedLengthEncryptor, TF_Base<RandomizedTrapdoorFunction, PK_EncryptionMessageEncodingMethod> >
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE TF_EncryptorBase : public TF_CryptoSystemBase<PK_Encryptor, TF_Base<RandomizedTrapdoorFunction, PK_EncryptionMessageEncodingMethod> >
 {
 public:
-	void Encrypt(RandomNumberGenerator &rng, const byte *plainText, unsigned int plainTextLength, byte *cipherText) const;
+	void Encrypt(RandomNumberGenerator &rng, const byte *plaintext, unsigned int plaintextLength, byte *ciphertext, const NameValuePairs &parameters = g_nullNameValuePairs) const;
 };
 
 // ********************************************************
@@ -482,25 +498,16 @@ public:
 	virtual void GenerateAndMask(HashTransformation &hash, byte *output, unsigned int outputLength, const byte *input, unsigned int inputLength, bool mask = true) const =0;
 };
 
-CRYPTOPP_DLL void P1363_MGF1KDF2_Common(HashTransformation &hash, byte *output, unsigned int outputLength, const byte *input, unsigned int inputLength, bool mask, unsigned int counterStart);
+CRYPTOPP_DLL void P1363_MGF1KDF2_Common(HashTransformation &hash, byte *output, unsigned int outputLength, const byte *input, unsigned int inputLength, const byte *derivationParams, unsigned int derivationParamsLength, bool mask, unsigned int counterStart);
 
 //! .
 class P1363_MGF1 : public MaskGeneratingFunction
 {
 public:
 	static const char * StaticAlgorithmName() {return "MGF1";}
-#if 0
-	// VC60 workaround: this function causes internal compiler error
-	template <class H>
-	static void GenerateAndMaskTemplate(byte *output, unsigned int outputLength, const byte *input, unsigned int inputLength, H* dummy=NULL)
-	{
-		H h;
-		P1363_MGF1KDF2_Common(h, output, outputLength, input, inputLength, mask, 0);
-	}
-#endif
 	void GenerateAndMask(HashTransformation &hash, byte *output, unsigned int outputLength, const byte *input, unsigned int inputLength, bool mask = true) const
 	{
-		P1363_MGF1KDF2_Common(hash, output, outputLength, input, inputLength, mask, 0);
+		P1363_MGF1KDF2_Common(hash, output, outputLength, input, inputLength, NULL, 0, mask, 0);
 	}
 };
 
@@ -511,10 +518,10 @@ template <class H>
 class P1363_KDF2
 {
 public:
-	static void DeriveKey(byte *output, unsigned int outputLength, const byte *input, unsigned int inputLength)
+	static void DeriveKey(byte *output, unsigned int outputLength, const byte *input, unsigned int inputLength, const byte *derivationParams, unsigned int derivationParamsLength)
 	{
 		H h;
-		P1363_MGF1KDF2_Common(h, output, outputLength, input, inputLength, false, 1);
+		P1363_MGF1KDF2_Common(h, output, outputLength, input, inputLength, derivationParams, derivationParamsLength, false, 1);
 	}
 };
 
@@ -940,18 +947,20 @@ template <class T>
 class CRYPTOPP_NO_VTABLE DL_KeyDerivationAlgorithm
 {
 public:
-	virtual void Derive(const DL_GroupParameters<T> &params, byte *derivedKey, unsigned int derivedLength, const T &agreedElement, const T &ephemeralPublicKey) const =0;
+	virtual bool ParameterSupported(const char *name) const {return false;}
+	virtual void Derive(const DL_GroupParameters<T> &groupParams, byte *derivedKey, unsigned int derivedLength, const T &agreedElement, const T &ephemeralPublicKey, const NameValuePairs &derivationParams) const =0;
 };
 
 //! .
 class CRYPTOPP_NO_VTABLE DL_SymmetricEncryptionAlgorithm
 {
 public:
-	virtual unsigned int GetSymmetricKeyLength(unsigned int plainTextLength) const =0;
-	virtual unsigned int GetSymmetricCiphertextLength(unsigned int plainTextLength) const =0;
-	virtual unsigned int GetMaxSymmetricPlaintextLength(unsigned int cipherTextLength) const =0;
-	virtual void SymmetricEncrypt(RandomNumberGenerator &rng, const byte *key, const byte *plainText, unsigned int plainTextLength, byte *cipherText) const =0;
-	virtual DecodingResult SymmetricDecrypt(const byte *key, const byte *cipherText, unsigned int cipherTextLength, byte *plainText) const =0;
+	virtual bool ParameterSupported(const char *name) const {return false;}
+	virtual unsigned int GetSymmetricKeyLength(unsigned int plaintextLength) const =0;
+	virtual unsigned int GetSymmetricCiphertextLength(unsigned int plaintextLength) const =0;
+	virtual unsigned int GetMaxSymmetricPlaintextLength(unsigned int ciphertextLength) const =0;
+	virtual void SymmetricEncrypt(RandomNumberGenerator &rng, const byte *key, const byte *plaintext, unsigned int plaintextLength, byte *ciphertext, const NameValuePairs &parameters) const =0;
+	virtual DecodingResult SymmetricDecrypt(const byte *key, const byte *ciphertext, unsigned int ciphertextLength, byte *plaintext, const NameValuePairs &parameters) const =0;
 };
 
 //! .
@@ -1149,17 +1158,20 @@ class CRYPTOPP_NO_VTABLE DL_CryptoSystemBase : public PK, public DL_Base<KI>
 public:
 	typedef typename DL_Base<KI>::Element Element;
 
-	unsigned int MaxPlaintextLength(unsigned int cipherTextLength) const
+	unsigned int MaxPlaintextLength(unsigned int ciphertextLength) const
 	{
 		unsigned int minLen = GetAbstractGroupParameters().GetEncodedElementSize(true);
-		return cipherTextLength < minLen ? 0 : GetSymmetricEncryptionAlgorithm().GetMaxSymmetricPlaintextLength(cipherTextLength - minLen);
+		return ciphertextLength < minLen ? 0 : GetSymmetricEncryptionAlgorithm().GetMaxSymmetricPlaintextLength(ciphertextLength - minLen);
 	}
 
-	unsigned int CiphertextLength(unsigned int plainTextLength) const
+	unsigned int CiphertextLength(unsigned int plaintextLength) const
 	{
-		unsigned int len = GetSymmetricEncryptionAlgorithm().GetSymmetricCiphertextLength(plainTextLength);
+		unsigned int len = GetSymmetricEncryptionAlgorithm().GetSymmetricCiphertextLength(plaintextLength);
 		return len == 0 ? 0 : GetAbstractGroupParameters().GetEncodedElementSize(true) + len;
 	}
+
+	bool ParameterSupported(const char *name) const
+		{return GetKeyDerivationAlgorithm().ParameterSupported(name) || GetSymmetricEncryptionAlgorithm().ParameterSupported(name);}
 
 protected:
 	virtual const DL_KeyAgreementAlgorithm<Element> & GetKeyAgreementAlgorithm() const =0;
@@ -1168,13 +1180,13 @@ protected:
 };
 
 //! .
-template <class T, class PK = PK_Decryptor>
-class CRYPTOPP_NO_VTABLE DL_DecryptorBase : public DL_CryptoSystemBase<PK, DL_PrivateKey<T> >
+template <class T>
+class CRYPTOPP_NO_VTABLE DL_DecryptorBase : public DL_CryptoSystemBase<PK_Decryptor, DL_PrivateKey<T> >
 {
 public:
 	typedef T Element;
 
-	DecodingResult Decrypt(RandomNumberGenerator &rng, const byte *cipherText, unsigned int cipherTextLength, byte *plainText) const
+	DecodingResult Decrypt(RandomNumberGenerator &rng, const byte *ciphertext, unsigned int ciphertextLength, byte *plaintext, const NameValuePairs &parameters = g_nullNameValuePairs) const
 	{
 		try
 		{
@@ -1184,17 +1196,17 @@ public:
 			const DL_GroupParameters<T> &params = GetAbstractGroupParameters();
 			const DL_PrivateKey<T> &key = GetKeyInterface();
 
-			Element q = params.DecodeElement(cipherText, true);
+			Element q = params.DecodeElement(ciphertext, true);
 			unsigned int elementSize = params.GetEncodedElementSize(true);
-			cipherText += elementSize;
-			cipherTextLength -= elementSize;
+			ciphertext += elementSize;
+			ciphertextLength -= elementSize;
 
 			Element z = agreeAlg.AgreeWithStaticPrivateKey(params, q, true, key.GetPrivateExponent());
 
-			SecByteBlock derivedKey(encAlg.GetSymmetricKeyLength(encAlg.GetMaxSymmetricPlaintextLength(cipherTextLength)));
-			derivAlg.Derive(params, derivedKey, derivedKey.size(), z, q);
+			SecByteBlock derivedKey(encAlg.GetSymmetricKeyLength(encAlg.GetMaxSymmetricPlaintextLength(ciphertextLength)));
+			derivAlg.Derive(params, derivedKey, derivedKey.size(), z, q, parameters);
 
-			return encAlg.SymmetricDecrypt(derivedKey, cipherText, cipherTextLength, plainText);
+			return encAlg.SymmetricDecrypt(derivedKey, ciphertext, ciphertextLength, plaintext, parameters);
 		}
 		catch (DL_BadElement &)
 		{
@@ -1204,13 +1216,13 @@ public:
 };
 
 //! .
-template <class T, class PK = PK_Encryptor>
-class CRYPTOPP_NO_VTABLE DL_EncryptorBase : public DL_CryptoSystemBase<PK, DL_PublicKey<T> >
+template <class T>
+class CRYPTOPP_NO_VTABLE DL_EncryptorBase : public DL_CryptoSystemBase<PK_Encryptor, DL_PublicKey<T> >
 {
 public:
 	typedef T Element;
 
-	void Encrypt(RandomNumberGenerator &rng, const byte *plainText, unsigned int plainTextLength, byte *cipherText) const
+	void Encrypt(RandomNumberGenerator &rng, const byte *plaintext, unsigned int plaintextLength, byte *ciphertext, const NameValuePairs &parameters = g_nullNameValuePairs) const
 	{
 		const DL_KeyAgreementAlgorithm<T> &agreeAlg = GetKeyAgreementAlgorithm();
 		const DL_KeyDerivationAlgorithm<T> &derivAlg = GetKeyDerivationAlgorithm();
@@ -1220,16 +1232,16 @@ public:
 
 		Integer x(rng, Integer::One(), params.GetMaxExponent());
 		Element q = params.ExponentiateBase(x);
-		params.EncodeElement(true, q, cipherText);
+		params.EncodeElement(true, q, ciphertext);
 		unsigned int elementSize = params.GetEncodedElementSize(true);
-		cipherText += elementSize;
+		ciphertext += elementSize;
 
 		Element z = agreeAlg.AgreeWithEphemeralPrivateKey(params, key.GetPublicPrecomputation(), x);
 
-		SecByteBlock derivedKey(encAlg.GetSymmetricKeyLength(plainTextLength));
-		derivAlg.Derive(params, derivedKey, derivedKey.size(), z, q);
+		SecByteBlock derivedKey(encAlg.GetSymmetricKeyLength(plaintextLength));
+		derivAlg.Derive(params, derivedKey, derivedKey.size(), z, q, parameters);
 
-		encAlg.SymmetricEncrypt(rng, derivedKey, plainText, plainTextLength, cipherText);
+		encAlg.SymmetricEncrypt(rng, derivedKey, plaintext, plaintextLength, ciphertext, parameters);
 	}
 };
 

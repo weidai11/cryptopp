@@ -73,8 +73,6 @@ public:
 		, m_firstChannel(firstChannel), m_secondChannel(secondChannel) {}
 
 	unsigned int ChannelPut2(const std::string &channel, const byte *begin, unsigned int length, int messageEnd, bool blocking);
-
-	void ChannelInitialize(const std::string &channel, const NameValuePairs &parameters=g_nullNameValuePairs, int propagation=-1);
 	bool ChannelMessageSeriesEnd(const std::string &channel, int propagation=-1, bool blocking=true);
 
 private:

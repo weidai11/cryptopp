@@ -15,7 +15,6 @@
 #include "algebra.cpp"
 #include "eprecomp.cpp"
 #include "eccrypto.cpp"
-#include "oaep.cpp"
 
 #ifndef CRYPTOPP_IMPORTS
 

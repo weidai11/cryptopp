@@ -11,7 +11,7 @@ class CRYPTOPP_NO_VTABLE ElGamalBase : public DL_KeyAgreementAlgorithm_DH<Intege
 					public DL_SymmetricEncryptionAlgorithm
 {
 public:
-	void Derive(const DL_GroupParameters<Integer> &params, byte *derivedKey, unsigned int derivedLength, const Integer &agreedElement, const Integer &ephemeralPublicKey) const
+	void Derive(const DL_GroupParameters<Integer> &groupParams, byte *derivedKey, unsigned int derivedLength, const Integer &agreedElement, const Integer &ephemeralPublicKey, const NameValuePairs &derivationParams) const
 	{
 		agreedElement.Encode(derivedKey, derivedLength);
 	}
@@ -39,7 +39,7 @@ public:
 			return 0;
 	}
 
-	void SymmetricEncrypt(RandomNumberGenerator &rng, const byte *key, const byte *plainText, unsigned int plainTextLength, byte *cipherText) const
+	void SymmetricEncrypt(RandomNumberGenerator &rng, const byte *key, const byte *plainText, unsigned int plainTextLength, byte *cipherText, const NameValuePairs &parameters) const
 	{
 		const Integer &p = GetGroupParameters().GetModulus();
 		unsigned int modulusLen = p.ByteCount();
@@ -52,7 +52,7 @@ public:
 		a_times_b_mod_c(Integer(key, modulusLen), Integer(block, modulusLen-1), p).Encode(cipherText, modulusLen);
 	}
 
-	DecodingResult SymmetricDecrypt(const byte *key, const byte *cipherText, unsigned int cipherTextLength, byte *plainText) const
+	DecodingResult SymmetricDecrypt(const byte *key, const byte *cipherText, unsigned int cipherTextLength, byte *plainText, const NameValuePairs &parameters) const
 	{
 		const Integer &p = GetGroupParameters().GetModulus();
 		unsigned int modulusLen = p.ByteCount();
@@ -106,14 +106,14 @@ struct ElGamal
 
 	static const char * StaticAlgorithmName() {return "ElgamalEnc/Crypto++Padding";}
 
-	class CRYPTOPP_NO_VTABLE EncryptorImpl : public ElGamalObjectImpl<DL_EncryptorBase<Integer, PK_FixedLengthEncryptor>,  SchemeOptions, SchemeOptions::PublicKey>, public PublicKeyCopier<SchemeOptions>
+	class CRYPTOPP_NO_VTABLE EncryptorImpl : public ElGamalObjectImpl<DL_EncryptorBase<Integer>,  SchemeOptions, SchemeOptions::PublicKey>, public PublicKeyCopier<SchemeOptions>
 	{
 	public:
 		void CopyKeyInto(SchemeOptions::PublicKey &key) const
 			{key = GetKey();}
 	};
 
-	class CRYPTOPP_NO_VTABLE DecryptorImpl : public ElGamalObjectImpl<DL_DecryptorBase<Integer, PK_FixedLengthDecryptor>, SchemeOptions, SchemeOptions::PrivateKey>, public PrivateKeyCopier<SchemeOptions>
+	class CRYPTOPP_NO_VTABLE DecryptorImpl : public ElGamalObjectImpl<DL_DecryptorBase<Integer>, SchemeOptions, SchemeOptions::PrivateKey>, public PrivateKeyCopier<SchemeOptions>
 	{
 	public:
 		void CopyKeyInto(SchemeOptions::PublicKey &key) const

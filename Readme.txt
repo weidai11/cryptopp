@@ -262,4 +262,6 @@ History
     - fixed a number of compiler warnings, minor bugs, and portability problems
     - removed Sapphire
 
-5.2 - Merged in changes for 5.01 - 5.04
+5.2 - Merged in changes for 5.01 - 5.0.4
+    - added support for using encoding parameters and key derivation parameters
+      with public key encryption (implemented by OAEP and DLIES)

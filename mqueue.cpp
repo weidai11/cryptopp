@@ -132,19 +132,6 @@ mismatch:
 	}
 }
 
-void EqualityComparisonFilter::ChannelInitialize(const std::string &channel, const NameValuePairs &parameters, int propagation)
-{
-	unsigned int i = MapChannel(channel);
-
-	if (i == 2)
-		PropagateInitialize(parameters, propagation, channel);
-	else
-	{
-		m_q[i].Initialize();
-		m_mismatchDetected = false;
-	}
-}
-
 bool EqualityComparisonFilter::ChannelMessageSeriesEnd(const std::string &channel, int propagation, bool blocking)
 {
 	unsigned int i = MapChannel(channel);

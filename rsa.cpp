@@ -16,8 +16,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-byte OAEP_P_DEFAULT[1];
-
 #if !defined(NDEBUG) && !defined(CRYPTOPP_IS_DLL)
 void RSA_TestInstantiations()
 {
@@ -107,19 +105,19 @@ public:
 void InvertibleRSAFunction::GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &alg)
 {
 	int modulusSize = 2048;
-	alg.GetIntValue("ModulusSize", modulusSize) || alg.GetIntValue("KeySize", modulusSize);
+	alg.GetIntValue(Name::ModulusSize(), modulusSize) || alg.GetIntValue(Name::KeySize(), modulusSize);
 
 	if (modulusSize < 16)
 		throw InvalidArgument("InvertibleRSAFunction: specified modulus size is too small");
 
-	m_e = alg.GetValueWithDefault("PublicExponent", Integer(17));
+	m_e = alg.GetValueWithDefault(Name::PublicExponent(), Integer(17));
 
 	if (m_e < 3 || m_e.IsEven())
 		throw InvalidArgument("InvertibleRSAFunction: invalid public exponent");
 
 	RSAPrimeSelector selector(m_e);
 	const NameValuePairs &primeParam = MakeParametersForTwoPrimesOfEqualSize(modulusSize)
-		("PointerToPrimeSelector", selector.GetSelectorPointer());
+		(Name::PointerToPrimeSelector(), selector.GetSelectorPointer());
 	m_p.GenerateRandom(rng, primeParam);
 	m_q.GenerateRandom(rng, primeParam);
 
@@ -145,7 +143,7 @@ void InvertibleRSAFunction::GenerateRandom(RandomNumberGenerator &rng, const Nam
 
 void InvertibleRSAFunction::Initialize(RandomNumberGenerator &rng, unsigned int keybits, const Integer &e)
 {
-	GenerateRandom(rng, MakeParameters("ModulusSize", (int)keybits)("PublicExponent", e+e.IsEven()));
+	GenerateRandom(rng, MakeParameters(Name::ModulusSize(), (int)keybits)(Name::PublicExponent(), e+e.IsEven()));
 }
 
 void InvertibleRSAFunction::Initialize(const Integer &n, const Integer &e, const Integer &d)

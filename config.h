@@ -191,6 +191,10 @@ NAMESPACE_END
 #	pragma warning(disable: 4231 4250 4251 4275 4660 4661 4786 4355)
 #endif
 
+#if !(defined(_MSC_VER) && _MSC_VER <= 1300)
+#define CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE
+#endif
+
 // ***************** determine availability of OS features ********************
 
 #ifndef NO_OS_DEPENDENCE

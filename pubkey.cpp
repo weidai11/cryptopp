@@ -8,7 +8,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-void P1363_MGF1KDF2_Common(HashTransformation &hash, byte *output, unsigned int outputLength, const byte *input, unsigned int inputLength, bool mask, unsigned int counterStart)
+void P1363_MGF1KDF2_Common(HashTransformation &hash, byte *output, unsigned int outputLength, const byte *input, unsigned int inputLength, const byte *derivationParams, unsigned int derivationParamsLength, bool mask, unsigned int counterStart)
 {
 	ArraySink *sink;
 	HashFilter filter(hash, sink = mask ? new ArrayXorSink(output, outputLength) : new ArraySink(output, outputLength));
@@ -17,6 +17,7 @@ void P1363_MGF1KDF2_Common(HashTransformation &hash, byte *output, unsigned int 
 	{
 		filter.Put(input, inputLength);
 		filter.PutWord32(counter++);
+		filter.Put(derivationParams, derivationParamsLength);
 		filter.MessageEnd();
 	}
 }
@@ -102,24 +103,24 @@ DecodingResult TF_VerifierBase::RecoverAndRestart(byte *recoveredMessage, PK_Mes
 	return result;
 }
 
-DecodingResult TF_DecryptorBase::FixedLengthDecrypt(RandomNumberGenerator &rng, const byte *cipherText, byte *plainText) const
+DecodingResult TF_DecryptorBase::Decrypt(RandomNumberGenerator &rng, const byte *ciphertext, unsigned int ciphertextLength, byte *plaintext, const NameValuePairs &parameters) const
 {
 	SecByteBlock paddedBlock(PaddedBlockByteLength());
-	Integer x = GetTrapdoorFunctionInterface().CalculateInverse(rng, Integer(cipherText, FixedCiphertextLength()));
+	Integer x = GetTrapdoorFunctionInterface().CalculateInverse(rng, Integer(ciphertext, FixedCiphertextLength()));
 	if (x.ByteCount() > paddedBlock.size())
 		x = Integer::Zero();	// don't return false here to prevent timing attack
 	x.Encode(paddedBlock, paddedBlock.size());
-	return GetMessageEncodingInterface().Unpad(paddedBlock, PaddedBlockBitLength(), plainText);
+	return GetMessageEncodingInterface().Unpad(paddedBlock, PaddedBlockBitLength(), plaintext, parameters);
 }
 
-void TF_EncryptorBase::Encrypt(RandomNumberGenerator &rng, const byte *plainText, unsigned int plainTextLength, byte *cipherText) const
+void TF_EncryptorBase::Encrypt(RandomNumberGenerator &rng, const byte *plaintext, unsigned int plaintextLength, byte *ciphertext, const NameValuePairs &parameters) const
 {
-	if (plainTextLength > FixedMaxPlaintextLength())
+	if (plaintextLength > FixedMaxPlaintextLength())
 		throw InvalidArgument(AlgorithmName() + ": message too long for this public key");
 
 	SecByteBlock paddedBlock(PaddedBlockByteLength());
-	GetMessageEncodingInterface().Pad(rng, plainText, plainTextLength, paddedBlock, PaddedBlockBitLength());
-	GetTrapdoorFunctionInterface().ApplyRandomizedFunction(rng, Integer(paddedBlock, paddedBlock.size())).Encode(cipherText, FixedCiphertextLength());
+	GetMessageEncodingInterface().Pad(rng, plaintext, plaintextLength, paddedBlock, PaddedBlockBitLength(), parameters);
+	GetTrapdoorFunctionInterface().ApplyRandomizedFunction(rng, Integer(paddedBlock, paddedBlock.size())).Encode(ciphertext, FixedCiphertextLength());
 }
 
 NAMESPACE_END
