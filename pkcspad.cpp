@@ -88,9 +88,7 @@ void PKCS1v15_SignatureMessageEncodingMethod::ComputeMessageRepresentative(Rando
 	HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
 	byte *representative, unsigned int representativeBitLength) const
 {
-	unsigned int digestSize = hash.DigestSize();
-	if (digestSize + hashIdentifier.second + 10 > representativeBitLength/8)
-		throw PK_Signer::KeyTooShort();
+	assert(representativeBitLength >= MinRepresentativeBitLength(hashIdentifier.second, hash.DigestSize()));
 
 	unsigned int pkcsBlockLen = representativeBitLength;
 	// convert from bit length to byte length
@@ -103,6 +101,7 @@ void PKCS1v15_SignatureMessageEncodingMethod::ComputeMessageRepresentative(Rando
 
 	representative[0] = 1;   // block type 1
 
+	unsigned int digestSize = hash.DigestSize();
 	byte *pPadding = representative + 1;
 	byte *pDigest = representative + pkcsBlockLen - digestSize;
 	byte *pHashId = pDigest - hashIdentifier.second;

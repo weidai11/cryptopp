@@ -54,7 +54,7 @@ public:
 //! _
 struct DES_EDE2_Info : public FixedBlockSize<8>, public FixedKeyLength<16>
 {
-	CRYPTOPP_DLL static const char * StaticAlgorithmName() {return "DES-EDE2";}
+	CRYPTOPP_DLL static const char * CRYPTOPP_API StaticAlgorithmName() {return "DES-EDE2";}
 };
 
 /// <a href="http://www.weidai.com/scan-mirror/cs.html#DESede">DES-EDE2</a>
@@ -78,7 +78,7 @@ public:
 //! _
 struct DES_EDE3_Info : public FixedBlockSize<8>, public FixedKeyLength<24>
 {
-	CRYPTOPP_DLL static const char * StaticAlgorithmName() {return "DES-EDE3";}
+	CRYPTOPP_DLL static const char * CRYPTOPP_API StaticAlgorithmName() {return "DES-EDE3";}
 };
 
 /// <a href="http://www.weidai.com/scan-mirror/cs.html#DESede">DES-EDE3</a>

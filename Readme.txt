@@ -1,5 +1,5 @@
 Crypto++: a C++ Class Library of Cryptographic Schemes
-Version 5.2.2 (in development)
+Version 5.2.3 (in development)
 
 This library includes:
 
@@ -346,5 +346,8 @@ the mailing list.
 
 5.2.2 - added SHA-224
       - put SHA-256, SHA-384, SHA-512, RSASSA-PSS into DLL
+      
+5.2.3 - fixed issues with FIPS algorithm test vectors
+      - put RSASSA-ISO into DLL
 
 Written by Wei Dai

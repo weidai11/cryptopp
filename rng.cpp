@@ -54,21 +54,16 @@ byte LC_RNG::GenerateByte()
 
 #ifndef CRYPTOPP_IMPORTS
 
-X917RNG::X917RNG(BlockTransformation *c, const byte *seed, unsigned long deterministicTimeVector)
+X917RNG::X917RNG(BlockTransformation *c, const byte *seed, const byte *deterministicTimeVector)
 	: cipher(c),
 	  S(cipher->BlockSize()),
 	  dtbuf(S),
 	  randseed(seed, S),
 	  randbuf(S),
 	  randbuf_counter(0),
-	  m_deterministicTimeVector(deterministicTimeVector)
+	  m_deterministicTimeVector(deterministicTimeVector, deterministicTimeVector ? S : 0)
 {
-	if (m_deterministicTimeVector)
-	{
-		memset(dtbuf, 0, S);
-		memcpy(dtbuf, (byte *)&m_deterministicTimeVector, STDMIN((int)sizeof(m_deterministicTimeVector), S));
-	}
-	else
+	if (!deterministicTimeVector)
 	{
 		time_t tstamp1 = time(0);
 		xorbuf(dtbuf, (byte *)&tstamp1, STDMIN((int)sizeof(tstamp1), S));
@@ -84,17 +79,17 @@ byte X917RNG::GenerateByte()
 	if (randbuf_counter==0)
 	{
 		// calculate new enciphered timestamp
-		if (m_deterministicTimeVector)
+		if (m_deterministicTimeVector.size())
 		{
-			xorbuf(dtbuf, (byte *)&m_deterministicTimeVector, STDMIN((int)sizeof(m_deterministicTimeVector), S));
-			while (++m_deterministicTimeVector == 0) {}	// skip 0
+			cipher->ProcessBlock(m_deterministicTimeVector, dtbuf);
+			IncrementCounterByOne(m_deterministicTimeVector, S);
 		}
 		else
 		{
 			clock_t tstamp = clock();
 			xorbuf(dtbuf, (byte *)&tstamp, STDMIN((int)sizeof(tstamp), S));
+			cipher->ProcessBlock(dtbuf);
 		}
-		cipher->ProcessBlock(dtbuf);
 
 		// combine enciphered timestamp with seed
 		xorbuf(randseed, dtbuf, S);
@@ -109,7 +104,7 @@ byte X917RNG::GenerateByte()
 
 		randbuf_counter=S;
 	}
-	return(randbuf[--randbuf_counter]);
+	return(randbuf[S-randbuf_counter--]);
 }
 
 #endif

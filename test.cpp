@@ -85,7 +85,7 @@ int (*AdhocTest)(int argc, char *argv[]) = NULL;
 #ifdef __BCPLUSPLUS__
 int cmain(int argc, char *argv[])
 #else
-int CRYPTOPP_CDECL main(int argc, char *argv[])
+int main(int argc, char *argv[])
 #endif
 {
 #ifdef _CRTDBG_LEAK_CHECK_DF
@@ -170,8 +170,8 @@ int CRYPTOPP_CDECL main(int argc, char *argv[])
 		else if (command == "mac_dll")
 		{
 			HMODULE hModule = LoadLibrary(argv[2]);
-			PGetPowerUpSelfTestStatus pGetPowerUpSelfTestStatus = (PGetPowerUpSelfTestStatus)GetProcAddress(hModule, "?GetPowerUpSelfTestStatus@CryptoPP@@YG?AW4PowerUpSelfTestStatus@1@XZ");
-			PGetActualMacAndLocation pGetActualMacAndLocation = (PGetActualMacAndLocation)GetProcAddress(hModule, "?GetActualMacAndLocation@CryptoPP@@YGPBEAAI0@Z");
+			PGetPowerUpSelfTestStatus pGetPowerUpSelfTestStatus = (PGetPowerUpSelfTestStatus)GetProcAddress(hModule, "?GetPowerUpSelfTestStatus@CryptoPP@@YA?AW4PowerUpSelfTestStatus@1@XZ");
+			PGetActualMacAndLocation pGetActualMacAndLocation = (PGetActualMacAndLocation)GetProcAddress(hModule, "?GetActualMacAndLocation@CryptoPP@@YAPBEAAI0@Z");
 
 			PowerUpSelfTestStatus status = pGetPowerUpSelfTestStatus();
 			if (status == POWER_UP_SELF_TEST_PASSED)
@@ -383,14 +383,14 @@ string RSADecryptString(const char *privFilename, const char *ciphertext)
 void RSASignFile(const char *privFilename, const char *messageFilename, const char *signatureFilename)
 {
 	FileSource privFile(privFilename, true, new HexDecoder);
-	RSASSA_PKCS1v15_SHA_Signer priv(privFile);
+	RSASS<PKCS1v15, SHA>::Signer priv(privFile);
 	FileSource f(messageFilename, true, new SignerFilter(GlobalRNG(), priv, new HexEncoder(new FileSink(signatureFilename))));
 }
 
 bool RSAVerifyFile(const char *pubFilename, const char *messageFilename, const char *signatureFilename)
 {
 	FileSource pubFile(pubFilename, true, new HexDecoder);
-	RSASSA_PKCS1v15_SHA_Verifier pub(pubFile);
+	RSASS<PKCS1v15, SHA>::Verifier pub(pubFile);
 
 	FileSource signatureFile(signatureFilename, true, new HexDecoder);
 	if (signatureFile.MaxRetrievable() != pub.SignatureLength())

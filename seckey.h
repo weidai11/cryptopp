@@ -79,7 +79,7 @@ class FixedKeyLength
 public:
 	enum {KEYLENGTH=N, MIN_KEYLENGTH=N, MAX_KEYLENGTH=N, DEFAULT_KEYLENGTH=N};
 	enum {IV_REQUIREMENT = IV_REQ};
-	static unsigned int StaticGetValidKeyLength(unsigned int) {return KEYLENGTH;}
+	static unsigned int CRYPTOPP_API StaticGetValidKeyLength(unsigned int) {return KEYLENGTH;}
 };
 
 /// support query of variable key length, template parameters are default, min, max, multiple (default multiple 1)
@@ -96,7 +96,7 @@ class VariableKeyLength
 public:
 	enum {MIN_KEYLENGTH=N, MAX_KEYLENGTH=M, DEFAULT_KEYLENGTH=D, KEYLENGTH_MULTIPLE=Q};
 	enum {IV_REQUIREMENT = IV_REQ};
-	static unsigned int StaticGetValidKeyLength(unsigned int n)
+	static unsigned int CRYPTOPP_API StaticGetValidKeyLength(unsigned int n)
 	{
 		if (n < (unsigned int)MIN_KEYLENGTH)
 			return MIN_KEYLENGTH;
@@ -117,7 +117,7 @@ class SameKeyLengthAs
 public:
 	enum {MIN_KEYLENGTH=T::MIN_KEYLENGTH, MAX_KEYLENGTH=T::MAX_KEYLENGTH, DEFAULT_KEYLENGTH=T::DEFAULT_KEYLENGTH};
 	enum {IV_REQUIREMENT = T::IV_REQUIREMENT};
-	static unsigned int StaticGetValidKeyLength(unsigned int keylength)
+	static unsigned int CRYPTOPP_API StaticGetValidKeyLength(unsigned int keylength)
 		{return T::StaticGetValidKeyLength(keylength);}
 };
 

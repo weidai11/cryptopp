@@ -214,7 +214,8 @@ private:
 class CRYPTOPP_DLL FilterWithInputQueue : public Filter
 {
 public:
-	FilterWithInputQueue(BufferedTransformation *attachment) : Filter(attachment) {}
+	FilterWithInputQueue(BufferedTransformation *attachment=NULL) : Filter(attachment) {}
+
 	unsigned int Put2(const byte *inString, unsigned int length, int messageEnd, bool blocking)
 	{
 		if (!blocking)
@@ -267,8 +268,8 @@ typedef StreamTransformationFilter StreamCipherFilter;
 class CRYPTOPP_DLL HashFilter : public Bufferless<Filter>, private FilterPutSpaceHelper
 {
 public:
-	HashFilter(HashTransformation &hm, BufferedTransformation *attachment = NULL, bool putMessage=false)
-		: m_hashModule(hm), m_putMessage(putMessage) {Detach(attachment);}
+	HashFilter(HashTransformation &hm, BufferedTransformation *attachment = NULL, bool putMessage=false, int truncatedDigestSize=-1)
+		: m_hashModule(hm), m_putMessage(putMessage), m_truncatedDigestSize(truncatedDigestSize) {Detach(attachment);}
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
 	unsigned int Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking);
@@ -278,7 +279,9 @@ public:
 private:
 	HashTransformation &m_hashModule;
 	bool m_putMessage;
+	int m_truncatedDigestSize;
 	byte *m_space;
+	unsigned int m_digestSize;
 };
 
 //! Filter Wrapper for HashTransformation

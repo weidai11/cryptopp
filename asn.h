@@ -56,27 +56,27 @@ public:
 };
 
 // unsigned int DERLengthEncode(unsigned int length, byte *output=0);
-CRYPTOPP_DLL unsigned int DERLengthEncode(BufferedTransformation &out, unsigned int length);
+CRYPTOPP_DLL unsigned int CRYPTOPP_API DERLengthEncode(BufferedTransformation &out, unsigned int length);
 // returns false if indefinite length
-CRYPTOPP_DLL bool BERLengthDecode(BufferedTransformation &in, unsigned int &length);
+CRYPTOPP_DLL bool CRYPTOPP_API BERLengthDecode(BufferedTransformation &in, unsigned int &length);
 
-CRYPTOPP_DLL void DEREncodeNull(BufferedTransformation &out);
-CRYPTOPP_DLL void BERDecodeNull(BufferedTransformation &in);
+CRYPTOPP_DLL void CRYPTOPP_API DEREncodeNull(BufferedTransformation &out);
+CRYPTOPP_DLL void CRYPTOPP_API BERDecodeNull(BufferedTransformation &in);
 
-CRYPTOPP_DLL unsigned int DEREncodeOctetString(BufferedTransformation &out, const byte *str, unsigned int strLen);
-CRYPTOPP_DLL unsigned int DEREncodeOctetString(BufferedTransformation &out, const SecByteBlock &str);
-CRYPTOPP_DLL unsigned int BERDecodeOctetString(BufferedTransformation &in, SecByteBlock &str);
-CRYPTOPP_DLL unsigned int BERDecodeOctetString(BufferedTransformation &in, BufferedTransformation &str);
+CRYPTOPP_DLL unsigned int CRYPTOPP_API DEREncodeOctetString(BufferedTransformation &out, const byte *str, unsigned int strLen);
+CRYPTOPP_DLL unsigned int CRYPTOPP_API DEREncodeOctetString(BufferedTransformation &out, const SecByteBlock &str);
+CRYPTOPP_DLL unsigned int CRYPTOPP_API BERDecodeOctetString(BufferedTransformation &in, SecByteBlock &str);
+CRYPTOPP_DLL unsigned int CRYPTOPP_API BERDecodeOctetString(BufferedTransformation &in, BufferedTransformation &str);
 
 // for UTF8_STRING, PRINTABLE_STRING, and IA5_STRING
-CRYPTOPP_DLL unsigned int DEREncodeTextString(BufferedTransformation &out, const std::string &str, byte asnTag);
-CRYPTOPP_DLL unsigned int BERDecodeTextString(BufferedTransformation &in, std::string &str, byte asnTag);
+CRYPTOPP_DLL unsigned int CRYPTOPP_API DEREncodeTextString(BufferedTransformation &out, const std::string &str, byte asnTag);
+CRYPTOPP_DLL unsigned int CRYPTOPP_API BERDecodeTextString(BufferedTransformation &in, std::string &str, byte asnTag);
 
-CRYPTOPP_DLL unsigned int DEREncodeBitString(BufferedTransformation &out, const byte *str, unsigned int strLen, unsigned int unusedBits=0);
-CRYPTOPP_DLL unsigned int BERDecodeBitString(BufferedTransformation &in, SecByteBlock &str, unsigned int &unusedBits);
+CRYPTOPP_DLL unsigned int CRYPTOPP_API DEREncodeBitString(BufferedTransformation &out, const byte *str, unsigned int strLen, unsigned int unusedBits=0);
+CRYPTOPP_DLL unsigned int CRYPTOPP_API BERDecodeBitString(BufferedTransformation &in, SecByteBlock &str, unsigned int &unusedBits);
 
 // BER decode from source and DER reencode into dest
-CRYPTOPP_DLL void DERReencode(BufferedTransformation &source, BufferedTransformation &dest);
+CRYPTOPP_DLL void CRYPTOPP_API DERReencode(BufferedTransformation &source, BufferedTransformation &dest);
 
 //! Object Identifier
 class CRYPTOPP_DLL OID

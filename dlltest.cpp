@@ -177,18 +177,18 @@ void FIPS140_SampleApplication()
 static PNew s_pNew = NULL;
 static PDelete s_pDelete = NULL;
 
-extern "C" __declspec(dllexport) void CRYPTOPP_CDECL SetNewAndDeleteFromCryptoPP(PNew pNew, PDelete pDelete, PSetNewHandler pSetNewHandler)
+extern "C" __declspec(dllexport) void __cdecl SetNewAndDeleteFromCryptoPP(PNew pNew, PDelete pDelete, PSetNewHandler pSetNewHandler)
 {
 	s_pNew = pNew;
 	s_pDelete = pDelete;
 }
 
-void * CRYPTOPP_CDECL operator new (size_t size)
+void * __cdecl operator new (size_t size)
 {
 	return s_pNew(size);
 }
 
-void CRYPTOPP_CDECL operator delete (void * p)
+void __cdecl operator delete (void * p)
 {
 	s_pDelete(p);
 }
@@ -197,7 +197,7 @@ void CRYPTOPP_CDECL operator delete (void * p)
 
 #ifdef CRYPTOPP_DLL_ONLY
 
-int CRYPTOPP_CDECL main()
+int __cdecl main()
 {
 	FIPS140_SampleApplication();
 	return 0;

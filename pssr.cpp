@@ -12,14 +12,17 @@ template<> const byte EMSA2HashId<Whirlpool>::id = 0x37;
 
 #ifndef CRYPTOPP_IMPORTS
 
+unsigned int PSSR_MEM_Base::MinRepresentativeBitLength(unsigned int hashIdentifierLength, unsigned int digestLength) const
+{
+	unsigned int saltLen = SaltLen(digestLength);
+	unsigned int minPadLen = MinPadLen(digestLength);
+	return 9 + 8*(minPadLen + saltLen + digestLength + hashIdentifierLength);
+}
+
 unsigned int PSSR_MEM_Base::MaxRecoverableLength(unsigned int representativeBitLength, unsigned int hashIdentifierLength, unsigned int digestLength) const
 {
 	if (AllowRecovery())
-	{
-		unsigned int saltLen = SaltLen(digestLength);
-		unsigned int minPadLen = MinPadLen(digestLength);
-		return SaturatingSubtract(representativeBitLength, 8*(minPadLen + saltLen + digestLength + hashIdentifierLength) + 9) / 8;
-	}
+		return SaturatingSubtract(representativeBitLength, MinRepresentativeBitLength(hashIdentifierLength, digestLength)) / 8;
 	return 0;
 }
 
@@ -43,6 +46,8 @@ void PSSR_MEM_Base::ComputeMessageRepresentative(RandomNumberGenerator &rng,
 	HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
 	byte *representative, unsigned int representativeBitLength) const
 {
+	assert(representativeBitLength >= MinRepresentativeBitLength(hashIdentifier.second, hash.DigestSize()));
+
 	const unsigned int u = hashIdentifier.second + 1;
 	const unsigned int representativeByteLength = BitsToBytes(representativeBitLength);
 	const unsigned int digestSize = hash.DigestSize();
@@ -80,6 +85,8 @@ DecodingResult PSSR_MEM_Base::RecoverMessageFromRepresentative(
 	byte *representative, unsigned int representativeBitLength,
 	byte *recoverableMessage) const
 {
+	assert(representativeBitLength >= MinRepresentativeBitLength(hashIdentifier.second, hash.DigestSize()));
+
 	const unsigned int u = hashIdentifier.second + 1;
 	const unsigned int representativeByteLength = BitsToBytes(representativeBitLength);
 	const unsigned int digestSize = hash.DigestSize();
@@ -103,13 +110,18 @@ DecodingResult PSSR_MEM_Base::RecoverMessageFromRepresentative(
 	// extract salt and recoverableMessage from DB = 00 ... || 01 || M || salt
 	byte *salt = representative + representativeByteLength - u - digestSize - saltSize;
 	byte *M = std::find_if(representative, salt-1, std::bind2nd(std::not_equal_to<byte>(), 0));
-	if (*M == 0x01 && (unsigned int)(M - representative - (representativeBitLength % 8 != 0)) >= MinPadLen(digestSize))
+	recoverableMessageLength = salt-M-1;
+	if (*M == 0x01 
+		&& (unsigned int)(M - representative - (representativeBitLength % 8 != 0)) >= MinPadLen(digestSize)
+		&& recoverableMessageLength <= MaxRecoverableLength(representativeBitLength, hashIdentifier.second, digestSize))
 	{
-		recoverableMessageLength = salt-M-1;
 		memcpy(recoverableMessage, M+1, recoverableMessageLength);
 	}
 	else
+	{
+		recoverableMessageLength = 0;
 		valid = false;
+	}
 
 	// verify H = hash of M'
 	byte c[8];

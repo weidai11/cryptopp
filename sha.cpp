@@ -17,7 +17,7 @@ NAMESPACE_BEGIN(CryptoPP)
 #define blk0(i) (W[i] = data[i])
 #define blk1(i) (W[i&15] = rotlFixed(W[(i+13)&15]^W[(i+8)&15]^W[(i+2)&15]^W[i&15],1))
 
-void SHA::InitState(HashWordType *state)
+void SHA1::InitState(HashWordType *state)
 {
 	state[0] = 0x67452301L;
 	state[1] = 0xEFCDAB89L;
@@ -38,7 +38,7 @@ void SHA::InitState(HashWordType *state)
 #define R3(v,w,x,y,z,i) z+=f3(w,x,y)+blk1(i)+0x8F1BBCDC+rotlFixed(v,5);w=rotlFixed(w,30);
 #define R4(v,w,x,y,z,i) z+=f4(w,x,y)+blk1(i)+0xCA62C1D6+rotlFixed(v,5);w=rotlFixed(w,30);
 
-void SHA::Transform(word32 *state, const word32 *data)
+void SHA1::Transform(word32 *state, const word32 *data)
 {
 	word32 W[16];
     /* Copy context->state[] to working vars */

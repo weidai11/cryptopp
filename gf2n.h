@@ -353,7 +353,7 @@ private:
 };
 
 // construct new GF2NP from the ASN.1 sequence Characteristic-two
-CRYPTOPP_DLL GF2NP * BERDecodeGF2NP(BufferedTransformation &bt);
+CRYPTOPP_DLL GF2NP * CRYPTOPP_API BERDecodeGF2NP(BufferedTransformation &bt);
 
 NAMESPACE_END
 

@@ -286,10 +286,26 @@ public:
 		memcpy(m_ptr, t.m_ptr, m_size*sizeof(T));
 	}
 
-	SecBlock& operator=(const SecBlock<T, A> &t)
+	SecBlock<T, A>& operator=(const SecBlock<T, A> &t)
 	{
 		Assign(t);
 		return *this;
+	}
+
+	SecBlock<T, A>& operator+=(const SecBlock<T, A> &t)
+	{
+		unsigned int oldSize = m_size;
+		Grow(m_size+t.m_size);
+		memcpy(m_ptr+oldSize, t.m_ptr, t.m_size*sizeof(T));
+		return *this;
+	}
+
+	SecBlock<T, A> operator+(const SecBlock<T, A> &t)
+	{
+		SecBlock<T, A> result(m_size+t.m_size);
+		memcpy(result.m_ptr, m_ptr, m_size*sizeof(T));
+		memcpy(result.m_ptr+m_size, t.m_ptr, t.m_size*sizeof(T));
+		return result;
 	}
 
 	bool operator==(const SecBlock<T, A> &t) const

@@ -23,7 +23,7 @@ class CRYPTOPP_NO_VTABLE IteratedHashBase : public BASE
 public:
 	typedef T HashWordType;
 
-	IteratedHashBase() : m_countHi(0), m_countLo(0) {}
+	IteratedHashBase() : m_countLo(0), m_countHi(0) {}
 	unsigned int BlockSize() const {return m_data.size() * sizeof(T);}
 	unsigned int OptimalBlockSize() const {return BlockSize();}
 	unsigned int OptimalDataAlignment() const {return sizeof(T);}

@@ -12,8 +12,11 @@ NAMESPACE_BEGIN(CryptoPP)
 
 struct CodeLessThan
 {
-	inline bool operator()(const CryptoPP::HuffmanDecoder::code_t lhs, const CryptoPP::HuffmanDecoder::CodeInfo &rhs)
+	inline bool operator()(CryptoPP::HuffmanDecoder::code_t lhs, const CryptoPP::HuffmanDecoder::CodeInfo &rhs)
 		{return lhs < rhs.code;}
+	// needed for MSVC .NET 2005
+	inline bool operator()(const CryptoPP::HuffmanDecoder::CodeInfo &lhs, const CryptoPP::HuffmanDecoder::CodeInfo &rhs)
+		{return lhs.code < rhs.code;}
 };
 
 inline bool LowFirstBitReader::FillBuffer(unsigned int length)

@@ -285,6 +285,20 @@ void InvertibleRSAFunction::AssignFrom(const NameValuePairs &source)
 		;
 }
 
+// *****************************************************************************
+
+Integer RSAFunction_ISO::ApplyFunction(const Integer &x) const
+{
+	Integer t = RSAFunction::ApplyFunction(x);
+	return t % 16 == 12 ? t : m_n - t;
+}
+
+Integer InvertibleRSAFunction_ISO::CalculateInverse(RandomNumberGenerator &rng, const Integer &x) const 
+{
+	Integer t = InvertibleRSAFunction::CalculateInverse(rng, x);
+	return STDMIN(t, m_n-t);
+}
+
 NAMESPACE_END
 
 #endif
