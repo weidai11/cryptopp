@@ -1,33 +1,32 @@
 // dll.cpp - written and placed in the public domain by Wei Dai
 
-#ifndef CRYPTOPP_IMPORTS
-
 #define CRYPTOPP_MANUALLY_INSTANTIATE_TEMPLATES
 
 #include "dll.h"
 #pragma warning(default: 4660)
 
 #include <windows.h>
-#include <new.h>
 
+#include "iterhash.cpp"
 #include "strciphr.cpp"
 #include "algebra.cpp"
 #include "eprecomp.cpp"
 #include "eccrypto.cpp"
-#include "iterhash.cpp"
 #include "oaep.cpp"
 
-static const byte s_moduleMac[CryptoPP::HMAC<CryptoPP::SHA1>::DIGESTSIZE] = "reserved for mac";
-static HMODULE s_hModule = NULL;
+#ifndef CRYPTOPP_IMPORTS
 
 NAMESPACE_BEGIN(CryptoPP)
 
 template<> const byte PKCS_DigestDecoration<SHA>::decoration[] = {0x30,0x21,0x30,0x09,0x06,0x05,0x2B,0x0E,0x03,0x02,0x1A,0x05,0x00,0x04,0x14};
 template<> const unsigned int PKCS_DigestDecoration<SHA>::length = sizeof(PKCS_DigestDecoration<SHA>::decoration);
 
+static const byte s_moduleMac[CryptoPP::HMAC<CryptoPP::SHA1>::DIGESTSIZE] = "reserved for mac";
+static HMODULE s_hModule = NULL;
+
 void DoDllPowerUpSelfTest()
 {
-	char moduleFileName[_MAX_PATH];
+	char moduleFileName[MAX_PATH];
 	GetModuleFileNameA(s_hModule, moduleFileName, sizeof(moduleFileName));
 	CryptoPP::DoPowerUpSelfTest(moduleFileName, s_moduleMac);
 }
@@ -40,43 +39,87 @@ NAMESPACE_END
 
 USING_NAMESPACE(CryptoPP)
 
+#if !(defined(_MSC_VER) && (_MSC_VER < 1300))
+using std::set_new_handler;
+#endif
+
 static PNew s_pNew = NULL;
 static PDelete s_pDelete = NULL;
+
+static void * _cdecl New (size_t size)
+{
+	new_handler newHandler = set_new_handler(NULL);
+	if (newHandler)
+		set_new_handler(newHandler);
+
+	void *p;
+	while (!(p = malloc(size)))
+	{
+		if (newHandler)
+			newHandler();
+		else
+			throw std::bad_alloc();
+	}
+
+	return p;
+}
+
+static void SetNewAndDeleteFunctionPointers()
+{
+	void *p = NULL;
+	HMODULE hModule = NULL;
+	MEMORY_BASIC_INFORMATION mbi;
+
+	while (true)
+	{
+		VirtualQuery(p, &mbi, sizeof(mbi));
+
+		if (p >= (char *)mbi.BaseAddress + mbi.RegionSize)
+			break;
+
+		p = (char *)mbi.BaseAddress + mbi.RegionSize;
+
+		if (!mbi.AllocationBase || mbi.AllocationBase == hModule)
+			continue;
+
+		hModule = HMODULE(mbi.AllocationBase);
+
+		PGetNewAndDelete pGetNewAndDelete = (PGetNewAndDelete)GetProcAddress(hModule, "GetNewAndDeleteForCryptoPP");
+		if (pGetNewAndDelete)
+		{
+			pGetNewAndDelete(s_pNew, s_pDelete);
+			return;
+		}
+
+		PSetNewAndDelete pSetNewAndDelete = (PSetNewAndDelete)GetProcAddress(hModule, "SetNewAndDeleteFromCryptoPP");
+		if (pSetNewAndDelete)
+		{
+			s_pNew = &New;
+			s_pDelete = &free;
+			pSetNewAndDelete(s_pNew, s_pDelete, &set_new_handler);
+			return;
+		}
+	}
+
+	hModule = GetModuleHandle("msvcrtd");
+	if (!hModule)
+		hModule = GetModuleHandle("msvcrt");
+	if (hModule)
+	{
+		s_pNew = (PNew)GetProcAddress(hModule, "??2@YAPAXI@Z");		// operator new
+		s_pDelete = (PDelete)GetProcAddress(hModule, "??3@YAXPAX@Z");	// operator delete
+		return;
+	}
+
+	OutputDebugString("Crypto++ was not able to obtain new and delete function pointers.\n");
+	throw 0;
+}
 
 void * _cdecl operator new (size_t size)
 {
 	if (!s_pNew)
-	{
-		HMODULE hExe = GetModuleHandle(NULL);
-		PGetNewAndDelete pGetNewAndDelete = (PGetNewAndDelete)GetProcAddress(hExe, "GetNewAndDeleteForCryptoPP");
-		if (pGetNewAndDelete)
-			pGetNewAndDelete(s_pNew, s_pDelete);
-		else
-		{
-			PSetNewAndDelete pSetNewAndDelete = (PSetNewAndDelete)GetProcAddress(hExe, "SetNewAndDeleteFromCryptoPP");
-			if (pSetNewAndDelete)
-			{
-				_set_new_mode(1);
-				s_pNew = &malloc;
-				s_pDelete = &free;
-				pSetNewAndDelete(s_pNew, s_pDelete, &_set_new_handler);
-			}
-			else
-			{
-				HMODULE hCrt = GetModuleHandle("msvcrtd");
-				if (!hCrt)
-					hCrt = GetModuleHandle("msvcrt");
-				if (hCrt)
-				{
-					s_pNew = (PNew)GetProcAddress(hCrt, "??2@YAPAXI@Z");		// operator new
-					s_pDelete = (PDelete)GetProcAddress(hCrt, "??3@YAXPAX@Z");	// operator delete
-				}
-			}
-		}
+		SetNewAndDeleteFunctionPointers();
 
-		if (!s_pNew || !s_pDelete)
-			OutputDebugString("Crypto++ was not able to obtain new and delete function pointers.");
-	}
 	return s_pNew(size);
 }
 
@@ -97,4 +140,4 @@ BOOL APIENTRY DllMain(HANDLE hModule,
     return TRUE;
 }
 
-#endif
+#endif	// #ifdef CRYPTOPP_EXPORTS

@@ -25,10 +25,10 @@ void FIPS140_SampleApplication()
 	try
 	{
 		// trying to use a crypto algorithm after power-up self test error will result in an exception
-		DES::Encryption des;
+		AES::Encryption aes;
 
 		// should not be here
-		cerr << "Use of DES failed to cause an exception after power-up self test error.\n";
+		cerr << "Use of AES failed to cause an exception after power-up self test error.\n";
 		abort();
 	}
 	catch (SelfTestFailure &e)
@@ -47,7 +47,7 @@ void FIPS140_SampleApplication()
 	cout << "2. Re-do power-up self test passed.\n";
 
 	// encrypt and decrypt
-	const byte key[] = {0x01,0x23,0x45,0x67,0x89,0xab,0xcd,0xef};
+	const byte key[] = {0x01,0x23,0x45,0x67,0x89,0xab,0xcd,0xef, 0x01,0x23,0x45,0x67,0x89,0xab,0xcd,0xef, 0x01,0x23,0x45,0x67,0x89,0xab,0xcd,0xef};
 	const byte iv[] = {0x12,0x34,0x56,0x78,0x90,0xab,0xcd,0xef};
 	const byte plaintext[] = {	// "Now is the time for all " without tailing 0
 		0x4e,0x6f,0x77,0x20,0x69,0x73,0x20,0x74,
@@ -56,20 +56,20 @@ void FIPS140_SampleApplication()
 	byte ciphertext[24];
 	byte decrypted[24];
 
-	CFB_Mode<DES>::Encryption encryption_DES_CBC;
-	encryption_DES_CBC.SetKeyWithIV(key, 8, iv);
-	encryption_DES_CBC.ProcessString(ciphertext, plaintext, 24);
+	CFB_Mode<DES_EDE3>::Encryption encryption_DES_EDE3_CBC;
+	encryption_DES_EDE3_CBC.SetKeyWithIV(key, sizeof(key), iv);
+	encryption_DES_EDE3_CBC.ProcessString(ciphertext, plaintext, 24);
 
-	CFB_Mode<DES>::Decryption decryption_DES_CBC;
-	decryption_DES_CBC.SetKeyWithIV(key, 8, iv);
-	decryption_DES_CBC.ProcessString(decrypted, ciphertext, 24);
+	CFB_Mode<DES_EDE3>::Decryption decryption_DES_EDE3_CBC;
+	decryption_DES_EDE3_CBC.SetKeyWithIV(key, sizeof(key), iv);
+	decryption_DES_EDE3_CBC.ProcessString(decrypted, ciphertext, 24);
 
 	if (memcmp(plaintext, decrypted, 24) != 0)
 	{
-		cerr << "DES-CBC Encryption/decryption failed.\n";
+		cerr << "DES-EDE3-CBC Encryption/decryption failed.\n";
 		abort();
 	}
-	cout << "3. DES-CBC Encryption/decryption succeeded.\n";
+	cout << "3. DES-EDE3-CBC Encryption/decryption succeeded.\n";
 
 	// hash
 	const byte message[] = {'a', 'b', 'c'};
@@ -152,10 +152,10 @@ void FIPS140_SampleApplication()
 	// try to use an invalid key length
 	try
 	{
-		encryption_DES_CBC.SetKey(key, 5);
+		encryption_DES_EDE3_CBC.SetKey(key, 5);
 
 		// should not be here
-		cerr << "DES implementation did not detect use of invalid key length.\n";
+		cerr << "DES-EDE3 implementation did not detect use of invalid key length.\n";
 		abort();
 	}
 	catch (InvalidArgument &e)

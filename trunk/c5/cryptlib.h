@@ -49,15 +49,15 @@
 In the FIPS 140-2 validated DLL version of Crypto++, only the following implementation class are available.
 <dl>
 <dt>Block Ciphers<dd>
-	AES, DES, DES_EDE2, DES_EDE3, SKIPJACK
+	AES, DES_EDE2, DES_EDE3, SKIPJACK
 <dt>Cipher Modes (replace template parameter BC with one of the block ciphers above)<dd>
 	ECB_Mode <BC>, CTR_Mode <BC>, CBC_Mode <BC>, CFB_Mode <BC>, OFB_Mode <BC>
 <dt>Hash Functions<dd>
-	SHA, SHA256, SHA384, SHA512
+	SHA
 <dt>Public Key Signature Schemes<dd>
 	RSASSA <PKCS1v15, SHA>, DSA, ECDSA <ECP, SHA>, ECDSA <EC2N, SHA>
 <dt>Message Authentication Codes<dd>
-	HMAC <SHA>, HMAC <SHA256>, HMAC <SHA384>, HMAC <SHA512>, CBC_MAC <DES>, CBC_MAC <DES_EDE2>, CBC_MAC <DES_EDE3>
+	HMAC <SHA>, CBC_MAC <DES_EDE2>, CBC_MAC <DES_EDE3>
 <dt>Random Number Generators<dd>
 	AutoSeededX917RNG <DES_EDE3>
 <dt>Key Agreement<dd>

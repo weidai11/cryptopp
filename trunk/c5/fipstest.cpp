@@ -5,7 +5,10 @@
 #ifndef CRYPTOPP_IMPORTS
 
 #include "dll.h"
+
+#ifdef CRYPTOPP_WIN32_AVAILABLE
 #include <windows.h>
+#endif
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -334,7 +337,7 @@ void DoPowerUpSelfTest(const char *moduleFilename, const byte *expectedModuleMac
 			"22B590B08B53363AEB89AD65F81A5B6FB83F326CE06BF35751E6C41B43B729C4",		// output
 			1489728269);															// time vector
 
-		SymmetricEncryptionKnownAnswerTest<DES>(
+/*		SymmetricEncryptionKnownAnswerTest<DES>(
 			"0123456789abcdef",	// key
 			"1234567890abcdef",	// IV
 			"4e6f77206973207468652074696d6520666f7220616c6c20",	// plaintext
@@ -343,7 +346,7 @@ void DoPowerUpSelfTest(const char *moduleFilename, const byte *expectedModuleMac
 			"F3096249C7F46E51A69E839B1A92F78403467133898EA622", // cfb
 			"f3096249c7f46e5135f24a242eeb3d3f3d6d5be3255af8c3", // ofb
 			"F3096249C7F46E51163A8CA0FFC94C27FA2F80F480B86F75");// ctr
-
+*/
 		SymmetricEncryptionKnownAnswerTest<DES_EDE3>(
 			"385D7189A5C3D485E1370AA5D408082B5CCCCB5E19F2D90E",
 			"C141B5FCCD28DC8A",
@@ -388,7 +391,7 @@ void DoPowerUpSelfTest(const char *moduleFilename, const byte *expectedModuleMac
 		SecureHashKnownAnswerTest<SHA>(
 			"abc",
 			"A9993E364706816ABA3E25717850C26C9CD0D89D");
-
+/*
 		SecureHashKnownAnswerTest<SHA256>(
 			"abc",
 			"ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad");
@@ -400,12 +403,12 @@ void DoPowerUpSelfTest(const char *moduleFilename, const byte *expectedModuleMac
 		SecureHashKnownAnswerTest<SHA512>(
 			"abc",
 			"ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f");
-
+*/
 		MAC_KnownAnswerTest<HMAC<SHA> >(
 			"303132333435363738393a3b3c3d3e3f40414243",
 			"Sample #2",
 			"0922d3405faa3d194f82a45830737d5cc6c75d24");
-
+/*
 		MAC_KnownAnswerTest<HMAC<SHA256> >(
 			"303132333435363738393a3b3c3d3e3f40414243",
 			"abc",
@@ -420,7 +423,7 @@ void DoPowerUpSelfTest(const char *moduleFilename, const byte *expectedModuleMac
 			"303132333435363738393a3b3c3d3e3f40414243",
 			"abc",
 			"BF07864E733B995862F3C2D432C7FF2F5EB073FFFC4F880CD94D5D21086476B7428F27BE694A9D9CB3BB500FE1255852BAFCBAF4042390B3706CDF02421B51AC");
-
+*/
 		SignatureKnownAnswerTest<RSASS<PKCS1v15, SHA> >(
 			"30820150020100300d06092a864886f70d01010105000482013a3082013602010002400a66791dc6988168de7ab77419bb7fb0"
 			"c001c62710270075142942e19a8d8c51d053b3e3782a1de5dc5af4ebe99468170114a1dfe67cdc9a9af55d655620bbab0203010001"

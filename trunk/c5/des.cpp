@@ -20,28 +20,104 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+typedef BlockGetAndPut<word32, BigEndian> Block;
+
+// Richard Outerbridge's initial permutation algorithm
+/*
+inline void IPERM(word32 &left, word32 &right)
+{
+	word32 work;
+
+	work = ((left >> 4) ^ right) & 0x0f0f0f0f;
+	right ^= work;
+	left ^= work << 4;
+	work = ((left >> 16) ^ right) & 0xffff;
+	right ^= work;
+	left ^= work << 16;
+	work = ((right >> 2) ^ left) & 0x33333333;
+	left ^= work;
+	right ^= (work << 2);
+	work = ((right >> 8) ^ left) & 0xff00ff;
+	left ^= work;
+	right ^= (work << 8);
+	right = rotl(right, 1);
+	work = (left ^ right) & 0xaaaaaaaa;
+	left ^= work;
+	right ^= work;
+	left = rotl(left, 1);
+}
+inline void FPERM(word32 &left, word32 &right)
+{
+	word32 work;
+
+	right = rotr(right, 1);
+	work = (left ^ right) & 0xaaaaaaaa;
+	left ^= work;
+	right ^= work;
+	left = rotr(left, 1);
+	work = ((left >> 8) ^ right) & 0xff00ff;
+	right ^= work;
+	left ^= work << 8;
+	work = ((left >> 2) ^ right) & 0x33333333;
+	right ^= work;
+	left ^= work << 2;
+	work = ((right >> 16) ^ left) & 0xffff;
+	left ^= work;
+	right ^= work << 16;
+	work = ((right >> 4) ^ left) & 0x0f0f0f0f;
+	left ^= work;
+	right ^= work << 4;
+}
+*/
+
+// Wei Dai's modification to Richard Outerbridge's initial permutation 
+// algorithm, this one is faster if you have access to rotate instructions 
+// (like in MSVC)
+static inline void IPERM(word32 &left, word32 &right)
+{
+	word32 work;
+
+	right = rotlFixed(right, 4U);
+	work = (left ^ right) & 0xf0f0f0f0;
+	left ^= work;
+	right = rotrFixed(right^work, 20U);
+	work = (left ^ right) & 0xffff0000;
+	left ^= work;
+	right = rotrFixed(right^work, 18U);
+	work = (left ^ right) & 0x33333333;
+	left ^= work;
+	right = rotrFixed(right^work, 6U);
+	work = (left ^ right) & 0x00ff00ff;
+	left ^= work;
+	right = rotlFixed(right^work, 9U);
+	work = (left ^ right) & 0xaaaaaaaa;
+	left = rotlFixed(left^work, 1U);
+	right ^= work;
+}
+
+static inline void FPERM(word32 &left, word32 &right)
+{
+	word32 work;
+
+	right = rotrFixed(right, 1U);
+	work = (left ^ right) & 0xaaaaaaaa;
+	right ^= work;
+	left = rotrFixed(left^work, 9U);
+	work = (left ^ right) & 0x00ff00ff;
+	right ^= work;
+	left = rotlFixed(left^work, 6U);
+	work = (left ^ right) & 0x33333333;
+	right ^= work;
+	left = rotlFixed(left^work, 18U);
+	work = (left ^ right) & 0xffff0000;
+	right ^= work;
+	left = rotlFixed(left^work, 20U);
+	work = (left ^ right) & 0xf0f0f0f0;
+	right ^= work;
+	left = rotrFixed(left^work, 4U);
+}
+
 #ifndef CRYPTOPP_IMPORTS
-
-static inline bool CheckParity(byte b)
-{
-	unsigned int a = b ^ (b >> 4);
-	return ((a ^ (a>>1) ^ (a>>2) ^ (a>>3)) & 1) == 1;
-}
-
-bool DES::CheckKeyParityBits(const byte *key)
-{
-	for (unsigned int i=0; i<8; i++)
-		if (!CheckParity(key[i]))
-			return false;
-	return true;
-}
-
-void DES::CorrectKeyParityBits(byte *key)
-{
-	for (unsigned int i=0; i<8; i++)
-		if (!CheckParity(key[i]))
-			key[i] ^= 1;
-}
 
 /* Tables defined in the Data Encryption Standard documents
  * Three of these tables, the initial permutation, the final
@@ -188,10 +264,8 @@ static const int bytebit[] = {
 };
 
 /* Set key (initialize key schedule array) */
-void DES::Base::UncheckedSetKey(CipherDir dir, const byte *key, unsigned int length)
+void RawDES::UncheckedSetKey(CipherDir dir, const byte *key, unsigned int length)
 {
-	AssertValidKeyLength(length);
-
 	SecByteBlock buffer(56+56+8);
 	byte *const pc1m=buffer;                 /* place to modify pc1 into */
 	byte *const pcr=pc1m+56;                 /* place to rotate pc1 into */
@@ -238,102 +312,7 @@ void DES::Base::UncheckedSetKey(CipherDir dir, const byte *key, unsigned int len
 		}
 }
 
-// Richard Outerbridge's initial permutation algorithm
-/*
-inline void IPERM(word32 &left, word32 &right)
-{
-	word32 work;
-
-	work = ((left >> 4) ^ right) & 0x0f0f0f0f;
-	right ^= work;
-	left ^= work << 4;
-	work = ((left >> 16) ^ right) & 0xffff;
-	right ^= work;
-	left ^= work << 16;
-	work = ((right >> 2) ^ left) & 0x33333333;
-	left ^= work;
-	right ^= (work << 2);
-	work = ((right >> 8) ^ left) & 0xff00ff;
-	left ^= work;
-	right ^= (work << 8);
-	right = rotl(right, 1);
-	work = (left ^ right) & 0xaaaaaaaa;
-	left ^= work;
-	right ^= work;
-	left = rotl(left, 1);
-}
-inline void FPERM(word32 &left, word32 &right)
-{
-	word32 work;
-
-	right = rotr(right, 1);
-	work = (left ^ right) & 0xaaaaaaaa;
-	left ^= work;
-	right ^= work;
-	left = rotr(left, 1);
-	work = ((left >> 8) ^ right) & 0xff00ff;
-	right ^= work;
-	left ^= work << 8;
-	work = ((left >> 2) ^ right) & 0x33333333;
-	right ^= work;
-	left ^= work << 2;
-	work = ((right >> 16) ^ left) & 0xffff;
-	left ^= work;
-	right ^= work << 16;
-	work = ((right >> 4) ^ left) & 0x0f0f0f0f;
-	left ^= work;
-	right ^= work << 4;
-}
-*/
-
-// Wei Dai's modification to Richard Outerbridge's initial permutation 
-// algorithm, this one is faster if you have access to rotate instructions 
-// (like in MSVC)
-static inline void IPERM(word32 &left, word32 &right)
-{
-	word32 work;
-
-	right = rotlFixed(right, 4U);
-	work = (left ^ right) & 0xf0f0f0f0;
-	left ^= work;
-	right = rotrFixed(right^work, 20U);
-	work = (left ^ right) & 0xffff0000;
-	left ^= work;
-	right = rotrFixed(right^work, 18U);
-	work = (left ^ right) & 0x33333333;
-	left ^= work;
-	right = rotrFixed(right^work, 6U);
-	work = (left ^ right) & 0x00ff00ff;
-	left ^= work;
-	right = rotlFixed(right^work, 9U);
-	work = (left ^ right) & 0xaaaaaaaa;
-	left = rotlFixed(left^work, 1U);
-	right ^= work;
-}
-
-static inline void FPERM(word32 &left, word32 &right)
-{
-	word32 work;
-
-	right = rotrFixed(right, 1U);
-	work = (left ^ right) & 0xaaaaaaaa;
-	right ^= work;
-	left = rotrFixed(left^work, 9U);
-	work = (left ^ right) & 0x00ff00ff;
-	right ^= work;
-	left = rotlFixed(left^work, 6U);
-	work = (left ^ right) & 0x33333333;
-	right ^= work;
-	left = rotlFixed(left^work, 18U);
-	work = (left ^ right) & 0xffff0000;
-	right ^= work;
-	left = rotlFixed(left^work, 20U);
-	work = (left ^ right) & 0xf0f0f0f0;
-	right ^= work;
-	left = rotrFixed(left^work, 4U);
-}
-
-void DES::Base::RawProcessBlock(word32 &l_, word32 &r_) const
+void RawDES::RawProcessBlock(word32 &l_, word32 &r_) const
 {
 	word32 l = l_, r = r_;
 	const word32 *kptr=k;
@@ -364,46 +343,6 @@ void DES::Base::RawProcessBlock(word32 &l_, word32 &r_) const
 	}
 
 	l_ = l; r_ = r;
-}
-
-typedef BlockGetAndPut<word32, BigEndian> Block;
-
-// Encrypt or decrypt a block of data in ECB mode
-void DES::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
-{
-	word32 l,r;
-	Block::Get(inBlock)(l)(r);
-	IPERM(l,r);
-
-	const word32 *kptr=k;
-
-	for (unsigned i=0; i<8; i++)
-	{
-		word32 work = rotrFixed(r, 4U) ^ kptr[4*i+0];
-		l ^= Spbox[6][(work) & 0x3f]
-		  ^  Spbox[4][(work >> 8) & 0x3f]
-		  ^  Spbox[2][(work >> 16) & 0x3f]
-		  ^  Spbox[0][(work >> 24) & 0x3f];
-		work = r ^ kptr[4*i+1];
-		l ^= Spbox[7][(work) & 0x3f]
-		  ^  Spbox[5][(work >> 8) & 0x3f]
-		  ^  Spbox[3][(work >> 16) & 0x3f]
-		  ^  Spbox[1][(work >> 24) & 0x3f];
-
-		work = rotrFixed(l, 4U) ^ kptr[4*i+2];
-		r ^= Spbox[6][(work) & 0x3f]
-		  ^  Spbox[4][(work >> 8) & 0x3f]
-		  ^  Spbox[2][(work >> 16) & 0x3f]
-		  ^  Spbox[0][(work >> 24) & 0x3f];
-		work = l ^ kptr[4*i+3];
-		r ^= Spbox[7][(work) & 0x3f]
-		  ^  Spbox[5][(work >> 8) & 0x3f]
-		  ^  Spbox[3][(work >> 16) & 0x3f]
-		  ^  Spbox[1][(work >> 24) & 0x3f];
-	}
-
-	FPERM(l,r);
-	Block::Put(xorBlock, outBlock)(r)(l);
 }
 
 void DES_EDE2::Base::UncheckedSetKey(CipherDir dir, const byte *key, unsigned int length)
@@ -448,6 +387,38 @@ void DES_EDE3::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBloc
 }
 
 #endif	// #ifndef CRYPTOPP_IMPORTS
+
+static inline bool CheckParity(byte b)
+{
+	unsigned int a = b ^ (b >> 4);
+	return ((a ^ (a>>1) ^ (a>>2) ^ (a>>3)) & 1) == 1;
+}
+
+bool DES::CheckKeyParityBits(const byte *key)
+{
+	for (unsigned int i=0; i<8; i++)
+		if (!CheckParity(key[i]))
+			return false;
+	return true;
+}
+
+void DES::CorrectKeyParityBits(byte *key)
+{
+	for (unsigned int i=0; i<8; i++)
+		if (!CheckParity(key[i]))
+			key[i] ^= 1;
+}
+
+// Encrypt or decrypt a block of data in ECB mode
+void DES::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+{
+	word32 l,r;
+	Block::Get(inBlock)(l)(r);
+	IPERM(l,r);
+	RawProcessBlock(l, r);
+	FPERM(l,r);
+	Block::Put(xorBlock, outBlock)(r)(l);
+}
 
 void DES_XEX3::Base::UncheckedSetKey(CipherDir dir, const byte *key, unsigned int length)
 {

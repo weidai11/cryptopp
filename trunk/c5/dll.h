@@ -1,7 +1,7 @@
 #ifndef CRYPTOPP_DLL_H
 #define CRYPTOPP_DLL_H
 
-#if !defined(CRYPTOPP_EXPORTS) && !defined(CRYPTOPP_IMPORTS) && !defined(CRYPTOPP_NO_DLL)
+#if !defined(CRYPTOPP_IMPORTS) && !defined(CRYPTOPP_EXPORTS) && !defined(CRYPTOPP_NO_DLL)
 #ifdef CRYPTOPP_CONFIG_H
 #error To use the DLL version of Crypto++, this file must be included before any other Crypto++ header files.
 #endif
@@ -47,14 +47,18 @@
 
 #endif		// #ifdef CRYPTOPP_IMPORTS
 
-#include <new.h>	// for _PNH
+#include <new>	// for new_handler
 
 NAMESPACE_BEGIN(CryptoPP)
+
+#if !(defined(_MSC_VER) && (_MSC_VER < 1300))
+using std::new_handler;
+#endif
 
 typedef void * (_cdecl * PNew)(size_t);
 typedef void (_cdecl * PDelete)(void *);
 typedef void (_cdecl * PGetNewAndDelete)(PNew &, PDelete &);
-typedef _PNH (_cdecl * PSetNewHandler)(_PNH);
+typedef new_handler (_cdecl * PSetNewHandler)(new_handler);
 typedef void (_cdecl * PSetNewAndDelete)(PNew, PDelete, PSetNewHandler);
 
 CRYPTOPP_DLL void DoDllPowerUpSelfTest();
