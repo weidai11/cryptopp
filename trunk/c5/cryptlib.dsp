@@ -1,5 +1,5 @@
 # Microsoft Developer Studio Project File - Name="cryptlib" - Package Owner=<4>
-# Microsoft Developer Studio Generated Build File, Format Version 6.00
+# Microsoft Developer Studio Generated Build File, Format Version 60000
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Static Library" 0x0104
@@ -136,6 +136,57 @@ LIB32=link.exe -lib
 # Begin Source File
 
 SOURCE=.\3way.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\adhoc.cpp.proto
+
+!IF  "$(CFG)" == "cryptlib - Win32 FIPS 140 Release"
+
+# Begin Custom Build
+InputPath=.\adhoc.cpp.proto
+
+"adhoc.cpp.copied" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	if not exist adhoc.cpp copy "$(InputPath)" adhoc.cpp 
+	echo: >> adhoc.cpp.copied 
+	
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "cryptlib - Win32 FIPS 140 Debug"
+
+# Begin Custom Build
+InputPath=.\adhoc.cpp.proto
+
+"adhoc.cpp.copied" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	if not exist adhoc.cpp copy "$(InputPath)" adhoc.cpp 
+	echo: >> adhoc.cpp.copied 
+	
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "cryptlib - Win32 Release"
+
+# Begin Custom Build
+InputPath=.\adhoc.cpp.proto
+
+"adhoc.cpp.copied" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	if not exist adhoc.cpp copy "$(InputPath)" adhoc.cpp 
+	echo: >> adhoc.cpp.copied 
+	
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "cryptlib - Win32 Debug"
+
+# Begin Custom Build
+InputPath=.\adhoc.cpp.proto
+
+"adhoc.cpp.copied" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	if not exist adhoc.cpp copy "$(InputPath)" adhoc.cpp 
+	echo: >> adhoc.cpp.copied 
+	
+# End Custom Build
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
