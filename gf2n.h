@@ -238,6 +238,7 @@ private:
 
 CRYPTOPP_DLL_TEMPLATE_CLASS AbstractGroup<PolynomialMod2>;
 CRYPTOPP_DLL_TEMPLATE_CLASS AbstractRing<PolynomialMod2>;
+CRYPTOPP_DLL_TEMPLATE_CLASS AbstractEuclideanDomain<PolynomialMod2>;
 CRYPTOPP_DLL_TEMPLATE_CLASS EuclideanDomainOf<PolynomialMod2>;
 CRYPTOPP_DLL_TEMPLATE_CLASS QuotientRing<EuclideanDomainOf<PolynomialMod2> >;
 

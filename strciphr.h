@@ -258,12 +258,10 @@ public:
 	unsigned int MandatoryBlockSize() const {return this->OptimalBlockSize();}
 };
 
-/*
-CRYPTOPP_DLL_TEMPLATE_CLASS AbstractPolicyHolder<CFB_CipherAbstractPolicy, SymmetricCipher>;
+// for Darwin
 CRYPTOPP_DLL_TEMPLATE_CLASS CFB_CipherTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, SymmetricCipher> >;
 CRYPTOPP_DLL_TEMPLATE_CLASS CFB_EncryptionTemplate<>;
 CRYPTOPP_DLL_TEMPLATE_CLASS CFB_DecryptionTemplate<>;
-*/
 
 template <class BASE, class INFO = BASE>
 class SymmetricCipherFinal : public AlgorithmImpl<SimpleKeyingInterfaceImpl<BASE, INFO>, INFO>
