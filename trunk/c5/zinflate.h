@@ -132,7 +132,7 @@ private:
 
 	enum State {PRE_STREAM, WAIT_HEADER, DECODING_BODY, POST_STREAM, AFTER_END};
 	State m_state;
-	bool m_repeat, m_eof;
+	bool m_repeat, m_eof, m_wrappedAround;
 	byte m_blockType;
 	word16 m_storedLen;
 	enum NextDecode {LITERAL, LENGTH_BITS, DISTANCE, DISTANCE_BITS};
@@ -141,7 +141,7 @@ private:
 	HuffmanDecoder m_dynamicLiteralDecoder, m_dynamicDistanceDecoder;
 	LowFirstBitReader m_reader;
 	SecByteBlock m_window;
-	unsigned int m_maxDistance, m_current, m_lastFlush;
+	unsigned int m_current, m_lastFlush;
 };
 
 NAMESPACE_END
