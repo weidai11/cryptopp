@@ -172,14 +172,14 @@ public:
 };
 
 //! Elliptic Curve Diffie-Hellman, AKA <a href="http://www.weidai.com/scan-mirror/ka.html#ECDH">ECDH</a>
-template <class EC, class COFACTOR_OPTION = DL_GroupParameters_EC<EC>::DefaultCofactorOption>
+template <class EC, class COFACTOR_OPTION = CPP_TYPENAME DL_GroupParameters_EC<EC>::DefaultCofactorOption>
 struct ECDH
 {
 	typedef DH_Domain<DL_GroupParameters_EC<EC>, COFACTOR_OPTION> Domain;
 };
 
 /// Elliptic Curve Menezes-Qu-Vanstone, AKA <a href="http://www.weidai.com/scan-mirror/ka.html#ECMQV">ECMQV</a>
-template <class EC, class COFACTOR_OPTION = DL_GroupParameters_EC<EC>::DefaultCofactorOption>
+template <class EC, class COFACTOR_OPTION = CPP_TYPENAME DL_GroupParameters_EC<EC>::DefaultCofactorOption>
 struct ECMQV
 {
 	typedef MQV_Domain<DL_GroupParameters_EC<EC>, COFACTOR_OPTION> Domain;
@@ -222,13 +222,13 @@ public:
 
 //! <a href="http://www.weidai.com/scan-mirror/sig.html#ECDSA">ECDSA</a>
 template <class EC, class H>
-struct ECDSA : public DL_SSA<DL_Keys_ECDSA<EC>, DL_Algorithm_ECDSA<EC>, H>
+struct ECDSA : public DL_SS<DL_Keys_ECDSA<EC>, DL_Algorithm_ECDSA<EC>, DL_SignatureMessageEncodingMethod_DSA, H>
 {
 };
 
 //! ECNR
 template <class EC, class H = SHA>
-struct ECNR : public DL_SSA<DL_Keys_EC<EC>, DL_Algorithm_ECNR<EC>, H>
+struct ECNR : public DL_SS<DL_Keys_EC<EC>, DL_Algorithm_ECNR<EC>, DL_SignatureMessageEncodingMethod_NR, H>
 {
 };
 

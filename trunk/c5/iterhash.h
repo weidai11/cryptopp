@@ -16,6 +16,7 @@ public:
 	IteratedHashBase(unsigned int blockSize, unsigned int digestSize);
 	unsigned int DigestSize() const {return m_digest.size() * sizeof(T);};
 	unsigned int OptimalBlockSize() const {return BlockSize();}
+	unsigned int OptimalDataAlignment() const {return sizeof(T);}
 	void Update(const byte *input, unsigned int length);
 	byte * CreateUpdateSpace(unsigned int &size);
 	void Restart();

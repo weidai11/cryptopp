@@ -164,8 +164,8 @@ template <class T, int instance> class PolynomialOverFixedRing : private Polynom
 public:
 	typedef T Ring;
 	typedef typename T::Element CoefficientType;
-	typedef B::DivideByZero DivideByZero;
-	typedef B::RandomizationParameter RandomizationParameter;
+	typedef typename B::DivideByZero DivideByZero;
+	typedef typename B::RandomizationParameter RandomizationParameter;
 
 	//! \name CREATORS
 	//@{
@@ -304,8 +304,8 @@ template <class T> class RingOfPolynomialsOver : public AbstractEuclideanDomain<
 public:
 	typedef T CoefficientRing;
 	typedef PolynomialOver<T> Element;
-	typedef Element::CoefficientType CoefficientType;
-	typedef Element::RandomizationParameter RandomizationParameter;
+	typedef typename Element::CoefficientType CoefficientType;
+	typedef typename Element::RandomizationParameter RandomizationParameter;
 
 	RingOfPolynomialsOver(const CoefficientRing &ring) : m_ring(ring) {}
 

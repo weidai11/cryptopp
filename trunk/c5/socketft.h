@@ -113,7 +113,6 @@ protected:
 	bool m_own;
 };
 
-//! contributed by Denis Bider
 class SocketsInitializer
 {
 public:

@@ -57,6 +57,8 @@ public:
 	void Initialize(RandomNumberGenerator &rng, unsigned int modulusBits, const Integer &e = 17);
 	void Initialize(const Integer &n, const Integer &e, const Integer &d, const Integer &p, const Integer &q, const Integer &dp, const Integer &dq, const Integer &u)
 		{m_n = n; m_e = e; m_d = d; m_p = p; m_q = q; m_dp = dp; m_dq = dq; m_u = u;}
+	//! factor n given private exponent
+	void Initialize(const Integer &n, const Integer &e, const Integer &d);
 
 	// PKCS8PrivateKey
 	void BERDecode(BufferedTransformation &bt)
@@ -67,7 +69,7 @@ public:
 	void DEREncodeKey(BufferedTransformation &bt) const;
 
 	// TrapdoorFunctionInverse
-	Integer CalculateInverse(const Integer &x) const;
+	Integer CalculateInverse(RandomNumberGenerator &rng, const Integer &x) const;
 
 	// GeneratableCryptoMaterial
 	bool Validate(RandomNumberGenerator &rng, unsigned int level) const;
@@ -98,32 +100,6 @@ protected:
 	Integer m_d, m_p, m_q, m_dp, m_dq, m_u;
 };
 
-/*
-//! .
-class RSAFunctionInverse_NonCRT : public TrapdoorFunctionBounds, public TrapdoorFunctionInverse, public PrivateKey
-{
-public:
-	Integer CalculateInverse(const Integer &x) const
-		{return a_exp_b_mod_c(x, m_d, m_n);}
-	Integer PreimageBound() const {return m_n;}
-	Integer ImageBound() const {return m_n;}
-
-	bool Validate(RandomNumberGenerator &rng, unsigned int level) const;
-
-	const Integer& GetModulus() const {return m_n;}
-	const Integer& GetDecryptionExponent() const {return m_d;}
-
-	void SetModulus(const Integer &n) {m_n = n;}
-	void SetDecryptionExponent(const Integer &d) {m_d = d;}
-
-	void SetPrivateValues(const Integer &n, const Integer &d)
-		{m_n = n; m_d = d;}
-
-private:
-	Integer m_n, m_d;
-};
-*/
-
 //! .
 struct RSA
 {
@@ -141,7 +117,7 @@ struct RSAES : public TF_ES<STANDARD, RSA>
 //! <a href="http://www.weidai.com/scan-mirror/sig.html#RSA">RSA signature scheme with appendix</a>
 /*! See documentation of PKCS1v15 for a list of hash functions that can be used with it. */
 template <class STANDARD, class H>
-struct RSASSA : public TF_SSA<STANDARD, H, RSA>
+struct RSASS : public TF_SS<STANDARD, H, RSA>
 {
 };
 
@@ -153,14 +129,14 @@ typedef RSAES<OAEP<SHA> >::Decryptor RSAES_OAEP_SHA_Decryptor;
 typedef RSAES<OAEP<SHA> >::Encryptor RSAES_OAEP_SHA_Encryptor;
 
 // The three RSA signature schemes defined in PKCS #1 v2.0
-typedef RSASSA<PKCS1v15, SHA>::Signer RSASSA_PKCS1v15_SHA_Signer;
-typedef RSASSA<PKCS1v15, SHA>::Verifier RSASSA_PKCS1v15_SHA_Verifier;
+typedef RSASS<PKCS1v15, SHA>::Signer RSASSA_PKCS1v15_SHA_Signer;
+typedef RSASS<PKCS1v15, SHA>::Verifier RSASSA_PKCS1v15_SHA_Verifier;
 
-typedef RSASSA<PKCS1v15, MD2>::Signer RSASSA_PKCS1v15_MD2_Signer;
-typedef RSASSA<PKCS1v15, MD2>::Verifier RSASSA_PKCS1v15_MD2_Verifier;
+typedef RSASS<PKCS1v15, MD2>::Signer RSASSA_PKCS1v15_MD2_Signer;
+typedef RSASS<PKCS1v15, MD2>::Verifier RSASSA_PKCS1v15_MD2_Verifier;
 
-typedef RSASSA<PKCS1v15, MD5>::Signer RSASSA_PKCS1v15_MD5_Signer;
-typedef RSASSA<PKCS1v15, MD5>::Verifier RSASSA_PKCS1v15_MD5_Verifier;
+typedef RSASS<PKCS1v15, MD5>::Signer RSASSA_PKCS1v15_MD5_Signer;
+typedef RSASS<PKCS1v15, MD5>::Verifier RSASSA_PKCS1v15_MD5_Verifier;
 
 NAMESPACE_END
 

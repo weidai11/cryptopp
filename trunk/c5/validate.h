@@ -7,6 +7,7 @@
 bool ValidateAll(bool thorough);
 bool TestSettings();
 bool TestOS_RNG();
+bool ValidateBaseCode();
 
 bool ValidateCRC32();
 bool ValidateAdler32();

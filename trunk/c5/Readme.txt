@@ -58,28 +58,26 @@ and build the "cryptest" project. This will compile Crypto++ as a static
 library and also build the test driver. Run the test driver and make sure
 the validation suite passes.  Then to use the library simply insert the
 "cryptlib.dsp" project file into your own application workspace as a
-dependent project. You may need to check the compiler options to make sure
+dependent project. You should check the compiler options to make sure
 that the library and your application are using the same C++ run-time
-libraries.
+libraries and calling conventions.
 
 A makefile is included for you to compile Crypto++ with GCC. Make sure
 you are using GNU Make and GNU ld. The make process will produce two files,
 libcryptopp.a and cryptest.exe. Run "cryptest.exe v" for the validation
 suite.
 
-Crypto++ is documented mostly through comments in header files.  If you are
-not familiar with cryptography, I suggest that you read an introductory
-text (such as Bruce Schneier's _Applied Cryptography_) before attempting
-to use this library.  Then, you should start by looking at
-cryptlib.h, which contains the main abstract base classes and their
-descriptions, and test.cpp, which contains sample/test code.  There
-should also be a link on http://www.cryptopp.com to an HTML reference
-manual generated from the inline documentation.
+Crypto++ is documented through inline comments in header files, which are
+processed through Doxygen to produce an HTML reference manual. You can find
+a link to the manual from http://www.cryptopp.com. Also at that site is
+the Crypto++ FAQ, which you should browse through before attempting to 
+use this library, because it will likely answer many of questions that
+may come up.
 
 If you run into any problems, please try the Crypto++ mailing list.
 The subscription information and the list archive are available on
 http://www.cryptopp.com. You can also email me directly at
-weidai@eskimo.com, but you will probably get a faster response through
+cryptopp@weidai.com, but you will probably get a faster response through
 the mailing list.
 
 Finally, a couple of usage notes to keep in mind: 
@@ -245,5 +243,10 @@ History
     - added known answer test for X9.17 RNG in FIPS 140 power-up self test
 
 5.1 (in development)
+    - added PSS padding and changed PSSR to track IEEE P1363a draft standard
+    - added blinding for RSA and Rabin to defend against timing attacks
     - fixed a bug in CBC and ECB modes with processing non-aligned data
-    - removed Sapphire
+    - fixed a standard conformance bug in DLIES/DHAES mode
+	  (fix is not backwards compatible)
+	- fixed a number of minor bugs and portability problems
+	- removed Sapphire

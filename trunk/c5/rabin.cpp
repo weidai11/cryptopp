@@ -5,6 +5,7 @@
 #include "nbtheory.h"
 #include "asn.h"
 #include "sha.h"
+#include "modarith.h"
 
 #include "oaep.cpp"
 
@@ -138,11 +139,17 @@ void InvertibleRabinFunction::DEREncode(BufferedTransformation &bt) const
 	seq.MessageEnd();
 }
 
-Integer InvertibleRabinFunction::CalculateInverse(const Integer &in) const
+Integer InvertibleRabinFunction::CalculateInverse(RandomNumberGenerator &rng, const Integer &in) const
 {
 	DoQuickSanityCheck();
 
-	Integer cp=in%m_p, cq=in%m_q;
+	ModularArithmetic modn(m_n);
+	Integer r(rng, Integer::One(), m_n - Integer::One());
+	r = modn.Square(r);
+	Integer r2 = modn.Square(r);
+	Integer c = modn.Multiply(in, r2);		// blind
+
+	Integer cp=c%m_p, cq=c%m_q;
 
 	int jp = Jacobi(cp, m_p);
 	int jq = Jacobi(cq, m_q);
@@ -166,6 +173,8 @@ Integer InvertibleRabinFunction::CalculateInverse(const Integer &in) const
 		cp = m_p-cp;
 
 	Integer out = CRT(cq, m_q, cp, m_p, m_u);
+
+	out = modn.Divide(out, r);	// unblind
 
 	if ((jq==-1 && out.IsEven()) || (jq==1 && out.IsOdd()))
 		out = m_n-out;

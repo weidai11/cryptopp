@@ -473,7 +473,7 @@ void RingOfPolynomialsOver<T>::CalculateAlpha(std::vector<CoefficientType> &alph
 }
 
 template <class T>
-RingOfPolynomialsOver<T>::Element RingOfPolynomialsOver<T>::Interpolate(const CoefficientType x[], const CoefficientType y[], unsigned int n) const
+typename RingOfPolynomialsOver<T>::Element RingOfPolynomialsOver<T>::Interpolate(const CoefficientType x[], const CoefficientType y[], unsigned int n) const
 {
 	assert(n > 0);
 

@@ -16,6 +16,8 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+struct WaitingThreadData;
+
 //! container of wait objects
 class WaitObjectContainer
 {
@@ -34,6 +36,7 @@ public:
 	bool Wait(unsigned long milliseconds);
 
 #ifdef USE_WINDOWS_STYLE_SOCKETS
+	~WaitObjectContainer();
 	void AddHandle(HANDLE handle);
 #else
 	void AddReadFd(int fd);
@@ -42,7 +45,11 @@ public:
 
 private:
 #ifdef USE_WINDOWS_STYLE_SOCKETS
+	void CreateThreads(unsigned int count);
 	std::vector<HANDLE> m_handles;
+	std::vector<WaitingThreadData *> m_threads;
+	HANDLE m_startWaiting;
+	HANDLE m_stopWaiting;
 #else
 	fd_set m_readfds, m_writefds;
 	int m_maxFd;

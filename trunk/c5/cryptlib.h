@@ -21,7 +21,7 @@
 <dt>Public Key Cryptosystems<dd>
 	DLIES, ECIES, LUCES, RSAES, RabinES, LUC_IES
 <dt>Public Key Signature Schemes<dd>
-	DSA, GDSA, ECDSA, NR, ECNR, LUCSSA, RSASSA, RabinSSR, RWSSA, ESIGN
+	DSA, GDSA, ECDSA, NR, ECNR, LUCSS, RSASS, RabinSS, RWSS, ESIGN
 <dt>Key Agreement<dd>
 	#DH, DH2, #MQV, ECDH, ECMQV, XTR_DH
 <dt>Algebraic Structures<dd>
@@ -106,7 +106,7 @@ public:
 		OTHER_ERROR
 	};
 
-	explicit Exception(ErrorType errorType, const std::string &s) : m_what(s) {}
+	explicit Exception(ErrorType errorType, const std::string &s) : m_errorType(errorType), m_what(s) {}
 	virtual ~Exception() throw() {}
 	const char *what() const throw() {return (m_what.c_str());}
 	const std::string &GetWhat() const {return m_what;}
@@ -319,7 +319,7 @@ public:
 class Algorithm : public Clonable
 {
 public:
-	/*! When FIPS-140-2 compliance is enabled and checkSelfTestStatus == true,
+	/*! When FIPS 140-2 compliance is enabled and checkSelfTestStatus == true,
 		this constructor throws SelfTestFailure if the self test hasn't been run or fails. */
 	Algorithm(bool checkSelfTestStatus = true);
 	//! returns name of this algorithm, not universally implemented yet
@@ -519,6 +519,9 @@ public:
 	//! input to Update() should have length a multiple of this for optimal speed
 	virtual unsigned int OptimalBlockSize() const {return 1;}
 
+	//! returns how input should be aligned for optimal performance
+	virtual unsigned int OptimalDataAlignment() const {return 1;}
+
 	//! use this if your input is in one piece and you don't want to call Update() and Final() separately
 	virtual void CalculateDigest(byte *digest, const byte *input, unsigned int length)
 		{Update(input, length); Final(digest);}
@@ -691,8 +694,9 @@ public:
 		//! input a 32-bit word
 		unsigned int PutWord32(word32 value, ByteOrder order=BIG_ENDIAN_ORDER, bool blocking=true);
 
-		//! request space to write bytes into for processing
+		//! request space which can be written into by the caller, and then used as input to Put()
 		/*! \param size is requested size (as a hint) for input, and size of the returned space for output */
+		/*! \note The purpose of this method is to help avoid doing extra memory allocations. */
 		virtual byte * CreatePutSpace(unsigned int &size) {size=0; return NULL;}
 
 		virtual bool CanModifyInput() const {return false;}
@@ -1126,12 +1130,12 @@ public:
 	/*! \pre size of plainText == MaxPlainTextLength(cipherTextLength) bytes.
 		\return the actual length of the plaintext, or 0 if decryption fails.
 	*/
-	virtual DecodingResult Decrypt(const byte *cipherText, unsigned int cipherTextLength, byte *plainText) const =0;
+	virtual DecodingResult Decrypt(RandomNumberGenerator &rng, const byte *cipherText, unsigned int cipherTextLength, byte *plainText) const =0;
 
 	//! create a new decryption filter
 	/*! \note caller is responsible for deleting the returned pointer
 	*/
-	virtual BufferedTransformation * CreateDecryptionFilter(BufferedTransformation *attachment=NULL) const;
+	virtual BufferedTransformation * CreateDecryptionFilter(RandomNumberGenerator &rng, BufferedTransformation *attachment=NULL) const;
 };
 
 //! interface for encryptors and decryptors with fixed length ciphertext
@@ -1175,31 +1179,74 @@ public:
 		\pre size of plainText == MaxPlainTextLength()
 		\return the actual length of the plaintext, or 0 if decryption fails.
 	*/
-	virtual DecodingResult FixedLengthDecrypt(const byte *cipherText, byte *plainText) const =0;
+	virtual DecodingResult FixedLengthDecrypt(RandomNumberGenerator &rng, const byte *cipherText, byte *plainText) const =0;
 
-	DecodingResult Decrypt(const byte *cipherText, unsigned int cipherTextLength, byte *plainText) const;
-
-#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
-	DecodingResult Decrypt(const byte *cipherText, byte *plainText) const {return FixedLengthDecrypt(cipherText, plainText);}
-#endif
+	DecodingResult Decrypt(RandomNumberGenerator &rng, const byte *cipherText, unsigned int cipherTextLength, byte *plainText) const;
 };
 
 //! interface for public-key signers and verifiers
 
 /*! This class provides an interface common to signers and verifiers
-	for querying their signature lengths and creating message
-	accumulators.
+	for querying scheme properties.
 */
 class PK_SignatureScheme
 {
 public:
+	//! invalid key exception, may be thrown by any function in this class if the private or public key has a length that can't be used
+	class InvalidKeyLength : public Exception
+	{
+	public:
+		InvalidKeyLength(const std::string &message) : Exception(OTHER_ERROR, message) {}
+	};
+
+	//! key too short exception, may be thrown by any function in this class if the private or public key is too short to sign or verify anything
+	class KeyTooShort : public InvalidKeyLength
+	{
+	public:
+		KeyTooShort() : InvalidKeyLength("PK_Signer: key too short for this signature scheme") {}
+	};
+
 	virtual ~PK_SignatureScheme() {}
 
-	//! signature length support by this object (as either input or output)
+	//! signature length if it only depends on the key, otherwise 0
 	virtual unsigned int SignatureLength() const =0;
 
-	//! deprecated, please use PK_Signer::NewSignatureAccumulator or PK_Verifier::NewVerificationAccumulator instead
-	virtual HashTransformation * NewMessageAccumulator() const =0;
+	//! maximum signature length produced for a given length of recoverable message part
+	virtual unsigned int MaxSignatureLength(unsigned int recoverablePartLength = 0) const {return SignatureLength();}
+
+	//! length of longest message that can be recovered, or 0 if this signature scheme does not support message recovery
+	virtual unsigned int MaxRecoverableLength() const =0;
+
+	//! length of longest message that can be recovered from a signature of given length, or 0 if this signature scheme does not support message recovery
+	virtual unsigned int MaxRecoverableLengthFromSignatureLength(unsigned int signatureLength) const =0;
+
+	//! requires a random number generator to sign
+	/*! if this returns false, NullRNG() can be passed to functions that take RandomNumberGenerator & */
+	virtual bool IsProbabilistic() const =0;
+
+	//! whether or not a non-recoverable message part can be signed
+	virtual bool AllowNonrecoverablePart() const =0;
+
+	//! if this function returns true, during verification you must input the signature before the message, otherwise you can input it at anytime */
+	virtual bool SignatureUpfront() const {return false;}
+
+	//! whether you must input the recoverable part before the non-recoverable part during signing
+	virtual bool RecoverablePartFirst() const =0;
+};
+
+//! interface for accumulating messages to be signed or verified
+/*! Only Update() should be called
+	on this class. No other functions inherited from HashTransformation should be called.
+*/
+class PK_MessageAccumulator : public HashTransformation
+{
+public:
+	//! should not be called on PK_MessageAccumulator
+	unsigned int DigestSize() const
+		{throw NotImplemented("PK_MessageAccumulator: DigestSize() should not be called");}
+	//! should not be called on PK_MessageAccumulator
+	void TruncatedFinal(byte *digest, unsigned int digestSize) 
+		{throw NotImplemented("PK_MessageAccumulator: TruncatedFinal() should not be called");}
 };
 
 //! interface for public-key signers
@@ -1207,133 +1254,79 @@ public:
 class PK_Signer : virtual public PK_SignatureScheme, public PrivateKeyAlgorithm
 {
 public:
-	//! key too short exception, may be thrown by Sign() or SignMessage()
-	class KeyTooShort : public Exception
-	{
-	public:
-		KeyTooShort() : Exception(OTHER_ERROR, "PK_Signer: key too short") {}
-	};
+	//! create a new HashTransformation to accumulate the message to be signed
+	virtual PK_MessageAccumulator * NewSignatureAccumulator(RandomNumberGenerator &rng = NullRNG()) const =0;
+
+	virtual void InputRecoverableMessage(PK_MessageAccumulator &messageAccumulator, const byte *recoverableMessage, unsigned int recoverableMessageLength) const =0;
 
 	//! sign and delete messageAccumulator (even in case of exception thrown)
-	/*! \pre messageAccumulator was obtained by calling NewSignatureAccumulator()
-		\pre HashTransformation::Final() has not been called on messageAccumulator
-		\pre size of signature == SignatureLength()
+	/*! \pre size of signature == MaxSignatureLength()
+		\return actual signature length
 	*/
-	virtual void Sign(RandomNumberGenerator &rng, HashTransformation *messageAccumulator, byte *signature) const;
+	virtual unsigned int Sign(RandomNumberGenerator &rng, PK_MessageAccumulator *messageAccumulator, byte *signature) const;
 
 	//! sign and restart messageAccumulator
-	virtual void SignAndRestart(RandomNumberGenerator &rng, HashTransformation &messageAccumulator, byte *signature) const =0;
+	/*! \pre size of signature == MaxSignatureLength()
+		\return actual signature length
+	*/
+	virtual unsigned int SignAndRestart(RandomNumberGenerator &rng, PK_MessageAccumulator &messageAccumulator, byte *signature, bool restart=true) const =0;
 
 	//! sign a message
-	/*! \pre size of signature == SignatureLength() */
-	virtual void SignMessage(RandomNumberGenerator &rng, const byte *message, unsigned int messageLen, byte *signature) const;
+	/*! \pre size of signature == MaxSignatureLength()
+		\return actual signature length
+	*/
+	virtual unsigned int SignMessage(RandomNumberGenerator &rng, const byte *message, unsigned int messageLen, byte *signature) const;
 
-	//! create a new HashTransformation to accumulate the message to be signed
-	virtual HashTransformation * NewSignatureAccumulator() const
-		{return NewMessageAccumulator();}
+	//! sign a recoverable message
+	/*! \pre size of signature == MaxSignatureLength(recoverableMessageLength)
+		\return actual signature length
+	*/
+	virtual unsigned int SignMessageWithRecovery(RandomNumberGenerator &rng, const byte *recoverableMessage, unsigned int recoverableMessageLength, 
+		const byte *nonrecoverableMessage, unsigned int nonrecoverableMessageLength, byte *signature) const;
 };
 
 //! interface for public-key signature verifiers
-
+/*! The Recover* functions throw NotImplemented if the signature scheme does not support
+	message recovery.
+	The Verify* functions throw InvalidDataFormat if the scheme does support message
+	recovery and the signature contains a non-empty recoverable message part. The
+	Recovery* functions should be used in that case.
+*/
 class PK_Verifier : virtual public PK_SignatureScheme, public PublicKeyAlgorithm
 {
 public:
-	/*! If this function returns true, you must input the signature when
-		calling NewVerificationAccumulator(). Otherwise, you must input the signature
-		when calling Verify(). */
-	virtual bool SignatureUpfrontForVerification() const {return false;}
-
 	//! create a new HashTransformation to accumulate the message to be verified
-	/*! \param signature is ignored if SignatureUpfrontForVerification() == false
-		\param signature may be NULL to indicate that the signature is not available yet
-	*/
-	virtual HashTransformation * NewVerificationAccumulator(const byte *signature=NULL) const
-		{return NewMessageAccumulator();}
+	virtual PK_MessageAccumulator * NewVerificationAccumulator() const =0;
 
-	//! check whether sig is a valid signature for messageAccumulator, and delete messageAccumulator (even in case of exception thrown)
-	/*! \pre messageAccumulator was obtained by calling NewVerificationAccumulator()
-		\pre HashTransformation::Final() has not been called on messageAccumulator
-		\pre length of signature == SignatureLength()
-		\param signature is ignored if SignatureUpfrontForVerification() == true
-	*/
-	virtual bool Verify(HashTransformation *messageAccumulator, const byte *signature=NULL) const;
+	//! input signature into a message accumulator
+	virtual void InputSignature(PK_MessageAccumulator &messageAccumulator, const byte *signature, unsigned int signatureLength) const =0;
 
-	//! check whether sig is a valid signature for messageAccumulator, and restart messageAccumulator
-	/*! \note depending on SignatureUpfrontForVerification(), signature is either the current or the next signature
-		\param signature may be NULL to indicate that the next signature is not available yet
-	*/
-	virtual bool VerifyAndRestart(HashTransformation &messageAccumulator, const byte *signature) const =0;
+	//! check whether messageAccumulator contains a valid signature and message, and delete messageAccumulator (even in case of exception thrown)
+	virtual bool Verify(PK_MessageAccumulator *messageAccumulator) const;
 
-	//! only useful if SignatureUpfrontForVerification() == true
-	virtual void InitializeVerificationAccumulator(HashTransformation &messageAccumulator, const byte *signature) const {}
+	//! check whether messageAccumulator contains a valid signature and message, and restart messageAccumulator
+	virtual bool VerifyAndRestart(PK_MessageAccumulator &messageAccumulator) const =0;
 
-	//! check whether sig is a valid signature for message
-	/*! \pre size of signature == SignatureLength() */
-	virtual bool VerifyMessage(const byte *message, unsigned int messageLen, const byte *signature) const;
-};
-
-//! interface for public-key signers and verifiers with recovery
-
-/*! In a signature scheme with recovery, a verifier is able to extract
-	a message from its valid signature.
-*/
-class PK_SignatureSchemeWithRecovery : virtual public PK_SignatureScheme
-{
-public:
-	//! length of longest message that can be fully recovered
-	virtual unsigned int MaximumRecoverableLength() const =0;
-
-	//! whether or not messages longer than MaximumRecoverableLength() can be signed
-	/*! If this function returns false, any message longer than
-		MaximumRecoverableLength() will be truncated for signature
-		and will fail verification.
-	*/
-	virtual bool AllowLeftoverMessage() const =0;
-};
-
-//! interface for public-key signers with recovery
-
-class PK_SignerWithRecovery : virtual public PK_SignatureSchemeWithRecovery, virtual public PK_Signer
-{
-};
-
-//! interface for public-key verifiers with recovery
-
-/*! A PK_VerifierWithRecovery can also be used the same way as a PK_Verifier,
-	where the signature and the entire message is given to Verify() or
-	VerifyMessage() as input.
-*/
-class PK_VerifierWithRecovery : virtual public PK_SignatureSchemeWithRecovery, virtual public PK_Verifier
-{
-public:
-	/*! If this function returns true, you must input the signature when
-		calling NewRecoveryAccumulator(). Otherwise, you must input the signature
-		when calling Recover(). */
-	virtual bool SignatureUpfrontForRecovery() const =0;
-
-	//! create a new HashTransformation to accumulate leftover message
-	virtual HashTransformation * NewRecoveryAccumulator(const byte *signature=NULL) const =0;
+	//! check whether input signature is a valid signature for input message
+	virtual bool VerifyMessage(const byte *message, unsigned int messageLen, 
+		const byte *signature, unsigned int signatureLength) const;
 
 	//! recover a message from its signature
-	/*! \pre leftoverMessageAccumulator was obtained by calling NewLeftoverMessageAccumulator(signature)
-		\pre HashTransformation::Final() has not been called on leftoverMessageAccumulator
-		\pre length of signature == SignatureLength()
-		\pre size of recoveredMessage == MaximumRecoverableLength()
+	/*! \pre size of recoveredMessage == MaxRecoverableLengthFromSignatureLength(signatureLength)
 	*/
-	virtual DecodingResult Recover(byte *recoveredMessage, HashTransformation *recoveryAccumulator, const byte *signature=NULL) const =0;
+	virtual DecodingResult Recover(byte *recoveredMessage, PK_MessageAccumulator *messageAccumulator) const;
 
 	//! recover a message from its signature
-	/*! depending on SignatureUpfrontForRecovery(), signature is either the current or the next signature */
-	// TODO: uncomment this and implement
-	// virtual unsigned int RecoverAndRestart(byte *recoveredMessage, HashTransformation &recoveryAccumulator, const byte *signature) const =0;
+	/*! \pre size of recoveredMessage == MaxRecoverableLengthFromSignatureLength(signatureLength)
+	*/
+	virtual DecodingResult RecoverAndRestart(byte *recoveredMessage, PK_MessageAccumulator &messageAccumulator) const =0;
 
 	//! recover a message from its signature
-	/*! \note This function should be equivalent to Recover(recoveredMessage, NewRecoveryAccumulator(signature), signature)
-		\pre length of signature == SignatureLength()
-		\pre size of recoveredMessage == MaximumRecoverableLength()
+	/*! \pre size of recoveredMessage == MaxRecoverableLengthFromSignatureLength(signatureLength)
 	*/
-	virtual DecodingResult RecoverMessage(byte *recoveredMessage, const byte *message, unsigned int messageLen, const byte *signature) const
-		{return Recover(recoveredMessage, NewRecoveryAccumulator(signature), signature);}
+	virtual DecodingResult RecoverMessage(byte *recoveredMessage, 
+		const byte *nonrecoverableMessage, unsigned int nonrecoverableMessageLength, 
+		const byte *signature, unsigned int signatureLength) const;
 };
 
 //! interface for domains of simple key agreement protocols

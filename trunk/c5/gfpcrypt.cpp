@@ -63,30 +63,48 @@ bool DL_GroupParameters_DSA::ValidateGroup(RandomNumberGenerator &rng, unsigned 
 	return pass;
 }
 
-Integer NR_EncodeDigest(unsigned int modulusBits, const byte *digest, unsigned int digestLen)
+void DL_SignatureMessageEncodingMethod_DSA::ComputeMessageRepresentative(RandomNumberGenerator &rng, 
+	const byte *recoverableMessage, unsigned int recoverableMessageLength,
+	HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
+	byte *representative, unsigned int representativeBitLength) const
 {
-	Integer h;
-	if (digestLen*8 < modulusBits)
-		h.Decode(digest, digestLen);
-	else
+	assert(recoverableMessageLength == 0);
+	assert(hashIdentifier.second == 0);
+	const unsigned int representativeByteLength = BitsToBytes(representativeBitLength);
+	const unsigned int digestSize = hash.DigestSize();
+	const unsigned int paddingLength = SaturatingSubtract(representativeByteLength, digestSize);
+
+	memset(representative, 0, paddingLength);
+	hash.TruncatedFinal(representative+paddingLength, STDMIN(representativeByteLength, digestSize));
+
+	if (digestSize*8 > representativeBitLength)
 	{
-		h.Decode(digest, BitsToBytes(modulusBits));
-		h >>= BitsToBytes(modulusBits)*8 - modulusBits + 1;
+		Integer h(representative, representativeByteLength);
+		h >>= representativeByteLength*8 - representativeBitLength;
+		h.Encode(representative, representativeByteLength);
 	}
-	return h;
 }
 
-Integer DSA_EncodeDigest(unsigned int modulusBits, const byte *digest, unsigned int digestLen)
+void DL_SignatureMessageEncodingMethod_NR::ComputeMessageRepresentative(RandomNumberGenerator &rng, 
+	const byte *recoverableMessage, unsigned int recoverableMessageLength,
+	HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
+	byte *representative, unsigned int representativeBitLength) const
 {
-	Integer h;
-	if (digestLen*8 <= modulusBits)
-		h.Decode(digest, digestLen);
-	else
+	assert(recoverableMessageLength == 0);
+	assert(hashIdentifier.second == 0);
+	const unsigned int representativeByteLength = BitsToBytes(representativeBitLength);
+	const unsigned int digestSize = hash.DigestSize();
+	const unsigned int paddingLength = SaturatingSubtract(representativeByteLength, digestSize);
+
+	memset(representative, 0, paddingLength);
+	hash.TruncatedFinal(representative+paddingLength, STDMIN(representativeByteLength, digestSize));
+
+	if (digestSize*8 >= representativeBitLength)
 	{
-		h.Decode(digest, BitsToBytes(modulusBits));
-		h >>= BitsToBytes(modulusBits)*8 - modulusBits;
+		Integer h(representative, representativeByteLength);
+		h >>= representativeByteLength*8 - representativeBitLength + 1;
+		h.Encode(representative, representativeByteLength);
 	}
-	return h;
 }
 
 bool DL_GroupParameters_IntegerBased::ValidateGroup(RandomNumberGenerator &rng, unsigned int level) const

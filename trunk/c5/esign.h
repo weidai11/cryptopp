@@ -83,31 +83,34 @@ protected:
 
 //! .
 template <class T>
-class EMSA5Pad : public PK_NonreversiblePaddingAlgorithm
+class EMSA5Pad : public PK_DeterministicSignatureMessageEncodingMethod
 {
 public:
 	static const char *StaticAlgorithmName() {return "EMSA5";}
 	
-	unsigned int MaxUnpaddedLength(unsigned int paddedLength) const {return UINT_MAX;}
-
-	void Pad(RandomNumberGenerator &rng, const byte *raw, unsigned int inputLength, byte *padded, unsigned int paddedLength) const
+	void ComputeMessageRepresentative(RandomNumberGenerator &rng, 
+		const byte *recoverableMessage, unsigned int recoverableMessageLength,
+		HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
+		byte *representative, unsigned int representativeBitLength) const
 	{
-		unsigned int paddedByteLength = BitsToBytes(paddedLength);
-		memset(padded, 0, paddedByteLength);
-		T::GenerateAndMask(padded, paddedByteLength, raw, inputLength);
-		if (paddedLength % 8 != 0)
-			padded[0] = (byte)Crop(padded[0], paddedLength % 8);
+		m_digest.New(hash.DigestSize());
+		hash.Final(m_digest);
+		unsigned int representativeByteLength = BitsToBytes(representativeBitLength);
+		T mgf;
+		mgf.GenerateAndMask(hash, representative, representativeByteLength, m_digest, m_digest.size(), false);
+		if (representativeBitLength % 8 != 0)
+			representative[0] = (byte)Crop(representative[0], representativeBitLength % 8);
 	}
+
+private:
+	mutable SecByteBlock m_digest;
 };
 
 //! EMSA5, for use with ESIGN
 struct P1363_EMSA5 : public SignatureStandard
 {
-	template <class H> struct SignaturePaddingAlgorithm {typedef EMSA5Pad<P1363_MGF1<H> > type;};
-	template <class H> struct DecoratedHashingAlgorithm {typedef H type;};
+	typedef EMSA5Pad<P1363_MGF1> SignatureMessageEncodingMethod;
 };
-
-template<> struct CryptoStandardTraits<P1363_EMSA5> : public P1363_EMSA5 {};
 
 struct ESIGN_Keys
 {
@@ -118,7 +121,7 @@ struct ESIGN_Keys
 
 //! ESIGN, as defined in IEEE P1363a
 template <class H, class STANDARD = P1363_EMSA5>
-struct ESIGN : public TF_SSA<STANDARD, H, ESIGN_Keys>
+struct ESIGN : public TF_SS<STANDARD, H, ESIGN_Keys>
 {
 };
 

@@ -20,7 +20,7 @@ void Base64Encoder::IsolatedInitialize(const NameValuePairs &parameters)
 			("PaddingByte", s_padding)
 			("Log2Base", 6)
 			("GroupSize", insertLineBreaks ? maxLineLength : 0)
-			("Seperator", ConstByteArrayParameter("\n"))
+			("Separator", ConstByteArrayParameter("\n"))
 			("Terminator", ConstByteArrayParameter("\n"))));
 }
 

@@ -17,13 +17,13 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte
 {
 	HashWordType tmp = m_countLo;
 	if ((m_countLo = tmp + len) < tmp)
-		m_countHi++;             // Carry from low to high
+		m_countHi++;             // carry from low to high
 	m_countHi += SafeRightShift<8*sizeof(HashWordType)>(len);
 
 	unsigned int blockSize = BlockSize();
-	unsigned int num = (unsigned int)(tmp & (blockSize-1));
+	unsigned int num = ModPowerOf2(tmp, blockSize);
 
-	if (num != 0)
+	if (num != 0)	// process left over data
 	{
 		if ((num+len) >= blockSize)
 		{
@@ -41,8 +41,7 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte
 		}
 	}
 
-	// we now can process the input data in blocks of blockSize
-	// chars and save the leftovers to this->data.
+	// now process the input data in blocks of blockSize bytes and save the leftovers to m_data
 	if (len >= blockSize)
 	{
 		if (input == (byte *)m_data.begin())

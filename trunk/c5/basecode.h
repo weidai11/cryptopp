@@ -61,11 +61,11 @@ public:
 	Grouper(BufferedTransformation *attachment=NULL)
 		: Bufferless<Filter>(attachment) {}
 
-	Grouper(int groupSize, const std::string &seperator, const std::string &terminator, BufferedTransformation *attachment=NULL)
+	Grouper(int groupSize, const std::string &separator, const std::string &terminator, BufferedTransformation *attachment=NULL)
 		: Bufferless<Filter>(attachment)
 	{
 		IsolatedInitialize(MakeParameters("GroupSize", groupSize)
-			("Seperator", ConstByteArrayParameter(seperator))
+			("Separator", ConstByteArrayParameter(separator))
 			("Terminator", ConstByteArrayParameter(terminator)));
 	}
 
@@ -73,7 +73,7 @@ public:
 	unsigned int Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking);
 
 private:
-	SecByteBlock m_seperator, m_terminator;
+	SecByteBlock m_separator, m_terminator;
 	unsigned int m_groupSize, m_counter;
 };
 

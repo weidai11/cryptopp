@@ -448,7 +448,7 @@ void FIPS140_SampleApplication(const char *moduleFilename, const char *edcFilena
 	signer.SignMessage(rng, message, 3, signature);
 
 	DSA::Verifier verifier(dsaPublicKey);
-	if (!verifier.VerifyMessage(message, 3, signature))
+	if (!verifier.VerifyMessage(message, 3, signature, 40))
 	{
 		cerr << "DSA signature and verification failed.\n";
 		abort();
@@ -458,7 +458,7 @@ void FIPS140_SampleApplication(const char *moduleFilename, const char *edcFilena
 
 	// try to verify an invalid signature
 	signature[0] ^= 1;
-	if (verifier.VerifyMessage(message, 3, signature))
+	if (verifier.VerifyMessage(message, 3, signature, 40))
 	{
 		cerr << "DSA signature verification failed to detect bad signature.\n";
 		abort();
@@ -538,7 +538,7 @@ string RSADecryptString(const char *privFilename, const char *ciphertext)
 	RSAES_OAEP_SHA_Decryptor priv(privFile);
 
 	string result;
-	StringSource(ciphertext, true, new HexDecoder(new PK_DecryptorFilter(priv, new StringSink(result))));
+	StringSource(ciphertext, true, new HexDecoder(new PK_DecryptorFilter(GlobalRNG(), priv, new StringSink(result))));
 	return result;
 }
 
@@ -921,6 +921,7 @@ bool Validate(int alg, bool thorough, const char *seed)
 	case 56: result = ValidatePBKDF(); break;
 	case 57: result = ValidateESIGN(); break;
 	case 58: result = ValidateDLIES(); break;
+	case 59: result = ValidateBaseCode(); break;
 	default: result = ValidateAll(thorough); break;
 	}
 

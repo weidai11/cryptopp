@@ -27,8 +27,9 @@ void RegisterFactories()
 	RegisterSignatureSchemeDefaultFactories<DSA>("DSA(1363)");
 	RegisterSignatureSchemeDefaultFactories<NR<SHA1> >("NR(1363)/EMSA1(SHA-1)");
 	RegisterSignatureSchemeDefaultFactories<GDSA<SHA1> >("DSA-1363/EMSA1(SHA-1)");
-	RegisterSignatureSchemeDefaultFactories<RSASSA<PKCS1v15, MD2> >("RSA/PKCS1-1.5(MD2)");
-	RegisterSignatureSchemeDefaultFactories<RSASSA<PKCS1v15, SHA1> >("RSA/PKCS1-1.5(SHA-1)");
+	RegisterSignatureSchemeDefaultFactories<RSASS<PKCS1v15, MD2> >("RSA/PKCS1-1.5(MD2)");
+	RegisterSignatureSchemeDefaultFactories<RSASS<PKCS1v15, SHA1> >("RSA/PKCS1-1.5(SHA-1)");
 	RegisterSignatureSchemeDefaultFactories<ESIGN<SHA1> >("ESIGN/EMSA5-MGF1(SHA-1)");
-	RegisterSignatureSchemeDefaultFactories<RWSSA<SHA1> >("RW/EMSA2(SHA-1)");
+	RegisterSignatureSchemeDefaultFactories<RWSS<P1363_EMSA2, SHA1> >("RW/EMSA2(SHA-1)");
+	RegisterSignatureSchemeDefaultFactories<RSASS<PSS, SHA1> >("RSA/PSS-MGF1(SHA-1)");
 }

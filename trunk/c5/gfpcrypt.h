@@ -149,18 +149,13 @@ class DL_Algorithm_GDSA : public DL_ElgamalLikeSignatureAlgorithm<T>
 public:
 	static const char * StaticAlgorithmName() {return "DSA-1363";}
 
-	Integer EncodeDigest(unsigned int modulusBits, const byte *digest, unsigned int digestLen) const
-	{
-		return DSA_EncodeDigest(modulusBits, digest, digestLen);
-	}
-
-	bool Sign(const DL_GroupParameters<T> &params, const Integer &x, const Integer &k, const Integer &e, Integer &r, Integer &s) const
+	void Sign(const DL_GroupParameters<T> &params, const Integer &x, const Integer &k, const Integer &e, Integer &r, Integer &s) const
 	{
 		const Integer &q = params.GetSubgroupOrder();
-		r = params.ConvertElementToInteger(params.ExponentiateBase(k)) % q;
+		r %= q;
 		Integer kInv = k.InverseMod(q);
 		s = (kInv * (x*r + e)) % q;
-		return (!!r && !!s);
+		assert(!!r && !!s);
 	}
 
 	bool Verify(const DL_GroupParameters<T> &params, const DL_PublicKey<T> &publicKey, const Integer &e, const Integer &r, const Integer &s) const
@@ -189,12 +184,12 @@ public:
 		return NR_EncodeDigest(modulusBits, digest, digestLen);
 	}
 
-	bool Sign(const DL_GroupParameters<T> &params, const Integer &x, const Integer &k, const Integer &e, Integer &r, Integer &s) const
+	void Sign(const DL_GroupParameters<T> &params, const Integer &x, const Integer &k, const Integer &e, Integer &r, Integer &s) const
 	{
 		const Integer &q = params.GetSubgroupOrder();
-		r = (params.ConvertElementToInteger(params.ExponentiateBase(k)) + e) % q;
+		r = (r + e) % q;
 		s = (k - x*r) % q;
-		return !!r;
+		assert(!!r);
 	}
 
 	bool Verify(const DL_GroupParameters<T> &params, const DL_PublicKey<T> &publicKey, const Integer &e, const Integer &r, const Integer &s) const
@@ -345,13 +340,21 @@ public:
 
 //! <a href="http://www.weidai.com/scan-mirror/sig.html#DSA-1363">DSA-1363</a>
 template <class H>
-struct GDSA : public DL_SSA<DL_SignatureKeys_GFP, DL_Algorithm_GDSA<Integer>, H>
+struct GDSA : public DL_SS<
+	DL_SignatureKeys_GFP, 
+	DL_Algorithm_GDSA<Integer>, 
+	DL_SignatureMessageEncodingMethod_DSA,
+	H>
 {
 };
 
 //! <a href="http://www.weidai.com/scan-mirror/sig.html#NR">NR</a>
 template <class H>
-struct NR : public DL_SSA<DL_SignatureKeys_GFP, DL_Algorithm_NR<Integer>, H>
+struct NR : public DL_SS<
+	DL_SignatureKeys_GFP, 
+	DL_Algorithm_NR<Integer>, 
+	DL_SignatureMessageEncodingMethod_NR,
+	H>
 {
 };
 
@@ -376,7 +379,12 @@ struct DL_Keys_DSA
 };
 
 //! <a href="http://www.weidai.com/scan-mirror/sig.html#DSA">DSA</a>
-struct DSA : public DL_SSA<DL_Keys_DSA, DL_Algorithm_GDSA<Integer>, SHA, DSA>
+struct DSA : public DL_SS<
+	DL_Keys_DSA, 
+	DL_Algorithm_GDSA<Integer>, 
+	DL_SignatureMessageEncodingMethod_DSA,
+	SHA, 
+	DSA>
 {
 	static std::string StaticAlgorithmName() {return std::string("DSA");}
 
@@ -426,7 +434,14 @@ public:
 		}
 
 		xorbuf(cipherText, plainText, cipherKey, plainTextLength);
-		MAC(macKey).CalculateDigest(cipherText + plainTextLength, cipherText, plainTextLength);
+		MAC mac(macKey);
+		mac.Update(cipherText, plainTextLength);
+		if (DHAES_MODE)
+		{
+			const byte L[8] = {0,0,0,0,0,0,0,0};
+			mac.Update(L, 8);
+		}
+		mac.Final(cipherText + plainTextLength);
 	}
 	DecodingResult SymmetricDecrypt(const byte *key, const byte *cipherText, unsigned int cipherTextLength, byte *plainText) const
 	{
@@ -443,8 +458,16 @@ public:
 			macKey = key + plainTextLength;
 		}
 
-		if (!MAC(macKey).VerifyDigest(cipherText + plainTextLength, cipherText, plainTextLength))
+		MAC mac(macKey);
+		mac.Update(cipherText, plainTextLength);
+		if (DHAES_MODE)
+		{
+			const byte L[8] = {0,0,0,0,0,0,0,0};
+			mac.Update(L, 8);
+		}
+		if (!mac.Verify(cipherText + plainTextLength))
 			return DecodingResult();
+
 		xorbuf(plainText, cipherText, cipherKey, plainTextLength);
 		return DecodingResult(plainTextLength);
 	}

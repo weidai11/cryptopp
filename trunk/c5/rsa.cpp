@@ -4,25 +4,33 @@
 #include "rsa.h"
 #include "asn.h"
 #include "oids.h"
+#include "modarith.h"
 #include "nbtheory.h"
 #include "sha.h"
 #include "algparam.h"
 #include "fips140.h"
 
+#ifndef NDEBUG
+#include "pssr.h"
+#endif
+
 #include "oaep.cpp"
 
 NAMESPACE_BEGIN(CryptoPP)
 
+#ifndef NDEBUG
 void RSA_TestInstantiations()
 {
-	RSASSA<PKCS1v15, SHA>::Verifier x1(1, 1);
-	RSASSA<PKCS1v15, SHA>::Signer x2(NullRNG(), 1);
-	RSASSA<PKCS1v15, SHA>::Verifier x3(x2);
-	RSASSA<PKCS1v15, SHA>::Verifier x4(x2.GetKey());
-	RSASSA<PKCS1v15, SHA>::Verifier x5(x3);
-	RSASSA<PKCS1v15, SHA>::Signer x6 = x2;
+	RSASS<PKCS1v15, SHA>::Verifier x1(1, 1);
+	RSASS<PKCS1v15, SHA>::Signer x2(NullRNG(), 1);
+	RSASS<PKCS1v15, SHA>::Verifier x3(x2);
+	RSASS<PKCS1v15, SHA>::Verifier x4(x2.GetKey());
+	RSASS<PSS, SHA>::Verifier x5(x3);
+	RSASS<PSSR, SHA>::Signer x6 = x2;
 	RSAES<PKCS1v15>::Encryptor x7(x2);
+#ifndef __GNUC__
 	RSAES<PKCS1v15>::Encryptor x8(x3);
+#endif
 	RSAES<OAEP<SHA> >::Encryptor x9(x2);
 
 	x6 = x2;
@@ -31,6 +39,7 @@ void RSA_TestInstantiations()
 #endif
 	x4 = x2.GetKey();
 }
+#endif
 
 template class OAEP<SHA>;
 
@@ -124,19 +133,53 @@ void InvertibleRSAFunction::GenerateRandom(RandomNumberGenerator &rng, const Nam
 
 	if (FIPS_140_2_ComplianceEnabled())
 	{
-		RSASSA<PKCS1v15, SHA>::Signer signer(*this);
-		RSASSA<PKCS1v15, SHA>::Verifier verifier(signer);
-		SignaturePairwiseConsistencyTest(signer, verifier);
+		RSASS<PKCS1v15, SHA>::Signer signer(*this);
+		RSASS<PKCS1v15, SHA>::Verifier verifier(signer);
+		SignaturePairwiseConsistencyTest_FIPS_140_Only(signer, verifier);
 
 		RSAES<OAEP<SHA> >::Decryptor decryptor(*this);
 		RSAES<OAEP<SHA> >::Encryptor encryptor(decryptor);
-		EncryptionPairwiseConsistencyTest(encryptor, decryptor);
+		EncryptionPairwiseConsistencyTest_FIPS_140_Only(encryptor, decryptor);
 	}
 }
 
 void InvertibleRSAFunction::Initialize(RandomNumberGenerator &rng, unsigned int keybits, const Integer &e)
 {
 	GenerateRandom(rng, MakeParameters("ModulusSize", (int)keybits)("PublicExponent", e+e.IsEven()));
+}
+
+void InvertibleRSAFunction::Initialize(const Integer &n, const Integer &e, const Integer &d)
+{
+	m_n = n;
+	m_e = e;
+	m_d = d;
+
+	Integer r = --(d*e);
+	while (r.IsEven())
+		r >>= 1;
+
+	ModularArithmetic modn(n);
+	for (Integer i = 2; ; ++i)
+	{
+		Integer a = modn.Exponentiate(i, r);
+		if (a == 1)
+			continue;
+		Integer b;
+		while (a != -1)
+		{
+			b = modn.Square(a);
+			if (b == 1)
+			{
+				m_p = GCD(a-1, n);
+				m_q = n/m_p;
+				m_dp = m_d % (m_p-1);
+				m_dq = m_d % (m_q-1);
+				m_u = m_q.InverseMod(m_p);
+				return;
+			}
+			a = b;
+		}
+	}
 }
 
 void InvertibleRSAFunction::BERDecodeKey(BufferedTransformation &bt)
@@ -170,12 +213,20 @@ void InvertibleRSAFunction::DEREncodeKey(BufferedTransformation &bt) const
 	privateKey.MessageEnd();
 }
 
-Integer InvertibleRSAFunction::CalculateInverse(const Integer &x) const 
+Integer InvertibleRSAFunction::CalculateInverse(RandomNumberGenerator &rng, const Integer &x) const 
 {
 	DoQuickSanityCheck();
+	ModularArithmetic modn(m_n);
+	Integer r(rng, Integer::One(), m_n - Integer::One());
+	Integer re = modn.Exponentiate(r, m_e);
+	re = modn.Multiply(re, x);			// blind
 	// here we follow the notation of PKCS #1 and let u=q inverse mod p
 	// but in ModRoot, u=p inverse mod q, so we reverse the order of p and q
-	return ModularRoot(x, m_dq, m_dp, m_q, m_p, m_u);
+	Integer y = ModularRoot(re, m_dq, m_dp, m_q, m_p, m_u);
+	y = modn.Divide(y, r);				// unblind
+	if (modn.Exponentiate(y, m_e) != x)		// check
+		throw Exception(Exception::OTHER_ERROR, "InvertibleRSAFunction: computational error during private key operation");
+	return y;
 }
 
 bool InvertibleRSAFunction::Validate(RandomNumberGenerator &rng, unsigned int level) const
@@ -222,15 +273,5 @@ void InvertibleRSAFunction::AssignFrom(const NameValuePairs &source)
 		CRYPTOPP_SET_FUNCTION_ENTRY(MultiplicativeInverseOfPrime2ModPrime1)
 		;
 }
-
-/*
-bool RSAFunctionInverse_NonCRT::Validate(RandomNumberGenerator &rng, unsigned int level) const
-{
-	bool pass = true;
-	pass = pass && m_n > Integer::One() && m_n.IsOdd();
-	pass = pass && m_d > Integer::One() && m_d.IsOdd() && m_d < m_n;
-	return pass;
-}
-*/
 
 NAMESPACE_END

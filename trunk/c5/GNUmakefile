@@ -17,10 +17,16 @@ CXXFLAGS += -pipe
 endif
 
 ifeq ($(UNAME),Darwin)
+AR = libtool
+ARFLAGS = -static -o
+CXXFLAGS += -D__pic__
+IS_GCC2 = $(shell c++ -v 2>&1 | grep -c gcc-932)
+ifeq ($(IS_GCC2),1)
+CXXFLAGS += -fno-coalesce-templates -fno-coalesce-static-vtables
 CXX = c++
-CXXFLAGS += -D__pic__ -fno-coalesce-templates -fno-coalesce-static-vtables
 LDLIBS += -lstdc++
 LDFLAGS += -flat_namespace -undefined suppress -m
+endif
 endif
 
 ifeq ($(UNAME),SunOS)
