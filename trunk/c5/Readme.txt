@@ -11,8 +11,7 @@ This library includes:
   3-WAY, GOST, SHARK, CAST-128, Square, Skipjack  
 - generic block cipher modes: ECB, CBC, CBC ciphertext stealing (CTS), 
   CFB, OFB, counter (CTR) mode  
-- stream ciphers: Panama, ARC4, SEAL, WAKE, WAKE-OFB, Sapphire II, 
-  BlumBlumShub  
+- stream ciphers: Panama, ARC4, SEAL, WAKE, WAKE-OFB, BlumBlumShub
 - public key cryptography: RSA, DSA, ElGamal, Nyberg-Rueppel (NR), Rabin, 
   Rabin-Williams (RW), LUC, LUCELG, DLIES (variants of DHAES), ESIGN  
 - padding schemes for public-key systems: PKCS#1 v2.0, OAEP, PSSR, IEEE 
@@ -243,7 +242,8 @@ History
     - fixed SKIPJACK byte ordering following NIST clarification dated 5/9/02
 
 5.01 (special FIPS 140-2 release, in development)
-	- added known answer test for X9.17 RNG in FIPS 140 power-up self test
+    - added known answer test for X9.17 RNG in FIPS 140 power-up self test
 
 5.1 (in development)
-	- fixed a bug in CBC and ECB modes with processing non-aligned data
+    - fixed a bug in CBC and ECB modes with processing non-aligned data
+    - removed Sapphire

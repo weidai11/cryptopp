@@ -54,7 +54,6 @@
 #include "modes.h"
 #include "mdc.h"
 #include "lubyrack.h"
-#include "sapphire.h"
 #include "tea.h"
 #include "dh.h"
 #include "mqv.h"
