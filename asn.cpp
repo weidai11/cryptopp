@@ -195,6 +195,23 @@ unsigned int BERDecodeBitString(BufferedTransformation &bt, SecByteBlock &str, u
 	return bc-1;
 }
 
+void DERReencode(BufferedTransformation &source, BufferedTransformation &dest)
+{
+	byte tag;
+	source.Peek(tag);
+	BERGeneralDecoder decoder(source, tag);
+	DERGeneralEncoder encoder(dest, tag);
+	if (decoder.IsDefiniteLength())
+		decoder.TransferTo(encoder, decoder.RemainingLength());
+	else
+	{
+		while (!decoder.EndReached())
+			DERReencode(decoder, encoder);
+	}
+	decoder.MessageEnd();
+	encoder.MessageEnd();
+}
+
 void OID::EncodeValue(BufferedTransformation &bt, unsigned long v)
 {
 	for (unsigned int i=RoundUpToMultipleOf(STDMAX(7U,BitPrecision(v)), 7U)-7; i != 0; i-=7)
@@ -354,15 +371,16 @@ void EncodedObjectFilter::Put(const byte *inString, unsigned int length)
 BERGeneralDecoder::BERGeneralDecoder(BufferedTransformation &inQueue, byte asnTag)
 	: m_inQueue(inQueue), m_finished(false)
 {
-	byte b;
-	if (!m_inQueue.Get(b) || b != asnTag)
-		BERDecodeError();
-
-	m_definiteLength = BERLengthDecode(m_inQueue, m_length);
+	Init(asnTag);
 }
 
 BERGeneralDecoder::BERGeneralDecoder(BERGeneralDecoder &inQueue, byte asnTag)
 	: m_inQueue(inQueue), m_finished(false)
+{
+	Init(asnTag);
+}
+
+void BERGeneralDecoder::Init(byte asnTag)
 {
 	byte b;
 	if (!m_inQueue.Get(b) || b != asnTag)
@@ -370,7 +388,7 @@ BERGeneralDecoder::BERGeneralDecoder(BERGeneralDecoder &inQueue, byte asnTag)
 
 	m_definiteLength = BERLengthDecode(m_inQueue, m_length);
 	if (!m_definiteLength && !(asnTag & CONSTRUCTED))
-		BERDecodeError();	// cannot be primitive have indefinite length
+		BERDecodeError();	// cannot be primitive and have indefinite length
 }
 
 BERGeneralDecoder::~BERGeneralDecoder()
@@ -534,7 +552,8 @@ void PKCS8PrivateKey::BERDecode(BufferedTransformation &bt)
 			BERDecodeKey2(octetString, parametersPresent, privateKeyInfo.RemainingLength());
 		octetString.MessageEnd();
 
-		BERDecodeOptionalAttributes(privateKeyInfo);
+		if (!privateKeyInfo.EndReached())
+			BERDecodeOptionalAttributes(privateKeyInfo);
 	privateKeyInfo.MessageEnd();
 }
 
@@ -554,6 +573,16 @@ void PKCS8PrivateKey::DEREncode(BufferedTransformation &bt) const
 
 		DEREncodeOptionalAttributes(privateKeyInfo);
 	privateKeyInfo.MessageEnd();
+}
+
+void PKCS8PrivateKey::BERDecodeOptionalAttributes(BufferedTransformation &bt)
+{
+	DERReencode(bt, m_optionalAttributes);
+}
+
+void PKCS8PrivateKey::DEREncodeOptionalAttributes(BufferedTransformation &bt) const
+{
+	m_optionalAttributes.CopyTo(bt);
 }
 
 NAMESPACE_END
