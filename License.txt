@@ -18,7 +18,7 @@ Joan Daemen - 3way.cpp
 Leonard Janke - cast.cpp, seal.cpp
 Steve Reid - cast.cpp
 Phil Karn - des.cpp
-Michael Paul Johnson - diamond.cpp, sapphire.cpp
+Michael Paul Johnson - diamond.cpp
 Andrew M. Kuchling - md2.cpp, md4.cpp
 Colin Plumb - md5.cpp, md5mac.cpp
 Seal Woods - rc6.cpp
