@@ -77,7 +77,7 @@ public:
 };
 
 //! Route input to different and/or multiple channels based on channel ID
-class ChannelSwitch : public Multichannel<Sink>, public ChannelSwitchTypedefs
+class CRYPTOPP_DLL ChannelSwitch : public Multichannel<Sink>, public ChannelSwitchTypedefs
 {
 public:
 	ChannelSwitch() : m_it(*this), m_blocked(false) {}

@@ -16,7 +16,7 @@ public:
 	static std::string StaticAlgorithmName() {return std::string("Two-Track-MAC");}
 	enum {DIGESTSIZE=20};
 
-	TTMAC_Base() : IteratedHash<word32, LittleEndian, 64, MessageAuthenticationCode>(DIGESTSIZE*2) {}
+	TTMAC_Base() {SetStateSize(DIGESTSIZE*2);}
 
 	unsigned int DigestSize() const {return DIGESTSIZE;};
 	void UncheckedSetKey(const byte *userKey, unsigned int keylength);
@@ -24,14 +24,14 @@ public:
 
 protected:
 	static void Transform (word32 *digest, const word32 *X, bool last);
-	void vTransform(const word32 *data) {Transform(m_digest, data, false);}
+	void HashEndianCorrectedBlock(const word32 *data) {Transform(m_digest, data, false);}
 	void Init();
 
 	FixedSizeSecBlock<word32, DIGESTSIZE> m_key;
 };
 
 //! <a href="http://www.weidai.com/scan-mirror/mac.html#TTMAC">Two-Track-MAC</a>
-typedef MessageAuthenticationCodeTemplate<TTMAC_Base> TTMAC;
+typedef MessageAuthenticationCodeFinal<TTMAC_Base> TTMAC;
 
 NAMESPACE_END
 

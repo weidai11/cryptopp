@@ -20,6 +20,8 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+#ifndef CRYPTOPP_IMPORTS
+
 static inline bool CheckParity(byte b)
 {
 	unsigned int a = b ^ (b >> 4);
@@ -444,6 +446,8 @@ void DES_EDE3::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBloc
 	FPERM(l,r);
 	Block::Put(xorBlock, outBlock)(r)(l);
 }
+
+#endif	// #ifndef CRYPTOPP_IMPORTS
 
 void DES_XEX3::Base::UncheckedSetKey(CipherDir dir, const byte *key, unsigned int length)
 {

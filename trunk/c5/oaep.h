@@ -2,6 +2,7 @@
 #define CRYPTOPP_OAEP_H
 
 #include "pubkey.h"
+#include "sha.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -19,6 +20,8 @@ public:
 	void Pad(RandomNumberGenerator &rng, const byte *raw, unsigned int inputLength, byte *padded, unsigned int paddedLength) const;
 	DecodingResult Unpad(const byte *padded, unsigned int paddedLength, byte *raw) const;
 };
+
+CRYPTOPP_DLL_TEMPLATE_CLASS OAEP<SHA>;
 
 NAMESPACE_END
 

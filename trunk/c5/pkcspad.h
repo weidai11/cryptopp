@@ -4,6 +4,10 @@
 #include "cryptlib.h"
 #include "pubkey.h"
 
+#ifdef CRYPTOPP_IS_DLL
+#include "sha.h"
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 //! <a href="http://www.weidai.com/scan-mirror/ca.html#cem_PKCS1-1.5">EME-PKCS1-v1_5</a>
@@ -17,14 +21,15 @@ public:
 	DecodingResult Unpad(const byte *padded, unsigned int paddedLength, byte *raw) const;
 };
 
-template <class H> struct PKCS_DigestDecoration
+template <class H> class PKCS_DigestDecoration
 {
+public:
 	static const byte decoration[];
 	static const unsigned int length;
 };
 
 //! <a href="http://www.weidai.com/scan-mirror/sig.html#sem_PKCS1-1.5">EMSA-PKCS1-v1_5</a>
-class PKCS1v15_SignatureMessageEncodingMethod : public PK_DeterministicSignatureMessageEncodingMethod
+class CRYPTOPP_DLL PKCS1v15_SignatureMessageEncodingMethod : public PK_DeterministicSignatureMessageEncodingMethod
 {
 public:
 	static const char * StaticAlgorithmName() {return "EMSA-PKCS1-v1_5";}
@@ -46,13 +51,17 @@ public:
 	};
 };
 
-//! PKCS #1 version 1.5, for use with RSAES and RSASS
+//! PKCS #1 version 1.5, for use with RSAES and RSASSA
 /*! The following hash functions are supported for signature: SHA, MD2, MD5, RIPEMD160, SHA256, SHA384, SHA512. */
 struct PKCS1v15 : public SignatureStandard, public EncryptionStandard
 {
 	typedef PKCS_EncryptionPaddingScheme EncryptionMessageEncodingMethod;
 	typedef PKCS1v15_SignatureMessageEncodingMethod SignatureMessageEncodingMethod;
 };
+
+#ifdef CRYPTOPP_IS_DLL
+CRYPTOPP_DLL_TEMPLATE_CLASS PKCS_DigestDecoration<SHA>;
+#endif
 
 // PKCS_DecoratedHashModule can be instantiated with the following
 // classes as specified in PKCS#1 v2.0 and P1363a

@@ -10,15 +10,15 @@
 #include "algparam.h"
 #include "fips140.h"
 
-#ifndef NDEBUG
+#if !defined(NDEBUG) && defined(CRYPTOPP_NO_DLL)
 #include "pssr.h"
 #endif
 
-#include "oaep.cpp"
-
 NAMESPACE_BEGIN(CryptoPP)
 
-#ifndef NDEBUG
+byte OAEP_P_DEFAULT[1];
+
+#if !defined(NDEBUG) && defined(CRYPTOPP_NO_DLL)
 void RSA_TestInstantiations()
 {
 	RSASS<PKCS1v15, SHA>::Verifier x1(1, 1);
@@ -41,7 +41,7 @@ void RSA_TestInstantiations()
 }
 #endif
 
-template class OAEP<SHA>;
+#ifndef CRYPTOPP_IMPORTS
 
 OID RSAFunction::GetAlgorithmID() const
 {
@@ -277,5 +277,7 @@ void InvertibleRSAFunction::AssignFrom(const NameValuePairs &source)
 		CRYPTOPP_SET_FUNCTION_ENTRY(MultiplicativeInverseOfPrime2ModPrime1)
 		;
 }
+
+#endif
 
 NAMESPACE_END

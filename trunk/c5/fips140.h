@@ -10,26 +10,36 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 //! exception thrown when a crypto algorithm is used after a self test fails
-class SelfTestFailure : public Exception
+class CRYPTOPP_DLL SelfTestFailure : public Exception
 {
 public:
 	explicit SelfTestFailure(const std::string &s) : Exception(OTHER_ERROR, s) {}
 };
 
 //! returns whether FIPS 140-2 compliance features were enabled at compile time
-bool FIPS_140_2_ComplianceEnabled();
+CRYPTOPP_DLL bool FIPS_140_2_ComplianceEnabled();
 
 //! enum values representing status of the power-up self test
 enum PowerUpSelfTestStatus {POWER_UP_SELF_TEST_NOT_DONE, POWER_UP_SELF_TEST_FAILED, POWER_UP_SELF_TEST_PASSED};
 
 //! perform the power-up self test, and set the self test status
-void DoPowerUpSelfTest(const char *moduleFilename, const byte *expectedModuleSha1Digest);
+CRYPTOPP_DLL void DoPowerUpSelfTest(const char *moduleFilename, const byte *expectedModuleMac);
 
 //! set the power-up self test status to POWER_UP_SELF_TEST_FAILED
-void SimulatePowerUpSelfTestFailure();
+CRYPTOPP_DLL void SimulatePowerUpSelfTestFailure();
 
 //! return the current power-up self test status
-PowerUpSelfTestStatus GetPowerUpSelfTestStatus();
+CRYPTOPP_DLL PowerUpSelfTestStatus CRYPTOPP_API GetPowerUpSelfTestStatus();
+
+typedef PowerUpSelfTestStatus (CRYPTOPP_API * PGetPowerUpSelfTestStatus)();
+
+CRYPTOPP_DLL const byte * CRYPTOPP_API GetActualMacAndLocation(unsigned int &macSize, unsigned int &fileLocation);
+
+typedef const byte * (CRYPTOPP_API * PGetActualMacAndLocation)(unsigned int &macSize, unsigned int &fileLocation);
+
+CRYPTOPP_DLL MessageAuthenticationCode * NewIntegrityCheckingMAC();
+
+CRYPTOPP_DLL bool IntegrityCheckModule(const char *moduleFilename, const byte *expectedModuleMac, SecByteBlock *pActualMac = NULL, unsigned long *pMacFileLocation = NULL);
 
 // this is used by Algorithm constructor to allow Algorithm objects to be constructed for the self test
 bool PowerUpSelfTestInProgressOnThisThread();

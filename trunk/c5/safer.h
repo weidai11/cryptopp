@@ -47,21 +47,21 @@ struct SAFER_K_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 8, 
 /// <a href="http://www.weidai.com/scan-mirror/cs.html#SAFER-K">SAFER-K</a>
 class SAFER_K : public SAFER_K_Info, public SAFER, public BlockCipherDocumentation
 {
-	class CRYPTOPP_NO_VTABLE Enc : public BlockCipherBaseTemplate<SAFER_K_Info, SAFER::Enc>
+	class CRYPTOPP_NO_VTABLE Enc : public BlockCipherImpl<SAFER_K_Info, SAFER::Enc>
 	{
 	public:
 		Enc() {strengthened = false;}
 	};
 
-	class CRYPTOPP_NO_VTABLE Dec : public BlockCipherBaseTemplate<SAFER_K_Info, SAFER::Dec>
+	class CRYPTOPP_NO_VTABLE Dec : public BlockCipherImpl<SAFER_K_Info, SAFER::Dec>
 	{
 	public:
 		Dec() {strengthened = false;}
 	};
 
 public:
-	typedef BlockCipherTemplate<ENCRYPTION, Enc> Encryption;
-	typedef BlockCipherTemplate<DECRYPTION, Dec> Decryption;
+	typedef BlockCipherFinal<ENCRYPTION, Enc> Encryption;
+	typedef BlockCipherFinal<DECRYPTION, Dec> Decryption;
 };
 
 struct SAFER_SK_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 8, 16, 8>, public VariableRounds<10, 1, 13>
@@ -73,21 +73,21 @@ struct SAFER_SK_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 8,
 /// <a href="http://www.weidai.com/scan-mirror/cs.html#SAFER-SK">SAFER-SK</a>
 class SAFER_SK : public SAFER_SK_Info, public SAFER, public BlockCipherDocumentation
 {
-	class CRYPTOPP_NO_VTABLE Enc : public BlockCipherBaseTemplate<SAFER_SK_Info, SAFER::Enc>
+	class CRYPTOPP_NO_VTABLE Enc : public BlockCipherImpl<SAFER_SK_Info, SAFER::Enc>
 	{
 	public:
 		Enc() {strengthened = true;}
 	};
 
-	class CRYPTOPP_NO_VTABLE Dec : public BlockCipherBaseTemplate<SAFER_SK_Info, SAFER::Dec>
+	class CRYPTOPP_NO_VTABLE Dec : public BlockCipherImpl<SAFER_SK_Info, SAFER::Dec>
 	{
 	public:
 		Dec() {strengthened = true;}
 	};
 
 public:
-	typedef BlockCipherTemplate<ENCRYPTION, Enc> Encryption;
-	typedef BlockCipherTemplate<DECRYPTION, Dec> Decryption;
+	typedef BlockCipherFinal<ENCRYPTION, Enc> Encryption;
+	typedef BlockCipherFinal<DECRYPTION, Dec> Decryption;
 };
 
 typedef SAFER_K::Encryption SAFER_K_Encryption;

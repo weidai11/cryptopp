@@ -1,6 +1,9 @@
 // queue.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
+
+#ifndef CRYPTOPP_IMPORTS
+
 #include "queue.h"
 #include "filters.h"
 
@@ -548,3 +551,5 @@ unsigned int ByteQueue::Walker::CopyRangeTo2(BufferedTransformation &target, uns
 }
 
 NAMESPACE_END
+
+#endif

@@ -1,6 +1,9 @@
 // cryptlib.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
+
+#ifndef CRYPTOPP_IMPORTS
+
 #include "cryptlib.h"
 #include "misc.h"
 #include "filters.h"
@@ -37,7 +40,7 @@ Algorithm::Algorithm(bool checkSelfTestStatus)
 			throw SelfTestFailure("Cryptographic algorithms are disabled before the power-up self tests are performed.");
 
 		if (GetPowerUpSelfTestStatus() == POWER_UP_SELF_TEST_FAILED)
-			throw SelfTestFailure("Cryptographic algorithms are disabled after power-up a self test failed.");
+			throw SelfTestFailure("Cryptographic algorithms are disabled after a power-up self test failed.");
 	}
 }
 
@@ -691,3 +694,5 @@ void AuthenticatedKeyAgreementDomain::GenerateEphemeralKeyPair(RandomNumberGener
 }
 
 NAMESPACE_END
+
+#endif

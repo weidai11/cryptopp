@@ -7,8 +7,6 @@
 #include "sha.h"
 #include "algparam.h"
 
-#include "oaep.cpp"
-
 NAMESPACE_BEGIN(CryptoPP)
 
 void LUC_TestInstantiations()

@@ -1,6 +1,9 @@
 // Rijndael tables
 
 #include "pch.h"
+
+#ifndef CRYPTOPP_IMPORTS
+
 #include "rijndael.h"
 
 // VC60 workaround: gives a C4786 warning without this function
@@ -702,3 +705,5 @@ const word32 Rijndael::Base::rcon[] = {
 };
 
 NAMESPACE_END
+
+#endif

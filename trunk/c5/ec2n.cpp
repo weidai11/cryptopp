@@ -1,6 +1,9 @@
 // ec2n.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
+
+#ifndef CRYPTOPP_IMPORTS
+
 #include "ec2n.h"
 #include "asn.h"
 
@@ -281,7 +284,6 @@ EC2N::Point EcPrecomputation<EC2N>::CascadeExponentiate(const Integer &exponent,
 }
 */
 
-template class AbstractGroup<EC2N::Point>;
-template class DL_FixedBasePrecomputationImpl<EC2N::Point>;
-
 NAMESPACE_END
+
+#endif

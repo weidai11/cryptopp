@@ -38,7 +38,7 @@ private:
 template <class B = BigEndian>
 struct SEAL : public SEAL_Info<B>, public SymmetricCipherDocumentation
 {
-	typedef SymmetricCipherFinalTemplate<ConcretePolicyHolder<SEAL_Policy<B>, AdditiveCipherTemplate<> >, SEAL_Info<B> > Encryption;
+	typedef SymmetricCipherFinal<ConcretePolicyHolder<SEAL_Policy<B>, AdditiveCipherTemplate<> >, SEAL_Info<B> > Encryption;
 	typedef Encryption Decryption;
 };
 

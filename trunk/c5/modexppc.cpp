@@ -1,15 +1,13 @@
 // modexppc.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
+
+#ifndef CRYPTOPP_IMPORTS
+
 #include "modexppc.h"
 #include "asn.h"
 
-#include "algebra.cpp"
-#include "eprecomp.cpp"
-
 NAMESPACE_BEGIN(CryptoPP)
-
-template class DL_FixedBasePrecomputationImpl<Integer>;
 
 /*
 ModExpPrecomputation& ModExpPrecomputation::operator=(const ModExpPrecomputation &rhs)
@@ -78,3 +76,5 @@ Integer ModExpPrecomputation::CascadeExponentiate(const Integer &exponent, const
 */
 
 NAMESPACE_END
+
+#endif

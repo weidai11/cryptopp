@@ -1,6 +1,9 @@
 // filters.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
+
+#ifndef CRYPTOPP_IMPORTS
+
 #include "filters.h"
 #include "mqueue.h"
 #include "fltrimpl.h"
@@ -154,7 +157,7 @@ unsigned int MeterFilter::Put2(const byte *begin, unsigned int length, int messa
 			m_currentSeriesMessages++;
 			m_totalMessages++;
 		}
-		
+
 		FILTER_OUTPUT(1, begin, length, messageEnd);
 		FILTER_END_NO_MESSAGE_END;
 	}
@@ -773,7 +776,7 @@ void SignatureVerificationFilter::InitializeDerivedAndReturnNewSizes(const NameV
 {
 	m_flags = parameters.GetValueWithDefault(Name::SignatureVerificationFilterFlags(), (word32)DEFAULT_FLAGS);
 	m_messageAccumulator.reset(m_verifier.NewVerificationAccumulator());
-	unsigned int size =	m_verifier.SignatureLength();
+	unsigned int size = m_verifier.SignatureLength();
 	assert(size != 0);	// TODO: handle recoverable signature scheme
 	m_verified = false;
 	firstSize = m_flags & SIGNATURE_AT_BEGIN ? size : 0;
@@ -931,3 +934,5 @@ unsigned int NullStore::TransferTo2(BufferedTransformation &target, unsigned lon
 }
 
 NAMESPACE_END
+
+#endif

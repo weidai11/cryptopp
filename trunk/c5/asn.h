@@ -48,7 +48,7 @@ enum ASNIdFlag
 
 inline void BERDecodeError() {throw BERDecodeErr();}
 
-class UnknownOID : public BERDecodeErr
+class CRYPTOPP_DLL UnknownOID : public BERDecodeErr
 {
 public:
 	UnknownOID() : BERDecodeErr("BER decode error: unknown object identifier") {}
@@ -56,27 +56,27 @@ public:
 };
 
 // unsigned int DERLengthEncode(unsigned int length, byte *output=0);
-unsigned int DERLengthEncode(BufferedTransformation &out, unsigned int length);
+CRYPTOPP_DLL unsigned int DERLengthEncode(BufferedTransformation &out, unsigned int length);
 // returns false if indefinite length
-bool BERLengthDecode(BufferedTransformation &in, unsigned int &length);
+CRYPTOPP_DLL bool BERLengthDecode(BufferedTransformation &in, unsigned int &length);
 
-void DEREncodeNull(BufferedTransformation &out);
-void BERDecodeNull(BufferedTransformation &in);
+CRYPTOPP_DLL void DEREncodeNull(BufferedTransformation &out);
+CRYPTOPP_DLL void BERDecodeNull(BufferedTransformation &in);
 
-unsigned int DEREncodeOctetString(BufferedTransformation &out, const byte *str, unsigned int strLen);
-unsigned int DEREncodeOctetString(BufferedTransformation &out, const SecByteBlock &str);
-unsigned int BERDecodeOctetString(BufferedTransformation &in, SecByteBlock &str);
-unsigned int BERDecodeOctetString(BufferedTransformation &in, BufferedTransformation &str);
+CRYPTOPP_DLL unsigned int DEREncodeOctetString(BufferedTransformation &out, const byte *str, unsigned int strLen);
+CRYPTOPP_DLL unsigned int DEREncodeOctetString(BufferedTransformation &out, const SecByteBlock &str);
+CRYPTOPP_DLL unsigned int BERDecodeOctetString(BufferedTransformation &in, SecByteBlock &str);
+CRYPTOPP_DLL unsigned int BERDecodeOctetString(BufferedTransformation &in, BufferedTransformation &str);
 
 // for UTF8_STRING, PRINTABLE_STRING, and IA5_STRING
-unsigned int DEREncodeTextString(BufferedTransformation &out, const std::string &str, byte asnTag);
-unsigned int BERDecodeTextString(BufferedTransformation &in, std::string &str, byte asnTag);
+CRYPTOPP_DLL unsigned int DEREncodeTextString(BufferedTransformation &out, const std::string &str, byte asnTag);
+CRYPTOPP_DLL unsigned int BERDecodeTextString(BufferedTransformation &in, std::string &str, byte asnTag);
 
-unsigned int DEREncodeBitString(BufferedTransformation &out, const byte *str, unsigned int strLen, unsigned int unusedBits=0);
-unsigned int BERDecodeBitString(BufferedTransformation &in, SecByteBlock &str, unsigned int &unusedBits);
+CRYPTOPP_DLL unsigned int DEREncodeBitString(BufferedTransformation &out, const byte *str, unsigned int strLen, unsigned int unusedBits=0);
+CRYPTOPP_DLL unsigned int BERDecodeBitString(BufferedTransformation &in, SecByteBlock &str, unsigned int &unusedBits);
 
 //! Object Identifier
-class OID
+class CRYPTOPP_DLL OID
 {
 public:
 	OID() {}
@@ -122,7 +122,7 @@ private:
 };
 
 //! BER General Decoder
-class BERGeneralDecoder : public Store
+class CRYPTOPP_DLL BERGeneralDecoder : public Store
 {
 public:
 	explicit BERGeneralDecoder(BufferedTransformation &inQueue, byte asnTag);
@@ -152,7 +152,7 @@ private:
 };
 
 //! DER General Encoder
-class DERGeneralEncoder : public ByteQueue
+class CRYPTOPP_DLL DERGeneralEncoder : public ByteQueue
 {
 public:
 	explicit DERGeneralEncoder(BufferedTransformation &outQueue, byte asnTag = SEQUENCE | CONSTRUCTED);
@@ -170,7 +170,7 @@ private:
 };
 
 //! BER Sequence Decoder
-class BERSequenceDecoder : public BERGeneralDecoder
+class CRYPTOPP_DLL BERSequenceDecoder : public BERGeneralDecoder
 {
 public:
 	explicit BERSequenceDecoder(BufferedTransformation &inQueue, byte asnTag = SEQUENCE | CONSTRUCTED)
@@ -180,7 +180,7 @@ public:
 };
 
 //! DER Sequence Encoder
-class DERSequenceEncoder : public DERGeneralEncoder
+class CRYPTOPP_DLL DERSequenceEncoder : public DERGeneralEncoder
 {
 public:
 	explicit DERSequenceEncoder(BufferedTransformation &outQueue, byte asnTag = SEQUENCE | CONSTRUCTED)
@@ -190,7 +190,7 @@ public:
 };
 
 //! BER Set Decoder
-class BERSetDecoder : public BERGeneralDecoder
+class CRYPTOPP_DLL BERSetDecoder : public BERGeneralDecoder
 {
 public:
 	explicit BERSetDecoder(BufferedTransformation &inQueue, byte asnTag = SET | CONSTRUCTED)
@@ -200,7 +200,7 @@ public:
 };
 
 //! DER Set Encoder
-class DERSetEncoder : public DERGeneralEncoder
+class CRYPTOPP_DLL DERSetEncoder : public DERGeneralEncoder
 {
 public:
 	explicit DERSetEncoder(BufferedTransformation &outQueue, byte asnTag = SET | CONSTRUCTED)
@@ -227,7 +227,7 @@ public:
 };
 
 //! .
-class ASN1Key : public ASN1CryptoMaterial
+class CRYPTOPP_DLL ASN1Key : public ASN1CryptoMaterial
 {
 public:
 	virtual OID GetAlgorithmID() const =0;
@@ -245,7 +245,7 @@ public:
 };
 
 //! encodes/decodes subjectPublicKeyInfo
-class X509PublicKey : virtual public ASN1Key, public PublicKey
+class CRYPTOPP_DLL X509PublicKey : virtual public ASN1Key, public PublicKey
 {
 public:
 	void BERDecode(BufferedTransformation &bt);
@@ -253,7 +253,7 @@ public:
 };
 
 //! encodes/decodes privateKeyInfo
-class PKCS8PrivateKey : virtual public ASN1Key, public PrivateKey
+class CRYPTOPP_DLL PKCS8PrivateKey : virtual public ASN1Key, public PrivateKey
 {
 public:
 	void BERDecode(BufferedTransformation &bt);

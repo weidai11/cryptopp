@@ -1,6 +1,9 @@
 // files.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
+
+#ifndef CRYPTOPP_IMPORTS
+
 #include "files.h"
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -16,16 +19,15 @@ void Files_TestInstantiations()
 
 void FileStore::StoreInitialize(const NameValuePairs &parameters)
 {
-	m_file.close();
-	m_file.clear();
+	m_file.reset(new std::ifstream);
 	const char *fileName;
 	if (parameters.GetValue(Name::InputFileName(), fileName))
 	{
 		ios::openmode binary = parameters.GetValueWithDefault(Name::InputBinaryMode(), true) ? ios::binary : ios::openmode(0);
-		m_file.open(fileName, ios::in | binary);
-		if (!m_file)
+		m_file->open(fileName, ios::in | binary);
+		if (!*m_file)
 			throw OpenErr(fileName);
-		m_stream = &m_file;
+		m_stream = m_file.get();
 	}
 	else
 	{
@@ -148,14 +150,15 @@ unsigned long FileStore::Skip(unsigned long skipMax)
 
 void FileSink::IsolatedInitialize(const NameValuePairs &parameters)
 {
+	m_file.reset(new std::ofstream);
 	const char *fileName;
 	if (parameters.GetValue(Name::OutputFileName(), fileName))
 	{
 		ios::openmode binary = parameters.GetValueWithDefault(Name::OutputBinaryMode(), true) ? ios::binary : ios::openmode(0);
-		m_file.open(fileName, ios::out | ios::trunc | binary);
-		if (!m_file)
+		m_file->open(fileName, ios::out | ios::trunc | binary);
+		if (!*m_file)
 			throw OpenErr(fileName);
-		m_stream = &m_file;
+		m_stream = m_file.get();
 	}
 	else
 	{
@@ -193,3 +196,5 @@ unsigned int FileSink::Put2(const byte *inString, unsigned int length, int messa
 }
 
 NAMESPACE_END
+
+#endif

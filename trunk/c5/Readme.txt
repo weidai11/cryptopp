@@ -1,5 +1,5 @@
 Crypto++: a C++ Class Library of Cryptographic Primitives
-Version 5.1 3/20/2003
+Version 5.0 9/11/2002
 
 This library includes:
 
@@ -238,9 +238,15 @@ History
     - fixed a bug in HMAC::TruncatedFinal()
     - fixed SKIPJACK byte ordering following NIST clarification dated 5/9/02
 
-5.01 (special FIPS 140-2 release, in development)
-    - added known answer test for X9.17 RNG in FIPS 140 power-up self test
-    - is being evaluated for FIPS 140-2 compliance
+5.01 - added known answer test for X9.17 RNG in FIPS 140 power-up self test
+     - submitted to NIST/CSE, but not publicly released
+
+5.02 - changed EDC test to MAC integrity check using HMAC/SHA1
+     - improved performance of integrity check
+     - added blinding to defend against RSA timing attack
+
+5.03 - created DLL version of Crypto++ for FIPS 140-2 validation
+     - fixed vulnerabilities in GetNextIV for CTR and OFB modes
 
 5.1 - added PSS padding and changed PSSR to track IEEE P1363a draft standard
     - added blinding for RSA and Rabin to defend against timing attacks
@@ -253,3 +259,5 @@ History
       signature scheme (these fixes are not backwards compatible)
     - fixed a number of compiler warnings, minor bugs, and portability problems
     - removed Sapphire
+
+5.2 - Merged in changes for 5.01 - 5.03

@@ -1,6 +1,7 @@
 // rng.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
+
 #include "rng.h"
 
 #include <time.h>
@@ -50,6 +51,8 @@ byte LC_RNG::GenerateByte()
 }
 
 // ********************************************************
+
+#ifndef CRYPTOPP_IMPORTS
 
 X917RNG::X917RNG(BlockTransformation *c, const byte *seed, unsigned long deterministicTimeVector)
 	: cipher(c),
@@ -108,6 +111,8 @@ byte X917RNG::GenerateByte()
 	}
 	return(randbuf[--randbuf_counter]);
 }
+
+#endif
 
 MaurerRandomnessTest::MaurerRandomnessTest()
 	: sum(0.0), n(0)

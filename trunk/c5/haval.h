@@ -23,7 +23,7 @@ protected:
 
 	void Init();
 	void Tailor(unsigned int FPTLEN);
-	void vTransform(const word32 *in);
+	void HashEndianCorrectedBlock(const word32 *in);
 
 	const unsigned int digestSize, pass;
 };

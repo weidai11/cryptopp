@@ -1,6 +1,9 @@
 // strciphr.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
+
+#ifndef CRYPTOPP_IMPORTS
+
 #include "strciphr.h"
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -186,3 +189,5 @@ void CFB_DecryptionTemplate<BASE>::CombineMessageAndShiftRegister(byte *output, 
 }
 
 NAMESPACE_END
+
+#endif

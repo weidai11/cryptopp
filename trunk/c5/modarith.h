@@ -10,8 +10,12 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+CRYPTOPP_DLL_TEMPLATE_CLASS AbstractGroup<Integer>;
+CRYPTOPP_DLL_TEMPLATE_CLASS AbstractRing<Integer>;
+CRYPTOPP_DLL_TEMPLATE_CLASS AbstractEuclideanDomain<Integer>;
+
 //! .
-class ModularArithmetic : public AbstractRing<Integer>
+class CRYPTOPP_DLL ModularArithmetic : public AbstractRing<Integer>
 {
 public:
 
@@ -99,6 +103,9 @@ public:
 		return Element( rng , Integer( (long) 0) , modulus - Integer( (long) 1 )   ) ; 
 	}   
 
+	bool operator==(const ModularArithmetic &rhs) const
+		{return modulus == rhs.modulus;}
+
 	static const RandomizationParameter DefaultRandomizationParameter ;
 
 protected:
@@ -110,7 +117,7 @@ protected:
 // const ModularArithmetic::RandomizationParameter ModularArithmetic::DefaultRandomizationParameter = 0 ;
 
 //! do modular arithmetics in Montgomery representation for increased speed
-class MontgomeryRepresentation : public ModularArithmetic
+class CRYPTOPP_DLL MontgomeryRepresentation : public ModularArithmetic
 {
 public:
 	MontgomeryRepresentation(const Integer &modulus);	// modulus must be odd

@@ -1,16 +1,17 @@
 // gf2n.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
+
+#ifndef CRYPTOPP_IMPORTS
+
 #include "gf2n.h"
 #include "algebra.h"
 #include "words.h"
-#include "rng.h"
+#include "randpool.h"
 #include "asn.h"
 #include "oids.h"
 
 #include <iostream>
-
-#include "algebra.cpp"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -551,10 +552,10 @@ GF2NP::Element GF2NP::SolveQuadraticEquation(const Element &a) const
 	if (m%2 == 0)
 	{
 		Element z, w;
+		RandomPool rng;
 		do
 		{
-			LC_RNG rng(11111);
-			Element p(rng, m);
+			Element p((RandomNumberGenerator &)rng, m);
 			z = PolynomialMod2::Zero();
 			w = p;
 			for (unsigned int i=1; i<=m-1; i++)
@@ -868,3 +869,5 @@ GF2NP * BERDecodeGF2NP(BufferedTransformation &bt)
 }
 
 NAMESPACE_END
+
+#endif

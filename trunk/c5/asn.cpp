@@ -1,6 +1,9 @@
 // asn.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
+
+#ifndef CRYPTOPP_IMPORTS
+
 #include "asn.h"
 
 #include <iomanip>
@@ -554,3 +557,5 @@ void PKCS8PrivateKey::DEREncode(BufferedTransformation &bt) const
 }
 
 NAMESPACE_END
+
+#endif

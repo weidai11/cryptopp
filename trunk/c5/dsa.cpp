@@ -1,6 +1,9 @@
 // dsa.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
+
+#ifndef CRYPTOPP_IMPORTS
+
 #include "dsa.h"
 #include "nbtheory.h"
 
@@ -112,3 +115,5 @@ bool DSA::GeneratePrimes(const byte *seedIn, unsigned int g, int &counter,
 }
 
 NAMESPACE_END
+
+#endif

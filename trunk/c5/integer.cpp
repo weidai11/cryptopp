@@ -2,6 +2,9 @@
 // contains public domain code contributed by Alister Lee and Leonard Janke
 
 #include "pch.h"
+
+#ifndef CRYPTOPP_IMPORTS
+
 #include "integer.h"
 #include "modarith.h"
 #include "nbtheory.h"
@@ -19,9 +22,6 @@
 #elif defined(_MSC_VER) && defined(_M_IX86)
 #pragma message("You do no seem to have the Visual C++ Processor Pack installed, so use of SSE2 intrinsics will be disabled.")
 #endif
-
-#include "algebra.cpp"
-#include "eprecomp.cpp"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -58,8 +58,6 @@ void AlignedAllocator<T>::deallocate(void *p, size_type n)
 #endif
 		delete [] p;
 }
-
-template class AlignedAllocator<word>;
 #endif
 
 #define MAKE_DWORD(lowWord, highWord) ((dword(highWord)<<WORD_BITS) | (lowWord))
@@ -751,6 +749,11 @@ static bool GetSSE2Capability()
 }
 
 bool g_sse2DetectionDone = false, g_sse2Detected, g_sse2Enabled = true;
+
+void DisableSSE2()
+{
+	g_sse2Enabled = false;
+}
 
 static inline bool HasSSE2()
 {
@@ -4001,6 +4004,6 @@ const Integer& MontgomeryRepresentation::MultiplicativeInverse(const Integer &a)
 	return result;
 }
 
-template class AbstractRing<Integer>;    
-
 NAMESPACE_END
+
+#endif

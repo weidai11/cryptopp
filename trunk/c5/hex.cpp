@@ -1,6 +1,9 @@
 // hex.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
+
+#ifndef CRYPTOPP_IMPORTS
+
 #include "hex.h"
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -30,3 +33,5 @@ const int *HexDecoder::GetDecodingLookupArray()
 }
 
 NAMESPACE_END
+
+#endif

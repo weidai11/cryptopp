@@ -14,7 +14,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 //! .
-class RSAFunction : public TrapdoorFunction, public X509PublicKey
+class CRYPTOPP_DLL RSAFunction : public TrapdoorFunction, public X509PublicKey
 {
 	typedef RSAFunction ThisClass;
 
@@ -49,7 +49,7 @@ protected:
 };
 
 //! .
-class InvertibleRSAFunction : public RSAFunction, public TrapdoorFunctionInverse, public PKCS8PrivateKey
+class CRYPTOPP_DLL InvertibleRSAFunction : public RSAFunction, public TrapdoorFunctionInverse, public PKCS8PrivateKey
 {
 	typedef InvertibleRSAFunction ThisClass;
 
@@ -101,7 +101,7 @@ protected:
 };
 
 //! .
-struct RSA
+struct CRYPTOPP_DLL RSA
 {
 	static std::string StaticAlgorithmName() {return "RSA";}
 	typedef RSAFunction PublicKey;

@@ -11,7 +11,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 #ifdef CRYPTOPP_DOXYGEN_PROCESSING	// Use inheritance instead of typedef to get a seperate API reference page for AES
 //! AES
-class AES : public Rijndael, public BlockCipherDocumentation {};
+class AES : public Rijndael {};
 #else
 typedef Rijndael AES;
 #endif

@@ -1,27 +1,24 @@
 // fipstest.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
-#include "fips140.h"
-#include "sha.h"
-#include "files.h"
-#include "hex.h"
-#include "rsa.h"
-#include "dsa.h"
-#include "mqueue.h"
-#include "channels.h"
-#include "osrng.h"
-#include "des.h"
-#include "eccrypto.h"
-#include "ec2n.h"
-#include "ecp.h"
-#include "modes.h"
-#include "aes.h"
-#include "skipjack.h"
-#include "trdlocal.h"	// needs to be included last for cygwin
+
+#ifndef CRYPTOPP_IMPORTS
+
+#include "dll.h"
+#include <windows.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 
 extern PowerUpSelfTestStatus g_powerUpSelfTestStatus;
+SecByteBlock g_actualMac;
+unsigned long g_macFileLocation = 0;
+
+const byte * CRYPTOPP_API GetActualMacAndLocation(unsigned int &macSize, unsigned int &fileLocation)
+{
+	macSize = g_actualMac.size();
+	fileLocation = g_macFileLocation;
+	return g_actualMac;
+}
 
 void KnownAnswerTest(RandomNumberGenerator &rng, const char *output)
 {
@@ -105,22 +102,22 @@ void SymmetricEncryptionKnownAnswerTest(
 void KnownAnswerTest(HashTransformation &hash, const char *message, const char *digest)
 {
 	EqualityComparisonFilter comparison;
-	StringSource(message, true, new HashFilter(hash, new ChannelSwitch(comparison, "0")));
 	StringSource(digest, true, new HexDecoder(new ChannelSwitch(comparison, "1")));
+	StringSource(message, true, new HashFilter(hash, new ChannelSwitch(comparison, "0")));
 
 	comparison.ChannelMessageSeriesEnd("0");
 	comparison.ChannelMessageSeriesEnd("1");
 }
 
 template <class HASH>
-void SecureHashKnownAnswerTest(const char *message, const char *digest)
+void SecureHashKnownAnswerTest(const char *message, const char *digest, HASH *dummy = NULL)
 {
 	HASH hash;
 	KnownAnswerTest(hash, message, digest);
 }
 
 template <class MAC>
-void MAC_KnownAnswerTest(const char *key, const char *message, const char *digest)
+void MAC_KnownAnswerTest(const char *key, const char *message, const char *digest, MAC *dummy = NULL)
 {
 	std::string decodedKey;
 	StringSource(key, true, new HexDecoder(new StringSink(decodedKey)));
@@ -219,7 +216,104 @@ void SignaturePairwiseConsistencyTest(const char *key, SCHEME *dummy = NULL)
 	SignaturePairwiseConsistencyTest(signer, verifier);
 }
 
-void DoPowerUpSelfTest(const char *moduleFilename, const byte *expectedModuleSha1Digest)
+MessageAuthenticationCode * NewIntegrityCheckingMAC()
+{
+	byte key[] = {0x47, 0x1E, 0x33, 0x96, 0x65, 0xB1, 0x6A, 0xED, 0x0B, 0xF8, 0x6B, 0xFD, 0x01, 0x65, 0x05, 0xCC};
+	return new HMAC<SHA1>(key, sizeof(key));
+}
+
+bool IntegrityCheckModule(const char *moduleFilename, const byte *expectedModuleMac, SecByteBlock *pActualMac, unsigned long *pMacFileLocation)
+{
+	std::auto_ptr<MessageAuthenticationCode> mac(NewIntegrityCheckingMAC());
+	unsigned int macSize = mac->DigestSize();
+
+	SecByteBlock tempMac;
+	SecByteBlock &actualMac = pActualMac ? *pActualMac : tempMac;
+	actualMac.resize(macSize);
+
+	unsigned long tempLocation;
+	unsigned long &macFileLocation = pMacFileLocation ? *pMacFileLocation : tempLocation;
+	macFileLocation = 0;
+
+	HashFilter verifier(*mac, new ArraySink(actualMac, actualMac.size()));
+	FileStore file(moduleFilename);
+
+#ifdef CRYPTOPP_WIN32_AVAILABLE
+	// try to hash from memory first
+	HMODULE h = GetModuleHandle(moduleFilename);
+	IMAGE_DOS_HEADER *ph = (IMAGE_DOS_HEADER *)h;
+	IMAGE_NT_HEADERS *phnt = (IMAGE_NT_HEADERS *)((byte *)h + ph->e_lfanew);
+	IMAGE_SECTION_HEADER *phs = IMAGE_FIRST_SECTION(phnt);
+	DWORD nSections = phnt->FileHeader.NumberOfSections;
+	DWORD currentFilePos = 0;
+
+	while (nSections--)
+	{
+		switch (phs->Characteristics)
+		{
+		default:
+			break;
+		case IMAGE_SCN_CNT_CODE | IMAGE_SCN_MEM_EXECUTE | IMAGE_SCN_MEM_READ:
+		case IMAGE_SCN_CNT_INITIALIZED_DATA | IMAGE_SCN_MEM_READ:
+			DWORD sectionSize = STDMIN(phs->SizeOfRawData, phs->Misc.VirtualSize);
+			const byte *memStart = (const byte *)h + phs->VirtualAddress;
+			DWORD fileStart = phs->PointerToRawData;
+			if (phs->VirtualAddress == phnt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IAT].VirtualAddress)
+			{
+				// read IAT, which is changed during DLL loading, from disk
+				DWORD iatSize = phnt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IAT].Size;
+				fileStart += iatSize;
+				memStart += iatSize;
+				sectionSize -= iatSize;
+			}
+			file.TransferTo(verifier, fileStart - currentFilePos);
+			if (memStart <= expectedModuleMac && expectedModuleMac < memStart + sectionSize)
+			{
+				// skip over the MAC
+				verifier.Put(memStart, expectedModuleMac - memStart);
+				verifier.Put(expectedModuleMac + macSize, sectionSize - macSize - (expectedModuleMac - memStart));
+				macFileLocation = fileStart + (expectedModuleMac - memStart);
+			}
+			else
+				verifier.Put(memStart, sectionSize);
+			::VirtualUnlock((LPVOID)memStart, sectionSize);		// release the memory from working set
+			file.Skip(sectionSize);
+			currentFilePos = fileStart + sectionSize;
+		}
+		phs++;
+	}
+#endif
+	file.TransferAllTo(verifier);
+
+#ifdef CRYPTOPP_WIN32_AVAILABLE
+	// if that fails (could be caused by debug breakpoints or DLL base relocation modifying image in memory),
+	// hash from disk instead
+	if (memcmp(expectedModuleMac, actualMac, macSize) != 0)
+	{
+		OutputDebugString("In memory integrity check failed. This may be caused by debug breakpoints or DLL relocation.\n");
+		file.Initialize(MakeParameters("InputFileName", moduleFilename));
+		verifier.Detach(new ArraySink(actualMac, actualMac.size()));
+		if (macFileLocation)
+		{
+			file.TransferTo(verifier, macFileLocation);
+			file.Skip(macSize);
+		}
+		file.TransferAllTo(verifier);
+	}
+#endif
+
+	if (memcmp(expectedModuleMac, actualMac, macSize) == 0)
+		return true;
+
+#ifdef CRYPTOPP_WIN32_AVAILABLE
+	std::string hexMac;
+	HexEncoder(new StringSink(hexMac)).PutMessageEnd(actualMac, actualMac.size());
+	OutputDebugString((moduleFilename + (" integrity check failed. Actual MAC is: " + hexMac) + "\n").c_str());
+#endif
+	return false;
+}
+
+void DoPowerUpSelfTest(const char *moduleFilename, const byte *expectedModuleMac)
 {
 	g_powerUpSelfTestStatus = POWER_UP_SELF_TEST_NOT_DONE;
 	SetPowerUpSelfTestInProgressOnThisThread(true);
@@ -228,72 +322,8 @@ void DoPowerUpSelfTest(const char *moduleFilename, const byte *expectedModuleSha
 	{
 		if (FIPS_140_2_ComplianceEnabled() || moduleFilename != NULL)
 		{
-			// integrity test
-			SHA1 sha;
-			HashVerifier verifier(sha);
-			verifier.Put(expectedModuleSha1Digest, sha.DigestSize());
-			FileStore file(moduleFilename);
-
-#ifdef CRYPTOPP_WIN32_AVAILABLE
-			// try to hash from memory first
-			HMODULE h = GetModuleHandle(moduleFilename);
-			IMAGE_DOS_HEADER *ph = (IMAGE_DOS_HEADER *)h;
-			IMAGE_NT_HEADERS *phnt = (IMAGE_NT_HEADERS *)((byte *)h + ph->e_lfanew);
-			IMAGE_SECTION_HEADER *phs = IMAGE_FIRST_SECTION(phnt);
-			DWORD nSections = phnt->FileHeader.NumberOfSections;
-			DWORD currentFilePos = 0;
-
-			while (nSections--)
-			{
-				DWORD sectionSize = STDMIN(phs->SizeOfRawData, phs->Misc.VirtualSize);
-				switch (phs->Characteristics)
-				{
-				default:
-					break;
-				case IMAGE_SCN_CNT_CODE | IMAGE_SCN_MEM_EXECUTE | IMAGE_SCN_MEM_READ:
-				case IMAGE_SCN_CNT_INITIALIZED_DATA | IMAGE_SCN_MEM_READ:
-					const byte *memStart = (const byte *)h + phs->VirtualAddress;
-					DWORD fileStart = phs->PointerToRawData;
-					if (phs->VirtualAddress == phnt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IAT].VirtualAddress)
-					{
-						// read IAT, which is changed during DLL loading, from disk
-						DWORD iatSize = phnt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IAT].Size;
-						fileStart += iatSize;
-						memStart += iatSize;
-						sectionSize -= iatSize;
-					}
-					file.TransferTo(verifier, fileStart - currentFilePos);
-					verifier.Put(memStart, sectionSize);
-					::VirtualUnlock((LPVOID)memStart, sectionSize);		// release the memory from working set
-					file.Skip(sectionSize);
-					currentFilePos = fileStart + sectionSize;
-				}
-				phs++;
-			}
-#endif
-			file.TransferAllTo(verifier);
-
-#ifdef CRYPTOPP_WIN32_AVAILABLE
-			// if that fails (could be caused by debug breakpoints or DLL base relocation modifying image in memory),
-			// hash from disk instead
-			if (!verifier.GetLastResult())
-			{
-				OutputDebugString("In memory EDC test failed. This may be caused by debug breakpoints or DLL relocation.\n");
-				verifier.Put(expectedModuleSha1Digest, sha.DigestSize());
-				file.Initialize(MakeParameters(Name::InputFileName(), moduleFilename));
-				file.TransferAllTo(verifier);
-			}
-#endif
-
-			if (!verifier.GetLastResult())
-			{
-#ifdef CRYPTOPP_WIN32_AVAILABLE
-				std::string actualDigest;
-				FileSource(moduleFilename, true, new HashFilter(sha, new HexEncoder(new StringSink(actualDigest))));
-				OutputDebugString(("Crypto++ EDC test failed. Actual digest is: " + actualDigest + "\n").c_str());
-#endif
+			if (!IntegrityCheckModule(moduleFilename, expectedModuleMac, &g_actualMac, &g_macFileLocation))
 				throw 0;	// throw here so we break in the debugger, this will be caught right away
-			}
 		}
 
 		// algorithm tests
@@ -359,10 +389,37 @@ void DoPowerUpSelfTest(const char *moduleFilename, const byte *expectedModuleSha
 			"abc",
 			"A9993E364706816ABA3E25717850C26C9CD0D89D");
 
+		SecureHashKnownAnswerTest<SHA256>(
+			"abc",
+			"ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad");
+
+		SecureHashKnownAnswerTest<SHA384>(
+			"abc",
+			"cb00753f45a35e8bb5a03d699ac65007272c32ab0eded1631a8b605a43ff5bed8086072ba1e7cc2358baeca134c825a7");
+
+		SecureHashKnownAnswerTest<SHA512>(
+			"abc",
+			"ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f");
+
 		MAC_KnownAnswerTest<HMAC<SHA> >(
 			"303132333435363738393a3b3c3d3e3f40414243",
 			"Sample #2",
 			"0922d3405faa3d194f82a45830737d5cc6c75d24");
+
+		MAC_KnownAnswerTest<HMAC<SHA256> >(
+			"303132333435363738393a3b3c3d3e3f40414243",
+			"abc",
+			"D28363F335B2DAE468793A38680DEA9F7FB8BE1DCEDA197CDB3B1CB59A9F6422");
+
+		MAC_KnownAnswerTest<HMAC<SHA384> >(
+			"303132333435363738393a3b3c3d3e3f40414243",
+			"abc",
+			"E7740C592F1414C969190EFACF51FC8BE1CB52F5DC5E686200D2CA1773D151DB19C59112371CE374165A6BF72AEF69D0");
+
+		MAC_KnownAnswerTest<HMAC<SHA512> >(
+			"303132333435363738393a3b3c3d3e3f40414243",
+			"abc",
+			"BF07864E733B995862F3C2D432C7FF2F5EB073FFFC4F880CD94D5D21086476B7428F27BE694A9D9CB3BB500FE1255852BAFCBAF4042390B3706CDF02421B51AC");
 
 		SignatureKnownAnswerTest<RSASS<PKCS1v15, SHA> >(
 			"30820150020100300d06092a864886f70d01010105000482013a3082013602010002400a66791dc6988168de7ab77419bb7fb0"
@@ -398,3 +455,5 @@ done:
 }
 
 NAMESPACE_END
+
+#endif

@@ -21,7 +21,7 @@ struct SHARK_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 1, 16
 /// <a href="http://www.weidai.com/scan-mirror/cs.html#SHARK-E">SHARK-E</a>
 class SHARK : public SHARK_Info, public BlockCipherDocumentation
 {
-	class CRYPTOPP_NO_VTABLE Base : public BlockCipherBaseTemplate<SHARK_Info>
+	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<SHARK_Info>
 	{
 	public:
 		void UncheckedSetKey(CipherDir dir, const byte *key, unsigned int length, unsigned int rounds);
@@ -55,8 +55,8 @@ class SHARK : public SHARK_Info, public BlockCipherDocumentation
 	};
 
 public:
-	typedef BlockCipherTemplate<ENCRYPTION, Enc> Encryption;
-	typedef BlockCipherTemplate<DECRYPTION, Dec> Decryption;
+	typedef BlockCipherFinal<ENCRYPTION, Enc> Encryption;
+	typedef BlockCipherFinal<DECRYPTION, Dec> Decryption;
 };
 
 typedef SHARK::Encryption SHARKEncryption;

@@ -34,13 +34,13 @@ NAMESPACE_BEGIN(CryptoPP)
 	a = rotlFixed((word32)a, s) + e;\
 	c = rotlFixed((word32)c, 10U)
 
-void RIPEMD160::Init()
+void RIPEMD160::InitState(HashWordType *state)
 {
-	m_digest[0] = 0x67452301L;
-	m_digest[1] = 0xefcdab89L;
-	m_digest[2] = 0x98badcfeL;
-	m_digest[3] = 0x10325476L;
-	m_digest[4] = 0xc3d2e1f0L;
+	state[0] = 0x67452301L;
+	state[1] = 0xefcdab89L;
+	state[2] = 0x98badcfeL;
+	state[3] = 0x10325476L;
+	state[4] = 0xc3d2e1f0L;
 }
 
 void RIPEMD160::Transform (word32 *digest, const word32 *X)
@@ -232,18 +232,18 @@ void RIPEMD160::Transform (word32 *digest, const word32 *X)
 
 // *************************************************************
 
-void RIPEMD320::Init()
+void RIPEMD320::InitState(HashWordType *state)
 {
-	m_digest[0] = 0x67452301L;
-	m_digest[1] = 0xefcdab89L;
-	m_digest[2] = 0x98badcfeL;
-	m_digest[3] = 0x10325476L;
-	m_digest[4] = 0xc3d2e1f0L;
-	m_digest[5] = 0x76543210L;
-	m_digest[6] = 0xfedcba98L;
-	m_digest[7] = 0x89abcdefL;
-	m_digest[8] = 0x01234567L;
-	m_digest[9] = 0x3c2d1e0fL;
+	state[0] = 0x67452301L;
+	state[1] = 0xefcdab89L;
+	state[2] = 0x98badcfeL;
+	state[3] = 0x10325476L;
+	state[4] = 0xc3d2e1f0L;
+	state[5] = 0x76543210L;
+	state[6] = 0xfedcba98L;
+	state[7] = 0x89abcdefL;
+	state[8] = 0x01234567L;
+	state[9] = 0x3c2d1e0fL;
 }
 
 void RIPEMD320::Transform (word32 *digest, const word32 *X)
@@ -461,12 +461,12 @@ void RIPEMD320::Transform (word32 *digest, const word32 *X)
 	a += f(b, c, d) + x + k;\
 	a = rotlFixed((word32)a, s);
 
-void RIPEMD128::Init()
+void RIPEMD128::InitState(HashWordType *state)
 {
-	m_digest[0] = 0x67452301L;
-	m_digest[1] = 0xefcdab89L;
-	m_digest[2] = 0x98badcfeL;
-	m_digest[3] = 0x10325476L;
+	state[0] = 0x67452301L;
+	state[1] = 0xefcdab89L;
+	state[2] = 0x98badcfeL;
+	state[3] = 0x10325476L;
 }
 
 void RIPEMD128::Transform (word32 *digest, const word32 *X)
@@ -622,16 +622,16 @@ void RIPEMD128::Transform (word32 *digest, const word32 *X)
 
 // *************************************************************
 
-void RIPEMD256::Init()
+void RIPEMD256::InitState(HashWordType *state)
 {
-	m_digest[0] = 0x67452301L;
-	m_digest[1] = 0xefcdab89L;
-	m_digest[2] = 0x98badcfeL;
-	m_digest[3] = 0x10325476L;
-	m_digest[4] = 0x76543210L;
-	m_digest[5] = 0xfedcba98L;
-	m_digest[6] = 0x89abcdefL;
-	m_digest[7] = 0x01234567L;
+	state[0] = 0x67452301L;
+	state[1] = 0xefcdab89L;
+	state[2] = 0x98badcfeL;
+	state[3] = 0x10325476L;
+	state[4] = 0x76543210L;
+	state[5] = 0xfedcba98L;
+	state[6] = 0x89abcdefL;
+	state[7] = 0x01234567L;
 }
 
 void RIPEMD256::Transform (word32 *digest, const word32 *X)

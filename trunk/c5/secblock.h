@@ -18,7 +18,7 @@ class AllocatorBase
 public:
 	typedef T value_type;
 	typedef size_t size_type;
-#if (defined(_MSC_VER) && _MSC_VER < 1300)
+#ifdef CRYPTOPP_MSVCRT6
 	typedef ptrdiff_t difference_type;
 #else
 	typedef std::ptrdiff_t difference_type;
@@ -93,6 +93,10 @@ public:
 	// template class member called rebind".
     template <class U> struct rebind { typedef AllocatorWithCleanup<U> other; };
 };
+
+CRYPTOPP_DLL_TEMPLATE_CLASS AllocatorWithCleanup<byte>;
+CRYPTOPP_DLL_TEMPLATE_CLASS AllocatorWithCleanup<word16>;
+CRYPTOPP_DLL_TEMPLATE_CLASS AllocatorWithCleanup<word32>;
 
 template <class T>
 class NullAllocator : public AllocatorBase<T>
@@ -325,20 +329,18 @@ public:
 		m_size = newSize;
 	}
 
-	void swap(SecBlock<T, A> &b);
+	void swap(SecBlock<T, A> &b)
+	{
+		std::swap(m_alloc, b.m_alloc);
+		std::swap(m_size, b.m_size);
+		std::swap(m_ptr, b.m_ptr);
+	}
 
 //private:
 	A m_alloc;
 	unsigned int m_size;
 	T *m_ptr;
 };
-
-template <class T, class A> void SecBlock<T, A>::swap(SecBlock<T, A> &b)
-{
-	std::swap(m_alloc, b.m_alloc);
-	std::swap(m_size, b.m_size);
-	std::swap(m_ptr, b.m_ptr);
-}
 
 typedef SecBlock<byte> SecByteBlock;
 typedef SecBlock<word> SecWordBlock;

@@ -7,8 +7,6 @@
 #include "sha.h"
 #include "modarith.h"
 
-#include "oaep.cpp"
-
 NAMESPACE_BEGIN(CryptoPP)
 
 void RabinFunction::BERDecode(BufferedTransformation &bt)

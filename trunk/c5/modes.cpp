@@ -1,14 +1,18 @@
 // modes.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
+
+#ifndef CRYPTOPP_IMPORTS
+
 #include "modes.h"
 
+#ifndef NDEBUG
 #include "des.h"
-
-#include "strciphr.cpp"
+#endif
 
 NAMESPACE_BEGIN(CryptoPP)
 
+#ifndef NDEBUG
 void Modes_TestInstantiations()
 {
 	CFB_Mode<DES>::Encryption m0;
@@ -18,17 +22,7 @@ void Modes_TestInstantiations()
 	ECB_Mode<DES>::Encryption m4;
 	CBC_Mode<DES>::Encryption m5;
 }
-
-// explicit instantiations for Darwin gcc-932.1
-template class CFB_CipherTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, SymmetricCipher> >;
-template class CFB_EncryptionTemplate<>;
-template class CFB_DecryptionTemplate<>;
-template class AdditiveCipherTemplate<>;
-template class CFB_CipherTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, CFB_ModePolicy> >;
-template class CFB_EncryptionTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, CFB_ModePolicy> >;
-template class CFB_DecryptionTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, CFB_ModePolicy> >;
-template class AdditiveCipherTemplate<AbstractPolicyHolder<AdditiveCipherAbstractPolicy, OFB_ModePolicy> >;
-template class AdditiveCipherTemplate<AbstractPolicyHolder<AdditiveCipherAbstractPolicy, CTR_ModePolicy> >;
+#endif
 
 void CipherModeBase::SetKey(const byte *key, unsigned int length, const NameValuePairs &params)
 {
@@ -64,8 +58,15 @@ static inline void IncrementCounterByOne(byte *inout, unsigned int s)
 
 static inline void IncrementCounterByOne(byte *output, const byte *input, unsigned int s)
 {
-	for (int i=s-1, carry=1; i>=0; i--)
-		carry = !(output[i] = input[i]+carry) && carry;
+	int i, carry;
+	for (i=s-1, carry=1; i>=0 && carry; i--)
+		carry = !(output[i] = input[i]+1);
+	memcpy(output, input, i+1);
+}
+
+void CTR_ModePolicy::GetNextIV(byte *IV)
+{
+	IncrementCounterByOne(IV, m_counterArray, BlockSize());
 }
 
 inline void CTR_ModePolicy::ProcessMultipleBlocks(byte *output, const byte *input, unsigned int n)
@@ -248,3 +249,5 @@ void CBC_CTS_Decryption::ProcessLastBlock(byte *outString, const byte *inString,
 }
 
 NAMESPACE_END
+
+#endif

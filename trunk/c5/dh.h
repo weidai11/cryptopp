@@ -85,6 +85,8 @@ private:
 	GroupParameters m_groupParameters;
 };
 
+CRYPTOPP_DLL_TEMPLATE_CLASS DH_Domain<DL_GroupParameters_GFP_DefaultSafePrime>;
+
 //! <a href="http://www.weidai.com/scan-mirror/ka.html#DH">Diffie-Hellman</a> in GF(p) with key validation
 typedef DH_Domain<DL_GroupParameters_GFP_DefaultSafePrime> DH;
 

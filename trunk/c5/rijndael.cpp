@@ -29,6 +29,9 @@
  */
 
 #include "pch.h"
+
+#ifndef CRYPTOPP_IMPORTS
+
 #include "rijndael.h"
 #include "misc.h"
 
@@ -373,3 +376,5 @@ void Rijndael::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 }
 
 NAMESPACE_END
+
+#endif

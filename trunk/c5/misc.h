@@ -1,12 +1,7 @@
 #ifndef CRYPTOPP_MISC_H
 #define CRYPTOPP_MISC_H
 
-#include "config.h"
 #include "cryptlib.h"
-#include <assert.h>
-#include <string.h>		// CodeWarrior doesn't have memory.h
-#include <algorithm>
-#include <string>
 
 #ifdef INTEL_INTRINSICS
 #include <stdlib.h>
@@ -23,13 +18,17 @@ struct CompileAssert
 };
 
 #define CRYPTOPP_COMPILE_ASSERT(assertion) CRYPTOPP_COMPILE_ASSERT_INSTANCE(assertion, __LINE__)
+#if defined(CRYPTOPP_EXPORTS) || defined(CRYPTOPP_IMPORTS)
+#define CRYPTOPP_COMPILE_ASSERT_INSTANCE(assertion, instance)
+#else
 #define CRYPTOPP_COMPILE_ASSERT_INSTANCE(assertion, instance) static CompileAssert<(assertion)> CRYPTOPP_ASSERT_JOIN(cryptopp_assert_, instance)
+#endif
 #define CRYPTOPP_ASSERT_JOIN(X, Y) CRYPTOPP_DO_ASSERT_JOIN(X, Y)
 #define CRYPTOPP_DO_ASSERT_JOIN(X, Y) X##Y
 
 // ************** misc classes ***************
 
-class Empty
+class CRYPTOPP_DLL Empty
 {
 };
 
@@ -80,10 +79,10 @@ template <class _Tp> inline const _Tp& STDMAX(const _Tp& __a, const _Tp& __b)
 // #define GETBYTE(x, y) (unsigned int)(((x)>>(8*(y)))&255)
 // #define GETBYTE(x, y) (((byte *)&(x))[y])
 
-unsigned int Parity(unsigned long);
-unsigned int BytePrecision(unsigned long);
-unsigned int BitPrecision(unsigned long);
-unsigned long Crop(unsigned long, unsigned int size);
+CRYPTOPP_DLL unsigned int Parity(unsigned long);
+CRYPTOPP_DLL unsigned int BytePrecision(unsigned long);
+CRYPTOPP_DLL unsigned int BitPrecision(unsigned long);
+CRYPTOPP_DLL unsigned long Crop(unsigned long, unsigned int size);
 
 inline unsigned int BitsToBytes(unsigned int bitCount)
 {
@@ -100,8 +99,8 @@ inline unsigned int BitsToWords(unsigned int bitCount)
 	return ((bitCount+WORD_BITS-1)/(WORD_BITS));
 }
 
-void xorbuf(byte *buf, const byte *mask, unsigned int count);
-void xorbuf(byte *output, const byte *input, const byte *mask, unsigned int count);
+CRYPTOPP_DLL void xorbuf(byte *buf, const byte *mask, unsigned int count);
+CRYPTOPP_DLL void xorbuf(byte *output, const byte *input, const byte *mask, unsigned int count);
 
 template <class T>
 inline bool IsPowerOf2(T n)

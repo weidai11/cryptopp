@@ -18,7 +18,7 @@ struct RC6_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 0, 255
 /// <a href="http://www.weidai.com/scan-mirror/cs.html#RC6">RC6</a>
 class RC6 : public RC6_Info, public BlockCipherDocumentation
 {
-	class CRYPTOPP_NO_VTABLE Base : public BlockCipherBaseTemplate<RC6_Info>
+	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<RC6_Info>
 	{
 	public:
 		void UncheckedSetKey(CipherDir direction, const byte *userKey, unsigned int length, unsigned int rounds);
@@ -41,8 +41,8 @@ class RC6 : public RC6_Info, public BlockCipherDocumentation
 	};
 
 public:
-	typedef BlockCipherTemplate<ENCRYPTION, Enc> Encryption;
-	typedef BlockCipherTemplate<DECRYPTION, Dec> Decryption;
+	typedef BlockCipherFinal<ENCRYPTION, Enc> Encryption;
+	typedef BlockCipherFinal<DECRYPTION, Dec> Decryption;
 };
 
 typedef RC6::Encryption RC6Encryption;

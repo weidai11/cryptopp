@@ -18,7 +18,7 @@ struct TEA_Info : public FixedBlockSize<8>, public FixedKeyLength<16>, public Fi
 /// <a href="http://www.weidai.com/scan-mirror/cs.html#TEA">TEA</a>
 class TEA : public TEA_Info, public BlockCipherDocumentation
 {
-	class CRYPTOPP_NO_VTABLE Base : public BlockCipherBaseTemplate<TEA_Info>
+	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<TEA_Info>
 	{
 	public:
 		void UncheckedSetKey(CipherDir direction, const byte *userKey, unsigned int length);
@@ -41,8 +41,8 @@ class TEA : public TEA_Info, public BlockCipherDocumentation
 	};
 
 public:
-	typedef BlockCipherTemplate<ENCRYPTION, Enc> Encryption;
-	typedef BlockCipherTemplate<DECRYPTION, Dec> Decryption;
+	typedef BlockCipherFinal<ENCRYPTION, Enc> Encryption;
+	typedef BlockCipherFinal<DECRYPTION, Dec> Decryption;
 };
 
 typedef TEA::Encryption TEAEncryption;

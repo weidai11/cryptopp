@@ -44,13 +44,8 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-Integer NR_EncodeDigest(unsigned int modulusBits, const byte *digest, unsigned int digestLen);
-Integer DSA_EncodeDigest(unsigned int modulusBits, const byte *digest, unsigned int digestLen);
-
-// ********************************************************
-
 //! .
-class CRYPTOPP_NO_VTABLE TrapdoorFunctionBounds
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE TrapdoorFunctionBounds
 {
 public:
 	virtual ~TrapdoorFunctionBounds() {}
@@ -62,7 +57,7 @@ public:
 };
 
 //! .
-class CRYPTOPP_NO_VTABLE RandomizedTrapdoorFunction : public TrapdoorFunctionBounds
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE RandomizedTrapdoorFunction : public TrapdoorFunctionBounds
 {
 public:
 	virtual Integer ApplyRandomizedFunction(RandomNumberGenerator &rng, const Integer &x) const =0;
@@ -70,7 +65,7 @@ public:
 };
 
 //! .
-class CRYPTOPP_NO_VTABLE TrapdoorFunction : public RandomizedTrapdoorFunction
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE TrapdoorFunction : public RandomizedTrapdoorFunction
 {
 public:
 	Integer ApplyRandomizedFunction(RandomNumberGenerator &rng, const Integer &x) const
@@ -81,7 +76,7 @@ public:
 };
 
 //! .
-class CRYPTOPP_NO_VTABLE RandomizedTrapdoorFunctionInverse
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE RandomizedTrapdoorFunctionInverse
 {
 public:
 	virtual ~RandomizedTrapdoorFunctionInverse() {}
@@ -91,7 +86,7 @@ public:
 };
 
 //! .
-class CRYPTOPP_NO_VTABLE TrapdoorFunctionInverse : public RandomizedTrapdoorFunctionInverse
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE TrapdoorFunctionInverse : public RandomizedTrapdoorFunctionInverse
 {
 public:
 	virtual ~TrapdoorFunctionInverse() {}
@@ -151,14 +146,14 @@ protected:
 };
 
 //! .
-class CRYPTOPP_NO_VTABLE TF_DecryptorBase : public TF_CryptoSystemBase<PK_FixedLengthDecryptor, TF_Base<TrapdoorFunctionInverse, PK_EncryptionMessageEncodingMethod> >
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE TF_DecryptorBase : public TF_CryptoSystemBase<PK_FixedLengthDecryptor, TF_Base<TrapdoorFunctionInverse, PK_EncryptionMessageEncodingMethod> >
 {
 public:
 	DecodingResult FixedLengthDecrypt(RandomNumberGenerator &rng, const byte *cipherText, byte *plainText) const;
 };
 
 //! .
-class CRYPTOPP_NO_VTABLE TF_EncryptorBase : public TF_CryptoSystemBase<PK_FixedLengthEncryptor, TF_Base<RandomizedTrapdoorFunction, PK_EncryptionMessageEncodingMethod> >
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE TF_EncryptorBase : public TF_CryptoSystemBase<PK_FixedLengthEncryptor, TF_Base<RandomizedTrapdoorFunction, PK_EncryptionMessageEncodingMethod> >
 {
 public:
 	void Encrypt(RandomNumberGenerator &rng, const byte *plainText, unsigned int plainTextLength, byte *cipherText) const;
@@ -232,7 +227,7 @@ public:
 	};
 };
 
-class CRYPTOPP_NO_VTABLE PK_DeterministicSignatureMessageEncodingMethod : public PK_SignatureMessageEncodingMethod
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_DeterministicSignatureMessageEncodingMethod : public PK_SignatureMessageEncodingMethod
 {
 public:
 	bool VerifyMessageRepresentative(
@@ -240,7 +235,7 @@ public:
 		byte *representative, unsigned int representativeBitLength) const;
 };
 
-class CRYPTOPP_NO_VTABLE PK_RecoverableSignatureMessageEncodingMethod : public PK_SignatureMessageEncodingMethod
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_RecoverableSignatureMessageEncodingMethod : public PK_SignatureMessageEncodingMethod
 {
 public:
 	bool VerifyMessageRepresentative(
@@ -248,7 +243,7 @@ public:
 		byte *representative, unsigned int representativeBitLength) const;
 };
 
-class DL_SignatureMessageEncodingMethod_DSA : public PK_DeterministicSignatureMessageEncodingMethod
+class CRYPTOPP_DLL DL_SignatureMessageEncodingMethod_DSA : public PK_DeterministicSignatureMessageEncodingMethod
 {
 public:
 	void ComputeMessageRepresentative(RandomNumberGenerator &rng, 
@@ -257,7 +252,7 @@ public:
 		byte *representative, unsigned int representativeBitLength) const;
 };
 
-class DL_SignatureMessageEncodingMethod_NR : public PK_DeterministicSignatureMessageEncodingMethod
+class CRYPTOPP_DLL DL_SignatureMessageEncodingMethod_NR : public PK_DeterministicSignatureMessageEncodingMethod
 {
 public:
 	void ComputeMessageRepresentative(RandomNumberGenerator &rng, 
@@ -266,7 +261,7 @@ public:
 		byte *representative, unsigned int representativeBitLength) const;
 };
 
-class CRYPTOPP_NO_VTABLE PK_MessageAccumulatorBase : public PK_MessageAccumulator
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_MessageAccumulatorBase : public PK_MessageAccumulator
 {
 public:
 	PK_MessageAccumulatorBase() : m_empty(true) {}
@@ -318,7 +313,7 @@ protected:
 };
 
 //! .
-class CRYPTOPP_NO_VTABLE TF_SignerBase : public TF_SignatureSchemeBase<PK_Signer, TF_Base<RandomizedTrapdoorFunctionInverse, PK_SignatureMessageEncodingMethod> >
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE TF_SignerBase : public TF_SignatureSchemeBase<PK_Signer, TF_Base<RandomizedTrapdoorFunctionInverse, PK_SignatureMessageEncodingMethod> >
 {
 public:
 	void InputRecoverableMessage(PK_MessageAccumulator &messageAccumulator, const byte *recoverableMessage, unsigned int recoverableMessageLength) const;
@@ -326,7 +321,7 @@ public:
 };
 
 //! .
-class CRYPTOPP_NO_VTABLE TF_VerifierBase : public TF_SignatureSchemeBase<PK_Verifier, TF_Base<TrapdoorFunction, PK_SignatureMessageEncodingMethod> >
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE TF_VerifierBase : public TF_SignatureSchemeBase<PK_Verifier, TF_Base<TrapdoorFunction, PK_SignatureMessageEncodingMethod> >
 {
 public:
 	void InputSignature(PK_MessageAccumulator &messageAccumulator, const byte *signature, unsigned int signatureLength) const;
@@ -487,7 +482,7 @@ public:
 	virtual void GenerateAndMask(HashTransformation &hash, byte *output, unsigned int outputLength, const byte *input, unsigned int inputLength, bool mask = true) const =0;
 };
 
-void P1363_MGF1KDF2_Common(HashTransformation &hash, byte *output, unsigned int outputLength, const byte *input, unsigned int inputLength, bool mask, unsigned int counterStart);
+CRYPTOPP_DLL void P1363_MGF1KDF2_Common(HashTransformation &hash, byte *output, unsigned int outputLength, const byte *input, unsigned int inputLength, bool mask, unsigned int counterStart);
 
 //! .
 class P1363_MGF1 : public MaskGeneratingFunction
@@ -625,7 +620,7 @@ private:
 };
 
 //! .
-template <class GROUP_PRECOMP, class BASE_PRECOMP = DL_FixedBasePrecomputationImpl<typename GROUP_PRECOMP::Element>, class BASE = DL_GroupParameters<typename GROUP_PRECOMP::Element> >
+template <class GROUP_PRECOMP, class BASE_PRECOMP = DL_FixedBasePrecomputationImpl<CPP_TYPENAME GROUP_PRECOMP::Element>, class BASE = DL_GroupParameters<CPP_TYPENAME GROUP_PRECOMP::Element> >
 class DL_GroupParametersImpl : public BASE
 {
 public:
@@ -636,6 +631,9 @@ public:
 	const DL_GroupPrecomputation<Element> & GetGroupPrecomputation() const {return m_groupPrecomputation;}
 	const DL_FixedBasePrecomputation<Element> & GetBasePrecomputation() const {return m_gpc;}
 	DL_FixedBasePrecomputation<Element> & AccessBasePrecomputation() {return m_gpc;}
+
+	bool operator==(const DL_GroupParametersImpl<GROUP_PRECOMP, BASE_PRECOMP, BASE> &rhs) const
+		{return m_groupPrecomputation.GetCurve() == rhs.m_groupPrecomputation.GetCurve() && m_gpc.GetBase(m_groupPrecomputation) == rhs.m_gpc.GetBase(rhs.m_groupPrecomputation);}
 
 protected:
 	GROUP_PRECOMP m_groupPrecomputation;
@@ -916,7 +914,6 @@ template <class T>
 class CRYPTOPP_NO_VTABLE DL_ElgamalLikeSignatureAlgorithm
 {
 public:
-//	virtual Integer EncodeDigest(unsigned int modulusBits, const byte *digest, unsigned int digestLength) const =0;
 	virtual void Sign(const DL_GroupParameters<T> &params, const Integer &privateKey, const Integer &k, const Integer &e, Integer &r, Integer &s) const =0;
 	virtual bool Verify(const DL_GroupParameters<T> &params, const DL_PublicKey<T> &publicKey, const Integer &e, const Integer &r, const Integer &s) const =0;
 	virtual Integer RecoverPresignature(const DL_GroupParameters<T> &params, const DL_PublicKey<T> &publicKey, const Integer &r, const Integer &s) const

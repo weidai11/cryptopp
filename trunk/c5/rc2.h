@@ -18,7 +18,7 @@ struct RC2_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 1, 128>
 /// <a href="http://www.weidai.com/scan-mirror/cs.html#RC2">RC2</a>
 class RC2 : public RC2_Info, public BlockCipherDocumentation
 {
-	class CRYPTOPP_NO_VTABLE Base : public BlockCipherBaseTemplate<RC2_Info>
+	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<RC2_Info>
 	{
 	public:
 		void UncheckedSetKey(CipherDir direction, const byte *key, unsigned int length, unsigned int effectiveKeyLength);
@@ -49,7 +49,7 @@ class RC2 : public RC2_Info, public BlockCipherDocumentation
 	};
 
 public:
-	class Encryption : public BlockCipherTemplate<ENCRYPTION, Enc>
+	class Encryption : public BlockCipherFinal<ENCRYPTION, Enc>
 	{
 	public:
 		Encryption() {}
@@ -57,7 +57,7 @@ public:
 			{SetKeyWithEffectiveKeyLength(key, keyLen, effectiveLen);}
 	};
 
-	class Decryption : public BlockCipherTemplate<DECRYPTION, Dec>
+	class Decryption : public BlockCipherFinal<DECRYPTION, Dec>
 	{
 	public:
 		Decryption() {}

@@ -17,7 +17,7 @@ struct Serpent_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 1,
 /// <a href="http://www.weidai.com/scan-mirror/cs.html#Serpent">Serpent</a>
 class Serpent : public Serpent_Info, public BlockCipherDocumentation
 {
-	class CRYPTOPP_NO_VTABLE Base : public BlockCipherBaseTemplate<Serpent_Info>
+	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<Serpent_Info>
 	{
 	public:
 		void UncheckedSetKey(CipherDir direction, const byte *userKey, unsigned int length);
@@ -39,8 +39,8 @@ class Serpent : public Serpent_Info, public BlockCipherDocumentation
 	};
 
 public:
-	typedef BlockCipherTemplate<ENCRYPTION, Enc> Encryption;
-	typedef BlockCipherTemplate<DECRYPTION, Dec> Decryption;
+	typedef BlockCipherFinal<ENCRYPTION, Enc> Encryption;
+	typedef BlockCipherFinal<DECRYPTION, Dec> Decryption;
 };
 
 typedef Serpent::Encryption SerpentEncryption;

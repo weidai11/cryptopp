@@ -23,7 +23,7 @@ struct LR_Info : public VariableKeyLength<16, 0, 2*(UINT_MAX/2), 2>, public Fixe
 template <class T>
 class LR : public LR_Info<T>, public BlockCipherDocumentation
 {
-	class CRYPTOPP_NO_VTABLE Base : public BlockCipherBaseTemplate<LR_Info<T> >
+	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<LR_Info<T> >
 	{
 	public:
 		// VC60 workaround: have to define these functions within class definition
@@ -129,8 +129,8 @@ class LR : public LR_Info<T>, public BlockCipherDocumentation
 	};
 
 public:
-	typedef BlockCipherTemplate<ENCRYPTION, Enc> Encryption;
-	typedef BlockCipherTemplate<DECRYPTION, Dec> Decryption;
+	typedef BlockCipherFinal<ENCRYPTION, Enc> Encryption;
+	typedef BlockCipherFinal<DECRYPTION, Dec> Decryption;
 };
 
 NAMESPACE_END

@@ -207,6 +207,9 @@ public:
 	void DivisionAlgorithm(Element &r, Element &q, const Element &a, const Element &d) const
 		{Element::Divide(r, q, a, d);}
 
+	bool operator==(const EuclideanDomainOf<T> &rhs) const
+		{return true;}
+
 private:
 	mutable Element result;
 };
@@ -264,6 +267,9 @@ public:
 		{return m_domain.Mod(m_domain.Square(a), m_modulus);}
 
 	const Element& MultiplicativeInverse(const Element &a) const;
+
+	bool operator==(const QuotientRing<T> &rhs) const
+		{return m_domain == rhs.m_domain && m_modulus == rhs.m_modulus;}
 
 protected:
 	EuclideanDomain m_domain;

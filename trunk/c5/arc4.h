@@ -23,8 +23,8 @@ public:
 	bool IsSelfInverting() const {return true;}
 	bool IsForwardTransformation() const {return true;}
 
-	typedef SymmetricCipherFinalTemplate<ARC4_Base> Encryption;
-	typedef SymmetricCipherFinalTemplate<ARC4_Base> Decryption;
+	typedef SymmetricCipherFinal<ARC4_Base> Encryption;
+	typedef SymmetricCipherFinal<ARC4_Base> Decryption;
 
 protected:
 	void UncheckedSetKey(const NameValuePairs &params, const byte *key, unsigned int length, const byte *iv);
@@ -35,7 +35,7 @@ protected:
 };
 
 //! .
-typedef SymmetricCipherFinalTemplate<ARC4_Base> ARC4;
+typedef SymmetricCipherFinal<ARC4_Base> ARC4;
 
 //! Modified ARC4: it discards the first 256 bytes of keystream which may be weaker than the rest
 /*! Use #MARC4 typedef rather than this class directly. */
@@ -44,15 +44,15 @@ class CRYPTOPP_NO_VTABLE MARC4_Base : public ARC4_Base
 public:
 	static const char *StaticAlgorithmName() {return "MARC4";}
 
-	typedef SymmetricCipherFinalTemplate<MARC4_Base> Encryption;
-	typedef SymmetricCipherFinalTemplate<MARC4_Base> Decryption;
+	typedef SymmetricCipherFinal<MARC4_Base> Encryption;
+	typedef SymmetricCipherFinal<MARC4_Base> Decryption;
 
 protected:
 	unsigned int GetDefaultDiscardBytes() const {return 256;}
 };
 
 //! .
-typedef SymmetricCipherFinalTemplate<MARC4_Base> MARC4;
+typedef SymmetricCipherFinal<MARC4_Base> MARC4;
 
 NAMESPACE_END
 

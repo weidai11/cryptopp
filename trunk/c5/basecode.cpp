@@ -1,6 +1,9 @@
 // basecode.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
+
+#ifndef CRYPTOPP_IMPORTS
+
 #include "basecode.h"
 #include "fltrimpl.h"
 #include <ctype.h>
@@ -229,3 +232,5 @@ unsigned int Grouper::Put2(const byte *begin, unsigned int length, int messageEn
 }
 
 NAMESPACE_END
+
+#endif

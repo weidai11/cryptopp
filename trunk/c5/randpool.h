@@ -10,7 +10,7 @@ NAMESPACE_BEGIN(CryptoPP)
 /*! This class can be used to generate
 	pseudorandom bytes after seeding the pool with
 	the Put() methods */
-class RandomPool : public RandomNumberGenerator,
+class CRYPTOPP_DLL RandomPool : public RandomNumberGenerator,
 				   public Bufferless<BufferedTransformation>
 {
 public:

@@ -17,7 +17,7 @@ struct Diamond2_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 1
 /// <a href="http://www.weidai.com/scan-mirror/cs.html#Diamond2">Diamond2</a>
 class Diamond2 : public Diamond2_Info, public BlockCipherDocumentation
 {
-	class CRYPTOPP_NO_VTABLE Base : public BlockCipherBaseTemplate<Diamond2_Info>
+	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<Diamond2_Info>
 	{
 	public:
 		void UncheckedSetKey(CipherDir direction, const byte *userKey, unsigned int length, unsigned int rounds);
@@ -50,8 +50,8 @@ class Diamond2 : public Diamond2_Info, public BlockCipherDocumentation
 	};
 
 public:
-	typedef BlockCipherTemplate<ENCRYPTION, Enc> Encryption;
-	typedef BlockCipherTemplate<DECRYPTION, Dec> Decryption;
+	typedef BlockCipherFinal<ENCRYPTION, Enc> Encryption;
+	typedef BlockCipherFinal<DECRYPTION, Dec> Decryption;
 };
 
 typedef Diamond2::Encryption Diamond2Encryption;
@@ -65,7 +65,7 @@ struct Diamond2Lite_Info : public FixedBlockSize<8>, public VariableKeyLength<16
 /// <a href="http://www.weidai.com/scan-mirror/cs.html#Diamond2">Diamond2Lite</a>
 class Diamond2Lite : public Diamond2Lite_Info, public BlockCipherDocumentation
 {
-	class CRYPTOPP_NO_VTABLE Base : public BlockCipherBaseTemplate<Diamond2Lite_Info>
+	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<Diamond2Lite_Info>
 	{
 	public:
 		void UncheckedSetKey(CipherDir direction, const byte *userKey, unsigned int length, unsigned int rounds);
@@ -97,8 +97,8 @@ class Diamond2Lite : public Diamond2Lite_Info, public BlockCipherDocumentation
 	};
 
 public:
-	typedef BlockCipherTemplate<ENCRYPTION, Enc> Encryption;
-	typedef BlockCipherTemplate<DECRYPTION, Dec> Decryption;
+	typedef BlockCipherFinal<ENCRYPTION, Enc> Encryption;
+	typedef BlockCipherFinal<DECRYPTION, Dec> Decryption;
 };
 
 typedef Diamond2Lite::Encryption Diamond2LiteEncryption;

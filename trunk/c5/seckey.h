@@ -18,7 +18,7 @@ inline CipherDir ReverseCipherDir(CipherDir dir)
 
 //! .
 template <unsigned int N>
-class FixedBlockSize
+class CRYPTOPP_DLL FixedBlockSize
 {
 public:
 	enum {BLOCKSIZE = N};
@@ -28,7 +28,7 @@ public:
 
 //! .
 template <unsigned int R>
-class FixedRounds
+class CRYPTOPP_DLL FixedRounds
 {
 public:
 	enum {ROUNDS = R};
@@ -47,7 +47,7 @@ protected:
 
 //! .
 template <unsigned int D, unsigned int N=1, unsigned int M=INT_MAX>		// use INT_MAX here because enums are treated as signed ints
-class VariableRounds
+class CRYPTOPP_DLL VariableRounds
 {
 public:
 	enum {DEFAULT_ROUNDS = D, MIN_ROUNDS = N, MAX_ROUNDS = M};
@@ -74,7 +74,7 @@ protected:
 
 //! .
 template <unsigned int N, unsigned int IV_REQ = SimpleKeyingInterface::NOT_RESYNCHRONIZABLE>
-class FixedKeyLength
+class CRYPTOPP_DLL FixedKeyLength
 {
 public:
 	enum {KEYLENGTH=N, MIN_KEYLENGTH=N, MAX_KEYLENGTH=N, DEFAULT_KEYLENGTH=N};
@@ -84,7 +84,7 @@ public:
 
 /// support query of variable key length, template parameters are default, min, max, multiple (default multiple 1)
 template <unsigned int D, unsigned int N, unsigned int M, unsigned int Q = 1, unsigned int IV_REQ = SimpleKeyingInterface::NOT_RESYNCHRONIZABLE>
-class VariableKeyLength
+class CRYPTOPP_DLL VariableKeyLength
 {
 	// make these private to avoid Doxygen documenting them in all derived classes
 	CRYPTOPP_COMPILE_ASSERT(Q > 0);
@@ -112,7 +112,7 @@ public:
 
 /// support query of key length that's the same as another class
 template <class T>
-class SameKeyLengthAs
+class CRYPTOPP_DLL SameKeyLengthAs
 {
 public:
 	enum {MIN_KEYLENGTH=T::MIN_KEYLENGTH, MAX_KEYLENGTH=T::MAX_KEYLENGTH, DEFAULT_KEYLENGTH=T::DEFAULT_KEYLENGTH};
@@ -152,8 +152,8 @@ protected:
 	void AssertValidKeyLength(unsigned int length) {assert(GetValidKeyLength(length) == length);}
 };
 
-template <class INFO, class INTERFACE = BlockCipher>
-class CRYPTOPP_NO_VTABLE BlockCipherBaseTemplate : public AlgorithmImpl<SimpleKeyingInterfaceImpl<TwoBases<INFO, INTERFACE> > >
+template <class INFO, class BASE = BlockCipher>
+class CRYPTOPP_NO_VTABLE BlockCipherImpl : public AlgorithmImpl<SimpleKeyingInterfaceImpl<BASE, INFO>, INFO>, public INFO
 {
 public:
 	unsigned int BlockSize() const {return BLOCKSIZE;}
@@ -161,15 +161,15 @@ public:
 
 //! .
 template <CipherDir DIR, class BASE>
-class BlockCipherTemplate : public BASE
+class BlockCipherFinal : public ClonableImpl<BlockCipherFinal<DIR, BASE>, BASE>
 {
 public:
- 	BlockCipherTemplate() {}
-	BlockCipherTemplate(const byte *key)
+ 	BlockCipherFinal() {}
+	BlockCipherFinal(const byte *key)
 		{SetKey(key, DEFAULT_KEYLENGTH);}
-	BlockCipherTemplate(const byte *key, unsigned int length)
+	BlockCipherFinal(const byte *key, unsigned int length)
 		{SetKey(key, length);}
-	BlockCipherTemplate(const byte *key, unsigned int length, unsigned int rounds)
+	BlockCipherFinal(const byte *key, unsigned int length, unsigned int rounds)
 		{SetKeyWithRounds(key, length, rounds);}
 
 	bool IsForwardTransformation() const {return DIR == ENCRYPTION;}
@@ -178,34 +178,34 @@ public:
 	{
 		CheckedSetKey(this, DIR, key, length, param);
 	}
-
-	Clonable * Clone() const {return new BlockCipherTemplate<DIR, BASE>(*this);}
 };
 
 //! .
-template <class BASE>
-class MessageAuthenticationCodeTemplate : public 
+template <class BASE, class INFO = BASE>
+class MessageAuthenticationCodeImpl : public 
 #ifdef CRYPTOPP_DOXYGEN_PROCESSING
 	MessageAuthenticationCode
 #else
-	SimpleKeyingInterfaceImpl<BASE>
+	AlgorithmImpl<SimpleKeyingInterfaceImpl<BASE, INFO>, INFO>
 #endif
 {
 public:
- 	MessageAuthenticationCodeTemplate() {}
-	MessageAuthenticationCodeTemplate(const byte *key)
-		{SetKey(key, DEFAULT_KEYLENGTH);}
-	MessageAuthenticationCodeTemplate(const byte *key, unsigned int length)
-		{SetKey(key, length);}
-
-	std::string AlgorithmName() const {return StaticAlgorithmName();}
-
 	void SetKey(const byte *key, unsigned int length, const NameValuePairs &param = g_nullNameValuePairs)
 	{
 		CheckedSetKey(this, Empty(), key, length, param);
 	}
+};
 
-	Clonable * Clone() const {return new MessageAuthenticationCodeTemplate<BASE>(*this);}
+//! .
+template <class BASE>
+class MessageAuthenticationCodeFinal : public ClonableImpl<MessageAuthenticationCodeFinal<BASE>, MessageAuthenticationCodeImpl<BASE> >
+{
+public:
+ 	MessageAuthenticationCodeFinal() {}
+	MessageAuthenticationCodeFinal(const byte *key)
+		{SetKey(key, DEFAULT_KEYLENGTH);}
+	MessageAuthenticationCodeFinal(const byte *key, unsigned int length)
+		{SetKey(key, length);}
 };
 
 // ************** documentation ***************
