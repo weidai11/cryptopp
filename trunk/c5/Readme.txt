@@ -233,20 +233,23 @@ History
       AESEncryption and AESDecryption are now AES::Encryption and AES::Decryption
     - where possible, typedefs have been added to improve backwards 
       compatibility when the CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY macro is defined
-    - changed HAVAL and IDEA to use public domain code
+    - changed Serpent, HAVAL and IDEA to use public domain code
     - implemented SSE2 optimizations for Integer operations
-    - is being evaluated for FIPS 140-2 compliance
     - fixed a bug in HMAC::TruncatedFinal()
     - fixed SKIPJACK byte ordering following NIST clarification dated 5/9/02
 
 5.01 (special FIPS 140-2 release, in development)
     - added known answer test for X9.17 RNG in FIPS 140 power-up self test
+    - is being evaluated for FIPS 140-2 compliance
 
 5.1 - added PSS padding and changed PSSR to track IEEE P1363a draft standard
     - added blinding for RSA and Rabin to defend against timing attacks
-      on decryption operations (required API changes for decryption)
+      on decryption operations
+    - changed signing and decryption APIs to support the above
+    - changed WaitObjectContainer to allow waiting for more than 64
+      objects at a time on Win32 platforms
     - fixed a bug in CBC and ECB modes with processing non-aligned data
     - fixed standard conformance bugs in DLIES (DHAES mode) and RW/EMSA2
       signature scheme (these fixes are not backwards compatible)
-    - fixed a number of minor bugs and portability problems
+    - fixed a number of compiler warnings, minor bugs, and portability problems
     - removed Sapphire

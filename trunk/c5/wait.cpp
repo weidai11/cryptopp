@@ -47,26 +47,33 @@ struct WaitingThreadData
 
 WaitObjectContainer::~WaitObjectContainer()
 {
-	if (!m_threads.empty())
+	try		// don't let exceptions escape destructor
 	{
-		HANDLE threadHandles[MAXIMUM_WAIT_OBJECTS];
-		unsigned int i;
-		for (i=0; i<m_threads.size(); i++)
+		if (!m_threads.empty())
 		{
-			WaitingThreadData &thread = *m_threads[i];
-			while (!thread.waitingToWait)	// spin until thread is in the initial "waiting to wait" state
-				Sleep(0);
-			thread.terminate = true;
-			threadHandles[i] = thread.threadHandle;
+			HANDLE threadHandles[MAXIMUM_WAIT_OBJECTS];
+			unsigned int i;
+			for (i=0; i<m_threads.size(); i++)
+			{
+				WaitingThreadData &thread = *m_threads[i];
+				while (!thread.waitingToWait)	// spin until thread is in the initial "waiting to wait" state
+					Sleep(0);
+				thread.terminate = true;
+				threadHandles[i] = thread.threadHandle;
+			}
+			PulseEvent(m_startWaiting);
+			::WaitForMultipleObjects(m_threads.size(), threadHandles, TRUE, INFINITE);
+			for (i=0; i<m_threads.size(); i++)
+				CloseHandle(threadHandles[i]);
+			CloseHandle(m_startWaiting);
+			CloseHandle(m_stopWaiting);
 		}
-		PulseEvent(m_startWaiting);
-		::WaitForMultipleObjects(m_threads.size(), threadHandles, TRUE, INFINITE);
-		for (i=0; i<m_threads.size(); i++)
-			CloseHandle(threadHandles[i]);
-		CloseHandle(m_startWaiting);
-		CloseHandle(m_stopWaiting);
+	}
+	catch (...)
+	{
 	}
 }
+
 
 void WaitObjectContainer::AddHandle(HANDLE handle)
 {
@@ -86,7 +93,7 @@ DWORD WINAPI WaitingThread(LPVOID lParam)
 		thread.waitingToWait = false;
 
 		if (thread.terminate)
-			return S_OK;
+			break;
 		if (!thread.count)
 			continue;
 
@@ -105,6 +112,8 @@ DWORD WINAPI WaitingThread(LPVOID lParam)
 			*thread.error = ::GetLastError();
 		}
 	}
+
+	return S_OK;	// return a value here to avoid compiler warning
 }
 
 void WaitObjectContainer::CreateThreads(unsigned int count)
