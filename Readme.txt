@@ -1,5 +1,5 @@
 Crypto++: a C++ Class Library of Cryptographic Schemes
-Version 5.2.1 7/21/2004
+Version 6.0 (in development)
 
 This library includes:
 
