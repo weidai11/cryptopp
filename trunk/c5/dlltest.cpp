@@ -62,7 +62,7 @@ void FIPS140_SampleApplication()
 
 	CFB_FIPS_Mode<DES_EDE3>::Encryption encryption_DES_EDE3_CFB;
 	encryption_DES_EDE3_CFB.SetKeyWithIV(key, sizeof(key), iv);
-	encryption_DES_EDE3_CFB.ProcessString(ciphertext, plaintext, 23);
+	encryption_DES_EDE3_CFB.ProcessString(ciphertext, plaintext, 24);
 
 	CFB_FIPS_Mode<DES_EDE3>::Decryption decryption_DES_EDE3_CFB;
 	decryption_DES_EDE3_CFB.SetKeyWithIV(key, sizeof(key), iv);
