@@ -1,3 +1,7 @@
+#ifndef CRYPTOPP_DLL_ONLY
+#define CRYPTOPP_DEFAULT_NO_DLL
+#endif
+
 #include "dll.h"
 #include <iostream>
 

@@ -18,7 +18,6 @@
 #include <iostream>
 #include <fstream>
 #include <locale>
-#include <sstream>
 
 // re-disable this
 #pragma warning(disable: 4231)

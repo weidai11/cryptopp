@@ -10,7 +10,7 @@
 #include "algparam.h"
 #include "fips140.h"
 
-#if !defined(NDEBUG) && defined(CRYPTOPP_NO_DLL)
+#if !defined(NDEBUG) && !defined(CRYPTOPP_IS_DLL)
 #include "pssr.h"
 #endif
 
@@ -18,7 +18,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 byte OAEP_P_DEFAULT[1];
 
-#if !defined(NDEBUG) && defined(CRYPTOPP_NO_DLL)
+#if !defined(NDEBUG) && !defined(CRYPTOPP_IS_DLL)
 void RSA_TestInstantiations()
 {
 	RSASS<PKCS1v15, SHA>::Verifier x1(1, 1);

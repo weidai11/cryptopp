@@ -4,6 +4,7 @@
 
 #ifndef CRYPTOPP_IMPORTS
 
+#define CRYPTOPP_DEFAULT_NO_DLL
 #include "dll.h"
 
 #ifdef CRYPTOPP_WIN32_AVAILABLE

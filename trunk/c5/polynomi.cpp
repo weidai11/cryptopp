@@ -7,7 +7,7 @@
 #include "polynomi.h"
 #include "secblock.h"
 
-#include <strstream>
+#include <strstream>	// can't use <sstream> because GCC 2.95.2 doesn't have it
 #include <iostream>
 
 NAMESPACE_BEGIN(CryptoPP)
