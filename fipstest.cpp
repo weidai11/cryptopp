@@ -264,6 +264,7 @@ void DoPowerUpSelfTest(const char *moduleFilename, const byte *expectedModuleSha
 					}
 					file.TransferTo(verifier, fileStart - currentFilePos);
 					verifier.Put(memStart, sectionSize);
+					::VirtualUnlock((LPVOID)memStart, sectionSize);		// release the memory from working set
 					file.Skip(sectionSize);
 					currentFilePos = fileStart + sectionSize;
 				}
