@@ -29,7 +29,7 @@ class LR : public LR_Info<T>, public BlockCipherDocumentation
 		// VC60 workaround: have to define these functions within class definition
 		void UncheckedSetKey(CipherDir direction, const byte *userKey, unsigned int length)
 		{
-			AssertValidKeyLength(length);
+			this->AssertValidKeyLength(length);
 
 			L = length/2;
 			buffer.New(2*S);
@@ -50,41 +50,41 @@ class LR : public LR_Info<T>, public BlockCipherDocumentation
 	{
 	public:
 
-#define KL key
-#define KR key+L
-#define BL buffer
-#define BR buffer+S
+#define KL this->key
+#define KR this->key+this->L
+#define BL this->buffer
+#define BR this->buffer+this->S
 #define IL inBlock
-#define IR inBlock+S
+#define IR inBlock+this->S
 #define OL outBlock
-#define OR outBlock+S
+#define OR outBlock+this->S
 
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 		{
-			hm.Update(KL, L);
-			hm.Update(IL, S);
-			hm.Final(BR);
-			xorbuf(BR, IR, S);
+			this->hm.Update(KL, this->L);
+			this->hm.Update(IL, this->S);
+			this->hm.Final(BR);
+			xorbuf(BR, IR, this->S);
 
-			hm.Update(KR, L);
-			hm.Update(BR, S);
-			hm.Final(BL);
-			xorbuf(BL, IL, S);
+			this->hm.Update(KR, this->L);
+			this->hm.Update(BR, this->S);
+			this->hm.Final(BL);
+			xorbuf(BL, IL, this->S);
 
-			hm.Update(KL, L);
-			hm.Update(BL, S);
-			hm.Final(digest);
-			xorbuf(BR, digest, S);
+			this->hm.Update(KL, this->L);
+			this->hm.Update(BL, this->S);
+			this->hm.Final(this->digest);
+			xorbuf(BR, this->digest, this->S);
 
-			hm.Update(KR, L);
-			hm.Update(OR, S);
-			hm.Final(digest);
-			xorbuf(BL, digest, S);
+			this->hm.Update(KR, this->L);
+			this->hm.Update(OR, this->S);
+			this->hm.Final(this->digest);
+			xorbuf(BL, this->digest, this->S);
 
 			if (xorBlock)
-				xorbuf(outBlock, xorBlock, buffer, 2*S);
+				xorbuf(outBlock, xorBlock, this->buffer, 2*this->S);
 			else
-				memcpy(outBlock, buffer, 2*S);
+				memcpy(outBlock, this->buffer, 2*this->S);
 		}
 	};
 
@@ -93,30 +93,30 @@ class LR : public LR_Info<T>, public BlockCipherDocumentation
 	public:
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 		{
-			hm.Update(KR, L);
-			hm.Update(IR, S);
-			hm.Final(BL);
-			xorbuf(BL, IL, S);
+			this->hm.Update(KR, this->L);
+			this->hm.Update(IR, this->S);
+			this->hm.Final(BL);
+			xorbuf(BL, IL, this->S);
 
-			hm.Update(KL, L);
-			hm.Update(BL, S);
-			hm.Final(BR);
-			xorbuf(BR, IR, S);
+			this->hm.Update(KL, this->L);
+			this->hm.Update(BL, this->S);
+			this->hm.Final(BR);
+			xorbuf(BR, IR, this->S);
 
-			hm.Update(KR, L);
-			hm.Update(BR, S);
-			hm.Final(digest);
-			xorbuf(BL, digest, S);
+			this->hm.Update(KR, this->L);
+			this->hm.Update(BR, this->S);
+			this->hm.Final(this->digest);
+			xorbuf(BL, this->digest, this->S);
 
-			hm.Update(KL, L);
-			hm.Update(OL, S);
-			hm.Final(digest);
-			xorbuf(BR, digest, S);
+			this->hm.Update(KL, this->L);
+			this->hm.Update(OL, this->S);
+			this->hm.Final(this->digest);
+			xorbuf(BR, this->digest, this->S);
 
 			if (xorBlock)
-				xorbuf(outBlock, xorBlock, buffer, 2*S);
+				xorbuf(outBlock, xorBlock, this->buffer, 2*this->S);
 			else
-				memcpy(outBlock, buffer, 2*S);
+				memcpy(outBlock, this->buffer, 2*this->S);
 		}
 #undef KL
 #undef KR

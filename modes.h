@@ -255,23 +255,23 @@ class CipherModeFinalTemplate_CipherHolder : public ObjectHolder<CIPHER>, public
 public:
 	CipherModeFinalTemplate_CipherHolder()
 	{
-		m_cipher = &m_object;
-		ResizeBuffers();
+		this->m_cipher = &this->m_object;
+		this->ResizeBuffers();
 	}
 	CipherModeFinalTemplate_CipherHolder(const byte *key, unsigned int length)
 	{
-		m_cipher = &m_object;
-		SetKey(key, length);
+		this->m_cipher = &this->m_object;
+		this->SetKey(key, length);
 	}
 	CipherModeFinalTemplate_CipherHolder(const byte *key, unsigned int length, const byte *iv)
 	{
-		m_cipher = &m_object;
-		SetKey(key, length, MakeParameters(Name::IV(), iv));
+		this->m_cipher = &this->m_object;
+		this->SetKey(key, length, MakeParameters(Name::IV(), iv));
 	}
 	CipherModeFinalTemplate_CipherHolder(const byte *key, unsigned int length, const byte *iv, int feedbackSize)
 	{
-		m_cipher = &m_object;
-		SetKey(key, length, MakeParameters(Name::IV(), iv)(Name::FeedbackSize(), feedbackSize));
+		this->m_cipher = &this->m_object;
+		this->SetKey(key, length, MakeParameters(Name::IV(), iv)(Name::FeedbackSize(), feedbackSize));
 	}
 };
 
@@ -293,20 +293,20 @@ public:
 template <class BASE>
 void CipherModeFinalTemplate_ExternalCipher<BASE>::SetCipher(BlockCipher &cipher)
 {
-	ThrowIfResynchronizable();
-	m_cipher = &cipher;
-	ResizeBuffers();
+	this->ThrowIfResynchronizable();
+	this->m_cipher = &cipher;
+	this->ResizeBuffers();
 }
 
 template <class BASE>
 void CipherModeFinalTemplate_ExternalCipher<BASE>::SetCipherWithIV(BlockCipher &cipher, const byte *iv, int feedbackSize)
 {
-	ThrowIfInvalidIV(iv);
-	m_cipher = &cipher;
-	ResizeBuffers();
-	SetFeedbackSize(feedbackSize);
-	if (IsResynchronizable())
-		Resynchronize(iv);
+	this->ThrowIfInvalidIV(iv);
+	this->m_cipher = &cipher;
+	this->ResizeBuffers();
+	this->SetFeedbackSize(feedbackSize);
+	if (this->IsResynchronizable())
+		this->Resynchronize(iv);
 }
 
 CRYPTOPP_DLL_TEMPLATE_CLASS CFB_CipherTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, CFB_ModePolicy> >;

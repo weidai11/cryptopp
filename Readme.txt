@@ -321,8 +321,12 @@ synchronization when multiple threads access a common Crypto++ object.
     - added ThreadUserTimer for timing thread CPU usage
     - added option for password-based key derivation functions
       to iterate until a mimimum elapsed thread CPU time is reached
+    - added option for DEFLATE compression to detect uncompressible
+      files and process them more quickly
     - improved compatibility and performance on 64-bit platforms,
       including Alpha, IA-64, x86-64, PPC64, Sparc64, and MIPS64
     - fixed ONE_AND_ZEROS_PADDING to use 0x80 instead 0x01 as padding.
+    - fixed encoding/decoding of PKCS #8 privateKeyInfo to properly
+      handle optional attributes
 
 Written by Wei Dai

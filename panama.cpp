@@ -53,7 +53,7 @@ void Panama<B>::Iterate(unsigned int count, const word32 *p, word32 *z, const wo
 
 		word32 *const b16 = b[(bstart+16) % STAGES];
 		word32 *const b4 = b[(bstart+4) % STAGES];
-		bstart = (bstart + STAGES - 1) % STAGES;
+       	bstart = (bstart + STAGES - 1) % STAGES;
 		word32 *const b0 = b[bstart];
 		word32 *const b25 = b[(bstart+25) % STAGES];
 
@@ -90,25 +90,25 @@ void Panama<B>::Iterate(unsigned int count, const word32 *p, word32 *z, const wo
 template <class B>
 unsigned int PanamaHash<B>::HashMultipleBlocks(const word32 *input, unsigned int length)
 {
-	Iterate(length / BLOCKSIZE, input);
-	return length % BLOCKSIZE;
+	this->Iterate(length / this->BLOCKSIZE, input);
+	return length % this->BLOCKSIZE;
 }
 
 template <class B>
 void PanamaHash<B>::TruncatedFinal(byte *hash, unsigned int size)
 {
-	ThrowIfInvalidTruncatedSize(size);
+	this->ThrowIfInvalidTruncatedSize(size);
 
-	PadLastBlock(BLOCKSIZE, 0x01);
+	PadLastBlock(this->BLOCKSIZE, 0x01);
 	
-	HashEndianCorrectedBlock(m_data);
+	HashEndianCorrectedBlock(this->m_data);
 
-	Iterate(32);	// pull
+	this->Iterate(32);	// pull
 
-	ConditionalByteReverse(B::ToEnum(), m_state+9, m_state+9, DIGESTSIZE);
-	memcpy(hash, m_state+9, size);
+	ConditionalByteReverse(B::ToEnum(), this->m_state+9, this->m_state+9, DIGESTSIZE);
+	memcpy(hash, this->m_state+9, size);
 
-	Restart();		// reinit for next use
+	this->Restart();		// reinit for next use
 }
 
 template <class B>
@@ -116,22 +116,22 @@ void PanamaCipherPolicy<B>::CipherSetKey(const NameValuePairs &params, const byt
 {
 	FixedSizeSecBlock<word32, 8> buf;
 
-	Reset();
+	this->Reset();
 	memcpy(buf, key, 32);
-	Iterate(1, buf);
+	this->Iterate(1, buf);
 	if (length == 64)
 		memcpy(buf, key+32, 32);
 	else
 		memset(buf, 0, 32);
-	Iterate(1, buf);
+	this->Iterate(1, buf);
 
-	Iterate(32);
+	this->Iterate(32);
 }
 
 template <class B>
 void PanamaCipherPolicy<B>::OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, unsigned int iterationCount)
 {
-	Iterate(iterationCount, NULL, (word32 *)output, (const word32 *)input);
+	this->Iterate(iterationCount, NULL, (word32 *)output, (const word32 *)input);
 }
 
 template class Panama<BigEndian>;

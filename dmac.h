@@ -40,7 +40,7 @@ class DMAC : public MessageAuthenticationCodeFinal<DMAC_Base<T> >
 public:
 	DMAC() {}
 	DMAC(const byte *key, unsigned int length=DMAC_Base<T>::DEFAULT_KEYLENGTH)
-		{SetKey(key, length);}
+		{this->SetKey(key, length);}
 };
 
 template <class T>

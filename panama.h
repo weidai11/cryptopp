@@ -37,7 +37,7 @@ public:
 
 protected:
 	void Init() {Panama<B>::Reset();}
-	void HashEndianCorrectedBlock(const word32 *data) {Iterate(1, data);}	// push
+	void HashEndianCorrectedBlock(const word32 *data) {this->Iterate(1, data);}	// push
 	unsigned int HashMultipleBlocks(const word32 *input, unsigned int length);
 };
 
@@ -52,7 +52,7 @@ public:
 		Restart();
 	}
 
-	static const char * StaticAlgorithmName() {return B::ToEnum() == BIG_ENDIAN ? "Panama-BE" : "Panama-LE";}
+	static const char * StaticAlgorithmName() {return B::ToEnum() == BIG_ENDIAN_ORDER ? "Panama-BE" : "Panama-LE";}
 
 protected:
 	void Init()
@@ -71,7 +71,7 @@ class PanamaMAC : public MessageAuthenticationCodeImpl<PanamaMAC_Base<B> >
 public:
  	PanamaMAC() {}
 	PanamaMAC(const byte *key, unsigned int length=PanamaMAC_Base<B>::DEFAULT_KEYLENGTH)
-		{SetKey(key, length);}
+		{this->SetKey(key, length);}
 };
 
 //! .

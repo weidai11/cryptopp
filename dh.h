@@ -61,18 +61,18 @@ public:
 
 		if (FIPS_140_2_ComplianceEnabled())
 		{
-			SecByteBlock privateKey2(PrivateKeyLength());
-			GeneratePrivateKey(rng, privateKey2);
+			SecByteBlock privateKey2(this->PrivateKeyLength());
+			this->GeneratePrivateKey(rng, privateKey2);
 
-			SecByteBlock publicKey2(PublicKeyLength());
+			SecByteBlock publicKey2(this->PublicKeyLength());
 			Base::GeneratePublicKey(rng, privateKey2, publicKey2);
 
-			SecByteBlock agreedValue(AgreedValueLength()), agreedValue2(AgreedValueLength());
-			Agree(agreedValue, privateKey, publicKey2);
-			Agree(agreedValue2, privateKey2, publicKey);
+			SecByteBlock agreedValue(this->AgreedValueLength()), agreedValue2(this->AgreedValueLength());
+			this->Agree(agreedValue, privateKey, publicKey2);
+			this->Agree(agreedValue2, privateKey2, publicKey);
 
 			if (agreedValue != agreedValue2)
-				throw SelfTestFailure(AlgorithmName() + ": pairwise consistency test failed");
+				throw SelfTestFailure(this->AlgorithmName() + ": pairwise consistency test failed");
 		}
 	}
 

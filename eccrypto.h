@@ -42,7 +42,7 @@ public:
 
 	void Initialize(const EllipticCurve &ec, const Point &G, const Integer &n, const Integer &k = Integer::Zero())
 	{
-		m_groupPrecomputation.SetCurve(ec);
+		this->m_groupPrecomputation.SetCurve(ec);
 		SetSubgroupGenerator(G);
 		m_n = n;
 		m_k = k;
@@ -59,8 +59,8 @@ public:
 	void GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &alg);
 
 	// DL_GroupParameters
-	const DL_FixedBasePrecomputation<Element> & GetBasePrecomputation() const {return m_gpc;}
-	DL_FixedBasePrecomputation<Element> & AccessBasePrecomputation() {return m_gpc;}
+	const DL_FixedBasePrecomputation<Element> & GetBasePrecomputation() const {return this->m_gpc;}
+	DL_FixedBasePrecomputation<Element> & AccessBasePrecomputation() {return this->m_gpc;}
 	const Integer & GetSubgroupOrder() const {return m_n;}
 	Integer GetCofactor() const;
 	bool ValidateGroup(RandomNumberGenerator &rng, unsigned int level) const;
@@ -115,10 +115,10 @@ public:
 	void SetEncodeAsOID(bool encodeAsOID) {m_encodeAsOID = encodeAsOID;}
 	bool GetEncodeAsOID() const {return m_encodeAsOID;}
 
-	const EllipticCurve& GetCurve() const {return m_groupPrecomputation.GetCurve();}
+	const EllipticCurve& GetCurve() const {return this->m_groupPrecomputation.GetCurve();}
 
 	bool operator==(const ThisClass &rhs) const
-		{return m_groupPrecomputation.GetCurve() == rhs.m_groupPrecomputation.GetCurve() && m_gpc.GetBase(m_groupPrecomputation) == rhs.m_gpc.GetBase(rhs.m_groupPrecomputation);}
+		{return this->m_groupPrecomputation.GetCurve() == rhs.m_groupPrecomputation.GetCurve() && this->m_gpc.GetBase(this->m_groupPrecomputation) == rhs.m_gpc.GetBase(rhs.m_groupPrecomputation);}
 
 #ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
 	const Point& GetBasePoint() const {return GetSubgroupGenerator();}
@@ -149,9 +149,9 @@ public:
 	typedef typename EC::Point Element;
 
 	void Initialize(const DL_GroupParameters_EC<EC> &params, const Element &Q)
-		{AccessGroupParameters() = params; SetPublicElement(Q);}
+		{this->AccessGroupParameters() = params; SetPublicElement(Q);}
 	void Initialize(const EC &ec, const Element &G, const Integer &n, const Element &Q)
-		{AccessGroupParameters().Initialize(ec, G, n); SetPublicElement(Q);}
+		{this->AccessGroupParameters().Initialize(ec, G, n); SetPublicElement(Q);}
 
 	// X509PublicKey
 	void BERDecodeKey2(BufferedTransformation &bt, bool parametersPresent, unsigned int size);
@@ -171,9 +171,9 @@ public:
 	typedef typename EC::Point Element;
 
 	void Initialize(const DL_GroupParameters_EC<EC> &params, const Integer &x)
-		{AccessGroupParameters() = params; SetPrivateExponent(x);}
+		{this->AccessGroupParameters() = params; this->SetPrivateExponent(x);}
 	void Initialize(const EC &ec, const Element &G, const Integer &n, const Integer &x)
-		{AccessGroupParameters().Initialize(ec, G, n); SetPrivateExponent(x);}
+		{this->AccessGroupParameters().Initialize(ec, G, n); this->SetPrivateExponent(x);}
 	void Initialize(RandomNumberGenerator &rng, const DL_GroupParameters_EC<EC> &params)
 		{GenerateRandom(rng, params);}
 	void Initialize(RandomNumberGenerator &rng, const EC &ec, const Element &G, const Integer &n)

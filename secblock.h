@@ -197,7 +197,7 @@ template <class T, class A = AllocatorWithCleanup<T> >
 class SecBlock
 {
 public:
-	explicit SecBlock(unsigned int size=0)
+    explicit SecBlock(unsigned int size=0)
 		: m_size(size) {m_ptr = m_alloc.allocate(size, NULL);}
 	SecBlock(const SecBlock<T, A> &t)
 		: m_size(t.m_size) {m_ptr = m_alloc.allocate(m_size, NULL); memcpy(m_ptr, t.m_ptr, m_size*sizeof(T));}
@@ -214,25 +214,15 @@ public:
 	~SecBlock()
 		{m_alloc.deallocate(m_ptr, m_size);}
 
-#if defined(__GNUC__) || defined(__BCPLUSPLUS__)
 	operator const void *() const
 		{return m_ptr;}
 	operator void *()
 		{return m_ptr;}
-#endif
-#if defined(__GNUC__)	// reduce warnings
-	operator const void *()
-		{return m_ptr;}
-#endif
 
 	operator const T *() const
 		{return m_ptr;}
 	operator T *()
 		{return m_ptr;}
-#if defined(__GNUC__)	// reduce warnings
-	operator const T *()
-		{return m_ptr;}
-#endif
 
 	template <typename I>
 	T *operator +(I offset)
@@ -250,6 +240,7 @@ public:
 	const T& operator[](I index) const
 		{assert(index >= 0 && (unsigned int)index < m_size); return m_ptr[index];}
 
+	typedef typename A::value_type value_type;
 	typedef typename A::pointer iterator;
 	typedef typename A::const_pointer const_iterator;
 	typedef typename A::size_type size_type;

@@ -35,8 +35,8 @@ class CBC_MAC : public MessageAuthenticationCodeImpl<CBC_MAC_Base, CBC_MAC<T> >,
 {
 public:
 	CBC_MAC() {}
-	CBC_MAC(const byte *key, unsigned int length=DEFAULT_KEYLENGTH)
-		{SetKey(key, length);}
+	CBC_MAC(const byte *key, unsigned int length=SameKeyLengthAs<T>::DEFAULT_KEYLENGTH)
+		{this->SetKey(key, length);}
 
 	static std::string StaticAlgorithmName() {return std::string("CBC-MAC(") + T::StaticAlgorithmName() + ")";}
 

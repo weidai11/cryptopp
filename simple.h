@@ -64,7 +64,7 @@ class CRYPTOPP_NO_VTABLE Unflushable : public T
 {
 public:
 	bool Flush(bool completeFlush, int propagation=-1, bool blocking=true)
-		{return ChannelFlush(NULL_CHANNEL, completeFlush, propagation, blocking);}
+		{return ChannelFlush(this->NULL_CHANNEL, completeFlush, propagation, blocking);}
 	bool IsolatedFlush(bool hardFlush, bool blocking)
 		{assert(false); return false;}
 	bool ChannelFlush(const std::string &channel, bool hardFlush, int propagation=-1, bool blocking=true)
@@ -73,7 +73,7 @@ public:
 			throw CannotFlush("Unflushable<T>: this object has buffered input that cannot be flushed");
 		else 
 		{
-			BufferedTransformation *attached = AttachedTransformation();
+			BufferedTransformation *attached = this->AttachedTransformation();
 			return attached && propagation ? attached->ChannelFlush(channel, hardFlush, propagation-1, blocking) : false;
 		}
 	}
@@ -125,22 +125,22 @@ class CRYPTOPP_NO_VTABLE Multichannel : public CustomFlushPropagation<T>
 {
 public:
 	bool Flush(bool hardFlush, int propagation=-1, bool blocking=true)
-		{return ChannelFlush(NULL_CHANNEL, hardFlush, propagation, blocking);}
+		{return ChannelFlush(this->NULL_CHANNEL, hardFlush, propagation, blocking);}
 	bool MessageSeriesEnd(int propagation=-1, bool blocking=true)
-		{return ChannelMessageSeriesEnd(NULL_CHANNEL, propagation, blocking);}
+		{return ChannelMessageSeriesEnd(this->NULL_CHANNEL, propagation, blocking);}
 	byte * CreatePutSpace(unsigned int &size)
-		{return ChannelCreatePutSpace(NULL_CHANNEL, size);}
+		{return ChannelCreatePutSpace(this->NULL_CHANNEL, size);}
 	unsigned int Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking)
-		{return ChannelPut2(NULL_CHANNEL, begin, length, messageEnd, blocking);}
+		{return ChannelPut2(this->NULL_CHANNEL, begin, length, messageEnd, blocking);}
 	unsigned int PutModifiable2(byte *inString, unsigned int length, int messageEnd, bool blocking)
-		{return ChannelPutModifiable2(NULL_CHANNEL, inString, length, messageEnd, blocking);}
+		{return ChannelPutModifiable2(this->NULL_CHANNEL, inString, length, messageEnd, blocking);}
 
 //	void ChannelMessageSeriesEnd(const std::string &channel, int propagation=-1)
 //		{PropagateMessageSeriesEnd(propagation, channel);}
 	byte * ChannelCreatePutSpace(const std::string &channel, unsigned int &size)
 		{size = 0; return NULL;}
 	bool ChannelPutModifiable(const std::string &channel, byte *inString, unsigned int length)
-		{ChannelPut(channel, inString, length); return false;}
+		{this->ChannelPut(channel, inString, length); return false;}
 
 	virtual unsigned int ChannelPut2(const std::string &channel, const byte *begin, unsigned int length, int messageEnd, bool blocking) =0;
 	unsigned int ChannelPutModifiable2(const std::string &channel, byte *begin, unsigned int length, int messageEnd, bool blocking)

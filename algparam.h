@@ -23,7 +23,7 @@ public:
 	}
 	template <class T> ConstByteArrayParameter(const T &string, bool deepCopy = false)
 	{
-		CRYPTOPP_COMPILE_ASSERT(sizeof(string[0])==1);
+        CRYPTOPP_COMPILE_ASSERT(sizeof(CPP_TYPENAME T::value_type) == 1);
 		Assign((const byte *)string.data(), string.size(), deepCopy);
 	}
 
@@ -320,7 +320,7 @@ public:
 	template <class R>
 	AlgorithmParameters<AlgorithmParameters<PARENT,T>, R> operator()(const char *name, const R &value) const
 	{
-		return AlgorithmParameters<AlgorithmParameters<PARENT,T>, R>(*this, name, value, m_throwIfNotUsed);
+		return AlgorithmParameters<AlgorithmParameters<PARENT,T>, R>(*this, name, value, this->m_throwIfNotUsed);
 	}
 
 	template <class R>

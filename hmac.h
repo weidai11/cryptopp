@@ -44,7 +44,7 @@ public:
 
 	HMAC() {}
 	HMAC(const byte *key, unsigned int length=HMAC_Base::DEFAULT_KEYLENGTH)
-		{SetKey(key, length);}
+		{this->SetKey(key, length);}
 
 	static std::string StaticAlgorithmName() {return std::string("HMAC(") + T::StaticAlgorithmName() + ")";}
 	std::string AlgorithmName() const {return std::string("HMAC(") + m_hash.AlgorithmName() + ")";}
