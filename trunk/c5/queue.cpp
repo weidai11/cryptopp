@@ -129,9 +129,16 @@ public:
 // ********************************************************
 
 ByteQueue::ByteQueue(unsigned int nodeSize)
-	: m_autoNodeSize(m_nodeSize==0), m_nodeSize(nodeSize ? nodeSize : 256), m_lazyLength(0)
+	: m_lazyLength(0)
 {
+	SetNodeSize(nodeSize);
 	m_head = m_tail = new ByteQueueNode(m_nodeSize);
+}
+
+void ByteQueue::SetNodeSize(unsigned int nodeSize)
+{
+	m_autoNodeSize = !nodeSize;
+	m_nodeSize = m_autoNodeSize ? 256 : nodeSize;
 }
 
 ByteQueue::ByteQueue(const ByteQueue &copy)

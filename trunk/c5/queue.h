@@ -16,7 +16,7 @@ class ByteQueueNode;
 class CRYPTOPP_DLL ByteQueue : public Bufferless<BufferedTransformation>
 {
 public:
-	ByteQueue(unsigned int m_nodeSize=0);
+	ByteQueue(unsigned int nodeSize=0);
 	ByteQueue(const ByteQueue &copy);
 	~ByteQueue();
 
@@ -39,7 +39,7 @@ public:
 	unsigned int CopyRangeTo2(BufferedTransformation &target, unsigned long &begin, unsigned long end=ULONG_MAX, const std::string &channel=NULL_CHANNEL, bool blocking=true) const;
 
 	// these member functions are not inherited
-	void SetNodeSize(unsigned int nodeSize) {m_nodeSize = nodeSize;}
+	void SetNodeSize(unsigned int nodeSize);
 
 	unsigned long CurrentSize() const;
 	bool IsEmpty() const;
