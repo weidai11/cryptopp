@@ -11,7 +11,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! .
+//! _
 class ESIGNFunction : public TrapdoorFunction, public PublicKey, public ASN1CryptoMaterial
 {
 	typedef ESIGNFunction ThisClass;
@@ -47,7 +47,7 @@ protected:
 	Integer m_n, m_e;
 };
 
-//! .
+//! _
 class InvertibleESIGNFunction : public ESIGNFunction, public RandomizedTrapdoorFunctionInverse, public PrivateKey
 {
 	typedef InvertibleESIGNFunction ThisClass;
@@ -81,7 +81,7 @@ protected:
 	Integer m_p, m_q;
 };
 
-//! .
+//! _
 template <class T>
 class EMSA5Pad : public PK_DeterministicSignatureMessageEncodingMethod
 {

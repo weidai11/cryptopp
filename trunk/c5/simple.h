@@ -11,6 +11,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+//! _
 template <class DERIVED, class BASE>
 class CRYPTOPP_NO_VTABLE ClonableImpl : public BASE
 {
@@ -18,28 +19,30 @@ public:
 	Clonable * Clone() const {return new DERIVED(*static_cast<const DERIVED *>(this));}
 };
 
-template <class BASE, class ALGORITHM_INFO = BASE>
+//! _
+template <class BASE, class ALGORITHM_INFO=BASE>
 class CRYPTOPP_NO_VTABLE AlgorithmImpl : public BASE
 {
 public:
+	static std::string StaticAlgorithmName() {return ALGORITHM_INFO::StaticAlgorithmName();}
 	std::string AlgorithmName() const {return ALGORITHM_INFO::StaticAlgorithmName();}
 };
 
-//! .
+//! _
 class CRYPTOPP_DLL InvalidKeyLength : public InvalidArgument
 {
 public:
 	explicit InvalidKeyLength(const std::string &algorithm, unsigned int length) : InvalidArgument(algorithm + ": " + IntToString(length) + " is not a valid key length") {}
 };
 
-//! .
+//! _
 class CRYPTOPP_DLL InvalidRounds : public InvalidArgument
 {
 public:
 	explicit InvalidRounds(const std::string &algorithm, unsigned int rounds) : InvalidArgument(algorithm + ": " + IntToString(rounds) + " is not a valid number of rounds") {}
 };
 
-//! .
+//! _
 // TODO: look into this virtual inheritance
 class CRYPTOPP_DLL ASN1CryptoMaterial : virtual public ASN1Object, virtual public CryptoMaterial
 {
@@ -52,6 +55,7 @@ public:
 
 // *****************************
 
+//! _
 template <class T>
 class CRYPTOPP_NO_VTABLE Bufferless : public T
 {
@@ -59,6 +63,7 @@ public:
 	bool IsolatedFlush(bool hardFlush, bool blocking) {return false;}
 };
 
+//! _
 template <class T>
 class CRYPTOPP_NO_VTABLE Unflushable : public T
 {
@@ -82,6 +87,7 @@ protected:
 	virtual bool InputBufferIsEmpty() const {return false;}
 };
 
+//! _
 template <class T>
 class CRYPTOPP_NO_VTABLE InputRejecting : public T
 {
@@ -100,6 +106,7 @@ public:
 	bool ChannelMessageSeriesEnd(const std::string &, int, bool) {throw InputRejected();}
 };
 
+//! _
 template <class T>
 class CRYPTOPP_NO_VTABLE CustomFlushPropagation : public T
 {
@@ -110,6 +117,7 @@ private:
 	bool IsolatedFlush(bool hardFlush, bool blocking) {assert(false); return false;}
 };
 
+//! _
 template <class T>
 class CRYPTOPP_NO_VTABLE CustomSignalPropagation : public CustomFlushPropagation<T>
 {
@@ -120,6 +128,7 @@ private:
 	void IsolatedInitialize(const NameValuePairs &parameters) {assert(false);}
 };
 
+//! _
 template <class T>
 class CRYPTOPP_NO_VTABLE Multichannel : public CustomFlushPropagation<T>
 {
@@ -149,6 +158,7 @@ public:
 	virtual bool ChannelFlush(const std::string &channel, bool hardFlush, int propagation=-1, bool blocking=true) =0;
 };
 
+//! _
 template <class T>
 class CRYPTOPP_NO_VTABLE AutoSignaling : public T
 {

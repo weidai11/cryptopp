@@ -9,7 +9,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! .
 class CRYPTOPP_NO_VTABLE MD5MAC_Base : public FixedKeyLength<16>, public IteratedHash<word32, LittleEndian, 64, MessageAuthenticationCode>
 {
 public:
@@ -32,7 +31,7 @@ protected:
 };
 
 //! <a href="http://www.weidai.com/scan-mirror/mac.html#MD5-MAC">MD5-MAC</a>
-typedef MessageAuthenticationCodeFinal<MD5MAC_Base> MD5MAC;
+DOCUMENTED_TYPEDEF(MessageAuthenticationCodeFinal<MD5MAC_Base>, MD5MAC)
 
 NAMESPACE_END
 

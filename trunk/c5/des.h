@@ -21,6 +21,7 @@ protected:
 	FixedSizeSecBlock<word32, 32> k;
 };
 
+//! _
 struct DES_Info : public FixedBlockSize<8>, public FixedKeyLength<8>
 {
 	// disable DES in DLL version by not exporting this function
@@ -50,6 +51,7 @@ public:
 	typedef BlockCipherFinal<DECRYPTION, Base> Decryption;
 };
 
+//! _
 struct DES_EDE2_Info : public FixedBlockSize<8>, public FixedKeyLength<16>
 {
 	CRYPTOPP_DLL static const char * StaticAlgorithmName() {return "DES-EDE2";}
@@ -73,6 +75,7 @@ public:
 	typedef BlockCipherFinal<DECRYPTION, Base> Decryption;
 };
 
+//! _
 struct DES_EDE3_Info : public FixedBlockSize<8>, public FixedKeyLength<24>
 {
 	CRYPTOPP_DLL static const char * StaticAlgorithmName() {return "DES-EDE3";}
@@ -96,6 +99,7 @@ public:
 	typedef BlockCipherFinal<DECRYPTION, Base> Decryption;
 };
 
+//! _
 struct DES_XEX3_Info : public FixedBlockSize<8>, public FixedKeyLength<24>
 {
 	static const char *StaticAlgorithmName() {return "DES-XEX3";}

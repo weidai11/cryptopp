@@ -9,6 +9,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+//! _
 struct Square_Info : public FixedBlockSize<16>, public FixedKeyLength<16>, FixedRounds<8>
 {
 	static const char *StaticAlgorithmName() {return "Square";}

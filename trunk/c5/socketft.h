@@ -180,7 +180,7 @@ private:
 #endif
 };
 
-//! .
+//! socket-based implementation of NetworkSource
 class SocketSource : public NetworkSource, public Socket
 {
 public:
@@ -196,7 +196,7 @@ private:
 	SocketReceiver m_receiver;
 };
 
-//! .
+//! socket-based implementation of NetworkSink
 class SocketSink : public NetworkSink, public Socket
 {
 public:

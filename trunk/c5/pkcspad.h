@@ -28,6 +28,18 @@ public:
 	static const unsigned int length;
 };
 
+// PKCS_DigestDecoration can be instantiated with the following
+// classes as specified in PKCS#1 v2.0 and P1363a
+class SHA;
+class MD2;
+class MD5;
+class RIPEMD160;
+class Tiger;
+class SHA256;
+class SHA384;
+class SHA512;
+// end of list
+
 //! <a href="http://www.weidai.com/scan-mirror/sig.html#sem_PKCS1-1.5">EMSA-PKCS1-v1_5</a>
 class CRYPTOPP_DLL PKCS1v15_SignatureMessageEncodingMethod : public PK_DeterministicSignatureMessageEncodingMethod
 {
@@ -51,8 +63,12 @@ public:
 	};
 };
 
-//! PKCS #1 version 1.5, for use with RSAES and RSASSA
-/*! The following hash functions are supported for signature: SHA, MD2, MD5, RIPEMD160, SHA256, SHA384, SHA512. */
+//! PKCS #1 version 1.5, for use with RSAES and RSASS
+/*! Only the following hash functions are supported by this signature standard:
+	\dontinclude pkcspad.h
+	\skip can be instantiated
+	\until end of list
+*/
 struct PKCS1v15 : public SignatureStandard, public EncryptionStandard
 {
 	typedef PKCS_EncryptionPaddingScheme EncryptionMessageEncodingMethod;
@@ -62,17 +78,6 @@ struct PKCS1v15 : public SignatureStandard, public EncryptionStandard
 #ifdef CRYPTOPP_IS_DLL
 CRYPTOPP_DLL_TEMPLATE_CLASS PKCS_DigestDecoration<SHA>;
 #endif
-
-// PKCS_DecoratedHashModule can be instantiated with the following
-// classes as specified in PKCS#1 v2.0 and P1363a
-class SHA;
-class MD2;
-class MD5;
-class RIPEMD160;
-class Tiger;
-class SHA256;
-class SHA384;
-class SHA512;
 
 NAMESPACE_END
 

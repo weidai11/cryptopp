@@ -10,7 +10,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! Rabin
+//! _
 class RabinFunction : public TrapdoorFunction, public PublicKey
 {
 	typedef RabinFunction ThisClass;
@@ -42,7 +42,7 @@ protected:
 	Integer m_n, m_r, m_s;
 };
 
-//! Invertible Rabin
+//! _
 class InvertibleRabinFunction : public RabinFunction, public TrapdoorFunctionInverse, public PrivateKey
 {
 	typedef InvertibleRabinFunction ThisClass;
@@ -77,7 +77,7 @@ protected:
 	Integer m_p, m_q, m_u;
 };
 
-//! .
+//! Rabin
 struct Rabin
 {
 	static std::string StaticAlgorithmName() {return "Rabin-Crypto++Variant";}
@@ -85,13 +85,13 @@ struct Rabin
 	typedef InvertibleRabinFunction PrivateKey;
 };
 
-//! .
+//! Rabin encryption
 template <class STANDARD>
 struct RabinES : public TF_ES<STANDARD, Rabin>
 {
 };
 
-//! .
+//! Rabin signature
 template <class STANDARD, class H>
 struct RabinSS : public TF_SS<STANDARD, H, Rabin>
 {

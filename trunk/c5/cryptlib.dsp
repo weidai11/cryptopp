@@ -25,7 +25,9 @@ CFG=cryptlib - Win32 Debug
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
-CPP=cl.exe
+# PROP Scc_ProjName ""
+# PROP Scc_LocalPath ""
+CPP=xicl6.exe
 RSC=rc.exe
 
 !IF  "$(CFG)" == "cryptlib - Win32 DLL-Import Release"
@@ -41,13 +43,13 @@ RSC=rc.exe
 # PROP Intermediate_Dir "DLL_Import_Release"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /G5 /Gz /MT /W3 /GX /Zi /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "USE_PRECOMPILED_HEADERS" /Yu"pch.h" /FD /c
-# ADD CPP /nologo /G5 /Gz /MT /W3 /GX /Zi /O1 /Ob2 /D "NDEBUG" /D "_WINDOWS" /D "USE_PRECOMPILED_HEADERS" /D "WIN32" /D "CRYPTOPP_IMPORTS" /Yu"pch.h" /FD /c
+# ADD CPP /nologo /G5 /Gz /MT /W3 /GX /Zi /O1 /Ob2 /D "NDEBUG" /D "_WINDOWS" /D "USE_PRECOMPILED_HEADERS" /D "WIN32" /D "CRYPTOPP_IMPORTS" /Yu"pch.h" /FD /Zm400 /c
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-LIB32=link.exe -lib
+LIB32=xilink6.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo
 
@@ -64,13 +66,13 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "DLL_Import_Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "USE_PRECOMPILED_HEADERS" /Yu"pch.h" /FD /c
-# ADD CPP /nologo /G5 /Gz /MTd /W3 /GX /Zi /Od /D "_DEBUG" /D "_WINDOWS" /D "USE_PRECOMPILED_HEADERS" /D "WIN32" /D "CRYPTOPP_IMPORTS" /Yu"pch.h" /FD /c
+# ADD CPP /nologo /G5 /Gz /MTd /W3 /GX /Zi /Od /D "_DEBUG" /D "_WINDOWS" /D "USE_PRECOMPILED_HEADERS" /D "WIN32" /D "CRYPTOPP_IMPORTS" /Yu"pch.h" /FD /Zm400 /c
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-LIB32=link.exe -lib
+LIB32=xilink6.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo
 
@@ -87,13 +89,13 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "Release"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /MT /W3 /GX /Zi /O1 /Ob2 /D "NDEBUG" /D "_WINDOWS" /D "USE_PRECOMPILED_HEADERS" /D "WIN32" /Yu"pch.h" /FD /c
+# ADD CPP /nologo /MT /W3 /GX /Zi /O1 /Ob2 /D "NDEBUG" /D "_WINDOWS" /D "USE_PRECOMPILED_HEADERS" /D "WIN32" /Yu"pch.h" /FD /Zm400 /c
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-LIB32=link.exe -lib
+LIB32=xilink6.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo
 
@@ -110,13 +112,13 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /Z7 /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /MTd /W3 /GX /Zi /Od /D "_DEBUG" /D "_WINDOWS" /D "USE_PRECOMPILED_HEADERS" /D "WIN32" /Yu"pch.h" /FD /c
+# ADD CPP /nologo /MTd /W3 /GX /Zi /Od /D "_DEBUG" /D "_WINDOWS" /D "USE_PRECOMPILED_HEADERS" /D "WIN32" /Yu"pch.h" /FD /Zm400 /c
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-LIB32=link.exe -lib
+LIB32=xilink6.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo
 
@@ -771,6 +773,10 @@ SOURCE=.\eprecomp.h
 # Begin Source File
 
 SOURCE=.\esign.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\factory.h
 # End Source File
 # Begin Source File
 

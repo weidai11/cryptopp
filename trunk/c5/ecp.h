@@ -93,7 +93,7 @@ CRYPTOPP_DLL_TEMPLATE_CLASS DL_GroupPrecomputation<ECP::Point>;
 
 template <class T> class EcPrecomputation;
 
-//! .
+//! ECP precomputation
 template<> class EcPrecomputation<ECP> : public DL_GroupPrecomputation<ECP::Point>
 {
 public:

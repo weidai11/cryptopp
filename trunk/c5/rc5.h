@@ -9,6 +9,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+//! _
 struct RC5_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 0, 255>, public VariableRounds<16>
 {
 	static const char *StaticAlgorithmName() {return "RC5";}

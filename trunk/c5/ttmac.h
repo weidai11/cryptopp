@@ -7,9 +7,8 @@
 #include "iterhash.h"
 
 NAMESPACE_BEGIN(CryptoPP)
-//! <a href="http://www.eskimo.com/~weidai/scan-mirror/mac.html#Two-Track-MAC">Two-Track-MAC</a>
-/*! 160 Bit MAC with 160 Bit Key */
 
+//! _
 class CRYPTOPP_NO_VTABLE TTMAC_Base : public FixedKeyLength<20>, public IteratedHash<word32, LittleEndian, 64, MessageAuthenticationCode>
 {
 public:
@@ -31,7 +30,8 @@ protected:
 };
 
 //! <a href="http://www.weidai.com/scan-mirror/mac.html#TTMAC">Two-Track-MAC</a>
-typedef MessageAuthenticationCodeFinal<TTMAC_Base> TTMAC;
+/*! 160 Bit MAC with 160 Bit Key */
+DOCUMENTED_TYPEDEF(MessageAuthenticationCodeFinal<TTMAC_Base>, TTMAC)
 
 NAMESPACE_END
 

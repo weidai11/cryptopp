@@ -230,7 +230,8 @@ public:
 	}
 };
 
-//! .
+//! key that can be ASN.1 encoded
+/** derived class should override either BERDecodeKey or BERDecodeKey2 */
 class CRYPTOPP_DLL ASN1Key : public ASN1CryptoMaterial
 {
 public:
@@ -239,7 +240,6 @@ public:
 		{BERDecodeNull(bt); return false;}
 	virtual bool DEREncodeAlgorithmParameters(BufferedTransformation &bt) const
 		{DEREncodeNull(bt); return false;}	// see RFC 2459, section 7.3.1
-	// one of the following two should be overriden
 	//! decode subjectPublicKey part of subjectPublicKeyInfo, or privateKey part of privateKeyInfo, without the BIT STRING or OCTET STRING header
 	virtual void BERDecodeKey(BufferedTransformation &bt) {assert(false);}
 	virtual void BERDecodeKey2(BufferedTransformation &bt, bool parametersPresent, unsigned int size)

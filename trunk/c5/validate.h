@@ -74,5 +74,6 @@ bool ValidateECDSA();
 bool ValidateESIGN();
 
 CryptoPP::RandomPool & GlobalRNG();
+bool RunTestDataFile(const char *filename);
 
 #endif

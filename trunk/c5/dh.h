@@ -17,7 +17,7 @@ class DH_Domain : public DL_SimpleKeyAgreementDomainBase<typename GROUP_PARAMETE
 public:
 	typedef GROUP_PARAMETERS GroupParameters;
 	typedef typename GroupParameters::Element Element;
-	typedef DL_KeyAgreementAlgorithm_DH<Element, COFACTOR_OPTION> KeyAgreementAlgorithm;
+	typedef DL_KeyAgreementAlgorithm_DH<Element, COFACTOR_OPTION> DH_Algorithm;
 	typedef DH_Domain<GROUP_PARAMETERS, COFACTOR_OPTION> Domain;
 
 	DH_Domain() {}
@@ -76,9 +76,13 @@ public:
 		}
 	}
 
+	static std::string StaticAlgorithmName()
+		{return GroupParameters::StaticAlgorithmNamePrefix() + DH_Algorithm::StaticAlgorithmName();}
+	std::string AlgorithmName() const {return StaticAlgorithmName();}
+
 private:
 	const DL_KeyAgreementAlgorithm<Element> & GetKeyAgreementAlgorithm() const
-		{return Singleton<KeyAgreementAlgorithm>().Ref();}
+		{return Singleton<DH_Algorithm>().Ref();}
 	DL_GroupParameters<Element> & AccessAbstractGroupParameters()
 		{return m_groupParameters;}
 

@@ -14,7 +14,7 @@
 	(since it's an additive cipher, i.e., it xors a keystream into the plaintext).
 	See this line in seal.h:
 
-	typedef SymmetricCipherFinal<ConcretePolicyHolder<SEAL_Policy<B>, AdditiveCipherTemplate<> > > Encryption;
+	typedef SymmetricCipherFinal\<ConcretePolicyHolder\<SEAL_Policy\<B\>, AdditiveCipherTemplate\<\> \> \> Encryption;
 
 	AdditiveCipherTemplate and CFB_CipherTemplate are designed so that they don't need
 	to take a policy class as a template parameter (although this is allowed), so that
@@ -263,6 +263,7 @@ CRYPTOPP_DLL_TEMPLATE_CLASS CFB_CipherTemplate<AbstractPolicyHolder<CFB_CipherAb
 CRYPTOPP_DLL_TEMPLATE_CLASS CFB_EncryptionTemplate<>;
 CRYPTOPP_DLL_TEMPLATE_CLASS CFB_DecryptionTemplate<>;
 
+//! _
 template <class BASE, class INFO = BASE>
 class SymmetricCipherFinal : public AlgorithmImpl<SimpleKeyingInterfaceImpl<BASE, INFO>, INFO>
 {

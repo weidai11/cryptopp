@@ -33,7 +33,7 @@ template <class H> struct EMSA2HashId
 	static const byte id;
 };
 
-// EMSA2HashId can be instantiated with the following two classes.
+// EMSA2HashId can be instantiated with the following classes.
 class SHA;
 class RIPEMD160;
 class RIPEMD128;
@@ -41,6 +41,7 @@ class SHA256;
 class SHA384;
 class SHA512;
 class Whirlpool;
+// end of list
 
 template <class BASE>
 class EMSA2HashIdLookup : public BASE

@@ -7,10 +7,18 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+//! _
 template <class B = BigEndian>
-struct WAKE_Info : public FixedKeyLength<32>
+struct WAKE_CFB_Info : public FixedKeyLength<32>
 {
 	static const char *StaticAlgorithmName() {return B::ToEnum() == LITTLE_ENDIAN_ORDER ? "WAKE-CFB-LE" : "WAKE-CFB-BE";}
+};
+
+//! _
+template <class B = BigEndian>
+struct WAKE_OFB_Info : public FixedKeyLength<32>
+{
+	static const char *StaticAlgorithmName() {return B::ToEnum() == LITTLE_ENDIAN_ORDER ? "WAKE-OFB-LE" : "WAKE-OFB-BE";}
 };
 
 class CRYPTOPP_NO_VTABLE WAKE_Base
@@ -24,8 +32,8 @@ protected:
 };
 
 template <class B = BigEndian>
-class CRYPTOPP_NO_VTABLE WAKE_Policy : public WAKE_Info<B>
-				, public CFB_CipherConcretePolicy<word32, 1>
+class CRYPTOPP_NO_VTABLE WAKE_Policy
+				: public CFB_CipherConcretePolicy<word32, 1>
 				, public AdditiveCipherConcretePolicy<word32, 1, 64>
 				, protected WAKE_Base
 {
@@ -41,17 +49,17 @@ protected:
 
 //! <a href="http://www.weidai.com/scan-mirror/cs.html#WAKE-CFB-BE">WAKE-CFB-BE</a>
 template <class B = BigEndian>
-struct WAKE_CFB : public WAKE_Info<B>, public SymmetricCipherDocumentation
+struct WAKE_CFB : public WAKE_CFB_Info<B>, public SymmetricCipherDocumentation
 {
-	typedef SymmetricCipherFinal<ConcretePolicyHolder<WAKE_Policy<B>, CFB_EncryptionTemplate<> > > Encryption;
-	typedef SymmetricCipherFinal<ConcretePolicyHolder<WAKE_Policy<B>, CFB_DecryptionTemplate<> > > Decryption;
+	typedef SymmetricCipherFinal<ConcretePolicyHolder<WAKE_Policy<B>, CFB_EncryptionTemplate<> >,  WAKE_CFB_Info<B> > Encryption;
+	typedef SymmetricCipherFinal<ConcretePolicyHolder<WAKE_Policy<B>, CFB_DecryptionTemplate<> >,  WAKE_CFB_Info<B> > Decryption;
 };
 
 //! WAKE-OFB
 template <class B = BigEndian>
-struct WAKE_OFB : public WAKE_Info<B>, public SymmetricCipherDocumentation
+struct WAKE_OFB : public WAKE_OFB_Info<B>, public SymmetricCipherDocumentation
 {
-	typedef SymmetricCipherFinal<ConcretePolicyHolder<WAKE_Policy<B>, AdditiveCipherTemplate<> > > Encryption;
+	typedef SymmetricCipherFinal<ConcretePolicyHolder<WAKE_Policy<B>, AdditiveCipherTemplate<> >,  WAKE_OFB_Info<B> > Encryption;
 	typedef Encryption Decryption;
 };
 

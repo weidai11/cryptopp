@@ -9,6 +9,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+//! _
 struct SKIPJACK_Info : public FixedBlockSize<8>, public FixedKeyLength<10>
 {
 	CRYPTOPP_DLL static const char * StaticAlgorithmName() {return "SKIPJACK";}

@@ -15,7 +15,7 @@ protected:
 	static const word32 S[8][256];
 };
 
-//! .
+//! algorithm info
 struct CAST128_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 5, 16>
 {
 	static const char *StaticAlgorithmName() {return "CAST-128";}
@@ -51,7 +51,7 @@ public:
 	typedef BlockCipherFinal<DECRYPTION, Dec> Decryption;
 };
 
-//! .
+//! algorithm info
 struct CAST256_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 16, 32>
 {
 	static const char *StaticAlgorithmName() {return "CAST-256";}

@@ -8,6 +8,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+//! _
 template <class T, class BASE>
 class CRYPTOPP_NO_VTABLE IteratedHashBase : public BASE
 {
@@ -15,8 +16,6 @@ public:
 	typedef T HashWordType;
 
 	IteratedHashBase() : m_countHi(0), m_countLo(0) {}
-	void SetBlockSize(unsigned int blockSize) {m_data.resize(blockSize / sizeof(HashWordType));}
-	void SetStateSize(unsigned int stateSize) {m_digest.resize(stateSize / sizeof(HashWordType));}
 	unsigned int BlockSize() const {return m_data.size() * sizeof(T);}
 	unsigned int OptimalBlockSize() const {return BlockSize();}
 	unsigned int OptimalDataAlignment() const {return sizeof(T);}
@@ -25,6 +24,9 @@ public:
 	void Restart();
 
 protected:
+	void SetBlockSize(unsigned int blockSize) {m_data.resize(blockSize / sizeof(HashWordType));}
+	void SetStateSize(unsigned int stateSize) {m_digest.resize(stateSize / sizeof(HashWordType));}
+
 	T GetBitCountHi() const {return (m_countLo >> (8*sizeof(T)-3)) + (m_countHi << 3);}
 	T GetBitCountLo() const {return m_countLo << 3;}
 
@@ -48,7 +50,7 @@ CRYPTOPP_STATIC_TEMPLATE_CLASS IteratedHashBase<word64, MessageAuthenticationCod
 CRYPTOPP_DLL_TEMPLATE_CLASS IteratedHashBase<word32, HashTransformation>;
 CRYPTOPP_STATIC_TEMPLATE_CLASS IteratedHashBase<word32, MessageAuthenticationCode>;
 
-//! .
+//! _
 template <class T, class B, class BASE>
 class CRYPTOPP_NO_VTABLE IteratedHashBase2 : public IteratedHashBase<T, BASE>
 {
@@ -68,7 +70,7 @@ protected:
 	virtual void HashEndianCorrectedBlock(const HashWordType *data) =0;
 };
 
-//! .
+//! _
 template <class T_HashWordType, class T_Endianness, unsigned int T_BlockSize, class T_Base = HashTransformation>
 class CRYPTOPP_NO_VTABLE IteratedHash : public IteratedHashBase2<T_HashWordType, T_Endianness, T_Base>
 {
@@ -80,6 +82,7 @@ protected:
 	IteratedHash() {this->SetBlockSize(T_BlockSize);}
 };
 
+//! _
 template <class T_HashWordType, class T_Endianness, unsigned int T_BlockSize, unsigned int T_StateSize, class T_Transform, unsigned int T_DigestSize = T_StateSize>
 class CRYPTOPP_NO_VTABLE IteratedHashWithStaticTransform
 	: public ClonableImpl<T_Transform, AlgorithmImpl<IteratedHash<T_HashWordType, T_Endianness, T_BlockSize>, T_Transform> >

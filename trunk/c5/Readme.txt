@@ -1,5 +1,5 @@
 Crypto++: a C++ Class Library of Cryptographic Schemes
-Version 5.2 6/29/2004
+Version 5.2.1 (in development)
 
 This library includes:
 
@@ -60,6 +60,18 @@ This version of Crypto++ has been compiled successfully with MSVC 6.0 SP5
 and .NET 2003 on Windows XP, GCC 2.95.4 on FreeBSD 4.6, GCC 2.95.3 on
 Linux 2.4 and SunOS 5.8, GCC 3.4 on Cygwin 1.5.10, and Metrowerks
 CodeWarrior 8.3 for Windows and MacOS.
+
+*** Important Usage Notes ***
+
+1. If a constructor for A takes a pointer to an object B (except primitive
+types such as int and char), then A owns B and will delete B at A's
+destruction.  If a constructor for A takes a reference to an object B,
+then the caller retains ownership of B and should not destroy it until
+A no longer needs it. 
+
+2. Crypto++ is thread safe at the class level. This means you can use
+Crypto++ safely in a multithreaded application, but you must provide
+synchronization when multiple threads access a common Crypto++ object.
 
 *** MSVC-Specific Information ***
 
@@ -140,18 +152,6 @@ The subscription information and the list archive are available on
 http://www.cryptopp.com. You can also email me directly at
 cryptopp@weidai.com, but you will probably get a faster response through
 the mailing list.
-
-*** Important Usage Notes ***
-
-1. If a constructor for A takes a pointer to an object B (except primitive
-types such as int and char), then A owns B and will delete B at A's
-destruction.  If a constructor for A takes a reference to an object B,
-then the caller retains ownership of B and should not destroy it until
-A no longer needs it. 
-
-2. Crypto++ is thread safe at the class level. This means you can use
-Crypto++ safely in a multithreaded application, but you must provide
-synchronization when multiple threads access a common Crypto++ object.
 
 *** History ***
 
@@ -336,5 +336,11 @@ synchronization when multiple threads access a common Crypto++ object.
     - fixed ONE_AND_ZEROS_PADDING to use 0x80 instead 0x01 as padding.
     - fixed encoding/decoding of PKCS #8 privateKeyInfo to properly
       handle optional attributes
+
+5.2.1 - fixed bug in the "dlltest" DLL testing program
+      - fixed compiling with STLport using VC .NET
+      - fixed compiling with -fPIC using GCC
+      - fixed compiling with -msse2 on systems without memalign()
+      - fixed problems with inline documentation
 
 Written by Wei Dai
