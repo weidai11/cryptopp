@@ -7,10 +7,6 @@ Project: "cryptdll"=.\cryptdll.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
-    begin source code control
-    Perforce Project
-    .
-    end source code control
 }}}
 
 Package=<4>
@@ -53,10 +49,6 @@ Project: "dlltest"=.\dlltest.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
-    begin source code control
-    Perforce Project
-    .
-    end source code control
 }}}
 
 Package=<4>
