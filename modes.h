@@ -142,19 +142,7 @@ class CTR_ModePolicy : public ModePolicyCommonTemplate<AdditiveCipherAbstractPol
 	void SeekToIteration(dword iterationCount);
 	IV_Requirement IVRequirement() const {return STRUCTURED_IV;}
 
-	static inline void IncrementCounterByOne(byte *output, const byte *input, unsigned int s)
-	{
-		for	(int i=s-1,	carry=1; i>=0; i--)
-			carry =	!(output[i]	= input[i]+1);
-	}
-	inline void	ProcessMultipleBlocks(byte *output,	const byte *input, unsigned	int	n)
-	{
-		unsigned int s = BlockSize(), j	= 0;
-		for	(unsigned int i=1; i<n;	i++, j+=s)
-			IncrementCounterByOne(m_counterArray + j + s, m_counterArray + j, s);
-		m_cipher->ProcessAndXorMultipleBlocks(m_counterArray, input, output, n);
-		IncrementCounterByOne(m_counterArray, m_counterArray + s*(n-1),	s);
-	}
+	inline void	ProcessMultipleBlocks(byte *output,	const byte *input, unsigned	int	n);
 
 	SecByteBlock m_counterArray;
 };
