@@ -111,16 +111,23 @@ PolynomialMod2 PolynomialMod2::Pentanomial(unsigned t0, unsigned t1, unsigned t2
 	return r;
 }
 
+template <word i>
+struct NewPolynomialMod2
+{
+	PolynomialMod2 * operator()() const
+	{
+		return new PolynomialMod2(i);
+	}
+};
+
 const PolynomialMod2 &PolynomialMod2::Zero()
 {
-	static const PolynomialMod2 zero;
-	return zero;
+	return Singleton<PolynomialMod2>().Ref();
 }
 
 const PolynomialMod2 &PolynomialMod2::One()
 {
-	static const PolynomialMod2 one = 1;
-	return one;
+	return Singleton<PolynomialMod2, NewPolynomialMod2<1> >().Ref();
 }
 
 void PolynomialMod2::Decode(const byte *input, unsigned int inputLen)

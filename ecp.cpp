@@ -195,8 +195,7 @@ bool ECP::Equal(const Point &P, const Point &Q) const
 
 const ECP::Point& ECP::Identity() const
 {
-	static const Point zero;
-	return zero;
+	return Singleton<Point>().Ref();
 }
 
 const ECP::Point& ECP::Inverse(const Point &P) const

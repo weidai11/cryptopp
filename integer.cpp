@@ -2834,22 +2834,28 @@ Integer Integer::Power2(unsigned int e)
 	return r;
 }
 
+template <long i>
+struct NewInteger
+{
+	Integer * operator()() const
+	{
+		return new Integer(i);
+	}
+};
+
 const Integer &Integer::Zero()
 {
-	static const Integer zero;
-	return zero;
+	return Singleton<Integer>().Ref();
 }
 
 const Integer &Integer::One()
 {
-	static const Integer one(1,2);
-	return one;
+	return Singleton<Integer, NewInteger<1> >().Ref();
 }
 
 const Integer &Integer::Two()
 {
-	static const Integer two(2,2);
-	return two;
+	return Singleton<Integer, NewInteger<2> >().Ref();
 }
 
 bool Integer::operator!() const

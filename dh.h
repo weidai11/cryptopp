@@ -78,7 +78,7 @@ public:
 
 private:
 	const DL_KeyAgreementAlgorithm<Element> & GetKeyAgreementAlgorithm() const
-		{static KeyAgreementAlgorithm a; return a;}
+		{return Singleton<KeyAgreementAlgorithm>().Ref();}
 	DL_GroupParameters<Element> & AccessAbstractGroupParameters()
 		{return m_groupParameters;}
 

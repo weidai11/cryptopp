@@ -171,8 +171,7 @@ bool EC2N::Equal(const Point &P, const Point &Q) const
 
 const EC2N::Point& EC2N::Identity() const
 {
-	static const Point zero;
-	return zero;
+	return Singleton<Point>().Ref();
 }
 
 const EC2N::Point& EC2N::Inverse(const Point &P) const

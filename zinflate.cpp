@@ -483,15 +483,15 @@ bool Inflator::DecodeBody()
 			7, 7, 8, 8, 9, 9, 10, 10, 11, 11,
 			12, 12, 13, 13};
 
-		const HuffmanDecoder* pLiteralDecoder = GetLiteralDecoder();
-		const HuffmanDecoder* pDistanceDecoder = GetDistanceDecoder();
+		const HuffmanDecoder& literalDecoder = GetLiteralDecoder();
+		const HuffmanDecoder& distanceDecoder = GetDistanceDecoder();
 
 		switch (m_nextDecode)
 		{
 		case LITERAL:
 			while (true)
 			{
-				if (!pLiteralDecoder->Decode(m_reader, m_literal))
+				if (!literalDecoder.Decode(m_reader, m_literal))
 				{
 					m_nextDecode = LITERAL;
 					break;
@@ -517,7 +517,7 @@ bool Inflator::DecodeBody()
 					}
 					m_literal = m_reader.GetBits(bits) + lengthStarts[m_literal-257];
 		case DISTANCE:
-					if (!pDistanceDecoder->Decode(m_reader, m_distance))
+					if (!distanceDecoder.Decode(m_reader, m_distance))
 					{
 						m_nextDecode = DISTANCE;
 						break;
@@ -567,45 +567,41 @@ void Inflator::FlushOutput()
 	}
 }
 
-const HuffmanDecoder *Inflator::FixedLiteralDecoder()
+struct NewFixedLiteralDecoder
 {
-	static simple_ptr<HuffmanDecoder> s_pDecoder;
-	if (!s_pDecoder.m_p)
+	HuffmanDecoder * operator()() const
 	{
 		unsigned int codeLengths[288];
 		std::fill(codeLengths + 0, codeLengths + 144, 8);
 		std::fill(codeLengths + 144, codeLengths + 256, 9);
 		std::fill(codeLengths + 256, codeLengths + 280, 7);
 		std::fill(codeLengths + 280, codeLengths + 288, 8);
-		HuffmanDecoder *pDecoder = new HuffmanDecoder;
+		std::auto_ptr<HuffmanDecoder> pDecoder(new HuffmanDecoder);
 		pDecoder->Initialize(codeLengths, 288);
-		s_pDecoder.m_p = pDecoder;
+		return pDecoder.release();
 	}
-	return s_pDecoder.m_p;
-}
+};
 
-const HuffmanDecoder *Inflator::FixedDistanceDecoder()
+struct NewFixedDistanceDecoder
 {
-	static simple_ptr<HuffmanDecoder> s_pDecoder;
-	if (!s_pDecoder.m_p)
+	HuffmanDecoder * operator()() const
 	{
 		unsigned int codeLengths[32];
 		std::fill(codeLengths + 0, codeLengths + 32, 5);
-		HuffmanDecoder *pDecoder = new HuffmanDecoder;
+		std::auto_ptr<HuffmanDecoder> pDecoder(new HuffmanDecoder);
 		pDecoder->Initialize(codeLengths, 32);
-		s_pDecoder.m_p = pDecoder;
+		return pDecoder.release();
 	}
-	return s_pDecoder.m_p;
+};
+
+const HuffmanDecoder& Inflator::GetLiteralDecoder() const
+{
+	return m_blockType == 1 ? Singleton<HuffmanDecoder, NewFixedLiteralDecoder>().Ref() : m_dynamicLiteralDecoder;
 }
 
-const HuffmanDecoder *Inflator::GetLiteralDecoder() const
+const HuffmanDecoder& Inflator::GetDistanceDecoder() const
 {
-	return m_blockType == 1 ? FixedLiteralDecoder() : &m_dynamicLiteralDecoder;
-}
-
-const HuffmanDecoder *Inflator::GetDistanceDecoder() const
-{
-	return m_blockType == 1 ? FixedDistanceDecoder() : &m_dynamicDistanceDecoder;
+	return m_blockType == 1 ? Singleton<HuffmanDecoder, NewFixedDistanceDecoder>().Ref() : m_dynamicDistanceDecoder;
 }
 
 NAMESPACE_END

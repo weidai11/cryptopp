@@ -565,15 +565,13 @@ Element BulkPolynomialInterpolateAt(const Ring &ring, const Element y[], const E
 template <class T, int instance>
 const PolynomialOverFixedRing<T, instance> &PolynomialOverFixedRing<T, instance>::Zero()
 {
-	static const PolynomialOverFixedRing<T, instance> zero;
-	return zero;
+	return Singleton<ThisType>().Ref();
 }
 
 template <class T, int instance>
 const PolynomialOverFixedRing<T, instance> &PolynomialOverFixedRing<T, instance>::One()
 {
-	static const PolynomialOverFixedRing<T, instance> one = fixedRing.MultiplicativeIdentity();
-	return one;
+	return Singleton<ThisType, NewOnePolynomial>().Ref();
 }
 
 NAMESPACE_END
