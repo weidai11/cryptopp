@@ -18,7 +18,7 @@ inline CipherDir ReverseCipherDir(CipherDir dir)
 
 //! .
 template <unsigned int N>
-class CRYPTOPP_DLL FixedBlockSize
+class FixedBlockSize
 {
 public:
 	enum {BLOCKSIZE = N};
@@ -28,7 +28,7 @@ public:
 
 //! .
 template <unsigned int R>
-class CRYPTOPP_DLL FixedRounds
+class FixedRounds
 {
 public:
 	enum {ROUNDS = R};
@@ -47,7 +47,7 @@ protected:
 
 //! .
 template <unsigned int D, unsigned int N=1, unsigned int M=INT_MAX>		// use INT_MAX here because enums are treated as signed ints
-class CRYPTOPP_DLL VariableRounds
+class VariableRounds
 {
 public:
 	enum {DEFAULT_ROUNDS = D, MIN_ROUNDS = N, MAX_ROUNDS = M};
@@ -74,7 +74,7 @@ protected:
 
 //! .
 template <unsigned int N, unsigned int IV_REQ = SimpleKeyingInterface::NOT_RESYNCHRONIZABLE>
-class CRYPTOPP_DLL FixedKeyLength
+class FixedKeyLength
 {
 public:
 	enum {KEYLENGTH=N, MIN_KEYLENGTH=N, MAX_KEYLENGTH=N, DEFAULT_KEYLENGTH=N};
@@ -84,7 +84,7 @@ public:
 
 /// support query of variable key length, template parameters are default, min, max, multiple (default multiple 1)
 template <unsigned int D, unsigned int N, unsigned int M, unsigned int Q = 1, unsigned int IV_REQ = SimpleKeyingInterface::NOT_RESYNCHRONIZABLE>
-class CRYPTOPP_DLL VariableKeyLength
+class VariableKeyLength
 {
 	// make these private to avoid Doxygen documenting them in all derived classes
 	CRYPTOPP_COMPILE_ASSERT(Q > 0);
@@ -112,7 +112,7 @@ public:
 
 /// support query of key length that's the same as another class
 template <class T>
-class CRYPTOPP_DLL SameKeyLengthAs
+class SameKeyLengthAs
 {
 public:
 	enum {MIN_KEYLENGTH=T::MIN_KEYLENGTH, MAX_KEYLENGTH=T::MAX_KEYLENGTH, DEFAULT_KEYLENGTH=T::DEFAULT_KEYLENGTH};
