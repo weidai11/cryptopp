@@ -18,9 +18,16 @@
 #include <iostream>
 
 #ifdef SSE2_INTRINSICS_AVAILABLE
-#include <emmintrin.h>
+	#ifdef __GNUC__
+		#include <xmmintrin.h>
+		#include <malloc.h>
+	#else
+		#include <emmintrin.h>
+	#endif
 #elif defined(_MSC_VER) && defined(_M_IX86)
-#pragma message("You do no seem to have the Visual C++ Processor Pack installed, so use of SSE2 intrinsics will be disabled.")
+	#pragma message("You do no seem to have the Visual C++ Processor Pack installed, so use of SSE2 intrinsics will be disabled.")
+#elif defined(__GNUC__) && defined(__i386__)
+	#pragma message("You do not have GCC 3.3 or later, or did not specify -msse2 compiler option, so use of SSE2 intrinsics will be disabled.")
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -41,7 +48,11 @@ CPP_TYPENAME AllocatorBase<T>::pointer AlignedAllocator<T>::allocate(size_type n
 {
 #ifdef SSE2_INTRINSICS_AVAILABLE
 	if (n >= 4)
-		return (T *)_mm_malloc(sizeof(T)*n, 16);
+		#ifdef __GNUC__
+				return (T *)memalign(16, sizeof(T)*n);
+		#else
+				return (T *)_mm_malloc(sizeof(T)*n, 16);
+		#endif
 	else
 #endif
 		return new T[n];
@@ -53,10 +64,14 @@ void AlignedAllocator<T>::deallocate(void *p, size_type n)
 	memset(p, 0, n*sizeof(T));
 #ifdef SSE2_INTRINSICS_AVAILABLE
 	if (n >= 4)
-		_mm_free(p);
+		#ifdef __GNUC__
+			free(p);
+		#else
+			_mm_free(p);
+		#endif
 	else
 #endif
-		delete [] p;
+		delete [] (T *)p;
 }
 #endif
 
@@ -640,6 +655,13 @@ void Portable::Square2(word *R, const word *A)
 
 void Portable::Square4(word *R, const word *A)
 {
+#ifdef _MSC_VER
+	// VC60 workaround: MSVC 6.0 has an optimization bug that makes
+	// (dword)A*B where either A or B has been cast to a dword before
+	// very expensive. Revisit this function when this
+	// bug is fixed.
+	Multiply4(R, A, A);
+#else
 	const word *B = A;
 	DWord p, q;
 	word c, d, e;
@@ -666,6 +688,7 @@ void Portable::Square4(word *R, const word *A)
 	p = DWord::MultiplyAndAdd(A[3], A[3], d);
 	R[6] = p.GetLowHalf();
 	R[7] = e + p.GetHighHalf();
+#endif
 }
 
 void Portable::Multiply8(word *R, const word *A, const word *B)
@@ -834,800 +857,289 @@ void Portable::Multiply8Bottom(word *R, const word *A, const word *B)
 #undef SaveSquAcc
 
 // CodeWarrior defines _MSC_VER
-#if defined(_MSC_VER) && !defined(__MWERKS__) && defined(_M_IX86) && (_M_IX86<=700)
+#if (defined(_MSC_VER) && !defined(__MWERKS__) && defined(_M_IX86)) || (defined(__GNUC__) && defined(__i386__))
 
 class PentiumOptimized : public Portable
 {
 public:
-	static word __fastcall Add(word *C, const word *A, const word *B, unsigned int N);
-	static word __fastcall Subtract(word *C, const word *A, const word *B, unsigned int N);
-// TODO test this with .NET #if _MSC_VER < 1300
-	static inline void Square4(word *R, const word *A)
-	{
-		// VC60 workaround: MSVC 6.0 has an optimization bug that makes
-		// (dword)A*B where either A or B has been cast to a dword before
-		// very expensive. Revisit this function when this
-		// bug is fixed.
-		Multiply4(R, A, A);
-	}
-//#endif
-};
-
-typedef PentiumOptimized LowLevel;
-
-__declspec(naked) word __fastcall PentiumOptimized::Add(word *C, const word *A, const word *B, unsigned int N)
-{
-	__asm
-	{
-		push ebp
-		push ebx
-		push esi
-		push edi
-
-		mov esi, [esp+24]	; N
-		mov ebx, [esp+20]	; B
-
-		// now: ebx = B, ecx = C, edx = A, esi = N
-
-		sub ecx, edx	// hold the distance between C & A so we can add this to A to get C
-		xor eax, eax	// clear eax
-
-		sub eax, esi	// eax is a negative index from end of B
-		lea ebx, [ebx+4*esi]	// ebx is end of B
-
-		sar eax, 1		// unit of eax is now dwords; this also clears the carry flag
-		jz	loopend		// if no dwords then nothing to do
-
-loopstart:
-		mov    esi,[edx]			// load lower word of A
-		mov    ebp,[edx+4]			// load higher word of A
-
-		mov    edi,[ebx+8*eax]		// load lower word of B
-		lea    edx,[edx+8]			// advance A and C
-
-		adc    esi,edi				// add lower words
-		mov    edi,[ebx+8*eax+4]	// load higher word of B
-
-		adc    ebp,edi				// add higher words
-		inc    eax					// advance B
-
-		mov    [edx+ecx-8],esi		// store lower word result
-		mov    [edx+ecx-4],ebp		// store higher word result
-
-		jnz    loopstart			// loop until eax overflows and becomes zero
-
-loopend:
-		adc eax, 0		// store carry into eax (return result register)
-		pop edi
-		pop esi
-		pop ebx
-		pop ebp
-		ret 8
-	}
-}
-
-__declspec(naked) word __fastcall PentiumOptimized::Subtract(word *C, const word *A, const word *B, unsigned int N)
-{
-	__asm
-	{
-		push ebp
-		push ebx
-		push esi
-		push edi
-
-		mov esi, [esp+24]	; N
-		mov ebx, [esp+20]	; B
-
-		sub ecx, edx
-		xor eax, eax
-
-		sub eax, esi
-		lea ebx, [ebx+4*esi]
-
-		sar eax, 1
-		jz	loopend
-
-loopstart:
-		mov    esi,[edx]
-		mov    ebp,[edx+4]
-
-		mov    edi,[ebx+8*eax]
-		lea    edx,[edx+8]
-
-		sbb    esi,edi
-		mov    edi,[ebx+8*eax+4]
-
-		sbb    ebp,edi
-		inc    eax
-
-		mov    [edx+ecx-8],esi
-		mov    [edx+ecx-4],ebp
-
-		jnz    loopstart
-
-loopend:
-		adc eax, 0
-		pop edi
-		pop esi
-		pop ebx
-		pop ebp
-		ret 8
-	}
-}
-
-#ifdef SSE2_INTRINSICS_AVAILABLE
-
-static bool GetSSE2Capability()
-{
-	word32 b;
-
-	__asm
-	{
-		mov		eax, 1
-		cpuid
-		mov		b, edx
-	}
-
-	return (b & (1 << 26)) != 0;
-}
-
-bool g_sse2DetectionDone = false, g_sse2Detected, g_sse2Enabled = true;
-
-void DisableSSE2()
-{
-	g_sse2Enabled = false;
-}
-
-static inline bool HasSSE2()
-{
-	if (g_sse2Enabled && !g_sse2DetectionDone)
-	{
-		g_sse2Detected = GetSSE2Capability();
-		g_sse2DetectionDone = true;
-	}
-	return g_sse2Enabled && g_sse2Detected;
-}
-
-class P4Optimized : public PentiumOptimized
-{
-public:
-	static word __fastcall Add(word *C, const word *A, const word *B, unsigned int N);
-	static word __fastcall Subtract(word *C, const word *A, const word *B, unsigned int N);
-	static void Multiply4(word *C, const word *A, const word *B);
-	static void Multiply8(word *C, const word *A, const word *B);
-	static inline void Square4(word *R, const word *A)
-	{
-		Multiply4(R, A, A);
-	}
-	static void Multiply8Bottom(word *C, const word *A, const word *B);
-};
-
-static void __fastcall P4_Mul(__m128i *C, const __m128i *A, const __m128i *B)
-{
-	__m128i a3210 = _mm_load_si128(A);
-	__m128i b3210 = _mm_load_si128(B);
-
-	__m128i sum;
-
-	__m128i z = _mm_setzero_si128();
-	__m128i a2b2_a0b0 = _mm_mul_epu32(a3210, b3210);
-	C[0] = a2b2_a0b0;
-
-	__m128i a3120 = _mm_shuffle_epi32(a3210, _MM_SHUFFLE(3, 1, 2, 0));
-	__m128i b3021 = _mm_shuffle_epi32(b3210, _MM_SHUFFLE(3, 0, 2, 1));
-	__m128i a1b0_a0b1 = _mm_mul_epu32(a3120, b3021);
-	__m128i a1b0 = _mm_unpackhi_epi32(a1b0_a0b1, z);
-	__m128i a0b1 = _mm_unpacklo_epi32(a1b0_a0b1, z);
-	C[1] = _mm_add_epi64(a1b0, a0b1);
-
-	__m128i a31 = _mm_srli_epi64(a3210, 32);
-	__m128i b31 = _mm_srli_epi64(b3210, 32);
-	__m128i a3b3_a1b1 = _mm_mul_epu32(a31, b31);
-	C[6] = a3b3_a1b1;
-
-	__m128i a1b1 = _mm_unpacklo_epi32(a3b3_a1b1, z);
-	__m128i b3012 = _mm_shuffle_epi32(b3210, _MM_SHUFFLE(3, 0, 1, 2));
-	__m128i a2b0_a0b2 = _mm_mul_epu32(a3210, b3012);
-	__m128i a0b2 = _mm_unpacklo_epi32(a2b0_a0b2, z);
-	__m128i a2b0 = _mm_unpackhi_epi32(a2b0_a0b2, z);
-	sum = _mm_add_epi64(a1b1, a0b2);
-	C[2] = _mm_add_epi64(sum, a2b0);
-
-	__m128i a2301 = _mm_shuffle_epi32(a3210, _MM_SHUFFLE(2, 3, 0, 1));
-	__m128i b2103 = _mm_shuffle_epi32(b3210, _MM_SHUFFLE(2, 1, 0, 3));
-	__m128i a3b0_a1b2 = _mm_mul_epu32(a2301, b3012);
-	__m128i a2b1_a0b3 = _mm_mul_epu32(a3210, b2103);
-	__m128i a3b0 = _mm_unpackhi_epi32(a3b0_a1b2, z);
-	__m128i a1b2 = _mm_unpacklo_epi32(a3b0_a1b2, z);
-	__m128i a2b1 = _mm_unpackhi_epi32(a2b1_a0b3, z);
-	__m128i a0b3 = _mm_unpacklo_epi32(a2b1_a0b3, z);
-	__m128i sum1 = _mm_add_epi64(a3b0, a1b2);
-	sum = _mm_add_epi64(a2b1, a0b3);
-	C[3] = _mm_add_epi64(sum, sum1);
-
-	__m128i	a3b1_a1b3 = _mm_mul_epu32(a2301, b2103);
-	__m128i a2b2 = _mm_unpackhi_epi32(a2b2_a0b0, z);
-	__m128i a3b1 = _mm_unpackhi_epi32(a3b1_a1b3, z);
-	__m128i a1b3 = _mm_unpacklo_epi32(a3b1_a1b3, z);
-	sum = _mm_add_epi64(a2b2, a3b1);
-	C[4] = _mm_add_epi64(sum, a1b3);
-
-	__m128i a1302 = _mm_shuffle_epi32(a3210, _MM_SHUFFLE(1, 3, 0, 2));
-	__m128i b1203 = _mm_shuffle_epi32(b3210, _MM_SHUFFLE(1, 2, 0, 3));
-	__m128i a3b2_a2b3 = _mm_mul_epu32(a1302, b1203);
-	__m128i a3b2 = _mm_unpackhi_epi32(a3b2_a2b3, z);
-	__m128i a2b3 = _mm_unpacklo_epi32(a3b2_a2b3, z);
-	C[5] = _mm_add_epi64(a3b2, a2b3);
-}
-
-void P4Optimized::Multiply4(word *C, const word *A, const word *B)
-{
-	__m128i temp[7];
-	const word *w = (word *)temp;
-	const __m64 *mw = (__m64 *)w;
-
-	P4_Mul(temp, (__m128i *)A, (__m128i *)B);
-
-	C[0] = w[0];
-
-	__m64 s1, s2;
-
-	__m64 w1 = _m_from_int(w[1]);
-	__m64 w4 = mw[2];
-	__m64 w6 = mw[3];
-	__m64 w8 = mw[4];
-	__m64 w10 = mw[5];
-	__m64 w12 = mw[6];
-	__m64 w14 = mw[7];
-	__m64 w16 = mw[8];
-	__m64 w18 = mw[9];
-	__m64 w20 = mw[10];
-	__m64 w22 = mw[11];
-	__m64 w26 = _m_from_int(w[26]);
-
-	s1 = _mm_add_si64(w1, w4);
-	C[1] = _m_to_int(s1);
-	s1 = _m_psrlqi(s1, 32);
-
-	s2 = _mm_add_si64(w6, w8);
-	s1 = _mm_add_si64(s1, s2);
-	C[2] = _m_to_int(s1);
-	s1 = _m_psrlqi(s1, 32);
-
-	s2 = _mm_add_si64(w10, w12);
-	s1 = _mm_add_si64(s1, s2);
-	C[3] = _m_to_int(s1);
-	s1 = _m_psrlqi(s1, 32);
-
-	s2 = _mm_add_si64(w14, w16);
-	s1 = _mm_add_si64(s1, s2);
-	C[4] = _m_to_int(s1);
-	s1 = _m_psrlqi(s1, 32);
-
-	s2 = _mm_add_si64(w18, w20);
-	s1 = _mm_add_si64(s1, s2);
-	C[5] = _m_to_int(s1);
-	s1 = _m_psrlqi(s1, 32);
-
-	s2 = _mm_add_si64(w22, w26);
-	s1 = _mm_add_si64(s1, s2);
-	C[6] = _m_to_int(s1);
-	s1 = _m_psrlqi(s1, 32);
-
-	C[7] = _m_to_int(s1) + w[27];
-	_mm_empty();
-}
-
-void P4Optimized::Multiply8(word *C, const word *A, const word *B)
-{
-	__m128i temp[28];
-	const word *w = (word *)temp;
-	const __m64 *mw = (__m64 *)w;
-	const word *x = (word *)temp+7*4;
-	const __m64 *mx = (__m64 *)x;
-	const word *y = (word *)temp+7*4*2;
-	const __m64 *my = (__m64 *)y;
-	const word *z = (word *)temp+7*4*3;
-	const __m64 *mz = (__m64 *)z;
-
-	P4_Mul(temp, (__m128i *)A, (__m128i *)B);
-
-	P4_Mul(temp+7, (__m128i *)A+1, (__m128i *)B);
-
-	P4_Mul(temp+14, (__m128i *)A, (__m128i *)B+1);
-
-	P4_Mul(temp+21, (__m128i *)A+1, (__m128i *)B+1);
-
-	C[0] = w[0];
-
-	__m64 s1, s2, s3, s4;
-
-	__m64 w1 = _m_from_int(w[1]);
-	__m64 w4 = mw[2];
-	__m64 w6 = mw[3];
-	__m64 w8 = mw[4];
-	__m64 w10 = mw[5];
-	__m64 w12 = mw[6];
-	__m64 w14 = mw[7];
-	__m64 w16 = mw[8];
-	__m64 w18 = mw[9];
-	__m64 w20 = mw[10];
-	__m64 w22 = mw[11];
-	__m64 w26 = _m_from_int(w[26]);
-	__m64 w27 = _m_from_int(w[27]);
-
-	__m64 x0 = _m_from_int(x[0]);
-	__m64 x1 = _m_from_int(x[1]);
-	__m64 x4 = mx[2];
-	__m64 x6 = mx[3];
-	__m64 x8 = mx[4];
-	__m64 x10 = mx[5];
-	__m64 x12 = mx[6];
-	__m64 x14 = mx[7];
-	__m64 x16 = mx[8];
-	__m64 x18 = mx[9];
-	__m64 x20 = mx[10];
-	__m64 x22 = mx[11];
-	__m64 x26 = _m_from_int(x[26]);
-	__m64 x27 = _m_from_int(x[27]);
-
-	__m64 y0 = _m_from_int(y[0]);
-	__m64 y1 = _m_from_int(y[1]);
-	__m64 y4 = my[2];
-	__m64 y6 = my[3];
-	__m64 y8 = my[4];
-	__m64 y10 = my[5];
-	__m64 y12 = my[6];
-	__m64 y14 = my[7];
-	__m64 y16 = my[8];
-	__m64 y18 = my[9];
-	__m64 y20 = my[10];
-	__m64 y22 = my[11];
-	__m64 y26 = _m_from_int(y[26]);
-	__m64 y27 = _m_from_int(y[27]);
-
-	__m64 z0 = _m_from_int(z[0]);
-	__m64 z1 = _m_from_int(z[1]);
-	__m64 z4 = mz[2];
-	__m64 z6 = mz[3];
-	__m64 z8 = mz[4];
-	__m64 z10 = mz[5];
-	__m64 z12 = mz[6];
-	__m64 z14 = mz[7];
-	__m64 z16 = mz[8];
-	__m64 z18 = mz[9];
-	__m64 z20 = mz[10];
-	__m64 z22 = mz[11];
-	__m64 z26 = _m_from_int(z[26]);
-
-	s1 = _mm_add_si64(w1, w4);
-	C[1] = _m_to_int(s1);
-	s1 = _m_psrlqi(s1, 32);
-
-	s2 = _mm_add_si64(w6, w8);
-	s1 = _mm_add_si64(s1, s2);
-	C[2] = _m_to_int(s1);
-	s1 = _m_psrlqi(s1, 32);
-
-	s2 = _mm_add_si64(w10, w12);
-	s1 = _mm_add_si64(s1, s2);
-	C[3] = _m_to_int(s1);
-	s1 = _m_psrlqi(s1, 32);
-
-	s3 = _mm_add_si64(x0, y0);
-	s2 = _mm_add_si64(w14, w16);
-	s1 = _mm_add_si64(s1, s3);
-	s1 = _mm_add_si64(s1, s2);
-	C[4] = _m_to_int(s1);
-	s1 = _m_psrlqi(s1, 32);
-
-	s3 = _mm_add_si64(x1, y1);
-	s4 = _mm_add_si64(x4, y4);
-	s1 = _mm_add_si64(s1, w18);
-	s3 = _mm_add_si64(s3, s4);
-	s1 = _mm_add_si64(s1, w20);
-	s1 = _mm_add_si64(s1, s3);
-	C[5] = _m_to_int(s1);
-	s1 = _m_psrlqi(s1, 32);
-
-	s3 = _mm_add_si64(x6, y6);
-	s4 = _mm_add_si64(x8, y8);
-	s1 = _mm_add_si64(s1, w22);
-	s3 = _mm_add_si64(s3, s4);
-	s1 = _mm_add_si64(s1, w26);
-	s1 = _mm_add_si64(s1, s3);
-	C[6] = _m_to_int(s1);
-	s1 = _m_psrlqi(s1, 32);
-
-	s3 = _mm_add_si64(x10, y10);
-	s4 = _mm_add_si64(x12, y12);
-	s1 = _mm_add_si64(s1, w27);
-	s3 = _mm_add_si64(s3, s4);
-	s1 = _mm_add_si64(s1, s3);
-	C[7] = _m_to_int(s1);
-	s1 = _m_psrlqi(s1, 32);
-
-	s3 = _mm_add_si64(x14, y14);
-	s4 = _mm_add_si64(x16, y16);
-	s1 = _mm_add_si64(s1, z0);
-	s3 = _mm_add_si64(s3, s4);
-	s1 = _mm_add_si64(s1, s3);
-	C[8] = _m_to_int(s1);
-	s1 = _m_psrlqi(s1, 32);
-
-	s3 = _mm_add_si64(x18, y18);
-	s4 = _mm_add_si64(x20, y20);
-	s1 = _mm_add_si64(s1, z1);
-	s3 = _mm_add_si64(s3, s4);
-	s1 = _mm_add_si64(s1, z4);
-	s1 = _mm_add_si64(s1, s3);
-	C[9] = _m_to_int(s1);
-	s1 = _m_psrlqi(s1, 32);
-
-	s3 = _mm_add_si64(x22, y22);
-	s4 = _mm_add_si64(x26, y26);
-	s1 = _mm_add_si64(s1, z6);
-	s3 = _mm_add_si64(s3, s4);
-	s1 = _mm_add_si64(s1, z8);
-	s1 = _mm_add_si64(s1, s3);
-	C[10] = _m_to_int(s1);
-	s1 = _m_psrlqi(s1, 32);
-
-	s3 = _mm_add_si64(x27, y27);
-	s1 = _mm_add_si64(s1, z10);
-	s1 = _mm_add_si64(s1, z12);
-	s1 = _mm_add_si64(s1, s3);
-	C[11] = _m_to_int(s1);
-	s1 = _m_psrlqi(s1, 32);
-
-	s3 = _mm_add_si64(z14, z16);
-	s1 = _mm_add_si64(s1, s3);
-	C[12] = _m_to_int(s1);
-	s1 = _m_psrlqi(s1, 32);
-
-	s3 = _mm_add_si64(z18, z20);
-	s1 = _mm_add_si64(s1, s3);
-	C[13] = _m_to_int(s1);
-	s1 = _m_psrlqi(s1, 32);
-
-	s3 = _mm_add_si64(z22, z26);
-	s1 = _mm_add_si64(s1, s3);
-	C[14] = _m_to_int(s1);
-	s1 = _m_psrlqi(s1, 32);
-
-	C[15] = z[27] + _m_to_int(s1);
-	_mm_empty();
-}
-
-void P4Optimized::Multiply8Bottom(word *C, const word *A, const word *B)
-{
-	__m128i temp[21];
-	const word *w = (word *)temp;
-	const __m64 *mw = (__m64 *)w;
-	const word *x = (word *)temp+7*4;
-	const __m64 *mx = (__m64 *)x;
-	const word *y = (word *)temp+7*4*2;
-	const __m64 *my = (__m64 *)y;
-
-	P4_Mul(temp, (__m128i *)A, (__m128i *)B);
-
-	P4_Mul(temp+7, (__m128i *)A+1, (__m128i *)B);
-
-	P4_Mul(temp+14, (__m128i *)A, (__m128i *)B+1);
-
-	C[0] = w[0];
-
-	__m64 s1, s2, s3, s4;
-
-	__m64 w1 = _m_from_int(w[1]);
-	__m64 w4 = mw[2];
-	__m64 w6 = mw[3];
-	__m64 w8 = mw[4];
-	__m64 w10 = mw[5];
-	__m64 w12 = mw[6];
-	__m64 w14 = mw[7];
-	__m64 w16 = mw[8];
-	__m64 w18 = mw[9];
-	__m64 w20 = mw[10];
-	__m64 w22 = mw[11];
-	__m64 w26 = _m_from_int(w[26]);
-
-	__m64 x0 = _m_from_int(x[0]);
-	__m64 x1 = _m_from_int(x[1]);
-	__m64 x4 = mx[2];
-	__m64 x6 = mx[3];
-	__m64 x8 = mx[4];
-
-	__m64 y0 = _m_from_int(y[0]);
-	__m64 y1 = _m_from_int(y[1]);
-	__m64 y4 = my[2];
-	__m64 y6 = my[3];
-	__m64 y8 = my[4];
-
-	s1 = _mm_add_si64(w1, w4);
-	C[1] = _m_to_int(s1);
-	s1 = _m_psrlqi(s1, 32);
-
-	s2 = _mm_add_si64(w6, w8);
-	s1 = _mm_add_si64(s1, s2);
-	C[2] = _m_to_int(s1);
-	s1 = _m_psrlqi(s1, 32);
-
-	s2 = _mm_add_si64(w10, w12);
-	s1 = _mm_add_si64(s1, s2);
-	C[3] = _m_to_int(s1);
-	s1 = _m_psrlqi(s1, 32);
-
-	s3 = _mm_add_si64(x0, y0);
-	s2 = _mm_add_si64(w14, w16);
-	s1 = _mm_add_si64(s1, s3);
-	s1 = _mm_add_si64(s1, s2);
-	C[4] = _m_to_int(s1);
-	s1 = _m_psrlqi(s1, 32);
-
-	s3 = _mm_add_si64(x1, y1);
-	s4 = _mm_add_si64(x4, y4);
-	s1 = _mm_add_si64(s1, w18);
-	s3 = _mm_add_si64(s3, s4);
-	s1 = _mm_add_si64(s1, w20);
-	s1 = _mm_add_si64(s1, s3);
-	C[5] = _m_to_int(s1);
-	s1 = _m_psrlqi(s1, 32);
-
-	s3 = _mm_add_si64(x6, y6);
-	s4 = _mm_add_si64(x8, y8);
-	s1 = _mm_add_si64(s1, w22);
-	s3 = _mm_add_si64(s3, s4);
-	s1 = _mm_add_si64(s1, w26);
-	s1 = _mm_add_si64(s1, s3);
-	C[6] = _m_to_int(s1);
-	s1 = _m_psrlqi(s1, 32);
-
-	C[7] = _m_to_int(s1) + w[27] + x[10] + y[10] + x[12] + y[12];
-	_mm_empty();
-}
-
-__declspec(naked) word __fastcall P4Optimized::Add(word *C, const word *A, const word *B, unsigned int N)
-{
-	__asm
-	{
-		sub		esp, 16
-		xor		eax, eax
-		mov		[esp], edi
-		mov		[esp+4], esi
-		mov		[esp+8], ebx
-		mov		[esp+12], ebp
-
-		mov		ebx, [esp+20]	// B
-		mov		esi, [esp+24]	// N
-
-		// now: ebx = B, ecx = C, edx = A, esi = N
-
-		neg		esi
-		jz		loopend		// if no dwords then nothing to do
-
-		mov		edi, [edx]
-		mov		ebp, [ebx]
-
-loopstart:
-		add		edi, eax
-		jc		carry1
-
-		xor		eax, eax
-
-carry1continue:
-		add		edi, ebp
-		mov		ebp, 1
-		mov		[ecx], edi
-		mov		edi, [edx+4]
-		cmovc	eax, ebp
-		mov		ebp, [ebx+4]
-		lea		ebx, [ebx+8]
-		add		edi, eax
-		jc		carry2
-
-		xor		eax, eax
-
-carry2continue:
-		add		edi, ebp
-		mov		ebp, 1
-		cmovc	eax, ebp
-		mov		[ecx+4], edi
-		add		ecx, 8
-		mov		edi, [edx+8]
-		add		edx, 8
-		add		esi, 2
-		mov		ebp, [ebx]
-		jnz		loopstart
-
-loopend:
-		mov		edi, [esp]
-		mov		esi, [esp+4]
-		mov		ebx, [esp+8]
-		mov		ebp, [esp+12]
-		add		esp, 16
-		ret		8
-
-carry1:
-		mov		eax, 1
-		jmp		carry1continue
-
-carry2:
-		mov		eax, 1
-		jmp		carry2continue
-	}
-}
-
-__declspec(naked) word __fastcall P4Optimized::Subtract(word *C, const word *A, const word *B, unsigned int N)
-{
-	__asm
-	{
-		sub		esp, 16
-		xor		eax, eax
-		mov		[esp], edi
-		mov		[esp+4], esi
-		mov		[esp+8], ebx
-		mov		[esp+12], ebp
-
-		mov		ebx, [esp+20]	// B
-		mov		esi, [esp+24]	// N
-
-		// now: ebx = B, ecx = C, edx = A, esi = N
-
-		neg		esi
-		jz		loopend		// if no dwords then nothing to do
-
-		mov		edi, [edx]
-		mov		ebp, [ebx]
-
-loopstart:
-		sub		edi, eax
-		jc		carry1
-
-		xor		eax, eax
-
-carry1continue:
-		sub		edi, ebp
-		mov		ebp, 1
-		mov		[ecx], edi
-		mov		edi, [edx+4]
-		cmovc	eax, ebp
-		mov		ebp, [ebx+4]
-		lea		ebx, [ebx+8]
-		sub		edi, eax
-		jc		carry2
-
-		xor		eax, eax
-
-carry2continue:
-		sub		edi, ebp
-		mov		ebp, 1
-		cmovc	eax, ebp
-		mov		[ecx+4], edi
-		add		ecx, 8
-		mov		edi, [edx+8]
-		add		edx, 8
-		add		esi, 2
-		mov		ebp, [ebx]
-		jnz		loopstart
-
-loopend:
-		mov		edi, [esp]
-		mov		esi, [esp+4]
-		mov		ebx, [esp+8]
-		mov		ebp, [esp+12]
-		add		esp, 16
-		ret		8
-
-carry1:
-		mov		eax, 1
-		jmp		carry1continue
-
-carry2:
-		mov		eax, 1
-		jmp		carry2continue
-	}
-}
-
-#endif	// #ifdef SSE2_INTRINSICS_AVAILABLE
-
-#elif defined(__GNUC__) && defined(__i386__)
-
-class PentiumOptimized : public Portable
-{
-public:
-#ifndef __pic__		// -fpic uses up a register, leaving too few for the asm code
-	static word Add(word *C, const word *A, const word *B, unsigned int N);
-	static word Subtract(word *C, const word *A, const word *B, unsigned int N);
-#endif
+	static word CRYPTOPP_CDECL Add(word *C, const word *A, const word *B, unsigned int N);
+	static word CRYPTOPP_CDECL Subtract(word *C, const word *A, const word *B, unsigned int N);
+#ifdef __GNUC__
 	static void Square4(word *R, const word *A);
 	static void Multiply4(word *C, const word *A, const word *B);
 	static void Multiply8(word *C, const word *A, const word *B);
+#endif
 };
 
 typedef PentiumOptimized LowLevel;
 
-// Add and Subtract assembly code originally contributed by Alister Lee
-
-#ifndef __pic__
-__attribute__((regparm(3))) word PentiumOptimized::Add(word *C, const word *A, const word *B, unsigned int N)
+// this may be selected at run time
+class P4Optimized : public PentiumOptimized
 {
-	assert (N%2 == 0);
+public:
+	static word CRYPTOPP_CDECL Add(word *C, const word *A, const word *B, unsigned int N);
+	static word CRYPTOPP_CDECL Subtract(word *C, const word *A, const word *B, unsigned int N);
+#ifdef SSE2_INTRINSICS_AVAILABLE
+	static void Multiply4(word *C, const word *A, const word *B);
+	static void Multiply8(word *C, const word *A, const word *B);
+	static void Multiply8Bottom(word *C, const word *A, const word *B);
+	static inline void Square4(word *R, const word *A) {Multiply4(R, A, A);}
+#endif
+};
 
-	register word carry, temp;
+// use some tricks to share assembly code between MSVC and GCC
+#ifdef _MSC_VER
+	#define CRYPTOPP_NAKED __declspec(naked)
+	#define AS1(x) __asm x
+	#define AS2(x, y) __asm x, y
+	#define PentiumPrologue \
+		__asm	push ebp \
+		__asm	push ebx \
+		__asm	push esi \
+		__asm	push edi \
+		__asm	mov		ecx, [esp+20] \
+		__asm	mov		edx, [esp+24] \
+		__asm	mov		ebx, [esp+28] \
+		__asm	mov		esi, [esp+32]
+	#define PentiumEpilogue \
+		__asm	pop edi \
+		__asm	pop esi \
+		__asm	pop ebx \
+		__asm	pop ebp \
+		__asm	ret
+	#define P4Prologue \
+		__asm	sub		esp, 16 \
+		__asm	mov		[esp], edi \
+		__asm	mov		[esp+4], esi \
+		__asm	mov		[esp+8], ebx \
+		__asm	mov		[esp+12], ebp \
+		__asm	mov		ecx, [esp+20] \
+		__asm	mov		edx, [esp+24] \
+		__asm	mov		ebx, [esp+28] \
+		__asm	mov		esi, [esp+32]
+	#define P4Epilogue \
+		__asm	mov		edi, [esp] \
+		__asm	mov		esi, [esp+4] \
+		__asm	mov		ebx, [esp+8] \
+		__asm	mov		ebp, [esp+12] \
+		__asm	add		esp, 16 \
+		__asm	ret
+#else
+	#define CRYPTOPP_NAKED
+	#define AS1(x) #x ";"
+	#define AS2(x, y) #x ", " #y ";"
+	#define PentiumPrologue \
+		__asm__ \
+		( \
+			".att_syntax prefix;" \
+			"mov %0, %%ecx;" \
+			"mov %1, %%edx;" \
+			"mov %2, %%ebx;" \
+			"mov %3, %%esi;" \
+			".intel_syntax noprefix;"
+	#define PentiumEpilogue \
+			".att_syntax prefix;" \
+					: \
+					: "m" (C), "m" (A), "m" (B), "m" (N) \
+					: "%ecx", "%edx", "%ebx", "%esi", "%edi" \
+		);
+	#define P4Prologue PentiumPrologue
+	#define P4Epilogue PentiumEpilogue
+#endif
 
-	__asm__ __volatile__(
-			"push %%ebp;"
-			"sub %3, %2;"
-			"xor %0, %0;"
-			"sub %4, %0;"
-			"lea (%1,%4,4), %1;"
-			"sar $1, %0;"
-			"jz 1f;"
+CRYPTOPP_NAKED word PentiumOptimized::Add(word *C, const word *A, const word *B, unsigned int N)
+{
+	PentiumPrologue
 
-		"0:;"
-			"mov 0(%3), %4;"
-			"mov 4(%3), %%ebp;"
-			"mov (%1,%0,8), %5;"
-			"lea 8(%3), %3;"
-			"adc %5, %4;"
-			"mov 4(%1,%0,8), %5;"
-			"adc %5, %%ebp;"
-			"inc %0;"
-			"mov %4, -8(%3, %2);"
-			"mov %%ebp, -4(%3, %2);"
-			"jnz 0b;"
+	// now: ebx = B, ecx = C, edx = A, esi = N
+	AS2(	sub ecx, edx)	// hold the distance between C & A so we can add this to A to get C
+	AS2(	xor eax, eax)	// clear eax
 
-		"1:;"
-			"adc $0, %0;"
-			"pop %%ebp;"
+	AS2(	sub eax, esi)	// eax is a negative index from end of B
+	AS2(	lea ebx, [ebx+4*esi])	// ebx is end of B
 
-		: "=aSD" (carry), "+r" (B), "+r" (C), "+r" (A), "+r" (N), "=r" (temp)
-		: : "cc", "memory");
+	AS2(	sar eax, 1)		// unit of eax is now dwords; this also clears the carry flag
+	AS1(	jz	loopendAdd)		// if no dwords then nothing to do
 
-	return carry;
+	AS1(loopstartAdd:)
+	AS2(	mov    esi,[edx])			// load lower word of A
+	AS2(	mov    ebp,[edx+4])			// load higher word of A
+
+	AS2(	mov    edi,[ebx+8*eax])		// load lower word of B
+	AS2(	lea    edx,[edx+8])			// advance A and C
+
+	AS2(	adc    esi,edi)				// add lower words
+	AS2(	mov    edi,[ebx+8*eax+4])	// load higher word of B
+
+	AS2(	adc    ebp,edi)				// add higher words
+	AS1(	inc    eax)					// advance B
+
+	AS2(	mov    [edx+ecx-8],esi)		// store lower word result
+	AS2(	mov    [edx+ecx-4],ebp)		// store higher word result
+
+	AS1(	jnz    loopstartAdd)			// loop until eax overflows and becomes zero
+
+	AS1(loopendAdd:)
+	AS2(	adc eax, 0)		// store carry into eax (return result register)
+
+	PentiumEpilogue
 }
 
-__attribute__((regparm(3))) word PentiumOptimized::Subtract(word *C, const word *A, const word *B, unsigned int N)
+CRYPTOPP_NAKED word PentiumOptimized::Subtract(word *C, const word *A, const word *B, unsigned int N)
 {
-	assert (N%2 == 0);
+	PentiumPrologue
 
-	register word carry, temp;
+	// now: ebx = B, ecx = C, edx = A, esi = N
+	AS2(	sub ecx, edx)	// hold the distance between C & A so we can add this to A to get C
+	AS2(	xor eax, eax)	// clear eax
 
-	__asm__ __volatile__(
-			"push %%ebp;"
-			"sub %3, %2;"
-			"xor %0, %0;"
-			"sub %4, %0;"
-			"lea (%1,%4,4), %1;"
-			"sar $1, %0;"
-			"jz 1f;"
+	AS2(	sub eax, esi)	// eax is a negative index from end of B
+	AS2(	lea ebx, [ebx+4*esi])	// ebx is end of B
 
-		"0:;"
-			"mov 0(%3), %4;"
-			"mov 4(%3), %%ebp;"
-			"mov (%1,%0,8), %5;"
-			"lea 8(%3), %3;"
-			"sbb %5, %4;"
-			"mov 4(%1,%0,8), %5;"
-			"sbb %5, %%ebp;"
-			"inc %0;"
-			"mov %4, -8(%3, %2);"
-			"mov %%ebp, -4(%3, %2);"
-			"jnz 0b;"
+	AS2(	sar eax, 1)		// unit of eax is now dwords; this also clears the carry flag
+	AS1(	jz	loopendSub)		// if no dwords then nothing to do
 
-		"1:;"
-			"adc $0, %0;"
-			"pop %%ebp;"
+	AS1(loopstartSub:)
+	AS2(	mov    esi,[edx])			// load lower word of A
+	AS2(	mov    ebp,[edx+4])			// load higher word of A
 
-		: "=aSD" (carry), "+r" (B), "+r" (C), "+r" (A), "+r" (N), "=r" (temp)
-		: : "cc", "memory");
+	AS2(	mov    edi,[ebx+8*eax])		// load lower word of B
+	AS2(	lea    edx,[edx+8])			// advance A and C
 
-	return carry;
+	AS2(	sbb    esi,edi)				// subtract lower words
+	AS2(	mov    edi,[ebx+8*eax+4])	// load higher word of B
+
+	AS2(	sbb    ebp,edi)				// subtract higher words
+	AS1(	inc    eax)					// advance B
+
+	AS2(	mov    [edx+ecx-8],esi)		// store lower word result
+	AS2(	mov    [edx+ecx-4],ebp)		// store higher word result
+
+	AS1(	jnz    loopstartSub)			// loop until eax overflows and becomes zero
+
+	AS1(loopendSub:)
+	AS2(	adc eax, 0)		// store carry into eax (return result register)
+
+	PentiumEpilogue
 }
-#endif	// __pic__
 
+CRYPTOPP_NAKED word P4Optimized::Add(word *C, const word *A, const word *B, unsigned int N)
+{
+	P4Prologue
+
+	// now: ebx = B, ecx = C, edx = A, esi = N
+	AS2(	xor		eax, eax)
+	AS1(	neg		esi)
+	AS1(	jz		loopendAddP4)		// if no dwords then nothing to do
+
+	AS2(	mov		edi, [edx])
+	AS2(	mov		ebp, [ebx])
+
+	AS1(loopstartAddP4:)
+	AS2(	add		edi, eax)
+	AS1(	jc		carry1AddP4)
+
+	AS2(	xor		eax, eax)
+
+	AS1(carry1continueAddP4:)
+	AS2(	add		edi, ebp)
+	AS2(	mov		ebp, 1)
+	AS2(	mov		[ecx], edi)
+	AS2(	mov		edi, [edx+4])
+	AS2(	cmovc	eax, ebp)
+	AS2(	mov		ebp, [ebx+4])
+	AS2(	lea		ebx, [ebx+8])
+	AS2(	add		edi, eax)
+	AS1(	jc		carry2AddP4)
+
+	AS2(	xor		eax, eax)
+
+	AS1(carry2continueAddP4:)
+	AS2(	add		edi, ebp)
+	AS2(	mov		ebp, 1)
+	AS2(	cmovc	eax, ebp)
+	AS2(	mov		[ecx+4], edi)
+	AS2(	add		ecx, 8)
+	AS2(	mov		edi, [edx+8])
+	AS2(	add		edx, 8)
+	AS2(	add		esi, 2)
+	AS2(	mov		ebp, [ebx])
+	AS1(	jnz		loopstartAddP4)
+	AS1(	jmp		loopendAddP4)
+
+	AS1(carry1AddP4:)
+	AS2(	mov		eax, 1)
+	AS1(	jmp		carry1continueAddP4)
+
+	AS1(carry2AddP4:)
+	AS2(	mov		eax, 1)
+	AS1(	jmp		carry2continueAddP4)
+
+	AS1(loopendAddP4:)
+
+	P4Epilogue
+}
+
+CRYPTOPP_NAKED word P4Optimized::Subtract(word *C, const word *A, const word *B, unsigned int N)
+{
+	P4Prologue
+
+	// now: ebx = B, ecx = C, edx = A, esi = N
+	AS2(	xor		eax, eax)
+	AS1(	neg		esi)
+	AS1(	jz		loopendSubP4)		// if no dwords then nothing to do
+
+	AS2(	mov		edi, [edx])
+	AS2(	mov		ebp, [ebx])
+
+	AS1(loopstartSubP4:)
+	AS2(	sub		edi, eax)
+	AS1(	jc		carry1SubP4)
+
+	AS2(	xor		eax, eax)
+
+	AS1(carry1continueSubP4:)
+	AS2(	sub		edi, ebp)
+	AS2(	mov		ebp, 1)
+	AS2(	mov		[ecx], edi)
+	AS2(	mov		edi, [edx+4])
+	AS2(	cmovc	eax, ebp)
+	AS2(	mov		ebp, [ebx+4])
+	AS2(	lea		ebx, [ebx+8])
+	AS2(	sub		edi, eax)
+	AS1(	jc		carry2SubP4)
+
+	AS2(	xor		eax, eax)
+
+	AS1(carry2continueSubP4:)
+	AS2(	sub		edi, ebp)
+	AS2(	mov		ebp, 1)
+	AS2(	cmovc	eax, ebp)
+	AS2(	mov		[ecx+4], edi)
+	AS2(	add		ecx, 8)
+	AS2(	mov		edi, [edx+8])
+	AS2(	add		edx, 8)
+	AS2(	add		esi, 2)
+	AS2(	mov		ebp, [ebx])
+	AS1(	jnz		loopstartSubP4)
+	AS1(	jmp		loopendSubP4)
+
+	AS1(carry1SubP4:)
+	AS2(	mov		eax, 1)
+	AS1(	jmp		carry1continueSubP4)
+
+	AS1(carry2SubP4:)
+	AS2(	mov		eax, 1)
+	AS1(	jmp		carry2continueSubP4)
+
+	AS1(loopendSubP4:)
+
+	P4Epilogue
+}
+
+#if __GNUC__
 // Comba square and multiply assembly code originally contributed by Leonard Janke
+// These are not needed with MSVC, which does a good job of optimizing the C++ multiply code.
 
 #define SqrStartup \
   "push %%ebp\n\t" \
@@ -1926,11 +1438,441 @@ void PentiumOptimized::Multiply8(word* Z, const word* X, const word* Y)
 	);
 }
 
-#else	// no processor specific code at this layer
+#endif	// __GNUC__
+
+#else	// not x86 - no processor specific code at this layer
 
 typedef Portable LowLevel;
 
 #endif
+
+bool g_sse2DetectionDone = false, g_sse2Detected, g_sse2Enabled = true;
+
+void DisableSSE2()
+{
+	g_sse2Enabled = false;
+}
+
+#ifdef SSE2_INTRINSICS_AVAILABLE
+
+static bool GetSSE2Capability()
+{
+	word32 b;
+
+#ifdef __GNUC__
+	__asm__("mov $1, %%eax; cpuid; mov %%edx, %0" : "=rm" (b) : : "%eax", "%edx");
+#else
+	__asm
+	{
+		mov		eax, 1
+		cpuid
+		mov		b, edx
+	}
+#endif
+
+	return (b & (1 << 26)) != 0;
+}
+
+static inline bool HasSSE2()
+{
+	if (g_sse2Enabled && !g_sse2DetectionDone)
+	{
+		g_sse2Detected = GetSSE2Capability();
+		g_sse2DetectionDone = true;
+	}
+	return g_sse2Enabled && g_sse2Detected;
+}
+
+#ifdef __GNUC__
+#define __fastcall
+#endif
+
+static void __fastcall P4_Mul(__m128i *C, const __m128i *A, const __m128i *B)
+{
+	__m128i a3210 = _mm_load_si128(A);
+	__m128i b3210 = _mm_load_si128(B);
+
+	__m128i sum;
+
+	__m128i z = _mm_setzero_si128();
+	__m128i a2b2_a0b0 = _mm_mul_epu32(a3210, b3210);
+	C[0] = a2b2_a0b0;
+
+	__m128i a3120 = _mm_shuffle_epi32(a3210, _MM_SHUFFLE(3, 1, 2, 0));
+	__m128i b3021 = _mm_shuffle_epi32(b3210, _MM_SHUFFLE(3, 0, 2, 1));
+	__m128i a1b0_a0b1 = _mm_mul_epu32(a3120, b3021);
+	__m128i a1b0 = _mm_unpackhi_epi32(a1b0_a0b1, z);
+	__m128i a0b1 = _mm_unpacklo_epi32(a1b0_a0b1, z);
+	C[1] = _mm_add_epi64(a1b0, a0b1);
+
+	__m128i a31 = _mm_srli_epi64(a3210, 32);
+	__m128i b31 = _mm_srli_epi64(b3210, 32);
+	__m128i a3b3_a1b1 = _mm_mul_epu32(a31, b31);
+	C[6] = a3b3_a1b1;
+
+	__m128i a1b1 = _mm_unpacklo_epi32(a3b3_a1b1, z);
+	__m128i b3012 = _mm_shuffle_epi32(b3210, _MM_SHUFFLE(3, 0, 1, 2));
+	__m128i a2b0_a0b2 = _mm_mul_epu32(a3210, b3012);
+	__m128i a0b2 = _mm_unpacklo_epi32(a2b0_a0b2, z);
+	__m128i a2b0 = _mm_unpackhi_epi32(a2b0_a0b2, z);
+	sum = _mm_add_epi64(a1b1, a0b2);
+	C[2] = _mm_add_epi64(sum, a2b0);
+
+	__m128i a2301 = _mm_shuffle_epi32(a3210, _MM_SHUFFLE(2, 3, 0, 1));
+	__m128i b2103 = _mm_shuffle_epi32(b3210, _MM_SHUFFLE(2, 1, 0, 3));
+	__m128i a3b0_a1b2 = _mm_mul_epu32(a2301, b3012);
+	__m128i a2b1_a0b3 = _mm_mul_epu32(a3210, b2103);
+	__m128i a3b0 = _mm_unpackhi_epi32(a3b0_a1b2, z);
+	__m128i a1b2 = _mm_unpacklo_epi32(a3b0_a1b2, z);
+	__m128i a2b1 = _mm_unpackhi_epi32(a2b1_a0b3, z);
+	__m128i a0b3 = _mm_unpacklo_epi32(a2b1_a0b3, z);
+	__m128i sum1 = _mm_add_epi64(a3b0, a1b2);
+	sum = _mm_add_epi64(a2b1, a0b3);
+	C[3] = _mm_add_epi64(sum, sum1);
+
+	__m128i	a3b1_a1b3 = _mm_mul_epu32(a2301, b2103);
+	__m128i a2b2 = _mm_unpackhi_epi32(a2b2_a0b0, z);
+	__m128i a3b1 = _mm_unpackhi_epi32(a3b1_a1b3, z);
+	__m128i a1b3 = _mm_unpacklo_epi32(a3b1_a1b3, z);
+	sum = _mm_add_epi64(a2b2, a3b1);
+	C[4] = _mm_add_epi64(sum, a1b3);
+
+	__m128i a1302 = _mm_shuffle_epi32(a3210, _MM_SHUFFLE(1, 3, 0, 2));
+	__m128i b1203 = _mm_shuffle_epi32(b3210, _MM_SHUFFLE(1, 2, 0, 3));
+	__m128i a3b2_a2b3 = _mm_mul_epu32(a1302, b1203);
+	__m128i a3b2 = _mm_unpackhi_epi32(a3b2_a2b3, z);
+	__m128i a2b3 = _mm_unpacklo_epi32(a3b2_a2b3, z);
+	C[5] = _mm_add_epi64(a3b2, a2b3);
+}
+
+void P4Optimized::Multiply4(word *C, const word *A, const word *B)
+{
+	__m128i temp[7];
+	const word *w = (word *)temp;
+	const __m64 *mw = (__m64 *)w;
+
+	P4_Mul(temp, (__m128i *)A, (__m128i *)B);
+
+	C[0] = w[0];
+
+	__m64 s1, s2;
+
+	__m64 w1 = _mm_cvtsi32_si64(w[1]);
+	__m64 w4 = mw[2];
+	__m64 w6 = mw[3];
+	__m64 w8 = mw[4];
+	__m64 w10 = mw[5];
+	__m64 w12 = mw[6];
+	__m64 w14 = mw[7];
+	__m64 w16 = mw[8];
+	__m64 w18 = mw[9];
+	__m64 w20 = mw[10];
+	__m64 w22 = mw[11];
+	__m64 w26 = _mm_cvtsi32_si64(w[26]);
+
+	s1 = _mm_add_si64(w1, w4);
+	C[1] = _mm_cvtsi64_si32(s1);
+	s1 = _mm_srli_si64(s1, 32);
+
+	s2 = _mm_add_si64(w6, w8);
+	s1 = _mm_add_si64(s1, s2);
+	C[2] = _mm_cvtsi64_si32(s1);
+	s1 = _mm_srli_si64(s1, 32);
+
+	s2 = _mm_add_si64(w10, w12);
+	s1 = _mm_add_si64(s1, s2);
+	C[3] = _mm_cvtsi64_si32(s1);
+	s1 = _mm_srli_si64(s1, 32);
+
+	s2 = _mm_add_si64(w14, w16);
+	s1 = _mm_add_si64(s1, s2);
+	C[4] = _mm_cvtsi64_si32(s1);
+	s1 = _mm_srli_si64(s1, 32);
+
+	s2 = _mm_add_si64(w18, w20);
+	s1 = _mm_add_si64(s1, s2);
+	C[5] = _mm_cvtsi64_si32(s1);
+	s1 = _mm_srli_si64(s1, 32);
+
+	s2 = _mm_add_si64(w22, w26);
+	s1 = _mm_add_si64(s1, s2);
+	C[6] = _mm_cvtsi64_si32(s1);
+	s1 = _mm_srli_si64(s1, 32);
+
+	C[7] = _mm_cvtsi64_si32(s1) + w[27];
+	_mm_empty();
+}
+
+void P4Optimized::Multiply8(word *C, const word *A, const word *B)
+{
+	__m128i temp[28];
+	const word *w = (word *)temp;
+	const __m64 *mw = (__m64 *)w;
+	const word *x = (word *)temp+7*4;
+	const __m64 *mx = (__m64 *)x;
+	const word *y = (word *)temp+7*4*2;
+	const __m64 *my = (__m64 *)y;
+	const word *z = (word *)temp+7*4*3;
+	const __m64 *mz = (__m64 *)z;
+
+	P4_Mul(temp, (__m128i *)A, (__m128i *)B);
+
+	P4_Mul(temp+7, (__m128i *)A+1, (__m128i *)B);
+
+	P4_Mul(temp+14, (__m128i *)A, (__m128i *)B+1);
+
+	P4_Mul(temp+21, (__m128i *)A+1, (__m128i *)B+1);
+
+	C[0] = w[0];
+
+	__m64 s1, s2, s3, s4;
+
+	__m64 w1 = _mm_cvtsi32_si64(w[1]);
+	__m64 w4 = mw[2];
+	__m64 w6 = mw[3];
+	__m64 w8 = mw[4];
+	__m64 w10 = mw[5];
+	__m64 w12 = mw[6];
+	__m64 w14 = mw[7];
+	__m64 w16 = mw[8];
+	__m64 w18 = mw[9];
+	__m64 w20 = mw[10];
+	__m64 w22 = mw[11];
+	__m64 w26 = _mm_cvtsi32_si64(w[26]);
+	__m64 w27 = _mm_cvtsi32_si64(w[27]);
+
+	__m64 x0 = _mm_cvtsi32_si64(x[0]);
+	__m64 x1 = _mm_cvtsi32_si64(x[1]);
+	__m64 x4 = mx[2];
+	__m64 x6 = mx[3];
+	__m64 x8 = mx[4];
+	__m64 x10 = mx[5];
+	__m64 x12 = mx[6];
+	__m64 x14 = mx[7];
+	__m64 x16 = mx[8];
+	__m64 x18 = mx[9];
+	__m64 x20 = mx[10];
+	__m64 x22 = mx[11];
+	__m64 x26 = _mm_cvtsi32_si64(x[26]);
+	__m64 x27 = _mm_cvtsi32_si64(x[27]);
+
+	__m64 y0 = _mm_cvtsi32_si64(y[0]);
+	__m64 y1 = _mm_cvtsi32_si64(y[1]);
+	__m64 y4 = my[2];
+	__m64 y6 = my[3];
+	__m64 y8 = my[4];
+	__m64 y10 = my[5];
+	__m64 y12 = my[6];
+	__m64 y14 = my[7];
+	__m64 y16 = my[8];
+	__m64 y18 = my[9];
+	__m64 y20 = my[10];
+	__m64 y22 = my[11];
+	__m64 y26 = _mm_cvtsi32_si64(y[26]);
+	__m64 y27 = _mm_cvtsi32_si64(y[27]);
+
+	__m64 z0 = _mm_cvtsi32_si64(z[0]);
+	__m64 z1 = _mm_cvtsi32_si64(z[1]);
+	__m64 z4 = mz[2];
+	__m64 z6 = mz[3];
+	__m64 z8 = mz[4];
+	__m64 z10 = mz[5];
+	__m64 z12 = mz[6];
+	__m64 z14 = mz[7];
+	__m64 z16 = mz[8];
+	__m64 z18 = mz[9];
+	__m64 z20 = mz[10];
+	__m64 z22 = mz[11];
+	__m64 z26 = _mm_cvtsi32_si64(z[26]);
+
+	s1 = _mm_add_si64(w1, w4);
+	C[1] = _mm_cvtsi64_si32(s1);
+	s1 = _mm_srli_si64(s1, 32);
+
+	s2 = _mm_add_si64(w6, w8);
+	s1 = _mm_add_si64(s1, s2);
+	C[2] = _mm_cvtsi64_si32(s1);
+	s1 = _mm_srli_si64(s1, 32);
+
+	s2 = _mm_add_si64(w10, w12);
+	s1 = _mm_add_si64(s1, s2);
+	C[3] = _mm_cvtsi64_si32(s1);
+	s1 = _mm_srli_si64(s1, 32);
+
+	s3 = _mm_add_si64(x0, y0);
+	s2 = _mm_add_si64(w14, w16);
+	s1 = _mm_add_si64(s1, s3);
+	s1 = _mm_add_si64(s1, s2);
+	C[4] = _mm_cvtsi64_si32(s1);
+	s1 = _mm_srli_si64(s1, 32);
+
+	s3 = _mm_add_si64(x1, y1);
+	s4 = _mm_add_si64(x4, y4);
+	s1 = _mm_add_si64(s1, w18);
+	s3 = _mm_add_si64(s3, s4);
+	s1 = _mm_add_si64(s1, w20);
+	s1 = _mm_add_si64(s1, s3);
+	C[5] = _mm_cvtsi64_si32(s1);
+	s1 = _mm_srli_si64(s1, 32);
+
+	s3 = _mm_add_si64(x6, y6);
+	s4 = _mm_add_si64(x8, y8);
+	s1 = _mm_add_si64(s1, w22);
+	s3 = _mm_add_si64(s3, s4);
+	s1 = _mm_add_si64(s1, w26);
+	s1 = _mm_add_si64(s1, s3);
+	C[6] = _mm_cvtsi64_si32(s1);
+	s1 = _mm_srli_si64(s1, 32);
+
+	s3 = _mm_add_si64(x10, y10);
+	s4 = _mm_add_si64(x12, y12);
+	s1 = _mm_add_si64(s1, w27);
+	s3 = _mm_add_si64(s3, s4);
+	s1 = _mm_add_si64(s1, s3);
+	C[7] = _mm_cvtsi64_si32(s1);
+	s1 = _mm_srli_si64(s1, 32);
+
+	s3 = _mm_add_si64(x14, y14);
+	s4 = _mm_add_si64(x16, y16);
+	s1 = _mm_add_si64(s1, z0);
+	s3 = _mm_add_si64(s3, s4);
+	s1 = _mm_add_si64(s1, s3);
+	C[8] = _mm_cvtsi64_si32(s1);
+	s1 = _mm_srli_si64(s1, 32);
+
+	s3 = _mm_add_si64(x18, y18);
+	s4 = _mm_add_si64(x20, y20);
+	s1 = _mm_add_si64(s1, z1);
+	s3 = _mm_add_si64(s3, s4);
+	s1 = _mm_add_si64(s1, z4);
+	s1 = _mm_add_si64(s1, s3);
+	C[9] = _mm_cvtsi64_si32(s1);
+	s1 = _mm_srli_si64(s1, 32);
+
+	s3 = _mm_add_si64(x22, y22);
+	s4 = _mm_add_si64(x26, y26);
+	s1 = _mm_add_si64(s1, z6);
+	s3 = _mm_add_si64(s3, s4);
+	s1 = _mm_add_si64(s1, z8);
+	s1 = _mm_add_si64(s1, s3);
+	C[10] = _mm_cvtsi64_si32(s1);
+	s1 = _mm_srli_si64(s1, 32);
+
+	s3 = _mm_add_si64(x27, y27);
+	s1 = _mm_add_si64(s1, z10);
+	s1 = _mm_add_si64(s1, z12);
+	s1 = _mm_add_si64(s1, s3);
+	C[11] = _mm_cvtsi64_si32(s1);
+	s1 = _mm_srli_si64(s1, 32);
+
+	s3 = _mm_add_si64(z14, z16);
+	s1 = _mm_add_si64(s1, s3);
+	C[12] = _mm_cvtsi64_si32(s1);
+	s1 = _mm_srli_si64(s1, 32);
+
+	s3 = _mm_add_si64(z18, z20);
+	s1 = _mm_add_si64(s1, s3);
+	C[13] = _mm_cvtsi64_si32(s1);
+	s1 = _mm_srli_si64(s1, 32);
+
+	s3 = _mm_add_si64(z22, z26);
+	s1 = _mm_add_si64(s1, s3);
+	C[14] = _mm_cvtsi64_si32(s1);
+	s1 = _mm_srli_si64(s1, 32);
+
+	C[15] = z[27] + _mm_cvtsi64_si32(s1);
+	_mm_empty();
+}
+
+void P4Optimized::Multiply8Bottom(word *C, const word *A, const word *B)
+{
+	__m128i temp[21];
+	const word *w = (word *)temp;
+	const __m64 *mw = (__m64 *)w;
+	const word *x = (word *)temp+7*4;
+	const __m64 *mx = (__m64 *)x;
+	const word *y = (word *)temp+7*4*2;
+	const __m64 *my = (__m64 *)y;
+
+	P4_Mul(temp, (__m128i *)A, (__m128i *)B);
+
+	P4_Mul(temp+7, (__m128i *)A+1, (__m128i *)B);
+
+	P4_Mul(temp+14, (__m128i *)A, (__m128i *)B+1);
+
+	C[0] = w[0];
+
+	__m64 s1, s2, s3, s4;
+
+	__m64 w1 = _mm_cvtsi32_si64(w[1]);
+	__m64 w4 = mw[2];
+	__m64 w6 = mw[3];
+	__m64 w8 = mw[4];
+	__m64 w10 = mw[5];
+	__m64 w12 = mw[6];
+	__m64 w14 = mw[7];
+	__m64 w16 = mw[8];
+	__m64 w18 = mw[9];
+	__m64 w20 = mw[10];
+	__m64 w22 = mw[11];
+	__m64 w26 = _mm_cvtsi32_si64(w[26]);
+
+	__m64 x0 = _mm_cvtsi32_si64(x[0]);
+	__m64 x1 = _mm_cvtsi32_si64(x[1]);
+	__m64 x4 = mx[2];
+	__m64 x6 = mx[3];
+	__m64 x8 = mx[4];
+
+	__m64 y0 = _mm_cvtsi32_si64(y[0]);
+	__m64 y1 = _mm_cvtsi32_si64(y[1]);
+	__m64 y4 = my[2];
+	__m64 y6 = my[3];
+	__m64 y8 = my[4];
+
+	s1 = _mm_add_si64(w1, w4);
+	C[1] = _mm_cvtsi64_si32(s1);
+	s1 = _mm_srli_si64(s1, 32);
+
+	s2 = _mm_add_si64(w6, w8);
+	s1 = _mm_add_si64(s1, s2);
+	C[2] = _mm_cvtsi64_si32(s1);
+	s1 = _mm_srli_si64(s1, 32);
+
+	s2 = _mm_add_si64(w10, w12);
+	s1 = _mm_add_si64(s1, s2);
+	C[3] = _mm_cvtsi64_si32(s1);
+	s1 = _mm_srli_si64(s1, 32);
+
+	s3 = _mm_add_si64(x0, y0);
+	s2 = _mm_add_si64(w14, w16);
+	s1 = _mm_add_si64(s1, s3);
+	s1 = _mm_add_si64(s1, s2);
+	C[4] = _mm_cvtsi64_si32(s1);
+	s1 = _mm_srli_si64(s1, 32);
+
+	s3 = _mm_add_si64(x1, y1);
+	s4 = _mm_add_si64(x4, y4);
+	s1 = _mm_add_si64(s1, w18);
+	s3 = _mm_add_si64(s3, s4);
+	s1 = _mm_add_si64(s1, w20);
+	s1 = _mm_add_si64(s1, s3);
+	C[5] = _mm_cvtsi64_si32(s1);
+	s1 = _mm_srli_si64(s1, 32);
+
+	s3 = _mm_add_si64(x6, y6);
+	s4 = _mm_add_si64(x8, y8);
+	s1 = _mm_add_si64(s1, w22);
+	s3 = _mm_add_si64(s3, s4);
+	s1 = _mm_add_si64(s1, w26);
+	s1 = _mm_add_si64(s1, s3);
+	C[6] = _mm_cvtsi64_si32(s1);
+	s1 = _mm_srli_si64(s1, 32);
+
+	C[7] = _mm_cvtsi64_si32(s1) + w[27] + x[10] + y[10] + x[12] + y[12];
+	_mm_empty();
+}
+
+#endif	// #ifdef SSE2_INTRINSICS_AVAILABLE
 
 // ********************************************************
 
