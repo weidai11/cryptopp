@@ -8,14 +8,8 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-// export a table of small primes
-extern const unsigned int maxPrimeTableSize;
-extern const word lastSmallPrime;
-extern unsigned int primeTableSize;
-extern word primeTable[];
-
-// build up the table to maxPrimeTableSize
-CRYPTOPP_DLL void BuildPrimeTable();
+// obtain pointer to small prime table and get its size
+CRYPTOPP_DLL const word * GetPrimeTable(unsigned int &size);
 
 // ************ primality testing ****************
 

@@ -33,12 +33,12 @@ class CRYPTOPP_DLL Empty
 };
 
 template <class BASE1, class BASE2>
-class TwoBases : public BASE1, public BASE2
+class CRYPTOPP_NO_VTABLE TwoBases : public BASE1, public BASE2
 {
 };
 
 template <class BASE1, class BASE2, class BASE3>
-class ThreeBases : public BASE1, public BASE2, public BASE3
+class CRYPTOPP_NO_VTABLE ThreeBases : public BASE1, public BASE2, public BASE3
 {
 };
 
@@ -202,6 +202,30 @@ inline CipherDir GetCipherDir(const T &obj)
 {
 	return obj.IsForwardTransformation() ? ENCRYPTION : DECRYPTION;
 }
+
+// This function safely initializes a static object in a multithreaded environment without using locks.
+// It may leak memory when two threads try to initialize the static object at the same time
+// but this should be acceptable since each static object is only initialized once per session.
+template <class T, class F>
+T & StaticObject(F NewT, T *dummy=NULL)
+{
+	static member_ptr<T> s_pObject;
+	static char s_objectState = 0;
+
+	switch (s_objectState)
+	{
+	case 0:
+		s_objectState = 1;
+		s_pObject.reset(NewT());
+		s_objectState = 2;
+		break;
+	case 1:
+		while (s_objectState == 1) {}
+	default:
+		break;
+	}
+	return *s_pObject;
+};
 
 // ************** rotate functions ***************
 

@@ -742,7 +742,7 @@ bool Validate(int alg, bool thorough, const char *seed)
 	case 7: result = ValidateARC4(); break;
 	case 8: result = ValidateRC5(); break;
 	case 9: result = ValidateBlowfish(); break;
-	case 10: result = ValidateDiamond2(); break;
+//	case 10: result = ValidateDiamond2(); break;
 	case 11: result = ValidateThreeWay(); break;
 	case 12: result = ValidateBBS(); break;
 	case 13: result = ValidateDH(); break;

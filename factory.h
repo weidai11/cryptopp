@@ -32,7 +32,7 @@ public:
 	{
 		for (CPP_TYPENAME Map::iterator i = m_map.begin(); i != m_map.end(); ++i)
 		{
-			delete i->second;
+			delete (ObjectFactory<AbstractClass> *)i->second;
 			i->second = NULL;
 		}
 	}
@@ -45,7 +45,7 @@ public:
 	const ObjectFactory<AbstractClass> * GetFactory(const char *name) const
 	{
 		CPP_TYPENAME Map::const_iterator i = m_map.find(name);
-		return i == m_map.end() ? NULL : i->second;
+		return i == m_map.end() ? NULL : (ObjectFactory<AbstractClass> *)i->second;
 	}
 
 	AbstractClass *CreateObject(const char *name) const
@@ -58,7 +58,8 @@ public:
 	static ObjectFactoryRegistry<AbstractClass, instance> & Registry(...);
 
 private:
-	typedef std::map<std::string, ObjectFactory<AbstractClass> *> Map;
+	// use void * instead of ObjectFactory<AbstractClass> * to save code size
+	typedef std::map<std::string, void *> Map;
 	Map m_map;
 };
 

@@ -19,7 +19,6 @@
 #include "arc4.h"
 #include "rc5.h"
 #include "blowfish.h"
-#include "diamond.h"
 #include "wake.h"
 #include "3way.h"
 #include "safer.h"
@@ -466,8 +465,6 @@ void BenchMarkAll(double t)
 	BenchMarkKeyed<RC2::Encryption>("RC2", t);
 	BenchMarkKeyed<RC5::Encryption>("RC5 (r=16)", t);
 	BenchMarkKeyed<Blowfish::Encryption>("Blowfish", t);
-	BenchMarkKeyed<Diamond2::Encryption>("Diamond2", t);
-	BenchMarkKeyed<Diamond2Lite::Encryption>("Diamond2 Lite", t);
 	BenchMarkKeyed<ThreeWayDecryption>("3-WAY", t);
 	BenchMarkKeyed<TEA::Encryption>("TEA", t);
 	BenchMarkKeyedVariable<SAFER_SK::Encryption>("SAFER (r=8)", t, 8);
