@@ -9,6 +9,7 @@
 #include "misc.h"
 #include "strciphr.h"
 #include "argnames.h"
+#include "algparam.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -361,7 +362,7 @@ struct CBC_CTS_Mode_ExternalCipher : public	CipherModeDocumentation
 typedef	CFB_Mode_ExternalCipher::Encryption	CFBEncryption;
 typedef	CFB_Mode_ExternalCipher::Decryption	CFBDecryption;
 typedef	OFB_Mode_ExternalCipher::Encryption	OFB;
-typedef	OFB_Mode_ExternalCipher::Encryption	CounterMode;
+typedef	CTR_Mode_ExternalCipher::Encryption	CounterMode;
 #endif
 
 NAMESPACE_END
