@@ -170,7 +170,7 @@ void InvertibleRSAFunction::Initialize(const Integer &n, const Integer &e, const
 			continue;
 		Integer b;
 		unsigned int j = 0;
-		while (a != -1)
+		while (a != n-1)
 		{
 			b = modn.Square(a);
 			if (b == 1)
