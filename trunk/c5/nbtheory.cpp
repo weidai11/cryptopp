@@ -34,7 +34,7 @@ std::vector<word> * NewPrimeTable()
 		if (j == testEntriesEnd)
 		{
 			primeTable.push_back(p);
-			testEntriesEnd = STDMIN(54U, primeTable.size());
+			testEntriesEnd = STDMIN((size_t)54U, primeTable.size());
 		}
 	}
 
