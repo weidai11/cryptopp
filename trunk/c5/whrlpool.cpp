@@ -623,8 +623,7 @@ static const word64 C3[256] = {
 	W64LIT(0x936b3ff8f815f83f), W64LIT(0x44c2a486869786a4),
 };
 
-static const word64 rc[R + 1] = {
-	W64LIT(0x0000000000000000),
+static const word64 rc[R] = {
 	W64LIT(0x1823c6e887b8014f),
 	W64LIT(0x36a6d2f5796f9152),
 	W64LIT(0x60bc9b8ea30c7b35),
@@ -637,244 +636,58 @@ static const word64 rc[R + 1] = {
 	W64LIT(0xca2dbf07ad5a8333)
 };
 
-
 // Whirlpool basic transformation. Transforms state based on block.
 void Whirlpool::Transform(word64 *digest, const word64 *block)
 {
-	int r;
-	word64 L[8];		// temporary storage
-	word64 state[8];	// the cipher state
-	word64 K[8];		// the round key
+	word64 w[8];	// temporary storage
+	word64 s[8];	// the cipher state
+	word64 k[8];	// the round key
 
 	// Compute and apply K^0 to the cipher state
 	// Also apply part of the Miyaguchi-Preneel compression function
-	digest[0] = state[0] = block[0] ^ (K[0] = digest[0]);
-	digest[1] = state[1] = block[1] ^ (K[1] = digest[1]);
-	digest[2] = state[2] = block[2] ^ (K[2] = digest[2]);
-	digest[3] = state[3] = block[3] ^ (K[3] = digest[3]);
-	digest[4] = state[4] = block[4] ^ (K[4] = digest[4]);
-	digest[5] = state[5] = block[5] ^ (K[5] = digest[5]);
-	digest[6] = state[6] = block[6] ^ (K[6] = digest[6]);
-	digest[7] = state[7] = block[7] ^ (K[7] = digest[7]);
+	digest[0] = s[0] = block[0] ^ (k[0] = digest[0]);
+	digest[1] = s[1] = block[1] ^ (k[1] = digest[1]);
+	digest[2] = s[2] = block[2] ^ (k[2] = digest[2]);
+	digest[3] = s[3] = block[3] ^ (k[3] = digest[3]);
+	digest[4] = s[4] = block[4] ^ (k[4] = digest[4]);
+	digest[5] = s[5] = block[5] ^ (k[5] = digest[5]);
+	digest[6] = s[6] = block[6] ^ (k[6] = digest[6]);
+	digest[7] = s[7] = block[7] ^ (k[7] = digest[7]);
 
 	// Iterate over all rounds:
-	for (r = 1; r <= R; r++) {
+	for (int r = 0; r < R; r++)
+	{
+		word64 t;
 
 		// Compute K^r from K^{r-1}:
-		L[0] =
-			C0[GETBYTE(K[4], 3)] ^
-			C1[GETBYTE(K[3], 2)] ^
-			C2[GETBYTE(K[2], 1)] ^
-			C3[GETBYTE(K[1], 0)];
-		L[0] = (L[0] >> 32) | (L[0] << 32);
-		L[0] ^=
-			C0[GETBYTE(K[0], 7)] ^
-			C1[GETBYTE(K[7], 6)] ^
-			C2[GETBYTE(K[6], 5)] ^
-			C3[GETBYTE(K[5], 4)] ^
-			rc[r];
-		L[1] =
-			C0[GETBYTE(K[5], 3)] ^
-			C1[GETBYTE(K[4], 2)] ^
-			C2[GETBYTE(K[3], 1)] ^
-			C3[GETBYTE(K[2], 0)];
-		L[1] = (L[1] >> 32) | (L[1] << 32);
-		L[1] ^=
-			C0[GETBYTE(K[1], 7)] ^
-			C1[GETBYTE(K[0], 6)] ^
-			C2[GETBYTE(K[7], 5)] ^
-			C3[GETBYTE(K[6], 4)];
-		L[2] =
-			C0[GETBYTE(K[6], 3)] ^
-			C1[GETBYTE(K[5], 2)] ^
-			C2[GETBYTE(K[4], 1)] ^
-			C3[GETBYTE(K[3], 0)];
-		L[2] = (L[2] >> 32) | (L[2] << 32);
-		L[2] ^=
-			C0[GETBYTE(K[2], 7)] ^
-			C1[GETBYTE(K[1], 6)] ^
-			C2[GETBYTE(K[0], 5)] ^
-			C3[GETBYTE(K[7], 4)];
-		L[3] =
-			C0[GETBYTE(K[7], 3)] ^
-			C1[GETBYTE(K[6], 2)] ^
-			C2[GETBYTE(K[5], 1)] ^
-			C3[GETBYTE(K[4], 0)];
-		L[3] = (L[3] >> 32) | (L[3] << 32);
-		L[3] ^=
-			C0[GETBYTE(K[3], 7)] ^
-			C1[GETBYTE(K[2], 6)] ^
-			C2[GETBYTE(K[1], 5)] ^
-			C3[GETBYTE(K[0], 4)];
-		L[4] =
-			C0[GETBYTE(K[0], 3)] ^
-			C1[GETBYTE(K[7], 2)] ^
-			C2[GETBYTE(K[6], 1)] ^
-			C3[GETBYTE(K[5], 0)];
-		L[4] = (L[4] >> 32) | (L[4] << 32);
-		L[4] ^=
-			C0[GETBYTE(K[4], 7)] ^
-			C1[GETBYTE(K[3], 6)] ^
-			C2[GETBYTE(K[2], 5)] ^
-			C3[GETBYTE(K[1], 4)];
-		L[5] =
-			C0[GETBYTE(K[1], 3)] ^
-			C1[GETBYTE(K[0], 2)] ^
-			C2[GETBYTE(K[7], 1)] ^
-			C3[GETBYTE(K[6], 0)];
-		L[5] = (L[5] >> 32) | (L[5] << 32);
-		L[5] ^=
-			C0[GETBYTE(K[5], 7)] ^
-			C1[GETBYTE(K[4], 6)] ^
-			C2[GETBYTE(K[3], 5)] ^
-			C3[GETBYTE(K[2], 4)];
-		L[6] =
-			C0[GETBYTE(K[2], 3)] ^
-			C1[GETBYTE(K[1], 2)] ^
-			C2[GETBYTE(K[0], 1)] ^
-			C3[GETBYTE(K[7], 0)];
-		L[6] = (L[6] >> 32) | (L[6] << 32);
-		L[6] ^=
-			C0[GETBYTE(K[6], 7)] ^
-			C1[GETBYTE(K[5], 6)] ^
-			C2[GETBYTE(K[4], 5)] ^
-			C3[GETBYTE(K[3], 4)];
-		L[7] =
-			C0[GETBYTE(K[3], 3)] ^
-			C1[GETBYTE(K[2], 2)] ^
-			C2[GETBYTE(K[1], 1)] ^
-			C3[GETBYTE(K[0], 0)];
-		L[7] = (L[7] >> 32) | (L[7] << 32);
-		L[7] ^=
-			C0[GETBYTE(K[7], 7)] ^
-			C1[GETBYTE(K[6], 6)] ^
-			C2[GETBYTE(K[5], 5)] ^
-			C3[GETBYTE(K[4], 4)];
-		K[0] = L[0];
-		K[1] = L[1];
-		K[2] = L[2];
-		K[3] = L[3];
-		K[4] = L[4];
-		K[5] = L[5];
-		K[6] = L[6];
-		K[7] = L[7];
+#define K(i,j) GETBYTE(k[(i+j+1)%8], j)
+#define KS(i) \
+	t = C0[K(i,3)] ^ C1[K(i,2)] ^ C2[K(i,1)] ^ C3[K(i,0)]; \
+	w[i] = (t >> 32) ^ (t << 32) ^ C0[K(i,7)] ^ C1[K(i,6)] ^ C2[K(i,5)] ^ C3[K(i,4)];
+
+		KS(0); KS(1); KS(2); KS(3); KS(4); KS(5); KS(6); KS(7);
+		k[0] = w[0] ^ rc[r];
+		k[1] = w[1]; k[2] = w[2]; k[3] = w[3]; k[4] = w[4]; k[5] = w[5]; k[6] = w[6]; k[7] = w[7];
 
 		// Apply the r-th round transformation:
-		L[0] =
-			C0[GETBYTE(state[4], 3)] ^
-			C1[GETBYTE(state[3], 2)] ^
-			C2[GETBYTE(state[2], 1)] ^
-			C3[GETBYTE(state[1], 0)];
-		L[0] = (L[0] >> 32) | (L[0] << 32);
-		L[0] ^=
-			C0[GETBYTE(state[0], 7)] ^
-			C1[GETBYTE(state[7], 6)] ^
-			C2[GETBYTE(state[6], 5)] ^
-			C3[GETBYTE(state[5], 4)] ^
-			K[0];
-		L[1] =
-			C0[GETBYTE(state[5], 3)] ^
-			C1[GETBYTE(state[4], 2)] ^
-			C2[GETBYTE(state[3], 1)] ^
-			C3[GETBYTE(state[2], 0)];
-		L[1] = (L[1] >> 32) | (L[1] << 32);
-		L[1] ^=
-			C0[GETBYTE(state[1], 7)] ^
-			C1[GETBYTE(state[0], 6)] ^
-			C2[GETBYTE(state[7], 5)] ^
-			C3[GETBYTE(state[6], 4)] ^
-			K[1];
-		L[2] =
-			C0[GETBYTE(state[6], 3)] ^
-			C1[GETBYTE(state[5], 2)] ^
-			C2[GETBYTE(state[4], 1)] ^
-			C3[GETBYTE(state[3], 0)];
-		L[2] = (L[2] >> 32) | (L[2] << 32);
-		L[2] ^=
-			C0[GETBYTE(state[2], 7)] ^
-			C1[GETBYTE(state[1], 6)] ^
-			C2[GETBYTE(state[0], 5)] ^
-			C3[GETBYTE(state[7], 4)] ^
-			K[2];
-		L[3] =
-			C0[GETBYTE(state[7], 3)] ^
-			C1[GETBYTE(state[6], 2)] ^
-			C2[GETBYTE(state[5], 1)] ^
-			C3[GETBYTE(state[4], 0)];
-		L[3] = (L[3] >> 32) | (L[3] << 32);
-		L[3] ^=
-			C0[GETBYTE(state[3], 7)] ^
-			C1[GETBYTE(state[2], 6)] ^
-			C2[GETBYTE(state[1], 5)] ^
-			C3[GETBYTE(state[0], 4)] ^
-			K[3];
-		L[4] =
-			C0[GETBYTE(state[0], 3)] ^
-			C1[GETBYTE(state[7], 2)] ^
-			C2[GETBYTE(state[6], 1)] ^
-			C3[GETBYTE(state[5], 0)];
-		L[4] = (L[4] >> 32) | (L[4] << 32);
-		L[4] ^=
-			C0[GETBYTE(state[4], 7)] ^
-			C1[GETBYTE(state[3], 6)] ^
-			C2[GETBYTE(state[2], 5)] ^
-			C3[GETBYTE(state[1], 4)] ^
-			K[4];
-		L[5] =
-			C0[GETBYTE(state[1], 3)] ^
-			C1[GETBYTE(state[0], 2)] ^
-			C2[GETBYTE(state[7], 1)] ^
-			C3[GETBYTE(state[6], 0)];
-		L[5] = (L[5] >> 32) | (L[5] << 32);
-		L[5] ^=
-			C0[GETBYTE(state[5], 7)] ^
-			C1[GETBYTE(state[4], 6)] ^
-			C2[GETBYTE(state[3], 5)] ^
-			C3[GETBYTE(state[2], 4)] ^
-			K[5];
-		L[6] =
-			C0[GETBYTE(state[2], 3)] ^
-			C1[GETBYTE(state[1], 2)] ^
-			C2[GETBYTE(state[0], 1)] ^
-			C3[GETBYTE(state[7], 0)];
-		L[6] = (L[6] >> 32) | (L[6] << 32);
-		L[6] ^=
-			C0[GETBYTE(state[6], 7)] ^
-			C1[GETBYTE(state[5], 6)] ^
-			C2[GETBYTE(state[4], 5)] ^
-			C3[GETBYTE(state[3], 4)] ^
-			K[6];
-		L[7] =
-			C0[GETBYTE(state[3], 3)] ^
-			C1[GETBYTE(state[2], 2)] ^
-			C2[GETBYTE(state[1], 1)] ^
-			C3[GETBYTE(state[0], 0)];
-		L[7] = (L[7] >> 32) | (L[7] << 32);
-		L[7] ^=
-			C0[GETBYTE(state[7], 7)] ^
-			C1[GETBYTE(state[6], 6)] ^
-			C2[GETBYTE(state[5], 5)] ^
-			C3[GETBYTE(state[4], 4)] ^
-			K[7];
-		state[0] = L[0];
-		state[1] = L[1];
-		state[2] = L[2];
-		state[3] = L[3];
-		state[4] = L[4];
-		state[5] = L[5];
-		state[6] = L[6];
-		state[7] = L[7];
+#define S(i,j) GETBYTE(s[(i+j+1)%8], j)
+#define TS(i) \
+	t = C0[S(i,3)] ^ C1[S(i,2)] ^ C2[S(i,1)] ^ C3[S(i,0)]; \
+	w[i] = (t >> 32) ^ (t << 32) ^ C0[S(i,7)] ^ C1[S(i,6)] ^ C2[S(i,5)] ^ C3[S(i,4)] ^ k[i];
+
+		TS(0); TS(1); TS(2); TS(3); TS(4); TS(5); TS(6); TS(7);
+		s[0] = w[0]; s[1] = w[1]; s[2] = w[2]; s[3] = w[3]; s[4] = w[4]; s[5] = w[5]; s[6] = w[6]; s[7] = w[7];
 	}
 
 	// Apply the rest of the Miyaguchi-Preneel compression function:
-	digest[0] ^= state[0];
-	digest[1] ^= state[1];
-	digest[2] ^= state[2];
-	digest[3] ^= state[3];
-	digest[4] ^= state[4];
-	digest[5] ^= state[5];
-	digest[6] ^= state[6];
-	digest[7] ^= state[7];
+	digest[0] ^= s[0];
+	digest[1] ^= s[1];
+	digest[2] ^= s[2];
+	digest[3] ^= s[3];
+	digest[4] ^= s[4];
+	digest[5] ^= s[5];
+	digest[6] ^= s[6];
+	digest[7] ^= s[7];
 }
 
 NAMESPACE_END
