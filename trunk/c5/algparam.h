@@ -278,9 +278,9 @@ protected:
 	virtual void AssignValue(const char *name, const std::type_info &valueType, void *pValue) const =0;
 	virtual const NameValuePairs & GetParent() const =0;
 
+	const char *m_name;
 	bool m_throwIfNotUsed;
 	mutable bool m_used;
-	const char *m_name;
 };
 
 template <class T>
