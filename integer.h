@@ -9,6 +9,8 @@
 #include <iosfwd>
 #include <algorithm>
 
+#ifdef CRYPTOPP_X86ASM_AVAILABLE
+
 #ifdef _M_IX86
 	#if (defined(__INTEL_COMPILER) && (__INTEL_COMPILER >= 500)) || (defined(__ICL) && (__ICL >= 500))
 		#define SSE2_INTRINSICS_AVAILABLE
@@ -24,6 +26,8 @@
 // SSE2 intrinsics work in GCC 3.3 or later
 #if defined(__SSE2__) && (__GNUC_MAJOR__ > 3 || __GNUC_MINOR__ > 2)
 	#define SSE2_INTRINSICS_AVAILABLE
+#endif
+
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)

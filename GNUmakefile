@@ -16,10 +16,19 @@ ifeq ($(CXX),gcc)	# for some reason CXX is gcc on cygwin 1.1.4
 CXX = g++
 endif
 
-GCC33ORLATER = $(shell $(CXX) -v 2>&1 | grep -c "gcc version \(3.[3-9]\|[4-9]\)")
+ifeq ($(ISX86),1)
 
-ifeq ($(ISX86) $(GCC33ORLATER) $(ISMINGW),1 1 0)	# MINGW32 is missing the memalign function
+GCC33ORLATER = $(shell $(CXX) -v 2>&1 | grep -c "gcc version \(3.[3-9]\|[4-9]\)")
+GAS210ORLATER = $(shell echo "" | $(AS) -v 2>&1 | grep -c "GNU assembler version \(2.[1-9][0-9]\|[3-9]\)")
+
+ifeq ($(GCC33ORLATER) $(ISMINGW),1 0)	# MINGW32 is missing the memalign function
 CXXFLAGS += -msse2
+endif
+
+ifeq ($(GAS210ORLATER),0)	# .intel_syntax wasn't supported until GNU assembler 2.10
+CXXFLAGS += -DCRYPTOPP_DISABLE_X86ASM
+endif
+
 endif
 
 ifeq ($(ISMINGW),1)

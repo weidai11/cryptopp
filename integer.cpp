@@ -865,8 +865,7 @@ void Portable::Multiply8Bottom(word *R, const word *A, const word *B)
 #undef SquAcc
 #undef SaveSquAcc
 
-// CodeWarrior defines _MSC_VER
-#if (defined(_MSC_VER) && !defined(__MWERKS__) && defined(_M_IX86)) || (defined(__GNUC__) && defined(__i386__))
+#ifdef CRYPTOPP_X86ASM_AVAILABLE
 
 // ************** x86 feature detection ***************
 
