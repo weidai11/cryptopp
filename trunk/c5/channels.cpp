@@ -230,9 +230,10 @@ byte * ChannelSwitch::ChannelCreatePutSpace(const std::string &channel, unsigned
 	if (!m_it.End())
 	{
 		BufferedTransformation &target = m_it.Destination();
+		const std::string &channel = m_it.Channel();
 		m_it.Next();
 		if (m_it.End())	// there is only one target channel
-			return target.ChannelCreatePutSpace(m_it.Channel(), size);
+			return target.ChannelCreatePutSpace(channel, size);
 	}
 	size = 0;
 	return NULL;
