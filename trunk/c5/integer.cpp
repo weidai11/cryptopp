@@ -2146,11 +2146,11 @@ void MontgomeryReduce(word *R, word *T, const word *X, const word *M, const word
 {
 	MultiplyBottom(R, T, X, U, N);
 	MultiplyTop(T, T+N, X, R, M, N);
-	if (Subtract(R, X+N, T, N))
-	{
-		word carry = Add(R, R, M, N);
-		assert(carry);
-	}
+	word borrow = Subtract(T, X+N, T, N);
+	// defend against timing attack by doing this Add even when not needed
+	word carry = Add(T+N, T, M, N);
+	assert(carry || !borrow);
+	CopyWords(R, T + (borrow ? N : 0), N);
 }
 
 // R[N] --- result = X/(2**(WORD_BITS*N/2)) mod M
