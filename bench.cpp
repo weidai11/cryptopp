@@ -373,7 +373,7 @@ template <class T>
 void BenchMarkKeyed(const char *name, double timeTotal, T *x=NULL)
 {
 	T c;
-	c.SetKeyWithIV(key, c.DefaultKeyLength(), key);
+	c.SetKey(key, c.DefaultKeyLength(), MakeParameters(Name::IV(), key, false));
 	BenchMark(name, c, timeTotal);
 }
 
@@ -382,7 +382,7 @@ template <class T>
 void BenchMarkKeyedVariable(const char *name, double timeTotal, unsigned int keyLength, T *x=NULL)
 {
 	T c;
-	c.SetKeyWithIV(key, keyLength, key);
+	c.SetKey(key, keyLength, MakeParameters(Name::IV(), key, false));
 	BenchMark(name, c, timeTotal);
 }
 
