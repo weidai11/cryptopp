@@ -1,5 +1,5 @@
 Crypto++: a C++ Class Library of Cryptographic Schemes
-Version 5.2.1 (in development)
+Version 5.2.1 7/21/2004
 
 This library includes:
 
@@ -341,6 +341,7 @@ the mailing list.
       - fixed compiling with STLport using VC .NET
       - fixed compiling with -fPIC using GCC
       - fixed compiling with -msse2 on systems without memalign()
+      - fixed inability to instantiate PanamaMAC
       - fixed problems with inline documentation
 
 Written by Wei Dai
