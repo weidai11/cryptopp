@@ -52,6 +52,7 @@ public:
 	const byte * Spy(unsigned int &contiguousSize) const;
 
 	void LazyPut(const byte *inString, unsigned int size);
+	void LazyPutModifiable(byte *inString, unsigned int size);
 	void UndoLazyPut(unsigned int size);
 	void FinalizeLazyPut();
 
@@ -100,8 +101,9 @@ private:
 
 	unsigned int m_nodeSize;
 	ByteQueueNode *m_head, *m_tail;
-	const byte *m_lazyString;
+	byte *m_lazyString;
 	unsigned int m_lazyLength;
+	bool m_lazyStringModifiable;
 };
 
 //! use this to make sure LazyPut is finalized in event of exception
@@ -112,8 +114,18 @@ public:
 		: m_bq(bq) {bq.LazyPut(inString, size);}
 	~LazyPutter()
 		{try {m_bq.FinalizeLazyPut();} catch(...) {}}
+protected:
+	LazyPutter(ByteQueue &bq) : m_bq(bq) {}
 private:
 	ByteQueue &m_bq;
+};
+
+//! like LazyPutter, but does a LazyPutModifiable instead
+class LazyPutterModifiable : public LazyPutter
+{
+public:
+	LazyPutterModifiable(ByteQueue &bq, byte *inString, unsigned int size)
+		: LazyPutter(bq) {bq.LazyPutModifiable(inString, size);}
 };
 
 NAMESPACE_END

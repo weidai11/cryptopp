@@ -311,12 +311,13 @@ SocketReceiver::SocketReceiver(Socket &s)
 	m_overlapped.hEvent = m_event;
 }
 
-void SocketReceiver::Receive(byte* buf, unsigned int bufLen)
+bool SocketReceiver::Receive(byte* buf, unsigned int bufLen)
 {
 	assert(!m_resultPending && !m_eofReceived);
 
 	DWORD flags = 0;
-	WSABUF wsabuf = {bufLen, (char *)buf};
+	// don't queue too much at once, or we might use up non-paged memory
+	WSABUF wsabuf = {STDMIN(bufLen, 128U*1024U), (char *)buf};
 	if (WSARecv(m_s, &wsabuf, 1, &m_lastResult, &flags, &m_overlapped, NULL) == 0)
 	{
 		if (m_lastResult == 0)
@@ -336,6 +337,7 @@ void SocketReceiver::Receive(byte* buf, unsigned int bufLen)
 			m_resultPending = true;
 		}
 	}
+	return !m_resultPending;
 }
 
 void SocketReceiver::GetWaitObjects(WaitObjectContainer &container)
@@ -386,7 +388,8 @@ SocketSender::SocketSender(Socket &s)
 void SocketSender::Send(const byte* buf, unsigned int bufLen)
 {
 	DWORD written = 0;
-	WSABUF wsabuf = {bufLen, (char *)buf};
+	// don't queue too much at once, or we might use up non-paged memory
+	WSABUF wsabuf = {STDMIN(bufLen, 128U*1024U), (char *)buf};
 	if (WSASend(m_s, &wsabuf, 1, &written, 0, &m_overlapped, NULL) == 0)
 	{
 		m_resultPending = false;
@@ -436,11 +439,12 @@ void SocketReceiver::GetWaitObjects(WaitObjectContainer &container)
 		container.AddReadFd(m_s);
 }
 
-void SocketReceiver::Receive(byte* buf, unsigned int bufLen)
+bool SocketReceiver::Receive(byte* buf, unsigned int bufLen)
 {
 	m_lastResult = m_s.Receive(buf, bufLen);
 	if (bufLen > 0 && m_lastResult == 0)
 		m_eofReceived = true;
+	return true;
 }
 
 unsigned int SocketReceiver::GetReceiveResult()

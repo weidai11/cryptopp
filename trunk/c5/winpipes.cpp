@@ -86,12 +86,13 @@ WindowsPipeReceiver::WindowsPipeReceiver()
 	m_overlapped.hEvent = m_event;
 }
 
-void WindowsPipeReceiver::Receive(byte* buf, unsigned int bufLen)
+bool WindowsPipeReceiver::Receive(byte* buf, unsigned int bufLen)
 {
 	assert(!m_resultPending && !m_eofReceived);
 
 	HANDLE h = GetHandle();
-	if (ReadFile(h, buf, bufLen, &m_lastResult, &m_overlapped))
+	// don't queue too much at once, or we might use up non-paged memory
+	if (ReadFile(h, buf, STDMIN(bufLen, 128U*1024U), &m_lastResult, &m_overlapped))
 	{
 		if (m_lastResult == 0)
 			m_eofReceived = true;
@@ -111,6 +112,7 @@ void WindowsPipeReceiver::Receive(byte* buf, unsigned int bufLen)
 			m_resultPending = true;
 		}
 	}
+	return !m_resultPending;
 }
 
 void WindowsPipeReceiver::GetWaitObjects(WaitObjectContainer &container)
@@ -163,7 +165,8 @@ void WindowsPipeSender::Send(const byte* buf, unsigned int bufLen)
 {
 	DWORD written = 0;
 	HANDLE h = GetHandle();
-	if (WriteFile(h, buf, bufLen, &written, &m_overlapped))
+	// don't queue too much at once, or we might use up non-paged memory
+	if (WriteFile(h, buf, STDMIN(bufLen, 128U*1024U), &written, &m_overlapped))
 	{
 		m_resultPending = false;
 		m_lastResult = written;

@@ -98,6 +98,15 @@ void Filter::PropagateInitialize(const NameValuePairs &parameters, int propagati
 		AttachedTransformation()->ChannelInitialize(channel, parameters, propagation-1);
 }
 
+unsigned int Filter::OutputModifiable(int outputSite, byte *inString, unsigned int length, int messageEnd, bool blocking, const std::string &channel)
+{
+	if (messageEnd)
+		messageEnd--;
+	unsigned int result = AttachedTransformation()->PutModifiable2(inString, length, messageEnd, blocking);
+	m_continueAt = result ? outputSite : 0;
+	return result;
+}
+
 unsigned int Filter::Output(int outputSite, const byte *inString, unsigned int length, int messageEnd, bool blocking, const std::string &channel)
 {
 	if (messageEnd)
@@ -147,6 +156,27 @@ unsigned int MeterFilter::Put2(const byte *begin, unsigned int length, int messa
 		}
 		
 		FILTER_OUTPUT(1, begin, length, messageEnd);
+		FILTER_END_NO_MESSAGE_END;
+	}
+	return 0;
+}
+
+unsigned int MeterFilter::PutModifiable2(byte *begin, unsigned int length, int messageEnd, bool blocking)
+{
+	if (m_transparent)
+	{
+		FILTER_BEGIN;
+		m_currentMessageBytes += length;
+		m_totalBytes += length;
+
+		if (messageEnd)
+		{
+			m_currentMessageBytes = 0;
+			m_currentSeriesMessages++;
+			m_totalMessages++;
+		}
+		
+		FILTER_OUTPUT_MODIFIABLE(1, begin, length, messageEnd);
 		FILTER_END_NO_MESSAGE_END;
 	}
 	return 0;
@@ -414,10 +444,16 @@ void ProxyFilter::SetFilter(Filter *filter)
 	}
 }
 
-void ProxyFilter::NextPutMultiple(const byte *s, unsigned int len) 
+void ProxyFilter::NextPutMultiple(const byte *s, unsigned int len)
 {
 	if (m_filter.get())
 		m_filter->Put(s, len);
+}
+
+void ProxyFilter::NextPutModifiable(byte *s, unsigned int len)
+{
+	if (m_filter.get())
+		m_filter->PutModifiable(s, len);
 }
 
 // *************************************************************
