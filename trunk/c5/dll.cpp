@@ -111,4 +111,14 @@ void CRYPTOPP_CDECL operator delete (void * p)
 	s_pDelete(p);
 }
 
+void * CRYPTOPP_CDECL operator new [] (size_t size)
+{
+	return operator new (size);
+}
+
+void CRYPTOPP_CDECL operator delete [] (void * p)
+{
+	operator delete (p);
+}
+
 #endif	// #ifdef CRYPTOPP_EXPORTS
