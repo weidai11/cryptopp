@@ -17,8 +17,8 @@ CFG=cryptest - Win32 Debug
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "cryptest - Win32 FIPS 140 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "cryptest - Win32 FIPS 140 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "cryptest - Win32 DLL-Import Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "cryptest - Win32 DLL-Import Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE "cryptest - Win32 Release" (based on "Win32 (x86) Console Application")
 !MESSAGE "cryptest - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE 
@@ -30,7 +30,7 @@ CFG=cryptest - Win32 Debug
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "cryptest - Win32 FIPS 140 Release"
+!IF  "$(CFG)" == "cryptest - Win32 DLL-Import Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -40,8 +40,8 @@ RSC=rc.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
-# PROP Output_Dir "CT_FIPS_140_Release"
-# PROP Intermediate_Dir "CT_FIPS_140_Release"
+# PROP Output_Dir "CT_DLL_Import_Release"
+# PROP Intermediate_Dir "CT_DLL_Import_Release"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /G5 /Gz /MT /W3 /GX /Zi /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /Zm200 /c
@@ -60,7 +60,7 @@ SOURCE="$(InputPath)"
 PreLink_Cmds=echo This configuration requires cryptopp.dll.	echo You can build it yourself using the cryptdll project, or	echo obtain a pre-built, FIPS 140-2 validated DLL. If you build it yourself	echo the resulting DLL will not be considered FIPS validated	echo unless it undergoes FIPS validation.
 # End Special Build Tool
 
-!ELSEIF  "$(CFG)" == "cryptest - Win32 FIPS 140 Debug"
+!ELSEIF  "$(CFG)" == "cryptest - Win32 DLL-Import Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -70,8 +70,8 @@ PreLink_Cmds=echo This configuration requires cryptopp.dll.	echo You can build i
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 1
-# PROP Output_Dir "CT_FIPS_140_Debug"
-# PROP Intermediate_Dir "CT_FIPS_140_Debug"
+# PROP Output_Dir "CT_DLL_Import_Debug"
+# PROP Intermediate_Dir "CT_DLL_Import_Debug"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /Zm200 /c
@@ -143,8 +143,8 @@ LINK32=link.exe
 
 # Begin Target
 
-# Name "cryptest - Win32 FIPS 140 Release"
-# Name "cryptest - Win32 FIPS 140 Debug"
+# Name "cryptest - Win32 DLL-Import Release"
+# Name "cryptest - Win32 DLL-Import Debug"
 # Name "cryptest - Win32 Release"
 # Name "cryptest - Win32 Debug"
 # Begin Group "Test Data"
