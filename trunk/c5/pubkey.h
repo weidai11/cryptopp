@@ -406,7 +406,8 @@ protected:
 	}
 	unsigned int GetDigestSize() const
 	{
-		return SCHEME_OPTIONS::HashFunction::DIGESTSIZE;
+		typedef CPP_TYPENAME SchemeOptions::HashFunction H;
+		return H::DIGESTSIZE;
 	}
 };
 
@@ -1311,7 +1312,8 @@ protected:
 	}
 	unsigned int GetDigestSize() const
 	{
-		return SchemeOptions::HashFunction::DIGESTSIZE;
+		typedef CPP_TYPENAME SchemeOptions::HashFunction H;
+		return H::DIGESTSIZE;
 	}
 
 private:
