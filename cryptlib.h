@@ -1258,7 +1258,7 @@ class PK_Signer : virtual public PK_SignatureScheme, public PrivateKeyAlgorithm
 {
 public:
 	//! create a new HashTransformation to accumulate the message to be signed
-	virtual PK_MessageAccumulator * NewSignatureAccumulator(RandomNumberGenerator &rng = NullRNG()) const =0;
+	virtual PK_MessageAccumulator * NewSignatureAccumulator(RandomNumberGenerator &rng) const =0;
 
 	virtual void InputRecoverableMessage(PK_MessageAccumulator &messageAccumulator, const byte *recoverableMessage, unsigned int recoverableMessageLength) const =0;
 

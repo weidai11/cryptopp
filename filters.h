@@ -317,7 +317,7 @@ class SignerFilter : public Unflushable<Filter>
 {
 public:
 	SignerFilter(RandomNumberGenerator &rng, const PK_Signer &signer, BufferedTransformation *attachment = NULL, bool putMessage=false)
-		: Unflushable<Filter>(attachment), m_rng(rng), m_signer(signer), m_messageAccumulator(signer.NewSignatureAccumulator()), m_putMessage(putMessage) {}
+		: Unflushable<Filter>(attachment), m_rng(rng), m_signer(signer), m_messageAccumulator(signer.NewSignatureAccumulator(rng)), m_putMessage(putMessage) {}
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
 	unsigned int Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking);

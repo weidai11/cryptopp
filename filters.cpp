@@ -707,7 +707,7 @@ void HashVerificationFilter::LastPut(const byte *inString, unsigned int length)
 void SignerFilter::IsolatedInitialize(const NameValuePairs &parameters)
 {
 	m_putMessage = parameters.GetValueWithDefault(Name::PutMessage(), false);
-	m_messageAccumulator.reset(m_signer.NewSignatureAccumulator());
+	m_messageAccumulator.reset(m_signer.NewSignatureAccumulator(m_rng));
 }
 
 unsigned int SignerFilter::Put2(const byte *inString, unsigned int length, int messageEnd, bool blocking)
@@ -721,7 +721,7 @@ unsigned int SignerFilter::Put2(const byte *inString, unsigned int length, int m
 		m_buf.New(m_signer.SignatureLength());
 		m_signer.Sign(m_rng, m_messageAccumulator.release(), m_buf);
 		FILTER_OUTPUT(2, m_buf, m_buf.size(), messageEnd);
-		m_messageAccumulator.reset(m_signer.NewSignatureAccumulator());
+		m_messageAccumulator.reset(m_signer.NewSignatureAccumulator(m_rng));
 	}
 	FILTER_END_NO_MESSAGE_END;
 }
