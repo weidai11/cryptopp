@@ -379,7 +379,7 @@ bool FirstPrime(Integer &p, const Integer &max, const Integer &equiv, const Inte
 	if (gcd != Integer::One())
 	{
 		// the only possible prime p such that p%mod==equiv where GCD(mod,equiv)!=1 is GCD(mod,equiv)
-		if (p <= gcd && gcd <= max && IsPrime(gcd))
+		if (p <= gcd && gcd <= max && IsPrime(gcd) && (!pSelector || pSelector->IsAcceptable(gcd)))
 		{
 			p = gcd;
 			return true;
