@@ -87,7 +87,8 @@ struct BTEA_Info : public FixedKeyLength<16>
 	static const char *StaticAlgorithmName() {return "BTEA";}
 };
 
-/// <a href="http://www.weidai.com/scan-mirror/cs.html#TEA">corrected Block TEA</a> (as described in "xxtea").
+//! <a href="http://www.weidai.com/scan-mirror/cs.html#TEA">corrected Block TEA</a> (as described in "xxtea").
+/*! This class hasn't been tested yet. */
 class BTEA : public BTEA_Info, public BlockCipherDocumentation
 {
 	class CRYPTOPP_NO_VTABLE Base : public AlgorithmImpl<SimpleKeyingInterfaceImpl<BlockCipher, BTEA_Info>, BTEA_Info>, public BTEA_Info
@@ -97,8 +98,8 @@ class BTEA : public BTEA_Info, public BlockCipherDocumentation
 		static inline void CheckedSetKey(T *obj, CipherDir dir, const byte *key, unsigned int length, const NameValuePairs &param)
 		{
 			obj->ThrowIfInvalidKeyLength(length);
-			m_blockSize = param.GetIntValueWithDefault("BlockSize", 60*4);
-			GetUserKey(BIG_ENDIAN_ORDER, m_k.begin(), 4, userKey, KEYLENGTH);
+			obj->m_blockSize = param.GetIntValueWithDefault("BlockSize", 60*4);
+			GetUserKey(BIG_ENDIAN_ORDER, obj->m_k.begin(), 4, userKey, KEYLENGTH);
 		}
 
 		unsigned int BlockSize() const {return m_blockSize;}
