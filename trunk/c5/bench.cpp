@@ -87,11 +87,11 @@ static const byte *const key=(byte *)"0123456789abcdefghijklmnopqrstuvwxyzABCDEF
 static double logtotal = 0;
 static unsigned int logcount = 0;
 
-void OutputResultBytes(const char *name, unsigned long length, double timeTaken)
+void OutputResultBytes(const char *name, double length, double timeTaken)
 {
 	double mbs = length / timeTaken / (1024*1024);
 	cout << "<TR><TH>" << name;
-	cout << "<TD>" << length;
+	cout << "<TD>" << setprecision(3) << length / (1024*1024);
 	cout << setiosflags(ios::fixed);
 	cout << "<TD>" << setprecision(3) << timeTaken;
 	cout << "<TD>" << setprecision(3) << mbs << endl;
@@ -120,18 +120,18 @@ void BenchMark(const char *name, BlockTransformation &cipher, double timeTotal)
 	const int nBlocks = BUF_SIZE / cipher.BlockSize();
 	clock_t start = clock();
 
-	unsigned long i=0, length=BUF_SIZE;
+	unsigned long i=0, blocks=1;
 	double timeTaken;
 	do
 	{
-		length *= 2;
-		for (; i<length; i+=BUF_SIZE)
+		blocks *= 2;
+		for (; i<blocks; i++)
 			cipher.ProcessAndXorMultipleBlocks(buf, NULL, buf, nBlocks);
 		timeTaken = double(clock() - start) / CLOCK_TICKS_PER_SECOND;
 	}
 	while (timeTaken < 2.0/3*timeTotal);
 
-	OutputResultBytes(name, length, timeTaken);
+	OutputResultBytes(name, double(blocks) * BUF_SIZE, timeTaken);
 }
 
 void BenchMark(const char *name, StreamTransformation &cipher, double timeTotal)
@@ -140,18 +140,18 @@ void BenchMark(const char *name, StreamTransformation &cipher, double timeTotal)
 	SecByteBlock buf(BUF_SIZE);
 	clock_t start = clock();
 
-	unsigned long i=0, length=BUF_SIZE;
+	unsigned long i=0, blocks=1;
 	double timeTaken;
 	do
 	{
-		length *= 2;
-		for (; i<length; i+=BUF_SIZE)
+		blocks *= 2;
+		for (; i<blocks; i++)
 			cipher.ProcessString(buf, BUF_SIZE);
 		timeTaken = double(clock() - start) / CLOCK_TICKS_PER_SECOND;
 	}
 	while (timeTaken < 2.0/3*timeTotal);
 
-	OutputResultBytes(name, length, timeTaken);
+	OutputResultBytes(name, double(blocks) * BUF_SIZE, timeTaken);
 }
 
 void BenchMark(const char *name, HashTransformation &hash, double timeTotal)
@@ -162,18 +162,18 @@ void BenchMark(const char *name, HashTransformation &hash, double timeTotal)
 	rng.GenerateBlock(buf, BUF_SIZE);
 	clock_t start = clock();
 
-	unsigned long i=0, length=BUF_SIZE;
+	unsigned long i=0, blocks=1;
 	double timeTaken;
 	do
 	{
-		length *= 2;
-		for (; i<length; i+=BUF_SIZE)
+		blocks *= 2;
+		for (; i<blocks; i++)
 			hash.Update(buf, BUF_SIZE);
 		timeTaken = double(clock() - start) / CLOCK_TICKS_PER_SECOND;
 	}
 	while (timeTaken < 2.0/3*timeTotal);
 
-	OutputResultBytes(name, length, timeTaken);
+	OutputResultBytes(name, double(blocks) * BUF_SIZE, timeTaken);
 }
 
 void BenchMark(const char *name, BufferedTransformation &bt, double timeTotal)
@@ -184,18 +184,18 @@ void BenchMark(const char *name, BufferedTransformation &bt, double timeTotal)
 	rng.GenerateBlock(buf, BUF_SIZE);
 	clock_t start = clock();
 
-	unsigned long i=0, length=BUF_SIZE;
+	unsigned long i=0, blocks=1;
 	double timeTaken;
 	do
 	{
-		length *= 2;
-		for (; i<length; i+=BUF_SIZE)
+		blocks *= 2;
+		for (; i<blocks; i++)
 			bt.Put(buf, BUF_SIZE);
 		timeTaken = double(clock() - start) / CLOCK_TICKS_PER_SECOND;
 	}
 	while (timeTaken < 2.0/3*timeTotal);
 
-	OutputResultBytes(name, length, timeTaken);
+	OutputResultBytes(name, double(blocks) * BUF_SIZE, timeTaken);
 }
 
 void BenchMarkEncryption(const char *name, PK_Encryptor &key, double timeTotal, bool pc=false)
@@ -434,7 +434,7 @@ void BenchMarkAll(double t)
 	logcount = 0;
 
 	cout << "<TABLE border=1><COLGROUP><COL align=left><COL align=right><COL align=right><COL align=right>" << endl;
-	cout << "<THEAD><TR><TH>Algorithm<TH>Bytes Processed<TH>Time Taken<TH>Megabytes(2^20 bytes)/Second\n<TBODY>" << endl;
+	cout << "<THEAD><TR><TH>Algorithm<TH>Megabytes(2^20 bytes) Processed<TH>Time Taken<TH>MB/Second\n<TBODY>" << endl;
 
 	BenchMarkKeyless<CRC32>("CRC-32", t);
 	BenchMarkKeyless<Adler32>("Adler-32", t);

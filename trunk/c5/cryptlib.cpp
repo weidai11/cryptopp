@@ -359,12 +359,12 @@ unsigned int BufferedTransformation::TransferMessagesTo2(BufferedTransformation 
 		for (messageCount=0; messageCount < maxMessages && AnyMessages(); messageCount++)
 		{
 			unsigned int blockedBytes;
-			unsigned long transferedBytes;
+			unsigned long transferredBytes;
 
 			while (AnyRetrievable())
 			{
-				transferedBytes = ULONG_MAX;
-				blockedBytes = TransferTo2(target, transferedBytes, channel, blocking);
+				transferredBytes = ULONG_MAX;
+				blockedBytes = TransferTo2(target, transferredBytes, channel, blocking);
 				if (blockedBytes > 0)
 					return blockedBytes;
 			}

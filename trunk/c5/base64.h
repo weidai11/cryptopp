@@ -12,7 +12,7 @@ public:
 	Base64Encoder(BufferedTransformation *attachment = NULL, bool insertLineBreaks = true, int maxLineLength = 72)
 		: SimpleProxyFilter(new BaseN_Encoder(new Grouper), attachment)
 	{
-		IsolatedInitialize(MakeParameters("InsertLineBreaks", insertLineBreaks)("MaxLineLength", maxLineLength));
+		IsolatedInitialize(MakeParameters(Name::InsertLineBreaks(), insertLineBreaks)(Name::MaxLineLength(), maxLineLength));
 	}
 
 	void IsolatedInitialize(const NameValuePairs &parameters);

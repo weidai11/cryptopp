@@ -4,6 +4,7 @@
 
 #include "files.h"
 #include "hex.h"
+#include "base32.h"
 #include "base64.h"
 #include "modes.h"
 #include "cbcmac.h"
@@ -1279,6 +1280,13 @@ bool ValidateBaseCode()
 "A0A1A2A3A4A5A6A7A8A9AAABACADAEAFB0B1B2B3B4B5B6B7B8B9BABBBCBDBEBFC0C1C2C3C4C5C6C7"
 "C8C9CACBCCCDCECFD0D1D2D3D4D5D6D7D8D9DADBDCDDDEDFE0E1E2E3E4E5E6E7E8E9EAEBECEDEEEF"
 "F0F1F2F3F4F5F6F7F8F9FAFBFCFDFE";
+	const char *base32Encoded = 
+"AAASEA2EAWDAQCAJBIFS2DIQB6IBCESVCSKTNF22DEPBYHA7D2RUAIJCENUCKJTHFAWUWK3NFWZC8NBT"
+"GI3VIPJYG66DUQT5HS8V6R4AIFBEGTCFI3DWSUKKJPGE4VURKBIXEW4WKXMFQYC3MJPX2ZK8M7SGC2VD"
+"NTUYN35IPFXGY5DPP3ZZA6MUQP4HK7VZRB6ZW856RX9H9AEBSKB2JBNGS8EIVCWMTUG27D6SUGJJHFEX"
+"U4M3TGN4VQQJ5HW9WCS4FI7EWYVKRKFJXKX43MPQX82MDNXVYU45PP72ZG7MZRF7Z496BSQC2RCNMTYH"
+"3DE6XU8N3ZHN9WGT4MJ7JXQY49NPVYY55VQ77Z9A6HTQH3HF65V8T4RK7RYQ55ZR8D29F69W8Z5RR8H3"
+"9M7939R8";
 	const char *base64AndHexEncoded = 
 "41414543417751464267634943516F4C4441304F4478415245684D554652595847426B6147787764"
 "486838674953496A4A43556D4A7967704B6973734C5334764D4445794D7A51310A4E6A63344F546F"
@@ -1290,7 +1298,7 @@ bool ValidateBaseCode()
 "39445230745055316462580A324E6E6132397A6433742F6734654C6A354F586D352B6A7036757673"
 "3765377638504879382F5431397666342B6672372F50332B0A";
 
-	cout << "\nBase64 and hex coding validation suite running...\n\n";
+	cout << "\nBase64, base32 and hex coding validation suite running...\n\n";
 
 	fail = !TestFilter(HexEncoder().Ref(), data, 255, (const byte *)hexEncoded, strlen(hexEncoded));
 	cout << (fail ? "FAILED    " : "passed    ");
@@ -1300,6 +1308,16 @@ bool ValidateBaseCode()
 	fail = !TestFilter(HexDecoder().Ref(), (const byte *)hexEncoded, strlen(hexEncoded), data, 255);
 	cout << (fail ? "FAILED    " : "passed    ");
 	cout << "Hex Decoding\n";
+	pass = pass && !fail;
+
+	fail = !TestFilter(Base32Encoder().Ref(), data, 255, (const byte *)base32Encoded, strlen(base32Encoded));
+	cout << (fail ? "FAILED    " : "passed    ");
+	cout << "Base32 Encoding\n";
+	pass = pass && !fail;
+
+	fail = !TestFilter(Base32Decoder().Ref(), (const byte *)base32Encoded, strlen(base32Encoded), data, 255);
+	cout << (fail ? "FAILED    " : "passed    ");
+	cout << "Base32 Decoding\n";
 	pass = pass && !fail;
 
 	fail = !TestFilter(Base64Encoder(new HexEncoder).Ref(), data, 255, (const byte *)base64AndHexEncoded, strlen(base64AndHexEncoded));

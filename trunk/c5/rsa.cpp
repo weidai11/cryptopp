@@ -12,11 +12,7 @@
 
 #if !defined(NDEBUG) && !defined(CRYPTOPP_IS_DLL)
 #include "pssr.h"
-#endif
-
 NAMESPACE_BEGIN(CryptoPP)
-
-#if !defined(NDEBUG) && !defined(CRYPTOPP_IS_DLL)
 void RSA_TestInstantiations()
 {
 	RSASS<PKCS1v15, SHA>::Verifier x1(1, 1);
@@ -37,9 +33,12 @@ void RSA_TestInstantiations()
 
 	x4 = x2.GetKey();
 }
+NAMESPACE_END
 #endif
 
 #ifndef CRYPTOPP_IMPORTS
+
+NAMESPACE_BEGIN(CryptoPP)
 
 OID RSAFunction::GetAlgorithmID() const
 {
@@ -276,6 +275,6 @@ void InvertibleRSAFunction::AssignFrom(const NameValuePairs &source)
 		;
 }
 
-#endif
-
 NAMESPACE_END
+
+#endif

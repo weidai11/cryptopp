@@ -137,11 +137,13 @@ public:
 
 	unsigned int TimedFlush(unsigned long maxTime, unsigned int targetSize = 0);
 
-	void SetMaxBufferSize(unsigned int maxBufferSize) {m_maxBufferSize = maxBufferSize;}
+	void SetMaxBufferSize(unsigned int maxBufferSize) {m_maxBufferSize = maxBufferSize; m_buffer.SetNodeSize(STDMIN(16U*1024U+256, maxBufferSize));}
 	void SetAutoFlushBound(unsigned int bound) {m_autoFlushBound = bound;}
 
 	unsigned int GetMaxBufferSize() const {return m_maxBufferSize;}
 	unsigned int GetCurrentBufferSize() const {return m_buffer.CurrentSize();}
+
+	void ClearBuffer() {m_buffer.Clear();}
 
 	//! compute the current speed of this sink in bytes per second
 	float ComputeCurrentSpeed();

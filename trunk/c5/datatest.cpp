@@ -24,7 +24,7 @@ public:
 
 static const TestData *s_currentTestData = NULL;
 
-void OutputTestData(const TestData &v)
+static void OutputTestData(const TestData &v)
 {
 	for (TestData::const_iterator i = v.begin(); i != v.end(); ++i)
 	{
@@ -32,13 +32,13 @@ void OutputTestData(const TestData &v)
 	}
 }
 
-void SignalTestFailure()
+static void SignalTestFailure()
 {
 	OutputTestData(*s_currentTestData);
 	throw TestFailure();
 }
 
-void SignalTestError()
+static void SignalTestError()
 {
 	OutputTestData(*s_currentTestData);
 	throw Exception(Exception::OTHER_ERROR, "Unexpected error during validation test");

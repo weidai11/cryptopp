@@ -3,6 +3,7 @@
 
 #include "filters.h"
 #include "algparam.h"
+#include "argnames.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -15,10 +16,10 @@ public:
 	BaseN_Encoder(const byte *alphabet, int log2base, BufferedTransformation *attachment=NULL, int padding=-1)
 		: Unflushable<Filter>(attachment)
 	{
-		IsolatedInitialize(MakeParameters("EncodingLookupArray", alphabet)
-			("Log2Base", log2base)
-			("Pad", padding != -1)
-			("PaddingByte", byte(padding)));
+		IsolatedInitialize(MakeParameters(Name::EncodingLookupArray(), alphabet)
+			(Name::Log2Base(), log2base)
+			(Name::Pad(), padding != -1)
+			(Name::PaddingByte(), byte(padding)));
 	}
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
@@ -40,13 +41,13 @@ public:
 	BaseN_Decoder(const int *lookup, int log2base, BufferedTransformation *attachment=NULL)
 		: Unflushable<Filter>(attachment)
 	{
-		IsolatedInitialize(MakeParameters("DecodingLookupArray", lookup)("Log2Base", log2base));
+		IsolatedInitialize(MakeParameters(Name::DecodingLookupArray(), lookup)(Name::Log2Base(), log2base));
 	}
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
 	unsigned int Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking);
 
-	static void InitializeDecodingLookupArray(int *lookup, const byte *alphabet, unsigned int log2base, bool caseInsensitive);
+	static void InitializeDecodingLookupArray(int *lookup, const byte *alphabet, unsigned int base, bool caseInsensitive);
 
 private:
 	const int *m_lookup;
@@ -64,9 +65,9 @@ public:
 	Grouper(int groupSize, const std::string &separator, const std::string &terminator, BufferedTransformation *attachment=NULL)
 		: Bufferless<Filter>(attachment)
 	{
-		IsolatedInitialize(MakeParameters("GroupSize", groupSize)
-			("Separator", ConstByteArrayParameter(separator))
-			("Terminator", ConstByteArrayParameter(terminator)));
+		IsolatedInitialize(MakeParameters(Name::GroupSize(), groupSize)
+			(Name::Separator(), ConstByteArrayParameter(separator))
+			(Name::Terminator(), ConstByteArrayParameter(terminator)));
 	}
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
