@@ -391,13 +391,13 @@ unsigned int PaddingRemover::Put2(const byte *begin, unsigned int length, int me
 		m_possiblePadding = false;
 	}
 
-#if defined(_MSC_VER) && !defined(__MWERKS__)
+#if defined(_MSC_VER) && !defined(__MWERKS__) && (_MSC_VER < 1300)
 	// VC60 workaround: built-in reverse_iterator has two template parameters, Dinkumware only has one
-	typedef reverse_bidirectional_iterator<const byte *, const byte> rit;
+	typedef reverse_bidirectional_iterator<const byte *, const byte> RevIt;
 #else
-	typedef reverse_iterator<const byte *> rit;
+	typedef reverse_iterator<const byte *> RevIt;
 #endif
-	const byte *x = find_if(rit(end), rit(begin), bind2nd(not_equal_to<byte>(), 0)).base();
+	const byte *x = find_if(RevIt(end), RevIt(begin), bind2nd(not_equal_to<byte>(), 0)).base();
 	if (x != begin && *(x-1) == 1)
 	{
 		AttachedTransformation()->Put(begin, x-begin-1);
