@@ -8,6 +8,7 @@
 #include "randpool.h"
 #include "rng.h"
 #include "des.h"
+#include "fips140.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -35,6 +36,8 @@ public:
 private:
 	ProviderHandle m_hProvider;
 };
+
+#pragma comment(lib, "advapi32.lib")
 #endif
 
 //! encapsulate CryptoAPI's CryptGenRandom or /dev/urandom
