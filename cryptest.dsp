@@ -4,7 +4,7 @@
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=cryptest - Win32 FIPS 140 Debug
+CFG=cryptest - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
@@ -13,24 +13,80 @@ CFG=cryptest - Win32 FIPS 140 Debug
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "cryptest.mak" CFG="cryptest - Win32 FIPS 140 Debug"
+!MESSAGE NMAKE /f "cryptest.mak" CFG="cryptest - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "cryptest - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "cryptest - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE "cryptest - Win32 FIPS 140 Release" (based on "Win32 (x86) Console Application")
 !MESSAGE "cryptest - Win32 FIPS 140 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "cryptest - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "cryptest - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
-# PROP Scc_ProjName ""$/cryptlib", BAAAAAAA"
-# PROP Scc_LocalPath "."
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "cryptest - Win32 Release"
+!IF  "$(CFG)" == "cryptest - Win32 FIPS 140 Release"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "cryptest___Win32_FIPS_140_Release"
+# PROP BASE Intermediate_Dir "cryptest___Win32_FIPS_140_Release"
+# PROP BASE Ignore_Export_Lib 0
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir "CT_FIPS_140_Release"
+# PROP Intermediate_Dir "CT_FIPS_140_Release"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /G5 /Gz /MT /W3 /GX /Zi /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /Zm200 /c
+# ADD CPP /nologo /G5 /Gz /MT /W3 /GX /Zi /O2 /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /D "WIN32" /YX /FD /Zm200 /c
+# ADD BASE RSC /l 0x409 /d "NDEBUG"
+# ADD RSC /l 0x409 /d "NDEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib Ws2_32.lib /nologo /subsystem:console /debug /machine:I386 /OPT:NOWIN98
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib Ws2_32.lib /nologo /subsystem:console /debug /machine:I386 /OPT:NOWIN98
+# Begin Special Build Tool
+SOURCE="$(InputPath)"
+PostBuild_Cmds=echo This configuration is used to build a static binary for FIPS 140 evaluation by a testing laboratory.	echo Crypto++ users should not build this configuration directly.
+# End Special Build Tool
+
+!ELSEIF  "$(CFG)" == "cryptest - Win32 FIPS 140 Debug"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 1
+# PROP BASE Output_Dir "cryptest___Win32_FIPS_140_Debug"
+# PROP BASE Intermediate_Dir "cryptest___Win32_FIPS_140_Debug"
+# PROP BASE Ignore_Export_Lib 0
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 1
+# PROP Output_Dir "CT_FIPS_140_Debug"
+# PROP Intermediate_Dir "CT_FIPS_140_Debug"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /MTd /W3 /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /Zm200 /c
+# ADD CPP /nologo /G5 /Gz /MTd /W3 /GX /ZI /Od /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /D "WIN32" /YX /FD /Zm200 /c
+# ADD BASE RSC /l 0x409 /d "_DEBUG"
+# ADD RSC /l 0x409 /d "_DEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib Ws2_32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept /OPT:NOWIN98
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib Ws2_32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept /OPT:NOWIN98
+# Begin Special Build Tool
+SOURCE="$(InputPath)"
+PostBuild_Cmds=echo This configuration is used to build a static binary for FIPS 140 evaluation by a testing laboratory.	echo Crypto++ users should not build this configuration directly.
+# End Special Build Tool
+
+!ELSEIF  "$(CFG)" == "cryptest - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -44,7 +100,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /GB /Gd /MT /W3 /GX /Zi /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /Zm200 /c
+# ADD CPP /nologo /MT /W3 /GX /Zi /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /Zm200 /c
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -78,64 +134,14 @@ LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
 # ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib Ws2_32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept /OPT:NOWIN98
 
-!ELSEIF  "$(CFG)" == "cryptest - Win32 FIPS 140 Release"
-
-# PROP BASE Use_MFC 0
-# PROP BASE Use_Debug_Libraries 0
-# PROP BASE Output_Dir "cryptest___Win32_FIPS_140_Release"
-# PROP BASE Intermediate_Dir "cryptest___Win32_FIPS_140_Release"
-# PROP BASE Ignore_Export_Lib 0
-# PROP BASE Target_Dir ""
-# PROP Use_MFC 0
-# PROP Use_Debug_Libraries 0
-# PROP Output_Dir "CT_FIPS_140_Release"
-# PROP Intermediate_Dir "CT_FIPS_140_Release"
-# PROP Ignore_Export_Lib 0
-# PROP Target_Dir ""
-# ADD BASE CPP /nologo /G5 /Gz /MT /W3 /GX /Zi /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /Zm200 /c
-# ADD CPP /nologo /G5 /Gz /MT /W3 /GX /Zi /O2 /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /D "WIN32" /YX /FD /Zm200 /c
-# ADD BASE RSC /l 0x409 /d "NDEBUG"
-# ADD RSC /l 0x409 /d "NDEBUG"
-BSC32=bscmake.exe
-# ADD BASE BSC32 /nologo
-# ADD BSC32 /nologo
-LINK32=link.exe
-# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib Ws2_32.lib /nologo /subsystem:console /debug /machine:I386 /OPT:NOWIN98
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib Ws2_32.lib /nologo /subsystem:console /debug /machine:I386 /OPT:NOWIN98
-
-!ELSEIF  "$(CFG)" == "cryptest - Win32 FIPS 140 Debug"
-
-# PROP BASE Use_MFC 0
-# PROP BASE Use_Debug_Libraries 1
-# PROP BASE Output_Dir "cryptest___Win32_FIPS_140_Debug"
-# PROP BASE Intermediate_Dir "cryptest___Win32_FIPS_140_Debug"
-# PROP BASE Ignore_Export_Lib 0
-# PROP BASE Target_Dir ""
-# PROP Use_MFC 0
-# PROP Use_Debug_Libraries 1
-# PROP Output_Dir "CT_FIPS_140_Debug"
-# PROP Intermediate_Dir "CT_FIPS_140_Debug"
-# PROP Ignore_Export_Lib 0
-# PROP Target_Dir ""
-# ADD BASE CPP /nologo /MTd /W3 /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /Zm200 /c
-# ADD CPP /nologo /G5 /Gz /MTd /W3 /GX /ZI /Od /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /D "WIN32" /YX /FD /Zm200 /c
-# ADD BASE RSC /l 0x409 /d "_DEBUG"
-# ADD RSC /l 0x409 /d "_DEBUG"
-BSC32=bscmake.exe
-# ADD BASE BSC32 /nologo
-# ADD BSC32 /nologo
-LINK32=link.exe
-# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib Ws2_32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept /OPT:NOWIN98
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib Ws2_32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept /OPT:NOWIN98
-
 !ENDIF 
 
 # Begin Target
 
-# Name "cryptest - Win32 Release"
-# Name "cryptest - Win32 Debug"
 # Name "cryptest - Win32 FIPS 140 Release"
 # Name "cryptest - Win32 FIPS 140 Debug"
+# Name "cryptest - Win32 Release"
+# Name "cryptest - Win32 Debug"
 # Begin Group "Test Data"
 
 # PROP Default_Filter ".dat"
@@ -358,7 +364,58 @@ SOURCE=.\xtrdh342.dat
 # End Group
 # Begin Group "Source Code"
 
-# PROP Default_Filter ""
+# PROP Default_Filter ".cpp;.h"
+# Begin Source File
+
+SOURCE=.\adhoc.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\adhoc.cpp.proto
+
+!IF  "$(CFG)" == "cryptest - Win32 FIPS 140 Release"
+
+# Begin Custom Build
+InputPath=.\adhoc.cpp.proto
+
+"adhoc.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	if not exist adhoc.cpp copy $(InputPath) adhoc.cpp
+
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "cryptest - Win32 FIPS 140 Debug"
+
+# Begin Custom Build
+InputPath=.\adhoc.cpp.proto
+
+"adhoc.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	if not exist adhoc.cpp copy $(InputPath) adhoc.cpp
+
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "cryptest - Win32 Release"
+
+# Begin Custom Build
+InputPath=.\adhoc.cpp.proto
+
+"adhoc.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	if not exist adhoc.cpp copy $(InputPath) adhoc.cpp
+
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "cryptest - Win32 Debug"
+
+# Begin Custom Build
+InputPath=.\adhoc.cpp.proto
+
+"adhoc.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	if not exist adhoc.cpp copy $(InputPath) adhoc.cpp
+
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
 # Begin Source File
 
 SOURCE=.\bench.cpp
@@ -366,6 +423,18 @@ SOURCE=.\bench.cpp
 # Begin Source File
 
 SOURCE=.\bench.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\datatest.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\factory.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\regtest.cpp
 # End Source File
 # Begin Source File
 
