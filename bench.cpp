@@ -136,7 +136,7 @@ void BenchMark(const char *name, StreamTransformation &cipher, double timeTotal)
 	OutputResultBytes(name, double(blocks) * BUF_SIZE, timeTaken);
 }
 
-void BenchMark(const char *name, HashTransformation &hash, double timeTotal)
+void BenchMark(const char *name, HashTransformation &ht, double timeTotal)
 {
 	const int BUF_SIZE=1024;
 	SecByteBlock buf(BUF_SIZE);
@@ -150,7 +150,7 @@ void BenchMark(const char *name, HashTransformation &hash, double timeTotal)
 	{
 		blocks *= 2;
 		for (; i<blocks; i++)
-			hash.Update(buf, BUF_SIZE);
+			ht.Update(buf, BUF_SIZE);
 		timeTaken = double(clock() - start) / CLOCK_TICKS_PER_SECOND;
 	}
 	while (timeTaken < 2.0/3*timeTotal);
