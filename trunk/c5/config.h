@@ -61,14 +61,17 @@
 // Defining this will cause Crypto++ to make only one call to CryptAcquireContext.
 #define WORKAROUND_MS_BUG_Q258000
 
-// Avoid putting "CryptoPP::" in front of everything in Doxygen output
 #ifdef CRYPTOPP_DOXYGEN_PROCESSING
+// Avoid putting "CryptoPP::" in front of everything in Doxygen output
 #	define CryptoPP
 #	define NAMESPACE_BEGIN(x)
 #	define NAMESPACE_END
+// Get Doxygen to generate better documentation for these typedefs
+#	define DOCUMENTED_TYPEDEF(x, y) class y : public x {};
 #else
 #	define NAMESPACE_BEGIN(x) namespace x {
 #	define NAMESPACE_END }
+#	define DOCUMENTED_TYPEDEF(x, y) typedef x y;
 #endif
 #define ANONYMOUS_NAMESPACE_BEGIN namespace {
 #define USING_NAMESPACE(x) using namespace x;
@@ -233,7 +236,7 @@ NAMESPACE_END
 #	define OS_RNG_AVAILABLE
 #endif
 
-#ifdef CRYPTOPP_UNIX_AVAILABLE
+#if defined(CRYPTOPP_UNIX_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 #	define NONBLOCKING_RNG_AVAILABLE
 #	define BLOCKING_RNG_AVAILABLE
 #	define OS_RNG_AVAILABLE
@@ -244,6 +247,14 @@ NAMESPACE_END
 #ifdef CRYPTOPP_WIN32_AVAILABLE
 #	define HAS_WINTHREADS
 #	define THREADS_AVAILABLE
+#endif
+
+#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
+#	define CRYPTOPP_MALLOC_ALIGNMENT_IS_16
+#endif
+
+#if defined(__linux__) || defined(__sun__) || defined(__CYGWIN__)
+#	define CRYPTOPP_MEMALIGN_AVAILABLE
 #endif
 
 #endif	// NO_OS_DEPENDENCE
