@@ -28,7 +28,7 @@ static word64 SHARKTransform(word64 a)
 	GF256 gf256(0xf5);
 	for (unsigned int i=0; i<8; i++)
 		for(unsigned int j=0; j<8; j++) 
-			result ^= word64(gf256.Multiply(iG[i][j], a>>(56-8*j))) << (56-8*i);
+			result ^= word64(gf256.Multiply(iG[i][j], GF256::Element(a>>(56-8*j)))) << (56-8*i);
 	return result;
 }
 

@@ -99,7 +99,7 @@ void AdditiveCipherTemplate<BASE>::Seek(dword position)
 	if (position > 0)
 	{
 		policy.WriteKeystream(m_buffer, 1);
-		m_leftOver = bytesPerIteration - position;
+		m_leftOver = bytesPerIteration - (unsigned int)position;
 	}
 	else
 		m_leftOver = 0;

@@ -281,6 +281,7 @@ void TestDigestOrMAC(TestData &v, bool testDigest)
 
 bool GetField(std::istream &is, std::string &name, std::string &value)
 {
+	name.clear();
 	is >> name;
 	if (name.empty())
 		return false;
@@ -293,8 +294,8 @@ bool GetField(std::istream &is, std::string &name, std::string &value)
 		is.ignore(1);
 
 	// VC60 workaround: getline bug
-	char buffer[4];
-	value.resize(0);
+	char buffer[128];
+	value.clear();
 	bool continueLine;
 
 	do
@@ -421,7 +422,7 @@ void TestDataFile(const std::string &filename, unsigned int &totalTests, unsigne
 				failedTests++;
 			}
 			else
-				cout << ".";
+				cout << "." << flush;
 
 			totalTests++;
 		}

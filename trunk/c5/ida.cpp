@@ -45,7 +45,7 @@ void RawIDA::ChannelInitialize(const string &channel, const NameValuePairs &para
 	else
 	{
 		int nShares = parameters.GetIntValueWithDefault("NumberOfShares", m_threshold);
-		for (unsigned int i=0; i<nShares; i++)
+		for (int i=0; i<nShares; i++)
 			AddOutputChannel(i);
 	}
 
@@ -93,7 +93,7 @@ unsigned int RawIDA::LookupInputChannel(word32 channelId) const
 
 void RawIDA::ChannelData(word32 channelId, const byte *inString, unsigned int length, bool messageEnd)
 {
-	unsigned int i = InsertInputChannel(channelId);
+	int i = InsertInputChannel(channelId);
 	if (i < m_threshold)
 	{
 		unsigned long size = m_inputQueues[i].MaxRetrievable();
@@ -125,7 +125,7 @@ void RawIDA::ChannelData(word32 channelId, const byte *inString, unsigned int le
 
 unsigned int RawIDA::InputBuffered(word32 channelId) const
 {
-	unsigned int i = LookupInputChannel(channelId);
+	int i = LookupInputChannel(channelId);
 	return i < m_threshold ? m_inputQueues[i].MaxRetrievable() : 0;
 }
 
@@ -165,7 +165,7 @@ void RawIDA::PrepareInterpolation()
 void RawIDA::ProcessInputQueues()
 {
 	bool finished = (m_channelsFinished == m_threshold);
-	unsigned int i;
+	int i;
 
 	while (finished ? m_channelsReady > 0 : m_channelsReady == m_threshold)
 	{
@@ -181,7 +181,7 @@ void RawIDA::ProcessInputQueues()
 				m_channelsReady += queue.NumberOfMessages() > 0 || queue.MaxRetrievable() >= 4;
 		}
 
-		for (i=0; i<m_outputChannelIds.size(); i++)
+		for (i=0; (unsigned int)i<m_outputChannelIds.size(); i++)
 		{
 			if (m_outputToInput[i] != m_threshold)
 				m_outputQueues[i].PutWord32(m_y[m_outputToInput[i]]);

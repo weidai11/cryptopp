@@ -26,17 +26,17 @@ void RSA_TestInstantiations()
 	RSASS<PKCS1v15, SHA>::Verifier x3(x2);
 	RSASS<PKCS1v15, SHA>::Verifier x4(x2.GetKey());
 	RSASS<PSS, SHA>::Verifier x5(x3);
+#ifndef __MWERKS__
 	RSASS<PSSR, SHA>::Signer x6 = x2;
+	x3 = x2;
+	x6 = x2;
+#endif
 	RSAES<PKCS1v15>::Encryptor x7(x2);
 #ifndef __GNUC__
 	RSAES<PKCS1v15>::Encryptor x8(x3);
 #endif
 	RSAES<OAEP<SHA> >::Encryptor x9(x2);
 
-	x6 = x2;
-#ifndef __MWERKS__
-	x3 = x2;
-#endif
 	x4 = x2.GetKey();
 }
 #endif

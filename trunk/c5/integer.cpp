@@ -2562,6 +2562,13 @@ Integer::Integer(signed long value)
 	reg[1] = word(SafeRightShift<WORD_BITS, unsigned long>(value));
 }
 
+Integer::Integer(Sign s, word high, word low)
+	: reg(2), sign(s)
+{
+	reg[0] = low;
+	reg[1] = high;
+}
+
 bool Integer::IsConvertableToLong() const
 {
 	if (ByteCount() > sizeof(long))
