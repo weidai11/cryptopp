@@ -74,23 +74,23 @@ void CTR_ModePolicy::SeekToIteration(dword iterationCount)
 
 static inline void IncrementCounterByOne(byte *inout, unsigned int s)
 {
-	for	(int i=s-1,	carry=1; i>=0 && carry; i--)
-		carry =	!++inout[i];
+	for (int i=s-1, carry=1; i>=0 && carry; i--)
+		carry = !++inout[i];
 }
 
 static inline void IncrementCounterByOne(byte *output, const byte *input, unsigned int s)
 {
-	for	(int i=s-1,	carry=1; i>=0; i--)
-		carry =	!(output[i] = input[i]+carry) && carry;
+	for (int i=s-1, carry=1; i>=0; i--)
+		carry = !(output[i] = input[i]+carry) && carry;
 }
 
-inline void	CTR_ModePolicy::ProcessMultipleBlocks(byte *output,	const byte *input, unsigned	int	n)
+inline void CTR_ModePolicy::ProcessMultipleBlocks(byte *output, const byte *input, unsigned int n)
 {
-	unsigned int s = BlockSize(), j	= 0;
-	for	(unsigned int i=1; i<n;	i++, j+=s)
+	unsigned int s = BlockSize(), j = 0;
+	for (unsigned int i=1; i<n; i++, j+=s)
 		IncrementCounterByOne(m_counterArray + j + s, m_counterArray + j, s);
 	m_cipher->ProcessAndXorMultipleBlocks(m_counterArray, input, output, n);
-	IncrementCounterByOne(m_counterArray, m_counterArray + s*(n-1),	s);
+	IncrementCounterByOne(m_counterArray, m_counterArray + s*(n-1), s);
 }
 
 void CTR_ModePolicy::OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, unsigned int iterationCount)
