@@ -12,7 +12,7 @@ struct SEAL_Info : public FixedKeyLength<20, SimpleKeyingInterface::INTERNALLY_G
 };
 
 template <class B = BigEndian>
-class SEAL_Policy : public AdditiveCipherConcretePolicy<word32, 1024>, public SEAL_Info<B>
+class SEAL_Policy : public AdditiveCipherConcretePolicy<word32, 256>, public SEAL_Info<B>
 {
 public:
 	unsigned int IVSize() const {return 4;}

@@ -32,7 +32,7 @@ template class AdditiveCipherTemplate<AbstractPolicyHolder<AdditiveCipherAbstrac
 
 void CipherModeBase::SetKey(const byte *key, unsigned int length, const NameValuePairs &params)
 {
-	UncheckedSetKey(params, key, length);	// the underlying cipher will check the key length
+	UncheckedSetKey(params, key, length, GetIVAndThrowIfInvalid(params));	// the underlying cipher will check the key length
 }
 
 void CipherModeBase::GetNextIV(byte *IV)
@@ -42,22 +42,6 @@ void CipherModeBase::GetNextIV(byte *IV)
 
 	m_cipher->ProcessBlock(m_register);
 	memcpy(IV, m_register, BlockSize());
-}
-
-void CipherModeBase::SetIV(const byte *iv)
-{
-	if (iv)
-		Resynchronize(iv);
-	else if (IsResynchronizable())
-	{
-		if (!CanUseStructuredIVs())
-			throw InvalidArgument("CipherModeBase: this cipher mode cannot use a null IV");
-
-		// use all zeros as default IV
-		SecByteBlock iv(BlockSize());
-		memset(iv, 0, iv.size());
-		Resynchronize(iv);
-	}
 }
 
 void CTR_ModePolicy::SeekToIteration(dword iterationCount)
@@ -126,17 +110,17 @@ void CTR_ModePolicy::OperateKeystream(KeystreamOperation operation, byte *output
 void CTR_ModePolicy::CipherResynchronize(byte *keystreamBuffer, const byte *iv)
 {
 	unsigned int s = BlockSize();
-	memcpy(m_register, iv, s);
+	CopyOrZero(m_register, iv, s);
 	m_counterArray.New(s * m_cipher->OptimalNumberOfParallelBlocks());
-	memcpy(m_counterArray, iv, s);
+	CopyOrZero(m_counterArray, iv, s);
 }
 
-void BlockOrientedCipherModeBase::UncheckedSetKey(const NameValuePairs &params, const byte *key, unsigned int length)
+void BlockOrientedCipherModeBase::UncheckedSetKey(const NameValuePairs &params, const byte *key, unsigned int length, const byte *iv)
 {
 	m_cipher->SetKey(key, length, params);
 	ResizeBuffers();
-	const byte *iv = params.GetValueWithDefault(Name::IV(), (const byte *)NULL);
-	SetIV(iv);
+	if (IsResynchronizable())
+		Resynchronize(iv);
 }
 
 void BlockOrientedCipherModeBase::ProcessData(byte *outString, const byte *inString, unsigned int length)

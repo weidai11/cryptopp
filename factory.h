@@ -24,7 +24,7 @@ public:
 	
 };
 
-template <class AbstractClass>
+template <class AbstractClass, int instance=0>
 class ObjectFactoryRegistry
 {
 public:
@@ -55,38 +55,46 @@ public:
 	}
 
 	// VC60 workaround: use "..." to prevent this function from being inlined
-	static ObjectFactoryRegistry<AbstractClass> & Registry(...);
+	static ObjectFactoryRegistry<AbstractClass, instance> & Registry(...);
 
 private:
 	typedef std::map<std::string, ObjectFactory<AbstractClass> *> Map;
 	Map m_map;
 };
 
-template <class AbstractClass>
-ObjectFactoryRegistry<AbstractClass> & ObjectFactoryRegistry<AbstractClass>::Registry(...)
+template <class AbstractClass, int instance>
+ObjectFactoryRegistry<AbstractClass, instance> & ObjectFactoryRegistry<AbstractClass, instance>::Registry(...)
 {
-	static ObjectFactoryRegistry<AbstractClass> s_registry;
+	static ObjectFactoryRegistry<AbstractClass, instance> s_registry;
 	return s_registry;
 }
 
-template <class AbstractClass, class ConcreteClass>
-void RegisterDefaultFactoryFor(const char *name, AbstractClass *Dummy1=NULL, ConcreteClass *Dummy2=NULL)
+template <class AbstractClass, class ConcreteClass, int instance = 0>
+struct RegisterDefaultFactoryFor {
+RegisterDefaultFactoryFor(const char *name)
 {
-	ObjectFactoryRegistry<AbstractClass>::Registry().RegisterFactory(name, new DefaultObjectFactory<AbstractClass, ConcreteClass>);
-}
+	ObjectFactoryRegistry<AbstractClass, instance>::Registry().RegisterFactory(name, new DefaultObjectFactory<AbstractClass, ConcreteClass>);
+}};
 
 template <class SchemeClass>
-void RegisterPublicKeyCryptoSystemDefaultFactories(const char *name, SchemeClass *dummy=NULL)
+void RegisterAsymmetricCipherDefaultFactories(const char *name, SchemeClass *dummy=NULL)
 {
-	RegisterDefaultFactoryFor<PK_Encryptor, CPP_TYPENAME SchemeClass::Encryptor>(name);
-	RegisterDefaultFactoryFor<PK_Decryptor, CPP_TYPENAME SchemeClass::Decryptor>(name);
+	RegisterDefaultFactoryFor<PK_Encryptor, CPP_TYPENAME SchemeClass::Encryptor>((const char *)name);
+	RegisterDefaultFactoryFor<PK_Decryptor, CPP_TYPENAME SchemeClass::Decryptor>((const char *)name);
 }
 
 template <class SchemeClass>
 void RegisterSignatureSchemeDefaultFactories(const char *name, SchemeClass *dummy=NULL)
 {
-	RegisterDefaultFactoryFor<PK_Signer, CPP_TYPENAME SchemeClass::Signer>(name);
-	RegisterDefaultFactoryFor<PK_Verifier, CPP_TYPENAME SchemeClass::Verifier>(name);
+	RegisterDefaultFactoryFor<PK_Signer, CPP_TYPENAME SchemeClass::Signer>((const char *)name);
+	RegisterDefaultFactoryFor<PK_Verifier, CPP_TYPENAME SchemeClass::Verifier>((const char *)name);
+}
+
+template <class SchemeClass>
+void RegisterSymmetricCipherDefaultFactories(const char *name, SchemeClass *dummy=NULL)
+{
+	RegisterDefaultFactoryFor<SymmetricCipher, CPP_TYPENAME SchemeClass::Encryption, ENCRYPTION>((const char *)name);
+	RegisterDefaultFactoryFor<SymmetricCipher, CPP_TYPENAME SchemeClass::Decryption, DECRYPTION>((const char *)name);
 }
 
 NAMESPACE_END

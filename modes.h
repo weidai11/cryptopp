@@ -47,7 +47,6 @@ public:
 
 protected:
 	inline unsigned int BlockSize() const {assert(m_register.size() > 0); return m_register.size();}
-	void SetIV(const byte *iv);
 	virtual void SetFeedbackSize(unsigned int feedbackSize)
 	{
 		if (!(feedbackSize == 0 || feedbackSize == BlockSize()))
@@ -57,7 +56,7 @@ protected:
 	{
 		m_register.New(m_cipher->BlockSize());
 	}
-	virtual void UncheckedSetKey(const NameValuePairs &params, const byte *key, unsigned int length) =0;
+	virtual void UncheckedSetKey(const NameValuePairs &params, const byte *key, unsigned int length, const byte *iv) =0;
 
 	BlockCipher *m_cipher;
 	SecByteBlock m_register;
@@ -73,8 +72,6 @@ class ModePolicyCommonTemplate : public CipherModeBase, public POLICY_INTERFACE
 		ResizeBuffers();
 		int feedbackSize = params.GetIntValueWithDefault(Name::FeedbackSize(), 0);
 		SetFeedbackSize(feedbackSize);
-		const byte *iv = params.GetValueWithDefault(Name::IV(), (const byte *)NULL);
-		SetIV(iv);
 	}
 };
 
@@ -113,6 +110,14 @@ protected:
 	unsigned int m_feedbackSize;
 };
 
+inline void CopyOrZero(void *dest, const void *src, size_t s)
+{
+	if (src)
+		memcpy(dest, src, s);
+	else
+		memset(dest, 0, s);
+}
+
 class OFB_ModePolicy : public ModePolicyCommonTemplate<AdditiveCipherAbstractPolicy>
 {
 	unsigned int GetBytesPerIteration() const {return BlockSize();}
@@ -124,7 +129,7 @@ class OFB_ModePolicy : public ModePolicyCommonTemplate<AdditiveCipherAbstractPol
 	}
 	void CipherResynchronize(byte *keystreamBuffer, const byte *iv)
 	{
-		memcpy(keystreamBuffer, iv, BlockSize());
+		CopyOrZero(keystreamBuffer, iv, BlockSize());
 	}
 	bool IsRandomAccess() const {return false;}
 	IV_Requirement IVRequirement() const {return STRUCTURED_IV;}
@@ -151,7 +156,7 @@ class CTR_ModePolicy : public ModePolicyCommonTemplate<AdditiveCipherAbstractPol
 class BlockOrientedCipherModeBase : public CipherModeBase
 {
 public:
-	void UncheckedSetKey(const NameValuePairs &params, const byte *key, unsigned int length);
+	void UncheckedSetKey(const NameValuePairs &params, const byte *key, unsigned int length, const byte *iv);
 	unsigned int MandatoryBlockSize() const {return BlockSize();}
 	bool IsRandomAccess() const {return false;}
 	bool IsSelfInverting() const {return false;}
@@ -202,9 +207,9 @@ public:
 	void ProcessLastBlock(byte *outString, const byte *inString, unsigned int length);
 
 protected:
-	void UncheckedSetKey(const NameValuePairs &params, const byte *key, unsigned int length)
+	void UncheckedSetKey(const NameValuePairs &params, const byte *key, unsigned int length, const byte *iv)
 	{
-		CBC_Encryption::UncheckedSetKey(params, key, length);
+		CBC_Encryption::UncheckedSetKey(params, key, length, iv);
 		m_stolenIV = params.GetValueWithDefault(Name::StolenIV(), (byte *)NULL);
 	}
 
@@ -250,7 +255,7 @@ public:
 	CipherModeFinalTemplate_CipherHolder(const byte *key, unsigned int length, const byte *iv, int feedbackSize = 0)
 	{
 		m_cipher = &m_object;
-		SetKey(key, length, MakeParameters("IV", iv)("FeedbackSize", feedbackSize));
+		SetKey(key, length, MakeParameters(Name::IV(), iv)(Name::FeedbackSize(), feedbackSize));
 	}
 };
 
@@ -259,12 +264,21 @@ template <class BASE>
 class CipherModeFinalTemplate_ExternalCipher : public BASE
 {
 public:
-	CipherModeFinalTemplate_ExternalCipher(BlockCipher &cipher, const byte *iv = NULL, int feedbackSize = 0)
+	CipherModeFinalTemplate_ExternalCipher(BlockCipher &cipher)
 	{
+		ThrowIfResynchronizable();
+		m_cipher = &cipher;
+		ResizeBuffers();
+	}
+
+	CipherModeFinalTemplate_ExternalCipher(BlockCipher &cipher, const byte *iv, int feedbackSize = 0)
+	{
+		ThrowIfInvalidIV(iv);
 		m_cipher = &cipher;
 		ResizeBuffers();
 		SetFeedbackSize(feedbackSize);
-		SetIV(iv);
+		if (IsResynchronizable())
+			Resynchronize(iv);
 	}
 };
 

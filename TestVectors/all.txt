@@ -10,4 +10,5 @@ Test: rsa_oaep.txt
 Test: rsa_pkcs1_1_5.txt
 Test: rsa_pss.txt
 Test: rw.txt
+Test: seal.txt
 Test: sha.txt

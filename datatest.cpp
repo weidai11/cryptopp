@@ -197,7 +197,7 @@ privateKeyTests:
 	}
 }
 
-void TestEncryptionScheme(TestData &v)
+void TestAsymmetricCipher(TestData &v)
 {
 	std::string name = GetRequiredDatum(v, "Name");
 	std::string test = GetRequiredDatum(v, "Test");
@@ -229,6 +229,41 @@ void TestEncryptionScheme(TestData &v)
 	else if (test == "KeyPairValidAndConsistent")
 	{
 		TestKeyPairValidAndConsistent(encryptor->AccessMaterial(), decryptor->GetMaterial());
+	}
+	else
+	{
+		SignalTestError();
+		assert(false);
+	}
+}
+
+void TestSymmetricCipher(TestData &v)
+{
+	std::string name = GetRequiredDatum(v, "Name");
+	std::string test = GetRequiredDatum(v, "Test");
+
+	std::string key = GetDecodedDatum(v, "Key");
+	std::string iv = GetDecodedDatum(v, "IV");
+	std::string ciphertext = GetDecodedDatum(v, "Ciphertext");
+	std::string plaintext = GetDecodedDatum(v, "Plaintext");
+
+	if (test == "Encrypt")
+	{
+		std::auto_ptr<SymmetricCipher> encryptor(ObjectFactoryRegistry<SymmetricCipher, ENCRYPTION>::Registry().CreateObject(name.c_str()));
+		encryptor->SetKeyWithIV((const byte *)key.data(), key.size(), (const byte *)iv.data());
+		std::string encrypted;
+		StringSource ss(plaintext, true, new StreamTransformationFilter(*encryptor, new StringSink(encrypted), StreamTransformationFilter::NO_PADDING));
+		if (encrypted != ciphertext)
+			SignalTestFailure();
+	}
+	else if (test == "Decrypt")
+	{
+		std::auto_ptr<SymmetricCipher> decryptor(ObjectFactoryRegistry<SymmetricCipher, DECRYPTION>::Registry().CreateObject(name.c_str()));
+		decryptor->SetKeyWithIV((const byte *)key.data(), key.size(), (const byte *)iv.data());
+		std::string decrypted;
+		StringSource ss(ciphertext, true, new StreamTransformationFilter(*decryptor, new StringSink(decrypted), StreamTransformationFilter::NO_PADDING));
+		if (decrypted != plaintext)
+			SignalTestFailure();
 	}
 	else
 	{
@@ -391,8 +426,10 @@ void TestDataFile(const std::string &filename, unsigned int &totalTests, unsigne
 			{
 				if (algType == "Signature")
 					TestSignatureScheme(v);
+				else if (algType == "SymmetricCipher")
+					TestSymmetricCipher(v);
 				else if (algType == "AsymmetricCipher")
-					TestEncryptionScheme(v);
+					TestAsymmetricCipher(v);
 				else if (algType == "MessageDigest")
 					TestDigestOrMAC(v, true);
 				else if (algType == "MAC")

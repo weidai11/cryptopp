@@ -381,6 +381,9 @@ public:
 
 protected:
 	void ThrowIfInvalidKeyLength(const Algorithm &algorithm, unsigned int length);
+	void ThrowIfResynchronizable();			// to be called when no IV is passed
+	void ThrowIfInvalidIV(const byte *iv);	// check for NULL IV if it can't be used
+	const byte * GetIVAndThrowIfInvalid(const NameValuePairs &params);
 
 	inline void AssertValidKeyLength(unsigned int length) const
 	{

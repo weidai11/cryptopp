@@ -1240,8 +1240,7 @@ bool ValidateSEAL()
 
 	cout << "\nSEAL validation suite running...\n\n";
 
-	SEAL<>::Encryption seal(key);
-	seal.Resynchronize(iv);
+	SEAL<>::Encryption seal(key, sizeof(key), iv);
 	unsigned int size = sizeof(input);
 	bool pass = true;
 
