@@ -20,7 +20,18 @@ field named Test. In that case the order of the fields is significant. A
 test should always use the last field with any given name that occurs 
 before the Test field.
 
-Format and Semantics of Fields
+Data Types
+
+int - small integer (less than 2^32) in decimal representation
+string - human readable string
+encoded string - can be one of the following
+	- quoted string: "message" means "message" without the quotes 
+	  or terminating '\0'
+	- hex encoded string: 0x74657374 or 74657374 means "test"
+	- repeated string: r100 "message" to repeat "message" 100 times, or 
+	  r256 0x0011 to repeat 0x0011 256 times
+
+Field Types
 
 AlgorithmType - string, for example "Signature", "AsymmetricCipher", 
 "SymmetricCipher", "MAC", "MessageDigest", or "KeyFactory"
@@ -33,14 +44,16 @@ each component of the key or key pair is specified separately as a name,
 value pair, with the names depending on the algorithm being tested. 
 Otherwise the value names "Key", or "PublicKey" and "PrivateKey" are 
 used.
-Key - hex encoded string
-PublicKey - hex encoded string
-PrivateKey - hex encoded string
-Message - hex encoded string, message to be signed or verified
-Signature - hex encoded string, signature to be verified or compared 
+Key - encoded string
+PublicKey - encoded string
+PrivateKey - encoded string
+Message - encoded string, message to be signed or verified
+Signature - encoded string, signature to be verified or compared 
 with
-Plaintext - hex encoded string
-Ciphertext - hex encoded string
+Plaintext - encoded string
+Ciphertext - encoded string
+Digest - encoded string
+TruncatedSize - int, size of truncated digest in bytes
 (more to come here)
 
 Possible Tests
@@ -49,8 +62,9 @@ KeyPairValidAndConsistent - public and private keys are both valid and
 consistent with each other
 PublicKeyInvalid - public key validation should not pass
 PrivateKeyInvalid - private key validation should not pass
-Verify - signature verification should pass
-NotVerify - signature verification should not pass
+Verify - signature/digest/MAC verification should pass
+VerifyTruncated - truncated digest/MAC verification should pass
+NotVerify - signature/digest/MAC verification should not pass
 DeterministicSign - sign message using given seed, and the resulting 
 signature should be equal to the given signature
 DecryptMatch - ciphertext decrypts to plaintext

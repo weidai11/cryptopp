@@ -1,0 +1,125 @@
+AlgorithmType: MAC
+Name: HMAC(MD5)
+Source: RFC 2202
+Comment: Test Case 1
+Key: 0x0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b
+Message: "Hi There"
+Digest: 0x9294727a3638bb1c13f48ef8158bfc9d
+Test: Verify
+Comment: Test Case 2
+Key: "Jefe"
+Message: "what do ya want for nothing?"
+Digest: 0x750c783e6ab0b503eaa86e310a5db738
+Test: Verify
+Comment: Test Case 3
+Key: 0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Message: r50 0xdd
+Digest: 0x56be34521d144c88dbb8c733f0e8b3f6
+Test: Verify
+Comment: Test Case 4
+Key: 0x0102030405060708090a0b0c0d0e0f10111213141516171819
+Message: r50 0xcd
+Digest: 0x697eaf0aca3a3aea3a75164746ffaa79
+Test: Verify
+Comment: Test Case 5
+Key: 0x0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c
+Message: "Test With Truncation"
+Digest: 0x56461ef2342edc00f9bab995690efd4c
+Test: Verify
+Digest: 0x56461ef2342edc00f9bab995
+TruncatedSize: 12
+Test: VerifyTruncated
+Comment: Test Case 6
+Key: r80 0xaa
+Message: "Test Using Larger Than Block-Size Key - Hash Key First"
+Digest: 0x6b1ab7fe4bd7bf8f0b62e6ce61b9d0cd
+Test: Verify
+Comment: Test Case 7
+Key: r80 0xaa
+Message: "Test Using Larger Than Block-Size Key and Larger Than One Block-Size Data"
+Digest: 0x6f630fad67cda0ee1fb1f562db3aa53e
+Test: Verify
+
+AlgorithmType: MAC
+Name: HMAC(SHA-1)
+Source: RFC 2202
+Comment: Test Case 1
+Key: 0x0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b
+Message: "Hi There"
+Digest: 0xb617318655057264e28bc0b6fb378c8ef146be00
+Test: Verify
+Comment: Test Case 2
+Key: "Jefe"
+Message: "what do ya want for nothing?"
+Digest: 0xeffcdf6ae5eb2fa2d27416d5f184df9c259a7c79
+Test: Verify
+Comment: Test Case 3
+Key: 0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Message: r50 0xdd
+Digest: 0x125d7342b9ac11cd91a39af48aa17b4f63f175d3
+Test: Verify
+Comment: Test Case 4
+Key: 0x0102030405060708090a0b0c0d0e0f10111213141516171819
+Message: r50 0xcd
+Digest: 0x4c9007f4026250c6bc8414f9bf50c86c2d7235da
+Test: Verify
+Comment: Test Case 5
+Key: 0x0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c
+Message: "Test With Truncation"
+Digest: 0x4c1a03424b55e07fe7f27be1d58bb9324a9a5a04
+Test: Verify
+Digest: 0x4c1a03424b55e07fe7f27be1
+TruncatedSize: 12
+Test: VerifyTruncated
+Comment: Test Case 6
+Key: r80 0xaa
+Message: "Test Using Larger Than Block-Size Key - Hash Key First"
+Digest: 0xaa4ae5e15272d00e95705637ce8a3b55ed402112
+Test: Verify
+Comment: Test Case 7
+Key: r80 0xaa
+Message: "Test Using Larger Than Block-Size Key and Larger Than One Block-Size Data"
+Digest: 0xe8e99d0f45237d786d6bbaa7965c7808bbff1a91
+Test: Verify
+
+AlgorithmType: MAC
+Name: HMAC(RIPEMD-160)
+Source: RFC 2286
+Comment: Test Case 1
+Key: 0x0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b
+Message: "Hi There"
+Digest: 0x24cb4bd67d20fc1a5d2ed7732dcc39377f0a5668
+Test: Verify
+Comment: Test Case 2
+Key: "Jefe"
+Message: "what do ya want for nothing?"
+Digest: 0xdda6c0213a485a9e24f4742064a7f033b43c4069
+Test: Verify
+Comment: Test Case 3
+Key: 0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Message: r50 0xdd
+Digest: 0xb0b105360de759960ab4f35298e116e295d8e7c1
+Test: Verify
+Comment: Test Case 4
+Key: 0x0102030405060708090a0b0c0d0e0f10111213141516171819
+Message: r50 0xcd
+Digest: 0xd5ca862f4d21d5e610e18b4cf1beb97a4365ecf4
+Test: Verify
+Comment: Test Case 5
+Key: 0x0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c
+Message: "Test With Truncation"
+Digest: 0x7619693978f91d90539ae786500ff3d8e0518e39
+Test: Verify
+Digest: 0x7619693978f91d90539ae786
+TruncatedSize: 12
+Test: VerifyTruncated
+Comment: Test Case 6
+Key: r80 0xaa
+Message: "Test Using Larger Than Block-Size Key - Hash Key First"
+Digest: 0x6466ca07ac5eac29e1bd523e5ada7605b791fd8b
+Test: Verify
+Comment: Test Case 7
+Key: r80 0xaa
+Message: "Test Using Larger Than Block-Size Key and Larger Than One Block-Size Data"
+Digest: 0x69ea60798d71616cce5fd0871e23754cd75d5a0a
+Test: Verify
