@@ -13,7 +13,7 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte
 		m_countHi++;             // carry from low to high
 	m_countHi += SafeRightShift<8*sizeof(HashWordType)>(len);
 	if (m_countHi < oldCountHi)
-		throw HashInputTooLong(AlgorithmName());
+		throw HashInputTooLong(this->AlgorithmName());
 
 	unsigned int blockSize = BlockSize();
 	unsigned int num = ModPowerOf2(oldCountLo, blockSize);
