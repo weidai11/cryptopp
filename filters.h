@@ -366,36 +366,55 @@ typedef SignatureVerificationFilter VerifierFilter; // for backwards compatibili
 class Redirector : public CustomSignalPropagation<Sink>
 {
 public:
-	Redirector() : m_target(NULL), m_passSignal(true) {}
-	Redirector(BufferedTransformation &target, bool passSignal=true) : m_target(&target), m_passSignal(passSignal) {}
+	enum Behavior
+	{
+		DATA_ONLY = 0x00,
+		PASS_SIGNALS = 0x01,
+		PASS_WAIT_OBJECTS = 0x02,
+		PASS_EVERYTHING = PASS_SIGNALS | PASS_WAIT_OBJECTS
+	};
+
+	Redirector() : m_target(NULL), m_behavior(PASS_EVERYTHING) {}
+	Redirector(BufferedTransformation &target, Behavior behavior=PASS_EVERYTHING)
+		: m_target(&target), m_behavior(behavior) {}
 
 	void Redirect(BufferedTransformation &target) {m_target = &target;}
 	void StopRedirection() {m_target = NULL;}
-	bool GetPassSignal() const {return m_passSignal;}
-	void SetPassSignal(bool passSignal) {m_passSignal = passSignal;}
+
+	Behavior GetBehavior() {return (Behavior) m_behavior;}
+	void SetBehavior(Behavior behavior) {m_behavior=behavior;}
+	bool GetPassSignals() const {return (m_behavior & PASS_SIGNALS) != 0;}
+	void SetPassSignals(bool pass) { if (pass) m_behavior |= PASS_SIGNALS; else m_behavior &= ~(word32) PASS_SIGNALS; }
+	bool GetPassWaitObjects() const {return (m_behavior & PASS_WAIT_OBJECTS) != 0;}
+	void SetPassWaitObjects(bool pass) { if (pass) m_behavior |= PASS_WAIT_OBJECTS; else m_behavior &= ~(word32) PASS_WAIT_OBJECTS; }
 
 	unsigned int Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking)
-		{return m_target ? m_target->Put2(begin, length, m_passSignal ? messageEnd : 0, blocking) : 0;}
+		{return m_target ? m_target->Put2(begin, length, GetPassSignals() ? messageEnd : 0, blocking) : 0;}
 	void Initialize(const NameValuePairs &parameters, int propagation)
 		{ChannelInitialize(NULL_CHANNEL, parameters, propagation);}
 	bool Flush(bool hardFlush, int propagation=-1, bool blocking=true)
-		{return m_target && m_passSignal ? m_target->Flush(hardFlush, propagation, blocking) : false;}
+		{return m_target && GetPassSignals() ? m_target->Flush(hardFlush, propagation, blocking) : false;}
 	bool MessageSeriesEnd(int propagation=-1, bool blocking=true)
-		{return m_target && m_passSignal ? m_target->MessageSeriesEnd(propagation, blocking) : false;}
+		{return m_target && GetPassSignals() ? m_target->MessageSeriesEnd(propagation, blocking) : false;}
 
 	void ChannelInitialize(const std::string &channel, const NameValuePairs &parameters=g_nullNameValuePairs, int propagation=-1);
 	unsigned int ChannelPut2(const std::string &channel, const byte *begin, unsigned int length, int messageEnd, bool blocking)
-		{return m_target ? m_target->ChannelPut2(channel, begin, length, m_passSignal ? messageEnd : 0, blocking) : 0;}
+		{return m_target ? m_target->ChannelPut2(channel, begin, length, GetPassSignals() ? messageEnd : 0, blocking) : 0;}
 	unsigned int ChannelPutModifiable2(const std::string &channel, byte *begin, unsigned int length, int messageEnd, bool blocking)
-		{return m_target ? m_target->ChannelPutModifiable2(channel, begin, length, m_passSignal ? messageEnd : 0, blocking) : 0;}
+		{return m_target ? m_target->ChannelPutModifiable2(channel, begin, length, GetPassSignals() ? messageEnd : 0, blocking) : 0;}
 	bool ChannelFlush(const std::string &channel, bool completeFlush, int propagation=-1, bool blocking=true)
-		{return m_target && m_passSignal ? m_target->ChannelFlush(channel, completeFlush, propagation, blocking) : false;}
+		{return m_target && GetPassSignals() ? m_target->ChannelFlush(channel, completeFlush, propagation, blocking) : false;}
 	bool ChannelMessageSeriesEnd(const std::string &channel, int propagation=-1, bool blocking=true)
-		{return m_target && m_passSignal ? m_target->ChannelMessageSeriesEnd(channel, propagation, blocking) : false;}
+		{return m_target && GetPassSignals() ? m_target->ChannelMessageSeriesEnd(channel, propagation, blocking) : false;}
+
+	unsigned int GetMaxWaitObjectCount() const
+		{ return m_target && GetPassWaitObjects() ? m_target->GetMaxWaitObjectCount() : 0; }
+	void GetWaitObjects(WaitObjectContainer &container)
+		{ if (m_target && GetPassWaitObjects()) m_target->GetWaitObjects(container); }
 
 private:
 	BufferedTransformation *m_target;
-	bool m_passSignal;
+	word32 m_behavior;
 };
 
 // Used By ProxyFilter

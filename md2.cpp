@@ -80,8 +80,17 @@ void MD2::Update(const byte *buf, unsigned int len)
 			t=0;
 			for(i=0; i<18; i++)
 			{
-				for(j=0; j<48; j++)
-					t=m_X[j]^=S[t];
+				for(j=0; j<48; j+=8)
+				{
+					t=m_X[j+0]^=S[t];
+					t=m_X[j+1]^=S[t];
+					t=m_X[j+2]^=S[t];
+					t=m_X[j+3]^=S[t];
+					t=m_X[j+4]^=S[t];
+					t=m_X[j+5]^=S[t];
+					t=m_X[j+6]^=S[t];
+					t=m_X[j+7]^=S[t];
+				}
 				t=(t+i) & 0xFF;
 			}
 		}

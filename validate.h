@@ -20,10 +20,12 @@ bool ValidateHAVAL();
 bool ValidateTiger();
 bool ValidateRIPEMD();
 bool ValidatePanama();
+bool ValidateWhirlpool();
 
 bool ValidateMD5MAC();
 bool ValidateHMAC();
 bool ValidateXMACC();
+bool ValidateTTMAC();
 
 bool ValidateCipherModes();
 bool ValidatePBKDF();
@@ -49,6 +51,8 @@ bool ValidateMARS();
 bool ValidateRijndael();
 bool ValidateTwofish();
 bool ValidateSerpent();
+bool ValidateSHACAL2();
+bool ValidateCamellia();
 
 bool ValidateBBS();
 bool ValidateDH();

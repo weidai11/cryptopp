@@ -1,5 +1,5 @@
 # Microsoft Developer Studio Project File - Name="cryptlib" - Package Owner=<4>
-# Microsoft Developer Studio Generated Build File, Format Version 60000
+# Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Static Library" 0x0104
@@ -227,6 +227,10 @@ SOURCE=.\blowfish.cpp
 # Begin Source File
 
 SOURCE=.\blumshub.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\camellia.cpp
 # End Source File
 # Begin Source File
 
@@ -527,6 +531,10 @@ SOURCE=.\sha.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\shacal2.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\shark.cpp
 # End Source File
 # Begin Source File
@@ -579,6 +587,10 @@ SOURCE=.\trdlocal.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\ttmac.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\twofish.cpp
 # End Source File
 # Begin Source File
@@ -588,6 +600,10 @@ SOURCE=.\wait.cpp
 # Begin Source File
 
 SOURCE=.\wake.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\whrlpool.cpp
 # End Source File
 # Begin Source File
 
@@ -664,6 +680,10 @@ SOURCE=.\blowfish.h
 # Begin Source File
 
 SOURCE=.\blumshub.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\camellia.h
 # End Source File
 # Begin Source File
 
@@ -991,6 +1011,10 @@ SOURCE=.\sha.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\shacal2.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\shark.h
 # End Source File
 # Begin Source File
@@ -1035,6 +1059,10 @@ SOURCE=.\trunhash.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\ttmac.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\twofish.h
 # End Source File
 # Begin Source File
@@ -1044,6 +1072,10 @@ SOURCE=.\wait.h
 # Begin Source File
 
 SOURCE=.\wake.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\whrlpool.h
 # End Source File
 # Begin Source File
 

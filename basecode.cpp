@@ -221,7 +221,10 @@ unsigned int Grouper::Put2(const byte *begin, unsigned int length, int messageEn
 		FILTER_OUTPUT(3, begin, length, 0);
 
 	if (messageEnd)
+	{
 		FILTER_OUTPUT(4, m_terminator, m_terminator.size(), messageEnd);
+		m_counter = 0;
+	}
 	FILTER_END_NO_MESSAGE_END
 }
 

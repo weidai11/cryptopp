@@ -480,6 +480,31 @@ inline word32 UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, wo
 		: word32(block[0]) | (word32(block[1]) << 8) | (word32(block[2]) << 16) | (word32(block[3]) << 24);
 }
 
+#ifdef WORD64_AVAILABLE
+inline word64 UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, word64*)
+{
+	return (order == BIG_ENDIAN_ORDER)
+		?
+		(word64(block[7]) |
+		(word64(block[6]) <<  8) |
+		(word64(block[5]) << 16) |
+		(word64(block[4]) << 24) |
+		(word64(block[3]) << 32) |
+		(word64(block[2]) << 40) |
+		(word64(block[1]) << 48) |
+		(word64(block[0]) << 56))
+		:
+		(word64(block[0]) |
+		(word64(block[1]) <<  8) |
+		(word64(block[2]) << 16) |
+		(word64(block[3]) << 24) |
+		(word64(block[4]) << 32) |
+		(word64(block[5]) << 40) |
+		(word64(block[6]) << 48) |
+		(word64(block[7]) << 56));
+}
+#endif
+
 template <class T>
 inline T UnalignedGetWord(ByteOrder order, const byte *block, T*dummy=NULL)
 {
@@ -536,6 +561,46 @@ inline void UnalignedPutWord(ByteOrder order, byte *block, word32 value, const b
 		block[3] ^= xorBlock[3];
 	}
 }
+
+#ifdef WORD64_AVAILABLE
+inline void UnalignedPutWord(ByteOrder order, byte *block, word64 value, const byte *xorBlock = NULL)
+{
+	if (order == BIG_ENDIAN_ORDER)
+	{
+		block[0] = GETBYTE(value, 7);
+		block[1] = GETBYTE(value, 6);
+		block[2] = GETBYTE(value, 5);
+		block[3] = GETBYTE(value, 4);
+		block[4] = GETBYTE(value, 3);
+		block[5] = GETBYTE(value, 2);
+		block[6] = GETBYTE(value, 1);
+		block[7] = GETBYTE(value, 0);
+	}
+	else
+	{
+		block[0] = GETBYTE(value, 0);
+		block[1] = GETBYTE(value, 1);
+		block[2] = GETBYTE(value, 2);
+		block[3] = GETBYTE(value, 3);
+		block[4] = GETBYTE(value, 4);
+		block[5] = GETBYTE(value, 5);
+		block[6] = GETBYTE(value, 6);
+		block[7] = GETBYTE(value, 7);
+	}
+
+	if (xorBlock)
+	{
+		block[0] ^= xorBlock[0];
+		block[1] ^= xorBlock[1];
+		block[2] ^= xorBlock[2];
+		block[3] ^= xorBlock[3];
+		block[4] ^= xorBlock[4];
+		block[5] ^= xorBlock[5];
+		block[6] ^= xorBlock[6];
+		block[7] ^= xorBlock[7];
+	}
+}
+#endif
 
 template <class T>
 inline T GetWord(bool assumeAligned, ByteOrder order, const byte *block)

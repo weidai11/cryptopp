@@ -12,6 +12,7 @@
 #include "tiger.h"
 #include "ripemd.h"
 #include "panama.h"
+#include "whrlpool.h"
 #include "idea.h"
 #include "des.h"
 #include "rc2.h"
@@ -33,10 +34,13 @@
 #include "rijndael.h"
 #include "twofish.h"
 #include "serpent.h"
+#include "shacal2.h"
+#include "camellia.h"
 #include "hmac.h"
 #include "xormac.h"
 #include "cbcmac.h"
 #include "dmac.h"
+#include "ttmac.h"
 #include "blumshub.h"
 #include "rsa.h"
 #include "nr.h"
@@ -438,7 +442,9 @@ void BenchMarkAll(double t)
 	BenchMarkKeyless<MD5>("MD5", t);
 	BenchMarkKeyless<SHA>("SHA-1", t);
 	BenchMarkKeyless<SHA256>("SHA-256", t);
+#ifdef WORD64_AVAILABLE
 	BenchMarkKeyless<SHA512>("SHA-512", t);
+#endif
 	BenchMarkKeyless<HAVAL3>("HAVAL (pass=3)", t);
 	BenchMarkKeyless<HAVAL4>("HAVAL (pass=4)", t);
 	BenchMarkKeyless<HAVAL5>("HAVAL (pass=5)", t);
@@ -448,6 +454,9 @@ void BenchMarkAll(double t)
 	BenchMarkKeyless<RIPEMD160>("RIPE-MD160", t);
 	BenchMarkKeyless<PanamaHash<LittleEndian> >("Panama Hash (little endian)", t);
 	BenchMarkKeyless<PanamaHash<BigEndian> >("Panama Hash (big endian)", t);
+#ifdef WORD64_AVAILABLE
+	BenchMarkKeyless<Whirlpool>("Whirlpool", t);
+#endif
 	BenchMarkKeyed<MDC<MD5>::Encryption>("MDC/MD5", t);
 	BenchMarkKeyed<LR<MD5>::Encryption>("Luby-Rackoff/MD5", t);
 	BenchMarkKeyed<DES::Encryption>("DES", t);
@@ -490,9 +499,17 @@ void BenchMarkAll(double t)
 	BenchMarkKeyed<WAKE_OFB<LittleEndian>::Encryption>("WAKE-OFB-LE", t);
 	BenchMarkKeyed<PanamaCipher<LittleEndian>::Encryption>("Panama Cipher (little endian)", t);
 	BenchMarkKeyed<PanamaCipher<BigEndian>::Encryption>("Panama Cipher (big endian)", t);
+	BenchMarkKeyedVariable<SHACAL2::Encryption>("SHACAL-2 (128-bit key)", t, 16);
+	BenchMarkKeyedVariable<SHACAL2::Encryption>("SHACAL-2 (512-bit key)", t, 64);
+#ifdef WORD64_AVAILABLE
+	BenchMarkKeyedVariable<Camellia::Encryption>("Camellia (128-bit key)", t, 16);
+	BenchMarkKeyedVariable<Camellia::Encryption>("Camellia (192-bit key)", t, 24);
+	BenchMarkKeyedVariable<Camellia::Encryption>("Camellia (256-bit key)", t, 32);
+#endif
 	BenchMarkKeyed<MD5MAC>("MD5-MAC", t);
 	BenchMarkKeyed<XMACC<MD5> >("XMACC/MD5", t);
 	BenchMarkKeyed<HMAC<MD5> >("HMAC/MD5", t);
+	BenchMarkKeyed<TTMAC>("Two-Track-MAC", t);
 	BenchMarkKeyed<CBC_MAC<Rijndael> >("CBC-MAC/Rijndael", t);
 	BenchMarkKeyed<DMAC<Rijndael> >("DMAC/Rijndael", t);
 

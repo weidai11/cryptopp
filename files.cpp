@@ -16,10 +16,12 @@ void Files_TestInstantiations()
 
 void FileStore::StoreInitialize(const NameValuePairs &parameters)
 {
+	m_file.close();
+	m_file.clear();
 	const char *fileName;
-	if (parameters.GetValue("InputFileName", fileName))
+	if (parameters.GetValue(Name::InputFileName(), fileName))
 	{
-		ios::openmode binary = parameters.GetValueWithDefault("InputBinaryMode", true) ? ios::binary : ios::openmode(0);
+		ios::openmode binary = parameters.GetValueWithDefault(Name::InputBinaryMode(), true) ? ios::binary : ios::openmode(0);
 		m_file.open(fileName, ios::in | binary);
 		if (!m_file)
 			throw OpenErr(fileName);
@@ -28,7 +30,7 @@ void FileStore::StoreInitialize(const NameValuePairs &parameters)
 	else
 	{
 		m_stream = NULL;
-		parameters.GetValue("InputStreamPointer", m_stream);
+		parameters.GetValue(Name::InputStreamPointer(), m_stream);
 	}
 	m_waiting = false;
 }
@@ -137,12 +139,19 @@ unsigned int FileStore::CopyRangeTo2(BufferedTransformation &target, unsigned lo
 	return 0;
 }
 
+unsigned long FileStore::Skip(unsigned long skipMax)
+{
+	unsigned long oldPos = m_stream->tellg();
+	m_stream->seekg(skipMax, ios_base::cur);
+	return (unsigned long)m_stream->tellg() - oldPos;
+}
+
 void FileSink::IsolatedInitialize(const NameValuePairs &parameters)
 {
 	const char *fileName;
-	if (parameters.GetValue("OutputFileName", fileName))
+	if (parameters.GetValue(Name::OutputFileName(), fileName))
 	{
-		ios::openmode binary = parameters.GetValueWithDefault("OutputBinaryMode", true) ? ios::binary : ios::openmode(0);
+		ios::openmode binary = parameters.GetValueWithDefault(Name::OutputBinaryMode(), true) ? ios::binary : ios::openmode(0);
 		m_file.open(fileName, ios::out | ios::trunc | binary);
 		if (!m_file)
 			throw OpenErr(fileName);
@@ -151,7 +160,7 @@ void FileSink::IsolatedInitialize(const NameValuePairs &parameters)
 	else
 	{
 		m_stream = NULL;
-		parameters.GetValue("OutputStreamPointer", m_stream);
+		parameters.GetValue(Name::OutputStreamPointer(), m_stream);
 	}
 }
 

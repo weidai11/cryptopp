@@ -42,6 +42,7 @@ void X917RNG_KnownAnswerTest(
 	unsigned int deterministicTimeVector,
 	CIPHER *dummy = NULL)
 {
+#ifdef OS_RNG_AVAILABLE
 	std::string decodedKey, decodedSeed;
 	StringSource(key, true, new HexDecoder(new StringSink(decodedKey)));
 	StringSource(seed, true, new HexDecoder(new StringSink(decodedSeed)));
@@ -49,6 +50,9 @@ void X917RNG_KnownAnswerTest(
 	AutoSeededX917RNG<CIPHER> rng;
 	rng.Reseed((const byte *)decodedKey.data(), decodedKey.size(), (const byte *)decodedSeed.data(), deterministicTimeVector);
 	KnownAnswerTest(rng, output);
+#else
+	throw 0;
+#endif
 }
 
 void KnownAnswerTest(StreamTransformation &encryption, StreamTransformation &decryption, const char *plaintext, const char *ciphertext)
@@ -128,19 +132,25 @@ void MAC_KnownAnswerTest(const char *key, const char *message, const char *diges
 template <class SCHEME>
 void SignatureKnownAnswerTest(const char *key, const char *message, const char *signature, SCHEME *dummy = NULL)
 {
+#ifdef OS_RNG_AVAILABLE
+	AutoSeededX917RNG<DES_EDE3> rng;
+#else
+	RandomNumberGenerator &rng = NullRNG();
+#endif
+
 	typename SCHEME::Signer signer(StringSource(key, true, new HexDecoder).Ref());
 	typename SCHEME::Verifier verifier(signer);
 
 	EqualityComparisonFilter comparison;
 
-	StringSource(message, true, new SignerFilter(NullRNG(), signer, new ChannelSwitch(comparison, "0")));
+	StringSource(message, true, new SignerFilter(rng, signer, new ChannelSwitch(comparison, "0")));
 	StringSource(signature, true, new HexDecoder(new ChannelSwitch(comparison, "1")));
 
 	comparison.ChannelMessageSeriesEnd("0");
 	comparison.ChannelMessageSeriesEnd("1");
 
 	VerifierFilter verifierFilter(verifier, NULL, VerifierFilter::SIGNATURE_AT_BEGIN | VerifierFilter::THROW_EXCEPTION);
-	StringSource(signature, true, new HexDecoder(new Redirector(verifierFilter, false)));
+	StringSource(signature, true, new HexDecoder(new Redirector(verifierFilter, Redirector::DATA_ONLY)));
 	StringSource(message, true, new Redirector(verifierFilter));
 }
 
@@ -222,7 +232,33 @@ void DoPowerUpSelfTest(const char *moduleFilename, const byte *expectedModuleSha
 			SHA1 sha;
 			HashVerifier verifier(sha);
 			verifier.Put(expectedModuleSha1Digest, sha.DigestSize());
-			FileStore(moduleFilename).TransferAllTo(verifier);
+			FileStore file(moduleFilename);
+
+#ifdef CRYPTOPP_WIN32_AVAILABLE
+			// try to hash from memory first
+			HMODULE h = GetModuleHandle(moduleFilename);
+			IMAGE_DOS_HEADER *ph = (IMAGE_DOS_HEADER *)h;
+			IMAGE_NT_HEADERS *phnt = (IMAGE_NT_HEADERS *)((byte *)h + ph->e_lfanew);
+			IMAGE_SECTION_HEADER *phs = (IMAGE_SECTION_HEADER *)((byte *)&phnt->OptionalHeader + phnt->FileHeader.SizeOfOptionalHeader);
+			DWORD SectionSize = STDMIN(phs->SizeOfRawData, phs->Misc.VirtualSize);
+
+			file.TransferTo(verifier, phs->PointerToRawData);
+			verifier.Put((const byte *)h + phs->VirtualAddress, SectionSize);
+			file.Skip(SectionSize);
+#endif
+			file.TransferAllTo(verifier);
+
+#ifdef CRYPTOPP_WIN32_AVAILABLE
+			// if that fails (could be caused by debug breakpoints or DLL base relocation modifying image in memory),
+			// hash from disk instead
+			if (!verifier.GetLastResult())
+			{
+				verifier.Put(expectedModuleSha1Digest, sha.DigestSize());
+				file.Initialize(MakeParameters(Name::InputFileName(), moduleFilename));
+				file.TransferAllTo(verifier);
+			}
+#endif
+
 			if (!verifier.GetLastResult())
 			{
 #ifdef CRYPTOPP_WIN32_AVAILABLE
