@@ -75,6 +75,9 @@ CRYPTOPP_DLL unsigned int BERDecodeTextString(BufferedTransformation &in, std::s
 CRYPTOPP_DLL unsigned int DEREncodeBitString(BufferedTransformation &out, const byte *str, unsigned int strLen, unsigned int unusedBits=0);
 CRYPTOPP_DLL unsigned int BERDecodeBitString(BufferedTransformation &in, SecByteBlock &str, unsigned int &unusedBits);
 
+// BER decode from source and DER reencode into dest
+CRYPTOPP_DLL void DERReencode(BufferedTransformation &source, BufferedTransformation &dest);
+
 //! Object Identifier
 class CRYPTOPP_DLL OID
 {
@@ -147,6 +150,7 @@ protected:
 	unsigned int m_length;
 
 private:
+	void Init(byte asnTag);
 	void StoreInitialize(const NameValuePairs &parameters) {assert(false);}
 	unsigned int ReduceLength(unsigned int delta);
 };
@@ -221,8 +225,8 @@ public:
 	}
 	void DEREncode(BufferedTransformation &out)
 	{
-		if (get() != NULL)
-			get()->DEREncode(out);
+		if (this->get() != NULL)
+			this->get()->DEREncode(out);
 	}
 };
 
@@ -259,10 +263,14 @@ public:
 	void BERDecode(BufferedTransformation &bt);
 	void DEREncode(BufferedTransformation &bt) const;
 
-	virtual void BERDecodeOptionalAttributes(BufferedTransformation &bt)
-		{}	// TODO: skip optional attributes if present
-	virtual void DEREncodeOptionalAttributes(BufferedTransformation &bt) const
-		{}
+	//! decode optional attributes including context-specific tag
+	/*! /note default implementation stores attributes to be output in DEREncodeOptionalAttributes */
+	virtual void BERDecodeOptionalAttributes(BufferedTransformation &bt);
+	//! encode optional attributes including context-specific tag
+	virtual void DEREncodeOptionalAttributes(BufferedTransformation &bt) const;
+
+private:
+	ByteQueue m_optionalAttributes;
 };
 
 // ********************************************************
