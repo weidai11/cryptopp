@@ -695,7 +695,7 @@ void InformationDisperseFile(int threshold, int nShares, const char *filename)
 
 	vector_member_ptrs<FileSink> fileSinks(nShares);
 	string channel;
-	for (unsigned int i=0; i<nShares; i++)
+	for (int i=0; i<nShares; i++)
 	{
 		char extension[5] = ".000";
 		extension[1]='0'+byte(i/100);
@@ -719,7 +719,7 @@ void InformationRecoverFile(int threshold, const char *outFilename, char *const 
 
 	vector_member_ptrs<FileSource> fileSources(threshold);
 	SecByteBlock channel(4);
-	unsigned int i;
+	int i;
 	for (i=0; i<threshold; i++)
 	{
 		fileSources[i].reset(new FileSource(inFilenames[i], false));
