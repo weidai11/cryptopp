@@ -17,8 +17,8 @@ CFG=cryptlib - Win32 Debug
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "cryptlib - Win32 FIPS 140 Release" (based on "Win32 (x86) Static Library")
-!MESSAGE "cryptlib - Win32 FIPS 140 Debug" (based on "Win32 (x86) Static Library")
+!MESSAGE "cryptlib - Win32 DLL-Import Release" (based on "Win32 (x86) Static Library")
+!MESSAGE "cryptlib - Win32 DLL-Import Debug" (based on "Win32 (x86) Static Library")
 !MESSAGE "cryptlib - Win32 Release" (based on "Win32 (x86) Static Library")
 !MESSAGE "cryptlib - Win32 Debug" (based on "Win32 (x86) Static Library")
 !MESSAGE 
@@ -30,7 +30,7 @@ CFG=cryptlib - Win32 Debug
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "cryptlib - Win32 FIPS 140 Release"
+!IF  "$(CFG)" == "cryptlib - Win32 DLL-Import Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -39,11 +39,11 @@ RSC=rc.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
-# PROP Output_Dir "FIPS_140_Release"
-# PROP Intermediate_Dir "FIPS_140_Release"
+# PROP Output_Dir "DLL_Import_Release"
+# PROP Intermediate_Dir "DLL_Import_Release"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /G5 /Gz /MT /W3 /GX /Zi /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "USE_PRECOMPILED_HEADERS" /Yu"pch.h" /FD /c
-# ADD CPP /nologo /G5 /Gz /MT /W3 /GX /Zi /O1 /Ob2 /D "NDEBUG" /D "_WINDOWS" /D "USE_PRECOMPILED_HEADERS" /D "WIN32" /D "CRYPTOPP_IMPORTS" /Yu"pch.h" /Fd"FIPS_140_Release/cryptopp" /FD /c
+# ADD CPP /nologo /G5 /Gz /MT /W3 /GX /Zi /O1 /Ob2 /D "NDEBUG" /D "_WINDOWS" /D "USE_PRECOMPILED_HEADERS" /D "WIN32" /D "CRYPTOPP_IMPORTS" /Yu"pch.h" /FD /c
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409
 BSC32=bscmake.exe
@@ -53,7 +53,7 @@ LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo
 
-!ELSEIF  "$(CFG)" == "cryptlib - Win32 FIPS 140 Debug"
+!ELSEIF  "$(CFG)" == "cryptlib - Win32 DLL-Import Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -62,11 +62,11 @@ LIB32=link.exe -lib
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 1
-# PROP Output_Dir "FIPS_140_Debug"
-# PROP Intermediate_Dir "FIPS_140_Debug"
+# PROP Output_Dir "DLL_Import_Debug"
+# PROP Intermediate_Dir "DLL_Import_Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "USE_PRECOMPILED_HEADERS" /Yu"pch.h" /FD /c
-# ADD CPP /nologo /G5 /Gz /MTd /W3 /GX /Zi /Od /D "_DEBUG" /D "_WINDOWS" /D "USE_PRECOMPILED_HEADERS" /D "WIN32" /D "CRYPTOPP_IMPORTS" /Yu"pch.h" /Fd"FIPS_140_Debug/cryptopp" /FD /c
+# ADD CPP /nologo /G5 /Gz /MTd /W3 /GX /Zi /Od /D "_DEBUG" /D "_WINDOWS" /D "USE_PRECOMPILED_HEADERS" /D "WIN32" /D "CRYPTOPP_IMPORTS" /Yu"pch.h" /FD /c
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409
 BSC32=bscmake.exe
@@ -126,8 +126,8 @@ LIB32=link.exe -lib
 
 # Begin Target
 
-# Name "cryptlib - Win32 FIPS 140 Release"
-# Name "cryptlib - Win32 FIPS 140 Debug"
+# Name "cryptlib - Win32 DLL-Import Release"
+# Name "cryptlib - Win32 DLL-Import Debug"
 # Name "cryptlib - Win32 Release"
 # Name "cryptlib - Win32 Debug"
 # Begin Group "Source Files"
@@ -141,7 +141,7 @@ SOURCE=.\3way.cpp
 
 SOURCE=.\adhoc.cpp.proto
 
-!IF  "$(CFG)" == "cryptlib - Win32 FIPS 140 Release"
+!IF  "$(CFG)" == "cryptlib - Win32 DLL-Import Release"
 
 # Begin Custom Build
 InputPath=.\adhoc.cpp.proto
@@ -152,7 +152,7 @@ InputPath=.\adhoc.cpp.proto
 	
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "cryptlib - Win32 FIPS 140 Debug"
+!ELSEIF  "$(CFG)" == "cryptlib - Win32 DLL-Import Debug"
 
 # Begin Custom Build
 InputPath=.\adhoc.cpp.proto

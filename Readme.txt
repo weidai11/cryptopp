@@ -1,4 +1,4 @@
-Crypto++: a C++ Class Library of Cryptographic Primitives
+Crypto++: a C++ Class Library of Cryptographic Schemes
 Version 5.2 (in development)
 
 This library includes:
@@ -48,24 +48,77 @@ This library includes:
 You are welcome to use it for any purpose without paying me, but see
 license.txt for the fine print.
 
-This version of Crypto++ has been compiled successfully with MSVC 6.0
-and 7.0 on Windows XP, GCC 2.95.4 on FreeBSD 4.6, GCC 2.95.3 on
+This version of Crypto++ has been compiled successfully with MSVC 6.0, .NET
+2002, and .NET 2003 on Windows XP, GCC 2.95.4 on FreeBSD 4.6, GCC 2.95.3 on
 Linux 2.4 and SunOS 5.8, GCC 3.2 on Cygwin 1.3.12, and Metrowerks
 CodeWarrior 8.2.
 
+*** MSVC-Specific Information ***
+
+On Windows, Crypto++ can be compiled into 3 forms: a static library
+including all algorithms, a DLL with only FIPS Approved algorithms, and
+a static library with only algorithms not in the DLL.
+(FIPS Approved means Approved according to the FIPS 140-2 standard.)
+The DLL may be used by itself, or it may be used together with the second
+form of the static library. MSVC project files are included to build
+all three forms, and sample applications using each of the three forms
+are also included.
+
 To compile Crypto++ with MSVC, open the "cryptest.dsw" workspace file
-and build the "cryptest" project. This will compile Crypto++ as a static
-library and also build the test driver. Run the test driver and make sure
-the validation suite passes.  Then to use the library simply insert the
-"cryptlib.dsp" project file into your own application workspace as a
-dependent project. You should check the compiler options to make sure
-that the library and your application are using the same C++ run-time
-libraries and calling conventions.
+and build one or more of the following projects:
+
+cryptdll - This builds the DLL. Please note that if you wish to use Crypto++
+  as a FIPS validated module, you must use a pre-built DLL that has undergone
+  the FIPS validation process instead of building your own.
+dlltest - This builds a sample application that only uses the DLL.
+cryptest Non-DLL-Import Configuration - This builds the full static library
+  along with a full test driver.
+cryptest DLL-Import Configuration - This builds a static library containing
+  only algorithms not in the DLL, along with a full test driver that uses
+  both the DLL and the static library.
+
+To use the Crypto++ DLL in your application, #include "dll.h" before including
+any other Crypto++ header files, and place the DLL in the same directory as
+your .exe file. dll.h includes the line #pragma comment(lib, "cryptopp")
+so you don't have to explicitly list the import library in your project
+settings. To use a static library form of Crypto++, specify it as
+an additional library to link with in your project settings.
+In either case you should check the compiler options to
+make sure that the library and your application are using the same C++
+run-time libraries and calling conventions.
+
+*** DLL Memory Management ***
+
+Because it's possible for the Crypto++ DLL to delete objects allocated 
+by the calling application, they must use the same C++ memory heap. Three 
+methods are provided to achieve this.
+1.	The calling application can tell Crypto++ what heap to use. This method 
+    is required when the calling application uses a non-standard heap.
+2.	Crypto++ can tell the calling application what heap to use. This method 
+    is required when the calling application uses a statically linked C++ Run 
+    Time Library. (Method 1 does not work in this case because the Crypto++ DLL 
+    is initialized before the calling application's heap is initialized.)
+3.	Crypto++ can automatically use the heap provided by the calling application's 
+    dynamically linked C++ Run Time Library. The calling application must
+    make sure that the dynamically linked C++ Run Time Library is initialized
+    before Crypto++ is loaded. (At this time it is not clear if it is possible
+    to control the order in which DLLs are initialized on Windows 9x machines,
+    so it might be best to avoid using this method.)
+
+When Crypto++ attaches to a new process, it searches all modules loaded 
+into the process space for exported functions "GetNewAndDeleteForCryptoPP" 
+and "SetNewAndDeleteFromCryptoPP". If one of these functions is found, 
+Crypto++ uses methods 1 or 2, respectively, by calling the function. 
+Otherwise, method 3 is used. 
+
+*** GCC-Specific Information ***
 
 A makefile is included for you to compile Crypto++ with GCC. Make sure
 you are using GNU Make and GNU ld. The make process will produce two files,
 libcryptopp.a and cryptest.exe. Run "cryptest.exe v" for the validation
 suite.
+
+*** Documentation and Support ***
 
 Crypto++ is documented through inline comments in header files, which are
 processed through Doxygen to produce an HTML reference manual. You can find
@@ -80,7 +133,7 @@ http://www.cryptopp.com. You can also email me directly at
 cryptopp@weidai.com, but you will probably get a faster response through
 the mailing list.
 
-Finally, a couple of usage notes to keep in mind: 
+*** Important Usage Notes ***
 
 1. If a constructor for A takes a pointer to an object B (except primitive
 types such as int and char), then A owns B and will delete B at A's
@@ -92,9 +145,7 @@ A no longer needs it.
 Crypto++ safely in a multithreaded application, but you must provide
 synchronization when multiple threads access a common Crypto++ object.
 
-Wei Dai
-
-History
+*** History ***
 
 1.0 - First public release.  Withdrawn at the request of RSA DSI.
     - included Blowfish, BBS, DES, DH, Diamond, DSA, ElGamal, IDEA,
@@ -267,3 +318,5 @@ History
       with public key encryption (implemented by OAEP and DL/ECIES)
     - added Camellia, SHACAL-2, Two-Track-MAC, Whirlpool, RIPEMD-320,
 	  RIPEMD-128, RIPEMD-256, Base 32 coding
+
+Written by Wei Dai
