@@ -16,6 +16,8 @@
 
 #ifdef SSE2_INTRINSICS_AVAILABLE
 #include <emmintrin.h>
+#elif defined(_MSC_VER) && defined(_M_IX86)
+#pragma message("You do no seem to have the Visual C++ Processor Pack installed, so use of SSE2 intrinsics will be disabled.")
 #endif
 
 #include "algebra.cpp"
@@ -31,27 +33,30 @@ bool FunctionAssignIntToInteger(const std::type_info &valueType, void *pInteger,
 	return true;
 }
 
-static int DummyAssignIntToInteger = (AssignIntToInteger = FunctionAssignIntToInteger, 0);
+static const char s_RunAtStartup = (AssignIntToInteger = FunctionAssignIntToInteger, 0);
 
-#ifdef SSE2_INTRINSICS_AVAILABLE
+#if defined(SSE2_INTRINSICS_AVAILABLE) || defined(_MSC_VER)
 template <class T>
 CPP_TYPENAME AllocatorBase<T>::pointer AlignedAllocator<T>::allocate(size_type n, const void *)
 {
-	if (n < 4)
-		return new T[n];
-	else
+#ifdef SSE2_INTRINSICS_AVAILABLE
+	if (n >= 4)
 		return (T *)_mm_malloc(sizeof(T)*n, 16);
-
+	else
+#endif
+		return new T[n];
 }
 
 template <class T>
 void AlignedAllocator<T>::deallocate(void *p, size_type n)
 {
 	memset(p, 0, n*sizeof(T));
-	if (n < 4)
-		delete [] p;
-	else
+#ifdef SSE2_INTRINSICS_AVAILABLE
+	if (n >= 4)
 		_mm_free(p);
+	else
+#endif
+		delete [] p;
 }
 
 template class AlignedAllocator<word>;

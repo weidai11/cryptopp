@@ -234,8 +234,18 @@ void ByteQueue::LazyPut(const byte *inString, unsigned int size)
 {
 	if (m_lazyLength > 0)
 		FinalizeLazyPut();
+	m_lazyString = const_cast<byte *>(inString);
+	m_lazyLength = size;
+	m_lazyStringModifiable = false;
+}
+
+void ByteQueue::LazyPutModifiable(byte *inString, unsigned int size)
+{
+	if (m_lazyLength > 0)
+		FinalizeLazyPut();
 	m_lazyString = inString;
 	m_lazyLength = size;
+	m_lazyStringModifiable = true;
 }
 
 void ByteQueue::UndoLazyPut(unsigned int size)
@@ -309,7 +319,10 @@ unsigned int ByteQueue::TransferTo2(BufferedTransformation &target, unsigned lon
 		unsigned int len = (unsigned int)STDMIN(bytesLeft, (unsigned long)m_lazyLength);
 		if (len)
 		{
-			target.ChannelPut(channel, m_lazyString, len);
+			if (m_lazyStringModifiable)
+				target.ChannelPutModifiable(channel, m_lazyString, len);
+			else
+				target.ChannelPut(channel, m_lazyString, len);
 			m_lazyString += len;
 			m_lazyLength -= len;
 			bytesLeft -= len;

@@ -39,6 +39,7 @@ protected:
 	void PropagateInitialize(const NameValuePairs &parameters, int propagation, const std::string &channel=NULL_CHANNEL);
 
 	unsigned int Output(int outputSite, const byte *inString, unsigned int length, int messageEnd, bool blocking, const std::string &channel=NULL_CHANNEL);
+	unsigned int OutputModifiable(int outputSite, byte *inString, unsigned int length, int messageEnd, bool blocking, const std::string &channel=NULL_CHANNEL);
 	bool OutputMessageEnd(int outputSite, int propagation, bool blocking, const std::string &channel=NULL_CHANNEL);
 	bool OutputFlush(int outputSite, bool hardFlush, int propagation, bool blocking, const std::string &channel=NULL_CHANNEL);
 	bool OutputMessageSeriesEnd(int outputSite, int propagation, bool blocking, const std::string &channel=NULL_CHANNEL);
@@ -94,7 +95,10 @@ public:
 	unsigned int GetTotalMessages() {return m_totalMessages;}
 	unsigned int GetTotalMessageSeries() {return m_totalMessageSeries;}
 
+	byte * CreatePutSpace(unsigned int &size)
+		{return AttachedTransformation()->CreatePutSpace(size);}
 	unsigned int Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking);
+	unsigned int PutModifiable2(byte *inString, unsigned int length, int messageEnd, bool blocking);
 	bool IsolatedMessageSeriesEnd(bool blocking);
 
 private:
@@ -388,16 +392,23 @@ public:
 	bool GetPassWaitObjects() const {return (m_behavior & PASS_WAIT_OBJECTS) != 0;}
 	void SetPassWaitObjects(bool pass) { if (pass) m_behavior |= PASS_WAIT_OBJECTS; else m_behavior &= ~(word32) PASS_WAIT_OBJECTS; }
 
-	unsigned int Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking)
-		{return m_target ? m_target->Put2(begin, length, GetPassSignals() ? messageEnd : 0, blocking) : 0;}
+	bool CanModifyInput() const
+		{return m_target ? m_target->CanModifyInput() : false;}
+
 	void Initialize(const NameValuePairs &parameters, int propagation)
 		{ChannelInitialize(NULL_CHANNEL, parameters, propagation);}
+	byte * CreatePutSpace(unsigned int &size)
+		{return m_target ? m_target->CreatePutSpace(size) : (size=0, NULL);}
+	unsigned int Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking)
+		{return m_target ? m_target->Put2(begin, length, GetPassSignals() ? messageEnd : 0, blocking) : 0;}
 	bool Flush(bool hardFlush, int propagation=-1, bool blocking=true)
 		{return m_target && GetPassSignals() ? m_target->Flush(hardFlush, propagation, blocking) : false;}
 	bool MessageSeriesEnd(int propagation=-1, bool blocking=true)
 		{return m_target && GetPassSignals() ? m_target->MessageSeriesEnd(propagation, blocking) : false;}
 
 	void ChannelInitialize(const std::string &channel, const NameValuePairs &parameters=g_nullNameValuePairs, int propagation=-1);
+	byte * ChannelCreatePutSpace(const std::string &channel, unsigned int &size)
+		{return m_target ? m_target->ChannelCreatePutSpace(channel, size) : (size=0, NULL);}
 	unsigned int ChannelPut2(const std::string &channel, const byte *begin, unsigned int length, int messageEnd, bool blocking)
 		{return m_target ? m_target->ChannelPut2(channel, begin, length, GetPassSignals() ? messageEnd : 0, blocking) : 0;}
 	unsigned int ChannelPutModifiable2(const std::string &channel, byte *begin, unsigned int length, int messageEnd, bool blocking)
@@ -426,6 +437,8 @@ public:
 	bool GetPassSignal() const {return m_passSignal;}
 	void SetPassSignal(bool passSignal) {m_passSignal = passSignal;}
 
+	byte * CreatePutSpace(unsigned int &size)
+		{return m_owner.AttachedTransformation()->CreatePutSpace(size);}
 	unsigned int Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking)
 		{return m_owner.AttachedTransformation()->Put2(begin, length, m_passSignal ? messageEnd : 0, blocking);}
 	unsigned int PutModifiable2(byte *begin, unsigned int length, int messageEnd, bool blocking)
@@ -463,6 +476,7 @@ public:
 
 	void SetFilter(Filter *filter);
 	void NextPutMultiple(const byte *s, unsigned int len);
+	void NextPutModifiable(byte *inString, unsigned int length);
 
 protected:
 	member_ptr<BufferedTransformation> m_filter;

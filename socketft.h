@@ -130,7 +130,7 @@ public:
 #else
 	bool MustWaitForResult() {return true;}
 #endif
-	void Receive(byte* buf, unsigned int bufLen);
+	bool Receive(byte* buf, unsigned int bufLen);
 	unsigned int GetReceiveResult();
 	bool EofReceived() const {return m_eofReceived;}
 

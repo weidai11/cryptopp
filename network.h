@@ -45,7 +45,8 @@ class CRYPTOPP_NO_VTABLE NetworkReceiver : public Waitable
 public:
 	virtual bool MustWaitToReceive() {return false;}
 	virtual bool MustWaitForResult() {return false;}
-	virtual void Receive(byte* buf, unsigned int bufLen) =0;
+	//! receive data from network source, returns whether result is immediately available
+	virtual bool Receive(byte* buf, unsigned int bufLen) =0;
 	virtual unsigned int GetReceiveResult() =0;
 	virtual bool EofReceived() const =0;
 };
@@ -96,8 +97,7 @@ public:
 
 	unsigned int GetMaxWaitObjectCount() const
 		{return GetReceiver().GetMaxWaitObjectCount() + AttachedTransformation()->GetMaxWaitObjectCount();}
-	void GetWaitObjects(WaitObjectContainer &container)
-		{AccessReceiver().GetWaitObjects(container); AttachedTransformation()->GetWaitObjects(container);}
+	void GetWaitObjects(WaitObjectContainer &container);
 
 	unsigned int GeneralPump2(unsigned long &byteCount, bool blockingOutput=true, unsigned long maxTime=INFINITE_TIME, bool checkDelimiter=false, byte delimiter='\n');
 	bool SourceExhausted() const {return GetReceiver().EofReceived();}
@@ -107,17 +107,16 @@ protected:
 	const NetworkReceiver & GetReceiver() const {return const_cast<NetworkSource *>(this)->AccessReceiver();}
 
 private:
-	enum {NORMAL, WAITING_FOR_RESULT, OUTPUT_BLOCKED};
 	SecByteBlock m_buf;
-	unsigned int m_bufSize, m_putSize, m_state;
+	unsigned int m_putSize, m_dataBegin, m_dataEnd;
+	bool m_waitingForResult, m_outputBlocked;
 };
 
 //! Network Sink
 class CRYPTOPP_NO_VTABLE NetworkSink : public NonblockingSink
 {
 public:
-	NetworkSink(unsigned int maxBufferSize, bool autoFlush)
-		: m_maxBufferSize(maxBufferSize), m_autoFlush(autoFlush), m_needSendResult(false), m_blockedBytes(0) {}
+	NetworkSink(unsigned int maxBufferSize, bool autoFlush);
 
 	unsigned int GetMaxWaitObjectCount() const
 		{return GetSender().GetMaxWaitObjectCount();}

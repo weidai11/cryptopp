@@ -9,7 +9,7 @@
 #include <vector>
 
 #ifdef USE_WINDOWS_STYLE_SOCKETS
-#include <windows.h>
+#include <winsock2.h>
 #else
 #include <sys/types.h>
 #endif

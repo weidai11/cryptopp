@@ -805,6 +805,7 @@ void ForwardTcpPort(const char *sourcePortName, const char *destinationHost, con
 
 	sockListen.Create();
 	sockListen.Bind(sourcePort);
+	setsockopt(sockListen, IPPROTO_TCP, TCP_NODELAY, "\x01", 1);
 
 	cout << "Listing on port " << sourcePort << ".\n";
 	sockListen.Listen();

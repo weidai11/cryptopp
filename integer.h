@@ -23,7 +23,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#ifdef SSE2_INTRINSICS_AVAILABLE
+#if defined(SSE2_INTRINSICS_AVAILABLE) || defined(_MSC_VER)
 	template <class T>
 	class AlignedAllocator : public AllocatorBase<T>
 	{

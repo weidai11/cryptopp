@@ -7,7 +7,7 @@
 
 #include "network.h"
 #include "queue.h"
-#include <windows.h>
+#include <winsock2.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -64,7 +64,7 @@ public:
 	WindowsPipeReceiver();
 
 	bool MustWaitForResult() {return true;}
-	void Receive(byte* buf, unsigned int bufLen);
+	bool Receive(byte* buf, unsigned int bufLen);
 	unsigned int GetReceiveResult();
 	bool EofReceived() const {return m_eofReceived;}
 
