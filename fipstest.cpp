@@ -165,9 +165,7 @@ void EncryptionPairwiseConsistencyTest(const PK_Encryptor &encryptor, const PK_D
 		RandomNumberGenerator &rng = NullRNG();
 #endif
 		const char *testMessage ="test message";
-
-		EqualityComparisonFilter comparison;
-		comparison.ChannelPutMessageEnd("0", (const byte *)testMessage, strlen(testMessage));
+		std::string ciphertext, decrypted;
 
 		StringSource(
 			testMessage, 
@@ -175,10 +173,21 @@ void EncryptionPairwiseConsistencyTest(const PK_Encryptor &encryptor, const PK_D
 			new PK_EncryptorFilter(
 				rng, 
 				encryptor, 
-				new PK_DecryptorFilter(rng, decryptor, new ChannelSwitch(comparison, "1"))));
+				new StringSink(ciphertext)));
 
-		comparison.ChannelMessageSeriesEnd("0");
-		comparison.ChannelMessageSeriesEnd("1");
+		if (ciphertext == testMessage)
+			throw 0;
+
+		StringSource(
+			ciphertext, 
+			true, 
+			new PK_DecryptorFilter(
+				rng, 
+				decryptor, 
+				new StringSink(decrypted)));
+
+		if (decrypted != testMessage)
+			throw 0;
 	}
 	catch (...)
 	{
