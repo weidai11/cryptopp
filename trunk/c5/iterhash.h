@@ -61,7 +61,7 @@ public:
 		ConditionalByteReverse(B::ToEnum(), out, in, byteCount);
 	}
 
-	void TruncatedFinal(byte *hash, unsigned int size);
+	void TruncatedFinal(byte *digest, unsigned int size);
 
 protected:
 	void HashBlock(const HashWordType *input);
@@ -100,7 +100,7 @@ protected:
 
 // *************************************************************
 
-template <class T, class B, class BASE> void IteratedHashBase2<T, B, BASE>::TruncatedFinal(byte *hash, unsigned int size)
+template <class T, class B, class BASE> void IteratedHashBase2<T, B, BASE>::TruncatedFinal(byte *digest, unsigned int size)
 {
 	ThrowIfInvalidTruncatedSize(size);
 
@@ -112,7 +112,7 @@ template <class T, class B, class BASE> void IteratedHashBase2<T, B, BASE>::Trun
 
 	HashEndianCorrectedBlock(m_data);
 	CorrectEndianess(m_digest, m_digest, DigestSize());
-	memcpy(hash, m_digest, size);
+	memcpy(digest, m_digest, size);
 
 	Restart();		// reinit for next use
 }
