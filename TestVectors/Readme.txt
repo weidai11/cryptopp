@@ -53,5 +53,5 @@ Verify - signature verification should pass
 NotVerify - signature verification should not pass
 DeterministicSign - sign message using given seed, and the resulting 
 signature should be equal to the given signature
-Decrypt - ciphertext decrypts to plaintext
+DecryptMatch - ciphertext decrypts to plaintext
 (more to come here)
