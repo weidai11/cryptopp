@@ -1364,7 +1364,7 @@ public:
 	virtual void GenerateKeyPair(RandomNumberGenerator &rng, byte *privateKey, byte *publicKey) const;
 	//! derive agreed value from your private key and couterparty's public key, return false in case of failure
 	/*! \note If you have previously validated the public key, use validateOtherPublicKey=false to save time.
-	/*! \pre size of agreedValue == AgreedValueLength()
+		\pre size of agreedValue == AgreedValueLength()
 		\pre length of privateKey == PrivateKeyLength()
 		\pre length of otherPublicKey == PublicKeyLength()
 	*/
