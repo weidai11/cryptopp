@@ -68,7 +68,7 @@ void PSSR_MEM_Base::ComputeMessageRepresentative(RandomNumberGenerator &rng,
 	memcpy(representative + representativeByteLength - u, hashIdentifier.first, hashIdentifier.second);
 	representative[representativeByteLength - 1] = hashIdentifier.second ? 0xcc : 0xbc;
 	if (representativeBitLength % 8 != 0)
-		representative[0] = Crop(representative[0], representativeBitLength % 8);
+		representative[0] = (byte)Crop(representative[0], representativeBitLength % 8);
 }
 
 DecodingResult PSSR_MEM_Base::RecoverMessageFromRepresentative(
@@ -94,12 +94,12 @@ DecodingResult PSSR_MEM_Base::RecoverMessageFromRepresentative(
 
 	GetMGF().GenerateAndMask(hash, representative, representativeByteLength - u - digestSize, h, digestSize);
 	if (representativeBitLength % 8 != 0)
-		representative[0] = Crop(representative[0], representativeBitLength % 8);
+		representative[0] = (byte)Crop(representative[0], representativeBitLength % 8);
 
 	// extract salt and recoverableMessage from DB = 00 ... || 01 || M || salt
 	byte *salt = representative + representativeByteLength - u - digestSize - saltSize;
 	byte *M = std::find_if(representative, salt-1, std::bind2nd(std::not_equal_to<byte>(), 0));
-	if (*M == 0x01 && M - representative - (representativeBitLength % 8 != 0) >= MinPadLen(digestSize))
+	if (*M == 0x01 && (unsigned int)(M - representative - (representativeBitLength % 8 != 0)) >= MinPadLen(digestSize))
 	{
 		recoverableMessageLength = salt-M-1;
 		memcpy(recoverableMessage, M+1, recoverableMessageLength);

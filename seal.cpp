@@ -77,8 +77,8 @@ void SEAL_Policy<B>::CipherResynchronize(byte *keystreamBuffer, const byte *IV)
 template <class B>
 void SEAL_Policy<B>::SeekToIteration(dword iterationCount)
 {
-	m_outsideCounter = m_startCount + iterationCount / m_iterationsPerCount;
-	m_insideCounter = iterationCount % m_iterationsPerCount;
+	m_outsideCounter = m_startCount + (unsigned int)(iterationCount / m_iterationsPerCount);
+	m_insideCounter = (unsigned int)(iterationCount % m_iterationsPerCount);
 }
 
 template <class B>

@@ -1,5 +1,5 @@
 Crypto++: a C++ Class Library of Cryptographic Primitives
-Version 5.1 (in development)
+Version 5.1 3/20/2003
 
 This library includes:
 
@@ -242,11 +242,11 @@ History
 5.01 (special FIPS 140-2 release, in development)
     - added known answer test for X9.17 RNG in FIPS 140 power-up self test
 
-5.1 (in development)
-    - added PSS padding and changed PSSR to track IEEE P1363a draft standard
+5.1 - added PSS padding and changed PSSR to track IEEE P1363a draft standard
     - added blinding for RSA and Rabin to defend against timing attacks
+      against decryption operations (required API changes for decryption)
     - fixed a bug in CBC and ECB modes with processing non-aligned data
     - fixed standard conformance bugs in DLIES (DHAES mode) and RW/EMSA2
-	  signature scheme (these fixes are not backwards compatible)
-	- fixed a number of minor bugs and portability problems
-	- removed Sapphire
+      signature scheme (these fixes are not backwards compatible)
+    - fixed a number of minor bugs and portability problems
+    - removed Sapphire

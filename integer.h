@@ -67,6 +67,9 @@ public:
 		};
 
 		//!
+		enum Sign {POSITIVE=0, NEGATIVE=1};
+
+		//!
 		enum Signedness {
 		//!
 			UNSIGNED,
@@ -91,6 +94,9 @@ public:
 
 		//! convert from signed long
 		Integer(signed long value);
+
+		//! convert from two words
+		Integer(Sign s, word highWord, word lowWord);
 
 		//! convert from string
 		/*! str can be in base 2, 8, 10, or 16.  Base is determined by a
@@ -389,8 +395,6 @@ private:
 	friend void PositiveSubtract(Integer &diff, const Integer &a, const Integer &b);
 	friend void PositiveMultiply(Integer &product, const Integer &a, const Integer &b);
 	friend void PositiveDivide(Integer &remainder, Integer &quotient, const Integer &dividend, const Integer &divisor);
-
-	enum Sign {POSITIVE=0, NEGATIVE=1};
 
 	SecAlignedWordBlock reg;
 	Sign sign;

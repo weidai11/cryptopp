@@ -41,9 +41,11 @@ BlumBlumShub::BlumBlumShub(const Integer &p, const Integer &q, const Integer &se
 
 void BlumBlumShub::Seek(dword index)
 {
-	Integer e = a_exp_b_mod_c (2, ((index*8) / maxBits + 1), (p-1)*(q-1));
+	Integer i(Integer::POSITIVE, HIGH_WORD(index), word(index));
+	i *= 8;
+	Integer e = a_exp_b_mod_c (2, i / maxBits + 1, (p-1)*(q-1));
 	current = modn.Exponentiate(x0, e);
-	bitsLeft = maxBits - int((index*8) % maxBits);
+	bitsLeft = maxBits - i % maxBits;
 }
 
 NAMESPACE_END

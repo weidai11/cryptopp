@@ -94,7 +94,7 @@ DWORD WINAPI WaitingThread(LPVOID lParam)
 		handles[0] = thread.stopWaiting;
 		std::copy(thread.waitHandles, thread.waitHandles+thread.count, handles.begin()+1);
 
-		DWORD result = ::WaitForMultipleObjects(handles.size(), handles.begin(), FALSE, INFINITE);
+		DWORD result = ::WaitForMultipleObjects(handles.size(), &handles[0], FALSE, INFINITE);
 
 		if (result == WAIT_OBJECT_0)
 			continue;	// another thread finished waiting first, so do nothing
@@ -154,7 +154,7 @@ bool WaitObjectContainer::Wait(unsigned long milliseconds)
 				Sleep(0);
 			if (i<nThreads)
 			{
-				thread.waitHandles = m_handles.begin() + i*WAIT_OBJECTS_PER_THREAD;
+				thread.waitHandles = &m_handles[i*WAIT_OBJECTS_PER_THREAD];
 				thread.count = STDMIN(WAIT_OBJECTS_PER_THREAD, m_handles.size() - i*WAIT_OBJECTS_PER_THREAD);
 				thread.error = &error;
 			}

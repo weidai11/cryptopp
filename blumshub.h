@@ -29,7 +29,7 @@ public:
 
 protected:
 	const ModularArithmetic modn;
-	const int maxBits;
+	const word maxBits;
 	Integer current;
 	int bitsLeft;
 
