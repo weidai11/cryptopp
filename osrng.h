@@ -7,11 +7,12 @@
 
 #include "randpool.h"
 #include "rng.h"
+#include "des.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
 //! Exception class for Operating-System Random Number Generator.
-class OS_RNG_Err : public Exception
+class CRYPTOPP_DLL OS_RNG_Err : public Exception
 {
 public:
 	OS_RNG_Err(const std::string &operation);
@@ -20,7 +21,7 @@ public:
 #ifdef NONBLOCKING_RNG_AVAILABLE
 
 #ifdef CRYPTOPP_WIN32_AVAILABLE
-class MicrosoftCryptoProvider
+class CRYPTOPP_DLL MicrosoftCryptoProvider
 {
 public:
 	MicrosoftCryptoProvider();
@@ -37,7 +38,7 @@ private:
 #endif
 
 //! encapsulate CryptoAPI's CryptGenRandom or /dev/urandom
-class NonblockingRng : public RandomNumberGenerator
+class CRYPTOPP_DLL NonblockingRng : public RandomNumberGenerator
 {
 public:
 	NonblockingRng();
@@ -60,7 +61,7 @@ protected:
 #ifdef BLOCKING_RNG_AVAILABLE
 
 //! encapsulate /dev/random
-class BlockingRng : public RandomNumberGenerator
+class CRYPTOPP_DLL BlockingRng : public RandomNumberGenerator
 {
 public:
 	BlockingRng();
@@ -74,11 +75,11 @@ protected:
 
 #endif
 
-void OS_GenerateRandomBlock(bool blocking, byte *output, unsigned int size);
+CRYPTOPP_DLL void OS_GenerateRandomBlock(bool blocking, byte *output, unsigned int size);
 
 //! Automaticly Seeded Randomness Pool
 /*! This class seeds itself using an operating system provided RNG. */
-class AutoSeededRandomPool : public RandomPool
+class CRYPTOPP_DLL AutoSeededRandomPool : public RandomPool
 {
 public:
 	//! blocking will be ignored if the prefered RNG isn't available
@@ -89,7 +90,7 @@ public:
 
 //! RNG from ANSI X9.17 Appendix C, seeded using an OS provided RNG
 template <class BLOCK_CIPHER>
-class AutoSeededX917RNG : public RandomNumberGenerator
+class AutoSeededX917RNG : public RandomNumberGenerator, public NotCopyable
 {
 public:
 	//! blocking will be ignored if the prefered RNG isn't available
@@ -107,6 +108,8 @@ private:
 	bool m_isDifferent;
 	unsigned int m_counter;
 };
+
+CRYPTOPP_DLL_TEMPLATE_CLASS AutoSeededX917RNG<DES_EDE3>;
 
 template <class BLOCK_CIPHER>
 void AutoSeededX917RNG<BLOCK_CIPHER>::Reseed(const byte *key, unsigned int keylength, const byte *seed, unsigned long timeVector)

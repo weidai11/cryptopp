@@ -16,14 +16,15 @@ public:
 	static std::string StaticAlgorithmName() {return "MD5-MAC";}
 	enum {DIGESTSIZE = 16};
 
-	MD5MAC_Base() : IteratedHash<word32, LittleEndian, 64, MessageAuthenticationCode>(DIGESTSIZE) {}
+	MD5MAC_Base() {SetStateSize(DIGESTSIZE);}
 
 	void UncheckedSetKey(const byte *userKey, unsigned int keylength);
 	void TruncatedFinal(byte *mac, unsigned int size);
+	unsigned int DigestSize() const {return DIGESTSIZE;}
 
 protected:
 	static void Transform (word32 *buf, const word32 *in, const word32 *key);
-	void vTransform(const word32 *data) {Transform(m_digest, data, m_key+4);}
+	void HashEndianCorrectedBlock(const word32 *data) {Transform(m_digest, data, m_key+4);}
 	void Init();
 
 	static const word32 T[12];
@@ -31,7 +32,7 @@ protected:
 };
 
 //! <a href="http://www.weidai.com/scan-mirror/mac.html#MD5-MAC">MD5-MAC</a>
-typedef MessageAuthenticationCodeTemplate<MD5MAC_Base> MD5MAC;
+typedef MessageAuthenticationCodeFinal<MD5MAC_Base> MD5MAC;
 
 NAMESPACE_END
 

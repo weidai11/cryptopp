@@ -4,24 +4,27 @@
 // Both are in the public domain.
 
 #include "pch.h"
+
+#ifndef CRYPTOPP_IMPORTS
+
 #include "sha.h"
 #include "misc.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
-void SHA::Init()
-{
-	m_digest[0] = 0x67452301L;
-	m_digest[1] = 0xEFCDAB89L;
-	m_digest[2] = 0x98BADCFEL;
-	m_digest[3] = 0x10325476L;
-	m_digest[4] = 0xC3D2E1F0L;
-}
-
 // start of Steve Reid's code
 
 #define blk0(i) (W[i] = data[i])
 #define blk1(i) (W[i&15] = rotlFixed(W[(i+13)&15]^W[(i+8)&15]^W[(i+2)&15]^W[i&15],1))
+
+void SHA::InitState(HashWordType *state)
+{
+	state[0] = 0x67452301L;
+	state[1] = 0xEFCDAB89L;
+	state[2] = 0x98BADCFEL;
+	state[3] = 0x10325476L;
+	state[4] = 0xC3D2E1F0L;
+}
 
 #define f1(x,y,z) (z^(x&(y^z)))
 #define f2(x,y,z) (x^y^z)
@@ -80,16 +83,16 @@ void SHA::Transform(word32 *state, const word32 *data)
 
 // *************************************************************
 
-void SHA256::Init()
+void SHA256::InitState(HashWordType *state)
 {
-	m_digest[0] = 0x6a09e667;
-	m_digest[1] = 0xbb67ae85;
-	m_digest[2] = 0x3c6ef372;
-	m_digest[3] = 0xa54ff53a;
-	m_digest[4] = 0x510e527f;
-	m_digest[5] = 0x9b05688c;
-	m_digest[6] = 0x1f83d9ab;
-	m_digest[7] = 0x5be0cd19;
+	state[0] = 0x6a09e667;
+	state[1] = 0xbb67ae85;
+	state[2] = 0x3c6ef372;
+	state[3] = 0xa54ff53a;
+	state[4] = 0x510e527f;
+	state[5] = 0x9b05688c;
+	state[6] = 0x1f83d9ab;
+	state[7] = 0x5be0cd19;
 }
 
 #define blk2(i) (W[i&15]+=s1(W[(i-2)&15])+W[(i-7)&15]+s0(W[(i-15)&15]))
@@ -171,16 +174,16 @@ const word32 SHA256::K[64] = {
 
 #ifdef WORD64_AVAILABLE
 
-void SHA512::Init()
+void SHA512::InitState(HashWordType *state)
 {
-	m_digest[0] = W64LIT(0x6a09e667f3bcc908);
-	m_digest[1] = W64LIT(0xbb67ae8584caa73b);
-	m_digest[2] = W64LIT(0x3c6ef372fe94f82b);
-	m_digest[3] = W64LIT(0xa54ff53a5f1d36f1);
-	m_digest[4] = W64LIT(0x510e527fade682d1);
-	m_digest[5] = W64LIT(0x9b05688c2b3e6c1f);
-	m_digest[6] = W64LIT(0x1f83d9abfb41bd6b);
-	m_digest[7] = W64LIT(0x5be0cd19137e2179);
+	state[0] = W64LIT(0x6a09e667f3bcc908);
+	state[1] = W64LIT(0xbb67ae8584caa73b);
+	state[2] = W64LIT(0x3c6ef372fe94f82b);
+	state[3] = W64LIT(0xa54ff53a5f1d36f1);
+	state[4] = W64LIT(0x510e527fade682d1);
+	state[5] = W64LIT(0x9b05688c2b3e6c1f);
+	state[6] = W64LIT(0x1f83d9abfb41bd6b);
+	state[7] = W64LIT(0x5be0cd19137e2179);
 }
 
 // for SHA512
@@ -260,18 +263,20 @@ const word64 SHA512::K[80] = {
 	W64LIT(0x5fcb6fab3ad6faec), W64LIT(0x6c44198c4a475817)
 };
 
-void SHA384::Init()
+void SHA384::InitState(HashWordType *state)
 {
-	m_digest[0] = W64LIT(0xcbbb9d5dc1059ed8);
-	m_digest[1] = W64LIT(0x629a292a367cd507);
-	m_digest[2] = W64LIT(0x9159015a3070dd17);
-	m_digest[3] = W64LIT(0x152fecd8f70e5939);
-	m_digest[4] = W64LIT(0x67332667ffc00b31);
-	m_digest[5] = W64LIT(0x8eb44a8768581511);
-	m_digest[6] = W64LIT(0xdb0c2e0d64f98fa7);
-	m_digest[7] = W64LIT(0x47b5481dbefa4fa4);
+	state[0] = W64LIT(0xcbbb9d5dc1059ed8);
+	state[1] = W64LIT(0x629a292a367cd507);
+	state[2] = W64LIT(0x9159015a3070dd17);
+	state[3] = W64LIT(0x152fecd8f70e5939);
+	state[4] = W64LIT(0x67332667ffc00b31);
+	state[5] = W64LIT(0x8eb44a8768581511);
+	state[6] = W64LIT(0xdb0c2e0d64f98fa7);
+	state[7] = W64LIT(0x47b5481dbefa4fa4);
 }
 
 #endif
 
 NAMESPACE_END
+
+#endif

@@ -8,11 +8,11 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-void Tiger::Init()
+void Tiger::InitState(HashWordType *state)
 {
-	m_digest[0] = W64LIT(0x0123456789ABCDEF);
-	m_digest[1] = W64LIT(0xFEDCBA9876543210);
-	m_digest[2] = W64LIT(0xF096A5B4C3B2E187);
+	state[0] = W64LIT(0x0123456789ABCDEF);
+	state[1] = W64LIT(0xFEDCBA9876543210);
+	state[2] = W64LIT(0xF096A5B4C3B2E187);
 }
 
 void Tiger::TruncatedFinal(byte *hash, unsigned int size)

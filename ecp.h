@@ -9,7 +9,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 //! Elliptical Curve Point
-struct ECPPoint
+struct CRYPTOPP_DLL ECPPoint
 {
 	ECPPoint() : identity(true) {}
 	ECPPoint(const Integer &x, const Integer &y)
@@ -24,8 +24,10 @@ struct ECPPoint
 	Integer x, y;
 };
 
+CRYPTOPP_DLL_TEMPLATE_CLASS AbstractGroup<ECPPoint>;
+
 //! Elliptic Curve over GF(p), where p is prime
-class ECP : public AbstractGroup<ECPPoint>
+class CRYPTOPP_DLL ECP : public AbstractGroup<ECPPoint>
 {
 public:
 	typedef ModularArithmetic Field;
@@ -77,11 +79,17 @@ public:
 	const FieldElement & GetA() const {return m_a;}
 	const FieldElement & GetB() const {return m_b;}
 
+	bool operator==(const ECP &rhs) const
+		{return GetField() == rhs.GetField() && m_a == rhs.m_a && m_b == rhs.m_b;}
+
 private:
 	clonable_ptr<Field> m_fieldPtr;
 	FieldElement m_a, m_b;
 	mutable Point m_R;
 };
+
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_FixedBasePrecomputationImpl<ECP::Point>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_GroupPrecomputation<ECP::Point>;
 
 template <class T> class EcPrecomputation;
 
@@ -102,7 +110,11 @@ public:
 	void DEREncodeElement(BufferedTransformation &bt, const Element &v) const {m_ec->DEREncodePoint(bt, v, false);}
 
 	// non-inherited
-	void SetCurve(const ECP &ec);
+	void SetCurve(const ECP &ec)
+	{
+		m_ec.reset(new ECP(ec, true));
+		m_ecOriginal = ec;
+	}
 	const ECP & GetCurve() const {return *m_ecOriginal;}
 
 private:

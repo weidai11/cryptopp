@@ -8,6 +8,8 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_FixedBasePrecomputationImpl<Integer>;
+
 class ModExpPrecomputation : public DL_GroupPrecomputation<Integer>
 {
 public:

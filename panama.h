@@ -30,13 +30,13 @@ class PanamaHash : protected Panama<B>, public IteratedHash<word32, NativeByteOr
 {
 public:
 	enum {DIGESTSIZE = 32};
-	PanamaHash() : IteratedHash<word32, NativeByteOrder, 32>(0) {Panama<B>::Reset();}
+	PanamaHash() {Panama<B>::Reset();}
 	unsigned int DigestSize() const {return DIGESTSIZE;}
 	void TruncatedFinal(byte *hash, unsigned int size);
 
 protected:
 	void Init() {Panama<B>::Reset();}
-	void vTransform(const word32 *data) {Iterate(1, data);}	// push
+	void HashEndianCorrectedBlock(const word32 *data) {Iterate(1, data);}	// push
 	unsigned int HashMultipleBlocks(const word32 *input, unsigned int length);
 };
 
@@ -65,7 +65,7 @@ protected:
 
 /// Panama MAC
 template <class B = LittleEndian>
-class PanamaMAC : public MessageAuthenticationCodeTemplate<PanamaMAC_Base<B> >
+class PanamaMAC : public MessageAuthenticationCodeImpl<PanamaMAC_Base<B> >
 {
 public:
  	PanamaMAC() {}
@@ -96,7 +96,7 @@ protected:
 template <class B = LittleEndian>
 struct PanamaCipher : public PanamaCipherInfo<B>, public SymmetricCipherDocumentation
 {
-	typedef SymmetricCipherFinalTemplate<ConcretePolicyHolder<PanamaCipherPolicy<B>, AdditiveCipherTemplate<> > > Encryption;
+	typedef SymmetricCipherFinal<ConcretePolicyHolder<PanamaCipherPolicy<B>, AdditiveCipherTemplate<> > > Encryption;
 	typedef Encryption Decryption;
 };
 

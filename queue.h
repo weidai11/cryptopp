@@ -13,7 +13,7 @@ NAMESPACE_BEGIN(CryptoPP)
 class ByteQueueNode;
 
 //! Byte Queue
-class ByteQueue : public Bufferless<BufferedTransformation>
+class CRYPTOPP_DLL ByteQueue : public Bufferless<BufferedTransformation>
 {
 public:
 	ByteQueue(unsigned int m_nodeSize=0);
@@ -108,7 +108,7 @@ private:
 };
 
 //! use this to make sure LazyPut is finalized in event of exception
-class LazyPutter
+class CRYPTOPP_DLL LazyPutter
 {
 public:
 	LazyPutter(ByteQueue &bq, const byte *inString, unsigned int size)

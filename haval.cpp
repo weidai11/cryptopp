@@ -7,9 +7,10 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 HAVAL::HAVAL(unsigned int digestSize, unsigned int pass)
-	: IteratedHash<word32, LittleEndian, 128>(DIGESTSIZE)
-	, digestSize(digestSize), pass(pass)
+	: digestSize(digestSize), pass(pass)
 {
+	SetStateSize(DIGESTSIZE);
+
 	if (!(digestSize >= 16 && digestSize <= 32 && digestSize%4==0))
 		throw InvalidArgument("HAVAL: invalid digest size");
 
@@ -31,7 +32,7 @@ void HAVAL::Init()
 	m_digest[7] = 0xEC4E6C89;
 }
 
-void HAVAL::vTransform(const word32 *in)
+void HAVAL::HashEndianCorrectedBlock(const word32 *in)
 {
 	if (pass==3)
 		HAVAL3::Transform(m_digest, in);
@@ -53,7 +54,7 @@ void HAVAL::TruncatedFinal(byte *hash, unsigned int size)
 	m_data[30] = GetBitCountLo();
 	m_data[31] = GetBitCountHi();
 
-	vTransform(m_data);
+	HashEndianCorrectedBlock(m_data);
 	Tailor(digestSize*8);
 	CorrectEndianess(m_digest, m_digest, digestSize);
 	memcpy(hash, m_digest, size);

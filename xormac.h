@@ -20,7 +20,7 @@ public:
 	enum {DIGESTSIZE = 4+T::DIGESTSIZE};
 	typedef typename T::HashWordType HashWordType;
 
-	XMACC_Base() : IteratedHash<HashWordType, CPP_TYPENAME T::ByteOrderClass, T::BLOCKSIZE, MessageAuthenticationCode>(T::DIGESTSIZE) {}
+	XMACC_Base() {SetStateSize(T::DIGESTSIZE);}
 
 	void CheckedSetKey(void *, Empty empty, const byte *key, unsigned int length, const NameValuePairs &params);
 	void Resynchronize(const byte *IV)
@@ -47,7 +47,7 @@ private:
 	void Init();
 	static void WriteWord32(byte *output, word32 value);
 	static void XorDigest(HashWordType *digest, const HashWordType *buffer);
-	void vTransform(const HashWordType *data);
+	void HashEndianCorrectedBlock(const HashWordType *data);
 
 	FixedSizeSecBlock<byte, DigestSizeSubtract4Workaround<T>::RESULT> m_key;
 	enum {BUFFER_SIZE = ((T::DIGESTSIZE) / sizeof(HashWordType))};	// VC60 workaround
@@ -61,7 +61,7 @@ private:
 	and reinitialize it the next time you create an XMACC with the same key.
 	Start counter at 0 when using a key for the first time. */
 template <class T>
-class XMACC : public MessageAuthenticationCodeTemplate<XMACC_Base<T> >
+class XMACC : public ClonableImpl<XMACC<T>, MessageAuthenticationCodeImpl<XMACC_Base<T> > >
 {
 public:
 	XMACC() {}
@@ -102,7 +102,7 @@ template <class T> inline void XMACC_Base<T>::XorDigest(HashWordType *digest, co
 		digest[i] ^= buffer[i];
 }
 
-template <class T> void XMACC_Base<T>::vTransform(const HashWordType *input)
+template <class T> void XMACC_Base<T>::HashEndianCorrectedBlock(const HashWordType *input)
 {
 	memcpy(m_buffer, m_key, KEYLENGTH);
 	WriteWord32((byte *)m_buffer.begin()+KEYLENGTH, ++m_index);
@@ -123,7 +123,7 @@ template <class T> void XMACC_Base<T>::TruncatedFinal(byte *mac, unsigned int si
 	CorrectEndianess(m_data, m_data, BLOCKSIZE - 2*sizeof(HashWordType));
 	m_data[m_data.size()-2] = ByteReverse(GetBitCountHi());	// byteReverse for backwards compatibility
 	m_data[m_data.size()-1] = ByteReverse(GetBitCountLo());
-	vTransform(m_data);
+	HashEndianCorrectedBlock(m_data);
 
 	memcpy(m_buffer, m_key, KEYLENGTH);
 	WriteWord32((byte *)m_buffer.begin()+KEYLENGTH, 0);
@@ -149,7 +149,7 @@ template <class T> bool XMACC_Base<T>::TruncatedVerify(const byte *mac, unsigned
 	CorrectEndianess(m_data, m_data, BLOCKSIZE - 2*sizeof(HashWordType));
 	m_data[m_data.size()-2] = ByteReverse(GetBitCountHi());	// byteReverse for backwards compatibility
 	m_data[m_data.size()-1] = ByteReverse(GetBitCountLo());
-	vTransform(m_data);
+	HashEndianCorrectedBlock(m_data);
 
 	memcpy(m_buffer, m_key, KEYLENGTH);
 	WriteWord32((byte *)m_buffer.begin()+KEYLENGTH, 0);

@@ -100,11 +100,7 @@ typedef unsigned char byte;     // moved outside namespace for Borland C++Builde
 NAMESPACE_BEGIN(CryptoPP)
 
 typedef unsigned short word16;
-#if defined(__alpha) && !defined(_MSC_VER)
 	typedef unsigned int word32;
-#else
-	typedef unsigned long word32;
-#endif
 
 #if defined(__GNUC__) || defined(__MWERKS__)
 #	define WORD64_AVAILABLE
@@ -184,13 +180,45 @@ NAMESPACE_END
 #endif
 
 #ifdef _MSC_VER
+	// 4231: nonstandard extension used : 'extern' before template explicit instantiation
 	// 4250: dominance
+	// 4251: member needs to have dll-interface
+	// 4275: base needs to have dll-interface
 	// 4660: explicitly instantiating a class that's already implicitly instantiated
 	// 4661: no suitable definition provided for explicit template instantiation request
 	// 4786: identifer was truncated in debug information
 	// 4355: 'this' : used in base member initializer list
-#	pragma warning(disable: 4250 4660 4661 4786 4355)
+#	pragma warning(disable: 4231 4250 4251 4275 4660 4661 4786 4355)
 #endif
+
+#ifdef _MSC_VER
+
+#ifdef CRYPTOPP_EXPORTS
+#define CRYPTOPP_IS_DLL
+#define CRYPTOPP_DLL __declspec(dllexport)
+#elif defined(CRYPTOPP_IMPORTS)
+#define CRYPTOPP_IS_DLL
+#define CRYPTOPP_DLL __declspec(dllimport)
+#else
+#define CRYPTOPP_DLL
+#endif
+
+#define CRYPTOPP_API __stdcall
+
+#else	// _MSC_VER
+
+#define CRYPTOPP_DLL
+#define CRYPTOPP_API
+
+#endif	// _MSC_VER
+
+#ifdef CRYPTOPP_MANUALLY_INSTANTIATE_TEMPLATES
+#define CRYPTOPP_MANUAL_EXTERN
+#else
+#define CRYPTOPP_MANUAL_EXTERN extern
+#endif
+
+#define CRYPTOPP_DLL_TEMPLATE_CLASS CRYPTOPP_MANUAL_EXTERN template class CRYPTOPP_DLL
 
 // ***************** determine availability of OS features ********************
 

@@ -1,3 +1,5 @@
+// rng.h - misc RNG related classes, see also osrng.h, randpool.h
+
 #ifndef CRYPTOPP_RNG_H
 #define CRYPTOPP_RNG_H
 
@@ -29,7 +31,7 @@ private:
 
 //! RNG derived from ANSI X9.17 Appendix C
 
-class X917RNG : public RandomNumberGenerator
+class CRYPTOPP_DLL X917RNG : public RandomNumberGenerator, public NotCopyable
 {
 public:
 	// cipher will be deleted by destructor, deterministicTimeVector = 0 means obtain time vector from system

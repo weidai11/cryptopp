@@ -1,6 +1,9 @@
 // channels.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
+
+#ifndef CRYPTOPP_IMPORTS
+
 #include "channels.h"
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -151,7 +154,7 @@ unsigned int ChannelSwitch::ChannelPut2(const std::string &channel, const byte *
 
 	while (!m_it.End())
 	{
-	  WasBlocked:
+WasBlocked:
 		if (m_it.Destination().ChannelPut2(m_it.Channel(), begin, length, messageEnd, blocking))
 		{
 			m_blocked = true;
@@ -311,3 +314,5 @@ void ChannelSwitch::RemoveRoute(const std::string &inChannel, BufferedTransforma
 }
 
 NAMESPACE_END
+
+#endif

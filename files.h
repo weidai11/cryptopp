@@ -11,7 +11,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 //! .
-class FileStore : public Store, private FilterPutSpaceHelper
+class CRYPTOPP_DLL FileStore : public Store, private FilterPutSpaceHelper, public NotCopyable
 {
 public:
 	class Err : public Exception
@@ -38,7 +38,7 @@ public:
 private:
 	void StoreInitialize(const NameValuePairs &parameters);
 	
-	std::ifstream m_file;
+	member_ptr<std::ifstream> m_file;
 	std::istream *m_stream;
 	byte *m_space;
 	unsigned int m_len;
@@ -46,7 +46,7 @@ private:
 };
 
 //! .
-class FileSource : public SourceTemplate<FileStore>
+class CRYPTOPP_DLL FileSource : public SourceTemplate<FileStore>
 {
 public:
 	typedef FileStore::Err Err;
@@ -64,7 +64,7 @@ public:
 };
 
 //! .
-class FileSink : public Sink
+class CRYPTOPP_DLL FileSink : public Sink, public NotCopyable
 {
 public:
 	class Err : public Exception
@@ -88,7 +88,7 @@ public:
 	bool IsolatedFlush(bool hardFlush, bool blocking);
 
 private:
-	std::ofstream m_file;
+	member_ptr<std::ofstream> m_file;
 	std::ostream *m_stream;
 };
 

@@ -2,6 +2,9 @@
 // The algorithm in this module comes from PGP's randpool.c
 
 #include "pch.h"
+
+#ifndef CRYPTOPP_IMPORTS
+
 #include "randpool.h"
 #include "mdc.h"
 #include "sha.h"
@@ -98,3 +101,5 @@ void RandomPool::GenerateBlock(byte *outString, unsigned int size)
 }
 
 NAMESPACE_END
+
+#endif

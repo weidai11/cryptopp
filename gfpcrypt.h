@@ -17,8 +17,10 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_GroupParameters<Integer>;
+
 //! .
-class CRYPTOPP_NO_VTABLE DL_GroupParameters_IntegerBased : public DL_GroupParameters<Integer>, public ASN1CryptoMaterial
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE DL_GroupParameters_IntegerBased : public DL_GroupParameters<Integer>, public ASN1CryptoMaterial
 {
 	typedef DL_GroupParameters_IntegerBased ThisClass;
 	
@@ -110,8 +112,10 @@ public:
 		{return !operator==(rhs);}
 };
 
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_GroupParameters_IntegerBasedImpl<ModExpPrecomputation>;
+
 //! .
-class DL_GroupParameters_GFP : public DL_GroupParameters_IntegerBasedImpl<ModExpPrecomputation>
+class CRYPTOPP_DLL DL_GroupParameters_GFP : public DL_GroupParameters_IntegerBasedImpl<ModExpPrecomputation>
 {
 public:
 	// DL_GroupParameters
@@ -133,7 +137,7 @@ protected:
 };
 
 //! .
-class DL_GroupParameters_GFP_DefaultSafePrime : public DL_GroupParameters_GFP
+class CRYPTOPP_DLL DL_GroupParameters_GFP_DefaultSafePrime : public DL_GroupParameters_GFP
 {
 public:
 	typedef NoCofactorMultiplication DefaultCofactorOption;
@@ -172,17 +176,14 @@ public:
 	}
 };
 
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_GDSA<Integer>;
+
 //! .
 template <class T>
 class DL_Algorithm_NR : public DL_ElgamalLikeSignatureAlgorithm<T>
 {
 public:
 	static const char * StaticAlgorithmName() {return "NR";}
-
-	Integer EncodeDigest(unsigned int modulusBits, const byte *digest, unsigned int digestLen) const
-	{
-		return NR_EncodeDigest(modulusBits, digest, digestLen);
-	}
 
 	void Sign(const DL_GroupParameters<T> &params, const Integer &x, const Integer &k, const Integer &e, Integer &r, Integer &s) const
 	{
@@ -359,7 +360,7 @@ struct NR : public DL_SS<
 };
 
 //! .
-class DL_GroupParameters_DSA : public DL_GroupParameters_GFP
+class CRYPTOPP_DLL DL_GroupParameters_DSA : public DL_GroupParameters_GFP
 {
 public:
 	/*! also checks that the lengths of p and q are allowed by the DSA standard */
@@ -371,6 +372,10 @@ public:
 
 struct DSA;
 
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_PublicKey_GFP<DL_GroupParameters_DSA>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_GFP<DL_GroupParameters_DSA>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_WithSignaturePairwiseConsistencyTest<DL_PrivateKey_GFP<DL_GroupParameters_DSA>, DSA>;
+
 //! .
 struct DL_Keys_DSA
 {
@@ -379,7 +384,7 @@ struct DL_Keys_DSA
 };
 
 //! <a href="http://www.weidai.com/scan-mirror/sig.html#DSA">DSA</a>
-struct DSA : public DL_SS<
+struct CRYPTOPP_DLL DSA : public DL_SS<
 	DL_Keys_DSA, 
 	DL_Algorithm_GDSA<Integer>, 
 	DL_SignatureMessageEncodingMethod_DSA,

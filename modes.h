@@ -28,7 +28,7 @@ struct CipherModeDocumentation : public SymmetricCipherDocumentation
 {
 };
 
-class CRYPTOPP_NO_VTABLE CipherModeBase : public SymmetricCipher
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CipherModeBase : public SymmetricCipher
 {
 public:
 	unsigned int MinKeyLength() const {return m_cipher->MinKeyLength();}
@@ -66,16 +66,19 @@ template <class POLICY_INTERFACE>
 class CRYPTOPP_NO_VTABLE ModePolicyCommonTemplate : public CipherModeBase, public POLICY_INTERFACE
 {
 	unsigned int GetAlignment() const {return m_cipher->BlockAlignment();}
-	void CipherSetKey(const NameValuePairs &params, const byte *key, unsigned int length)
-	{
-		m_cipher->SetKey(key, length, params);
-		ResizeBuffers();
-		int feedbackSize = params.GetIntValueWithDefault(Name::FeedbackSize(), 0);
-		SetFeedbackSize(feedbackSize);
-	}
+	void CipherSetKey(const NameValuePairs &params, const byte *key, unsigned int length);
 };
 
-class CRYPTOPP_NO_VTABLE CFB_ModePolicy : public ModePolicyCommonTemplate<CFB_CipherAbstractPolicy>
+template <class POLICY_INTERFACE>
+void ModePolicyCommonTemplate<POLICY_INTERFACE>::CipherSetKey(const NameValuePairs &params, const byte *key, unsigned int length)
+{
+	m_cipher->SetKey(key, length, params);
+	ResizeBuffers();
+	int feedbackSize = params.GetIntValueWithDefault(Name::FeedbackSize(), 0);
+	SetFeedbackSize(feedbackSize);
+}
+
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CFB_ModePolicy : public ModePolicyCommonTemplate<CFB_CipherAbstractPolicy>
 {
 public:
 	IV_Requirement IVRequirement() const {return RANDOM_IV;}
@@ -118,25 +121,35 @@ inline void CopyOrZero(void *dest, const void *src, size_t s)
 		memset(dest, 0, s);
 }
 
-class CRYPTOPP_NO_VTABLE OFB_ModePolicy : public ModePolicyCommonTemplate<AdditiveCipherAbstractPolicy>
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE OFB_ModePolicy : public ModePolicyCommonTemplate<AdditiveCipherAbstractPolicy>
 {
+public:
+	bool IsRandomAccess() const {return false;}
+	IV_Requirement IVRequirement() const {return STRUCTURED_IV;}
+
+private:
 	unsigned int GetBytesPerIteration() const {return BlockSize();}
 	unsigned int GetIterationsToBuffer() const {return 1;}
 	void WriteKeystream(byte *keystreamBuffer, unsigned int iterationCount)
 	{
 		assert(iterationCount == 1);
 		m_cipher->ProcessBlock(keystreamBuffer);
+		memcpy(m_register, keystreamBuffer, BlockSize());
 	}
 	void CipherResynchronize(byte *keystreamBuffer, const byte *iv)
 	{
 		CopyOrZero(keystreamBuffer, iv, BlockSize());
 	}
-	bool IsRandomAccess() const {return false;}
-	IV_Requirement IVRequirement() const {return STRUCTURED_IV;}
 };
 
-class CRYPTOPP_NO_VTABLE CTR_ModePolicy : public ModePolicyCommonTemplate<AdditiveCipherAbstractPolicy>
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CTR_ModePolicy : public ModePolicyCommonTemplate<AdditiveCipherAbstractPolicy>
 {
+public:
+	bool IsRandomAccess() const {return true;}
+	IV_Requirement IVRequirement() const {return STRUCTURED_IV;}
+	void GetNextIV(byte *IV);
+
+private:
 	unsigned int GetBytesPerIteration() const {return BlockSize();}
 	unsigned int GetIterationsToBuffer() const {return m_cipher->OptimalNumberOfParallelBlocks();}
 	void WriteKeystream(byte *buffer, unsigned int iterationCount)
@@ -144,16 +157,14 @@ class CRYPTOPP_NO_VTABLE CTR_ModePolicy : public ModePolicyCommonTemplate<Additi
 	bool CanOperateKeystream() const {return true;}
 	void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, unsigned int iterationCount);
 	void CipherResynchronize(byte *keystreamBuffer, const byte *iv);
-	bool IsRandomAccess() const {return true;}
 	void SeekToIteration(dword iterationCount);
-	IV_Requirement IVRequirement() const {return STRUCTURED_IV;}
 
 	inline void ProcessMultipleBlocks(byte *output, const byte *input, unsigned int n);
 
 	SecByteBlock m_counterArray;
 };
 
-class CRYPTOPP_NO_VTABLE BlockOrientedCipherModeBase : public CipherModeBase
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE BlockOrientedCipherModeBase : public CipherModeBase
 {
 public:
 	void UncheckedSetKey(const NameValuePairs &params, const byte *key, unsigned int length, const byte *iv);
@@ -176,7 +187,7 @@ protected:
 	SecByteBlock m_buffer;
 };
 
-class CRYPTOPP_NO_VTABLE ECB_OneWay : public BlockOrientedCipherModeBase
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE ECB_OneWay : public BlockOrientedCipherModeBase
 {
 public:
 	IV_Requirement IVRequirement() const {return NOT_RESYNCHRONIZABLE;}
@@ -185,7 +196,7 @@ public:
 		{m_cipher->ProcessAndXorMultipleBlocks(inString, NULL, outString, numberOfBlocks);}
 };
 
-class CRYPTOPP_NO_VTABLE CBC_ModeBase : public BlockOrientedCipherModeBase
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CBC_ModeBase : public BlockOrientedCipherModeBase
 {
 public:
 	IV_Requirement IVRequirement() const {return UNPREDICTABLE_RANDOM_IV;}
@@ -193,13 +204,13 @@ public:
 	unsigned int MinLastBlockSize() const {return 0;}
 };
 
-class CRYPTOPP_NO_VTABLE CBC_Encryption : public CBC_ModeBase
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CBC_Encryption : public CBC_ModeBase
 {
 public:
 	void ProcessBlocks(byte *outString, const byte *inString, unsigned int numberOfBlocks);
 };
 
-class CRYPTOPP_NO_VTABLE CBC_CTS_Encryption : public CBC_Encryption
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CBC_CTS_Encryption : public CBC_Encryption
 {
 public:
 	void SetStolenIV(byte *iv) {m_stolenIV = iv;}
@@ -216,7 +227,7 @@ protected:
 	byte *m_stolenIV;
 };
 
-class CRYPTOPP_NO_VTABLE CBC_Decryption : public CBC_ModeBase
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CBC_Decryption : public CBC_ModeBase
 {
 public:
 	void ProcessBlocks(byte *outString, const byte *inString, unsigned int numberOfBlocks);
@@ -230,7 +241,7 @@ protected:
 	SecByteBlock m_temp;
 };
 
-class CRYPTOPP_NO_VTABLE CBC_CTS_Decryption : public CBC_Decryption
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CBC_CTS_Decryption : public CBC_Decryption
 {
 public:
 	unsigned int MinLastBlockSize() const {return BlockSize()+1;}
@@ -264,23 +275,31 @@ template <class BASE>
 class CipherModeFinalTemplate_ExternalCipher : public BASE
 {
 public:
-	CipherModeFinalTemplate_ExternalCipher(BlockCipher &cipher)
-	{
-		ThrowIfResynchronizable();
-		m_cipher = &cipher;
-		ResizeBuffers();
-	}
+	CipherModeFinalTemplate_ExternalCipher(BlockCipher &cipher);
 
-	CipherModeFinalTemplate_ExternalCipher(BlockCipher &cipher, const byte *iv, int feedbackSize = 0)
-	{
-		ThrowIfInvalidIV(iv);
-		m_cipher = &cipher;
-		ResizeBuffers();
-		SetFeedbackSize(feedbackSize);
-		if (IsResynchronizable())
-			Resynchronize(iv);
-	}
+	CipherModeFinalTemplate_ExternalCipher(BlockCipher &cipher, const byte *iv, int feedbackSize = 0);
 };
+
+template <class BASE> CipherModeFinalTemplate_ExternalCipher<BASE>::CipherModeFinalTemplate_ExternalCipher(BlockCipher &cipher)
+{
+	ThrowIfResynchronizable();
+	m_cipher = &cipher;
+	ResizeBuffers();
+}
+
+template <class BASE> CipherModeFinalTemplate_ExternalCipher<BASE>::CipherModeFinalTemplate_ExternalCipher(BlockCipher &cipher, const byte *iv, int feedbackSize)
+{
+	ThrowIfInvalidIV(iv);
+	m_cipher = &cipher;
+	ResizeBuffers();
+	SetFeedbackSize(feedbackSize);
+	if (IsResynchronizable())
+		Resynchronize(iv);
+}
+
+CRYPTOPP_DLL_TEMPLATE_CLASS CFB_CipherTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, CFB_ModePolicy> >;
+CRYPTOPP_DLL_TEMPLATE_CLASS CFB_EncryptionTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, CFB_ModePolicy> >;
+CRYPTOPP_DLL_TEMPLATE_CLASS CFB_DecryptionTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, CFB_ModePolicy> >;
 
 //! CFB mode
 template <class CIPHER>
@@ -297,6 +316,8 @@ struct CFB_Mode_ExternalCipher : public CipherModeDocumentation
 	typedef CipherModeFinalTemplate_ExternalCipher<ConcretePolicyHolder<Empty, CFB_DecryptionTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, CFB_ModePolicy> > > > Decryption;
 };
 
+CRYPTOPP_DLL_TEMPLATE_CLASS AdditiveCipherTemplate<AbstractPolicyHolder<AdditiveCipherAbstractPolicy, OFB_ModePolicy> >;
+
 //! OFB mode
 template <class CIPHER>
 struct OFB_Mode : public CipherModeDocumentation
@@ -311,6 +332,8 @@ struct OFB_Mode_ExternalCipher : public CipherModeDocumentation
 	typedef CipherModeFinalTemplate_ExternalCipher<ConcretePolicyHolder<Empty, AdditiveCipherTemplate<AbstractPolicyHolder<AdditiveCipherAbstractPolicy, OFB_ModePolicy> > > > Encryption;
 	typedef Encryption Decryption;
 };
+
+CRYPTOPP_DLL_TEMPLATE_CLASS AdditiveCipherTemplate<AbstractPolicyHolder<AdditiveCipherAbstractPolicy, CTR_ModePolicy> >;
 
 //! CTR mode
 template <class CIPHER>
@@ -335,6 +358,8 @@ struct ECB_Mode : public CipherModeDocumentation
 	typedef CipherModeFinalTemplate_CipherHolder<CPP_TYPENAME CIPHER::Decryption, ECB_OneWay> Decryption;
 };
 
+CRYPTOPP_DLL_TEMPLATE_CLASS CipherModeFinalTemplate_ExternalCipher<ECB_OneWay>;
+
 //! ECB mode, external cipher
 struct ECB_Mode_ExternalCipher : public CipherModeDocumentation
 {
@@ -350,6 +375,9 @@ struct CBC_Mode : public CipherModeDocumentation
 	typedef CipherModeFinalTemplate_CipherHolder<CPP_TYPENAME CIPHER::Decryption, CBC_Decryption> Decryption;
 };
 
+CRYPTOPP_DLL_TEMPLATE_CLASS CipherModeFinalTemplate_ExternalCipher<CBC_Encryption>;
+CRYPTOPP_DLL_TEMPLATE_CLASS CipherModeFinalTemplate_ExternalCipher<CBC_Decryption>;
+
 //! CBC mode, external cipher
 struct CBC_Mode_ExternalCipher : public CipherModeDocumentation
 {
@@ -364,6 +392,9 @@ struct CBC_CTS_Mode : public CipherModeDocumentation
 	typedef CipherModeFinalTemplate_CipherHolder<CPP_TYPENAME CIPHER::Encryption, CBC_CTS_Encryption> Encryption;
 	typedef CipherModeFinalTemplate_CipherHolder<CPP_TYPENAME CIPHER::Decryption, CBC_CTS_Decryption> Decryption;
 };
+
+CRYPTOPP_DLL_TEMPLATE_CLASS CipherModeFinalTemplate_ExternalCipher<CBC_CTS_Encryption>;
+CRYPTOPP_DLL_TEMPLATE_CLASS CipherModeFinalTemplate_ExternalCipher<CBC_CTS_Decryption>;
 
 //! CBC mode with ciphertext stealing, external cipher
 struct CBC_CTS_Mode_ExternalCipher : public CipherModeDocumentation

@@ -1,6 +1,9 @@
 // fips140.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
+
+#ifndef CRYPTOPP_IMPORTS
+
 #include "fips140.h"
 #include "trdlocal.h"	// needs to be included last for cygwin
 
@@ -32,7 +35,7 @@ void SimulatePowerUpSelfTestFailure()
 	g_powerUpSelfTestStatus = POWER_UP_SELF_TEST_FAILED;
 }
 
-PowerUpSelfTestStatus GetPowerUpSelfTestStatus()
+PowerUpSelfTestStatus CRYPTOPP_API GetPowerUpSelfTestStatus()
 {
 	return g_powerUpSelfTestStatus;
 }
@@ -77,3 +80,5 @@ void SignaturePairwiseConsistencyTest_FIPS_140_Only(const PK_Signer &signer, con
 }
 
 NAMESPACE_END
+
+#endif

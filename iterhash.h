@@ -4,6 +4,7 @@
 #include "cryptlib.h"
 #include "secblock.h"
 #include "misc.h"
+#include "simple.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -13,8 +14,10 @@ class CRYPTOPP_NO_VTABLE IteratedHashBase : public BASE
 public:
 	typedef T HashWordType;
 
-	IteratedHashBase(unsigned int blockSize, unsigned int digestSize);
-	unsigned int DigestSize() const {return m_digest.size() * sizeof(T);};
+	IteratedHashBase() : m_countHi(0), m_countLo(0) {}
+	void SetBlockSize(unsigned int blockSize) {m_data.resize(blockSize / sizeof(HashWordType));}
+	void SetStateSize(unsigned int stateSize) {m_digest.resize(stateSize / sizeof(HashWordType));}
+	unsigned int BlockSize() const {return m_data.size() * sizeof(T);}
 	unsigned int OptimalBlockSize() const {return BlockSize();}
 	unsigned int OptimalDataAlignment() const {return sizeof(T);}
 	void Update(const byte *input, unsigned int length);
@@ -29,7 +32,6 @@ protected:
 	void PadLastBlock(unsigned int lastBlockSize, byte padFirst=0x80);
 	virtual void Init() =0;
 	virtual void HashBlock(const T *input) =0;
-	virtual unsigned int BlockSize() const =0;
 
 	SecBlock<T> m_data;			// Data buffer
 	SecBlock<T> m_digest;		// Message digest
@@ -38,14 +40,19 @@ private:
 	T m_countLo, m_countHi;
 };
 
+#ifdef WORD64_AVAILABLE
+CRYPTOPP_DLL_TEMPLATE_CLASS IteratedHashBase<word64, HashTransformation>;
+CRYPTOPP_DLL_TEMPLATE_CLASS IteratedHashBase<word64, MessageAuthenticationCode>;
+#endif
+
+CRYPTOPP_DLL_TEMPLATE_CLASS IteratedHashBase<word32, HashTransformation>;
+CRYPTOPP_DLL_TEMPLATE_CLASS IteratedHashBase<word32, MessageAuthenticationCode>;
+
 //! .
 template <class T, class B, class BASE>
 class CRYPTOPP_NO_VTABLE IteratedHashBase2 : public IteratedHashBase<T, BASE>
 {
 public:
-	IteratedHashBase2(unsigned int blockSize, unsigned int digestSize)
-		: IteratedHashBase<T, BASE>(blockSize, digestSize) {}
-
 	typedef B ByteOrderClass;
 	typedef typename IteratedHashBase<T, BASE>::HashWordType HashWordType;
 
@@ -58,32 +65,37 @@ public:
 
 protected:
 	void HashBlock(const HashWordType *input);
-
-	virtual void vTransform(const HashWordType *data) =0;
+	virtual void HashEndianCorrectedBlock(const HashWordType *data) =0;
 };
 
 //! .
-template <class T, class B, unsigned int S, class BASE = HashTransformation>
-class CRYPTOPP_NO_VTABLE IteratedHash : public IteratedHashBase2<T, B, BASE>
+template <class T_HashWordType, class T_Endianness, unsigned int T_BlockSize, class T_Base = HashTransformation>
+class CRYPTOPP_NO_VTABLE IteratedHash : public IteratedHashBase2<T_HashWordType, T_Endianness, T_Base>
 {
 public:
-	enum {BLOCKSIZE = S};
-
-private:
+	enum {BLOCKSIZE = T_BlockSize};
 	CRYPTOPP_COMPILE_ASSERT((BLOCKSIZE & (BLOCKSIZE - 1)) == 0);		// blockSize is a power of 2
 
 protected:
-	IteratedHash(unsigned int digestSize) : IteratedHashBase2<T, B, BASE>(BLOCKSIZE, digestSize) {}
-	unsigned int BlockSize() const {return BLOCKSIZE;}
+	IteratedHash() {SetBlockSize(T_BlockSize);}
 };
 
-template <class T, class B, unsigned int S, class M>
-class CRYPTOPP_NO_VTABLE IteratedHashWithStaticTransform : public IteratedHash<T, B, S>
+template <class T_HashWordType, class T_Endianness, unsigned int T_BlockSize, unsigned int T_StateSize, class T_Transform, unsigned int T_DigestSize = T_StateSize>
+class CRYPTOPP_NO_VTABLE IteratedHashWithStaticTransform
+	: public ClonableImpl<T_Transform, AlgorithmImpl<IteratedHash<T_HashWordType, T_Endianness, T_BlockSize>, T_Transform> >
 {
+public:
+	enum {DIGESTSIZE = T_DigestSize};
+	unsigned int DigestSize() const {return DIGESTSIZE;};
+
 protected:
-	IteratedHashWithStaticTransform(unsigned int digestSize) : IteratedHash<T, B, S>(digestSize) {}
-	void vTransform(const T *data) {M::Transform(m_digest, data);}
-	std::string AlgorithmName() const {return M::StaticAlgorithmName();}
+	IteratedHashWithStaticTransform()
+	{
+		SetStateSize(T_StateSize);
+		Init();
+	}
+	void HashEndianCorrectedBlock(const T_HashWordType *data) {T_Transform::Transform(m_digest, data);}
+	void Init() {T_Transform::InitState(m_digest);}
 };
 
 // *************************************************************
@@ -98,7 +110,7 @@ template <class T, class B, class BASE> void IteratedHashBase2<T, B, BASE>::Trun
 	m_data[m_data.size()-2] = B::ToEnum() ? GetBitCountHi() : GetBitCountLo();
 	m_data[m_data.size()-1] = B::ToEnum() ? GetBitCountLo() : GetBitCountHi();
 
-	vTransform(m_data);
+	HashEndianCorrectedBlock(m_data);
 	CorrectEndianess(m_digest, m_digest, DigestSize());
 	memcpy(hash, m_digest, size);
 
@@ -108,11 +120,11 @@ template <class T, class B, class BASE> void IteratedHashBase2<T, B, BASE>::Trun
 template <class T, class B, class BASE> void IteratedHashBase2<T, B, BASE>::HashBlock(const HashWordType *input)
 {
 	if (NativeByteOrderIs(B::ToEnum()))
-		vTransform(input);
+		HashEndianCorrectedBlock(input);
 	else
 	{
 		ByteReverse(m_data.begin(), input, BlockSize());
-		vTransform(m_data);
+		HashEndianCorrectedBlock(m_data);
 	}
 }
 

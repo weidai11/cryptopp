@@ -1,6 +1,9 @@
 // pubkey.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
+
+#ifndef CRYPTOPP_IMPORTS
+
 #include "pubkey.h"
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -120,3 +123,5 @@ void TF_EncryptorBase::Encrypt(RandomNumberGenerator &rng, const byte *plainText
 }
 
 NAMESPACE_END
+
+#endif

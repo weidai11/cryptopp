@@ -43,15 +43,15 @@ protected:
 template <class B = BigEndian>
 struct WAKE_CFB : public WAKE_Info<B>, public SymmetricCipherDocumentation
 {
-	typedef SymmetricCipherFinalTemplate<ConcretePolicyHolder<WAKE_Policy<B>, CFB_EncryptionTemplate<> > > Encryption;
-	typedef SymmetricCipherFinalTemplate<ConcretePolicyHolder<WAKE_Policy<B>, CFB_DecryptionTemplate<> > > Decryption;
+	typedef SymmetricCipherFinal<ConcretePolicyHolder<WAKE_Policy<B>, CFB_EncryptionTemplate<> > > Encryption;
+	typedef SymmetricCipherFinal<ConcretePolicyHolder<WAKE_Policy<B>, CFB_DecryptionTemplate<> > > Decryption;
 };
 
 //! WAKE-OFB
 template <class B = BigEndian>
 struct WAKE_OFB : public WAKE_Info<B>, public SymmetricCipherDocumentation
 {
-	typedef SymmetricCipherFinalTemplate<ConcretePolicyHolder<WAKE_Policy<B>, AdditiveCipherTemplate<> > > Encryption;
+	typedef SymmetricCipherFinal<ConcretePolicyHolder<WAKE_Policy<B>, AdditiveCipherTemplate<> > > Encryption;
 	typedef Encryption Decryption;
 };
 

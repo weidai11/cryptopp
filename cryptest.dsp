@@ -25,8 +25,8 @@ CFG=cryptest - Win32 Debug
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
-# PROP Scc_ProjName ""
-# PROP Scc_LocalPath ""
+# PROP Scc_ProjName "Perforce Project"
+# PROP Scc_LocalPath "."
 CPP=cl.exe
 RSC=rc.exe
 
@@ -45,7 +45,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /G5 /Gz /MT /W3 /GX /Zi /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /Zm200 /c
-# ADD CPP /nologo /G5 /Gz /MT /W3 /GX /Zi /O2 /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /D "WIN32" /YX /FD /Zm200 /c
+# ADD CPP /nologo /G5 /Gz /MD /W3 /GX /Zi /O2 /D "NDEBUG" /D "CRYPTOPP_IMPORTS" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /YX /FD /Zm400 /c
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -53,11 +53,11 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib Ws2_32.lib /nologo /subsystem:console /debug /machine:I386 /OPT:NOWIN98
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib Ws2_32.lib /nologo /subsystem:console /debug /machine:I386 /OPT:NOWIN98 /OPT:REF /OPT:ICF
-# SUBTRACT LINK32 /pdb:none
+# ADD LINK32 Ws2_32.lib /nologo /subsystem:console /debug /machine:I386 /out:"DLL_Release/cryptest.exe" /libpath:"DLL_Release" /OPT:NOWIN98 /OPT:REF /OPT:ICF
+# SUBTRACT LINK32 /pdb:none /incremental:yes
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=echo This configuration is used to build a static binary for FIPS 140 evaluation by a testing laboratory.	echo Crypto++ users should not build this configuration directly.
+PreLink_Cmds=echo This configuration requires cryptopp.dll.	echo You can build it yourself using the cryptdll project, or	echo obtain a pre-built, FIPS 140-2 validated DLL. If you build it yourself	echo the resulting DLL will not be considered FIPS validated	echo unless it undergoes FIPS validation.
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "cryptest - Win32 FIPS 140 Debug"
@@ -75,7 +75,7 @@ PostBuild_Cmds=echo This configuration is used to build a static binary for FIPS
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /Zm200 /c
-# ADD CPP /nologo /G5 /Gz /MTd /W3 /GX /ZI /Od /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /D "WIN32" /YX /FD /Zm300 /c
+# ADD CPP /nologo /G5 /Gz /MDd /W3 /GX /ZI /Od /D "_DEBUG" /D "CRYPTOPP_IMPORTS" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /YX /FD /Zm400 /c
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -83,10 +83,10 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib Ws2_32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept /OPT:NOWIN98
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib Ws2_32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept /OPT:NOWIN98
+# ADD LINK32 Ws2_32.lib /nologo /subsystem:console /debug /machine:I386 /out:"DLL_Debug/cryptest.exe" /pdbtype:sept /libpath:"DLL_Debug" /OPT:NOWIN98
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=echo This configuration is used to build a static binary for FIPS 140 evaluation by a testing laboratory.	echo Crypto++ users should not build this configuration directly.
+PreLink_Cmds=echo This configuration requires cryptopp.dll.	echo You can build it yourself using the cryptdll project, or	echo obtain a pre-built, FIPS 140-2 validated DLL. If you build it yourself	echo the resulting DLL will not be considered FIPS validated	echo unless it undergoes FIPS validation.
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "cryptest - Win32 Release"
@@ -103,7 +103,7 @@ PostBuild_Cmds=echo This configuration is used to build a static binary for FIPS
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MT /W3 /GX /Zi /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /Zm200 /c
+# ADD CPP /nologo /MT /W3 /GX /Zi /O2 /D "NDEBUG" /D "CRYPTOPP_NO_DLL" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /YX /FD /Zm400 /c
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -128,7 +128,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MTd /W3 /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /Zm300 /c
+# ADD CPP /nologo /MTd /W3 /GX /ZI /Od /D "_DEBUG" /D "CRYPTOPP_NO_DLL" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /YX /FD /Zm400 /c
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -389,6 +389,10 @@ SOURCE=.\bench.h
 # Begin Source File
 
 SOURCE=.\datatest.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\dlltest.cpp
 # End Source File
 # Begin Source File
 

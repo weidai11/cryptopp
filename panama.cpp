@@ -101,7 +101,7 @@ void PanamaHash<B>::TruncatedFinal(byte *hash, unsigned int size)
 
 	PadLastBlock(BLOCKSIZE, 0x01);
 	
-	vTransform(m_data);
+	HashEndianCorrectedBlock(m_data);
 
 	Iterate(32);	// pull
 

@@ -62,10 +62,10 @@ void Whirlpool_TestInstantiations()
 	Whirlpool x;
 }
 
-void Whirlpool::Init()
+void Whirlpool::InitState(HashWordType *state)
 {
-	m_digest[0] = m_digest[1] = m_digest[2] = m_digest[3] =
-	m_digest[4] = m_digest[5] = m_digest[6] = m_digest[7] = 0;
+	state[0] = state[1] = state[2] = state[3] =
+	state[4] = state[5] = state[6] = state[7] = 0;
 }
 
 void Whirlpool::TruncatedFinal(byte *hash, unsigned int size)

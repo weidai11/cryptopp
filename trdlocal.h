@@ -8,8 +8,7 @@
 #include "misc.h"
 
 #ifdef HAS_WINTHREADS
-#include <windows.h>
-typedef DWORD ThreadLocalIndexType;
+typedef unsigned long ThreadLocalIndexType;
 #else
 #include <pthread.h>
 typedef pthread_key_t ThreadLocalIndexType;
@@ -18,7 +17,7 @@ typedef pthread_key_t ThreadLocalIndexType;
 NAMESPACE_BEGIN(CryptoPP)
 
 //! thread local storage
-class ThreadLocalStorage : public NotCopyable
+class CRYPTOPP_DLL ThreadLocalStorage : public NotCopyable
 {
 public:
 	//! exception thrown by ThreadLocalStorage class

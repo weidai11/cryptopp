@@ -1,6 +1,9 @@
 // mqueue.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
+
+#ifndef CRYPTOPP_IMPORTS
+
 #include "mqueue.h"
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -180,3 +183,5 @@ bool EqualityComparisonFilter::HandleMismatchDetected(bool blocking)
 }
 
 NAMESPACE_END
+
+#endif

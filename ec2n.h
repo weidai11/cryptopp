@@ -9,7 +9,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 //! Elliptic Curve Point
-struct EC2NPoint
+struct CRYPTOPP_DLL EC2NPoint
 {
 	EC2NPoint() : identity(true) {}
 	EC2NPoint(const PolynomialMod2 &x, const PolynomialMod2 &y)
@@ -24,8 +24,10 @@ struct EC2NPoint
 	PolynomialMod2 x, y;
 };
 
+CRYPTOPP_DLL_TEMPLATE_CLASS AbstractGroup<EC2NPoint>;
+
 //! Elliptic Curve over GF(2^n)
-class EC2N : public AbstractGroup<EC2NPoint>
+class CRYPTOPP_DLL EC2N : public AbstractGroup<EC2NPoint>
 {
 public:
 	typedef GF2NP Field;
@@ -73,11 +75,17 @@ public:
 	const FieldElement & GetA() const {return m_a;}
 	const FieldElement & GetB() const {return m_b;}
 
+	bool operator==(const EC2N &rhs) const
+		{return GetField() == rhs.GetField() && m_a == rhs.m_a && m_b == rhs.m_b;}
+
 private:
 	clonable_ptr<Field> m_field;
 	FieldElement m_a, m_b;
 	mutable Point m_R;
 };
+
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_FixedBasePrecomputationImpl<EC2N::Point>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_GroupPrecomputation<EC2N::Point>;
 
 template <class T> class EcPrecomputation;
 

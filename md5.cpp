@@ -12,12 +12,12 @@ void MD5_TestInstantiations()
 	MD5 x;
 }
 
-void MD5::Init()
+void MD5::InitState(HashWordType *state)
 {
-	m_digest[0] = 0x67452301L;
-	m_digest[1] = 0xefcdab89L;
-	m_digest[2] = 0x98badcfeL;
-	m_digest[3] = 0x10325476L;
+	state[0] = 0x67452301L;
+	state[1] = 0xefcdab89L;
+	state[2] = 0x98badcfeL;
+	state[3] = 0x10325476L;
 }
 
 void MD5::Transform (word32 *digest, const word32 *in)

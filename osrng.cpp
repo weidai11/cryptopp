@@ -3,6 +3,9 @@
 // Thanks to Leonard Janke for the suggestion for AutoSeededRandomPool.
 
 #include "pch.h"
+
+#ifndef CRYPTOPP_IMPORTS
+
 #include "osrng.h"
 
 #ifdef OS_RNG_AVAILABLE
@@ -168,5 +171,7 @@ void AutoSeededRandomPool::Reseed(bool blocking, unsigned int seedSize)
 }
 
 NAMESPACE_END
+
+#endif
 
 #endif

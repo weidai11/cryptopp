@@ -1,13 +1,11 @@
 // pkcspad.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
+
 #include "pkcspad.h"
 #include <assert.h>
 
 NAMESPACE_BEGIN(CryptoPP)
-
-template<> const byte PKCS_DigestDecoration<SHA>::decoration[] = {0x30,0x21,0x30,0x09,0x06,0x05,0x2B,0x0E,0x03,0x02,0x1A,0x05,0x00,0x04,0x14};
-template<> const unsigned int PKCS_DigestDecoration<SHA>::length = sizeof(PKCS_DigestDecoration<SHA>::decoration);
 
 template<> const byte PKCS_DigestDecoration<MD2>::decoration[] = {0x30,0x20,0x30,0x0c,0x06,0x08,0x2a,0x86,0x48,0x86,0xf7,0x0d,0x02,0x02,0x05,0x00,0x04,0x10};
 template<> const unsigned int PKCS_DigestDecoration<MD2>::length = sizeof(PKCS_DigestDecoration<MD2>::decoration);
@@ -91,6 +89,8 @@ DecodingResult PKCS_EncryptionPaddingScheme::Unpad(const byte *pkcsBlock, unsign
 
 // ********************************************************
 
+#ifndef CRYPTOPP_IMPORTS
+
 void PKCS1v15_SignatureMessageEncodingMethod::ComputeMessageRepresentative(RandomNumberGenerator &rng, 
 	const byte *recoverableMessage, unsigned int recoverableMessageLength,
 	HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
@@ -122,5 +122,7 @@ void PKCS1v15_SignatureMessageEncodingMethod::ComputeMessageRepresentative(Rando
 	memcpy(pHashId, hashIdentifier.first, hashIdentifier.second);
 	hash.Final(pDigest);
 }
+
+#endif
 
 NAMESPACE_END

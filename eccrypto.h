@@ -1,5 +1,5 @@
 #ifndef CRYPTOPP_ECCRYPTO_H
-#define CRYPTOPP_ECCRTPTO_H
+#define CRYPTOPP_ECCRYPTO_H
 
 /*! \file
 */
@@ -12,10 +12,10 @@
 #include "gfpcrypt.h"
 #include "dh.h"
 #include "mqv.h"
+#include "ecp.h"
+#include "ec2n.h"
 
 NAMESPACE_BEGIN(CryptoPP)
-
-template <class T> class EcPrecomputation;
 
 //! Elliptic Curve Parameters
 /*! This class corresponds to the ASN.1 sequence of the same name
@@ -117,6 +117,9 @@ public:
 
 	const EllipticCurve& GetCurve() const {return m_groupPrecomputation.GetCurve();}
 
+	bool operator==(const ThisClass &rhs) const
+		{return DL_GroupParametersImpl<EcPrecomputation<EC> >::operator==(rhs);}
+
 #ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
 	const Point& GetBasePoint() const {return GetSubgroupGenerator();}
 	const Integer& GetBasePointOrder() const {return GetSubgroupOrder();}
@@ -132,6 +135,11 @@ protected:
 	bool m_compress, m_encodeAsOID;
 	mutable Integer m_k;		// cofactor
 };
+
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_GroupParameters_EC<ECP>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_GroupParameters_EC<EC2N>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_PublicKeyImpl<DL_GroupParameters_EC<ECP> >;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_PublicKeyImpl<DL_GroupParameters_EC<EC2N> >;
 
 //! .
 template <class EC>
@@ -149,6 +157,11 @@ public:
 	void BERDecodeKey2(BufferedTransformation &bt, bool parametersPresent, unsigned int size);
 	void DEREncodeKey(BufferedTransformation &bt) const;
 };
+
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_PublicKey_EC<ECP>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_PublicKey_EC<EC2N>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKeyImpl<DL_GroupParameters_EC<ECP> >;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKeyImpl<DL_GroupParameters_EC<EC2N> >;
 
 //! .
 template <class EC>
@@ -170,6 +183,9 @@ public:
 	void BERDecodeKey2(BufferedTransformation &bt,  bool parametersPresent, unsigned int size);
 	void DEREncodeKey(BufferedTransformation &bt) const;
 };
+
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_EC<ECP>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_EC<EC2N>;
 
 //! Elliptic Curve Diffie-Hellman, AKA <a href="http://www.weidai.com/scan-mirror/ka.html#ECDH">ECDH</a>
 template <class EC, class COFACTOR_OPTION = CPP_TYPENAME DL_GroupParameters_EC<EC>::DefaultCofactorOption>
@@ -196,6 +212,9 @@ struct DL_Keys_EC
 template <class EC, class H = SHA>
 struct ECDSA;
 
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_WithSignaturePairwiseConsistencyTest<DL_PrivateKey_EC<ECP>, ECDSA<ECP> >;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_WithSignaturePairwiseConsistencyTest<DL_PrivateKey_EC<EC2N>, ECDSA<EC2N> >;
+
 //! .
 template <class EC>
 struct DL_Keys_ECDSA
@@ -203,6 +222,9 @@ struct DL_Keys_ECDSA
 	typedef DL_PublicKey_EC<EC> PublicKey;
 	typedef DL_PrivateKey_WithSignaturePairwiseConsistencyTest<DL_PrivateKey_EC<EC>, ECDSA<EC> > PrivateKey;
 };
+
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_GDSA<ECP::Point>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_GDSA<EC2N::Point>;
 
 //! .
 template <class EC>

@@ -11,6 +11,13 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+template <class DERIVED, class BASE>
+class CRYPTOPP_NO_VTABLE ClonableImpl : public BASE
+{
+public:
+	Clonable * Clone() const {return new DERIVED(*static_cast<const DERIVED *>(this));}
+};
+
 template <class BASE, class ALGORITHM_INFO = BASE>
 class CRYPTOPP_NO_VTABLE AlgorithmImpl : public BASE
 {
@@ -19,29 +26,22 @@ public:
 };
 
 //! .
-class InvalidKeyLength : public InvalidArgument
+class CRYPTOPP_DLL InvalidKeyLength : public InvalidArgument
 {
 public:
 	explicit InvalidKeyLength(const std::string &algorithm, unsigned int length) : InvalidArgument(algorithm + ": " + IntToString(length) + " is not a valid key length") {}
 };
 
 //! .
-class InvalidRounds : public InvalidArgument
+class CRYPTOPP_DLL InvalidRounds : public InvalidArgument
 {
 public:
 	explicit InvalidRounds(const std::string &algorithm, unsigned int rounds) : InvalidArgument(algorithm + ": " + IntToString(rounds) + " is not a valid number of rounds") {}
 };
 
-class CRYPTOPP_NO_VTABLE HashTransformationWithDefaultTruncation : public HashTransformation
-{
-public:
-	virtual void Final(byte *digest) =0;
-	void TruncatedFinal(byte *digest, unsigned int digestSize);
-};
-
 //! .
 // TODO: look into this virtual inheritance
-class ASN1CryptoMaterial : virtual public ASN1Object, virtual public CryptoMaterial
+class CRYPTOPP_DLL ASN1CryptoMaterial : virtual public ASN1Object, virtual public CryptoMaterial
 {
 public:
 	void Save(BufferedTransformation &bt) const
@@ -175,7 +175,7 @@ private:
 };
 
 //! A BufferedTransformation that only contains pre-existing data as "output"
-class CRYPTOPP_NO_VTABLE Store : public AutoSignaling<InputRejecting<BufferedTransformation> >
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Store : public AutoSignaling<InputRejecting<BufferedTransformation> >
 {
 public:
 	Store() : m_messageEnd(false) {}
@@ -197,7 +197,7 @@ protected:
 };
 
 //! A BufferedTransformation that doesn't produce any retrievable output
-class CRYPTOPP_NO_VTABLE Sink : public BufferedTransformation
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Sink : public BufferedTransformation
 {
 protected:
 	// make these functions protected to help prevent unintentional calls to them
@@ -216,7 +216,7 @@ protected:
 		{return 0;}
 };
 
-class BitBucket : public Bufferless<Sink>
+class CRYPTOPP_DLL BitBucket : public Bufferless<Sink>
 {
 public:
 	std::string AlgorithmName() const {return "BitBucket";}

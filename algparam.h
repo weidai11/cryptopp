@@ -243,9 +243,9 @@ AssignFromHelperClass<T, T> AssignFromHelper(T *pObject, const NameValuePairs &s
 // ********************************************************
 
 // This should allow the linker to discard Integer code if not needed.
-extern bool (*AssignIntToInteger)(const std::type_info &valueType, void *pInteger, const void *pInt);
+CRYPTOPP_DLL extern bool (*AssignIntToInteger)(const std::type_info &valueType, void *pInteger, const void *pInt);
 
-const std::type_info & IntegerTypeId();
+CRYPTOPP_DLL const std::type_info & IntegerTypeId();
 
 template <class BASE, class T>
 class AlgorithmParameters : public NameValuePairs

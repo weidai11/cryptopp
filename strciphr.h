@@ -14,14 +14,14 @@
 	(since it's an additive cipher, i.e., it xors a keystream into the plaintext).
 	See this line in seal.h:
 
-	typedef SymmetricCipherFinalTemplate<ConcretePolicyHolder<SEAL_Policy<B>, AdditiveCipherTemplate<> > > Encryption;
+	typedef SymmetricCipherFinal<ConcretePolicyHolder<SEAL_Policy<B>, AdditiveCipherTemplate<> > > Encryption;
 
 	AdditiveCipherTemplate and CFB_CipherTemplate are designed so that they don't need
 	to take a policy class as a template parameter (although this is allowed), so that
 	their code is not duplicated for each new cipher. Instead they each
 	get a reference to an abstract policy interface by calling AccessPolicy() on itself, so
 	AccessPolicy() must be overriden to return the actual policy reference. This is done
-	by the ConceretePolicyHolder class. Finally, SymmetricCipherFinalTemplate implements the constructors and
+	by the ConceretePolicyHolder class. Finally, SymmetricCipherFinal implements the constructors and
 	other functions that must be implemented by the most derived class.
 */
 
@@ -55,7 +55,7 @@ protected:
 
 enum KeystreamOperation {WRITE_KEYSTREAM, XOR_KEYSTREAM, XOR_KEYSTREAM_INPLACE};
 
-struct CRYPTOPP_NO_VTABLE AdditiveCipherAbstractPolicy
+struct CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AdditiveCipherAbstractPolicy
 {
 	virtual unsigned int GetAlignment() const =0;
 	virtual unsigned int GetBytesPerIteration() const =0;
@@ -146,8 +146,13 @@ protected:
 	unsigned int m_leftOver;
 };
 
-struct CRYPTOPP_NO_VTABLE CFB_CipherAbstractPolicy
+CRYPTOPP_DLL_TEMPLATE_CLASS TwoBases<SymmetricCipher, RandomNumberGenerator>;
+CRYPTOPP_DLL_TEMPLATE_CLASS AbstractPolicyHolder<AdditiveCipherAbstractPolicy, TwoBases<SymmetricCipher, RandomNumberGenerator> >;
+CRYPTOPP_DLL_TEMPLATE_CLASS AdditiveCipherTemplate<>;
+
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CFB_CipherAbstractPolicy
 {
+public:
 	virtual unsigned int GetAlignment() const =0;
 	virtual unsigned int GetBytesPerIteration() const =0;
 	virtual byte * GetRegisterBegin() =0;
@@ -246,16 +251,21 @@ class CRYPTOPP_NO_VTABLE CFB_DecryptionTemplate : public CFB_CipherTemplate<BASE
 	void CombineMessageAndShiftRegister(byte *output, byte *reg, const byte *message, unsigned int length);
 };
 
+CRYPTOPP_DLL_TEMPLATE_CLASS AbstractPolicyHolder<CFB_CipherAbstractPolicy, SymmetricCipher>;
+CRYPTOPP_DLL_TEMPLATE_CLASS CFB_CipherTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, SymmetricCipher> >;
+CRYPTOPP_DLL_TEMPLATE_CLASS CFB_EncryptionTemplate<>;
+CRYPTOPP_DLL_TEMPLATE_CLASS CFB_DecryptionTemplate<>;
+
 template <class BASE, class INFO = BASE>
-class SymmetricCipherFinalTemplate : public AlgorithmImpl<SimpleKeyingInterfaceImpl<BASE, INFO>, INFO>
+class SymmetricCipherFinal : public AlgorithmImpl<SimpleKeyingInterfaceImpl<BASE, INFO>, INFO>
 {
 public:
- 	SymmetricCipherFinalTemplate() {}
-	SymmetricCipherFinalTemplate(const byte *key)
+ 	SymmetricCipherFinal() {}
+	SymmetricCipherFinal(const byte *key)
 		{SetKey(key, DEFAULT_KEYLENGTH);}
-	SymmetricCipherFinalTemplate(const byte *key, unsigned int length)
+	SymmetricCipherFinal(const byte *key, unsigned int length)
 		{SetKey(key, length);}
-	SymmetricCipherFinalTemplate(const byte *key, unsigned int length, const byte *iv)
+	SymmetricCipherFinal(const byte *key, unsigned int length, const byte *iv)
 		{SetKeyWithIV(key, length, iv);}
 
 	void SetKey(const byte *key, unsigned int length, const NameValuePairs &params = g_nullNameValuePairs)
@@ -264,7 +274,7 @@ public:
 		UncheckedSetKey(params, key, length, GetIVAndThrowIfInvalid(params));
 	}
 
-	Clonable * Clone() const {return static_cast<SymmetricCipher *>(new SymmetricCipherFinalTemplate<BASE, INFO>(*this));}
+	Clonable * Clone() const {return static_cast<SymmetricCipher *>(new SymmetricCipherFinal<BASE, INFO>(*this));}
 };
 
 template <class S>

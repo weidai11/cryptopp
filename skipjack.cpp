@@ -2,6 +2,9 @@
 // which is public domain according to his web site.
 
 #include "pch.h"
+
+#ifndef CRYPTOPP_IMPORTS
+
 #include "skipjack.h"
 
 /* 
@@ -195,3 +198,5 @@ void SKIPJACK::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 }
 
 NAMESPACE_END
+
+#endif

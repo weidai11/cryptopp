@@ -8,7 +8,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 //! Message Queue
-class MessageQueue : public AutoSignaling<BufferedTransformation>
+class CRYPTOPP_DLL MessageQueue : public AutoSignaling<BufferedTransformation>
 {
 public:
 	MessageQueue(unsigned int nodeSize=256);
@@ -62,7 +62,7 @@ private:
 
 
 //! A filter that checks messages on two channels for equality
-class EqualityComparisonFilter : public Unflushable<Multichannel<Filter> >
+class CRYPTOPP_DLL EqualityComparisonFilter : public Unflushable<Multichannel<Filter> >
 {
 public:
 	struct MismatchDetected : public Exception {MismatchDetected() : Exception(DATA_INTEGRITY_CHECK_FAILED, "EqualityComparisonFilter: did not receive the same data on two channels") {}};

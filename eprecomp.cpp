@@ -1,6 +1,9 @@
 // eprecomp.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
+
+#ifndef CRYPTOPP_IMPORTS
+
 #include "eprecomp.h"
 #include "asn.h"
 
@@ -105,3 +108,5 @@ template <class T> T
 }
 
 NAMESPACE_END
+
+#endif

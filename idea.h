@@ -17,7 +17,7 @@ struct IDEA_Info : public FixedBlockSize<8>, public FixedKeyLength<16>, public F
 /// <a href="http://www.weidai.com/scan-mirror/cs.html#IDEA">IDEA</a>
 class IDEA : public IDEA_Info, public BlockCipherDocumentation
 {
-	class CRYPTOPP_NO_VTABLE Base : public BlockCipherBaseTemplate<IDEA_Info>
+	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<IDEA_Info>
 	{
 	public:
 		unsigned int GetAlignment() const {return 2;}
@@ -40,8 +40,8 @@ class IDEA : public IDEA_Info, public BlockCipherDocumentation
 	};
 
 public:
-	typedef BlockCipherTemplate<ENCRYPTION, Base> Encryption;
-	typedef BlockCipherTemplate<DECRYPTION, Base> Decryption;
+	typedef BlockCipherFinal<ENCRYPTION, Base> Encryption;
+	typedef BlockCipherFinal<DECRYPTION, Base> Decryption;
 };
 
 typedef IDEA::Encryption IDEAEncryption;

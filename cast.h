@@ -24,7 +24,7 @@ struct CAST128_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 5, 
 /// <a href="http://www.weidai.com/scan-mirror/cs.html#CAST-128">CAST-128</a>
 class CAST128 : public CAST128_Info, public BlockCipherDocumentation
 {
-	class CRYPTOPP_NO_VTABLE Base : public CAST, public BlockCipherBaseTemplate<CAST128_Info>
+	class CRYPTOPP_NO_VTABLE Base : public CAST, public BlockCipherImpl<CAST128_Info>
 	{
 	public:
 		void UncheckedSetKey(CipherDir direction, const byte *userKey, unsigned int length);
@@ -47,8 +47,8 @@ class CAST128 : public CAST128_Info, public BlockCipherDocumentation
 	};
 
 public:
-	typedef BlockCipherTemplate<ENCRYPTION, Enc> Encryption;
-	typedef BlockCipherTemplate<DECRYPTION, Dec> Decryption;
+	typedef BlockCipherFinal<ENCRYPTION, Enc> Encryption;
+	typedef BlockCipherFinal<DECRYPTION, Dec> Decryption;
 };
 
 //! .
@@ -60,7 +60,7 @@ struct CAST256_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 16
 //! <a href="http://www.weidai.com/scan-mirror/cs.html#CAST-256">CAST-256</a>
 class CAST256 : public CAST256_Info, public BlockCipherDocumentation
 {
-	class CRYPTOPP_NO_VTABLE Base : public CAST, public BlockCipherBaseTemplate<CAST256_Info>
+	class CRYPTOPP_NO_VTABLE Base : public CAST, public BlockCipherImpl<CAST256_Info>
 	{
 	public:
 		void UncheckedSetKey(CipherDir direction, const byte *userKey, unsigned int length = 8);
@@ -76,8 +76,8 @@ class CAST256 : public CAST256_Info, public BlockCipherDocumentation
 	};
 
 public:
-	typedef BlockCipherTemplate<ENCRYPTION, Base> Encryption;
-	typedef BlockCipherTemplate<DECRYPTION, Base> Decryption;
+	typedef BlockCipherFinal<ENCRYPTION, Base> Encryption;
+	typedef BlockCipherFinal<DECRYPTION, Base> Decryption;
 };
 
 typedef CAST128::Encryption CAST128Encryption;

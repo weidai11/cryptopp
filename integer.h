@@ -24,6 +24,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 #if defined(SSE2_INTRINSICS_AVAILABLE) || defined(_MSC_VER)
+
 	template <class T>
 	class AlignedAllocator : public AllocatorBase<T>
 	{
@@ -37,7 +38,11 @@ NAMESPACE_BEGIN(CryptoPP)
 			return StandardReallocate(*this, p, oldSize, newSize, preserve);
 		}
 	};
+template class CRYPTOPP_DLL AlignedAllocator<word>;
 	typedef SecBlock<word, AlignedAllocator<word> > SecAlignedWordBlock;
+
+void CRYPTOPP_DLL DisableSSE2();
+
 #else
 	typedef SecWordBlock SecAlignedWordBlock;
 #endif
@@ -47,7 +52,7 @@ NAMESPACE_BEGIN(CryptoPP)
 	with absolute value less than (256**sizeof(word)) ** (256**sizeof(int)).
 	\nosubgrouping
 */
-class Integer : public ASN1Object
+class CRYPTOPP_DLL Integer : public ASN1Object
 {
 public:
 	//! \name ENUMS, EXCEPTIONS, and TYPEDEFS
@@ -355,9 +360,9 @@ public:
 		Integer MultiplicativeInverse() const;
 
 		//! modular multiplication
-		friend Integer a_times_b_mod_c(const Integer &x, const Integer& y, const Integer& m);
+		CRYPTOPP_DLL friend Integer a_times_b_mod_c(const Integer &x, const Integer& y, const Integer& m);
 		//! modular exponentiation
-		friend Integer a_exp_b_mod_c(const Integer &x, const Integer& e, const Integer& m);
+		CRYPTOPP_DLL friend Integer a_exp_b_mod_c(const Integer &x, const Integer& e, const Integer& m);
 
 		//! calculate r and q such that (a == d*q + r) && (0 <= r < abs(d))
 		static void Divide(Integer &r, Integer &q, const Integer &a, const Integer &d);
@@ -378,9 +383,9 @@ public:
 	//! \name INPUT/OUTPUT
 	//@{
 		//!
-		friend std::istream& operator>>(std::istream& in, Integer &a);
+		friend CRYPTOPP_DLL std::istream& operator>>(std::istream& in, Integer &a);
 		//!
-		friend std::ostream& operator<<(std::ostream& out, const Integer &a);
+		friend CRYPTOPP_DLL std::ostream& operator<<(std::ostream& out, const Integer &a);
 	//@}
 
 private:

@@ -1,7 +1,11 @@
 // trdlocal.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
+
+#ifndef CRYPTOPP_IMPORTS
+
 #include "trdlocal.h"
+#include <windows.h>
 
 #ifdef THREADS_AVAILABLE
 
@@ -64,3 +68,5 @@ void *ThreadLocalStorage::GetValue() const
 NAMESPACE_END
 
 #endif	// #ifdef THREADS_AVAILABLE
+
+#endif

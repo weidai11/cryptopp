@@ -35,7 +35,7 @@ private:
 	and Charles Rackoff. T should be BlockTransformation class.
 */
 template <class T>
-class DMAC : public MessageAuthenticationCodeTemplate<DMAC_Base<T> >
+class DMAC : public MessageAuthenticationCodeFinal<DMAC_Base<T> >
 {
 public:
 	DMAC() {}

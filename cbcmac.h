@@ -6,22 +6,21 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-template <class T>
-class CRYPTOPP_NO_VTABLE CBC_MAC_Base : public SameKeyLengthAs<T>, public MessageAuthenticationCode
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CBC_MAC_Base : public MessageAuthenticationCode
 {
 public:
-	static std::string StaticAlgorithmName() {return std::string("CBC-MAC(") + T::StaticAlgorithmName() + ")";}
-
 	CBC_MAC_Base() {}
 
 	void CheckedSetKey(void *, Empty empty, const byte *key, unsigned int length, const NameValuePairs &params);
 	void Update(const byte *input, unsigned int length);
 	void TruncatedFinal(byte *mac, unsigned int size);
-	unsigned int DigestSize() const {return m_cipher.BlockSize();}
+	unsigned int DigestSize() const {return const_cast<CBC_MAC_Base*>(this)->AccessCipher().BlockSize();}
+
+protected:
+	virtual BlockCipher & AccessCipher() =0;
 
 private:
 	void ProcessBuf();
-	typename T::Encryption m_cipher;
 	SecByteBlock m_reg;
 	unsigned int m_counter;
 };
@@ -32,67 +31,19 @@ private:
 	messages use DMAC.
 */
 template <class T>
-class CBC_MAC : public MessageAuthenticationCodeTemplate<CBC_MAC_Base<T> >
+class CBC_MAC : public MessageAuthenticationCodeImpl<CBC_MAC_Base, CBC_MAC<T> >, public SameKeyLengthAs<T>
 {
 public:
 	CBC_MAC() {}
-	CBC_MAC(const byte *key, unsigned int length=CBC_MAC_Base<T>::DEFAULT_KEYLENGTH)
+	CBC_MAC(const byte *key, unsigned int length=DEFAULT_KEYLENGTH)
 		{SetKey(key, length);}
+
+	static std::string StaticAlgorithmName() {return std::string("CBC-MAC(") + T::StaticAlgorithmName() + ")";}
+
+private:
+	BlockCipher & AccessCipher() {return m_cipher;}
+	typename T::Encryption m_cipher;
 };
-
-template <class T>
-void CBC_MAC_Base<T>::CheckedSetKey(void *, Empty empty, const byte *key, unsigned int length, const NameValuePairs &params)
-{
-	m_cipher.SetKey(key, length, params);
-	m_reg.CleanNew(m_cipher.BlockSize());
-	m_counter = 0;
-}
-
-template <class T>
-void CBC_MAC_Base<T>::Update(const byte *input, unsigned int length)
-{
-	while (m_counter && length)
-	{
-		m_reg[m_counter++] ^= *input++;
-		if (m_counter == T::BLOCKSIZE)
-			ProcessBuf();
-		length--;
-	}
-
-	while (length >= T::BLOCKSIZE)
-	{
-		xorbuf(m_reg, input, T::BLOCKSIZE);
-		ProcessBuf();
-		input += T::BLOCKSIZE;
-		length -= T::BLOCKSIZE;
-	}
-
-	while (length--)
-	{
-		m_reg[m_counter++] ^= *input++;
-		if (m_counter == T::BLOCKSIZE)
-			ProcessBuf();
-	}
-}
-
-template <class T>
-void CBC_MAC_Base<T>::TruncatedFinal(byte *mac, unsigned int size)
-{
-	ThrowIfInvalidTruncatedSize(size);
-
-	if (m_counter)
-		ProcessBuf();
-
-	memcpy(mac, m_reg, size);
-	memset(m_reg, 0, T::BLOCKSIZE);
-}
-
-template <class T>
-void CBC_MAC_Base<T>::ProcessBuf()
-{
-	m_cipher.ProcessBlock(m_reg);
-	m_counter = 0;
-}
 
 NAMESPACE_END
 

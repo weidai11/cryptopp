@@ -11,7 +11,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 /// provides an implementation of BufferedTransformation's attachment interface
-class CRYPTOPP_NO_VTABLE Filter : public BufferedTransformation, public NotCopyable
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Filter : public BufferedTransformation, public NotCopyable
 {
 public:
 	Filter(BufferedTransformation *attachment);
@@ -52,7 +52,7 @@ protected:
 	int m_continueAt;
 };
 
-struct FilterPutSpaceHelper
+struct CRYPTOPP_DLL FilterPutSpaceHelper
 {
 	// desiredSize is how much to ask target, bufferSize is how much to allocate in m_tempSpace
 	byte *HelpCreatePutSpace(BufferedTransformation &target, const std::string &channel, unsigned int minSize, unsigned int desiredSize, unsigned int &bufferSize)
@@ -80,7 +80,7 @@ struct FilterPutSpaceHelper
 };
 
 //! measure how many byte and messages pass through, also serves as valve
-class MeterFilter : public Bufferless<Filter>
+class CRYPTOPP_DLL MeterFilter : public Bufferless<Filter>
 {
 public:
 	MeterFilter(BufferedTransformation *attachment=NULL, bool transparent=true)
@@ -111,14 +111,14 @@ private:
 };
 
 //! .
-class TransparentFilter : public MeterFilter
+class CRYPTOPP_DLL TransparentFilter : public MeterFilter
 {
 public:
 	TransparentFilter(BufferedTransformation *attachment=NULL) : MeterFilter(attachment, true) {}
 };
 
 //! .
-class OpaqueFilter : public MeterFilter
+class CRYPTOPP_DLL OpaqueFilter : public MeterFilter
 {
 public:
 	OpaqueFilter(BufferedTransformation *attachment=NULL) : MeterFilter(attachment, false) {}
@@ -129,7 +129,7 @@ public:
 	First and last blocks are optional, and middle blocks may
 	be a stream instead (i.e. blockSize == 1).
 */
-class FilterWithBufferedInput : public Filter
+class CRYPTOPP_DLL FilterWithBufferedInput : public Filter
 {
 public:
 	FilterWithBufferedInput(BufferedTransformation *attachment);
@@ -212,7 +212,7 @@ private:
 };
 
 //! .
-class FilterWithInputQueue : public Filter
+class CRYPTOPP_DLL FilterWithInputQueue : public Filter
 {
 public:
 	FilterWithInputQueue(BufferedTransformation *attachment) : Filter(attachment) {}
@@ -238,7 +238,7 @@ protected:
 };
 
 //! Filter Wrapper for StreamTransformation
-class StreamTransformationFilter : public FilterWithBufferedInput, private FilterPutSpaceHelper
+class CRYPTOPP_DLL StreamTransformationFilter : public FilterWithBufferedInput, private FilterPutSpaceHelper
 {
 public:
 	enum BlockPaddingScheme {NO_PADDING, ZEROS_PADDING, PKCS_PADDING, ONE_AND_ZEROS_PADDING, DEFAULT_PADDING};
@@ -265,7 +265,7 @@ typedef StreamTransformationFilter StreamCipherFilter;
 #endif
 
 //! Filter Wrapper for HashTransformation
-class HashFilter : public Bufferless<Filter>, private FilterPutSpaceHelper
+class CRYPTOPP_DLL HashFilter : public Bufferless<Filter>, private FilterPutSpaceHelper
 {
 public:
 	HashFilter(HashTransformation &hm, BufferedTransformation *attachment = NULL, bool putMessage=false)
@@ -283,7 +283,7 @@ private:
 };
 
 //! Filter Wrapper for HashTransformation
-class HashVerificationFilter : public FilterWithBufferedInput
+class CRYPTOPP_DLL HashVerificationFilter : public FilterWithBufferedInput
 {
 public:
 	class HashVerificationFailed : public Exception
@@ -317,7 +317,7 @@ private:
 typedef HashVerificationFilter HashVerifier;	// for backwards compatibility
 
 //! Filter Wrapper for PK_Signer
-class SignerFilter : public Unflushable<Filter>
+class CRYPTOPP_DLL SignerFilter : public Unflushable<Filter>
 {
 public:
 	SignerFilter(RandomNumberGenerator &rng, const PK_Signer &signer, BufferedTransformation *attachment = NULL, bool putMessage=false)
@@ -328,14 +328,14 @@ public:
 
 private:
 	RandomNumberGenerator &m_rng;
-	const PK_Signer	&m_signer;
+	const PK_Signer &m_signer;
 	member_ptr<PK_MessageAccumulator> m_messageAccumulator;
 	bool m_putMessage;
 	SecByteBlock m_buf;
 };
 
 //! Filter Wrapper for PK_Verifier
-class SignatureVerificationFilter : public FilterWithBufferedInput
+class CRYPTOPP_DLL SignatureVerificationFilter : public FilterWithBufferedInput
 {
 public:
 	class SignatureVerificationFailed : public Exception
@@ -364,10 +364,10 @@ private:
 	bool m_verified;
 };
 
-typedef SignatureVerificationFilter VerifierFilter; // for backwards compatibility
+typedef SignatureVerificationFilter VerifierFilter;	// for backwards compatibility
 
 //! Redirect input to another BufferedTransformation without owning it
-class Redirector : public CustomSignalPropagation<Sink>
+class CRYPTOPP_DLL Redirector : public CustomSignalPropagation<Sink>
 {
 public:
 	enum Behavior
@@ -429,7 +429,7 @@ private:
 };
 
 // Used By ProxyFilter
-class OutputProxy : public CustomSignalPropagation<Sink>
+class CRYPTOPP_DLL OutputProxy : public CustomSignalPropagation<Sink>
 {
 public:
 	OutputProxy(BufferedTransformation &owner, bool passSignal) : m_owner(owner), m_passSignal(passSignal) {}
@@ -467,7 +467,7 @@ private:
 };
 
 //! Base class for Filter classes that are proxies for a chain of other filters.
-class ProxyFilter : public FilterWithBufferedInput
+class CRYPTOPP_DLL ProxyFilter : public FilterWithBufferedInput
 {
 public:
 	ProxyFilter(BufferedTransformation *filter, unsigned int firstSize, unsigned int lastSize, BufferedTransformation *attachment);
@@ -483,7 +483,7 @@ protected:
 };
 
 //! simple proxy filter that doesn't modify the underlying filter's input or output
-class SimpleProxyFilter : public ProxyFilter
+class CRYPTOPP_DLL SimpleProxyFilter : public ProxyFilter
 {
 public:
 	SimpleProxyFilter(BufferedTransformation *filter, BufferedTransformation *attachment)
@@ -495,7 +495,7 @@ public:
 
 //! proxy for the filter created by PK_Encryptor::CreateEncryptionFilter
 /*! This class is here just to provide symmetry with VerifierFilter. */
-class PK_EncryptorFilter : public SimpleProxyFilter
+class CRYPTOPP_DLL PK_EncryptorFilter : public SimpleProxyFilter
 {
 public:
 	PK_EncryptorFilter(RandomNumberGenerator &rng, const PK_Encryptor &encryptor, BufferedTransformation *attachment = NULL)
@@ -504,7 +504,7 @@ public:
 
 //! proxy for the filter created by PK_Decryptor::CreateDecryptionFilter
 /*! This class is here just to provide symmetry with SignerFilter. */
-class PK_DecryptorFilter : public SimpleProxyFilter
+class CRYPTOPP_DLL PK_DecryptorFilter : public SimpleProxyFilter
 {
 public:
 	PK_DecryptorFilter(RandomNumberGenerator &rng, const PK_Decryptor &decryptor, BufferedTransformation *attachment = NULL)
@@ -532,7 +532,7 @@ public:
 			typename T::size_type size = m_output->size();
 			if (length < size && size + length > m_output->capacity())
 				m_output->reserve(2*size);
-			m_output->append((const char_type *)begin, (const char_type *)begin+length);
+		m_output->append((const char_type *)begin, (const char_type *)begin+length);
 		}
 		return 0;
 	}
@@ -542,10 +542,11 @@ private:
 };
 
 //! Append input to an std::string
+CRYPTOPP_DLL_TEMPLATE_CLASS StringSinkTemplate<std::string>;
 typedef StringSinkTemplate<std::string> StringSink;
 
 //! Copy input to a memory buffer
-class ArraySink : public Bufferless<Sink>
+class CRYPTOPP_DLL ArraySink : public Bufferless<Sink>
 {
 public:
 	ArraySink(const NameValuePairs &parameters = g_nullNameValuePairs) {IsolatedInitialize(parameters);}
@@ -565,7 +566,7 @@ protected:
 };
 
 //! Xor input to a memory buffer
-class ArrayXorSink : public ArraySink
+class CRYPTOPP_DLL ArrayXorSink : public ArraySink
 {
 public:
 	ArrayXorSink(byte *buf, unsigned int size)
@@ -586,18 +587,18 @@ public:
 	template <class T> StringStore(const T &string)
 		{StoreInitialize(MakeParameters("InputBuffer", ConstByteArrayParameter(string)));}
 
-	unsigned int TransferTo2(BufferedTransformation &target, unsigned long &transferBytes, const std::string &channel=NULL_CHANNEL, bool blocking=true);
-	unsigned int CopyRangeTo2(BufferedTransformation &target, unsigned long &begin, unsigned long end=ULONG_MAX, const std::string &channel=NULL_CHANNEL, bool blocking=true) const;
+	CRYPTOPP_DLL unsigned int TransferTo2(BufferedTransformation &target, unsigned long &transferBytes, const std::string &channel=NULL_CHANNEL, bool blocking=true);
+	CRYPTOPP_DLL unsigned int CopyRangeTo2(BufferedTransformation &target, unsigned long &begin, unsigned long end=ULONG_MAX, const std::string &channel=NULL_CHANNEL, bool blocking=true) const;
 
 private:
-	void StoreInitialize(const NameValuePairs &parameters);
+	CRYPTOPP_DLL void StoreInitialize(const NameValuePairs &parameters);
 
 	const byte *m_store;
 	unsigned int m_length, m_count;
 };
 
 //! .
-class RandomNumberStore : public Store
+class CRYPTOPP_DLL RandomNumberStore : public Store
 {
 public:
 	RandomNumberStore(RandomNumberGenerator &rng, unsigned long length)
@@ -621,7 +622,7 @@ private:
 };
 
 //! .
-class NullStore : public Store
+class CRYPTOPP_DLL NullStore : public Store
 {
 public:
 	NullStore(unsigned long size = ULONG_MAX) : m_size(size) {}
@@ -635,7 +636,7 @@ private:
 };
 
 //! A Filter that pumps data into its attachment as input
-class CRYPTOPP_NO_VTABLE Source : public InputRejecting<Filter>
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Source : public InputRejecting<Filter>
 {
 public:
 	Source(BufferedTransformation *attachment)
@@ -690,7 +691,7 @@ protected:
 };
 
 //! .
-class StringSource : public SourceTemplate<StringStore>
+class CRYPTOPP_DLL StringSource : public SourceTemplate<StringStore>
 {
 public:
 	StringSource(BufferedTransformation *attachment = NULL)
@@ -699,17 +700,12 @@ public:
 		: SourceTemplate<StringStore>(attachment) {SourceInitialize(pumpAll, MakeParameters("InputBuffer", ConstByteArrayParameter(string)));}
 	StringSource(const byte *string, unsigned int length, bool pumpAll, BufferedTransformation *attachment = NULL)
 		: SourceTemplate<StringStore>(attachment) {SourceInitialize(pumpAll, MakeParameters("InputBuffer", ConstByteArrayParameter(string, length)));}
-
-#ifdef __MWERKS__	// CW60 workaround
 	StringSource(const std::string &string, bool pumpAll, BufferedTransformation *attachment = NULL)
-#else
-	template <class T> StringSource(const T &string, bool pumpAll, BufferedTransformation *attachment = NULL)
-#endif
 		: SourceTemplate<StringStore>(attachment) {SourceInitialize(pumpAll, MakeParameters("InputBuffer", ConstByteArrayParameter(string)));}
 };
 
 //! .
-class RandomNumberSource : public SourceTemplate<RandomNumberStore>
+class CRYPTOPP_DLL RandomNumberSource : public SourceTemplate<RandomNumberStore>
 {
 public:
 	RandomNumberSource(RandomNumberGenerator &rng, unsigned int length, bool pumpAll, BufferedTransformation *attachment = NULL)

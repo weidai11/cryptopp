@@ -14,7 +14,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 //! Polynomial with Coefficients in GF(2)
 /*!	\nosubgrouping */
-class PolynomialMod2
+class CRYPTOPP_DLL PolynomialMod2
 {
 public:
 	//! \name ENUMS, EXCEPTIONS, and TYPEDEFS
@@ -236,8 +236,13 @@ private:
 	SecWordBlock reg;
 };
 
+CRYPTOPP_DLL_TEMPLATE_CLASS AbstractGroup<PolynomialMod2>;
+CRYPTOPP_DLL_TEMPLATE_CLASS AbstractRing<PolynomialMod2>;
+CRYPTOPP_DLL_TEMPLATE_CLASS EuclideanDomainOf<PolynomialMod2>;
+CRYPTOPP_DLL_TEMPLATE_CLASS QuotientRing<EuclideanDomainOf<PolynomialMod2> >;
+
 //! GF(2^n) with Polynomial Basis
-class GF2NP : public QuotientRing<EuclideanDomainOf<PolynomialMod2> >
+class CRYPTOPP_DLL GF2NP : public QuotientRing<EuclideanDomainOf<PolynomialMod2> >
 {
 public:
 	GF2NP(const PolynomialMod2 &modulus);
@@ -273,7 +278,7 @@ protected:
 };
 
 //! GF(2^n) with Trinomial Basis
-class GF2NT : public GF2NP
+class CRYPTOPP_DLL GF2NT : public GF2NP
 {
 public:
 	// polynomial modulus = x^t0 + x^t1 + x^t2, t0 > t1 > t2
@@ -297,7 +302,7 @@ private:
 };
 
 //! GF(2^n) with Pentanomial Basis
-class GF2NPP : public GF2NP
+class CRYPTOPP_DLL GF2NPP : public GF2NP
 {
 public:
 	// polynomial modulus = x^t0 + x^t1 + x^t2 + x^t3 + x^t4, t0 > t1 > t2 > t3 > t4
@@ -312,7 +317,7 @@ private:
 };
 
 // construct new GF2NP from the ASN.1 sequence Characteristic-two
-GF2NP * BERDecodeGF2NP(BufferedTransformation &bt);
+CRYPTOPP_DLL GF2NP * BERDecodeGF2NP(BufferedTransformation &bt);
 
 //!
 inline bool operator==(const CryptoPP::PolynomialMod2 &a, const CryptoPP::PolynomialMod2 &b)

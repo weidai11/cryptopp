@@ -1,12 +1,14 @@
 // ecp.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
+
+#ifndef CRYPTOPP_IMPORTS
+
 #include "ecp.h"
 #include "asn.h"
 #include "nbtheory.h"
 
 #include "algebra.cpp"
-#include "eprecomp.cpp"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -463,15 +465,6 @@ ECP::Point ECP::CascadeScalarMultiply(const Point &P, const Integer &k1, const P
 		return AbstractGroup<Point>::CascadeScalarMultiply(P, k1, Q, k2);
 }
 
-// ********************************************************
-
-void EcPrecomputation<ECP>::SetCurve(const ECP &ec)
-{
-	m_ec.reset(new ECP(ec, true));
-	m_ecOriginal = ec;
-}
-
-template class AbstractGroup<ECP::Point>;
-template class DL_FixedBasePrecomputationImpl<ECP::Point>;
-
 NAMESPACE_END
+
+#endif

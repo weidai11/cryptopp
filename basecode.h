@@ -6,7 +6,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-class BaseN_Encoder : public Unflushable<Filter>
+class CRYPTOPP_DLL BaseN_Encoder : public Unflushable<Filter>
 {
 public:
 	BaseN_Encoder(BufferedTransformation *attachment=NULL)
@@ -31,7 +31,7 @@ private:
 	SecByteBlock m_outBuf;
 };
 
-class BaseN_Decoder : public Unflushable<Filter>
+class CRYPTOPP_DLL BaseN_Decoder : public Unflushable<Filter>
 {
 public:
 	BaseN_Decoder(BufferedTransformation *attachment=NULL)
@@ -55,7 +55,7 @@ private:
 	SecByteBlock m_outBuf;
 };
 
-class Grouper : public Bufferless<Filter>
+class CRYPTOPP_DLL Grouper : public Bufferless<Filter>
 {
 public:
 	Grouper(BufferedTransformation *attachment=NULL)

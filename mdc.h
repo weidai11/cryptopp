@@ -22,7 +22,7 @@ struct MDC_Info : public FixedBlockSize<T::DIGESTSIZE>, public FixedKeyLength<T:
 template <class T>
 class MDC : public MDC_Info<T>
 {
-	class CRYPTOPP_NO_VTABLE Enc : public BlockCipherBaseTemplate<MDC_Info<T> >
+	class CRYPTOPP_NO_VTABLE Enc : public BlockCipherImpl<MDC_Info<T> >
 	{
 		typedef typename T::HashWordType HashWordType;
 
@@ -64,7 +64,7 @@ class MDC : public MDC_Info<T>
 
 public:
 	//! use BlockCipher interface
-	typedef BlockCipherTemplate<ENCRYPTION, Enc> Encryption;
+	typedef BlockCipherFinal<ENCRYPTION, Enc> Encryption;
 };
 
 NAMESPACE_END

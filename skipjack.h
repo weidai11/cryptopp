@@ -11,13 +11,13 @@ NAMESPACE_BEGIN(CryptoPP)
 
 struct SKIPJACK_Info : public FixedBlockSize<8>, public FixedKeyLength<10>
 {
-	static const char *StaticAlgorithmName() {return "SKIPJACK";}
+	CRYPTOPP_DLL static const char * StaticAlgorithmName() {return "SKIPJACK";}
 };
 
 /// <a href="http://www.weidai.com/scan-mirror/cs.html#SKIPJACK">SKIPJACK</a>
 class SKIPJACK : public SKIPJACK_Info, public BlockCipherDocumentation
 {
-	class CRYPTOPP_NO_VTABLE Base : public BlockCipherBaseTemplate<SKIPJACK_Info>
+	class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<SKIPJACK_Info>
 	{
 	public:
 		void UncheckedSetKey(CipherDir direction, const byte *userKey, unsigned int length);
@@ -28,7 +28,7 @@ class SKIPJACK : public SKIPJACK_Info, public BlockCipherDocumentation
 		FixedSizeSecBlock<byte[256], 10> tab;
 	};
 
-	class CRYPTOPP_NO_VTABLE Enc : public Base
+	class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Enc : public Base
 	{
 	public:
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
@@ -37,7 +37,7 @@ class SKIPJACK : public SKIPJACK_Info, public BlockCipherDocumentation
 		static const word32 Te[4][256];
 	};
 
-	class CRYPTOPP_NO_VTABLE Dec : public Base
+	class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Dec : public Base
 	{
 	public:
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
@@ -47,8 +47,8 @@ class SKIPJACK : public SKIPJACK_Info, public BlockCipherDocumentation
 	};
 
 public:
-	typedef BlockCipherTemplate<ENCRYPTION, Enc> Encryption;
-	typedef BlockCipherTemplate<DECRYPTION, Dec> Decryption;
+	typedef BlockCipherFinal<ENCRYPTION, Enc> Encryption;
+	typedef BlockCipherFinal<DECRYPTION, Dec> Decryption;
 };
 
 typedef SKIPJACK::Encryption SKIPJACKEncryption;

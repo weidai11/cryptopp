@@ -8,111 +8,56 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-template <class T>
-class CRYPTOPP_NO_VTABLE HMAC_Base : public VariableKeyLength<16, 0, UINT_MAX>, public MessageAuthenticationCode
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE HMAC_Base : public VariableKeyLength<16, 0, UINT_MAX>, public MessageAuthenticationCode
 {
 public:
-	static std::string StaticAlgorithmName() {return std::string("HMAC(") + T::StaticAlgorithmName() + ")";}
-
-	// put enums here for Metrowerks 4
-	enum {DIGESTSIZE=T::DIGESTSIZE, BLOCKSIZE=T::BLOCKSIZE};
-
 	HMAC_Base() : m_innerHashKeyed(false) {}
 	void UncheckedSetKey(const byte *userKey, unsigned int keylength);
 
 	void Restart();
 	void Update(const byte *input, unsigned int length);
 	void TruncatedFinal(byte *mac, unsigned int size);
-	unsigned int DigestSize() const {return DIGESTSIZE;}
+	unsigned int OptimalBlockSize() const {return const_cast<HMAC_Base*>(this)->AccessHash().OptimalBlockSize();}
+	unsigned int DigestSize() const {return const_cast<HMAC_Base*>(this)->AccessHash().DigestSize();}
+
+protected:
+	virtual HashTransformation & AccessHash() =0;
+	virtual byte * AccessIpad() =0;
+	virtual byte * AccessOpad() =0;
+	virtual byte * AccessInnerHash() =0;
 
 private:
 	void KeyInnerHash();
 
 	enum {IPAD=0x36, OPAD=0x5c};
 
-	FixedSizeSecBlock<byte, BLOCKSIZE> k_ipad, k_opad;
-	FixedSizeSecBlock<byte, DIGESTSIZE> m_innerHash;
-	T m_hash;
 	bool m_innerHashKeyed;
 };
 
 //! <a href="http://www.weidai.com/scan-mirror/mac.html#HMAC">HMAC</a>
 /*! HMAC(K, text) = H(K XOR opad, H(K XOR ipad, text)) */
 template <class T>
-class HMAC : public MessageAuthenticationCodeTemplate<HMAC_Base<T> >
+class HMAC : public MessageAuthenticationCodeImpl<HMAC_Base, HMAC<T> >
 {
 public:
+	enum {DIGESTSIZE=T::DIGESTSIZE, BLOCKSIZE=T::BLOCKSIZE};
+
 	HMAC() {}
-	HMAC(const byte *key, unsigned int length=HMAC_Base<T>::DEFAULT_KEYLENGTH)
+	HMAC(const byte *key, unsigned int length=HMAC_Base::DEFAULT_KEYLENGTH)
 		{SetKey(key, length);}
+
+	static std::string StaticAlgorithmName() {return std::string("HMAC(") + T::StaticAlgorithmName() + ")";}
+
+private:
+	HashTransformation & AccessHash() {return m_hash;}
+	byte * AccessIpad() {return m_ipad;}
+	byte * AccessOpad() {return m_opad;}
+	byte * AccessInnerHash() {return m_innerHash;}
+
+	FixedSizeSecBlock<byte, BLOCKSIZE> m_ipad, m_opad;
+	FixedSizeSecBlock<byte, DIGESTSIZE> m_innerHash;
+	T m_hash;
 };
-
-template <class T>
-void HMAC_Base<T>::UncheckedSetKey(const byte *userKey, unsigned int keylength)
-{
-	AssertValidKeyLength(keylength);
-
-	Restart();
-
-	if (keylength <= T::BLOCKSIZE)
-		memcpy(k_ipad, userKey, keylength);
-	else
-	{
-		m_hash.CalculateDigest(k_ipad, userKey, keylength);
-		keylength = T::DIGESTSIZE;
-	}
-
-	assert(keylength <= T::BLOCKSIZE);
-	memset(k_ipad+keylength, 0, T::BLOCKSIZE-keylength);
-
-	for (unsigned int i=0; i<T::BLOCKSIZE; i++)
-	{
-		k_opad[i] = k_ipad[i] ^ OPAD;
-		k_ipad[i] ^= IPAD;
-	}
-}
-
-template <class T>
-void HMAC_Base<T>::KeyInnerHash()
-{
-	assert(!m_innerHashKeyed);
-	m_hash.Update(k_ipad, T::BLOCKSIZE);
-	m_innerHashKeyed = true;
-}
-
-template <class T>
-void HMAC_Base<T>::Restart()
-{
-	if (m_innerHashKeyed)
-	{
-		m_hash.Restart();
-		m_innerHashKeyed = false;
-	}
-}
-
-template <class T>
-void HMAC_Base<T>::Update(const byte *input, unsigned int length)
-{
-	if (!m_innerHashKeyed)
-		KeyInnerHash();
-	m_hash.Update(input, length);
-}
-
-template <class T>
-void HMAC_Base<T>::TruncatedFinal(byte *mac, unsigned int size)
-{
-	ThrowIfInvalidTruncatedSize(size);
-
-	if (!m_innerHashKeyed)
-		KeyInnerHash();
-	m_hash.Final(m_innerHash);
-
-	m_hash.Update(k_opad, T::BLOCKSIZE);
-	m_hash.Update(m_innerHash, DIGESTSIZE);
-	m_hash.TruncatedFinal(mac, size);
-
-	m_innerHashKeyed = false;
-}
 
 NAMESPACE_END
 

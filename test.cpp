@@ -1,6 +1,6 @@
 // test.cpp - written and placed in the public domain by Wei Dai
 
-#include "pch.h"
+#include "dll.h"
 #include "md5.h"
 #include "sha.h"
 #include "ripemd.h"
@@ -56,6 +56,7 @@ void RSASignFile(const char *privFilename, const char *messageFilename, const ch
 bool RSAVerifyFile(const char *pubFilename, const char *messageFilename, const char *signatureFilename);
 
 void DigestFile(const char *file);
+void HmacFile(const char *hexKey, const char *file);
 
 string EncryptString(const char *plaintext, const char *passPhrase);
 string DecryptString(const char *ciphertext, const char *passPhrase);
@@ -79,7 +80,7 @@ void HexDecode(const char *in, const char *out);
 
 void ForwardTcpPort(const char *sourcePort, const char *destinationHost, const char *destinationPort);
 
-void FIPS140_SampleApplication(const char *moduleFilename, const char *edcFilename);
+void FIPS140_SampleApplication();
 void FIPS140_GenerateRandomFiles();
 
 bool Validate(int, bool, const char *);
@@ -110,36 +111,12 @@ int main(int argc, char *argv[])
 
 	try
 	{
-		std::string command, executableName, edcFilename;
+		std::string command, executableName, macFilename;
 
 		if (argc < 2)
 			command = 'h';
 		else
 			command = argv[1];
-
-		if (FIPS_140_2_ComplianceEnabled())
-		{
-			edcFilename = "edc.dat";
-
-#ifdef CRYPTOPP_WIN32_AVAILABLE
-			TCHAR filename[MAX_PATH];
-			GetModuleFileName(GetModuleHandle(NULL), filename, sizeof(filename));
-			executableName = filename;
-			std::string::size_type pos = executableName.rfind('\\');
-			if (pos != std::string::npos)
-				edcFilename = executableName.substr(0, pos+1) + edcFilename;
-#else
-			executableName = argv[0];
-#endif
-
-			if (command.substr(0, 4) != "fips")
-			{
-				byte expectedModuleDigest[SHA1::DIGESTSIZE];
-				FileSource(edcFilename.c_str(), true, new HexDecoder(new ArraySink(expectedModuleDigest, sizeof(expectedModuleDigest))));
-
-				DoPowerUpSelfTest(executableName.c_str(), expectedModuleDigest);
-			}
-		}
 
 		switch (command[0])
 		{
@@ -206,7 +183,44 @@ int main(int argc, char *argv[])
 			}
 		  }
 		case 'm':
-			if (command == "mt")
+			if (command == "mac_dll")
+			{
+				HMODULE hModule = LoadLibrary(argv[2]);
+				PGetPowerUpSelfTestStatus pGetPowerUpSelfTestStatus = (PGetPowerUpSelfTestStatus)GetProcAddress(hModule, "?GetPowerUpSelfTestStatus@CryptoPP@@YG?AW4PowerUpSelfTestStatus@1@XZ");
+				PGetActualMacAndLocation pGetActualMacAndLocation = (PGetActualMacAndLocation)GetProcAddress(hModule, "?GetActualMacAndLocation@CryptoPP@@YGPBEAAI0@Z");
+
+				PowerUpSelfTestStatus status = pGetPowerUpSelfTestStatus();
+				if (status == POWER_UP_SELF_TEST_PASSED)
+				{
+					cout << "Crypto++ DLL MAC is valid. Nothing to do.\n";
+					return 0;
+				}
+
+				unsigned int macSize, macFileLocation;
+				const byte *pMac = pGetActualMacAndLocation(macSize, macFileLocation);
+				
+				if (macFileLocation == 0)
+				{
+					cerr << "Could not find MAC location in Crypto++ DLL.\n";
+					return 1;
+				}
+				else
+				{
+					SecByteBlock mac(pMac, macSize);	// copy MAC before freeing the DLL
+					BOOL r = FreeLibrary(hModule);
+					cout << "Placing MAC in file " << argv[2] << ", location " << macFileLocation << ".\n";
+					std::ofstream dllFile(argv[2], ios::in | ios::out | ios::binary);
+					dllFile.seekp(macFileLocation);
+					dllFile.write((const char *)mac.data(), macSize);
+					if (!dllFile.good())
+					{
+						cerr << "Error writing file.\n";
+						return 1;
+					}
+					return 0;
+				}
+			}
+			else if (command == "mt")
 			{
 				MaurerRandomnessTest mt;
 				FileStore fs(argv[2]);
@@ -294,7 +308,7 @@ int main(int argc, char *argv[])
 			return 0;
 		case 'f':
 			if (command == "fips")
-				FIPS140_SampleApplication(executableName.c_str(), edcFilename.c_str());
+				FIPS140_SampleApplication();
 			else if (command == "fips-rand")
 				FIPS140_GenerateRandomFiles();
 			else if (command == "ft")
@@ -305,6 +319,13 @@ int main(int argc, char *argv[])
 				return (*AdhocTest)(argc, argv);
 			else
 				return 0;
+		case 'h':
+			if (command == "hmac")
+			{
+				HmacFile(argv[2], argv[3]);
+				return 0;
+			}
+			// fall through
 		default:
 			FileSource usage("usage.dat", true, new FileSink(cout));
 			return 1;
@@ -320,180 +341,6 @@ int main(int argc, char *argv[])
 		cout << "\nstd::exception caught: " << e.what() << endl;
 		return -2;
 	}
-}
-
-void FIPS140_SampleApplication(const char *moduleFilename, const char *edcFilename)
-{
-	if (!FIPS_140_2_ComplianceEnabled())
-	{
-		cerr << "FIPS-140-2 compliance was turned off at compile time.\n";
-		abort();
-	}
-
-	// try to use a crypto algorithm before doing a self test
-	try
-	{
-		// trying to use a crypto algorithm before power-up self test will result in an exception
-		DES::Encryption des;
-
-		// should not be here
-		cerr << "Use of DES before power-up test failed to cause an exception.\n";
-		abort();
-	}
-	catch (SelfTestFailure &e)
-	{
-		cout << "0. Caught expected exception. Exception message follows: ";
-		cout << e.what() << endl;
-	}
-
-	// simulate a power-up self test error
-	SimulatePowerUpSelfTestFailure();
-	try
-	{
-		// trying to use a crypto algorithm after power-up self test error will result in an exception
-		DES::Encryption des;
-
-		// should not be here
-		cerr << "Use of DES failed to cause an exception after power-up self test error.\n";
-		abort();
-	}
-	catch (SelfTestFailure &e)
-	{
-		cout << "1. Caught expected exception when simulating self test failure. Exception message follows: ";
-		cout << e.what() << endl;
-	}
-
-	// clear the self test error state and do power-up self test
-	byte expectedModuleDigest[SHA1::DIGESTSIZE];
-	FileSource(edcFilename, true, new HexDecoder(new ArraySink(expectedModuleDigest, sizeof(expectedModuleDigest))));
-
-	DoPowerUpSelfTest(moduleFilename, expectedModuleDigest);
-	if (GetPowerUpSelfTestStatus() != POWER_UP_SELF_TEST_PASSED)
-	{
-		cerr << "Power-up self test failed.\n";
-		abort();
-	}
-	cout << "2. Power-up self test passed.\n";
-
-	// encrypt and decrypt
-	const byte key[] = {0x01,0x23,0x45,0x67,0x89,0xab,0xcd,0xef};
-	const byte iv[] = {0x12,0x34,0x56,0x78,0x90,0xab,0xcd,0xef};
-	const byte plaintext[] = {	// "Now is the time for all " without tailing 0
-		0x4e,0x6f,0x77,0x20,0x69,0x73,0x20,0x74,
-		0x68,0x65,0x20,0x74,0x69,0x6d,0x65,0x20,
-		0x66,0x6f,0x72,0x20,0x61,0x6c,0x6c,0x20};
-	byte ciphertext[24];
-	byte decrypted[24];
-
-	CBC_Mode<DES>::Encryption encryption_DES_CBC;
-	encryption_DES_CBC.SetKeyWithIV(key, 8, iv);
-	encryption_DES_CBC.ProcessString(ciphertext, plaintext, 24);
-
-	CBC_Mode<DES>::Decryption decryption_DES_CBC;
-	decryption_DES_CBC.SetKeyWithIV(key, 8, iv);
-	decryption_DES_CBC.ProcessString(decrypted, ciphertext, 24);
-
-	if (memcmp(plaintext, decrypted, 24) != 0)
-	{
-		cerr << "DES-CBC Encryption/decryption failed.\n";
-		abort();
-	}
-	cout << "3. DES-CBC Encryption/decryption succeeded.\n";
-
-	// hash
-	const byte message[] = {'a', 'b', 'c'};
-	const byte expectedDigest[] = {0xA9,0x99,0x3E,0x36,0x47,0x06,0x81,0x6A,0xBA,0x3E,0x25,0x71,0x78,0x50,0xC2,0x6C,0x9C,0xD0,0xD8,0x9D};
-	byte digest[20];
-	
-	SHA1 sha;
-	sha.Update(message, 3);
-	sha.Final(digest);
-
-	if (memcmp(digest, expectedDigest, 20) != 0)
-	{
-		cerr << "SHA-1 hash failed.\n";
-		abort();
-	}
-	cout << "4. SHA-1 hash succeeded.\n";
-
-	// create auto-seeded X9.17 RNG object, if available
-#ifdef OS_RNG_AVAILABLE
-	AutoSeededX917RNG<DES_EDE3> rng;
-#else
-	// this is used to allow this function to compile on platforms that don't have auto-seeded RNGs
-	RandomNumberGenerator &rng(NullRNG());
-#endif
-
-	// generate DSA key
-	DSA::PrivateKey dsaPrivateKey;
-	dsaPrivateKey.GenerateRandomWithKeySize(rng, 1024);
-	DSA::PublicKey dsaPublicKey;
-	dsaPublicKey.AssignFrom(dsaPrivateKey);
-	if (!dsaPrivateKey.Validate(rng, 3) || !dsaPublicKey.Validate(rng, 3))
-	{
-		cerr << "DSA key generation failed.\n";
-		abort();
-	}
-	cout << "5. DSA key generation succeeded.\n";
-
-	// encode DSA key
-	std::string encodedDsaPublicKey, encodedDsaPrivateKey;
-	dsaPublicKey.DEREncode(StringSink(encodedDsaPublicKey).Ref());
-	dsaPrivateKey.DEREncode(StringSink(encodedDsaPrivateKey).Ref());
-
-	// decode DSA key
-	DSA::PrivateKey decodedDsaPrivateKey;
-	decodedDsaPrivateKey.BERDecode(StringStore(encodedDsaPrivateKey).Ref());
-	DSA::PublicKey decodedDsaPublicKey;
-	decodedDsaPublicKey.BERDecode(StringStore(encodedDsaPublicKey).Ref());
-
-	if (!decodedDsaPrivateKey.Validate(rng, 3) || !decodedDsaPublicKey.Validate(rng, 3))
-	{
-		cerr << "DSA key encode/decode failed.\n";
-		abort();
-	}
-	cout << "6. DSA key encode/decode succeeded.\n";
-
-	// sign and verify
-	byte signature[40];
-	DSA::Signer signer(dsaPrivateKey);
-	assert(signer.SignatureLength() == 40);
-	signer.SignMessage(rng, message, 3, signature);
-
-	DSA::Verifier verifier(dsaPublicKey);
-	if (!verifier.VerifyMessage(message, 3, signature, 40))
-	{
-		cerr << "DSA signature and verification failed.\n";
-		abort();
-	}
-	cout << "7. DSA signature and verification succeeded.\n";
-
-
-	// try to verify an invalid signature
-	signature[0] ^= 1;
-	if (verifier.VerifyMessage(message, 3, signature, 40))
-	{
-		cerr << "DSA signature verification failed to detect bad signature.\n";
-		abort();
-	}
-	cout << "8. DSA signature verification successfully detected bad signature.\n";
-
-	// try to use an invalid key length
-	try
-	{
-		encryption_DES_CBC.SetKey(key, 5);
-
-		// should not be here
-		cerr << "DES implementation did not detect use of invalid key length.\n";
-		abort();
-	}
-	catch (InvalidArgument &e)
-	{
-		cout << "9. Caught expected exception when using invalid key length. Exception message follows: ";
-		cout << e.what() << endl;
-	}
-
-	cout << "\nFIPS 140-2 Sample Application completed normally.\n";
 }
 
 void FIPS140_GenerateRandomFiles()
@@ -604,6 +451,23 @@ void DigestFile(const char *filename)
 	ripemdFilter.TransferTo(encoder);
 	cout << "\nSHA-256: ";
 	sha256Filter.TransferTo(encoder);
+}
+
+void HmacFile(const char *hexKey, const char *file)
+{
+	member_ptr<MessageAuthenticationCode> mac;
+	if (stricmp(hexKey, "selftest") == 0)
+	{
+		cerr << "Computing HMAC/SHA1 value for self test.\n";
+		mac.reset(NewIntegrityCheckingMAC());
+	}
+	else
+	{
+		std::string decodedKey;
+		StringSource(hexKey, true, new HexDecoder(new StringSink(decodedKey)));
+		mac.reset(new HMAC<SHA1>((const byte *)decodedKey.data(), decodedKey.size()));
+	}
+	FileSource(file, true, new HashFilter(*mac, new HexEncoder(new FileSink(cout))));
 }
 
 string EncryptString(const char *instr, const char *passPhrase)

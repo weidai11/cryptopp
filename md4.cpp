@@ -20,12 +20,12 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-void MD4::Init()
+void MD4::InitState(HashWordType *state)
 {
-	m_digest[0] = 0x67452301L;
-	m_digest[1] = 0xefcdab89L;
-	m_digest[2] = 0x98badcfeL;
-	m_digest[3] = 0x10325476L;
+	state[0] = 0x67452301L;
+	state[1] = 0xefcdab89L;
+	state[2] = 0x98badcfeL;
+	state[3] = 0x10325476L;
 }
 
 void MD4::Transform (word32 *digest, const word32 *in)

@@ -1,14 +1,19 @@
+// eccrypto.cpp - written and placed in the public domain by Wei Dai
+
 #include "pch.h"
+
+#ifndef CRYPTOPP_IMPORTS
+
 #include "eccrypto.h"
-#include "ec2n.h"
-#include "ecp.h"
 #include "nbtheory.h"
 #include "oids.h"
 #include "hex.h"
 #include "argnames.h"
+#include "ec2n.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
+#ifndef NDEBUG
 static void ECDSA_TestInstantiations()
 {
 	ECDSA<EC2N>::Signer t1;
@@ -20,6 +25,7 @@ static void ECDSA_TestInstantiations()
 	ECDH<ECP>::Domain t7;
 	ECMQV<ECP>::Domain t8;
 }
+#endif
 
 // VC60 workaround: complains when these functions are put into an anonymous namespace
 static Integer ConvertToInteger(const PolynomialMod2 &x)
@@ -627,13 +633,6 @@ void DL_PrivateKey_EC<EC>::DEREncodeKey(BufferedTransformation &bt) const
 	privateKey.MessageEnd();
 }
 
-// ******************************************************************
-
-template class DL_GroupParameters_EC<EC2N>;
-template class DL_GroupParameters_EC<ECP>;
-template class DL_PublicKey_EC<EC2N>;
-template class DL_PublicKey_EC<ECP>;
-template class DL_PrivateKey_EC<EC2N>;
-template class DL_PrivateKey_EC<ECP>;
-
 NAMESPACE_END
+
+#endif
