@@ -30,7 +30,7 @@ public:
 		{m_groupParameters.Initialize(v1, v2);}
 	
 	template <class T1, class T2, class T3>
-	MQV_Domain(T1 v1, T2 v2, T2 v3)
+	MQV_Domain(T1 v1, T2 v2, T3 v3)
 		{m_groupParameters.Initialize(v1, v2, v3);}
 	
 	template <class T1, class T2, class T3, class T4>

@@ -101,7 +101,7 @@ public:
 		if (n < (unsigned int)MIN_KEYLENGTH)
 			return MIN_KEYLENGTH;
 		else if (n > (unsigned int)MAX_KEYLENGTH)
-			return MAX_KEYLENGTH;
+			return (unsigned int)MAX_KEYLENGTH;
 		else
 		{
 			n += KEYLENGTH_MULTIPLE-1;
@@ -143,7 +143,7 @@ class SimpleKeyingInterfaceImpl : public BASE
 {
 public:
 	unsigned int MinKeyLength() const {return INFO::MIN_KEYLENGTH;}
-	unsigned int MaxKeyLength() const {return INFO::MAX_KEYLENGTH;}
+	unsigned int MaxKeyLength() const {return (unsigned int)INFO::MAX_KEYLENGTH;}
 	unsigned int DefaultKeyLength() const {return INFO::DEFAULT_KEYLENGTH;}
 	unsigned int GetValidKeyLength(unsigned int n) const {return INFO::StaticGetValidKeyLength(n);}
 	typename BASE::IV_Requirement IVRequirement() const {return (typename BASE::IV_Requirement)INFO::IV_REQUIREMENT;}
@@ -179,7 +179,7 @@ public:
 		CheckedSetKey(this, DIR, key, length, param);
 	}
 
-	Clonable * Clone() {return new BlockCipherTemplate<DIR, BASE>(*this);}
+	Clonable * Clone() const {return new BlockCipherTemplate<DIR, BASE>(*this);}
 };
 
 //! .
@@ -205,7 +205,7 @@ public:
 		CheckedSetKey(this, Empty(), key, length, param);
 	}
 
-	Clonable * Clone() {return new MessageAuthenticationCodeTemplate<BASE>(*this);}
+	Clonable * Clone() const {return new MessageAuthenticationCodeTemplate<BASE>(*this);}
 };
 
 // ************** documentation ***************
