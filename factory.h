@@ -54,16 +54,20 @@ public:
 		return factory ? factory->CreateObject() : NULL;
 	}
 
-	static ObjectFactoryRegistry<AbstractClass> & Registry()
-	{
-		static ObjectFactoryRegistry<AbstractClass> s_registry;
-		return s_registry;
-	}
+	// VC60 workaround: use "..." to prevent this function from being inlined
+	static ObjectFactoryRegistry<AbstractClass> & Registry(...);
 
 private:
 	typedef std::map<std::string, ObjectFactory<AbstractClass> *> Map;
 	Map m_map;
 };
+
+template <class AbstractClass>
+ObjectFactoryRegistry<AbstractClass> & ObjectFactoryRegistry<AbstractClass>::Registry(...)
+{
+	static ObjectFactoryRegistry<AbstractClass> s_registry;
+	return s_registry;
+}
 
 template <class AbstractClass, class ConcreteClass>
 void RegisterDefaultFactoryFor(const char *name, AbstractClass *Dummy1=NULL, ConcreteClass *Dummy2=NULL)
