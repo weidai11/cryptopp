@@ -87,7 +87,7 @@ void Tiger::Transform (word64 *digest, const word64 *X)
 	digest[1] = b - digest[1];
 	digest[2] = c + digest[2];
 
-	Y[0] = Y[1] = Y[2] = Y[3] = Y[4] = Y[5] = Y[6] = Y[7] = 0;
+	memset(Y, 0, sizeof(Y));
 }
 
 NAMESPACE_END

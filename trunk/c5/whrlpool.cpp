@@ -64,8 +64,7 @@ void Whirlpool_TestInstantiations()
 
 void Whirlpool::InitState(HashWordType *state)
 {
-	state[0] = state[1] = state[2] = state[3] =
-	state[4] = state[5] = state[6] = state[7] = 0;
+	memset(state, 0, 8*sizeof(state[0]));
 }
 
 void Whirlpool::TruncatedFinal(byte *hash, unsigned int size)
