@@ -23,22 +23,6 @@ NAMESPACE_BEGIN(CryptoPP)
 template<> const byte PKCS_DigestDecoration<SHA>::decoration[] = {0x30,0x21,0x30,0x09,0x06,0x05,0x2B,0x0E,0x03,0x02,0x1A,0x05,0x00,0x04,0x14};
 template<> const unsigned int PKCS_DigestDecoration<SHA>::length = sizeof(PKCS_DigestDecoration<SHA>::decoration);
 
-static const byte s_moduleMac[CryptoPP::HMAC<CryptoPP::SHA1>::DIGESTSIZE] = "reserved for mac";
-#ifdef CRYPTOPP_WIN32_AVAILABLE
-static HMODULE s_hModule = NULL;
-#endif
-
-void DoDllPowerUpSelfTest()
-{
-#ifdef CRYPTOPP_WIN32_AVAILABLE
-	char moduleFileName[MAX_PATH];
-	GetModuleFileNameA(s_hModule, moduleFileName, sizeof(moduleFileName));
-	CryptoPP::DoPowerUpSelfTest(moduleFileName, s_moduleMac);
-#else
-	throw NotImplemented("DoDllPowerUpSelfTest() only available on Windows");
-#endif
-}
-
 NAMESPACE_END
 
 #endif
@@ -125,18 +109,6 @@ void * CRYPTOPP_CDECL operator new (size_t size)
 void CRYPTOPP_CDECL operator delete (void * p)
 {
 	s_pDelete(p);
-}
-
-BOOL APIENTRY DllMain(HANDLE hModule, 
-                      DWORD  ul_reason_for_call, 
-                      LPVOID lpReserved)
-{
-	if (ul_reason_for_call == DLL_PROCESS_ATTACH)
-	{
-		s_hModule = (HMODULE)hModule;
-		DoDllPowerUpSelfTest();
-	}
-    return TRUE;
 }
 
 #endif	// #ifdef CRYPTOPP_EXPORTS

@@ -26,6 +26,9 @@ enum PowerUpSelfTestStatus {POWER_UP_SELF_TEST_NOT_DONE, POWER_UP_SELF_TEST_FAIL
 //! perform the power-up self test, and set the self test status
 CRYPTOPP_DLL void DoPowerUpSelfTest(const char *moduleFilename, const byte *expectedModuleMac);
 
+//! perform the power-up self test using the filename of this DLL and the embedded module MAC
+CRYPTOPP_DLL void DoDllPowerUpSelfTest();
+
 //! set the power-up self test status to POWER_UP_SELF_TEST_FAILED
 CRYPTOPP_DLL void SimulatePowerUpSelfTestFailure();
 
