@@ -223,7 +223,7 @@ void Inflator::IsolatedInitialize(const NameValuePairs &parameters)
 	m_reader.SkipBits(m_reader.BitsBuffered());
 }
 
-inline void Inflator::OutputByte(byte b)
+void Inflator::OutputByte(byte b)
 {
 	m_window[m_current++] = b;
 	if (m_current == m_window.size())
@@ -231,26 +231,38 @@ inline void Inflator::OutputByte(byte b)
 		ProcessDecompressedData(m_window + m_lastFlush, m_window.size() - m_lastFlush);
 		m_lastFlush = 0;
 		m_current = 0;
+		m_wrappedAround = true;
 	}
-	if (m_maxDistance < m_window.size())
-		m_maxDistance++;
 }
 
 void Inflator::OutputString(const byte *string, unsigned int length)
 {
-	while (length--)
-		OutputByte(*string++);
+	while (length)
+	{
+		unsigned int len = STDMIN(length, m_window.size() - m_current);
+		memcpy(m_window + m_current, string, len);
+		m_current += len;
+		if (m_current == m_window.size())
+		{
+			ProcessDecompressedData(m_window + m_lastFlush, m_window.size() - m_lastFlush);
+			m_lastFlush = 0;
+			m_current = 0;
+			m_wrappedAround = true;
+		}
+		string += len;
+		length -= len;
+	}		
 }
 
 void Inflator::OutputPast(unsigned int length, unsigned int distance)
 {
-	if (distance > m_maxDistance)
-		throw BadBlockErr();
 	unsigned int start;
-	if (m_current > distance)
+	if (distance <= m_current)
 		start = m_current - distance;
-	else
+	else if (m_wrappedAround && distance <= m_window.size())
 		start = m_current + m_window.size() - distance;
+	else
+		throw BadBlockErr();
 
 	if (start + length > m_window.size())
 	{
@@ -268,7 +280,6 @@ void Inflator::OutputPast(unsigned int length, unsigned int distance)
 	{
 		memcpy(m_window + m_current, m_window + start, length);
 		m_current += length;
-		m_maxDistance = STDMIN((unsigned int)m_window.size(), m_maxDistance + length);
 	}
 }
 
@@ -311,7 +322,7 @@ void Inflator::ProcessInput(bool flush)
 				return;
 			ProcessPrestreamHeader();
 			m_state = WAIT_HEADER;
-			m_maxDistance = 0;
+			m_wrappedAround = false;
 			m_current = 0;
 			m_lastFlush = 0;
 			m_window.New(1 << GetLog2WindowSize());
