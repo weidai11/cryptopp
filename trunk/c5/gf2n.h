@@ -236,6 +236,47 @@ private:
 	SecWordBlock reg;
 };
 
+//!
+inline bool operator==(const CryptoPP::PolynomialMod2 &a, const CryptoPP::PolynomialMod2 &b)
+{return a.Equals(b);}
+//!
+inline bool operator!=(const CryptoPP::PolynomialMod2 &a, const CryptoPP::PolynomialMod2 &b)
+{return !(a==b);}
+//! compares degree
+inline bool operator> (const CryptoPP::PolynomialMod2 &a, const CryptoPP::PolynomialMod2 &b)
+{return a.Degree() > b.Degree();}
+//! compares degree
+inline bool operator>=(const CryptoPP::PolynomialMod2 &a, const CryptoPP::PolynomialMod2 &b)
+{return a.Degree() >= b.Degree();}
+//! compares degree
+inline bool operator< (const CryptoPP::PolynomialMod2 &a, const CryptoPP::PolynomialMod2 &b)
+{return a.Degree() < b.Degree();}
+//! compares degree
+inline bool operator<=(const CryptoPP::PolynomialMod2 &a, const CryptoPP::PolynomialMod2 &b)
+{return a.Degree() <= b.Degree();}
+//!
+inline CryptoPP::PolynomialMod2 operator&(const CryptoPP::PolynomialMod2 &a, const CryptoPP::PolynomialMod2 &b) {return a.And(b);}
+//!
+inline CryptoPP::PolynomialMod2 operator^(const CryptoPP::PolynomialMod2 &a, const CryptoPP::PolynomialMod2 &b) {return a.Xor(b);}
+//!
+inline CryptoPP::PolynomialMod2 operator+(const CryptoPP::PolynomialMod2 &a, const CryptoPP::PolynomialMod2 &b) {return a.Plus(b);}
+//!
+inline CryptoPP::PolynomialMod2 operator-(const CryptoPP::PolynomialMod2 &a, const CryptoPP::PolynomialMod2 &b) {return a.Minus(b);}
+//!
+inline CryptoPP::PolynomialMod2 operator*(const CryptoPP::PolynomialMod2 &a, const CryptoPP::PolynomialMod2 &b) {return a.Times(b);}
+//!
+inline CryptoPP::PolynomialMod2 operator/(const CryptoPP::PolynomialMod2 &a, const CryptoPP::PolynomialMod2 &b) {return a.DividedBy(b);}
+//!
+inline CryptoPP::PolynomialMod2 operator%(const CryptoPP::PolynomialMod2 &a, const CryptoPP::PolynomialMod2 &b) {return a.Modulo(b);}
+
+// CodeWarrior 8 workaround: put these template instantiations after overloaded operator declarations,
+// but before the use of QuotientRing<EuclideanDomainOf<PolynomialMod2> > for VC .NET 2003
+CRYPTOPP_DLL_TEMPLATE_CLASS AbstractGroup<PolynomialMod2>;
+CRYPTOPP_DLL_TEMPLATE_CLASS AbstractRing<PolynomialMod2>;
+CRYPTOPP_DLL_TEMPLATE_CLASS AbstractEuclideanDomain<PolynomialMod2>;
+CRYPTOPP_DLL_TEMPLATE_CLASS EuclideanDomainOf<PolynomialMod2>;
+CRYPTOPP_DLL_TEMPLATE_CLASS QuotientRing<EuclideanDomainOf<PolynomialMod2> >;
+
 //! GF(2^n) with Polynomial Basis
 class CRYPTOPP_DLL GF2NP : public QuotientRing<EuclideanDomainOf<PolynomialMod2> >
 {
@@ -313,46 +354,6 @@ private:
 
 // construct new GF2NP from the ASN.1 sequence Characteristic-two
 CRYPTOPP_DLL GF2NP * BERDecodeGF2NP(BufferedTransformation &bt);
-
-//!
-inline bool operator==(const CryptoPP::PolynomialMod2 &a, const CryptoPP::PolynomialMod2 &b)
-	{return a.Equals(b);}
-//!
-inline bool operator!=(const CryptoPP::PolynomialMod2 &a, const CryptoPP::PolynomialMod2 &b)
-	{return !(a==b);}
-//! compares degree
-inline bool operator> (const CryptoPP::PolynomialMod2 &a, const CryptoPP::PolynomialMod2 &b)
-	{return a.Degree() > b.Degree();}
-//! compares degree
-inline bool operator>=(const CryptoPP::PolynomialMod2 &a, const CryptoPP::PolynomialMod2 &b)
-	{return a.Degree() >= b.Degree();}
-//! compares degree
-inline bool operator< (const CryptoPP::PolynomialMod2 &a, const CryptoPP::PolynomialMod2 &b)
-	{return a.Degree() < b.Degree();}
-//! compares degree
-inline bool operator<=(const CryptoPP::PolynomialMod2 &a, const CryptoPP::PolynomialMod2 &b)
-	{return a.Degree() <= b.Degree();}
-//!
-inline CryptoPP::PolynomialMod2 operator&(const CryptoPP::PolynomialMod2 &a, const CryptoPP::PolynomialMod2 &b) {return a.And(b);}
-//!
-inline CryptoPP::PolynomialMod2 operator^(const CryptoPP::PolynomialMod2 &a, const CryptoPP::PolynomialMod2 &b) {return a.Xor(b);}
-//!
-inline CryptoPP::PolynomialMod2 operator+(const CryptoPP::PolynomialMod2 &a, const CryptoPP::PolynomialMod2 &b) {return a.Plus(b);}
-//!
-inline CryptoPP::PolynomialMod2 operator-(const CryptoPP::PolynomialMod2 &a, const CryptoPP::PolynomialMod2 &b) {return a.Minus(b);}
-//!
-inline CryptoPP::PolynomialMod2 operator*(const CryptoPP::PolynomialMod2 &a, const CryptoPP::PolynomialMod2 &b) {return a.Times(b);}
-//!
-inline CryptoPP::PolynomialMod2 operator/(const CryptoPP::PolynomialMod2 &a, const CryptoPP::PolynomialMod2 &b) {return a.DividedBy(b);}
-//!
-inline CryptoPP::PolynomialMod2 operator%(const CryptoPP::PolynomialMod2 &a, const CryptoPP::PolynomialMod2 &b) {return a.Modulo(b);}
-
-// CodeWarrior 8 workaround: put these template instantiations after overloaded operator declarations
-CRYPTOPP_DLL_TEMPLATE_CLASS AbstractGroup<PolynomialMod2>;
-CRYPTOPP_DLL_TEMPLATE_CLASS AbstractRing<PolynomialMod2>;
-CRYPTOPP_DLL_TEMPLATE_CLASS AbstractEuclideanDomain<PolynomialMod2>;
-CRYPTOPP_DLL_TEMPLATE_CLASS EuclideanDomainOf<PolynomialMod2>;
-CRYPTOPP_DLL_TEMPLATE_CLASS QuotientRing<EuclideanDomainOf<PolynomialMod2> >;
 
 NAMESPACE_END
 
