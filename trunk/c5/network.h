@@ -100,7 +100,7 @@ public:
 	void GetWaitObjects(WaitObjectContainer &container);
 
 	unsigned int GeneralPump2(unsigned long &byteCount, bool blockingOutput=true, unsigned long maxTime=INFINITE_TIME, bool checkDelimiter=false, byte delimiter='\n');
-	bool SourceExhausted() const {return GetReceiver().EofReceived();}
+	bool SourceExhausted() const {return m_dataBegin == m_dataEnd && GetReceiver().EofReceived();}
 
 protected:
 	virtual NetworkReceiver & AccessReceiver() =0;
