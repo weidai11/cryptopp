@@ -26,10 +26,6 @@ Project: "cryptest"=.\cryptest.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
-    begin source code control
-    Perforce Project
-    .
-    end source code control
 }}}
 
 Package=<4>
@@ -45,10 +41,6 @@ Project: "cryptlib"=.\cryptlib.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
-    begin source code control
-    Perforce Project
-    .
-    end source code control
 }}}
 
 Package=<4>
@@ -72,18 +64,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name cryptdll
     End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "dlltest"=.\dlltest.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
 }}}
 
 ###############################################################################
