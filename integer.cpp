@@ -46,16 +46,23 @@ static const char s_RunAtStartup = (AssignIntToInteger = FunctionAssignIntToInte
 template <class T>
 CPP_TYPENAME AllocatorBase<T>::pointer AlignedAllocator<T>::allocate(size_type n, const void *)
 {
+	CheckSize(n);
+	if (n == 0)
+		return NULL;
 #ifdef SSE2_INTRINSICS_AVAILABLE
 	if (n >= 4)
-		#ifdef __GNUC__
-				return (T *)memalign(16, sizeof(T)*n);
-		#else
-				return (T *)_mm_malloc(sizeof(T)*n, 16);
-		#endif
-	else
+	{
+		void *p;
+	#ifdef __GNUC__
+		while (!(p = memalign(16, sizeof(T)*n)))
+	#else
+		while (!(p = _mm_malloc(sizeof(T)*n, 16)))
+	#endif
+			CallNewHandler();
+		return (T*)p;
+	}
 #endif
-		return new T[n];
+	return new T[n];
 }
 
 template <class T>

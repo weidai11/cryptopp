@@ -59,6 +59,58 @@ private:
     void operator=(const NotCopyable &);
 };
 
+template <class T>
+struct NewObject
+{
+	T* operator()() const {return new T;}
+};
+
+// This function safely initializes a static object in a multithreaded environment without using locks.
+// It may leak memory when two threads try to initialize the static object at the same time
+// but this should be acceptable since each static object is only initialized once per session.
+template <class T, class F = NewObject<T>, int instance=0>
+class Singleton
+{
+public:
+	Singleton(F objectFactory = F()) : m_objectFactory(objectFactory) {}
+
+	// VC60 workaround: use "..." to prevent this function from being inlined
+	const T & Ref(...) const;
+
+private:
+	F m_objectFactory;
+};
+
+template <class T, class F, int instance>
+const T & Singleton<T, F, instance>::Ref(...) const
+{
+	static simple_ptr<T> s_pObject;
+	static char s_objectState = 0;
+
+retry:
+	switch (s_objectState)
+	{
+	case 0:
+		s_objectState = 1;
+		try
+		{
+			s_pObject.m_p = m_objectFactory();
+		}
+		catch(...)
+		{
+			s_objectState = 0;
+			throw;
+		}
+		s_objectState = 2;
+		break;
+	case 1:
+		goto retry;
+	default:
+		break;
+	}
+	return *s_pObject.m_p;
+}
+
 // ************** misc functions ***************
 
 // can't use std::min or std::max in MSVC60 or Cygwin 1.1.0
@@ -209,57 +261,7 @@ inline CipherDir GetCipherDir(const T &obj)
 	return obj.IsForwardTransformation() ? ENCRYPTION : DECRYPTION;
 }
 
-template <class T>
-struct NewObject
-{
-	T* operator()() const {return new T;}
-};
-
-// This function safely initializes a static object in a multithreaded environment without using locks.
-// It may leak memory when two threads try to initialize the static object at the same time
-// but this should be acceptable since each static object is only initialized once per session.
-template <class T, class F = NewObject<T>, int instance=0>
-class Singleton
-{
-public:
-	Singleton(F objectFactory = F()) : m_objectFactory(objectFactory) {}
-
-	// VC60 workaround: use "..." to prevent this function from being inlined
-	const T & Ref(...) const;
-
-private:
-	F m_objectFactory;
-};
-
-template <class T, class F, int instance>
-const T & Singleton<T, F, instance>::Ref(...) const
-{
-	static simple_ptr<T> s_pObject;
-	static char s_objectState = 0;
-
-retry:
-	switch (s_objectState)
-	{
-	case 0:
-		s_objectState = 1;
-		try
-		{
-			s_pObject.m_p = m_objectFactory();
-		}
-		catch(...)
-		{
-			s_objectState = 0;
-			throw;
-		}
-		s_objectState = 2;
-		break;
-	case 1:
-		goto retry;
-	default:
-		break;
-	}
-	return *s_pObject.m_p;
-}
+void CallNewHandler();
 
 // ************** rotate functions ***************
 

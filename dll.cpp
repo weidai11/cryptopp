@@ -56,18 +56,9 @@ static PDelete s_pDelete = NULL;
 
 static void * CRYPTOPP_CDECL New (size_t size)
 {
-	new_handler newHandler = set_new_handler(NULL);
-	if (newHandler)
-		set_new_handler(newHandler);
-
 	void *p;
 	while (!(p = malloc(size)))
-	{
-		if (newHandler)
-			newHandler();
-		else
-			throw std::bad_alloc();
-	}
+		CallNewHandler();
 
 	return p;
 }
