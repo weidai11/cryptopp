@@ -344,8 +344,9 @@ void ByteQueue::Unget(byte inByte)
 void ByteQueue::Unget(const byte *inString, unsigned int length)
 {
 	unsigned int len = STDMIN(length, m_head->m_head);
-	memcpy(m_head->buf + m_head->m_head - len, inString + length - len, len);
 	length -= len;
+	m_head->m_head -= len;
+	memcpy(m_head->buf + m_head->m_head, inString + length, len);
 
 	if (length > 0)
 	{

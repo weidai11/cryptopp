@@ -124,15 +124,21 @@ private:
 	void OutputString(const byte *string, unsigned int length);
 	void OutputPast(unsigned int length, unsigned int distance);
 
+	static const HuffmanDecoder *FixedLiteralDecoder();
+	static const HuffmanDecoder *FixedDistanceDecoder();
+
+	const HuffmanDecoder *GetLiteralDecoder() const;
+	const HuffmanDecoder *GetDistanceDecoder() const;
+
 	enum State {PRE_STREAM, WAIT_HEADER, DECODING_BODY, POST_STREAM, AFTER_END};
 	State m_state;
-	bool m_repeat, m_eof, m_decodersInitializedWithFixedCodes;
+	bool m_repeat, m_eof;
 	byte m_blockType;
 	word16 m_storedLen;
 	enum NextDecode {LITERAL, LENGTH_BITS, DISTANCE, DISTANCE_BITS};
 	NextDecode m_nextDecode;
 	unsigned int m_literal, m_distance;	// for LENGTH_BITS or DISTANCE_BITS
-	HuffmanDecoder m_literalDecoder, m_distanceDecoder;
+	HuffmanDecoder m_dynamicLiteralDecoder, m_dynamicDistanceDecoder;
 	LowFirstBitReader m_reader;
 	SecByteBlock m_window;
 	unsigned int m_maxDistance, m_current, m_lastFlush;

@@ -210,8 +210,7 @@ bool HuffmanDecoder::Decode(LowFirstBitReader &reader, value_t &value) const
 
 Inflator::Inflator(BufferedTransformation *attachment, bool repeat, int propagation)
 	: AutoSignaling<Filter>(attachment, propagation)
-	, m_state(PRE_STREAM), m_repeat(repeat)
-	, m_decodersInitializedWithFixedCodes(false), m_reader(m_inQueue)
+	, m_state(PRE_STREAM), m_repeat(repeat), m_reader(m_inQueue)
 {
 }
 
@@ -366,23 +365,10 @@ void Inflator::DecodeHeader()
 		break;
 		}
 	case 1:	// fixed codes
-		if (!m_decodersInitializedWithFixedCodes)
-		{
-			unsigned int codeLengths[288];
-			std::fill(codeLengths + 0, codeLengths + 144, 8);
-			std::fill(codeLengths + 144, codeLengths + 256, 9);
-			std::fill(codeLengths + 256, codeLengths + 280, 7);
-			std::fill(codeLengths + 280, codeLengths + 288, 8);
-			m_literalDecoder.Initialize(codeLengths, 288);
-			std::fill(codeLengths + 0, codeLengths + 32, 5);
-			m_distanceDecoder.Initialize(codeLengths, 32);
-			m_decodersInitializedWithFixedCodes = true;
-		}
 		m_nextDecode = LITERAL;
 		break;
 	case 2:	// dynamic codes
 		{
-		m_decodersInitializedWithFixedCodes = false;
 		if (!m_reader.FillBuffer(5+5+4))
 			throw UnexpectedEndErr();
 		unsigned int hlit = m_reader.GetBits(5);
@@ -439,14 +425,14 @@ void Inflator::DecodeHeader()
 				std::fill(codeLengths + i, codeLengths + i + count, repeater);
 				i += count;
 			}
-			m_literalDecoder.Initialize(codeLengths, hlit+257);
+			m_dynamicLiteralDecoder.Initialize(codeLengths, hlit+257);
 			if (hdist == 0 && codeLengths[hlit+257] == 0)
 			{
 				if (hlit != 0)	// a single zero distance code length means all literals
 					throw BadBlockErr();
 			}
 			else
-				m_distanceDecoder.Initialize(codeLengths+hlit+257, hdist+1);
+				m_dynamicDistanceDecoder.Initialize(codeLengths+hlit+257, hdist+1);
 			m_nextDecode = LITERAL;
 		}
 		catch (HuffmanDecoder::Err &)
@@ -497,12 +483,15 @@ bool Inflator::DecodeBody()
 			7, 7, 8, 8, 9, 9, 10, 10, 11, 11,
 			12, 12, 13, 13};
 
+		const HuffmanDecoder* pLiteralDecoder = GetLiteralDecoder();
+		const HuffmanDecoder* pDistanceDecoder = GetDistanceDecoder();
+
 		switch (m_nextDecode)
 		{
 			while (true)
 			{
 		case LITERAL:
-				if (!m_literalDecoder.Decode(m_reader, m_literal))
+				if (!pLiteralDecoder->Decode(m_reader, m_literal))
 				{
 					m_nextDecode = LITERAL;
 					break;
@@ -528,7 +517,7 @@ bool Inflator::DecodeBody()
 					}
 					m_literal = m_reader.GetBits(bits) + lengthStarts[m_literal-257];
 		case DISTANCE:
-					if (!m_distanceDecoder.Decode(m_reader, m_distance))
+					if (!pDistanceDecoder->Decode(m_reader, m_distance))
 					{
 						m_nextDecode = DISTANCE;
 						break;
@@ -576,6 +565,47 @@ void Inflator::FlushOutput()
 		ProcessDecompressedData(m_window + m_lastFlush, m_current - m_lastFlush);
 		m_lastFlush = m_current;
 	}
+}
+
+const HuffmanDecoder *Inflator::FixedLiteralDecoder()
+{
+	static simple_ptr<HuffmanDecoder> s_pDecoder;
+	if (!s_pDecoder.m_p)
+	{
+		unsigned int codeLengths[288];
+		std::fill(codeLengths + 0, codeLengths + 144, 8);
+		std::fill(codeLengths + 144, codeLengths + 256, 9);
+		std::fill(codeLengths + 256, codeLengths + 280, 7);
+		std::fill(codeLengths + 280, codeLengths + 288, 8);
+		HuffmanDecoder *pDecoder = new HuffmanDecoder;
+		pDecoder->Initialize(codeLengths, 288);
+		s_pDecoder.m_p = pDecoder;
+	}
+	return s_pDecoder.m_p;
+}
+
+const HuffmanDecoder *Inflator::FixedDistanceDecoder()
+{
+	static simple_ptr<HuffmanDecoder> s_pDecoder;
+	if (!s_pDecoder.m_p)
+	{
+		unsigned int codeLengths[32];
+		std::fill(codeLengths + 0, codeLengths + 32, 5);
+		HuffmanDecoder *pDecoder = new HuffmanDecoder;
+		pDecoder->Initialize(codeLengths, 32);
+		s_pDecoder.m_p = pDecoder;
+	}
+	return s_pDecoder.m_p;
+}
+
+const HuffmanDecoder *Inflator::GetLiteralDecoder() const
+{
+	return m_blockType == 1 ? FixedLiteralDecoder() : &m_dynamicLiteralDecoder;
+}
+
+const HuffmanDecoder *Inflator::GetDistanceDecoder() const
+{
+	return m_blockType == 1 ? FixedDistanceDecoder() : &m_dynamicDistanceDecoder;
 }
 
 NAMESPACE_END

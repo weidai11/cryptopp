@@ -612,22 +612,6 @@ BufferedTransformation * PK_Decryptor::CreateDecryptionFilter(RandomNumberGenera
 	return new DecryptionFilter(rng, *this, attachment);
 }
 
-unsigned int PK_FixedLengthCryptoSystem::MaxPlaintextLength(unsigned int cipherTextLength) const
-{
-	if (cipherTextLength == FixedCiphertextLength())
-		return FixedMaxPlaintextLength();
-	else
-		return 0;
-}
-
-unsigned int PK_FixedLengthCryptoSystem::CiphertextLength(unsigned int plainTextLength) const
-{
-	if (plainTextLength <= FixedMaxPlaintextLength())
-		return FixedCiphertextLength();
-	else
-		return 0;
-}
-
 DecodingResult PK_FixedLengthDecryptor::Decrypt(RandomNumberGenerator &rng, const byte *cipherText, unsigned int cipherTextLength, byte *plainText) const
 {
 	if (cipherTextLength != FixedCiphertextLength())
