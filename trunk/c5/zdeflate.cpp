@@ -628,7 +628,7 @@ void Deflator::EncodeBlock(bool eof, unsigned int blockType)
 	{
 		if (blockType == DYNAMIC)
 		{
-#if defined(_MSC_VER) && !defined(__MWERKS__)
+#if defined(_MSC_VER) && !defined(__MWERKS__) && (_MSC_VER < 1300)
 			// VC60 workaround: built-in reverse_iterator has two template parameters, Dinkumware only has one
 			typedef reverse_bidirectional_iterator<unsigned int *, unsigned int> RevIt;
 #else
