@@ -33,6 +33,7 @@
 
 #ifdef USE_BERKELEY_STYLE_SOCKETS
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #endif
 
 #if (_MSC_VER >= 1000)
