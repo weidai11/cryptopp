@@ -440,7 +440,7 @@ bool FirstPrime(Integer &p, const Integer &max, const Integer &equiv, const Inte
 		else
 			pItr = primeTable;
 
-		while (pItr < primeTable+primeTableSize && *pItr%mod != equiv)
+		while (pItr < primeTable+primeTableSize && !(*pItr%mod == equiv && (!pSelector || pSelector->IsAcceptable(*pItr))))
 			++pItr;
 
 		if (pItr < primeTable+primeTableSize)

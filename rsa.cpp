@@ -217,13 +217,17 @@ Integer InvertibleRSAFunction::CalculateInverse(RandomNumberGenerator &rng, cons
 {
 	DoQuickSanityCheck();
 	ModularArithmetic modn(m_n);
-	Integer r(rng, Integer::One(), m_n - Integer::One());
+	Integer r, rInv;
+	do {	// do this loop for people using small numbers for testing
+		r.Randomize(rng, Integer::One(), m_n - Integer::One());
+		rInv = modn.MultiplicativeInverse(r);
+	} while (rInv.IsZero());
 	Integer re = modn.Exponentiate(r, m_e);
 	re = modn.Multiply(re, x);			// blind
 	// here we follow the notation of PKCS #1 and let u=q inverse mod p
 	// but in ModRoot, u=p inverse mod q, so we reverse the order of p and q
 	Integer y = ModularRoot(re, m_dq, m_dp, m_q, m_p, m_u);
-	y = modn.Divide(y, r);				// unblind
+	y = modn.Multiply(y, rInv);				// unblind
 	if (modn.Exponentiate(y, m_e) != x)		// check
 		throw Exception(Exception::OTHER_ERROR, "InvertibleRSAFunction: computational error during private key operation");
 	return y;

@@ -15,6 +15,15 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+unsigned int WaitObjectContainer::MaxWaitObjects()
+{
+#ifdef USE_WINDOWS_STYLE_SOCKETS
+	return MAXIMUM_WAIT_OBJECTS * (MAXIMUM_WAIT_OBJECTS-1);
+#else
+	return FD_SETSIZE;
+#endif
+}
+
 WaitObjectContainer::WaitObjectContainer()
 {
 	Clear();
