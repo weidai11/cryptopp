@@ -56,7 +56,7 @@ public:
 protected:
 	static inline void AssertValidRounds(unsigned int rounds)
 	{
-		assert(rounds >= MIN_ROUNDS && rounds <= MAX_ROUNDS);
+		assert(rounds >= (unsigned int)MIN_ROUNDS && rounds <= (unsigned int)MAX_ROUNDS);
 	}
 
 	template <class T>
@@ -64,7 +64,7 @@ protected:
 	{
 		obj->ThrowIfInvalidKeyLength(length);
 		int rounds = param.GetIntValueWithDefault("Rounds", obj->StaticGetDefaultRounds(length));
-		if (rounds < (unsigned int)MIN_ROUNDS || rounds > (unsigned int)MAX_ROUNDS)
+		if (rounds < (int)MIN_ROUNDS || rounds > (int)MAX_ROUNDS)
 			throw InvalidRounds(obj->AlgorithmName(), rounds);
 		obj->UncheckedSetKey(dir, key, length, rounds);
 	}
