@@ -3,6 +3,7 @@
 #ifndef CRYPTOPP_XORMAC_H
 #define CRYPTOPP_XORMAC_H
 
+#include "seckey.h"
 #include "iterhash.h"
 #include "argnames.h"
 
