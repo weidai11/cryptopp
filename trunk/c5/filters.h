@@ -21,8 +21,8 @@ public:
 	const BufferedTransformation *AttachedTransformation() const;
 	void Detach(BufferedTransformation *newAttachment = NULL);
 
-	unsigned int TransferTo2(BufferedTransformation &target, unsigned long &transferBytes, const std::string &channel=NULL_CHANNEL, bool blocking=true);
-	unsigned int CopyRangeTo2(BufferedTransformation &target, unsigned long &begin, unsigned long end=ULONG_MAX, const std::string &channel=NULL_CHANNEL, bool blocking=true) const;
+	size_t TransferTo2(BufferedTransformation &target, lword &transferBytes, const std::string &channel=NULL_CHANNEL, bool blocking=true);
+	size_t CopyRangeTo2(BufferedTransformation &target, lword &begin, lword end=LWORD_MAX, const std::string &channel=NULL_CHANNEL, bool blocking=true) const;
 
 	void Initialize(const NameValuePairs &parameters=g_nullNameValuePairs, int propagation=-1);
 	bool Flush(bool hardFlush, int propagation=-1, bool blocking=true);
@@ -37,8 +37,8 @@ protected:
 
 	void PropagateInitialize(const NameValuePairs &parameters, int propagation);
 
-	unsigned int Output(int outputSite, const byte *inString, unsigned int length, int messageEnd, bool blocking, const std::string &channel=NULL_CHANNEL);
-	unsigned int OutputModifiable(int outputSite, byte *inString, unsigned int length, int messageEnd, bool blocking, const std::string &channel=NULL_CHANNEL);
+	size_t Output(int outputSite, const byte *inString, size_t length, int messageEnd, bool blocking, const std::string &channel=NULL_CHANNEL);
+	size_t OutputModifiable(int outputSite, byte *inString, size_t length, int messageEnd, bool blocking, const std::string &channel=NULL_CHANNEL);
 	bool OutputMessageEnd(int outputSite, int propagation, bool blocking, const std::string &channel=NULL_CHANNEL);
 	bool OutputFlush(int outputSite, bool hardFlush, int propagation, bool blocking, const std::string &channel=NULL_CHANNEL);
 	bool OutputMessageSeriesEnd(int outputSite, int propagation, bool blocking, const std::string &channel=NULL_CHANNEL);
@@ -47,14 +47,14 @@ private:
 	member_ptr<BufferedTransformation> m_attachment;
 	
 protected:
-	unsigned int m_inputPosition;
+	size_t m_inputPosition;
 	int m_continueAt;
 };
 
 struct CRYPTOPP_DLL FilterPutSpaceHelper
 {
 	// desiredSize is how much to ask target, bufferSize is how much to allocate in m_tempSpace
-	byte *HelpCreatePutSpace(BufferedTransformation &target, const std::string &channel, unsigned int minSize, unsigned int desiredSize, unsigned int &bufferSize)
+	byte *HelpCreatePutSpace(BufferedTransformation &target, const std::string &channel, size_t minSize, size_t desiredSize, size_t &bufferSize)
 	{
 		assert(desiredSize >= minSize && bufferSize >= minSize);
 		if (m_tempSpace.size() < minSize)
@@ -71,9 +71,9 @@ struct CRYPTOPP_DLL FilterPutSpaceHelper
 		bufferSize = m_tempSpace.size();
 		return m_tempSpace.begin();
 	}
-	byte *HelpCreatePutSpace(BufferedTransformation &target, const std::string &channel, unsigned int minSize)
+	byte *HelpCreatePutSpace(BufferedTransformation &target, const std::string &channel, size_t minSize)
 		{return HelpCreatePutSpace(target, channel, minSize, minSize, minSize);}
-	byte *HelpCreatePutSpace(BufferedTransformation &target, const std::string &channel, unsigned int minSize, unsigned int bufferSize)
+	byte *HelpCreatePutSpace(BufferedTransformation &target, const std::string &channel, size_t minSize, size_t bufferSize)
 		{return HelpCreatePutSpace(target, channel, minSize, minSize, bufferSize);}
 	SecByteBlock m_tempSpace;
 };
@@ -88,16 +88,16 @@ public:
 	void SetTransparent(bool transparent) {m_transparent = transparent;}
 	void ResetMeter() {m_currentMessageBytes = m_totalBytes = m_currentSeriesMessages = m_totalMessages = m_totalMessageSeries = 0;}
 
-	unsigned long GetCurrentMessageBytes() const {return m_currentMessageBytes;}
-	unsigned long GetTotalBytes() {return m_totalBytes;}
+	lword GetCurrentMessageBytes() const {return m_currentMessageBytes;}
+	lword GetTotalBytes() {return m_totalBytes;}
 	unsigned int GetCurrentSeriesMessages() {return m_currentSeriesMessages;}
 	unsigned int GetTotalMessages() {return m_totalMessages;}
 	unsigned int GetTotalMessageSeries() {return m_totalMessageSeries;}
 
-	byte * CreatePutSpace(unsigned int &size)
+	byte * CreatePutSpace(size_t &size)
 		{return AttachedTransformation()->CreatePutSpace(size);}
-	unsigned int Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking);
-	unsigned int PutModifiable2(byte *inString, unsigned int length, int messageEnd, bool blocking);
+	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking);
+	size_t PutModifiable2(byte *inString, size_t length, int messageEnd, bool blocking);
 	bool IsolatedMessageSeriesEnd(bool blocking);
 
 private:
@@ -105,7 +105,7 @@ private:
 	bool ShouldPropagateMessageSeriesEnd() const {return m_transparent;}
 
 	bool m_transparent;
-	unsigned long m_currentMessageBytes, m_totalBytes;
+	lword m_currentMessageBytes, m_totalBytes;
 	unsigned int m_currentSeriesMessages, m_totalMessages, m_totalMessageSeries;
 };
 
@@ -133,14 +133,14 @@ class CRYPTOPP_DLL FilterWithBufferedInput : public Filter
 public:
 	FilterWithBufferedInput(BufferedTransformation *attachment);
 	//! firstSize and lastSize may be 0, blockSize must be at least 1
-	FilterWithBufferedInput(unsigned int firstSize, unsigned int blockSize, unsigned int lastSize, BufferedTransformation *attachment);
+	FilterWithBufferedInput(size_t firstSize, size_t blockSize, size_t lastSize, BufferedTransformation *attachment);
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
-	unsigned int Put2(const byte *inString, unsigned int length, int messageEnd, bool blocking)
+	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
 	{
 		return PutMaybeModifiable(const_cast<byte *>(inString), length, messageEnd, blocking, false);
 	}
-	unsigned int PutModifiable2(byte *inString, unsigned int length, int messageEnd, bool blocking)
+	size_t PutModifiable2(byte *inString, size_t length, int messageEnd, bool blocking)
 	{
 		return PutMaybeModifiable(inString, length, messageEnd, blocking, true);
 	}
@@ -155,7 +155,7 @@ public:
 protected:
 	bool DidFirstPut() {return m_firstInputDone;}
 
-	virtual void InitializeDerivedAndReturnNewSizes(const NameValuePairs &parameters, unsigned int &firstSize, unsigned int &blockSize, unsigned int &lastSize)
+	virtual void InitializeDerivedAndReturnNewSizes(const NameValuePairs &parameters, size_t &firstSize, size_t &blockSize, size_t &lastSize)
 		{InitializeDerived(parameters);}
 	virtual void InitializeDerived(const NameValuePairs &parameters) {}
 	// FirstPut() is called if (firstSize != 0 and totalLength >= firstSize)
@@ -165,20 +165,20 @@ protected:
 	virtual void NextPutSingle(const byte *inString) {assert(false);}
 	// Same as NextPut() except length can be a multiple of blockSize
 	// Either NextPut() or NextPutMultiple() must be overriden
-	virtual void NextPutMultiple(const byte *inString, unsigned int length);
+	virtual void NextPutMultiple(const byte *inString, size_t length);
 	// Same as NextPutMultiple(), but inString can be modified
-	virtual void NextPutModifiable(byte *inString, unsigned int length)
+	virtual void NextPutModifiable(byte *inString, size_t length)
 		{NextPutMultiple(inString, length);}
 	// LastPut() is always called
 	// if totalLength < firstSize then length == totalLength
 	// else if totalLength <= firstSize+lastSize then length == totalLength-firstSize
 	// else lastSize <= length < lastSize+blockSize
-	virtual void LastPut(const byte *inString, unsigned int length) =0;
+	virtual void LastPut(const byte *inString, size_t length) =0;
 	virtual void FlushDerived() {}
 
 private:
-	unsigned int PutMaybeModifiable(byte *begin, unsigned int length, int messageEnd, bool blocking, bool modifiable);
-	void NextPutMaybeModifiable(byte *inString, unsigned int length, bool modifiable)
+	size_t PutMaybeModifiable(byte *begin, size_t length, int messageEnd, bool blocking, bool modifiable);
+	void NextPutMaybeModifiable(byte *inString, size_t length, bool modifiable)
 	{
 		if (modifiable) NextPutModifiable(inString, length);
 		else NextPutMultiple(inString, length);
@@ -186,26 +186,26 @@ private:
 
 	// This function should no longer be used, put this here to cause a compiler error
 	// if someone tries to override NextPut().
-	virtual int NextPut(const byte *inString, unsigned int length) {assert(false); return 0;}
+	virtual int NextPut(const byte *inString, size_t length) {assert(false); return 0;}
 
 	class BlockQueue
 	{
 	public:
-		void ResetQueue(unsigned int blockSize, unsigned int maxBlocks);
+		void ResetQueue(size_t blockSize, size_t maxBlocks);
 		byte *GetBlock();
-		byte *GetContigousBlocks(unsigned int &numberOfBytes);
-		unsigned int GetAll(byte *outString);
-		void Put(const byte *inString, unsigned int length);
-		unsigned int CurrentSize() const {return m_size;}
-		unsigned int MaxSize() const {return m_buffer.size();}
+		byte *GetContigousBlocks(size_t &numberOfBytes);
+		size_t GetAll(byte *outString);
+		void Put(const byte *inString, size_t length);
+		size_t CurrentSize() const {return m_size;}
+		size_t MaxSize() const {return m_buffer.size();}
 
 	private:
 		SecByteBlock m_buffer;
-		unsigned int m_blockSize, m_maxBlocks, m_size;
+		size_t m_blockSize, m_maxBlocks, m_size;
 		byte *m_begin;
 	};
 
-	unsigned int m_firstSize, m_blockSize, m_lastSize;
+	size_t m_firstSize, m_blockSize, m_lastSize;
 	bool m_firstInputDone;
 	BlockQueue m_queue;
 };
@@ -216,7 +216,7 @@ class CRYPTOPP_DLL FilterWithInputQueue : public Filter
 public:
 	FilterWithInputQueue(BufferedTransformation *attachment=NULL) : Filter(attachment) {}
 
-	unsigned int Put2(const byte *inString, unsigned int length, int messageEnd, bool blocking)
+	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
 	{
 		if (!blocking)
 			throw BlockingInputOnly("FilterWithInputQueue");
@@ -247,13 +247,13 @@ public:
 	StreamTransformationFilter(StreamTransformation &c, BufferedTransformation *attachment = NULL, BlockPaddingScheme padding = DEFAULT_PADDING);
 
 	void FirstPut(const byte *inString);
-	void NextPutMultiple(const byte *inString, unsigned int length);
-	void NextPutModifiable(byte *inString, unsigned int length);
-	void LastPut(const byte *inString, unsigned int length);
-//	byte * CreatePutSpace(unsigned int &size);
+	void NextPutMultiple(const byte *inString, size_t length);
+	void NextPutModifiable(byte *inString, size_t length);
+	void LastPut(const byte *inString, size_t length);
+//	byte * CreatePutSpace(size_t &size);
 
 protected:
-	static unsigned int LastBlockSize(StreamTransformation &c, BlockPaddingScheme padding);
+	static size_t LastBlockSize(StreamTransformation &c, BlockPaddingScheme padding);
 
 	StreamTransformation &m_cipher;
 	BlockPaddingScheme m_padding;
@@ -272,9 +272,9 @@ public:
 		: m_hashModule(hm), m_putMessage(putMessage), m_truncatedDigestSize(truncatedDigestSize) {Detach(attachment);}
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
-	unsigned int Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking);
+	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking);
 
-	byte * CreatePutSpace(unsigned int &size) {return m_hashModule.CreateUpdateSpace(size);}
+	byte * CreatePutSpace(size_t &size) {return m_hashModule.CreateUpdateSpace(size);}
 
 private:
 	HashTransformation &m_hashModule;
@@ -301,10 +301,10 @@ public:
 	bool GetLastResult() const {return m_verified;}
 
 protected:
-	void InitializeDerivedAndReturnNewSizes(const NameValuePairs &parameters, unsigned int &firstSize, unsigned int &blockSize, unsigned int &lastSize);
+	void InitializeDerivedAndReturnNewSizes(const NameValuePairs &parameters, size_t &firstSize, size_t &blockSize, size_t &lastSize);
 	void FirstPut(const byte *inString);
-	void NextPutMultiple(const byte *inString, unsigned int length);
-	void LastPut(const byte *inString, unsigned int length);
+	void NextPutMultiple(const byte *inString, size_t length);
+	void LastPut(const byte *inString, size_t length);
 
 private:
 	static inline unsigned int FirstSize(word32 flags, HashTransformation &hm) {return flags & HASH_AT_BEGIN ? hm.DigestSize() : 0;}
@@ -326,7 +326,7 @@ public:
 		: m_rng(rng), m_signer(signer), m_messageAccumulator(signer.NewSignatureAccumulator(rng)), m_putMessage(putMessage) {Detach(attachment);}
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
-	unsigned int Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking);
+	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking);
 
 private:
 	RandomNumberGenerator &m_rng;
@@ -353,10 +353,10 @@ public:
 	bool GetLastResult() const {return m_verified;}
 
 protected:
-	void InitializeDerivedAndReturnNewSizes(const NameValuePairs &parameters, unsigned int &firstSize, unsigned int &blockSize, unsigned int &lastSize);
+	void InitializeDerivedAndReturnNewSizes(const NameValuePairs &parameters, size_t &firstSize, size_t &blockSize, size_t &lastSize);
 	void FirstPut(const byte *inString);
-	void NextPutMultiple(const byte *inString, unsigned int length);
-	void LastPut(const byte *inString, unsigned int length);
+	void NextPutMultiple(const byte *inString, size_t length);
+	void LastPut(const byte *inString, size_t length);
 
 private:
 	const PK_Verifier &m_verifier;
@@ -398,20 +398,20 @@ public:
 		{return m_target ? m_target->CanModifyInput() : false;}
 
 	void Initialize(const NameValuePairs &parameters, int propagation);
-	byte * CreatePutSpace(unsigned int &size)
+	byte * CreatePutSpace(size_t &size)
 		{return m_target ? m_target->CreatePutSpace(size) : (byte *)(size=0, NULL);}
-	unsigned int Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking)
+	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking)
 		{return m_target ? m_target->Put2(begin, length, GetPassSignals() ? messageEnd : 0, blocking) : 0;}
 	bool Flush(bool hardFlush, int propagation=-1, bool blocking=true)
 		{return m_target && GetPassSignals() ? m_target->Flush(hardFlush, propagation, blocking) : false;}
 	bool MessageSeriesEnd(int propagation=-1, bool blocking=true)
 		{return m_target && GetPassSignals() ? m_target->MessageSeriesEnd(propagation, blocking) : false;}
 
-	byte * ChannelCreatePutSpace(const std::string &channel, unsigned int &size)
+	byte * ChannelCreatePutSpace(const std::string &channel, size_t &size)
 		{return m_target ? m_target->ChannelCreatePutSpace(channel, size) : (byte *)(size=0, NULL);}
-	unsigned int ChannelPut2(const std::string &channel, const byte *begin, unsigned int length, int messageEnd, bool blocking)
+	size_t ChannelPut2(const std::string &channel, const byte *begin, size_t length, int messageEnd, bool blocking)
 		{return m_target ? m_target->ChannelPut2(channel, begin, length, GetPassSignals() ? messageEnd : 0, blocking) : 0;}
-	unsigned int ChannelPutModifiable2(const std::string &channel, byte *begin, unsigned int length, int messageEnd, bool blocking)
+	size_t ChannelPutModifiable2(const std::string &channel, byte *begin, size_t length, int messageEnd, bool blocking)
 		{return m_target ? m_target->ChannelPutModifiable2(channel, begin, length, GetPassSignals() ? messageEnd : 0, blocking) : 0;}
 	bool ChannelFlush(const std::string &channel, bool completeFlush, int propagation=-1, bool blocking=true)
 		{return m_target && GetPassSignals() ? m_target->ChannelFlush(channel, completeFlush, propagation, blocking) : false;}
@@ -437,11 +437,11 @@ public:
 	bool GetPassSignal() const {return m_passSignal;}
 	void SetPassSignal(bool passSignal) {m_passSignal = passSignal;}
 
-	byte * CreatePutSpace(unsigned int &size)
+	byte * CreatePutSpace(size_t &size)
 		{return m_owner.AttachedTransformation()->CreatePutSpace(size);}
-	unsigned int Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking)
+	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking)
 		{return m_owner.AttachedTransformation()->Put2(begin, length, m_passSignal ? messageEnd : 0, blocking);}
-	unsigned int PutModifiable2(byte *begin, unsigned int length, int messageEnd, bool blocking)
+	size_t PutModifiable2(byte *begin, size_t length, int messageEnd, bool blocking)
 		{return m_owner.AttachedTransformation()->PutModifiable2(begin, length, m_passSignal ? messageEnd : 0, blocking);}
 	void Initialize(const NameValuePairs &parameters=g_nullNameValuePairs, int propagation=-1)
 		{if (m_passSignal) m_owner.AttachedTransformation()->Initialize(parameters, propagation);}
@@ -450,9 +450,9 @@ public:
 	bool MessageSeriesEnd(int propagation=-1, bool blocking=true)
 		{return m_passSignal ? m_owner.AttachedTransformation()->MessageSeriesEnd(propagation, blocking) : false;}
 
-	unsigned int ChannelPut2(const std::string &channel, const byte *begin, unsigned int length, int messageEnd, bool blocking)
+	size_t ChannelPut2(const std::string &channel, const byte *begin, size_t length, int messageEnd, bool blocking)
 		{return m_owner.AttachedTransformation()->ChannelPut2(channel, begin, length, m_passSignal ? messageEnd : 0, blocking);}
-	unsigned int ChannelPutModifiable2(const std::string &channel, byte *begin, unsigned int length, int messageEnd, bool blocking)
+	size_t ChannelPutModifiable2(const std::string &channel, byte *begin, size_t length, int messageEnd, bool blocking)
 		{return m_owner.AttachedTransformation()->ChannelPutModifiable2(channel, begin, length, m_passSignal ? messageEnd : 0, blocking);}
 	bool ChannelFlush(const std::string &channel, bool completeFlush, int propagation=-1, bool blocking=true)
 		{return m_passSignal ? m_owner.AttachedTransformation()->ChannelFlush(channel, completeFlush, propagation, blocking) : false;}
@@ -468,13 +468,13 @@ private:
 class CRYPTOPP_DLL ProxyFilter : public FilterWithBufferedInput
 {
 public:
-	ProxyFilter(BufferedTransformation *filter, unsigned int firstSize, unsigned int lastSize, BufferedTransformation *attachment);
+	ProxyFilter(BufferedTransformation *filter, size_t firstSize, size_t lastSize, BufferedTransformation *attachment);
 
 	bool IsolatedFlush(bool hardFlush, bool blocking);
 
 	void SetFilter(Filter *filter);
-	void NextPutMultiple(const byte *s, unsigned int len);
-	void NextPutModifiable(byte *inString, unsigned int length);
+	void NextPutMultiple(const byte *s, size_t len);
+	void NextPutModifiable(byte *inString, size_t length);
 
 protected:
 	member_ptr<BufferedTransformation> m_filter;
@@ -488,7 +488,7 @@ public:
 		: ProxyFilter(filter, 0, 0, attachment) {}
 
 	void FirstPut(const byte *) {}
-	void LastPut(const byte *, unsigned int) {m_filter->MessageEnd();}
+	void LastPut(const byte *, size_t) {m_filter->MessageEnd();}
 };
 
 //! proxy for the filter created by PK_Encryptor::CreateEncryptionFilter
@@ -523,7 +523,7 @@ public:
 	void IsolatedInitialize(const NameValuePairs &parameters)
 		{if (!parameters.GetValue("OutputStringPointer", m_output)) throw InvalidArgument("StringSink: OutputStringPointer not specified");}
 
-	unsigned int Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking)
+	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking)
 	{
 		if (length > 0)
 		{
@@ -548,30 +548,30 @@ class CRYPTOPP_DLL ArraySink : public Bufferless<Sink>
 {
 public:
 	ArraySink(const NameValuePairs &parameters = g_nullNameValuePairs) {IsolatedInitialize(parameters);}
-	ArraySink(byte *buf, unsigned int size) : m_buf(buf), m_size(size), m_total(0) {}
+	ArraySink(byte *buf, size_t size) : m_buf(buf), m_size(size), m_total(0) {}
 
-	unsigned int AvailableSize() {return m_size - STDMIN(m_total, (unsigned long)m_size);}
-	unsigned long TotalPutLength() {return m_total;}
+	size_t AvailableSize() {return SaturatingSubtract(m_size, m_total);}
+	lword TotalPutLength() {return m_total;}
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
-	byte * CreatePutSpace(unsigned int &size);
-	unsigned int Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking);
+	byte * CreatePutSpace(size_t &size);
+	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking);
 
 protected:
 	byte *m_buf;
-	unsigned int m_size;
-	unsigned long m_total;
+	size_t m_size;
+	lword m_total;
 };
 
 //! Xor input to a memory buffer
 class CRYPTOPP_DLL ArrayXorSink : public ArraySink
 {
 public:
-	ArrayXorSink(byte *buf, unsigned int size)
+	ArrayXorSink(byte *buf, size_t size)
 		: ArraySink(buf, size) {}
 
-	unsigned int Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking);
-	byte * CreatePutSpace(unsigned int &size) {return BufferedTransformation::CreatePutSpace(size);}
+	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking);
+	byte * CreatePutSpace(size_t &size) {return BufferedTransformation::CreatePutSpace(size);}
 };
 
 //! string-based implementation of Store interface
@@ -580,19 +580,19 @@ class StringStore : public Store
 public:
 	StringStore(const char *string = NULL)
 		{StoreInitialize(MakeParameters("InputBuffer", ConstByteArrayParameter(string)));}
-	StringStore(const byte *string, unsigned int length)
+	StringStore(const byte *string, size_t length)
 		{StoreInitialize(MakeParameters("InputBuffer", ConstByteArrayParameter(string, length)));}
 	template <class T> StringStore(const T &string)
 		{StoreInitialize(MakeParameters("InputBuffer", ConstByteArrayParameter(string)));}
 
-	CRYPTOPP_DLL unsigned int TransferTo2(BufferedTransformation &target, unsigned long &transferBytes, const std::string &channel=NULL_CHANNEL, bool blocking=true);
-	CRYPTOPP_DLL unsigned int CopyRangeTo2(BufferedTransformation &target, unsigned long &begin, unsigned long end=ULONG_MAX, const std::string &channel=NULL_CHANNEL, bool blocking=true) const;
+	CRYPTOPP_DLL size_t TransferTo2(BufferedTransformation &target, lword &transferBytes, const std::string &channel=NULL_CHANNEL, bool blocking=true);
+	CRYPTOPP_DLL size_t CopyRangeTo2(BufferedTransformation &target, lword &begin, lword end=LWORD_MAX, const std::string &channel=NULL_CHANNEL, bool blocking=true) const;
 
 private:
 	CRYPTOPP_DLL void StoreInitialize(const NameValuePairs &parameters);
 
 	const byte *m_store;
-	unsigned int m_length, m_count;
+	size_t m_length, m_count;
 };
 
 //! RNG-based implementation of Source interface
@@ -602,14 +602,14 @@ public:
 	RandomNumberStore()
 		: m_rng(NULL), m_length(0), m_count(0) {}
 
-	RandomNumberStore(RandomNumberGenerator &rng, unsigned long length)
+	RandomNumberStore(RandomNumberGenerator &rng, lword length)
 		: m_rng(&rng), m_length(length), m_count(0) {}
 
 	bool AnyRetrievable() const {return MaxRetrievable() != 0;}
-	unsigned long MaxRetrievable() const {return m_length-m_count;}
+	lword MaxRetrievable() const {return m_length-m_count;}
 
-	unsigned int TransferTo2(BufferedTransformation &target, unsigned long &transferBytes, const std::string &channel=NULL_CHANNEL, bool blocking=true);
-	unsigned int CopyRangeTo2(BufferedTransformation &target, unsigned long &begin, unsigned long end=ULONG_MAX, const std::string &channel=NULL_CHANNEL, bool blocking=true) const
+	size_t TransferTo2(BufferedTransformation &target, lword &transferBytes, const std::string &channel=NULL_CHANNEL, bool blocking=true);
+	size_t CopyRangeTo2(BufferedTransformation &target, lword &begin, lword end=LWORD_MAX, const std::string &channel=NULL_CHANNEL, bool blocking=true) const
 	{
 		throw NotImplemented("RandomNumberStore: CopyRangeTo2() is not supported by this store");
 	}
@@ -618,22 +618,21 @@ private:
 	void StoreInitialize(const NameValuePairs &parameters);
 
 	RandomNumberGenerator *m_rng;
-	int m_length;
-	unsigned long m_count;
+	lword m_length, m_count;
 };
 
 //! empty store
 class CRYPTOPP_DLL NullStore : public Store
 {
 public:
-	NullStore(unsigned long size = ULONG_MAX) : m_size(size) {}
+	NullStore(lword size = ULONG_MAX) : m_size(size) {}
 	void StoreInitialize(const NameValuePairs &parameters) {}
-	unsigned long MaxRetrievable() const {return m_size;}
-	unsigned int TransferTo2(BufferedTransformation &target, unsigned long &transferBytes, const std::string &channel=NULL_CHANNEL, bool blocking=true);
-	unsigned int CopyRangeTo2(BufferedTransformation &target, unsigned long &begin, unsigned long end=ULONG_MAX, const std::string &channel=NULL_CHANNEL, bool blocking=true) const;
+	lword MaxRetrievable() const {return m_size;}
+	size_t TransferTo2(BufferedTransformation &target, lword &transferBytes, const std::string &channel=NULL_CHANNEL, bool blocking=true);
+	size_t CopyRangeTo2(BufferedTransformation &target, lword &begin, lword end=LWORD_MAX, const std::string &channel=NULL_CHANNEL, bool blocking=true) const;
 
 private:
-	unsigned long m_size;
+	lword m_size;
 };
 
 //! A Filter that pumps data into its attachment as input
@@ -643,15 +642,15 @@ public:
 	Source(BufferedTransformation *attachment = NULL)
 		{Source::Detach(attachment);}
 
-	unsigned long Pump(unsigned long pumpMax=ULONG_MAX)
+	lword Pump(lword pumpMax=size_t(0)-1)
 		{Pump2(pumpMax); return pumpMax;}
 	unsigned int PumpMessages(unsigned int count=UINT_MAX)
 		{PumpMessages2(count); return count;}
 	void PumpAll()
 		{PumpAll2();}
-	virtual unsigned int Pump2(unsigned long &byteCount, bool blocking=true) =0;
-	virtual unsigned int PumpMessages2(unsigned int &messageCount, bool blocking=true) =0;
-	virtual unsigned int PumpAll2(bool blocking=true);
+	virtual size_t Pump2(lword &byteCount, bool blocking=true) =0;
+	virtual size_t PumpMessages2(unsigned int &messageCount, bool blocking=true) =0;
+	virtual size_t PumpAll2(bool blocking=true);
 	virtual bool SourceExhausted() const =0;
 
 protected:
@@ -672,11 +671,11 @@ public:
 		: Source(attachment) {}
 	void IsolatedInitialize(const NameValuePairs &parameters)
 		{m_store.IsolatedInitialize(parameters);}
-	unsigned int Pump2(unsigned long &byteCount, bool blocking=true)
+	size_t Pump2(lword &byteCount, bool blocking=true)
 		{return m_store.TransferTo2(*AttachedTransformation(), byteCount, NULL_CHANNEL, blocking);}
-	unsigned int PumpMessages2(unsigned int &messageCount, bool blocking=true)
+	size_t PumpMessages2(unsigned int &messageCount, bool blocking=true)
 		{return m_store.TransferMessagesTo2(*AttachedTransformation(), messageCount, NULL_CHANNEL, blocking);}
-	unsigned int PumpAll2(bool blocking=true)
+	size_t PumpAll2(bool blocking=true)
 		{return m_store.TransferAllTo2(*AttachedTransformation(), NULL_CHANNEL, blocking);}
 	bool SourceExhausted() const
 		{return !m_store.AnyRetrievable() && !m_store.AnyMessages();}
@@ -697,7 +696,7 @@ public:
 		: SourceTemplate<StringStore>(attachment) {}
 	StringSource(const char *string, bool pumpAll, BufferedTransformation *attachment = NULL)
 		: SourceTemplate<StringStore>(attachment) {SourceInitialize(pumpAll, MakeParameters("InputBuffer", ConstByteArrayParameter(string)));}
-	StringSource(const byte *string, unsigned int length, bool pumpAll, BufferedTransformation *attachment = NULL)
+	StringSource(const byte *string, size_t length, bool pumpAll, BufferedTransformation *attachment = NULL)
 		: SourceTemplate<StringStore>(attachment) {SourceInitialize(pumpAll, MakeParameters("InputBuffer", ConstByteArrayParameter(string, length)));}
 	StringSource(const std::string &string, bool pumpAll, BufferedTransformation *attachment = NULL)
 		: SourceTemplate<StringStore>(attachment) {SourceInitialize(pumpAll, MakeParameters("InputBuffer", ConstByteArrayParameter(string)));}

@@ -14,7 +14,7 @@ class CRYPTOPP_NO_VTABLE Panama
 {
 public:
 	void Reset();
-	void Iterate(unsigned int count, const word32 *p=NULL, word32 *z=NULL, const word32 *y=NULL);
+	void Iterate(size_t count, const word32 *p=NULL, word32 *z=NULL, const word32 *y=NULL);
 
 protected:
 	typedef word32 Stage[8];
@@ -32,13 +32,13 @@ public:
 	enum {DIGESTSIZE = 32};
 	PanamaHash() {Panama<B>::Reset();}
 	unsigned int DigestSize() const {return DIGESTSIZE;}
-	void TruncatedFinal(byte *hash, unsigned int size);
+	void TruncatedFinal(byte *hash, size_t size);
 	static const char * StaticAlgorithmName() {return B::ToEnum() == BIG_ENDIAN_ORDER ? "Panama-BE" : "Panama-LE";}
 
 protected:
 	void Init() {Panama<B>::Reset();}
 	void HashEndianCorrectedBlock(const word32 *data) {this->Iterate(1, data);}	// push
-	unsigned int HashMultipleBlocks(const word32 *input, unsigned int length);
+	size_t HashMultipleBlocks(const word32 *input, size_t length);
 };
 
 //! MAC construction using a hermetic hash function
@@ -46,7 +46,7 @@ template <class T_Hash, class T_Info = T_Hash>
 class HermeticHashFunctionMAC : public AlgorithmImpl<SimpleKeyingInterfaceImpl<TwoBases<MessageAuthenticationCode, VariableKeyLength<32, 0, UINT_MAX> > >, T_Info>
 {
 public:
-	void SetKey(const byte *key, unsigned int length, const NameValuePairs &params = g_nullNameValuePairs)
+	void SetKey(const byte *key, size_t length, const NameValuePairs &params = g_nullNameValuePairs)
 	{
 		m_key.Assign(key, length);
 		Restart();
@@ -58,14 +58,14 @@ public:
 		m_keyed = false;
 	}
 
-	void Update(const byte *input, unsigned int length)
+	void Update(const byte *input, size_t length)
 	{
 		if (!m_keyed)
 			KeyHash();
 		m_hash.Update(input, length);
 	}
 
-	void TruncatedFinal(byte *digest, unsigned int digestSize)
+	void TruncatedFinal(byte *digest, size_t digestSize)
 	{
 		if (!m_keyed)
 			KeyHash();
@@ -118,8 +118,8 @@ class PanamaCipherPolicy : public AdditiveCipherConcretePolicy<word32, 8>,
 							protected Panama<B>
 {
 protected:
-	void CipherSetKey(const NameValuePairs &params, const byte *key, unsigned int length);
-	void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, unsigned int iterationCount);
+	void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length);
+	void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount);
 	bool IsRandomAccess() const {return false;}
 };
 

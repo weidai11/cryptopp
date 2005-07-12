@@ -16,9 +16,9 @@ class PKCS_EncryptionPaddingScheme : public PK_EncryptionMessageEncodingMethod
 public:
 	static const char * StaticAlgorithmName() {return "EME-PKCS1-v1_5";}
 
-	unsigned int MaxUnpaddedLength(unsigned int paddedLength) const;
-	void Pad(RandomNumberGenerator &rng, const byte *raw, unsigned int inputLength, byte *padded, unsigned int paddedLength, const NameValuePairs &parameters) const;
-	DecodingResult Unpad(const byte *padded, unsigned int paddedLength, byte *raw, const NameValuePairs &parameters) const;
+	size_t MaxUnpaddedLength(size_t paddedLength) const;
+	void Pad(RandomNumberGenerator &rng, const byte *raw, size_t inputLength, byte *padded, size_t paddedLength, const NameValuePairs &parameters) const;
+	DecodingResult Unpad(const byte *padded, size_t paddedLength, byte *raw, const NameValuePairs &parameters) const;
 };
 
 template <class H> class PKCS_DigestDecoration
@@ -55,13 +55,13 @@ class CRYPTOPP_DLL PKCS1v15_SignatureMessageEncodingMethod : public PK_Determini
 public:
 	static const char * CRYPTOPP_API StaticAlgorithmName() {return "EMSA-PKCS1-v1_5";}
 
-	unsigned int MinRepresentativeBitLength(unsigned int hashIdentifierSize, unsigned int digestSize) const
+	size_t MinRepresentativeBitLength(size_t hashIdentifierSize, size_t digestSize) const
 		{return 8 * (digestSize + hashIdentifierSize + 10);}
 
 	void ComputeMessageRepresentative(RandomNumberGenerator &rng, 
-		const byte *recoverableMessage, unsigned int recoverableMessageLength,
+		const byte *recoverableMessage, size_t recoverableMessageLength,
 		HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
-		byte *representative, unsigned int representativeBitLength) const;
+		byte *representative, size_t representativeBitLength) const;
 
 	struct HashIdentifierLookup
 	{

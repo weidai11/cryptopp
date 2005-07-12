@@ -421,13 +421,13 @@ class DL_EncryptionAlgorithm_Xor : public DL_SymmetricEncryptionAlgorithm
 {
 public:
 	bool ParameterSupported(const char *name) const {return strcmp(name, Name::EncodingParameters()) == 0;}
-	unsigned int GetSymmetricKeyLength(unsigned int plaintextLength) const
+	size_t GetSymmetricKeyLength(size_t plaintextLength) const
 		{return plaintextLength + MAC::DEFAULT_KEYLENGTH;}
-	unsigned int GetSymmetricCiphertextLength(unsigned int plaintextLength) const
+	size_t GetSymmetricCiphertextLength(size_t plaintextLength) const
 		{return plaintextLength + MAC::DIGESTSIZE;}
-	unsigned int GetMaxSymmetricPlaintextLength(unsigned int ciphertextLength) const
-		{return SaturatingSubtract(ciphertextLength, (unsigned int)MAC::DIGESTSIZE);}
-	void SymmetricEncrypt(RandomNumberGenerator &rng, const byte *key, const byte *plaintext, unsigned int plaintextLength, byte *ciphertext, const NameValuePairs &parameters) const
+	size_t GetMaxSymmetricPlaintextLength(size_t ciphertextLength) const
+		{return (unsigned int)SaturatingSubtract(ciphertextLength, (unsigned int)MAC::DIGESTSIZE);}
+	void SymmetricEncrypt(RandomNumberGenerator &rng, const byte *key, const byte *plaintext, size_t plaintextLength, byte *ciphertext, const NameValuePairs &parameters) const
 	{
 		const byte *cipherKey, *macKey;
 		if (DHAES_MODE)
@@ -456,9 +456,9 @@ public:
 		}
 		mac.Final(ciphertext + plaintextLength);
 	}
-	DecodingResult SymmetricDecrypt(const byte *key, const byte *ciphertext, unsigned int ciphertextLength, byte *plaintext, const NameValuePairs &parameters) const
+	DecodingResult SymmetricDecrypt(const byte *key, const byte *ciphertext, size_t ciphertextLength, byte *plaintext, const NameValuePairs &parameters) const
 	{
-		unsigned int plaintextLength = GetMaxSymmetricPlaintextLength(ciphertextLength);
+		size_t plaintextLength = GetMaxSymmetricPlaintextLength(ciphertextLength);
 		const byte *cipherKey, *macKey;
 		if (DHAES_MODE)
 		{
@@ -497,7 +497,7 @@ class DL_KeyDerivationAlgorithm_P1363 : public DL_KeyDerivationAlgorithm<T>
 {
 public:
 	bool ParameterSupported(const char *name) const {return strcmp(name, Name::KeyDerivationParameters()) == 0;}
-	void Derive(const DL_GroupParameters<T> &params, byte *derivedKey, unsigned int derivedLength, const T &agreedElement, const T &ephemeralPublicKey, const NameValuePairs &parameters) const
+	void Derive(const DL_GroupParameters<T> &params, byte *derivedKey, size_t derivedLength, const T &agreedElement, const T &ephemeralPublicKey, const NameValuePairs &parameters) const
 	{
 		SecByteBlock agreedSecret;
 		if (DHAES_MODE)

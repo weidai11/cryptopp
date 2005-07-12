@@ -89,8 +89,8 @@ HuffmanEncoder::HuffmanEncoder(const unsigned int *codeBits, unsigned int nCodes
 
 struct HuffmanNode
 {
-	unsigned int symbol;
-	union {unsigned int parent, depth, freq;};
+	size_t symbol;
+	union {size_t parent; unsigned depth, freq;};
 };
 
 struct FreqLessThan
@@ -101,12 +101,12 @@ struct FreqLessThan
 	inline bool operator()(const HuffmanNode &lhs, unsigned int rhs) {return lhs.freq < rhs;}
 };
 
-void HuffmanEncoder::GenerateCodeLengths(unsigned int *codeBits, unsigned int maxCodeBits, const unsigned int *codeCounts, unsigned int nCodes)
+void HuffmanEncoder::GenerateCodeLengths(unsigned int *codeBits, unsigned int maxCodeBits, const unsigned int *codeCounts, size_t nCodes)
 {
 	assert(nCodes > 0);
-	assert(nCodes <= (unsigned int)(1 << maxCodeBits));
+	assert(nCodes <= ((size_t)1 << maxCodeBits));
 
-	unsigned int i;
+	size_t i;
 	SecBlockWithHint<HuffmanNode, 2*286> tree(nCodes);
 	for (i=0; i<nCodes; i++)
 	{
@@ -114,7 +114,7 @@ void HuffmanEncoder::GenerateCodeLengths(unsigned int *codeBits, unsigned int ma
 		tree[i].freq = codeCounts[i];
 	}
 	sort(tree.begin(), tree.end(), FreqLessThan());
-	unsigned int treeBegin = upper_bound(tree.begin(), tree.end(), 0, FreqLessThan()) - tree.begin();
+	size_t treeBegin = upper_bound(tree.begin(), tree.end(), 0, FreqLessThan()) - tree.begin();
 	if (treeBegin == nCodes)
 	{	// special case for no codes
 		fill(codeBits, codeBits+nCodes, 0);
@@ -122,10 +122,10 @@ void HuffmanEncoder::GenerateCodeLengths(unsigned int *codeBits, unsigned int ma
 	}
 	tree.resize(nCodes + nCodes - treeBegin - 1);
 
-	unsigned int leastLeaf = treeBegin, leastInterior = nCodes;
+	size_t leastLeaf = treeBegin, leastInterior = nCodes;
 	for (i=nCodes; i<tree.size(); i++)
 	{
-		unsigned int least;
+		size_t least;
 		least = (leastLeaf == nCodes || (leastInterior < i && tree[leastInterior].freq < tree[leastLeaf].freq)) ? leastInterior++ : leastLeaf++;
 		tree[i].freq = tree[least].freq;
 		tree[least].parent = i;
@@ -143,7 +143,7 @@ void HuffmanEncoder::GenerateCodeLengths(unsigned int *codeBits, unsigned int ma
 	fill(blCount.begin(), blCount.end(), 0);
 	for (i=treeBegin; i<nCodes; i++)
 	{
-		unsigned int depth = STDMIN(maxCodeBits, tree[tree[i].parent].depth + 1);
+		size_t depth = STDMIN(maxCodeBits, tree[tree[i].parent].depth + 1);
 		blCount[depth]++;
 		sum += 1 << (maxCodeBits - depth);
 	}
@@ -317,7 +317,7 @@ void Deflator::SetDeflateLevel(int deflateLevel)
 	m_deflateLevel = deflateLevel;
 }
 
-unsigned int Deflator::FillWindow(const byte *str, unsigned int length)
+unsigned int Deflator::FillWindow(const byte *str, size_t length)
 {
 	unsigned int maxBlockSize = (unsigned int)STDMIN(2UL*DSIZE, 0xffffUL);
 
@@ -346,7 +346,7 @@ unsigned int Deflator::FillWindow(const byte *str, unsigned int length)
 	}
 
 	assert(maxBlockSize > m_stringStart+m_lookahead);
-	unsigned int accepted = STDMIN(length, maxBlockSize-(m_stringStart+m_lookahead));
+	unsigned int accepted = UnsignedMin(maxBlockSize-(m_stringStart+m_lookahead), length);
 	assert(accepted > 0);
 	memcpy(m_byteBuffer + m_stringStart + m_lookahead, str, accepted);
 	m_lookahead += accepted;
@@ -383,7 +383,7 @@ unsigned int Deflator::LongestMatch(unsigned int &bestMatch) const
 		if (scan[bestLength-1] == match[bestLength-1] && scan[bestLength] == match[bestLength] && scan[0] == match[0] && scan[1] == match[1])
 		{
 			assert(scan[2] == match[2]);
-			unsigned int len = std::mismatch(scan+3, scanEnd, match+3).first - scan;
+			unsigned int len = (unsigned int)(std::mismatch(scan+3, scanEnd, match+3).first - scan);
 			assert(len != bestLength);
 			if (len > bestLength)
 			{
@@ -476,12 +476,12 @@ void Deflator::ProcessBuffer()
 	}
 }
 
-unsigned int Deflator::Put2(const byte *str, unsigned int length, int messageEnd, bool blocking)
+size_t Deflator::Put2(const byte *str, size_t length, int messageEnd, bool blocking)
 {
 	if (!blocking)
 		throw BlockingInputOnly("Deflator");
 
-	unsigned int accepted = 0;
+	size_t accepted = 0;
 	while (accepted < length)
 	{
 		unsigned int newAccepted = FillWindow(str+accepted, length-accepted);
@@ -561,7 +561,7 @@ void Deflator::MatchFound(unsigned int distance, unsigned int length)
 	unsigned int lengthCode = lengthCodes[length-3];
 	m.literalCode = lengthCode;
 	m.literalExtra = length - lengthBases[lengthCode-257];
-	unsigned int distanceCode = upper_bound(distanceBases, distanceBases+30, distance) - distanceBases - 1;
+	unsigned int distanceCode = (unsigned int)(upper_bound(distanceBases, distanceBases+30, distance) - distanceBases - 1);
 	m.distanceCode = distanceCode;
 	m.distanceExtra = distance - distanceBases[distanceCode];
 
@@ -583,7 +583,7 @@ inline unsigned int CodeLengthEncode(const unsigned int *begin,
 		if (v==0 && p[1]==0 && p[2]==0)
 		{
 			for (p=p+3; p!=end && *p==0 && p!=oldp+138; p++) {}
-			unsigned int repeat = p - oldp;
+			unsigned int repeat = (unsigned int)(p - oldp);
 			if (repeat <= 10)
 			{
 				extraBits = repeat-3;
@@ -600,7 +600,7 @@ inline unsigned int CodeLengthEncode(const unsigned int *begin,
 		else if (p!=begin && v==p[-1] && v==p[1] && v==p[2])
 		{
 			for (p=p+3; p!=end && *p==v && p!=oldp+6; p++) {}
-			unsigned int repeat = p - oldp;
+			unsigned int repeat = (unsigned int)(p - oldp);
 			extraBits = repeat-3;
 			extraBitsLength = 2;
 			return 16;
@@ -643,11 +643,11 @@ void Deflator::EncodeBlock(bool eof, unsigned int blockType)
 			m_literalCounts[256] = 1;
 			HuffmanEncoder::GenerateCodeLengths(literalCodeLengths, 15, m_literalCounts, 286);
 			m_dynamicLiteralEncoder.Initialize(literalCodeLengths, 286);
-			unsigned int hlit = find_if(RevIt(literalCodeLengths.end()), RevIt(literalCodeLengths.begin()+257), bind2nd(not_equal_to<unsigned int>(), 0)).base() - (literalCodeLengths.begin()+257);
+			unsigned int hlit = (unsigned int)(find_if(RevIt(literalCodeLengths.end()), RevIt(literalCodeLengths.begin()+257), bind2nd(not_equal_to<unsigned int>(), 0)).base() - (literalCodeLengths.begin()+257));
 
 			HuffmanEncoder::GenerateCodeLengths(distanceCodeLengths, 15, m_distanceCounts, 30);
 			m_dynamicDistanceEncoder.Initialize(distanceCodeLengths, 30);
-			unsigned int hdist = find_if(RevIt(distanceCodeLengths.end()), RevIt(distanceCodeLengths.begin()+1), bind2nd(not_equal_to<unsigned int>(), 0)).base() - (distanceCodeLengths.begin()+1);
+			unsigned int hdist = (unsigned int)(find_if(RevIt(distanceCodeLengths.end()), RevIt(distanceCodeLengths.begin()+1), bind2nd(not_equal_to<unsigned int>(), 0)).base() - (distanceCodeLengths.begin()+1));
 
 			SecBlockWithHint<unsigned int, 286+30> combinedLengths(hlit+257+hdist+1);
 			memcpy(combinedLengths, literalCodeLengths, (hlit+257)*sizeof(unsigned int));

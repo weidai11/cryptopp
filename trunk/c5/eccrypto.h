@@ -155,7 +155,7 @@ public:
 		{this->AccessGroupParameters().Initialize(ec, G, n); SetPublicElement(Q);}
 
 	// X509PublicKey
-	void BERDecodeKey2(BufferedTransformation &bt, bool parametersPresent, unsigned int size);
+	void BERDecodeKey2(BufferedTransformation &bt, bool parametersPresent, size_t size);
 	void DEREncodeKey(BufferedTransformation &bt) const;
 };
 
@@ -181,7 +181,7 @@ public:
 		{GenerateRandom(rng, DL_GroupParameters_EC<EC>(ec, G, n));}
 
 	// PKCS8PrivateKey
-	void BERDecodeKey2(BufferedTransformation &bt,  bool parametersPresent, unsigned int size);
+	void BERDecodeKey2(BufferedTransformation &bt, bool parametersPresent, size_t size);
 	void DEREncodeKey(BufferedTransformation &bt) const;
 };
 

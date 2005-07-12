@@ -23,11 +23,11 @@ byte AdditiveCipherTemplate<S>::GenerateByte()
 }
 
 template <class S>
-inline void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inString, unsigned int length)
+inline void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inString, size_t length)
 {
 	if (m_leftOver > 0)
 	{
-		unsigned int len = STDMIN(m_leftOver, length);
+		size_t len = STDMIN(m_leftOver, length);
 		xorbuf(outString, inString, KeystreamBufferEnd()-m_leftOver, len);
 		length -= len;
 		m_leftOver -= len;
@@ -117,7 +117,7 @@ void CFB_CipherTemplate<BASE>::Resynchronize(const byte *iv)
 }
 
 template <class BASE>
-void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString, unsigned int length)
+void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString, size_t length)
 {
 	assert(length % this->MandatoryBlockSize() == 0);
 
@@ -128,7 +128,7 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 
 	if (m_leftOver)
 	{
-		unsigned int len = STDMIN(m_leftOver, length);
+		size_t len = STDMIN(m_leftOver, length);
 		CombineMessageAndShiftRegister(outString, reg + bytesPerIteration - m_leftOver, inString, len);
 		m_leftOver -= len;
 		length -= len;
@@ -173,14 +173,14 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 }
 
 template <class BASE>
-void CFB_EncryptionTemplate<BASE>::CombineMessageAndShiftRegister(byte *output, byte *reg, const byte *message, unsigned int length)
+void CFB_EncryptionTemplate<BASE>::CombineMessageAndShiftRegister(byte *output, byte *reg, const byte *message, size_t length)
 {
 	xorbuf(reg, message, length);
 	memcpy(output, reg, length);
 }
 
 template <class BASE>
-void CFB_DecryptionTemplate<BASE>::CombineMessageAndShiftRegister(byte *output, byte *reg, const byte *message, unsigned int length)
+void CFB_DecryptionTemplate<BASE>::CombineMessageAndShiftRegister(byte *output, byte *reg, const byte *message, size_t length)
 {
 	for (unsigned int i=0; i<length; i++)
 	{

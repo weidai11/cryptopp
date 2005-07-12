@@ -131,17 +131,17 @@ public:
 		explicit Integer(const wchar_t *str);
 
 		//! convert from big-endian byte array
-		Integer(const byte *encodedInteger, unsigned int byteCount, Signedness s=UNSIGNED);
+		Integer(const byte *encodedInteger, size_t byteCount, Signedness s=UNSIGNED);
 
 		//! convert from big-endian form stored in a BufferedTransformation
-		Integer(BufferedTransformation &bt, unsigned int byteCount, Signedness s=UNSIGNED);
+		Integer(BufferedTransformation &bt, size_t byteCount, Signedness s=UNSIGNED);
 
 		//! convert from BER encoded byte array stored in a BufferedTransformation object
 		explicit Integer(BufferedTransformation &bt);
 
 		//! create a random integer
 		/*! The random integer created is uniformly distributed over [0, 2**bitcount). */
-		Integer(RandomNumberGenerator &rng, unsigned int bitcount);
+		Integer(RandomNumberGenerator &rng, size_t bitcount);
 
 		//! avoid calling constructors for these frequently used integers
 		static const Integer & CRYPTOPP_API Zero();
@@ -164,47 +164,47 @@ public:
 		Integer(RandomNumberGenerator &rng, const Integer &min, const Integer &max, RandomNumberType rnType=ANY, const Integer &equiv=Zero(), const Integer &mod=One());
 
 		//! return the integer 2**e
-		static Integer CRYPTOPP_API Power2(unsigned int e);
+		static Integer CRYPTOPP_API Power2(size_t e);
 	//@}
 
 	//! \name ENCODE/DECODE
 	//@{
 		//! minimum number of bytes to encode this integer
 		/*! MinEncodedSize of 0 is 1 */
-		unsigned int MinEncodedSize(Signedness=UNSIGNED) const;
+		size_t MinEncodedSize(Signedness=UNSIGNED) const;
 		//! encode in big-endian format
 		/*! unsigned means encode absolute value, signed means encode two's complement if negative.
 			if outputLen < MinEncodedSize, the most significant bytes will be dropped
 			if outputLen > MinEncodedSize, the most significant bytes will be padded
 		*/
-		unsigned int Encode(byte *output, unsigned int outputLen, Signedness=UNSIGNED) const;
+		void Encode(byte *output, size_t outputLen, Signedness=UNSIGNED) const;
 		//!
-		unsigned int Encode(BufferedTransformation &bt, unsigned int outputLen, Signedness=UNSIGNED) const;
+		void Encode(BufferedTransformation &bt, size_t outputLen, Signedness=UNSIGNED) const;
 
 		//! encode using Distinguished Encoding Rules, put result into a BufferedTransformation object
 		void DEREncode(BufferedTransformation &bt) const;
 
 		//! encode absolute value as big-endian octet string
-		void DEREncodeAsOctetString(BufferedTransformation &bt, unsigned int length) const;
+		void DEREncodeAsOctetString(BufferedTransformation &bt, size_t length) const;
 
 		//! encode absolute value in OpenPGP format, return length of output
-		unsigned int OpenPGPEncode(byte *output, unsigned int bufferSize) const;
+		size_t OpenPGPEncode(byte *output, size_t bufferSize) const;
 		//! encode absolute value in OpenPGP format, put result into a BufferedTransformation object
-		unsigned int OpenPGPEncode(BufferedTransformation &bt) const;
+		size_t OpenPGPEncode(BufferedTransformation &bt) const;
 
 		//!
-		void Decode(const byte *input, unsigned int inputLen, Signedness=UNSIGNED);
+		void Decode(const byte *input, size_t inputLen, Signedness=UNSIGNED);
 		//! 
 		//* Precondition: bt.MaxRetrievable() >= inputLen
-		void Decode(BufferedTransformation &bt, unsigned int inputLen, Signedness=UNSIGNED);
+		void Decode(BufferedTransformation &bt, size_t inputLen, Signedness=UNSIGNED);
 
 		//!
-		void BERDecode(const byte *input, unsigned int inputLen);
+		void BERDecode(const byte *input, size_t inputLen);
 		//!
 		void BERDecode(BufferedTransformation &bt);
 
 		//! decode nonnegative value as big-endian octet string
-		void BERDecodeAsOctetString(BufferedTransformation &bt, unsigned int length);
+		void BERDecodeAsOctetString(BufferedTransformation &bt, size_t length);
 
 		class OpenPGPDecodeErr : public Exception
 		{
@@ -213,7 +213,7 @@ public:
 		};
 
 		//!
-		void OpenPGPDecode(const byte *input, unsigned int inputLen);
+		void OpenPGPDecode(const byte *input, size_t inputLen);
 		//!
 		void OpenPGPDecode(BufferedTransformation &bt);
 	//@}
@@ -233,11 +233,11 @@ public:
 		unsigned int WordCount() const;
 
 		//! return the i-th bit, i=0 being the least significant bit
-		bool GetBit(unsigned int i) const;
+		bool GetBit(size_t i) const;
 		//! return the i-th byte
-		byte GetByte(unsigned int i) const;
+		byte GetByte(size_t i) const;
 		//! return n lowest bits of *this >> i
-		unsigned long GetBits(unsigned int i, unsigned int n) const;
+		lword GetBits(size_t i, size_t n) const;
 
 		//!
 		bool IsZero() const {return !*this;}
@@ -278,12 +278,12 @@ public:
 		Integer&  operator%=(word t)  {return *this = Modulo(t);}
 
 		//!
-		Integer&  operator<<=(unsigned int);
+		Integer&  operator<<=(size_t);
 		//!
-		Integer&  operator>>=(unsigned int);
+		Integer&  operator>>=(size_t);
 
 		//!
-		void Randomize(RandomNumberGenerator &rng, unsigned int bitcount);
+		void Randomize(RandomNumberGenerator &rng, size_t bitcount);
 		//!
 		void Randomize(RandomNumberGenerator &rng, const Integer &min, const Integer &max);
 		//! set this Integer to a random element of {x | min <= x <= max and x is of rnType and x % mod == equiv}
@@ -298,9 +298,9 @@ public:
 		}
 
 		//! set the n-th bit to value
-		void SetBit(unsigned int n, bool value=1);
+		void SetBit(size_t n, bool value=1);
 		//! set the n-th byte to value
-		void SetByte(unsigned int n, byte value);
+		void SetByte(size_t n, byte value);
 
 		//!
 		void Negate();
@@ -356,9 +356,9 @@ public:
 		word Modulo(word b) const;
 
 		//!
-		Integer operator>>(unsigned int n) const	{return Integer(*this)>>=n;}
+		Integer operator>>(size_t n) const	{return Integer(*this)>>=n;}
 		//!
-		Integer operator<<(unsigned int n) const	{return Integer(*this)<<=n;}
+		Integer operator<<(size_t n) const	{return Integer(*this)<<=n;}
 	//@}
 
 	//! \name OTHER ARITHMETIC FUNCTIONS
@@ -413,7 +413,7 @@ private:
 	friend class MontgomeryRepresentation;
 	friend class HalfMontgomeryRepresentation;
 
-	Integer(word value, unsigned int length);
+	Integer(word value, size_t length);
 
 	int PositiveCompare(const Integer &t) const;
 	friend void PositiveAdd(Integer &sum, const Integer &a, const Integer &b);

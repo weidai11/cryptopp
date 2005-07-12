@@ -18,21 +18,21 @@ public:
 
 	//! pump up to maxSize bytes using at most maxTime milliseconds
 	/*! If checkDelimiter is true, pump up to delimiter, which itself is not extracted or pumped. */
-	virtual unsigned int GeneralPump2(unsigned long &byteCount, bool blockingOutput=true, unsigned long maxTime=INFINITE_TIME, bool checkDelimiter=false, byte delimiter='\n') =0;
+	virtual size_t GeneralPump2(lword &byteCount, bool blockingOutput=true, unsigned long maxTime=INFINITE_TIME, bool checkDelimiter=false, byte delimiter='\n') =0;
 
-	unsigned long GeneralPump(unsigned long maxSize=ULONG_MAX, unsigned long maxTime=INFINITE_TIME, bool checkDelimiter=false, byte delimiter='\n')
+	lword GeneralPump(lword maxSize=LWORD_MAX, unsigned long maxTime=INFINITE_TIME, bool checkDelimiter=false, byte delimiter='\n')
 	{
 		GeneralPump2(maxSize, true, maxTime, checkDelimiter, delimiter);
 		return maxSize;
 	}
-	unsigned long TimedPump(unsigned long maxTime)
-		{return GeneralPump(ULONG_MAX, maxTime);}
-	unsigned long PumpLine(byte delimiter='\n', unsigned long maxSize=1024)
+	lword TimedPump(unsigned long maxTime)
+		{return GeneralPump(LWORD_MAX, maxTime);}
+	lword PumpLine(byte delimiter='\n', lword maxSize=1024)
 		{return GeneralPump(maxSize, INFINITE_TIME, true, delimiter);}
 
-	unsigned int Pump2(unsigned long &byteCount, bool blocking=true)
+	size_t Pump2(lword &byteCount, bool blocking=true)
 		{return GeneralPump2(byteCount, blocking, blocking ? INFINITE_TIME : 0);}
-	unsigned int PumpMessages2(unsigned int &messageCount, bool blocking=true);
+	size_t PumpMessages2(unsigned int &messageCount, bool blocking=true);
 	//@}
 
 private:
@@ -46,7 +46,7 @@ public:
 	virtual bool MustWaitToReceive() {return false;}
 	virtual bool MustWaitForResult() {return false;}
 	//! receive data from network source, returns whether result is immediately available
-	virtual bool Receive(byte* buf, unsigned int bufLen) =0;
+	virtual bool Receive(byte* buf, size_t bufLen) =0;
 	virtual unsigned int GetReceiveResult() =0;
 	virtual bool EofReceived() const =0;
 };
@@ -55,8 +55,8 @@ class CRYPTOPP_NO_VTABLE NonblockingSinkInfo
 {
 public:
 	virtual ~NonblockingSinkInfo() {}
-	virtual unsigned int GetMaxBufferSize() const =0;
-	virtual unsigned int GetCurrentBufferSize() const =0;
+	virtual size_t GetMaxBufferSize() const =0;
+	virtual size_t GetCurrentBufferSize() const =0;
 	//! compute the current speed of this sink in bytes per second
 	virtual float ComputeCurrentSpeed() =0;
 	//! get the maximum observed speed of this sink in bytes per second
@@ -79,11 +79,11 @@ public:
 		For example: while (sink.TimedFlush(0) > 0) {}
 		\return number of bytes flushed
 	*/
-	virtual unsigned int TimedFlush(unsigned long maxTime, unsigned int targetSize = 0) =0;
+	virtual lword TimedFlush(unsigned long maxTime, size_t targetSize=0) =0;
 
-	virtual void SetMaxBufferSize(unsigned int maxBufferSize) =0;
+	virtual void SetMaxBufferSize(size_t maxBufferSize) =0;
 	//! set a bound which will cause sink to flush if exceeded by GetCurrentBufferSize()
-	virtual void SetAutoFlushBound(unsigned int bound) =0;
+	virtual void SetAutoFlushBound(size_t bound) =0;
 };
 
 //! Network Sender
@@ -92,7 +92,7 @@ class CRYPTOPP_NO_VTABLE NetworkSender : public Waitable
 public:
 	virtual bool MustWaitToSend() {return false;}
 	virtual bool MustWaitForResult() {return false;}
-	virtual void Send(const byte* buf, unsigned int bufLen) =0;
+	virtual void Send(const byte* buf, size_t bufLen) =0;
 	virtual unsigned int GetSendResult() =0;
 	virtual void SendEof() =0;
 };
@@ -109,7 +109,7 @@ public:
 		{return GetReceiver().GetMaxWaitObjectCount() + AttachedTransformation()->GetMaxWaitObjectCount();}
 	void GetWaitObjects(WaitObjectContainer &container);
 
-	unsigned int GeneralPump2(unsigned long &byteCount, bool blockingOutput=true, unsigned long maxTime=INFINITE_TIME, bool checkDelimiter=false, byte delimiter='\n');
+	size_t GeneralPump2(lword &byteCount, bool blockingOutput=true, unsigned long maxTime=INFINITE_TIME, bool checkDelimiter=false, byte delimiter='\n');
 	bool SourceExhausted() const {return m_dataBegin == m_dataEnd && GetReceiver().EofReceived();}
 
 protected:
@@ -118,7 +118,7 @@ protected:
 
 private:
 	SecByteBlock m_buf;
-	unsigned int m_putSize, m_dataBegin, m_dataEnd;
+	size_t m_putSize, m_dataBegin, m_dataEnd;
 	bool m_waitingForResult, m_outputBlocked;
 };
 
@@ -133,15 +133,15 @@ public:
 	void GetWaitObjects(WaitObjectContainer &container)
 		{if (m_wasBlocked || !m_buffer.IsEmpty()) AccessSender().GetWaitObjects(container);}
 
-	unsigned int Put2(const byte *inString, unsigned int length, int messageEnd, bool blocking);
+	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking);
 
-	unsigned int TimedFlush(unsigned long maxTime, unsigned int targetSize = 0);
+	lword TimedFlush(unsigned long maxTime, size_t targetSize = 0);
 
-	void SetMaxBufferSize(unsigned int maxBufferSize) {m_maxBufferSize = maxBufferSize; m_buffer.SetNodeSize(STDMIN(16U*1024U+256, maxBufferSize));}
-	void SetAutoFlushBound(unsigned int bound) {m_autoFlushBound = bound;}
+	void SetMaxBufferSize(size_t maxBufferSize) {m_maxBufferSize = maxBufferSize; m_buffer.SetNodeSize(UnsignedMin(maxBufferSize, 16U*1024U+256U));}
+	void SetAutoFlushBound(size_t bound) {m_autoFlushBound = bound;}
 
-	unsigned int GetMaxBufferSize() const {return m_maxBufferSize;}
-	unsigned int GetCurrentBufferSize() const {return m_buffer.CurrentSize();}
+	size_t GetMaxBufferSize() const {return m_maxBufferSize;}
+	size_t GetCurrentBufferSize() const {return (size_t)m_buffer.CurrentSize();}
 
 	void ClearBuffer() {m_buffer.Clear();}
 
@@ -155,10 +155,10 @@ protected:
 	const NetworkSender & GetSender() const {return const_cast<NetworkSink *>(this)->AccessSender();}
 
 private:
-	unsigned int m_maxBufferSize, m_autoFlushBound;
+	size_t m_maxBufferSize, m_autoFlushBound;
 	bool m_needSendResult, m_wasBlocked;
 	ByteQueue m_buffer;
-	unsigned int m_skipBytes;
+	size_t m_skipBytes;
 	Timer m_speedTimer;
 	float m_byteCountSinceLastTimerReset, m_currentSpeed, m_maxObservedSpeed;
 };

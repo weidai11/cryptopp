@@ -5,7 +5,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-void Adler32::Update(const byte *input, unsigned int length)
+void Adler32::Update(const byte *input, size_t length)
 {
 	const unsigned long BASE = 65521;
 
@@ -53,7 +53,7 @@ void Adler32::Update(const byte *input, unsigned int length)
 	m_s2 = (word16)s2;
 }
 
-void Adler32::TruncatedFinal(byte *hash, unsigned int size)
+void Adler32::TruncatedFinal(byte *hash, size_t size)
 {
 	ThrowIfInvalidTruncatedSize(size);
 

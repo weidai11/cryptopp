@@ -18,11 +18,11 @@ public:
 
 	unsigned int GetThreshold() const {return m_threshold;}
 	void AddOutputChannel(word32 channelId);
-	void ChannelData(word32 channelId, const byte *inString, unsigned int length, bool messageEnd);
-	unsigned int InputBuffered(word32 channelId) const;
+	void ChannelData(word32 channelId, const byte *inString, size_t length, bool messageEnd);
+	lword InputBuffered(word32 channelId) const;
 
 	void IsolatedInitialize(const NameValuePairs &parameters=g_nullNameValuePairs);
-	unsigned int ChannelPut2(const std::string &channel, const byte *begin, unsigned int length, int messageEnd, bool blocking)
+	size_t ChannelPut2(const std::string &channel, const byte *begin, size_t length, int messageEnd, bool blocking)
 	{
 		if (!blocking)
 			throw BlockingInputOnly("RawIDA");
@@ -40,8 +40,9 @@ protected:
 	void PrepareInterpolation();
 	void ProcessInputQueues();
 
-	std::map<word32, unsigned int> m_inputChannelMap;
-	std::map<word32, unsigned int>::iterator m_lastMapPosition;
+	typedef std::map<word32, unsigned int> InputChannelMap;
+	InputChannelMap m_inputChannelMap;
+	InputChannelMap::iterator m_lastMapPosition;
 	std::vector<MessageQueue> m_inputQueues;
 	std::vector<word32> m_inputChannelIds, m_outputChannelIds, m_outputToInput;
 	std::vector<std::string> m_outputChannelIdStrings;
@@ -64,7 +65,7 @@ public:
 	}
 
 	void IsolatedInitialize(const NameValuePairs &parameters=g_nullNameValuePairs);
-	unsigned int Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking);
+	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking);
 	bool Flush(bool hardFlush, int propagation=-1, bool blocking=true) {return m_ida.Flush(hardFlush, propagation, blocking);}
 
 protected:
@@ -102,7 +103,7 @@ public:
 	}
 
 	void IsolatedInitialize(const NameValuePairs &parameters=g_nullNameValuePairs);
-	unsigned int Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking);
+	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking);
 	bool Flush(bool hardFlush, int propagation=-1, bool blocking=true) {return m_ida.Flush(hardFlush, propagation, blocking);}
 
 protected:
@@ -136,14 +137,14 @@ public:
 		: m_possiblePadding(false) {Detach(attachment);}
 
 	void IsolatedInitialize(const NameValuePairs &parameters) {m_possiblePadding = false;}
-	unsigned int Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking);
+	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking);
 
 	// GetPossiblePadding() == false at the end of a message indicates incorrect padding
 	bool GetPossiblePadding() const {return m_possiblePadding;}
 
 private:
 	bool m_possiblePadding;
-	unsigned long m_zeroCount;
+	lword m_zeroCount;
 };
 
 NAMESPACE_END

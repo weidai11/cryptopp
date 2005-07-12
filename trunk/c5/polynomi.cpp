@@ -387,12 +387,12 @@ std::ostream& PolynomialOver<T>::Output(std::ostream &out, const Ring &ring) con
 				else
 				{
 					CoefficientType inverse = ring.Inverse(m_coefficients[i]);
-					std::ostrstream pstr, nstr;
+					std::ostringstream pstr, nstr;
 
 					pstr << m_coefficients[i];
 					nstr << inverse;
 
-					if (pstr.pcount() <= nstr.pcount())
+					if (pstr.str().size() <= nstr.str().size())
 					{
 						out << " + "; 
 						if (!i || !ring.Equal(m_coefficients[i], ring.MultiplicativeIdentity()))

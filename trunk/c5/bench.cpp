@@ -140,7 +140,7 @@ void BenchMark(const char *name, HashTransformation &ht, double timeTotal)
 {
 	const int BUF_SIZE=1024;
 	SecByteBlock buf(BUF_SIZE);
-	LC_RNG rng(time(NULL));
+	LC_RNG rng((word32)time(NULL));
 	rng.GenerateBlock(buf, BUF_SIZE);
 	clock_t start = clock();
 
@@ -162,7 +162,7 @@ void BenchMark(const char *name, BufferedTransformation &bt, double timeTotal)
 {
 	const int BUF_SIZE=1024;
 	SecByteBlock buf(BUF_SIZE);
-	LC_RNG rng(time(NULL));
+	LC_RNG rng((word32)time(NULL));
 	rng.GenerateBlock(buf, BUF_SIZE);
 	clock_t start = clock();
 

@@ -38,12 +38,12 @@ class CRYPTOPP_NO_VTABLE WAKE_Policy
 				, protected WAKE_Base
 {
 protected:
-	void CipherSetKey(const NameValuePairs &params, const byte *key, unsigned int length);
+	void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length);
 	// CFB
 	byte * GetRegisterBegin() {return (byte *)&r6;}
-	void Iterate(byte *output, const byte *input, CipherDir dir, unsigned int iterationCount);
+	void Iterate(byte *output, const byte *input, CipherDir dir, size_t iterationCount);
 	// OFB
-	void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, unsigned int iterationCount);
+	void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount);
 	bool IsRandomAccess() const {return false;}
 };
 

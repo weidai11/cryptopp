@@ -36,7 +36,7 @@ void BaseN_Encoder::IsolatedInitialize(const NameValuePairs &parameters)
 	m_outBuf.New(m_outputBlockSize);
 }
 
-unsigned int BaseN_Encoder::Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking)
+size_t BaseN_Encoder::Put2(const byte *begin, size_t length, int messageEnd, bool blocking)
 {
 	FILTER_BEGIN;
 	while (m_inputPosition < length)
@@ -121,7 +121,7 @@ void BaseN_Decoder::IsolatedInitialize(const NameValuePairs &parameters)
 	m_outBuf.New(m_outputBlockSize);
 }
 
-unsigned int BaseN_Decoder::Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking)
+size_t BaseN_Decoder::Put2(const byte *begin, size_t length, int messageEnd, bool blocking)
 {
 	FILTER_BEGIN;
 	while (m_inputPosition < length)
@@ -202,7 +202,7 @@ void Grouper::IsolatedInitialize(const NameValuePairs &parameters)
 	m_counter = 0;
 }
 
-unsigned int Grouper::Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking)
+size_t Grouper::Put2(const byte *begin, size_t length, int messageEnd, bool blocking)
 {
 	FILTER_BEGIN;
 	if (m_groupSize)
@@ -215,7 +215,7 @@ unsigned int Grouper::Put2(const byte *begin, unsigned int length, int messageEn
 				m_counter = 0;
 			}
 
-			unsigned int len;
+			size_t len;
 			FILTER_OUTPUT2(2, len = STDMIN(length-m_inputPosition, m_groupSize-m_counter),
 				begin+m_inputPosition, len, 0);
 			m_inputPosition += len;

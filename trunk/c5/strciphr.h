@@ -60,10 +60,10 @@ struct CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AdditiveCipherAbstractPolicy
 	virtual unsigned int GetAlignment() const =0;
 	virtual unsigned int GetBytesPerIteration() const =0;
 	virtual unsigned int GetIterationsToBuffer() const =0;
-	virtual void WriteKeystream(byte *keystreamBuffer, unsigned int iterationCount) =0;
+	virtual void WriteKeystream(byte *keystreamBuffer, size_t iterationCount) =0;
 	virtual bool CanOperateKeystream() const {return false;}
-	virtual void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, unsigned int iterationCount) {assert(false);}
-	virtual void CipherSetKey(const NameValuePairs &params, const byte *key, unsigned int length) =0;
+	virtual void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount) {assert(false);}
+	virtual void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length) =0;
 	virtual void CipherResynchronize(byte *keystreamBuffer, const byte *iv) {throw NotImplemented("StreamTransformation: this object doesn't support resynchronization");}
 	virtual bool IsRandomAccess() const =0;
 	virtual void SeekToIteration(lword iterationCount) {assert(!IsRandomAccess()); throw NotImplemented("StreamTransformation: this object doesn't support random access");}
@@ -77,10 +77,10 @@ struct CRYPTOPP_NO_VTABLE AdditiveCipherConcretePolicy : public BASE
 	unsigned int GetAlignment() const {return sizeof(WordType);}
 	unsigned int GetBytesPerIteration() const {return sizeof(WordType) * W;}
 	unsigned int GetIterationsToBuffer() const {return X;}
-	void WriteKeystream(byte *buffer, unsigned int iterationCount)
+	void WriteKeystream(byte *buffer, size_t iterationCount)
 		{OperateKeystream(WRITE_KEYSTREAM, buffer, NULL, iterationCount);}
 	bool CanOperateKeystream() const {return true;}
-	virtual void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, unsigned int iterationCount) =0;
+	virtual void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount) =0;
 
 	template <class B>
 	struct KeystreamOutput
@@ -122,10 +122,10 @@ class CRYPTOPP_NO_VTABLE AdditiveCipherTemplate : public BASE
 {
 public:
     byte GenerateByte();
-    void ProcessData(byte *outString, const byte *inString, unsigned int length);
+    void ProcessData(byte *outString, const byte *inString, size_t length);
 	void Resynchronize(const byte *iv);
 	unsigned int OptimalBlockSize() const {return this->GetPolicy().GetBytesPerIteration();}
-	unsigned int GetOptimalNextBlockSize() const {return this->m_leftOver;}
+	unsigned int GetOptimalNextBlockSize() const {return (unsigned int)this->m_leftOver;}
 	unsigned int OptimalDataAlignment() const {return this->GetPolicy().GetAlignment();}
 	bool IsSelfInverting() const {return true;}
 	bool IsForwardTransformation() const {return true;}
@@ -143,7 +143,7 @@ protected:
 	inline byte * KeystreamBufferEnd() {return (this->m_buffer.data() + this->m_buffer.size());}
 
 	SecByteBlock m_buffer;
-	unsigned int m_leftOver;
+	size_t m_leftOver;
 };
 
 CRYPTOPP_DLL_TEMPLATE_CLASS TwoBases<SymmetricCipher, RandomNumberGenerator>;
@@ -158,8 +158,8 @@ public:
 	virtual byte * GetRegisterBegin() =0;
 	virtual void TransformRegister() =0;
 	virtual bool CanIterate() const {return false;}
-	virtual void Iterate(byte *output, const byte *input, CipherDir dir, unsigned int iterationCount) {assert(false);}
-	virtual void CipherSetKey(const NameValuePairs &params, const byte *key, unsigned int length) =0;
+	virtual void Iterate(byte *output, const byte *input, CipherDir dir, size_t iterationCount) {assert(false);}
+	virtual void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length) =0;
 	virtual void CipherResynchronize(const byte *iv) {throw NotImplemented("StreamTransformation: this object doesn't support resynchronization");}
 };
 
@@ -224,10 +224,10 @@ template <class BASE>
 class CRYPTOPP_NO_VTABLE CFB_CipherTemplate : public BASE
 {
 public:
-	void ProcessData(byte *outString, const byte *inString, unsigned int length);
+	void ProcessData(byte *outString, const byte *inString, size_t length);
 	void Resynchronize(const byte *iv);
 	unsigned int OptimalBlockSize() const {return this->GetPolicy().GetBytesPerIteration();}
-	unsigned int GetOptimalNextBlockSize() const {return m_leftOver;}
+	unsigned int GetOptimalNextBlockSize() const {return (unsigned int)m_leftOver;}
 	unsigned int OptimalDataAlignment() const {return this->GetPolicy().GetAlignment();}
 	bool IsRandomAccess() const {return false;}
 	bool IsSelfInverting() const {return false;}
@@ -235,25 +235,25 @@ public:
 	typedef typename BASE::PolicyInterface PolicyInterface;
 
 protected:
-	virtual void CombineMessageAndShiftRegister(byte *output, byte *reg, const byte *message, unsigned int length) =0;
+	virtual void CombineMessageAndShiftRegister(byte *output, byte *reg, const byte *message, size_t length) =0;
 
 	void UncheckedSetKey(const NameValuePairs &params, const byte *key, unsigned int length, const byte *iv);
 
-	unsigned int m_leftOver;
+	size_t m_leftOver;
 };
 
 template <class BASE = AbstractPolicyHolder<CFB_CipherAbstractPolicy, SymmetricCipher> >
 class CRYPTOPP_NO_VTABLE CFB_EncryptionTemplate : public CFB_CipherTemplate<BASE>
 {
 	bool IsForwardTransformation() const {return true;}
-	void CombineMessageAndShiftRegister(byte *output, byte *reg, const byte *message, unsigned int length);
+	void CombineMessageAndShiftRegister(byte *output, byte *reg, const byte *message, size_t length);
 };
 
 template <class BASE = AbstractPolicyHolder<CFB_CipherAbstractPolicy, SymmetricCipher> >
 class CRYPTOPP_NO_VTABLE CFB_DecryptionTemplate : public CFB_CipherTemplate<BASE>
 {
 	bool IsForwardTransformation() const {return false;}
-	void CombineMessageAndShiftRegister(byte *output, byte *reg, const byte *message, unsigned int length);
+	void CombineMessageAndShiftRegister(byte *output, byte *reg, const byte *message, size_t length);
 };
 
 template <class BASE>
@@ -276,15 +276,15 @@ public:
  	SymmetricCipherFinal() {}
 	SymmetricCipherFinal(const byte *key)
 		{SetKey(key, this->DEFAULT_KEYLENGTH);}
-	SymmetricCipherFinal(const byte *key, unsigned int length)
+	SymmetricCipherFinal(const byte *key, size_t length)
 		{SetKey(key, length);}
-	SymmetricCipherFinal(const byte *key, unsigned int length, const byte *iv)
+	SymmetricCipherFinal(const byte *key, size_t length, const byte *iv)
 		{this->SetKeyWithIV(key, length, iv);}
 
-	void SetKey(const byte *key, unsigned int length, const NameValuePairs &params = g_nullNameValuePairs)
+	void SetKey(const byte *key, size_t length, const NameValuePairs &params = g_nullNameValuePairs)
 	{
 		this->ThrowIfInvalidKeyLength(length);
-		this->UncheckedSetKey(params, key, length, this->GetIVAndThrowIfInvalid(params));
+		this->UncheckedSetKey(params, key, (unsigned int)length, this->GetIVAndThrowIfInvalid(params));
 	}
 
 	Clonable * Clone() const {return static_cast<SymmetricCipher *>(new SymmetricCipherFinal<BASE, INFO>(*this));}

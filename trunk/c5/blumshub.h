@@ -18,7 +18,7 @@ public:
 	unsigned int GenerateBit();
 	byte GenerateByte();
 
-	void ProcessData(byte *outString, const byte *inString, unsigned int length)
+	void ProcessData(byte *outString, const byte *inString, size_t length)
 	{
 		while (length--)
 			*outString++ = *inString ^ GenerateByte();

@@ -55,14 +55,14 @@ void HMAC_Base::Restart()
 	}
 }
 
-void HMAC_Base::Update(const byte *input, unsigned int length)
+void HMAC_Base::Update(const byte *input, size_t length)
 {
 	if (!m_innerHashKeyed)
 		KeyInnerHash();
 	AccessHash().Update(input, length);
 }
 
-void HMAC_Base::TruncatedFinal(byte *mac, unsigned int size)
+void HMAC_Base::TruncatedFinal(byte *mac, size_t size)
 {
 	ThrowIfInvalidTruncatedSize(size);
 

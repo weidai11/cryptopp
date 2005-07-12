@@ -21,12 +21,12 @@ class CRC32 : public HashTransformation
 public:
 	enum {DIGESTSIZE = 4};
 	CRC32();
-	void Update(const byte *input, unsigned int length);
-	void TruncatedFinal(byte *hash, unsigned int size);
+	void Update(const byte *input, size_t length);
+	void TruncatedFinal(byte *hash, size_t size);
 	unsigned int DigestSize() const {return DIGESTSIZE;}
 
 	void UpdateByte(byte b) {m_crc = m_tab[CRC32_INDEX(m_crc) ^ b] ^ CRC32_SHIFTED(m_crc);}
-	byte GetCrcByte(unsigned int i) const {return ((byte *)&(m_crc))[i];}
+	byte GetCrcByte(size_t i) const {return ((byte *)&(m_crc))[i];}
 
 private:
 	void Reset() {m_crc = CRC32_NEGL;}

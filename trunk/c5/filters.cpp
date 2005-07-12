@@ -48,12 +48,12 @@ void Filter::Insert(Filter *filter)
 	m_attachment.reset(filter);
 }
 
-unsigned int Filter::CopyRangeTo2(BufferedTransformation &target, unsigned long &begin, unsigned long end, const std::string &channel, bool blocking) const
+size_t Filter::CopyRangeTo2(BufferedTransformation &target, lword &begin, lword end, const std::string &channel, bool blocking) const
 {
 	return AttachedTransformation()->CopyRangeTo2(target, begin, end, channel, blocking);
 }
 
-unsigned int Filter::TransferTo2(BufferedTransformation &target, unsigned long &transferBytes, const std::string &channel, bool blocking)
+size_t Filter::TransferTo2(BufferedTransformation &target, lword &transferBytes, const std::string &channel, bool blocking)
 {
 	return AttachedTransformation()->TransferTo2(target, transferBytes, channel, blocking);
 }
@@ -99,20 +99,20 @@ void Filter::PropagateInitialize(const NameValuePairs &parameters, int propagati
 		AttachedTransformation()->Initialize(parameters, propagation-1);
 }
 
-unsigned int Filter::OutputModifiable(int outputSite, byte *inString, unsigned int length, int messageEnd, bool blocking, const std::string &channel)
+size_t Filter::OutputModifiable(int outputSite, byte *inString, size_t length, int messageEnd, bool blocking, const std::string &channel)
 {
 	if (messageEnd)
 		messageEnd--;
-	unsigned int result = AttachedTransformation()->PutModifiable2(inString, length, messageEnd, blocking);
+	size_t result = AttachedTransformation()->PutModifiable2(inString, length, messageEnd, blocking);
 	m_continueAt = result ? outputSite : 0;
 	return result;
 }
 
-unsigned int Filter::Output(int outputSite, const byte *inString, unsigned int length, int messageEnd, bool blocking, const std::string &channel)
+size_t Filter::Output(int outputSite, const byte *inString, size_t length, int messageEnd, bool blocking, const std::string &channel)
 {
 	if (messageEnd)
 		messageEnd--;
-	unsigned int result = AttachedTransformation()->Put2(inString, length, messageEnd, blocking);
+	size_t result = AttachedTransformation()->Put2(inString, length, messageEnd, blocking);
 	m_continueAt = result ? outputSite : 0;
 	return result;
 }
@@ -141,7 +141,7 @@ bool Filter::OutputMessageSeriesEnd(int outputSite, int propagation, bool blocki
 
 // *************************************************************
 
-unsigned int MeterFilter::Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking)
+size_t MeterFilter::Put2(const byte *begin, size_t length, int messageEnd, bool blocking)
 {
 	if (m_transparent)
 	{
@@ -162,7 +162,7 @@ unsigned int MeterFilter::Put2(const byte *begin, unsigned int length, int messa
 	return 0;
 }
 
-unsigned int MeterFilter::PutModifiable2(byte *begin, unsigned int length, int messageEnd, bool blocking)
+size_t MeterFilter::PutModifiable2(byte *begin, size_t length, int messageEnd, bool blocking)
 {
 	if (m_transparent)
 	{
@@ -193,7 +193,7 @@ bool MeterFilter::IsolatedMessageSeriesEnd(bool blocking)
 
 // *************************************************************
 
-void FilterWithBufferedInput::BlockQueue::ResetQueue(unsigned int blockSize, unsigned int maxBlocks)
+void FilterWithBufferedInput::BlockQueue::ResetQueue(size_t blockSize, size_t maxBlocks)
 {
 	m_buffer.New(blockSize * maxBlocks);
 	m_blockSize = blockSize;
@@ -216,9 +216,9 @@ byte *FilterWithBufferedInput::BlockQueue::GetBlock()
 		return NULL;
 }
 
-byte *FilterWithBufferedInput::BlockQueue::GetContigousBlocks(unsigned int &numberOfBytes)
+byte *FilterWithBufferedInput::BlockQueue::GetContigousBlocks(size_t &numberOfBytes)
 {
-	numberOfBytes = STDMIN(numberOfBytes, STDMIN((unsigned int)(m_buffer.end()-m_begin), m_size));
+	numberOfBytes = STDMIN(numberOfBytes, STDMIN(size_t(m_buffer.end()-m_begin), m_size));
 	byte *ptr = m_begin;
 	m_begin += numberOfBytes;
 	m_size -= numberOfBytes;
@@ -227,10 +227,10 @@ byte *FilterWithBufferedInput::BlockQueue::GetContigousBlocks(unsigned int &numb
 	return ptr;
 }
 
-unsigned int FilterWithBufferedInput::BlockQueue::GetAll(byte *outString)
+size_t FilterWithBufferedInput::BlockQueue::GetAll(byte *outString)
 {
-	unsigned int size = m_size;
-	unsigned int numberOfBytes = m_maxBlocks*m_blockSize;
+	size_t size = m_size;
+	size_t numberOfBytes = m_maxBlocks*m_blockSize;
 	const byte *ptr = GetContigousBlocks(numberOfBytes);
 	memcpy(outString, ptr, numberOfBytes);
 	memcpy(outString+numberOfBytes, m_begin, m_size);
@@ -238,11 +238,11 @@ unsigned int FilterWithBufferedInput::BlockQueue::GetAll(byte *outString)
 	return size;
 }
 
-void FilterWithBufferedInput::BlockQueue::Put(const byte *inString, unsigned int length)
+void FilterWithBufferedInput::BlockQueue::Put(const byte *inString, size_t length)
 {
 	assert(m_size + length <= m_buffer.size());
-	byte *end = (m_size < (unsigned int)(m_buffer.end()-m_begin)) ? m_begin + m_size : m_begin + m_size - m_buffer.size();
-	unsigned int len = STDMIN(length, (unsigned int)(m_buffer.end()-end));
+	byte *end = (m_size < size_t(m_buffer.end()-m_begin)) ? m_begin + m_size : m_begin + m_size - m_buffer.size();
+	size_t len = STDMIN(length, size_t(m_buffer.end()-end));
 	memcpy(end, inString, len);
 	if (len < length)
 		memcpy(m_buffer, inString+len, length-len);
@@ -254,7 +254,7 @@ FilterWithBufferedInput::FilterWithBufferedInput(BufferedTransformation *attachm
 {
 }
 
-FilterWithBufferedInput::FilterWithBufferedInput(unsigned int firstSize, unsigned int blockSize, unsigned int lastSize, BufferedTransformation *attachment)
+FilterWithBufferedInput::FilterWithBufferedInput(size_t firstSize, size_t blockSize, size_t lastSize, BufferedTransformation *attachment)
 	: Filter(attachment), m_firstSize(firstSize), m_blockSize(blockSize), m_lastSize(lastSize)
 	, m_firstInputDone(false)
 {
@@ -285,18 +285,18 @@ bool FilterWithBufferedInput::IsolatedFlush(bool hardFlush, bool blocking)
 	return false;
 }
 
-unsigned int FilterWithBufferedInput::PutMaybeModifiable(byte *inString, unsigned int length, int messageEnd, bool blocking, bool modifiable)
+size_t FilterWithBufferedInput::PutMaybeModifiable(byte *inString, size_t length, int messageEnd, bool blocking, bool modifiable)
 {
 	if (!blocking)
 		throw BlockingInputOnly("FilterWithBufferedInput");
 
 	if (length != 0)
 	{
-		unsigned int newLength = m_queue.CurrentSize() + length;
+		size_t newLength = m_queue.CurrentSize() + length;
 
 		if (!m_firstInputDone && newLength >= m_firstSize)
 		{
-			unsigned int len = m_firstSize - m_queue.CurrentSize();
+			size_t len = m_firstSize - m_queue.CurrentSize();
 			m_queue.Put(inString, len);
 			FirstPut(m_queue.GetContigousBlocks(m_firstSize));
 			assert(m_queue.CurrentSize() == 0);
@@ -313,7 +313,7 @@ unsigned int FilterWithBufferedInput::PutMaybeModifiable(byte *inString, unsigne
 			{
 				while (newLength > m_lastSize && m_queue.CurrentSize() > 0)
 				{
-					unsigned int len = newLength - m_lastSize;
+					size_t len = newLength - m_lastSize;
 					byte *ptr = m_queue.GetContigousBlocks(len);
 					NextPutModifiable(ptr, len);
 					newLength -= len;
@@ -321,7 +321,7 @@ unsigned int FilterWithBufferedInput::PutMaybeModifiable(byte *inString, unsigne
 
 				if (newLength > m_lastSize)
 				{
-					unsigned int len = newLength - m_lastSize;
+					size_t len = newLength - m_lastSize;
 					NextPutMaybeModifiable(inString, len, modifiable);
 					inString += len;
 					newLength -= len;
@@ -338,7 +338,7 @@ unsigned int FilterWithBufferedInput::PutMaybeModifiable(byte *inString, unsigne
 				if (newLength >= m_blockSize + m_lastSize && m_queue.CurrentSize() > 0)
 				{
 					assert(m_queue.CurrentSize() < m_blockSize);
-					unsigned int len = m_blockSize - m_queue.CurrentSize();
+					size_t len = m_blockSize - m_queue.CurrentSize();
 					m_queue.Put(inString, len);
 					inString += len;
 					NextPutModifiable(m_queue.GetBlock(), m_blockSize);
@@ -347,7 +347,7 @@ unsigned int FilterWithBufferedInput::PutMaybeModifiable(byte *inString, unsigne
 
 				if (newLength >= m_blockSize + m_lastSize)
 				{
-					unsigned int len = RoundDownToMultipleOf(newLength - m_lastSize, m_blockSize);
+					size_t len = RoundDownToMultipleOf(newLength - m_lastSize, m_blockSize);
 					NextPutMaybeModifiable(inString, len, modifiable);
 					inString += len;
 					newLength -= len;
@@ -387,13 +387,13 @@ void FilterWithBufferedInput::ForceNextPut()
 	}
 	else
 	{
-		unsigned int len;
+		size_t len;
 		while ((len = m_queue.CurrentSize()) > 0)
 			NextPutModifiable(m_queue.GetContigousBlocks(len), len);
 	}
 }
 
-void FilterWithBufferedInput::NextPutMultiple(const byte *inString, unsigned int length)
+void FilterWithBufferedInput::NextPutMultiple(const byte *inString, size_t length)
 {
 	assert(m_blockSize > 1);	// m_blockSize = 1 should always override this function
 	while (length > 0)
@@ -418,7 +418,7 @@ void Redirector::Initialize(const NameValuePairs &parameters, int propagation)
 
 // *************************************************************
 
-ProxyFilter::ProxyFilter(BufferedTransformation *filter, unsigned int firstSize, unsigned int lastSize, BufferedTransformation *attachment)
+ProxyFilter::ProxyFilter(BufferedTransformation *filter, size_t firstSize, size_t lastSize, BufferedTransformation *attachment)
 	: FilterWithBufferedInput(firstSize, 1, lastSize, attachment), m_filter(filter)
 {
 	if (m_filter.get())
@@ -442,13 +442,13 @@ void ProxyFilter::SetFilter(Filter *filter)
 	}
 }
 
-void ProxyFilter::NextPutMultiple(const byte *s, unsigned int len)
+void ProxyFilter::NextPutMultiple(const byte *s, size_t len)
 {
 	if (m_filter.get())
 		m_filter->Put(s, len);
 }
 
-void ProxyFilter::NextPutModifiable(byte *s, unsigned int len)
+void ProxyFilter::NextPutModifiable(byte *s, size_t len)
 {
 	if (m_filter.get())
 		m_filter->PutModifiable(s, len);
@@ -456,16 +456,16 @@ void ProxyFilter::NextPutModifiable(byte *s, unsigned int len)
 
 // *************************************************************
 
-unsigned int ArraySink::Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking)
+size_t ArraySink::Put2(const byte *begin, size_t length, int messageEnd, bool blocking)
 {
 	memcpy(m_buf+m_total, begin, STDMIN(length, SaturatingSubtract(m_size, m_total)));
 	m_total += length;
 	return 0;
 }
 
-byte * ArraySink::CreatePutSpace(unsigned int &size)
+byte * ArraySink::CreatePutSpace(size_t &size)
 {
-	size = m_size - m_total;
+	size = SaturatingSubtract(m_size, m_total);
 	return m_buf + m_total;
 }
 
@@ -479,7 +479,7 @@ void ArraySink::IsolatedInitialize(const NameValuePairs &parameters)
 	m_total = 0;
 }
 
-unsigned int ArrayXorSink::Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking)
+size_t ArrayXorSink::Put2(const byte *begin, size_t length, int messageEnd, bool blocking)
 {
 	xorbuf(m_buf+m_total, begin, STDMIN(length, SaturatingSubtract(m_size, m_total)));
 	m_total += length;
@@ -488,7 +488,7 @@ unsigned int ArrayXorSink::Put2(const byte *begin, unsigned int length, int mess
 
 // *************************************************************
 
-unsigned int StreamTransformationFilter::LastBlockSize(StreamTransformation &c, BlockPaddingScheme padding)
+size_t StreamTransformationFilter::LastBlockSize(StreamTransformation &c, BlockPaddingScheme padding)
 {
 	if (c.MinLastBlockSize() > 0)
 		return c.MinLastBlockSize();
@@ -523,19 +523,19 @@ StreamTransformationFilter::StreamTransformationFilter(StreamTransformation &c, 
 void StreamTransformationFilter::FirstPut(const byte *inString)
 {
 	m_optimalBufferSize = m_cipher.OptimalBlockSize();
-	m_optimalBufferSize = STDMAX(m_optimalBufferSize, RoundDownToMultipleOf(4096U, m_optimalBufferSize));
+	m_optimalBufferSize = (unsigned int)STDMAX(m_optimalBufferSize, RoundDownToMultipleOf(4096U, m_optimalBufferSize));
 }
 
-void StreamTransformationFilter::NextPutMultiple(const byte *inString, unsigned int length)
+void StreamTransformationFilter::NextPutMultiple(const byte *inString, size_t length)
 {
 	if (!length)
 		return;
 
-	unsigned int s = m_cipher.MandatoryBlockSize();
+	size_t s = m_cipher.MandatoryBlockSize();
 
 	do
 	{
-		unsigned int len = m_optimalBufferSize;
+		size_t len = m_optimalBufferSize;
 		byte *space = HelpCreatePutSpace(*AttachedTransformation(), NULL_CHANNEL, s, length, len);
 		if (len < length)
 		{
@@ -553,13 +553,13 @@ void StreamTransformationFilter::NextPutMultiple(const byte *inString, unsigned 
 	while (length > 0);
 }
 
-void StreamTransformationFilter::NextPutModifiable(byte *inString, unsigned int length)
+void StreamTransformationFilter::NextPutModifiable(byte *inString, size_t length)
 {
 	m_cipher.ProcessString(inString, length);
 	AttachedTransformation()->PutModifiable(inString, length);
 }
 
-void StreamTransformationFilter::LastPut(const byte *inString, unsigned int length)
+void StreamTransformationFilter::LastPut(const byte *inString, size_t length)
 {
 	byte *space = NULL;
 	
@@ -569,13 +569,13 @@ void StreamTransformationFilter::LastPut(const byte *inString, unsigned int leng
 	case ZEROS_PADDING:
 		if (length > 0)
 		{
-			unsigned int minLastBlockSize = m_cipher.MinLastBlockSize();
+			size_t minLastBlockSize = m_cipher.MinLastBlockSize();
 			bool isForwardTransformation = m_cipher.IsForwardTransformation();
 
 			if (isForwardTransformation && m_padding == ZEROS_PADDING && (minLastBlockSize == 0 || length < minLastBlockSize))
 			{
 				// do padding
-				unsigned int blockSize = STDMAX(minLastBlockSize, m_cipher.MandatoryBlockSize());
+				size_t blockSize = STDMAX(minLastBlockSize, (size_t)m_cipher.MandatoryBlockSize());
 				space = HelpCreatePutSpace(*AttachedTransformation(), NULL_CHANNEL, blockSize);
 				memcpy(space, inString, length);
 				memset(space + length, 0, blockSize - length);
@@ -612,7 +612,7 @@ void StreamTransformationFilter::LastPut(const byte *inString, unsigned int leng
 			if (m_padding == PKCS_PADDING)
 			{
 				assert(s < 256);
-				byte pad = s-length;
+				byte pad = byte(s-length);
 				memset(space+length, pad, s-length);
 			}
 			else
@@ -660,7 +660,7 @@ void HashFilter::IsolatedInitialize(const NameValuePairs &parameters)
 	m_hashModule.Restart();
 }
 
-unsigned int HashFilter::Put2(const byte *inString, unsigned int length, int messageEnd, bool blocking)
+size_t HashFilter::Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
 {
 	FILTER_BEGIN;
 	m_hashModule.Update(inString, length);
@@ -669,7 +669,7 @@ unsigned int HashFilter::Put2(const byte *inString, unsigned int length, int mes
 	if (messageEnd)
 	{
 		{
-			unsigned int size;
+			size_t size;
 			m_digestSize = m_hashModule.DigestSize();
 			if (m_truncatedDigestSize >= 0 && (unsigned int)m_truncatedDigestSize < m_digestSize)
 				m_digestSize = m_truncatedDigestSize;
@@ -690,11 +690,11 @@ HashVerificationFilter::HashVerificationFilter(HashTransformation &hm, BufferedT
 	IsolatedInitialize(MakeParameters(Name::HashVerificationFilterFlags(), flags));
 }
 
-void HashVerificationFilter::InitializeDerivedAndReturnNewSizes(const NameValuePairs &parameters, unsigned int &firstSize, unsigned int &blockSize, unsigned int &lastSize)
+void HashVerificationFilter::InitializeDerivedAndReturnNewSizes(const NameValuePairs &parameters, size_t &firstSize, size_t &blockSize, size_t &lastSize)
 {
 	m_flags = parameters.GetValueWithDefault(Name::HashVerificationFilterFlags(), (word32)DEFAULT_FLAGS);
 	m_hashModule.Restart();
-	unsigned int size = m_hashModule.DigestSize();
+	size_t size = m_hashModule.DigestSize();
 	m_verified = false;
 	firstSize = m_flags & HASH_AT_BEGIN ? size : 0;
 	blockSize = 1;
@@ -712,14 +712,14 @@ void HashVerificationFilter::FirstPut(const byte *inString)
 	}
 }
 
-void HashVerificationFilter::NextPutMultiple(const byte *inString, unsigned int length)
+void HashVerificationFilter::NextPutMultiple(const byte *inString, size_t length)
 {
 	m_hashModule.Update(inString, length);
 	if (m_flags & PUT_MESSAGE)
 		AttachedTransformation()->Put(inString, length);
 }
 
-void HashVerificationFilter::LastPut(const byte *inString, unsigned int length)
+void HashVerificationFilter::LastPut(const byte *inString, size_t length)
 {
 	if (m_flags & HASH_AT_BEGIN)
 	{
@@ -748,7 +748,7 @@ void SignerFilter::IsolatedInitialize(const NameValuePairs &parameters)
 	m_messageAccumulator.reset(m_signer.NewSignatureAccumulator(m_rng));
 }
 
-unsigned int SignerFilter::Put2(const byte *inString, unsigned int length, int messageEnd, bool blocking)
+size_t SignerFilter::Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
 {
 	FILTER_BEGIN;
 	m_messageAccumulator->Update(inString, length);
@@ -771,11 +771,11 @@ SignatureVerificationFilter::SignatureVerificationFilter(const PK_Verifier &veri
 	IsolatedInitialize(MakeParameters(Name::SignatureVerificationFilterFlags(), flags));
 }
 
-void SignatureVerificationFilter::InitializeDerivedAndReturnNewSizes(const NameValuePairs &parameters, unsigned int &firstSize, unsigned int &blockSize, unsigned int &lastSize)
+void SignatureVerificationFilter::InitializeDerivedAndReturnNewSizes(const NameValuePairs &parameters, size_t &firstSize, size_t &blockSize, size_t &lastSize)
 {
 	m_flags = parameters.GetValueWithDefault(Name::SignatureVerificationFilterFlags(), (word32)DEFAULT_FLAGS);
 	m_messageAccumulator.reset(m_verifier.NewVerificationAccumulator());
-	unsigned int size = m_verifier.SignatureLength();
+	size_t size = m_verifier.SignatureLength();
 	assert(size != 0);	// TODO: handle recoverable signature scheme
 	m_verified = false;
 	firstSize = m_flags & SIGNATURE_AT_BEGIN ? size : 0;
@@ -804,14 +804,14 @@ void SignatureVerificationFilter::FirstPut(const byte *inString)
 	}
 }
 
-void SignatureVerificationFilter::NextPutMultiple(const byte *inString, unsigned int length)
+void SignatureVerificationFilter::NextPutMultiple(const byte *inString, size_t length)
 {
 	m_messageAccumulator->Update(inString, length);
 	if (m_flags & PUT_MESSAGE)
 		AttachedTransformation()->Put(inString, length);
 }
 
-void SignatureVerificationFilter::LastPut(const byte *inString, unsigned int length)
+void SignatureVerificationFilter::LastPut(const byte *inString, size_t length)
 {
 	if (m_flags & SIGNATURE_AT_BEGIN)
 	{
@@ -836,13 +836,14 @@ void SignatureVerificationFilter::LastPut(const byte *inString, unsigned int len
 
 // *************************************************************
 
-unsigned int Source::PumpAll2(bool blocking)
+size_t Source::PumpAll2(bool blocking)
 {
-	// TODO: switch length type
-	unsigned long i = UINT_MAX;
-	RETURN_IF_NONZERO(Pump2(i, blocking));
-	unsigned int j = UINT_MAX;
-	return PumpMessages2(j, blocking);
+	unsigned int messageCount = UINT_MAX;
+	do {
+		RETURN_IF_NONZERO(PumpMessages2(messageCount, blocking));
+	} while(messageCount == UINT_MAX);
+
+	return 0;
 }
 
 bool Store::GetNextMessage()
@@ -879,20 +880,20 @@ void StringStore::StoreInitialize(const NameValuePairs &parameters)
 	m_count = 0;
 }
 
-unsigned int StringStore::TransferTo2(BufferedTransformation &target, unsigned long &transferBytes, const std::string &channel, bool blocking)
+size_t StringStore::TransferTo2(BufferedTransformation &target, lword &transferBytes, const std::string &channel, bool blocking)
 {
-	unsigned long position = 0;
-	unsigned int blockedBytes = CopyRangeTo2(target, position, transferBytes, channel, blocking);
-	m_count += position;
+	lword position = 0;
+	size_t blockedBytes = CopyRangeTo2(target, position, transferBytes, channel, blocking);
+	m_count += (size_t)position;
 	transferBytes = position;
 	return blockedBytes;
 }
 
-unsigned int StringStore::CopyRangeTo2(BufferedTransformation &target, unsigned long &begin, unsigned long end, const std::string &channel, bool blocking) const
+size_t StringStore::CopyRangeTo2(BufferedTransformation &target, lword &begin, lword end, const std::string &channel, bool blocking) const
 {
-	unsigned int i = (unsigned int)STDMIN((unsigned long)m_count+begin, (unsigned long)m_length);
-	unsigned int len = (unsigned int)STDMIN((unsigned long)m_length-i, end-begin);
-	unsigned int blockedBytes = target.ChannelPut2(channel, m_store+i, len, 0, blocking);
+	size_t i = UnsignedMin(m_length, m_count+begin);
+	size_t len = UnsignedMin(m_length-i, end-begin);
+	size_t blockedBytes = target.ChannelPut2(channel, m_store+i, len, 0, blocking);
 	if (!blockedBytes)
 		begin += len;
 	return blockedBytes;
@@ -901,27 +902,29 @@ unsigned int StringStore::CopyRangeTo2(BufferedTransformation &target, unsigned 
 void RandomNumberStore::StoreInitialize(const NameValuePairs &parameters)
 {
 	parameters.GetRequiredParameter("RandomNumberStore", "RandomNumberGeneratorPointer", m_rng);
-	parameters.GetRequiredIntParameter("RandomNumberStore", "RandomNumberStoreSize", m_length);
+	int length;
+	parameters.GetRequiredIntParameter("RandomNumberStore", "RandomNumberStoreSize", length);
+	m_length = length;
 }
 
-unsigned int RandomNumberStore::TransferTo2(BufferedTransformation &target, unsigned long &transferBytes, const std::string &channel, bool blocking)
+size_t RandomNumberStore::TransferTo2(BufferedTransformation &target, lword &transferBytes, const std::string &channel, bool blocking)
 {
 	if (!blocking)
 		throw NotImplemented("RandomNumberStore: nonblocking transfer is not implemented by this object");
 
-	unsigned long transferMax = transferBytes;
-	for (transferBytes = 0; transferBytes<transferMax && m_count < (unsigned long)m_length; ++transferBytes, ++m_count)
+	lword transferMax = transferBytes;
+	for (transferBytes = 0; transferBytes<transferMax && m_count < (unsigned int)m_length; ++transferBytes, ++m_count)
 		target.ChannelPut(channel, m_rng->GenerateByte());
 	return 0;
 }
 
-unsigned int NullStore::CopyRangeTo2(BufferedTransformation &target, unsigned long &begin, unsigned long end, const std::string &channel, bool blocking) const
+size_t NullStore::CopyRangeTo2(BufferedTransformation &target, lword &begin, lword end, const std::string &channel, bool blocking) const
 {
 	static const byte nullBytes[128] = {0};
 	while (begin < end)
 	{
-		unsigned int len = STDMIN(end-begin, 128UL);
-		unsigned int blockedBytes = target.ChannelPut2(channel, nullBytes, len, 0, blocking);
+		size_t len = (size_t)STDMIN(end-begin, lword(128));
+		size_t blockedBytes = target.ChannelPut2(channel, nullBytes, len, 0, blocking);
 		if (blockedBytes)
 			return blockedBytes;
 		begin += len;
@@ -929,10 +932,10 @@ unsigned int NullStore::CopyRangeTo2(BufferedTransformation &target, unsigned lo
 	return 0;
 }
 
-unsigned int NullStore::TransferTo2(BufferedTransformation &target, unsigned long &transferBytes, const std::string &channel, bool blocking)
+size_t NullStore::TransferTo2(BufferedTransformation &target, lword &transferBytes, const std::string &channel, bool blocking)
 {
-	unsigned long begin = 0;
-	unsigned int blockedBytes = NullStore::CopyRangeTo2(target, begin, transferBytes, channel, blocking);
+	lword begin = 0;
+	size_t blockedBytes = NullStore::CopyRangeTo2(target, begin, transferBytes, channel, blocking);
 	transferBytes = begin;
 	m_size -= begin;
 	return blockedBytes;

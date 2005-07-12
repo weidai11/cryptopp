@@ -77,8 +77,8 @@ public:
 	bool Connect(const sockaddr* psa, socklen_t saLen);
 	bool Accept(Socket& s, sockaddr *psa=NULL, socklen_t *psaLen=NULL);
 	void GetSockName(sockaddr *psa, socklen_t *psaLen);
-	unsigned int Send(const byte* buf, unsigned int bufLen, int flags=0);
-	unsigned int Receive(byte* buf, unsigned int bufLen, int flags=0);
+	unsigned int Send(const byte* buf, size_t bufLen, int flags=0);
+	unsigned int Receive(byte* buf, size_t bufLen, int flags=0);
 	void ShutDown(int how = SD_SEND);
 
 	void IOCtl(long cmd, unsigned long *argp);
@@ -130,7 +130,7 @@ public:
 #else
 	bool MustWaitForResult() {return true;}
 #endif
-	bool Receive(byte* buf, unsigned int bufLen);
+	bool Receive(byte* buf, size_t bufLen);
 	unsigned int GetReceiveResult();
 	bool EofReceived() const {return m_eofReceived;}
 
@@ -161,7 +161,7 @@ public:
 #else
 	bool MustWaitForResult() {return true;}
 #endif
-	void Send(const byte* buf, unsigned int bufLen);
+	void Send(const byte* buf, size_t bufLen);
 	unsigned int GetSendResult();
 	void SendEof() {m_s.ShutDown(SD_SEND);}
 

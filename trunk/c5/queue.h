@@ -16,49 +16,49 @@ class ByteQueueNode;
 class CRYPTOPP_DLL ByteQueue : public Bufferless<BufferedTransformation>
 {
 public:
-	ByteQueue(unsigned int nodeSize=0);
+	ByteQueue(size_t nodeSize=0);
 	ByteQueue(const ByteQueue &copy);
 	~ByteQueue();
 
-	unsigned long MaxRetrievable() const
+	lword MaxRetrievable() const
 		{return CurrentSize();}
 	bool AnyRetrievable() const
 		{return !IsEmpty();}
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
-	byte * CreatePutSpace(unsigned int &size);
-	unsigned int Put2(const byte *inString, unsigned int length, int messageEnd, bool blocking);
+	byte * CreatePutSpace(size_t &size);
+	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking);
 
-	unsigned int Get(byte &outByte);
-	unsigned int Get(byte *outString, unsigned int getMax);
+	size_t Get(byte &outByte);
+	size_t Get(byte *outString, size_t getMax);
 
-	unsigned int Peek(byte &outByte) const;
-	unsigned int Peek(byte *outString, unsigned int peekMax) const;
+	size_t Peek(byte &outByte) const;
+	size_t Peek(byte *outString, size_t peekMax) const;
 
-	unsigned int TransferTo2(BufferedTransformation &target, unsigned long &transferBytes, const std::string &channel=NULL_CHANNEL, bool blocking=true);
-	unsigned int CopyRangeTo2(BufferedTransformation &target, unsigned long &begin, unsigned long end=ULONG_MAX, const std::string &channel=NULL_CHANNEL, bool blocking=true) const;
+	size_t TransferTo2(BufferedTransformation &target, lword &transferBytes, const std::string &channel=NULL_CHANNEL, bool blocking=true);
+	size_t CopyRangeTo2(BufferedTransformation &target, lword &begin, lword end=LWORD_MAX, const std::string &channel=NULL_CHANNEL, bool blocking=true) const;
 
 	// these member functions are not inherited
-	void SetNodeSize(unsigned int nodeSize);
+	void SetNodeSize(size_t nodeSize);
 
-	unsigned long CurrentSize() const;
+	lword CurrentSize() const;
 	bool IsEmpty() const;
 
 	void Clear();
 
 	void Unget(byte inByte);
-	void Unget(const byte *inString, unsigned int length);
+	void Unget(const byte *inString, size_t length);
 
-	const byte * Spy(unsigned int &contiguousSize) const;
+	const byte * Spy(size_t &contiguousSize) const;
 
-	void LazyPut(const byte *inString, unsigned int size);
-	void LazyPutModifiable(byte *inString, unsigned int size);
-	void UndoLazyPut(unsigned int size);
+	void LazyPut(const byte *inString, size_t size);
+	void LazyPutModifiable(byte *inString, size_t size);
+	void UndoLazyPut(size_t size);
 	void FinalizeLazyPut();
 
 	ByteQueue & operator=(const ByteQueue &rhs);
 	bool operator==(const ByteQueue &rhs) const;
-	byte operator[](unsigned long i) const;
+	byte operator[](lword i) const;
 	void swap(ByteQueue &rhs);
 
 	class Walker : public InputRejecting<BufferedTransformation>
@@ -67,29 +67,29 @@ public:
 		Walker(const ByteQueue &queue)
 			: m_queue(queue) {Initialize();}
 
-		unsigned long GetCurrentPosition() {return m_position;}
+		lword GetCurrentPosition() {return m_position;}
 
-		unsigned long MaxRetrievable() const
+		lword MaxRetrievable() const
 			{return m_queue.CurrentSize() - m_position;}
 
 		void IsolatedInitialize(const NameValuePairs &parameters);
 
-		unsigned int Get(byte &outByte);
-		unsigned int Get(byte *outString, unsigned int getMax);
+		size_t Get(byte &outByte);
+		size_t Get(byte *outString, size_t getMax);
 
-		unsigned int Peek(byte &outByte) const;
-		unsigned int Peek(byte *outString, unsigned int peekMax) const;
+		size_t Peek(byte &outByte) const;
+		size_t Peek(byte *outString, size_t peekMax) const;
 
-		unsigned int TransferTo2(BufferedTransformation &target, unsigned long &transferBytes, const std::string &channel=NULL_CHANNEL, bool blocking=true);
-		unsigned int CopyRangeTo2(BufferedTransformation &target, unsigned long &begin, unsigned long end=ULONG_MAX, const std::string &channel=NULL_CHANNEL, bool blocking=true) const;
+		size_t TransferTo2(BufferedTransformation &target, lword &transferBytes, const std::string &channel=NULL_CHANNEL, bool blocking=true);
+		size_t CopyRangeTo2(BufferedTransformation &target, lword &begin, lword end=LWORD_MAX, const std::string &channel=NULL_CHANNEL, bool blocking=true) const;
 
 	private:
 		const ByteQueue &m_queue;
 		const ByteQueueNode *m_node;
-		unsigned long m_position;
-		unsigned int m_offset;
+		lword m_position;
+		size_t m_offset;
 		const byte *m_lazyString;
-		unsigned int m_lazyLength;
+		size_t m_lazyLength;
 	};
 
 	friend class Walker;
@@ -100,10 +100,10 @@ private:
 	void Destroy();
 
 	bool m_autoNodeSize;
-	unsigned int m_nodeSize;
+	size_t m_nodeSize;
 	ByteQueueNode *m_head, *m_tail;
 	byte *m_lazyString;
-	unsigned int m_lazyLength;
+	size_t m_lazyLength;
 	bool m_lazyStringModifiable;
 };
 
@@ -111,7 +111,7 @@ private:
 class CRYPTOPP_DLL LazyPutter
 {
 public:
-	LazyPutter(ByteQueue &bq, const byte *inString, unsigned int size)
+	LazyPutter(ByteQueue &bq, const byte *inString, size_t size)
 		: m_bq(bq) {bq.LazyPut(inString, size);}
 	~LazyPutter()
 		{try {m_bq.FinalizeLazyPut();} catch(...) {}}
@@ -125,7 +125,7 @@ private:
 class LazyPutterModifiable : public LazyPutter
 {
 public:
-	LazyPutterModifiable(ByteQueue &bq, byte *inString, unsigned int size)
+	LazyPutterModifiable(ByteQueue &bq, byte *inString, size_t size)
 		: LazyPutter(bq) {bq.LazyPutModifiable(inString, size);}
 };
 

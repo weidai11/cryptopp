@@ -19,12 +19,12 @@ static const unsigned int KEYLENGTH = Default_BlockCipher::Encryption::DEFAULT_K
 // deducible from it, and (3) it contains as much entropy as it can hold, or
 // the amount of entropy in the input string, whichever is smaller.
 
-static void Mash(const byte *in, word16 inLen, byte *out, word16 outLen, int iterations)
+static void Mash(const byte *in, size_t inLen, byte *out, size_t outLen, int iterations)
 {
-	unsigned int bufSize = (outLen-1+DefaultHashModule::DIGESTSIZE-((outLen-1)%DefaultHashModule::DIGESTSIZE));
+	if (BytePrecision(outLen) > 2)
+		throw InvalidArgument("Mash: output legnth too large");
 
-	// ASSERT: bufSize == (the smallest multiple of DIGESTSIZE that is >= outLen)
-
+	size_t bufSize = RoundUpToMultipleOf(outLen, (size_t)DefaultHashModule::DIGESTSIZE);
 	byte b[2];
 	SecByteBlock buf(bufSize);
 	SecByteBlock outBuf(bufSize);
@@ -56,7 +56,7 @@ static void Mash(const byte *in, word16 inLen, byte *out, word16 outLen, int ite
 	memcpy(out, outBuf, outLen);
 }
 
-static void GenerateKeyIV(const byte *passphrase, unsigned int passphraseLength, const byte *salt, unsigned int saltLength, byte *key, byte *IV)
+static void GenerateKeyIV(const byte *passphrase, size_t passphraseLength, const byte *salt, size_t saltLength, byte *key, byte *IV)
 {
 	SecByteBlock temp(passphraseLength+saltLength);
 	memcpy(temp, passphrase, passphraseLength);
@@ -74,7 +74,7 @@ DefaultEncryptor::DefaultEncryptor(const char *passphrase, BufferedTransformatio
 {
 }
 
-DefaultEncryptor::DefaultEncryptor(const byte *passphrase, unsigned int passphraseLength, BufferedTransformation *attachment)
+DefaultEncryptor::DefaultEncryptor(const byte *passphrase, size_t passphraseLength, BufferedTransformation *attachment)
 	: ProxyFilter(NULL, 0, 0, attachment), m_passphrase(passphrase, passphraseLength)
 {
 }
@@ -115,7 +115,7 @@ void DefaultEncryptor::FirstPut(const byte *)
 	m_filter->Put(keyCheck, BLOCKSIZE);
 }
 
-void DefaultEncryptor::LastPut(const byte *inString, unsigned int length)
+void DefaultEncryptor::LastPut(const byte *inString, size_t length)
 {
 	m_filter->MessageEnd();
 }
@@ -130,7 +130,7 @@ DefaultDecryptor::DefaultDecryptor(const char *p, BufferedTransformation *attach
 {
 }
 
-DefaultDecryptor::DefaultDecryptor(const byte *passphrase, unsigned int passphraseLength, BufferedTransformation *attachment, bool throwException)
+DefaultDecryptor::DefaultDecryptor(const byte *passphrase, size_t passphraseLength, BufferedTransformation *attachment, bool throwException)
 	: ProxyFilter(NULL, SALTLENGTH+BLOCKSIZE, 0, attachment)
 	, m_state(WAITING_FOR_KEYCHECK)
 	, m_passphrase(passphrase, passphraseLength)
@@ -143,7 +143,7 @@ void DefaultDecryptor::FirstPut(const byte *inString)
 	CheckKey(inString, inString+SALTLENGTH);
 }
 
-void DefaultDecryptor::LastPut(const byte *inString, unsigned int length)
+void DefaultDecryptor::LastPut(const byte *inString, size_t length)
 {
 	if (m_filter.get() == NULL)
 	{
@@ -192,9 +192,9 @@ void DefaultDecryptor::CheckKey(const byte *salt, const byte *keyCheck)
 
 // ********************************************************
 
-static DefaultMAC * NewDefaultEncryptorMAC(const byte *passphrase, unsigned int passphraseLength)
+static DefaultMAC * NewDefaultEncryptorMAC(const byte *passphrase, size_t passphraseLength)
 {
-	unsigned int macKeyLength = DefaultMAC::StaticGetValidKeyLength(16);
+	size_t macKeyLength = DefaultMAC::StaticGetValidKeyLength(16);
 	SecByteBlock macKey(macKeyLength);
 	// since the MAC is encrypted there is no reason to mash the passphrase for many iterations
 	Mash(passphrase, passphraseLength, macKey, macKeyLength, 1);
@@ -208,14 +208,14 @@ DefaultEncryptorWithMAC::DefaultEncryptorWithMAC(const char *passphrase, Buffere
 	SetFilter(new HashFilter(*m_mac, new DefaultEncryptor(passphrase), true));
 }
 
-DefaultEncryptorWithMAC::DefaultEncryptorWithMAC(const byte *passphrase, unsigned int passphraseLength, BufferedTransformation *attachment)
+DefaultEncryptorWithMAC::DefaultEncryptorWithMAC(const byte *passphrase, size_t passphraseLength, BufferedTransformation *attachment)
 	: ProxyFilter(NULL, 0, 0, attachment)
 	, m_mac(NewDefaultEncryptorMAC(passphrase, passphraseLength))
 {
 	SetFilter(new HashFilter(*m_mac, new DefaultEncryptor(passphrase, passphraseLength), true));
 }
 
-void DefaultEncryptorWithMAC::LastPut(const byte *inString, unsigned int length)
+void DefaultEncryptorWithMAC::LastPut(const byte *inString, size_t length)
 {
 	m_filter->MessageEnd();
 }
@@ -230,7 +230,7 @@ DefaultDecryptorWithMAC::DefaultDecryptorWithMAC(const char *passphrase, Buffere
 	SetFilter(new DefaultDecryptor(passphrase, m_hashVerifier=new HashVerifier(*m_mac, NULL, HashVerifier::PUT_MESSAGE), throwException));
 }
 
-DefaultDecryptorWithMAC::DefaultDecryptorWithMAC(const byte *passphrase, unsigned int passphraseLength, BufferedTransformation *attachment, bool throwException)
+DefaultDecryptorWithMAC::DefaultDecryptorWithMAC(const byte *passphrase, size_t passphraseLength, BufferedTransformation *attachment, bool throwException)
 	: ProxyFilter(NULL, 0, 0, attachment)
 	, m_mac(NewDefaultEncryptorMAC(passphrase, passphraseLength))
 	, m_throwException(throwException)
@@ -248,7 +248,7 @@ bool DefaultDecryptorWithMAC::CheckLastMAC() const
 	return m_hashVerifier->GetLastResult();
 }
 
-void DefaultDecryptorWithMAC::LastPut(const byte *inString, unsigned int length)
+void DefaultDecryptorWithMAC::LastPut(const byte *inString, size_t length)
 {
 	m_filter->MessageEnd();
 	if (m_throwException && !CheckLastMAC())

@@ -62,8 +62,8 @@ public:
 	unsigned int EncodedPointSize(bool compressed = false) const
 		{return 1 + (compressed?1:2)*m_field->MaxElementByteLength();}
 	// returns false if point is compressed and not valid (doesn't check if uncompressed)
-	bool DecodePoint(Point &P, BufferedTransformation &bt, unsigned int len) const;
-	bool DecodePoint(Point &P, const byte *encodedPoint, unsigned int len) const;
+	bool DecodePoint(Point &P, BufferedTransformation &bt, size_t len) const;
+	bool DecodePoint(Point &P, const byte *encodedPoint, size_t len) const;
 	void EncodePoint(byte *encodedPoint, const Point &P, bool compressed) const;
 	void EncodePoint(BufferedTransformation &bt, const Point &P, bool compressed) const;
 

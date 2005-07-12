@@ -37,7 +37,7 @@ public:
 	HuffmanEncoder(const unsigned int *codeBits, unsigned int nCodes);
 	void Initialize(const unsigned int *codeBits, unsigned int nCodes);
 
-	static void GenerateCodeLengths(unsigned int *codeBits, unsigned int maxCodeBits, const unsigned int *codeCounts, unsigned int nCodes);
+	static void GenerateCodeLengths(unsigned int *codeBits, unsigned int maxCodeBits, const unsigned int *codeCounts, size_t nCodes);
 
 	void Encode(LowFirstBitWriter &writer, value_t value) const;
 
@@ -70,12 +70,12 @@ public:
 	int GetLog2WindowSize() const {return m_log2WindowSize;}
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
-	unsigned int Put2(const byte *inString, unsigned int length, int messageEnd, bool blocking);
+	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking);
 	bool IsolatedFlush(bool hardFlush, bool blocking);
 
 protected:
 	virtual void WritePrestreamHeader() {}
-	virtual void ProcessUncompressedData(const byte *string, unsigned int length) {}
+	virtual void ProcessUncompressedData(const byte *string, size_t length) {}
 	virtual void WritePoststreamTail() {}
 
 	enum {STORED = 0, STATIC = 1, DYNAMIC = 2};
@@ -83,7 +83,7 @@ protected:
 
 	void InitializeStaticEncoders();
 	void Reset(bool forceReset = false);
-	unsigned int FillWindow(const byte *str, unsigned int length);
+	unsigned int FillWindow(const byte *str, size_t length);
 	unsigned int ComputeHash(const byte *str) const;
 	unsigned int LongestMatch(unsigned int &bestMatch) const;
 	void InsertString(unsigned int start);

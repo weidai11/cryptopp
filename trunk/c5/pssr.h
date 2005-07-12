@@ -13,23 +13,23 @@ NAMESPACE_BEGIN(CryptoPP)
 class CRYPTOPP_DLL PSSR_MEM_Base : public PK_RecoverableSignatureMessageEncodingMethod
 {
 	virtual bool AllowRecovery() const =0;
-	virtual unsigned int SaltLen(unsigned int hashLen) const =0;
-	virtual unsigned int MinPadLen(unsigned int hashLen) const =0;
+	virtual size_t SaltLen(size_t hashLen) const =0;
+	virtual size_t MinPadLen(size_t hashLen) const =0;
 	virtual const MaskGeneratingFunction & GetMGF() const =0;
 
 public:
-	unsigned int MinRepresentativeBitLength(unsigned int hashIdentifierLength, unsigned int digestLength) const;
-	unsigned int MaxRecoverableLength(unsigned int representativeBitLength, unsigned int hashIdentifierLength, unsigned int digestLength) const;
+	size_t MinRepresentativeBitLength(size_t hashIdentifierLength, size_t digestLength) const;
+	size_t MaxRecoverableLength(size_t representativeBitLength, size_t hashIdentifierLength, size_t digestLength) const;
 	bool IsProbabilistic() const;
 	bool AllowNonrecoverablePart() const;
 	bool RecoverablePartFirst() const;
 	void ComputeMessageRepresentative(RandomNumberGenerator &rng, 
-		const byte *recoverableMessage, unsigned int recoverableMessageLength,
+		const byte *recoverableMessage, size_t recoverableMessageLength,
 		HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
-		byte *representative, unsigned int representativeBitLength) const;
+		byte *representative, size_t representativeBitLength) const;
 	DecodingResult RecoverMessageFromRepresentative(
 		HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
-		byte *representative, unsigned int representativeBitLength,
+		byte *representative, size_t representativeBitLength,
 		byte *recoverableMessage) const;
 };
 
@@ -41,8 +41,8 @@ template <bool ALLOW_RECOVERY, class MGF=P1363_MGF1, int SALT_LEN=-1, int MIN_PA
 class PSSR_MEM : public PSSR_MEM_BaseWithHashId<USE_HASH_ID>
 {
 	virtual bool AllowRecovery() const {return ALLOW_RECOVERY;}
-	virtual unsigned int SaltLen(unsigned int hashLen) const {return SALT_LEN < 0 ? hashLen : SALT_LEN;}
-	virtual unsigned int MinPadLen(unsigned int hashLen) const {return MIN_PAD_LEN < 0 ? hashLen : MIN_PAD_LEN;}
+	virtual size_t SaltLen(size_t hashLen) const {return SALT_LEN < 0 ? hashLen : SALT_LEN;}
+	virtual size_t MinPadLen(size_t hashLen) const {return MIN_PAD_LEN < 0 ? hashLen : MIN_PAD_LEN;}
 	virtual const MaskGeneratingFunction & GetMGF() const {static MGF mgf; return mgf;}
 
 public:

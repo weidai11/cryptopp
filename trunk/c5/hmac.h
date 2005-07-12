@@ -16,8 +16,8 @@ public:
 	void UncheckedSetKey(const byte *userKey, unsigned int keylength);
 
 	void Restart();
-	void Update(const byte *input, unsigned int length);
-	void TruncatedFinal(byte *mac, unsigned int size);
+	void Update(const byte *input, size_t length);
+	void TruncatedFinal(byte *mac, size_t size);
 	unsigned int OptimalBlockSize() const {return const_cast<HMAC_Base*>(this)->AccessHash().OptimalBlockSize();}
 	unsigned int DigestSize() const {return const_cast<HMAC_Base*>(this)->AccessHash().DigestSize();}
 
@@ -44,7 +44,7 @@ public:
 	enum {DIGESTSIZE=T::DIGESTSIZE, BLOCKSIZE=T::BLOCKSIZE};
 
 	HMAC() {}
-	HMAC(const byte *key, unsigned int length=HMAC_Base::DEFAULT_KEYLENGTH)
+	HMAC(const byte *key, size_t length=HMAC_Base::DEFAULT_KEYLENGTH)
 		{this->SetKey(key, length);}
 
 	static std::string StaticAlgorithmName() {return std::string("HMAC(") + T::StaticAlgorithmName() + ")";}

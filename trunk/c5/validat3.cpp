@@ -40,7 +40,8 @@ struct HashTestTuple
 		: input((byte *)input), output((byte *)output), inputLen(inputLen), repeatTimes(repeatTimes) {}
 
 	const byte *input, *output;
-	unsigned int inputLen, repeatTimes;
+	size_t inputLen;
+	unsigned int repeatTimes;
 };
 
 bool HashModuleTest(HashTransformation &md, const HashTestTuple *testSet, unsigned int testSetSize)

@@ -44,7 +44,7 @@ word32 SEAL_Gamma::Apply(word32 i)
 }
 
 template <class B>
-void SEAL_Policy<B>::CipherSetKey(const NameValuePairs &params, const byte *key, unsigned int length)
+void SEAL_Policy<B>::CipherSetKey(const NameValuePairs &params, const byte *key, size_t length)
 {
 	m_insideCounter = m_outsideCounter = m_startCount = 0;
 
@@ -82,13 +82,13 @@ void SEAL_Policy<B>::SeekToIteration(lword iterationCount)
 }
 
 template <class B>
-void SEAL_Policy<B>::OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, unsigned int iterationCount)
+void SEAL_Policy<B>::OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount)
 {
 	KeystreamOutput<B> keystreamOutput(operation, output, input);
 	word32 a, b, c, d, n1, n2, n3, n4;
 	unsigned int p, q;
 
-	for (unsigned int iteration = 0; iteration < iterationCount; ++iteration)
+	for (size_t iteration = 0; iteration < iterationCount; ++iteration)
 	{
 #define Ttab(x) *(word32 *)((byte *)m_T.begin()+x)
 

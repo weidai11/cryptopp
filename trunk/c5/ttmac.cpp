@@ -25,7 +25,7 @@ void TTMAC_Base::Init()
 	m_digest[4] = m_digest[9] = m_key[4];
 }
 
-void TTMAC_Base::TruncatedFinal(byte *hash, unsigned int size)
+void TTMAC_Base::TruncatedFinal(byte *hash, size_t size)
 {
 	PadLastBlock(BlockSize() - 2*sizeof(HashWordType));
 	CorrectEndianess(m_data, m_data, BlockSize() - 2*sizeof(HashWordType));

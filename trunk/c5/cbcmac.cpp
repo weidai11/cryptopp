@@ -6,14 +6,14 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-void CBC_MAC_Base::CheckedSetKey(void *, Empty empty, const byte *key, unsigned int length, const NameValuePairs &params)
+void CBC_MAC_Base::CheckedSetKey(void *, Empty empty, const byte *key, size_t length, const NameValuePairs &params)
 {
 	AccessCipher().SetKey(key, length, params);
 	m_reg.CleanNew(AccessCipher().BlockSize());
 	m_counter = 0;
 }
 
-void CBC_MAC_Base::Update(const byte *input, unsigned int length)
+void CBC_MAC_Base::Update(const byte *input, size_t length)
 {
 	unsigned int blockSize = AccessCipher().BlockSize();
 
@@ -41,7 +41,7 @@ void CBC_MAC_Base::Update(const byte *input, unsigned int length)
 	}
 }
 
-void CBC_MAC_Base::TruncatedFinal(byte *mac, unsigned int size)
+void CBC_MAC_Base::TruncatedFinal(byte *mac, size_t size)
 {
 	ThrowIfInvalidTruncatedSize(size);
 

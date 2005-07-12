@@ -23,11 +23,11 @@ class RC2 : public RC2_Info, public BlockCipherDocumentation
 	{
 	public:
 		void UncheckedSetKey(CipherDir direction, const byte *key, unsigned int length, unsigned int effectiveKeyLength);
-		void SetKeyWithEffectiveKeyLength(const byte *key, unsigned int length, unsigned int effectiveKeyLength);
+		void SetKeyWithEffectiveKeyLength(const byte *key, size_t length, unsigned int effectiveKeyLength);
 
 	protected:
 		template <class T>
-		static inline void CheckedSetKey(T *obj, CipherDir dir, const byte *key, unsigned int length, const NameValuePairs &param)
+		static inline void CheckedSetKey(T *obj, CipherDir dir, const byte *key, size_t length, const NameValuePairs &param)
 		{
 			obj->ThrowIfInvalidKeyLength(length);
 			int effectiveKeyLength = param.GetIntValueWithDefault("EffectiveKeyLength", DEFAULT_EFFECTIVE_KEYLENGTH);
@@ -54,7 +54,7 @@ public:
 	{
 	public:
 		Encryption() {}
-		Encryption(const byte *key, unsigned int keyLen=DEFAULT_KEYLENGTH, unsigned int effectiveLen=1024)
+		Encryption(const byte *key, size_t keyLen=DEFAULT_KEYLENGTH, unsigned int effectiveLen=1024)
 			{SetKeyWithEffectiveKeyLength(key, keyLen, effectiveLen);}
 	};
 
@@ -62,7 +62,7 @@ public:
 	{
 	public:
 		Decryption() {}
-		Decryption(const byte *key, unsigned int keyLen=DEFAULT_KEYLENGTH, unsigned int effectiveLen=1024)
+		Decryption(const byte *key, size_t keyLen=DEFAULT_KEYLENGTH, unsigned int effectiveLen=1024)
 			{SetKeyWithEffectiveKeyLength(key, keyLen, effectiveLen);}
 	};
 };

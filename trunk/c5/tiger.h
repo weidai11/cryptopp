@@ -15,7 +15,7 @@ class Tiger : public IteratedHashWithStaticTransform<word64, LittleEndian, 64, 2
 public:
 	static void InitState(HashWordType *state);
 	static void Transform(word64 *digest, const word64 *data);
-	void TruncatedFinal(byte *hash, unsigned int size);
+	void TruncatedFinal(byte *hash, size_t size);
 	static const char * StaticAlgorithmName() {return "Tiger";}
 
 protected:

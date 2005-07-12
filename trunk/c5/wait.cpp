@@ -93,7 +93,7 @@ WaitObjectContainer::~WaitObjectContainer()
 				threadHandles[i] = thread.threadHandle;
 			}
 			PulseEvent(m_startWaiting);
-			::WaitForMultipleObjects(m_threads.size(), threadHandles, TRUE, INFINITE);
+			::WaitForMultipleObjects((DWORD)m_threads.size(), threadHandles, TRUE, INFINITE);
 			for (i=0; i<m_threads.size(); i++)
 				CloseHandle(threadHandles[i]);
 			CloseHandle(m_startWaiting);
@@ -140,7 +140,7 @@ DWORD WINAPI WaitingThread(LPVOID lParam)
 		handles[0] = thread.stopWaiting;
 		std::copy(thread.waitHandles, thread.waitHandles+thread.count, handles.begin()+1);
 
-		DWORD result = ::WaitForMultipleObjects(handles.size(), &handles[0], FALSE, INFINITE);
+		DWORD result = ::WaitForMultipleObjects((DWORD)handles.size(), &handles[0], FALSE, INFINITE);
 
 		if (result == WAIT_OBJECT_0)
 			continue;	// another thread finished waiting first, so do nothing
@@ -157,7 +157,7 @@ DWORD WINAPI WaitingThread(LPVOID lParam)
 
 void WaitObjectContainer::CreateThreads(unsigned int count)
 {
-	unsigned int currentCount = m_threads.size();
+	unsigned int currentCount = (unsigned int)m_threads.size();
 	if (currentCount == 0)
 	{
 		m_startWaiting = ::CreateEvent(NULL, TRUE, FALSE, NULL);
@@ -200,7 +200,7 @@ bool WaitObjectContainer::Wait(unsigned long milliseconds)
 	{
 		// too many wait objects for a single WaitForMultipleObjects call, so use multiple threads
 		static const unsigned int WAIT_OBJECTS_PER_THREAD = MAXIMUM_WAIT_OBJECTS-1;
-		unsigned int nThreads = (m_handles.size() + WAIT_OBJECTS_PER_THREAD - 1) / WAIT_OBJECTS_PER_THREAD;
+		unsigned int nThreads = unsigned int((m_handles.size() + WAIT_OBJECTS_PER_THREAD - 1) / WAIT_OBJECTS_PER_THREAD);
 		if (nThreads > MAXIMUM_WAIT_OBJECTS)	// still too many wait objects, maybe implement recursive threading later?
 			throw Err("WaitObjectContainer: number of wait objects exceeds limit");
 		CreateThreads(nThreads);
@@ -214,7 +214,7 @@ bool WaitObjectContainer::Wait(unsigned long milliseconds)
 			if (i<nThreads)
 			{
 				thread.waitHandles = &m_handles[i*WAIT_OBJECTS_PER_THREAD];
-				thread.count = STDMIN(WAIT_OBJECTS_PER_THREAD, m_handles.size() - i*WAIT_OBJECTS_PER_THREAD);
+				thread.count = STDMIN(WAIT_OBJECTS_PER_THREAD, (unsigned int)(m_handles.size() - i*WAIT_OBJECTS_PER_THREAD));
 				thread.error = &error;
 			}
 			else
@@ -245,7 +245,7 @@ bool WaitObjectContainer::Wait(unsigned long milliseconds)
 		static unsigned long lastTime = 0;
 		unsigned long timeBeforeWait = t.ElapsedTime();
 #endif
-		DWORD result = ::WaitForMultipleObjects(m_handles.size(), &m_handles[0], FALSE, milliseconds);
+		DWORD result = ::WaitForMultipleObjects((DWORD)m_handles.size(), &m_handles[0], FALSE, milliseconds);
 #if TRACE_WAIT
 		if (milliseconds > 0)
 		{

@@ -16,7 +16,7 @@ public:
 	/// digestSize can be 16, 20, 24, 28, or 32 (Default=32)<br>
 	/// pass can be 3, 4 or 5 (Default=3)
 	HAVAL(unsigned int digestSize=DIGESTSIZE, unsigned int passes=3);
-	void TruncatedFinal(byte *hash, unsigned int size);
+	void TruncatedFinal(byte *hash, size_t size);
 	unsigned int DigestSize() const {return digestSize;}
 
 	static const char * StaticAlgorithmName() {return "HAVAL";}

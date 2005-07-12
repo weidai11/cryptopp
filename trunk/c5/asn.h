@@ -56,24 +56,24 @@ public:
 };
 
 // unsigned int DERLengthEncode(unsigned int length, byte *output=0);
-CRYPTOPP_DLL unsigned int CRYPTOPP_API DERLengthEncode(BufferedTransformation &out, unsigned int length);
+CRYPTOPP_DLL size_t CRYPTOPP_API DERLengthEncode(BufferedTransformation &out, lword length);
 // returns false if indefinite length
-CRYPTOPP_DLL bool CRYPTOPP_API BERLengthDecode(BufferedTransformation &in, unsigned int &length);
+CRYPTOPP_DLL bool CRYPTOPP_API BERLengthDecode(BufferedTransformation &in, size_t &length);
 
 CRYPTOPP_DLL void CRYPTOPP_API DEREncodeNull(BufferedTransformation &out);
 CRYPTOPP_DLL void CRYPTOPP_API BERDecodeNull(BufferedTransformation &in);
 
-CRYPTOPP_DLL unsigned int CRYPTOPP_API DEREncodeOctetString(BufferedTransformation &out, const byte *str, unsigned int strLen);
-CRYPTOPP_DLL unsigned int CRYPTOPP_API DEREncodeOctetString(BufferedTransformation &out, const SecByteBlock &str);
-CRYPTOPP_DLL unsigned int CRYPTOPP_API BERDecodeOctetString(BufferedTransformation &in, SecByteBlock &str);
-CRYPTOPP_DLL unsigned int CRYPTOPP_API BERDecodeOctetString(BufferedTransformation &in, BufferedTransformation &str);
+CRYPTOPP_DLL size_t CRYPTOPP_API DEREncodeOctetString(BufferedTransformation &out, const byte *str, size_t strLen);
+CRYPTOPP_DLL size_t CRYPTOPP_API DEREncodeOctetString(BufferedTransformation &out, const SecByteBlock &str);
+CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodeOctetString(BufferedTransformation &in, SecByteBlock &str);
+CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodeOctetString(BufferedTransformation &in, BufferedTransformation &str);
 
 // for UTF8_STRING, PRINTABLE_STRING, and IA5_STRING
-CRYPTOPP_DLL unsigned int CRYPTOPP_API DEREncodeTextString(BufferedTransformation &out, const std::string &str, byte asnTag);
-CRYPTOPP_DLL unsigned int CRYPTOPP_API BERDecodeTextString(BufferedTransformation &in, std::string &str, byte asnTag);
+CRYPTOPP_DLL size_t CRYPTOPP_API DEREncodeTextString(BufferedTransformation &out, const std::string &str, byte asnTag);
+CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodeTextString(BufferedTransformation &in, std::string &str, byte asnTag);
 
-CRYPTOPP_DLL unsigned int CRYPTOPP_API DEREncodeBitString(BufferedTransformation &out, const byte *str, unsigned int strLen, unsigned int unusedBits=0);
-CRYPTOPP_DLL unsigned int CRYPTOPP_API BERDecodeBitString(BufferedTransformation &in, SecByteBlock &str, unsigned int &unusedBits);
+CRYPTOPP_DLL size_t CRYPTOPP_API DEREncodeBitString(BufferedTransformation &out, const byte *str, size_t strLen, unsigned int unusedBits=0);
+CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodeBitString(BufferedTransformation &in, SecByteBlock &str, unsigned int &unusedBits);
 
 // BER decode from source and DER reencode into dest
 CRYPTOPP_DLL void CRYPTOPP_API DERReencode(BufferedTransformation &source, BufferedTransformation &dest);
@@ -83,10 +83,10 @@ class CRYPTOPP_DLL OID
 {
 public:
 	OID() {}
-	OID(unsigned long v) : m_values(1, v) {}
+	OID(word32 v) : m_values(1, v) {}
 	OID(BufferedTransformation &bt) {BERDecode(bt);}
 
-	inline OID & operator+=(unsigned long rhs) {m_values.push_back(rhs); return *this;}
+	inline OID & operator+=(word32 rhs) {m_values.push_back(rhs); return *this;}
 
 	void DEREncode(BufferedTransformation &bt) const;
 	void BERDecode(BufferedTransformation &bt);
@@ -94,11 +94,11 @@ public:
 	// throw BERDecodeErr() if decoded value doesn't equal this OID
 	void BERDecodeAndCheck(BufferedTransformation &bt) const;
 
-	std::vector<unsigned long> m_values;
+	std::vector<word32> m_values;
 
 private:
-	static void EncodeValue(BufferedTransformation &bt, unsigned long v);
-	static unsigned int DecodeValue(BufferedTransformation &bt, unsigned long &v);
+	static void EncodeValue(BufferedTransformation &bt, word32 v);
+	static size_t DecodeValue(BufferedTransformation &bt, word32 &v);
 };
 
 class EncodedObjectFilter : public Filter
@@ -107,7 +107,7 @@ public:
 	enum Flag {PUT_OBJECTS=1, PUT_MESSANGE_END_AFTER_EACH_OBJECT=2, PUT_MESSANGE_END_AFTER_ALL_OBJECTS=4, PUT_MESSANGE_SERIES_END_AFTER_ALL_OBJECTS=8};
 	EncodedObjectFilter(BufferedTransformation *attachment = NULL, unsigned int nObjects = 1, word32 flags = 0);
 
-	void Put(const byte *inString, unsigned int length);
+	void Put(const byte *inString, size_t length);
 
 	unsigned int GetNumberOfCompletedObjects() const {return m_nCurrentObject;}
 	unsigned long GetPositionOfObject(unsigned int i) const {return m_positions[i];}
@@ -121,7 +121,7 @@ private:
 	ByteQueue m_queue;
 	enum State {IDENTIFIER, LENGTH, BODY, TAIL, ALL_DONE} m_state;
 	byte m_id;
-	unsigned int m_lengthRemaining;
+	lword m_lengthRemaining;
 };
 
 //! BER General Decoder
@@ -133,13 +133,13 @@ public:
 	~BERGeneralDecoder();
 
 	bool IsDefiniteLength() const {return m_definiteLength;}
-	unsigned int RemainingLength() const {assert(m_definiteLength); return m_length;}
+	lword RemainingLength() const {assert(m_definiteLength); return m_length;}
 	bool EndReached() const;
 	byte PeekByte() const;
 	void CheckByte(byte b);
 
-	unsigned int TransferTo2(BufferedTransformation &target, unsigned long &transferBytes, const std::string &channel=NULL_CHANNEL, bool blocking=true);
-	unsigned int CopyRangeTo2(BufferedTransformation &target, unsigned long &begin, unsigned long end=ULONG_MAX, const std::string &channel=NULL_CHANNEL, bool blocking=true) const;
+	size_t TransferTo2(BufferedTransformation &target, lword &transferBytes, const std::string &channel=NULL_CHANNEL, bool blocking=true);
+	size_t CopyRangeTo2(BufferedTransformation &target, lword &begin, lword end=LWORD_MAX, const std::string &channel=NULL_CHANNEL, bool blocking=true) const;
 
 	// call this to denote end of sequence
 	void MessageEnd();
@@ -147,12 +147,12 @@ public:
 protected:
 	BufferedTransformation &m_inQueue;
 	bool m_finished, m_definiteLength;
-	unsigned int m_length;
+	lword m_length;
 
 private:
 	void Init(byte asnTag);
 	void StoreInitialize(const NameValuePairs &parameters) {assert(false);}
-	unsigned int ReduceLength(unsigned int delta);
+	lword ReduceLength(lword delta);
 };
 
 //! DER General Encoder
@@ -242,7 +242,7 @@ public:
 		{DEREncodeNull(bt); return false;}	// see RFC 2459, section 7.3.1
 	//! decode subjectPublicKey part of subjectPublicKeyInfo, or privateKey part of privateKeyInfo, without the BIT STRING or OCTET STRING header
 	virtual void BERDecodeKey(BufferedTransformation &bt) {assert(false);}
-	virtual void BERDecodeKey2(BufferedTransformation &bt, bool parametersPresent, unsigned int size)
+	virtual void BERDecodeKey2(BufferedTransformation &bt, bool parametersPresent, size_t size)
 		{BERDecodeKey(bt);}
 	//! encode subjectPublicKey part of subjectPublicKeyInfo, or privateKey part of privateKeyInfo, without the BIT STRING or OCTET STRING header
 	virtual void DEREncodeKey(BufferedTransformation &bt) const =0;
@@ -278,7 +278,7 @@ private:
 //! DER Encode Unsigned
 /*! for INTEGER, BOOLEAN, and ENUM */
 template <class T>
-unsigned int DEREncodeUnsigned(BufferedTransformation &out, T w, byte asnTag = INTEGER)
+size_t DEREncodeUnsigned(BufferedTransformation &out, T w, byte asnTag = INTEGER)
 {
 	byte buf[sizeof(w)+1];
 	unsigned int bc;
@@ -299,7 +299,7 @@ unsigned int DEREncodeUnsigned(BufferedTransformation &out, T w, byte asnTag = I
 			++bc;
 	}
 	out.Put(asnTag);
-	unsigned int lengthBytes = DERLengthEncode(out, bc);
+	size_t lengthBytes = DERLengthEncode(out, bc);
 	out.Put(buf+sizeof(w)+1-bc, bc);
 	return 1+lengthBytes+bc;
 }
@@ -315,7 +315,7 @@ void BERDecodeUnsigned(BufferedTransformation &in, T &w, byte asnTag = INTEGER,
 	if (!in.Get(b) || b != asnTag)
 		BERDecodeError();
 
-	unsigned int bc;
+	size_t bc;
 	BERLengthDecode(in, bc);
 
 	SecByteBlock buf(bc);

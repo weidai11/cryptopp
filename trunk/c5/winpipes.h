@@ -64,7 +64,7 @@ public:
 	WindowsPipeReceiver();
 
 	bool MustWaitForResult() {return true;}
-	bool Receive(byte* buf, unsigned int bufLen);
+	bool Receive(byte* buf, size_t bufLen);
 	unsigned int GetReceiveResult();
 	bool EofReceived() const {return m_eofReceived;}
 
@@ -86,7 +86,7 @@ public:
 	WindowsPipeSender();
 
 	bool MustWaitForResult() {return true;}
-	void Send(const byte* buf, unsigned int bufLen);
+	void Send(const byte* buf, size_t bufLen);
 	unsigned int GetSendResult();
 	void SendEof() {}
 

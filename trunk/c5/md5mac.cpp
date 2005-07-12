@@ -47,7 +47,7 @@ void MD5MAC_Base::Init()
 	m_digest[3] = m_key[3];
 }
 
-void MD5MAC_Base::TruncatedFinal(byte *hash, unsigned int size)
+void MD5MAC_Base::TruncatedFinal(byte *hash, size_t size)
 {
 	ThrowIfInvalidTruncatedSize(size);
 

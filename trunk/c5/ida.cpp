@@ -65,7 +65,7 @@ skipFind:
 		if (m_inputChannelIds.size() == m_threshold)
 			return m_threshold;
 
-		m_lastMapPosition = m_inputChannelMap.insert(pair<const unsigned long, unsigned int>(channelId, m_inputChannelIds.size())).first;
+		m_lastMapPosition = m_inputChannelMap.insert(InputChannelMap::value_type(channelId, (unsigned int)m_inputChannelIds.size())).first;
 		m_inputQueues.push_back(MessageQueue());
 		m_inputChannelIds.push_back(channelId);
 
@@ -84,12 +84,12 @@ unsigned int RawIDA::LookupInputChannel(word32 channelId) const
 		return it->second;
 }
 
-void RawIDA::ChannelData(word32 channelId, const byte *inString, unsigned int length, bool messageEnd)
+void RawIDA::ChannelData(word32 channelId, const byte *inString, size_t length, bool messageEnd)
 {
 	int i = InsertInputChannel(channelId);
 	if (i < m_threshold)
 	{
-		unsigned long size = m_inputQueues[i].MaxRetrievable();
+		lword size = m_inputQueues[i].MaxRetrievable();
 		m_inputQueues[i].Put(inString, length);
 		if (size < 4 && size + length >= 4)
 		{
@@ -116,7 +116,7 @@ void RawIDA::ChannelData(word32 channelId, const byte *inString, unsigned int le
 	}
 }
 
-unsigned int RawIDA::InputBuffered(word32 channelId) const
+lword RawIDA::InputBuffered(word32 channelId) const
 {
 	int i = LookupInputChannel(channelId);
 	return i < m_threshold ? m_inputQueues[i].MaxRetrievable() : 0;
@@ -144,7 +144,7 @@ void RawIDA::AddOutputChannel(word32 channelId)
 	m_outputChannelIdStrings.push_back(WordToString(channelId));
 	m_outputQueues.push_back(ByteQueue());
 	if (m_inputChannelIds.size() == m_threshold)
-		ComputeV(m_outputChannelIds.size() - 1);
+		ComputeV((unsigned int)m_outputChannelIds.size() - 1);
 }
 
 void RawIDA::PrepareInterpolation()
@@ -239,16 +239,16 @@ void SecretSharing::IsolatedInitialize(const NameValuePairs &parameters)
 	m_ida.IsolatedInitialize(parameters);
 }
 
-unsigned int SecretSharing::Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking)
+size_t SecretSharing::Put2(const byte *begin, size_t length, int messageEnd, bool blocking)
 {
 	if (!blocking)
 		throw BlockingInputOnly("SecretSharing");
 
-	SecByteBlock buf(STDMIN(length, 256U));
+	SecByteBlock buf(UnsignedMin(256, length));
 	unsigned int threshold = m_ida.GetThreshold();
 	while (length > 0)
 	{
-		unsigned int len = STDMIN(length, (unsigned int)buf.size());
+		size_t len = STDMIN(length, buf.size());
 		m_ida.ChannelData(0xffffffff, begin, len, false);
 		for (unsigned int i=0; i<threshold-1; i++)
 		{
@@ -311,7 +311,7 @@ void InformationDispersal::IsolatedInitialize(const NameValuePairs &parameters)
 	m_ida.IsolatedInitialize(parameters);
 }
 
-unsigned int InformationDispersal::Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking)
+size_t InformationDispersal::Put2(const byte *begin, size_t length, int messageEnd, bool blocking)
 {
 	if (!blocking)
 		throw BlockingInputOnly("InformationDispersal");
@@ -369,7 +369,7 @@ void InformationRecovery::OutputMessageEnds()
 		AttachedTransformation()->MessageEnd(GetAutoSignalPropagation()-1);
 }
 
-unsigned int PaddingRemover::Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking)
+size_t PaddingRemover::Put2(const byte *begin, size_t length, int messageEnd, bool blocking)
 {
 	if (!blocking)
 		throw BlockingInputOnly("PaddingRemover");
@@ -378,7 +378,7 @@ unsigned int PaddingRemover::Put2(const byte *begin, unsigned int length, int me
 
 	if (m_possiblePadding)
 	{
-		unsigned int len = find_if(begin, end, bind2nd(not_equal_to<byte>(), 0)) - begin;
+		size_t len = find_if(begin, end, bind2nd(not_equal_to<byte>(), 0)) - begin;
 		m_zeroCount += len;
 		begin += len;
 		if (begin == end)

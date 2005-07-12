@@ -23,7 +23,7 @@ public:
 
 	XMACC_Base() {SetStateSize(T::DIGESTSIZE);}
 
-	void CheckedSetKey(void *, Empty empty, const byte *key, unsigned int length, const NameValuePairs &params);
+	void CheckedSetKey(void *, Empty empty, const byte *key, size_t length, const NameValuePairs &params);
 	void Resynchronize(const byte *IV)
 	{
 		GetWord(false, BIG_ENDIAN_ORDER, m_counter, IV);
@@ -40,8 +40,8 @@ public:
 
 	word32 CurrentCounter() const {return m_counter;}
 
-	void TruncatedFinal(byte *mac, unsigned int size);
-	bool TruncatedVerify(const byte *mac, unsigned int length);
+	void TruncatedFinal(byte *mac, size_t size);
+	bool TruncatedVerify(const byte *mac, size_t length);
 	unsigned int DigestSize() const {return DIGESTSIZE;}	// need to override this
 
 private:
@@ -70,7 +70,7 @@ public:
 		{this->SetKey(key, this->KEYLENGTH, MakeParameters(Name::XMACC_Counter(), counter));}
 };
 
-template <class T> void XMACC_Base<T>::CheckedSetKey(void *, Empty empty, const byte *key, unsigned int length, const NameValuePairs &params)
+template <class T> void XMACC_Base<T>::CheckedSetKey(void *, Empty empty, const byte *key, size_t length, const NameValuePairs &params)
 {
 	this->ThrowIfInvalidKeyLength(length);
 	m_counter = 0xffffffff;
@@ -112,7 +112,7 @@ template <class T> void XMACC_Base<T>::HashEndianCorrectedBlock(const HashWordTy
 	XorDigest(this->m_digest, m_buffer);
 }
 
-template <class T> void XMACC_Base<T>::TruncatedFinal(byte *mac, unsigned int size)
+template <class T> void XMACC_Base<T>::TruncatedFinal(byte *mac, size_t size)
 {
 	this->ThrowIfInvalidTruncatedSize(size);
 	if (size < 4)
@@ -142,7 +142,7 @@ template <class T> void XMACC_Base<T>::TruncatedFinal(byte *mac, unsigned int si
 	this->Restart();		// reinit for next use
 }
 
-template <class T> bool XMACC_Base<T>::TruncatedVerify(const byte *mac, unsigned int size)
+template <class T> bool XMACC_Base<T>::TruncatedVerify(const byte *mac, size_t size)
 {
 	assert(4 <= size && size <= DIGESTSIZE);
 

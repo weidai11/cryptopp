@@ -18,11 +18,11 @@ class DefaultEncryptor : public ProxyFilter
 {
 public:
 	DefaultEncryptor(const char *passphrase, BufferedTransformation *attachment = NULL);
-	DefaultEncryptor(const byte *passphrase, unsigned int passphraseLength, BufferedTransformation *attachment = NULL);
+	DefaultEncryptor(const byte *passphrase, size_t passphraseLength, BufferedTransformation *attachment = NULL);
 
 protected:
 	void FirstPut(const byte *);
-	void LastPut(const byte *inString, unsigned int length);
+	void LastPut(const byte *inString, size_t length);
 
 private:
 	SecByteBlock m_passphrase;
@@ -34,7 +34,7 @@ class DefaultDecryptor : public ProxyFilter
 {
 public:
 	DefaultDecryptor(const char *passphrase, BufferedTransformation *attachment = NULL, bool throwException=true);
-	DefaultDecryptor(const byte *passphrase, unsigned int passphraseLength, BufferedTransformation *attachment = NULL, bool throwException=true);
+	DefaultDecryptor(const byte *passphrase, size_t passphraseLength, BufferedTransformation *attachment = NULL, bool throwException=true);
 
 	class Err : public Exception
 	{
@@ -49,7 +49,7 @@ public:
 
 protected:
 	void FirstPut(const byte *inString);
-	void LastPut(const byte *inString, unsigned int length);
+	void LastPut(const byte *inString, size_t length);
 
 	State m_state;
 
@@ -67,11 +67,11 @@ class DefaultEncryptorWithMAC : public ProxyFilter
 {
 public:
 	DefaultEncryptorWithMAC(const char *passphrase, BufferedTransformation *attachment = NULL);
-	DefaultEncryptorWithMAC(const byte *passphrase, unsigned int passphraseLength, BufferedTransformation *attachment = NULL);
+	DefaultEncryptorWithMAC(const byte *passphrase, size_t passphraseLength, BufferedTransformation *attachment = NULL);
 
 protected:
 	void FirstPut(const byte *inString) {}
-	void LastPut(const byte *inString, unsigned int length);
+	void LastPut(const byte *inString, size_t length);
 
 private:
 	member_ptr<DefaultMAC> m_mac;
@@ -84,14 +84,14 @@ public:
 	class MACBadErr : public DefaultDecryptor::Err {public: MACBadErr() : DefaultDecryptor::Err("DefaultDecryptorWithMAC: MAC check failed") {}};
 
 	DefaultDecryptorWithMAC(const char *passphrase, BufferedTransformation *attachment = NULL, bool throwException=true);
-	DefaultDecryptorWithMAC(const byte *passphrase, unsigned int passphraseLength, BufferedTransformation *attachment = NULL, bool throwException=true);
+	DefaultDecryptorWithMAC(const byte *passphrase, size_t passphraseLength, BufferedTransformation *attachment = NULL, bool throwException=true);
 
 	DefaultDecryptor::State CurrentState() const;
 	bool CheckLastMAC() const;
 
 protected:
 	void FirstPut(const byte *inString) {}
-	void LastPut(const byte *inString, unsigned int length);
+	void LastPut(const byte *inString, size_t length);
 
 private:
 	member_ptr<DefaultMAC> m_mac;

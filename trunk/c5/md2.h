@@ -12,8 +12,8 @@ class MD2 : public HashTransformation
 {
 public:
 	MD2();
-	void Update(const byte *input, unsigned int length);
-	void TruncatedFinal(byte *hash, unsigned int size);
+	void Update(const byte *input, size_t length);
+	void TruncatedFinal(byte *hash, size_t size);
 	unsigned int DigestSize() const {return DIGESTSIZE;}
 	static const char * StaticAlgorithmName() {return "MD2";}
 

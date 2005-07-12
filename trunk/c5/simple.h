@@ -32,7 +32,7 @@ public:
 class CRYPTOPP_DLL InvalidKeyLength : public InvalidArgument
 {
 public:
-	explicit InvalidKeyLength(const std::string &algorithm, unsigned int length) : InvalidArgument(algorithm + ": " + IntToString(length) + " is not a valid key length") {}
+	explicit InvalidKeyLength(const std::string &algorithm, size_t length) : InvalidArgument(algorithm + ": " + IntToString(length) + " is not a valid key length") {}
 };
 
 //! _
@@ -96,12 +96,12 @@ public:
 		{InputRejected() : NotImplemented("BufferedTransformation: this object doesn't allow input") {}};
 
 	// shouldn't be calling these functions on this class
-	unsigned int Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking)
+	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking)
 		{throw InputRejected();}
 	bool IsolatedFlush(bool, bool) {return false;}
 	bool IsolatedMessageSeriesEnd(bool) {throw InputRejected();}
 
-	unsigned int ChannelPut2(const std::string &channel, const byte *begin, unsigned int length, int messageEnd, bool blocking)
+	size_t ChannelPut2(const std::string &channel, const byte *begin, size_t length, int messageEnd, bool blocking)
 		{throw InputRejected();}
 	bool ChannelMessageSeriesEnd(const std::string &, int, bool) {throw InputRejected();}
 };
@@ -137,22 +137,22 @@ public:
 		{return ChannelFlush(this->NULL_CHANNEL, hardFlush, propagation, blocking);}
 	bool MessageSeriesEnd(int propagation=-1, bool blocking=true)
 		{return ChannelMessageSeriesEnd(this->NULL_CHANNEL, propagation, blocking);}
-	byte * CreatePutSpace(unsigned int &size)
+	byte * CreatePutSpace(size_t &size)
 		{return ChannelCreatePutSpace(this->NULL_CHANNEL, size);}
-	unsigned int Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking)
+	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking)
 		{return ChannelPut2(this->NULL_CHANNEL, begin, length, messageEnd, blocking);}
-	unsigned int PutModifiable2(byte *inString, unsigned int length, int messageEnd, bool blocking)
+	size_t PutModifiable2(byte *inString, size_t length, int messageEnd, bool blocking)
 		{return ChannelPutModifiable2(this->NULL_CHANNEL, inString, length, messageEnd, blocking);}
 
 //	void ChannelMessageSeriesEnd(const std::string &channel, int propagation=-1)
 //		{PropagateMessageSeriesEnd(propagation, channel);}
-	byte * ChannelCreatePutSpace(const std::string &channel, unsigned int &size)
+	byte * ChannelCreatePutSpace(const std::string &channel, size_t &size)
 		{size = 0; return NULL;}
-	bool ChannelPutModifiable(const std::string &channel, byte *inString, unsigned int length)
+	bool ChannelPutModifiable(const std::string &channel, byte *inString, size_t length)
 		{this->ChannelPut(channel, inString, length); return false;}
 
-	virtual unsigned int ChannelPut2(const std::string &channel, const byte *begin, unsigned int length, int messageEnd, bool blocking) =0;
-	unsigned int ChannelPutModifiable2(const std::string &channel, byte *begin, unsigned int length, int messageEnd, bool blocking)
+	virtual size_t ChannelPut2(const std::string &channel, const byte *begin, size_t length, int messageEnd, bool blocking) =0;
+	size_t ChannelPutModifiable2(const std::string &channel, byte *begin, size_t length, int messageEnd, bool blocking)
 		{return ChannelPut2(channel, begin, length, messageEnd, blocking);}
 
 	virtual bool ChannelFlush(const std::string &channel, bool hardFlush, int propagation=-1, bool blocking=true) =0;
@@ -210,9 +210,9 @@ protected:
 	BufferedTransformation::CopyMessagesTo;
 	BufferedTransformation::TransferAllTo;
 	BufferedTransformation::CopyAllTo;
-	unsigned int TransferTo2(BufferedTransformation &target, unsigned long &transferBytes, const std::string &channel=NULL_CHANNEL, bool blocking=true)
+	size_t TransferTo2(BufferedTransformation &target, lword &transferBytes, const std::string &channel=NULL_CHANNEL, bool blocking=true)
 		{transferBytes = 0; return 0;}
-	unsigned int CopyRangeTo2(BufferedTransformation &target, unsigned long &begin, unsigned long end=ULONG_MAX, const std::string &channel=NULL_CHANNEL, bool blocking=true) const
+	size_t CopyRangeTo2(BufferedTransformation &target, lword &begin, lword end=LWORD_MAX, const std::string &channel=NULL_CHANNEL, bool blocking=true) const
 		{return 0;}
 };
 
@@ -221,7 +221,7 @@ class CRYPTOPP_DLL BitBucket : public Bufferless<Sink>
 public:
 	std::string AlgorithmName() const {return "BitBucket";}
 	void IsolatedInitialize(const NameValuePairs &parameters) {}
-	unsigned int Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking)
+	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking)
 		{return 0;}
 };
 

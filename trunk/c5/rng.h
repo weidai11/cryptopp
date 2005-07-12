@@ -56,7 +56,7 @@ class MaurerRandomnessTest : public Bufferless<Sink>
 public:
 	MaurerRandomnessTest();
 
-	unsigned int Put2(const byte *inString, unsigned int length, int messageEnd, bool blocking);
+	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking);
 
 	// BytesNeeded() returns how many more bytes of input is needed by the test
 	// GetTestValue() should not be called before BytesNeeded()==0

@@ -20,8 +20,8 @@ public:
 	void GetNextIV(byte *IV) const {UnalignedPutWord(BIG_ENDIAN_ORDER, IV, m_outsideCounter+1);}
 
 protected:
-	void CipherSetKey(const NameValuePairs &params, const byte *key, unsigned int length);
-	void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, unsigned int iterationCount);
+	void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length);
+	void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount);
 	void CipherResynchronize(byte *keystreamBuffer, const byte *IV);
 	bool IsRandomAccess() const {return true;}
 	void SeekToIteration(lword iterationCount);

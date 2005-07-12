@@ -30,10 +30,10 @@ public:
 
 	std::istream* GetStream() {return m_stream;}
 
-	unsigned long MaxRetrievable() const;
-	unsigned int TransferTo2(BufferedTransformation &target, unsigned long &transferBytes, const std::string &channel=NULL_CHANNEL, bool blocking=true);
-	unsigned int CopyRangeTo2(BufferedTransformation &target, unsigned long &begin, unsigned long end=ULONG_MAX, const std::string &channel=NULL_CHANNEL, bool blocking=true) const;
-	unsigned long Skip(unsigned long skipMax=ULONG_MAX);
+	lword MaxRetrievable() const;
+	size_t TransferTo2(BufferedTransformation &target, lword &transferBytes, const std::string &channel=NULL_CHANNEL, bool blocking=true);
+	size_t CopyRangeTo2(BufferedTransformation &target, lword &begin, lword end=LWORD_MAX, const std::string &channel=NULL_CHANNEL, bool blocking=true) const;
+	lword Skip(lword skipMax=ULONG_MAX);
 
 private:
 	void StoreInitialize(const NameValuePairs &parameters);
@@ -41,7 +41,7 @@ private:
 	member_ptr<std::ifstream> m_file;
 	std::istream *m_stream;
 	byte *m_space;
-	unsigned int m_len;
+	size_t m_len;
 	bool m_waiting;
 };
 
@@ -84,7 +84,7 @@ public:
 	std::ostream* GetStream() {return m_stream;}
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
-	unsigned int Put2(const byte *inString, unsigned int length, int messageEnd, bool blocking);
+	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking);
 	bool IsolatedFlush(bool hardFlush, bool blocking);
 
 private:

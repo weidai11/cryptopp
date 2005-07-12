@@ -203,11 +203,16 @@ template <class T, class A = AllocatorWithCleanup<T> >
 class SecBlock
 {
 public:
-    explicit SecBlock(unsigned int size=0)
+	typedef typename A::value_type value_type;
+	typedef typename A::pointer iterator;
+	typedef typename A::const_pointer const_iterator;
+	typedef typename A::size_type size_type;
+
+    explicit SecBlock(size_type size=0)
 		: m_size(size) {m_ptr = m_alloc.allocate(size, NULL);}
 	SecBlock(const SecBlock<T, A> &t)
 		: m_size(t.m_size) {m_ptr = m_alloc.allocate(m_size, NULL); memcpy(m_ptr, t.m_ptr, m_size*sizeof(T));}
-	SecBlock(const T *t, unsigned int len)
+	SecBlock(const T *t, size_type len)
 		: m_size(len)
 	{
 		m_ptr = m_alloc.allocate(len, NULL);
@@ -238,26 +243,17 @@ public:
 		{return m_ptr;}
 #endif
 
-	template <typename I>
-	T *operator +(I offset)
-		{return m_ptr+offset;}
+//	T *operator +(size_type offset)
+//		{return m_ptr+offset;}
 
-	template <typename I>
-	const T *operator +(I offset) const
-		{return m_ptr+offset;}
+//	const T *operator +(size_type offset) const
+//		{return m_ptr+offset;}
 
-	template <typename I>
-	T& operator[](I index)
-		{assert(index >= 0 && (unsigned int)index < m_size); return m_ptr[index];}
+//	T& operator[](size_type index)
+//		{assert(index >= 0 && index < m_size); return m_ptr[index];}
 
-	template <typename I>
-	const T& operator[](I index) const
-		{assert(index >= 0 && (unsigned int)index < m_size); return m_ptr[index];}
-
-	typedef typename A::value_type value_type;
-	typedef typename A::pointer iterator;
-	typedef typename A::const_pointer const_iterator;
-	typedef typename A::size_type size_type;
+//	const T& operator[](size_type index) const
+//		{assert(index >= 0 && index < m_size); return m_ptr[index];}
 
 	iterator begin()
 		{return m_ptr;}
@@ -274,7 +270,7 @@ public:
 	size_type size() const {return m_size;}
 	bool empty() const {return m_size == 0;}
 
-	void Assign(const T *t, unsigned int len)
+	void Assign(const T *t, size_type len)
 	{
 		New(len);
 		memcpy(m_ptr, t, len*sizeof(T));
@@ -294,7 +290,7 @@ public:
 
 	SecBlock<T, A>& operator+=(const SecBlock<T, A> &t)
 	{
-		unsigned int oldSize = m_size;
+		size_type oldSize = m_size;
 		Grow(m_size+t.m_size);
 		memcpy(m_ptr+oldSize, t.m_ptr, t.m_size*sizeof(T));
 		return *this;
@@ -318,19 +314,19 @@ public:
 		return !operator==(t);
 	}
 
-	void New(unsigned int newSize)
+	void New(size_type newSize)
 	{
 		m_ptr = m_alloc.reallocate(m_ptr, m_size, newSize, false);
 		m_size = newSize;
 	}
 
-	void CleanNew(unsigned int newSize)
+	void CleanNew(size_type newSize)
 	{
 		New(newSize);
 		memset(m_ptr, 0, m_size*sizeof(T));
 	}
 
-	void Grow(unsigned int newSize)
+	void Grow(size_type newSize)
 	{
 		if (newSize > m_size)
 		{
@@ -339,7 +335,7 @@ public:
 		}
 	}
 
-	void CleanGrow(unsigned int newSize)
+	void CleanGrow(size_type newSize)
 	{
 		if (newSize > m_size)
 		{
@@ -349,7 +345,7 @@ public:
 		}
 	}
 
-	void resize(unsigned int newSize)
+	void resize(size_type newSize)
 	{
 		m_ptr = m_alloc.reallocate(m_ptr, m_size, newSize, true);
 		m_size = newSize;
@@ -364,7 +360,7 @@ public:
 
 //private:
 	A m_alloc;
-	unsigned int m_size;
+	size_type m_size;
 	T *m_ptr;
 };
 
@@ -382,7 +378,7 @@ template <class T, unsigned int S, class A = FixedSizeAllocatorWithCleanup<T, S,
 class SecBlockWithHint : public SecBlock<T, A>
 {
 public:
-	explicit SecBlockWithHint(unsigned int size) : SecBlock<T, A>(size) {}
+	explicit SecBlockWithHint(size_t size) : SecBlock<T, A>(size) {}
 };
 
 template<class T, class U>

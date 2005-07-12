@@ -24,7 +24,7 @@ public:
 	}
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
-	unsigned int Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking);
+	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking);
 
 private:
 	const byte *m_alphabet;
@@ -47,7 +47,7 @@ public:
 	}
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
-	unsigned int Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking);
+	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking);
 
 	static void InitializeDecodingLookupArray(int *lookup, const byte *alphabet, unsigned int base, bool caseInsensitive);
 
@@ -74,11 +74,11 @@ public:
 	}
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
-	unsigned int Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking);
+	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking);
 
 private:
 	SecByteBlock m_separator, m_terminator;
-	unsigned int m_groupSize, m_counter;
+	size_t m_groupSize, m_counter;
 };
 
 NAMESPACE_END

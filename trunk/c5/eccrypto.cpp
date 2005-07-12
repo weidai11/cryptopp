@@ -70,9 +70,9 @@ template<> struct EcRecommendedParameters<EC2N>
 		StringSource ssA(a, true, new HexDecoder);
 		StringSource ssB(b, true, new HexDecoder);
 		if (t0 == 0)
-			return new EC2N(GF2NT(t2, t3, t4), EC2N::FieldElement(ssA, ssA.MaxRetrievable()), EC2N::FieldElement(ssB, ssB.MaxRetrievable()));
+			return new EC2N(GF2NT(t2, t3, t4), EC2N::FieldElement(ssA, (size_t)ssA.MaxRetrievable()), EC2N::FieldElement(ssB, (size_t)ssB.MaxRetrievable()));
 		else
-			return new EC2N(GF2NPP(t0, t1, t2, t3, t4), EC2N::FieldElement(ssA, ssA.MaxRetrievable()), EC2N::FieldElement(ssB, ssB.MaxRetrievable()));
+			return new EC2N(GF2NPP(t0, t1, t2, t3, t4), EC2N::FieldElement(ssA, (size_t)ssA.MaxRetrievable()), EC2N::FieldElement(ssB, (size_t)ssB.MaxRetrievable()));
 	};
 
 	OID oid;
@@ -90,7 +90,7 @@ template<> struct EcRecommendedParameters<ECP>
 		StringSource ssP(p, true, new HexDecoder);
 		StringSource ssA(a, true, new HexDecoder);
 		StringSource ssB(b, true, new HexDecoder);
-		return new ECP(Integer(ssP, ssP.MaxRetrievable()), ECP::FieldElement(ssA, ssA.MaxRetrievable()), ECP::FieldElement(ssB, ssB.MaxRetrievable()));
+		return new ECP(Integer(ssP, (size_t)ssP.MaxRetrievable()), ECP::FieldElement(ssA, (size_t)ssA.MaxRetrievable()), ECP::FieldElement(ssB, (size_t)ssB.MaxRetrievable()));
 	};
 
 	OID oid;
@@ -379,12 +379,12 @@ template <class EC> void DL_GroupParameters_EC<EC>::Initialize(const OID &oid)
 
 	StringSource ssG(param.g, true, new HexDecoder);
 	Element G;
-	bool result = GetCurve().DecodePoint(G, ssG, ssG.MaxRetrievable());
+	bool result = GetCurve().DecodePoint(G, ssG, (size_t)ssG.MaxRetrievable());
 	SetSubgroupGenerator(G);
 	assert(result);
 
 	StringSource ssN(param.n, true, new HexDecoder);
-	m_n.Decode(ssN, ssN.MaxRetrievable());
+	m_n.Decode(ssN, (size_t)ssN.MaxRetrievable());
 	m_k = param.h;
 }
 
@@ -568,7 +568,7 @@ OID DL_GroupParameters_EC<EC>::GetAlgorithmID() const
 // ******************************************************************
 
 template <class EC>
-void DL_PublicKey_EC<EC>::BERDecodeKey2(BufferedTransformation &bt, bool parametersPresent, unsigned int size)
+void DL_PublicKey_EC<EC>::BERDecodeKey2(BufferedTransformation &bt, bool parametersPresent, size_t size)
 {
 	typename EC::Point P;
 	if (!this->GetGroupParameters().GetCurve().DecodePoint(P, bt, size))
@@ -585,7 +585,7 @@ void DL_PublicKey_EC<EC>::DEREncodeKey(BufferedTransformation &bt) const
 // ******************************************************************
 
 template <class EC>
-void DL_PrivateKey_EC<EC>::BERDecodeKey2(BufferedTransformation &bt, bool parametersPresent, unsigned int size)
+void DL_PrivateKey_EC<EC>::BERDecodeKey2(BufferedTransformation &bt, bool parametersPresent, size_t size)
 {
 	BERSequenceDecoder seq(bt);
 		word32 version;
@@ -595,7 +595,7 @@ void DL_PrivateKey_EC<EC>::BERDecodeKey2(BufferedTransformation &bt, bool parame
 		if (!dec.IsDefiniteLength())
 			BERDecodeError();
 		Integer x;
-		x.Decode(dec, dec.RemainingLength());
+		x.Decode(dec, (size_t)dec.RemainingLength());
 		dec.MessageEnd();
 		if (!parametersPresent && seq.PeekByte() != (CONTEXT_SPECIFIC | CONSTRUCTED | 0))
 			BERDecodeError();
