@@ -6,13 +6,13 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte *input, unsigned int len)
+template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte *input, size_t len)
 {
 	HashWordType oldCountLo = m_countLo, oldCountHi = m_countHi;
-	if ((m_countLo = oldCountLo + len) < oldCountLo)
+	if ((m_countLo = oldCountLo + HashWordType(len)) < oldCountLo)
 		m_countHi++;             // carry from low to high
-	m_countHi += SafeRightShift<8*sizeof(HashWordType)>(len);
-	if (m_countHi < oldCountHi)
+	m_countHi += (HashWordType)SafeRightShift<8*sizeof(HashWordType)>(len);
+	if (m_countHi < oldCountHi || SafeRightShift<2*8*sizeof(HashWordType)>(len) != 0)
 		throw HashInputTooLong(this->AlgorithmName());
 
 	unsigned int blockSize = BlockSize();
@@ -47,7 +47,7 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte
 		}
 		else if (IsAligned<T>(input))
 		{
-			unsigned int leftOver = HashMultipleBlocks((T *)input, len);
+			size_t leftOver = HashMultipleBlocks((T *)input, len);
 			input += (len - leftOver);
 			len = leftOver;
 		}
@@ -64,7 +64,7 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte
 	memcpy(m_data, input, len);
 }
 
-template <class T, class BASE> byte * IteratedHashBase<T, BASE>::CreateUpdateSpace(unsigned int &size)
+template <class T, class BASE> byte * IteratedHashBase<T, BASE>::CreateUpdateSpace(size_t &size)
 {
 	unsigned int blockSize = BlockSize();
 	unsigned int num = ModPowerOf2(m_countLo, blockSize);
@@ -72,7 +72,7 @@ template <class T, class BASE> byte * IteratedHashBase<T, BASE>::CreateUpdateSpa
 	return (byte *)m_data.begin() + num;
 }
 
-template <class T, class BASE> unsigned int IteratedHashBase<T, BASE>::HashMultipleBlocks(const T *input, unsigned int length)
+template <class T, class BASE> size_t IteratedHashBase<T, BASE>::HashMultipleBlocks(const T *input, size_t length)
 {
 	unsigned int blockSize = BlockSize();
 	bool noReverse = NativeByteOrderIs(GetByteOrder());
@@ -114,7 +114,7 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::Restart()
 	Init();
 }
 
-template <class T, class BASE> void IteratedHashBase<T, BASE>::TruncatedFinal(byte *digest, unsigned int size)
+template <class T, class BASE> void IteratedHashBase<T, BASE>::TruncatedFinal(byte *digest, size_t size)
 {
 	this->ThrowIfInvalidTruncatedSize(size);
 

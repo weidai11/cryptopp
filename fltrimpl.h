@@ -30,7 +30,7 @@
 	case site:	\
 	statement;	\
 	if (Output(site, output, length, messageEnd, blocking))	\
-		return STDMAX(1U, (unsigned int)length-m_inputPosition);\
+		return STDMAX(size_t(1), length-m_inputPosition);\
 	}
 
 #define FILTER_OUTPUT(site, output, length, messageEnd)	\
@@ -44,7 +44,7 @@
 	case site:	\
 	statement;	\
 	if (OutputModifiable(site, output, length, messageEnd, blocking))	\
-		return STDMAX(1U, (unsigned int)length-m_inputPosition);\
+		return STDMAX(size_t(1), length-m_inputPosition);\
 	}
 
 #define FILTER_OUTPUT_MODIFIABLE(site, output, length, messageEnd)	\

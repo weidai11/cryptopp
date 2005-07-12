@@ -11,12 +11,12 @@ NAMESPACE_BEGIN(CryptoPP)
 
 // ********************************************************
 
-unsigned int OAEP_Base::MaxUnpaddedLength(unsigned int paddedLength) const
+size_t OAEP_Base::MaxUnpaddedLength(size_t paddedLength) const
 {
 	return SaturatingSubtract(paddedLength/8, 1+2*DigestSize());
 }
 
-void OAEP_Base::Pad(RandomNumberGenerator &rng, const byte *input, unsigned int inputLength, byte *oaepBlock, unsigned int oaepBlockLen, const NameValuePairs &parameters) const
+void OAEP_Base::Pad(RandomNumberGenerator &rng, const byte *input, size_t inputLength, byte *oaepBlock, size_t oaepBlockLen, const NameValuePairs &parameters) const
 {
 	assert (inputLength <= MaxUnpaddedLength(oaepBlockLen));
 
@@ -29,8 +29,8 @@ void OAEP_Base::Pad(RandomNumberGenerator &rng, const byte *input, unsigned int 
 	oaepBlockLen /= 8;
 
 	std::auto_ptr<HashTransformation> pHash(NewHash());
-	const unsigned int hLen = pHash->DigestSize();
-	const unsigned int seedLen = hLen, dbLen = oaepBlockLen-seedLen;
+	const size_t hLen = pHash->DigestSize();
+	const size_t seedLen = hLen, dbLen = oaepBlockLen-seedLen;
 	byte *const maskedSeed = oaepBlock;
 	byte *const maskedDB = oaepBlock+seedLen;
 
@@ -49,7 +49,7 @@ void OAEP_Base::Pad(RandomNumberGenerator &rng, const byte *input, unsigned int 
 	pMGF->GenerateAndMask(*pHash, maskedSeed, seedLen, maskedDB, dbLen);
 }
 
-DecodingResult OAEP_Base::Unpad(const byte *oaepBlock, unsigned int oaepBlockLen, byte *output, const NameValuePairs &parameters) const
+DecodingResult OAEP_Base::Unpad(const byte *oaepBlock, size_t oaepBlockLen, byte *output, const NameValuePairs &parameters) const
 {
 	bool invalid = false;
 
@@ -62,8 +62,8 @@ DecodingResult OAEP_Base::Unpad(const byte *oaepBlock, unsigned int oaepBlockLen
 	oaepBlockLen /= 8;
 
 	std::auto_ptr<HashTransformation> pHash(NewHash());
-	const unsigned int hLen = pHash->DigestSize();
-	const unsigned int seedLen = hLen, dbLen = oaepBlockLen-seedLen;
+	const size_t hLen = pHash->DigestSize();
+	const size_t seedLen = hLen, dbLen = oaepBlockLen-seedLen;
 
 	invalid = (oaepBlockLen < 2*hLen+1) || invalid;
 

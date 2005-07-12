@@ -33,13 +33,13 @@ void EC2N::DEREncode(BufferedTransformation &bt) const
 	seq.MessageEnd();
 }
 
-bool EC2N::DecodePoint(EC2N::Point &P, const byte *encodedPoint, unsigned int encodedPointLen) const
+bool EC2N::DecodePoint(EC2N::Point &P, const byte *encodedPoint, size_t encodedPointLen) const
 {
 	StringStore store(encodedPoint, encodedPointLen);
 	return DecodePoint(P, store, encodedPointLen);
 }
 
-bool EC2N::DecodePoint(EC2N::Point &P, BufferedTransformation &bt, unsigned int encodedPointLen) const
+bool EC2N::DecodePoint(EC2N::Point &P, BufferedTransformation &bt, size_t encodedPointLen) const
 {
 	byte type;
 	if (encodedPointLen < 1 || !bt.Get(type))

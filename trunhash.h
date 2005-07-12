@@ -8,10 +8,10 @@ NAMESPACE_BEGIN(CryptoPP)
 class NullHash : public HashTransformation
 {
 public:
-	void Update(const byte *input, unsigned int length) {}
+	void Update(const byte *input, size_t length) {}
 	unsigned int DigestSize() const {return 0;}
-	void TruncatedFinal(byte *digest, unsigned int digestSize) {}
-	bool TruncatedVerify(const byte *digest, unsigned int digestLength) {return true;}
+	void TruncatedFinal(byte *digest, size_t digestSize) {}
+	bool TruncatedVerify(const byte *digest, size_t digestLength) {return true;}
 };
 
 //! construct new HashModule with smaller DigestSize() from existing one
@@ -21,17 +21,17 @@ class TruncatedHashTemplate : public HashTransformation
 public:
 	TruncatedHashTemplate(T hm, unsigned int digestSize)
 		: m_hm(hm), m_digestSize(digestSize) {}
-	TruncatedHashTemplate(const byte *key, unsigned int keyLength, unsigned int digestSize)
+	TruncatedHashTemplate(const byte *key, size_t keyLength, unsigned int digestSize)
 		: m_hm(key, keyLength), m_digestSize(digestSize) {}
-	TruncatedHashTemplate(unsigned int digestSize)
+	TruncatedHashTemplate(size_t digestSize)
 		: m_digestSize(digestSize) {}
 
-	void Update(const byte *input, unsigned int length)
+	void Update(const byte *input, size_t length)
 		{m_hm.Update(input, length);}
 	unsigned int DigestSize() const {return m_digestSize;}
-	void TruncatedFinal(byte *digest, unsigned int digestSize)
+	void TruncatedFinal(byte *digest, size_t digestSize)
 		{m_hm.TruncatedFinal(digest, digestSize);}
-	bool TruncatedVerify(const byte *digest, unsigned int digestLength)
+	bool TruncatedVerify(const byte *digest, size_t digestLength)
 		{return m_hm.TruncatedVerify(digest, digestLength);}
 
 private:

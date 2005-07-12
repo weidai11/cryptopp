@@ -11,8 +11,8 @@ class Adler32 : public HashTransformation
 public:
 	enum {DIGESTSIZE = 4};
 	Adler32() {Reset();}
-	void Update(const byte *input, unsigned int length);
-	void TruncatedFinal(byte *hash, unsigned int size);
+	void Update(const byte *input, size_t length);
+	void TruncatedFinal(byte *hash, size_t size);
 	unsigned int DigestSize() const {return DIGESTSIZE;}
 
 private:

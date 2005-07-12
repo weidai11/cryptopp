@@ -33,7 +33,7 @@ void MD2::Init()
 	m_count = 0;
 }
 
-void MD2::Update(const byte *buf, unsigned int len)
+void MD2::Update(const byte *buf, size_t len)
 {
 	static const byte S[256] = {
 		41, 46, 67, 201, 162, 216, 124, 1, 61, 54, 84, 161, 236, 240, 6,
@@ -58,7 +58,7 @@ void MD2::Update(const byte *buf, unsigned int len)
 
 	while (len) 
     {
-		word32 L = (16-m_count) < len ? (16-m_count) : len;
+		unsigned int L = UnsignedMin(16U-m_count, len);
 		memcpy(m_buf+m_count, buf, L);
 		m_count+=L;
 		buf+=L;
@@ -97,7 +97,7 @@ void MD2::Update(const byte *buf, unsigned int len)
     }
 }
 
-void MD2::TruncatedFinal(byte *hash, unsigned int size)
+void MD2::TruncatedFinal(byte *hash, size_t size)
 {
 	ThrowIfInvalidTruncatedSize(size);
 

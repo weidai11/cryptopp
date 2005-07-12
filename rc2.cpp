@@ -46,11 +46,11 @@ void RC2::Base::UncheckedSetKey(CipherDir direction, const byte *key, unsigned i
 		K[i] = L[2*i] + (L[2*i+1] << 8);
 }
 
-void RC2::Base::SetKeyWithEffectiveKeyLength(const byte *key, unsigned int length, unsigned int effectiveKeyLength)
+void RC2::Base::SetKeyWithEffectiveKeyLength(const byte *key, size_t length, unsigned int effectiveKeyLength)
 {
 	if (effectiveKeyLength > MAX_EFFECTIVE_KEYLENGTH)
 		throw InvalidArgument("RC2: effective key length parameter exceeds maximum");
-	UncheckedSetKey(ENCRYPTION, key, length, effectiveKeyLength);
+	UncheckedSetKey(ENCRYPTION, key, (unsigned int)length, effectiveKeyLength);
 }
 
 typedef BlockGetAndPut<word16, LittleEndian> Block;

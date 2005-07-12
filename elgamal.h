@@ -11,17 +11,17 @@ class CRYPTOPP_NO_VTABLE ElGamalBase : public DL_KeyAgreementAlgorithm_DH<Intege
 					public DL_SymmetricEncryptionAlgorithm
 {
 public:
-	void Derive(const DL_GroupParameters<Integer> &groupParams, byte *derivedKey, unsigned int derivedLength, const Integer &agreedElement, const Integer &ephemeralPublicKey, const NameValuePairs &derivationParams) const
+	void Derive(const DL_GroupParameters<Integer> &groupParams, byte *derivedKey, size_t derivedLength, const Integer &agreedElement, const Integer &ephemeralPublicKey, const NameValuePairs &derivationParams) const
 	{
 		agreedElement.Encode(derivedKey, derivedLength);
 	}
 
-	unsigned int GetSymmetricKeyLength(unsigned int plainTextLength) const
+	size_t GetSymmetricKeyLength(size_t plainTextLength) const
 	{
 		return GetGroupParameters().GetModulus().ByteCount();
 	}
 
-	unsigned int GetSymmetricCiphertextLength(unsigned int plainTextLength) const
+	size_t GetSymmetricCiphertextLength(size_t plainTextLength) const
 	{
 		unsigned int len = GetGroupParameters().GetModulus().ByteCount();
 		if (plainTextLength <= GetMaxSymmetricPlaintextLength(len))
@@ -30,7 +30,7 @@ public:
 			return 0;
 	}
 
-	unsigned int GetMaxSymmetricPlaintextLength(unsigned int cipherTextLength) const
+	size_t GetMaxSymmetricPlaintextLength(size_t cipherTextLength) const
 	{
 		unsigned int len = GetGroupParameters().GetModulus().ByteCount();
 		if (cipherTextLength == len)
@@ -39,7 +39,7 @@ public:
 			return 0;
 	}
 
-	void SymmetricEncrypt(RandomNumberGenerator &rng, const byte *key, const byte *plainText, unsigned int plainTextLength, byte *cipherText, const NameValuePairs &parameters) const
+	void SymmetricEncrypt(RandomNumberGenerator &rng, const byte *key, const byte *plainText, size_t plainTextLength, byte *cipherText, const NameValuePairs &parameters) const
 	{
 		const Integer &p = GetGroupParameters().GetModulus();
 		unsigned int modulusLen = p.ByteCount();
@@ -47,12 +47,12 @@ public:
 		SecByteBlock block(modulusLen-1);
 		rng.GenerateBlock(block, modulusLen-2-plainTextLength);
 		memcpy(block+modulusLen-2-plainTextLength, plainText, plainTextLength);
-		block[modulusLen-2] = plainTextLength;
+		block[modulusLen-2] = (byte)plainTextLength;
 
 		a_times_b_mod_c(Integer(key, modulusLen), Integer(block, modulusLen-1), p).Encode(cipherText, modulusLen);
 	}
 
-	DecodingResult SymmetricDecrypt(const byte *key, const byte *cipherText, unsigned int cipherTextLength, byte *plainText, const NameValuePairs &parameters) const
+	DecodingResult SymmetricDecrypt(const byte *key, const byte *cipherText, size_t cipherTextLength, byte *plainText, const NameValuePairs &parameters) const
 	{
 		const Integer &p = GetGroupParameters().GetModulus();
 		unsigned int modulusLen = p.ByteCount();
@@ -78,8 +78,8 @@ template <class BASE, class SCHEME_OPTIONS, class KEY>
 class ElGamalObjectImpl : public DL_ObjectImplBase<BASE, SCHEME_OPTIONS, KEY>, public ElGamalBase
 {
 public:
-	unsigned int FixedMaxPlaintextLength() const {return MaxPlaintextLength(FixedCiphertextLength());}
-	unsigned int FixedCiphertextLength() const {return this->CiphertextLength(0);}
+	size_t FixedMaxPlaintextLength() const {return MaxPlaintextLength(FixedCiphertextLength());}
+	size_t FixedCiphertextLength() const {return this->CiphertextLength(0);}
 
 	const DL_GroupParameters_GFP & GetGroupParameters() const {return this->GetKey().GetGroupParameters();}
 

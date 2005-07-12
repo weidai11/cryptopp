@@ -8,7 +8,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-void P1363_MGF1KDF2_Common(HashTransformation &hash, byte *output, unsigned int outputLength, const byte *input, unsigned int inputLength, const byte *derivationParams, unsigned int derivationParamsLength, bool mask, unsigned int counterStart)
+void P1363_MGF1KDF2_Common(HashTransformation &hash, byte *output, size_t outputLength, const byte *input, size_t inputLength, const byte *derivationParams, size_t derivationParamsLength, bool mask, unsigned int counterStart)
 {
 	ArraySink *sink;
 	HashFilter filter(hash, sink = mask ? new ArrayXorSink(output, outputLength) : new ArraySink(output, outputLength));
@@ -24,7 +24,7 @@ void P1363_MGF1KDF2_Common(HashTransformation &hash, byte *output, unsigned int 
 
 bool PK_DeterministicSignatureMessageEncodingMethod::VerifyMessageRepresentative(
 	HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
-	byte *representative, unsigned int representativeBitLength) const
+	byte *representative, size_t representativeBitLength) const
 {
 	SecByteBlock computedRepresentative(BitsToBytes(representativeBitLength));
 	ComputeMessageRepresentative(NullRNG(), NULL, 0, hash, hashIdentifier, messageEmpty, computedRepresentative, representativeBitLength);
@@ -33,7 +33,7 @@ bool PK_DeterministicSignatureMessageEncodingMethod::VerifyMessageRepresentative
 
 bool PK_RecoverableSignatureMessageEncodingMethod::VerifyMessageRepresentative(
 	HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
-	byte *representative, unsigned int representativeBitLength) const
+	byte *representative, size_t representativeBitLength) const
 {
 	SecByteBlock recoveredMessage(MaxRecoverableLength(representativeBitLength, hashIdentifier.second, hash.DigestSize()));
 	DecodingResult result = RecoverMessageFromRepresentative(
@@ -41,7 +41,7 @@ bool PK_RecoverableSignatureMessageEncodingMethod::VerifyMessageRepresentative(
 	return result.isValidCoding && result.messageLength == 0;
 }
 
-void TF_SignerBase::InputRecoverableMessage(PK_MessageAccumulator &messageAccumulator, const byte *recoverableMessage, unsigned int recoverableMessageLength) const
+void TF_SignerBase::InputRecoverableMessage(PK_MessageAccumulator &messageAccumulator, const byte *recoverableMessage, size_t recoverableMessageLength) const
 {
 	PK_MessageAccumulatorBase &ma = static_cast<PK_MessageAccumulatorBase &>(messageAccumulator);
 	HashIdentifier id = GetHashIdentifier();
@@ -50,7 +50,7 @@ void TF_SignerBase::InputRecoverableMessage(PK_MessageAccumulator &messageAccumu
 	if (MessageRepresentativeBitLength() < encoding.MinRepresentativeBitLength(id.second, ma.AccessHash().DigestSize()))
 		throw PK_SignatureScheme::KeyTooShort();
 
-	unsigned int maxRecoverableLength = encoding.MaxRecoverableLength(MessageRepresentativeBitLength(), GetHashIdentifier().second, ma.AccessHash().DigestSize());
+	size_t maxRecoverableLength = encoding.MaxRecoverableLength(MessageRepresentativeBitLength(), GetHashIdentifier().second, ma.AccessHash().DigestSize());
 
 	if (maxRecoverableLength == 0)
 		{throw NotImplemented("TF_SignerBase: this algorithm does not support messsage recovery or the key is too short");}
@@ -64,7 +64,7 @@ void TF_SignerBase::InputRecoverableMessage(PK_MessageAccumulator &messageAccumu
 		NULL, 0, ma.m_semisignature);
 }
 
-unsigned int TF_SignerBase::SignAndRestart(RandomNumberGenerator &rng, PK_MessageAccumulator &messageAccumulator, byte *signature, bool restart) const
+size_t TF_SignerBase::SignAndRestart(RandomNumberGenerator &rng, PK_MessageAccumulator &messageAccumulator, byte *signature, bool restart) const
 {
 	PK_MessageAccumulatorBase &ma = static_cast<PK_MessageAccumulatorBase &>(messageAccumulator);
 	HashIdentifier id = GetHashIdentifier();
@@ -81,12 +81,12 @@ unsigned int TF_SignerBase::SignAndRestart(RandomNumberGenerator &rng, PK_Messag
 	ma.m_empty = true;
 
 	Integer r(representative, representative.size());
-	unsigned int signatureLength = SignatureLength();
+	size_t signatureLength = SignatureLength();
 	GetTrapdoorFunctionInterface().CalculateRandomizedInverse(rng, r).Encode(signature, signatureLength);
 	return signatureLength;
 }
 
-void TF_VerifierBase::InputSignature(PK_MessageAccumulator &messageAccumulator, const byte *signature, unsigned int signatureLength) const
+void TF_VerifierBase::InputSignature(PK_MessageAccumulator &messageAccumulator, const byte *signature, size_t signatureLength) const
 {
 	PK_MessageAccumulatorBase &ma = static_cast<PK_MessageAccumulatorBase &>(messageAccumulator);
 	HashIdentifier id = GetHashIdentifier();
@@ -132,7 +132,7 @@ DecodingResult TF_VerifierBase::RecoverAndRestart(byte *recoveredMessage, PK_Mes
 	return result;
 }
 
-DecodingResult TF_DecryptorBase::Decrypt(RandomNumberGenerator &rng, const byte *ciphertext, unsigned int ciphertextLength, byte *plaintext, const NameValuePairs &parameters) const
+DecodingResult TF_DecryptorBase::Decrypt(RandomNumberGenerator &rng, const byte *ciphertext, size_t ciphertextLength, byte *plaintext, const NameValuePairs &parameters) const
 {
 	SecByteBlock paddedBlock(PaddedBlockByteLength());
 	Integer x = GetTrapdoorFunctionInterface().CalculateInverse(rng, Integer(ciphertext, FixedCiphertextLength()));
@@ -142,7 +142,7 @@ DecodingResult TF_DecryptorBase::Decrypt(RandomNumberGenerator &rng, const byte 
 	return GetMessageEncodingInterface().Unpad(paddedBlock, PaddedBlockBitLength(), plaintext, parameters);
 }
 
-void TF_EncryptorBase::Encrypt(RandomNumberGenerator &rng, const byte *plaintext, unsigned int plaintextLength, byte *ciphertext, const NameValuePairs &parameters) const
+void TF_EncryptorBase::Encrypt(RandomNumberGenerator &rng, const byte *plaintext, size_t plaintextLength, byte *ciphertext, const NameValuePairs &parameters) const
 {
 	if (plaintextLength > FixedMaxPlaintextLength())
 		throw InvalidArgument(AlgorithmName() + ": message too long for this public key");

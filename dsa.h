@@ -13,8 +13,8 @@ NAMESPACE_BEGIN(CryptoPP)
 enum DSASignatureFormat {DSA_P1363, DSA_DER, DSA_OPENPGP};
 /** This function converts between these formats, and returns length of signature in the target format.
 	If toFormat == DSA_P1363, bufferSize must equal publicKey.SignatureLength() */
-unsigned int DSAConvertSignatureFormat(byte *buffer, unsigned int bufferSize, DSASignatureFormat toFormat, 
-	const byte *signature, unsigned int signatureLen, DSASignatureFormat fromFormat);
+size_t DSAConvertSignatureFormat(byte *buffer, size_t bufferSize, DSASignatureFormat toFormat, 
+	const byte *signature, size_t signatureLen, DSASignatureFormat fromFormat);
 
 #ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
 
@@ -25,7 +25,7 @@ const int MIN_DSA_PRIME_LENGTH = DSA::MIN_PRIME_LENGTH;
 const int MAX_DSA_PRIME_LENGTH = DSA::MAX_PRIME_LENGTH;
 const int DSA_PRIME_LENGTH_MULTIPLE = DSA::PRIME_LENGTH_MULTIPLE;
 
-inline bool GenerateDSAPrimes(const byte *seed, unsigned int seedLength, int &counter, Integer &p, unsigned int primeLength, Integer &q)
+inline bool GenerateDSAPrimes(const byte *seed, size_t seedLength, int &counter, Integer &p, unsigned int primeLength, Integer &q)
 	{return DSA::GeneratePrimes(seed, seedLength, counter, p, primeLength, q);}
 
 #endif

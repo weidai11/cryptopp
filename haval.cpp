@@ -42,7 +42,7 @@ void HAVAL::HashEndianCorrectedBlock(const word32 *in)
 		HAVAL5::Transform(m_digest, in);
 }
 
-void HAVAL::TruncatedFinal(byte *hash, unsigned int size)
+void HAVAL::TruncatedFinal(byte *hash, size_t size)
 {
 	ThrowIfInvalidTruncatedSize(size);
 

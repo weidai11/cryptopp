@@ -57,13 +57,13 @@ void ECP::DEREncode(BufferedTransformation &bt) const
 	seq.MessageEnd();
 }
 
-bool ECP::DecodePoint(ECP::Point &P, const byte *encodedPoint, unsigned int encodedPointLen) const
+bool ECP::DecodePoint(ECP::Point &P, const byte *encodedPoint, size_t encodedPointLen) const
 {
 	StringStore store(encodedPoint, encodedPointLen);
 	return DecodePoint(P, store, encodedPointLen);
 }
 
-bool ECP::DecodePoint(ECP::Point &P, BufferedTransformation &bt, unsigned int encodedPointLen) const
+bool ECP::DecodePoint(ECP::Point &P, BufferedTransformation &bt, size_t encodedPointLen) const
 {
 	byte type;
 	if (encodedPointLen < 1 || !bt.Get(type))
@@ -245,7 +245,7 @@ const ECP::Point& ECP::Double(const Point &P) const
 
 template <class T, class Iterator> void ParallelInvert(const AbstractRing<T> &ring, Iterator begin, Iterator end)
 {
-	unsigned int n = end-begin;
+	size_t n = end-begin;
 	if (n == 1)
 		*begin = ring.MultiplicativeInverse(*begin);
 	else if (n > 1)
@@ -338,7 +338,7 @@ struct ZIterator
 	ZIterator() {}
 	ZIterator(std::vector<ProjectivePoint>::iterator it) : it(it) {}
 	Integer& operator*() {return it->z;}
-	int operator-(ZIterator it2) {return it-it2.it;}
+	int operator-(ZIterator it2) {return int(it-it2.it);}
 	ZIterator operator+(int i) {return ZIterator(it+i);}
 	ZIterator& operator+=(int i) {it+=i; return *this;}
 	std::vector<ProjectivePoint>::iterator it;
@@ -400,7 +400,7 @@ void ECP::SimultaneousMultiply(ECP::Point *results, const ECP::Point &P, const I
 				}
 
 				exponentWindows[i].push_back(exponents[i].expWindow);
-				baseIndices[i].push_back(bases.size()-1);
+				baseIndices[i].push_back((word32)bases.size()-1);
 				negateBase[i].push_back(exponents[i].negateNext);
 
 				exponents[i].FindNextWindow();

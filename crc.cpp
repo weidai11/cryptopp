@@ -122,7 +122,7 @@ CRC32::CRC32()
 	Reset();
 }
 
-void CRC32::Update(const byte *s, unsigned int n)
+void CRC32::Update(const byte *s, size_t n)
 {
 	word32 crc = m_crc;
 
@@ -146,12 +146,12 @@ void CRC32::Update(const byte *s, unsigned int n)
 	m_crc = crc;
 }
 
-void CRC32::TruncatedFinal(byte *hash, unsigned int size)
+void CRC32::TruncatedFinal(byte *hash, size_t size)
 {
 	ThrowIfInvalidTruncatedSize(size);
 
 	m_crc ^= CRC32_NEGL;
-	for (unsigned int i=0; i<size; i++)
+	for (size_t i=0; i<size; i++)
 		hash[i] = GetCrcByte(i);
 
 	Reset();

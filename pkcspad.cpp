@@ -20,12 +20,12 @@ template<> const unsigned int PKCS_DigestDecoration<RIPEMD160>::length = sizeof(
 template<> const byte PKCS_DigestDecoration<Tiger>::decoration[] = {0x30,0x29,0x30,0x0D,0x06,0x09,0x2B,0x06,0x01,0x04,0x01,0xDA,0x47,0x0C,0x02,0x05,0x00,0x04,0x18};
 template<> const unsigned int PKCS_DigestDecoration<Tiger>::length = sizeof(PKCS_DigestDecoration<Tiger>::decoration);
 
-unsigned int PKCS_EncryptionPaddingScheme::MaxUnpaddedLength(unsigned int paddedLength) const
+size_t PKCS_EncryptionPaddingScheme::MaxUnpaddedLength(size_t paddedLength) const
 {
 	return SaturatingSubtract(paddedLength/8, 10U);
 }
 
-void PKCS_EncryptionPaddingScheme::Pad(RandomNumberGenerator &rng, const byte *input, unsigned int inputLen, byte *pkcsBlock, unsigned int pkcsBlockLen, const NameValuePairs &parameters) const
+void PKCS_EncryptionPaddingScheme::Pad(RandomNumberGenerator &rng, const byte *input, size_t inputLen, byte *pkcsBlock, size_t pkcsBlockLen, const NameValuePairs &parameters) const
 {
 	assert (inputLen <= MaxUnpaddedLength(pkcsBlockLen));	// this should be checked by caller
 
@@ -47,10 +47,10 @@ void PKCS_EncryptionPaddingScheme::Pad(RandomNumberGenerator &rng, const byte *i
 	memcpy(pkcsBlock+pkcsBlockLen-inputLen, input, inputLen);
 }
 
-DecodingResult PKCS_EncryptionPaddingScheme::Unpad(const byte *pkcsBlock, unsigned int pkcsBlockLen, byte *output, const NameValuePairs &parameters) const
+DecodingResult PKCS_EncryptionPaddingScheme::Unpad(const byte *pkcsBlock, size_t pkcsBlockLen, byte *output, const NameValuePairs &parameters) const
 {
 	bool invalid = false;
-	unsigned int maxOutputLen = MaxUnpaddedLength(pkcsBlockLen);
+	size_t maxOutputLen = MaxUnpaddedLength(pkcsBlockLen);
 
 	// convert from bit length to byte length
 	if (pkcsBlockLen % 8 != 0)
@@ -64,12 +64,12 @@ DecodingResult PKCS_EncryptionPaddingScheme::Unpad(const byte *pkcsBlock, unsign
 	invalid = (pkcsBlock[0] != 2) || invalid;
 
 	// skip past the padding until we find the separator
-	unsigned i=1;
+	size_t i=1;
 	while (i<pkcsBlockLen && pkcsBlock[i++]) { // null body
 		}
 	assert(i==pkcsBlockLen || pkcsBlock[i-1]==0);
 
-	unsigned int outputLen = pkcsBlockLen - i;
+	size_t outputLen = pkcsBlockLen - i;
 	invalid = (outputLen > maxOutputLen) || invalid;
 
 	if (invalid)
@@ -84,13 +84,13 @@ DecodingResult PKCS_EncryptionPaddingScheme::Unpad(const byte *pkcsBlock, unsign
 #ifndef CRYPTOPP_IMPORTS
 
 void PKCS1v15_SignatureMessageEncodingMethod::ComputeMessageRepresentative(RandomNumberGenerator &rng, 
-	const byte *recoverableMessage, unsigned int recoverableMessageLength,
+	const byte *recoverableMessage, size_t recoverableMessageLength,
 	HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
-	byte *representative, unsigned int representativeBitLength) const
+	byte *representative, size_t representativeBitLength) const
 {
 	assert(representativeBitLength >= MinRepresentativeBitLength(hashIdentifier.second, hash.DigestSize()));
 
-	unsigned int pkcsBlockLen = representativeBitLength;
+	size_t pkcsBlockLen = representativeBitLength;
 	// convert from bit length to byte length
 	if (pkcsBlockLen % 8 != 0)
 	{

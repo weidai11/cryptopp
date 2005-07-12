@@ -98,7 +98,7 @@ class BTEA : public BTEA_Info, public BlockCipherDocumentation
 	{
 	public:
 		template <class T>
-		static inline void CheckedSetKey(T *obj, CipherDir dir, const byte *key, unsigned int length, const NameValuePairs &param)
+		static inline void CheckedSetKey(T *obj, CipherDir dir, const byte *key, size_t length, const NameValuePairs &param)
 		{
 			obj->ThrowIfInvalidKeyLength(length);
 			obj->m_blockSize = param.GetIntValueWithDefault("BlockSize", 60*4);

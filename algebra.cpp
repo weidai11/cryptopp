@@ -303,7 +303,7 @@ void AbstractGroup<T>::SimultaneousMultiply(T *results, const T &base, const Int
 		r = buckets[i][buckets[i].size()-1];
 		if (buckets[i].size() > 1)
 		{
-			for (int j = buckets[i].size()-2; j >= 1; j--)
+			for (int j = (int)buckets[i].size()-2; j >= 1; j--)
 			{
 				Accumulate(buckets[i][j], buckets[i][j+1]);
 				Accumulate(r, buckets[i][j]);

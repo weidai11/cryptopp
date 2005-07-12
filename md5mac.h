@@ -18,7 +18,7 @@ public:
 	MD5MAC_Base() {SetStateSize(DIGESTSIZE);}
 
 	void UncheckedSetKey(const byte *userKey, unsigned int keylength);
-	void TruncatedFinal(byte *mac, unsigned int size);
+	void TruncatedFinal(byte *mac, size_t size);
 	unsigned int DigestSize() const {return DIGESTSIZE;}
 
 protected:

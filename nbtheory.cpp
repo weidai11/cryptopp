@@ -37,7 +37,7 @@ struct NewPrimeTable
 			if (j == testEntriesEnd)
 			{
 				primeTable.push_back(p);
-				testEntriesEnd = STDMIN((size_t)54U, primeTable.size());
+				testEntriesEnd = UnsignedMin(54U, primeTable.size());
 			}
 		}
 
@@ -48,7 +48,7 @@ struct NewPrimeTable
 const word16 * GetPrimeTable(unsigned int &size)
 {
 	const std::vector<word16> &primeTable = Singleton<std::vector<word16>, NewPrimeTable>().Ref();
-	size = primeTable.size();
+	size = (unsigned int)primeTable.size();
 	return &primeTable[0];
 }
 
@@ -303,10 +303,11 @@ PrimeSieve::PrimeSieve(const Integer &first, const Integer &last, const Integer 
 
 bool PrimeSieve::NextCandidate(Integer &c)
 {
-	m_next = std::find(m_sieve.begin()+m_next, m_sieve.end(), false) - m_sieve.begin();
+	bool safe = SafeConvert(std::find(m_sieve.begin()+m_next, m_sieve.end(), false) - m_sieve.begin(), m_next);
+	assert(safe);
 	if (m_next == m_sieve.size())
 	{
-		m_first += m_sieve.size()*m_step;
+		m_first += long(m_sieve.size())*m_step;
 		if (m_first > m_last)
 			return false;
 		else
@@ -328,7 +329,7 @@ void PrimeSieve::SieveSingle(std::vector<bool> &sieve, word16 p, const Integer &
 {
 	if (stepInv)
 	{
-		unsigned int sieveSize = sieve.size();
+		size_t sieveSize = sieve.size();
 		word j = word((word32(p-(first%p))*stepInv) % p);
 		// if the first multiple of p is p, skip it
 		if (first.WordCount() <= 1 && first + step*j == p)
@@ -549,6 +550,19 @@ Integer CRT(const Integer &xp, const Integer &p, const Integer &xq, const Intege
 {
 	// isn't operator overloading great?
 	return p * (u * (xq-xp) % q) + xp;
+/*
+	Integer t1 = xq-xp;
+	cout << hex << t1 << endl;
+	Integer t2 = u * t1;
+	cout << hex << t2 << endl;
+	Integer t3 = t2 % q;
+	cout << hex << t3 << endl;
+	Integer t4 = p * t3;
+	cout << hex << t4 << endl;
+	Integer t5 = t4 + xp;
+	cout << hex << t5 << endl;
+	return t5;
+*/
 }
 
 Integer CRT(const Integer &xp, const Integer &p, const Integer &xq, const Integer &q)

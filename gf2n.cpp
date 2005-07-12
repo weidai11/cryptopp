@@ -19,7 +19,7 @@ PolynomialMod2::PolynomialMod2()
 {
 }
 
-PolynomialMod2::PolynomialMod2(word value, unsigned int bitLength)
+PolynomialMod2::PolynomialMod2(word value, size_t bitLength)
 	: reg(BitsToWords(bitLength))
 {
 	assert(value==0 || reg.size()>0);
@@ -37,16 +37,16 @@ PolynomialMod2::PolynomialMod2(const PolynomialMod2& t)
 	CopyWords(reg, t.reg, reg.size());
 }
 
-void PolynomialMod2::Randomize(RandomNumberGenerator &rng, unsigned int nbits)
+void PolynomialMod2::Randomize(RandomNumberGenerator &rng, size_t nbits)
 {
-	const unsigned int nbytes = nbits/8 + 1;
+	const size_t nbytes = nbits/8 + 1;
 	SecByteBlock buf(nbytes);
 	rng.GenerateBlock(buf, nbytes);
 	buf[0] = (byte)Crop(buf[0], nbits % 8);
 	Decode(buf, nbytes);
 }
 
-PolynomialMod2 PolynomialMod2::AllOnes(unsigned int bitLength)
+PolynomialMod2 PolynomialMod2::AllOnes(size_t bitLength)
 {
 	PolynomialMod2 result((word)0, bitLength);
 	SetWords(result.reg, ~(word)0, result.reg.size());
@@ -55,7 +55,7 @@ PolynomialMod2 PolynomialMod2::AllOnes(unsigned int bitLength)
 	return result;
 }
 
-void PolynomialMod2::SetBit(unsigned int n, int value)
+void PolynomialMod2::SetBit(size_t n, int value)
 {
 	if (value)
 	{
@@ -69,7 +69,7 @@ void PolynomialMod2::SetBit(unsigned int n, int value)
 	}
 }
 
-byte PolynomialMod2::GetByte(unsigned int n) const
+byte PolynomialMod2::GetByte(size_t n) const
 {
 	if (n/WORD_SIZE >= reg.size())
 		return 0;
@@ -77,21 +77,21 @@ byte PolynomialMod2::GetByte(unsigned int n) const
 		return byte(reg[n/WORD_SIZE] >> ((n%WORD_SIZE)*8));
 }
 
-void PolynomialMod2::SetByte(unsigned int n, byte value)
+void PolynomialMod2::SetByte(size_t n, byte value)
 {
 	reg.CleanGrow(BytesToWords(n+1));
 	reg[n/WORD_SIZE] &= ~(word(0xff) << 8*(n%WORD_SIZE));
 	reg[n/WORD_SIZE] |= (word(value) << 8*(n%WORD_SIZE));
 }
 
-PolynomialMod2 PolynomialMod2::Monomial(unsigned i) 
+PolynomialMod2 PolynomialMod2::Monomial(size_t i) 
 {
 	PolynomialMod2 r((word)0, i+1); 
 	r.SetBit(i); 
 	return r;
 }
 
-PolynomialMod2 PolynomialMod2::Trinomial(unsigned t0, unsigned t1, unsigned t2) 
+PolynomialMod2 PolynomialMod2::Trinomial(size_t t0, size_t t1, size_t t2) 
 {
 	PolynomialMod2 r((word)0, t0+1);
 	r.SetBit(t0);
@@ -100,7 +100,7 @@ PolynomialMod2 PolynomialMod2::Trinomial(unsigned t0, unsigned t1, unsigned t2)
 	return r;
 }
 
-PolynomialMod2 PolynomialMod2::Pentanomial(unsigned t0, unsigned t1, unsigned t2, unsigned int t3, unsigned int t4)
+PolynomialMod2 PolynomialMod2::Pentanomial(size_t t0, size_t t1, size_t t2, size_t t3, size_t t4)
 {
 	PolynomialMod2 r((word)0, t0+1);
 	r.SetBit(t0);
@@ -130,23 +130,23 @@ const PolynomialMod2 &PolynomialMod2::One()
 	return Singleton<PolynomialMod2, NewPolynomialMod2<1> >().Ref();
 }
 
-void PolynomialMod2::Decode(const byte *input, unsigned int inputLen)
+void PolynomialMod2::Decode(const byte *input, size_t inputLen)
 {
 	StringStore store(input, inputLen);
 	Decode(store, inputLen);
 }
 
-unsigned int PolynomialMod2::Encode(byte *output, unsigned int outputLen) const
+void PolynomialMod2::Encode(byte *output, size_t outputLen) const
 {
 	ArraySink sink(output, outputLen);
-	return Encode(sink, outputLen);
+	Encode(sink, outputLen);
 }
 
-void PolynomialMod2::Decode(BufferedTransformation &bt, unsigned int inputLen)
+void PolynomialMod2::Decode(BufferedTransformation &bt, size_t inputLen)
 {
 	reg.CleanNew(BytesToWords(inputLen));
 
-	for (unsigned int i=inputLen; i > 0; i--)
+	for (size_t i=inputLen; i > 0; i--)
 	{
 		byte b;
 		bt.Get(b);
@@ -154,21 +154,20 @@ void PolynomialMod2::Decode(BufferedTransformation &bt, unsigned int inputLen)
 	}
 }
 
-unsigned int PolynomialMod2::Encode(BufferedTransformation &bt, unsigned int outputLen) const
+void PolynomialMod2::Encode(BufferedTransformation &bt, size_t outputLen) const
 {
-	for (unsigned int i=outputLen; i > 0; i--)
+	for (size_t i=outputLen; i > 0; i--)
 		bt.Put(GetByte(i-1));
-	return outputLen;
 }
 
-void PolynomialMod2::DEREncodeAsOctetString(BufferedTransformation &bt, unsigned int length) const
+void PolynomialMod2::DEREncodeAsOctetString(BufferedTransformation &bt, size_t length) const
 {
 	DERGeneralEncoder enc(bt, OCTET_STRING);
 	Encode(enc, length);
 	enc.MessageEnd();
 }
 
-void PolynomialMod2::BERDecodeAsOctetString(BufferedTransformation &bt, unsigned int length)
+void PolynomialMod2::BERDecodeAsOctetString(BufferedTransformation &bt, size_t length)
 {
 	BERGeneralDecoder dec(bt, OCTET_STRING);
 	if (!dec.IsDefiniteLength() || dec.RemainingLength() != length)
@@ -179,7 +178,7 @@ void PolynomialMod2::BERDecodeAsOctetString(BufferedTransformation &bt, unsigned
 
 unsigned int PolynomialMod2::WordCount() const
 {
-	return CountWords(reg, reg.size());
+	return (unsigned int)CountWords(reg, reg.size());
 }
 
 unsigned int PolynomialMod2::ByteCount() const
@@ -331,7 +330,7 @@ PolynomialMod2& PolynomialMod2::operator<<=(unsigned int n)
 
 	if (n==1)	// special case code for most frequent case
 	{
-		i = reg.size();
+		i = (int)reg.size();
 		while (i--)
 		{
 			u = *r;
@@ -354,7 +353,7 @@ PolynomialMod2& PolynomialMod2::operator<<=(unsigned int n)
 
 	if (shiftBits)
 	{
-		i = reg.size();
+		i = (int)reg.size();
 		while (i--)
 		{
 			u = *r;
@@ -374,7 +373,7 @@ PolynomialMod2& PolynomialMod2::operator<<=(unsigned int n)
 
 	if (shiftWords)
 	{
-		for (i = reg.size()-1; i>=shiftWords; i--)
+		for (i = (int)reg.size()-1; i>=shiftWords; i--)
 			reg[i] = reg[i-shiftWords];
 		for (; i>=0; i--)
 			reg[i] = 0;
@@ -391,7 +390,7 @@ PolynomialMod2& PolynomialMod2::operator>>=(unsigned int n)
 	int shiftWords = n / WORD_BITS;
 	int shiftBits = n % WORD_BITS;
 
-	unsigned i;
+	size_t i;
 	word u;
 	word carry=0;
 	word *r=reg+reg.size()-1;
@@ -440,7 +439,7 @@ bool PolynomialMod2::operator!() const
 
 bool PolynomialMod2::Equals(const PolynomialMod2 &rhs) const
 {
-	unsigned i, smallerSize = STDMIN(reg.size(), rhs.reg.size());
+	size_t i, smallerSize = STDMIN(reg.size(), rhs.reg.size());
 
 	for (i=0; i<smallerSize; i++)
 		if (reg[i] != rhs.reg[i]) return false;
@@ -599,7 +598,7 @@ const GF2NT::Element& GF2NT::MultiplicativeInverse(const Element &a) const
 	word *c = T+m_modulus.reg.size();
 	word *f = T+2*m_modulus.reg.size();
 	word *g = T+3*m_modulus.reg.size();
-	unsigned int bcLen=1, fgLen=m_modulus.reg.size();
+	size_t bcLen=1, fgLen=m_modulus.reg.size();
 	unsigned int k=0;
 
 	SetWords(T, 0, 3*m_modulus.reg.size());
@@ -720,7 +719,7 @@ const GF2NT::Element& GF2NT::MultiplicativeInverse(const Element &a) const
 
 const GF2NT::Element& GF2NT::Multiply(const Element &a, const Element &b) const
 {
-	unsigned int aSize = STDMIN(a.reg.size(), result.reg.size());
+	size_t aSize = STDMIN(a.reg.size(), result.reg.size());
 	Element r((word)0, m);
 
 	for (int i=m-1; i>=0; i--)
@@ -751,7 +750,7 @@ const GF2NT::Element& GF2NT::Reduced(const Element &a) const
 
 	SecWordBlock b(a.reg);
 
-	unsigned i;
+	size_t i;
 	for (i=b.size()-1; i>=BitsToWords(t0); i--)
 	{
 		word temp = b[i];

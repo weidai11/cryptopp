@@ -238,11 +238,11 @@ void Inflator::OutputByte(byte b)
 	}
 }
 
-void Inflator::OutputString(const byte *string, unsigned int length)
+void Inflator::OutputString(const byte *string, size_t length)
 {
 	while (length)
 	{
-		unsigned int len = STDMIN(length, (unsigned int)(m_window.size() - m_current));
+		size_t len = STDMIN(length, m_window.size() - m_current);
 		memcpy(m_window + m_current, string, len);
 		m_current += len;
 		if (m_current == m_window.size())
@@ -259,7 +259,7 @@ void Inflator::OutputString(const byte *string, unsigned int length)
 
 void Inflator::OutputPast(unsigned int length, unsigned int distance)
 {
-	unsigned int start;
+	size_t start;
 	if (distance <= m_current)
 		start = m_current - distance;
 	else if (m_wrappedAround && distance <= m_window.size())
@@ -286,7 +286,7 @@ void Inflator::OutputPast(unsigned int length, unsigned int distance)
 	}
 }
 
-unsigned int Inflator::Put2(const byte *inString, unsigned int length, int messageEnd, bool blocking)
+size_t Inflator::Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
 {
 	if (!blocking)
 		throw BlockingInputOnly("Inflator");
@@ -333,7 +333,7 @@ void Inflator::ProcessInput(bool flush)
 		case WAIT_HEADER:
 			{
 			// maximum number of bytes before actual compressed data starts
-			const unsigned int MAX_HEADER_SIZE = BitsToBytes(3+5+5+4+19*7+286*15+19*15);
+			const size_t MAX_HEADER_SIZE = BitsToBytes(3+5+5+4+19*7+286*15+19*15);
 			if (m_inQueue.CurrentSize() < (flush ? 1 : MAX_HEADER_SIZE))
 				return;
 			DecodeHeader();
@@ -470,12 +470,12 @@ bool Inflator::DecodeBody()
 		assert(m_reader.BitsBuffered() == 0);
 		while (!m_inQueue.IsEmpty() && !blockEnd)
 		{
-			unsigned int size;
+			size_t size;
 			const byte *block = m_inQueue.Spy(size);
-			size = STDMIN(size, (unsigned int)m_storedLen);
+			size = UnsignedMin(m_storedLen, size);
 			OutputString(block, size);
 			m_inQueue.Skip(size);
-			m_storedLen -= size;
+			m_storedLen -= (word16)size;
 			if (m_storedLen == 0)
 				blockEnd = true;
 		}

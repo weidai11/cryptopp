@@ -6,6 +6,8 @@
 
 #include "files.h"
 
+#include <limits>
+
 NAMESPACE_BEGIN(CryptoPP)
 
 using namespace std;
@@ -37,7 +39,7 @@ void FileStore::StoreInitialize(const NameValuePairs &parameters)
 	m_waiting = false;
 }
 
-unsigned long FileStore::MaxRetrievable() const
+lword FileStore::MaxRetrievable() const
 {
 	if (!m_stream)
 		return 0;
@@ -48,7 +50,7 @@ unsigned long FileStore::MaxRetrievable() const
 	return end-current;
 }
 
-unsigned int FileStore::TransferTo2(BufferedTransformation &target, unsigned long &transferBytes, const std::string &channel, bool blocking)
+size_t FileStore::TransferTo2(BufferedTransformation &target, lword &transferBytes, const std::string &channel, bool blocking)
 {
 	if (!m_stream)
 	{
@@ -56,7 +58,7 @@ unsigned int FileStore::TransferTo2(BufferedTransformation &target, unsigned lon
 		return 0;
 	}
 
-	unsigned long size=transferBytes;
+	lword size=transferBytes;
 	transferBytes = 0;
 
 	if (m_waiting)
@@ -65,13 +67,13 @@ unsigned int FileStore::TransferTo2(BufferedTransformation &target, unsigned lon
 	while (size && m_stream->good())
 	{
 		{
-		unsigned int spaceSize = 1024;
-		m_space = HelpCreatePutSpace(target, channel, 1, (unsigned int)STDMIN(size, (unsigned long)UINT_MAX), spaceSize);
+		size_t spaceSize = 1024;
+		m_space = HelpCreatePutSpace(target, channel, 1, UnsignedMin(size_t(0)-1, size), spaceSize);
 
-		m_stream->read((char *)m_space, STDMIN(size, (unsigned long)spaceSize));
+		m_stream->read((char *)m_space, (unsigned int)STDMIN(size, (lword)spaceSize));
 		}
 		m_len = m_stream->gcount();
-		unsigned int blockedBytes;
+		size_t blockedBytes;
 output:
 		blockedBytes = target.ChannelPutModifiable2(channel, m_space, m_len, 0, blocking);
 		m_waiting = blockedBytes > 0;
@@ -87,7 +89,7 @@ output:
 	return 0;
 }
 
-unsigned int FileStore::CopyRangeTo2(BufferedTransformation &target, unsigned long &begin, unsigned long end, const std::string &channel, bool blocking) const
+size_t FileStore::CopyRangeTo2(BufferedTransformation &target, lword &begin, lword end, const std::string &channel, bool blocking) const
 {
 	if (!m_stream)
 		return 0;
@@ -99,7 +101,7 @@ unsigned int FileStore::CopyRangeTo2(BufferedTransformation &target, unsigned lo
 			return 0;
 		else
 		{
-			unsigned int blockedBytes = target.ChannelPut(channel, byte(result), blocking);
+			size_t blockedBytes = target.ChannelPut(channel, byte(result), blocking);
 			begin += 1-blockedBytes;
 			return blockedBytes;
 		}
@@ -116,12 +118,12 @@ unsigned int FileStore::CopyRangeTo2(BufferedTransformation &target, unsigned lo
 		return 0;	// don't try to seek beyond the end of file
 	}
 	m_stream->seekg(newPosition);
-	unsigned long total = 0;
+	lword total = 0;
 	try
 	{
 		assert(!m_waiting);
-		unsigned long copyMax = end-begin;
-		unsigned int blockedBytes = const_cast<FileStore *>(this)->TransferTo2(target, copyMax, channel, blocking);
+		lword copyMax = end-begin;
+		size_t blockedBytes = const_cast<FileStore *>(this)->TransferTo2(target, copyMax, channel, blocking);
 		begin += copyMax;
 		if (blockedBytes)
 		{
@@ -141,11 +143,14 @@ unsigned int FileStore::CopyRangeTo2(BufferedTransformation &target, unsigned lo
 	return 0;
 }
 
-unsigned long FileStore::Skip(unsigned long skipMax)
+lword FileStore::Skip(lword skipMax)
 {
-	unsigned long oldPos = m_stream->tellg();
-	m_stream->seekg(skipMax, ios::cur);
-	return (unsigned long)m_stream->tellg() - oldPos;
+	lword oldPos = m_stream->tellg();
+	std::istream::off_type offset;
+	if (!SafeConvert(skipMax, offset))
+		throw InvalidArgument("FileStore: maximum seek offset exceeded");
+	m_stream->seekg(offset, ios::cur);
+	return (lword)m_stream->tellg() - oldPos;
 }
 
 void FileSink::IsolatedInitialize(const NameValuePairs &parameters)
@@ -179,12 +184,20 @@ bool FileSink::IsolatedFlush(bool hardFlush, bool blocking)
 	return false;
 }
 
-unsigned int FileSink::Put2(const byte *inString, unsigned int length, int messageEnd, bool blocking)
+size_t FileSink::Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
 {
 	if (!m_stream)
 		throw Err("FileSink: output stream not opened");
 
-	m_stream->write((const char *)inString, length);
+	while (length > 0)
+	{
+		std::streamsize size;
+		if (!SafeConvert(length, size))
+			size = numeric_limits<std::streamsize>::max();
+		m_stream->write((const char *)inString, size);
+		inString += size;
+		length -= size;
+	}
 
 	if (messageEnd)
 		m_stream->flush();

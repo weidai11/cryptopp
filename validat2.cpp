@@ -115,7 +115,7 @@ bool SignatureValidate(PK_Signer &priv, PK_Verifier &pub, bool thorough = false)
 	const int messageLen = 12;
 
 	SecByteBlock signature(priv.MaxSignatureLength());
-	unsigned int signatureLength = priv.SignMessage(GlobalRNG(), message, messageLen, signature);
+	size_t signatureLength = priv.SignMessage(GlobalRNG(), message, messageLen, signature);
 	fail = !pub.VerifyMessage(message, messageLen, signature, signatureLength);
 	pass = pass && !fail;
 
@@ -273,7 +273,7 @@ bool ValidateRSA()
 		RSASSA_PKCS1v15_MD2_Signer rsaPriv(keys);
 		RSASSA_PKCS1v15_MD2_Verifier rsaPub(rsaPriv);
 
-		unsigned int signatureLength = rsaPriv.SignMessage(GlobalRNG(), (byte *)plain, strlen(plain), out);
+		size_t signatureLength = rsaPriv.SignMessage(GlobalRNG(), (byte *)plain, strlen(plain), out);
 		fail = memcmp(signature, out, 64) != 0;
 		pass = pass && !fail;
 

@@ -19,7 +19,7 @@ unsigned long g_macFileLocation = 0;
 
 const byte * CRYPTOPP_API GetActualMacAndLocation(unsigned int &macSize, unsigned int &fileLocation)
 {
-	macSize = g_actualMac.size();
+	macSize = (unsigned int)g_actualMac.size();
 	fileLocation = g_macFileLocation;
 	return g_actualMac;
 }
@@ -261,7 +261,7 @@ bool IntegrityCheckModule(const char *moduleFilename, const byte *expectedModule
 	IMAGE_NT_HEADERS *phnt = (IMAGE_NT_HEADERS *)((byte *)h + ph->e_lfanew);
 	IMAGE_SECTION_HEADER *phs = IMAGE_FIRST_SECTION(phnt);
 	DWORD nSections = phnt->FileHeader.NumberOfSections;
-	DWORD currentFilePos = 0;
+	size_t currentFilePos = 0;
 
 	while (nSections--)
 	{
@@ -274,13 +274,13 @@ bool IntegrityCheckModule(const char *moduleFilename, const byte *expectedModule
 			unsigned int sectionSize = STDMIN(phs->SizeOfRawData, phs->Misc.VirtualSize);
 			const byte *sectionMemStart = memBase + phs->VirtualAddress;
 			unsigned int sectionFileStart = phs->PointerToRawData;
-			unsigned int subSectionStart = 0, nextSubSectionStart;
+			size_t subSectionStart = 0, nextSubSectionStart;
 
 			do
 			{
 				const byte *subSectionMemStart = sectionMemStart + subSectionStart;
-				unsigned int subSectionFileStart = sectionFileStart + subSectionStart;
-				unsigned int subSectionSize = sectionSize - subSectionStart;
+				size_t subSectionFileStart = sectionFileStart + subSectionStart;
+				size_t subSectionSize = sectionSize - subSectionStart;
 				nextSubSectionStart = 0;
 
 				unsigned int entriesToReadFromDisk[] = {IMAGE_DIRECTORY_ENTRY_IMPORT, IMAGE_DIRECTORY_ENTRY_IAT};
@@ -301,7 +301,7 @@ bool IntegrityCheckModule(const char *moduleFilename, const byte *expectedModule
 					// skip over the MAC
 					verifier.Put(subSectionMemStart, expectedModuleMac - subSectionMemStart);
 					verifier.Put(expectedModuleMac + macSize, subSectionSize - macSize - (expectedModuleMac - subSectionMemStart));
-					macFileLocation = subSectionFileStart + (expectedModuleMac - subSectionMemStart);
+					macFileLocation = (unsigned long)(subSectionFileStart + (expectedModuleMac - subSectionMemStart));
 				}
 				else
 					verifier.Put(subSectionMemStart, subSectionSize);

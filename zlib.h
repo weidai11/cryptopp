@@ -20,7 +20,7 @@ public:
 
 protected:
 	void WritePrestreamHeader();
-	void ProcessUncompressedData(const byte *string, unsigned int length);
+	void ProcessUncompressedData(const byte *string, size_t length);
 	void WritePoststreamTail();
 
 	Adler32 m_adler32;
@@ -45,7 +45,7 @@ public:
 private:
 	unsigned int MaxPrestreamHeaderSize() const {return 2;}
 	void ProcessPrestreamHeader();
-	void ProcessDecompressedData(const byte *string, unsigned int length);
+	void ProcessDecompressedData(const byte *string, size_t length);
 	unsigned int MaxPoststreamTailSize() const {return 4;}
 	void ProcessPoststreamTail();
 

@@ -187,7 +187,7 @@ public:
 	void Sign(const DL_GroupParameters<Integer> &params, const Integer &x, const Integer &k, const Integer &e, Integer &r, Integer &s) const;
 	bool Verify(const DL_GroupParameters<Integer> &params, const DL_PublicKey<Integer> &publicKey, const Integer &e, const Integer &r, const Integer &s) const;
 
-	unsigned int RLen(const DL_GroupParameters<Integer> &params) const
+	size_t RLen(const DL_GroupParameters<Integer> &params) const
 		{return params.GetGroupOrder().ByteCount();}
 };
 

@@ -24,9 +24,9 @@ void Modes_TestInstantiations()
 }
 #endif
 
-void CipherModeBase::SetKey(const byte *key, unsigned int length, const NameValuePairs &params)
+void CipherModeBase::SetKey(const byte *key, size_t length, const NameValuePairs &params)
 {
-	UncheckedSetKey(params, key, length, GetIVAndThrowIfInvalid(params));	// the underlying cipher will check the key length
+	UncheckedSetKey(params, key, (unsigned int)length, GetIVAndThrowIfInvalid(params));	// the underlying cipher will check the key length
 }
 
 void CipherModeBase::GetNextIV(byte *IV)
@@ -55,7 +55,7 @@ void CTR_ModePolicy::GetNextIV(byte *IV)
 	IncrementCounterByOne(IV, m_counterArray, BlockSize());
 }
 
-inline void CTR_ModePolicy::ProcessMultipleBlocks(byte *output, const byte *input, unsigned int n)
+inline void CTR_ModePolicy::ProcessMultipleBlocks(byte *output, const byte *input, size_t n)
 {
 	unsigned int s = BlockSize(), j = 0;
 	for (unsigned int i=1; i<n; i++, j+=s)
@@ -64,7 +64,7 @@ inline void CTR_ModePolicy::ProcessMultipleBlocks(byte *output, const byte *inpu
 	IncrementCounterByOne(m_counterArray, m_counterArray + s*(n-1), s);
 }
 
-void CTR_ModePolicy::OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, unsigned int iterationCount)
+void CTR_ModePolicy::OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount)
 {
 	unsigned int maxBlocks = m_cipher->OptimalNumberOfParallelBlocks();
 	if (maxBlocks == 1)
@@ -110,7 +110,7 @@ void BlockOrientedCipherModeBase::UncheckedSetKey(const NameValuePairs &params, 
 		Resynchronize(iv);
 }
 
-void BlockOrientedCipherModeBase::ProcessData(byte *outString, const byte *inString, unsigned int length)
+void BlockOrientedCipherModeBase::ProcessData(byte *outString, const byte *inString, size_t length)
 {
 	unsigned int s = BlockSize();
 	assert(length % s == 0);
@@ -146,7 +146,7 @@ void BlockOrientedCipherModeBase::ProcessData(byte *outString, const byte *inStr
 	}
 }
 
-void CBC_Encryption::ProcessBlocks(byte *outString, const byte *inString, unsigned int numberOfBlocks)
+void CBC_Encryption::ProcessBlocks(byte *outString, const byte *inString, size_t numberOfBlocks)
 {
 	unsigned int blockSize = BlockSize();
 	while (numberOfBlocks--)
@@ -159,7 +159,7 @@ void CBC_Encryption::ProcessBlocks(byte *outString, const byte *inString, unsign
 	}
 }
 
-void CBC_CTS_Encryption::ProcessLastBlock(byte *outString, const byte *inString, unsigned int length)
+void CBC_CTS_Encryption::ProcessLastBlock(byte *outString, const byte *inString, size_t length)
 {
 	if (length <= BlockSize())
 	{
@@ -186,7 +186,7 @@ void CBC_CTS_Encryption::ProcessLastBlock(byte *outString, const byte *inString,
 	memcpy(outString, m_register, BlockSize());
 }
 
-void CBC_Decryption::ProcessBlocks(byte *outString, const byte *inString, unsigned int numberOfBlocks)
+void CBC_Decryption::ProcessBlocks(byte *outString, const byte *inString, size_t numberOfBlocks)
 {
 	unsigned int blockSize = BlockSize();
 	while (numberOfBlocks--)
@@ -200,7 +200,7 @@ void CBC_Decryption::ProcessBlocks(byte *outString, const byte *inString, unsign
 	}
 }
 
-void CBC_CTS_Decryption::ProcessLastBlock(byte *outString, const byte *inString, unsigned int length)
+void CBC_CTS_Decryption::ProcessLastBlock(byte *outString, const byte *inString, size_t length)
 {
 	const byte *pn, *pn1;
 	bool stealIV = length <= BlockSize();

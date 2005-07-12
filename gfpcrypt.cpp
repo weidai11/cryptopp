@@ -67,15 +67,15 @@ bool DL_GroupParameters_DSA::ValidateGroup(RandomNumberGenerator &rng, unsigned 
 }
 
 void DL_SignatureMessageEncodingMethod_DSA::ComputeMessageRepresentative(RandomNumberGenerator &rng, 
-	const byte *recoverableMessage, unsigned int recoverableMessageLength,
+	const byte *recoverableMessage, size_t recoverableMessageLength,
 	HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
-	byte *representative, unsigned int representativeBitLength) const
+	byte *representative, size_t representativeBitLength) const
 {
 	assert(recoverableMessageLength == 0);
 	assert(hashIdentifier.second == 0);
-	const unsigned int representativeByteLength = BitsToBytes(representativeBitLength);
-	const unsigned int digestSize = hash.DigestSize();
-	const unsigned int paddingLength = SaturatingSubtract(representativeByteLength, digestSize);
+	const size_t representativeByteLength = BitsToBytes(representativeBitLength);
+	const size_t digestSize = hash.DigestSize();
+	const size_t paddingLength = SaturatingSubtract(representativeByteLength, digestSize);
 
 	memset(representative, 0, paddingLength);
 	hash.TruncatedFinal(representative+paddingLength, STDMIN(representativeByteLength, digestSize));
@@ -89,15 +89,15 @@ void DL_SignatureMessageEncodingMethod_DSA::ComputeMessageRepresentative(RandomN
 }
 
 void DL_SignatureMessageEncodingMethod_NR::ComputeMessageRepresentative(RandomNumberGenerator &rng, 
-	const byte *recoverableMessage, unsigned int recoverableMessageLength,
+	const byte *recoverableMessage, size_t recoverableMessageLength,
 	HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
-	byte *representative, unsigned int representativeBitLength) const
+	byte *representative, size_t representativeBitLength) const
 {
 	assert(recoverableMessageLength == 0);
 	assert(hashIdentifier.second == 0);
-	const unsigned int representativeByteLength = BitsToBytes(representativeBitLength);
-	const unsigned int digestSize = hash.DigestSize();
-	const unsigned int paddingLength = SaturatingSubtract(representativeByteLength, digestSize);
+	const size_t representativeByteLength = BitsToBytes(representativeBitLength);
+	const size_t digestSize = hash.DigestSize();
+	const size_t paddingLength = SaturatingSubtract(representativeByteLength, digestSize);
 
 	memset(representative, 0, paddingLength);
 	hash.TruncatedFinal(representative+paddingLength, STDMIN(representativeByteLength, digestSize));

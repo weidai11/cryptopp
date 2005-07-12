@@ -14,9 +14,9 @@ public:
 	static const char *StaticAlgorithmName() {return "ARC4";}
 
     byte GenerateByte();
-	void DiscardBytes(unsigned int n);
+	void DiscardBytes(size_t n);
 
-    void ProcessData(byte *outString, const byte *inString, unsigned int length);
+    void ProcessData(byte *outString, const byte *inString, size_t length);
 	
 	bool IsRandomAccess() const {return false;}
 	bool IsSelfInverting() const {return true;}

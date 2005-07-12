@@ -167,7 +167,7 @@ bool Socket::Accept(Socket& target, sockaddr *psa, socklen_t *psaLen)
 	socket_t s = accept(m_s, psa, psaLen);
 	if (s == INVALID_SOCKET && GetLastError() == SOCKET_EWOULDBLOCK)
 		return false;
-	CheckAndHandleError_int("accept", s);
+	CheckAndHandleError("accept", s);
 	target.AttachSocket(s, true);
 	return true;
 }
@@ -178,18 +178,18 @@ void Socket::GetSockName(sockaddr *psa, socklen_t *psaLen)
 	CheckAndHandleError_int("getsockname", getsockname(m_s, psa, psaLen));
 }
 
-unsigned int Socket::Send(const byte* buf, unsigned int bufLen, int flags)
+unsigned int Socket::Send(const byte* buf, size_t bufLen, int flags)
 {
 	assert(m_s != INVALID_SOCKET);
-	int result = send(m_s, (const char *)buf, bufLen, flags);
+	int result = send(m_s, (const char *)buf, UnsignedMin(INT_MAX, bufLen), flags);
 	CheckAndHandleError_int("send", result);
 	return result;
 }
 
-unsigned int Socket::Receive(byte* buf, unsigned int bufLen, int flags)
+unsigned int Socket::Receive(byte* buf, size_t bufLen, int flags)
 {
 	assert(m_s != INVALID_SOCKET);
-	int result = recv(m_s, (char *)buf, bufLen, flags);
+	int result = recv(m_s, (char *)buf, UnsignedMin(INT_MAX, bufLen), flags);
 	CheckAndHandleError_int("recv", result);
 	return result;
 }
@@ -218,11 +218,11 @@ bool Socket::SendReady(const timeval *timeout)
 	FD_SET(m_s, &fds);
 	int ready;
 	if (timeout == NULL)
-		ready = select(m_s+1, NULL, &fds, NULL, NULL);
+		ready = select((int)m_s+1, NULL, &fds, NULL, NULL);
 	else
 	{
 		timeval timeoutCopy = *timeout;	// select() modified timeout on Linux
-		ready = select(m_s+1, NULL, &fds, NULL, &timeoutCopy);
+		ready = select((int)m_s+1, NULL, &fds, NULL, &timeoutCopy);
 	}
 	CheckAndHandleError_int("select", ready);
 	return ready > 0;
@@ -235,11 +235,11 @@ bool Socket::ReceiveReady(const timeval *timeout)
 	FD_SET(m_s, &fds);
 	int ready;
 	if (timeout == NULL)
-		ready = select(m_s+1, &fds, NULL, NULL, NULL);
+		ready = select((int)m_s+1, &fds, NULL, NULL, NULL);
 	else
 	{
 		timeval timeoutCopy = *timeout;	// select() modified timeout on Linux
-		ready = select(m_s+1, &fds, NULL, NULL, &timeoutCopy);
+		ready = select((int)m_s+1, &fds, NULL, NULL, &timeoutCopy);
 	}
 	CheckAndHandleError_int("select", ready);
 	return ready > 0;
@@ -311,13 +311,13 @@ SocketReceiver::SocketReceiver(Socket &s)
 	m_overlapped.hEvent = m_event;
 }
 
-bool SocketReceiver::Receive(byte* buf, unsigned int bufLen)
+bool SocketReceiver::Receive(byte* buf, size_t bufLen)
 {
 	assert(!m_resultPending && !m_eofReceived);
 
 	DWORD flags = 0;
 	// don't queue too much at once, or we might use up non-paged memory
-	WSABUF wsabuf = {STDMIN(bufLen, 128U*1024U), (char *)buf};
+	WSABUF wsabuf = {UnsignedMin(128U*1024U, bufLen), (char *)buf};
 	if (WSARecv(m_s, &wsabuf, 1, &m_lastResult, &flags, &m_overlapped, NULL) == 0)
 	{
 		if (m_lastResult == 0)
@@ -385,11 +385,11 @@ SocketSender::SocketSender(Socket &s)
 	m_overlapped.hEvent = m_event;
 }
 
-void SocketSender::Send(const byte* buf, unsigned int bufLen)
+void SocketSender::Send(const byte* buf, size_t bufLen)
 {
 	DWORD written = 0;
 	// don't queue too much at once, or we might use up non-paged memory
-	WSABUF wsabuf = {STDMIN(bufLen, 128U*1024U), (char *)buf};
+	WSABUF wsabuf = {UnsignedMin(128U*1024U, bufLen), (char *)buf};
 	if (WSASend(m_s, &wsabuf, 1, &written, 0, &m_overlapped, NULL) == 0)
 	{
 		m_resultPending = false;
@@ -439,7 +439,7 @@ void SocketReceiver::GetWaitObjects(WaitObjectContainer &container)
 		container.AddReadFd(m_s);
 }
 
-bool SocketReceiver::Receive(byte* buf, unsigned int bufLen)
+bool SocketReceiver::Receive(byte* buf, size_t bufLen)
 {
 	m_lastResult = m_s.Receive(buf, bufLen);
 	if (bufLen > 0 && m_lastResult == 0)
@@ -457,7 +457,7 @@ SocketSender::SocketSender(Socket &s)
 {
 }
 
-void SocketSender::Send(const byte* buf, unsigned int bufLen)
+void SocketSender::Send(const byte* buf, size_t bufLen)
 {
 	m_lastResult = m_s.Send(buf, bufLen);
 }

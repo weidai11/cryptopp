@@ -11,9 +11,9 @@ class CRYPTOPP_DLL OAEP_Base : public PK_EncryptionMessageEncodingMethod
 {
 public:
 	bool ParameterSupported(const char *name) const {return strcmp(name, Name::EncodingParameters()) == 0;}
-	unsigned int MaxUnpaddedLength(unsigned int paddedLength) const;
-	void Pad(RandomNumberGenerator &rng, const byte *raw, unsigned int inputLength, byte *padded, unsigned int paddedLength, const NameValuePairs &parameters) const;
-	DecodingResult Unpad(const byte *padded, unsigned int paddedLength, byte *raw, const NameValuePairs &parameters) const;
+	size_t MaxUnpaddedLength(size_t paddedLength) const;
+	void Pad(RandomNumberGenerator &rng, const byte *raw, size_t inputLength, byte *padded, size_t paddedLength, const NameValuePairs &parameters) const;
+	DecodingResult Unpad(const byte *padded, size_t paddedLength, byte *raw, const NameValuePairs &parameters) const;
 
 protected:
 	virtual unsigned int DigestSize() const =0;

@@ -65,7 +65,7 @@ byte ARC4_Base::GenerateByte()
 	return MakeByte(m_x, m_y, m_state);
 }
 
-void ARC4_Base::ProcessData(byte *outString, const byte *inString, unsigned int length)
+void ARC4_Base::ProcessData(byte *outString, const byte *inString, size_t length)
 {
 	if (length == 0)
 		return;
@@ -94,7 +94,7 @@ void ARC4_Base::ProcessData(byte *outString, const byte *inString, unsigned int 
 	m_y = y;
 }
 
-void ARC4_Base::DiscardBytes(unsigned int length)
+void ARC4_Base::DiscardBytes(size_t length)
 {
 	if (length == 0)
 		return;

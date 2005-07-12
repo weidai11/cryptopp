@@ -24,13 +24,13 @@ public:
 	typedef T HashWordType;
 
 	IteratedHashBase() : m_countLo(0), m_countHi(0) {}
-	unsigned int BlockSize() const {return m_data.size() * sizeof(T);}
+	unsigned int BlockSize() const {return (unsigned int)m_data.size() * sizeof(T);}
 	unsigned int OptimalBlockSize() const {return BlockSize();}
 	unsigned int OptimalDataAlignment() const {return sizeof(T);}
-	void Update(const byte *input, unsigned int length);
-	byte * CreateUpdateSpace(unsigned int &size);
+	void Update(const byte *input, size_t length);
+	byte * CreateUpdateSpace(size_t &size);
 	void Restart();
-	void TruncatedFinal(byte *digest, unsigned int size);
+	void TruncatedFinal(byte *digest, size_t size);
 
 protected:
 	void SetBlockSize(unsigned int blockSize) {m_data.resize(blockSize / sizeof(HashWordType));}
@@ -44,7 +44,7 @@ protected:
 
 	virtual ByteOrder GetByteOrder() const =0;
 	virtual void HashEndianCorrectedBlock(const HashWordType *data) =0;
-	virtual unsigned int HashMultipleBlocks(const T *input, unsigned int length);
+	virtual size_t HashMultipleBlocks(const T *input, size_t length);
 	void HashBlock(const HashWordType *input) {HashMultipleBlocks(input, BlockSize());}
 
 	SecBlock<T> m_data;			// Data buffer
@@ -75,7 +75,7 @@ public:
 
 	ByteOrder GetByteOrder() const {return T_Endianness::ToEnum();}
 
-	inline static void CorrectEndianess(HashWordType *out, const HashWordType *in, unsigned int byteCount)
+	inline static void CorrectEndianess(HashWordType *out, const HashWordType *in, size_t byteCount)
 	{
 		ConditionalByteReverse(T_Endianness::ToEnum(), out, in, byteCount);
 	}

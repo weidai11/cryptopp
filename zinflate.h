@@ -12,7 +12,7 @@ class LowFirstBitReader
 public:
 	LowFirstBitReader(BufferedTransformation &store)
 		: m_store(store), m_buffer(0), m_bitsBuffered(0) {}
-	unsigned long BitsLeft() const {return m_store.MaxRetrievable() * 8 + m_bitsBuffered;}
+//	unsigned long BitsLeft() const {return m_store.MaxRetrievable() * 8 + m_bitsBuffered;}
 	unsigned int BitsBuffered() const {return m_bitsBuffered;}
 	unsigned long PeekBuffer() const {return m_buffer;}
 	bool FillBuffer(unsigned int length);
@@ -100,7 +100,7 @@ public:
 	Inflator(BufferedTransformation *attachment = NULL, bool repeat = false, int autoSignalPropagation = -1);
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
-	unsigned int Put2(const byte *inString, unsigned int length, int messageEnd, bool blocking);
+	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking);
 	bool IsolatedFlush(bool hardFlush, bool blocking);
 
 	virtual unsigned int GetLog2WindowSize() const {return 15;}
@@ -111,7 +111,7 @@ protected:
 private:
 	virtual unsigned int MaxPrestreamHeaderSize() const {return 0;}
 	virtual void ProcessPrestreamHeader() {}
-	virtual void ProcessDecompressedData(const byte *string, unsigned int length)
+	virtual void ProcessDecompressedData(const byte *string, size_t length)
 		{AttachedTransformation()->Put(string, length);}
 	virtual unsigned int MaxPoststreamTailSize() const {return 0;}
 	virtual void ProcessPoststreamTail() {}
@@ -121,7 +121,7 @@ private:
 	bool DecodeBody();
 	void FlushOutput();
 	void OutputByte(byte b);
-	void OutputString(const byte *string, unsigned int length);
+	void OutputString(const byte *string, size_t length);
 	void OutputPast(unsigned int length, unsigned int distance);
 
 	static const HuffmanDecoder *FixedLiteralDecoder();
@@ -141,7 +141,7 @@ private:
 	HuffmanDecoder m_dynamicLiteralDecoder, m_dynamicDistanceDecoder;
 	LowFirstBitReader m_reader;
 	SecByteBlock m_window;
-	unsigned int m_current, m_lastFlush;
+	size_t m_current, m_lastFlush;
 };
 
 NAMESPACE_END

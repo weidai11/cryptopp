@@ -194,16 +194,16 @@ protected:
 struct CRYPTOPP_DLL DecodingResult
 {
 	explicit DecodingResult() : isValidCoding(false), messageLength(0) {}
-	explicit DecodingResult(unsigned int len) : isValidCoding(true), messageLength(len) {}
+	explicit DecodingResult(size_t len) : isValidCoding(true), messageLength(len) {}
 
 	bool operator==(const DecodingResult &rhs) const {return isValidCoding == rhs.isValidCoding && messageLength == rhs.messageLength;}
 	bool operator!=(const DecodingResult &rhs) const {return !operator==(rhs);}
 
 	bool isValidCoding;
-	unsigned int messageLength;
+	size_t messageLength;
 
 #ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
-	operator unsigned int() const {return isValidCoding ? messageLength : 0;}
+	operator size_t() const {return isValidCoding ? messageLength : 0;}
 #endif
 };
 
@@ -352,28 +352,28 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE SimpleKeyingInterface
 {
 public:
 	//! returns smallest valid key length in bytes */
-	virtual unsigned int MinKeyLength() const =0;
+	virtual size_t MinKeyLength() const =0;
 	//! returns largest valid key length in bytes */
-	virtual unsigned int MaxKeyLength() const =0;
+	virtual size_t MaxKeyLength() const =0;
 	//! returns default (recommended) key length in bytes */
-	virtual unsigned int DefaultKeyLength() const =0;
+	virtual size_t DefaultKeyLength() const =0;
 
 	//! returns the smallest valid key length in bytes that is >= min(n, GetMaxKeyLength())
-	virtual unsigned int GetValidKeyLength(unsigned int n) const =0;
+	virtual size_t GetValidKeyLength(size_t n) const =0;
 
 	//! returns whether n is a valid key length
-	virtual bool IsValidKeyLength(unsigned int n) const
+	virtual bool IsValidKeyLength(size_t n) const
 		{return n == GetValidKeyLength(n);}
 
 	//! set or reset the key of this object
 	/*! \param params is used to specify Rounds, BlockSize, etc */
-	virtual void SetKey(const byte *key, unsigned int length, const NameValuePairs &params = g_nullNameValuePairs) =0;
+	virtual void SetKey(const byte *key, size_t length, const NameValuePairs &params = g_nullNameValuePairs) =0;
 
 	//! calls SetKey() with an NameValuePairs object that just specifies "Rounds"
-	void SetKeyWithRounds(const byte *key, unsigned int length, int rounds);
+	void SetKeyWithRounds(const byte *key, size_t length, int rounds);
 
 	//! calls SetKey() with an NameValuePairs object that just specifies "IV"
-	void SetKeyWithIV(const byte *key, unsigned int length, const byte *iv);
+	void SetKeyWithIV(const byte *key, size_t length, const byte *iv);
 
 	enum IV_Requirement {STRUCTURED_IV = 0, RANDOM_IV, UNPREDICTABLE_RANDOM_IV, INTERNALLY_GENERATED_IV, NOT_RESYNCHRONIZABLE};
 	//! returns the minimal requirement for secure IVs
@@ -400,12 +400,12 @@ public:
 	virtual void GetNextIV(byte *IV) {throw NotImplemented("SimpleKeyingInterface: this object doesn't support GetNextIV()");}
 
 protected:
-	void ThrowIfInvalidKeyLength(const Algorithm &algorithm, unsigned int length);
+	void ThrowIfInvalidKeyLength(const Algorithm &algorithm, size_t length);
 	void ThrowIfResynchronizable();			// to be called when no IV is passed
 	void ThrowIfInvalidIV(const byte *iv);	// check for NULL IV if it can't be used
 	const byte * GetIVAndThrowIfInvalid(const NameValuePairs &params);
 
-	inline void AssertValidKeyLength(unsigned int length) const
+	inline void AssertValidKeyLength(size_t length) const
 	{
 		assert(IsValidKeyLength(length));
 	}
@@ -450,7 +450,7 @@ public:
 	virtual unsigned int OptimalNumberOfParallelBlocks() const {return 1;}
 
 	//! encrypt or decrypt multiple blocks, for bit-slicing implementations
-	virtual void ProcessAndXorMultipleBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, unsigned int numberOfBlocks) const;
+	virtual void ProcessAndXorMultipleBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t numberOfBlocks) const;
 };
 
 //! interface for the data processing part of stream ciphers
@@ -477,19 +477,19 @@ public:
 
 	//! encrypt or decrypt an array of bytes of specified length
 	/*! \note either inString == outString, or they don't overlap */
-	virtual void ProcessData(byte *outString, const byte *inString, unsigned int length) =0;
+	virtual void ProcessData(byte *outString, const byte *inString, size_t length) =0;
 
 	//! for ciphers where the last block of data is special, encrypt or decrypt the last block of data
 	/*! For now the only use of this function is for CBC-CTS mode. */
-	virtual void ProcessLastBlock(byte *outString, const byte *inString, unsigned int length);
+	virtual void ProcessLastBlock(byte *outString, const byte *inString, size_t length);
 	//! returns the minimum size of the last block, 0 indicating the last block is not special
 	virtual unsigned int MinLastBlockSize() const {return 0;}
 
 	//! same as ProcessData(inoutString, inoutString, length)
-	inline void ProcessString(byte *inoutString, unsigned int length)
+	inline void ProcessString(byte *inoutString, size_t length)
 		{ProcessData(inoutString, inoutString, length);}
 	//! same as ProcessData(outString, inString, length)
-	inline void ProcessString(byte *outString, const byte *inString, unsigned int length)
+	inline void ProcessString(byte *outString, const byte *inString, size_t length)
 		{ProcessData(outString, inString, length);}
 	//! implemented as {ProcessData(&input, &input, 1); return input;}
 	inline byte ProcessByte(byte input)
@@ -522,10 +522,10 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE HashTransformation : public Algorithm
 {
 public:
 	//! process more input
-	virtual void Update(const byte *input, unsigned int length) =0;
+	virtual void Update(const byte *input, size_t length) =0;
 
 	//! request space to write input into
-	virtual byte * CreateUpdateSpace(unsigned int &size) {size=0; return NULL;}
+	virtual byte * CreateUpdateSpace(size_t &size) {size=0; return NULL;}
 
 	//! compute hash for current message, then restart for a new message
 	/*!	\pre size of digest == DigestSize(). */
@@ -549,7 +549,7 @@ public:
 	virtual unsigned int OptimalDataAlignment() const {return 1;}
 
 	//! use this if your input is in one piece and you don't want to call Update() and Final() separately
-	virtual void CalculateDigest(byte *digest, const byte *input, unsigned int length)
+	virtual void CalculateDigest(byte *digest, const byte *input, size_t length)
 		{Update(input, length); Final(digest);}
 
 	//! verify that digest is a valid digest for the current message, then reinitialize the object
@@ -559,25 +559,25 @@ public:
 		{return TruncatedVerify(digest, DigestSize());}
 
 	//! use this if your input is in one piece and you don't want to call Update() and Verify() separately
-	virtual bool VerifyDigest(const byte *digest, const byte *input, unsigned int length)
+	virtual bool VerifyDigest(const byte *digest, const byte *input, size_t length)
 		{Update(input, length); return Verify(digest);}
 
 	//! truncated version of Final()
-	virtual void TruncatedFinal(byte *digest, unsigned int digestSize) =0;
+	virtual void TruncatedFinal(byte *digest, size_t digestSize) =0;
 
 	//! truncated version of CalculateDigest()
-	virtual void CalculateTruncatedDigest(byte *digest, unsigned int digestSize, const byte *input, unsigned int length)
+	virtual void CalculateTruncatedDigest(byte *digest, size_t digestSize, const byte *input, size_t length)
 		{Update(input, length); TruncatedFinal(digest, digestSize);}
 
 	//! truncated version of Verify()
-	virtual bool TruncatedVerify(const byte *digest, unsigned int digestLength);
+	virtual bool TruncatedVerify(const byte *digest, size_t digestLength);
 
 	//! truncated version of VerifyDigest()
-	virtual bool VerifyTruncatedDigest(const byte *digest, unsigned int digestLength, const byte *input, unsigned int length)
+	virtual bool VerifyTruncatedDigest(const byte *digest, size_t digestLength, const byte *input, size_t length)
 		{Update(input, length); return TruncatedVerify(digest, digestLength);}
 
 protected:
-	void ThrowIfInvalidTruncatedSize(unsigned int size) const;
+	void ThrowIfInvalidTruncatedSize(size_t size) const;
 };
 
 typedef HashTransformation HashFunction;
@@ -586,7 +586,7 @@ template <class T>
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE SimpleKeyedTransformation : public T, public SimpleKeyingInterface
 {
 public:
-	void ThrowIfInvalidKeyLength(unsigned int length)
+	void ThrowIfInvalidKeyLength(size_t length)
 		{SimpleKeyingInterface::ThrowIfInvalidKeyLength(*this, length);}
 };
 
@@ -630,11 +630,11 @@ public:
 
 	//! generate random array of bytes
 	/*! Default implementation is to call GenerateByte() size times. */
-	virtual void GenerateBlock(byte *output, unsigned int size);
+	virtual void GenerateBlock(byte *output, size_t size);
 
 	//! generate and discard n bytes
 	/*! Default implementation is to call GenerateByte() n times. */
-	virtual void DiscardBytes(unsigned int n);
+	virtual void DiscardBytes(size_t n);
 
 	//! randomly shuffle the specified array, resulting permutation is uniformly distributed
 	template <class IT> void Shuffle(IT begin, IT end)
@@ -648,7 +648,7 @@ public:
 	unsigned int GetBit() {return GenerateBit();}
 	word32 GetLong(word32 a=0, word32 b=0xffffffffL) {return GenerateWord32(a, b);}
 	word16 GetShort(word16 a=0, word16 b=0xffff) {return (word16)GenerateWord32(a, b);}
-	void GetBlock(byte *output, unsigned int size) {GenerateBlock(output, size);}
+	void GetBlock(byte *output, size_t size) {GenerateBlock(output, size);}
 #endif
 };
 
@@ -713,39 +713,39 @@ public:
 	//!	\name INPUT
 	//@{
 		//! input a byte for processing
-		unsigned int Put(byte inByte, bool blocking=true)
+		size_t Put(byte inByte, bool blocking=true)
 			{return Put(&inByte, 1, blocking);}
 		//! input multiple bytes
-		unsigned int Put(const byte *inString, unsigned int length, bool blocking=true)
+		size_t Put(const byte *inString, size_t length, bool blocking=true)
 			{return Put2(inString, length, 0, blocking);}
 
 		//! input a 16-bit word
-		unsigned int PutWord16(word16 value, ByteOrder order=BIG_ENDIAN_ORDER, bool blocking=true);
+		size_t PutWord16(word16 value, ByteOrder order=BIG_ENDIAN_ORDER, bool blocking=true);
 		//! input a 32-bit word
-		unsigned int PutWord32(word32 value, ByteOrder order=BIG_ENDIAN_ORDER, bool blocking=true);
+		size_t PutWord32(word32 value, ByteOrder order=BIG_ENDIAN_ORDER, bool blocking=true);
 
 		//! request space which can be written into by the caller, and then used as input to Put()
 		/*! \param size is requested size (as a hint) for input, and size of the returned space for output */
 		/*! \note The purpose of this method is to help avoid doing extra memory allocations. */
-		virtual byte * CreatePutSpace(unsigned int &size) {size=0; return NULL;}
+		virtual byte * CreatePutSpace(size_t &size) {size=0; return NULL;}
 
 		virtual bool CanModifyInput() const {return false;}
 
 		//! input multiple bytes that may be modified by callee
-		unsigned int PutModifiable(byte *inString, unsigned int length, bool blocking=true)
+		size_t PutModifiable(byte *inString, size_t length, bool blocking=true)
 			{return PutModifiable2(inString, length, 0, blocking);}
 
 		bool MessageEnd(int propagation=-1, bool blocking=true)
 			{return !!Put2(NULL, 0, propagation < 0 ? -1 : propagation+1, blocking);}
-		unsigned int PutMessageEnd(const byte *inString, unsigned int length, int propagation=-1, bool blocking=true)
+		size_t PutMessageEnd(const byte *inString, size_t length, int propagation=-1, bool blocking=true)
 			{return Put2(inString, length, propagation < 0 ? -1 : propagation+1, blocking);}
 
 		//! input multiple bytes for blocking or non-blocking processing
 		/*! \param messageEnd means how many filters to signal MessageEnd to, including this one */
-		virtual unsigned int Put2(const byte *inString, unsigned int length, int messageEnd, bool blocking) =0;
+		virtual size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking) =0;
 		//! input multiple bytes that may be modified by callee for blocking or non-blocking processing
 		/*! \param messageEnd means how many filters to signal MessageEnd to, including this one */
-		virtual unsigned int PutModifiable2(byte *inString, unsigned int length, int messageEnd, bool blocking)
+		virtual size_t PutModifiable2(byte *inString, size_t length, int messageEnd, bool blocking)
 			{return Put2(inString, length, messageEnd, blocking);}
 
 		//! thrown by objects that have not implemented nonblocking input processing
@@ -802,45 +802,45 @@ public:
 		/*! All retrieval functions return the actual number of bytes
 			retrieved, which is the lesser of the request number and
 			MaxRetrievable(). */
-		virtual unsigned long MaxRetrievable() const;
+		virtual lword MaxRetrievable() const;
 
 		//! returns whether any bytes are currently ready for retrieval
 		virtual bool AnyRetrievable() const;
 
 		//! try to retrieve a single byte
-		virtual unsigned int Get(byte &outByte);
+		virtual size_t Get(byte &outByte);
 		//! try to retrieve multiple bytes
-		virtual unsigned int Get(byte *outString, unsigned int getMax);
+		virtual size_t Get(byte *outString, size_t getMax);
 
 		//! peek at the next byte without removing it from the output buffer
-		virtual unsigned int Peek(byte &outByte) const;
+		virtual size_t Peek(byte &outByte) const;
 		//! peek at multiple bytes without removing them from the output buffer
-		virtual unsigned int Peek(byte *outString, unsigned int peekMax) const;
+		virtual size_t Peek(byte *outString, size_t peekMax) const;
 
 		//! try to retrieve a 16-bit word
-		unsigned int GetWord16(word16 &value, ByteOrder order=BIG_ENDIAN_ORDER);
+		size_t GetWord16(word16 &value, ByteOrder order=BIG_ENDIAN_ORDER);
 		//! try to retrieve a 32-bit word
-		unsigned int GetWord32(word32 &value, ByteOrder order=BIG_ENDIAN_ORDER);
+		size_t GetWord32(word32 &value, ByteOrder order=BIG_ENDIAN_ORDER);
 
 		//! try to peek at a 16-bit word
-		unsigned int PeekWord16(word16 &value, ByteOrder order=BIG_ENDIAN_ORDER) const;
+		size_t PeekWord16(word16 &value, ByteOrder order=BIG_ENDIAN_ORDER) const;
 		//! try to peek at a 32-bit word
-		unsigned int PeekWord32(word32 &value, ByteOrder order=BIG_ENDIAN_ORDER) const;
+		size_t PeekWord32(word32 &value, ByteOrder order=BIG_ENDIAN_ORDER) const;
 
 		//! move transferMax bytes of the buffered output to target as input
-		unsigned long TransferTo(BufferedTransformation &target, unsigned long transferMax=ULONG_MAX, const std::string &channel=NULL_CHANNEL)
+		lword TransferTo(BufferedTransformation &target, lword transferMax=LWORD_MAX, const std::string &channel=NULL_CHANNEL)
 			{TransferTo2(target, transferMax, channel); return transferMax;}
 
 		//! discard skipMax bytes from the output buffer
-		virtual unsigned long Skip(unsigned long skipMax=ULONG_MAX);
+		virtual lword Skip(lword skipMax=LWORD_MAX);
 
 		//! copy copyMax bytes of the buffered output to target as input
-		unsigned long CopyTo(BufferedTransformation &target, unsigned long copyMax=ULONG_MAX, const std::string &channel=NULL_CHANNEL) const
+		lword CopyTo(BufferedTransformation &target, lword copyMax=LWORD_MAX, const std::string &channel=NULL_CHANNEL) const
 			{return CopyRangeTo(target, 0, copyMax, channel);}
 
 		//! copy copyMax bytes of the buffered output, starting at position (relative to current position), to target as input
-		unsigned long CopyRangeTo(BufferedTransformation &target, unsigned long position, unsigned long copyMax=ULONG_MAX, const std::string &channel=NULL_CHANNEL) const
-			{unsigned long i = position; CopyRangeTo2(target, i, i+copyMax, channel); return i-position;}
+		lword CopyRangeTo(BufferedTransformation &target, lword position, lword copyMax=LWORD_MAX, const std::string &channel=NULL_CHANNEL) const
+			{lword i = position; CopyRangeTo2(target, i, i+copyMax, channel); return i-position;}
 
 #ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
 		unsigned long MaxRetrieveable() const {return MaxRetrievable();}
@@ -850,7 +850,7 @@ public:
 	//!	\name RETRIEVAL OF MULTIPLE MESSAGES
 	//@{
 		//!
-		virtual unsigned long TotalBytesRetrievable() const;
+		virtual lword TotalBytesRetrievable() const;
 		//! number of times MessageEnd() has been received minus messages retrieved or skipped
 		virtual unsigned int NumberOfMessages() const;
 		//! returns true if NumberOfMessages() > 0
@@ -884,10 +884,14 @@ public:
 
 	//!	\name NON-BLOCKING TRANSFER OF OUTPUT
 	//@{
-		virtual unsigned int TransferTo2(BufferedTransformation &target, unsigned long &byteCount, const std::string &channel=NULL_CHANNEL, bool blocking=true) =0;
-		virtual unsigned int CopyRangeTo2(BufferedTransformation &target, unsigned long &begin, unsigned long end=ULONG_MAX, const std::string &channel=NULL_CHANNEL, bool blocking=true) const =0;
-		unsigned int TransferMessagesTo2(BufferedTransformation &target, unsigned int &messageCount, const std::string &channel=NULL_CHANNEL, bool blocking=true);
-		unsigned int TransferAllTo2(BufferedTransformation &target, const std::string &channel=NULL_CHANNEL, bool blocking=true);
+		//! upon return, byteCount contains number of bytes that have finished being transfered, and returns the number of bytes left in the current transfer block
+		virtual size_t TransferTo2(BufferedTransformation &target, lword &byteCount, const std::string &channel=NULL_CHANNEL, bool blocking=true) =0;
+		//! upon return, begin contains the start position of data yet to be finished copying, and returns the number of bytes left in the current transfer block
+		virtual size_t CopyRangeTo2(BufferedTransformation &target, lword &begin, lword end=LWORD_MAX, const std::string &channel=NULL_CHANNEL, bool blocking=true) const =0;
+		//! upon return, messageCount contains number of messages that have finished being transfered, and returns the number of bytes left in the current transfer block
+		size_t TransferMessagesTo2(BufferedTransformation &target, unsigned int &messageCount, const std::string &channel=NULL_CHANNEL, bool blocking=true);
+		//! returns the number of bytes left in the current transfer block
+		size_t TransferAllTo2(BufferedTransformation &target, const std::string &channel=NULL_CHANNEL, bool blocking=true);
 	//@}
 
 	//!	\name CHANNELS
@@ -895,26 +899,26 @@ public:
 		struct NoChannelSupport : public NotImplemented
 			{NoChannelSupport() : NotImplemented("BufferedTransformation: this object doesn't support multiple channels") {}};
 
-		unsigned int ChannelPut(const std::string &channel, byte inByte, bool blocking=true)
+		size_t ChannelPut(const std::string &channel, byte inByte, bool blocking=true)
 			{return ChannelPut(channel, &inByte, 1, blocking);}
-		unsigned int ChannelPut(const std::string &channel, const byte *inString, unsigned int length, bool blocking=true)
+		size_t ChannelPut(const std::string &channel, const byte *inString, size_t length, bool blocking=true)
 			{return ChannelPut2(channel, inString, length, 0, blocking);}
 
-		unsigned int ChannelPutModifiable(const std::string &channel, byte *inString, unsigned int length, bool blocking=true)
+		size_t ChannelPutModifiable(const std::string &channel, byte *inString, size_t length, bool blocking=true)
 			{return ChannelPutModifiable2(channel, inString, length, 0, blocking);}
 
-		unsigned int ChannelPutWord16(const std::string &channel, word16 value, ByteOrder order=BIG_ENDIAN_ORDER, bool blocking=true);
-		unsigned int ChannelPutWord32(const std::string &channel, word32 value, ByteOrder order=BIG_ENDIAN_ORDER, bool blocking=true);
+		size_t ChannelPutWord16(const std::string &channel, word16 value, ByteOrder order=BIG_ENDIAN_ORDER, bool blocking=true);
+		size_t ChannelPutWord32(const std::string &channel, word32 value, ByteOrder order=BIG_ENDIAN_ORDER, bool blocking=true);
 
 		bool ChannelMessageEnd(const std::string &channel, int propagation=-1, bool blocking=true)
 			{return !!ChannelPut2(channel, NULL, 0, propagation < 0 ? -1 : propagation+1, blocking);}
-		unsigned int ChannelPutMessageEnd(const std::string &channel, const byte *inString, unsigned int length, int propagation=-1, bool blocking=true)
+		size_t ChannelPutMessageEnd(const std::string &channel, const byte *inString, size_t length, int propagation=-1, bool blocking=true)
 			{return ChannelPut2(channel, inString, length, propagation < 0 ? -1 : propagation+1, blocking);}
 
-		virtual byte * ChannelCreatePutSpace(const std::string &channel, unsigned int &size);
+		virtual byte * ChannelCreatePutSpace(const std::string &channel, size_t &size);
 
-		virtual unsigned int ChannelPut2(const std::string &channel, const byte *begin, unsigned int length, int messageEnd, bool blocking);
-		virtual unsigned int ChannelPutModifiable2(const std::string &channel, byte *begin, unsigned int length, int messageEnd, bool blocking);
+		virtual size_t ChannelPut2(const std::string &channel, const byte *begin, size_t length, int messageEnd, bool blocking);
+		virtual size_t ChannelPutModifiable2(const std::string &channel, byte *begin, size_t length, int messageEnd, bool blocking);
 
 		virtual bool ChannelFlush(const std::string &channel, bool hardFlush, int propagation=-1, bool blocking=true);
 		virtual bool ChannelMessageSeriesEnd(const std::string &channel, int propagation=-1, bool blocking=true);
@@ -947,6 +951,9 @@ public:
 protected:
 	static int DecrementPropagation(int propagation)
 		{return propagation != 0 ? propagation - 1 : 0;}
+
+private:
+	byte m_buf[4];	// for ChannelPutWord16 and ChannelPutWord32, to ensure buffer isn't deallocated before non-blocking operation completes
 };
 
 //! returns a reference to a BufferedTransformation object that discards all input
@@ -1113,11 +1120,11 @@ public:
 
 	//! maximum length of plaintext for a given ciphertext length
 	/*! \note This function returns 0 if ciphertextLength is not valid (too long or too short). */
-	virtual unsigned int MaxPlaintextLength(unsigned int ciphertextLength) const =0;
+	virtual size_t MaxPlaintextLength(size_t ciphertextLength) const =0;
 
 	//! calculate length of ciphertext given length of plaintext
 	/*! \note This function returns 0 if plaintextLength is not valid (too long). */
-	virtual unsigned int CiphertextLength(unsigned int plaintextLength) const =0;
+	virtual size_t CiphertextLength(size_t plaintextLength) const =0;
 
 	//! this object supports the use of the parameter with the given name
 	/*! some possible parameter names: EncodingParameters, KeyDerivationParameters */
@@ -1126,14 +1133,14 @@ public:
 	//! return fixed ciphertext length, if one exists, otherwise return 0
 	/*! \note "Fixed" here means length of ciphertext does not depend on length of plaintext.
 		It usually does depend on the key length. */
-	virtual unsigned int FixedCiphertextLength() const {return 0;}
+	virtual size_t FixedCiphertextLength() const {return 0;}
 
 	//! return maximum plaintext length given the fixed ciphertext length, if one exists, otherwise return 0
-	virtual unsigned int FixedMaxPlaintextLength() const {return 0;}
+	virtual size_t FixedMaxPlaintextLength() const {return 0;}
 
 #ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
-	unsigned int MaxPlainTextLength(unsigned int cipherTextLength) const {return MaxPlaintextLength(cipherTextLength);}
-	unsigned int CipherTextLength(unsigned int plainTextLength) const {return CiphertextLength(plainTextLength);}
+	size_t MaxPlainTextLength(size_t cipherTextLength) const {return MaxPlaintextLength(cipherTextLength);}
+	size_t CipherTextLength(size_t plainTextLength) const {return CiphertextLength(plainTextLength);}
 #endif
 };
 
@@ -1153,7 +1160,7 @@ public:
 		\pre size of ciphertext == CiphertextLength(plaintextLength)
 	*/
 	virtual void Encrypt(RandomNumberGenerator &rng, 
-		const byte *plaintext, unsigned int plaintextLength, 
+		const byte *plaintext, size_t plaintextLength, 
 		byte *ciphertext, const NameValuePairs &parameters = g_nullNameValuePairs) const =0;
 
 	//! create a new encryption filter
@@ -1174,7 +1181,7 @@ public:
 		\return the actual length of the plaintext, indication that decryption failed.
 	*/
 	virtual DecodingResult Decrypt(RandomNumberGenerator &rng, 
-		const byte *ciphertext, unsigned int ciphertextLength, 
+		const byte *ciphertext, size_t ciphertextLength, 
 		byte *plaintext, const NameValuePairs &parameters = g_nullNameValuePairs) const =0;
 
 	//! create a new decryption filter
@@ -1219,16 +1226,16 @@ public:
 	virtual ~PK_SignatureScheme() {}
 
 	//! signature length if it only depends on the key, otherwise 0
-	virtual unsigned int SignatureLength() const =0;
+	virtual size_t SignatureLength() const =0;
 
 	//! maximum signature length produced for a given length of recoverable message part
-	virtual unsigned int MaxSignatureLength(unsigned int recoverablePartLength = 0) const {return SignatureLength();}
+	virtual size_t MaxSignatureLength(size_t recoverablePartLength = 0) const {return SignatureLength();}
 
 	//! length of longest message that can be recovered, or 0 if this signature scheme does not support message recovery
-	virtual unsigned int MaxRecoverableLength() const =0;
+	virtual size_t MaxRecoverableLength() const =0;
 
 	//! length of longest message that can be recovered from a signature of given length, or 0 if this signature scheme does not support message recovery
-	virtual unsigned int MaxRecoverableLengthFromSignatureLength(unsigned int signatureLength) const =0;
+	virtual size_t MaxRecoverableLengthFromSignatureLength(size_t signatureLength) const =0;
 
 	//! requires a random number generator to sign
 	/*! if this returns false, NullRNG() can be passed to functions that take RandomNumberGenerator & */
@@ -1255,7 +1262,7 @@ public:
 	unsigned int DigestSize() const
 		{throw NotImplemented("PK_MessageAccumulator: DigestSize() should not be called");}
 	//! should not be called on PK_MessageAccumulator
-	void TruncatedFinal(byte *digest, unsigned int digestSize) 
+	void TruncatedFinal(byte *digest, size_t digestSize) 
 		{throw NotImplemented("PK_MessageAccumulator: TruncatedFinal() should not be called");}
 };
 
@@ -1267,32 +1274,32 @@ public:
 	//! create a new HashTransformation to accumulate the message to be signed
 	virtual PK_MessageAccumulator * NewSignatureAccumulator(RandomNumberGenerator &rng) const =0;
 
-	virtual void InputRecoverableMessage(PK_MessageAccumulator &messageAccumulator, const byte *recoverableMessage, unsigned int recoverableMessageLength) const =0;
+	virtual void InputRecoverableMessage(PK_MessageAccumulator &messageAccumulator, const byte *recoverableMessage, size_t recoverableMessageLength) const =0;
 
 	//! sign and delete messageAccumulator (even in case of exception thrown)
 	/*! \pre size of signature == MaxSignatureLength()
 		\return actual signature length
 	*/
-	virtual unsigned int Sign(RandomNumberGenerator &rng, PK_MessageAccumulator *messageAccumulator, byte *signature) const;
+	virtual size_t Sign(RandomNumberGenerator &rng, PK_MessageAccumulator *messageAccumulator, byte *signature) const;
 
 	//! sign and restart messageAccumulator
 	/*! \pre size of signature == MaxSignatureLength()
 		\return actual signature length
 	*/
-	virtual unsigned int SignAndRestart(RandomNumberGenerator &rng, PK_MessageAccumulator &messageAccumulator, byte *signature, bool restart=true) const =0;
+	virtual size_t SignAndRestart(RandomNumberGenerator &rng, PK_MessageAccumulator &messageAccumulator, byte *signature, bool restart=true) const =0;
 
 	//! sign a message
 	/*! \pre size of signature == MaxSignatureLength()
 		\return actual signature length
 	*/
-	virtual unsigned int SignMessage(RandomNumberGenerator &rng, const byte *message, unsigned int messageLen, byte *signature) const;
+	virtual size_t SignMessage(RandomNumberGenerator &rng, const byte *message, size_t messageLen, byte *signature) const;
 
 	//! sign a recoverable message
 	/*! \pre size of signature == MaxSignatureLength(recoverableMessageLength)
 		\return actual signature length
 	*/
-	virtual unsigned int SignMessageWithRecovery(RandomNumberGenerator &rng, const byte *recoverableMessage, unsigned int recoverableMessageLength, 
-		const byte *nonrecoverableMessage, unsigned int nonrecoverableMessageLength, byte *signature) const;
+	virtual size_t SignMessageWithRecovery(RandomNumberGenerator &rng, const byte *recoverableMessage, size_t recoverableMessageLength, 
+		const byte *nonrecoverableMessage, size_t nonrecoverableMessageLength, byte *signature) const;
 };
 
 //! interface for public-key signature verifiers
@@ -1309,7 +1316,7 @@ public:
 	virtual PK_MessageAccumulator * NewVerificationAccumulator() const =0;
 
 	//! input signature into a message accumulator
-	virtual void InputSignature(PK_MessageAccumulator &messageAccumulator, const byte *signature, unsigned int signatureLength) const =0;
+	virtual void InputSignature(PK_MessageAccumulator &messageAccumulator, const byte *signature, size_t signatureLength) const =0;
 
 	//! check whether messageAccumulator contains a valid signature and message, and delete messageAccumulator (even in case of exception thrown)
 	virtual bool Verify(PK_MessageAccumulator *messageAccumulator) const;
@@ -1318,8 +1325,8 @@ public:
 	virtual bool VerifyAndRestart(PK_MessageAccumulator &messageAccumulator) const =0;
 
 	//! check whether input signature is a valid signature for input message
-	virtual bool VerifyMessage(const byte *message, unsigned int messageLen, 
-		const byte *signature, unsigned int signatureLength) const;
+	virtual bool VerifyMessage(const byte *message, size_t messageLen, 
+		const byte *signature, size_t signatureLength) const;
 
 	//! recover a message from its signature
 	/*! \pre size of recoveredMessage == MaxRecoverableLengthFromSignatureLength(signatureLength)
@@ -1335,8 +1342,8 @@ public:
 	/*! \pre size of recoveredMessage == MaxRecoverableLengthFromSignatureLength(signatureLength)
 	*/
 	virtual DecodingResult RecoverMessage(byte *recoveredMessage, 
-		const byte *nonrecoverableMessage, unsigned int nonrecoverableMessageLength, 
-		const byte *signature, unsigned int signatureLength) const;
+		const byte *nonrecoverableMessage, size_t nonrecoverableMessageLength, 
+		const byte *signature, size_t signatureLength) const;
 };
 
 //! interface for domains of simple key agreement protocols

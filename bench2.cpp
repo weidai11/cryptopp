@@ -33,7 +33,7 @@ void OutputResultOperations(const char *name, const char *operation, bool pc, un
 void BenchMarkEncryption(const char *name, PK_Encryptor &key, double timeTotal, bool pc=false)
 {
 	unsigned int len = 16;
-	LC_RNG rng(time(NULL));
+	LC_RNG rng((word32)time(NULL));
 	SecByteBlock plaintext(len), ciphertext(key.CiphertextLength(len));
 	rng.GenerateBlock(plaintext, len);
 
@@ -55,7 +55,7 @@ void BenchMarkEncryption(const char *name, PK_Encryptor &key, double timeTotal, 
 void BenchMarkDecryption(const char *name, PK_Decryptor &priv, PK_Encryptor &pub, double timeTotal)
 {
 	unsigned int len = 16;
-	LC_RNG rng(time(NULL));
+	LC_RNG rng((word32)time(NULL));
 	SecByteBlock ciphertext(pub.CiphertextLength(len));
 	SecByteBlock plaintext(pub.MaxPlaintextLength(ciphertext.size()));
 	rng.GenerateBlock(plaintext, len);
@@ -73,7 +73,7 @@ void BenchMarkDecryption(const char *name, PK_Decryptor &priv, PK_Encryptor &pub
 void BenchMarkSigning(const char *name, PK_Signer &key, double timeTotal, bool pc=false)
 {
 	unsigned int len = 16;
-	LC_RNG rng(time(NULL));
+	LC_RNG rng((word32)time(NULL));
 	SecByteBlock message(len), signature(key.SignatureLength());
 	rng.GenerateBlock(message, len);
 
@@ -95,7 +95,7 @@ void BenchMarkSigning(const char *name, PK_Signer &key, double timeTotal, bool p
 void BenchMarkVerification(const char *name, const PK_Signer &priv, PK_Verifier &pub, double timeTotal, bool pc=false)
 {
 	unsigned int len = 16;
-	LC_RNG rng(time(NULL));
+	LC_RNG rng((word32)time(NULL));
 	SecByteBlock message(len), signature(pub.SignatureLength());
 	rng.GenerateBlock(message, len);
 	priv.SignMessage(rng, message, len, signature);
@@ -117,7 +117,7 @@ void BenchMarkVerification(const char *name, const PK_Signer &priv, PK_Verifier 
 
 void BenchMarkKeyGen(const char *name, SimpleKeyAgreementDomain &d, double timeTotal, bool pc=false)
 {
-	LC_RNG rng(time(NULL));
+	LC_RNG rng((word32)time(NULL));
 	SecByteBlock priv(d.PrivateKeyLength()), pub(d.PublicKeyLength());
 
 	clock_t start = clock();
@@ -137,7 +137,7 @@ void BenchMarkKeyGen(const char *name, SimpleKeyAgreementDomain &d, double timeT
 
 void BenchMarkKeyGen(const char *name, AuthenticatedKeyAgreementDomain &d, double timeTotal, bool pc=false)
 {
-	LC_RNG rng(time(NULL));
+	LC_RNG rng((word32)time(NULL));
 	SecByteBlock priv(d.EphemeralPrivateKeyLength()), pub(d.EphemeralPublicKeyLength());
 
 	clock_t start = clock();
@@ -157,7 +157,7 @@ void BenchMarkKeyGen(const char *name, AuthenticatedKeyAgreementDomain &d, doubl
 
 void BenchMarkAgreement(const char *name, SimpleKeyAgreementDomain &d, double timeTotal, bool pc=false)
 {
-	LC_RNG rng(time(NULL));
+	LC_RNG rng((word32)time(NULL));
 	SecByteBlock priv1(d.PrivateKeyLength()), priv2(d.PrivateKeyLength());
 	SecByteBlock pub1(d.PublicKeyLength()), pub2(d.PublicKeyLength());
 	d.GenerateKeyPair(rng, priv1, pub1);
@@ -178,7 +178,7 @@ void BenchMarkAgreement(const char *name, SimpleKeyAgreementDomain &d, double ti
 
 void BenchMarkAgreement(const char *name, AuthenticatedKeyAgreementDomain &d, double timeTotal, bool pc=false)
 {
-	LC_RNG rng(time(NULL));
+	LC_RNG rng((word32)time(NULL));
 	SecByteBlock spriv1(d.StaticPrivateKeyLength()), spriv2(d.StaticPrivateKeyLength());
 	SecByteBlock epriv1(d.EphemeralPrivateKeyLength()), epriv2(d.EphemeralPrivateKeyLength());
 	SecByteBlock spub1(d.StaticPublicKeyLength()), spub2(d.StaticPublicKeyLength());

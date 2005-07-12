@@ -5,55 +5,55 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-inline unsigned int CountWords(const word *X, unsigned int N)
+inline size_t CountWords(const word *X, size_t N)
 {
 	while (N && X[N-1]==0)
 		N--;
 	return N;
 }
 
-inline void SetWords(word *r, word a, unsigned int n)
+inline void SetWords(word *r, word a, size_t n)
 {
-	for (unsigned int i=0; i<n; i++)
+	for (size_t i=0; i<n; i++)
 		r[i] = a;
 }
 
-inline void CopyWords(word *r, const word *a, unsigned int n)
+inline void CopyWords(word *r, const word *a, size_t n)
 {
-	for (unsigned int i=0; i<n; i++)
+	for (size_t i=0; i<n; i++)
 		r[i] = a[i];
 }
 
-inline void XorWords(word *r, const word *a, const word *b, unsigned int n)
+inline void XorWords(word *r, const word *a, const word *b, size_t n)
 {
-	for (unsigned int i=0; i<n; i++)
+	for (size_t i=0; i<n; i++)
 		r[i] = a[i] ^ b[i];
 }
 
-inline void XorWords(word *r, const word *a, unsigned int n)
+inline void XorWords(word *r, const word *a, size_t n)
 {
-	for (unsigned int i=0; i<n; i++)
+	for (size_t i=0; i<n; i++)
 		r[i] ^= a[i];
 }
 
-inline void AndWords(word *r, const word *a, const word *b, unsigned int n)
+inline void AndWords(word *r, const word *a, const word *b, size_t n)
 {
-	for (unsigned int i=0; i<n; i++)
+	for (size_t i=0; i<n; i++)
 		r[i] = a[i] & b[i];
 }
 
-inline void AndWords(word *r, const word *a, unsigned int n)
+inline void AndWords(word *r, const word *a, size_t n)
 {
-	for (unsigned int i=0; i<n; i++)
+	for (size_t i=0; i<n; i++)
 		r[i] &= a[i];
 }
 
-inline word ShiftWordsLeftByBits(word *r, unsigned int n, unsigned int shiftBits)
+inline word ShiftWordsLeftByBits(word *r, size_t n, unsigned int shiftBits)
 {
 	assert (shiftBits<WORD_BITS);
 	word u, carry=0;
 	if (shiftBits)
-		for (unsigned int i=0; i<n; i++)
+		for (size_t i=0; i<n; i++)
 		{
 			u = r[i];
 			r[i] = (u << shiftBits) | carry;
@@ -62,37 +62,37 @@ inline word ShiftWordsLeftByBits(word *r, unsigned int n, unsigned int shiftBits
 	return carry;
 }
 
-inline word ShiftWordsRightByBits(word *r, unsigned int n, unsigned int shiftBits)
+inline word ShiftWordsRightByBits(word *r, size_t n, unsigned int shiftBits)
 {
 	assert (shiftBits<WORD_BITS);
 	word u, carry=0;
 	if (shiftBits)
-		for (int i=n-1; i>=0; i--)
+		for (size_t i=n; i>0; i--)
 		{
-			u = r[i];
-			r[i] = (u >> shiftBits) | carry;
+			u = r[i-1];
+			r[i-1] = (u >> shiftBits) | carry;
 			carry = u << (WORD_BITS-shiftBits);
 		}
 	return carry;
 }
 
-inline void ShiftWordsLeftByWords(word *r, unsigned int n, unsigned int shiftWords)
+inline void ShiftWordsLeftByWords(word *r, size_t n, size_t shiftWords)
 {
 	shiftWords = STDMIN(shiftWords, n);
 	if (shiftWords)
 	{
-		for (unsigned int i=n-1; i>=shiftWords; i--)
+		for (size_t i=n-1; i>=shiftWords; i--)
 			r[i] = r[i-shiftWords];
 		SetWords(r, 0, shiftWords);
 	}
 }
 
-inline void ShiftWordsRightByWords(word *r, unsigned int n, unsigned int shiftWords)
+inline void ShiftWordsRightByWords(word *r, size_t n, size_t shiftWords)
 {
 	shiftWords = STDMIN(shiftWords, n);
 	if (shiftWords)
 	{
-		for (unsigned int i=0; i+shiftWords<n; i++)
+		for (size_t i=0; i+shiftWords<n; i++)
 			r[i] = r[i+shiftWords];
 		SetWords(r+n-shiftWords, 0, shiftWords);
 	}

@@ -19,7 +19,7 @@ public:
 
 	unsigned int DigestSize() const {return DIGESTSIZE;};
 	void UncheckedSetKey(const byte *userKey, unsigned int keylength);
-	void TruncatedFinal(byte *mac, unsigned int size);
+	void TruncatedFinal(byte *mac, size_t size);
 
 protected:
 	static void Transform (word32 *digest, const word32 *X, bool last);

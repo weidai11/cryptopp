@@ -17,7 +17,7 @@ public:
 	{
 		Assign((const byte *)data, data ? strlen(data) : 0, deepCopy);
 	}
-	ConstByteArrayParameter(const byte *data, unsigned int size, bool deepCopy = false)
+	ConstByteArrayParameter(const byte *data, size_t size, bool deepCopy = false)
 	{
 		Assign(data, size, deepCopy);
 	}
@@ -27,7 +27,7 @@ public:
 		Assign((const byte *)string.data(), string.size(), deepCopy);
 	}
 
-	void Assign(const byte *data, unsigned int size, bool deepCopy)
+	void Assign(const byte *data, size_t size, bool deepCopy)
 	{
 		if (deepCopy)
 			m_block.Assign(data, size);
@@ -41,12 +41,12 @@ public:
 
 	const byte *begin() const {return m_deepCopy ? m_block.begin() : m_data;}
 	const byte *end() const {return m_deepCopy ? m_block.end() : m_data + m_size;}
-	unsigned int size() const {return m_deepCopy ? m_block.size() : m_size;}
+	size_t size() const {return m_deepCopy ? m_block.size() : m_size;}
 
 private:
 	bool m_deepCopy;
 	const byte *m_data;
-	unsigned int m_size;
+	size_t m_size;
 	SecByteBlock m_block;
 };
 
@@ -60,11 +60,11 @@ public:
 
 	byte *begin() const {return m_data;}
 	byte *end() const {return m_data + m_size;}
-	unsigned int size() const {return m_size;}
+	size_t size() const {return m_size;}
 
 private:
 	byte *m_data;
-	unsigned int m_size;
+	size_t m_size;
 };
 
 class CRYPTOPP_DLL CombinedNameValuePairs : public NameValuePairs

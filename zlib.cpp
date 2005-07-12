@@ -25,7 +25,7 @@ void ZlibCompressor::WritePrestreamHeader()
 	AttachedTransformation()->PutWord16(RoundUpToMultipleOf(cmf*256+flags, 31));
 }
 
-void ZlibCompressor::ProcessUncompressedData(const byte *inString, unsigned int length)
+void ZlibCompressor::ProcessUncompressedData(const byte *inString, size_t length)
 {
 	m_adler32.Update(inString, length);
 }
@@ -72,7 +72,7 @@ void ZlibDecompressor::ProcessPrestreamHeader()
 	m_log2WindowSize = 8 + (cmf >> 4);
 }
 
-void ZlibDecompressor::ProcessDecompressedData(const byte *inString, unsigned int length)
+void ZlibDecompressor::ProcessDecompressedData(const byte *inString, size_t length)
 {
 	AttachedTransformation()->Put(inString, length);
 	m_adler32.Update(inString, length);

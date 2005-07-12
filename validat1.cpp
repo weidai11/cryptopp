@@ -198,16 +198,22 @@ bool TestSettings()
 		cout << "passed:  word64 not available" << endl;
 #endif
 
+	if (sizeof(word) == 2*sizeof(hword)
 #ifdef CRYPTOPP_NATIVE_DWORD_AVAILABLE
-	if (sizeof(dword) == 2*sizeof(word))
+		&& sizeof(dword) == 2*sizeof(word)
+#endif
+		)
 		cout << "passed:  ";
 	else
 	{
 		cout << "FAILED:  ";
 		pass = false;
 	}
-	cout << "sizeof(word) == " << sizeof(word) << ", sizeof(dword) == " << sizeof(dword) << endl;
+	cout << "sizeof(hword) == " << sizeof(hword) << ", sizeof(word) == " << sizeof(word);
+#ifdef CRYPTOPP_NATIVE_DWORD_AVAILABLE
+	cout << ", sizeof(dword) == " << sizeof(dword);
 #endif
+	cout << endl;
 
 	if (!pass)
 	{
@@ -251,7 +257,7 @@ bool TestOS_RNG()
 		}
 		else
 			cout << "passed:";
-		cout << "  it took " << t1 << " seconds to generate " << total << " bytes" << endl;
+		cout << "  it took " << long(t1) << " seconds to generate " << total << " bytes" << endl;
 
 		if (t1 < 2)
 		{
@@ -282,7 +288,7 @@ bool TestOS_RNG()
 			}
 			else
 				cout << "passed:";
-			cout << "  it generated " << length << " bytes in " << time(NULL) - t << " seconds" << endl;
+			cout << "  it generated " << length << " bytes in " << long(time(NULL) - t) << " seconds" << endl;
 		}
 
 		test.AttachedTransformation()->MessageEnd();
@@ -408,7 +414,7 @@ bool BlockTransformationTest(const CipherFactory &cg, BufferedTransformation &va
 class FilterTester : public Unflushable<Sink>
 {
 public:
-	FilterTester(const byte *validOutput, unsigned int outputLen)
+	FilterTester(const byte *validOutput, size_t outputLen)
 		: validOutput(validOutput), outputLen(outputLen), counter(0), fail(false) {}
 	void PutByte(byte inByte)
 	{
@@ -419,7 +425,7 @@ public:
 		}
 		counter++;
 	}
-	unsigned int Put2(const byte *inString, unsigned int length, int messageEnd, bool blocking)
+	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
 	{
 		while (length--)
 			FilterTester::PutByte(*inString++);
@@ -439,18 +445,18 @@ public:
 	}
 
 	const byte *validOutput;
-	unsigned int outputLen, counter;
+	size_t outputLen, counter;
 	bool fail;
 };
 
-bool TestFilter(BufferedTransformation &bt, const byte *in, unsigned int inLen, const byte *out, unsigned int outLen)
+bool TestFilter(BufferedTransformation &bt, const byte *in, size_t inLen, const byte *out, size_t outLen)
 {
 	FilterTester *ft;
 	bt.Attach(ft = new FilterTester(out, outLen));
 
 	while (inLen)
 	{
-		unsigned int randomLen = GlobalRNG().GenerateWord32(0, inLen);
+		size_t randomLen = GlobalRNG().GenerateWord32(0, (word32)inLen);
 		bt.Put(in, randomLen);
 		in += randomLen;
 		inLen -= randomLen;

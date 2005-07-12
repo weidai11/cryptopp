@@ -13,9 +13,9 @@ NAMESPACE_BEGIN(CryptoPP)
 USING_NAMESPACE(std)
 
 /// DER Length
-unsigned int DERLengthEncode(BufferedTransformation &bt, unsigned int length)
+size_t DERLengthEncode(BufferedTransformation &bt, lword length)
 {
-	unsigned int i=0;
+	size_t i=0;
 	if (length <= 0x7f)
 	{
 		bt.Put(byte(length));
@@ -34,7 +34,7 @@ unsigned int DERLengthEncode(BufferedTransformation &bt, unsigned int length)
 	return i;
 }
 
-bool BERLengthDecode(BufferedTransformation &bt, unsigned int &length, bool &definiteLength)
+bool BERLengthDecode(BufferedTransformation &bt, lword &length, bool &definiteLength)
 {
 	byte b;
 
@@ -72,10 +72,13 @@ bool BERLengthDecode(BufferedTransformation &bt, unsigned int &length, bool &def
 	return true;
 }
 
-bool BERLengthDecode(BufferedTransformation &bt, unsigned int &length)
+bool BERLengthDecode(BufferedTransformation &bt, size_t &length)
 {
+	lword lw;
 	bool definiteLength;
-	if (!BERLengthDecode(bt, length, definiteLength))
+	if (!BERLengthDecode(bt, lw, definiteLength))
+		BERDecodeError();
+	if (!SafeConvert(lw, length))
 		BERDecodeError();
 	return definiteLength;
 }
@@ -91,32 +94,32 @@ void BERDecodeNull(BufferedTransformation &in)
 	byte b;
 	if (!in.Get(b) || b != TAG_NULL)
 		BERDecodeError();
-	unsigned int length;
+	size_t length;
 	if (!BERLengthDecode(in, length) || length != 0)
 		BERDecodeError();
 }
 
 /// ASN Strings
-unsigned int DEREncodeOctetString(BufferedTransformation &bt, const byte *str, unsigned int strLen)
+size_t DEREncodeOctetString(BufferedTransformation &bt, const byte *str, size_t strLen)
 {
 	bt.Put(OCTET_STRING);
-	unsigned int lengthBytes = DERLengthEncode(bt, strLen);
+	size_t lengthBytes = DERLengthEncode(bt, strLen);
 	bt.Put(str, strLen);
 	return 1+lengthBytes+strLen;
 }
 
-unsigned int DEREncodeOctetString(BufferedTransformation &bt, const SecByteBlock &str)
+size_t DEREncodeOctetString(BufferedTransformation &bt, const SecByteBlock &str)
 {
 	return DEREncodeOctetString(bt, str.begin(), str.size());
 }
 
-unsigned int BERDecodeOctetString(BufferedTransformation &bt, SecByteBlock &str)
+size_t BERDecodeOctetString(BufferedTransformation &bt, SecByteBlock &str)
 {
 	byte b;
 	if (!bt.Get(b) || b != OCTET_STRING)
 		BERDecodeError();
 
-	unsigned int bc;
+	size_t bc;
 	if (!BERLengthDecode(bt, bc))
 		BERDecodeError();
 
@@ -126,13 +129,13 @@ unsigned int BERDecodeOctetString(BufferedTransformation &bt, SecByteBlock &str)
 	return bc;
 }
 
-unsigned int BERDecodeOctetString(BufferedTransformation &bt, BufferedTransformation &str)
+size_t BERDecodeOctetString(BufferedTransformation &bt, BufferedTransformation &str)
 {
 	byte b;
 	if (!bt.Get(b) || b != OCTET_STRING)
 		BERDecodeError();
 
-	unsigned int bc;
+	size_t bc;
 	if (!BERLengthDecode(bt, bc))
 		BERDecodeError();
 
@@ -140,21 +143,21 @@ unsigned int BERDecodeOctetString(BufferedTransformation &bt, BufferedTransforma
 	return bc;
 }
 
-unsigned int DEREncodeTextString(BufferedTransformation &bt, const std::string &str, byte asnTag)
+size_t DEREncodeTextString(BufferedTransformation &bt, const std::string &str, byte asnTag)
 {
 	bt.Put(asnTag);
-	unsigned int lengthBytes = DERLengthEncode(bt, str.size());
+	size_t lengthBytes = DERLengthEncode(bt, str.size());
 	bt.Put((const byte *)str.data(), str.size());
 	return 1+lengthBytes+str.size();
 }
 
-unsigned int BERDecodeTextString(BufferedTransformation &bt, std::string &str, byte asnTag)
+size_t BERDecodeTextString(BufferedTransformation &bt, std::string &str, byte asnTag)
 {
 	byte b;
 	if (!bt.Get(b) || b != asnTag)
 		BERDecodeError();
 
-	unsigned int bc;
+	size_t bc;
 	if (!BERLengthDecode(bt, bc))
 		BERDecodeError();
 
@@ -166,22 +169,22 @@ unsigned int BERDecodeTextString(BufferedTransformation &bt, std::string &str, b
 }
 
 /// ASN BitString
-unsigned int DEREncodeBitString(BufferedTransformation &bt, const byte *str, unsigned int strLen, unsigned int unusedBits)
+size_t DEREncodeBitString(BufferedTransformation &bt, const byte *str, size_t strLen, unsigned int unusedBits)
 {
 	bt.Put(BIT_STRING);
-	unsigned int lengthBytes = DERLengthEncode(bt, strLen+1);
+	size_t lengthBytes = DERLengthEncode(bt, strLen+1);
 	bt.Put((byte)unusedBits);
 	bt.Put(str, strLen);
 	return 2+lengthBytes+strLen;
 }
 
-unsigned int BERDecodeBitString(BufferedTransformation &bt, SecByteBlock &str, unsigned int &unusedBits)
+size_t BERDecodeBitString(BufferedTransformation &bt, SecByteBlock &str, unsigned int &unusedBits)
 {
 	byte b;
 	if (!bt.Get(b) || b != BIT_STRING)
 		BERDecodeError();
 
-	unsigned int bc;
+	size_t bc;
 	if (!BERLengthDecode(bt, bc))
 		BERDecodeError();
 
@@ -212,17 +215,17 @@ void DERReencode(BufferedTransformation &source, BufferedTransformation &dest)
 	encoder.MessageEnd();
 }
 
-void OID::EncodeValue(BufferedTransformation &bt, unsigned long v)
+void OID::EncodeValue(BufferedTransformation &bt, word32 v)
 {
 	for (unsigned int i=RoundUpToMultipleOf(STDMAX(7U,BitPrecision(v)), 7U)-7; i != 0; i-=7)
 		bt.Put((byte)(0x80 | ((v >> i) & 0x7f)));
 	bt.Put((byte)(v & 0x7f));
 }
 
-unsigned int OID::DecodeValue(BufferedTransformation &bt, unsigned long &v)
+size_t OID::DecodeValue(BufferedTransformation &bt, word32 &v)
 {
 	byte b;
-	unsigned int i=0;
+	size_t i=0;
 	v = 0;
 	while (true)
 	{
@@ -241,7 +244,7 @@ void OID::DEREncode(BufferedTransformation &bt) const
 	assert(m_values.size() >= 2);
 	ByteQueue temp;
 	temp.Put(byte(m_values[0] * 40 + m_values[1]));
-	for (unsigned int i=2; i<m_values.size(); i++)
+	for (size_t i=2; i<m_values.size(); i++)
 		EncodeValue(temp, m_values[i]);
 	bt.Put(OBJECT_IDENTIFIER);
 	DERLengthEncode(bt, temp.CurrentSize());
@@ -254,7 +257,7 @@ void OID::BERDecode(BufferedTransformation &bt)
 	if (!bt.Get(b) || b != OBJECT_IDENTIFIER)
 		BERDecodeError();
 
-	unsigned int length;
+	size_t length;
 	if (!BERLengthDecode(bt, length) || length < 1)
 		BERDecodeError();
 
@@ -268,8 +271,8 @@ void OID::BERDecode(BufferedTransformation &bt)
 
 	while (length > 0)
 	{
-		unsigned long v;
-		unsigned int valueLen = DecodeValue(bt, v);
+		word32 v;
+		size_t valueLen = DecodeValue(bt, v);
 		if (valueLen > length)
 			BERDecodeError();
 		m_values.push_back(v);
@@ -292,7 +295,7 @@ inline BufferedTransformation & EncodedObjectFilter::CurrentTarget()
 		return TheBitBucket();
 }
 
-void EncodedObjectFilter::Put(const byte *inString, unsigned int length)
+void EncodedObjectFilter::Put(const byte *inString, size_t length)
 {
 	if (m_nCurrentObject == m_nObjects)
 	{
@@ -386,7 +389,9 @@ void BERGeneralDecoder::Init(byte asnTag)
 	if (!m_inQueue.Get(b) || b != asnTag)
 		BERDecodeError();
 
-	m_definiteLength = BERLengthDecode(m_inQueue, m_length);
+	if (!BERLengthDecode(m_inQueue, m_length, m_definiteLength))
+		BERDecodeError();
+
 	if (!m_definiteLength && !(asnTag & CONSTRUCTED))
 		BERDecodeError();	// cannot be primitive and have indefinite length
 }
@@ -445,23 +450,23 @@ void BERGeneralDecoder::MessageEnd()
 	}
 }
 
-unsigned int BERGeneralDecoder::TransferTo2(BufferedTransformation &target, unsigned long &transferBytes, const std::string &channel, bool blocking)
+size_t BERGeneralDecoder::TransferTo2(BufferedTransformation &target, lword &transferBytes, const std::string &channel, bool blocking)
 {
 	if (m_definiteLength && transferBytes > m_length)
 		transferBytes = m_length;
-	unsigned int blockedBytes = m_inQueue.TransferTo2(target, transferBytes, channel, blocking);
+	size_t blockedBytes = m_inQueue.TransferTo2(target, transferBytes, channel, blocking);
 	ReduceLength(transferBytes);
 	return blockedBytes;
 }
 
-unsigned int BERGeneralDecoder::CopyRangeTo2(BufferedTransformation &target, unsigned long &begin, unsigned long end, const std::string &channel, bool blocking) const
+size_t BERGeneralDecoder::CopyRangeTo2(BufferedTransformation &target, lword &begin, lword end, const std::string &channel, bool blocking) const
 {
 	if (m_definiteLength)
-		end = STDMIN((unsigned long)m_length, end);
+		end = STDMIN(m_length, end);
 	return m_inQueue.CopyRangeTo2(target, begin, end, channel, blocking);
 }
 
-unsigned int BERGeneralDecoder::ReduceLength(unsigned int delta)
+lword BERGeneralDecoder::ReduceLength(lword delta)
 {
 	if (m_definiteLength)
 	{
@@ -497,7 +502,7 @@ DERGeneralEncoder::~DERGeneralEncoder()
 void DERGeneralEncoder::MessageEnd()
 {
 	m_finished = true;
-	unsigned int length = (unsigned int)CurrentSize();
+	lword length = CurrentSize();
 	m_outQueue.Put(m_asnTag);
 	DERLengthEncode(m_outQueue, length);
 	TransferTo(m_outQueue);
@@ -515,7 +520,7 @@ void X509PublicKey::BERDecode(BufferedTransformation &bt)
 
 		BERGeneralDecoder subjectPublicKey(subjectPublicKeyInfo, BIT_STRING);
 			subjectPublicKey.CheckByte(0);	// unused bits
-			BERDecodeKey2(subjectPublicKey, parametersPresent, subjectPublicKey.RemainingLength());
+			BERDecodeKey2(subjectPublicKey, parametersPresent, (size_t)subjectPublicKey.RemainingLength());
 		subjectPublicKey.MessageEnd();
 	subjectPublicKeyInfo.MessageEnd();
 }
@@ -549,7 +554,7 @@ void PKCS8PrivateKey::BERDecode(BufferedTransformation &bt)
 		algorithm.MessageEnd();
 
 		BERGeneralDecoder octetString(privateKeyInfo, OCTET_STRING);
-			BERDecodeKey2(octetString, parametersPresent, privateKeyInfo.RemainingLength());
+			BERDecodeKey2(octetString, parametersPresent, (size_t)privateKeyInfo.RemainingLength());
 		octetString.MessageEnd();
 
 		if (!privateKeyInfo.EndReached())

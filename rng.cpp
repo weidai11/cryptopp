@@ -116,7 +116,7 @@ MaurerRandomnessTest::MaurerRandomnessTest()
 		tab[i] = 0;
 }
 
-unsigned int MaurerRandomnessTest::Put2(const byte *inString, unsigned int length, int messageEnd, bool blocking)
+size_t MaurerRandomnessTest::Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
 {
 	while (length--)
 	{

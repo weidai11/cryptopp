@@ -17,6 +17,10 @@
 
 #include <iostream>
 
+#ifdef _M_X64
+#include <Intrin.h>
+#endif
+
 #ifdef SSE2_INTRINSICS_AVAILABLE
 	#ifdef __GNUC__
 		#include <xmmintrin.h>
@@ -106,7 +110,7 @@ void AlignedAllocator<T>::deallocate(void *p, size_type n)
 }
 #endif
 
-static int Compare(const word *A, const word *B, unsigned int N)
+static int Compare(const word *A, const word *B, size_t N)
 {
 	while (N--)
 		if (A[N] > B[N])
@@ -117,7 +121,7 @@ static int Compare(const word *A, const word *B, unsigned int N)
 	return 0;
 }
 
-static word Increment(word *A, unsigned int N, word B=1)
+static word Increment(word *A, size_t N, word B=1)
 {
 	assert(N);
 	word t = A[0];
@@ -130,7 +134,7 @@ static word Increment(word *A, unsigned int N, word B=1)
 	return 1;
 }
 
-static word Decrement(word *A, unsigned int N, word B=1)
+static word Decrement(word *A, size_t N, word B=1)
 {
 	assert(N);
 	word t = A[0];
@@ -143,7 +147,7 @@ static word Decrement(word *A, unsigned int N, word B=1)
 	return 1;
 }
 
-static void TwosComplement(word *A, unsigned int N)
+static void TwosComplement(word *A, size_t N)
 {
 	Decrement(A, N);
 	for (unsigned i=0; i<N; i++)
@@ -204,6 +208,8 @@ public:
 			__asm__("mulq %3" : "=d" (r.m_halfs.high), "=a" (r.m_halfs.low) : "a" (a), "rm" (b) : "cc");
 		#elif defined(__mips64)
 			__asm__("dmultu %2,%3" : "=h" (r.m_halfs.high), "=l" (r.m_halfs.low) : "r" (a), "r" (b));
+		#elif defined(_M_X64)
+			r.m_halfs.low = _umul128(a, b, &r.m_halfs.high);
 		#elif defined(_M_IX86)
 			// for testing
 			word64 t = (word64)a * b;
@@ -454,8 +460,8 @@ inline word DWord::operator%(word a)
 class Portable
 {
 public:
-	static word Add(word *C, const word *A, const word *B, unsigned int N);
-	static word Subtract(word *C, const word *A, const word *B, unsigned int N);
+	static word Add(word *C, const word *A, const word *B, size_t N);
+	static word Subtract(word *C, const word *A, const word *B, size_t N);
 
 	static inline void Multiply2(word *C, const word *A, const word *B);
 	static inline word Multiply2Add(word *C, const word *A, const word *B);
@@ -474,7 +480,7 @@ public:
 	static inline unsigned int SquareRecursionLimit() {return 4;}
 };
 
-word Portable::Add(word *C, const word *A, const word *B, unsigned int N)
+word Portable::Add(word *C, const word *A, const word *B, size_t N)
 {
 	assert (N%2 == 0);
 
@@ -489,7 +495,7 @@ word Portable::Add(word *C, const word *A, const word *B, unsigned int N)
 	return u.GetHighHalf();
 }
 
-word Portable::Subtract(word *C, const word *A, const word *B, unsigned int N)
+word Portable::Subtract(word *C, const word *A, const word *B, size_t N)
 {
 	assert (N%2 == 0);
 
@@ -983,8 +989,8 @@ static bool IsP4()
 class PentiumOptimized : public Portable
 {
 public:
-	static word Add(word *C, const word *A, const word *B, unsigned int N);
-	static word Subtract(word *C, const word *A, const word *B, unsigned int N);
+	static word Add(word *C, const word *A, const word *B, size_t N);
+	static word Subtract(word *C, const word *A, const word *B, size_t N);
 	static void Multiply4(word *C, const word *A, const word *B);
 	static void Multiply8(word *C, const word *A, const word *B);
 	static void Multiply8Bottom(word *C, const word *A, const word *B);
@@ -993,8 +999,8 @@ public:
 class P4Optimized
 {
 public:
-	static word Add(word *C, const word *A, const word *B, unsigned int N);
-	static word Subtract(word *C, const word *A, const word *B, unsigned int N);
+	static word Add(word *C, const word *A, const word *B, size_t N);
+	static word Subtract(word *C, const word *A, const word *B, size_t N);
 #ifdef SSE2_INTRINSICS_AVAILABLE
 	static void Multiply4(word *C, const word *A, const word *B);
 	static void Multiply8(word *C, const word *A, const word *B);
@@ -1002,7 +1008,7 @@ public:
 #endif
 };
 
-typedef word (* PAddSub)(word *C, const word *A, const word *B, unsigned int N);
+typedef word (* PAddSub)(word *C, const word *A, const word *B, size_t N);
 typedef void (* PMul)(word *C, const word *A, const word *B);
 
 static PAddSub s_pAdd, s_pSub;
@@ -1050,9 +1056,9 @@ void DisableSSE2()
 class LowLevel : public PentiumOptimized
 {
 public:
-	inline static word Add(word *C, const word *A, const word *B, unsigned int N)
+	inline static word Add(word *C, const word *A, const word *B, size_t N)
 		{return s_pAdd(C, A, B, N);}
-	inline static word Subtract(word *C, const word *A, const word *B, unsigned int N)
+	inline static word Subtract(word *C, const word *A, const word *B, size_t N)
 		{return s_pSub(C, A, B, N);}
 	inline static void Square4(word *R, const word *A)
 		{Multiply4(R, A, A);}
@@ -1138,7 +1144,7 @@ public:
 		);
 #endif
 
-CRYPTOPP_NAKED word PentiumOptimized::Add(word *C, const word *A, const word *B, unsigned int N)
+CRYPTOPP_NAKED word PentiumOptimized::Add(word *C, const word *A, const word *B, size_t N)
 {
 	AddPrologue
 
@@ -1176,7 +1182,7 @@ CRYPTOPP_NAKED word PentiumOptimized::Add(word *C, const word *A, const word *B,
 	AddEpilogue
 }
 
-CRYPTOPP_NAKED word PentiumOptimized::Subtract(word *C, const word *A, const word *B, unsigned int N)
+CRYPTOPP_NAKED word PentiumOptimized::Subtract(word *C, const word *A, const word *B, size_t N)
 {
 	AddPrologue
 
@@ -1216,7 +1222,7 @@ CRYPTOPP_NAKED word PentiumOptimized::Subtract(word *C, const word *A, const wor
 
 // On Pentium 4, the adc and sbb instructions are very expensive, so avoid them.
 
-CRYPTOPP_NAKED word P4Optimized::Add(word *C, const word *A, const word *B, unsigned int N)
+CRYPTOPP_NAKED word P4Optimized::Add(word *C, const word *A, const word *B, size_t N)
 {
 	AddPrologue
 
@@ -1263,7 +1269,7 @@ CRYPTOPP_NAKED word P4Optimized::Add(word *C, const word *A, const word *B, unsi
 	AddEpilogue
 }
 
-CRYPTOPP_NAKED word P4Optimized::Subtract(word *C, const word *A, const word *B, unsigned int N)
+CRYPTOPP_NAKED word P4Optimized::Subtract(word *C, const word *A, const word *B, size_t N)
 {
 	AddPrologue
 
@@ -1996,7 +2002,7 @@ void P4Optimized::Multiply8Bottom(word *C, const word *A, const word *B)
 // A[N] --- multiplier
 // B[N] --- multiplicant
 
-void RecursiveMultiply(word *R, word *T, const word *A, const word *B, unsigned int N)
+void RecursiveMultiply(word *R, word *T, const word *A, const word *B, size_t N)
 {
 	assert(N>=2 && N%2==0);
 
@@ -2008,7 +2014,7 @@ void RecursiveMultiply(word *R, word *T, const word *A, const word *B, unsigned 
 		LowLevel::Multiply2(R, A, B);
 	else
 	{
-		const unsigned int N2 = N/2;
+		const size_t N2 = N/2;
 		int carry;
 
 		int aComp = Compare(A0, A1, N2);
@@ -2065,7 +2071,7 @@ void RecursiveMultiply(word *R, word *T, const word *A, const word *B, unsigned 
 // T[2*N] - temporary work space
 // A[N] --- number to be squared
 
-void RecursiveSquare(word *R, word *T, const word *A, unsigned int N)
+void RecursiveSquare(word *R, word *T, const word *A, size_t N)
 {
 	assert(N && N%2==0);
 	if (LowLevel::SquareRecursionLimit() >= 8 && N==8)
@@ -2076,7 +2082,7 @@ void RecursiveSquare(word *R, word *T, const word *A, unsigned int N)
 		LowLevel::Square2(R, A);
 	else
 	{
-		const unsigned int N2 = N/2;
+		const size_t N2 = N/2;
 
 		RecursiveSquare(R0, T2, A0, N2);
 		RecursiveSquare(R2, T2, A1, N2);
@@ -2093,7 +2099,7 @@ void RecursiveSquare(word *R, word *T, const word *A, unsigned int N)
 // A[N] - multiplier
 // B[N] - multiplicant
 
-void RecursiveMultiplyBottom(word *R, word *T, const word *A, const word *B, unsigned int N)
+void RecursiveMultiplyBottom(word *R, word *T, const word *A, const word *B, size_t N)
 {
 	assert(N>=2 && N%2==0);
 	if (LowLevel::MultiplyBottomRecursionLimit() >= 8 && N==8)
@@ -2104,7 +2110,7 @@ void RecursiveMultiplyBottom(word *R, word *T, const word *A, const word *B, uns
 		LowLevel::Multiply2Bottom(R, A, B);
 	else
 	{
-		const unsigned int N2 = N/2;
+		const size_t N2 = N/2;
 
 		RecursiveMultiply(R, T, A0, B0, N2);
 		RecursiveMultiplyBottom(T0, T1, A1, B0, N2);
@@ -2120,7 +2126,7 @@ void RecursiveMultiplyBottom(word *R, word *T, const word *A, const word *B, uns
 // A[N] --- multiplier
 // B[N] --- multiplicant
 
-void RecursiveMultiplyTop(word *R, word *T, const word *L, const word *A, const word *B, unsigned int N)
+void RecursiveMultiplyTop(word *R, word *T, const word *L, const word *A, const word *B, size_t N)
 {
 	assert(N>=2 && N%2==0);
 
@@ -2136,7 +2142,7 @@ void RecursiveMultiplyTop(word *R, word *T, const word *L, const word *A, const 
 	}
 	else
 	{
-		const unsigned int N2 = N/2;
+		const size_t N2 = N/2;
 		int carry;
 
 		int aComp = Compare(A0, A1, N2);
@@ -2194,37 +2200,37 @@ void RecursiveMultiplyTop(word *R, word *T, const word *L, const word *A, const 
 	}
 }
 
-inline word Add(word *C, const word *A, const word *B, unsigned int N)
+inline word Add(word *C, const word *A, const word *B, size_t N)
 {
 	return LowLevel::Add(C, A, B, N);
 }
 
-inline word Subtract(word *C, const word *A, const word *B, unsigned int N)
+inline word Subtract(word *C, const word *A, const word *B, size_t N)
 {
 	return LowLevel::Subtract(C, A, B, N);
 }
 
-inline void Multiply(word *R, word *T, const word *A, const word *B, unsigned int N)
+inline void Multiply(word *R, word *T, const word *A, const word *B, size_t N)
 {
 	RecursiveMultiply(R, T, A, B, N);
 }
 
-inline void Square(word *R, word *T, const word *A, unsigned int N)
+inline void Square(word *R, word *T, const word *A, size_t N)
 {
 	RecursiveSquare(R, T, A, N);
 }
 
-inline void MultiplyBottom(word *R, word *T, const word *A, const word *B, unsigned int N)
+inline void MultiplyBottom(word *R, word *T, const word *A, const word *B, size_t N)
 {
 	RecursiveMultiplyBottom(R, T, A, B, N);
 }
 
-inline void MultiplyTop(word *R, word *T, const word *L, const word *A, const word *B, unsigned int N)
+inline void MultiplyTop(word *R, word *T, const word *L, const word *A, const word *B, size_t N)
 {
 	RecursiveMultiplyTop(R, T, L, A, B, N);
 }
 
-static word LinearMultiply(word *C, const word *A, word B, unsigned int N)
+static word LinearMultiply(word *C, const word *A, word B, size_t N)
 {
 	word carry=0;
 	for(unsigned i=0; i<N; i++)
@@ -2241,7 +2247,7 @@ static word LinearMultiply(word *C, const word *A, word B, unsigned int N)
 // A[NA] ---- multiplier
 // B[NB] ---- multiplicant
 
-void AsymmetricMultiply(word *R, word *T, const word *A, unsigned int NA, const word *B, unsigned int NB)
+void AsymmetricMultiply(word *R, word *T, const word *A, size_t NA, const word *B, size_t NB)
 {
 	if (NA == NB)
 	{
@@ -2283,7 +2289,7 @@ void AsymmetricMultiply(word *R, word *T, const word *A, unsigned int NA, const 
 	Multiply(R, T, A, B, NA);
 	CopyWords(T+2*NA, R+NA, NA);
 
-	unsigned i;
+	size_t i;
 
 	for (i=2*NA; i<NB; i+=2*NA)
 		Multiply(T+NA+i, T, A, B+i, NA);
@@ -2298,7 +2304,7 @@ void AsymmetricMultiply(word *R, word *T, const word *A, unsigned int NA, const 
 // T[3*N/2] - temporary work space
 // A[N] ----- an odd number as input
 
-void RecursiveInverseModPower2(word *R, word *T, const word *A, unsigned int N)
+void RecursiveInverseModPower2(word *R, word *T, const word *A, size_t N)
 {
 	if (N==2)
 	{
@@ -2311,7 +2317,7 @@ void RecursiveInverseModPower2(word *R, word *T, const word *A, unsigned int N)
 	}
 	else
 	{
-		const unsigned int N2 = N/2;
+		const size_t N2 = N/2;
 		RecursiveInverseModPower2(R0, T0, A0, N2);
 		T0[0] = 1;
 		SetWords(T0+1, 0, N2-1);
@@ -2329,7 +2335,7 @@ void RecursiveInverseModPower2(word *R, word *T, const word *A, unsigned int N)
 // M[N] --- modulus
 // U[N] --- multiplicative inverse of M mod 2**(WORD_BITS*N)
 
-void MontgomeryReduce(word *R, word *T, const word *X, const word *M, const word *U, unsigned int N)
+void MontgomeryReduce(word *R, word *T, const word *X, const word *M, const word *U, size_t N)
 {
 	MultiplyBottom(R, T, X, U, N);
 	MultiplyTop(T, T+N, X, R, M, N);
@@ -2347,7 +2353,7 @@ void MontgomeryReduce(word *R, word *T, const word *X, const word *M, const word
 // U[N/2] - multiplicative inverse of M mod 2**(WORD_BITS*N/2)
 // V[N] --- 2**(WORD_BITS*3*N/2) mod M
 
-void HalfMontgomeryReduce(word *R, word *T, const word *X, const word *M, const word *U, const word *V, unsigned int N)
+void HalfMontgomeryReduce(word *R, word *T, const word *X, const word *M, const word *U, const word *V, size_t N)
 {
 	assert(N%2==0 && N>=4);
 
@@ -2361,7 +2367,7 @@ void HalfMontgomeryReduce(word *R, word *T, const word *X, const word *M, const 
 #define X2		(X+N)
 #define X3		(X+N+N2)
 
-	const unsigned int N2 = N/2;
+	const size_t N2 = N/2;
 	Multiply(T0, T2, V0, X3, N2);
 	int c2 = Add(T0, T0, X0, N);
 	MultiplyBottom(T3, T2, T0, U, N2);
@@ -2495,7 +2501,7 @@ static inline void AtomicDivide(word *Q, const word *A, const word *B)
 }
 
 // for use by Divide(), corrects the underestimated quotient {Q1,Q0}
-static void CorrectQuotientEstimate(word *R, word *T, word *Q, const word *B, unsigned int N)
+static void CorrectQuotientEstimate(word *R, word *T, word *Q, const word *B, size_t N)
 {
 	assert(N && N%2==0);
 
@@ -2532,7 +2538,7 @@ static void CorrectQuotientEstimate(word *R, word *T, word *Q, const word *B, un
 // A[NA] -------- dividend
 // B[NB] -------- divisor
 
-void Divide(word *R, word *Q, word *T, const word *A, unsigned int NA, const word *B, unsigned int NB)
+void Divide(word *R, word *Q, word *T, const word *A, size_t NA, const word *B, size_t NB)
 {
 	assert(NA && NB && NA%2==0 && NB%2==0);
 	assert(B[NB-1] || B[NB-2]);
@@ -2576,7 +2582,7 @@ void Divide(word *R, word *Q, word *T, const word *A, unsigned int NA, const wor
 	BT[1] = TB[NB-1] + (BT[0]==0);
 
 	// start reducing TA mod TB, 2 words at a time
-	for (unsigned i=NA-2; i>=NB; i-=2)
+	for (size_t i=NA-2; i>=NB; i-=2)
 	{
 		AtomicDivide(Q+i-NB, TA+i-2, BT);
 		CorrectQuotientEstimate(TA+i-NB, TP, Q+i-NB, TB, NB);
@@ -2587,7 +2593,7 @@ void Divide(word *R, word *Q, word *T, const word *A, unsigned int NA, const wor
 	ShiftWordsRightByBits(R, NB, shiftBits);
 }
 
-static inline unsigned int EvenWordCount(const word *X, unsigned int N)
+static inline size_t EvenWordCount(const word *X, size_t N)
 {
 	while (N && X[N-2]==0 && X[N-1]==0)
 		N-=2;
@@ -2600,7 +2606,7 @@ static inline unsigned int EvenWordCount(const word *X, unsigned int N)
 // A[NA] -- number to take inverse of
 // M[N] --- modulus
 
-unsigned int AlmostInverse(word *R, word *T, const word *A, unsigned int NA, const word *M, unsigned int N)
+unsigned int AlmostInverse(word *R, word *T, const word *A, size_t NA, const word *M, size_t N)
 {
 	assert(NA<=N && N && N%2==0);
 
@@ -2608,7 +2614,7 @@ unsigned int AlmostInverse(word *R, word *T, const word *A, unsigned int NA, con
 	word *c = T+N;
 	word *f = T+2*N;
 	word *g = T+3*N;
-	unsigned int bcLen=2, fgLen=EvenWordCount(M, N);
+	size_t bcLen=2, fgLen=EvenWordCount(M, N);
 	unsigned int k=0, s=0;
 
 	SetWords(T, 0, 3*N);
@@ -2686,7 +2692,7 @@ unsigned int AlmostInverse(word *R, word *T, const word *A, unsigned int NA, con
 // A[N] - input
 // M[N] - modulus
 
-void DivideByPower2Mod(word *R, const word *A, unsigned int k, const word *M, unsigned int N)
+void DivideByPower2Mod(word *R, const word *A, size_t k, const word *M, size_t N)
 {
 	CopyWords(R, A, N);
 
@@ -2707,7 +2713,7 @@ void DivideByPower2Mod(word *R, const word *A, unsigned int k, const word *M, un
 // A[N] - input
 // M[N] - modulus
 
-void MultiplyByPower2Mod(word *R, const word *A, unsigned int k, const word *M, unsigned int N)
+void MultiplyByPower2Mod(word *R, const word *A, size_t k, const word *M, size_t N)
 {
 	CopyWords(R, A, N);
 
@@ -2720,7 +2726,7 @@ void MultiplyByPower2Mod(word *R, const word *A, unsigned int k, const word *M, 
 
 static const unsigned int RoundupSizeTable[] = {2, 2, 2, 4, 4, 8, 8, 8, 8};
 
-static inline unsigned int RoundupSize(unsigned int n)
+static inline size_t RoundupSize(size_t n)
 {
 	if (n<=8)
 		return RoundupSizeTable[n];
@@ -2796,12 +2802,12 @@ signed long Integer::ConvertToLong() const
 	return sign==POSITIVE ? value : -(signed long)value;
 }
 
-Integer::Integer(BufferedTransformation &encodedInteger, unsigned int byteCount, Signedness s)
+Integer::Integer(BufferedTransformation &encodedInteger, size_t byteCount, Signedness s)
 {
 	Decode(encodedInteger, byteCount, s);
 }
 
-Integer::Integer(const byte *encodedInteger, unsigned int byteCount, Signedness s)
+Integer::Integer(const byte *encodedInteger, size_t byteCount, Signedness s)
 {
 	Decode(encodedInteger, byteCount, s);
 }
@@ -2811,7 +2817,7 @@ Integer::Integer(BufferedTransformation &bt)
 	BERDecode(bt);
 }
 
-Integer::Integer(RandomNumberGenerator &rng, unsigned int bitcount)
+Integer::Integer(RandomNumberGenerator &rng, size_t bitcount)
 {
 	Randomize(rng, bitcount);
 }
@@ -2822,7 +2828,7 @@ Integer::Integer(RandomNumberGenerator &rng, const Integer &min, const Integer &
 		throw Integer::RandomNumberNotFound();
 }
 
-Integer Integer::Power2(unsigned int e)
+Integer Integer::Power2(size_t e)
 {
 	Integer r((word)0, BitsToWords(e+1));
 	r.SetBit(e);
@@ -2869,7 +2875,7 @@ Integer& Integer::operator=(const Integer& t)
 	return *this;
 }
 
-bool Integer::GetBit(unsigned int n) const
+bool Integer::GetBit(size_t n) const
 {
 	if (n/WORD_BITS >= reg.size())
 		return 0;
@@ -2877,7 +2883,7 @@ bool Integer::GetBit(unsigned int n) const
 		return bool((reg[n/WORD_BITS] >> (n % WORD_BITS)) & 1);
 }
 
-void Integer::SetBit(unsigned int n, bool value)
+void Integer::SetBit(size_t n, bool value)
 {
 	if (value)
 	{
@@ -2891,7 +2897,7 @@ void Integer::SetBit(unsigned int n, bool value)
 	}
 }
 
-byte Integer::GetByte(unsigned int n) const
+byte Integer::GetByte(size_t n) const
 {
 	if (n/WORD_SIZE >= reg.size())
 		return 0;
@@ -2899,19 +2905,19 @@ byte Integer::GetByte(unsigned int n) const
 		return byte(reg[n/WORD_SIZE] >> ((n%WORD_SIZE)*8));
 }
 
-void Integer::SetByte(unsigned int n, byte value)
+void Integer::SetByte(size_t n, byte value)
 {
 	reg.CleanGrow(RoundupSize(BytesToWords(n+1)));
 	reg[n/WORD_SIZE] &= ~(word(0xff) << 8*(n%WORD_SIZE));
 	reg[n/WORD_SIZE] |= (word(value) << 8*(n%WORD_SIZE));
 }
 
-unsigned long Integer::GetBits(unsigned int i, unsigned int n) const
+lword Integer::GetBits(size_t i, size_t n) const
 {
-	assert(n <= sizeof(unsigned long)*8);
-	unsigned long v = 0;
+	lword v = 0;
+	assert(n <= sizeof(v)*8);
 	for (unsigned int j=0; j<n; j++)
-		v |= GetBit(i+j) << j;
+		v |= lword(GetBit(i+j)) << j;
 	return v;
 }
 
@@ -2935,7 +2941,7 @@ void Integer::swap(Integer &a)
 	std::swap(sign, a.sign);
 }
 
-Integer::Integer(word value, unsigned int length)
+Integer::Integer(word value, size_t length)
 	: reg(RoundupSize(length)), sign(POSITIVE)
 {
 	reg[0] = value;
@@ -3017,7 +3023,7 @@ Integer::Integer(const wchar_t *str)
 
 unsigned int Integer::WordCount() const
 {
-	return CountWords(reg, reg.size());
+	return (unsigned int)CountWords(reg, reg.size());
 }
 
 unsigned int Integer::ByteCount() const
@@ -3038,13 +3044,13 @@ unsigned int Integer::BitCount() const
 		return 0;
 }
 
-void Integer::Decode(const byte *input, unsigned int inputLen, Signedness s)
+void Integer::Decode(const byte *input, size_t inputLen, Signedness s)
 {
 	StringStore store(input, inputLen);
 	Decode(store, inputLen, s);
 }
 
-void Integer::Decode(BufferedTransformation &bt, unsigned int inputLen, Signedness s)
+void Integer::Decode(BufferedTransformation &bt, size_t inputLen, Signedness s)
 {
 	assert(bt.MaxRetrievable() >= inputLen);
 
@@ -3061,7 +3067,7 @@ void Integer::Decode(BufferedTransformation &bt, unsigned int inputLen, Signedne
 
 	reg.CleanNew(RoundupSize(BytesToWords(inputLen)));
 
-	for (unsigned int i=inputLen; i > 0; i--)
+	for (size_t i=inputLen; i > 0; i--)
 	{
 		bt.Get(b);
 		reg[(i-1)/WORD_SIZE] |= word(b) << ((i-1)%WORD_SIZE)*8;
@@ -3069,13 +3075,13 @@ void Integer::Decode(BufferedTransformation &bt, unsigned int inputLen, Signedne
 
 	if (sign == NEGATIVE)
 	{
-		for (unsigned i=inputLen; i<reg.size()*WORD_SIZE; i++)
+		for (size_t i=inputLen; i<reg.size()*WORD_SIZE; i++)
 			reg[i/WORD_SIZE] |= word(0xff) << (i%WORD_SIZE)*8;
 		TwosComplement(reg, reg.size());
 	}
 }
 
-unsigned int Integer::MinEncodedSize(Signedness signedness) const
+size_t Integer::MinEncodedSize(Signedness signedness) const
 {
 	unsigned int outputLen = STDMAX(1U, ByteCount());
 	if (signedness == UNSIGNED)
@@ -3087,27 +3093,25 @@ unsigned int Integer::MinEncodedSize(Signedness signedness) const
 	return outputLen;
 }
 
-unsigned int Integer::Encode(byte *output, unsigned int outputLen, Signedness signedness) const
+void Integer::Encode(byte *output, size_t outputLen, Signedness signedness) const
 {
 	ArraySink sink(output, outputLen);
-	return Encode(sink, outputLen, signedness);
+	Encode(sink, outputLen, signedness);
 }
 
-unsigned int Integer::Encode(BufferedTransformation &bt, unsigned int outputLen, Signedness signedness) const
+void Integer::Encode(BufferedTransformation &bt, size_t outputLen, Signedness signedness) const
 {
 	if (signedness == UNSIGNED || NotNegative())
 	{
-		for (unsigned int i=outputLen; i > 0; i--)
+		for (size_t i=outputLen; i > 0; i--)
 			bt.Put(GetByte(i-1));
 	}
 	else
 	{
 		// take two's complement of *this
-		Integer temp = Integer::Power2(8*STDMAX(ByteCount(), outputLen)) + *this;
-		for (unsigned i=0; i<outputLen; i++)
-			bt.Put(temp.GetByte(outputLen-i-1));
+		Integer temp = Integer::Power2(8*UnsignedMin(ByteCount(), outputLen)) + *this;
+		temp.Encode(bt, outputLen, UNSIGNED);
 	}
-	return outputLen;
 }
 
 void Integer::DEREncode(BufferedTransformation &bt) const
@@ -3117,7 +3121,7 @@ void Integer::DEREncode(BufferedTransformation &bt) const
 	enc.MessageEnd();
 }
 
-void Integer::BERDecode(const byte *input, unsigned int len)
+void Integer::BERDecode(const byte *input, size_t len)
 {
 	StringStore store(input, len);
 	BERDecode(store);
@@ -3128,18 +3132,18 @@ void Integer::BERDecode(BufferedTransformation &bt)
 	BERGeneralDecoder dec(bt, INTEGER);
 	if (!dec.IsDefiniteLength() || dec.MaxRetrievable() < dec.RemainingLength())
 		BERDecodeError();
-	Decode(dec, dec.RemainingLength(), SIGNED);
+	Decode(dec, (size_t)dec.RemainingLength(), SIGNED);
 	dec.MessageEnd();
 }
 
-void Integer::DEREncodeAsOctetString(BufferedTransformation &bt, unsigned int length) const
+void Integer::DEREncodeAsOctetString(BufferedTransformation &bt, size_t length) const
 {
 	DERGeneralEncoder enc(bt, OCTET_STRING);
 	Encode(enc, length);
 	enc.MessageEnd();
 }
 
-void Integer::BERDecodeAsOctetString(BufferedTransformation &bt, unsigned int length)
+void Integer::BERDecodeAsOctetString(BufferedTransformation &bt, size_t length)
 {
 	BERGeneralDecoder dec(bt, OCTET_STRING);
 	if (!dec.IsDefiniteLength() || dec.RemainingLength() != length)
@@ -3148,20 +3152,22 @@ void Integer::BERDecodeAsOctetString(BufferedTransformation &bt, unsigned int le
 	dec.MessageEnd();
 }
 
-unsigned int Integer::OpenPGPEncode(byte *output, unsigned int len) const
+size_t Integer::OpenPGPEncode(byte *output, size_t len) const
 {
 	ArraySink sink(output, len);
 	return OpenPGPEncode(sink);
 }
 
-unsigned int Integer::OpenPGPEncode(BufferedTransformation &bt) const
+size_t Integer::OpenPGPEncode(BufferedTransformation &bt) const
 {
 	word16 bitCount = BitCount();
 	bt.PutWord16(bitCount);
-	return 2 + Encode(bt, BitsToBytes(bitCount));
+	size_t byteCount = BitsToBytes(bitCount);
+	Encode(bt, byteCount);
+	return 2 + byteCount;
 }
 
-void Integer::OpenPGPDecode(const byte *input, unsigned int len)
+void Integer::OpenPGPDecode(const byte *input, size_t len)
 {
 	StringStore store(input, len);
 	OpenPGPDecode(store);
@@ -3175,9 +3181,9 @@ void Integer::OpenPGPDecode(BufferedTransformation &bt)
 	Decode(bt, BitsToBytes(bitCount));
 }
 
-void Integer::Randomize(RandomNumberGenerator &rng, unsigned int nbits)
+void Integer::Randomize(RandomNumberGenerator &rng, size_t nbits)
 {
-	const unsigned int nbytes = nbits/8 + 1;
+	const size_t nbytes = nbits/8 + 1;
 	SecByteBlock buf(nbytes);
 	rng.GenerateBlock(buf, nbytes);
 	if (nbytes)
@@ -3210,7 +3216,7 @@ bool Integer::Randomize(RandomNumberGenerator &rng, const Integer &min, const In
 class KDF2_RNG : public RandomNumberGenerator
 {
 public:
-	KDF2_RNG(const byte *seed, unsigned int seedSize)
+	KDF2_RNG(const byte *seed, size_t seedSize)
 		: m_counter(0), m_counterAndSeed(seedSize + 4)
 	{
 		memcpy(m_counterAndSeed + 4, seed, seedSize);
@@ -3272,7 +3278,7 @@ bool Integer::GenerateRandomNoThrow(RandomNumberGenerator &i_rng, const NameValu
 		DEREncodeOctetString(seq, seed.begin(), seed.size());
 		seq.MessageEnd();
 
-		SecByteBlock finalSeed(bq.MaxRetrievable());
+		SecByteBlock finalSeed((size_t)bq.MaxRetrievable());
 		bq.Get(finalSeed, finalSeed.size());
 		kdf2Rng.reset(new KDF2_RNG(finalSeed.begin(), finalSeed.size()));
 	}
@@ -3510,9 +3516,15 @@ void PositiveSubtract(Integer &diff, const Integer &a, const Integer& b)
 	}
 }
 
+// MSVC .NET 2003 workaround
+template <class T> inline const T& STDMAX2(const T& a, const T& b)
+{
+	return a < b ? b : a;
+}
+
 Integer Integer::Plus(const Integer& b) const
 {
-	Integer sum((word)0, STDMAX(reg.size(), b.reg.size()));
+	Integer sum((word)0, STDMAX2(reg.size(), b.reg.size()));
 	if (NotNegative())
 	{
 		if (b.NotNegative())
@@ -3558,7 +3570,7 @@ Integer& Integer::operator+=(const Integer& t)
 
 Integer Integer::Minus(const Integer& b) const
 {
-	Integer diff((word)0, STDMAX(reg.size(), b.reg.size()));
+	Integer diff((word)0, STDMAX2(reg.size(), b.reg.size()));
 	if (NotNegative())
 	{
 		if (b.NotNegative())
@@ -3602,11 +3614,11 @@ Integer& Integer::operator-=(const Integer& t)
 	return *this;
 }
 
-Integer& Integer::operator<<=(unsigned int n)
+Integer& Integer::operator<<=(size_t n)
 {
-	const unsigned int wordCount = WordCount();
-	const unsigned int shiftWords = n / WORD_BITS;
-	const unsigned int shiftBits = n % WORD_BITS;
+	const size_t wordCount = WordCount();
+	const size_t shiftWords = n / WORD_BITS;
+	const unsigned int shiftBits = (unsigned int)(n % WORD_BITS);
 
 	reg.CleanGrow(RoundupSize(wordCount+BitsToWords(n)));
 	ShiftWordsLeftByWords(reg, wordCount + shiftWords, shiftWords);
@@ -3614,11 +3626,11 @@ Integer& Integer::operator<<=(unsigned int n)
 	return *this;
 }
 
-Integer& Integer::operator>>=(unsigned int n)
+Integer& Integer::operator>>=(size_t n)
 {
-	const unsigned int wordCount = WordCount();
-	const unsigned int shiftWords = n / WORD_BITS;
-	const unsigned int shiftBits = n % WORD_BITS;
+	const size_t wordCount = WordCount();
+	const size_t shiftWords = n / WORD_BITS;
+	const unsigned int shiftBits = (unsigned int)(n % WORD_BITS);
 
 	ShiftWordsRightByWords(reg, wordCount, shiftWords);
 	if (wordCount > shiftWords)
@@ -3630,8 +3642,8 @@ Integer& Integer::operator>>=(unsigned int n)
 
 void PositiveMultiply(Integer &product, const Integer &a, const Integer &b)
 {
-	unsigned aSize = RoundupSize(a.WordCount());
-	unsigned bSize = RoundupSize(b.WordCount());
+	size_t aSize = RoundupSize(a.WordCount());
+	size_t bSize = RoundupSize(b.WordCount());
 
 	product.reg.CleanNew(RoundupSize(aSize+bSize));
 	product.sign = Integer::POSITIVE;
@@ -3729,7 +3741,7 @@ void Integer::DivideByPowerOf2(Integer &r, Integer &q, const Integer &a, unsigne
 	q = a;
 	q >>= n;
 
-	const unsigned int wordCount = BitsToWords(n);
+	const size_t wordCount = BitsToWords(n);
 	if (wordCount <= a.WordCount())
 	{
 		r.reg.resize(RoundupSize(wordCount));
@@ -4103,7 +4115,7 @@ const Integer& ModularArithmetic::Inverse(const Integer &a) const
 
 	CopyWords(m_result.reg.begin(), m_modulus.reg, m_modulus.reg.size());
 	if (CryptoPP::Subtract(m_result.reg.begin(), m_result.reg, a.reg, a.reg.size()))
-		Decrement(m_result.reg.begin()+a.reg.size(), 1, m_modulus.reg.size()-a.reg.size());
+		Decrement(m_result.reg.begin()+a.reg.size(), m_modulus.reg.size()-a.reg.size());
 
 	return m_result;
 }
@@ -4147,7 +4159,7 @@ const Integer& MontgomeryRepresentation::Multiply(const Integer &a, const Intege
 {
 	word *const T = m_workspace.begin();
 	word *const R = m_result.reg.begin();
-	const unsigned int N = m_modulus.reg.size();
+	const size_t N = m_modulus.reg.size();
 	assert(a.reg.size()<=N && b.reg.size()<=N);
 
 	AsymmetricMultiply(T, T+2*N, a.reg, a.reg.size(), b.reg, b.reg.size());
@@ -4160,7 +4172,7 @@ const Integer& MontgomeryRepresentation::Square(const Integer &a) const
 {
 	word *const T = m_workspace.begin();
 	word *const R = m_result.reg.begin();
-	const unsigned int N = m_modulus.reg.size();
+	const size_t N = m_modulus.reg.size();
 	assert(a.reg.size()<=N);
 
 	CryptoPP::Square(T, T+2*N, a.reg, a.reg.size());
@@ -4173,7 +4185,7 @@ Integer MontgomeryRepresentation::ConvertOut(const Integer &a) const
 {
 	word *const T = m_workspace.begin();
 	word *const R = m_result.reg.begin();
-	const unsigned int N = m_modulus.reg.size();
+	const size_t N = m_modulus.reg.size();
 	assert(a.reg.size()<=N);
 
 	CopyWords(T, a.reg, a.reg.size());
@@ -4187,7 +4199,7 @@ const Integer& MontgomeryRepresentation::MultiplicativeInverse(const Integer &a)
 //	  return (EuclideanMultiplicativeInverse(a, modulus)<<(2*WORD_BITS*modulus.reg.size()))%modulus;
 	word *const T = m_workspace.begin();
 	word *const R = m_result.reg.begin();
-	const unsigned int N = m_modulus.reg.size();
+	const size_t N = m_modulus.reg.size();
 	assert(a.reg.size()<=N);
 
 	CopyWords(T, a.reg, a.reg.size());

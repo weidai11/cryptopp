@@ -15,7 +15,7 @@ void Tiger::InitState(HashWordType *state)
 	state[2] = W64LIT(0xF096A5B4C3B2E187);
 }
 
-void Tiger::TruncatedFinal(byte *hash, unsigned int size)
+void Tiger::TruncatedFinal(byte *hash, size_t size)
 {
 	ThrowIfInvalidTruncatedSize(size);
 

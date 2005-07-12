@@ -14,7 +14,7 @@ void Panama<B>::Reset()
 }
 
 template <class B>
-void Panama<B>::Iterate(unsigned int count, const word32 *p, word32 *z, const word32 *y)
+void Panama<B>::Iterate(size_t count, const word32 *p, word32 *z, const word32 *y)
 {
 	unsigned int bstart = m_bstart;
 	word32 *const a = m_state;
@@ -88,14 +88,14 @@ void Panama<B>::Iterate(unsigned int count, const word32 *p, word32 *z, const wo
 }
 
 template <class B>
-unsigned int PanamaHash<B>::HashMultipleBlocks(const word32 *input, unsigned int length)
+size_t PanamaHash<B>::HashMultipleBlocks(const word32 *input, size_t length)
 {
 	this->Iterate(length / this->BLOCKSIZE, input);
 	return length % this->BLOCKSIZE;
 }
 
 template <class B>
-void PanamaHash<B>::TruncatedFinal(byte *hash, unsigned int size)
+void PanamaHash<B>::TruncatedFinal(byte *hash, size_t size)
 {
 	this->ThrowIfInvalidTruncatedSize(size);
 
@@ -112,7 +112,7 @@ void PanamaHash<B>::TruncatedFinal(byte *hash, unsigned int size)
 }
 
 template <class B>
-void PanamaCipherPolicy<B>::CipherSetKey(const NameValuePairs &params, const byte *key, unsigned int length)
+void PanamaCipherPolicy<B>::CipherSetKey(const NameValuePairs &params, const byte *key, size_t length)
 {
 	FixedSizeSecBlock<word32, 8> buf;
 
@@ -129,7 +129,7 @@ void PanamaCipherPolicy<B>::CipherSetKey(const NameValuePairs &params, const byt
 }
 
 template <class B>
-void PanamaCipherPolicy<B>::OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, unsigned int iterationCount)
+void PanamaCipherPolicy<B>::OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount)
 {
 	this->Iterate(iterationCount, NULL, (word32 *)output, (const word32 *)input);
 }

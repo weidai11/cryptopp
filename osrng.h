@@ -47,7 +47,7 @@ public:
 	NonblockingRng();
 	~NonblockingRng();
 	byte GenerateByte();
-	void GenerateBlock(byte *output, unsigned int size);
+	void GenerateBlock(byte *output, size_t size);
 
 protected:
 #ifdef CRYPTOPP_WIN32_AVAILABLE
@@ -70,7 +70,7 @@ public:
 	BlockingRng();
 	~BlockingRng();
 	byte GenerateByte();
-	void GenerateBlock(byte *output, unsigned int size);
+	void GenerateBlock(byte *output, size_t size);
 
 protected:
 	int m_fd;
@@ -78,7 +78,7 @@ protected:
 
 #endif
 
-CRYPTOPP_DLL void CRYPTOPP_API OS_GenerateRandomBlock(bool blocking, byte *output, unsigned int size);
+CRYPTOPP_DLL void CRYPTOPP_API OS_GenerateRandomBlock(bool blocking, byte *output, size_t size);
 
 //! Automaticly Seeded Randomness Pool
 /*! This class seeds itself using an operating system provided RNG. */
@@ -101,7 +101,7 @@ public:
 		{Reseed(blocking);}
 	void Reseed(bool blocking = false);
 	// exposed for testing
-	void Reseed(const byte *key, unsigned int keylength, const byte *seed, const byte *timeVector);
+	void Reseed(const byte *key, size_t keylength, const byte *seed, const byte *timeVector);
 
 	byte GenerateByte();
 
@@ -115,7 +115,7 @@ private:
 CRYPTOPP_DLL_TEMPLATE_CLASS AutoSeededX917RNG<DES_EDE3>;
 
 template <class BLOCK_CIPHER>
-void AutoSeededX917RNG<BLOCK_CIPHER>::Reseed(const byte *key, unsigned int keylength, const byte *seed, const byte *timeVector)
+void AutoSeededX917RNG<BLOCK_CIPHER>::Reseed(const byte *key, size_t keylength, const byte *seed, const byte *timeVector)
 {
 	m_rng.reset(new X917RNG(new typename BLOCK_CIPHER::Encryption(key, keylength), seed, timeVector));
 
