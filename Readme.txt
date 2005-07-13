@@ -350,6 +350,6 @@ the mailing list.
 5.2.3 - fixed issues with FIPS algorithm test vectors
       - put RSASSA-ISO into DLL
 
-5.3 - Ported to MSVC .NET 2005 beta 2
+5.3 - Ported to MSVC .NET 2005 beta 2 with support for x86-64
 
 Written by Wei Dai
