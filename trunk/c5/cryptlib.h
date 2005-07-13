@@ -4,7 +4,7 @@
 	classes that provide a uniform interface to this library.
 */
 
-/*!	\mainpage <a href="http://www.cryptopp.com">Crypto++</a><sup><small>&reg;</small></sup> Library 5.2.3 Reference Manual
+/*!	\mainpage <a href="http://www.cryptopp.com">Crypto++</a><sup><small>&reg;</small></sup> Library 5.3 Reference Manual
 <dl>
 <dt>Abstract Base Classes<dd>
 	cryptlib.h
