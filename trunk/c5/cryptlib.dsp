@@ -307,6 +307,10 @@ SOURCE=.\elgamal.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\emsa2.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\eprecomp.cpp
 # End Source File
 # Begin Source File
@@ -765,6 +769,10 @@ SOURCE=.\ecp.h
 # Begin Source File
 
 SOURCE=.\elgamal.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\emsa2.h
 # End Source File
 # Begin Source File
 
