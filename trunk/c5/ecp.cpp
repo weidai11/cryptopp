@@ -44,7 +44,11 @@ ECP::ECP(BufferedTransformation &bt)
 	GetField().BERDecodeElement(seq, m_b);
 	// skip optional seed
 	if (!seq.EndReached())
-		BERDecodeOctetString(seq, TheBitBucket());
+	{
+		SecByteBlock seed;
+		unsigned int unused;
+		BERDecodeBitString(seq, seed, unused);
+	}
 	seq.MessageEnd();
 }
 
