@@ -363,37 +363,37 @@ inline void IncrementCounterByOne(byte *output, const byte *input, unsigned int 
 template <class T> inline T rotlFixed(T x, unsigned int y)
 {
 	assert(y < sizeof(T)*8);
-	return (x<<y) | (x>>(sizeof(T)*8-y));
+	return T((x<<y) | (x>>(sizeof(T)*8-y)));
 }
 
 template <class T> inline T rotrFixed(T x, unsigned int y)
 {
 	assert(y < sizeof(T)*8);
-	return (x>>y) | (x<<(sizeof(T)*8-y));
+	return T((x>>y) | (x<<(sizeof(T)*8-y)));
 }
 
 template <class T> inline T rotlVariable(T x, unsigned int y)
 {
 	assert(y < sizeof(T)*8);
-	return (x<<y) | (x>>(sizeof(T)*8-y));
+	return T((x<<y) | (x>>(sizeof(T)*8-y)));
 }
 
 template <class T> inline T rotrVariable(T x, unsigned int y)
 {
 	assert(y < sizeof(T)*8);
-	return (x>>y) | (x<<(sizeof(T)*8-y));
+	return T((x>>y) | (x<<(sizeof(T)*8-y)));
 }
 
 template <class T> inline T rotlMod(T x, unsigned int y)
 {
 	y %= sizeof(T)*8;
-	return (x<<y) | (x>>(sizeof(T)*8-y));
+	return T((x<<y) | (x>>(sizeof(T)*8-y)));
 }
 
 template <class T> inline T rotrMod(T x, unsigned int y)
 {
 	y %= sizeof(T)*8;
-	return (x>>y) | (x<<(sizeof(T)*8-y));
+	return T((x>>y) | (x<<(sizeof(T)*8-y)));
 }
 
 #ifdef INTEL_INTRINSICS
