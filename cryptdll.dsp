@@ -23,6 +23,8 @@ CFG=cryptdll - Win32 Debug
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
+# PROP Scc_ProjName ""
+# PROP Scc_LocalPath ""
 CPP=cl.exe
 MTL=midl.exe
 RSC=rc.exe
@@ -41,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "CRYPTDLL_EXPORTS" /YX /FD /c
-# ADD CPP /nologo /G5 /Gz /MT /W3 /GX /Zi /O1 /Ob2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "CRYPTOPP_EXPORTS" /D CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1 /D "USE_PRECOMPILED_HEADERS" /Yu"pch.h" /FD /Zm200 /c
+# ADD CPP /nologo /G5 /Gd /MT /W3 /GX /Zi /O1 /Ob2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "CRYPTOPP_EXPORTS" /D CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1 /D "USE_PRECOMPILED_HEADERS" /Yu"pch.h" /FD /Zm200 /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
@@ -79,7 +81,7 @@ SOURCE="$(InputPath)"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "CRYPTDLL_EXPORTS" /YX /FD /GZ /c
-# ADD CPP /nologo /G5 /Gz /MTd /W3 /Gm /GX /Zi /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "CRYPTOPP_EXPORTS" /D CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1 /D "USE_PRECOMPILED_HEADERS" /Yu"pch.h" /FD /GZ /Zm200 /c
+# ADD CPP /nologo /G5 /Gd /MTd /W3 /Gm /GX /Zi /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "CRYPTOPP_EXPORTS" /D CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1 /D "USE_PRECOMPILED_HEADERS" /Yu"pch.h" /FD /GZ /Zm200 /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
@@ -175,6 +177,10 @@ SOURCE=.\ecp.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\emsa2.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\eprecomp.cpp
 # End Source File
 # Begin Source File
@@ -256,6 +262,10 @@ SOURCE=.\pkcspad.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\pssr.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\pubkey.cpp
 # End Source File
 # Begin Source File
@@ -281,6 +291,10 @@ SOURCE=.\rng.cpp
 # Begin Source File
 
 SOURCE=.\rsa.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\rw.cpp
 # End Source File
 # Begin Source File
 
