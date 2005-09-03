@@ -23,7 +23,13 @@ double TimerBase::ConvertTo(word64 t, Unit unit)
 	static unsigned long unitsPerSecondTable[] = {1, 1000, 1000*1000, 1000*1000*1000};
 
 	assert(unit < sizeof(unitsPerSecondTable) / sizeof(unitsPerSecondTable[0]));
+#if defined(_MSC_VER) && (_MSC_VER < 1300)
+	// MSVC 6 workaround
+	return (double)(__int64)t * unitsPerSecondTable[unit] / (__int64)TicksPerSecond();
+#else
 	return (double)t * unitsPerSecondTable[unit] / TicksPerSecond();
+#endif
+		
 }
 
 void TimerBase::StartTimer()
