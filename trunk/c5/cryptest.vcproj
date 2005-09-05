@@ -4,7 +4,7 @@
 	Version="7.10"
 	Name="cryptest"
 	ProjectGUID="{9EAFA456-89B4-4879-AD4F-C2C341184CF5}"
-	SccProjectName="Perforce Project"
+	SccProjectName=""
 	SccLocalPath=".">
 	<Platforms>
 		<Platform

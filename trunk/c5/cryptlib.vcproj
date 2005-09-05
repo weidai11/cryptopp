@@ -4,7 +4,7 @@
 	Version="7.10"
 	Name="cryptlib"
 	ProjectGUID="{3423EC9A-52E4-4A4D-9753-EDEBC38785EF}"
-	SccProjectName="Perforce Project"
+	SccProjectName=""
 	SccLocalPath=".">
 	<Platforms>
 		<Platform
@@ -1194,6 +1194,9 @@ echo: &gt;&gt; adhoc.cpp.copied
 						Optimization="0"
 						PreprocessorDefinitions=""/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="emsa2.cpp">
 			</File>
 			<File
 				RelativePath="eprecomp.cpp">
@@ -3867,6 +3870,9 @@ echo: &gt;&gt; adhoc.cpp.copied
 				RelativePath="elgamal.h">
 			</File>
 			<File
+				RelativePath="emsa2.h">
+			</File>
+			<File
 				RelativePath="eprecomp.h">
 			</File>
 			<File
@@ -4150,12 +4156,6 @@ echo: &gt;&gt; adhoc.cpp.copied
 				RelativePath="readme.txt">
 			</File>
 		</Filter>
-		<File
-			RelativePath=".\emsa2.cpp">
-		</File>
-		<File
-			RelativePath=".\emsa2.h">
-		</File>
 	</Files>
 	<Globals>
 	</Globals>
