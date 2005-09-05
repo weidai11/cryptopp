@@ -68,7 +68,7 @@ class CRYPTOPP_DLL EqualityComparisonFilter : public Unflushable<Multichannel<Fi
 public:
 	struct MismatchDetected : public Exception {MismatchDetected() : Exception(DATA_INTEGRITY_CHECK_FAILED, "EqualityComparisonFilter: did not receive the same data on two channels") {}};
 
-	/*! if throwIfNotEqual is false, this filter will output a '\0' byte when it detects a mismatch, '\1' otherwise */
+	/*! if throwIfNotEqual is false, this filter will output a '\\0' byte when it detects a mismatch, '\\1' otherwise */
 	EqualityComparisonFilter(BufferedTransformation *attachment=NULL, bool throwIfNotEqual=true, const std::string &firstChannel="0", const std::string &secondChannel="1")
 		: m_throwIfNotEqual(throwIfNotEqual), m_mismatchDetected(false)
 		, m_firstChannel(firstChannel), m_secondChannel(secondChannel)
