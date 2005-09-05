@@ -3,10 +3,9 @@
 	ProjectType="Visual C++"
 	Version="7.10"
 	Name="cryptdll"
-	SccProjectName="Perforce Project"
-	SccAuxPath=""
+	SccProjectName=""
 	SccLocalPath="."
-	SccProvider="MSSCCI:Perforce SCM">
+	SccProvider="">
 	<Platforms>
 		<Platform
 			Name="Win32"/>
@@ -443,7 +442,7 @@ echo mac done &gt; &quot;$(OutDir)&quot;\cryptopp.mac.done
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\emsa2.cpp">
+				RelativePath="emsa2.cpp">
 			</File>
 			<File
 				RelativePath="eprecomp.cpp">
@@ -1085,7 +1084,7 @@ echo mac done &gt; &quot;$(OutDir)&quot;\cryptopp.mac.done
 				RelativePath="ecp.h">
 			</File>
 			<File
-				RelativePath=".\emsa2.h">
+				RelativePath="emsa2.h">
 			</File>
 			<File
 				RelativePath="eprecomp.h">

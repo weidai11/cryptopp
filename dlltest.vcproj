@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.10"
 	Name="dlltest"
-	SccProjectName="Perforce Project"
+	SccProjectName=""
 	SccLocalPath=".">
 	<Platforms>
 		<Platform
