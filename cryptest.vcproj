@@ -109,7 +109,6 @@
 				ProgramDataBaseFileName=".\CT_DLL_Import_Release/"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
-				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="3"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -180,7 +179,6 @@ echo unless it undergoes FIPS validation.
 				ProgramDataBaseFileName=".\CT_DLL_Import_Debug/"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
-				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="4"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
