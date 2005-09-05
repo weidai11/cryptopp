@@ -12,7 +12,7 @@ NAMESPACE_BEGIN(CryptoPP)
 //! _
 struct SKIPJACK_Info : public FixedBlockSize<8>, public FixedKeyLength<10>
 {
-	CRYPTOPP_DLL static const char * StaticAlgorithmName() {return "SKIPJACK";}
+	CRYPTOPP_DLL static const char * CRYPTOPP_API StaticAlgorithmName() {return "SKIPJACK";}
 };
 
 /// <a href="http://www.weidai.com/scan-mirror/cs.html#SKIPJACK">SKIPJACK</a>

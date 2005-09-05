@@ -126,8 +126,8 @@ void BlockingRng::GenerateBlock(byte *output, size_t size)
 	{
 		// on some systems /dev/random will block until all bytes
 		// are available, on others it will returns immediately
-		int len = read(m_fd, output, STDMIN(size, (unsigned int)INT_MAX));
-		if (len == -1)
+		ssize_t len = read(m_fd, output, size);
+		if (len < 0)
 			throw OS_RNG_Err("read /dev/random");
 		size -= len;
 		output += len;

@@ -108,6 +108,8 @@ void AlignedAllocator<T>::deallocate(void *p, size_type n)
 	else
 		delete [] (T *)p;
 }
+
+template class CRYPTOPP_DLL AlignedAllocator<word>;
 #endif
 
 static int Compare(const word *A, const word *B, size_t N)

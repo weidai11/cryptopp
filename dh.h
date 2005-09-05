@@ -76,7 +76,7 @@ public:
 		}
 	}
 
-	static std::string StaticAlgorithmName()
+	static std::string CRYPTOPP_API StaticAlgorithmName()
 		{return GroupParameters::StaticAlgorithmNamePrefix() + DH_Algorithm::StaticAlgorithmName();}
 	std::string AlgorithmName() const {return StaticAlgorithmName();}
 

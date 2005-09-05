@@ -54,14 +54,6 @@ private:
 	T m_countLo, m_countHi;
 };
 
-#ifdef WORD64_AVAILABLE
-CRYPTOPP_DLL_TEMPLATE_CLASS IteratedHashBase<word64, HashTransformation>;
-CRYPTOPP_STATIC_TEMPLATE_CLASS IteratedHashBase<word64, MessageAuthenticationCode>;
-#endif
-
-CRYPTOPP_DLL_TEMPLATE_CLASS IteratedHashBase<word32, HashTransformation>;
-CRYPTOPP_STATIC_TEMPLATE_CLASS IteratedHashBase<word32, MessageAuthenticationCode>;
-
 //! _
 template <class T_HashWordType, class T_Endianness, unsigned int T_BlockSize, class T_Base = HashTransformation>
 class CRYPTOPP_NO_VTABLE IteratedHash : public IteratedHashBase<T_HashWordType, T_Base>
@@ -102,6 +94,22 @@ protected:
 	void HashEndianCorrectedBlock(const T_HashWordType *data) {T_Transform::Transform(this->m_digest, data);}
 	void Init() {T_Transform::InitState(this->m_digest);}
 };
+
+NAMESPACE_END
+
+#ifdef CRYPTOPP_MANUALLY_INSTANTIATE_TEMPLATES
+#include "iterhash.cpp"
+#endif
+
+NAMESPACE_BEGIN(CryptoPP)
+
+#ifdef WORD64_AVAILABLE
+CRYPTOPP_DLL_TEMPLATE_CLASS IteratedHashBase<word64, HashTransformation>;
+CRYPTOPP_STATIC_TEMPLATE_CLASS IteratedHashBase<word64, MessageAuthenticationCode>;
+#endif
+
+CRYPTOPP_DLL_TEMPLATE_CLASS IteratedHashBase<word32, HashTransformation>;
+CRYPTOPP_STATIC_TEMPLATE_CLASS IteratedHashBase<word32, MessageAuthenticationCode>;
 
 NAMESPACE_END
 

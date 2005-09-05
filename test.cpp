@@ -85,7 +85,7 @@ int (*AdhocTest)(int argc, char *argv[]) = NULL;
 #ifdef __BCPLUSPLUS__
 int cmain(int argc, char *argv[])
 #else
-int main(int argc, char *argv[])
+int __cdecl main(int argc, char *argv[])
 #endif
 {
 #ifdef _CRTDBG_LEAK_CHECK_DF

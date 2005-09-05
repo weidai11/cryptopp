@@ -146,10 +146,6 @@ protected:
 	size_t m_leftOver;
 };
 
-CRYPTOPP_DLL_TEMPLATE_CLASS TwoBases<SymmetricCipher, RandomNumberGenerator>;
-CRYPTOPP_DLL_TEMPLATE_CLASS AbstractPolicyHolder<AdditiveCipherAbstractPolicy, TwoBases<SymmetricCipher, RandomNumberGenerator> >;
-CRYPTOPP_DLL_TEMPLATE_CLASS AdditiveCipherTemplate<>;
-
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CFB_CipherAbstractPolicy
 {
 public:
@@ -263,11 +259,6 @@ public:
 	unsigned int MandatoryBlockSize() const {return this->OptimalBlockSize();}
 };
 
-// for Darwin
-CRYPTOPP_DLL_TEMPLATE_CLASS CFB_CipherTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, SymmetricCipher> >;
-CRYPTOPP_DLL_TEMPLATE_CLASS CFB_EncryptionTemplate<>;
-CRYPTOPP_DLL_TEMPLATE_CLASS CFB_DecryptionTemplate<>;
-
 //! _
 template <class BASE, class INFO = BASE>
 class SymmetricCipherFinal : public AlgorithmImpl<SimpleKeyingInterfaceImpl<BASE, INFO>, INFO>
@@ -314,6 +305,19 @@ void CFB_CipherTemplate<BASE>::UncheckedSetKey(const NameValuePairs &params, con
 	m_leftOver = policy.GetBytesPerIteration();
 }
 
+NAMESPACE_END
+
+#ifdef CRYPTOPP_MANUALLY_INSTANTIATE_TEMPLATES
+#include "strciphr.cpp"
+#endif
+
+NAMESPACE_BEGIN(CryptoPP)
+CRYPTOPP_DLL_TEMPLATE_CLASS TwoBases<SymmetricCipher, RandomNumberGenerator>;
+CRYPTOPP_DLL_TEMPLATE_CLASS AbstractPolicyHolder<AdditiveCipherAbstractPolicy, TwoBases<SymmetricCipher, RandomNumberGenerator> >;
+CRYPTOPP_DLL_TEMPLATE_CLASS AdditiveCipherTemplate<>;
+CRYPTOPP_DLL_TEMPLATE_CLASS CFB_CipherTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, SymmetricCipher> >;
+CRYPTOPP_DLL_TEMPLATE_CLASS CFB_EncryptionTemplate<>;
+CRYPTOPP_DLL_TEMPLATE_CLASS CFB_DecryptionTemplate<>;
 NAMESPACE_END
 
 #endif

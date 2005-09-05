@@ -66,4 +66,8 @@ private:
 
 NAMESPACE_END
 
+#ifdef CRYPTOPP_MANUALLY_INSTANTIATE_TEMPLATES
+#include "eprecomp.cpp"
+#endif
+
 #endif

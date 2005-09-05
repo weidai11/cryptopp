@@ -278,4 +278,8 @@ protected:
 
 NAMESPACE_END
 
+#ifdef CRYPTOPP_MANUALLY_INSTANTIATE_TEMPLATES
+#include "algebra.cpp"
+#endif
+
 #endif
