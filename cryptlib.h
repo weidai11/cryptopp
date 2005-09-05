@@ -11,7 +11,7 @@
 <dt>Symmetric Ciphers<dd>
 	SymmetricCipherDocumentation
 <dt>Hash Functions<dd>
-	HAVAL, MD2, MD4, MD5, PanamaHash, RIPEMD160, RIPEMD320, RIPEMD128, RIPEMD256, SHA, SHA256, SHA384, SHA512, Tiger, Whirlpool
+	HAVAL, MD2, MD4, MD5, PanamaHash, RIPEMD160, RIPEMD320, RIPEMD128, RIPEMD256, SHA1, SHA224, SHA256, SHA384, SHA512, Tiger, Whirlpool
 <dt>Non-Cryptographic Checksums<dd>
 	CRC32, Adler32
 <dt>Message Authentication Codes<dd>
@@ -23,7 +23,7 @@
 <dt>Public Key Cryptosystems<dd>
 	DLIES, ECIES, LUCES, RSAES, RabinES, LUC_IES
 <dt>Public Key Signature Schemes<dd>
-	DSA, GDSA, ECDSA, NR, ECNR, LUCSS, RSASS, RabinSS, RWSS, ESIGN
+	DSA, GDSA, ECDSA, NR, ECNR, LUCSS, RSASS, RSASS_ISO, RabinSS, RWSS, ESIGN
 <dt>Key Agreement<dd>
 	#DH, DH2, #MQV, ECDH, ECMQV, XTR_DH
 <dt>Algebraic Structures<dd>
@@ -53,19 +53,19 @@ In the FIPS 140-2 validated DLL version of Crypto++, only the following implemen
 <dt>Block Ciphers<dd>
 	AES, DES_EDE2, DES_EDE3, SKIPJACK
 <dt>Cipher Modes (replace template parameter BC with one of the block ciphers above)<dd>
-	ECB_Mode\<BC\>, CTR_Mode\<BC\>, CBC_Mode\<BC\>, CFB_Mode\<BC\>, OFB_Mode\<BC\>
+	ECB_Mode\<BC\>, CTR_Mode\<BC\>, CBC_Mode\<BC\>, CFB_FIPS_Mode\<BC\>, OFB_Mode\<BC\>
 <dt>Hash Functions<dd>
-	SHA
-<dt>Public Key Signature Schemes<dd>
-	RSASS\<PKCS1v15, SHA\>, DSA, ECDSA\<ECP, SHA\>, ECDSA\<EC2N, SHA\>
-<dt>Message Authentication Codes<dd>
-	HMAC\<SHA\>, CBC_MAC\<DES_EDE2\>, CBC_MAC\<DES_EDE3\>
+	SHA1, SHA224, SHA256, SHA384, SHA512
+<dt>Public Key Signature Schemes (replace template parameter H with one of the hash functions above)<dd>
+	RSASS\<PKCS1v15, H\>, RSASS\<PSS, H\>, RSASS_ISO\<H\>, RWSS\<P1363_EMSA2, H\>, DSA, ECDSA\<ECP, H\>, ECDSA\<EC2N, H\>
+<dt>Message Authentication Codes (replace template parameter H with one of the hash functions above)<dd>
+	HMAC\<H\>, CBC_MAC\<DES_EDE2\>, CBC_MAC\<DES_EDE3\>
 <dt>Random Number Generators<dd>
 	AutoSeededX917RNG\<DES_EDE3\>
 <dt>Key Agreement<dd>
 	#DH
 <dt>Public Key Cryptosystems<dd>
-	RSAES\<OAEP\<SHA\> \>
+	RSAES\<OAEP\<SHA1\> \>
 </dl>
 
 <p>This reference manual is a work in progress. Some classes are still lacking detailed descriptions.
