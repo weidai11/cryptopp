@@ -93,7 +93,7 @@ public:
 	Integer GetMaxExponent() const {return GetSubgroupOrder()-1;}
 	bool IsIdentity(const Element &element) const {return element.identity;}
 	void SimultaneousExponentiate(Element *results, const Element &base, const Integer *exponents, unsigned int exponentsCount) const;
-	static std::string StaticAlgorithmNamePrefix() {return "EC";}
+	static std::string CRYPTOPP_API StaticAlgorithmNamePrefix() {return "EC";}
 
 	// ASN1Key
 	OID GetAlgorithmID() const;
@@ -105,7 +105,7 @@ public:
 	// non-inherited
 
 	// enumerate OIDs for recommended parameters, use OID() to get first one
-	static OID GetNextRecommendedParametersOID(const OID &oid);
+	static OID CRYPTOPP_API GetNextRecommendedParametersOID(const OID &oid);
 
 	void BERDecode(BufferedTransformation &bt);
 	void DEREncode(BufferedTransformation &bt) const;
@@ -137,11 +137,6 @@ protected:
 	mutable Integer m_k;		// cofactor
 };
 
-CRYPTOPP_DLL_TEMPLATE_CLASS DL_GroupParameters_EC<ECP>;
-CRYPTOPP_DLL_TEMPLATE_CLASS DL_GroupParameters_EC<EC2N>;
-CRYPTOPP_DLL_TEMPLATE_CLASS DL_PublicKeyImpl<DL_GroupParameters_EC<ECP> >;
-CRYPTOPP_DLL_TEMPLATE_CLASS DL_PublicKeyImpl<DL_GroupParameters_EC<EC2N> >;
-
 //! EC public key
 template <class EC>
 class DL_PublicKey_EC : public DL_PublicKeyImpl<DL_GroupParameters_EC<EC> >
@@ -158,11 +153,6 @@ public:
 	void BERDecodeKey2(BufferedTransformation &bt, bool parametersPresent, size_t size);
 	void DEREncodeKey(BufferedTransformation &bt) const;
 };
-
-CRYPTOPP_DLL_TEMPLATE_CLASS DL_PublicKey_EC<ECP>;
-CRYPTOPP_DLL_TEMPLATE_CLASS DL_PublicKey_EC<EC2N>;
-CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKeyImpl<DL_GroupParameters_EC<ECP> >;
-CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKeyImpl<DL_GroupParameters_EC<EC2N> >;
 
 //! EC private key
 template <class EC>
@@ -184,9 +174,6 @@ public:
 	void BERDecodeKey2(BufferedTransformation &bt, bool parametersPresent, size_t size);
 	void DEREncodeKey(BufferedTransformation &bt) const;
 };
-
-CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_EC<ECP>;
-CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_EC<EC2N>;
 
 //! Elliptic Curve Diffie-Hellman, AKA <a href="http://www.weidai.com/scan-mirror/ka.html#ECDH">ECDH</a>
 template <class EC, class COFACTOR_OPTION = CPP_TYPENAME DL_GroupParameters_EC<EC>::DefaultCofactorOption>
@@ -221,15 +208,12 @@ struct DL_Keys_ECDSA
 	typedef DL_PrivateKey_WithSignaturePairwiseConsistencyTest<DL_PrivateKey_EC<EC>, ECDSA<EC> > PrivateKey;
 };
 
-CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_GDSA<ECP::Point>;
-CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_GDSA<EC2N::Point>;
-
 //! ECDSA algorithm
 template <class EC>
 class DL_Algorithm_ECDSA : public DL_Algorithm_GDSA<typename EC::Point>
 {
 public:
-	static const char * StaticAlgorithmName() {return "ECDSA";}
+	static const char * CRYPTOPP_API StaticAlgorithmName() {return "ECDSA";}
 };
 
 //! ECNR algorithm
@@ -237,7 +221,7 @@ template <class EC>
 class DL_Algorithm_ECNR : public DL_Algorithm_NR<typename EC::Point>
 {
 public:
-	static const char * StaticAlgorithmName() {return "ECNR";}
+	static const char * CRYPTOPP_API StaticAlgorithmName() {return "ECNR";}
 };
 
 //! <a href="http://www.weidai.com/scan-mirror/sig.html#ECDSA">ECDSA</a>
@@ -245,9 +229,6 @@ template <class EC, class H>
 struct ECDSA : public DL_SS<DL_Keys_ECDSA<EC>, DL_Algorithm_ECDSA<EC>, DL_SignatureMessageEncodingMethod_DSA, H>
 {
 };
-
-CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_WithSignaturePairwiseConsistencyTest<DL_PrivateKey_EC<ECP>, ECDSA<ECP> >;
-CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_WithSignaturePairwiseConsistencyTest<DL_PrivateKey_EC<EC2N>, ECDSA<EC2N> >;
 
 //! ECNR
 template <class EC, class H = SHA>
@@ -268,8 +249,31 @@ struct ECIES
 		DL_EncryptionAlgorithm_Xor<HMAC<SHA1>, DHAES_MODE>,
 		ECIES<EC> >
 {
-	static std::string StaticAlgorithmName() {return "ECIES";}	// TODO: fix this after name is standardized
+	static std::string CRYPTOPP_API StaticAlgorithmName() {return "ECIES";}	// TODO: fix this after name is standardized
 };
+
+NAMESPACE_END
+
+#ifdef CRYPTOPP_MANUALLY_INSTANTIATE_TEMPLATES
+#include "eccrypto.cpp"
+#endif
+
+NAMESPACE_BEGIN(CryptoPP)
+
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_GroupParameters_EC<ECP>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_GroupParameters_EC<EC2N>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_PublicKeyImpl<DL_GroupParameters_EC<ECP> >;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_PublicKeyImpl<DL_GroupParameters_EC<EC2N> >;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_PublicKey_EC<ECP>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_PublicKey_EC<EC2N>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKeyImpl<DL_GroupParameters_EC<ECP> >;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKeyImpl<DL_GroupParameters_EC<EC2N> >;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_EC<ECP>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_EC<EC2N>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_GDSA<ECP::Point>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_GDSA<EC2N::Point>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_WithSignaturePairwiseConsistencyTest<DL_PrivateKey_EC<ECP>, ECDSA<ECP> >;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_WithSignaturePairwiseConsistencyTest<DL_PrivateKey_EC<EC2N>, ECDSA<EC2N> >;
 
 NAMESPACE_END
 

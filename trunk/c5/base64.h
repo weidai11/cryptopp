@@ -28,7 +28,7 @@ public:
 	void IsolatedInitialize(const NameValuePairs &parameters) {}
 
 private:
-	static const int *GetDecodingLookupArray();
+	static const int * CRYPTOPP_API GetDecodingLookupArray();
 };
 
 NAMESPACE_END

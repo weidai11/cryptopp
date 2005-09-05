@@ -13,7 +13,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#ifndef NDEBUG
+#if 0
 static void ECDSA_TestInstantiations()
 {
 	ECDSA<EC2N>::Signer t1;

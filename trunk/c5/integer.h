@@ -26,7 +26,7 @@
 #endif
 
 // SSE2 intrinsics work in GCC 3.3 or later
-#if defined(__SSE2__) && (__GNUC_MAJOR__ > 3 || __GNUC_MINOR__ > 2)
+#if defined(__SSE2__) && (__GNUC__ > 3 || __GNUC_MINOR__ > 2)
 	#define SSE2_INTRINSICS_AVAILABLE
 #endif
 
@@ -56,7 +56,10 @@ NAMESPACE_BEGIN(CryptoPP)
 	#endif
 	};
 
-	template class CRYPTOPP_DLL AlignedAllocator<word>;
+	#ifdef CRYPTOPP_IMPORTS
+		CRYPTOPP_DLL_TEMPLATE_CLASS AlignedAllocator<word>;
+	#endif
+
 	typedef SecBlock<word, AlignedAllocator<word> > SecAlignedWordBlock;
 #else
 	typedef SecWordBlock SecAlignedWordBlock;

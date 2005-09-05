@@ -56,18 +56,18 @@ public:
 			{Randomize(rng, bitcount);}
 
 		//! return x^i
-		static PolynomialMod2 Monomial(size_t i);
+		static PolynomialMod2 CRYPTOPP_API Monomial(size_t i);
 		//! return x^t0 + x^t1 + x^t2
-		static PolynomialMod2 Trinomial(size_t t0, size_t t1, size_t t2);
+		static PolynomialMod2 CRYPTOPP_API Trinomial(size_t t0, size_t t1, size_t t2);
 		//! return x^t0 + x^t1 + x^t2 + x^t3 + x^t4
-		static PolynomialMod2 Pentanomial(size_t t0, size_t t1, size_t t2, size_t t3, size_t t4);
+		static PolynomialMod2 CRYPTOPP_API Pentanomial(size_t t0, size_t t1, size_t t2, size_t t3, size_t t4);
 		//! return x^(n-1) + ... + x + 1
-		static PolynomialMod2 AllOnes(size_t n);
+		static PolynomialMod2 CRYPTOPP_API AllOnes(size_t n);
 
 		//!
-		static const PolynomialMod2 &Zero();
+		static const PolynomialMod2 & CRYPTOPP_API Zero();
 		//!
-		static const PolynomialMod2 &One();
+		static const PolynomialMod2 & CRYPTOPP_API One();
 	//@}
 
 	//! \name ENCODE/DECODE
@@ -216,12 +216,12 @@ public:
 		PolynomialMod2 MultiplicativeInverse() const {return IsUnit() ? One() : Zero();}
 
 		//! greatest common divisor
-		static PolynomialMod2 Gcd(const PolynomialMod2 &a, const PolynomialMod2 &n);
+		static PolynomialMod2 CRYPTOPP_API Gcd(const PolynomialMod2 &a, const PolynomialMod2 &n);
 		//! calculate multiplicative inverse of *this mod n
 		PolynomialMod2 InverseMod(const PolynomialMod2 &) const;
 
 		//! calculate r and q such that (a == d*q + r) && (deg(r) < deg(d))
-		static void Divide(PolynomialMod2 &r, PolynomialMod2 &q, const PolynomialMod2 &a, const PolynomialMod2 &d);
+		static void CRYPTOPP_API Divide(PolynomialMod2 &r, PolynomialMod2 &q, const PolynomialMod2 &a, const PolynomialMod2 &d);
 	//@}
 
 	//! \name INPUT/OUTPUT

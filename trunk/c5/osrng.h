@@ -112,8 +112,6 @@ private:
 	unsigned int m_counter;
 };
 
-CRYPTOPP_DLL_TEMPLATE_CLASS AutoSeededX917RNG<DES_EDE3>;
-
 template <class BLOCK_CIPHER>
 void AutoSeededX917RNG<BLOCK_CIPHER>::Reseed(const byte *key, size_t keylength, const byte *seed, const byte *timeVector)
 {
@@ -160,6 +158,8 @@ byte AutoSeededX917RNG<BLOCK_CIPHER>::GenerateByte()
 
 	return b;
 }
+
+CRYPTOPP_DLL_TEMPLATE_CLASS AutoSeededX917RNG<DES_EDE3>;
 
 NAMESPACE_END
 
