@@ -37,10 +37,6 @@ CRYPTOPP_DLL PowerUpSelfTestStatus CRYPTOPP_API GetPowerUpSelfTestStatus();
 
 typedef PowerUpSelfTestStatus (CRYPTOPP_API * PGetPowerUpSelfTestStatus)();
 
-CRYPTOPP_DLL const byte * CRYPTOPP_API GetActualMacAndLocation(unsigned int &macSize, unsigned int &fileLocation);
-
-typedef const byte * (CRYPTOPP_API * PGetActualMacAndLocation)(unsigned int &macSize, unsigned int &fileLocation);
-
 CRYPTOPP_DLL MessageAuthenticationCode * CRYPTOPP_API NewIntegrityCheckingMAC();
 
 CRYPTOPP_DLL bool CRYPTOPP_API IntegrityCheckModule(const char *moduleFilename, const byte *expectedModuleMac, SecByteBlock *pActualMac = NULL, unsigned long *pMacFileLocation = NULL);
@@ -55,6 +51,8 @@ void EncryptionPairwiseConsistencyTest(const PK_Encryptor &encryptor, const PK_D
 
 void SignaturePairwiseConsistencyTest_FIPS_140_Only(const PK_Signer &signer, const PK_Verifier &verifier);
 void EncryptionPairwiseConsistencyTest_FIPS_140_Only(const PK_Encryptor &encryptor, const PK_Decryptor &decryptor);
+
+#define CRYPTOPP_DUMMY_DLL_MAC "MAC_51f34b8db820ae8"
 
 NAMESPACE_END
 
