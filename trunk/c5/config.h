@@ -83,7 +83,7 @@
 // Unfortunately there is no way to tell whether or not socklen_t is defined.
 // To work around this, TYPE_OF_SOCKLEN_T is a macro so that you can change it from the makefile.
 #ifndef TYPE_OF_SOCKLEN_T
-#	if defined(_WIN32) || defined(__CYGWIN__) || defined(__MACH__)
+#	if defined(_WIN32) || defined(__CYGWIN__)
 #		define TYPE_OF_SOCKLEN_T int
 #	else
 #		define TYPE_OF_SOCKLEN_T ::socklen_t
