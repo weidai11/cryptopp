@@ -166,45 +166,41 @@ int __cdecl main(int argc, char *argv[])
 			fs.TransferAllTo(mt);
 			cout << "Maurer Test Value: " << mt.GetTestValue() << endl;
 		}
-#ifdef CRYPTOPP_WIN32_AVAILABLE
 		else if (command == "mac_dll")
 		{
-			HMODULE hModule = LoadLibrary(argv[2]);
-			PGetPowerUpSelfTestStatus pGetPowerUpSelfTestStatus = (PGetPowerUpSelfTestStatus)GetProcAddress(hModule, "?GetPowerUpSelfTestStatus@CryptoPP@@YA?AW4PowerUpSelfTestStatus@1@XZ");
-			PGetActualMacAndLocation pGetActualMacAndLocation = (PGetActualMacAndLocation)GetProcAddress(hModule, 
-				sizeof(byte *)==4 ? "?GetActualMacAndLocation@CryptoPP@@YAPBEAAI0@Z" : "?GetActualMacAndLocation@CryptoPP@@YAPEBEAEAI0@Z");
-
-			PowerUpSelfTestStatus status = pGetPowerUpSelfTestStatus();
-			if (status == POWER_UP_SELF_TEST_PASSED)
+			std::fstream dllFile(argv[2], ios::in | ios::out | ios::binary);
+			std::ifstream::pos_type fileEnd = dllFile.seekg(0, std::ios_base::end).tellg();
+			if (fileEnd > 20*1000*1000)		// sanity check on file size
 			{
-				cout << "Crypto++ DLL MAC is valid. Nothing to do.\n";
-				return 0;
-			}
-
-			unsigned int macSize, macFileLocation;
-			const byte *pMac = pGetActualMacAndLocation(macSize, macFileLocation);
-			
-			if (macFileLocation == 0)
-			{
-				cerr << "Could not find MAC location in Crypto++ DLL.\n";
+				cerr << "Input file too large (more than 20 MB).\n";
 				return 1;
 			}
-			else
+
+			unsigned int fileSize = (unsigned int)fileEnd;
+			SecByteBlock buf(fileSize);
+			dllFile.seekg(0, std::ios_base::beg);
+			dllFile.read((char *)buf.begin(), fileSize);
+
+			byte dummyMac[] = CRYPTOPP_DUMMY_DLL_MAC;
+
+			byte *found = std::search(buf.begin(), buf.end(), dummyMac+0, dummyMac+sizeof(dummyMac));
+			if (found == buf.end())
 			{
-				SecByteBlock mac(pMac, macSize);	// copy MAC before freeing the DLL
-				BOOL r = FreeLibrary(hModule);
-				cout << "Placing MAC in file " << argv[2] << ", location " << macFileLocation << ".\n";
-				std::ofstream dllFile(argv[2], ios::in | ios::out | ios::binary);
-				dllFile.seekp(macFileLocation);
-				dllFile.write((const char *)mac.data(), macSize);
-				if (!dllFile.good())
-				{
-					cerr << "Error writing file.\n";
-					return 1;
-				}
+				cerr << "MAC placeholder not found. Possibly the actual MAC was already placed.\n";
+				return 1;
 			}
+
+			unsigned int macPos = found-buf.begin();
+			member_ptr<MessageAuthenticationCode> pMac(NewIntegrityCheckingMAC());
+			pMac->Update(buf.begin(), macPos);
+			pMac->Update(buf.begin() + macPos + sizeof(dummyMac), fileSize - sizeof(dummyMac) - macPos);
+			assert(pMac->DigestSize() == sizeof(dummyMac));
+			pMac->Final(dummyMac);
+
+			cout << "Placing MAC in file " << argv[2] << ", location " << macPos << ".\n";
+			dllFile.seekg(macPos, std::ios_base::beg);
+			dllFile.write((char *)dummyMac, sizeof(dummyMac));
 		}
-#endif
 		else if (command == "m")
 			DigestFile(argv[2]);
 		else if (command == "tv")

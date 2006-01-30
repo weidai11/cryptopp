@@ -496,7 +496,9 @@ done:
 
 #ifdef CRYPTOPP_WIN32_AVAILABLE
 
-static const byte s_moduleMac[CryptoPP::HMAC<CryptoPP::SHA1>::DIGESTSIZE] = "reserved for mac";
+// use a random dummy string here, to be searched/replaced later with the real MAC
+static const byte s_moduleMac[CryptoPP::HMAC<CryptoPP::SHA1>::DIGESTSIZE] = CRYPTOPP_DUMMY_DLL_MAC;
+CRYPTOPP_COMPILE_ASSERT(sizeof(s_moduleMac) == CryptoPP::SHA1::DIGESTSIZE);
 static HMODULE s_hModule = NULL;
 
 void DoDllPowerUpSelfTest()
