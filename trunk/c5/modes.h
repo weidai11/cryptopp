@@ -90,12 +90,13 @@ protected:
 	void TransformRegister()
 	{
 		m_cipher->ProcessBlock(m_register, m_temp);
-		memmove(m_register, m_register+m_feedbackSize, BlockSize()-m_feedbackSize);
-		memcpy(m_register+BlockSize()-m_feedbackSize, m_temp, m_feedbackSize);
+		unsigned int updateSize = BlockSize()-m_feedbackSize;
+		memmove_s(m_register, m_register.size(), m_register+m_feedbackSize, updateSize);
+		memcpy_s(m_register+updateSize, m_register.size()-updateSize, m_temp, m_feedbackSize);
 	}
 	void CipherResynchronize(const byte *iv)
 	{
-		memcpy(m_register, iv, BlockSize());
+		memcpy_s(m_register, m_register.size(), iv, BlockSize());
 		TransformRegister();
 	}
 	void SetFeedbackSize(unsigned int feedbackSize)
@@ -117,7 +118,7 @@ protected:
 inline void CopyOrZero(void *dest, const void *src, size_t s)
 {
 	if (src)
-		memcpy(dest, src, s);
+		memcpy_s(dest, s, src, s);
 	else
 		memset(dest, 0, s);
 }
@@ -136,7 +137,7 @@ private:
 	{
 		assert(iterationCount == 1);
 		m_cipher->ProcessBlock(keystreamBuffer);
-		memcpy(m_register, keystreamBuffer, BlockSize());
+		memcpy_s(m_register, m_register.size(), keystreamBuffer, BlockSize());
 	}
 	void CipherResynchronize(byte *keystreamBuffer, const byte *iv)
 	{
@@ -175,7 +176,7 @@ public:
 	bool IsRandomAccess() const {return false;}
 	bool IsSelfInverting() const {return false;}
 	bool IsForwardTransformation() const {return m_cipher->IsForwardTransformation();}
-	void Resynchronize(const byte *iv) {memcpy(m_register, iv, BlockSize());}
+	void Resynchronize(const byte *iv) {memcpy_s(m_register, m_register.size(), iv, BlockSize());}
 	void ProcessData(byte *outString, const byte *inString, size_t length);
 
 protected:

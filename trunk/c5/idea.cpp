@@ -11,6 +11,8 @@ static const int IDEA_KEYLEN=(6*IDEA::ROUNDS+4);  // key schedule length in # of
 #define low16(x) ((x)&0xffff)	// compiler should be able to optimize this away if word is 16 bits
 #define high16(x) ((x)>>16)
 
+CRYPTOPP_COMPILE_ASSERT(sizeof(IDEA::Word) >= 2);
+
 // should use an inline function but macros are still faster in MSVC 4.0
 #define DirectMUL(a,b)					\
 {										\
@@ -21,7 +23,7 @@ static const int IDEA_KEYLEN=(6*IDEA::ROUNDS+4);  // key schedule length in # of
 	if (p)								\
 	{									\
 		p = low16(p) - high16(p);		\
-		a = (word)p - (word)high16(p);	\
+		a = (IDEA::Word)p - (IDEA::Word)high16(p);	\
 	}									\
 	else								\
 		a = 1-a-b;						\
@@ -40,7 +42,7 @@ void IDEA::Base::BuildLogTables()
 	{
 		tablesBuilt = true;
 		
-		word x=1;
+		IDEA::Word x=1;
 		word32 i;
 		
 		for (i=0; i<0x10000; i++)
@@ -56,7 +58,7 @@ void IDEA::Base::BuildLogTables()
 
 void IDEA::Base::LookupKeyLogs()
 {
-	word* Z=key;
+	IDEA::Word* Z=key;
 	int r=ROUNDS;
 	do
 	{
@@ -70,7 +72,7 @@ void IDEA::Base::LookupKeyLogs()
 	Z[3] = log[Z[3]];
 }
 
-inline void IDEA::Base::LookupMUL(word &a, word b)
+inline void IDEA::Base::LookupMUL(IDEA::Word &a, IDEA::Word b)
 {
 	a = antilog[low16(log[low16(a)]+b)];
 }
@@ -99,7 +101,7 @@ void IDEA::Base::EnKey (const byte *userKey)
 	unsigned int i;
 	
 	for (i=0; i<8; i++)
-		m_key[i] = ((word)userKey[2*i]<<8) | userKey[2*i+1];
+		m_key[i] = ((IDEA::Word)userKey[2*i]<<8) | userKey[2*i+1];
 	
 	for (; i<IDEA_KEYLEN; i++)
 	{
@@ -108,9 +110,9 @@ void IDEA::Base::EnKey (const byte *userKey)
 	}
 }
 
-static word MulInv(word x)
+static IDEA::Word MulInv(IDEA::Word x)
 {
-	word y=x;
+	IDEA::Word y=x;
 	for (unsigned i=0; i<15; i++)
 	{
 		DirectMUL(y,low16(y));
@@ -119,14 +121,14 @@ static word MulInv(word x)
 	return low16(y);
 }
 
-static inline word AddInv(word x)
+static inline IDEA::Word AddInv(IDEA::Word x)
 {
 	return low16(0-x);
 }
 
 void IDEA::Base::DeKey()
 {
-	FixedSizeSecBlock<word, 6*ROUNDS+4> tempkey;
+	FixedSizeSecBlock<IDEA::Word, 6*ROUNDS+4> tempkey;
 	unsigned int i;
 
 	for (i=0; i<ROUNDS; i++)
@@ -157,8 +159,8 @@ void IDEA::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
 {
 	typedef BlockGetAndPut<word16, BigEndian> Block;
 
-	const word *key = m_key;
-	word x0,x1,x2,x3,t0,t1;
+	const IDEA::Word *key = m_key;
+	IDEA::Word x0,x1,x2,x3,t0,t1;
 	Block::Get(inBlock)(x0)(x1)(x2)(x3);
 
 	for (unsigned int i=0; i<ROUNDS; i++)

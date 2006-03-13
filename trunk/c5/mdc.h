@@ -32,7 +32,7 @@ class MDC : public MDC_Info<T>
 		{
 			assert(direction == ENCRYPTION);
 			this->AssertValidKeyLength(length);
-			memcpy(Key(), userKey, this->KEYLENGTH);
+			memcpy_s(m_key, m_key.size(), userKey, this->KEYLENGTH);
 			T::CorrectEndianess(Key(), Key(), this->KEYLENGTH);
 		}
 

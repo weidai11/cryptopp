@@ -236,12 +236,12 @@ struct WindowSlider
 
 		exp >>= skipCount;
 		windowBegin += skipCount;
-		expWindow = exp % (1 << windowSize);
+		expWindow = word32(exp % (word(1) << windowSize));
 
 		if (fastNegate && exp.GetBit(windowSize))
 		{
 			negateNext = true;
-			expWindow = (1 << windowSize) - expWindow;
+			expWindow = (word32(1) << windowSize) - expWindow;
 			exp += windowModulus;
 		}
 		else
@@ -249,7 +249,8 @@ struct WindowSlider
 	}
 
 	Integer exp, windowModulus;
-	unsigned int windowSize, windowBegin, expWindow;
+	unsigned int windowSize, windowBegin;
+	word32 expWindow;
 	bool fastNegate, negateNext, firstTime, finished;
 };
 

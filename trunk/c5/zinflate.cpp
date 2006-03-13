@@ -138,7 +138,7 @@ void HuffmanDecoder::Initialize(const unsigned int *codeBits, unsigned int nCode
 	m_normalizedCacheMask = NormalizeCode(m_cacheMask, m_cacheBits);
 	assert(m_normalizedCacheMask == BitReverse(m_cacheMask));
 
-	if (m_cache.size() != 1 << m_cacheBits)
+	if (m_cache.size() != size_t(1) << m_cacheBits)
 		m_cache.resize(1 << m_cacheBits);
 
 	for (i=0; i<m_cache.size(); i++)

@@ -18,6 +18,14 @@ struct IDEA_Info : public FixedBlockSize<8>, public FixedKeyLength<16>, public F
 /// <a href="http://www.weidai.com/scan-mirror/cs.html#IDEA">IDEA</a>
 class IDEA : public IDEA_Info, public BlockCipherDocumentation
 {
+public:		// made public for internal purposes
+#ifdef CRYPTOPP_NATIVE_DWORD_AVAILABLE
+	typedef word Word;
+#else
+	typedef hword Word;
+#endif
+
+private:
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<IDEA_Info>
 	{
 	public:
@@ -29,7 +37,7 @@ class IDEA : public IDEA_Info, public BlockCipherDocumentation
 	private:
 		void EnKey(const byte *);
 		void DeKey();
-		FixedSizeSecBlock<word, 6*ROUNDS+4> m_key;
+		FixedSizeSecBlock<Word, 6*ROUNDS+4> m_key;
 
 	#ifdef IDEA_LARGECACHE
 		static inline void LookupMUL(word &a, word b);
