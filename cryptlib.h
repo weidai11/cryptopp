@@ -521,6 +521,11 @@ public:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE HashTransformation : public Algorithm
 {
 public:
+	//! return a reference to this object, 
+	/*! This function is useful for passing a temporary HashTransformation object to a 
+		function that takes a non-const reference. */
+	HashTransformation& Ref() {return *this;}
+
 	//! process more input
 	virtual void Update(const byte *input, size_t length) =0;
 
