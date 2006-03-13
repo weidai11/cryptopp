@@ -278,7 +278,7 @@ public:
 		//!
 		Integer&  operator/=(word t)  {return *this = DividedBy(t);}
 		//!
-		Integer&  operator%=(word t)  {return *this = Modulo(t);}
+		Integer&  operator%=(word t)  {return *this = Integer(POSITIVE, 0, Modulo(t));}
 
 		//!
 		Integer&  operator<<=(size_t);

@@ -84,7 +84,7 @@ class LR : public LR_Info<T>, public BlockCipherDocumentation
 			if (xorBlock)
 				xorbuf(outBlock, xorBlock, this->buffer, 2*this->S);
 			else
-				memcpy(outBlock, this->buffer, 2*this->S);
+				memcpy_s(outBlock, 2*this->S, this->buffer, 2*this->S);
 		}
 	};
 

@@ -1,5 +1,7 @@
 // bench.cpp - written and placed in the public domain by Wei Dai
 
+#define _CRT_SECURE_NO_DEPRECATE
+
 #include "bench.h"
 #include "crc.h"
 #include "adler32.h"

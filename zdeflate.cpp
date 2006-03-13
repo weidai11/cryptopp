@@ -383,7 +383,7 @@ unsigned int Deflator::LongestMatch(unsigned int &bestMatch) const
 		if (scan[bestLength-1] == match[bestLength-1] && scan[bestLength] == match[bestLength] && scan[0] == match[0] && scan[1] == match[1])
 		{
 			assert(scan[2] == match[2]);
-			unsigned int len = (unsigned int)(std::mismatch(scan+3, scanEnd, match+3).first - scan);
+			unsigned int len = (unsigned int)(stdext::unchecked_mismatch(scan+3, scanEnd, match+3).first - scan);
 			assert(len != bestLength);
 			if (len > bestLength)
 			{

@@ -123,7 +123,7 @@ static int Compare(const word *A, const word *B, size_t N)
 	return 0;
 }
 
-static word Increment(word *A, size_t N, word B=1)
+static int Increment(word *A, size_t N, word B=1)
 {
 	assert(N);
 	word t = A[0];
@@ -136,7 +136,7 @@ static word Increment(word *A, size_t N, word B=1)
 	return 1;
 }
 
-static word Decrement(word *A, size_t N, word B=1)
+static int Decrement(word *A, size_t N, word B=1)
 {
 	assert(N);
 	word t = A[0];
@@ -462,8 +462,8 @@ inline word DWord::operator%(word a)
 class Portable
 {
 public:
-	static word Add(word *C, const word *A, const word *B, size_t N);
-	static word Subtract(word *C, const word *A, const word *B, size_t N);
+	static int Add(word *C, const word *A, const word *B, size_t N);
+	static int Subtract(word *C, const word *A, const word *B, size_t N);
 
 	static inline void Multiply2(word *C, const word *A, const word *B);
 	static inline word Multiply2Add(word *C, const word *A, const word *B);
@@ -482,7 +482,7 @@ public:
 	static inline unsigned int SquareRecursionLimit() {return 4;}
 };
 
-word Portable::Add(word *C, const word *A, const word *B, size_t N)
+int Portable::Add(word *C, const word *A, const word *B, size_t N)
 {
 	assert (N%2 == 0);
 
@@ -494,10 +494,10 @@ word Portable::Add(word *C, const word *A, const word *B, size_t N)
 		u = DWord(A[i+1]) + B[i+1] + u.GetHighHalf();
 		C[i+1] = u.GetLowHalf();
 	}
-	return u.GetHighHalf();
+	return int(u.GetHighHalf());
 }
 
-word Portable::Subtract(word *C, const word *A, const word *B, size_t N)
+int Portable::Subtract(word *C, const word *A, const word *B, size_t N)
 {
 	assert (N%2 == 0);
 
@@ -509,7 +509,7 @@ word Portable::Subtract(word *C, const word *A, const word *B, size_t N)
 		u = (DWord) A[i+1] - B[i+1] - u.GetHighHalfAsBorrow();
 		C[i+1] = u.GetLowHalf();
 	}
-	return 0-u.GetHighHalf();
+	return int(0-u.GetHighHalf());
 }
 
 void Portable::Multiply2(word *C, const word *A, const word *B)
@@ -991,8 +991,8 @@ static bool IsP4()
 class PentiumOptimized : public Portable
 {
 public:
-	static word Add(word *C, const word *A, const word *B, size_t N);
-	static word Subtract(word *C, const word *A, const word *B, size_t N);
+	static int Add(word *C, const word *A, const word *B, size_t N);
+	static int Subtract(word *C, const word *A, const word *B, size_t N);
 	static void Multiply4(word *C, const word *A, const word *B);
 	static void Multiply8(word *C, const word *A, const word *B);
 	static void Multiply8Bottom(word *C, const word *A, const word *B);
@@ -1001,8 +1001,8 @@ public:
 class P4Optimized
 {
 public:
-	static word Add(word *C, const word *A, const word *B, size_t N);
-	static word Subtract(word *C, const word *A, const word *B, size_t N);
+	static int Add(word *C, const word *A, const word *B, size_t N);
+	static int Subtract(word *C, const word *A, const word *B, size_t N);
 #ifdef SSE2_INTRINSICS_AVAILABLE
 	static void Multiply4(word *C, const word *A, const word *B);
 	static void Multiply8(word *C, const word *A, const word *B);
@@ -1010,7 +1010,7 @@ public:
 #endif
 };
 
-typedef word (* PAddSub)(word *C, const word *A, const word *B, size_t N);
+typedef int (* PAddSub)(word *C, const word *A, const word *B, size_t N);
 typedef void (* PMul)(word *C, const word *A, const word *B);
 
 static PAddSub s_pAdd, s_pSub;
@@ -1058,9 +1058,9 @@ void DisableSSE2()
 class LowLevel : public PentiumOptimized
 {
 public:
-	inline static word Add(word *C, const word *A, const word *B, size_t N)
+	inline static int Add(word *C, const word *A, const word *B, size_t N)
 		{return s_pAdd(C, A, B, N);}
-	inline static word Subtract(word *C, const word *A, const word *B, size_t N)
+	inline static int Subtract(word *C, const word *A, const word *B, size_t N)
 		{return s_pSub(C, A, B, N);}
 	inline static void Square4(word *R, const word *A)
 		{Multiply4(R, A, A);}
@@ -1146,7 +1146,7 @@ public:
 		);
 #endif
 
-CRYPTOPP_NAKED word PentiumOptimized::Add(word *C, const word *A, const word *B, size_t N)
+CRYPTOPP_NAKED int PentiumOptimized::Add(word *C, const word *A, const word *B, size_t N)
 {
 	AddPrologue
 
@@ -1184,7 +1184,7 @@ CRYPTOPP_NAKED word PentiumOptimized::Add(word *C, const word *A, const word *B,
 	AddEpilogue
 }
 
-CRYPTOPP_NAKED word PentiumOptimized::Subtract(word *C, const word *A, const word *B, size_t N)
+CRYPTOPP_NAKED int PentiumOptimized::Subtract(word *C, const word *A, const word *B, size_t N)
 {
 	AddPrologue
 
@@ -1224,7 +1224,7 @@ CRYPTOPP_NAKED word PentiumOptimized::Subtract(word *C, const word *A, const wor
 
 // On Pentium 4, the adc and sbb instructions are very expensive, so avoid them.
 
-CRYPTOPP_NAKED word P4Optimized::Add(word *C, const word *A, const word *B, size_t N)
+CRYPTOPP_NAKED int P4Optimized::Add(word *C, const word *A, const word *B, size_t N)
 {
 	AddPrologue
 
@@ -1271,7 +1271,7 @@ CRYPTOPP_NAKED word P4Optimized::Add(word *C, const word *A, const word *B, size
 	AddEpilogue
 }
 
-CRYPTOPP_NAKED word P4Optimized::Subtract(word *C, const word *A, const word *B, size_t N)
+CRYPTOPP_NAKED int P4Optimized::Subtract(word *C, const word *A, const word *B, size_t N)
 {
 	AddPrologue
 
@@ -2090,7 +2090,7 @@ void RecursiveSquare(word *R, word *T, const word *A, size_t N)
 		RecursiveSquare(R2, T2, A1, N2);
 		RecursiveMultiply(T0, T2, A0, A1, N2);
 
-		word carry = LowLevel::Add(R1, R1, T0, N);
+		int carry = LowLevel::Add(R1, R1, T0, N);
 		carry += LowLevel::Add(R1, R1, T0, N);
 		Increment(R3, N2, carry);
 	}
@@ -2187,9 +2187,9 @@ void RecursiveMultiplyTop(word *R, word *T, const word *L, const word *A, const 
 
 		// now T[01] holds (A1-A0)*(B0-B1), T[23] holds A1*B1
 
-		word c2 = LowLevel::Subtract(R0, L+N2, L, N2);
+		int c2 = LowLevel::Subtract(R0, L+N2, L, N2);
 		c2 += LowLevel::Subtract(R0, R0, T0, N2);
-		word t = (Compare(R0, T2, N2) == -1);
+		int t = (Compare(R0, T2, N2) == -1);
 
 		carry += t;
 		carry += Increment(R0, N2, c2+t);
@@ -2202,12 +2202,12 @@ void RecursiveMultiplyTop(word *R, word *T, const word *L, const word *A, const 
 	}
 }
 
-inline word Add(word *C, const word *A, const word *B, size_t N)
+inline int Add(word *C, const word *A, const word *B, size_t N)
 {
 	return LowLevel::Add(C, A, B, N);
 }
 
-inline word Subtract(word *C, const word *A, const word *B, size_t N)
+inline int Subtract(word *C, const word *A, const word *B, size_t N)
 {
 	return LowLevel::Subtract(C, A, B, N);
 }
@@ -2738,7 +2738,7 @@ static inline size_t RoundupSize(size_t n)
 		return 32;
 	else if (n<=64)
 		return 64;
-	else return 1U << BitPrecision(n-1);
+	else return size_t(1) << BitPrecision(n-1);
 }
 
 Integer::Integer()
@@ -2786,8 +2786,8 @@ bool Integer::IsConvertableToLong() const
 	if (ByteCount() > sizeof(long))
 		return false;
 
-	unsigned long value = reg[0];
-	value += SafeLeftShift<WORD_BITS, unsigned long>(reg[1]);
+	unsigned long value = (unsigned long)reg[0];
+	value += SafeLeftShift<WORD_BITS, unsigned long>((unsigned long)reg[1]);
 
 	if (sign==POSITIVE)
 		return (signed long)value >= 0;
@@ -2799,8 +2799,8 @@ signed long Integer::ConvertToLong() const
 {
 	assert(IsConvertableToLong());
 
-	unsigned long value = reg[0];
-	value += SafeLeftShift<WORD_BITS, unsigned long>(reg[1]);
+	unsigned long value = (unsigned long)reg[0];
+	value += SafeLeftShift<WORD_BITS, unsigned long>((unsigned long)reg[1]);
 	return sign==POSITIVE ? value : -(signed long)value;
 }
 
@@ -2953,7 +2953,7 @@ Integer::Integer(word value, size_t length)
 template <class T>
 static Integer StringToInteger(const T *str)
 {
-	word radix;
+	int radix;
 	// GCC workaround
 	// std::char_traits<wchar_t>::length() not defined in GCC 3.2 and STLport 4.5.3
 	unsigned int length;
@@ -2987,7 +2987,7 @@ static Integer StringToInteger(const T *str)
 
 	for (unsigned i=0; i<length; i++)
 	{
-		word digit;
+		int digit;
 
 		if (str[i] >= '0' && str[i] <= '9')
 			digit = str[i] - '0';
@@ -3456,7 +3456,7 @@ Integer& Integer::operator--()
 
 void PositiveAdd(Integer &sum, const Integer &a, const Integer& b)
 {
-	word carry;
+	int carry;
 	if (a.reg.size() == b.reg.size())
 		carry = Add(sum.reg, a.reg, b.reg, a.reg.size());
 	else if (a.reg.size() > b.reg.size())
@@ -3750,7 +3750,7 @@ void Integer::DivideByPowerOf2(Integer &r, Integer &q, const Integer &a, unsigne
 		CopyWords(r.reg, a.reg, wordCount);
 		SetWords(r.reg+wordCount, 0, r.reg.size()-wordCount);
 		if (n % WORD_BITS != 0)
-			r.reg[wordCount-1] %= (1 << (n % WORD_BITS));
+			r.reg[wordCount-1] %= (word(1) << (n % WORD_BITS));
 	}
 	else
 	{

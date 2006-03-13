@@ -374,9 +374,9 @@ void ECP::SimultaneousMultiply(ECP::Point *results, const ECP::Point &P, const I
 	std::vector<ProjectivePoint> bases;
 	std::vector<WindowSlider> exponents;
 	exponents.reserve(expCount);
-	std::vector<std::vector<unsigned int> > baseIndices(expCount);
+	std::vector<std::vector<word32> > baseIndices(expCount);
 	std::vector<std::vector<bool> > negateBase(expCount);
-	std::vector<std::vector<unsigned int> > exponentWindows(expCount);
+	std::vector<std::vector<word32> > exponentWindows(expCount);
 	unsigned int i;
 
 	for (i=0; i<expCount; i++)
@@ -432,7 +432,7 @@ void ECP::SimultaneousMultiply(ECP::Point *results, const ECP::Point &P, const I
 		}
 	}
 
-	std::vector<BaseAndExponent<Point, word> > finalCascade;
+	std::vector<BaseAndExponent<Point, Integer> > finalCascade;
 	for (i=0; i<expCount; i++)
 	{
 		finalCascade.resize(baseIndices[i].size());
@@ -450,7 +450,7 @@ void ECP::SimultaneousMultiply(ECP::Point *results, const ECP::Point &P, const I
 				else
 					finalCascade[j].base.y = base.y;
 			}
-			finalCascade[j].exponent = exponentWindows[i][j];
+			finalCascade[j].exponent = Integer(Integer::POSITIVE, 0, exponentWindows[i][j]);
 		}
 		results[i] = GeneralCascadeMultiplication(*this, finalCascade.begin(), finalCascade.end());
 	}

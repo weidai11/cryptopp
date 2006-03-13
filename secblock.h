@@ -61,7 +61,7 @@ typename A::pointer StandardReallocate(A& a, T *p, typename A::size_type oldSize
 	{
 		A b;
 		typename A::pointer newPointer = b.allocate(newSize, NULL);
-		memcpy(newPointer, p, sizeof(T)*STDMIN(oldSize, newSize));
+		memcpy_s(newPointer, sizeof(T)*newSize, p, sizeof(T)*STDMIN(oldSize, newSize));
 		a.deallocate(p, oldSize);
 		std::swap(a, b);
 		return newPointer;
@@ -211,7 +211,7 @@ public:
     explicit SecBlock(size_type size=0)
 		: m_size(size) {m_ptr = m_alloc.allocate(size, NULL);}
 	SecBlock(const SecBlock<T, A> &t)
-		: m_size(t.m_size) {m_ptr = m_alloc.allocate(m_size, NULL); memcpy(m_ptr, t.m_ptr, m_size*sizeof(T));}
+		: m_size(t.m_size) {m_ptr = m_alloc.allocate(m_size, NULL); memcpy_s(m_ptr, m_size*sizeof(T), t.m_ptr, m_size*sizeof(T));}
 	SecBlock(const T *t, size_type len)
 		: m_size(len)
 	{
@@ -270,16 +270,18 @@ public:
 	size_type size() const {return m_size;}
 	bool empty() const {return m_size == 0;}
 
+	size_type SizeInBytes() const {return m_size*sizeof(T);}
+
 	void Assign(const T *t, size_type len)
 	{
 		New(len);
-		memcpy(m_ptr, t, len*sizeof(T));
+		memcpy_s(m_ptr, m_size*sizeof(T), t, len*sizeof(T));
 	}
 
 	void Assign(const SecBlock<T, A> &t)
 	{
 		New(t.m_size);
-		memcpy(m_ptr, t.m_ptr, m_size*sizeof(T));
+		memcpy_s(m_ptr, m_size*sizeof(T), t.m_ptr, m_size*sizeof(T));
 	}
 
 	SecBlock<T, A>& operator=(const SecBlock<T, A> &t)
@@ -292,15 +294,15 @@ public:
 	{
 		size_type oldSize = m_size;
 		Grow(m_size+t.m_size);
-		memcpy(m_ptr+oldSize, t.m_ptr, t.m_size*sizeof(T));
+		memcpy_s(m_ptr+oldSize, m_size*sizeof(T), t.m_ptr, t.m_size*sizeof(T));
 		return *this;
 	}
 
 	SecBlock<T, A> operator+(const SecBlock<T, A> &t)
 	{
 		SecBlock<T, A> result(m_size+t.m_size);
-		memcpy(result.m_ptr, m_ptr, m_size*sizeof(T));
-		memcpy(result.m_ptr+m_size, t.m_ptr, t.m_size*sizeof(T));
+		memcpy_s(result.m_ptr, result.m_size*sizeof(T), m_ptr, m_size*sizeof(T));
+		memcpy_s(result.m_ptr+m_size, t.m_size*sizeof(T), t.m_ptr, t.m_size*sizeof(T));
 		return result;
 	}
 

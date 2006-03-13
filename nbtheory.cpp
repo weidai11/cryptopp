@@ -319,7 +319,7 @@ bool PrimeSieve::NextCandidate(Integer &c)
 	}
 	else
 	{
-		c = m_first + m_next*m_step;
+		c = m_first + long(m_next)*m_step;
 		++m_next;
 		return true;
 	}
@@ -330,9 +330,9 @@ void PrimeSieve::SieveSingle(std::vector<bool> &sieve, word16 p, const Integer &
 	if (stepInv)
 	{
 		size_t sieveSize = sieve.size();
-		word j = word((word32(p-(first%p))*stepInv) % p);
+		size_t j = (word32(p-(first%p))*stepInv) % p;
 		// if the first multiple of p is p, skip it
-		if (first.WordCount() <= 1 && first + step*j == p)
+		if (first.WordCount() <= 1 && first + step*long(j) == p)
 			j += p;
 		for (; j < sieveSize; j += p)
 			sieve[j] = true;
@@ -353,7 +353,7 @@ void PrimeSieve::DoSieve()
 	if (m_delta == 0)
 	{
 		for (unsigned int i = 0; i < primeTableSize; ++i)
-			SieveSingle(m_sieve, primeTable[i], m_first, m_step, m_step.InverseMod(primeTable[i]));
+			SieveSingle(m_sieve, primeTable[i], m_first, m_step, (word16)m_step.InverseMod(primeTable[i]));
 	}
 	else
 	{
@@ -363,7 +363,7 @@ void PrimeSieve::DoSieve()
 		for (unsigned int i = 0; i < primeTableSize; ++i)
 		{
 			word16 p = primeTable[i];
-			word16 stepInv = m_step.InverseMod(p);
+			word16 stepInv = (word16)m_step.InverseMod(p);
 			SieveSingle(m_sieve, p, m_first, m_step, stepInv);
 
 			word16 halfStepInv = 2*stepInv < p ? 2*stepInv : 2*stepInv-p;

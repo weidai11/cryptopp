@@ -355,7 +355,7 @@ inline void IncrementCounterByOne(byte *output, const byte *input, unsigned int 
 	int i, carry;
 	for (i=s-1, carry=1; i>=0 && carry; i--)
 		carry = !(output[i] = input[i]+1);
-	memcpy(output, input, i+1);
+	memcpy_s(output, s, input, i+1);
 }
 
 // ************** rotate functions ***************
@@ -602,7 +602,7 @@ inline void ConditionalByteReverse(ByteOrder order, T *out, const T *in, size_t 
 	if (!NativeByteOrderIs(order))
 		ByteReverse(out, in, byteCount);
 	else if (in != out)
-		memcpy(out, in, byteCount);
+		memcpy_s(out, byteCount, in, byteCount);
 }
 
 template <class T>
@@ -852,7 +852,7 @@ template <class T>
 T StringToWord(const std::string &str, ByteOrder order = BIG_ENDIAN_ORDER)
 {
 	T value = 0;
-	memcpy(&value, str.data(), UnsignedMin(str.size(), sizeof(value)));
+	memcpy_s(&value, sizeof(value), str.data(), UnsignedMin(str.size(), sizeof(value)));
 	return NativeByteOrderIs(order) ? value : ByteReverse(value);
 }
 

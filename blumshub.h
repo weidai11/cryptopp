@@ -28,10 +28,9 @@ public:
 	bool IsForwardTransformation() const {return true;}
 
 protected:
-	const ModularArithmetic modn;
-	const word maxBits;
+	ModularArithmetic modn;
+	word maxBits, bitsLeft;
 	Integer current;
-	int bitsLeft;
 
 	friend class BlumGoldwasserPublicKey;
 	friend class BlumGoldwasserPrivateKey;

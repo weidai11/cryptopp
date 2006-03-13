@@ -79,7 +79,7 @@ template <class T> void XMACC_Base<T>::CheckedSetKey(void *, Empty empty, const 
 		GetWord(false, BIG_ENDIAN_ORDER, m_counter, iv);
 	else
 		params.GetValue(Name::XMACC_Counter(), m_counter);
-	memcpy(m_key, key, this->KEYLENGTH);
+	memcpy_s(m_key, m_key.SizeInBytes(), key, this->KEYLENGTH);
 	Init();
 }
 
@@ -105,7 +105,7 @@ template <class T> inline void XMACC_Base<T>::XorDigest(HashWordType *digest, co
 
 template <class T> void XMACC_Base<T>::HashEndianCorrectedBlock(const HashWordType *input)
 {
-	memcpy(m_buffer, m_key, this->KEYLENGTH);
+	memcpy_s(m_buffer, m_buffer.SizeInBytes(), m_key, this->KEYLENGTH);
 	WriteWord32((byte *)m_buffer.begin()+this->KEYLENGTH, ++m_index);
 	T::CorrectEndianess(m_buffer, m_buffer, T::DIGESTSIZE);
 	T::Transform(m_buffer, input);
@@ -126,7 +126,7 @@ template <class T> void XMACC_Base<T>::TruncatedFinal(byte *mac, size_t size)
 	this->m_data[this->m_data.size()-1] = ByteReverse(this->GetBitCountLo());
 	HashEndianCorrectedBlock(this->m_data);
 
-	memcpy(m_buffer, m_key, this->KEYLENGTH);
+	memcpy_s(m_buffer, m_buffer.SizeInBytes(), m_key, this->KEYLENGTH);
 	WriteWord32((byte *)m_buffer.begin()+this->KEYLENGTH, 0);
 	memset(this->m_data, 0, this->BLOCKSIZE-4);
 	WriteWord32((byte *)this->m_data.begin()+this->BLOCKSIZE-4, ++m_counter);
@@ -137,7 +137,7 @@ template <class T> void XMACC_Base<T>::TruncatedFinal(byte *mac, size_t size)
 
 	WriteWord32(mac, m_counter);
 	T::CorrectEndianess(this->m_digest, this->m_digest, T::DIGESTSIZE);
-	memcpy(mac+4, this->m_digest, size-4);
+	memcpy_s(mac+4, size-4, this->m_digest, size-4);
 
 	this->Restart();		// reinit for next use
 }
@@ -152,10 +152,10 @@ template <class T> bool XMACC_Base<T>::TruncatedVerify(const byte *mac, size_t s
 	this->m_data[this->m_data.size()-1] = ByteReverse(this->GetBitCountLo());
 	HashEndianCorrectedBlock(this->m_data);
 
-	memcpy(m_buffer, m_key, this->KEYLENGTH);
+	memcpy_s(m_buffer, m_buffer.SizeInBytes(), m_key, this->KEYLENGTH);
 	WriteWord32((byte *)m_buffer.begin()+this->KEYLENGTH, 0);
 	memset(this->m_data, 0, this->BLOCKSIZE-4);
-	memcpy((byte *)this->m_data.begin()+this->BLOCKSIZE-4, mac, 4);
+	memcpy_s((byte *)this->m_data.begin()+this->BLOCKSIZE-4, 4, mac, 4);
 	T::CorrectEndianess(m_buffer, m_buffer, T::DIGESTSIZE);
 	T::CorrectEndianess(this->m_data, this->m_data, this->BLOCKSIZE);
 	T::Transform(m_buffer, this->m_data);

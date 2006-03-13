@@ -1,6 +1,8 @@
 // test.cpp - written and placed in the public domain by Wei Dai
 
+#define _CRT_SECURE_NO_DEPRECATE
 #define CRYPTOPP_DEFAULT_NO_DLL
+
 #include "dll.h"
 #include "md5.h"
 #include "ripemd.h"
@@ -190,7 +192,7 @@ int __cdecl main(int argc, char *argv[])
 				return 1;
 			}
 
-			unsigned int macPos = found-buf.begin();
+			unsigned int macPos = unsigned int(found-buf.begin());
 			member_ptr<MessageAuthenticationCode> pMac(NewIntegrityCheckingMAC());
 			pMac->Update(buf.begin(), macPos);
 			pMac->Update(buf.begin() + macPos + sizeof(dummyMac), fileSize - sizeof(dummyMac) - macPos);
