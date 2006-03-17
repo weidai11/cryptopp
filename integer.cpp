@@ -3111,7 +3111,7 @@ void Integer::Encode(BufferedTransformation &bt, size_t outputLen, Signedness si
 	else
 	{
 		// take two's complement of *this
-		Integer temp = Integer::Power2(8*UnsignedMin(ByteCount(), outputLen)) + *this;
+		Integer temp = Integer::Power2(8*STDMAX((size_t)ByteCount(), outputLen)) + *this;
 		temp.Encode(bt, outputLen, UNSIGNED);
 	}
 }
