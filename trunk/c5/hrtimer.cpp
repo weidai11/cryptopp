@@ -34,7 +34,7 @@ double TimerBase::ConvertTo(word64 t, Unit unit)
 
 void TimerBase::StartTimer()
 {
-	m_start = GetCurrentTimerValue();
+	m_last = m_start = GetCurrentTimerValue();
 	m_started = true;
 }
 
@@ -42,13 +42,17 @@ double TimerBase::ElapsedTimeAsDouble()
 {
 	if (m_stuckAtZero)
 		return 0;
-	else if (m_started)
-		return ConvertTo(GetCurrentTimerValue() - m_start, m_timerUnit);
-	else
+
+	if (m_started)
 	{
-		StartTimer();
-		return 0;
+		word64 now = GetCurrentTimerValue();
+		if (m_last < now)	// protect against OS bugs where time goes backwards
+			m_last = now;
+		return ConvertTo(m_last - m_start, m_timerUnit);
 	}
+
+	StartTimer();
+	return 0;
 }
 
 unsigned long TimerBase::ElapsedTime()

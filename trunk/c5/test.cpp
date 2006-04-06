@@ -192,7 +192,7 @@ int __cdecl main(int argc, char *argv[])
 				return 1;
 			}
 
-			unsigned int macPos = unsigned int(found-buf.begin());
+			unsigned int macPos = (unsigned int)(found-buf.begin());
 			member_ptr<MessageAuthenticationCode> pMac(NewIntegrityCheckingMAC());
 			pMac->Update(buf.begin(), macPos);
 			pMac->Update(buf.begin() + macPos + sizeof(dummyMac), fileSize - sizeof(dummyMac) - macPos);
@@ -683,8 +683,8 @@ void ForwardTcpPort(const char *sourcePortName, const char *destinationHost, con
 	{
 		waitObjects.Clear();
 
-		out.GetWaitObjects(waitObjects);
-		in.GetWaitObjects(waitObjects);
+		out.GetWaitObjects(waitObjects, CallStack("ForwardTcpPort - out", NULL));
+		in.GetWaitObjects(waitObjects, CallStack("ForwardTcpPort - in", NULL));
 
 		waitObjects.Wait(INFINITE_TIME);
 

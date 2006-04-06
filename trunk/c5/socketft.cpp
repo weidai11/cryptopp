@@ -79,6 +79,7 @@ void Socket::CloseSocket()
 	if (m_s != INVALID_SOCKET)
 	{
 #ifdef USE_WINDOWS_STYLE_SOCKETS
+		CancelIo((HANDLE) m_s);
 		CheckAndHandleError_int("closesocket", closesocket(m_s));
 #else
 		CheckAndHandleError_int("close", close(m_s));
@@ -178,6 +179,12 @@ void Socket::GetSockName(sockaddr *psa, socklen_t *psaLen)
 	CheckAndHandleError_int("getsockname", getsockname(m_s, psa, psaLen));
 }
 
+void Socket::GetPeerName(sockaddr *psa, socklen_t *psaLen)
+{
+	assert(m_s != INVALID_SOCKET);
+	CheckAndHandleError_int("getpeername", getpeername(m_s, psa, psaLen));
+}
+
 unsigned int Socket::Send(const byte* buf, size_t bufLen, int flags)
 {
 	assert(m_s != INVALID_SOCKET);
@@ -261,7 +268,7 @@ void Socket::StartSockets()
 {
 #ifdef USE_WINDOWS_STYLE_SOCKETS
 	WSADATA wsd;
-	int result = WSAStartup(0x0002, &wsd);
+	int result = WSAStartup(0x0202, &wsd);
 	if (result != 0)
 		throw Err(INVALID_SOCKET, "WSAStartup", result);
 #endif
@@ -311,13 +318,20 @@ SocketReceiver::SocketReceiver(Socket &s)
 	m_overlapped.hEvent = m_event;
 }
 
+SocketReceiver::~SocketReceiver()
+{
+#ifdef USE_WINDOWS_STYLE_SOCKETS
+	CancelIo((HANDLE) m_s.GetSocket());
+#endif
+}
+
 bool SocketReceiver::Receive(byte* buf, size_t bufLen)
 {
 	assert(!m_resultPending && !m_eofReceived);
 
 	DWORD flags = 0;
 	// don't queue too much at once, or we might use up non-paged memory
-	WSABUF wsabuf = {UnsignedMin(128U*1024U, bufLen), (char *)buf};
+	WSABUF wsabuf = {UnsignedMin((u_long)128*1024, bufLen), (char *)buf};
 	if (WSARecv(m_s, &wsabuf, 1, &m_lastResult, &flags, &m_overlapped, NULL) == 0)
 	{
 		if (m_lastResult == 0)
@@ -340,12 +354,12 @@ bool SocketReceiver::Receive(byte* buf, size_t bufLen)
 	return !m_resultPending;
 }
 
-void SocketReceiver::GetWaitObjects(WaitObjectContainer &container)
+void SocketReceiver::GetWaitObjects(WaitObjectContainer &container, CallStack const& callStack)
 {
 	if (m_resultPending)
-		container.AddHandle(m_event);
+		container.AddHandle(m_event, CallStack("SocketReceiver::GetWaitObjects() - result pending", &callStack));
 	else if (!m_eofReceived)
-		container.SetNoWait();
+		container.SetNoWait(CallStack("SocketReceiver::GetWaitObjects() - result ready", &callStack));
 }
 
 unsigned int SocketReceiver::GetReceiveResult()
@@ -385,11 +399,20 @@ SocketSender::SocketSender(Socket &s)
 	m_overlapped.hEvent = m_event;
 }
 
+
+SocketSender::~SocketSender()
+{
+#ifdef USE_WINDOWS_STYLE_SOCKETS
+	CancelIo((HANDLE) m_s.GetSocket());
+#endif
+}
+
 void SocketSender::Send(const byte* buf, size_t bufLen)
 {
+	assert(!m_resultPending);
 	DWORD written = 0;
 	// don't queue too much at once, or we might use up non-paged memory
-	WSABUF wsabuf = {UnsignedMin(128U*1024U, bufLen), (char *)buf};
+	WSABUF wsabuf = {UnsignedMin((u_long)128*1024, bufLen), (char *)buf};
 	if (WSASend(m_s, &wsabuf, 1, &written, 0, &m_overlapped, NULL) == 0)
 	{
 		m_resultPending = false;
@@ -404,12 +427,33 @@ void SocketSender::Send(const byte* buf, size_t bufLen)
 	}
 }
 
-void SocketSender::GetWaitObjects(WaitObjectContainer &container)
+void SocketSender::SendEof()
+{
+	assert(!m_resultPending);
+	m_s.ShutDown(SD_SEND);
+	m_s.CheckAndHandleError("ResetEvent", ResetEvent(m_event));
+	m_s.CheckAndHandleError_int("WSAEventSelect", WSAEventSelect(m_s, m_event, FD_CLOSE));
+	m_resultPending = true;
+}
+
+bool SocketSender::EofSent()
 {
 	if (m_resultPending)
-		container.AddHandle(m_event);
+	{
+		WSANETWORKEVENTS events;
+		m_s.CheckAndHandleError_int("WSAEnumNetworkEvents", WSAEnumNetworkEvents(m_s, m_event, &events));
+		m_lastResult = (events.lNetworkEvents & FD_CLOSE) ? 1 : 0;
+		m_resultPending = false;
+	}
+	return m_lastResult != 0;
+}
+
+void SocketSender::GetWaitObjects(WaitObjectContainer &container, CallStack const& callStack)
+{
+	if (m_resultPending)
+		container.AddHandle(m_event, CallStack("SocketSender::GetWaitObjects() - result pending", &callStack));
 	else
-		container.SetNoWait();
+		container.SetNoWait(CallStack("SocketSender::GetWaitObjects() - result ready", &callStack));
 }
 
 unsigned int SocketSender::GetSendResult()
@@ -433,10 +477,10 @@ SocketReceiver::SocketReceiver(Socket &s)
 {
 }
 
-void SocketReceiver::GetWaitObjects(WaitObjectContainer &container)
+void SocketReceiver::GetWaitObjects(WaitObjectContainer &container, CallStack const& callStack)
 {
 	if (!m_eofReceived)
-		container.AddReadFd(m_s);
+		container.AddReadFd(m_s, CallStack("SocketReceiver::GetWaitObjects()", &callStack));
 }
 
 bool SocketReceiver::Receive(byte* buf, size_t bufLen)
@@ -462,14 +506,19 @@ void SocketSender::Send(const byte* buf, size_t bufLen)
 	m_lastResult = m_s.Send(buf, bufLen);
 }
 
+void SocketSender::SendEof()
+{
+	m_s.ShutDown(SD_SEND);
+}
+
 unsigned int SocketSender::GetSendResult()
 {
 	return m_lastResult;
 }
 
-void SocketSender::GetWaitObjects(WaitObjectContainer &container)
+void SocketSender::GetWaitObjects(WaitObjectContainer &container, CallStack const& callStack)
 {
-	container.AddWriteFd(m_s);
+	container.AddWriteFd(m_s, CallStack("SocketSender::GetWaitObjects()", &callStack));
 }
 
 #endif

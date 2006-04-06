@@ -116,6 +116,22 @@ retry:
 
 // ************** misc functions ***************
 
+#if (!__STDC_WANT_SECURE_LIB__)
+inline void memcpy_s(void *dest, size_t sizeInBytes, const void *src, size_t count)
+{
+	if (count > sizeInBytes)
+		throw InvalidArgument("memcpy_s: buffer overflow");
+	memcpy(dest, src, count);
+}
+
+inline void memmove_s(void *dest, size_t sizeInBytes, const void *src, size_t count)
+{
+	if (count > sizeInBytes)
+		throw InvalidArgument("memmove_s: buffer overflow");
+	memmove(dest, src, count);
+}
+#endif
+
 // can't use std::min or std::max in MSVC60 or Cygwin 1.1.0
 template <class T> inline const T& STDMIN(const T& a, const T& b)
 {
@@ -331,8 +347,6 @@ std::string IntToString(T a, unsigned int base = 10)
 template <class T1, class T2>
 inline T1 SaturatingSubtract(const T1 &a, const T2 &b)
 {
-	CRYPTOPP_COMPILE_ASSERT_INSTANCE(T1(-1)>0, 0);	// T1 is unsigned type
-	CRYPTOPP_COMPILE_ASSERT_INSTANCE(T2(-1)>0, 1);	// T2 is unsigned type
 	return T1((a > b) ? (a - b) : 0);
 }
 

@@ -179,11 +179,11 @@ unsigned int BufferedTransformation::GetMaxWaitObjectCount() const
 	return t ? t->GetMaxWaitObjectCount() : 0;
 }
 
-void BufferedTransformation::GetWaitObjects(WaitObjectContainer &container)
+void BufferedTransformation::GetWaitObjects(WaitObjectContainer &container, CallStack const& callStack)
 {
 	BufferedTransformation *t = AttachedTransformation();
 	if (t)
-		t->GetWaitObjects(container);
+		t->GetWaitObjects(container, callStack);  // reduce clutter by not adding to stack here
 }
 
 void BufferedTransformation::Initialize(const NameValuePairs &parameters, int propagation)

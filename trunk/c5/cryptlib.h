@@ -661,6 +661,7 @@ public:
 CRYPTOPP_DLL RandomNumberGenerator & CRYPTOPP_API NullRNG();
 
 class WaitObjectContainer;
+class CallStack;
 
 //! interface for objects that you can wait for
 
@@ -670,10 +671,14 @@ public:
 	//! maximum number of wait objects that this object can return
 	virtual unsigned int GetMaxWaitObjectCount() const =0;
 	//! put wait objects into container
-	virtual void GetWaitObjects(WaitObjectContainer &container) =0;
+	/*! \param callStack is used for tracing no wait loops, example:
+	             something.GetWaitObjects(c, CallStack("my func after X", 0));
+			   - or in an outer GetWaitObjects() method that itself takes a callStack parameter:
+			     innerThing.GetWaitObjects(c, CallStack("MyClass::GetWaitObjects at X", &callStack)); */
+	virtual void GetWaitObjects(WaitObjectContainer &container, CallStack const& callStack) =0;
 	//! wait on this object
 	/*! same as creating an empty container, calling GetWaitObjects(), and calling Wait() on the container */
-	bool Wait(unsigned long milliseconds);
+	bool Wait(unsigned long milliseconds, CallStack const& callStack);
 };
 
 //! interface for buffered transformations
@@ -761,7 +766,7 @@ public:
 	//!	\name WAITING
 	//@{
 		unsigned int GetMaxWaitObjectCount() const;
-		void GetWaitObjects(WaitObjectContainer &container);
+		void GetWaitObjects(WaitObjectContainer &container, CallStack const& callStack);
 	//@}
 
 	//!	\name SIGNALS

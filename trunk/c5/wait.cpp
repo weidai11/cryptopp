@@ -13,12 +13,6 @@
 #include <unistd.h>
 #endif
 
-#define TRACE_WAIT 0
-
-#if TRACE_WAIT
-#include "hrtimer.h"
-#endif
-
 NAMESPACE_BEGIN(CryptoPP)
 
 unsigned int WaitObjectContainer::MaxWaitObjects()
@@ -30,12 +24,12 @@ unsigned int WaitObjectContainer::MaxWaitObjects()
 #endif
 }
 
-WaitObjectContainer::WaitObjectContainer()
-#if CRYPTOPP_DETECT_NO_WAIT
-	: m_sameResultCount(0), m_timer(Timer::MILLISECONDS)
-#endif
+WaitObjectContainer::WaitObjectContainer(WaitObjectsTracer* tracer)
+	: m_tracer(tracer), m_eventTimer(Timer::MILLISECONDS)
+	, m_sameResultCount(0), m_noWaitTimer(Timer::MILLISECONDS)
 {
 	Clear();
+	m_eventTimer.StartTimer();
 }
 
 void WaitObjectContainer::Clear()
@@ -48,19 +42,55 @@ void WaitObjectContainer::Clear()
 	FD_ZERO(&m_writefds);
 #endif
 	m_noWait = false;
+	m_firstEventTime = 0;
 }
 
-void WaitObjectContainer::SetNoWait()
+inline void WaitObjectContainer::SetLastResult(LastResultType result)
 {
-#if CRYPTOPP_DETECT_NO_WAIT
-	if (-1 == m_lastResult && m_timer.ElapsedTime() > 1000)
+	if (result == m_lastResult)
+		m_sameResultCount++;
+	else
 	{
-		if (m_sameResultCount > m_timer.ElapsedTime())
-			try {throw 0;} catch (...) {}	// possible no-wait loop, break in debugger
-		m_timer.StartTimer();
+		m_lastResult = result;
+		m_sameResultCount = 0;
 	}
-#endif
+}
+
+void WaitObjectContainer::DetectNoWait(LastResultType result, CallStack const& callStack)
+{
+	if (result == m_lastResult && m_noWaitTimer.ElapsedTime() > 1000)
+	{
+		if (m_sameResultCount > m_noWaitTimer.ElapsedTime())
+		{
+			if (m_tracer)
+			{
+				std::string desc = "No wait loop detected - m_lastResult: ";
+				desc.append(IntToString(m_lastResult)).append(", call stack:");
+				for (CallStack const* cs = &callStack; cs; cs = cs->Prev())
+					desc.append("\n- ").append(cs->Format());
+				m_tracer->TraceNoWaitLoop(desc);
+			}
+			try { throw 0; } catch (...) {}		// help debugger break
+		}
+
+		m_noWaitTimer.StartTimer();
+		m_sameResultCount = 0;
+	}
+}
+
+void WaitObjectContainer::SetNoWait(CallStack const& callStack)
+{
+	DetectNoWait(LASTRESULT_NOWAIT, CallStack("WaitObjectContainer::SetNoWait()", &callStack));
 	m_noWait = true;
+}
+
+void WaitObjectContainer::ScheduleEvent(double milliseconds, CallStack const& callStack)
+{
+	if (milliseconds <= 3)
+		DetectNoWait(LASTRESULT_SCHEDULED, CallStack("WaitObjectContainer::ScheduleEvent()", &callStack));
+	double thisEventTime = m_eventTimer.ElapsedTimeAsDouble() + milliseconds;
+	if (!m_firstEventTime || thisEventTime < m_firstEventTime)
+		m_firstEventTime = thisEventTime;
 }
 
 #ifdef USE_WINDOWS_STYLE_SOCKETS
@@ -106,16 +136,9 @@ WaitObjectContainer::~WaitObjectContainer()
 }
 
 
-void WaitObjectContainer::AddHandle(HANDLE handle)
+void WaitObjectContainer::AddHandle(HANDLE handle, CallStack const& callStack)
 {
-#if CRYPTOPP_DETECT_NO_WAIT
-	if (m_handles.size() == m_lastResult && m_timer.ElapsedTime() > 1000)
-	{
-		if (m_sameResultCount > m_timer.ElapsedTime())
-			try {throw 0;} catch (...) {}	// possible no-wait loop, break in debugger
-		m_timer.StartTimer();
-	}
-#endif
+	DetectNoWait(m_handles.size(), CallStack("WaitObjectContainer::AddHandle()", &callStack));
 	m_handles.push_back(handle);
 }
 
@@ -157,7 +180,7 @@ DWORD WINAPI WaitingThread(LPVOID lParam)
 
 void WaitObjectContainer::CreateThreads(unsigned int count)
 {
-	unsigned int currentCount = (unsigned int)m_threads.size();
+	size_t currentCount = m_threads.size();
 	if (currentCount == 0)
 	{
 		m_startWaiting = ::CreateEvent(NULL, TRUE, FALSE, NULL);
@@ -167,7 +190,7 @@ void WaitObjectContainer::CreateThreads(unsigned int count)
 	if (currentCount < count)
 	{
 		m_threads.resize(count);
-		for (unsigned int i=currentCount; i<count; i++)
+		for (size_t i=currentCount; i<count; i++)
 		{
 			m_threads[i] = new WaitingThreadData;
 			WaitingThreadData &thread = *m_threads[i];
@@ -182,18 +205,31 @@ void WaitObjectContainer::CreateThreads(unsigned int count)
 
 bool WaitObjectContainer::Wait(unsigned long milliseconds)
 {
-	if (m_noWait || m_handles.empty())
+	if (m_noWait || (m_handles.empty() && !m_firstEventTime))
 	{
-#if CRYPTOPP_DETECT_NO_WAIT
-		if (-1 == m_lastResult)
-			m_sameResultCount++;
-		else
-		{
-			m_lastResult = -1;
-			m_sameResultCount = 0;
-		}
-#endif
+		SetLastResult(LASTRESULT_NOWAIT);
 		return true;
+	}
+
+	bool timeoutIsScheduledEvent = false;
+
+	if (m_firstEventTime)
+	{
+		double timeToFirstEvent = SaturatingSubtract(m_firstEventTime, m_eventTimer.ElapsedTimeAsDouble());
+
+		if (timeToFirstEvent <= milliseconds)
+		{
+			milliseconds = (unsigned long)timeToFirstEvent;
+			timeoutIsScheduledEvent = true;
+		}
+
+		if (m_handles.empty() || !milliseconds)
+		{
+			if (milliseconds)
+				Sleep(milliseconds);
+			SetLastResult(timeoutIsScheduledEvent ? LASTRESULT_SCHEDULED : LASTRESULT_TIMEOUT);
+			return timeoutIsScheduledEvent;
+		}
 	}
 
 	if (m_handles.size() > MAXIMUM_WAIT_OBJECTS)
@@ -230,11 +266,14 @@ bool WaitObjectContainer::Wait(unsigned long milliseconds)
 			if (error == S_OK)
 				return true;
 			else
-				throw Err("WaitObjectContainer: WaitForMultipleObjects failed with error " + IntToString(error));
+				throw Err("WaitObjectContainer: WaitForMultipleObjects in thread failed with error " + IntToString(error));
 		}
 		SetEvent(m_stopWaiting);
 		if (result == WAIT_TIMEOUT)
-			return false;
+		{
+			SetLastResult(timeoutIsScheduledEvent ? LASTRESULT_SCHEDULED : LASTRESULT_TIMEOUT);
+			return timeoutIsScheduledEvent;
+		}
 		else
 			throw Err("WaitObjectContainer: WaitForSingleObject failed with error " + IntToString(::GetLastError()));
 	}
@@ -256,7 +295,6 @@ bool WaitObjectContainer::Wait(unsigned long milliseconds)
 #endif
 		if (result >= WAIT_OBJECT_0 && result < WAIT_OBJECT_0 + m_handles.size())
 		{
-#if CRYPTOPP_DETECT_NO_WAIT
 			if (result == m_lastResult)
 				m_sameResultCount++;
 			else
@@ -264,25 +302,27 @@ bool WaitObjectContainer::Wait(unsigned long milliseconds)
 				m_lastResult = result;
 				m_sameResultCount = 0;
 			}
-#endif
 			return true;
 		}
 		else if (result == WAIT_TIMEOUT)
-			return false;
+		{
+			SetLastResult(timeoutIsScheduledEvent ? LASTRESULT_SCHEDULED : LASTRESULT_TIMEOUT);
+			return timeoutIsScheduledEvent;
+		}
 		else
 			throw Err("WaitObjectContainer: WaitForMultipleObjects failed with error " + IntToString(::GetLastError()));
 	}
 }
 
-#else
+#else // #ifdef USE_WINDOWS_STYLE_SOCKETS
 
-void WaitObjectContainer::AddReadFd(int fd)
+void WaitObjectContainer::AddReadFd(int fd, CallStack const& callStack)	// TODO: do something with callStack
 {
 	FD_SET(fd, &m_readfds);
 	m_maxFd = STDMAX(m_maxFd, fd);
 }
 
-void WaitObjectContainer::AddWriteFd(int fd)
+void WaitObjectContainer::AddWriteFd(int fd, CallStack const& callStack) // TODO: do something with callStack
 {
 	FD_SET(fd, &m_writefds);
 	m_maxFd = STDMAX(m_maxFd, fd);
@@ -290,8 +330,20 @@ void WaitObjectContainer::AddWriteFd(int fd)
 
 bool WaitObjectContainer::Wait(unsigned long milliseconds)
 {
-	if (m_noWait || m_maxFd == 0)
+	if (m_noWait || (!m_maxFd && !m_firstEventTime))
 		return true;
+
+	bool timeoutIsScheduledEvent = false;
+
+	if (m_firstEventTime)
+	{
+		double timeToFirstEvent = SaturatingSubtract(m_firstEventTime, m_eventTimer.ElapsedTimeAsDouble());
+		if (timeToFirstEvent <= milliseconds)
+		{
+			milliseconds = (unsigned long)timeToFirstEvent;
+			timeoutIsScheduledEvent = true;
+		}
+	}
 
 	timeval tv, *timeout;
 
@@ -309,7 +361,7 @@ bool WaitObjectContainer::Wait(unsigned long milliseconds)
 	if (result > 0)
 		return true;
 	else if (result == 0)
-		return false;
+		return timeoutIsScheduledEvent;
 	else
 		throw Err("WaitObjectContainer: select failed with error " + errno);
 }
@@ -318,10 +370,25 @@ bool WaitObjectContainer::Wait(unsigned long milliseconds)
 
 // ********************************************************
 
-bool Waitable::Wait(unsigned long milliseconds)
+std::string CallStack::Format() const
+{
+	return m_info;
+}
+
+std::string CallStackWithNr::Format() const
+{
+	return std::string(m_info) + " / nr: " + IntToString(m_nr);
+}
+
+std::string CallStackWithStr::Format() const
+{
+	return std::string(m_info) + " / " + std::string(m_z);
+}
+
+bool Waitable::Wait(unsigned long milliseconds, CallStack const& callStack)
 {
 	WaitObjectContainer container;
-	GetWaitObjects(container);
+	GetWaitObjects(container, callStack);	// reduce clutter by not adding this func to stack
 	return container.Wait(milliseconds);
 }
 
