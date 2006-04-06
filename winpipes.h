@@ -69,7 +69,7 @@ public:
 	bool EofReceived() const {return m_eofReceived;}
 
 	unsigned int GetMaxWaitObjectCount() const {return 1;}
-	void GetWaitObjects(WaitObjectContainer &container);
+	void GetWaitObjects(WaitObjectContainer &container, CallStack const& callStack);
 
 private:
 	WindowsHandle m_event;
@@ -88,10 +88,11 @@ public:
 	bool MustWaitForResult() {return true;}
 	void Send(const byte* buf, size_t bufLen);
 	unsigned int GetSendResult();
+	bool MustWaitForEof() { return false; }
 	void SendEof() {}
 
 	unsigned int GetMaxWaitObjectCount() const {return 1;}
-	void GetWaitObjects(WaitObjectContainer &container);
+	void GetWaitObjects(WaitObjectContainer &container, CallStack const& callStack);
 
 private:
 	WindowsHandle m_event;

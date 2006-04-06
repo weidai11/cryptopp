@@ -420,8 +420,8 @@ public:
 
 	unsigned int GetMaxWaitObjectCount() const
 		{ return m_target && GetPassWaitObjects() ? m_target->GetMaxWaitObjectCount() : 0; }
-	void GetWaitObjects(WaitObjectContainer &container)
-		{ if (m_target && GetPassWaitObjects()) m_target->GetWaitObjects(container); }
+	void GetWaitObjects(WaitObjectContainer &container, CallStack const& callStack)
+		{ if (m_target && GetPassWaitObjects()) m_target->GetWaitObjects(container, callStack); }
 
 private:
 	BufferedTransformation *m_target;

@@ -24,7 +24,7 @@ private:
 
 	Unit m_timerUnit;	// HPUX workaround: m_unit is a system macro on HPUX
 	bool m_stuckAtZero, m_started;
-	word64 m_start;
+	word64 m_start, m_last;
 };
 
 //! measure CPU time spent executing instructions of this thread (if supported by OS)

@@ -92,7 +92,7 @@ bool WindowsPipeReceiver::Receive(byte* buf, size_t bufLen)
 
 	HANDLE h = GetHandle();
 	// don't queue too much at once, or we might use up non-paged memory
-	if (ReadFile(h, buf, UnsignedMin(128U*1024U, bufLen), &m_lastResult, &m_overlapped))
+	if (ReadFile(h, buf, UnsignedMin((DWORD)128*1024, bufLen), &m_lastResult, &m_overlapped))
 	{
 		if (m_lastResult == 0)
 			m_eofReceived = true;
@@ -115,12 +115,12 @@ bool WindowsPipeReceiver::Receive(byte* buf, size_t bufLen)
 	return !m_resultPending;
 }
 
-void WindowsPipeReceiver::GetWaitObjects(WaitObjectContainer &container)
+void WindowsPipeReceiver::GetWaitObjects(WaitObjectContainer &container, CallStack const& callStack)
 {
 	if (m_resultPending)
-		container.AddHandle(m_event);
+		container.AddHandle(m_event, CallStack("WindowsPipeReceiver::GetWaitObjects() - result pending", &callStack));
 	else if (!m_eofReceived)
-		container.SetNoWait();
+		container.SetNoWait(CallStack("WindowsPipeReceiver::GetWaitObjects() - result ready", &callStack));
 }
 
 unsigned int WindowsPipeReceiver::GetReceiveResult()
@@ -166,7 +166,7 @@ void WindowsPipeSender::Send(const byte* buf, size_t bufLen)
 	DWORD written = 0;
 	HANDLE h = GetHandle();
 	// don't queue too much at once, or we might use up non-paged memory
-	if (WriteFile(h, buf, UnsignedMin(128U*1024U, bufLen), &written, &m_overlapped))
+	if (WriteFile(h, buf, UnsignedMin((DWORD)128*1024, bufLen), &written, &m_overlapped))
 	{
 		m_resultPending = false;
 		m_lastResult = written;
@@ -180,12 +180,12 @@ void WindowsPipeSender::Send(const byte* buf, size_t bufLen)
 	}
 }
 
-void WindowsPipeSender::GetWaitObjects(WaitObjectContainer &container)
+void WindowsPipeSender::GetWaitObjects(WaitObjectContainer &container, CallStack const& callStack)
 {
 	if (m_resultPending)
-		container.AddHandle(m_event);
+		container.AddHandle(m_event, CallStack("WindowsPipeSender::GetWaitObjects() - result pending", &callStack));
 	else
-		container.SetNoWait();
+		container.SetNoWait(CallStack("WindowsPipeSender::GetWaitObjects() - result ready", &callStack));
 }
 
 unsigned int WindowsPipeSender::GetSendResult()
