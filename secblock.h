@@ -51,6 +51,12 @@ typedef typename AllocatorBase<T>::const_pointer const_pointer;\
 typedef typename AllocatorBase<T>::reference reference;\
 typedef typename AllocatorBase<T>::const_reference const_reference;
 
+#if defined(_MSC_VER) && (_MSC_VER < 1300)
+// this pragma causes an internal compiler error if placed immediately before std::swap(a, b)
+#pragma warning(push)
+#pragma warning(disable: 4700)	// VC60 workaround: don't know how to get rid of this warning
+#endif
+
 template <class T, class A>
 typename A::pointer StandardReallocate(A& a, T *p, typename A::size_type oldSize, typename A::size_type newSize, bool preserve)
 {
@@ -72,6 +78,10 @@ typename A::pointer StandardReallocate(A& a, T *p, typename A::size_type oldSize
 		return a.allocate(newSize, NULL);
 	}
 }
+
+#if defined(_MSC_VER) && (_MSC_VER < 1300)
+#pragma warning(pop)
+#endif
 
 template <class T>
 class AllocatorWithCleanup : public AllocatorBase<T>
