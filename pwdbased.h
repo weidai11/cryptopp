@@ -101,7 +101,7 @@ unsigned int PKCS5_PBKDF2_HMAC<T>::DeriveKey(byte *derived, size_t derivedLen, b
 		unsigned int j;
 		for (j=0; j<4; j++)
 		{
-			byte b = i >> ((3-j)*8);
+			byte b = byte(i >> ((3-j)*8));
 			hmac.Update(&b, 1);
 		}
 		hmac.Final(buffer);
