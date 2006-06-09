@@ -50,8 +50,6 @@ bool AssignIntToInteger(const std::type_info &valueType, void *pInteger, const v
 	return true;
 }
 
-static const char s_RunAtStartup = (g_pAssignIntToInteger = AssignIntToInteger, 0);
-
 #ifdef SSE2_INTRINSICS_AVAILABLE
 template <class T>
 CPP_TYPENAME AllocatorBase<T>::pointer AlignedAllocator<T>::allocate(size_type n, const void *)
@@ -1046,8 +1044,6 @@ static void SetPentiumFunctionPointers()
 	}
 #endif
 }
-
-static const char s_RunAtStartupSetPentiumFunctionPointers = (SetPentiumFunctionPointers(), 0);
 
 void DisableSSE2()
 {
@@ -2725,6 +2721,17 @@ void MultiplyByPower2Mod(word *R, const word *A, size_t k, const word *M, size_t
 }
 
 // ******************************************************************
+
+InitializeInteger::InitializeInteger()
+{
+	if (!g_pAssignIntToInteger)
+	{
+#ifdef CRYPTOPP_X86ASM_AVAILABLE
+		SetPentiumFunctionPointers();
+#endif
+		g_pAssignIntToInteger = AssignIntToInteger;
+	}
+}
 
 static const unsigned int RoundupSizeTable[] = {2, 2, 2, 4, 4, 8, 8, 8, 8};
 

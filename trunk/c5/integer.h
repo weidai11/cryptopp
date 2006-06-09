@@ -67,12 +67,17 @@ NAMESPACE_BEGIN(CryptoPP)
 
 void CRYPTOPP_DLL CRYPTOPP_API DisableSSE2();
 
+struct InitializeInteger	// used to initialize static variables
+{
+	InitializeInteger();
+};
+
 //! multiple precision integer and basic arithmetics
 /*! This class can represent positive and negative integers
 	with absolute value less than (256**sizeof(word)) ** (256**sizeof(int)).
 	\nosubgrouping
 */
-class CRYPTOPP_DLL Integer : public ASN1Object
+class CRYPTOPP_DLL Integer : private InitializeInteger, public ASN1Object
 {
 public:
 	//! \name ENUMS, EXCEPTIONS, and TYPEDEFS
