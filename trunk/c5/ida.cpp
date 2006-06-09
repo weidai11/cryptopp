@@ -6,6 +6,7 @@
 #include "algebra.h"
 #include "gf2_32.h"
 #include "polynomi.h"
+#include <functional>
 
 #include "polynomi.cpp"
 

@@ -2,6 +2,7 @@
 
 #include "pch.h"
 #include "pssr.h"
+#include <functional>
 
 NAMESPACE_BEGIN(CryptoPP)
 
