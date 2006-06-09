@@ -442,7 +442,10 @@ bool SocketSender::EofSent()
 	{
 		WSANETWORKEVENTS events;
 		m_s.CheckAndHandleError_int("WSAEnumNetworkEvents", WSAEnumNetworkEvents(m_s, m_event, &events));
-		m_lastResult = (events.lNetworkEvents & FD_CLOSE) ? 1 : 0;
+		if ((events.lNetworkEvents & FD_CLOSE) != FD_CLOSE)
+			throw Socket::Err(m_s, "WSAEnumNetworkEvents (FD_CLOSE not present)", E_FAIL);
+		if (events.iErrorCode[FD_CLOSE_BIT] != 0)
+			throw Socket::Err(m_s, "FD_CLOSE (via WSAEnumNetworkEvents)", events.iErrorCode[FD_CLOSE_BIT]);
 		m_resultPending = false;
 	}
 	return m_lastResult != 0;
