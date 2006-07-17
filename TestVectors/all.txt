@@ -1,7 +1,7 @@
 AlgorithmType: FileList
 Name: all.txt collection
 Test: tea.txt
-Test: camelia.txt
+Test: camellia.txt
 Test: shacal2.txt
 Test: ttmac.txt
 Test: whrlpool.txt
@@ -18,3 +18,4 @@ Test: rw.txt
 Test: seal.txt
 Test: sha.txt
 Test: panama.txt
+Test: aes.txt
