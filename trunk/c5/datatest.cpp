@@ -409,6 +409,8 @@ void OutputNameValuePairs(const NameValuePairs &v)
 void TestDataFile(const std::string &filename, unsigned int &totalTests, unsigned int &failedTests)
 {
 	std::ifstream file(filename.c_str());
+	if (!file.good())
+		throw Exception(Exception::OTHER_ERROR, "Can not open file " + filename + " for reading");
 	TestData v;
 	s_currentTestData = &v;
 	std::string name, value, lastAlgName;
