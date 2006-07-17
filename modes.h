@@ -151,7 +151,7 @@ public:
 	bool IsRandomAccess() const {return true;}
 	IV_Requirement IVRequirement() const {return STRUCTURED_IV;}
 	void GetNextIV(byte *IV);
-	static const char * CRYPTOPP_API StaticAlgorithmName() {return "Counter-BE";}
+	static const char * CRYPTOPP_API StaticAlgorithmName() {return "CTR";}
 
 private:
 	unsigned int GetBytesPerIteration() const {return BlockSize();}
