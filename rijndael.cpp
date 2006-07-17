@@ -2,6 +2,23 @@
 // and Wei Dai from Paulo Baretto's Rijndael implementation
 // The original code and all modifications are in the public domain.
 
+/*
+Defense against timing attacks was added in July 2006 by Wei Dai.
+
+The code now uses smaller tables in the first and last rounds,
+and preloads them into L1 cache before usage (by loading at least 
+one element in each cache line). 
+
+We try to delay subsequent accesses to each table (used in the first 
+and last rounds) until all of the table has been preloaded. Hopefully
+the compiler isn't smart enough to optimize that code away.
+
+After preloading the table, we also try not to access any memory location
+other than the table and the stack, in order to prevent table entries from 
+being unloaded from L1 cache, until that round is finished.
+(Some popular CPUs have 2-way associative caches.)
+*/
+
 // This is the original introductory comment:
 
 /**
@@ -45,80 +62,45 @@ void Rijndael::Base::UncheckedSetKey(CipherDir dir, const byte *userKey, unsigne
 	m_key.New(4*(m_rounds+1));
 
 	word32 temp, *rk = m_key;
+	const word32 *rc = rcon;
 	unsigned int i=0;
 
 	GetUserKey(BIG_ENDIAN_ORDER, rk, keylen/4, userKey, keylen);
 
-	switch(keylen)
+	while (true)
 	{
-	case 16:
-		while (true)
-		{
-			temp  = rk[3];
-			rk[4] = rk[0] ^
-				(Te4[GETBYTE(temp, 2)] & 0xff000000) ^
-				(Te4[GETBYTE(temp, 1)] & 0x00ff0000) ^
-				(Te4[GETBYTE(temp, 0)] & 0x0000ff00) ^
-				(Te4[GETBYTE(temp, 3)] & 0x000000ff) ^
-				rcon[i];
-			rk[5] = rk[1] ^ rk[4];
-			rk[6] = rk[2] ^ rk[5];
-			rk[7] = rk[3] ^ rk[6];
-			if (++i == 10)
-				break;
-			rk += 4;
-		}
-		break;
+		temp  = rk[keylen/4-1];
+		rk[keylen/4] = rk[0] ^
+			(word32(Se[GETBYTE(temp, 2)]) << 24) ^
+			(word32(Se[GETBYTE(temp, 1)]) << 16) ^
+			(word32(Se[GETBYTE(temp, 0)]) << 8) ^
+			Se[GETBYTE(temp, 3)] ^
+			*(rc++);
+		rk[keylen/4+1] = rk[1] ^ rk[keylen/4];
+		rk[keylen/4+2] = rk[2] ^ rk[keylen/4+1];
+		rk[keylen/4+3] = rk[3] ^ rk[keylen/4+2];
 
-	case 24:
-		while (true)	// for (;;) here triggers a bug in VC60 SP4 w/ Processor Pack
+		if (rk + keylen/4 + 4 == m_key.end())
+			break;
+
+		if (keylen == 24)
 		{
-			temp = rk[ 5];
-			rk[ 6] = rk[ 0] ^
-				(Te4[GETBYTE(temp, 2)] & 0xff000000) ^
-				(Te4[GETBYTE(temp, 1)] & 0x00ff0000) ^
-				(Te4[GETBYTE(temp, 0)] & 0x0000ff00) ^
-				(Te4[GETBYTE(temp, 3)] & 0x000000ff) ^
-				rcon[i];
-			rk[ 7] = rk[ 1] ^ rk[ 6];
-			rk[ 8] = rk[ 2] ^ rk[ 7];
-			rk[ 9] = rk[ 3] ^ rk[ 8];
-			if (++i == 8)
-				break;
 			rk[10] = rk[ 4] ^ rk[ 9];
 			rk[11] = rk[ 5] ^ rk[10];
-			rk += 6;
 		}
-		break;
-
-	case 32:
-        while (true)
+		else if (keylen == 32)
 		{
-        	temp = rk[ 7];
-        	rk[ 8] = rk[ 0] ^
-        		(Te4[GETBYTE(temp, 2)] & 0xff000000) ^
-        		(Te4[GETBYTE(temp, 1)] & 0x00ff0000) ^
-        		(Te4[GETBYTE(temp, 0)] & 0x0000ff00) ^
-        		(Te4[GETBYTE(temp, 3)] & 0x000000ff) ^
-        		rcon[i];
-        	rk[ 9] = rk[ 1] ^ rk[ 8];
-        	rk[10] = rk[ 2] ^ rk[ 9];
-        	rk[11] = rk[ 3] ^ rk[10];
-			if (++i == 7)
-				break;
-        	temp = rk[11];
-        	rk[12] = rk[ 4] ^
-        		(Te4[GETBYTE(temp, 3)] & 0xff000000) ^
-        		(Te4[GETBYTE(temp, 2)] & 0x00ff0000) ^
-        		(Te4[GETBYTE(temp, 1)] & 0x0000ff00) ^
-        		(Te4[GETBYTE(temp, 0)] & 0x000000ff);
-        	rk[13] = rk[ 5] ^ rk[12];
-        	rk[14] = rk[ 6] ^ rk[13];
-        	rk[15] = rk[ 7] ^ rk[14];
-
-			rk += 8;
-        }
-		break;
+    		temp = rk[11];
+    		rk[12] = rk[ 4] ^
+				(word32(Se[GETBYTE(temp, 3)]) << 24) ^
+				(word32(Se[GETBYTE(temp, 2)]) << 16) ^
+				(word32(Se[GETBYTE(temp, 1)]) << 8) ^
+				Se[GETBYTE(temp, 0)];
+    		rk[13] = rk[ 5] ^ rk[12];
+    		rk[14] = rk[ 6] ^ rk[13];
+    		rk[15] = rk[ 7] ^ rk[14];
+		}
+		rk += keylen/4;
 	}
 
 	if (dir == DECRYPTION)
@@ -137,50 +119,112 @@ void Rijndael::Base::UncheckedSetKey(CipherDir dir, const byte *userKey, unsigne
 		for (i = 1; i < m_rounds; i++) {
 			rk += 4;
 			rk[0] =
-				Td0[Te4[GETBYTE(rk[0], 3)] & 0xff] ^
-				Td1[Te4[GETBYTE(rk[0], 2)] & 0xff] ^
-				Td2[Te4[GETBYTE(rk[0], 1)] & 0xff] ^
-				Td3[Te4[GETBYTE(rk[0], 0)] & 0xff];
+				Td0[Se[GETBYTE(rk[0], 3)]] ^
+				Td1[Se[GETBYTE(rk[0], 2)]] ^
+				Td2[Se[GETBYTE(rk[0], 1)]] ^
+				Td3[Se[GETBYTE(rk[0], 0)]];
 			rk[1] =
-				Td0[Te4[GETBYTE(rk[1], 3)] & 0xff] ^
-				Td1[Te4[GETBYTE(rk[1], 2)] & 0xff] ^
-				Td2[Te4[GETBYTE(rk[1], 1)] & 0xff] ^
-				Td3[Te4[GETBYTE(rk[1], 0)] & 0xff];
+				Td0[Se[GETBYTE(rk[1], 3)]] ^
+				Td1[Se[GETBYTE(rk[1], 2)]] ^
+				Td2[Se[GETBYTE(rk[1], 1)]] ^
+				Td3[Se[GETBYTE(rk[1], 0)]];
 			rk[2] =
-				Td0[Te4[GETBYTE(rk[2], 3)] & 0xff] ^
-				Td1[Te4[GETBYTE(rk[2], 2)] & 0xff] ^
-				Td2[Te4[GETBYTE(rk[2], 1)] & 0xff] ^
-				Td3[Te4[GETBYTE(rk[2], 0)] & 0xff];
+				Td0[Se[GETBYTE(rk[2], 3)]] ^
+				Td1[Se[GETBYTE(rk[2], 2)]] ^
+				Td2[Se[GETBYTE(rk[2], 1)]] ^
+				Td3[Se[GETBYTE(rk[2], 0)]];
 			rk[3] =
-				Td0[Te4[GETBYTE(rk[3], 3)] & 0xff] ^
-				Td1[Te4[GETBYTE(rk[3], 2)] & 0xff] ^
-				Td2[Te4[GETBYTE(rk[3], 1)] & 0xff] ^
-				Td3[Te4[GETBYTE(rk[3], 0)] & 0xff];
+				Td0[Se[GETBYTE(rk[3], 3)]] ^
+				Td1[Se[GETBYTE(rk[3], 2)]] ^
+				Td2[Se[GETBYTE(rk[3], 1)]] ^
+				Td3[Se[GETBYTE(rk[3], 0)]];
 		}
 	}
+
+	ConditionalByteReverse(BIG_ENDIAN_ORDER, m_key.begin(), m_key.begin(), 16);
+	ConditionalByteReverse(BIG_ENDIAN_ORDER, m_key + m_rounds*4, m_key + m_rounds*4, 16);
 }
 
-typedef BlockGetAndPut<word32, BigEndian> Block;
+const static unsigned int s_lineSizeDiv4 = CRYPTOPP_L1_CACHE_LINE_SIZE/4;
+#ifdef IS_BIG_ENDIAN
+const static unsigned int s_i3=3, s_i2=2, s_i1=1, s_i0=0;
+#else
+const static unsigned int s_i3=0, s_i2=1, s_i1=2, s_i0=3;
+#endif
 
 void Rijndael::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
 	word32 s0, s1, s2, s3, t0, t1, t2, t3;
 	const word32 *rk = m_key;
 
-    /*
-	 * map byte array block to cipher state
-	 * and add initial round key:
-	 */
-	Block::Get(inBlock)(s0)(s1)(s2)(s3);
-	s0 ^= rk[0];
-	s1 ^= rk[1];
-	s2 ^= rk[2];
-	s3 ^= rk[3];
-    /*
-	 * Nr - 1 full rounds:
-	 */
-    unsigned int r = m_rounds >> 1;
-    for (;;) {
+	s0 = ((const word32 *)inBlock)[0] ^ rk[0];
+	s1 = ((const word32 *)inBlock)[1] ^ rk[1];
+	s2 = ((const word32 *)inBlock)[2] ^ rk[2];
+	s3 = ((const word32 *)inBlock)[3] ^ rk[3];
+	t0 = rk[4];
+	t1 = rk[5];
+	t2 = rk[6];
+	t3 = rk[7];
+	rk += 8;
+
+	// timing attack countermeasure. see comments at top for more details
+	unsigned int i;
+	word32 u = 0;
+	for (i=0; i<sizeof(Te0)/4; i+=CRYPTOPP_L1_CACHE_LINE_SIZE)
+		u &= (Te0[i+0*s_lineSizeDiv4] & Te0[i+2*s_lineSizeDiv4]) & (Te0[i+1*s_lineSizeDiv4] & Te0[i+3*s_lineSizeDiv4]);
+	s0 |= u; s1 |= u; s2 |= u; s3 |= u;
+
+	// first round
+    t0 ^=
+        Te0[GETBYTE(s0, s_i3)] ^
+        rotrFixed(Te0[GETBYTE(s1, s_i2)], 8) ^
+        rotrFixed(Te0[GETBYTE(s2, s_i1)], 16) ^
+        rotrFixed(Te0[GETBYTE(s3, s_i0)], 24);
+    t1 ^=
+        Te0[GETBYTE(s1, s_i3)] ^
+        rotrFixed(Te0[GETBYTE(s2, s_i2)], 8) ^
+        rotrFixed(Te0[GETBYTE(s3, s_i1)], 16) ^
+        rotrFixed(Te0[GETBYTE(s0, s_i0)], 24);
+    t2 ^=
+        Te0[GETBYTE(s2, s_i3)] ^
+        rotrFixed(Te0[GETBYTE(s3, s_i2)], 8) ^
+        rotrFixed(Te0[GETBYTE(s0, s_i1)], 16) ^
+        rotrFixed(Te0[GETBYTE(s1, s_i0)], 24);
+    t3 ^=
+        Te0[GETBYTE(s3, s_i3)] ^
+        rotrFixed(Te0[GETBYTE(s0, s_i2)], 8) ^
+        rotrFixed(Te0[GETBYTE(s1, s_i1)], 16) ^
+        rotrFixed(Te0[GETBYTE(s2, s_i0)], 24);
+
+	// Nr - 2 full rounds:
+    unsigned int r = m_rounds/2 - 1;
+    do
+	{
+        s0 =
+            Te0[GETBYTE(t0, 3)] ^
+            Te1[GETBYTE(t1, 2)] ^
+            Te2[GETBYTE(t2, 1)] ^
+            Te3[GETBYTE(t3, 0)] ^
+            rk[0];
+        s1 =
+            Te0[GETBYTE(t1, 3)] ^
+            Te1[GETBYTE(t2, 2)] ^
+            Te2[GETBYTE(t3, 1)] ^
+            Te3[GETBYTE(t0, 0)] ^
+            rk[1];
+        s2 =
+            Te0[GETBYTE(t2, 3)] ^
+            Te1[GETBYTE(t3, 2)] ^
+            Te2[GETBYTE(t0, 1)] ^
+            Te3[GETBYTE(t1, 0)] ^
+            rk[2];
+        s3 =
+            Te0[GETBYTE(t3, 3)] ^
+            Te1[GETBYTE(t0, 2)] ^
+            Te2[GETBYTE(t1, 1)] ^
+            Te3[GETBYTE(t2, 0)] ^
+            rk[3];
+
         t0 =
             Te0[GETBYTE(s0, 3)] ^
             Te1[GETBYTE(s1, 2)] ^
@@ -207,66 +251,51 @@ void Rijndael::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
             rk[7];
 
         rk += 8;
-        if (--r == 0) {
-            break;
-        }
+    } while (--r);
 
-        s0 =
-            Te0[GETBYTE(t0, 3)] ^
-            Te1[GETBYTE(t1, 2)] ^
-            Te2[GETBYTE(t2, 1)] ^
-            Te3[GETBYTE(t3, 0)] ^
-            rk[0];
-        s1 =
-            Te0[GETBYTE(t1, 3)] ^
-            Te1[GETBYTE(t2, 2)] ^
-            Te2[GETBYTE(t3, 1)] ^
-            Te3[GETBYTE(t0, 0)] ^
-            rk[1];
-        s2 =
-            Te0[GETBYTE(t2, 3)] ^
-            Te1[GETBYTE(t3, 2)] ^
-            Te2[GETBYTE(t0, 1)] ^
-            Te3[GETBYTE(t1, 0)] ^
-            rk[2];
-        s3 =
-            Te0[GETBYTE(t3, 3)] ^
-            Te1[GETBYTE(t0, 2)] ^
-            Te2[GETBYTE(t1, 1)] ^
-            Te3[GETBYTE(t2, 0)] ^
-            rk[3];
-    }
-    /*
-	 * apply last round and
-	 * map cipher state to byte array block:
-	 */
+	// timing attack countermeasure. see comments at top for more details
+	u = 0;
+	for (i=0; i<sizeof(Se)/4; i+=CRYPTOPP_L1_CACHE_LINE_SIZE)
+		u &= (((word32*)Se)[i+0*s_lineSizeDiv4] & ((word32*)Se)[i+2*s_lineSizeDiv4]) & (((word32*)Se)[i+1*s_lineSizeDiv4] & ((word32*)Se)[i+3*s_lineSizeDiv4]);
+	t0 |= u; t1 |= u; t2 |= u; t3 |= u;
 
-	s0 =
-		(Te4[GETBYTE(t0, 3)] & 0xff000000) ^
-		(Te4[GETBYTE(t1, 2)] & 0x00ff0000) ^
-		(Te4[GETBYTE(t2, 1)] & 0x0000ff00) ^
-		(Te4[GETBYTE(t3, 0)] & 0x000000ff) ^
-		rk[0];
-	s1 =
-		(Te4[GETBYTE(t1, 3)] & 0xff000000) ^
-		(Te4[GETBYTE(t2, 2)] & 0x00ff0000) ^
-		(Te4[GETBYTE(t3, 1)] & 0x0000ff00) ^
-		(Te4[GETBYTE(t0, 0)] & 0x000000ff) ^
-		rk[1];
-	s2 =
-		(Te4[GETBYTE(t2, 3)] & 0xff000000) ^
-		(Te4[GETBYTE(t3, 2)] & 0x00ff0000) ^
-		(Te4[GETBYTE(t0, 1)] & 0x0000ff00) ^
-		(Te4[GETBYTE(t1, 0)] & 0x000000ff) ^
-		rk[2];
-	s3 =
-		(Te4[GETBYTE(t3, 3)] & 0xff000000) ^
-		(Te4[GETBYTE(t0, 2)] & 0x00ff0000) ^
-		(Te4[GETBYTE(t1, 1)] & 0x0000ff00) ^
-		(Te4[GETBYTE(t2, 0)] & 0x000000ff) ^
-		rk[3];
+	word32 tbw[4];
+	byte *const tempBlock = (byte *)tbw;
+	word32 *const obw = (word32 *)outBlock;
+	const word32 *const xbw = (const word32 *)xorBlock;
 
-	Block::Put(xorBlock, outBlock)(s0)(s1)(s2)(s3);
+	// last round
+	tempBlock[0] = Se[GETBYTE(t0, 3)];
+	tempBlock[1] = Se[GETBYTE(t1, 2)];
+	tempBlock[2] = Se[GETBYTE(t2, 1)];
+	tempBlock[3] = Se[GETBYTE(t3, 0)];
+	tempBlock[4] = Se[GETBYTE(t1, 3)];
+	tempBlock[5] = Se[GETBYTE(t2, 2)];
+	tempBlock[6] = Se[GETBYTE(t3, 1)];
+	tempBlock[7] = Se[GETBYTE(t0, 0)];
+	tempBlock[8] = Se[GETBYTE(t2, 3)];
+	tempBlock[9] = Se[GETBYTE(t3, 2)];
+	tempBlock[10] = Se[GETBYTE(t0, 1)];
+	tempBlock[11] = Se[GETBYTE(t1, 0)];
+	tempBlock[12] = Se[GETBYTE(t3, 3)];
+	tempBlock[13] = Se[GETBYTE(t0, 2)];
+	tempBlock[14] = Se[GETBYTE(t1, 1)];
+	tempBlock[15] = Se[GETBYTE(t2, 0)];
+
+	if (xbw)
+	{
+		obw[0] = tbw[0] ^ xbw[0] ^ rk[0];
+		obw[1] = tbw[1] ^ xbw[1] ^ rk[1];
+		obw[2] = tbw[2] ^ xbw[2] ^ rk[2];
+		obw[3] = tbw[3] ^ xbw[3] ^ rk[3];
+	}
+	else
+	{
+		obw[0] = tbw[0] ^ rk[0];
+		obw[1] = tbw[1] ^ rk[1];
+		obw[2] = tbw[2] ^ rk[2];
+		obw[3] = tbw[3] ^ rk[3];
+	}
 }
 
 void Rijndael::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
@@ -274,20 +303,74 @@ void Rijndael::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 	word32 s0, s1, s2, s3, t0, t1, t2, t3;
     const word32 *rk = m_key;
 
-    /*
-	 * map byte array block to cipher state
-	 * and add initial round key:
-	 */
-	Block::Get(inBlock)(s0)(s1)(s2)(s3);
-	s0 ^= rk[0];
-	s1 ^= rk[1];
-	s2 ^= rk[2];
-	s3 ^= rk[3];
-    /*
-     * Nr - 1 full rounds:
-     */
-    unsigned int r = m_rounds >> 1;
-    for (;;) {
+	s0 = ((const word32 *)inBlock)[0] ^ rk[0];
+	s1 = ((const word32 *)inBlock)[1] ^ rk[1];
+	s2 = ((const word32 *)inBlock)[2] ^ rk[2];
+	s3 = ((const word32 *)inBlock)[3] ^ rk[3];
+	t0 = rk[4];
+	t1 = rk[5];
+	t2 = rk[6];
+	t3 = rk[7];
+	rk += 8;
+
+	// timing attack countermeasure. see comments at top for more details
+	unsigned int i;
+	word32 u = 0;
+	for (i=0; i<sizeof(Td0)/4; i+=CRYPTOPP_L1_CACHE_LINE_SIZE)
+		u &= (Td0[i+0*s_lineSizeDiv4] & Td0[i+2*s_lineSizeDiv4]) & (Td0[i+1*s_lineSizeDiv4] & Td0[i+3*s_lineSizeDiv4]);
+	s0 |= u; s1 |= u; s2 |= u; s3 |= u;
+
+	// first round
+    t0 ^=
+        Td0[GETBYTE(s0, s_i3)] ^
+        rotrFixed(Td0[GETBYTE(s3, s_i2)], 8) ^
+        rotrFixed(Td0[GETBYTE(s2, s_i1)], 16) ^
+        rotrFixed(Td0[GETBYTE(s1, s_i0)], 24);
+    t1 ^=
+        Td0[GETBYTE(s1, s_i3)] ^
+        rotrFixed(Td0[GETBYTE(s0, s_i2)], 8) ^
+        rotrFixed(Td0[GETBYTE(s3, s_i1)], 16) ^
+        rotrFixed(Td0[GETBYTE(s2, s_i0)], 24);
+    t2 ^=
+        Td0[GETBYTE(s2, s_i3)] ^
+        rotrFixed(Td0[GETBYTE(s1, s_i2)], 8) ^
+        rotrFixed(Td0[GETBYTE(s0, s_i1)], 16) ^
+        rotrFixed(Td0[GETBYTE(s3, s_i0)], 24);
+    t3 ^=
+        Td0[GETBYTE(s3, s_i3)] ^
+        rotrFixed(Td0[GETBYTE(s2, s_i2)], 8) ^
+        rotrFixed(Td0[GETBYTE(s1, s_i1)], 16) ^
+        rotrFixed(Td0[GETBYTE(s0, s_i0)], 24);
+
+	// Nr - 2 full rounds:
+    unsigned int r = m_rounds/2 - 1;
+    do
+	{
+        s0 =
+            Td0[GETBYTE(t0, 3)] ^
+            Td1[GETBYTE(t3, 2)] ^
+            Td2[GETBYTE(t2, 1)] ^
+            Td3[GETBYTE(t1, 0)] ^
+            rk[0];
+        s1 =
+            Td0[GETBYTE(t1, 3)] ^
+            Td1[GETBYTE(t0, 2)] ^
+            Td2[GETBYTE(t3, 1)] ^
+            Td3[GETBYTE(t2, 0)] ^
+            rk[1];
+        s2 =
+            Td0[GETBYTE(t2, 3)] ^
+            Td1[GETBYTE(t1, 2)] ^
+            Td2[GETBYTE(t0, 1)] ^
+            Td3[GETBYTE(t3, 0)] ^
+            rk[2];
+        s3 =
+            Td0[GETBYTE(t3, 3)] ^
+            Td1[GETBYTE(t2, 2)] ^
+            Td2[GETBYTE(t1, 1)] ^
+            Td3[GETBYTE(t0, 0)] ^
+            rk[3];
+
         t0 =
             Td0[GETBYTE(s0, 3)] ^
             Td1[GETBYTE(s3, 2)] ^
@@ -314,65 +397,51 @@ void Rijndael::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
             rk[7];
 
         rk += 8;
-        if (--r == 0) {
-            break;
-        }
+    } while (--r);
 
-        s0 =
-            Td0[GETBYTE(t0, 3)] ^
-            Td1[GETBYTE(t3, 2)] ^
-            Td2[GETBYTE(t2, 1)] ^
-            Td3[GETBYTE(t1, 0)] ^
-            rk[0];
-        s1 =
-            Td0[GETBYTE(t1, 3)] ^
-            Td1[GETBYTE(t0, 2)] ^
-            Td2[GETBYTE(t3, 1)] ^
-            Td3[GETBYTE(t2, 0)] ^
-            rk[1];
-        s2 =
-            Td0[GETBYTE(t2, 3)] ^
-            Td1[GETBYTE(t1, 2)] ^
-            Td2[GETBYTE(t0, 1)] ^
-            Td3[GETBYTE(t3, 0)] ^
-            rk[2];
-        s3 =
-            Td0[GETBYTE(t3, 3)] ^
-            Td1[GETBYTE(t2, 2)] ^
-            Td2[GETBYTE(t1, 1)] ^
-            Td3[GETBYTE(t0, 0)] ^
-            rk[3];
-    }
-    /*
-	 * apply last round and
-	 * map cipher state to byte array block:
-	 */
-   	s0 =
-   		(Td4[GETBYTE(t0, 3)] & 0xff000000) ^
-   		(Td4[GETBYTE(t3, 2)] & 0x00ff0000) ^
-   		(Td4[GETBYTE(t2, 1)] & 0x0000ff00) ^
-   		(Td4[GETBYTE(t1, 0)] & 0x000000ff) ^
-   		rk[0];
-   	s1 =
-   		(Td4[GETBYTE(t1, 3)] & 0xff000000) ^
-   		(Td4[GETBYTE(t0, 2)] & 0x00ff0000) ^
-   		(Td4[GETBYTE(t3, 1)] & 0x0000ff00) ^
-   		(Td4[GETBYTE(t2, 0)] & 0x000000ff) ^
-   		rk[1];
-   	s2 =
-   		(Td4[GETBYTE(t2, 3)] & 0xff000000) ^
-   		(Td4[GETBYTE(t1, 2)] & 0x00ff0000) ^
-   		(Td4[GETBYTE(t0, 1)] & 0x0000ff00) ^
-   		(Td4[GETBYTE(t3, 0)] & 0x000000ff) ^
-   		rk[2];
-   	s3 =
-   		(Td4[GETBYTE(t3, 3)] & 0xff000000) ^
-   		(Td4[GETBYTE(t2, 2)] & 0x00ff0000) ^
-   		(Td4[GETBYTE(t1, 1)] & 0x0000ff00) ^
-   		(Td4[GETBYTE(t0, 0)] & 0x000000ff) ^
-   		rk[3];
+	// timing attack countermeasure. see comments at top for more details
+	u = 0;
+	for (i=0; i<sizeof(Sd)/4; i+=CRYPTOPP_L1_CACHE_LINE_SIZE)
+		u &= (((word32*)Sd)[i+0*s_lineSizeDiv4] & ((word32*)Sd)[i+2*s_lineSizeDiv4]) & (((word32*)Sd)[i+1*s_lineSizeDiv4] & ((word32*)Sd)[i+3*s_lineSizeDiv4]);
+	t0 |= u; t1 |= u; t2 |= u; t3 |= u;
 
-	Block::Put(xorBlock, outBlock)(s0)(s1)(s2)(s3);
+	word32 tbw[4];
+	byte *const tempBlock = (byte *)tbw;
+	word32 *const obw = (word32 *)outBlock;
+	const word32 *const xbw = (const word32 *)xorBlock;
+
+	// last round
+	tempBlock[0] = Sd[GETBYTE(t0, 3)];
+	tempBlock[1] = Sd[GETBYTE(t3, 2)];
+	tempBlock[2] = Sd[GETBYTE(t2, 1)];
+	tempBlock[3] = Sd[GETBYTE(t1, 0)];
+	tempBlock[4] = Sd[GETBYTE(t1, 3)];
+	tempBlock[5] = Sd[GETBYTE(t0, 2)];
+	tempBlock[6] = Sd[GETBYTE(t3, 1)];
+	tempBlock[7] = Sd[GETBYTE(t2, 0)];
+	tempBlock[8] = Sd[GETBYTE(t2, 3)];
+	tempBlock[9] = Sd[GETBYTE(t1, 2)];
+	tempBlock[10] = Sd[GETBYTE(t0, 1)];
+	tempBlock[11] = Sd[GETBYTE(t3, 0)];
+	tempBlock[12] = Sd[GETBYTE(t3, 3)];
+	tempBlock[13] = Sd[GETBYTE(t2, 2)];
+	tempBlock[14] = Sd[GETBYTE(t1, 1)];
+	tempBlock[15] = Sd[GETBYTE(t0, 0)];
+
+	if (xbw)
+	{
+		obw[0] = tbw[0] ^ xbw[0] ^ rk[0];
+		obw[1] = tbw[1] ^ xbw[1] ^ rk[1];
+		obw[2] = tbw[2] ^ xbw[2] ^ rk[2];
+		obw[3] = tbw[3] ^ xbw[3] ^ rk[3];
+	}
+	else
+	{
+		obw[0] = tbw[0] ^ rk[0];
+		obw[1] = tbw[1] ^ rk[1];
+		obw[2] = tbw[2] ^ rk[2];
+		obw[3] = tbw[3] ^ rk[3];
+	}
 }
 
 NAMESPACE_END
