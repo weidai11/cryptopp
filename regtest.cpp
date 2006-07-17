@@ -18,6 +18,7 @@
 #include "tea.h"
 #include "panama.h"
 #include "pssr.h"
+#include "aes.h"
 
 USING_NAMESPACE(CryptoPP)
 
@@ -63,6 +64,11 @@ void RegisterFactories()
 	RegisterSymmetricCipherDefaultFactories<ECB_Mode<XTEA> >();
 	RegisterSymmetricCipherDefaultFactories<PanamaCipher<LittleEndian> >();
 	RegisterSymmetricCipherDefaultFactories<PanamaCipher<BigEndian> >();
+	RegisterSymmetricCipherDefaultFactories<ECB_Mode<AES> >();
+	RegisterSymmetricCipherDefaultFactories<CBC_Mode<AES> >();
+	RegisterSymmetricCipherDefaultFactories<CFB_Mode<AES> >();
+	RegisterSymmetricCipherDefaultFactories<OFB_Mode<AES> >();
+	RegisterSymmetricCipherDefaultFactories<CTR_Mode<AES> >();
 
 	s_registered = true;
 }
