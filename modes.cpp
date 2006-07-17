@@ -192,8 +192,7 @@ void CBC_Decryption::ProcessBlocks(byte *outString, const byte *inString, size_t
 	while (numberOfBlocks--)
 	{
 		memcpy(m_temp, inString, blockSize);
-		m_cipher->ProcessBlock(m_temp, outString);
-		xorbuf(outString, m_register, blockSize);
+		m_cipher->ProcessAndXorBlock(m_temp, m_register, outString);
 		m_register.swap(m_temp);
 		inString += blockSize;
 		outString += blockSize;
