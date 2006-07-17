@@ -48,6 +48,9 @@
 #define PREFER_BERKELEY_STYLE_SOCKETS
 // #define PREFER_WINDOWS_STYLE_SOCKETS
 
+// set the name of Rijndael cipher, was "Rijndael" before version 5.3
+#define CRYPTOPP_RIJNDAEL_NAME "AES"
+
 // ***************** Important Settings Again ********************
 // But the defaults should be ok.
 
@@ -153,6 +156,20 @@ const unsigned int WORD_BITS = WORD_SIZE * 8;
 #elif defined(__GNUC__) && defined(__i386__)
 	// GCC does peephole optimizations which should result in using rotate instructions
 	#define FAST_ROTATE
+#endif
+
+#ifndef CRYPTOPP_L1_CACHE_LINE_SIZE
+	// This should be a lower bound on the L1 cache line size. It's used for defense against timing attacks.
+	// L1 cache line size is 32 on Pentium III and earlier
+	#define CRYPTOPP_L1_CACHE_LINE_SIZE 32
+#endif
+
+#ifndef CRYPTOPP_L1_CACHE_ALIGN
+	#ifdef _MSC_VER
+		#define CRYPTOPP_L1_CACHE_ALIGN(x) __declspec(align(CRYPTOPP_L1_CACHE_LINE_SIZE)) x
+	#elif defined(__GNUC__)
+		#define CRYPTOPP_L1_CACHE_ALIGN(x) x __attribute__((aligned(CRYPTOPP_L1_CACHE_LINE_SIZE)))
+	#endif
 #endif
 
 NAMESPACE_END
