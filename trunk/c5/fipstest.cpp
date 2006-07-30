@@ -8,7 +8,17 @@
 #include "dll.h"
 
 #ifdef CRYPTOPP_WIN32_AVAILABLE
+#define _WIN32_WINNT 0x0400
 #include <windows.h>
+
+#if defined(_MSC_VER) && _MSC_VER >= 14
+#ifdef _M_IX86
+#define _CRT_DEBUGGER_HOOK _crt_debugger_hook
+#else
+#define _CRT_DEBUGGER_HOOK __crt_debugger_hook
+#endif
+extern "C" {_CRTIMP void __cdecl _CRT_DEBUGGER_HOOK(int);}
+#endif
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -249,19 +259,30 @@ bool IntegrityCheckModule(const char *moduleFilename, const byte *expectedModule
 	unsigned long &macFileLocation = pMacFileLocation ? *pMacFileLocation : tempLocation;
 	macFileLocation = 0;
 
-	HashFilter verifier(*mac, new ArraySink(actualMac, actualMac.size()));
-//	FileSink verifier("c:\\dt.tmp");
+	MeterFilter verifier(new HashFilter(*mac, new ArraySink(actualMac, actualMac.size())));
+//	MeterFilter verifier(new FileSink("c:\\dt.tmp"));
 	FileStore file(moduleFilename);
 
 #ifdef CRYPTOPP_WIN32_AVAILABLE
 	// try to hash from memory first
 	HMODULE h = GetModuleHandle(moduleFilename);
 	const byte *memBase = (const byte *)h;
-	IMAGE_DOS_HEADER *ph = (IMAGE_DOS_HEADER *)h;
-	IMAGE_NT_HEADERS *phnt = (IMAGE_NT_HEADERS *)((byte *)h + ph->e_lfanew);
-	IMAGE_SECTION_HEADER *phs = IMAGE_FIRST_SECTION(phnt);
+	const IMAGE_DOS_HEADER *ph = (IMAGE_DOS_HEADER *)memBase;
+	const IMAGE_NT_HEADERS *phnt = (IMAGE_NT_HEADERS *)(memBase + ph->e_lfanew);
+	const IMAGE_SECTION_HEADER *phs = IMAGE_FIRST_SECTION(phnt);
 	DWORD nSections = phnt->FileHeader.NumberOfSections;
 	size_t currentFilePos = 0;
+
+	size_t checksumPos = (byte *)&phnt->OptionalHeader.CheckSum - memBase;
+	size_t checksumSize = sizeof(phnt->OptionalHeader.CheckSum);
+	size_t certificateTableDirectoryPos = (byte *)&phnt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY] - memBase;
+	size_t certificateTableDirectorySize = sizeof(phnt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY]);
+	size_t certificateTablePos = phnt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY].VirtualAddress;
+	size_t certificateTableSize = phnt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY].Size;
+
+	verifier.AddRangeToSkip(0, checksumPos, checksumSize);
+	verifier.AddRangeToSkip(0, certificateTableDirectoryPos, certificateTableDirectorySize);
+	verifier.AddRangeToSkip(0, certificateTablePos, certificateTableSize);
 
 	while (nSections--)
 	{
@@ -295,16 +316,27 @@ bool IntegrityCheckModule(const char *moduleFilename, const byte *expectedModule
 					}
 				}
 
-				file.TransferTo(verifier, subSectionFileStart - currentFilePos);
+#if defined(_MSC_VER) && _MSC_VER >= 14
+				// first byte of _CRT_DEBUGGER_HOOK gets modified in memory by the debugger invisibly, so read it from file
+				if (IsDebuggerPresent())
+				{
+					if (subSectionMemStart <= (byte *)&_CRT_DEBUGGER_HOOK && (byte *)&_CRT_DEBUGGER_HOOK < subSectionMemStart + subSectionSize)
+					{
+						subSectionSize = (byte *)&_CRT_DEBUGGER_HOOK - subSectionMemStart;
+						nextSubSectionStart = (byte *)&_CRT_DEBUGGER_HOOK - sectionMemStart + 1;
+					}
+				}
+#endif
+
 				if (subSectionMemStart <= expectedModuleMac && expectedModuleMac < subSectionMemStart + subSectionSize)
 				{
-					// skip over the MAC
-					verifier.Put(subSectionMemStart, expectedModuleMac - subSectionMemStart);
-					verifier.Put(expectedModuleMac + macSize, subSectionSize - macSize - (expectedModuleMac - subSectionMemStart));
+					// found stored MAC
 					macFileLocation = (unsigned long)(subSectionFileStart + (expectedModuleMac - subSectionMemStart));
+					verifier.AddRangeToSkip(0, macFileLocation, macSize);
 				}
-				else
-					verifier.Put(subSectionMemStart, subSectionSize);
+
+				file.TransferTo(verifier, subSectionFileStart - currentFilePos);
+				verifier.Put(subSectionMemStart, subSectionSize);
 				file.Skip(subSectionSize);
 				currentFilePos = subSectionFileStart + subSectionSize;
 				subSectionStart = nextSubSectionStart;
@@ -321,13 +353,13 @@ bool IntegrityCheckModule(const char *moduleFilename, const byte *expectedModule
 	if (memcmp(expectedModuleMac, actualMac, macSize) != 0)
 	{
 		OutputDebugString("In memory integrity check failed. This may be caused by debug breakpoints or DLL relocation.\n");
-		file.Initialize(MakeParameters("InputFileName", moduleFilename));
-		verifier.Detach(new ArraySink(actualMac, actualMac.size()));
-		if (macFileLocation)
-		{
-			file.TransferTo(verifier, macFileLocation);
-			file.Skip(macSize);
-		}
+		file.Initialize(MakeParameters(Name::InputFileName(), moduleFilename));
+		verifier.Initialize(MakeParameters(Name::OutputBuffer(), ByteArrayParameter(actualMac, (unsigned int)actualMac.size())));
+//		verifier.Initialize(MakeParameters(Name::OutputFileName(), (const char *)"c:\\dt2.tmp"));
+		verifier.AddRangeToSkip(0, checksumPos, checksumSize);
+		verifier.AddRangeToSkip(0, certificateTableDirectoryPos, certificateTableDirectorySize);
+		verifier.AddRangeToSkip(0, certificateTablePos, certificateTableSize);
+		verifier.AddRangeToSkip(0, macFileLocation, macSize);
 		file.TransferAllTo(verifier);
 	}
 #endif

@@ -170,38 +170,61 @@ int __cdecl main(int argc, char *argv[])
 		}
 		else if (command == "mac_dll")
 		{
+			// sanity check on file size
 			std::fstream dllFile(argv[2], ios::in | ios::out | ios::binary);
 			std::ifstream::pos_type fileEnd = dllFile.seekg(0, std::ios_base::end).tellg();
-			if (fileEnd > 20*1000*1000)		// sanity check on file size
+			if (fileEnd > 20*1000*1000)
 			{
 				cerr << "Input file too large (more than 20 MB).\n";
 				return 1;
 			}
 
+			// read file into memory
 			unsigned int fileSize = (unsigned int)fileEnd;
 			SecByteBlock buf(fileSize);
 			dllFile.seekg(0, std::ios_base::beg);
 			dllFile.read((char *)buf.begin(), fileSize);
 
-			byte dummyMac[] = CRYPTOPP_DUMMY_DLL_MAC;
+			// find positions of relevant sections in the file, based on version 8 of documentation from http://www.microsoft.com/whdc/system/platform/firmware/PECOFF.mspx
+			word32 coffPos = *(word16 *)(buf+0x3c);
+			word32 optionalHeaderPos = coffPos + 24;
+			word16 optionalHeaderMagic = *(word16 *)(buf+optionalHeaderPos);
+			if (optionalHeaderMagic != 0x10b && optionalHeaderMagic != 0x20b)
+			{
+				cerr << "Target file is not a PE32 or PE32+ image.\n";
+				return 3;
+			}
+			word32 checksumPos = optionalHeaderPos + 64;
+			word32 certificateTableDirectoryPos = optionalHeaderPos + (optionalHeaderMagic == 0x10b ? 128 : 144);
+			word32 certificateTablePos = *(word32 *)(buf+certificateTableDirectoryPos);
+			word32 certificateTableSize = *(word32 *)(buf+certificateTableDirectoryPos+4);
+			if (certificateTableSize != 0)
+				cerr << "Warning: certificate table (IMAGE_DIRECTORY_ENTRY_SECURITY) of target image is not empty.\n";
 
-			byte *found = std::search(buf.begin(), buf.end(), dummyMac+0, dummyMac+sizeof(dummyMac));
+			// find where to place computed MAC
+			byte mac[] = CRYPTOPP_DUMMY_DLL_MAC;
+			byte *found = std::search(buf.begin(), buf.end(), mac+0, mac+sizeof(mac));
 			if (found == buf.end())
 			{
 				cerr << "MAC placeholder not found. Possibly the actual MAC was already placed.\n";
-				return 1;
+				return 2;
 			}
+			word32 macPos = (unsigned int)(found-buf.begin());
 
-			unsigned int macPos = (unsigned int)(found-buf.begin());
+			// compute MAC
 			member_ptr<MessageAuthenticationCode> pMac(NewIntegrityCheckingMAC());
-			pMac->Update(buf.begin(), macPos);
-			pMac->Update(buf.begin() + macPos + sizeof(dummyMac), fileSize - sizeof(dummyMac) - macPos);
-			assert(pMac->DigestSize() == sizeof(dummyMac));
-			pMac->Final(dummyMac);
+			assert(pMac->DigestSize() == sizeof(mac));
+			MeterFilter f(new HashFilter(*pMac, new ArraySink(mac, sizeof(mac))));
+			f.AddRangeToSkip(0, checksumPos, 4);
+			f.AddRangeToSkip(0, certificateTableDirectoryPos, 8);
+			f.AddRangeToSkip(0, macPos, sizeof(mac));
+			f.AddRangeToSkip(0, certificateTablePos, certificateTableSize);
+			f.PutMessageEnd(buf.begin(), buf.size());
 
+			// place MAC
 			cout << "Placing MAC in file " << argv[2] << ", location " << macPos << ".\n";
 			dllFile.seekg(macPos, std::ios_base::beg);
-			dllFile.write((char *)dummyMac, sizeof(dummyMac));
+			dllFile.write((char *)mac, sizeof(mac));
 		}
 		else if (command == "m")
 			DigestFile(argv[2]);

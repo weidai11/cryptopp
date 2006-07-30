@@ -141,46 +141,86 @@ bool Filter::OutputMessageSeriesEnd(int outputSite, int propagation, bool blocki
 
 // *************************************************************
 
+void MeterFilter::ResetMeter()
+{
+	m_currentMessageBytes = m_totalBytes = m_currentSeriesMessages = m_totalMessages = m_totalMessageSeries = 0;
+	m_rangesToSkip.clear();
+}
+
+void MeterFilter::AddRangeToSkip(unsigned int message, lword position, lword size, bool sortNow)
+{
+	MessageRange r = {message, position, size};
+	m_rangesToSkip.push_back(r);
+	if (sortNow)
+		std::sort(m_rangesToSkip.begin(), m_rangesToSkip.end());
+}
+
+size_t MeterFilter::PutMaybeModifiable(byte *begin, size_t length, int messageEnd, bool blocking, bool modifiable)
+{
+	if (!m_transparent)
+		return 0;
+
+	size_t t;
+	FILTER_BEGIN;
+
+	m_begin = begin;
+	m_length = length;
+
+	while (m_length > 0 || messageEnd)
+	{
+		if (!m_rangesToSkip.empty() && m_rangesToSkip.front().message == m_totalMessages && m_currentMessageBytes + m_length > m_rangesToSkip.front().position)
+		{
+			FILTER_OUTPUT_MAYBE_MODIFIABLE(1, m_begin, t = (size_t)SaturatingSubtract(m_rangesToSkip.front().position, m_currentMessageBytes), false, modifiable);
+
+			assert(t < m_length);
+			m_begin += t;
+			m_length -= t;
+			m_currentMessageBytes += t;
+			m_totalBytes += t;
+
+			if (m_currentMessageBytes + m_length < m_rangesToSkip.front().position + m_rangesToSkip.front().size)
+				t = m_length;
+			else
+			{
+				t = (size_t)SaturatingSubtract(m_rangesToSkip.front().position + m_rangesToSkip.front().size, m_currentMessageBytes);
+				assert(t <= m_length);
+				m_rangesToSkip.pop_front();
+			}
+
+			m_begin += t;
+			m_length -= t;
+			m_currentMessageBytes += t;
+			m_totalBytes += t;
+		}
+		else
+		{
+			FILTER_OUTPUT_MAYBE_MODIFIABLE(2, m_begin, m_length, messageEnd, modifiable);
+
+			m_currentMessageBytes += m_length;
+			m_totalBytes += m_length;
+			m_length = 0;
+
+			if (messageEnd)
+			{
+				m_currentMessageBytes = 0;
+				m_currentSeriesMessages++;
+				m_totalMessages++;
+				messageEnd = false;
+			}
+		}
+	}
+
+	FILTER_END_NO_MESSAGE_END;
+}
+
 size_t MeterFilter::Put2(const byte *begin, size_t length, int messageEnd, bool blocking)
 {
-	if (m_transparent)
-	{
-		FILTER_BEGIN;
-		m_currentMessageBytes += length;
-		m_totalBytes += length;
-
-		if (messageEnd)
-		{
-			m_currentMessageBytes = 0;
-			m_currentSeriesMessages++;
-			m_totalMessages++;
-		}
-
-		FILTER_OUTPUT(1, begin, length, messageEnd);
-		FILTER_END_NO_MESSAGE_END;
-	}
-	return 0;
+	return PutMaybeModifiable(const_cast<byte *>(begin), length, messageEnd, blocking, false);
 }
 
 size_t MeterFilter::PutModifiable2(byte *begin, size_t length, int messageEnd, bool blocking)
 {
-	if (m_transparent)
-	{
-		FILTER_BEGIN;
-		m_currentMessageBytes += length;
-		m_totalBytes += length;
-
-		if (messageEnd)
-		{
-			m_currentMessageBytes = 0;
-			m_currentSeriesMessages++;
-			m_totalMessages++;
-		}
-		
-		FILTER_OUTPUT_MODIFIABLE(1, begin, length, messageEnd);
-		FILTER_END_NO_MESSAGE_END;
-	}
-	return 0;
+	return PutMaybeModifiable(begin, length, messageEnd, blocking, true);
 }
 
 bool MeterFilter::IsolatedMessageSeriesEnd(bool blocking)
