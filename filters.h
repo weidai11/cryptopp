@@ -7,6 +7,7 @@
 #include "smartptr.h"
 #include "queue.h"
 #include "algparam.h"
+#include <deque>
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -86,7 +87,9 @@ public:
 		: m_transparent(transparent) {Detach(attachment); ResetMeter();}
 
 	void SetTransparent(bool transparent) {m_transparent = transparent;}
-	void ResetMeter() {m_currentMessageBytes = m_totalBytes = m_currentSeriesMessages = m_totalMessages = m_totalMessageSeries = 0;}
+	void AddRangeToSkip(unsigned int message, lword position, lword size, bool sortNow = true);
+	void ResetMeter();
+	void IsolatedInitialize(const NameValuePairs &parameters) {ResetMeter();}
 
 	lword GetCurrentMessageBytes() const {return m_currentMessageBytes;}
 	lword GetTotalBytes() {return m_totalBytes;}
@@ -101,12 +104,20 @@ public:
 	bool IsolatedMessageSeriesEnd(bool blocking);
 
 private:
+	size_t PutMaybeModifiable(byte *inString, size_t length, int messageEnd, bool blocking, bool modifiable);
 	bool ShouldPropagateMessageEnd() const {return m_transparent;}
 	bool ShouldPropagateMessageSeriesEnd() const {return m_transparent;}
+
+	struct MessageRange {unsigned int message; lword position; lword size;};
+	friend inline bool operator<(const MessageRange &a, const MessageRange &b)
+		{return a.message < b.message || (a.message == b.message && a.position < b.position);}
 
 	bool m_transparent;
 	lword m_currentMessageBytes, m_totalBytes;
 	unsigned int m_currentSeriesMessages, m_totalMessages, m_totalMessageSeries;
+	std::deque<MessageRange> m_rangesToSkip;
+	byte *m_begin;
+	size_t m_length;
 };
 
 //! _

@@ -224,7 +224,7 @@ template <class T1, class T2>
 inline bool SafeConvert(T1 from, T2 &to)
 {
 	to = (T2)from;
-	if (from != to || (from > 0 && to < 0))
+	if (from != to || (from > 0) != (to > 0))
 		return false;
 	return true;
 }

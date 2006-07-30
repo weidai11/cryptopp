@@ -50,4 +50,15 @@
 #define FILTER_OUTPUT_MODIFIABLE(site, output, length, messageEnd)	\
 	FILTER_OUTPUT2_MODIFIABLE(site, 0, output, length, messageEnd)
 
+#define FILTER_OUTPUT2_MAYBE_MODIFIABLE(site, statement, output, length, messageEnd, modifiable)	\
+	{\
+	case site:	\
+	statement;	\
+	if (modifiable ? OutputModifiable(site, output, length, messageEnd, blocking) : Output(site, output, length, messageEnd, blocking))	\
+		return STDMAX(size_t(1), length-m_inputPosition);\
+	}
+
+#define FILTER_OUTPUT_MAYBE_MODIFIABLE(site, output, length, messageEnd, modifiable)	\
+	FILTER_OUTPUT2_MAYBE_MODIFIABLE(site, 0, output, length, messageEnd, modifiable)
+
 #endif
