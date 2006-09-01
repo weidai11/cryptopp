@@ -163,6 +163,8 @@ template <class T> inline const T& STDMAX(const T& a, const T& b)
 // #define GETBYTE(x, y) (unsigned int)(((x)>>(8*(y)))&255)
 // #define GETBYTE(x, y) (((byte *)&(x))[y])
 
+#define CRYPTOPP_GET_BYTE_AS_BYTE(x, y) byte((x)>>(8*(y)))
+
 template <class T>
 unsigned int Parity(T value)
 {
@@ -688,13 +690,13 @@ inline void UnalignedPutWord(ByteOrder order, byte *block, word16 value, const b
 {
 	if (order == BIG_ENDIAN_ORDER)
 	{
-		block[0] = GETBYTE(value, 1);
-		block[1] = GETBYTE(value, 0);
+		block[0] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 1);
+		block[1] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 0);
 	}
 	else
 	{
-		block[0] = GETBYTE(value, 0);
-		block[1] = GETBYTE(value, 1);
+		block[0] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 0);
+		block[1] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 1);
 	}
 
 	if (xorBlock)
@@ -708,17 +710,17 @@ inline void UnalignedPutWord(ByteOrder order, byte *block, word32 value, const b
 {
 	if (order == BIG_ENDIAN_ORDER)
 	{
-		block[0] = GETBYTE(value, 3);
-		block[1] = GETBYTE(value, 2);
-		block[2] = GETBYTE(value, 1);
-		block[3] = GETBYTE(value, 0);
+		block[0] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 3);
+		block[1] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 2);
+		block[2] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 1);
+		block[3] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 0);
 	}
 	else
 	{
-		block[0] = GETBYTE(value, 0);
-		block[1] = GETBYTE(value, 1);
-		block[2] = GETBYTE(value, 2);
-		block[3] = GETBYTE(value, 3);
+		block[0] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 0);
+		block[1] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 1);
+		block[2] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 2);
+		block[3] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 3);
 	}
 
 	if (xorBlock)
@@ -735,25 +737,25 @@ inline void UnalignedPutWord(ByteOrder order, byte *block, word64 value, const b
 {
 	if (order == BIG_ENDIAN_ORDER)
 	{
-		block[0] = GETBYTE(value, 7);
-		block[1] = GETBYTE(value, 6);
-		block[2] = GETBYTE(value, 5);
-		block[3] = GETBYTE(value, 4);
-		block[4] = GETBYTE(value, 3);
-		block[5] = GETBYTE(value, 2);
-		block[6] = GETBYTE(value, 1);
-		block[7] = GETBYTE(value, 0);
+		block[0] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 7);
+		block[1] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 6);
+		block[2] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 5);
+		block[3] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 4);
+		block[4] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 3);
+		block[5] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 2);
+		block[6] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 1);
+		block[7] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 0);
 	}
 	else
 	{
-		block[0] = GETBYTE(value, 0);
-		block[1] = GETBYTE(value, 1);
-		block[2] = GETBYTE(value, 2);
-		block[3] = GETBYTE(value, 3);
-		block[4] = GETBYTE(value, 4);
-		block[5] = GETBYTE(value, 5);
-		block[6] = GETBYTE(value, 6);
-		block[7] = GETBYTE(value, 7);
+		block[0] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 0);
+		block[1] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 1);
+		block[2] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 2);
+		block[3] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 3);
+		block[4] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 4);
+		block[5] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 5);
+		block[6] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 6);
+		block[7] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 7);
 	}
 
 	if (xorBlock)
