@@ -233,10 +233,6 @@ SOURCE=.\modes.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\modexppc.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\mqueue.cpp
 # End Source File
 # Begin Source File
