@@ -193,14 +193,6 @@ void __cdecl operator delete (void * p)
 	s_pDelete(p);
 }
 
-#else
-
-extern "C" __declspec(dllexport) void __cdecl GetNewAndDeleteForCryptoPP(PNew &pNew, PDelete &pDelete)
-{
-	pNew = &operator new;
-	pDelete = &operator delete;
-}
-
 #endif
 
 #ifdef CRYPTOPP_DLL_ONLY
