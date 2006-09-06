@@ -27,6 +27,14 @@ extern PowerUpSelfTestStatus g_powerUpSelfTestStatus;
 SecByteBlock g_actualMac;
 unsigned long g_macFileLocation = 0;
 
+// use a random dummy string here, to be searched/replaced later with the real MAC
+static const byte s_moduleMac[CryptoPP::HMAC<CryptoPP::SHA1>::DIGESTSIZE] = CRYPTOPP_DUMMY_DLL_MAC;
+CRYPTOPP_COMPILE_ASSERT(sizeof(s_moduleMac) == CryptoPP::SHA1::DIGESTSIZE);
+
+#ifdef CRYPTOPP_WIN32_AVAILABLE
+static HMODULE s_hModule = NULL;
+#endif
+
 const byte * CRYPTOPP_API GetActualMacAndLocation(unsigned int &macSize, unsigned int &fileLocation)
 {
 	macSize = (unsigned int)g_actualMac.size();
@@ -261,11 +269,48 @@ bool IntegrityCheckModule(const char *moduleFilename, const byte *expectedModule
 
 	MeterFilter verifier(new HashFilter(*mac, new ArraySink(actualMac, actualMac.size())));
 //	MeterFilter verifier(new FileSink("c:\\dt.tmp"));
-	FileStore file(moduleFilename);
+	std::ifstream moduleStream;
+
+#ifdef CRYPTOPP_WIN32_AVAILABLE
+	HMODULE h;
+	{
+	char moduleFilenameBuf[MAX_PATH] = "";
+	if (moduleFilename == NULL)
+	{
+		wchar_t wideModuleFilename[MAX_PATH];
+		if (GetModuleFileNameW(s_hModule, wideModuleFilename, MAX_PATH) > 0)
+		{
+			moduleStream.open(wideModuleFilename, std::ios::in | std::ios::binary);
+			h = GetModuleHandleW(wideModuleFilename);
+		}
+		else
+		{
+			GetModuleFileNameA(s_hModule, moduleFilenameBuf, MAX_PATH);
+			moduleFilename = moduleFilenameBuf;
+		}
+	}
+#endif
+	if (moduleFilename != NULL)
+	{
+			moduleStream.open(moduleFilename, std::ios::in | std::ios::binary);
+#ifdef CRYPTOPP_WIN32_AVAILABLE
+			h = GetModuleHandleA(moduleFilename);
+			moduleFilename = NULL;
+	}
+#endif
+	}
+
+	if (!moduleStream)
+	{
+#ifdef CRYPTOPP_WIN32_AVAILABLE
+		OutputDebugString("Crypto++ DLL integrity check failed. Cannot open file for reading.");
+#endif
+		return false;
+	}
+	FileStore file(moduleStream);
 
 #ifdef CRYPTOPP_WIN32_AVAILABLE
 	// try to hash from memory first
-	HMODULE h = GetModuleHandle(moduleFilename);
 	const byte *memBase = (const byte *)h;
 	const IMAGE_DOS_HEADER *ph = (IMAGE_DOS_HEADER *)memBase;
 	const IMAGE_NT_HEADERS *phnt = (IMAGE_NT_HEADERS *)(memBase + ph->e_lfanew);
@@ -353,14 +398,15 @@ bool IntegrityCheckModule(const char *moduleFilename, const byte *expectedModule
 	if (memcmp(expectedModuleMac, actualMac, macSize) != 0)
 	{
 		OutputDebugString("In memory integrity check failed. This may be caused by debug breakpoints or DLL relocation.\n");
-		file.Initialize(MakeParameters(Name::InputFileName(), moduleFilename));
+		moduleStream.clear();
+		moduleStream.seekg(0);
 		verifier.Initialize(MakeParameters(Name::OutputBuffer(), ByteArrayParameter(actualMac, (unsigned int)actualMac.size())));
 //		verifier.Initialize(MakeParameters(Name::OutputFileName(), (const char *)"c:\\dt2.tmp"));
 		verifier.AddRangeToSkip(0, checksumPos, checksumSize);
 		verifier.AddRangeToSkip(0, certificateTableDirectoryPos, certificateTableDirectorySize);
 		verifier.AddRangeToSkip(0, certificateTablePos, certificateTableSize);
 		verifier.AddRangeToSkip(0, macFileLocation, macSize);
-		file.TransferAllTo(verifier);
+		FileStore(moduleStream).TransferAllTo(verifier);
 	}
 #endif
 
@@ -370,7 +416,7 @@ bool IntegrityCheckModule(const char *moduleFilename, const byte *expectedModule
 #ifdef CRYPTOPP_WIN32_AVAILABLE
 	std::string hexMac;
 	HexEncoder(new StringSink(hexMac)).PutMessageEnd(actualMac, actualMac.size());
-	OutputDebugString((moduleFilename + (" integrity check failed. Actual MAC is: " + hexMac) + "\n").c_str());
+	OutputDebugString((("Crypto++ DLL integrity check failed. Actual MAC is: " + hexMac) + "\n").c_str());
 #endif
 	return false;
 }
@@ -382,7 +428,7 @@ void DoPowerUpSelfTest(const char *moduleFilename, const byte *expectedModuleMac
 
 	try
 	{
-		if (FIPS_140_2_ComplianceEnabled() || moduleFilename != NULL)
+		if (FIPS_140_2_ComplianceEnabled() || expectedModuleMac != NULL)
 		{
 			if (!IntegrityCheckModule(moduleFilename, expectedModuleMac, &g_actualMac, &g_macFileLocation))
 				throw 0;	// throw here so we break in the debugger, this will be caught right away
@@ -528,16 +574,9 @@ done:
 
 #ifdef CRYPTOPP_WIN32_AVAILABLE
 
-// use a random dummy string here, to be searched/replaced later with the real MAC
-static const byte s_moduleMac[CryptoPP::HMAC<CryptoPP::SHA1>::DIGESTSIZE] = CRYPTOPP_DUMMY_DLL_MAC;
-CRYPTOPP_COMPILE_ASSERT(sizeof(s_moduleMac) == CryptoPP::SHA1::DIGESTSIZE);
-static HMODULE s_hModule = NULL;
-
 void DoDllPowerUpSelfTest()
 {
-	char moduleFileName[MAX_PATH];
-	GetModuleFileNameA(s_hModule, moduleFileName, sizeof(moduleFileName));
-	CryptoPP::DoPowerUpSelfTest(moduleFileName, s_moduleMac);
+	CryptoPP::DoPowerUpSelfTest(NULL, s_moduleMac);
 }
 
 #else
