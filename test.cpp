@@ -87,7 +87,7 @@ int (*AdhocTest)(int argc, char *argv[]) = NULL;
 #ifdef __BCPLUSPLUS__
 int cmain(int argc, char *argv[])
 #else
-int __cdecl main(int argc, char *argv[])
+int CRYPTOPP_API main(int argc, char *argv[])
 #endif
 {
 #ifdef _CRTDBG_LEAK_CHECK_DF
