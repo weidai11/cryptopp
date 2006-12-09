@@ -116,7 +116,9 @@ class DES_XEX3 : public DES_XEX3_Info, public BlockCipherDocumentation
 
 	protected:
 		FixedSizeSecBlock<byte, BLOCKSIZE> m_x1, m_x3;
-		DES::Encryption m_des;
+		// VS2005 workaround: calling modules compiled with /clr gets unresolved external symbol DES::Base::ProcessAndXorBlock
+		// if we use DES::Encryption here directly without value_ptr.
+		value_ptr<DES::Encryption> m_des;
 	};
 
 public:
