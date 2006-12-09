@@ -424,15 +424,18 @@ void DES_XEX3::Base::UncheckedSetKey(CipherDir dir, const byte *key, unsigned in
 {
 	AssertValidKeyLength(length);
 
+	if (!m_des.get())
+		m_des.reset(new DES::Encryption);
+
 	memcpy(m_x1, key+(dir==ENCRYPTION?0:2*8), BLOCKSIZE);
-	m_des.UncheckedSetKey(dir, key+8);
+	m_des->UncheckedSetKey(dir, key+8);
 	memcpy(m_x3, key+(dir==DECRYPTION?0:2*8), BLOCKSIZE);
 }
 
 void DES_XEX3::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
 	xorbuf(outBlock, inBlock, m_x1, BLOCKSIZE);
-	m_des.ProcessAndXorBlock(outBlock, xorBlock, outBlock);
+	m_des->ProcessAndXorBlock(outBlock, xorBlock, outBlock);
 	xorbuf(outBlock, m_x3, BLOCKSIZE);
 }
 
