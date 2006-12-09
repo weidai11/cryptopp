@@ -277,6 +277,7 @@ bool IntegrityCheckModule(const char *moduleFilename, const byte *expectedModule
 	char moduleFilenameBuf[MAX_PATH] = "";
 	if (moduleFilename == NULL)
 	{
+#ifdef _MSC_VER		// ifstream doesn't support wide filename on gcc 3.4.4 cygwin
 		wchar_t wideModuleFilename[MAX_PATH];
 		if (GetModuleFileNameW(s_hModule, wideModuleFilename, MAX_PATH) > 0)
 		{
@@ -284,6 +285,7 @@ bool IntegrityCheckModule(const char *moduleFilename, const byte *expectedModule
 			h = GetModuleHandleW(wideModuleFilename);
 		}
 		else
+#endif
 		{
 			GetModuleFileNameA(s_hModule, moduleFilenameBuf, MAX_PATH);
 			moduleFilename = moduleFilenameBuf;
