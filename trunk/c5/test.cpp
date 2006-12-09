@@ -811,6 +811,7 @@ bool Validate(int alg, bool thorough, const char *seed)
 	case 61: result = ValidateCamellia(); break;
 	case 62: result = ValidateWhirlpool(); break;
 	case 63: result = ValidateTTMAC(); break;
+	case 64: result = ValidateSalsa(); break;
 	default: result = ValidateAll(thorough); break;
 	}
 

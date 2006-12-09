@@ -49,6 +49,7 @@
 #include "mdc.h"
 #include "lubyrack.h"
 #include "tea.h"
+#include "salsa.h"
 
 #include <time.h>
 #include <math.h>
@@ -184,19 +185,19 @@ void BenchMark(const char *name, BufferedTransformation &bt, double timeTotal)
 
 //VC60 workaround: compiler bug triggered without the extra dummy parameters
 template <class T>
-void BenchMarkKeyed(const char *name, double timeTotal, T *x=NULL)
+void BenchMarkKeyed(const char *name, double timeTotal, const NameValuePairs &params = g_nullNameValuePairs, T *x=NULL)
 {
 	T c;
-	c.SetKey(key, c.DefaultKeyLength(), MakeParameters(Name::IV(), key, false));
+	c.SetKey(key, c.DefaultKeyLength(), CombinedNameValuePairs(params, MakeParameters(Name::IV(), key, false)));
 	BenchMark(name, c, timeTotal);
 }
 
 //VC60 workaround: compiler bug triggered without the extra dummy parameters
 template <class T>
-void BenchMarkKeyedVariable(const char *name, double timeTotal, unsigned int keyLength, T *x=NULL)
+void BenchMarkKeyedVariable(const char *name, double timeTotal, unsigned int keyLength, const NameValuePairs &params = g_nullNameValuePairs, T *x=NULL)
 {
 	T c;
-	c.SetKey(key, keyLength, MakeParameters(Name::IV(), key, false));
+	c.SetKey(key, keyLength, CombinedNameValuePairs(params, MakeParameters(Name::IV(), key, false)));
 	BenchMark(name, c, timeTotal);
 }
 
@@ -287,6 +288,10 @@ void BenchmarkAll(double t)
 	BenchMarkKeyedVariable<Camellia::Encryption>("Camellia (128-bit key)", t, 16);
 	BenchMarkKeyedVariable<Camellia::Encryption>("Camellia (256-bit key)", t, 32);
 #endif
+	BenchMarkKeyed<Salsa20::Encryption>("Salsa20", t);
+	BenchMarkKeyed<Salsa20::Encryption>("Salsa20/12", t, MakeParameters(Name::Rounds(), 12));
+	BenchMarkKeyed<Salsa20::Encryption>("Salsa20/8", t, MakeParameters(Name::Rounds(), 8));
+
 	BenchMarkKeyed<MD5MAC>("MD5-MAC", t);
 	BenchMarkKeyed<XMACC<MD5> >("XMACC/MD5", t);
 	BenchMarkKeyed<HMAC<MD5> >("HMAC/MD5", t);

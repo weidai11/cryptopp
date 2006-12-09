@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="gb2312"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
@@ -7075,6 +7075,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\salsa.cpp"
+				>
+			</File>
+			<File
 				RelativePath="seal.cpp"
 				>
 				<FileConfiguration
@@ -9565,6 +9569,10 @@
 			</File>
 			<File
 				RelativePath="safer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\salsa.h"
 				>
 			</File>
 			<File

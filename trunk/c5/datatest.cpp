@@ -265,6 +265,9 @@ void TestSymmetricCipher(TestData &v)
 	{
 		std::auto_ptr<SymmetricCipher> encryptor(ObjectFactoryRegistry<SymmetricCipher, ENCRYPTION>::Registry().CreateObject(name.c_str()));
 		encryptor->SetKey((const byte *)key.data(), key.size(), pairs);
+		int seek = pairs.GetIntValueWithDefault("Seek", 0);
+		if (seek)
+			encryptor->Seek(seek);
 		std::string encrypted;
 		StringSource ss(plaintext, true, new StreamTransformationFilter(*encryptor, new StringSink(encrypted), StreamTransformationFilter::NO_PADDING));
 		if (encrypted != ciphertext)
@@ -274,6 +277,9 @@ void TestSymmetricCipher(TestData &v)
 	{
 		std::auto_ptr<SymmetricCipher> decryptor(ObjectFactoryRegistry<SymmetricCipher, DECRYPTION>::Registry().CreateObject(name.c_str()));
 		decryptor->SetKey((const byte *)key.data(), key.size(), pairs);
+		int seek = pairs.GetIntValueWithDefault("Seek", 0);
+		if (seek)
+			decryptor->Seek(seek);
 		std::string decrypted;
 		StringSource ss(ciphertext, true, new StreamTransformationFilter(*decryptor, new StringSink(decrypted), StreamTransformationFilter::NO_PADDING));
 		if (decrypted != plaintext)

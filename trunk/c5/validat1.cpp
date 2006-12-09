@@ -91,6 +91,7 @@ bool ValidateAll(bool thorough)
 	pass=ValidateSerpent() && pass;
 	pass=ValidateSHACAL2() && pass;
 	pass=ValidateCamellia() && pass;
+	pass=ValidateSalsa() && pass;
 
 	pass=ValidateBBS() && pass;
 	pass=ValidateDH() && pass;
@@ -1306,4 +1307,11 @@ bool ValidateCamellia()
 	cout << "word64 not available, skipping Camellia validation." << endl;
 	return true;
 #endif
+}
+
+bool ValidateSalsa()
+{
+	cout << "\nSalsa validation suite running...\n";
+
+	return RunTestDataFile("TestVectors/salsa.txt");
 }
