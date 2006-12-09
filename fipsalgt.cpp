@@ -19,7 +19,7 @@ public:
 	LineBreakParser(BufferedTransformation *attachment=NULL, byte lineEnd='\n')
 		: m_lineEnd(lineEnd) {Detach(attachment);}
 
-	unsigned int Put2(const byte *begin, unsigned int length, int messageEnd, bool blocking)
+	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking)
 	{
 		if (!blocking)
 			throw BlockingInputOnly("LineBreakParser");
@@ -60,6 +60,8 @@ public:
 	{
 		Detach(attachment);
 
+		m_typeToName[COUNT] = "COUNT";
+
 		m_nameToType["COUNT"] = COUNT;
 		m_nameToType["KEY"] = KEY_T;
 		m_nameToType["KEYs"] = KEY_T;
@@ -78,26 +80,7 @@ public:
 		m_nameToType["DT"] = IV;
 		SetEncrypt(encrypt);
 
-		if (m_algorithm == "DSS")
-		{
-			if (m_test == "prime")
-				m_trigger = "Prime";
-			else if (m_test == "pqg")
-				m_trigger = "N";
-			else if (m_test == "xy")
-				m_trigger = "G";
-			else if (m_test == "gensig")
-				m_trigger = "Msg";
-			else if (m_test == "versig")
-				m_trigger = "Sig";
-			else if (m_test == "verpqg")
-				m_trigger = "c";
-		}
-		else if (m_algorithm == "HMAC")
-			m_trigger = "Msg";
-		else if (m_algorithm == "SHA2")
-			m_trigger = (m_test == "MONTE") ? "Seed" : "Msg";
-		else if (m_algorithm == "ECDSA")
+		if (m_algorithm == "DSA" || m_algorithm == "ECDSA")
 		{
 			if (m_test == "PKV")
 				m_trigger = "Qy";
@@ -107,7 +90,15 @@ public:
 				m_trigger = "Msg";
 			else if (m_test == "SigVer")
 				m_trigger = "S";
+			else if (m_test == "PQGGen")
+				m_trigger = "N";
+			else if (m_test == "PQGVer")
+				m_trigger = "H";
 		}
+		else if (m_algorithm == "HMAC")
+			m_trigger = "Msg";
+		else if (m_algorithm == "SHA")
+			m_trigger = (m_test == "MONTE") ? "Seed" : "Msg";
 		else if (m_algorithm == "RNG")
 			m_trigger = "V";
 		else if (m_algorithm == "RSA")
@@ -324,12 +315,12 @@ protected:
 	void EC_SigGen(string &output, const OID &oid)
 	{
 		DL_GroupParameters_EC<EC> params(oid);
-		ECDSA<EC, SHA1>::PrivateKey priv;
-		ECDSA<EC, SHA1>::PublicKey pub;
+		typename ECDSA<EC, SHA1>::PrivateKey priv;
+		typename ECDSA<EC, SHA1>::PublicKey pub;
 		priv.Initialize(m_rng, params);
 		priv.MakePublicKey(pub);
 
-		ECDSA<EC, SHA1>::Signer signer(priv);
+		typename ECDSA<EC, SHA1>::Signer signer(priv);
 		SecByteBlock sig(signer.SignatureLength());
 		StringSource(m_data["Msg"], true, new HexDecoder(new SignerFilter(m_rng, signer, new ArraySink(sig, sig.size()))));
 		SecByteBlock R(sig, sig.size()/2), S(sig+sig.size()/2, sig.size()/2);
@@ -348,14 +339,14 @@ protected:
 		Integer r((m_data["R"]+"h").c_str());
 		Integer s((m_data["S"]+"h").c_str());
 
-		EC::FieldElement Qx(x, x.size());
-		EC::FieldElement Qy(y, y.size());
-		EC::Element Q(Qx, Qy);
+		typename EC::FieldElement Qx(x, x.size());
+		typename EC::FieldElement Qy(y, y.size());
+		typename EC::Element Q(Qx, Qy);
 
 		DL_GroupParameters_EC<EC> params(oid);
-		ECDSA<EC, SHA1>::PublicKey pub;
+		typename ECDSA<EC, SHA1>::PublicKey pub;
 		pub.Initialize(params, Q);
-		ECDSA<EC, SHA1>::Verifier verifier(pub);
+		typename ECDSA<EC, SHA1>::Verifier verifier(pub);
 
 		SecByteBlock sig(verifier.SignatureLength());
 		r.Encode(sig, sig.size()/2);
@@ -373,12 +364,12 @@ protected:
 	template <class EC>
 	static bool EC_PKV(RandomNumberGenerator &rng, const SecByteBlock &x, const SecByteBlock &y, const OID &oid)
 	{
-		EC::FieldElement Qx(x, x.size());
-		EC::FieldElement Qy(y, y.size());
-		EC::Element Q(Qx, Qy);
+		typename EC::FieldElement Qx(x, x.size());
+		typename EC::FieldElement Qy(y, y.size());
+		typename EC::Element Q(Qx, Qy);
 
 		DL_GroupParameters_EC<EC> params(oid);
-		ECDSA<EC, SHA1>::PublicKey pub;
+		typename ECDSA<EC, SHA1>::PublicKey pub;
 		pub.Initialize(params, Q);
 		return pub.Validate(rng, 3);
 	}
@@ -389,20 +380,20 @@ protected:
 		if (typeid(Result) == typeid(PK_Verifier))
 		{
 			if (standard == "R")
-				return (Result *) new RSASS_ISO<H>::Verifier;
+				return (Result *) new typename RSASS_ISO<H>::Verifier;
 			else if (standard == "P")
-				return (Result *) new RSASS<PSS, H>::Verifier;
+				return (Result *) new typename RSASS<PSS, H>::Verifier;
 			else if (standard == "1")
-				return (Result *) new RSASS<PKCS1v15, H>::Verifier;
+				return (Result *) new typename RSASS<PKCS1v15, H>::Verifier;
 		}
 		else if (typeid(Result) == typeid(PK_Signer))
 		{
 			if (standard == "R")
-				return (Result *) new RSASS_ISO<H>::Signer;
+				return (Result *) new typename RSASS_ISO<H>::Signer;
 			else if (standard == "P")
-				return (Result *) new RSASS<PSS, H>::Signer;
+				return (Result *) new typename RSASS<PSS, H>::Signer;
 			else if (standard == "1")
-				return (Result *) new RSASS<PKCS1v15, H>::Signer;
+				return (Result *) new typename RSASS<PKCS1v15, H>::Signer;
 		}
 
 		return NULL;
@@ -429,66 +420,32 @@ protected:
 	{
 		std::string output;
 
-		if (m_algorithm == "DSS")
+		if (m_algorithm == "DSA")
 		{
-			if (m_test == "sha")
+			if (m_test == "KeyPair")
 			{
-				assert(m_compactString.size() >= 2);
-				assert(m_compactString[0] == m_compactString.size()-2);
-				bool b = !!m_compactString[1];
-				Integer m;
-				unsigned int bitLength = 0;
+				DL_GroupParameters_DSA pqg;
+				int modLen = atol(m_bracketString.substr(6).c_str());
+				pqg.GenerateRandomWithKeySize(m_rng, modLen);
 
-				for (unsigned int j = 2; j < m_compactString.size(); j++)
-				{
-					m <<= m_compactString[j];
-					for (unsigned int k = 0; k < m_compactString[j]; k++)
-						m.SetBit(k, b);
-					bitLength += m_compactString[j];
-					b = !b;
-				}
-				m_compactString.clear();
-				assert(bitLength % 8 == 0);
+				OutputData(output, "P ", pqg.GetModulus());
+				OutputData(output, "Q ", pqg.GetSubgroupOrder());
+				OutputData(output, "G ", pqg.GetSubgroupGenerator());
 
-				SecByteBlock message(bitLength / 8);
-				m.Encode(message, message.size());
-				SHA sha;
+				int n = atol(m_data["N"].c_str());
+				for (int i=0; i<n; i++)
+				{
+					DSA::Signer priv;
+					priv.AccessKey().GenerateRandom(m_rng, pqg);
+					DSA::Verifier pub(priv);
 
-				if (m_bracketString == "SHS Type 3 Strings")
-				{
-					SecByteBlock m1;
-					for (int j = 0; j < 100; j++)
-					{
-						for (word32 i = 1; i <= 50000; i++)
-						{
-							m1.resize(message.size() + j/4 + 3 + 4);
-							memcpy(m1, message, message.size());
-							memset(m1 + message.size(), 0, j/4 + 3);
-							PutWord(false, BIG_ENDIAN_ORDER, m1 + m1.size() - 4, i);
-							message.resize(sha.DigestSize());
-							sha.CalculateDigest(message, m1, m1.size());
-						}
-						StringSource(message, message.size(), true, new HexEncoder(new StringSink(output)));
-						output += " ^\n";
-						AttachedTransformation()->Put((byte *)output.data(), output.size());
-						output.resize(0);
-					}
-				}
-				else
-				{
-					StringSource(message, message.size(), true, new HashFilter(sha, new HexEncoder(new StringSink(output))));
-					output += " ^\n";
+					OutputData(output, "X ", priv.GetKey().GetPrivateExponent());
+					OutputData(output, "Y ", pub.GetKey().GetPublicElement());
 					AttachedTransformation()->Put((byte *)output.data(), output.size());
+					output.resize(0);
 				}
 			}
-			else if (m_test == "prime")
-			{
-				Integer p((m_data["Prime"] + "h").c_str());
-				OutputData(output, "result", VerifyPrime(m_rng, p, 2) ? "P" : "F");
-				AttachedTransformation()->Put((byte *)output.data(), output.size());
-				output.resize(0);
-			}
-			else if (m_test == "pqg")
+			else if (m_test == "PQGGen")
 			{
 				int n = atol(m_data["N"].c_str());
 				for (int i=0; i<n; i++)
@@ -505,48 +462,54 @@ protected:
 					h.Randomize(m_rng, 2, p-2);
 					g = a_exp_b_mod_c(h, (p-1)/q, p);
 
-					OutputData(output, "P", p);
-					OutputData(output, "Q", q);
-					OutputData(output, "G", g);
-					OutputData(output, "Seed", seed);
-					OutputData(output, "H", h, p.ByteCount());
-					OutputData(output, "c", counter);
+					OutputData(output, "P ", p);
+					OutputData(output, "Q ", q);
+					OutputData(output, "G ", g);
+					OutputData(output, "Seed ", seed);
+					OutputData(output, "c ", counter);
+					OutputData(output, "H ", h, p.ByteCount());
 					AttachedTransformation()->Put((byte *)output.data(), output.size());
 					output.resize(0);
 				}
 			}
-			else if (m_test == "xy")
+			else if (m_test == "SigGen")
 			{
-				Integer p((m_data["P"] + "h").c_str());
-				Integer	q((m_data["Q"] + "h").c_str());
-				Integer g((m_data["G"] + "h").c_str());
+				std::string &encodedKey = m_data["PrivKey"];
+				int modLen = atol(m_bracketString.substr(6).c_str());
+				DSA::PrivateKey priv;
 
-				for (int i=0; i<10; i++)
+				if (!encodedKey.empty())
 				{
-					DSA::Signer priv(m_rng, p, q, g);
-					DSA::Verifier pub(priv);
-
-					OutputData(output, "X", priv.GetKey().GetPrivateExponent());
-					OutputData(output, "Y", pub.GetKey().GetPublicElement());
-					AttachedTransformation()->Put((byte *)output.data(), output.size());
-					output.resize(0);
+					StringStore s(encodedKey);
+					priv.BERDecode(s);
+					if (priv.GetGroupParameters().GetModulus().BitCount() != modLen)
+						encodedKey.clear();
 				}
-			}
-			else if (m_test == "gensig")
-			{
-				Integer p((m_data["P"] + "h").c_str());
-				Integer	q((m_data["Q"] + "h").c_str());
-				Integer g((m_data["G"] + "h").c_str());
-				Integer x((m_data["X"] + "h").c_str());
-				DSA::Signer signer(p, q, g, x);
+
+				if (encodedKey.empty())
+				{
+					priv.Initialize(m_rng, modLen);
+					StringSink s(encodedKey);
+					priv.DEREncode(s);
+					OutputData(output, "P ", priv.GetGroupParameters().GetModulus());
+					OutputData(output, "Q ", priv.GetGroupParameters().GetSubgroupOrder());
+					OutputData(output, "G ", priv.GetGroupParameters().GetSubgroupGenerator());
+				}
+
+				DSA::Signer signer(priv);
+				DSA::Verifier pub(signer);
+				OutputData(output, "Msg ", m_data["Msg"]);
+				OutputData(output, "Y ", pub.GetKey().GetPublicElement());
 
 				SecByteBlock sig(signer.SignatureLength());
 				StringSource(m_data["Msg"], true, new HexDecoder(new SignerFilter(m_rng, signer, new ArraySink(sig, sig.size()))));
-				OutputData(output, "Sig", sig);
+				SecByteBlock R(sig, sig.size()/2), S(sig+sig.size()/2, sig.size()/2);
+				OutputData(output, "R ", R);
+				OutputData(output, "S ", S);
 				AttachedTransformation()->Put((byte *)output.data(), output.size());
 				output.resize(0);
 			}
-			else if (m_test == "versig")
+			else if (m_test == "SigVer")
 			{
 				Integer p((m_data["P"] + "h").c_str());
 				Integer	q((m_data["Q"] + "h").c_str());
@@ -555,16 +518,17 @@ protected:
 				DSA::Verifier verifier(p, q, g, y);
 
 				HexDecoder filter(new SignatureVerificationFilter(verifier));
-				StringSource(m_data["Sig"], true, new Redirector(filter, Redirector::DATA_ONLY));
+				StringSource(m_data["R"], true, new Redirector(filter, Redirector::DATA_ONLY));
+				StringSource(m_data["S"], true, new Redirector(filter, Redirector::DATA_ONLY));
 				StringSource(m_data["Msg"], true, new Redirector(filter, Redirector::DATA_ONLY));
 				filter.MessageEnd();
 				byte b;
 				filter.Get(b);
-				OutputData(output, "result", b ? "P" : "F");
+				OutputData(output, "Result ", b ? "P" : "F");
 				AttachedTransformation()->Put((byte *)output.data(), output.size());
 				output.resize(0);
 			}
-			else if (m_test == "verpqg")
+			else if (m_test == "PQGVer")
 			{
 				Integer p((m_data["P"] + "h").c_str());
 				Integer	q((m_data["Q"] + "h").c_str());
@@ -579,7 +543,7 @@ protected:
 				result = result && (p1 == p && q1 == q);
 				result = result && g == a_exp_b_mod_c(h, (p-1)/q, p);
 
-				OutputData(output, "result", result ? "P" : "F");
+				OutputData(output, "Result ", result ? "P" : "F");
 				AttachedTransformation()->Put((byte *)output.data(), output.size());
 				output.resize(0);
 			}
@@ -706,11 +670,13 @@ protected:
 			return;
 		}
 
-		if (m_algorithm == "SHA2")
+		if (m_algorithm == "SHA")
 		{
 			member_ptr<HashFunction> pHF;
 
-			if (m_mode == "224")
+			if (m_mode == "1")
+				pHF.reset(new SHA1);
+			else if (m_mode == "224")
 				pHF.reset(new SHA224);
 			else if (m_mode == "256")
 				pHF.reset(new SHA256);
@@ -881,7 +847,7 @@ protected:
 			int keySize = key.size();
 			int blockSize = pBT->BlockSize();
 
-			SecByteBlock IB[10001], OB[10001], PT[10001], CT[10001], RESULT[10001], TXT[10001], CV[10001];
+			std::vector<SecByteBlock> IB(10001), OB(10001), PT(10001), CT(10001), RESULT(10001), TXT(10001), CV(10001);
 			PT[0] = GetData("PLAINTEXT");
 			CT[0] = GetData("CIPHERTEXT");
 			CV[0] = IB[0] = iv;
@@ -970,7 +936,7 @@ protected:
 						throw Exception(Exception::OTHER_ERROR, "TestDataParser: unexpected mode: " + m_mode);
 				}
 
-				OutputData(output, "COUNT ", i);
+				OutputData(output, COUNT, IntToString(i));
 				OutputData(output, KEY_T, KEY[i]);
 				if (m_mode == "CBC")
 					OutputData(output, IV, CV[0]);
@@ -982,13 +948,13 @@ protected:
 					{
 						OutputData(output, INPUT, PT[0]);
 						OutputData(output, OUTPUT, CT[innerCount-1]);
-						KEY[i+1] = UpdateKey(KEY[i], CT);
+						KEY[i+1] = UpdateKey(KEY[i], &CT[0]);
 					}
 					else
 					{
 						OutputData(output, INPUT, CT[0]);
 						OutputData(output, OUTPUT, PT[innerCount-1]);
-						KEY[i+1] = UpdateKey(KEY[i], PT);
+						KEY[i+1] = UpdateKey(KEY[i], &PT[0]);
 					}
 					PT[0] = PT[innerCount];
 					IB[0] = IB[innerCount];
@@ -999,7 +965,7 @@ protected:
 				{
 					OutputData(output, INPUT, TXT[0]);
 					OutputData(output, OUTPUT, RESULT[innerCount-1]);
-					KEY[i+1] = UpdateKey(KEY[i], RESULT);
+					KEY[i+1] = UpdateKey(KEY[i], &RESULT[0]);
 					Xor(TXT[0], TXT[0], IB[innerCount-1]);
 					IB[0] = OB[innerCount-1];
 				}
@@ -1099,7 +1065,8 @@ protected:
 			if (line[i] == '=')
 				result.push_back("=");
 		}
-		result.push_back(s);
+		if (!s.empty())
+			result.push_back(s);
 		return result;
 	}
 
@@ -1152,7 +1119,7 @@ protected:
 
 		std::vector<std::string> tokens = Tokenize(m_line);
 
-		if (m_algorithm == "DSS" && m_test == "sha")
+		if (m_algorithm == "DSA" && m_test == "sha")
 		{
 			for (unsigned int i = 0; i < tokens.size(); i++)
 			{
@@ -1164,7 +1131,7 @@ protected:
 		}
 		else
 		{
-			if (!m_line.empty() && ((m_algorithm == "RSA" && m_test != "Gen") || m_algorithm == "RNG" || m_algorithm == "HMAC" || m_algorithm == "SHA2" || (m_algorithm == "ECDSA" && m_test != "KeyPair") || (m_algorithm == "DSS" && m_test != "pqg")))
+			if (!m_line.empty() && ((m_algorithm == "RSA" && m_test != "Gen") || m_algorithm == "RNG" || m_algorithm == "HMAC" || m_algorithm == "SHA" || (m_algorithm == "ECDSA" && m_test != "KeyPair") || (m_algorithm == "DSA" && (m_test == "PQGVer" || m_test == "SigVer"))))
 			{
 				// copy input to output
 				std::string output = m_line + '\n';
@@ -1173,7 +1140,7 @@ protected:
 
 			for (unsigned int i = 0; i < tokens.size(); i++)
 			{
-				if (m_firstLine && m_algorithm != "DSS")
+				if (m_firstLine && m_algorithm != "DSA")
 				{
 					if (tokens[i] == "Encrypt" || tokens[i] == "OFB")
 						SetEncrypt(true);
@@ -1192,12 +1159,12 @@ protected:
 
 					const std::string &key = tokens[i-1];
 					std::string &data = m_data[key];
-					data = tokens[i+1];
+					data = (tokens.size() > i+1) ? tokens[i+1] : "";
 					DataType t = m_nameToType[key];
 					m_typeToName[t] = key;
 					m_data2[t] = DecodeHex(data);
 
-					if (key == m_trigger || (t == OUTPUT && !m_data2[INPUT].empty()))
+					if (key == m_trigger || (t == OUTPUT && !m_data2[INPUT].empty() && !isspace(m_line[0])))
 						DoTest();
 				}
 			}
@@ -1248,11 +1215,26 @@ int FIPS_140_AlgorithmTest(int argc, char **argv)
 	std::string pathname = argv[2];
 	unsigned int i = pathname.find_last_of("\\/");
 	std::string filename = pathname.substr(i == std::string::npos ? 0 : i+1);
+	std::string dirname = pathname.substr(0, i);
+
+	if (algorithm == "auto")
+	{
+		string algTable[] = {"AES", "ECDSA", "DSA", "HMAC", "RNG", "RSA", "TDES", "SKIPJACK", "SHA"};	// order is important here
+		for (i=0; i<sizeof(algTable)/sizeof(algTable[0]); i++)
+		{
+			if (dirname.find(algTable[i]) != std::string::npos)
+			{
+				algorithm = algTable[i];
+				break;
+			}
+		}
+	}
+
 	try
 	{
 		std::string mode;
-		if (algorithm == "SHA2")
-			mode = filename.substr(3, 3);
+		if (algorithm == "SHA")
+			mode = IntToString(atol(filename.substr(3, 3).c_str()));
 		else if (algorithm == "RSA")
 			mode = filename.substr(6, 1);
 		else if (filename[0] == 'S' || filename[0] == 'T')
@@ -1263,7 +1245,7 @@ int FIPS_140_AlgorithmTest(int argc, char **argv)
 			mode[i] = toupper(mode[i]);
 		unsigned int feedbackSize = mode == "CFB" ? atoi(filename.substr(filename.find_first_of("0123456789")).c_str()) : 0;
 		std::string test;
-		if (algorithm == "DSS" || algorithm == "ECDSA")
+		if (algorithm == "DSA" || algorithm == "ECDSA")
 			test = filename.substr(0, filename.size() - 4);
 		else if (algorithm == "RSA")
 			test = filename.substr(3, 3);
@@ -1280,6 +1262,13 @@ int FIPS_140_AlgorithmTest(int argc, char **argv)
 		if (argc > 3)
 		{
 			std::string outDir = argv[3];
+
+			if (outDir == "auto")
+			{
+				if (dirname.substr(dirname.size()-3) == "req")
+					outDir = dirname.substr(0, dirname.size()-3) + "resp";
+			}
+
 			if (*outDir.rbegin() != '\\' && *outDir.rbegin() != '/')
 				outDir += '/';
 			std::string outPathname = outDir + filename.substr(0, filename.size() - 3) + "rsp";
