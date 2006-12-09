@@ -6,12 +6,19 @@ CXXFLAGS = -g
 # after turning on -O2. The GCC optimizer may have bugs that cause it to generate incorrect code.
 # Try removing -fdata-sections if you get "undefined external reference" errors.
 # CXXFLAGS = -O2 -DNDEBUG -ffunction-sections -fdata-sections
-# LDFLAGS = -Wl,--gc-sections
+# LDFLAGS += -Wl,--gc-sections
 ARFLAGS = -cr	# ar needs the dash on OpenBSD
 RANLIB = ranlib
+CP = cp
+MKDIR = mkdir
 UNAME = $(shell uname)
 ISX86 = $(shell uname -m | grep -c "i.86\|x86_64")
 ISMINGW = $(shell uname | grep -c "MINGW32")
+
+# Default prefix for make install
+ifeq ($(PREFIX),)
+PREFIX = /usr
+endif
 
 ifeq ($(CXX),gcc)	# for some reason CXX is gcc on cygwin 1.1.4
 CXX = g++
@@ -40,6 +47,10 @@ ifeq ($(UNAME),)	# for DJGPP, where uname doesn't exist
 CXXFLAGS += -mbnu210
 else
 CXXFLAGS += -pipe
+endif
+
+ifeq ($(UNAME),Linux)
+LDFLAGS += -pthread
 endif
 
 ifeq ($(UNAME),Darwin)
@@ -79,6 +90,12 @@ all: cryptest.exe
 
 clean:
 	$(RM) cryptest.exe libcryptopp.a $(LIBOBJS) $(TESTOBJS) cryptopp.dll libcryptopp.dll.a libcryptopp.import.a cryptest.import.exe dlltest.exe $(DLLOBJS) $(LIBIMPORTOBJS) $(TESTIMPORTOBJS) $(DLLTESTOBJS)
+
+install:
+	$(MKDIR) -p $(PREFIX)/include/cryptopp $(PREFIX)/lib $(PREFIX)/bin
+	$(CP) *.h $(PREFIX)/include/cryptopp
+	$(CP) *.a $(PREFIX)/lib
+	$(CP) *.exe $(PREFIX)/bin
 
 libcryptopp.a: $(LIBOBJS)
 	$(AR) $(ARFLAGS) $@ $(LIBOBJS)
