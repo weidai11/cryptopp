@@ -19,6 +19,7 @@
 #include "panama.h"
 #include "pssr.h"
 #include "aes.h"
+#include "salsa.h"
 
 USING_NAMESPACE(CryptoPP)
 
@@ -69,6 +70,7 @@ void RegisterFactories()
 	RegisterSymmetricCipherDefaultFactories<CFB_Mode<AES> >();
 	RegisterSymmetricCipherDefaultFactories<OFB_Mode<AES> >();
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<AES> >();
+	RegisterSymmetricCipherDefaultFactories<Salsa20>();
 
 	s_registered = true;
 }

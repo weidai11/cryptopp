@@ -19,3 +19,4 @@ Test: seal.txt
 Test: sha.txt
 Test: panama.txt
 Test: aes.txt
+Test: salsa.txt

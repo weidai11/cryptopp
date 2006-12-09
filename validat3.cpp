@@ -391,7 +391,7 @@ bool ValidateWhirlpool()
 	cout << "word64 not available, skipping Whirlpool validation." << endl;
 	return true;
 #endif
-	}
+}
 
 bool ValidateMD5MAC()
 {

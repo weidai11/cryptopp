@@ -1,5 +1,5 @@
 Crypto++: a C++ Class Library of Cryptographic Schemes
-Version 5.3 (in development)
+Version 5.4 (in development)
 
 This library includes:
 
@@ -353,5 +353,8 @@ the mailing list.
 5.3 - Ported to MSVC .NET 2005 with support for x86-64
     - Added defense against AES timing attacks, and more AES test vectors
     - Changed StaticAlgorithmName() of Rijndael to "AES", CTR to "CTR"
+
+5.4 - added Salsa20
+    - updated Whirlpool to version 3.0
 
 Written by Wei Dai
