@@ -94,7 +94,7 @@ void CAST128::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
 	t = l = r = 0;
 }
 
-void CAST128::Base::UncheckedSetKey(CipherDir dir, const byte *userKey, unsigned int keylength)
+void CAST128::Base::UncheckedSetKey(const byte *userKey, unsigned int keylength, const NameValuePairs &)
 {
 	AssertValidKeyLength(keylength);
 
@@ -251,7 +251,7 @@ void CAST256::Base::Omega(int i, word32 kappa[8])
 	f2(kappa[7],kappa[0],t_m[7][i],t_r[7][i]);
 }
 
-void CAST256::Base::UncheckedSetKey(CipherDir dir, const byte *userKey, unsigned int keylength)
+void CAST256::Base::UncheckedSetKey(const byte *userKey, unsigned int keylength, const NameValuePairs &)
 {
 	AssertValidKeyLength(keylength);
 
@@ -273,7 +273,7 @@ void CAST256::Base::UncheckedSetKey(CipherDir dir, const byte *userKey, unsigned
 		K[8*i+7]=kappa[1];
 	}
 
-	if (dir == DECRYPTION)
+	if (!IsForwardTransformation())
 	{
 		for(int j=0; j<6; ++j)
 		{

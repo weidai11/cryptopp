@@ -61,17 +61,16 @@ static inline word32 reverseBits(word32 a)
 	pi_gamma_pi(a0, a1, a2);	\
 }											
 
-void ThreeWay::Base::UncheckedSetKey(CipherDir dir, const byte *uk, unsigned int length, unsigned int r)
+void ThreeWay::Base::UncheckedSetKey(const byte *uk, unsigned int length, const NameValuePairs &params)
 {
 	AssertValidKeyLength(length);
-	AssertValidRounds(r);
 
-	m_rounds = r;
+	m_rounds = GetRoundsAndThrowIfInvalid(params, this);
 
 	for (unsigned int i=0; i<3; i++)
 		m_k[i] = (word32)uk[4*i+3] | ((word32)uk[4*i+2]<<8) | ((word32)uk[4*i+1]<<16) | ((word32)uk[4*i]<<24);
 
-	if (dir == DECRYPTION)
+	if (!IsForwardTransformation())
 	{
 		theta(m_k[0], m_k[1], m_k[2]);
 		mu(m_k[0], m_k[1], m_k[2]);

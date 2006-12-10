@@ -21,7 +21,7 @@ class SHACAL2 : public SHACAL2_Info, public BlockCipherDocumentation
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<SHACAL2_Info>
 	{
 	public:
-		void UncheckedSetKey(CipherDir direction, const byte *userKey, unsigned int length);
+		void UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &params);
 
 	protected:
 		FixedSizeSecBlock<word32, 64> m_key;

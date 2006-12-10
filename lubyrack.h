@@ -27,7 +27,7 @@ class LR : public LR_Info<T>, public BlockCipherDocumentation
 	{
 	public:
 		// VC60 workaround: have to define these functions within class definition
-		void UncheckedSetKey(CipherDir direction, const byte *userKey, unsigned int length)
+		void UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &params)
 		{
 			this->AssertValidKeyLength(length);
 

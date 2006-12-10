@@ -13,7 +13,7 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE HMAC_Base : public VariableKeyLength<16, 0
 {
 public:
 	HMAC_Base() : m_innerHashKeyed(false) {}
-	void UncheckedSetKey(const byte *userKey, unsigned int keylength);
+	void UncheckedSetKey(const byte *userKey, unsigned int keylength, const NameValuePairs &params);
 
 	void Restart();
 	void Update(const byte *input, size_t length);

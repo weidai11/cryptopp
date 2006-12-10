@@ -135,7 +135,7 @@ public:
 	typedef typename BASE::PolicyInterface PolicyInterface;
 
 protected:
-	void UncheckedSetKey(const NameValuePairs &params, const byte *key, unsigned int length, const byte *iv);
+	void UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params);
 
 	unsigned int GetBufferByteSize(const PolicyInterface &policy) const {return policy.GetBytesPerIteration() * policy.GetIterationsToBuffer();}
 
@@ -233,7 +233,7 @@ public:
 protected:
 	virtual void CombineMessageAndShiftRegister(byte *output, byte *reg, const byte *message, size_t length) =0;
 
-	void UncheckedSetKey(const NameValuePairs &params, const byte *key, unsigned int length, const byte *iv);
+	void UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params);
 
 	size_t m_leftOver;
 };
@@ -266,23 +266,17 @@ class SymmetricCipherFinal : public AlgorithmImpl<SimpleKeyingInterfaceImpl<BASE
 public:
  	SymmetricCipherFinal() {}
 	SymmetricCipherFinal(const byte *key)
-		{SetKey(key, this->DEFAULT_KEYLENGTH);}
+		{this->SetKey(key, this->DEFAULT_KEYLENGTH);}
 	SymmetricCipherFinal(const byte *key, size_t length)
-		{SetKey(key, length);}
+		{this->SetKey(key, length);}
 	SymmetricCipherFinal(const byte *key, size_t length, const byte *iv)
 		{this->SetKeyWithIV(key, length, iv);}
-
-	void SetKey(const byte *key, size_t length, const NameValuePairs &params = g_nullNameValuePairs)
-	{
-		this->ThrowIfInvalidKeyLength(length);
-		this->UncheckedSetKey(params, key, (unsigned int)length, this->GetIVAndThrowIfInvalid(params));
-	}
 
 	Clonable * Clone() const {return static_cast<SymmetricCipher *>(new SymmetricCipherFinal<BASE, INFO>(*this));}
 };
 
 template <class S>
-void AdditiveCipherTemplate<S>::UncheckedSetKey(const NameValuePairs &params, const byte *key, unsigned int length, const byte *iv)
+void AdditiveCipherTemplate<S>::UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params)
 {
 	PolicyInterface &policy = this->AccessPolicy();
 	policy.CipherSetKey(params, key, length);
@@ -290,17 +284,17 @@ void AdditiveCipherTemplate<S>::UncheckedSetKey(const NameValuePairs &params, co
 	m_buffer.New(GetBufferByteSize(policy));
 
 	if (this->IsResynchronizable())
-		policy.CipherResynchronize(m_buffer, iv);
+		policy.CipherResynchronize(m_buffer, this->GetIVAndThrowIfInvalid(params));
 }
 
 template <class BASE>
-void CFB_CipherTemplate<BASE>::UncheckedSetKey(const NameValuePairs &params, const byte *key, unsigned int length, const byte *iv)
+void CFB_CipherTemplate<BASE>::UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params)
 {
 	PolicyInterface &policy = this->AccessPolicy();
 	policy.CipherSetKey(params, key, length);
 
 	if (this->IsResynchronizable())
-		policy.CipherResynchronize(iv);
+		policy.CipherResynchronize(this->GetIVAndThrowIfInvalid(params));
 
 	m_leftOver = policy.GetBytesPerIteration();
 }

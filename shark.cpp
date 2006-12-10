@@ -32,12 +32,11 @@ static word64 SHARKTransform(word64 a)
 	return result;
 }
 
-void SHARK::Base::UncheckedSetKey(CipherDir dir, const byte *key, unsigned int keyLen, unsigned int rounds)
+void SHARK::Base::UncheckedSetKey(const byte *key, unsigned int keyLen, const NameValuePairs &params)
 {
 	AssertValidKeyLength(keyLen);
-	AssertValidRounds(rounds);
 
-	m_rounds = rounds;
+	m_rounds = GetRoundsAndThrowIfInvalid(params, this);
 	m_roundKeys.New(m_rounds+1);
 
 	// concatenate key enought times to fill a
@@ -55,7 +54,7 @@ void SHARK::Base::UncheckedSetKey(CipherDir dir, const byte *key, unsigned int k
 
 	m_roundKeys[m_rounds] = SHARKTransform(m_roundKeys[m_rounds]);
 
-	if (dir == DECRYPTION)
+	if (!IsForwardTransformation())
 	{
 		unsigned int i;
 

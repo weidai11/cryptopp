@@ -24,11 +24,6 @@ void Modes_TestInstantiations()
 }
 #endif
 
-void CipherModeBase::SetKey(const byte *key, size_t length, const NameValuePairs &params)
-{
-	UncheckedSetKey(params, key, (unsigned int)length, GetIVAndThrowIfInvalid(params));	// the underlying cipher will check the key length
-}
-
 void CipherModeBase::GetNextIV(byte *IV)
 {
 	if (!IsForwardTransformation())
@@ -102,12 +97,12 @@ void CTR_ModePolicy::CipherResynchronize(byte *keystreamBuffer, const byte *iv)
 	CopyOrZero(m_counterArray, iv, s);
 }
 
-void BlockOrientedCipherModeBase::UncheckedSetKey(const NameValuePairs &params, const byte *key, unsigned int length, const byte *iv)
+void BlockOrientedCipherModeBase::UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params)
 {
 	m_cipher->SetKey(key, length, params);
 	ResizeBuffers();
 	if (IsResynchronizable())
-		Resynchronize(iv);
+		Resynchronize(GetIVAndThrowIfInvalid(params));
 }
 
 void BlockOrientedCipherModeBase::ProcessData(byte *outString, const byte *inString, size_t length)

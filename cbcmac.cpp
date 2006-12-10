@@ -6,7 +6,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-void CBC_MAC_Base::CheckedSetKey(void *, Empty empty, const byte *key, size_t length, const NameValuePairs &params)
+void CBC_MAC_Base::UncheckedSetKey(const byte *key, size_t length, const NameValuePairs &params)
 {
 	AccessCipher().SetKey(key, length, params);
 	m_reg.CleanNew(AccessCipher().BlockSize());

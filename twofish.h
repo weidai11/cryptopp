@@ -21,7 +21,7 @@ class Twofish : public Twofish_Info, public BlockCipherDocumentation
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<Twofish_Info>
 	{
 	public:
-		void UncheckedSetKey(CipherDir direction, const byte *userKey, unsigned int length);
+		void UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &params);
 
 	protected:
 		static word32 h0(word32 x, const word32 *key, unsigned int kLen);

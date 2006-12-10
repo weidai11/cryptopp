@@ -7,12 +7,11 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-void RC6::Base::UncheckedSetKey(CipherDir direction, const byte *k, unsigned int keylen, unsigned int rounds)
+void RC6::Base::UncheckedSetKey(const byte *k, unsigned int keylen, const NameValuePairs &params)
 {
 	AssertValidKeyLength(keylen);
-	AssertValidRounds(rounds);
 
-	r = rounds;
+	r = GetRoundsAndThrowIfInvalid(params, this);
 	sTable.New(2*(r+2));
 
 	static const RC6_WORD MAGIC_P = 0xb7e15163L;    // magic constant P for wordsize

@@ -16,7 +16,7 @@ public:
 
 	DMAC_Base() {}
 
-	void CheckedSetKey(void *, Empty empty, const byte *key, size_t length, const NameValuePairs &params);
+	void UncheckedSetKey(const byte *key, size_t length, const NameValuePairs &params);
 	void Update(const byte *input, size_t length);
 	void TruncatedFinal(byte *mac, size_t size);
 	unsigned int DigestSize() const {return DIGESTSIZE;}
@@ -45,7 +45,7 @@ public:
 };
 
 template <class T>
-void DMAC_Base<T>::CheckedSetKey(void *, Empty empty, const byte *key, size_t length, const NameValuePairs &params)
+void DMAC_Base<T>::UncheckedSetKey(const byte *key, size_t length, const NameValuePairs &params)
 {
 	m_subkeylength = T::StaticGetValidKeyLength(T::BLOCKSIZE);
 	m_subkeys.resize(2*UnsignedMin((unsigned int)T::BLOCKSIZE, m_subkeylength));

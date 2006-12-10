@@ -22,7 +22,7 @@ class RC6 : public RC6_Info, public BlockCipherDocumentation
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<RC6_Info>
 	{
 	public:
-		void UncheckedSetKey(CipherDir direction, const byte *userKey, unsigned int length, unsigned int rounds);
+		void UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &params);
 
 	protected:
 		unsigned int r;       // number of rounds

@@ -9,12 +9,12 @@ NAMESPACE_BEGIN(CryptoPP)
 static const word32 DELTA = 0x9e3779b9;
 typedef BlockGetAndPut<word32, BigEndian> Block;
 
-void TEA::Base::UncheckedSetKey(CipherDir direction, const byte *userKey, unsigned int length, unsigned int rounds)
+void TEA::Base::UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &params)
 {
 	AssertValidKeyLength(length);
 
 	GetUserKey(BIG_ENDIAN_ORDER, m_k.begin(), 4, userKey, KEYLENGTH);
-	m_limit = rounds * DELTA;
+	m_limit = GetRoundsAndThrowIfInvalid(params, this) * DELTA;
 }
 
 void TEA::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
@@ -49,12 +49,12 @@ void TEA::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byt
 	Block::Put(xorBlock, outBlock)(y)(z);
 }
 
-void XTEA::Base::UncheckedSetKey(CipherDir direction, const byte *userKey, unsigned int length, unsigned int rounds)
+void XTEA::Base::UncheckedSetKey(const byte *userKey, unsigned int length,  const NameValuePairs &params)
 {
 	AssertValidKeyLength(length);
 
 	GetUserKey(BIG_ENDIAN_ORDER, m_k.begin(), 4, userKey, KEYLENGTH);
-	m_limit = rounds * DELTA;
+	m_limit = GetRoundsAndThrowIfInvalid(params, this) * DELTA;
 }
 
 void XTEA::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const

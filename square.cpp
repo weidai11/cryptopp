@@ -31,7 +31,7 @@ static void SquareTransform (word32 in[4], word32 out[4])
 	}
 }
 
-void Square::Base::UncheckedSetKey(CipherDir dir, const byte *userKey, unsigned int length)
+void Square::Base::UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &)
 {
 	AssertValidKeyLength(length);
 
@@ -52,7 +52,7 @@ void Square::Base::UncheckedSetKey(CipherDir dir, const byte *userKey, unsigned 
 	}  
 
 	/* produce the round keys */
-	if (dir == ENCRYPTION)
+	if (IsForwardTransformation())
 	{
 		for (int i = 0; i < ROUNDS; i++)
 			SquareTransform (roundkeys[i], roundkeys[i]);

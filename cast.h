@@ -27,7 +27,7 @@ class CAST128 : public CAST128_Info, public BlockCipherDocumentation
 	class CRYPTOPP_NO_VTABLE Base : public CAST, public BlockCipherImpl<CAST128_Info>
 	{
 	public:
-		void UncheckedSetKey(CipherDir direction, const byte *userKey, unsigned int length);
+		void UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &params);
 
 	protected:
 		bool reduced;
@@ -63,7 +63,7 @@ class CAST256 : public CAST256_Info, public BlockCipherDocumentation
 	class CRYPTOPP_NO_VTABLE Base : public CAST, public BlockCipherImpl<CAST256_Info>
 	{
 	public:
-		void UncheckedSetKey(CipherDir direction, const byte *userKey, unsigned int length = 8);
+		void UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &params);
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
 
 	protected:

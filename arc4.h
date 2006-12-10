@@ -26,7 +26,7 @@ public:
 	typedef SymmetricCipherFinal<ARC4_Base> Decryption;
 
 protected:
-	void UncheckedSetKey(const NameValuePairs &params, const byte *key, unsigned int length, const byte *iv);
+	void UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params);
 	virtual unsigned int GetDefaultDiscardBytes() const {return 0;}
 
     FixedSizeSecBlock<byte, 256> m_state;

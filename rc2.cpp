@@ -3,12 +3,17 @@
 #include "pch.h"
 #include "rc2.h"
 #include "misc.h"
+#include "argnames.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
-void RC2::Base::UncheckedSetKey(CipherDir direction, const byte *key, unsigned int keyLen, unsigned int effectiveLen)
+void RC2::Base::UncheckedSetKey(const byte *key, unsigned int keyLen, const NameValuePairs &params)
 {
 	AssertValidKeyLength(keyLen);
+
+	int effectiveLen = params.GetIntValueWithDefault(Name::EffectiveKeyLength(), DEFAULT_EFFECTIVE_KEYLENGTH);
+	if (effectiveLen > MAX_EFFECTIVE_KEYLENGTH)
+		throw InvalidArgument("RC2: effective key length parameter exceeds maximum");
 
 	static const unsigned char PITABLE[256] = {
 		217,120,249,196, 25,221,181,237, 40,233,253,121, 74,160,216,157,
@@ -44,13 +49,6 @@ void RC2::Base::UncheckedSetKey(CipherDir direction, const byte *key, unsigned i
 
 	for (i=0; i<64; i++)
 		K[i] = L[2*i] + (L[2*i+1] << 8);
-}
-
-void RC2::Base::SetKeyWithEffectiveKeyLength(const byte *key, size_t length, unsigned int effectiveKeyLength)
-{
-	if (effectiveKeyLength > MAX_EFFECTIVE_KEYLENGTH)
-		throw InvalidArgument("RC2: effective key length parameter exceeds maximum");
-	UncheckedSetKey(ENCRYPTION, key, (unsigned int)length, effectiveKeyLength);
 }
 
 typedef BlockGetAndPut<word16, LittleEndian> Block;

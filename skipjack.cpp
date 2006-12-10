@@ -78,7 +78,7 @@ const byte SKIPJACK::Base::fTable[256] = {
 /**
  * Preprocess a user key into a table to save an XOR at each F-table access.
  */
-void SKIPJACK::Base::UncheckedSetKey(CipherDir dir, const byte *key, unsigned int length)
+void SKIPJACK::Base::UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &)
 {
 	AssertValidKeyLength(length);
 

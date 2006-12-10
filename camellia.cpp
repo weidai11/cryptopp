@@ -56,7 +56,7 @@ inline void rotl128(word64 *x, unsigned int bits)
 	x[1] = (x[1] << bits) | temp;
 }
 
-void Camellia::Base::UncheckedSetKey(CipherDir dir, const byte *key, unsigned int keylen)
+void Camellia::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const NameValuePairs &)
 {
 	AssertValidKeyLength(keylen);
 
@@ -171,7 +171,7 @@ void Camellia::Base::UncheckedSetKey(CipherDir dir, const byte *key, unsigned in
 		ks[32] = KB[0]; ks[33] = KB[1];
 	}
 
-	if (dir == DECRYPTION)	// reverse key schedule order
+	if (!IsForwardTransformation())	// reverse key schedule order
 	{
 		std::swap(ks[0], ks[kslen-2]);
 		std::swap(ks[1], ks[kslen-1]);

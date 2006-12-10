@@ -78,7 +78,7 @@ inline void IDEA::Base::LookupMUL(IDEA::Word &a, IDEA::Word b)
 }
 #endif // IDEA_LARGECACHE
 
-void IDEA::Base::UncheckedSetKey(CipherDir direction, const byte *userKey, unsigned int length)
+void IDEA::Base::UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &)
 {
 	AssertValidKeyLength(length);
 	
@@ -88,7 +88,7 @@ void IDEA::Base::UncheckedSetKey(CipherDir direction, const byte *userKey, unsig
 	
 	EnKey(userKey);
 	
-	if (direction==DECRYPTION)
+	if (!IsForwardTransformation())
 		DeKey();
 	
 #ifdef IDEA_LARGECACHE

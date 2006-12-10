@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "safer.h"
 #include "misc.h"
+#include "argnames.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -50,8 +51,11 @@ const byte SAFER::Base::log_tab[256] =
 static const unsigned int BLOCKSIZE = 8;
 static const unsigned int MAX_ROUNDS = 13;
 
-void SAFER::Base::UncheckedSetKey(CipherDir dir, const byte *userkey_1, unsigned int length, unsigned nof_rounds)
+void SAFER::Base::UncheckedSetKey(const byte *userkey_1, unsigned int length, const NameValuePairs &params)
 {
+	bool strengthened = Strengthened();
+	unsigned int nof_rounds = params.GetIntValueWithDefault(Name::Rounds(), length == 8 ? (strengthened ? 8 : 6) : 10);
+
 	const byte *userkey_2 = length == 8 ? userkey_1 : userkey_1 + 8;
 	keySchedule.New(1 + BLOCKSIZE * (1 + 2 * nof_rounds));
 
@@ -69,6 +73,7 @@ void SAFER::Base::UncheckedSetKey(CipherDir dir, const byte *userkey_1, unsigned
 		ka[BLOCKSIZE] ^= ka[j] = rotlFixed(userkey_1[j], 5U);
 		kb[BLOCKSIZE] ^= kb[j] = *key++ = userkey_2[j];
 	}
+
 	for (i = 1; i <= nof_rounds; i++)
 	{
 		for (j = 0; j < BLOCKSIZE + 1; j++)

@@ -3,9 +3,9 @@ CXXFLAGS = -g
 # Uncomment the following two lines to do a release build.
 # Note that you must define NDEBUG for your own application if you define it for Crypto++.
 # Make sure you run the validation tests and test your own program thoroughly
-# after turning on -O2. The GCC optimizer may have bugs that cause it to generate incorrect code.
+# after turning on -O3. The GCC optimizer may have bugs that cause it to generate incorrect code.
 # Try removing -fdata-sections if you get "undefined external reference" errors.
-# CXXFLAGS = -O2 -DNDEBUG -ffunction-sections -fdata-sections
+# CXXFLAGS = -O3 -DNDEBUG -ffunction-sections -fdata-sections
 # LDFLAGS += -Wl,--gc-sections
 ARFLAGS = -cr	# ar needs the dash on OpenBSD
 RANLIB = ranlib

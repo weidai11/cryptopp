@@ -25,7 +25,7 @@ class SHARK : public SHARK_Info, public BlockCipherDocumentation
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<SHARK_Info>
 	{
 	public:
-		void UncheckedSetKey(CipherDir dir, const byte *key, unsigned int length, unsigned int rounds);
+		void UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &param);
 
 	protected:
 		unsigned int m_rounds;

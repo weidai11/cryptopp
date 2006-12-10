@@ -38,7 +38,7 @@ static word32 gen_mask(word32 x)
 };
 NAMESPACE_END
 
-void MARS::Base::UncheckedSetKey(CipherDir direction, const byte *userKey, unsigned int length)
+void MARS::Base::UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &)
 {
 	AssertValidKeyLength(length);
 

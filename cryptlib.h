@@ -367,7 +367,7 @@ public:
 
 	//! set or reset the key of this object
 	/*! \param params is used to specify Rounds, BlockSize, etc */
-	virtual void SetKey(const byte *key, size_t length, const NameValuePairs &params = g_nullNameValuePairs) =0;
+	virtual void SetKey(const byte *key, size_t length, const NameValuePairs &params = g_nullNameValuePairs);
 
 	//! calls SetKey() with an NameValuePairs object that just specifies "Rounds"
 	void SetKeyWithRounds(const byte *key, size_t length, int rounds);
@@ -400,15 +400,15 @@ public:
 	virtual void GetNextIV(byte *IV) {throw NotImplemented("SimpleKeyingInterface: this object doesn't support GetNextIV()");}
 
 protected:
-	void ThrowIfInvalidKeyLength(const Algorithm &algorithm, size_t length);
+	virtual const Algorithm & GetAlgorithm() const =0;
+	virtual void UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params) =0;
+
+	void ThrowIfInvalidKeyLength(size_t length);
 	void ThrowIfResynchronizable();			// to be called when no IV is passed
 	void ThrowIfInvalidIV(const byte *iv);	// check for NULL IV if it can't be used
 	const byte * GetIVAndThrowIfInvalid(const NameValuePairs &params);
-
 	inline void AssertValidKeyLength(size_t length) const
-	{
-		assert(IsValidKeyLength(length));
-	}
+		{assert(IsValidKeyLength(length));}
 };
 
 //! interface for the data processing part of block ciphers
@@ -451,6 +451,8 @@ public:
 
 	//! encrypt or decrypt multiple blocks, for bit-slicing implementations
 	virtual void ProcessAndXorMultipleBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t numberOfBlocks) const;
+
+	inline CipherDir GetCipherDirection() const {return IsForwardTransformation() ? ENCRYPTION : DECRYPTION;}
 };
 
 //! interface for the data processing part of stream ciphers
@@ -590,9 +592,8 @@ typedef HashTransformation HashFunction;
 template <class T>
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE SimpleKeyedTransformation : public T, public SimpleKeyingInterface
 {
-public:
-	void ThrowIfInvalidKeyLength(size_t length)
-		{SimpleKeyingInterface::ThrowIfInvalidKeyLength(*this, length);}
+protected:
+	const Algorithm & GetAlgorithm() const {return *this;}
 };
 
 #ifdef CRYPTOPP_DOXYGEN_PROCESSING

@@ -21,7 +21,7 @@ class Serpent : public Serpent_Info, public BlockCipherDocumentation
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<Serpent_Info>
 	{
 	public:
-		void UncheckedSetKey(CipherDir direction, const byte *userKey, unsigned int length);
+		void UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &params);
 
 	protected:
 		FixedSizeSecBlock<word32, 140> m_key;

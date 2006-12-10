@@ -749,6 +749,7 @@ bool Validate(int alg, bool thorough, const char *seed)
 
 	switch (alg)
 	{
+	case 0: result = ValidateAll(thorough); break;
 	case 1: result = TestSettings(); break;
 	case 2: result = TestOS_RNG(); break;
 	case 3: result = ValidateMD5(); break;
@@ -812,7 +813,7 @@ bool Validate(int alg, bool thorough, const char *seed)
 	case 62: result = ValidateWhirlpool(); break;
 	case 63: result = ValidateTTMAC(); break;
 	case 64: result = ValidateSalsa(); break;
-	default: result = ValidateAll(thorough); break;
+	default: return false;
 	}
 
 	time_t endTime = time(NULL);

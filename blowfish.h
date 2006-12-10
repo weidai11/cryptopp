@@ -21,7 +21,7 @@ class Blowfish : public Blowfish_Info, public BlockCipherDocumentation
 	{
 	public:
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
-		void UncheckedSetKey(CipherDir direction, const byte *key_string, unsigned int keylength);
+		void UncheckedSetKey(const byte *key_string, unsigned int keylength, const NameValuePairs &params);
 
 	private:
 		void crypt_block(const word32 in[2], word32 out[2]) const;

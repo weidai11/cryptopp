@@ -47,6 +47,12 @@ Algorithm::Algorithm(bool checkSelfTestStatus)
 	}
 }
 
+void SimpleKeyingInterface::SetKey(const byte *key, size_t length, const NameValuePairs &params)
+{
+	this->ThrowIfInvalidKeyLength(length);
+	this->UncheckedSetKey(key, (unsigned int)length, params);
+}
+
 void SimpleKeyingInterface::SetKeyWithRounds(const byte *key, size_t length, int rounds)
 {
 	SetKey(key, length, MakeParameters(Name::Rounds(), rounds));
@@ -57,22 +63,22 @@ void SimpleKeyingInterface::SetKeyWithIV(const byte *key, size_t length, const b
 	SetKey(key, length, MakeParameters(Name::IV(), iv));
 }
 
-void SimpleKeyingInterface::ThrowIfInvalidKeyLength(const Algorithm &algorithm, size_t length)
+void SimpleKeyingInterface::ThrowIfInvalidKeyLength(size_t length)
 {
 	if (!IsValidKeyLength(length))
-		throw InvalidKeyLength(algorithm.AlgorithmName(), length);
+		throw InvalidKeyLength(GetAlgorithm().AlgorithmName(), length);
 }
 
 void SimpleKeyingInterface::ThrowIfResynchronizable()
 {
 	if (IsResynchronizable())
-		throw InvalidArgument("SimpleKeyingInterface: this object requires an IV");
+		throw InvalidArgument(GetAlgorithm().AlgorithmName() + ": this object requires an IV");
 }
 
 void SimpleKeyingInterface::ThrowIfInvalidIV(const byte *iv)
 {
 	if (!iv && !(IVRequirement() == INTERNALLY_GENERATED_IV || IVRequirement() == STRUCTURED_IV || !IsResynchronizable()))
-		throw InvalidArgument("SimpleKeyingInterface: this object cannot use a null IV");
+		throw InvalidArgument(GetAlgorithm().AlgorithmName() + ": this object cannot use a null IV");
 }
 
 const byte * SimpleKeyingInterface::GetIVAndThrowIfInvalid(const NameValuePairs &params)

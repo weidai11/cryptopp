@@ -25,7 +25,7 @@ class Camellia : public Camellia_Info, public BlockCipherDocumentation
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<Camellia_Info>
 	{
 	public:
-		void UncheckedSetKey(CipherDir dir, const byte *key, unsigned int keylen);
+		void UncheckedSetKey(const byte *key, unsigned int keylen, const NameValuePairs &params);
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
 		unsigned int BlockAlignment() const {return 8;}
 

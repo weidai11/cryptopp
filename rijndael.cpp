@@ -54,7 +54,7 @@ being unloaded from L1 cache, until that round is finished.
 
 NAMESPACE_BEGIN(CryptoPP)
 
-void Rijndael::Base::UncheckedSetKey(CipherDir dir, const byte *userKey, unsigned int keylen)
+void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keylen, const NameValuePairs &)
 {
 	AssertValidKeyLength(keylen);
 
@@ -103,7 +103,7 @@ void Rijndael::Base::UncheckedSetKey(CipherDir dir, const byte *userKey, unsigne
 		rk += keylen/4;
 	}
 
-	if (dir == DECRYPTION)
+	if (!IsForwardTransformation())
 	{
 		unsigned int i, j;
 		rk = m_key;

@@ -421,7 +421,7 @@ NAMESPACE_BEGIN(CryptoPP)
 	c ^= k[4 * r + 2]; \
 	d ^= k[4 * r + 3];}
 
-void Serpent::Base::UncheckedSetKey(CipherDir direction, const byte *userKey, unsigned int keylen)
+void Serpent::Base::UncheckedSetKey(const byte *userKey, unsigned int keylen, const NameValuePairs &)
 {
 	AssertValidKeyLength(keylen);
 

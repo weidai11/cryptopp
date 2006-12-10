@@ -30,7 +30,7 @@ const byte GOST::Base::sBox[8][16]={
 bool GOST::Base::sTableCalculated = false;
 word32 GOST::Base::sTable[4][256];
 
-void GOST::Base::UncheckedSetKey(CipherDir direction, const byte *userKey, unsigned int length)
+void GOST::Base::UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &)
 {
 	AssertValidKeyLength(length);
 
