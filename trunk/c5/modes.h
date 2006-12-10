@@ -37,8 +37,6 @@ public:
 	size_t GetValidKeyLength(size_t n) const {return m_cipher->GetValidKeyLength(n);}
 	bool IsValidKeyLength(size_t n) const {return m_cipher->IsValidKeyLength(n);}
 
-	void SetKey(const byte *key, size_t length, const NameValuePairs &params = g_nullNameValuePairs);
-
 	unsigned int OptimalDataAlignment() const {return BlockSize();}
 
 	unsigned int IVSize() const {return BlockSize();}
@@ -56,7 +54,6 @@ protected:
 	{
 		m_register.New(m_cipher->BlockSize());
 	}
-	virtual void UncheckedSetKey(const NameValuePairs &params, const byte *key, unsigned int length, const byte *iv) =0;
 
 	BlockCipher *m_cipher;
 	SecByteBlock m_register;
@@ -171,7 +168,7 @@ private:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE BlockOrientedCipherModeBase : public CipherModeBase
 {
 public:
-	void UncheckedSetKey(const NameValuePairs &params, const byte *key, unsigned int length, const byte *iv);
+	void UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params);
 	unsigned int MandatoryBlockSize() const {return BlockSize();}
 	bool IsRandomAccess() const {return false;}
 	bool IsSelfInverting() const {return false;}
@@ -225,9 +222,9 @@ public:
 	static const char * CRYPTOPP_API StaticAlgorithmName() {return "CBC/CTS";}
 
 protected:
-	void UncheckedSetKey(const NameValuePairs &params, const byte *key, unsigned int length, const byte *iv)
+	void UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params)
 	{
-		CBC_Encryption::UncheckedSetKey(params, key, length, iv);
+		CBC_Encryption::UncheckedSetKey(key, length, params);
 		m_stolenIV = params.GetValueWithDefault(Name::StolenIV(), (byte *)NULL);
 	}
 

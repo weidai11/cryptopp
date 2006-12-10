@@ -21,7 +21,7 @@ class ThreeWay : public ThreeWay_Info, public BlockCipherDocumentation
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<ThreeWay_Info>
 	{
 	public:
-		void UncheckedSetKey(CipherDir direction, const byte *key, unsigned int length, unsigned int rounds);
+		void UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params);
 
 	protected:
 		unsigned int m_rounds;

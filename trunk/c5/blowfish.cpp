@@ -6,7 +6,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-void Blowfish::Base::UncheckedSetKey(CipherDir dir, const byte *key_string, unsigned int keylength)
+void Blowfish::Base::UncheckedSetKey(const byte *key_string, unsigned int keylength, const NameValuePairs &)
 {
 	AssertValidKeyLength(keylength);
 
@@ -35,7 +35,7 @@ void Blowfish::Base::UncheckedSetKey(CipherDir dir, const byte *key_string, unsi
 	for (i=0; i<4*256-2; i+=2)
 		crypt_block(sbox+i, sbox+i+2);
 
-	if (dir==DECRYPTION)
+	if (!IsForwardTransformation())
 		for (i=0; i<(ROUNDS+2)/2; i++)
 			std::swap(pbox[i], pbox[ROUNDS+1-i]);
 }

@@ -6,7 +6,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-void TTMAC_Base::UncheckedSetKey(const byte *userKey, unsigned int keylength)
+void TTMAC_Base::UncheckedSetKey(const byte *userKey, unsigned int keylength, const NameValuePairs &)
 {
 	AssertValidKeyLength(keylength);
 

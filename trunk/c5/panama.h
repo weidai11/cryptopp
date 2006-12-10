@@ -46,7 +46,7 @@ template <class T_Hash, class T_Info = T_Hash>
 class HermeticHashFunctionMAC : public AlgorithmImpl<SimpleKeyingInterfaceImpl<TwoBases<MessageAuthenticationCode, VariableKeyLength<32, 0, UINT_MAX> > >, T_Info>
 {
 public:
-	void SetKey(const byte *key, size_t length, const NameValuePairs &params = g_nullNameValuePairs)
+	void UncheckedSetKey(const byte *key, size_t length, const NameValuePairs &params)
 	{
 		m_key.Assign(key, length);
 		Restart();

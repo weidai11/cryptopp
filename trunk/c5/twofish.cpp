@@ -49,7 +49,7 @@ inline word32 Twofish::Base::h(word32 x, const word32 *key, unsigned int kLen)
 	return mds[0][GETBYTE(x,0)] ^ mds[1][GETBYTE(x,1)] ^ mds[2][GETBYTE(x,2)] ^ mds[3][GETBYTE(x,3)];
 }
 
-void Twofish::Base::UncheckedSetKey(CipherDir dir, const byte *userKey, unsigned int keylength)
+void Twofish::Base::UncheckedSetKey(const byte *userKey, unsigned int keylength, const NameValuePairs &)
 {
 	AssertValidKeyLength(keylength);
 

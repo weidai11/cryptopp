@@ -264,7 +264,7 @@ static const int bytebit[] = {
 };
 
 /* Set key (initialize key schedule array) */
-void RawDES::UncheckedSetKey(CipherDir dir, const byte *key, unsigned int length)
+void RawDES::RawSetKey(CipherDir dir, const byte *key)
 {
 	SecByteBlock buffer(56+56+8);
 	byte *const pc1m=buffer;                 /* place to modify pc1 into */
@@ -345,12 +345,19 @@ void RawDES::RawProcessBlock(word32 &l_, word32 &r_) const
 	l_ = l; r_ = r;
 }
 
-void DES_EDE2::Base::UncheckedSetKey(CipherDir dir, const byte *key, unsigned int length)
+void DES::Base::UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &)
 {
 	AssertValidKeyLength(length);
 
-	m_des1.UncheckedSetKey(dir, key);
-	m_des2.UncheckedSetKey(ReverseCipherDir(dir), key+8);
+	RawSetKey(GetCipherDirection(), userKey);
+}
+
+void DES_EDE2::Base::UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &)
+{
+	AssertValidKeyLength(length);
+
+	m_des1.RawSetKey(GetCipherDirection(), userKey);
+	m_des2.RawSetKey(ReverseCipherDir(GetCipherDirection()), userKey+8);
 }
 
 void DES_EDE2::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
@@ -365,13 +372,13 @@ void DES_EDE2::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBloc
 	Block::Put(xorBlock, outBlock)(r)(l);
 }
 
-void DES_EDE3::Base::UncheckedSetKey(CipherDir dir, const byte *key, unsigned int length)
+void DES_EDE3::Base::UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &)
 {
 	AssertValidKeyLength(length);
 
-	m_des1.UncheckedSetKey(dir, key+(dir==ENCRYPTION?0:2*8));
-	m_des2.UncheckedSetKey(ReverseCipherDir(dir), key+8);
-	m_des3.UncheckedSetKey(dir, key+(dir==DECRYPTION?0:2*8));
+	m_des1.RawSetKey(GetCipherDirection(), userKey + (IsForwardTransformation() ? 0 : 16));
+	m_des2.RawSetKey(ReverseCipherDir(GetCipherDirection()), userKey + 8);
+	m_des3.RawSetKey(GetCipherDirection(), userKey + (IsForwardTransformation() ? 16 : 0));
 }
 
 void DES_EDE3::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
@@ -420,16 +427,16 @@ void DES::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, by
 	Block::Put(xorBlock, outBlock)(r)(l);
 }
 
-void DES_XEX3::Base::UncheckedSetKey(CipherDir dir, const byte *key, unsigned int length)
+void DES_XEX3::Base::UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &)
 {
 	AssertValidKeyLength(length);
 
 	if (!m_des.get())
 		m_des.reset(new DES::Encryption);
 
-	memcpy(m_x1, key+(dir==ENCRYPTION?0:2*8), BLOCKSIZE);
-	m_des->UncheckedSetKey(dir, key+8);
-	memcpy(m_x3, key+(dir==DECRYPTION?0:2*8), BLOCKSIZE);
+	memcpy(m_x1, key + (IsForwardTransformation() ? 0 : 16), BLOCKSIZE);
+	m_des->RawSetKey(GetCipherDirection(), key + 8);
+	memcpy(m_x3, key + (IsForwardTransformation() ? 16 : 0), BLOCKSIZE);
 }
 
 void DES_XEX3::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const

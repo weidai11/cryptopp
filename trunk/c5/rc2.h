@@ -6,6 +6,7 @@
 
 #include "seckey.h"
 #include "secblock.h"
+#include "algparam.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -22,18 +23,9 @@ class RC2 : public RC2_Info, public BlockCipherDocumentation
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<RC2_Info>
 	{
 	public:
-		void UncheckedSetKey(CipherDir direction, const byte *key, unsigned int length, unsigned int effectiveKeyLength);
-		void SetKeyWithEffectiveKeyLength(const byte *key, size_t length, unsigned int effectiveKeyLength);
+		void UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &params);
 
 	protected:
-		template <class T>
-		static inline void CheckedSetKey(T *obj, CipherDir dir, const byte *key, size_t length, const NameValuePairs &param)
-		{
-			obj->ThrowIfInvalidKeyLength(length);
-			int effectiveKeyLength = param.GetIntValueWithDefault("EffectiveKeyLength", DEFAULT_EFFECTIVE_KEYLENGTH);
-			obj->SetKeyWithEffectiveKeyLength(key, length, effectiveKeyLength);
-		}
-
 		FixedSizeSecBlock<word16, 64> K;  // expanded key table
 	};
 
@@ -54,16 +46,20 @@ public:
 	{
 	public:
 		Encryption() {}
-		Encryption(const byte *key, size_t keyLen=DEFAULT_KEYLENGTH, unsigned int effectiveLen=1024)
-			{SetKeyWithEffectiveKeyLength(key, keyLen, effectiveLen);}
+		Encryption(const byte *key, size_t keyLen=DEFAULT_KEYLENGTH)
+			{SetKey(key, keyLen);}
+		Encryption(const byte *key, size_t keyLen, int effectiveKeyLen)
+			{SetKey(key, keyLen, MakeParameters("EffectiveKeyLength", effectiveKeyLen));}
 	};
 
 	class Decryption : public BlockCipherFinal<DECRYPTION, Dec>
 	{
 	public:
 		Decryption() {}
-		Decryption(const byte *key, size_t keyLen=DEFAULT_KEYLENGTH, unsigned int effectiveLen=1024)
-			{SetKeyWithEffectiveKeyLength(key, keyLen, effectiveLen);}
+		Decryption(const byte *key, size_t keyLen=DEFAULT_KEYLENGTH)
+			{SetKey(key, keyLen);}
+		Decryption(const byte *key, size_t keyLen, int effectiveKeyLen)
+			{SetKey(key, keyLen, MakeParameters("EffectiveKeyLength", effectiveKeyLen));}
 	};
 };
 

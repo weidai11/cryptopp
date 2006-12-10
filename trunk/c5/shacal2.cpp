@@ -31,7 +31,7 @@ NAMESPACE_BEGIN(CryptoPP)
 #define P(a,b,c,d,e,f,g,h,k) \
 	h-=S0(a)+Maj(a,b,c);d-=h;h-=S1(e)+Ch(e,f,g)+*--k;
 
-void SHACAL2::Base::UncheckedSetKey(CipherDir dir, const byte *userKey, unsigned int keylen)
+void SHACAL2::Base::UncheckedSetKey(const byte *userKey, unsigned int keylen, const NameValuePairs &)
 {
 	AssertValidKeyLength(keylen);
 

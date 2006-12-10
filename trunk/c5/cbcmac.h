@@ -12,7 +12,7 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CBC_MAC_Base : public MessageAuthenticatio
 public:
 	CBC_MAC_Base() {}
 
-	void CheckedSetKey(void *, Empty empty, const byte *key, size_t length, const NameValuePairs &params);
+	void UncheckedSetKey(const byte *key, size_t length, const NameValuePairs &params);
 	void Update(const byte *input, size_t length);
 	void TruncatedFinal(byte *mac, size_t size);
 	unsigned int DigestSize() const {return const_cast<CBC_MAC_Base*>(this)->AccessCipher().BlockSize();}

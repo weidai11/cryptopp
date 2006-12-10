@@ -11,7 +11,7 @@
 #define _WIN32_WINNT 0x0400
 #include <windows.h>
 
-#if defined(_MSC_VER) && _MSC_VER >= 14
+#if defined(_MSC_VER) && _MSC_VER >= 1400
 #ifdef _M_IX86
 #define _CRT_DEBUGGER_HOOK _crt_debugger_hook
 #else
@@ -277,7 +277,7 @@ bool IntegrityCheckModule(const char *moduleFilename, const byte *expectedModule
 	char moduleFilenameBuf[MAX_PATH] = "";
 	if (moduleFilename == NULL)
 	{
-#ifdef _MSC_VER		// ifstream doesn't support wide filename on gcc 3.4.4 cygwin
+#if (defined(_MSC_VER) && _MSC_VER >= 1400)	// ifstream doesn't support wide filename on other compilers
 		wchar_t wideModuleFilename[MAX_PATH];
 		if (GetModuleFileNameW(s_hModule, wideModuleFilename, MAX_PATH) > 0)
 		{
@@ -363,7 +363,7 @@ bool IntegrityCheckModule(const char *moduleFilename, const byte *expectedModule
 					}
 				}
 
-#if defined(_MSC_VER) && _MSC_VER >= 14
+#if defined(_MSC_VER) && _MSC_VER >= 1400
 				// first byte of _CRT_DEBUGGER_HOOK gets modified in memory by the debugger invisibly, so read it from file
 				if (IsDebuggerPresent())
 				{

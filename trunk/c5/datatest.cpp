@@ -363,7 +363,10 @@ bool GetField(std::istream &is, std::string &name, std::string &value)
 		while (buffer[0] != 0);
 		is.clear();
 		is.ignore();
-		
+
+		if (!value.empty() && value[value.size()-1] == '\r')
+			value.resize(value.size()-1);
+
 		if (!value.empty() && value[value.size()-1] == '\\')
 		{
 			value.resize(value.size()-1);

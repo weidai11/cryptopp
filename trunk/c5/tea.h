@@ -21,7 +21,7 @@ class TEA : public TEA_Info, public BlockCipherDocumentation
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<TEA_Info>
 	{
 	public:
-		void UncheckedSetKey(CipherDir direction, const byte *userKey, unsigned int length, unsigned int rounds);
+		void UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &params);
 
 	protected:
 		FixedSizeSecBlock<word32, 4> m_k;
@@ -60,7 +60,7 @@ class XTEA : public XTEA_Info, public BlockCipherDocumentation
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<XTEA_Info>
 	{
 	public:
-		void UncheckedSetKey(CipherDir direction, const byte *userKey, unsigned int length, unsigned int rounds);
+		void UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &params);
 
 	protected:
 		FixedSizeSecBlock<word32, 4> m_k;
@@ -97,12 +97,10 @@ class BTEA : public BTEA_Info, public BlockCipherDocumentation
 	class CRYPTOPP_NO_VTABLE Base : public AlgorithmImpl<SimpleKeyingInterfaceImpl<BlockCipher, BTEA_Info>, BTEA_Info>, public BTEA_Info
 	{
 	public:
-		template <class T>
-		static inline void CheckedSetKey(T *obj, CipherDir dir, const byte *key, size_t length, const NameValuePairs &param)
+		void UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params)
 		{
-			obj->ThrowIfInvalidKeyLength(length);
-			obj->m_blockSize = param.GetIntValueWithDefault("BlockSize", 60*4);
-			GetUserKey(BIG_ENDIAN_ORDER, obj->m_k.begin(), 4, key, KEYLENGTH);
+			m_blockSize = params.GetIntValueWithDefault("BlockSize", 60*4);
+			GetUserKey(BIG_ENDIAN_ORDER, m_k.begin(), 4, key, KEYLENGTH);
 		}
 
 		unsigned int BlockSize() const {return m_blockSize;}

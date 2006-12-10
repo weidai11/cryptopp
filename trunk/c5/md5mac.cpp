@@ -12,7 +12,7 @@ const word32 MD5MAC_Base::T[12] =
 	  0x96ce77b1,0x7c8e722e,0x0aab5a5f,0x18be4336,
 	  0x21b4219d,0x4db987bc,0xbd279da2,0xc3d75bc7 };
 
-void MD5MAC_Base::UncheckedSetKey(const byte *userKey, unsigned int keylength)
+void MD5MAC_Base::UncheckedSetKey(const byte *userKey, unsigned int keylength, const NameValuePairs &)
 {
 	const word32 zeros[4] = {0,0,0,0};
 

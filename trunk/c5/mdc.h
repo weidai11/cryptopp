@@ -28,9 +28,8 @@ class MDC : public MDC_Info<T>
 		typedef typename T::HashWordType HashWordType;
 
 	public:
-		void UncheckedSetKey(CipherDir direction, const byte *userKey, unsigned int length)
+		void UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &params)
 		{
-			assert(direction == ENCRYPTION);
 			this->AssertValidKeyLength(length);
 			memcpy_s(m_key, m_key.size(), userKey, this->KEYLENGTH);
 			T::CorrectEndianess(Key(), Key(), this->KEYLENGTH);

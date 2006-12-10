@@ -32,17 +32,6 @@ class FixedRounds
 {
 public:
 	enum {ROUNDS = R};
-
-protected:
-	template <class T>
-	static inline void CheckedSetKey(T *obj, CipherDir dir, const byte *key, size_t length, const NameValuePairs &param)
-	{
-		obj->ThrowIfInvalidKeyLength(length);
-		int rounds = param.GetIntValueWithDefault("Rounds", ROUNDS);
-		if (rounds != ROUNDS)
-			throw InvalidRounds(obj->StaticAlgorithmName(), rounds);
-		obj->UncheckedSetKey(dir, key, (unsigned int)length);
-	}
 };
 
 //! to be inherited by ciphers with variable number of rounds
@@ -59,14 +48,17 @@ protected:
 		assert(rounds >= (unsigned int)MIN_ROUNDS && rounds <= (unsigned int)MAX_ROUNDS);
 	}
 
-	template <class T>
-	static inline void CheckedSetKey(T *obj, CipherDir dir, const byte *key, size_t length, const NameValuePairs &param)
+	inline void ThrowIfInvalidRounds(int rounds, const Algorithm *alg)
 	{
-		obj->ThrowIfInvalidKeyLength(length);
-		int rounds = param.GetIntValueWithDefault("Rounds", obj->StaticGetDefaultRounds(length));
 		if (rounds < (int)MIN_ROUNDS || rounds > (int)MAX_ROUNDS)
-			throw InvalidRounds(obj->AlgorithmName(), rounds);
-		obj->UncheckedSetKey(dir, key, (unsigned int)length, rounds);
+			throw InvalidRounds(alg->AlgorithmName(), rounds);
+	}
+
+	inline unsigned int GetRoundsAndThrowIfInvalid(const NameValuePairs &param, const Algorithm *alg)
+	{
+		int rounds = param.GetIntValueWithDefault("Rounds", DEFAULT_ROUNDS);
+		ThrowIfInvalidRounds(rounds, alg);
+		return (unsigned int)rounds;
 	}
 };
 
@@ -123,20 +115,6 @@ public:
 
 // ************** implementation helper for SimpledKeyed ***************
 
-template <class T>
-static inline void CheckedSetKey(T *obj, Empty empty, const byte *key, size_t length, const NameValuePairs &param)
-{
-	obj->ThrowIfInvalidKeyLength(length);
-	obj->UncheckedSetKey(key, (unsigned int)length);
-}
-
-template <class T>
-static inline void CheckedSetKey(T *obj, CipherDir dir, const byte *key, size_t length, const NameValuePairs &param)
-{
-	obj->ThrowIfInvalidKeyLength(length);
-	obj->UncheckedSetKey(dir, key, (unsigned int)length);
-}
-
 //! _
 template <class BASE, class INFO = BASE>
 class CRYPTOPP_NO_VTABLE SimpleKeyingInterfaceImpl : public BASE
@@ -147,9 +125,6 @@ public:
 	size_t DefaultKeyLength() const {return INFO::DEFAULT_KEYLENGTH;}
 	size_t GetValidKeyLength(size_t n) const {return INFO::StaticGetValidKeyLength(n);}
 	typename BASE::IV_Requirement IVRequirement() const {return (typename BASE::IV_Requirement)INFO::IV_REQUIREMENT;}
-
-protected:
-	void AssertValidKeyLength(size_t length) {assert(GetValidKeyLength(length) == length);}
 };
 
 template <class INFO, class BASE = BlockCipher>
@@ -166,29 +141,19 @@ class BlockCipherFinal : public ClonableImpl<BlockCipherFinal<DIR, BASE>, BASE>
 public:
  	BlockCipherFinal() {}
 	BlockCipherFinal(const byte *key)
-		{SetKey(key, this->DEFAULT_KEYLENGTH);}
+		{this->SetKey(key, this->DEFAULT_KEYLENGTH);}
 	BlockCipherFinal(const byte *key, size_t length)
-		{SetKey(key, length);}
+		{this->SetKey(key, length);}
 	BlockCipherFinal(const byte *key, size_t length, unsigned int rounds)
 		{this->SetKeyWithRounds(key, length, rounds);}
 
 	bool IsForwardTransformation() const {return DIR == ENCRYPTION;}
-
-	void SetKey(const byte *key, size_t length, const NameValuePairs &param = g_nullNameValuePairs)
-	{
-		CheckedSetKey(this, DIR, key, length, param);
-	}
 };
 
 //! _
 template <class BASE, class INFO = BASE>
 class MessageAuthenticationCodeImpl : public AlgorithmImpl<SimpleKeyingInterfaceImpl<BASE, INFO>, INFO>
 {
-public:
-	void SetKey(const byte *key, size_t length, const NameValuePairs &params = g_nullNameValuePairs)
-	{
-		CheckedSetKey(this, Empty(), key, length, params);
-	}
 };
 
 //! _
@@ -198,7 +163,7 @@ class MessageAuthenticationCodeFinal : public ClonableImpl<MessageAuthentication
 public:
  	MessageAuthenticationCodeFinal() {}
 	MessageAuthenticationCodeFinal(const byte *key)
-		{SetKey(key, this->DEFAULT_KEYLENGTH);}
+		{this->SetKey(key, this->DEFAULT_KEYLENGTH);}
 	MessageAuthenticationCodeFinal(const byte *key, size_t length)
 		{this->SetKey(key, length);}
 };
