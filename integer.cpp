@@ -52,7 +52,7 @@ bool AssignIntToInteger(const std::type_info &valueType, void *pInteger, const v
 
 #ifdef SSE2_INTRINSICS_AVAILABLE
 template <class T>
-CPP_TYPENAME AllocatorBase<T>::pointer AlignedAllocator<T>::allocate(size_type n, const void *)
+CPP_TYPENAME AlignedAllocator<T>::pointer AlignedAllocator<T>::allocate(size_type n, const void *)
 {
 	CheckSize(n);
 	if (n == 0)
