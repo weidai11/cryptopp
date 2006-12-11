@@ -212,6 +212,19 @@ NAMESPACE_END
 #define CRYPTOPP_X86ASM_AVAILABLE
 #endif
 
+// how to disable inlining
+#if defined(_MSC_VER) && _MSC_VER >= 1300
+#	define CRYPTOPP_NOINLINE_DOTDOTDOT
+#	define CRYPTOPP_NOINLINE __declspec(noinline)
+#elif defined(__GNUC__)
+#	define CRYPTOPP_NOINLINE_DOTDOTDOT
+#	define CRYPTOPP_NOINLINE __attribute__((noinline))
+#else
+#	define CRYPTOPP_NOINLINE_DOTDOTDOT ...
+#	define CRYPTOPP_NOINLINE 
+#endif
+
+
 // ***************** determine availability of OS features ********************
 
 #ifndef NO_OS_DEPENDENCE
@@ -220,7 +233,7 @@ NAMESPACE_END
 #define CRYPTOPP_WIN32_AVAILABLE
 #endif
 
-#if defined(__unix__) || defined(__MACH__)
+#if defined(__unix__) || defined(__MACH__) || defined(__NetBSD__)
 #define CRYPTOPP_UNIX_AVAILABLE
 #endif
 

@@ -65,8 +65,7 @@ public:
 		return factory->CreateObject();
 	}
 
-	// VC60 workaround: use "..." to prevent this function from being inlined
-	static ObjectFactoryRegistry<AbstractClass, instance> & Registry(...);
+	CRYPTOPP_NOINLINE static ObjectFactoryRegistry<AbstractClass, instance> & Registry(CRYPTOPP_NOINLINE_DOTDOTDOT);
 
 private:
 	// use void * instead of ObjectFactory<AbstractClass> * to save code size
@@ -75,7 +74,7 @@ private:
 };
 
 template <class AbstractClass, int instance>
-ObjectFactoryRegistry<AbstractClass, instance> & ObjectFactoryRegistry<AbstractClass, instance>::Registry(...)
+ObjectFactoryRegistry<AbstractClass, instance> & ObjectFactoryRegistry<AbstractClass, instance>::Registry(CRYPTOPP_NOINLINE_DOTDOTDOT)
 {
 	static ObjectFactoryRegistry<AbstractClass, instance> s_registry;
 	return s_registry;
