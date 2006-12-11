@@ -23,7 +23,7 @@ public:
 
 	XMACC_Base() {SetStateSize(T::DIGESTSIZE);}
 
-	void UncheckedSetKey(const byte *key, size_t length, const NameValuePairs &params);
+	void UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params);
 	void Resynchronize(const byte *IV)
 	{
 		GetWord(false, BIG_ENDIAN_ORDER, m_counter, IV);
@@ -70,7 +70,7 @@ public:
 		{this->SetKey(key, this->KEYLENGTH, MakeParameters(Name::XMACC_Counter(), counter));}
 };
 
-template <class T> void XMACC_Base<T>::UncheckedSetKey(const byte *key, size_t length, const NameValuePairs &params)
+template <class T> void XMACC_Base<T>::UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params)
 {
 	this->AssertValidKeyLength(length);
 	m_counter = 0xffffffff;
