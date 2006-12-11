@@ -12,7 +12,7 @@ This library includes:
   Camellia, SHACAL-2
 - generic cipher modes: ECB, CBC, CBC ciphertext stealing (CTS),
   CFB, OFB, counter mode (CTR)
-- stream ciphers: Panama, ARC4, SEAL, WAKE, WAKE-OFB,
+- stream ciphers: Panama, ARC4, SEAL, WAKE, WAKE-OFB, Salsa20
   BlumBlumShub
 - public key cryptography: RSA, DSA, ElGamal, Nyberg-Rueppel
   (NR), Rabin, Rabin-Williams (RW), LUC, LUCELG, DLIES (variants
@@ -350,11 +350,12 @@ the mailing list.
 5.2.3 - fixed issues with FIPS algorithm test vectors
       - put RSASSA-ISO into DLL
 
-5.3 - Ported to MSVC .NET 2005 with support for x86-64
-    - Added defense against AES timing attacks, and more AES test vectors
-    - Changed StaticAlgorithmName() of Rijndael to "AES", CTR to "CTR"
+5.3 - ported to MSVC .NET 2005 with support for x86-64
+    - added defense against AES timing attacks, and more AES test vectors
+    - changed StaticAlgorithmName() of Rijndael to "AES", CTR to "CTR"
 
 5.4 - added Salsa20
     - updated Whirlpool to version 3.0
+    - ported to GCC 4.1
 
 Written by Wei Dai
