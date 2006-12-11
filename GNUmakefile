@@ -12,7 +12,7 @@ RANLIB = ranlib
 CP = cp
 MKDIR = mkdir
 UNAME = $(shell uname)
-ISX86 = $(shell uname -m | grep -c "i.86\|x86_64")
+ISX86 = $(shell uname -m | grep -c "i.86\|x86")
 ISMINGW = $(shell uname | grep -c "MINGW32")
 
 # Default prefix for make install
