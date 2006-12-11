@@ -77,15 +77,15 @@ class Singleton
 public:
 	Singleton(F objectFactory = F()) : m_objectFactory(objectFactory) {}
 
-	// VC60 workaround: use "..." to prevent this function from being inlined
-	const T & Ref(...) const;
+	// prevent this function from being inlined
+	CRYPTOPP_NOINLINE const T & Ref(CRYPTOPP_NOINLINE_DOTDOTDOT) const;
 
 private:
 	F m_objectFactory;
 };
 
 template <class T, class F, int instance>
-const T & Singleton<T, F, instance>::Ref(...) const
+const T & Singleton<T, F, instance>::Ref(CRYPTOPP_NOINLINE_DOTDOTDOT) const
 {
 	static simple_ptr<T> s_pObject;
 	static char s_objectState = 0;
