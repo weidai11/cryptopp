@@ -62,7 +62,7 @@ double LimitedBandwidth::GetCurTimeAndCleanUp()
 	return curTime;
 }
 
-void LimitedBandwidth::GetWaitObjects(WaitObjectContainer &container, CallStack const& callStack)
+void LimitedBandwidth::GetWaitObjects(WaitObjectContainer &container, const CallStack &callStack)
 {
 	double nextTransceiveTime = TimeToNextTransceive();
 	if (nextTransceiveTime)

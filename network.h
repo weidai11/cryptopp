@@ -32,7 +32,7 @@ public:
 	/*! GetWaitObjects() must be called despite the 0 return from GetMaxWaitObjectCount();
 	    the 0 is because the ScheduleEvent() method is used instead of adding a wait object */
 	unsigned int GetMaxWaitObjectCount() const { return 0; }
-	void GetWaitObjects(WaitObjectContainer &container, CallStack const& callStack);
+	void GetWaitObjects(WaitObjectContainer &container, const CallStack &callStack);
 
 private:	
 	lword m_maxBytesPerSecond;
