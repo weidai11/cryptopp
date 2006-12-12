@@ -12,8 +12,8 @@ RANLIB = ranlib
 CP = cp
 MKDIR = mkdir
 UNAME = $(shell uname)
-ISX86 = $(shell uname -m | grep -c "i.86\|x86")
-ISMINGW = $(shell uname | grep -c "MINGW32")
+ISX86 = $(shell uname -m | egrep -c "i.86|x86")
+ISMINGW = $(shell uname | egrep -c "MINGW32")
 
 # Default prefix for make install
 ifeq ($(PREFIX),)
@@ -26,8 +26,8 @@ endif
 
 ifeq ($(ISX86),1)
 
-GCC33ORLATER = $(shell $(CXX) -v 2>&1 | grep -c "gcc version \(3.[3-9]\|[4-9]\)")
-GAS210ORLATER = $(shell echo "" | $(AS) -v 2>&1 | grep -c "GNU assembler version \(2.[1-9][0-9]\|[3-9]\)")
+GCC33ORLATER = $(shell $(CXX) -v 2>&1 | egrep -c "gcc version (3.[3-9]|[4-9])")
+GAS210ORLATER = $(shell echo "" | $(AS) -v 2>&1 | egrep -c "GNU assembler version (2.[1-9][0-9]|[3-9])")
 
 ifeq ($(GCC33ORLATER) $(ISMINGW),1 0)	# MINGW32 is missing the memalign function
 CXXFLAGS += -msse2
@@ -58,7 +58,7 @@ AR = libtool
 ARFLAGS = -static -o
 CXX = c++
 CXXFLAGS += -D__pic__
-IS_GCC2 = $(shell $(CXX) -v 2>&1 | grep -c gcc-932)
+IS_GCC2 = $(shell $(CXX) -v 2>&1 | egrep -c gcc-932)
 ifeq ($(IS_GCC2),1)
 CXXFLAGS += -fno-coalesce-templates -fno-coalesce-static-vtables
 LDLIBS += -lstdc++
