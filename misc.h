@@ -141,7 +141,7 @@ template <class T> inline const T& STDMIN(const T& a, const T& b)
 template <class T1, class T2> inline const T1 UnsignedMin(const T1& a, const T2& b)
 {
 	CRYPTOPP_COMPILE_ASSERT((sizeof(T1)<=sizeof(T2) && T2(-1)>0) || (sizeof(T1)>sizeof(T2) && T1(-1)>0));
-	assert(a>=0);
+	assert(a==0 || a>0);	// GCC workaround: get rid of the warning "comparison is always true due to limited range of data type"
 	assert(b>=0);
 
 	if (sizeof(T1)<=sizeof(T2))
