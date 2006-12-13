@@ -101,11 +101,19 @@ void NonblockingRng::GenerateBlock(byte *output, size_t size)
 
 #ifdef BLOCKING_RNG_AVAILABLE
 
+#ifndef CRYPTOPP_BLOCKING_RNG_FILENAME
+#ifdef __OpenBSD__
+#define CRYPTOPP_BLOCKING_RNG_FILENAME "/dev/srandom"
+#else
+#define CRYPTOPP_BLOCKING_RNG_FILENAME "/dev/random"
+#endif
+#endif
+
 BlockingRng::BlockingRng()
 {
-	m_fd = open("/dev/random",O_RDONLY);
+	m_fd = open(CRYPTOPP_BLOCKING_RNG_FILENAME,O_RDONLY);
 	if (m_fd == -1)
-		throw OS_RNG_Err("open /dev/random");
+		throw OS_RNG_Err("open " CRYPTOPP_BLOCKING_RNG_FILENAME);
 }
 
 BlockingRng::~BlockingRng()
@@ -128,7 +136,7 @@ void BlockingRng::GenerateBlock(byte *output, size_t size)
 		// are available, on others it will returns immediately
 		ssize_t len = read(m_fd, output, size);
 		if (len < 0)
-			throw OS_RNG_Err("read /dev/random");
+			throw OS_RNG_Err("read " CRYPTOPP_BLOCKING_RNG_FILENAME);
 		size -= len;
 		output += len;
 		if (size)
