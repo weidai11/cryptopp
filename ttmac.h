@@ -13,7 +13,7 @@ class CRYPTOPP_NO_VTABLE TTMAC_Base : public FixedKeyLength<20>, public Iterated
 {
 public:
 	static std::string StaticAlgorithmName() {return std::string("Two-Track-MAC");}
-	enum {DIGESTSIZE=20};
+	CRYPTOPP_CONSTANT(DIGESTSIZE=20)
 
 	TTMAC_Base() {SetStateSize(DIGESTSIZE*2);}
 

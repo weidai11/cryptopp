@@ -63,7 +63,6 @@ void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keylen, c
 
 	word32 temp, *rk = m_key;
 	const word32 *rc = rcon;
-	unsigned int i=0;
 
 	GetUserKey(BIG_ENDIAN_ORDER, rk, keylen/4, userKey, keylen);
 

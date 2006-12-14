@@ -23,7 +23,7 @@ byte AdditiveCipherTemplate<S>::GenerateByte()
 }
 
 template <class S>
-inline void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inString, size_t length)
+void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inString, size_t length)
 {
 	if (m_leftOver > 0)
 	{

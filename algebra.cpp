@@ -66,14 +66,7 @@ template <class T> const T& AbstractEuclideanDomain<T>::Gcd(const Element &a, co
 template <class T> const typename QuotientRing<T>::Element& QuotientRing<T>::MultiplicativeInverse(const Element &a) const
 {
 	Element g[3]={m_modulus, a};
-#ifdef __BCPLUSPLUS__
-    // BC++50 workaround          
-	Element v[3];
-    v[0]=m_domain.Identity();
-    v[1]=m_domain.MultiplicativeIdentity();
-#else
 	Element v[3]={m_domain.Identity(), m_domain.MultiplicativeIdentity()};
-#endif
 	Element y;
 	unsigned int i0=0, i1=1, i2=2;
 

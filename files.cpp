@@ -118,7 +118,6 @@ size_t FileStore::CopyRangeTo2(BufferedTransformation &target, lword &begin, lwo
 		return 0;	// don't try to seek beyond the end of file
 	}
 	m_stream->seekg(newPosition);
-	lword total = 0;
 	try
 	{
 		assert(!m_waiting);

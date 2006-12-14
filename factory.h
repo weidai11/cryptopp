@@ -84,8 +84,10 @@ template <class AbstractClass, class ConcreteClass, int instance = 0>
 struct RegisterDefaultFactoryFor {
 RegisterDefaultFactoryFor(const char *name=NULL)
 {
+	// BCB2006 workaround
+	std::string n = name ? std::string(name) : std::string(ConcreteClass::StaticAlgorithmName());
 	ObjectFactoryRegistry<AbstractClass, instance>::Registry().
-		RegisterFactory(name ? name : ConcreteClass::StaticAlgorithmName(), new DefaultObjectFactory<AbstractClass, ConcreteClass>);
+		RegisterFactory(n, new DefaultObjectFactory<AbstractClass, ConcreteClass>);
 }};
 
 template <class SchemeClass>

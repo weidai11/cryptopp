@@ -8,20 +8,17 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 //! _
-struct Salsa20_Info : public VariableKeyLength<32, 16, 32, 16, SimpleKeyingInterface::STRUCTURED_IV>
+struct Salsa20_Info : public VariableKeyLength<32, 16, 32, 16, SimpleKeyingInterface::STRUCTURED_IV, 8>
 {
 	static const char *StaticAlgorithmName() {return "Salsa20";}
 };
 
 class CRYPTOPP_NO_VTABLE Salsa20_Policy : public AdditiveCipherConcretePolicy<word32, 16>, public Salsa20_Info
 {
-public:
-	unsigned int IVSize() const {return 8;}
-	void GetNextIV(byte *IV) const;
-
 protected:
 	void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length);
 	void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount);
+	void CipherGetNextIV(byte *IV);
 	void CipherResynchronize(byte *keystreamBuffer, const byte *IV);
 	bool IsRandomAccess() const {return true;}
 	void SeekToIteration(lword iterationCount);

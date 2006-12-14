@@ -8,6 +8,10 @@
 #include <stdlib.h>
 #endif
 
+#ifdef __BORLANDC__
+#include <mem.h>
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 // ************** compile-time assertion ***************
@@ -291,6 +295,8 @@ inline unsigned int GetAlignment(T *dummy=NULL)	// VC60 workaround
 	return __alignof(T);
 #elif defined(__GNUC__)
 	return __alignof__(T);
+#elif defined(CRYPTOPP_SLOW_WORD64)
+	return UnsignedMin(4U, sizeof(T));
 #else
 	return sizeof(T);
 #endif
@@ -370,7 +376,7 @@ inline void IncrementCounterByOne(byte *output, const byte *input, unsigned int 
 {
 	int i, carry;
 	for (i=s-1, carry=1; i>=0 && carry; i--)
-		carry = !(output[i] = input[i]+1);
+		carry = ((output[i] = input[i]+1) == 0);
 	memcpy_s(output, s, input, i+1);
 }
 
@@ -543,7 +549,7 @@ inline byte BitReverse(byte value)
 {
 	value = ((value & 0xAA) >> 1) | ((value & 0x55) << 1);
 	value = ((value & 0xCC) >> 2) | ((value & 0x33) << 2);
-	return rotlFixed(value, 4);
+	return rotlFixed(value, 4U);
 }
 
 inline word16 BitReverse(word16 value)
@@ -796,6 +802,7 @@ inline void PutWord(bool assumeAligned, ByteOrder order, byte *block, T value, c
 	if (assumeAligned)
 	{
 		assert(IsAligned<T>(block));
+		assert(IsAligned<T>(xorBlock));
 		if (xorBlock)
 			*reinterpret_cast<T *>(block) = ConditionalByteReverse(order, value) ^ *reinterpret_cast<const T *>(xorBlock);
 		else

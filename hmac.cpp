@@ -20,6 +20,8 @@ void HMAC_Base::UncheckedSetKey(const byte *userKey, unsigned int keylength, con
 	if (!blockSize)
 		throw InvalidArgument("HMAC: can only be used with a block-based hash function");
 
+	m_buf.resize(2*AccessHash().BlockSize() + AccessHash().DigestSize());
+
 	if (keylength <= blockSize)
 		memcpy(AccessIpad(), userKey, keylength);
 	else
@@ -33,8 +35,8 @@ void HMAC_Base::UncheckedSetKey(const byte *userKey, unsigned int keylength, con
 
 	for (unsigned int i=0; i<blockSize; i++)
 	{
-		AccessOpad()[i] = AccessIpad()[i] ^ OPAD;
-		AccessIpad()[i] ^= IPAD;
+		AccessOpad()[i] = AccessIpad()[i] ^ 0x5c;
+		AccessIpad()[i] ^= 0x36;
 	}
 }
 

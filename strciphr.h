@@ -64,7 +64,8 @@ struct CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AdditiveCipherAbstractPolicy
 	virtual bool CanOperateKeystream() const {return false;}
 	virtual void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount) {assert(false);}
 	virtual void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length) =0;
-	virtual void CipherResynchronize(byte *keystreamBuffer, const byte *iv) {throw NotImplemented("StreamTransformation: this object doesn't support resynchronization");}
+	virtual void CipherGetNextIV(byte *iv) {throw NotImplemented("SimpleKeyingInterface: this object doesn't support GetNextIV()");}
+	virtual void CipherResynchronize(byte *keystreamBuffer, const byte *iv) {throw NotImplemented("SimpleKeyingInterface: this object doesn't support resynchronization");}
 	virtual bool IsRandomAccess() const =0;
 	virtual void SeekToIteration(lword iterationCount) {assert(!IsRandomAccess()); throw NotImplemented("StreamTransformation: this object doesn't support random access");}
 };
@@ -123,6 +124,7 @@ class CRYPTOPP_NO_VTABLE AdditiveCipherTemplate : public BASE
 public:
     byte GenerateByte();
     void ProcessData(byte *outString, const byte *inString, size_t length);
+	void GetNextIV(byte *iv) {this->AccessPolicy().CipherGetNextIV(iv);}
 	void Resynchronize(const byte *iv);
 	unsigned int OptimalBlockSize() const {return this->GetPolicy().GetBytesPerIteration();}
 	unsigned int GetOptimalNextBlockSize() const {return (unsigned int)this->m_leftOver;}
@@ -156,7 +158,8 @@ public:
 	virtual bool CanIterate() const {return false;}
 	virtual void Iterate(byte *output, const byte *input, CipherDir dir, size_t iterationCount) {assert(false);}
 	virtual void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length) =0;
-	virtual void CipherResynchronize(const byte *iv) {throw NotImplemented("StreamTransformation: this object doesn't support resynchronization");}
+	virtual void CipherGetNextIV(byte *iv) {throw NotImplemented("SimpleKeyingInterface: this object doesn't support GetNextIV()");}
+	virtual void CipherResynchronize(const byte *iv) {throw NotImplemented("SimpleKeyingInterface: this object doesn't support resynchronization");}
 };
 
 template <typename WT, unsigned int W, class BASE = CFB_CipherAbstractPolicy>
@@ -221,6 +224,7 @@ class CRYPTOPP_NO_VTABLE CFB_CipherTemplate : public BASE
 {
 public:
 	void ProcessData(byte *outString, const byte *inString, size_t length);
+	void GetNextIV(byte *iv) {this->AccessPolicy().CipherGetNextIV(iv);}
 	void Resynchronize(const byte *iv);
 	unsigned int OptimalBlockSize() const {return this->GetPolicy().GetBytesPerIteration();}
 	unsigned int GetOptimalNextBlockSize() const {return (unsigned int)m_leftOver;}

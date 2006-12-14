@@ -21,7 +21,7 @@ template <unsigned int N>
 class FixedBlockSize
 {
 public:
-	enum {BLOCKSIZE = N};
+	CRYPTOPP_CONSTANT(BLOCKSIZE = N)
 };
 
 // ************** rounds ***************
@@ -31,7 +31,7 @@ template <unsigned int R>
 class FixedRounds
 {
 public:
-	enum {ROUNDS = R};
+	CRYPTOPP_CONSTANT(ROUNDS = R)
 };
 
 //! to be inherited by ciphers with variable number of rounds
@@ -39,7 +39,9 @@ template <unsigned int D, unsigned int N=1, unsigned int M=INT_MAX>		// use INT_
 class VariableRounds
 {
 public:
-	enum {DEFAULT_ROUNDS = D, MIN_ROUNDS = N, MAX_ROUNDS = M};
+	CRYPTOPP_CONSTANT(DEFAULT_ROUNDS = D)
+	CRYPTOPP_CONSTANT(MIN_ROUNDS = N)
+	CRYPTOPP_CONSTANT(MAX_ROUNDS = M)
 	static unsigned int StaticGetDefaultRounds(size_t keylength) {return DEFAULT_ROUNDS;}
 
 protected:
@@ -65,17 +67,21 @@ protected:
 // ************** key length ***************
 
 //! to be inherited by keyed algorithms with fixed key length
-template <unsigned int N, unsigned int IV_REQ = SimpleKeyingInterface::NOT_RESYNCHRONIZABLE>
+template <unsigned int N, unsigned int IV_REQ = SimpleKeyingInterface::NOT_RESYNCHRONIZABLE, unsigned int IV_L = 0>
 class FixedKeyLength
 {
 public:
-	enum {KEYLENGTH=N, MIN_KEYLENGTH=N, MAX_KEYLENGTH=N, DEFAULT_KEYLENGTH=N};
-	enum {IV_REQUIREMENT = IV_REQ};
+	CRYPTOPP_CONSTANT(KEYLENGTH=N)
+	CRYPTOPP_CONSTANT(MIN_KEYLENGTH=N)
+	CRYPTOPP_CONSTANT(MAX_KEYLENGTH=N)
+	CRYPTOPP_CONSTANT(DEFAULT_KEYLENGTH=N)
+	CRYPTOPP_CONSTANT(IV_REQUIREMENT = IV_REQ)
+	CRYPTOPP_CONSTANT(IV_LENGTH = IV_L)
 	static size_t CRYPTOPP_API StaticGetValidKeyLength(size_t) {return KEYLENGTH;}
 };
 
 /// support query of variable key length, template parameters are default, min, max, multiple (default multiple 1)
-template <unsigned int D, unsigned int N, unsigned int M, unsigned int Q = 1, unsigned int IV_REQ = SimpleKeyingInterface::NOT_RESYNCHRONIZABLE>
+template <unsigned int D, unsigned int N, unsigned int M, unsigned int Q = 1, unsigned int IV_REQ = SimpleKeyingInterface::NOT_RESYNCHRONIZABLE, unsigned int IV_L = 0>
 class VariableKeyLength
 {
 	// make these private to avoid Doxygen documenting them in all derived classes
@@ -83,11 +89,17 @@ class VariableKeyLength
 	CRYPTOPP_COMPILE_ASSERT(N % Q == 0);
 	CRYPTOPP_COMPILE_ASSERT(M % Q == 0);
 	CRYPTOPP_COMPILE_ASSERT(N < M);
-	CRYPTOPP_COMPILE_ASSERT(D >= N && M >= D);
+	CRYPTOPP_COMPILE_ASSERT(D >= N);
+	CRYPTOPP_COMPILE_ASSERT(M >= D);
 
 public:
-	enum {MIN_KEYLENGTH=N, MAX_KEYLENGTH=M, DEFAULT_KEYLENGTH=D, KEYLENGTH_MULTIPLE=Q};
-	enum {IV_REQUIREMENT = IV_REQ};
+	CRYPTOPP_CONSTANT(MIN_KEYLENGTH=N)
+	CRYPTOPP_CONSTANT(MAX_KEYLENGTH=M)
+	CRYPTOPP_CONSTANT(DEFAULT_KEYLENGTH=D)
+	CRYPTOPP_CONSTANT(KEYLENGTH_MULTIPLE=Q)
+	CRYPTOPP_CONSTANT(IV_REQUIREMENT=IV_REQ)
+	CRYPTOPP_CONSTANT(IV_LENGTH=IV_L)
+
 	static size_t CRYPTOPP_API StaticGetValidKeyLength(size_t n)
 	{
 		if (n < (size_t)MIN_KEYLENGTH)
@@ -107,13 +119,16 @@ template <class T>
 class SameKeyLengthAs
 {
 public:
-	enum {MIN_KEYLENGTH=T::MIN_KEYLENGTH, MAX_KEYLENGTH=T::MAX_KEYLENGTH, DEFAULT_KEYLENGTH=T::DEFAULT_KEYLENGTH};
-	enum {IV_REQUIREMENT = T::IV_REQUIREMENT};
+	CRYPTOPP_CONSTANT(MIN_KEYLENGTH=T::MIN_KEYLENGTH)
+	CRYPTOPP_CONSTANT(MAX_KEYLENGTH=T::MAX_KEYLENGTH)
+	CRYPTOPP_CONSTANT(DEFAULT_KEYLENGTH=T::DEFAULT_KEYLENGTH)
+	CRYPTOPP_CONSTANT(IV_REQUIREMENT = T::IV_REQUIREMENT)
+	CRYPTOPP_CONSTANT(IV_LENGTH = T::IV_LENGTH)
 	static size_t CRYPTOPP_API StaticGetValidKeyLength(size_t keylength)
 		{return T::StaticGetValidKeyLength(keylength);}
 };
 
-// ************** implementation helper for SimpledKeyed ***************
+// ************** implementation helper for SimpleKeyed ***************
 
 //! _
 template <class BASE, class INFO = BASE>
@@ -125,6 +140,7 @@ public:
 	size_t DefaultKeyLength() const {return INFO::DEFAULT_KEYLENGTH;}
 	size_t GetValidKeyLength(size_t n) const {return INFO::StaticGetValidKeyLength(n);}
 	typename BASE::IV_Requirement IVRequirement() const {return (typename BASE::IV_Requirement)INFO::IV_REQUIREMENT;}
+	unsigned int IVSize() const {return INFO::IV_LENGTH;}
 };
 
 template <class INFO, class BASE = BlockCipher>

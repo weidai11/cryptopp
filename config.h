@@ -108,7 +108,7 @@ typedef unsigned int word32;
 	#define WORD64_AVAILABLE
 	typedef unsigned long long word64;
 	#define W64LIT(x) x##LL
-#elif defined(_MSC_VER) || defined(__BCPLUSPLUS__)
+#elif defined(_MSC_VER) || defined(__BORLANDC__)
 	#define WORD64_AVAILABLE
 	typedef unsigned __int64 word64;
 	#define W64LIT(x) x##ui64
@@ -138,7 +138,7 @@ typedef unsigned int word32;
 		typedef word32 word;
 		typedef word64 dword;
 	#else
-		typedef word8 hword;
+		typedef byte hword;
 		typedef word16 word;
 		typedef word32 dword;
 	#endif
@@ -147,7 +147,7 @@ typedef unsigned int word32;
 const unsigned int WORD_SIZE = sizeof(word);
 const unsigned int WORD_BITS = WORD_SIZE * 8;
 
-#if defined(_MSC_VER) || defined(__BCPLUSPLUS__)
+#if defined(_MSC_VER) // || defined(__BORLANDC__) intrinsics don't work on BCB 2006
 	#define INTEL_INTRINSICS
 	#define FAST_ROTATE
 #elif defined(__MWERKS__) && TARGET_CPU_PPC
@@ -165,10 +165,12 @@ const unsigned int WORD_BITS = WORD_SIZE * 8;
 #endif
 
 #ifndef CRYPTOPP_L1_CACHE_ALIGN
-	#ifdef _MSC_VER
+	#if defined(_MSC_VER)
 		#define CRYPTOPP_L1_CACHE_ALIGN(x) __declspec(align(CRYPTOPP_L1_CACHE_LINE_SIZE)) x
 	#elif defined(__GNUC__)
 		#define CRYPTOPP_L1_CACHE_ALIGN(x) x __attribute__((aligned(CRYPTOPP_L1_CACHE_LINE_SIZE)))
+	#else
+		#define CRYPTOPP_L1_CACHE_ALIGN(x) x
 	#endif
 #endif
 
@@ -199,6 +201,11 @@ NAMESPACE_END
 #	pragma warning(disable: 4231 4250 4251 4275 4660 4661 4786 4355)
 #endif
 
+#ifdef __BORLANDC__
+// 8037: non-const function called for const object. needed to work around BCB2006 bug
+#	pragma warn -8037
+#endif
+
 #if (defined(_MSC_VER) && _MSC_VER <= 1300) || defined(__MWERKS__) || defined(_STLPORT_VERSION)
 #define CRYPTOPP_DISABLE_UNCAUGHT_EXCEPTION
 #endif
@@ -224,6 +231,12 @@ NAMESPACE_END
 #	define CRYPTOPP_NOINLINE 
 #endif
 
+// how to declare class constants
+#if defined(_MSC_VER) && _MSC_VER < 1300
+#	define CRYPTOPP_CONSTANT(x) enum {x};
+#else
+#	define CRYPTOPP_CONSTANT(x) static const int x;
+#endif
 
 // ***************** determine availability of OS features ********************
 
@@ -316,6 +329,8 @@ NAMESPACE_END
 
 #if defined(__MWERKS__)
 #define CRYPTOPP_EXTERN_DLL_TEMPLATE_CLASS extern class CRYPTOPP_DLL
+#elif defined(__BORLANDC__)
+#define CRYPTOPP_EXTERN_DLL_TEMPLATE_CLASS template class CRYPTOPP_DLL
 #else
 #define CRYPTOPP_EXTERN_DLL_TEMPLATE_CLASS extern template class CRYPTOPP_DLL
 #endif
@@ -328,6 +343,8 @@ NAMESPACE_END
 
 #if defined(__MWERKS__)
 #define CRYPTOPP_EXTERN_STATIC_TEMPLATE_CLASS extern class
+#elif defined(__BORLANDC__)
+#define CRYPTOPP_EXTERN_STATIC_TEMPLATE_CLASS template class
 #else
 #define CRYPTOPP_EXTERN_STATIC_TEMPLATE_CLASS extern template class
 #endif

@@ -64,6 +64,7 @@ class CRYPTOPP_NO_VTABLE ModePolicyCommonTemplate : public CipherModeBase, publi
 {
 	unsigned int GetAlignment() const {return m_cipher->BlockAlignment();}
 	void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length);
+	void CipherGetNextIV(byte *IV) {CipherModeBase::GetNextIV(IV);}
 };
 
 template <class POLICY_INTERFACE>
@@ -147,7 +148,7 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CTR_ModePolicy : public ModePolicyCommonTe
 public:
 	bool IsRandomAccess() const {return true;}
 	IV_Requirement IVRequirement() const {return STRUCTURED_IV;}
-	void GetNextIV(byte *IV);
+	void CipherGetNextIV(byte *IV);
 	static const char * CRYPTOPP_API StaticAlgorithmName() {return "CTR";}
 
 private:

@@ -45,7 +45,7 @@ void CTR_ModePolicy::SeekToIteration(lword iterationCount)
 	}
 }
 
-void CTR_ModePolicy::GetNextIV(byte *IV)
+void CTR_ModePolicy::CipherGetNextIV(byte *IV)
 {
 	IncrementCounterByOne(IV, m_counterArray, BlockSize());
 }
