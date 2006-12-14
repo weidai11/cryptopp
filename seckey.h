@@ -45,14 +45,9 @@ public:
 	static unsigned int StaticGetDefaultRounds(size_t keylength) {return DEFAULT_ROUNDS;}
 
 protected:
-	static inline void AssertValidRounds(unsigned int rounds)
-	{
-		assert(rounds >= (unsigned int)MIN_ROUNDS && rounds <= (unsigned int)MAX_ROUNDS);
-	}
-
 	inline void ThrowIfInvalidRounds(int rounds, const Algorithm *alg)
 	{
-		if (rounds < (int)MIN_ROUNDS || rounds > (int)MAX_ROUNDS)
+		if (rounds < MIN_ROUNDS || rounds > MAX_ROUNDS)
 			throw InvalidRounds(alg->AlgorithmName(), rounds);
 	}
 
