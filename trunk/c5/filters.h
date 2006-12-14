@@ -108,9 +108,12 @@ private:
 	bool ShouldPropagateMessageEnd() const {return m_transparent;}
 	bool ShouldPropagateMessageSeriesEnd() const {return m_transparent;}
 
-	struct MessageRange {unsigned int message; lword position; lword size;};
-	friend inline bool operator<(const MessageRange &a, const MessageRange &b)
-		{return a.message < b.message || (a.message == b.message && a.position < b.position);}
+	struct MessageRange
+	{
+		inline bool operator<(const MessageRange &b)
+			{return message < b.message || (message == b.message && position < b.position);}
+		unsigned int message; lword position; lword size;
+	};
 
 	bool m_transparent;
 	lword m_currentMessageBytes, m_totalBytes;
@@ -282,6 +285,8 @@ public:
 	HashFilter(HashTransformation &hm, BufferedTransformation *attachment = NULL, bool putMessage=false, int truncatedDigestSize=-1)
 		: m_hashModule(hm), m_putMessage(putMessage), m_truncatedDigestSize(truncatedDigestSize) {Detach(attachment);}
 
+	std::string AlgorithmName() const {return m_hashModule.AlgorithmName();}
+
 	void IsolatedInitialize(const NameValuePairs &parameters);
 	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking);
 
@@ -308,6 +313,8 @@ public:
 
 	enum Flags {HASH_AT_BEGIN=1, PUT_MESSAGE=2, PUT_HASH=4, PUT_RESULT=8, THROW_EXCEPTION=16, DEFAULT_FLAGS = HASH_AT_BEGIN | PUT_RESULT};
 	HashVerificationFilter(HashTransformation &hm, BufferedTransformation *attachment = NULL, word32 flags = DEFAULT_FLAGS);
+
+	std::string AlgorithmName() const {return m_hashModule.AlgorithmName();}
 
 	bool GetLastResult() const {return m_verified;}
 
@@ -336,6 +343,8 @@ public:
 	SignerFilter(RandomNumberGenerator &rng, const PK_Signer &signer, BufferedTransformation *attachment = NULL, bool putMessage=false)
 		: m_rng(rng), m_signer(signer), m_messageAccumulator(signer.NewSignatureAccumulator(rng)), m_putMessage(putMessage) {Detach(attachment);}
 
+	std::string AlgorithmName() const {return m_signer.AlgorithmName();}
+
 	void IsolatedInitialize(const NameValuePairs &parameters);
 	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking);
 
@@ -360,6 +369,8 @@ public:
 
 	enum Flags {SIGNATURE_AT_BEGIN=1, PUT_MESSAGE=2, PUT_SIGNATURE=4, PUT_RESULT=8, THROW_EXCEPTION=16, DEFAULT_FLAGS = SIGNATURE_AT_BEGIN | PUT_RESULT};
 	SignatureVerificationFilter(const PK_Verifier &verifier, BufferedTransformation *attachment = NULL, word32 flags = DEFAULT_FLAGS);
+
+	std::string AlgorithmName() const {return m_verifier.AlgorithmName();}
 
 	bool GetLastResult() const {return m_verified;}
 
