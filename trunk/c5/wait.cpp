@@ -236,7 +236,7 @@ bool WaitObjectContainer::Wait(unsigned long milliseconds)
 	{
 		// too many wait objects for a single WaitForMultipleObjects call, so use multiple threads
 		static const unsigned int WAIT_OBJECTS_PER_THREAD = MAXIMUM_WAIT_OBJECTS-1;
-		unsigned int nThreads = unsigned int((m_handles.size() + WAIT_OBJECTS_PER_THREAD - 1) / WAIT_OBJECTS_PER_THREAD);
+		unsigned int nThreads = (unsigned int)((m_handles.size() + WAIT_OBJECTS_PER_THREAD - 1) / WAIT_OBJECTS_PER_THREAD);
 		if (nThreads > MAXIMUM_WAIT_OBJECTS)	// still too many wait objects, maybe implement recursive threading later?
 			throw Err("WaitObjectContainer: number of wait objects exceeds limit");
 		CreateThreads(nThreads);
@@ -250,7 +250,7 @@ bool WaitObjectContainer::Wait(unsigned long milliseconds)
 			if (i<nThreads)
 			{
 				thread.waitHandles = &m_handles[i*WAIT_OBJECTS_PER_THREAD];
-				thread.count = STDMIN(WAIT_OBJECTS_PER_THREAD, (unsigned int)(m_handles.size() - i*WAIT_OBJECTS_PER_THREAD));
+				thread.count = UnsignedMin(WAIT_OBJECTS_PER_THREAD, m_handles.size() - i*WAIT_OBJECTS_PER_THREAD);
 				thread.error = &error;
 			}
 			else
