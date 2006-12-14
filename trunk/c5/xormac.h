@@ -10,7 +10,10 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-template <class T> struct DigestSizeSubtract4Workaround {enum {RESULT = T::DIGESTSIZE-4};};	// VC60 workaround
+template <class T> struct DigestSizeSubtract4Workaround		// VC60 workaround
+{
+	CRYPTOPP_CONSTANT(RESULT = T::DIGESTSIZE-4);
+};
 
 template <class T>
 class CRYPTOPP_NO_VTABLE XMACC_Base : public FixedKeyLength<DigestSizeSubtract4Workaround<T>::RESULT, SimpleKeyingInterface::INTERNALLY_GENERATED_IV>, 
@@ -18,7 +21,7 @@ class CRYPTOPP_NO_VTABLE XMACC_Base : public FixedKeyLength<DigestSizeSubtract4W
 {
 public:
 	static std::string StaticAlgorithmName() {return std::string("XMAC(") + T::StaticAlgorithmName() + ")";}
-	enum {DIGESTSIZE = 4+T::DIGESTSIZE};
+	CRYPTOPP_CONSTANT(DIGESTSIZE = 4+T::DIGESTSIZE)
 	typedef typename T::HashWordType HashWordType;
 
 	XMACC_Base() {SetStateSize(T::DIGESTSIZE);}
@@ -51,8 +54,12 @@ private:
 	void HashEndianCorrectedBlock(const HashWordType *data);
 
 	FixedSizeSecBlock<byte, DigestSizeSubtract4Workaround<T>::RESULT> m_key;
-	enum {BUFFER_SIZE = ((T::DIGESTSIZE) / sizeof(HashWordType))};	// VC60 workaround
+	CRYPTOPP_CONSTANT(BUFFER_SIZE = (T::DIGESTSIZE / sizeof(HashWordType)));	// VC60 workaround
+#ifdef __BORLANDC__
+	FixedSizeSecBlock<HashWordType, T::DIGESTSIZE / sizeof(HashWordType)> m_buffer;
+#else
 	FixedSizeSecBlock<HashWordType, BUFFER_SIZE> m_buffer;
+#endif
 	word32 m_counter, m_index;
 };
 

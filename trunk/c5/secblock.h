@@ -235,23 +235,17 @@ public:
 	~SecBlock()
 		{m_alloc.deallocate(m_ptr, m_size);}
 
+#ifndef __BORLANDC__
 	operator const void *() const
 		{return m_ptr;}
 	operator void *()
 		{return m_ptr;}
-#if defined(__GNUC__) && __GNUC__ < 3	// reduce warnings
-	operator const void *()
-		{return m_ptr;}
-#endif
 
 	operator const T *() const
 		{return m_ptr;}
+#endif
 	operator T *()
 		{return m_ptr;}
-#if defined(__GNUC__) && __GNUC__ < 3	// reduce warnings
-	operator const T *()
-		{return m_ptr;}
-#endif
 
 //	T *operator +(size_type offset)
 //		{return m_ptr+offset;}

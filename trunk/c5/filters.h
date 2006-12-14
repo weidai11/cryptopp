@@ -110,7 +110,7 @@ private:
 
 	struct MessageRange
 	{
-		inline bool operator<(const MessageRange &b)
+		inline bool operator<(const MessageRange &b) const	// BCB2006 workaround: this has to be a member function
 			{return message < b.message || (message == b.message && position < b.position);}
 		unsigned int message; lword position; lword size;
 	};

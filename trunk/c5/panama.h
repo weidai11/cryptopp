@@ -18,9 +18,9 @@ public:
 
 protected:
 	typedef word32 Stage[8];
-	enum {STAGES = 32};
+	CRYPTOPP_CONSTANT(STAGES = 32)
 
-	FixedSizeSecBlock<word32, 17*2 + STAGES*sizeof(Stage)> m_state;
+	FixedSizeSecBlock<word32, 17*2 + 32*sizeof(Stage)> m_state;
 	unsigned int m_bstart;
 };
 
@@ -29,7 +29,7 @@ template <class B = LittleEndian>
 class PanamaHash : protected Panama<B>, public AlgorithmImpl<IteratedHash<word32, NativeByteOrder, 32>, PanamaHash<B> >
 {
 public:
-	enum {DIGESTSIZE = 32};
+	CRYPTOPP_CONSTANT(DIGESTSIZE = 32)
 	PanamaHash() {Panama<B>::Reset();}
 	unsigned int DigestSize() const {return DIGESTSIZE;}
 	void TruncatedFinal(byte *hash, size_t size);
@@ -43,7 +43,7 @@ protected:
 
 //! MAC construction using a hermetic hash function
 template <class T_Hash, class T_Info = T_Hash>
-class HermeticHashFunctionMAC : public AlgorithmImpl<SimpleKeyingInterfaceImpl<TwoBases<MessageAuthenticationCode, VariableKeyLength<32, 0, UINT_MAX> > >, T_Info>
+class HermeticHashFunctionMAC : public AlgorithmImpl<SimpleKeyingInterfaceImpl<TwoBases<MessageAuthenticationCode, VariableKeyLength<32, 0, INT_MAX> > >, T_Info>
 {
 public:
 	void UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params)
@@ -127,7 +127,7 @@ protected:
 template <class B = LittleEndian>
 struct PanamaCipher : public PanamaCipherInfo<B>, public SymmetricCipherDocumentation
 {
-	typedef SymmetricCipherFinal<ConcretePolicyHolder<PanamaCipherPolicy<B>, AdditiveCipherTemplate<> > > Encryption;
+	typedef SymmetricCipherFinal<ConcretePolicyHolder<PanamaCipherPolicy<B>, AdditiveCipherTemplate<> >, PanamaCipherInfo<B> > Encryption;
 	typedef Encryption Decryption;
 };
 

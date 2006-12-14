@@ -19,7 +19,7 @@ const word32 CRC32_NEGL = 0xffffffffL;
 class CRC32 : public HashTransformation
 {
 public:
-	enum {DIGESTSIZE = 4};
+	CRYPTOPP_CONSTANT(DIGESTSIZE = 4)
 	CRC32();
 	void Update(const byte *input, size_t length);
 	void TruncatedFinal(byte *hash, size_t size);

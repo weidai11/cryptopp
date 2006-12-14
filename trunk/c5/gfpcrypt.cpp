@@ -148,8 +148,11 @@ bool DL_GroupParameters_IntegerBased::ValidateElement(unsigned int level, const 
 		// and at most 1 bit is leaked if it's false
 		bool fullValidate = (GetFieldType() == 2 && level >= 3) || !FastSubgroupCheckAvailable();
 
-		if (fullValidate)
-			pass = pass && IsIdentity(gpc ? gpc->Exponentiate(GetGroupPrecomputation(), q) : ExponentiateElement(g, q));
+		if (fullValidate && pass)
+		{
+			Integer gp = gpc ? gpc->Exponentiate(GetGroupPrecomputation(), q) : ExponentiateElement(g, q);
+			pass = pass && IsIdentity(gp);
+		}
 		else if (GetFieldType() == 1)
 			pass = pass && Jacobi(g, p) == 1;
 	}

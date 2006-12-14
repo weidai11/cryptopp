@@ -264,6 +264,9 @@ void TestSymmetricCipher(TestData &v)
 	if (test == "Encrypt")
 	{
 		std::auto_ptr<SymmetricCipher> encryptor(ObjectFactoryRegistry<SymmetricCipher, ENCRYPTION>::Registry().CreateObject(name.c_str()));
+		ConstByteArrayParameter iv;
+		if (pairs.GetValue(Name::IV(), iv) && iv.size() != encryptor->IVSize())
+			SignalTestFailure();
 		encryptor->SetKey((const byte *)key.data(), key.size(), pairs);
 		int seek = pairs.GetIntValueWithDefault("Seek", 0);
 		if (seek)
@@ -276,6 +279,9 @@ void TestSymmetricCipher(TestData &v)
 	else if (test == "Decrypt")
 	{
 		std::auto_ptr<SymmetricCipher> decryptor(ObjectFactoryRegistry<SymmetricCipher, DECRYPTION>::Registry().CreateObject(name.c_str()));
+		ConstByteArrayParameter iv;
+		if (pairs.GetValue(Name::IV(), iv) && iv.size() != decryptor->IVSize())
+			SignalTestFailure();
 		decryptor->SetKey((const byte *)key.data(), key.size(), pairs);
 		int seek = pairs.GetIntValueWithDefault("Seek", 0);
 		if (seek)

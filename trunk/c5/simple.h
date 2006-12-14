@@ -199,17 +199,7 @@ protected:
 //! A BufferedTransformation that doesn't produce any retrievable output
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Sink : public BufferedTransformation
 {
-protected:
-	// make these functions protected to help prevent unintentional calls to them
-	BufferedTransformation::Get;
-	BufferedTransformation::Peek;
-	BufferedTransformation::TransferTo;
-	BufferedTransformation::CopyTo;
-	BufferedTransformation::CopyRangeTo;
-	BufferedTransformation::TransferMessagesTo;
-	BufferedTransformation::CopyMessagesTo;
-	BufferedTransformation::TransferAllTo;
-	BufferedTransformation::CopyAllTo;
+public:
 	size_t TransferTo2(BufferedTransformation &target, lword &transferBytes, const std::string &channel=NULL_CHANNEL, bool blocking=true)
 		{transferBytes = 0; return 0;}
 	size_t CopyRangeTo2(BufferedTransformation &target, lword &begin, lword end=LWORD_MAX, const std::string &channel=NULL_CHANNEL, bool blocking=true) const

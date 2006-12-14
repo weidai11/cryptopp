@@ -535,10 +535,11 @@ bool DL_GroupParameters_EC<EC>::ValidateElement(unsigned int level, const Elemen
 		if (gpc)
 			pass = pass && gpc->Exponentiate(this->GetGroupPrecomputation(), Integer::One()) == g;
 	}
-	if (level >= 2)
+	if (level >= 2 && pass)
 	{
 		const Integer &q = GetSubgroupOrder();
-		pass = pass && IsIdentity(gpc ? gpc->Exponentiate(this->GetGroupPrecomputation(), q) : ExponentiateElement(g, q));
+		Element gq = gpc ? gpc->Exponentiate(this->GetGroupPrecomputation(), q) : ExponentiateElement(g, q);
+		pass = pass && IsIdentity(gq);
 	}
 	return pass;
 }

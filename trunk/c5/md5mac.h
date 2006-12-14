@@ -13,7 +13,7 @@ class CRYPTOPP_NO_VTABLE MD5MAC_Base : public FixedKeyLength<16>, public Iterate
 {
 public:
 	static std::string StaticAlgorithmName() {return "MD5-MAC";}
-	enum {DIGESTSIZE = 16};
+	CRYPTOPP_CONSTANT(DIGESTSIZE = 16)
 
 	MD5MAC_Base() {SetStateSize(DIGESTSIZE);}
 

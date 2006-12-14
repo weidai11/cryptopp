@@ -12,7 +12,7 @@ void Salsa20_TestInstantiations()
 	Salsa20::Encryption x;
 }
 
-void Salsa20_Policy::GetNextIV(byte *IV) const
+void Salsa20_Policy::CipherGetNextIV(byte *IV)
 {
 	word32 j6 = m_state[6] + 1;
 	word32 j7 = m_state[7] + (j6 == 0);

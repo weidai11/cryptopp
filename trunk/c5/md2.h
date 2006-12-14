@@ -17,7 +17,8 @@ public:
 	unsigned int DigestSize() const {return DIGESTSIZE;}
 	static const char * StaticAlgorithmName() {return "MD2";}
 
-	enum {DIGESTSIZE = 16, BLOCKSIZE = 16};
+	CRYPTOPP_CONSTANT(DIGESTSIZE = 16)
+	CRYPTOPP_CONSTANT(BLOCKSIZE = 16)
 
 private:
 	void Transform();

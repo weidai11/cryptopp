@@ -12,7 +12,7 @@ class CRYPTOPP_NO_VTABLE DMAC_Base : public SameKeyLengthAs<T>, public MessageAu
 public:
 	static std::string StaticAlgorithmName() {return std::string("DMAC(") + T::StaticAlgorithmName() + ")";}
 
-	enum {DIGESTSIZE=T::BLOCKSIZE};
+	CRYPTOPP_CONSTANT(DIGESTSIZE=T::BLOCKSIZE)
 
 	DMAC_Base() {}
 

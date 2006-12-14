@@ -62,8 +62,9 @@ public:
 	typedef T_Endianness ByteOrderClass;
 	typedef T_HashWordType HashWordType;
 
-	enum {BLOCKSIZE = T_BlockSize};
-	CRYPTOPP_COMPILE_ASSERT((BLOCKSIZE & (BLOCKSIZE - 1)) == 0);		// blockSize is a power of 2
+	CRYPTOPP_CONSTANT(BLOCKSIZE = T_BlockSize)
+	// BCB2006 workaround: can't use BLOCKSIZE here
+	CRYPTOPP_COMPILE_ASSERT((T_BlockSize & (T_BlockSize - 1)) == 0);	// blockSize is a power of 2
 
 	ByteOrder GetByteOrder() const {return T_Endianness::ToEnum();}
 
@@ -77,12 +78,12 @@ protected:
 };
 
 //! _
-template <class T_HashWordType, class T_Endianness, unsigned int T_BlockSize, unsigned int T_StateSize, class T_Transform, unsigned int T_DigestSize = T_StateSize>
+template <class T_HashWordType, class T_Endianness, unsigned int T_BlockSize, unsigned int T_StateSize, class T_Transform, unsigned int T_DigestSize = 0>
 class CRYPTOPP_NO_VTABLE IteratedHashWithStaticTransform
 	: public ClonableImpl<T_Transform, AlgorithmImpl<IteratedHash<T_HashWordType, T_Endianness, T_BlockSize>, T_Transform> >
 {
 public:
-	enum {DIGESTSIZE = T_DigestSize};
+	CRYPTOPP_CONSTANT(DIGESTSIZE = T_DigestSize ? T_DigestSize : T_StateSize)
 	unsigned int DigestSize() const {return DIGESTSIZE;};
 
 protected:

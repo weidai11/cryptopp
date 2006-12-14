@@ -39,6 +39,11 @@
 #include <console.h>
 #endif
 
+#ifdef __BORLANDC__
+#pragma comment(lib, "cryptlib_bds.lib")
+#pragma comment(lib, "ws2_32.lib")
+#endif
+
 USING_NAMESPACE(CryptoPP)
 USING_NAMESPACE(std)
 
@@ -84,11 +89,7 @@ bool Validate(int, bool, const char *);
 
 int (*AdhocTest)(int argc, char *argv[]) = NULL;
 
-#ifdef __BCPLUSPLUS__
-int cmain(int argc, char *argv[])
-#else
 int CRYPTOPP_API main(int argc, char *argv[])
-#endif
 {
 #ifdef _CRTDBG_LEAK_CHECK_DF
 	// Turn on leak-checking

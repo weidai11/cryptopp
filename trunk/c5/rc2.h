@@ -13,7 +13,8 @@ NAMESPACE_BEGIN(CryptoPP)
 //! _
 struct RC2_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 1, 128>
 {
-	enum {DEFAULT_EFFECTIVE_KEYLENGTH = 1024, MAX_EFFECTIVE_KEYLENGTH = 1024};
+	CRYPTOPP_CONSTANT(DEFAULT_EFFECTIVE_KEYLENGTH = 1024)
+	CRYPTOPP_CONSTANT(MAX_EFFECTIVE_KEYLENGTH = 1024)
 	static const char *StaticAlgorithmName() {return "RC2";}
 };
 

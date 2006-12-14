@@ -94,6 +94,8 @@ public:
 #ifdef USE_WINDOWS_STYLE_SOCKETS
 	void CheckAndHandleError(const char *operation, BOOL result) const
 		{assert(result==TRUE || result==FALSE); if (!result) HandleError(operation);}
+	void CheckAndHandleError(const char *operation, bool result) const
+		{if (!result) HandleError(operation);}
 #endif
 
 	//! look up the port number given its name, returns 0 if not found

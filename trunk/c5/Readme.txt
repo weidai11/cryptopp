@@ -54,12 +54,13 @@ This library includes:
 - FIPS 140-2 Validated
 
 You are welcome to use it for any purpose without paying me, but see
-license.txt for the fine print.
+License.txt for the fine print.
 
 This version of Crypto++ has been compiled successfully with MSVC 6.0 SP5
-and .NET 2003 on Windows XP, GCC 2.95.4 on FreeBSD 4.6, GCC 2.95.3 on
-Linux 2.4 and SunOS 5.8, GCC 3.4 on Cygwin 1.5.10, and Metrowerks
-CodeWarrior 8.3 for Windows and MacOS.
+and .NET 2005 on Windows XP SP2, GCC 3.4.2 on FreeBSD 5.4, GCC 4.1.2 on
+Linux 2.6, GCC 3.4.4 on Cygwin 1.5.21, GCC 3.3 and 4.0.1 on MacOS X 10.4,
+and Borland C++Builder 2006. For an update to date list of supported compilers
+and operating systems, please visit http://www.cryptopp.com.
 
 *** Important Usage Notes ***
 
@@ -149,8 +150,8 @@ may come up.
 
 If you run into any problems, please try the Crypto++ mailing list.
 The subscription information and the list archive are available on
-http://www.cryptopp.com. You can also email me directly at
-cryptopp@weidai.com, but you will probably get a faster response through
+http://www.cryptopp.com. You can also email me directly by visiting
+http://www.weidai.com, but you will probably get a faster response through
 the mailing list.
 
 *** History ***
@@ -356,6 +357,6 @@ the mailing list.
 
 5.4 - added Salsa20
     - updated Whirlpool to version 3.0
-    - ported to GCC 4.1
+    - ported to GCC 4.1 and Borland C++Builder 2006
 
 Written by Wei Dai
