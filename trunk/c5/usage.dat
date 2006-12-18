@@ -74,5 +74,8 @@ Test Driver for Crypto++(R) Library, a C++ Class Library of Cryptographic Scheme
 - To run validation tests
 	cryptest v
 
+- To display version number
+       cryptest V
+
 - To run benchmarks
 	cryptest b [time for each benchmark in seconds]

@@ -317,6 +317,10 @@ int CRYPTOPP_API main(int argc, char *argv[])
 			FileSource usage("usage.dat", true, new FileSink(cout));
 			return 1;
 		}
+		else if (command == "V")
+		{
+			cout << "5.4" << endl;
+		}
 		else
 		{
 			cerr << "Unrecognized command. Run \"cryptest h\" to obtain usage information.\n";
