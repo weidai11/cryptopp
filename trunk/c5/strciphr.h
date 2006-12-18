@@ -279,30 +279,6 @@ public:
 	Clonable * Clone() const {return static_cast<SymmetricCipher *>(new SymmetricCipherFinal<BASE, INFO>(*this));}
 };
 
-template <class S>
-void AdditiveCipherTemplate<S>::UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params)
-{
-	PolicyInterface &policy = this->AccessPolicy();
-	policy.CipherSetKey(params, key, length);
-	m_leftOver = 0;
-	m_buffer.New(GetBufferByteSize(policy));
-
-	if (this->IsResynchronizable())
-		policy.CipherResynchronize(m_buffer, this->GetIVAndThrowIfInvalid(params));
-}
-
-template <class BASE>
-void CFB_CipherTemplate<BASE>::UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params)
-{
-	PolicyInterface &policy = this->AccessPolicy();
-	policy.CipherSetKey(params, key, length);
-
-	if (this->IsResynchronizable())
-		policy.CipherResynchronize(this->GetIVAndThrowIfInvalid(params));
-
-	m_leftOver = policy.GetBytesPerIteration();
-}
-
 NAMESPACE_END
 
 #ifdef CRYPTOPP_MANUALLY_INSTANTIATE_TEMPLATES
@@ -312,10 +288,10 @@ NAMESPACE_END
 NAMESPACE_BEGIN(CryptoPP)
 CRYPTOPP_DLL_TEMPLATE_CLASS TwoBases<SymmetricCipher, RandomNumberGenerator>;
 CRYPTOPP_DLL_TEMPLATE_CLASS AbstractPolicyHolder<AdditiveCipherAbstractPolicy, TwoBases<SymmetricCipher, RandomNumberGenerator> >;
-CRYPTOPP_DLL_TEMPLATE_CLASS AdditiveCipherTemplate<>;
+CRYPTOPP_DLL_TEMPLATE_CLASS AdditiveCipherTemplate<AbstractPolicyHolder<AdditiveCipherAbstractPolicy, TwoBases<SymmetricCipher, RandomNumberGenerator> > >;
 CRYPTOPP_DLL_TEMPLATE_CLASS CFB_CipherTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, SymmetricCipher> >;
-CRYPTOPP_DLL_TEMPLATE_CLASS CFB_EncryptionTemplate<>;
-CRYPTOPP_DLL_TEMPLATE_CLASS CFB_DecryptionTemplate<>;
+CRYPTOPP_DLL_TEMPLATE_CLASS CFB_EncryptionTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, SymmetricCipher> >;
+CRYPTOPP_DLL_TEMPLATE_CLASS CFB_DecryptionTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, SymmetricCipher> >;
 NAMESPACE_END
 
 #endif

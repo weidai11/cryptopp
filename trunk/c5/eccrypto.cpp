@@ -2,6 +2,9 @@
 
 #include "pch.h"
 
+// prevent Sun's CC compiler from including this file automatically
+#if !defined(__SUNPRO_CC) || defined(CRYPTOPP_MANUALLY_INSTANTIATE_TEMPLATES)
+
 #ifndef CRYPTOPP_IMPORTS
 
 #include "eccrypto.h"
@@ -571,7 +574,7 @@ OID DL_GroupParameters_EC<EC>::GetAlgorithmID() const
 // ******************************************************************
 
 template <class EC>
-void DL_PublicKey_EC<EC>::BERDecodeKey2(BufferedTransformation &bt, bool parametersPresent, size_t size)
+void DL_PublicKey_EC<EC>::BERDecodePublicKey(BufferedTransformation &bt, bool parametersPresent, size_t size)
 {
 	typename EC::Point P;
 	if (!this->GetGroupParameters().GetCurve().DecodePoint(P, bt, size))
@@ -580,7 +583,7 @@ void DL_PublicKey_EC<EC>::BERDecodeKey2(BufferedTransformation &bt, bool paramet
 }
 
 template <class EC>
-void DL_PublicKey_EC<EC>::DEREncodeKey(BufferedTransformation &bt) const
+void DL_PublicKey_EC<EC>::DEREncodePublicKey(BufferedTransformation &bt) const
 {
 	this->GetGroupParameters().GetCurve().EncodePoint(bt, this->GetPublicElement(), this->GetGroupParameters().GetPointCompression());
 }
@@ -588,7 +591,7 @@ void DL_PublicKey_EC<EC>::DEREncodeKey(BufferedTransformation &bt) const
 // ******************************************************************
 
 template <class EC>
-void DL_PrivateKey_EC<EC>::BERDecodeKey2(BufferedTransformation &bt, bool parametersPresent, size_t size)
+void DL_PrivateKey_EC<EC>::BERDecodePrivateKey(BufferedTransformation &bt, bool parametersPresent, size_t size)
 {
 	BERSequenceDecoder seq(bt);
 		word32 version;
@@ -626,7 +629,7 @@ void DL_PrivateKey_EC<EC>::BERDecodeKey2(BufferedTransformation &bt, bool parame
 }
 
 template <class EC>
-void DL_PrivateKey_EC<EC>::DEREncodeKey(BufferedTransformation &bt) const
+void DL_PrivateKey_EC<EC>::DEREncodePrivateKey(BufferedTransformation &bt) const
 {
 	DERSequenceEncoder privateKey(bt);
 		DEREncodeUnsigned<word32>(privateKey, 1);	// version
@@ -637,5 +640,7 @@ void DL_PrivateKey_EC<EC>::DEREncodeKey(BufferedTransformation &bt) const
 }
 
 NAMESPACE_END
+
+#endif
 
 #endif

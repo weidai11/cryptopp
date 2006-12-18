@@ -11,7 +11,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 //! _
-class CRYPTOPP_DLL RWFunction : virtual public TrapdoorFunction, public PublicKey
+class CRYPTOPP_DLL RWFunction : public TrapdoorFunction, public PublicKey
 {
 	typedef RWFunction ThisClass;
 

@@ -1,6 +1,10 @@
 // algebra.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
+
+// prevent Sun's CC compiler from including this file automatically
+#if !defined(__SUNPRO_CC) || defined(CRYPTOPP_MANUALLY_INSTANTIATE_TEMPLATES)
+
 #include "algebra.h"
 #include "integer.h"
 
@@ -201,8 +205,8 @@ template <class Element, class Iterator> Element GeneralCascadeMultiplication(co
 
 struct WindowSlider
 {
-	WindowSlider(const Integer &exp, bool fastNegate, unsigned int windowSizeIn=0)
-		: exp(exp), windowModulus(Integer::One()), windowSize(windowSizeIn), windowBegin(0), fastNegate(fastNegate), firstTime(true), finished(false)
+	WindowSlider(const Integer &expIn, bool fastNegate, unsigned int windowSizeIn=0)
+		: exp(expIn), windowModulus(Integer::One()), windowSize(windowSizeIn), windowBegin(0), fastNegate(fastNegate), firstTime(true), finished(false)
 	{
 		if (windowSize == 0)
 		{
@@ -332,3 +336,5 @@ void AbstractRing<T>::SimultaneousExponentiate(T *results, const T &base, const 
 }
 
 NAMESPACE_END
+
+#endif

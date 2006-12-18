@@ -3976,7 +3976,7 @@ Integer Integer::InverseMod(const Integer &m) const
 	return r;
 }
 
-word Integer::InverseMod(const word mod) const
+word Integer::InverseMod(word mod) const
 {
 	word g0 = mod, g1 = *this % mod;
 	word v0 = 0, v1 = 1;

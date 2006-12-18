@@ -104,7 +104,7 @@ NAMESPACE_BEGIN(CryptoPP)
 typedef unsigned short word16;
 typedef unsigned int word32;
 
-#if defined(__GNUC__) || defined(__MWERKS__)
+#if defined(__GNUC__) || defined(__MWERKS__) || defined(__SUNPRO_CC)
 	#define WORD64_AVAILABLE
 	typedef unsigned long long word64;
 	#define W64LIT(x) x##LL
@@ -238,6 +238,13 @@ NAMESPACE_END
 #	define CRYPTOPP_CONSTANT(x) static const int x;
 #endif
 
+// how to allocate 16-byte aligned memory (for SSE2)
+#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
+#	define CRYPTOPP_MALLOC_ALIGNMENT_IS_16
+#elif defined(__linux__) || defined(__sun__) || defined(__CYGWIN__)
+#	define CRYPTOPP_MEMALIGN_AVAILABLE
+#endif
+
 // ***************** determine availability of OS features ********************
 
 #ifndef NO_OS_DEPENDENCE
@@ -272,7 +279,7 @@ NAMESPACE_END
 #	define USE_BERKELEY_STYLE_SOCKETS
 #endif
 
-#if defined(CRYPTOPP_WIN32_AVAILABLE) && !defined(USE_BERKELEY_STYLE_SOCKETS)
+#if defined(HIGHRES_TIMER_AVAILABLE) && defined(CRYPTOPP_WIN32_AVAILABLE) && !defined(USE_BERKELEY_STYLE_SOCKETS)
 #	define WINDOWS_PIPES_AVAILABLE
 #endif
 
@@ -292,14 +299,6 @@ NAMESPACE_END
 #ifdef CRYPTOPP_WIN32_AVAILABLE
 #	define HAS_WINTHREADS
 #	define THREADS_AVAILABLE
-#endif
-
-#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
-#	define CRYPTOPP_MALLOC_ALIGNMENT_IS_16
-#endif
-
-#if defined(__linux__) || defined(__sun__) || defined(__CYGWIN__)
-#	define CRYPTOPP_MEMALIGN_AVAILABLE
 #endif
 
 #endif	// NO_OS_DEPENDENCE
@@ -329,7 +328,7 @@ NAMESPACE_END
 
 #if defined(__MWERKS__)
 #define CRYPTOPP_EXTERN_DLL_TEMPLATE_CLASS extern class CRYPTOPP_DLL
-#elif defined(__BORLANDC__)
+#elif defined(__BORLANDC__) || defined(__SUNPRO_CC)
 #define CRYPTOPP_EXTERN_DLL_TEMPLATE_CLASS template class CRYPTOPP_DLL
 #else
 #define CRYPTOPP_EXTERN_DLL_TEMPLATE_CLASS extern template class CRYPTOPP_DLL
@@ -343,7 +342,7 @@ NAMESPACE_END
 
 #if defined(__MWERKS__)
 #define CRYPTOPP_EXTERN_STATIC_TEMPLATE_CLASS extern class
-#elif defined(__BORLANDC__)
+#elif defined(__BORLANDC__) || defined(__SUNPRO_CC)
 #define CRYPTOPP_EXTERN_STATIC_TEMPLATE_CLASS template class
 #else
 #define CRYPTOPP_EXTERN_STATIC_TEMPLATE_CLASS extern template class

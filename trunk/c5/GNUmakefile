@@ -11,9 +11,10 @@ ARFLAGS = -cr	# ar needs the dash on OpenBSD
 RANLIB = ranlib
 CP = cp
 MKDIR = mkdir
+EGREP = egrep
 UNAME = $(shell uname)
-ISX86 = $(shell uname -m | egrep -c "i.86|x86")
-ISMINGW = $(shell uname | egrep -c "MINGW32")
+ISX86 = $(shell uname -m | $(EGREP) -c "i.86|x86|i86")
+ISMINGW = $(shell uname | $(EGREP) -c "MINGW32")
 
 # Default prefix for make install
 ifeq ($(PREFIX),)
@@ -26,8 +27,8 @@ endif
 
 ifeq ($(ISX86),1)
 
-GCC33ORLATER = $(shell $(CXX) -v 2>&1 | egrep -c "gcc version (3.[3-9]|[4-9])")
-GAS210ORLATER = $(shell echo "" | $(AS) -v 2>&1 | egrep -c "GNU assembler version (2.[1-9][0-9]|[3-9])")
+GCC33ORLATER = $(shell $(CXX) -v 2>&1 | $(EGREP) -c "gcc version (3.[3-9]|[4-9])")
+GAS210ORLATER = $(shell echo "" | $(AS) -v 2>&1 | $(EGREP) -c "GNU assembler version (2.[1-9][0-9]|[3-9])")
 
 ifeq ($(GCC33ORLATER) $(ISMINGW),1 0)	# MINGW32 is missing the memalign function
 CXXFLAGS += -msse2
@@ -46,7 +47,9 @@ endif
 ifeq ($(UNAME),)	# for DJGPP, where uname doesn't exist
 CXXFLAGS += -mbnu210
 else
+ifneq ($(CXX),CC)	# don't use -pipe with CC (Solaris native C++ compiler)
 CXXFLAGS += -pipe
+endif
 endif
 
 ifeq ($(UNAME),Linux)
@@ -58,7 +61,7 @@ AR = libtool
 ARFLAGS = -static -o
 CXX = c++
 CXXFLAGS += -D__pic__
-IS_GCC2 = $(shell $(CXX) -v 2>&1 | egrep -c gcc-932)
+IS_GCC2 = $(shell $(CXX) -v 2>&1 | $(EGREP) -c gcc-932)
 ifeq ($(IS_GCC2),1)
 CXXFLAGS += -fno-coalesce-templates -fno-coalesce-static-vtables
 LDLIBS += -lstdc++
@@ -72,7 +75,7 @@ endif
 
 SRCS = $(wildcard *.cpp)
 ifeq ($(SRCS),)				# workaround wildcard function bug in GNU Make 3.77
-SRCS = $(shell ls *.cpp)
+SRCS = $(shell echo *.cpp)
 endif
 
 OBJS = $(SRCS:.cpp=.o)

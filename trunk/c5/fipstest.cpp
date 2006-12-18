@@ -497,6 +497,7 @@ void DoPowerUpSelfTest(const char *moduleFilename, const byte *expectedModuleMac
 			"abc",
 			"ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad");
 
+#ifdef WORD64_AVAILABLE
 		SecureHashKnownAnswerTest<SHA384>(
 			"abc",
 			"cb00753f45a35e8bb5a03d699ac65007272c32ab0eded1631a8b605a43ff5bed8086072ba1e7cc2358baeca134c825a7");
@@ -504,6 +505,7 @@ void DoPowerUpSelfTest(const char *moduleFilename, const byte *expectedModuleMac
 		SecureHashKnownAnswerTest<SHA512>(
 			"abc",
 			"ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f");
+#endif
 
 		MAC_KnownAnswerTest<HMAC<SHA1> >(
 			"303132333435363738393a3b3c3d3e3f40414243",

@@ -318,7 +318,7 @@ bool ValidateRSA()
 		FileSource privFile("rsa400pv.dat", true, new HexDecoder);
 		FileSource pubFile("rsa400pb.dat", true, new HexDecoder);
 		RSAES_OAEP_SHA_Decryptor rsaPriv;
-		rsaPriv.AccessKey().BERDecodeKey(privFile);
+		rsaPriv.AccessKey().BERDecodePrivateKey(privFile, false, 0);
 		RSAES_OAEP_SHA_Encryptor rsaPub(pubFile);
 
 		memset(out, 0, 50);

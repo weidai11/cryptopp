@@ -53,8 +53,9 @@ public:
 	typedef std::pair<BufferedTransformation *, value_ptr<std::string> > DefaultRoute;
 	typedef std::list<DefaultRoute> DefaultRouteList;
 
-	typedef RouteMap::const_iterator MapIterator;
-	typedef DefaultRouteList::const_iterator ListIterator;
+	// SunCC workaround: can't use const_iterator here
+	typedef RouteMap::iterator MapIterator;
+	typedef DefaultRouteList::iterator ListIterator;
 };
 
 class ChannelSwitch;

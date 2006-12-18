@@ -189,7 +189,7 @@ bool TestSettings()
 		pass = false;
 	}
 	cout << "sizeof(word64) == " << sizeof(word64) << endl;
-#elif CRYPTOPP_NATIVE_DWORD_AVAILABLE
+#elif defined(CRYPTOPP_NATIVE_DWORD_AVAILABLE)
 	if (sizeof(dword) >= 8)
 	{
 		cout << "FAILED:  sizeof(dword) >= 8, but WORD64_AVAILABLE not defined" << endl;

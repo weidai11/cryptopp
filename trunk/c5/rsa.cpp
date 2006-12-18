@@ -45,7 +45,7 @@ OID RSAFunction::GetAlgorithmID() const
 	return ASN1::rsaEncryption();
 }
 
-void RSAFunction::BERDecodeKey(BufferedTransformation &bt)
+void RSAFunction::BERDecodePublicKey(BufferedTransformation &bt, bool, size_t)
 {
 	BERSequenceDecoder seq(bt);
 		m_n.BERDecode(seq);
@@ -53,7 +53,7 @@ void RSAFunction::BERDecodeKey(BufferedTransformation &bt)
 	seq.MessageEnd();
 }
 
-void RSAFunction::DEREncodeKey(BufferedTransformation &bt) const
+void RSAFunction::DEREncodePublicKey(BufferedTransformation &bt) const
 {
 	DERSequenceEncoder seq(bt);
 		m_n.DEREncode(seq);
@@ -189,7 +189,7 @@ void InvertibleRSAFunction::Initialize(const Integer &n, const Integer &e, const
 	}
 }
 
-void InvertibleRSAFunction::BERDecodeKey(BufferedTransformation &bt)
+void InvertibleRSAFunction::BERDecodePrivateKey(BufferedTransformation &bt, bool, size_t)
 {
 	BERSequenceDecoder privateKey(bt);
 		word32 version;
@@ -205,7 +205,7 @@ void InvertibleRSAFunction::BERDecodeKey(BufferedTransformation &bt)
 	privateKey.MessageEnd();
 }
 
-void InvertibleRSAFunction::DEREncodeKey(BufferedTransformation &bt) const
+void InvertibleRSAFunction::DEREncodePrivateKey(BufferedTransformation &bt) const
 {
 	DERSequenceEncoder privateKey(bt);
 		DEREncodeUnsigned<word32>(privateKey, 0);	// version

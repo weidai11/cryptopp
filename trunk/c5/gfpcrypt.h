@@ -20,7 +20,7 @@ NAMESPACE_BEGIN(CryptoPP)
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_GroupParameters<Integer>;
 
 //! _
-class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE DL_GroupParameters_IntegerBased : public DL_GroupParameters<Integer>, public ASN1CryptoMaterial
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE DL_GroupParameters_IntegerBased : public ASN1CryptoMaterial<DL_GroupParameters<Integer> >
 {
 	typedef DL_GroupParameters_IntegerBased ThisClass;
 	
@@ -219,9 +219,9 @@ public:
 		{this->AccessGroupParameters().Initialize(p, q, g); this->SetPublicElement(y);}
 
 	// X509PublicKey
-	void BERDecodeKey(BufferedTransformation &bt)
+	void BERDecodePublicKey(BufferedTransformation &bt, bool, size_t)
 		{this->SetPublicElement(Integer(bt));}
-	void DEREncodeKey(BufferedTransformation &bt) const
+	void DEREncodePublicKey(BufferedTransformation &bt) const
 		{this->GetPublicElement().DEREncode(bt);}
 };
 

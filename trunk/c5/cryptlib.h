@@ -4,7 +4,7 @@
 	classes that provide a uniform interface to this library.
 */
 
-/*!	\mainpage <a href="http://www.cryptopp.com">Crypto++</a><sup><small>&reg;</small></sup> Library 5.3 Reference Manual
+/*!	\mainpage <a href="http://www.cryptopp.com">Crypto++</a><sup><small>&reg;</small></sup> Library 5.4 Reference Manual
 <dl>
 <dt>Abstract Base Classes<dd>
 	cryptlib.h
@@ -1156,7 +1156,7 @@ public:
 };
 
 //! interface for public-key encryptors
-class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_Encryptor : virtual public PK_CryptoSystem, public PublicKeyAlgorithm
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_Encryptor : public PK_CryptoSystem, public PublicKeyAlgorithm
 {
 public:
 	//! exception thrown when trying to encrypt plaintext of invalid length
@@ -1184,7 +1184,7 @@ public:
 
 //! interface for public-key decryptors
 
-class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_Decryptor : virtual public PK_CryptoSystem, public PrivateKeyAlgorithm
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_Decryptor : public PK_CryptoSystem, public PrivateKeyAlgorithm
 {
 public:
 	//! decrypt a byte string, and return the length of plaintext

@@ -2,11 +2,13 @@
 // updated to SEAL 3.0 by Leonard Janke
 
 #include "pch.h"
+
+// prevent Sun's CC compiler from including this file automatically
+#if !(defined(__SUNPRO_CC) && defined(CRYPTOPP_ITERHASH_H))
+
 #include "seal.h"
 #include "sha.h"
 #include "misc.h"
-
-#include "strciphr.cpp"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -209,3 +211,5 @@ template class SEAL_Policy<BigEndian>;
 template class SEAL_Policy<LittleEndian>;
 
 NAMESPACE_END
+
+#endif

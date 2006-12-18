@@ -8,6 +8,8 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+#ifdef HIGHRES_TIMER_AVAILABLE
+
 lword LimitedBandwidth::ComputeCurrentTransceiveLimit()
 {
 	if (!m_maxBytesPerSecond)
@@ -222,8 +224,6 @@ bool NonblockingSink::IsolatedFlush(bool hardFlush, bool blocking)
 }
 
 // *************************************************************
-
-#ifdef HIGHRES_TIMER_AVAILABLE
 
 NetworkSource::NetworkSource(BufferedTransformation *attachment)
 	: NonblockingSource(attachment), m_buf(1024*16)
