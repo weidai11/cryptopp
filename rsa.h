@@ -25,8 +25,8 @@ public:
 
 	// X509PublicKey
 	OID GetAlgorithmID() const;
-	void BERDecodeKey(BufferedTransformation &bt);
-	void DEREncodeKey(BufferedTransformation &bt) const;
+	void BERDecodePublicKey(BufferedTransformation &bt, bool parametersPresent, size_t size);
+	void DEREncodePublicKey(BufferedTransformation &bt) const;
 
 	// CryptoMaterial
 	bool Validate(RandomNumberGenerator &rng, unsigned int level) const;
@@ -66,8 +66,13 @@ public:
 		{PKCS8PrivateKey::BERDecode(bt);}
 	void DEREncode(BufferedTransformation &bt) const
 		{PKCS8PrivateKey::DEREncode(bt);}
-	void BERDecodeKey(BufferedTransformation &bt);
-	void DEREncodeKey(BufferedTransformation &bt) const;
+	void Load(BufferedTransformation &bt)
+		{PKCS8PrivateKey::BERDecode(bt);}
+	void Save(BufferedTransformation &bt) const
+		{PKCS8PrivateKey::DEREncode(bt);}
+	OID GetAlgorithmID() const {return RSAFunction::GetAlgorithmID();}
+	void BERDecodePrivateKey(BufferedTransformation &bt, bool parametersPresent, size_t size);
+	void DEREncodePrivateKey(BufferedTransformation &bt) const;
 
 	// TrapdoorFunctionInverse
 	Integer CalculateInverse(RandomNumberGenerator &rng, const Integer &x) const;

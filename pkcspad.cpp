@@ -2,6 +2,9 @@
 
 #include "pch.h"
 
+// prevent Sun's CC compiler from including this file automatically
+#if !defined(__SUNPRO_CC) || defined(CRYPTOPP_MANUALLY_INSTANTIATE_TEMPLATES)
+
 #include "pkcspad.h"
 #include <assert.h>
 
@@ -117,3 +120,5 @@ void PKCS1v15_SignatureMessageEncodingMethod::ComputeMessageRepresentative(Rando
 #endif
 
 NAMESPACE_END
+
+#endif

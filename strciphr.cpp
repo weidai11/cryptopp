@@ -2,11 +2,26 @@
 
 #include "pch.h"
 
+// prevent Sun's CC compiler from including this file automatically
+#if !defined(__SUNPRO_CC) || defined(CRYPTOPP_MANUALLY_INSTANTIATE_TEMPLATES)
+
 #ifndef CRYPTOPP_IMPORTS
 
 #include "strciphr.h"
 
 NAMESPACE_BEGIN(CryptoPP)
+
+template <class S>
+void AdditiveCipherTemplate<S>::UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params)
+{
+	PolicyInterface &policy = this->AccessPolicy();
+	policy.CipherSetKey(params, key, length);
+	m_leftOver = 0;
+	m_buffer.New(GetBufferByteSize(policy));
+
+	if (this->IsResynchronizable())
+		policy.CipherResynchronize(m_buffer, this->GetIVAndThrowIfInvalid(params));
+}
 
 template <class S>
 byte AdditiveCipherTemplate<S>::GenerateByte()
@@ -109,6 +124,18 @@ void AdditiveCipherTemplate<BASE>::Seek(lword position)
 }
 
 template <class BASE>
+void CFB_CipherTemplate<BASE>::UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params)
+{
+	PolicyInterface &policy = this->AccessPolicy();
+	policy.CipherSetKey(params, key, length);
+
+	if (this->IsResynchronizable())
+		policy.CipherResynchronize(this->GetIVAndThrowIfInvalid(params));
+
+	m_leftOver = policy.GetBytesPerIteration();
+}
+
+template <class BASE>
 void CFB_CipherTemplate<BASE>::Resynchronize(const byte *iv)
 {
 	PolicyInterface &policy = this->AccessPolicy();
@@ -191,5 +218,7 @@ void CFB_DecryptionTemplate<BASE>::CombineMessageAndShiftRegister(byte *output, 
 }
 
 NAMESPACE_END
+
+#endif
 
 #endif

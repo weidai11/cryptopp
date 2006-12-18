@@ -807,9 +807,9 @@ public:
 	void SetPrivateExponent(const Integer &x) {m_x = x;}
 
 	// PKCS8PrivateKey
-	void BERDecodeKey(BufferedTransformation &bt)
+	void BERDecodePrivateKey(BufferedTransformation &bt, bool, size_t)
 		{m_x.BERDecode(bt);}
-	void DEREncodeKey(BufferedTransformation &bt) const
+	void DEREncodePrivateKey(BufferedTransformation &bt) const
 		{m_x.DEREncode(bt);}
 
 private:

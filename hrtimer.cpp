@@ -18,7 +18,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-double TimerBase::ConvertTo(word64 t, Unit unit)
+double TimerBase::ConvertTo(TimerWord t, Unit unit)
 {
 	static unsigned long unitsPerSecondTable[] = {1, 1000, 1000*1000, 1000*1000*1000};
 
@@ -45,7 +45,7 @@ double TimerBase::ElapsedTimeAsDouble()
 
 	if (m_started)
 	{
-		word64 now = GetCurrentTimerValue();
+		TimerWord now = GetCurrentTimerValue();
 		if (m_last < now)	// protect against OS bugs where time goes backwards
 			m_last = now;
 		return ConvertTo(m_last - m_start, m_timerUnit);
@@ -62,7 +62,7 @@ unsigned long TimerBase::ElapsedTime()
 	return (unsigned long)elapsed;
 }
 
-word64 ThreadUserTimer::GetCurrentTimerValue()
+TimerWord ThreadUserTimer::GetCurrentTimerValue()
 {
 #if defined(CRYPTOPP_WIN32_AVAILABLE)
 	static bool getCurrentThreadImplemented = true;
@@ -79,10 +79,10 @@ word64 ThreadUserTimer::GetCurrentTimerValue()
 			}
 			throw Exception(Exception::OTHER_ERROR, "ThreadUserTimer: GetThreadTimes failed with error " + IntToString(lastError));
 		}
-		return now.dwLowDateTime + ((word64)now.dwHighDateTime << 32);
+		return now.dwLowDateTime + ((TimerWord)now.dwHighDateTime << 32);
 	}
 GetCurrentThreadNotImplemented:
-	return (word64)clock() * (10*1000*1000 / CLOCKS_PER_SEC);
+	return (TimerWord)clock() * (10*1000*1000 / CLOCKS_PER_SEC);
 #elif defined(CRYPTOPP_UNIX_AVAILABLE)
 	tms now;
 	times(&now);
@@ -92,7 +92,7 @@ GetCurrentThreadNotImplemented:
 #endif
 }
 
-word64 ThreadUserTimer::TicksPerSecond()
+TimerWord ThreadUserTimer::TicksPerSecond()
 {
 #if defined(CRYPTOPP_WIN32_AVAILABLE)
 	return 10*1000*1000;
@@ -106,7 +106,7 @@ word64 ThreadUserTimer::TicksPerSecond()
 
 #ifdef HIGHRES_TIMER_AVAILABLE
 
-word64 Timer::GetCurrentTimerValue()
+TimerWord Timer::GetCurrentTimerValue()
 {
 #if defined(CRYPTOPP_WIN32_AVAILABLE)
 	LARGE_INTEGER now;
@@ -116,11 +116,11 @@ word64 Timer::GetCurrentTimerValue()
 #elif defined(CRYPTOPP_UNIX_AVAILABLE)
 	timeval now;
 	gettimeofday(&now, NULL);
-	return (word64)now.tv_sec * 1000000 + now.tv_usec;
+	return (TimerWord)now.tv_sec * 1000000 + now.tv_usec;
 #endif
 }
 
-word64 Timer::TicksPerSecond()
+TimerWord Timer::TicksPerSecond()
 {
 #if defined(CRYPTOPP_WIN32_AVAILABLE)
 	static LARGE_INTEGER freq = {0};
@@ -135,6 +135,6 @@ word64 Timer::TicksPerSecond()
 #endif
 }
 
-#endif
+#endif	// HIGHRES_TIMER_AVAILABLE
 
 NAMESPACE_END

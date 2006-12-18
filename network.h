@@ -1,6 +1,10 @@
 #ifndef CRYPTOPP_NETWORK_H
 #define CRYPTOPP_NETWORK_H
 
+#include "config.h"
+
+#ifdef HIGHRES_TIMER_AVAILABLE
+
 #include "filters.h"
 #include "hrtimer.h"
 
@@ -157,8 +161,6 @@ public:
 	virtual bool EofSent() {return false;}	// implement if MustWaitForEof() == true
 };
 
-#ifdef HIGHRES_TIMER_AVAILABLE
-
 //! Network Source
 class CRYPTOPP_NO_VTABLE NetworkSource : public NonblockingSource
 {
@@ -226,8 +228,8 @@ private:
 	float m_byteCountSinceLastTimerReset, m_currentSpeed, m_maxObservedSpeed;
 };
 
-#endif	// #ifdef HIGHRES_TIMER_AVAILABLE
-
 NAMESPACE_END
+
+#endif	// #ifdef HIGHRES_TIMER_AVAILABLE
 
 #endif

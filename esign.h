@@ -8,11 +8,12 @@
 
 #include "pubkey.h"
 #include "integer.h"
+#include "asn.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
 //! _
-class ESIGNFunction : public TrapdoorFunction, public PublicKey, public ASN1CryptoMaterial
+class ESIGNFunction : public TrapdoorFunction, public ASN1CryptoMaterial<PublicKey>
 {
 	typedef ESIGNFunction ThisClass;
 

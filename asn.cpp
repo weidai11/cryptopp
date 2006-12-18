@@ -520,7 +520,7 @@ void X509PublicKey::BERDecode(BufferedTransformation &bt)
 
 		BERGeneralDecoder subjectPublicKey(subjectPublicKeyInfo, BIT_STRING);
 			subjectPublicKey.CheckByte(0);	// unused bits
-			BERDecodeKey2(subjectPublicKey, parametersPresent, (size_t)subjectPublicKey.RemainingLength());
+			BERDecodePublicKey(subjectPublicKey, parametersPresent, (size_t)subjectPublicKey.RemainingLength());
 		subjectPublicKey.MessageEnd();
 	subjectPublicKeyInfo.MessageEnd();
 }
@@ -536,7 +536,7 @@ void X509PublicKey::DEREncode(BufferedTransformation &bt) const
 
 		DERGeneralEncoder subjectPublicKey(subjectPublicKeyInfo, BIT_STRING);
 			subjectPublicKey.Put(0);	// unused bits
-			DEREncodeKey(subjectPublicKey);
+			DEREncodePublicKey(subjectPublicKey);
 		subjectPublicKey.MessageEnd();
 
 	subjectPublicKeyInfo.MessageEnd();
@@ -554,7 +554,7 @@ void PKCS8PrivateKey::BERDecode(BufferedTransformation &bt)
 		algorithm.MessageEnd();
 
 		BERGeneralDecoder octetString(privateKeyInfo, OCTET_STRING);
-			BERDecodeKey2(octetString, parametersPresent, (size_t)privateKeyInfo.RemainingLength());
+			BERDecodePrivateKey(octetString, parametersPresent, (size_t)privateKeyInfo.RemainingLength());
 		octetString.MessageEnd();
 
 		if (!privateKeyInfo.EndReached())
@@ -573,7 +573,7 @@ void PKCS8PrivateKey::DEREncode(BufferedTransformation &bt) const
 		algorithm.MessageEnd();
 
 		DERGeneralEncoder octetString(privateKeyInfo, OCTET_STRING);
-			DEREncodeKey(octetString);
+			DEREncodePrivateKey(octetString);
 		octetString.MessageEnd();
 
 		DEREncodeOptionalAttributes(privateKeyInfo);

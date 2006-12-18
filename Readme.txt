@@ -357,6 +357,6 @@ the mailing list.
 
 5.4 - added Salsa20
     - updated Whirlpool to version 3.0
-    - ported to GCC 4.1 and Borland C++Builder 2006
+    - ported to GCC 4.1, Sun C++ 5.8, and Borland C++Builder 2006
 
 Written by Wei Dai

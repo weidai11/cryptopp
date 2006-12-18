@@ -42,17 +42,6 @@ public:
 	explicit InvalidRounds(const std::string &algorithm, unsigned int rounds) : InvalidArgument(algorithm + ": " + IntToString(rounds) + " is not a valid number of rounds") {}
 };
 
-//! _
-// TODO: look into this virtual inheritance
-class CRYPTOPP_DLL ASN1CryptoMaterial : virtual public ASN1Object, virtual public CryptoMaterial
-{
-public:
-	void Save(BufferedTransformation &bt) const
-		{BEREncode(bt);}
-	void Load(BufferedTransformation &bt)
-		{BERDecode(bt);}
-};
-
 // *****************************
 
 //! _

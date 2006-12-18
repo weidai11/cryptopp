@@ -3,8 +3,6 @@
 #include "pch.h"
 #include "wake.h"
 
-#include "strciphr.cpp"
-
 NAMESPACE_BEGIN(CryptoPP)
 
 void WAKE_TestInstantiations()

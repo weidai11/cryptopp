@@ -12,7 +12,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 template <class T> struct DigestSizeSubtract4Workaround		// VC60 workaround
 {
-	CRYPTOPP_CONSTANT(RESULT = T::DIGESTSIZE-4);
+	CRYPTOPP_CONSTANT(RESULT = T::DIGESTSIZE-4)
 };
 
 template <class T>
@@ -54,7 +54,7 @@ private:
 	void HashEndianCorrectedBlock(const HashWordType *data);
 
 	FixedSizeSecBlock<byte, DigestSizeSubtract4Workaround<T>::RESULT> m_key;
-	CRYPTOPP_CONSTANT(BUFFER_SIZE = (T::DIGESTSIZE / sizeof(HashWordType)));	// VC60 workaround
+	CRYPTOPP_CONSTANT(BUFFER_SIZE = (T::DIGESTSIZE / sizeof(HashWordType)))		// VC60 workaround
 #ifdef __BORLANDC__
 	FixedSizeSecBlock<HashWordType, T::DIGESTSIZE / sizeof(HashWordType)> m_buffer;
 #else

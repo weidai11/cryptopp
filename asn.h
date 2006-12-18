@@ -230,38 +230,53 @@ public:
 	}
 };
 
-//! key that can be ASN.1 encoded
-/** derived class should override either BERDecodeKey or BERDecodeKey2 */
-class CRYPTOPP_DLL ASN1Key : public ASN1CryptoMaterial
+//! _
+template <class BASE>
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE ASN1CryptoMaterial : public ASN1Object, public BASE
 {
 public:
+	void Save(BufferedTransformation &bt) const
+		{BEREncode(bt);}
+	void Load(BufferedTransformation &bt)
+		{BERDecode(bt);}
+};
+
+//! encodes/decodes subjectPublicKeyInfo
+class CRYPTOPP_DLL X509PublicKey : public ASN1CryptoMaterial<PublicKey>
+{
+public:
+	void BERDecode(BufferedTransformation &bt);
+	void DEREncode(BufferedTransformation &bt) const;
+
 	virtual OID GetAlgorithmID() const =0;
 	virtual bool BERDecodeAlgorithmParameters(BufferedTransformation &bt)
 		{BERDecodeNull(bt); return false;}
 	virtual bool DEREncodeAlgorithmParameters(BufferedTransformation &bt) const
 		{DEREncodeNull(bt); return false;}	// see RFC 2459, section 7.3.1
-	//! decode subjectPublicKey part of subjectPublicKeyInfo, or privateKey part of privateKeyInfo, without the BIT STRING or OCTET STRING header
-	virtual void BERDecodeKey(BufferedTransformation &bt) {assert(false);}
-	virtual void BERDecodeKey2(BufferedTransformation &bt, bool parametersPresent, size_t size)
-		{BERDecodeKey(bt);}
-	//! encode subjectPublicKey part of subjectPublicKeyInfo, or privateKey part of privateKeyInfo, without the BIT STRING or OCTET STRING header
-	virtual void DEREncodeKey(BufferedTransformation &bt) const =0;
-};
 
-//! encodes/decodes subjectPublicKeyInfo
-class CRYPTOPP_DLL X509PublicKey : virtual public ASN1Key, public PublicKey
-{
-public:
-	void BERDecode(BufferedTransformation &bt);
-	void DEREncode(BufferedTransformation &bt) const;
+	//! decode subjectPublicKey part of subjectPublicKeyInfo, without the BIT STRING header
+	virtual void BERDecodePublicKey(BufferedTransformation &bt, bool parametersPresent, size_t size) =0;
+	//! encode subjectPublicKey part of subjectPublicKeyInfo, without the BIT STRING header
+	virtual void DEREncodePublicKey(BufferedTransformation &bt) const =0;
 };
 
 //! encodes/decodes privateKeyInfo
-class CRYPTOPP_DLL PKCS8PrivateKey : virtual public ASN1Key, public PrivateKey
+class CRYPTOPP_DLL PKCS8PrivateKey : public ASN1CryptoMaterial<PrivateKey>
 {
 public:
 	void BERDecode(BufferedTransformation &bt);
 	void DEREncode(BufferedTransformation &bt) const;
+
+	virtual OID GetAlgorithmID() const =0;
+	virtual bool BERDecodeAlgorithmParameters(BufferedTransformation &bt)
+		{BERDecodeNull(bt); return false;}
+	virtual bool DEREncodeAlgorithmParameters(BufferedTransformation &bt) const
+		{DEREncodeNull(bt); return false;}	// see RFC 2459, section 7.3.1
+
+	//! decode privateKey part of privateKeyInfo, without the OCTET STRING header
+	virtual void BERDecodePrivateKey(BufferedTransformation &bt, bool parametersPresent, size_t size) =0;
+	//! encode privateKey part of privateKeyInfo, without the OCTET STRING header
+	virtual void DEREncodePrivateKey(BufferedTransformation &bt) const =0;
 
 	//! decode optional attributes including context-specific tag
 	/*! /note default implementation stores attributes to be output in DEREncodeOptionalAttributes */
@@ -269,7 +284,7 @@ public:
 	//! encode optional attributes including context-specific tag
 	virtual void DEREncodeOptionalAttributes(BufferedTransformation &bt) const;
 
-private:
+protected:
 	ByteQueue m_optionalAttributes;
 };
 

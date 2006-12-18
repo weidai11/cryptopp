@@ -150,8 +150,8 @@ public:
 		{this->AccessGroupParameters().Initialize(ec, G, n); SetPublicElement(Q);}
 
 	// X509PublicKey
-	void BERDecodeKey2(BufferedTransformation &bt, bool parametersPresent, size_t size);
-	void DEREncodeKey(BufferedTransformation &bt) const;
+	void BERDecodePublicKey(BufferedTransformation &bt, bool parametersPresent, size_t size);
+	void DEREncodePublicKey(BufferedTransformation &bt) const;
 };
 
 //! EC private key
@@ -171,8 +171,8 @@ public:
 		{GenerateRandom(rng, DL_GroupParameters_EC<EC>(ec, G, n));}
 
 	// PKCS8PrivateKey
-	void BERDecodeKey2(BufferedTransformation &bt, bool parametersPresent, size_t size);
-	void DEREncodeKey(BufferedTransformation &bt) const;
+	void BERDecodePrivateKey(BufferedTransformation &bt, bool parametersPresent, size_t size);
+	void DEREncodePrivateKey(BufferedTransformation &bt) const;
 };
 
 //! Elliptic Curve Diffie-Hellman, AKA <a href="http://www.weidai.com/scan-mirror/ka.html#ECDH">ECDH</a>
