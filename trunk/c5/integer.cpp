@@ -3238,7 +3238,7 @@ public:
 		return b;
 	}
 
-	void GenerateBlock(byte *output, unsigned int size)
+	void GenerateBlock(byte *output, size_t size)
 	{
 		UnalignedPutWord(BIG_ENDIAN_ORDER, m_counterAndSeed, m_counter);
 		++m_counter;

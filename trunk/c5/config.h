@@ -128,8 +128,15 @@ typedef unsigned int word32;
 	// allow any way to access the 64-bit by 64-bit multiply instruction without using
 	// assembly, so in order to use word64 as word, the assembly instruction must be defined
 	// in Dword::Multiply().
-	typedef word32 hword;
-	typedef word64 word;
+	#if defined(__SUNPRO_CC)	// no Dword::Multiply() for these compilers yet
+		#define CRYPTOPP_NATIVE_DWORD_AVAILABLE
+		typedef word16 hword;
+		typedef word32 word;
+		typedef word64 dword;
+	#else
+		typedef word32 hword;
+		typedef word64 word;
+	#endif
 #else
 	#define CRYPTOPP_NATIVE_DWORD_AVAILABLE
 	#ifdef WORD64_AVAILABLE
