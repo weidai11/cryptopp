@@ -2,8 +2,8 @@
 
 #include "pch.h"
 
-// prevent Sun's CC compiler from including this file automatically
-#if !defined(__SUNPRO_CC) || defined(CRYPTOPP_MANUALLY_INSTANTIATE_TEMPLATES)
+#ifndef CRYPTOPP_ALGEBRA_CPP	// SunCC workaround: compiler could cause this file to be included twice
+#define CRYPTOPP_ALGEBRA_CPP
 
 #include "algebra.h"
 #include "integer.h"
