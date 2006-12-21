@@ -117,6 +117,13 @@ static inline void FPERM(word32 &left, word32 &right)
 	left = rotrFixed(left^work, 4U);
 }
 
+void DES::Base::UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &)
+{
+	AssertValidKeyLength(length);
+
+	RawSetKey(GetCipherDirection(), userKey);
+}
+
 #ifndef CRYPTOPP_IMPORTS
 
 /* Tables defined in the Data Encryption Standard documents
@@ -343,13 +350,6 @@ void RawDES::RawProcessBlock(word32 &l_, word32 &r_) const
 	}
 
 	l_ = l; r_ = r;
-}
-
-void DES::Base::UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &)
-{
-	AssertValidKeyLength(length);
-
-	RawSetKey(GetCipherDirection(), userKey);
 }
 
 void DES_EDE2::Base::UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &)
