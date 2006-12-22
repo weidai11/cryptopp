@@ -384,7 +384,7 @@ unsigned int Deflator::LongestMatch(unsigned int &bestMatch) const
 		{
 			assert(scan[2] == match[2]);
 			unsigned int len = (unsigned int)(
-#ifdef _STDEXT_BEGIN
+#if defined(_STDEXT_BEGIN) && !(defined(_MSC_VER) && _MSC_VER < 1400)
 				stdext::unchecked_mismatch
 #else
 				std::mismatch
