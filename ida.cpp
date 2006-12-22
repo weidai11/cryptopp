@@ -392,8 +392,8 @@ size_t PaddingRemover::Put2(const byte *begin, size_t length, int messageEnd, bo
 		m_possiblePadding = false;
 	}
 
-#if defined(_MSC_VER) && !defined(__MWERKS__) && (_MSC_VER < 1300)
-	// VC60 workaround: built-in reverse_iterator has two template parameters, Dinkumware only has one
+#if defined(_MSC_VER) && !defined(__MWERKS__) && (_MSC_VER <= 1300)
+	// VC60 and VC7 workaround: built-in reverse_iterator has two template parameters, Dinkumware only has one
 	typedef reverse_bidirectional_iterator<const byte *, const byte> RevIt;
 #elif defined(_RWSTD_NO_CLASS_PARTIAL_SPEC)
 	typedef reverse_iterator<const byte *, random_access_iterator_tag, const byte> RevIt;
