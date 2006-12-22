@@ -1,5 +1,5 @@
 Crypto++: a C++ Class Library of Cryptographic Schemes
-Version 5.4 (in development)
+Version 5.4 12/22/2006
 
 This library includes:
 
@@ -57,7 +57,7 @@ You are welcome to use it for any purpose without paying me, but see
 License.txt for the fine print.
 
 This version of Crypto++ has been compiled successfully with MSVC 6.0 SP5
-and .NET 2005 on Windows XP SP2, GCC 3.4.2 on FreeBSD 5.4, GCC 4.1.2 on
+and .NET 2005 SP1 on Windows XP SP2, GCC 3.4.2 on FreeBSD 5.4, GCC 4.1.2 on
 Linux 2.6, GCC 3.4.4 on Cygwin 1.5.21, GCC 3.3 and 4.0.1 on MacOS X 10.4,
 and Borland C++Builder 2006. For an update to date list of supported compilers
 and operating systems, please visit http://www.cryptopp.com.
@@ -85,8 +85,9 @@ form of the static library. MSVC project files are included to build
 all three forms, and sample applications using each of the three forms
 are also included.
 
-To compile Crypto++ with MSVC, open the "cryptest.dsw" workspace file
-and build one or more of the following projects:
+To compile Crypto++ with MSVC, open the "cryptest.dsw" (for MSVC 6 and MSVC .NET 
+2003) or "cryptest.sln" (for MSVC .NET 2005) workspace file and build one or 
+more of the following projects:
 
 cryptdll - This builds the DLL. Please note that if you wish to use Crypto++
   as a FIPS validated module, you must use a pre-built DLL that has undergone
