@@ -52,6 +52,10 @@ being unloaded from L1 cache, until that round is finished.
 #include "rijndael.h"
 #include "misc.h"
 
+#ifdef CRYPTOPP_L1_CACHE_ALIGN_NOT_AVAILABLE
+#pragma message("Don't know how to align data on L1 cache boundary. Defense against AES timing attack may be affected.")
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keylen, const NameValuePairs &)

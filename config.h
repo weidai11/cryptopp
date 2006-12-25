@@ -154,6 +154,8 @@ typedef unsigned int word32;
 const unsigned int WORD_SIZE = sizeof(word);
 const unsigned int WORD_BITS = WORD_SIZE * 8;
 
+NAMESPACE_END
+
 #if defined(_MSC_VER) // || defined(__BORLANDC__) intrinsics don't work on BCB 2006
 	#define INTEL_INTRINSICS
 	#define FAST_ROTATE
@@ -171,23 +173,38 @@ const unsigned int WORD_BITS = WORD_SIZE * 8;
 	#define CRYPTOPP_L1_CACHE_LINE_SIZE 32
 #endif
 
+#if defined(_MSC_VER)
+	#if _MSC_VER == 1200
+		#include <malloc.h>
+	#endif
+	#if _MSC_VER > 1200 || defined(_mm_free)
+		#define CRYPTOPP_MSVC6PP_OR_LATER		// VC 6 processor pack or later
+	#endif
+#endif
+
 #ifndef CRYPTOPP_L1_CACHE_ALIGN
-	#if defined(_MSC_VER)
+	#if defined(CRYPTOPP_MSVC6PP_OR_LATER)
 		#define CRYPTOPP_L1_CACHE_ALIGN(x) __declspec(align(CRYPTOPP_L1_CACHE_LINE_SIZE)) x
 	#elif defined(__GNUC__)
 		#define CRYPTOPP_L1_CACHE_ALIGN(x) x __attribute__((aligned(CRYPTOPP_L1_CACHE_LINE_SIZE)))
 	#else
+		#define CRYPTOPP_L1_CACHE_ALIGN_NOT_AVAILABLE
 		#define CRYPTOPP_L1_CACHE_ALIGN(x) x
 	#endif
 #endif
-
-NAMESPACE_END
 
 // VC60 workaround: it doesn't allow typename in some places
 #if defined(_MSC_VER) && (_MSC_VER < 1300)
 #define CPP_TYPENAME
 #else
 #define CPP_TYPENAME typename
+#endif
+
+// VC60 workaround: can't cast unsigned __int64 to float or double
+#if defined(_MSC_VER) && !defined(CRYPTOPP_MSVC6PP_OR_LATER)
+#define CRYPTOPP_VC6_INT64 (__int64)
+#else
+#define CRYPTOPP_VC6_INT64
 #endif
 
 #ifdef _MSC_VER
@@ -239,17 +256,27 @@ NAMESPACE_END
 #endif
 
 // how to declare class constants
-#if defined(_MSC_VER) && _MSC_VER < 1300
+#if defined(_MSC_VER) && _MSC_VER <= 1300
 #	define CRYPTOPP_CONSTANT(x) enum {x};
 #else
 #	define CRYPTOPP_CONSTANT(x) static const int x;
 #endif
 
-// how to allocate 16-byte aligned memory (for SSE2)
-#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
-#	define CRYPTOPP_MALLOC_ALIGNMENT_IS_16
-#elif defined(__linux__) || defined(__sun__) || defined(__CYGWIN__)
-#	define CRYPTOPP_MEMALIGN_AVAILABLE
+#ifdef CRYPTOPP_X86ASM_AVAILABLE
+	#if defined(CRYPTOPP_MSVC6PP_OR_LATER) || (defined(__INTEL_COMPILER) && (__INTEL_COMPILER >= 500)) || (defined(__ICL) && (__ICL >= 500))
+		#define SSE2_INTRINSICS_AVAILABLE
+		#define CRYPTOPP_MM_MALLOC_AVAILABLE
+	#endif
+	// SSE2 intrinsics work in GCC 3.3 or later
+	#if defined(__SSE2__) && (__GNUC__ > 3 || __GNUC_MINOR__ > 2)
+		#define SSE2_INTRINSICS_AVAILABLE
+		// how to allocate 16-byte aligned memory (for SSE2)
+		#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
+			#define CRYPTOPP_MALLOC_ALIGNMENT_IS_16
+		#elif defined(__linux__) || defined(__sun__) || defined(__CYGWIN__)
+			#define CRYPTOPP_MEMALIGN_AVAILABLE
+		#endif
+	#endif
 #endif
 
 // ***************** determine availability of OS features ********************

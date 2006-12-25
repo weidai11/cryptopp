@@ -395,7 +395,7 @@ float NetworkSink::ComputeCurrentSpeed()
 float NetworkSink::GetMaxObservedSpeed() const
 {
 	lword m = GetMaxBytesPerSecond();
-	return m ? STDMIN(m_maxObservedSpeed, float(m)) : m_maxObservedSpeed;
+	return m ? STDMIN(m_maxObservedSpeed, float(CRYPTOPP_VC6_INT64 m)) : m_maxObservedSpeed;
 }
 
 unsigned int NetworkSink::GetMaxWaitObjectCount() const

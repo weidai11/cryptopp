@@ -9,29 +9,6 @@
 #include <iosfwd>
 #include <algorithm>
 
-#ifdef CRYPTOPP_X86ASM_AVAILABLE
-
-#ifdef _M_IX86
-	#if (defined(__INTEL_COMPILER) && (__INTEL_COMPILER >= 500)) || (defined(__ICL) && (__ICL >= 500))
-		#define SSE2_INTRINSICS_AVAILABLE
-		#define CRYPTOPP_MM_MALLOC_AVAILABLE
-	#elif defined(_MSC_VER)
-		// _mm_free seems to be the only way to tell if the Processor Pack is installed or not
-		#include <malloc.h>
-		#if defined(_mm_free)
-			#define SSE2_INTRINSICS_AVAILABLE
-			#define CRYPTOPP_MM_MALLOC_AVAILABLE
-		#endif
-	#endif
-#endif
-
-// SSE2 intrinsics work in GCC 3.3 or later
-#if defined(__SSE2__) && (__GNUC__ > 3 || __GNUC_MINOR__ > 2)
-	#define SSE2_INTRINSICS_AVAILABLE
-#endif
-
-#endif
-
 NAMESPACE_BEGIN(CryptoPP)
 
 #if defined(SSE2_INTRINSICS_AVAILABLE)
