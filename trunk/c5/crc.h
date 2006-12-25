@@ -24,6 +24,7 @@ public:
 	void Update(const byte *input, size_t length);
 	void TruncatedFinal(byte *hash, size_t size);
 	unsigned int DigestSize() const {return DIGESTSIZE;}
+    std::string AlgorithmName() const {return "CRC32";}
 
 	void UpdateByte(byte b) {m_crc = m_tab[CRC32_INDEX(m_crc) ^ b] ^ CRC32_SHIFTED(m_crc);}
 	byte GetCrcByte(size_t i) const {return ((byte *)&(m_crc))[i];}

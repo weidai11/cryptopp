@@ -14,6 +14,7 @@ public:
 	void Update(const byte *input, size_t length);
 	void TruncatedFinal(byte *hash, size_t size);
 	unsigned int DigestSize() const {return DIGESTSIZE;}
+    std::string AlgorithmName() const {return "Adler32";}
 
 private:
 	void Reset() {m_s1 = 1; m_s2 = 0;}
