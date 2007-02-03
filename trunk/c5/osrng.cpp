@@ -85,7 +85,7 @@ void NonblockingRng::GenerateBlock(byte *output, size_t size)
 {
 #ifdef CRYPTOPP_WIN32_AVAILABLE
 #	ifdef WORKAROUND_MS_BUG_Q258000
-		static MicrosoftCryptoProvider m_Provider;
+		const MicrosoftCryptoProvider &m_Provider = Singleton<MicrosoftCryptoProvider>().Ref();
 #	endif
 	if (!CryptGenRandom(m_Provider.GetProviderHandle(), (DWORD)size, output))
 		throw OS_RNG_Err("CryptGenRandom");
