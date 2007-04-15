@@ -53,14 +53,23 @@ protected:
 	POLICY_INTERFACE & AccessPolicy() {return *this;}
 };
 
-enum KeystreamOperation {WRITE_KEYSTREAM, XOR_KEYSTREAM, XOR_KEYSTREAM_INPLACE};
+enum KeystreamOperationFlags {OUTPUT_ALIGNED=1, INPUT_ALIGNED=2, INPUT_NULL = 4};
+enum KeystreamOperation {
+	WRITE_KEYSTREAM				= INPUT_NULL, 
+	WRITE_KEYSTREAM_ALIGNED		= INPUT_NULL | OUTPUT_ALIGNED, 
+	XOR_KEYSTREAM				= 0, 
+	XOR_KEYSTREAM_INPUT_ALIGNED = INPUT_ALIGNED, 
+	XOR_KEYSTREAM_OUTPUT_ALIGNED= OUTPUT_ALIGNED, 
+	XOR_KEYSTREAM_BOTH_ALIGNED	= OUTPUT_ALIGNED | INPUT_ALIGNED};
 
 struct CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AdditiveCipherAbstractPolicy
 {
-	virtual unsigned int GetAlignment() const =0;
+	virtual unsigned int GetAlignment() const {return 1;}
 	virtual unsigned int GetBytesPerIteration() const =0;
+	virtual unsigned int GetOptimalBlockSize() const {return GetBytesPerIteration();}
 	virtual unsigned int GetIterationsToBuffer() const =0;
-	virtual void WriteKeystream(byte *keystreamBuffer, size_t iterationCount) =0;
+	virtual void WriteKeystream(byte *keystream, size_t iterationCount)
+		{OperateKeystream(KeystreamOperation(INPUT_NULL | (KeystreamOperationFlags)IsAlignedOn(keystream, GetAlignment())), keystream, NULL, iterationCount);}
 	virtual bool CanOperateKeystream() const {return false;}
 	virtual void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount) {assert(false);}
 	virtual void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length) =0;
@@ -74,59 +83,62 @@ template <typename WT, unsigned int W, unsigned int X = 1, class BASE = Additive
 struct CRYPTOPP_NO_VTABLE AdditiveCipherConcretePolicy : public BASE
 {
 	typedef WT WordType;
+	CRYPTOPP_CONSTANT(BYTES_PER_ITERATION = sizeof(WordType) * W);
 
-	unsigned int GetAlignment() const {return sizeof(WordType);}
-	unsigned int GetBytesPerIteration() const {return sizeof(WordType) * W;}
+#if !(CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X64)
+	unsigned int GetAlignment() const {return GetAlignmentOf<WordType>();}
+#endif
+	unsigned int GetBytesPerIteration() const {return BYTES_PER_ITERATION;}
 	unsigned int GetIterationsToBuffer() const {return X;}
-	void WriteKeystream(byte *buffer, size_t iterationCount)
-		{OperateKeystream(WRITE_KEYSTREAM, buffer, NULL, iterationCount);}
 	bool CanOperateKeystream() const {return true;}
 	virtual void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount) =0;
-
-	template <class B>
-	struct KeystreamOutput
-	{
-		KeystreamOutput(KeystreamOperation operation, byte *output, const byte *input)
-			: m_operation(operation), m_output(output), m_input(input) {}
-
-		inline KeystreamOutput & operator()(WordType keystreamWord)
-		{
-			assert(IsAligned<WordType>(m_input));
-			assert(IsAligned<WordType>(m_output));
-
-			if (!NativeByteOrderIs(B::ToEnum()))
-				keystreamWord = ByteReverse(keystreamWord);
-
-			if (m_operation == WRITE_KEYSTREAM)
-				*(WordType*)m_output = keystreamWord;
-			else if (m_operation == XOR_KEYSTREAM)
-			{
-				*(WordType*)m_output = keystreamWord ^ *(WordType*)m_input;
-				m_input += sizeof(WordType);
-			}
-			else if (m_operation == XOR_KEYSTREAM_INPLACE)
-				*(WordType*)m_output ^= keystreamWord;
-
-			m_output += sizeof(WordType);
-
-			return *this;
-		}
-
-		KeystreamOperation m_operation;
-		byte *m_output;
-		const byte *m_input;
-	};
 };
+
+// use these to implement OperateKeystream
+#define CRYPTOPP_KEYSTREAM_OUTPUT_WORD(x, b, i, a)	\
+	PutWord(bool(x & OUTPUT_ALIGNED), b, output+i*sizeof(WordType), (x & INPUT_NULL) ? a : a ^ GetWord<WordType>(bool(x & INPUT_ALIGNED), b, input+i*sizeof(WordType)));
+#define CRYPTOPP_KEYSTREAM_OUTPUT_XMM(x, i, a)	{\
+	__m128i t = (x & INPUT_NULL) ? a : _mm_xor_si128(a, (x & INPUT_ALIGNED) ? _mm_load_si128((__m128i *)input+i) : _mm_loadu_si128((__m128i *)input+i));\
+	if (x & OUTPUT_ALIGNED) _mm_store_si128((__m128i *)output+i, t);\
+	else _mm_storeu_si128((__m128i *)output+i, t);}
+#define CRYPTOPP_KEYSTREAM_OUTPUT_SWITCH(x, y)	\
+	switch (operation)							\
+	{											\
+		case WRITE_KEYSTREAM:					\
+			x(WRITE_KEYSTREAM)					\
+			break;								\
+		case XOR_KEYSTREAM:						\
+			x(XOR_KEYSTREAM)					\
+			input += y;							\
+			break;								\
+		case XOR_KEYSTREAM_INPUT_ALIGNED:		\
+			x(XOR_KEYSTREAM_INPUT_ALIGNED)		\
+			input += y;							\
+			break;								\
+		case XOR_KEYSTREAM_OUTPUT_ALIGNED:		\
+			x(XOR_KEYSTREAM_OUTPUT_ALIGNED)		\
+			input += y;							\
+			break;								\
+		case WRITE_KEYSTREAM_ALIGNED:			\
+			x(WRITE_KEYSTREAM_ALIGNED)			\
+			break;								\
+		case XOR_KEYSTREAM_BOTH_ALIGNED:		\
+			x(XOR_KEYSTREAM_BOTH_ALIGNED)		\
+			input += y;							\
+			break;								\
+	}											\
+	output += y;
 
 template <class BASE = AbstractPolicyHolder<AdditiveCipherAbstractPolicy, TwoBases<SymmetricCipher, RandomNumberGenerator> > >
 class CRYPTOPP_NO_VTABLE AdditiveCipherTemplate : public BASE
 {
 public:
     byte GenerateByte();
+	void GenerateBlock(byte *output, size_t size);
     void ProcessData(byte *outString, const byte *inString, size_t length);
 	void GetNextIV(byte *iv) {this->AccessPolicy().CipherGetNextIV(iv);}
 	void Resynchronize(const byte *iv);
-	unsigned int OptimalBlockSize() const {return this->GetPolicy().GetBytesPerIteration();}
+	unsigned int OptimalBlockSize() const {return this->GetPolicy().GetOptimalBlockSize();}
 	unsigned int GetOptimalNextBlockSize() const {return (unsigned int)this->m_leftOver;}
 	unsigned int OptimalDataAlignment() const {return this->GetPolicy().GetAlignment();}
 	bool IsSelfInverting() const {return true;}

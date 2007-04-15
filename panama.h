@@ -1,8 +1,6 @@
 #ifndef CRYPTOPP_PANAMA_H
 #define CRYPTOPP_PANAMA_H
 
-#include "seckey.h"
-#include "secblock.h"
 #include "strciphr.h"
 #include "iterhash.h"
 
@@ -20,10 +18,10 @@ protected:
 	typedef word32 Stage[8];
 	CRYPTOPP_CONSTANT(STAGES = 32)
 
-	FixedSizeSecBlock<word32, 17*2 + 32*sizeof(Stage)> m_state;
-	unsigned int m_bstart;
+	FixedSizeAlignedSecBlock<word32, 20 + 8*32> m_state;
 };
 
+namespace Weak {
 /// <a href="http://www.weidai.com/scan-mirror/md.html#Panama">Panama Hash</a>
 template <class B = LittleEndian>
 class PanamaHash : protected Panama<B>, public AlgorithmImpl<IteratedHash<word32, NativeByteOrder, 32>, PanamaHash<B> >
@@ -39,7 +37,9 @@ protected:
 	void Init() {Panama<B>::Reset();}
 	void HashEndianCorrectedBlock(const word32 *data) {this->Iterate(1, data);}	// push
 	size_t HashMultipleBlocks(const word32 *input, size_t length);
+	word32* StateBuf() {return NULL;}
 };
+}
 
 //! MAC construction using a hermetic hash function
 template <class T_Hash, class T_Info = T_Hash>
@@ -94,6 +94,7 @@ protected:
 	SecByteBlock m_key;
 };
 
+namespace Weak {
 /// Panama MAC
 template <class B = LittleEndian>
 class PanamaMAC : public HermeticHashFunctionMAC<PanamaHash<B> >
@@ -103,10 +104,11 @@ public:
 	PanamaMAC(const byte *key, unsigned int length)
 		{this->SetKey(key, length);}
 };
+}
 
 //! algorithm info
 template <class B>
-struct PanamaCipherInfo : public VariableKeyLength<32, 32, 64, 32, SimpleKeyingInterface::NOT_RESYNCHRONIZABLE>
+struct PanamaCipherInfo : public FixedKeyLength<32, SimpleKeyingInterface::UNIQUE_IV, 32>
 {
 	static const char * StaticAlgorithmName() {return B::ToEnum() == BIG_ENDIAN_ORDER ? "Panama-BE" : "Panama-LE";}
 };
@@ -121,9 +123,15 @@ protected:
 	void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length);
 	void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount);
 	bool IsRandomAccess() const {return false;}
+	void CipherResynchronize(byte *keystreamBuffer, const byte *iv);
+#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X64
+	unsigned int GetAlignment() const;
+#endif
+
+	FixedSizeSecBlock<word32, 8> m_key;
 };
 
-//! <a href="http://www.weidai.com/scan-mirror/cs.html#Panama">Panama Stream Cipher</a>
+//! <a href="http://www.cryptolounge.org/wiki/PANAMA">Panama Stream Cipher</a>
 template <class B = LittleEndian>
 struct PanamaCipher : public PanamaCipherInfo<B>, public SymmetricCipherDocumentation
 {
