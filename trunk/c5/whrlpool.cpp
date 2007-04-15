@@ -1,7 +1,7 @@
-// Whrlpool.cpp - modified by Kevin Springle from
+// whrlpool.cpp - originally modified by Kevin Springle from
 // Paulo Barreto and Vincent Rijmen's public domain code, whirlpool.c.
+// Updated to Whirlpool version 3.0, optimized and MMX version added by Wei Dai
 // Any modifications are placed in the public domain
-// Updated to Whirlpool version 3.0 by Wei Dai
 
 // This is the original introductory comment:
 
@@ -69,6 +69,7 @@
 
 #include "whrlpool.h"
 #include "misc.h"
+#include "cpu.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -94,9 +95,9 @@ void Whirlpool::TruncatedFinal(byte *hash, size_t size)
 	m_data[m_data.size()-2] = GetBitCountHi();
 	m_data[m_data.size()-1] = GetBitCountLo();
 
-	Transform(m_digest, m_data);
-	CorrectEndianess(m_digest, m_digest, DigestSize());
-	memcpy(hash, m_digest, size);
+	Transform(m_state, m_data);
+	CorrectEndianess(m_state, m_state, DigestSize());
+	memcpy(hash, m_state, size);
 
 	Restart();		// reinit for next use
 }
@@ -113,7 +114,7 @@ void Whirlpool::TruncatedFinal(byte *hash, size_t size)
  * employed).
  */
 
-static const word64 C0[256] = {
+CRYPTOPP_ALIGN_DATA(16) static const word64 Whirlpool_C[4*256+R] CRYPTOPP_SECTION_ALIGN16 = {
     W64LIT(0x18186018c07830d8), W64LIT(0x23238c2305af4626), W64LIT(0xc6c63fc67ef991b8), W64LIT(0xe8e887e8136fcdfb),
     W64LIT(0x878726874ca113cb), W64LIT(0xb8b8dab8a9626d11), W64LIT(0x0101040108050209), W64LIT(0x4f4f214f426e9e0d),
     W64LIT(0x3636d836adee6c9b), W64LIT(0xa6a6a2a6590451ff), W64LIT(0xd2d26fd2debdb90c), W64LIT(0xf5f5f3f5fb06f70e),
@@ -177,11 +178,9 @@ static const word64 C0[256] = {
     W64LIT(0x16165816b04e2ca6), W64LIT(0x3a3ae83acdd274f7), W64LIT(0x6969b9696fd0d206), W64LIT(0x09092409482d1241),
     W64LIT(0x7070dd70a7ade0d7), W64LIT(0xb6b6e2b6d954716f), W64LIT(0xd0d067d0ceb7bd1e), W64LIT(0xeded93ed3b7ec7d6),
     W64LIT(0xcccc17cc2edb85e2), W64LIT(0x424215422a578468), W64LIT(0x98985a98b4c22d2c), W64LIT(0xa4a4aaa4490e55ed),
-    W64LIT(0x2828a0285d885075), W64LIT(0x5c5c6d5cda31b886), W64LIT(0xf8f8c7f8933fed6b), W64LIT(0x8686228644a411c2),
-};
+	W64LIT(0x2828a0285d885075), W64LIT(0x5c5c6d5cda31b886), W64LIT(0xf8f8c7f8933fed6b), W64LIT(0x8686228644a411c2),
 
-static const word64 C1[256] = {
-    W64LIT(0xd818186018c07830), W64LIT(0x2623238c2305af46), W64LIT(0xb8c6c63fc67ef991), W64LIT(0xfbe8e887e8136fcd),
+	W64LIT(0xd818186018c07830), W64LIT(0x2623238c2305af46), W64LIT(0xb8c6c63fc67ef991), W64LIT(0xfbe8e887e8136fcd),
     W64LIT(0xcb878726874ca113), W64LIT(0x11b8b8dab8a9626d), W64LIT(0x0901010401080502), W64LIT(0x0d4f4f214f426e9e),
     W64LIT(0x9b3636d836adee6c), W64LIT(0xffa6a6a2a6590451), W64LIT(0x0cd2d26fd2debdb9), W64LIT(0x0ef5f5f3f5fb06f7),
     W64LIT(0x967979f979ef80f2), W64LIT(0x306f6fa16f5fcede), W64LIT(0x6d91917e91fcef3f), W64LIT(0xf852525552aa07a4),
@@ -245,10 +244,8 @@ static const word64 C1[256] = {
     W64LIT(0xd77070dd70a7ade0), W64LIT(0x6fb6b6e2b6d95471), W64LIT(0x1ed0d067d0ceb7bd), W64LIT(0xd6eded93ed3b7ec7),
     W64LIT(0xe2cccc17cc2edb85), W64LIT(0x68424215422a5784), W64LIT(0x2c98985a98b4c22d), W64LIT(0xeda4a4aaa4490e55),
     W64LIT(0x752828a0285d8850), W64LIT(0x865c5c6d5cda31b8), W64LIT(0x6bf8f8c7f8933fed), W64LIT(0xc28686228644a411),
-};
 
-static const word64 C2[256] = {
-    W64LIT(0x30d818186018c078), W64LIT(0x462623238c2305af), W64LIT(0x91b8c6c63fc67ef9), W64LIT(0xcdfbe8e887e8136f),
+	W64LIT(0x30d818186018c078), W64LIT(0x462623238c2305af), W64LIT(0x91b8c6c63fc67ef9), W64LIT(0xcdfbe8e887e8136f),
     W64LIT(0x13cb878726874ca1), W64LIT(0x6d11b8b8dab8a962), W64LIT(0x0209010104010805), W64LIT(0x9e0d4f4f214f426e),
     W64LIT(0x6c9b3636d836adee), W64LIT(0x51ffa6a6a2a65904), W64LIT(0xb90cd2d26fd2debd), W64LIT(0xf70ef5f5f3f5fb06),
     W64LIT(0xf2967979f979ef80), W64LIT(0xde306f6fa16f5fce), W64LIT(0x3f6d91917e91fcef), W64LIT(0xa4f852525552aa07),
@@ -312,10 +309,8 @@ static const word64 C2[256] = {
     W64LIT(0xe0d77070dd70a7ad), W64LIT(0x716fb6b6e2b6d954), W64LIT(0xbd1ed0d067d0ceb7), W64LIT(0xc7d6eded93ed3b7e),
     W64LIT(0x85e2cccc17cc2edb), W64LIT(0x8468424215422a57), W64LIT(0x2d2c98985a98b4c2), W64LIT(0x55eda4a4aaa4490e),
     W64LIT(0x50752828a0285d88), W64LIT(0xb8865c5c6d5cda31), W64LIT(0xed6bf8f8c7f8933f), W64LIT(0x11c28686228644a4),
-};
 
-static const word64 C3[256] = {
-    W64LIT(0x7830d818186018c0), W64LIT(0xaf462623238c2305), W64LIT(0xf991b8c6c63fc67e), W64LIT(0x6fcdfbe8e887e813),
+	W64LIT(0x7830d818186018c0), W64LIT(0xaf462623238c2305), W64LIT(0xf991b8c6c63fc67e), W64LIT(0x6fcdfbe8e887e813),
     W64LIT(0xa113cb878726874c), W64LIT(0x626d11b8b8dab8a9), W64LIT(0x0502090101040108), W64LIT(0x6e9e0d4f4f214f42),
     W64LIT(0xee6c9b3636d836ad), W64LIT(0x0451ffa6a6a2a659), W64LIT(0xbdb90cd2d26fd2de), W64LIT(0x06f70ef5f5f3f5fb),
     W64LIT(0x80f2967979f979ef), W64LIT(0xcede306f6fa16f5f), W64LIT(0xef3f6d91917e91fc), W64LIT(0x07a4f852525552aa),
@@ -379,9 +374,7 @@ static const word64 C3[256] = {
     W64LIT(0xade0d77070dd70a7), W64LIT(0x54716fb6b6e2b6d9), W64LIT(0xb7bd1ed0d067d0ce), W64LIT(0x7ec7d6eded93ed3b),
     W64LIT(0xdb85e2cccc17cc2e), W64LIT(0x578468424215422a), W64LIT(0xc22d2c98985a98b4), W64LIT(0x0e55eda4a4aaa449),
     W64LIT(0x8850752828a0285d), W64LIT(0x31b8865c5c6d5cda), W64LIT(0x3fed6bf8f8c7f893), W64LIT(0xa411c28686228644),
-};
 
-static const word64 rc[R] = {
 	W64LIT(0x1823c6e887b8014f),
 	W64LIT(0x36a6d2f5796f9152),
 	W64LIT(0x60bc9b8ea30c7b35),
@@ -397,55 +390,292 @@ static const word64 rc[R] = {
 // Whirlpool basic transformation. Transforms state based on block.
 void Whirlpool::Transform(word64 *digest, const word64 *block)
 {
+#ifdef CRYPTOPP_X86_ASM_AVAILABLE
+	if (HasMMX())
+	{
+		// MMX version has the same structure as C version below
+#ifdef __GNUC__
+	__asm__ __volatile__
+	(
+		".intel_syntax noprefix;"
+		AS1(	push	ebx)
+		AS2(	mov		ebx, eax)
+#else
+		AS2(	lea		ebx, [Whirlpool_C])
+		AS2(	mov		ecx, digest)
+		AS2(	mov		edx, block)
+#endif
+		AS2(	mov		eax, esp)
+		AS2(	and		esp, 0xfffffff0)
+		AS2(	sub		esp, 16*8)
+		AS1(	push	eax)
+		AS2(	xor		esi, esi)
+		ASL(0)
+		AS2(	movq	mm0, [ecx+8*esi])
+		AS2(	movq	[esp+4+8*esi], mm0)		// k
+		AS2(	pxor	mm0, [edx+8*esi])
+		AS2(	movq	[esp+4+64+8*esi], mm0)	// s
+		AS2(	movq	[ecx+8*esi], mm0)
+		AS1(	inc		esi)
+		AS2(	cmp		esi, 8)
+		ASJ(	jne,	0, b)
+
+		AS2(	xor		esi, esi)
+		ASL(1)
+
+#define KSL0(a, b)	AS2(movq	mm##a, b)
+#define KSL1(a, b)	AS2(pxor	mm##a, b)
+
+#define KSL(op, i, a, b, c, d)	\
+	AS2(mov		eax, [esp+4+8*i])\
+	AS2(movzx	edi, al)\
+	KSL##op(a, [ebx+3*2048+8*edi])\
+	AS2(movzx	edi, ah)\
+	KSL##op(b, [ebx+2*2048+8*edi])\
+	AS2(shr		eax, 16)\
+	AS2(movzx	edi, al)\
+	AS2(shr		eax, 8)\
+	KSL##op(c, [ebx+1*2048+8*edi])\
+	KSL##op(d, [ebx+0*2048+8*eax])
+
+#define KSH0(a, b)	\
+	ASS(pshufw	mm##a, mm##a, 1, 0, 3, 2)\
+	AS2(pxor	mm##a, b)
+#define KSH1(a, b)	\
+	AS2(pxor	mm##a, b)
+#define KSH2(a, b)	\
+	AS2(pxor	mm##a, b)\
+	AS2(movq	[esp+4+8*a], mm##a)
+
+#define KSH(op, i, a, b, c, d)	\
+	AS2(mov		eax, [esp+4+8*((i+4)-8*((i+4)/8))+4])\
+	AS2(movzx	edi, al)\
+	KSH##op(a, [ebx+3*2048+8*edi])\
+	AS2(movzx	edi, ah)\
+	KSH##op(b, [ebx+2*2048+8*edi])\
+	AS2(shr		eax, 16)\
+	AS2(movzx	edi, al)\
+	AS2(shr		eax, 8)\
+	KSH##op(c, [ebx+1*2048+8*edi])\
+	KSH##op(d, [ebx+0*2048+8*eax])
+
+#define TSL(op, i, a, b, c, d)	\
+	AS2(mov		eax, [esp+4+64+8*i])\
+	AS2(movzx	edi, al)\
+	KSL##op(a, [ebx+3*2048+8*edi])\
+	AS2(movzx	edi, ah)\
+	KSL##op(b, [ebx+2*2048+8*edi])\
+	AS2(shr		eax, 16)\
+	AS2(movzx	edi, al)\
+	AS2(shr		eax, 8)\
+	KSL##op(c, [ebx+1*2048+8*edi])\
+	KSL##op(d, [ebx+0*2048+8*eax])
+
+#define TSH0(a, b)	\
+	ASS(pshufw	mm##a, mm##a, 1, 0, 3, 2)\
+	AS2(pxor	mm##a, [esp+4+8*a])\
+	AS2(pxor	mm##a, b)
+#define TSH1(a, b)	\
+	AS2(pxor	mm##a, b)
+#define TSH2(a, b)	\
+	AS2(pxor	mm##a, b)\
+	AS2(movq	[esp+4+64+8*a], mm##a)
+#define TSH3(a, b)	\
+	AS2(pxor	mm##a, b)\
+	AS2(pxor	mm##a, [ecx+8*a])\
+	AS2(movq	[ecx+8*a], mm##a)
+
+#define TSH(op, i, a, b, c, d)	\
+	AS2(mov		eax, [esp+4+64+8*((i+4)-8*((i+4)/8))+4])\
+	AS2(movzx	edi, al)\
+	TSH##op(a, [ebx+3*2048+8*edi])\
+	AS2(movzx	edi, ah)\
+	TSH##op(b, [ebx+2*2048+8*edi])\
+	AS2(shr		eax, 16)\
+	AS2(movzx	edi, al)\
+	AS2(shr		eax, 8)\
+	TSH##op(c, [ebx+1*2048+8*edi])\
+	TSH##op(d, [ebx+0*2048+8*eax])
+
+		KSL(0, 4, 3, 2, 1, 0)
+		KSL(0, 0, 7, 6, 5, 4)
+		KSL(1, 1, 0, 7, 6, 5)
+		KSL(1, 2, 1, 0, 7, 6)
+		KSL(1, 3, 2, 1, 0, 7)
+		KSL(1, 5, 4, 3, 2, 1)
+		KSL(1, 6, 5, 4, 3, 2)
+		KSL(1, 7, 6, 5, 4, 3)
+		KSH(0, 0, 7, 6, 5, 4)
+		KSH(0, 4, 3, 2, 1, 0)
+		KSH(1, 1, 0, 7, 6, 5)
+		KSH(1, 2, 1, 0, 7, 6)
+		KSH(1, 5, 4, 3, 2, 1)
+		KSH(1, 6, 5, 4, 3, 2)
+		KSH(2, 3, 2, 1, 0, 7)
+		KSH(2, 7, 6, 5, 4, 3)
+
+		AS2(	pxor	mm0, [ebx + 8*1024 + esi*8])
+		AS2(	movq	[esp+4], mm0)
+
+		TSL(0, 4, 3, 2, 1, 0)
+		TSL(0, 0, 7, 6, 5, 4)
+		TSL(1, 1, 0, 7, 6, 5)
+		TSL(1, 2, 1, 0, 7, 6)
+		TSL(1, 3, 2, 1, 0, 7)
+		TSL(1, 5, 4, 3, 2, 1)
+		TSL(1, 6, 5, 4, 3, 2)
+		TSL(1, 7, 6, 5, 4, 3)
+		TSH(0, 0, 7, 6, 5, 4)
+		TSH(0, 4, 3, 2, 1, 0)
+		TSH(1, 1, 0, 7, 6, 5)
+		TSH(1, 2, 1, 0, 7, 6)
+		TSH(1, 5, 4, 3, 2, 1)
+		TSH(1, 6, 5, 4, 3, 2)
+
+		AS1(	inc		esi)
+		AS2(	cmp		esi, 10)
+		ASJ(	je,		2, f)
+
+		TSH(2, 3, 2, 1, 0, 7)
+		TSH(2, 7, 6, 5, 4, 3)
+
+		ASJ(	jmp,	1, b)
+		ASL(2)
+
+		TSH(3, 3, 2, 1, 0, 7)
+		TSH(3, 7, 6, 5, 4, 3)
+
+#undef KSL
+#undef KSH
+#undef TSL
+#undef TSH
+
+		AS1(	emms)
+		AS1(	pop		esp)
+
+#ifdef __GNUC__
+		AS1(	pop		ebx)
+		".att_syntax prefix;"
+			:
+			: "a" (Whirlpool_C), "c" (digest), "d" (block)
+			: "%esi", "%edi", "memory", "cc"
+		);
+#endif
+	}
+	else
+#endif		// #ifdef CRYPTOPP_X86_ASM_AVAILABLE
+	{
 	word64 s[8];	// the cipher state
 	word64 k[8];	// the round key
 
 	// Compute and apply K^0 to the cipher state
 	// Also apply part of the Miyaguchi-Preneel compression function
-	digest[0] = s[0] = block[0] ^ (k[0] = digest[0]);
-	digest[1] = s[1] = block[1] ^ (k[1] = digest[1]);
-	digest[2] = s[2] = block[2] ^ (k[2] = digest[2]);
-	digest[3] = s[3] = block[3] ^ (k[3] = digest[3]);
-	digest[4] = s[4] = block[4] ^ (k[4] = digest[4]);
-	digest[5] = s[5] = block[5] ^ (k[5] = digest[5]);
-	digest[6] = s[6] = block[6] ^ (k[6] = digest[6]);
-	digest[7] = s[7] = block[7] ^ (k[7] = digest[7]);
+	for (int i=0; i<8; i++)
+		digest[i] = s[i] = block[i] ^ (k[i] = digest[i]);
+
+#define KSL(op, i, a, b, c, d)	\
+	t = (word32)k[i];\
+	w##a = Whirlpool_C[3*256 + (byte)t] ^ (op ? w##a : 0);\
+	t >>= 8;\
+	w##b = Whirlpool_C[2*256 + (byte)t] ^ (op ? w##b : 0);\
+	t >>= 8;\
+	w##c = Whirlpool_C[1*256 + (byte)t] ^ (op ? w##c : 0);\
+	t >>= 8;\
+	w##d = Whirlpool_C[0*256 + t]       ^ (op ? w##d : 0);
+
+#define KSH(op, i, a, b, c, d)	\
+	t = (word32)(k[(i+4)%8]>>32);\
+	w##a = Whirlpool_C[3*256 + (byte)t] ^ (op ? w##a : rotrFixed(w##a, 32));\
+	if (op==2) k[a] = w##a;\
+	t >>= 8;\
+	w##b = Whirlpool_C[2*256 + (byte)t] ^ (op ? w##b : rotrFixed(w##b, 32));\
+	if (op==2) k[b] = w##b;\
+	t >>= 8;\
+	w##c = Whirlpool_C[1*256 + (byte)t] ^ (op ? w##c : rotrFixed(w##c, 32));\
+	if (op==2) k[c] = w##c;\
+	t >>= 8;\
+	w##d = Whirlpool_C[0*256 + t]       ^ (op ? w##d : rotrFixed(w##d, 32));\
+	if (op==2) k[d] = w##d;\
+
+#define TSL(op, i, a, b, c, d)	\
+	t = (word32)s[i];\
+	w##a = Whirlpool_C[3*256 + (byte)t] ^ (op ? w##a : 0);\
+	t >>= 8;\
+	w##b = Whirlpool_C[2*256 + (byte)t] ^ (op ? w##b : 0);\
+	t >>= 8;\
+	w##c = Whirlpool_C[1*256 + (byte)t] ^ (op ? w##c : 0);\
+	t >>= 8;\
+	w##d = Whirlpool_C[0*256 + t]       ^ (op ? w##d : 0);
+
+#define TSH_OP(op, a, b)	\
+	w##a = Whirlpool_C[b*256 + (byte)t] ^ (op ? w##a : rotrFixed(w##a, 32) ^ k[a]);\
+	if (op==2) s[a] = w##a;\
+	if (op==3) digest[a] ^= w##a;\
+
+#define TSH(op, i, a, b, c, d)	\
+	t = (word32)(s[(i+4)%8]>>32);\
+	TSH_OP(op, a, 3);\
+	t >>= 8;\
+	TSH_OP(op, b, 2);\
+	t >>= 8;\
+	TSH_OP(op, c, 1);\
+	t >>= 8;\
+	TSH_OP(op, d, 0);\
 
 	// Iterate over all rounds:
-	for (int r = 0; r < R; r++)
+	int r=0;
+	while (true)
 	{
 		word64 w0, w1, w2, w3, w4, w5, w6, w7;	// temporary storage
-		word64 t;
+		word32 t;
 
-		// Compute K^r from K^{r-1}:
-#define K(i,j) GETBYTE(k[(i+j+1)%8], j)
-#define KS(i) \
-	t = C0[K(i,3)] ^ C1[K(i,2)] ^ C2[K(i,1)] ^ C3[K(i,0)]; \
-	w##i = rotrFixed(t, 32) ^ C0[K(i,7)] ^ C1[K(i,6)] ^ C2[K(i,5)] ^ C3[K(i,4)];
+		KSL(0, 4, 3, 2, 1, 0)
+		KSL(0, 0, 7, 6, 5, 4)
+		KSL(1, 1, 0, 7, 6, 5)
+		KSL(1, 2, 1, 0, 7, 6)
+		KSL(1, 3, 2, 1, 0, 7)
+		KSL(1, 5, 4, 3, 2, 1)
+		KSL(1, 6, 5, 4, 3, 2)
+		KSL(1, 7, 6, 5, 4, 3)
+		KSH(0, 0, 7, 6, 5, 4)
+		KSH(0, 4, 3, 2, 1, 0)
+		KSH(1, 1, 0, 7, 6, 5)
+		KSH(1, 2, 1, 0, 7, 6)
+		KSH(1, 5, 4, 3, 2, 1)
+		KSH(1, 6, 5, 4, 3, 2)
+		KSH(2, 3, 2, 1, 0, 7)
+		KSH(2, 7, 6, 5, 4, 3)
 
-		KS(0); KS(1); KS(2); KS(3); KS(4); KS(5); KS(6); KS(7);
-		k[0] = w0 ^ rc[r];
-		k[1] = w1; k[2] = w2; k[3] = w3; k[4] = w4; k[5] = w5; k[6] = w6; k[7] = w7;
+		k[0] ^= Whirlpool_C[1024+r];
 
-		// Apply the r-th round transformation:
-#define S(i,j) GETBYTE(s[(i+j+1)%8], j)
-#define TS(i) \
-	t = C0[S(i,3)] ^ C1[S(i,2)] ^ C2[S(i,1)] ^ C3[S(i,0)]; \
-	w##i = rotrFixed(t, 32) ^ C0[S(i,7)] ^ C1[S(i,6)] ^ C2[S(i,5)] ^ C3[S(i,4)] ^ k[i];
+		TSL(0, 4, 3, 2, 1, 0)
+		TSL(0, 0, 7, 6, 5, 4)
+		TSL(1, 1, 0, 7, 6, 5)
+		TSL(1, 2, 1, 0, 7, 6)
+		TSL(1, 3, 2, 1, 0, 7)
+		TSL(1, 5, 4, 3, 2, 1)
+		TSL(1, 6, 5, 4, 3, 2)
+		TSL(1, 7, 6, 5, 4, 3)
+		TSH(0, 0, 7, 6, 5, 4)
+		TSH(0, 4, 3, 2, 1, 0)
+		TSH(1, 1, 0, 7, 6, 5)
+		TSH(1, 2, 1, 0, 7, 6)
+		TSH(1, 5, 4, 3, 2, 1)
+		TSH(1, 6, 5, 4, 3, 2)
 
-		TS(0); TS(1); TS(2); TS(3); TS(4); TS(5); TS(6); TS(7);
-		s[0] = w0; s[1] = w1; s[2] = w2; s[3] = w3; s[4] = w4; s[5] = w5; s[6] = w6; s[7] = w7;
+		if (++r < R)
+		{
+			TSH(2, 3, 2, 1, 0, 7)
+			TSH(2, 7, 6, 5, 4, 3)
+		}
+		else
+		{
+			TSH(3, 3, 2, 1, 0, 7)
+			TSH(3, 7, 6, 5, 4, 3)
+			break;
+		}
 	}
-
-	// Apply the rest of the Miyaguchi-Preneel compression function:
-	digest[0] ^= s[0];
-	digest[1] ^= s[1];
-	digest[2] ^= s[2];
-	digest[3] ^= s[3];
-	digest[4] ^= s[4];
-	digest[5] ^= s[5];
-	digest[6] ^= s[6];
-	digest[7] ^= s[7];
+	}
 }
 
 NAMESPACE_END

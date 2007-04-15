@@ -23,9 +23,6 @@ public:
 	static void CRYPTOPP_API InitState(HashWordType *state);
 	static void CRYPTOPP_API Transform(word32 *digest, const word32 *data);
 	static const char * CRYPTOPP_API StaticAlgorithmName() {return "SHA-256";}
-
-protected:
-	static const word32 K[64];
 };
 
 //! implements the SHA-224 standard
@@ -46,9 +43,6 @@ public:
 	static void CRYPTOPP_API InitState(HashWordType *state);
 	static void CRYPTOPP_API Transform(word64 *digest, const word64 *data);
 	static const char * CRYPTOPP_API StaticAlgorithmName() {return "SHA-512";}
-
-protected:
-	static const word64 K[80];
 };
 
 //! implements the SHA-384 standard

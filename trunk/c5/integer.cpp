@@ -14,30 +14,20 @@
 #include "algparam.h"
 #include "pubkey.h"		// for P1363_KDF2
 #include "sha.h"
+#include "cpu.h"
 
 #include <iostream>
 
-#ifdef _M_X64
-#include <Intrin.h>
+#if defined(_MSC_VER) && _MSC_VER >= 1400
+	#include <intrin.h>
 #endif
 
-#ifdef SSE2_INTRINSICS_AVAILABLE
-	#ifdef __GNUC__
-		#include <xmmintrin.h>
-		#include <signal.h>
-		#include <setjmp.h>
-		#ifdef CRYPTOPP_MEMALIGN_AVAILABLE
-			#include <malloc.h>
-		#else
-			#include <stdlib.h>
-		#endif
-	#else
-		#include <emmintrin.h>
-	#endif
-#elif defined(_MSC_VER) && defined(_M_IX86)
-	#pragma message("You do not seem to have the Visual C++ Processor Pack installed, so use of SSE2 intrinsics will be disabled.")
-#elif defined(__GNUC__) && defined(__i386__)
-	#warning "You do not have GCC 3.3 or later, or did not specify -msse2 compiler option, so use of SSE2 intrinsics will be disabled."
+#ifdef __DECCXX
+	#include <c_asm.h>
+#endif
+
+#ifdef CRYPTOPP_MSVC6_NO_PP
+	#pragma message("You do not seem to have the Visual C++ Processor Pack installed, so use of SSE2 instructions will be disabled.")
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -50,67 +40,7 @@ bool AssignIntToInteger(const std::type_info &valueType, void *pInteger, const v
 	return true;
 }
 
-#ifdef SSE2_INTRINSICS_AVAILABLE
-template <class T>
-CPP_TYPENAME AlignedAllocator<T>::pointer AlignedAllocator<T>::allocate(size_type n, const void *)
-{
-	CheckSize(n);
-	if (n == 0)
-		return NULL;
-	if (n >= 4)
-	{
-		void *p;
-	#ifdef CRYPTOPP_MM_MALLOC_AVAILABLE
-		while (!(p = _mm_malloc(sizeof(T)*n, 16)))
-	#elif defined(CRYPTOPP_MEMALIGN_AVAILABLE)
-		while (!(p = memalign(16, sizeof(T)*n)))
-	#elif defined(CRYPTOPP_MALLOC_ALIGNMENT_IS_16)
-		while (!(p = malloc(sizeof(T)*n)))
-	#else
-		while (!(p = (byte *)malloc(sizeof(T)*n + 8)))	// assume malloc alignment is at least 8
-	#endif
-			CallNewHandler();
-
-	#ifdef CRYPTOPP_NO_ALIGNED_ALLOC
-		assert(m_pBlock == NULL);
-		m_pBlock = p;
-		if (!IsAlignedOn(p, 16))
-		{
-			assert(IsAlignedOn(p, 8));
-			p = (byte *)p + 8;
-		}
-	#endif
-
-		assert(IsAlignedOn(p, 16));
-		return (T*)p;
-	}
-	return new T[n];
-}
-
-template <class T>
-void AlignedAllocator<T>::deallocate(void *p, size_type n)
-{
-	memset(p, 0, n*sizeof(T));
-	if (n >= 4)
-	{
-		#ifdef CRYPTOPP_MM_MALLOC_AVAILABLE
-			_mm_free(p);
-		#elif defined(CRYPTOPP_NO_ALIGNED_ALLOC)
-			assert(m_pBlock == p || (byte *)m_pBlock+8 == p);
-			free(m_pBlock);
-			m_pBlock = NULL;
-		#else
-			free(p);
-		#endif
-	}
-	else
-		delete [] (T *)p;
-}
-
-template class CRYPTOPP_DLL AlignedAllocator<word>;
-#endif
-
-static int Compare(const word *A, const word *B, size_t N)
+inline static int Compare(const word *A, const word *B, size_t N)
 {
 	while (N--)
 		if (A[N] > B[N])
@@ -121,7 +51,7 @@ static int Compare(const word *A, const word *B, size_t N)
 	return 0;
 }
 
-static int Increment(word *A, size_t N, word B=1)
+inline static int Increment(word *A, size_t N, word B=1)
 {
 	assert(N);
 	word t = A[0];
@@ -134,7 +64,7 @@ static int Increment(word *A, size_t N, word B=1)
 	return 1;
 }
 
-static int Decrement(word *A, size_t N, word B=1)
+inline static int Decrement(word *A, size_t N, word B=1)
 {
 	assert(N);
 	word t = A[0];
@@ -169,6 +99,45 @@ static word AtomicInverseModPower2(word A)
 
 // ********************************************************
 
+#ifdef CRYPTOPP_NATIVE_DWORD_AVAILABLE
+	#define Declare2Words(x)			dword x;
+	#if _MSC_VER >= 1400 && !defined(__INTEL_COMPILER)
+		#define MultiplyWords(p, a, b)		p = __emulu(a, b);
+	#else
+		#define MultiplyWords(p, a, b)		p = (dword)a*b;
+	#endif
+	#define AssignWord(a, b)			a = b;
+	#define Add2WordsBy1(a, b, c)		a = b + c;
+	#define Acc2WordsBy1(a, b)			a += b;
+	#define Acc2WordsBy2(a, b)			a += b;
+	#define LowWord(a)					(word)a
+	#define HighWord(a)					(word)(a>>WORD_BITS)
+	#define Double2Words(a)				a += a;
+	#define AddWithCarry(u, a, b)		u = dword(a) + b + GetCarry(u);
+	#define SubtractWithBorrow(u, a, b)	u = dword(a) - b - GetBorrow(u);
+	#define GetCarry(u)					HighWord(u)
+	#define GetBorrow(u)				word(u>>(WORD_BITS*2-1))
+#else
+	#define Declare2Words(x)			word x##0, x##1;
+	#define AssignWord(a, b)			a##0 = b; a##1 = 0;
+	#define Add2WordsBy1(a, b, c)		a##0 = b##0 + c; a##1 = b##1 + (a##0 < c);
+	#define Acc2WordsBy1(a, b)			Add2WordsBy1(a, a, b)
+	#define Acc2WordsBy2(a, b)			a##0 += b##0; a##1 += a##0 < b##0; a##1 += b##1;
+	#define LowWord(a)					a##0
+	#define HighWord(a)					a##1
+	#ifdef _MSC_VER
+		#define MultiplyWords(p, a, b)		p##0 = _umul128(a, b, &p##1);
+		#define Double2Words(a)				a##1 = __shiftleft128(a##0, a##1, 1); a##0 += a##0;
+	#elif defined(__DECCXX)
+		#define MultiplyWords(p, a, b)		p##0 = a*b; p##1 = asm("umulh %a0, %a1, %v0", a, b);
+		#define Double2Words(a)				a##1 = (a##1 + a##1) + (a##0 >> (WORD_BITS-1)); a##0 += a##0;
+	#endif
+	#define AddWithCarry(u, a, b)		{word t = a+b; u##0 = t + u##1; u##1 = (t<a) + (u##0<t);}
+	#define SubtractWithBorrow(u, a, b)	{word t = a-b; u##0 = t - u##1; u##1 = (t>a) + (u##0>t);}
+	#define GetCarry(u)					u##1
+	#define GetBorrow(u)				u##1
+#endif
+
 class DWord
 {
 public:
@@ -198,25 +167,8 @@ public:
 		DWord r;
 		#ifdef CRYPTOPP_NATIVE_DWORD_AVAILABLE
 			r.m_whole = (dword)a * b;
-		#elif defined(__alpha__)
-			r.m_halfs.low = a*b; __asm__("umulh %1,%2,%0" : "=r" (r.m_halfs.high) : "r" (a), "r" (b));
-		#elif defined(__ia64__)
-			r.m_halfs.low = a*b; __asm__("xmpy.hu %0=%1,%2" : "=f" (r.m_halfs.high) : "f" (a), "f" (b));
-		#elif defined(_ARCH_PPC64)
-			r.m_halfs.low = a*b; __asm__("mulhdu %0,%1,%2" : "=r" (r.m_halfs.high) : "r" (a), "r" (b) : "cc");
-		#elif defined(__x86_64__)
-			__asm__("mulq %3" : "=d" (r.m_halfs.high), "=a" (r.m_halfs.low) : "a" (a), "rm" (b) : "cc");
-		#elif defined(__mips64)
-			__asm__("dmultu %2,%3" : "=h" (r.m_halfs.high), "=l" (r.m_halfs.low) : "r" (a), "r" (b));
-		#elif defined(_M_X64)
-			r.m_halfs.low = _umul128(a, b, &r.m_halfs.high);
-		#elif defined(_M_IX86)
-			// for testing
-			word64 t = (word64)a * b;
-			r.m_halfs.high = ((word32 *)(&t))[1];
-			r.m_halfs.low = (word32)t;
 		#else
-			#error can not implement DWord
+			r.m_halfs.low = _umul128(a, b, &r.m_halfs.high);
 		#endif
 		return r;
 	}
@@ -457,1528 +409,1448 @@ inline word DWord::operator%(word a)
 
 // ********************************************************
 
-class Portable
-{
-public:
-	static int Add(word *C, const word *A, const word *B, size_t N);
-	static int Subtract(word *C, const word *A, const word *B, size_t N);
-
-	static inline void Multiply2(word *C, const word *A, const word *B);
-	static inline word Multiply2Add(word *C, const word *A, const word *B);
-	static void Multiply4(word *C, const word *A, const word *B);
-	static void Multiply8(word *C, const word *A, const word *B);
-	static inline unsigned int MultiplyRecursionLimit() {return 8;}
-
-	static inline void Multiply2Bottom(word *C, const word *A, const word *B);
-	static void Multiply4Bottom(word *C, const word *A, const word *B);
-	static void Multiply8Bottom(word *C, const word *A, const word *B);
-	static inline unsigned int MultiplyBottomRecursionLimit() {return 8;}
-
-	static void Square2(word *R, const word *A);
-	static void Square4(word *R, const word *A);
-	static void Square8(word *R, const word *A) {assert(false);}
-	static inline unsigned int SquareRecursionLimit() {return 4;}
-};
-
-int Portable::Add(word *C, const word *A, const word *B, size_t N)
-{
-	assert (N%2 == 0);
-
-	DWord u(0, 0);
-	for (unsigned int i = 0; i < N; i+=2)
-	{
-		u = DWord(A[i]) + B[i] + u.GetHighHalf();
-		C[i] = u.GetLowHalf();
-		u = DWord(A[i+1]) + B[i+1] + u.GetHighHalf();
-		C[i+1] = u.GetLowHalf();
-	}
-	return int(u.GetHighHalf());
-}
-
-int Portable::Subtract(word *C, const word *A, const word *B, size_t N)
-{
-	assert (N%2 == 0);
-
-	DWord u(0, 0);
-	for (unsigned int i = 0; i < N; i+=2)
-	{
-		u = (DWord) A[i] - B[i] - u.GetHighHalfAsBorrow();
-		C[i] = u.GetLowHalf();
-		u = (DWord) A[i+1] - B[i+1] - u.GetHighHalfAsBorrow();
-		C[i+1] = u.GetLowHalf();
-	}
-	return int(0-u.GetHighHalf());
-}
-
-void Portable::Multiply2(word *C, const word *A, const word *B)
-{
-/*
-	word s;
-	dword d;
-
-	if (A1 >= A0)
-		if (B0 >= B1)
-		{
-			s = 0;
-			d = (dword)(A1-A0)*(B0-B1);
-		}
-		else
-		{
-			s = (A1-A0);
-			d = (dword)s*(word)(B0-B1);
-		}
-	else
-		if (B0 > B1)
-		{
-			s = (B0-B1);
-			d = (word)(A1-A0)*(dword)s;
-		}
-		else
-		{
-			s = 0;
-			d = (dword)(A0-A1)*(B1-B0);
-		}
-*/
-	// this segment is the branchless equivalent of above
-	word D[4] = {A[1]-A[0], A[0]-A[1], B[0]-B[1], B[1]-B[0]};
-	unsigned int ai = A[1] < A[0];
-	unsigned int bi = B[0] < B[1];
-	unsigned int di = ai & bi;
-	DWord d = DWord::Multiply(D[di], D[di+2]);
-	D[1] = D[3] = 0;
-	unsigned int si = ai + !bi;
-	word s = D[si];
-
-	DWord A0B0 = DWord::Multiply(A[0], B[0]);
-	C[0] = A0B0.GetLowHalf();
-
-	DWord A1B1 = DWord::Multiply(A[1], B[1]);
-	DWord t = (DWord) A0B0.GetHighHalf() + A0B0.GetLowHalf() + d.GetLowHalf() + A1B1.GetLowHalf();
-	C[1] = t.GetLowHalf();
-
-	t = A1B1 + t.GetHighHalf() + A0B0.GetHighHalf() + d.GetHighHalf() + A1B1.GetHighHalf() - s;
-	C[2] = t.GetLowHalf();
-	C[3] = t.GetHighHalf();
-}
-
-inline void Portable::Multiply2Bottom(word *C, const word *A, const word *B)
-{
-	DWord t = DWord::Multiply(A[0], B[0]);
-	C[0] = t.GetLowHalf();
-	C[1] = t.GetHighHalf() + A[0]*B[1] + A[1]*B[0];
-}
-
-word Portable::Multiply2Add(word *C, const word *A, const word *B)
-{
-	word D[4] = {A[1]-A[0], A[0]-A[1], B[0]-B[1], B[1]-B[0]};
-	unsigned int ai = A[1] < A[0];
-	unsigned int bi = B[0] < B[1];
-	unsigned int di = ai & bi;
-	DWord d = DWord::Multiply(D[di], D[di+2]);
-	D[1] = D[3] = 0;
-	unsigned int si = ai + !bi;
-	word s = D[si];
-
-	DWord A0B0 = DWord::Multiply(A[0], B[0]);
-	DWord t = A0B0 + C[0];
-	C[0] = t.GetLowHalf();
-
-	DWord A1B1 = DWord::Multiply(A[1], B[1]);
-	t = (DWord) t.GetHighHalf() + A0B0.GetLowHalf() + d.GetLowHalf() + A1B1.GetLowHalf() + C[1];
-	C[1] = t.GetLowHalf();
-
-	t = (DWord) t.GetHighHalf() + A1B1.GetLowHalf() + A0B0.GetHighHalf() + d.GetHighHalf() + A1B1.GetHighHalf() - s + C[2];
-	C[2] = t.GetLowHalf();
-
-	t = (DWord) t.GetHighHalf() + A1B1.GetHighHalf() + C[3];
-	C[3] = t.GetLowHalf();
-	return t.GetHighHalf();
-}
-
-#define MulAcc(x, y)								\
-	p = DWord::MultiplyAndAdd(A[x], B[y], c);		\
-	c = p.GetLowHalf();								\
-	p = (DWord) d + p.GetHighHalf();					\
-	d = p.GetLowHalf();								\
-	e += p.GetHighHalf();
-
-#define SaveMulAcc(s, x, y) 						\
-	R[s] = c;										\
-	p = DWord::MultiplyAndAdd(A[x], B[y], d);				\
-	c = p.GetLowHalf();								\
-	p = (DWord) e + p.GetHighHalf();					\
-	d = p.GetLowHalf();								\
-	e = p.GetHighHalf();
-
-#define SquAcc(x, y)								\
-	q = DWord::Multiply(A[x], A[y]);	\
-	p = q + c; 					\
-	c = p.GetLowHalf();								\
-	p = (DWord) d + p.GetHighHalf();					\
-	d = p.GetLowHalf();								\
-	e += p.GetHighHalf();			\
-	p = q + c; 					\
-	c = p.GetLowHalf();								\
-	p = (DWord) d + p.GetHighHalf();					\
-	d = p.GetLowHalf();								\
-	e += p.GetHighHalf();
-
-#define SaveSquAcc(s, x, y) 						\
-	R[s] = c;										\
-	q = DWord::Multiply(A[x], A[y]);	\
-	p = q + d; 					\
-	c = p.GetLowHalf();								\
-	p = (DWord) e + p.GetHighHalf();					\
-	d = p.GetLowHalf();								\
-	e = p.GetHighHalf();			\
-	p = q + c; 					\
-	c = p.GetLowHalf();								\
-	p = (DWord) d + p.GetHighHalf();					\
-	d = p.GetLowHalf();								\
-	e += p.GetHighHalf();
-
-void Portable::Multiply4(word *R, const word *A, const word *B)
-{
-	DWord p;
-	word c, d, e;
-
-	p = DWord::Multiply(A[0], B[0]);
-	R[0] = p.GetLowHalf();
-	c = p.GetHighHalf();
-	d = e = 0;
-
-	MulAcc(0, 1);
-	MulAcc(1, 0);
-
-	SaveMulAcc(1, 2, 0);
-	MulAcc(1, 1);
-	MulAcc(0, 2);
-
-	SaveMulAcc(2, 0, 3);
-	MulAcc(1, 2);
-	MulAcc(2, 1);
-	MulAcc(3, 0);
-
-	SaveMulAcc(3, 3, 1);
-	MulAcc(2, 2);
-	MulAcc(1, 3);
-
-	SaveMulAcc(4, 2, 3);
-	MulAcc(3, 2);
-
-	R[5] = c;
-	p = DWord::MultiplyAndAdd(A[3], B[3], d);
-	R[6] = p.GetLowHalf();
-	R[7] = e + p.GetHighHalf();
-}
-
-void Portable::Square2(word *R, const word *A)
-{
-	DWord p, q;
-	word c, d, e;
-
-	p = DWord::Multiply(A[0], A[0]);
-	R[0] = p.GetLowHalf();
-	c = p.GetHighHalf();
-	d = e = 0;
-
-	SquAcc(0, 1);
-
-	R[1] = c;
-	p = DWord::MultiplyAndAdd(A[1], A[1], d);
-	R[2] = p.GetLowHalf();
-	R[3] = e + p.GetHighHalf();
-}
-
-void Portable::Square4(word *R, const word *A)
-{
-#ifdef _MSC_VER
-	// VC60 workaround: MSVC 6.0 has an optimization bug that makes
-	// (dword)A*B where either A or B has been cast to a dword before
-	// very expensive. Revisit this function when this
-	// bug is fixed.
-	Multiply4(R, A, A);
-#else
-	const word *B = A;
-	DWord p, q;
-	word c, d, e;
-
-	p = DWord::Multiply(A[0], A[0]);
-	R[0] = p.GetLowHalf();
-	c = p.GetHighHalf();
-	d = e = 0;
-
-	SquAcc(0, 1);
-
-	SaveSquAcc(1, 2, 0);
-	MulAcc(1, 1);
-
-	SaveSquAcc(2, 0, 3);
-	SquAcc(1, 2);
-
-	SaveSquAcc(3, 3, 1);
-	MulAcc(2, 2);
-
-	SaveSquAcc(4, 2, 3);
-
-	R[5] = c;
-	p = DWord::MultiplyAndAdd(A[3], A[3], d);
-	R[6] = p.GetLowHalf();
-	R[7] = e + p.GetHighHalf();
-#endif
-}
-
-void Portable::Multiply8(word *R, const word *A, const word *B)
-{
-	DWord p;
-	word c, d, e;
-
-	p = DWord::Multiply(A[0], B[0]);
-	R[0] = p.GetLowHalf();
-	c = p.GetHighHalf();
-	d = e = 0;
-
-	MulAcc(0, 1);
-	MulAcc(1, 0);
-
-	SaveMulAcc(1, 2, 0);
-	MulAcc(1, 1);
-	MulAcc(0, 2);
-
-	SaveMulAcc(2, 0, 3);
-	MulAcc(1, 2);
-	MulAcc(2, 1);
-	MulAcc(3, 0);
-
-	SaveMulAcc(3, 0, 4);
-	MulAcc(1, 3);
-	MulAcc(2, 2);
-	MulAcc(3, 1);
-	MulAcc(4, 0);
-
-	SaveMulAcc(4, 0, 5);
-	MulAcc(1, 4);
-	MulAcc(2, 3);
-	MulAcc(3, 2);
-	MulAcc(4, 1);
-	MulAcc(5, 0);
-
-	SaveMulAcc(5, 0, 6);
-	MulAcc(1, 5);
-	MulAcc(2, 4);
-	MulAcc(3, 3);
-	MulAcc(4, 2);
-	MulAcc(5, 1);
-	MulAcc(6, 0);
-
-	SaveMulAcc(6, 0, 7);
-	MulAcc(1, 6);
-	MulAcc(2, 5);
-	MulAcc(3, 4);
-	MulAcc(4, 3);
-	MulAcc(5, 2);
-	MulAcc(6, 1);
-	MulAcc(7, 0);
-
-	SaveMulAcc(7, 1, 7);
-	MulAcc(2, 6);
-	MulAcc(3, 5);
-	MulAcc(4, 4);
-	MulAcc(5, 3);
-	MulAcc(6, 2);
-	MulAcc(7, 1);
-
-	SaveMulAcc(8, 2, 7);
-	MulAcc(3, 6);
-	MulAcc(4, 5);
-	MulAcc(5, 4);
-	MulAcc(6, 3);
-	MulAcc(7, 2);
-
-	SaveMulAcc(9, 3, 7);
-	MulAcc(4, 6);
-	MulAcc(5, 5);
-	MulAcc(6, 4);
-	MulAcc(7, 3);
-
-	SaveMulAcc(10, 4, 7);
-	MulAcc(5, 6);
-	MulAcc(6, 5);
-	MulAcc(7, 4);
-
-	SaveMulAcc(11, 5, 7);
-	MulAcc(6, 6);
-	MulAcc(7, 5);
-
-	SaveMulAcc(12, 6, 7);
-	MulAcc(7, 6);
-
-	R[13] = c;
-	p = DWord::MultiplyAndAdd(A[7], B[7], d);
-	R[14] = p.GetLowHalf();
-	R[15] = e + p.GetHighHalf();
-}
-
-void Portable::Multiply4Bottom(word *R, const word *A, const word *B)
-{
-	DWord p;
-	word c, d, e;
-
-	p = DWord::Multiply(A[0], B[0]);
-	R[0] = p.GetLowHalf();
-	c = p.GetHighHalf();
-	d = e = 0;
-
-	MulAcc(0, 1);
-	MulAcc(1, 0);
-
-	SaveMulAcc(1, 2, 0);
-	MulAcc(1, 1);
-	MulAcc(0, 2);
-
-	R[2] = c;
-	R[3] = d + A[0] * B[3] + A[1] * B[2] + A[2] * B[1] + A[3] * B[0];
-}
-
-void Portable::Multiply8Bottom(word *R, const word *A, const word *B)
-{
-	DWord p;
-	word c, d, e;
-
-	p = DWord::Multiply(A[0], B[0]);
-	R[0] = p.GetLowHalf();
-	c = p.GetHighHalf();
-	d = e = 0;
-
-	MulAcc(0, 1);
-	MulAcc(1, 0);
-
-	SaveMulAcc(1, 2, 0);
-	MulAcc(1, 1);
-	MulAcc(0, 2);
-
-	SaveMulAcc(2, 0, 3);
-	MulAcc(1, 2);
-	MulAcc(2, 1);
-	MulAcc(3, 0);
-
-	SaveMulAcc(3, 0, 4);
-	MulAcc(1, 3);
-	MulAcc(2, 2);
-	MulAcc(3, 1);
-	MulAcc(4, 0);
-
-	SaveMulAcc(4, 0, 5);
-	MulAcc(1, 4);
-	MulAcc(2, 3);
-	MulAcc(3, 2);
-	MulAcc(4, 1);
-	MulAcc(5, 0);
-
-	SaveMulAcc(5, 0, 6);
-	MulAcc(1, 5);
-	MulAcc(2, 4);
-	MulAcc(3, 3);
-	MulAcc(4, 2);
-	MulAcc(5, 1);
-	MulAcc(6, 0);
-
-	R[6] = c;
-	R[7] = d + A[0] * B[7] + A[1] * B[6] + A[2] * B[5] + A[3] * B[4] +
-				A[4] * B[3] + A[5] * B[2] + A[6] * B[1] + A[7] * B[0];
-}
-
-#undef MulAcc
-#undef SaveMulAcc
-#undef SquAcc
-#undef SaveSquAcc
-
-#ifdef CRYPTOPP_X86ASM_AVAILABLE
-
-// ************** x86 feature detection ***************
-
-static bool s_sse2Enabled = true;
-
-static void CpuId(word32 input, word32 *output)
-{
-#ifdef __GNUC__
-	__asm__
-	(
-		// save ebx in case -fPIC is being used
-		"push %%ebx; cpuid; mov %%ebx, %%edi; pop %%ebx"
-		: "=a" (output[0]), "=D" (output[1]), "=c" (output[2]), "=d" (output[3])
-		: "a" (input)
-	);
-#else
-	__asm
-	{
-		mov eax, input
-		cpuid
-		mov edi, output
-		mov [edi], eax
-		mov [edi+4], ebx
-		mov [edi+8], ecx
-		mov [edi+12], edx
-	}
-#endif
-}
-
-#ifdef SSE2_INTRINSICS_AVAILABLE
-#ifndef _MSC_VER
-static jmp_buf s_env;
-static void SigIllHandler(int)
-{
-	longjmp(s_env, 1);
-}
-#endif
-
-static bool HasSSE2()
-{
-	if (!s_sse2Enabled)
-		return false;
-
-	word32 cpuid[4];
-	CpuId(1, cpuid);
-	if ((cpuid[3] & (1 << 26)) == 0)
-		return false;
-
-#ifdef _MSC_VER
-    __try
-	{
-        __asm xorpd xmm0, xmm0        // executing SSE2 instruction
-	}
-    __except (1)
-	{
-		return false;
-    }
-	return true;
-#else
-	typedef void (*SigHandler)(int);
-
-	SigHandler oldHandler = signal(SIGILL, SigIllHandler);
-	if (oldHandler == SIG_ERR)
-		return false;
-
-	bool result = true;
-	if (setjmp(s_env))
-		result = false;
-	else
-		__asm __volatile ("xorps %xmm0, %xmm0");
-
-	signal(SIGILL, oldHandler);
-	return result;
-#endif
-}
-#endif
-
-static bool IsP4()
-{
-	word32 cpuid[4];
-
-	CpuId(0, cpuid);
-	std::swap(cpuid[2], cpuid[3]);
-	if (memcmp(cpuid+1, "GenuineIntel", 12) != 0)
-		return false;
-
-	CpuId(1, cpuid);
-	return ((cpuid[0] >> 8) & 0xf) == 0xf;
-}
-
-// ************** Pentium/P4 optimizations ***************
-
-class PentiumOptimized : public Portable
-{
-public:
-	static int Add(word *C, const word *A, const word *B, size_t N);
-	static int Subtract(word *C, const word *A, const word *B, size_t N);
-	static void Multiply4(word *C, const word *A, const word *B);
-	static void Multiply8(word *C, const word *A, const word *B);
-	static void Multiply8Bottom(word *C, const word *A, const word *B);
-};
-
-class P4Optimized
-{
-public:
-	static int Add(word *C, const word *A, const word *B, size_t N);
-	static int Subtract(word *C, const word *A, const word *B, size_t N);
-#ifdef SSE2_INTRINSICS_AVAILABLE
-	static void Multiply4(word *C, const word *A, const word *B);
-	static void Multiply8(word *C, const word *A, const word *B);
-	static void Multiply8Bottom(word *C, const word *A, const word *B);
-#endif
-};
-
-typedef int (* PAddSub)(word *C, const word *A, const word *B, size_t N);
-typedef void (* PMul)(word *C, const word *A, const word *B);
-
-static PAddSub s_pAdd, s_pSub;
-#ifdef SSE2_INTRINSICS_AVAILABLE
-static PMul s_pMul4, s_pMul8, s_pMul8B;
-#endif
-
-static void SetPentiumFunctionPointers()
-{
-	if (IsP4())
-	{
-		s_pAdd = &P4Optimized::Add;
-		s_pSub = &P4Optimized::Subtract;
-	}
-	else
-	{
-		s_pAdd = &PentiumOptimized::Add;
-		s_pSub = &PentiumOptimized::Subtract;
-	}
-
-#ifdef SSE2_INTRINSICS_AVAILABLE
-	if (HasSSE2())
-	{
-		s_pMul4 = &P4Optimized::Multiply4;
-		s_pMul8 = &P4Optimized::Multiply8;
-		s_pMul8B = &P4Optimized::Multiply8Bottom;
-	}
-	else
-	{
-		s_pMul4 = &PentiumOptimized::Multiply4;
-		s_pMul8 = &PentiumOptimized::Multiply8;
-		s_pMul8B = &PentiumOptimized::Multiply8Bottom;
-	}
-#endif
-}
-
-void DisableSSE2()
-{
-	s_sse2Enabled = false;
-	SetPentiumFunctionPointers();
-}
-
-class LowLevel : public PentiumOptimized
-{
-public:
-	inline static int Add(word *C, const word *A, const word *B, size_t N)
-		{return s_pAdd(C, A, B, N);}
-	inline static int Subtract(word *C, const word *A, const word *B, size_t N)
-		{return s_pSub(C, A, B, N);}
-	inline static void Square4(word *R, const word *A)
-		{Multiply4(R, A, A);}
-#ifdef SSE2_INTRINSICS_AVAILABLE
-	inline static void Multiply4(word *C, const word *A, const word *B)
-		{s_pMul4(C, A, B);}
-	inline static void Multiply8(word *C, const word *A, const word *B)
-		{s_pMul8(C, A, B);}
-	inline static void Multiply8Bottom(word *C, const word *A, const word *B)
-		{s_pMul8B(C, A, B);}
-#endif
-};
-
 // use some tricks to share assembly code between MSVC and GCC
-#ifdef _MSC_VER
-	#define CRYPTOPP_NAKED __declspec(naked)
-	#define AS1(x) __asm x
-	#define AS2(x, y) __asm x, y
-	#define AddPrologue \
-		__asm	push ebp \
-		__asm	push ebx \
-		__asm	push esi \
-		__asm	push edi \
-		__asm	mov		ecx, [esp+20] \
-		__asm	mov		edx, [esp+24] \
-		__asm	mov		ebx, [esp+28] \
-		__asm	mov		esi, [esp+32]
-	#define AddEpilogue \
-		__asm	pop edi \
-		__asm	pop esi \
-		__asm	pop ebx \
-		__asm	pop ebp \
-		__asm	ret
-	#define MulPrologue \
-		__asm	push ebp \
-		__asm	push ebx \
-		__asm	push esi \
-		__asm	push edi \
-		__asm	mov ecx, [esp+28] \
-		__asm	mov esi, [esp+24] \
-		__asm	push [esp+20]
-	#define MulEpilogue \
-		__asm	add esp, 4 \
-		__asm	pop edi \
-		__asm	pop esi \
-		__asm	pop ebx \
-		__asm	pop ebp \
-		__asm	ret
-#else
+#if defined(__GNUC__)
 	#define CRYPTOPP_NAKED
-	#define AS1(x) #x ";"
-	#define AS2(x, y) #x ", " #y ";"
 	#define AddPrologue \
 		__asm__ __volatile__ \
 		( \
 			"push %%ebx;"	/* save this manually, in case of -fPIC */ \
 			"mov %2, %%ebx;" \
-			".intel_syntax noprefix;" \
-			"push ebp;"
+			".intel_syntax noprefix;"
 	#define AddEpilogue \
-			"pop ebp;" \
 			".att_syntax prefix;" \
 			"pop %%ebx;" \
 					: \
-					: "c" (C), "d" (A), "m" (B), "S" (N) \
-					: "%edi", "memory", "cc" \
+					: "d" (C), "a" (A), "m" (B), "c" (N) \
+					: "%esi", "memory", "cc" \
 		);
 	#define MulPrologue \
 		__asm__ __volatile__ \
 		( \
-			"push %%ebx;"	/* save this manually, in case of -fPIC */ \
-			"push %%ebp;" \
-			"push %0;" \
-			".intel_syntax noprefix;"
+			".intel_syntax noprefix;" \
+			AS1(	push	ebx) \
+			AS2(	mov		ebx, edx)
 	#define MulEpilogue \
-			"add esp, 4;" \
-			"pop ebp;" \
-			"pop ebx;" \
+			AS1(	pop		ebx) \
 			".att_syntax prefix;" \
 			: \
-			: "rm" (Z), "S" (X), "c" (Y) \
-			: "%eax", "%edx", "%edi", "memory", "cc" \
+			: "d" (s_maskLow16), "c" (C), "a" (A), "D" (B) \
+			: "%esi", "memory", "cc" \
 		);
-#endif
-
-CRYPTOPP_NAKED int PentiumOptimized::Add(word *C, const word *A, const word *B, size_t N)
-{
-	AddPrologue
-
-	// now: ebx = B, ecx = C, edx = A, esi = N
-	AS2(	sub ecx, edx)	// hold the distance between C & A so we can add this to A to get C
-	AS2(	xor eax, eax)	// clear eax
-
-	AS2(	sub eax, esi)	// eax is a negative index from end of B
-	AS2(	lea ebx, [ebx+4*esi])	// ebx is end of B
-
-	AS2(	sar eax, 1)		// unit of eax is now dwords; this also clears the carry flag
-	AS1(	jz	loopendAdd)		// if no dwords then nothing to do
-
-	AS1(loopstartAdd:)
-	AS2(	mov    esi,[edx])			// load lower word of A
-	AS2(	mov    ebp,[edx+4])			// load higher word of A
-
-	AS2(	mov    edi,[ebx+8*eax])		// load lower word of B
-	AS2(	lea    edx,[edx+8])			// advance A and C
-
-	AS2(	adc    esi,edi)				// add lower words
-	AS2(	mov    edi,[ebx+8*eax+4])	// load higher word of B
-
-	AS2(	adc    ebp,edi)				// add higher words
-	AS1(	inc    eax)					// advance B
-
-	AS2(	mov    [edx+ecx-8],esi)		// store lower word result
-	AS2(	mov    [edx+ecx-4],ebp)		// store higher word result
-
-	AS1(	jnz    loopstartAdd)			// loop until eax overflows and becomes zero
-
-	AS1(loopendAdd:)
-	AS2(	adc eax, 0)		// store carry into eax (return result register)
-
-	AddEpilogue
-}
-
-CRYPTOPP_NAKED int PentiumOptimized::Subtract(word *C, const word *A, const word *B, size_t N)
-{
-	AddPrologue
-
-	// now: ebx = B, ecx = C, edx = A, esi = N
-	AS2(	sub ecx, edx)	// hold the distance between C & A so we can add this to A to get C
-	AS2(	xor eax, eax)	// clear eax
-
-	AS2(	sub eax, esi)	// eax is a negative index from end of B
-	AS2(	lea ebx, [ebx+4*esi])	// ebx is end of B
-
-	AS2(	sar eax, 1)		// unit of eax is now dwords; this also clears the carry flag
-	AS1(	jz	loopendSub)		// if no dwords then nothing to do
-
-	AS1(loopstartSub:)
-	AS2(	mov    esi,[edx])			// load lower word of A
-	AS2(	mov    ebp,[edx+4])			// load higher word of A
-
-	AS2(	mov    edi,[ebx+8*eax])		// load lower word of B
-	AS2(	lea    edx,[edx+8])			// advance A and C
-
-	AS2(	sbb    esi,edi)				// subtract lower words
-	AS2(	mov    edi,[ebx+8*eax+4])	// load higher word of B
-
-	AS2(	sbb    ebp,edi)				// subtract higher words
-	AS1(	inc    eax)					// advance B
-
-	AS2(	mov    [edx+ecx-8],esi)		// store lower word result
-	AS2(	mov    [edx+ecx-4],ebp)		// store higher word result
-
-	AS1(	jnz    loopstartSub)			// loop until eax overflows and becomes zero
-
-	AS1(loopendSub:)
-	AS2(	adc eax, 0)		// store carry into eax (return result register)
-
-	AddEpilogue
-}
-
-// On Pentium 4, the adc and sbb instructions are very expensive, so avoid them.
-
-CRYPTOPP_NAKED int P4Optimized::Add(word *C, const word *A, const word *B, size_t N)
-{
-	AddPrologue
-
-	// now: ebx = B, ecx = C, edx = A, esi = N
-	AS2(	xor		eax, eax)
-	AS1(	neg		esi)
-	AS1(	jz		loopendAddP4)		// if no dwords then nothing to do
-
-	AS2(	mov		edi, [edx])
-	AS2(	mov		ebp, [ebx])
-	AS1(	jmp		carry1AddP4)
-
-	AS1(loopstartAddP4:)
-	AS2(	mov		edi, [edx+8])
-	AS2(	add		ecx, 8)
-	AS2(	add		edx, 8)
-	AS2(	mov		ebp, [ebx])
-	AS2(	add		edi, eax)
-	AS1(	jc		carry1AddP4)
-	AS2(	xor		eax, eax)
-
-	AS1(carry1AddP4:)
-	AS2(	add		edi, ebp)
-	AS2(	mov		ebp, 1)
-	AS2(	mov		[ecx], edi)
-	AS2(	mov		edi, [edx+4])
-	AS2(	cmovc	eax, ebp)
-	AS2(	mov		ebp, [ebx+4])
-	AS2(	add		ebx, 8)
-	AS2(	add		edi, eax)
-	AS1(	jc		carry2AddP4)
-	AS2(	xor		eax, eax)
-
-	AS1(carry2AddP4:)
-	AS2(	add		edi, ebp)
-	AS2(	mov		ebp, 1)
-	AS2(	cmovc	eax, ebp)
-	AS2(	mov		[ecx+4], edi)
-	AS2(	add		esi, 2)
-	AS1(	jnz		loopstartAddP4)
-
-	AS1(loopendAddP4:)
-
-	AddEpilogue
-}
-
-CRYPTOPP_NAKED int P4Optimized::Subtract(word *C, const word *A, const word *B, size_t N)
-{
-	AddPrologue
-
-	// now: ebx = B, ecx = C, edx = A, esi = N
-	AS2(	xor		eax, eax)
-	AS1(	neg		esi)
-	AS1(	jz		loopendSubP4)		// if no dwords then nothing to do
-
-	AS2(	mov		edi, [edx])
-	AS2(	mov		ebp, [ebx])
-	AS1(	jmp		carry1SubP4)
-
-	AS1(loopstartSubP4:)
-	AS2(	mov		edi, [edx+8])
-	AS2(	add		edx, 8)
-	AS2(	add		ecx, 8)
-	AS2(	mov		ebp, [ebx])
-	AS2(	sub		edi, eax)
-	AS1(	jc		carry1SubP4)
-	AS2(	xor		eax, eax)
-
-	AS1(carry1SubP4:)
-	AS2(	sub		edi, ebp)
-	AS2(	mov		ebp, 1)
-	AS2(	mov		[ecx], edi)
-	AS2(	mov		edi, [edx+4])
-	AS2(	cmovc	eax, ebp)
-	AS2(	mov		ebp, [ebx+4])
-	AS2(	add		ebx, 8)
-	AS2(	sub		edi, eax)
-	AS1(	jc		carry2SubP4)
-	AS2(	xor		eax, eax)
-
-	AS1(carry2SubP4:)
-	AS2(	sub		edi, ebp)
-	AS2(	mov		ebp, 1)
-	AS2(	cmovc	eax, ebp)
-	AS2(	mov		[ecx+4], edi)
-	AS2(	add		esi, 2)
-	AS1(	jnz		loopstartSubP4)
-
-	AS1(loopendSubP4:)
-
-	AddEpilogue
-}
-
-// multiply assembly code originally contributed by Leonard Janke
-
-#define MulStartup \
-	AS2(xor ebp, ebp) \
-	AS2(xor edi, edi) \
-	AS2(xor ebx, ebx) 
-
-#define MulShiftCarry \
-	AS2(mov ebp, edx) \
-	AS2(mov edi, ebx) \
-	AS2(xor ebx, ebx)
-
-#define MulAccumulateBottom(i,j) \
-	AS2(mov eax, [ecx+4*j]) \
-	AS2(imul eax, dword ptr [esi+4*i]) \
-	AS2(add ebp, eax)
-
-#define MulAccumulate(i,j) \
-	AS2(mov eax, [ecx+4*j]) \
-	AS1(mul dword ptr [esi+4*i]) \
-	AS2(add ebp, eax) \
-	AS2(adc edi, edx) \
-	AS2(adc bl, bh)
-
-#define MulStoreDigit(i)  \
-	AS2(mov edx, edi) \
-	AS2(mov edi, [esp]) \
-	AS2(mov [edi+4*i], ebp)
-
-#define MulLastDiagonal(digits) \
-	AS2(mov eax, [ecx+4*(digits-1)]) \
-	AS1(mul dword ptr [esi+4*(digits-1)]) \
-	AS2(add ebp, eax) \
-	AS2(adc edx, edi) \
-	AS2(mov edi, [esp]) \
-	AS2(mov [edi+4*(2*digits-2)], ebp) \
-	AS2(mov [edi+4*(2*digits-1)], edx)
-
-CRYPTOPP_NAKED void PentiumOptimized::Multiply4(word* Z, const word* X, const word* Y)
-{
-	MulPrologue
-	// now: [esp] = Z, esi = X, ecx = Y
-	MulStartup
-	MulAccumulate(0,0)
-	MulStoreDigit(0)
-	MulShiftCarry
-
-	MulAccumulate(1,0)
-	MulAccumulate(0,1)
-	MulStoreDigit(1)
-	MulShiftCarry
-
-	MulAccumulate(2,0)
-	MulAccumulate(1,1)
-	MulAccumulate(0,2)
-	MulStoreDigit(2)
-	MulShiftCarry
-
-	MulAccumulate(3,0)
-	MulAccumulate(2,1)
-	MulAccumulate(1,2)
-	MulAccumulate(0,3)
-	MulStoreDigit(3)
-	MulShiftCarry
-
-	MulAccumulate(3,1)
-	MulAccumulate(2,2)
-	MulAccumulate(1,3)
-	MulStoreDigit(4)
-	MulShiftCarry
-
-	MulAccumulate(3,2)
-	MulAccumulate(2,3)
-	MulStoreDigit(5)
-	MulShiftCarry
-
-	MulLastDiagonal(4)
-	MulEpilogue
-}
-
-CRYPTOPP_NAKED void PentiumOptimized::Multiply8(word* Z, const word* X, const word* Y)
-{
-	MulPrologue
-	// now: [esp] = Z, esi = X, ecx = Y
-	MulStartup
-	MulAccumulate(0,0)
-	MulStoreDigit(0)
-	MulShiftCarry
-
-	MulAccumulate(1,0)
-	MulAccumulate(0,1)
-	MulStoreDigit(1)
-	MulShiftCarry
-
-	MulAccumulate(2,0)
-	MulAccumulate(1,1)
-	MulAccumulate(0,2)
-	MulStoreDigit(2)
-	MulShiftCarry
-
-	MulAccumulate(3,0)
-	MulAccumulate(2,1)
-	MulAccumulate(1,2)
-	MulAccumulate(0,3)
-	MulStoreDigit(3)
-	MulShiftCarry
-
-	MulAccumulate(4,0)
-	MulAccumulate(3,1)
-	MulAccumulate(2,2)
-	MulAccumulate(1,3)
-	MulAccumulate(0,4)
-	MulStoreDigit(4)
-	MulShiftCarry
-
-	MulAccumulate(5,0)
-	MulAccumulate(4,1)
-	MulAccumulate(3,2)
-	MulAccumulate(2,3)
-	MulAccumulate(1,4)
-	MulAccumulate(0,5)
-	MulStoreDigit(5)
-	MulShiftCarry
-
-	MulAccumulate(6,0)
-	MulAccumulate(5,1)
-	MulAccumulate(4,2)
-	MulAccumulate(3,3)
-	MulAccumulate(2,4)
-	MulAccumulate(1,5)
-	MulAccumulate(0,6)
-	MulStoreDigit(6)
-	MulShiftCarry
-
-	MulAccumulate(7,0)
-	MulAccumulate(6,1)
-	MulAccumulate(5,2)
-	MulAccumulate(4,3)
-	MulAccumulate(3,4)
-	MulAccumulate(2,5)
-	MulAccumulate(1,6)
-	MulAccumulate(0,7)
-	MulStoreDigit(7)
-	MulShiftCarry
-
-	MulAccumulate(7,1)
-	MulAccumulate(6,2)
-	MulAccumulate(5,3)
-	MulAccumulate(4,4)
-	MulAccumulate(3,5)
-	MulAccumulate(2,6)
-	MulAccumulate(1,7)
-	MulStoreDigit(8)
-	MulShiftCarry
-
-	MulAccumulate(7,2)
-	MulAccumulate(6,3)
-	MulAccumulate(5,4)
-	MulAccumulate(4,5)
-	MulAccumulate(3,6)
-	MulAccumulate(2,7)
-	MulStoreDigit(9)
-	MulShiftCarry
-
-	MulAccumulate(7,3)
-	MulAccumulate(6,4)
-	MulAccumulate(5,5)
-	MulAccumulate(4,6)
-	MulAccumulate(3,7)
-	MulStoreDigit(10)
-	MulShiftCarry
-
-	MulAccumulate(7,4)
-	MulAccumulate(6,5)
-	MulAccumulate(5,6)
-	MulAccumulate(4,7)
-	MulStoreDigit(11)
-	MulShiftCarry
-
-	MulAccumulate(7,5)
-	MulAccumulate(6,6)
-	MulAccumulate(5,7)
-	MulStoreDigit(12)
-	MulShiftCarry
-
-	MulAccumulate(7,6)
-	MulAccumulate(6,7)
-	MulStoreDigit(13)
-	MulShiftCarry
-
-	MulLastDiagonal(8)
-	MulEpilogue
-}
-
-CRYPTOPP_NAKED void PentiumOptimized::Multiply8Bottom(word* Z, const word* X, const word* Y)
-{
-	MulPrologue
-	// now: [esp] = Z, esi = X, ecx = Y
-	MulStartup
-	MulAccumulate(0,0)
-	MulStoreDigit(0)
-	MulShiftCarry
-
-	MulAccumulate(1,0)
-	MulAccumulate(0,1)
-	MulStoreDigit(1)
-	MulShiftCarry
-
-	MulAccumulate(2,0)
-	MulAccumulate(1,1)
-	MulAccumulate(0,2)
-	MulStoreDigit(2)
-	MulShiftCarry
-
-	MulAccumulate(3,0)
-	MulAccumulate(2,1)
-	MulAccumulate(1,2)
-	MulAccumulate(0,3)
-	MulStoreDigit(3)
-	MulShiftCarry
-
-	MulAccumulate(4,0)
-	MulAccumulate(3,1)
-	MulAccumulate(2,2)
-	MulAccumulate(1,3)
-	MulAccumulate(0,4)
-	MulStoreDigit(4)
-	MulShiftCarry
-
-	MulAccumulate(5,0)
-	MulAccumulate(4,1)
-	MulAccumulate(3,2)
-	MulAccumulate(2,3)
-	MulAccumulate(1,4)
-	MulAccumulate(0,5)
-	MulStoreDigit(5)
-	MulShiftCarry
-
-	MulAccumulate(6,0)
-	MulAccumulate(5,1)
-	MulAccumulate(4,2)
-	MulAccumulate(3,3)
-	MulAccumulate(2,4)
-	MulAccumulate(1,5)
-	MulAccumulate(0,6)
-	MulStoreDigit(6)
-	MulShiftCarry
-
-	MulAccumulateBottom(7,0)
-	MulAccumulateBottom(6,1)
-	MulAccumulateBottom(5,2)
-	MulAccumulateBottom(4,3)
-	MulAccumulateBottom(3,4)
-	MulAccumulateBottom(2,5)
-	MulAccumulateBottom(1,6)
-	MulAccumulateBottom(0,7)
-	MulStoreDigit(7)
-	MulEpilogue
-}
-
-#undef AS1
-#undef AS2
-
-#else	// not x86 - no processor specific code at this layer
-
-typedef Portable LowLevel;
-
-#endif
-
-#ifdef SSE2_INTRINSICS_AVAILABLE
-
-#ifdef __GNUC__
-#define CRYPTOPP_FASTCALL
+	#define SquPrologue		MulPrologue
+	#define SquEpilogue	\
+			AS1(	pop		ebx) \
+			".att_syntax prefix;" \
+			: \
+			: "d" (s_maskLow16), "c" (C), "a" (A) \
+			: "%esi", "%edi", "memory", "cc" \
+		);
+	#define TopPrologue		MulPrologue
+	#define TopEpilogue	\
+			AS1(	pop		ebx) \
+			".att_syntax prefix;" \
+			: \
+			: "d" (s_maskLow16), "c" (C), "a" (A), "D" (B), "S" (L) \
+			: "memory", "cc" \
+		);
 #else
-#define CRYPTOPP_FASTCALL __fastcall
+	#define CRYPTOPP_NAKED __declspec(naked)
+	#define AddPrologue \
+		__asm	push ebx \
+		__asm	push esi \
+		__asm	mov		eax, [esp+12] \
+		__asm	mov		ebx, [esp+16]
+	#define AddEpilogue \
+		__asm	pop esi \
+		__asm	pop ebx \
+		__asm	ret 8
+	#define SquPrologue					\
+		AS2(	mov		eax, A)			\
+		AS2(	mov		ecx, C)			\
+		AS2(	lea		ebx, s_maskLow16)
+	#define SquEpilogue
+	#define MulPrologue					\
+		AS2(	mov		eax, A)			\
+		AS2(	mov		edi, B)			\
+		AS2(	mov		ecx, C)			\
+		AS2(	lea		ebx, s_maskLow16)
+	#define MulEpilogue
+	#define TopPrologue					\
+		AS2(	mov		eax, A)			\
+		AS2(	mov		edi, B)			\
+		AS2(	mov		ecx, C)			\
+		AS2(	mov		esi, L)			\
+		AS2(	lea		ebx, s_maskLow16)
+	#define TopEpilogue
 #endif
 
-static void CRYPTOPP_FASTCALL P4_Mul(__m128i *C, const __m128i *A, const __m128i *B)
+#if defined(_MSC_VER) && defined(_M_X64)
+extern "C" {
+int Baseline_Add(size_t N, word *C, const word *A, const word *B);
+int Baseline_Sub(size_t N, word *C, const word *A, const word *B);
+}
+#elif defined(CRYPTOPP_X86_ASM_AVAILABLE)
+CRYPTOPP_NAKED int CRYPTOPP_FASTCALL Baseline_Add(size_t N, word *C, const word *A, const word *B)
 {
-	__m128i a3210 = _mm_load_si128(A);
-	__m128i b3210 = _mm_load_si128(B);
+	AddPrologue
 
-	__m128i sum;
+	// now: eax = A, ebx = B, edx = C, ecx = N
+	AS2(	lea		eax, [eax+4*ecx])
+	AS2(	lea		ebx, [ebx+4*ecx])
+	AS2(	lea		edx, [edx+4*ecx])
 
-	__m128i z = _mm_setzero_si128();
-	__m128i a2b2_a0b0 = _mm_mul_epu32(a3210, b3210);
-	C[0] = a2b2_a0b0;
+	AS1(	neg		ecx)				// ecx is negative index
+	AS2(	test	ecx, 2)				// this clears carry flag
+	ASJ(	jz,		0, f)
+	AS2(	sub		ecx, 2)
+	ASJ(	jmp,	1, f)
 
-	__m128i a3120 = _mm_shuffle_epi32(a3210, _MM_SHUFFLE(3, 1, 2, 0));
-	__m128i b3021 = _mm_shuffle_epi32(b3210, _MM_SHUFFLE(3, 0, 2, 1));
-	__m128i a1b0_a0b1 = _mm_mul_epu32(a3120, b3021);
-	__m128i a1b0 = _mm_unpackhi_epi32(a1b0_a0b1, z);
-	__m128i a0b1 = _mm_unpacklo_epi32(a1b0_a0b1, z);
-	C[1] = _mm_add_epi64(a1b0, a0b1);
+	ASL(0)
+	ASJ(	jecxz,	2, f)				// loop until ecx overflows and becomes zero
+	AS2(	mov		esi,[eax+4*ecx])
+	AS2(	adc		esi,[ebx+4*ecx])
+	AS2(	mov		[edx+4*ecx],esi)
+	AS2(	mov		esi,[eax+4*ecx+4])
+	AS2(	adc		esi,[ebx+4*ecx+4])
+	AS2(	mov		[edx+4*ecx+4],esi)
+	ASL(1)
+	AS2(	mov		esi,[eax+4*ecx+8])
+	AS2(	adc		esi,[ebx+4*ecx+8])
+	AS2(	mov		[edx+4*ecx+8],esi)
+	AS2(	mov		esi,[eax+4*ecx+12])
+	AS2(	adc		esi,[ebx+4*ecx+12])
+	AS2(	mov		[edx+4*ecx+12],esi)
 
-	__m128i a31 = _mm_srli_epi64(a3210, 32);
-	__m128i b31 = _mm_srli_epi64(b3210, 32);
-	__m128i a3b3_a1b1 = _mm_mul_epu32(a31, b31);
-	C[6] = a3b3_a1b1;
+	AS2(	lea		ecx,[ecx+4])		// advance index, avoid inc which causes slowdown on Intel Core 2
+	ASJ(	jmp,	0, b)
 
-	__m128i a1b1 = _mm_unpacklo_epi32(a3b3_a1b1, z);
-	__m128i b3012 = _mm_shuffle_epi32(b3210, _MM_SHUFFLE(3, 0, 1, 2));
-	__m128i a2b0_a0b2 = _mm_mul_epu32(a3210, b3012);
-	__m128i a0b2 = _mm_unpacklo_epi32(a2b0_a0b2, z);
-	__m128i a2b0 = _mm_unpackhi_epi32(a2b0_a0b2, z);
-	sum = _mm_add_epi64(a1b1, a0b2);
-	C[2] = _mm_add_epi64(sum, a2b0);
+	ASL(2)
+	AS2(	mov		eax, 0)
+	AS1(	setc	al)					// store carry into eax (return result register)
 
-	__m128i a2301 = _mm_shuffle_epi32(a3210, _MM_SHUFFLE(2, 3, 0, 1));
-	__m128i b2103 = _mm_shuffle_epi32(b3210, _MM_SHUFFLE(2, 1, 0, 3));
-	__m128i a3b0_a1b2 = _mm_mul_epu32(a2301, b3012);
-	__m128i a2b1_a0b3 = _mm_mul_epu32(a3210, b2103);
-	__m128i a3b0 = _mm_unpackhi_epi32(a3b0_a1b2, z);
-	__m128i a1b2 = _mm_unpacklo_epi32(a3b0_a1b2, z);
-	__m128i a2b1 = _mm_unpackhi_epi32(a2b1_a0b3, z);
-	__m128i a0b3 = _mm_unpacklo_epi32(a2b1_a0b3, z);
-	__m128i sum1 = _mm_add_epi64(a3b0, a1b2);
-	sum = _mm_add_epi64(a2b1, a0b3);
-	C[3] = _mm_add_epi64(sum, sum1);
-
-	__m128i	a3b1_a1b3 = _mm_mul_epu32(a2301, b2103);
-	__m128i a2b2 = _mm_unpackhi_epi32(a2b2_a0b0, z);
-	__m128i a3b1 = _mm_unpackhi_epi32(a3b1_a1b3, z);
-	__m128i a1b3 = _mm_unpacklo_epi32(a3b1_a1b3, z);
-	sum = _mm_add_epi64(a2b2, a3b1);
-	C[4] = _mm_add_epi64(sum, a1b3);
-
-	__m128i a1302 = _mm_shuffle_epi32(a3210, _MM_SHUFFLE(1, 3, 0, 2));
-	__m128i b1203 = _mm_shuffle_epi32(b3210, _MM_SHUFFLE(1, 2, 0, 3));
-	__m128i a3b2_a2b3 = _mm_mul_epu32(a1302, b1203);
-	__m128i a3b2 = _mm_unpackhi_epi32(a3b2_a2b3, z);
-	__m128i a2b3 = _mm_unpacklo_epi32(a3b2_a2b3, z);
-	C[5] = _mm_add_epi64(a3b2, a2b3);
+	AddEpilogue
 }
 
-void P4Optimized::Multiply4(word *C, const word *A, const word *B)
+CRYPTOPP_NAKED int CRYPTOPP_FASTCALL Baseline_Sub(size_t N, word *C, const word *A, const word *B)
 {
-	__m128i temp[7];
-	const word *w = (word *)temp;
-	const __m64 *mw = (__m64 *)w;
+	AddPrologue
 
-	P4_Mul(temp, (__m128i *)A, (__m128i *)B);
+	// now: eax = A, ebx = B, edx = C, ecx = N
+	AS2(	lea		eax, [eax+4*ecx])
+	AS2(	lea		ebx, [ebx+4*ecx])
+	AS2(	lea		edx, [edx+4*ecx])
 
-	C[0] = w[0];
+	AS1(	neg		ecx)				// ecx is negative index
+	AS2(	test	ecx, 2)				// this clears carry flag
+	ASJ(	jz,		0, f)
+	AS2(	sub		ecx, 2)
+	ASJ(	jmp,	1, f)
 
-	__m64 s1, s2;
+	ASL(0)
+	ASJ(	jecxz,	2, f)				// loop until ecx overflows and becomes zero
+	AS2(	mov		esi,[eax+4*ecx])
+	AS2(	sbb		esi,[ebx+4*ecx])
+	AS2(	mov		[edx+4*ecx],esi)
+	AS2(	mov		esi,[eax+4*ecx+4])
+	AS2(	sbb		esi,[ebx+4*ecx+4])
+	AS2(	mov		[edx+4*ecx+4],esi)
+	ASL(1)
+	AS2(	mov		esi,[eax+4*ecx+8])
+	AS2(	sbb		esi,[ebx+4*ecx+8])
+	AS2(	mov		[edx+4*ecx+8],esi)
+	AS2(	mov		esi,[eax+4*ecx+12])
+	AS2(	sbb		esi,[ebx+4*ecx+12])
+	AS2(	mov		[edx+4*ecx+12],esi)
 
-	__m64 w1 = _mm_cvtsi32_si64(w[1]);
-	__m64 w4 = mw[2];
-	__m64 w6 = mw[3];
-	__m64 w8 = mw[4];
-	__m64 w10 = mw[5];
-	__m64 w12 = mw[6];
-	__m64 w14 = mw[7];
-	__m64 w16 = mw[8];
-	__m64 w18 = mw[9];
-	__m64 w20 = mw[10];
-	__m64 w22 = mw[11];
-	__m64 w26 = _mm_cvtsi32_si64(w[26]);
+	AS2(	lea		ecx,[ecx+4])		// advance index, avoid inc which causes slowdown on Intel Core 2
+	ASJ(	jmp,	0, b)
 
-	s1 = _mm_add_si64(w1, w4);
-	C[1] = _mm_cvtsi64_si32(s1);
-	s1 = _mm_srli_si64(s1, 32);
+	ASL(2)
+	AS2(	mov		eax, 0)
+	AS1(	setc	al)					// store carry into eax (return result register)
 
-	s2 = _mm_add_si64(w6, w8);
-	s1 = _mm_add_si64(s1, s2);
-	C[2] = _mm_cvtsi64_si32(s1);
-	s1 = _mm_srli_si64(s1, 32);
-
-	s2 = _mm_add_si64(w10, w12);
-	s1 = _mm_add_si64(s1, s2);
-	C[3] = _mm_cvtsi64_si32(s1);
-	s1 = _mm_srli_si64(s1, 32);
-
-	s2 = _mm_add_si64(w14, w16);
-	s1 = _mm_add_si64(s1, s2);
-	C[4] = _mm_cvtsi64_si32(s1);
-	s1 = _mm_srli_si64(s1, 32);
-
-	s2 = _mm_add_si64(w18, w20);
-	s1 = _mm_add_si64(s1, s2);
-	C[5] = _mm_cvtsi64_si32(s1);
-	s1 = _mm_srli_si64(s1, 32);
-
-	s2 = _mm_add_si64(w22, w26);
-	s1 = _mm_add_si64(s1, s2);
-	C[6] = _mm_cvtsi64_si32(s1);
-	s1 = _mm_srli_si64(s1, 32);
-
-	C[7] = _mm_cvtsi64_si32(s1) + w[27];
-	_mm_empty();
+	AddEpilogue
 }
 
-void P4Optimized::Multiply8(word *C, const word *A, const word *B)
+CRYPTOPP_NAKED int CRYPTOPP_FASTCALL SSE2_Add(size_t N, word *C, const word *A, const word *B)
 {
-	__m128i temp[28];
-	const word *w = (word *)temp;
-	const __m64 *mw = (__m64 *)w;
-	const word *x = (word *)temp+7*4;
-	const __m64 *mx = (__m64 *)x;
-	const word *y = (word *)temp+7*4*2;
-	const __m64 *my = (__m64 *)y;
-	const word *z = (word *)temp+7*4*3;
-	const __m64 *mz = (__m64 *)z;
+	AddPrologue
 
-	P4_Mul(temp, (__m128i *)A, (__m128i *)B);
+	// now: eax = A, ebx = B, edx = C, ecx = N
+	AS2(	lea		eax, [eax+4*ecx])
+	AS2(	lea		ebx, [ebx+4*ecx])
+	AS2(	lea		edx, [edx+4*ecx])
 
-	P4_Mul(temp+7, (__m128i *)A+1, (__m128i *)B);
+	AS1(	neg		ecx)				// ecx is negative index
+	AS2(	pxor    mm2, mm2)
+	ASJ(	jz,		2, f)
+	AS2(	test	ecx, 2)				// this clears carry flag
+	ASJ(	jz,		0, f)
+	AS2(	sub		ecx, 2)
+	ASJ(	jmp,	1, f)
 
-	P4_Mul(temp+14, (__m128i *)A, (__m128i *)B+1);
+	ASL(0)
+	AS2(	movd     mm0, DWORD PTR [eax+4*ecx])
+	AS2(	movd     mm1, DWORD PTR [ebx+4*ecx])
+	AS2(	paddq    mm0, mm1)
+	AS2(	paddq	 mm2, mm0)
+	AS2(	movd	 DWORD PTR [edx+4*ecx], mm2)
+	AS2(	psrlq    mm2, 32)
 
-	P4_Mul(temp+21, (__m128i *)A+1, (__m128i *)B+1);
+	AS2(	movd     mm0, DWORD PTR [eax+4*ecx+4])
+	AS2(	movd     mm1, DWORD PTR [ebx+4*ecx+4])
+	AS2(	paddq    mm0, mm1)
+	AS2(	paddq	 mm2, mm0)
+	AS2(	movd	 DWORD PTR [edx+4*ecx+4], mm2)
+	AS2(	psrlq    mm2, 32)
 
-	C[0] = w[0];
+	ASL(1)
+	AS2(	movd     mm0, DWORD PTR [eax+4*ecx+8])
+	AS2(	movd     mm1, DWORD PTR [ebx+4*ecx+8])
+	AS2(	paddq    mm0, mm1)
+	AS2(	paddq	 mm2, mm0)
+	AS2(	movd	 DWORD PTR [edx+4*ecx+8], mm2)
+	AS2(	psrlq    mm2, 32)
 
-	__m64 s1, s2, s3, s4;
+	AS2(	movd     mm0, DWORD PTR [eax+4*ecx+12])
+	AS2(	movd     mm1, DWORD PTR [ebx+4*ecx+12])
+	AS2(	paddq    mm0, mm1)
+	AS2(	paddq	 mm2, mm0)
+	AS2(	movd	 DWORD PTR [edx+4*ecx+12], mm2)
+	AS2(	psrlq    mm2, 32)
 
-	__m64 w1 = _mm_cvtsi32_si64(w[1]);
-	__m64 w4 = mw[2];
-	__m64 w6 = mw[3];
-	__m64 w8 = mw[4];
-	__m64 w10 = mw[5];
-	__m64 w12 = mw[6];
-	__m64 w14 = mw[7];
-	__m64 w16 = mw[8];
-	__m64 w18 = mw[9];
-	__m64 w20 = mw[10];
-	__m64 w22 = mw[11];
-	__m64 w26 = _mm_cvtsi32_si64(w[26]);
-	__m64 w27 = _mm_cvtsi32_si64(w[27]);
+	AS2(	add		ecx, 4)
+	ASJ(	jnz,	0, b)
 
-	__m64 x0 = _mm_cvtsi32_si64(x[0]);
-	__m64 x1 = _mm_cvtsi32_si64(x[1]);
-	__m64 x4 = mx[2];
-	__m64 x6 = mx[3];
-	__m64 x8 = mx[4];
-	__m64 x10 = mx[5];
-	__m64 x12 = mx[6];
-	__m64 x14 = mx[7];
-	__m64 x16 = mx[8];
-	__m64 x18 = mx[9];
-	__m64 x20 = mx[10];
-	__m64 x22 = mx[11];
-	__m64 x26 = _mm_cvtsi32_si64(x[26]);
-	__m64 x27 = _mm_cvtsi32_si64(x[27]);
+	ASL(2)
+	AS2(	movd	eax, mm2)
+	AS1(	emms)
 
-	__m64 y0 = _mm_cvtsi32_si64(y[0]);
-	__m64 y1 = _mm_cvtsi32_si64(y[1]);
-	__m64 y4 = my[2];
-	__m64 y6 = my[3];
-	__m64 y8 = my[4];
-	__m64 y10 = my[5];
-	__m64 y12 = my[6];
-	__m64 y14 = my[7];
-	__m64 y16 = my[8];
-	__m64 y18 = my[9];
-	__m64 y20 = my[10];
-	__m64 y22 = my[11];
-	__m64 y26 = _mm_cvtsi32_si64(y[26]);
-	__m64 y27 = _mm_cvtsi32_si64(y[27]);
-
-	__m64 z0 = _mm_cvtsi32_si64(z[0]);
-	__m64 z1 = _mm_cvtsi32_si64(z[1]);
-	__m64 z4 = mz[2];
-	__m64 z6 = mz[3];
-	__m64 z8 = mz[4];
-	__m64 z10 = mz[5];
-	__m64 z12 = mz[6];
-	__m64 z14 = mz[7];
-	__m64 z16 = mz[8];
-	__m64 z18 = mz[9];
-	__m64 z20 = mz[10];
-	__m64 z22 = mz[11];
-	__m64 z26 = _mm_cvtsi32_si64(z[26]);
-
-	s1 = _mm_add_si64(w1, w4);
-	C[1] = _mm_cvtsi64_si32(s1);
-	s1 = _mm_srli_si64(s1, 32);
-
-	s2 = _mm_add_si64(w6, w8);
-	s1 = _mm_add_si64(s1, s2);
-	C[2] = _mm_cvtsi64_si32(s1);
-	s1 = _mm_srli_si64(s1, 32);
-
-	s2 = _mm_add_si64(w10, w12);
-	s1 = _mm_add_si64(s1, s2);
-	C[3] = _mm_cvtsi64_si32(s1);
-	s1 = _mm_srli_si64(s1, 32);
-
-	s3 = _mm_add_si64(x0, y0);
-	s2 = _mm_add_si64(w14, w16);
-	s1 = _mm_add_si64(s1, s3);
-	s1 = _mm_add_si64(s1, s2);
-	C[4] = _mm_cvtsi64_si32(s1);
-	s1 = _mm_srli_si64(s1, 32);
-
-	s3 = _mm_add_si64(x1, y1);
-	s4 = _mm_add_si64(x4, y4);
-	s1 = _mm_add_si64(s1, w18);
-	s3 = _mm_add_si64(s3, s4);
-	s1 = _mm_add_si64(s1, w20);
-	s1 = _mm_add_si64(s1, s3);
-	C[5] = _mm_cvtsi64_si32(s1);
-	s1 = _mm_srli_si64(s1, 32);
-
-	s3 = _mm_add_si64(x6, y6);
-	s4 = _mm_add_si64(x8, y8);
-	s1 = _mm_add_si64(s1, w22);
-	s3 = _mm_add_si64(s3, s4);
-	s1 = _mm_add_si64(s1, w26);
-	s1 = _mm_add_si64(s1, s3);
-	C[6] = _mm_cvtsi64_si32(s1);
-	s1 = _mm_srli_si64(s1, 32);
-
-	s3 = _mm_add_si64(x10, y10);
-	s4 = _mm_add_si64(x12, y12);
-	s1 = _mm_add_si64(s1, w27);
-	s3 = _mm_add_si64(s3, s4);
-	s1 = _mm_add_si64(s1, s3);
-	C[7] = _mm_cvtsi64_si32(s1);
-	s1 = _mm_srli_si64(s1, 32);
-
-	s3 = _mm_add_si64(x14, y14);
-	s4 = _mm_add_si64(x16, y16);
-	s1 = _mm_add_si64(s1, z0);
-	s3 = _mm_add_si64(s3, s4);
-	s1 = _mm_add_si64(s1, s3);
-	C[8] = _mm_cvtsi64_si32(s1);
-	s1 = _mm_srli_si64(s1, 32);
-
-	s3 = _mm_add_si64(x18, y18);
-	s4 = _mm_add_si64(x20, y20);
-	s1 = _mm_add_si64(s1, z1);
-	s3 = _mm_add_si64(s3, s4);
-	s1 = _mm_add_si64(s1, z4);
-	s1 = _mm_add_si64(s1, s3);
-	C[9] = _mm_cvtsi64_si32(s1);
-	s1 = _mm_srli_si64(s1, 32);
-
-	s3 = _mm_add_si64(x22, y22);
-	s4 = _mm_add_si64(x26, y26);
-	s1 = _mm_add_si64(s1, z6);
-	s3 = _mm_add_si64(s3, s4);
-	s1 = _mm_add_si64(s1, z8);
-	s1 = _mm_add_si64(s1, s3);
-	C[10] = _mm_cvtsi64_si32(s1);
-	s1 = _mm_srli_si64(s1, 32);
-
-	s3 = _mm_add_si64(x27, y27);
-	s1 = _mm_add_si64(s1, z10);
-	s1 = _mm_add_si64(s1, z12);
-	s1 = _mm_add_si64(s1, s3);
-	C[11] = _mm_cvtsi64_si32(s1);
-	s1 = _mm_srli_si64(s1, 32);
-
-	s3 = _mm_add_si64(z14, z16);
-	s1 = _mm_add_si64(s1, s3);
-	C[12] = _mm_cvtsi64_si32(s1);
-	s1 = _mm_srli_si64(s1, 32);
-
-	s3 = _mm_add_si64(z18, z20);
-	s1 = _mm_add_si64(s1, s3);
-	C[13] = _mm_cvtsi64_si32(s1);
-	s1 = _mm_srli_si64(s1, 32);
-
-	s3 = _mm_add_si64(z22, z26);
-	s1 = _mm_add_si64(s1, s3);
-	C[14] = _mm_cvtsi64_si32(s1);
-	s1 = _mm_srli_si64(s1, 32);
-
-	C[15] = z[27] + _mm_cvtsi64_si32(s1);
-	_mm_empty();
+	AddEpilogue
 }
 
-void P4Optimized::Multiply8Bottom(word *C, const word *A, const word *B)
+CRYPTOPP_NAKED int CRYPTOPP_FASTCALL SSE2_Sub(size_t N, word *C, const word *A, const word *B)
 {
-	__m128i temp[21];
-	const word *w = (word *)temp;
-	const __m64 *mw = (__m64 *)w;
-	const word *x = (word *)temp+7*4;
-	const __m64 *mx = (__m64 *)x;
-	const word *y = (word *)temp+7*4*2;
-	const __m64 *my = (__m64 *)y;
+	AddPrologue
 
-	P4_Mul(temp, (__m128i *)A, (__m128i *)B);
+	// now: eax = A, ebx = B, edx = C, ecx = N
+	AS2(	lea		eax, [eax+4*ecx])
+	AS2(	lea		ebx, [ebx+4*ecx])
+	AS2(	lea		edx, [edx+4*ecx])
 
-	P4_Mul(temp+7, (__m128i *)A+1, (__m128i *)B);
+	AS1(	neg		ecx)				// ecx is negative index
+	AS2(	pxor    mm2, mm2)
+	ASJ(	jz,		2, f)
+	AS2(	test	ecx, 2)				// this clears carry flag
+	ASJ(	jz,		0, f)
+	AS2(	sub		ecx, 2)
+	ASJ(	jmp,	1, f)
 
-	P4_Mul(temp+14, (__m128i *)A, (__m128i *)B+1);
+	ASL(0)
+	AS2(	movd     mm0, DWORD PTR [eax+4*ecx])
+	AS2(	movd     mm1, DWORD PTR [ebx+4*ecx])
+	AS2(	psubq    mm0, mm1)
+	AS2(	psubq	 mm0, mm2)
+	AS2(	movd	 DWORD PTR [edx+4*ecx], mm0)
+	AS2(	psrlq    mm0, 63)
 
-	C[0] = w[0];
+	AS2(	movd     mm2, DWORD PTR [eax+4*ecx+4])
+	AS2(	movd     mm1, DWORD PTR [ebx+4*ecx+4])
+	AS2(	psubq    mm2, mm1)
+	AS2(	psubq	 mm2, mm0)
+	AS2(	movd	 DWORD PTR [edx+4*ecx+4], mm2)
+	AS2(	psrlq    mm2, 63)
 
-	__m64 s1, s2, s3, s4;
+	ASL(1)
+	AS2(	movd     mm0, DWORD PTR [eax+4*ecx+8])
+	AS2(	movd     mm1, DWORD PTR [ebx+4*ecx+8])
+	AS2(	psubq    mm0, mm1)
+	AS2(	psubq	 mm0, mm2)
+	AS2(	movd	 DWORD PTR [edx+4*ecx+8], mm0)
+	AS2(	psrlq    mm0, 63)
 
-	__m64 w1 = _mm_cvtsi32_si64(w[1]);
-	__m64 w4 = mw[2];
-	__m64 w6 = mw[3];
-	__m64 w8 = mw[4];
-	__m64 w10 = mw[5];
-	__m64 w12 = mw[6];
-	__m64 w14 = mw[7];
-	__m64 w16 = mw[8];
-	__m64 w18 = mw[9];
-	__m64 w20 = mw[10];
-	__m64 w22 = mw[11];
-	__m64 w26 = _mm_cvtsi32_si64(w[26]);
+	AS2(	movd     mm2, DWORD PTR [eax+4*ecx+12])
+	AS2(	movd     mm1, DWORD PTR [ebx+4*ecx+12])
+	AS2(	psubq    mm2, mm1)
+	AS2(	psubq	 mm2, mm0)
+	AS2(	movd	 DWORD PTR [edx+4*ecx+12], mm2)
+	AS2(	psrlq    mm2, 63)
 
-	__m64 x0 = _mm_cvtsi32_si64(x[0]);
-	__m64 x1 = _mm_cvtsi32_si64(x[1]);
-	__m64 x4 = mx[2];
-	__m64 x6 = mx[3];
-	__m64 x8 = mx[4];
+	AS2(	add		ecx, 4)
+	ASJ(	jnz,	0, b)
 
-	__m64 y0 = _mm_cvtsi32_si64(y[0]);
-	__m64 y1 = _mm_cvtsi32_si64(y[1]);
-	__m64 y4 = my[2];
-	__m64 y6 = my[3];
-	__m64 y8 = my[4];
+	ASL(2)
+	AS2(	movd	eax, mm2)
+	AS1(	emms)
 
-	s1 = _mm_add_si64(w1, w4);
-	C[1] = _mm_cvtsi64_si32(s1);
-	s1 = _mm_srli_si64(s1, 32);
+	AddEpilogue
+}
+#else
+int CRYPTOPP_FASTCALL Baseline_Add(size_t N, word *C, const word *A, const word *B)
+{
+	assert (N%2 == 0);
 
-	s2 = _mm_add_si64(w6, w8);
-	s1 = _mm_add_si64(s1, s2);
-	C[2] = _mm_cvtsi64_si32(s1);
-	s1 = _mm_srli_si64(s1, 32);
-
-	s2 = _mm_add_si64(w10, w12);
-	s1 = _mm_add_si64(s1, s2);
-	C[3] = _mm_cvtsi64_si32(s1);
-	s1 = _mm_srli_si64(s1, 32);
-
-	s3 = _mm_add_si64(x0, y0);
-	s2 = _mm_add_si64(w14, w16);
-	s1 = _mm_add_si64(s1, s3);
-	s1 = _mm_add_si64(s1, s2);
-	C[4] = _mm_cvtsi64_si32(s1);
-	s1 = _mm_srli_si64(s1, 32);
-
-	s3 = _mm_add_si64(x1, y1);
-	s4 = _mm_add_si64(x4, y4);
-	s1 = _mm_add_si64(s1, w18);
-	s3 = _mm_add_si64(s3, s4);
-	s1 = _mm_add_si64(s1, w20);
-	s1 = _mm_add_si64(s1, s3);
-	C[5] = _mm_cvtsi64_si32(s1);
-	s1 = _mm_srli_si64(s1, 32);
-
-	s3 = _mm_add_si64(x6, y6);
-	s4 = _mm_add_si64(x8, y8);
-	s1 = _mm_add_si64(s1, w22);
-	s3 = _mm_add_si64(s3, s4);
-	s1 = _mm_add_si64(s1, w26);
-	s1 = _mm_add_si64(s1, s3);
-	C[6] = _mm_cvtsi64_si32(s1);
-	s1 = _mm_srli_si64(s1, 32);
-
-	C[7] = _mm_cvtsi64_si32(s1) + w[27] + x[10] + y[10] + x[12] + y[12];
-	_mm_empty();
+	Declare2Words(u);
+	for (size_t i=0; i<N; i+=2)
+	{
+		AddWithCarry(u, A[i], B[i]);
+		C[i] = LowWord(u);
+		AddWithCarry(u, A[i+1], B[i+1]);
+		C[i+1] = LowWord(u);
+	}
+	return int(GetCarry(u));
 }
 
-#endif	// #ifdef SSE2_INTRINSICS_AVAILABLE
+int CRYPTOPP_FASTCALL Baseline_Sub(size_t N, word *C, const word *A, const word *B)
+{
+	assert (N%2 == 0);
+
+	Declare2Words(u);
+	for (size_t i=0; i<N; i+=2)
+	{
+		SubtractWithBorrow(u, A[i], B[i]);
+		C[i] = LowWord(u);
+		SubtractWithBorrow(u, A[i+1], B[i+1]);
+		C[i+1] = LowWord(u);
+	}
+	return int(GetBorrow(u));
+}
+#endif
+
+static word LinearMultiply(word *C, const word *A, word B, size_t N)
+{
+	word carry=0;
+	for(unsigned i=0; i<N; i++)
+	{
+		Declare2Words(p);
+		MultiplyWords(p, A[i], B);
+		Acc2WordsBy1(p, carry);
+		C[i] = LowWord(p);
+		carry = HighWord(p);
+	}
+	return carry;
+}
+
+#define Mul_2 \
+	Mul_Begin(2) \
+	Mul_SaveAcc(0, 0, 1) Mul_Acc(1, 0) \
+	Mul_End(2)
+
+#define Mul_4 \
+	Mul_Begin(4) \
+	Mul_SaveAcc(0, 0, 1) Mul_Acc(1, 0) \
+	Mul_SaveAcc(1, 0, 2) Mul_Acc(1, 1) Mul_Acc(2, 0)  \
+	Mul_SaveAcc(2, 0, 3) Mul_Acc(1, 2) Mul_Acc(2, 1) Mul_Acc(3, 0)  \
+	Mul_SaveAcc(3, 1, 3) Mul_Acc(2, 2) Mul_Acc(3, 1)  \
+	Mul_SaveAcc(4, 2, 3) Mul_Acc(3, 2) \
+	Mul_End(4)
+
+#define Mul_8 \
+	Mul_Begin(8) \
+	Mul_SaveAcc(0, 0, 1) Mul_Acc(1, 0) \
+	Mul_SaveAcc(1, 0, 2) Mul_Acc(1, 1) Mul_Acc(2, 0)  \
+	Mul_SaveAcc(2, 0, 3) Mul_Acc(1, 2) Mul_Acc(2, 1) Mul_Acc(3, 0)  \
+	Mul_SaveAcc(3, 0, 4) Mul_Acc(1, 3) Mul_Acc(2, 2) Mul_Acc(3, 1) Mul_Acc(4, 0) \
+	Mul_SaveAcc(4, 0, 5) Mul_Acc(1, 4) Mul_Acc(2, 3) Mul_Acc(3, 2) Mul_Acc(4, 1) Mul_Acc(5, 0) \
+	Mul_SaveAcc(5, 0, 6) Mul_Acc(1, 5) Mul_Acc(2, 4) Mul_Acc(3, 3) Mul_Acc(4, 2) Mul_Acc(5, 1) Mul_Acc(6, 0) \
+	Mul_SaveAcc(6, 0, 7) Mul_Acc(1, 6) Mul_Acc(2, 5) Mul_Acc(3, 4) Mul_Acc(4, 3) Mul_Acc(5, 2) Mul_Acc(6, 1) Mul_Acc(7, 0) \
+	Mul_SaveAcc(7, 1, 7) Mul_Acc(2, 6) Mul_Acc(3, 5) Mul_Acc(4, 4) Mul_Acc(5, 3) Mul_Acc(6, 2) Mul_Acc(7, 1) \
+	Mul_SaveAcc(8, 2, 7) Mul_Acc(3, 6) Mul_Acc(4, 5) Mul_Acc(5, 4) Mul_Acc(6, 3) Mul_Acc(7, 2) \
+	Mul_SaveAcc(9, 3, 7) Mul_Acc(4, 6) Mul_Acc(5, 5) Mul_Acc(6, 4) Mul_Acc(7, 3) \
+	Mul_SaveAcc(10, 4, 7) Mul_Acc(5, 6) Mul_Acc(6, 5) Mul_Acc(7, 4) \
+	Mul_SaveAcc(11, 5, 7) Mul_Acc(6, 6) Mul_Acc(7, 5) \
+	Mul_SaveAcc(12, 6, 7) Mul_Acc(7, 6) \
+	Mul_End(8)
+
+#define Mul_16 \
+	Mul_Begin(16) \
+	Mul_SaveAcc(0, 0, 1) Mul_Acc(1, 0) \
+	Mul_SaveAcc(1, 0, 2) Mul_Acc(1, 1) Mul_Acc(2, 0) \
+	Mul_SaveAcc(2, 0, 3) Mul_Acc(1, 2) Mul_Acc(2, 1) Mul_Acc(3, 0) \
+	Mul_SaveAcc(3, 0, 4) Mul_Acc(1, 3) Mul_Acc(2, 2) Mul_Acc(3, 1) Mul_Acc(4, 0) \
+	Mul_SaveAcc(4, 0, 5) Mul_Acc(1, 4) Mul_Acc(2, 3) Mul_Acc(3, 2) Mul_Acc(4, 1) Mul_Acc(5, 0) \
+	Mul_SaveAcc(5, 0, 6) Mul_Acc(1, 5) Mul_Acc(2, 4) Mul_Acc(3, 3) Mul_Acc(4, 2) Mul_Acc(5, 1) Mul_Acc(6, 0) \
+	Mul_SaveAcc(6, 0, 7) Mul_Acc(1, 6) Mul_Acc(2, 5) Mul_Acc(3, 4) Mul_Acc(4, 3) Mul_Acc(5, 2) Mul_Acc(6, 1) Mul_Acc(7, 0) \
+	Mul_SaveAcc(7, 0, 8) Mul_Acc(1, 7) Mul_Acc(2, 6) Mul_Acc(3, 5) Mul_Acc(4, 4) Mul_Acc(5, 3) Mul_Acc(6, 2) Mul_Acc(7, 1) Mul_Acc(8, 0) \
+	Mul_SaveAcc(8, 0, 9) Mul_Acc(1, 8) Mul_Acc(2, 7) Mul_Acc(3, 6) Mul_Acc(4, 5) Mul_Acc(5, 4) Mul_Acc(6, 3) Mul_Acc(7, 2) Mul_Acc(8, 1) Mul_Acc(9, 0) \
+	Mul_SaveAcc(9, 0, 10) Mul_Acc(1, 9) Mul_Acc(2, 8) Mul_Acc(3, 7) Mul_Acc(4, 6) Mul_Acc(5, 5) Mul_Acc(6, 4) Mul_Acc(7, 3) Mul_Acc(8, 2) Mul_Acc(9, 1) Mul_Acc(10, 0) \
+	Mul_SaveAcc(10, 0, 11) Mul_Acc(1, 10) Mul_Acc(2, 9) Mul_Acc(3, 8) Mul_Acc(4, 7) Mul_Acc(5, 6) Mul_Acc(6, 5) Mul_Acc(7, 4) Mul_Acc(8, 3) Mul_Acc(9, 2) Mul_Acc(10, 1) Mul_Acc(11, 0) \
+	Mul_SaveAcc(11, 0, 12) Mul_Acc(1, 11) Mul_Acc(2, 10) Mul_Acc(3, 9) Mul_Acc(4, 8) Mul_Acc(5, 7) Mul_Acc(6, 6) Mul_Acc(7, 5) Mul_Acc(8, 4) Mul_Acc(9, 3) Mul_Acc(10, 2) Mul_Acc(11, 1) Mul_Acc(12, 0) \
+	Mul_SaveAcc(12, 0, 13) Mul_Acc(1, 12) Mul_Acc(2, 11) Mul_Acc(3, 10) Mul_Acc(4, 9) Mul_Acc(5, 8) Mul_Acc(6, 7) Mul_Acc(7, 6) Mul_Acc(8, 5) Mul_Acc(9, 4) Mul_Acc(10, 3) Mul_Acc(11, 2) Mul_Acc(12, 1) Mul_Acc(13, 0) \
+	Mul_SaveAcc(13, 0, 14) Mul_Acc(1, 13) Mul_Acc(2, 12) Mul_Acc(3, 11) Mul_Acc(4, 10) Mul_Acc(5, 9) Mul_Acc(6, 8) Mul_Acc(7, 7) Mul_Acc(8, 6) Mul_Acc(9, 5) Mul_Acc(10, 4) Mul_Acc(11, 3) Mul_Acc(12, 2) Mul_Acc(13, 1) Mul_Acc(14, 0) \
+	Mul_SaveAcc(14, 0, 15) Mul_Acc(1, 14) Mul_Acc(2, 13) Mul_Acc(3, 12) Mul_Acc(4, 11) Mul_Acc(5, 10) Mul_Acc(6, 9) Mul_Acc(7, 8) Mul_Acc(8, 7) Mul_Acc(9, 6) Mul_Acc(10, 5) Mul_Acc(11, 4) Mul_Acc(12, 3) Mul_Acc(13, 2) Mul_Acc(14, 1) Mul_Acc(15, 0) \
+	Mul_SaveAcc(15, 1, 15) Mul_Acc(2, 14) Mul_Acc(3, 13) Mul_Acc(4, 12) Mul_Acc(5, 11) Mul_Acc(6, 10) Mul_Acc(7, 9) Mul_Acc(8, 8) Mul_Acc(9, 7) Mul_Acc(10, 6) Mul_Acc(11, 5) Mul_Acc(12, 4) Mul_Acc(13, 3) Mul_Acc(14, 2) Mul_Acc(15, 1) \
+	Mul_SaveAcc(16, 2, 15) Mul_Acc(3, 14) Mul_Acc(4, 13) Mul_Acc(5, 12) Mul_Acc(6, 11) Mul_Acc(7, 10) Mul_Acc(8, 9) Mul_Acc(9, 8) Mul_Acc(10, 7) Mul_Acc(11, 6) Mul_Acc(12, 5) Mul_Acc(13, 4) Mul_Acc(14, 3) Mul_Acc(15, 2) \
+	Mul_SaveAcc(17, 3, 15) Mul_Acc(4, 14) Mul_Acc(5, 13) Mul_Acc(6, 12) Mul_Acc(7, 11) Mul_Acc(8, 10) Mul_Acc(9, 9) Mul_Acc(10, 8) Mul_Acc(11, 7) Mul_Acc(12, 6) Mul_Acc(13, 5) Mul_Acc(14, 4) Mul_Acc(15, 3) \
+	Mul_SaveAcc(18, 4, 15) Mul_Acc(5, 14) Mul_Acc(6, 13) Mul_Acc(7, 12) Mul_Acc(8, 11) Mul_Acc(9, 10) Mul_Acc(10, 9) Mul_Acc(11, 8) Mul_Acc(12, 7) Mul_Acc(13, 6) Mul_Acc(14, 5) Mul_Acc(15, 4) \
+	Mul_SaveAcc(19, 5, 15) Mul_Acc(6, 14) Mul_Acc(7, 13) Mul_Acc(8, 12) Mul_Acc(9, 11) Mul_Acc(10, 10) Mul_Acc(11, 9) Mul_Acc(12, 8) Mul_Acc(13, 7) Mul_Acc(14, 6) Mul_Acc(15, 5) \
+	Mul_SaveAcc(20, 6, 15) Mul_Acc(7, 14) Mul_Acc(8, 13) Mul_Acc(9, 12) Mul_Acc(10, 11) Mul_Acc(11, 10) Mul_Acc(12, 9) Mul_Acc(13, 8) Mul_Acc(14, 7) Mul_Acc(15, 6) \
+	Mul_SaveAcc(21, 7, 15) Mul_Acc(8, 14) Mul_Acc(9, 13) Mul_Acc(10, 12) Mul_Acc(11, 11) Mul_Acc(12, 10) Mul_Acc(13, 9) Mul_Acc(14, 8) Mul_Acc(15, 7) \
+	Mul_SaveAcc(22, 8, 15) Mul_Acc(9, 14) Mul_Acc(10, 13) Mul_Acc(11, 12) Mul_Acc(12, 11) Mul_Acc(13, 10) Mul_Acc(14, 9) Mul_Acc(15, 8) \
+	Mul_SaveAcc(23, 9, 15) Mul_Acc(10, 14) Mul_Acc(11, 13) Mul_Acc(12, 12) Mul_Acc(13, 11) Mul_Acc(14, 10) Mul_Acc(15, 9) \
+	Mul_SaveAcc(24, 10, 15) Mul_Acc(11, 14) Mul_Acc(12, 13) Mul_Acc(13, 12) Mul_Acc(14, 11) Mul_Acc(15, 10) \
+	Mul_SaveAcc(25, 11, 15) Mul_Acc(12, 14) Mul_Acc(13, 13) Mul_Acc(14, 12) Mul_Acc(15, 11) \
+	Mul_SaveAcc(26, 12, 15) Mul_Acc(13, 14) Mul_Acc(14, 13) Mul_Acc(15, 12) \
+	Mul_SaveAcc(27, 13, 15) Mul_Acc(14, 14) Mul_Acc(15, 13) \
+	Mul_SaveAcc(28, 14, 15) Mul_Acc(15, 14) \
+	Mul_End(16)
+
+#define Squ_2 \
+	Squ_Begin(2) \
+	Squ_End(2)
+
+#define Squ_4 \
+	Squ_Begin(4) \
+	Squ_SaveAcc(1, 0, 2) Squ_Diag(1) \
+	Squ_SaveAcc(2, 0, 3) Squ_Acc(1, 2) Squ_NonDiag \
+	Squ_SaveAcc(3, 1, 3) Squ_Diag(2) \
+	Squ_SaveAcc(4, 2, 3) Squ_NonDiag \
+	Squ_End(4)
+
+#define Squ_8 \
+	Squ_Begin(8) \
+	Squ_SaveAcc(1, 0, 2) Squ_Diag(1) \
+	Squ_SaveAcc(2, 0, 3) Squ_Acc(1, 2) Squ_NonDiag \
+	Squ_SaveAcc(3, 0, 4) Squ_Acc(1, 3) Squ_Diag(2) \
+	Squ_SaveAcc(4, 0, 5) Squ_Acc(1, 4) Squ_Acc(2, 3) Squ_NonDiag \
+	Squ_SaveAcc(5, 0, 6) Squ_Acc(1, 5) Squ_Acc(2, 4) Squ_Diag(3) \
+	Squ_SaveAcc(6, 0, 7) Squ_Acc(1, 6) Squ_Acc(2, 5) Squ_Acc(3, 4) Squ_NonDiag \
+	Squ_SaveAcc(7, 1, 7) Squ_Acc(2, 6) Squ_Acc(3, 5) Squ_Diag(4) \
+	Squ_SaveAcc(8, 2, 7) Squ_Acc(3, 6) Squ_Acc(4, 5)  Squ_NonDiag \
+	Squ_SaveAcc(9, 3, 7) Squ_Acc(4, 6) Squ_Diag(5) \
+	Squ_SaveAcc(10, 4, 7) Squ_Acc(5, 6) Squ_NonDiag \
+	Squ_SaveAcc(11, 5, 7) Squ_Diag(6) \
+	Squ_SaveAcc(12, 6, 7) Squ_NonDiag \
+	Squ_End(8)
+
+#define Squ_16 \
+	Squ_Begin(16) \
+	Squ_SaveAcc(1, 0, 2) Squ_Diag(1) \
+	Squ_SaveAcc(2, 0, 3) Squ_Acc(1, 2) Squ_NonDiag \
+	Squ_SaveAcc(3, 0, 4) Squ_Acc(1, 3) Squ_Diag(2) \
+	Squ_SaveAcc(4, 0, 5) Squ_Acc(1, 4) Squ_Acc(2, 3) Squ_NonDiag \
+	Squ_SaveAcc(5, 0, 6) Squ_Acc(1, 5) Squ_Acc(2, 4) Squ_Diag(3) \
+	Squ_SaveAcc(6, 0, 7) Squ_Acc(1, 6) Squ_Acc(2, 5) Squ_Acc(3, 4) Squ_NonDiag \
+	Squ_SaveAcc(7, 0, 8) Squ_Acc(1, 7) Squ_Acc(2, 6) Squ_Acc(3, 5) Squ_Diag(4) \
+	Squ_SaveAcc(8, 0, 9) Squ_Acc(1, 8) Squ_Acc(2, 7) Squ_Acc(3, 6) Squ_Acc(4, 5) Squ_NonDiag \
+	Squ_SaveAcc(9, 0, 10) Squ_Acc(1, 9) Squ_Acc(2, 8) Squ_Acc(3, 7) Squ_Acc(4, 6) Squ_Diag(5) \
+	Squ_SaveAcc(10, 0, 11) Squ_Acc(1, 10) Squ_Acc(2, 9) Squ_Acc(3, 8) Squ_Acc(4, 7) Squ_Acc(5, 6) Squ_NonDiag \
+	Squ_SaveAcc(11, 0, 12) Squ_Acc(1, 11) Squ_Acc(2, 10) Squ_Acc(3, 9) Squ_Acc(4, 8) Squ_Acc(5, 7) Squ_Diag(6) \
+	Squ_SaveAcc(12, 0, 13) Squ_Acc(1, 12) Squ_Acc(2, 11) Squ_Acc(3, 10) Squ_Acc(4, 9) Squ_Acc(5, 8) Squ_Acc(6, 7) Squ_NonDiag \
+	Squ_SaveAcc(13, 0, 14) Squ_Acc(1, 13) Squ_Acc(2, 12) Squ_Acc(3, 11) Squ_Acc(4, 10) Squ_Acc(5, 9) Squ_Acc(6, 8) Squ_Diag(7) \
+	Squ_SaveAcc(14, 0, 15) Squ_Acc(1, 14) Squ_Acc(2, 13) Squ_Acc(3, 12) Squ_Acc(4, 11) Squ_Acc(5, 10) Squ_Acc(6, 9) Squ_Acc(7, 8) Squ_NonDiag \
+	Squ_SaveAcc(15, 1, 15) Squ_Acc(2, 14) Squ_Acc(3, 13) Squ_Acc(4, 12) Squ_Acc(5, 11) Squ_Acc(6, 10) Squ_Acc(7, 9) Squ_Diag(8) \
+	Squ_SaveAcc(16, 2, 15) Squ_Acc(3, 14) Squ_Acc(4, 13) Squ_Acc(5, 12) Squ_Acc(6, 11) Squ_Acc(7, 10) Squ_Acc(8, 9) Squ_NonDiag \
+	Squ_SaveAcc(17, 3, 15) Squ_Acc(4, 14) Squ_Acc(5, 13) Squ_Acc(6, 12) Squ_Acc(7, 11) Squ_Acc(8, 10) Squ_Diag(9) \
+	Squ_SaveAcc(18, 4, 15) Squ_Acc(5, 14) Squ_Acc(6, 13) Squ_Acc(7, 12) Squ_Acc(8, 11) Squ_Acc(9, 10) Squ_NonDiag \
+	Squ_SaveAcc(19, 5, 15) Squ_Acc(6, 14) Squ_Acc(7, 13) Squ_Acc(8, 12) Squ_Acc(9, 11) Squ_Diag(10) \
+	Squ_SaveAcc(20, 6, 15) Squ_Acc(7, 14) Squ_Acc(8, 13) Squ_Acc(9, 12) Squ_Acc(10, 11) Squ_NonDiag \
+	Squ_SaveAcc(21, 7, 15) Squ_Acc(8, 14) Squ_Acc(9, 13) Squ_Acc(10, 12) Squ_Diag(11) \
+	Squ_SaveAcc(22, 8, 15) Squ_Acc(9, 14) Squ_Acc(10, 13) Squ_Acc(11, 12) Squ_NonDiag \
+	Squ_SaveAcc(23, 9, 15) Squ_Acc(10, 14) Squ_Acc(11, 13) Squ_Diag(12) \
+	Squ_SaveAcc(24, 10, 15) Squ_Acc(11, 14) Squ_Acc(12, 13) Squ_NonDiag \
+	Squ_SaveAcc(25, 11, 15) Squ_Acc(12, 14) Squ_Diag(13) \
+	Squ_SaveAcc(26, 12, 15) Squ_Acc(13, 14) Squ_NonDiag \
+	Squ_SaveAcc(27, 13, 15) Squ_Diag(14) \
+	Squ_SaveAcc(28, 14, 15) Squ_NonDiag \
+	Squ_End(16)
+
+#define Bot_2 \
+	Mul_Begin(2) \
+	Bot_SaveAcc(0, 0, 1) Bot_Acc(1, 0) \
+	Bot_End(2)
+
+#define Bot_4 \
+	Mul_Begin(4) \
+	Mul_SaveAcc(0, 0, 1) Mul_Acc(1, 0) \
+	Mul_SaveAcc(1, 2, 0) Mul_Acc(1, 1) Mul_Acc(0, 2)  \
+	Bot_SaveAcc(2, 0, 3) Bot_Acc(1, 2) Bot_Acc(2, 1) Bot_Acc(3, 0)  \
+	Bot_End(4)
+
+#define Bot_8 \
+	Mul_Begin(8) \
+	Mul_SaveAcc(0, 0, 1) Mul_Acc(1, 0) \
+	Mul_SaveAcc(1, 0, 2) Mul_Acc(1, 1) Mul_Acc(2, 0)  \
+	Mul_SaveAcc(2, 0, 3) Mul_Acc(1, 2) Mul_Acc(2, 1) Mul_Acc(3, 0)  \
+	Mul_SaveAcc(3, 0, 4) Mul_Acc(1, 3) Mul_Acc(2, 2) Mul_Acc(3, 1) Mul_Acc(4, 0) \
+	Mul_SaveAcc(4, 0, 5) Mul_Acc(1, 4) Mul_Acc(2, 3) Mul_Acc(3, 2) Mul_Acc(4, 1) Mul_Acc(5, 0) \
+	Mul_SaveAcc(5, 0, 6) Mul_Acc(1, 5) Mul_Acc(2, 4) Mul_Acc(3, 3) Mul_Acc(4, 2) Mul_Acc(5, 1) Mul_Acc(6, 0) \
+	Bot_SaveAcc(6, 0, 7) Bot_Acc(1, 6) Bot_Acc(2, 5) Bot_Acc(3, 4) Bot_Acc(4, 3) Bot_Acc(5, 2) Bot_Acc(6, 1) Bot_Acc(7, 0) \
+	Bot_End(8)
+
+#define Bot_16 \
+	Mul_Begin(16) \
+	Mul_SaveAcc(0, 0, 1) Mul_Acc(1, 0) \
+	Mul_SaveAcc(1, 0, 2) Mul_Acc(1, 1) Mul_Acc(2, 0) \
+	Mul_SaveAcc(2, 0, 3) Mul_Acc(1, 2) Mul_Acc(2, 1) Mul_Acc(3, 0) \
+	Mul_SaveAcc(3, 0, 4) Mul_Acc(1, 3) Mul_Acc(2, 2) Mul_Acc(3, 1) Mul_Acc(4, 0) \
+	Mul_SaveAcc(4, 0, 5) Mul_Acc(1, 4) Mul_Acc(2, 3) Mul_Acc(3, 2) Mul_Acc(4, 1) Mul_Acc(5, 0) \
+	Mul_SaveAcc(5, 0, 6) Mul_Acc(1, 5) Mul_Acc(2, 4) Mul_Acc(3, 3) Mul_Acc(4, 2) Mul_Acc(5, 1) Mul_Acc(6, 0) \
+	Mul_SaveAcc(6, 0, 7) Mul_Acc(1, 6) Mul_Acc(2, 5) Mul_Acc(3, 4) Mul_Acc(4, 3) Mul_Acc(5, 2) Mul_Acc(6, 1) Mul_Acc(7, 0) \
+	Mul_SaveAcc(7, 0, 8) Mul_Acc(1, 7) Mul_Acc(2, 6) Mul_Acc(3, 5) Mul_Acc(4, 4) Mul_Acc(5, 3) Mul_Acc(6, 2) Mul_Acc(7, 1) Mul_Acc(8, 0) \
+	Mul_SaveAcc(8, 0, 9) Mul_Acc(1, 8) Mul_Acc(2, 7) Mul_Acc(3, 6) Mul_Acc(4, 5) Mul_Acc(5, 4) Mul_Acc(6, 3) Mul_Acc(7, 2) Mul_Acc(8, 1) Mul_Acc(9, 0) \
+	Mul_SaveAcc(9, 0, 10) Mul_Acc(1, 9) Mul_Acc(2, 8) Mul_Acc(3, 7) Mul_Acc(4, 6) Mul_Acc(5, 5) Mul_Acc(6, 4) Mul_Acc(7, 3) Mul_Acc(8, 2) Mul_Acc(9, 1) Mul_Acc(10, 0) \
+	Mul_SaveAcc(10, 0, 11) Mul_Acc(1, 10) Mul_Acc(2, 9) Mul_Acc(3, 8) Mul_Acc(4, 7) Mul_Acc(5, 6) Mul_Acc(6, 5) Mul_Acc(7, 4) Mul_Acc(8, 3) Mul_Acc(9, 2) Mul_Acc(10, 1) Mul_Acc(11, 0) \
+	Mul_SaveAcc(11, 0, 12) Mul_Acc(1, 11) Mul_Acc(2, 10) Mul_Acc(3, 9) Mul_Acc(4, 8) Mul_Acc(5, 7) Mul_Acc(6, 6) Mul_Acc(7, 5) Mul_Acc(8, 4) Mul_Acc(9, 3) Mul_Acc(10, 2) Mul_Acc(11, 1) Mul_Acc(12, 0) \
+	Mul_SaveAcc(12, 0, 13) Mul_Acc(1, 12) Mul_Acc(2, 11) Mul_Acc(3, 10) Mul_Acc(4, 9) Mul_Acc(5, 8) Mul_Acc(6, 7) Mul_Acc(7, 6) Mul_Acc(8, 5) Mul_Acc(9, 4) Mul_Acc(10, 3) Mul_Acc(11, 2) Mul_Acc(12, 1) Mul_Acc(13, 0) \
+	Mul_SaveAcc(13, 0, 14) Mul_Acc(1, 13) Mul_Acc(2, 12) Mul_Acc(3, 11) Mul_Acc(4, 10) Mul_Acc(5, 9) Mul_Acc(6, 8) Mul_Acc(7, 7) Mul_Acc(8, 6) Mul_Acc(9, 5) Mul_Acc(10, 4) Mul_Acc(11, 3) Mul_Acc(12, 2) Mul_Acc(13, 1) Mul_Acc(14, 0) \
+	Bot_SaveAcc(14, 0, 15) Bot_Acc(1, 14) Bot_Acc(2, 13) Bot_Acc(3, 12) Bot_Acc(4, 11) Bot_Acc(5, 10) Bot_Acc(6, 9) Bot_Acc(7, 8) Bot_Acc(8, 7) Bot_Acc(9, 6) Bot_Acc(10, 5) Bot_Acc(11, 4) Bot_Acc(12, 3) Bot_Acc(13, 2) Bot_Acc(14, 1) Bot_Acc(15, 0) \
+	Bot_End(16)
+
+#define Mul_Begin(n)				\
+	Declare2Words(p)				\
+	Declare2Words(c)				\
+	Declare2Words(d)				\
+	MultiplyWords(p, A[0], B[0])	\
+	AssignWord(c, LowWord(p))		\
+	AssignWord(d, HighWord(p))
+
+#define Mul_Acc(i, j)				\
+	MultiplyWords(p, A[i], B[j])	\
+	Acc2WordsBy1(c, LowWord(p))		\
+	Acc2WordsBy1(d, HighWord(p))
+
+#define Mul_SaveAcc(k, i, j) 		\
+	R[k] = LowWord(c);				\
+	Add2WordsBy1(c, d, HighWord(c))	\
+	MultiplyWords(p, A[i], B[j])	\
+	AssignWord(d, HighWord(p))		\
+	Acc2WordsBy1(c, LowWord(p))
+
+#define Mul_End(n)					\
+	R[2*n-3] = LowWord(c);			\
+	Acc2WordsBy1(d, HighWord(c))	\
+	MultiplyWords(p, A[n-1], B[n-1])\
+	Acc2WordsBy2(d, p)				\
+	R[2*n-2] = LowWord(d);			\
+	R[2*n-1] = HighWord(d);
+
+#define Bot_SaveAcc(k, i, j)		\
+	R[k] = LowWord(c);				\
+	word e = LowWord(d) + HighWord(c);	\
+	e += A[i] * B[j];
+
+#define Bot_Acc(i, j)	\
+	e += A[i] * B[j];
+
+#define Bot_End(n)		\
+	R[n-1] = e;
+
+/*
+// this is slower on MSVC 2005 Win32
+#define Mul_Begin(n)				\
+	Declare2Words(p)				\
+	word c;	\
+	Declare2Words(d)				\
+	MultiplyWords(p, A[0], B[0])	\
+	c = LowWord(p);		\
+	AssignWord(d, HighWord(p))
+
+#define Mul_Acc(i, j)				\
+	MultiplyWords(p, A[i], B[j])	\
+	Acc2WordsBy1(p, c)		\
+	c = LowWord(p);	\
+	Acc2WordsBy1(d, HighWord(p))
+
+#define Mul_SaveAcc(k, i, j) 		\
+	R[k] = c;				\
+	MultiplyWords(p, A[i], B[j])	\
+	Acc2WordsBy1(p, LowWord(d))		\
+	c = LowWord(p);	\
+	AssignWord(d, HighWord(d))	\
+	Acc2WordsBy1(d, HighWord(p))
+
+#define Mul_End(n)					\
+	R[2*n-3] = c;			\
+	MultiplyWords(p, A[n-1], B[n-1])\
+	Acc2WordsBy2(d, p)				\
+	R[2*n-2] = LowWord(d);			\
+	R[2*n-1] = HighWord(d);
+
+#define Bot_SaveAcc(k, i, j)		\
+	R[k] = c;				\
+	c = LowWord(d);	\
+	c += A[i] * B[j];
+
+#define Bot_Acc(i, j)	\
+	c += A[i] * B[j];
+
+#define Bot_End(n)		\
+	R[n-1] = c;
+*/
+
+#define Squ_Begin(n)				\
+	Declare2Words(p)				\
+	Declare2Words(c)				\
+	Declare2Words(d)				\
+	Declare2Words(e)				\
+	MultiplyWords(p, A[0], A[0])	\
+	R[0] = LowWord(p);				\
+	AssignWord(e, HighWord(p))		\
+	MultiplyWords(p, A[0], A[1])	\
+	AssignWord(c, LowWord(p))		\
+	AssignWord(d, HighWord(p))		\
+	Squ_NonDiag						\
+
+#define Squ_NonDiag				\
+	Double2Words(c)				\
+	Double2Words(d)				\
+
+#define Squ_SaveAcc(k, i, j) 		\
+	Acc2WordsBy2(c, e)				\
+	R[k] = LowWord(c);				\
+	Add2WordsBy1(e, d, HighWord(c))	\
+	MultiplyWords(p, A[i], A[j])	\
+	AssignWord(c, LowWord(p))		\
+	AssignWord(d, HighWord(p))		\
+
+#define Squ_Acc(i, j)				\
+	MultiplyWords(p, A[i], A[j])	\
+	Acc2WordsBy1(c, LowWord(p))		\
+	Acc2WordsBy1(d, HighWord(p))
+
+#define Squ_Diag(i)					\
+	Squ_NonDiag						\
+	MultiplyWords(p, A[i], A[i])	\
+	Acc2WordsBy1(c, LowWord(p))		\
+	Acc2WordsBy1(d, HighWord(p))	\
+
+#define Squ_End(n)					\
+	Acc2WordsBy2(c, e)				\
+	R[2*n-3] = LowWord(c);			\
+	Acc2WordsBy1(d, HighWord(c))	\
+	MultiplyWords(p, A[n-1], A[n-1])\
+	Acc2WordsBy2(d, p)				\
+	R[2*n-2] = LowWord(d);			\
+	R[2*n-1] = HighWord(d);
+
+void Baseline_Multiply2(word *R, const word *A, const word *B)
+{
+	Mul_2
+}
+
+void Baseline_Multiply4(word *R, const word *A, const word *B)
+{
+	Mul_4
+}
+
+void Baseline_Multiply8(word *R, const word *A, const word *B)
+{
+	Mul_8
+}
+
+void Baseline_Square2(word *R, const word *A)
+{
+	Squ_2
+}
+
+void Baseline_Square4(word *R, const word *A)
+{
+	Squ_4
+}
+
+void Baseline_Square8(word *R, const word *A)
+{
+	Squ_8
+}
+
+void Baseline_MultiplyBottom2(word *R, const word *A, const word *B)
+{
+	Bot_2
+}
+
+void Baseline_MultiplyBottom4(word *R, const word *A, const word *B)
+{
+	Bot_4
+}
+
+void Baseline_MultiplyBottom8(word *R, const word *A, const word *B)
+{
+	Bot_8
+}
+
+/*
+void Baseline_Multiply16(word *R, const word *A, const word *B)
+{
+	Mul_16
+}
+
+void Baseline_Square16(word *R, const word *A)
+{
+	Squ_16
+}
+
+void Baseline_MultiplyBottom16(word *R, const word *A, const word *B)
+{
+	Bot_16
+}
+*/
 
 // ********************************************************
+
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+
+CRYPTOPP_ALIGN_DATA(16) static const word32 s_maskLow16[4] CRYPTOPP_SECTION_ALIGN16 = {0xffff,0xffff,0xffff,0xffff};
+
+#undef Mul_Begin
+#undef Mul_Acc
+#undef Squ_Acc
+#undef Squ_NonDiag
+#undef Squ_Diag
+#undef Squ_SaveAcc
+#undef Squ_Begin
+#undef Mul_SaveAcc
+#undef Bot_Acc
+#undef Bot_SaveAcc
+#undef Bot_End
+#undef Squ_End
+#undef Mul_End
+
+#define SSE2_FinalSave(k)			\
+	AS2(	psllq		xmm5, 16)	\
+	AS2(	paddq		xmm4, xmm5)	\
+	AS2(	movq		QWORD PTR [ecx+8*(k)], xmm4)
+
+#define SSE2_SaveShift(k)			\
+	AS2(	movq		xmm0, xmm6)	\
+	AS2(	punpckhqdq	xmm6, xmm0)	\
+	AS2(	movq		xmm1, xmm7)	\
+	AS2(	punpckhqdq	xmm7, xmm1)	\
+	AS2(	paddd		xmm6, xmm0)	\
+	AS2(	pslldq		xmm6, 4)	\
+	AS2(	paddd		xmm7, xmm1)	\
+	AS2(	paddd		xmm4, xmm6)	\
+	AS2(	pslldq		xmm7, 4)	\
+	AS2(	movq		xmm6, xmm4)	\
+	AS2(	paddd		xmm5, xmm7)	\
+	AS2(	movq		xmm7, xmm5)	\
+	AS2(	movd		DWORD PTR [ecx+8*(k)], xmm4)	\
+	AS2(	psrlq		xmm6, 16)	\
+	AS2(	paddq		xmm6, xmm7)	\
+	AS2(	punpckhqdq	xmm4, xmm0)	\
+	AS2(	punpckhqdq	xmm5, xmm0)	\
+	AS2(	movq		QWORD PTR [ecx+8*(k)+2], xmm6)	\
+	AS2(	psrlq		xmm6, 3*16)	\
+	AS2(	paddd		xmm4, xmm6)	\
+
+#define Squ_SSE2_SaveShift(k)			\
+	AS2(	movq		xmm0, xmm6)	\
+	AS2(	punpckhqdq	xmm6, xmm0)	\
+	AS2(	movq		xmm1, xmm7)	\
+	AS2(	punpckhqdq	xmm7, xmm1)	\
+	AS2(	paddd		xmm6, xmm0)	\
+	AS2(	pslldq		xmm6, 4)	\
+	AS2(	paddd		xmm7, xmm1)	\
+	AS2(	paddd		xmm4, xmm6)	\
+	AS2(	pslldq		xmm7, 4)	\
+	AS2(	movhlps		xmm6, xmm4)	\
+	AS2(	movd		DWORD PTR [ecx+8*(k)], xmm4)	\
+	AS2(	paddd		xmm5, xmm7)	\
+	AS2(	movhps		QWORD PTR [esp+12], xmm5)\
+	AS2(	psrlq		xmm4, 16)	\
+	AS2(	paddq		xmm4, xmm5)	\
+	AS2(	movq		QWORD PTR [ecx+8*(k)+2], xmm4)	\
+	AS2(	psrlq		xmm4, 3*16)	\
+	AS2(	paddd		xmm4, xmm6)	\
+	AS2(	movq		QWORD PTR [esp+4], xmm4)\
+
+#define SSE2_FirstMultiply(i)				\
+	AS2(	movdqa		xmm7, [esi+(i)*16])\
+	AS2(	movdqa		xmm5, [edi-(i)*16])\
+	AS2(	pmuludq		xmm5, xmm7)		\
+	AS2(	movdqa		xmm4, [ebx])\
+	AS2(	movdqa		xmm6, xmm4)		\
+	AS2(	pand		xmm4, xmm5)		\
+	AS2(	psrld		xmm5, 16)		\
+	AS2(	pmuludq		xmm7, [edx-(i)*16])\
+	AS2(	pand		xmm6, xmm7)		\
+	AS2(	psrld		xmm7, 16)
+
+#define Squ_Begin(n)							\
+	SquPrologue									\
+	AS2(	mov		esi, esp)\
+	AS2(	and		esp, 0xfffffff0)\
+	AS2(	lea		edi, [esp-32*n])\
+	AS2(	sub		esp, 32*n+16)\
+	AS1(	push	esi)\
+	AS2(	mov		esi, edi)					\
+	AS2(	xor		edx, edx)					\
+	ASL(1)										\
+	ASS(	pshufd	xmm0, [eax+edx], 3,1,2,0)	\
+	ASS(	pshufd	xmm1, [eax+edx], 2,0,3,1)	\
+	AS2(	movdqa	[edi+2*edx], xmm0)		\
+	AS2(	psrlq	xmm0, 32)					\
+	AS2(	movdqa	[edi+2*edx+16], xmm0)	\
+	AS2(	movdqa	[edi+16*n+2*edx], xmm1)		\
+	AS2(	psrlq	xmm1, 32)					\
+	AS2(	movdqa	[edi+16*n+2*edx+16], xmm1)	\
+	AS2(	add		edx, 16)					\
+	AS2(	cmp		edx, 8*(n))					\
+	ASJ(	jne,	1, b)						\
+	AS2(	lea		edx, [edi+16*n])\
+	SSE2_FirstMultiply(0)							\
+
+#define Squ_Acc(i)								\
+	ASL(LSqu##i)								\
+	AS2(	movdqa		xmm1, [esi+(i)*16])	\
+	AS2(	movdqa		xmm0, [edi-(i)*16])	\
+	AS2(	movdqa		xmm2, [ebx])	\
+	AS2(	pmuludq		xmm0, xmm1)				\
+	AS2(	pmuludq		xmm1, [edx-(i)*16])	\
+	AS2(	movdqa		xmm3, xmm2)			\
+	AS2(	pand		xmm2, xmm0)			\
+	AS2(	psrld		xmm0, 16)			\
+	AS2(	paddd		xmm4, xmm2)			\
+	AS2(	paddd		xmm5, xmm0)			\
+	AS2(	pand		xmm3, xmm1)			\
+	AS2(	psrld		xmm1, 16)			\
+	AS2(	paddd		xmm6, xmm3)			\
+	AS2(	paddd		xmm7, xmm1)		\
+
+#define Squ_Acc1(i)		
+#define Squ_Acc2(i)		ASC(call, LSqu##i)
+#define Squ_Acc3(i)		Squ_Acc2(i)
+#define Squ_Acc4(i)		Squ_Acc2(i)
+#define Squ_Acc5(i)		Squ_Acc2(i)
+#define Squ_Acc6(i)		Squ_Acc2(i)
+#define Squ_Acc7(i)		Squ_Acc2(i)
+#define Squ_Acc8(i)		Squ_Acc2(i)
+
+#define SSE2_End(E, n)					\
+	SSE2_SaveShift(2*(n)-3)			\
+	AS2(	movdqa		xmm7, [esi+16])	\
+	AS2(	movdqa		xmm0, [edi])	\
+	AS2(	pmuludq		xmm0, xmm7)				\
+	AS2(	movdqa		xmm2, [ebx])		\
+	AS2(	pmuludq		xmm7, [edx])	\
+	AS2(	movdqa		xmm6, xmm2)				\
+	AS2(	pand		xmm2, xmm0)				\
+	AS2(	psrld		xmm0, 16)				\
+	AS2(	paddd		xmm4, xmm2)				\
+	AS2(	paddd		xmm5, xmm0)				\
+	AS2(	pand		xmm6, xmm7)				\
+	AS2(	psrld		xmm7, 16)	\
+	SSE2_SaveShift(2*(n)-2)			\
+	SSE2_FinalSave(2*(n)-1)			\
+	AS1(	pop		esp)\
+	E
+
+#define Squ_End(n)		SSE2_End(SquEpilogue, n)
+#define Mul_End(n)		SSE2_End(MulEpilogue, n)
+#define Top_End(n)		SSE2_End(TopEpilogue, n)
+
+#define Squ_Column1(k, i)	\
+	Squ_SSE2_SaveShift(k)					\
+	AS2(	add			esi, 16)	\
+	SSE2_FirstMultiply(1)\
+	Squ_Acc##i(i)	\
+	AS2(	paddd		xmm4, xmm4)		\
+	AS2(	paddd		xmm5, xmm5)		\
+	AS2(	movdqa		xmm3, [esi])				\
+	AS2(	movq		xmm1, QWORD PTR [esi+8])	\
+	AS2(	pmuludq		xmm1, xmm3)		\
+	AS2(	pmuludq		xmm3, xmm3)		\
+	AS2(	movdqa		xmm0, [ebx])\
+	AS2(	movdqa		xmm2, xmm0)		\
+	AS2(	pand		xmm0, xmm1)		\
+	AS2(	psrld		xmm1, 16)		\
+	AS2(	paddd		xmm6, xmm0)		\
+	AS2(	paddd		xmm7, xmm1)		\
+	AS2(	pand		xmm2, xmm3)		\
+	AS2(	psrld		xmm3, 16)		\
+	AS2(	paddd		xmm6, xmm6)		\
+	AS2(	paddd		xmm7, xmm7)		\
+	AS2(	paddd		xmm4, xmm2)		\
+	AS2(	paddd		xmm5, xmm3)		\
+	AS2(	movq		xmm0, QWORD PTR [esp+4])\
+	AS2(	movq		xmm1, QWORD PTR [esp+12])\
+	AS2(	paddd		xmm4, xmm0)\
+	AS2(	paddd		xmm5, xmm1)\
+
+#define Squ_Column0(k, i)	\
+	Squ_SSE2_SaveShift(k)					\
+	AS2(	add			edi, 16)	\
+	AS2(	add			edx, 16)	\
+	SSE2_FirstMultiply(1)\
+	Squ_Acc##i(i)	\
+	AS2(	paddd		xmm6, xmm6)		\
+	AS2(	paddd		xmm7, xmm7)		\
+	AS2(	paddd		xmm4, xmm4)		\
+	AS2(	paddd		xmm5, xmm5)		\
+	AS2(	movq		xmm0, QWORD PTR [esp+4])\
+	AS2(	movq		xmm1, QWORD PTR [esp+12])\
+	AS2(	paddd		xmm4, xmm0)\
+	AS2(	paddd		xmm5, xmm1)\
+
+#define SSE2_MulAdd45						\
+	AS2(	movdqa		xmm7, [esi])	\
+	AS2(	movdqa		xmm0, [edi])	\
+	AS2(	pmuludq		xmm0, xmm7)				\
+	AS2(	movdqa		xmm2, [ebx])		\
+	AS2(	pmuludq		xmm7, [edx])	\
+	AS2(	movdqa		xmm6, xmm2)				\
+	AS2(	pand		xmm2, xmm0)				\
+	AS2(	psrld		xmm0, 16)				\
+	AS2(	paddd		xmm4, xmm2)				\
+	AS2(	paddd		xmm5, xmm0)				\
+	AS2(	pand		xmm6, xmm7)				\
+	AS2(	psrld		xmm7, 16)
+
+#define Mul_Begin(n)							\
+	MulPrologue									\
+	AS2(	mov		esi, esp)\
+	AS2(	and		esp, 0xfffffff0)\
+	AS2(	sub		esp, 48*n+16)\
+	AS1(	push	esi)\
+	AS2(	xor		edx, edx)					\
+	ASL(1)										\
+	ASS(	pshufd	xmm0, [eax+edx], 3,1,2,0)	\
+	ASS(	pshufd	xmm1, [eax+edx], 2,0,3,1)	\
+	ASS(	pshufd	xmm2, [edi+edx], 3,1,2,0)	\
+	AS2(	movdqa	[esp+20+2*edx], xmm0)		\
+	AS2(	psrlq	xmm0, 32)					\
+	AS2(	movdqa	[esp+20+2*edx+16], xmm0)	\
+	AS2(	movdqa	[esp+20+16*n+2*edx], xmm1)		\
+	AS2(	psrlq	xmm1, 32)					\
+	AS2(	movdqa	[esp+20+16*n+2*edx+16], xmm1)	\
+	AS2(	movdqa	[esp+20+32*n+2*edx], xmm2)		\
+	AS2(	psrlq	xmm2, 32)					\
+	AS2(	movdqa	[esp+20+32*n+2*edx+16], xmm2)	\
+	AS2(	add		edx, 16)					\
+	AS2(	cmp		edx, 8*(n))					\
+	ASJ(	jne,	1, b)						\
+	AS2(	lea		edi, [esp+20])\
+	AS2(	lea		edx, [esp+20+16*n])\
+	AS2(	lea		esi, [esp+20+32*n])\
+	SSE2_FirstMultiply(0)							\
+
+#define Mul_Acc(i)								\
+	ASL(LMul##i)										\
+	AS2(	movdqa		xmm1, [esi+i/2*(1-(i-2*(i/2))*2)*16])	\
+	AS2(	movdqa		xmm0, [edi-i/2*(1-(i-2*(i/2))*2)*16])	\
+	AS2(	movdqa		xmm2, [ebx])	\
+	AS2(	pmuludq		xmm0, xmm1)				\
+	AS2(	pmuludq		xmm1, [edx-i/2*(1-(i-2*(i/2))*2)*16])	\
+	AS2(	movdqa		xmm3, xmm2)			\
+	AS2(	pand		xmm2, xmm0)			\
+	AS2(	psrld		xmm0, 16)			\
+	AS2(	paddd		xmm4, xmm2)			\
+	AS2(	paddd		xmm5, xmm0)			\
+	AS2(	pand		xmm3, xmm1)			\
+	AS2(	psrld		xmm1, 16)			\
+	AS2(	paddd		xmm6, xmm3)			\
+	AS2(	paddd		xmm7, xmm1)		\
+
+#define Mul_Acc1(i)		
+#define Mul_Acc2(i)		ASC(call, LMul##i)
+#define Mul_Acc3(i)		Mul_Acc2(i)
+#define Mul_Acc4(i)		Mul_Acc2(i)
+#define Mul_Acc5(i)		Mul_Acc2(i)
+#define Mul_Acc6(i)		Mul_Acc2(i)
+#define Mul_Acc7(i)		Mul_Acc2(i)
+#define Mul_Acc8(i)		Mul_Acc2(i)
+#define Mul_Acc9(i)		Mul_Acc2(i)
+#define Mul_Acc10(i)	Mul_Acc2(i)
+#define Mul_Acc11(i)	Mul_Acc2(i)
+#define Mul_Acc12(i)	Mul_Acc2(i)
+#define Mul_Acc13(i)	Mul_Acc2(i)
+#define Mul_Acc14(i)	Mul_Acc2(i)
+#define Mul_Acc15(i)	Mul_Acc2(i)
+#define Mul_Acc16(i)	Mul_Acc2(i)
+
+#define Mul_Column1(k, i)	\
+	SSE2_SaveShift(k)					\
+	AS2(	add			esi, 16)	\
+	SSE2_MulAdd45\
+	Mul_Acc##i(i)	\
+
+#define Mul_Column0(k, i)	\
+	SSE2_SaveShift(k)					\
+	AS2(	add			edi, 16)	\
+	AS2(	add			edx, 16)	\
+	SSE2_MulAdd45\
+	Mul_Acc##i(i)	\
+
+#define Bot_Acc(i)							\
+	AS2(	movdqa		xmm1, [esi+i/2*(1-(i-2*(i/2))*2)*16])	\
+	AS2(	movdqa		xmm0, [edi-i/2*(1-(i-2*(i/2))*2)*16])	\
+	AS2(	pmuludq		xmm0, xmm1)				\
+	AS2(	pmuludq		xmm1, [edx-i/2*(1-(i-2*(i/2))*2)*16])		\
+	AS2(	paddq		xmm4, xmm0)				\
+	AS2(	paddd		xmm6, xmm1)
+
+#define Bot_SaveAcc(k)					\
+	SSE2_SaveShift(k)							\
+	AS2(	add			edi, 16)	\
+	AS2(	add			edx, 16)	\
+	AS2(	movdqa		xmm6, [esi])	\
+	AS2(	movdqa		xmm0, [edi])	\
+	AS2(	pmuludq		xmm0, xmm6)				\
+	AS2(	paddq		xmm4, xmm0)				\
+	AS2(	psllq		xmm5, 16)				\
+	AS2(	paddq		xmm4, xmm5)				\
+	AS2(	pmuludq		xmm6, [edx])
+
+#define Bot_End(n)							\
+	AS2(	movhlps		xmm7, xmm6)			\
+	AS2(	paddd		xmm6, xmm7)			\
+	AS2(	psllq		xmm6, 32)			\
+	AS2(	paddd		xmm4, xmm6)			\
+	AS2(	movq		QWORD PTR [ecx+8*((n)-1)], xmm4)	\
+	AS1(	pop		esp)\
+	MulEpilogue
+
+#define Top_Begin(n)							\
+	TopPrologue									\
+	AS2(	mov		edx, esp)\
+	AS2(	and		esp, 0xfffffff0)\
+	AS2(	sub		esp, 48*n+16)\
+	AS1(	push	edx)\
+	AS2(	xor		edx, edx)					\
+	ASL(1)										\
+	ASS(	pshufd	xmm0, [eax+edx], 3,1,2,0)	\
+	ASS(	pshufd	xmm1, [eax+edx], 2,0,3,1)	\
+	ASS(	pshufd	xmm2, [edi+edx], 3,1,2,0)	\
+	AS2(	movdqa	[esp+20+2*edx], xmm0)		\
+	AS2(	psrlq	xmm0, 32)					\
+	AS2(	movdqa	[esp+20+2*edx+16], xmm0)	\
+	AS2(	movdqa	[esp+20+16*n+2*edx], xmm1)		\
+	AS2(	psrlq	xmm1, 32)					\
+	AS2(	movdqa	[esp+20+16*n+2*edx+16], xmm1)	\
+	AS2(	movdqa	[esp+20+32*n+2*edx], xmm2)		\
+	AS2(	psrlq	xmm2, 32)					\
+	AS2(	movdqa	[esp+20+32*n+2*edx+16], xmm2)	\
+	AS2(	add		edx, 16)					\
+	AS2(	cmp		edx, 8*(n))					\
+	ASJ(	jne,	1, b)						\
+	AS2(	mov		eax, esi)					\
+	AS2(	lea		edi, [esp+20+00*n+16*(n/2-1)])\
+	AS2(	lea		edx, [esp+20+16*n+16*(n/2-1)])\
+	AS2(	lea		esi, [esp+20+32*n+16*(n/2-1)])\
+	AS2(	pxor	xmm4, xmm4)\
+	AS2(	pxor	xmm5, xmm5)
+
+#define Top_Acc(i)							\
+	AS2(	movq		xmm0, QWORD PTR [esi+i/2*(1-(i-2*(i/2))*2)*16+8])	\
+	AS2(	pmuludq		xmm0, [edx-i/2*(1-(i-2*(i/2))*2)*16])	\
+	AS2(	psrlq		xmm0, 48)				\
+	AS2(	paddd		xmm5, xmm0)\
+
+#define Top_Column0(i)	\
+	AS2(	psllq		xmm5, 32)				\
+	AS2(	add			edi, 16)	\
+	AS2(	add			edx, 16)	\
+	SSE2_MulAdd45\
+	Mul_Acc##i(i)	\
+
+#define Top_Column1(i)	\
+	SSE2_SaveShift(0)					\
+	AS2(	add			esi, 16)	\
+	SSE2_MulAdd45\
+	Mul_Acc##i(i)	\
+	AS2(	shr			eax, 16)	\
+	AS2(	movd		xmm0, eax)\
+	AS2(	movd		xmm1, [ecx+4])\
+	AS2(	psrld		xmm1, 16)\
+	AS2(	pcmpgtd		xmm1, xmm0)\
+	AS2(	psrld		xmm1, 31)\
+	AS2(	paddd		xmm4, xmm1)\
+
+void SSE2_Square4(word *C, const word *A)
+{
+	Squ_Begin(2)
+	Squ_Column0(0, 1)
+	Squ_End(2)
+}
+
+void SSE2_Square8(word *C, const word *A)
+{
+	Squ_Begin(4)
+#ifndef __GNUC__
+	ASJ(	jmp,	0, f)
+	Squ_Acc(2)
+	AS1(	ret) ASL(0)
+#endif
+	Squ_Column0(0, 1)
+	Squ_Column1(1, 1)
+	Squ_Column0(2, 2)
+	Squ_Column1(3, 1)
+	Squ_Column0(4, 1)
+	Squ_End(4)
+}
+
+void SSE2_Square16(word *C, const word *A)
+{
+	Squ_Begin(8)
+#ifndef __GNUC__
+	ASJ(	jmp,	0, f)
+	Squ_Acc(4) Squ_Acc(3) Squ_Acc(2)
+	AS1(	ret) ASL(0)
+#endif
+	Squ_Column0(0, 1)
+	Squ_Column1(1, 1)
+	Squ_Column0(2, 2)
+	Squ_Column1(3, 2)
+	Squ_Column0(4, 3)
+	Squ_Column1(5, 3)
+	Squ_Column0(6, 4)
+	Squ_Column1(7, 3)
+	Squ_Column0(8, 3)
+	Squ_Column1(9, 2)
+	Squ_Column0(10, 2)
+	Squ_Column1(11, 1)
+	Squ_Column0(12, 1)
+	Squ_End(8)
+}
+
+void SSE2_Square32(word *C, const word *A)
+{
+	Squ_Begin(16)
+	ASJ(	jmp,	0, f)
+	Squ_Acc(8) Squ_Acc(7) Squ_Acc(6) Squ_Acc(5) Squ_Acc(4) Squ_Acc(3) Squ_Acc(2)
+	AS1(	ret) ASL(0)
+	Squ_Column0(0, 1)
+	Squ_Column1(1, 1)
+	Squ_Column0(2, 2)
+	Squ_Column1(3, 2)
+	Squ_Column0(4, 3)
+	Squ_Column1(5, 3)
+	Squ_Column0(6, 4)
+	Squ_Column1(7, 4)
+	Squ_Column0(8, 5)
+	Squ_Column1(9, 5)
+	Squ_Column0(10, 6)
+	Squ_Column1(11, 6)
+	Squ_Column0(12, 7)
+	Squ_Column1(13, 7)
+	Squ_Column0(14, 8)
+	Squ_Column1(15, 7)
+	Squ_Column0(16, 7)
+	Squ_Column1(17, 6)
+	Squ_Column0(18, 6)
+	Squ_Column1(19, 5)
+	Squ_Column0(20, 5)
+	Squ_Column1(21, 4)
+	Squ_Column0(22, 4)
+	Squ_Column1(23, 3)
+	Squ_Column0(24, 3)
+	Squ_Column1(25, 2)
+	Squ_Column0(26, 2)
+	Squ_Column1(27, 1)
+	Squ_Column0(28, 1)
+	Squ_End(16)
+}
+
+void SSE2_Multiply4(word *C, const word *A, const word *B)
+{
+	Mul_Begin(2)
+#ifndef __GNUC__
+	ASJ(	jmp,	0, f)
+	Mul_Acc(2)
+	AS1(	ret) ASL(0)
+#endif
+	Mul_Column0(0, 2)
+	Mul_End(2)
+}
+
+void SSE2_Multiply8(word *C, const word *A, const word *B)
+{
+	Mul_Begin(4)
+#ifndef __GNUC__
+	ASJ(	jmp,	0, f)
+	Mul_Acc(4) Mul_Acc(3) Mul_Acc(2)
+	AS1(	ret) ASL(0)
+#endif
+	Mul_Column0(0, 2)
+	Mul_Column1(1, 3)
+	Mul_Column0(2, 4)
+	Mul_Column1(3, 3)
+	Mul_Column0(4, 2)
+	Mul_End(4)
+}
+
+void SSE2_Multiply16(word *C, const word *A, const word *B)
+{
+	Mul_Begin(8)
+#ifndef __GNUC__
+	ASJ(	jmp,	0, f)
+	Mul_Acc(8) Mul_Acc(7) Mul_Acc(6) Mul_Acc(5) Mul_Acc(4) Mul_Acc(3) Mul_Acc(2)
+	AS1(	ret) ASL(0)
+#endif
+	Mul_Column0(0, 2)
+	Mul_Column1(1, 3)
+	Mul_Column0(2, 4)
+	Mul_Column1(3, 5)
+	Mul_Column0(4, 6)
+	Mul_Column1(5, 7)
+	Mul_Column0(6, 8)
+	Mul_Column1(7, 7)
+	Mul_Column0(8, 6)
+	Mul_Column1(9, 5)
+	Mul_Column0(10, 4)
+	Mul_Column1(11, 3)
+	Mul_Column0(12, 2)
+	Mul_End(8)
+}
+
+void SSE2_Multiply32(word *C, const word *A, const word *B)
+{
+	Mul_Begin(16)
+	ASJ(	jmp,	0, f)
+	Mul_Acc(16) Mul_Acc(15) Mul_Acc(14) Mul_Acc(13) Mul_Acc(12) Mul_Acc(11) Mul_Acc(10) Mul_Acc(9) Mul_Acc(8) Mul_Acc(7) Mul_Acc(6) Mul_Acc(5) Mul_Acc(4) Mul_Acc(3) Mul_Acc(2)
+	AS1(	ret) ASL(0)
+	Mul_Column0(0, 2)
+	Mul_Column1(1, 3)
+	Mul_Column0(2, 4)
+	Mul_Column1(3, 5)
+	Mul_Column0(4, 6)
+	Mul_Column1(5, 7)
+	Mul_Column0(6, 8)
+	Mul_Column1(7, 9)
+	Mul_Column0(8, 10)
+	Mul_Column1(9, 11)
+	Mul_Column0(10, 12)
+	Mul_Column1(11, 13)
+	Mul_Column0(12, 14)
+	Mul_Column1(13, 15)
+	Mul_Column0(14, 16)
+	Mul_Column1(15, 15)
+	Mul_Column0(16, 14)
+	Mul_Column1(17, 13)
+	Mul_Column0(18, 12)
+	Mul_Column1(19, 11)
+	Mul_Column0(20, 10)
+	Mul_Column1(21, 9)
+	Mul_Column0(22, 8)
+	Mul_Column1(23, 7)
+	Mul_Column0(24, 6)
+	Mul_Column1(25, 5)
+	Mul_Column0(26, 4)
+	Mul_Column1(27, 3)
+	Mul_Column0(28, 2)
+	Mul_End(16)
+}
+
+void SSE2_MultiplyBottom4(word *C, const word *A, const word *B)
+{
+	Mul_Begin(2)
+	Bot_SaveAcc(0) Bot_Acc(2)
+	Bot_End(2)
+}
+
+void SSE2_MultiplyBottom8(word *C, const word *A, const word *B)
+{
+	Mul_Begin(4)
+#ifndef __GNUC__
+	ASJ(	jmp,	0, f)
+	Mul_Acc(3) Mul_Acc(2)
+	AS1(	ret) ASL(0)
+#endif
+	Mul_Column0(0, 2)
+	Mul_Column1(1, 3)
+	Bot_SaveAcc(2) Bot_Acc(4) Bot_Acc(3) Bot_Acc(2)
+	Bot_End(4)
+}
+
+void SSE2_MultiplyBottom16(word *C, const word *A, const word *B)
+{
+	Mul_Begin(8)
+#ifndef __GNUC__
+	ASJ(	jmp,	0, f)
+	Mul_Acc(7) Mul_Acc(6) Mul_Acc(5) Mul_Acc(4) Mul_Acc(3) Mul_Acc(2)
+	AS1(	ret) ASL(0)
+#endif
+	Mul_Column0(0, 2)
+	Mul_Column1(1, 3)
+	Mul_Column0(2, 4)
+	Mul_Column1(3, 5)
+	Mul_Column0(4, 6)
+	Mul_Column1(5, 7)
+	Bot_SaveAcc(6) Bot_Acc(8) Bot_Acc(7) Bot_Acc(6) Bot_Acc(5) Bot_Acc(4) Bot_Acc(3) Bot_Acc(2)
+	Bot_End(8)
+}
+
+void SSE2_MultiplyBottom32(word *C, const word *A, const word *B)
+{
+	Mul_Begin(16)
+#ifndef __GNUC__
+	ASJ(	jmp,	0, f)
+	Mul_Acc(15) Mul_Acc(14) Mul_Acc(13) Mul_Acc(12) Mul_Acc(11) Mul_Acc(10) Mul_Acc(9) Mul_Acc(8) Mul_Acc(7) Mul_Acc(6) Mul_Acc(5) Mul_Acc(4) Mul_Acc(3) Mul_Acc(2)
+	AS1(	ret) ASL(0)
+#endif
+	Mul_Column0(0, 2)
+	Mul_Column1(1, 3)
+	Mul_Column0(2, 4)
+	Mul_Column1(3, 5)
+	Mul_Column0(4, 6)
+	Mul_Column1(5, 7)
+	Mul_Column0(6, 8)
+	Mul_Column1(7, 9)
+	Mul_Column0(8, 10)
+	Mul_Column1(9, 11)
+	Mul_Column0(10, 12)
+	Mul_Column1(11, 13)
+	Mul_Column0(12, 14)
+	Mul_Column1(13, 15)
+	Bot_SaveAcc(14) Bot_Acc(16) Bot_Acc(15) Bot_Acc(14) Bot_Acc(13) Bot_Acc(12) Bot_Acc(11) Bot_Acc(10) Bot_Acc(9) Bot_Acc(8) Bot_Acc(7) Bot_Acc(6) Bot_Acc(5) Bot_Acc(4) Bot_Acc(3) Bot_Acc(2)
+	Bot_End(16)
+}
+
+void SSE2_MultiplyTop8(word *C, const word *A, const word *B, word L)
+{
+	Top_Begin(4)
+	Top_Acc(3) Top_Acc(2) Top_Acc(1)
+#ifndef __GNUC__
+	ASJ(	jmp,	0, f)
+	Mul_Acc(4) Mul_Acc(3) Mul_Acc(2)
+	AS1(	ret) ASL(0)
+#endif
+	Top_Column0(4)
+	Top_Column1(3)
+	Mul_Column0(0, 2)
+	Top_End(2)
+}
+
+void SSE2_MultiplyTop16(word *C, const word *A, const word *B, word L)
+{
+	Top_Begin(8)
+	Top_Acc(7) Top_Acc(6) Top_Acc(5) Top_Acc(4) Top_Acc(3) Top_Acc(2) Top_Acc(1)
+#ifndef __GNUC__
+	ASJ(	jmp,	0, f)
+	Mul_Acc(8) Mul_Acc(7) Mul_Acc(6) Mul_Acc(5) Mul_Acc(4) Mul_Acc(3) Mul_Acc(2)
+	AS1(	ret) ASL(0)
+#endif
+	Top_Column0(8)
+	Top_Column1(7)
+	Mul_Column0(0, 6)
+	Mul_Column1(1, 5)
+	Mul_Column0(2, 4)
+	Mul_Column1(3, 3)
+	Mul_Column0(4, 2)
+	Top_End(4)
+}
+
+void SSE2_MultiplyTop32(word *C, const word *A, const word *B, word L)
+{
+	Top_Begin(16)
+	Top_Acc(15) Top_Acc(14) Top_Acc(13) Top_Acc(12) Top_Acc(11) Top_Acc(10) Top_Acc(9) Top_Acc(8) Top_Acc(7) Top_Acc(6) Top_Acc(5) Top_Acc(4) Top_Acc(3) Top_Acc(2) Top_Acc(1)
+#ifndef __GNUC__
+	ASJ(	jmp,	0, f)
+	Mul_Acc(16) Mul_Acc(15) Mul_Acc(14) Mul_Acc(13) Mul_Acc(12) Mul_Acc(11) Mul_Acc(10) Mul_Acc(9) Mul_Acc(8) Mul_Acc(7) Mul_Acc(6) Mul_Acc(5) Mul_Acc(4) Mul_Acc(3) Mul_Acc(2)
+	AS1(	ret) ASL(0)
+#endif
+	Top_Column0(16)
+	Top_Column1(15)
+	Mul_Column0(0, 14)
+	Mul_Column1(1, 13)
+	Mul_Column0(2, 12)
+	Mul_Column1(3, 11)
+	Mul_Column0(4, 10)
+	Mul_Column1(5, 9)
+	Mul_Column0(6, 8)
+	Mul_Column1(7, 7)
+	Mul_Column0(8, 6)
+	Mul_Column1(9, 5)
+	Mul_Column0(10, 4)
+	Mul_Column1(11, 3)
+	Mul_Column0(12, 2)
+	Top_End(8)
+}
+
+#endif	// #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+
+// ********************************************************
+
+typedef int (CRYPTOPP_FASTCALL * PAdd)(size_t N, word *C, const word *A, const word *B);
+typedef void (* PMul)(word *C, const word *A, const word *B);
+typedef void (* PSqu)(word *C, const word *A);
+typedef void (* PMulTop)(word *C, const word *A, const word *B, word L);
+
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+static PAdd s_pAdd = &Baseline_Add, s_pSub = &Baseline_Sub;
+static PMulTop s_pTop[3];
+static size_t s_recursionLimit = 8;
+#else
+static const size_t s_recursionLimit = 8;
+#endif
+
+static PMul s_pMul[9], s_pBot[9];
+static PSqu s_pSqu[9];
+
+static void SetFunctionPointers()
+{
+	s_pMul[0] = &Baseline_Multiply2;
+	s_pBot[0] = &Baseline_MultiplyBottom2;
+	s_pSqu[0] = &Baseline_Square2;
+
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+	if (HasSSE2())
+	{
+		if (IsP4())
+		{
+			s_pAdd = &SSE2_Add;
+			s_pSub = &SSE2_Sub;
+		}
+
+		s_recursionLimit = 32;
+
+		s_pMul[1] = &SSE2_Multiply4;
+		s_pMul[2] = &SSE2_Multiply8;
+		s_pMul[4] = &SSE2_Multiply16;
+		s_pMul[8] = &SSE2_Multiply32;
+
+		s_pBot[1] = &SSE2_MultiplyBottom4;
+		s_pBot[2] = &SSE2_MultiplyBottom8;
+		s_pBot[4] = &SSE2_MultiplyBottom16;
+		s_pBot[8] = &SSE2_MultiplyBottom32;
+
+		s_pSqu[1] = &SSE2_Square4;
+		s_pSqu[2] = &SSE2_Square8;
+		s_pSqu[4] = &SSE2_Square16;
+		s_pSqu[8] = &SSE2_Square32;
+
+		s_pTop[0] = &SSE2_MultiplyTop8;
+		s_pTop[1] = &SSE2_MultiplyTop16;
+		s_pTop[2] = &SSE2_MultiplyTop32;
+	}
+	else
+#endif
+	{
+		s_pMul[1] = &Baseline_Multiply4;
+		s_pMul[2] = &Baseline_Multiply8;
+//		s_pMul[4] = &Baseline_Multiply16;
+
+		s_pBot[1] = &Baseline_MultiplyBottom4;
+		s_pBot[2] = &Baseline_MultiplyBottom8;
+//		s_pBot[4] = &Baseline_MultiplyBottom16;
+
+		s_pSqu[1] = &Baseline_Square4;
+		s_pSqu[2] = &Baseline_Square8;
+//		s_pSqu[4] = &Baseline_Square16;
+	}
+}
+
+inline int Add(word *C, const word *A, const word *B, size_t N)
+{
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+	return s_pAdd(N, C, A, B);
+#else
+	return Baseline_Add(N, C, A, B);
+#endif
+}
+
+inline int Subtract(word *C, const word *A, const word *B, size_t N)
+{
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+	return s_pSub(N, C, A, B);
+#else
+	return Baseline_Sub(N, C, A, B);
+#endif
+}
+
+// ********************************************************
+
 
 #define A0		A
 #define A1		(A+N2)
@@ -2004,64 +1876,37 @@ void RecursiveMultiply(word *R, word *T, const word *A, const word *B, size_t N)
 {
 	assert(N>=2 && N%2==0);
 
-	if (LowLevel::MultiplyRecursionLimit() >= 8 && N==8)
-		LowLevel::Multiply8(R, A, B);
-	else if (LowLevel::MultiplyRecursionLimit() >= 4 && N==4)
-		LowLevel::Multiply4(R, A, B);
-	else if (N==2)
-		LowLevel::Multiply2(R, A, B);
+	if (N <= s_recursionLimit)
+		s_pMul[N/4](R, A, B);
 	else
 	{
 		const size_t N2 = N/2;
-		int carry;
 
-		int aComp = Compare(A0, A1, N2);
-		int bComp = Compare(B0, B1, N2);
+		size_t AN2 = Compare(A0, A1, N2) > 0 ?  0 : N2;
+		Subtract(R0, A + AN2, A + (N2 ^ AN2), N2);
 
-		switch (2*aComp + aComp + bComp)
-		{
-		case -4:
-			LowLevel::Subtract(R0, A1, A0, N2);
-			LowLevel::Subtract(R1, B0, B1, N2);
-			RecursiveMultiply(T0, T2, R0, R1, N2);
-			LowLevel::Subtract(T1, T1, R0, N2);
-			carry = -1;
-			break;
-		case -2:
-			LowLevel::Subtract(R0, A1, A0, N2);
-			LowLevel::Subtract(R1, B0, B1, N2);
-			RecursiveMultiply(T0, T2, R0, R1, N2);
-			carry = 0;
-			break;
-		case 2:
-			LowLevel::Subtract(R0, A0, A1, N2);
-			LowLevel::Subtract(R1, B1, B0, N2);
-			RecursiveMultiply(T0, T2, R0, R1, N2);
-			carry = 0;
-			break;
-		case 4:
-			LowLevel::Subtract(R0, A1, A0, N2);
-			LowLevel::Subtract(R1, B0, B1, N2);
-			RecursiveMultiply(T0, T2, R0, R1, N2);
-			LowLevel::Subtract(T1, T1, R1, N2);
-			carry = -1;
-			break;
-		default:
-			SetWords(T0, 0, N);
-			carry = 0;
-		}
+		size_t BN2 = Compare(B0, B1, N2) > 0 ?  0 : N2;
+		Subtract(R1, B + BN2, B + (N2 ^ BN2), N2);
 
-		RecursiveMultiply(R0, T2, A0, B0, N2);
 		RecursiveMultiply(R2, T2, A1, B1, N2);
+		RecursiveMultiply(T0, T2, R0, R1, N2);
+		RecursiveMultiply(R0, T2, A0, B0, N2);
 
 		// now T[01] holds (A1-A0)*(B0-B1), R[01] holds A0*B0, R[23] holds A1*B1
 
-		carry += LowLevel::Add(T0, T0, R0, N);
-		carry += LowLevel::Add(T0, T0, R2, N);
-		carry += LowLevel::Add(R1, R1, T0, N);
+		int c2 = Add(R2, R2, R1, N2);
+		int c3 = c2;
+		c2 += Add(R1, R2, R0, N2);
+		c3 += Add(R2, R2, R3, N2);
 
-		assert (carry >= 0 && carry <= 2);
-		Increment(R3, N2, carry);
+		if (AN2 == BN2)
+			c3 -= Subtract(R1, R1, T0, N);
+		else
+			c3 += Add(R1, R1, T0, N);
+
+		c3 += Increment(R2, N2, c2);
+		assert (c3 >= 0 && c3 <= 2);
+		Increment(R3, N2, c3);
 	}
 }
 
@@ -2072,12 +1917,9 @@ void RecursiveMultiply(word *R, word *T, const word *A, const word *B, size_t N)
 void RecursiveSquare(word *R, word *T, const word *A, size_t N)
 {
 	assert(N && N%2==0);
-	if (LowLevel::SquareRecursionLimit() >= 8 && N==8)
-		LowLevel::Square8(R, A);
-	if (LowLevel::SquareRecursionLimit() >= 4 && N==4)
-		LowLevel::Square4(R, A);
-	else if (N==2)
-		LowLevel::Square2(R, A);
+
+	if (N <= s_recursionLimit)
+		s_pSqu[N/4](R, A);
 	else
 	{
 		const size_t N2 = N/2;
@@ -2086,35 +1928,32 @@ void RecursiveSquare(word *R, word *T, const word *A, size_t N)
 		RecursiveSquare(R2, T2, A1, N2);
 		RecursiveMultiply(T0, T2, A0, A1, N2);
 
-		int carry = LowLevel::Add(R1, R1, T0, N);
-		carry += LowLevel::Add(R1, R1, T0, N);
+		int carry = Add(R1, R1, T0, N);
+		carry += Add(R1, R1, T0, N);
 		Increment(R3, N2, carry);
 	}
 }
 
 // R[N] - bottom half of A*B
-// T[N] - temporary work space
+// T[3*N/2] - temporary work space
 // A[N] - multiplier
 // B[N] - multiplicant
 
 void RecursiveMultiplyBottom(word *R, word *T, const word *A, const word *B, size_t N)
 {
 	assert(N>=2 && N%2==0);
-	if (LowLevel::MultiplyBottomRecursionLimit() >= 8 && N==8)
-		LowLevel::Multiply8Bottom(R, A, B);
-	else if (LowLevel::MultiplyBottomRecursionLimit() >= 4 && N==4)
-		LowLevel::Multiply4Bottom(R, A, B);
-	else if (N==2)
-		LowLevel::Multiply2Bottom(R, A, B);
+
+	if (N <= s_recursionLimit)
+		s_pBot[N/4](R, A, B);
 	else
 	{
 		const size_t N2 = N/2;
 
 		RecursiveMultiply(R, T, A0, B0, N2);
 		RecursiveMultiplyBottom(T0, T1, A1, B0, N2);
-		LowLevel::Add(R1, R1, T0, N2);
+		Add(R1, R1, T0, N2);
 		RecursiveMultiplyBottom(T0, T1, A0, B1, N2);
-		LowLevel::Add(R1, R1, T0, N2);
+		Add(R1, R1, T0, N2);
 	}
 }
 
@@ -2124,88 +1963,61 @@ void RecursiveMultiplyBottom(word *R, word *T, const word *A, const word *B, siz
 // A[N] --- multiplier
 // B[N] --- multiplicant
 
-void RecursiveMultiplyTop(word *R, word *T, const word *L, const word *A, const word *B, size_t N)
+void MultiplyTop(word *R, word *T, const word *L, const word *A, const word *B, size_t N)
 {
 	assert(N>=2 && N%2==0);
 
-	if (N==4)
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+	if (HasSSE2() && ((N>=8) & (N<=32)))
+		s_pTop[N/16](R, A, B, L[N-1]);
+	else
+#endif
+	if (N<=4)
 	{
-		LowLevel::Multiply4(T, A, B);
-		memcpy(R, T+4, 4*WORD_SIZE);
-	}
-	else if (N==2)
-	{
-		LowLevel::Multiply2(T, A, B);
-		memcpy(R, T+2, 2*WORD_SIZE);
+		s_pMul[N/4](T, A, B);
+		memcpy(R, T+N, N*WORD_SIZE);
 	}
 	else
 	{
 		const size_t N2 = N/2;
-		int carry;
 
-		int aComp = Compare(A0, A1, N2);
-		int bComp = Compare(B0, B1, N2);
+		size_t AN2 = Compare(A0, A1, N2) > 0 ?  0 : N2;
+		Subtract(R0, A + AN2, A + (N2 ^ AN2), N2);
 
-		switch (2*aComp + aComp + bComp)
+		size_t BN2 = Compare(B0, B1, N2) > 0 ?  0 : N2;
+		Subtract(R1, B + BN2, B + (N2 ^ BN2), N2);
+
+		RecursiveMultiply(T0, T2, R0, R1, N2);
+		RecursiveMultiply(R0, T2, A1, B1, N2);
+
+		// now T[01] holds (A1-A0)*(B0-B1) = A1*B0+A0*B1-A1*B1-A0*B0, R[01] holds A1*B1
+
+		int t, c3;
+		int c2 = Subtract(T2, L+N2, L, N2);
+
+		if (AN2 == BN2)
 		{
-		case -4:
-			LowLevel::Subtract(R0, A1, A0, N2);
-			LowLevel::Subtract(R1, B0, B1, N2);
-			RecursiveMultiply(T0, T2, R0, R1, N2);
-			LowLevel::Subtract(T1, T1, R0, N2);
-			carry = -1;
-			break;
-		case -2:
-			LowLevel::Subtract(R0, A1, A0, N2);
-			LowLevel::Subtract(R1, B0, B1, N2);
-			RecursiveMultiply(T0, T2, R0, R1, N2);
-			carry = 0;
-			break;
-		case 2:
-			LowLevel::Subtract(R0, A0, A1, N2);
-			LowLevel::Subtract(R1, B1, B0, N2);
-			RecursiveMultiply(T0, T2, R0, R1, N2);
-			carry = 0;
-			break;
-		case 4:
-			LowLevel::Subtract(R0, A1, A0, N2);
-			LowLevel::Subtract(R1, B0, B1, N2);
-			RecursiveMultiply(T0, T2, R0, R1, N2);
-			LowLevel::Subtract(T1, T1, R1, N2);
-			carry = -1;
-			break;
-		default:
-			SetWords(T0, 0, N);
-			carry = 0;
+			c2 -= Add(T2, T2, T0, N2);
+			t = (Compare(T2, R0, N2) == -1);
+			c3 = t - Subtract(T2, T2, T1, N2);
+		}
+		else
+		{
+			c2 += Subtract(T2, T2, T0, N2);
+			t = (Compare(T2, R0, N2) == -1);
+			c3 = t + Add(T2, T2, T1, N2);
 		}
 
-		RecursiveMultiply(T2, R0, A1, B1, N2);
+		c2 += t;
+		if (c2 >= 0)
+			c3 += Increment(T2, N2, c2);
+		else
+			c3 -= Decrement(T2, N2, -c2);
+		c3 += Add(R0, T2, R1, N2);
 
-		// now T[01] holds (A1-A0)*(B0-B1), T[23] holds A1*B1
-
-		int c2 = LowLevel::Subtract(R0, L+N2, L, N2);
-		c2 += LowLevel::Subtract(R0, R0, T0, N2);
-		int t = (Compare(R0, T2, N2) == -1);
-
-		carry += t;
-		carry += Increment(R0, N2, c2+t);
-		carry += LowLevel::Add(R0, R0, T1, N2);
-		carry += LowLevel::Add(R0, R0, T3, N2);
-		assert (carry >= 0 && carry <= 2);
-
-		CopyWords(R1, T3, N2);
-		Increment(R1, N2, carry);
+		assert (c3 >= 0 && c3 <= 2);
+		Increment(R1, N2, c3);
 	}
-}
-
-inline int Add(word *C, const word *A, const word *B, size_t N)
-{
-	return LowLevel::Add(C, A, B, N);
-}
-
-inline int Subtract(word *C, const word *A, const word *B, size_t N)
-{
-	return LowLevel::Subtract(C, A, B, N);
 }
 
 inline void Multiply(word *R, word *T, const word *A, const word *B, size_t N)
@@ -2221,23 +2033,6 @@ inline void Square(word *R, word *T, const word *A, size_t N)
 inline void MultiplyBottom(word *R, word *T, const word *A, const word *B, size_t N)
 {
 	RecursiveMultiplyBottom(R, T, A, B, N);
-}
-
-inline void MultiplyTop(word *R, word *T, const word *L, const word *A, const word *B, size_t N)
-{
-	RecursiveMultiplyTop(R, T, L, A, B, N);
-}
-
-static word LinearMultiply(word *C, const word *A, word B, size_t N)
-{
-	word carry=0;
-	for(unsigned i=0; i<N; i++)
-	{
-		DWord p = DWord::MultiplyAndAdd(A[i], B, carry);
-		C[i] = p.GetLowHalf();
-		carry = p.GetHighHalf();
-	}
-	return carry;
 }
 
 // R[NA+NB] - result = A*B
@@ -2264,7 +2059,6 @@ void AsymmetricMultiply(word *R, word *T, const word *A, size_t NA, const word *
 	}
 
 	assert(NB % NA == 0);
-	assert((NB/NA)%2 == 0); 	// NB is an even multiple of NA
 
 	if (NA==2 && !A[1])
 	{
@@ -2284,15 +2078,24 @@ void AsymmetricMultiply(word *R, word *T, const word *A, size_t NA, const word *
 		}
 	}
 
-	Multiply(R, T, A, B, NA);
-	CopyWords(T+2*NA, R+NA, NA);
-
 	size_t i;
+	if ((NB/NA)%2 == 0)
+	{
+		Multiply(R, T, A, B, NA);
+		CopyWords(T+2*NA, R+NA, NA);
 
-	for (i=2*NA; i<NB; i+=2*NA)
-		Multiply(T+NA+i, T, A, B+i, NA);
-	for (i=NA; i<NB; i+=2*NA)
-		Multiply(R+i, T, A, B+i, NA);
+		for (i=2*NA; i<NB; i+=2*NA)
+			Multiply(T+NA+i, T, A, B+i, NA);
+		for (i=NA; i<NB; i+=2*NA)
+			Multiply(R+i, T, A, B+i, NA);
+	}
+	else
+	{
+		for (i=0; i<NB; i+=2*NA)
+			Multiply(R+i, T, A, B+i, NA);
+		for (i=NA; i<NB; i+=2*NA)
+			Multiply(T+NA+i, T, A, B+i, NA);
+	}
 
 	if (Add(R+NA, R+NA, T+2*NA, NB-NA))
 		Increment(R+NB, NA);
@@ -2308,10 +2111,10 @@ void RecursiveInverseModPower2(word *R, word *T, const word *A, size_t N)
 	{
 		T[0] = AtomicInverseModPower2(A[0]);
 		T[1] = 0;
-		LowLevel::Multiply2Bottom(T+2, T, A);
+		s_pBot[0](T+2, T, A);
 		TwosComplement(T+2, 2);
 		Increment(T+2, 2, 2);
-		LowLevel::Multiply2Bottom(R, T, T+2);
+		s_pBot[0](R, T, T+2);
 	}
 	else
 	{
@@ -2333,8 +2136,9 @@ void RecursiveInverseModPower2(word *R, word *T, const word *A, size_t N)
 // M[N] --- modulus
 // U[N] --- multiplicative inverse of M mod 2**(WORD_BITS*N)
 
-void MontgomeryReduce(word *R, word *T, const word *X, const word *M, const word *U, size_t N)
+void MontgomeryReduce(word *R, word *T, word *X, const word *M, const word *U, size_t N)
 {
+#if 1
 	MultiplyBottom(R, T, X, U, N);
 	MultiplyTop(T, T+N, X, R, M, N);
 	word borrow = Subtract(T, X+N, T, N);
@@ -2342,6 +2146,60 @@ void MontgomeryReduce(word *R, word *T, const word *X, const word *M, const word
 	word carry = Add(T+N, T, M, N);
 	assert(carry || !borrow);
 	CopyWords(R, T + (borrow ? N : 0), N);
+#elif 0
+	const word u = 0-U[0];
+	Declare2Words(p)
+	for (size_t i=0; i<N; i++)
+	{
+		const word t = u * X[i];
+		word c = 0;
+		for (size_t j=0; j<N; j+=2)
+		{
+			MultiplyWords(p, t, M[j]);
+			Acc2WordsBy1(p, X[i+j]);
+			Acc2WordsBy1(p, c);
+			X[i+j] = LowWord(p);
+			c = HighWord(p);
+			MultiplyWords(p, t, M[j+1]);
+			Acc2WordsBy1(p, X[i+j+1]);
+			Acc2WordsBy1(p, c);
+			X[i+j+1] = LowWord(p);
+			c = HighWord(p);
+		}
+
+		if (Increment(X+N+i, N-i, c))
+			while (!Subtract(X+N, X+N, M, N)) {}
+	}
+
+	memcpy(R, X+N, N*WORD_SIZE);
+#else
+	__m64 u = _mm_cvtsi32_si64(0-U[0]), p;
+	for (size_t i=0; i<N; i++)
+	{
+		__m64 t = _mm_cvtsi32_si64(X[i]);
+		t = _mm_mul_su32(t, u);
+		__m64 c = _mm_setzero_si64();
+		for (size_t j=0; j<N; j+=2)
+		{
+			p = _mm_mul_su32(t, _mm_cvtsi32_si64(M[j]));
+			p = _mm_add_si64(p, _mm_cvtsi32_si64(X[i+j]));
+			c = _mm_add_si64(c, p);
+			X[i+j] = _mm_cvtsi64_si32(c);
+			c = _mm_srli_si64(c, 32);
+			p = _mm_mul_su32(t, _mm_cvtsi32_si64(M[j+1]));
+			p = _mm_add_si64(p, _mm_cvtsi32_si64(X[i+j+1]));
+			c = _mm_add_si64(c, p);
+			X[i+j+1] = _mm_cvtsi64_si32(c);
+			c = _mm_srli_si64(c, 32);
+		}
+
+		if (Increment(X+N+i, N-i, _mm_cvtsi64_si32(c)))
+			while (!Subtract(X+N, X+N, M, N)) {}
+	}
+
+	memcpy(R, X+N, N*WORD_SIZE);
+	_mm_empty();
+#endif
 }
 
 // R[N] --- result = X/(2**(WORD_BITS*N/2)) mod M
@@ -2491,7 +2349,7 @@ static inline void AtomicDivide(word *Q, const word *A, const word *B)
 		// multiply quotient and divisor and add remainder, make sure it equals dividend
 		assert(!T[2] && !T[3] && (T[1] < B[1] || (T[1]==B[1] && T[0]<B[0])));
 		word P[4];
-		Portable::Multiply2(P, Q, B);
+		s_pMul[0](P, Q, B);
 		Add(P, P, T, 4);
 		assert(memcmp(P, A, 4*WORD_SIZE)==0);
 	}
@@ -2503,21 +2361,7 @@ static void CorrectQuotientEstimate(word *R, word *T, word *Q, const word *B, si
 {
 	assert(N && N%2==0);
 
-	if (Q[1])
-	{
-		T[N] = T[N+1] = 0;
-		unsigned i;
-		for (i=0; i<N; i+=4)
-			LowLevel::Multiply2(T+i, Q, B+i);
-		for (i=2; i<N; i+=4)
-			if (LowLevel::Multiply2Add(T+i, Q, B+i))
-				T[i+5] += (++T[i+4]==0);
-	}
-	else
-	{
-		T[N] = LinearMultiply(T, B, Q[0], N);
-		T[N+1] = 0;
-	}
+	AsymmetricMultiply(T, T+N+2, Q, 2, B, N);
 
 	word borrow = Subtract(R, R, T, N+2);
 	assert(!borrow && !R[N+1]);
@@ -2532,7 +2376,7 @@ static void CorrectQuotientEstimate(word *R, word *T, word *Q, const word *B, si
 
 // R[NB] -------- remainder = A%B
 // Q[NA-NB+2] --- quotient	= A/B
-// T[NA+2*NB+4] - temp work space
+// T[NA+3*(NB+2)] - temp work space
 // A[NA] -------- dividend
 // B[NB] -------- divisor
 
@@ -2726,9 +2570,7 @@ InitializeInteger::InitializeInteger()
 {
 	if (!g_pAssignIntToInteger)
 	{
-#ifdef CRYPTOPP_X86ASM_AVAILABLE
-		SetPentiumFunctionPointers();
-#endif
+		SetFunctionPointers();
 		g_pAssignIntToInteger = AssignIntToInteger;
 	}
 }
@@ -2877,7 +2719,8 @@ Integer& Integer::operator=(const Integer& t)
 {
 	if (this != &t)
 	{
-		reg.New(RoundupSize(t.WordCount()));
+		if (reg.size() != t.reg.size() || t.reg[t.reg.size()/2] == 0)
+			reg.New(RoundupSize(t.WordCount()));
 		CopyWords(reg, t.reg, reg.size());
 		sign = t.sign;
 	}
@@ -3240,7 +3083,7 @@ public:
 
 	void GenerateBlock(byte *output, size_t size)
 	{
-		UnalignedPutWord(BIG_ENDIAN_ORDER, m_counterAndSeed, m_counter);
+		PutWord(false, BIG_ENDIAN_ORDER, m_counterAndSeed, m_counter);
 		++m_counter;
 		P1363_KDF2<SHA1>::DeriveKey(output, size, m_counterAndSeed, m_counterAndSeed.size(), NULL, 0);
 	}
@@ -3657,7 +3500,7 @@ void PositiveMultiply(Integer &product, const Integer &a, const Integer &b)
 	product.reg.CleanNew(RoundupSize(aSize+bSize));
 	product.sign = Integer::POSITIVE;
 
-	SecAlignedWordBlock workspace(aSize + bSize);
+	IntegerSecBlock workspace(aSize + bSize);
 	AsymmetricMultiply(product.reg, workspace, a.reg, aSize, b.reg, bSize);
 }
 
@@ -3723,7 +3566,7 @@ void PositiveDivide(Integer &remainder, Integer &quotient,
 	quotient.reg.CleanNew(RoundupSize(aSize-bSize+2));
 	quotient.sign = Integer::POSITIVE;
 
-	SecAlignedWordBlock T(aSize+2*bSize+4);
+	IntegerSecBlock T(aSize+3*(bSize+2));
 	Divide(remainder.reg, quotient.reg, T, a.reg, aSize, b.reg, bSize);
 }
 
