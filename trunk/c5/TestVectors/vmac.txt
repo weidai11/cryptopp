@@ -1,0 +1,17 @@
+AlgorithmType: MAC
+Name: VMAC(AES)-128
+Source: Ted Krovetz's vmac.c Version: 0.01 (14 July 2006)
+Key: "abcdefghijklmnop"
+IV: "bcdefghi" r8 00
+Message: "abc"
+Digest: E5B10669E5B61668A11E3351CC1A7211
+Test: Verify
+Message: r16 "abc"
+Digest: 12A64330F81D8B6407CE90667303FEE2
+Test: Verify
+Message: r100 "abc"
+Digest: 10A63F27D4B292723739B4BB6F17A4C1
+Test: Verify
+Message: r1000000 "abc"
+Digest: 22C65CC2CFE9BED72E485CA6EB8A48BE
+Test: Verify
