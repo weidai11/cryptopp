@@ -15,10 +15,12 @@
  */
 
 #include "pch.h"
+#define CRYPTOPP_ENABLE_NAMESPACE_WEAK
 #include "md2.h"
 
 NAMESPACE_BEGIN(CryptoPP)
-
+namespace Weak {
+	
 MD2::MD2()
 	: m_X(48), m_C(16), m_buf(16)
 {
@@ -114,4 +116,5 @@ void MD2::TruncatedFinal(byte *hash, size_t size)
 	Init();
 }
 
+}
 NAMESPACE_END

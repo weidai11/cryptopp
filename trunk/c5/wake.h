@@ -47,13 +47,15 @@ protected:
 	bool IsRandomAccess() const {return false;}
 };
 
-//! <a href="http://www.weidai.com/scan-mirror/cs.html#WAKE-CFB-BE">WAKE-CFB-BE</a>
+namespace Weak {
+//! <a href="http://www.cryptolounge.org/wiki/WAKE">WAKE-CFB-BE</a>
 template <class B = BigEndian>
 struct WAKE_CFB : public WAKE_CFB_Info<B>, public SymmetricCipherDocumentation
 {
 	typedef SymmetricCipherFinal<ConcretePolicyHolder<WAKE_Policy<B>, CFB_EncryptionTemplate<> >,  WAKE_CFB_Info<B> > Encryption;
 	typedef SymmetricCipherFinal<ConcretePolicyHolder<WAKE_Policy<B>, CFB_DecryptionTemplate<> >,  WAKE_CFB_Info<B> > Decryption;
 };
+}
 
 //! WAKE-OFB
 template <class B = BigEndian>

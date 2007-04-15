@@ -15,10 +15,12 @@
  */
 
 #include "pch.h"
+#define CRYPTOPP_ENABLE_NAMESPACE_WEAK
 #include "md4.h"
 #include "misc.h"
 
 NAMESPACE_BEGIN(CryptoPP)
+namespace Weak {
 
 void MD4::InitState(HashWordType *state)
 {
@@ -104,4 +106,5 @@ void MD4::Transform (word32 *digest, const word32 *in)
 	digest[3]+=D;
 }
 
+}
 NAMESPACE_END

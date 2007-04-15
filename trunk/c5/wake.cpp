@@ -7,8 +7,8 @@ NAMESPACE_BEGIN(CryptoPP)
 
 void WAKE_TestInstantiations()
 {
-	WAKE_CFB<>::Encryption x1;
-	WAKE_CFB<>::Decryption x3;
+	Weak::WAKE_CFB<>::Encryption x1;
+	Weak::WAKE_CFB<>::Decryption x3;
 	WAKE_OFB<>::Encryption x2;
 	WAKE_OFB<>::Decryption x4;
 }
@@ -85,16 +85,21 @@ void WAKE_Policy<B>::Iterate(byte *output, const byte *input, CipherDir dir, siz
 template <class B>
 void WAKE_Policy<B>::OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount)
 {
-	KeystreamOutput<B> keystreamOperation(operation, output, input);
-
-	while (iterationCount--)
-	{
-		keystreamOperation(r6);
-		r3 = M(r3, r6);
-		r4 = M(r4, r3);
-		r5 = M(r5, r4);
-		r6 = M(r6, r5);
+#define WAKE_OUTPUT(x)\
+	while (iterationCount--)\
+	{\
+		CRYPTOPP_KEYSTREAM_OUTPUT_WORD(x, B::ToEnum(), 0, r6);\
+		r3 = M(r3, r6);\
+		r4 = M(r4, r3);\
+		r5 = M(r5, r4);\
+		r6 = M(r6, r5);\
+		output += 4;\
+		if (x == XOR_KEYSTREAM)\
+			input += 4;\
 	}
+
+	typedef word32 WordType;
+	CRYPTOPP_KEYSTREAM_OUTPUT_SWITCH(WAKE_OUTPUT, 0);
 }
 /*
 template <class B>

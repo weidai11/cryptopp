@@ -2,10 +2,12 @@
 // any modifications are placed in the public domain
 
 #include "pch.h"
+#define CRYPTOPP_ENABLE_NAMESPACE_WEAK
 #include "md5.h"
 #include "misc.h"
 
 NAMESPACE_BEGIN(CryptoPP)
+namespace Weak {
 
 void MD5_TestInstantiations()
 {
@@ -112,4 +114,5 @@ void MD5::Transform (word32 *digest, const word32 *in)
 	digest[3]+=d;
 }
 
+}
 NAMESPACE_END
