@@ -1,12 +1,5 @@
-# can't use -fno-rtti yet because it causes problems with exception handling in GCC 2.95.2
-CXXFLAGS = -g
-# Uncomment the following two lines to do a release build.
-# Note that you must define NDEBUG for your own application if you define it for Crypto++.
-# Make sure you run the validation tests and test your own program thoroughly
-# after turning on -O3. The GCC optimizer may have bugs that cause it to generate incorrect code.
-# Try removing -fdata-sections if you get "undefined external reference" errors.
-# CXXFLAGS = -O3 -DNDEBUG -ffunction-sections -fdata-sections
-# LDFLAGS += -Wl,--gc-sections
+CXXFLAGS = -DNDEBUG -ffunction-sections -fdata-sections -g
+LDFLAGS += -Wl,--gc-sections
 ARFLAGS = -cr	# ar needs the dash on OpenBSD
 RANLIB = ranlib
 CP = cp
@@ -15,6 +8,13 @@ EGREP = egrep
 UNAME = $(shell uname)
 ISX86 = $(shell uname -m | $(EGREP) -c "i.86|x86|i86")
 ISMINGW = $(shell uname | $(EGREP) -c "MINGW32")
+GCC4_OR_LATER = $(shell $(CXX) -v 2>&1 | $(EGREP) -c "gcc version 4")
+
+ifeq ($(GCC4_OR_LATER),1)
+CXXFLAGS += -Os # -O3 causes Salsa20 validation to fail on GCC 4.1.2
+else
+CXXFLAGS += -O1 # -Os, -O2, -O3 all cause Salsa20 validation to fail on GCC 3.4.4
+endif
 
 # Default prefix for make install
 ifeq ($(PREFIX),)
@@ -27,15 +27,15 @@ endif
 
 ifeq ($(ISX86),1)
 
-GCC33ORLATER = $(shell $(CXX) -v 2>&1 | $(EGREP) -c "gcc version (3.[3-9]|[4-9])")
-GAS210ORLATER = $(shell echo "" | $(AS) -v 2>&1 | $(EGREP) -c "GNU assembler version (2.[1-9][0-9]|[3-9])")
+GCC33_OR_LATER = $(shell $(CXX) -v 2>&1 | $(EGREP) -c "gcc version (3.[3-9]|[4-9])")
+GAS210_OR_LATER = $(shell echo "" | $(AS) -v 2>&1 | $(EGREP) -c "GNU assembler version (2.[1-9][0-9]|[3-9])")
 
-ifeq ($(GCC33ORLATER) $(ISMINGW),1 0)	# MINGW32 is missing the memalign function
+ifeq ($(GCC33_OR_LATER),1)
 CXXFLAGS += -msse2
 endif
 
-ifeq ($(GAS210ORLATER),0)	# .intel_syntax wasn't supported until GNU assembler 2.10
-CXXFLAGS += -DCRYPTOPP_DISABLE_X86ASM
+ifeq ($(GAS210_OR_LATER),0)	# .intel_syntax wasn't supported until GNU assembler 2.10
+CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
 endif
 
 endif
