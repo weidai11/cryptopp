@@ -20,3 +20,5 @@ Test: sha.txt
 Test: panama.txt
 Test: aes.txt
 Test: salsa.txt
+Test: vmac.txt
+Test: sosemanuk.txt
