@@ -9,7 +9,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// <a href="http://www.weidai.com/scan-mirror/md.html#Tiger">Tiger</a>
+/// <a href="http://www.cryptolounge.org/wiki/Tiger">Tiger</a>
 class Tiger : public IteratedHashWithStaticTransform<word64, LittleEndian, 64, 24, Tiger>
 {
 public:
@@ -19,7 +19,7 @@ public:
 	static const char * StaticAlgorithmName() {return "Tiger";}
 
 protected:
-	static const word64 table[4*256];
+	static const word64 table[4*256+3];
 };
 
 NAMESPACE_END

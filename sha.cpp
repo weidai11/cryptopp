@@ -9,6 +9,7 @@
 
 #include "sha.h"
 #include "misc.h"
+#include "cpu.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -74,26 +75,42 @@ void SHA1::Transform(word32 *state, const word32 *data)
     state[2] += c;
     state[3] += d;
     state[4] += e;
-    /* Wipe variables */
-    a = b = c = d = e = 0;
-	memset(W, 0, sizeof(W));
 }
 
 // end of Steve Reid's code
 
 // *************************************************************
 
+void SHA224::InitState(HashWordType *state)
+{
+	static const word32 s[8] = {0xc1059ed8, 0x367cd507, 0x3070dd17, 0xf70e5939, 0xffc00b31, 0x68581511, 0x64f98fa7, 0xbefa4fa4};
+	memcpy(state, s, sizeof(s));
+}
+
 void SHA256::InitState(HashWordType *state)
 {
-	state[0] = 0x6a09e667;
-	state[1] = 0xbb67ae85;
-	state[2] = 0x3c6ef372;
-	state[3] = 0xa54ff53a;
-	state[4] = 0x510e527f;
-	state[5] = 0x9b05688c;
-	state[6] = 0x1f83d9ab;
-	state[7] = 0x5be0cd19;
+	static const word32 s[8] = {0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19};
+	memcpy(state, s, sizeof(s));
 }
+
+static const word32 SHA256_K[64] = {
+	0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
+	0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+	0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
+	0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+	0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc,
+	0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+	0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7,
+	0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+	0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13,
+	0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+	0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3,
+	0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+	0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5,
+	0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+	0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
+	0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
+};
 
 #define blk2(i) (W[i&15]+=s1(W[(i-2)&15])+W[(i-7)&15]+s0(W[(i-15)&15]))
 
@@ -109,7 +126,7 @@ void SHA256::InitState(HashWordType *state)
 #define g(i) T[(6-i)&7]
 #define h(i) T[(7-i)&7]
 
-#define R(i) h(i)+=S1(e(i))+Ch(e(i),f(i),g(i))+K[i+j]+(j?blk2(i):blk0(i));\
+#define R(i) h(i)+=S1(e(i))+Ch(e(i),f(i),g(i))+SHA256_K[i+j]+(j?blk2(i):blk0(i));\
 	d(i)+=h(i);h(i)+=S0(a(i))+Maj(a(i),b(i),c(i))
 
 // for SHA256
@@ -141,98 +158,114 @@ void SHA256::Transform(word32 *state, const word32 *data)
     state[5] += f(0);
     state[6] += g(0);
     state[7] += h(0);
-    /* Wipe variables */
-	memset(W, 0, sizeof(W));
-	memset(T, 0, sizeof(T));
 }
+
+/* 
+// smaller but slower
+void SHA256_Transform(word32 *state, const word32 *data)
+{
+	word32 T[20];
+	word32 W[32];
+	unsigned int i = 0, j = 0;
+	word32 *t = T+8;
+
+	memcpy(t, state, 8*4);
+	word32 e = t[4], a = t[0];
+
+	do 
+	{
+		word32 w = data[j];
+		W[j] = w;
+		w += K[j];
+		w += t[7];
+		w += S1(e);
+		w += Ch(e, t[5], t[6]);
+		e = t[3] + w;
+		t[3] = t[3+8] = e;
+		w += S0(t[0]);
+		a = w + Maj(a, t[1], t[2]);
+		t[-1] = t[7] = a;
+		--t;
+		++j;
+		if (j%8 == 0)
+			t += 8;
+	} while (j<16);
+
+	do
+	{
+		i = j&0xf;
+		word32 w = s1(W[i+16-2]) + s0(W[i+16-15]) + W[i] + W[i+16-7];
+		W[i+16] = W[i] = w;
+		w += K[j];
+		w += t[7];
+		w += S1(e);
+		w += Ch(e, t[5], t[6]);
+		e = t[3] + w;
+		t[3] = t[3+8] = e;
+		w += S0(t[0]);
+		a = w + Maj(a, t[1], t[2]);
+		t[-1] = t[7] = a;
+
+		w = s1(W[(i+1)+16-2]) + s0(W[(i+1)+16-15]) + W[(i+1)] + W[(i+1)+16-7];
+		W[(i+1)+16] = W[(i+1)] = w;
+		w += K[j+1];
+		w += (t-1)[7];
+		w += S1(e);
+		w += Ch(e, (t-1)[5], (t-1)[6]);
+		e = (t-1)[3] + w;
+		(t-1)[3] = (t-1)[3+8] = e;
+		w += S0((t-1)[0]);
+		a = w + Maj(a, (t-1)[1], (t-1)[2]);
+		(t-1)[-1] = (t-1)[7] = a;
+
+		t-=2;
+		j+=2;
+		if (j%8 == 0)
+			t += 8;
+	} while (j<64);
+
+    state[0] += a;
+    state[1] += t[1];
+    state[2] += t[2];
+    state[3] += t[3];
+    state[4] += e;
+    state[5] += t[5];
+    state[6] += t[6];
+    state[7] += t[7];
+}
+*/
 
 #undef S0
 #undef S1
 #undef s0
 #undef s1
-
-const word32 SHA256::K[64] = {
-	0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
-	0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
-	0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
-	0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
-	0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc,
-	0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
-	0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7,
-	0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
-	0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13,
-	0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
-	0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3,
-	0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
-	0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5,
-	0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
-	0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
-	0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
-};
-
-void SHA224::InitState(HashWordType *state)
-{
-	state[0] = 0xc1059ed8;
-	state[1] = 0x367cd507;
-	state[2] = 0x3070dd17;
-	state[3] = 0xf70e5939;
-	state[4] = 0xffc00b31;
-	state[5] = 0x68581511;
-	state[6] = 0x64f98fa7;
-	state[7] = 0xbefa4fa4;
-}
+#undef R
 
 // *************************************************************
 
 #ifdef WORD64_AVAILABLE
 
+void SHA384::InitState(HashWordType *state)
+{
+	static const word64 s[8] = {
+		W64LIT(0xcbbb9d5dc1059ed8), W64LIT(0x629a292a367cd507),
+		W64LIT(0x9159015a3070dd17), W64LIT(0x152fecd8f70e5939),
+		W64LIT(0x67332667ffc00b31), W64LIT(0x8eb44a8768581511),
+		W64LIT(0xdb0c2e0d64f98fa7), W64LIT(0x47b5481dbefa4fa4)};
+	memcpy(state, s, sizeof(s));
+}
+
 void SHA512::InitState(HashWordType *state)
 {
-	state[0] = W64LIT(0x6a09e667f3bcc908);
-	state[1] = W64LIT(0xbb67ae8584caa73b);
-	state[2] = W64LIT(0x3c6ef372fe94f82b);
-	state[3] = W64LIT(0xa54ff53a5f1d36f1);
-	state[4] = W64LIT(0x510e527fade682d1);
-	state[5] = W64LIT(0x9b05688c2b3e6c1f);
-	state[6] = W64LIT(0x1f83d9abfb41bd6b);
-	state[7] = W64LIT(0x5be0cd19137e2179);
+	static const word64 s[8] = {
+		W64LIT(0x6a09e667f3bcc908), W64LIT(0xbb67ae8584caa73b),
+		W64LIT(0x3c6ef372fe94f82b), W64LIT(0xa54ff53a5f1d36f1),
+		W64LIT(0x510e527fade682d1), W64LIT(0x9b05688c2b3e6c1f),
+		W64LIT(0x1f83d9abfb41bd6b), W64LIT(0x5be0cd19137e2179)};
+	memcpy(state, s, sizeof(s));
 }
 
-// for SHA512
-#define S0(x) (rotrFixed(x,28)^rotrFixed(x,34)^rotrFixed(x,39))
-#define S1(x) (rotrFixed(x,14)^rotrFixed(x,18)^rotrFixed(x,41))
-#define s0(x) (rotrFixed(x,1)^rotrFixed(x,8)^(x>>7))
-#define s1(x) (rotrFixed(x,19)^rotrFixed(x,61)^(x>>6))
-
-void SHA512::Transform(word64 *state, const word64 *data)
-{
-	word64 W[16];
-	word64 T[8];
-    /* Copy context->state[] to working vars */
-	memcpy(T, state, sizeof(T));
-    /* 80 operations, partially loop unrolled */
-	for (unsigned int j=0; j<80; j+=16)
-	{
-		R( 0); R( 1); R( 2); R( 3);
-		R( 4); R( 5); R( 6); R( 7);
-		R( 8); R( 9); R(10); R(11);
-		R(12); R(13); R(14); R(15);
-	}
-    /* Add the working vars back into context.state[] */
-    state[0] += a(0);
-    state[1] += b(0);
-    state[2] += c(0);
-    state[3] += d(0);
-    state[4] += e(0);
-    state[5] += f(0);
-    state[6] += g(0);
-    state[7] += h(0);
-    /* Wipe variables */
-	memset(W, 0, sizeof(W));
-	memset(T, 0, sizeof(T));
-}
-
-const word64 SHA512::K[80] = {
+CRYPTOPP_ALIGN_DATA(16) static const word64 SHA512_K[80] CRYPTOPP_SECTION_ALIGN16 = {
 	W64LIT(0x428a2f98d728ae22), W64LIT(0x7137449123ef65cd),
 	W64LIT(0xb5c0fbcfec4d3b2f), W64LIT(0xe9b5dba58189dbbc),
 	W64LIT(0x3956c25bf348b538), W64LIT(0x59f111f1b605d019),
@@ -275,16 +308,231 @@ const word64 SHA512::K[80] = {
 	W64LIT(0x5fcb6fab3ad6faec), W64LIT(0x6c44198c4a475817)
 };
 
-void SHA384::InitState(HashWordType *state)
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+// put assembly version in separate function, otherwise MSVC 2005 SP1 doesn't generate correct code for the non-assembly version
+static void CRYPTOPP_FASTCALL SHA512_SSE2_Transform(word64 *state, const word64 *data)
 {
-	state[0] = W64LIT(0xcbbb9d5dc1059ed8);
-	state[1] = W64LIT(0x629a292a367cd507);
-	state[2] = W64LIT(0x9159015a3070dd17);
-	state[3] = W64LIT(0x152fecd8f70e5939);
-	state[4] = W64LIT(0x67332667ffc00b31);
-	state[5] = W64LIT(0x8eb44a8768581511);
-	state[6] = W64LIT(0xdb0c2e0d64f98fa7);
-	state[7] = W64LIT(0x47b5481dbefa4fa4);
+#ifdef __GNUC__
+	__asm__ __volatile__
+	(
+		".intel_syntax noprefix;"
+	AS1(	push	ebx)
+	AS2(	mov		ebx, eax)
+#else
+	AS2(	lea		ebx, SHA512_K)
+#endif
+
+	AS2(	mov		eax, esp)
+	AS2(	and		esp, 0xfffffff0)
+	AS2(	sub		esp, 27*16)				// 17*16 for expanded data, 20*8 for state
+	AS1(	push	eax)
+	AS2(	xor		eax, eax)
+	AS2(	lea		edi, [esp+4+8*8])		// start at middle of state buffer. will decrement pointer each round to avoid copying
+	AS2(	lea		esi, [esp+4+20*8+8])	// 16-byte alignment, then add 8
+
+	AS2(	movq	mm4, [ecx+0*8])
+	AS2(	movq	[edi+0*8], mm4)
+	AS2(	movq	mm0, [ecx+1*8])
+	AS2(	movq	[edi+1*8], mm0)
+	AS2(	movq	mm0, [ecx+2*8])
+	AS2(	movq	[edi+2*8], mm0)
+	AS2(	movq	mm0, [ecx+3*8])
+	AS2(	movq	[edi+3*8], mm0)
+	AS2(	movq	mm5, [ecx+4*8])
+	AS2(	movq	[edi+4*8], mm5)
+	AS2(	movq	mm0, [ecx+5*8])
+	AS2(	movq	[edi+5*8], mm0)
+	AS2(	movq	mm0, [ecx+6*8])
+	AS2(	movq	[edi+6*8], mm0)
+	AS2(	movq	mm0, [ecx+7*8])
+	AS2(	movq	[edi+7*8], mm0)
+	ASJ(	jmp,	0, f)
+
+#define SSE2_S0_S1(r, a, b, c)	\
+	AS2(	movq	mm6, r)\
+	AS2(	psrlq	r, a)\
+	AS2(	movq	mm7, r)\
+	AS2(	psllq	mm6, 64-c)\
+	AS2(	pxor	mm7, mm6)\
+	AS2(	psrlq	r, b-a)\
+	AS2(	pxor	mm7, r)\
+	AS2(	psllq	mm6, c-b)\
+	AS2(	pxor	mm7, mm6)\
+	AS2(	psrlq	r, c-b)\
+	AS2(	pxor	r, mm7)\
+	AS2(	psllq	mm6, b-a)\
+	AS2(	pxor	r, mm6)
+
+#define SSE2_s0(r, a, b, c)	\
+	AS2(	movdqa	xmm6, r)\
+	AS2(	psrlq	r, a)\
+	AS2(	movdqa	xmm7, r)\
+	AS2(	psllq	xmm6, 64-c)\
+	AS2(	pxor	xmm7, xmm6)\
+	AS2(	psrlq	r, b-a)\
+	AS2(	pxor	xmm7, r)\
+	AS2(	psrlq	r, c-b)\
+	AS2(	pxor	r, xmm7)\
+	AS2(	psllq	xmm6, c-a)\
+	AS2(	pxor	r, xmm6)
+
+#define SSE2_s1(r, a, b, c)	\
+	AS2(	movdqa	xmm6, r)\
+	AS2(	psrlq	r, a)\
+	AS2(	movdqa	xmm7, r)\
+	AS2(	psllq	xmm6, 64-c)\
+	AS2(	pxor	xmm7, xmm6)\
+	AS2(	psrlq	r, b-a)\
+	AS2(	pxor	xmm7, r)\
+	AS2(	psllq	xmm6, c-b)\
+	AS2(	pxor	xmm7, xmm6)\
+	AS2(	psrlq	r, c-b)\
+	AS2(	pxor	r, xmm7)
+
+	ASL(SHA512_Round)
+	// k + w is in mm0, a is in mm4, e is in mm5
+	AS2(	paddq	mm0, [edi+7*8])		// h
+	AS2(	movq	mm2, [edi+5*8])		// f
+	AS2(	movq	mm3, [edi+6*8])		// g
+	AS2(	pxor	mm2, mm3)
+	AS2(	pand	mm2, mm5)
+	SSE2_S0_S1(mm5,14,18,41)
+	AS2(	pxor	mm2, mm3)
+	AS2(	paddq	mm0, mm2)			// h += Ch(e,f,g)
+	AS2(	paddq	mm5, mm0)			// h += S1(e)
+	AS2(	movq	mm2, [edi+1*8])		// b
+	AS2(	movq	mm1, mm2)
+	AS2(	por		mm2, mm4)
+	AS2(	pand	mm2, [edi+2*8])		// c
+	AS2(	pand	mm1, mm4)
+	AS2(	por		mm1, mm2)
+	AS2(	paddq	mm1, mm5)			// temp = h + Maj(a,b,c)
+	AS2(	paddq	mm5, [edi+3*8])		// e = d + h
+	AS2(	movq	[edi+3*8], mm5)
+	AS2(	movq	[edi+11*8], mm5)
+	SSE2_S0_S1(mm4,28,34,39)			// S0(a)
+	AS2(	paddq	mm4, mm1)			// a = temp + S0(a)
+	AS2(	movq	[edi-8], mm4)
+	AS2(	movq	[edi+7*8], mm4)
+	AS1(	ret)
+
+	// first 16 rounds
+	ASL(0)
+	AS2(	movq	mm0, [edx+eax*8])
+	AS2(	movq	[esi+eax*8], mm0)
+	AS2(	movq	[esi+eax*8+16*8], mm0)
+	AS2(	paddq	mm0, [ebx+eax*8])
+	ASC(	call,	SHA512_Round)
+	AS1(	inc		eax)
+	AS2(	sub		edi, 8)
+	AS2(	test	eax, 7)
+	ASJ(	jnz,	0, b)
+	AS2(	add		edi, 8*8)
+	AS2(	cmp		eax, 16)
+	ASJ(	jne,	0, b)
+
+	// rest of the rounds
+	AS2(	movdqu	xmm0, [esi+(16-2)*8])
+	ASL(1)
+	// data expansion, W[i-2] already in xmm0
+	AS2(	movdqu	xmm3, [esi])
+	AS2(	paddq	xmm3, [esi+(16-7)*8])
+	AS2(	movdqa	xmm2, [esi+(16-15)*8])
+	SSE2_s1(xmm0, 6, 19, 61)
+	AS2(	paddq	xmm0, xmm3)
+	SSE2_s0(xmm2, 1, 7, 8)
+	AS2(	paddq	xmm0, xmm2)
+	AS2(	movdq2q	mm0, xmm0)
+	AS2(	movhlps	xmm1, xmm0)
+	AS2(	paddq	mm0, [ebx+eax*8])
+	AS2(	movlps	[esi], xmm0)
+	AS2(	movlps	[esi+8], xmm1)
+	AS2(	movlps	[esi+8*16], xmm0)
+	AS2(	movlps	[esi+8*17], xmm1)
+	// 2 rounds
+	ASC(	call,	SHA512_Round)
+	AS2(	sub		edi, 8)
+	AS2(	movdq2q	mm0, xmm1)
+	AS2(	paddq	mm0, [ebx+eax*8+8])
+	ASC(	call,	SHA512_Round)
+	// update indices and loop
+	AS2(	add		esi, 16)
+	AS2(	add		eax, 2)
+	AS2(	sub		edi, 8)
+	AS2(	test	eax, 7)
+	ASJ(	jnz,	1, b)
+	// do housekeeping every 8 rounds
+	AS2(	mov		esi, 0xf)
+	AS2(	and		esi, eax)
+	AS2(	lea		esi, [esp+4+20*8+8+esi*8])
+	AS2(	add		edi, 8*8)
+	AS2(	cmp		eax, 80)
+	ASJ(	jne,	1, b)
+
+#define SSE2_CombineState(i)	\
+	AS2(	movq	mm0, [edi+i*8])\
+	AS2(	paddq	mm0, [ecx+i*8])\
+	AS2(	movq	[ecx+i*8], mm0)
+
+	SSE2_CombineState(0)
+	SSE2_CombineState(1)
+	SSE2_CombineState(2)
+	SSE2_CombineState(3)
+	SSE2_CombineState(4)
+	SSE2_CombineState(5)
+	SSE2_CombineState(6)
+	SSE2_CombineState(7)
+
+	AS1(	pop		esp)
+	AS1(	emms)
+
+#ifdef __GNUC__
+	AS1(	pop		ebx)
+	".att_syntax prefix;"
+		:
+		: "a" (SHA512_K), "c" (state), "d" (data)
+		: "%esi", "%edi", "memory", "cc"
+	);
+#endif
+}
+#endif	// #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+
+void SHA512::Transform(word64 *state, const word64 *data)
+{
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+	if (HasSSE2())
+		return SHA512_SSE2_Transform(state, data);
+#endif
+
+#define S0(x) (rotrFixed(x,28)^rotrFixed(x,34)^rotrFixed(x,39))
+#define S1(x) (rotrFixed(x,14)^rotrFixed(x,18)^rotrFixed(x,41))
+#define s0(x) (rotrFixed(x,1)^rotrFixed(x,8)^(x>>7))
+#define s1(x) (rotrFixed(x,19)^rotrFixed(x,61)^(x>>6))
+
+#define R(i) h(i)+=S1(e(i))+Ch(e(i),f(i),g(i))+SHA512_K[i+j]+(j?blk2(i):blk0(i));\
+	d(i)+=h(i);h(i)+=S0(a(i))+Maj(a(i),b(i),c(i))
+
+	word64 W[16];
+	word64 T[8];
+    /* Copy context->state[] to working vars */
+	memcpy(T, state, sizeof(T));
+    /* 80 operations, partially loop unrolled */
+	for (unsigned int j=0; j<80; j+=16)
+	{
+		R( 0); R( 1); R( 2); R( 3);
+		R( 4); R( 5); R( 6); R( 7);
+		R( 8); R( 9); R(10); R(11);
+		R(12); R(13); R(14); R(15);
+	}
+    /* Add the working vars back into context.state[] */
+    state[0] += a(0);
+    state[1] += b(0);
+    state[2] += c(0);
+    state[3] += d(0);
+    state[4] += e(0);
+    state[5] += f(0);
+    state[6] += g(0);
+    state[7] += h(0);
 }
 
 #endif
