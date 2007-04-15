@@ -31,14 +31,16 @@ public:
 // PKCS_DigestDecoration can be instantiated with the following
 // classes as specified in PKCS#1 v2.0 and P1363a
 class SHA1;
-class MD2;
-class MD5;
 class RIPEMD160;
 class Tiger;
 class SHA224;
 class SHA256;
 class SHA384;
 class SHA512;
+namespace Weak {
+class MD2;
+class MD5;
+}
 // end of list
 
 #ifdef CRYPTOPP_IS_DLL
