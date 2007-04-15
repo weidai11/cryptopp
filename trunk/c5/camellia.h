@@ -3,8 +3,6 @@
 
 #include "config.h"
 
-#ifdef WORD64_AVAILABLE
-
 /** \file
 */
 
@@ -30,16 +28,11 @@ class Camellia : public Camellia_Info, public BlockCipherDocumentation
 		unsigned int BlockAlignment() const {return 8;}
 
 	protected:
-		static word64 F(word64 X);
-		static void FLlayer(word64 *x, word64 K1, word64 K2);
-
 		static const byte s1[256];
-		static const byte s2[256];
-		static const byte s3[256];
-		static const byte s4[256];
+		static const word32 SP[4][256];
 
 		unsigned int m_rounds;
-		SecBlock<word64> m_key;
+		SecBlock<word32> m_key;
 	};
 
 public:
@@ -51,7 +44,5 @@ typedef Camellia::Encryption CamelliaEncryption;
 typedef Camellia::Decryption CamelliaDecryption;
 
 NAMESPACE_END
-
-#endif
 
 #endif
