@@ -5,51 +5,28 @@
 #include "bench.h"
 #include "crc.h"
 #include "adler32.h"
-#include "md2.h"
-#include "md5.h"
-#include "md5mac.h"
-#include "sha.h"
-#include "haval.h"
-#include "tiger.h"
-#include "ripemd.h"
-#include "panama.h"
-#include "whrlpool.h"
 #include "idea.h"
 #include "des.h"
-#include "rc2.h"
 #include "arc4.h"
 #include "rc5.h"
 #include "blowfish.h"
 #include "wake.h"
-#include "3way.h"
-#include "safer.h"
-#include "gost.h"
-#include "shark.h"
 #include "cast.h"
-#include "square.h"
-#include "skipjack.h"
 #include "seal.h"
 #include "rc6.h"
 #include "mars.h"
-#include "rijndael.h"
 #include "twofish.h"
 #include "serpent.h"
-#include "shacal2.h"
-#include "camellia.h"
-#include "hmac.h"
-#include "xormac.h"
+#include "skipjack.h"
 #include "cbcmac.h"
 #include "dmac.h"
-#include "ttmac.h"
+#include "aes.h"
 #include "blumshub.h"
 #include "rng.h"
 #include "files.h"
 #include "hex.h"
 #include "modes.h"
-#include "mdc.h"
-#include "lubyrack.h"
-#include "tea.h"
-#include "salsa.h"
+#include "factory.h"
 
 #include <time.h>
 #include <math.h>
@@ -67,7 +44,7 @@ const double CLOCK_TICKS_PER_SECOND = (double)CLK_TCK;
 const double CLOCK_TICKS_PER_SECOND = 1000000.0;
 #endif
 
-double logtotal = 0;
+double logtotal = 0, g_allocatedTime, g_hertz;
 unsigned int logcount = 0;
 
 static const byte *const key=(byte *)"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
@@ -75,23 +52,34 @@ static const byte *const key=(byte *)"0123456789abcdefghijklmnopqrstuvwxyzABCDEF
 void OutputResultBytes(const char *name, double length, double timeTaken)
 {
 	double mbs = length / timeTaken / (1024*1024);
-	cout << "<TR><TH>" << name;
-	cout << "<TD>" << setprecision(3) << length / (1024*1024);
+	cout << "\n<TR><TH>" << name;
+//	cout << "<TD>" << setprecision(3) << length / (1024*1024);
 	cout << setiosflags(ios::fixed);
-	cout << "<TD>" << setprecision(3) << timeTaken;
-	cout << "<TD>" << setprecision(3) << mbs << endl;
+//	cout << "<TD>" << setprecision(3) << timeTaken;
+	cout << "<TD>" << setprecision(0) << setiosflags(ios::fixed) << mbs;
+	if (g_hertz)
+		cout << "<TD>" << setprecision(1) << setiosflags(ios::fixed) << timeTaken * g_hertz / length;
 	cout << resetiosflags(ios::fixed);
 	logtotal += log(mbs);
 	logcount++;
 }
 
+void OutputResultKeying(double iterations, double timeTaken)
+{
+	cout << "<TD>" << setprecision(3) << setiosflags(ios::fixed) << (1000*1000*timeTaken/iterations);
+	if (g_hertz)
+		cout << "<TD>" << setprecision(0) << setiosflags(ios::fixed) << timeTaken * g_hertz / iterations;
+}
+
 void OutputResultOperations(const char *name, const char *operation, bool pc, unsigned long iterations, double timeTaken)
 {
-	cout << "<TR><TH>" << name << " " << operation << (pc ? " with precomputation" : "");
-	cout << "<TD>" << iterations;
-	cout << setiosflags(ios::fixed);
-	cout << "<TD>" << setprecision(3) << timeTaken;
-	cout << "<TD>" << setprecision(2) << (1000*timeTaken/iterations) << endl;
+	cout << "\n<TR><TH>" << name << " " << operation << (pc ? " with precomputation" : "");
+//	cout << "<TD>" << iterations;
+//	cout << setiosflags(ios::fixed);
+//	cout << "<TD>" << setprecision(3) << timeTaken;
+	cout << "<TD>" << setprecision(2) << setiosflags(ios::fixed) << (1000*timeTaken/iterations);
+	if (g_hertz)
+		cout << "<TD>" << setprecision(2) << setiosflags(ios::fixed) << timeTaken * g_hertz / iterations / 1000000;
 	cout << resetiosflags(ios::fixed);
 
 	logtotal += log(iterations/timeTaken);
@@ -101,7 +89,7 @@ void OutputResultOperations(const char *name, const char *operation, bool pc, un
 void BenchMark(const char *name, BlockTransformation &cipher, double timeTotal)
 {
 	const int BUF_SIZE = RoundDownToMultipleOf(1024U, cipher.OptimalNumberOfParallelBlocks() * cipher.BlockSize());
-	SecByteBlock buf(BUF_SIZE);
+	AlignedSecByteBlock buf(BUF_SIZE);
 	const int nBlocks = BUF_SIZE / cipher.BlockSize();
 	clock_t start = clock();
 
@@ -121,8 +109,8 @@ void BenchMark(const char *name, BlockTransformation &cipher, double timeTotal)
 
 void BenchMark(const char *name, StreamTransformation &cipher, double timeTotal)
 {
-	const int BUF_SIZE=1024;
-	SecByteBlock buf(BUF_SIZE);
+	const int BUF_SIZE=RoundDownToMultipleOf(1024U, cipher.OptimalBlockSize());
+	AlignedSecByteBlock buf(BUF_SIZE);
 	clock_t start = clock();
 
 	unsigned long i=0, blocks=1;
@@ -142,7 +130,7 @@ void BenchMark(const char *name, StreamTransformation &cipher, double timeTotal)
 void BenchMark(const char *name, HashTransformation &ht, double timeTotal)
 {
 	const int BUF_SIZE=1024;
-	SecByteBlock buf(BUF_SIZE);
+	AlignedSecByteBlock buf(BUF_SIZE);
 	LC_RNG rng((word32)time(NULL));
 	rng.GenerateBlock(buf, BUF_SIZE);
 	clock_t start = clock();
@@ -164,7 +152,7 @@ void BenchMark(const char *name, HashTransformation &ht, double timeTotal)
 void BenchMark(const char *name, BufferedTransformation &bt, double timeTotal)
 {
 	const int BUF_SIZE=1024;
-	SecByteBlock buf(BUF_SIZE);
+	AlignedSecByteBlock buf(BUF_SIZE);
 	LC_RNG rng((word32)time(NULL));
 	rng.GenerateBlock(buf, BUF_SIZE);
 	clock_t start = clock();
@@ -183,6 +171,23 @@ void BenchMark(const char *name, BufferedTransformation &bt, double timeTotal)
 	OutputResultBytes(name, double(blocks) * BUF_SIZE, timeTaken);
 }
 
+void BenchMarkKeying(SimpleKeyingInterface &c, unsigned int keyLength, const NameValuePairs &params)
+{
+	unsigned long iterations = 0;
+	clock_t start = clock();
+	double timeTaken;
+	do
+	{
+		for (unsigned int i=0; i<1024; i++)
+			c.SetKey(key, keyLength, params);
+		timeTaken = double(clock() - start) / CLOCK_TICKS_PER_SECOND;
+		iterations += 1024;
+	}
+	while (timeTaken < g_allocatedTime);
+
+	OutputResultKeying(iterations, timeTaken);
+}
+
 //VC60 workaround: compiler bug triggered without the extra dummy parameters
 template <class T>
 void BenchMarkKeyed(const char *name, double timeTotal, const NameValuePairs &params = g_nullNameValuePairs, T *x=NULL)
@@ -190,6 +195,7 @@ void BenchMarkKeyed(const char *name, double timeTotal, const NameValuePairs &pa
 	T c;
 	c.SetKey(key, c.DefaultKeyLength(), CombinedNameValuePairs(params, MakeParameters(Name::IV(), key, false)));
 	BenchMark(name, c, timeTotal);
+	BenchMarkKeying(c, c.DefaultKeyLength(), CombinedNameValuePairs(params, MakeParameters(Name::IV(), key, false)));
 }
 
 //VC60 workaround: compiler bug triggered without the extra dummy parameters
@@ -199,6 +205,7 @@ void BenchMarkKeyedVariable(const char *name, double timeTotal, unsigned int key
 	T c;
 	c.SetKey(key, keyLength, CombinedNameValuePairs(params, MakeParameters(Name::IV(), key, false)));
 	BenchMark(name, c, timeTotal);
+	BenchMarkKeying(c, keyLength, CombinedNameValuePairs(params, MakeParameters(Name::IV(), key, false)));
 }
 
 //VC60 workaround: compiler bug triggered without the extra dummy parameters
@@ -209,95 +216,123 @@ void BenchMarkKeyless(const char *name, double timeTotal, T *x=NULL)
 	BenchMark(name, c, timeTotal);
 }
 
-void BenchmarkAll(double t)
+//VC60 workaround: compiler bug triggered without the extra dummy parameters
+template <class T>
+void BenchMarkByName(const char *factoryName, size_t keyLength = 0, const char *displayName=NULL, const NameValuePairs &params = g_nullNameValuePairs, T *x=NULL)
+{
+	std::string name = factoryName;
+	if (displayName)
+		name = displayName;
+	else if (keyLength)
+		name += " (" + IntToString(keyLength * 8) + "-bit key)";
+
+	std::auto_ptr<T> obj(ObjectFactoryRegistry<T>::Registry().CreateObject(factoryName));
+	if (!keyLength)
+		keyLength = obj->DefaultKeyLength();
+	obj->SetKey(key, keyLength, CombinedNameValuePairs(params, MakeParameters(Name::IV(), key, false)));
+	BenchMark(name.c_str(), *obj, g_allocatedTime);
+	BenchMarkKeying(*obj, keyLength, CombinedNameValuePairs(params, MakeParameters(Name::IV(), key, false)));
+}
+
+template <class T>
+void BenchMarkByNameKeyLess(const char *factoryName, char *displayName=NULL, const NameValuePairs &params = g_nullNameValuePairs, T *x=NULL)
+{
+	std::string name = factoryName;
+	if (displayName)
+		name = displayName;
+
+	std::auto_ptr<T> obj(ObjectFactoryRegistry<T>::Registry().CreateObject(factoryName));
+	BenchMark(name.c_str(), *obj, g_allocatedTime);
+}
+
+void BenchmarkAll(double t, double hertz)
 {
 #if 1
 	logtotal = 0;
 	logcount = 0;
+	g_allocatedTime = t;
+	g_hertz = hertz;
 
-	cout << "<TABLE border=1><COLGROUP><COL align=left><COL align=right><COL align=right><COL align=right>" << endl;
-	cout << "<THEAD><TR><TH>Algorithm<TH>Megabytes(2^20 bytes) Processed<TH>Time Taken<TH>MB/Second\n<TBODY>" << endl;
+	char *cpb, *cpk;
+	if (g_hertz)
+	{
+		cpb = "<TH>Cycles Per Byte";
+		cpk = "<TH>Cycles Per Key and IV Setup";
+		cout << "CPU frequency of the test platform is " << g_hertz << " Hz.\n";
+	}
+	else
+	{
+		cpb = cpk = "";
+		cout << "CPU frequency of the test platform was not provided.\n";
+	}
 
+	cout << "<TABLE border=1><COLGROUP><COL align=left><COL align=right><COL align=right><COL align=right><COL align=right>" << endl;
+	cout << "<THEAD><TR><TH>Algorithm<TH>MiB/Second" << cpb << "<TH>Microseconds Per Key and IV Setup" << cpk << endl;
+
+	cout << "\n<TBODY style=\"background: white\">";
+	BenchMarkByName<MessageAuthenticationCode>("VMAC(AES)-64");
+	BenchMarkByName<MessageAuthenticationCode>("VMAC(AES)-128");
+	BenchMarkByName<MessageAuthenticationCode>("HMAC(SHA-1)");
+	BenchMarkByName<MessageAuthenticationCode>("Two-Track-MAC");
+	BenchMarkKeyed<CBC_MAC<AES> >("CBC-MAC/AES", t);
+	BenchMarkKeyed<DMAC<AES> >("DMAC/AES", t);
+
+	cout << "\n<TBODY style=\"background: yellow\">";
 	BenchMarkKeyless<CRC32>("CRC-32", t);
 	BenchMarkKeyless<Adler32>("Adler-32", t);
-	BenchMarkKeyless<MD2>("MD2", t);
-	BenchMarkKeyless<MD5>("MD5", t);
-	BenchMarkKeyless<SHA>("SHA-1", t);
-	BenchMarkKeyless<SHA256>("SHA-256", t);
+	BenchMarkByNameKeyLess<HashTransformation>("MD5", "MD5 (broken)");
+	BenchMarkByNameKeyLess<HashTransformation>("SHA-1");
+	BenchMarkByNameKeyLess<HashTransformation>("SHA-256");
 #ifdef WORD64_AVAILABLE
-	BenchMarkKeyless<SHA512>("SHA-512", t);
+	BenchMarkByNameKeyLess<HashTransformation>("SHA-512");
+	BenchMarkByNameKeyLess<HashTransformation>("Tiger");
+	BenchMarkByNameKeyLess<HashTransformation>("Whirlpool");
 #endif
-	BenchMarkKeyless<HAVAL3>("HAVAL (pass=3)", t);
-	BenchMarkKeyless<HAVAL4>("HAVAL (pass=4)", t);
-	BenchMarkKeyless<HAVAL5>("HAVAL (pass=5)", t);
-#ifdef WORD64_AVAILABLE
-	BenchMarkKeyless<Tiger>("Tiger", t);
-#endif
-	BenchMarkKeyless<RIPEMD160>("RIPE-MD160", t);
-	BenchMarkKeyless<RIPEMD320>("RIPE-MD320", t);
-	BenchMarkKeyless<RIPEMD128>("RIPE-MD128", t);
-	BenchMarkKeyless<RIPEMD256>("RIPE-MD256", t);
-	BenchMarkKeyless<PanamaHash<LittleEndian> >("Panama Hash (little endian)", t);
-	BenchMarkKeyless<PanamaHash<BigEndian> >("Panama Hash (big endian)", t);
-#ifdef WORD64_AVAILABLE
-	BenchMarkKeyless<Whirlpool>("Whirlpool", t);
-#endif
-	BenchMarkKeyed<MDC<MD5>::Encryption>("MDC/MD5", t);
-	BenchMarkKeyed<LR<MD5>::Encryption>("Luby-Rackoff/MD5", t);
+	BenchMarkByNameKeyLess<HashTransformation>("RIPEMD-160");
+	BenchMarkByNameKeyLess<HashTransformation>("RIPEMD-320");
+	BenchMarkByNameKeyLess<HashTransformation>("RIPEMD-128");
+	BenchMarkByNameKeyLess<HashTransformation>("RIPEMD-256");
+
+	cout << "\n<TBODY style=\"background: white\">";
+	BenchMarkByName<SymmetricCipher>("Panama-LE");
+	BenchMarkByName<SymmetricCipher>("Panama-BE");
+	BenchMarkByName<SymmetricCipher>("Salsa20");
+	BenchMarkByName<SymmetricCipher>("Salsa20", 0, "Salsa20/12", MakeParameters(Name::Rounds(), 12));
+	BenchMarkByName<SymmetricCipher>("Salsa20", 0, "Salsa20/8", MakeParameters(Name::Rounds(), 8));
+	BenchMarkByName<SymmetricCipher>("Sosemanuk");
+	BenchMarkKeyed<ARC4>("ARC4", t);
+	BenchMarkKeyed<SEAL<BigEndian>::Encryption>("SEAL-3.0-BE", t);
+	BenchMarkKeyed<SEAL<LittleEndian>::Encryption>("SEAL-3.0-LE", t);
+	BenchMarkKeyed<WAKE_OFB<BigEndian>::Encryption>("WAKE-OFB-BE", t);
+	BenchMarkKeyed<WAKE_OFB<LittleEndian>::Encryption>("WAKE-OFB-LE", t);
+
+	cout << "\n<TBODY style=\"background: yellow\">";
+	BenchMarkByName<SymmetricCipher>("AES/ECB", 16);
+	BenchMarkByName<SymmetricCipher>("AES/ECB", 24);
+	BenchMarkByName<SymmetricCipher>("AES/ECB", 32);
+	BenchMarkByName<SymmetricCipher>("AES/CTR", 16);
+	BenchMarkByName<SymmetricCipher>("AES/OFB", 16);
+	BenchMarkByName<SymmetricCipher>("AES/CFB", 16);
+	BenchMarkByName<SymmetricCipher>("AES/CBC", 16);
+	BenchMarkByName<SymmetricCipher>("Camellia/ECB", 16);
+	BenchMarkByName<SymmetricCipher>("Camellia/ECB", 32);
+	BenchMarkKeyed<Twofish::Encryption>("Twofish", t);
+	BenchMarkKeyed<Serpent::Encryption>("Serpent", t);
+	BenchMarkKeyed<CAST256::Encryption>("CAST-256", t);
+	BenchMarkKeyed<RC6::Encryption>("RC6", t);
+	BenchMarkKeyed<MARS::Encryption>("MARS", t);
+	BenchMarkByName<SymmetricCipher>("SHACAL-2/ECB", 16);
+	BenchMarkByName<SymmetricCipher>("SHACAL-2/ECB", 64);
 	BenchMarkKeyed<DES::Encryption>("DES", t);
 	BenchMarkKeyed<DES_XEX3::Encryption>("DES-XEX3", t);
 	BenchMarkKeyed<DES_EDE3::Encryption>("DES-EDE3", t);
 	BenchMarkKeyed<IDEA::Encryption>("IDEA", t);
-	BenchMarkKeyed<RC2::Encryption>("RC2", t);
 	BenchMarkKeyed<RC5::Encryption>("RC5 (r=16)", t);
 	BenchMarkKeyed<Blowfish::Encryption>("Blowfish", t);
-	BenchMarkKeyed<ThreeWayDecryption>("3-WAY", t);
-	BenchMarkKeyed<TEA::Encryption>("TEA", t);
-	BenchMarkKeyedVariable<SAFER_SK::Encryption>("SAFER (r=8)", t, 8);
-	BenchMarkKeyed<GOST::Encryption>("GOST", t);
-#ifdef WORD64_AVAILABLE
-	BenchMarkKeyed<SHARK::Encryption>("SHARK (r=6)", t);
-#endif
+	BenchMarkByName<SymmetricCipher>("TEA/ECB");
+	BenchMarkByName<SymmetricCipher>("XTEA/ECB");
 	BenchMarkKeyed<CAST128::Encryption>("CAST-128", t);
-	BenchMarkKeyed<CAST256::Encryption>("CAST-256", t);
-	BenchMarkKeyed<Square::Encryption>("Square", t);
 	BenchMarkKeyed<SKIPJACK::Encryption>("SKIPJACK", t);
-	BenchMarkKeyed<RC6::Encryption>("RC6", t);
-	BenchMarkKeyed<MARS::Encryption>("MARS", t);
-	BenchMarkKeyedVariable<Rijndael::Encryption>("Rijndael (128-bit key)", t, 16);
-	BenchMarkKeyedVariable<Rijndael::Encryption>("Rijndael (192-bit key)", t, 24);
-	BenchMarkKeyedVariable<Rijndael::Encryption>("Rijndael (256-bit key)", t, 32);
-	BenchMarkKeyedVariable<CTR_Mode<Rijndael>::Encryption>("Rijndael (128) CTR", t, 16);
-	BenchMarkKeyedVariable<OFB_Mode<Rijndael>::Encryption>("Rijndael (128) OFB", t, 16);
-	BenchMarkKeyedVariable<CFB_Mode<Rijndael>::Encryption>("Rijndael (128) CFB", t, 16);
-	BenchMarkKeyedVariable<CBC_Mode<Rijndael>::Encryption>("Rijndael (128) CBC", t, 16);
-	BenchMarkKeyed<Twofish::Encryption>("Twofish", t);
-	BenchMarkKeyed<Serpent::Encryption>("Serpent", t);
-	BenchMarkKeyed<ARC4>("ARC4", t);
-	BenchMarkKeyed<SEAL<BigEndian>::Encryption>("SEAL-3.0-BE", t);
-	BenchMarkKeyed<SEAL<LittleEndian>::Encryption>("SEAL-3.0-LE", t);
-	BenchMarkKeyed<WAKE_CFB<BigEndian>::Encryption>("WAKE-CFB-BE", t);
-	BenchMarkKeyed<WAKE_CFB<LittleEndian>::Encryption>("WAKE-CFB-LE", t);
-	BenchMarkKeyed<WAKE_OFB<BigEndian>::Encryption>("WAKE-OFB-BE", t);
-	BenchMarkKeyed<WAKE_OFB<LittleEndian>::Encryption>("WAKE-OFB-LE", t);
-	BenchMarkKeyed<PanamaCipher<LittleEndian>::Encryption>("Panama Cipher (little endian)", t);
-	BenchMarkKeyed<PanamaCipher<BigEndian>::Encryption>("Panama Cipher (big endian)", t);
-	BenchMarkKeyedVariable<SHACAL2::Encryption>("SHACAL-2 (128-bit key)", t, 16);
-	BenchMarkKeyedVariable<SHACAL2::Encryption>("SHACAL-2 (512-bit key)", t, 64);
-#ifdef WORD64_AVAILABLE
-	BenchMarkKeyedVariable<Camellia::Encryption>("Camellia (128-bit key)", t, 16);
-	BenchMarkKeyedVariable<Camellia::Encryption>("Camellia (256-bit key)", t, 32);
-#endif
-	BenchMarkKeyed<Salsa20::Encryption>("Salsa20", t);
-	BenchMarkKeyed<Salsa20::Encryption>("Salsa20/12", t, MakeParameters(Name::Rounds(), 12));
-	BenchMarkKeyed<Salsa20::Encryption>("Salsa20/8", t, MakeParameters(Name::Rounds(), 8));
-
-	BenchMarkKeyed<MD5MAC>("MD5-MAC", t);
-	BenchMarkKeyed<XMACC<MD5> >("XMACC/MD5", t);
-	BenchMarkKeyed<HMAC<MD5> >("HMAC/MD5", t);
-	BenchMarkKeyed<TTMAC>("Two-Track-MAC", t);
-	BenchMarkKeyed<CBC_MAC<Rijndael> >("CBC-MAC/Rijndael", t);
-	BenchMarkKeyed<DMAC<Rijndael> >("DMAC/Rijndael", t);
 
 	{
 		Integer p("CB6C,B8CE,6351,164F,5D0C,0C9E,9E31,E231,CF4E,D551,CBD0,E671,5D6A,7B06,D8DF,C4A7h");
@@ -340,7 +375,7 @@ void BenchmarkAll(double t)
 	}
 	cout << "</TABLE>" << endl;
 
-	BenchmarkAll2(t);
+	BenchmarkAll2(t, hertz);
 
 	cout << "Throughput Geometric Average: " << setiosflags(ios::fixed) << exp(logtotal/logcount) << endl;
 
