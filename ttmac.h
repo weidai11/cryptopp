@@ -15,8 +15,6 @@ public:
 	static std::string StaticAlgorithmName() {return std::string("Two-Track-MAC");}
 	CRYPTOPP_CONSTANT(DIGESTSIZE=20)
 
-	TTMAC_Base() {SetStateSize(DIGESTSIZE*2);}
-
 	unsigned int DigestSize() const {return DIGESTSIZE;};
 	void UncheckedSetKey(const byte *userKey, unsigned int keylength, const NameValuePairs &params);
 	void TruncatedFinal(byte *mac, size_t size);
@@ -25,8 +23,10 @@ protected:
 	static void Transform (word32 *digest, const word32 *X, bool last);
 	void HashEndianCorrectedBlock(const word32 *data) {Transform(m_digest, data, false);}
 	void Init();
+	word32* StateBuf() {return m_digest;}
 
-	FixedSizeSecBlock<word32, DIGESTSIZE> m_key;
+	FixedSizeSecBlock<word32, 10> m_digest;
+	FixedSizeSecBlock<word32, 5> m_key;
 };
 
 //! <a href="http://www.weidai.com/scan-mirror/mac.html#TTMAC">Two-Track-MAC</a>
