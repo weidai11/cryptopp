@@ -2,6 +2,7 @@
 
 #include "pch.h"
 
+#define CRYPTOPP_ENABLE_NAMESPACE_WEAK
 #include "blumshub.h"
 #include "rsa.h"
 #include "md2.h"
@@ -270,8 +271,8 @@ bool ValidateRSA()
 			"\x5c\x77\xdf\xd9\xb1\x5b\xfc\x3d\x55\x93\x53\x50\x34\x10\xc1\xe1";
 
 		FileSource keys("rsa512a.dat", true, new HexDecoder);
-		RSASSA_PKCS1v15_MD2_Signer rsaPriv(keys);
-		RSASSA_PKCS1v15_MD2_Verifier rsaPub(rsaPriv);
+		Weak::RSASSA_PKCS1v15_MD2_Signer rsaPriv(keys);
+		Weak::RSASSA_PKCS1v15_MD2_Verifier rsaPub(rsaPriv);
 
 		size_t signatureLength = rsaPriv.SignMessage(GlobalRNG(), (byte *)plain, strlen(plain), out);
 		fail = memcmp(signature, out, 64) != 0;
