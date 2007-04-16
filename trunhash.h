@@ -26,6 +26,8 @@ public:
 	TruncatedHashTemplate(size_t digestSize)
 		: m_digestSize(digestSize) {}
 
+	void Restart()
+		{m_hm.Restart();}
 	void Update(const byte *input, size_t length)
 		{m_hm.Update(input, length);}
 	unsigned int DigestSize() const {return m_digestSize;}

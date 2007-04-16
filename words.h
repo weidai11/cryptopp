@@ -20,8 +20,7 @@ inline void SetWords(word *r, word a, size_t n)
 
 inline void CopyWords(word *r, const word *a, size_t n)
 {
-	for (size_t i=0; i<n; i++)
-		r[i] = a[i];
+	memcpy(r, a, n*WORD_SIZE);
 }
 
 inline void XorWords(word *r, const word *a, const word *b, size_t n)
