@@ -24,7 +24,7 @@ class Serpent : public Serpent_Info, public BlockCipherDocumentation
 		void UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &params);
 
 	protected:
-		FixedSizeSecBlock<word32, 140> m_key;
+		FixedSizeSecBlock<word32, 33*4> m_key;
 	};
 
 	class CRYPTOPP_NO_VTABLE Enc : public Base
