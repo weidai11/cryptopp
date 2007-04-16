@@ -27,10 +27,11 @@ endif
 
 ifeq ($(ISX86),1)
 
-GCC33_OR_LATER = $(shell $(CXX) -v 2>&1 | $(EGREP) -c "gcc version (3.[3-9]|[4-9])")
+GCC33_OR_LATER = $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(GCC\) (3.[3-9]|[4-9])")
+INTEL_COMPILER = $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(ICC\)")
 GAS210_OR_LATER = $(shell echo "" | $(AS) -v 2>&1 | $(EGREP) -c "GNU assembler version (2.[1-9][0-9]|[3-9])")
 
-ifeq ($(GCC33_OR_LATER),1)
+ifneq ($(GCC33_OR_LATER) $(INTEL_COMPILER),0 0)
 CXXFLAGS += -msse2
 endif
 
