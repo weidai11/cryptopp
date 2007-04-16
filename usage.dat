@@ -12,7 +12,7 @@ Test Driver for Crypto++(R) Library, a C++ Class Library of Cryptographic Scheme
 - To verify a signature of a file using RSA
 	cryptest rv publickeyfile messagefile signaturefile
 
-- To calculate MD5, SHA, and RIPEMD-160 message digests
+- To digest a file using several hash functions in parallel
 	cryptest m file
 
 - To encrypt and decrypt a string using DES-EDE in CBC mode 
@@ -78,4 +78,4 @@ Test Driver for Crypto++(R) Library, a C++ Class Library of Cryptographic Scheme
        cryptest V
 
 - To run benchmarks
-	cryptest b [time for each benchmark in seconds]
+	cryptest b [time allocated for each benchmark in seconds] [frequency of CPU in gigahertz]
