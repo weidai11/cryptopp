@@ -413,18 +413,17 @@ inline word DWord::operator%(word a)
 #if defined(__GNUC__)
 	#define CRYPTOPP_NAKED
 	#define AddPrologue \
+		word32 result;	\
 		__asm__ __volatile__ \
 		( \
-			"push %%ebx;"	/* save this manually, in case of -fPIC */ \
-			"mov %2, %%ebx;" \
 			".intel_syntax noprefix;"
 	#define AddEpilogue \
 			".att_syntax prefix;" \
-			"pop %%ebx;" \
-					: \
-					: "d" (C), "a" (A), "m" (B), "c" (N) \
+					: "=a" (result)\
+					: "d" (C), "a" (A), "D" (B), "c" (N) \
 					: "%esi", "memory", "cc" \
-		);
+		);\
+		return result;
 	#define MulPrologue \
 		__asm__ __volatile__ \
 		( \
@@ -457,13 +456,13 @@ inline word DWord::operator%(word a)
 #else
 	#define CRYPTOPP_NAKED __declspec(naked)
 	#define AddPrologue \
-		__asm	push ebx \
+		__asm	push edi \
 		__asm	push esi \
 		__asm	mov		eax, [esp+12] \
-		__asm	mov		ebx, [esp+16]
+		__asm	mov		edi, [esp+16]
 	#define AddEpilogue \
 		__asm	pop esi \
-		__asm	pop ebx \
+		__asm	pop edi \
 		__asm	ret 8
 	#define SquPrologue					\
 		AS2(	mov		eax, A)			\
@@ -495,9 +494,9 @@ CRYPTOPP_NAKED int CRYPTOPP_FASTCALL Baseline_Add(size_t N, word *C, const word 
 {
 	AddPrologue
 
-	// now: eax = A, ebx = B, edx = C, ecx = N
+	// now: eax = A, edi = B, edx = C, ecx = N
 	AS2(	lea		eax, [eax+4*ecx])
-	AS2(	lea		ebx, [ebx+4*ecx])
+	AS2(	lea		edi, [edi+4*ecx])
 	AS2(	lea		edx, [edx+4*ecx])
 
 	AS1(	neg		ecx)				// ecx is negative index
@@ -509,17 +508,17 @@ CRYPTOPP_NAKED int CRYPTOPP_FASTCALL Baseline_Add(size_t N, word *C, const word 
 	ASL(0)
 	ASJ(	jecxz,	2, f)				// loop until ecx overflows and becomes zero
 	AS2(	mov		esi,[eax+4*ecx])
-	AS2(	adc		esi,[ebx+4*ecx])
+	AS2(	adc		esi,[edi+4*ecx])
 	AS2(	mov		[edx+4*ecx],esi)
 	AS2(	mov		esi,[eax+4*ecx+4])
-	AS2(	adc		esi,[ebx+4*ecx+4])
+	AS2(	adc		esi,[edi+4*ecx+4])
 	AS2(	mov		[edx+4*ecx+4],esi)
 	ASL(1)
 	AS2(	mov		esi,[eax+4*ecx+8])
-	AS2(	adc		esi,[ebx+4*ecx+8])
+	AS2(	adc		esi,[edi+4*ecx+8])
 	AS2(	mov		[edx+4*ecx+8],esi)
 	AS2(	mov		esi,[eax+4*ecx+12])
-	AS2(	adc		esi,[ebx+4*ecx+12])
+	AS2(	adc		esi,[edi+4*ecx+12])
 	AS2(	mov		[edx+4*ecx+12],esi)
 
 	AS2(	lea		ecx,[ecx+4])		// advance index, avoid inc which causes slowdown on Intel Core 2
@@ -536,9 +535,9 @@ CRYPTOPP_NAKED int CRYPTOPP_FASTCALL Baseline_Sub(size_t N, word *C, const word 
 {
 	AddPrologue
 
-	// now: eax = A, ebx = B, edx = C, ecx = N
+	// now: eax = A, edi = B, edx = C, ecx = N
 	AS2(	lea		eax, [eax+4*ecx])
-	AS2(	lea		ebx, [ebx+4*ecx])
+	AS2(	lea		edi, [edi+4*ecx])
 	AS2(	lea		edx, [edx+4*ecx])
 
 	AS1(	neg		ecx)				// ecx is negative index
@@ -550,17 +549,17 @@ CRYPTOPP_NAKED int CRYPTOPP_FASTCALL Baseline_Sub(size_t N, word *C, const word 
 	ASL(0)
 	ASJ(	jecxz,	2, f)				// loop until ecx overflows and becomes zero
 	AS2(	mov		esi,[eax+4*ecx])
-	AS2(	sbb		esi,[ebx+4*ecx])
+	AS2(	sbb		esi,[edi+4*ecx])
 	AS2(	mov		[edx+4*ecx],esi)
 	AS2(	mov		esi,[eax+4*ecx+4])
-	AS2(	sbb		esi,[ebx+4*ecx+4])
+	AS2(	sbb		esi,[edi+4*ecx+4])
 	AS2(	mov		[edx+4*ecx+4],esi)
 	ASL(1)
 	AS2(	mov		esi,[eax+4*ecx+8])
-	AS2(	sbb		esi,[ebx+4*ecx+8])
+	AS2(	sbb		esi,[edi+4*ecx+8])
 	AS2(	mov		[edx+4*ecx+8],esi)
 	AS2(	mov		esi,[eax+4*ecx+12])
-	AS2(	sbb		esi,[ebx+4*ecx+12])
+	AS2(	sbb		esi,[edi+4*ecx+12])
 	AS2(	mov		[edx+4*ecx+12],esi)
 
 	AS2(	lea		ecx,[ecx+4])		// advance index, avoid inc which causes slowdown on Intel Core 2
@@ -573,13 +572,14 @@ CRYPTOPP_NAKED int CRYPTOPP_FASTCALL Baseline_Sub(size_t N, word *C, const word 
 	AddEpilogue
 }
 
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
 CRYPTOPP_NAKED int CRYPTOPP_FASTCALL SSE2_Add(size_t N, word *C, const word *A, const word *B)
 {
 	AddPrologue
 
-	// now: eax = A, ebx = B, edx = C, ecx = N
+	// now: eax = A, edi = B, edx = C, ecx = N
 	AS2(	lea		eax, [eax+4*ecx])
-	AS2(	lea		ebx, [ebx+4*ecx])
+	AS2(	lea		edi, [edi+4*ecx])
 	AS2(	lea		edx, [edx+4*ecx])
 
 	AS1(	neg		ecx)				// ecx is negative index
@@ -592,14 +592,14 @@ CRYPTOPP_NAKED int CRYPTOPP_FASTCALL SSE2_Add(size_t N, word *C, const word *A, 
 
 	ASL(0)
 	AS2(	movd     mm0, DWORD PTR [eax+4*ecx])
-	AS2(	movd     mm1, DWORD PTR [ebx+4*ecx])
+	AS2(	movd     mm1, DWORD PTR [edi+4*ecx])
 	AS2(	paddq    mm0, mm1)
 	AS2(	paddq	 mm2, mm0)
 	AS2(	movd	 DWORD PTR [edx+4*ecx], mm2)
 	AS2(	psrlq    mm2, 32)
 
 	AS2(	movd     mm0, DWORD PTR [eax+4*ecx+4])
-	AS2(	movd     mm1, DWORD PTR [ebx+4*ecx+4])
+	AS2(	movd     mm1, DWORD PTR [edi+4*ecx+4])
 	AS2(	paddq    mm0, mm1)
 	AS2(	paddq	 mm2, mm0)
 	AS2(	movd	 DWORD PTR [edx+4*ecx+4], mm2)
@@ -607,14 +607,14 @@ CRYPTOPP_NAKED int CRYPTOPP_FASTCALL SSE2_Add(size_t N, word *C, const word *A, 
 
 	ASL(1)
 	AS2(	movd     mm0, DWORD PTR [eax+4*ecx+8])
-	AS2(	movd     mm1, DWORD PTR [ebx+4*ecx+8])
+	AS2(	movd     mm1, DWORD PTR [edi+4*ecx+8])
 	AS2(	paddq    mm0, mm1)
 	AS2(	paddq	 mm2, mm0)
 	AS2(	movd	 DWORD PTR [edx+4*ecx+8], mm2)
 	AS2(	psrlq    mm2, 32)
 
 	AS2(	movd     mm0, DWORD PTR [eax+4*ecx+12])
-	AS2(	movd     mm1, DWORD PTR [ebx+4*ecx+12])
+	AS2(	movd     mm1, DWORD PTR [edi+4*ecx+12])
 	AS2(	paddq    mm0, mm1)
 	AS2(	paddq	 mm2, mm0)
 	AS2(	movd	 DWORD PTR [edx+4*ecx+12], mm2)
@@ -629,14 +629,13 @@ CRYPTOPP_NAKED int CRYPTOPP_FASTCALL SSE2_Add(size_t N, word *C, const word *A, 
 
 	AddEpilogue
 }
-
 CRYPTOPP_NAKED int CRYPTOPP_FASTCALL SSE2_Sub(size_t N, word *C, const word *A, const word *B)
 {
 	AddPrologue
 
-	// now: eax = A, ebx = B, edx = C, ecx = N
+	// now: eax = A, edi = B, edx = C, ecx = N
 	AS2(	lea		eax, [eax+4*ecx])
-	AS2(	lea		ebx, [ebx+4*ecx])
+	AS2(	lea		edi, [edi+4*ecx])
 	AS2(	lea		edx, [edx+4*ecx])
 
 	AS1(	neg		ecx)				// ecx is negative index
@@ -649,14 +648,14 @@ CRYPTOPP_NAKED int CRYPTOPP_FASTCALL SSE2_Sub(size_t N, word *C, const word *A, 
 
 	ASL(0)
 	AS2(	movd     mm0, DWORD PTR [eax+4*ecx])
-	AS2(	movd     mm1, DWORD PTR [ebx+4*ecx])
+	AS2(	movd     mm1, DWORD PTR [edi+4*ecx])
 	AS2(	psubq    mm0, mm1)
 	AS2(	psubq	 mm0, mm2)
 	AS2(	movd	 DWORD PTR [edx+4*ecx], mm0)
 	AS2(	psrlq    mm0, 63)
 
 	AS2(	movd     mm2, DWORD PTR [eax+4*ecx+4])
-	AS2(	movd     mm1, DWORD PTR [ebx+4*ecx+4])
+	AS2(	movd     mm1, DWORD PTR [edi+4*ecx+4])
 	AS2(	psubq    mm2, mm1)
 	AS2(	psubq	 mm2, mm0)
 	AS2(	movd	 DWORD PTR [edx+4*ecx+4], mm2)
@@ -664,14 +663,14 @@ CRYPTOPP_NAKED int CRYPTOPP_FASTCALL SSE2_Sub(size_t N, word *C, const word *A, 
 
 	ASL(1)
 	AS2(	movd     mm0, DWORD PTR [eax+4*ecx+8])
-	AS2(	movd     mm1, DWORD PTR [ebx+4*ecx+8])
+	AS2(	movd     mm1, DWORD PTR [edi+4*ecx+8])
 	AS2(	psubq    mm0, mm1)
 	AS2(	psubq	 mm0, mm2)
 	AS2(	movd	 DWORD PTR [edx+4*ecx+8], mm0)
 	AS2(	psrlq    mm0, 63)
 
 	AS2(	movd     mm2, DWORD PTR [eax+4*ecx+12])
-	AS2(	movd     mm1, DWORD PTR [ebx+4*ecx+12])
+	AS2(	movd     mm1, DWORD PTR [edi+4*ecx+12])
 	AS2(	psubq    mm2, mm1)
 	AS2(	psubq	 mm2, mm0)
 	AS2(	movd	 DWORD PTR [edx+4*ecx+12], mm2)
@@ -686,6 +685,7 @@ CRYPTOPP_NAKED int CRYPTOPP_FASTCALL SSE2_Sub(size_t N, word *C, const word *A, 
 
 	AddEpilogue
 }
+#endif	// #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
 #else
 int CRYPTOPP_FASTCALL Baseline_Add(size_t N, word *C, const word *A, const word *B)
 {
