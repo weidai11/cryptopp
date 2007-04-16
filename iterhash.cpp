@@ -19,15 +19,17 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte
 	if (m_countHi < oldCountHi || SafeRightShift<2*8*sizeof(HashWordType)>(len) != 0)
 		throw HashInputTooLong(this->AlgorithmName());
 
-	unsigned int blockSize = BlockSize();
+	unsigned int blockSize = this->BlockSize();
 	unsigned int num = ModPowerOf2(oldCountLo, blockSize);
+	T* dataBuf = this->DataBuf();
+	byte* data = (byte *)dataBuf;
 
 	if (num != 0)	// process left over data
 	{
 		if ((num+len) >= blockSize)
 		{
-			memcpy((byte *)m_data.begin()+num, input, blockSize-num);
-			HashBlock(m_data);
+			memcpy(data+num, input, blockSize-num);
+			HashBlock(dataBuf);
 			input += (blockSize-num);
 			len-=(blockSize - num);
 			num=0;
@@ -35,7 +37,7 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte
 		}
 		else
 		{
-			memcpy((byte *)m_data.begin()+num, input, len);
+			memcpy(data+num, input, len);
 			return;
 		}
 	}
@@ -43,10 +45,10 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte
 	// now process the input data in blocks of blockSize bytes and save the leftovers to m_data
 	if (len >= blockSize)
 	{
-		if (input == (byte *)m_data.begin())
+		if (input == data)
 		{
 			assert(len == blockSize);
-			HashBlock(m_data);
+			HashBlock(dataBuf);
 			return;
 		}
 		else if (IsAligned<T>(input))
@@ -58,36 +60,37 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte
 		else
 			do
 			{   // copy input first if it's not aligned correctly
-				memcpy(m_data, input, blockSize);
-				HashBlock(m_data);
+				memcpy(data, input, blockSize);
+				HashBlock(dataBuf);
 				input+=blockSize;
 				len-=blockSize;
 			} while (len >= blockSize);
 	}
 
-	memcpy(m_data, input, len);
+	memcpy(data, input, len);
 }
 
 template <class T, class BASE> byte * IteratedHashBase<T, BASE>::CreateUpdateSpace(size_t &size)
 {
-	unsigned int blockSize = BlockSize();
+	unsigned int blockSize = this->BlockSize();
 	unsigned int num = ModPowerOf2(m_countLo, blockSize);
 	size = blockSize - num;
-	return (byte *)m_data.begin() + num;
+	return (byte *)DataBuf() + num;
 }
 
 template <class T, class BASE> size_t IteratedHashBase<T, BASE>::HashMultipleBlocks(const T *input, size_t length)
 {
-	unsigned int blockSize = BlockSize();
-	bool noReverse = NativeByteOrderIs(GetByteOrder());
+	unsigned int blockSize = this->BlockSize();
+	bool noReverse = NativeByteOrderIs(this->GetByteOrder());
+	T* dataBuf = this->DataBuf();
 	do
 	{
 		if (noReverse)
-			HashEndianCorrectedBlock(input);
+			this->HashEndianCorrectedBlock(input);
 		else
 		{
-			ByteReverse(this->m_data.begin(), input, this->BlockSize());
-			HashEndianCorrectedBlock(this->m_data);
+			ByteReverse(dataBuf, input, this->BlockSize());
+			this->HashEndianCorrectedBlock(dataBuf);
 		}
 
 		input += blockSize/sizeof(T);
@@ -99,16 +102,18 @@ template <class T, class BASE> size_t IteratedHashBase<T, BASE>::HashMultipleBlo
 
 template <class T, class BASE> void IteratedHashBase<T, BASE>::PadLastBlock(unsigned int lastBlockSize, byte padFirst)
 {
-	unsigned int blockSize = BlockSize();
+	unsigned int blockSize = this->BlockSize();
 	unsigned int num = ModPowerOf2(m_countLo, blockSize);
-	((byte *)m_data.begin())[num++]=padFirst;
+	T* dataBuf = this->DataBuf();
+	byte* data = (byte *)dataBuf;
+	data[num++] = padFirst;
 	if (num <= lastBlockSize)
-		memset((byte *)m_data.begin()+num, 0, lastBlockSize-num);
+		memset(data+num, 0, lastBlockSize-num);
 	else
 	{
-		memset((byte *)m_data.begin()+num, 0, blockSize-num);
-		HashBlock(m_data);
-		memset(m_data, 0, lastBlockSize);
+		memset(data+num, 0, blockSize-num);
+		HashBlock(dataBuf);
+		memset(data, 0, lastBlockSize);
 	}
 }
 
@@ -122,16 +127,20 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::TruncatedFinal(by
 {
 	this->ThrowIfInvalidTruncatedSize(size);
 
-	PadLastBlock(this->BlockSize() - 2*sizeof(HashWordType));
+	T* dataBuf = this->DataBuf();
+	T* stateBuf = this->StateBuf();
+	unsigned int blockSize = this->BlockSize();
 	ByteOrder order = this->GetByteOrder();
-	ConditionalByteReverse<HashWordType>(order, this->m_data, this->m_data, this->BlockSize() - 2*sizeof(HashWordType));
 
-	this->m_data[this->m_data.size()-2] = order ? this->GetBitCountHi() : this->GetBitCountLo();
-	this->m_data[this->m_data.size()-1] = order ? this->GetBitCountLo() : this->GetBitCountHi();
+	PadLastBlock(blockSize - 2*sizeof(HashWordType));
+	ConditionalByteReverse<HashWordType>(order, dataBuf, dataBuf, blockSize - 2*sizeof(HashWordType));
 
-	HashEndianCorrectedBlock(this->m_data);
-	ConditionalByteReverse<HashWordType>(order, this->m_digest, this->m_digest, this->DigestSize());
-	memcpy(digest, this->m_digest, size);
+	dataBuf[blockSize/sizeof(T)-2] = order ? this->GetBitCountHi() : this->GetBitCountLo();
+	dataBuf[blockSize/sizeof(T)-1] = order ? this->GetBitCountLo() : this->GetBitCountHi();
+
+	HashEndianCorrectedBlock(dataBuf);
+	ConditionalByteReverse<HashWordType>(order, stateBuf, stateBuf, this->DigestSize());
+	memcpy(digest, stateBuf, size);
 
 	this->Restart();		// reinit for next use
 }

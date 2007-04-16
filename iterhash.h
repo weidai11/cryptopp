@@ -24,20 +24,16 @@ public:
 	typedef T HashWordType;
 
 	IteratedHashBase() : m_countLo(0), m_countHi(0) {}
-	unsigned int BlockSize() const {return (unsigned int)m_data.size() * sizeof(T);}
-	unsigned int OptimalBlockSize() const {return BlockSize();}
-	unsigned int OptimalDataAlignment() const {return sizeof(T);}
+	unsigned int OptimalBlockSize() const {return this->BlockSize();}
+	unsigned int OptimalDataAlignment() const {return GetAlignmentOf<T>();}
 	void Update(const byte *input, size_t length);
 	byte * CreateUpdateSpace(size_t &size);
 	void Restart();
 	void TruncatedFinal(byte *digest, size_t size);
 
 protected:
-	void SetBlockSize(unsigned int blockSize) {m_data.resize(blockSize / sizeof(HashWordType));}
-	void SetStateSize(unsigned int stateSize) {m_digest.resize(stateSize / sizeof(HashWordType));}
-
-	T GetBitCountHi() const {return (m_countLo >> (8*sizeof(T)-3)) + (m_countHi << 3);}
-	T GetBitCountLo() const {return m_countLo << 3;}
+	inline T GetBitCountHi() const {return (m_countLo >> (8*sizeof(T)-3)) + (m_countHi << 3);}
+	inline T GetBitCountLo() const {return m_countLo << 3;}
 
 	void PadLastBlock(unsigned int lastBlockSize, byte padFirst=0x80);
 	virtual void Init() =0;
@@ -45,10 +41,10 @@ protected:
 	virtual ByteOrder GetByteOrder() const =0;
 	virtual void HashEndianCorrectedBlock(const HashWordType *data) =0;
 	virtual size_t HashMultipleBlocks(const T *input, size_t length);
-	void HashBlock(const HashWordType *input) {HashMultipleBlocks(input, BlockSize());}
+	void HashBlock(const HashWordType *input) {HashMultipleBlocks(input, this->BlockSize());}
 
-	SecBlock<T> m_data;			// Data buffer
-	SecBlock<T> m_digest;		// Message digest
+	virtual T* DataBuf() =0;
+	virtual T* StateBuf() =0;
 
 private:
 	T m_countLo, m_countHi;
@@ -65,6 +61,7 @@ public:
 	CRYPTOPP_CONSTANT(BLOCKSIZE = T_BlockSize)
 	// BCB2006 workaround: can't use BLOCKSIZE here
 	CRYPTOPP_COMPILE_ASSERT((T_BlockSize & (T_BlockSize - 1)) == 0);	// blockSize is a power of 2
+	unsigned int BlockSize() const {return T_BlockSize;}
 
 	ByteOrder GetByteOrder() const {return T_Endianness::ToEnum();}
 
@@ -74,7 +71,8 @@ public:
 	}
 
 protected:
-	IteratedHash() {this->SetBlockSize(T_BlockSize);}
+	T_HashWordType* DataBuf() {return this->m_data;}
+	FixedSizeSecBlock<T_HashWordType, T_BlockSize/sizeof(T_HashWordType)> m_data;
 };
 
 //! _
@@ -87,13 +85,12 @@ public:
 	unsigned int DigestSize() const {return DIGESTSIZE;};
 
 protected:
-	IteratedHashWithStaticTransform()
-	{
-		this->SetStateSize(T_StateSize);
-		Init();
-	}
-	void HashEndianCorrectedBlock(const T_HashWordType *data) {T_Transform::Transform(this->m_digest, data);}
-	void Init() {T_Transform::InitState(this->m_digest);}
+	IteratedHashWithStaticTransform() {this->Init();}
+	void HashEndianCorrectedBlock(const T_HashWordType *data) {T_Transform::Transform(this->m_state, data);}
+	void Init() {T_Transform::InitState(this->m_state);}
+
+	T_HashWordType* StateBuf() {return this->m_state;}
+	FixedSizeSecBlock<T_HashWordType, T_BlockSize/sizeof(T_HashWordType)> m_state;
 };
 
 NAMESPACE_END
