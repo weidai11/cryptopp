@@ -8,6 +8,12 @@
 #include <string.h>		// CodeWarrior doesn't have memory.h
 #include <assert.h>
 
+#if defined(CRYPTOPP_MEMALIGN_AVAILABLE) || defined(CRYPTOPP_MM_MALLOC_AVAILABLE)
+	#include <malloc.h>
+#else
+	#include <stdlib.h>
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 // ************** secure memory allocation ***************
@@ -83,7 +89,7 @@ typename A::pointer StandardReallocate(A& a, T *p, typename A::size_type oldSize
 #pragma warning(pop)
 #endif
 
-template <class T>
+template <class T, bool T_Align16 = false>
 class AllocatorWithCleanup : public AllocatorBase<T>
 {
 public:
@@ -94,12 +100,59 @@ public:
 		CheckSize(n);
 		if (n == 0)
 			return NULL;
+
+		if (T_Align16 && n*sizeof(T) >= 16)
+		{
+			byte *p;
+		#ifdef CRYPTOPP_MM_MALLOC_AVAILABLE
+			while (!(p = (byte *)_mm_malloc(sizeof(T)*n, 16)))
+		#elif defined(CRYPTOPP_MEMALIGN_AVAILABLE)
+			while (!(p = (byte *)memalign(16, sizeof(T)*n)))
+		#elif defined(CRYPTOPP_MALLOC_ALIGNMENT_IS_16)
+			while (!(p = (byte *)malloc(sizeof(T)*n)))
+		#else
+			while (!(p = (byte *)malloc(sizeof(T)*n + 16)))
+		#endif
+				CallNewHandler();
+
+		#ifdef CRYPTOPP_NO_ALIGNED_ALLOC
+			assert(IsAlignedOn(p, 8));
+			if (IsAlignedOn(p, 16))
+			{
+				p += 16/sizeof(T);
+				((int *)p)[-1] = 16;
+			}
+			else
+			{
+				p += 8/sizeof(T);
+				((int *)p)[-1] = 8;
+			}
+		#endif
+
+			assert(IsAlignedOn(p, 16));
+			return (T*)p;
+		}
+
 		return new T[n];
 	}
 
 	void deallocate(void *p, size_type n)
 	{
 		memset(p, 0, n*sizeof(T));
+
+		if (T_Align16 && n*sizeof(T) >= 16)
+		{
+		#ifdef CRYPTOPP_MM_MALLOC_AVAILABLE
+			_mm_free(p);
+		#elif defined(CRYPTOPP_NO_ALIGNED_ALLOC)
+			p = ((byte *)p) - ((int *)p)[-1]/sizeof(T);
+			free(p);
+		#else
+			free(p);
+		#endif
+			return;
+		}
+
 		delete [] (T *)p;
 	}
 
@@ -110,12 +163,14 @@ public:
 
 	// VS.NET STL enforces the policy of "All STL-compliant allocators have to provide a
 	// template class member called rebind".
-    template <class U> struct rebind { typedef AllocatorWithCleanup<U> other; };
+    template <class U> struct rebind { typedef AllocatorWithCleanup<U, T_Align16> other; };
 };
 
 CRYPTOPP_DLL_TEMPLATE_CLASS AllocatorWithCleanup<byte>;
 CRYPTOPP_DLL_TEMPLATE_CLASS AllocatorWithCleanup<word16>;
 CRYPTOPP_DLL_TEMPLATE_CLASS AllocatorWithCleanup<word32>;
+CRYPTOPP_DLL_TEMPLATE_CLASS AllocatorWithCleanup<word64>;
+CRYPTOPP_DLL_TEMPLATE_CLASS AllocatorWithCleanup<word, CRYPTOPP_BOOL_X86>;	// for Integer
 
 template <class T>
 class NullAllocator : public AllocatorBase<T>
@@ -140,7 +195,7 @@ public:
 // This allocator can't be used with standard collections because
 // they require that all objects of the same allocator type are equivalent.
 // So this is for use with SecBlock only.
-template <class T, size_t S, class A = NullAllocator<T> >
+template <class T, size_t S, class A = NullAllocator<T>, bool T_Align16 = false>
 class FixedSizeAllocatorWithCleanup : public AllocatorBase<T>
 {
 public:
@@ -150,10 +205,12 @@ public:
 
 	pointer allocate(size_type n)
 	{
+		assert(IsAlignedOn(m_array, 8));
+
 		if (n <= S && !m_allocated)
 		{
 			m_allocated = true;
-			return m_array;
+			return GetAlignedArray();
 		}
 		else
 			return m_fallbackAllocator.allocate(n);
@@ -164,7 +221,7 @@ public:
 		if (n <= S && !m_allocated)
 		{
 			m_allocated = true;
-			return m_array;
+			return GetAlignedArray();
 		}
 		else
 			return m_fallbackAllocator.allocate(n, hint);
@@ -172,7 +229,7 @@ public:
 
 	void deallocate(void *p, size_type n)
 	{
-		if (p == m_array)
+		if (p == GetAlignedArray())
 		{
 			assert(n <= S);
 			assert(m_allocated);
@@ -185,7 +242,7 @@ public:
 
 	pointer reallocate(pointer p, size_type oldSize, size_type newSize, bool preserve)
 	{
-		if (p == m_array && newSize <= S)
+		if (p == GetAlignedArray() && newSize <= S)
 		{
 			assert(oldSize <= S);
 			if (oldSize > newSize)
@@ -203,7 +260,9 @@ public:
 	size_type max_size() const {return STDMAX(m_fallbackAllocator.max_size(), S);}
 
 private:
-	T m_array[S];
+	T* GetAlignedArray() {return T_Align16 ? (T*)(((byte *)m_array) + (0-(unsigned int)m_array)%16) : m_array;}
+
+	CRYPTOPP_ALIGN_DATA(8) T m_array[T_Align16 ? S+8/sizeof(T) : S];
 	A m_fallbackAllocator;
 	bool m_allocated;
 };
@@ -274,14 +333,18 @@ public:
 	size_type size() const {return m_size;}
 	bool empty() const {return m_size == 0;}
 
+	byte * BytePtr() {return (byte *)m_ptr;}
+	const byte * BytePtr() const {return (const byte *)m_ptr;}
 	size_type SizeInBytes() const {return m_size*sizeof(T);}
 
+	//! set contents and size
 	void Assign(const T *t, size_type len)
 	{
 		New(len);
 		memcpy_s(m_ptr, m_size*sizeof(T), t, len*sizeof(T));
 	}
 
+	//! copy contents and size from another SecBlock
 	void Assign(const SecBlock<T, A> &t)
 	{
 		New(t.m_size);
@@ -294,6 +357,7 @@ public:
 		return *this;
 	}
 
+	// append to this object
 	SecBlock<T, A>& operator+=(const SecBlock<T, A> &t)
 	{
 		size_type oldSize = m_size;
@@ -302,6 +366,7 @@ public:
 		return *this;
 	}
 
+	// append operator
 	SecBlock<T, A> operator+(const SecBlock<T, A> &t)
 	{
 		SecBlock<T, A> result(m_size+t.m_size);
@@ -320,18 +385,21 @@ public:
 		return !operator==(t);
 	}
 
+	//! change size, without preserving contents
 	void New(size_type newSize)
 	{
 		m_ptr = m_alloc.reallocate(m_ptr, m_size, newSize, false);
 		m_size = newSize;
 	}
 
+	//! change size and set contents to 0
 	void CleanNew(size_type newSize)
 	{
 		New(newSize);
 		memset(m_ptr, 0, m_size*sizeof(T));
 	}
 
+	//! change size only if newSize > current size. contents are preserved
 	void Grow(size_type newSize)
 	{
 		if (newSize > m_size)
@@ -341,6 +409,7 @@ public:
 		}
 	}
 
+	//! change size only if newSize > current size. contents are preserved and additional area is set to 0
 	void CleanGrow(size_type newSize)
 	{
 		if (newSize > m_size)
@@ -351,12 +420,14 @@ public:
 		}
 	}
 
+	//! change size and preserve contents
 	void resize(size_type newSize)
 	{
 		m_ptr = m_alloc.reallocate(m_ptr, m_size, newSize, true);
 		m_size = newSize;
 	}
 
+	//! swap contents and size with another SecBlock
 	void swap(SecBlock<T, A> &b)
 	{
 		std::swap(m_alloc, b.m_alloc);
@@ -371,8 +442,10 @@ public:
 };
 
 typedef SecBlock<byte> SecByteBlock;
+typedef SecBlock<byte, AllocatorWithCleanup<byte, CRYPTOPP_BOOL_X86 | CRYPTOPP_BOOL_X64> > AlignedSecByteBlock;
 typedef SecBlock<word> SecWordBlock;
 
+//! a SecBlock with fixed size, allocated statically
 template <class T, unsigned int S, class A = FixedSizeAllocatorWithCleanup<T, S> >
 class FixedSizeSecBlock : public SecBlock<T, A>
 {
@@ -380,6 +453,12 @@ public:
 	explicit FixedSizeSecBlock() : SecBlock<T, A>(S) {}
 };
 
+template <class T, unsigned int S, bool T_Align16 = CRYPTOPP_BOOL_X86 | CRYPTOPP_BOOL_X64>
+class FixedSizeAlignedSecBlock : public FixedSizeSecBlock<T, S, FixedSizeAllocatorWithCleanup<T, S, NullAllocator<word32>, T_Align16> >
+{
+};
+
+//! a SecBlock that preallocates size S statically, and uses the heap when this size is exceeded
 template <class T, unsigned int S, class A = FixedSizeAllocatorWithCleanup<T, S, AllocatorWithCleanup<T> > >
 class SecBlockWithHint : public SecBlock<T, A>
 {
