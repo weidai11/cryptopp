@@ -87,6 +87,7 @@ protected:
 	byte * GetRegisterBegin() {return m_register + BlockSize() - m_feedbackSize;}
 	void TransformRegister()
 	{
+		assert(m_cipher->IsForwardTransformation());	// CFB mode needs the "encrypt" direction of the underlying block cipher, even to decrypt
 		m_cipher->ProcessBlock(m_register, m_temp);
 		unsigned int updateSize = BlockSize()-m_feedbackSize;
 		memmove_s(m_register, m_register.size(), m_register+m_feedbackSize, updateSize);
@@ -125,7 +126,7 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE OFB_ModePolicy : public ModePolicyCommonTe
 {
 public:
 	bool IsRandomAccess() const {return false;}
-	IV_Requirement IVRequirement() const {return STRUCTURED_IV;}
+	IV_Requirement IVRequirement() const {return UNIQUE_IV;}
 	static const char * CRYPTOPP_API StaticAlgorithmName() {return "OFB";}
 
 private:
@@ -134,6 +135,7 @@ private:
 	void WriteKeystream(byte *keystreamBuffer, size_t iterationCount)
 	{
 		assert(iterationCount == 1);
+		assert(m_cipher->IsForwardTransformation());	// OFB mode needs the "encrypt" direction of the underlying block cipher, even to decrypt
 		m_cipher->ProcessBlock(keystreamBuffer);
 		memcpy_s(m_register, m_register.size(), keystreamBuffer, BlockSize());
 	}
@@ -147,7 +149,7 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CTR_ModePolicy : public ModePolicyCommonTe
 {
 public:
 	bool IsRandomAccess() const {return true;}
-	IV_Requirement IVRequirement() const {return STRUCTURED_IV;}
+	IV_Requirement IVRequirement() const {return UNIQUE_IV;}
 	void CipherGetNextIV(byte *IV);
 	static const char * CRYPTOPP_API StaticAlgorithmName() {return "CTR";}
 
@@ -192,6 +194,8 @@ protected:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE ECB_OneWay : public BlockOrientedCipherModeBase
 {
 public:
+	void SetKey(const byte *key, size_t length, const NameValuePairs &params = g_nullNameValuePairs)
+		{m_cipher->SetKey(key, length, params); BlockOrientedCipherModeBase::ResizeBuffers();}
 	IV_Requirement IVRequirement() const {return NOT_RESYNCHRONIZABLE;}
 	unsigned int OptimalBlockSize() const {return BlockSize() * m_cipher->OptimalNumberOfParallelBlocks();}
 	void ProcessBlocks(byte *outString, const byte *inString, size_t numberOfBlocks)

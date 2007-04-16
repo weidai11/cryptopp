@@ -61,6 +61,7 @@ inline void CTR_ModePolicy::ProcessMultipleBlocks(byte *output, const byte *inpu
 
 void CTR_ModePolicy::OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount)
 {
+	assert(m_cipher->IsForwardTransformation());	// CTR mode needs the "encrypt" direction of the underlying block cipher, even to decrypt
 	unsigned int maxBlocks = m_cipher->OptimalNumberOfParallelBlocks();
 	if (maxBlocks == 1)
 	{
