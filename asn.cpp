@@ -550,7 +550,7 @@ void PKCS8PrivateKey::BERDecode(BufferedTransformation &bt)
 
 		BERSequenceDecoder algorithm(privateKeyInfo);
 			GetAlgorithmID().BERDecodeAndCheck(algorithm);
-			bool parametersPresent = BERDecodeAlgorithmParameters(algorithm);
+			bool parametersPresent = algorithm.EndReached() ? false : BERDecodeAlgorithmParameters(algorithm);
 		algorithm.MessageEnd();
 
 		BERGeneralDecoder octetString(privateKeyInfo, OCTET_STRING);
