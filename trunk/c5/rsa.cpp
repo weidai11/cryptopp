@@ -225,7 +225,7 @@ Integer InvertibleRSAFunction::CalculateInverse(RandomNumberGenerator &rng, cons
 	DoQuickSanityCheck();
 	ModularArithmetic modn(m_n);
 	Integer r, rInv;
-	do {	// do this loop for people using small numbers for testing
+	do {	// do this in a loop for people using small numbers for testing
 		r.Randomize(rng, Integer::One(), m_n - Integer::One());
 		rInv = modn.MultiplicativeInverse(r);
 	} while (rInv.IsZero());
