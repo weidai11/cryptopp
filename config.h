@@ -186,8 +186,10 @@ NAMESPACE_END
 #ifndef CRYPTOPP_ALIGN_DATA
 	#if defined(CRYPTOPP_MSVC6PP_OR_LATER)
 		#define CRYPTOPP_ALIGN_DATA(x) __declspec(align(x))
-	#elif defined(__GNUC__)
+	#elif defined(__GNUC__) || __SUNPRO_CC > 0x580
 		#define CRYPTOPP_ALIGN_DATA(x) __attribute__((aligned(x)))
+	#else
+		#define CRYPTOPP_ALIGN_DATA(x)
 	#endif
 #endif
 
@@ -323,7 +325,8 @@ NAMESPACE_END
 	#define CRYPTOPP_BOOL_X64 0
 #endif
 
-#if defined(_M_IX86) || defined(__i386__)
+// see http://predef.sourceforge.net/prearch.html
+#if defined(_M_IX86) || defined(__i386__) || defined(__i386) || defined(_X86_) || defined(__I86__) || defined(__INTEL__)
 	#define CRYPTOPP_BOOL_X86 1
 #else
 	#define CRYPTOPP_BOOL_X86 0

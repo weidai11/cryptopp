@@ -6,7 +6,9 @@
 #include "argnames.h"
 #include "cpu.h"
 
+#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
 #include <emmintrin.h>
+#endif
 
 NAMESPACE_BEGIN(CryptoPP)
 

@@ -692,6 +692,7 @@ int CRYPTOPP_FASTCALL Baseline_Add(size_t N, word *C, const word *A, const word 
 	assert (N%2 == 0);
 
 	Declare2Words(u);
+	AssignWord(u, 0);
 	for (size_t i=0; i<N; i+=2)
 	{
 		AddWithCarry(u, A[i], B[i]);
@@ -707,6 +708,7 @@ int CRYPTOPP_FASTCALL Baseline_Sub(size_t N, word *C, const word *A, const word 
 	assert (N%2 == 0);
 
 	Declare2Words(u);
+	AssignWord(u, 0);
 	for (size_t i=0; i<N; i+=2)
 	{
 		SubtractWithBorrow(u, A[i], B[i]);

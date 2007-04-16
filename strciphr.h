@@ -83,7 +83,7 @@ template <typename WT, unsigned int W, unsigned int X = 1, class BASE = Additive
 struct CRYPTOPP_NO_VTABLE AdditiveCipherConcretePolicy : public BASE
 {
 	typedef WT WordType;
-	CRYPTOPP_CONSTANT(BYTES_PER_ITERATION = sizeof(WordType) * W);
+	CRYPTOPP_CONSTANT(BYTES_PER_ITERATION = sizeof(WordType) * W)
 
 #if !(CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X64)
 	unsigned int GetAlignment() const {return GetAlignmentOf<WordType>();}
