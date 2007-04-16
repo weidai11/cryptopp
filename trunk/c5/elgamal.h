@@ -78,7 +78,7 @@ template <class BASE, class SCHEME_OPTIONS, class KEY>
 class ElGamalObjectImpl : public DL_ObjectImplBase<BASE, SCHEME_OPTIONS, KEY>, public ElGamalBase
 {
 public:
-	size_t FixedMaxPlaintextLength() const {return MaxPlaintextLength(FixedCiphertextLength());}
+	size_t FixedMaxPlaintextLength() const {return this->MaxPlaintextLength(FixedCiphertextLength());}
 	size_t FixedCiphertextLength() const {return this->CiphertextLength(0);}
 
 	const DL_GroupParameters_GFP & GetGroupParameters() const {return this->GetKey().GetGroupParameters();}
