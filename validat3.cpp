@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "validate.h"
 
+#define CRYPTOPP_ENABLE_NAMESPACE_WEAK
 #include "smartptr.h"
 #include "crc.h"
 #include "adler32.h"
@@ -12,10 +13,7 @@
 #include "sha.h"
 #include "tiger.h"
 #include "ripemd.h"
-#include "haval.h"
 
-#include "xormac.h"
-#include "md5mac.h"
 #include "hmac.h"
 #include "ttmac.h"
 
@@ -123,7 +121,7 @@ bool ValidateMD2()
 		HashTestTuple("12345678901234567890123456789012345678901234567890123456789012345678901234567890", "\xd5\x97\x6f\x79\xd8\x3d\x3a\x0d\xc9\x80\x6c\x3c\x66\xf3\xef\xd8")
 	};
 
-	MD2 md2;
+	Weak::MD2 md2;
 
 	cout << "\nMD2 validation suite running...\n\n";
 	return HashModuleTest(md2, testSet, sizeof(testSet)/sizeof(testSet[0]));
@@ -142,7 +140,7 @@ bool ValidateMD4()
 		HashTestTuple("12345678901234567890123456789012345678901234567890123456789012345678901234567890", "\xe3\x3b\x4d\xdc\x9c\x38\xf2\x19\x9c\x3e\x7b\x16\x4f\xcc\x05\x36")
 	};
 
-	MD4 md4;
+	Weak::MD4 md4;
 
 	cout << "\nMD4 validation suite running...\n\n";
 	return HashModuleTest(md4, testSet, sizeof(testSet)/sizeof(testSet[0]));
@@ -161,7 +159,7 @@ bool ValidateMD5()
 		HashTestTuple("12345678901234567890123456789012345678901234567890123456789012345678901234567890", "\x57\xed\xf4\xa2\x2b\xe3\xc9\x55\xac\x49\xda\x2e\x21\x07\xb6\x7a")
 	};
 
-	MD5 md5;
+	Weak::MD5 md5;
 
 	cout << "\nMD5 validation suite running...\n\n";
 	return HashModuleTest(md5, testSet, sizeof(testSet)/sizeof(testSet[0]));
@@ -331,6 +329,7 @@ bool ValidateRIPEMD()
 	return pass;
 }
 
+#ifdef CRYPTOPP_REMOVED
 bool ValidateHAVAL()
 {
 	HashTestTuple testSet[] = 
@@ -373,6 +372,7 @@ bool ValidateHAVAL()
 
 	return pass;
 }
+#endif
 
 bool ValidatePanama()
 {
@@ -393,6 +393,7 @@ bool ValidateWhirlpool()
 #endif
 }
 
+#ifdef CRYPTOPP_REMOVED
 bool ValidateMD5MAC()
 {
 	const byte keys[2][MD5MAC::KEYLENGTH]={
@@ -452,10 +453,11 @@ bool ValidateMD5MAC()
 
 	return pass;
 }
+#endif
 
 bool ValidateHMAC()
 {
-	typedef HMAC<MD5> HMAC_MD5;
+	typedef HMAC<Weak::MD5> HMAC_MD5;
 
 	const char* keys[]=
 	{
@@ -496,6 +498,7 @@ bool ValidateHMAC()
 	return pass;
 }
 
+#ifdef CRYPTOPP_REMOVED
 bool ValidateXMACC()
 {
 	typedef XMACC<MD5> XMACC_MD5;
@@ -559,6 +562,7 @@ bool ValidateXMACC()
 
 	return pass;
 }
+#endif
 
 bool ValidateTTMAC()
 {
