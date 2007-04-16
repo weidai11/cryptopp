@@ -4,7 +4,7 @@
 	classes that provide a uniform interface to this library.
 */
 
-/*!	\mainpage <a href="http://www.cryptopp.com">Crypto++</a><sup><small>&reg;</small></sup> Library 5.4 Reference Manual
+/*!	\mainpage <a href="http://www.cryptopp.com">Crypto++</a><sup><small>&reg;</small></sup> Library 5.5 Reference Manual
 <dl>
 <dt>Abstract Base Classes<dd>
 	cryptlib.h
@@ -375,7 +375,7 @@ public:
 	//! calls SetKey() with an NameValuePairs object that just specifies "IV"
 	void SetKeyWithIV(const byte *key, size_t length, const byte *iv);
 
-	enum IV_Requirement {STRUCTURED_IV = 0, RANDOM_IV, UNPREDICTABLE_RANDOM_IV, INTERNALLY_GENERATED_IV, NOT_RESYNCHRONIZABLE};
+	enum IV_Requirement {UNIQUE_IV = 0, RANDOM_IV, UNPREDICTABLE_RANDOM_IV, INTERNALLY_GENERATED_IV, NOT_RESYNCHRONIZABLE};
 	//! returns the minimal requirement for secure IVs
 	virtual IV_Requirement IVRequirement() const =0;
 
@@ -387,7 +387,7 @@ public:
 	//! returns whether this object can use random but possibly predictable IVs (in addition to ones returned by GetNextIV)
 	bool CanUsePredictableIVs() const {return IVRequirement() <= RANDOM_IV;}
 	//! returns whether this object can use structured IVs, for example a counter (in addition to ones returned by GetNextIV)
-	bool CanUseStructuredIVs() const {return IVRequirement() <= STRUCTURED_IV;}
+	bool CanUseStructuredIVs() const {return IVRequirement() <= UNIQUE_IV;}
 
 	//! returns size of IVs used by this object
 	virtual unsigned int IVSize() const {throw NotImplemented("SimpleKeyingInterface: this object doesn't support resynchronization");}
@@ -1029,6 +1029,11 @@ public:
 
 	// for internal library use
 	void DoQuickSanityCheck() const	{ThrowIfInvalid(NullRNG(), 0);}
+
+#ifdef __SUNPRO_CC
+	// Sun Studio 11/CC 5.8 workaround: it generates incorrect code when casting to an empty virtual base class
+	char m_sunCCworkaround;
+#endif
 };
 
 //! interface for generatable crypto material, such as private keys and crypto parameters
