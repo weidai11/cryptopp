@@ -130,6 +130,7 @@ public:
 
 	GetValueHelperClass<T,BASE> &Assignable()
 	{
+#ifndef __INTEL_COMPILER	// ICL 9.1 workaround: Intel compiler copies the vTable pointer for some reason
 		if (m_getValueNames)
 			((*reinterpret_cast<std::string *>(m_pValue) += "ThisObject:") += typeid(T).name()) += ';';
 		if (!m_found && strncmp(m_name, "ThisObject:", 11) == 0 && strcmp(m_name+11, typeid(T).name()) == 0)
@@ -138,6 +139,7 @@ public:
 			*reinterpret_cast<T *>(m_pValue) = *m_pObject;
 			m_found = true;
 		}
+#endif
 		return *this;
 	}
 
