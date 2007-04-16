@@ -11,6 +11,11 @@
 #include <math.h>
 #include <vector>
 
+#ifdef _OPENMP
+// needed in MSVC 2005 to generate correct manifest
+#include <omp.h>
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 const word s_lastSmallPrime = 32719;
@@ -647,8 +652,15 @@ bool SolveModularQuadraticEquation(Integer &r1, Integer &r2, const Integer &a, c
 Integer ModularRoot(const Integer &a, const Integer &dp, const Integer &dq,
 					const Integer &p, const Integer &q, const Integer &u)
 {
-	Integer p2 = ModularExponentiation((a % p), dp, p);
-	Integer q2 = ModularExponentiation((a % q), dq, q);
+	Integer p2, q2;
+	#pragma omp parallel
+		#pragma omp sections
+		{
+			#pragma omp section
+				p2 = ModularExponentiation((a % p), dp, p);
+			#pragma omp section
+				q2 = ModularExponentiation((a % q), dq, q);
+		}
 	return CRT(p2, p, q2, q, u);
 }
 
@@ -992,9 +1004,22 @@ Integer Lucas(const Integer &n, const Integer &P, const Integer &modulus)
 Integer InverseLucas(const Integer &e, const Integer &m, const Integer &p, const Integer &q, const Integer &u)
 {
 	Integer d = (m*m-4);
-	Integer p2 = p-Jacobi(d,p);
-	Integer q2 = q-Jacobi(d,q);
-	return CRT(Lucas(EuclideanMultiplicativeInverse(e,p2), m, p), p, Lucas(EuclideanMultiplicativeInverse(e,q2), m, q), q, u);
+	Integer p2, q2;
+	#pragma omp parallel
+		#pragma omp sections
+		{
+			#pragma omp section
+			{
+				p2 = p-Jacobi(d,p);
+				p2 = Lucas(EuclideanMultiplicativeInverse(e,p2), m, p);
+			}
+			#pragma omp section
+			{
+				q2 = q-Jacobi(d,q);
+				q2 = Lucas(EuclideanMultiplicativeInverse(e,q2), m, q);
+			}
+		}
+	return CRT(p2, p, q2, q, u);
 }
 
 Integer InverseLucas(const Integer &e, const Integer &m, const Integer &p, const Integer &q)
