@@ -76,7 +76,7 @@ static void SigIllHandlerSSE2(int)
 }
 #endif
 
-#elif _MSC_VER >= 1400
+#elif _MSC_VER >= 1400 && CRYPTOPP_BOOL_X64
 
 bool CpuId(word32 input, word32 *output)
 {

@@ -48,9 +48,7 @@ endif
 ifeq ($(UNAME),)	# for DJGPP, where uname doesn't exist
 CXXFLAGS += -mbnu210
 else
-ifneq ($(CXX),CC)	# don't use -pipe with CC (Solaris native C++ compiler)
 CXXFLAGS += -pipe
-endif
 endif
 
 ifeq ($(UNAME),Linux)
@@ -72,6 +70,14 @@ endif
 
 ifeq ($(UNAME),SunOS)
 LDLIBS += -lnsl -lsocket
+ifeq ($(CXX),CC)	# override flags for CC (Solaris native C++ compiler)
+CXXFLAGS = -DNDEBUG -O -g -native
+LDFLAGS =
+ifeq ($(ISX86),1)
+# SSE2 intrinsics should work in Sun Studio 12
+# CXXFLAGS += -xarch=sse2 -D__SSE2__
+endif
+endif
 endif
 
 SRCS = $(wildcard *.cpp)

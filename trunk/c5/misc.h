@@ -24,7 +24,7 @@
 	#define CRYPTOPP_FAST_ROTATE(x) ((x) == 32)
 #elif defined(__GNUC__) && (CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X86)	// depend on GCC's peephole optimization to generate rotate instructions
 	#define CRYPTOPP_FAST_ROTATE(x) 1
-#elif
+#else
 	#define CRYPTOPP_FAST_ROTATE(x) 0
 #endif
 
@@ -795,19 +795,19 @@ inline void GetUserKey(ByteOrder order, T *out, size_t outlen, const byte *in, s
 }
 
 #ifndef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
-inline byte UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, byte*)
+inline byte UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, const byte *)
 {
 	return block[0];
 }
 
-inline word16 UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, word16*)
+inline word16 UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, const word16 *)
 {
 	return (order == BIG_ENDIAN_ORDER)
 		? block[1] | (block[0] << 8)
 		: block[0] | (block[1] << 8);
 }
 
-inline word32 UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, word32*)
+inline word32 UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, const word32 *)
 {
 	return (order == BIG_ENDIAN_ORDER)
 		? word32(block[3]) | (word32(block[2]) << 8) | (word32(block[1]) << 16) | (word32(block[0]) << 24)
@@ -815,7 +815,7 @@ inline word32 UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, wo
 }
 
 #ifdef WORD64_AVAILABLE
-inline word64 UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, word64*)
+inline word64 UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, const word64 *)
 {
 	return (order == BIG_ENDIAN_ORDER)
 		?
@@ -936,7 +936,7 @@ inline T GetWord(bool assumeAligned, ByteOrder order, const byte *block)
 {
 #ifndef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
 	if (!assumeAligned)
-		return UnalignedGetWordNonTemplate(order, block);
+		return UnalignedGetWordNonTemplate(order, block, (T*)NULL);
 	assert(IsAligned<T>(block));
 #endif
 	return ConditionalByteReverse(order, *reinterpret_cast<const T *>(block));
@@ -953,7 +953,7 @@ inline void PutWord(bool assumeAligned, ByteOrder order, byte *block, T value, c
 {
 #ifndef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
 	if (!assumeAligned)
-		return UnalignedGetWordNonTemplate(order, block, value, xorBlock);
+		return UnalignedPutWordNonTemplate(order, block, value, xorBlock);
 	assert(IsAligned<T>(block));
 	assert(IsAligned<T>(xorBlock));
 #endif

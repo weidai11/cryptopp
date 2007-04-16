@@ -5,7 +5,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#if defined(CRYPTOPP_X86_ASM_AVAILABLE) || _MSC_VER >= 1400
+#if defined(CRYPTOPP_X86_ASM_AVAILABLE) || (_MSC_VER >= 1400 && CRYPTOPP_BOOL_X64)
 
 #define CRYPTOPP_CPUID_AVAILABLE
 
@@ -17,7 +17,10 @@ void DetectX86Features();
 
 bool CpuId(word32 input, word32 *output);
 
-#if !CRYPTOPP_BOOL_X64
+#if CRYPTOPP_BOOL_X64
+inline bool HasSSE2()	{return true;}
+inline bool HasMMX()	{return true;}
+#else
 
 inline bool HasSSE2()
 {
@@ -63,21 +66,19 @@ inline int GetCacheLineSize()
 	return CRYPTOPP_L1_CACHE_LINE_SIZE;
 }
 
-#endif		// #ifdef CRYPTOPP_X86_ASM_AVAILABLE || _MSC_VER >= 1400
+inline bool HasSSSE3()	{return false;}
+inline bool IsP4()		{return false;}
 
-#if CRYPTOPP_BOOL_X64
-
-inline bool HasSSE2()
-{
-	return true;
-}
-
-inline bool HasMMX()
-{
-	return true;
-}
-
+// assume MMX and SSE2 if intrinsics are enabled
+#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE || CRYPTOPP_BOOL_X64
+inline bool HasSSE2()	{return true;}
+inline bool HasMMX()	{return true;}
+#else
+inline bool HasSSE2()	{return false;}
+inline bool HasMMX()	{return false;}
 #endif
+
+#endif		// #ifdef CRYPTOPP_X86_ASM_AVAILABLE || _MSC_VER >= 1400
 
 #if defined(__GNUC__)
 	// define these in two steps to allow arguments to be expanded
