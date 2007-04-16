@@ -47,7 +47,6 @@ CRYPTOPP_DEFINE_NAME_STRING(HashVerificationFilterFlags)		//!< word32
 CRYPTOPP_DEFINE_NAME_STRING(SignatureVerificationFilterFlags)	//!< word32
 CRYPTOPP_DEFINE_NAME_STRING(InputBuffer)		//!< ConstByteArrayParameter
 CRYPTOPP_DEFINE_NAME_STRING(OutputBuffer)		//!< ByteArrayParameter
-CRYPTOPP_DEFINE_NAME_STRING(XMACC_Counter)		//!< word32
 CRYPTOPP_DEFINE_NAME_STRING(InputFileName)		//!< const char *
 CRYPTOPP_DEFINE_NAME_STRING(InputStreamPointer)	//!< std::istream *
 CRYPTOPP_DEFINE_NAME_STRING(InputBinaryMode)	//!< bool
@@ -67,6 +66,8 @@ CRYPTOPP_DEFINE_NAME_STRING(EncodingLookupArray)	//< const byte *
 CRYPTOPP_DEFINE_NAME_STRING(DecodingLookupArray)	//< const byte *
 CRYPTOPP_DEFINE_NAME_STRING(InsertLineBreaks)	//< bool
 CRYPTOPP_DEFINE_NAME_STRING(MaxLineLength)		//< int
+CRYPTOPP_DEFINE_NAME_STRING(DigestSize)			//!< int, in bytes
+CRYPTOPP_DEFINE_NAME_STRING(L1KeyLength)		//!< int, in bytes
 
 DOCUMENTED_NAMESPACE_END
 
