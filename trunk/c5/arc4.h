@@ -5,6 +5,8 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+namespace Weak {
+
 //! _
 class CRYPTOPP_NO_VTABLE ARC4_Base : public VariableKeyLength<16, 1, 256>, public RandomNumberGenerator, public SymmetricCipher, public SymmetricCipherDocumentation
 {
@@ -51,6 +53,16 @@ protected:
 
 //! Modified ARC4: it discards the first 256 bytes of keystream which may be weaker than the rest
 DOCUMENTED_TYPEDEF(SymmetricCipherFinal<MARC4_Base>, MARC4)
+
+}
+#ifndef CRYPTOPP_ENABLE_NAMESPACE_WEAK
+using namespace Weak;
+#ifdef __GNUC__
+#warning "You may be using a weak algorithm that has been retained for backwards compatibility. Please define CRYPTOPP_ENABLE_NAMESPACE_WEAK and prepend the class name with 'Weak::' to remove this warning."
+#else
+#pragma message("You may be using a weak algorithm that has been retained for backwards compatibility. Please define CRYPTOPP_ENABLE_NAMESPACE_WEAK and prepend the class name with 'Weak::' to remove this warning.")
+#endif
+#endif
 
 NAMESPACE_END
 

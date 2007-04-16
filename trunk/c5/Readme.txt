@@ -371,7 +371,7 @@ the mailing list.
     - enabled optimization flags by default in GNUmakefile
     - changed PANAMA cipher interface to accept 256-bit key and 256-bit IV
     - added blinding and error checking for RW private key operation
-    - moved MD2, MD4, MD5, PanamaHash, WAKE_CFB into the namespace "Weak"
+    - moved MD2, MD4, MD5, PanamaHash, ARC4, WAKE_CFB into the namespace "Weak"
     - removed HAVAL, MD5-MAC, XMAC
     
 Written by Wei Dai

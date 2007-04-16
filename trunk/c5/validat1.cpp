@@ -2,6 +2,7 @@
 
 #include "pch.h"
 
+#define CRYPTOPP_ENABLE_NAMESPACE_WEAK
 #include "files.h"
 #include "hex.h"
 #include "base32.h"
@@ -991,39 +992,39 @@ bool ValidateARC4()
 	0xc0};
 
 	// VC60 workaround: auto_ptr lacks reset()
-	member_ptr<ARC4> arc4;
+	member_ptr<Weak::ARC4> arc4;
 	bool pass=true, fail;
 	int i;
 
 	cout << "\nARC4 validation suite running...\n\n";
 
-	arc4.reset(new ARC4(Key0, sizeof(Key0)));
+	arc4.reset(new Weak::ARC4(Key0, sizeof(Key0)));
 	arc4->ProcessString(Input0, sizeof(Input0));
 	fail = memcmp(Input0, Output0, sizeof(Input0)) != 0;
 	cout << (fail ? "FAILED" : "passed") << "    Test 0" << endl;
 	pass = pass && !fail;
 
-	arc4.reset(new ARC4(Key1, sizeof(Key1)));
+	arc4.reset(new Weak::ARC4(Key1, sizeof(Key1)));
 	arc4->ProcessString(Key1, Input1, sizeof(Key1));
 	fail = memcmp(Output1, Key1, sizeof(Key1)) != 0;
 	cout << (fail ? "FAILED" : "passed") << "    Test 1" << endl;
 	pass = pass && !fail;
 
-	arc4.reset(new ARC4(Key2, sizeof(Key2)));
+	arc4.reset(new Weak::ARC4(Key2, sizeof(Key2)));
 	for (i=0, fail=false; i<sizeof(Input2); i++)
 		if (arc4->ProcessByte(Input2[i]) != Output2[i])
 			fail = true;
 	cout << (fail ? "FAILED" : "passed") << "    Test 2" << endl;
 	pass = pass && !fail;
 
-	arc4.reset(new ARC4(Key3, sizeof(Key3)));
+	arc4.reset(new Weak::ARC4(Key3, sizeof(Key3)));
 	for (i=0, fail=false; i<sizeof(Input3); i++)
 		if (arc4->ProcessByte(Input3[i]) != Output3[i])
 			fail = true;
 	cout << (fail ? "FAILED" : "passed") << "    Test 3" << endl;
 	pass = pass && !fail;
 
-	arc4.reset(new ARC4(Key4, sizeof(Key4)));
+	arc4.reset(new Weak::ARC4(Key4, sizeof(Key4)));
 	for (i=0, fail=false; i<sizeof(Input4); i++)
 		if (arc4->ProcessByte(Input4[i]) != Output4[i])
 			fail = true;
