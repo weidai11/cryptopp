@@ -16,15 +16,12 @@ bool ValidateMD4();
 bool ValidateMD5();
 bool ValidateSHA();
 bool ValidateSHA2();
-bool ValidateHAVAL();
 bool ValidateTiger();
 bool ValidateRIPEMD();
 bool ValidatePanama();
 bool ValidateWhirlpool();
 
-bool ValidateMD5MAC();
 bool ValidateHMAC();
-bool ValidateXMACC();
 bool ValidateTTMAC();
 
 bool ValidateCipherModes();
@@ -53,6 +50,7 @@ bool ValidateSerpent();
 bool ValidateSHACAL2();
 bool ValidateCamellia();
 bool ValidateSalsa();
+bool ValidateSosemanuk();
 
 bool ValidateBBS();
 bool ValidateDH();
