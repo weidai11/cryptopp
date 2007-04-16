@@ -63,7 +63,7 @@ protected:
 
 #ifdef BLOCKING_RNG_AVAILABLE
 
-//! encapsulate /dev/random
+//! encapsulate /dev/random, or /dev/srandom on OpenBSD
 class CRYPTOPP_DLL BlockingRng : public RandomNumberGenerator
 {
 public:
@@ -85,7 +85,7 @@ CRYPTOPP_DLL void CRYPTOPP_API OS_GenerateRandomBlock(bool blocking, byte *outpu
 class CRYPTOPP_DLL AutoSeededRandomPool : public RandomPool
 {
 public:
-	//! blocking will be ignored if the prefered RNG isn't available
+	//! use blocking to choose seeding with BlockingRng or NonblockingRng. the parameter is ignored if only one of these is available
 	explicit AutoSeededRandomPool(bool blocking = false, unsigned int seedSize = 32)
 		{Reseed(blocking, seedSize);}
 	void Reseed(bool blocking = false, unsigned int seedSize = 32);
@@ -96,7 +96,7 @@ template <class BLOCK_CIPHER>
 class AutoSeededX917RNG : public RandomNumberGenerator, public NotCopyable
 {
 public:
-	//! blocking will be ignored if the prefered RNG isn't available
+	//! use blocking to choose seeding with BlockingRng or NonblockingRng. the parameter is ignored if only one of these is available
 	explicit AutoSeededX917RNG(bool blocking = false)
 		{Reseed(blocking);}
 	void Reseed(bool blocking = false);
