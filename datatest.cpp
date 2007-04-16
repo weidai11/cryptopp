@@ -12,7 +12,6 @@ USING_NAMESPACE(CryptoPP)
 USING_NAMESPACE(std)
 
 RandomPool & GlobalRNG();
-void RegisterFactories();
 
 typedef std::map<std::string, std::string> TestData;
 
@@ -44,6 +43,60 @@ static void SignalTestError()
 	throw Exception(Exception::OTHER_ERROR, "Unexpected error during validation test");
 }
 
+const std::string & GetRequiredDatum(const TestData &data, const char *name)
+{
+	TestData::const_iterator i = data.find(name);
+	if (i == data.end())
+		SignalTestError();
+	return i->second;
+}
+
+void PutDecodedDatumInto(const TestData &data, const char *name, BufferedTransformation &target)
+{
+	std::string s1 = GetRequiredDatum(data, name), s2;
+
+	while (!s1.empty())
+	{
+		while (s1[0] == ' ')
+			s1 = s1.substr(1);
+
+		int repeat = 1;
+		if (s1[0] == 'r')
+		{
+			repeat = atoi(s1.c_str()+1);
+			s1 = s1.substr(s1.find(' ')+1);
+		}
+		
+		s2.clear();
+
+		if (s1[0] == '\"')
+		{
+			s2 = s1.substr(1, s1.find('\"', 1)-1);
+			s1 = s1.substr(s2.length() + 2);
+		}
+		else if (s1.substr(0, 2) == "0x")
+		{
+			StringSource(s1.substr(2, s1.find(' ')), true, new HexDecoder(new StringSink(s2)));
+			s1 = s1.substr(STDMIN(s1.find(' '), s1.length()));
+		}
+		else
+		{
+			StringSource(s1.substr(0, s1.find(' ')), true, new HexDecoder(new StringSink(s2)));
+			s1 = s1.substr(STDMIN(s1.find(' '), s1.length()));
+		}
+
+		while (repeat--)
+			target.Put((const byte *)s2.data(), s2.size());
+	}
+}
+
+std::string GetDecodedDatum(const TestData &data, const char *name)
+{
+	std::string s;
+	PutDecodedDatumInto(data, name, StringSink(s).Ref());
+	return s;
+}
+
 class TestDataNameValuePairs : public NameValuePairs
 {
 public:
@@ -64,13 +117,13 @@ public:
 		else if (valueType == typeid(ConstByteArrayParameter))
 		{
 			m_temp.resize(0);
-			StringSource(value, true, new HexDecoder(new StringSink(m_temp)));
+			PutDecodedDatumInto(m_data, name, StringSink(m_temp).Ref());
 			reinterpret_cast<ConstByteArrayParameter *>(pValue)->Assign((const byte *)m_temp.data(), m_temp.size(), true);
 		}
 		else if (valueType == typeid(const byte *))
 		{
 			m_temp.resize(0);
-			StringSource(value, true, new HexDecoder(new StringSink(m_temp)));
+			PutDecodedDatumInto(m_data, name, StringSink(m_temp).Ref());
 			*reinterpret_cast<const byte * *>(pValue) = (const byte *)m_temp.data();
 		}
 		else
@@ -83,43 +136,6 @@ private:
 	const TestData &m_data;
 	mutable std::string m_temp;
 };
-
-const std::string & GetRequiredDatum(const TestData &data, const char *name)
-{
-	TestData::const_iterator i = data.find(name);
-	if (i == data.end())
-		SignalTestError();
-	return i->second;
-}
-
-void PutDecodedDatumInto(const TestData &data, const char *name, BufferedTransformation &target)
-{
-	std::string s1 = GetRequiredDatum(data, name), s2;
-
-	int repeat = 1;
-	if (s1[0] == 'r')
-	{
-		repeat = atoi(s1.c_str()+1);
-		s1 = s1.substr(s1.find(' ')+1);
-	}
-	
-	if (s1[0] == '\"')
-		s2 = s1.substr(1, s1.find('\"', 1)-1);
-	else if (s1.substr(0, 2) == "0x")
-		StringSource(s1.substr(2), true, new HexDecoder(new StringSink(s2)));
-	else
-		StringSource(s1, true, new HexDecoder(new StringSink(s2)));
-
-	while (repeat--)
-		target.Put((const byte *)s2.data(), s2.size());
-}
-
-std::string GetDecodedDatum(const TestData &data, const char *name)
-{
-	std::string s;
-	PutDecodedDatumInto(data, name, StringSink(s).Ref());
-	return s;
-}
 
 void TestKeyPairValidAndConsistent(CryptoMaterial &pub, const CryptoMaterial &priv)
 {
@@ -256,40 +272,70 @@ void TestSymmetricCipher(TestData &v)
 	std::string test = GetRequiredDatum(v, "Test");
 
 	std::string key = GetDecodedDatum(v, "Key");
-	std::string ciphertext = GetDecodedDatum(v, "Ciphertext");
 	std::string plaintext = GetDecodedDatum(v, "Plaintext");
 
 	TestDataNameValuePairs pairs(v);
 
-	if (test == "Encrypt")
+	if (test == "Encrypt" || test == "EncryptXorDigest")
 	{
 		std::auto_ptr<SymmetricCipher> encryptor(ObjectFactoryRegistry<SymmetricCipher, ENCRYPTION>::Registry().CreateObject(name.c_str()));
+		std::auto_ptr<SymmetricCipher> decryptor(ObjectFactoryRegistry<SymmetricCipher, DECRYPTION>::Registry().CreateObject(name.c_str()));
 		ConstByteArrayParameter iv;
 		if (pairs.GetValue(Name::IV(), iv) && iv.size() != encryptor->IVSize())
 			SignalTestFailure();
 		encryptor->SetKey((const byte *)key.data(), key.size(), pairs);
-		int seek = pairs.GetIntValueWithDefault("Seek", 0);
-		if (seek)
-			encryptor->Seek(seek);
-		std::string encrypted;
-		StringSource ss(plaintext, true, new StreamTransformationFilter(*encryptor, new StringSink(encrypted), StreamTransformationFilter::NO_PADDING));
-		if (encrypted != ciphertext)
-			SignalTestFailure();
-	}
-	else if (test == "Decrypt")
-	{
-		std::auto_ptr<SymmetricCipher> decryptor(ObjectFactoryRegistry<SymmetricCipher, DECRYPTION>::Registry().CreateObject(name.c_str()));
-		ConstByteArrayParameter iv;
-		if (pairs.GetValue(Name::IV(), iv) && iv.size() != decryptor->IVSize())
-			SignalTestFailure();
 		decryptor->SetKey((const byte *)key.data(), key.size(), pairs);
 		int seek = pairs.GetIntValueWithDefault("Seek", 0);
 		if (seek)
+		{
+			encryptor->Seek(seek);
 			decryptor->Seek(seek);
-		std::string decrypted;
-		StringSource ss(ciphertext, true, new StreamTransformationFilter(*decryptor, new StringSink(decrypted), StreamTransformationFilter::NO_PADDING));
-		if (decrypted != plaintext)
+		}
+		std::string encrypted, xorDigest, ciphertext, ciphertextXorDigest;
+		StringSource ss(plaintext, false, new StreamTransformationFilter(*encryptor, new StringSink(encrypted), StreamTransformationFilter::NO_PADDING));
+		ss.Pump(plaintext.size()/2 + 1);
+		ss.PumpAll();
+		/*{
+			std::string z;
+			encryptor->Seek(seek);
+			StringSource ss(plaintext, false, new StreamTransformationFilter(*encryptor, new StringSink(z), StreamTransformationFilter::NO_PADDING));
+			while (ss.Pump(64)) {}
+			ss.PumpAll();
+			for (int i=0; i<z.length(); i++)
+				assert(encrypted[i] == z[i]);
+		}*/
+		if (test == "Encrypt")
+			ciphertext = GetDecodedDatum(v, "Ciphertext");
+		else
+		{
+			ciphertextXorDigest = GetDecodedDatum(v, "CiphertextXorDigest");
+			xorDigest.append(encrypted, 0, 64);
+			for (size_t i=64; i<encrypted.size(); i++)
+				xorDigest[i%64] ^= encrypted[i];
+		}
+		if (test == "Encrypt" ? encrypted != ciphertext : xorDigest != ciphertextXorDigest)
+		{
+			std::cout << "incorrectly encrypted: ";
+			StringSource xx(encrypted, false, new HexEncoder(new FileSink(std::cout)));
+			xx.Pump(256); xx.Flush(false);
+			std::cout << "\n";
 			SignalTestFailure();
+		}
+		std::string decrypted;
+		StringSource dd(encrypted, false, new StreamTransformationFilter(*decryptor, new StringSink(decrypted), StreamTransformationFilter::NO_PADDING));
+		dd.Pump(plaintext.size()/2 + 1);
+		dd.PumpAll();
+		if (decrypted != plaintext)
+		{
+			std::cout << "incorrectly decrypted: ";
+			StringSource xx(decrypted, false, new HexEncoder(new FileSink(std::cout)));
+			xx.Pump(256); xx.Flush(false);
+			std::cout << "\n";
+			SignalTestFailure();
+		}
+	}
+	else if (test == "Decrypt")
+	{
 	}
 	else
 	{
@@ -307,6 +353,8 @@ void TestDigestOrMAC(TestData &v, bool testDigest)
 	member_ptr<HashTransformation> hash;
 	HashTransformation *pHash = NULL;
 
+	TestDataNameValuePairs pairs(v);
+
 	if (testDigest)
 	{
 		hash.reset(ObjectFactoryRegistry<HashTransformation>::Registry().CreateObject(name.c_str()));
@@ -316,8 +364,11 @@ void TestDigestOrMAC(TestData &v, bool testDigest)
 	{
 		mac.reset(ObjectFactoryRegistry<MessageAuthenticationCode>::Registry().CreateObject(name.c_str()));
 		pHash = mac.get();
+		ConstByteArrayParameter iv;
+		if (pairs.GetValue(Name::IV(), iv) && iv.size() != mac->IVSize())
+			SignalTestFailure();
 		std::string key = GetDecodedDatum(v, "Key");
-		mac->SetKey((const byte *)key.c_str(), key.size());
+		mac->SetKey((const byte *)key.c_str(), key.size(), pairs);
 	}
 
 	if (test == "Verify" || test == "VerifyTruncated" || test == "NotVerify")
@@ -499,7 +550,6 @@ void TestDataFile(const std::string &filename, unsigned int &totalTests, unsigne
 
 bool RunTestDataFile(const char *filename)
 {
-	RegisterFactories();
 	unsigned int totalTests = 0, failedTests = 0;
 	TestDataFile(filename, totalTests, failedTests);
 	cout << "\nTests complete. Total tests = " << totalTests << ". Failed tests = " << failedTests << ".\n";
