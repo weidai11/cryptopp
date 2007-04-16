@@ -61,8 +61,8 @@ void PSSR_MEM_Base::ComputeMessageRepresentative(RandomNumberGenerator &rng,
 
 	// compute H = hash of M'
 	byte c[8];
-	UnalignedPutWord(BIG_ENDIAN_ORDER, c, (word32)SafeRightShift<29>(recoverableMessageLength));
-	UnalignedPutWord(BIG_ENDIAN_ORDER, c+4, word32(recoverableMessageLength << 3));
+	PutWord(false, BIG_ENDIAN_ORDER, c, (word32)SafeRightShift<29>(recoverableMessageLength));
+	PutWord(false, BIG_ENDIAN_ORDER, c+4, word32(recoverableMessageLength << 3));
 	hash.Update(c, 8);
 	hash.Update(recoverableMessage, recoverableMessageLength);
 	hash.Update(digest, digestSize);
@@ -126,8 +126,8 @@ DecodingResult PSSR_MEM_Base::RecoverMessageFromRepresentative(
 
 	// verify H = hash of M'
 	byte c[8];
-	UnalignedPutWord(BIG_ENDIAN_ORDER, c, (word32)SafeRightShift<29>(recoverableMessageLength));
-	UnalignedPutWord(BIG_ENDIAN_ORDER, c+4, word32(recoverableMessageLength << 3));
+	PutWord(false, BIG_ENDIAN_ORDER, c, (word32)SafeRightShift<29>(recoverableMessageLength));
+	PutWord(false, BIG_ENDIAN_ORDER, c+4, word32(recoverableMessageLength << 3));
 	hash.Update(c, 8);
 	hash.Update(recoverableMessage, recoverableMessageLength);
 	hash.Update(digest, digestSize);

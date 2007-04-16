@@ -101,9 +101,9 @@ void InvertibleESIGNFunction::GenerateRandom(RandomNumberGenerator &rng, const N
 		seed.resize(seedParam.size() + 4);
 		memcpy(seed + 4, seedParam.begin(), seedParam.size());
 
-		UnalignedPutWord(BIG_ENDIAN_ORDER, seed, (word32)0);
+		PutWord(false, BIG_ENDIAN_ORDER, seed, (word32)0);
 		m_p.GenerateRandom(rng, CombinedNameValuePairs(primeParam, MakeParameters("Seed", ConstByteArrayParameter(seed))));
-		UnalignedPutWord(BIG_ENDIAN_ORDER, seed, (word32)1);
+		PutWord(false, BIG_ENDIAN_ORDER, seed, (word32)1);
 		m_q.GenerateRandom(rng, CombinedNameValuePairs(primeParam, MakeParameters("Seed", ConstByteArrayParameter(seed))));
 	}
 	else
