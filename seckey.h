@@ -110,15 +110,16 @@ public:
 };
 
 /// support query of key length that's the same as another class
-template <class T>
+template <class T, unsigned int IV_REQ = SimpleKeyingInterface::NOT_RESYNCHRONIZABLE, unsigned int IV_L = 0>
 class SameKeyLengthAs
 {
 public:
 	CRYPTOPP_CONSTANT(MIN_KEYLENGTH=T::MIN_KEYLENGTH)
 	CRYPTOPP_CONSTANT(MAX_KEYLENGTH=T::MAX_KEYLENGTH)
 	CRYPTOPP_CONSTANT(DEFAULT_KEYLENGTH=T::DEFAULT_KEYLENGTH)
-	CRYPTOPP_CONSTANT(IV_REQUIREMENT = T::IV_REQUIREMENT)
-	CRYPTOPP_CONSTANT(IV_LENGTH = T::IV_LENGTH)
+	CRYPTOPP_CONSTANT(IV_REQUIREMENT=IV_REQ)
+	CRYPTOPP_CONSTANT(IV_LENGTH=IV_L)
+
 	static size_t CRYPTOPP_API StaticGetValidKeyLength(size_t keylength)
 		{return T::StaticGetValidKeyLength(keylength);}
 };
@@ -134,7 +135,7 @@ public:
 	size_t MaxKeyLength() const {return (size_t)INFO::MAX_KEYLENGTH;}
 	size_t DefaultKeyLength() const {return INFO::DEFAULT_KEYLENGTH;}
 	size_t GetValidKeyLength(size_t n) const {return INFO::StaticGetValidKeyLength(n);}
-	typename BASE::IV_Requirement IVRequirement() const {return (typename BASE::IV_Requirement)INFO::IV_REQUIREMENT;}
+	SimpleKeyingInterface::IV_Requirement IVRequirement() const {return (SimpleKeyingInterface::IV_Requirement)INFO::IV_REQUIREMENT;}
 	unsigned int IVSize() const {return INFO::IV_LENGTH;}
 };
 
