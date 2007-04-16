@@ -7,7 +7,6 @@
 #include "adler32.h"
 #include "idea.h"
 #include "des.h"
-#include "arc4.h"
 #include "rc5.h"
 #include "blowfish.h"
 #include "wake.h"
@@ -280,7 +279,7 @@ void BenchmarkAll(double t, double hertz)
 	cout << "\n<TBODY style=\"background: yellow\">";
 	BenchMarkKeyless<CRC32>("CRC-32", t);
 	BenchMarkKeyless<Adler32>("Adler-32", t);
-	BenchMarkByNameKeyLess<HashTransformation>("MD5", "MD5 (broken)");
+	BenchMarkByNameKeyLess<HashTransformation>("MD5", "MD5 (weak)");
 	BenchMarkByNameKeyLess<HashTransformation>("SHA-1");
 	BenchMarkByNameKeyLess<HashTransformation>("SHA-256");
 #ifdef WORD64_AVAILABLE
@@ -300,7 +299,7 @@ void BenchmarkAll(double t, double hertz)
 	BenchMarkByName<SymmetricCipher>("Salsa20", 0, "Salsa20/12", MakeParameters(Name::Rounds(), 12));
 	BenchMarkByName<SymmetricCipher>("Salsa20", 0, "Salsa20/8", MakeParameters(Name::Rounds(), 8));
 	BenchMarkByName<SymmetricCipher>("Sosemanuk");
-	BenchMarkKeyed<ARC4>("ARC4", t);
+	BenchMarkByName<SymmetricCipher>("MARC4");
 	BenchMarkKeyed<SEAL<BigEndian>::Encryption>("SEAL-3.0-BE", t);
 	BenchMarkKeyed<SEAL<LittleEndian>::Encryption>("SEAL-3.0-LE", t);
 	BenchMarkKeyed<WAKE_OFB<BigEndian>::Encryption>("WAKE-OFB-BE", t);

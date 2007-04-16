@@ -7,9 +7,11 @@
 // completely in the public domain.
 
 #include "pch.h"
+#define CRYPTOPP_ENABLE_NAMESPACE_WEAK
 #include "arc4.h"
 
 NAMESPACE_BEGIN(CryptoPP)
+namespace Weak {
 
 void ARC4_TestInstantiations()
 {
@@ -113,4 +115,5 @@ void ARC4_Base::DiscardBytes(size_t length)
 	m_y = y;
 }
 
+}
 NAMESPACE_END

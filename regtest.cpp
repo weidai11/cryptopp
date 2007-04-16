@@ -24,6 +24,7 @@
 #include "tiger.h"
 #include "md5.h"
 #include "sosemanuk.h"
+#include "arc4.h"
 
 USING_NAMESPACE(CryptoPP)
 
@@ -82,6 +83,7 @@ void RegisterFactories()
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<AES> >();
 	RegisterSymmetricCipherDefaultFactories<Salsa20>();
 	RegisterSymmetricCipherDefaultFactories<Sosemanuk>();
+	RegisterSymmetricCipherDefaultFactories<Weak::MARC4>();
 
 	s_registered = true;
 }
