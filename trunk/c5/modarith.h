@@ -150,7 +150,7 @@ public:
 
 private:
 	Integer m_u;
-	mutable SecAlignedWordBlock m_workspace;
+	mutable IntegerSecBlock m_workspace;
 };
 
 NAMESPACE_END
