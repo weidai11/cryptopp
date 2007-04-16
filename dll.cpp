@@ -96,14 +96,24 @@ static void SetNewAndDeleteFunctionPointers()
 		}
 	}
 
+	// try getting these directly using mangled names of new and delete operators
+
 	hModule = GetModuleHandle("msvcrtd");
 	if (!hModule)
 		hModule = GetModuleHandle("msvcrt");
 	if (hModule)
 	{
-		s_pNew = (PNew)GetProcAddress(hModule, "??2@YAPAXI@Z");		// operator new
-		s_pDelete = (PDelete)GetProcAddress(hModule, "??3@YAXPAX@Z");	// operator delete
-		return;
+		// 32-bit versions
+		s_pNew = (PNew)GetProcAddress(hModule, "??2@YAPAXI@Z");
+		s_pDelete = (PDelete)GetProcAddress(hModule, "??3@YAXPAX@Z");
+		if (s_pNew && s_pDelete)
+			return;
+
+		// 64-bit versions
+		s_pNew = (PNew)GetProcAddress(hModule, "??2@YAPEAX_K@Z");
+		s_pDelete = (PDelete)GetProcAddress(hModule, "??3@YAXPEAX@Z");
+		if (s_pNew && s_pDelete)
+			return;
 	}
 
 	OutputDebugString("Crypto++ was not able to obtain new and delete function pointers.\n");
