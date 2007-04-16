@@ -2,6 +2,7 @@
 
 #define _CRT_SECURE_NO_DEPRECATE
 #define CRYPTOPP_DEFAULT_NO_DLL
+#define CRYPTOPP_ENABLE_NAMESPACE_WEAK
 
 #include "dll.h"
 #include "md5.h"
@@ -15,6 +16,8 @@
 #include "socketft.h"
 #include "wait.h"
 #include "factory.h"
+#include "whrlpool.h"
+#include "tiger.h"
 
 #include "validate.h"
 #include "bench.h"
@@ -48,6 +51,8 @@ USING_NAMESPACE(CryptoPP)
 USING_NAMESPACE(std)
 
 const int MAX_PHRASE_LENGTH=250;
+
+void RegisterFactories();
 
 void GenerateRSAKey(unsigned int keyLength, const char *privFilename, const char *pubFilename, const char *seed);
 string RSAEncryptString(const char *pubFilename, const char *seed, const char *message);
@@ -104,6 +109,8 @@ int CRYPTOPP_API main(int argc, char *argv[])
 
 	try
 	{
+		RegisterFactories();
+
 		std::string command, executableName, macFilename;
 
 		if (argc < 2)
@@ -230,7 +237,12 @@ int CRYPTOPP_API main(int argc, char *argv[])
 		else if (command == "m")
 			DigestFile(argv[2]);
 		else if (command == "tv")
-			return !RunTestDataFile(argv[2]);
+		{
+			std::string fname = argv[2];
+			if (fname.find(".txt") == std::string::npos)
+				fname = "TestVectors/" + fname + ".txt";
+			return !RunTestDataFile(fname.c_str());
+		}
 		else if (command == "t")
 		{
 			// VC60 workaround: use char array instead of std::string to workaround MSVC's getline bug
@@ -285,9 +297,9 @@ int CRYPTOPP_API main(int argc, char *argv[])
 		else if (command == "v")
 			return !Validate(argc>2 ? atoi(argv[2]) : 0, argv[1][1] == 'v', argc>3 ? argv[3] : NULL);
 		else if (command == "b")
-			BenchmarkAll(argc<3 ? 1 : atof(argv[2]));
+			BenchmarkAll(argc<3 ? 1 : atof(argv[2]), argc<4 ? 0 : atof(argv[3])*1e9);
 		else if (command == "b2")
-			BenchmarkAll2(argc<3 ? 1 : atof(argv[2]));
+			BenchmarkAll2(argc<3 ? 1 : atof(argv[2]), argc<4 ? 0 : atof(argv[3])*1e9);
 		else if (command == "z")
 			GzipFile(argv[3], argv[4], argv[2][0]-'0');
 		else if (command == "u")
@@ -319,7 +331,7 @@ int CRYPTOPP_API main(int argc, char *argv[])
 		}
 		else if (command == "V")
 		{
-			cout << "5.4" << endl;
+			cout << "5.5" << endl;
 		}
 		else
 		{
@@ -434,28 +446,40 @@ bool RSAVerifyFile(const char *pubFilename, const char *messageFilename, const c
 
 void DigestFile(const char *filename)
 {
-	MD5 md5;
-	SHA sha;
+	SHA1 sha;
 	RIPEMD160 ripemd;
 	SHA256 sha256;
-	HashFilter md5Filter(md5), shaFilter(sha), ripemdFilter(ripemd), sha256Filter(sha256);
+#ifdef WORD64_AVAILABLE
+	Tiger tiger;
+	SHA512 sha512;
+	Whirlpool whirlpool;
+	vector_member_ptrs<HashFilter> filters(6);
+	filters[0].reset(new HashFilter(sha));
+	filters[1].reset(new HashFilter(ripemd));
+	filters[2].reset(new HashFilter(tiger));
+	filters[3].reset(new HashFilter(sha256));
+	filters[4].reset(new HashFilter(sha512));
+	filters[5].reset(new HashFilter(whirlpool));
+#else
+	vector_member_ptrs<HashFilter> filters(3);
+	filters[0].reset(new HashFilter(sha));
+	filters[1].reset(new HashFilter(ripemd));
+	filters[2].reset(new HashFilter(sha256));
+#endif
 
 	auto_ptr<ChannelSwitch> channelSwitch(new ChannelSwitch);
-	channelSwitch->AddDefaultRoute(md5Filter);
-	channelSwitch->AddDefaultRoute(shaFilter);
-	channelSwitch->AddDefaultRoute(ripemdFilter);
-	channelSwitch->AddDefaultRoute(sha256Filter);
+	size_t i;
+	for (i=0; i<filters.size(); i++)
+		channelSwitch->AddDefaultRoute(*filters[i]);
 	FileSource(filename, true, channelSwitch.release());
 
 	HexEncoder encoder(new FileSink(cout), false);
-	cout << "\nMD5: ";
-	md5Filter.TransferTo(encoder);
-	cout << "\nSHA-1: ";
-	shaFilter.TransferTo(encoder);
-	cout << "\nRIPEMD-160: ";
-	ripemdFilter.TransferTo(encoder);
-	cout << "\nSHA-256: ";
-	sha256Filter.TransferTo(encoder);
+	for (i=0; i<filters.size(); i++)
+	{
+		cout << filters[i]->AlgorithmName() << ": ";
+		filters[i]->TransferTo(encoder);
+		cout << "\n";
+	}
 }
 
 void HmacFile(const char *hexKey, const char *file)
@@ -771,19 +795,19 @@ bool Validate(int alg, bool thorough, const char *seed)
 	case 14: result = ValidateRSA(); break;
 	case 15: result = ValidateElGamal(); break;
 	case 16: result = ValidateDSA(thorough); break;
-	case 17: result = ValidateHAVAL(); break;
+//	case 17: result = ValidateHAVAL(); break;
 	case 18: result = ValidateSAFER(); break;
 	case 19: result = ValidateLUC(); break;
 	case 20: result = ValidateRabin(); break;
 //	case 21: result = ValidateBlumGoldwasser(); break;
 	case 22: result = ValidateECP(); break;
 	case 23: result = ValidateEC2N(); break;
-	case 24: result = ValidateMD5MAC(); break;
+//	case 24: result = ValidateMD5MAC(); break;
 	case 25: result = ValidateGOST(); break;
 	case 26: result = ValidateTiger(); break;
 	case 27: result = ValidateRIPEMD(); break;
 	case 28: result = ValidateHMAC(); break;
-	case 29: result = ValidateXMACC(); break;
+//	case 29: result = ValidateXMACC(); break;
 	case 30: result = ValidateSHARK(); break;
 	case 32: result = ValidateLUC_DH(); break;
 	case 33: result = ValidateLUC_DL(); break;
@@ -818,6 +842,7 @@ bool Validate(int alg, bool thorough, const char *seed)
 	case 62: result = ValidateWhirlpool(); break;
 	case 63: result = ValidateTTMAC(); break;
 	case 64: result = ValidateSalsa(); break;
+	case 65: result = ValidateSosemanuk(); break;
 	default: return false;
 	}
 
