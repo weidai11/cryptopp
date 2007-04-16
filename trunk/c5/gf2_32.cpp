@@ -22,7 +22,7 @@ GF2_32::Element GF2_32::Multiply(Element a, Element b) const
 		table[3] = m_modulus ^ (a<<1);
 	}
 
-#ifdef FAST_ROTATE
+#if CRYPTOPP_FAST_ROTATE(32)
 	b = rotrFixed(b, 30U);
 	word32 result = table[b&2];
 
