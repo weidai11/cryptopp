@@ -1,5 +1,5 @@
 Crypto++: a C++ Class Library of Cryptographic Schemes
-Version 5.4 12/22/2006
+Version 5.5 (in development)
 
 This library includes:
 
@@ -22,11 +22,11 @@ This library includes:
 - key agreement schemes: Diffie-Hellman (DH), Unified Diffie-
   Hellman (DH2), Menezes-Qu-Vanstone (MQV), LUCDIF, XTR-DH
 - elliptic curve cryptography: ECDSA, ECNR, ECIES, ECDH, ECMQV
-- one-way hash functions: SHA-1, MD2, MD4, MD5, HAVAL, RIPEMD-
-  128, RIPEMD-256, RIPEMD-160, RIPEMD-320, Tiger, SHA-2 (SHA-256,
-  SHA-384, and SHA-512), Panama, Whirlpool
-- message authentication codes: MD5-MAC, HMAC, XOR-MAC, CBC-MAC,
-  DMAC, Two-Track-MAC
+- one-way hash functions: SHA-1, MD2, MD4, MD5, RIPEMD-128,
+  RIPEMD-256, RIPEMD-160, RIPEMD-320, Tiger, SHA-2 (SHA-224,
+  SHA-256, SHA-384, and SHA-512), Panama, Whirlpool
+- message authentication codes: HMAC, CBC-MAC, DMAC, VMAC
+  Two-Track-MAC
 - cipher constructions based on hash functions: Luby-Rackoff, MDC
 - pseudo random number generators (PRNG): ANSI X9.17 appendix C,
   PGP's RandPool
@@ -360,4 +360,18 @@ the mailing list.
     - updated Whirlpool to version 3.0
     - ported to GCC 4.1, Sun C++ 5.8, and Borland C++Builder 2006
 
+5.5 - added VMAC, Sosemanuk
+    - improved speed of AES and Whirlpool
+      using MMX instructions
+    - improved speed of modular multiplication, SHA-512, Tiger, Salsa20,
+      and PANAMA cipher using SSE2 instructions
+    - optimized Camellia and added defense against timing attacks
+    - updated benchmarks code to show cycles per byte and to time key setup
+    - started using OpenMP for increased multi-core speed
+    - enabled optimization flags by default in GNUmakefile
+    - changed PANAMA cipher interface to accept 256-bit key and 256-bit IV
+    - added blinding and error checking for RW private key operation
+    - moved MD2, MD4, MD5, PanamaHash, WAKE_CFB into the namespace "Weak"
+    - removed HAVAL, MD5-MAC, XMAC
+    
 Written by Wei Dai
