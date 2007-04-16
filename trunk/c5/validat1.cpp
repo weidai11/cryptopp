@@ -33,6 +33,7 @@
 #include "camellia.h"
 #include "osrng.h"
 #include "zdeflate.h"
+#include "cpu.h"
 
 #include <stdlib.h>
 #include <time.h>
@@ -56,15 +57,12 @@ bool ValidateAll(bool thorough)
 	pass=ValidateMD5() && pass;
 	pass=ValidateSHA() && pass;
 	pass=ValidateSHA2() && pass;
-	pass=ValidateHAVAL() && pass;
 	pass=ValidateTiger() && pass;
 	pass=ValidateRIPEMD() && pass;
 	pass=ValidatePanama() && pass;
 	pass=ValidateWhirlpool() && pass;
 
-	pass=ValidateMD5MAC() && pass;
 	pass=ValidateHMAC() && pass;
-	pass=ValidateXMACC() && pass;
 	pass=ValidateTTMAC() && pass;
 
 	pass=ValidatePBKDF() && pass;
@@ -92,6 +90,7 @@ bool ValidateAll(bool thorough)
 	pass=ValidateSHACAL2() && pass;
 	pass=ValidateCamellia() && pass;
 	pass=ValidateSalsa() && pass;
+	pass=ValidateSosemanuk() && pass;
 
 	pass=ValidateBBS() && pass;
 	pass=ValidateDH() && pass;
@@ -216,6 +215,22 @@ bool TestSettings()
 #endif
 	cout << endl;
 
+	bool hasMMX = HasMMX();
+	bool hasSSE2 = HasSSE2();
+	bool hasSSSE3 = HasSSSE3();
+	bool isP4 = IsP4();
+	int cacheLineSize = GetCacheLineSize();
+
+	if ((isP4 && (!hasMMX || !hasSSE2)) || (hasSSE2 && !hasMMX) || (cacheLineSize < 16 || cacheLineSize > 256 || !IsPowerOf2(cacheLineSize)))
+	{
+		cout << "FAILED:  ";
+		pass = false;
+	}
+	else
+		cout << "passed:  ";
+
+	cout << "hasMMX == " << hasMMX << ", hasSSE2 == " << hasSSE2 << ", hasSSSE3 == " << hasSSSE3 << ", isP4 == " << isP4 << ", cacheLineSize == " << cacheLineSize;
+
 	if (!pass)
 	{
 		cout << "Some critical setting in config.h is in error.  Please fix it and recompile." << endl;
@@ -260,6 +275,7 @@ bool TestOS_RNG()
 			cout << "passed:";
 		cout << "  it took " << long(t1) << " seconds to generate " << total << " bytes" << endl;
 
+#if 0	// disable this part. it's causing an unpredictable pause during the validation testing
 		if (t1 < 2)
 		{
 			// that was fast, are we really blocking?
@@ -280,9 +296,7 @@ bool TestOS_RNG()
 				total += 1;
 				length += 1;
 			}
-			// turn off this test because it fails on several systems, including Darwin
-			// they don't block, or gather entropy too fast?
-			if (false) // (length > 1024)
+			if (length > 1024)
 			{
 				cout << "FAILED:";
 				pass = false;
@@ -291,6 +305,7 @@ bool TestOS_RNG()
 				cout << "passed:";
 			cout << "  it generated " << length << " bytes in " << long(time(NULL) - t) << " seconds" << endl;
 		}
+#endif
 
 		test.AttachedTransformation()->MessageEnd();
 
@@ -1296,17 +1311,12 @@ bool ValidateCamellia()
 {
 	cout << "\nCamellia validation suite running...\n\n";
 
-#ifdef WORD64_AVAILABLE
 	bool pass = true;
 	FileSource valdata("camellia.dat", true, new HexDecoder);
 	pass = BlockTransformationTest(FixedRoundsCipherFactory<CamelliaEncryption, CamelliaDecryption>(16), valdata, 15) && pass;
 	pass = BlockTransformationTest(FixedRoundsCipherFactory<CamelliaEncryption, CamelliaDecryption>(24), valdata, 15) && pass;
 	pass = BlockTransformationTest(FixedRoundsCipherFactory<CamelliaEncryption, CamelliaDecryption>(32), valdata, 15) && pass;
 	return pass;
-#else
-	cout << "word64 not available, skipping Camellia validation." << endl;
-	return true;
-#endif
 }
 
 bool ValidateSalsa()
@@ -1314,4 +1324,11 @@ bool ValidateSalsa()
 	cout << "\nSalsa validation suite running...\n";
 
 	return RunTestDataFile("TestVectors/salsa.txt");
+}
+
+bool ValidateSosemanuk()
+{
+	cout << "\nSosemanuk validation suite running...\n";
+
+	return RunTestDataFile("TestVectors/sosemanuk.txt");
 }
