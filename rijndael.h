@@ -46,7 +46,6 @@ class CRYPTOPP_DLL Rijndael : public Rijndael_Info, public BlockCipherDocumentat
 	{
 	public:
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
-		void ProcessAndXorBlock_Old(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
 	};
 
 public:
