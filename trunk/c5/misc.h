@@ -394,7 +394,7 @@ inline CipherDir GetCipherDir(const T &obj)
 	return obj.IsForwardTransformation() ? ENCRYPTION : DECRYPTION;
 }
 
-void CallNewHandler();
+CRYPTOPP_DLL void CallNewHandler();
 
 inline void IncrementCounterByOne(byte *inout, unsigned int s)
 {
