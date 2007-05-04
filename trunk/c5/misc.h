@@ -32,7 +32,7 @@
 #include <mem.h>
 #endif
 
-#if defined(__GNUC__) && !defined(__sun__) && !defined(__MINGW32__)
+#if defined(__GNUC__) && defined(__linux__)
 #define CRYPTOPP_BYTESWAP_AVAILABLE
 #include <byteswap.h>
 #endif
