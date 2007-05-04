@@ -1,6 +1,6 @@
 #include "factory.h"
 
-#define CRYPTOPP_ENABLE_NAMESPACE_WEAK
+#define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
 #include "modes.h"
 #include "dh.h"
 #include "esign.h"
