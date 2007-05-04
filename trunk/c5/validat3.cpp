@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "validate.h"
 
-#define CRYPTOPP_ENABLE_NAMESPACE_WEAK
+#define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
 #include "smartptr.h"
 #include "crc.h"
 #include "adler32.h"
