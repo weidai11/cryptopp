@@ -130,10 +130,13 @@ public:
 		#endif
 
 			assert(IsAlignedOn(p, 16));
-			return (T*)p;
+			return (pointer)p;
 		}
 
-		return new T[n];
+		pointer p;
+		while (!(p = (pointer)malloc(sizeof(T)*n)))
+			CallNewHandler();
+		return p;
 	}
 
 	void deallocate(void *p, size_type n)
@@ -153,7 +156,7 @@ public:
 			return;
 		}
 
-		delete [] (T *)p;
+		free(p);
 	}
 
 	pointer reallocate(T *p, size_type oldSize, size_type newSize, bool preserve)
@@ -164,13 +167,19 @@ public:
 	// VS.NET STL enforces the policy of "All STL-compliant allocators have to provide a
 	// template class member called rebind".
     template <class U> struct rebind { typedef AllocatorWithCleanup<U, T_Align16> other; };
+#if _MSC_VER >= 1500
+	AllocatorWithCleanup() {}
+	template <class U, bool A> AllocatorWithCleanup(const AllocatorWithCleanup<U, A> &) {}
+#endif
 };
 
 CRYPTOPP_DLL_TEMPLATE_CLASS AllocatorWithCleanup<byte>;
 CRYPTOPP_DLL_TEMPLATE_CLASS AllocatorWithCleanup<word16>;
 CRYPTOPP_DLL_TEMPLATE_CLASS AllocatorWithCleanup<word32>;
 CRYPTOPP_DLL_TEMPLATE_CLASS AllocatorWithCleanup<word64>;
-CRYPTOPP_DLL_TEMPLATE_CLASS AllocatorWithCleanup<word, CRYPTOPP_BOOL_X86>;	// for Integer
+#if CRYPTOPP_BOOL_X86
+CRYPTOPP_DLL_TEMPLATE_CLASS AllocatorWithCleanup<word, true>;	// for Integer
+#endif
 
 template <class T>
 class NullAllocator : public AllocatorBase<T>
@@ -260,7 +269,7 @@ public:
 	size_type max_size() const {return STDMAX(m_fallbackAllocator.max_size(), S);}
 
 private:
-	T* GetAlignedArray() {return T_Align16 ? (T*)(((byte *)m_array) + (0-(unsigned int)m_array)%16) : m_array;}
+	T* GetAlignedArray() {return T_Align16 ? (T*)(((byte *)m_array) + (0-(size_t)m_array)%16) : m_array;}
 
 	CRYPTOPP_ALIGN_DATA(8) T m_array[T_Align16 ? S+8/sizeof(T) : S];
 	A m_fallbackAllocator;
@@ -466,10 +475,10 @@ public:
 	explicit SecBlockWithHint(size_t size) : SecBlock<T, A>(size) {}
 };
 
-template<class T, class U>
-inline bool operator==(const CryptoPP::AllocatorWithCleanup<T>&, const CryptoPP::AllocatorWithCleanup<U>&) {return (true);}
-template<class T, class U>
-inline bool operator!=(const CryptoPP::AllocatorWithCleanup<T>&, const CryptoPP::AllocatorWithCleanup<U>&) {return (false);}
+template<class T, bool A, class U, bool B>
+inline bool operator==(const CryptoPP::AllocatorWithCleanup<T, A>&, const CryptoPP::AllocatorWithCleanup<U, B>&) {return (true);}
+template<class T, bool A, class U, bool B>
+inline bool operator!=(const CryptoPP::AllocatorWithCleanup<T, A>&, const CryptoPP::AllocatorWithCleanup<U, B>&) {return (false);}
 
 NAMESPACE_END
 

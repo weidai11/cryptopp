@@ -1,8 +1,10 @@
 // cpu.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
-#include "cpu.h"
 
+#ifndef CRYPTOPP_IMPORTS
+
+#include "cpu.h"
 #include "misc.h"
 #include <algorithm>
 
@@ -11,10 +13,15 @@
 #include <setjmp.h>
 #endif
 
+#ifdef CRYPTOPP_MSVC6PP_OR_LATER
+#include <emmintrin.h>
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 #ifdef CRYPTOPP_X86_ASM_AVAILABLE
 
+#ifndef _MSC_VER
 typedef void (*SigHandler)(int);
 
 static jmp_buf s_jmpNoCPUID;
@@ -22,6 +29,7 @@ static void SigIllHandlerCPUID(int)
 {
 	longjmp(s_jmpNoCPUID, 1);
 }
+#endif
 
 bool CpuId(word32 input, word32 *output)
 {
@@ -57,7 +65,11 @@ bool CpuId(word32 input, word32 *output)
 		__asm__
 		(
 			// save ebx in case -fPIC is being used
+#if CRYPTOPP_BOOL_X86
 			"push %%ebx; cpuid; mov %%ebx, %%edi; pop %%ebx"
+#else
+			"pushq %%rbx; cpuid; mov %%ebx, %%edi; popq %%rbx"
+#endif
 			: "=a" (output[0]), "=D" (output[1]), "=c" (output[2]), "=d" (output[3])
 			: "a" (input)
 		);
@@ -84,22 +96,19 @@ bool CpuId(word32 input, word32 *output)
 	return true;
 }
 
-inline bool TrySSE2()
-{
-	return true;
-}
-
 #endif
 
 #ifdef CRYPTOPP_CPUID_AVAILABLE
 
 static bool TrySSE2()
 {
-#ifdef _MSC_VER
+#if CRYPTOPP_BOOL_X64
+	return true;
+#elif defined(_MSC_VER)
     __try
 	{
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
-        __asm por xmm0, xmm0        // executing SSE2 instruction
+        AS2(por xmm0, xmm0)        // executing SSE2 instruction
 #elif CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
 		__mm128i x = _mm_setzero_si128();
 		return _mm_cvtsi128_si32(x) == 0;
@@ -137,7 +146,7 @@ static bool TrySSE2()
 
 bool g_x86DetectionDone = false;
 bool g_hasSSE2 = false, g_hasSSSE3 = false, g_hasMMX = false, g_isP4 = false;
-int g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
+word32 g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
 
 void DetectX86Features()
 {
@@ -170,3 +179,5 @@ void DetectX86Features()
 #endif
 
 NAMESPACE_END
+
+#endif

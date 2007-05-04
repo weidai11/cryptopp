@@ -68,6 +68,10 @@ void SosemanukPolicy::CipherResynchronize(byte *keystreamBuffer, const byte *iv)
 	m_state[1] = b;
 	m_state[2] = e;
 	m_state[3] = d;
+
+#define XMUX(c, x, y)   (x ^ (y & (0 - (c & 1))))
+	m_state[11] += XMUX(m_state[10], m_state[1], m_state[8]);
+	m_state[10] = rotlFixed(m_state[10] * 0x54655307, 7);
 }
 
 static word32 s_mulTables[512] = {
@@ -282,10 +286,8 @@ unsigned int SosemanukPolicy::GetAlignment() const
 	else
 #endif
 		return 1;
-#endif
 }
 
-#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X64
 unsigned int SosemanukPolicy::GetOptimalBlockSize() const
 {
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
@@ -316,54 +318,54 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 		__asm__ __volatile__
 		(
 		".intel_syntax noprefix;"
-		AS1(	push	ebx)
+		AS_PUSH(		bx)
 #else
 		word32 *state = m_state;
-		AS2(	mov		eax, state)
-		AS2(	mov		edi, output)
-		AS2(	mov		edx, input)
-		AS2(	mov		ecx, iterationCount)
+		AS2(	mov		WORD_REG(ax), state)
+		AS2(	mov		WORD_REG(di), output)
+		AS2(	mov		WORD_REG(dx), input)
+		AS2(	mov		WORD_REG(cx), iterationCount)
 #endif
 
-#define SSE2_output			DWORD PTR [esp+1*4]
-#define SSE2_input			DWORD PTR [esp+2*4]
-#define SSE2_wordsLeft		DWORD PTR [esp+3*4]
-#define SSE2_ediEnd			DWORD PTR [esp+4*4]
-#define SSE2_pMulTables		DWORD PTR [esp+5*4]
-#define SSE2_state			DWORD PTR [esp+6*4]
-#define SSE2_wordsLeft2		DWORD PTR [esp+7*4]
-#define SSE2_stateCopy		esp + 8*4
+#define SSE2_output			WORD_PTR [WORD_REG(sp)+1*WORD_SZ]
+#define SSE2_input			WORD_PTR [WORD_REG(sp)+2*WORD_SZ]
+#define SSE2_wordsLeft		WORD_PTR [WORD_REG(sp)+3*WORD_SZ]
+#define SSE2_diEnd			WORD_PTR [WORD_REG(sp)+4*WORD_SZ]
+#define SSE2_pMulTables		WORD_PTR [WORD_REG(sp)+5*WORD_SZ]
+#define SSE2_state			WORD_PTR [WORD_REG(sp)+6*WORD_SZ]
+#define SSE2_wordsLeft2		WORD_PTR [WORD_REG(sp)+7*WORD_SZ]
+#define SSE2_stateCopy		WORD_REG(sp) + 8*WORD_SZ
 #define	SSE2_uvStart		SSE2_stateCopy + 12*4
 
-		AS1(	push	ebp)
-		AS2(	mov		ebx, esp)
-		AS2(	and		esp, 0xfffffff0)
-		AS2(	sub		esp, 80*4*2+12*4+8*4)	// 80 v's, 80 u's, 12 state, 8 locals
-		AS2(	mov		[esp], ebx)
-		AS2(	mov		SSE2_output, edi)
-		AS2(	mov		SSE2_input, edx)
-		AS2(	mov		SSE2_state, eax)
+		AS_PUSH(		bp)
+		AS2(	mov		WORD_REG(bx), WORD_REG(sp))
+		AS2(	and		WORD_REG(sp), -16)
+		AS2(	sub		WORD_REG(sp), 80*4*2+12*4+8*WORD_SZ)	// 80 v's, 80 u's, 12 state, 8 locals
+		AS2(	mov		[WORD_REG(sp)], WORD_REG(bx))
+		AS2(	mov		SSE2_output, WORD_REG(di))
+		AS2(	mov		SSE2_input, WORD_REG(dx))
+		AS2(	mov		SSE2_state, WORD_REG(ax))
 #ifndef _MSC_VER
-		AS2(	mov		SSE2_pMulTables, esi)
+		AS2(	mov		SSE2_pMulTables, WORD_REG(si))
 #endif
-		AS2(	lea		ecx, [4*ecx+ecx])
-		AS2(	lea		esi, [4*ecx])
-		AS2(	mov		SSE2_wordsLeft, esi)
-		AS2(	movdqa	xmm0, [eax+0*16])		// copy state to stack to save a register
+		AS2(	lea		WORD_REG(cx), [4*WORD_REG(cx)+WORD_REG(cx)])
+		AS2(	lea		WORD_REG(si), [4*WORD_REG(cx)])
+		AS2(	mov		SSE2_wordsLeft, WORD_REG(si))
+		AS2(	movdqa	xmm0, [WORD_REG(ax)+0*16])		// copy state to stack to save a register
 		AS2(	movdqa	[SSE2_stateCopy+0*16], xmm0)
-		AS2(	movdqa	xmm0, [eax+1*16])
+		AS2(	movdqa	xmm0, [WORD_REG(ax)+1*16])
 		AS2(	movdqa	[SSE2_stateCopy+1*16], xmm0)
-		AS2(	movq	xmm0, QWORD PTR [eax+2*16])
+		AS2(	movq	xmm0, QWORD PTR [WORD_REG(ax)+2*16])
 		AS2(	movq	QWORD PTR [SSE2_stateCopy+2*16], xmm0)
 		AS2(	psrlq	xmm0, 32)
 		AS2(	movd	ebx, xmm0)				// s(9)
-		AS2(	mov		ecx, [eax+10*4])
-		AS2(	mov		edx, [eax+11*4])
+		AS2(	mov		ecx, [WORD_REG(ax)+10*4])
+		AS2(	mov		edx, [WORD_REG(ax)+11*4])
 		AS2(	pcmpeqb	xmm7, xmm7)				// all ones
 
 #define s(i)	SSE2_stateCopy + ASM_MOD(i,10)*4
-#define u(j)	edi + (ASM_MOD(j,4)*20 + (j/4)) * 4
-#define v(j)	edi + (ASM_MOD(j,4)*20 + (j/4)) * 4 + 80*4
+#define u(j)	WORD_REG(di) + (ASM_MOD(j,4)*20 + (j/4)) * 4
+#define v(j)	WORD_REG(di) + (ASM_MOD(j,4)*20 + (j/4)) * 4 + 80*4
 
 #define r10 ecx
 #define r11 edx
@@ -371,42 +373,42 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 #define r21 ecx
 
 #define SSE2_STEP(i, j)	\
-	AS2(	mov		eax, [s(i+3)])\
-	AS2(	mov		ebp, 1)\
-	AS2(	and		ebp, r1##j)\
-	AS1(	neg		ebp)\
-	AS2(	and		ebp, [s(i+8)])\
-	AS2(	xor		ebp, [s(i+1)])\
-	AS2(	add		r2##j, ebp)\
-	AS2(	movzx	ebp, al)\
-	AS2(	shr		eax, 8)\
-	AS2(	xor		eax, [esi+1024+ebp*4])\
-	AS2(	lea		ebp, [ebx + r2##j])\
-	AS2(	xor		ebx, eax)\
-	AS2(	imul	r1##j, 0x54655307)\
 	AS2(	mov		eax, [s(i+0)])\
 	AS2(	mov		[v(i)], eax)\
 	AS2(	rol		eax, 8)\
-	AS2(	xor		ebx, eax)\
-	AS2(	movzx	eax, al)\
-	AS2(	rol		r1##j, 7)\
-	AS2(	xor		ebx, [esi+eax*4])\
+	AS2(	lea		ebp, [ebx + r2##j])\
 	AS2(	xor		ebp, r1##j)\
 	AS2(	mov		[u(i)], ebp)\
+	AS2(	mov		ebp, 1)\
+	AS2(	and		ebp, r2##j)\
+	AS1(	neg		ebp)\
+	AS2(	and		ebp, ebx)\
+	AS2(	xor		ebx, eax)\
+	AS2(	movzx	eax, al)\
+	AS2(	xor		ebx, [WORD_REG(si)+WORD_REG(ax)*4])\
+	AS2(	mov		eax, [s(i+3)])\
+	AS2(	xor		ebp, [s(i+2)])\
+	AS2(	add		r1##j, ebp)\
+	AS2(	movzx	ebp, al)\
+	AS2(	shr		eax, 8)\
+	AS2(	xor		ebx, [WORD_REG(si)+1024+WORD_REG(bp)*4])\
+	AS2(	xor		ebx, eax)\
+	AS2(	imul	r2##j, 0x54655307)\
+	AS2(	rol		r2##j, 7)\
 	AS2(	mov		[s(i+0)], ebx)\
 
 		ASL(2)	// outer loop, each iteration of this processes 80 words
-		AS2(	lea		edi, [SSE2_uvStart])	// start of v and u
-		AS2(	mov		eax, 80)
-		AS2(	cmp		esi, 80)
-		AS2(	cmovg	esi, eax)
-		AS2(	mov		SSE2_wordsLeft2, esi)
-		AS2(	lea		esi, [edi+esi])		// use to first inner loop
-		AS2(	mov		SSE2_ediEnd, esi)
+		AS2(	lea		WORD_REG(di), [SSE2_uvStart])	// start of v and u
+		AS2(	mov		WORD_REG(ax), 80)
+		AS2(	cmp		WORD_REG(si), 80)
+		AS2(	cmovg	WORD_REG(si), WORD_REG(ax))
+		AS2(	mov		SSE2_wordsLeft2, WORD_REG(si))
+		AS2(	lea		WORD_REG(si), [WORD_REG(di)+WORD_REG(si)])		// use to end first inner loop
+		AS2(	mov		SSE2_diEnd, WORD_REG(si))
 #ifdef _MSC_VER
-		AS2(	lea		esi, s_mulTables)
+		AS2(	lea		WORD_REG(si), s_mulTables)
 #else
-		AS2(	mov		esi, SSE2_pMulTables)
+		AS2(	mov		WORD_REG(si), SSE2_pMulTables)
 #endif
 
 		ASL(0)	// first inner loop, 20 words each, 4 iterations
@@ -431,20 +433,20 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 		SSE2_STEP(18, 0)
 		SSE2_STEP(19, 1)
 		// loop
-		AS2(	add		edi, 5*4)
-		AS2(	cmp		edi, SSE2_ediEnd)
+		AS2(	add		WORD_REG(di), 5*4)
+		AS2(	cmp		WORD_REG(di), SSE2_diEnd)
 		ASJ(	jne,	0, b)
 
-		AS2(	mov		eax, SSE2_input)
-		AS2(	mov		ebp, SSE2_output)
-		AS2(	lea		edi, [SSE2_uvStart])		// start of v and u
-		AS2(	mov		esi, SSE2_wordsLeft2)
+		AS2(	mov		WORD_REG(ax), SSE2_input)
+		AS2(	mov		WORD_REG(bp), SSE2_output)
+		AS2(	lea		WORD_REG(di), [SSE2_uvStart])		// start of v and u
+		AS2(	mov		WORD_REG(si), SSE2_wordsLeft2)
 
 		ASL(1)	// second inner loop, 16 words each, 5 iterations
-		AS2(	movdqa	xmm0, [edi+0*20*4])
-		AS2(	movdqa	xmm1, [edi+1*20*4])
-		AS2(	movdqa	xmm2, [edi+2*20*4])
-		AS2(	movdqa	xmm3, [edi+3*20*4])
+		AS2(	movdqa	xmm0, [WORD_REG(di)+0*20*4])
+		AS2(	movdqa	xmm2, [WORD_REG(di)+2*20*4])
+		AS2(	movdqa	xmm3, [WORD_REG(di)+3*20*4])
+		AS2(	movdqa	xmm1, [WORD_REG(di)+1*20*4])
 		// S2
 		AS2(	movdqa	xmm4, xmm0)
 		AS2(	pand	xmm0, xmm2)
@@ -463,13 +465,13 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
  		AS2(	pxor	xmm1, xmm4)
 		AS2(	pxor	xmm4, xmm7)
 		// xor with v
-		AS2(	pxor	xmm2, [edi+80*4])
-		AS2(	pxor	xmm3, [edi+80*5])
-		AS2(	pxor	xmm1, [edi+80*6])
-		AS2(	pxor	xmm4, [edi+80*7])
+		AS2(	pxor	xmm2, [WORD_REG(di)+80*4])
+		AS2(	pxor	xmm3, [WORD_REG(di)+80*5])
+		AS2(	pxor	xmm1, [WORD_REG(di)+80*6])
+		AS2(	pxor	xmm4, [WORD_REG(di)+80*7])
 		// exit loop early if less than 16 words left to output
 		// this is necessary because block size is 20 words, and we output 16 words in each iteration of this loop
-		AS2(	cmp		esi, 16)
+		AS2(	cmp		WORD_REG(si), 16)
 		ASJ(	jl,		4, f)
 		// unpack
 		AS2(	movdqa		xmm6, xmm2)
@@ -485,75 +487,75 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 		AS2(	punpcklqdq	xmm6, xmm5)
 		AS2(	punpckhqdq	xmm3, xmm5)
 		// output keystream
-		AS2(	test	eax, eax)
+		AS2(	test	WORD_REG(ax), WORD_REG(ax))
 		ASJ(	jz,		3, f)
 		AS2(	test	eax, 0xf)
 		ASJ(	jnz,	7, f)
-		AS2(	pxor	xmm2, [eax+0*16])
-		AS2(	pxor	xmm0, [eax+1*16])
-		AS2(	pxor	xmm6, [eax+2*16])
-		AS2(	pxor	xmm3, [eax+3*16])
-		AS2(	add		eax, 4*16)
+		AS2(	pxor	xmm2, [WORD_REG(ax)+0*16])
+		AS2(	pxor	xmm0, [WORD_REG(ax)+1*16])
+		AS2(	pxor	xmm6, [WORD_REG(ax)+2*16])
+		AS2(	pxor	xmm3, [WORD_REG(ax)+3*16])
+		AS2(	add		WORD_REG(ax), 4*16)
 		ASJ(	jmp,	3, f)
 		ASL(7)
-		AS2(	movdqu	xmm1, [eax+0*16])
+		AS2(	movdqu	xmm1, [WORD_REG(ax)+0*16])
 		AS2(	pxor	xmm2, xmm1)
-		AS2(	movdqu	xmm1, [eax+1*16])
+		AS2(	movdqu	xmm1, [WORD_REG(ax)+1*16])
 		AS2(	pxor	xmm0, xmm1)
-		AS2(	movdqu	xmm1, [eax+2*16])
+		AS2(	movdqu	xmm1, [WORD_REG(ax)+2*16])
 		AS2(	pxor	xmm6, xmm1)
-		AS2(	movdqu	xmm1, [eax+3*16])
+		AS2(	movdqu	xmm1, [WORD_REG(ax)+3*16])
 		AS2(	pxor	xmm3, xmm1)
-		AS2(	add		eax, 4*16)
+		AS2(	add		WORD_REG(ax), 4*16)
 		ASL(3)
 		AS2(	test	ebp, 0xf)
 		ASJ(	jnz,	8, f)
-		AS2(	movdqa	[ebp+0*16], xmm2)
-		AS2(	movdqa	[ebp+1*16], xmm0)
-		AS2(	movdqa	[ebp+2*16], xmm6)
-		AS2(	movdqa	[ebp+3*16], xmm3)
+		AS2(	movdqa	[WORD_REG(bp)+0*16], xmm2)
+		AS2(	movdqa	[WORD_REG(bp)+1*16], xmm0)
+		AS2(	movdqa	[WORD_REG(bp)+2*16], xmm6)
+		AS2(	movdqa	[WORD_REG(bp)+3*16], xmm3)
 		ASJ(	jmp,	9, f)
 		ASL(8)
-		AS2(	movdqu	[ebp+0*16], xmm2)
-		AS2(	movdqu	[ebp+1*16], xmm0)
-		AS2(	movdqu	[ebp+2*16], xmm6)
-		AS2(	movdqu	[ebp+3*16], xmm3)
+		AS2(	movdqu	[WORD_REG(bp)+0*16], xmm2)
+		AS2(	movdqu	[WORD_REG(bp)+1*16], xmm0)
+		AS2(	movdqu	[WORD_REG(bp)+2*16], xmm6)
+		AS2(	movdqu	[WORD_REG(bp)+3*16], xmm3)
 		ASL(9)
 		// loop
-		AS2(	add		edi, 4*4)
-		AS2(	add		ebp, 4*16)
-		AS2(	sub		esi, 16)
+		AS2(	add		WORD_REG(di), 4*4)
+		AS2(	add		WORD_REG(bp), 4*16)
+		AS2(	sub		WORD_REG(si), 16)
 		ASJ(	jnz,	1, b)
 
 		// outer loop
-		AS2(	mov		esi, SSE2_wordsLeft)
-		AS2(	sub		esi, 80)
+		AS2(	mov		WORD_REG(si), SSE2_wordsLeft)
+		AS2(	sub		WORD_REG(si), 80)
 		ASJ(	jz,		6, f)
-		AS2(	mov		SSE2_wordsLeft, esi)
-		AS2(	mov		SSE2_input, eax)
-		AS2(	mov		SSE2_output, ebp)
+		AS2(	mov		SSE2_wordsLeft, WORD_REG(si))
+		AS2(	mov		SSE2_input, WORD_REG(ax))
+		AS2(	mov		SSE2_output, WORD_REG(bp))
 		ASJ(	jmp,	2, b)
 
 		ASL(4)	// final output of less than 16 words
-		AS2(	test	eax, eax)
+		AS2(	test	WORD_REG(ax), WORD_REG(ax))
 		ASJ(	jz,		5, f)
-		AS2(	movd	xmm0, [eax+0*4])
+		AS2(	movd	xmm0, [WORD_REG(ax)+0*4])
 		AS2(	pxor	xmm2, xmm0)
-		AS2(	movd	xmm0, [eax+1*4])
+		AS2(	movd	xmm0, [WORD_REG(ax)+1*4])
 		AS2(	pxor	xmm3, xmm0)
-		AS2(	movd	xmm0, [eax+2*4])
+		AS2(	movd	xmm0, [WORD_REG(ax)+2*4])
 		AS2(	pxor	xmm1, xmm0)
-		AS2(	movd	xmm0, [eax+3*4])
+		AS2(	movd	xmm0, [WORD_REG(ax)+3*4])
 		AS2(	pxor	xmm4, xmm0)
-		AS2(	add		eax, 16)
+		AS2(	add		WORD_REG(ax), 16)
 		ASL(5)
-		AS2(	movd	[ebp+0*4], xmm2)
-		AS2(	movd	[ebp+1*4], xmm3)
-		AS2(	movd	[ebp+2*4], xmm1)
-		AS2(	movd	[ebp+3*4], xmm4)
-		AS2(	sub		esi, 4)
+		AS2(	movd	[WORD_REG(bp)+0*4], xmm2)
+		AS2(	movd	[WORD_REG(bp)+1*4], xmm3)
+		AS2(	movd	[WORD_REG(bp)+2*4], xmm1)
+		AS2(	movd	[WORD_REG(bp)+3*4], xmm4)
+		AS2(	sub		WORD_REG(si), 4)
 		ASJ(	jz,		6, f)
-		AS2(	add		ebp, 16)
+		AS2(	add		WORD_REG(bp), 16)
 		AS2(	psrldq	xmm2, 4)
 		AS2(	psrldq	xmm3, 4)
 		AS2(	psrldq	xmm1, 4)
@@ -561,26 +563,26 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 		ASJ(	jmp,	4, b)
 
 		ASL(6)	// save state
-		AS2(	mov		ebx, SSE2_state)
+		AS2(	mov		WORD_REG(bx), SSE2_state)
 		AS2(	movdqa	xmm0, [SSE2_stateCopy+0*16])
-		AS2(	movdqa	[ebx+0*16], xmm0)
+		AS2(	movdqa	[WORD_REG(bx)+0*16], xmm0)
 		AS2(	movdqa	xmm0, [SSE2_stateCopy+1*16])
-		AS2(	movdqa	[ebx+1*16], xmm0)
+		AS2(	movdqa	[WORD_REG(bx)+1*16], xmm0)
 		AS2(	movq	xmm0, QWORD PTR [SSE2_stateCopy+2*16])
-		AS2(	movq	QWORD PTR [ebx+2*16], xmm0)
-		AS2(	mov		[ebx+10*4], ecx)
-		AS2(	mov		[ebx+11*4], edx)
+		AS2(	movq	QWORD PTR [WORD_REG(bx)+2*16], xmm0)
+		AS2(	mov		[WORD_REG(bx)+10*4], ecx)
+		AS2(	mov		[WORD_REG(bx)+11*4], edx)
 
-		AS1(	pop		esp)
-		AS1(	pop		ebp)
+		AS_POP(			sp)
+		AS_POP(			bp)
 
 #ifdef __GNUC__
-	AS1(	pop		ebx)
-	".att_syntax prefix;"
-		:
-		: "a" (m_state.m_ptr), "c" (iterationCount), "S" (s_mulTables), "D" (output), "d" (input)
-		: "memory", "cc"
-	);
+		AS_POP(			bx)
+		".att_syntax prefix;"
+			:
+			: "a" (m_state.m_ptr), "c" (iterationCount), "S" (s_mulTables), "D" (output), "d" (input)
+			: "memory", "cc"
+		);
 #endif
 	}
 	else
@@ -593,17 +595,16 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 #endif
 
 #define DIV_A(x)    (((x) >> 8) ^ s_mulTables[256 + byte(x)])
-#define XMUX(c, x, y)   (x ^ (y & (0 - (c & 1))))
 
 #define r1(i) ((i%2) ? reg2 : reg1)
 #define r2(i) ((i%2) ? reg1 : reg2)
 
 #define STEP(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, v, u)	\
-		r2(x0) += XMUX(r1(x0), s##x1, s##x8);\
-		r1(x0) = rotlFixed(r1(x0) * 0x54655307, 7);\
-		v = s##x0;\
 		u = (s##x9 + r2(x0)) ^ r1(x0);\
-		s##x0 = MUL_A(s##x0) ^ DIV_A(s##x3) ^ s##x9;
+		v = s##x0;\
+		s##x0 = MUL_A(s##x0) ^ DIV_A(s##x3) ^ s##x9;\
+		r1(x0) += XMUX(r2(x0), s##x2, s##x9);\
+		r2(x0) = rotlFixed(r2(x0) * 0x54655307, 7);\
 
 #define SOSEMANUK_OUTPUT(x)	\
 	CRYPTOPP_KEYSTREAM_OUTPUT_WORD(x, LITTLE_ENDIAN_ORDER, 0, u2 ^ v0);\
