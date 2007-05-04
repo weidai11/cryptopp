@@ -1,17 +1,59 @@
 AlgorithmType: MAC
-Name: VMAC(AES)-128
-Source: Ted Krovetz's vmac.c Version: 0.01 (14 July 2006)
+Name: VMAC(AES)-64
+Source: http://www.fastcrypto.org/vmac/draft-krovetz-vmac-01.txt
 Key: "abcdefghijklmnop"
-IV: "bcdefghi" r8 00
+IV: r8 00 "bcdefghi"
+Message: ""
+Digest: 2576BE1C56D8B81B
+Test: Verify
 Message: "abc"
-Digest: E5B10669E5B61668A11E3351CC1A7211
+Digest: 2D376CF5B1813CE5
 Test: Verify
 Message: r16 "abc"
-Digest: 12A64330F81D8B6407CE90667303FEE2
+Digest: E8421F61D573D298
 Test: Verify
 Message: r100 "abc"
-Digest: 10A63F27D4B292723739B4BB6F17A4C1
+Digest: 4492DF6C5CAC1BBE
 Test: Verify
 Message: r1000000 "abc"
-Digest: 22C65CC2CFE9BED72E485CA6EB8A48BE
+Digest: 09BA597DD7601113
 Test: Verify
+Message: r42 "abc" "ab"
+Digest: D638B73921F184DE
+Test: Verify
+Message: r170 "abc" "ab"
+Digest: 9DA310281E6FD0A0
+Test: Verify
+Message: "abc"
+Digest: 2D376CF5B1813CE0
+Test: NotVerify
+
+AlgorithmType: MAC
+Name: VMAC(AES)-128
+Source: http://www.fastcrypto.org/vmac/draft-krovetz-vmac-01.txt
+Key: "abcdefghijklmnop"
+IV: r8 00 "bcdefghi"
+Message: ""
+Digest: 472766C70F74ED23481D6D7DE4E80DAC
+Test: Verify
+Message: "abc"
+Digest: 4EE815A06A1D71EDD36FC75D51188A42
+Test: Verify
+Message: r16 "abc"
+Digest: 09F2C80C8E1007A0C12FAE19FE4504AE
+Test: Verify
+Message: r100 "abc"
+Digest: 66438817154850C61D8A412164803BCB
+Test: Verify
+Message: r1000000 "abc"
+Digest: 2B6B02288FFC461B75485DE893C629DC
+Test: Verify
+Message: r42 "abc" "ab"
+Digest: F7E95FE3DA8DB9E6BB973E65D0B4CEA5
+Test: Verify
+Message: r170 "abc" "ab"
+Digest: BF53B8D2D70C05A85880C2E21CAF1299
+Test: Verify
+Message: "abc"
+Digest: 4EE815A06A1D71EDD36FC75D51188A40
+Test: NotVerify
