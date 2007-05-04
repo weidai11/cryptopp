@@ -17,17 +17,6 @@ void Salsa20_TestInstantiations()
 	Salsa20::Encryption x;
 }
 
-void Salsa20_Policy::CipherGetNextIV(byte *IV)
-{
-	word32 j6, j7;
-
-	j6 = m_state[14] + 1;
-	j7 = m_state[11] + (j6 == 0);
-
-	PutWord(false, LITTLE_ENDIAN_ORDER, IV, j6);
-	PutWord(false, LITTLE_ENDIAN_ORDER, IV+4, j7);
-}
-
 void Salsa20_Policy::CipherSetKey(const NameValuePairs &params, const byte *key, size_t length)
 {
 	m_rounds = params.GetIntValueWithDefault(Name::Rounds(), 20);
@@ -87,10 +76,20 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 {
 	int i;
 #if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+	#define SSE2_QUARTER_ROUND(a, b, d, i)				{\
+		__m128i t = _mm_add_epi32(a, d);				\
+		b = _mm_xor_si128(b, _mm_slli_epi32(t, i));		\
+		b = _mm_xor_si128(b, _mm_srli_epi32(t, 32-i));}
+
 	if (HasSSE2())
 	{
 		__m128i *s = (__m128i *)m_state.data();
 
+#if CRYPTOPP_GCC_VERSION >= 40000 || _MSC_VER > 1400 || (defined(_MSC_VER) && CRYPTOPP_BOOL_X86)
+		// This code triggers an internal compiler error on MSVC 2005 when compiling 
+		// for x64 with optimizations on. hopefully it will get fixed in the next release.
+		// A bug report has been submitted at http://connect.microsoft.com/VisualStudio/feedback/ViewFeedback.aspx?FeedbackID=274123
+		// Also, GCC 3.4.4 generates incorrect code for x86 at -O2.
 		if (iterationCount >= 4)
 		{
 			__m128i ss[16];
@@ -139,11 +138,6 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 
 				for (i=m_rounds; i>0; i-=2)
 				{
-					#define SSE2_QUARTER_ROUND(a, b, d, i)				{\
-						__m128i t = _mm_add_epi32(a, d);				\
-						b = _mm_xor_si128(b, _mm_slli_epi32(t, i));		\
-						b = _mm_xor_si128(b, _mm_srli_epi32(t, 32-i));}
-
 					#define QUARTER_ROUND(a, b, c, d)	\
 						SSE2_QUARTER_ROUND(a, b, d, 7)	\
 						SSE2_QUARTER_ROUND(b, c, a, 9)	\
@@ -205,6 +199,7 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 				#undef SALSA_OUTPUT
 			} while ((iterationCount-=4) >= 4);
 		}
+#endif
 
 		if (!IsP4()) while (iterationCount)
 		{
@@ -333,6 +328,6 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 		if (++m_state[8] == 0)
 			++m_state[5];
 	}
-}
+}	// see comment above if an internal compiler error occurs here
 
 NAMESPACE_END

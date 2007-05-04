@@ -1,99 +1,59 @@
 // randpool.cpp - written and placed in the public domain by Wei Dai
-// The algorithm in this module comes from PGP's randpool.c
+// RandomPool used to follow the design of randpool in PGP 2.6.x,
+// but as of version 5.5 it has been redesigned to reduce the risk
+// of reusing random numbers after state rollback (which may occur
+// when running in a virtual machine like VMware).
 
 #include "pch.h"
 
 #ifndef CRYPTOPP_IMPORTS
 
 #include "randpool.h"
-#include "mdc.h"
+#include "aes.h"
 #include "sha.h"
-#include "modes.h"
+#include "hrtimer.h"
+#include <time.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 
-typedef MDC<SHA> RandomPoolCipher;
-
-RandomPool::RandomPool(unsigned int poolSize)
-	: pool(poolSize), key(RandomPoolCipher::DEFAULT_KEYLENGTH)
+RandomPool::RandomPool()
+	: m_pCipher(new AES::Encryption), m_keySet(false)
 {
-	assert(poolSize > key.size());
-
-	addPos=0;
-	getPos=poolSize;
-	memset(pool, 0, poolSize);
-	memset(key, 0, key.size());
 }
 
-void RandomPool::Stir()
+void RandomPool::IncorporateEntropy(const byte *input, size_t length)
 {
-	CFB_Mode<RandomPoolCipher>::Encryption cipher;
+	SHA256 hash;
+	hash.Update(m_key, 32);
+	hash.Update(input, length);
+	hash.Final(m_key);
+	m_keySet = false;
+}
 
-	for (int i=0; i<2; i++)
+void RandomPool::GenerateIntoBufferedTransformation(BufferedTransformation &target, const std::string &channel, lword size)
+{
+	if (size > 0)
 	{
-		cipher.SetKeyWithIV(key, key.size(), pool.end()-cipher.IVSize());
-		cipher.ProcessString(pool, pool.size());
-		memcpy(key, pool, key.size());
+		if (!m_keySet)
+			m_pCipher->SetKey(m_key, 32);
+
+		Timer timer;
+		TimerWord tw = timer.GetCurrentTimerValue();
+		CRYPTOPP_COMPILE_ASSERT(sizeof(tw) <= 16);
+		*(TimerWord *)m_seed.data() += tw;
+
+		time_t t = time(NULL);
+		CRYPTOPP_COMPILE_ASSERT(sizeof(t) <= 8);
+		*(time_t *)(m_seed.data()+8) += t;
+
+		do
+		{
+			m_pCipher->ProcessBlock(m_seed);
+			size_t len = UnsignedMin(16, size);
+			target.ChannelPut(channel, m_seed, len);
+			size -= len;
+		} while (size > 0);
 	}
-
-	addPos = 0;
-	getPos = key.size();
-}
-
-size_t RandomPool::Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
-{
-	size_t t;
-
-	while (length > (t = pool.size() - addPos))
-	{
-		xorbuf(pool+addPos, inString, t);
-		inString += t;
-		length -= t;
-		Stir();
-	}
-
-	if (length)
-	{
-		xorbuf(pool+addPos, inString, length);
-		addPos += length;
-		getPos = pool.size(); // Force stir on get
-	}
-
-	return 0;
-}
-
-size_t RandomPool::TransferTo2(BufferedTransformation &target, lword &transferBytes, const std::string &channel, bool blocking)
-{
-	if (!blocking)
-		throw NotImplemented("RandomPool: nonblocking transfer is not implemented by this object");
-
-	lword size = transferBytes;
-
-	while (size > 0)
-	{
-		if (getPos == pool.size())
-			Stir();
-		size_t t = UnsignedMin(pool.size() - getPos, size);
-		target.ChannelPut(channel, pool+getPos, t);
-		size -= t;
-		getPos += t;
-	}
-
-	return 0;
-}
-
-byte RandomPool::GenerateByte()
-{
-	if (getPos == pool.size())
-		Stir();
-
-	return pool[getPos++];
-}
-
-void RandomPool::GenerateBlock(byte *outString, size_t size)
-{
-	ArraySink sink(outString, size);
-	TransferTo(sink, size);
 }
 
 NAMESPACE_END
