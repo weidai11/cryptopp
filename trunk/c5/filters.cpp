@@ -496,6 +496,17 @@ void ProxyFilter::NextPutModifiable(byte *s, size_t len)
 
 // *************************************************************
 
+void RandomNumberSink::IsolatedInitialize(const NameValuePairs &parameters)
+{
+	parameters.GetRequiredParameter("RandomNumberSink", "RandomNumberGeneratorPointer", m_rng);
+}
+
+size_t RandomNumberSink::Put2(const byte *begin, size_t length, int messageEnd, bool blocking)
+{
+	m_rng->IncorporateEntropy(begin, length);
+	return 0;
+}
+
 size_t ArraySink::Put2(const byte *begin, size_t length, int messageEnd, bool blocking)
 {
 	memcpy(m_buf+m_total, begin, STDMIN(length, SaturatingSubtract(m_size, m_total)));
@@ -952,9 +963,10 @@ size_t RandomNumberStore::TransferTo2(BufferedTransformation &target, lword &tra
 	if (!blocking)
 		throw NotImplemented("RandomNumberStore: nonblocking transfer is not implemented by this object");
 
-	lword transferMax = transferBytes;
-	for (transferBytes = 0; transferBytes<transferMax && m_count < (unsigned int)m_length; ++transferBytes, ++m_count)
-		target.ChannelPut(channel, m_rng->GenerateByte());
+	transferBytes = UnsignedMin(transferBytes, m_length - m_count);
+	m_rng->GenerateIntoBufferedTransformation(target, channel, transferBytes);
+	m_count += transferBytes;
+
 	return 0;
 }
 

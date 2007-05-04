@@ -565,6 +565,23 @@ private:
 CRYPTOPP_DLL_TEMPLATE_CLASS StringSinkTemplate<std::string>;
 typedef StringSinkTemplate<std::string> StringSink;
 
+//! incorporates input into RNG as additional entropy
+class RandomNumberSink : public Bufferless<Sink>
+{
+public:
+	RandomNumberSink()
+		: m_rng(NULL) {}
+
+	RandomNumberSink(RandomNumberGenerator &rng)
+		: m_rng(&rng) {}
+
+	void IsolatedInitialize(const NameValuePairs &parameters);
+	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking);
+
+private:
+	RandomNumberGenerator *m_rng;
+};
+
 //! Copy input to a memory buffer
 class CRYPTOPP_DLL ArraySink : public Bufferless<Sink>
 {
@@ -716,13 +733,19 @@ class CRYPTOPP_DLL StringSource : public SourceTemplate<StringStore>
 public:
 	StringSource(BufferedTransformation *attachment = NULL)
 		: SourceTemplate<StringStore>(attachment) {}
+	//! zero terminated string as source
 	StringSource(const char *string, bool pumpAll, BufferedTransformation *attachment = NULL)
 		: SourceTemplate<StringStore>(attachment) {SourceInitialize(pumpAll, MakeParameters("InputBuffer", ConstByteArrayParameter(string)));}
+	//! binary byte array as source
 	StringSource(const byte *string, size_t length, bool pumpAll, BufferedTransformation *attachment = NULL)
 		: SourceTemplate<StringStore>(attachment) {SourceInitialize(pumpAll, MakeParameters("InputBuffer", ConstByteArrayParameter(string, length)));}
+	//! std::string as source
 	StringSource(const std::string &string, bool pumpAll, BufferedTransformation *attachment = NULL)
 		: SourceTemplate<StringStore>(attachment) {SourceInitialize(pumpAll, MakeParameters("InputBuffer", ConstByteArrayParameter(string)));}
 };
+
+//! use the third constructor for an array source
+typedef StringSource ArraySource;
 
 //! RNG-based implementation of Source interface
 class CRYPTOPP_DLL RandomNumberSource : public SourceTemplate<RandomNumberStore>

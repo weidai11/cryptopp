@@ -24,20 +24,6 @@ void AdditiveCipherTemplate<S>::UncheckedSetKey(const byte *key, unsigned int le
 }
 
 template <class S>
-byte AdditiveCipherTemplate<S>::GenerateByte()
-{
-	PolicyInterface &policy = this->AccessPolicy();
-
-	if (m_leftOver == 0)
-	{
-		policy.WriteKeystream(m_buffer, policy.GetIterationsToBuffer());
-		m_leftOver = policy.GetBytesPerIteration();
-	}
-
-	return *(KeystreamBufferEnd()-m_leftOver--);
-}
-
-template <class S>
 void AdditiveCipherTemplate<S>::GenerateBlock(byte *outString, size_t length)
 {
 	if (m_leftOver > 0)
@@ -59,9 +45,7 @@ void AdditiveCipherTemplate<S>::GenerateBlock(byte *outString, size_t length)
 	if (length >= bytesPerIteration)
 	{
 		size_t iterations = length / bytesPerIteration;
-
 		policy.WriteKeystream(outString, iterations);
-
 		outString += iterations * bytesPerIteration;
 		length -= iterations * bytesPerIteration;
 

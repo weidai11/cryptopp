@@ -17,7 +17,7 @@
 <dt>Message Authentication Codes<dd>
 	#MD5MAC, XMACC, HMAC, CBC_MAC, DMAC, PanamaMAC, TTMAC
 <dt>Random Number Generators<dd>
-	NullRNG(), LC_RNG, RandomPool, BlockingRng, NonblockingRng, AutoSeededRandomPool, AutoSeededX917RNG
+	NullRNG(), LC_RNG, RandomPool, BlockingRng, NonblockingRng, AutoSeededRandomPool, AutoSeededX917RNG, DefaultAutoSeededRNG
 <dt>Password-based Cryptography<dd>
 	PasswordBasedKeyDerivationFunction
 <dt>Public Key Cryptosystems<dd>
@@ -61,7 +61,7 @@ In the FIPS 140-2 validated DLL version of Crypto++, only the following implemen
 <dt>Message Authentication Codes (replace template parameter H with one of the hash functions above)<dd>
 	HMAC\<H\>, CBC_MAC\<DES_EDE2\>, CBC_MAC\<DES_EDE3\>
 <dt>Random Number Generators<dd>
-	AutoSeededX917RNG\<DES_EDE3\>
+	DefaultAutoSeededRNG (AutoSeededX917RNG\<AES\>)
 <dt>Key Agreement<dd>
 	#DH
 <dt>Public Key Cryptosystems<dd>
@@ -84,6 +84,8 @@ NAMESPACE_BEGIN(CryptoPP)
 
 // forward declarations
 class Integer;
+class RandomNumberGenerator;
+class BufferedTransformation;
 
 //! used to specify a direction for a cipher to operate in (encrypt or decrypt)
 enum CipherDir {ENCRYPTION,	DECRYPTION};
@@ -397,7 +399,7 @@ public:
 	/*! This method should be called after you finish encrypting one message and are ready to start the next one.
 		After calling it, you must call SetKey() or Resynchronize() before using this object again. 
 		This method is not implemented on decryption objects. */
-	virtual void GetNextIV(byte *IV) {throw NotImplemented("SimpleKeyingInterface: this object doesn't support GetNextIV()");}
+	virtual void GetNextIV(RandomNumberGenerator &rng, byte *IV);
 
 protected:
 	virtual const Algorithm & GetAlgorithm() const =0;
@@ -438,7 +440,7 @@ public:
 	virtual unsigned int BlockSize() const =0;
 
 	//! block pointers must be divisible by this
-	virtual unsigned int BlockAlignment() const {return 4;}
+	virtual unsigned int BlockAlignment() const;	// returns alignment of word32 by default
 
 	//! returns true if this is a permutation (i.e. there is an inverse transformation)
 	virtual bool IsPermutation() const {return true;}
@@ -624,23 +626,30 @@ typedef SymmetricCipher StreamCipher;
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE RandomNumberGenerator : public Algorithm
 {
 public:
+	//! update RNG state with additional unpredictable values
+	virtual void IncorporateEntropy(const byte *input, size_t length) {throw NotImplemented("RandomNumberGenerator: IncorporateEntropy not implemented");}
+
+	//! returns true if IncorporateEntropy is implemented
+	virtual bool CanIncorporateEntropy() const {return false;}
+
 	//! generate new random byte and return it
-	virtual byte GenerateByte() =0;
+	virtual byte GenerateByte();
 
 	//! generate new random bit and return it
-	/*! Default implementation is to call GenerateByte() and return its parity. */
+	/*! Default implementation is to call GenerateByte() and return its lowest bit. */
 	virtual unsigned int GenerateBit();
 
 	//! generate a random 32 bit word in the range min to max, inclusive
 	virtual word32 GenerateWord32(word32 a=0, word32 b=0xffffffffL);
 
 	//! generate random array of bytes
-	/*! Default implementation is to call GenerateByte() size times. */
 	virtual void GenerateBlock(byte *output, size_t size);
 
 	//! generate and discard n bytes
-	/*! Default implementation is to call GenerateByte() n times. */
 	virtual void DiscardBytes(size_t n);
+
+	//! generate random bytes as input to a BufferedTransformation
+	virtual void GenerateIntoBufferedTransformation(BufferedTransformation &target, const std::string &channel, lword length);
 
 	//! randomly shuffle the specified array, resulting permutation is uniformly distributed
 	template <class IT> void Shuffle(IT begin, IT end)

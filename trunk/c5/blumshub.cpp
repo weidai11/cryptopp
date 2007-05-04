@@ -32,6 +32,18 @@ byte PublicBlumBlumShub::GenerateByte()
 	return b;
 }
 
+void PublicBlumBlumShub::GenerateBlock(byte *output, size_t size)
+{
+	while (size--)
+		*output++ = PublicBlumBlumShub::GenerateByte();
+}
+
+void PublicBlumBlumShub::ProcessData(byte *outString, const byte *inString, size_t length)
+{
+	while (length--)
+		*outString++ = *inString++ ^ PublicBlumBlumShub::GenerateByte();
+}
+
 BlumBlumShub::BlumBlumShub(const Integer &p, const Integer &q, const Integer &seed)
 	: PublicBlumBlumShub(p*q, seed),
 	  p(p), q(q),

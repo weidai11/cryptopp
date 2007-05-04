@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-#define CRYPTOPP_ENABLE_NAMESPACE_WEAK
+#define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
 #include "blumshub.h"
 #include "rsa.h"
 #include "md2.h"
@@ -39,11 +39,9 @@ class FixedRNG : public RandomNumberGenerator
 public:
 	FixedRNG(BufferedTransformation &source) : m_source(source) {}
 
-	byte GenerateByte()
+	void GenerateBlock(byte *output, size_t size)
 	{
-		byte b;
-		m_source.Get(b);
-		return b;
+		m_source.Get(output, size);
 	}
 
 private:
