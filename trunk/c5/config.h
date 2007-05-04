@@ -135,6 +135,8 @@ typedef unsigned int word32;
 			typedef word32 hword;
 			typedef word64 word;
 			typedef __uint128_t dword;
+			typedef __uint128_t word128;
+			#define CRYPTOPP_WORD128_AVAILABLE
 		#else
 			// if we're here, it means we're on a 64-bit CPU but we don't have a way to obtain 128-bit multiplication results
 			typedef word16 hword;
@@ -275,6 +277,14 @@ NAMESPACE_END
 	#else
 		#define CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE 0
 	#endif
+#endif
+
+#if !defined(CRYPTOPP_DISABLE_ASM) && defined(_MSC_VER) && defined(_M_X64)
+	#define CRYPTOPP_X64_MASM_AVAILABLE
+#endif
+
+#if !defined(CRYPTOPP_DISABLE_ASM) && defined(__GNUC__) && defined(__x86_64__)
+	#define CRYPTOPP_X64_ASM_AVAILABLE
 #endif
 
 #if !defined(CRYPTOPP_DISABLE_SSE2) && (defined(CRYPTOPP_MSVC6PP_OR_LATER) || defined(__SSE2__))
