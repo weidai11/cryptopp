@@ -254,6 +254,10 @@ SOURCE=.\channels.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\cpu.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\crc.cpp
 # End Source File
 # Begin Source File
@@ -359,10 +363,6 @@ SOURCE=.\gzip.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\haval.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\hex.cpp
 # End Source File
 # Begin Source File
@@ -412,10 +412,6 @@ SOURCE=.\md4.cpp
 # Begin Source File
 
 SOURCE=.\md5.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\md5mac.cpp
 # End Source File
 # Begin Source File
 
@@ -568,6 +564,10 @@ SOURCE=.\socketft.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\sosemanuk.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\square.cpp
 # End Source File
 # Begin Source File
@@ -605,6 +605,10 @@ SOURCE=.\ttmac.cpp
 # Begin Source File
 
 SOURCE=.\twofish.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\vmac.cpp
 # End Source File
 # Begin Source File
 
@@ -828,10 +832,6 @@ SOURCE=.\gzip.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\haval.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\hex.h
 # End Source File
 # Begin Source File
@@ -881,10 +881,6 @@ SOURCE=.\md4.h
 # Begin Source File
 
 SOURCE=.\md5.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\md5mac.h
 # End Source File
 # Begin Source File
 
@@ -1113,10 +1109,6 @@ SOURCE=.\winpipes.h
 # Begin Source File
 
 SOURCE=.\words.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\xormac.h
 # End Source File
 # Begin Source File
 
