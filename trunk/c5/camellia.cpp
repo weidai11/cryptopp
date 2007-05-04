@@ -228,7 +228,7 @@ void Camellia::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBloc
 
 	SLOW_ROUND(lh, ll, rh, rl, KS(1,0), KS(1,1))
 	SLOW_ROUND(rh, rl, lh, ll, KS(1,2), KS(1,3))
-	for (unsigned int i = m_rounds-1; i > 0; --i)
+	for (i = m_rounds-1; i > 0; --i)
 	{
 		DOUBLE_ROUND(lh, ll, rh, rl, KS(2,0), KS(2,1), KS(2,2), KS(2,3))
 		DOUBLE_ROUND(lh, ll, rh, rl, KS(3,0), KS(3,1), KS(3,2), KS(3,3))

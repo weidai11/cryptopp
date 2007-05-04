@@ -34,7 +34,7 @@ void Tiger::TruncatedFinal(byte *hash, size_t size)
 
 void Tiger::Transform (word64 *digest, const word64 *X)
 {
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && CRYPTOPP_BOOL_X86
 	if (HasSSE2())
 	{
 #ifdef __GNUC__
@@ -43,9 +43,14 @@ void Tiger::Transform (word64 *digest, const word64 *X)
 		".intel_syntax noprefix;"
 		AS1(	push	ebx)
 #else
+	#if _MSC_VER < 1300
+		const word64 *t = table;
+		AS2(	mov		edx, t)
+	#else
+		AS2(	lea		edx, [table])
+	#endif
 		AS2(	mov		eax, digest)
 		AS2(	mov		esi, X)
-		AS2(	lea		edx, [table])
 #endif
 		AS2(	movq	mm0, [eax])
 		AS2(	movq	mm1, [eax+1*8])

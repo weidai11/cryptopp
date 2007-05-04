@@ -5,13 +5,13 @@
 #include "randpool.h"
 #include "files.h"
 #include "trunhash.h"
+#include "queue.h"
+#include "validate.h"
 #include <iostream>
 #include <memory>
 
 USING_NAMESPACE(CryptoPP)
 USING_NAMESPACE(std)
-
-RandomPool & GlobalRNG();
 
 typedef std::map<std::string, std::string> TestData;
 
@@ -67,7 +67,7 @@ void PutDecodedDatumInto(const TestData &data, const char *name, BufferedTransfo
 			s1 = s1.substr(s1.find(' ')+1);
 		}
 		
-		s2.clear();
+		s2 = ""; // MSVC 6 doesn't have clear();
 
 		if (s1[0] == '\"')
 		{
@@ -85,8 +85,13 @@ void PutDecodedDatumInto(const TestData &data, const char *name, BufferedTransfo
 			s1 = s1.substr(STDMIN(s1.find(' '), s1.length()));
 		}
 
+		ByteQueue q;
 		while (repeat--)
-			target.Put((const byte *)s2.data(), s2.size());
+		{
+			q.Put((const byte *)s2.data(), s2.size());
+			if (q.MaxRetrievable() > 4*1024 || repeat == 0)
+				q.TransferTo(target);
+		}
 	}
 }
 

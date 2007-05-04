@@ -308,9 +308,9 @@ CRYPTOPP_ALIGN_DATA(16) static const word64 SHA512_K[80] CRYPTOPP_SECTION_ALIGN1
 	W64LIT(0x5fcb6fab3ad6faec), W64LIT(0x6c44198c4a475817)
 };
 
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && CRYPTOPP_BOOL_X86
 // put assembly version in separate function, otherwise MSVC 2005 SP1 doesn't generate correct code for the non-assembly version
-static void CRYPTOPP_FASTCALL SHA512_SSE2_Transform(word64 *state, const word64 *data)
+CRYPTOPP_NAKED static void CRYPTOPP_FASTCALL SHA512_SSE2_Transform(word64 *state, const word64 *data)
 {
 #ifdef __GNUC__
 	__asm__ __volatile__
@@ -319,6 +319,9 @@ static void CRYPTOPP_FASTCALL SHA512_SSE2_Transform(word64 *state, const word64 
 	AS1(	push	ebx)
 	AS2(	mov		ebx, eax)
 #else
+	AS1(	push	ebx)
+	AS1(	push	esi)
+	AS1(	push	edi)
 	AS2(	lea		ebx, SHA512_K)
 #endif
 
@@ -486,22 +489,30 @@ static void CRYPTOPP_FASTCALL SHA512_SSE2_Transform(word64 *state, const word64 
 	AS1(	pop		esp)
 	AS1(	emms)
 
-#ifdef __GNUC__
+#if defined(__GNUC__)
 	AS1(	pop		ebx)
 	".att_syntax prefix;"
 		:
 		: "a" (SHA512_K), "c" (state), "d" (data)
 		: "%esi", "%edi", "memory", "cc"
 	);
+#else
+	AS1(	pop		edi)
+	AS1(	pop		esi)
+	AS1(	pop		ebx)
+	AS1(	ret)
 #endif
 }
 #endif	// #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
 
 void SHA512::Transform(word64 *state, const word64 *data)
 {
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && CRYPTOPP_BOOL_X86
 	if (HasSSE2())
-		return SHA512_SSE2_Transform(state, data);
+	{
+		SHA512_SSE2_Transform(state, data);
+		return;
+	}
 #endif
 
 #define S0(x) (rotrFixed(x,28)^rotrFixed(x,34)^rotrFixed(x,39))
