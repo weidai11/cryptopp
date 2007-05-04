@@ -72,6 +72,11 @@ unsigned int Salsa20_Policy::GetOptimalBlockSize() const
 }
 #endif
 
+#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+static const __m128i s_maskLo32 = _mm_shuffle_epi32(_mm_cvtsi32_si128(-1), _MM_SHUFFLE(1, 0, 1, 0));
+static const __m128i s_maskHi32 = _mm_slli_epi64(s_maskLo32, 32);
+#endif
+
 void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount)
 {
 	int i;
@@ -238,16 +243,12 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 			if (++m_state[8] == 0)
 				++m_state[5];
 
-			CRYPTOPP_ALIGN_DATA(16) static const word32 masks[8] CRYPTOPP_SECTION_ALIGN16 = 
-				{0, 0xffffffff, 0, 0xffffffff, 0xffffffff, 0, 0xffffffff, 0};
-
 			__m128i k02 = _mm_or_si128(_mm_slli_epi64(x0, 32), _mm_srli_epi64(x3, 32));
 			k02 = _mm_shuffle_epi32(k02, _MM_SHUFFLE(0, 1, 2, 3));
 			__m128i k13 = _mm_or_si128(_mm_slli_epi64(x1, 32), _mm_srli_epi64(x0, 32));
 			k13 = _mm_shuffle_epi32(k13, _MM_SHUFFLE(0, 1, 2, 3));
-			__m128i maskLo32 = ((__m128i*)masks)[1], maskHi32 = ((__m128i*)masks)[0];
-			__m128i k20 = _mm_or_si128(_mm_and_si128(x2, maskLo32), _mm_and_si128(x1, maskHi32));
-			__m128i k31 = _mm_or_si128(_mm_and_si128(x3, maskLo32), _mm_and_si128(x2, maskHi32));
+			__m128i k20 = _mm_or_si128(_mm_and_si128(x2, s_maskLo32), _mm_and_si128(x1, s_maskHi32));
+			__m128i k31 = _mm_or_si128(_mm_and_si128(x3, s_maskLo32), _mm_and_si128(x2, s_maskHi32));
 
 			__m128i k0 = _mm_unpackhi_epi64(k02, k20);
 			__m128i k1 = _mm_unpackhi_epi64(k13, k31);

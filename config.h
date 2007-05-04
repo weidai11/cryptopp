@@ -196,7 +196,7 @@ NAMESPACE_END
 #endif
 
 #ifndef CRYPTOPP_SECTION_ALIGN16
-	#ifdef __GNUC__
+	#if defined(__GNUC__) && !defined(__APPLE__)
 		// the alignment attribute doesn't seem to work without this section attribute when -fdata-sections is turned on
 		#define CRYPTOPP_SECTION_ALIGN16 __attribute__((section ("CryptoPP_Align16")))
 	#else
