@@ -162,11 +162,11 @@ typedef RSASS<PKCS1v15, SHA>::Signer RSASSA_PKCS1v15_SHA_Signer;
 typedef RSASS<PKCS1v15, SHA>::Verifier RSASSA_PKCS1v15_SHA_Verifier;
 
 namespace Weak {
-typedef RSASS<PKCS1v15, MD2>::Signer RSASSA_PKCS1v15_MD2_Signer;
-typedef RSASS<PKCS1v15, MD2>::Verifier RSASSA_PKCS1v15_MD2_Verifier;
+typedef RSASS<PKCS1v15, Weak1::MD2>::Signer RSASSA_PKCS1v15_MD2_Signer;
+typedef RSASS<PKCS1v15, Weak1::MD2>::Verifier RSASSA_PKCS1v15_MD2_Verifier;
 
-typedef RSASS<PKCS1v15, MD5>::Signer RSASSA_PKCS1v15_MD5_Signer;
-typedef RSASS<PKCS1v15, MD5>::Verifier RSASSA_PKCS1v15_MD5_Verifier;
+typedef RSASS<PKCS1v15, Weak1::MD5>::Signer RSASSA_PKCS1v15_MD5_Signer;
+typedef RSASS<PKCS1v15, Weak1::MD5>::Verifier RSASSA_PKCS1v15_MD5_Verifier;
 }
 
 NAMESPACE_END

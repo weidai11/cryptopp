@@ -2,12 +2,12 @@
 // any modifications are placed in the public domain
 
 #include "pch.h"
-#define CRYPTOPP_ENABLE_NAMESPACE_WEAK
+#define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
 #include "md5.h"
 #include "misc.h"
 
 NAMESPACE_BEGIN(CryptoPP)
-namespace Weak {
+namespace Weak1 {
 
 void MD5_TestInstantiations()
 {
