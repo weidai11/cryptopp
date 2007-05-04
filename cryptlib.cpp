@@ -11,6 +11,8 @@
 #include "fips140.h"
 #include "argnames.h"
 #include "fltrimpl.h"
+#include "trdlocal.h"
+#include "osrng.h"
 
 #include <memory>
 
@@ -91,6 +93,11 @@ const byte * SimpleKeyingInterface::GetIVAndThrowIfInvalid(const NameValuePairs 
 	return iv;
 }
 
+void SimpleKeyingInterface::GetNextIV(RandomNumberGenerator &rng, byte *IV)
+{
+	rng.GenerateBlock(IV, IVSize());
+}
+
 void BlockTransformation::ProcessAndXorMultipleBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t numberOfBlocks) const
 {
 	unsigned int blockSize = BlockSize();
@@ -102,6 +109,11 @@ void BlockTransformation::ProcessAndXorMultipleBlocks(const byte *inBlocks, cons
 		if (xorBlocks)
 			xorBlocks += blockSize;
 	}
+}
+
+unsigned int BlockTransformation::BlockAlignment() const
+{
+	return GetAlignmentOf<word32>();
 }
 
 void StreamTransformation::ProcessLastBlock(byte *outString, const byte *inString, size_t length)
@@ -116,39 +128,53 @@ void StreamTransformation::ProcessLastBlock(byte *outString, const byte *inStrin
 
 unsigned int RandomNumberGenerator::GenerateBit()
 {
-	return Parity(GenerateByte());
+	return GenerateByte() & 1;
 }
 
-void RandomNumberGenerator::GenerateBlock(byte *output, size_t size)
+byte RandomNumberGenerator::GenerateByte()
 {
-	while (size--)
-		*output++ = GenerateByte();
+	byte b;
+	GenerateBlock(&b, 1);
+	return b;
 }
 
 word32 RandomNumberGenerator::GenerateWord32(word32 min, word32 max)
 {
 	word32 range = max-min;
-	const int maxBytes = BytePrecision(range);
 	const int maxBits = BitPrecision(range);
 
 	word32 value;
 
 	do
 	{
-		value = 0;
-		for (int i=0; i<maxBytes; i++)
-			value = (value << 8) | GenerateByte();
-
+		GenerateBlock((byte *)&value, sizeof(value));
 		value = Crop(value, maxBits);
 	} while (value > range);
 
 	return value+min;
 }
 
+void RandomNumberGenerator::GenerateBlock(byte *output, size_t size)
+{
+	ArraySink s(output, size);
+	GenerateIntoBufferedTransformation(s, BufferedTransformation::NULL_CHANNEL, size);
+}
+
 void RandomNumberGenerator::DiscardBytes(size_t n)
 {
-	while (n--)
-		GenerateByte();
+	GenerateIntoBufferedTransformation(TheBitBucket(), BufferedTransformation::NULL_CHANNEL, n);
+}
+
+void RandomNumberGenerator::GenerateIntoBufferedTransformation(BufferedTransformation &target, const std::string &channel, lword length)
+{
+	FixedSizeSecBlock<byte, 256> buffer;
+	while (length)
+	{
+		size_t len = UnsignedMin(buffer.size(), length);
+		GenerateBlock(buffer, len);
+		target.ChannelPut(channel, buffer, len);
+		length -= len;
+	}
 }
 
 //! see NullRNG()
@@ -156,7 +182,7 @@ class ClassNullRNG : public RandomNumberGenerator
 {
 public:
 	std::string AlgorithmName() const {return "NullRNG";}
-	byte GenerateByte() {throw NotImplemented("NullRNG: NullRNG should only be passed to functions that don't need to generate random bytes");}
+	void GenerateBlock(byte *output, size_t size) {throw NotImplemented("NullRNG: NullRNG should only be passed to functions that don't need to generate random bytes");}
 };
 
 RandomNumberGenerator & NullRNG()

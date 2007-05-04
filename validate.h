@@ -2,7 +2,6 @@
 #define CRYPTOPP_VALIDATE_H
 
 #include "cryptlib.h"
-#include "randpool.h"
 
 bool ValidateAll(bool thorough);
 bool TestSettings();
@@ -51,6 +50,7 @@ bool ValidateSHACAL2();
 bool ValidateCamellia();
 bool ValidateSalsa();
 bool ValidateSosemanuk();
+bool ValidateVMAC();
 
 bool ValidateBBS();
 bool ValidateDH();
@@ -72,7 +72,7 @@ bool ValidateEC2N();
 bool ValidateECDSA();
 bool ValidateESIGN();
 
-CryptoPP::RandomPool & GlobalRNG();
+CryptoPP::RandomNumberGenerator & GlobalRNG();
 bool RunTestDataFile(const char *filename);
 
 #endif

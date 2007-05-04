@@ -2,7 +2,7 @@
 
 #define _CRT_SECURE_NO_DEPRECATE
 #define CRYPTOPP_DEFAULT_NO_DLL
-#define CRYPTOPP_ENABLE_NAMESPACE_WEAK
+#define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
 
 #include "dll.h"
 #include "md5.h"
@@ -355,7 +355,7 @@ int CRYPTOPP_API main(int argc, char *argv[])
 void FIPS140_GenerateRandomFiles()
 {
 #ifdef OS_RNG_AVAILABLE
-	AutoSeededX917RNG<DES_EDE3> rng;
+	DefaultAutoSeededRNG rng;
 	RandomNumberStore store(rng, ULONG_MAX);
 
 	for (unsigned int i=0; i<100000; i++)
@@ -374,7 +374,7 @@ SecByteBlock HexDecodeString(const char *hex)
 	return result;
 }
 
-RandomPool & GlobalRNG()
+RandomNumberGenerator & GlobalRNG()
 {
 	static RandomPool randomPool;
 	return randomPool;
@@ -383,7 +383,7 @@ RandomPool & GlobalRNG()
 void GenerateRSAKey(unsigned int keyLength, const char *privFilename, const char *pubFilename, const char *seed)
 {
 	RandomPool randPool;
-	randPool.Put((byte *)seed, strlen(seed));
+	randPool.IncorporateEntropy((byte *)seed, strlen(seed));
 
 	RSAES_OAEP_SHA_Decryptor priv(randPool, keyLength);
 	HexEncoder privFile(new FileSink(privFilename));
@@ -402,7 +402,7 @@ string RSAEncryptString(const char *pubFilename, const char *seed, const char *m
 	RSAES_OAEP_SHA_Encryptor pub(pubFile);
 
 	RandomPool randPool;
-	randPool.Put((byte *)seed, strlen(seed));
+	randPool.IncorporateEntropy((byte *)seed, strlen(seed));
 
 	string result;
 	StringSource(message, true, new PK_EncryptorFilter(randPool, pub, new HexEncoder(new StringSink(result))));
@@ -544,7 +544,7 @@ void SecretShareFile(int threshold, int nShares, const char *filename, const cha
 	assert(nShares<=1000);
 
 	RandomPool rng;
-	rng.Put((byte *)seed, strlen(seed));
+	rng.IncorporateEntropy((byte *)seed, strlen(seed));
 
 	ChannelSwitch *channelSwitch;
 	FileSource source(filename, false, new SecretSharing(rng, threshold, nShares, channelSwitch = new ChannelSwitch));
@@ -774,7 +774,7 @@ bool Validate(int alg, bool thorough, const char *seed)
 	}
 
 	cout << "Using seed: " << seed << endl << endl;
-	GlobalRNG().Put((const byte *)seed, strlen(seed));
+	GlobalRNG().IncorporateEntropy((const byte *)seed, strlen(seed));
 
 	switch (alg)
 	{
@@ -843,6 +843,7 @@ bool Validate(int alg, bool thorough, const char *seed)
 	case 63: result = ValidateTTMAC(); break;
 	case 64: result = ValidateSalsa(); break;
 	case 65: result = ValidateSosemanuk(); break;
+	case 66: result = ValidateVMAC(); break;
 	default: return false;
 	}
 

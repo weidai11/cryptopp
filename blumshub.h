@@ -17,12 +17,8 @@ public:
 
 	unsigned int GenerateBit();
 	byte GenerateByte();
-
-	void ProcessData(byte *outString, const byte *inString, size_t length)
-	{
-		while (length--)
-			*outString++ = *inString ^ GenerateByte();
-	}
+	void GenerateBlock(byte *output, size_t size);
+	void ProcessData(byte *outString, const byte *inString, size_t length);
 
 	bool IsSelfInverting() const {return true;}
 	bool IsForwardTransformation() const {return true;}
