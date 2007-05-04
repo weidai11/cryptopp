@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-#define CRYPTOPP_ENABLE_NAMESPACE_WEAK
+#define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
 #include "files.h"
 #include "hex.h"
 #include "base32.h"
@@ -92,6 +92,7 @@ bool ValidateAll(bool thorough)
 	pass=ValidateCamellia() && pass;
 	pass=ValidateSalsa() && pass;
 	pass=ValidateSosemanuk() && pass;
+	pass=ValidateVMAC() && pass;
 
 	pass=ValidateBBS() && pass;
 	pass=ValidateDH() && pass;
@@ -197,6 +198,17 @@ bool TestSettings()
 	}
 	else
 		cout << "passed:  word64 not available" << endl;
+#endif
+
+#ifdef CRYPTOPP_WORD128_AVAILABLE
+	if (sizeof(word128) == 16)
+		cout << "passed:  ";
+	else
+	{
+		cout << "FAILED:  ";
+		pass = false;
+	}
+	cout << "sizeof(word128) == " << sizeof(word128) << endl;
 #endif
 
 	if (sizeof(word) == 2*sizeof(hword)
@@ -501,15 +513,13 @@ bool ValidateDES()
 
 bool TestModeIV(SymmetricCipher &e, SymmetricCipher &d)
 {
-	SecByteBlock lastIV;
+	SecByteBlock lastIV, iv(e.IVSize());
 	StreamTransformationFilter filter(e, new StreamTransformationFilter(d));
 	byte plaintext[20480];
 
 	for (unsigned int i=1; i<sizeof(plaintext); i*=2)
 	{
-		SecByteBlock iv(e.IVSize());
-		e.GetNextIV(iv);
-
+		e.GetNextIV(GlobalRNG(), iv);
 		if (iv == lastIV)
 			return false;
 		else
@@ -1330,6 +1340,11 @@ bool ValidateSalsa()
 bool ValidateSosemanuk()
 {
 	cout << "\nSosemanuk validation suite running...\n";
-
 	return RunTestDataFile("TestVectors/sosemanuk.txt");
+}
+
+bool ValidateVMAC()
+{
+	cout << "\nVMAC validation suite running...\n";
+	return RunTestDataFile("TestVectors/vmac.txt");
 }
