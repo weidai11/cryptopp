@@ -8,7 +8,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-void Serpent_KeySchedule(word32 *k, unsigned int rounds, const byte *userKey, unsigned int keylen)
+void Serpent_KeySchedule(word32 *k, unsigned int rounds, const byte *userKey, size_t keylen)
 {
 	FixedSizeSecBlock<word32, 8> k0;
 	GetUserKey(LITTLE_ENDIAN_ORDER, k0.begin(), 8, userKey, keylen);
