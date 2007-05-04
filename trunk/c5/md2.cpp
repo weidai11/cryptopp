@@ -15,11 +15,11 @@
  */
 
 #include "pch.h"
-#define CRYPTOPP_ENABLE_NAMESPACE_WEAK
+#define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
 #include "md2.h"
 
 NAMESPACE_BEGIN(CryptoPP)
-namespace Weak {
+namespace Weak1 {
 	
 MD2::MD2()
 	: m_X(48), m_C(16), m_buf(16)

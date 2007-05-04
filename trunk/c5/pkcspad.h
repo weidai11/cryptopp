@@ -37,7 +37,7 @@ class SHA224;
 class SHA256;
 class SHA384;
 class SHA512;
-namespace Weak {
+namespace Weak1 {
 class MD2;
 class MD5;
 }

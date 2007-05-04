@@ -5,7 +5,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-namespace Weak {
+namespace Weak1 {
 
 //! _
 class CRYPTOPP_NO_VTABLE ARC4_Base : public VariableKeyLength<16, 1, 256>, public RandomNumberGenerator, public SymmetricCipher, public SymmetricCipherDocumentation
@@ -15,7 +15,7 @@ public:
 
 	static const char *StaticAlgorithmName() {return "ARC4";}
 
-    byte GenerateByte();
+	void GenerateBlock(byte *output, size_t size);
 	void DiscardBytes(size_t n);
 
     void ProcessData(byte *outString, const byte *inString, size_t length);
@@ -55,12 +55,14 @@ protected:
 DOCUMENTED_TYPEDEF(SymmetricCipherFinal<MARC4_Base>, MARC4)
 
 }
-#ifndef CRYPTOPP_ENABLE_NAMESPACE_WEAK
-using namespace Weak;
-#ifdef __GNUC__
-#warning "You may be using a weak algorithm that has been retained for backwards compatibility. Please define CRYPTOPP_ENABLE_NAMESPACE_WEAK and prepend the class name with 'Weak::' to remove this warning."
+#if CRYPTOPP_ENABLE_NAMESPACE_WEAK >= 1
+namespace Weak {using namespace Weak1;}		// import Weak1 into CryptoPP::Weak
 #else
-#pragma message("You may be using a weak algorithm that has been retained for backwards compatibility. Please define CRYPTOPP_ENABLE_NAMESPACE_WEAK and prepend the class name with 'Weak::' to remove this warning.")
+using namespace Weak1;	// import Weak1 into CryptoPP with warning
+#ifdef __GNUC__
+#warning "You may be using a weak algorithm that has been retained for backwards compatibility. Please '#define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1' before including this .h file and prepend the class name with 'Weak::' to remove this warning."
+#else
+#pragma message("You may be using a weak algorithm that has been retained for backwards compatibility. Please '#define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1' before including this .h file and prepend the class name with 'Weak::' to remove this warning.")
 #endif
 #endif
 
