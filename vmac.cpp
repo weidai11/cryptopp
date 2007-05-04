@@ -139,11 +139,11 @@ VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWord64,
 	word32 L1KeyLength = m_L1KeyLength;
 	char isFirstBlock = m_isFirstBlock;
 	AS2(	mov		ebx, [L1KeyLength])
-	AS2(	movzx	edx, [isFirstBlock])
+	AS2(	mov		dl, [isFirstBlock])
 	#else
 	AS2(	mov		ecx, this)
 	AS2(	mov		ebx, [ecx+m_L1KeyLength])
-	AS2(	movzx	edx, [ecx+m_isFirstBlock])
+	AS2(	mov		dl, [ecx+m_isFirstBlock])
 	#endif
 	AS2(	mov		eax, tagPart)
 	AS2(	shl		eax, 4)
@@ -248,7 +248,7 @@ VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWord64,
 #define k1 [eax+2*8+3*4]
 #define k2 [eax+2*8+0*4]
 #define k3 [eax+2*8+1*4]
-	AS2(	test	edx, edx)
+	AS2(	test	dl, dl)
 	ASJ(	jz,		2, f)
 	AS2(	movd	mm1, k0)
 	AS2(	movd	mm0, [esp])
