@@ -1,4 +1,4 @@
-CXXFLAGS = -DNDEBUG -ffunction-sections -fdata-sections -g
+CXXFLAGS = -DNDEBUG -ffunction-sections -fdata-sections -g -O2
 LDFLAGS += -Wl,--gc-sections
 ARFLAGS = -cr	# ar needs the dash on OpenBSD
 RANLIB = ranlib
@@ -8,13 +8,6 @@ EGREP = egrep
 UNAME = $(shell uname)
 ISX86 = $(shell uname -m | $(EGREP) -c "i.86|x86|i86")
 ISMINGW = $(shell uname | $(EGREP) -c "MINGW32")
-GCC4_OR_LATER = $(shell $(CXX) -v 2>&1 | $(EGREP) -c "gcc version 4")
-
-ifeq ($(GCC4_OR_LATER),1)
-CXXFLAGS += -Os # -O3 causes Salsa20 validation to fail on GCC 4.1.2
-else
-CXXFLAGS += -O1 # -Os, -O2, -O3 all cause Salsa20 validation to fail on GCC 3.4.4
-endif
 
 # Default prefix for make install
 ifeq ($(PREFIX),)
@@ -28,11 +21,16 @@ endif
 ifeq ($(ISX86),1)
 
 GCC33_OR_LATER = $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(GCC\) (3.[3-9]|[4-9])")
+GCC42_OR_LATER = $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(GCC\) (4.[2-9]|[5-9])")
 INTEL_COMPILER = $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(ICC\)")
 GAS210_OR_LATER = $(shell echo "" | $(AS) -v 2>&1 | $(EGREP) -c "GNU assembler version (2.[1-9][0-9]|[3-9])")
 
 ifneq ($(GCC33_OR_LATER) $(INTEL_COMPILER),0 0)
+ifneq ($(GCC42_OR_LATER),0)
+CXXFLAGS += -march=native -mtune=native
+else
 CXXFLAGS += -msse2
+endif
 endif
 
 ifeq ($(GAS210_OR_LATER),0)	# .intel_syntax wasn't supported until GNU assembler 2.10
