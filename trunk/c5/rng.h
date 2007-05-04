@@ -16,7 +16,7 @@ public:
 	LC_RNG(word32 init_seed)
 		: seed(init_seed) {}
 
-	byte GenerateByte();
+	void GenerateBlock(byte *output, size_t size);
 
 	word32 GetSeed() {return seed;}
 
@@ -37,14 +37,13 @@ public:
 	// cipher will be deleted by destructor, deterministicTimeVector = 0 means obtain time vector from system
 	X917RNG(BlockTransformation *cipher, const byte *seed, const byte *deterministicTimeVector = 0);
 
-	byte GenerateByte();
+	void GenerateIntoBufferedTransformation(BufferedTransformation &target, const std::string &channel, lword size);
 
 private:
 	member_ptr<BlockTransformation> cipher;
-	const int S;			// blocksize of cipher
+	unsigned int S;			// blocksize of cipher
 	SecByteBlock dtbuf; 	// buffer for enciphered timestamp
-	SecByteBlock randseed, randbuf, m_deterministicTimeVector;
-	int randbuf_counter;	// # of unused bytes left in randbuf
+	SecByteBlock randseed, m_lastBlock, m_deterministicTimeVector;
 };
 
 /** This class implements Maurer's Universal Statistical Test for Random Bit Generators

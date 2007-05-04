@@ -3,6 +3,7 @@
 #include "pch.h"
 
 #include "rng.h"
+#include "fips140.h"
 
 #include <time.h>
 #include <math.h>
@@ -35,19 +36,22 @@ const word16 LC_RNG::a=16807;
 const word16 LC_RNG::r=2836;
 #endif
 
-byte LC_RNG::GenerateByte()
+void LC_RNG::GenerateBlock(byte *output, size_t size)
 {
-	word32 hi = seed/q;
-	word32 lo = seed%q;
+	while (size--)
+	{
+		word32 hi = seed/q;
+		word32 lo = seed%q;
 
-	long test = a*lo - r*hi;
+		long test = a*lo - r*hi;
 
-	if (test > 0)
-		seed = test;
-	else
-		seed = test+ m;
+		if (test > 0)
+			seed = test;
+		else
+			seed = test+ m;
 
-	return (GETBYTE(seed, 0) ^ GETBYTE(seed, 1) ^ GETBYTE(seed, 2) ^ GETBYTE(seed, 3));
+		*output++ = (GETBYTE(seed, 0) ^ GETBYTE(seed, 1) ^ GETBYTE(seed, 2) ^ GETBYTE(seed, 3));
+	}
 }
 
 // ********************************************************
@@ -59,24 +63,26 @@ X917RNG::X917RNG(BlockTransformation *c, const byte *seed, const byte *determini
 	  S(cipher->BlockSize()),
 	  dtbuf(S),
 	  randseed(seed, S),
-	  randbuf(S),
-	  randbuf_counter(0),
+	  m_lastBlock(S),
 	  m_deterministicTimeVector(deterministicTimeVector, deterministicTimeVector ? S : 0)
 {
 	if (!deterministicTimeVector)
 	{
 		time_t tstamp1 = time(0);
-		xorbuf(dtbuf, (byte *)&tstamp1, STDMIN((int)sizeof(tstamp1), S));
+		xorbuf(dtbuf, (byte *)&tstamp1, UnsignedMin(sizeof(tstamp1), S));
 		cipher->ProcessBlock(dtbuf);
 		clock_t tstamp2 = clock();
-		xorbuf(dtbuf, (byte *)&tstamp2, STDMIN((int)sizeof(tstamp2), S));
+		xorbuf(dtbuf, (byte *)&tstamp2, UnsignedMin(sizeof(tstamp2), S));
 		cipher->ProcessBlock(dtbuf);
 	}
+
+	// for FIPS 140-2
+	GenerateBlock(m_lastBlock, S);
 }
 
-byte X917RNG::GenerateByte()
+void X917RNG::GenerateIntoBufferedTransformation(BufferedTransformation &target, const std::string &channel, lword size)
 {
-	if (randbuf_counter==0)
+	while (size > 0)
 	{
 		// calculate new enciphered timestamp
 		if (m_deterministicTimeVector.size())
@@ -86,8 +92,10 @@ byte X917RNG::GenerateByte()
 		}
 		else
 		{
-			clock_t tstamp = clock();
-			xorbuf(dtbuf, (byte *)&tstamp, STDMIN((int)sizeof(tstamp), S));
+			clock_t c = clock();
+			xorbuf(dtbuf, (byte *)&c, UnsignedMin(sizeof(c), S));
+			time_t t = time(NULL);
+			xorbuf(dtbuf+S-UnsignedMin(sizeof(t), S), (byte *)&t, UnsignedMin(sizeof(t), S));
 			cipher->ProcessBlock(dtbuf);
 		}
 
@@ -95,16 +103,20 @@ byte X917RNG::GenerateByte()
 		xorbuf(randseed, dtbuf, S);
 
 		// generate a new block of random bytes
-		cipher->ProcessBlock(randseed, randbuf);
+		cipher->ProcessBlock(randseed);
+		if (memcmp(m_lastBlock, randseed, S) == 0)
+			throw SelfTestFailure("X917RNG: Continuous random number generator test failed.");
+
+		// output random bytes
+		size_t len = UnsignedMin(size, S);
+		target.ChannelPut(channel, randseed, len);
+		size -= len;
 
 		// compute new seed vector
-		for (int i=0; i<S; i++)
-			randseed[i] = randbuf[i] ^ dtbuf[i];
+		memcpy(m_lastBlock, randseed, S);
+		xorbuf(randseed, dtbuf, S);
 		cipher->ProcessBlock(randseed);
-
-		randbuf_counter=S;
 	}
-	return(randbuf[S-randbuf_counter--]);
 }
 
 #endif
