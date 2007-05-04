@@ -59,7 +59,6 @@ ifeq ($(UNAME),Darwin)
 AR = libtool
 ARFLAGS = -static -o
 CXX = c++
-CXXFLAGS += -D__pic__
 IS_GCC2 = $(shell $(CXX) -v 2>&1 | $(EGREP) -c gcc-932)
 ifeq ($(IS_GCC2),1)
 CXXFLAGS += -fno-coalesce-templates -fno-coalesce-static-vtables
