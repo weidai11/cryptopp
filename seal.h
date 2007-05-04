@@ -18,7 +18,6 @@ class CRYPTOPP_NO_VTABLE SEAL_Policy : public AdditiveCipherConcretePolicy<word3
 protected:
 	void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length);
 	void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount);
-	void CipherGetNextIV(byte *IV) {PutWord(false, BIG_ENDIAN_ORDER, IV, m_outsideCounter+1);}
 	void CipherResynchronize(byte *keystreamBuffer, const byte *IV);
 	bool IsRandomAccess() const {return true;}
 	void SeekToIteration(lword iterationCount);

@@ -24,15 +24,6 @@ void Modes_TestInstantiations()
 }
 #endif
 
-void CipherModeBase::GetNextIV(byte *IV)
-{
-	if (!IsForwardTransformation())
-		throw NotImplemented("CipherModeBase: GetNextIV() must be called on an encryption object");
-
-	m_cipher->ProcessBlock(m_register);
-	memcpy(IV, m_register, BlockSize());
-}
-
 void CTR_ModePolicy::SeekToIteration(lword iterationCount)
 {
 	int carry=0;
@@ -43,11 +34,6 @@ void CTR_ModePolicy::SeekToIteration(lword iterationCount)
 		carry = sum >> 8;
 		iterationCount >>= 8;
 	}
-}
-
-void CTR_ModePolicy::CipherGetNextIV(byte *IV)
-{
-	IncrementCounterByOne(IV, m_counterArray, BlockSize());
 }
 
 inline void CTR_ModePolicy::ProcessMultipleBlocks(byte *output, const byte *input, size_t n)

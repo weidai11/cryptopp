@@ -1033,13 +1033,23 @@ public:
 		ma.m_empty = true;
 		Integer e(representative, representative.size());
 
-		Integer r;
+		// hash message digest into random number k to prevent reusing the same k on a different messages
+		// after virtual machine rollback
+		if (rng.CanIncorporateEntropy())
+			rng.IncorporateEntropy(representative, representative.size());
+		Integer k(rng, 1, params.GetSubgroupOrder()-1);
+		Integer r, s;
+		r = params.ConvertElementToInteger(params.ExponentiateBase(k));
+		alg.Sign(params, key.GetPrivateExponent(), k, e, r, s);
+
+		/*
+		Integer r, s;
 		if (this->MaxRecoverableLength() > 0)
 			r.Decode(ma.m_semisignature, ma.m_semisignature.size());
 		else
 			r.Decode(ma.m_presignature, ma.m_presignature.size());
-		Integer s;
 		alg.Sign(params, key.GetPrivateExponent(), ma.m_k, e, r, s);
+		*/
 
 		size_t rLen = alg.RLen(params);
 		r.Encode(signature, rLen);
@@ -1054,11 +1064,17 @@ public:
 protected:
 	void RestartMessageAccumulator(RandomNumberGenerator &rng, PK_MessageAccumulatorBase &ma) const
 	{
+		// k needs to be generated before hashing for signature schemes with recovery
+		// but to defend against VM rollbacks we need to generate k after hashing.
+		// so this code is commented out, since no DL-based signature scheme with recovery
+		// has been implemented in Crypto++ anyway
+		/*
 		const DL_ElgamalLikeSignatureAlgorithm<T> &alg = this->GetSignatureAlgorithm();
 		const DL_GroupParameters<T> &params = this->GetAbstractGroupParameters();
 		ma.m_k.Randomize(rng, 1, params.GetSubgroupOrder()-1);
 		ma.m_presignature.New(params.GetEncodedElementSize(false));
 		params.ConvertElementToInteger(params.ExponentiateBase(ma.m_k)).Encode(ma.m_presignature, ma.m_presignature.size());
+		*/
 	}
 };
 
