@@ -1,5 +1,7 @@
-CXXFLAGS = -DNDEBUG -ffunction-sections -fdata-sections -g -O2
-LDFLAGS += -Wl,--gc-sections
+CXXFLAGS = -DNDEBUG -g -O2
+# the following options reduce code size, but breaks link or makes link very slow on some systems
+# CXXFLAGS += -ffunction-sections -fdata-sections
+# LDFLAGS += -Wl,--gc-sections
 ARFLAGS = -cr	# ar needs the dash on OpenBSD
 RANLIB = ranlib
 CP = cp
