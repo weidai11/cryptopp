@@ -108,7 +108,7 @@ void X917RNG::GenerateIntoBufferedTransformation(BufferedTransformation &target,
 			throw SelfTestFailure("X917RNG: Continuous random number generator test failed.");
 
 		// output random bytes
-		size_t len = UnsignedMin(size, S);
+		size_t len = UnsignedMin(S, size);
 		target.ChannelPut(channel, randseed, len);
 		size -= len;
 
