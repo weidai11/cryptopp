@@ -12,24 +12,68 @@ NAMESPACE_BEGIN(CryptoPP)
 
 void xorbuf(byte *buf, const byte *mask, size_t count)
 {
-	if (((size_t)buf | (size_t)mask | count) % WORD_SIZE == 0)
-		XorWords((word *)buf, (const word *)mask, count/WORD_SIZE);
-	else
+	size_t i;
+
+	if (IsAligned<word32>(buf) && IsAligned<word32>(mask))
 	{
-		for (unsigned int i=0; i<count; i++)
-			buf[i] ^= mask[i];
+		#if defined(WORD64_AVAILABLE) && !defined(CRYPTOPP_SLOW_WORD64)
+		if (IsAligned<word64>(buf) && IsAligned<word64>(mask))
+		{
+			for (i=0; i<count/8; i++)
+				((word64*)buf)[i] ^= ((word64*)mask)[i];
+			count -= 8*i;
+			if (!count)
+				return;
+			buf += 8*i;
+			mask += 8*i;
+		}
+		#endif
+
+		for (i=0; i<count/4; i++)
+			((word32*)buf)[i] ^= ((word32*)mask)[i];
+		count -= 4*i;
+		if (!count)
+			return;
+		buf += 4*i;
+		mask += 4*i;
 	}
+
+	for (i=0; i<count; i++)
+		buf[i] ^= mask[i];
 }
 
 void xorbuf(byte *output, const byte *input, const byte *mask, size_t count)
 {
-	if (((size_t)output | (size_t)input | (size_t)mask | count) % WORD_SIZE == 0)
-		XorWords((word *)output, (const word *)input, (const word *)mask, count/WORD_SIZE);
-	else
+	size_t i;
+
+	if (IsAligned<word32>(output) && IsAligned<word32>(input) && IsAligned<word32>(mask))
 	{
-		for (unsigned int i=0; i<count; i++)
-			output[i] = input[i] ^ mask[i];
+		#if defined(WORD64_AVAILABLE) && !defined(CRYPTOPP_SLOW_WORD64)
+		if (IsAligned<word64>(output) && IsAligned<word64>(input) && IsAligned<word64>(mask))
+		{
+			for (i=0; i<count/8; i++)
+				((word64*)output)[i] = ((word64*)input)[i] ^ ((word64*)mask)[i];
+			count -= 8*i;
+			if (!count)
+				return;
+			output += 8*i;
+			input += 8*i;
+			mask += 8*i;
+		}
+		#endif
+
+		for (i=0; i<count/4; i++)
+			((word32*)output)[i] = ((word32*)input)[i] ^ ((word32*)mask)[i];
+		count -= 4*i;
+		if (!count)
+			return;
+		output += 4*i;
+		input += 4*i;
+		mask += 4*i;
 	}
+
+	for (i=0; i<count; i++)
+		output[i] = input[i] ^ mask[i];
 }
 
 #if !(defined(_MSC_VER) && (_MSC_VER < 1300))
