@@ -429,6 +429,6 @@ NAMESPACE_BEGIN(CryptoPP)
 	k[(8-r)*4 + 6] = c;		\
 	k[(8-r)*4 + 7] = d;}
 
-void Serpent_KeySchedule(word32 *k, unsigned int rounds, const byte *userKey, unsigned int keylen);
+void Serpent_KeySchedule(word32 *k, unsigned int rounds, const byte *userKey, size_t keylen);
 
 NAMESPACE_END
