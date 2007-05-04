@@ -980,7 +980,7 @@ private:
 	const byte *m_block;
 };
 
-template <class T, class B, bool A=true>
+template <class T, class B, bool A=false>
 class PutBlock
 {
 public:
@@ -1002,12 +1002,12 @@ private:
 	byte *m_block;
 };
 
-template <class T, class B, bool A=true>
+template <class T, class B, bool GA=true, bool PA=false>
 struct BlockGetAndPut
 {
 	// function needed because of C++ grammatical ambiguity between expression-statements and declarations
-	static inline GetBlock<T, B, A> Get(const void *block) {return GetBlock<T, B, A>(block);}
-	typedef PutBlock<T, B, A> Put;
+	static inline GetBlock<T, B, GA> Get(const void *block) {return GetBlock<T, B, GA>(block);}
+	typedef PutBlock<T, B, PA> Put;
 };
 
 template <class T>
