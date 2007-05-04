@@ -87,7 +87,7 @@ void OutputResultOperations(const char *name, const char *operation, bool pc, un
 
 void BenchMark(const char *name, BlockTransformation &cipher, double timeTotal)
 {
-	const int BUF_SIZE = RoundDownToMultipleOf(1024U, cipher.OptimalNumberOfParallelBlocks() * cipher.BlockSize());
+	const int BUF_SIZE = RoundUpToMultipleOf(2048U, cipher.OptimalNumberOfParallelBlocks() * cipher.BlockSize());
 	AlignedSecByteBlock buf(BUF_SIZE);
 	const int nBlocks = BUF_SIZE / cipher.BlockSize();
 	clock_t start = clock();
@@ -108,7 +108,7 @@ void BenchMark(const char *name, BlockTransformation &cipher, double timeTotal)
 
 void BenchMark(const char *name, StreamTransformation &cipher, double timeTotal)
 {
-	const int BUF_SIZE=RoundDownToMultipleOf(1024U, cipher.OptimalBlockSize());
+	const int BUF_SIZE=RoundUpToMultipleOf(2048U, cipher.OptimalBlockSize());
 	AlignedSecByteBlock buf(BUF_SIZE);
 	clock_t start = clock();
 
@@ -128,7 +128,7 @@ void BenchMark(const char *name, StreamTransformation &cipher, double timeTotal)
 
 void BenchMark(const char *name, HashTransformation &ht, double timeTotal)
 {
-	const int BUF_SIZE=1024;
+	const int BUF_SIZE=2048U;
 	AlignedSecByteBlock buf(BUF_SIZE);
 	LC_RNG rng((word32)time(NULL));
 	rng.GenerateBlock(buf, BUF_SIZE);
@@ -150,7 +150,7 @@ void BenchMark(const char *name, HashTransformation &ht, double timeTotal)
 
 void BenchMark(const char *name, BufferedTransformation &bt, double timeTotal)
 {
-	const int BUF_SIZE=1024;
+	const int BUF_SIZE=2048U;
 	AlignedSecByteBlock buf(BUF_SIZE);
 	LC_RNG rng((word32)time(NULL));
 	rng.GenerateBlock(buf, BUF_SIZE);
@@ -170,7 +170,7 @@ void BenchMark(const char *name, BufferedTransformation &bt, double timeTotal)
 	OutputResultBytes(name, double(blocks) * BUF_SIZE, timeTaken);
 }
 
-void BenchMarkKeying(SimpleKeyingInterface &c, unsigned int keyLength, const NameValuePairs &params)
+void BenchMarkKeying(SimpleKeyingInterface &c, size_t keyLength, const NameValuePairs &params)
 {
 	unsigned long iterations = 0;
 	clock_t start = clock();
