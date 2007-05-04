@@ -21,6 +21,8 @@ extern "C" {_CRTIMP void __cdecl _CRT_DEBUGGER_HOOK(int);}
 #endif
 #endif
 
+#include <iostream>
+
 NAMESPACE_BEGIN(CryptoPP)
 
 extern PowerUpSelfTestStatus g_powerUpSelfTestStatus;
@@ -153,7 +155,7 @@ template <class SCHEME>
 void SignatureKnownAnswerTest(const char *key, const char *message, const char *signature, SCHEME *dummy = NULL)
 {
 #ifdef OS_RNG_AVAILABLE
-	AutoSeededX917RNG<DES_EDE3> rng;
+	DefaultAutoSeededRNG rng;
 #else
 	RandomNumberGenerator &rng = NullRNG();
 #endif
@@ -179,7 +181,7 @@ void EncryptionPairwiseConsistencyTest(const PK_Encryptor &encryptor, const PK_D
 	try
 	{
 #ifdef OS_RNG_AVAILABLE
-		AutoSeededX917RNG<DES_EDE3> rng;
+		DefaultAutoSeededRNG rng;
 #else
 		RandomNumberGenerator &rng = NullRNG();
 #endif
@@ -219,7 +221,7 @@ void SignaturePairwiseConsistencyTest(const PK_Signer &signer, const PK_Verifier
 	try
 	{
 #ifdef OS_RNG_AVAILABLE
-		AutoSeededX917RNG<DES_EDE3> rng;
+		DefaultAutoSeededRNG rng;
 #else
 		RandomNumberGenerator &rng = NullRNG();
 #endif
@@ -438,11 +440,11 @@ void DoPowerUpSelfTest(const char *moduleFilename, const byte *expectedModuleMac
 
 		// algorithm tests
 
-		X917RNG_KnownAnswerTest<DES_EDE3>(
-			"48851090B4992453E83CDA86416534E53EA2FCE1A0B3A40C",						// key
-			"7D00BD0A79F6B0F5",														// seed
-			"0000000000000001",														// time vector
-			"fdc31a6dd6b43aca81dfe8a696a2f9cf661955a44124a05033b7fff71b5b0341");	// output
+		X917RNG_KnownAnswerTest<AES>(
+			"2b7e151628aed2a6abf7158809cf4f3c",										// key
+			"000102030405060708090a0b0c0d0e0f",										// seed
+			"00000000000000000000000000000001",										// time vector
+			"D176EDD27493B0395F4D10546232B0693DC7061C03C3A554F09CECF6F6B46D945A");	// output
 
 		SymmetricEncryptionKnownAnswerTest<DES_EDE3>(
 			"385D7189A5C3D485E1370AA5D408082B5CCCCB5E19F2D90E",

@@ -93,7 +93,7 @@ void FIPS140_SampleApplication()
 
 	// create auto-seeded X9.17 RNG object, if available
 #ifdef OS_RNG_AVAILABLE
-	AutoSeededX917RNG<DES_EDE3> rng;
+	AutoSeededX917RNG<AES> rng;
 #else
 	// this is used to allow this function to compile on platforms that don't have auto-seeded RNGs
 	RandomNumberGenerator &rng(NullRNG());
