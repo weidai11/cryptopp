@@ -5,14 +5,19 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#ifdef WORD64_AVAILABLE
-	typedef word64 TimerWord;
+#ifdef HIGHRES_TIMER_AVAILABLE
+	#ifdef WORD64_AVAILABLE
+		typedef word64 TimerWord;
+	#else
+		typedef word32 TimerWord;
+	#endif
 #else
-	typedef word32 TimerWord;
+	#include <time.h>
+	typedef clock_t TimerWord;
 #endif
 
 //! _
-class TimerBase
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE TimerBase
 {
 public:
 	enum Unit {SECONDS = 0, MILLISECONDS, MICROSECONDS, NANOSECONDS};
@@ -44,18 +49,14 @@ public:
 	TimerWord TicksPerSecond();
 };
 
-#ifdef HIGHRES_TIMER_AVAILABLE
-
 //! high resolution timer
-class Timer : public TimerBase
+class CRYPTOPP_DLL Timer : public TimerBase
 {
 public:
 	Timer(Unit unit = TimerBase::SECONDS, bool stuckAtZero = false)	: TimerBase(unit, stuckAtZero) {}
 	TimerWord GetCurrentTimerValue();
 	TimerWord TicksPerSecond();
 };
-
-#endif	// HIGHRES_TIMER_AVAILABLE
 
 NAMESPACE_END
 

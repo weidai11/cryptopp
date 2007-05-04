@@ -4,7 +4,6 @@
 #include "hrtimer.h"
 #include "misc.h"
 #include <stddef.h>		// for NULL
-#include <time.h>
 
 #if defined(CRYPTOPP_WIN32_AVAILABLE)
 #include <windows.h>
@@ -17,6 +16,8 @@
 #include <assert.h>
 
 NAMESPACE_BEGIN(CryptoPP)
+
+#ifndef CRYPTOPP_IMPORTS
 
 double TimerBase::ConvertTo(TimerWord t, Unit unit)
 {
@@ -55,6 +56,46 @@ unsigned long TimerBase::ElapsedTime()
 	assert(elapsed <= ULONG_MAX);
 	return (unsigned long)elapsed;
 }
+
+TimerWord Timer::GetCurrentTimerValue()
+{
+#if defined(CRYPTOPP_WIN32_AVAILABLE)
+	LARGE_INTEGER now;
+	if (!QueryPerformanceCounter(&now))
+		throw Exception(Exception::OTHER_ERROR, "Timer: QueryPerformanceCounter failed with error " + IntToString(GetLastError()));
+	return now.QuadPart;
+#elif defined(CRYPTOPP_UNIX_AVAILABLE)
+	timeval now;
+	gettimeofday(&now, NULL);
+	return (TimerWord)now.tv_sec * 1000000 + now.tv_usec;
+#else
+	clock_t now;
+	return clock();
+#endif
+}
+
+TimerWord Timer::TicksPerSecond()
+{
+#if defined(CRYPTOPP_WIN32_AVAILABLE)
+	static LARGE_INTEGER freq = {0};
+	if (freq.QuadPart == 0)
+	{
+		if (!QueryPerformanceFrequency(&freq))
+			throw Exception(Exception::OTHER_ERROR, "Timer: QueryPerformanceFrequency failed with error " + IntToString(GetLastError()));
+	}
+	return freq.QuadPart;
+#elif defined(CRYPTOPP_UNIX_AVAILABLE)
+	return 1000000;
+#elif defined(CLOCKS_PER_SEC)
+	return CLOCKS_PER_SEC;
+#elif defined(CLK_TCK)
+	return CLK_TCK;
+#else
+	return 1000000;
+#endif
+}
+
+#endif	// #ifndef CRYPTOPP_IMPORTS
 
 TimerWord ThreadUserTimer::GetCurrentTimerValue()
 {
@@ -97,38 +138,5 @@ TimerWord ThreadUserTimer::TicksPerSecond()
 	return CLOCKS_PER_SEC;
 #endif
 }
-
-#ifdef HIGHRES_TIMER_AVAILABLE
-
-TimerWord Timer::GetCurrentTimerValue()
-{
-#if defined(CRYPTOPP_WIN32_AVAILABLE)
-	LARGE_INTEGER now;
-	if (!QueryPerformanceCounter(&now))
-		throw Exception(Exception::OTHER_ERROR, "Timer: QueryPerformanceCounter failed with error " + IntToString(GetLastError()));
-	return now.QuadPart;
-#elif defined(CRYPTOPP_UNIX_AVAILABLE)
-	timeval now;
-	gettimeofday(&now, NULL);
-	return (TimerWord)now.tv_sec * 1000000 + now.tv_usec;
-#endif
-}
-
-TimerWord Timer::TicksPerSecond()
-{
-#if defined(CRYPTOPP_WIN32_AVAILABLE)
-	static LARGE_INTEGER freq = {0};
-	if (freq.QuadPart == 0)
-	{
-		if (!QueryPerformanceFrequency(&freq))
-			throw Exception(Exception::OTHER_ERROR, "Timer: QueryPerformanceFrequency failed with error " + IntToString(GetLastError()));
-	}
-	return freq.QuadPart;
-#elif defined(CRYPTOPP_UNIX_AVAILABLE)
-	return 1000000;
-#endif
-}
-
-#endif	// HIGHRES_TIMER_AVAILABLE
 
 NAMESPACE_END
