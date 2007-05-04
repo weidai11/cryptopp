@@ -173,6 +173,9 @@ void DetectX86Features()
 		g_cacheLineSize = GETBYTE(cpuid[2], 0);
 	}
 
+	if (!g_cacheLineSize)
+		g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
+
 	g_x86DetectionDone = true;
 }
 
