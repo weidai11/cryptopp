@@ -1200,7 +1200,7 @@ protected:
 	Map2 m_data2;
 	int m_count;
 
-	AutoSeededX917RNG<DES_EDE3> m_rng;
+	AutoSeededX917RNG<AES> m_rng;
 	std::vector<unsigned int> m_compactString;
 };
 
