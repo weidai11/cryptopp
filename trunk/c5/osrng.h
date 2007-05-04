@@ -8,6 +8,7 @@
 #include "randpool.h"
 #include "rng.h"
 #include "aes.h"
+#include "sha.h"
 #include "fips140.h"
 
 NAMESPACE_BEGIN(CryptoPP)
