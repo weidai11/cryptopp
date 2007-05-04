@@ -117,10 +117,10 @@ typedef unsigned int word32;
 // define large word type, used for file offsets and such
 #ifdef WORD64_AVAILABLE
 	typedef word64 lword;
-	const lword LWORD_MAX = W64LIT(0)-1;
+	const lword LWORD_MAX = W64LIT(0xffffffffffffffff);
 #else
 	typedef word32 lword;
-	const lword LWORD_MAX = lword(0)-1;
+	const lword LWORD_MAX = 0xffffffffUL;
 #endif
 
 // define hword, word, and dword. these are used for multiprecision integer arithmetic
