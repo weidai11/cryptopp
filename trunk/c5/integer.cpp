@@ -432,7 +432,7 @@ inline word DWord::operator%(word a)
 // use some tricks to share assembly code between MSVC and GCC
 #if defined(__GNUC__)
 	#define AddPrologue \
-		word result;	\
+		int result;	\
 		__asm__ __volatile__ \
 		( \
 			".intel_syntax noprefix;"
@@ -514,11 +514,11 @@ inline word DWord::operator%(word a)
 
 #ifdef CRYPTOPP_X64_MASM_AVAILABLE
 extern "C" {
-word Baseline_Add(size_t N, word *C, const word *A, const word *B);
-word Baseline_Sub(size_t N, word *C, const word *A, const word *B);
+int Baseline_Add(size_t N, word *C, const word *A, const word *B);
+int Baseline_Sub(size_t N, word *C, const word *A, const word *B);
 }
 #elif defined(CRYPTOPP_X64_ASM_AVAILABLE) && defined(__GNUC__)
-word Baseline_Add(size_t N, word *C, const word *A, const word *B)
+int Baseline_Add(size_t N, word *C, const word *A, const word *B)
 {
 	word result;
 	__asm__ __volatile__
@@ -547,10 +547,10 @@ word Baseline_Add(size_t N, word *C, const word *A, const word *B)
 	: "c" (N), "r" (C+N), "r" (A+N), "r" (B+N)
 	: "memory", "cc"
 	);
-	return result;
+	return (int)result;
 }
 
-word Baseline_Sub(size_t N, word *C, const word *A, const word *B)
+int Baseline_Sub(size_t N, word *C, const word *A, const word *B)
 {
 	word result;
 	__asm__ __volatile__
@@ -579,10 +579,10 @@ word Baseline_Sub(size_t N, word *C, const word *A, const word *B)
 	: "c" (N), "r" (C+N), "r" (A+N), "r" (B+N)
 	: "memory", "cc"
 	);
-	return result;
+	return (int)result;
 }
 #elif defined(CRYPTOPP_X86_ASM_AVAILABLE) && CRYPTOPP_BOOL_X86
-CRYPTOPP_NAKED word CRYPTOPP_FASTCALL Baseline_Add(size_t N, word *C, const word *A, const word *B)
+CRYPTOPP_NAKED int CRYPTOPP_FASTCALL Baseline_Add(size_t N, word *C, const word *A, const word *B)
 {
 	AddPrologue
 
@@ -623,7 +623,7 @@ CRYPTOPP_NAKED word CRYPTOPP_FASTCALL Baseline_Add(size_t N, word *C, const word
 	AddEpilogue
 }
 
-CRYPTOPP_NAKED word CRYPTOPP_FASTCALL Baseline_Sub(size_t N, word *C, const word *A, const word *B)
+CRYPTOPP_NAKED int CRYPTOPP_FASTCALL Baseline_Sub(size_t N, word *C, const word *A, const word *B)
 {
 	AddPrologue
 
@@ -665,7 +665,7 @@ CRYPTOPP_NAKED word CRYPTOPP_FASTCALL Baseline_Sub(size_t N, word *C, const word
 }
 
 #if CRYPTOPP_INTEGER_SSE2
-CRYPTOPP_NAKED word CRYPTOPP_FASTCALL SSE2_Add(size_t N, word *C, const word *A, const word *B)
+CRYPTOPP_NAKED int CRYPTOPP_FASTCALL SSE2_Add(size_t N, word *C, const word *A, const word *B)
 {
 	AddPrologue
 
@@ -721,7 +721,7 @@ CRYPTOPP_NAKED word CRYPTOPP_FASTCALL SSE2_Add(size_t N, word *C, const word *A,
 
 	AddEpilogue
 }
-CRYPTOPP_NAKED word CRYPTOPP_FASTCALL SSE2_Sub(size_t N, word *C, const word *A, const word *B)
+CRYPTOPP_NAKED int CRYPTOPP_FASTCALL SSE2_Sub(size_t N, word *C, const word *A, const word *B)
 {
 	AddPrologue
 
@@ -779,7 +779,7 @@ CRYPTOPP_NAKED word CRYPTOPP_FASTCALL SSE2_Sub(size_t N, word *C, const word *A,
 }
 #endif	// #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
 #else
-word CRYPTOPP_FASTCALL Baseline_Add(size_t N, word *C, const word *A, const word *B)
+int CRYPTOPP_FASTCALL Baseline_Add(size_t N, word *C, const word *A, const word *B)
 {
 	assert (N%2 == 0);
 
@@ -795,7 +795,7 @@ word CRYPTOPP_FASTCALL Baseline_Add(size_t N, word *C, const word *A, const word
 	return int(GetCarry(u));
 }
 
-word CRYPTOPP_FASTCALL Baseline_Sub(size_t N, word *C, const word *A, const word *B)
+int CRYPTOPP_FASTCALL Baseline_Sub(size_t N, word *C, const word *A, const word *B)
 {
 	assert (N%2 == 0);
 
@@ -1922,7 +1922,7 @@ void SSE2_MultiplyTop32(word *C, const word *A, const word *B, word L)
 
 // ********************************************************
 
-typedef word (CRYPTOPP_FASTCALL * PAdd)(size_t N, word *C, const word *A, const word *B);
+typedef int (CRYPTOPP_FASTCALL * PAdd)(size_t N, word *C, const word *A, const word *B);
 typedef void (* PMul)(word *C, const word *A, const word *B);
 typedef void (* PSqu)(word *C, const word *A);
 typedef void (* PMulTop)(word *C, const word *A, const word *B, word L);
@@ -1999,7 +1999,7 @@ static void SetFunctionPointers()
 	}
 }
 
-inline word Add(word *C, const word *A, const word *B, size_t N)
+inline int Add(word *C, const word *A, const word *B, size_t N)
 {
 #if CRYPTOPP_INTEGER_SSE2
 	return s_pAdd(N, C, A, B);
@@ -2008,7 +2008,7 @@ inline word Add(word *C, const word *A, const word *B, size_t N)
 #endif
 }
 
-inline word Subtract(word *C, const word *A, const word *B, size_t N)
+inline int Subtract(word *C, const word *A, const word *B, size_t N)
 {
 #if CRYPTOPP_INTEGER_SSE2
 	return s_pSub(N, C, A, B);
