@@ -11,11 +11,11 @@
 <dt>Symmetric Ciphers<dd>
 	SymmetricCipherDocumentation
 <dt>Hash Functions<dd>
-	HAVAL, MD2, MD4, MD5, PanamaHash, RIPEMD160, RIPEMD320, RIPEMD128, RIPEMD256, SHA1, SHA224, SHA256, SHA384, SHA512, Tiger, Whirlpool
+	MD2, MD4, MD5, RIPEMD160, RIPEMD320, RIPEMD128, RIPEMD256, SHA1, SHA224, SHA256, SHA384, SHA512, Tiger, Whirlpool
 <dt>Non-Cryptographic Checksums<dd>
 	CRC32, Adler32
 <dt>Message Authentication Codes<dd>
-	#MD5MAC, XMACC, HMAC, CBC_MAC, DMAC, PanamaMAC, TTMAC
+	VMAC, HMAC, CBC_MAC, DMAC, TTMAC
 <dt>Random Number Generators<dd>
 	NullRNG(), LC_RNG, RandomPool, BlockingRng, NonblockingRng, AutoSeededRandomPool, AutoSeededX917RNG, DefaultAutoSeededRNG
 <dt>Password-based Cryptography<dd>
@@ -35,9 +35,9 @@
 <dt>Compression<dd>
 	Deflator, Inflator, Gzip, Gunzip, ZlibCompressor, ZlibDecompressor
 <dt>Input Source Classes<dd>
-	StringSource, FileSource, SocketSource, WindowsPipeSource, RandomNumberSource
+	StringSource, ArraySource, FileSource, SocketSource, WindowsPipeSource, RandomNumberSource
 <dt>Output Sink Classes<dd>
-	StringSinkTemplate, ArraySink, FileSink, SocketSink, WindowsPipeSink
+	StringSinkTemplate, ArraySink, FileSink, SocketSink, WindowsPipeSink, RandomNumberSink
 <dt>Filter Wrappers<dd>
 	StreamTransformationFilter, HashFilter, HashVerificationFilter, SignerFilter, SignatureVerificationFilter
 <dt>Binary to Text Encoders and Decoders<dd>
