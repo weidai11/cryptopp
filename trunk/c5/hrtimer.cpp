@@ -86,12 +86,8 @@ TimerWord Timer::TicksPerSecond()
 	return freq.QuadPart;
 #elif defined(CRYPTOPP_UNIX_AVAILABLE)
 	return 1000000;
-#elif defined(CLOCKS_PER_SEC)
-	return CLOCKS_PER_SEC;
-#elif defined(CLK_TCK)
-	return CLK_TCK;
 #else
-	return 1000000;
+	return CLOCKS_PER_SEC;
 #endif
 }
 

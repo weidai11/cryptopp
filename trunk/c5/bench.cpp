@@ -234,7 +234,7 @@ void BenchMarkByName(const char *factoryName, size_t keyLength = 0, const char *
 }
 
 template <class T>
-void BenchMarkByNameKeyLess(const char *factoryName, char *displayName=NULL, const NameValuePairs &params = g_nullNameValuePairs, T *x=NULL)
+void BenchMarkByNameKeyLess(const char *factoryName, const char *displayName=NULL, const NameValuePairs &params = g_nullNameValuePairs, T *x=NULL)
 {
 	std::string name = factoryName;
 	if (displayName)
@@ -252,7 +252,7 @@ void BenchmarkAll(double t, double hertz)
 	g_allocatedTime = t;
 	g_hertz = hertz;
 
-	char *cpb, *cpk;
+	const char *cpb, *cpk;
 	if (g_hertz)
 	{
 		cpb = "<TH>Cycles Per Byte";
