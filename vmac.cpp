@@ -12,14 +12,14 @@ NAMESPACE_BEGIN(CryptoPP)
 #include <intrin.h>
 #endif
 
-#define CRYPTOPP_BOOL_VMAC_WORD128 (defined(CRYPTOPP_WORD128_AVAILABLE) && !defined(CRYPTOPP_X64_ASM_AVAILABLE))
+#define VMAC_BOOL_WORD128 (defined(CRYPTOPP_WORD128_AVAILABLE) && !defined(CRYPTOPP_X64_ASM_AVAILABLE))
 
 static const word64 p64   = W64LIT(0xfffffffffffffeff);  /* 2^64 - 257 prime  */
 static const word64 m62   = W64LIT(0x3fffffffffffffff);  /* 62-bit mask       */
 static const word64 m63   = W64LIT(0x7fffffffffffffff);  /* 63-bit mask       */
 static const word64 m64   = W64LIT(0xffffffffffffffff);  /* 64-bit mask       */
 static const word64 mpoly = W64LIT(0x1fffffff1fffffff);  /* Poly key mask     */
-#if CRYPTOPP_BOOL_VMAC_WORD128
+#if VMAC_BOOL_WORD128
 static const word128 m126 = (word128(m62)<<64)|m64;		 /* 126-bit mask      */
 #endif
 
@@ -363,7 +363,7 @@ VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWord64,
 }
 #endif
 
-#if CRYPTOPP_BOOL_VMAC_WORD128
+#if VMAC_BOOL_WORD128
 	#define DeclareNH(a) word128 a=0
 	#define MUL64(rh,rl,i1,i2) {word128 p = word128(i1)*(i2); rh = word64(p>>64); rl = word64(p);}
 	#define AccumulateNH(a, b, c) a += word128(b)*(c)
@@ -388,6 +388,7 @@ VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWord64,
 			a##0 += pl;\
 			a##1 += ph + (a##0 < pl);}
 	#else
+		#define VMAC_BOOL_32BIT 1
 		#define DeclareNH(a) word64 a##0=0, a##1=0, a##2=0
 		#define MUL64(rh,rl,i1,i2)                                               \
 			{   word64 _i1 = (i1), _i2 = (i2);                                 \
@@ -411,6 +412,9 @@ VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWord64,
 			a##1 += word32(p);\
 			a##2 += word32(p>>32);}
 	#endif
+#endif
+#ifndef VMAC_BOOL_32BIT
+	#define VMAC_BOOL_32BIT 0
 #endif
 #ifndef ADD128
 	#define ADD128(rh,rl,ih,il)                                          \
@@ -443,8 +447,8 @@ void VMAC_Base::VHASH_Update_Template(const word64 *data, size_t blocksRemaining
 	bool isFirstBlock = true;
 	size_t i;
 
-	#ifndef CRYPTOPP_SLOW_WORD64
-		#if CRYPTOPP_BOOL_VMAC_WORD128
+	#if !VMAC_BOOL_32BIT
+		#if VMAC_BOOL_WORD128
 			word128 a1, a2;
 		#else
 			word64 ah1, al1, ah2, al2;
@@ -485,7 +489,7 @@ void VMAC_Base::VHASH_Update_Template(const word64 *data, size_t blocksRemaining
 		blocksRemainingInWord64 -= innerLoopEnd;
 		data += innerLoopEnd;
 
-		#ifdef CRYPTOPP_SLOW_WORD64
+		#if VMAC_BOOL_32BIT
 			word32 nh0[2],  nh1[2];
 			word64 nh2[2];
 
@@ -575,14 +579,14 @@ void VMAC_Base::VHASH_Update_Template(const word64 *data, size_t blocksRemaining
 			#undef k2
 			#undef k3		
 			#undef kHi
-		#else		// #ifdef CRYPTOPP_SLOW_WORD64
+		#else		// #if VMAC_BOOL_32BIT
 			if (isFirstBlock)
 			{
 				isFirstBlock = false;
 				if (m_isFirstBlock)
 				{
 					m_isFirstBlock = false;
-					#if CRYPTOPP_BOOL_VMAC_WORD128
+					#if VMAC_BOOL_WORD128
 						#define first_poly_step(a, kh, kl, m)	a = (m & m126) + ((word128(kh) << 64) | kl)
 
 						first_poly_step(a1, kh1, kl1, nhA);
@@ -602,14 +606,14 @@ void VMAC_Base::VHASH_Update_Template(const word64 *data, size_t blocksRemaining
 				}
 				else
 				{
-					#if CRYPTOPP_BOOL_VMAC_WORD128
+					#if VMAC_BOOL_WORD128
 						a1 = (word128((polyS+0*4)[0]) << 64) | (polyS+0*4)[1];
 					#else
 						ah1=(polyS+0*4)[0]; al1=(polyS+0*4)[1];
 					#endif
 					if (T_128BitTag)
 					{
-						#if CRYPTOPP_BOOL_VMAC_WORD128
+						#if VMAC_BOOL_WORD128
 							a2 = (word128((polyS+1*4)[0]) << 64) | (polyS+1*4)[1];
 						#else
 							ah2=(polyS+1*4)[0]; al2=(polyS+1*4)[1];
@@ -618,7 +622,7 @@ void VMAC_Base::VHASH_Update_Template(const word64 *data, size_t blocksRemaining
 				}
 			}
 
-			#if CRYPTOPP_BOOL_VMAC_WORD128
+			#if VMAC_BOOL_WORD128
 				#define poly_step(a, kh, kl, m)	\
 				{   word128 t1, t2, t3, t4;\
 					Multiply128(t2, a>>64, kl);\
@@ -664,16 +668,16 @@ void VMAC_Base::VHASH_Update_Template(const word64 *data, size_t blocksRemaining
 				if (T_128BitTag)
 					poly_step(ah2, al2, kh2, kl2, nhB1, nhB0);
 			#endif
-		#endif		// #ifdef CRYPTOPP_SLOW_WORD64
+		#endif		// #if VMAC_BOOL_32BIT
 	} while (blocksRemainingInWord64);
 
-	#if CRYPTOPP_BOOL_VMAC_WORD128
+	#if VMAC_BOOL_WORD128
 		(polyS+0*4)[0]=word64(a1>>64); (polyS+0*4)[1]=word64(a1);
 		if (T_128BitTag)
 		{
 			(polyS+1*4)[0]=word64(a2>>64); (polyS+1*4)[1]=word64(a2);
 		}
-	#elif !defined(CRYPTOPP_SLOW_WORD64)
+	#elif !VMAC_BOOL_32BIT
 		(polyS+0*4)[0]=ah1; (polyS+0*4)[1]=al1;
 		if (T_128BitTag)
 		{

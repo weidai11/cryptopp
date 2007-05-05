@@ -131,7 +131,7 @@ typedef unsigned int word32;
 #else
 	#define CRYPTOPP_NATIVE_DWORD_AVAILABLE
 	#if defined(__alpha__) || defined(__ia64__) || defined(_ARCH_PPC64) || defined(__x86_64__) || defined(__mips64) || defined(__sparc64__)
-		#if defined(__GNUC__)
+		#if defined(__GNUC__) && !defined(__INTEL_COMPILER)
 			typedef word32 hword;
 			typedef word64 word;
 			typedef __uint128_t dword;
