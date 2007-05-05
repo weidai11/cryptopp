@@ -37,6 +37,10 @@ endif
 
 ifeq ($(GAS210_OR_LATER),0)	# .intel_syntax wasn't supported until GNU assembler 2.10
 CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
+else
+ifeq ($(UNAME),SunOS)
+CXXFLAGS += -Wa,--divide	# allow use of "/" operator
+endif
 endif
 
 endif
