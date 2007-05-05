@@ -848,19 +848,29 @@ inline void UnalignedPutWordNonTemplate(ByteOrder order, byte *block, word16 val
 {
 	if (order == BIG_ENDIAN_ORDER)
 	{
-		block[0] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 1);
-		block[1] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 0);
+		if (xorBlock)
+		{
+			block[0] = xorBlock[0] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 1);
+			block[1] = xorBlock[1] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 0);
+		}
+		else
+		{
+			block[0] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 1);
+			block[1] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 0);
+		}
 	}
 	else
 	{
-		block[0] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 0);
-		block[1] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 1);
-	}
-
-	if (xorBlock)
-	{
-		block[0] ^= xorBlock[0];
-		block[1] ^= xorBlock[1];
+		if (xorBlock)
+		{
+			block[0] = xorBlock[0] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 0);
+			block[1] = xorBlock[1] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 1);
+		}
+		else
+		{
+			block[0] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 0);
+			block[1] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 1);
+		}
 	}
 }
 
@@ -868,25 +878,37 @@ inline void UnalignedPutWordNonTemplate(ByteOrder order, byte *block, word32 val
 {
 	if (order == BIG_ENDIAN_ORDER)
 	{
-		block[0] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 3);
-		block[1] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 2);
-		block[2] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 1);
-		block[3] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 0);
+		if (xorBlock)
+		{
+			block[0] = xorBlock[0] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 3);
+			block[1] = xorBlock[1] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 2);
+			block[2] = xorBlock[2] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 1);
+			block[3] = xorBlock[3] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 0);
+		}
+		else
+		{
+			block[0] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 3);
+			block[1] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 2);
+			block[2] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 1);
+			block[3] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 0);
+		}
 	}
 	else
 	{
-		block[0] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 0);
-		block[1] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 1);
-		block[2] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 2);
-		block[3] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 3);
-	}
-
-	if (xorBlock)
-	{
-		block[0] ^= xorBlock[0];
-		block[1] ^= xorBlock[1];
-		block[2] ^= xorBlock[2];
-		block[3] ^= xorBlock[3];
+		if (xorBlock)
+		{
+			block[0] = xorBlock[0] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 0);
+			block[1] = xorBlock[1] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 1);
+			block[2] = xorBlock[2] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 2);
+			block[3] = xorBlock[3] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 3);
+		}
+		else
+		{
+			block[0] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 0);
+			block[1] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 1);
+			block[2] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 2);
+			block[3] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 3);
+		}
 	}
 }
 
@@ -895,37 +917,53 @@ inline void UnalignedPutWordNonTemplate(ByteOrder order, byte *block, word64 val
 {
 	if (order == BIG_ENDIAN_ORDER)
 	{
-		block[0] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 7);
-		block[1] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 6);
-		block[2] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 5);
-		block[3] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 4);
-		block[4] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 3);
-		block[5] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 2);
-		block[6] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 1);
-		block[7] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 0);
+		if (xorBlock)
+		{
+			block[0] = xorBlock[0] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 7);
+			block[1] = xorBlock[1] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 6);
+			block[2] = xorBlock[2] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 5);
+			block[3] = xorBlock[3] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 4);
+			block[4] = xorBlock[4] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 3);
+			block[5] = xorBlock[5] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 2);
+			block[6] = xorBlock[6] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 1);
+			block[7] = xorBlock[7] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 0);
+		}
+		else
+		{
+			block[0] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 7);
+			block[1] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 6);
+			block[2] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 5);
+			block[3] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 4);
+			block[4] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 3);
+			block[5] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 2);
+			block[6] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 1);
+			block[7] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 0);
+		}
 	}
 	else
 	{
-		block[0] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 0);
-		block[1] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 1);
-		block[2] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 2);
-		block[3] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 3);
-		block[4] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 4);
-		block[5] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 5);
-		block[6] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 6);
-		block[7] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 7);
-	}
-
-	if (xorBlock)
-	{
-		block[0] ^= xorBlock[0];
-		block[1] ^= xorBlock[1];
-		block[2] ^= xorBlock[2];
-		block[3] ^= xorBlock[3];
-		block[4] ^= xorBlock[4];
-		block[5] ^= xorBlock[5];
-		block[6] ^= xorBlock[6];
-		block[7] ^= xorBlock[7];
+		if (xorBlock)
+		{
+			block[0] = xorBlock[0] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 0);
+			block[1] = xorBlock[1] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 1);
+			block[2] = xorBlock[2] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 2);
+			block[3] = xorBlock[3] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 3);
+			block[4] = xorBlock[4] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 4);
+			block[5] = xorBlock[5] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 5);
+			block[6] = xorBlock[6] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 6);
+			block[7] = xorBlock[7] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 7);
+		}
+		else
+		{
+			block[0] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 0);
+			block[1] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 1);
+			block[2] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 2);
+			block[3] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 3);
+			block[4] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 4);
+			block[5] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 5);
+			block[6] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 6);
+			block[7] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 7);
+		}
 	}
 }
 #endif
