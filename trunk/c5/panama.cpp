@@ -359,15 +359,16 @@ void Panama<B>::Iterate(size_t count, const word32 *p, word32 *z, const word32 *
 	m_state[17] = bstart;
 }
 
+namespace Weak {
 template <class B>
-size_t Weak::PanamaHash<B>::HashMultipleBlocks(const word32 *input, size_t length)
+size_t PanamaHash<B>::HashMultipleBlocks(const word32 *input, size_t length)
 {
 	this->Iterate(length / this->BLOCKSIZE, input);
 	return length % this->BLOCKSIZE;
 }
 
 template <class B>
-void Weak::PanamaHash<B>::TruncatedFinal(byte *hash, size_t size)
+void PanamaHash<B>::TruncatedFinal(byte *hash, size_t size)
 {
 	this->ThrowIfInvalidTruncatedSize(size);
 
@@ -383,6 +384,7 @@ void Weak::PanamaHash<B>::TruncatedFinal(byte *hash, size_t size)
 	memcpy(hash, buf, size);
 
 	this->Restart();		// reinit for next use
+}
 }
 
 template <class B>

@@ -4,6 +4,7 @@
 #include "hrtimer.h"
 #include "misc.h"
 #include <stddef.h>		// for NULL
+#include <time.h>
 
 #if defined(CRYPTOPP_WIN32_AVAILABLE)
 #include <windows.h>
