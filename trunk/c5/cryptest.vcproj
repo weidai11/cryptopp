@@ -173,7 +173,6 @@
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				OptimizeForWindows98="1"
-				LinkTimeCodeGeneration="0"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -334,7 +333,6 @@
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
-				OpenMP="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
@@ -510,7 +508,6 @@
 				EnableIntrinsicFunctions="true"
 				PreprocessorDefinitions="_DEBUG;CRYPTOPP_IMPORTS;WIN32;_CONSOLE"
 				RuntimeLibrary="1"
-				OpenMP="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
@@ -981,7 +978,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="2"
 						PreprocessorDefinitions=""
 						EnableEnhancedInstructionSet="2"
 					/>
@@ -1058,7 +1054,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -1142,7 +1137,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -1218,7 +1212,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -1298,7 +1291,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -1374,7 +1366,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -1450,7 +1441,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -1526,7 +1516,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -1602,7 +1591,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -1678,7 +1666,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
