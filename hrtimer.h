@@ -2,6 +2,9 @@
 #define CRYPTOPP_HRTIMER_H
 
 #include "config.h"
+#ifndef HIGHRES_TIMER_AVAILABLE
+#include <time.h>
+#endif
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -12,7 +15,6 @@ NAMESPACE_BEGIN(CryptoPP)
 		typedef word32 TimerWord;
 	#endif
 #else
-	#include <time.h>
 	typedef clock_t TimerWord;
 #endif
 
