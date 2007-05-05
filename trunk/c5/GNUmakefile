@@ -22,15 +22,17 @@ endif
 
 ifeq ($(ISX86),1)
 
-GCC33_OR_LATER = $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(GCC\) (3.[3-9]|[4-9])")
+GCC34_OR_LATER = $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(GCC\) (3.[4-9]|[4-9])")
 GCC42_OR_LATER = $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(GCC\) (4.[2-9]|[5-9])")
 INTEL_COMPILER = $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(ICC\)")
 GAS210_OR_LATER = $(shell echo "" | $(AS) -v 2>&1 | $(EGREP) -c "GNU assembler version (2.[1-9][0-9]|[3-9])")
 
-ifneq ($(GCC33_OR_LATER) $(INTEL_COMPILER),0 0)
+ifneq ($(GCC34_OR_LATER) $(INTEL_COMPILER),0 0)
 ifneq ($(GCC42_OR_LATER),0)
 CXXFLAGS += -march=native -mtune=native
 else
+# -msse2 is in GCC 3.3, but it causes internal compiler error on salsa.cpp,
+# so don't use it unless we're at GCC 3.4 or later
 CXXFLAGS += -msse2
 endif
 endif
