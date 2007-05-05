@@ -1,5 +1,5 @@
 Crypto++: a C++ Class Library of Cryptographic Schemes
-Version 5.5 (in development)
+Version 5.5 5/5/2007
 
 This library includes:
 
@@ -360,17 +360,20 @@ the mailing list.
     - updated Whirlpool to version 3.0
     - ported to GCC 4.1, Sun C++ 5.8, and Borland C++Builder 2006
 
-5.5 - added VMAC, Sosemanuk
-    - improved speed of AES and Whirlpool
-      using MMX instructions
-    - improved speed of modular multiplication, SHA-512, Tiger, Salsa20,
-      and PANAMA cipher using SSE2 instructions
+5.5 - added VMAC and Sosemanuk (with x86-64 and SSE2 assembly)
+    - improved speed of integer arithmetic, AES, SHA-512, Tiger, Salsa20,
+      Whirlpool, and PANAMA cipher using assembly (x86-64, MMX, SSE2)
     - optimized Camellia and added defense against timing attacks
-    - updated benchmarks code to show cycles per byte and to time key setup
+    - updated benchmarks code to show cycles per byte and to time key/IV setup
     - started using OpenMP for increased multi-core speed
-    - enabled optimization flags by default in GNUmakefile
-    - changed PANAMA cipher interface to accept 256-bit key and 256-bit IV
-    - added blinding and error checking for RW private key operation
+    - enabled GCC optimization flags by default in GNUmakefile
+    - added blinding and computational error checking for RW signing
+    - changed RandomPool, X917RNG, GetNextIV, DSA/NR/ECDSA/ECNR to reduce
+      the risk of reusing random numbers and IVs after virtual machine state
+      rollback
+    - changed default FIPS mode RNG from AutoSeededX917RNG<DES_EDE3> to
+      AutoSeededX917RNG<AES>
+    - fixed PANAMA cipher interface to accept 256-bit key and 256-bit IV
     - moved MD2, MD4, MD5, PanamaHash, ARC4, WAKE_CFB into the namespace "Weak"
     - removed HAVAL, MD5-MAC, XMAC
     
