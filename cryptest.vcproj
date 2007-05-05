@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="cryptest"
 	ProjectGUID="{9EAFA456-89B4-4879-AD4F-C2C341184CF5}"
+	RootNamespace="cryptest"
 	SccLocalPath="."
 	>
 	<Platforms>
@@ -51,7 +52,6 @@
 				Optimization="2"
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
 				PreprocessorDefinitions="NDEBUG;_CONSOLE;WIN32"
 				StringPooling="true"
@@ -81,7 +81,6 @@
 				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				OptimizeForWindows98="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -143,12 +142,12 @@
 				Optimization="2"
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
 				PreprocessorDefinitions="NDEBUG;_CONSOLE;WIN32"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
+				EnableEnhancedInstructionSet="0"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
@@ -174,6 +173,7 @@
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				OptimizeForWindows98="1"
+				LinkTimeCodeGeneration="0"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -210,6 +210,7 @@
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
+			WholeProgramOptimization="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -232,7 +233,10 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/Zm400 "
 				Optimization="2"
-				InlineFunctionExpansion="1"
+				InlineFunctionExpansion="2"
+				EnableIntrinsicFunctions="true"
+				OmitFramePointers="true"
+				WholeProgramOptimization="true"
 				PreprocessorDefinitions="NDEBUG;CRYPTOPP_IMPORTS;WIN32;_CONSOLE"
 				StringPooling="true"
 				RuntimeLibrary="0"
@@ -263,7 +267,6 @@
 				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				OptimizeForWindows98="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -299,6 +302,7 @@
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
+			WholeProgramOptimization="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -322,11 +326,15 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/Zm400 "
 				Optimization="2"
-				InlineFunctionExpansion="1"
+				InlineFunctionExpansion="2"
+				EnableIntrinsicFunctions="true"
+				OmitFramePointers="true"
+				WholeProgramOptimization="true"
 				PreprocessorDefinitions="NDEBUG;CRYPTOPP_IMPORTS;WIN32;_CONSOLE"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
+				OpenMP="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
@@ -412,6 +420,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/Zm400 "
 				Optimization="0"
+				InlineFunctionExpansion="0"
 				EnableIntrinsicFunctions="true"
 				PreprocessorDefinitions="_DEBUG;CRYPTOPP_IMPORTS;WIN32;_CONSOLE"
 				RuntimeLibrary="1"
@@ -439,7 +448,6 @@
 				AdditionalLibraryDirectories="$(OutDir)"
 				GenerateDebugInformation="true"
 				SubSystem="1"
-				OptimizeForWindows98="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -498,9 +506,11 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/Zm400 "
 				Optimization="0"
+				InlineFunctionExpansion="0"
 				EnableIntrinsicFunctions="true"
 				PreprocessorDefinitions="_DEBUG;CRYPTOPP_IMPORTS;WIN32;_CONSOLE"
 				RuntimeLibrary="1"
+				OpenMP="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
@@ -587,6 +597,7 @@
 				EnableIntrinsicFunctions="true"
 				PreprocessorDefinitions="_DEBUG;_CONSOLE;WIN32"
 				RuntimeLibrary="1"
+				EnableEnhancedInstructionSet="1"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
@@ -609,7 +620,6 @@
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
 				SubSystem="1"
-				OptimizeForWindows98="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -971,8 +981,9 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
+						Optimization="2"
 						PreprocessorDefinitions=""
+						EnableEnhancedInstructionSet="2"
 					/>
 				</FileConfiguration>
 				<FileConfiguration

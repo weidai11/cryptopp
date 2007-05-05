@@ -48,7 +48,6 @@
 				Optimization="2"
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
 				PreprocessorDefinitions="NDEBUG;_WINDOWS;USE_PRECOMPILED_HEADERS;WIN32"
 				StringPooling="true"
@@ -121,12 +120,12 @@
 				Optimization="2"
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
 				PreprocessorDefinitions="NDEBUG;_WINDOWS;USE_PRECOMPILED_HEADERS;WIN32"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
+				OpenMP="true"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="pch.h"
 				WarningLevel="3"
@@ -171,6 +170,7 @@
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
+			WholeProgramOptimization="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -190,7 +190,10 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
-				InlineFunctionExpansion="1"
+				InlineFunctionExpansion="2"
+				EnableIntrinsicFunctions="true"
+				OmitFramePointers="true"
+				WholeProgramOptimization="true"
 				PreprocessorDefinitions="NDEBUG;_WINDOWS;USE_PRECOMPILED_HEADERS;WIN32;CRYPTOPP_IMPORTS"
 				StringPooling="true"
 				RuntimeLibrary="0"
@@ -240,6 +243,7 @@
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
+			WholeProgramOptimization="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -260,11 +264,15 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
-				InlineFunctionExpansion="1"
+				InlineFunctionExpansion="2"
+				EnableIntrinsicFunctions="true"
+				OmitFramePointers="true"
+				WholeProgramOptimization="true"
 				PreprocessorDefinitions="NDEBUG;_WINDOWS;USE_PRECOMPILED_HEADERS;WIN32;CRYPTOPP_IMPORTS"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
+				OpenMP="true"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="pch.h"
 				WarningLevel="3"
@@ -332,6 +340,7 @@
 				EnableIntrinsicFunctions="true"
 				PreprocessorDefinitions="_DEBUG;_WINDOWS;USE_PRECOMPILED_HEADERS;WIN32"
 				RuntimeLibrary="1"
+				EnableEnhancedInstructionSet="1"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="pch.h"
 				WarningLevel="3"
@@ -399,6 +408,7 @@
 				EnableIntrinsicFunctions="true"
 				PreprocessorDefinitions="_DEBUG;_WINDOWS;USE_PRECOMPILED_HEADERS;WIN32"
 				RuntimeLibrary="1"
+				OpenMP="true"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="pch.h"
 				WarningLevel="3"
@@ -533,6 +543,7 @@
 				EnableIntrinsicFunctions="true"
 				PreprocessorDefinitions="_DEBUG;_WINDOWS;USE_PRECOMPILED_HEADERS;WIN32;CRYPTOPP_IMPORTS"
 				RuntimeLibrary="1"
+				OpenMP="true"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="pch.h"
 				WarningLevel="3"
@@ -586,7 +597,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -738,7 +748,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -814,7 +823,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -890,7 +898,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -966,7 +973,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -1042,7 +1048,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -1118,7 +1123,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -1194,7 +1198,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -1270,7 +1273,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -1346,7 +1348,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -1422,7 +1423,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -1498,7 +1498,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -1574,7 +1573,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -1650,7 +1648,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -1726,7 +1723,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -1802,7 +1798,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -1878,7 +1873,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -1947,6 +1941,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\cpu.cpp"
+				>
+			</File>
+			<File
 				RelativePath="crc.cpp"
 				>
 				<FileConfiguration
@@ -1954,7 +1952,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -2030,7 +2027,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -2106,7 +2102,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -2182,7 +2177,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -2258,7 +2252,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -2334,7 +2327,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -2410,7 +2402,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -2486,7 +2477,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 						UsePrecompiledHeader="0"
 					/>
@@ -2570,7 +2560,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -2646,7 +2635,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -2723,7 +2711,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -2806,7 +2793,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -2882,7 +2868,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -2963,7 +2948,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -3046,7 +3030,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -3122,7 +3105,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -3198,7 +3180,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -3274,7 +3255,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -3350,7 +3330,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -3426,7 +3405,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -3502,7 +3480,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -3578,7 +3555,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -3654,7 +3630,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -3730,7 +3705,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -3806,83 +3780,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DLL-Import Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DLL-Import Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DLL-Import Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DLL-Import Debug|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="haval.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -3958,7 +3855,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -4034,7 +3930,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -4110,7 +4005,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -4186,7 +4080,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -4262,7 +4155,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -4338,7 +4230,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -4349,6 +4240,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="1"
 						PreprocessorDefinitions=""
+						AssemblerListingLocation=""
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4414,7 +4306,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -4490,7 +4381,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -4566,7 +4456,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -4642,7 +4531,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -4718,7 +4606,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -4794,7 +4681,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -4870,83 +4756,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DLL-Import Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DLL-Import Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DLL-Import Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="DLL-Import Debug|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="md5mac.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -5022,7 +4831,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -5098,7 +4906,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -5174,7 +4981,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -5250,7 +5056,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -5326,7 +5131,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -5402,7 +5206,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -5478,7 +5281,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -5554,7 +5356,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -5630,7 +5431,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -5706,7 +5506,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 						UsePrecompiledHeader="1"
 					/>
@@ -5790,7 +5589,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -5866,7 +5664,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -5942,7 +5739,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -6018,7 +5814,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -6094,7 +5889,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -6170,7 +5964,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -6246,7 +6039,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -6322,7 +6114,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -6398,7 +6189,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -6474,7 +6264,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -6550,7 +6339,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -6626,7 +6414,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -6702,7 +6489,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -6778,7 +6564,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -6854,7 +6639,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -6930,7 +6714,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -7006,7 +6789,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -7086,7 +6868,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -7162,7 +6943,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -7238,7 +7018,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -7314,7 +7093,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -7390,7 +7168,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -7466,7 +7243,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -7542,7 +7318,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -7618,7 +7393,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -7694,7 +7468,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -7763,6 +7536,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\sosemanuk.cpp"
+				>
+			</File>
+			<File
 				RelativePath="square.cpp"
 				>
 				<FileConfiguration
@@ -7770,7 +7547,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -7846,7 +7622,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -7922,7 +7697,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -7998,7 +7772,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -8074,7 +7847,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -8150,7 +7922,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -8226,7 +7997,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -8302,7 +8072,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -8378,7 +8147,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -8454,7 +8222,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -8523,6 +8290,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\vmac.cpp"
+				>
+			</File>
+			<File
 				RelativePath="wait.cpp"
 				>
 				<FileConfiguration
@@ -8530,7 +8301,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -8606,7 +8376,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -8682,7 +8451,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -8758,7 +8526,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -8827,6 +8594,78 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\x64masm.asm"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64masm.obj&quot; /Zi $(InputPath)&#x0D;&#x0A;"
+						Outputs="$(IntDir)\x64masm.obj"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="DLL-Import Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="DLL-Import Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64masm.obj&quot; /Zi $(InputPath)&#x0D;&#x0A;"
+						Outputs="$(IntDir)\x64masm.obj"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64masm.obj&quot; /Zi $(InputPath)&#x0D;&#x0A;"
+						Outputs="$(IntDir)\x64masm.obj"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="DLL-Import Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="DLL-Import Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64masm.obj&quot; /Zi $(InputPath)&#x0D;&#x0A;"
+						Outputs="$(IntDir)\x64masm.obj"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="xtr.cpp"
 				>
 				<FileConfiguration
@@ -8834,7 +8673,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -8910,7 +8748,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -8986,7 +8823,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -9062,7 +8898,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -9138,7 +8973,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						Optimization="1"
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
@@ -9284,6 +9118,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\cpu.h"
+				>
+			</File>
+			<File
 				RelativePath="crc.h"
 				>
 			</File>
@@ -9384,10 +9222,6 @@
 				>
 			</File>
 			<File
-				RelativePath="haval.h"
-				>
-			</File>
-			<File
 				RelativePath="hex.h"
 				>
 			</File>
@@ -9440,10 +9274,6 @@
 				>
 			</File>
 			<File
-				RelativePath="md5mac.h"
-				>
-			</File>
-			<File
 				RelativePath="mdc.h"
 				>
 			</File>
@@ -9469,6 +9299,10 @@
 			</File>
 			<File
 				RelativePath="mqv.h"
+				>
+			</File>
+			<File
+				RelativePath=".\mummy.h"
 				>
 			</File>
 			<File
@@ -9620,6 +9454,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\sosemanuk.h"
+				>
+			</File>
+			<File
 				RelativePath="square.h"
 				>
 			</File>
@@ -9649,6 +9487,10 @@
 			</File>
 			<File
 				RelativePath="twofish.h"
+				>
+			</File>
+			<File
+				RelativePath=".\vmac.h"
 				>
 			</File>
 			<File
@@ -9716,6 +9558,10 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath=".\VTune\cryptlib.vpj"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

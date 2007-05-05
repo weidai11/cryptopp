@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="Windows-1252"?>
+<?xml version="1.0" encoding="gb2312"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
@@ -65,6 +65,7 @@
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
+				EnableEnhancedInstructionSet="1"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="pch.h"
 				WarningLevel="3"
@@ -77,100 +78,6 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
-				Culture="1033"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				OutputFile="$(OutDir)\cryptopp.dll"
-				SuppressStartupBanner="true"
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(TargetDir)cryptopp.pdb"
-				OptimizeReferences="2"
-				BaseAddress="0x42900000"
-				ImportLibrary="$(TargetDir)cryptopp.lib"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Debug|Win32"
-			OutputDirectory="$(PlatformName)\DLL_Output\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ProjectName)\$(ConfigurationName)"
-			ConfigurationType="2"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-				CommandLine="Win32\output\debug\cryptest mac_dll &quot;$(TargetPath)&quot;&#x0D;&#x0A;echo mac done &gt; &quot;$(OutDir)&quot;\cryptopp.mac.done&#x0D;&#x0A;"
-				AdditionalDependencies=""
-				Outputs="$(OutDir)\cryptopp.mac.done"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG"
-				MkTypLibCompatible="true"
-				SuppressStartupBanner="true"
-				TargetEnvironment="1"
-				TypeLibraryName=".\DLL_Debug/cryptdll.tlb"
-				HeaderFileName=""
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalOptions="/Zm200 "
-				Optimization="0"
-				EnableIntrinsicFunctions="true"
-				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
-				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="pch.h"
-				WarningLevel="3"
-				SuppressStartupBanner="true"
-				DebugInformationFormat="3"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
 				Culture="1033"
 			/>
 			<Tool
@@ -258,6 +165,8 @@
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
+				EnableEnhancedInstructionSet="1"
+				OpenMP="true"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="pch.h"
 				WarningLevel="3"
@@ -285,6 +194,101 @@
 				BaseAddress="0x42900000"
 				ImportLibrary="$(TargetDir)cryptopp.lib"
 				TargetMachine="17"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory="$(PlatformName)\DLL_Output\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ProjectName)\$(ConfigurationName)"
+			ConfigurationType="2"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+				CommandLine="Win32\output\debug\cryptest mac_dll &quot;$(TargetPath)&quot;&#x0D;&#x0A;echo mac done &gt; &quot;$(OutDir)&quot;\cryptopp.mac.done&#x0D;&#x0A;"
+				AdditionalDependencies=""
+				Outputs="$(OutDir)\cryptopp.mac.done"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="_DEBUG"
+				MkTypLibCompatible="true"
+				SuppressStartupBanner="true"
+				TargetEnvironment="1"
+				TypeLibraryName=".\DLL_Debug/cryptdll.tlb"
+				HeaderFileName=""
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions="/Zm200 "
+				Optimization="0"
+				EnableIntrinsicFunctions="true"
+				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="1"
+				EnableEnhancedInstructionSet="1"
+				UsePrecompiledHeader="2"
+				PrecompiledHeaderThrough="pch.h"
+				WarningLevel="3"
+				SuppressStartupBanner="true"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				OutputFile="$(OutDir)\cryptopp.dll"
+				SuppressStartupBanner="true"
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile="$(TargetDir)cryptopp.pdb"
+				OptimizeReferences="2"
+				BaseAddress="0x42900000"
+				ImportLibrary="$(TargetDir)cryptopp.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -353,6 +357,8 @@
 				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
+				EnableEnhancedInstructionSet="1"
+				OpenMP="true"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="pch.h"
 				WarningLevel="3"
@@ -427,6 +433,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -434,15 +449,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -469,6 +475,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -476,15 +491,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -511,6 +517,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -518,15 +533,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -553,6 +559,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -560,15 +575,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -595,6 +601,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -602,15 +617,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -637,6 +643,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -644,15 +659,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -667,10 +673,23 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\cpu.cpp"
+				>
+			</File>
+			<File
 				RelativePath="cryptlib.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -686,15 +705,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -721,6 +731,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -728,15 +747,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -763,6 +773,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -770,15 +789,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -805,6 +815,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -812,15 +831,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -848,6 +858,16 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -855,16 +875,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
@@ -893,6 +903,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -900,15 +919,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -935,6 +945,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -942,15 +961,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -977,6 +987,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -984,15 +1003,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -1019,6 +1029,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -1026,15 +1045,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -1065,6 +1075,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -1072,15 +1091,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -1107,6 +1117,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -1114,15 +1133,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -1149,6 +1159,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -1156,15 +1175,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -1191,6 +1201,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -1198,15 +1217,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -1233,6 +1243,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -1240,15 +1259,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -1275,6 +1285,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -1282,15 +1301,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -1317,6 +1327,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -1324,15 +1343,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -1359,6 +1369,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -1366,15 +1385,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -1401,6 +1411,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -1408,15 +1427,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -1431,10 +1441,23 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\hrtimer.cpp"
+				>
+			</File>
+			<File
 				RelativePath="integer.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1450,15 +1473,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -1485,6 +1499,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -1492,15 +1515,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -1527,6 +1541,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -1534,15 +1557,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -1569,6 +1583,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -1576,15 +1599,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -1611,6 +1625,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -1618,15 +1641,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -1653,6 +1667,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -1660,15 +1683,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -1695,6 +1709,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -1702,15 +1725,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -1737,6 +1751,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -1744,15 +1767,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -1780,6 +1794,16 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -1787,16 +1811,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						UsePrecompiledHeader="1"
 					/>
 				</FileConfiguration>
@@ -1825,6 +1839,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -1832,15 +1855,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -1871,6 +1885,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -1878,15 +1901,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -1913,6 +1927,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -1920,15 +1943,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -1955,6 +1969,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -1962,15 +1985,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -1997,6 +2011,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -2004,15 +2027,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -2039,6 +2053,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -2046,15 +2069,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -2081,6 +2095,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -2088,15 +2111,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -2123,6 +2137,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -2130,15 +2153,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -2169,6 +2183,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -2176,15 +2199,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -2211,6 +2225,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -2218,15 +2241,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -2253,6 +2267,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -2260,15 +2283,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -2295,6 +2309,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -2302,15 +2325,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -2337,6 +2351,15 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
@@ -2344,15 +2367,6 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="1"
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -2405,6 +2419,10 @@
 			</File>
 			<File
 				RelativePath="config.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cpu.h"
 				>
 			</File>
 			<File
