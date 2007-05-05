@@ -256,7 +256,7 @@ void BenchmarkAll(double t, double hertz)
 	if (g_hertz)
 	{
 		cpb = "<TH>Cycles Per Byte";
-		cpk = "<TH>Cycles Per Key and IV Setup";
+		cpk = "<TH>Cycles to<br>Setup Key and IV";
 		cout << "CPU frequency of the test platform is " << g_hertz << " Hz.\n";
 	}
 	else
@@ -266,7 +266,7 @@ void BenchmarkAll(double t, double hertz)
 	}
 
 	cout << "<TABLE border=1><COLGROUP><COL align=left><COL align=right><COL align=right><COL align=right><COL align=right>" << endl;
-	cout << "<THEAD><TR><TH>Algorithm<TH>MiB/Second" << cpb << "<TH>Microseconds Per Key and IV Setup" << cpk << endl;
+	cout << "<THEAD><TR><TH>Algorithm<TH>MiB/Second" << cpb << "<TH>Microseconds to<br>Setup Key and IV" << cpk << endl;
 
 	cout << "\n<TBODY style=\"background: white\">";
 	BenchMarkByName<MessageAuthenticationCode>("VMAC(AES)-64");
@@ -279,7 +279,7 @@ void BenchmarkAll(double t, double hertz)
 	cout << "\n<TBODY style=\"background: yellow\">";
 	BenchMarkKeyless<CRC32>("CRC-32", t);
 	BenchMarkKeyless<Adler32>("Adler-32", t);
-	BenchMarkByNameKeyLess<HashTransformation>("MD5", "MD5 (weak)");
+	BenchMarkByNameKeyLess<HashTransformation>("MD5");
 	BenchMarkByNameKeyLess<HashTransformation>("SHA-1");
 	BenchMarkByNameKeyLess<HashTransformation>("SHA-256");
 #ifdef WORD64_AVAILABLE
@@ -332,46 +332,6 @@ void BenchmarkAll(double t, double hertz)
 	BenchMarkByName<SymmetricCipher>("XTEA/ECB");
 	BenchMarkKeyed<CAST128::Encryption>("CAST-128", t);
 	BenchMarkKeyed<SKIPJACK::Encryption>("SKIPJACK", t);
-
-	{
-		Integer p("CB6C,B8CE,6351,164F,5D0C,0C9E,9E31,E231,CF4E,D551,CBD0,E671,5D6A,7B06,D8DF,C4A7h");
-		Integer q("FD2A,8594,A132,20CC,4E6D,DE77,3AAA,CF15,CD9E,E447,8592,FF46,CC77,87BE,9876,A2AFh");
-		Integer s("63239752671357255800299643604761065219897634268887145610573595874544114193025997412441121667211431");
-		BlumBlumShub c(p, q, s);
-		BenchMark("BlumBlumShub 512", c, t);
-	}
-	{
-		Integer p("FD2A,8594,A132,20CC,4E6D,DE77,3AAA,CF15,CD9E,E447,8592,FF46,CC77,87BE,9876,9E2C,"
-				  "8572,64C3,4CF4,188A,44D4,2130,1135,7982,6FF6,EDD3,26F0,5FAA,BAF4,A81E,7ADC,B80Bh");
-		Integer q("C8B9,5797,B349,6BA3,FD72,F2C0,A796,8A65,EE0F,B4BA,272F,4FEE,4DB1,06D5,ECEB,7142,"
-				  "E8A8,E5A8,6BF9,A32F,BA37,BACC,8A75,8A6B,2DCE,D6EC,B515,980A,4BB1,08FB,6F2C,2383h");
-		Integer s("3578,8F00,2965,71A4,4382,699F,45FD,3922,8238,241B,CEBA,0543,3443,E8D9,12FB,AC46,"
-				  "7EC4,8505,EC9E,7EE8,5A23,9B2A,B615,D0C4,9448,F23A,ADEE,E850,1A7A,CA30,0B5B,A408,"
-				  "D936,21BA,844E,BDD6,7848,3D1E,9137,CC87,DAA5,773B,D45A,C8BB,5392,1393,108B,6992,"
-				  "74E3,C5E2,C235,A321,0111,3BA4,BAB4,1A2F,17EE,C371,DE67,01C9,0F3D,907A,B252,9BDDh");
-		BlumBlumShub c(p, q, s);
-		BenchMark("BlumBlumShub 1024", c, t);
-	}
-	{
-		Integer p("EB56,978A,7BA7,B5D9,1383,4611,94F5,4766,FCEF,CF41,958A,FC41,43D0,839F,C56B,B568,"
-				  "4ED3,9E5A,BABB,5ACE,8B11,CEBC,88A2,7C12,FFEE,E6E8,CF0A,E231,5BC2,DEDE,80B7,32F6,"
-				  "340E,D8A6,B7DE,C779,7EE5,0E16,9C88,FC9F,2A0E,EE6C,7D47,C5F2,6B06,EB8C,F1C8,2E67,"
-				  "5B82,8C28,4FB8,542F,2874,C355,CEEE,7A54,1B06,A8AB,8B66,6A5C,9DB2,72B8,74F3,7BC7h");
-		Integer q("EB6B,3645,4591,8343,7331,7CAC,B02E,4BB9,DEF5,8EDC,1772,DB9B,9571,5FAB,1CDD,4FB1,"
-				  "7B9A,07CD,E715,D448,F552,CBBD,D387,C037,DE70,6661,F360,D0E8,D42E,292A,9321,DDCB,"
-				  "0BF9,C514,BFAC,3F2C,C06E,DF64,A9B8,50D6,AC4F,B9E4,014B,5624,2B40,A0D4,5D0B,6DD4,"
-				  "0989,D00E,0268,99AB,21DB,0BB4,DB38,84DA,594F,575F,95AC,1B70,45E4,96C8,C6AD,CE67h");
-		Integer s("C75A,8A0D,E231,295F,C08A,1716,8611,D5EC,E9EF,B565,90EC,58C0,57D0,DA7D,C6E6,DB00,"
-				  "2282,1CA7,EA31,D64E,768C,0B19,8563,36DF,2226,F4EC,74A4,2844,2E8D,37E8,53DC,0172,"
-				  "5F56,8CF9,B444,CA02,78B3,17AF,7C78,D320,16AE,AC3D,B97F,7259,1B8F,9C84,6A16,B878,"
-				  "0595,70BB,9C52,18B5,9100,9C1F,E85A,4035,06F3,5F38,7462,F01D,0462,BFBC,A4CD,4A45,"
-				  "3A77,E7F8,DED1,D6EF,CEF7,0937,CD3F,3AF1,4F88,932D,6D4B,002C,3735,304C,C5D3,B88A,"
-				  "B57B,24B6,5346,9B46,5153,B7ED,B216,C181,B1C6,C52E,CD2B,E0AA,B1BB,0A93,C92E,4F79,"
-				  "4931,E303,7C8F,A408,8ACF,56CD,6EC0,76A2,5015,6BA4,4C50,C44D,53B9,E168,5F84,B381,"
-				  "2514,10B2,00E5,B4D1,4156,A2FE,0BF6,6F33,0A1B,91C6,31B8,1C90,02F1,FB1F,C494,8B65h");
-		BlumBlumShub c(p, q, s);
-		BenchMark("BlumBlumShub 2048", c, t);
-	}
 	cout << "</TABLE>" << endl;
 
 	BenchmarkAll2(t, hertz);
