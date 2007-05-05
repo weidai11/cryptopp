@@ -94,51 +94,40 @@ void BlockOrientedCipherModeBase::UncheckedSetKey(const byte *key, unsigned int 
 
 void BlockOrientedCipherModeBase::ProcessData(byte *outString, const byte *inString, size_t length)
 {
+	if (!length)
+		return;
+
 	unsigned int s = BlockSize();
 	assert(length % s == 0);
-	unsigned int alignment = m_cipher->BlockAlignment();
-	bool inputAlignmentOk = !RequireAlignedInput() || IsAlignedOn(inString, alignment);
 
-	if (IsAlignedOn(outString, alignment))
-	{
-		if (inputAlignmentOk)
-			ProcessBlocks(outString, inString, length / s);
-		else
-		{
-			memcpy(outString, inString, length);
-			ProcessBlocks(outString, outString, length / s);
-		}
-	}
+	if (!RequireAlignedInput() || IsAlignedOn(inString, m_cipher->BlockAlignment()))
+		ProcessBlocks(outString, inString, length / s);
 	else
 	{
-		while (length)
+		do
 		{
-			if (inputAlignmentOk)
-				ProcessBlocks(m_buffer, inString, 1);
-			else
-			{
-				memcpy(m_buffer, inString, s);
-				ProcessBlocks(m_buffer, m_buffer, 1);
-			}
-			memcpy(outString, m_buffer, s);
+			memcpy(m_buffer, inString, s);
+			ProcessBlocks(outString, m_buffer, 1);
 			inString += s;
 			outString += s;
 			length -= s;
-		}
+		} while (length > 0);
 	}
 }
 
 void CBC_Encryption::ProcessBlocks(byte *outString, const byte *inString, size_t numberOfBlocks)
 {
 	unsigned int blockSize = BlockSize();
-	while (numberOfBlocks--)
+	xorbuf(m_register, inString, blockSize);
+	while (--numberOfBlocks)
 	{
-		xorbuf(m_register, inString, blockSize);
-		m_cipher->ProcessBlock(m_register);
-		memcpy(outString, m_register, blockSize);
+		m_cipher->ProcessBlock(m_register, outString);
 		inString += blockSize;
+		xorbuf(m_register, inString, outString, blockSize);
 		outString += blockSize;
 	}
+	m_cipher->ProcessBlock(m_register);
+	memcpy(outString, m_register, blockSize);
 }
 
 void CBC_CTS_Encryption::ProcessLastBlock(byte *outString, const byte *inString, size_t length)
@@ -171,14 +160,14 @@ void CBC_CTS_Encryption::ProcessLastBlock(byte *outString, const byte *inString,
 void CBC_Decryption::ProcessBlocks(byte *outString, const byte *inString, size_t numberOfBlocks)
 {
 	unsigned int blockSize = BlockSize();
-	while (numberOfBlocks--)
+	do
 	{
-		memcpy(m_temp, inString, blockSize);
+		memcpy(m_temp, inString, blockSize);	// make copy in case we're doing in place decryption
 		m_cipher->ProcessAndXorBlock(m_temp, m_register, outString);
 		m_register.swap(m_temp);
 		inString += blockSize;
 		outString += blockSize;
-	}
+	} while (--numberOfBlocks);
 }
 
 void CBC_CTS_Decryption::ProcessLastBlock(byte *outString, const byte *inString, size_t length)
