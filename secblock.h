@@ -71,11 +71,9 @@ typename A::pointer StandardReallocate(A& a, T *p, typename A::size_type oldSize
 
 	if (preserve)
 	{
-		A b;
-		typename A::pointer newPointer = b.allocate(newSize, NULL);
+		typename A::pointer newPointer = a.allocate(newSize, NULL);
 		memcpy_s(newPointer, sizeof(T)*newSize, p, sizeof(T)*STDMIN(oldSize, newSize));
 		a.deallocate(p, oldSize);
-		std::swap(a, b);
 		return newPointer;
 	}
 	else

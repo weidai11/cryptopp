@@ -100,7 +100,7 @@ typedef BlockGetAndPut<word16, LittleEndian> Block;
  */
 void SKIPJACK::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
-	word w1, w2, w3, w4;
+	word16 w1, w2, w3, w4;
 	Block::Get(inBlock)(w4)(w3)(w2)(w1);
 
 	/* stepping rule A: */
@@ -151,7 +151,7 @@ void SKIPJACK::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
  */
 void SKIPJACK::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
-	word w1, w2, w3, w4;
+	word16 w1, w2, w3, w4;
 	Block::Get(inBlock)(w4)(w3)(w2)(w1);
 
 	/* stepping rule A: */
