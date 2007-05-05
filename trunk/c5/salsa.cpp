@@ -90,11 +90,12 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 	{
 		__m128i *s = (__m128i *)m_state.data();
 
-#if CRYPTOPP_GCC_VERSION >= 40000 || _MSC_VER > 1400 || (defined(_MSC_VER) && CRYPTOPP_BOOL_X86)
+#if _MSC_VER > 1400 || (defined(_MSC_VER) && CRYPTOPP_BOOL_X86) || (CRYPTOPP_GCC_VERSION >= 40000 && CRYPTOPP_BOOL_X86)
 		// This code triggers an internal compiler error on MSVC 2005 when compiling 
 		// for x64 with optimizations on. hopefully it will get fixed in the next release.
 		// A bug report has been submitted at http://connect.microsoft.com/VisualStudio/feedback/ViewFeedback.aspx?FeedbackID=274123
 		// Also, GCC 3.4.4 generates incorrect code for x86 at -O2.
+		// GCC 4.1.1 generates incorrect code for x64 at -O2
 		if (iterationCount >= 4)
 		{
 			__m128i ss[16];
