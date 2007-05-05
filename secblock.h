@@ -116,17 +116,9 @@ public:
 				CallNewHandler();
 
 		#ifdef CRYPTOPP_NO_ALIGNED_ALLOC
-			assert(IsAlignedOn(p, 8));
-			if (IsAlignedOn(p, 16))
-			{
-				p += 16/sizeof(T);
-				((int *)p)[-1] = 16;
-			}
-			else
-			{
-				p += 8/sizeof(T);
-				((int *)p)[-1] = 8;
-			}
+			size_t adjustment = 16-((size_t)p%16);
+			p += adjustment;
+			p[-1] = (byte)adjustment;
 		#endif
 
 			assert(IsAlignedOn(p, 16));
@@ -148,7 +140,7 @@ public:
 		#ifdef CRYPTOPP_MM_MALLOC_AVAILABLE
 			_mm_free(p);
 		#elif defined(CRYPTOPP_NO_ALIGNED_ALLOC)
-			p = ((byte *)p) - ((int *)p)[-1]/sizeof(T);
+			p = (byte *)p - ((byte *)p)[-1];
 			free(p);
 		#else
 			free(p);
@@ -269,9 +261,13 @@ public:
 	size_type max_size() const {return STDMAX(m_fallbackAllocator.max_size(), S);}
 
 private:
+#ifdef __BORLANDC__
+	T* GetAlignedArray() {return m_array;}
+	T m_array[S];
+#else
 	T* GetAlignedArray() {return T_Align16 ? (T*)(((byte *)m_array) + (0-(size_t)m_array)%16) : m_array;}
-
 	CRYPTOPP_ALIGN_DATA(8) T m_array[T_Align16 ? S+8/sizeof(T) : S];
+#endif
 	A m_fallbackAllocator;
 	bool m_allocated;
 };
@@ -286,7 +282,7 @@ public:
 	typedef typename A::const_pointer const_iterator;
 	typedef typename A::size_type size_type;
 
-    explicit SecBlock(size_type size=0)
+	explicit SecBlock(size_type size=0)
 		: m_size(size) {m_ptr = m_alloc.allocate(size, NULL);}
 	SecBlock(const SecBlock<T, A> &t)
 		: m_size(t.m_size) {m_ptr = m_alloc.allocate(m_size, NULL); memcpy_s(m_ptr, m_size*sizeof(T), t.m_ptr, m_size*sizeof(T));}

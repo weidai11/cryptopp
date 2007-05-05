@@ -14,7 +14,7 @@
 		</Source>
 		<BCBPROJECT>
       <project version="10.0">
-        <property category="build.config" name="active" value="0"/>
+        <property category="build.config" name="active" value="1"/>
         <property category="build.config" name="count" value="1"/>
         <property category="build.config" name="excludedefaultforzero" value="0"/>
         <property category="build.config.0" name="builddir" value="Debug"/>
@@ -45,14 +45,19 @@
         <property category="win32.*.win32b.tasm32" name="param.objfile.merge" value="1"/>
         <property category="win32.*.win32b.tasm32" name="param.xreffile.merge" value="1"/>
         <property category="win32.Debug_Build.win32b.bcc32" name="container.SelectedOptimizations.containerenabled" value="0"/>
+        <property category="win32.Debug_Build.win32b.bcc32" name="container.SelectedWarnings.containerenabled" value="1"/>
         <property category="win32.Debug_Build.win32b.bcc32" name="option.D.arg.1" value="_DEBUG"/>
         <property category="win32.Debug_Build.win32b.bcc32" name="option.D.arg.merge" value="1"/>
         <property category="win32.Debug_Build.win32b.bcc32" name="option.D.enabled" value="1"/>
         <property category="win32.Debug_Build.win32b.bcc32" name="option.Od.enabled" value="1"/>
+        <property category="win32.Debug_Build.win32b.bcc32" name="option.disablewarns.enabled" value="0"/>
         <property category="win32.Debug_Build.win32b.bcc32" name="option.k.enabled" value="1"/>
         <property category="win32.Debug_Build.win32b.bcc32" name="option.r.enabled" value="0"/>
         <property category="win32.Debug_Build.win32b.bcc32" name="option.v.enabled" value="1"/>
         <property category="win32.Debug_Build.win32b.bcc32" name="option.vi.enabled" value="0"/>
+        <property category="win32.Debug_Build.win32b.bcc32" name="option.w.enabled" value="0"/>
+        <property category="win32.Debug_Build.win32b.bcc32" name="option.wccc.enabled" value="0"/>
+        <property category="win32.Debug_Build.win32b.bcc32" name="option.wrch.enabled" value="0"/>
         <property category="win32.Debug_Build.win32b.bcc32" name="option.y.enabled" value="1"/>
         <property category="win32.Debug_Build.win32b.dcc32" name="option.$D.enabled" value="1"/>
         <property category="win32.Debug_Build.win32b.dcc32" name="option.$O.enabled" value="0"/>
@@ -70,6 +75,10 @@
         <property category="win32.Debug_Build.win32b.tasm32" name="option.zd.enabled" value="0"/>
         <property category="win32.Debug_Build.win32b.tasm32" name="option.zi.enabled" value="1"/>
         <property category="win32.Release_Build.win32b.bcc32" name="container.SelectedOptimizations.containerenabled" value="1"/>
+        <property category="win32.Release_Build.win32b.bcc32" name="container.SelectedWarnings.containerenabled" value="1"/>
+        <property category="win32.Release_Build.win32b.bcc32" name="option.A.enabled" value="0"/>
+        <property category="win32.Release_Build.win32b.bcc32" name="option.AK.enabled" value="0"/>
+        <property category="win32.Release_Build.win32b.bcc32" name="option.AU.enabled" value="0"/>
         <property category="win32.Release_Build.win32b.bcc32" name="option.D.arg.1" value="NDEBUG"/>
         <property category="win32.Release_Build.win32b.bcc32" name="option.D.arg.merge" value="1"/>
         <property category="win32.Release_Build.win32b.bcc32" name="option.D.enabled" value="1"/>
@@ -86,10 +95,14 @@
         <property category="win32.Release_Build.win32b.bcc32" name="option.Op.enabled" value="1"/>
         <property category="win32.Release_Build.win32b.bcc32" name="option.Ov.enabled" value="1"/>
         <property category="win32.Release_Build.win32b.bcc32" name="option.Oz.enabled" value="1"/>
+        <property category="win32.Release_Build.win32b.bcc32" name="option.disablewarns.enabled" value="0"/>
         <property category="win32.Release_Build.win32b.bcc32" name="option.k.enabled" value="0"/>
         <property category="win32.Release_Build.win32b.bcc32" name="option.r.enabled" value="1"/>
         <property category="win32.Release_Build.win32b.bcc32" name="option.v.enabled" value="1"/>
         <property category="win32.Release_Build.win32b.bcc32" name="option.vi.enabled" value="1"/>
+        <property category="win32.Release_Build.win32b.bcc32" name="option.w.enabled" value="0"/>
+        <property category="win32.Release_Build.win32b.bcc32" name="option.wccc.enabled" value="0"/>
+        <property category="win32.Release_Build.win32b.bcc32" name="option.wrch.enabled" value="0"/>
         <property category="win32.Release_Build.win32b.bcc32" name="option.y.enabled" value="1"/>
         <property category="win32.Release_Build.win32b.dcc32" name="option.$D.enabled" value="0"/>
         <property category="win32.Release_Build.win32b.dcc32" name="option.$O.enabled" value="1"/>
@@ -227,7 +240,6 @@
         <FILE FILENAME="gfpcrypt.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="gfpcrypt" FORMNAME="" DESIGNCLASS=""/>
         <FILE FILENAME="gost.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="gost" FORMNAME="" DESIGNCLASS=""/>
         <FILE FILENAME="gzip.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="gzip" FORMNAME="" DESIGNCLASS=""/>
-        <FILE FILENAME="haval.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="haval" FORMNAME="" DESIGNCLASS=""/>
         <FILE FILENAME="hex.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="hex" FORMNAME="" DESIGNCLASS=""/>
         <FILE FILENAME="hmac.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="hmac" FORMNAME="" DESIGNCLASS=""/>
         <FILE FILENAME="hrtimer.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="hrtimer" FORMNAME="" DESIGNCLASS=""/>
@@ -241,7 +253,6 @@
         <FILE FILENAME="md2.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="md2" FORMNAME="" DESIGNCLASS=""/>
         <FILE FILENAME="md4.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="md4" FORMNAME="" DESIGNCLASS=""/>
         <FILE FILENAME="md5.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="md5" FORMNAME="" DESIGNCLASS=""/>
-        <FILE FILENAME="md5mac.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="md5mac" FORMNAME="" DESIGNCLASS=""/>
         <FILE FILENAME="misc.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="misc" FORMNAME="" DESIGNCLASS=""/>
         <FILE FILENAME="modes.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="modes" FORMNAME="" DESIGNCLASS=""/>
         <FILE FILENAME="mqueue.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="mqueue" FORMNAME="" DESIGNCLASS=""/>
@@ -267,7 +278,6 @@
         <FILE FILENAME="rsa.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="rsa" FORMNAME="" DESIGNCLASS=""/>
         <FILE FILENAME="rw.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="rw" FORMNAME="" DESIGNCLASS=""/>
         <FILE FILENAME="safer.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="safer" FORMNAME="" DESIGNCLASS=""/>
-        <FILE FILENAME="salsa.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="salsa" FORMNAME="" DESIGNCLASS=""/>
         <FILE FILENAME="seal.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="seal" FORMNAME="" DESIGNCLASS=""/>
         <FILE FILENAME="serpent.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="serpent" FORMNAME="" DESIGNCLASS=""/>
         <FILE FILENAME="sha.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="sha" FORMNAME="" DESIGNCLASS=""/>
@@ -296,6 +306,10 @@
         <FILE FILENAME="zdeflate.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="zdeflate" FORMNAME="" DESIGNCLASS=""/>
         <FILE FILENAME="zinflate.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="zinflate" FORMNAME="" DESIGNCLASS=""/>
         <FILE FILENAME="randpool.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="randpool" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="cpu.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="cpu" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="salsa.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="salsa" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="sosemanuk.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="sosemanuk" FORMNAME="" DESIGNCLASS=""/>
+        <FILE FILENAME="vmac.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="vmac" FORMNAME="" DESIGNCLASS=""/>
       </FILELIST>
       <IDEOPTIONS>
         <VersionInfo>

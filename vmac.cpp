@@ -13,12 +13,17 @@ NAMESPACE_BEGIN(CryptoPP)
 #endif
 
 #define VMAC_BOOL_WORD128 (defined(CRYPTOPP_WORD128_AVAILABLE) && !defined(CRYPTOPP_X64_ASM_AVAILABLE))
-
+#ifdef __BORLANDC__
+#define const	// Turbo C++ 2006 workaround
+#endif
 static const word64 p64   = W64LIT(0xfffffffffffffeff);  /* 2^64 - 257 prime  */
 static const word64 m62   = W64LIT(0x3fffffffffffffff);  /* 62-bit mask       */
 static const word64 m63   = W64LIT(0x7fffffffffffffff);  /* 63-bit mask       */
 static const word64 m64   = W64LIT(0xffffffffffffffff);  /* 64-bit mask       */
 static const word64 mpoly = W64LIT(0x1fffffff1fffffff);  /* Poly key mask     */
+#ifdef __BORLANDC__
+#undef const
+#endif
 #if VMAC_BOOL_WORD128
 static const word128 m126 = (word128(m62)<<64)|m64;		 /* 126-bit mask      */
 #endif
@@ -55,7 +60,7 @@ void VMAC_Base::UncheckedSetKey(const byte *userKey, unsigned int keylength, con
 	}
 
 	/* Fill poly key */
-	in[0] = 0xC0; 
+	in[0] = 0xC0;
 	in[15] = 0;
 	for (i = 0; i <= (size_t)m_is128; i++)
 	{
@@ -68,14 +73,15 @@ void VMAC_Base::UncheckedSetKey(const byte *userKey, unsigned int keylength, con
 	/* Fill ip key */
 	in[0] = 0xE0;
 	in[15] = 0;
+	word64 *l3Key = m_l3Key();
 	for (i = 0; i <= (size_t)m_is128; i++)
 		do
 		{
 			cipher.ProcessBlock(in, out.BytePtr());
-			m_l3Key()[i*2+0] = GetWord<word64>(true, BIG_ENDIAN_ORDER, out.BytePtr());
-			m_l3Key()[i*2+1] = GetWord<word64>(true, BIG_ENDIAN_ORDER, out.BytePtr()+8);
+			l3Key[i*2+0] = GetWord<word64>(true, BIG_ENDIAN_ORDER, out.BytePtr());
+			l3Key[i*2+1] = GetWord<word64>(true, BIG_ENDIAN_ORDER, out.BytePtr()+8);
 			in[15]++;
-		} while ((m_l3Key()[0] >= p64) || (m_l3Key()[1] >= p64));
+		} while ((l3Key[i*2+0] >= p64) || (l3Key[i*2+1] >= p64));
 
 	m_padCached = false;
 	Resynchronize(GetIVAndThrowIfInvalid(params));
