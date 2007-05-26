@@ -1,5 +1,5 @@
 Crypto++: a C++ Class Library of Cryptographic Schemes
-Version 5.5 5/5/2007
+Version 5.5.1 5/24/2007
 
 This library includes:
 
@@ -57,9 +57,9 @@ You are welcome to use it for any purpose without paying me, but see
 License.txt for the fine print.
 
 This version of Crypto++ has been compiled successfully with MSVC 6.0 SP5
-and .NET 2005 SP1 on Windows XP SP2, GCC 3.4.2 on FreeBSD 5.4, GCC 4.1.2 on
-Linux 2.6, GCC 3.4.4 on Cygwin 1.5.21, GCC 3.3 and 4.0.1 on MacOS X 10.4,
-and Borland C++Builder 2006. For an update to date list of supported compilers
+and .NET 2005 SP1 on Windows XP SP2, GCC 3.4.4 on FreeBSD 6.1, GCC 4.1.2 on
+Linux 2.6, GCC 3.4.4 on Cygwin 1.5.21, GCC 4.0.1 on MacOS X 10.4.7, and
+Borland C++Builder 2006. For an update to date list of supported compilers
 and operating systems, please visit http://www.cryptopp.com.
 
 *** Important Usage Notes ***
@@ -376,5 +376,7 @@ the mailing list.
     - fixed PANAMA cipher interface to accept 256-bit key and 256-bit IV
     - moved MD2, MD4, MD5, PanamaHash, ARC4, WAKE_CFB into the namespace "Weak"
     - removed HAVAL, MD5-MAC, XMAC
+    
+5.5.1 - fixed VMAC validation failure on 32-bit big-endian machines
     
 Written by Wei Dai
