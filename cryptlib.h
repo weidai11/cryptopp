@@ -353,6 +353,8 @@ public:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE SimpleKeyingInterface
 {
 public:
+	virtual ~SimpleKeyingInterface() {}
+
 	//! returns smallest valid key length in bytes */
 	virtual size_t MinKeyLength() const =0;
 	//! returns largest valid key length in bytes */
@@ -678,6 +680,8 @@ class CallStack;
 class CRYPTOPP_NO_VTABLE Waitable
 {
 public:
+	virtual ~Waitable() {}
+
 	//! maximum number of wait objects that this object can return
 	virtual unsigned int GetMaxWaitObjectCount() const =0;
 	//! put wait objects into container
