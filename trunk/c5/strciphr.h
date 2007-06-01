@@ -64,6 +64,7 @@ enum KeystreamOperation {
 
 struct CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AdditiveCipherAbstractPolicy
 {
+	virtual ~AdditiveCipherAbstractPolicy() {}
 	virtual unsigned int GetAlignment() const {return 1;}
 	virtual unsigned int GetBytesPerIteration() const =0;
 	virtual unsigned int GetOptimalBlockSize() const {return GetBytesPerIteration();}
@@ -160,6 +161,7 @@ protected:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CFB_CipherAbstractPolicy
 {
 public:
+	virtual ~CFB_CipherAbstractPolicy() {}
 	virtual unsigned int GetAlignment() const =0;
 	virtual unsigned int GetBytesPerIteration() const =0;
 	virtual byte * GetRegisterBegin() =0;
