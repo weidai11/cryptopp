@@ -260,8 +260,7 @@ NAMESPACE_END
 #define CRYPTOPP_DISABLE_SSE2
 #endif
 
-// CodeWarrior defines _MSC_VER
-#if !defined(CRYPTOPP_DISABLE_ASM) && ((defined(_MSC_VER) && !defined(__MWERKS__) && defined(_M_IX86)) || (defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))))
+#if !defined(CRYPTOPP_DISABLE_ASM) && ((defined(CRYPTOPP_MSVC6PP_OR_LATER) && defined(_M_IX86)) || (defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))))
 	#define CRYPTOPP_X86_ASM_AVAILABLE
 
 	#if !defined(CRYPTOPP_DISABLE_SSE2) && (defined(CRYPTOPP_MSVC6PP_OR_LATER) || CRYPTOPP_GCC_VERSION >= 30300)
@@ -300,12 +299,6 @@ NAMESPACE_END
 	#define CRYPTOPP_MALLOC_ALIGNMENT_IS_16
 #elif defined(__linux__) || defined(__sun__) || defined(__CYGWIN__)
 	#define CRYPTOPP_MEMALIGN_AVAILABLE
-#elif defined(__MINGW32__)
-	#ifndef _mm_malloc
-		#define _mm_malloc(a, b)    __mingw_aligned_malloc(a, b)
-		#define _mm_free(a)			__mingw_aligned_free(a)
-	#endif
-	#define CRYPTOPP_MM_MALLOC_AVAILABLE
 #else
 	#define CRYPTOPP_NO_ALIGNED_ALLOC
 #endif
