@@ -1949,11 +1949,13 @@ static void SetFunctionPointers()
 #if CRYPTOPP_INTEGER_SSE2
 	if (HasSSE2())
 	{
+#if _MSC_VER != 1200 || defined(NDEBUG)
 		if (IsP4())
 		{
 			s_pAdd = &SSE2_Add;
 			s_pSub = &SSE2_Sub;
 		}
+#endif
 
 		s_recursionLimit = 32;
 
