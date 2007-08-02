@@ -81,7 +81,7 @@ SOURCE="$(InputPath)"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "CRYPTDLL_EXPORTS" /YX /FD /GZ /c
-# ADD CPP /nologo /G5 /MTd /W3 /Gm /GX /Zi /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "CRYPTOPP_EXPORTS" /D CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1 /D "USE_PRECOMPILED_HEADERS" /Yu"pch.h" /FD /GZ /Zm200 /c
+# ADD CPP /nologo /G5 /MTd /W3 /Gm /GX /Zi /Oi /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "CRYPTOPP_EXPORTS" /D CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1 /D "USE_PRECOMPILED_HEADERS" /Yu"pch.h" /FD /GZ /Zm200 /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
