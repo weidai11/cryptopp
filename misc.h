@@ -670,7 +670,7 @@ inline word32 ByteReverse(word32 value)
 	return bswap_32(value);
 #elif defined(__MWERKS__) && TARGET_CPU_PPC
 	return (word32)__lwbrx(&value,0);
-#elif defined(_MSC_VER) && _MSC_VER >= 1300
+#elif _MSC_VER >= 1400 || (_MSC_VER >= 1300 && !defined(_DLL))
 	return _byteswap_ulong(value);
 #elif CRYPTOPP_FAST_ROTATE(32)
 	// 5 instructions with rotate instruction, 9 without
