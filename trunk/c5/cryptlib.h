@@ -4,14 +4,14 @@
 	classes that provide a uniform interface to this library.
 */
 
-/*!	\mainpage <a href="http://www.cryptopp.com">Crypto++</a><sup><small>&reg;</small></sup> Library 5.5 Reference Manual
+/*!	\mainpage <a href="http://www.cryptopp.com">Crypto++</a><sup><small>&reg;</small></sup> Library 5.5.2 Reference Manual
 <dl>
 <dt>Abstract Base Classes<dd>
 	cryptlib.h
 <dt>Symmetric Ciphers<dd>
 	SymmetricCipherDocumentation
 <dt>Hash Functions<dd>
-	MD2, MD4, MD5, RIPEMD160, RIPEMD320, RIPEMD128, RIPEMD256, SHA1, SHA224, SHA256, SHA384, SHA512, Tiger, Whirlpool
+	SHA1, SHA224, SHA256, SHA384, SHA512, Tiger, Whirlpool, RIPEMD160, RIPEMD320, RIPEMD128, RIPEMD256, Weak1::MD2, Weak1::MD4, Weak1::MD5
 <dt>Non-Cryptographic Checksums<dd>
 	CRC32, Adler32
 <dt>Message Authentication Codes<dd>

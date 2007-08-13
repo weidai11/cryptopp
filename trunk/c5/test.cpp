@@ -331,7 +331,7 @@ int CRYPTOPP_API main(int argc, char *argv[])
 		}
 		else if (command == "V")
 		{
-			cout << "5.5" << endl;
+			cout << CRYPTOPP_VERSION / 100 << '.' << (CRYPTOPP_VERSION % 100) / 10 << '.' << CRYPTOPP_VERSION % 10 << endl;
 		}
 		else
 		{
