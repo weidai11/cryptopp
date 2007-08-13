@@ -145,7 +145,7 @@ static bool TrySSE2()
 }
 
 bool g_x86DetectionDone = false;
-bool g_hasSSE2 = false, g_hasSSSE3 = false, g_hasMMX = false, g_isP4 = false;
+bool g_hasISSE = false, g_hasSSE2 = false, g_hasSSSE3 = false, g_hasMMX = false, g_isP4 = false;
 word32 g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
 
 void DetectX86Features()
@@ -160,6 +160,19 @@ void DetectX86Features()
 	if ((cpuid1[3] & (1 << 26)) != 0)
 		g_hasSSE2 = TrySSE2();
 	g_hasSSSE3 = g_hasSSE2 && (cpuid1[2] & (1<<9));
+
+	if ((cpuid1[3] & (1 << 25)) != 0)
+		g_hasISSE = true;
+	else
+	{
+		word32 cpuid2[4];
+		CpuId(0x080000000, cpuid2);
+		if (cpuid2[0] >= 0x080000001)
+		{
+			CpuId(0x080000001, cpuid2);
+			g_hasISSE = (cpuid2[3] & (1 << 22)) != 0;
+		}
+	}
 
 	std::swap(cpuid[2], cpuid[3]);
 	if (memcmp(cpuid+1, "GenuineIntel", 12) == 0)

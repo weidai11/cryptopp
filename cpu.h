@@ -16,6 +16,7 @@ NAMESPACE_BEGIN(CryptoPP)
 // these should not be used directly
 extern CRYPTOPP_DLL bool g_x86DetectionDone;
 extern CRYPTOPP_DLL bool g_hasSSE2;
+extern CRYPTOPP_DLL bool g_hasISSE;
 extern CRYPTOPP_DLL bool g_hasMMX;
 extern CRYPTOPP_DLL bool g_hasSSSE3;
 extern CRYPTOPP_DLL bool g_isP4;
@@ -26,6 +27,7 @@ CRYPTOPP_DLL bool CpuId(word32 input, word32 *output);
 
 #if CRYPTOPP_BOOL_X64
 inline bool HasSSE2()	{return true;}
+inline bool HasISSE()	{return true;}
 inline bool HasMMX()	{return true;}
 #else
 
@@ -34,6 +36,13 @@ inline bool HasSSE2()
 	if (!g_x86DetectionDone)
 		DetectX86Features();
 	return g_hasSSE2;
+}
+
+inline bool HasISSE()
+{
+	if (!g_x86DetectionDone)
+		DetectX86Features();
+	return g_hasISSE;
 }
 
 inline bool HasMMX()
@@ -79,9 +88,11 @@ inline bool IsP4()		{return false;}
 // assume MMX and SSE2 if intrinsics are enabled
 #if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE || CRYPTOPP_BOOL_X64
 inline bool HasSSE2()	{return true;}
+inline bool HasISSE()	{return true;}
 inline bool HasMMX()	{return true;}
 #else
 inline bool HasSSE2()	{return false;}
+inline bool HasISSE()	{return false;}
 inline bool HasMMX()	{return false;}
 #endif
 

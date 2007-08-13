@@ -229,6 +229,7 @@ bool TestSettings()
 	cout << endl;
 
 	bool hasMMX = HasMMX();
+	bool hasISSE = HasISSE();
 	bool hasSSE2 = HasSSE2();
 	bool hasSSSE3 = HasSSSE3();
 	bool isP4 = IsP4();
@@ -242,7 +243,7 @@ bool TestSettings()
 	else
 		cout << "passed:  ";
 
-	cout << "hasMMX == " << hasMMX << ", hasSSE2 == " << hasSSE2 << ", hasSSSE3 == " << hasSSSE3 << ", isP4 == " << isP4 << ", cacheLineSize == " << cacheLineSize;
+	cout << "hasMMX == " << hasMMX << ", hasISSE == " << hasISSE << ", hasSSE2 == " << hasSSE2 << ", hasSSSE3 == " << hasSSSE3 << ", isP4 == " << isP4 << ", cacheLineSize == " << cacheLineSize;
 
 	if (!pass)
 	{
