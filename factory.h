@@ -65,6 +65,17 @@ public:
 		return factory->CreateObject();
 	}
 
+	// Return a vector containing the factory names. This is easier than returning an iterator.
+	// from Andrew Pitonyak
+	std::vector<std::string> GetFactoryNames() const
+	{
+		std::vector<std::string> names;
+		CPP_TYPENAME Map::const_iterator iter;
+		for (iter = m_map.begin(); iter != m_map.end(); ++iter)
+			names.push_back(iter->first);
+		return names;
+	}
+
 	CRYPTOPP_NOINLINE static ObjectFactoryRegistry<AbstractClass, instance> & Registry(CRYPTOPP_NOINLINE_DOTDOTDOT);
 
 private:
