@@ -748,8 +748,8 @@ bool ValidateESIGN()
 	cout << "verification check against test vector\n";
 
 	cout << "Generating signature key from seed..." << endl;
-	InvertibleESIGNFunction priv;
-	priv.GenerateRandom(GlobalRNG(), MakeParameters("Seed", ConstByteArrayParameter((const byte *)"test", 4))("KeySize", 3*512));
+	signer.AccessKey().GenerateRandom(GlobalRNG(), MakeParameters("Seed", ConstByteArrayParameter((const byte *)"test", 4))("KeySize", 3*512));
+	verifier = signer;
 
 	fail = !SignatureValidate(signer, verifier);
 	pass = pass && !fail;
