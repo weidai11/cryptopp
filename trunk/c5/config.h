@@ -260,7 +260,7 @@ NAMESPACE_END
 #define CRYPTOPP_DISABLE_SSE2
 #endif
 
-#if !defined(CRYPTOPP_DISABLE_ASM) && ((defined(CRYPTOPP_MSVC6PP_OR_LATER) && defined(_M_IX86)) || (defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))))
+#if !defined(CRYPTOPP_DISABLE_ASM) && ((defined(_MSC_VER) && defined(_M_IX86)) || (defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))))
 	#define CRYPTOPP_X86_ASM_AVAILABLE
 
 	#if !defined(CRYPTOPP_DISABLE_SSE2) && (defined(CRYPTOPP_MSVC6PP_OR_LATER) || CRYPTOPP_GCC_VERSION >= 30300)
@@ -338,6 +338,8 @@ NAMESPACE_END
 #if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X86
 	#define CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
 #endif
+
+#define CRYPTOPP_VERSION 552
 
 // ***************** determine availability of OS features ********************
 

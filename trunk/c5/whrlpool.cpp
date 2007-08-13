@@ -1,6 +1,6 @@
 // whrlpool.cpp - originally modified by Kevin Springle from
 // Paulo Barreto and Vincent Rijmen's public domain code, whirlpool.c.
-// Updated to Whirlpool version 3.0, optimized and MMX version added by Wei Dai
+// Updated to Whirlpool version 3.0, optimized and SSE version added by Wei Dai
 // Any modifications are placed in the public domain
 
 // This is the original introductory comment:
@@ -390,8 +390,8 @@ CRYPTOPP_ALIGN_DATA(16) static const word64 Whirlpool_C[4*256+R] CRYPTOPP_SECTIO
 // Whirlpool basic transformation. Transforms state based on block.
 void Whirlpool::Transform(word64 *digest, const word64 *block)
 {
-#if defined(CRYPTOPP_X86_ASM_AVAILABLE)
-	if (HasMMX())
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+	if (HasISSE())
 	{
 		// MMX version has the same structure as C version below
 #ifdef __GNUC__
