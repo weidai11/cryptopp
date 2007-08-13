@@ -221,6 +221,7 @@ Deflator::Deflator(BufferedTransformation *attachment, int deflateLevel, int log
 
 Deflator::Deflator(const NameValuePairs &parameters, BufferedTransformation *attachment)
 	: LowFirstBitWriter(attachment)
+	, m_deflateLevel(-1)
 {
 	InitializeStaticEncoders();
 	IsolatedInitialize(parameters);

@@ -509,7 +509,8 @@ size_t RandomNumberSink::Put2(const byte *begin, size_t length, int messageEnd, 
 
 size_t ArraySink::Put2(const byte *begin, size_t length, int messageEnd, bool blocking)
 {
-	memcpy(m_buf+m_total, begin, STDMIN(length, SaturatingSubtract(m_size, m_total)));
+	if (m_buf+m_total != begin)
+		memcpy(m_buf+m_total, begin, STDMIN(length, SaturatingSubtract(m_size, m_total)));
 	m_total += length;
 	return 0;
 }
