@@ -513,14 +513,14 @@ void VMAC_Base::VHASH_Update_Template(const word64 *data, size_t blocksRemaining
 			}
 
 			#define a0 (((word32 *)(polyS+i*4))[2+NativeByteOrder::ToEnum()])
-			#define a1 (((word32 *)(polyS+i*4))[3-NativeByteOrder::ToEnum()])
+			#define a1 (*(((word32 *)(polyS+i*4))+3-NativeByteOrder::ToEnum()))		// workaround for GCC 3.2
 			#define a2 (((word32 *)(polyS+i*4))[0+NativeByteOrder::ToEnum()])
-			#define a3 (((word32 *)(polyS+i*4))[1-NativeByteOrder::ToEnum()])
+			#define a3 (*(((word32 *)(polyS+i*4))+1-NativeByteOrder::ToEnum()))
 			#define aHi ((polyS+i*4)[0])
 			#define k0 (((word32 *)(polyS+i*4+2))[2+NativeByteOrder::ToEnum()])
-			#define k1 (((word32 *)(polyS+i*4+2))[3-NativeByteOrder::ToEnum()])
+			#define k1 (*(((word32 *)(polyS+i*4+2))+3-NativeByteOrder::ToEnum()))
 			#define k2 (((word32 *)(polyS+i*4+2))[0+NativeByteOrder::ToEnum()])
-			#define k3 (((word32 *)(polyS+i*4+2))[1-NativeByteOrder::ToEnum()])
+			#define k3 (*(((word32 *)(polyS+i*4+2))+1-NativeByteOrder::ToEnum()))
 			#define kHi ((polyS+i*4+2)[0])
 
 			if (isFirstBlock)
