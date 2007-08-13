@@ -72,11 +72,6 @@ unsigned int Salsa20_Policy::GetOptimalBlockSize() const
 }
 #endif
 
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
-static const __m128i s_maskLo32 = _mm_shuffle_epi32(_mm_cvtsi32_si128(-1), _MM_SHUFFLE(1, 0, 1, 0));
-static const __m128i s_maskHi32 = _mm_slli_epi64(s_maskLo32, 32);
-#endif
-
 void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount)
 {
 	int i;
@@ -207,62 +202,68 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 		}
 #endif
 
-		if (!IsP4()) while (iterationCount)
+		if (!IsP4() && iterationCount > 0)
 		{
-			--iterationCount;
-			__m128i x0 = s[0];
-			__m128i x1 = s[1];
-			__m128i x2 = s[2];
-			__m128i x3 = s[3];
+			const __m128i s_maskLo32 = _mm_shuffle_epi32(_mm_cvtsi32_si128(-1), _MM_SHUFFLE(1, 0, 1, 0));
+			const __m128i s_maskHi32 = _mm_slli_epi64(s_maskLo32, 32);
 
-			for (i=m_rounds; i>0; i-=2)
+			do
 			{
-				SSE2_QUARTER_ROUND(x0, x1, x3, 7)
-				SSE2_QUARTER_ROUND(x1, x2, x0, 9)
-				SSE2_QUARTER_ROUND(x2, x3, x1, 13)
-				SSE2_QUARTER_ROUND(x3, x0, x2, 18)
+				__m128i x0 = s[0];
+				__m128i x1 = s[1];
+				__m128i x2 = s[2];
+				__m128i x3 = s[3];
 
-				x1 = _mm_shuffle_epi32(x1, _MM_SHUFFLE(2, 1, 0, 3));
-				x2 = _mm_shuffle_epi32(x2, _MM_SHUFFLE(1, 0, 3, 2));
-				x3 = _mm_shuffle_epi32(x3, _MM_SHUFFLE(0, 3, 2, 1));
+				for (i=m_rounds; i>0; i-=2)
+				{
+					SSE2_QUARTER_ROUND(x0, x1, x3, 7)
+					SSE2_QUARTER_ROUND(x1, x2, x0, 9)
+					SSE2_QUARTER_ROUND(x2, x3, x1, 13)
+					SSE2_QUARTER_ROUND(x3, x0, x2, 18)
 
-				SSE2_QUARTER_ROUND(x0, x3, x1, 7)
-				SSE2_QUARTER_ROUND(x3, x2, x0, 9)
-				SSE2_QUARTER_ROUND(x2, x1, x3, 13)
-				SSE2_QUARTER_ROUND(x1, x0, x2, 18)
+					x1 = _mm_shuffle_epi32(x1, _MM_SHUFFLE(2, 1, 0, 3));
+					x2 = _mm_shuffle_epi32(x2, _MM_SHUFFLE(1, 0, 3, 2));
+					x3 = _mm_shuffle_epi32(x3, _MM_SHUFFLE(0, 3, 2, 1));
 
-				x1 = _mm_shuffle_epi32(x1, _MM_SHUFFLE(0, 3, 2, 1));
-				x2 = _mm_shuffle_epi32(x2, _MM_SHUFFLE(1, 0, 3, 2));
-				x3 = _mm_shuffle_epi32(x3, _MM_SHUFFLE(2, 1, 0, 3));
+					SSE2_QUARTER_ROUND(x0, x3, x1, 7)
+					SSE2_QUARTER_ROUND(x3, x2, x0, 9)
+					SSE2_QUARTER_ROUND(x2, x1, x3, 13)
+					SSE2_QUARTER_ROUND(x1, x0, x2, 18)
+
+					x1 = _mm_shuffle_epi32(x1, _MM_SHUFFLE(0, 3, 2, 1));
+					x2 = _mm_shuffle_epi32(x2, _MM_SHUFFLE(1, 0, 3, 2));
+					x3 = _mm_shuffle_epi32(x3, _MM_SHUFFLE(2, 1, 0, 3));
+				}
+
+				x0 = _mm_add_epi32(x0, s[0]);
+				x1 = _mm_add_epi32(x1, s[1]);
+				x2 = _mm_add_epi32(x2, s[2]);
+				x3 = _mm_add_epi32(x3, s[3]);
+
+				if (++m_state[8] == 0)
+					++m_state[5];
+
+				__m128i k02 = _mm_or_si128(_mm_slli_epi64(x0, 32), _mm_srli_epi64(x3, 32));
+				k02 = _mm_shuffle_epi32(k02, _MM_SHUFFLE(0, 1, 2, 3));
+				__m128i k13 = _mm_or_si128(_mm_slli_epi64(x1, 32), _mm_srli_epi64(x0, 32));
+				k13 = _mm_shuffle_epi32(k13, _MM_SHUFFLE(0, 1, 2, 3));
+				__m128i k20 = _mm_or_si128(_mm_and_si128(x2, s_maskLo32), _mm_and_si128(x1, s_maskHi32));
+				__m128i k31 = _mm_or_si128(_mm_and_si128(x3, s_maskLo32), _mm_and_si128(x2, s_maskHi32));
+
+				__m128i k0 = _mm_unpackhi_epi64(k02, k20);
+				__m128i k1 = _mm_unpackhi_epi64(k13, k31);
+				__m128i k2 = _mm_unpacklo_epi64(k20, k02);
+				__m128i k3 = _mm_unpacklo_epi64(k31, k13);
+
+				#define SSE2_OUTPUT(x)	{\
+					CRYPTOPP_KEYSTREAM_OUTPUT_XMM(x, 0, k0)\
+					CRYPTOPP_KEYSTREAM_OUTPUT_XMM(x, 1, k1)\
+					CRYPTOPP_KEYSTREAM_OUTPUT_XMM(x, 2, k2)\
+					CRYPTOPP_KEYSTREAM_OUTPUT_XMM(x, 3, k3)}
+
+				CRYPTOPP_KEYSTREAM_OUTPUT_SWITCH(SSE2_OUTPUT, BYTES_PER_ITERATION);
 			}
-
-			x0 = _mm_add_epi32(x0, s[0]);
-			x1 = _mm_add_epi32(x1, s[1]);
-			x2 = _mm_add_epi32(x2, s[2]);
-			x3 = _mm_add_epi32(x3, s[3]);
-
-			if (++m_state[8] == 0)
-				++m_state[5];
-
-			__m128i k02 = _mm_or_si128(_mm_slli_epi64(x0, 32), _mm_srli_epi64(x3, 32));
-			k02 = _mm_shuffle_epi32(k02, _MM_SHUFFLE(0, 1, 2, 3));
-			__m128i k13 = _mm_or_si128(_mm_slli_epi64(x1, 32), _mm_srli_epi64(x0, 32));
-			k13 = _mm_shuffle_epi32(k13, _MM_SHUFFLE(0, 1, 2, 3));
-			__m128i k20 = _mm_or_si128(_mm_and_si128(x2, s_maskLo32), _mm_and_si128(x1, s_maskHi32));
-			__m128i k31 = _mm_or_si128(_mm_and_si128(x3, s_maskLo32), _mm_and_si128(x2, s_maskHi32));
-
-			__m128i k0 = _mm_unpackhi_epi64(k02, k20);
-			__m128i k1 = _mm_unpackhi_epi64(k13, k31);
-			__m128i k2 = _mm_unpacklo_epi64(k20, k02);
-			__m128i k3 = _mm_unpacklo_epi64(k31, k13);
-
-			#define SSE2_OUTPUT(x)	{\
-				CRYPTOPP_KEYSTREAM_OUTPUT_XMM(x, 0, k0)\
-				CRYPTOPP_KEYSTREAM_OUTPUT_XMM(x, 1, k1)\
-				CRYPTOPP_KEYSTREAM_OUTPUT_XMM(x, 2, k2)\
-				CRYPTOPP_KEYSTREAM_OUTPUT_XMM(x, 3, k3)}
-
-			CRYPTOPP_KEYSTREAM_OUTPUT_SWITCH(SSE2_OUTPUT, BYTES_PER_ITERATION);
+			while (--iterationCount);
 		}
 	}
 #endif
@@ -325,7 +326,9 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 			CRYPTOPP_KEYSTREAM_OUTPUT_WORD(x, LITTLE_ENDIAN_ORDER, 14, x6 + m_state[6]);\
 			CRYPTOPP_KEYSTREAM_OUTPUT_WORD(x, LITTLE_ENDIAN_ORDER, 15, x3 + m_state[3]);}
 
+#ifndef CRYPTOPP_DOXYGEN_PROCESSING
 		CRYPTOPP_KEYSTREAM_OUTPUT_SWITCH(SALSA_OUTPUT, BYTES_PER_ITERATION);
+#endif
 
 		if (++m_state[8] == 0)
 			++m_state[5];
