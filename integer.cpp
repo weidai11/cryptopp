@@ -826,6 +826,8 @@ static word LinearMultiply(word *C, const word *A, word B, size_t N)
 	return carry;
 }
 
+#ifndef CRYPTOPP_DOXYGEN_PROCESSING
+
 #define Mul_2 \
 	Mul_Begin(2) \
 	Mul_SaveAcc(0, 0, 1) Mul_Acc(1, 0) \
@@ -991,6 +993,8 @@ static word LinearMultiply(word *C, const word *A, word B, size_t N)
 	Mul_SaveAcc(13, 0, 14) Mul_Acc(1, 13) Mul_Acc(2, 12) Mul_Acc(3, 11) Mul_Acc(4, 10) Mul_Acc(5, 9) Mul_Acc(6, 8) Mul_Acc(7, 7) Mul_Acc(8, 6) Mul_Acc(9, 5) Mul_Acc(10, 4) Mul_Acc(11, 3) Mul_Acc(12, 2) Mul_Acc(13, 1) Mul_Acc(14, 0) \
 	Bot_SaveAcc(14, 0, 15) Bot_Acc(1, 14) Bot_Acc(2, 13) Bot_Acc(3, 12) Bot_Acc(4, 11) Bot_Acc(5, 10) Bot_Acc(6, 9) Bot_Acc(7, 8) Bot_Acc(8, 7) Bot_Acc(9, 6) Bot_Acc(10, 5) Bot_Acc(11, 4) Bot_Acc(12, 3) Bot_Acc(13, 2) Bot_Acc(14, 1) Bot_Acc(15, 0) \
 	Bot_End(16)
+	
+#endif
 
 #if 0
 #define Mul_Begin(n)				\
@@ -2307,7 +2311,7 @@ void MontgomeryReduce(word *R, word *T, word *X, const word *M, const word *U, s
 	// defend against timing attack by doing this Add even when not needed
 	word carry = Add(T+N, T, M, N);
 	assert(carry || !borrow);
-	CopyWords(R, T + (borrow ? N : 0), N);
+	CopyWords(R, T + ((0-borrow) & N), N);
 #elif 0
 	const word u = 0-U[0];
 	Declare2Words(p)
