@@ -261,7 +261,7 @@ bool ValidateRSA()
 	bool pass = true, fail;
 
 	{
-		char *plain = "Everyone gets Friday off.";
+		const char *plain = "Everyone gets Friday off.";
 		byte *signature = (byte *)
 			"\x05\xfa\x6a\x81\x2f\xc7\xdf\x8b\xf4\xf2\x54\x25\x09\xe0\x3e\x84"
 			"\x6e\x11\xb9\xc6\x20\xbe\x20\x09\xef\xb4\x40\xef\xbc\xc6\x69\x21"
