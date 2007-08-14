@@ -1119,7 +1119,7 @@ bool ValidateBlowfish()
 	cout << "\nBlowfish validation suite running...\n\n";
 
 	HexEncoder output(new FileSink(cout));
-	char *key[]={"abcdefghijklmnopqrstuvwxyz", "Who is John Galt?"};
+	const char *key[]={"abcdefghijklmnopqrstuvwxyz", "Who is John Galt?"};
 	byte *plain[]={(byte *)"BLOWFISH", (byte *)"\xfe\xdc\xba\x98\x76\x54\x32\x10"};
 	byte *cipher[]={(byte *)"\x32\x4e\xd0\xfe\xf4\x13\xa2\x03", (byte *)"\xcc\x91\x73\x2b\x80\x22\xf6\x84"};
 	byte out[8], outplain[8];

@@ -3,6 +3,7 @@
 
 #include "cryptlib.h"
 #include <map>
+#include <vector>
 
 NAMESPACE_BEGIN(CryptoPP)
 
