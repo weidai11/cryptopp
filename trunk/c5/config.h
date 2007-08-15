@@ -239,7 +239,8 @@ NAMESPACE_END
 	// 4661: no suitable definition provided for explicit template instantiation request
 	// 4786: identifer was truncated in debug information
 	// 4355: 'this' : used in base member initializer list
-#	pragma warning(disable: 4231 4250 4251 4275 4660 4661 4786 4355)
+	// 4910: '__declspec(dllexport)' and 'extern' are incompatible on an explicit instantiation
+#	pragma warning(disable: 4231 4250 4251 4275 4660 4661 4786 4355 4910)
 #endif
 
 #ifdef __BORLANDC__
