@@ -5,10 +5,9 @@
 
 #include "config.h"
 #include "misc.h"
-#include <string.h>		// CodeWarrior doesn't have memory.h
 #include <assert.h>
 
-#if defined(CRYPTOPP_MEMALIGN_AVAILABLE) || defined(CRYPTOPP_MM_MALLOC_AVAILABLE)
+#if defined(CRYPTOPP_MEMALIGN_AVAILABLE) || defined(CRYPTOPP_MM_MALLOC_AVAILABLE) || defined(QNX)
 	#include <malloc.h>
 #else
 	#include <stdlib.h>
