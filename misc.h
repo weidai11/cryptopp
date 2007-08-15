@@ -3,6 +3,7 @@
 
 #include "cryptlib.h"
 #include "smartptr.h"
+#include <string.h>		// for memcpy and memmove
 
 #ifdef _MSC_VER
 	#include <stdlib.h>
