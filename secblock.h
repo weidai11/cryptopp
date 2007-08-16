@@ -296,7 +296,10 @@ public:
 	~SecBlock()
 		{m_alloc.deallocate(m_ptr, m_size);}
 
-#ifndef __BORLANDC__
+#ifdef __BORLANDC__
+	operator T *() const
+		{return (T*)m_ptr;}
+#else
 	operator const void *() const
 		{return m_ptr;}
 	operator void *()
@@ -304,9 +307,9 @@ public:
 
 	operator const T *() const
 		{return m_ptr;}
-#endif
 	operator T *()
 		{return m_ptr;}
+#endif
 
 //	T *operator +(size_type offset)
 //		{return m_ptr+offset;}
