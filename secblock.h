@@ -485,7 +485,8 @@ inline void swap(CryptoPP::SecBlock<T, A> &a, CryptoPP::SecBlock<T, A> &b)
 	a.swap(b);
 }
 
-#if defined(_STLPORT_VERSION) && !defined(_STLP_MEMBER_TEMPLATE_CLASSES)
+#if defined(_STLP_DONT_SUPPORT_REBIND_MEMBER_TEMPLATE) || (defined(_STLPORT_VERSION) && !defined(_STLP_MEMBER_TEMPLATE_CLASSES))
+// working for STLport 5.1.3 and MSVC 6 SP5
 template <class _Tp1, class _Tp2>
 inline CryptoPP::AllocatorWithCleanup<_Tp2>&
 __stl_alloc_rebind(CryptoPP::AllocatorWithCleanup<_Tp1>& __a, const _Tp2*)
