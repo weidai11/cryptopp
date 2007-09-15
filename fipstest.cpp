@@ -279,7 +279,7 @@ bool IntegrityCheckModule(const char *moduleFilename, const byte *expectedModule
 	char moduleFilenameBuf[MAX_PATH] = "";
 	if (moduleFilename == NULL)
 	{
-#if (defined(_MSC_VER) && _MSC_VER >= 1400)	// ifstream doesn't support wide filename on other compilers
+#if (_MSC_VER >= 1400 && !defined(_STLPORT_VERSION))	// ifstream doesn't support wide filename on other compilers
 		wchar_t wideModuleFilename[MAX_PATH];
 		if (GetModuleFileNameW(s_hModule, wideModuleFilename, MAX_PATH) > 0)
 		{
