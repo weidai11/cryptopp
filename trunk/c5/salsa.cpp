@@ -83,6 +83,8 @@ void Salsa20_OperateKeystream(byte *output, const byte *input, size_t iterationC
 }
 #endif
 
+#pragma warning(disable: 4731)	// frame pointer register 'ebp' modified by inline assembly code
+
 void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount)
 {
 #endif	// #ifdef CRYPTOPP_GENERATE_X64_MASM
@@ -114,11 +116,11 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 	#define REG_input			rdx
 	#define REG_iterationCount	r8
 	#define REG_state			r10
-	#define REG_rounds			eax
+	#define REG_rounds			e9d
+	#define REG_roundsLeft		eax
 	#define REG_temp32			r11d
 	#define REG_temp			r11
 	#define SSE2_WORKSPACE		rsp
-	#define SSE2_LOAD_ROUNDS	mov eax, r9d
 #else
 	if (HasSSE2())
 	{
@@ -127,11 +129,11 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 		#define REG_input			%1
 		#define REG_iterationCount	%2
 		#define REG_state			%3
-		#define REG_rounds			eax
+		#define REG_rounds			%0
+		#define REG_roundsLeft		eax
 		#define REG_temp32			edx
 		#define REG_temp			rdx
 		#define SSE2_WORKSPACE		%5
-		#define SSE2_LOAD_ROUNDS	AS2(mov eax, %0)
 
 		__m128i workspace[32];
 	#else
@@ -139,19 +141,12 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 		#define REG_input			eax
 		#define REG_iterationCount	ecx
 		#define REG_state			esi
-		#define REG_rounds			ebx
-		#define REG_temp32			edx
-		#define REG_temp			edx
+		#define REG_rounds			edx
+		#define REG_roundsLeft		ebx
+		#define REG_temp32			ebp
+		#define REG_temp			ebp
 		#define SSE2_WORKSPACE		esp + WORD_SZ
-		#ifdef __GNUC__
-			// this assumes that a frame pointer is used
-			#define SSE2_LOAD_ROUNDS	".att_syntax prefix;movl %0, %%ebx;.intel_syntax noprefix;"
-		#else
-			#define SSE2_LOAD_ROUNDS	AS2(mov REG_rounds, r)
-		#endif
 	#endif
-
-		word32 r = m_rounds;
 
 	#ifdef __GNUC__
 		__asm__ __volatile__
@@ -160,14 +155,17 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 			AS_PUSH_IF86(	bx)
 	#else
 		void *s = m_state.data();
+		word32 r = m_rounds;
 
 		AS2(	mov		REG_iterationCount, iterationCount)
-		AS2(	mov		REG_state, s)
 		AS2(	mov		REG_input, input)
 		AS2(	mov		REG_output, output)
+		AS2(	mov		REG_state, s)
+		AS2(	mov		REG_rounds, r)
 	#endif
 #endif	// #ifndef CRYPTOPP_GENERATE_X64_MASM
 
+		AS_PUSH_IF86(	bp)
 		AS2(	cmp		REG_iterationCount, 4)
 		ASJ(	jl,		5, f)
 
@@ -202,19 +200,19 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 		SSE2_EXPAND_S(3, 3)
 
 #define SSE2_EXPAND_S85(i)		\
-		AS2(	mov		dword ptr [SSE2_WORKSPACE + 8*16 + i*4 + 256], REG_rounds)	\
+		AS2(	mov		dword ptr [SSE2_WORKSPACE + 8*16 + i*4 + 256], REG_roundsLeft)	\
 		AS2(	mov		dword ptr [SSE2_WORKSPACE + 5*16 + i*4 + 256], REG_temp32)	\
-		AS2(	add		REG_rounds, 1)	\
+		AS2(	add		REG_roundsLeft, 1)	\
 		AS2(	adc		REG_temp32, 0)
 
 		ASL(1)
-		AS2(	mov		REG_rounds, dword ptr [REG_state + 8*4])
+		AS2(	mov		REG_roundsLeft, dword ptr [REG_state + 8*4])
 		AS2(	mov		REG_temp32, dword ptr [REG_state + 5*4])
 		SSE2_EXPAND_S85(0)
 		SSE2_EXPAND_S85(1)
 		SSE2_EXPAND_S85(2)
 		SSE2_EXPAND_S85(3)
-		AS2(	mov		dword ptr [REG_state + 8*4], REG_rounds)
+		AS2(	mov		dword ptr [REG_state + 8*4], REG_roundsLeft)
 		AS2(	mov		dword ptr [REG_state + 5*4], REG_temp32)
 
 #define SSE2_QUARTER_ROUND(a, b, d, i)		\
@@ -333,7 +331,7 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 		SSE2_QUARTER_ROUND_X8(1, 2, 6, 10, 14, 3, 7, 11, 15)
 		SSE2_QUARTER_ROUND_X8(1, 0, 4, 8, 12, 1, 5, 9, 13)
 #endif
-		SSE2_LOAD_ROUNDS
+		AS2(	mov		REG_roundsLeft, REG_rounds)
 		ASJ(	jmp,	2, f)
 
 		ASL(SSE2_Salsa_Output)
@@ -364,7 +362,7 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 		SSE2_QUARTER_ROUND_X8(0, 2, 15, 8, 5, 3, 12, 9, 6)
 		SSE2_QUARTER_ROUND_X8(0, 0, 13, 10, 7, 1, 14, 11, 4)
 #endif
-		AS2(	sub		REG_rounds, 2)
+		AS2(	sub		REG_roundsLeft, 2)
 		ASJ(	jnz,	6, b)
 
 #define SSE2_OUTPUT_4(a, b, c, d)	\
@@ -399,7 +397,7 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 		AS2(	movdqa	xmm1, [REG_state + 1*16])
 		AS2(	movdqa	xmm2, [REG_state + 2*16])
 		AS2(	movdqa	xmm3, [REG_state + 3*16])
-		SSE2_LOAD_ROUNDS
+		AS2(	mov		REG_roundsLeft, REG_rounds)
 
 		ASL(0)
 		SSE2_QUARTER_ROUND(0, 1, 3, 7)
@@ -416,7 +414,7 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 		ASS(	pshufd	xmm1, xmm1, 0, 3, 2, 1)
 		ASS(	pshufd	xmm2, xmm2, 1, 0, 3, 2)
 		ASS(	pshufd	xmm3, xmm3, 2, 1, 0, 3)
-		AS2(	sub		REG_rounds, 2)
+		AS2(	sub		REG_roundsLeft, 2)
 		ASJ(	jnz,	0, b)
 
 		AS2(	paddd	xmm0, [REG_state + 0*16])
@@ -458,16 +456,17 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 		ASJ(	jmp,	5, b)
 		ASL(4)
 
+		AS_POP_IF86(	bp)
 #ifdef __GNUC__
 		AS_POP_IF86(	bx)
 		".att_syntax prefix;"
 			: 
 	#if CRYPTOPP_BOOL_X64
-			: "r" (r), "r" (input), "r" (iterationCount), "r" (m_state.data()), "r" (output), "r" (workspace)
+			: "r" (m_rounds), "r" (input), "r" (iterationCount), "r" (m_state.data()), "r" (output), "r" (workspace)
 			: "%eax", "%edx", "memory", "cc", "%xmm0", "%xmm1", "%xmm2", "%xmm3", "%xmm4", "%xmm5", "%xmm6", "%xmm7", "%xmm8", "%xmm9", "%xmm10", "%xmm11", "%xmm12", "%xmm13", "%xmm14", "%xmm15"
 	#else
-			: "m" (r), "a" (input), "c" (iterationCount), "S" (m_state.data()), "D" (output)
-			: "%edx", "memory", "cc"
+			: "d" (m_rounds), "a" (input), "c" (iterationCount), "S" (m_state.data()), "D" (output)
+			: "memory", "cc"
 	#endif
 		);
 #endif

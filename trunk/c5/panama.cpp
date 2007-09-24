@@ -37,13 +37,13 @@ void Panama_SSE2_Pull(size_t count, word32 *state, word32 *z, const word32 *y);
 	.endprolog
 #else
 #pragma warning(disable: 4731)	// frame pointer register 'ebp' modified by inline assembly code
-void Panama_SSE2_Pull(size_t count, word32 *state, word32 *z, const word32 *y)
+void CRYPTOPP_NOINLINE Panama_SSE2_Pull(size_t count, word32 *state, word32 *z, const word32 *y)
 {
 #ifdef __GNUC__
 	__asm__ __volatile__
 	(
 		".intel_syntax noprefix;"
-		AS_POP_IF86(	bx)
+		AS_PUSH_IF86(	bx)
 #else
 	AS2(	mov		AS_REG_1, count)
 	AS2(	mov		AS_REG_2, state)
