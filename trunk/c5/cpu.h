@@ -148,9 +148,12 @@ inline bool HasMMX()	{return false;}
 
 #ifdef CRYPTOPP_GENERATE_X64_MASM
 #define ASM_MOD(x, y) ((x) MOD (y))
+#define XMMWORD_PTR XMMWORD PTR
 #else
 // GNU assembler doesn't seem to have mod operator
 #define ASM_MOD(x, y) ((x)-((x)/(y))*(y))
+// GAS 2.15 doesn't support XMMWORD PTR. it seems necessary only for MASM
+#define XMMWORD_PTR
 #endif
 
 #if CRYPTOPP_BOOL_X86
