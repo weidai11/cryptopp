@@ -33,7 +33,8 @@ CXXFLAGS += -march=native -mtune=native
 else
 # -msse2 is in GCC 3.3, but it causes internal compiler error on salsa.cpp,
 # so don't use it unless we're at GCC 3.4 or later
-CXXFLAGS += -msse2
+# actually, we're not using SSE2 intrinsics anymore, and -msse2 causes invalid instructions on non-SSE2 CPUs
+# CXXFLAGS += -msse2
 endif
 endif
 
@@ -79,7 +80,7 @@ ifeq ($(CXX),CC)	# override flags for CC (Solaris native C++ compiler)
 CXXFLAGS = -DNDEBUG -O -g -native
 LDFLAGS =
 ifeq ($(ISX86),1)
-# SSE2 intrinsics should work in Sun Studio 12
+# SSE2 intrinsics should work in Sun Studio 12, but we're not using SSE2 intrinsics anymore
 # CXXFLAGS += -xarch=sse2 -D__SSE2__
 endif
 endif
