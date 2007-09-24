@@ -598,8 +598,9 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 	#if CRYPTOPP_BOOL_X64
 			, "r" (workspace)
 			: "memory", "cc", "%xmm0", "%xmm1", "%xmm2", "%xmm3", "%xmm4", "%xmm5", "%xmm6", "%xmm7"
-	#endif
+	#else
 			: "memory", "cc"
+	#endif
 		);
 #endif
 #ifdef CRYPTOPP_GENERATE_X64_MASM
