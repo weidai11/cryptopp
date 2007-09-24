@@ -187,6 +187,8 @@ public:
 		DWord r;
 		#ifdef CRYPTOPP_NATIVE_DWORD_AVAILABLE
 			r.m_whole = (dword)a * b;
+		#elif defined(__x86_64__)
+			asm ("mulq %3" : "=a"(r.m_halfs.low), "=d"(r.m_halfs.high) : "a"(a), "g"(b) : "cc");
 		#else
 			r.m_halfs.low = _umul128(a, b, &r.m_halfs.high);
 		#endif
