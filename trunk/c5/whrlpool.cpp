@@ -1,7 +1,7 @@
 // whrlpool.cpp - originally modified by Kevin Springle from
 // Paulo Barreto and Vincent Rijmen's public domain code, whirlpool.c.
 // Updated to Whirlpool version 3.0, optimized and SSE version added by Wei Dai
-// Any modifications are placed in the public domain
+// All modifications are placed in the public domain
 
 // This is the original introductory comment:
 
@@ -70,6 +70,10 @@
 #include "whrlpool.h"
 #include "misc.h"
 #include "cpu.h"
+
+#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+#include <emmintrin.h>
+#endif
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -395,29 +399,37 @@ void Whirlpool::Transform(word64 *digest, const word64 *block)
 	{
 		// MMX version has the same structure as C version below
 #ifdef __GNUC__
+	#if CRYPTOPP_BOOL_X64
+		__m128i workspace[8];
+	#endif
 	__asm__ __volatile__
 	(
 		".intel_syntax noprefix;"
-		AS_PUSH(		bx)
-		AS2(	mov		WORD_REG(bx), WORD_REG(ax))
+		AS_PUSH_IF86(	bx)
+		AS2(	mov		AS_REG_6, WORD_REG(ax))
 #else
 	#if _MSC_VER < 1300
-		AS_PUSH(		bx)
+		AS_PUSH_IF86(	bx)
 	#endif
-		AS2(	lea		WORD_REG(bx), [Whirlpool_C])
+		AS2(	lea		AS_REG_6, [Whirlpool_C])
 		AS2(	mov		WORD_REG(cx), digest)
 		AS2(	mov		WORD_REG(dx), block)
 #endif
-		AS2(	mov		WORD_REG(ax), WORD_REG(sp))
-		AS2(	and		WORD_REG(sp), -16)
-		AS2(	sub		WORD_REG(sp), 16*8)
-		AS_PUSH(		ax)
+#if CRYPTOPP_BOOL_X86
+		AS2(	mov		eax, esp)
+		AS2(	and		esp, -16)
+		AS2(	sub		esp, 16*8)
+		AS1(	push	eax)
+	#define SSE2_workspace	esp+WORD_SZ
+#else
+	#define SSE2_workspace	%3
+#endif
 		AS2(	xor		esi, esi)
 		ASL(0)
 		AS2(	movq	mm0, [WORD_REG(cx)+8*WORD_REG(si)])
-		AS2(	movq	[WORD_REG(sp)+WORD_SZ+8*WORD_REG(si)], mm0)		// k
+		AS2(	movq	[SSE2_workspace+8*WORD_REG(si)], mm0)		// k
 		AS2(	pxor	mm0, [WORD_REG(dx)+8*WORD_REG(si)])
-		AS2(	movq	[WORD_REG(sp)+WORD_SZ+64+8*WORD_REG(si)], mm0)	// s
+		AS2(	movq	[SSE2_workspace+64+8*WORD_REG(si)], mm0)	// s
 		AS2(	movq	[WORD_REG(cx)+8*WORD_REG(si)], mm0)
 		AS1(	inc		WORD_REG(si))
 		AS2(	cmp		WORD_REG(si), 8)
@@ -430,16 +442,16 @@ void Whirlpool::Transform(word64 *digest, const word64 *block)
 #define KSL1(a, b)	AS2(pxor	mm##a, b)
 
 #define KSL(op, i, a, b, c, d)	\
-	AS2(mov		eax, [WORD_REG(sp)+WORD_SZ+8*i])\
+	AS2(mov		eax, [SSE2_workspace+8*i])\
 	AS2(movzx	edi, al)\
-	KSL##op(a, [WORD_REG(bx)+3*2048+8*WORD_REG(di)])\
+	KSL##op(a, [AS_REG_6+3*2048+8*WORD_REG(di)])\
 	AS2(movzx	edi, ah)\
-	KSL##op(b, [WORD_REG(bx)+2*2048+8*WORD_REG(di)])\
+	KSL##op(b, [AS_REG_6+2*2048+8*WORD_REG(di)])\
 	AS2(shr		eax, 16)\
 	AS2(movzx	edi, al)\
 	AS2(shr		eax, 8)\
-	KSL##op(c, [WORD_REG(bx)+1*2048+8*WORD_REG(di)])\
-	KSL##op(d, [WORD_REG(bx)+0*2048+8*WORD_REG(ax)])
+	KSL##op(c, [AS_REG_6+1*2048+8*WORD_REG(di)])\
+	KSL##op(d, [AS_REG_6+0*2048+8*WORD_REG(ax)])
 
 #define KSH0(a, b)	\
 	ASS(pshufw	mm##a, mm##a, 1, 0, 3, 2)\
@@ -448,57 +460,57 @@ void Whirlpool::Transform(word64 *digest, const word64 *block)
 	AS2(pxor	mm##a, b)
 #define KSH2(a, b)	\
 	AS2(pxor	mm##a, b)\
-	AS2(movq	[WORD_REG(sp)+WORD_SZ+8*a], mm##a)
+	AS2(movq	[SSE2_workspace+8*a], mm##a)
 
 #define KSH(op, i, a, b, c, d)	\
-	AS2(mov		eax, [WORD_REG(sp)+WORD_SZ+8*((i+4)-8*((i+4)/8))+4])\
+	AS2(mov		eax, [SSE2_workspace+8*((i+4)-8*((i+4)/8))+4])\
 	AS2(movzx	edi, al)\
-	KSH##op(a, [WORD_REG(bx)+3*2048+8*WORD_REG(di)])\
+	KSH##op(a, [AS_REG_6+3*2048+8*WORD_REG(di)])\
 	AS2(movzx	edi, ah)\
-	KSH##op(b, [WORD_REG(bx)+2*2048+8*WORD_REG(di)])\
+	KSH##op(b, [AS_REG_6+2*2048+8*WORD_REG(di)])\
 	AS2(shr		eax, 16)\
 	AS2(movzx	edi, al)\
 	AS2(shr		eax, 8)\
-	KSH##op(c, [WORD_REG(bx)+1*2048+8*WORD_REG(di)])\
-	KSH##op(d, [WORD_REG(bx)+0*2048+8*WORD_REG(ax)])
+	KSH##op(c, [AS_REG_6+1*2048+8*WORD_REG(di)])\
+	KSH##op(d, [AS_REG_6+0*2048+8*WORD_REG(ax)])
 
 #define TSL(op, i, a, b, c, d)	\
-	AS2(mov		eax, [WORD_REG(sp)+WORD_SZ+64+8*i])\
+	AS2(mov		eax, [SSE2_workspace+64+8*i])\
 	AS2(movzx	edi, al)\
-	KSL##op(a, [WORD_REG(bx)+3*2048+8*WORD_REG(di)])\
+	KSL##op(a, [AS_REG_6+3*2048+8*WORD_REG(di)])\
 	AS2(movzx	edi, ah)\
-	KSL##op(b, [WORD_REG(bx)+2*2048+8*WORD_REG(di)])\
+	KSL##op(b, [AS_REG_6+2*2048+8*WORD_REG(di)])\
 	AS2(shr		eax, 16)\
 	AS2(movzx	edi, al)\
 	AS2(shr		eax, 8)\
-	KSL##op(c, [WORD_REG(bx)+1*2048+8*WORD_REG(di)])\
-	KSL##op(d, [WORD_REG(bx)+0*2048+8*WORD_REG(ax)])
+	KSL##op(c, [AS_REG_6+1*2048+8*WORD_REG(di)])\
+	KSL##op(d, [AS_REG_6+0*2048+8*WORD_REG(ax)])
 
 #define TSH0(a, b)	\
 	ASS(pshufw	mm##a, mm##a, 1, 0, 3, 2)\
-	AS2(pxor	mm##a, [WORD_REG(sp)+WORD_SZ+8*a])\
+	AS2(pxor	mm##a, [SSE2_workspace+8*a])\
 	AS2(pxor	mm##a, b)
 #define TSH1(a, b)	\
 	AS2(pxor	mm##a, b)
 #define TSH2(a, b)	\
 	AS2(pxor	mm##a, b)\
-	AS2(movq	[WORD_REG(sp)+WORD_SZ+64+8*a], mm##a)
+	AS2(movq	[SSE2_workspace+64+8*a], mm##a)
 #define TSH3(a, b)	\
 	AS2(pxor	mm##a, b)\
 	AS2(pxor	mm##a, [WORD_REG(cx)+8*a])\
 	AS2(movq	[WORD_REG(cx)+8*a], mm##a)
 
 #define TSH(op, i, a, b, c, d)	\
-	AS2(mov		eax, [WORD_REG(sp)+WORD_SZ+64+8*((i+4)-8*((i+4)/8))+4])\
+	AS2(mov		eax, [SSE2_workspace+64+8*((i+4)-8*((i+4)/8))+4])\
 	AS2(movzx	edi, al)\
-	TSH##op(a, [WORD_REG(bx)+3*2048+8*WORD_REG(di)])\
+	TSH##op(a, [AS_REG_6+3*2048+8*WORD_REG(di)])\
 	AS2(movzx	edi, ah)\
-	TSH##op(b, [WORD_REG(bx)+2*2048+8*WORD_REG(di)])\
+	TSH##op(b, [AS_REG_6+2*2048+8*WORD_REG(di)])\
 	AS2(shr		eax, 16)\
 	AS2(movzx	edi, al)\
 	AS2(shr		eax, 8)\
-	TSH##op(c, [WORD_REG(bx)+1*2048+8*WORD_REG(di)])\
-	TSH##op(d, [WORD_REG(bx)+0*2048+8*WORD_REG(ax)])
+	TSH##op(c, [AS_REG_6+1*2048+8*WORD_REG(di)])\
+	TSH##op(d, [AS_REG_6+0*2048+8*WORD_REG(ax)])
 
 		KSL(0, 4, 3, 2, 1, 0)
 		KSL(0, 0, 7, 6, 5, 4)
@@ -517,8 +529,8 @@ void Whirlpool::Transform(word64 *digest, const word64 *block)
 		KSH(2, 3, 2, 1, 0, 7)
 		KSH(2, 7, 6, 5, 4, 3)
 
-		AS2(	pxor	mm0, [WORD_REG(bx) + 8*1024 + WORD_REG(si)*8])
-		AS2(	movq	[WORD_REG(sp)+WORD_SZ], mm0)
+		AS2(	pxor	mm0, [AS_REG_6 + 8*1024 + WORD_REG(si)*8])
+		AS2(	movq	[SSE2_workspace], mm0)
 
 		TSL(0, 4, 3, 2, 1, 0)
 		TSL(0, 0, 7, 6, 5, 4)
@@ -553,17 +565,23 @@ void Whirlpool::Transform(word64 *digest, const word64 *block)
 #undef TSL
 #undef TSH
 
-		AS_POP(			sp)
+		AS_POP_IF86(	sp)
 		AS1(	emms)
 
 #if defined(__GNUC__) || (defined(_MSC_VER) && _MSC_VER < 1300)
-		AS_POP(			bx)
+		AS_POP_IF86(	bx)
 #endif
 #ifdef __GNUC__
 		".att_syntax prefix;"
 			:
 			: "a" (Whirlpool_C), "c" (digest), "d" (block)
+	#if CRYPTOPP_BOOL_X64
+			, "r" (workspace)
+	#endif
 			: "%esi", "%edi", "memory", "cc"
+	#if CRYPTOPP_BOOL_X64
+			, "%r9"
+	#endif
 		);
 #endif
 	}

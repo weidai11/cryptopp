@@ -2,6 +2,8 @@
 // and Wei Dai from Paulo Baretto's Rijndael implementation
 // The original code and all modifications are in the public domain.
 
+// use "cl /EP /P /DCRYPTOPP_GENERATE_X64_MASM rijndael.cpp" to generate MASM code
+
 /*
 Defense against timing attacks was added in July 2006 by Wei Dai.
 
@@ -48,6 +50,7 @@ being unloaded from L1 cache, until that round is finished.
 #include "pch.h"
 
 #ifndef CRYPTOPP_IMPORTS
+#ifndef CRYPTOPP_GENERATE_X64_MASM
 
 #include "rijndael.h"
 #include "misc.h"
@@ -145,27 +148,56 @@ void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keylen, c
 	ConditionalByteReverse(BIG_ENDIAN_ORDER, m_key + m_rounds*4, m_key + m_rounds*4, 16);
 }
 
+#ifdef CRYPTOPP_X64_MASM_AVAILABLE
+extern "C" {
+void Rijndael_Enc_ProcessAndXorBlock(const word32 *table, word32 cacheLineSize, const word32 *k, const word32 *kLoopEnd, const byte *inBlock, const byte *xorBlock, byte *outBlock);
+}
+#endif
+
 #pragma warning(disable: 4731)	// frame pointer register 'ebp' modified by inline assembly code
 
 void Rijndael::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
+#endif	// #ifdef CRYPTOPP_GENERATE_X64_MASM
+
+#ifdef CRYPTOPP_X64_MASM_AVAILABLE
+	Rijndael_Enc_ProcessAndXorBlock(Te, g_cacheLineSize, m_key, m_key + m_rounds*4, inBlock, xorBlock, outBlock);
+	return;
+#endif
+
 #if defined(CRYPTOPP_X86_ASM_AVAILABLE)
+	#ifdef CRYPTOPP_GENERATE_X64_MASM
+		ALIGN   8
+	Rijndael_Enc_ProcessAndXorBlock	PROC FRAME
+		rex_push_reg rbx
+		push_reg rsi
+		push_reg rdi
+		push_reg r12
+		push_reg r13
+		push_reg r14
+		push_reg r15
+		.endprolog
+		mov		AS_REG_7, rcx
+		mov		rdi, [rsp + 5*8 + 7*8]			; inBlock
+	#else
 	if (HasMMX())
 	{
 		const word32 *k = m_key;
 		const word32 *kLoopEnd = k + m_rounds*4;
+	#endif
+
 		#if CRYPTOPP_BOOL_X64
 			#define K_REG			r8
 			#define K_END_REG		r9
 			#define SAVE_K
 			#define RESTORE_K
 			#define RESTORE_K_END
-			#define SAVE_0(x)		AS2(mov	r10d, x)
-			#define SAVE_1(x)		AS2(mov	r11d, x)
-			#define SAVE_2(x)		AS2(mov	r12d, x)
-			#define RESTORE_0(x)	AS2(mov	x, r10d)
-			#define RESTORE_1(x)	AS2(mov	x, r11d)
-			#define RESTORE_2(x)	AS2(mov	x, r12d)
+			#define SAVE_0(x)		AS2(mov	r13d, x)
+			#define SAVE_1(x)		AS2(mov	r14d, x)
+			#define SAVE_2(x)		AS2(mov	r15d, x)
+			#define RESTORE_0(x)	AS2(mov	x, r13d)
+			#define RESTORE_1(x)	AS2(mov	x, r14d)
+			#define RESTORE_2(x)	AS2(mov	x, r15d)
 		#else
 			#define K_REG			esi
 			#define K_END_REG		edi
@@ -184,22 +216,16 @@ void Rijndael::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 		__asm__ __volatile__
 		(
 		".intel_syntax noprefix;"
-		AS_PUSH(		bx)
-		AS_PUSH(		bp)
-		AS2(	mov		WORD_REG(bp), WORD_REG(ax))
 	#if CRYPTOPP_BOOL_X64
-		// save these manually. clobber list doesn't seem to work as of GCC 4.1.0
-		AS1(	pushq	K_REG)
-		AS1(	pushq	K_END_REG)
-		AS1(	pushq	r10)
-		AS1(	pushq	r11)
-		AS1(	pushq	r12)
 		AS2(	mov		K_REG, rsi)
 		AS2(	mov		K_END_REG, rcx)
 	#else
+		AS1(	push	ebx)
+		AS1(	push	ebp)
 		AS2(	movd	mm5, ecx)
 	#endif
-#else
+		AS2(	mov		AS_REG_7, WORD_REG(ax))
+#elif CRYPTOPP_BOOL_X86
 	#if _MSC_VER < 1300
 		const word32 *t = Te;
 		AS2(	mov		eax, t)
@@ -209,12 +235,12 @@ void Rijndael::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 		AS2(	mov		K_REG, k)
 		AS2(	movd	mm5, kLoopEnd)
 	#if _MSC_VER < 1300
-		AS_PUSH(		bx)
-		AS_PUSH(		bp)
-		AS2(	mov		ebp, eax)
+		AS1(	push	ebx)
+		AS1(	push	ebp)
+		AS2(	mov		AS_REG_7, eax)
 	#else
-		AS_PUSH(		bp)
-		AS2(	lea		ebp, Te)
+		AS1(	push	ebp)
+		AS2(	lea		AS_REG_7, Te)
 	#endif
 #endif
 		AS2(	mov		eax, [K_REG+0*4])	// s0
@@ -236,21 +262,21 @@ void Rijndael::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 		AS2(	and		ebx, 0)
 		AS2(	mov		edi, ebx)	// make index depend on previous loads to simulate lfence
 		ASL(2)
-		AS2(	and		ebx, [WORD_REG(bp)+WORD_REG(di)])
+		AS2(	and		ebx, [AS_REG_7+WORD_REG(di)])
 		AS2(	add		edi, edx)
-		AS2(	and		ebx, [WORD_REG(bp)+WORD_REG(di)])
+		AS2(	and		ebx, [AS_REG_7+WORD_REG(di)])
 		AS2(	add		edi, edx)
-		AS2(	and		ebx, [WORD_REG(bp)+WORD_REG(di)])
+		AS2(	and		ebx, [AS_REG_7+WORD_REG(di)])
 		AS2(	add		edi, edx)
-		AS2(	and		ebx, [WORD_REG(bp)+WORD_REG(di)])
+		AS2(	and		ebx, [AS_REG_7+WORD_REG(di)])
 		AS2(	add		edi, edx)
 		AS2(	cmp		edi, 1024)
 		ASJ(	jl,		2, b)
-		AS2(	and		ebx, [WORD_REG(bp)+1020])
+		AS2(	and		ebx, [AS_REG_7+1020])
 #if CRYPTOPP_BOOL_X64
-		AS2(	xor		r10d, ebx)
-		AS2(	xor		r11d, ebx)
-		AS2(	xor		r12d, ebx)
+		AS2(	xor		r13d, ebx)
+		AS2(	xor		r14d, ebx)
+		AS2(	xor		r15d, ebx)
 #else
 		AS2(	movd	mm6, ebx)
 		AS2(	pxor	mm2, mm6)
@@ -268,14 +294,14 @@ void Rijndael::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 
 #define QUARTER_ROUND(t, a, b, c, d)	\
 	AS2(movzx esi, t##l)\
-	AS2(d, [WORD_REG(bp)+0*1024+4*WORD_REG(si)])\
+	AS2(d, [AS_REG_7+0*1024+4*WORD_REG(si)])\
 	AS2(movzx esi, t##h)\
-	AS2(c, [WORD_REG(bp)+1*1024+4*WORD_REG(si)])\
+	AS2(c, [AS_REG_7+1*1024+4*WORD_REG(si)])\
 	AS2(shr e##t##x, 16)\
 	AS2(movzx esi, t##l)\
-	AS2(b, [WORD_REG(bp)+2*1024+4*WORD_REG(si)])\
+	AS2(b, [AS_REG_7+2*1024+4*WORD_REG(si)])\
 	AS2(movzx esi, t##h)\
-	AS2(a, [WORD_REG(bp)+3*1024+4*WORD_REG(si)])
+	AS2(a, [AS_REG_7+3*1024+4*WORD_REG(si)])
 
 #define s0		xor edi
 #define s1		xor eax
@@ -308,14 +334,14 @@ void Rijndael::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 
 #define QUARTER_ROUND(t, a, b, c, d)	\
 	AS2(movzx esi, t##l)\
-	AS2(a, [WORD_REG(bp)+3*1024+4*WORD_REG(si)])\
+	AS2(a, [AS_REG_7+3*1024+4*WORD_REG(si)])\
 	AS2(movzx esi, t##h)\
-	AS2(b, [WORD_REG(bp)+2*1024+4*WORD_REG(si)])\
+	AS2(b, [AS_REG_7+2*1024+4*WORD_REG(si)])\
 	AS2(shr e##t##x, 16)\
 	AS2(movzx esi, t##l)\
-	AS2(c, [WORD_REG(bp)+1*1024+4*WORD_REG(si)])\
+	AS2(c, [AS_REG_7+1*1024+4*WORD_REG(si)])\
 	AS2(movzx esi, t##h)\
-	AS2(d, [WORD_REG(bp)+0*1024+4*WORD_REG(si)])
+	AS2(d, [AS_REG_7+0*1024+4*WORD_REG(si)])
 
 		QUARTER_ROUND(d, s0, s1, s2, s3)
 		RESTORE_2(edx)
@@ -369,20 +395,20 @@ void Rijndael::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 
 #define QUARTER_ROUND(a, b, c, d)	\
 	AS2(	movzx	ebx, dl)\
-	AS2(	movzx	ebx, BYTE PTR [WORD_REG(bp)+1+4*WORD_REG(bx)])\
+	AS2(	movzx	ebx, BYTE PTR [AS_REG_7+1+4*WORD_REG(bx)])\
 	AS2(	shl		ebx, 3*8)\
 	AS2(	xor		a, ebx)\
 	AS2(	movzx	ebx, dh)\
-	AS2(	movzx	ebx, BYTE PTR [WORD_REG(bp)+1+4*WORD_REG(bx)])\
+	AS2(	movzx	ebx, BYTE PTR [AS_REG_7+1+4*WORD_REG(bx)])\
 	AS2(	shl		ebx, 2*8)\
 	AS2(	xor		b, ebx)\
 	AS2(	shr		edx, 16)\
 	AS2(	movzx	ebx, dl)\
 	AS2(	shr		edx, 8)\
-	AS2(	movzx	ebx, BYTE PTR [WORD_REG(bp)+1+4*WORD_REG(bx)])\
+	AS2(	movzx	ebx, BYTE PTR [AS_REG_7+1+4*WORD_REG(bx)])\
 	AS2(	shl		ebx, 1*8)\
 	AS2(	xor		c, ebx)\
-	AS2(	movzx	ebx, BYTE PTR [WORD_REG(bp)+1+4*WORD_REG(dx)])\
+	AS2(	movzx	ebx, BYTE PTR [AS_REG_7+1+4*WORD_REG(dx)])\
 	AS2(	xor		d, ebx)
 
 		QUARTER_ROUND(eax, ecx, esi, edi)
@@ -395,25 +421,22 @@ void Rijndael::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 
 #undef QUARTER_ROUND
 
-#if CRYPTOPP_BOOL_X64
-		AS1(popq	r12)
-		AS1(popq	r11)
-		AS1(popq	r10)
-		AS1(popq	K_END_REG)
-		AS1(popq	K_REG)
-#else
+#if CRYPTOPP_BOOL_X86
 		AS1(emms)
+		AS1(pop		ebp)
+	#if defined(__GNUC__) || (defined(_MSC_VER) && _MSC_VER < 1300)
+		AS1(pop		ebx)
+	#endif
 #endif
-		AS_POP(		bp)
 
-#if defined(__GNUC__) || (defined(_MSC_VER) && _MSC_VER < 1300)
-		AS_POP(		bx)
-#endif
 #ifdef __GNUC__
 		".att_syntax prefix;"
 			: "=a" (t0), "=c" (t1), "=S" (t2), "=D" (t3)
 			: "a" (Te), "D" (inBlock), "S" (k), "c" (kLoopEnd), "d" (g_cacheLineSize)
 			: "memory", "cc"
+	#if CRYPTOPP_BOOL_X64
+			, "%ebx", "%r8", "%r9", "%r10", "%r11", "%r12", "%r13", "%r14", "%r15"
+	#endif
 		);
 
 		if (xorBlock)
@@ -428,7 +451,11 @@ void Rijndael::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 		((word32 *)outBlock)[2] = t2;
 		((word32 *)outBlock)[3] = t3;
 #else
-		AS2(	mov		WORD_REG(bx), xorBlock)
+	#if CRYPTOPP_BOOL_X64
+		mov		rbx, [rsp + 6*8 + 7*8]			; xorBlock
+	#else
+		AS2(	mov		ebx, xorBlock)
+	#endif
 		AS2(	test	WORD_REG(bx), WORD_REG(bx))
 		ASJ(	jz,		1, f)
 		AS2(	xor		eax, [WORD_REG(bx)+0*4])
@@ -436,15 +463,33 @@ void Rijndael::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 		AS2(	xor		esi, [WORD_REG(bx)+2*4])
 		AS2(	xor		edi, [WORD_REG(bx)+3*4])
 		ASL(1)
-		AS2(	mov		WORD_REG(bx), outBlock)
+	#if CRYPTOPP_BOOL_X64
+		mov		rbx, [rsp + 7*8 + 7*8]			; outBlock
+	#else
+		AS2(	mov		ebx, outBlock)
+	#endif
 		AS2(	mov		[WORD_REG(bx)+0*4], eax)
 		AS2(	mov		[WORD_REG(bx)+1*4], ecx)
 		AS2(	mov		[WORD_REG(bx)+2*4], esi)
 		AS2(	mov		[WORD_REG(bx)+3*4], edi)
 #endif
+
+#if CRYPTOPP_GENERATE_X64_MASM
+		pop r15
+		pop r14
+		pop r13
+		pop r12
+		pop rdi
+		pop rsi
+		pop rbx
+		ret
+	Rijndael_Enc_ProcessAndXorBlock ENDP
+#else
 	}
 	else
+#endif
 #endif	// #ifdef CRYPTOPP_X86_ASM_AVAILABLE
+#ifndef CRYPTOPP_GENERATE_X64_MASM
 	{
 	word32 s0, s1, s2, s3, t0, t1, t2, t3;
 	const word32 *rk = m_key;
@@ -673,4 +718,5 @@ void Rijndael::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 
 NAMESPACE_END
 
+#endif
 #endif

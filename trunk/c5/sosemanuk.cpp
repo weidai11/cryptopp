@@ -1,11 +1,20 @@
 // sosemanuk.cpp - written and placed in the public domain by Wei Dai
 
+// use "cl /EP /P /DCRYPTOPP_GENERATE_X64_MASM sosemanuk.cpp" to generate MASM code
+
 #include "pch.h"
+
+#ifndef CRYPTOPP_GENERATE_X64_MASM
+
 #include "sosemanuk.h"
 #include "misc.h"
 #include "cpu.h"
 
 #include "serpentp.h"
+
+#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+#include <emmintrin.h>
+#endif
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -74,7 +83,8 @@ void SosemanukPolicy::CipherResynchronize(byte *keystreamBuffer, const byte *iv)
 	m_state[10] = rotlFixed(m_state[10] * 0x54655307, 7);
 }
 
-static word32 s_mulTables[512] = {
+extern "C" {
+word32 s_sosemanukMulTables[512] = {
 #if CRYPTOPP_BOOL_X86 | CRYPTOPP_BOOL_X64
 	0x00000000, 0xE19FCF12, 0x6B973724, 0x8A08F836, 
 	0xD6876E48, 0x3718A15A, 0xBD10596C, 0x5C8F967E, 
@@ -271,7 +281,7 @@ static word32 s_mulTables[512] = {
 	0xFEDECC7A, 0xE6D18CB7, 0xCEC04C49, 0xD6CF0C84,
 	0x9EE2651C, 0x86ED25D1, 0xAEFCE52F, 0xB6F3A5E2
 };
-
+}
 
 #if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X64
 unsigned int SosemanukPolicy::GetAlignment() const
@@ -303,11 +313,36 @@ unsigned int SosemanukPolicy::GetOptimalBlockSize() const
 }
 #endif
 
+#ifdef CRYPTOPP_X64_MASM_AVAILABLE
+extern "C" {
+void Sosemanuk_OperateKeystream(size_t iterationCount, const byte *input, byte *output, word32 *state);
+}
+#endif
+
 #pragma warning(disable: 4731)	// frame pointer register 'ebp' modified by inline assembly code
 
 void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount)
 {
+#endif	// #ifdef CRYPTOPP_GENERATE_X64_MASM
+
+#ifdef CRYPTOPP_X64_MASM_AVAILABLE
+	Sosemanuk_OperateKeystream(iterationCount, input, output, m_state.data());
+	return;
+#endif
+
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#ifdef CRYPTOPP_GENERATE_X64_MASM
+		ALIGN   8
+	Sosemanuk_OperateKeystream	PROC FRAME
+		rex_push_reg rsi
+		push_reg rdi
+		alloc_stack(80*4*2+12*4+8*WORD_SZ + 2*16+8)
+		save_xmm128 xmm6, 02f0h
+		save_xmm128 xmm7, 0300h
+		.endprolog
+		mov		rdi, r8
+		mov		rax, r9
+#else
 #ifdef __INTEL_COMPILER
 	if (HasSSE2() && !IsP4())	// Intel compiler produces faster code for this algorithm on the P4
 #else
@@ -315,10 +350,13 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 #endif
 	{
 #ifdef __GNUC__
+	#if CRYPTOPP_BOOL_X64
+		__m128i workspace[(80*4*2+12*4+8*WORD_SZ)/16];
+	#endif
 		__asm__ __volatile__
 		(
 		".intel_syntax noprefix;"
-		AS_PUSH(		bx)
+		AS_PUSH_IF86(	bx)
 #else
 		word32 *state = m_state;
 		AS2(	mov		WORD_REG(ax), state)
@@ -326,22 +364,31 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 		AS2(	mov		WORD_REG(dx), input)
 		AS2(	mov		WORD_REG(cx), iterationCount)
 #endif
+#endif	// #ifdef CRYPTOPP_GENERATE_X64_MASM
 
-#define SSE2_output			WORD_PTR [WORD_REG(sp)+1*WORD_SZ]
-#define SSE2_input			WORD_PTR [WORD_REG(sp)+2*WORD_SZ]
-#define SSE2_wordsLeft		WORD_PTR [WORD_REG(sp)+3*WORD_SZ]
-#define SSE2_diEnd			WORD_PTR [WORD_REG(sp)+4*WORD_SZ]
-#define SSE2_pMulTables		WORD_PTR [WORD_REG(sp)+5*WORD_SZ]
-#define SSE2_state			WORD_PTR [WORD_REG(sp)+6*WORD_SZ]
-#define SSE2_wordsLeft2		WORD_PTR [WORD_REG(sp)+7*WORD_SZ]
-#define SSE2_stateCopy		WORD_REG(sp) + 8*WORD_SZ
+#if defined(__GNUC__) && CRYPTOPP_BOOL_X64
+	#define SSE2_workspace %5
+#else
+	#define SSE2_workspace WORD_REG(sp)
+#endif
+
+#define SSE2_output			WORD_PTR [SSE2_workspace+1*WORD_SZ]
+#define SSE2_input			WORD_PTR [SSE2_workspace+2*WORD_SZ]
+#define SSE2_wordsLeft		WORD_PTR [SSE2_workspace+3*WORD_SZ]
+#define SSE2_diEnd			WORD_PTR [SSE2_workspace+4*WORD_SZ]
+#define SSE2_pMulTables		WORD_PTR [SSE2_workspace+5*WORD_SZ]
+#define SSE2_state			WORD_PTR [SSE2_workspace+6*WORD_SZ]
+#define SSE2_wordsLeft2		WORD_PTR [SSE2_workspace+7*WORD_SZ]
+#define SSE2_stateCopy		SSE2_workspace + 8*WORD_SZ
 #define	SSE2_uvStart		SSE2_stateCopy + 12*4
 
-		AS_PUSH(		bp)
-		AS2(	mov		WORD_REG(bx), WORD_REG(sp))
-		AS2(	and		WORD_REG(sp), -16)
-		AS2(	sub		WORD_REG(sp), 80*4*2+12*4+8*WORD_SZ)	// 80 v's, 80 u's, 12 state, 8 locals
-		AS2(	mov		[WORD_REG(sp)], WORD_REG(bx))
+#if CRYPTOPP_BOOL_X86
+		AS_PUSH_IF86(	bp)
+		AS2(	mov		AS_REG_6, esp)
+		AS2(	and		esp, -16)
+		AS2(	sub		esp, 80*4*2+12*4+8*WORD_SZ)	// 80 v's, 80 u's, 12 state, 8 locals
+		AS2(	mov		[esp], AS_REG_6)
+#endif
 		AS2(	mov		SSE2_output, WORD_REG(di))
 		AS2(	mov		SSE2_input, WORD_REG(dx))
 		AS2(	mov		SSE2_state, WORD_REG(ax))
@@ -358,7 +405,7 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 		AS2(	movq	xmm0, QWORD PTR [WORD_REG(ax)+2*16])
 		AS2(	movq	QWORD PTR [SSE2_stateCopy+2*16], xmm0)
 		AS2(	psrlq	xmm0, 32)
-		AS2(	movd	ebx, xmm0)				// s(9)
+		AS2(	movd	AS_REG_6d, xmm0)				// s(9)
 		AS2(	mov		ecx, [WORD_REG(ax)+10*4])
 		AS2(	mov		edx, [WORD_REG(ax)+11*4])
 		AS2(	pcmpeqb	xmm7, xmm7)				// all ones
@@ -367,35 +414,35 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 #define u(j)	WORD_REG(di) + (ASM_MOD(j,4)*20 + (j/4)) * 4
 #define v(j)	WORD_REG(di) + (ASM_MOD(j,4)*20 + (j/4)) * 4 + 80*4
 
-#define r10 ecx
-#define r11 edx
-#define r20 edx
-#define r21 ecx
+#define R10 ecx
+#define R11 edx
+#define R20 edx
+#define R21 ecx
 
 #define SSE2_STEP(i, j)	\
 	AS2(	mov		eax, [s(i+0)])\
 	AS2(	mov		[v(i)], eax)\
 	AS2(	rol		eax, 8)\
-	AS2(	lea		ebp, [ebx + r2##j])\
-	AS2(	xor		ebp, r1##j)\
-	AS2(	mov		[u(i)], ebp)\
-	AS2(	mov		ebp, 1)\
-	AS2(	and		ebp, r2##j)\
-	AS1(	neg		ebp)\
-	AS2(	and		ebp, ebx)\
-	AS2(	xor		ebx, eax)\
+	AS2(	lea		AS_REG_7d, [AS_REG_6d + R2##j])\
+	AS2(	xor		AS_REG_7d, R1##j)\
+	AS2(	mov		[u(i)], AS_REG_7d)\
+	AS2(	mov		AS_REG_7d, 1)\
+	AS2(	and		AS_REG_7d, R2##j)\
+	AS1(	neg		AS_REG_7d)\
+	AS2(	and		AS_REG_7d, AS_REG_6d)\
+	AS2(	xor		AS_REG_6d, eax)\
 	AS2(	movzx	eax, al)\
-	AS2(	xor		ebx, [WORD_REG(si)+WORD_REG(ax)*4])\
+	AS2(	xor		AS_REG_6d, [WORD_REG(si)+WORD_REG(ax)*4])\
 	AS2(	mov		eax, [s(i+3)])\
-	AS2(	xor		ebp, [s(i+2)])\
-	AS2(	add		r1##j, ebp)\
-	AS2(	movzx	ebp, al)\
+	AS2(	xor		AS_REG_7d, [s(i+2)])\
+	AS2(	add		R1##j, AS_REG_7d)\
+	AS2(	movzx	AS_REG_7d, al)\
 	AS2(	shr		eax, 8)\
-	AS2(	xor		ebx, [WORD_REG(si)+1024+WORD_REG(bp)*4])\
-	AS2(	xor		ebx, eax)\
-	AS2(	imul	r2##j, 0x54655307)\
-	AS2(	rol		r2##j, 7)\
-	AS2(	mov		[s(i+0)], ebx)\
+	AS2(	xor		AS_REG_6d, [WORD_REG(si)+1024+AS_REG_7*4])\
+	AS2(	xor		AS_REG_6d, eax)\
+	AS2(	imul	R2##j, AS_HEX(54655307))\
+	AS2(	rol		R2##j, 7)\
+	AS2(	mov		[s(i+0)], AS_REG_6d)\
 
 		ASL(2)	// outer loop, each iteration of this processes 80 words
 		AS2(	lea		WORD_REG(di), [SSE2_uvStart])	// start of v and u
@@ -406,7 +453,7 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 		AS2(	lea		WORD_REG(si), [WORD_REG(di)+WORD_REG(si)])		// use to end first inner loop
 		AS2(	mov		SSE2_diEnd, WORD_REG(si))
 #ifdef _MSC_VER
-		AS2(	lea		WORD_REG(si), s_mulTables)
+		AS2(	lea		WORD_REG(si), s_sosemanukMulTables)
 #else
 		AS2(	mov		WORD_REG(si), SSE2_pMulTables)
 #endif
@@ -438,7 +485,7 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 		ASJ(	jne,	0, b)
 
 		AS2(	mov		WORD_REG(ax), SSE2_input)
-		AS2(	mov		WORD_REG(bp), SSE2_output)
+		AS2(	mov		AS_REG_7, SSE2_output)
 		AS2(	lea		WORD_REG(di), [SSE2_uvStart])		// start of v and u
 		AS2(	mov		WORD_REG(si), SSE2_wordsLeft2)
 
@@ -487,43 +534,10 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 		AS2(	punpcklqdq	xmm6, xmm5)
 		AS2(	punpckhqdq	xmm3, xmm5)
 		// output keystream
-		AS2(	test	WORD_REG(ax), WORD_REG(ax))
-		ASJ(	jz,		3, f)
-		AS2(	test	eax, 0xf)
-		ASJ(	jnz,	7, f)
-		AS2(	pxor	xmm2, [WORD_REG(ax)+0*16])
-		AS2(	pxor	xmm0, [WORD_REG(ax)+1*16])
-		AS2(	pxor	xmm6, [WORD_REG(ax)+2*16])
-		AS2(	pxor	xmm3, [WORD_REG(ax)+3*16])
-		AS2(	add		WORD_REG(ax), 4*16)
-		ASJ(	jmp,	3, f)
-		ASL(7)
-		AS2(	movdqu	xmm1, [WORD_REG(ax)+0*16])
-		AS2(	pxor	xmm2, xmm1)
-		AS2(	movdqu	xmm1, [WORD_REG(ax)+1*16])
-		AS2(	pxor	xmm0, xmm1)
-		AS2(	movdqu	xmm1, [WORD_REG(ax)+2*16])
-		AS2(	pxor	xmm6, xmm1)
-		AS2(	movdqu	xmm1, [WORD_REG(ax)+3*16])
-		AS2(	pxor	xmm3, xmm1)
-		AS2(	add		WORD_REG(ax), 4*16)
-		ASL(3)
-		AS2(	test	ebp, 0xf)
-		ASJ(	jnz,	8, f)
-		AS2(	movdqa	[WORD_REG(bp)+0*16], xmm2)
-		AS2(	movdqa	[WORD_REG(bp)+1*16], xmm0)
-		AS2(	movdqa	[WORD_REG(bp)+2*16], xmm6)
-		AS2(	movdqa	[WORD_REG(bp)+3*16], xmm3)
-		ASJ(	jmp,	9, f)
-		ASL(8)
-		AS2(	movdqu	[WORD_REG(bp)+0*16], xmm2)
-		AS2(	movdqu	[WORD_REG(bp)+1*16], xmm0)
-		AS2(	movdqu	[WORD_REG(bp)+2*16], xmm6)
-		AS2(	movdqu	[WORD_REG(bp)+3*16], xmm3)
-		ASL(9)
+		AS_XMM_OUTPUT4(SSE2_Sosemanuk_Output, WORD_REG(ax), AS_REG_7, 2,0,6,3, 1, 0,1,2,3, 4)
+
 		// loop
 		AS2(	add		WORD_REG(di), 4*4)
-		AS2(	add		WORD_REG(bp), 4*16)
 		AS2(	sub		WORD_REG(si), 16)
 		ASJ(	jnz,	1, b)
 
@@ -533,29 +547,29 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 		ASJ(	jz,		6, f)
 		AS2(	mov		SSE2_wordsLeft, WORD_REG(si))
 		AS2(	mov		SSE2_input, WORD_REG(ax))
-		AS2(	mov		SSE2_output, WORD_REG(bp))
+		AS2(	mov		SSE2_output, AS_REG_7)
 		ASJ(	jmp,	2, b)
 
 		ASL(4)	// final output of less than 16 words
 		AS2(	test	WORD_REG(ax), WORD_REG(ax))
 		ASJ(	jz,		5, f)
-		AS2(	movd	xmm0, [WORD_REG(ax)+0*4])
+		AS2(	movd	xmm0, dword ptr [WORD_REG(ax)+0*4])
 		AS2(	pxor	xmm2, xmm0)
-		AS2(	movd	xmm0, [WORD_REG(ax)+1*4])
+		AS2(	movd	xmm0, dword ptr [WORD_REG(ax)+1*4])
 		AS2(	pxor	xmm3, xmm0)
-		AS2(	movd	xmm0, [WORD_REG(ax)+2*4])
+		AS2(	movd	xmm0, dword ptr [WORD_REG(ax)+2*4])
 		AS2(	pxor	xmm1, xmm0)
-		AS2(	movd	xmm0, [WORD_REG(ax)+3*4])
+		AS2(	movd	xmm0, dword ptr [WORD_REG(ax)+3*4])
 		AS2(	pxor	xmm4, xmm0)
 		AS2(	add		WORD_REG(ax), 16)
 		ASL(5)
-		AS2(	movd	[WORD_REG(bp)+0*4], xmm2)
-		AS2(	movd	[WORD_REG(bp)+1*4], xmm3)
-		AS2(	movd	[WORD_REG(bp)+2*4], xmm1)
-		AS2(	movd	[WORD_REG(bp)+3*4], xmm4)
+		AS2(	movd	dword ptr [AS_REG_7+0*4], xmm2)
+		AS2(	movd	dword ptr [AS_REG_7+1*4], xmm3)
+		AS2(	movd	dword ptr [AS_REG_7+2*4], xmm1)
+		AS2(	movd	dword ptr [AS_REG_7+3*4], xmm4)
 		AS2(	sub		WORD_REG(si), 4)
 		ASJ(	jz,		6, f)
-		AS2(	add		WORD_REG(bp), 16)
+		AS2(	add		AS_REG_7, 16)
 		AS2(	psrldq	xmm2, 4)
 		AS2(	psrldq	xmm3, 4)
 		AS2(	psrldq	xmm1, 4)
@@ -563,38 +577,52 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 		ASJ(	jmp,	4, b)
 
 		ASL(6)	// save state
-		AS2(	mov		WORD_REG(bx), SSE2_state)
+		AS2(	mov		AS_REG_6, SSE2_state)
 		AS2(	movdqa	xmm0, [SSE2_stateCopy+0*16])
-		AS2(	movdqa	[WORD_REG(bx)+0*16], xmm0)
+		AS2(	movdqa	[AS_REG_6+0*16], xmm0)
 		AS2(	movdqa	xmm0, [SSE2_stateCopy+1*16])
-		AS2(	movdqa	[WORD_REG(bx)+1*16], xmm0)
+		AS2(	movdqa	[AS_REG_6+1*16], xmm0)
 		AS2(	movq	xmm0, QWORD PTR [SSE2_stateCopy+2*16])
-		AS2(	movq	QWORD PTR [WORD_REG(bx)+2*16], xmm0)
-		AS2(	mov		[WORD_REG(bx)+10*4], ecx)
-		AS2(	mov		[WORD_REG(bx)+11*4], edx)
+		AS2(	movq	QWORD PTR [AS_REG_6+2*16], xmm0)
+		AS2(	mov		[AS_REG_6+10*4], ecx)
+		AS2(	mov		[AS_REG_6+11*4], edx)
 
-		AS_POP(			sp)
-		AS_POP(			bp)
+		AS_POP_IF86(	sp)
+		AS_POP_IF86(	bp)
 
 #ifdef __GNUC__
-		AS_POP(			bx)
+		AS_POP_IF86(	bx)
 		".att_syntax prefix;"
 			:
-			: "a" (m_state.m_ptr), "c" (iterationCount), "S" (s_mulTables), "D" (output), "d" (input)
-			: "memory", "cc"
+			: "a" (m_state.m_ptr), "c" (iterationCount), "S" (s_sosemanukMulTables), "D" (output), "d" (input)
+	#if CRYPTOPP_BOOL_X64
+			, "r" (workspace)
+	#endif
+			: "memory", "cc", "%xmm0", "%xmm1", "%xmm2", "%xmm3", "%xmm4", "%xmm5", "%xmm6", "%xmm7"
 		);
 #endif
+#ifdef CRYPTOPP_GENERATE_X64_MASM
+	movdqa	xmm6, [rsp + 02f0h]
+	movdqa	xmm7, [rsp + 0300h]
+	add		rsp, 80*4*2+12*4+8*WORD_SZ + 2*16+8
+	pop		rdi
+	pop		rsi
+	ret
+	Sosemanuk_OperateKeystream ENDP
+#else
 	}
 	else
 #endif
+#endif
+#ifndef CRYPTOPP_GENERATE_X64_MASM
 	{
 #if CRYPTOPP_BOOL_X86 | CRYPTOPP_BOOL_X64
-#define MUL_A(x)    (x = rotlFixed(x, 8), x ^ s_mulTables[byte(x)])
+#define MUL_A(x)    (x = rotlFixed(x, 8), x ^ s_sosemanukMulTables[byte(x)])
 #else
-#define MUL_A(x)    (((x) << 8) ^ s_mulTables[(x) >> 24])
+#define MUL_A(x)    (((x) << 8) ^ s_sosemanukMulTables[(x) >> 24])
 #endif
 
-#define DIV_A(x)    (((x) >> 8) ^ s_mulTables[256 + byte(x)])
+#define DIV_A(x)    (((x) >> 8) ^ s_sosemanukMulTables[256 + byte(x)])
 
 #define r1(i) ((i%2) ? reg2 : reg1)
 #define r2(i) ((i%2) ? reg1 : reg2)
@@ -676,3 +704,5 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 }
 
 NAMESPACE_END
+
+#endif // #ifndef CRYPTOPP_GENERATE_X64_MASM

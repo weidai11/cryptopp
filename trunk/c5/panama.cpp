@@ -1,6 +1,11 @@
 // panama.cpp - written and placed in the public domain by Wei Dai
 
+// use "cl /EP /P /DCRYPTOPP_GENERATE_X64_MASM panama.cpp" to generate MASM code
+
 #include "pch.h"
+
+#ifndef CRYPTOPP_GENERATE_X64_MASM
+
 #include "panama.h"
 #include "misc.h"
 #include "cpu.h"
@@ -16,41 +21,67 @@ void Panama<B>::Reset()
 #endif
 }
 
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#endif	// #ifndef CRYPTOPP_GENERATE_X64_MASM
 
+#ifdef CRYPTOPP_X64_MASM_AVAILABLE
+extern "C" {
+void Panama_SSE2_Pull(size_t count, word32 *state, word32 *z, const word32 *y);
+}
+#elif CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+
+#ifdef CRYPTOPP_GENERATE_X64_MASM
+	Panama_SSE2_Pull	PROC FRAME
+	alloc_stack(2*16+8)
+	save_xmm128 xmm6, 0h
+	save_xmm128 xmm7, 10h
+	.endprolog
+#else
 #pragma warning(disable: 4731)	// frame pointer register 'ebp' modified by inline assembly code
-
 void Panama_SSE2_Pull(size_t count, word32 *state, word32 *z, const word32 *y)
 {
 #ifdef __GNUC__
 	__asm__ __volatile__
 	(
 		".intel_syntax noprefix;"
-	AS_PUSH(		bx)
+		AS_POP_IF86(	bx)
 #else
-	AS2(	mov		WORD_REG(cx), count)
-	AS2(	mov		WORD_REG(si), state)
-	AS2(	mov		WORD_REG(di), z)
-	AS2(	mov		WORD_REG(dx), y)
+	AS2(	mov		AS_REG_1, count)
+	AS2(	mov		AS_REG_2, state)
+	AS2(	mov		AS_REG_3, z)
+	AS2(	mov		AS_REG_4, y)
 #endif
-	AS2(	shl		WORD_REG(cx), 5)
+#endif	// #ifdef CRYPTOPP_GENERATE_X64_MASM
+
+#if CRYPTOPP_BOOL_X86
+	#define REG_loopEnd			[esp]
+#elif defined(CRYPTOPP_GENERATE_X64_MASM)
+	#define REG_loopEnd			rdi
+#else
+	#define REG_loopEnd			r8
+#endif
+
+	AS2(	shl		AS_REG_1, 5)
 	ASJ(	jz,		5, f)
-	AS2(	mov		ebx, [WORD_REG(si)+4*17])
-	AS2(	add		WORD_REG(cx), WORD_REG(bx))
+	AS2(	mov		AS_REG_6d, [AS_REG_2+4*17])
+	AS2(	add		AS_REG_1, AS_REG_6)
 
-	AS_PUSH(		bp)
-	AS_PUSH(		cx)
+	#if CRYPTOPP_BOOL_X64
+		AS2(	mov		REG_loopEnd, AS_REG_1)
+	#else
+		AS1(	push	ebp)
+		AS1(	push	AS_REG_1)
+	#endif
 
-	AS2(	movdqa	xmm0, [WORD_REG(si)+0*16])
-	AS2(	movdqa	xmm1, [WORD_REG(si)+1*16])
-	AS2(	movdqa	xmm2, [WORD_REG(si)+2*16])
-	AS2(	movdqa	xmm3, [WORD_REG(si)+3*16])
-	AS2(	mov		eax, [WORD_REG(si)+4*16])
+	AS2(	movdqa	xmm0, XMMWORD PTR [AS_REG_2+0*16])
+	AS2(	movdqa	xmm1, XMMWORD PTR [AS_REG_2+1*16])
+	AS2(	movdqa	xmm2, XMMWORD PTR [AS_REG_2+2*16])
+	AS2(	movdqa	xmm3, XMMWORD PTR [AS_REG_2+3*16])
+	AS2(	mov		eax, dword ptr [AS_REG_2+4*16])
 
 	ASL(4)
 	// gamma and pi
 #if CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE
-	AS2(	test	WORD_REG(bx), 1)
+	AS2(	test	AS_REG_6, 1)
 	ASJ(	jnz,	6, f)
 #endif
 	AS2(	movdqa	xmm6, xmm2)
@@ -70,18 +101,18 @@ void Panama_SSE2_Pull(size_t count, word32 *state, word32 *z, const word32 *y)
 	ASL(7)
 #endif
 
-	AS2(	movd	ecx, xmm2)
-	AS1(	not		ecx)
-	AS2(	movd	ebp, xmm3)
-	AS2(	or		ecx, ebp)
-	AS2(	xor		eax, ecx)
+	AS2(	movd	AS_REG_1d, xmm2)
+	AS1(	not		AS_REG_1d)
+	AS2(	movd	AS_REG_7d, xmm3)
+	AS2(	or		AS_REG_1d, AS_REG_7d)
+	AS2(	xor		eax, AS_REG_1d)
 
 #define SSE2_Index(i) ASM_MOD(((i)*13+16), 17)
 
 #define pi(i)	\
-	AS2(	movd	ecx, xmm7)\
-	AS2(	rol		ecx, ASM_MOD((ASM_MOD(5*i,17)*(ASM_MOD(5*i,17)+1)/2), 32))\
-	AS2(	mov		[WORD_REG(si)+SSE2_Index(ASM_MOD(5*(i), 17))*4], ecx)
+	AS2(	movd	AS_REG_1d, xmm7)\
+	AS2(	rol		AS_REG_1d, ASM_MOD((ASM_MOD(5*i,17)*(ASM_MOD(5*i,17)+1)/2), 32))\
+	AS2(	mov		[AS_REG_2+SSE2_Index(ASM_MOD(5*(i), 17))*4], AS_REG_1d)
 
 #define pi4(x, y, z, a, b, c, d)	\
 	AS2(	pcmpeqb	xmm7, xmm7)\
@@ -110,65 +141,65 @@ void Panama_SSE2_Pull(size_t count, word32 *state, word32 *z, const word32 *y)
 	AS2(	punpckhdq	xmm2, xmm0)		// 11 12 15 16
 
 	// keystream
-	AS2(	test	WORD_REG(di), WORD_REG(di))
+	AS2(	test	AS_REG_3, AS_REG_3)
 	ASJ(	jz,		0, f)
 	AS2(	movdqa	xmm6, xmm4)
 	AS2(	punpcklqdq	xmm4, xmm2)
 	AS2(	punpckhqdq	xmm6, xmm2)
-	AS2(	test	WORD_REG(dx), 0xf)
+	AS2(	test	AS_REG_4, 15)
 	ASJ(	jnz,	2, f)
-	AS2(	test	WORD_REG(dx), WORD_REG(dx))
+	AS2(	test	AS_REG_4, AS_REG_4)
 	ASJ(	jz,		1, f)
-	AS2(	pxor	xmm4, [WORD_REG(dx)])
-	AS2(	pxor	xmm6, [WORD_REG(dx)+16])
-	AS2(	add		WORD_REG(dx), 32)
+	AS2(	pxor	xmm4, [AS_REG_4])
+	AS2(	pxor	xmm6, [AS_REG_4+16])
+	AS2(	add		AS_REG_4, 32)
 	ASJ(	jmp,	1, f)
 	ASL(2)
-	AS2(	movdqu	xmm0, [WORD_REG(dx)])
-	AS2(	movdqu	xmm2, [WORD_REG(dx)+16])
+	AS2(	movdqu	xmm0, [AS_REG_4])
+	AS2(	movdqu	xmm2, [AS_REG_4+16])
 	AS2(	pxor	xmm4, xmm0)
 	AS2(	pxor	xmm6, xmm2)
-	AS2(	add		WORD_REG(dx), 32)
+	AS2(	add		AS_REG_4, 32)
 	ASL(1)
-	AS2(	test	WORD_REG(di), 0xf)
+	AS2(	test	AS_REG_3, 15)
 	ASJ(	jnz,	3, f)
-	AS2(	movdqa	[WORD_REG(di)], xmm4)
-	AS2(	movdqa	[WORD_REG(di)+16], xmm6)
-	AS2(	add		WORD_REG(di), 32)
+	AS2(	movdqa	XMMWORD PTR [AS_REG_3], xmm4)
+	AS2(	movdqa	XMMWORD PTR [AS_REG_3+16], xmm6)
+	AS2(	add		AS_REG_3, 32)
 	ASJ(	jmp,	0, f)
 	ASL(3)
-	AS2(	movdqu	[WORD_REG(di)], xmm4)
-	AS2(	movdqu	[WORD_REG(di)+16], xmm6)
-	AS2(	add		WORD_REG(di), 32)
+	AS2(	movdqu	XMMWORD PTR [AS_REG_3], xmm4)
+	AS2(	movdqu	XMMWORD PTR [AS_REG_3+16], xmm6)
+	AS2(	add		AS_REG_3, 32)
 	ASL(0)
 
 	// buffer update
-	AS2(	lea		WORD_REG(cx), [WORD_REG(bx) + 32])
-	AS2(	and		WORD_REG(cx), 31*32)
-	AS2(	lea		WORD_REG(bp), [WORD_REG(bx) + (32-24)*32])
-	AS2(	and		WORD_REG(bp), 31*32)
+	AS2(	lea		AS_REG_1, [AS_REG_6 + 32])
+	AS2(	and		AS_REG_1, 31*32)
+	AS2(	lea		AS_REG_7, [AS_REG_6 + (32-24)*32])
+	AS2(	and		AS_REG_7, 31*32)
 
-	AS2(	movdqa	xmm0, [WORD_REG(si)+20*4+WORD_REG(cx)+0*8])
+	AS2(	movdqa	xmm0, XMMWORD PTR [AS_REG_2+20*4+AS_REG_1+0*8])
 	AS2(	pxor	xmm3, xmm0)
 	ASS(	pshufd	xmm0, xmm0, 2, 3, 0, 1)
-	AS2(	movdqa	[WORD_REG(si)+20*4+WORD_REG(cx)+0*8], xmm3)
-	AS2(	pxor	xmm0, [WORD_REG(si)+20*4+WORD_REG(bp)+2*8])
-	AS2(	movdqa	[WORD_REG(si)+20*4+WORD_REG(bp)+2*8], xmm0)
+	AS2(	movdqa	XMMWORD PTR [AS_REG_2+20*4+AS_REG_1+0*8], xmm3)
+	AS2(	pxor	xmm0, XMMWORD PTR [AS_REG_2+20*4+AS_REG_7+2*8])
+	AS2(	movdqa	XMMWORD PTR [AS_REG_2+20*4+AS_REG_7+2*8], xmm0)
 
-	AS2(	movdqa	xmm4, [WORD_REG(si)+20*4+WORD_REG(cx)+2*8])
+	AS2(	movdqa	xmm4, XMMWORD PTR [AS_REG_2+20*4+AS_REG_1+2*8])
 	AS2(	pxor	xmm1, xmm4)
-	AS2(	movdqa	[WORD_REG(si)+20*4+WORD_REG(cx)+2*8], xmm1)
-	AS2(	pxor	xmm4, [WORD_REG(si)+20*4+WORD_REG(bp)+0*8])
-	AS2(	movdqa	[WORD_REG(si)+20*4+WORD_REG(bp)+0*8], xmm4)
+	AS2(	movdqa	XMMWORD PTR [AS_REG_2+20*4+AS_REG_1+2*8], xmm1)
+	AS2(	pxor	xmm4, XMMWORD PTR [AS_REG_2+20*4+AS_REG_7+0*8])
+	AS2(	movdqa	XMMWORD PTR [AS_REG_2+20*4+AS_REG_7+0*8], xmm4)
 
 	// theta
-	AS2(	movdqa	xmm3, [WORD_REG(si)+3*16])
-	AS2(	movdqa	xmm2, [WORD_REG(si)+2*16])
-	AS2(	movdqa	xmm1, [WORD_REG(si)+1*16])
-	AS2(	movdqa	xmm0, [WORD_REG(si)+0*16])
+	AS2(	movdqa	xmm3, XMMWORD PTR [AS_REG_2+3*16])
+	AS2(	movdqa	xmm2, XMMWORD PTR [AS_REG_2+2*16])
+	AS2(	movdqa	xmm1, XMMWORD PTR [AS_REG_2+1*16])
+	AS2(	movdqa	xmm0, XMMWORD PTR [AS_REG_2+0*16])
 
 #if CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE
-	AS2(	test	WORD_REG(bx), 1)
+	AS2(	test	AS_REG_6, 1)
 	ASJ(	jnz,	8, f)
 #endif
 	AS2(	movd	xmm6, eax)
@@ -199,10 +230,10 @@ void Panama_SSE2_Pull(size_t count, word32 *state, word32 *z, const word32 *y)
 #endif
 
 	AS2(	xor		eax, 1)
-	AS2(	movd	ecx, xmm0)
-	AS2(	xor		eax, ecx)
-	AS2(	movd	ecx, xmm3)
-	AS2(	xor		eax, ecx)
+	AS2(	movd	AS_REG_1d, xmm0)
+	AS2(	xor		eax, AS_REG_1d)
+	AS2(	movd	AS_REG_1d, xmm3)
+	AS2(	xor		eax, AS_REG_1d)
 
 	AS2(	pxor	xmm3, xmm2)
 	AS2(	pxor	xmm2, xmm1)
@@ -214,21 +245,21 @@ void Panama_SSE2_Pull(size_t count, word32 *state, word32 *z, const word32 *y)
 	AS2(	pxor	xmm0, xmm4)
 
 	// sigma
-	AS2(	lea		WORD_REG(cx), [WORD_REG(bx) + (32-4)*32])
-	AS2(	and		WORD_REG(cx), 31*32)
-	AS2(	lea		WORD_REG(bp), [WORD_REG(bx) + 16*32])
-	AS2(	and		WORD_REG(bp), 31*32)
+	AS2(	lea		AS_REG_1, [AS_REG_6 + (32-4)*32])
+	AS2(	and		AS_REG_1, 31*32)
+	AS2(	lea		AS_REG_7, [AS_REG_6 + 16*32])
+	AS2(	and		AS_REG_7, 31*32)
 
-	AS2(	movdqa	xmm4, [WORD_REG(si)+20*4+WORD_REG(cx)+0*16])
-	AS2(	movdqa	xmm5, [WORD_REG(si)+20*4+WORD_REG(bp)+0*16])
+	AS2(	movdqa	xmm4, XMMWORD PTR [AS_REG_2+20*4+AS_REG_1+0*16])
+	AS2(	movdqa	xmm5, XMMWORD PTR [AS_REG_2+20*4+AS_REG_7+0*16])
 	AS2(	movdqa	xmm6, xmm4)
 	AS2(	punpcklqdq	xmm4, xmm5)
 	AS2(	punpckhqdq	xmm6, xmm5)
 	AS2(	pxor	xmm3, xmm4)
 	AS2(	pxor	xmm2, xmm6)
 
-	AS2(	movdqa	xmm4, [WORD_REG(si)+20*4+WORD_REG(cx)+1*16])
-	AS2(	movdqa	xmm5, [WORD_REG(si)+20*4+WORD_REG(bp)+1*16])
+	AS2(	movdqa	xmm4, XMMWORD PTR [AS_REG_2+20*4+AS_REG_1+1*16])
+	AS2(	movdqa	xmm5, XMMWORD PTR [AS_REG_2+20*4+AS_REG_7+1*16])
 	AS2(	movdqa	xmm6, xmm4)
 	AS2(	punpcklqdq	xmm4, xmm5)
 	AS2(	punpckhqdq	xmm6, xmm5)
@@ -236,31 +267,48 @@ void Panama_SSE2_Pull(size_t count, word32 *state, word32 *z, const word32 *y)
 	AS2(	pxor	xmm0, xmm6)
 
 	// loop
-	AS2(	add		WORD_REG(bx), 32)
-	AS2(	cmp		WORD_REG(bx), [WORD_REG(sp)])
+	AS2(	add		AS_REG_6, 32)
+	AS2(	cmp		AS_REG_6, REG_loopEnd)
 	ASJ(	jne,	4, b)
 
 	// save state
-	AS2(	add		WORD_REG(sp), WORD_SZ)
-	AS_POP(			bp)
-	AS2(	mov		[WORD_REG(si)+4*16], eax)
-	AS2(	movdqa	[WORD_REG(si)+3*16], xmm3)
-	AS2(	movdqa	[WORD_REG(si)+2*16], xmm2)
-	AS2(	movdqa	[WORD_REG(si)+1*16], xmm1)
-	AS2(	movdqa	[WORD_REG(si)+0*16], xmm0)
+	AS2(	mov		[AS_REG_2+4*16], eax)
+	AS2(	movdqa	XMMWORD PTR [AS_REG_2+3*16], xmm3)
+	AS2(	movdqa	XMMWORD PTR [AS_REG_2+2*16], xmm2)
+	AS2(	movdqa	XMMWORD PTR [AS_REG_2+1*16], xmm1)
+	AS2(	movdqa	XMMWORD PTR [AS_REG_2+0*16], xmm0)
+
+	#if CRYPTOPP_BOOL_X86
+		AS2(	add		esp, 4)
+		AS1(	pop		ebp)
+	#endif
 	ASL(5)
 
 #ifdef __GNUC__
-	AS_POP(			bx)
-	".att_syntax prefix;"
-		:
-		: "c" (count), "S" (state), "D" (z), "d" (y)
-		: "%eax", "memory", "cc"
+		AS_POP_IF86(	bx)
+		".att_syntax prefix;"
+			:
+	#if CRYPTOPP_BOOL_X64
+			: "D" (count), "S" (state), "d" (z), "c" (y)
+			: "%r8", "%r9", "r10", "%eax", "memory", "cc", "%xmm0", "%xmm1", "%xmm2", "%xmm3", "%xmm4", "%xmm5", "%xmm6", "%xmm7"
+	#else
+			: "c" (count), "d" (state), "S" (z), "D" (y)
+			: "%eax", "memory", "cc", "%xmm0", "%xmm1", "%xmm2", "%xmm3", "%xmm4", "%xmm5", "%xmm6", "%xmm7"
+	#endif
 	);
 #endif
+#ifdef CRYPTOPP_GENERATE_X64_MASM
+	movdqa	xmm6, [rsp + 0h]
+	movdqa	xmm7, [rsp + 10h]
+	add		rsp, 2*16+8
+	ret
+	Panama_SSE2_Pull ENDP
+#else
 }
-
 #endif
+#endif	// #ifdef CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+
+#ifndef CRYPTOPP_GENERATE_X64_MASM
 
 template <class B>
 void Panama<B>::Iterate(size_t count, const word32 *p, word32 *z, const word32 *y)
@@ -411,7 +459,7 @@ void PanamaCipherPolicy<B>::CipherResynchronize(byte *keystreamBuffer, const byt
 		this->Iterate(1, buf);
 	}
 
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)
 	if (B::ToEnum() == LITTLE_ENDIAN_ORDER && HasSSE2())
 		Panama_SSE2_Pull(32, this->m_state, NULL, NULL);
 	else
@@ -423,7 +471,7 @@ void PanamaCipherPolicy<B>::CipherResynchronize(byte *keystreamBuffer, const byt
 template <class B>
 unsigned int PanamaCipherPolicy<B>::GetAlignment() const
 {
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)
 	if (B::ToEnum() == LITTLE_ENDIAN_ORDER && HasSSE2())
 		return 16;
 	else
@@ -435,7 +483,7 @@ unsigned int PanamaCipherPolicy<B>::GetAlignment() const
 template <class B>
 void PanamaCipherPolicy<B>::OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount)
 {
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)
 	if (B::ToEnum() == LITTLE_ENDIAN_ORDER && HasSSE2())
 		Panama_SSE2_Pull(iterationCount, this->m_state, (word32 *)output, (const word32 *)input);
 	else
@@ -453,3 +501,5 @@ template class PanamaCipherPolicy<BigEndian>;
 template class PanamaCipherPolicy<LittleEndian>;
 
 NAMESPACE_END
+
+#endif	// #ifndef CRYPTOPP_GENERATE_X64_MASM
