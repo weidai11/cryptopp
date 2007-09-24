@@ -2310,7 +2310,7 @@ void MontgomeryReduce(word *R, word *T, word *X, const word *M, const word *U, s
 	word borrow = Subtract(T, X+N, T, N);
 	// defend against timing attack by doing this Add even when not needed
 	word carry = Add(T+N, T, M, N);
-	assert(carry || !borrow);
+	assert(carry | !borrow);
 	CopyWords(R, T + ((0-borrow) & N), N);
 #elif 0
 	const word u = 0-U[0];
