@@ -15,7 +15,6 @@
 #include <algorithm>
 #include <map>
 #include <vector>
-#include <locale>
 
 // re-disable this
 #pragma warning(disable: 4231)
