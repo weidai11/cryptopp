@@ -597,8 +597,9 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 			: "a" (m_state.m_ptr), "c" (iterationCount), "S" (s_sosemanukMulTables), "D" (output), "d" (input)
 	#if CRYPTOPP_BOOL_X64
 			, "r" (workspace)
-	#endif
 			: "memory", "cc", "%xmm0", "%xmm1", "%xmm2", "%xmm3", "%xmm4", "%xmm5", "%xmm6", "%xmm7"
+	#endif
+			: "memory", "cc"
 		);
 #endif
 #ifdef CRYPTOPP_GENERATE_X64_MASM

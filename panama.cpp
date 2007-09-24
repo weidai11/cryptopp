@@ -293,7 +293,7 @@ void Panama_SSE2_Pull(size_t count, word32 *state, word32 *z, const word32 *y)
 			: "%r8", "%r9", "r10", "%eax", "memory", "cc", "%xmm0", "%xmm1", "%xmm2", "%xmm3", "%xmm4", "%xmm5", "%xmm6", "%xmm7"
 	#else
 			: "c" (count), "d" (state), "S" (z), "D" (y)
-			: "%eax", "memory", "cc", "%xmm0", "%xmm1", "%xmm2", "%xmm3", "%xmm4", "%xmm5", "%xmm6", "%xmm7"
+			: "%eax", "memory", "cc"
 	#endif
 	);
 #endif
