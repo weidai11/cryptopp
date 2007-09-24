@@ -46,12 +46,16 @@ static inline Integer ConvertToInteger(const Integer &x)
 
 static bool CheckMOVCondition(const Integer &q, const Integer &r)
 {
-	Integer t=1;
-	unsigned int n=q.BitCount(), m=r.BitCount();
+	// see "Updated standards for validating elliptic curves", http://eprint.iacr.org/2007/343
+	Integer t = 1;
+	unsigned int n = q.IsEven() ? 1 : q.BitCount(), m = r.BitCount();
 
 	for (unsigned int i=n; DiscreteLogWorkFactor(i)<m/2; i+=n)
 	{
-		t = (t*q)%r;
+		if (q.IsEven())
+			t = (t+t)%r;
+		else
+			t = (t*q)%r;
 		if (t == 1)
 			return false;
 	}

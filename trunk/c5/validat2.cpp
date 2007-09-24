@@ -658,10 +658,10 @@ bool ValidateEC2N()
 #if 0	// TODO: turn this back on when I make EC2N faster for pentanomial basis
 	cout << "Testing SEC 2 recommended curves..." << endl;
 	OID oid;
-	while (!(oid = ECParameters<EC2N>::GetNextRecommendedParametersOID(oid)).m_values.empty())
+	while (!(oid = DL_GroupParameters_EC<EC2N>::GetNextRecommendedParametersOID(oid)).m_values.empty())
 	{
-		ECParameters<EC2N> params(oid);
-		bool fail = !params.ValidateParameters(GlobalRNG());
+		DL_GroupParameters_EC<EC2N> params(oid);
+		bool fail = !params.Validate(GlobalRNG(), 2);
 		cout << (fail ? "FAILED" : "passed") << "    " << params.GetCurve().GetField().MaxElementBitLength() << " bits" << endl;
 		pass = pass && !fail;
 	}
