@@ -979,7 +979,6 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						PreprocessorDefinitions=""
-						EnableEnhancedInstructionSet="2"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
