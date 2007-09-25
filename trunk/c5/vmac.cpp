@@ -141,7 +141,7 @@ VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWord64,
 	AS2(	mov		%1, %%ebx)
 	".intel_syntax noprefix;"
 #else
-	#if _MSC_VER < 1300
+	#if _MSC_VER < 1300 || defined(__INTEL_COMPILER)
 	word32 L1KeyLength = m_L1KeyLength;
 	char isFirstBlock = m_isFirstBlock;
 	AS2(	mov		ebx, [L1KeyLength])

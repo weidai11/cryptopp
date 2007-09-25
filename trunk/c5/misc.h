@@ -523,7 +523,7 @@ template<> inline word64 rotrMod<word64>(word64 x, unsigned int y)
 
 #endif // #if _MSC_VER >= 1310
 
-#if _MSC_VER >= 1400 && (!defined(__INTEL_COMPILER) || __INTEL_COMPILER >= 1000)
+#if _MSC_VER >= 1400 && !defined(__INTEL_COMPILER)
 
 template<> inline word16 rotlFixed<word16>(word16 x, unsigned int y)
 {

@@ -101,7 +101,7 @@ static word AtomicInverseModPower2(word A)
 
 // ********************************************************
 
-#if !defined(CRYPTOPP_NATIVE_DWORD_AVAILABLE) || CRYPTOPP_BOOL_X64
+#if !defined(CRYPTOPP_NATIVE_DWORD_AVAILABLE) || defined(__x86_64__)
 	#define Declare2Words(x)			word x##0, x##1;
 	#define AssignWord(a, b)			a##0 = b; a##1 = 0;
 	#define Add2WordsBy1(a, b, c)		a##0 = b##0 + c; a##1 = b##1 + (a##0 < c);
@@ -109,10 +109,12 @@ static word AtomicInverseModPower2(word A)
 	#define HighWord(a)					a##1
 	#ifdef _MSC_VER
 		#define MultiplyWords(p, a, b)	p##0 = _umul128(a, b, &p##1);
-		#define Double3Words(c, d)		d##1 = __shiftleft128(d##0, d##1, 1); d##0 = __shiftleft128(c, d##0, 1); c *= 2;
+		#ifndef __INTEL_COMPILER
+			#define Double3Words(c, d)		d##1 = __shiftleft128(d##0, d##1, 1); d##0 = __shiftleft128(c, d##0, 1); c *= 2;
+		#endif
 	#elif defined(__DECCXX)
 		#define MultiplyWords(p, a, b)	p##0 = a*b; p##1 = asm("umulh %a0, %a1, %v0", a, b);
-	#elif CRYPTOPP_BOOL_X64
+	#elif defined(__x86_64__)
 		#define MultiplyWords(p, a, b)	asm ("mulq %3" : "=a"(p##0), "=d"(p##1) : "a"(a), "g"(b) : "cc");
 		#define MulAcc(c, d, a, b)		asm ("mulq %6; addq %3, %0; adcq %4, %1; adcq $0, %2;" : "+r"(c), "+r"(d##0), "+r"(d##1), "=a"(p0), "=d"(p1) : "a"(a), "g"(b) : "cc");
 		#define Double3Words(c, d)		asm ("addq %0, %0; adcq %1, %1; adcq %2, %2;" : "+r"(c), "+r"(d##0), "+r"(d##1) : : "cc");
