@@ -30,9 +30,9 @@ extern CRYPTOPP_DLL bool g_hasMMX;
 extern CRYPTOPP_DLL bool g_hasSSSE3;
 extern CRYPTOPP_DLL bool g_isP4;
 extern CRYPTOPP_DLL word32 g_cacheLineSize;
-CRYPTOPP_DLL void DetectX86Features();
+CRYPTOPP_DLL void CRYPTOPP_API DetectX86Features();
 
-CRYPTOPP_DLL bool CpuId(word32 input, word32 *output);
+CRYPTOPP_DLL bool CRYPTOPP_API CpuId(word32 input, word32 *output);
 
 #if CRYPTOPP_BOOL_X64
 inline bool HasSSE2()	{return true;}
