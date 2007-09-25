@@ -1,66 +1,86 @@
 Crypto++: a C++ Class Library of Cryptographic Schemes
-Version 5.5.1 5/24/2007
+Version 5.5.2 (9/24/2007)
 
-This library includes:
+Crypto++ Library is a free C++ class library of cryptographic schemes.
+Currently the library contains the following algorithms:
 
-- a class hierarchy with an API defined by abstract base classes
-- AES (Rijndael) and AES candidates: RC6, MARS, Twofish, Serpent,
-  CAST-256
-- other symmetric block ciphers: IDEA, DES, Triple-DES (DES-EDE2
-  and DES-EDE3), DESX (DES-XEX3), RC2, RC5, Blowfish, Diamond2,
-  TEA, SAFER, 3-WAY, GOST, SHARK, CAST-128, Square, Skipjack,
-  Camellia, SHACAL-2
-- generic cipher modes: ECB, CBC, CBC ciphertext stealing (CTS),
-  CFB, OFB, counter mode (CTR)
-- stream ciphers: Panama, ARC4, SEAL, WAKE, WAKE-OFB, Salsa20
-  BlumBlumShub
-- public key cryptography: RSA, DSA, ElGamal, Nyberg-Rueppel
-  (NR), Rabin, Rabin-Williams (RW), LUC, LUCELG, DLIES (variants
-  of DHAES), ESIGN
-- padding schemes for public-key systems: PKCS#1 v2.0, OAEP,
-  PSSR, IEEE P1363 EMSA2
-- key agreement schemes: Diffie-Hellman (DH), Unified Diffie-
-  Hellman (DH2), Menezes-Qu-Vanstone (MQV), LUCDIF, XTR-DH
-- elliptic curve cryptography: ECDSA, ECNR, ECIES, ECDH, ECMQV
-- one-way hash functions: SHA-1, MD2, MD4, MD5, RIPEMD-128,
-  RIPEMD-256, RIPEMD-160, RIPEMD-320, Tiger, SHA-2 (SHA-224,
-  SHA-256, SHA-384, and SHA-512), Panama, Whirlpool
-- message authentication codes: HMAC, CBC-MAC, DMAC, VMAC
-  Two-Track-MAC
-- cipher constructions based on hash functions: Luby-Rackoff, MDC
-- pseudo random number generators (PRNG): ANSI X9.17 appendix C,
-  PGP's RandPool
-- password based key derivation functions: PBKDF1 and PBKDF2 from
-  PKCS #5
-- Shamir's secret sharing scheme and Rabin's information
-  dispersal algorithm (IDA)
-- DEFLATE (RFC 1951) compression/decompression with gzip (RFC
-  1952) and zlib (RFC 1950) format support
-- fast multi-precision integer (bignum) and polynomial
-  operations, with SSE2 optimizations for Pentium 4 processors
-- finite field arithmetics, including GF(p) and GF(2^n)
-- prime number generation and verification
-- various miscellaneous modules such as base 64 coding and 32-bit
-  CRC
-- class wrappers for these operating system features (optional):
-	- high resolution timers on Windows, Unix, and MacOS
-	- Berkeley and Windows style sockets
-	- Windows named pipes
-	- /dev/random and /dev/urandom on Linux and FreeBSD
-	- Microsoft's CryptGenRandom on Windows
-- A high level interface for most of the above, using a
-  filter/pipeline metaphor
-- benchmarks and validation testing
-- FIPS 140-2 Validated
+                   algorithm type  name
+
+        high speed stream ciphers  Panama, Salsa20, Sosemanuk
+
+           AES and AES candidates  AES (Rijndael), RC6, MARS, Twofish, Serpent,
+                                   CAST-256
+
+                                   IDEA, Triple-DES (DES-EDE2 and DES-EDE3),
+              other block ciphers  Camellia, RC5, Blowfish, TEA, XTEA,
+                                   Skipjack, SHACAL-2
+
+  block cipher modes of operation  ECB, CBC, CBC ciphertext stealing (CTS),
+                                   CFB, OFB, counter mode (CTR)
+
+     message authentication codes  VMAC, HMAC, CBC-MAC, DMAC, Two-Track-MAC
+
+                                   SHA-1, SHA-2 (SHA-224, SHA-256, SHA-384, and
+                   hash functions  SHA-512), Tiger, WHIRLPOOL, RIPEMD-128,
+                                   RIPEMD-256, RIPEMD-160, RIPEMD-320
+
+                                   RSA, DSA, ElGamal, Nyberg-Rueppel (NR),
+          public-key cryptography  Rabin, Rabin-Williams (RW), LUC, LUCELG,
+                                   DLIES (variants of DHAES), ESIGN
+
+   padding schemes for public-key  PKCS#1 v2.0, OAEP, PSS, PSSR, IEEE P1363
+                          systems  EMSA2 and EMSA5
+
+                                   Diffie-Hellman (DH), Unified Diffie-Hellman
+            key agreement schemes  (DH2), Menezes-Qu-Vanstone (MQV), LUCDIF,
+                                   XTR-DH
+
+      elliptic curve cryptography  ECDSA, ECNR, ECIES, ECDH, ECMQV
+
+          insecure or obsolescent  MD2, MD4, MD5, Panama Hash, DES, ARC4, SEAL
+algorithms retained for backwards  3.0, WAKE, WAKE-OFB, DESX (DES-XEX3), RC2,
+     compatibility and historical  SAFER, 3-WAY, GOST, SHARK, CAST-128, Square
+                            value
+
+Other features include:
+
+  * pseudo random number generators (PRNG): ANSI X9.17 appendix C, RandomPool
+  * password based key derivation functions: PBKDF1 and PBKDF2 from PKCS #5,
+    PBKDF from PKCS #12 appendix B
+  * Shamir's secret sharing scheme and Rabin's information dispersal algorithm
+    (IDA)
+  * fast multi-precision integer (bignum) and polynomial operations
+  * finite field arithmetics, including GF(p) and GF(2^n)
+  * prime number generation and verification
+  * useful non-cryptographic algorithms
+      + DEFLATE (RFC 1951) compression/decompression with gzip (RFC 1952) and
+        zlib (RFC 1950) format support
+      + hex, base-32, and base-64 coding/decoding
+      + 32-bit CRC and Adler32 checksum
+  * class wrappers for these operating system features (optional):
+      + high resolution timers on Windows, Unix, and Mac OS
+      + Berkeley and Windows style sockets
+      + Windows named pipes
+      + /dev/random, /dev/urandom, /dev/srandom
+      + Microsoft's CryptGenRandom on Windows
+  * A high level interface for most of the above, using a filter/pipeline
+    metaphor
+  * benchmarks and validation testing
+  * x86, x86-64 (x64), MMX, and SSE2 assembly code for the most commonly used
+    algorithms, with run-time CPU feature detection and code selection
+  * some versions are available in FIPS 140-2 validated form
 
 You are welcome to use it for any purpose without paying me, but see
 License.txt for the fine print.
 
-This version of Crypto++ has been compiled successfully with MSVC 6.0 SP5
-and .NET 2005 SP1 on Windows XP SP2, GCC 3.4.4 on FreeBSD 6.1, GCC 4.1.2 on
-Linux 2.6, GCC 3.4.4 on Cygwin 1.5.21, GCC 4.0.1 on MacOS X 10.4.7, and
-Borland C++Builder 2006. For an update to date list of supported compilers
-and operating systems, please visit http://www.cryptopp.com.
+The following compilers are supported for this release. Please visit
+http://www.cryptopp.com the most up to date build instructions and porting notes.
+
+  * MSVC 6.0 - 2008
+  * GCC 3.3 - 4.2
+  * Borland C++Builder 2006 - 2007
+  * Intel C++ Compiler 9.1 - 10.0
+  * Sun Studio 11 - 12 (CC 5.8 - 5.9)
 
 *** Important Usage Notes ***
 
@@ -352,7 +372,7 @@ the mailing list.
 5.2.3 - fixed issues with FIPS algorithm test vectors
       - put RSASSA-ISO into DLL
 
-5.3 - ported to MSVC .NET 2005 with support for x86-64
+5.3 - ported to MSVC 2005 with support for x86-64
     - added defense against AES timing attacks, and more AES test vectors
     - changed StaticAlgorithmName() of Rijndael to "AES", CTR to "CTR"
 
@@ -376,7 +396,19 @@ the mailing list.
     - fixed PANAMA cipher interface to accept 256-bit key and 256-bit IV
     - moved MD2, MD4, MD5, PanamaHash, ARC4, WAKE_CFB into the namespace "Weak"
     - removed HAVAL, MD5-MAC, XMAC
-    
+
 5.5.1 - fixed VMAC validation failure on 32-bit big-endian machines
-    
+
+5.5.2 - ported x64 assembly language code for AES, Salsa20, Sosemanuk, and Panama
+        to MSVC 2005 (using MASM since MSVC doesn't support inline assembly on x64)
+      - fixed Salsa20 initialization crash on non-SSE2 machines
+      - fixed Whirlpool crash on Pentium 2 machines
+      - fixed possible branch prediction analysis (BPA) vulnerability in
+        MontgomeryReduce(), which may affect security of RSA, RW, LUC
+      - fixed link error with MSVC 2003 when using "debug DLL" form of runtime library
+      - fixed crash in SSE2_Add on P4 machines when compiled with 
+        MSVC 6.0 SP5 with Processor Pack
+      - added support for newly released compilers: MSVC 2008, GCC 4.2, Sun CC 5.9,
+        Intel C++ Compiler 10.0, and Borland C++Builder 2007
+
 Written by Wei Dai
