@@ -485,7 +485,10 @@ template<> inline word32 rotrMod<word32>(word32 x, unsigned int y)
 	return _lrotr(x, y);
 }
 
-#if _MSC_VER >= 1300
+#endif // #ifdef _MSC_VER
+
+#if _MSC_VER >= 1300 && !defined(__INTEL_COMPILER)
+// Intel C++ Compiler 10.0 calls a function instead of using the rotate instruction when using these instructions
 
 template<> inline word64 rotlFixed<word64>(word64 x, unsigned int y)
 {
@@ -524,6 +527,7 @@ template<> inline word64 rotrMod<word64>(word64 x, unsigned int y)
 #endif // #if _MSC_VER >= 1310
 
 #if _MSC_VER >= 1400 && !defined(__INTEL_COMPILER)
+// Intel C++ Compiler 10.0 gives undefined externals with these
 
 template<> inline word16 rotlFixed<word16>(word16 x, unsigned int y)
 {
@@ -594,8 +598,6 @@ template<> inline byte rotrMod<byte>(byte x, unsigned int y)
 }
 
 #endif // #if _MSC_VER >= 1400
-
-#endif // #ifdef _MSC_VER
 
 #if (defined(__MWERKS__) && TARGET_CPU_PPC)
 
