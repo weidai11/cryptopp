@@ -1492,6 +1492,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="1"
 						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -1501,6 +1502,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="1"
 						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
+						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -1511,6 +1513,7 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
+						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -1521,6 +1524,7 @@
 						Optimization="0"
 						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;$(NoInherit)"
 						BasicRuntimeChecks="3"
+						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
 			</File>
@@ -2384,7 +2388,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64masm.obj&quot; /Zi $(InputPath)"
+						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64masm.obj&quot; /Zi $(InputPath)&#x0D;&#x0A;"
 						Outputs="$(IntDir)\x64masm.obj"
 					/>
 				</FileConfiguration>
@@ -2393,7 +2397,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64masm.obj&quot; /Zi $(InputPath)"
+						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64masm.obj&quot; /Zi $(InputPath)&#x0D;&#x0A;"
 						Outputs="$(IntDir)\x64masm.obj"
 					/>
 				</FileConfiguration>
