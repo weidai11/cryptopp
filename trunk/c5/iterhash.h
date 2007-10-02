@@ -93,14 +93,6 @@ protected:
 	FixedSizeSecBlock<T_HashWordType, T_BlockSize/sizeof(T_HashWordType)> m_state;
 };
 
-NAMESPACE_END
-
-#ifdef CRYPTOPP_MANUALLY_INSTANTIATE_TEMPLATES
-#include "iterhash.cpp"
-#endif
-
-NAMESPACE_BEGIN(CryptoPP)
-
 #ifdef WORD64_AVAILABLE
 CRYPTOPP_DLL_TEMPLATE_CLASS IteratedHashBase<word64, HashTransformation>;
 CRYPTOPP_STATIC_TEMPLATE_CLASS IteratedHashBase<word64, MessageAuthenticationCode>;

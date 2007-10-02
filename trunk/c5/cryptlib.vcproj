@@ -4255,6 +4255,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						PreprocessorDefinitions=""
+						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4263,6 +4264,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						PreprocessorDefinitions=""
+						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4272,6 +4274,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						PreprocessorDefinitions=""
+						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4281,6 +4284,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						PreprocessorDefinitions=""
+						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4290,6 +4294,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						PreprocessorDefinitions=""
+						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4299,6 +4304,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						PreprocessorDefinitions=""
+						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4308,6 +4314,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						PreprocessorDefinitions=""
+						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4317,6 +4324,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						PreprocessorDefinitions=""
+						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
 			</File>
