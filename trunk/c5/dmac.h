@@ -73,6 +73,8 @@ void DMAC_Base<T>::TruncatedFinal(byte *mac, size_t size)
 	m_mac1.Update(pad, padByte);
 	m_mac1.TruncatedFinal(mac, size);
 	m_f2.ProcessBlock(mac);
+
+	m_counter = 0;	// reset for next message
 }
 
 template <class T>
