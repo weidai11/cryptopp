@@ -265,7 +265,11 @@ void SHA512::InitState(HashWordType *state)
 	memcpy(state, s, sizeof(s));
 }
 
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && CRYPTOPP_BOOL_X86
 CRYPTOPP_ALIGN_DATA(16) static const word64 SHA512_K[80] CRYPTOPP_SECTION_ALIGN16 = {
+#else
+static const word64 SHA512_K[80] = {
+#endif
 	W64LIT(0x428a2f98d728ae22), W64LIT(0x7137449123ef65cd),
 	W64LIT(0xb5c0fbcfec4d3b2f), W64LIT(0xe9b5dba58189dbbc),
 	W64LIT(0x3956c25bf348b538), W64LIT(0x59f111f1b605d019),
