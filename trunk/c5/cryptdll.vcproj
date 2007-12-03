@@ -2388,7 +2388,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64masm.obj&quot; /Zi $(InputPath)&#x0D;&#x0A;"
+						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64masm.obj&quot; /Zi &quot;$(InputPath)&quot;"
 						Outputs="$(IntDir)\x64masm.obj"
 					/>
 				</FileConfiguration>
@@ -2397,7 +2397,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64masm.obj&quot; /Zi $(InputPath)&#x0D;&#x0A;"
+						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64masm.obj&quot; /Zi &quot;$(InputPath)&quot;"
 						Outputs="$(IntDir)\x64masm.obj"
 					/>
 				</FileConfiguration>
