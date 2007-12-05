@@ -11,9 +11,13 @@
 		// VC2005 workaround: disable declarations that conflict with winnt.h
 		#define _interlockedbittestandset CRYPTOPP_DISABLED_INTRINSIC_1
 		#define _interlockedbittestandreset CRYPTOPP_DISABLED_INTRINSIC_2
+		#define _interlockedbittestandset64 CRYPTOPP_DISABLED_INTRINSIC_3
+		#define _interlockedbittestandreset64 CRYPTOPP_DISABLED_INTRINSIC_4
 		#include <intrin.h>
 		#undef _interlockedbittestandset
 		#undef _interlockedbittestandreset
+		#undef _interlockedbittestandset64
+		#undef _interlockedbittestandreset64
 		#define CRYPTOPP_FAST_ROTATE(x) 1
 	#elif _MSC_VER >= 1300
 		#define CRYPTOPP_FAST_ROTATE(x) ((x) == 32 | (x) == 64)
