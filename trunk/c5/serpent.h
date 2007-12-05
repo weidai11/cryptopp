@@ -10,7 +10,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 //! _
-struct Serpent_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 1, 32>, public FixedRounds<32>
+struct Serpent_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 0, 32>, public FixedRounds<32>
 {
 	static const char *StaticAlgorithmName() {return "Serpent";}
 };
