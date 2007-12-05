@@ -42,6 +42,23 @@ public:
 	unsigned int IVSize() const {return BlockSize();}
 	virtual IV_Requirement IVRequirement() const =0;
 
+	void SetCipher(BlockCipher &cipher)
+	{
+		this->ThrowIfResynchronizable();
+		this->m_cipher = &cipher;
+		this->ResizeBuffers();
+	}
+
+	void SetCipherWithIV(BlockCipher &cipher, const byte *iv, int feedbackSize = 0)
+	{
+		this->ThrowIfInvalidIV(iv);
+		this->m_cipher = &cipher;
+		this->ResizeBuffers();
+		this->SetFeedbackSize(feedbackSize);
+		if (this->IsResynchronizable())
+			this->Resynchronize(iv);
+	}
+
 protected:
 	inline unsigned int BlockSize() const {assert(m_register.size() > 0); return (unsigned int)m_register.size();}
 	virtual void SetFeedbackSize(unsigned int feedbackSize)
@@ -295,28 +312,9 @@ public:
 	CipherModeFinalTemplate_ExternalCipher(BlockCipher &cipher, const byte *iv, int feedbackSize = 0)
 		{SetCipherWithIV(cipher, iv, feedbackSize);}
 
-	void SetCipher(BlockCipher &cipher);
-	void SetCipherWithIV(BlockCipher &cipher, const byte *iv, int feedbackSize = 0);
+	std::string AlgorithmName() const
+		{return m_cipher->AlgorithmName() + "/" + BASE::StaticAlgorithmName();}
 };
-
-template <class BASE>
-void CipherModeFinalTemplate_ExternalCipher<BASE>::SetCipher(BlockCipher &cipher)
-{
-	this->ThrowIfResynchronizable();
-	this->m_cipher = &cipher;
-	this->ResizeBuffers();
-}
-
-template <class BASE>
-void CipherModeFinalTemplate_ExternalCipher<BASE>::SetCipherWithIV(BlockCipher &cipher, const byte *iv, int feedbackSize)
-{
-	this->ThrowIfInvalidIV(iv);
-	this->m_cipher = &cipher;
-	this->ResizeBuffers();
-	this->SetFeedbackSize(feedbackSize);
-	if (this->IsResynchronizable())
-		this->Resynchronize(iv);
-}
 
 CRYPTOPP_DLL_TEMPLATE_CLASS CFB_CipherTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, CFB_ModePolicy> >;
 CRYPTOPP_DLL_TEMPLATE_CLASS CFB_EncryptionTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, CFB_ModePolicy> >;
