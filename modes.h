@@ -140,7 +140,7 @@ inline void CopyOrZero(void *dest, const void *src, size_t s)
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE OFB_ModePolicy : public ModePolicyCommonTemplate<AdditiveCipherAbstractPolicy>
 {
 public:
-	bool IsRandomAccess() const {return false;}
+	bool CipherIsRandomAccess() const {return false;}
 	IV_Requirement IVRequirement() const {return UNIQUE_IV;}
 	static const char * CRYPTOPP_API StaticAlgorithmName() {return "OFB";}
 
@@ -162,7 +162,7 @@ private:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CTR_ModePolicy : public ModePolicyCommonTemplate<AdditiveCipherAbstractPolicy>
 {
 public:
-	bool IsRandomAccess() const {return true;}
+	bool CipherIsRandomAccess() const {return true;}
 	IV_Requirement IVRequirement() const {return UNIQUE_IV;}
 	static const char * CRYPTOPP_API StaticAlgorithmName() {return "CTR";}
 
