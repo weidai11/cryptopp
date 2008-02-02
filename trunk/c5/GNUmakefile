@@ -104,6 +104,9 @@ DLLTESTOBJS = dlltest.dllonly.o
 
 all: cryptest.exe
 
+test: cryptest.exe
+	./cryptest.exe v
+
 clean:
 	$(RM) cryptest.exe libcryptopp.a $(LIBOBJS) $(TESTOBJS) cryptopp.dll libcryptopp.dll.a libcryptopp.import.a cryptest.import.exe dlltest.exe $(DLLOBJS) $(LIBIMPORTOBJS) $(TESTIMPORTOBJS) $(DLLTESTOBJS)
 
