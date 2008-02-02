@@ -19,7 +19,7 @@ protected:
 	void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length);
 	void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount);
 	void CipherResynchronize(byte *keystreamBuffer, const byte *IV);
-	bool IsRandomAccess() const {return true;}
+	bool CipherIsRandomAccess() const {return true;}
 	void SeekToIteration(lword iterationCount);
 
 private:

@@ -44,7 +44,7 @@ protected:
 	void Iterate(byte *output, const byte *input, CipherDir dir, size_t iterationCount);
 	// OFB
 	void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount);
-	bool IsRandomAccess() const {return false;}
+	bool CipherIsRandomAccess() const {return false;}
 };
 
 namespace Weak {

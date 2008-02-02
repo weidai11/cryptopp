@@ -18,7 +18,7 @@ protected:
 	void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length);
 	void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount);
 	void CipherResynchronize(byte *keystreamBuffer, const byte *iv);
-	bool IsRandomAccess() const {return false;}
+	bool CipherIsRandomAccess() const {return false;}
 #if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X64
 	unsigned int GetAlignment() const;
 	unsigned int GetOptimalBlockSize() const;
