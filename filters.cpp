@@ -715,9 +715,9 @@ void HashFilter::IsolatedInitialize(const NameValuePairs &parameters)
 size_t HashFilter::Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
 {
 	FILTER_BEGIN;
-	m_hashModule.Update(inString, length);
 	if (m_putMessage)
 		FILTER_OUTPUT(1, inString, length, 0);
+	m_hashModule.Update(inString, length);
 	if (messageEnd)
 	{
 		{
