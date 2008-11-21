@@ -308,12 +308,12 @@ class CipherModeFinalTemplate_ExternalCipher : public BASE
 public:
 	CipherModeFinalTemplate_ExternalCipher() {}
 	CipherModeFinalTemplate_ExternalCipher(BlockCipher &cipher)
-		{SetCipher(cipher);}
+		{this->SetCipher(cipher);}
 	CipherModeFinalTemplate_ExternalCipher(BlockCipher &cipher, const byte *iv, int feedbackSize = 0)
-		{SetCipherWithIV(cipher, iv, feedbackSize);}
+		{this->SetCipherWithIV(cipher, iv, feedbackSize);}
 
 	std::string AlgorithmName() const
-		{return m_cipher->AlgorithmName() + "/" + BASE::StaticAlgorithmName();}
+		{return this->m_cipher->AlgorithmName() + "/" + BASE::StaticAlgorithmName();}
 };
 
 CRYPTOPP_DLL_TEMPLATE_CLASS CFB_CipherTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, CFB_ModePolicy> >;

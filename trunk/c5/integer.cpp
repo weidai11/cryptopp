@@ -547,8 +547,8 @@ int Baseline_Add(size_t N, word *C, const word *A, const word *B)
 	AS2(	mov		%0, 0)
 	AS2(	adc		%0, %0)
 	".att_syntax;"
-	: "=&r" (result)
-	: "c" (N), "r" (C+N), "r" (A+N), "r" (B+N)
+	: "=&r" (result), "+c" (N)
+	: "r" (C+N), "r" (A+N), "r" (B+N)
 	: "memory", "cc"
 	);
 	return (int)result;
@@ -579,8 +579,8 @@ int Baseline_Sub(size_t N, word *C, const word *A, const word *B)
 	AS2(	mov		%0, 0)
 	AS2(	adc		%0, %0)
 	".att_syntax;"
-	: "=&r" (result)
-	: "c" (N), "r" (C+N), "r" (A+N), "r" (B+N)
+	: "=&r" (result), "+c" (N)
+	: "r" (C+N), "r" (A+N), "r" (B+N)
 	: "memory", "cc"
 	);
 	return (int)result;
