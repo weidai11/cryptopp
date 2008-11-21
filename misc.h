@@ -166,6 +166,16 @@ inline void memmove_s(void *dest, size_t sizeInBytes, const void *src, size_t co
 }
 #endif
 
+inline void * memset_z(void *ptr, int value, size_t num)
+{
+// avoid extranous warning on GCC 4.3.2 Ubuntu 8.10
+#if CRYPTOPP_GCC_VERSION >= 30001
+	if (__builtin_constant_p(num) && num==0)
+		return ptr;
+#endif
+	return memset(ptr, value, num);
+}
+
 // can't use std::min or std::max in MSVC60 or Cygwin 1.1.0
 template <class T> inline const T& STDMIN(const T& a, const T& b)
 {
@@ -797,7 +807,7 @@ inline void GetUserKey(ByteOrder order, T *out, size_t outlen, const byte *in, s
 	const size_t U = sizeof(T);
 	assert(inlen <= outlen*U);
 	memcpy(out, in, inlen);
-	memset((byte *)out+inlen, 0, outlen*U-inlen);
+	memset_z((byte *)out+inlen, 0, outlen*U-inlen);
 	ConditionalByteReverse(order, out, out, RoundUpToMultipleOf(inlen, U));
 }
 

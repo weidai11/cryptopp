@@ -130,7 +130,7 @@ public:
 
 	void deallocate(void *p, size_type n)
 	{
-		memset(p, 0, n*sizeof(T));
+		memset_z(p, 0, n*sizeof(T));
 
 		if (T_Align16 && n*sizeof(T) >= 16)
 		{
@@ -288,7 +288,7 @@ public:
 	{
 		m_ptr = m_alloc.allocate(len, NULL);
 		if (t == NULL)
-			memset(m_ptr, 0, len*sizeof(T));
+			memset_z(m_ptr, 0, len*sizeof(T));
 		else
 			memcpy(m_ptr, t, len*sizeof(T));
 	}
