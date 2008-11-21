@@ -68,10 +68,10 @@ public:
 			Base::GeneratePublicKey(rng, privateKey2, publicKey2);
 
 			SecByteBlock agreedValue(this->AgreedValueLength()), agreedValue2(this->AgreedValueLength());
-			this->Agree(agreedValue, privateKey, publicKey2);
-			this->Agree(agreedValue2, privateKey2, publicKey);
+			bool agreed1 = this->Agree(agreedValue, privateKey, publicKey2);
+			bool agreed2 = this->Agree(agreedValue2, privateKey2, publicKey);
 
-			if (agreedValue != agreedValue2)
+			if (!agreed1 || !agreed2 || agreedValue != agreedValue2)
 				throw SelfTestFailure(this->AlgorithmName() + ": pairwise consistency test failed");
 		}
 	}
