@@ -132,6 +132,7 @@ VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWord64,
 {
 	const word64 *nhK = m_nhKey();
 	word64 *polyS = m_polyState();
+	word32 L1KeyLength = m_L1KeyLength;
 
 #ifdef __GNUC__
 	word32 temp;
@@ -142,7 +143,6 @@ VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWord64,
 	".intel_syntax noprefix;"
 #else
 	#if _MSC_VER < 1300 || defined(__INTEL_COMPILER)
-	word32 L1KeyLength = m_L1KeyLength;
 	char isFirstBlock = m_isFirstBlock;
 	AS2(	mov		ebx, [L1KeyLength])
 	AS2(	mov		dl, [isFirstBlock])
@@ -362,7 +362,7 @@ VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWord64,
 	".att_syntax prefix;"
 	AS2(	mov	%0, %%ebx)
 		: "=m" (temp)
-		: "m" (m_L1KeyLength), "c" (blocksRemainingInWord64), "S" (data), "D" (nhK+tagPart*2), "d" (m_isFirstBlock), "a" (polyS+tagPart*4)
+		: "m" (L1KeyLength), "c" (blocksRemainingInWord64), "S" (data), "D" (nhK+tagPart*2), "d" (m_isFirstBlock), "a" (polyS+tagPart*4)
 		: "memory", "cc"
 	);
 #endif
