@@ -214,6 +214,7 @@ inline void HuffmanEncoder::Encode(LowFirstBitWriter &writer, value_t value) con
 
 Deflator::Deflator(BufferedTransformation *attachment, int deflateLevel, int log2WindowSize, bool detectUncompressible)
 	: LowFirstBitWriter(attachment)
+	, m_deflateLevel(-1)
 {
 	InitializeStaticEncoders();
 	IsolatedInitialize(MakeParameters("DeflateLevel", deflateLevel)("Log2WindowSize", log2WindowSize)("DetectUncompressible", detectUncompressible));
