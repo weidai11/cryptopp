@@ -43,6 +43,8 @@ class DL_FixedBasePrecomputationImpl : public DL_FixedBasePrecomputation<T>
 public:
 	typedef T Element;
 
+	DL_FixedBasePrecomputationImpl() : m_windowSize(0) {}
+
 	// DL_FixedBasePrecomputation
 	bool IsInitialized() const
 		{return !m_bases.empty();}
