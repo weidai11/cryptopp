@@ -1,4 +1,4 @@
-CXXFLAGS = -DNDEBUG -g -O2
+CXXFLAGS = -DNDEBUG -g -O2 -fPIC
 # the following options reduce code size, but breaks link or makes link very slow on some systems
 # CXXFLAGS += -ffunction-sections -fdata-sections
 # LDFLAGS += -Wl,--gc-sections
