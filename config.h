@@ -123,6 +123,10 @@ typedef unsigned int word32;
 	const lword LWORD_MAX = 0xffffffffUL;
 #endif
 
+#ifdef __GNUC__
+	#define CRYPTOPP_GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
+#endif
+
 // define hword, word, and dword. these are used for multiprecision integer arithmetic
 // Intel compiler won't have _umul128 until version 10.0. See http://softwarecommunity.intel.com/isn/Community/en-US/forums/thread/30231625.aspx
 #if (defined(_MSC_VER) && (!defined(__INTEL_COMPILER) || __INTEL_COMPILER >= 1000) && (defined(_M_X64) || defined(_M_IA64))) || (defined(__DECCXX) && defined(__alpha__)) || (defined(__INTEL_COMPILER) && defined(__x86_64__))
@@ -131,7 +135,8 @@ typedef unsigned int word32;
 #else
 	#define CRYPTOPP_NATIVE_DWORD_AVAILABLE
 	#if defined(__alpha__) || defined(__ia64__) || defined(_ARCH_PPC64) || defined(__x86_64__) || defined(__mips64) || defined(__sparc64__)
-		#if defined(__GNUC__) && !defined(__INTEL_COMPILER)
+		#if defined(__GNUC__) && !defined(__INTEL_COMPILER) && !(CRYPTOPP_GCC_VERSION == 40001 && defined(__APPLE__))
+			// GCC 4.0.1 on MacOS X is missing __umodti3 and __udivti3
 			typedef word32 hword;
 			typedef word64 word;
 			typedef __uint128_t dword;
@@ -179,10 +184,6 @@ NAMESPACE_END
 	#else
 		#define CRYPTOPP_MSVC6_NO_PP			// VC 6 without processor pack
 	#endif
-#endif
-
-#ifdef __GNUC__
-	#define CRYPTOPP_GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
 #endif
 
 #ifndef CRYPTOPP_ALIGN_DATA
