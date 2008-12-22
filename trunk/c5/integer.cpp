@@ -101,7 +101,7 @@ static word AtomicInverseModPower2(word A)
 
 // ********************************************************
 
-#if !defined(CRYPTOPP_NATIVE_DWORD_AVAILABLE) || defined(__x86_64__)
+#if !defined(CRYPTOPP_NATIVE_DWORD_AVAILABLE) || (defined(__x86_64__) && defined(CRYPTOPP_WORD128_AVAILABLE))
 	#define Declare2Words(x)			word x##0, x##1;
 	#define AssignWord(a, b)			a##0 = b; a##1 = 0;
 	#define Add2WordsBy1(a, b, c)		a##0 = b##0 + c; a##1 = b##1 + (a##0 < c);
