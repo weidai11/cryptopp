@@ -24,6 +24,15 @@ Test: Verify
 Message: r170 "abc" "ab"
 Digest: 9DA310281E6FD0A0
 Test: Verify
+Message: r65 "a"
+Digest: 90 ea 57 cb 51 bc 92 a3
+Test: Verify
+Message: r129 "a"
+Digest: 86 34 83 87 d1 3d 82 33
+Test: Verify
+Message: r65 "abc"
+Digest: E86A86EC77A8BF61
+Test: Verify
 Message: "abc"
 Digest: 2D376CF5B1813CE0
 Test: NotVerify
@@ -53,6 +62,15 @@ Digest: F7E95FE3DA8DB9E6BB973E65D0B4CEA5
 Test: Verify
 Message: r170 "abc" "ab"
 Digest: BF53B8D2D70C05A85880C2E21CAF1299
+Test: Verify
+Message: r65 "a"
+Digest: b2 9b 00 76 0a 58 c7 ab 92 d6 60 24 d6 9c 1b 92
+Test: Verify
+Message: r129 "a"
+Digest: a7 e5 2c 32 89 d9 b7 3b 53 57 6f 05 95 85 ee 79
+Test: Verify
+Message: r65 "abc"
+Digest: 0A1B2F973044F469F405917E45010334
 Test: Verify
 Message: "abc"
 Digest: 4EE815A06A1D71EDD36FC75D51188A40

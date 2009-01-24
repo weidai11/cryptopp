@@ -472,20 +472,18 @@ void VMAC_Base::VHASH_Update_Template(const word64 *data, size_t blocksRemaining
 		DeclareNH(nhA);
 		DeclareNH(nhB);
 
+		i = 0;
 		if (blocksRemainingInWord64 < L1KeyLengthInWord64)
 		{
 			if (blocksRemainingInWord64 % 8)
 			{
 				innerLoopEnd = blocksRemainingInWord64 % 8;
-				for (i=0; i<innerLoopEnd; i+=2)
+				for (; i<innerLoopEnd; i+=2)
 					INNER_LOOP_ITERATION(0);
-				blocksRemainingInWord64 -= innerLoopEnd;
-				data += innerLoopEnd;
 			}
 			innerLoopEnd = blocksRemainingInWord64;
 		}
-
-		for (i=0; i<innerLoopEnd; i+=8)
+		for (; i<innerLoopEnd; i+=8)
 		{
 			INNER_LOOP_ITERATION(0);
 			INNER_LOOP_ITERATION(1);
