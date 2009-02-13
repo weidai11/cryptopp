@@ -23,7 +23,8 @@ bool AlgorithmParametersBase::GetVoidValue(const char *name, const std::type_inf
 	if (strcmp(name, "ValueNames") == 0)
 	{
 		ThrowIfTypeMismatch(name, typeid(std::string), valueType);
-		GetParent().GetVoidValue(name, valueType, pValue);
+		if (m_next.get())
+		    m_next->GetVoidValue(name, valueType, pValue);
 		(*reinterpret_cast<std::string *>(pValue) += m_name) += ";";
 		return true;
 	}
@@ -33,8 +34,15 @@ bool AlgorithmParametersBase::GetVoidValue(const char *name, const std::type_inf
 		m_used = true;
 		return true;
 	}
+	else if (m_next.get())
+		return m_next->GetVoidValue(name, valueType, pValue);
 	else
-		return GetParent().GetVoidValue(name, valueType, pValue);
+	    return false;
+}
+
+bool AlgorithmParameters::GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
+{
+	return m_ptr->GetVoidValue(name, valueType, pValue);
 }
 
 NAMESPACE_END

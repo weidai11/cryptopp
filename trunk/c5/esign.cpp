@@ -94,7 +94,7 @@ void InvertibleESIGNFunction::GenerateRandom(RandomNumberGenerator &rng, const N
 
 	const Integer minP = Integer(204) << (modulusSize/3-8);
 	const Integer maxP = Integer::Power2(modulusSize/3)-1;
-	const NameValuePairs &primeParam = MakeParameters("Min", minP)("Max", maxP)("RandomNumberType", Integer::PRIME);
+	AlgorithmParameters primeParam = MakeParameters("Min", minP)("Max", maxP)("RandomNumberType", Integer::PRIME);
 
 	if (param.GetValue("Seed", seedParam))
 	{

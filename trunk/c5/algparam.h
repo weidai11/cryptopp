@@ -276,21 +276,23 @@ public:
 	}
 
 	bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const;
-
+	
 protected:
+	friend class AlgorithmParameters;
+
 	virtual void AssignValue(const char *name, const std::type_info &valueType, void *pValue) const =0;
-	virtual const NameValuePairs & GetParent() const =0;
 
 	const char *m_name;
 	bool m_throwIfNotUsed;
 	mutable bool m_used;
+	member_ptr<NameValuePairs> m_next;
 };
 
 template <class T>
-class AlgorithmParametersBase2 : public AlgorithmParametersBase
+class AlgorithmParametersTemplate : public AlgorithmParametersBase
 {
 public:
-	AlgorithmParametersBase2(const char *name, const T &value, bool throwIfNotUsed) : AlgorithmParametersBase(name, throwIfNotUsed), m_value(value) {}
+	AlgorithmParametersTemplate(const char *name, const T &value, bool throwIfNotUsed) : AlgorithmParametersBase(name, throwIfNotUsed), m_value(value) {}
 
 	void AssignValue(const char *name, const std::type_info &valueType, void *pValue) const
 	{
@@ -306,35 +308,35 @@ protected:
 	T m_value;
 };
 
-template <class PARENT, class T>
-class AlgorithmParameters : public AlgorithmParametersBase2<T>
+class AlgorithmParameters : public NameValuePairs
 {
 public:
-	AlgorithmParameters(const PARENT &parent, const char *name, const T &value, bool throwIfNotUsed)
-		: AlgorithmParametersBase2<T>(name, value, throwIfNotUsed), m_parent(parent)
-	{}
-
-	AlgorithmParameters(const AlgorithmParameters &copy)
-		: AlgorithmParametersBase2<T>(copy), m_parent(copy.m_parent)
+    AlgorithmParameters(AlgorithmParameters &x) : m_ptr(x.m_ptr.release()) {}
+    
+    AlgorithmParameters(AlgorithmParametersBase *p) : m_ptr(p) {}
+	    
+    template <class T>
+    AlgorithmParameters & operator()(const char *name, const T &value, bool throwIfNotUsed)
 	{
-		copy.m_used = true;
+		member_ptr<AlgorithmParametersBase> p(new AlgorithmParametersTemplate<T>(name, value, throwIfNotUsed));
+		p->m_next.reset(m_ptr.release());
+		m_ptr.reset(p.release());
+		return *this;
 	}
 
-	template <class R>
-	AlgorithmParameters<AlgorithmParameters<PARENT,T>, R> operator()(const char *name, const R &value) const
+    template <class T>
+    AlgorithmParameters & operator()(const char *name, const T &value)
 	{
-		return AlgorithmParameters<AlgorithmParameters<PARENT,T>, R>(*this, name, value, this->m_throwIfNotUsed);
+		member_ptr<AlgorithmParametersBase> p(new AlgorithmParametersTemplate<T>(name, value, m_ptr->m_throwIfNotUsed));
+		p->m_next.reset(m_ptr.release());
+		m_ptr.reset(p.release());
+		return *this;
 	}
 
-	template <class R>
-	AlgorithmParameters<AlgorithmParameters<PARENT,T>, R> operator()(const char *name, const R &value, bool throwIfNotUsed) const
-	{
-		return AlgorithmParameters<AlgorithmParameters<PARENT,T>, R>(*this, name, value, throwIfNotUsed);
-	}
-
-private:
-	const NameValuePairs & GetParent() const {return m_parent;}
-	PARENT m_parent;
+    bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const;
+	
+protected:
+    member_ptr<AlgorithmParametersBase> m_ptr;
 };
 
 //! Create an object that implements NameValuePairs for passing parameters
@@ -343,12 +345,12 @@ private:
 	such as MSVC 7.0 and earlier.
 	\note A NameValuePairs object containing an arbitrary number of name value pairs may be constructed by
 	repeatedly using operator() on the object returned by MakeParameters, for example:
-	const NameValuePairs &parameters = MakeParameters(name1, value1)(name2, value2)(name3, value3);
+	AlgorithmParameters parameters = MakeParameters(name1, value1)(name2, value2)(name3, value3);
 */
 template <class T>
-AlgorithmParameters<NullNameValuePairs,T> MakeParameters(const char *name, const T &value, bool throwIfNotUsed = true)
+AlgorithmParameters MakeParameters(const char *name, const T &value, bool throwIfNotUsed = true)
 {
-	return AlgorithmParameters<NullNameValuePairs,T>(g_nullNameValuePairs, name, value, throwIfNotUsed);
+	return AlgorithmParameters(new AlgorithmParametersTemplate<T>(name, value, throwIfNotUsed));
 }
 
 #define CRYPTOPP_GET_FUNCTION_ENTRY(name)		(Name::name(), &ThisClass::Get##name)

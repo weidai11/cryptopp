@@ -108,20 +108,26 @@ static word AtomicInverseModPower2(word A)
 	#define LowWord(a)					a##0
 	#define HighWord(a)					a##1
 	#ifdef _MSC_VER
-		#define MultiplyWords(p, a, b)	p##0 = _umul128(a, b, &p##1);
+		#define MultiplyWordsLoHi(p0, p1, a, b)		p0 = _umul128(a, b, &p1);
 		#ifndef __INTEL_COMPILER
 			#define Double3Words(c, d)		d##1 = __shiftleft128(d##0, d##1, 1); d##0 = __shiftleft128(c, d##0, 1); c *= 2;
 		#endif
 	#elif defined(__DECCXX)
-		#define MultiplyWords(p, a, b)	p##0 = a*b; p##1 = asm("umulh %a0, %a1, %v0", a, b);
+		#define MultiplyWordsLoHi(p0, p1, a, b)		p0 = a*b; p1 = asm("umulh %a0, %a1, %v0", a, b);
 	#elif defined(__x86_64__)
-		#define MultiplyWords(p, a, b)	asm ("mulq %3" : "=a"(p##0), "=d"(p##1) : "a"(a), "g"(b) : "cc");
-		#define MulAcc(c, d, a, b)		asm ("mulq %6; addq %3, %0; adcq %4, %1; adcq $0, %2;" : "+r"(c), "+r"(d##0), "+r"(d##1), "=a"(p0), "=d"(p1) : "a"(a), "g"(b) : "cc");
-		#define Double3Words(c, d)		asm ("addq %0, %0; adcq %1, %1; adcq %2, %2;" : "+r"(c), "+r"(d##0), "+r"(d##1) : : "cc");
-		#define Acc2WordsBy1(a, b)		asm ("addq %2, %0; adcq $0, %1;" : "+r"(a##0), "+r"(a##1) : "r"(b) : "cc");
-		#define Acc2WordsBy2(a, b)		asm ("addq %2, %0; adcq %3, %1;" : "+r"(a##0), "+r"(a##1) : "r"(b##0), "r"(b##1) : "cc");
-		#define Acc3WordsBy2(c, d, e)	asm ("addq %5, %0; adcq %6, %1; adcq $0, %2;" : "+r"(c), "=r"(e##0), "=r"(e##1) : "1"(d##0), "2"(d##1), "r"(e##0), "r"(e##1) : "cc");
+		#ifdef __SUNPRO_CC
+			// Sun Studio's gcc-style inline assembly is heavily bugged as of version 5.9 Patch 124864-09 2008/12/16, but this one works
+			#define MultiplyWordsLoHi(p0, p1, a, b)		asm ("mulq %3" : "=a"(p0), "=d"(p1) : "a"(a), "r"(b) : "cc");
+		#else
+			#define MultiplyWordsLoHi(p0, p1, a, b)		asm ("mulq %3" : "=a"(p0), "=d"(p1) : "a"(a), "g"(b) : "cc");
+			#define MulAcc(c, d, a, b)		asm ("mulq %6; addq %3, %0; adcq %4, %1; adcq $0, %2;" : "+r"(c), "+r"(d##0), "+r"(d##1), "=a"(p0), "=d"(p1) : "a"(a), "g"(b) : "cc");
+			#define Double3Words(c, d)		asm ("addq %0, %0; adcq %1, %1; adcq %2, %2;" : "+r"(c), "+r"(d##0), "+r"(d##1) : : "cc");
+			#define Acc2WordsBy1(a, b)		asm ("addq %2, %0; adcq $0, %1;" : "+r"(a##0), "+r"(a##1) : "r"(b) : "cc");
+			#define Acc2WordsBy2(a, b)		asm ("addq %2, %0; adcq %3, %1;" : "+r"(a##0), "+r"(a##1) : "r"(b##0), "r"(b##1) : "cc");
+			#define Acc3WordsBy2(c, d, e)	asm ("addq %5, %0; adcq %6, %1; adcq $0, %2;" : "+r"(c), "=r"(e##0), "=r"(e##1) : "1"(d##0), "2"(d##1), "r"(e##0), "r"(e##1) : "cc");
+		#endif
 	#endif
+	#define MultiplyWords(p, a, b)		MultiplyWordsLoHi(p##0, p##1, a, b)
 	#ifndef Double3Words
 		#define Double3Words(c, d)		d##1 = 2*d##1 + (d##0>>(WORD_BITS-1)); d##0 = 2*d##0 + (c>>(WORD_BITS-1)); c *= 2;
 	#endif
@@ -189,10 +195,8 @@ public:
 		DWord r;
 		#ifdef CRYPTOPP_NATIVE_DWORD_AVAILABLE
 			r.m_whole = (dword)a * b;
-		#elif defined(__x86_64__)
-			asm ("mulq %3" : "=a"(r.m_halfs.low), "=d"(r.m_halfs.high) : "a"(a), "g"(b) : "cc");
-		#else
-			r.m_halfs.low = _umul128(a, b, &r.m_halfs.high);
+		#elif defined(MultiplyWordsLoHi)
+			MultiplyWordsLoHi(r.m_halfs.low, r.m_halfs.high, a, b);
 		#endif
 		return r;
 	}

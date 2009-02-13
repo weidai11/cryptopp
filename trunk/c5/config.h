@@ -104,14 +104,13 @@ NAMESPACE_BEGIN(CryptoPP)
 typedef unsigned short word16;
 typedef unsigned int word32;
 
-#if defined(__GNUC__) || defined(__MWERKS__) || defined(__SUNPRO_CC)
-	#define WORD64_AVAILABLE
-	typedef unsigned long long word64;
-	#define W64LIT(x) x##LL
-#elif defined(_MSC_VER) || defined(__BORLANDC__)
-	#define WORD64_AVAILABLE
+#define WORD64_AVAILABLE
+#if defined(_MSC_VER) || defined(__BORLANDC__)
 	typedef unsigned __int64 word64;
 	#define W64LIT(x) x##ui64
+#else
+	typedef unsigned long long word64;
+	#define W64LIT(x) x##ULL
 #endif
 
 // define large word type, used for file offsets and such
@@ -129,7 +128,7 @@ typedef unsigned int word32;
 
 // define hword, word, and dword. these are used for multiprecision integer arithmetic
 // Intel compiler won't have _umul128 until version 10.0. See http://softwarecommunity.intel.com/isn/Community/en-US/forums/thread/30231625.aspx
-#if (defined(_MSC_VER) && (!defined(__INTEL_COMPILER) || __INTEL_COMPILER >= 1000) && (defined(_M_X64) || defined(_M_IA64))) || (defined(__DECCXX) && defined(__alpha__)) || (defined(__INTEL_COMPILER) && defined(__x86_64__))
+#if (defined(_MSC_VER) && (!defined(__INTEL_COMPILER) || __INTEL_COMPILER >= 1000) && (defined(_M_X64) || defined(_M_IA64))) || (defined(__DECCXX) && defined(__alpha__)) || (defined(__INTEL_COMPILER) && defined(__x86_64__)) || (defined(__SUNPRO_CC) && defined(__x86_64__))
 	typedef word32 hword;
 	typedef word64 word;
 #else
@@ -189,7 +188,7 @@ NAMESPACE_END
 #ifndef CRYPTOPP_ALIGN_DATA
 	#if defined(CRYPTOPP_MSVC6PP_OR_LATER)
 		#define CRYPTOPP_ALIGN_DATA(x) __declspec(align(x))
-	#elif defined(__GNUC__) || __SUNPRO_CC > 0x580
+	#elif defined(__GNUC__) || __SUNPRO_CC > 0x590
 		#define CRYPTOPP_ALIGN_DATA(x) __attribute__((aligned(x)))
 	#else
 		#define CRYPTOPP_ALIGN_DATA(x)
@@ -341,7 +340,7 @@ NAMESPACE_END
 	#define CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
 #endif
 
-#define CRYPTOPP_VERSION 552
+#define CRYPTOPP_VERSION 553
 
 // ***************** determine availability of OS features ********************
 

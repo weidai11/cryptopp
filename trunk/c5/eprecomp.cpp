@@ -2,9 +2,6 @@
 
 #include "pch.h"
 
-// prevent Sun's CC compiler from including this file automatically
-#if !defined(__SUNPRO_CC) || defined(CRYPTOPP_MANUALLY_INSTANTIATE_TEMPLATES)
-
 #ifndef CRYPTOPP_IMPORTS
 
 #include "eprecomp.h"
@@ -111,7 +108,5 @@ template <class T> T
 }
 
 NAMESPACE_END
-
-#endif
 
 #endif
