@@ -93,7 +93,7 @@ void InvertibleRWFunction::GenerateRandom(RandomNumberGenerator &rng, const Name
 	if (modulusSize < 16)
 		throw InvalidArgument("InvertibleRWFunction: specified modulus length is too small");
 
-	const NameValuePairs &primeParam = MakeParametersForTwoPrimesOfEqualSize(modulusSize);
+	AlgorithmParameters primeParam = MakeParametersForTwoPrimesOfEqualSize(modulusSize);
 	m_p.GenerateRandom(rng, CombinedNameValuePairs(primeParam, MakeParameters("EquivalentTo", 3)("Mod", 8)));
 	m_q.GenerateRandom(rng, CombinedNameValuePairs(primeParam, MakeParameters("EquivalentTo", 7)("Mod", 8)));
 

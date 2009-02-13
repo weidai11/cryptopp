@@ -118,7 +118,7 @@ void InvertibleLUCFunction::GenerateRandom(RandomNumberGenerator &rng, const Nam
 		throw InvalidArgument("InvertibleLUCFunction: invalid public exponent");
 
 	LUCPrimeSelector selector(m_e);
-	const NameValuePairs &primeParam = MakeParametersForTwoPrimesOfEqualSize(modulusSize)
+	AlgorithmParameters primeParam = MakeParametersForTwoPrimesOfEqualSize(modulusSize)
 		("PointerToPrimeSelector", selector.GetSelectorPointer());
 	m_p.GenerateRandom(rng, primeParam);
 	m_q.GenerateRandom(rng, primeParam);

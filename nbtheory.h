@@ -56,8 +56,7 @@ CRYPTOPP_DLL bool CRYPTOPP_API FirstPrime(Integer &p, const Integer &max, const 
 
 CRYPTOPP_DLL unsigned int CRYPTOPP_API PrimeSearchInterval(const Integer &max);
 
-CRYPTOPP_DLL AlgorithmParameters<AlgorithmParameters<AlgorithmParameters<NullNameValuePairs, Integer::RandomNumberType>, Integer>, Integer>
-	CRYPTOPP_API MakeParametersForTwoPrimesOfEqualSize(unsigned int productBitLength);
+CRYPTOPP_DLL AlgorithmParameters CRYPTOPP_API MakeParametersForTwoPrimesOfEqualSize(unsigned int productBitLength);
 
 // ********** other number theoretic functions ************
 

@@ -262,8 +262,7 @@ static inline bool FastProbablePrimeTest(const Integer &n)
 	return IsStrongProbablePrime(n,2);
 }
 
-AlgorithmParameters<AlgorithmParameters<AlgorithmParameters<NullNameValuePairs, Integer::RandomNumberType>, Integer>, Integer>
-	MakeParametersForTwoPrimesOfEqualSize(unsigned int productBitLength)
+AlgorithmParameters MakeParametersForTwoPrimesOfEqualSize(unsigned int productBitLength)
 {
 	if (productBitLength < 16)
 		throw InvalidArgument("invalid bit length");

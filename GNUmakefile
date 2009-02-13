@@ -1,4 +1,5 @@
 CXXFLAGS = -DNDEBUG -g -O2
+#CXXFLAGS = -g
 # -fPIC is supported. Please report any breakage of -fPIC as a bug.
 # CXXFLAGS += -fPIC
 # the following options reduce code size, but breaks link or makes link very slow on some systems
@@ -79,7 +80,7 @@ endif
 ifeq ($(UNAME),SunOS)
 LDLIBS += -lnsl -lsocket
 ifeq ($(CXX),CC)	# override flags for CC (Solaris native C++ compiler)
-CXXFLAGS = -DNDEBUG -O -g -native
+CXXFLAGS = -DNDEBUG -O -g0 -native -template=no%extdef -m$(shell isainfo -b)
 LDFLAGS =
 ifeq ($(ISX86),1)
 # SSE2 intrinsics should work in Sun Studio 12, but we're not using SSE2 intrinsics anymore

@@ -84,7 +84,7 @@ void InvertibleRabinFunction::GenerateRandom(RandomNumberGenerator &rng, const N
 	bool rFound=false, sFound=false;
 	Integer t=2;
 
-	const NameValuePairs &primeParam = MakeParametersForTwoPrimesOfEqualSize(modulusSize)
+	AlgorithmParameters primeParam = MakeParametersForTwoPrimesOfEqualSize(modulusSize)
 		("EquivalentTo", 3)("Mod", 4);
 	m_p.GenerateRandom(rng, primeParam);
 	m_q.GenerateRandom(rng, primeParam);
