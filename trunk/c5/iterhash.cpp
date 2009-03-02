@@ -25,13 +25,13 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte
 
 	if (num != 0)	// process left over data
 	{
-		if ((num+len) >= blockSize)
+		if (num+len >= blockSize)
 		{
 			memcpy(data+num, input, blockSize-num);
 			HashBlock(dataBuf);
 			input += (blockSize-num);
-			len-=(blockSize - num);
-			num=0;
+			len -= (blockSize-num);
+			num = 0;
 			// drop through and do the rest
 		}
 		else
@@ -145,10 +145,8 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::TruncatedFinal(by
 }
 
 #ifdef __GNUC__
-	#ifdef WORD64_AVAILABLE
 	template class IteratedHashBase<word64, HashTransformation>;
 	template class IteratedHashBase<word64, MessageAuthenticationCode>;
-	#endif
 
 	template class IteratedHashBase<word32, HashTransformation>;
 	template class IteratedHashBase<word32, MessageAuthenticationCode>;

@@ -22,7 +22,7 @@ bool AlgorithmParametersBase::GetVoidValue(const char *name, const std::type_inf
 {
 	if (strcmp(name, "ValueNames") == 0)
 	{
-		ThrowIfTypeMismatch(name, typeid(std::string), valueType);
+		NameValuePairs::ThrowIfTypeMismatch(name, typeid(std::string), valueType);
 		if (m_next.get())
 		    m_next->GetVoidValue(name, valueType, pValue);
 		(*reinterpret_cast<std::string *>(pValue) += m_name) += ";";
@@ -40,9 +40,53 @@ bool AlgorithmParametersBase::GetVoidValue(const char *name, const std::type_inf
 	    return false;
 }
 
+AlgorithmParameters::AlgorithmParameters()
+	: m_constructed(false), m_defaultThrowIfNotUsed(true)
+{
+	new(m_first) member_ptr<AlgorithmParametersBase>;
+}
+
+AlgorithmParameters::AlgorithmParameters(const AlgorithmParameters &x)
+	: m_constructed(false), m_defaultThrowIfNotUsed(x.m_defaultThrowIfNotUsed)
+{
+	if (x.m_constructed)
+	{
+		x.First().MoveInto(m_first);
+		m_constructed = true;
+	}
+	else
+		new(m_first) member_ptr<AlgorithmParametersBase>(x.Next().release());
+}
+
+AlgorithmParameters::~AlgorithmParameters()
+{
+	if (m_constructed)
+		First().~AlgorithmParametersBase();
+	else
+		Next().~member_ptr<AlgorithmParametersBase>();
+}
+
 bool AlgorithmParameters::GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
 {
-	return m_ptr->GetVoidValue(name, valueType, pValue);
+	if (m_constructed)
+		return First().GetVoidValue(name, valueType, pValue);
+	else if (Next().get())
+		return Next()->GetVoidValue(name, valueType, pValue);
+	else
+		return false;
+}
+
+AlgorithmParametersBase & AlgorithmParameters::First()
+{
+	return *reinterpret_cast<AlgorithmParametersBase *>(m_first);
+}
+
+member_ptr<AlgorithmParametersBase> & AlgorithmParameters::Next()
+{
+	if (m_constructed)
+		return First().m_next;
+	else
+		return *reinterpret_cast<member_ptr<AlgorithmParametersBase> *>(m_first);
 }
 
 NAMESPACE_END

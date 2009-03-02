@@ -1,8 +1,6 @@
 #include "pch.h"
 #include "shark.h"
 
-#ifdef WORD64_AVAILABLE
-
 NAMESPACE_BEGIN(CryptoPP)
 
 const byte SHARK::Enc::sbox[256] = {
@@ -4162,5 +4160,3 @@ W64LIT(0xfb2043685f73ab5f),
 };
 
 NAMESPACE_END
-
-#endif // WORD64_AVAILABLE

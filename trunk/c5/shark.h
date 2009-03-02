@@ -5,9 +5,6 @@
 */
 
 #include "config.h"
-
-#ifdef WORD64_AVAILABLE
-
 #include "seckey.h"
 #include "secblock.h"
 
@@ -65,5 +62,4 @@ typedef SHARK::Decryption SHARKDecryption;
 
 NAMESPACE_END
 
-#endif
 #endif

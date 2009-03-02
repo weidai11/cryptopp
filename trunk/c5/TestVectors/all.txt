@@ -22,3 +22,6 @@ Test: aes.txt
 Test: salsa.txt
 Test: vmac.txt
 Test: sosemanuk.txt
+Test: ccm.txt
+Test: gcm.txt
+Test: cmac.txt

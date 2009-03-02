@@ -64,9 +64,6 @@
  */
 
 #include "pch.h"
-
-#ifdef WORD64_AVAILABLE
-
 #include "whrlpool.h"
 #include "misc.h"
 #include "cpu.h"
@@ -706,5 +703,3 @@ void Whirlpool::Transform(word64 *digest, const word64 *block)
 }
 
 NAMESPACE_END
-
-#endif // WORD64_AVAILABLE

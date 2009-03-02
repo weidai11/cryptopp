@@ -6,23 +6,14 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#define CRYPTOPP_BLOCK_1(n, t, s) t* m_##n() {return (t *)(m_aggregate+0);}     size_t SS1() {return       sizeof(t)*(s);} size_t m_##n##Size() {return (s);}
-#define CRYPTOPP_BLOCK_2(n, t, s) t* m_##n() {return (t *)(m_aggregate+SS1());} size_t SS2() {return SS1()+sizeof(t)*(s);} size_t m_##n##Size() {return (s);}
-#define CRYPTOPP_BLOCK_3(n, t, s) t* m_##n() {return (t *)(m_aggregate+SS2());} size_t SS3() {return SS2()+sizeof(t)*(s);} size_t m_##n##Size() {return (s);}
-#define CRYPTOPP_BLOCK_4(n, t, s) t* m_##n() {return (t *)(m_aggregate+SS3());} size_t SS4() {return SS3()+sizeof(t)*(s);} size_t m_##n##Size() {return (s);}
-#define CRYPTOPP_BLOCK_5(n, t, s) t* m_##n() {return (t *)(m_aggregate+SS4());} size_t SS5() {return SS4()+sizeof(t)*(s);} size_t m_##n##Size() {return (s);}
-#define CRYPTOPP_BLOCK_6(n, t, s) t* m_##n() {return (t *)(m_aggregate+SS5());} size_t SS6() {return SS5()+sizeof(t)*(s);} size_t m_##n##Size() {return (s);}
-#define CRYPTOPP_BLOCK_7(n, t, s) t* m_##n() {return (t *)(m_aggregate+SS6());} size_t SS7() {return SS6()+sizeof(t)*(s);} size_t m_##n##Size() {return (s);}
-#define CRYPTOPP_BLOCK_8(n, t, s) t* m_##n() {return (t *)(m_aggregate+SS7());} size_t SS8() {return SS7()+sizeof(t)*(s);} size_t m_##n##Size() {return (s);}
-#define CRYPTOPP_BLOCKS_END(i) size_t SST() {return SS##i();} void AllocateBlocks() {m_aggregate.New(SST());} AlignedSecByteBlock m_aggregate;
-
 /// .
 class VMAC_Base : public IteratedHashBase<word64, MessageAuthenticationCode>
 {
 public:
 	std::string AlgorithmName() const {return std::string("VMAC(") + GetCipher().AlgorithmName() + ")-" + IntToString(DigestSize()*8);}
 	unsigned int IVSize() const {return GetCipher().BlockSize();}
-	void Resynchronize(const byte *IV);
+	unsigned int MinIVLength() const {return 1;}
+	void Resynchronize(const byte *nonce, int length=-1);
 	void GetNextIV(RandomNumberGenerator &rng, byte *IV);
 	unsigned int DigestSize() const {return m_is128 ? 16 : 8;};
 	void UncheckedSetKey(const byte *userKey, unsigned int keylength, const NameValuePairs &params);

@@ -18,7 +18,7 @@ class CRYPTOPP_NO_VTABLE Salsa20_Policy : public AdditiveCipherConcretePolicy<wo
 protected:
 	void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length);
 	void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount);
-	void CipherResynchronize(byte *keystreamBuffer, const byte *IV);
+	void CipherResynchronize(byte *keystreamBuffer, const byte *IV, size_t length);
 	bool CipherIsRandomAccess() const {return true;}
 	void SeekToIteration(lword iterationCount);
 #if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X64

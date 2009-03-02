@@ -1,5 +1,5 @@
 Crypto++: a C++ Class Library of Cryptographic Schemes
-Version 5.5.2 (9/24/2007)
+Version 5.6 (in progress)
 
 Crypto++ Library is a free C++ class library of cryptographic schemes.
 Currently the library contains the following algorithms:
@@ -13,12 +13,13 @@ Currently the library contains the following algorithms:
 
                                    IDEA, Triple-DES (DES-EDE2 and DES-EDE3),
               other block ciphers  Camellia, RC5, Blowfish, TEA, XTEA,
-                                   Skipjack, SHACAL-2
+                                   Skipjack, SHACAL-2, SEED
 
   block cipher modes of operation  ECB, CBC, CBC ciphertext stealing (CTS),
-                                   CFB, OFB, counter mode (CTR)
+                                   CFB, OFB, counter mode (CTR), GCM, CCM
 
-     message authentication codes  VMAC, HMAC, CBC-MAC, DMAC, Two-Track-MAC
+     message authentication codes  VMAC, HMAC, GMAC, CBC-MAC, CMAC, DMAC, 
+                                   Two-Track-MAC
 
                                    SHA-1, SHA-2 (SHA-224, SHA-256, SHA-384, and
                    hash functions  SHA-512), Tiger, WHIRLPOOL, RIPEMD-128,
@@ -410,5 +411,16 @@ the mailing list.
         MSVC 6.0 SP5 with Processor Pack
       - added support for newly released compilers: MSVC 2008, GCC 4.2, Sun CC 5.9,
         Intel C++ Compiler 10.0, and Borland C++Builder 2007
+
+5.6 - added AuthenticatedSymmetricCipher interface class and Filter wrappers
+    - added CCM, GCM (with SSE2 assembly), CMAC, and SEED
+    - improved AES speed on x86 and x64
+    - fixed run-time validation error on x86-64 with GCC 4.3.2 -O2
+    - fixed HashFilter bug when putMessage=true
+    - fixed warnings with GCC 4.3
+    - fixed compiler error in vmac.cpp on x86 with GCC -fPIC
+    - fixed incorrect VMAC computation on message lengths 
+      that are >64 mod 128 (x86 assembly version is not affected)
+    - removed WORD64_AVAILABLE; compiler 64-bit int support is now required
 
 Written by Wei Dai

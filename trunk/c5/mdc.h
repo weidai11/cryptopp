@@ -50,7 +50,7 @@ class MDC : public MDC_Info<T>
 
 		bool IsPermutation() const {return false;}
 
-		unsigned int GetAlignment() const {return sizeof(HashWordType);}
+		unsigned int OptimalDataAlignment() const {return sizeof(HashWordType);}
 
 	private:
 		HashWordType *Key() {return (HashWordType *)m_key.data();}

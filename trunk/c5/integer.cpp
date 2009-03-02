@@ -3285,7 +3285,7 @@ bool Integer::GenerateRandomNoThrow(RandomNumberGenerator &i_rng, const NameValu
 
 	member_ptr<KDF2_RNG> kdf2Rng;
 	ConstByteArrayParameter seed;
-	if (params.GetValue("Seed", seed))
+	if (params.GetValue(Name::Seed(), seed))
 	{
 		ByteQueue bq;
 		DERSequenceEncoder seq(bq);
@@ -3717,7 +3717,7 @@ void PositiveDivide(Integer &remainder, Integer &quotient,
 	if (!bSize)
 		throw Integer::DivideByZero();
 
-	if (a.PositiveCompare(b) == -1)
+	if (aSize < bSize)
 	{
 		remainder = a;
 		remainder.sign = Integer::POSITIVE;
@@ -3965,8 +3965,8 @@ Integer Integer::InverseMod(const Integer &m) const
 {
 	assert(m.NotNegative());
 
-	if (IsNegative() || *this>=m)
-		return (*this%m).InverseMod(m);
+	if (IsNegative())
+		return Modulo(m).InverseMod(m);
 
 	if (m.IsEven())
 	{
@@ -3975,7 +3975,7 @@ Integer Integer::InverseMod(const Integer &m) const
 		if (*this == One())
 			return One();
 
-		Integer u = m.InverseMod(*this);
+		Integer u = m.Modulo(*this).InverseMod(*this);
 		return !u ? Zero() : (m*(*this-u)+1)/(*this);
 	}
 

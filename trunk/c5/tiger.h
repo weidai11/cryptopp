@@ -2,9 +2,6 @@
 #define CRYPTOPP_TIGER_H
 
 #include "config.h"
-
-#ifdef WORD64_AVAILABLE
-
 #include "iterhash.h"
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -23,7 +20,5 @@ protected:
 };
 
 NAMESPACE_END
-
-#endif
 
 #endif

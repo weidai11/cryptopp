@@ -243,8 +243,6 @@ void SHA256_Transform(word32 *state, const word32 *data)
 
 // *************************************************************
 
-#ifdef WORD64_AVAILABLE
-
 void SHA384::InitState(HashWordType *state)
 {
 	static const word64 s[8] = {
@@ -549,8 +547,6 @@ void SHA512::Transform(word64 *state, const word64 *data)
     state[6] += g(0);
     state[7] += h(0);
 }
-
-#endif
 
 NAMESPACE_END
 

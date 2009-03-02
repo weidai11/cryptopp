@@ -569,11 +569,6 @@ Integer CRT(const Integer &xp, const Integer &p, const Integer &xq, const Intege
 */
 }
 
-Integer CRT(const Integer &xp, const Integer &p, const Integer &xq, const Integer &q)
-{
-	return CRT(xp, p, xq, q, EuclideanMultiplicativeInverse(p, q));
-}
-
 Integer ModularSquareRoot(const Integer &a, const Integer &p)
 {
 	if (p%4 == 3)
@@ -1019,11 +1014,6 @@ Integer InverseLucas(const Integer &e, const Integer &m, const Integer &p, const
 			}
 		}
 	return CRT(p2, p, q2, q, u);
-}
-
-Integer InverseLucas(const Integer &e, const Integer &m, const Integer &p, const Integer &q)
-{
-	return InverseLucas(e, m, p, q, EuclideanMultiplicativeInverse(p, q));
 }
 
 unsigned int FactoringWorkFactor(unsigned int n)

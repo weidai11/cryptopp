@@ -1,9 +1,6 @@
 // shark.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
-
-#ifdef WORD64_AVAILABLE
-
 #include "shark.h"
 #include "misc.h"
 #include "modes.h"
@@ -137,5 +134,3 @@ void SHARK::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
 }
 
 NAMESPACE_END
-
-#endif // WORD64_AVAILABLE

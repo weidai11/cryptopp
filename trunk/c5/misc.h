@@ -298,6 +298,8 @@ inline size_t BitsToDwords(size_t bitCount)
 CRYPTOPP_DLL void CRYPTOPP_API xorbuf(byte *buf, const byte *mask, size_t count);
 CRYPTOPP_DLL void CRYPTOPP_API xorbuf(byte *output, const byte *input, const byte *mask, size_t count);
 
+CRYPTOPP_DLL bool CRYPTOPP_API VerifyBufsEqual(const byte *buf1, const byte *buf2, size_t count);
+
 template <class T>
 inline bool IsPowerOf2(const T &n)
 {
@@ -331,16 +333,16 @@ inline T1 RoundUpToMultipleOf(const T1 &n, const T2 &m)
 template <class T>
 inline unsigned int GetAlignmentOf(T *dummy=NULL)	// VC60 workaround
 {
-#if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X86
+#ifdef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
 	if (sizeof(T) < 16)
-		return 1;			// alignment not needed on x86 and x64
+		return 1;
 #endif
 
 #if (_MSC_VER >= 1300)
 	return __alignof(T);
 #elif defined(__GNUC__)
 	return __alignof__(T);
-#elif defined(CRYPTOPP_SLOW_WORD64)
+#elif CRYPTOPP_BOOL_SLOW_WORD64
 	return UnsignedMin(4U, sizeof(T));
 #else
 	return sizeof(T);
@@ -699,7 +701,6 @@ inline word32 ByteReverse(word32 value)
 #endif
 }
 
-#ifdef WORD64_AVAILABLE
 inline word64 ByteReverse(word64 value)
 {
 #if defined(__GNUC__) && defined(CRYPTOPP_X86_ASM_AVAILABLE) && defined(__x86_64__)
@@ -709,7 +710,7 @@ inline word64 ByteReverse(word64 value)
 	return bswap_64(value);
 #elif defined(_MSC_VER) && _MSC_VER >= 1300
 	return _byteswap_uint64(value);
-#elif defined(CRYPTOPP_SLOW_WORD64)
+#elif CRYPTOPP_BOOL_SLOW_WORD64
 	return (word64(ByteReverse(word32(value))) << 32) | ByteReverse(word32(value>>32));
 #else
 	value = ((value & W64LIT(0xFF00FF00FF00FF00)) >> 8) | ((value & W64LIT(0x00FF00FF00FF00FF)) << 8);
@@ -717,7 +718,6 @@ inline word64 ByteReverse(word64 value)
 	return rotlFixed(value, 32U);
 #endif
 }
-#endif
 
 inline byte BitReverse(byte value)
 {
@@ -742,10 +742,9 @@ inline word32 BitReverse(word32 value)
 	return ByteReverse(value);
 }
 
-#ifdef WORD64_AVAILABLE
 inline word64 BitReverse(word64 value)
 {
-#ifdef CRYPTOPP_SLOW_WORD64
+#if CRYPTOPP_BOOL_SLOW_WORD64
 	return (word64(BitReverse(word32(value))) << 32) | BitReverse(word32(value>>32));
 #else
 	value = ((value & W64LIT(0xAAAAAAAAAAAAAAAA)) >> 1) | ((value & W64LIT(0x5555555555555555)) << 1);
@@ -754,7 +753,6 @@ inline word64 BitReverse(word64 value)
 	return ByteReverse(value);
 #endif
 }
-#endif
 
 template <class T>
 inline T BitReverse(T value)
@@ -767,13 +765,8 @@ inline T BitReverse(T value)
 		return (T)BitReverse((word32)value);
 	else
 	{
-#ifdef WORD64_AVAILABLE
 		assert(sizeof(T) == 8);
 		return (T)BitReverse((word64)value);
-#else
-		assert(false);
-		return 0;
-#endif
 	}
 }
 
@@ -831,7 +824,6 @@ inline word32 UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, co
 		: word32(block[0]) | (word32(block[1]) << 8) | (word32(block[2]) << 16) | (word32(block[3]) << 24);
 }
 
-#ifdef WORD64_AVAILABLE
 inline word64 UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, const word64 *)
 {
 	return (order == BIG_ENDIAN_ORDER)
@@ -854,7 +846,6 @@ inline word64 UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, co
 		(word64(block[6]) << 48) |
 		(word64(block[7]) << 56));
 }
-#endif
 
 inline void UnalignedPutWordNonTemplate(ByteOrder order, byte *block, byte value, const byte *xorBlock)
 {
@@ -929,7 +920,6 @@ inline void UnalignedPutWordNonTemplate(ByteOrder order, byte *block, word32 val
 	}
 }
 
-#ifdef WORD64_AVAILABLE
 inline void UnalignedPutWordNonTemplate(ByteOrder order, byte *block, word64 value, const byte *xorBlock)
 {
 	if (order == BIG_ENDIAN_ORDER)
@@ -983,7 +973,6 @@ inline void UnalignedPutWordNonTemplate(ByteOrder order, byte *block, word64 val
 		}
 	}
 }
-#endif
 #endif	// #ifndef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
 
 template <class T>
@@ -1015,7 +1004,7 @@ inline void PutWord(bool assumeAligned, ByteOrder order, byte *block, T value, c
 	*reinterpret_cast<T *>(block) = ConditionalByteReverse(order, value) ^ (xorBlock ? *reinterpret_cast<const T *>(xorBlock) : 0);
 }
 
-template <class T, class B, bool A=true>
+template <class T, class B, bool A=false>
 class GetBlock
 {
 public:
@@ -1057,7 +1046,7 @@ private:
 	byte *m_block;
 };
 
-template <class T, class B, bool GA=true, bool PA=false>
+template <class T, class B, bool GA=false, bool PA=false>
 struct BlockGetAndPut
 {
 	// function needed because of C++ grammatical ambiguity between expression-statements and declarations
@@ -1127,6 +1116,18 @@ inline T SafeLeftShift(T value)
 {
 	return SafeShifter<(bits>=(8*sizeof(T)))>::LeftShift(value, bits);
 }
+
+// ************** use one buffer for multiple data members ***************
+
+#define CRYPTOPP_BLOCK_1(n, t, s) t* m_##n() {return (t *)(m_aggregate+0);}     size_t SS1() {return       sizeof(t)*(s);} size_t m_##n##Size() {return (s);}
+#define CRYPTOPP_BLOCK_2(n, t, s) t* m_##n() {return (t *)(m_aggregate+SS1());} size_t SS2() {return SS1()+sizeof(t)*(s);} size_t m_##n##Size() {return (s);}
+#define CRYPTOPP_BLOCK_3(n, t, s) t* m_##n() {return (t *)(m_aggregate+SS2());} size_t SS3() {return SS2()+sizeof(t)*(s);} size_t m_##n##Size() {return (s);}
+#define CRYPTOPP_BLOCK_4(n, t, s) t* m_##n() {return (t *)(m_aggregate+SS3());} size_t SS4() {return SS3()+sizeof(t)*(s);} size_t m_##n##Size() {return (s);}
+#define CRYPTOPP_BLOCK_5(n, t, s) t* m_##n() {return (t *)(m_aggregate+SS4());} size_t SS5() {return SS4()+sizeof(t)*(s);} size_t m_##n##Size() {return (s);}
+#define CRYPTOPP_BLOCK_6(n, t, s) t* m_##n() {return (t *)(m_aggregate+SS5());} size_t SS6() {return SS5()+sizeof(t)*(s);} size_t m_##n##Size() {return (s);}
+#define CRYPTOPP_BLOCK_7(n, t, s) t* m_##n() {return (t *)(m_aggregate+SS6());} size_t SS7() {return SS6()+sizeof(t)*(s);} size_t m_##n##Size() {return (s);}
+#define CRYPTOPP_BLOCK_8(n, t, s) t* m_##n() {return (t *)(m_aggregate+SS7());} size_t SS8() {return SS7()+sizeof(t)*(s);} size_t m_##n##Size() {return (s);}
+#define CRYPTOPP_BLOCKS_END(i) size_t SST() {return SS##i();} void AllocateBlocks() {m_aggregate.New(SST());} AlignedSecByteBlock m_aggregate;
 
 NAMESPACE_END
 

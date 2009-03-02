@@ -1,8 +1,6 @@
 #include "pch.h"
 #include "tiger.h"
 
-#ifdef WORD64_AVAILABLE
-
 NAMESPACE_BEGIN(CryptoPP)
 
 const word64 Tiger::table[4*256+3] = 
@@ -525,5 +523,3 @@ const word64 Tiger::table[4*256+3] =
 };
 
 NAMESPACE_END
-
-#endif

@@ -123,6 +123,13 @@ void RegisterSymmetricCipherDefaultFactories(const char *name=NULL, SchemeClass 
 	RegisterDefaultFactoryFor<SymmetricCipher, CPP_TYPENAME SchemeClass::Decryption, DECRYPTION>((const char *)name);
 }
 
+template <class SchemeClass>
+void RegisterAuthenticatedSymmetricCipherDefaultFactories(const char *name=NULL, SchemeClass *dummy=NULL)
+{
+	RegisterDefaultFactoryFor<AuthenticatedSymmetricCipher, CPP_TYPENAME SchemeClass::Encryption, ENCRYPTION>((const char *)name);
+	RegisterDefaultFactoryFor<AuthenticatedSymmetricCipher, CPP_TYPENAME SchemeClass::Decryption, DECRYPTION>((const char *)name);
+}
+
 NAMESPACE_END
 
 #endif

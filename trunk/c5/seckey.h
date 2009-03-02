@@ -206,6 +206,15 @@ struct SymmetricCipherDocumentation
 	typedef SymmetricCipher Decryption;
 };
 
+//! Authenticated encryption modes documentation.
+struct AuthenticatedSymmetricCipherDocumentation : public SymmetricCipherDocumentation
+{
+	//! implements the SymmetricCipher interface
+	typedef AuthenticatedSymmetricCipher Encryption;
+	//! implements the SymmetricCipher interface
+	typedef AuthenticatedSymmetricCipher Decryption;
+};
+
 NAMESPACE_END
 
 #endif

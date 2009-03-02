@@ -102,7 +102,7 @@ DecodingResult PSSR_MEM_Base::RecoverMessageFromRepresentative(
 	size_t &recoverableMessageLength = result.messageLength;
 
 	valid = (representative[representativeByteLength - 1] == (hashIdentifier.second ? 0xcc : 0xbc)) && valid;
-	valid = (memcmp(representative + representativeByteLength - u, hashIdentifier.first, hashIdentifier.second) == 0) && valid;
+	valid = VerifyBufsEqual(representative + representativeByteLength - u, hashIdentifier.first, hashIdentifier.second) && valid;
 
 	GetMGF().GenerateAndMask(hash, representative, representativeByteLength - u - digestSize, h, digestSize);
 	if (representativeBitLength % 8 != 0)

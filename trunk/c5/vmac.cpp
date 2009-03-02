@@ -8,7 +8,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#if defined(_MSC_VER) && !defined(CRYPTOPP_SLOW_WORD64)
+#if defined(_MSC_VER) && !CRYPTOPP_BOOL_SLOW_WORD64
 #include <intrin.h>
 #endif
 
@@ -84,7 +84,9 @@ void VMAC_Base::UncheckedSetKey(const byte *userKey, unsigned int keylength, con
 		} while ((l3Key[i*2+0] >= p64) || (l3Key[i*2+1] >= p64));
 
 	m_padCached = false;
-	Resynchronize(GetIVAndThrowIfInvalid(params));
+	size_t nonceLength;
+	const byte *nonce = GetIVAndThrowIfInvalid(params, nonceLength);
+	Resynchronize(nonce, (int)nonceLength);
 }
 
 void VMAC_Base::GetNextIV(RandomNumberGenerator &rng, byte *IV)
@@ -93,25 +95,35 @@ void VMAC_Base::GetNextIV(RandomNumberGenerator &rng, byte *IV)
 	IV[0] &= 0x7f;
 }
 
-void VMAC_Base::Resynchronize(const byte *IV)
+void VMAC_Base::Resynchronize(const byte *nonce, int len)
 {
-	int s = IVSize();
+	size_t length = ThrowIfInvalidIVLength(len);
+	size_t s = IVSize();
+	byte *storedNonce = m_nonce();
+
 	if (m_is128)
 	{
-		memcpy(m_nonce(), IV, s);
-		AccessCipher().ProcessBlock(m_nonce(), m_pad());
+		memset(storedNonce, 0, s-length);
+		memcpy(storedNonce+s-length, nonce, length);
+		AccessCipher().ProcessBlock(storedNonce, m_pad());
 	}
 	else
 	{
-		m_padCached = m_padCached && (m_nonce()[s-1] | 1) == (IV[s-1] | 1) && memcmp(m_nonce(), IV, s-1) == 0;
+		if (m_padCached && (storedNonce[s-1] | 1) == (nonce[length-1] | 1))
+		{
+			m_padCached = VerifyBufsEqual(storedNonce+s-length, nonce, length-1);
+			for (size_t i=0; m_padCached && i<s-length; i++)
+				m_padCached = (storedNonce[i] == 0);
+		}
 		if (!m_padCached)
 		{
-			memcpy(m_nonce(), IV, s);
-			m_nonce()[s-1] &= 0xfe;
-			AccessCipher().ProcessBlock(m_nonce(), m_pad());
+			memset(storedNonce, 0, s-length);
+			memcpy(storedNonce+s-length, nonce, length-1);
+			storedNonce[s-1] = nonce[length-1] & 0xfe;
+			AccessCipher().ProcessBlock(storedNonce, m_pad());
 			m_padCached = true;
 		}
-		m_nonce()[s-1] = IV[s-1];
+		storedNonce[s-1] = nonce[length-1];
 	}
 	m_isFirstBlock = true;
 	Restart();
@@ -385,7 +397,7 @@ VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWord64,
 		#define MUL64(rh,rl,i1,i2)		asm ("mulq %3" : "=a"(rl), "=d"(rh) : "a"(i1), "g"(i2) : "cc");
 		#define AccumulateNH(a, b, c)	asm ("mulq %3; addq %%rax, %0; adcq %%rdx, %1" : "+r"(a##0), "+r"(a##1) : "a"(b), "g"(c) : "%rdx", "cc");
 		#define ADD128(rh,rl,ih,il)     asm ("addq %3, %1; adcq %2, %0" : "+r"(rh),"+r"(rl) : "r"(ih),"r"(il) : "cc");
-	#elif defined(_MSC_VER) && !defined(CRYPTOPP_SLOW_WORD64)
+	#elif defined(_MSC_VER) && !CRYPTOPP_BOOL_SLOW_WORD64
 		#define DeclareNH(a) word64 a##0=0, a##1=0
 		#define MUL64(rh,rl,i1,i2)   (rl) = _umul128(i1,i2,&(rh));
 		#define AccumulateNH(a, b, c)	{\

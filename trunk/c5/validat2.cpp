@@ -300,6 +300,12 @@ bool ValidateRSA()
 		pass = CryptoSystemValidate(rsaPriv, rsaPub) && pass;
 	}
 	{
+		RSAES<OAEP<SHA> >::Decryptor rsaPriv(GlobalRNG(), 512);
+		RSAES<OAEP<SHA> >::Encryptor rsaPub(rsaPriv);
+
+		pass = CryptoSystemValidate(rsaPriv, rsaPub) && pass;
+	}
+	{
 		byte *plain = (byte *)
 			"\x54\x85\x9b\x34\x2c\x49\xea\x2a";
 		byte *encrypted = (byte *)

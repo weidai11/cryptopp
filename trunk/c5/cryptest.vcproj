@@ -745,7 +745,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\TestVectors\aes.txt"
+				>
+			</File>
+			<File
+				RelativePath=".\TestVectors\all.txt"
+				>
+			</File>
+			<File
 				RelativePath="camellia.dat"
+				>
+			</File>
+			<File
+				RelativePath=".\TestVectors\camellia.txt"
 				>
 			</File>
 			<File
@@ -754,6 +766,14 @@
 			</File>
 			<File
 				RelativePath="cast256v.dat"
+				>
+			</File>
+			<File
+				RelativePath=".\TestVectors\ccm.txt"
+				>
+			</File>
+			<File
+				RelativePath=".\TestVectors\cmac.txt"
 				>
 			</File>
 			<File
@@ -769,7 +789,11 @@
 				>
 			</File>
 			<File
-				RelativePath="diamond.dat"
+				RelativePath=".\TestVectors\dlies.txt"
+				>
+			</File>
+			<File
+				RelativePath=".\TestVectors\dsa.txt"
 				>
 			</File>
 			<File
@@ -782,6 +806,10 @@
 			</File>
 			<File
 				RelativePath="dsa512.dat"
+				>
+			</File>
+			<File
+				RelativePath=".\TestVectors\dsa_1363.txt"
 				>
 			</File>
 			<File
@@ -801,11 +829,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\TestVectors\esign.txt"
+				>
+			</File>
+			<File
+				RelativePath=".\TestVectors\gcm.txt"
+				>
+			</File>
+			<File
 				RelativePath="gostval.dat"
 				>
 			</File>
 			<File
-				RelativePath="havalcer.dat"
+				RelativePath=".\TestVectors\hmac.txt"
 				>
 			</File>
 			<File
@@ -857,11 +893,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\TestVectors\nr.txt"
+				>
+			</File>
+			<File
 				RelativePath="nr1024.dat"
 				>
 			</File>
 			<File
 				RelativePath="nr2048.dat"
+				>
+			</File>
+			<File
+				RelativePath=".\TestVectors\panama.txt"
 				>
 			</File>
 			<File
@@ -882,6 +926,10 @@
 			</File>
 			<File
 				RelativePath="rc6val.dat"
+				>
+			</File>
+			<File
+				RelativePath=".\TestVectors\Readme.txt"
 				>
 			</File>
 			<File
@@ -909,6 +957,22 @@
 				>
 			</File>
 			<File
+				RelativePath=".\TestVectors\rsa_oaep.txt"
+				>
+			</File>
+			<File
+				RelativePath=".\TestVectors\rsa_pkcs1_1_5.txt"
+				>
+			</File>
+			<File
+				RelativePath=".\TestVectors\rsa_pss.txt"
+				>
+			</File>
+			<File
+				RelativePath=".\TestVectors\rw.txt"
+				>
+			</File>
+			<File
 				RelativePath="rw1024.dat"
 				>
 			</File>
@@ -921,7 +985,27 @@
 				>
 			</File>
 			<File
+				RelativePath=".\TestVectors\salsa.txt"
+				>
+			</File>
+			<File
+				RelativePath=".\TestVectors\seal.txt"
+				>
+			</File>
+			<File
+				RelativePath=".\TestVectors\seed.txt"
+				>
+			</File>
+			<File
 				RelativePath="serpentv.dat"
+				>
+			</File>
+			<File
+				RelativePath=".\TestVectors\sha.txt"
+				>
+			</File>
+			<File
+				RelativePath=".\TestVectors\shacal2.txt"
 				>
 			</File>
 			<File
@@ -937,7 +1021,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\TestVectors\sosemanuk.txt"
+				>
+			</File>
+			<File
 				RelativePath="squareva.dat"
+				>
+			</File>
+			<File
+				RelativePath=".\TestVectors\tea.txt"
+				>
+			</File>
+			<File
+				RelativePath=".\TestVectors\ttmac.txt"
 				>
 			</File>
 			<File
@@ -946,6 +1042,14 @@
 			</File>
 			<File
 				RelativePath="usage.dat"
+				>
+			</File>
+			<File
+				RelativePath=".\TestVectors\vmac.txt"
+				>
+			</File>
+			<File
+				RelativePath=".\TestVectors\whrlpool.txt"
 				>
 			</File>
 			<File

@@ -942,7 +942,6 @@ INCLUDE_FILE_PATTERNS  =
 
 PREDEFINED             = _WIN32 \
                          _WINDOWS \
-                         WORD64_AVAILABLE \
                          __FreeBSD__ \
                          CRYPTOPP_DOXYGEN_PROCESSING
 

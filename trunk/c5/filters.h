@@ -190,7 +190,7 @@ protected:
 	virtual void LastPut(const byte *inString, size_t length) =0;
 	virtual void FlushDerived() {}
 
-private:
+protected:
 	size_t PutMaybeModifiable(byte *begin, size_t length, int messageEnd, bool blocking, bool modifiable);
 	void NextPutMaybeModifiable(byte *inString, size_t length, bool modifiable)
 	{
@@ -251,23 +251,29 @@ protected:
 	ByteQueue m_inQueue;
 };
 
+struct BlockPaddingSchemeDef
+{
+	enum BlockPaddingScheme {NO_PADDING, ZEROS_PADDING, PKCS_PADDING, ONE_AND_ZEROS_PADDING, DEFAULT_PADDING};
+};
+
 //! Filter Wrapper for StreamTransformation, optionally handling padding/unpadding when needed
-class CRYPTOPP_DLL StreamTransformationFilter : public FilterWithBufferedInput, private FilterPutSpaceHelper
+class CRYPTOPP_DLL StreamTransformationFilter : public FilterWithBufferedInput, public BlockPaddingSchemeDef, private FilterPutSpaceHelper
 {
 public:
-	enum BlockPaddingScheme {NO_PADDING, ZEROS_PADDING, PKCS_PADDING, ONE_AND_ZEROS_PADDING, DEFAULT_PADDING};
 	/*! DEFAULT_PADDING means PKCS_PADDING if c.MandatoryBlockSize() > 1 && c.MinLastBlockSize() == 0 (e.g. ECB or CBC mode),
 		otherwise NO_PADDING (OFB, CFB, CTR, CBC-CTS modes).
 		See http://www.weidai.com/scan-mirror/csp.html for details of the padding schemes. */
 	StreamTransformationFilter(StreamTransformation &c, BufferedTransformation *attachment = NULL, BlockPaddingScheme padding = DEFAULT_PADDING);
 
+	std::string AlgorithmName() const {return m_cipher.AlgorithmName();}
+
+protected:
+	void InitializeDerivedAndReturnNewSizes(const NameValuePairs &parameters, size_t &firstSize, size_t &blockSize, size_t &lastSize);
 	void FirstPut(const byte *inString);
 	void NextPutMultiple(const byte *inString, size_t length);
 	void NextPutModifiable(byte *inString, size_t length);
 	void LastPut(const byte *inString, size_t length);
-//	byte * CreatePutSpace(size_t &size);
 
-protected:
 	static size_t LastBlockSize(StreamTransformation &c, BlockPaddingScheme padding);
 
 	StreamTransformation &m_cipher;
@@ -283,22 +289,19 @@ typedef StreamTransformationFilter StreamCipherFilter;
 class CRYPTOPP_DLL HashFilter : public Bufferless<Filter>, private FilterPutSpaceHelper
 {
 public:
-	HashFilter(HashTransformation &hm, BufferedTransformation *attachment = NULL, bool putMessage=false, int truncatedDigestSize=-1)
-		: m_hashModule(hm), m_putMessage(putMessage), m_truncatedDigestSize(truncatedDigestSize) {Detach(attachment);}
+	HashFilter(HashTransformation &hm, BufferedTransformation *attachment = NULL, bool putMessage=false, int truncatedDigestSize=-1, const std::string &messagePutChannel=NULL_CHANNEL, const std::string &hashPutChannel=NULL_CHANNEL);
 
 	std::string AlgorithmName() const {return m_hashModule.AlgorithmName();}
-
 	void IsolatedInitialize(const NameValuePairs &parameters);
 	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking);
-
 	byte * CreatePutSpace(size_t &size) {return m_hashModule.CreateUpdateSpace(size);}
 
 private:
 	HashTransformation &m_hashModule;
 	bool m_putMessage;
-	int m_truncatedDigestSize;
-	byte *m_space;
 	unsigned int m_digestSize;
+	byte *m_space;
+	std::string m_messagePutChannel, m_hashPutChannel;
 };
 
 //! Filter Wrapper for HashTransformation
@@ -309,14 +312,13 @@ public:
 	{
 	public:
 		HashVerificationFailed()
-			: Exception(DATA_INTEGRITY_CHECK_FAILED, "HashVerifier: message hash not valid") {}
+			: Exception(DATA_INTEGRITY_CHECK_FAILED, "HashVerificationFilter: message hash or MAC not valid") {}
 	};
 
 	enum Flags {HASH_AT_BEGIN=1, PUT_MESSAGE=2, PUT_HASH=4, PUT_RESULT=8, THROW_EXCEPTION=16, DEFAULT_FLAGS = HASH_AT_BEGIN | PUT_RESULT};
-	HashVerificationFilter(HashTransformation &hm, BufferedTransformation *attachment = NULL, word32 flags = DEFAULT_FLAGS);
+	HashVerificationFilter(HashTransformation &hm, BufferedTransformation *attachment = NULL, word32 flags = DEFAULT_FLAGS, int truncatedDigestSize=-1);
 
 	std::string AlgorithmName() const {return m_hashModule.AlgorithmName();}
-
 	bool GetLastResult() const {return m_verified;}
 
 protected:
@@ -326,16 +328,58 @@ protected:
 	void LastPut(const byte *inString, size_t length);
 
 private:
-	static inline unsigned int FirstSize(word32 flags, HashTransformation &hm) {return flags & HASH_AT_BEGIN ? hm.DigestSize() : 0;}
-	static inline unsigned int LastSize(word32 flags, HashTransformation &hm) {return flags & HASH_AT_BEGIN ? 0 : hm.DigestSize();}
+	friend class AuthenticatedDecryptionFilter;
 
 	HashTransformation &m_hashModule;
 	word32 m_flags;
-	SecByteBlock m_expectedHash;
+	unsigned int m_digestSize;
 	bool m_verified;
+	SecByteBlock m_expectedHash;
 };
 
 typedef HashVerificationFilter HashVerifier;	// for backwards compatibility
+
+//! Filter wrapper for encrypting with AuthenticatedSymmetricCipher, optionally handling padding/unpadding when needed
+/*! Additional authenticated data should be given in channel "AAD". If putMessage is true, AAD will be Put() to the attached BufferedTransformation in channel "AAD". */
+class CRYPTOPP_DLL AuthenticatedEncryptionFilter : public StreamTransformationFilter
+{
+public:
+	/*! See StreamTransformationFilter for documentation on BlockPaddingScheme  */
+	AuthenticatedEncryptionFilter(AuthenticatedSymmetricCipher &c, BufferedTransformation *attachment = NULL, BlockPaddingScheme padding = DEFAULT_PADDING, bool putMessage=false, int truncatedDigestSize=-1, const std::string &macChannel=NULL_CHANNEL);
+
+	void IsolatedInitialize(const NameValuePairs &parameters);
+	byte * ChannelCreatePutSpace(const std::string &channel, size_t &size);
+	size_t ChannelPut2(const std::string &channel, const byte *begin, size_t length, int messageEnd, bool blocking);
+	void LastPut(const byte *inString, size_t length);
+
+protected:
+	HashFilter m_hf;
+};
+
+//! Filter wrapper for decrypting with AuthenticatedSymmetricCipher, optionally handling padding/unpadding when needed
+/*! Additional authenticated data should be given in channel "AAD". */
+class CRYPTOPP_DLL AuthenticatedDecryptionFilter : public FilterWithBufferedInput, public BlockPaddingSchemeDef
+{
+public:
+	enum Flags {MAC_AT_BEGIN=1, THROW_EXCEPTION=16, DEFAULT_FLAGS = THROW_EXCEPTION};
+
+	/*! See StreamTransformationFilter for documentation on BlockPaddingScheme  */
+	AuthenticatedDecryptionFilter(AuthenticatedSymmetricCipher &c, BufferedTransformation *attachment = NULL, BlockPaddingScheme padding = DEFAULT_PADDING, word32 flags = DEFAULT_FLAGS, int truncatedDigestSize=-1);
+
+	std::string AlgorithmName() const {return m_hashVerifier.AlgorithmName();}
+	byte * ChannelCreatePutSpace(const std::string &channel, size_t &size);
+	size_t ChannelPut2(const std::string &channel, const byte *begin, size_t length, int messageEnd, bool blocking);
+	bool GetLastResult() const {return m_hashVerifier.GetLastResult();}
+
+protected:
+	void InitializeDerivedAndReturnNewSizes(const NameValuePairs &parameters, size_t &firstSize, size_t &blockSize, size_t &lastSize);
+	void FirstPut(const byte *inString);
+	void NextPutMultiple(const byte *inString, size_t length);
+	void LastPut(const byte *inString, size_t length);
+
+	HashVerificationFilter m_hashVerifier;
+	StreamTransformationFilter m_streamFilter;
+};
 
 //! Filter Wrapper for PK_Signer
 class CRYPTOPP_DLL SignerFilter : public Unflushable<Filter>

@@ -30,9 +30,9 @@ void Salsa20_Policy::CipherSetKey(const NameValuePairs &params, const byte *key,
 		throw InvalidRounds(StaticAlgorithmName(), m_rounds);
 
 	// m_state is reordered for SSE2
-	GetBlock<word32, LittleEndian, false> get1(key);
+	GetBlock<word32, LittleEndian> get1(key);
 	get1(m_state[13])(m_state[10])(m_state[7])(m_state[4]);
-	GetBlock<word32, LittleEndian, false> get2(key + length - 16);
+	GetBlock<word32, LittleEndian> get2(key + length - 16);
 	get2(m_state[15])(m_state[12])(m_state[9])(m_state[6]);
 
 	// "expand 16-byte k" or "expand 32-byte k"
@@ -42,9 +42,10 @@ void Salsa20_Policy::CipherSetKey(const NameValuePairs &params, const byte *key,
 	m_state[3] = 0x6b206574;
 }
 
-void Salsa20_Policy::CipherResynchronize(byte *keystreamBuffer, const byte *IV)
+void Salsa20_Policy::CipherResynchronize(byte *keystreamBuffer, const byte *IV, size_t length)
 {
-	GetBlock<word32, LittleEndian, false> get(IV);
+	assert(length==8);
+	GetBlock<word32, LittleEndian> get(IV);
 	get(m_state[14])(m_state[11]);
 	m_state[8] = m_state[5] = 0;
 }
@@ -63,7 +64,7 @@ unsigned int Salsa20_Policy::GetAlignment() const
 		return 16;
 	else
 #endif
-		return 1;
+		return GetAlignmentOf<word32>();
 }
 
 unsigned int Salsa20_Policy::GetOptimalBlockSize() const

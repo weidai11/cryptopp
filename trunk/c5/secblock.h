@@ -382,7 +382,7 @@ public:
 
 	bool operator==(const SecBlock<T, A> &t) const
 	{
-		return m_size == t.m_size && memcmp(m_ptr, t.m_ptr, m_size*sizeof(T)) == 0;
+		return m_size == t.m_size && VerifyBufsEqual(m_ptr, t.m_ptr, m_size*sizeof(T));
 	}
 
 	bool operator!=(const SecBlock<T, A> &t) const

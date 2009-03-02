@@ -69,9 +69,7 @@ inline Integer LCM(const Integer &a, const Integer &b)
 inline Integer EuclideanMultiplicativeInverse(const Integer &a, const Integer &b)
 	{return a.InverseMod(b);}
 
-// use Chinese Remainder Theorem to calculate x given x mod p and x mod q
-CRYPTOPP_DLL Integer CRYPTOPP_API CRT(const Integer &xp, const Integer &p, const Integer &xq, const Integer &q);
-// use this one if u = inverse of p mod q has been precalculated
+// use Chinese Remainder Theorem to calculate x given x mod p and x mod q, and u = inverse of p mod q
 CRYPTOPP_DLL Integer CRYPTOPP_API CRT(const Integer &xp, const Integer &p, const Integer &xq, const Integer &q, const Integer &u);
 
 // if b is prime, then Jacobi(a, b) returns 0 if a%b==0, 1 if a is quadratic residue mod b, -1 otherwise
@@ -80,9 +78,7 @@ CRYPTOPP_DLL int CRYPTOPP_API Jacobi(const Integer &a, const Integer &b);
 
 // calculates the Lucas function V_e(p, 1) mod n
 CRYPTOPP_DLL Integer CRYPTOPP_API Lucas(const Integer &e, const Integer &p, const Integer &n);
-// calculates x such that m==Lucas(e, x, p*q), p q primes
-CRYPTOPP_DLL Integer CRYPTOPP_API InverseLucas(const Integer &e, const Integer &m, const Integer &p, const Integer &q);
-// use this one if u=inverse of p mod q has been precalculated
+// calculates x such that m==Lucas(e, x, p*q), p q primes, u=inverse of p mod q
 CRYPTOPP_DLL Integer CRYPTOPP_API InverseLucas(const Integer &e, const Integer &m, const Integer &p, const Integer &q, const Integer &u);
 
 inline Integer ModularExponentiation(const Integer &a, const Integer &e, const Integer &m)
@@ -91,9 +87,8 @@ inline Integer ModularExponentiation(const Integer &a, const Integer &e, const I
 CRYPTOPP_DLL Integer CRYPTOPP_API ModularSquareRoot(const Integer &a, const Integer &p);
 // returns x such that a==ModularExponentiation(x, e, p*q), p q primes,
 // and e relatively prime to (p-1)*(q-1)
-CRYPTOPP_DLL Integer CRYPTOPP_API ModularRoot(const Integer &a, const Integer &e, const Integer &p, const Integer &q);
-// use this one if dp=d%(p-1), dq=d%(q-1), (d is inverse of e mod (p-1)*(q-1))
-// and u=inverse of p mod q have been precalculated
+// dp=d%(p-1), dq=d%(q-1), (d is inverse of e mod (p-1)*(q-1))
+// and u=inverse of p mod q
 CRYPTOPP_DLL Integer CRYPTOPP_API ModularRoot(const Integer &a, const Integer &dp, const Integer &dq, const Integer &p, const Integer &q, const Integer &u);
 
 // find r1 and r2 such that ax^2 + bx + c == 0 (mod p) for x in {r1, r2}, p prime
