@@ -373,7 +373,7 @@ protected:
 	member_ptr<AlgorithmParametersBase> & Next() const {return const_cast<AlgorithmParameters *>(this)->Next();}
 
 	bool m_constructed, m_defaultThrowIfNotUsed;
-	char m_first[sizeof(AlgorithmParametersBase) + 16];
+	size_t m_first[(sizeof(AlgorithmParametersBase) + 19)/sizeof(size_t)];
 };
 
 //! Create an object that implements NameValuePairs for passing parameters
