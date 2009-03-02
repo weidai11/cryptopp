@@ -675,6 +675,8 @@ void Rijndael_Enc_AdvancedProcessBlocks(void *locals, const word32 *k);
 }
 #endif
 
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)
+
 static inline bool AliasedWithTable(const byte *begin, const byte *end)
 {
 	size_t s0 = size_t(begin)%4096, s1 = size_t(end)%4096;
@@ -746,9 +748,11 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 		return BlockTransformation::AdvancedProcessBlocks(inBlocks, xorBlocks, outBlocks, length, flags);
 }
 
+#endif
+
 void Rijndael::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)
 	if (HasSSE2())
 	{
 		Rijndael::Enc::AdvancedProcessBlocks(inBlock, xorBlock, outBlock, 16, 0);
