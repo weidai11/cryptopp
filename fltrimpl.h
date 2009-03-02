@@ -25,13 +25,16 @@
 	FILTER_END_NO_MESSAGE_END
 */
 
-#define FILTER_OUTPUT2(site, statement, output, length, messageEnd)	\
+#define FILTER_OUTPUT3(site, statement, output, length, messageEnd, channel)	\
 	{\
 	case site:	\
 	statement;	\
-	if (Output(site, output, length, messageEnd, blocking))	\
+	if (Output(site, output, length, messageEnd, blocking, channel))	\
 		return STDMAX(size_t(1), length-m_inputPosition);\
 	}
+
+#define FILTER_OUTPUT2(site, statement, output, length, messageEnd)	\
+	FILTER_OUTPUT3(site, statement, output, length, messageEnd, NULL_CHANNEL)
 
 #define FILTER_OUTPUT(site, output, length, messageEnd)	\
 	FILTER_OUTPUT2(site, 0, output, length, messageEnd)

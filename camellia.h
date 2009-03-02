@@ -25,7 +25,6 @@ class Camellia : public Camellia_Info, public BlockCipherDocumentation
 	public:
 		void UncheckedSetKey(const byte *key, unsigned int keylen, const NameValuePairs &params);
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
-		unsigned int BlockAlignment() const {return 8;}
 
 	protected:
 		static const byte s1[256];

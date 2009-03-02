@@ -31,17 +31,17 @@ Name: Panama-LE
 Source: modified from Panama hash test vectors
 Key: ""
 Message: ""
-Digest: aa0cc954d757d7ac7779ca3342334ca471abd47d5952ac91ed837ecd5b16922b
+MAC: aa0cc954d757d7ac7779ca3342334ca471abd47d5952ac91ed837ecd5b16922b
 Test: Verify
 Message: "The quick brown fox jumps over the lazy dog"
-Digest: 5f5ca355b90ac622b0aa7e654ef5f27e9e75111415b48b8afe3add1c6b89cba1
+MAC: 5f5ca355b90ac622b0aa7e654ef5f27e9e75111415b48b8afe3add1c6b89cba1
 Test: Verify
 Message: r15625 "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-Digest: af9c66fb6058e2232a5dfba063ee14b0f86f0e334e165812559435464dd9bb60
+MAC: af9c66fb6058e2232a5dfba063ee14b0f86f0e334e165812559435464dd9bb60
 Test: Verify
 Key: "The "
 Message: "quick brown fox jumps over the lazy dog"
-Digest: 5f5ca355b90ac622b0aa7e654ef5f27e9e75111415b48b8afe3add1c6b89cba1
+MAC: 5f5ca355b90ac622b0aa7e654ef5f27e9e75111415b48b8afe3add1c6b89cba1
 Test: Verify
 
 AlgorithmType: MAC
@@ -49,17 +49,17 @@ Name: Panama-BE
 Source: modified from Panama hash test vectors
 Key: ""
 Message: ""
-Digest: e81aa04523532dd7267e5c5bc3ba0e289837a62ba032350351980e960a84b0af
+MAC: e81aa04523532dd7267e5c5bc3ba0e289837a62ba032350351980e960a84b0af
 Test: Verify
 Message: "The quick brown fox jumps over the lazy dog"
-Digest: 8fa7dadce0110f979a0b795e76b2c25628d8bda88747758149c42e3bc13f85bc
+MAC: 8fa7dadce0110f979a0b795e76b2c25628d8bda88747758149c42e3bc13f85bc
 Test: Verify
 Message: r15625 "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-Digest: cb34f0937e8d870d3bd7ff6311765f2c229a6c2154e4db119538db5159437cab
+MAC: cb34f0937e8d870d3bd7ff6311765f2c229a6c2154e4db119538db5159437cab
 Test: Verify
 Key: "The "
 Message: "quick brown fox jumps over the lazy dog"
-Digest: 8fa7dadce0110f979a0b795e76b2c25628d8bda88747758149c42e3bc13f85bc
+MAC: 8fa7dadce0110f979a0b795e76b2c25628d8bda88747758149c42e3bc13f85bc
 Test: Verify
 
 AlgorithmType: SymmetricCipher

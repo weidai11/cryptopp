@@ -196,7 +196,6 @@ bool ValidateSHA2()
 
 	cout << "\nSHA-384 validation suite running...\n\n";
 
-#ifdef WORD64_AVAILABLE
 	HashTestTuple testSet384[] = 
 	{
 		HashTestTuple("abc", "\xcb\x00\x75\x3f\x45\xa3\x5e\x8b\xb5\xa0\x3d\x69\x9a\xc6\x50\x07\x27\x2c\x32\xab\x0e\xde\xd1\x63\x1a\x8b\x60\x5a\x43\xff\x5b\xed\x80\x86\x07\x2b\xa1\xe7\xcc\x23\x58\xba\xec\xa1\x34\xc8\x25\xa7"),
@@ -205,13 +204,9 @@ bool ValidateSHA2()
 
 	SHA384 sha384;
 	pass = HashModuleTest(sha384, testSet384, sizeof(testSet384)/sizeof(testSet384[0])) && pass;
-#else
-	cout << "word64 not available, skipping SHA-384 validation." << endl;
-#endif
 
 	cout << "\nSHA-512 validation suite running...\n\n";
 
-#ifdef WORD64_AVAILABLE
 	HashTestTuple testSet512[] = 
 	{
 		HashTestTuple("abc", "\xdd\xaf\x35\xa1\x93\x61\x7a\xba\xcc\x41\x73\x49\xae\x20\x41\x31\x12\xe6\xfa\x4e\x89\xa9\x7e\xa2\x0a\x9e\xee\xe6\x4b\x55\xd3\x9a\x21\x92\x99\x2a\x27\x4f\xc1\xa8\x36\xba\x3c\x23\xa3\xfe\xeb\xbd\x45\x4d\x44\x23\x64\x3c\xe8\x0e\x2a\x9a\xc9\x4f\xa5\x4c\xa4\x9f"),
@@ -220,9 +215,6 @@ bool ValidateSHA2()
 
 	SHA512 sha512;
 	pass = HashModuleTest(sha512, testSet512, sizeof(testSet512)/sizeof(testSet512[0])) && pass;
-#else
-	cout << "word64 not available, skipping SHA-512 validation." << endl;
-#endif
 
 	return pass;
 }
@@ -231,7 +223,6 @@ bool ValidateTiger()
 {
 	cout << "\nTiger validation suite running...\n\n";
 
-#ifdef WORD64_AVAILABLE
 	HashTestTuple testSet[] =
 	{
 		HashTestTuple("", "\x32\x93\xac\x63\x0c\x13\xf0\x24\x5f\x92\xbb\xb1\x76\x6e\x16\x16\x7a\x4e\x58\x49\x2d\xde\x73\xf3"),
@@ -248,10 +239,6 @@ bool ValidateTiger()
 	Tiger tiger;
 
 	return HashModuleTest(tiger, testSet, sizeof(testSet)/sizeof(testSet[0]));
-#else
-	cout << "word64 not available, skipping Tiger validation." << endl;
-	return true;
-#endif
 }
 
 bool ValidateRIPEMD()
@@ -385,12 +372,7 @@ bool ValidateWhirlpool()
 {
 	cout << "\nWhirlpool Hash Function validation suite running...\n";
 
-#ifdef WORD64_AVAILABLE
 	return RunTestDataFile("TestVectors/whrlpool.txt");
-#else
-	cout << "word64 not available, skipping Whirlpool validation." << endl;
-	return true;
-#endif
 }
 
 #ifdef CRYPTOPP_REMOVED

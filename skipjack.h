@@ -22,6 +22,7 @@ class SKIPJACK : public SKIPJACK_Info, public BlockCipherDocumentation
 	{
 	public:
 		void UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &params);
+		unsigned int OptimalDataAlignment() const {return GetAlignmentOf<word16>();}
 
 	protected:
 		static const byte fTable[256];

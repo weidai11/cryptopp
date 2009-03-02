@@ -69,27 +69,14 @@ void Camellia::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const
 		m = -1, a = kslen-1;
 
 	word32 kl0, kl1, kl2, kl3;
-	GetBlock<word32, BigEndian, false> getBlock(key);
+	GetBlock<word32, BigEndian> getBlock(key);
 	getBlock(kl0)(kl1)(kl2)(kl3);
 	word32 k0=kl0, k1=kl1, k2=kl2, k3=kl3;
 
 #define CALC_ADDR2(base, i, j)	((byte *)(base)+8*(i)+4*(j)+((-16*(i))&m))
 #define CALC_ADDR(base, i)	CALC_ADDR2(base, i, 0)
 
-#if !defined(WORD64_AVAILABLE)
-	ks32 += 2*a;
-#define PREPARE_KS_ROUNDS
-#define KS_ROUND_0(i)									\
-	*(word32*)CALC_ADDR2(ks32, i+EFI(0), EFI(0)) = k0;	\
-	*(word32*)CALC_ADDR2(ks32, i+EFI(0), EFI(1)) = k1;	\
-	*(word32*)CALC_ADDR2(ks32, i+EFI(1), EFI(0)) = k2;	\
-	*(word32*)CALC_ADDR2(ks32, i+EFI(1), EFI(1)) = k3
-#define KS_ROUND(i, r, which)																												\
-	if (which & (1<<((7-r/32)%4/2))) *(word32*)CALC_ADDR2(ks32, i+EFI((7-r/32)%4/2), EFI((7-r/32)%2)) = (k3 << (r%32)) | (k0 >> (32-r%32));	\
-	if (which & (1<<((6-r/32)%4/2))) *(word32*)CALC_ADDR2(ks32, i+EFI((6-r/32)%4/2), EFI((6-r/32)%2)) = (k2 << (r%32)) | (k3 >> (32-r%32));	\
-	if (which & (1<<((5-r/32)%4/2))) *(word32*)CALC_ADDR2(ks32, i+EFI((5-r/32)%4/2), EFI((5-r/32)%2)) = (k1 << (r%32)) | (k2 >> (32-r%32));	\
-	if (which & (1<<((4-r/32)%4/2))) *(word32*)CALC_ADDR2(ks32, i+EFI((4-r/32)%4/2), EFI((4-r/32)%2)) = (k0 << (r%32)) | (k1 >> (32-r%32))
-#elif 1
+#if 1
 	word64 kwl, kwr;
 	ks32 += 2*a;
 #define PREPARE_KS_ROUNDS			\
@@ -161,11 +148,11 @@ void Camellia::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const
 
 		// KR
 		word32 kr0, kr1, kr2, kr3;
-		GetBlock<word32, BigEndian, false>(key+16)(kr0)(kr1);
+		GetBlock<word32, BigEndian>(key+16)(kr0)(kr1);
 		if (keylen == 24)
 			kr2 = ~kr0, kr3 = ~kr1;
 		else
-			GetBlock<word32, BigEndian, false>(key+24)(kr2)(kr3);
+			GetBlock<word32, BigEndian>(key+24)(kr2)(kr3);
 		k0=kr0, k1=kr1, k2=kr2, k3=kr3;
 
 		PREPARE_KS_ROUNDS;

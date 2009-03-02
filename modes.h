@@ -13,7 +13,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! Cipher mode documentation. See NIST SP 800-38A for definitions of these modes.
+//! Cipher modes documentation. See NIST SP 800-38A for definitions of these modes. See AuthenticatedSymmetricCipherDocumentation for authenticated encryption modes.
 
 /*! Each class derived from this one defines two types, Encryption and Decryption, 
 	both of which implement the SymmetricCipher interface.
@@ -37,7 +37,7 @@ public:
 	size_t GetValidKeyLength(size_t n) const {return m_cipher->GetValidKeyLength(n);}
 	bool IsValidKeyLength(size_t n) const {return m_cipher->IsValidKeyLength(n);}
 
-	unsigned int OptimalDataAlignment() const {return BlockSize();}
+	unsigned int OptimalDataAlignment() const {return m_cipher->OptimalDataAlignment();}
 
 	unsigned int IVSize() const {return BlockSize();}
 	virtual IV_Requirement IVRequirement() const =0;
@@ -60,6 +60,7 @@ public:
 	}
 
 protected:
+	CipherModeBase() : m_cipher(NULL) {}
 	inline unsigned int BlockSize() const {assert(m_register.size() > 0); return (unsigned int)m_register.size();}
 	virtual void SetFeedbackSize(unsigned int feedbackSize)
 	{
@@ -72,13 +73,13 @@ protected:
 	}
 
 	BlockCipher *m_cipher;
-	SecByteBlock m_register;
+	AlignedSecByteBlock m_register;
 };
 
 template <class POLICY_INTERFACE>
 class CRYPTOPP_NO_VTABLE ModePolicyCommonTemplate : public CipherModeBase, public POLICY_INTERFACE
 {
-	unsigned int GetAlignment() const {return m_cipher->BlockAlignment();}
+	unsigned int GetAlignment() const {return m_cipher->OptimalDataAlignment();}
 	void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length);
 };
 
@@ -108,7 +109,7 @@ protected:
 		memmove_s(m_register, m_register.size(), m_register+m_feedbackSize, updateSize);
 		memcpy_s(m_register+updateSize, m_register.size()-updateSize, m_temp, m_feedbackSize);
 	}
-	void CipherResynchronize(const byte *iv)
+	void CipherResynchronize(const byte *iv, size_t length)
 	{
 		memcpy_s(m_register, m_register.size(), iv, BlockSize());
 		TransformRegister();
@@ -146,40 +147,32 @@ public:
 
 private:
 	unsigned int GetBytesPerIteration() const {return BlockSize();}
-	unsigned int GetIterationsToBuffer() const {return 1;}
-	void WriteKeystream(byte *keystreamBuffer, size_t iterationCount)
-	{
-		assert(iterationCount == 1);
-		assert(m_cipher->IsForwardTransformation());	// OFB mode needs the "encrypt" direction of the underlying block cipher, even to decrypt
-		m_cipher->ProcessBlock(keystreamBuffer);
-	}
-	void CipherResynchronize(byte *keystreamBuffer, const byte *iv)
-	{
-		CopyOrZero(keystreamBuffer, iv, BlockSize());
-	}
+	unsigned int GetIterationsToBuffer() const {return m_cipher->OptimalNumberOfParallelBlocks();}
+	void WriteKeystream(byte *keystreamBuffer, size_t iterationCount);
+	void CipherResynchronize(byte *keystreamBuffer, const byte *iv, size_t length);
 };
 
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CTR_ModePolicy : public ModePolicyCommonTemplate<AdditiveCipherAbstractPolicy>
 {
 public:
 	bool CipherIsRandomAccess() const {return true;}
-	IV_Requirement IVRequirement() const {return UNIQUE_IV;}
+	IV_Requirement IVRequirement() const {return RANDOM_IV;}
 	static const char * CRYPTOPP_API StaticAlgorithmName() {return "CTR";}
 
-private:
-	unsigned int GetAlignment() const {return m_cipher->BlockAlignment();}
+protected:
+	virtual void IncrementCounterBy256();
+
+	unsigned int GetAlignment() const {return m_cipher->OptimalDataAlignment();}
 	unsigned int GetBytesPerIteration() const {return BlockSize();}
 	unsigned int GetIterationsToBuffer() const {return m_cipher->OptimalNumberOfParallelBlocks();}
 	void WriteKeystream(byte *buffer, size_t iterationCount)
 		{OperateKeystream(WRITE_KEYSTREAM, buffer, NULL, iterationCount);}
 	bool CanOperateKeystream() const {return true;}
 	void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount);
-	void CipherResynchronize(byte *keystreamBuffer, const byte *iv);
+	void CipherResynchronize(byte *keystreamBuffer, const byte *iv, size_t length);
 	void SeekToIteration(lword iterationCount);
 
-	inline void ProcessMultipleBlocks(byte *output, const byte *input, size_t n);
-
-	SecByteBlock m_counterArray;
+	AlignedSecByteBlock m_counterArray;
 };
 
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE BlockOrientedCipherModeBase : public CipherModeBase
@@ -190,12 +183,10 @@ public:
 	bool IsRandomAccess() const {return false;}
 	bool IsSelfInverting() const {return false;}
 	bool IsForwardTransformation() const {return m_cipher->IsForwardTransformation();}
-	void Resynchronize(const byte *iv) {memcpy_s(m_register, m_register.size(), iv, BlockSize());}
-	void ProcessData(byte *outString, const byte *inString, size_t length);
+	void Resynchronize(const byte *iv, int length=-1) {memcpy_s(m_register, m_register.size(), iv, ThrowIfInvalidIVLength(length));}
 
 protected:
 	bool RequireAlignedInput() const {return true;}
-	virtual void ProcessBlocks(byte *outString, const byte *inString, size_t numberOfBlocks) =0;
 	void ResizeBuffers()
 	{
 		CipherModeBase::ResizeBuffers();
@@ -212,8 +203,7 @@ public:
 		{m_cipher->SetKey(key, length, params); BlockOrientedCipherModeBase::ResizeBuffers();}
 	IV_Requirement IVRequirement() const {return NOT_RESYNCHRONIZABLE;}
 	unsigned int OptimalBlockSize() const {return BlockSize() * m_cipher->OptimalNumberOfParallelBlocks();}
-	void ProcessBlocks(byte *outString, const byte *inString, size_t numberOfBlocks)
-		{m_cipher->ProcessAndXorMultipleBlocks(inString, NULL, outString, numberOfBlocks);}
+	void ProcessData(byte *outString, const byte *inString, size_t length);
 	static const char * CRYPTOPP_API StaticAlgorithmName() {return "ECB";}
 };
 
@@ -229,7 +219,7 @@ public:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CBC_Encryption : public CBC_ModeBase
 {
 public:
-	void ProcessBlocks(byte *outString, const byte *inString, size_t numberOfBlocks);
+	void ProcessData(byte *outString, const byte *inString, size_t length);
 };
 
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CBC_CTS_Encryption : public CBC_Encryption
@@ -253,7 +243,7 @@ protected:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CBC_Decryption : public CBC_ModeBase
 {
 public:
-	void ProcessBlocks(byte *outString, const byte *inString, size_t numberOfBlocks);
+	void ProcessData(byte *outString, const byte *inString, size_t length);
 	
 protected:
 	void ResizeBuffers()
@@ -261,7 +251,7 @@ protected:
 		BlockOrientedCipherModeBase::ResizeBuffers();
 		m_temp.New(BlockSize());
 	}
-	SecByteBlock m_temp;
+	AlignedSecByteBlock m_temp;
 };
 
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CBC_CTS_Decryption : public CBC_Decryption
@@ -313,7 +303,7 @@ public:
 		{this->SetCipherWithIV(cipher, iv, feedbackSize);}
 
 	std::string AlgorithmName() const
-		{return this->m_cipher->AlgorithmName() + "/" + BASE::StaticAlgorithmName();}
+		{return (this->m_cipher ? this->m_cipher->AlgorithmName() + "/" : std::string("")) + BASE::StaticAlgorithmName();}
 };
 
 CRYPTOPP_DLL_TEMPLATE_CLASS CFB_CipherTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, CFB_ModePolicy> >;

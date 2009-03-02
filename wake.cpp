@@ -61,7 +61,7 @@ template <class B>
 void WAKE_Policy<B>::CipherSetKey(const NameValuePairs &params, const byte *key, size_t length)
 {
 	word32 k0, k1, k2, k3;
-	BlockGetAndPut<word32, BigEndian, false>::Get(key)(r3)(r4)(r5)(r6)(k0)(k1)(k2)(k3);
+	BlockGetAndPut<word32, BigEndian>::Get(key)(r3)(r4)(r5)(r6)(k0)(k1)(k2)(k3);
 	GenKey(k0, k1, k2, k3);
 }
 

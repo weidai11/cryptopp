@@ -29,7 +29,7 @@ private:
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<IDEA_Info>
 	{
 	public:
-		unsigned int GetAlignment() const {return 2;}
+		unsigned int OptimalDataAlignment() const {return 2;}
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
 
 		void UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &params);

@@ -180,7 +180,7 @@ void DefaultDecryptor::CheckKey(const byte *salt, const byte *keyCheck)
 
 	SetFilter(decryptor.release());
 
-	if (memcmp(check, check+BLOCKSIZE, BLOCKSIZE))
+	if (!VerifyBufsEqual(check, check+BLOCKSIZE, BLOCKSIZE))
 	{
 		m_state = KEY_BAD;
 		if (m_throwException)

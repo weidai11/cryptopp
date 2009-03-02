@@ -28,8 +28,7 @@ private:
 
 //! <a href="http://www.weidai.com/scan-mirror/mac.html#CBC-MAC">CBC-MAC</a>
 /*! Compatible with FIPS 113. T should be a class derived from BlockCipherDocumentation.
-	Secure only for fixed length messages. For variable length
-	messages use DMAC.
+	Secure only for fixed length messages. For variable length messages use CMAC or DMAC.
 */
 template <class T>
 class CBC_MAC : public MessageAuthenticationCodeImpl<CBC_MAC_Base, CBC_MAC<T> >, public SameKeyLengthAs<T>

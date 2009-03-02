@@ -3,9 +3,6 @@
 
 #include "pch.h"
 
-// prevent Sun's CC compiler from including this file automatically
-#if !(defined(__SUNPRO_CC) && defined(CRYPTOPP_ITERHASH_H))
-
 #include "seal.h"
 #include "sha.h"
 #include "misc.h"
@@ -69,8 +66,9 @@ void SEAL_Policy<B>::CipherSetKey(const NameValuePairs &params, const byte *key,
 }
 
 template <class B>
-void SEAL_Policy<B>::CipherResynchronize(byte *keystreamBuffer, const byte *IV)
+void SEAL_Policy<B>::CipherResynchronize(byte *keystreamBuffer, const byte *IV, size_t length)
 {
+	assert(length==4);
 	m_outsideCounter = IV ? GetWord<word32>(false, BIG_ENDIAN_ORDER, IV) : 0;
 	m_startCount = m_outsideCounter;
 	m_insideCounter = 0;
@@ -213,5 +211,3 @@ template class SEAL_Policy<BigEndian>;
 template class SEAL_Policy<LittleEndian>;
 
 NAMESPACE_END
-
-#endif

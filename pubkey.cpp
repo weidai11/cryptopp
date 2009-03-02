@@ -28,7 +28,7 @@ bool PK_DeterministicSignatureMessageEncodingMethod::VerifyMessageRepresentative
 {
 	SecByteBlock computedRepresentative(BitsToBytes(representativeBitLength));
 	ComputeMessageRepresentative(NullRNG(), NULL, 0, hash, hashIdentifier, messageEmpty, computedRepresentative, representativeBitLength);
-	return memcmp(representative, computedRepresentative, computedRepresentative.size()) == 0;
+	return VerifyBufsEqual(representative, computedRepresentative, computedRepresentative.size());
 }
 
 bool PK_RecoverableSignatureMessageEncodingMethod::VerifyMessageRepresentative(
@@ -145,7 +145,12 @@ DecodingResult TF_DecryptorBase::Decrypt(RandomNumberGenerator &rng, const byte 
 void TF_EncryptorBase::Encrypt(RandomNumberGenerator &rng, const byte *plaintext, size_t plaintextLength, byte *ciphertext, const NameValuePairs &parameters) const
 {
 	if (plaintextLength > FixedMaxPlaintextLength())
-		throw InvalidArgument(AlgorithmName() + ": message too long for this public key");
+	{
+		if (FixedMaxPlaintextLength() < 1)
+			throw InvalidArgument(AlgorithmName() + ": this key is too short to encrypt any messages");
+		else
+			throw InvalidArgument(AlgorithmName() + ": message length of " + IntToString(plaintextLength) + " exceeds the maximum of " + IntToString(FixedMaxPlaintextLength()) + " for this public key");
+	}
 
 	SecByteBlock paddedBlock(PaddedBlockByteLength());
 	GetMessageEncodingInterface().Pad(rng, plaintext, plaintextLength, paddedBlock, PaddedBlockBitLength(), parameters);

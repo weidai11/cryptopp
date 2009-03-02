@@ -2,9 +2,6 @@
 
 #include "pch.h"
 
-// prevent Sun's CC compiler from including this file automatically
-#if !defined(__SUNPRO_CC) || defined(CRYPTOPP_MANUALLY_INSTANTIATE_TEMPLATES)
-
 #ifndef CRYPTOPP_IMPORTS
 
 #include "strciphr.h"
@@ -17,10 +14,15 @@ void AdditiveCipherTemplate<S>::UncheckedSetKey(const byte *key, unsigned int le
 	PolicyInterface &policy = this->AccessPolicy();
 	policy.CipherSetKey(params, key, length);
 	m_leftOver = 0;
-	m_buffer.New(GetBufferByteSize(policy));
+	unsigned int bufferByteSize = policy.CanOperateKeystream() ? GetBufferByteSize(policy) : RoundUpToMultipleOf(1024U, GetBufferByteSize(policy));
+	m_buffer.New(bufferByteSize);
 
 	if (this->IsResynchronizable())
-		policy.CipherResynchronize(m_buffer, this->GetIVAndThrowIfInvalid(params));
+	{
+		size_t ivLength;
+		const byte *iv = this->GetIVAndThrowIfInvalid(params, ivLength);
+		policy.CipherResynchronize(m_buffer, iv, ivLength);
+	}
 }
 
 template <class S>
@@ -48,27 +50,16 @@ void AdditiveCipherTemplate<S>::GenerateBlock(byte *outString, size_t length)
 		policy.WriteKeystream(outString, iterations);
 		outString += iterations * bytesPerIteration;
 		length -= iterations * bytesPerIteration;
-
-		if (!length)
-			return;
-	}
-
-	unsigned int bufferByteSize = GetBufferByteSize(policy);
-	unsigned int bufferIterations = policy.GetIterationsToBuffer();
-
-	while (length >= bufferByteSize)
-	{
-		policy.WriteKeystream(m_buffer, bufferIterations);
-		memcpy(outString, KeystreamBufferBegin(), bufferByteSize);
-		length -= bufferByteSize;
-		outString += bufferByteSize;
 	}
 
 	if (length > 0)
 	{
-		policy.WriteKeystream(m_buffer, bufferIterations);
-		memcpy(outString, KeystreamBufferBegin(), length);
-		m_leftOver = bytesPerIteration - length;
+		size_t bufferByteSize = RoundUpToMultipleOf(length, bytesPerIteration);
+		size_t bufferIterations = bufferByteSize / bytesPerIteration;
+
+		policy.WriteKeystream(KeystreamBufferEnd()-bufferByteSize, bufferIterations);
+		memcpy(outString, KeystreamBufferEnd()-bufferByteSize, length);
+		m_leftOver = bufferByteSize - length;
 	}
 }
 
@@ -108,8 +99,8 @@ void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inStrin
 			return;
 	}
 
-	unsigned int bufferByteSize = GetBufferByteSize(policy);
-	unsigned int bufferIterations = policy.GetIterationsToBuffer();
+	size_t bufferByteSize = m_buffer.size();
+	size_t bufferIterations = bufferByteSize / bytesPerIteration;
 
 	while (length >= bufferByteSize)
 	{
@@ -122,19 +113,22 @@ void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inStrin
 
 	if (length > 0)
 	{
-		policy.WriteKeystream(m_buffer, bufferIterations);
-		xorbuf(outString, inString, KeystreamBufferBegin(), length);
-		m_leftOver = bytesPerIteration - length;
+		bufferByteSize = RoundUpToMultipleOf(length, bytesPerIteration);
+		bufferIterations = bufferByteSize / bytesPerIteration;
+
+		policy.WriteKeystream(KeystreamBufferEnd()-bufferByteSize, bufferIterations);
+		xorbuf(outString, inString, KeystreamBufferEnd()-bufferByteSize, length);
+		m_leftOver = bufferByteSize - length;
 	}
 }
 
 template <class S>
-void AdditiveCipherTemplate<S>::Resynchronize(const byte *iv)
+void AdditiveCipherTemplate<S>::Resynchronize(const byte *iv, int length)
 {
 	PolicyInterface &policy = this->AccessPolicy();
 	m_leftOver = 0;
 	m_buffer.New(GetBufferByteSize(policy));
-	policy.CipherResynchronize(m_buffer, iv);
+	policy.CipherResynchronize(m_buffer, iv, this->ThrowIfInvalidIVLength(length));
 }
 
 template <class BASE>
@@ -148,7 +142,7 @@ void AdditiveCipherTemplate<BASE>::Seek(lword position)
 
 	if (position > 0)
 	{
-		policy.WriteKeystream(m_buffer, 1);
+		policy.WriteKeystream(KeystreamBufferEnd()-bytesPerIteration, 1);
 		m_leftOver = bytesPerIteration - (unsigned int)position;
 	}
 	else
@@ -162,16 +156,20 @@ void CFB_CipherTemplate<BASE>::UncheckedSetKey(const byte *key, unsigned int len
 	policy.CipherSetKey(params, key, length);
 
 	if (this->IsResynchronizable())
-		policy.CipherResynchronize(this->GetIVAndThrowIfInvalid(params));
+	{
+		size_t ivLength;
+		const byte *iv = this->GetIVAndThrowIfInvalid(params, ivLength);
+		policy.CipherResynchronize(iv, ivLength);
+	}
 
 	m_leftOver = policy.GetBytesPerIteration();
 }
 
 template <class BASE>
-void CFB_CipherTemplate<BASE>::Resynchronize(const byte *iv)
+void CFB_CipherTemplate<BASE>::Resynchronize(const byte *iv, int length)
 {
 	PolicyInterface &policy = this->AccessPolicy();
-	policy.CipherResynchronize(iv);
+	policy.CipherResynchronize(iv, this->ThrowIfInvalidIVLength(length));
 	m_leftOver = policy.GetBytesPerIteration();
 }
 
@@ -250,7 +248,5 @@ void CFB_DecryptionTemplate<BASE>::CombineMessageAndShiftRegister(byte *output, 
 }
 
 NAMESPACE_END
-
-#endif
 
 #endif

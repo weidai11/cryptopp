@@ -93,6 +93,10 @@ bool ValidateAll(bool thorough)
 	pass=ValidateSalsa() && pass;
 	pass=ValidateSosemanuk() && pass;
 	pass=ValidateVMAC() && pass;
+	pass=ValidateCCM() && pass;
+	pass=ValidateGCM() && pass;
+	pass=ValidateCMAC() && pass;
+	pass=RunTestDataFile("TestVectors/seed.txt") && pass;
 
 	pass=ValidateBBS() && pass;
 	pass=ValidateDH() && pass;
@@ -181,7 +185,6 @@ bool TestSettings()
 	}
 	cout << "sizeof(word32) == " << sizeof(word32) << endl;
 
-#ifdef WORD64_AVAILABLE
 	if (sizeof(word64) == 8)
 		cout << "passed:  ";
 	else
@@ -190,15 +193,6 @@ bool TestSettings()
 		pass = false;
 	}
 	cout << "sizeof(word64) == " << sizeof(word64) << endl;
-#elif defined(CRYPTOPP_NATIVE_DWORD_AVAILABLE)
-	if (sizeof(dword) >= 8)
-	{
-		cout << "FAILED:  sizeof(dword) >= 8, but WORD64_AVAILABLE not defined" << endl;
-		pass = false;
-	}
-	else
-		cout << "passed:  word64 not available" << endl;
-#endif
 
 #ifdef CRYPTOPP_WORD128_AVAILABLE
 	if (sizeof(word128) == 16)
@@ -1080,13 +1074,14 @@ bool ValidateMARS()
 
 bool ValidateRijndael()
 {
-	cout << "\nRijndael validation suite running...\n\n";
+	cout << "\nRijndael (AES) validation suite running...\n\n";
 
 	FileSource valdata("rijndael.dat", true, new HexDecoder);
 	bool pass = true;
 	pass = BlockTransformationTest(FixedRoundsCipherFactory<RijndaelEncryption, RijndaelDecryption>(16), valdata, 4) && pass;
 	pass = BlockTransformationTest(FixedRoundsCipherFactory<RijndaelEncryption, RijndaelDecryption>(24), valdata, 3) && pass;
 	pass = BlockTransformationTest(FixedRoundsCipherFactory<RijndaelEncryption, RijndaelDecryption>(32), valdata, 2) && pass;
+	pass = RunTestDataFile("TestVectors/aes.txt") && pass;
 	return pass;
 }
 
@@ -1168,13 +1163,8 @@ bool ValidateSHARK()
 {
 	cout << "\nSHARK validation suite running...\n\n";
 
-#ifdef WORD64_AVAILABLE
 	FileSource valdata("sharkval.dat", true, new HexDecoder);
 	return BlockTransformationTest(FixedRoundsCipherFactory<SHARKEncryption, SHARKDecryption>(), valdata);
-#else
-	cout << "word64 not available, skipping SHARK validation." << endl;
-	return true;
-#endif
 }
 
 bool ValidateCAST()
@@ -1349,4 +1339,25 @@ bool ValidateVMAC()
 {
 	cout << "\nVMAC validation suite running...\n";
 	return RunTestDataFile("TestVectors/vmac.txt");
+}
+
+bool ValidateCCM()
+{
+	cout << "\nAES/CCM validation suite running...\n";
+	return RunTestDataFile("TestVectors/ccm.txt");
+}
+
+bool ValidateGCM()
+{
+	cout << "\nAES/GCM validation suite running...\n";
+	cout << "\n2K tables:";
+	bool pass = RunTestDataFile("TestVectors/gcm.txt", MakeParameters(Name::TableSize(), (int)2048));
+	cout << "\n64K tables:";
+	return RunTestDataFile("TestVectors/gcm.txt", MakeParameters(Name::TableSize(), (int)64*1024)) && pass;
+}
+
+bool ValidateCMAC()
+{
+	cout << "\nCMAC validation suite running...\n";
+	return RunTestDataFile("TestVectors/cmac.txt");
 }

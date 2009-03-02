@@ -51,6 +51,9 @@ bool ValidateCamellia();
 bool ValidateSalsa();
 bool ValidateSosemanuk();
 bool ValidateVMAC();
+bool ValidateCCM();
+bool ValidateGCM();
+bool ValidateCMAC();
 
 bool ValidateBBS();
 bool ValidateDH();
@@ -73,6 +76,6 @@ bool ValidateECDSA();
 bool ValidateESIGN();
 
 CryptoPP::RandomNumberGenerator & GlobalRNG();
-bool RunTestDataFile(const char *filename);
+bool RunTestDataFile(const char *filename, const CryptoPP::NameValuePairs &overrideParameters=CryptoPP::g_nullNameValuePairs);
 
 #endif

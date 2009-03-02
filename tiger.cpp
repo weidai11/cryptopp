@@ -5,8 +5,6 @@
 #include "misc.h"
 #include "cpu.h"
 
-#ifdef WORD64_AVAILABLE
-
 NAMESPACE_BEGIN(CryptoPP)
 
 void Tiger::InitState(HashWordType *state)
@@ -265,5 +263,3 @@ void Tiger::Transform (word64 *digest, const word64 *X)
 }
 
 NAMESPACE_END
-
-#endif	// WORD64_AVAILABLE

@@ -443,8 +443,9 @@ void PanamaCipherPolicy<B>::CipherSetKey(const NameValuePairs &params, const byt
 }
 
 template <class B>
-void PanamaCipherPolicy<B>::CipherResynchronize(byte *keystreamBuffer, const byte *iv)
+void PanamaCipherPolicy<B>::CipherResynchronize(byte *keystreamBuffer, const byte *iv, size_t length)
 {
+	assert(length==32);
 	this->Reset();
 	this->Iterate(1, m_key);
 	if (iv && IsAligned<word32>(iv))

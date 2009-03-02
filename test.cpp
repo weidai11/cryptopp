@@ -94,6 +94,13 @@ bool Validate(int, bool, const char *);
 
 int (*AdhocTest)(int argc, char *argv[]) = NULL;
 
+static OFB_Mode<AES>::Encryption s_globalRNG;
+
+RandomNumberGenerator & GlobalRNG()
+{
+	return s_globalRNG;
+}
+
 int CRYPTOPP_API main(int argc, char *argv[])
 {
 #ifdef _CRTDBG_LEAK_CHECK_DF
@@ -110,6 +117,10 @@ int CRYPTOPP_API main(int argc, char *argv[])
 	try
 	{
 		RegisterFactories();
+
+		std::string seed = IntToString(time(NULL));
+		seed.resize(16);
+		s_globalRNG.SetKeyWithIV((byte *)seed.data(), 16, (byte *)seed.data());
 
 		std::string command, executableName, macFilename;
 
@@ -294,7 +305,7 @@ int CRYPTOPP_API main(int argc, char *argv[])
 			InformationDisperseFile(atoi(argv[2]), atoi(argv[3]), argv[4]);
 		else if (command == "ir")
 			InformationRecoverFile(argc-3, argv[2], argv+3);
-		else if (command == "v")
+		else if (command == "v" || command == "vv")
 			return !Validate(argc>2 ? atoi(argv[2]) : 0, argv[1][1] == 'v', argc>3 ? argv[3] : NULL);
 		else if (command == "b")
 			BenchmarkAll(argc<3 ? 1 : atof(argv[2]), argc<4 ? 0 : atof(argv[3])*1e9);
@@ -374,12 +385,6 @@ SecByteBlock HexDecodeString(const char *hex)
 	return result;
 }
 
-RandomNumberGenerator & GlobalRNG()
-{
-	static RandomPool randomPool;
-	return randomPool;
-}
-
 void GenerateRSAKey(unsigned int keyLength, const char *privFilename, const char *pubFilename, const char *seed)
 {
 	RandomPool randPool;
@@ -449,7 +454,6 @@ void DigestFile(const char *filename)
 	SHA1 sha;
 	RIPEMD160 ripemd;
 	SHA256 sha256;
-#ifdef WORD64_AVAILABLE
 	Tiger tiger;
 	SHA512 sha512;
 	Whirlpool whirlpool;
@@ -460,12 +464,6 @@ void DigestFile(const char *filename)
 	filters[3].reset(new HashFilter(sha256));
 	filters[4].reset(new HashFilter(sha512));
 	filters[5].reset(new HashFilter(whirlpool));
-#else
-	vector_member_ptrs<HashFilter> filters(3);
-	filters[0].reset(new HashFilter(sha));
-	filters[1].reset(new HashFilter(ripemd));
-	filters[2].reset(new HashFilter(sha256));
-#endif
 
 	auto_ptr<ChannelSwitch> channelSwitch(new ChannelSwitch);
 	size_t i;
@@ -762,19 +760,15 @@ void ForwardTcpPort(const char *sourcePortName, const char *destinationHost, con
 #endif
 }
 
-bool Validate(int alg, bool thorough, const char *seed)
+bool Validate(int alg, bool thorough, const char *seedInput)
 {
 	bool result;
 
-	std::string timeSeed;
-	if (!seed)
-	{
-		timeSeed = IntToString(time(NULL));
-		seed = timeSeed.c_str();
-	}
+	std::string seed = seedInput ? std::string(seedInput) : IntToString(time(NULL));
+	seed.resize(16);
 
 	cout << "Using seed: " << seed << endl << endl;
-	GlobalRNG().IncorporateEntropy((const byte *)seed, strlen(seed));
+	s_globalRNG.SetKeyWithIV((byte *)seed.data(), 16, (byte *)seed.data());
 
 	switch (alg)
 	{
@@ -844,6 +838,9 @@ bool Validate(int alg, bool thorough, const char *seed)
 	case 64: result = ValidateSalsa(); break;
 	case 65: result = ValidateSosemanuk(); break;
 	case 66: result = ValidateVMAC(); break;
+	case 67: result = ValidateCCM(); break;
+	case 68: result = ValidateGCM(); break;
+	case 69: result = ValidateCMAC(); break;
 	default: return false;
 	}
 

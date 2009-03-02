@@ -9,11 +9,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 #ifdef HIGHRES_TIMER_AVAILABLE
-	#ifdef WORD64_AVAILABLE
-		typedef word64 TimerWord;
-	#else
-		typedef word32 TimerWord;
-	#endif
+	typedef word64 TimerWord;
 #else
 	typedef clock_t TimerWord;
 #endif

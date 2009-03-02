@@ -16,7 +16,7 @@ public:
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipher
 	{
 	public:
-		unsigned int GetAlignment() const {return 1;}
+		unsigned int OptimalDataAlignment() const {return 1;}
 		void UncheckedSetKey(const byte *userkey, unsigned int length, const NameValuePairs &params);
 
 	protected:

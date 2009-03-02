@@ -1106,6 +1106,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\authenc.cpp"
+				>
+			</File>
+			<File
 				RelativePath="base32.cpp"
 				>
 				<FileConfiguration
@@ -1846,6 +1850,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\ccm.cpp"
+				>
+			</File>
+			<File
 				RelativePath="channels.cpp"
 				>
 				<FileConfiguration
@@ -1918,6 +1926,10 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\cmac.cpp"
+				>
 			</File>
 			<File
 				RelativePath=".\cpu.cpp"
@@ -3356,6 +3368,10 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\gcm.cpp"
+				>
 			</File>
 			<File
 				RelativePath="gf256.cpp"
@@ -6857,6 +6873,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\seed.cpp"
+				>
+			</File>
+			<File
 				RelativePath="serpent.cpp"
 				>
 				<FileConfiguration
@@ -8493,6 +8513,80 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\x64dll.asm"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64dll.obj&quot; /Zi &quot;$(InputPath)&quot;"
+						Outputs="$(IntDir)\x64dll.obj"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="DLL-Import Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="DLL-Import Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64dll.obj&quot; /Zi &quot;$(InputPath)&quot;"
+						Outputs="$(IntDir)\x64dll.obj"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64dll.obj&quot; /Zi &quot;$(InputPath)&quot;"
+						Outputs="$(IntDir)\x64dll.obj"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="DLL-Import Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="DLL-Import Debug|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64dll.obj&quot; /Zi &quot;$(InputPath)&quot;"
+						Outputs="$(IntDir)\x64dll.obj"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath=".\x64masm.asm"
 				>
 				<FileConfiguration
@@ -8508,7 +8602,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64masm.obj&quot; /Zi &quot;$(InputPath)&quot;"
+						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64masm.obj&quot; /Zi &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\x64masm.obj"
 					/>
 				</FileConfiguration>
@@ -8525,7 +8619,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64masm.obj&quot; /Zi &quot;$(InputPath)&quot;"
+						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64masm.obj&quot; /Zi &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\x64masm.obj"
 					/>
 				</FileConfiguration>
@@ -8542,7 +8636,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64masm.obj&quot; /Zi &quot;$(InputPath)&quot;"
+						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64masm.obj&quot; /Zi &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\x64masm.obj"
 					/>
 				</FileConfiguration>
@@ -8559,7 +8653,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64masm.obj&quot; /Zi &quot;$(InputPath)&quot;"
+						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64masm.obj&quot; /Zi &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\x64masm.obj"
 					/>
 				</FileConfiguration>
@@ -8972,6 +9066,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\authenc.h"
+				>
+			</File>
+			<File
 				RelativePath="base32.h"
 				>
 			</File>
@@ -9004,7 +9102,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ccm.h"
+				>
+			</File>
+			<File
 				RelativePath="channels.h"
+				>
+			</File>
+			<File
+				RelativePath=".\cmac.h"
 				>
 			</File>
 			<File
@@ -9089,6 +9195,10 @@
 			</File>
 			<File
 				RelativePath="fltrimpl.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gcm.h"
 				>
 			</File>
 			<File
@@ -9316,6 +9426,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\seed.h"
+				>
+			</File>
+			<File
 				RelativePath="serpent.h"
 				>
 			</File>
@@ -9452,10 +9566,6 @@
 				>
 			</File>
 		</Filter>
-		<File
-			RelativePath=".\VTune\cryptlib.vpj"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>

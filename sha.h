@@ -34,8 +34,6 @@ public:
 	static const char * CRYPTOPP_API StaticAlgorithmName() {return "SHA-224";}
 };
 
-#ifdef WORD64_AVAILABLE
-
 //! implements the SHA-512 standard
 class CRYPTOPP_DLL SHA512 : public IteratedHashWithStaticTransform<word64, BigEndian, 128, 64, SHA512>
 {
@@ -53,8 +51,6 @@ public:
 	static void CRYPTOPP_API Transform(word64 *digest, const word64 *data) {SHA512::Transform(digest, data);}
 	static const char * CRYPTOPP_API StaticAlgorithmName() {return "SHA-384";}
 };
-
-#endif
 
 NAMESPACE_END
 

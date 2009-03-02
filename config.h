@@ -104,7 +104,6 @@ NAMESPACE_BEGIN(CryptoPP)
 typedef unsigned short word16;
 typedef unsigned int word32;
 
-#define WORD64_AVAILABLE
 #if defined(_MSC_VER) || defined(__BORLANDC__)
 	typedef unsigned __int64 word64;
 	#define W64LIT(x) x##ui64
@@ -114,13 +113,8 @@ typedef unsigned int word32;
 #endif
 
 // define large word type, used for file offsets and such
-#ifdef WORD64_AVAILABLE
-	typedef word64 lword;
-	const lword LWORD_MAX = W64LIT(0xffffffffffffffff);
-#else
-	typedef word32 lword;
-	const lword LWORD_MAX = 0xffffffffUL;
-#endif
+typedef word64 lword;
+const lword LWORD_MAX = W64LIT(0xffffffffffffffff);
 
 #ifdef __GNUC__
 	#define CRYPTOPP_GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
@@ -147,16 +141,16 @@ typedef unsigned int word32;
 			typedef word32 word;
 			typedef word64 dword;
 		#endif
-	#elif defined(WORD64_AVAILABLE)
-		#define CRYPTOPP_SLOW_WORD64 // use alternative code that avoids word64
+	#else
+		// being here means the native register size is probably 32 bits or less
+		#define CRYPTOPP_BOOL_SLOW_WORD64 1
 		typedef word16 hword;
 		typedef word32 word;
 		typedef word64 dword;
-	#else
-		typedef byte hword;
-		typedef word16 word;
-		typedef word32 dword;
 	#endif
+#endif
+#ifndef CRYPTOPP_BOOL_SLOW_WORD64
+	#define CRYPTOPP_BOOL_SLOW_WORD64 0
 #endif
 
 const unsigned int WORD_SIZE = sizeof(word);
@@ -336,11 +330,11 @@ NAMESPACE_END
 	#define CRYPTOPP_BOOL_X86 0
 #endif
 
-#if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X86
+#if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X86 || defined(__powerpc__)
 	#define CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
 #endif
 
-#define CRYPTOPP_VERSION 553
+#define CRYPTOPP_VERSION 560
 
 // ***************** determine availability of OS features ********************
 
@@ -354,7 +348,7 @@ NAMESPACE_END
 #define CRYPTOPP_UNIX_AVAILABLE
 #endif
 
-#if defined(WORD64_AVAILABLE) && (defined(CRYPTOPP_WIN32_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE))
+#if defined(CRYPTOPP_WIN32_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE)
 #	define HIGHRES_TIMER_AVAILABLE
 #endif
 

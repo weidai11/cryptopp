@@ -2,9 +2,6 @@
 #define CRYPTOPP_WHIRLPOOL_H
 
 #include "config.h"
-
-#ifdef WORD64_AVAILABLE
-
 #include "iterhash.h"
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -20,7 +17,5 @@ public:
 };
 
 NAMESPACE_END
-
-#endif
 
 #endif

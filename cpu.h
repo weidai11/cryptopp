@@ -117,7 +117,7 @@ inline bool HasMMX()	{return false;}
 	#define ASL(x) label##x:*newline*
 	#define ASJ(x, y, z) x label##y*newline*
 	#define ASC(x, y) x label##y*newline*
-	#define AS_HEX(y) y##h
+	#define AS_HEX(y) 0##y##h
 #elif defined(__GNUC__)
 	// define these in two steps to allow arguments to be expanded
 	#define GNU_AS1(x) #x ";"
@@ -145,6 +145,9 @@ inline bool HasMMX()	{return false;}
 	#define CRYPTOPP_NAKED __declspec(naked)
 	#define AS_HEX(y) 0x##y
 #endif
+
+#define IF0(y)
+#define IF1(y) y
 
 #ifdef CRYPTOPP_GENERATE_X64_MASM
 #define ASM_MOD(x, y) ((x) MOD (y))

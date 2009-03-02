@@ -4,7 +4,7 @@
 	classes that provide a uniform interface to this library.
 */
 
-/*!	\mainpage <a href="http://www.cryptopp.com">Crypto++</a><sup><small>&reg;</small></sup> Library 5.5.2 Reference Manual
+/*!	\mainpage <a href="http://www.cryptopp.com">Crypto++</a><sup><small>&reg;</small></sup> Library 5.6.0 Reference Manual
 <dl>
 <dt>Abstract Base Classes<dd>
 	cryptlib.h
@@ -15,7 +15,9 @@
 <dt>Non-Cryptographic Checksums<dd>
 	CRC32, Adler32
 <dt>Message Authentication Codes<dd>
-	VMAC, HMAC, CBC_MAC, DMAC, TTMAC
+	VMAC, HMAC, CBC_MAC, CMAC, DMAC, TTMAC, GCM
+<dt>Authenticated Encryption<dd>
+	AuthenticatedSymmetricCipherDocumentation
 <dt>Random Number Generators<dd>
 	NullRNG(), LC_RNG, RandomPool, BlockingRng, NonblockingRng, AutoSeededRandomPool, AutoSeededX917RNG, DefaultAutoSeededRNG
 <dt>Password-based Cryptography<dd>
@@ -88,7 +90,7 @@ class RandomNumberGenerator;
 class BufferedTransformation;
 
 //! used to specify a direction for a cipher to operate in (encrypt or decrypt)
-enum CipherDir {ENCRYPTION,	DECRYPTION};
+enum CipherDir {ENCRYPTION, DECRYPTION};
 
 //! used to represent infinite time
 const unsigned long INFINITE_TIME = ULONG_MAX;
@@ -349,7 +351,6 @@ public:
 };
 
 //! keying interface for crypto algorithms that take byte strings as keys
-
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE SimpleKeyingInterface
 {
 public:
@@ -370,14 +371,18 @@ public:
 		{return n == GetValidKeyLength(n);}
 
 	//! set or reset the key of this object
-	/*! \param params is used to specify Rounds, BlockSize, etc */
+	/*! \param params is used to specify Rounds, BlockSize, etc. */
 	virtual void SetKey(const byte *key, size_t length, const NameValuePairs &params = g_nullNameValuePairs);
 
 	//! calls SetKey() with an NameValuePairs object that just specifies "Rounds"
 	void SetKeyWithRounds(const byte *key, size_t length, int rounds);
 
-	//! calls SetKey() with an NameValuePairs object that just specifies "IV"
-	void SetKeyWithIV(const byte *key, size_t length, const byte *iv);
+	//! calls SetKey() with an NameValuePairs object that just specifies "IVWithLength"
+	void SetKeyWithIV(const byte *key, size_t length, const byte *iv, size_t ivLength);
+
+	//! calls SetKey() with an NameValuePairs object that just specifies "IVWithLength"
+	void SetKeyWithIV(const byte *key, size_t length, const byte *iv)
+		{SetKeyWithIV(key, length, iv, IVSize());}
 
 	enum IV_Requirement {UNIQUE_IV = 0, RANDOM_IV, UNPREDICTABLE_RANDOM_IV, INTERNALLY_GENERATED_IV, NOT_RESYNCHRONIZABLE};
 	//! returns the minimal requirement for secure IVs
@@ -393,10 +398,15 @@ public:
 	//! returns whether this object can use structured IVs, for example a counter (in addition to ones returned by GetNextIV)
 	bool CanUseStructuredIVs() const {return IVRequirement() <= UNIQUE_IV;}
 
-	//! returns size of IVs used by this object
-	virtual unsigned int IVSize() const {throw NotImplemented("SimpleKeyingInterface: this object doesn't support resynchronization");}
-	//! resynchronize with an IV
-	virtual void Resynchronize(const byte *IV) {throw NotImplemented("SimpleKeyingInterface: this object doesn't support resynchronization");}
+	virtual unsigned int IVSize() const {throw NotImplemented(GetAlgorithm().AlgorithmName() + ": this object doesn't support resynchronization");}
+	//! returns default length of IVs accepted by this object
+	unsigned int DefaultIVLength() const {return IVSize();}
+	//! returns minimal length of IVs accepted by this object
+	virtual unsigned int MinIVLength() const {return IVSize();}
+	//! returns maximal length of IVs accepted by this object
+	virtual unsigned int MaxIVLength() const {return IVSize();}
+	//! resynchronize with an IV. ivLength=-1 means use IVSize()
+	virtual void Resynchronize(const byte *iv, int ivLength=-1) {throw NotImplemented(GetAlgorithm().AlgorithmName() + ": this object doesn't support resynchronization");}
 	//! get a secure IV for the next message
 	/*! This method should be called after you finish encrypting one message and are ready to start the next one.
 		After calling it, you must call SetKey() or Resynchronize() before using this object again. 
@@ -410,7 +420,8 @@ protected:
 	void ThrowIfInvalidKeyLength(size_t length);
 	void ThrowIfResynchronizable();			// to be called when no IV is passed
 	void ThrowIfInvalidIV(const byte *iv);	// check for NULL IV if it can't be used
-	const byte * GetIVAndThrowIfInvalid(const NameValuePairs &params);
+	size_t ThrowIfInvalidIVLength(int size);
+	const byte * GetIVAndThrowIfInvalid(const NameValuePairs &params, size_t &size);
 	inline void AssertValidKeyLength(size_t length) const
 		{assert(IsValidKeyLength(length));}
 };
@@ -418,8 +429,7 @@ protected:
 //! interface for the data processing part of block ciphers
 
 /*! Classes derived from BlockTransformation are block ciphers
-	in ECB mode (for example the DES::Encryption class), which are stateless,
-	and they can make assumptions about the memory alignment of their inputs and outputs.
+	in ECB mode (for example the DES::Encryption class), which are stateless.
 	These classes should not be used directly, but only in combination with
 	a mode class (see CipherModeDocumentation in modes.h).
 */
@@ -441,8 +451,8 @@ public:
 	//! block size of the cipher in bytes
 	virtual unsigned int BlockSize() const =0;
 
-	//! block pointers must be divisible by this
-	virtual unsigned int BlockAlignment() const;	// returns alignment of word32 by default
+	//! returns how inputs and outputs should be aligned for optimal performance
+	virtual unsigned int OptimalDataAlignment() const;
 
 	//! returns true if this is a permutation (i.e. there is an inverse transformation)
 	virtual bool IsPermutation() const {return true;}
@@ -453,8 +463,11 @@ public:
 	//! return number of blocks that can be processed in parallel, for bit-slicing implementations
 	virtual unsigned int OptimalNumberOfParallelBlocks() const {return 1;}
 
-	//! encrypt or decrypt multiple blocks, for bit-slicing implementations
-	virtual void ProcessAndXorMultipleBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t numberOfBlocks) const;
+	enum {BT_InBlockIsCounter=1, BT_DontIncrementInOutPointers=2, BT_XorInput=4, BT_ReverseDirection=8} FlagsForAdvancedProcessBlocks;
+
+	//! encrypt and xor blocks according to flags (see FlagsForAdvancedProcessBlocks)
+	/*! /note If BT_InBlockIsCounter is set, last byte of inBlocks may be modified. */
+	virtual size_t AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const;
 
 	inline CipherDir GetCipherDirection() const {return IsForwardTransformation() ? ENCRYPTION : DECRYPTION;}
 };
@@ -479,7 +492,7 @@ public:
 	virtual unsigned int GetOptimalBlockSizeUsed() const {return 0;}
 
 	//! returns how input should be aligned for optimal performance
-	virtual unsigned int OptimalDataAlignment() const {return 1;}
+	virtual unsigned int OptimalDataAlignment() const;
 
 	//! encrypt or decrypt an array of bytes of specified length
 	/*! \note either inString == outString, or they don't overlap */
@@ -557,7 +570,7 @@ public:
 	virtual unsigned int OptimalBlockSize() const {return 1;}
 
 	//! returns how input should be aligned for optimal performance
-	virtual unsigned int OptimalDataAlignment() const {return 1;}
+	virtual unsigned int OptimalDataAlignment() const;
 
 	//! use this if your input is in one piece and you don't want to call Update() and Final() separately
 	virtual void CalculateDigest(byte *digest, const byte *input, size_t length)
@@ -593,30 +606,60 @@ protected:
 
 typedef HashTransformation HashFunction;
 
-template <class T>
-class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE SimpleKeyedTransformation : public T, public SimpleKeyingInterface
+//! interface for one direction (encryption or decryption) of a block cipher
+/*! \note These objects usually should not be used directly. See BlockTransformation for more details. */
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE BlockCipher : public SimpleKeyingInterface, public BlockTransformation
 {
 protected:
 	const Algorithm & GetAlgorithm() const {return *this;}
 };
 
-#ifdef CRYPTOPP_DOXYGEN_PROCESSING
-//! interface for one direction (encryption or decryption) of a block cipher
-/*! \note These objects usually should not be used directly. See BlockTransformation for more details. */
-class BlockCipher : public BlockTransformation, public SimpleKeyingInterface {};
 //! interface for one direction (encryption or decryption) of a stream cipher or cipher mode
-class SymmetricCipher : public StreamTransformation, public SimpleKeyingInterface {};
-//! interface for message authentication codes
-class MessageAuthenticationCode : public HashTransformation, public SimpleKeyingInterface {};
-#else
-typedef SimpleKeyedTransformation<BlockTransformation> BlockCipher;
-typedef SimpleKeyedTransformation<StreamTransformation> SymmetricCipher;
-typedef SimpleKeyedTransformation<HashTransformation> MessageAuthenticationCode;
-#endif
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE SymmetricCipher : public SimpleKeyingInterface, public StreamTransformation
+{
+protected:
+	const Algorithm & GetAlgorithm() const {return *this;}
+};
 
-CRYPTOPP_DLL_TEMPLATE_CLASS SimpleKeyedTransformation<BlockTransformation>;
-CRYPTOPP_DLL_TEMPLATE_CLASS SimpleKeyedTransformation<StreamTransformation>;
-CRYPTOPP_DLL_TEMPLATE_CLASS SimpleKeyedTransformation<HashTransformation>;
+//! interface for message authentication codes
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE MessageAuthenticationCode : public SimpleKeyingInterface, public HashTransformation
+{
+protected:
+	const Algorithm & GetAlgorithm() const {return *this;}
+};
+
+//! interface for for one direction (encryption or decryption) of a stream cipher or block cipher mode with authentication
+/*! The StreamTransformation part of this interface is used to encrypt/decrypt the data, and the MessageAuthenticationCode part of this
+	interface is used to input additional authenticated data (AAD, which is MAC'ed but not encrypted), and to generate/verify the MAC. */
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AuthenticatedSymmetricCipher : public MessageAuthenticationCode, public StreamTransformation
+{
+public:
+	//! this indicates that a member function was called in the wrong state, for example trying to encrypt a message before having set the key or IV
+	class BadState : public Exception
+	{
+	public:
+		explicit BadState(const std::string &name, const char *function, const char *state) : Exception(OTHER_ERROR, name + ": " + function + " was called before " + state) {}
+	};
+
+	// redeclare this to avoid compiler ambiguity errors
+	virtual std::string AlgorithmName() const =0;
+
+	//! the maximum length of AAD that can be input before the encrypted data
+	virtual lword MaxHeaderLength() const =0;
+	//! the maximum length of encrypted data
+	virtual lword MaxMessageLength() const =0;
+	//! the maximum length of AAD that can be input after the encrypted data
+	virtual lword MaxFooterLength() const {return 0;}
+	//! if this function returns true, SpecifyDataLengths() must be called before attempting to input data
+	/*! This is the case for some schemes, such as CCM. */
+	virtual bool NeedsPrespecifiedDataLengths() const {return false;}
+	//! this function only needs to be called if NeedsPrespecifiedDataLengths() returns true
+	void SpecifyDataLengths(lword headerLength, lword messageLength, lword footerLength=0);
+
+protected:
+	const Algorithm & GetAlgorithm() const {return *static_cast<const MessageAuthenticationCode *>(this);}
+	virtual void UncheckedSpecifyDataLengths(lword headerLength, lword messageLength, lword footerLength) {}
+};
 
 #ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
 typedef SymmetricCipher StreamCipher;
@@ -921,7 +964,9 @@ public:
 	//!	\name CHANNELS
 	//@{
 		struct NoChannelSupport : public NotImplemented
-			{NoChannelSupport() : NotImplemented("BufferedTransformation: this object doesn't support multiple channels") {}};
+			{NoChannelSupport(const std::string &name) : NotImplemented(name + ": this object doesn't support multiple channels") {}};
+		struct InvalidChannelName : public InvalidArgument
+			{InvalidChannelName(const std::string &name, const std::string &channel) : InvalidArgument(name + ": unexpected channel name \"" + channel + "\"") {}};
 
 		size_t ChannelPut(const std::string &channel, byte inByte, bool blocking=true)
 			{return ChannelPut(channel, &inByte, 1, blocking);}
@@ -1043,7 +1088,7 @@ public:
 	// for internal library use
 	void DoQuickSanityCheck() const	{ThrowIfInvalid(NullRNG(), 0);}
 
-#ifdef __SUNPRO_CC
+#if (defined(__SUNPRO_CC) && __SUNPRO_CC < 0x590)
 	// Sun Studio 11/CC 5.8 workaround: it generates incorrect code when casting to an empty virtual base class
 	char m_sunCCworkaround;
 #endif

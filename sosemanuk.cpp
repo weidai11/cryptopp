@@ -23,8 +23,10 @@ void SosemanukPolicy::CipherSetKey(const NameValuePairs &params, const byte *use
 	Serpent_KeySchedule(m_key, 24, userKey, keylen);
 }
 
-void SosemanukPolicy::CipherResynchronize(byte *keystreamBuffer, const byte *iv)
+void SosemanukPolicy::CipherResynchronize(byte *keystreamBuffer, const byte *iv, size_t length)
 {
+	assert(length==16);
+
 	word32 a, b, c, d, e;
 	
 	typedef BlockGetAndPut<word32, LittleEndian> Block;
@@ -295,7 +297,7 @@ unsigned int SosemanukPolicy::GetAlignment() const
 		return 16;
 	else
 #endif
-		return 1;
+		return GetAlignmentOf<word32>();
 }
 
 unsigned int SosemanukPolicy::GetOptimalBlockSize() const
@@ -418,12 +420,15 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 #define R11 edx
 #define R20 edx
 #define R21 ecx
+// workaround bug in GAS 2.15
+#define R20r WORD_REG(dx)
+#define R21r WORD_REG(cx)
 
 #define SSE2_STEP(i, j)	\
 	AS2(	mov		eax, [s(i+0)])\
 	AS2(	mov		[v(i)], eax)\
 	AS2(	rol		eax, 8)\
-	AS2(	lea		AS_REG_7d, [AS_REG_6d + R2##j])\
+	AS2(	lea		AS_REG_7, [AS_REG_6 + R2##j##r])\
 	AS2(	xor		AS_REG_7d, R1##j)\
 	AS2(	mov		[u(i)], AS_REG_7d)\
 	AS2(	mov		AS_REG_7d, 1)\

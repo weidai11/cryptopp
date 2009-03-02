@@ -74,7 +74,7 @@ struct CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AdditiveCipherAbstractPolicy
 	virtual bool CanOperateKeystream() const {return false;}
 	virtual void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount) {assert(false);}
 	virtual void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length) =0;
-	virtual void CipherResynchronize(byte *keystreamBuffer, const byte *iv) {throw NotImplemented("SimpleKeyingInterface: this object doesn't support resynchronization");}
+	virtual void CipherResynchronize(byte *keystreamBuffer, const byte *iv, size_t length) {throw NotImplemented("SimpleKeyingInterface: this object doesn't support resynchronization");}
 	virtual bool CipherIsRandomAccess() const =0;
 	virtual void SeekToIteration(lword iterationCount) {assert(!CipherIsRandomAccess()); throw NotImplemented("StreamTransformation: this object doesn't support random access");}
 };
@@ -129,13 +129,13 @@ struct CRYPTOPP_NO_VTABLE AdditiveCipherConcretePolicy : public BASE
 	}											\
 	output += y;
 
-template <class BASE = AbstractPolicyHolder<AdditiveCipherAbstractPolicy, TwoBases<SymmetricCipher, RandomNumberGenerator> > >
-class CRYPTOPP_NO_VTABLE AdditiveCipherTemplate : public BASE
+template <class BASE = AbstractPolicyHolder<AdditiveCipherAbstractPolicy, SymmetricCipher> >
+class CRYPTOPP_NO_VTABLE AdditiveCipherTemplate : public BASE, public RandomNumberGenerator
 {
 public:
 	void GenerateBlock(byte *output, size_t size);
     void ProcessData(byte *outString, const byte *inString, size_t length);
-	void Resynchronize(const byte *iv);
+	void Resynchronize(const byte *iv, int length=-1);
 	unsigned int OptimalBlockSize() const {return this->GetPolicy().GetOptimalBlockSize();}
 	unsigned int GetOptimalNextBlockSize() const {return (unsigned int)this->m_leftOver;}
 	unsigned int OptimalDataAlignment() const {return this->GetPolicy().GetAlignment();}
@@ -169,7 +169,7 @@ public:
 	virtual bool CanIterate() const {return false;}
 	virtual void Iterate(byte *output, const byte *input, CipherDir dir, size_t iterationCount) {assert(false);}
 	virtual void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length) =0;
-	virtual void CipherResynchronize(const byte *iv) {throw NotImplemented("SimpleKeyingInterface: this object doesn't support resynchronization");}
+	virtual void CipherResynchronize(const byte *iv, size_t length) {throw NotImplemented("SimpleKeyingInterface: this object doesn't support resynchronization");}
 };
 
 template <typename WT, unsigned int W, class BASE = CFB_CipherAbstractPolicy>
@@ -234,7 +234,7 @@ class CRYPTOPP_NO_VTABLE CFB_CipherTemplate : public BASE
 {
 public:
 	void ProcessData(byte *outString, const byte *inString, size_t length);
-	void Resynchronize(const byte *iv);
+	void Resynchronize(const byte *iv, int length=-1);
 	unsigned int OptimalBlockSize() const {return this->GetPolicy().GetBytesPerIteration();}
 	unsigned int GetOptimalNextBlockSize() const {return (unsigned int)m_leftOver;}
 	unsigned int OptimalDataAlignment() const {return this->GetPolicy().GetAlignment();}
@@ -295,9 +295,8 @@ NAMESPACE_END
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
-CRYPTOPP_DLL_TEMPLATE_CLASS TwoBases<SymmetricCipher, RandomNumberGenerator>;
-CRYPTOPP_DLL_TEMPLATE_CLASS AbstractPolicyHolder<AdditiveCipherAbstractPolicy, TwoBases<SymmetricCipher, RandomNumberGenerator> >;
-CRYPTOPP_DLL_TEMPLATE_CLASS AdditiveCipherTemplate<AbstractPolicyHolder<AdditiveCipherAbstractPolicy, TwoBases<SymmetricCipher, RandomNumberGenerator> > >;
+CRYPTOPP_DLL_TEMPLATE_CLASS AbstractPolicyHolder<AdditiveCipherAbstractPolicy, SymmetricCipher>;
+CRYPTOPP_DLL_TEMPLATE_CLASS AdditiveCipherTemplate<AbstractPolicyHolder<AdditiveCipherAbstractPolicy, SymmetricCipher> >;
 CRYPTOPP_DLL_TEMPLATE_CLASS CFB_CipherTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, SymmetricCipher> >;
 CRYPTOPP_DLL_TEMPLATE_CLASS CFB_EncryptionTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, SymmetricCipher> >;
 CRYPTOPP_DLL_TEMPLATE_CLASS CFB_DecryptionTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, SymmetricCipher> >;
