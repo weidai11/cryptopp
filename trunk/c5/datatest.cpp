@@ -397,7 +397,7 @@ void TestAuthenticatedSymmetricCipher(TestData &v, const NameValuePairs &overrid
 
 		std::string encrypted, decrypted;
 		AuthenticatedEncryptionFilter ef(*asc1, new StringSink(encrypted));
-		AuthenticatedDecryptionFilter df(*asc2, new StringSink(decrypted), AuthenticatedDecryptionFilter::DEFAULT_PADDING, AuthenticatedDecryptionFilter::MAC_AT_BEGIN);
+		AuthenticatedDecryptionFilter df(*asc2, new StringSink(decrypted), AuthenticatedDecryptionFilter::MAC_AT_BEGIN);
 
 		if (asc1->NeedsPrespecifiedDataLengths())
 		{

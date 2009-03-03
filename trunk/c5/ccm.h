@@ -73,7 +73,7 @@ protected:
 };
 
 //! .
-template <class T_BlockCipher, int T_DefaultDigestBitSize, bool T_IsEncryption>
+template <class T_BlockCipher, int T_DefaultDigestSize, bool T_IsEncryption>
 class CCM_Final : public CCM_Base
 {
 public:
@@ -84,16 +84,16 @@ public:
 
 private:
 	BlockCipher & AccessBlockCipher() {return m_cipher;}
-	int DefaultDigestSize() const {return T_DefaultDigestBitSize/8;}
+	int DefaultDigestSize() const {return T_DefaultDigestSize;}
 	typename T_BlockCipher::Encryption m_cipher;
 };
 
 /// <a href="http://www.cryptolounge.org/wiki/CCM">CCM</a>
-template <class T_BlockCipher, int T_DefaultDigestBitSize = 128>
+template <class T_BlockCipher, int T_DefaultDigestSize = 16>
 struct CCM : public AuthenticatedSymmetricCipherDocumentation
 {
-	typedef CCM_Final<T_BlockCipher, T_DefaultDigestBitSize, true> Encryption;
-	typedef CCM_Final<T_BlockCipher, T_DefaultDigestBitSize, false> Decryption;
+	typedef CCM_Final<T_BlockCipher, T_DefaultDigestSize, true> Encryption;
+	typedef CCM_Final<T_BlockCipher, T_DefaultDigestSize, false> Decryption;
 };
 
 NAMESPACE_END

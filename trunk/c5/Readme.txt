@@ -414,6 +414,7 @@ the mailing list.
 
 5.6 - added AuthenticatedSymmetricCipher interface class and Filter wrappers
     - added CCM, GCM (with SSE2 assembly), CMAC, and SEED
+    - added support for variable length IVs
     - improved AES speed on x86 and x64
     - fixed run-time validation error on x86-64 with GCC 4.3.2 -O2
     - fixed HashFilter bug when putMessage=true

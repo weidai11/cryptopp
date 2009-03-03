@@ -97,11 +97,11 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
 		{
 			s_reductionTable[0] = 0;
 			word16 x = 0x01c2;
-			s_reductionTable[1] = ConditionalByteReverse(BIG_ENDIAN_ORDER, x);
+			s_reductionTable[1] = ByteReverse(x);
 			for (int i=2; i<=0x80; i*=2)
 			{
 				x <<= 1;
-				s_reductionTable[i] = ConditionalByteReverse(BIG_ENDIAN_ORDER, x);
+				s_reductionTable[i] = ByteReverse(x);
 				for (int j=1; j<i; j++)
 					s_reductionTable[i+j] = s_reductionTable[i] ^ s_reductionTable[j];
 			}
@@ -198,7 +198,7 @@ void GCM_AuthenticateBlocks_64K(const byte *data, size_t blocks, word64 *hashBuf
 
 size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 {
-	typedef BlockGetAndPut<word64, NativeByteOrder, false, true> Block;
+	typedef BlockGetAndPut<word64, NativeByteOrder> Block;
 	word64 *hashBuffer = (word64 *)HashBuffer();
 
 	switch (2*(m_buffer.size()>=64*1024)

@@ -5,17 +5,20 @@
 // use "cl /EP /P /DCRYPTOPP_GENERATE_X64_MASM rijndael.cpp" to generate MASM code
 
 /*
-The assembly code was rewritten in Feb 2009 by Wei Dai to do counter mode 
+Feb 2009: The x86/x64 assembly code was rewritten in by Wei Dai to do counter mode 
 caching, which was invented by Hongjun Wu and popularized by Daniel J. Bernstein 
 and Peter Schwabe in their paper "New AES software speed records". The round 
 function was also modified to include a trick similar to one in Brian Gladman's 
 x86 assembly code, doing an 8-bit register move to minimize the number of 
 register spills. Also switched to compressed tables and copying round keys to 
 the stack.
+
+The C++ implementation now uses compressed tables if 
+CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS is defined.
 */
 
 /*
-Defense against timing attacks was added in July 2006 by Wei Dai.
+July 2006: Defense against timing attacks was added in by Wei Dai.
 
 The code now uses smaller tables in the first and last rounds,
 and preloads them into L1 cache before usage (by loading at least 
@@ -75,11 +78,65 @@ using namespace rdtable;
 #else
 static word64 Te[256];
 #endif
-static word32 Td[256*4];
+static word64 Td[256];
 #else
 static word32 Te[256*4], Td[256*4];
 #endif
 static bool s_TeFilled = false, s_TdFilled = false;
+
+// ************************* Portable Code ************************************
+
+#define QUARTER_ROUND(L, T, t, a, b, c, d)	\
+	a ^= L(T, 3, byte(t)); t >>= 8;\
+	b ^= L(T, 2, byte(t)); t >>= 8;\
+	c ^= L(T, 1, byte(t)); t >>= 8;\
+	d ^= L(T, 0, t);
+
+#define QUARTER_ROUND_LE(t, a, b, c, d)	\
+	tempBlock[a] = ((byte *)(Te+byte(t)))[1]; t >>= 8;\
+	tempBlock[b] = ((byte *)(Te+byte(t)))[1]; t >>= 8;\
+	tempBlock[c] = ((byte *)(Te+byte(t)))[1]; t >>= 8;\
+	tempBlock[d] = ((byte *)(Te+t))[1];
+
+#ifdef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
+	#define QUARTER_ROUND_LD(t, a, b, c, d)	\
+		tempBlock[a] = ((byte *)(Td+byte(t)))[GetNativeByteOrder()*7]; t >>= 8;\
+		tempBlock[b] = ((byte *)(Td+byte(t)))[GetNativeByteOrder()*7]; t >>= 8;\
+		tempBlock[c] = ((byte *)(Td+byte(t)))[GetNativeByteOrder()*7]; t >>= 8;\
+		tempBlock[d] = ((byte *)(Td+t))[GetNativeByteOrder()*7];
+#else
+	#define QUARTER_ROUND_LD(t, a, b, c, d)	\
+		tempBlock[a] = Sd[byte(t)]; t >>= 8;\
+		tempBlock[b] = Sd[byte(t)]; t >>= 8;\
+		tempBlock[c] = Sd[byte(t)]; t >>= 8;\
+		tempBlock[d] = Sd[t];
+#endif
+
+#define QUARTER_ROUND_E(t, a, b, c, d)		QUARTER_ROUND(TL_M, Te, t, a, b, c, d)
+#define QUARTER_ROUND_D(t, a, b, c, d)		QUARTER_ROUND(TL_M, Td, t, a, b, c, d)
+
+#ifdef IS_LITTLE_ENDIAN
+	#define QUARTER_ROUND_FE(t, a, b, c, d)		QUARTER_ROUND(TL_F, Te, t, d, c, b, a)
+	#define QUARTER_ROUND_FD(t, a, b, c, d)		QUARTER_ROUND(TL_F, Td, t, d, c, b, a)
+	#ifdef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
+		#define TL_F(T, i, x)	(*(word32 *)((byte *)T + x*8 + (6-i)%4+1))
+		#define TL_M(T, i, x)	(*(word32 *)((byte *)T + x*8 + (i+3)%4+1))
+	#else
+		#define TL_F(T, i, x)	rotrFixed(T[x], (3-i)*8)
+		#define TL_M(T, i, x)	T[i*256 + x]
+	#endif
+#else
+	#define QUARTER_ROUND_FE(t, a, b, c, d)		QUARTER_ROUND(TL_F, Te, t, a, b, c, d)
+	#define QUARTER_ROUND_FD(t, a, b, c, d)		QUARTER_ROUND(TL_F, Td, t, a, b, c, d)
+	#ifdef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
+		#define TL_F(T, i, x)	(*(word32 *)((byte *)T + x*8 + (4-i)%4))
+		#define TL_M			TL_F
+	#else
+		#define TL_F(T, i, x)	rotrFixed(T[x], i*8)
+		#define TL_M(T, i, x)	T[i*256 + x]
+	#endif
+#endif
+
 
 #define f2(x)   ((x<<1)^(((x>>7)&1)*0x11b))
 #define f4(x)   ((x<<2)^(((x>>6)&1)*0x11b)^(((x>>6)&2)*0x11b))
@@ -108,7 +165,7 @@ void Rijndael::Base::FillEncTable()
 		}
 #endif
 	}
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)
 	Te[256] = Te[257] = 0;
 #endif
 	s_TeFilled = true;
@@ -119,7 +176,7 @@ void Rijndael::Base::FillDecTable()
 	for (int i=0; i<256; i++)
 	{
 		byte x = Sd[i];
-#ifdef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS_
+#ifdef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
 		word32 y = word32(fd(x))<<8 | word32(f9(x))<<16 | word32(fe(x))<<24;
 		Td[i] = word64(y | fb(x))<<32 | y | x;
 #else
@@ -202,35 +259,179 @@ void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keylen, c
 			temp = rk[i + 2]; rk[i + 2] = rk[j + 2]; rk[j + 2] = temp;
 			temp = rk[i + 3]; rk[i + 3] = rk[j + 3]; rk[j + 3] = temp;
 		}
+
+#define InverseMixColumn(x)		x = TL_M(Td, 0, Se[GETBYTE(x, 3)]) ^ TL_M(Td, 1, Se[GETBYTE(x, 2)]) ^ TL_M(Td, 2, Se[GETBYTE(x, 1)]) ^ TL_M(Td, 3, Se[GETBYTE(x, 0)])
+
 		/* apply the inverse MixColumn transform to all round keys but the first and the last: */
 		for (i = 1; i < m_rounds; i++) {
 			rk += 4;
-			rk[0] =
-				Td[0*256+Se[GETBYTE(rk[0], 3)]] ^
-				Td[1*256+Se[GETBYTE(rk[0], 2)]] ^
-				Td[2*256+Se[GETBYTE(rk[0], 1)]] ^
-				Td[3*256+Se[GETBYTE(rk[0], 0)]];
-			rk[1] =
-				Td[0*256+Se[GETBYTE(rk[1], 3)]] ^
-				Td[1*256+Se[GETBYTE(rk[1], 2)]] ^
-				Td[2*256+Se[GETBYTE(rk[1], 1)]] ^
-				Td[3*256+Se[GETBYTE(rk[1], 0)]];
-			rk[2] =
-				Td[0*256+Se[GETBYTE(rk[2], 3)]] ^
-				Td[1*256+Se[GETBYTE(rk[2], 2)]] ^
-				Td[2*256+Se[GETBYTE(rk[2], 1)]] ^
-				Td[3*256+Se[GETBYTE(rk[2], 0)]];
-			rk[3] =
-				Td[0*256+Se[GETBYTE(rk[3], 3)]] ^
-				Td[1*256+Se[GETBYTE(rk[3], 2)]] ^
-				Td[2*256+Se[GETBYTE(rk[3], 1)]] ^
-				Td[3*256+Se[GETBYTE(rk[3], 0)]];
+			InverseMixColumn(rk[0]);
+			InverseMixColumn(rk[1]);
+			InverseMixColumn(rk[2]);
+			InverseMixColumn(rk[3]);
 		}
 	}
 
 	ConditionalByteReverse(BIG_ENDIAN_ORDER, m_key.begin(), m_key.begin(), 16);
 	ConditionalByteReverse(BIG_ENDIAN_ORDER, m_key + m_rounds*4, m_key + m_rounds*4, 16);
 }
+
+void Rijndael::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+{
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)
+	if (HasSSE2())
+	{
+		Rijndael::Enc::AdvancedProcessBlocks(inBlock, xorBlock, outBlock, 16, 0);
+		return;
+	}
+#endif
+
+	typedef BlockGetAndPut<word32, NativeByteOrder> Block;
+
+	word32 s0, s1, s2, s3, t0, t1, t2, t3;
+	Block::Get(inBlock)(s0)(s1)(s2)(s3);
+
+	const word32 *rk = m_key;
+	s0 ^= rk[0];
+	s1 ^= rk[1];
+	s2 ^= rk[2];
+	s3 ^= rk[3];
+	t0 = rk[4];
+	t1 = rk[5];
+	t2 = rk[6];
+	t3 = rk[7];
+	rk += 8;
+
+	// timing attack countermeasure. see comments at top for more details
+	const int cacheLineSize = GetCacheLineSize();
+	unsigned int i;
+	word32 u = 0;
+#ifdef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
+	for (i=0; i<2048; i+=cacheLineSize)
+#else
+	for (i=0; i<1024; i+=cacheLineSize)
+#endif
+		u &= *(const word32 *)(((const byte *)Te)+i);
+	u &= Te[255];
+	s0 |= u; s1 |= u; s2 |= u; s3 |= u;
+
+	QUARTER_ROUND_FE(s3, t0, t1, t2, t3)
+	QUARTER_ROUND_FE(s2, t3, t0, t1, t2)
+	QUARTER_ROUND_FE(s1, t2, t3, t0, t1)
+	QUARTER_ROUND_FE(s0, t1, t2, t3, t0)
+
+	// Nr - 2 full rounds:
+    unsigned int r = m_rounds/2 - 1;
+    do
+	{
+		s0 = rk[0]; s1 = rk[1]; s2 = rk[2]; s3 = rk[3];
+
+		QUARTER_ROUND_E(t3, s0, s1, s2, s3)
+		QUARTER_ROUND_E(t2, s3, s0, s1, s2)
+		QUARTER_ROUND_E(t1, s2, s3, s0, s1)
+		QUARTER_ROUND_E(t0, s1, s2, s3, s0)
+
+		t0 = rk[4]; t1 = rk[5]; t2 = rk[6]; t3 = rk[7];
+
+		QUARTER_ROUND_E(s3, t0, t1, t2, t3)
+		QUARTER_ROUND_E(s2, t3, t0, t1, t2)
+		QUARTER_ROUND_E(s1, t2, t3, t0, t1)
+		QUARTER_ROUND_E(s0, t1, t2, t3, t0)
+
+        rk += 8;
+    } while (--r);
+
+	word32 tbw[4];
+	byte *const tempBlock = (byte *)tbw;
+
+	QUARTER_ROUND_LE(t2, 15, 2, 5, 8)
+	QUARTER_ROUND_LE(t1, 11, 14, 1, 4)
+	QUARTER_ROUND_LE(t0, 7, 10, 13, 0)
+	QUARTER_ROUND_LE(t3, 3, 6, 9, 12)
+
+	Block::Put(xorBlock, outBlock)(tbw[0]^rk[0])(tbw[1]^rk[1])(tbw[2]^rk[2])(tbw[3]^rk[3]);
+}
+
+void Rijndael::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+{
+	typedef BlockGetAndPut<word32, NativeByteOrder> Block;
+
+	word32 s0, s1, s2, s3, t0, t1, t2, t3;
+	Block::Get(inBlock)(s0)(s1)(s2)(s3);
+
+	const word32 *rk = m_key;
+	s0 ^= rk[0];
+	s1 ^= rk[1];
+	s2 ^= rk[2];
+	s3 ^= rk[3];
+	t0 = rk[4];
+	t1 = rk[5];
+	t2 = rk[6];
+	t3 = rk[7];
+	rk += 8;
+
+	// timing attack countermeasure. see comments at top for more details
+	const int cacheLineSize = GetCacheLineSize();
+	unsigned int i;
+	word32 u = 0;
+#ifdef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
+	for (i=0; i<2048; i+=cacheLineSize)
+#else
+	for (i=0; i<1024; i+=cacheLineSize)
+#endif
+		u &= *(const word32 *)(((const byte *)Td)+i);
+	u &= Td[255];
+	s0 |= u; s1 |= u; s2 |= u; s3 |= u;
+
+	QUARTER_ROUND_FD(s3, t2, t1, t0, t3)
+	QUARTER_ROUND_FD(s2, t1, t0, t3, t2)
+	QUARTER_ROUND_FD(s1, t0, t3, t2, t1)
+	QUARTER_ROUND_FD(s0, t3, t2, t1, t0)
+
+	// Nr - 2 full rounds:
+    unsigned int r = m_rounds/2 - 1;
+    do
+	{
+		s0 = rk[0]; s1 = rk[1]; s2 = rk[2]; s3 = rk[3];
+
+		QUARTER_ROUND_D(t3, s2, s1, s0, s3)
+		QUARTER_ROUND_D(t2, s1, s0, s3, s2)
+		QUARTER_ROUND_D(t1, s0, s3, s2, s1)
+		QUARTER_ROUND_D(t0, s3, s2, s1, s0)
+
+		t0 = rk[4]; t1 = rk[5]; t2 = rk[6]; t3 = rk[7];
+
+		QUARTER_ROUND_D(s3, t2, t1, t0, t3)
+		QUARTER_ROUND_D(s2, t1, t0, t3, t2)
+		QUARTER_ROUND_D(s1, t0, t3, t2, t1)
+		QUARTER_ROUND_D(s0, t3, t2, t1, t0)
+
+        rk += 8;
+    } while (--r);
+
+#ifndef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
+	// timing attack countermeasure. see comments at top for more details
+	// If CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS is defined, 
+	// QUARTER_ROUND_LD will use Td, which is already preloaded.
+	u = 0;
+	for (i=0; i<256; i+=cacheLineSize)
+		u &= *(const word32 *)(Sd+i);
+	u &= *(const word32 *)(Sd+252);
+	t0 |= u; t1 |= u; t2 |= u; t3 |= u;
+#endif
+
+	word32 tbw[4];
+	byte *const tempBlock = (byte *)tbw;
+
+	QUARTER_ROUND_LD(t2, 7, 2, 13, 8)
+	QUARTER_ROUND_LD(t1, 3, 14, 9, 4)
+	QUARTER_ROUND_LD(t0, 15, 10, 5, 0)
+	QUARTER_ROUND_LD(t3, 11, 6, 1, 12)
+
+	Block::Put(xorBlock, outBlock)(tbw[0]^rk[0])(tbw[1]^rk[1])(tbw[2]^rk[2])(tbw[3]^rk[3]);
+}
+
+// ************************* Assembly Code ************************************
 
 #pragma warning(disable: 4731)	// frame pointer register 'ebp' modified by inline assembly code
 
@@ -749,247 +950,6 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 }
 
 #endif
-
-void Rijndael::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
-{
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)
-	if (HasSSE2())
-	{
-		Rijndael::Enc::AdvancedProcessBlocks(inBlock, xorBlock, outBlock, 16, 0);
-		return;
-	}
-#endif
-
-	word32 s0, s1, s2, s3, t0, t1, t2, t3;
-	const word32 *rk = m_key;
-
-	s0 = ((const word32 *)inBlock)[0] ^ rk[0];
-	s1 = ((const word32 *)inBlock)[1] ^ rk[1];
-	s2 = ((const word32 *)inBlock)[2] ^ rk[2];
-	s3 = ((const word32 *)inBlock)[3] ^ rk[3];
-	t0 = rk[4];
-	t1 = rk[5];
-	t2 = rk[6];
-	t3 = rk[7];
-	rk += 8;
-
-	// timing attack countermeasure. see comments at top for more details
-	const int cacheLineSize = GetCacheLineSize();
-	unsigned int i;
-	word32 u = 0;
-#ifdef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
-	for (i=0; i<2048; i+=cacheLineSize)
-#else
-	for (i=0; i<1024; i+=cacheLineSize)
-#endif
-		u &= *(const word32 *)(((const byte *)Te)+i);
-	u &= Te[255];
-	s0 |= u; s1 |= u; s2 |= u; s3 |= u;
-
-#define QUARTER_ROUND(t, a, b, c, d)	\
-	a ^= TL(3, byte(t)); t >>= 8;\
-	b ^= TL(2, byte(t)); t >>= 8;\
-	c ^= TL(1, byte(t)); t >>= 8;\
-	d ^= TL(0, t);
-
-#ifdef IS_LITTLE_ENDIAN
-	#ifdef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
-		#define TL(i, x)	(*(word32 *)((byte *)Te + x*8 + (6-i)%4+1))
-	#else
-		#define TL(i, x)	rotrFixed(Te[x], (3-i)*8)
-	#endif
-	#define QUARTER_ROUND1(t, a, b, c, d)	QUARTER_ROUND(t, d, c, b, a)
-#else
-	#ifdef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
-		#define TL(i, x)	(*(word32 *)((byte *)Te + x*8 + (4-i)%4))
-	#else
-		#define TL(i, x)	rotrFixed(Te[x], i*8)
-	#endif
-	#define QUARTER_ROUND1		QUARTER_ROUND
-#endif
-
-	QUARTER_ROUND1(s3, t0, t1, t2, t3)
-	QUARTER_ROUND1(s2, t3, t0, t1, t2)
-	QUARTER_ROUND1(s1, t2, t3, t0, t1)
-	QUARTER_ROUND1(s0, t1, t2, t3, t0)
-
-#if defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS) && defined(IS_LITTLE_ENDIAN)
-	#undef TL
-	#define TL(i, x)	(*(word32 *)((byte *)Te + x*8 + (i+3)%4+1))
-#endif
-
-#ifndef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
-	#undef TL
-	#define TL(i, x)	Te[i*256 + x]
-#endif
-
-	// Nr - 2 full rounds:
-    unsigned int r = m_rounds/2 - 1;
-    do
-	{
-		s0 = rk[0]; s1 = rk[1]; s2 = rk[2]; s3 = rk[3];
-
-		QUARTER_ROUND(t3, s0, s1, s2, s3)
-		QUARTER_ROUND(t2, s3, s0, s1, s2)
-		QUARTER_ROUND(t1, s2, s3, s0, s1)
-		QUARTER_ROUND(t0, s1, s2, s3, s0)
-
-		t0 = rk[4]; t1 = rk[5]; t2 = rk[6]; t3 = rk[7];
-
-		QUARTER_ROUND(s3, t0, t1, t2, t3)
-		QUARTER_ROUND(s2, t3, t0, t1, t2)
-		QUARTER_ROUND(s1, t2, t3, t0, t1)
-		QUARTER_ROUND(s0, t1, t2, t3, t0)
-#undef QUARTER_ROUND
-
-        rk += 8;
-    } while (--r);
-
-	word32 tbw[4];
-	byte *const tempBlock = (byte *)tbw;
-	word32 *const obw = (word32 *)outBlock;
-	const word32 *const xbw = (const word32 *)xorBlock;
-
-#define QUARTER_ROUND(t, a, b, c, d)	\
-	tempBlock[a] = ((byte *)(Te+byte(t)))[1]; t >>= 8;\
-	tempBlock[b] = ((byte *)(Te+byte(t)))[1]; t >>= 8;\
-	tempBlock[c] = ((byte *)(Te+byte(t)))[1]; t >>= 8;\
-	tempBlock[d] = ((byte *)(Te+t))[1];
-
-	QUARTER_ROUND(t2, 15, 2, 5, 8)
-	QUARTER_ROUND(t1, 11, 14, 1, 4)
-	QUARTER_ROUND(t0, 7, 10, 13, 0)
-	QUARTER_ROUND(t3, 3, 6, 9, 12)
-#undef QUARTER_ROUND
-
-	if (xbw)
-	{
-		obw[0] = tbw[0] ^ xbw[0] ^ rk[0];
-		obw[1] = tbw[1] ^ xbw[1] ^ rk[1];
-		obw[2] = tbw[2] ^ xbw[2] ^ rk[2];
-		obw[3] = tbw[3] ^ xbw[3] ^ rk[3];
-	}
-	else
-	{
-		obw[0] = tbw[0] ^ rk[0];
-		obw[1] = tbw[1] ^ rk[1];
-		obw[2] = tbw[2] ^ rk[2];
-		obw[3] = tbw[3] ^ rk[3];
-	}
-}
-
-void Rijndael::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
-{
-	word32 s0, s1, s2, s3, t0, t1, t2, t3;
-	const word32 *rk = m_key;
-
-	s0 = ((const word32 *)inBlock)[0] ^ rk[0];
-	s1 = ((const word32 *)inBlock)[1] ^ rk[1];
-	s2 = ((const word32 *)inBlock)[2] ^ rk[2];
-	s3 = ((const word32 *)inBlock)[3] ^ rk[3];
-	t0 = rk[4];
-	t1 = rk[5];
-	t2 = rk[6];
-	t3 = rk[7];
-	rk += 8;
-
-	// timing attack countermeasure. see comments at top for more details
-	const int cacheLineSize = GetCacheLineSize();
-	unsigned int i;
-	word32 u = 0;
-	for (i=0; i<1024; i+=cacheLineSize)
-		u &= *(const word32 *)(((const byte *)Td)+i);
-	u &= Td[255];
-	s0 |= u; s1 |= u; s2 |= u; s3 |= u;
-
-	// first round
-#ifdef IS_BIG_ENDIAN
-#define QUARTER_ROUND(t, a, b, c, d)	\
-		a ^= rotrFixed(Td[byte(t)], 24);	t >>= 8;\
-		b ^= rotrFixed(Td[byte(t)], 16);	t >>= 8;\
-		c ^= rotrFixed(Td[byte(t)], 8);		t >>= 8;\
-		d ^= Td[t];
-#else
-#define QUARTER_ROUND(t, a, b, c, d)	\
-		d ^= Td[byte(t)];					t >>= 8;\
-		c ^= rotrFixed(Td[byte(t)], 8);		t >>= 8;\
-		b ^= rotrFixed(Td[byte(t)], 16);	t >>= 8;\
-		a ^= rotrFixed(Td[t], 24);
-#endif
-
-	QUARTER_ROUND(s3, t2, t1, t0, t3)
-	QUARTER_ROUND(s2, t1, t0, t3, t2)
-	QUARTER_ROUND(s1, t0, t3, t2, t1)
-	QUARTER_ROUND(s0, t3, t2, t1, t0)
-#undef QUARTER_ROUND
-
-	// Nr - 2 full rounds:
-    unsigned int r = m_rounds/2 - 1;
-    do
-	{
-#define QUARTER_ROUND(t, a, b, c, d)	\
-		a ^= Td[3*256+byte(t)]; t >>= 8;\
-		b ^= Td[2*256+byte(t)]; t >>= 8;\
-		c ^= Td[1*256+byte(t)]; t >>= 8;\
-		d ^= Td[t];
-
-		s0 = rk[0]; s1 = rk[1]; s2 = rk[2]; s3 = rk[3];
-
-		QUARTER_ROUND(t3, s2, s1, s0, s3)
-		QUARTER_ROUND(t2, s1, s0, s3, s2)
-		QUARTER_ROUND(t1, s0, s3, s2, s1)
-		QUARTER_ROUND(t0, s3, s2, s1, s0)
-
-		t0 = rk[4]; t1 = rk[5]; t2 = rk[6]; t3 = rk[7];
-
-		QUARTER_ROUND(s3, t2, t1, t0, t3)
-		QUARTER_ROUND(s2, t1, t0, t3, t2)
-		QUARTER_ROUND(s1, t0, t3, t2, t1)
-		QUARTER_ROUND(s0, t3, t2, t1, t0)
-#undef QUARTER_ROUND
-
-        rk += 8;
-    } while (--r);
-
-	// timing attack countermeasure. see comments at top for more details
-	u = 0;
-	for (i=0; i<256; i+=cacheLineSize)
-		u &= *(const word32 *)(Sd+i);
-	u &= *(const word32 *)(Sd+252);
-	t0 |= u; t1 |= u; t2 |= u; t3 |= u;
-
-	word32 tbw[4];
-	byte *const tempBlock = (byte *)tbw;
-	word32 *const obw = (word32 *)outBlock;
-	const word32 *const xbw = (const word32 *)xorBlock;
-
-#define QUARTER_ROUND(t, a, b, c, d)	\
-	tempBlock[a] = Sd[byte(t)]; t >>= 8;\
-	tempBlock[b] = Sd[byte(t)]; t >>= 8;\
-	tempBlock[c] = Sd[byte(t)]; t >>= 8;\
-	tempBlock[d] = Sd[t];
-
-	QUARTER_ROUND(t2, 7, 2, 13, 8)
-	QUARTER_ROUND(t1, 3, 14, 9, 4)
-	QUARTER_ROUND(t0, 15, 10, 5, 0)
-	QUARTER_ROUND(t3, 11, 6, 1, 12)
-#undef QUARTER_ROUND
-
-	if (xbw)
-	{
-		obw[0] = tbw[0] ^ xbw[0] ^ rk[0];
-		obw[1] = tbw[1] ^ xbw[1] ^ rk[1];
-		obw[2] = tbw[2] ^ xbw[2] ^ rk[2];
-		obw[3] = tbw[3] ^ xbw[3] ^ rk[3];
-	}
-	else
-	{
-		obw[0] = tbw[0] ^ rk[0];
-		obw[1] = tbw[1] ^ rk[1];
-		obw[2] = tbw[2] ^ rk[2];
-		obw[3] = tbw[3] ^ rk[3];
-	}
-}
 
 NAMESPACE_END
 

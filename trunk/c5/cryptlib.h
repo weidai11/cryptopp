@@ -377,10 +377,10 @@ public:
 	//! calls SetKey() with an NameValuePairs object that just specifies "Rounds"
 	void SetKeyWithRounds(const byte *key, size_t length, int rounds);
 
-	//! calls SetKey() with an NameValuePairs object that just specifies "IVWithLength"
+	//! calls SetKey() with an NameValuePairs object that just specifies "IV"
 	void SetKeyWithIV(const byte *key, size_t length, const byte *iv, size_t ivLength);
 
-	//! calls SetKey() with an NameValuePairs object that just specifies "IVWithLength"
+	//! calls SetKey() with an NameValuePairs object that just specifies "IV"
 	void SetKeyWithIV(const byte *key, size_t length, const byte *iv)
 		{SetKeyWithIV(key, length, iv, IVSize());}
 
@@ -560,8 +560,12 @@ public:
 	virtual void Restart()
 		{TruncatedFinal(NULL, 0);}
 
-	//! size of the hash returned by Final()
+	//! size of the hash/digest/MAC returned by Final()
 	virtual unsigned int DigestSize() const =0;
+
+	//! same as DigestSize()
+	unsigned int TagSize() const {return DigestSize();}
+
 
 	//! block size of underlying compression function, or 0 if not block based
 	virtual unsigned int BlockSize() const {return 0;}
@@ -641,9 +645,6 @@ public:
 		explicit BadState(const std::string &name, const char *function, const char *state) : Exception(OTHER_ERROR, name + ": " + function + " was called before " + state) {}
 	};
 
-	// redeclare this to avoid compiler ambiguity errors
-	virtual std::string AlgorithmName() const =0;
-
 	//! the maximum length of AAD that can be input before the encrypted data
 	virtual lword MaxHeaderLength() const =0;
 	//! the maximum length of encrypted data
@@ -655,6 +656,13 @@ public:
 	virtual bool NeedsPrespecifiedDataLengths() const {return false;}
 	//! this function only needs to be called if NeedsPrespecifiedDataLengths() returns true
 	void SpecifyDataLengths(lword headerLength, lword messageLength, lword footerLength=0);
+	//! encrypt and generate MAC in one call. will truncate MAC if macSize < TagSize()
+	virtual void EncryptAndAuthenticate(byte *ciphertext, byte *mac, size_t macSize, const byte *iv, int ivLength, const byte *header, size_t headerLength, const byte *message, size_t messageLength);
+	//! decrypt and verify MAC in one call, returning true iff MAC is valid. will assume MAC is truncated if macLength < TagSize()
+	virtual bool DecryptAndVerify(byte *message, const byte *mac, size_t macLength, const byte *iv, int ivLength, const byte *header, size_t headerLength, const byte *ciphertext, size_t ciphertextLength);
+
+	// redeclare this to avoid compiler ambiguity errors
+	virtual std::string AlgorithmName() const =0;
 
 protected:
 	const Algorithm & GetAlgorithm() const {return *static_cast<const MessageAuthenticationCode *>(this);}
