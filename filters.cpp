@@ -540,6 +540,18 @@ size_t ArrayXorSink::Put2(const byte *begin, size_t length, int messageEnd, bool
 
 // *************************************************************
 
+StreamTransformationFilter::StreamTransformationFilter(StreamTransformation &c, BufferedTransformation *attachment, BlockPaddingScheme padding, bool allowAuthenticatedSymmetricCipher)
+   : FilterWithBufferedInput(attachment)
+	, m_cipher(c)
+{
+	assert(c.MinLastBlockSize() == 0 || c.MinLastBlockSize() > c.MandatoryBlockSize());
+
+	if (!allowAuthenticatedSymmetricCipher && dynamic_cast<AuthenticatedSymmetricCipher *>(&c) != 0)
+		throw InvalidArgument("StreamTransformationFilter: please use AuthenticatedEncryptionFilter and AuthenticatedDecryptionFilter for AuthenticatedSymmetricCipher");
+
+	IsolatedInitialize(MakeParameters(Name::BlockPaddingScheme(), padding));
+}
+
 size_t StreamTransformationFilter::LastBlockSize(StreamTransformation &c, BlockPaddingScheme padding)
 {
 	if (c.MinLastBlockSize() > 0)
@@ -548,15 +560,6 @@ size_t StreamTransformationFilter::LastBlockSize(StreamTransformation &c, BlockP
 		return c.MandatoryBlockSize();
 	else
 		return 0;
-}
-
-StreamTransformationFilter::StreamTransformationFilter(StreamTransformation &c, BufferedTransformation *attachment, BlockPaddingScheme padding)
-   : FilterWithBufferedInput(attachment)
-	, m_cipher(c)
-{
-	assert(c.MinLastBlockSize() == 0 || c.MinLastBlockSize() > c.MandatoryBlockSize());
-
-	IsolatedInitialize(MakeParameters(Name::BlockPaddingScheme(), padding));
 }
 
 void StreamTransformationFilter::InitializeDerivedAndReturnNewSizes(const NameValuePairs &parameters, size_t &firstSize, size_t &blockSize, size_t &lastSize)
@@ -804,8 +807,8 @@ void HashVerificationFilter::LastPut(const byte *inString, size_t length)
 // *************************************************************
 
 AuthenticatedEncryptionFilter::AuthenticatedEncryptionFilter(AuthenticatedSymmetricCipher &c, BufferedTransformation *attachment, 
-								BlockPaddingScheme padding, bool putMessage, int truncatedDigestSize, const std::string &macChannel)
-	: StreamTransformationFilter(c, attachment, padding)
+								bool putMessage, int truncatedDigestSize, const std::string &macChannel, BlockPaddingScheme padding)
+	: StreamTransformationFilter(c, attachment, padding, true)
 	, m_hf(c, new OutputProxy(*this, false), putMessage, truncatedDigestSize, "AAD", macChannel)
 {
 	assert(c.IsForwardTransformation());
@@ -847,10 +850,10 @@ void AuthenticatedEncryptionFilter::LastPut(const byte *inString, size_t length)
 
 // *************************************************************
 
-AuthenticatedDecryptionFilter::AuthenticatedDecryptionFilter(AuthenticatedSymmetricCipher &c, BufferedTransformation *attachment, BlockPaddingScheme padding, word32 flags, int truncatedDigestSize)
+AuthenticatedDecryptionFilter::AuthenticatedDecryptionFilter(AuthenticatedSymmetricCipher &c, BufferedTransformation *attachment, word32 flags, int truncatedDigestSize, BlockPaddingScheme padding)
 	: FilterWithBufferedInput(attachment)
 	, m_hashVerifier(c, new OutputProxy(*this, false))
-	, m_streamFilter(c, new OutputProxy(*this, false))
+	, m_streamFilter(c, new OutputProxy(*this, false), padding, true)
 {
 	assert(!c.IsForwardTransformation() || c.IsSelfInverting());
 	IsolatedInitialize(MakeParameters(Name::BlockPaddingScheme(), padding)(Name::AuthenticatedDecryptionFilterFlags(), flags)(Name::TruncatedDigestSize(), truncatedDigestSize));

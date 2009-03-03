@@ -104,7 +104,7 @@ void AuthenticatedSymmetricCipherBase::Update(const byte *input, size_t length)
 void AuthenticatedSymmetricCipherBase::ProcessData(byte *outString, const byte *inString, size_t length)
 {
 	m_totalMessageLength += length;
-	if (m_totalMessageLength > MaxMessageLength())
+	if (m_state >= State_IVSet && m_totalMessageLength > MaxMessageLength())
 		throw InvalidArgument(AlgorithmName() + ": message length exceeds maximum");
 
 reswitch:

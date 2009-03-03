@@ -263,7 +263,7 @@ public:
 	/*! DEFAULT_PADDING means PKCS_PADDING if c.MandatoryBlockSize() > 1 && c.MinLastBlockSize() == 0 (e.g. ECB or CBC mode),
 		otherwise NO_PADDING (OFB, CFB, CTR, CBC-CTS modes).
 		See http://www.weidai.com/scan-mirror/csp.html for details of the padding schemes. */
-	StreamTransformationFilter(StreamTransformation &c, BufferedTransformation *attachment = NULL, BlockPaddingScheme padding = DEFAULT_PADDING);
+	StreamTransformationFilter(StreamTransformation &c, BufferedTransformation *attachment = NULL, BlockPaddingScheme padding = DEFAULT_PADDING, bool allowAuthenticatedSymmetricCipher = false);
 
 	std::string AlgorithmName() const {return m_cipher.AlgorithmName();}
 
@@ -345,7 +345,7 @@ class CRYPTOPP_DLL AuthenticatedEncryptionFilter : public StreamTransformationFi
 {
 public:
 	/*! See StreamTransformationFilter for documentation on BlockPaddingScheme  */
-	AuthenticatedEncryptionFilter(AuthenticatedSymmetricCipher &c, BufferedTransformation *attachment = NULL, BlockPaddingScheme padding = DEFAULT_PADDING, bool putMessage=false, int truncatedDigestSize=-1, const std::string &macChannel=NULL_CHANNEL);
+	AuthenticatedEncryptionFilter(AuthenticatedSymmetricCipher &c, BufferedTransformation *attachment = NULL, bool putMessage=false, int truncatedDigestSize=-1, const std::string &macChannel=NULL_CHANNEL, BlockPaddingScheme padding = DEFAULT_PADDING);
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
 	byte * ChannelCreatePutSpace(const std::string &channel, size_t &size);
@@ -364,7 +364,7 @@ public:
 	enum Flags {MAC_AT_BEGIN=1, THROW_EXCEPTION=16, DEFAULT_FLAGS = THROW_EXCEPTION};
 
 	/*! See StreamTransformationFilter for documentation on BlockPaddingScheme  */
-	AuthenticatedDecryptionFilter(AuthenticatedSymmetricCipher &c, BufferedTransformation *attachment = NULL, BlockPaddingScheme padding = DEFAULT_PADDING, word32 flags = DEFAULT_FLAGS, int truncatedDigestSize=-1);
+	AuthenticatedDecryptionFilter(AuthenticatedSymmetricCipher &c, BufferedTransformation *attachment = NULL, word32 flags = DEFAULT_FLAGS, int truncatedDigestSize=-1, BlockPaddingScheme padding = DEFAULT_PADDING);
 
 	std::string AlgorithmName() const {return m_hashVerifier.AlgorithmName();}
 	byte * ChannelCreatePutSpace(const std::string &channel, size_t &size);

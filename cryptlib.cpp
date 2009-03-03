@@ -205,6 +205,24 @@ void AuthenticatedSymmetricCipher::SpecifyDataLengths(lword headerLength, lword 
 	UncheckedSpecifyDataLengths(headerLength, messageLength, footerLength);
 }
 
+void AuthenticatedSymmetricCipher::EncryptAndAuthenticate(byte *ciphertext, byte *mac, size_t macSize, const byte *iv, int ivLength, const byte *header, size_t headerLength, const byte *message, size_t messageLength)
+{
+	Resynchronize(iv, ivLength);
+	SpecifyDataLengths(headerLength, messageLength);
+	Update(header, headerLength);
+	ProcessString(ciphertext, message, messageLength);
+	TruncatedFinal(mac, macSize);
+}
+
+bool AuthenticatedSymmetricCipher::DecryptAndVerify(byte *message, const byte *mac, size_t macLength, const byte *iv, int ivLength, const byte *header, size_t headerLength, const byte *ciphertext, size_t ciphertextLength)
+{
+	Resynchronize(iv, ivLength);
+	SpecifyDataLengths(headerLength, ciphertextLength);
+	Update(header, headerLength);
+	ProcessString(message, ciphertext, ciphertextLength);
+	return TruncatedVerify(mac, macLength);
+}
+
 unsigned int RandomNumberGenerator::GenerateBit()
 {
 	return GenerateByte() & 1;

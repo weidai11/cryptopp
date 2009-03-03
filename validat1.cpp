@@ -158,6 +158,19 @@ bool TestSettings()
 		pass = false;
 	}
 
+#ifdef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
+	byte testvals[10] = {1,2,2,3,3,3,3,2,2,1};
+	if (*(word32 *)(testvals+3) == 0x03030303 && *(word64 *)(testvals+1) == W64LIT(0x0202030303030202))
+		cout << "passed:  Your machine allows unaligned data access.\n";
+	else
+	{
+		cout << "FAILED:  Unaligned data access gave incorrect results.\n";
+		pass = false;
+	}
+#else
+	cout << "passed:  CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS is not defined. Will restrict to aligned data access.\n";
+#endif
+
 	if (sizeof(byte) == 1)
 		cout << "passed:  ";
 	else
