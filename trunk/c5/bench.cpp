@@ -206,8 +206,9 @@ void BenchMarkKeyless(const char *name, double timeTotal, T *x=NULL)
 }
 
 //VC60 workaround: compiler bug triggered without the extra dummy parameters
+// on VC60 also needs to be named differently from BenchMarkByName
 template <class T_FactoryOutput, class T_Interface>
-void BenchMarkByName(const char *factoryName, size_t keyLength = 0, const char *displayName=NULL, const NameValuePairs &params = g_nullNameValuePairs, T_FactoryOutput *x=NULL, T_Interface *y=NULL)
+void BenchMarkByName2(const char *factoryName, size_t keyLength = 0, const char *displayName=NULL, const NameValuePairs &params = g_nullNameValuePairs, T_FactoryOutput *x=NULL, T_Interface *y=NULL)
 {
 	std::string name = factoryName;
 	if (displayName)
@@ -227,7 +228,7 @@ void BenchMarkByName(const char *factoryName, size_t keyLength = 0, const char *
 template <class T_FactoryOutput>
 void BenchMarkByName(const char *factoryName, size_t keyLength = 0, const char *displayName=NULL, const NameValuePairs &params = g_nullNameValuePairs, T_FactoryOutput *x=NULL)
 {
-	BenchMarkByName<T_FactoryOutput, T_FactoryOutput>(factoryName, keyLength, displayName, params, x, x);
+	BenchMarkByName2<T_FactoryOutput, T_FactoryOutput>(factoryName, keyLength, displayName, params, x, x);
 }
 
 template <class T>
@@ -266,13 +267,13 @@ void BenchmarkAll(double t, double hertz)
 	cout << "<THEAD><TR><TH>Algorithm<TH>MiB/Second" << cpb << "<TH>Microseconds to<br>Setup Key and IV" << cpk << endl;
 
 	cout << "\n<TBODY style=\"background: yellow\">";
-	BenchMarkByName<AuthenticatedSymmetricCipher, StreamTransformation>("AES/GCM", 0, "AES/GCM (2K tables)", MakeParameters(Name::TableSize(), 2048));
-	BenchMarkByName<AuthenticatedSymmetricCipher, StreamTransformation>("AES/GCM", 0, "AES/GCM (64K tables)", MakeParameters(Name::TableSize(), 64*1024));
-	BenchMarkByName<AuthenticatedSymmetricCipher, StreamTransformation>("AES/CCM");
+	BenchMarkByName2<AuthenticatedSymmetricCipher, StreamTransformation>("AES/GCM", 0, "AES/GCM (2K tables)", MakeParameters(Name::TableSize(), 2048));
+	BenchMarkByName2<AuthenticatedSymmetricCipher, StreamTransformation>("AES/GCM", 0, "AES/GCM (64K tables)", MakeParameters(Name::TableSize(), 64*1024));
+	BenchMarkByName2<AuthenticatedSymmetricCipher, StreamTransformation>("AES/CCM");
 
 	cout << "\n<TBODY style=\"background: white\">";
-	BenchMarkByName<AuthenticatedSymmetricCipher, MessageAuthenticationCode>("AES/GCM", 0, "GMAC(AES) (2K tables)", MakeParameters(Name::TableSize(), 2048));
-	BenchMarkByName<AuthenticatedSymmetricCipher, MessageAuthenticationCode>("AES/GCM", 0, "GMAC(AES) (64K tables)", MakeParameters(Name::TableSize(), 64*1024));
+	BenchMarkByName2<AuthenticatedSymmetricCipher, MessageAuthenticationCode>("AES/GCM", 0, "GMAC(AES) (2K tables)", MakeParameters(Name::TableSize(), 2048));
+	BenchMarkByName2<AuthenticatedSymmetricCipher, MessageAuthenticationCode>("AES/GCM", 0, "GMAC(AES) (64K tables)", MakeParameters(Name::TableSize(), 64*1024));
 	BenchMarkByName<MessageAuthenticationCode>("VMAC(AES)-64");
 	BenchMarkByName<MessageAuthenticationCode>("VMAC(AES)-128");
 	BenchMarkByName<MessageAuthenticationCode>("HMAC(SHA-1)");
