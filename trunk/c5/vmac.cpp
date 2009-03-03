@@ -25,7 +25,12 @@ static const word64 mpoly = W64LIT(0x1fffffff1fffffff);  /* Poly key mask     */
 #undef const
 #endif
 #if VMAC_BOOL_WORD128
+#ifdef __powerpc__
+// workaround GCC Bug 31690: ICE with const __uint128_t and C++ front-end
+#define m126				((word128(m62)<<64)|m64)
+#else
 static const word128 m126 = (word128(m62)<<64)|m64;		 /* 126-bit mask      */
+#endif
 #endif
 
 void VMAC_Base::UncheckedSetKey(const byte *userKey, unsigned int keylength, const NameValuePairs &params)
