@@ -18,6 +18,11 @@ bool CombinedNameValuePairs::GetVoidValue(const char *name, const std::type_info
 		return m_pairs1.GetVoidValue(name, valueType, pValue) || m_pairs2.GetVoidValue(name, valueType, pValue);
 }
 
+void AlgorithmParametersBase::operator=(const AlgorithmParametersBase& rhs)
+{
+	assert(false);
+}
+
 bool AlgorithmParametersBase::GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
 {
 	if (strcmp(name, "ValueNames") == 0)
@@ -64,6 +69,15 @@ AlgorithmParameters::~AlgorithmParameters()
 		First().~AlgorithmParametersBase();
 	else
 		Next().~member_ptr<AlgorithmParametersBase>();
+}
+
+AlgorithmParameters & AlgorithmParameters::operator=(const AlgorithmParameters &x)
+{
+	if (this == &x)
+		return *this;
+	this->~AlgorithmParameters();
+	new (this) AlgorithmParameters(x);
+	return *this;
 }
 
 bool AlgorithmParameters::GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const

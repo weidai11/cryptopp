@@ -287,6 +287,7 @@ public:
 	
 protected:
 	friend class AlgorithmParameters;
+	void operator=(const AlgorithmParametersBase& rhs);	// assignment not allowed, declare this for VC60
 
 	virtual void AssignValue(const char *name, const std::type_info &valueType, void *pValue) const =0;
 	virtual void MoveInto(void *p) const =0;	// not really const
@@ -337,6 +338,8 @@ public:
     AlgorithmParameters(const AlgorithmParameters &x);
 
 	~AlgorithmParameters();
+
+    AlgorithmParameters & operator=(const AlgorithmParameters &x);
 
     template <class T>
     AlgorithmParameters & operator()(const char *name, const T &value, bool throwIfNotUsed)
