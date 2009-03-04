@@ -39,6 +39,7 @@ class CRYPTOPP_NO_VTABLE AbstractPolicyHolder : public BASE
 {
 public:
 	typedef POLICY_INTERFACE PolicyInterface;
+	virtual ~AbstractPolicyHolder() {}
 
 protected:
 	virtual const POLICY_INTERFACE & GetPolicy() const =0;

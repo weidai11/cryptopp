@@ -42,6 +42,10 @@
 #include "dmac.h"
 #include "blowfish.h"
 #include "seed.h"
+#include "wake.h"
+#include "seal.h"
+#include "crc.h"
+#include "adler32.h"
 
 USING_NAMESPACE(CryptoPP)
 
@@ -52,6 +56,8 @@ void RegisterFactories()
 		return;
 
 	RegisterDefaultFactoryFor<SimpleKeyAgreementDomain, DH>();
+	RegisterDefaultFactoryFor<HashTransformation, CRC32>();
+	RegisterDefaultFactoryFor<HashTransformation, Adler32>();
 	RegisterDefaultFactoryFor<HashTransformation, Weak::MD5>();
 	RegisterDefaultFactoryFor<HashTransformation, SHA1>();
 	RegisterDefaultFactoryFor<HashTransformation, SHA224>();
@@ -102,6 +108,8 @@ void RegisterFactories()
 	RegisterSymmetricCipherDefaultFactories<Salsa20>();
 	RegisterSymmetricCipherDefaultFactories<Sosemanuk>();
 	RegisterSymmetricCipherDefaultFactories<Weak::MARC4>();
+	RegisterSymmetricCipherDefaultFactories<WAKE_OFB<LittleEndian> >();
+	RegisterSymmetricCipherDefaultFactories<SEAL<LittleEndian> >();
 	RegisterAuthenticatedSymmetricCipherDefaultFactories<CCM<AES> >();
 	RegisterAuthenticatedSymmetricCipherDefaultFactories<GCM<AES> >();
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<Camellia> >();

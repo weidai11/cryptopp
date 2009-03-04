@@ -10,6 +10,8 @@
 
 #include "aes.h"
 #include "cbcmac.h"
+#include "ccm.h"
+#include "cmac.h"
 #include "channels.h"
 #include "des.h"
 #include "dh.h"
@@ -19,6 +21,7 @@
 #include "ecp.h"
 #include "files.h"
 #include "fips140.h"
+#include "gcm.h"
 #include "hex.h"
 #include "hmac.h"
 #include "modes.h"
