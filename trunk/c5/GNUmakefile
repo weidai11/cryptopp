@@ -35,6 +35,12 @@ CXXFLAGS += -march=native -mtune=native
 endif
 endif
 
+ifneq ($(INTEL_COMPILER),0)
+# "internal error: backend signals" occurs on some x86 inline assembly with ICC 9 and some x64 inline assembly with ICC 11
+# if you want to use Crypto++'s assembly code with ICC, try enabling it on individual files
+CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
+endif
+
 ifeq ($(GAS210_OR_LATER),0)	# .intel_syntax wasn't supported until GNU assembler 2.10
 CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
 else
