@@ -397,7 +397,8 @@ void TestAuthenticatedSymmetricCipher(TestData &v, const NameValuePairs &overrid
 
 		std::string encrypted, decrypted;
 		AuthenticatedEncryptionFilter ef(*asc1, new StringSink(encrypted));
-		AuthenticatedDecryptionFilter df(*asc2, new StringSink(decrypted), AuthenticatedDecryptionFilter::MAC_AT_BEGIN);
+		bool macAtBegin = !GlobalRNG().GenerateBit();	// test both ways randomly
+		AuthenticatedDecryptionFilter df(*asc2, new StringSink(decrypted), macAtBegin ? AuthenticatedDecryptionFilter::MAC_AT_BEGIN : 0);
 
 		if (asc1->NeedsPrespecifiedDataLengths())
 		{
@@ -407,10 +408,13 @@ void TestAuthenticatedSymmetricCipher(TestData &v, const NameValuePairs &overrid
 
 		StringStore sh(header), sp(plaintext), sc(ciphertext), sf(footer), sm(mac);
 
-		sm.TransferTo(df);
+		if (macAtBegin)
+			sm.TransferTo(df);
 		sh.CopyTo(df, LWORD_MAX, "AAD");
 		sc.TransferTo(df);
 		sf.CopyTo(df, LWORD_MAX, "AAD");
+		if (!macAtBegin)
+			sm.TransferTo(df);
 		df.MessageEnd();
 
 		sh.TransferTo(ef, sh.MaxRetrievable()/2+1, "AAD");

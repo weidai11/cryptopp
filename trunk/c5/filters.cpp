@@ -885,7 +885,11 @@ byte * AuthenticatedDecryptionFilter::ChannelCreatePutSpace(const std::string &c
 size_t AuthenticatedDecryptionFilter::ChannelPut2(const std::string &channel, const byte *begin, size_t length, int messageEnd, bool blocking)
 {
 	if (channel.empty())
+	{
+		if (m_lastSize > 0)
+			m_hashVerifier.ForceNextPut();
 		return FilterWithBufferedInput::Put2(begin, length, messageEnd, blocking);
+	}
 
 	if (channel == "AAD")
 		return m_hashVerifier.Put2(begin, length, 0, blocking);
