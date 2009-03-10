@@ -459,7 +459,7 @@ public:
 };
 
 template <class T, unsigned int S, bool T_Align16 = CRYPTOPP_BOOL_X86 | CRYPTOPP_BOOL_X64>
-class FixedSizeAlignedSecBlock : public FixedSizeSecBlock<T, S, FixedSizeAllocatorWithCleanup<T, S, NullAllocator<word32>, T_Align16> >
+class FixedSizeAlignedSecBlock : public FixedSizeSecBlock<T, S, FixedSizeAllocatorWithCleanup<T, S, NullAllocator<T>, T_Align16> >
 {
 };
 

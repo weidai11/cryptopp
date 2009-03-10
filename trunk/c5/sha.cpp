@@ -3,13 +3,20 @@
 // Steve Reid implemented SHA-1. Wei Dai implemented SHA-2.
 // Both are in the public domain.
 
+// use "cl /EP /P /DCRYPTOPP_GENERATE_X64_MASM sha.cpp" to generate MASM code
+
 #include "pch.h"
 
 #ifndef CRYPTOPP_IMPORTS
+#ifndef CRYPTOPP_GENERATE_X64_MASM
 
 #include "sha.h"
 #include "misc.h"
 #include "cpu.h"
+
+#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+#include <emmintrin.h>
+#endif
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -93,7 +100,7 @@ void SHA256::InitState(HashWordType *state)
 	memcpy(state, s, sizeof(s));
 }
 
-static const word32 SHA256_K[64] = {
+extern const word32 SHA256_K[64] = {
 	0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
 	0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
 	0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
@@ -112,10 +119,333 @@ static const word32 SHA256_K[64] = {
 	0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
 };
 
+#endif // #ifndef CRYPTOPP_GENERATE_X64_MASM
+
+#if defined(CRYPTOPP_X86_ASM_AVAILABLE) || defined(CRYPTOPP_GENERATE_X64_MASM)
+
+#pragma warning(disable: 4731)	// frame pointer register 'ebp' modified by inline assembly code
+
+static void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 *data, size_t len)
+{
+	#define LOCALS_SIZE	8*4 + 16*4 + 4*WORD_SZ
+	#define H(i)		[BASE+ASM_MOD(1024+7-(i),8)*4]
+	#define G(i)		H(i+1)
+	#define F(i)		H(i+2)
+	#define E(i)		H(i+3)
+	#define D(i)		H(i+4)
+	#define C(i)		H(i+5)
+	#define B(i)		H(i+6)
+	#define A(i)		H(i+7)
+	#define Wt(i)		BASE+8*4+ASM_MOD(1024+15-(i),16)*4
+	#define Wt_2(i)		Wt((i)-2)
+	#define Wt_15(i)	Wt((i)-15)
+	#define Wt_7(i)		Wt((i)-7)
+	#define K_END		[BASE+8*4+16*4+0*WORD_SZ]
+	#define STATE_SAVE	[BASE+8*4+16*4+1*WORD_SZ]
+	#define DATA_SAVE	[BASE+8*4+16*4+2*WORD_SZ]
+	#define DATA_END	[BASE+8*4+16*4+3*WORD_SZ]
+	#define Kt(i)		WORD_REG(si)+(i)*4
+#if CRYPTOPP_BOOL_X86
+	#define BASE		esp+4
+#elif defined(__GNUC__)
+	#define BASE		r8
+#else
+	#define BASE		rsp
+#endif
+
+#define RA0(i, edx, edi)		\
+	AS2(	add edx, [Kt(i)]	)\
+	AS2(	add edx, [Wt(i)]	)\
+	AS2(	add edx, H(i)		)\
+
+#define RA1(i, edx, edi)
+
+#define RB0(i, edx, edi)
+
+#define RB1(i, edx, edi)	\
+	AS2(	mov AS_REG_7d, [Wt_2(i)]	)\
+	AS2(	mov edi, [Wt_15(i)])\
+	AS2(	mov ebx, AS_REG_7d	)\
+	AS2(	shr AS_REG_7d, 10		)\
+	AS2(	ror ebx, 17		)\
+	AS2(	xor AS_REG_7d, ebx	)\
+	AS2(	ror ebx, 2		)\
+	AS2(	xor ebx, AS_REG_7d	)/* s1(W_t-2) */\
+	AS2(	add ebx, [Wt_7(i)])\
+	AS2(	mov AS_REG_7d, edi	)\
+	AS2(	shr AS_REG_7d, 3		)\
+	AS2(	ror edi, 7		)\
+	AS2(	add ebx, [Wt(i)])/* s1(W_t-2) + W_t-7 + W_t-16 */\
+	AS2(	xor AS_REG_7d, edi	)\
+	AS2(	add edx, [Kt(i)])\
+	AS2(	ror edi, 11		)\
+	AS2(	add edx, H(i)	)\
+	AS2(	xor AS_REG_7d, edi	)/* s0(W_t-15) */\
+	AS2(	add AS_REG_7d, ebx	)/* W_t = s1(W_t-2) + W_t-7 + s0(W_t-15) W_t-16*/\
+	AS2(	mov [Wt(i)], AS_REG_7d)\
+	AS2(	add edx, AS_REG_7d	)\
+
+#define ROUND(i, r, eax, ecx, edi, edx)\
+	/* in: edi = E	*/\
+	/* unused: eax, ecx, temp: ebx, AS_REG_7d, out: edx = T1 */\
+	AS2(	mov edx, F(i)	)\
+	AS2(	xor edx, G(i)	)\
+	AS2(	and edx, edi	)\
+	AS2(	xor edx, G(i)	)/* Ch(E,F,G) = (G^(E&(F^G))) */\
+	AS2(	mov AS_REG_7d, edi	)\
+	AS2(	ror edi, 6		)\
+	AS2(	ror AS_REG_7d, 25		)\
+	RA##r(i, edx, edi		)/* H + Wt + Kt + Ch(E,F,G) */\
+	AS2(	xor AS_REG_7d, edi	)\
+	AS2(	ror edi, 5		)\
+	AS2(	xor AS_REG_7d, edi	)/* S1(E) */\
+	AS2(	add edx, AS_REG_7d	)/* T1 = S1(E) + Ch(E,F,G) + H + Wt + Kt */\
+	RB##r(i, edx, edi		)/* H + Wt + Kt + Ch(E,F,G) */\
+	/* in: ecx = A, eax = B^C, edx = T1 */\
+	/* unused: edx, temp: ebx, AS_REG_7d, out: eax = A, ecx = B^C, edx = E */\
+	AS2(	mov ebx, ecx	)\
+	AS2(	xor ecx, B(i)	)/* A^B */\
+	AS2(	and eax, ecx	)\
+	AS2(	xor eax, B(i)	)/* Maj(A,B,C) = B^((A^B)&(B^C) */\
+	AS2(	mov AS_REG_7d, ebx	)\
+	AS2(	ror ebx, 2		)\
+	AS2(	add eax, edx	)/* T1 + Maj(A,B,C) */\
+	AS2(	add edx, D(i)	)\
+	AS2(	mov D(i), edx	)\
+	AS2(	ror AS_REG_7d, 22		)\
+	AS2(	xor AS_REG_7d, ebx	)\
+	AS2(	ror ebx, 11		)\
+	AS2(	xor AS_REG_7d, ebx	)\
+	AS2(	add eax, AS_REG_7d	)/* T1 + S0(A) + Maj(A,B,C) */\
+	AS2(	mov H(i), eax	)\
+
+#define SWAP_COPY(i)		\
+	AS2(	mov		WORD_REG(bx), [WORD_REG(dx)+i*WORD_SZ])\
+	AS1(	bswap	WORD_REG(bx))\
+	AS2(	mov		[Wt(i*(1+CRYPTOPP_BOOL_X64)+CRYPTOPP_BOOL_X64)], WORD_REG(bx))
+
+#if defined(__GNUC__)
+	#if CRYPTOPP_BOOL_X64
+		__m128i workspace[(LOCALS_SIZE+15)/16];
+	#endif
+	__asm__ __volatile__
+	(
+	#if CRYPTOPP_BOOL_X64
+		"movq %4, %%r8;"
+	#endif
+	".intel_syntax noprefix;"
+#elif defined(CRYPTOPP_GENERATE_X64_MASM)
+		ALIGN   8
+	X86_SHA256_HashBlocks	PROC FRAME
+		rex_push_reg rsi
+		push_reg rdi
+		push_reg rbx
+		push_reg rbp
+		alloc_stack(LOCALS_SIZE+8)
+		.endprolog
+		mov rdi, r8
+		lea rsi, [?SHA256_K@CryptoPP@@3QBIB + 48*4]
+#endif
+
+#if CRYPTOPP_BOOL_X86
+	#ifndef __GNUC__
+		AS2(	mov		edi, [len])
+		AS2(	lea		WORD_REG(si), [SHA256_K+48*4])
+	#endif
+	#if !defined(_MSC_VER) || (_MSC_VER < 1300)
+		AS_PUSH_IF86(bx)
+	#endif
+
+	AS_PUSH_IF86(bp)
+	AS2(	mov		ebx, esp)
+	AS2(	and		esp, -16)
+	AS2(	sub		WORD_REG(sp), LOCALS_SIZE)
+	AS_PUSH_IF86(bx)
+#endif
+	AS2(	mov		STATE_SAVE, WORD_REG(cx))
+	AS2(	mov		DATA_SAVE, WORD_REG(dx))
+	AS2(	add		WORD_REG(di), WORD_REG(dx))
+	AS2(	mov		DATA_END, WORD_REG(di))
+	AS2(	mov		K_END, WORD_REG(si))
+
+#if CRYPTOPP_BOOL_X86
+	AS2(	test	edi, 1)
+	ASJ(	jnz,	2, f)
+#endif
+
+	AS2(	movdqa	xmm0, XMMWORD_PTR [WORD_REG(cx)+0*16])
+	AS2(	movdqa	xmm1, XMMWORD_PTR [WORD_REG(cx)+1*16])
+
+#if CRYPTOPP_BOOL_X86
+	ASJ(	jmp,	0, f)
+	ASL(2)	// non-SSE2
+	AS2(	mov		esi, ecx)
+	AS2(	lea		edi, A(0))
+	AS2(	mov		ecx, 8)
+	AS1(	rep movsd)
+	AS2(	mov		esi, K_END)
+	ASJ(	jmp,	3, f)
+#endif
+
+	ASL(0)
+	AS2(	movdqa	E(0), xmm1)
+	AS2(	movdqa	A(0), xmm0)
+#if CRYPTOPP_BOOL_X86
+	ASL(3)
+#endif
+	AS2(	sub		WORD_REG(si), 48*4)
+	SWAP_COPY(0)	SWAP_COPY(1)	SWAP_COPY(2)	SWAP_COPY(3)
+	SWAP_COPY(4)	SWAP_COPY(5)	SWAP_COPY(6)	SWAP_COPY(7)
+#if CRYPTOPP_BOOL_X86
+	SWAP_COPY(8)	SWAP_COPY(9)	SWAP_COPY(10)	SWAP_COPY(11)
+	SWAP_COPY(12)	SWAP_COPY(13)	SWAP_COPY(14)	SWAP_COPY(15)
+#endif
+	AS2(	mov		edi, E(0))	// E
+	AS2(	mov		eax, B(0))	// B
+	AS2(	xor		eax, C(0))	// B^C
+	AS2(	mov		ecx, A(0))	// A
+
+	ROUND(0, 0, eax, ecx, edi, edx)
+	ROUND(1, 0, ecx, eax, edx, edi)
+	ROUND(2, 0, eax, ecx, edi, edx)
+	ROUND(3, 0, ecx, eax, edx, edi)
+	ROUND(4, 0, eax, ecx, edi, edx)
+	ROUND(5, 0, ecx, eax, edx, edi)
+	ROUND(6, 0, eax, ecx, edi, edx)
+	ROUND(7, 0, ecx, eax, edx, edi)
+	ROUND(8, 0, eax, ecx, edi, edx)
+	ROUND(9, 0, ecx, eax, edx, edi)
+	ROUND(10, 0, eax, ecx, edi, edx)
+	ROUND(11, 0, ecx, eax, edx, edi)
+	ROUND(12, 0, eax, ecx, edi, edx)
+	ROUND(13, 0, ecx, eax, edx, edi)
+	ROUND(14, 0, eax, ecx, edi, edx)
+	ROUND(15, 0, ecx, eax, edx, edi)
+
+	ASL(1)
+	AS2(add WORD_REG(si), 4*16)
+	ROUND(0, 1, eax, ecx, edi, edx)
+	ROUND(1, 1, ecx, eax, edx, edi)
+	ROUND(2, 1, eax, ecx, edi, edx)
+	ROUND(3, 1, ecx, eax, edx, edi)
+	ROUND(4, 1, eax, ecx, edi, edx)
+	ROUND(5, 1, ecx, eax, edx, edi)
+	ROUND(6, 1, eax, ecx, edi, edx)
+	ROUND(7, 1, ecx, eax, edx, edi)
+	ROUND(8, 1, eax, ecx, edi, edx)
+	ROUND(9, 1, ecx, eax, edx, edi)
+	ROUND(10, 1, eax, ecx, edi, edx)
+	ROUND(11, 1, ecx, eax, edx, edi)
+	ROUND(12, 1, eax, ecx, edi, edx)
+	ROUND(13, 1, ecx, eax, edx, edi)
+	ROUND(14, 1, eax, ecx, edi, edx)
+	ROUND(15, 1, ecx, eax, edx, edi)
+	AS2(	cmp		WORD_REG(si), K_END)
+	ASJ(	jne,	1, b)
+
+	AS2(	mov		WORD_REG(dx), DATA_SAVE)
+	AS2(	add		WORD_REG(dx), 64)
+	AS2(	mov		AS_REG_7, STATE_SAVE)
+	AS2(	mov		DATA_SAVE, WORD_REG(dx))
+
+#if CRYPTOPP_BOOL_X86
+	AS2(	test	DWORD PTR DATA_END, 1)
+	ASJ(	jnz,	4, f)
+#endif
+
+	AS2(	movdqa	xmm1, XMMWORD_PTR [AS_REG_7+1*16])
+	AS2(	movdqa	xmm0, XMMWORD_PTR [AS_REG_7+0*16])
+	AS2(	paddd	xmm1, E(0))
+	AS2(	paddd	xmm0, A(0))
+	AS2(	movdqa	[AS_REG_7+1*16], xmm1)
+	AS2(	movdqa	[AS_REG_7+0*16], xmm0)
+	AS2(	cmp		WORD_REG(dx), DATA_END)
+	ASJ(	jl,		0, b)
+
+#if CRYPTOPP_BOOL_X86
+	ASJ(	jmp,	5, f)
+	ASL(4)	// non-SSE2
+	AS2(	add		[AS_REG_7+0*4], ecx)	// A
+	AS2(	add		[AS_REG_7+4*4], edi)	// E
+	AS2(	mov		eax, B(0))
+	AS2(	mov		ebx, C(0))
+	AS2(	mov		ecx, D(0))
+	AS2(	add		[AS_REG_7+1*4], eax)
+	AS2(	add		[AS_REG_7+2*4], ebx)
+	AS2(	add		[AS_REG_7+3*4], ecx)
+	AS2(	mov		eax, F(0))
+	AS2(	mov		ebx, G(0))
+	AS2(	mov		ecx, H(0))
+	AS2(	add		[AS_REG_7+5*4], eax)
+	AS2(	add		[AS_REG_7+6*4], ebx)
+	AS2(	add		[AS_REG_7+7*4], ecx)
+	AS2(	mov		ecx, AS_REG_7d)
+	AS2(	cmp		WORD_REG(dx), DATA_END)
+	ASJ(	jl,		2, b)
+	ASL(5)
+#endif
+
+	AS_POP_IF86(sp)
+	AS_POP_IF86(bp)
+	#if !defined(_MSC_VER) || (_MSC_VER < 1300)
+		AS_POP_IF86(bx)
+	#endif
+
+#ifdef CRYPTOPP_GENERATE_X64_MASM
+	add		rsp, LOCALS_SIZE+8
+	pop		rbp
+	pop		rbx
+	pop		rdi
+	pop		rsi
+	ret
+	X86_SHA256_HashBlocks ENDP
+#endif
+
+#ifdef __GNUC__
+	".att_syntax prefix;"
+	: 
+	: "c" (state), "d" (data), "S" (SHA256_K+48), "D" (len)
+	#if CRYPTOPP_BOOL_X64
+		, "r" (workspace)
+	#endif
+	: "memory", "cc", "%eax"
+	#if CRYPTOPP_BOOL_X64
+		, "%rbx", "%r8"
+	#endif
+	);
+#endif
+}
+
+#endif	// #if defined(CRYPTOPP_X86_ASM_AVAILABLE) || defined(CRYPTOPP_GENERATE_X64_MASM)
+
+#ifndef CRYPTOPP_GENERATE_X64_MASM
+
+#ifdef CRYPTOPP_X64_MASM_AVAILABLE
+extern "C" {
+void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 *data, size_t len);
+}
+#endif
+
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)
+
+size_t SHA256::HashMultipleBlocks(const word32 *input, size_t length)
+{
+	X86_SHA256_HashBlocks(m_state, input, (length&(size_t(0)-BLOCKSIZE)) - !HasSSE2());
+	return length % BLOCKSIZE;
+}
+
+size_t SHA224::HashMultipleBlocks(const word32 *input, size_t length)
+{
+	X86_SHA256_HashBlocks(m_state, input, (length&(size_t(0)-BLOCKSIZE)) - !HasSSE2());
+	return length % BLOCKSIZE;
+}
+
+#endif
+
 #define blk2(i) (W[i&15]+=s1(W[(i-2)&15])+W[(i-7)&15]+s0(W[(i-15)&15]))
 
 #define Ch(x,y,z) (z^(x&(y^z)))
-#define Maj(x,y,z) ((x&y)|(z&(x|y)))
+#define Maj(x,y,z) (y^((x^y)&(y^z)))
 
 #define a(i) T[(0-i)&7]
 #define b(i) T[(1-i)&7]
@@ -138,6 +468,11 @@ static const word32 SHA256_K[64] = {
 void SHA256::Transform(word32 *state, const word32 *data)
 {
 	word32 W[16];
+#if defined(CRYPTOPP_X86_ASM_AVAILABLE) || defined(CRYPTOPP_X64_MASM_AVAILABLE)
+	// this byte reverse is a waste of time, but this function is only called by MDC
+	ByteReverse(W, data, BLOCKSIZE);
+	X86_SHA256_HashBlocks(state, W, BLOCKSIZE - !HasSSE2());
+#else
 	word32 T[8];
     /* Copy context->state[] to working vars */
 	memcpy(T, state, sizeof(T));
@@ -158,11 +493,12 @@ void SHA256::Transform(word32 *state, const word32 *data)
     state[5] += f(0);
     state[6] += g(0);
     state[7] += h(0);
+#endif
 }
 
 /* 
 // smaller but slower
-void SHA256_Transform(word32 *state, const word32 *data)
+void SHA256::Transform(word32 *state, const word32 *data)
 {
 	word32 T[20];
 	word32 W[32];
@@ -176,7 +512,7 @@ void SHA256_Transform(word32 *state, const word32 *data)
 	{
 		word32 w = data[j];
 		W[j] = w;
-		w += K[j];
+		w += SHA256_K[j];
 		w += t[7];
 		w += S1(e);
 		w += Ch(e, t[5], t[6]);
@@ -196,7 +532,7 @@ void SHA256_Transform(word32 *state, const word32 *data)
 		i = j&0xf;
 		word32 w = s1(W[i+16-2]) + s0(W[i+16-15]) + W[i] + W[i+16-7];
 		W[i+16] = W[i] = w;
-		w += K[j];
+		w += SHA256_K[j];
 		w += t[7];
 		w += S1(e);
 		w += Ch(e, t[5], t[6]);
@@ -208,7 +544,7 @@ void SHA256_Transform(word32 *state, const word32 *data)
 
 		w = s1(W[(i+1)+16-2]) + s0(W[(i+1)+16-15]) + W[(i+1)] + W[(i+1)+16-7];
 		W[(i+1)+16] = W[(i+1)] = w;
-		w += K[j+1];
+		w += SHA256_K[j+1];
 		w += (t-1)[7];
 		w += S1(e);
 		w += Ch(e, (t-1)[5], (t-1)[6]);
@@ -335,22 +671,16 @@ CRYPTOPP_NAKED static void CRYPTOPP_FASTCALL SHA512_SSE2_Transform(word64 *state
 	AS2(	lea		edi, [esp+4+8*8])		// start at middle of state buffer. will decrement pointer each round to avoid copying
 	AS2(	lea		esi, [esp+4+20*8+8])	// 16-byte alignment, then add 8
 
-	AS2(	movq	mm4, [ecx+0*8])
-	AS2(	movq	[edi+0*8], mm4)
-	AS2(	movq	mm0, [ecx+1*8])
-	AS2(	movq	[edi+1*8], mm0)
-	AS2(	movq	mm0, [ecx+2*8])
-	AS2(	movq	[edi+2*8], mm0)
-	AS2(	movq	mm0, [ecx+3*8])
-	AS2(	movq	[edi+3*8], mm0)
-	AS2(	movq	mm5, [ecx+4*8])
-	AS2(	movq	[edi+4*8], mm5)
-	AS2(	movq	mm0, [ecx+5*8])
-	AS2(	movq	[edi+5*8], mm0)
-	AS2(	movq	mm0, [ecx+6*8])
-	AS2(	movq	[edi+6*8], mm0)
-	AS2(	movq	mm0, [ecx+7*8])
-	AS2(	movq	[edi+7*8], mm0)
+	AS2(	movdqa	xmm0, [ecx+0*16])
+	AS2(	movdq2q	mm4, xmm0)
+	AS2(	movdqa	[edi+0*16], xmm0)
+	AS2(	movdqa	xmm0, [ecx+1*16])
+	AS2(	movdqa	[edi+1*16], xmm0)
+	AS2(	movdqa	xmm0, [ecx+2*16])
+	AS2(	movdq2q	mm5, xmm0)
+	AS2(	movdqa	[edi+2*16], xmm0)
+	AS2(	movdqa	xmm0, [ecx+3*16])
+	AS2(	movdqa	[edi+3*16], xmm0)
 	ASJ(	jmp,	0, f)
 
 #define SSE2_S0_S1(r, a, b, c)	\
@@ -475,18 +805,14 @@ CRYPTOPP_NAKED static void CRYPTOPP_FASTCALL SHA512_SSE2_Transform(word64 *state
 	ASJ(	jne,	1, b)
 
 #define SSE2_CombineState(i)	\
-	AS2(	movq	mm0, [edi+i*8])\
-	AS2(	paddq	mm0, [ecx+i*8])\
-	AS2(	movq	[ecx+i*8], mm0)
+	AS2(	movdqa	xmm0, [edi+i*16])\
+	AS2(	paddq	xmm0, [ecx+i*16])\
+	AS2(	movdqa	[ecx+i*16], xmm0)
 
 	SSE2_CombineState(0)
 	SSE2_CombineState(1)
 	SSE2_CombineState(2)
 	SSE2_CombineState(3)
-	SSE2_CombineState(4)
-	SSE2_CombineState(5)
-	SSE2_CombineState(6)
-	SSE2_CombineState(7)
 
 	AS1(	pop		esp)
 	AS1(	emms)
@@ -550,4 +876,5 @@ void SHA512::Transform(word64 *state, const word64 *data)
 
 NAMESPACE_END
 
+#endif	// #ifndef CRYPTOPP_GENERATE_X64_MASM
 #endif	// #ifndef CRYPTOPP_IMPORTS

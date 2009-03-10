@@ -57,12 +57,8 @@ void VMAC_Base::UncheckedSetKey(const byte *userKey, unsigned int keylength, con
 
 	/* Fill nh key */
 	in[0] = 0x80; 
-	for (i = 0; i < m_nhKeySize()*sizeof(word64); i += blockSize)
-	{
-		cipher.ProcessBlock(in, out.BytePtr());
-		ConditionalByteReverse(BIG_ENDIAN_ORDER, m_nhKey()+i/sizeof(word64), out.begin(), blockSize);
-		in[15]++;
-	}
+	cipher.AdvancedProcessBlocks(in, NULL, (byte *)m_nhKey(), m_nhKeySize()*sizeof(word64), cipher.BT_InBlockIsCounter);
+	ConditionalByteReverse<word64>(BIG_ENDIAN_ORDER, m_nhKey(), m_nhKey(), m_nhKeySize()*sizeof(word64));
 
 	/* Fill poly key */
 	in[0] = 0xC0;
@@ -137,6 +133,7 @@ void VMAC_Base::Resynchronize(const byte *nonce, int len)
 void VMAC_Base::HashEndianCorrectedBlock(const word64 *data)
 {
 	assert(false);
+	throw 0;
 }
 
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && CRYPTOPP_BOOL_X86

@@ -78,10 +78,9 @@ The following compilers are supported for this release. Please visit
 http://www.cryptopp.com the most up to date build instructions and porting notes.
 
   * MSVC 6.0 - 2008
-  * GCC 3.3 - 4.2
-  * Borland C++Builder 2006 - 2007
-  * Intel C++ Compiler 9.1 - 10.0
-  * Sun Studio 11 - 12 (CC 5.8 - 5.9)
+  * GCC 3.3 - 4.3
+  * Intel C++ Compiler 9 - 11
+  * Sun Studio 12 (CC 5.9)
 
 *** Important Usage Notes ***
 
@@ -415,7 +414,7 @@ the mailing list.
 5.6 - added AuthenticatedSymmetricCipher interface class and Filter wrappers
     - added CCM, GCM (with SSE2 assembly), CMAC, and SEED
     - added support for variable length IVs
-    - improved AES speed on x86 and x64
+    - improved AES and SHA-256 speed on x86 and x64
     - fixed run-time validation error on x86-64 with GCC 4.3.2 -O2
     - fixed HashFilter bug when putMessage=true
     - fixed warnings with GCC 4.3

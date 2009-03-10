@@ -58,7 +58,7 @@ class CRYPTOPP_NO_VTABLE Unflushable : public T
 {
 public:
 	bool Flush(bool completeFlush, int propagation=-1, bool blocking=true)
-		{return ChannelFlush(this->NULL_CHANNEL, completeFlush, propagation, blocking);}
+		{return ChannelFlush(DEFAULT_CHANNEL, completeFlush, propagation, blocking);}
 	bool IsolatedFlush(bool hardFlush, bool blocking)
 		{assert(false); return false;}
 	bool ChannelFlush(const std::string &channel, bool hardFlush, int propagation=-1, bool blocking=true)
@@ -123,15 +123,15 @@ class CRYPTOPP_NO_VTABLE Multichannel : public CustomFlushPropagation<T>
 {
 public:
 	bool Flush(bool hardFlush, int propagation=-1, bool blocking=true)
-		{return ChannelFlush(this->NULL_CHANNEL, hardFlush, propagation, blocking);}
+		{return this->ChannelFlush(DEFAULT_CHANNEL, hardFlush, propagation, blocking);}
 	bool MessageSeriesEnd(int propagation=-1, bool blocking=true)
-		{return ChannelMessageSeriesEnd(this->NULL_CHANNEL, propagation, blocking);}
+		{return this->ChannelMessageSeriesEnd(DEFAULT_CHANNEL, propagation, blocking);}
 	byte * CreatePutSpace(size_t &size)
-		{return ChannelCreatePutSpace(this->NULL_CHANNEL, size);}
+		{return this->ChannelCreatePutSpace(DEFAULT_CHANNEL, size);}
 	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking)
-		{return ChannelPut2(this->NULL_CHANNEL, begin, length, messageEnd, blocking);}
+		{return this->ChannelPut2(DEFAULT_CHANNEL, begin, length, messageEnd, blocking);}
 	size_t PutModifiable2(byte *inString, size_t length, int messageEnd, bool blocking)
-		{return ChannelPutModifiable2(this->NULL_CHANNEL, inString, length, messageEnd, blocking);}
+		{return this->ChannelPutModifiable2(DEFAULT_CHANNEL, inString, length, messageEnd, blocking);}
 
 //	void ChannelMessageSeriesEnd(const std::string &channel, int propagation=-1)
 //		{PropagateMessageSeriesEnd(propagation, channel);}
@@ -177,7 +177,7 @@ public:
 
 	unsigned int NumberOfMessages() const {return m_messageEnd ? 0 : 1;}
 	bool GetNextMessage();
-	unsigned int CopyMessagesTo(BufferedTransformation &target, unsigned int count=UINT_MAX, const std::string &channel=NULL_CHANNEL) const;
+	unsigned int CopyMessagesTo(BufferedTransformation &target, unsigned int count=UINT_MAX, const std::string &channel=DEFAULT_CHANNEL) const;
 
 protected:
 	virtual void StoreInitialize(const NameValuePairs &parameters) =0;
@@ -189,9 +189,9 @@ protected:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Sink : public BufferedTransformation
 {
 public:
-	size_t TransferTo2(BufferedTransformation &target, lword &transferBytes, const std::string &channel=NULL_CHANNEL, bool blocking=true)
+	size_t TransferTo2(BufferedTransformation &target, lword &transferBytes, const std::string &channel=DEFAULT_CHANNEL, bool blocking=true)
 		{transferBytes = 0; return 0;}
-	size_t CopyRangeTo2(BufferedTransformation &target, lword &begin, lword end=LWORD_MAX, const std::string &channel=NULL_CHANNEL, bool blocking=true) const
+	size_t CopyRangeTo2(BufferedTransformation &target, lword &begin, lword end=LWORD_MAX, const std::string &channel=DEFAULT_CHANNEL, bool blocking=true) const
 		{return 0;}
 };
 

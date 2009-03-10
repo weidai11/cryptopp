@@ -596,7 +596,7 @@ void StreamTransformationFilter::NextPutMultiple(const byte *inString, size_t le
 	do
 	{
 		size_t len = m_optimalBufferSize;
-		byte *space = HelpCreatePutSpace(*AttachedTransformation(), NULL_CHANNEL, s, length, len);
+		byte *space = HelpCreatePutSpace(*AttachedTransformation(), DEFAULT_CHANNEL, s, length, len);
 		if (len < length)
 		{
 			if (len == m_optimalBufferSize)
@@ -636,7 +636,7 @@ void StreamTransformationFilter::LastPut(const byte *inString, size_t length)
 			{
 				// do padding
 				size_t blockSize = STDMAX(minLastBlockSize, (size_t)m_cipher.MandatoryBlockSize());
-				space = HelpCreatePutSpace(*AttachedTransformation(), NULL_CHANNEL, blockSize);
+				space = HelpCreatePutSpace(*AttachedTransformation(), DEFAULT_CHANNEL, blockSize);
 				memcpy(space, inString, length);
 				memset(space + length, 0, blockSize - length);
 				m_cipher.ProcessLastBlock(space, space, blockSize);
@@ -652,7 +652,7 @@ void StreamTransformationFilter::LastPut(const byte *inString, size_t length)
 						throw InvalidCiphertext("StreamTransformationFilter: ciphertext length is not a multiple of block size");
 				}
 
-				space = HelpCreatePutSpace(*AttachedTransformation(), NULL_CHANNEL, length, m_optimalBufferSize);
+				space = HelpCreatePutSpace(*AttachedTransformation(), DEFAULT_CHANNEL, length, m_optimalBufferSize);
 				m_cipher.ProcessLastBlock(space, inString, length);
 				AttachedTransformation()->Put(space, length);
 			}
@@ -664,7 +664,7 @@ void StreamTransformationFilter::LastPut(const byte *inString, size_t length)
 		unsigned int s;
 		s = m_cipher.MandatoryBlockSize();
 		assert(s > 1);
-		space = HelpCreatePutSpace(*AttachedTransformation(), NULL_CHANNEL, s, m_optimalBufferSize);
+		space = HelpCreatePutSpace(*AttachedTransformation(), DEFAULT_CHANNEL, s, m_optimalBufferSize);
 		if (m_cipher.IsForwardTransformation())
 		{
 			assert(length < s);
@@ -807,9 +807,9 @@ void HashVerificationFilter::LastPut(const byte *inString, size_t length)
 // *************************************************************
 
 AuthenticatedEncryptionFilter::AuthenticatedEncryptionFilter(AuthenticatedSymmetricCipher &c, BufferedTransformation *attachment, 
-								bool putMessage, int truncatedDigestSize, const std::string &macChannel, BlockPaddingScheme padding)
+								bool putAAD, int truncatedDigestSize, const std::string &macChannel, BlockPaddingScheme padding)
 	: StreamTransformationFilter(c, attachment, padding, true)
-	, m_hf(c, new OutputProxy(*this, false), putMessage, truncatedDigestSize, "AAD", macChannel)
+	, m_hf(c, new OutputProxy(*this, false), putAAD, truncatedDigestSize, AAD_CHANNEL, macChannel)
 {
 	assert(c.IsForwardTransformation());
 }
@@ -825,7 +825,7 @@ byte * AuthenticatedEncryptionFilter::ChannelCreatePutSpace(const std::string &c
 	if (channel.empty())
 		return StreamTransformationFilter::CreatePutSpace(size);
 
-	if (channel == "AAD")
+	if (channel == AAD_CHANNEL)
 		return m_hf.CreatePutSpace(size);
 
 	throw InvalidChannelName("AuthenticatedEncryptionFilter", channel);
@@ -836,7 +836,7 @@ size_t AuthenticatedEncryptionFilter::ChannelPut2(const std::string &channel, co
 	if (channel.empty())
 		return StreamTransformationFilter::Put2(begin, length, messageEnd, blocking);
 
-	if (channel == "AAD")
+	if (channel == AAD_CHANNEL)
 		return m_hf.Put2(begin, length, 0, blocking);
 
 	throw InvalidChannelName("AuthenticatedEncryptionFilter", channel);
@@ -876,7 +876,7 @@ byte * AuthenticatedDecryptionFilter::ChannelCreatePutSpace(const std::string &c
 	if (channel.empty())
 		return m_streamFilter.CreatePutSpace(size);
 
-	if (channel == "AAD")
+	if (channel == AAD_CHANNEL)
 		return m_hashVerifier.CreatePutSpace(size);
 
 	throw InvalidChannelName("AuthenticatedDecryptionFilter", channel);
@@ -891,7 +891,7 @@ size_t AuthenticatedDecryptionFilter::ChannelPut2(const std::string &channel, co
 		return FilterWithBufferedInput::Put2(begin, length, messageEnd, blocking);
 	}
 
-	if (channel == "AAD")
+	if (channel == AAD_CHANNEL)
 		return m_hashVerifier.Put2(begin, length, 0, blocking);
 
 	throw InvalidChannelName("AuthenticatedDecryptionFilter", channel);
