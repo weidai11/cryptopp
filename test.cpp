@@ -559,7 +559,7 @@ void SecretShareFile(int threshold, int nShares, const char *filename, const cha
 
 		channel = WordToString<word32>(i);
 		fileSinks[i]->Put((byte *)channel.data(), 4);
-		channelSwitch->AddRoute(channel, *fileSinks[i], BufferedTransformation::NULL_CHANNEL);
+		channelSwitch->AddRoute(channel, *fileSinks[i], DEFAULT_CHANNEL);
 	}
 
 	source.PumpAll();
@@ -609,7 +609,7 @@ void InformationDisperseFile(int threshold, int nShares, const char *filename)
 
 		channel = WordToString<word32>(i);
 		fileSinks[i]->Put((byte *)channel.data(), 4);
-		channelSwitch->AddRoute(channel, *fileSinks[i], BufferedTransformation::NULL_CHANNEL);
+		channelSwitch->AddRoute(channel, *fileSinks[i], DEFAULT_CHANNEL);
 	}
 
 	source.PumpAll();

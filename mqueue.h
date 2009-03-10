@@ -35,8 +35,8 @@ public:
 	bool AnyRetrievable() const
 		{return m_lengths.front() > 0;}
 
-	size_t TransferTo2(BufferedTransformation &target, lword &transferBytes, const std::string &channel=NULL_CHANNEL, bool blocking=true);
-	size_t CopyRangeTo2(BufferedTransformation &target, lword &begin, lword end=LWORD_MAX, const std::string &channel=NULL_CHANNEL, bool blocking=true) const;
+	size_t TransferTo2(BufferedTransformation &target, lword &transferBytes, const std::string &channel=DEFAULT_CHANNEL, bool blocking=true);
+	size_t CopyRangeTo2(BufferedTransformation &target, lword &begin, lword end=LWORD_MAX, const std::string &channel=DEFAULT_CHANNEL, bool blocking=true) const;
 
 	lword TotalBytesRetrievable() const
 		{return m_queue.MaxRetrievable();}
@@ -49,7 +49,7 @@ public:
 	unsigned int NumberOfMessageSeries() const
 		{return (unsigned int)m_messageCounts.size()-1;}
 
-	unsigned int CopyMessagesTo(BufferedTransformation &target, unsigned int count=UINT_MAX, const std::string &channel=NULL_CHANNEL) const;
+	unsigned int CopyMessagesTo(BufferedTransformation &target, unsigned int count=UINT_MAX, const std::string &channel=DEFAULT_CHANNEL) const;
 
 	const byte * Spy(size_t &contiguousSize) const;
 

@@ -534,8 +534,10 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 #endif
 
 #if CRYPTOPP_BOOL_X86
-	AS_PUSH_IF86(	bx)
-	AS_PUSH_IF86(	bp)
+#if !defined(_MSC_VER) || (_MSC_VER < 1300)
+	AS_PUSH_IF86(bx)
+#endif
+	AS_PUSH_IF86(bp)
 	AS2(	mov		[ecx+16*12+16*4], esp)
 	AS2(	lea		esp, [ecx-512])
 #endif
@@ -583,7 +585,7 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 
 	// counter mode one-time setup
 	AS2(	mov		WORD_REG(bp), [L_INBLOCKS])
-	AS2(	movdqa	xmm2, [WORD_REG(bp)])	// counter
+	AS2(	movdqu	xmm2, [WORD_REG(bp)])	// counter
 	AS2(	pxor	xmm2, xmm1)
 	AS2(	psrldq	xmm1, 14)
 	AS2(	movd	eax, xmm1)
@@ -843,11 +845,13 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 #else
 	AS2(	mov		rbp, [L_BP])
 #endif
-	AS_POP_IF86(	bp)
-	AS_POP_IF86(	bx)
+	AS_POP_IF86(bp)
+#if !defined(_MSC_VER) || (_MSC_VER < 1300)
+	AS_POP_IF86(bx)
+#endif
 #ifndef __GNUC__
-	AS_POP_IF86(	di)
-	AS_POP_IF86(	si)
+	AS_POP_IF86(di)
+	AS_POP_IF86(si)
 #endif
 #ifdef CRYPTOPP_GENERATE_X64_MASM
 	pop r12

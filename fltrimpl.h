@@ -34,7 +34,7 @@
 	}
 
 #define FILTER_OUTPUT2(site, statement, output, length, messageEnd)	\
-	FILTER_OUTPUT3(site, statement, output, length, messageEnd, NULL_CHANNEL)
+	FILTER_OUTPUT3(site, statement, output, length, messageEnd, DEFAULT_CHANNEL)
 
 #define FILTER_OUTPUT(site, output, length, messageEnd)	\
 	FILTER_OUTPUT2(site, 0, output, length, messageEnd)

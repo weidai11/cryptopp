@@ -64,14 +64,14 @@ public:
 		return len;
 	}
 
-	inline size_t CopyTo(BufferedTransformation &target, const std::string &channel=BufferedTransformation::NULL_CHANNEL) const
+	inline size_t CopyTo(BufferedTransformation &target, const std::string &channel=DEFAULT_CHANNEL) const
 	{
 		size_t len = m_tail-m_head;
 		target.ChannelPut(channel, buf+m_head, len);
 		return len;
 	}
 
-	inline size_t CopyTo(BufferedTransformation &target, size_t copyMax, const std::string &channel=BufferedTransformation::NULL_CHANNEL) const
+	inline size_t CopyTo(BufferedTransformation &target, size_t copyMax, const std::string &channel=DEFAULT_CHANNEL) const
 	{
 		size_t len = STDMIN(copyMax, m_tail-m_head);
 		target.ChannelPut(channel, buf+m_head, len);
@@ -92,7 +92,7 @@ public:
 		return len;
 	}
 
-	inline size_t TransferTo(BufferedTransformation &target, const std::string &channel=BufferedTransformation::NULL_CHANNEL)
+	inline size_t TransferTo(BufferedTransformation &target, const std::string &channel=DEFAULT_CHANNEL)
 	{
 		size_t len = m_tail-m_head;
 		target.ChannelPutModifiable(channel, buf+m_head, len);
@@ -100,7 +100,7 @@ public:
 		return len;
 	}
 
-	inline size_t TransferTo(BufferedTransformation &target, lword transferMax, const std::string &channel=BufferedTransformation::NULL_CHANNEL)
+	inline size_t TransferTo(BufferedTransformation &target, lword transferMax, const std::string &channel=DEFAULT_CHANNEL)
 	{
 		size_t len = UnsignedMin(m_tail-m_head, transferMax);
 		target.ChannelPutModifiable(channel, buf+m_head, len);

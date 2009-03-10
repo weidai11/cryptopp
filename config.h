@@ -311,7 +311,7 @@ NAMESPACE_END
 #endif
 
 // how to declare class constants
-#if defined(_MSC_VER) && _MSC_VER <= 1300
+#if (defined(_MSC_VER) && _MSC_VER <= 1300) || defined(__INTEL_COMPILER)
 #	define CRYPTOPP_CONSTANT(x) enum {x};
 #else
 #	define CRYPTOPP_CONSTANT(x) static const int x;

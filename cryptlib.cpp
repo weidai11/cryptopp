@@ -26,7 +26,10 @@ CRYPTOPP_COMPILE_ASSERT(sizeof(word64) == 8);
 CRYPTOPP_COMPILE_ASSERT(sizeof(dword) == 2*sizeof(word));
 #endif
 
-const std::string BufferedTransformation::NULL_CHANNEL;
+const std::string DEFAULT_CHANNEL;
+const std::string AAD_CHANNEL = "AAD";
+const std::string &BufferedTransformation::NULL_CHANNEL = DEFAULT_CHANNEL;
+
 const NullNameValuePairs g_nullNameValuePairs;
 
 BufferedTransformation & TheBitBucket()
@@ -254,12 +257,12 @@ word32 RandomNumberGenerator::GenerateWord32(word32 min, word32 max)
 void RandomNumberGenerator::GenerateBlock(byte *output, size_t size)
 {
 	ArraySink s(output, size);
-	GenerateIntoBufferedTransformation(s, BufferedTransformation::NULL_CHANNEL, size);
+	GenerateIntoBufferedTransformation(s, DEFAULT_CHANNEL, size);
 }
 
 void RandomNumberGenerator::DiscardBytes(size_t n)
 {
-	GenerateIntoBufferedTransformation(TheBitBucket(), BufferedTransformation::NULL_CHANNEL, n);
+	GenerateIntoBufferedTransformation(TheBitBucket(), DEFAULT_CHANNEL, n);
 }
 
 void RandomNumberGenerator::GenerateIntoBufferedTransformation(BufferedTransformation &target, const std::string &channel, lword length)
@@ -593,12 +596,12 @@ size_t BufferedTransformation::ChannelPutWord32(const std::string &channel, word
 
 size_t BufferedTransformation::PutWord16(word16 value, ByteOrder order, bool blocking)
 {
-	return ChannelPutWord16(NULL_CHANNEL, value, order, blocking);
+	return ChannelPutWord16(DEFAULT_CHANNEL, value, order, blocking);
 }
 
 size_t BufferedTransformation::PutWord32(word32 value, ByteOrder order, bool blocking)
 {
-	return ChannelPutWord32(NULL_CHANNEL, value, order, blocking);
+	return ChannelPutWord32(DEFAULT_CHANNEL, value, order, blocking);
 }
 
 size_t BufferedTransformation::PeekWord16(word16 &value, ByteOrder order) const

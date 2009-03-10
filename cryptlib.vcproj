@@ -8528,7 +8528,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64dll.obj&quot; /Zi &quot;$(InputPath)&quot;"
+						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64dll.obj&quot; /Zi &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\x64dll.obj"
 					/>
 				</FileConfiguration>
@@ -8546,7 +8546,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64dll.obj&quot; /Zi &quot;$(InputPath)&quot;"
+						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64dll.obj&quot; /Zi &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\x64dll.obj"
 					/>
 				</FileConfiguration>
@@ -8563,7 +8563,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64dll.obj&quot; /Zi &quot;$(InputPath)&quot;"
+						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64dll.obj&quot; /Zi &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\x64dll.obj"
 					/>
 				</FileConfiguration>
@@ -8581,7 +8581,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64dll.obj&quot; /Zi &quot;$(InputPath)&quot;"
+						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64dll.obj&quot; /Zi &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\x64dll.obj"
 					/>
 				</FileConfiguration>

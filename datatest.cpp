@@ -410,19 +410,19 @@ void TestAuthenticatedSymmetricCipher(TestData &v, const NameValuePairs &overrid
 
 		if (macAtBegin)
 			sm.TransferTo(df);
-		sh.CopyTo(df, LWORD_MAX, "AAD");
+		sh.CopyTo(df, LWORD_MAX, AAD_CHANNEL);
 		sc.TransferTo(df);
-		sf.CopyTo(df, LWORD_MAX, "AAD");
+		sf.CopyTo(df, LWORD_MAX, AAD_CHANNEL);
 		if (!macAtBegin)
 			sm.TransferTo(df);
 		df.MessageEnd();
 
-		sh.TransferTo(ef, sh.MaxRetrievable()/2+1, "AAD");
-		sh.TransferTo(ef, LWORD_MAX, "AAD");
+		sh.TransferTo(ef, sh.MaxRetrievable()/2+1, AAD_CHANNEL);
+		sh.TransferTo(ef, LWORD_MAX, AAD_CHANNEL);
 		sp.TransferTo(ef, sp.MaxRetrievable()/2+1);
 		sp.TransferTo(ef);
-		sf.TransferTo(ef, sf.MaxRetrievable()/2+1, "AAD");
-		sf.TransferTo(ef, LWORD_MAX, "AAD");
+		sf.TransferTo(ef, sf.MaxRetrievable()/2+1, AAD_CHANNEL);
+		sf.TransferTo(ef, LWORD_MAX, AAD_CHANNEL);
 		ef.MessageEnd();
 
 		if (test == "Encrypt" && encrypted != ciphertext+mac)
