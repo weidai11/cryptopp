@@ -3402,11 +3402,8 @@ std::ostream& operator<<(std::ostream& out, const Integer &a)
 		suffix = '.';
 	}
 
-	SecBlock<char> s(a.BitCount() / (BitPrecision(base)-1) + 1);
 	Integer temp1=a, temp2;
-	unsigned i=0;
-	const char vec[]="0123456789ABCDEF";
-
+    
 	if (a.IsNegative())
 	{
 		out << '-';
@@ -3416,12 +3413,19 @@ std::ostream& operator<<(std::ostream& out, const Integer &a)
 	if (!a)
 		out << '0';
 
+	static const char upper[]="0123456789ABCDEF";
+	static const char lower[]="0123456789abcdef";
+
+	const char* vec = (out.flags() & std::ios::uppercase) ? upper : lower;
+	unsigned i=0;
+	SecBlock<char> s(a.BitCount() / (BitPrecision(base)-1) + 1);
+
 	while (!!temp1)
 	{
 		word digit;
 		Integer::Divide(digit, temp2, temp1, base);
 		s[i++]=vec[digit];
-		temp1=temp2;
+		temp1.swap(temp2);
 	}
 
 	while (i--)
