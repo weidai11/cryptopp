@@ -42,8 +42,19 @@ DEFINE_OID(1, iso)
 			DEFINE_OID(oiw()+14, oiw_secsig);
 				DEFINE_OID(oiw_secsig()+2, oiw_secsig_algorithms);
 					DEFINE_OID(oiw_secsig_algorithms()+26, id_sha1);
+
 		DEFINE_OID(identified_organization()+36, teletrust);
-			DEFINE_OID(teletrust()+3+2+1, id_ripemd160)
+			DEFINE_OID(teletrust()+3, teletrust_algorithm)
+				DEFINE_OID(teletrust_algorithm()+2+1, id_ripemd160)
+				DEFINE_OID(teletrust_algorithm()+3+2+8+1, teletrust_ellipticCurve)
+					DEFINE_OID(teletrust_ellipticCurve()+1+1, brainpoolP160r1)
+					DEFINE_OID(teletrust_ellipticCurve()+1+3, brainpoolP192r1)
+					DEFINE_OID(teletrust_ellipticCurve()+1+5, brainpoolP224r1)
+					DEFINE_OID(teletrust_ellipticCurve()+1+7, brainpoolP256r1)
+					DEFINE_OID(teletrust_ellipticCurve()+1+9, brainpoolP320r1)
+					DEFINE_OID(teletrust_ellipticCurve()+1+11, brainpoolP384r1)
+					DEFINE_OID(teletrust_ellipticCurve()+1+13, brainpoolP512r1)
+
 		DEFINE_OID(identified_organization()+132, certicom);
 			DEFINE_OID(certicom()+0, certicom_ellipticCurve);
 				// these are sorted by curve type and then by OID
