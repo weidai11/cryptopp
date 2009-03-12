@@ -412,7 +412,7 @@ the mailing list.
         Intel C++ Compiler 10.0, and Borland C++Builder 2007
 
 5.6 - added AuthenticatedSymmetricCipher interface class and Filter wrappers
-    - added CCM, GCM (with SSE2 assembly), CMAC, and SEED
+    - added CCM, GCM (with SSE2 assembly), EAX, CMAC, XSalsa20, and SEED
     - added support for variable length IVs
     - improved AES and SHA-256 speed on x86 and x64
     - fixed run-time validation error on x86-64 with GCC 4.3.2 -O2

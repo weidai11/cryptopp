@@ -238,6 +238,7 @@ void BenchmarkAll(double t, double hertz)
 	BenchMarkByName2<AuthenticatedSymmetricCipher, StreamTransformation>("AES/GCM", 0, "AES/GCM (2K tables)", MakeParameters(Name::TableSize(), 2048));
 	BenchMarkByName2<AuthenticatedSymmetricCipher, StreamTransformation>("AES/GCM", 0, "AES/GCM (64K tables)", MakeParameters(Name::TableSize(), 64*1024));
 	BenchMarkByName2<AuthenticatedSymmetricCipher, StreamTransformation>("AES/CCM");
+	BenchMarkByName2<AuthenticatedSymmetricCipher, StreamTransformation>("AES/EAX");
 
 	cout << "\n<TBODY style=\"background: white\">";
 	BenchMarkByName2<AuthenticatedSymmetricCipher, MessageAuthenticationCode>("AES/GCM", 0, "GMAC(AES) (2K tables)", MakeParameters(Name::TableSize(), 2048));

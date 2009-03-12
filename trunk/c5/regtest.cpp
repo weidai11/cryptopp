@@ -27,6 +27,7 @@
 #include "arc4.h"
 #include "ccm.h"
 #include "gcm.h"
+#include "eax.h"
 #include "twofish.h"
 #include "serpent.h"
 #include "cast.h"
@@ -106,12 +107,14 @@ void RegisterFactories()
 	RegisterSymmetricCipherDefaultFactories<OFB_Mode<AES> >();
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<AES> >();
 	RegisterSymmetricCipherDefaultFactories<Salsa20>();
+	RegisterSymmetricCipherDefaultFactories<XSalsa20>();
 	RegisterSymmetricCipherDefaultFactories<Sosemanuk>();
 	RegisterSymmetricCipherDefaultFactories<Weak::MARC4>();
 	RegisterSymmetricCipherDefaultFactories<WAKE_OFB<LittleEndian> >();
 	RegisterSymmetricCipherDefaultFactories<SEAL<LittleEndian> >();
 	RegisterAuthenticatedSymmetricCipherDefaultFactories<CCM<AES> >();
 	RegisterAuthenticatedSymmetricCipherDefaultFactories<GCM<AES> >();
+	RegisterAuthenticatedSymmetricCipherDefaultFactories<EAX<AES> >();
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<Camellia> >();
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<Twofish> >();
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<Serpent> >();

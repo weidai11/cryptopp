@@ -15,12 +15,16 @@ public:
 	void UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params);
 	void Update(const byte *input, size_t length);
 	void TruncatedFinal(byte *mac, size_t size);
-	unsigned int DigestSize() const {return const_cast<CMAC_Base*>(this)->AccessCipher().BlockSize();}
+	unsigned int DigestSize() const {return GetCipher().BlockSize();}
+	unsigned int OptimalBlockSize() const {return GetCipher().BlockSize();}
+	unsigned int OptimalDataAlignment() const {return GetCipher().OptimalDataAlignment();}
 
 protected:
+	friend class EAX_Base;
+
+	const BlockCipher & GetCipher() const {return const_cast<CMAC_Base*>(this)->AccessCipher();}
 	virtual BlockCipher & AccessCipher() =0;
 
-private:
 	void ProcessBuf();
 	SecByteBlock m_reg;
 	unsigned int m_counter;

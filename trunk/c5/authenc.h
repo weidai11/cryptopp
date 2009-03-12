@@ -34,7 +34,7 @@ protected:
 	virtual void Resync(const byte *iv, size_t len) =0;
 	virtual size_t AuthenticateBlocks(const byte *data, size_t len) =0;
 	virtual void AuthenticateLastHeaderBlock() =0;
-	virtual void AuthenticateLastConfidentialBlock() =0;
+	virtual void AuthenticateLastConfidentialBlock() {}
 	virtual void AuthenticateLastFooterBlock(byte *mac, size_t macSize) =0;
 
 	enum State {State_Start, State_KeySet, State_IVSet, State_AuthUntransformed, State_AuthTransformed, State_AuthFooter};

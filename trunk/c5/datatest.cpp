@@ -306,15 +306,33 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 	TestDataNameValuePairs testDataPairs(v);
 	CombinedNameValuePairs pairs(overrideParameters, testDataPairs);
 
-	if (test == "Encrypt" || test == "EncryptXorDigest")
+	if (test == "Encrypt" || test == "EncryptXorDigest" || test == "Resync")
 	{
-		std::auto_ptr<SymmetricCipher> encryptor(ObjectFactoryRegistry<SymmetricCipher, ENCRYPTION>::Registry().CreateObject(name.c_str()));
-		std::auto_ptr<SymmetricCipher> decryptor(ObjectFactoryRegistry<SymmetricCipher, DECRYPTION>::Registry().CreateObject(name.c_str()));
+		static std::auto_ptr<SymmetricCipher> encryptor, decryptor;
+		static std::string lastName;
+
+		if (name != lastName)
+		{
+			encryptor.reset(ObjectFactoryRegistry<SymmetricCipher, ENCRYPTION>::Registry().CreateObject(name.c_str()));
+			decryptor.reset(ObjectFactoryRegistry<SymmetricCipher, DECRYPTION>::Registry().CreateObject(name.c_str()));
+			lastName = name;
+		}
+
 		ConstByteArrayParameter iv;
 		if (pairs.GetValue(Name::IV(), iv) && iv.size() != encryptor->IVSize())
 			SignalTestFailure();
-		encryptor->SetKey((const byte *)key.data(), key.size(), pairs);
-		decryptor->SetKey((const byte *)key.data(), key.size(), pairs);
+
+		if (test == "Resync")
+		{
+			encryptor->Resynchronize(iv.begin(), (int)iv.size());
+			decryptor->Resynchronize(iv.begin(), (int)iv.size());
+		}
+		else
+		{
+			encryptor->SetKey((const byte *)key.data(), key.size(), pairs);
+			decryptor->SetKey((const byte *)key.data(), key.size(), pairs);
+		}
+
 		int seek = pairs.GetIntValueWithDefault("Seek", 0);
 		if (seek)
 		{
@@ -334,7 +352,7 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 			for (int i=0; i<z.length(); i++)
 				assert(encrypted[i] == z[i]);
 		}*/
-		if (test == "Encrypt")
+		if (test != "EncryptXorDigest")
 			ciphertext = GetDecodedDatum(v, "Ciphertext");
 		else
 		{
@@ -343,7 +361,7 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 			for (size_t i=64; i<encrypted.size(); i++)
 				xorDigest[i%64] ^= encrypted[i];
 		}
-		if (test == "Encrypt" ? encrypted != ciphertext : xorDigest != ciphertextXorDigest)
+		if (test != "EncryptXorDigest" ? encrypted != ciphertext : xorDigest != ciphertextXorDigest)
 		{
 			std::cout << "incorrectly encrypted: ";
 			StringSource xx(encrypted, false, new HexEncoder(new FileSink(std::cout)));
@@ -397,7 +415,7 @@ void TestAuthenticatedSymmetricCipher(TestData &v, const NameValuePairs &overrid
 
 		std::string encrypted, decrypted;
 		AuthenticatedEncryptionFilter ef(*asc1, new StringSink(encrypted));
-		bool macAtBegin = !GlobalRNG().GenerateBit();	// test both ways randomly
+		bool macAtBegin = !mac.empty() && !GlobalRNG().GenerateBit();	// test both ways randomly
 		AuthenticatedDecryptionFilter df(*asc2, new StringSink(decrypted), macAtBegin ? AuthenticatedDecryptionFilter::MAC_AT_BEGIN : 0);
 
 		if (asc1->NeedsPrespecifiedDataLengths())
@@ -433,7 +451,7 @@ void TestAuthenticatedSymmetricCipher(TestData &v, const NameValuePairs &overrid
 			std::cout << "\n";
 			SignalTestFailure();
 		}
-		if (decrypted != plaintext)
+		if (test == "Encrypt" && decrypted != plaintext)
 		{
 			std::cout << "incorrectly decrypted: ";
 			StringSource xx(decrypted, false, new HexEncoder(new FileSink(std::cout)));
@@ -442,7 +460,7 @@ void TestAuthenticatedSymmetricCipher(TestData &v, const NameValuePairs &overrid
 			SignalTestFailure();
 		}
 
-		if (mac.size() != asc1->DigestSize())
+		if (ciphertext.size()+mac.size()-plaintext.size() != asc1->DigestSize())
 		{
 			std::cout << "bad MAC size\n";
 			SignalTestFailure();
@@ -605,7 +623,7 @@ void TestDataFile(const std::string &filename, const NameValuePairs &overridePar
 		while (file.peek() == '#')
 			file.ignore(INT_MAX, '\n');
 
-		if (file.peek() == '\n')
+		if (file.peek() == '\n' || file.peek() == '\r')
 			v.clear();
 
 		if (!GetField(file, name, value))

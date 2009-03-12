@@ -36,7 +36,7 @@ public:
 		{return 7;}
 	unsigned int MaxIVLength() const
 		{return 13;}
-	unsigned int DigestSize(void) const
+	unsigned int DigestSize() const
 		{return m_digestSize;}
 	lword MaxHeaderLength() const
 		{return W64LIT(0)-1;}
