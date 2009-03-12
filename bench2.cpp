@@ -296,8 +296,8 @@ void BenchmarkAll2(double t, double hertz)
 
 		BenchMarkEncryption("ECIES over GF(p) 256", cpub, t);
 		BenchMarkDecryption("ECIES over GF(p) 256", cpriv, cpub, t);
-		BenchMarkSigning("ECNR over GF(p) 256", spriv, t);
-		BenchMarkVerification("ECNR over GF(p) 256", spriv, spub, t);
+		BenchMarkSigning("ECDSA over GF(p) 256", spriv, t);
+		BenchMarkVerification("ECDSA over GF(p) 256", spriv, spub, t);
 		BenchMarkKeyGen("ECDHC over GF(p) 256", ecdhc, t);
 		BenchMarkAgreement("ECDHC over GF(p) 256", ecdhc, t);
 		BenchMarkKeyGen("ECMQVC over GF(p) 256", ecmqvc, t);
