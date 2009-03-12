@@ -799,7 +799,7 @@ inline void GetUserKey(ByteOrder order, T *out, size_t outlen, const byte *in, s
 {
 	const size_t U = sizeof(T);
 	assert(inlen <= outlen*U);
-	memcpy(out, in, inlen);
+	memcpy_s(out, outlen*U, in, inlen);
 	memset_z((byte *)out+inlen, 0, outlen*U-inlen);
 	ConditionalByteReverse(order, out, out, RoundUpToMultipleOf(inlen, U));
 }

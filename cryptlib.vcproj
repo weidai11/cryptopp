@@ -2610,6 +2610,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\eax.cpp"
+				>
+			</File>
+			<File
 				RelativePath="ec2n.cpp"
 				>
 				<FileConfiguration
@@ -9154,6 +9158,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\eax.h"
+				>
+			</File>
+			<File
 				RelativePath="ec2n.h"
 				>
 			</File>
@@ -9470,6 +9478,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\stdcpp.h"
+				>
+			</File>
+			<File
 				RelativePath="strciphr.h"
 				>
 			</File>
@@ -9522,10 +9534,6 @@
 				>
 			</File>
 			<File
-				RelativePath="xormac.h"
-				>
-			</File>
-			<File
 				RelativePath="xtr.h"
 				>
 			</File>
@@ -9558,11 +9566,11 @@
 				>
 			</File>
 			<File
-				RelativePath="license.txt"
+				RelativePath=".\License.txt"
 				>
 			</File>
 			<File
-				RelativePath="readme.txt"
+				RelativePath=".\Readme.txt"
 				>
 			</File>
 		</Filter>

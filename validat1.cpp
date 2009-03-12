@@ -96,6 +96,7 @@ bool ValidateAll(bool thorough)
 	pass=ValidateCCM() && pass;
 	pass=ValidateGCM() && pass;
 	pass=ValidateCMAC() && pass;
+	pass=RunTestDataFile("TestVectors/eax.txt") && pass;
 	pass=RunTestDataFile("TestVectors/seed.txt") && pass;
 
 	pass=ValidateBBS() && pass;
@@ -817,6 +818,34 @@ bool ValidateCipherModes()
 		fail = !TestFilter(dmacFilter, plain, sizeof(plain), mac2, sizeof(mac2));
 		pass = pass && !fail;
 		cout << (fail ? "FAILED   " : "passed   ") << "DMAC" << endl;
+	}
+	{
+		CTR_Mode<AES>::Encryption modeE(plain, 16, plain);
+		CTR_Mode<AES>::Decryption modeD(plain, 16, plain);
+		fail = !TestModeIV(modeE, modeD);
+		pass = pass && !fail;
+		cout << (fail ? "FAILED   " : "passed   ") << "AES CTR Mode" << endl;
+	}
+	{
+		OFB_Mode<AES>::Encryption modeE(plain, 16, plain);
+		OFB_Mode<AES>::Decryption modeD(plain, 16, plain);
+		fail = !TestModeIV(modeE, modeD);
+		pass = pass && !fail;
+		cout << (fail ? "FAILED   " : "passed   ") << "AES OFB Mode" << endl;
+	}
+	{
+		CFB_Mode<AES>::Encryption modeE(plain, 16, plain);
+		CFB_Mode<AES>::Decryption modeD(plain, 16, plain);
+		fail = !TestModeIV(modeE, modeD);
+		pass = pass && !fail;
+		cout << (fail ? "FAILED   " : "passed   ") << "AES CFB Mode" << endl;
+	}
+	{
+		CBC_Mode<AES>::Encryption modeE(plain, 16, plain);
+		CBC_Mode<AES>::Decryption modeD(plain, 16, plain);
+		fail = !TestModeIV(modeE, modeD);
+		pass = pass && !fail;
+		cout << (fail ? "FAILED   " : "passed   ") << "AES CBC Mode" << endl;
 	}
 
 	return pass;

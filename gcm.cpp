@@ -10,6 +10,10 @@
 #include "gcm.h"
 #include "cpu.h"
 
+#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+#include <emmintrin.h>
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 word16 GCM_Base::s_reductionTable[256];
@@ -44,6 +48,19 @@ void gcm_gf_mult(const unsigned char *a, const unsigned char *b, unsigned char *
 	Block::Put(NULL, c)(Z0)(Z1);
 }
 #endif
+
+#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+inline static void SSE2_Xor16(byte *a, const byte *b, const byte *c)
+{
+	*(__m128i *)a = _mm_xor_si128(*(__m128i *)b, *(__m128i *)c);
+}
+#endif
+
+inline static void Xor16(byte *a, const byte *b, const byte *c)
+{
+	((word64 *)a)[0] = ((word64 *)b)[0] ^ ((word64 *)c)[0];
+	((word64 *)a)[1] = ((word64 *)b)[1] ^ ((word64 *)c)[1];
+}
 
 void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const NameValuePairs &params)
 {
@@ -86,9 +103,16 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
 		for (i=0; i<16; i++)
 		{
 			memset(table+i*256*16, 0, 16);
-			for (j=2; j<=0x80; j*=2)
-				for (k=1; k<j; k++)
-					xorbuf(table+i*256*16+(j+k)*16, table+i*256*16+j*16, table+i*256*16+k*16, 16);
+#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+			if (HasSSE2())
+				for (j=2; j<=0x80; j*=2)
+					for (k=1; k<j; k++)
+						SSE2_Xor16(table+i*256*16+(j+k)*16, table+i*256*16+j*16, table+i*256*16+k*16);
+			else
+#endif
+				for (j=2; j<=0x80; j*=2)
+					for (k=1; k<j; k++)
+						Xor16(table+i*256*16+(j+k)*16, table+i*256*16+j*16, table+i*256*16+k*16);
 		}
 	}
 	else
@@ -125,12 +149,22 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
 		{
 			memset(table+i*256, 0, 16);
 			memset(table+1024+i*256, 0, 16);
-			for (j=2; j<=8; j*=2)
-				for (k=1; k<j; k++)
-				{
-					xorbuf(table+i*256+(j+k)*16, table+i*256+j*16, table+i*256+k*16, 16);
-					xorbuf(table+1024+i*256+(j+k)*16, table+1024+i*256+j*16, table+1024+i*256+k*16, 16);
-				}
+#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+			if (HasSSE2())
+				for (j=2; j<=8; j*=2)
+					for (k=1; k<j; k++)
+					{
+						SSE2_Xor16(table+i*256+(j+k)*16, table+i*256+j*16, table+i*256+k*16);
+						SSE2_Xor16(table+1024+i*256+(j+k)*16, table+1024+i*256+j*16, table+1024+i*256+k*16);
+					}
+			else
+#endif
+				for (j=2; j<=8; j*=2)
+					for (k=1; k<j; k++)
+					{
+						Xor16(table+i*256+(j+k)*16, table+i*256+j*16, table+i*256+k*16);
+						Xor16(table+1024+i*256+(j+k)*16, table+1024+i*256+j*16, table+1024+i*256+k*16);
+					}
 		}
 	}
 }
@@ -582,128 +616,6 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 	}
 
 	return len%16;
-
-#if 0
-		byte *hashBuffer = HashBuffer(), *hashKey = HashKey();
-
-		__m128i b = _mm_load_si128((__m128i *)hashBuffer);
-		__m128i mask = _mm_load_si128((__m128i *)s_GCM_mask);
-		byte *table = MulTable();
-
-		do
-		{
-			b = _mm_xor_si128(b, _mm_loadu_si128((__m128i *)data));
-			data += HASH_BLOCKSIZE;
-			len -= HASH_BLOCKSIZE;
-
-#define SSE2_READ_TABLE(a, b, c)	*(__m128i *)(table+(a*1024)+(b*16*16)+(c?(x>>((c?c-1:1)*4))&0xf0:(x&0xf)<<4))
-
-			word32 x = _mm_cvtsi128_si32(b);
-			__m128i a0 = _mm_xor_si128(SSE2_READ_TABLE(0, 0, 0), SSE2_READ_TABLE(1, 0, 1));
-			__m128i a1 = _mm_xor_si128(SSE2_READ_TABLE(0, 0, 2), SSE2_READ_TABLE(1, 0, 3));
-			__m128i a2 = _mm_xor_si128(SSE2_READ_TABLE(0, 0, 4), SSE2_READ_TABLE(1, 0, 5));
-			__m128i a3 = _mm_xor_si128(SSE2_READ_TABLE(0, 0, 6), SSE2_READ_TABLE(1, 0, 7));
-
-#define SSE2_MULTIPLY_32(i)	\
-			b = _mm_srli_si128(b, 4);							\
-			x = _mm_cvtsi128_si32(b);							\
-			a0 = _mm_xor_si128(a0, SSE2_READ_TABLE(0, i, 0));	\
-			a0 = _mm_xor_si128(a0, SSE2_READ_TABLE(1, i, 1));	\
-			a1 = _mm_xor_si128(a1, SSE2_READ_TABLE(0, i, 2));	\
-			a1 = _mm_xor_si128(a1, SSE2_READ_TABLE(1, i, 3));	\
-			a2 = _mm_xor_si128(a2, SSE2_READ_TABLE(0, i, 4));	\
-			a2 = _mm_xor_si128(a2, SSE2_READ_TABLE(1, i, 5));	\
-			a3 = _mm_xor_si128(a3, SSE2_READ_TABLE(0, i, 6));	\
-			a3 = _mm_xor_si128(a3, SSE2_READ_TABLE(1, i, 7));
-
-			SSE2_MULTIPLY_32(1)
-			SSE2_MULTIPLY_32(2)
-			SSE2_MULTIPLY_32(3)
-
-			word32 r = (word32)s_reductionTable[_mm_cvtsi128_si32(_mm_srli_si128(a3, 15))] << 16;
-			a3 = _mm_slli_si128(a3, 1);
-			a2 = _mm_xor_si128(a2, a3);
-			r ^= (word32)s_reductionTable[_mm_cvtsi128_si32(_mm_srli_si128(a2, 15))] << 8;
-			a2 = _mm_slli_si128(a2, 1);
-			a1 = _mm_xor_si128(a1, a2);
-			r ^= s_reductionTable[_mm_cvtsi128_si32(_mm_srli_si128(a1, 15))];
-			a1 = _mm_slli_si128(a1, 1);
-			a0 = _mm_xor_si128(a0, a1);
-			b = _mm_xor_si128(a0, _mm_cvtsi32_si128(r));
-		}
-		while (len >= HASH_BLOCKSIZE);
-
-		_mm_store_si128((__m128i *)hashBuffer, b);
-		__m128i b = *(__m128i *)hashBuffer;
-		__m128i mask = *(__m128i *)s_GCM_mask;
-		byte *table = MulTable();
-
-		do
-		{
-			b = _mm_xor_si128(b, _mm_loadu_si128((__m128i *)data));
-			data += HASH_BLOCKSIZE;
-			len -= HASH_BLOCKSIZE;
-
-			__m128i c0 = _mm_and_si128(_mm_slli_epi16(b, 4), mask);
-			__m128i c1 = _mm_and_si128(b, mask);
-			__m128i c2 = _mm_and_si128(_mm_srli_epi16(b, 4), mask);
-			__m128i c3 = _mm_and_si128(_mm_srli_epi16(b, 8), mask);
-
-#define SSE2_READ_TABLE(a, c, d) *(__m128i *)(table+(a*1024)+((d/2)*16*16)+(size_t)(word16)_mm_extract_epi16(c, d))
-
-			__m128i a3 = SSE2_READ_TABLE(0, c2, 1);
-			a3 = _mm_xor_si128(a3, SSE2_READ_TABLE(1, c3, 1));
-			a3 = _mm_xor_si128(a3, SSE2_READ_TABLE(0, c2, 3));
-			a3 = _mm_xor_si128(a3, SSE2_READ_TABLE(1, c3, 3));
-			a3 = _mm_xor_si128(a3, SSE2_READ_TABLE(0, c2, 5));
-			a3 = _mm_xor_si128(a3, SSE2_READ_TABLE(1, c3, 5));
-			a3 = _mm_xor_si128(a3, SSE2_READ_TABLE(0, c2, 7));
-			a3 = _mm_xor_si128(a3, SSE2_READ_TABLE(1, c3, 7));
-
-			word32 r = (word32)s_reductionTable[((word16)_mm_extract_epi16(a3, 7))>>8] << 16;
-			a3 = _mm_slli_si128(a3, 1);
-
-			__m128i a2 = _mm_xor_si128(a3, SSE2_READ_TABLE(0, c0, 1));
-			a2 = _mm_xor_si128(a2, SSE2_READ_TABLE(1, c1, 1));
-			a2 = _mm_xor_si128(a2, SSE2_READ_TABLE(0, c0, 3));
-			a2 = _mm_xor_si128(a2, SSE2_READ_TABLE(1, c1, 3));
-			a2 = _mm_xor_si128(a2, SSE2_READ_TABLE(0, c0, 5));
-			a2 = _mm_xor_si128(a2, SSE2_READ_TABLE(1, c1, 5));
-			a2 = _mm_xor_si128(a2, SSE2_READ_TABLE(0, c0, 7));
-			a2 = _mm_xor_si128(a2, SSE2_READ_TABLE(1, c1, 7));
-
-			r ^= (word32)s_reductionTable[_mm_cvtsi128_si32(_mm_srli_si128(a2, 15))] << 8;
-			a2 = _mm_slli_si128(a2, 1);
-
-			__m128i a1 = _mm_xor_si128(a2, SSE2_READ_TABLE(0, c2, 0));
-			a1 = _mm_xor_si128(a1, SSE2_READ_TABLE(1, c3, 0));
-			a1 = _mm_xor_si128(a1, SSE2_READ_TABLE(0, c2, 2));
-			a1 = _mm_xor_si128(a1, SSE2_READ_TABLE(1, c3, 2));
-			a1 = _mm_xor_si128(a1, SSE2_READ_TABLE(0, c2, 4));
-			a1 = _mm_xor_si128(a1, SSE2_READ_TABLE(1, c3, 4));
-			a1 = _mm_xor_si128(a1, SSE2_READ_TABLE(0, c2, 6));
-			a1 = _mm_xor_si128(a1, SSE2_READ_TABLE(1, c3, 6));
-
-			r ^= s_reductionTable[_mm_cvtsi128_si32(_mm_srli_si128(a1, 15))];
-			a1 = _mm_slli_si128(a1, 1);
-
-			__m128i a0 = _mm_xor_si128(a1, SSE2_READ_TABLE(0, c0, 0));
-			a0 = _mm_xor_si128(a0, SSE2_READ_TABLE(1, c1, 0));
-			a0 = _mm_xor_si128(a0, SSE2_READ_TABLE(0, c0, 2));
-			a0 = _mm_xor_si128(a0, SSE2_READ_TABLE(1, c1, 2));
-			a0 = _mm_xor_si128(a0, SSE2_READ_TABLE(0, c0, 4));
-			a0 = _mm_xor_si128(a0, SSE2_READ_TABLE(1, c1, 4));
-			a0 = _mm_xor_si128(a0, SSE2_READ_TABLE(0, c0, 6));
-			a0 = _mm_xor_si128(a0, SSE2_READ_TABLE(1, c1, 6));
-
-			b = _mm_xor_si128(a0, _mm_cvtsi32_si128(r));
-		}
-		while (len >= HASH_BLOCKSIZE);
-
-		_mm_store_si128((__m128i *)hashBuffer, b);
-
-	return len;
-#endif
 }
 
 void GCM_Base::AuthenticateLastHeaderBlock()

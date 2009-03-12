@@ -457,36 +457,42 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 #define MM(i)			mm##i
 
 #define MXOR(a,b,c)	\
-	AS2(	movzx	ebp, b)\
-	AS2(	movd	mm7, DWORD PTR [WORD_REG(si)+8*WORD_REG(bp)+MAP0TO4(c)])\
+	AS2(	movzx	esi, b)\
+	AS2(	movd	mm7, DWORD PTR [AS_REG_7+8*WORD_REG(si)+MAP0TO4(c)])\
 	AS2(	pxor	MM(a), mm7)\
 
 #define MMOV(a,b,c)	\
-	AS2(	movzx	ebp, b)\
-	AS2(	movd	MM(a), DWORD PTR [WORD_REG(si)+8*WORD_REG(bp)+MAP0TO4(c)])\
+	AS2(	movzx	esi, b)\
+	AS2(	movd	MM(a), DWORD PTR [AS_REG_7+8*WORD_REG(si)+MAP0TO4(c)])\
 
 #else
 
 #define L_REG			r8
-#define L_INDEX(i)		(r8+i)
+#define L_INDEX(i)		(L_REG+i)
 #define L_INXORBLOCKS	L_INBLOCKS+8
 #define L_OUTXORBLOCKS	L_INBLOCKS+16
 #define L_OUTBLOCKS		L_INBLOCKS+24
 #define L_INCREMENTS	L_INDEX(16*16)
-#define L_BP			L_INDEX(16*18)
 #define L_LENGTH		L_INDEX(16*18+8)
 #define L_KEYS_BEGIN	L_INDEX(16*19)
 
 #define MOVD			mov
-#define MM(i)			r1##i##d
+#define MM_0			r9d
+#define MM_1			r12d
+#ifdef __GNUC__
+#define MM_2			r11d
+#else
+#define MM_2			r10d
+#endif
+#define MM(i)			MM_##i
 
 #define MXOR(a,b,c)	\
-	AS2(	movzx	ebp, b)\
-	AS2(	xor		MM(a), DWORD PTR [WORD_REG(si)+8*WORD_REG(bp)+MAP0TO4(c)])\
+	AS2(	movzx	esi, b)\
+	AS2(	xor		MM(a), DWORD PTR [AS_REG_7+8*WORD_REG(si)+MAP0TO4(c)])\
 
 #define MMOV(a,b,c)	\
-	AS2(	movzx	ebp, b)\
-	AS2(	mov		MM(a), DWORD PTR [WORD_REG(si)+8*WORD_REG(bp)+MAP0TO4(c)])\
+	AS2(	movzx	esi, b)\
+	AS2(	mov		MM(a), DWORD PTR [AS_REG_7+8*WORD_REG(si)+MAP0TO4(c)])\
 
 #endif
 
@@ -498,12 +504,12 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 #define MAP0TO4(i)		(ASM_MOD(i+3,4)+1)
 
 #define XOR(a,b,c)	\
-	AS2(	movzx	ebp, b)\
-	AS2(	xor		a, DWORD PTR [WORD_REG(si)+8*WORD_REG(bp)+MAP0TO4(c)])\
+	AS2(	movzx	esi, b)\
+	AS2(	xor		a, DWORD PTR [AS_REG_7+8*WORD_REG(si)+MAP0TO4(c)])\
 
 #define MOV(a,b,c)	\
-	AS2(	movzx	ebp, b)\
-	AS2(	mov		a, DWORD PTR [WORD_REG(si)+8*WORD_REG(bp)+MAP0TO4(c)])\
+	AS2(	movzx	esi, b)\
+	AS2(	mov		a, DWORD PTR [AS_REG_7+8*WORD_REG(si)+MAP0TO4(c)])\
 
 #ifdef CRYPTOPP_GENERATE_X64_MASM
 		ALIGN   8
@@ -511,54 +517,54 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 		rex_push_reg rsi
 		push_reg rdi
 		push_reg rbx
-		push_reg rbp
 		push_reg r12
 		.endprolog
-		mov r8, rcx
-		mov rsi, ?Te@rdtable@CryptoPP@@3PA_KA
+		mov L_REG, rcx
+		mov AS_REG_7, ?Te@rdtable@CryptoPP@@3PA_KA
 		mov rdi, QWORD PTR [?g_cacheLineSize@CryptoPP@@3IA]
 #elif defined(__GNUC__)
 	__asm__ __volatile__
 	(
 	".intel_syntax noprefix;"
-	ASL(Rijndael_Enc_AdvancedProcessBlocks)
 	#if CRYPTOPP_BOOL_X64
-	AS2(	mov		r8, rcx)
-	AS2(	mov		[L_BP], rbp)
+	AS2(	mov		L_REG, rcx)
 	#endif
+	AS_PUSH_IF86(bx)
+	AS_PUSH_IF86(bp)
+	AS2(	mov		AS_REG_7, WORD_REG(si))
 #else
-	AS1(	push	esi)
-	AS1(	push	edi)
-	AS2(	lea		esi, [Te])
-	AS2(	mov		edi, [g_cacheLineSize])
-#endif
-
-#if CRYPTOPP_BOOL_X86
+	AS_PUSH_IF86(si)
+	AS_PUSH_IF86(di)
 #if !defined(_MSC_VER) || (_MSC_VER < 1300)
 	AS_PUSH_IF86(bx)
 #endif
 	AS_PUSH_IF86(bp)
-	AS2(	mov		[ecx+16*12+16*4], esp)
+	AS2(	lea		AS_REG_7, [Te])
+	AS2(	mov		edi, [g_cacheLineSize])
+#endif
+
+#if CRYPTOPP_BOOL_X86
+	AS2(	mov		[ecx+16*12+16*4], esp)	// save esp to L_SP
 	AS2(	lea		esp, [ecx-512])
 #endif
 
 	// copy subkeys to stack
-	AS2(	mov		WORD_REG(bp), [L_KEYS_BEGIN])
+	AS2(	mov		WORD_REG(si), [L_KEYS_BEGIN])
 	AS2(	mov		WORD_REG(ax), 16)
-	AS2(	and		WORD_REG(ax), WORD_REG(bp))
+	AS2(	and		WORD_REG(ax), WORD_REG(si))
 	AS2(	movdqa	xmm3, XMMWORD_PTR [WORD_REG(dx)+16+WORD_REG(ax)])	// subkey 1 (non-counter) or 2 (counter)
 	AS2(	movdqa	[L_KEY12], xmm3)
 	AS2(	lea		WORD_REG(ax), [WORD_REG(dx)+WORD_REG(ax)+2*16])
-	AS2(	sub		WORD_REG(ax), WORD_REG(bp))
+	AS2(	sub		WORD_REG(ax), WORD_REG(si))
 	ASL(0)
-	AS2(	movdqa	xmm0, [WORD_REG(ax)+WORD_REG(bp)])
-	AS2(	movdqa	XMMWORD_PTR [L_SUBKEYS+WORD_REG(bp)], xmm0)
-	AS2(	add		WORD_REG(bp), 16)
-	AS2(	cmp		WORD_REG(bp), 16*12)
+	AS2(	movdqa	xmm0, [WORD_REG(ax)+WORD_REG(si)])
+	AS2(	movdqa	XMMWORD_PTR [L_SUBKEYS+WORD_REG(si)], xmm0)
+	AS2(	add		WORD_REG(si), 16)
+	AS2(	cmp		WORD_REG(si), 16*12)
 	ASJ(	jl,		0, b)
 
 	// read subkeys 0, 1 and last
-	AS2(	movdqa	xmm4, [WORD_REG(ax)+WORD_REG(bp)])	// last subkey
+	AS2(	movdqa	xmm4, [WORD_REG(ax)+WORD_REG(si)])	// last subkey
 	AS2(	movdqa	xmm1, [WORD_REG(dx)])			// subkey 0
 	AS2(	MOVD	MM(1), [WORD_REG(dx)+4*4])		// 0,1,2,3
 	AS2(	mov		ebx, [WORD_REG(dx)+5*4])		// 4,5,6,7
@@ -568,13 +574,13 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 	// load table into cache
 	AS2(	xor		WORD_REG(ax), WORD_REG(ax))
 	ASL(9)
-	AS2(	mov		ebp, [WORD_REG(si)+WORD_REG(ax)])
+	AS2(	mov		esi, [AS_REG_7+WORD_REG(ax)])
 	AS2(	add		WORD_REG(ax), WORD_REG(di))
-	AS2(	mov		ebp, [WORD_REG(si)+WORD_REG(ax)])
+	AS2(	mov		esi, [AS_REG_7+WORD_REG(ax)])
 	AS2(	add		WORD_REG(ax), WORD_REG(di))
-	AS2(	mov		ebp, [WORD_REG(si)+WORD_REG(ax)])
+	AS2(	mov		esi, [AS_REG_7+WORD_REG(ax)])
 	AS2(	add		WORD_REG(ax), WORD_REG(di))
-	AS2(	mov		ebp, [WORD_REG(si)+WORD_REG(ax)])
+	AS2(	mov		esi, [AS_REG_7+WORD_REG(ax)])
 	AS2(	add		WORD_REG(ax), WORD_REG(di))
 	AS2(	cmp		WORD_REG(ax), 2048)
 	ASJ(	jl,		9, b)
@@ -584,12 +590,12 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 	ASJ(	jz,		8, f)
 
 	// counter mode one-time setup
-	AS2(	mov		WORD_REG(bp), [L_INBLOCKS])
-	AS2(	movdqu	xmm2, [WORD_REG(bp)])	// counter
+	AS2(	mov		WORD_REG(si), [L_INBLOCKS])
+	AS2(	movdqu	xmm2, [WORD_REG(si)])	// counter
 	AS2(	pxor	xmm2, xmm1)
 	AS2(	psrldq	xmm1, 14)
 	AS2(	movd	eax, xmm1)
-	AS2(	mov		al, BYTE PTR [WORD_REG(bp)+15])
+	AS2(	mov		al, BYTE PTR [WORD_REG(si)+15])
 	AS2(	MOVD	MM(2), eax)
 #if CRYPTOPP_BOOL_X86
 	AS2(	mov		eax, 1)
@@ -666,8 +672,8 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 	ASL(8)
 	AS2(	mov		WORD_REG(ax), [L_INBLOCKS])
 	AS2(	movdqu	xmm2, [WORD_REG(ax)])
-	AS2(	mov		WORD_REG(bp), [L_INXORBLOCKS])
-	AS2(	movdqu	xmm5, [WORD_REG(bp)])
+	AS2(	mov		WORD_REG(si), [L_INXORBLOCKS])
+	AS2(	movdqu	xmm5, [WORD_REG(si)])
 	AS2(	pxor	xmm2, xmm1)
 	AS2(	pxor	xmm2, xmm5)
 
@@ -722,8 +728,8 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 #else
 	AS2(	add		MM(2), 1)
 #endif
-	// remaining part of second round, in: edx(previous round),ebp(keyed counter byte) eax,ebx,[L_SAVED_X+2*4],[L_SAVED_X+3*4], out: eax,ebx,ecx,edx
-	AS2(	xor		edx, DWORD PTR [WORD_REG(si)+WORD_REG(cx)*8+3])
+	// remaining part of second round, in: edx(previous round),esi(keyed counter byte) eax,ebx,[L_SAVED_X+2*4],[L_SAVED_X+3*4], out: eax,ebx,ecx,edx
+	AS2(	xor		edx, DWORD PTR [AS_REG_7+WORD_REG(cx)*8+3])
 		XOR(		ebx, dl, 3)
 		MOV(		ecx, dh, 2)
 	AS2(	shr		edx, 16)
@@ -785,10 +791,10 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 	AS2(	sub		L_REG, 16*16)
 
 #define LAST(a, b, c)												\
-	AS2(	movzx	ebp, a											)\
-	AS2(	movzx	edi, BYTE PTR [WORD_REG(si)+WORD_REG(bp)*8+1]	)\
-	AS2(	movzx	ebp, b											)\
-	AS2(	xor		edi, DWORD PTR [WORD_REG(si)+WORD_REG(bp)*8+0]	)\
+	AS2(	movzx	esi, a											)\
+	AS2(	movzx	edi, BYTE PTR [AS_REG_7+WORD_REG(si)*8+1]	)\
+	AS2(	movzx	esi, b											)\
+	AS2(	xor		edi, DWORD PTR [AS_REG_7+WORD_REG(si)*8+0]	)\
 	AS2(	mov		WORD PTR [L_LASTROUND+c], di					)\
 
 	// last round
@@ -833,39 +839,58 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 	ASJ(	jnz,	1, b)
 #if CRYPTOPP_BOOL_X64
 	AS2(	movdqa	xmm0, [L_INCREMENTS])
-	AS2(	paddd	xmm0, [L_INBLOCKS])
+	AS2(	paddq	xmm0, [L_INBLOCKS])
 	AS2(	movdqa	[L_INBLOCKS], xmm0)
 #endif
 	ASJ(	jmp,	3, b)
 
 	ASL(7)
+	// erase keys on stack
+	AS2(	xorps	xmm0, xmm0)
+	AS2(	lea		WORD_REG(ax), [L_SUBKEYS+7*16])
+	AS2(	movaps	[WORD_REG(ax)-7*16], xmm0)
+	AS2(	movaps	[WORD_REG(ax)-6*16], xmm0)
+	AS2(	movaps	[WORD_REG(ax)-5*16], xmm0)
+	AS2(	movaps	[WORD_REG(ax)-4*16], xmm0)
+	AS2(	movaps	[WORD_REG(ax)-3*16], xmm0)
+	AS2(	movaps	[WORD_REG(ax)-2*16], xmm0)
+	AS2(	movaps	[WORD_REG(ax)-1*16], xmm0)
+	AS2(	movaps	[WORD_REG(ax)+0*16], xmm0)
+	AS2(	movaps	[WORD_REG(ax)+1*16], xmm0)
+	AS2(	movaps	[WORD_REG(ax)+2*16], xmm0)
+	AS2(	movaps	[WORD_REG(ax)+3*16], xmm0)
+	AS2(	movaps	[WORD_REG(ax)+4*16], xmm0)
+	AS2(	movaps	[WORD_REG(ax)+5*16], xmm0)
+	AS2(	movaps	[WORD_REG(ax)+6*16], xmm0)
 #if CRYPTOPP_BOOL_X86
 	AS2(	mov		esp, [L_SP])
 	AS1(	emms)
-#else
-	AS2(	mov		rbp, [L_BP])
 #endif
 	AS_POP_IF86(bp)
 #if !defined(_MSC_VER) || (_MSC_VER < 1300)
 	AS_POP_IF86(bx)
 #endif
-#ifndef __GNUC__
+#if defined(_MSC_VER) && CRYPTOPP_BOOL_X86
 	AS_POP_IF86(di)
 	AS_POP_IF86(si)
+	AS1(ret)
 #endif
 #ifdef CRYPTOPP_GENERATE_X64_MASM
 	pop r12
-	pop rbp
 	pop rbx
 	pop rdi
 	pop rsi
 	ret
 	Rijndael_Enc_AdvancedProcessBlocks ENDP
-#else
-	AS1(	ret)
 #endif
 #ifdef __GNUC__
 	".att_syntax prefix;"
+	: 
+	: "c" (locals), "d" (k), "S" (Te), "D" (g_cacheLineSize)
+	: "memory", "cc", "%eax"
+	#if CRYPTOPP_BOOL_X64
+		, "%rbx", "%r8", "%r9", "%r10", "%r11", "%r12"
+	#endif
 	);
 #endif
 }
@@ -908,6 +933,7 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 			size_t regSpill, lengthAndCounterFlag, keysBegin;
 		};
 
+		size_t increment = BLOCKSIZE;
 		const byte* zeros = (byte *)(Te+256);
 		byte *space;
 
@@ -917,6 +943,15 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 		}
 		while (AliasedWithTable(space, space+sizeof(Locals)));
 
+		if (flags & BT_ReverseDirection)
+		{
+			assert(length % BLOCKSIZE == 0);
+			inBlocks += length - BLOCKSIZE;
+			xorBlocks += length - BLOCKSIZE;
+			outBlocks += length - BLOCKSIZE;
+			increment = 0-increment;
+		}
+
 		Locals &locals = *(Locals *)space;
 
 		locals.inBlocks = inBlocks;
@@ -924,29 +959,16 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 		locals.outXorBlocks = (flags & BT_XorInput) || !xorBlocks ? zeros : xorBlocks;
 		locals.outBlocks = outBlocks;
 
-		locals.inIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : BLOCKSIZE;
-		locals.inXorIncrement = (flags & BT_XorInput) && xorBlocks ? BLOCKSIZE : 0;
-		locals.outXorIncrement = (flags & BT_XorInput) || !xorBlocks ? 0 : BLOCKSIZE;
-		locals.outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : BLOCKSIZE;
+		locals.inIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : increment;
+		locals.inXorIncrement = (flags & BT_XorInput) && xorBlocks ? increment : 0;
+		locals.outXorIncrement = (flags & BT_XorInput) || !xorBlocks ? 0 : increment;
+		locals.outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : increment;
 
 		locals.lengthAndCounterFlag = length - (length%16) - bool(flags & BT_InBlockIsCounter);
 		int keysToCopy = m_rounds - (flags & BT_InBlockIsCounter ? 3 : 2);
 		locals.keysBegin = (12-keysToCopy)*16;
 
-		#ifdef __GNUC__
-			__asm__ __volatile__
-			(
-			AS1(call Rijndael_Enc_AdvancedProcessBlocks)
-			: 
-			: "c" (&locals), "d" (m_key.begin()), "S" (Te), "D" (g_cacheLineSize)
-			: "memory", "cc", "%eax"
-			#if CRYPTOPP_BOOL_X64
-				, "%rbx", "%r8", "%r10", "%r11", "%r12"
-			#endif
-			);
-		#else
-			Rijndael_Enc_AdvancedProcessBlocks(&locals, m_key);
-		#endif
+		Rijndael_Enc_AdvancedProcessBlocks(&locals, m_key);
 		return length%16;
 	}
 	else

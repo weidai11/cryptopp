@@ -747,10 +747,10 @@ public:
 };
 
 //! the default channel for BufferedTransformation, equal to the empty string
-extern const std::string DEFAULT_CHANNEL;
+extern CRYPTOPP_DLL const std::string DEFAULT_CHANNEL;
 
 //! channel for additional authenticated data, equal to "AAD"
-extern const std::string AAD_CHANNEL;
+extern CRYPTOPP_DLL const std::string AAD_CHANNEL;
 
 //! interface for buffered transformations
 

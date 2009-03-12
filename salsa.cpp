@@ -27,7 +27,7 @@ void Salsa20_Policy::CipherSetKey(const NameValuePairs &params, const byte *key,
 	m_rounds = params.GetIntValueWithDefault(Name::Rounds(), 20);
 
 	if (!(m_rounds == 8 || m_rounds == 12 || m_rounds == 20))
-		throw InvalidRounds(StaticAlgorithmName(), m_rounds);
+		throw InvalidRounds(Salsa20::StaticAlgorithmName(), m_rounds);
 
 	// m_state is reordered for SSE2
 	GetBlock<word32, LittleEndian> get1(key);
@@ -496,22 +496,10 @@ Salsa20_OperateKeystream ENDP
 
 		while (iterationCount--)
 		{
-			x0 = m_state[0];
-			x1 = m_state[1];
-			x2 = m_state[2];
-			x3 = m_state[3];
-			x4 = m_state[4];
-			x5 = m_state[5];
-			x6 = m_state[6];
-			x7 = m_state[7];
-			x8 = m_state[8];
-			x9 = m_state[9];
-			x10 = m_state[10];
-			x11 = m_state[11];
-			x12 = m_state[12];
-			x13 = m_state[13];
-			x14 = m_state[14];
-			x15 = m_state[15];
+			x0 = m_state[0];	x1 = m_state[1];	x2 = m_state[2];	x3 = m_state[3];
+			x4 = m_state[4];	x5 = m_state[5];	x6 = m_state[6];	x7 = m_state[7];
+			x8 = m_state[8];	x9 = m_state[9];	x10 = m_state[10];	x11 = m_state[11];
+			x12 = m_state[12];	x13 = m_state[13];	x14 = m_state[14];	x15 = m_state[15];
 
 			for (int i=m_rounds; i>0; i-=2)
 			{
@@ -559,6 +547,55 @@ Salsa20_OperateKeystream ENDP
 		}
 	}
 }	// see comment above if an internal compiler error occurs here
+
+void XSalsa20_Policy::CipherSetKey(const NameValuePairs &params, const byte *key, size_t length)
+{
+	m_rounds = params.GetIntValueWithDefault(Name::Rounds(), 20);
+
+	if (!(m_rounds == 8 || m_rounds == 12 || m_rounds == 20))
+		throw InvalidRounds(XSalsa20::StaticAlgorithmName(), m_rounds);
+
+	GetUserKey(LITTLE_ENDIAN_ORDER, m_key.begin(), m_key.size(), key, length);
+	if (length == 16)
+		memcpy(m_key.begin()+4, m_key.begin(), 16);
+
+	// "expand 32-byte k"
+	m_state[0] = 0x61707865;
+	m_state[1] = 0x3320646e;
+	m_state[2] = 0x79622d32;
+	m_state[3] = 0x6b206574;
+}
+
+void XSalsa20_Policy::CipherResynchronize(byte *keystreamBuffer, const byte *IV, size_t length)
+{
+	assert(length==24);
+
+	word32 x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15;
+
+	GetBlock<word32, LittleEndian> get(IV);
+	get(x14)(x11)(x8)(x5)(m_state[14])(m_state[11]);
+
+	x13 = m_key[0];		x10 = m_key[1];		x7 = m_key[2];		x4 = m_key[3];
+	x15 = m_key[4];		x12 = m_key[5];		x9 = m_key[6];		x6 = m_key[7];
+	x0 = m_state[0];	x1 = m_state[1];	x2 = m_state[2];	x3 = m_state[3];
+
+	for (int i=m_rounds; i>0; i-=2)
+	{
+		QUARTER_ROUND(x0, x4, x8, x12)
+		QUARTER_ROUND(x1, x5, x9, x13)
+		QUARTER_ROUND(x2, x6, x10, x14)
+		QUARTER_ROUND(x3, x7, x11, x15)
+
+		QUARTER_ROUND(x0, x13, x10, x7)
+		QUARTER_ROUND(x1, x14, x11, x4)
+		QUARTER_ROUND(x2, x15, x8, x5)
+		QUARTER_ROUND(x3, x12, x9, x6)
+	}
+
+	m_state[13] = x0;	m_state[10] = x1;	m_state[7] = x2;	m_state[4] = x3;
+	m_state[15] = x14;	m_state[12] = x11;	m_state[9] = x8;	m_state[6] = x5;
+	m_state[8] = m_state[5] = 0;
+}
 
 NAMESPACE_END
 

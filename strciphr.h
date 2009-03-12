@@ -168,7 +168,7 @@ public:
 	virtual byte * GetRegisterBegin() =0;
 	virtual void TransformRegister() =0;
 	virtual bool CanIterate() const {return false;}
-	virtual void Iterate(byte *output, const byte *input, CipherDir dir, size_t iterationCount) {assert(false);}
+	virtual void Iterate(byte *output, const byte *input, CipherDir dir, size_t iterationCount) {assert(false); throw 0;}
 	virtual void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length) =0;
 	virtual void CipherResynchronize(const byte *iv, size_t length) {throw NotImplemented("SimpleKeyingInterface: this object doesn't support resynchronization");}
 };

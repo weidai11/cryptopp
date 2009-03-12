@@ -101,30 +101,12 @@ public:
 protected:
 	unsigned int GetBytesPerIteration() const {return m_feedbackSize;}
 	byte * GetRegisterBegin() {return m_register + BlockSize() - m_feedbackSize;}
-	void TransformRegister()
-	{
-		assert(m_cipher->IsForwardTransformation());	// CFB mode needs the "encrypt" direction of the underlying block cipher, even to decrypt
-		m_cipher->ProcessBlock(m_register, m_temp);
-		unsigned int updateSize = BlockSize()-m_feedbackSize;
-		memmove_s(m_register, m_register.size(), m_register+m_feedbackSize, updateSize);
-		memcpy_s(m_register+updateSize, m_register.size()-updateSize, m_temp, m_feedbackSize);
-	}
-	void CipherResynchronize(const byte *iv, size_t length)
-	{
-		memcpy_s(m_register, m_register.size(), iv, BlockSize());
-		TransformRegister();
-	}
-	void SetFeedbackSize(unsigned int feedbackSize)
-	{
-		if (feedbackSize > BlockSize())
-			throw InvalidArgument("CFB_Mode: invalid feedback size");
-		m_feedbackSize = feedbackSize ? feedbackSize : BlockSize();
-	}
-	void ResizeBuffers()
-	{
-		CipherModeBase::ResizeBuffers();
-		m_temp.New(BlockSize());
-	}
+	bool CanIterate() const {return m_feedbackSize == BlockSize();}
+	void Iterate(byte *output, const byte *input, CipherDir dir, size_t iterationCount);
+	void TransformRegister();
+	void CipherResynchronize(const byte *iv, size_t length);
+	void SetFeedbackSize(unsigned int feedbackSize);
+	void ResizeBuffers();
 
 	SecByteBlock m_temp;
 	unsigned int m_feedbackSize;
@@ -279,12 +261,12 @@ public:
 	CipherModeFinalTemplate_CipherHolder(const byte *key, size_t length, const byte *iv)
 	{
 		this->m_cipher = &this->m_object;
-		this->SetKey(key, length, MakeParameters(Name::IV(), iv));
+		this->SetKey(key, length, MakeParameters(Name::IV(), ConstByteArrayParameter(iv, this->m_cipher->BlockSize())));
 	}
 	CipherModeFinalTemplate_CipherHolder(const byte *key, size_t length, const byte *iv, int feedbackSize)
 	{
 		this->m_cipher = &this->m_object;
-		this->SetKey(key, length, MakeParameters(Name::IV(), iv)(Name::FeedbackSize(), feedbackSize));
+		this->SetKey(key, length, MakeParameters(Name::IV(), ConstByteArrayParameter(iv, this->m_cipher->BlockSize()))(Name::FeedbackSize(), feedbackSize));
 	}
 
 	static std::string CRYPTOPP_API StaticAlgorithmName()

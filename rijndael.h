@@ -34,7 +34,7 @@ class CRYPTOPP_DLL Rijndael : public Rijndael_Info, public BlockCipherDocumentat
 		static const word32 rcon[];
 
 		unsigned int m_rounds;
-		SecBlock<word32, AllocatorWithCleanup<word32, CRYPTOPP_BOOL_X86> > m_key;
+		FixedSizeAlignedSecBlock<word32, 4*15> m_key;
 	};
 
 	class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Enc : public Base
