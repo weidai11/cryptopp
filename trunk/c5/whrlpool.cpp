@@ -68,10 +68,6 @@
 #include "misc.h"
 #include "cpu.h"
 
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
-#include <emmintrin.h>
-#endif
-
 NAMESPACE_BEGIN(CryptoPP)
 
 void Whirlpool_TestInstantiations()
@@ -401,7 +397,7 @@ void Whirlpool::Transform(word64 *digest, const word64 *block)
 		// MMX version has the same structure as C version below
 #ifdef __GNUC__
 	#if CRYPTOPP_BOOL_X64
-		__m128i workspace[8];
+		word64 workspace[16];
 	#endif
 	__asm__ __volatile__
 	(

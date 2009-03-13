@@ -12,10 +12,6 @@
 
 #include "serpentp.h"
 
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
-#include <emmintrin.h>
-#endif
-
 NAMESPACE_BEGIN(CryptoPP)
 
 void SosemanukPolicy::CipherSetKey(const NameValuePairs &params, const byte *userKey, size_t keylen)
@@ -353,7 +349,7 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 	{
 #ifdef __GNUC__
 	#if CRYPTOPP_BOOL_X64
-		__m128i workspace[(80*4*2+12*4+8*WORD_SZ)/16];
+		FixedSizeAlignedSecBlock<byte, 80*4*2+12*4+8*WORD_SZ> workspace;
 	#endif
 		__asm__ __volatile__
 		(
@@ -601,8 +597,8 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 			:
 			: "a" (m_state.m_ptr), "c" (iterationCount), "S" (s_sosemanukMulTables), "D" (output), "d" (input)
 	#if CRYPTOPP_BOOL_X64
-			, "r" (workspace)
-			: "memory", "cc", "%xmm0", "%xmm1", "%xmm2", "%xmm3", "%xmm4", "%xmm5", "%xmm6", "%xmm7"
+			, "r" (workspace.m_ptr)
+			: "memory", "cc", "%r9", "%r10", "%xmm0", "%xmm1", "%xmm2", "%xmm3", "%xmm4", "%xmm5", "%xmm6", "%xmm7"
 	#else
 			: "memory", "cc"
 	#endif

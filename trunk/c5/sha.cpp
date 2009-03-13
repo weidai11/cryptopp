@@ -14,10 +14,6 @@
 #include "misc.h"
 #include "cpu.h"
 
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
-#include <emmintrin.h>
-#endif
-
 NAMESPACE_BEGIN(CryptoPP)
 
 // start of Steve Reid's code
@@ -230,12 +226,12 @@ static void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 
 
 #if defined(__GNUC__)
 	#if CRYPTOPP_BOOL_X64
-		__m128i workspace[(LOCALS_SIZE+15)/16];
+		FixedSizeAlignedSecBlock<byte, LOCALS_SIZE> workspace;
 	#endif
 	__asm__ __volatile__
 	(
 	#if CRYPTOPP_BOOL_X64
-		"movq %4, %%r8;"
+		"lea %4, %%r8;"
 	#endif
 	".intel_syntax noprefix;"
 #elif defined(CRYPTOPP_GENERATE_X64_MASM)
@@ -420,7 +416,7 @@ static void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 
 	: 
 	: "c" (state), "d" (data), "S" (SHA256_K+48), "D" (len)
 	#if CRYPTOPP_BOOL_X64
-		, "r" (workspace)
+		, "m" (workspace[0])
 	#endif
 	: "memory", "cc", "%eax"
 	#if CRYPTOPP_BOOL_X64

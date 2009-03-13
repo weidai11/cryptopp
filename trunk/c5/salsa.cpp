@@ -11,10 +11,6 @@
 #include "argnames.h"
 #include "cpu.h"
 
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
-#include <emmintrin.h>
-#endif
-
 NAMESPACE_BEGIN(CryptoPP)
 
 void Salsa20_TestInstantiations()
@@ -136,7 +132,7 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 		#define REG_temp			rdx
 		#define SSE2_WORKSPACE		%5
 
-		__m128i workspace[32];
+		FixedSizeAlignedSecBlock<byte, 32*16> workspace;
 	#else
 		#define REG_output			edi
 		#define REG_input			eax
@@ -463,7 +459,7 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 		".att_syntax prefix;"
 			: 
 	#if CRYPTOPP_BOOL_X64
-			: "r" (m_rounds), "r" (input), "r" (iterationCount), "r" (m_state.data()), "r" (output), "r" (workspace)
+			: "r" (m_rounds), "r" (input), "r" (iterationCount), "r" (m_state.data()), "r" (output), "r" (workspace.m_ptr)
 			: "%eax", "%edx", "memory", "cc", "%xmm0", "%xmm1", "%xmm2", "%xmm3", "%xmm4", "%xmm5", "%xmm6", "%xmm7", "%xmm8", "%xmm9", "%xmm10", "%xmm11", "%xmm12", "%xmm13", "%xmm14", "%xmm15"
 	#else
 			: "d" (m_rounds), "a" (input), "c" (iterationCount), "S" (m_state.data()), "D" (output)

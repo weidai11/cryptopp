@@ -182,7 +182,7 @@ NAMESPACE_END
 #ifndef CRYPTOPP_ALIGN_DATA
 	#if defined(CRYPTOPP_MSVC6PP_OR_LATER)
 		#define CRYPTOPP_ALIGN_DATA(x) __declspec(align(x))
-	#elif defined(__GNUC__) || __SUNPRO_CC > 0x590
+	#elif defined(__GNUC__)
 		#define CRYPTOPP_ALIGN_DATA(x) __attribute__((aligned(x)))
 	#else
 		#define CRYPTOPP_ALIGN_DATA(x)
