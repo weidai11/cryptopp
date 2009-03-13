@@ -525,7 +525,7 @@ extern "C" {
 int Baseline_Add(size_t N, word *C, const word *A, const word *B);
 int Baseline_Sub(size_t N, word *C, const word *A, const word *B);
 }
-#elif defined(CRYPTOPP_X64_ASM_AVAILABLE) && defined(__GNUC__)
+#elif defined(CRYPTOPP_X64_ASM_AVAILABLE) && defined(__GNUC__) && defined(CRYPTOPP_WORD128_AVAILABLE)
 int Baseline_Add(size_t N, word *C, const word *A, const word *B)
 {
 	word result;
