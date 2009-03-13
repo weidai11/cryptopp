@@ -17,7 +17,7 @@ public:
 typedef SHA1 SHA;	// for backwards compatibility
 
 //! implements the SHA-256 standard
-class CRYPTOPP_DLL SHA256 : public IteratedHashWithStaticTransform<word32, BigEndian, 64, 32, SHA256, 32, CRYPTOPP_BOOL_X86||CRYPTOPP_BOOL_X64>
+class CRYPTOPP_DLL SHA256 : public IteratedHashWithStaticTransform<word32, BigEndian, 64, 32, SHA256, 32, true>
 {
 public:
 #if defined(CRYPTOPP_X86_ASM_AVAILABLE) || defined(CRYPTOPP_X64_MASM_AVAILABLE)
@@ -29,7 +29,7 @@ public:
 };
 
 //! implements the SHA-224 standard
-class CRYPTOPP_DLL SHA224 : public IteratedHashWithStaticTransform<word32, BigEndian, 64, 32, SHA224, 28, CRYPTOPP_BOOL_X86||CRYPTOPP_BOOL_X64>
+class CRYPTOPP_DLL SHA224 : public IteratedHashWithStaticTransform<word32, BigEndian, 64, 32, SHA224, 28, true>
 {
 public:
 #if defined(CRYPTOPP_X86_ASM_AVAILABLE) || defined(CRYPTOPP_X64_MASM_AVAILABLE)
