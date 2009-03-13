@@ -642,6 +642,7 @@ public:
 	class BadState : public Exception
 	{
 	public:
+		explicit BadState(const std::string &name, const char *message) : Exception(OTHER_ERROR, name + ": " + message) {}
 		explicit BadState(const std::string &name, const char *function, const char *state) : Exception(OTHER_ERROR, name + ": " + function + " was called before " + state) {}
 	};
 

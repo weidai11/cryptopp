@@ -62,7 +62,7 @@ void AuthenticatedSymmetricCipherBase::SetKey(const byte *userKey, size_t keylen
 void AuthenticatedSymmetricCipherBase::Resynchronize(const byte *iv, int length)
 {
 	if (m_state < State_KeySet)
-		throw BadState(AlgorithmName(), "Resynchronize", "State_KeySet");
+		throw BadState(AlgorithmName(), "Resynchronize", "key is set");
 
 	m_bufferedDataLength = 0;
 	m_totalHeaderLength = m_totalMessageLength = m_totalFooterLength = 0;
@@ -81,7 +81,7 @@ void AuthenticatedSymmetricCipherBase::Update(const byte *input, size_t length)
 	{
 	case State_Start:
 	case State_KeySet:
-		throw BadState(AlgorithmName(), "Update", "State_IVSet");
+		throw BadState(AlgorithmName(), "Update", "setting key and IV");
 	case State_IVSet:
 		AuthenticateData(input, length);
 		m_totalHeaderLength += length;
@@ -112,8 +112,9 @@ reswitch:
 	{
 	case State_Start:
 	case State_KeySet:
+		throw BadState(AlgorithmName(), "ProcessData", "setting key and IV");
 	case State_AuthFooter:
-		throw BadState(AlgorithmName(), "ProcessData", "State_IVSet or after State_AuthFooter");
+		throw BadState(AlgorithmName(), "ProcessData was called after footer input has started");
 	case State_IVSet:
 		AuthenticateLastHeaderBlock();
 		m_bufferedDataLength = 0;
@@ -140,7 +141,7 @@ void AuthenticatedSymmetricCipherBase::TruncatedFinal(byte *mac, size_t macSize)
 	if (m_totalFooterLength > MaxFooterLength())
 	{
 		if (MaxFooterLength() == 0)
-			throw InvalidArgument(AlgorithmName() + ": unencrypted authenticated data cannot be input after encrypted data");
+			throw InvalidArgument(AlgorithmName() + ": additional authenticated data (AAD) cannot be input after data to be encrypted or decrypted");
 		else
 			throw InvalidArgument(AlgorithmName() + ": footer length of " + IntToString(m_totalFooterLength) + " exceeds the maximum of " + IntToString(MaxFooterLength()));
 	}
@@ -149,7 +150,7 @@ void AuthenticatedSymmetricCipherBase::TruncatedFinal(byte *mac, size_t macSize)
 	{
 	case State_Start:
 	case State_KeySet:
-		throw BadState(AlgorithmName(), "TruncatedFinal", "State_IVSet");
+		throw BadState(AlgorithmName(), "TruncatedFinal", "setting key and IV");
 
 	case State_IVSet:
 		AuthenticateLastHeaderBlock();
