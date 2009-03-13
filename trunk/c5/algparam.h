@@ -337,26 +337,14 @@ public:
 
     AlgorithmParameters(const AlgorithmParameters &x);
 
-	~AlgorithmParameters();
-
     AlgorithmParameters & operator=(const AlgorithmParameters &x);
 
     template <class T>
     AlgorithmParameters & operator()(const char *name, const T &value, bool throwIfNotUsed)
 	{
-		if (m_constructed || sizeof(m_first) < sizeof(AlgorithmParametersTemplate<T>))
-		{
-			member_ptr<AlgorithmParametersBase> p(new AlgorithmParametersTemplate<T>(name, value, throwIfNotUsed));
-			p->m_next.reset(Next().release());
-			Next().reset(p.release());
-		}
-		else
-		{
-			member_ptr<AlgorithmParametersBase> temp(Next().release());
-			AlgorithmParametersTemplate<T>* p = new(m_first) AlgorithmParametersTemplate<T>(name, value, throwIfNotUsed);
-			p->m_next.reset(temp.release());
-			m_constructed = true;
-		}
+		member_ptr<AlgorithmParametersBase> p(new AlgorithmParametersTemplate<T>(name, value, throwIfNotUsed));
+		p->m_next.reset(m_next.release());
+		m_next.reset(p.release());
 		m_defaultThrowIfNotUsed = throwIfNotUsed;
 		return *this;
 	}
@@ -370,13 +358,8 @@ public:
     bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const;
 	
 protected:
-	AlgorithmParametersBase & First();
-	member_ptr<AlgorithmParametersBase> & Next();
-	const AlgorithmParametersBase & First() const {return const_cast<AlgorithmParameters *>(this)->First();}
-	member_ptr<AlgorithmParametersBase> & Next() const {return const_cast<AlgorithmParameters *>(this)->Next();}
-
-	bool m_constructed, m_defaultThrowIfNotUsed;
-	size_t m_first[(sizeof(AlgorithmParametersBase) + 19)/sizeof(size_t)];
+	member_ptr<AlgorithmParametersBase> m_next;
+	bool m_defaultThrowIfNotUsed;
 };
 
 //! Create an object that implements NameValuePairs for passing parameters

@@ -46,61 +46,28 @@ bool AlgorithmParametersBase::GetVoidValue(const char *name, const std::type_inf
 }
 
 AlgorithmParameters::AlgorithmParameters()
-	: m_constructed(false), m_defaultThrowIfNotUsed(true)
+	: m_defaultThrowIfNotUsed(true)
 {
-	new(m_first) member_ptr<AlgorithmParametersBase>;
 }
 
 AlgorithmParameters::AlgorithmParameters(const AlgorithmParameters &x)
-	: m_constructed(false), m_defaultThrowIfNotUsed(x.m_defaultThrowIfNotUsed)
+	: m_defaultThrowIfNotUsed(x.m_defaultThrowIfNotUsed)
 {
-	if (x.m_constructed)
-	{
-		x.First().MoveInto(m_first);
-		m_constructed = true;
-	}
-	else
-		new(m_first) member_ptr<AlgorithmParametersBase>(x.Next().release());
-}
-
-AlgorithmParameters::~AlgorithmParameters()
-{
-	if (m_constructed)
-		First().~AlgorithmParametersBase();
-	else
-		Next().~member_ptr<AlgorithmParametersBase>();
+	m_next.reset(const_cast<AlgorithmParameters &>(x).m_next.release());
 }
 
 AlgorithmParameters & AlgorithmParameters::operator=(const AlgorithmParameters &x)
 {
-	if (this == &x)
-		return *this;
-	this->~AlgorithmParameters();
-	new (this) AlgorithmParameters(x);
+	m_next.reset(const_cast<AlgorithmParameters &>(x).m_next.release());
 	return *this;
 }
 
 bool AlgorithmParameters::GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
 {
-	if (m_constructed)
-		return First().GetVoidValue(name, valueType, pValue);
-	else if (Next().get())
-		return Next()->GetVoidValue(name, valueType, pValue);
+	if (m_next.get())
+		return m_next->GetVoidValue(name, valueType, pValue);
 	else
 		return false;
-}
-
-AlgorithmParametersBase & AlgorithmParameters::First()
-{
-	return *reinterpret_cast<AlgorithmParametersBase *>(m_first);
-}
-
-member_ptr<AlgorithmParametersBase> & AlgorithmParameters::Next()
-{
-	if (m_constructed)
-		return First().m_next;
-	else
-		return *reinterpret_cast<member_ptr<AlgorithmParametersBase> *>(m_first);
 }
 
 NAMESPACE_END
