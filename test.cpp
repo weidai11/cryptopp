@@ -337,7 +337,7 @@ int CRYPTOPP_API main(int argc, char *argv[])
 			AES_CTR_Encrypt(argv[2], argv[3], argv[4], argv[5]);
 		else if (command == "h")
 		{
-			FileSource usage("usage.dat", true, new FileSink(cout));
+			FileSource usage("TestData/usage.dat", true, new FileSink(cout));
 			return 1;
 		}
 		else if (command == "V")
