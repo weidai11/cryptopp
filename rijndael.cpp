@@ -69,6 +69,10 @@ being unloaded from L1 cache, until that round is finished.
 #include "misc.h"
 #include "cpu.h"
 
+#ifdef __sun
+#include <alloca.h>
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 #ifdef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS

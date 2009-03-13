@@ -74,6 +74,10 @@ private:
 	CMAC<T_BlockCipher> m_cmac;
 };
 
+#ifdef EAX	// EAX is defined to 11 on GCC 3.4.3, OpenSolaris 8.11
+#undef EAX
+#endif
+
 /// <a href="http://www.cryptolounge.org/wiki/EAX">EAX</a>
 template <class T_BlockCipher>
 struct EAX : public AuthenticatedSymmetricCipherDocumentation
