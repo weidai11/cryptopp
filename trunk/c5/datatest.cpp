@@ -308,7 +308,7 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 
 	if (test == "Encrypt" || test == "EncryptXorDigest" || test == "Resync")
 	{
-		static std::auto_ptr<SymmetricCipher> encryptor, decryptor;
+		static member_ptr<SymmetricCipher> encryptor, decryptor;
 		static std::string lastName;
 
 		if (name != lastName)
