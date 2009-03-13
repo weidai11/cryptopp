@@ -49,10 +49,14 @@ void gcm_gf_mult(const unsigned char *a, const unsigned char *b, unsigned char *
 }
 #endif
 
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE || CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
 inline static void SSE2_Xor16(byte *a, const byte *b, const byte *c)
 {
+#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
 	*(__m128i *)a = _mm_xor_si128(*(__m128i *)b, *(__m128i *)c);
+#else
+	asm ("movdqa %1, %%xmm0; pxor %2, %%xmm0; movdqa %%xmm0, %0;" : "=m" (a[0]) : "m"(b[0]), "m"(c[0]));
+#endif
 }
 #endif
 
@@ -103,7 +107,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
 		for (i=0; i<16; i++)
 		{
 			memset(table+i*256*16, 0, 16);
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE || CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
 			if (HasSSE2())
 				for (j=2; j<=0x80; j*=2)
 					for (k=1; k<j; k++)
@@ -149,7 +153,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
 		{
 			memset(table+i*256, 0, 16);
 			memset(table+1024+i*256, 0, 16);
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE || CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
 			if (HasSSE2())
 				for (j=2; j<=8; j*=2)
 					for (k=1; k<j; k++)
