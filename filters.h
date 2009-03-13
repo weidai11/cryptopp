@@ -340,7 +340,7 @@ private:
 typedef HashVerificationFilter HashVerifier;	// for backwards compatibility
 
 //! Filter wrapper for encrypting with AuthenticatedSymmetricCipher, optionally handling padding/unpadding when needed
-/*! Additional authenticated data should be given in channel "AAD". If putMessage is true, AAD will be Put() to the attached BufferedTransformation in channel "AAD". */
+/*! Additional authenticated data should be given in channel "AAD". If putAAD is true, AAD will be Put() to the attached BufferedTransformation in channel "AAD". */
 class CRYPTOPP_DLL AuthenticatedEncryptionFilter : public StreamTransformationFilter
 {
 public:

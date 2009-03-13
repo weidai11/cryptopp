@@ -307,6 +307,10 @@ SOURCE=.\dsa.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\eax.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ec2n.cpp
 # End Source File
 # Begin Source File
@@ -790,6 +794,10 @@ SOURCE=.\dsa.h
 # Begin Source File
 
 SOURCE=.\dword.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\eax.h
 # End Source File
 # Begin Source File
 
