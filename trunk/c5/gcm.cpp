@@ -198,7 +198,7 @@ void GCM_Base::Resync(const byte *iv, size_t len)
 			GCM_Base::AuthenticateBlocks(m_buffer, HASH_BLOCKSIZE);
 		}
 
-		PutBlock<word64, BigEndian, true>::PutBlock(NULL, m_buffer)(0)(origLen*8);
+		PutBlock<word64, BigEndian, true>(NULL, m_buffer)(0)(origLen*8);
 		GCM_Base::AuthenticateBlocks(m_buffer, HASH_BLOCKSIZE);
 	}
 
