@@ -11,7 +11,7 @@ CP = cp
 MKDIR = mkdir
 EGREP = egrep
 UNAME = $(shell uname)
-ISX86 = $(shell uname -m | $(EGREP) -c "i.86|x86|i86")
+ISX86 = $(shell uname -m | $(EGREP) -c "i.86|x86|i86|amd64")
 ISMINGW = $(shell uname | $(EGREP) -c "MINGW32")
 
 # Default prefix for make install
@@ -27,7 +27,8 @@ ifeq ($(ISX86),1)
 
 GCC42_OR_LATER = $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(GCC\) (4.[2-9]|[5-9])")
 INTEL_COMPILER = $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(ICC\)")
-GAS210_OR_LATER = $(shell echo "" | $(AS) -v 2>&1 | $(EGREP) -c "GNU assembler version (2.[1-9][0-9]|[3-9])")
+GAS210_OR_LATER = $(shell echo "" | $(AS) -v 2>&1 | $(EGREP) -c "GNU assembler version (2\.[1-9][0-9]|[3-9])")
+GAS217_OR_LATER = $(shell echo "" | $(AS) -v 2>&1 | $(EGREP) -c "GNU assembler version (2\.1[7-9]|2\.[2-9]|[3-9])")
 
 ifneq ($(GCC42_OR_LATER),0)
 ifneq ($(UNAME),Darwin)
@@ -44,12 +45,15 @@ endif
 ifeq ($(GAS210_OR_LATER),0)	# .intel_syntax wasn't supported until GNU assembler 2.10
 CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
 else
+ifeq ($(GAS217_OR_LATER),0)
+CXXFLAGS += -DCRYPTOPP_DISABLE_SSSE3
+endif
 ifeq ($(UNAME),SunOS)
 CXXFLAGS += -Wa,--divide	# allow use of "/" operator
 endif
 endif
 
-endif
+endif	# ISX86
 
 ifeq ($(ISMINGW),1)
 LDLIBS += -lws2_32
