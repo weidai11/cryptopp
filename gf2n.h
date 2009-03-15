@@ -357,11 +357,13 @@ CRYPTOPP_DLL GF2NP * CRYPTOPP_API BERDecodeGF2NP(BufferedTransformation &bt);
 
 NAMESPACE_END
 
+#ifndef __BORLANDC__
 NAMESPACE_BEGIN(std)
 template<> inline void swap(CryptoPP::PolynomialMod2 &a, CryptoPP::PolynomialMod2 &b)
 {
 	a.swap(b);
 }
 NAMESPACE_END
+#endif
 
 #endif

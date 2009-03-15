@@ -335,12 +335,21 @@ class CRYPTOPP_DLL AlgorithmParameters : public NameValuePairs
 public:
 	AlgorithmParameters();
 
-    AlgorithmParameters(const AlgorithmParameters &x);
+#ifdef __BORLANDC__
+	template <class T>
+	AlgorithmParameters(const char *name, const T &value, bool throwIfNotUsed=true)
+		: m_next(new AlgorithmParametersTemplate<T>(name, value, throwIfNotUsed))
+		, m_defaultThrowIfNotUsed(throwIfNotUsed)
+	{
+	}
+#endif
 
-    AlgorithmParameters & operator=(const AlgorithmParameters &x);
+	AlgorithmParameters(const AlgorithmParameters &x);
 
-    template <class T>
-    AlgorithmParameters & operator()(const char *name, const T &value, bool throwIfNotUsed)
+	AlgorithmParameters & operator=(const AlgorithmParameters &x);
+
+	template <class T>
+	AlgorithmParameters & operator()(const char *name, const T &value, bool throwIfNotUsed)
 	{
 		member_ptr<AlgorithmParametersBase> p(new AlgorithmParametersTemplate<T>(name, value, throwIfNotUsed));
 		p->m_next.reset(m_next.release());
@@ -349,14 +358,14 @@ public:
 		return *this;
 	}
 
-    template <class T>
-    AlgorithmParameters & operator()(const char *name, const T &value)
+	template <class T>
+	AlgorithmParameters & operator()(const char *name, const T &value)
 	{
 		return operator()(name, value, m_defaultThrowIfNotUsed);
 	}
 
-    bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const;
-	
+	bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const;
+
 protected:
 	member_ptr<AlgorithmParametersBase> m_next;
 	bool m_defaultThrowIfNotUsed;
@@ -370,11 +379,15 @@ protected:
 	repeatedly using operator() on the object returned by MakeParameters, for example:
 	AlgorithmParameters parameters = MakeParameters(name1, value1)(name2, value2)(name3, value3);
 */
+#ifdef __BORLANDC__
+typedef AlgorithmParameters MakeParameters;
+#else
 template <class T>
 AlgorithmParameters MakeParameters(const char *name, const T &value, bool throwIfNotUsed = true)
 {
 	return AlgorithmParameters()(name, value, throwIfNotUsed);
 }
+#endif
 
 #define CRYPTOPP_GET_FUNCTION_ENTRY(name)		(Name::name(), &ThisClass::Get##name)
 #define CRYPTOPP_SET_FUNCTION_ENTRY(name)		(Name::name(), &ThisClass::Set##name)

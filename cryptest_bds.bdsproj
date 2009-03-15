@@ -235,7 +235,7 @@
           <Debugging Name="DebugSourceDirs"></Debugging>
         </Debugging>
         <Parameters>
-          <Parameters Name="RunParams">v 66</Parameters>
+          <Parameters Name="RunParams">v</Parameters>
           <Parameters Name="Launcher"></Parameters>
           <Parameters Name="UseLauncher">True</Parameters>
           <Parameters Name="DebugCWD">.</Parameters>

@@ -1,24 +1,26 @@
 Crypto++: a C++ Class Library of Cryptographic Schemes
-Version 5.6 (in progress)
+Version 5.6.0 (3/15/2009)
 
 Crypto++ Library is a free C++ class library of cryptographic schemes.
 Currently the library contains the following algorithms:
 
                    algorithm type  name
 
-        high speed stream ciphers  Panama, Salsa20, Sosemanuk
+ authenticated encryption schemes  GCM, CCM, EAX
+ 
+        high speed stream ciphers  Panama, Sosemanuk, Salsa20, XSalsa20
 
            AES and AES candidates  AES (Rijndael), RC6, MARS, Twofish, Serpent,
                                    CAST-256
 
                                    IDEA, Triple-DES (DES-EDE2 and DES-EDE3),
-              other block ciphers  Camellia, RC5, Blowfish, TEA, XTEA,
-                                   Skipjack, SHACAL-2, SEED
+              other block ciphers  Camellia, SEED, RC5, Blowfish, TEA, XTEA,
+                                   Skipjack, SHACAL-2
 
   block cipher modes of operation  ECB, CBC, CBC ciphertext stealing (CTS),
-                                   CFB, OFB, counter mode (CTR), GCM, CCM
+                                   CFB, OFB, counter mode (CTR)
 
-     message authentication codes  VMAC, HMAC, GMAC, CBC-MAC, CMAC, DMAC, 
+     message authentication codes  VMAC, HMAC, CMAC, CBC-MAC, DMAC, 
                                    Two-Track-MAC
 
                                    SHA-1, SHA-2 (SHA-224, SHA-256, SHA-384, and
@@ -79,6 +81,7 @@ http://www.cryptopp.com the most up to date build instructions and porting notes
 
   * MSVC 6.0 - 2008
   * GCC 3.3 - 4.3
+  * C++Builder 2009
   * Intel C++ Compiler 9 - 11
   * Sun Studio 12 (CC 5.9)
 
@@ -408,19 +411,19 @@ the mailing list.
       - fixed link error with MSVC 2003 when using "debug DLL" form of runtime library
       - fixed crash in SSE2_Add on P4 machines when compiled with 
         MSVC 6.0 SP5 with Processor Pack
-      - added support for newly released compilers: MSVC 2008, GCC 4.2, Sun CC 5.9,
-        Intel C++ Compiler 10.0, and Borland C++Builder 2007
+      - ported to MSVC 2008, GCC 4.2, Sun CC 5.9, Intel C++ Compiler 10.0, 
+        and Borland C++Builder 2007
 
 5.6 - added AuthenticatedSymmetricCipher interface class and Filter wrappers
     - added CCM, GCM (with SSE2 assembly), EAX, CMAC, XSalsa20, and SEED
     - added support for variable length IVs
     - improved AES and SHA-256 speed on x86 and x64
-    - fixed run-time validation error on x86-64 with GCC 4.3.2 -O2
-    - fixed HashFilter bug when putMessage=true
-    - fixed warnings with GCC 4.3
-    - fixed compiler error in vmac.cpp on x86 with GCC -fPIC
     - fixed incorrect VMAC computation on message lengths 
       that are >64 mod 128 (x86 assembly version is not affected)
-    - removed WORD64_AVAILABLE; compiler 64-bit int support is now required
+    - fixed compiler error in vmac.cpp on x86 with GCC -fPIC
+    - fixed run-time validation error on x86-64 with GCC 4.3.2 -O2
+    - fixed HashFilter bug when putMessage=true
+    - removed WORD64_AVAILABLE; compiler support for 64-bit int is now required
+    - ported to GCC 4.3, C++Builder 2009, Sun CC 5.10, Intel C++ Compiler 11
 
 Written by Wei Dai

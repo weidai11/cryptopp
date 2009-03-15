@@ -88,11 +88,13 @@ private:
 
 NAMESPACE_END
 
+#ifndef __BORLANDC__
 NAMESPACE_BEGIN(std)
 template<> inline void swap(CryptoPP::MessageQueue &a, CryptoPP::MessageQueue &b)
 {
 	a.swap(b);
 }
 NAMESPACE_END
+#endif
 
 #endif
