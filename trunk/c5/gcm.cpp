@@ -80,6 +80,11 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
 	else
 		tableSize = (GetTablesOption() == GCM_64K_Tables) ? 64*1024 : 2*1024;
 
+#if defined(_MSC_VER) && (_MSC_VER >= 1300 && _MSC_VER < 1400)
+	// VC 2003 workaround: compiler generates bad code for 64K tables
+	tableSize = 2*1024;
+#endif
+
 	m_buffer.resize(3*REQUIRED_BLOCKSIZE + tableSize);
 	byte *hashKey = HashKey();
 	memset(hashKey, 0, REQUIRED_BLOCKSIZE);
@@ -409,7 +414,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 			AS2(	shr		WORD_REG(dx), 4				)
 		#endif
 
-		#if !defined(_MSC_VER) || (_MSC_VER < 1300)
+		#if !defined(_MSC_VER) || (_MSC_VER < 1400)
 			AS_PUSH_IF86(	bx)
 		#endif
 		AS_PUSH_IF86(	bp)
@@ -519,7 +524,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 		AS2(	movdqa	[WORD_REG(si)], xmm0				)
 
 		AS_POP_IF86(	bp)
-		#if !defined(_MSC_VER) || (_MSC_VER < 1300)
+		#if !defined(_MSC_VER) || (_MSC_VER < 1400)
 			AS_POP_IF86(	bx)
 		#endif
 

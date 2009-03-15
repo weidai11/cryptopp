@@ -125,8 +125,17 @@ extern const word32 SHA256_K[64] = {
 
 #pragma warning(disable: 4731)	// frame pointer register 'ebp' modified by inline assembly code
 
-static void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 *data, size_t len)
+static void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 *data, size_t len
+#if defined(_MSC_VER) && (_MSC_VER == 1200)
+	, ...	// VC60 workaround: prevent VC 6 from inlining this function
+#endif
+	)
 {
+#if defined(_MSC_VER) && (_MSC_VER == 1200)
+	AS2(mov ecx, [state])
+	AS2(mov edx, [data])
+#endif
+
 	#define LOCALS_SIZE	8*4 + 16*4 + 4*WORD_SZ
 	#define H(i)		[BASE+ASM_MOD(1024+7-(i),8)*4]
 	#define G(i)		H(i+1)
@@ -252,7 +261,7 @@ static void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 
 		AS2(	mov		edi, [len])
 		AS2(	lea		WORD_REG(si), [SHA256_K+48*4])
 	#endif
-	#if !defined(_MSC_VER) || (_MSC_VER < 1300)
+	#if !defined(_MSC_VER) || (_MSC_VER < 1400)
 		AS_PUSH_IF86(bx)
 	#endif
 
@@ -397,7 +406,7 @@ static void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 
 
 	AS_POP_IF86(sp)
 	AS_POP_IF86(bp)
-	#if !defined(_MSC_VER) || (_MSC_VER < 1300)
+	#if !defined(_MSC_VER) || (_MSC_VER < 1400)
 		AS_POP_IF86(bx)
 	#endif
 

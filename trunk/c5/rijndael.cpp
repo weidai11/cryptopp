@@ -539,7 +539,7 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 #else
 	AS_PUSH_IF86(si)
 	AS_PUSH_IF86(di)
-#if !defined(_MSC_VER) || (_MSC_VER < 1300)
+#if !defined(_MSC_VER) || (_MSC_VER < 1400)
 	AS_PUSH_IF86(bx)
 #endif
 	AS_PUSH_IF86(bp)
@@ -871,7 +871,7 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 	AS1(	emms)
 #endif
 	AS_POP_IF86(bp)
-#if !defined(_MSC_VER) || (_MSC_VER < 1300)
+#if !defined(_MSC_VER) || (_MSC_VER < 1400)
 	AS_POP_IF86(bx)
 #endif
 #if defined(_MSC_VER) && CRYPTOPP_BOOL_X86
