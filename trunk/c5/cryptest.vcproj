@@ -172,7 +172,6 @@
 				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				OptimizeForWindows98="1"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -359,7 +358,6 @@
 				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				OptimizeForWindows98="1"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -532,7 +530,6 @@
 				AdditionalLibraryDirectories="$(OutDir)"
 				GenerateDebugInformation="true"
 				SubSystem="1"
-				OptimizeForWindows98="1"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -700,7 +697,6 @@
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
 				SubSystem="1"
-				OptimizeForWindows98="1"
 				TargetMachine="17"
 			/>
 			<Tool
