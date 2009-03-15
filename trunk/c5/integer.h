@@ -408,11 +408,13 @@ inline CryptoPP::word    operator%(const CryptoPP::Integer &a, CryptoPP::word b)
 
 NAMESPACE_END
 
+#ifndef __BORLANDC__
 NAMESPACE_BEGIN(std)
-template<> inline void swap(CryptoPP::Integer &a, CryptoPP::Integer &b)
+inline void swap(CryptoPP::Integer &a, CryptoPP::Integer &b)
 {
 	a.swap(b);
 }
 NAMESPACE_END
+#endif
 
 #endif

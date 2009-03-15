@@ -1,4 +1,4 @@
-Compilation Copyright (c) 1995-2006 by Wei Dai.  All rights reserved.
+Compilation Copyright (c) 1995-2009 by Wei Dai.  All rights reserved.
 This copyright applies only to this software distribution package 
 as a compilation, and does not imply a copyright on any particular 
 file in the package.
@@ -18,9 +18,8 @@ Joan Daemen - 3way.cpp
 Leonard Janke - cast.cpp, seal.cpp
 Steve Reid - cast.cpp
 Phil Karn - des.cpp
-Michael Paul Johnson - diamond.cpp
 Andrew M. Kuchling - md2.cpp, md4.cpp
-Colin Plumb - md5.cpp, md5mac.cpp
+Colin Plumb - md5.cpp
 Seal Woods - rc6.cpp
 Chris Morgan - rijndael.cpp
 Paulo Baretto - rijndael.cpp, skipjack.cpp, square.cpp
