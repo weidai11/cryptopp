@@ -4,10 +4,12 @@
 	classes that provide a uniform interface to this library.
 */
 
-/*!	\mainpage <a href="http://www.cryptopp.com">Crypto++</a><sup><small>&reg;</small></sup> Library 5.6.0 Reference Manual
+/*!	\mainpage Crypto++ Library 5.6.0 API Reference
 <dl>
 <dt>Abstract Base Classes<dd>
 	cryptlib.h
+<dt>Authenticated Encryption<dd>
+	AuthenticatedSymmetricCipherDocumentation
 <dt>Symmetric Ciphers<dd>
 	SymmetricCipherDocumentation
 <dt>Hash Functions<dd>
@@ -15,9 +17,7 @@
 <dt>Non-Cryptographic Checksums<dd>
 	CRC32, Adler32
 <dt>Message Authentication Codes<dd>
-	VMAC, HMAC, CBC_MAC, CMAC, DMAC, TTMAC, GCM
-<dt>Authenticated Encryption<dd>
-	AuthenticatedSymmetricCipherDocumentation
+	VMAC, HMAC, CBC_MAC, CMAC, DMAC, TTMAC, GCM (GMAC)
 <dt>Random Number Generators<dd>
 	NullRNG(), LC_RNG, RandomPool, BlockingRng, NonblockingRng, AutoSeededRandomPool, AutoSeededX917RNG, DefaultAutoSeededRNG
 <dt>Password-based Cryptography<dd>
