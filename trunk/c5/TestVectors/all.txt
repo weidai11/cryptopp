@@ -26,3 +26,4 @@ Test: TestVectors/ccm.txt
 Test: TestVectors/gcm.txt
 Test: TestVectors/cmac.txt
 Test: TestVectors/eax.txt
+Test: TestVectors/mars.txt

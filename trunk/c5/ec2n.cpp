@@ -20,7 +20,11 @@ EC2N::EC2N(BufferedTransformation &bt)
 	m_field->BERDecodeElement(seq, m_b);
 	// skip optional seed
 	if (!seq.EndReached())
-		BERDecodeOctetString(seq, TheBitBucket());
+	{
+		SecByteBlock seed;
+		unsigned int unused;
+		BERDecodeBitString(seq, seed, unused);
+	}
 	seq.MessageEnd();
 }
 
