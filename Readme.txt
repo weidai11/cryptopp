@@ -1,5 +1,5 @@
 Crypto++: a C++ Class Library of Cryptographic Schemes
-Version 5.6.0 (3/15/2009)
+Version 5.6.1 (in development)
 
 Crypto++ Library is a free C++ class library of cryptographic schemes.
 Currently the library contains the following algorithms:
@@ -28,7 +28,7 @@ Currently the library contains the following algorithms:
                                    RIPEMD-256, RIPEMD-160, RIPEMD-320
 
                                    RSA, DSA, ElGamal, Nyberg-Rueppel (NR),
-          public-key cryptography  Rabin, Rabin-Williams (RW), LUC, LUCELG,
+          public-key cryptography  Rabin-Williams (RW), LUC, LUCELG,
                                    DLIES (variants of DHAES), ESIGN
 
    padding schemes for public-key  PKCS#1 v2.0, OAEP, PSS, PSSR, IEEE P1363
@@ -417,6 +417,7 @@ the mailing list.
 5.6 - added AuthenticatedSymmetricCipher interface class and Filter wrappers
     - added CCM, GCM (with SSE2 assembly), EAX, CMAC, XSalsa20, and SEED
     - added support for variable length IVs
+    - added OIDs for Brainpool elliptic curve parameters
     - improved AES and SHA-256 speed on x86 and x64
     - fixed incorrect VMAC computation on message lengths 
       that are >64 mod 128 (x86 assembly version is not affected)
@@ -425,5 +426,7 @@ the mailing list.
     - fixed HashFilter bug when putMessage=true
     - removed WORD64_AVAILABLE; compiler support for 64-bit int is now required
     - ported to GCC 4.3, C++Builder 2009, Sun CC 5.10, Intel C++ Compiler 11
+    
+5.6.1 - switched to a public domain implementation of MARS
 
 Written by Wei Dai

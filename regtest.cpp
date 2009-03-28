@@ -120,6 +120,7 @@ void RegisterFactories()
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<Serpent> >();
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<CAST256> >();
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<RC6> >();
+	RegisterSymmetricCipherDefaultFactories<ECB_Mode<MARS> >();
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<MARS> >();
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<SHACAL2> >();
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<DES> >();

@@ -26,7 +26,7 @@ class MARS : public MARS_Info, public BlockCipherDocumentation
 	protected:
 		static const word32 Sbox[512];
 
-		FixedSizeSecBlock<word32, 40> EK;
+		FixedSizeSecBlock<word32, 40> m_k;
 	};
 
 	class CRYPTOPP_NO_VTABLE Enc : public Base

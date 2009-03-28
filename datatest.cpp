@@ -306,7 +306,7 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 	TestDataNameValuePairs testDataPairs(v);
 	CombinedNameValuePairs pairs(overrideParameters, testDataPairs);
 
-	if (test == "Encrypt" || test == "EncryptXorDigest" || test == "Resync")
+	if (test == "Encrypt" || test == "EncryptXorDigest" || test == "Resync" || test == "EncryptionMCT" || test == "DecryptionMCT")
 	{
 		static member_ptr<SymmetricCipher> encryptor, decryptor;
 		static std::string lastName;
@@ -339,7 +339,46 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 			encryptor->Seek(seek);
 			decryptor->Seek(seek);
 		}
+
 		std::string encrypted, xorDigest, ciphertext, ciphertextXorDigest;
+		if (test == "EncryptionMCT" || test == "DecryptionMCT")
+		{
+			SymmetricCipher *cipher = encryptor.get();
+			SecByteBlock buf((byte *)plaintext.data(), plaintext.size()), keybuf((byte *)key.data(), key.size());
+
+			if (test == "DecryptionMCT")
+			{
+				cipher = decryptor.get();
+				ciphertext = GetDecodedDatum(v, "Ciphertext");
+				buf.Assign((byte *)ciphertext.data(), ciphertext.size());
+			}
+
+			for (int i=0; i<400; i++)
+			{
+				encrypted.reserve(10000 * plaintext.size());
+				for (int j=0; j<10000; j++)
+				{
+					cipher->ProcessString(buf.begin(), buf.size());
+					encrypted.append((char *)buf.begin(), buf.size());
+				}
+
+				encrypted.erase(0, encrypted.size() - keybuf.size());
+				xorbuf(keybuf.begin(), (const byte *)encrypted.data(), keybuf.size());
+				cipher->SetKey(keybuf, keybuf.size());
+			}
+			encrypted.assign((char *)buf.begin(), buf.size());
+			ciphertext = GetDecodedDatum(v, test == "EncryptionMCT" ? "Ciphertext" : "Plaintext");
+			if (encrypted != ciphertext)
+			{
+				std::cout << "incorrectly encrypted: ";
+				StringSource xx(encrypted, false, new HexEncoder(new FileSink(std::cout)));
+				xx.Pump(256); xx.Flush(false);
+				std::cout << "\n";
+				SignalTestFailure();
+			}
+			return;
+		}
+
 		StringSource ss(plaintext, false, new StreamTransformationFilter(*encryptor, new StringSink(encrypted), StreamTransformationFilter::NO_PADDING));
 		ss.Pump(plaintext.size()/2 + 1);
 		ss.PumpAll();

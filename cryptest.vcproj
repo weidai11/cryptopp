@@ -781,6 +781,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\TestVectors\mars.txt"
+				>
+			</File>
+			<File
 				RelativePath=".\TestVectors\nr.txt"
 				>
 			</File>

@@ -3,12 +3,7 @@ This copyright applies only to this software distribution package
 as a compilation, and does not imply a copyright on any particular 
 file in the package.
 
-The following files are copyrighted by their respective original authors,
-and their use is subject to additional licenses included in these files.
-
-mars.cpp - Copyright 1998 Brian Gladman.
-
-All other files in this compilation are placed in the public domain by
+All individual files in this compilation are placed in the public domain by
 Wei Dai and other contributors.
 
 I would like to thank the following authors for placing their works into
