@@ -31,7 +31,8 @@ void Panama_SSE2_Pull(size_t count, word32 *state, word32 *z, const word32 *y);
 
 #ifdef CRYPTOPP_GENERATE_X64_MASM
 	Panama_SSE2_Pull	PROC FRAME
-	alloc_stack(2*16+8)
+	rex_push_reg rdi
+	alloc_stack(2*16)
 	save_xmm128 xmm6, 0h
 	save_xmm128 xmm7, 10h
 	.endprolog
@@ -300,7 +301,8 @@ void CRYPTOPP_NOINLINE Panama_SSE2_Pull(size_t count, word32 *state, word32 *z, 
 #ifdef CRYPTOPP_GENERATE_X64_MASM
 	movdqa	xmm6, [rsp + 0h]
 	movdqa	xmm7, [rsp + 10h]
-	add		rsp, 2*16+8
+	add rsp, 2*16
+	pop	rdi
 	ret
 	Panama_SSE2_Pull ENDP
 #else
