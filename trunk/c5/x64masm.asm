@@ -1341,7 +1341,8 @@ ret
 Sosemanuk_OperateKeystream ENDP
 
 Panama_SSE2_Pull PROC FRAME
-alloc_stack(2*16+8)
+rex_push_reg rdi
+alloc_stack(2*16)
 save_xmm128 xmm6, 0h
 save_xmm128 xmm7, 10h
 .endprolog
@@ -1555,7 +1556,8 @@ movdqa xmmword ptr [rdx+0*16], xmm0
 label5:
 movdqa xmm6, [rsp + 0h]
 movdqa xmm7, [rsp + 10h]
-add rsp, 2*16+8
+add rsp, 2*16
+pop	rdi
 ret
 Panama_SSE2_Pull ENDP
 
