@@ -316,8 +316,8 @@ void BenchmarkAll2(double t, double hertz)
 
 		BenchMarkEncryption("ECIES over GF(2^n) 233", cpub, t);
 		BenchMarkDecryption("ECIES over GF(2^n) 233", cpriv, cpub, t);
-		BenchMarkSigning("ECNR over GF(2^n) 233", spriv, t);
-		BenchMarkVerification("ECNR over GF(2^n) 233", spriv, spub, t);
+		BenchMarkSigning("ECDSA over GF(2^n) 233", spriv, t);
+		BenchMarkVerification("ECDSA over GF(2^n) 233", spriv, spub, t);
 		BenchMarkKeyGen("ECDHC over GF(2^n) 233", ecdhc, t);
 		BenchMarkAgreement("ECDHC over GF(2^n) 233", ecdhc, t);
 		BenchMarkKeyGen("ECMQVC over GF(2^n) 233", ecmqvc, t);
