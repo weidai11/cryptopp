@@ -358,8 +358,10 @@ S DivideThreeWordsByTwo(S *A, S B0, S B1, D *dummy=NULL)
 	S Q;
 	if (S(B1+1) == 0)
 		Q = A[2];
-	else
+	else if (B1 > 0)
 		Q = D(A[1], A[2]) / S(B1+1);
+	else
+		Q = D(A[0], A[1]) / B0;
 
 	// now subtract Q*B from A
 	D p = D::Multiply(B0, Q);
