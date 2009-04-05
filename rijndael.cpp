@@ -73,6 +73,10 @@ being unloaded from L1 cache, until that round is finished.
 #include <alloca.h>
 #endif
 
+#ifdef __MINGW32__
+#include <malloc.h>
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 #ifdef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
@@ -909,7 +913,7 @@ void Rijndael_Enc_AdvancedProcessBlocks(void *locals, const word32 *k);
 }
 #endif
 
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)
+#if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X86
 
 static inline bool AliasedWithTable(const byte *begin, const byte *end)
 {
@@ -923,6 +927,7 @@ static inline bool AliasedWithTable(const byte *begin, const byte *end)
 
 size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const
 {
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)
 	if (length < BLOCKSIZE)
 		return length;
 
@@ -976,6 +981,7 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 		return length%16;
 	}
 	else
+#endif
 		return BlockTransformation::AdvancedProcessBlocks(inBlocks, xorBlocks, outBlocks, length, flags);
 }
 
