@@ -12,7 +12,6 @@ MKDIR = mkdir
 EGREP = egrep
 UNAME = $(shell uname)
 ISX86 = $(shell uname -m | $(EGREP) -c "i.86|x86|i86|amd64")
-ISMINGW = $(shell uname | $(EGREP) -c "MINGW32")
 
 # Default prefix for make install
 ifeq ($(PREFIX),)
@@ -29,6 +28,7 @@ GCC42_OR_LATER = $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(GCC\) (4.[2-9]|[
 INTEL_COMPILER = $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(ICC\)")
 GAS210_OR_LATER = $(shell echo "" | $(AS) -v 2>&1 | $(EGREP) -c "GNU assembler version (2\.[1-9][0-9]|[3-9])")
 GAS217_OR_LATER = $(shell echo "" | $(AS) -v 2>&1 | $(EGREP) -c "GNU assembler version (2\.1[7-9]|2\.[2-9]|[3-9])")
+ISMINGW = $(shell $(CXX) --version 2>&1 | $(EGREP) -c "mingw")
 
 ifneq ($(GCC42_OR_LATER),0)
 ifneq ($(UNAME),Darwin)
@@ -53,11 +53,11 @@ CXXFLAGS += -Wa,--divide	# allow use of "/" operator
 endif
 endif
 
-endif	# ISX86
-
 ifeq ($(ISMINGW),1)
 LDLIBS += -lws2_32
 endif
+
+endif	# ISX86
 
 ifeq ($(UNAME),)	# for DJGPP, where uname doesn't exist
 CXXFLAGS += -mbnu210
