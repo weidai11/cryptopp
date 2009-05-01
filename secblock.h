@@ -130,7 +130,7 @@ public:
 
 	void deallocate(void *p, size_type n)
 	{
-		memset_z(p, 0, n*sizeof(T));
+		SecureWipeArray((pointer)p, n);
 
 		if (CRYPTOPP_BOOL_ALIGN16_ENABLED && T_Align16 && n*sizeof(T) >= 16)
 		{
@@ -232,7 +232,7 @@ public:
 			assert(n <= S);
 			assert(m_allocated);
 			m_allocated = false;
-			memset(p, 0, n*sizeof(T));
+			SecureWipeArray((pointer)p, n);
 		}
 		else
 			m_fallbackAllocator.deallocate(p, n);
@@ -244,7 +244,7 @@ public:
 		{
 			assert(oldSize <= S);
 			if (oldSize > newSize)
-				memset(p + newSize, 0, (oldSize-newSize)*sizeof(T));
+				SecureWipeArray(p+newSize, oldSize-newSize);
 			return p;
 		}
 
