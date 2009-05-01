@@ -462,7 +462,7 @@ inline void IncrementCounterByOne(byte *output, const byte *input, unsigned int 
 template <class T>
 inline void ConditionalSwap(bool c, T &a, T &b)
 {
-	T t = (0-T(c)) & (a ^ b);
+	T t = c * (a ^ b);
 	a ^= t;
 	b ^= t;
 }
@@ -470,8 +470,9 @@ inline void ConditionalSwap(bool c, T &a, T &b)
 template <class T>
 inline void ConditionalSwapPointers(bool c, T &a, T &b)
 {
-	CRYPTOPP_COMPILE_ASSERT(sizeof(T) == sizeof(size_t));
-	ConditionalSwap(c, (size_t &)a, (size_t &)b);
+	ptrdiff_t t = c * (a - b);
+	a -= t;
+	b += t;
 }
 
 // see http://www.dwheeler.com/secure-programs/Secure-Programs-HOWTO/protect-secrets.html
@@ -479,40 +480,59 @@ inline void ConditionalSwapPointers(bool c, T &a, T &b)
 template <class T>
 void SecureWipeBuffer(T *buf, size_t n)
 {
-	volatile T *p = buf;
+	// GCC 4.3.2 on Cygwin optimizes away the first store if this loop is done in the forward direction
+	volatile T *p = buf+n;
 	while (n--)
-		*p++ = 0;
+		*(--p) = 0;
 }
 
-#if defined(_MSC_VER) && _MSC_VER >= 1400 && (CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X86)
+#if (_MSC_VER >= 1400 || defined(__GNUC__)) && (CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X86)
+
 template<> inline void SecureWipeBuffer(byte *buf, size_t n)
 {
 	volatile byte *p = buf;
+#ifdef __GNUC__
+	asm volatile("rep stosb" : "+c"(n), "+D"(p) : "a"(0) : "memory");
+#else
 	__stosb((byte *)(size_t)p, 0, n);
+#endif
 }
 
 template<> inline void SecureWipeBuffer(word16 *buf, size_t n)
 {
 	volatile word16 *p = buf;
+#ifdef __GNUC__
+	asm volatile("rep stosw" : "+c"(n), "+D"(p) : "a"(0) : "memory");
+#else
 	__stosw((word16 *)(size_t)p, 0, n);
+#endif
 }
 
 template<> inline void SecureWipeBuffer(word32 *buf, size_t n)
 {
 	volatile word32 *p = buf;
+#ifdef __GNUC__
+	asm volatile("rep stosl" : "+c"(n), "+D"(p) : "a"(0) : "memory");
+#else
 	__stosd((unsigned long *)(size_t)p, 0, n);
+#endif
 }
 
 template<> inline void SecureWipeBuffer(word64 *buf, size_t n)
 {
 #if CRYPTOPP_BOOL_X64
 	volatile word64 *p = buf;
+#ifdef __GNUC__
+	asm volatile("rep stosq" : "+c"(n), "+D"(p) : "a"(0) : "memory");
+#else
 	__stosq((word64 *)(size_t)p, 0, n);
+#endif
 #else
 	SecureWipeBuffer((word32 *)buf, 2*n);
 #endif
 }
-#endif
+
+#endif	// #if (_MSC_VER >= 1400 || defined(__GNUC__)) && (CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X86)
 
 template <class T>
 inline void SecureWipeArray(T *buf, size_t n)
