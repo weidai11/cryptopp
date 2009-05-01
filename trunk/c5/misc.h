@@ -257,6 +257,38 @@ unsigned int BitPrecision(const T &value)
 	return h;
 }
 
+inline unsigned int TrailingZeros(word32 v)
+{
+#if defined(__GNUC__) && CRYPTOPP_GCC_VERSION >= 30400
+	return __builtin_ctz(v);
+#elif defined(_MSC_VER) && _MSC_VER >= 1400
+	unsigned long result;
+	_BitScanForward(&result, v);
+	return result;
+#else
+	// from http://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightMultLookup
+	static const int MultiplyDeBruijnBitPosition[32] = 
+	{
+	  0, 1, 28, 2, 29, 14, 24, 3, 30, 22, 20, 15, 25, 17, 4, 8, 
+	  31, 27, 13, 23, 21, 19, 16, 7, 26, 12, 18, 6, 11, 5, 10, 9
+	};
+	return MultiplyDeBruijnBitPosition[((word32)((v & -v) * 0x077CB531U)) >> 27];
+#endif
+}
+
+inline unsigned int TrailingZeros(word64 v)
+{
+#if defined(__GNUC__) && CRYPTOPP_GCC_VERSION >= 30400
+	return __builtin_ctzll(v);
+#elif defined(_MSC_VER) && _MSC_VER >= 1400 && (defined(_M_X64) || defined(_M_IA64))
+	unsigned long result;
+	_BitScanForward64(&result, v);
+	return result;
+#else
+	return word32(v) ? TrailingZeros(word32(v)) : 32 + TrailingZeros(word32(v>>32));
+#endif
+}
+
 template <class T>
 inline T Crop(T value, size_t size)
 {
@@ -425,6 +457,74 @@ inline void IncrementCounterByOne(byte *output, const byte *input, unsigned int 
 	for (i=s-1, carry=1; i>=0 && carry; i--)
 		carry = ((output[i] = input[i]+1) == 0);
 	memcpy_s(output, s, input, i+1);
+}
+
+template <class T>
+inline void ConditionalSwap(bool c, T &a, T &b)
+{
+	T t = (0-T(c)) & (a ^ b);
+	a ^= t;
+	b ^= t;
+}
+
+template <class T>
+inline void ConditionalSwapPointers(bool c, T &a, T &b)
+{
+	CRYPTOPP_COMPILE_ASSERT(sizeof(T) == sizeof(size_t));
+	ConditionalSwap(c, (size_t &)a, (size_t &)b);
+}
+
+// see http://www.dwheeler.com/secure-programs/Secure-Programs-HOWTO/protect-secrets.html
+// and https://www.securecoding.cert.org/confluence/display/cplusplus/MSC06-CPP.+Be+aware+of+compiler+optimization+when+dealing+with+sensitive+data
+template <class T>
+void SecureWipeBuffer(T *buf, size_t n)
+{
+	volatile T *p = buf;
+	while (n--)
+		*p++ = 0;
+}
+
+#if defined(_MSC_VER) && _MSC_VER >= 1400 && (CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X86)
+template<> inline void SecureWipeBuffer(byte *buf, size_t n)
+{
+	volatile byte *p = buf;
+	__stosb((byte *)(size_t)p, 0, n);
+}
+
+template<> inline void SecureWipeBuffer(word16 *buf, size_t n)
+{
+	volatile word16 *p = buf;
+	__stosw((word16 *)(size_t)p, 0, n);
+}
+
+template<> inline void SecureWipeBuffer(word32 *buf, size_t n)
+{
+	volatile word32 *p = buf;
+	__stosd((unsigned long *)(size_t)p, 0, n);
+}
+
+template<> inline void SecureWipeBuffer(word64 *buf, size_t n)
+{
+#if CRYPTOPP_BOOL_X64
+	volatile word64 *p = buf;
+	__stosq((word64 *)(size_t)p, 0, n);
+#else
+	SecureWipeBuffer((word32 *)buf, 2*n);
+#endif
+}
+#endif
+
+template <class T>
+inline void SecureWipeArray(T *buf, size_t n)
+{
+	if (sizeof(T) % 8 == 0 && GetAlignmentOf<T>() % GetAlignmentOf<word64>() == 0)
+		SecureWipeBuffer((word64 *)buf, n * (sizeof(T)/8));
+	else if (sizeof(T) % 4 == 0 && GetAlignmentOf<T>() % GetAlignmentOf<word32>() == 0)
+		SecureWipeBuffer((word32 *)buf, n * (sizeof(T)/4));
+	else if (sizeof(T) % 2 == 0 && GetAlignmentOf<T>() % GetAlignmentOf<word16>() == 0)
+		SecureWipeBuffer((word16 *)buf, n * (sizeof(T)/2));
+	else
+		SecureWipeBuffer((byte *)buf, n * sizeof(T));
 }
 
 // ************** rotate functions ***************
