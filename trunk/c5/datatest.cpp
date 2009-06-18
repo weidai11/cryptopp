@@ -64,7 +64,11 @@ void PutDecodedDatumInto(const TestData &data, const char *name, BufferedTransfo
 	while (!s1.empty())
 	{
 		while (s1[0] == ' ')
+		{
 			s1 = s1.substr(1);
+			if (s1.empty())
+				return; //avoid invalid read if s1 is empty
+		}
 
 		int repeat = 1;
 		if (s1[0] == 'r')
