@@ -66,7 +66,7 @@ push_reg r12
 .endprolog
 mov r8, rcx
 mov r11, ?Te@rdtable@CryptoPP@@3PA_KA
-mov rdi, QWORD PTR [?g_cacheLineSize@CryptoPP@@3IA]
+mov edi, DWORD PTR [?g_cacheLineSize@CryptoPP@@3IA]
 mov rsi, [(r8+16*19)]
 mov rax, 16
 and rax, rsi

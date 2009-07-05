@@ -90,7 +90,7 @@ static word64 Td[256];
 #else
 static word32 Te[256*4], Td[256*4];
 #endif
-static bool s_TeFilled = false, s_TdFilled = false;
+static volatile bool s_TeFilled = false, s_TdFilled = false;
 
 // ************************* Portable Code ************************************
 
@@ -529,7 +529,7 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 		.endprolog
 		mov L_REG, rcx
 		mov AS_REG_7, ?Te@rdtable@CryptoPP@@3PA_KA
-		mov rdi, QWORD PTR [?g_cacheLineSize@CryptoPP@@3IA]
+		mov edi, DWORD PTR [?g_cacheLineSize@CryptoPP@@3IA]
 #elif defined(__GNUC__)
 	__asm__ __volatile__
 	(
@@ -543,9 +543,7 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 #else
 	AS_PUSH_IF86(si)
 	AS_PUSH_IF86(di)
-#if !defined(_MSC_VER) || (_MSC_VER < 1400)
 	AS_PUSH_IF86(bx)
-#endif
 	AS_PUSH_IF86(bp)
 	AS2(	lea		AS_REG_7, [Te])
 	AS2(	mov		edi, [g_cacheLineSize])
@@ -875,9 +873,7 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 	AS1(	emms)
 #endif
 	AS_POP_IF86(bp)
-#if !defined(_MSC_VER) || (_MSC_VER < 1400)
 	AS_POP_IF86(bx)
-#endif
 #if defined(_MSC_VER) && CRYPTOPP_BOOL_X86
 	AS_POP_IF86(di)
 	AS_POP_IF86(si)
