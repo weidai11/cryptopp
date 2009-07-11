@@ -27,43 +27,39 @@ void FileStore::StoreInitialize(const NameValuePairs &parameters)
 	m_stream = NULL;
 	m_file.release();
 
-	const char *fileName;
-	const wchar_t *fileNameWide;
+	const char *fileName = NULL;
+#if defined(CRYPTOPP_UNIX_AVAILABLE) || _MSC_VER >= 1400
+	const wchar_t *fileNameWide = NULL;
+	if (!parameters.GetValue(Name::InputFileNameWide(), fileNameWide))
+#endif
+		if (!parameters.GetValue(Name::InputFileName(), fileName))
+		{
+			parameters.GetValue(Name::InputStreamPointer(), m_stream);
+			return;
+		}
+
+	ios::openmode binary = parameters.GetValueWithDefault(Name::InputBinaryMode(), true) ? ios::binary : ios::openmode(0);
+	m_file.reset(new std::ifstream);
 #ifdef CRYPTOPP_UNIX_AVAILABLE
 	std::string narrowed;
+	if (fileNameWide)
+		fileName = (narrowed = StringNarrow(fileNameWide)).c_str();
 #endif
-
-	if (parameters.GetValue(Name::InputFileName(), fileName))
+#if _MSC_VER >= 1400
+	if (fileNameWide)
 	{
-#ifdef CRYPTOPP_UNIX_AVAILABLE
-narrowName:
+		m_file->open(fileNameWide, ios::in | binary);
+		if (!*m_file)
+			throw OpenErr(StringNarrow(fileNameWide, false));
+	}
 #endif
-		ios::openmode binary = parameters.GetValueWithDefault(Name::InputBinaryMode(), true) ? ios::binary : ios::openmode(0);
-		m_file.reset(new std::ifstream);
+	if (fileName)
+	{
 		m_file->open(fileName, ios::in | binary);
 		if (!*m_file)
 			throw OpenErr(fileName);
-		m_stream = m_file.get();
 	}
-#if defined(CRYPTOPP_UNIX_AVAILABLE) || _MSC_VER >= 1400
-	else if (parameters.GetValue(Name::InputFileNameWide(), fileNameWide))
-	{
-	#if _MSC_VER >= 1400
-		ios::openmode binary = parameters.GetValueWithDefault(Name::InputBinaryMode(), true) ? ios::binary : ios::openmode(0);
-		m_file.reset(new std::ifstream);
-		m_file->open(fileNameWide, ios::in | binary);
-		if (!*m_file)
-			throw OpenErr(StringNarrow(fileNameWide));
-		m_stream = m_file.get();
-	#else
-		narrowed = StringNarrow(fileNameWide);
-		fileName = narrowed.c_str();
-		goto narrowName;
-	#endif
-	}
-#endif
-	else
-		parameters.GetValue(Name::InputStreamPointer(), m_stream);
+	m_stream = m_file.get();
 }
 
 lword FileStore::MaxRetrievable() const
@@ -187,43 +183,39 @@ void FileSink::IsolatedInitialize(const NameValuePairs &parameters)
 	m_stream = NULL;
 	m_file.release();
 
-	const char *fileName;
-	const wchar_t *fileNameWide;
+	const char *fileName = NULL;
+#if defined(CRYPTOPP_UNIX_AVAILABLE) || _MSC_VER >= 1400
+	const wchar_t *fileNameWide = NULL;
+	if (!parameters.GetValue(Name::OutputFileNameWide(), fileNameWide))
+#endif
+		if (!parameters.GetValue(Name::OutputFileName(), fileName))
+		{
+			parameters.GetValue(Name::OutputStreamPointer(), m_stream);
+			return;
+		}
+
+	ios::openmode binary = parameters.GetValueWithDefault(Name::OutputBinaryMode(), true) ? ios::binary : ios::openmode(0);
+	m_file.reset(new std::ofstream);
 #ifdef CRYPTOPP_UNIX_AVAILABLE
 	std::string narrowed;
+	if (fileNameWide)
+		fileName = (narrowed = StringNarrow(fileNameWide)).c_str();
 #endif
-
-	if (parameters.GetValue(Name::OutputFileName(), fileName))
+#if _MSC_VER >= 1400
+	if (fileNameWide)
 	{
-#ifdef CRYPTOPP_UNIX_AVAILABLE
-narrowName:
+		m_file->open(fileNameWide, ios::out | ios::trunc | binary);
+		if (!*m_file)
+			throw OpenErr(StringNarrow(fileNameWide, false));
+	}
 #endif
-		ios::openmode binary = parameters.GetValueWithDefault(Name::OutputBinaryMode(), true) ? ios::binary : ios::openmode(0);
-		m_file.reset(new std::ofstream);
+	if (fileName)
+	{
 		m_file->open(fileName, ios::out | ios::trunc | binary);
 		if (!*m_file)
 			throw OpenErr(fileName);
-		m_stream = m_file.get();
 	}
-#if defined(CRYPTOPP_UNIX_AVAILABLE) || _MSC_VER >= 1400
-	else if (parameters.GetValue(Name::OutputFileNameWide(), fileNameWide))
-	{
-	#if _MSC_VER >= 1400
-		ios::openmode binary = parameters.GetValueWithDefault(Name::OutputBinaryMode(), true) ? ios::binary : ios::openmode(0);
-		m_file.reset(new std::ofstream);
-		m_file->open(fileNameWide, ios::out | ios::trunc | binary);
-		if (!*m_file)
-			throw OpenErr(StringNarrow(fileNameWide));
-		m_stream = m_file.get();
-	#else
-		narrowed = StringNarrow(fileNameWide);
-		fileName = narrowed.c_str();
-		goto narrowName;
-	#endif
-	}
-#endif
-	else
-		parameters.GetValue(Name::OutputStreamPointer(), m_stream);
+	m_stream = m_file.get();
 }
 
 bool FileSink::IsolatedFlush(bool hardFlush, bool blocking)
