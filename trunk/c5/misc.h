@@ -122,7 +122,7 @@ template <class T, class F, int instance>
 const T & Singleton<T, F, instance>::Ref(CRYPTOPP_NOINLINE_DOTDOTDOT) const
 {
 	static simple_ptr<T> s_pObject;
-	static char s_objectState = 0;
+	static volatile char s_objectState = 0;
 
 retry:
 	switch (s_objectState)
@@ -545,6 +545,22 @@ inline void SecureWipeArray(T *buf, size_t n)
 		SecureWipeBuffer((word16 *)buf, n * (sizeof(T)/2));
 	else
 		SecureWipeBuffer((byte *)buf, n * sizeof(T));
+}
+
+// this function uses wcstombs(), which assumes that setlocale() has been called
+static std::string StringNarrow(const wchar_t *str)
+{
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 4996)	//  'wcstombs': This function or variable may be unsafe.
+#endif
+	size_t size = wcstombs(NULL, str, 0);
+	std::string result(size, 0);
+	wcstombs(&result[0], str, size);
+	return result;
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 }
 
 // ************** rotate functions ***************

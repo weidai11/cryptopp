@@ -27,6 +27,11 @@ public:
 		{StoreInitialize(MakeParameters(Name::InputStreamPointer(), &in));}
 	FileStore(const char *filename)
 		{StoreInitialize(MakeParameters(Name::InputFileName(), filename));}
+#if defined(CRYPTOPP_UNIX_AVAILABLE) || _MSC_VER >= 1400
+	//! specify file with Unicode name. On non-Windows OS, this function assumes that setlocale() has been called.
+	FileStore(const wchar_t *filename)
+		{StoreInitialize(MakeParameters(Name::InputFileNameWide(), filename));}
+#endif
 
 	std::istream* GetStream() {return m_stream;}
 
@@ -59,6 +64,11 @@ public:
 		: SourceTemplate<FileStore>(attachment) {SourceInitialize(pumpAll, MakeParameters(Name::InputStreamPointer(), &in));}
 	FileSource(const char *filename, bool pumpAll, BufferedTransformation *attachment = NULL, bool binary=true)
 		: SourceTemplate<FileStore>(attachment) {SourceInitialize(pumpAll, MakeParameters(Name::InputFileName(), filename)(Name::InputBinaryMode(), binary));}
+#if defined(CRYPTOPP_UNIX_AVAILABLE) || _MSC_VER >= 1400
+	//! specify file with Unicode name. On non-Windows OS, this function assumes that setlocale() has been called.
+	FileSource(const wchar_t *filename, bool pumpAll, BufferedTransformation *attachment = NULL, bool binary=true)
+		: SourceTemplate<FileStore>(attachment) {SourceInitialize(pumpAll, MakeParameters(Name::InputFileNameWide(), filename)(Name::InputBinaryMode(), binary));}
+#endif
 
 	std::istream* GetStream() {return m_store.GetStream();}
 };
@@ -79,7 +89,12 @@ public:
 	FileSink(std::ostream &out)
 		{IsolatedInitialize(MakeParameters(Name::OutputStreamPointer(), &out));}
 	FileSink(const char *filename, bool binary=true)
-		{IsolatedInitialize(MakeParameters(Name::OutputFileName(), filename)("OutputBinaryMode", binary));}
+		{IsolatedInitialize(MakeParameters(Name::OutputFileName(), filename)(Name::OutputBinaryMode(), binary));}
+#if defined(CRYPTOPP_UNIX_AVAILABLE) || _MSC_VER >= 1400
+	//! specify file with Unicode name. On non-Windows OS, this function assumes that setlocale() has been called.
+	FileSink(const wchar_t *filename, bool binary=true)
+		{IsolatedInitialize(MakeParameters(Name::OutputFileNameWide(), filename)(Name::OutputBinaryMode(), binary));}
+#endif
 
 	std::ostream* GetStream() {return m_stream;}
 

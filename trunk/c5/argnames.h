@@ -50,9 +50,11 @@ CRYPTOPP_DEFINE_NAME_STRING(SignatureVerificationFilterFlags)	//!< word32
 CRYPTOPP_DEFINE_NAME_STRING(InputBuffer)		//!< ConstByteArrayParameter
 CRYPTOPP_DEFINE_NAME_STRING(OutputBuffer)		//!< ByteArrayParameter
 CRYPTOPP_DEFINE_NAME_STRING(InputFileName)		//!< const char *
+CRYPTOPP_DEFINE_NAME_STRING(InputFileNameWide)	//!< const wchar_t *
 CRYPTOPP_DEFINE_NAME_STRING(InputStreamPointer)	//!< std::istream *
 CRYPTOPP_DEFINE_NAME_STRING(InputBinaryMode)	//!< bool
 CRYPTOPP_DEFINE_NAME_STRING(OutputFileName)		//!< const char *
+CRYPTOPP_DEFINE_NAME_STRING(OutputFileNameWide)	//!< const wchar_t *
 CRYPTOPP_DEFINE_NAME_STRING(OutputStreamPointer)	//!< std::ostream *
 CRYPTOPP_DEFINE_NAME_STRING(OutputBinaryMode)	//!< bool
 CRYPTOPP_DEFINE_NAME_STRING(EncodingParameters)	//!< ConstByteArrayParameter
