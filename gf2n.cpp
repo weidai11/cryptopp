@@ -482,7 +482,10 @@ std::ostream& operator<<(std::ostream& out, const PolynomialMod2 &a)
 
 	SecBlock<char> s(a.BitCount()/bits+1);
 	unsigned i;
-	const char vec[]="0123456789ABCDEF";
+
+	static const char upper[]="0123456789ABCDEF";
+	static const char lower[]="0123456789abcdef";
+	const char* vec = (out.flags() & std::ios::uppercase) ? upper : lower;
 
 	for (i=0; i*bits < a.BitCount(); i++)
 	{
