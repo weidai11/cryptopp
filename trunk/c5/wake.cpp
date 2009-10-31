@@ -94,7 +94,7 @@ void WAKE_Policy<B>::OperateKeystream(KeystreamOperation operation, byte *output
 		r5 = M(r5, r4);\
 		r6 = M(r6, r5);\
 		output += 4;\
-		if (x == XOR_KEYSTREAM)\
+		if (!(x & INPUT_NULL))\
 			input += 4;\
 	}
 
