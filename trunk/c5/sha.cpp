@@ -356,7 +356,7 @@ static void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 
 	ROUND(14, 1, eax, ecx, edi, edx)
 	ROUND(15, 1, ecx, eax, edx, edi)
 	AS2(	cmp		WORD_REG(si), K_END)
-	ASJ(	jl,		1, b)
+	ASJ(	jb,		1, b)
 
 	AS2(	mov		WORD_REG(dx), DATA_SAVE)
 	AS2(	add		WORD_REG(dx), 64)
@@ -375,7 +375,7 @@ static void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 
 	AS2(	movdqa	[AS_REG_7+1*16], xmm1)
 	AS2(	movdqa	[AS_REG_7+0*16], xmm0)
 	AS2(	cmp		WORD_REG(dx), DATA_END)
-	ASJ(	jl,		0, b)
+	ASJ(	jb,		0, b)
 #endif
 
 #if CRYPTOPP_BOOL_X86
@@ -399,7 +399,7 @@ static void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 
 	AS2(	add		[AS_REG_7+7*4], ecx)
 	AS2(	mov		ecx, AS_REG_7d)
 	AS2(	cmp		WORD_REG(dx), DATA_END)
-	ASJ(	jl,		2, b)
+	ASJ(	jb,		2, b)
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
 	ASL(5)
 #endif
