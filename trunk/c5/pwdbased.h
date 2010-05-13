@@ -6,6 +6,7 @@
 #include "cryptlib.h"
 #include "hmac.h"
 #include "hrtimer.h"
+#include "integer.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
