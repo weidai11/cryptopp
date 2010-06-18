@@ -27,7 +27,7 @@ class SKIPJACK : public SKIPJACK_Info, public BlockCipherDocumentation
 	protected:
 		static const byte fTable[256];
 
-		FixedSizeSecBlock<byte[256], 10> tab;
+		FixedSizeSecBlock<byte, 10*256> tab;
 	};
 
 	class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Enc : public Base

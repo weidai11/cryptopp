@@ -31,7 +31,7 @@ class Twofish : public Twofish_Info, public BlockCipherDocumentation
 		static const word32 mds[4][256];
 
 		FixedSizeSecBlock<word32, 40> m_k;
-		FixedSizeSecBlock<word32[256], 4> m_s;
+		FixedSizeSecBlock<word32, 4*256> m_s;
 	};
 
 	class CRYPTOPP_NO_VTABLE Enc : public Base
