@@ -43,7 +43,7 @@ private:
 		static inline void LookupMUL(word &a, word b);
 		void LookupKeyLogs();
 		static void BuildLogTables();
-		static bool tablesBuilt;
+		static volatile bool tablesBuilt;
 		static word16 log[0x10000], antilog[0x10000];
 	#endif
 	};

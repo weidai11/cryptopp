@@ -28,7 +28,7 @@ void Base64Encoder::IsolatedInitialize(const NameValuePairs &parameters)
 
 const int *Base64Decoder::GetDecodingLookupArray()
 {
-	static bool s_initialized = false;
+	static volatile bool s_initialized = false;
 	static int s_array[256];
 
 	if (!s_initialized)

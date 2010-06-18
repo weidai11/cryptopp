@@ -30,7 +30,7 @@ CRYPTOPP_COMPILE_ASSERT(sizeof(IDEA::Word) >= 2);
 }
 
 #ifdef IDEA_LARGECACHE
-bool IDEA::Base::tablesBuilt = false;
+volatile bool IDEA::Base::tablesBuilt = false;
 word16 IDEA::Base::log[0x10000];
 word16 IDEA::Base::antilog[0x10000];
 

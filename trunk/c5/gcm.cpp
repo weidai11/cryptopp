@@ -17,7 +17,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 word16 GCM_Base::s_reductionTable[256];
-bool GCM_Base::s_reductionTableInitialized = false;
+volatile bool GCM_Base::s_reductionTableInitialized = false;
 
 void GCM_Base::GCTR::IncrementCounterBy256()
 {
