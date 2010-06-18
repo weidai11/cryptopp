@@ -53,6 +53,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				OmitFramePointers="true"
+				WholeProgramOptimization="false"
 				PreprocessorDefinitions="NDEBUG;_CONSOLE;WIN32"
 				StringPooling="true"
 				RuntimeLibrary="0"
@@ -846,6 +847,10 @@
 			</File>
 			<File
 				RelativePath=".\TestVectors\vmac.txt"
+				>
+			</File>
+			<File
+				RelativePath=".\TestVectors\wake.txt"
 				>
 			</File>
 			<File
