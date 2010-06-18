@@ -72,15 +72,15 @@ void Twofish::Base::UncheckedSetKey(const byte *userKey, unsigned int keylength,
 	for (i=0; i<256; i++)
 	{
 		word32 t = h0(i, svec, len);
-		m_s[0][i] = mds[0][GETBYTE(t, 0)];
-		m_s[1][i] = mds[1][GETBYTE(t, 1)];
-		m_s[2][i] = mds[2][GETBYTE(t, 2)];
-		m_s[3][i] = mds[3][GETBYTE(t, 3)];
+		m_s[0*256+i] = mds[0][GETBYTE(t, 0)];
+		m_s[1*256+i] = mds[1][GETBYTE(t, 1)];
+		m_s[2*256+i] = mds[2][GETBYTE(t, 2)];
+		m_s[3*256+i] = mds[3][GETBYTE(t, 3)];
 	}
 }
 
-#define G1(x) (m_s[0][GETBYTE(x,0)] ^ m_s[1][GETBYTE(x,1)] ^ m_s[2][GETBYTE(x,2)] ^ m_s[3][GETBYTE(x,3)])
-#define G2(x) (m_s[0][GETBYTE(x,3)] ^ m_s[1][GETBYTE(x,0)] ^ m_s[2][GETBYTE(x,1)] ^ m_s[3][GETBYTE(x,2)])
+#define G1(x) (m_s[0*256+GETBYTE(x,0)] ^ m_s[1*256+GETBYTE(x,1)] ^ m_s[2*256+GETBYTE(x,2)] ^ m_s[3*256+GETBYTE(x,3)])
+#define G2(x) (m_s[0*256+GETBYTE(x,3)] ^ m_s[1*256+GETBYTE(x,0)] ^ m_s[2*256+GETBYTE(x,1)] ^ m_s[3*256+GETBYTE(x,2)])
 
 #define ENCROUND(n, a, b, c, d) \
 	x = G1 (a); y = G2 (b); \

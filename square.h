@@ -24,7 +24,7 @@ class Square : public Square_Info, public BlockCipherDocumentation
 		void UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &params);
 
 	protected:
-		FixedSizeSecBlock<word32[4], ROUNDS+1> roundkeys;
+		FixedSizeSecBlock<word32, 4*(ROUNDS+1)> m_roundkeys;
 	};
 
 	class CRYPTOPP_NO_VTABLE Enc : public Base

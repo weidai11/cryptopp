@@ -46,10 +46,10 @@ const byte SKIPJACK::Base::fTable[256] = {
  */
 #define g(tab, w, i, j, k, l) \
 { \
-	w ^= (word)tab[i][w & 0xff] << 8; \
-	w ^= (word)tab[j][w >>   8]; \
-	w ^= (word)tab[k][w & 0xff] << 8; \
-	w ^= (word)tab[l][w >>   8]; \
+	w ^= (word)tab[i*256 + (w & 0xff)] << 8; \
+	w ^= (word)tab[j*256 + (w >>   8)]; \
+	w ^= (word)tab[k*256 + (w & 0xff)] << 8; \
+	w ^= (word)tab[l*256 + (w >>   8)]; \
 }
 
 #define g0(tab, w) g(tab, w, 0, 1, 2, 3)
@@ -63,10 +63,10 @@ const byte SKIPJACK::Base::fTable[256] = {
  */
 #define h(tab, w, i, j, k, l) \
 { \
-	w ^= (word)tab[l][w >>   8]; \
-	w ^= (word)tab[k][w & 0xff] << 8; \
-	w ^= (word)tab[j][w >>   8]; \
-	w ^= (word)tab[i][w & 0xff] << 8; \
+	w ^= (word)tab[l*256 + (w >>   8)]; \
+	w ^= (word)tab[k*256 + (w & 0xff)] << 8; \
+	w ^= (word)tab[j*256 + (w >>   8)]; \
+	w ^= (word)tab[i*256 + (w & 0xff)] << 8; \
 }
 
 #define h0(tab, w) h(tab, w, 0, 1, 2, 3)
@@ -85,7 +85,7 @@ void SKIPJACK::Base::UncheckedSetKey(const byte *key, unsigned int length, const
 	/* tab[i][c] = fTable[c ^ key[i]] */
 	int i;
 	for (i = 0; i < 10; i++) {
-		byte *t = tab[i], k = key[9-i];
+		byte *t = tab+i*256, k = key[9-i];
 		int c;
 		for (c = 0; c < 256; c++) {
 			t[c] = fTable[c ^ k];
