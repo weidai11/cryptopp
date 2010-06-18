@@ -129,7 +129,7 @@ public:
 // ********************************************************
 
 ByteQueue::ByteQueue(size_t nodeSize)
-	: m_lazyLength(0)
+	: m_lazyString(NULL), m_lazyLength(0)
 {
 	SetNodeSize(nodeSize);
 	m_head = m_tail = new ByteQueueNode(m_nodeSize);
@@ -142,6 +142,7 @@ void ByteQueue::SetNodeSize(size_t nodeSize)
 }
 
 ByteQueue::ByteQueue(const ByteQueue &copy)
+	: m_lazyString(NULL)
 {
 	CopyFrom(copy);
 }
