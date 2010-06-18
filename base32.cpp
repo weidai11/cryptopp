@@ -25,7 +25,7 @@ void Base32Decoder::IsolatedInitialize(const NameValuePairs &parameters)
 
 const int *Base32Decoder::GetDefaultDecodingLookupArray()
 {
-	static bool s_initialized = false;
+	static volatile bool s_initialized = false;
 	static int s_array[256];
 
 	if (!s_initialized)

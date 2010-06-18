@@ -64,7 +64,7 @@ protected:
 	byte *HashKey() {return m_buffer+2*REQUIRED_BLOCKSIZE;}
 	byte *MulTable() {return m_buffer+3*REQUIRED_BLOCKSIZE;}
 
-	class GCTR : public CTR_Mode_ExternalCipher::Encryption
+	class CRYPTOPP_DLL GCTR : public CTR_Mode_ExternalCipher::Encryption
 	{
 	protected:
 		void IncrementCounterBy256();
@@ -72,7 +72,7 @@ protected:
 
 	GCTR m_ctr;
 	static word16 s_reductionTable[256];
-	static bool s_reductionTableInitialized;
+	static volatile bool s_reductionTableInitialized;
 	enum {REQUIRED_BLOCKSIZE = 16, HASH_BLOCKSIZE = 16};
 };
 

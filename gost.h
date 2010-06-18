@@ -27,7 +27,7 @@ class GOST : public GOST_Info, public BlockCipherDocumentation
 		static void PrecalculateSTable();
 
 		static const byte sBox[8][16];
-		static bool sTableCalculated;
+		static volatile bool sTableCalculated;
 		static word32 sTable[4][256];
 
 		FixedSizeSecBlock<word32, 8> key;

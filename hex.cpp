@@ -28,7 +28,7 @@ void HexDecoder::IsolatedInitialize(const NameValuePairs &parameters)
 
 const int *HexDecoder::GetDefaultDecodingLookupArray()
 {
-	static bool s_initialized = false;
+	static volatile bool s_initialized = false;
 	static int s_array[256];
 
 	if (!s_initialized)
