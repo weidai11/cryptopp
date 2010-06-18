@@ -9,8 +9,8 @@ NAMESPACE_BEGIN(CryptoPP)
 template <class T> class simple_ptr
 {
 public:
-	simple_ptr() : m_p(NULL) {}
-	~simple_ptr() {delete m_p;}
+	simple_ptr(T *p = NULL) : m_p(p) {}
+	~simple_ptr() {delete m_p; m_p = NULL;}		// set m_p to NULL so double destruction (which might occur in Singleton) will be harmless
 	T *m_p;
 };
 

@@ -318,14 +318,7 @@ DOCUMENTED_NAMESPACE_BEGIN(Name)
 DOCUMENTED_NAMESPACE_END
 
 //! empty set of name-value pairs
-class CRYPTOPP_DLL NullNameValuePairs : public NameValuePairs
-{
-public:
-	bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const {return false;}
-};
-
-//! _
-extern CRYPTOPP_DLL const NullNameValuePairs g_nullNameValuePairs;
+extern CRYPTOPP_DLL const NameValuePairs &g_nullNameValuePairs;
 
 // ********************************************************
 

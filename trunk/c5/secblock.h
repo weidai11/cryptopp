@@ -9,8 +9,6 @@
 
 #if defined(CRYPTOPP_MEMALIGN_AVAILABLE) || defined(CRYPTOPP_MM_MALLOC_AVAILABLE) || defined(QNX)
 	#include <malloc.h>
-#else
-	#include <stdlib.h>
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -352,8 +350,11 @@ public:
 	//! copy contents and size from another SecBlock
 	void Assign(const SecBlock<T, A> &t)
 	{
-		New(t.m_size);
-		memcpy_s(m_ptr, m_size*sizeof(T), t.m_ptr, m_size*sizeof(T));
+		if (this != &t)
+		{
+			New(t.m_size);
+			memcpy_s(m_ptr, m_size*sizeof(T), t.m_ptr, m_size*sizeof(T));
+		}
 	}
 
 	SecBlock<T, A>& operator=(const SecBlock<T, A> &t)
