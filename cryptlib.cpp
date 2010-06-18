@@ -30,7 +30,14 @@ const std::string DEFAULT_CHANNEL;
 const std::string AAD_CHANNEL = "AAD";
 const std::string &BufferedTransformation::NULL_CHANNEL = DEFAULT_CHANNEL;
 
-const NullNameValuePairs g_nullNameValuePairs;
+class NullNameValuePairs : public NameValuePairs
+{
+public:
+	bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const {return false;}
+};
+
+simple_ptr<NullNameValuePairs> s_pNullNameValuePairs(new NullNameValuePairs);
+const NameValuePairs &g_nullNameValuePairs = *s_pNullNameValuePairs.m_p;
 
 BufferedTransformation & TheBitBucket()
 {
