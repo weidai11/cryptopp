@@ -134,8 +134,11 @@ DecodingResult TF_VerifierBase::RecoverAndRestart(byte *recoveredMessage, PK_Mes
 
 DecodingResult TF_DecryptorBase::Decrypt(RandomNumberGenerator &rng, const byte *ciphertext, size_t ciphertextLength, byte *plaintext, const NameValuePairs &parameters) const
 {
+	if (ciphertextLength != FixedCiphertextLength())
+			throw InvalidArgument(AlgorithmName() + ": ciphertext length of " + IntToString(ciphertextLength) + " doesn't match the required length of " + IntToString(FixedCiphertextLength()) + " for this key");
+
 	SecByteBlock paddedBlock(PaddedBlockByteLength());
-	Integer x = GetTrapdoorFunctionInterface().CalculateInverse(rng, Integer(ciphertext, FixedCiphertextLength()));
+	Integer x = GetTrapdoorFunctionInterface().CalculateInverse(rng, Integer(ciphertext, ciphertextLength));
 	if (x.ByteCount() > paddedBlock.size())
 		x = Integer::Zero();	// don't return false here to prevent timing attack
 	x.Encode(paddedBlock, paddedBlock.size());
