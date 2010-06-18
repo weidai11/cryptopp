@@ -232,6 +232,8 @@ size_t OID::DecodeValue(BufferedTransformation &bt, word32 &v)
 		if (!bt.Get(b))
 			BERDecodeError();
 		i++;
+		if (v >> (8*sizeof(v)-7))	// v about to overflow
+			BERDecodeError();
 		v <<= 7;
 		v += b & 0x7f;
 		if (!(b & 0x80))
