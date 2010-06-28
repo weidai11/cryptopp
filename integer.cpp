@@ -2633,7 +2633,8 @@ unsigned int AlmostInverse(word *R, word *T, const word *A, size_t NA, const wor
 	word *f = T+2*N;
 	word *g = T+3*N;
 	size_t bcLen=2, fgLen=EvenWordCount(M, N);
-	unsigned int k=0, s=0;
+	unsigned int k=0;
+	bool s=false;
 
 	SetWords(T, 0, 3*N);
 	b[0]=1;
@@ -2652,57 +2653,44 @@ unsigned int AlmostInverse(word *R, word *T, const word *A, size_t NA, const wor
 			}
 
 			ShiftWordsRightByWords(f, fgLen, 1);
-			if (c[bcLen-1]) bcLen+=2;
+			bcLen += 2 * (c[bcLen-1] != 0);
 			assert(bcLen <= N);
 			ShiftWordsLeftByWords(c, bcLen, 1);
 			k+=WORD_BITS;
 			t=f[0];
 		}
 
-		unsigned int i=0;
-		while (t%2 == 0)
-		{
-			t>>=1;
-			i++;
-		}
-		k+=i;
+		unsigned int i = TrailingZeros(t);
+		t >>= i;
+		k += i;
 
-		if (t==1 && f[1]==0 && EvenWordCount(f, fgLen)==2)
+		if (t==1 && f[1]==0 && EvenWordCount(f+2, fgLen-2)==0)
 		{
-			if (s%2==0)
-				CopyWords(R, b, N);
-			else
+			if (s)
 				Subtract(R, M, b, N);
+			else
+				CopyWords(R, b, N);
 			return k;
 		}
 
 		ShiftWordsRightByBits(f, fgLen, i);
-		t=ShiftWordsLeftByBits(c, bcLen, i);
-		if (t)
-		{
-			c[bcLen] = t;
-			bcLen+=2;
-			assert(bcLen <= N);
-		}
+		t = ShiftWordsLeftByBits(c, bcLen, i);
+		c[bcLen] += t;
+		bcLen += 2 * (t!=0);
+		assert(bcLen <= N);
 
-		if (f[fgLen-2]==0 && g[fgLen-2]==0 && f[fgLen-1]==0 && g[fgLen-1]==0)
-			fgLen-=2;
+		bool swap = Compare(f, g, fgLen)==-1;
+		ConditionalSwapPointers(swap, f, g);
+		ConditionalSwapPointers(swap, b, c);
+		s ^= swap;
 
-		if (Compare(f, g, fgLen)==-1)
-		{
-			std::swap(f, g);
-			std::swap(b, c);
-			s++;
-		}
+		fgLen -= 2 * !(f[fgLen-2] | f[fgLen-1]);
 
 		Subtract(f, f, g, fgLen);
-
-		if (Add(b, b, c, bcLen))
-		{
-			b[bcLen] = 1;
-			bcLen+=2;
-			assert(bcLen <= N);
-		}
+		t = Add(b, b, c, bcLen);
+		b[bcLen] += t;
+		bcLen += 2*t;
+		assert(bcLen <= N);
 	}
 }
 
