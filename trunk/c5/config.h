@@ -341,7 +341,7 @@ NAMESPACE_END
 	#define CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
 #endif
 
-#define CRYPTOPP_VERSION 560
+#define CRYPTOPP_VERSION 561
 
 // ***************** determine availability of OS features ********************
 
