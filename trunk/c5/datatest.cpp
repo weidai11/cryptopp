@@ -57,9 +57,22 @@ const std::string & GetRequiredDatum(const TestData &data, const char *name)
 	return i->second;
 }
 
+void RandomizedTransfer(BufferedTransformation &source, BufferedTransformation &target, bool finish)
+{
+	while (source.MaxRetrievable() > (finish ? 0 : 4096))
+	{
+		byte buf[4096+64];
+		word32 start = GlobalRNG().GenerateWord32(0, 63);
+		word32 len = GlobalRNG().GenerateWord32(1, UnsignedMin(4096U, source.MaxRetrievable()));
+		source.Get(buf+start, len);
+		target.Put(buf+start, len);
+	}
+}
+
 void PutDecodedDatumInto(const TestData &data, const char *name, BufferedTransformation &target)
 {
 	std::string s1 = GetRequiredDatum(data, name), s2;
+	ByteQueue q;
 
 	while (!s1.empty())
 	{
@@ -67,7 +80,7 @@ void PutDecodedDatumInto(const TestData &data, const char *name, BufferedTransfo
 		{
 			s1 = s1.substr(1);
 			if (s1.empty())
-				return; //avoid invalid read if s1 is empty
+				goto end;	// avoid invalid read if s1 is empty
 		}
 
 		int repeat = 1;
@@ -95,14 +108,15 @@ void PutDecodedDatumInto(const TestData &data, const char *name, BufferedTransfo
 			s1 = s1.substr(STDMIN(s1.find(' '), s1.length()));
 		}
 
-		ByteQueue q;
 		while (repeat--)
 		{
 			q.Put((const byte *)s2.data(), s2.size());
-			if (q.MaxRetrievable() > 4*1024 || repeat == 0)
-				q.TransferTo(target);
+			RandomizedTransfer(q, target, false);
 		}
 	}
+
+end:
+	RandomizedTransfer(q, target, true);
 }
 
 std::string GetDecodedDatum(const TestData &data, const char *name)
