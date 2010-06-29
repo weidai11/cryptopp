@@ -9,6 +9,11 @@
 #include "zdeflate.h"
 #include <functional>
 
+#if _MSC_VER >= 1600
+// for make_unchecked_array_iterator
+#include <iterator>
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 using namespace std;
@@ -386,12 +391,16 @@ unsigned int Deflator::LongestMatch(unsigned int &bestMatch) const
 		{
 			assert(scan[2] == match[2]);
 			unsigned int len = (unsigned int)(
-#if defined(_STDEXT_BEGIN) && !(defined(_MSC_VER) && _MSC_VER < 1400) && !defined(_STLPORT_VERSION)
+#if defined(_STDEXT_BEGIN) && !(defined(_MSC_VER) && (_MSC_VER < 1400 || _MSC_VER >= 1600)) && !defined(_STLPORT_VERSION)
 				stdext::unchecked_mismatch
 #else
 				std::mismatch
 #endif
+#if _MSC_VER >= 1600
+				(stdext::make_unchecked_array_iterator(scan)+3, stdext::make_unchecked_array_iterator(scanEnd), stdext::make_unchecked_array_iterator(match)+3).first - stdext::make_unchecked_array_iterator(scan));
+#else
 				(scan+3, scanEnd, match+3).first - scan);
+#endif
 			assert(len != bestLength);
 			if (len > bestLength)
 			{
