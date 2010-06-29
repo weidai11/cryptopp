@@ -16,7 +16,6 @@
 #include "arc4.h"
 #include "rc5.h"
 #include "blowfish.h"
-#include "wake.h"
 #include "3way.h"
 #include "safer.h"
 #include "gost.h"
@@ -36,7 +35,6 @@
 #include "zdeflate.h"
 #include "cpu.h"
 
-#include <stdlib.h>
 #include <time.h>
 #include <memory>
 #include <iostream>
@@ -57,7 +55,6 @@ bool ValidateAll(bool thorough)
 	pass=ValidateMD2() && pass;
 	pass=ValidateMD5() && pass;
 	pass=ValidateSHA() && pass;
-	pass=ValidateSHA2() && pass;
 	pass=ValidateTiger() && pass;
 	pass=ValidateRIPEMD() && pass;
 	pass=ValidatePanama() && pass;
