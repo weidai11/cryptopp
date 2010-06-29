@@ -430,7 +430,7 @@ static void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 
 	#endif
 	: "memory", "cc", "%eax"
 	#if CRYPTOPP_BOOL_X64
-		, "%rbx", "%r8"
+		, "%rbx", "%r8", "%r10"
 	#endif
 	);
 #endif
