@@ -115,7 +115,7 @@ static word AtomicInverseModPower2(word A)
 	#elif defined(__DECCXX)
 		#define MultiplyWordsLoHi(p0, p1, a, b)		p0 = a*b; p1 = asm("umulh %a0, %a1, %v0", a, b);
 	#elif defined(__x86_64__)
-		#ifdef __SUNPRO_CC
+		#if defined(__SUNPRO_CC) && __SUNPRO_CC < 0x5100
 			// Sun Studio's gcc-style inline assembly is heavily bugged as of version 5.9 Patch 124864-09 2008/12/16, but this one works
 			#define MultiplyWordsLoHi(p0, p1, a, b)		asm ("mulq %3" : "=a"(p0), "=d"(p1) : "a"(a), "r"(b) : "cc");
 		#else

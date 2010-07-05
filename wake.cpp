@@ -16,22 +16,24 @@ void WAKE_TestInstantiations()
 inline word32 WAKE_Base::M(word32 x, word32 y)
 {
 	word32 w = x+y;
-	return (w>>8) ^ t[(byte)w];
+	return (w>>8) ^ t[w & 0xff];
 }
 
 void WAKE_Base::GenKey(word32 k0, word32 k1, word32 k2, word32 k3)
 {
-	long x, z;
-	int p ;
-	static long tt[10]= {
-		0x726a8f3bL,								 // table
-		0xe69a3b5cL,
-		0xd3c71fe5L,
-		0xab3c73d2L,
-		0x4d3a8eb3L,
-		0x0396d6e8L,
-		0x3d4c2f7aL,
-		0x9ee27cf3L, } ;
+	// this code is mostly copied from David Wheeler's paper "A Bulk Data Encryption Algorithm"
+	signed int x, z, p;	
+	// x and z were declared as "long" in Wheeler's paper, which is a signed type. I don't know if that was intentional, but it's too late to change it now. -- Wei 7/4/2010
+	CRYPTOPP_COMPILE_ASSERT(sizeof(x) == 4);
+	static int tt[10]= {
+		0x726a8f3b,								 // table
+		0xe69a3b5c,
+		0xd3c71fe5,
+		0xab3c73d2,
+		0x4d3a8eb3,
+		0x0396d6e8,
+		0x3d4c2f7a,
+		0x9ee27cf3, } ;
 	t[0] = k0;
 	t[1] = k1;
 	t[2] = k2;
@@ -39,16 +41,16 @@ void WAKE_Base::GenKey(word32 k0, word32 k1, word32 k2, word32 k3)
 	for (p=4 ; p<256 ; p++)
 	{
 	  x=t[p-4]+t[p-1] ; 					   // fill t
-	  t[p]= (x>>3) ^ tt[byte(x&7)] ;
+	  t[p]= (x>>3) ^ tt[x&7] ;
 	}
 
 	for (p=0 ; p<23 ; p++)
 		t[p]+=t[p+89] ; 		  // mix first entries
-	x=t[33] ; z=t[59] | 0x01000001L ;
-	z=z&0xff7fffffL ;
+	x=t[33] ; z=t[59] | 0x01000001 ;
+	z=z&0xff7fffff ;
 	for (p=0 ; p<256 ; p++) {		//change top byte to
-	  x=(x&0xff7fffffL)+z ; 		 // a permutation etc
-	  t[p]=(t[p] & 0x00ffffffL) ^ x ; }
+	  x=(x&0xff7fffff)+z ; 		 // a permutation etc
+	  t[p]=(t[p] & 0x00ffffff) ^ x ; }
 
 	t[256]=t[0] ;
 	byte y=byte(x);
