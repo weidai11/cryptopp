@@ -62,8 +62,14 @@ void XTEA::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, by
 	word32 y, z;
 	Block::Get(inBlock)(y)(z);
 
+#ifdef __SUNPRO_CC
+	// workaround needed on Sun Studio 12u1 Sun C++ 5.10 SunOS_i386 128229-02 2009/09/21
+	size_t sum = 0;
+	while ((sum&0xffffffff) != m_limit)
+#else
 	word32 sum = 0;
 	while (sum != m_limit)
+#endif
 	{   
 		y += (z<<4 ^ z>>5) + z ^ sum + m_k[sum&3];
 		sum += DELTA;
@@ -78,8 +84,14 @@ void XTEA::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, by
 	word32 y, z;
 	Block::Get(inBlock)(y)(z);
 
+#ifdef __SUNPRO_CC
+	// workaround needed on Sun Studio 12u1 Sun C++ 5.10 SunOS_i386 128229-02 2009/09/21
+	size_t sum = m_limit;
+	while ((sum&0xffffffff) != 0)
+#else
 	word32 sum = m_limit;
 	while (sum != 0)
+#endif
 	{
 		z -= (y<<4 ^ y>>5) + y ^ sum + m_k[sum>>11 & 3];
 		sum -= DELTA;

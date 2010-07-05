@@ -14,6 +14,11 @@
 #include <map>
 #include <vector>
 
+#ifdef __SUNPRO_CC
+// workaround needed on Sun Studio 12u1 Sun C++ 5.10 SunOS_i386 128229-02 2009/09/21
+#include <vector.cc>
+#endif
+
 // for alloca
 #ifdef __sun
 #include <alloca.h>

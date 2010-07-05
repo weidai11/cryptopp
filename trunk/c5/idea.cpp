@@ -129,7 +129,7 @@ static inline IDEA::Word AddInv(IDEA::Word x)
 void IDEA::Base::DeKey()
 {
 	FixedSizeSecBlock<IDEA::Word, 6*ROUNDS+4> tempkey;
-	unsigned int i;
+	size_t i;
 
 	for (i=0; i<ROUNDS; i++)
 	{

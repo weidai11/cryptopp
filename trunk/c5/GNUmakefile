@@ -31,7 +31,9 @@ GAS217_OR_LATER = $(shell echo "" | $(AS) -v 2>&1 | $(EGREP) -c "GNU assembler v
 ISMINGW = $(shell $(CXX) --version 2>&1 | $(EGREP) -c "mingw")
 
 ifneq ($(GCC42_OR_LATER),0)
-ifneq ($(UNAME),Darwin)
+ifeq ($(UNAME),Darwin)
+CXXFLAGS += -arch x86_64 -arch i386
+else
 CXXFLAGS += -march=native -mtune=native
 endif
 endif
@@ -86,6 +88,9 @@ LDLIBS += -lnsl -lsocket
 ifeq ($(CXX),CC)	# override flags for CC (Solaris native C++ compiler)
 CXXFLAGS = -DNDEBUG -O -g0 -native -template=no%extdef -m$(shell isainfo -b)
 LDFLAGS =
+AR = CC
+ARFLAGS = -xar -o
+RANLIB = true
 ifeq ($(ISX86),1)
 # SSE2 intrinsics should work in Sun Studio 12, but we're not using SSE2 intrinsics anymore
 # CXXFLAGS += -xarch=sse2 -D__SSE2__

@@ -130,7 +130,10 @@ bool TestSettings()
 
 	cout << "\nTesting Settings...\n\n";
 
-	if (*(word32 *)"\x01\x02\x03\x04" == 0x04030201L)
+	word32 w;
+	memcpy_s(&w, sizeof(w), "\x01\x02\x03\x04", 4);
+
+	if (w == 0x04030201L)
 	{
 #ifdef IS_LITTLE_ENDIAN
 		cout << "passed:  ";
@@ -140,7 +143,7 @@ bool TestSettings()
 #endif
 		cout << "Your machine is little endian.\n";
 	}
-	else if (*(word32 *)"\x01\x02\x03\x04" == 0x01020304L)
+	else if (w == 0x01020304L)
 	{
 #ifndef IS_LITTLE_ENDIAN
 		cout << "passed:  ";
