@@ -86,7 +86,9 @@ endif
 ifeq ($(UNAME),SunOS)
 LDLIBS += -lnsl -lsocket
 ifeq ($(CXX),CC)	# override flags for CC (Solaris native C++ compiler)
-CXXFLAGS = -DNDEBUG -O -g0 -native -template=no%extdef -m$(shell isainfo -b)
+# -DCRYPTOPP_INCLUDE_STD_CC is needed for Sun Studio 12u1 Sun C++ 5.10 SunOS_i386 128229-02 2009/09/21
+# remove it if you get "already had a body defined" errors in vector.cc
+CXXFLAGS = -DNDEBUG -O -g0 -native -template=no%extdef -DCRYPTOPP_INCLUDE_STD_CC -m$(shell isainfo -b)
 LDFLAGS =
 AR = CC
 ARFLAGS = -xar -o
