@@ -7,8 +7,6 @@ NAMESPACE_BEGIN(CryptoPP)
 
 void WAKE_TestInstantiations()
 {
-	Weak::WAKE_CFB<>::Encryption x1;
-	Weak::WAKE_CFB<>::Decryption x3;
 	WAKE_OFB<>::Encryption x2;
 	WAKE_OFB<>::Decryption x4;
 }
@@ -65,22 +63,6 @@ void WAKE_Policy<B>::CipherSetKey(const NameValuePairs &params, const byte *key,
 	word32 k0, k1, k2, k3;
 	BlockGetAndPut<word32, BigEndian>::Get(key)(r3)(r4)(r5)(r6)(k0)(k1)(k2)(k3);
 	GenKey(k0, k1, k2, k3);
-}
-
-// CFB
-template <class B>
-void WAKE_Policy<B>::Iterate(byte *output, const byte *input, CipherDir dir, size_t iterationCount)
-{
-	RegisterOutput<B> registerOutput(output, input, dir);
-
-	while (iterationCount--)
-	{
-		r3 = M(r3, ConditionalByteReverse(B::ToEnum(), r6));
-		r4 = M(r4, r3);
-		r5 = M(r5, r4);
-		r6 = M(r6, r5);
-		registerOutput(r6);
-	}
 }
 
 // OFB

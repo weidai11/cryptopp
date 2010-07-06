@@ -112,8 +112,6 @@ void RegisterFactories()
 	RegisterSymmetricCipherDefaultFactories<Weak::MARC4>();
 	RegisterSymmetricCipherDefaultFactories<WAKE_OFB<LittleEndian> >();
 	RegisterSymmetricCipherDefaultFactories<WAKE_OFB<BigEndian> >();
-	RegisterSymmetricCipherDefaultFactories<Weak::WAKE_CFB<LittleEndian> >();
-	RegisterSymmetricCipherDefaultFactories<Weak::WAKE_CFB<BigEndian> >();
 	RegisterSymmetricCipherDefaultFactories<SEAL<LittleEndian> >();
 	RegisterAuthenticatedSymmetricCipherDefaultFactories<CCM<AES> >();
 	RegisterAuthenticatedSymmetricCipherDefaultFactories<GCM<AES> >();
