@@ -155,6 +155,12 @@ inline void memmove_s(void *dest, size_t sizeInBytes, const void *src, size_t co
 		throw InvalidArgument("memmove_s: buffer overflow");
 	memmove(dest, src, count);
 }
+
+#if __BORLANDC__ >= 0x620
+// C++Builder 2010 workaround: can't use std::memcpy_s because it doesn't allow 0 lengths
+#define memcpy_s CryptoPP::memcpy_s
+#define memmove_s CryptoPP::memmove_s
+#endif
 #endif
 
 inline void * memset_z(void *ptr, int value, size_t num)
