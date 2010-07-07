@@ -145,7 +145,7 @@ static bool TrySSE2()
 }
 
 bool g_x86DetectionDone = false;
-bool g_hasISSE = false, g_hasSSE2 = false, g_hasSSSE3 = false, g_hasMMX = false, g_isP4 = false;
+bool g_hasISSE = false, g_hasSSE2 = false, g_hasSSSE3 = false, g_hasMMX = false, g_hasAESNI = false, g_hasCLMUL = false, g_isP4 = false;
 word32 g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
 
 void DetectX86Features()
@@ -160,6 +160,8 @@ void DetectX86Features()
 	if ((cpuid1[3] & (1 << 26)) != 0)
 		g_hasSSE2 = TrySSE2();
 	g_hasSSSE3 = g_hasSSE2 && (cpuid1[2] & (1<<9));
+	g_hasAESNI = (cpuid1[2] & (1<<25)) != 0;
+	g_hasCLMUL = (cpuid1[2] & (1<<1)) != 0;
 
 	if ((cpuid1[3] & (1 << 25)) != 0)
 		g_hasISSE = true;
