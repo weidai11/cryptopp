@@ -3,7 +3,6 @@
 #endif
 
 #include "dll.h"
-#include <iostream>
 
 USING_NAMESPACE(CryptoPP)
 USING_NAMESPACE(std)
