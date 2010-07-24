@@ -74,6 +74,7 @@ being unloaded from L1 cache, until that round is finished.
 #include "cpu.h"
 
 #if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
+#include <smmintrin.h>
 #include <wmmintrin.h>
 #endif
 
