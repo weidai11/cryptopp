@@ -18,22 +18,18 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#if defined(CRYPTOPP_X86_ASM_AVAILABLE) || (_MSC_VER >= 1400 && CRYPTOPP_BOOL_X64)
+#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X64
 
 #define CRYPTOPP_CPUID_AVAILABLE
 
 // these should not be used directly
 extern CRYPTOPP_DLL bool g_x86DetectionDone;
-extern CRYPTOPP_DLL bool g_hasSSE2;
-extern CRYPTOPP_DLL bool g_hasISSE;
-extern CRYPTOPP_DLL bool g_hasMMX;
 extern CRYPTOPP_DLL bool g_hasSSSE3;
 extern CRYPTOPP_DLL bool g_hasAESNI;
 extern CRYPTOPP_DLL bool g_hasCLMUL;
 extern CRYPTOPP_DLL bool g_isP4;
 extern CRYPTOPP_DLL word32 g_cacheLineSize;
 CRYPTOPP_DLL void CRYPTOPP_API DetectX86Features();
-
 CRYPTOPP_DLL bool CRYPTOPP_API CpuId(word32 input, word32 *output);
 
 #if CRYPTOPP_BOOL_X64
@@ -41,6 +37,10 @@ inline bool HasSSE2()	{return true;}
 inline bool HasISSE()	{return true;}
 inline bool HasMMX()	{return true;}
 #else
+
+extern CRYPTOPP_DLL bool g_hasSSE2;
+extern CRYPTOPP_DLL bool g_hasISSE;
+extern CRYPTOPP_DLL bool g_hasMMX;
 
 inline bool HasSSE2()
 {
@@ -107,21 +107,7 @@ inline int GetCacheLineSize()
 	return CRYPTOPP_L1_CACHE_LINE_SIZE;
 }
 
-inline bool HasSSSE3()	{return false;}
-inline bool IsP4()		{return false;}
-
-// assume MMX and SSE2 if intrinsics are enabled
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE || CRYPTOPP_BOOL_X64
-inline bool HasSSE2()	{return true;}
-inline bool HasISSE()	{return true;}
-inline bool HasMMX()	{return true;}
-#else
-inline bool HasSSE2()	{return false;}
-inline bool HasISSE()	{return false;}
-inline bool HasMMX()	{return false;}
 #endif
-
-#endif		// #ifdef CRYPTOPP_X86_ASM_AVAILABLE || _MSC_VER >= 1400
 
 #endif
 
@@ -134,7 +120,19 @@ inline bool HasMMX()	{return false;}
 	#define ASJ(x, y, z) x label##y*newline*
 	#define ASC(x, y) x label##y*newline*
 	#define AS_HEX(y) 0##y##h
-#elif defined(__GNUC__)
+#elif defined(_MSC_VER) || defined(__BORLANDC__)
+	#define CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
+	#define AS1(x) __asm {x}
+	#define AS2(x, y) __asm {x, y}
+	#define AS3(x, y, z) __asm {x, y, z}
+	#define ASS(x, y, a, b, c, d) __asm {x, y, (a)*64+(b)*16+(c)*4+(d)}
+	#define ASL(x) __asm {label##x:}
+	#define ASJ(x, y, z) __asm {x label##y}
+	#define ASC(x, y) __asm {x label##y}
+	#define CRYPTOPP_NAKED __declspec(naked)
+	#define AS_HEX(y) 0x##y
+#else
+	#define CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
 	// define these in two steps to allow arguments to be expanded
 	#define GNU_AS1(x) #x ";"
 	#define GNU_AS2(x, y) #x ", " #y ";"
@@ -149,16 +147,6 @@ inline bool HasMMX()	{return false;}
 	#define ASJ(x, y, z) GNU_ASJ(x, y, z)
 	#define ASC(x, y) #x " " #y ";"
 	#define CRYPTOPP_NAKED
-	#define AS_HEX(y) 0x##y
-#else
-	#define AS1(x) __asm {x}
-	#define AS2(x, y) __asm {x, y}
-	#define AS3(x, y, z) __asm {x, y, z}
-	#define ASS(x, y, a, b, c, d) __asm {x, y, _MM_SHUFFLE(a, b, c, d)}
-	#define ASL(x) __asm {label##x:}
-	#define ASJ(x, y, z) __asm {x label##y}
-	#define ASC(x, y) __asm {x label##y}
-	#define CRYPTOPP_NAKED __declspec(naked)
 	#define AS_HEX(y) 0x##y
 #endif
 

@@ -63,6 +63,7 @@ protected:
 	byte *HashBuffer() {return m_buffer+REQUIRED_BLOCKSIZE;}
 	byte *HashKey() {return m_buffer+2*REQUIRED_BLOCKSIZE;}
 	byte *MulTable() {return m_buffer+3*REQUIRED_BLOCKSIZE;}
+	inline void ReverseHashBufferIfNeeded();
 
 	class CRYPTOPP_DLL GCTR : public CTR_Mode_ExternalCipher::Encryption
 	{

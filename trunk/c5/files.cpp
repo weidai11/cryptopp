@@ -95,7 +95,7 @@ size_t FileStore::TransferTo2(BufferedTransformation &target, lword &transferByt
 
 		m_stream->read((char *)m_space, (unsigned int)STDMIN(size, (lword)spaceSize));
 		}
-		m_len = m_stream->gcount();
+		m_len = (size_t)m_stream->gcount();
 		size_t blockedBytes;
 output:
 		blockedBytes = target.ChannelPutModifiable2(channel, m_space, m_len, 0, blocking);
@@ -242,7 +242,7 @@ size_t FileSink::Put2(const byte *inString, size_t length, int messageEnd, bool 
 			size = numeric_limits<std::streamsize>::max();
 		m_stream->write((const char *)inString, size);
 		inString += size;
-		length -= size;
+		length -= (size_t)size;
 	}
 
 	if (messageEnd)

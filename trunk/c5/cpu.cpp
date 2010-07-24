@@ -8,7 +8,7 @@
 #include "misc.h"
 #include <algorithm>
 
-#ifdef __GNUC__
+#ifndef CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
 #include <signal.h>
 #include <setjmp.h>
 #endif
@@ -19,9 +19,19 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#ifdef CRYPTOPP_X86_ASM_AVAILABLE
+#ifdef CRYPTOPP_CPUID_AVAILABLE
 
-#ifndef _MSC_VER
+#if _MSC_VER >= 1400 && CRYPTOPP_BOOL_X64
+
+bool CpuId(word32 input, word32 *output)
+{
+	__cpuid((int *)output, input);
+	return true;
+}
+
+#else
+
+#ifndef CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
 typedef void (*SigHandler)(int);
 
 static jmp_buf s_jmpNoCPUID;
@@ -29,11 +39,17 @@ static void SigIllHandlerCPUID(int)
 {
 	longjmp(s_jmpNoCPUID, 1);
 }
+
+static jmp_buf s_jmpNoSSE2;
+static void SigIllHandlerSSE2(int)
+{
+	longjmp(s_jmpNoSSE2, 1);
+}
 #endif
 
 bool CpuId(word32 input, word32 *output)
 {
-#ifdef _MSC_VER
+#ifdef CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
     __try
 	{
 		__asm
@@ -80,31 +96,13 @@ bool CpuId(word32 input, word32 *output)
 #endif
 }
 
-#ifndef _MSC_VER
-static jmp_buf s_jmpNoSSE2;
-static void SigIllHandlerSSE2(int)
-{
-	longjmp(s_jmpNoSSE2, 1);
-}
 #endif
-
-#elif _MSC_VER >= 1400 && CRYPTOPP_BOOL_X64
-
-bool CpuId(word32 input, word32 *output)
-{
-	__cpuid((int *)output, input);
-	return true;
-}
-
-#endif
-
-#ifdef CRYPTOPP_CPUID_AVAILABLE
 
 static bool TrySSE2()
 {
 #if CRYPTOPP_BOOL_X64
 	return true;
-#elif defined(_MSC_VER)
+#elif defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
     __try
 	{
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
@@ -119,7 +117,7 @@ static bool TrySSE2()
 		return false;
     }
 	return true;
-#elif defined(__GNUC__)
+#else
 	SigHandler oldHandler = signal(SIGILL, SigIllHandlerSSE2);
 	if (oldHandler == SIG_ERR)
 		return false;
@@ -139,8 +137,6 @@ static bool TrySSE2()
 
 	signal(SIGILL, oldHandler);
 	return result;
-#else
-	return false;
 #endif
 }
 
@@ -160,8 +156,8 @@ void DetectX86Features()
 	if ((cpuid1[3] & (1 << 26)) != 0)
 		g_hasSSE2 = TrySSE2();
 	g_hasSSSE3 = g_hasSSE2 && (cpuid1[2] & (1<<9));
-	g_hasAESNI = (cpuid1[2] & (1<<25)) != 0;
-	g_hasCLMUL = (cpuid1[2] & (1<<1)) != 0;
+	g_hasAESNI = g_hasSSE2 && (cpuid1[2] & (1<<25));
+	g_hasCLMUL = g_hasSSE2 && (cpuid1[2] & (1<<1));
 
 	if ((cpuid1[3] & (1 << 25)) != 0)
 		g_hasISSE = true;

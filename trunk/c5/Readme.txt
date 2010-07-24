@@ -414,19 +414,30 @@ the mailing list.
       - ported to MSVC 2008, GCC 4.2, Sun CC 5.9, Intel C++ Compiler 10.0, 
         and Borland C++Builder 2007
 
-5.6 - added AuthenticatedSymmetricCipher interface class and Filter wrappers
-    - added CCM, GCM (with SSE2 assembly), EAX, CMAC, XSalsa20, and SEED
-    - added support for variable length IVs
-    - added OIDs for Brainpool elliptic curve parameters
-    - improved AES and SHA-256 speed on x86 and x64
-    - fixed incorrect VMAC computation on message lengths 
-      that are >64 mod 128 (x86 assembly version is not affected)
-    - fixed compiler error in vmac.cpp on x86 with GCC -fPIC
-    - fixed run-time validation error on x86-64 with GCC 4.3.2 -O2
-    - fixed HashFilter bug when putMessage=true
-    - removed WORD64_AVAILABLE; compiler support for 64-bit int is now required
-    - ported to GCC 4.3, C++Builder 2009, Sun CC 5.10, Intel C++ Compiler 11
-    
-5.6.1 - switched to a public domain implementation of MARS
+5.6.0 - added AuthenticatedSymmetricCipher interface class and Filter wrappers
+      - added CCM, GCM (with SSE2 assembly), EAX, CMAC, XSalsa20, and SEED
+      - added support for variable length IVs
+      - added OIDs for Brainpool elliptic curve parameters
+      - improved AES and SHA-256 speed on x86 and x64
+      - changed BlockTransformation interface to no longer assume data alignment
+      - fixed incorrect VMAC computation on message lengths 
+        that are >64 mod 128 (x86 assembly version is not affected)
+      - fixed compiler error in vmac.cpp on x86 with GCC -fPIC
+      - fixed run-time validation error on x86-64 with GCC 4.3.2 -O2
+      - fixed HashFilter bug when putMessage=true
+      - fixed AES-CTR data alignment bug that causes incorrect encryption on ARM
+      - removed WORD64_AVAILABLE; compiler support for 64-bit int is now required
+      - ported to GCC 4.3, C++Builder 2009, Sun CC 5.10, Intel C++ Compiler 11
+
+5.6.1 - added support for AES-NI and CLMUL instruction sets in AES and GMAC/GCM
+      - removed WAKE-CFB
+      - fixed several bugs in the SHA-256 x86/x64 assembly code:
+          * incorrect hash on non-SSE2 x86 machines on non-aligned input
+          * incorrect hash on x86 machines when input crosses 0x80000000
+          * incorrect hash on x64 when compiled with GCC with optimizations enabled
+      - fixed bugs in AES x86 and x64 assembly causing crashes in some MSVC build configurations
+      - switched to a public domain implementation of MARS
+      - ported to MSVC 2010, Sun Studio 12u1
+      - renamed the MSVC DLL project to "cryptopp" for compatibility with MSVC 2010
 
 Written by Wei Dai
