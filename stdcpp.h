@@ -1,6 +1,11 @@
 #ifndef CRYPTOPP_STDCPP_H
 #define CRYPTOPP_STDCPP_H
 
+#if _MSC_VER >= 1500
+#define _DO_NOT_DECLARE_INTERLOCKED_INTRINSICS_IN_MEMORY
+#include <intrin.h>
+#endif
+
 #include <stddef.h>
 #include <assert.h>
 #include <limits.h>
@@ -22,7 +27,7 @@
 // for alloca
 #ifdef __sun
 #include <alloca.h>
-#elif defined(__MINGW32__)
+#elif defined(__MINGW32__) || defined(__BORLANDC__)
 #include <malloc.h>
 #endif
 
