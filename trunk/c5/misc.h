@@ -567,6 +567,14 @@ static std::string StringNarrow(const wchar_t *str, bool throwOnError = true)
 #endif
 }
 
+#if CRYPTOPP_BOOL_ALIGN16_ENABLED
+CRYPTOPP_DLL void * CRYPTOPP_API AlignedAllocate(size_t size);
+CRYPTOPP_DLL void CRYPTOPP_API AlignedDeallocate(void *p);
+#endif
+
+CRYPTOPP_DLL void * CRYPTOPP_API UnalignedAllocate(size_t size);
+CRYPTOPP_DLL void CRYPTOPP_API UnalignedDeallocate(void *p);
+
 // ************** rotate functions ***************
 
 template <class T> inline T rotlFixed(T x, unsigned int y)
