@@ -8,6 +8,10 @@
 #include "words.h"
 #include <new>
 
+#if defined(CRYPTOPP_MEMALIGN_AVAILABLE) || defined(CRYPTOPP_MM_MALLOC_AVAILABLE) || defined(QNX)
+#include <malloc.h>
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 void xorbuf(byte *buf, const byte *mask, size_t count)
