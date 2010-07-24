@@ -125,6 +125,59 @@ void CallNewHandler()
 		throw std::bad_alloc();
 }
 
+#if CRYPTOPP_BOOL_ALIGN16_ENABLED
+
+void * AlignedAllocate(size_t size)
+{
+	byte *p;
+#ifdef CRYPTOPP_MM_MALLOC_AVAILABLE
+	while (!(p = (byte *)_mm_malloc(size, 16)))
+#elif defined(CRYPTOPP_MEMALIGN_AVAILABLE)
+	while (!(p = (byte *)memalign(16, size)))
+#elif defined(CRYPTOPP_MALLOC_ALIGNMENT_IS_16)
+	while (!(p = (byte *)malloc(size)))
+#else
+	while (!(p = (byte *)malloc(size + 16)))
+#endif
+		CallNewHandler();
+
+#ifdef CRYPTOPP_NO_ALIGNED_ALLOC
+	size_t adjustment = 16-((size_t)p%16);
+	p += adjustment;
+	p[-1] = (byte)adjustment;
+#endif
+
+	assert(IsAlignedOn(p, 16));
+	return p;
+}
+
+void AlignedDeallocate(void *p)
+{
+#ifdef CRYPTOPP_MM_MALLOC_AVAILABLE
+	_mm_free(p);
+#elif defined(CRYPTOPP_NO_ALIGNED_ALLOC)
+	p = (byte *)p - ((byte *)p)[-1];
+	free(p);
+#else
+	free(p);
+#endif
+}
+
+#endif
+
+void * UnalignedAllocate(size_t size)
+{
+	void *p;
+	while (!(p = malloc(size)))
+		CallNewHandler();
+	return p;
+}
+
+void UnalignedDeallocate(void *p)
+{
+	free(p);
+}
+
 NAMESPACE_END
 
 #endif

@@ -96,54 +96,24 @@ public:
 		if (n == 0)
 			return NULL;
 
-		if (CRYPTOPP_BOOL_ALIGN16_ENABLED && T_Align16 && n*sizeof(T) >= 16)
-		{
-			byte *p;
-		#ifdef CRYPTOPP_MM_MALLOC_AVAILABLE
-			while (!(p = (byte *)_mm_malloc(sizeof(T)*n, 16)))
-		#elif defined(CRYPTOPP_MEMALIGN_AVAILABLE)
-			while (!(p = (byte *)memalign(16, sizeof(T)*n)))
-		#elif defined(CRYPTOPP_MALLOC_ALIGNMENT_IS_16)
-			while (!(p = (byte *)malloc(sizeof(T)*n)))
-		#else
-			while (!(p = (byte *)malloc(sizeof(T)*n + 16)))
-		#endif
-				CallNewHandler();
+#if CRYPTOPP_BOOL_ALIGN16_ENABLED
+		if (T_Align16 && n*sizeof(T) >= 16)
+			return (pointer)AlignedAllocate(n*sizeof(T));
+#endif
 
-		#ifdef CRYPTOPP_NO_ALIGNED_ALLOC
-			size_t adjustment = 16-((size_t)p%16);
-			p += adjustment;
-			p[-1] = (byte)adjustment;
-		#endif
-
-			assert(IsAlignedOn(p, 16));
-			return (pointer)p;
-		}
-
-		pointer p;
-		while (!(p = (pointer)malloc(sizeof(T)*n)))
-			CallNewHandler();
-		return p;
+		return (pointer)UnalignedAllocate(n*sizeof(T));
 	}
 
 	void deallocate(void *p, size_type n)
 	{
 		SecureWipeArray((pointer)p, n);
 
-		if (CRYPTOPP_BOOL_ALIGN16_ENABLED && T_Align16 && n*sizeof(T) >= 16)
-		{
-		#ifdef CRYPTOPP_MM_MALLOC_AVAILABLE
-			_mm_free(p);
-		#elif defined(CRYPTOPP_NO_ALIGNED_ALLOC)
-			p = (byte *)p - ((byte *)p)[-1];
-			free(p);
-		#else
-			free(p);
-		#endif
-			return;
-		}
+#if CRYPTOPP_BOOL_ALIGN16_ENABLED
+		if (T_Align16 && n*sizeof(T) >= 16)
+			return AlignedDeallocate(p);
+#endif
 
-		free(p);
+		UnalignedDeallocate(p);
 	}
 
 	pointer reallocate(T *p, size_type oldSize, size_type newSize, bool preserve)
