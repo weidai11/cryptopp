@@ -14,6 +14,11 @@
 #include <emmintrin.h>
 #endif
 
+#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
+#include <tmmintrin.h>
+#include <wmmintrin.h>
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 word16 GCM_Base::s_reductionTable[256];
@@ -47,6 +52,21 @@ void gcm_gf_mult(const unsigned char *a, const unsigned char *b, unsigned char *
 	}
 	Block::Put(NULL, c)(Z0)(Z1);
 }
+
+__m128i _mm_clmulepi64_si128(const __m128i &a, const __m128i &b, int i)
+{
+	word64 A[1] = {ByteReverse(((word64*)&a)[i&1])};
+	word64 B[1] = {ByteReverse(((word64*)&b)[i>>4])};
+
+	PolynomialMod2 pa((byte *)A, 8);
+	PolynomialMod2 pb((byte *)B, 8);
+	PolynomialMod2 c = pa*pb;
+
+	__m128i output;
+	for (int i=0; i<16; i++)
+		((byte *)&output)[i] = c.GetByte(i);
+	return output;
+}
 #endif
 
 #if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE || CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
@@ -66,6 +86,56 @@ inline static void Xor16(byte *a, const byte *b, const byte *c)
 	((word64 *)a)[1] = ((word64 *)b)[1] ^ ((word64 *)c)[1];
 }
 
+#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
+static CRYPTOPP_ALIGN_DATA(16) const word64 s_clmulConstants64[] = {
+	0xe100000000000000, 0xc200000000000000,
+	0x08090a0b0c0d0e0f, 0x0001020304050607,
+	0x0001020304050607, 0x08090a0b0c0d0e0f};
+static const __m128i *s_clmulConstants = (const __m128i *)s_clmulConstants64;
+static const unsigned int s_clmulTableSizeInBlocks = 8;
+
+inline __m128i CLMUL_Reduce(__m128i c0, __m128i c1, __m128i c2, const __m128i &r)
+{
+	/* 
+	The polynomial to be reduced is c0 * x^128 + c1 * x^64 + c2. c0t below refers to the most 
+	significant half of c0 as a polynomial, which, due to GCM's bit reflection, are in the
+	rightmost bit positions, and the lowest byte addresses.
+
+	c1 ^= c0t * 0xc200000000000000
+	c2t ^= c0t
+	t = shift (c1t ^ c0b) left 1 bit
+	c2 ^= t * 0xe100000000000000
+	c2t ^= c1b
+	shift c2 left 1 bit and xor in lowest bit of c1t
+	*/
+#if 0	// MSVC 2010 workaround: see http://connect.microsoft.com/VisualStudio/feedback/details/575301
+	c2 = _mm_xor_si128(c2, _mm_move_epi64(c0));
+#else
+	c1 = _mm_xor_si128(c1, _mm_slli_si128(c0, 8));
+#endif
+	c1 = _mm_xor_si128(c1, _mm_clmulepi64_si128(c0, r, 0x10));
+	c0 = _mm_srli_si128(c0, 8);
+	c0 = _mm_xor_si128(c0, c1);
+	c0 = _mm_slli_epi64(c0, 1);
+	c0 = _mm_clmulepi64_si128(c0, r, 0);
+	c2 = _mm_xor_si128(c2, c0);
+	c2 = _mm_xor_si128(c2, _mm_srli_si128(c1, 8));
+	c1 = _mm_unpacklo_epi64(c1, c2);
+	c1 = _mm_srli_epi64(c1, 63);
+	c2 = _mm_slli_epi64(c2, 1);
+	return _mm_xor_si128(c2, c1);
+}
+
+inline __m128i CLMUL_GF_Mul(const __m128i &x, const __m128i &h, const __m128i &r)
+{
+	__m128i c0 = _mm_clmulepi64_si128(x,h,0);
+	__m128i c1 = _mm_xor_si128(_mm_clmulepi64_si128(x,h,1), _mm_clmulepi64_si128(x,h,0x10));
+	__m128i c2 = _mm_clmulepi64_si128(x,h,0x11);
+
+	return CLMUL_Reduce(c0, c1, c2, r);
+}
+#endif
+
 void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const NameValuePairs &params)
 {
 	BlockCipher &blockCipher = AccessBlockCipher();
@@ -74,26 +144,56 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
 	if (blockCipher.BlockSize() != REQUIRED_BLOCKSIZE)
 		throw InvalidArgument(AlgorithmName() + ": block size of underlying block cipher is not 16");
 
-	int tableSize;
-	if (params.GetIntValue(Name::TableSize(), tableSize))
-		tableSize = (tableSize >= 64*1024) ? 64*1024 : 2*1024;
+	int tableSize, i, j, k;
+
+#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
+	if (HasCLMUL())
+	{
+		params.GetIntValue(Name::TableSize(), tableSize);	// avoid "parameter not used" error
+		tableSize = s_clmulTableSizeInBlocks * REQUIRED_BLOCKSIZE;
+	}
 	else
-		tableSize = (GetTablesOption() == GCM_64K_Tables) ? 64*1024 : 2*1024;
+#endif
+	{
+		if (params.GetIntValue(Name::TableSize(), tableSize))
+			tableSize = (tableSize >= 64*1024) ? 64*1024 : 2*1024;
+		else
+			tableSize = (GetTablesOption() == GCM_64K_Tables) ? 64*1024 : 2*1024;
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1300 && _MSC_VER < 1400)
-	// VC 2003 workaround: compiler generates bad code for 64K tables
-	tableSize = 2*1024;
+		// VC 2003 workaround: compiler generates bad code for 64K tables
+		tableSize = 2*1024;
 #endif
+	}
 
 	m_buffer.resize(3*REQUIRED_BLOCKSIZE + tableSize);
+	byte *table = MulTable();
 	byte *hashKey = HashKey();
 	memset(hashKey, 0, REQUIRED_BLOCKSIZE);
 	blockCipher.ProcessBlock(hashKey);
 
-	byte *table = MulTable();
-	int i, j, k;
-	word64 V0, V1;
+#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
+	if (HasCLMUL())
+	{
+		const __m128i r = s_clmulConstants[0];
+		__m128i h0 = _mm_shuffle_epi8(_mm_load_si128((__m128i *)hashKey), s_clmulConstants[1]);
+		__m128i h = h0;
 
+		for (i=0; i<tableSize; i+=32)
+		{
+			__m128i h1 = CLMUL_GF_Mul(h, h0, r);
+			_mm_storel_epi64((__m128i *)(table+i), h);
+			_mm_storeu_si128((__m128i *)(table+i+16), h1);
+			_mm_storeu_si128((__m128i *)(table+i+8), h);
+			_mm_storel_epi64((__m128i *)(table+i+8), h1);
+			h = CLMUL_GF_Mul(h1, h0, r);
+		}
+
+		return;
+	}
+#endif
+
+	word64 V0, V1;
 	typedef BlockGetAndPut<word64, BigEndian> Block;
 	Block::Get(hashKey)(V0)(V1);
 
@@ -178,6 +278,17 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
 	}
 }
 
+inline void GCM_Base::ReverseHashBufferIfNeeded()
+{
+#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
+	if (HasCLMUL())
+	{
+		__m128i &x = *(__m128i *)HashBuffer();
+		x = _mm_shuffle_epi8(x, s_clmulConstants[1]);
+	}
+#endif
+}
+
 void GCM_Base::Resync(const byte *iv, size_t len)
 {
 	BlockCipher &cipher = AccessBlockCipher();
@@ -209,6 +320,8 @@ void GCM_Base::Resync(const byte *iv, size_t len)
 
 		PutBlock<word64, BigEndian, true>(NULL, m_buffer)(0)(origLen*8);
 		GCM_Base::AuthenticateBlocks(m_buffer, HASH_BLOCKSIZE);
+
+		ReverseHashBufferIfNeeded();
 	}
 
 	if (m_state >= State_IVSet)
@@ -241,6 +354,73 @@ void GCM_AuthenticateBlocks_64K(const byte *data, size_t blocks, word64 *hashBuf
 
 size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 {
+#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
+	if (HasCLMUL())
+	{
+		const __m128i *table = (const __m128i *)MulTable();
+		__m128i x = _mm_load_si128((__m128i *)HashBuffer());
+		const __m128i r = s_clmulConstants[0], bswapMask = s_clmulConstants[1], bswapMask2 = s_clmulConstants[2];
+
+		while (len >= 16)
+		{
+			size_t s = UnsignedMin(len/16, s_clmulTableSizeInBlocks), i=0;
+			__m128i d, d2 = _mm_shuffle_epi8(_mm_loadu_si128((const __m128i *)(data+(s-1)*16)), bswapMask2);;
+			__m128i c0 = _mm_setzero_si128();
+			__m128i c1 = _mm_setzero_si128();
+			__m128i c2 = _mm_setzero_si128();
+
+			while (true)
+			{
+				__m128i h0 = _mm_load_si128(table+i);
+				__m128i h1 = _mm_load_si128(table+i+1);
+				__m128i h01 = _mm_xor_si128(h0, h1);
+
+				if (++i == s)
+				{
+					d = _mm_shuffle_epi8(_mm_loadu_si128((const __m128i *)data), bswapMask);
+					d = _mm_xor_si128(d, x);
+					c0 = _mm_xor_si128(c0, _mm_clmulepi64_si128(d, h0, 0));
+					c2 = _mm_xor_si128(c2, _mm_clmulepi64_si128(d, h1, 1));
+					d = _mm_xor_si128(d, _mm_shuffle_epi32(d, _MM_SHUFFLE(1, 0, 3, 2)));
+					c1 = _mm_xor_si128(c1, _mm_clmulepi64_si128(d, h01, 0));
+					break;
+				}
+
+				d = _mm_shuffle_epi8(_mm_loadu_si128((const __m128i *)(data+(s-i)*16-8)), bswapMask2);
+				c0 = _mm_xor_si128(c0, _mm_clmulepi64_si128(d2, h0, 1));
+				c2 = _mm_xor_si128(c2, _mm_clmulepi64_si128(d, h1, 1));
+				d2 = _mm_xor_si128(d2, d);
+				c1 = _mm_xor_si128(c1, _mm_clmulepi64_si128(d2, h01, 1));
+
+				if (++i == s)
+				{
+					d = _mm_shuffle_epi8(_mm_loadu_si128((const __m128i *)data), bswapMask);
+					d = _mm_xor_si128(d, x);
+					c0 = _mm_xor_si128(c0, _mm_clmulepi64_si128(d, h0, 0x10));
+					c2 = _mm_xor_si128(c2, _mm_clmulepi64_si128(d, h1, 0x11));
+					d = _mm_xor_si128(d, _mm_shuffle_epi32(d, _MM_SHUFFLE(1, 0, 3, 2)));
+					c1 = _mm_xor_si128(c1, _mm_clmulepi64_si128(d, h01, 0x10));
+					break;
+				}
+
+				d2 = _mm_shuffle_epi8(_mm_loadu_si128((const __m128i *)(data+(s-i)*16-8)), bswapMask);
+				c0 = _mm_xor_si128(c0, _mm_clmulepi64_si128(d, h0, 0x10));
+				c2 = _mm_xor_si128(c2, _mm_clmulepi64_si128(d2, h1, 0x10));
+				d = _mm_xor_si128(d, d2);
+				c1 = _mm_xor_si128(c1, _mm_clmulepi64_si128(d, h01, 0x10));
+			}
+			data += s*16;
+			len -= s*16;
+
+			c1 = _mm_xor_si128(_mm_xor_si128(c1, c0), c2);
+			x = CLMUL_Reduce(c0, c1, c2, r);
+		}
+
+		_mm_store_si128((__m128i *)HashBuffer(), x);
+		return len;
+	}
+#endif
+
 	typedef BlockGetAndPut<word64, NativeByteOrder> Block;
 	word64 *hashBuffer = (word64 *)HashBuffer();
 
@@ -414,9 +594,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 			AS2(	shr		WORD_REG(dx), 4				)
 		#endif
 
-		#if !defined(_MSC_VER) || (_MSC_VER < 1400)
-			AS_PUSH_IF86(	bx)
-		#endif
+		AS_PUSH_IF86(	bx)
 		AS_PUSH_IF86(	bp)
 
 		#ifdef __GNUC__
@@ -524,9 +702,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 		AS2(	movdqa	[WORD_REG(si)], xmm0				)
 
 		AS_POP_IF86(	bp)
-		#if !defined(_MSC_VER) || (_MSC_VER < 1400)
-			AS_POP_IF86(	bx)
-		#endif
+		AS_POP_IF86(	bx)
 
 		#ifdef __GNUC__
 				".att_syntax prefix;"
@@ -647,6 +823,7 @@ void GCM_Base::AuthenticateLastConfidentialBlock()
 void GCM_Base::AuthenticateLastFooterBlock(byte *mac, size_t macSize)
 {
 	m_ctr.Seek(0);
+	ReverseHashBufferIfNeeded();
 	m_ctr.ProcessData(mac, HashBuffer(), macSize);
 }
 

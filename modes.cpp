@@ -115,7 +115,7 @@ void CTR_ModePolicy::OperateKeystream(KeystreamOperation operation, byte *output
 	{
 		byte lsb = m_counterArray[s-1];
 		size_t blocks = UnsignedMin(iterationCount, 256U-lsb);
-		m_cipher->AdvancedProcessBlocks(m_counterArray, input, output, blocks*s, BlockTransformation::BT_InBlockIsCounter);
+		m_cipher->AdvancedProcessBlocks(m_counterArray, input, output, blocks*s, BlockTransformation::BT_InBlockIsCounter|BlockTransformation::BT_AllowParallel);
 		if ((m_counterArray[s-1] = lsb + (byte)blocks) == 0)
 			IncrementCounterBy256();
 
@@ -147,7 +147,7 @@ void BlockOrientedCipherModeBase::UncheckedSetKey(const byte *key, unsigned int 
 void ECB_OneWay::ProcessData(byte *outString, const byte *inString, size_t length)
 {
 	assert(length%BlockSize()==0);
-	m_cipher->AdvancedProcessBlocks(inString, NULL, outString, length, 0);
+	m_cipher->AdvancedProcessBlocks(inString, NULL, outString, length, BlockTransformation::BT_AllowParallel);
 }
 
 void CBC_Encryption::ProcessData(byte *outString, const byte *inString, size_t length)
@@ -199,7 +199,7 @@ void CBC_Decryption::ProcessData(byte *outString, const byte *inString, size_t l
 	unsigned int blockSize = BlockSize();
 	memcpy(m_temp, inString+length-blockSize, blockSize);	// save copy now in case of in-place decryption
 	if (length > blockSize)
-		m_cipher->AdvancedProcessBlocks(inString+blockSize, inString, outString+blockSize, length-blockSize, BlockTransformation::BT_ReverseDirection);
+		m_cipher->AdvancedProcessBlocks(inString+blockSize, inString, outString+blockSize, length-blockSize, BlockTransformation::BT_ReverseDirection|BlockTransformation::BT_AllowParallel);
 	m_cipher->ProcessAndXorBlock(inString, m_register, outString);
 	m_register.swap(m_temp);
 }

@@ -456,7 +456,7 @@ public:
 	//! return number of blocks that can be processed in parallel, for bit-slicing implementations
 	virtual unsigned int OptimalNumberOfParallelBlocks() const {return 1;}
 
-	enum {BT_InBlockIsCounter=1, BT_DontIncrementInOutPointers=2, BT_XorInput=4, BT_ReverseDirection=8} FlagsForAdvancedProcessBlocks;
+	enum {BT_InBlockIsCounter=1, BT_DontIncrementInOutPointers=2, BT_XorInput=4, BT_ReverseDirection=8, BT_AllowParallel=16} FlagsForAdvancedProcessBlocks;
 
 	//! encrypt and xor blocks according to flags (see FlagsForAdvancedProcessBlocks)
 	/*! /note If BT_InBlockIsCounter is set, last byte of inBlocks may be modified. */
