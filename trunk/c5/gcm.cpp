@@ -336,7 +336,11 @@ void GCM_Base::Resync(const byte *iv, size_t len)
 
 unsigned int GCM_Base::OptimalDataAlignment() const
 {
-	return HasSSE2() ? 16 : GetBlockCipher().OptimalDataAlignment();
+	return 
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)
+		HasSSE2() ? 16 : 
+#endif
+		GetBlockCipher().OptimalDataAlignment();
 }
 
 #pragma warning(disable: 4731)	// frame pointer register 'ebp' modified by inline assembly code

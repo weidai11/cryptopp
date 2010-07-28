@@ -243,9 +243,11 @@ void BenchmarkAll(double t, double hertz)
 	cout << "<THEAD><TR><TH>Algorithm<TH>MiB/Second" << cpb << "<TH>Microseconds to<br>Setup Key and IV" << cpk << endl;
 
 	cout << "\n<TBODY style=\"background: yellow\">";
-	if (CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE && HasCLMUL())
+#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
+	if (HasCLMUL())
 		BenchMarkByName2<AuthenticatedSymmetricCipher, AuthenticatedSymmetricCipher>("AES/GCM", 0, "AES/GCM");
 	else
+#endif
 	{
 		BenchMarkByName2<AuthenticatedSymmetricCipher, AuthenticatedSymmetricCipher>("AES/GCM", 0, "AES/GCM (2K tables)", MakeParameters(Name::TableSize(), 2048));
 		BenchMarkByName2<AuthenticatedSymmetricCipher, AuthenticatedSymmetricCipher>("AES/GCM", 0, "AES/GCM (64K tables)", MakeParameters(Name::TableSize(), 64*1024));
@@ -254,9 +256,11 @@ void BenchmarkAll(double t, double hertz)
 	BenchMarkByName2<AuthenticatedSymmetricCipher, AuthenticatedSymmetricCipher>("AES/EAX");
 
 	cout << "\n<TBODY style=\"background: white\">";
-	if (CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE && HasCLMUL())
+#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
+	if (HasCLMUL())
 		BenchMarkByName2<AuthenticatedSymmetricCipher, MessageAuthenticationCode>("AES/GCM", 0, "GMAC(AES)");
 	else
+#endif
 	{
 		BenchMarkByName2<AuthenticatedSymmetricCipher, MessageAuthenticationCode>("AES/GCM", 0, "GMAC(AES) (2K tables)", MakeParameters(Name::TableSize(), 2048));
 		BenchMarkByName2<AuthenticatedSymmetricCipher, MessageAuthenticationCode>("AES/GCM", 0, "GMAC(AES) (64K tables)", MakeParameters(Name::TableSize(), 64*1024));
