@@ -32,6 +32,7 @@ bool CpuId(word32 input, word32 *output)
 #else
 
 #ifndef CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
+extern "C" {
 typedef void (*SigHandler)(int);
 
 static jmp_buf s_jmpNoCPUID;
@@ -44,6 +45,7 @@ static jmp_buf s_jmpNoSSE2;
 static void SigIllHandlerSSE2(int)
 {
 	longjmp(s_jmpNoSSE2, 1);
+}
 }
 #endif
 
@@ -78,7 +80,7 @@ bool CpuId(word32 input, word32 *output)
 		result = false;
 	else
 	{
-		__asm__
+		asm
 		(
 			// save ebx in case -fPIC is being used
 #if CRYPTOPP_BOOL_X86

@@ -236,6 +236,7 @@ bool TestSettings()
 #endif
 	cout << endl;
 
+#ifdef CRYPTOPP_CPUID_AVAILABLE
 	bool hasMMX = HasMMX();
 	bool hasISSE = HasISSE();
 	bool hasSSE2 = HasSSE2();
@@ -253,6 +254,7 @@ bool TestSettings()
 
 	cout << "hasMMX == " << hasMMX << ", hasISSE == " << hasISSE << ", hasSSE2 == " << hasSSE2 << ", hasSSSE3 == " << hasSSSE3 << ", hasAESNI == " << HasAESNI() << ", hasCLMUL == " << HasCLMUL() << ", isP4 == " << isP4 << ", cacheLineSize == " << cacheLineSize;
 	cout << ", AESNI_INTRINSICS == " << CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE << endl;
+#endif
 
 	if (!pass)
 	{
