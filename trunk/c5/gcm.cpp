@@ -10,15 +10,6 @@
 #include "gcm.h"
 #include "cpu.h"
 
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
-#include <emmintrin.h>
-#endif
-
-#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
-#include <tmmintrin.h>
-#include <wmmintrin.h>
-#endif
-
 NAMESPACE_BEGIN(CryptoPP)
 
 word16 GCM_Base::s_reductionTable[256];
@@ -88,9 +79,9 @@ inline static void Xor16(byte *a, const byte *b, const byte *c)
 
 #if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
 static CRYPTOPP_ALIGN_DATA(16) const word64 s_clmulConstants64[] = {
-	0xe100000000000000, 0xc200000000000000,
-	0x08090a0b0c0d0e0f, 0x0001020304050607,
-	0x0001020304050607, 0x08090a0b0c0d0e0f};
+	W64LIT(0xe100000000000000), W64LIT(0xc200000000000000),
+	W64LIT(0x08090a0b0c0d0e0f), W64LIT(0x0001020304050607),
+	W64LIT(0x0001020304050607), W64LIT(0x08090a0b0c0d0e0f)};
 static const __m128i *s_clmulConstants = (const __m128i *)s_clmulConstants64;
 static const unsigned int s_clmulTableSizeInBlocks = 8;
 
