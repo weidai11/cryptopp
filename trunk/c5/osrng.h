@@ -96,8 +96,8 @@ class AutoSeededX917RNG : public RandomNumberGenerator, public NotCopyable
 {
 public:
 	//! use blocking to choose seeding with BlockingRng or NonblockingRng. the parameter is ignored if only one of these is available
-	explicit AutoSeededX917RNG(bool blocking = false)
-		{Reseed(blocking);}
+	explicit AutoSeededX917RNG(bool blocking = false, bool autoSeed = true)
+		{if (autoSeed) Reseed(blocking);}
 	void Reseed(bool blocking = false, const byte *additionalEntropy = NULL, size_t length = 0);
 	// exposed for testing
 	void Reseed(const byte *key, size_t keylength, const byte *seed, const byte *timeVector);

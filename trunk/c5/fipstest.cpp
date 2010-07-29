@@ -69,7 +69,7 @@ void X917RNG_KnownAnswerTest(
 	StringSource(seed, true, new HexDecoder(new StringSink(decodedSeed)));
 	StringSource(deterministicTimeVector, true, new HexDecoder(new StringSink(decodedDeterministicTimeVector)));
 
-	AutoSeededX917RNG<CIPHER> rng;
+	AutoSeededX917RNG<CIPHER> rng(false, false);
 	rng.Reseed((const byte *)decodedKey.data(), decodedKey.size(), (const byte *)decodedSeed.data(), (const byte *)decodedDeterministicTimeVector.data());
 	KnownAnswerTest(rng, output);
 #else
@@ -154,15 +154,10 @@ void MAC_KnownAnswerTest(const char *key, const char *message, const char *diges
 template <class SCHEME>
 void SignatureKnownAnswerTest(const char *key, const char *message, const char *signature, SCHEME *dummy = NULL)
 {
-#ifdef OS_RNG_AVAILABLE
-	DefaultAutoSeededRNG rng;
-#else
-	RandomNumberGenerator &rng = NullRNG();
-#endif
-
 	typename SCHEME::Signer signer(StringSource(key, true, new HexDecoder).Ref());
 	typename SCHEME::Verifier verifier(signer);
 
+	RandomPool rng;
 	EqualityComparisonFilter comparison;
 
 	StringSource(message, true, new SignerFilter(rng, signer, new ChannelSwitch(comparison, "0")));
@@ -180,11 +175,7 @@ void EncryptionPairwiseConsistencyTest(const PK_Encryptor &encryptor, const PK_D
 {
 	try
 	{
-#ifdef OS_RNG_AVAILABLE
-		DefaultAutoSeededRNG rng;
-#else
-		RandomNumberGenerator &rng = NullRNG();
-#endif
+		RandomPool rng;
 		const char *testMessage ="test message";
 		std::string ciphertext, decrypted;
 
@@ -220,11 +211,7 @@ void SignaturePairwiseConsistencyTest(const PK_Signer &signer, const PK_Verifier
 {
 	try
 	{
-#ifdef OS_RNG_AVAILABLE
-		DefaultAutoSeededRNG rng;
-#else
-		RandomNumberGenerator &rng = NullRNG();
-#endif
+		RandomPool rng;
 
 		StringSource(
 			"test message", 
