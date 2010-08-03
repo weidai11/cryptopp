@@ -66,7 +66,8 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte
 			} while (len >= blockSize);
 	}
 
-	memcpy(data, input, len);
+	if (len && data != input)
+		memcpy(data, input, len);
 }
 
 template <class T, class BASE> byte * IteratedHashBase<T, BASE>::CreateUpdateSpace(size_t &size)
