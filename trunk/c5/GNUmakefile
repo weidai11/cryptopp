@@ -26,6 +26,7 @@ ifeq ($(ISX86),1)
 
 GCC42_OR_LATER = $(shell $(CXX) -v 2>&1 | $(EGREP) -c "^gcc version (4.[2-9]|[5-9])")
 INTEL_COMPILER = $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(ICC\)")
+ICC111_OR_LATER = $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(ICC\) ([2-9][0-9]|1[2-9]|11\.[1-9])")
 GAS210_OR_LATER = $(shell echo "" | $(AS) -v 2>&1 | $(EGREP) -c "GNU assembler version (2\.[1-9][0-9]|[3-9])")
 GAS217_OR_LATER = $(shell echo "" | $(AS) -v 2>&1 | $(EGREP) -c "GNU assembler version (2\.1[7-9]|2\.[2-9]|[3-9])")
 ISMINGW = $(shell $(CXX) --version 2>&1 | $(EGREP) -c "mingw")
@@ -39,9 +40,12 @@ endif
 endif
 
 ifneq ($(INTEL_COMPILER),0)
-# "internal error: backend signals" occurs on some x86 inline assembly with ICC 9 and some x64 inline assembly with ICC 11
+CXXFLAGS += -wd68 -wd186 -wd279 -wd327
+ifeq ($(ICC111_OR_LATER),0)
+# "internal error: backend signals" occurs on some x86 inline assembly with ICC 9 and some x64 inline assembly with ICC 11.0
 # if you want to use Crypto++'s assembly code with ICC, try enabling it on individual files
 CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
+endif
 endif
 
 ifeq ($(GAS210_OR_LATER),0)	# .intel_syntax wasn't supported until GNU assembler 2.10
