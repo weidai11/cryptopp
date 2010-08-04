@@ -17,7 +17,7 @@
 #endif
 
 #if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
-#if !defined(__GNUC__) || defined(__SSSE3__)
+#if !defined(__GNUC__) || defined(__SSSE3__) || defined(__INTEL_COMPILER)
 #include <tmmintrin.h>
 #else
 __inline __m128i __attribute__((__gnu_inline__, __always_inline__, __artificial__))
@@ -27,7 +27,7 @@ _mm_shuffle_epi8 (__m128i a, __m128i b)
   	return a;
 }
 #endif
-#if !defined(__GNUC__) || defined(__SSE4_1__)
+#if !defined(__GNUC__) || defined(__SSE4_1__) || defined(__INTEL_COMPILER)
 #include <smmintrin.h>
 #else
 __inline int __attribute__((__gnu_inline__, __always_inline__, __artificial__))
@@ -44,7 +44,7 @@ _mm_insert_epi32 (__m128i a, int b, const int i)
   	return a;
 }
 #endif
-#if !defined(__GNUC__) || (defined(__AES__) && defined(__PCLMUL__))
+#if !defined(__GNUC__) || (defined(__AES__) && defined(__PCLMUL__)) || defined(__INTEL_COMPILER)
 #include <wmmintrin.h>
 #else
 __inline __m128i __attribute__((__gnu_inline__, __always_inline__, __artificial__))
