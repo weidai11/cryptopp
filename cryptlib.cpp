@@ -87,7 +87,7 @@ void SimpleKeyingInterface::ThrowIfResynchronizable()
 
 void SimpleKeyingInterface::ThrowIfInvalidIV(const byte *iv)
 {
-	if (!iv && !(IVRequirement() == INTERNALLY_GENERATED_IV || IVRequirement() == UNIQUE_IV || !IsResynchronizable()))
+	if (!iv && IVRequirement() == UNPREDICTABLE_RANDOM_IV)
 		throw InvalidArgument(GetAlgorithm().AlgorithmName() + ": this object cannot use a null IV");
 }
 
