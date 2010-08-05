@@ -56,7 +56,8 @@ void CFB_ModePolicy::TransformRegister()
 
 void CFB_ModePolicy::CipherResynchronize(const byte *iv, size_t length)
 {
-	memcpy_s(m_register, m_register.size(), iv, BlockSize());
+	assert(length == BlockSize());
+	CopyOrZero(m_register, iv, length);
 	TransformRegister();
 }
 
@@ -85,6 +86,7 @@ void OFB_ModePolicy::WriteKeystream(byte *keystreamBuffer, size_t iterationCount
 
 void OFB_ModePolicy::CipherResynchronize(byte *keystreamBuffer, const byte *iv, size_t length)
 {
+	assert(length == BlockSize());
 	CopyOrZero(m_register, iv, length);
 }
 
