@@ -19,7 +19,7 @@
 #include <map>
 #include <vector>
 
-#ifdef CRYPTOPP_INCLUDE_STD_CC
+#ifdef CRYPTOPP_INCLUDE_VECTOR_CC
 // workaround needed on Sun Studio 12u1 Sun C++ 5.10 SunOS_i386 128229-02 2009/09/21
 #include <vector.cc>
 #endif
