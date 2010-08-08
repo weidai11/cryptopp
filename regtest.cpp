@@ -76,6 +76,10 @@ void RegisterFactories()
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, HMAC<Weak::MD5> >();
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, HMAC<SHA1> >();
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, HMAC<RIPEMD160> >();
+	RegisterDefaultFactoryFor<MessageAuthenticationCode, HMAC<SHA224> >();
+	RegisterDefaultFactoryFor<MessageAuthenticationCode, HMAC<SHA256> >();
+	RegisterDefaultFactoryFor<MessageAuthenticationCode, HMAC<SHA384> >();
+	RegisterDefaultFactoryFor<MessageAuthenticationCode, HMAC<SHA512> >();
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, TTMAC>();
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, VMAC<AES> >();
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, VMAC<AES, 64> >();

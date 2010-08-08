@@ -745,7 +745,7 @@ bool RunTestDataFile(const char *filename, const NameValuePairs &overrideParamet
 {
 	unsigned int totalTests = 0, failedTests = 0;
 	TestDataFile(filename, overrideParameters, totalTests, failedTests);
-	cout << "\nTests complete. Total tests = " << totalTests << ". Failed tests = " << failedTests << ".\n";
+	cout << dec << "\nTests complete. Total tests = " << totalTests << ". Failed tests = " << failedTests << ".\n";
 	if (failedTests != 0)
 		cout << "SOME TESTS FAILED!\n";
 	return failedTests == 0;
