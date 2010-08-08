@@ -1,6 +1,8 @@
 #ifndef CRYPTOPP_FILTERS_H
 #define CRYPTOPP_FILTERS_H
 
+//! \file
+
 #include "simple.h"
 #include "secblock.h"
 #include "misc.h"

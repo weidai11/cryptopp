@@ -1,6 +1,8 @@
 #ifndef CRYPTOPP_OSRNG_H
 #define CRYPTOPP_OSRNG_H
 
+//! \file
+
 #include "config.h"
 
 #ifdef OS_RNG_AVAILABLE
@@ -140,6 +142,7 @@ void AutoSeededX917RNG<BLOCK_CIPHER>::Reseed(bool blocking, const byte *input, s
 
 CRYPTOPP_DLL_TEMPLATE_CLASS AutoSeededX917RNG<AES>;
 
+//! this is AutoSeededX917RNG\<AES\> in FIPS mode, otherwise it's AutoSeededRandomPool
 #if CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2
 typedef AutoSeededX917RNG<AES> DefaultAutoSeededRNG;
 #else
