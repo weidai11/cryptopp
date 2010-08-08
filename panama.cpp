@@ -40,8 +40,8 @@ void Panama_SSE2_Pull(size_t count, word32 *state, word32 *z, const word32 *y);
 #pragma warning(disable: 4731)	// frame pointer register 'ebp' modified by inline assembly code
 void CRYPTOPP_NOINLINE Panama_SSE2_Pull(size_t count, word32 *state, word32 *z, const word32 *y)
 {
-#ifdef __GNUC__
-	__asm__ __volatile__
+#ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
+	asm __volatile__
 	(
 		".intel_syntax noprefix;"
 		AS_PUSH_IF86(	bx)
@@ -285,7 +285,7 @@ void CRYPTOPP_NOINLINE Panama_SSE2_Pull(size_t count, word32 *state, word32 *z, 
 	#endif
 	ASL(5)
 
-#ifdef __GNUC__
+#ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
 		AS_POP_IF86(	bx)
 		".att_syntax prefix;"
 			:

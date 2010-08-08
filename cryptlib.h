@@ -19,7 +19,7 @@
 <dt>Message Authentication Codes<dd>
 	VMAC, HMAC, CBC_MAC, CMAC, DMAC, TTMAC, GCM (GMAC)
 <dt>Random Number Generators<dd>
-	NullRNG(), LC_RNG, RandomPool, BlockingRng, NonblockingRng, AutoSeededRandomPool, AutoSeededX917RNG, DefaultAutoSeededRNG
+	NullRNG(), LC_RNG, RandomPool, BlockingRng, NonblockingRng, AutoSeededRandomPool, AutoSeededX917RNG, #DefaultAutoSeededRNG
 <dt>Password-based Cryptography<dd>
 	PasswordBasedKeyDerivationFunction
 <dt>Public Key Cryptosystems<dd>
@@ -37,7 +37,7 @@
 <dt>Compression<dd>
 	Deflator, Inflator, Gzip, Gunzip, ZlibCompressor, ZlibDecompressor
 <dt>Input Source Classes<dd>
-	StringSource, ArraySource, FileSource, SocketSource, WindowsPipeSource, RandomNumberSource
+	StringSource, #ArraySource, FileSource, SocketSource, WindowsPipeSource, RandomNumberSource
 <dt>Output Sink Classes<dd>
 	StringSinkTemplate, ArraySink, FileSink, SocketSink, WindowsPipeSink, RandomNumberSink
 <dt>Filter Wrappers<dd>
@@ -50,20 +50,20 @@
 	fips140.h
 </dl>
 
-In the FIPS 140-2 validated DLL version of Crypto++, only the following implementation class are available.
+In the DLL version of Crypto++, only the following implementation class are available.
 <dl>
 <dt>Block Ciphers<dd>
 	AES, DES_EDE2, DES_EDE3, SKIPJACK
 <dt>Cipher Modes (replace template parameter BC with one of the block ciphers above)<dd>
-	ECB_Mode\<BC\>, CTR_Mode\<BC\>, CBC_Mode\<BC\>, CFB_FIPS_Mode\<BC\>, OFB_Mode\<BC\>
+	ECB_Mode\<BC\>, CTR_Mode\<BC\>, CBC_Mode\<BC\>, CFB_FIPS_Mode\<BC\>, OFB_Mode\<BC\>, GCM\<AES\>
 <dt>Hash Functions<dd>
 	SHA1, SHA224, SHA256, SHA384, SHA512
 <dt>Public Key Signature Schemes (replace template parameter H with one of the hash functions above)<dd>
 	RSASS\<PKCS1v15, H\>, RSASS\<PSS, H\>, RSASS_ISO\<H\>, RWSS\<P1363_EMSA2, H\>, DSA, ECDSA\<ECP, H\>, ECDSA\<EC2N, H\>
 <dt>Message Authentication Codes (replace template parameter H with one of the hash functions above)<dd>
-	HMAC\<H\>, CBC_MAC\<DES_EDE2\>, CBC_MAC\<DES_EDE3\>
+	HMAC\<H\>, CBC_MAC\<DES_EDE2\>, CBC_MAC\<DES_EDE3\>, GCM\<AES\>
 <dt>Random Number Generators<dd>
-	DefaultAutoSeededRNG (AutoSeededX917RNG\<AES\>)
+	#DefaultAutoSeededRNG (AutoSeededX917RNG\<AES\>)
 <dt>Key Agreement<dd>
 	#DH
 <dt>Public Key Cryptosystems<dd>
@@ -470,9 +470,7 @@ public:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE StreamTransformation : public Algorithm
 {
 public:
-	//! return a reference to this object, 
-	/*! This function is useful for passing a temporary StreamTransformation object to a 
-		function that takes a non-const reference. */
+	//! return a reference to this object, useful for passing a temporary object to a function that takes a non-const reference
 	StreamTransformation& Ref() {return *this;}
 
 	//! returns block size, if input must be processed in blocks, otherwise 1
@@ -533,9 +531,7 @@ public:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE HashTransformation : public Algorithm
 {
 public:
-	//! return a reference to this object, 
-	/*! This function is useful for passing a temporary HashTransformation object to a 
-		function that takes a non-const reference. */
+	//! return a reference to this object, useful for passing a temporary object to a function that takes a non-const reference
 	HashTransformation& Ref() {return *this;}
 
 	//! process more input
@@ -780,9 +776,7 @@ public:
 
 	BufferedTransformation() : Algorithm(false) {}
 
-	//! return a reference to this object
-	/*! This function is useful for passing a temporary BufferedTransformation object to a 
-		function that takes a non-const reference. */
+	//! return a reference to this object, useful for passing a temporary object to a function that takes a non-const reference
 	BufferedTransformation& Ref() {return *this;}
 
 	//!	\name INPUT

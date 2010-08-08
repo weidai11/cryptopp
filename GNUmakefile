@@ -30,6 +30,7 @@ ICC111_OR_LATER = $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(ICC\) ([2-9][0-
 IS_SUN_CC = $(shell $(CXX) -V 2>&1 | $(EGREP) -c "CC: Sun")
 GAS210_OR_LATER = $(shell echo "" | $(AS) -v 2>&1 | $(EGREP) -c "GNU assembler version (2\.[1-9][0-9]|[3-9])")
 GAS217_OR_LATER = $(shell echo "" | $(AS) -v 2>&1 | $(EGREP) -c "GNU assembler version (2\.1[7-9]|2\.[2-9]|[3-9])")
+GAS219_OR_LATER = $(shell echo "" | $(AS) -v 2>&1 | $(EGREP) -c "GNU assembler version (2\.19|2\.[2-9]|[3-9])")
 ISMINGW = $(shell $(CXX) --version 2>&1 | $(EGREP) -c "mingw")
 
 ifneq ($(GCC42_OR_LATER),0)
@@ -54,6 +55,10 @@ CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
 else
 ifeq ($(GAS217_OR_LATER),0)
 CXXFLAGS += -DCRYPTOPP_DISABLE_SSSE3
+else
+ifeq ($(GAS219_OR_LATER),0)
+CXXFLAGS += -DCRYPTOPP_DISABLE_AESNI
+endif
 endif
 ifeq ($(UNAME),SunOS)
 CXXFLAGS += -Wa,--divide	# allow use of "/" operator
