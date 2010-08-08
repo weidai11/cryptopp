@@ -27,6 +27,7 @@ ifeq ($(ISX86),1)
 GCC42_OR_LATER = $(shell $(CXX) -v 2>&1 | $(EGREP) -c "^gcc version (4.[2-9]|[5-9])")
 INTEL_COMPILER = $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(ICC\)")
 ICC111_OR_LATER = $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(ICC\) ([2-9][0-9]|1[2-9]|11\.[1-9])")
+IS_SUN_CC = $(shell $(CXX) -V 2>&1 | $(EGREP) -c "CC: Sun")
 GAS210_OR_LATER = $(shell echo "" | $(AS) -v 2>&1 | $(EGREP) -c "GNU assembler version (2\.[1-9][0-9]|[3-9])")
 GAS217_OR_LATER = $(shell echo "" | $(AS) -v 2>&1 | $(EGREP) -c "GNU assembler version (2\.1[7-9]|2\.[2-9]|[3-9])")
 ISMINGW = $(shell $(CXX) --version 2>&1 | $(EGREP) -c "mingw")
@@ -73,6 +74,9 @@ endif
 
 ifeq ($(UNAME),Linux)
 LDFLAGS += -pthread
+ifneq ($(shell uname -i | $(EGREP) -c "(_64|d64)"),0)
+M32OR64 = -m64
+endif
 endif
 
 ifeq ($(UNAME),Darwin)
@@ -89,18 +93,20 @@ endif
 
 ifeq ($(UNAME),SunOS)
 LDLIBS += -lnsl -lsocket
-ifeq ($(CXX),CC)	# override flags for CC (Solaris native C++ compiler)
-# -DCRYPTOPP_INCLUDE_STD_CC is needed for Sun Studio 12u1 Sun C++ 5.10 SunOS_i386 128229-02 2009/09/21
-# remove it if you get "already had a body defined" errors in vector.cc
-CXXFLAGS = -DNDEBUG -O -g0 -native -template=no%extdef -DCRYPTOPP_INCLUDE_STD_CC -m$(shell isainfo -b)
+M32OR64 = -m$(shell isainfo -b)
+endif
+
+ifneq ($(IS_SUN_CC),0)	# override flags for CC Sun C++ compiler
+CXXFLAGS = -DNDEBUG -O -g0 -native -template=no%extdef $(M32OR64)
 LDFLAGS =
-AR = CC
+AR = $(CXX)
 ARFLAGS = -xar -o
 RANLIB = true
-ifeq ($(ISX86),1)
-# SSE2 intrinsics should work in Sun Studio 12, but we're not using SSE2 intrinsics anymore
-# CXXFLAGS += -xarch=sse2 -D__SSE2__
-endif
+SUN_CC10_BUGGY = $(shell $(CXX) -V 2>&1 | $(EGREP) -c "CC: Sun .* 5\.10 .* (2009|2010/0[1-4])")
+ifneq ($(SUN_CC10_BUGGY),0)
+# -DCRYPTOPP_INCLUDE_VECTOR_CC is needed for Sun Studio 12u1 Sun C++ 5.10 SunOS_i386 128229-02 2009/09/21 and was fixed in May 2010
+# remove it if you get "already had a body defined" errors in vector.cc
+CXXFLAGS += -DCRYPTOPP_INCLUDE_VECTOR_CC
 endif
 endif
 
