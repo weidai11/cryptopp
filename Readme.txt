@@ -1,5 +1,5 @@
 Crypto++: a C++ Class Library of Cryptographic Schemes
-Version 5.6.1 (in development)
+Version 5.6.1 (8/9/2010, SVN r520)
 
 Crypto++ Library is a free C++ class library of cryptographic schemes.
 Currently the library contains the following algorithms:
@@ -20,7 +20,7 @@ Currently the library contains the following algorithms:
   block cipher modes of operation  ECB, CBC, CBC ciphertext stealing (CTS),
                                    CFB, OFB, counter mode (CTR)
 
-     message authentication codes  VMAC, HMAC, CMAC, CBC-MAC, DMAC, 
+     message authentication codes  VMAC, HMAC, GMAC, CMAC, CBC-MAC, DMAC, 
                                    Two-Track-MAC
 
                                    SHA-1, SHA-2 (SHA-224, SHA-256, SHA-384, and
@@ -79,11 +79,11 @@ License.txt for the fine print.
 The following compilers are supported for this release. Please visit
 http://www.cryptopp.com the most up to date build instructions and porting notes.
 
-  * MSVC 6.0 - 2008
-  * GCC 3.3 - 4.3
-  * C++Builder 2009
-  * Intel C++ Compiler 9 - 11
-  * Sun Studio 12 (CC 5.9)
+  * MSVC 6.0 - 2010
+  * GCC 3.3 - 4.5
+  * C++Builder 2010
+  * Intel C++ Compiler 9 - 11.1
+  * Sun Studio 12u1, Express 11/08, Express 06/10
 
 *** Important Usage Notes ***
 
@@ -109,10 +109,10 @@ all three forms, and sample applications using each of the three forms
 are also included.
 
 To compile Crypto++ with MSVC, open the "cryptest.dsw" (for MSVC 6 and MSVC .NET 
-2003) or "cryptest.sln" (for MSVC .NET 2005) workspace file and build one or 
+2003) or "cryptest.sln" (for MSVC 2005 - 2010) workspace file and build one or 
 more of the following projects:
 
-cryptdll - This builds the DLL. Please note that if you wish to use Crypto++
+cryptopp - This builds the DLL. Please note that if you wish to use Crypto++
   as a FIPS validated module, you must use a pre-built DLL that has undergone
   the FIPS validation process instead of building your own.
 dlltest - This builds a sample application that only uses the DLL.
@@ -126,7 +126,8 @@ To use the Crypto++ DLL in your application, #include "dll.h" before including
 any other Crypto++ header files, and place the DLL in the same directory as
 your .exe file. dll.h includes the line #pragma comment(lib, "cryptopp")
 so you don't have to explicitly list the import library in your project
-settings. To use a static library form of Crypto++, specify it as
+settings. To use a static library form of Crypto++, make the "cryptlib"
+project a dependency of your application project, or specify it as
 an additional library to link with in your project settings.
 In either case you should check the compiler options to
 make sure that the library and your application are using the same C++
@@ -437,7 +438,7 @@ the mailing list.
           * incorrect hash on x64 when compiled with GCC with optimizations enabled
       - fixed bugs in AES x86 and x64 assembly causing crashes in some MSVC build configurations
       - switched to a public domain implementation of MARS
-      - ported to MSVC 2010, Sun Studio 12u1
+      - ported to MSVC 2010, GCC 4.5.1, Sun Studio 12u1, C++Builder 2010, Intel C++ Compiler 11.1
       - renamed the MSVC DLL project to "cryptopp" for compatibility with MSVC 2010
 
 Written by Wei Dai
