@@ -1,5 +1,5 @@
 Crypto++: a C++ Class Library of Cryptographic Schemes
-Version 5.6.1 (8/9/2010, SVN r520)
+Version 5.6.2 (in development)
 
 Crypto++ Library is a free C++ class library of cryptographic schemes.
 Currently the library contains the following algorithms:
@@ -41,7 +41,7 @@ Currently the library contains the following algorithms:
       elliptic curve cryptography  ECDSA, ECNR, ECIES, ECDH, ECMQV
 
           insecure or obsolescent  MD2, MD4, MD5, Panama Hash, DES, ARC4, SEAL
-algorithms retained for backwards  3.0, WAKE, WAKE-OFB, DESX (DES-XEX3), RC2,
+algorithms retained for backwards  3.0, WAKE-OFB, DESX (DES-XEX3), RC2,
      compatibility and historical  SAFER, 3-WAY, GOST, SHARK, CAST-128, Square
                             value
 

@@ -422,7 +422,7 @@ void PanamaHash<B>::TruncatedFinal(byte *hash, size_t size)
 {
 	this->ThrowIfInvalidTruncatedSize(size);
 
-	PadLastBlock(this->BLOCKSIZE, 0x01);
+	this->PadLastBlock(this->BLOCKSIZE, 0x01);
 	
 	HashEndianCorrectedBlock(this->m_data);
 
