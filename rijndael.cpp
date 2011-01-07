@@ -349,7 +349,11 @@ void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keylen, c
 void Rijndael::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE) || CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)
 	if (HasSSE2())
+#else
+	if (HasAESNI())
+#endif
 	{
 		Rijndael::Enc::AdvancedProcessBlocks(inBlock, xorBlock, outBlock, 16, 0);
 		return;
