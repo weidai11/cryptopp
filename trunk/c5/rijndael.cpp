@@ -526,7 +526,7 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 #if CRYPTOPP_BOOL_X86
 
 #define L_REG			esp
-#define L_INDEX(i)		(L_REG+512+i)
+#define L_INDEX(i)		(L_REG+768+i)
 #define L_INXORBLOCKS	L_INBLOCKS+4
 #define L_OUTXORBLOCKS	L_INBLOCKS+8
 #define L_OUTBLOCKS		L_INBLOCKS+12
@@ -625,7 +625,7 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 
 #if CRYPTOPP_BOOL_X86
 	AS2(	mov		[ecx+16*12+16*4], esp)	// save esp to L_SP
-	AS2(	lea		esp, [ecx-512])
+	AS2(	lea		esp, [ecx-768])
 #endif
 
 	// copy subkeys to stack
