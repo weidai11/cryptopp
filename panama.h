@@ -12,7 +12,7 @@ class CRYPTOPP_NO_VTABLE Panama
 {
 public:
 	void Reset();
-	void Iterate(size_t count, const word32 *p=NULL, word32 *z=NULL, const word32 *y=NULL);
+	void Iterate(size_t count, const word32 *p=NULL, byte *output=NULL, const byte *input=NULL, KeystreamOperation operation=WRITE_KEYSTREAM);
 
 protected:
 	typedef word32 Stage[8];
