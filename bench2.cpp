@@ -232,7 +232,7 @@ extern double g_hertz;
 void BenchmarkAll2(double t, double hertz)
 {
 	g_hertz = hertz;
-#if 0
+
 	cout << "<TABLE border=1><COLGROUP><COL align=left><COL align=right><COL align=right>" << endl;
 	cout << "<THEAD><TR><TH>Operation<TH>Milliseconds/Operation" << (g_hertz ? "<TH>Megacycles/Operation" : "") << endl;
 
@@ -275,7 +275,7 @@ void BenchmarkAll2(double t, double hertz)
 	BenchMarkKeyAgreement<LUC_DH>("TestData/lucd1024.dat", "LUCDIF 1024", t);
 	BenchMarkKeyAgreement<MQV>("TestData/mqv1024.dat", "MQV 1024", t);
 	BenchMarkKeyAgreement<MQV>("TestData/mqv2048.dat", "MQV 2048", t);
-#endif
+
 	cout << "\n<TBODY style=\"background: white\">";
 	{
 		ECIES<ECP>::Decryptor cpriv(GlobalRNG(), ASN1::secp256k1());
