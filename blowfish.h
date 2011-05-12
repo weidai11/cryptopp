@@ -9,7 +9,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 //! _
-struct Blowfish_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 1, 56>, public FixedRounds<16>
+struct Blowfish_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 4, 56>, public FixedRounds<16>
 {
 	static const char *StaticAlgorithmName() {return "Blowfish";}
 };
