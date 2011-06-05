@@ -122,17 +122,17 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 	if (HasSSE2())
 	{
 	#if CRYPTOPP_BOOL_X64
-		#define REG_output			%4
-		#define REG_input			%1
+		#define REG_output			%1
+		#define REG_input			%0
 		#define REG_iterationCount	%2
-		#define REG_state			%3
-		#define REG_rounds			%0
+		#define REG_state			%4		/* constant */
+		#define REG_rounds			%3		/* constant */
 		#define REG_roundsLeft		eax
 		#define REG_temp32			edx
 		#define REG_temp			rdx
-		#define SSE2_WORKSPACE		%5
+		#define SSE2_WORKSPACE		%5		/* constant */
 
-		FixedSizeAlignedSecBlock<byte, 32*16> workspace;
+		CRYPTOPP_ALIGN_DATA(16) byte workspace[16*32];
 	#else
 		#define REG_output			edi
 		#define REG_input			eax
@@ -457,12 +457,13 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 #ifdef __GNUC__
 		AS_POP_IF86(	bx)
 		".att_syntax prefix;"
-			: 
 	#if CRYPTOPP_BOOL_X64
-			: "r" (m_rounds), "r" (input), "r" (iterationCount), "r" (m_state.data()), "r" (output), "r" (workspace.m_ptr)
-			: "%eax", "%edx", "memory", "cc", "%xmm0", "%xmm1", "%xmm2", "%xmm3", "%xmm4", "%xmm5", "%xmm6", "%xmm7", "%xmm8", "%xmm9", "%xmm10", "%xmm11", "%xmm12", "%xmm13", "%xmm14", "%xmm15"
+			: "+r" (input), "+r" (output), "+r" (iterationCount)
+			: "r" (m_rounds), "r" (m_state.m_ptr), "r" (workspace)
+			: "%eax", "%rdx", "memory", "cc", "%xmm0", "%xmm1", "%xmm2", "%xmm3", "%xmm4", "%xmm5", "%xmm6", "%xmm7", "%xmm8", "%xmm9", "%xmm10", "%xmm11", "%xmm12", "%xmm13", "%xmm14", "%xmm15"
 	#else
-			: "d" (m_rounds), "a" (input), "c" (iterationCount), "S" (m_state.data()), "D" (output)
+			: "+a" (input), "+D" (output), "+c" (iterationCount)
+			: "d" (m_rounds), "S" (m_state.m_ptr)
 			: "memory", "cc"
 	#endif
 		);
