@@ -132,19 +132,27 @@ TESTIMPORTOBJS = $(TESTOBJS:.o=.import.o)
 DLLTESTOBJS = dlltest.dllonly.o
 
 all: cryptest.exe
+static: libcryptopp.a
+dynamic: libcryptopp.so
 
 test: cryptest.exe
 	./cryptest.exe v
 
 clean:
-	$(RM) cryptest.exe libcryptopp.a $(LIBOBJS) $(TESTOBJS) cryptopp.dll libcryptopp.dll.a libcryptopp.import.a cryptest.import.exe dlltest.exe $(DLLOBJS) $(LIBIMPORTOBJS) $(TESTIMPORTOBJS) $(DLLTESTOBJS)
+	-$(RM) cryptest.exe libcryptopp.a libcryptopp.so $(LIBOBJS) $(TESTOBJS) cryptopp.dll libcryptopp.dll.a libcryptopp.import.a cryptest.import.exe dlltest.exe $(DLLOBJS) $(LIBIMPORTOBJS) $(TESTI MPORTOBJS) $(DLLTESTOBJS)
 
-install:
+install: static dynamic cryptest.exe
 	$(MKDIR) -p $(PREFIX)/include/cryptopp $(PREFIX)/lib $(PREFIX)/bin
-	$(CP) *.h $(PREFIX)/include/cryptopp
-	$(CP) *.a $(PREFIX)/lib
-	$(CP) *.so $(PREFIX)/lib
-	$(CP) *.exe $(PREFIX)/bin
+	-$(CP) *.h $(PREFIX)/include/cryptopp
+	-$(CP) *.a $(PREFIX)/lib
+	-$(CP) *.so $(PREFIX)/lib
+	-$(CP) *.exe $(PREFIX)/bin
+
+remove:
+	-$(RM) -rf $(PREFIX)/include/cryptopp
+	-$(RM) $(PREFIX)/lib/libcryptopp.a
+	-$(RM) $(PREFIX)/lib/libcryptopp.so
+	-$(RM) $(PREFIX)/bin/cryptest.exe
 
 libcryptopp.a: $(LIBOBJS)
 	$(AR) $(ARFLAGS) $@ $(LIBOBJS)
@@ -154,7 +162,7 @@ libcryptopp.so: $(LIBOBJS)
 	$(CXX) -shared -o $@ $(LIBOBJS)
 
 cryptest.exe: libcryptopp.a $(TESTOBJS)
-	$(CXX) -o $@ $(CXXFLAGS) $(TESTOBJS) -L. -lcryptopp $(LDFLAGS) $(LDLIBS)
+	$(CXX) -o $@ $(CXXFLAGS) $(TESTOBJS) ./libcryptopp.a $(LDFLAGS) $(LDLIBS)
 
 nolib: $(OBJS)		# makes it faster to test changes
 	$(CXX) -o ct $(CXXFLAGS) $(OBJS) $(LDFLAGS) $(LDLIBS)
