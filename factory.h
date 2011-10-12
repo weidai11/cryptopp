@@ -12,6 +12,7 @@ template <class AbstractClass>
 class ObjectFactory
 {
 public:
+	virtual ~ObjectFactory () {}
 	virtual AbstractClass * CreateObject() const =0;
 };
 
