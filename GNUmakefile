@@ -28,6 +28,7 @@ ifeq ($(ISX86),1)
 GCC42_OR_LATER = $(shell $(CXX) -v 2>&1 | $(EGREP) -c "^gcc version (4.[2-9]|[5-9])")
 INTEL_COMPILER = $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(ICC\)")
 ICC111_OR_LATER = $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(ICC\) ([2-9][0-9]|1[2-9]|11\.[1-9])")
+CLANG_COMPILER = $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "^clang version")
 GAS210_OR_LATER = $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.[1-9][0-9]|[3-9])")
 GAS217_OR_LATER = $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.1[7-9]|2\.[2-9]|[3-9])")
 GAS219_OR_LATER = $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.19|2\.[2-9]|[3-9])")
@@ -48,6 +49,10 @@ ifeq ($(ICC111_OR_LATER),0)
 # if you want to use Crypto++'s assembly code with ICC, try enabling it on individual files
 CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
 endif
+endif
+
+ifneq ($(CLANG_COMPILER),0)
+CXXFLAGS += -Wno-tautological-compare
 endif
 
 ifeq ($(GAS210_OR_LATER),0)	# .intel_syntax wasn't supported until GNU assembler 2.10
@@ -141,7 +146,7 @@ test: cryptest.exe
 clean:
 	-$(RM) cryptest.exe libcryptopp.a libcryptopp.so $(LIBOBJS) $(TESTOBJS) cryptopp.dll libcryptopp.dll.a libcryptopp.import.a cryptest.import.exe dlltest.exe $(DLLOBJS) $(LIBIMPORTOBJS) $(TESTI MPORTOBJS) $(DLLTESTOBJS)
 
-install: static dynamic cryptest.exe
+install:
 	$(MKDIR) -p $(PREFIX)/include/cryptopp $(PREFIX)/lib $(PREFIX)/bin
 	-$(CP) *.h $(PREFIX)/include/cryptopp
 	-$(CP) *.a $(PREFIX)/lib
