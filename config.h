@@ -23,11 +23,6 @@
 // This macro will be ignored if NO_OS_DEPENDENCE is defined.
 #define USE_MS_CRYPTOAPI
 
-// Define this to 1 to enforce the requirement in FIPS 186-2 Change Notice 1 that only 1024 bit moduli be used
-#ifndef DSA_1024_BIT_MODULUS_ONLY
-#	define DSA_1024_BIT_MODULUS_ONLY 1
-#endif
-
 // ***************** Less Important Settings ***************
 
 // define this to retain (as much as possible) old deprecated function and class names
@@ -348,7 +343,7 @@ NAMESPACE_END
 	#define CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
 #endif
 
-#define CRYPTOPP_VERSION 561
+#define CRYPTOPP_VERSION 562
 
 // ***************** determine availability of OS features ********************
 

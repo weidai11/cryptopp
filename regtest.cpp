@@ -33,7 +33,6 @@
 #include "cast.h"
 #include "rc6.h"
 #include "mars.h"
-#include "shacal2.h"
 #include "des.h"
 #include "idea.h"
 #include "rc5.h"
@@ -47,6 +46,7 @@
 #include "seal.h"
 #include "crc.h"
 #include "adler32.h"
+#include "sha3.h"
 
 USING_NAMESPACE(CryptoPP)
 
@@ -73,6 +73,10 @@ void RegisterFactories()
 	RegisterDefaultFactoryFor<HashTransformation, RIPEMD256>();
 	RegisterDefaultFactoryFor<HashTransformation, Weak::PanamaHash<LittleEndian> >();
 	RegisterDefaultFactoryFor<HashTransformation, Weak::PanamaHash<BigEndian> >();
+	RegisterDefaultFactoryFor<HashTransformation, SHA3_224>();
+	RegisterDefaultFactoryFor<HashTransformation, SHA3_256>();
+	RegisterDefaultFactoryFor<HashTransformation, SHA3_384>();
+	RegisterDefaultFactoryFor<HashTransformation, SHA3_512>();
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, HMAC<Weak::MD5> >();
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, HMAC<SHA1> >();
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, HMAC<RIPEMD160> >();
@@ -90,7 +94,11 @@ void RegisterFactories()
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, CMAC<DES_EDE3> >();
 	RegisterAsymmetricCipherDefaultFactories<RSAES<OAEP<SHA1> > >("RSA/OAEP-MGF1(SHA-1)");
 	RegisterAsymmetricCipherDefaultFactories<DLIES<> >("DLIES(NoCofactorMultiplication, KDF2(SHA-1), XOR, HMAC(SHA-1), DHAES)");
-	RegisterSignatureSchemeDefaultFactories<DSA>("DSA(1363)");
+	RegisterSignatureSchemeDefaultFactories<DSA>();
+	RegisterSignatureSchemeDefaultFactories<DSA2<SHA224> >();
+	RegisterSignatureSchemeDefaultFactories<DSA2<SHA256> >();
+	RegisterSignatureSchemeDefaultFactories<DSA2<SHA384> >();
+	RegisterSignatureSchemeDefaultFactories<DSA2<SHA512> >();
 	RegisterSignatureSchemeDefaultFactories<NR<SHA1> >("NR(1363)/EMSA1(SHA-1)");
 	RegisterSignatureSchemeDefaultFactories<GDSA<SHA1> >("DSA-1363/EMSA1(SHA-1)");
 	RegisterSignatureSchemeDefaultFactories<RSASS<PKCS1v15, Weak::MD2> >("RSA/PKCS1-1.5(MD2)");

@@ -55,6 +55,7 @@ bool ValidateAll(bool thorough)
 	pass=ValidateMD2() && pass;
 	pass=ValidateMD5() && pass;
 	pass=ValidateSHA() && pass;
+	pass=RunTestDataFile("TestVectors/sha3.txt") && pass;
 	pass=ValidateTiger() && pass;
 	pass=ValidateRIPEMD() && pass;
 	pass=ValidatePanama() && pass;
@@ -1148,9 +1149,9 @@ bool ValidateSerpent()
 
 	FileSource valdata("TestData/serpentv.dat", true, new HexDecoder);
 	bool pass = true;
-	pass = BlockTransformationTest(FixedRoundsCipherFactory<SerpentEncryption, SerpentDecryption>(16), valdata, 4) && pass;
-	pass = BlockTransformationTest(FixedRoundsCipherFactory<SerpentEncryption, SerpentDecryption>(24), valdata, 3) && pass;
-	pass = BlockTransformationTest(FixedRoundsCipherFactory<SerpentEncryption, SerpentDecryption>(32), valdata, 2) && pass;
+	pass = BlockTransformationTest(FixedRoundsCipherFactory<SerpentEncryption, SerpentDecryption>(16), valdata, 5) && pass;
+	pass = BlockTransformationTest(FixedRoundsCipherFactory<SerpentEncryption, SerpentDecryption>(24), valdata, 4) && pass;
+	pass = BlockTransformationTest(FixedRoundsCipherFactory<SerpentEncryption, SerpentDecryption>(32), valdata, 3) && pass;
 	return pass;
 }
 

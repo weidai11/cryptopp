@@ -279,6 +279,10 @@ void BenchmarkAll(double t, double hertz)
 	BenchMarkByNameKeyLess<HashTransformation>("SHA-1");
 	BenchMarkByNameKeyLess<HashTransformation>("SHA-256");
 	BenchMarkByNameKeyLess<HashTransformation>("SHA-512");
+	BenchMarkByNameKeyLess<HashTransformation>("SHA-3-224");
+	BenchMarkByNameKeyLess<HashTransformation>("SHA-3-256");
+	BenchMarkByNameKeyLess<HashTransformation>("SHA-3-384");
+	BenchMarkByNameKeyLess<HashTransformation>("SHA-3-512");
 	BenchMarkByNameKeyLess<HashTransformation>("Tiger");
 	BenchMarkByNameKeyLess<HashTransformation>("Whirlpool");
 	BenchMarkByNameKeyLess<HashTransformation>("RIPEMD-160");

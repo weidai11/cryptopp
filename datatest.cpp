@@ -14,6 +14,7 @@ USING_NAMESPACE(CryptoPP)
 USING_NAMESPACE(std)
 
 typedef std::map<std::string, std::string> TestData;
+static bool s_thorough;
 
 class TestFailure : public Exception
 {
@@ -186,18 +187,17 @@ private:
 
 void TestKeyPairValidAndConsistent(CryptoMaterial &pub, const CryptoMaterial &priv)
 {
-	if (!pub.Validate(GlobalRNG(), 3))
+	if (!pub.Validate(GlobalRNG(), 2+s_thorough))
 		SignalTestFailure();
-	if (!priv.Validate(GlobalRNG(), 3))
+	if (!priv.Validate(GlobalRNG(), 2+s_thorough))
 		SignalTestFailure();
 
-/*	EqualityComparisonFilter comparison;
-	pub.Save(ChannelSwitch(comparison, "0"));
+	ByteQueue bq1, bq2;
+	pub.Save(bq1);
 	pub.AssignFrom(priv);
-	pub.Save(ChannelSwitch(comparison, "1"));
-	comparison.ChannelMessageSeriesEnd("0");
-	comparison.ChannelMessageSeriesEnd("1");
-*/
+	pub.Save(bq2);
+	if (bq1 != bq2)
+		SignalTestFailure();
 }
 
 void TestSignatureScheme(TestData &v)
@@ -209,41 +209,50 @@ void TestSignatureScheme(TestData &v)
 	std::auto_ptr<PK_Verifier> verifier(ObjectFactoryRegistry<PK_Verifier>::Registry().CreateObject(name.c_str()));
 
 	TestDataNameValuePairs pairs(v);
-	std::string keyFormat = GetRequiredDatum(v, "KeyFormat");
 
-	if (keyFormat == "DER")
-		verifier->AccessMaterial().Load(StringStore(GetDecodedDatum(v, "PublicKey")).Ref());
-	else if (keyFormat == "Component")
-		verifier->AccessMaterial().AssignFrom(pairs);
-
-	if (test == "Verify" || test == "NotVerify")
+	if (test == "GenerateKey")
 	{
-		VerifierFilter verifierFilter(*verifier, NULL, VerifierFilter::SIGNATURE_AT_BEGIN);
-		PutDecodedDatumInto(v, "Signature", verifierFilter);
-		PutDecodedDatumInto(v, "Message", verifierFilter);
-		verifierFilter.MessageEnd();
-		if (verifierFilter.GetLastResult() == (test == "NotVerify"))
-			SignalTestFailure();
-	}
-	else if (test == "PublicKeyValid")
-	{
-		if (!verifier->GetMaterial().Validate(GlobalRNG(), 3))
-			SignalTestFailure();
+		signer->AccessPrivateKey().GenerateRandom(GlobalRNG(), pairs);
+		verifier->AccessPublicKey().AssignFrom(signer->AccessPrivateKey());
 	}
 	else
-		goto privateKeyTests;
+	{
+		std::string keyFormat = GetRequiredDatum(v, "KeyFormat");
 
-	return;
+		if (keyFormat == "DER")
+			verifier->AccessMaterial().Load(StringStore(GetDecodedDatum(v, "PublicKey")).Ref());
+		else if (keyFormat == "Component")
+			verifier->AccessMaterial().AssignFrom(pairs);
 
-privateKeyTests:
-	if (keyFormat == "DER")
-		signer->AccessMaterial().Load(StringStore(GetDecodedDatum(v, "PrivateKey")).Ref());
-	else if (keyFormat == "Component")
-		signer->AccessMaterial().AssignFrom(pairs);
-	
-	if (test == "KeyPairValidAndConsistent")
+		if (test == "Verify" || test == "NotVerify")
+		{
+			VerifierFilter verifierFilter(*verifier, NULL, VerifierFilter::SIGNATURE_AT_BEGIN);
+			PutDecodedDatumInto(v, "Signature", verifierFilter);
+			PutDecodedDatumInto(v, "Message", verifierFilter);
+			verifierFilter.MessageEnd();
+			if (verifierFilter.GetLastResult() == (test == "NotVerify"))
+				SignalTestFailure();
+			return;
+		}
+		else if (test == "PublicKeyValid")
+		{
+			if (!verifier->GetMaterial().Validate(GlobalRNG(), 3))
+				SignalTestFailure();
+			return;
+		}
+
+		if (keyFormat == "DER")
+			signer->AccessMaterial().Load(StringStore(GetDecodedDatum(v, "PrivateKey")).Ref());
+		else if (keyFormat == "Component")
+			signer->AccessMaterial().AssignFrom(pairs);
+	}
+
+	if (test == "GenerateKey" || test == "KeyPairValidAndConsistent")
 	{
 		TestKeyPairValidAndConsistent(verifier->AccessMaterial(), signer->GetMaterial());
+		VerifierFilter verifierFilter(*verifier, NULL, VerifierFilter::THROW_EXCEPTION);
+		verifierFilter.Put((const byte *)"abc", 3);
+		StringSource ss("abc", true, new SignerFilter(GlobalRNG(), *signer, new Redirector(verifierFilter)));
 	}
 	else if (test == "Sign")
 	{
@@ -260,11 +269,6 @@ privateKeyTests:
 	{
 		SignalTestError();
 		assert(false);	// TODO: implement
-	}
-	else if (test == "GenerateKey")
-	{
-		SignalTestError();
-		assert(false);
 	}
 	else
 	{
@@ -684,7 +688,7 @@ void TestDataFile(const std::string &filename, const NameValuePairs &overridePar
 			break;
 		v[name] = value;
 
-		if (name == "Test")
+		if (name == "Test" && (s_thorough || v["SlowTest"] != "1"))
 		{
 			bool failed = true;
 			std::string algType = GetRequiredDatum(v, "AlgorithmType");
@@ -741,8 +745,9 @@ void TestDataFile(const std::string &filename, const NameValuePairs &overridePar
 	}
 }
 
-bool RunTestDataFile(const char *filename, const NameValuePairs &overrideParameters)
+bool RunTestDataFile(const char *filename, const NameValuePairs &overrideParameters, bool thorough)
 {
+	s_thorough = thorough;
 	unsigned int totalTests = 0, failedTests = 0;
 	TestDataFile(filename, overrideParameters, totalTests, failedTests);
 	cout << dec << "\nTests complete. Total tests = " << totalTests << ". Failed tests = " << failedTests << ".\n";

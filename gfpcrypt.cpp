@@ -30,39 +30,37 @@ void DL_GroupParameters_DSA::GenerateRandom(RandomNumberGenerator &rng, const Na
 	if (alg.GetValue("Modulus", p) && alg.GetValue("SubgroupGenerator", g))
 	{
 		q = alg.GetValueWithDefault("SubgroupOrder", ComputeGroupOrder(p)/2);
+		Initialize(p, q, g);
 	}
 	else
 	{
-		int modulusSize = 1024;
+		int modulusSize = 1024, defaultSubgroupOrderSize;
 		alg.GetIntValue("ModulusSize", modulusSize) || alg.GetIntValue("KeySize", modulusSize);
 
-		if (!DSA::IsValidPrimeLength(modulusSize))
+		switch (modulusSize)
+		{
+		case 1024:
+			defaultSubgroupOrderSize = 160;
+			break;
+		case 2048:
+			defaultSubgroupOrderSize = 224;
+			break;
+		case 3072:
+			defaultSubgroupOrderSize = 256;
+			break;
+		default:
 			throw InvalidArgument("DSA: not a valid prime length");
+		}
 
-		SecByteBlock seed(SHA::DIGESTSIZE);
-		Integer h;
-		int c;
-
-		do
-		{
-			rng.GenerateBlock(seed, SHA::DIGESTSIZE);
-		} while (!DSA::GeneratePrimes(seed, SHA::DIGESTSIZE*8, c, p, modulusSize, q));
-
-		do
-		{
-			h.Randomize(rng, 2, p-2);
-			g = a_exp_b_mod_c(h, (p-1)/q, p);
-		} while (g <= 1);
+		DL_GroupParameters_GFP::GenerateRandom(rng, CombinedNameValuePairs(alg, MakeParameters(Name::SubgroupOrderSize(), defaultSubgroupOrderSize, false)));
 	}
-
-	Initialize(p, q, g);
 }
 
 bool DL_GroupParameters_DSA::ValidateGroup(RandomNumberGenerator &rng, unsigned int level) const
 {
 	bool pass = DL_GroupParameters_GFP::ValidateGroup(rng, level);
-	pass = pass && DSA::IsValidPrimeLength(GetModulus().BitCount());
-	pass = pass && GetSubgroupOrder().BitCount() == 160;
+	int pSize = GetModulus().BitCount(), qSize = GetSubgroupOrder().BitCount();
+	pass = pass && ((pSize==1024 && qSize==160) || (pSize==2048 && qSize==224) || (pSize==2048 && qSize==256) || (pSize==3072 && qSize==256));
 	return pass;
 }
 

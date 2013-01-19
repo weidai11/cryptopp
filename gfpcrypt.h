@@ -369,51 +369,43 @@ public:
 	/*! parameters: (ModulusSize), or (Modulus, SubgroupOrder, SubgroupGenerator) */
 	/*! ModulusSize must be between DSA::MIN_PRIME_LENGTH and DSA::MAX_PRIME_LENGTH, and divisible by DSA::PRIME_LENGTH_MULTIPLE */
 	void GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &alg);
+
+	static bool CRYPTOPP_API IsValidPrimeLength(unsigned int pbits)
+		{return pbits >= MIN_PRIME_LENGTH && pbits <= MAX_PRIME_LENGTH && pbits % PRIME_LENGTH_MULTIPLE == 0;}
+
+	enum {MIN_PRIME_LENGTH = 1024, MAX_PRIME_LENGTH = 3072, PRIME_LENGTH_MULTIPLE = 1024};
 };
 
-struct DSA;
+template <class H>
+class DSA2;
 
 //! DSA keys
 struct DL_Keys_DSA
 {
 	typedef DL_PublicKey_GFP<DL_GroupParameters_DSA> PublicKey;
-	typedef DL_PrivateKey_WithSignaturePairwiseConsistencyTest<DL_PrivateKey_GFP<DL_GroupParameters_DSA>, DSA> PrivateKey;
+	typedef DL_PrivateKey_WithSignaturePairwiseConsistencyTest<DL_PrivateKey_GFP<DL_GroupParameters_DSA>, DSA2<SHA> > PrivateKey;
 };
 
-//! <a href="http://www.weidai.com/scan-mirror/sig.html#DSA">DSA</a>
-struct CRYPTOPP_DLL DSA : public DL_SS<
+//! <a href="http://en.wikipedia.org/wiki/Digital_Signature_Algorithm">DSA</a>, as specified in FIPS 186-3
+// class named DSA2 instead of DSA for backwards compatibility (DSA was a non-template class)
+template <class H>
+class DSA2 : public DL_SS<
 	DL_Keys_DSA, 
 	DL_Algorithm_GDSA<Integer>, 
 	DL_SignatureMessageEncodingMethod_DSA,
-	SHA, 
-	DSA>
+	H, 
+	DSA2<H> >
 {
-	static const char * CRYPTOPP_API StaticAlgorithmName() {return "DSA";}
-
-	//! Generate DSA primes according to NIST standard
-	/*! Both seedLength and primeLength are in bits, but seedLength should
-		be a multiple of 8.
-		If useInputCounterValue == true, the counter parameter is taken as input, otherwise it's used for output
-	*/
-	static bool CRYPTOPP_API GeneratePrimes(const byte *seed, unsigned int seedLength, int &counter,
-								Integer &p, unsigned int primeLength, Integer &q, bool useInputCounterValue = false);
-
-	static bool CRYPTOPP_API IsValidPrimeLength(unsigned int pbits)
-		{return pbits >= MIN_PRIME_LENGTH && pbits <= MAX_PRIME_LENGTH && pbits % PRIME_LENGTH_MULTIPLE == 0;}
-
-	//! FIPS 186-2 Change Notice 1 changed the minimum modulus length to 1024
-	enum {
-#if (DSA_1024_BIT_MODULUS_ONLY)
-		MIN_PRIME_LENGTH = 1024,
-#else
-		MIN_PRIME_LENGTH = 512,
-#endif
-		MAX_PRIME_LENGTH = 1024, PRIME_LENGTH_MULTIPLE = 64};
+public:
+	static std::string CRYPTOPP_API StaticAlgorithmName() {return "DSA/" + (std::string)H::StaticAlgorithmName();}
 };
+
+//! DSA with SHA-1, typedef'd for backwards compatibility
+typedef DSA2<SHA> DSA;
 
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_PublicKey_GFP<DL_GroupParameters_DSA>;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_GFP<DL_GroupParameters_DSA>;
-CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_WithSignaturePairwiseConsistencyTest<DL_PrivateKey_GFP<DL_GroupParameters_DSA>, DSA>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_WithSignaturePairwiseConsistencyTest<DL_PrivateKey_GFP<DL_GroupParameters_DSA>, DSA2<SHA> >;
 
 //! the XOR encryption method, for use with DL-based cryptosystems
 template <class MAC, bool DHAES_MODE>

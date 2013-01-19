@@ -76,6 +76,6 @@ bool ValidateECDSA();
 bool ValidateESIGN();
 
 CryptoPP::RandomNumberGenerator & GlobalRNG();
-bool RunTestDataFile(const char *filename, const CryptoPP::NameValuePairs &overrideParameters=CryptoPP::g_nullNameValuePairs);
+bool RunTestDataFile(const char *filename, const CryptoPP::NameValuePairs &overrideParameters=CryptoPP::g_nullNameValuePairs, bool thorough=true);
 
 #endif

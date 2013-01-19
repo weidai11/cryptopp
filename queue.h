@@ -58,6 +58,7 @@ public:
 
 	ByteQueue & operator=(const ByteQueue &rhs);
 	bool operator==(const ByteQueue &rhs) const;
+	bool operator!=(const ByteQueue &rhs) const {return !operator==(rhs);}
 	byte operator[](lword i) const;
 	void swap(ByteQueue &rhs);
 

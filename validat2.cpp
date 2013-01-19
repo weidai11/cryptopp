@@ -443,50 +443,7 @@ bool ValidateDSA(bool thorough)
 {
 	cout << "\nDSA validation suite running...\n\n";
 
-	bool pass = true, fail;
-	{
-	FileSource fs("TestData/dsa512.dat", true, new HexDecoder());
-	GDSA<SHA>::Signer priv(fs);
-	priv.AccessKey().Precompute(16);
-	GDSA<SHA>::Verifier pub(priv);
-
-	byte seed[]={0xd5, 0x01, 0x4e, 0x4b, 0x60, 0xef, 0x2b, 0xa8, 0xb6, 0x21, 
-				 0x1b, 0x40, 0x62, 0xba, 0x32, 0x24, 0xe0, 0x42, 0x7d, 0xd3};
-	Integer k("358dad57 1462710f 50e254cf 1a376b2b deaadfbfh");
-	Integer h("a9993e36 4706816a ba3e2571 7850c26c 9cd0d89dh");
-	byte sig[]={0x8b, 0xac, 0x1a, 0xb6, 0x64, 0x10, 0x43, 0x5c, 0xb7, 0x18,
-				0x1f, 0x95, 0xb1, 0x6a, 0xb9, 0x7c, 0x92, 0xb3, 0x41, 0xc0, 
-				0x41, 0xe2, 0x34, 0x5f, 0x1f, 0x56, 0xdf, 0x24, 0x58, 0xf4, 
-				0x26, 0xd1, 0x55, 0xb4, 0xba, 0x2d, 0xb6, 0xdc, 0xd8, 0xc8};
-	Integer r(sig, 20);
-	Integer s(sig+20, 20);
-
-	Integer pGen, qGen, rOut, sOut;
-	int c;
-
-	fail = !DSA::GeneratePrimes(seed, 160, c, pGen, 512, qGen);
-	fail = fail || (pGen != pub.GetKey().GetGroupParameters().GetModulus()) || (qGen != pub.GetKey().GetGroupParameters().GetSubgroupOrder());
-	pass = pass && !fail;
-
-	cout << (fail ? "FAILED    " : "passed    ");
-	cout << "prime generation test\n";
-
-	priv.RawSign(k, h, rOut, sOut);
-	fail = (rOut != r) || (sOut != s);
-	pass = pass && !fail;
-
-	cout << (fail ? "FAILED    " : "passed    ");
-	cout << "signature check against test vector\n";
-
-	fail = !pub.VerifyMessage((byte *)"abc", 3, sig, sizeof(sig));
-	pass = pass && !fail;
-
-	cout << (fail ? "FAILED    " : "passed    ");
-	cout << "verification check against test vector\n";
-
-	fail = pub.VerifyMessage((byte *)"xyz", 3, sig, sizeof(sig));
-	pass = pass && !fail;
-	}
+	bool pass = true;
 	FileSource fs1("TestData/dsa1024.dat", true, new HexDecoder());
 	DSA::Signer priv(fs1);
 	DSA::Verifier pub(priv);
@@ -494,6 +451,7 @@ bool ValidateDSA(bool thorough)
 	DSA::Verifier pub1(fs2);
 	assert(pub.GetKey() == pub1.GetKey());
 	pass = SignatureValidate(priv, pub, thorough) && pass;
+	pass = RunTestDataFile("TestVectors/dsa.txt", g_nullNameValuePairs, thorough) && pass;
 	return pass;
 }
 
