@@ -4,7 +4,7 @@
 	classes that provide a uniform interface to this library.
 */
 
-/*!	\mainpage Crypto++ Library 5.6.1 API Reference
+/*!	\mainpage Crypto++ Library 5.6.2 API Reference
 <dl>
 <dt>Abstract Base Classes<dd>
 	cryptlib.h
@@ -25,7 +25,7 @@
 <dt>Public Key Cryptosystems<dd>
 	DLIES, ECIES, LUCES, RSAES, RabinES, LUC_IES
 <dt>Public Key Signature Schemes<dd>
-	DSA, GDSA, ECDSA, NR, ECNR, LUCSS, RSASS, RSASS_ISO, RabinSS, RWSS, ESIGN
+	DSA2, GDSA, ECDSA, NR, ECNR, LUCSS, RSASS, RSASS_ISO, RabinSS, RWSS, ESIGN
 <dt>Key Agreement<dd>
 	#DH, DH2, #MQV, ECDH, ECMQV, XTR_DH
 <dt>Algebraic Structures<dd>
