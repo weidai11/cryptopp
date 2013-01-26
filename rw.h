@@ -22,6 +22,11 @@ public:
 	void BERDecode(BufferedTransformation &bt);
 	void DEREncode(BufferedTransformation &bt) const;
 
+	void Save(BufferedTransformation &bt) const
+		{DEREncode(bt);}
+	void Load(BufferedTransformation &bt)
+		{BERDecode(bt);}
+
 	Integer ApplyFunction(const Integer &x) const;
 	Integer PreimageBound() const {return ++(m_n>>1);}
 	Integer ImageBound() const {return m_n;}
@@ -51,6 +56,11 @@ public:
 
 	void BERDecode(BufferedTransformation &bt);
 	void DEREncode(BufferedTransformation &bt) const;
+
+	void Save(BufferedTransformation &bt) const
+		{DEREncode(bt);}
+	void Load(BufferedTransformation &bt)
+		{BERDecode(bt);}
 
 	Integer CalculateInverse(RandomNumberGenerator &rng, const Integer &x) const;
 
