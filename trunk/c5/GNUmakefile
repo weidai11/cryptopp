@@ -1,5 +1,5 @@
 CXXFLAGS = -DNDEBUG -g -O2
-#CXXFLAGS = -g
+# -O3 fails to link on Cygwin GCC version 4.5.3
 # -fPIC is supported. Please report any breakage of -fPIC as a bug.
 # CXXFLAGS += -fPIC
 # the following options reduce code size, but breaks link or makes link very slow on some systems
@@ -13,6 +13,9 @@ EGREP = egrep
 UNAME = $(shell uname)
 ISX86 = $(shell uname -m | $(EGREP) -c "i.86|x86|i86|amd64")
 IS_SUN_CC = $(shell $(CXX) -V 2>&1 | $(EGREP) -c "CC: Sun")
+IS_LINUX = $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -c "linux")
+IS_MINGW = $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -c "mingw")
+CLANG_COMPILER = $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "clang version")
 
 # Default prefix for make install
 ifeq ($(PREFIX),)
@@ -28,11 +31,9 @@ ifeq ($(ISX86),1)
 GCC42_OR_LATER = $(shell $(CXX) -v 2>&1 | $(EGREP) -c "^gcc version (4.[2-9]|[5-9])")
 INTEL_COMPILER = $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(ICC\)")
 ICC111_OR_LATER = $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(ICC\) ([2-9][0-9]|1[2-9]|11\.[1-9])")
-CLANG_COMPILER = $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "clang version")
 GAS210_OR_LATER = $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.[1-9][0-9]|[3-9])")
 GAS217_OR_LATER = $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.1[7-9]|2\.[2-9]|[3-9])")
 GAS219_OR_LATER = $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.19|2\.[2-9]|[3-9])")
-ISMINGW = $(shell $(CXX) --version 2>&1 | $(EGREP) -c "mingw")
 
 ifneq ($(GCC42_OR_LATER),0)
 ifeq ($(UNAME),Darwin)
@@ -51,10 +52,6 @@ CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
 endif
 endif
 
-ifneq ($(CLANG_COMPILER),0)
-CXXFLAGS += -Wno-tautological-compare
-endif
-
 ifeq ($(GAS210_OR_LATER),0)	# .intel_syntax wasn't supported until GNU assembler 2.10
 CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
 else
@@ -70,10 +67,6 @@ CXXFLAGS += -Wa,--divide	# allow use of "/" operator
 endif
 endif
 
-ifeq ($(ISMINGW),1)
-LDLIBS += -lws2_32
-endif
-
 endif	# ISX86
 
 ifeq ($(UNAME),)	# for DJGPP, where uname doesn't exist
@@ -82,7 +75,11 @@ else
 CXXFLAGS += -pipe
 endif
 
-ifeq ($(UNAME),Linux)
+ifeq ($(IS_MINGW),1)
+LDLIBS += -lws2_32
+endif
+
+ifeq ($(IS_LINUX),1)
 LDFLAGS += -pthread
 ifneq ($(shell uname -i | $(EGREP) -c "(_64|d64)"),0)
 M32OR64 = -m64
@@ -104,6 +101,10 @@ endif
 ifeq ($(UNAME),SunOS)
 LDLIBS += -lnsl -lsocket
 M32OR64 = -m$(shell isainfo -b)
+endif
+
+ifneq ($(CLANG_COMPILER),0)
+CXXFLAGS += -Wno-tautological-compare
 endif
 
 ifneq ($(IS_SUN_CC),0)	# override flags for CC Sun C++ compiler

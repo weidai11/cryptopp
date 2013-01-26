@@ -141,7 +141,7 @@ const T & Singleton<T, F, instance>::Ref(CRYPTOPP_NOINLINE_DOTDOTDOT) const
 
 // ************** misc functions ***************
 
-#if (!__STDC_WANT_SECURE_LIB__)
+#if (!__STDC_WANT_SECURE_LIB__ && !defined(_MEMORY_S_DEFINED))
 inline void memcpy_s(void *dest, size_t sizeInBytes, const void *src, size_t count)
 {
 	if (count > sizeInBytes)
