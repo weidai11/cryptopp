@@ -83,8 +83,22 @@ void NonblockingRng::GenerateBlock(byte *output, size_t size)
 	if (!CryptGenRandom(m_Provider.GetProviderHandle(), (DWORD)size, output))
 		throw OS_RNG_Err("CryptGenRandom");
 #else
-	if (read(m_fd, output, size) != size)
-		throw OS_RNG_Err("read /dev/urandom");
+	while (size)
+	{
+		ssize_t len = read(m_fd, output, size);
+
+		if (len < 0)
+		{
+			// /dev/urandom reads CAN give EAGAIN errors! (maybe EINTR as well)
+			if (errno != EINTR && errno != EAGAIN)
+				throw OS_RNG_Err("read /dev/urandom");
+
+			continue;
+		}
+
+		output += len;
+		size -= len;
+	}
 #endif
 }
 
@@ -119,10 +133,17 @@ void BlockingRng::GenerateBlock(byte *output, size_t size)
 	while (size)
 	{
 		// on some systems /dev/random will block until all bytes
-		// are available, on others it will returns immediately
+		// are available, on others it returns immediately
 		ssize_t len = read(m_fd, output, size);
 		if (len < 0)
-			throw OS_RNG_Err("read " CRYPTOPP_BLOCKING_RNG_FILENAME);
+		{
+			// /dev/random reads CAN give EAGAIN errors! (maybe EINTR as well)
+			if (errno != EINTR && errno != EAGAIN)
+				throw OS_RNG_Err("read " CRYPTOPP_BLOCKING_RNG_FILENAME);
+
+			continue;
+		}
+
 		size -= len;
 		output += len;
 		if (size)
