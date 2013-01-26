@@ -14,42 +14,42 @@ NAMESPACE_BEGIN(CryptoPP)
 
 template <class T> const T& AbstractGroup<T>::Double(const Element &a) const
 {
-	return Add(a, a);
+	return this->Add(a, a);
 }
 
 template <class T> const T& AbstractGroup<T>::Subtract(const Element &a, const Element &b) const
 {
 	// make copy of a in case Inverse() overwrites it
 	Element a1(a);
-	return Add(a1, Inverse(b));
+	return this->Add(a1, Inverse(b));
 }
 
 template <class T> T& AbstractGroup<T>::Accumulate(Element &a, const Element &b) const
 {
-	return a = Add(a, b);
+	return a = this->Add(a, b);
 }
 
 template <class T> T& AbstractGroup<T>::Reduce(Element &a, const Element &b) const
 {
-	return a = Subtract(a, b);
+	return a = this->Subtract(a, b);
 }
 
 template <class T> const T& AbstractRing<T>::Square(const Element &a) const
 {
-	return Multiply(a, a);
+	return this->Multiply(a, a);
 }
 
 template <class T> const T& AbstractRing<T>::Divide(const Element &a, const Element &b) const
 {
 	// make copy of a in case MultiplicativeInverse() overwrites it
 	Element a1(a);
-	return Multiply(a1, MultiplicativeInverse(b));
+	return this->Multiply(a1, this->MultiplicativeInverse(b));
 }
 
 template <class T> const T& AbstractEuclideanDomain<T>::Mod(const Element &a, const Element &b) const
 {
 	Element q;
-	DivisionAlgorithm(result, q, a, b);
+	this->DivisionAlgorithm(result, q, a, b);
 	return result;
 }
 
@@ -60,7 +60,7 @@ template <class T> const T& AbstractEuclideanDomain<T>::Gcd(const Element &a, co
 
 	while (!this->Equal(g[i1], this->Identity()))
 	{
-		g[i2] = Mod(g[i0], g[i1]);
+		g[i2] = this->Mod(g[i0], g[i1]);
 		unsigned int t = i0; i0 = i1; i1 = i2; i2 = t;
 	}
 
@@ -74,7 +74,7 @@ template <class T> const typename QuotientRing<T>::Element& QuotientRing<T>::Mul
 	Element y;
 	unsigned int i0=0, i1=1, i2=2;
 
-	while (!Equal(g[i1], Identity()))
+	while (!this->Equal(g[i1], this->Identity()))
 	{
 		// y = g[i0] / g[i1];
 		// g[i2] = g[i0] % g[i1];
@@ -90,7 +90,7 @@ template <class T> const typename QuotientRing<T>::Element& QuotientRing<T>::Mul
 template <class T> T AbstractGroup<T>::ScalarMultiply(const Element &base, const Integer &exponent) const
 {
 	Element result;
-	SimultaneousMultiply(&result, base, &exponent, 1);
+	this->SimultaneousMultiply(&result, base, &exponent, 1);
 	return result;
 }
 
@@ -98,7 +98,7 @@ template <class T> T AbstractGroup<T>::CascadeScalarMultiply(const Element &x, c
 {
 	const unsigned expLen = STDMAX(e1.BitCount(), e2.BitCount());
 	if (expLen==0)
-		return Identity();
+		return this->Identity();
 
 	const unsigned w = (expLen <= 46 ? 1 : (expLen <= 260 ? 2 : 3));
 	const unsigned tableSize = 1<<w;
@@ -107,11 +107,11 @@ template <class T> T AbstractGroup<T>::CascadeScalarMultiply(const Element &x, c
 	powerTable[1] = x;
 	powerTable[tableSize] = y;
 	if (w==1)
-		powerTable[3] = Add(x,y);
+		powerTable[3] = this->Add(x,y);
 	else
 	{
-		powerTable[2] = Double(x);
-		powerTable[2*tableSize] = Double(y);
+		powerTable[2] = this->Double(x);
+		powerTable[2*tableSize] = this->Double(y);
 
 		unsigned i, j;
 
@@ -157,12 +157,12 @@ template <class T> T AbstractGroup<T>::CascadeScalarMultiply(const Element &x, c
 			else
 			{
 				while (squaresBefore--)
-					result = Double(result);
+					result = this->Double(result);
 				if (power1 || power2)
 					Accumulate(result, powerTable[(power2<<w) + power1]);
 			}
 			while (squaresAfter--)
-				result = Double(result);
+				result = this->Double(result);
 			power1 = power2 = 0;
 		}
 	}
