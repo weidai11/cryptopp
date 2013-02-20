@@ -323,6 +323,10 @@ SOURCE=.\sha.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\sha3.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\simple.cpp
 # End Source File
 # Begin Source File
@@ -556,6 +560,10 @@ SOURCE=.\seckey.h
 # Begin Source File
 
 SOURCE=.\sha.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\sha3.h
 # End Source File
 # Begin Source File
 
