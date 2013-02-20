@@ -565,6 +565,10 @@ SOURCE=.\sha.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\sha3.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\shacal2.cpp
 # End Source File
 # Begin Source File
@@ -1082,6 +1086,10 @@ SOURCE=.\serpent.h
 # Begin Source File
 
 SOURCE=.\sha.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\sha3.h
 # End Source File
 # Begin Source File
 

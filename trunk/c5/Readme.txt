@@ -1,5 +1,5 @@
 Crypto++: a C++ Class Library of Cryptographic Schemes
-Version 5.6.2 (in development)
+Version 5.6.2 - 2/20/2013
 
 Crypto++ Library is a free C++ class library of cryptographic schemes.
 Currently the library contains the following algorithms:
@@ -24,7 +24,7 @@ Currently the library contains the following algorithms:
                                    Two-Track-MAC
 
                                    SHA-1, SHA-2 (SHA-224, SHA-256, SHA-384, and
-                   hash functions  SHA-512), Tiger, WHIRLPOOL, RIPEMD-128,
+                   hash functions  SHA-512), SHA-3, Tiger, WHIRLPOOL, RIPEMD-128,
                                    RIPEMD-256, RIPEMD-160, RIPEMD-320
 
                                    RSA, DSA, ElGamal, Nyberg-Rueppel (NR),
@@ -440,5 +440,13 @@ the mailing list.
       - switched to a public domain implementation of MARS
       - ported to MSVC 2010, GCC 4.5.1, Sun Studio 12u1, C++Builder 2010, Intel C++ Compiler 11.1
       - renamed the MSVC DLL project to "cryptopp" for compatibility with MSVC 2010
+
+5.6.2 - changed license to Boost Software License 1.0
+      - added SHA-3 (Keccak)
+      - updated DSA to FIPS 186-3 (see DSA2 class)
+      - fixed Blowfish minimum keylength to be 4 bytes (32 bits)
+      - fixed Salsa validation failure when compiling with GCC 4.6
+      - fixed infinite recursion when on x64, assembly disabled, and no AESNI
+      - ported to MSVC 2012, GCC 4.7, Clang 3.2, Solaris Studio 12.3, Intel C++ Compiler 13.0
 
 Written by Wei Dai
