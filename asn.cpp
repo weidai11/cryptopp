@@ -123,7 +123,7 @@ size_t BERDecodeOctetString(BufferedTransformation &bt, SecByteBlock &str)
 	if (!BERLengthDecode(bt, bc))
 		BERDecodeError();
 
-	str.resize(bc);
+	str.New(bc);
 	if (bc != bt.Get(str, bc))
 		BERDecodeError();
 	return bc;
