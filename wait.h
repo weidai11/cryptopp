@@ -10,9 +10,13 @@
 #include <vector>
 
 #ifdef USE_WINDOWS_STYLE_SOCKETS
-#include <winsock2.h>
+# include <winsock2.h>
 #else
-#include <sys/types.h>
+# include <sys/types.h>
+#endif
+
+#if defined(__ANDROID__)
+# include <sys/select.h>
 #endif
 
 #include "hrtimer.h"
