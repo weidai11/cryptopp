@@ -363,7 +363,7 @@ bool WaitObjectContainer::Wait(unsigned long milliseconds)
 	else if (result == 0)
 		return timeoutIsScheduledEvent;
 	else
-		throw Err("WaitObjectContainer: select failed with error " + errno);
+		throw Err("WaitObjectContainer: select failed with error " + IntToString(errno));
 }
 
 #endif
