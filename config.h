@@ -94,6 +94,8 @@
 
 typedef unsigned char byte;		// put in global namespace to avoid ambiguity with other byte typedefs
 
+#define CRYPTOPP_UNUSED(x) ((void)x);		// cast to void. Portable way to suppress unused variable
+
 NAMESPACE_BEGIN(CryptoPP)
 
 typedef unsigned short word16;

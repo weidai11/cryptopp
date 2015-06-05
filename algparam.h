@@ -320,6 +320,7 @@ public:
 	void MoveInto(void *buffer) const
 	{
 		AlgorithmParametersTemplate<T>* p = new(buffer) AlgorithmParametersTemplate<T>(*this);
+		CRYPTOPP_UNUSED(p);
 	}
 
 protected:
