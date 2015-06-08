@@ -11,7 +11,7 @@ CP = cp
 MKDIR = mkdir
 EGREP = egrep
 UNAME = $(shell uname)
-ISX86 = $(shell uname -m | $(EGREP) -c "i.86|x86|i86|amd64")
+IS_X86 = $(shell uname -m | $(EGREP) -c "i.86|x86|i86|amd64")
 IS_SUN_CC = $(shell $(CXX) -V 2>&1 | $(EGREP) -c "CC: Sun")
 IS_LINUX = $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -c "linux")
 IS_MINGW = $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -c "mingw")
@@ -26,7 +26,7 @@ ifeq ($(CXX),gcc)	# for some reason CXX is gcc on cygwin 1.1.4
 CXX = g++
 endif
 
-ifeq ($(ISX86),1)
+ifeq ($(IS_X86),1)
 
 GCC42_OR_LATER = $(shell $(CXX) -v 2>&1 | $(EGREP) -c "^gcc version (4.[2-9]|[5-9])")
 INTEL_COMPILER = $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(ICC\)")
@@ -67,7 +67,7 @@ CXXFLAGS += -Wa,--divide	# allow use of "/" operator
 endif
 endif
 
-endif	# ISX86
+endif	# IS_X86
 
 ifeq ($(UNAME),)	# for DJGPP, where uname doesn't exist
 CXXFLAGS += -mbnu210
