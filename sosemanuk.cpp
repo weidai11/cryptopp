@@ -317,7 +317,9 @@ void Sosemanuk_OperateKeystream(size_t iterationCount, const byte *input, byte *
 }
 #endif
 
-#pragma warning(disable: 4731)	// frame pointer register 'ebp' modified by inline assembly code
+#ifdef _MSC_VER
+# pragma warning(disable: 4731)	// frame pointer register 'ebp' modified by inline assembly code
+#endif
 
 void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount)
 {
