@@ -4,7 +4,10 @@
 #define CRYPTOPP_DEFAULT_NO_DLL
 
 #include "dll.h"
-#pragma warning(default: 4660)
+
+#ifdef _MSC_VER
+# pragma warning(default: 4660)
+#endif
 
 #if defined(CRYPTOPP_EXPORTS) && defined(CRYPTOPP_WIN32_AVAILABLE)
 #include <windows.h>
