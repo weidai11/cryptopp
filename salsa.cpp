@@ -80,7 +80,9 @@ void Salsa20_OperateKeystream(byte *output, const byte *input, size_t iterationC
 }
 #endif
 
-#pragma warning(disable: 4731)	// frame pointer register 'ebp' modified by inline assembly code
+#ifdef _MSC_VER
+# pragma warning(disable: 4731)	// frame pointer register 'ebp' modified by inline assembly code
+#endif
 
 void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount)
 {
