@@ -25,6 +25,7 @@
 #include "seal.h"
 #include "rc6.h"
 #include "mars.h"
+#include "aes.h"
 #include "rijndael.h"
 #include "twofish.h"
 #include "serpent.h"
