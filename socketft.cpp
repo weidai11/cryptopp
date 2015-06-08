@@ -476,7 +476,7 @@ unsigned int SocketSender::GetSendResult()
 #ifdef USE_BERKELEY_STYLE_SOCKETS
 
 SocketReceiver::SocketReceiver(Socket &s)
-	: m_s(s), m_lastResult(0), m_eofReceived(false)
+	: m_s(s), m_eofReceived(false), m_lastResult(0)
 {
 }
 
