@@ -36,7 +36,6 @@ ifeq ($(IS_IOS),1)
 
   AR = libtool
   ARFLAGS = -static -o
-  LDFLAGS += -flat_namespace
 endif
 
 # Android cross-compile configuration. Works in conjunction with IS_CROSS_COMPILE.
