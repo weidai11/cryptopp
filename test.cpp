@@ -113,6 +113,8 @@ int CRYPTOPP_API main(int argc, char *argv[])
 #if defined(__MWERKS__) && defined(macintosh)
 	argc = ccommand(&argv);
 #endif
+    
+	CRYPTOPP_UNUSED(argc), CRYPTOPP_UNUSED(argv);
 
 	try
 	{
