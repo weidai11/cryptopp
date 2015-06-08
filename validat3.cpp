@@ -494,7 +494,7 @@ bool ValidateTTMAC()
 	cout << "\nTwo-Track-MAC validation suite running...\n";
 
 	TTMAC mac(key, sizeof(key));
-	for (int k=0; k<sizeof(TestVals)/sizeof(TestVals[0]); k++)
+	for (size_t k=0; k<sizeof(TestVals)/sizeof(TestVals[0]); k++)
 	{
 		mac.Update((byte *)TestVals[k], strlen(TestVals[k]));
 		mac.Final(digest);

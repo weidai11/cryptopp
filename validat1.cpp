@@ -1046,7 +1046,7 @@ bool ValidateARC4()
 	// VC60 workaround: auto_ptr lacks reset()
 	member_ptr<Weak::ARC4> arc4;
 	bool pass=true, fail;
-	int i;
+	size_t i;
 
 	cout << "\nARC4 validation suite running...\n\n";
 
