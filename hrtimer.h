@@ -39,7 +39,7 @@ private:
 //! measure CPU time spent executing instructions of this thread (if supported by OS)
 /*! /note This only works correctly on Windows NT or later. On Unix it reports process time, and others wall clock time.
 */
-class ThreadUserTimer : public TimerBase
+class CRYPTOPP_DLL ThreadUserTimer : public TimerBase
 {
 public:
 	ThreadUserTimer(Unit unit = TimerBase::SECONDS, bool stuckAtZero = false)	: TimerBase(unit, stuckAtZero) {}
