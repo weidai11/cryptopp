@@ -63,14 +63,14 @@ unsigned int RawIDA::InsertInputChannel(word32 channelId)
 skipFind:
 	if (m_lastMapPosition == m_inputChannelMap.end())
 	{
-		if (m_inputChannelIds.size() == m_threshold)
+		if (m_inputChannelIds.size() == static_cast<size_t>(m_threshold))
 			return m_threshold;
 
 		m_lastMapPosition = m_inputChannelMap.insert(InputChannelMap::value_type(channelId, (unsigned int)m_inputChannelIds.size())).first;
 		m_inputQueues.push_back(MessageQueue());
 		m_inputChannelIds.push_back(channelId);
 
-		if (m_inputChannelIds.size() == m_threshold)
+		if (m_inputChannelIds.size() == static_cast<size_t>(m_threshold))
 			PrepareInterpolation();
 	}
 	return m_lastMapPosition->second;
@@ -95,7 +95,7 @@ void RawIDA::ChannelData(word32 channelId, const byte *inString, size_t length, 
 		if (size < 4 && size + length >= 4)
 		{
 			m_channelsReady++;
-			if (m_channelsReady == m_threshold)
+			if (m_channelsReady == static_cast<unsigned int>(m_threshold))
 				ProcessInputQueues();
 		}
 
@@ -105,7 +105,7 @@ void RawIDA::ChannelData(word32 channelId, const byte *inString, size_t length, 
 			if (m_inputQueues[i].NumberOfMessages() == 1)
 			{
 				m_channelsFinished++;
-				if (m_channelsFinished == m_threshold)
+				if (m_channelsFinished == static_cast<unsigned int>(m_threshold))
 				{
 					m_channelsReady = 0;
 					for (i=0; i<m_threshold; i++)
@@ -132,7 +132,7 @@ void RawIDA::ComputeV(unsigned int i)
 	}
 
 	m_outputToInput[i] = LookupInputChannel(m_outputChannelIds[i]);
-	if (m_outputToInput[i] == m_threshold && i * m_threshold <= 1000*1000)
+	if (m_outputToInput[i] == static_cast<unsigned int>(m_threshold) && i * m_threshold <= 1000*1000)
 	{
 		m_v[i].resize(m_threshold);
 		PrepareBulkPolynomialInterpolationAt(field, m_v[i].begin(), m_outputChannelIds[i], &(m_inputChannelIds[0]), m_w.begin(), m_threshold);
@@ -144,7 +144,7 @@ void RawIDA::AddOutputChannel(word32 channelId)
 	m_outputChannelIds.push_back(channelId);
 	m_outputChannelIdStrings.push_back(WordToString(channelId));
 	m_outputQueues.push_back(ByteQueue());
-	if (m_inputChannelIds.size() == m_threshold)
+	if (m_inputChannelIds.size() == static_cast<size_t>(m_threshold))
 		ComputeV((unsigned int)m_outputChannelIds.size() - 1);
 }
 
@@ -158,10 +158,10 @@ void RawIDA::PrepareInterpolation()
 
 void RawIDA::ProcessInputQueues()
 {
-	bool finished = (m_channelsFinished == m_threshold);
+	bool finished = (m_channelsFinished == static_cast<unsigned int>(m_threshold));
 	int i;
 
-	while (finished ? m_channelsReady > 0 : m_channelsReady == m_threshold)
+	while (finished ? m_channelsReady > 0 : m_channelsReady == static_cast<size_t>(m_threshold))
 	{
 		m_channelsReady = 0;
 		for (i=0; i<m_threshold; i++)
@@ -177,9 +177,9 @@ void RawIDA::ProcessInputQueues()
 
 		for (i=0; (unsigned int)i<m_outputChannelIds.size(); i++)
 		{
-			if (m_outputToInput[i] != m_threshold)
+			if (m_outputToInput[i] != static_cast<unsigned int>(m_threshold))
 				m_outputQueues[i].PutWord32(m_y[m_outputToInput[i]]);
-			else if (m_v[i].size() == m_threshold)
+			else if (m_v[i].size() == static_cast<size_t>(m_threshold))
 				m_outputQueues[i].PutWord32(BulkPolynomialInterpolateAt(field, m_y.begin(), m_v[i].begin(), m_threshold));
 			else
 			{
