@@ -100,7 +100,7 @@ void Socket::Bind(unsigned int port, const char *addr)
 	else
 	{
 		unsigned long result = inet_addr(addr);
-		if (result == -1)	// Solaris doesn't have INADDR_NONE
+		if (result == static_cast<unsigned long>(-1))	// Solaris doesn't have INADDR_NONE
 		{
 			SetLastError(SOCKET_EINVAL);
 			CheckAndHandleError_int("inet_addr", SOCKET_ERROR);
@@ -135,7 +135,7 @@ bool Socket::Connect(const char *addr, unsigned int port)
 	sa.sin_family = AF_INET;
 	sa.sin_addr.s_addr = inet_addr(addr);
 
-	if (sa.sin_addr.s_addr == -1)	// Solaris doesn't have INADDR_NONE
+	if (sa.sin_addr.s_addr == static_cast<unsigned int>(-1))	// Solaris doesn't have INADDR_NONE
 	{
 		hostent *lphost = gethostbyname(addr);
 		if (lphost == NULL)
