@@ -86,7 +86,7 @@ test: cryptest.exe
 	./cryptest.exe v
 
 clean:
-	-$(RM) cryptest.exe libcryptopp.a libcryptopp.so $(LIBOBJS) $(TESTOBJS) cryptopp.dll libcryptopp.dll.a libcryptopp.import.a cryptest.import.exe dlltest.exe $(DLLOBJS) $(LIBIMPORTOBJS) $(TESTI MPORTOBJS) $(DLLTESTOBJS)
+	-$(RM) cryptest.exe libcryptopp.a libcryptopp.so $(LIBOBJS) $(DLLOBJS) $(TESTOBJS)
 	-$(RM) -r *.dSYM
 
 install:
