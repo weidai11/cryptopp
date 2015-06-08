@@ -227,8 +227,8 @@ bool NonblockingSink::IsolatedFlush(bool hardFlush, bool blocking)
 
 NetworkSource::NetworkSource(BufferedTransformation *attachment)
 	: NonblockingSource(attachment), m_buf(1024*16)
-	, m_waitingForResult(false), m_dataBegin(0), m_dataEnd(0)
-	, m_outputBlocked(false)
+	, m_dataBegin(0), m_dataEnd(0)
+	, m_waitingForResult(false), m_outputBlocked(false)
 {
 }
 
