@@ -137,7 +137,11 @@ void VMAC_Base::HashEndianCorrectedBlock(const word64 *data)
 }
 
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && CRYPTOPP_BOOL_X86
-#pragma warning(disable: 4731)	// frame pointer register 'ebp' modified by inline assembly code
+
+#ifdef _MSC_VER
+# pragma warning(disable: 4731)	// frame pointer register 'ebp' modified by inline assembly code
+#endif
+
 void
 #ifdef __GNUC__
 __attribute__ ((noinline))		// Intel Compiler 9.1 workaround
