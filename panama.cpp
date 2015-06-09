@@ -37,7 +37,9 @@ void Panama_SSE2_Pull(size_t count, word32 *state, word32 *z, const word32 *y);
 	save_xmm128 xmm7, 10h
 	.endprolog
 #else
-#pragma warning(disable: 4731)	// frame pointer register 'ebp' modified by inline assembly code
+#ifdef _MSC_VER
+# pragma warning(disable: 4731)	// frame pointer register 'ebp' modified by inline assembly code
+#endif
 void CRYPTOPP_NOINLINE Panama_SSE2_Pull(size_t count, word32 *state, word32 *z, const word32 *y)
 {
 #ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
