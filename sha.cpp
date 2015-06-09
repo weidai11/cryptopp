@@ -123,7 +123,9 @@ extern const word32 SHA256_K[64] = {
 
 #if defined(CRYPTOPP_X86_ASM_AVAILABLE) || defined(CRYPTOPP_GENERATE_X64_MASM)
 
-#pragma warning(disable: 4731)	// frame pointer register 'ebp' modified by inline assembly code
+#ifdef _MSC_VER
+# pragma warning(disable: 4731)	// frame pointer register 'ebp' modified by inline assembly code
+#endif
 
 static void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 *data, size_t len
 #if defined(_MSC_VER) && (_MSC_VER == 1200)
