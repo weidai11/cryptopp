@@ -23,7 +23,7 @@ void WAKE_Base::GenKey(word32 k0, word32 k1, word32 k2, word32 k3)
 	signed int x, z, p;	
 	// x and z were declared as "long" in Wheeler's paper, which is a signed type. I don't know if that was intentional, but it's too late to change it now. -- Wei 7/4/2010
 	CRYPTOPP_COMPILE_ASSERT(sizeof(x) == 4);
-	static int tt[10]= {
+	static unsigned int tt[10]= {
 		0x726a8f3b,								 // table
 		0xe69a3b5c,
 		0xd3c71fe5,
