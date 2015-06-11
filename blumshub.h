@@ -5,9 +5,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-class BlumGoldwasserPublicKey;
-class BlumGoldwasserPrivateKey;
-
 //! BlumBlumShub without factorization of the modulus
 class PublicBlumBlumShub : public RandomNumberGenerator,
 						   public StreamTransformation
@@ -27,9 +24,6 @@ protected:
 	ModularArithmetic modn;
 	word maxBits, bitsLeft;
 	Integer current;
-
-	friend class BlumGoldwasserPublicKey;
-	friend class BlumGoldwasserPrivateKey;
 };
 
 //! BlumBlumShub with factorization of the modulus
