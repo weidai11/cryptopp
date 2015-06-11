@@ -133,7 +133,7 @@ protected:
 
 	OID m_oid;			// set if parameters loaded from a recommended curve
 	Integer m_n;		// order of base point
-	bool m_compress, m_encodeAsOID;
+	mutable bool m_compress, m_encodeAsOID;
 	mutable Integer m_k;		// cofactor
 };
 
