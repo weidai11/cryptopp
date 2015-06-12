@@ -251,7 +251,7 @@ int CRYPTOPP_API main(int argc, char *argv[])
 			DigestFile(argv[2]);
 		else if (command == "tv")
 		{
-			std::string fname = argv[2];
+			std::string fname = (argc >= 3 ? argv[2] : "all");
 			if (fname.find(".txt") == std::string::npos)
 				fname = "TestVectors/" + fname + ".txt";
 			return !RunTestDataFile(fname.c_str());
