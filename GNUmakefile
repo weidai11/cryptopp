@@ -1,6 +1,6 @@
 CXXFLAGS = -DNDEBUG -g -O2
 # -O3 fails to link on Cygwin GCC version 4.5.3
-# -fPIC is supported. Please report any breakage of -fPIC as a bug.
+# -fPIC is supported, and enabled by default for x86_64.
 # CXXFLAGS += -fPIC
 # the following options reduce code size, but breaks link or makes link very slow on some systems
 # CXXFLAGS += -ffunction-sections -fdata-sections
@@ -12,6 +12,7 @@ MKDIR = mkdir
 EGREP = egrep
 UNAME = $(shell uname)
 IS_X86 = $(shell uname -m | $(EGREP) -c "i.86|x86|i86|amd64")
+IS_X86_64 = $(shell uname -m | $(EGREP) -c "_64|d64")
 IS_SUN_CC = $(shell $(CXX) -V 2>&1 | $(EGREP) -c "CC: Sun")
 IS_LINUX = $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -c "linux")
 IS_MINGW = $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -c "mingw")
@@ -34,6 +35,11 @@ ICC111_OR_LATER = $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(ICC\) ([2-9][0-
 GAS210_OR_LATER = $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.[1-9][0-9]|[3-9])")
 GAS217_OR_LATER = $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.1[7-9]|2\.[2-9]|[3-9])")
 GAS219_OR_LATER = $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.19|2\.[2-9]|[3-9])")
+
+#Enable PIC for x86_64 targets
+ifneq ($(IS_X86_64),0)
+CXXFLAGS += -fPIC
+endif
 
 ifneq ($(GCC42_OR_LATER),0)
 ifeq ($(UNAME),Darwin)
@@ -81,7 +87,7 @@ endif
 
 ifeq ($(IS_LINUX),1)
 LDFLAGS += -pthread
-ifneq ($(shell uname -i | $(EGREP) -c "(_64|d64)"),0)
+ifneq ($(IS_X86_64),0)
 M32OR64 = -m64
 endif
 endif
