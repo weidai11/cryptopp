@@ -42,6 +42,10 @@
 #include <console.h>
 #endif
 
+#ifdef _OPENMP
+# include <omp.h>
+#endif
+
 #ifdef __BORLANDC__
 #pragma comment(lib, "cryptlib_bds.lib")
 #pragma comment(lib, "ws2_32.lib")
@@ -769,8 +773,20 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 	std::string seed = seedInput ? std::string(seedInput) : IntToString(time(NULL));
 	seed.resize(16);
 
-	cout << "Using seed: " << seed << endl << endl;
+	cout << "Using seed: " << seed << endl;
 	s_globalRNG.SetKeyWithIV((byte *)seed.data(), 16, (byte *)seed.data());
+
+#ifdef _OPENMP
+	int tc = 0;
+	#pragma omp parallel
+	{
+		tc = omp_get_num_threads();
+	}
+
+	cout << "Using " << tc << " OMP " << (tc == 1 ? "thread" : "threads") << endl;
+#endif
+
+	cout << endl;
 
 	switch (alg)
 	{
