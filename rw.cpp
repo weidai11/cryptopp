@@ -126,10 +126,16 @@ Integer InvertibleRWFunction::CalculateInverse(RandomNumberGenerator &rng, const
 	DoQuickSanityCheck();
 	ModularArithmetic modn(m_n);
 	Integer r, rInv;
-	do {	// do this in a loop for people using small numbers for testing
+
+	// do this in a loop for people using small numbers for testing
+	do {
 		r.Randomize(rng, Integer::One(), m_n - Integer::One());
+		// Fix for CVE-2015-2141. Thanks to Evgeny Sidorov for reporting.
+		// Squaring to satisfy Jacobi requirements suggested by JPM.
+		r = modn.Square(r);
 		rInv = modn.MultiplicativeInverse(r);
 	} while (rInv.IsZero());
+
 	Integer re = modn.Square(r);
 	re = modn.Multiply(re, x);			// blind
 
