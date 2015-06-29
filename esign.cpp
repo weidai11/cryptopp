@@ -158,7 +158,7 @@ Integer InvertibleESIGNFunction::CalculateRandomizedInverse(RandomNumberGenerato
 			w1 = pq - w1;
 		}
 	}
-	while ((w1 >> 2*GetK()+1).IsPositive());
+	while ((w1 >> (2*GetK()+1)).IsPositive());
 
 	ModularArithmetic modp(m_p);
 	Integer t = modp.Divide(w0 * r % m_p, m_e * re % m_p);
