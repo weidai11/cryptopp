@@ -708,6 +708,7 @@ template<> inline word16 rotlFixed<word16>(word16 x, unsigned int y)
 template<> inline word16 rotrFixed<word16>(word16 x, unsigned int y)
 {
 	assert(y < 8*sizeof(x));
+	assert(y <= 255);
 	return y ? _rotr16(x, y) : x;
 }
 
