@@ -8,6 +8,11 @@
 #include "fltrimpl.h"
 #include <ctype.h>
 
+#if GCC_DIAGNOSTIC_AWARE
+# pragma GCC diagnostic ignored "-Wunused-value"
+# pragma GCC diagnostic ignored "-Wunused-variable"
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 void BaseN_Encoder::IsolatedInitialize(const NameValuePairs &parameters)

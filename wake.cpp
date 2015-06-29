@@ -3,6 +3,11 @@
 #include "pch.h"
 #include "wake.h"
 
+#if GCC_DIAGNOSTIC_AWARE
+# pragma GCC diagnostic ignored "-Wunused-value"
+# pragma GCC diagnostic ignored "-Wunused-variable"
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 void WAKE_TestInstantiations()

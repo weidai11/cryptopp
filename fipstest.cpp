@@ -23,6 +23,11 @@ extern "C" {_CRTIMP void __cdecl _CRT_DEBUGGER_HOOK(int);}
 
 #include <iostream>
 
+#if GCC_DIAGNOSTIC_AWARE
+# pragma GCC diagnostic ignored "-Wunused-value"
+# pragma GCC diagnostic ignored "-Wunused-variable"
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 extern PowerUpSelfTestStatus g_powerUpSelfTestStatus;

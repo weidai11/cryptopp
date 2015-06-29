@@ -14,6 +14,11 @@
 #include "hrtimer.h"
 #include <time.h>
 
+#if GCC_DIAGNOSTIC_AWARE
+# pragma GCC diagnostic ignored "-Wunused-value"
+# pragma GCC diagnostic ignored "-Wunused-variable"
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 RandomPool::RandomPool()

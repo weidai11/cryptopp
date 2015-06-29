@@ -16,6 +16,11 @@
 
 #include <memory>
 
+#if GCC_DIAGNOSTIC_AWARE
+# pragma GCC diagnostic ignored "-Wunused-value"
+# pragma GCC diagnostic ignored "-Wunused-variable"
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 CRYPTOPP_COMPILE_ASSERT(sizeof(byte) == 1);

@@ -11,6 +11,11 @@
 #include <memory>
 #include <functional>
 
+#if GCC_DIAGNOSTIC_AWARE
+# pragma GCC diagnostic ignored "-Wunused-value"
+# pragma GCC diagnostic ignored "-Wunused-variable"
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 Filter::Filter(BufferedTransformation *attachment)

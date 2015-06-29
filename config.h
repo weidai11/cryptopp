@@ -456,4 +456,8 @@ NAMESPACE_END
 #define CRYPTOPP_STATIC_TEMPLATE_CLASS CRYPTOPP_EXTERN_STATIC_TEMPLATE_CLASS
 #endif
 
+// Used to supress some warnings in some header and implmentation files.
+//   GCC_DIAGNOSTIC_AWARE is used because some platforms, like OpenBSD, use old compilers.
+#define GCC_DIAGNOSTIC_AWARE (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7)) || defined(__clang__)
+
 #endif
