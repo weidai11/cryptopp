@@ -32,6 +32,8 @@ public:
 	~MicrosoftCryptoProvider();
 #if defined(_WIN64)
 	typedef unsigned __int64 ProviderHandle;	// type HCRYPTPROV, avoid #include <windows.h>
+#elif defined(__CYGWIN__) && defined(__x86_64__)
+	typedef unsigned long long ProviderHandle;
 #else
 	typedef unsigned long ProviderHandle;
 #endif
