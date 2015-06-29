@@ -518,21 +518,10 @@ bool ValidateRW()
 	cout << "\nRW validation suite running...\n\n";
 	bool pass=true;
 
-	{
-		FileSource f("TestData/rw1024.dat", true, new HexDecoder);
-		RWSS<PSSR, SHA>::Signer priv(f);
-		RWSS<PSSR, SHA>::Verifier pub(priv);
-		pass = pass && SignatureValidate(priv, pub);
-	}
-	{
-		cout << "Turning off blinding..." << endl;
-
-		FileSource f("TestData/rw1024.dat", true, new HexDecoder);
-		RWSS<PSSR, SHA>::Signer priv(f);
-		priv.AccessKey().SetEnableBlinding(false);
-		RWSS<PSSR, SHA>::Verifier pub(priv);
-		pass = pass && SignatureValidate(priv, pub);
-	}
+    FileSource f("TestData/rw1024.dat", true, new HexDecoder);
+    RWSS<PSSR, SHA>::Signer priv(f);
+    RWSS<PSSR, SHA>::Verifier pub(priv);
+    pass = pass && SignatureValidate(priv, pub);
 
 	return pass;
 }
