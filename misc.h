@@ -545,7 +545,7 @@ inline void SecureWipeArray(T *buf, size_t n)
 }
 
 // this function uses wcstombs(), which assumes that setlocale() has been called
-static std::string StringNarrow(const wchar_t *str, bool throwOnError = true)
+static inline std::string StringNarrow(const wchar_t *str, bool throwOnError = true)
 {
 #ifdef _MSC_VER
 #pragma warning(push)
