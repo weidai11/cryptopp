@@ -21,6 +21,7 @@
 #include "pwdbased.h"
 #include "filters.h"
 #include "hex.h"
+#include "misc.h"
 #include "files.h"
 
 #include <iostream>
@@ -54,7 +55,7 @@ bool HashModuleTest(HashTransformation &md, const HashTestTuple *testSet, unsign
 		for (j=0; j<testSet[i].repeatTimes; j++)
 			md.Update(testSet[i].input, testSet[i].inputLen);
 		md.Final(digest);
-		fail = memcmp(digest, testSet[i].output, md.DigestSize()) != 0;
+		fail = !VerifyBufsEqual(digest, testSet[i].output, md.DigestSize());
 		pass = pass && !fail;
 
 		cout << (fail ? "FAILED   " : "passed   ");
@@ -377,7 +378,7 @@ bool ValidateMD5MAC()
 		{
 			mac.Update((byte *)TestVals[i], strlen(TestVals[i]));
 			mac.Final(digest);
-			fail = memcmp(digest, output[k][i], MD5MAC::DIGESTSIZE)
+			fail = !VerifyBufsEqual(digest, output[k][i], MD5MAC::DIGESTSIZE)
 				 || !mac.VerifyDigest(output[k][i], (byte *)TestVals[i], strlen(TestVals[i]));
 			pass = pass && !fail;
 			cout << (fail ? "FAILED   " : "passed   ");
@@ -448,7 +449,7 @@ bool ValidateXMACC()
 		{
 			mac.Update((byte *)TestVals[i], strlen(TestVals[i]));
 			mac.Final(digest);
-			fail = memcmp(digest, output[k][i], XMACC_MD5::DIGESTSIZE)
+			fail = !VerifyBufsEqual(digest, output[k][i], XMACC_MD5::DIGESTSIZE)
 				 || !mac.VerifyDigest(output[k][i], (byte *)TestVals[i], strlen(TestVals[i]));
 			pass = pass && !fail;
 			cout << (fail ? "FAILED   " : "passed   ");
@@ -498,7 +499,7 @@ bool ValidateTTMAC()
 	{
 		mac.Update((byte *)TestVals[k], strlen(TestVals[k]));
 		mac.Final(digest);
-		fail = memcmp(digest, output[k], TTMAC::DIGESTSIZE)
+		fail = !VerifyBufsEqual(digest, output[k], TTMAC::DIGESTSIZE)
 			|| !mac.VerifyDigest(output[k], (byte *)TestVals[k], strlen(TestVals[k]));
 		pass = pass && !fail;
 		cout << (fail ? "FAILED   " : "passed   ");
@@ -532,7 +533,7 @@ bool TestPBKDF(PasswordBasedKeyDerivationFunction &pbkdf, const PBKDF_TestTuple 
 
 		SecByteBlock derived(derivedKey.size());
 		pbkdf.DeriveKey(derived, derived.size(), tuple.purpose, (byte *)password.data(), password.size(), (byte *)salt.data(), salt.size(), tuple.iterations);
-		bool fail = memcmp(derived, derivedKey.data(), derived.size()) != 0;
+		bool fail = !VerifyBufsEqual(derived, reinterpret_cast<const unsigned char*>(derivedKey.data()), derived.size());
 		pass = pass && !fail;
 
 		HexEncoder enc(new FileSink(cout));

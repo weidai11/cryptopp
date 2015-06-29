@@ -20,6 +20,7 @@
 #include "ec2n.h"
 #include "asn.h"
 #include "rng.h"
+#include "misc.h"
 #include "files.h"
 #include "hex.h"
 #include "oids.h"
@@ -69,7 +70,7 @@ bool ValidateBBS()
 	byte buf[20];
 
 	bbs.GenerateBlock(buf, 20);
-	fail = memcmp(output1, buf, 20) != 0;
+	fail = !VerifyBufsEqual(output1, buf, 20);
 	pass = pass && !fail;
 
 	cout << (fail ? "FAILED    " : "passed    ");
@@ -79,7 +80,7 @@ bool ValidateBBS()
 
 	bbs.Seek(10);
 	bbs.GenerateBlock(buf, 10);
-	fail = memcmp(output1+10, buf, 10) != 0;
+	fail = !VerifyBufsEqual(output1+10, buf, 10);
 	pass = pass && !fail;
 
 	cout << (fail ? "FAILED    " : "passed    ");
@@ -89,7 +90,7 @@ bool ValidateBBS()
 
 	bbs.Seek(1234567);
 	bbs.GenerateBlock(buf, 20);
-	fail = memcmp(output2, buf, 20) != 0;
+	fail = !VerifyBufsEqual(output2, buf, 20);
 	pass = pass && !fail;
 
 	cout << (fail ? "FAILED    " : "passed    ");
@@ -133,7 +134,7 @@ bool SignatureValidate(PK_Signer &priv, PK_Verifier &pub, bool thorough = false)
 		signatureLength = priv.SignMessageWithRecovery(GlobalRNG(), message, messageLen, NULL, 0, signature);
 		SecByteBlock recovered(priv.MaxRecoverableLengthFromSignatureLength(signatureLength));
 		DecodingResult result = pub.RecoverMessage(recovered, NULL, 0, signature, signatureLength);
-		fail = !(result.isValidCoding && result.messageLength == messageLen && memcmp(recovered, message, messageLen) == 0);
+		fail = !(result.isValidCoding && result.messageLength == messageLen && VerifyBufsEqual(recovered, message, messageLen));
 		pass = pass && !fail;
 
 		cout << (fail ? "FAILED    " : "passed    ");
@@ -168,7 +169,7 @@ bool CryptoSystemValidate(PK_Decryptor &priv, PK_Encryptor &pub, bool thorough =
 
 	pub.Encrypt(GlobalRNG(), message, messageLen, ciphertext);
 	fail = priv.Decrypt(GlobalRNG(), ciphertext, priv.CiphertextLength(messageLen), plaintext) != DecodingResult(messageLen);
-	fail = fail || memcmp(message, plaintext, messageLen);
+	fail = fail || !VerifyBufsEqual(message, plaintext, messageLen);
 	pass = pass && !fail;
 
 	cout << (fail ? "FAILED    " : "passed    ");
@@ -203,7 +204,7 @@ bool SimpleKeyAgreementValidate(SimpleKeyAgreementDomain &d)
 		return false;
 	}
 
-	if (memcmp(val1.begin(), val2.begin(), d.AgreedValueLength()))
+	if (!VerifyBufsEqual(val1.begin(), val2.begin(), d.AgreedValueLength()))
 	{
 		cout << "FAILED    simple agreed values not equal" << endl;
 		return false;
@@ -243,7 +244,7 @@ bool AuthenticatedKeyAgreementValidate(AuthenticatedKeyAgreementDomain &d)
 		return false;
 	}
 
-	if (memcmp(val1.begin(), val2.begin(), d.AgreedValueLength()))
+	if (!VerifyBufsEqual(val1.begin(), val2.begin(), d.AgreedValueLength()))
 	{
 		cout << "FAILED    authenticated agreed values not equal" << endl;
 		return false;
@@ -273,7 +274,7 @@ bool ValidateRSA()
 		Weak::RSASSA_PKCS1v15_MD2_Verifier rsaPub(rsaPriv);
 
 		size_t signatureLength = rsaPriv.SignMessage(GlobalRNG(), (byte *)plain, strlen(plain), out);
-		fail = memcmp(signature, out, 64) != 0;
+		fail = !VerifyBufsEqual(signature, out, 64);
 		pass = pass && !fail;
 
 		cout << (fail ? "FAILED    " : "passed    ");
@@ -330,7 +331,7 @@ bool ValidateRSA()
 		memset(outPlain, 0, 8);
 		rsaPub.Encrypt(rng, plain, 8, out);
 		DecodingResult result = rsaPriv.FixedLengthDecrypt(GlobalRNG(), encrypted, outPlain);
-		fail = !result.isValidCoding || (result.messageLength!=8) || memcmp(out, encrypted, 50) || memcmp(plain, outPlain, 8);
+		fail = !result.isValidCoding || (result.messageLength!=8) || !VerifyBufsEqual(out, encrypted, 50) || !VerifyBufsEqual(plain, outPlain, 8);
 		pass = pass && !fail;
 
 		cout << (fail ? "FAILED    " : "passed    ");
@@ -515,12 +516,25 @@ bool ValidateRabin()
 bool ValidateRW()
 {
 	cout << "\nRW validation suite running...\n\n";
+	bool pass=true;
 
-	FileSource f("TestData/rw1024.dat", true, new HexDecoder);
-	RWSS<PSSR, SHA>::Signer priv(f);
-	RWSS<PSSR, SHA>::Verifier pub(priv);
+	{
+		FileSource f("TestData/rw1024.dat", true, new HexDecoder);
+		RWSS<PSSR, SHA>::Signer priv(f);
+		RWSS<PSSR, SHA>::Verifier pub(priv);
+		pass = pass && SignatureValidate(priv, pub);
+	}
+	{
+		cout << "Turning off blinding..." << endl;
 
-	return SignatureValidate(priv, pub);
+		FileSource f("TestData/rw1024.dat", true, new HexDecoder);
+		RWSS<PSSR, SHA>::Signer priv(f);
+		priv.AccessKey().SetEnableBlinding(false);
+		RWSS<PSSR, SHA>::Verifier pub(priv);
+		pass = pass && SignatureValidate(priv, pub);
+	}
+
+	return pass;
 }
 
 /*

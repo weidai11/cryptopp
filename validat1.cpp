@@ -4,6 +4,7 @@
 
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
 #include "files.h"
+#include "misc.h"
 #include "hex.h"
 #include "base32.h"
 #include "base64.h"
@@ -435,11 +436,11 @@ bool BlockTransformationTest(const CipherFactory &cg, BufferedTransformation &va
 
 		apbt transE = cg.NewEncryption(key);
 		transE->ProcessBlock(plain, out);
-		fail = memcmp(out, cipher, cg.BlockSize()) != 0;
+		fail = !VerifyBufsEqual(out, cipher, cg.BlockSize());
 
 		apbt transD = cg.NewDecryption(key);
 		transD->ProcessBlock(out, outplain);
-		fail=fail || memcmp(outplain, plain, cg.BlockSize());
+		fail=fail || !VerifyBufsEqual(outplain, plain, cg.BlockSize());
 
 		pass = pass && !fail;
 
@@ -703,7 +704,7 @@ bool ValidateCipherModes()
 		modeE.SetStolenIV(stolenIV);
 		fail = !TestFilter(StreamTransformationFilter(modeE).Ref(),
 			plain, 3, encrypted, sizeof(encrypted));
-		fail = memcmp(stolenIV, decryptionIV, 8) != 0 || fail;
+		fail = !VerifyBufsEqual(stolenIV, decryptionIV, 8) || fail;
 		pass = pass && !fail;
 		cout << (fail ? "FAILED   " : "passed   ") << "CBC encryption with ciphertext and IV stealing" << endl;
 		
@@ -899,11 +900,11 @@ bool ValidateRC2()
 
 		apbt transE(new RC2Encryption(key, keyLen, effectiveLen));
 		transE->ProcessBlock(plain, out);
-		fail = memcmp(out, cipher, RC2Encryption::BLOCKSIZE) != 0;
+		fail = !VerifyBufsEqual(out, cipher, RC2Encryption::BLOCKSIZE);
 
 		apbt transD(new RC2Decryption(key, keyLen, effectiveLen));
 		transD->ProcessBlock(out, outplain);
-		fail=fail || memcmp(outplain, plain, RC2Encryption::BLOCKSIZE);
+		fail=fail || !VerifyBufsEqual(outplain, plain, RC2Encryption::BLOCKSIZE);
 
 		pass = pass && !fail;
 
@@ -1053,13 +1054,13 @@ bool ValidateARC4()
 
 	arc4.reset(new Weak::ARC4(Key0, sizeof(Key0)));
 	arc4->ProcessString(Input0, sizeof(Input0));
-	fail = memcmp(Input0, Output0, sizeof(Input0)) != 0;
+	fail = !VerifyBufsEqual(Input0, Output0, sizeof(Input0));
 	cout << (fail ? "FAILED" : "passed") << "    Test 0" << endl;
 	pass = pass && !fail;
 
 	arc4.reset(new Weak::ARC4(Key1, sizeof(Key1)));
 	arc4->ProcessString(Key1, Input1, sizeof(Key1));
-	fail = memcmp(Output1, Key1, sizeof(Key1)) != 0;
+	fail = !VerifyBufsEqual(Output1, Key1, sizeof(Key1));
 	cout << (fail ? "FAILED" : "passed") << "    Test 1" << endl;
 	pass = pass && !fail;
 
@@ -1171,11 +1172,11 @@ bool ValidateBlowfish()
 	{
 		ECB_Mode<Blowfish>::Encryption enc((byte *)key[i], strlen(key[i]));
 		enc.ProcessData(out, plain[i], 8);
-		fail = memcmp(out, cipher[i], 8) != 0;
+		fail = !VerifyBufsEqual(out, cipher[i], 8);
 
 		ECB_Mode<Blowfish>::Decryption dec((byte *)key[i], strlen(key[i]));
 		dec.ProcessData(outplain, cipher[i], 8);
-		fail = fail || memcmp(outplain, plain[i], 8);
+		fail = fail || !VerifyBufsEqual(outplain, plain[i], 8);
 		pass = pass && !fail;
 
 		cout << (fail ? "FAILED    " : "passed    ");
@@ -1273,7 +1274,7 @@ bool ValidateSEAL()
 	seal.Seek(1);
 	output[1] = seal.ProcessByte(output[1]);
 	seal.ProcessString(output+2, size-2);
-	pass = pass && memcmp(output+1, input+1, size-1) == 0;
+	pass = pass && VerifyBufsEqual(output+1, input+1, size-1);
 
 	cout << (pass ? "passed" : "FAILED") << endl;
 	return pass;
