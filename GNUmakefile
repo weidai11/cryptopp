@@ -157,10 +157,12 @@ dynamic: libcryptopp.so
 test: cryptest.exe
 	./cryptest.exe v
 
+.PHONY: clean
 clean:
 	-$(RM) cryptest.exe libcryptopp.a libcryptopp.so $(LIBOBJS) $(TESTOBJS) cryptopp.dll libcryptopp.dll.a libcryptopp.import.a cryptest.import.exe dlltest.exe $(DLLOBJS) $(LIBIMPORTOBJS) $(TESTI MPORTOBJS) $(DLLTESTOBJS)
 	-$(RM) -r cryptest.exe.dSYM
 
+.PHONY: install
 install:
 	$(MKDIR) -p $(PREFIX)/include/cryptopp $(PREFIX)/lib $(PREFIX)/bin
 	-$(CP) *.h $(PREFIX)/include/cryptopp
@@ -168,6 +170,7 @@ install:
 	-$(CP) *.so $(PREFIX)/lib
 	-$(CP) *.exe $(PREFIX)/bin
 
+.PHONY: remove
 remove:
 	-$(RM) -rf $(PREFIX)/include/cryptopp
 	-$(RM) $(PREFIX)/lib/libcryptopp.a
