@@ -30,11 +30,16 @@ class CRYPTOPP_DLL MicrosoftCryptoProvider
 public:
 	MicrosoftCryptoProvider();
 	~MicrosoftCryptoProvider();
-#if defined(_WIN64)
-	typedef unsigned __int64 ProviderHandle;	// type HCRYPTPROV, avoid #include <windows.h>
+
+// type HCRYPTPROV, avoid #include <windows.h>
+#if defined(__CYGWIN__) && defined(__x86_64__)
+	typedef unsigned long long ProviderHandle;
+#elif defined(_WIN64)
+	typedef unsigned __int64 ProviderHandle;
 #else
 	typedef unsigned long ProviderHandle;
 #endif
+
 	ProviderHandle GetProviderHandle() const {return m_hProvider;}
 private:
 	ProviderHandle m_hProvider;
