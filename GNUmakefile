@@ -14,8 +14,9 @@ UNAME = $(shell uname)
 IS_X86 = $(shell uname -m | $(EGREP) -c "i.86|x86|i86|amd64")
 IS_X86_64 = $(shell uname -m | $(EGREP) -c "_64|d64")
 IS_SUN_CC = $(shell $(CXX) -V 2>&1 | $(EGREP) -c "CC: Sun")
-IS_LINUX = $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -c "linux")
-IS_MINGW = $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -c "mingw")
+IS_LINUX = $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "linux")
+IS_MINGW = $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "mingw")
+IS_CYGWIN = $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "cygwin")
 CLANG_COMPILER = $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "clang")
 
 # Default prefix for make install
@@ -23,8 +24,11 @@ ifeq ($(PREFIX),)
 PREFIX = /usr
 endif
 
-ifeq ($(CXX),gcc)	# for some reason CXX is gcc on cygwin 1.1.4
+# For some reason CXX is gcc on cygwin 1.1.4
+ifneq ($(IS_CYGWIN),0)
+ifeq ($(CXX),gcc)
 CXX = g++
+endif
 endif
 
 ifeq ($(IS_X86),1)
@@ -38,7 +42,10 @@ GAS219_OR_LATER = $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EG
 
 #Enable PIC for x86_64 targets
 ifneq ($(IS_X86_64),0)
+# But don't enable it on Cygwin x86_64
+ifeq ($(IS_CYGWIN),0)
 CXXFLAGS += -fPIC
+endif
 endif
 
 ifneq ($(GCC42_OR_LATER),0)
