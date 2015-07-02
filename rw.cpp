@@ -194,10 +194,10 @@ Integer InvertibleRWFunction::CalculateInverse(RandomNumberGenerator &rng, const
 		// Do this in a loop for people using small numbers for testing
 		r.Randomize(rng, Integer::One(), m_n - Integer::One());
 		// Fix for CVE-2015-2141. Thanks to Evgeny Sidorov for reporting.
-		// Squaring to satisfy Jacobi requirements suggested by Jean-Pierre Munch.
+		// Squaring to satisfy Jacobi requirements suggested by Jean-Pierre Muench.
 		r = modn.Square(r);
 		rInv = modn.MultiplicativeInverse(r);
-	} while(rInv.IsZero());
+	} while (rInv.IsZero());
 
 	Integer re = modn.Square(r);
 	re = modn.Multiply(re, x);    // blind
