@@ -346,7 +346,7 @@ bool IntegrityCheckModule(const char *moduleFilename, const byte *expectedModule
 				nextSubSectionStart = 0;
 
 				unsigned int entriesToReadFromDisk[] = {IMAGE_DIRECTORY_ENTRY_IMPORT, IMAGE_DIRECTORY_ENTRY_IAT};
-				for (unsigned int i=0; i<sizeof(entriesToReadFromDisk)/sizeof(entriesToReadFromDisk[0]); i++)
+				for (unsigned int i=0; i<COUNTOF(entriesToReadFromDisk); i++)
 				{
 					const IMAGE_DATA_DIRECTORY &entry = phnt->OptionalHeader.DataDirectory[entriesToReadFromDisk[i]];
 					const byte *entryMemStart = memBase + entry.VirtualAddress;

@@ -249,7 +249,7 @@ static void GetRecommendedParameters(const EcRecommendedParameters<EC2N> *&begin
 			2),
 	};
 	begin = rec;
-	end = rec + sizeof(rec)/sizeof(rec[0]);
+	end = rec + COUNTOF(rec);
 }
 
 static void GetRecommendedParameters(const EcRecommendedParameters<ECP> *&begin, const EcRecommendedParameters<ECP> *&end)
@@ -412,7 +412,7 @@ static void GetRecommendedParameters(const EcRecommendedParameters<ECP> *&begin,
 			1),
 	};
 	begin = rec;
-	end = rec + sizeof(rec)/sizeof(rec[0]);
+	end = rec + COUNTOF(rec);
 }
 
 template <class EC> OID DL_GroupParameters_EC<EC>::GetNextRecommendedParametersOID(const OID &oid)

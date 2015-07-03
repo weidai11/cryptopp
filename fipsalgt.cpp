@@ -1218,7 +1218,7 @@ int FIPS_140_AlgorithmTest(int argc, char **argv)
 	if (algorithm == "auto")
 	{
 		string algTable[] = {"AES", "ECDSA", "DSA", "HMAC", "RNG", "RSA", "TDES", "SKIPJACK", "SHA"};	// order is important here
-		for (i=0; i<sizeof(algTable)/sizeof(algTable[0]); i++)
+		for (i=0; i<COUNTOF(algTable); i++)
 		{
 			if (dirname.find(algTable[i]) != std::string::npos)
 			{
