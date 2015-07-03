@@ -4,6 +4,12 @@
 adhoc.cpp
 adhoc.cpp.copied
 
+##############
+## Patch files
+##############
+*.diff
+*.patch
+
 #################
 ## Eclipse
 #################
