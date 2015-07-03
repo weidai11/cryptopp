@@ -3,6 +3,10 @@
 #include "pch.h"
 #include "twofish.h"
 
+#if GCC_DIAGNOSTIC_AWARE
+# pragma GCC diagnostic ignored "-Wmissing-braces"
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 const byte Twofish::Base::q[2][256] = {

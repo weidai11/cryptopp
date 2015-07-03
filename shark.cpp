@@ -6,6 +6,10 @@
 #include "modes.h"
 #include "gf256.h"
 
+#if GCC_DIAGNOSTIC_AWARE
+# pragma GCC diagnostic ignored "-Wmissing-braces"
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 static word64 SHARKTransform(word64 a)
