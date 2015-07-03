@@ -66,6 +66,18 @@ struct CompileAssert
 #define CRYPTOPP_ASSERT_JOIN(X, Y) CRYPTOPP_DO_ASSERT_JOIN(X, Y)
 #define CRYPTOPP_DO_ASSERT_JOIN(X, Y) X##Y
 
+// ************** unused variable suppression ***************
+// Cast to void. Portable way to suppress warning
+#define CRYPTOPP_UNUSED(x) ((void)x)
+
+// ************** counting elements in an array ***************
+// VS2005 added _countof macro, fails on pointers
+#if defined(_MSC_VER) && (_MSC_VER >= 1400)
+# define COUNTOF(x) _countof(x)
+#else
+# define COUNTOF(x) (sizeof(x)/sizeof(x[0]))
+#endif
+
 // ************** misc classes ***************
 
 class CRYPTOPP_DLL Empty
