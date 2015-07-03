@@ -3,6 +3,7 @@
 ####################
 adhoc.cpp
 adhoc.cpp.copied
+cryptopp.mac.done
 
 ##############
 ## Patch files
