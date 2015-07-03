@@ -112,8 +112,8 @@ public:
 			PumpAll();
 	}
 
-	NetworkSource::GetMaxWaitObjectCount;
-	NetworkSource::GetWaitObjects;
+	using NetworkSource::GetMaxWaitObjectCount;
+	using NetworkSource::GetWaitObjects;
 
 private:
 	HANDLE GetHandle() const {return WindowsHandle::GetHandle();}
@@ -127,8 +127,8 @@ public:
 	WindowsPipeSink(HANDLE h=INVALID_HANDLE_VALUE, unsigned int maxBufferSize=0, unsigned int autoFlushBound=16*1024)
 		: WindowsHandle(h), NetworkSink(maxBufferSize, autoFlushBound) {}
 
-	NetworkSink::GetMaxWaitObjectCount;
-	NetworkSink::GetWaitObjects;
+	using NetworkSink::GetMaxWaitObjectCount;
+	using NetworkSink::GetWaitObjects;
 
 private:
 	HANDLE GetHandle() const {return WindowsHandle::GetHandle();}
