@@ -557,9 +557,9 @@ bool TestModeIV(SymmetricCipher &e, SymmetricCipher &d)
 bool ValidateCipherModes()
 {
 	cout << "\nTesting DES modes...\n\n";
-	const byte key[] = {0x01,0x23,0x45,0x67,0x89,0xab,0xcd,0xef};
-	const byte iv[] = {0x12,0x34,0x56,0x78,0x90,0xab,0xcd,0xef};
-	const byte plain[] = {	// "Now is the time for all " without tailing 0
+	static const byte key[] = {0x01,0x23,0x45,0x67,0x89,0xab,0xcd,0xef};
+	static const byte iv[] = {0x12,0x34,0x56,0x78,0x90,0xab,0xcd,0xef};
+	static const byte plain[] = {	// "Now is the time for all " without tailing 0
 		0x4e,0x6f,0x77,0x20,0x69,0x73,0x20,0x74,
 		0x68,0x65,0x20,0x74,0x69,0x6d,0x65,0x20,
 		0x66,0x6f,0x72,0x20,0x61,0x6c,0x6c,0x20};
@@ -569,7 +569,7 @@ bool ValidateCipherModes()
 
 	{
 		// from FIPS 81
-		const byte encrypted[] = {
+		static const byte encrypted[] = {
 			0x3f, 0xa4, 0x0e, 0x8a, 0x98, 0x4d, 0x48, 0x15,
 			0x6a, 0x27, 0x17, 0x87, 0xab, 0x88, 0x83, 0xf9,
 			0x89, 0x3d, 0x51, 0xec, 0x4b, 0x56, 0x3b, 0x53};
@@ -588,7 +588,7 @@ bool ValidateCipherModes()
 	}
 	{
 		// from FIPS 81
-		const byte encrypted[] = {
+		static const byte encrypted[] = {
 			0xE5, 0xC7, 0xCD, 0xDE, 0x87, 0x2B, 0xF2, 0x7C, 
 			0x43, 0xE9, 0x34, 0x00, 0x8C, 0x38, 0x9C, 0x0F, 
 			0x68, 0x37, 0x88, 0x49, 0x9A, 0x7C, 0x05, 0xF6};
@@ -612,7 +612,7 @@ bool ValidateCipherModes()
 	{
 		// generated with Crypto++, matches FIPS 81
 		// but has extra 8 bytes as result of padding
-		const byte encrypted[] = {
+		static const byte encrypted[] = {
 			0xE5, 0xC7, 0xCD, 0xDE, 0x87, 0x2B, 0xF2, 0x7C, 
 			0x43, 0xE9, 0x34, 0x00, 0x8C, 0x38, 0x9C, 0x0F, 
 			0x68, 0x37, 0x88, 0x49, 0x9A, 0x7C, 0x05, 0xF6, 
@@ -633,7 +633,7 @@ bool ValidateCipherModes()
 	{
 		// generated with Crypto++ 5.2, matches FIPS 81
 		// but has extra 8 bytes as result of padding
-		const byte encrypted[] = {
+		static const byte encrypted[] = {
 			0xE5, 0xC7, 0xCD, 0xDE, 0x87, 0x2B, 0xF2, 0x7C, 
 			0x43, 0xE9, 0x34, 0x00, 0x8C, 0x38, 0x9C, 0x0F, 
 			0x68, 0x37, 0x88, 0x49, 0x9A, 0x7C, 0x05, 0xF6, 
@@ -652,9 +652,9 @@ bool ValidateCipherModes()
 		cout << (fail ? "FAILED   " : "passed   ") << "CBC decryption with one-and-zeros padding" << endl;
 	}
 	{
-		const byte plain[] = {'a', 0, 0, 0, 0, 0, 0, 0};
+		static const byte plain[] = {'a', 0, 0, 0, 0, 0, 0, 0};
 		// generated with Crypto++
-		const byte encrypted[] = {
+		static const byte encrypted[] = {
 			0x9B, 0x47, 0x57, 0x59, 0xD6, 0x9C, 0xF6, 0xD0};
 
 		CBC_Mode_ExternalCipher::Encryption modeE(desE, iv);
@@ -672,7 +672,7 @@ bool ValidateCipherModes()
 	{
 		// generated with Crypto++, matches FIPS 81
 		// but with last two blocks swapped as result of CTS
-		const byte encrypted[] = {
+		static const byte encrypted[] = {
 			0xE5, 0xC7, 0xCD, 0xDE, 0x87, 0x2B, 0xF2, 0x7C, 
 			0x68, 0x37, 0x88, 0x49, 0x9A, 0x7C, 0x05, 0xF6, 
 			0x43, 0xE9, 0x34, 0x00, 0x8C, 0x38, 0x9C, 0x0F};
@@ -695,8 +695,8 @@ bool ValidateCipherModes()
 	}
 	{
 		// generated with Crypto++
-		const byte decryptionIV[] = {0x4D, 0xD0, 0xAC, 0x8F, 0x47, 0xCF, 0x79, 0xCE};
-		const byte encrypted[] = {0x12, 0x34, 0x56};
+		static const byte decryptionIV[] = {0x4D, 0xD0, 0xAC, 0x8F, 0x47, 0xCF, 0x79, 0xCE};
+		static const byte encrypted[] = {0x12, 0x34, 0x56};
 
 		byte stolenIV[8];
 
@@ -715,7 +715,7 @@ bool ValidateCipherModes()
 		cout << (fail ? "FAILED   " : "passed   ") << "CBC decryption with ciphertext and IV stealing" << endl;
 	}
 	{
-		const byte encrypted[] = {	// from FIPS 81
+		static const byte encrypted[] = {	// from FIPS 81
 			0xF3,0x09,0x62,0x49,0xC7,0xF4,0x6E,0x51,
 			0xA6,0x9E,0x83,0x9B,0x1A,0x92,0xF7,0x84,
 			0x03,0x46,0x71,0x33,0x89,0x8E,0xA6,0x22};
@@ -737,9 +737,9 @@ bool ValidateCipherModes()
 		cout << (fail ? "FAILED   " : "passed   ") << "CFB mode IV generation" << endl;
 	}
 	{
-		const byte plain[] = {	// "Now is the." without tailing 0
+		static const byte plain[] = {	// "Now is the." without tailing 0
 			0x4e,0x6f,0x77,0x20,0x69,0x73,0x20,0x74,0x68,0x65};
-		const byte encrypted[] = {	// from FIPS 81
+		static const byte encrypted[] = {	// from FIPS 81
 			0xf3,0x1f,0xda,0x07,0x01,0x14,0x62,0xee,0x18,0x7f};
 
 		CFB_Mode_ExternalCipher::Encryption modeE(desE, iv, 1);
@@ -759,7 +759,7 @@ bool ValidateCipherModes()
 		cout << (fail ? "FAILED   " : "passed   ") << "CFB (8-bit feedback) IV generation" << endl;
 	}
 	{
-		const byte encrypted[] = {	// from Eric Young's libdes
+		static const byte encrypted[] = {	// from Eric Young's libdes
 			0xf3,0x09,0x62,0x49,0xc7,0xf4,0x6e,0x51,
 			0x35,0xf2,0x4a,0x24,0x2e,0xeb,0x3d,0x3f,
 			0x3d,0x6d,0x5b,0xe3,0x25,0x5a,0xf8,0xc3};
@@ -781,7 +781,7 @@ bool ValidateCipherModes()
 		cout << (fail ? "FAILED   " : "passed   ") << "OFB IV generation" << endl;
 	}
 	{
-		const byte encrypted[] = {	// generated with Crypto++
+		static const byte encrypted[] = {	// generated with Crypto++
 			0xF3, 0x09, 0x62, 0x49, 0xC7, 0xF4, 0x6E, 0x51, 
 			0x16, 0x3A, 0x8C, 0xA0, 0xFF, 0xC9, 0x4C, 0x27, 
 			0xFA, 0x2F, 0x80, 0xF4, 0x80, 0xB8, 0x6F, 0x75};
@@ -803,14 +803,14 @@ bool ValidateCipherModes()
 		cout << (fail ? "FAILED   " : "passed   ") << "Counter Mode IV generation" << endl;
 	}
 	{
-		const byte plain[] = {	// "7654321 Now is the time for "
+		static const byte plain[] = {	// "7654321 Now is the time for "
 			0x37, 0x36, 0x35, 0x34, 0x33, 0x32, 0x31, 0x20, 
 			0x4e, 0x6f, 0x77, 0x20, 0x69, 0x73, 0x20, 0x74, 
 			0x68, 0x65, 0x20, 0x74, 0x69, 0x6d, 0x65, 0x20, 
 			0x66, 0x6f, 0x72, 0x20};
-		const byte mac1[] = {	// from FIPS 113
+		static const byte mac1[] = {	// from FIPS 113
 			0xf1, 0xd3, 0x0f, 0x68, 0x49, 0x31, 0x2c, 0xa4};
-		const byte mac2[] = {	// generated with Crypto++
+		static const byte mac2[] = {	// generated with Crypto++
 			0x35, 0x80, 0xC5, 0xC4, 0x6B, 0x81, 0x24, 0xE2};
 
 		CBC_MAC<DES> cbcmac(key);
@@ -1162,7 +1162,7 @@ bool ValidateBlowfish()
 	cout << "\nBlowfish validation suite running...\n\n";
 
 	HexEncoder output(new FileSink(cout));
-	const char *key[]={"abcdefghijklmnopqrstuvwxyz", "Who is John Galt?"};
+	static const char *key[]={"abcdefghijklmnopqrstuvwxyz", "Who is John Galt?"};
 	byte *plain[]={(byte *)"BLOWFISH", (byte *)"\xfe\xdc\xba\x98\x76\x54\x32\x10"};
 	byte *cipher[]={(byte *)"\x32\x4e\xd0\xfe\xf4\x13\xa2\x03", (byte *)"\xcc\x91\x73\x2b\x80\x22\xf6\x84"};
 	byte out[8], outplain[8];
@@ -1286,7 +1286,7 @@ bool ValidateBaseCode()
 	byte data[255];
 	for (unsigned int i=0; i<255; i++)
 		data[i] = i;
-	const char *hexEncoded = 
+	static const char *hexEncoded = 
 "000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F2021222324252627"
 "28292A2B2C2D2E2F303132333435363738393A3B3C3D3E3F404142434445464748494A4B4C4D4E4F"
 "505152535455565758595A5B5C5D5E5F606162636465666768696A6B6C6D6E6F7071727374757677"
@@ -1294,14 +1294,14 @@ bool ValidateBaseCode()
 "A0A1A2A3A4A5A6A7A8A9AAABACADAEAFB0B1B2B3B4B5B6B7B8B9BABBBCBDBEBFC0C1C2C3C4C5C6C7"
 "C8C9CACBCCCDCECFD0D1D2D3D4D5D6D7D8D9DADBDCDDDEDFE0E1E2E3E4E5E6E7E8E9EAEBECEDEEEF"
 "F0F1F2F3F4F5F6F7F8F9FAFBFCFDFE";
-	const char *base32Encoded = 
+	static const char *base32Encoded = 
 "AAASEA2EAWDAQCAJBIFS2DIQB6IBCESVCSKTNF22DEPBYHA7D2RUAIJCENUCKJTHFAWUWK3NFWZC8NBT"
 "GI3VIPJYG66DUQT5HS8V6R4AIFBEGTCFI3DWSUKKJPGE4VURKBIXEW4WKXMFQYC3MJPX2ZK8M7SGC2VD"
 "NTUYN35IPFXGY5DPP3ZZA6MUQP4HK7VZRB6ZW856RX9H9AEBSKB2JBNGS8EIVCWMTUG27D6SUGJJHFEX"
 "U4M3TGN4VQQJ5HW9WCS4FI7EWYVKRKFJXKX43MPQX82MDNXVYU45PP72ZG7MZRF7Z496BSQC2RCNMTYH"
 "3DE6XU8N3ZHN9WGT4MJ7JXQY49NPVYY55VQ77Z9A6HTQH3HF65V8T4RK7RYQ55ZR8D29F69W8Z5RR8H3"
 "9M7939R8";
-	const char *base64AndHexEncoded = 
+	static const char *base64AndHexEncoded = 
 "41414543417751464267634943516F4C4441304F4478415245684D554652595847426B6147787764"
 "486838674953496A4A43556D4A7967704B6973734C5334764D4445794D7A51310A4E6A63344F546F"
 "375044302B50304242516B4E4552555A4853456C4B5330784E546B395155564A5456465657563168"

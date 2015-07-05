@@ -72,7 +72,7 @@ bool HashModuleTest(HashTransformation &md, const HashTestTuple *testSet, unsign
 
 bool ValidateCRC32()
 {
-	HashTestTuple testSet[] = 
+	static const HashTestTuple testSet[] = 
 	{
 		HashTestTuple("", "\x00\x00\x00\x00"),
 		HashTestTuple("a", "\x43\xbe\xb7\xe8"),
@@ -92,7 +92,7 @@ bool ValidateCRC32()
 
 bool ValidateAdler32()
 {
-	HashTestTuple testSet[] = 
+	static const HashTestTuple testSet[] = 
 	{
 		HashTestTuple("", "\x00\x00\x00\x01"),
 		HashTestTuple("a", "\x00\x62\x00\x62"),
@@ -111,7 +111,7 @@ bool ValidateAdler32()
 
 bool ValidateMD2()
 {
-	HashTestTuple testSet[] = 
+	static const HashTestTuple testSet[] = 
 	{
 		HashTestTuple("", "\x83\x50\xe5\xa3\xe2\x4c\x15\x3d\xf2\x27\x5c\x9f\x80\x69\x27\x73"),
 		HashTestTuple("a", "\x32\xec\x01\xec\x4a\x6d\xac\x72\xc0\xab\x96\xfb\x34\xc0\xb5\xd1"),
@@ -130,7 +130,7 @@ bool ValidateMD2()
 
 bool ValidateMD4()
 {
-	HashTestTuple testSet[] = 
+	static const HashTestTuple testSet[] = 
 	{
 		HashTestTuple("", "\x31\xd6\xcf\xe0\xd1\x6a\xe9\x31\xb7\x3c\x59\xd7\xe0\xc0\x89\xc0"),
 		HashTestTuple("a", "\xbd\xe5\x2c\xb3\x1d\xe3\x3e\x46\x24\x5e\x05\xfb\xdb\xd6\xfb\x24"),
@@ -149,7 +149,7 @@ bool ValidateMD4()
 
 bool ValidateMD5()
 {
-	HashTestTuple testSet[] = 
+	static const HashTestTuple testSet[] = 
 	{
 		HashTestTuple("", "\xd4\x1d\x8c\xd9\x8f\x00\xb2\x04\xe9\x80\x09\x98\xec\xf8\x42\x7e"),
 		HashTestTuple("a", "\x0c\xc1\x75\xb9\xc0\xf1\xb6\xa8\x31\xc3\x99\xe2\x69\x77\x26\x61"),
@@ -182,7 +182,7 @@ bool ValidateTiger()
 {
 	cout << "\nTiger validation suite running...\n\n";
 
-	HashTestTuple testSet[] =
+	static const HashTestTuple testSet[] =
 	{
 		HashTestTuple("", "\x32\x93\xac\x63\x0c\x13\xf0\x24\x5f\x92\xbb\xb1\x76\x6e\x16\x16\x7a\x4e\x58\x49\x2d\xde\x73\xf3"),
 		HashTestTuple("abc", "\x2a\xab\x14\x84\xe8\xc1\x58\xf2\xbf\xb8\xc5\xff\x41\xb5\x7a\x52\x51\x29\x13\x1c\x95\x7b\x5f\x93"),
@@ -202,7 +202,7 @@ bool ValidateTiger()
 
 bool ValidateRIPEMD()
 {
-	HashTestTuple testSet128[] = 
+	static const HashTestTuple testSet128[] =
 	{
 		HashTestTuple("", "\xcd\xf2\x62\x13\xa1\x50\xdc\x3e\xcb\x61\x0f\x18\xf6\xb3\x8b\x46"),
 		HashTestTuple("a", "\x86\xbe\x7a\xfa\x33\x9d\x0f\xc7\xcf\xc7\x85\xe7\x2f\x57\x8d\x33"),
@@ -215,7 +215,7 @@ bool ValidateRIPEMD()
 		HashTestTuple("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "\x4a\x7f\x57\x23\xf9\x54\xeb\xa1\x21\x6c\x9d\x8f\x63\x20\x43\x1f", 15625)
 	};
 
-	HashTestTuple testSet160[] = 
+	static const HashTestTuple testSet160[] =
 	{
 		HashTestTuple("", "\x9c\x11\x85\xa5\xc5\xe9\xfc\x54\x61\x28\x08\x97\x7e\xe8\xf5\x48\xb2\x25\x8d\x31"),
 		HashTestTuple("a", "\x0b\xdc\x9d\x2d\x25\x6b\x3e\xe9\xda\xae\x34\x7b\xe6\xf4\xdc\x83\x5a\x46\x7f\xfe"),
@@ -228,7 +228,7 @@ bool ValidateRIPEMD()
 		HashTestTuple("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "\x52\x78\x32\x43\xc1\x69\x7b\xdb\xe1\x6d\x37\xf9\x7f\x68\xf0\x83\x25\xdc\x15\x28", 15625)
 	};
 
-	HashTestTuple testSet256[] = 
+	static const HashTestTuple testSet256[] =
 	{
 		HashTestTuple("", "\x02\xba\x4c\x4e\x5f\x8e\xcd\x18\x77\xfc\x52\xd6\x4d\x30\xe3\x7a\x2d\x97\x74\xfb\x1e\x5d\x02\x63\x80\xae\x01\x68\xe3\xc5\x52\x2d"),
 		HashTestTuple("a", "\xf9\x33\x3e\x45\xd8\x57\xf5\xd9\x0a\x91\xba\xb7\x0a\x1e\xba\x0c\xfb\x1b\xe4\xb0\x78\x3c\x9a\xcf\xcd\x88\x3a\x91\x34\x69\x29\x25"),
@@ -241,7 +241,7 @@ bool ValidateRIPEMD()
 		HashTestTuple("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "\xac\x95\x37\x44\xe1\x0e\x31\x51\x4c\x15\x0d\x4d\x8d\x7b\x67\x73\x42\xe3\x33\x99\x78\x82\x96\xe4\x3a\xe4\x85\x0c\xe4\xf9\x79\x78", 15625)
 	};
 
-	HashTestTuple testSet320[] = 
+	static const HashTestTuple testSet320[] =
 	{
 		HashTestTuple("", "\x22\xd6\x5d\x56\x61\x53\x6c\xdc\x75\xc1\xfd\xf5\xc6\xde\x7b\x41\xb9\xf2\x73\x25\xeb\xc6\x1e\x85\x57\x17\x7d\x70\x5a\x0e\xc8\x80\x15\x1c\x3a\x32\xa0\x08\x99\xb8"),
 		HashTestTuple("a", "\xce\x78\x85\x06\x38\xf9\x26\x58\xa5\xa5\x85\x09\x75\x79\x92\x6d\xda\x66\x7a\x57\x16\x56\x2c\xfc\xf6\xfb\xe7\x7f\x63\x54\x2f\x99\xb0\x47\x05\xd6\x97\x0d\xff\x5d"),
@@ -278,7 +278,7 @@ bool ValidateRIPEMD()
 #ifdef CRYPTOPP_REMOVED
 bool ValidateHAVAL()
 {
-	HashTestTuple testSet[] = 
+	static const HashTestTuple testSet[] = 
 	{
 		HashTestTuple("", "\xC6\x8F\x39\x91\x3F\x90\x1F\x3D\xDF\x44\xC7\x07\x35\x7A\x7D\x70"),
 		HashTestTuple("a", "\x4D\xA0\x8F\x51\x4A\x72\x75\xDB\xC4\xCE\xCE\x4A\x34\x73\x85\x98\x39\x83\xA8\x30"),
@@ -333,11 +333,11 @@ bool ValidateWhirlpool()
 #ifdef CRYPTOPP_REMOVED
 bool ValidateMD5MAC()
 {
-	const byte keys[2][MD5MAC::KEYLENGTH]={
+	static const byte keys[2][MD5MAC::KEYLENGTH]={
 		{0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,0xaa,0xbb,0xcc,0xdd,0xee,0xff},
 		{0x01,0x23,0x45,0x67,0x89,0xab,0xcd,0xef,0xfe,0xdc,0xba,0x98,0x76,0x54,0x32,0x10}};
 
-	const char *TestVals[7]={
+	static const char *TestVals[7]={
 		"",
 		"a",
 		"abc",
@@ -346,7 +346,7 @@ bool ValidateMD5MAC()
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
 		"12345678901234567890123456789012345678901234567890123456789012345678901234567890"};
 
-	const byte output[2][7][MD5MAC::DIGESTSIZE]={
+	static const byte output[2][7][MD5MAC::DIGESTSIZE]={
 		{{0x1f,0x1e,0xf2,0x37,0x5c,0xc0,0xe0,0x84,0x4f,0x98,0xe7,0xe8,0x11,0xa3,0x4d,0xa8},
 		{0x7a,0x76,0xee,0x64,0xca,0x71,0xef,0x23,0x7e,0x26,0x29,0xed,0x94,0x52,0x73,0x65},
 		{0xe8,0x01,0x3c,0x11,0xf7,0x20,0x9d,0x13,0x28,0xc0,0xca,0xa0,0x4f,0xd0,0x12,0xa6},
@@ -402,13 +402,13 @@ bool ValidateXMACC()
 {
 	typedef XMACC<MD5> XMACC_MD5;
 
-	const byte keys[2][XMACC_MD5::KEYLENGTH]={
+	static const  byte keys[2][XMACC_MD5::KEYLENGTH]={
 		{0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,0xaa,0xbb},
 		{0x01,0x23,0x45,0x67,0x89,0xab,0xcd,0xef,0xfe,0xdc,0xba,0x98}};
 
-	const word32 counters[2]={0xccddeeff, 0x76543210};
+	static const word32 counters[2]={0xccddeeff, 0x76543210};
 
-	const char *TestVals[7]={
+	static const char *TestVals[7]={
 		"",
 		"a",
 		"abc",
@@ -417,7 +417,7 @@ bool ValidateXMACC()
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
 		"12345678901234567890123456789012345678901234567890123456789012345678901234567890"};
 
-	const byte output[2][7][XMACC_MD5::DIGESTSIZE]={
+	static const byte output[2][7][XMACC_MD5::DIGESTSIZE]={
 		{{0xcc,0xdd,0xef,0x00,0xfa,0x89,0x54,0x92,0x86,0x32,0xda,0x2a,0x3f,0x29,0xc5,0x52,0xa0,0x0d,0x05,0x13},
 		{0xcc,0xdd,0xef,0x01,0xae,0xdb,0x8b,0x7b,0x69,0x71,0xc7,0x91,0x71,0x48,0x9d,0x18,0xe7,0xdf,0x9d,0x5a},
 		{0xcc,0xdd,0xef,0x02,0x5e,0x01,0x2e,0x2e,0x4b,0xc3,0x83,0x62,0xc2,0xf4,0xe6,0x18,0x1c,0x44,0xaf,0xca},
@@ -465,11 +465,11 @@ bool ValidateXMACC()
 
 bool ValidateTTMAC()
 {
-	const byte key[TTMAC::KEYLENGTH]={
+	static const  byte key[TTMAC::KEYLENGTH]={
 		0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,
 		0xaa,0xbb,0xcc,0xdd,0xee,0xff,0x01,0x23,0x45,0x67};
 
-	const char *TestVals[8]={
+	static const char *TestVals[8]={
 		"",
 		"a",
 		"abc",
@@ -479,7 +479,7 @@ bool ValidateTTMAC()
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
 		"12345678901234567890123456789012345678901234567890123456789012345678901234567890"};
 
-	const byte output[8][TTMAC::DIGESTSIZE]={
+	static const byte output[8][TTMAC::DIGESTSIZE]={
 		{0x2d,0xec,0x8e,0xd4,0xa0,0xfd,0x71,0x2e,0xd9,0xfb,0xf2,0xab,0x46,0x6e,0xc2,0xdf,0x21,0x21,0x5e,0x4a},
 		{0x58,0x93,0xe3,0xe6,0xe3,0x06,0x70,0x4d,0xd7,0x7a,0xd6,0xe6,0xed,0x43,0x2c,0xde,0x32,0x1a,0x77,0x56},
 		{0x70,0xbf,0xd1,0x02,0x97,0x97,0xa5,0xc1,0x6d,0xa5,0xb5,0x57,0xa1,0xf0,0xb2,0x77,0x9b,0x78,0x49,0x7e},
@@ -554,7 +554,7 @@ bool ValidatePBKDF()
 
 	{
 	// from OpenSSL PKCS#12 Program FAQ v1.77, at http://www.drh-consultancy.demon.co.uk/test.txt
-	PBKDF_TestTuple testSet[] = 
+	static const PBKDF_TestTuple testSet[] =
 	{
 		{1, 1, "0073006D006500670000", "0A58CF64530D823F", "8AAAE6297B6CB04642AB5B077851284EB7128F1A2A7FBCA3"},
 		{2, 1, "0073006D006500670000", "0A58CF64530D823F", "79993DFE048D3B76"},
@@ -576,7 +576,7 @@ bool ValidatePBKDF()
 
 	{
 	// from draft-ietf-smime-password-03.txt, at http://www.imc.org/draft-ietf-smime-password
-	PBKDF_TestTuple testSet[] = 
+	static const PBKDF_TestTuple testSet[] = 
 	{
 		{0, 5, "70617373776f7264", "1234567878563412", "D1DAA78615F287E6"},
 		{0, 500, "416C6C206E2D656E746974696573206D75737420636F6D6D756E69636174652077697468206F74686572206E2d656E74697469657320766961206E2D3120656E746974656568656568656573", "1234567878563412","6A8970BF68C92CAEA84A8DF28510858607126380CC47AB2D"}

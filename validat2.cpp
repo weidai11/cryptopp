@@ -60,10 +60,10 @@ bool ValidateBBS()
 	bool pass = true, fail;
 	int j;
 
-	const byte output1[] = {
+	static const byte output1[] = {
 		0x49,0xEA,0x2C,0xFD,0xB0,0x10,0x64,0xA0,0xBB,0xB9,
 		0x2A,0xF1,0x01,0xDA,0xC1,0x8A,0x94,0xF7,0xB7,0xCE};
-	const byte output2[] = {
+	static const byte output2[] = {
 		0x74,0x45,0x48,0xAE,0xAC,0xB7,0x0E,0xDF,0xAF,0xD7,
 		0xD5,0x0E,0x8E,0x29,0x83,0x75,0x6B,0x27,0x46,0xA1};
 
@@ -111,8 +111,8 @@ bool SignatureValidate(PK_Signer &priv, PK_Verifier &pub, bool thorough = false)
 	cout << (fail ? "FAILED    " : "passed    ");
 	cout << "signature key validation\n";
 
-	const byte *message = (byte *)"test message";
-	const int messageLen = 12;
+	static const byte message[] = "test message";
+	const int messageLen = COUNTOF(message);
 
 	SecByteBlock signature(priv.MaxSignatureLength());
 	size_t signatureLength = priv.SignMessage(GlobalRNG(), message, messageLen, signature);
@@ -162,8 +162,9 @@ bool CryptoSystemValidate(PK_Decryptor &priv, PK_Encryptor &pub, bool thorough =
 	cout << (fail ? "FAILED    " : "passed    ");
 	cout << "cryptosystem key validation\n";
 
-	const byte *message = (byte *)"test message";
-	const int messageLen = 12;
+	static const byte message[] = "test message";
+	const int messageLen = COUNTOF(message);
+
 	SecByteBlock ciphertext(priv.CiphertextLength(messageLen));
 	SecByteBlock plaintext(priv.MaxPlaintextLength(ciphertext.size()));
 
@@ -262,7 +263,7 @@ bool ValidateRSA()
 	bool pass = true, fail;
 
 	{
-		const char *plain = "Everyone gets Friday off.";
+		static const char plain[] = "Everyone gets Friday off.";
 		byte *signature = (byte *)
 			"\x05\xfa\x6a\x81\x2f\xc7\xdf\x8b\xf4\xf2\x54\x25\x09\xe0\x3e\x84"
 			"\x6e\x11\xb9\xc6\x20\xbe\x20\x09\xef\xb4\x40\xef\xbc\xc6\x69\x21"
@@ -693,8 +694,8 @@ bool ValidateESIGN()
 
 	bool pass = true, fail;
 
-	const char *plain = "test";
-	const byte *signature = (byte *)
+	static const char plain[] = "test";
+	static const byte signature[] =
 		"\xA3\xE3\x20\x65\xDE\xDA\xE7\xEC\x05\xC1\xBF\xCD\x25\x79\x7D\x99\xCD\xD5\x73\x9D\x9D\xF3\xA4\xAA\x9A\xA4\x5A\xC8\x23\x3D\x0D\x37\xFE\xBC\x76\x3F\xF1\x84\xF6\x59"
 		"\x14\x91\x4F\x0C\x34\x1B\xAE\x9A\x5C\x2E\x2E\x38\x08\x78\x77\xCB\xDC\x3C\x7E\xA0\x34\x44\x5B\x0F\x67\xD9\x35\x2A\x79\x47\x1A\x52\x37\x71\xDB\x12\x67\xC1\xB6\xC6"
 		"\x66\x73\xB3\x40\x2E\xD6\xF2\x1A\x84\x0A\xB6\x7B\x0F\xEB\x8B\x88\xAB\x33\xDD\xE4\x83\x21\x90\x63\x2D\x51\x2A\xB1\x6F\xAB\xA7\x5C\xFD\x77\x99\xF2\xE1\xEF\x67\x1A"
