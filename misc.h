@@ -72,11 +72,13 @@ struct CompileAssert
 
 // ************** counting elements in an array ***************
 // VS2005 added _countof macro, fails on pointers
-#if defined(_MSC_VER) && (_MSC_VER >= 1400)
-# define COUNTOF(x) _countof(x)
-#else
-# define COUNTOF(x) (sizeof(x)/sizeof(x[0]))
-#endif
+#ifndef COUNTOF
+# if defined(_MSC_VER) && (_MSC_VER >= 1400)
+#  define COUNTOF(x) _countof(x)
+# else
+#  define COUNTOF(x) (sizeof(x)/sizeof(x[0]))
+# endif
+#endif // COUNTOF
 
 // ************** misc classes ***************
 
