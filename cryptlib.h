@@ -217,7 +217,7 @@ struct CRYPTOPP_DLL DecodingResult
 	\note To obtain an object that implements NameValuePairs for the purpose of parameter
 	passing, use the MakeParameters() function.
 	\note To get a value from NameValuePairs, you need to know the name and the type of the value. 
-	Call GetValueNames() on a NameValuePairs object to obtain a list of value names that it supports.
+	Call GetValueNames() on a NameValuePairs object to obtain a list of value names that it contains.
 	Then look at the Name namespace documentation to see what the type of each value is, or
 	alternatively, call GetIntValue() with the value name, and if the type is not int, a
 	ValueTypeMismatch exception will be thrown and you can get the actual type from the exception object.
@@ -282,9 +282,30 @@ public:
 	CRYPTOPP_DLL bool GetIntValue(const char *name, int &value) const
 		{return GetValue(name, value);}
 
+	//! get a named value as an unsigned int, but written as an int.
+	/*! used to avoid polluting library code with casts. If the underlying type
+		is not int, then a type mismatch exception will be thrown. */
+	CRYPTOPP_DLL bool GetAsUIntValue(const char *name, unsigned int &value) const
+	{
+		int v;
+		if(!GetValue(name, v) || v < 0) return false;
+		value = static_cast<unsigned int>(v);
+		return true;
+	}
+
 	//! get a named value with type int, with default
 	CRYPTOPP_DLL int GetIntValueWithDefault(const char *name, int defaultValue) const
 		{return GetValueWithDefault(name, defaultValue);}
+
+	//! get a named value as an unsigned int, but written as an int.
+	/*! used to avoid polluting library code with casts. If the underlying type
+		is not int, then a type mismatch exception will be thrown. */
+	CRYPTOPP_DLL unsigned int GetAsUIntValueWithDefault(const char *name, unsigned int defaultValue) const
+	{
+		int v;
+		if(!GetValue(name, v)) return defaultValue;
+		return static_cast<unsigned int>(v);
+	}
 
 	//! used by derived classes to check for type mismatch
 	CRYPTOPP_DLL static void CRYPTOPP_API ThrowIfTypeMismatch(const char *name, const std::type_info &stored, const std::type_info &retrieving)
