@@ -1,7 +1,7 @@
-CXXFLAGS = -DNDEBUG -g -O2
-# -O3 fails to link on Cygwin GCC version 4.5.3
+CXXFLAGS ?= -DNDEBUG
+SYMBOLS ?= -g2
+OPTIMIZE ?= -O3
 # -fPIC is supported, and enabled by default for x86_64.
-# CXXFLAGS += -fPIC
 # the following options reduce code size, but breaks link or makes link very slow on some systems
 # CXXFLAGS += -ffunction-sections -fdata-sections
 # LDFLAGS += -Wl,--gc-sections
@@ -13,6 +13,7 @@ EGREP = egrep
 UNAME = $(shell uname)
 IS_X86 = $(shell uname -m | $(EGREP) -c "i.86|x86|i86|amd64")
 IS_X86_64 = $(shell uname -m | $(EGREP) -c "_64|d64")
+IS_DARWIN = $(shell uname -s | $(EGREP) -i -c "darwin")
 IS_SUN_CC = $(shell $(CXX) -V 2>&1 | $(EGREP) -c "CC: Sun")
 IS_LINUX = $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "linux")
 IS_MINGW = $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "mingw")
@@ -24,12 +25,23 @@ ifeq ($(PREFIX),)
 PREFIX = /usr
 endif
 
-# For some reason CXX is gcc on cygwin 1.1.4
+# Cygwin work arounds
 ifneq ($(IS_CYGWIN),0)
+
+# For some reason CXX is gcc on Cygwin 1.1.4
 ifeq ($(CXX),gcc)
 CXX = g++
 endif
+
+# -O3 fails to link with GCC 4.5.3, and causes a core dump with GCC 4.9
+ifeq ($(findstring -O3,$(OPTIMIZE)),-O3)
+OPTIMIZE = -O2
 endif
+
+endif
+# End Cygwin work arounds
+
+CXXFLAGS += $(SYMBOLS) $(OPTIMIZE)
 
 ifeq ($(IS_X86),1)
 
@@ -40,7 +52,7 @@ GAS210_OR_LATER = $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EG
 GAS217_OR_LATER = $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.1[7-9]|2\.[2-9]|[3-9])")
 GAS219_OR_LATER = $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.19|2\.[2-9]|[3-9])")
 
-#Enable PIC for x86_64 targets
+# Enable PIC for x86_64 targets
 ifneq ($(IS_X86_64),0)
 # But don't enable it on Cygwin x86_64
 ifeq ($(IS_CYGWIN),0)
@@ -49,7 +61,7 @@ endif
 endif
 
 ifneq ($(GCC42_OR_LATER),0)
-ifeq ($(UNAME),Darwin)
+ifneq ($(IS_DARWIN),0)
 CXXFLAGS += -arch x86_64 -arch i386
 else
 CXXFLAGS += -march=native
@@ -99,10 +111,10 @@ M32OR64 = -m64
 endif
 endif
 
-ifeq ($(UNAME),Darwin)
+ifneq ($(IS_DARWIN),0)
 AR = libtool
 ARFLAGS = -static -o
-CXX = c++
+CXX ?= c++
 IS_GCC2 = $(shell $(CXX) -v 2>&1 | $(EGREP) -c gcc-932)
 ifeq ($(IS_GCC2),1)
 CXXFLAGS += -fno-coalesce-templates -fno-coalesce-static-vtables
