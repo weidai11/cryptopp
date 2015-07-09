@@ -303,7 +303,7 @@ public:
 	CRYPTOPP_DLL unsigned int GetAsUIntValueWithDefault(const char *name, unsigned int defaultValue) const
 	{
 		int v;
-		if(!GetValue(name, v)) return defaultValue;
+		if(!GetValue(name, v) || v < 0) return defaultValue;
 		return static_cast<unsigned int>(v);
 	}
 
