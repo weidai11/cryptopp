@@ -1,6 +1,6 @@
 CXXFLAGS ?= -DNDEBUG
 SYMBOLS ?= -g2
-OPTIMIZE ?= -O3
+OPTIMIZE ?= -O2
 # -fPIC is supported, and enabled by default for x86_64.
 # the following options reduce code size, but breaks link or makes link very slow on some systems
 # CXXFLAGS += -ffunction-sections -fdata-sections
@@ -41,6 +41,7 @@ endif
 endif
 # End Cygwin work arounds
 
+# Merge symbols and optimizations
 CXXFLAGS += $(SYMBOLS) $(OPTIMIZE)
 
 ifeq ($(IS_X86),1)
@@ -60,12 +61,14 @@ CXXFLAGS += -fPIC
 endif
 endif
 
-ifneq ($(GCC42_OR_LATER),0)
-ifneq ($(IS_DARWIN),0)
+# We can do integer math using the Posix shell in a GNUmakefile
+# Below, we are building a boolean circuit that says "Darwin && (GCC 4.2 || Clang)"
+MULTIARCH_SUPPORT = $(shell echo $$(($(IS_DARWIN) * ($(GCC42_OR_LATER) + $(CLANG_COMPILER)))))
+
+ifneq ($(MULTIARCH_SUPPORT),0)
 CXXFLAGS += -arch x86_64 -arch i386
 else
 CXXFLAGS += -march=native
-endif
 endif
 
 ifneq ($(INTEL_COMPILER),0)
