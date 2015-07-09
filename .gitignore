@@ -3,6 +3,9 @@
 ####################
 adhoc.cpp
 adhoc.cpp.copied
+libcryptopp.a
+libcryptopp.so
+libcryptopp.dylib
 cryptopp.mac.done
 
 ##############
