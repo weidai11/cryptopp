@@ -27,7 +27,8 @@ public:
 
 const byte KeyDerivationFunction::s_NullVector[64] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
-//! HKDF from RFC 5869, T should be a HashTransformation class
+//! General, multipurpose KDF from RFC 5869. T should be a HashTransformation class
+//! https://eprint.iacr.org/2010/264 and https://tools.ietf.org/html/rfc5869
 template <class T>
 class CRYPTOPP_DLL HKDF : public KeyDerivationFunction
 {
@@ -84,4 +85,3 @@ unsigned int HKDF<T>::DeriveKey(byte *derived, size_t derivedLen, const byte *se
 NAMESPACE_END
 
 #endif // CRYPTOPP_HASH_KEY_DERIVATION_FUNCTION_H
-

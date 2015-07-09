@@ -67,6 +67,7 @@ bool ValidateAll(bool thorough)
 	pass=ValidateTTMAC() && pass;
 
 	pass=ValidatePBKDF() && pass;
+	pass=ValidateHKDF() && pass;
 
 	pass=ValidateDES() && pass;
 	pass=ValidateCipherModes() && pass;
