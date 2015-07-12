@@ -464,16 +464,16 @@ CRYPTOPP_DLL void CRYPTOPP_API CallNewHandler();
 
 inline void IncrementCounterByOne(byte *inout, unsigned int s)
 {
-	for (int i=s-1, carry=1; i>=0 && carry; i--)
+	for (int i=static_cast<int>(s)-1, carry=1; i>=0 && carry; i--)
 		carry = !++inout[i];
 }
 
 inline void IncrementCounterByOne(byte *output, const byte *input, unsigned int s)
 {
 	int i, carry;
-	for (i=s-1, carry=1; i>=0 && carry; i--)
+	for (i=static_cast<int>(s)-1, carry=1; i>=0 && carry; i--)
 		carry = ((output[i] = input[i]+1) == 0);
-	memcpy_s(output, s, input, i+1);
+	memcpy_s(output, s, input, static_cast<size_t>(i)+1);
 }
 
 template <class T>
