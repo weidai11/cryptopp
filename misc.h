@@ -277,7 +277,7 @@ unsigned int BitPrecision(const T &value)
 inline unsigned int TrailingZeros(word32 v)
 {
 #if defined(__GNUC__) && CRYPTOPP_GCC_VERSION >= 30400
-	return __builtin_ctz(v);
+	return static_cast<unsigned int>(__builtin_ctz(v));
 #elif defined(_MSC_VER) && _MSC_VER >= 1400
 	unsigned long result;
 	_BitScanForward(&result, v);
@@ -296,7 +296,7 @@ inline unsigned int TrailingZeros(word32 v)
 inline unsigned int TrailingZeros(word64 v)
 {
 #if defined(__GNUC__) && CRYPTOPP_GCC_VERSION >= 30400
-	return __builtin_ctzll(v);
+	return static_cast<unsigned int>(__builtin_ctzll(v));
 #elif defined(_MSC_VER) && _MSC_VER >= 1400 && (defined(_M_X64) || defined(_M_IA64))
 	unsigned long result;
 	_BitScanForward64(&result, v);
