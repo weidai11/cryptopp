@@ -41,6 +41,14 @@
 #include <byteswap.h>
 #endif
 
+// Used to supress some warnings in some header and implmentation files.
+//   Some platforms, like OpenBSD, use old compilers that don't understand -Wno-unknown-pragma.
+#define GCC_DIAGNOSTIC_AWARE ((__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7)) || defined(__clang__))
+
+// Used to manage function-level optimizations when working around compiler issues.
+//   At -O3, GCC vectorizes and uses SSE instructions, even if alignment does not meet instruction requirements.
+#define GCC_OPTIMIZE_AWARE ((__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7)) || defined(__clang__))
+
 #if GCC_DIAGNOSTIC_AWARE
 # pragma GCC diagnostic push
 # pragma GCC diagnostic ignored "-Wunused-value"
