@@ -755,36 +755,35 @@ template<> inline word64 rotrMod<word64>(word64 x, unsigned int y)
 template<> inline word16 rotlFixed<word16>(word16 x, unsigned int y)
 {
 	assert(y < 8*sizeof(x));
-	return y ? _rotl16(x, y) : x;
+	return static_cast<word16>(y ? _rotl16(x, y) : x);
 }
 
 template<> inline word16 rotrFixed<word16>(word16 x, unsigned int y)
 {
 	assert(y < 8*sizeof(x));
-	assert(y <= 255);
-	return y ? _rotr16(x, y) : x;
+	return static_cast<word16>(y ? _rotr16(x, y) : x);
 }
 
 template<> inline word16 rotlVariable<word16>(word16 x, unsigned int y)
 {
 	assert(y < 8*sizeof(x));
-	return _rotl16(x, y);
+	return static_cast<word16>(_rotl16(x, y));
 }
 
 template<> inline word16 rotrVariable<word16>(word16 x, unsigned int y)
 {
 	assert(y < 8*sizeof(x));
-	return _rotr16(x, y);
+	return static_cast<word16>(_rotr16(x, y));
 }
 
 template<> inline word16 rotlMod<word16>(word16 x, unsigned int y)
 {
-	return _rotl16(x, y);
+	return static_cast<word16>(_rotl16(x, y));
 }
 
 template<> inline word16 rotrMod<word16>(word16 x, unsigned int y)
 {
-	return _rotr16(x, y);
+	return static_cast<word16>(_rotr16(x, y));
 }
 
 template<> inline byte rotlFixed<byte>(byte x, unsigned int y)
