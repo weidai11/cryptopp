@@ -395,9 +395,9 @@ inline unsigned int GetAlignmentOf(T *dummy=NULL)	// VC60 workaround
 {
 #ifdef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
 	if (sizeof(T) < 16)
-    return 1;
+		return 1;
 #endif
-    
+
 #if (_MSC_VER >= 1300)
 	return __alignof(T);
 #elif defined(__clang__)
