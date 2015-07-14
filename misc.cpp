@@ -25,8 +25,8 @@ void xorbuf(byte *buf, const byte *mask, size_t count)
 	{
 		if (!CRYPTOPP_BOOL_SLOW_WORD64 && IsStrictAligned<word64>(buf) && IsStrictAligned<word64>(mask))
 		{
-			assert(IsAlignedOn(input, GetStrictAlignedOn<word64>(buf)));
-			assert(IsAlignedOn(mask, GetStrictAlignedOn<word64>(mask)));
+			assert(IsAlignedOn(buf, GetStrictAlignmentOf<word64>()));
+			assert(IsAlignedOn(mask, GetStrictAlignmentOf<word64>()));
 
 			for (i=0; i<count/8; i++)
 				((word64*)buf)[i] ^= ((word64*)mask)[i];
@@ -58,9 +58,9 @@ void xorbuf(byte *output, const byte *input, const byte *mask, size_t count)
 	{
 		if (!CRYPTOPP_BOOL_SLOW_WORD64 && IsStrictAligned<word64>(output) && IsStrictAligned<word64>(input) && IsStrictAligned<word64>(mask))
 		{
-			assert(IsAlignedOn(output, GetStrictAlignedOn<word64>(output)));
-			assert(IsAlignedOn(input, GetStrictAlignedOn<word64>(input)));
-			assert(IsAlignedOn(mask, GetStrictAlignedOn<word64>(mask)));
+			assert(IsAlignedOn(output, GetStrictAlignmentOf<word64>()));
+			assert(IsAlignedOn(input, GetStrictAlignmentOf<word64>()));
+			assert(IsAlignedOn(mask, GetStrictAlignmentOf<word64>()));
 
 			for (i=0; i<count/8; i++)
 				((word64*)output)[i] = ((word64*)input)[i] ^ ((word64*)mask)[i];
@@ -96,8 +96,8 @@ bool VerifyBufsEqual(const byte *buf, const byte *mask, size_t count)
 		word32 acc32 = 0;
 		if (!CRYPTOPP_BOOL_SLOW_WORD64 && IsStrictAligned<word64>(buf) && IsStrictAligned<word64>(mask))
 		{
-			assert(IsAlignedOn(buf, GetStrictAlignedOn<word64>(buf)));
-			assert(IsAlignedOn(mask, GetStrictAlignedOn<word64>(mask)));
+			assert(IsAlignedOn(buf, GetStrictAlignmentOf<word64>()));
+			assert(IsAlignedOn(mask, GetStrictAlignmentOf<word64>()));
 
 			word64 acc64 = 0;
 			for (i=0; i<count/8; i++)
