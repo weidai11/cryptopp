@@ -14,14 +14,20 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+// Vectorization at -O3 requires IsStrictAligned<word64> for GCC 4.8 and above with xorbuf and VerifyBufsEqual.
+// Problems have not been experienced for the word32 variant, but it may aoccur in the future.
+
 void xorbuf(byte *buf, const byte *mask, size_t count)
 {
 	size_t i;
 
 	if (IsAligned<word32>(buf) && IsAligned<word32>(mask))
 	{
-		if (!CRYPTOPP_BOOL_SLOW_WORD64 && IsAligned<word64>(buf) && IsAligned<word64>(mask))
+		if (!CRYPTOPP_BOOL_SLOW_WORD64 && IsStrictAligned<word64>(buf) && IsStrictAligned<word64>(mask))
 		{
+			assert(IsAlignedOn(input, GetStrictAlignedOn<word64>(buf)));
+			assert(IsAlignedOn(mask, GetStrictAlignedOn<word64>(mask)));
+
 			for (i=0; i<count/8; i++)
 				((word64*)buf)[i] ^= ((word64*)mask)[i];
 			count -= 8*i;
@@ -50,8 +56,12 @@ void xorbuf(byte *output, const byte *input, const byte *mask, size_t count)
 
 	if (IsAligned<word32>(output) && IsAligned<word32>(input) && IsAligned<word32>(mask))
 	{
-		if (!CRYPTOPP_BOOL_SLOW_WORD64 && IsAligned<word64>(output) && IsAligned<word64>(input) && IsAligned<word64>(mask))
+		if (!CRYPTOPP_BOOL_SLOW_WORD64 && IsStrictAligned<word64>(output) && IsStrictAligned<word64>(input) && IsStrictAligned<word64>(mask))
 		{
+			assert(IsAlignedOn(output, GetStrictAlignedOn<word64>(output)));
+			assert(IsAlignedOn(input, GetStrictAlignedOn<word64>(input)));
+			assert(IsAlignedOn(mask, GetStrictAlignedOn<word64>(mask)));
+
 			for (i=0; i<count/8; i++)
 				((word64*)output)[i] = ((word64*)input)[i] ^ ((word64*)mask)[i];
 			count -= 8*i;
@@ -84,8 +94,11 @@ bool VerifyBufsEqual(const byte *buf, const byte *mask, size_t count)
 	if (IsAligned<word32>(buf) && IsAligned<word32>(mask))
 	{
 		word32 acc32 = 0;
-		if (!CRYPTOPP_BOOL_SLOW_WORD64 && IsAligned<word64>(buf) && IsAligned<word64>(mask))
+		if (!CRYPTOPP_BOOL_SLOW_WORD64 && IsStrictAligned<word64>(buf) && IsStrictAligned<word64>(mask))
 		{
+			assert(IsAlignedOn(buf, GetStrictAlignedOn<word64>(buf)));
+			assert(IsAlignedOn(mask, GetStrictAlignedOn<word64>(mask)));
+
 			word64 acc64 = 0;
 			for (i=0; i<count/8; i++)
 				acc64 |= ((word64*)buf)[i] ^ ((word64*)mask)[i];

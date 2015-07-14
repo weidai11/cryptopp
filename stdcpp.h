@@ -19,6 +19,10 @@
 #include <map>
 #include <vector>
 
+#if !defined(_NDEBUG) && !defined(NDEBUG)
+# include <cassert>
+#endif
+
 #ifdef CRYPTOPP_INCLUDE_VECTOR_CC
 // workaround needed on Sun Studio 12u1 Sun C++ 5.10 SunOS_i386 128229-02 2009/09/21
 #include <vector.cc>

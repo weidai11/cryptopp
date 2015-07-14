@@ -23,6 +23,11 @@
 // This macro will be ignored if NO_OS_DEPENDENCE is defined.
 #define USE_MS_CRYPTOAPI
 
+// Define this to ensure C/C++ standard compliance and adherence
+// to aliasing rules and other alignment fodder. If you experience
+// a break at -O3 with GCC, you should try this first.
+// #define CRYPTOPP_NO_UNALIGNED_DATA_ACCESS
+
 // ***************** Less Important Settings ***************
 
 // define this to retain (as much as possible) old deprecated function and class names
@@ -342,7 +347,8 @@ NAMESPACE_END
 	#define CRYPTOPP_BOOL_X86 0
 #endif
 
-#if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X86 || defined(__powerpc__)
+// CRYPTOPP_NO_UNALIGNED_DATA_ACCESS can be set on the command line or in config.h above.
+#if !defined(CRYPTOPP_NO_UNALIGNED_DATA_ACCESS) && (CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X86 || defined(__powerpc__))
 	#define CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
 #endif
 

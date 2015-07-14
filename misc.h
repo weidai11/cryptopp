@@ -382,20 +382,25 @@ inline T1 RoundDownToMultipleOf(const T1 &n, const T2 &m)
 template <class T1, class T2>
 inline T1 RoundUpToMultipleOf(const T1 &n, const T2 &m)
 {
+	// TODO: undefined behavior here...
 	if (n+m-1 < n)
 		throw InvalidArgument("RoundUpToMultipleOf: integer overflow");
 	return RoundDownToMultipleOf(n+m-1, m);
 }
 
+// Influenced by CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS; may cause
+//   problems at -O3 and GCC vectorization.
 template <class T>
 inline unsigned int GetAlignmentOf(T *dummy=NULL)	// VC60 workaround
 {
 #ifdef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
 	if (sizeof(T) < 16)
-		return 1;
+    return 1;
 #endif
-
+    
 #if (_MSC_VER >= 1300)
+	return __alignof(T);
+#elif defined(__clang__)
 	return __alignof(T);
 #elif defined(__GNUC__)
 	return __alignof__(T);
@@ -406,15 +411,41 @@ inline unsigned int GetAlignmentOf(T *dummy=NULL)	// VC60 workaround
 #endif
 }
 
+// Not influenced by CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS; will not
+//   cause problems with -O3 and GCC vectorization.
+template <class T>
+inline unsigned int GetStrictAlignmentOf(T *dummy=NULL)	// VC60 workaround
+{
+#if (_MSC_VER >= 1300)
+	return __alignof(T);
+#elif defined(__clang__)
+	return __alignof(T);
+#elif defined(__GNUC__)
+	return __alignof__(T);
+#else
+	return sizeof(T);
+#endif
+}
+
 inline bool IsAlignedOn(const void *p, unsigned int alignment)
 {
 	return alignment==1 || (IsPowerOf2(alignment) ? ModPowerOf2((size_t)p, alignment) == 0 : (size_t)p % alignment == 0);
 }
 
+// Influenced by CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS; may cause
+//   problems at -O3 and GCC vectorization.
 template <class T>
 inline bool IsAligned(const void *p, T *dummy=NULL)	// VC60 workaround
 {
 	return IsAlignedOn(p, GetAlignmentOf<T>());
+}
+
+// Not influenced by CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS; will not
+//   cause problems with -O3 and GCC vectorization.
+template <class T>
+inline bool IsStrictAligned(const void *p, T *dummy=NULL)	// VC60 workaround
+{
+	return IsAlignedOn(p, GetStrictAlignmentOf<T>());
 }
 
 #ifdef IS_LITTLE_ENDIAN
