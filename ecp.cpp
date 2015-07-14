@@ -395,7 +395,7 @@ void ECP::SimultaneousMultiply(ECP::Point *results, const ECP::Point &P, const I
 		bool baseAdded = false;
 		for (i=0; i<expCount; i++)
 		{
-			if (!exponents[i].finished && expBitPosition == exponents[i].windowBegin)
+			if (!exponents[i].m_finished && expBitPosition == exponents[i].m_windowBegin)
 			{
 				if (!baseAdded)
 				{
@@ -403,13 +403,13 @@ void ECP::SimultaneousMultiply(ECP::Point *results, const ECP::Point &P, const I
 					baseAdded =true;
 				}
 
-				exponentWindows[i].push_back(exponents[i].expWindow);
+				exponentWindows[i].push_back(exponents[i].m_expWindow);
 				baseIndices[i].push_back((word32)bases.size()-1);
-				negateBase[i].push_back(exponents[i].negateNext);
+				negateBase[i].push_back(exponents[i].m_negateNext);
 
 				exponents[i].FindNextWindow();
 			}
-			notDone = notDone || !exponents[i].finished;
+			notDone = notDone || !exponents[i].m_finished;
 		}
 
 		if (notDone)
