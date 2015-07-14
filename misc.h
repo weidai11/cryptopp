@@ -632,13 +632,13 @@ template <class T> inline T rotrVariable(T x, unsigned int y)
 template <class T> inline T rotlMod(T x, unsigned int y)
 {
 	y %= sizeof(T)*8;
-	return T((x<<y) | (x>>(sizeof(T)*8-y)));
+	return T((x<<y) | (x>>((sizeof(T)*8-y) % (sizeof(T)*8))));
 }
 
 template <class T> inline T rotrMod(T x, unsigned int y)
 {
 	y %= sizeof(T)*8;
-	return T((x>>y) | (x<<(sizeof(T)*8-y)));
+	return T((x>>y) | (x<<((sizeof(T)*8-y) % (sizeof(T)*8))));
 }
 
 #ifdef _MSC_VER
