@@ -1,6 +1,4 @@
-CXXFLAGS ?= -DNDEBUG
-SYMBOLS ?= -g2
-OPTIMIZE ?= -O3
+CXXFLAGS ?= -DNDEBUG -g2 -O3
 # -fPIC is supported, and enabled by default for x86_64.
 # the following options reduce code size, but breaks link or makes link very slow on some systems
 # CXXFLAGS += -ffunction-sections -fdata-sections
@@ -14,40 +12,22 @@ UNAME = $(shell uname)
 IS_X86 = $(shell uname -m | $(EGREP) -c "i.86|x86|i86|amd64")
 IS_X86_64 = $(shell uname -m | $(EGREP) -c "_64|d64")
 IS_DARWIN = $(shell uname -s | $(EGREP) -i -c "darwin")
-IS_SUN_CC = $(shell $(CXX) -V 2>&1 | $(EGREP) -c "CC: Sun")
 IS_LINUX = $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "linux")
 IS_MINGW = $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "mingw")
 IS_CYGWIN = $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "cygwin")
+
 CLANG_COMPILER = $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "clang")
+INTEL_COMPILER = $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "\(ICC\)")
+SUN_COMPILER = $(shell $(CXX) -V 2>&1 | $(EGREP) -i -c "CC: Sun")
 
 # Default prefix for make install
 ifeq ($(PREFIX),)
 PREFIX = /usr
 endif
 
-# Cygwin work arounds
-ifneq ($(IS_CYGWIN),0)
-
-# For some reason CXX is gcc on Cygwin 1.1.4
-ifeq ($(CXX),gcc)
-CXX = g++
-endif
-
-# -O3 fails to link with GCC 4.5.3, and causes a core dump with GCC 4.9
-ifeq ($(findstring -O3,$(OPTIMIZE)),-O3)
-OPTIMIZE = -O2
-endif
-
-endif
-# End Cygwin work arounds
-
-# Merge symbols and optimizations
-CXXFLAGS += $(SYMBOLS) $(OPTIMIZE)
-
 ifeq ($(IS_X86),1)
 
 GCC42_OR_LATER = $(shell $(CXX) -v 2>&1 | $(EGREP) -c "^gcc version (4.[2-9]|[5-9])")
-INTEL_COMPILER = $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(ICC\)")
 ICC111_OR_LATER = $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(ICC\) ([2-9][0-9]|1[2-9]|11\.[1-9])")
 GAS210_OR_LATER = $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.[1-9][0-9]|[3-9])")
 GAS217_OR_LATER = $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.1[7-9]|2\.[2-9]|[3-9])")
@@ -55,11 +35,31 @@ GAS219_OR_LATER = $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EG
 
 # Enable PIC for x86_64 targets
 ifneq ($(IS_X86_64),0)
-# But don't enable it on Cygwin x86_64
-ifeq ($(IS_CYGWIN),0)
 CXXFLAGS += -fPIC
-endif
-endif
+endif # PIC for x86_64 targets
+
+# Cygwin work arounds
+ifneq ($(IS_CYGWIN),0)
+
+# CXX is gcc on Cygwin 1.1.4
+ifeq ($(CXX),gcc)
+CXX = g++
+endif # CXX
+
+# -fPIC causes spurious output during compile
+ifeq ($(findstring -fPIC,$(CXXFLAGS)),-fPIC)
+CXXFLAGS := $(subst -fPIC,,$(CXXFLAGS))
+endif # --fPIC
+
+# -O3 fails to link with GCC 4.5.3
+IS_GCC45 = = $(shell $(CXX) -v 2>&1 | $(EGREP) -c "^gcc version 4\.5\.")
+ifneq ($(IS_GCC45),0)
+ifeq ($(findstring -O3,$(CXXFLAGS)),-O3)
+CXXFLAGS := $(subst -O3,-O2,$(CXXFLAGS))
+endif # -O3
+endif # GCC 4.5
+
+endif # Cygwin work arounds
 
 # We can do integer math using the Posix shell in a GNUmakefile
 # Below, we are building a boolean circuit that says "Darwin && (GCC 4.2 || Clang)"
@@ -134,7 +134,7 @@ ifneq ($(CLANG_COMPILER),0)
 CXXFLAGS += -Wno-tautological-compare
 endif
 
-ifneq ($(IS_SUN_CC),0)	# override flags for CC Sun C++ compiler
+ifneq ($(SUN_COMPILER),0)	# override flags for CC Sun C++ compiler
 CXXFLAGS = -DNDEBUG -O -g0 -native -template=no%extdef $(M32OR64)
 LDFLAGS =
 AR = $(CXX)
