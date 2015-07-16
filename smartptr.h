@@ -4,15 +4,41 @@
 #include "config.h"
 #include <algorithm>
 
+#if defined(_MSC_VER)
+extern PVOID SecureZeroMemory(_In_ PVOID, _In_ SIZE_T);
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 template <class T> class simple_ptr
 {
 public:
 	simple_ptr(T *p = NULL) : m_p(p) {}
-	~simple_ptr() {delete m_p; m_p = NULL;}		// set m_p to NULL so double destruction (which might occur in Singleton) will be harmless
+	~simple_ptr();
+
+public:
 	T *m_p;
+
+private:
+	simple_ptr(const simple_ptr<T>& rhs);		// copy not allowed
+	void operator=(const simple_ptr<T>& rhs);	// assignment not allowed
 };
+
+#if GCC_OPTIMIZE_AWARE
+# pragma GCC optimize push_options
+# pragma GCC optimize ("-O0")
+#endif
+
+// set m_p to NULL so double destruction (which might occur in Singleton) will be harmless
+template <class T> simple_ptr<T>::~simple_ptr()
+{
+	delete m_p;
+	m_p = NULL;
+}
+
+#if GCC_OPTIMIZE_AWARE
+# pragma GCC optimize pop_options
+#endif
 
 template <class T> class member_ptr
 {
@@ -40,10 +66,11 @@ public:
 	void reset(T *p = 0);
 
 protected:
+	T *m_p;
+
+private:
 	member_ptr(const member_ptr<T>& rhs);		// copy not allowed
 	void operator=(const member_ptr<T>& rhs);	// assignment not allowed
-
-	T *m_p;
 };
 
 template <class T> member_ptr<T>::~member_ptr() {delete m_p;}
@@ -68,9 +95,12 @@ public:
 
 template <class T> value_ptr<T>& value_ptr<T>::operator=(const value_ptr<T>& rhs)
 {
-	T *old_p = this->m_p;
-	this->m_p = rhs.m_p ? new T(*rhs.m_p) : NULL;
-	delete old_p;
+	if(this != &rhs)
+	{
+		T *old_p = this->m_p;
+		this->m_p = rhs.m_p ? new T(*rhs.m_p) : NULL;
+		delete old_p;
+	}
 	return *this;
 }
 
@@ -89,9 +119,12 @@ public:
 
 template <class T> clonable_ptr<T>& clonable_ptr<T>::operator=(const clonable_ptr<T>& rhs)
 {
-	T *old_p = this->m_p;
-	this->m_p = rhs.m_p ? rhs.m_p->Clone() : NULL;
-	delete old_p;
+	if(this !=  &rhs)
+	{
+		T *old_p = this->m_p;
+		this->m_p = rhs.m_p ? rhs.m_p->Clone() : NULL;
+		delete old_p;
+	}
 	return *this;
 }
 
@@ -119,7 +152,7 @@ public:
 
 	counted_ptr<T> & operator=(const counted_ptr<T>& rhs);
 
-private:
+protected:
 	T *m_p;
 };
 
@@ -173,6 +206,8 @@ template <class T> T* counted_ptr<T>::get()
 
 template <class T> counted_ptr<T> & counted_ptr<T>::operator=(const counted_ptr<T>& rhs)
 {
+	if(this == &rhs) { return *this; }
+
 	if (m_p != rhs.m_p)
 	{
 		if (m_p && --m_p->m_referenceCount == 0)
