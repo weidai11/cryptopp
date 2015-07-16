@@ -33,6 +33,11 @@
 // define this to retain (as much as possible) old deprecated function and class names
 // #define CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
 
+// Cygwin requires aligned data acess. It vectorizes word32's on i386, too.
+#if defined(__CYGWIN__) || defined(__CYGWIN32__)
+# define CRYPTOPP_NO_UNALIGNED_DATA_ACCESS
+#endif
+
 #define GZIP_OS_CODE 0
 
 // Try this if your CPU has 256K internal cache or a slow multiply instruction
