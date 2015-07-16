@@ -4,7 +4,7 @@ CXXFLAGS ?= -DNDEBUG -g2 -O3
 # CXXFLAGS += -ffunction-sections -fdata-sections
 # LDFLAGS += -Wl,--gc-sections
 ARFLAGS = -cr	# ar needs the dash on OpenBSD
-RANLIB = ranlib
+RANLIB ?= ranlib
 CP = cp
 MKDIR = mkdir
 EGREP = egrep
@@ -27,7 +27,7 @@ endif
 
 ifeq ($(IS_X86),1)
 
-GCC42_OR_LATER = $(shell $(CXX) -v 2>&1 | $(EGREP) -c "^gcc version (4.[2-9]|[5-9])")
+GCC42_OR_LATER = $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "^gcc version (4.[2-9]|[5-9])")
 ICC111_OR_LATER = $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(ICC\) ([2-9][0-9]|1[2-9]|11\.[1-9])")
 GAS210_OR_LATER = $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.[1-9][0-9]|[3-9])")
 GAS217_OR_LATER = $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.1[7-9]|2\.[2-9]|[3-9])")
@@ -37,6 +37,16 @@ GAS219_OR_LATER = $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EG
 ifneq ($(IS_X86_64),0)
 CXXFLAGS += -fPIC
 endif # PIC for x86_64 targets
+
+# Undefined Behavior Sanitzier (Clang and G++)
+ifeq ($(findstring ubsan,$(MAKECMDGOALS)),ubsan)
+CXXFLAGS += -fsanitize=undefined
+endif # UBsan
+
+# Address Sanitzier (Clang and G++)
+ifeq ($(findstring asan,$(MAKECMDGOALS)),asan)
+CXXFLAGS += -fsanitize=address
+endif # Asan
 
 # Cygwin work arounds
 ifneq ($(IS_CYGWIN),0)
@@ -49,10 +59,10 @@ endif # CXX
 # -fPIC causes spurious output during compile
 ifeq ($(findstring -fPIC,$(CXXFLAGS)),-fPIC)
 CXXFLAGS := $(subst -fPIC,,$(CXXFLAGS))
-endif # --fPIC
+endif # -fPIC
 
 # -O3 fails to link with GCC 4.5.3
-IS_GCC45 = = $(shell $(CXX) -v 2>&1 | $(EGREP) -c "^gcc version 4\.5\.")
+IS_GCC45 = $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "^gcc version 4\.5\.")
 ifneq ($(IS_GCC45),0)
 ifeq ($(findstring -O3,$(CXXFLAGS)),-O3)
 CXXFLAGS := $(subst -O3,-O2,$(CXXFLAGS))
@@ -167,6 +177,8 @@ DLLTESTOBJS = dlltest.dllonly.o
 all: cryptest.exe
 static: libcryptopp.a
 dynamic: libcryptopp.so
+
+asan ubsan: libcryptopp.a cryptest.exe
 
 test: cryptest.exe
 	./cryptest.exe v
