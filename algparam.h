@@ -29,7 +29,7 @@ public:
 	}
 	template <class T> ConstByteArrayParameter(const T &string, bool deepCopy = false)
 	{
-        CRYPTOPP_COMPILE_ASSERT(sizeof(CPP_TYPENAME T::value_type) == 1);
+		CRYPTOPP_COMPILE_ASSERT(sizeof(CPP_TYPENAME T::value_type) == 1);
 		Assign((const byte *)string.data(), string.size(), deepCopy);
 	}
 
@@ -171,18 +171,6 @@ GetValueHelperClass<T, T> GetValueHelper(const T *pObject, const char *name, con
 
 // ********************************************************
 
-template <class R>
-R Hack_DefaultValueFromConstReferenceType(const R &)
-{
-	return R();
-}
-
-template <class R>
-bool Hack_GetValueIntoConstReference(const NameValuePairs &source, const char *name, const R &value)
-{
-	return source.GetValue(name, const_cast<R &>(value));
-}
-
 template <class T, class BASE>
 class AssignFromHelperClass
 {
@@ -197,12 +185,12 @@ public:
 	}
 
 	template <class R>
-	AssignFromHelperClass & operator()(const char *name, void (T::*pm)(R))	// VC60 workaround: "const R &" here causes compiler error
+	AssignFromHelperClass & operator()(const char *name, void (T::*pm)(const R&))
 	{
 		if (!m_done)
 		{
-			R value = Hack_DefaultValueFromConstReferenceType(reinterpret_cast<R>(*(int *)NULL));
-			if (!Hack_GetValueIntoConstReference(m_source, name, value))
+			R value;
+			if(!m_source.GetValue(name, value))
 				throw InvalidArgument(std::string(typeid(T).name()) + ": Missing required parameter '" + name + "'");
 			(m_pObject->*pm)(value);
 		}
@@ -210,15 +198,15 @@ public:
 	}
 
 	template <class R, class S>
-	AssignFromHelperClass & operator()(const char *name1, const char *name2, void (T::*pm)(R, S))	// VC60 workaround: "const R &" here causes compiler error
+	AssignFromHelperClass & operator()(const char *name1, const char *name2, void (T::*pm)(const R&, const S&))
 	{
 		if (!m_done)
 		{
-			R value1 = Hack_DefaultValueFromConstReferenceType(reinterpret_cast<R>(*(int *)NULL));
-			if (!Hack_GetValueIntoConstReference(m_source, name1, value1))
+			R value1;
+			if (!m_source.GetValue(name1, value1))
 				throw InvalidArgument(std::string(typeid(T).name()) + ": Missing required parameter '" + name1 + "'");
-			S value2 = Hack_DefaultValueFromConstReferenceType(reinterpret_cast<S>(*(int *)NULL));
-			if (!Hack_GetValueIntoConstReference(m_source, name2, value2))
+			S value2;
+			if (!m_source.GetValue(name2, value2))
 				throw InvalidArgument(std::string(typeid(T).name()) + ": Missing required parameter '" + name2 + "'");
 			(m_pObject->*pm)(value1, value2);
 		}
