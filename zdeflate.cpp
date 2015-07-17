@@ -419,7 +419,7 @@ inline void Deflator::InsertString(unsigned int start)
 {
 	unsigned int hash = ComputeHash(m_byteBuffer + start);
 	m_prev[start & DMASK] = m_head[hash];
-	m_head[hash] = start;
+	m_head[hash] = static_cast<word16>(start);
 }
 
 void Deflator::ProcessBuffer()
