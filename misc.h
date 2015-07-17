@@ -198,6 +198,8 @@ inline void * memset_z(void *ptr, int value, size_t num)
 	if (__builtin_constant_p(num) && num==0)
 		return ptr;
 #endif
+	if(!ptr) return NULL;
+	if(!num) return ptr;
 	return memset(ptr, value, num);
 }
 
@@ -755,69 +757,69 @@ template<> inline word64 rotrMod<word64>(word64 x, unsigned int y)
 template<> inline word16 rotlFixed<word16>(word16 x, unsigned int y)
 {
 	assert(y < 8*sizeof(x));
-	return static_cast<word16>(y ? _rotl16(x, y) : x);
+	return y ? _rotl16(x, static_cast<byte>(y)) : x;
 }
 
 template<> inline word16 rotrFixed<word16>(word16 x, unsigned int y)
 {
 	assert(y < 8*sizeof(x));
-	return static_cast<word16>(y ? _rotr16(x, y) : x);
+	return y ? _rotr16(x, static_cast<byte>(y)) : x;
 }
 
 template<> inline word16 rotlVariable<word16>(word16 x, unsigned int y)
 {
 	assert(y < 8*sizeof(x));
-	return static_cast<word16>(_rotl16(x, y));
+	return _rotl16(x, static_cast<byte>(y));
 }
 
 template<> inline word16 rotrVariable<word16>(word16 x, unsigned int y)
 {
 	assert(y < 8*sizeof(x));
-	return static_cast<word16>(_rotr16(x, y));
+	return _rotr16(x, static_cast<byte>(y));
 }
 
 template<> inline word16 rotlMod<word16>(word16 x, unsigned int y)
 {
-	return static_cast<word16>(_rotl16(x, y));
+	return _rotl16(x, static_cast<byte>(y));
 }
 
 template<> inline word16 rotrMod<word16>(word16 x, unsigned int y)
 {
-	return static_cast<word16>(_rotr16(x, y));
+	return _rotr16(x, static_cast<byte>(y));
 }
 
 template<> inline byte rotlFixed<byte>(byte x, unsigned int y)
 {
 	assert(y < 8*sizeof(x));
-	return y ? _rotl8(x, y) : x;
+	return y ? _rotl8(x, static_cast<byte>(y)) : x;
 }
 
 template<> inline byte rotrFixed<byte>(byte x, unsigned int y)
 {
 	assert(y < 8*sizeof(x));
-	return y ? _rotr8(x, y) : x;
+	return y ? _rotr8(x, static_cast<byte>(y)) : x;
 }
 
 template<> inline byte rotlVariable<byte>(byte x, unsigned int y)
 {
 	assert(y < 8*sizeof(x));
-	return _rotl8(x, y);
+	return _rotl8(x, static_cast<byte>(y));
 }
 
 template<> inline byte rotrVariable<byte>(byte x, unsigned int y)
 {
 	assert(y < 8*sizeof(x));
-	return _rotr8(x, y);
+	return _rotr8(x, static_cast<byte>(y));
 }
 
 template<> inline byte rotlMod<byte>(byte x, unsigned int y)
 {
-	return _rotl8(x, y);
+	return _rotl8(x, static_cast<byte>(y));
 }
 
 template<> inline byte rotrMod<byte>(byte x, unsigned int y)
 {
-	return _rotr8(x, y);
+	return _rotr8(x, static_cast<byte>(y));
 }
 
 #endif // #if _MSC_VER >= 1400
@@ -1185,12 +1187,16 @@ inline void UnalignedPutWordNonTemplate(ByteOrder order, byte *block, word64 val
 template <class T>
 inline T GetWord(bool assumeAligned, ByteOrder order, const byte *block)
 {
-#ifndef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
-	if (!assumeAligned)
-		return UnalignedGetWordNonTemplate(order, block, (T*)NULL);
-	assert(IsAligned<T>(block));
-#endif
-	return ConditionalByteReverse(order, *reinterpret_cast<const T *>(block));
+// #ifndef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
+//	if (!assumeAligned)
+//		return UnalignedGetWordNonTemplate(order, block, (T*)NULL);
+//	assert(IsAligned<T>(block));
+// #endif
+//	return ConditionalByteReverse(order, *reinterpret_cast<const T *>(block));
+
+	T temp;
+	memmove(&temp, block, sizeof(temp));
+	return ConditionalByteReverse(order, temp);
 }
 
 template <class T>
@@ -1202,13 +1208,18 @@ inline void GetWord(bool assumeAligned, ByteOrder order, T &result, const byte *
 template <class T>
 inline void PutWord(bool assumeAligned, ByteOrder order, byte *block, T value, const byte *xorBlock = NULL)
 {
-#ifndef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
-	if (!assumeAligned)
-		return UnalignedPutWordNonTemplate(order, block, value, xorBlock);
-	assert(IsAligned<T>(block));
-	assert(IsAligned<T>(xorBlock));
-#endif
-	*reinterpret_cast<T *>(block) = ConditionalByteReverse(order, value) ^ (xorBlock ? *reinterpret_cast<const T *>(xorBlock) : 0);
+// #ifndef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
+//	if (!assumeAligned)
+//		return UnalignedPutWordNonTemplate(order, block, value, xorBlock);
+//	assert(IsAligned<T>(block));
+//	assert(IsAligned<T>(xorBlock));
+//#endif
+//	*reinterpret_cast<T *>(block) = ConditionalByteReverse(order, value) ^ (xorBlock ? *reinterpret_cast<const T *>(xorBlock) : 0);
+
+	T t1, t2 = 0;
+	t1 = ConditionalByteReverse(order, value);
+    if(xorBlock) memmove(&t2, xorBlock, sizeof(T));
+	memmove(block, &(t1 ^= t2), sizeof(T));
 }
 
 template <class T, class B, bool A=false>
@@ -1302,12 +1313,14 @@ template<> struct SafeShifter<false>
 	template <class T>
 	static inline T RightShift(T value, unsigned int bits)
 	{
+		assert(bits < sizeof(T)*8);
 		return value >> bits;
 	}
 
 	template <class T>
 	static inline T LeftShift(T value, unsigned int bits)
 	{
+		assert(bits < sizeof(T)*8);
 		return value << bits;
 	}
 };
