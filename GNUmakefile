@@ -41,6 +41,7 @@ endif # PIC for x86_64 targets
 # Undefined Behavior Sanitzier (Clang and G++)
 ifeq ($(findstring ubsan,$(MAKECMDGOALS)),ubsan)
 CXXFLAGS += -fsanitize=undefined
+# CXXFLAGS += -fsanitize-undefined-trap-on-error 
 endif # UBsan
 
 # Address Sanitzier (Clang and G++)
