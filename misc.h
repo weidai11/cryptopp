@@ -638,6 +638,45 @@ CRYPTOPP_DLL void CRYPTOPP_API UnalignedDeallocate(void *p);
 
 // ************** rotate functions ***************
 
+// There are two families of rotate - one for left and one for right. Each family
+// has three variants denoted with a suffix - Fixed, Variable or Mod. The two
+// families with three variants produce six concrete functions - rotlFixed,
+// rotrFixed, rotlVariable, rotrVariable, rotlMod and rotrMod.
+//
+// Fixed, or rotlFixed and rotrFixed, are intended to be used with a constant or
+// immediate. Variable, or rotlVariable and rotrVariable, are intended to be used when
+// the shift amount is not constant and passed through a variable. Finally, Mod, or
+// rotlMod and rotrMod, are intended to provide an intrinsic that has special
+// requirements on x86/x64. On x86/x64, the CPU instruction only shifts by an 8-bit
+// value (the value is an immediate-8 or placed in the CL register), so the effect is
+// a modular reduction when using it.
+//
+// For trouble free C/C++ code, attempt to use rotlMod and rotrMod. They are near
+// constant time, they are free from C/C++ undefined behavior, and they utilize a
+// compiler intrinsic or inline assembly when available.
+//
+// If the Fixed or Variable variants are used, then the caller is responsible for
+// ensuring the shift amount is smaller than the register size in bits. For example.
+// for a 32-bit register, the shift amount must be [0,31] inclusive. If this is
+// not honored, then the result is undefined behavior. To help ensure well defined
+// behavior for callers, Fixed and Variable assert in Debug builds in an attempt to
+// alert of potential problems.
+//
+// There are also specializations of the functions that depend on the compiler
+// and/or platform. For example, on Microsoft platforms, when using the Mod variant,
+// the compiler intrinsics _lrotl or _lrotr are utilized. For GCC under the Mod
+// variant, inline assembly is used.
+//
+// For Microsoft platforms, there are four instrinsics, and they are rotl8, rotl16,
+// rotr8 and rotr16. Microsoft does not provide 32 and 64 bit variants, so the
+// variants that operate on 32-bit and 64-bit data types assert to alert of
+// potential undefined behavior. See
+// https://msdn.microsoft.com/en-us/library/hh977022.aspx and
+// https://msdn.microsoft.com/en-us/library/hh977023.aspx.
+//
+// Finally, if a specialization avoids the undefined behavior, then it
+// does not assert.
+
 template <class T> inline T rotlFixed(T x, unsigned int y)
 {
 	assert(y < sizeof(T)*8);
@@ -1218,7 +1257,7 @@ inline void PutWord(bool assumeAligned, ByteOrder order, byte *block, T value, c
 
 	T t1, t2 = 0;
 	t1 = ConditionalByteReverse(order, value);
-    if(xorBlock) memmove(&t2, xorBlock, sizeof(T));
+	if(xorBlock) memmove(&t2, xorBlock, sizeof(T));
 	memmove(block, &(t1 ^= t2), sizeof(T));
 }
 
