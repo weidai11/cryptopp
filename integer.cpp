@@ -3181,7 +3181,7 @@ size_t Integer::OpenPGPEncode(byte *output, size_t len) const
 
 size_t Integer::OpenPGPEncode(BufferedTransformation &bt) const
 {
-	word16 bitCount = BitCount();
+	word16 bitCount = static_cast<word16>(BitCount());
 	bt.PutWord16(bitCount);
 	size_t byteCount = BitsToBytes(bitCount);
 	Encode(bt, byteCount);
