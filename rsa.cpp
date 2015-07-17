@@ -97,6 +97,8 @@ class RSAPrimeSelector : public PrimeSelector
 {
 public:
 	RSAPrimeSelector(const Integer &e) : m_e(e) {}
+	virtual ~RSAPrimeSelector() { }
+
 	bool IsAcceptable(const Integer &candidate) const {return RelativelyPrime(m_e, candidate-Integer::One());}
 	Integer m_e;
 };

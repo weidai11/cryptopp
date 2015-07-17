@@ -21,6 +21,8 @@ public:
 	Element BERDecodeElement(BufferedTransformation &bt) const {return Integer(bt);}
 	void DEREncodeElement(BufferedTransformation &bt, const Element &v) const {v.DEREncode(bt);}
 
+	virtual ~ModExpPrecomputation() { }
+
 	// non-inherited
 	void SetModulus(const Integer &v) {m_mr.reset(new MontgomeryRepresentation(v));}
 	const Integer & GetModulus() const {return m_mr->GetModulus();}

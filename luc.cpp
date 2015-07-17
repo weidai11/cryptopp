@@ -97,6 +97,8 @@ class LUCPrimeSelector : public PrimeSelector
 {
 public:
 	LUCPrimeSelector(const Integer &e) : m_e(e) {}
+	virtual ~LUCPrimeSelector() { }
+
 	bool IsAcceptable(const Integer &candidate) const
 	{
 		return RelativelyPrime(m_e, candidate+1) && RelativelyPrime(m_e, candidate-1);

@@ -119,6 +119,8 @@ public:
 	Element BERDecodeElement(BufferedTransformation &bt) const {return Integer(bt);}
 	void DEREncodeElement(BufferedTransformation &bt, const Element &v) const {v.DEREncode(bt);}
 
+	virtual ~DL_GroupPrecomputation_LUC() { }
+
 	// non-inherited
 	void SetModulus(const Integer &v) {m_p = v;}
 	const Integer & GetModulus() const {return m_p;}
@@ -142,6 +144,8 @@ public:
 	Integer CascadeExponentiate(const DL_GroupPrecomputation<Element> &group, const Integer &exponent, const DL_FixedBasePrecomputation<Integer> &pc2, const Integer &exponent2) const
 		{throw NotImplemented("DL_BasePrecomputation_LUC: CascadeExponentiate not implemented");}	// shouldn't be called
 
+	virtual ~DL_BasePrecomputation_LUC() { }
+
 private:
 	Integer m_g;
 };
@@ -157,6 +161,8 @@ public:
 		{throw NotImplemented("LUC_GroupParameters: MultiplyElements can not be implemented");}
 	Element CascadeExponentiate(const Element &element1, const Integer &exponent1, const Element &element2, const Integer &exponent2) const
 		{throw NotImplemented("LUC_GroupParameters: MultiplyElements can not be implemented");}
+
+	virtual ~DL_GroupParameters_LUC() { }
 
 	// NameValuePairs interface
 	bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const

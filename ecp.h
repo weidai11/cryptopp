@@ -109,6 +109,8 @@ public:
 	Element BERDecodeElement(BufferedTransformation &bt) const {return m_ec->BERDecodePoint(bt);}
 	void DEREncodeElement(BufferedTransformation &bt, const Element &v) const {m_ec->DEREncodePoint(bt, v, false);}
 
+	virtual ~EcPrecomputation() { }
+
 	// non-inherited
 	void SetCurve(const ECP &ec)
 	{

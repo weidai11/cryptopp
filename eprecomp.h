@@ -44,6 +44,7 @@ public:
 	typedef T Element;
 
 	DL_FixedBasePrecomputationImpl() : m_windowSize(0) {}
+	virtual ~DL_FixedBasePrecomputationImpl() { }
 
 	// DL_FixedBasePrecomputation
 	bool IsInitialized() const
