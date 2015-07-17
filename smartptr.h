@@ -4,10 +4,6 @@
 #include "config.h"
 #include <algorithm>
 
-#if defined(_MSC_VER)
-extern PVOID SecureZeroMemory(_In_ PVOID, _In_ SIZE_T);
-#endif
-
 NAMESPACE_BEGIN(CryptoPP)
 
 template <class T> class simple_ptr
