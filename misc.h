@@ -174,14 +174,22 @@ inline void memcpy_s(void *dest, size_t sizeInBytes, const void *src, size_t cou
 {
 	if (count > sizeInBytes)
 		throw InvalidArgument("memcpy_s: buffer overflow");
-	memcpy(dest, src, count);
+
+	// TODO: fix callers. Its easier than it sounds because of the way
+	//   Put and Put2 are used in filters.
+	if(dest && src && count)
+		memcpy(dest, src, count);
 }
 
 inline void memmove_s(void *dest, size_t sizeInBytes, const void *src, size_t count)
 {
 	if (count > sizeInBytes)
 		throw InvalidArgument("memmove_s: buffer overflow");
-	memmove(dest, src, count);
+
+	// TODO: fix callers. Its easier than it sounds because of the way
+	//   Put and Put2 are used in filters.
+	if(dest && src && count)
+		memmove(dest, src, count);
 }
 
 #if __BORLANDC__ >= 0x620
