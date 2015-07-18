@@ -75,8 +75,17 @@ void PSSR_MEM_Base::ComputeMessageRepresentative(RandomNumberGenerator &rng,
 	xorStart[0] ^= 1;
 	xorbuf(xorStart + 1, recoverableMessage, recoverableMessageLength);
 	xorbuf(xorStart + 1 + recoverableMessageLength, salt, salt.size());
-	memcpy(representative + representativeByteLength - u, hashIdentifier.first, hashIdentifier.second);
-	representative[representativeByteLength - 1] = hashIdentifier.second ? 0xcc : 0xbc;
+
+	if(representative && hashIdentifier.first && hashIdentifier.second)
+	{
+		memcpy(representative + representativeByteLength - u, hashIdentifier.first, hashIdentifier.second);
+		representative[representativeByteLength - 1] = 0xcc;
+	}
+	else
+	{
+		representative[representativeByteLength - 1] = 0xbc;
+	}
+
 	if (representativeBitLength % 8 != 0)
 		representative[0] = (byte)Crop(representative[0], representativeBitLength % 8);
 }
@@ -116,7 +125,8 @@ DecodingResult PSSR_MEM_Base::RecoverMessageFromRepresentative(
 		&& (size_t)(M - representative - (representativeBitLength % 8 != 0)) >= MinPadLen(digestSize)
 		&& recoverableMessageLength <= MaxRecoverableLength(representativeBitLength, hashIdentifier.second, digestSize))
 	{
-		memcpy(recoverableMessage, M+1, recoverableMessageLength);
+		if(recoverableMessage && M && recoverableMessageLength)
+			memcpy(recoverableMessage, M+1, recoverableMessageLength);
 	}
 	else
 	{
