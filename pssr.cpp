@@ -76,15 +76,9 @@ void PSSR_MEM_Base::ComputeMessageRepresentative(RandomNumberGenerator &rng,
 	xorbuf(xorStart + 1, recoverableMessage, recoverableMessageLength);
 	xorbuf(xorStart + 1 + recoverableMessageLength, salt, salt.size());
 
-	if(representative && hashIdentifier.first && hashIdentifier.second)
-	{
+	if(representative && hashIdentifier.first)
 		memcpy(representative + representativeByteLength - u, hashIdentifier.first, hashIdentifier.second);
-		representative[representativeByteLength - 1] = 0xcc;
-	}
-	else
-	{
-		representative[representativeByteLength - 1] = 0xbc;
-	}
+    representative[representativeByteLength - 1] = hashIdentifier.second ? 0xcc : 0xbc;
 
 	if (representativeBitLength % 8 != 0)
 		representative[0] = (byte)Crop(representative[0], representativeBitLength % 8);
