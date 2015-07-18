@@ -685,40 +685,54 @@ CRYPTOPP_DLL void CRYPTOPP_API UnalignedDeallocate(void *p);
 // Finally, if a specialization avoids the undefined behavior, then it
 // does not assert.
 
+// Well defined if y in [0,31], non-constant time due to branch
 template <class T> inline T rotlFixed(T x, unsigned int y)
 {
-	assert(y < sizeof(T)*8);
-	return y ? T((x<<y) | (x>>(sizeof(T)*8-y))) : x;
+	static const unsigned int THIS_SIZE = sizeof(T)*8;
+	assert(y < THIS_SIZE);
+	return y ? T((x<<y) | (x>>(THIS_SIZE-y))) : x;
 }
 
+// Well defined if y in [0,31], non-constant time due to branch
 template <class T> inline T rotrFixed(T x, unsigned int y)
 {
-	assert(y < sizeof(T)*8);
-	return y ? T((x>>y) | (x<<(sizeof(T)*8-y))) : x;
+	static const unsigned int THIS_SIZE = sizeof(T)*8;
+	assert(y < THIS_SIZE);
+	return y ? T((x>>y) | (x<<(THIS_SIZE-y))) : x;
 }
 
+// Well defined if y in [1,31], near constant time
 template <class T> inline T rotlVariable(T x, unsigned int y)
 {
-	assert(y < sizeof(T)*8);
-	return T((x<<y) | (x>>(sizeof(T)*8-y)));
+	static const unsigned int THIS_SIZE = sizeof(T)*8;
+	assert(y > 0 && y < THIS_SIZE);
+	y %= THIS_SIZE;
+	return T((x<<y) | (x>>(THIS_SIZE-y)));
 }
 
+// Well defined if y in [1,31], near constant time
 template <class T> inline T rotrVariable(T x, unsigned int y)
 {
-	assert(y < sizeof(T)*8);
-	return T((x>>y) | (x<<(sizeof(T)*8-y)));
+	static const unsigned int THIS_SIZE = sizeof(T)*8;
+	assert(y > 0 && y < THIS_SIZE);
+	y %= THIS_SIZE;
+	return T((x>>y) | (x<<(THIS_SIZE-y)));
 }
 
+// Well defined for all y, near constant time
 template <class T> inline T rotlMod(T x, unsigned int y)
 {
-	y %= sizeof(T)*8;
-	return T((x<<y) | (x>>((sizeof(T)*8-y) % (sizeof(T)*8))));
+	static const unsigned int THIS_SIZE = sizeof(T)*8;
+	y %= THIS_SIZE;
+	return T((x<<y) | (x>>((THIS_SIZE-y) % THIS_SIZE)));
 }
 
+// Well defined for all y, near constant time
 template <class T> inline T rotrMod(T x, unsigned int y)
 {
-	y %= sizeof(T)*8;
-	return T((x>>y) | (x<<((sizeof(T)*8-y) % (sizeof(T)*8))));
+	static const unsigned int THIS_SIZE = sizeof(T)*8;
+	y %= THIS_SIZE;
+	return T((x>>y) | (x<<((THIS_SIZE-y) % THIS_SIZE)));
 }
 
 #ifdef _MSC_VER
