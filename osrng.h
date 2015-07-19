@@ -45,8 +45,11 @@ private:
 	ProviderHandle m_hProvider;
 };
 
-#pragma comment(lib, "advapi32.lib")
-#endif
+#if !defined(__CYGWIN__) && !defined(__CYGWIN32__)
+# pragma comment(lib, "advapi32.lib")
+#endif // Cygwin
+
+#endif //CRYPTOPP_WIN32_AVAILABLE
 
 //! encapsulate CryptoAPI's CryptGenRandom or /dev/urandom
 class CRYPTOPP_DLL NonblockingRng : public RandomNumberGenerator
@@ -86,7 +89,7 @@ protected:
 
 CRYPTOPP_DLL void CRYPTOPP_API OS_GenerateRandomBlock(bool blocking, byte *output, size_t size);
 
-//! Automaticly Seeded Randomness Pool
+//! Automatically Seeded Randomness Pool
 /*! This class seeds itself using an operating system provided RNG. */
 class CRYPTOPP_DLL AutoSeededRandomPool : public RandomPool
 {
