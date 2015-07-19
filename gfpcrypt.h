@@ -25,6 +25,8 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE DL_GroupParameters_IntegerBased : public A
 	typedef DL_GroupParameters_IntegerBased ThisClass;
 	
 public:
+	virtual ~DL_GroupParameters_IntegerBased() { }
+
 	void Initialize(const DL_GroupParameters_IntegerBased &params)
 		{Initialize(params.GetModulus(), params.GetSubgroupOrder(), params.GetSubgroupGenerator());}
 	void Initialize(RandomNumberGenerator &rng, unsigned int pbits)
@@ -87,7 +89,7 @@ class CRYPTOPP_NO_VTABLE DL_GroupParameters_IntegerBasedImpl : public DL_GroupPa
 
 public:
 	typedef typename GROUP_PRECOMP::Element Element;
-	virtual DL_GroupParameters_IntegerBasedImpl() { }
+	virtual ~DL_GroupParameters_IntegerBasedImpl() { }
 
 	// GeneratibleCryptoMaterial interface
 	bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
@@ -120,7 +122,7 @@ CRYPTOPP_DLL_TEMPLATE_CLASS DL_GroupParameters_IntegerBasedImpl<ModExpPrecomputa
 class CRYPTOPP_DLL DL_GroupParameters_GFP : public DL_GroupParameters_IntegerBasedImpl<ModExpPrecomputation>
 {
 public:
-	virtual ~DL_GroupParameters_IntegerBasedImpl() { }
+	virtual ~DL_GroupParameters_GFP() { }
 
 	// DL_GroupParameters
 	bool IsIdentity(const Integer &element) const {return element == Integer::One();}

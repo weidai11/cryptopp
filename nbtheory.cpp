@@ -308,7 +308,8 @@ PrimeSieve::PrimeSieve(const Integer &first, const Integer &last, const Integer 
 bool PrimeSieve::NextCandidate(Integer &c)
 {
 	bool safe = SafeConvert(std::find(m_sieve.begin()+m_next, m_sieve.end(), false) - m_sieve.begin(), m_next);
-	assert(safe);
+	assert(safe); CRYPTOPP_UNUSED(safe);
+
 	if (m_next == m_sieve.size())
 	{
 		m_first += long(m_sieve.size())*m_step;
