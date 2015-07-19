@@ -29,7 +29,7 @@ void CFB_ModePolicy::Iterate(byte *output, const byte *input, CipherDir dir, siz
 	assert(m_cipher->IsForwardTransformation());	// CFB mode needs the "encrypt" direction of the underlying block cipher, even to decrypt
 	assert(m_feedbackSize == BlockSize());
 
-	unsigned int s = BlockSize();
+	const unsigned int s = BlockSize();
 	if (dir == ENCRYPTION)
 	{
 		m_cipher->ProcessAndXorBlock(m_register, input, output);
@@ -38,10 +38,10 @@ void CFB_ModePolicy::Iterate(byte *output, const byte *input, CipherDir dir, siz
 	}
 	else
 	{
-		memcpy(m_temp, input+(iterationCount-1)*s, s);	// make copy first in case of in-place decryption
+		memcpy_s(m_temp, m_temp.size(), input+(iterationCount-1)*s, s);	// make copy first in case of in-place decryption
 		m_cipher->AdvancedProcessBlocks(input, input+s, output+s, (iterationCount-1)*s, BlockTransformation::BT_ReverseDirection);
 		m_cipher->ProcessAndXorBlock(m_register, input, output);
-		memcpy(m_register, m_temp, s);
+		memcpy_s(m_register, m_register.size(), m_temp, s);
 	}
 }
 
@@ -49,8 +49,10 @@ void CFB_ModePolicy::TransformRegister()
 {
 	assert(m_cipher->IsForwardTransformation());	// CFB mode needs the "encrypt" direction of the underlying block cipher, even to decrypt
 	m_cipher->ProcessBlock(m_register, m_temp);
-	unsigned int updateSize = BlockSize()-m_feedbackSize;
-	memmove_s(m_register, m_register.size(), m_register+m_feedbackSize, updateSize);
+	const unsigned int updateSize = BlockSize()-m_feedbackSize;
+
+	if(updateSize)
+		memmove_s(m_register, m_register.size(), m_register+m_feedbackSize, updateSize);
 	memcpy_s(m_register+updateSize, m_register.size()-updateSize, m_temp, m_feedbackSize);
 }
 

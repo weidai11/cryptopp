@@ -211,7 +211,7 @@ protected:
 		byte *GetBlock();
 		byte *GetContigousBlocks(size_t &numberOfBytes);
 		size_t GetAll(byte *outString);
-		void Put(const byte *inString, size_t length);
+		size_t Put(const byte *inString, size_t length);
 		size_t CurrentSize() const {return m_size;}
 		size_t MaxSize() const {return m_buffer.size();}
 
