@@ -97,9 +97,9 @@ struct CRYPTOPP_NO_VTABLE AdditiveCipherConcretePolicy : public BASE
 
 // use these to implement OperateKeystream
 #define CRYPTOPP_KEYSTREAM_OUTPUT_WORD(x, b, i, a)	\
-	PutWord(bool(x & OUTPUT_ALIGNED), b, output+i*sizeof(WordType), (x & INPUT_NULL) ? a : a ^ GetWord<WordType>(bool(x & INPUT_ALIGNED), b, input+i*sizeof(WordType)));
+	PutWord(bool(x & OUTPUT_ALIGNED), b, output+i*sizeof(WordType), (x & INPUT_NULL) ? (a) : (a) ^ GetWord<WordType>(bool(x & INPUT_ALIGNED), b, input+i*sizeof(WordType)));
 #define CRYPTOPP_KEYSTREAM_OUTPUT_XMM(x, i, a)	{\
-	__m128i t = (x & INPUT_NULL) ? a : _mm_xor_si128(a, (x & INPUT_ALIGNED) ? _mm_load_si128((__m128i *)input+i) : _mm_loadu_si128((__m128i *)input+i));\
+	__m128i t = (x & INPUT_NULL) ? (a) : _mm_xor_si128(a, (x & INPUT_ALIGNED) ? _mm_load_si128((__m128i *)input+i) : _mm_loadu_si128((__m128i *)input+i));\
 	if (x & OUTPUT_ALIGNED) _mm_store_si128((__m128i *)output+i, t);\
 	else _mm_storeu_si128((__m128i *)output+i, t);}
 #define CRYPTOPP_KEYSTREAM_OUTPUT_SWITCH(x, y)	\
