@@ -1436,6 +1436,7 @@ class DL_KeyAgreementAlgorithm_DH : public DL_KeyAgreementAlgorithm<ELEMENT>
 public:
 	typedef ELEMENT Element;
 
+	virtual ~DL_KeyAgreementAlgorithm_DH() { }
 	static const char * CRYPTOPP_API StaticAlgorithmName()
 		{return COFACTOR_OPTION::ToEnum() == INCOMPATIBLE_COFACTOR_MULTIPLICTION ? "DHC" : "DH";}
 

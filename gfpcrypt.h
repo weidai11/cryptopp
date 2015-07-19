@@ -152,6 +152,7 @@ template <class T>
 class DL_Algorithm_GDSA : public DL_ElgamalLikeSignatureAlgorithm<T>
 {
 public:
+	virtual ~DL_Algorithm_GDSA() { }
 	static const char * CRYPTOPP_API StaticAlgorithmName() {return "DSA-1363";}
 
 	void Sign(const DL_GroupParameters<T> &params, const Integer &x, const Integer &k, const Integer &e, Integer &r, Integer &s) const
@@ -184,6 +185,7 @@ template <class T>
 class DL_Algorithm_NR : public DL_ElgamalLikeSignatureAlgorithm<T>
 {
 public:
+	virtual ~DL_Algorithm_NR() { }
 	static const char * CRYPTOPP_API StaticAlgorithmName() {return "NR";}
 
 	void Sign(const DL_GroupParameters<T> &params, const Integer &x, const Integer &k, const Integer &e, Integer &r, Integer &s) const
@@ -412,6 +414,7 @@ template <class MAC, bool DHAES_MODE>
 class DL_EncryptionAlgorithm_Xor : public DL_SymmetricEncryptionAlgorithm
 {
 public:
+	virtual ~DL_EncryptionAlgorithm_Xor() { }
 	bool ParameterSupported(const char *name) const {return strcmp(name, Name::EncodingParameters()) == 0;}
 	size_t GetSymmetricKeyLength(size_t plaintextLength) const
 		{return plaintextLength + MAC::DEFAULT_KEYLENGTH;}
@@ -488,6 +491,7 @@ template <class T, bool DHAES_MODE, class KDF>
 class DL_KeyDerivationAlgorithm_P1363 : public DL_KeyDerivationAlgorithm<T>
 {
 public:
+	virtual ~DL_KeyDerivationAlgorithm_P1363() { }
 	bool ParameterSupported(const char *name) const {return strcmp(name, Name::KeyDerivationParameters()) == 0;}
 	void Derive(const DL_GroupParameters<T> &params, byte *derivedKey, size_t derivedLength, const T &agreedElement, const T &ephemeralPublicKey, const NameValuePairs &parameters) const
 	{

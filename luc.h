@@ -188,6 +188,7 @@ protected:
 class DL_Algorithm_LUC_HMP : public DL_ElgamalLikeSignatureAlgorithm<Integer>
 {
 public:
+	virtual ~DL_Algorithm_LUC_HMP() { }
 	static const char * StaticAlgorithmName() {return "LUC-HMP";}
 
 	void Sign(const DL_GroupParameters<Integer> &params, const Integer &x, const Integer &k, const Integer &e, Integer &r, Integer &s) const;
