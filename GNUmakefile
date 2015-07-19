@@ -74,7 +74,7 @@ endif # Cygwin work arounds
 
 # We can do integer math using the Posix shell in a GNUmakefile
 # Below, we are building a boolean circuit that says "Darwin && (GCC 4.2 || Clang)"
-MULTIARCH_SUPPORT = $(shell echo $$(($(IS_DARWIN) * ($(GCC42_OR_LATER) + $(CLANG_COMPILER)))))
+MULTIARCH_SUPPORT ?= $(shell echo $$(($(IS_DARWIN) * ($(GCC42_OR_LATER) + $(CLANG_COMPILER)))))
 ifneq ($(MULTIARCH_SUPPORT),0)
 CXXFLAGS += -arch x86_64 -arch i386
 else
@@ -160,11 +160,8 @@ endif
 endif
 
 SRCS = $(wildcard *.cpp)
-ifeq ($(SRCS),)				# workaround wildcard function bug in GNU Make 3.77
-SRCS = $(shell echo *.cpp)
-endif
-
 OBJS = $(SRCS:.cpp=.o)
+
 # test.o needs to be after bench.o for cygwin 1.1.4 (possible ld bug?)
 TESTOBJS = bench.o bench2.o test.o validat1.o validat2.o validat3.o adhoc.o datatest.o regtest.o fipsalgt.o dlltest.o
 LIBOBJS = $(filter-out $(TESTOBJS),$(OBJS))
@@ -186,7 +183,7 @@ test: cryptest.exe
 
 .PHONY: clean
 clean:
-	-$(RM) cryptest.exe libcryptopp.a libcryptopp.so $(LIBOBJS) $(TESTOBJS) cryptopp.dll libcryptopp.dll.a libcryptopp.import.a cryptest.import.exe dlltest.exe $(DLLOBJS) $(LIBIMPORTOBJS) $(TESTI MPORTOBJS) $(DLLTESTOBJS)
+	-$(RM) cryptest.exe libcryptopp.a libcryptopp.so GNUmakefile.deps $(LIBOBJS) $(TESTOBJS) cryptopp.dll libcryptopp.dll.a libcryptopp.import.a cryptest.import.exe dlltest.exe $(DLLOBJS) $(LIBIMPORTOBJS) $(TESTI MPORTOBJS) $(DLLTESTOBJS)
 	-$(RM) -r cryptest.exe.dSYM
 
 .PHONY: install
@@ -250,3 +247,16 @@ endif
 
 %.o : %.cpp
 	$(CXX) $(CXXFLAGS) -c $<
+
+# Do not build dependencies when multiarch is in effect
+ifeq ($(MULTIARCH_SUPPORT),0)
+
+# Do not build dependencies when cleaning
+ifneq ($(findstring clean,$(MAKECMDGOALS)),clean)
+-include GNUmakefile.deps
+endif
+
+GNUmakefile.deps:
+	$(CXX) $(CXXFLAGS) -MM *.cpp > GNUmakefile.deps
+endif
+
