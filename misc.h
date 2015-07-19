@@ -4,6 +4,7 @@
 #include "cryptlib.h"
 #include "smartptr.h"
 #include <string.h>		// for memcpy and memmove
+#include <limits>		// for numeric_limits
 
 #ifdef _MSC_VER
 	#if _MSC_VER >= 1400
@@ -392,8 +393,8 @@ inline T1 RoundDownToMultipleOf(const T1 &n, const T2 &m)
 template <class T1, class T2>
 inline T1 RoundUpToMultipleOf(const T1 &n, const T2 &m)
 {
-	// TODO: undefined behavior here...
-	if (n+m-1 < n)
+	const size_t limit = std::numeric_limits<T1>::max();
+	if (n > limit-m)
 		throw InvalidArgument("RoundUpToMultipleOf: integer overflow");
 	return RoundDownToMultipleOf(n+m-1, m);
 }
