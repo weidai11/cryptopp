@@ -10,6 +10,11 @@
 
 #include <cstring>
 
+#if GCC_DIAGNOSTIC_AWARE
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wunused-variable"
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 //! abstract base class for key derivation function
@@ -83,5 +88,9 @@ unsigned int HKDF<T>::DeriveKey(byte *derived, size_t derivedLen, const byte *se
 }
 
 NAMESPACE_END
+
+#if GCC_DIAGNOSTIC_AWARE
+# pragma GCC diagnostic pop
+#endif
 
 #endif // CRYPTOPP_HASH_KEY_DERIVATION_FUNCTION_H

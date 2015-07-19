@@ -15,7 +15,7 @@ void ThreeWay_TestInstantiations()
 
 static const word32 START_E = 0x0b0b; // round constant of first encryption round
 static const word32 START_D = 0xb1b1; // round constant of first decryption round
-static const word32 RC_MODULUS = 0x11011;
+// static const word32 RC_MODULUS = 0x11011;
 
 static inline word32 reverseBits(word32 a)
 {

@@ -26,6 +26,7 @@ extern "C" {_CRTIMP void __cdecl _CRT_DEBUGGER_HOOK(int);}
 #if GCC_DIAGNOSTIC_AWARE
 # pragma GCC diagnostic ignored "-Wunused-value"
 # pragma GCC diagnostic ignored "-Wunused-variable"
+# pragma GCC diagnostic ignored "-Wunneeded-internal-declaration"
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)

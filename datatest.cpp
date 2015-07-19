@@ -640,7 +640,7 @@ void OutputPair(const NameValuePairs &v, const char *name)
 {
 	Integer x;
 	bool b = v.GetValue(name, x);
-	assert(b);
+	assert(b); CRYPTOPP_UNUSED(b);
 	cout << name << ": \\\n    ";
 	x.Encode(HexEncoder(new FileSink(cout), false, 64, "\\\n    ").Ref(), x.MinEncodedSize());
 	cout << endl;

@@ -73,6 +73,11 @@ being unloaded from L1 cache, until that round is finished.
 #include "misc.h"
 #include "cpu.h"
 
+#if GCC_DIAGNOSTIC_AWARE
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wunused-function"
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 #ifdef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
@@ -1258,6 +1263,10 @@ size_t Rijndael::Dec::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 #endif	// #if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
 
 NAMESPACE_END
+
+#if GCC_DIAGNOSTIC_AWARE
+# pragma GCC diagnostic pop
+#endif
 
 #endif
 #endif

@@ -348,6 +348,9 @@ void EncodedObjectFilter::Put(const byte *inString, size_t length)
 
 			if (m_lengthRemaining == 0)
 				m_state = IDENTIFIER;
+
+		case TAIL: case ALL_DONE: ;;
+		default: ;;
 		}
 
 		if (m_state == IDENTIFIER && m_level == 0)

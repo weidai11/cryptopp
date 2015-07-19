@@ -36,7 +36,7 @@ inline bool LowFirstBitReader::FillBuffer(unsigned int length)
 inline unsigned long LowFirstBitReader::PeekBits(unsigned int length)
 {
 	bool result = FillBuffer(length);
-	assert(result);
+	assert(result); CRYPTOPP_UNUSED(result);
 	return m_buffer & (((unsigned long)1 << length) - 1);
 }
 

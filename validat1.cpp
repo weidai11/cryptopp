@@ -286,6 +286,7 @@ bool TestOS_RNG()
 		RandomNumberSource test(*rng, UINT_MAX, false, new Deflator(new Redirector(meter)));
 		unsigned long total=0, length=0;
 		time_t t = time(NULL), t1 = 0;
+		CRYPTOPP_UNUSED(length);
 
 		// check that it doesn't take too long to generate a reasonable amount of randomness
 		while (total < 16 && (t1 < 10 || total*8 > (unsigned long)t1))

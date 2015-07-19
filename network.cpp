@@ -16,6 +16,8 @@ lword LimitedBandwidth::ComputeCurrentTransceiveLimit()
 		return ULONG_MAX;
 
 	double curTime = GetCurTimeAndCleanUp();
+	CRYPTOPP_UNUSED(curTime);
+
 	lword total = 0;
 	for (OpQueue::size_type i=0; i!=m_ops.size(); ++i)
 		total += m_ops[i].second;

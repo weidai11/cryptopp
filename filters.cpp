@@ -817,7 +817,7 @@ void HashVerificationFilter::FirstPut(const byte *inString)
 	{
 		m_expectedHash.New(m_digestSize);
 
-		if(inString)
+		if (inString)
 			memcpy(m_expectedHash, inString, m_expectedHash.size());
 		if (m_flags & PUT_HASH)
 			AttachedTransformation()->Put(inString, m_expectedHash.size());

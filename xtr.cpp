@@ -27,9 +27,9 @@ void XTR_FindPrimesAndGenerator(RandomNumberGenerator &rng, Integer &p, Integer 
 	do
 	{
 		bool qFound = q.Randomize(rng, minQ, maxQ, Integer::PRIME, 7, 12);
-		assert(qFound);
+		assert(qFound); CRYPTOPP_UNUSED(qFound);
 		bool solutionsExist = SolveModularQuadraticEquation(r1, r2, 1, -1, 1, q);
-		assert(solutionsExist);
+		assert(solutionsExist); CRYPTOPP_UNUSED(solutionsExist);
 	} while (!p.Randomize(rng, minP, maxP, Integer::PRIME, CRT(rng.GenerateBit()?r1:r2, q, 2, 3, EuclideanMultiplicativeInverse(p, 3)), 3*q));
 	assert(((p.Squared() - p + 1) % q).IsZero());
 
