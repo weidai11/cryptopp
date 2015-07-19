@@ -74,7 +74,9 @@ bool BERLengthDecode(BufferedTransformation &bt, lword &length, bool &definiteLe
 
 bool BERLengthDecode(BufferedTransformation &bt, size_t &length)
 {
-	lword lw;
+	// Initialize to silence warning from diagnostic tools
+	lword lw = 0;
+
 	bool definiteLength;
 	if (!BERLengthDecode(bt, lw, definiteLength))
 		BERDecodeError();

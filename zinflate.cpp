@@ -402,7 +402,7 @@ void Inflator::DecodeHeader()
 			HuffmanDecoder codeLengthDecoder(codeLengths, 19);
 			for (i = 0; i < hlit+257+hdist+1; )
 			{
-				unsigned int k, count, repeater;
+				unsigned int k=0, count=0, repeater=0;
 				bool result = codeLengthDecoder.Decode(m_reader, k);
 				if (!result)
 					throw UnexpectedEndErr();
