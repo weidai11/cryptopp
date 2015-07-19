@@ -10,6 +10,7 @@
 #include "hex.h"
 #include "argnames.h"
 #include "ec2n.h"
+#include "misc.h"
 
 #if GCC_DIAGNOSTIC_AWARE
 # pragma GCC diagnostic ignored "-Wunused-function"
@@ -687,8 +688,8 @@ void DL_PrivateKey_EC<EC>::DEREncodePrivateKey(BufferedTransformation &bt) const
 {
 	DERSequenceEncoder privateKey(bt);
 		DEREncodeUnsigned<word32>(privateKey, 1);	// version
-		// SEC 1 ver 1.0 says privateKey (m_d) has the same length as order of the curve
-		// this will be changed to order of base point in a future version
+		// TODO: SEC 1 ver 1.0 says privateKey (m_d) has the same length as order of
+		// the curve this will be changed to order of base point in a future version
 		this->GetPrivateExponent().DEREncodeAsOctetString(privateKey, this->GetGroupParameters().GetSubgroupOrder().ByteCount());
 	privateKey.MessageEnd();
 }
