@@ -7,13 +7,17 @@
 #include "nbtheory.h"
 #include "modarith.h"
 #include "algparam.h"
+#include "misc.h"
 
 #include <math.h>
 #include <vector>
 
 #ifdef _OPENMP
-// needed in MSVC 2005 to generate correct manifest
-#include <omp.h>
+# include <omp.h>
+#endif
+
+#if GCC_DIAGNOSTIC_AWARE
+# pragma GCC diagnostic ignored "-Wunknown-pragmas"
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)

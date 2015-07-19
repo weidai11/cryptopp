@@ -1,6 +1,7 @@
 // fipstest.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
+#include "misc.h"
 
 #ifndef CRYPTOPP_IMPORTS
 
@@ -16,10 +17,10 @@
 #define _CRT_DEBUGGER_HOOK _crt_debugger_hook
 #else
 #define _CRT_DEBUGGER_HOOK __crt_debugger_hook
-#endif
+#endif // _M_IX86
 extern "C" {_CRTIMP void __cdecl _CRT_DEBUGGER_HOOK(int);}
-#endif
-#endif
+#endif // _MSC_VER
+#endif // CRYPTOPP_WIN32_AVAILABLE
 
 #include <iostream>
 
