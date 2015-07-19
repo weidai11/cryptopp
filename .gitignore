@@ -6,13 +6,27 @@ adhoc.cpp.copied
 libcryptopp.a
 libcryptopp.so
 libcryptopp.dylib
+cryptest.exe
+cryptopp-test.cxx
+cryptopp-test.exe
+cryptopp-test.s
 cryptopp.mac.done
+GNUmakefile.deps
 
 ##############
 ## Patch files
 ##############
 *.diff
 *.patch
+
+#################
+## GCC
+#################
+
+## Ignore GCC temproary files. It appears Fedora
+## changed a behavior somewhere along the lines
+
+*.o
 
 #################
 ## Eclipse
@@ -43,7 +57,6 @@ local.properties
 
 # PDT-specific
 .buildpath
-
 
 #################
 ## Visual Studio
