@@ -701,7 +701,7 @@ template <class T> inline T rotrFixed(T x, unsigned int y)
 	return y ? T((x>>y) | (x<<(THIS_SIZE-y))) : x;
 }
 
-// Well defined if y in [1,31], near constant time
+// Well defined for nearly all y except 0 (y in [1,..]), near constant time
 template <class T> inline T rotlVariable(T x, unsigned int y)
 {
 	static const unsigned int THIS_SIZE = sizeof(T)*8;
@@ -710,7 +710,7 @@ template <class T> inline T rotlVariable(T x, unsigned int y)
 	return T((x<<y) | (x>>(THIS_SIZE-y)));
 }
 
-// Well defined if y in [1,31], near constant time
+// Well defined for nearly all y except 0 (y in [1,..]),  near constant time
 template <class T> inline T rotrVariable(T x, unsigned int y)
 {
 	static const unsigned int THIS_SIZE = sizeof(T)*8;
@@ -922,6 +922,189 @@ template<> inline word32 rotrMod<word32>(word32 x, unsigned int y)
 }
 
 #endif // #if (defined(__MWERKS__) && TARGET_CPU_PPC)
+
+#if !defined(CRYPTOPP_DISABLE_ASM)
+#if  defined(__GNUC__)
+#if  defined(__i386__) || defined(__x86_64__)
+
+// For the operand constraints, see
+// https://gcc.gnu.org/onlinedocs/gcc/Simple-Constraints.html#Simple-Constraints
+// and https://gcc.gnu.org/onlinedocs/gcc/Machine-Constraints.html#Machine-Constraints
+
+template<> inline byte rotlFixed<byte>(byte x, unsigned int y)
+{
+	// The I constraint ensures we use the immediate-8 variant of the
+	// shfit amount y. However, y must be in [0, 31] inclusive. We
+	// rely on the preprocessor to propoagte the constant and perform
+	// the modular reduction so the assembler generates the instruction.
+	__asm__ ("rolb %1, %0" : "+mq" (x) : "I" ((unsigned char)(y%8)));
+	return x;
+}
+
+template<> inline byte rotrFixed<byte>(byte x, unsigned int y)
+{
+	// The I constraint ensures we use the immediate-8 variant of the
+	// shfit amount y. However, y must be in [0, 31] inclusive. We
+	// rely on the preprocessor to propoagte the constant and perform
+	// the modular reduction so the assembler generates the instruction.
+	__asm__ ("rorb %1, %0" : "+mq" (x) : "I" ((unsigned char)(y%8)));
+	return x;
+}
+
+template<> inline byte rotlVariable<byte>(byte x, unsigned int y)
+{
+	// The cI constraint ensures we use either (1) the CL variant or
+	// (2) the immediate-8 variant of the shfit amount y. The cast
+	// effectively performs a modular reduction on the shift amount
+	// to ensure the CL variant can be used.
+	__asm__ ("rolb %1, %0" : "+mq" (x) : "cI" ((unsigned char)(y)));
+	return x;
+}
+
+template<> inline byte rotrVariable<byte>(byte x, unsigned int y)
+{
+	// The cI constraint ensures we use either (1) the CL variant or
+	// (2) the immediate-8 variant of the shfit amount y. The cast
+	// effectively performs a modular reduction on the shift amount
+	// to ensure the CL variant can be used.
+	__asm__ ("rorb %1, %0" : "+mq" (x) : "cI" ((unsigned char)(y)));
+	return x;
+}
+
+template<> inline byte rotlMod<byte>(byte x, unsigned int y)
+{
+	__asm__ ("rolb %1, %0" : "+mq" (x) : "cI" ((unsigned char)(y)));
+	return x;
+}
+
+template<> inline byte rotrMod<byte>(byte x, unsigned int y)
+{
+	__asm__ ("rorb %1, %0" : "+mq" (x) : "cI" ((unsigned char)(y)));
+	return x;
+}
+
+template<> inline word16 rotlFixed<word16>(word16 x, unsigned int y)
+{
+	__asm__ ("rolw %1, %0" : "+g" (x) : "I" ((unsigned char)(y%16)));
+	return x;
+}
+
+template<> inline word16 rotrFixed<word16>(word16 x, unsigned int y)
+{
+	__asm__ ("rorw %1, %0" : "+g" (x) : "I" ((unsigned char)(y%16)));
+	return x;
+}
+
+template<> inline word16 rotlVariable<word16>(word16 x, unsigned int y)
+{
+	__asm__ ("rolw %1, %0" : "+g" (x) : "cI" ((unsigned char)y));
+	return x;
+}
+
+template<> inline word16 rotrVariable<word16>(word16 x, unsigned int y)
+{
+	__asm__ ("rorw %1, %0" : "+g" (x) : "cI" ((unsigned char)y));
+	return x;
+}
+
+template<> inline word16 rotlMod<word16>(word16 x, unsigned int y)
+{
+	__asm__ ("rolw %1, %0" : "+g" (x) : "cI" ((unsigned char)y));
+	return x;
+}
+
+template<> inline word16 rotrMod<word16>(word16 x, unsigned int y)
+{
+	__asm__ ("rorw %1, %0" : "+g" (x) : "cI" ((unsigned char)y));
+	return x;
+}
+
+template<> inline word32 rotlFixed<word32>(word32 x, unsigned int y)
+{
+	__asm__ ("roll %1, %0" : "+g" (x) : "I" ((unsigned char)(y%32)));
+	return x;
+}
+
+template<> inline word32 rotrFixed<word32>(word32 x, unsigned int y)
+{
+	__asm__ ("rorl %1, %0" : "+g" (x) : "I" ((unsigned char)(y%32)));
+	return x;
+}
+
+template<> inline word32 rotlVariable<word32>(word32 x, unsigned int y)
+{
+	__asm__ ("roll %1, %0" : "+g" (x) : "cI" ((unsigned char)y));
+	return x;
+}
+
+template<> inline word32 rotrVariable<word32>(word32 x, unsigned int y)
+{
+	__asm__ ("rorl %1, %0" : "+g" (x) : "cI" ((unsigned char)y));
+	return x;
+}
+
+template<> inline word32 rotlMod<word32>(word32 x, unsigned int y)
+{
+	__asm__ ("roll %1, %0" : "+g" (x) : "cI" ((unsigned char)y));
+	return x;
+}
+
+template<> inline word32 rotrMod<word32>(word32 x, unsigned int y)
+{
+	__asm__ ("rorl %1, %0" : "+g" (x) : "cI" ((unsigned char)y));
+	return x;
+}
+
+#if defined(__x86_64__)
+
+template<> inline word64 rotlFixed<word64>(word64 x, unsigned int y)
+{
+	// The J constraint ensures we use the immediate-8 variant of the
+	// shfit amount y. However, y must be in [0, 63] inclusive. We
+	// rely on the preprocessor to propoagte the constant and perform
+	// the modular reduction so the assembler generates the instruction.
+	__asm__ ("rolq %1, %0" : "+g" (x) : "J" ((unsigned char)(y%64)));
+	return x;
+}
+
+template<> inline word64 rotrFixed<word64>(word64 x, unsigned int y)
+{
+	// The J constraint ensures we use the immediate-8 variant of the
+	// shfit amount y. However, y must be in [0, 63] inclusive. We
+	// rely on the preprocessor to propoagte the constant and perform
+	// the modular reduction so the assembler generates the instruction.
+	__asm__ ("rorq %1, %0" : "+g" (x) : "J" ((unsigned char)(y%64)));
+	return x;
+}
+
+template<> inline word64 rotlVariable<word64>(word64 x, unsigned int y)
+{
+	__asm__ ("rolq %1, %0" : "+g" (x) : "cJ" ((unsigned char)y));
+	return x;
+}
+
+template<> inline word64 rotrVariable<word64>(word64 x, unsigned int y)
+{
+	__asm__ ("rorq %1, %0" : "+g" (x) : "cJ" ((unsigned char)y));
+	return x;
+}
+
+template<> inline word64 rotlMod<word64>(word64 x, unsigned int y)
+{
+	__asm__ ("rolq %1, %0" : "+g" (x) : "cJ" ((unsigned char)y));
+	return x;
+}
+
+template<> inline word64 rotrMod<word64>(word64 x, unsigned int y)
+{
+	__asm__ ("rorq %1, %0" : "+g" (x) : "cJ" ((unsigned char)y));
+	return x;
+}
+
+#endif // x86_64 only
+#endif // i386 and x86_64
+#endif // __GNUC__
+#endif // CRYPTOPP_DISABLE_ASM
 
 // ************** endian reversal ***************
 
