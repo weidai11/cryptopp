@@ -112,7 +112,7 @@ CRYPTOPP_DLL bool CRYPTOPP_API CpuId(word32 input, word32 *output);
 
 #if CRYPTOPP_BOOL_X64
 inline bool HasSSE2()	{return true;}
-inline bool HasISSE()	{return true;}
+inline bool HasSSE()	{return true;}
 inline bool HasMMX()	{return true;}
 #else
 
@@ -127,7 +127,7 @@ inline bool HasSSE2()
 	return g_hasSSE2;
 }
 
-inline bool HasISSE()
+inline bool HasSSE()
 {
 	if (!g_x86DetectionDone)
 		DetectX86Features();

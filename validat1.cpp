@@ -242,7 +242,7 @@ bool TestSettings()
 
 #ifdef CRYPTOPP_CPUID_AVAILABLE
 	bool hasMMX = HasMMX();
-	bool hasISSE = HasISSE();
+	bool hasISSE = HasSSE();
 	bool hasSSE2 = HasSSE2();
 	bool hasSSSE3 = HasSSSE3();
 	bool isP4 = IsP4();
