@@ -25,6 +25,13 @@ ifeq ($(PREFIX),)
 PREFIX = /usr
 endif
 
+# Enable at GCC 4.7 and above because of the intersection with suppression using GCC_DIAGNOSTIC_AWARE
+GCC47_OR_LATER = $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "^gcc version (4\.[7-9]|[5-9])")
+WALL_SUPPORT ?= $(shell echo $$(($(CLANG_COMPILER) + $(GCC47_OR_LATER))))
+ifneq ($(WALL_SUPPORT),0)
+CXXFLAGS += -Wall
+endif
+
 ifeq ($(IS_X86),1)
 
 GCC42_OR_LATER = $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "^gcc version (4.[2-9]|[5-9])")
@@ -72,11 +79,10 @@ endif # GCC 4.5
 
 endif # Cygwin work arounds
 
-# We can do integer math using the Posix shell in a GNUmakefile
-# Below, we are building a boolean circuit that says "Darwin && (GCC 4.2 || Clang)"
+# Build a boolean circuit that says "Darwin && (GCC 4.2 || Clang)"
 MULTIARCH_SUPPORT ?= $(shell echo $$(($(IS_DARWIN) * ($(GCC42_OR_LATER) + $(CLANG_COMPILER)))))
 ifneq ($(MULTIARCH_SUPPORT),0)
-CXXFLAGS += -arch x86_64 -arch i386
+CXXFLAGS += -arch i386 -arch x86_64
 else
 CXXFLAGS += -march=native
 endif
@@ -159,7 +165,7 @@ CXXFLAGS += -DCRYPTOPP_INCLUDE_VECTOR_CC
 endif
 endif
 
-SRCS = $(wildcard *.cpp)
+SRCS = $(filter-out pch.cpp cryptlib_bds.cpp winpipes.cpp, $(wildcard *.cpp))
 OBJS = $(SRCS:.cpp=.o)
 
 # test.o needs to be after bench.o for cygwin 1.1.4 (possible ld bug?)
