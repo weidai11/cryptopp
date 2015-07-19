@@ -117,7 +117,7 @@ inline bool HasMMX()	{return true;}
 #else
 
 extern CRYPTOPP_DLL bool g_hasSSE2;
-extern CRYPTOPP_DLL bool g_hasISSE;
+extern CRYPTOPP_DLL bool g_hasSSE;
 extern CRYPTOPP_DLL bool g_hasMMX;
 
 inline bool HasSSE2()
@@ -131,7 +131,7 @@ inline bool HasSSE()
 {
 	if (!g_x86DetectionDone)
 		DetectX86Features();
-	return g_hasISSE;
+	return g_hasSSE;
 }
 
 inline bool HasMMX()
