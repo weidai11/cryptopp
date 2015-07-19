@@ -87,7 +87,7 @@ class CRYPTOPP_NO_VTABLE DL_GroupParameters_IntegerBasedImpl : public DL_GroupPa
 
 public:
 	typedef typename GROUP_PRECOMP::Element Element;
-	virtual ~DL_GroupParameters_IntegerBased() { }
+	virtual DL_GroupParameters_IntegerBasedImpl() { }
 
 	// GeneratibleCryptoMaterial interface
 	bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
