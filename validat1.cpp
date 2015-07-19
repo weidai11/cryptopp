@@ -271,22 +271,22 @@ bool TestSettings()
 bool TestOS_RNG()
 {
 	bool pass = true;
-    
+
 	member_ptr<RandomNumberGenerator> rng;
 #ifdef BLOCKING_RNG_AVAILABLE
 	try {rng.reset(new BlockingRng);}
 	catch (OS_RNG_Err &) {}
 #endif
-    
+
 	if (rng.get())
 	{
 		cout << "\nTesting operating system provided blocking random number generator...\n\n";
-        
+
 		MeterFilter meter;
 		RandomNumberSource test(*rng, UINT_MAX, false, new Deflator(new Redirector(meter)));
 		unsigned long total=0, length=0;
 		time_t t = time(NULL), t1 = 0;
-        
+
 		// check that it doesn't take too long to generate a reasonable amount of randomness
 		while (total < 16 && (t1 < 10 || total*8 > (unsigned long)t1))
 		{
@@ -294,7 +294,7 @@ bool TestOS_RNG()
 			total += 1;
 			t1 = time(NULL) - t;
 		}
-        
+
 		if (total < 16)
 		{
 			cout << "FAILED:";
@@ -303,7 +303,7 @@ bool TestOS_RNG()
 		else
 			cout << "passed:";
 		cout << "  it took " << long(t1) << " seconds to generate " << total << " bytes" << endl;
-        
+
 #if 0	// disable this part. it's causing an unpredictable pause during the validation testing
 		if (t1 < 2)
 		{
@@ -315,7 +315,7 @@ bool TestOS_RNG()
 				test.Pump(1);
 				total += 1;
 			}
-            
+
 			// if it generates too many bytes in a certain amount of time,
 			// something's probably wrong
 			t = time(NULL);
@@ -335,9 +335,9 @@ bool TestOS_RNG()
 			cout << "  it generated " << length << " bytes in " << long(time(NULL) - t) << " seconds" << endl;
 		}
 #endif
-        
+
 		test.AttachedTransformation()->MessageEnd();
-        
+
 		if (meter.GetTotalBytes() < total)
 		{
 			cout << "FAILED:";
@@ -349,13 +349,13 @@ bool TestOS_RNG()
 	}
 	else
 		cout << "\nNo operating system provided blocking random number generator, skipping test." << endl;
-    
+
 	rng.reset(NULL);
 #ifdef NONBLOCKING_RNG_AVAILABLE
 	try {rng.reset(new NonblockingRng);}
 	catch (OS_RNG_Err &) {}
 #endif
-    
+
 	if (rng.get())
 	{
 		cout << "\nTesting operating system provided nonblocking random number generator...\n\n";
@@ -374,7 +374,7 @@ bool TestOS_RNG()
 	}
 	else
 		cout << "\nNo operating system provided nonblocking random number generator, skipping test." << endl;
-    
+
 	return pass;
 }
 
