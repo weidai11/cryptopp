@@ -11,11 +11,16 @@
 
 #ifndef CRYPTOPP_IMPORTS
 
-#ifdef _OPENMP
-static const bool CRYPTOPP_RW_USE_OMP = false;
+#if GCC_DIAGNOSTIC_AWARE
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wunknown-pragmas"
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
+
+#ifdef _OPENMP
+static const bool CRYPTOPP_RW_USE_OMP = false;
+#endif
 
 void RWFunction::BERDecode(BufferedTransformation &bt)
 {
@@ -283,5 +288,9 @@ void InvertibleRWFunction::AssignFrom(const NameValuePairs &source)
 }
 
 NAMESPACE_END
+
+#if GCC_DIAGNOSTIC_AWARE
+# pragma GCC diagnostic pop
+#endif
 
 #endif
