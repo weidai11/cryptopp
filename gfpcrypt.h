@@ -87,6 +87,7 @@ class CRYPTOPP_NO_VTABLE DL_GroupParameters_IntegerBasedImpl : public DL_GroupPa
 
 public:
 	typedef typename GROUP_PRECOMP::Element Element;
+	virtual ~DL_GroupParameters_IntegerBased() { }
 
 	// GeneratibleCryptoMaterial interface
 	bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
@@ -119,6 +120,8 @@ CRYPTOPP_DLL_TEMPLATE_CLASS DL_GroupParameters_IntegerBasedImpl<ModExpPrecomputa
 class CRYPTOPP_DLL DL_GroupParameters_GFP : public DL_GroupParameters_IntegerBasedImpl<ModExpPrecomputation>
 {
 public:
+	virtual ~DL_GroupParameters_IntegerBasedImpl() { }
+
 	// DL_GroupParameters
 	bool IsIdentity(const Integer &element) const {return element == Integer::One();}
 	void SimultaneousExponentiate(Element *results, const Element &base, const Integer *exponents, unsigned int exponentsCount) const;
