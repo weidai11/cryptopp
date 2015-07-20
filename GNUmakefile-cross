@@ -1,9 +1,10 @@
-CXXFLAGS += -DNDEBUG -g2 -Os -fPIC -pipe
+CXXFLAGS ?= -DNDEBUG -g2 -Os -fPIC -pipe
 
 # The following options reduce code size, but breaks link or makes link very slow on some systems
 # CXXFLAGS += -ffunction-sections -fdata-sections
 # LDFLAGS += -Wl,--gc-sections
 CXXFLAGS += -Wno-unused-function -Wno-unused-parameter -Wno-unused-variable
+
 ARFLAGS = -cr	# ar needs the dash on OpenBSD
 RANLIB ?= ranlib
 CP = cp
@@ -24,12 +25,18 @@ ifeq ($(PREFIX),)
 PREFIX = /usr/local
 endif
 
+# Sadly, we can't actually use GCC_PRAGMA_AWARE because of GCC bug 53431.
+# Its a shame because GCC has so much to offer by the way of analysis.
+# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=53431
+ifneq ($(CLANG_COMPILER),0)
+CXXFLAGS += -Wall
+endif
+
 # iOS cross-compile configuration. Works in conjunction with IS_CROSS_COMPILE.
 #   See http://www.cryptopp.com/wiki/iOS_(Command_Line).
 ifeq ($(IS_IOS),1)
   CXX = clang++
 
-  CXXFLAGS = -DNDEBUG -g2 -Os -fPIC -pipe
   CXXFLAGS += -DCRYPTOPP_DISABLE_ASM  $(IOS_FLAGS)
   CXXFLAGS += -arch $(IOS_ARCH) -isysroot $(IOS_SYSROOT)
   CXXFLAGS += -stdlib=libc++
@@ -42,7 +49,6 @@ endif
 #   See http://www.cryptopp.com/wiki/Android_(Command_Line).
 ifeq ($(IS_ANDROID),1)
   # CPP, CXX, AR, RANLIB, LD, etc are set in 'setenv-android.sh'
-  CXXFLAGS = -DNDEBUG -g2 -Os -pipe -fPIC
   CXXFLAGS += -DCRYPTOPP_DISABLE_ASM $(ANDROID_FLAGS)
   CXXFLAGS += --sysroot=$(ANDROID_SYSROOT) -I$(ANDROID_STL_INC)
   LDLIBS += $(ANDROID_STL_LIB)
@@ -53,7 +59,6 @@ endif
 #   and http://www.cryptopp.com/wiki/ARM_Embedded_(Bare Metal).
 ifeq ($(IS_ARM_EMBEDDED),1)
   # CPP, CXX, AR, RANLIB, LD, etc are set in 'setenv-embedded.sh'
-  CXXFLAGS = -DNDEBUG -g2 -Os -pipe -fPIC
   CXXFLAGS += -DCRYPTOPP_DISABLE_ASM $(ARM_EMBEDDED_FLAGS)
   CXXFLAGS += --sysroot=$(ARM_EMBEDDED_SYSROOT)
 endif
@@ -62,12 +67,9 @@ ifneq ($(CLANG_COMPILER),0)
 CXXFLAGS += -Wno-tautological-compare -Wno-unused-value
 endif
 
-SRCS = $(wildcard *.cpp)
-ifeq ($(SRCS),)				# workaround wildcard function bug in GNU Make 3.77
-SRCS = $(shell echo *.cpp)
-endif
-
+SRCS = $(filter-out pch.cpp cryptlib_bds.cpp winpipes.cpp, $(wildcard *.cpp))
 OBJS = $(SRCS:.cpp=.o)
+
 # test.o needs to be after bench.o for cygwin 1.1.4 (possible ld bug?)
 TESTOBJS = bench.o bench2.o test.o validat1.o validat2.o validat3.o adhoc.o datatest.o regtest.o fipsalgt.o dlltest.o
 LIBOBJS = $(filter-out $(TESTOBJS),$(OBJS))
@@ -86,7 +88,7 @@ test: cryptest.exe
 	./cryptest.exe v
 
 clean:
-	-$(RM) cryptest.exe libcryptopp.a libcryptopp.so $(LIBOBJS) $(DLLOBJS) $(TESTOBJS)
+	-$(RM) cryptest.exe libcryptopp.a libcryptopp.so GNUmakefile.deps $(LIBOBJS) $(DLLOBJS) $(TESTOBJS)
 	-$(RM) -r *.dSYM
 
 install:
@@ -121,3 +123,11 @@ endif
 
 %.o : %.cpp
 	$(CXX) $(CXXFLAGS) -c $<
+
+# Do not build dependencies when cleaning
+ifneq ($(findstring clean,$(MAKECMDGOALS)),clean)
+-include GNUmakefile.deps
+endif
+
+GNUmakefile.deps:
+	$(CXX) $(CXXFLAGS) -MM *.cpp > GNUmakefile.deps
