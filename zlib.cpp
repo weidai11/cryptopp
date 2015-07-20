@@ -22,7 +22,8 @@ void ZlibCompressor::WritePrestreamHeader()
 	m_adler32.Restart();
 	byte cmf = DEFLATE_METHOD | ((GetLog2WindowSize()-8) << 4);
 	byte flags = GetCompressionLevel() << 6;
-	AttachedTransformation()->PutWord16(RoundUpToMultipleOf(cmf*256+flags, 31));
+	AttachedTransformation()->PutWord16(
+		static_cast<word16>(RoundUpToMultipleOf(cmf*256U+flags, 31U)));
 }
 
 void ZlibCompressor::ProcessUncompressedData(const byte *inString, size_t length)
