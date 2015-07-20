@@ -25,7 +25,8 @@ ifeq ($(PREFIX),)
 PREFIX = /usr
 endif
 
-# Sadly, we can't actually use GCC_PRAGMA_AWARE because GCC appears to be broken.
+# Sadly, we can't actually use GCC_PRAGMA_AWARE because GCC appears to be broken. Its a
+# shame because GCC has so much to offer by the way of analysis.
 # http://stackoverflow.com/questions/31509434/gcc-does-not-honor-pragma-gcc-diagnostic-to-silence-warnings
 ifneq ($(CLANG_COMPILER),0)
 CXXFLAGS += -Wall
