@@ -3376,24 +3376,21 @@ std::istream& operator>>(std::istream& in, Integer &a)
 std::ostream& operator<<(std::ostream& out, const Integer &a)
 {
 	// Get relevant conversion specifications from ostream.
-	long f = out.flags() & std::ios::basefield; // Get base digits.
-	int base, block;
+	const long f = out.flags() & std::ios::basefield; // Get base digits.
+	int base;
 	char suffix;
 	switch(f)
 	{
 	case std::ios::oct :
 		base = 8;
-		block = 8;
 		suffix = 'o';
 		break;
 	case std::ios::hex :
 		base = 16;
-		block = 4;
 		suffix = 'h';
 		break;
 	default :
 		base = 10;
-		block = 3;
 		suffix = '.';
 	}
 
@@ -3424,11 +3421,8 @@ std::ostream& operator<<(std::ostream& out, const Integer &a)
 	}
 
 	while (i--)
-	{
 		out << s[i];
-//		if (i && !(i%block))
-//			out << ",";
-	}
+
 	return out << suffix;
 }
 
