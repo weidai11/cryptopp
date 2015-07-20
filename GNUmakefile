@@ -25,10 +25,9 @@ ifeq ($(PREFIX),)
 PREFIX = /usr
 endif
 
-# Enable at GCC 4.7 and above because of the intersection with suppression using GCC_DIAGNOSTIC_AWARE
-GCC47_OR_LATER = $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "^gcc version (4\.[7-9]|[5-9])")
-WALL_SUPPORT ?= $(shell echo $$(($(CLANG_COMPILER) + $(GCC47_OR_LATER))))
-ifneq ($(WALL_SUPPORT),0)
+# Sadly, we can't actually use GCC_PRAGMA_AWARE because GCC appears to be broken.
+# http://stackoverflow.com/questions/31509434/gcc-does-not-honor-pragma-gcc-diagnostic-to-silence-warnings
+ifneq ($(CLANG_COMPILER),0)
 CXXFLAGS += -Wall
 endif
 
