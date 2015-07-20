@@ -76,7 +76,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib Ws2_32.lib"
+				AdditionalDependencies="Ws2_32.lib"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
 				SubSystem="1"
@@ -167,7 +167,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib Ws2_32.lib"
+				AdditionalDependencies="Ws2_32.lib"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
 				SubSystem="1"
@@ -611,7 +611,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib Ws2_32.lib"
+				AdditionalDependencies="Ws2_32.lib"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
 				SubSystem="1"
@@ -694,7 +694,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odbc32.lib odbccp32.lib Ws2_32.lib"
+				AdditionalDependencies="Ws2_32.lib"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
 				SubSystem="1"
