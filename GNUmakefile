@@ -166,6 +166,10 @@ endif
 endif
 
 SRCS = $(filter-out pch.cpp cryptlib_bds.cpp winpipes.cpp, $(wildcard *.cpp))
+ifneq ($(IS_MINGW),0)
+SRCS += winpipes.cpp
+endif
+
 OBJS = $(SRCS:.cpp=.o)
 
 # test.o needs to be after bench.o for cygwin 1.1.4 (possible ld bug?)
