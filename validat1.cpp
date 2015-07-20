@@ -1287,7 +1287,7 @@ bool ValidateBaseCode()
 	bool pass = true, fail;
 	byte data[255];
 	for (unsigned int i=0; i<255; i++)
-		data[i] = i;
+		data[i] = byte(i);
 	static const char *hexEncoded = 
 "000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F2021222324252627"
 "28292A2B2C2D2E2F303132333435363738393A3B3C3D3E3F404142434445464748494A4B4C4D4E4F"

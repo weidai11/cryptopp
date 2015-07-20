@@ -32,12 +32,12 @@ void ARC4_Base::UncheckedSetKey(const byte *key, unsigned int keyLen, const Name
 
 	unsigned int i;
 	for (i=0; i<256; i++)
-		m_state[i] = i;
+		m_state[i] = byte(i);
 
 	unsigned int keyIndex = 0, stateIndex = 0;
 	for (i=0; i<256; i++)
 	{
-		unsigned int a = m_state[i];
+		byte a = m_state[i];
 		stateIndex += key[keyIndex] + a;
 		stateIndex &= 0xff;
 		m_state[i] = m_state[stateIndex];
@@ -53,9 +53,9 @@ void ARC4_Base::UncheckedSetKey(const byte *key, unsigned int keyLen, const Name
 template <class T>
 static inline unsigned int MakeByte(T &x, T &y, byte *s)
 {
-	unsigned int a = s[x];
+	byte a = s[x];
 	y = (y+a) & 0xff;
-	unsigned int b = s[y];
+	byte b = s[y];
 	s[x] = b;
 	s[y] = a;
 	x = (x+1) & 0xff;
@@ -65,7 +65,7 @@ static inline unsigned int MakeByte(T &x, T &y, byte *s)
 void ARC4_Base::GenerateBlock(byte *output, size_t size)
 {
 	while (size--)
-		*output++ = MakeByte(m_x, m_y, m_state);
+		*output++ = (byte)MakeByte(m_x, m_y, m_state);
 }
 
 void ARC4_Base::ProcessData(byte *outString, const byte *inString, size_t length)
@@ -93,8 +93,8 @@ void ARC4_Base::ProcessData(byte *outString, const byte *inString, size_t length
 		while(--length);
 	}
 
-	m_x = x;
-	m_y = y;
+	m_x = byte(x);
+	m_y = byte(y);
 }
 
 void ARC4_Base::DiscardBytes(size_t length)
@@ -112,8 +112,8 @@ void ARC4_Base::DiscardBytes(size_t length)
 	}
 	while(--length);
 
-	m_x = x;
-	m_y = y;
+	m_x = byte(x);
+	m_y = byte(y);
 }
 
 }
