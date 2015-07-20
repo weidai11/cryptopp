@@ -106,7 +106,7 @@ void Filter::PropagateInitialize(const NameValuePairs &parameters, int propagati
 
 size_t Filter::OutputModifiable(int outputSite, byte *inString, size_t length, int messageEnd, bool blocking, const std::string &channel)
 {
-	assert((inString && length) || (!inString && !length));
+	assert(inString || (!inString && !length));
 	if (inString == NULL) { length = 0; }
 
 	if (messageEnd)
@@ -118,7 +118,8 @@ size_t Filter::OutputModifiable(int outputSite, byte *inString, size_t length, i
 
 size_t Filter::Output(int outputSite, const byte *inString, size_t length, int messageEnd, bool blocking, const std::string &channel)
 {
-	assert((inString && length) || (!inString && !length));
+	// Formerly fired because inString was not NULL, but length was 0.
+	assert(inString || (!inString && !length));
 	if (inString == NULL) { length = 0; }
 
 	if (messageEnd)
@@ -344,7 +345,7 @@ bool FilterWithBufferedInput::IsolatedFlush(bool hardFlush, bool blocking)
 
 size_t FilterWithBufferedInput::PutMaybeModifiable(byte *inString, size_t length, int messageEnd, bool blocking, bool modifiable)
 {
-	assert((inString && length) || (!inString && !length));
+	assert(inString || (!inString && !length));
 	if (inString == NULL) { length = 0; }
 
 	if (!blocking)
@@ -455,7 +456,7 @@ void FilterWithBufferedInput::ForceNextPut()
 
 void FilterWithBufferedInput::NextPutMultiple(const byte *inString, size_t length)
 {
-	assert((inString && length) || (!inString && !length));
+	assert(inString || (!inString && !length));
 	if (inString == NULL) { length = 0; }
 
 	assert(m_blockSize > 1);	// m_blockSize = 1 should always override this function
@@ -612,14 +613,15 @@ void StreamTransformationFilter::InitializeDerivedAndReturnNewSizes(const NameVa
 
 void StreamTransformationFilter::FirstPut(const byte *inString)
 {
-	assert(inString);
+	// FilterWithBufferedInput::PutMaybeModifiable causes this to fire.
+	// assert(inString);
 	m_optimalBufferSize = m_cipher.OptimalBlockSize();
 	m_optimalBufferSize = (unsigned int)STDMAX(m_optimalBufferSize, RoundDownToMultipleOf(4096U, m_optimalBufferSize));
 }
 
 void StreamTransformationFilter::NextPutMultiple(const byte *inString, size_t length)
 {
-	assert((inString && length) || (!inString && !length));
+	assert(inString || (!inString && !length));
 	if (inString == NULL) { length = 0; }
 
 	size_t s = m_cipher.MandatoryBlockSize();
@@ -648,7 +650,7 @@ void StreamTransformationFilter::NextPutMultiple(const byte *inString, size_t le
 
 void StreamTransformationFilter::NextPutModifiable(byte *inString, size_t length)
 {
-	assert((inString && length) || (!inString && !length));
+	assert(inString || (!inString && !length));
 	if (inString == NULL) { length = 0; }
 
 	m_cipher.ProcessString(inString, length);
@@ -657,7 +659,7 @@ void StreamTransformationFilter::NextPutModifiable(byte *inString, size_t length
 
 void StreamTransformationFilter::LastPut(const byte *inString, size_t length)
 {
-	assert((inString && length) || (!inString && !length));
+	assert(inString || (!inString && !length));
 	if (inString == NULL) { length = 0; }
 
 	byte *space = NULL;
@@ -770,7 +772,7 @@ void HashFilter::IsolatedInitialize(const NameValuePairs &parameters)
 
 size_t HashFilter::Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
 {
-	assert((inString && length) || (!inString && !length));
+	assert(inString || (!inString && !length));
 	if (inString == NULL) { length = 0; }
 
 	FILTER_BEGIN;
@@ -811,7 +813,8 @@ void HashVerificationFilter::InitializeDerivedAndReturnNewSizes(const NameValueP
 
 void HashVerificationFilter::FirstPut(const byte *inString)
 {
-	assert(inString);
+	// FilterWithBufferedInput::PutMaybeModifiable causes this to fire.
+	// assert(inString);
 
 	if (m_flags & HASH_AT_BEGIN)
 	{
@@ -826,7 +829,7 @@ void HashVerificationFilter::FirstPut(const byte *inString)
 
 void HashVerificationFilter::NextPutMultiple(const byte *inString, size_t length)
 {
-	assert((inString && length) || (!inString && !length));
+	assert(inString || (!inString && !length));
 	if (inString == NULL) { length = 0; }
 
 	m_hashModule.Update(inString, length);
@@ -836,7 +839,7 @@ void HashVerificationFilter::NextPutMultiple(const byte *inString, size_t length
 
 void HashVerificationFilter::LastPut(const byte *inString, size_t length)
 {
-	assert((inString && length) || (!inString && !length));
+	assert(inString || (!inString && !length));
 	if (inString == NULL) { length = 0; }
 
 	if (m_flags & HASH_AT_BEGIN)
@@ -898,7 +901,7 @@ size_t AuthenticatedEncryptionFilter::ChannelPut2(const std::string &channel, co
 
 void AuthenticatedEncryptionFilter::LastPut(const byte *inString, size_t length)
 {
-	assert((inString && length) || (!inString && !length));
+	assert(inString || (!inString && !length));
 	if (inString == NULL) { length = 0; }
 
 	StreamTransformationFilter::LastPut(inString, length);
@@ -956,13 +959,14 @@ size_t AuthenticatedDecryptionFilter::ChannelPut2(const std::string &channel, co
 
 void AuthenticatedDecryptionFilter::FirstPut(const byte *inString)
 {
-	assert(inString && length);
+	// FilterWithBufferedInput::PutMaybeModifiable causes this to fire.
+	// assert(inString);
 	m_hashVerifier.Put(inString, m_firstSize);
 }
 
 void AuthenticatedDecryptionFilter::NextPutMultiple(const byte *inString, size_t length)
 {
-	assert((inString && length) || (!inString && !length));
+	assert(inString || (!inString && !length));
 	if (inString == NULL) { length = 0; }
 
 	m_streamFilter.Put(inString, length);
@@ -970,7 +974,7 @@ void AuthenticatedDecryptionFilter::NextPutMultiple(const byte *inString, size_t
 
 void AuthenticatedDecryptionFilter::LastPut(const byte *inString, size_t length)
 {
-	assert((inString && length) || (!inString && !length));
+	assert(inString || (!inString && !length));
 	if (inString == NULL) { length = 0; }
 
 	m_streamFilter.MessageEnd();
@@ -987,7 +991,7 @@ void SignerFilter::IsolatedInitialize(const NameValuePairs &parameters)
 
 size_t SignerFilter::Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
 {
-	assert((inString && length) || (!inString && !length));
+	assert(inString || (!inString && !length));
 	if (inString == NULL) { length = 0; }
 
 	FILTER_BEGIN;
@@ -1025,7 +1029,9 @@ void SignatureVerificationFilter::InitializeDerivedAndReturnNewSizes(const NameV
 
 void SignatureVerificationFilter::FirstPut(const byte *inString)
 {
-	assert(inString);
+	// FilterWithBufferedInput::PutMaybeModifiable causes this to fire.
+	// assert(inString);
+
 	if (m_flags & SIGNATURE_AT_BEGIN)
 	{
 		if (m_verifier.SignatureUpfront())
@@ -1047,7 +1053,7 @@ void SignatureVerificationFilter::FirstPut(const byte *inString)
 
 void SignatureVerificationFilter::NextPutMultiple(const byte *inString, size_t length)
 {
-	assert((inString && length) || (!inString && !length));
+	assert(inString || (!inString && !length));
 	if (inString == NULL) { length = 0; }
 
 	m_messageAccumulator->Update(inString, length);
@@ -1057,7 +1063,7 @@ void SignatureVerificationFilter::NextPutMultiple(const byte *inString, size_t l
 
 void SignatureVerificationFilter::LastPut(const byte *inString, size_t length)
 {
-	assert((inString && length) || (!inString && !length));
+	assert(inString || (!inString && !length));
 	if (inString == NULL) { length = 0; }
 
 	if (m_flags & SIGNATURE_AT_BEGIN)
