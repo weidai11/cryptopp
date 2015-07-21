@@ -44,6 +44,10 @@
 
 // Used to supress some warnings in some header and implementation files.
 //   Some platforms, like CentOS and OpenBSD, use old compilers that don't understand -Wno-unknown-pragma.
+//   These diagnostic blocks showed up somewhere between GCC 4.1 and 4.2, but 4.4 gets us semi-modern compilers.
+//   It seems using diagnostic blocks to manage warnings is semi-broken for GCC. Just leave it in place because
+//   GCC_DIAGNOSTIC_AWARE will help silence some warnings under GCC, and Clang responds to it as expected.
+//   (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=53431).
 #define GCC_DIAGNOSTIC_AWARE ((__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7)) || defined(__clang__))
 
 // Used to manage function-level optimizations when working around compiler issues.
