@@ -150,7 +150,7 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 	#ifdef __GNUC__
 		__asm__ __volatile__
 		(
-			GNU_INTEL_SYNTAX
+			GNU_AS_INTEL_SYNTAX
 			AS_PUSH_IF86(	bx)
 	#else
 		void *s = m_state.data();
@@ -458,7 +458,7 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 		AS_POP_IF86(	bp)
 #ifdef __GNUC__
 		AS_POP_IF86(	bx)
-		GNU_ATT_SYNTAX
+		GNU_AS_ATT_SYNTAX
 	#if CRYPTOPP_BOOL_X64
 			: "+r" (input), "+r" (output), "+r" (iterationCount)
 			: "r" (m_rounds), "r" (m_state.m_ptr), "r" (workspace)

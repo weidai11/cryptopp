@@ -355,7 +355,7 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 	#endif
 		__asm__ __volatile__
 		(
-		GNU_INTEL_SYNTAX
+		GNU_AS_INTEL_SYNTAX
 		AS_PUSH_IF86(	bx)
 #else
 		word32 *state = m_state;
@@ -595,7 +595,7 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 
 #ifdef __GNUC__
 		AS_POP_IF86(	bx)
-		GNU_ATT_SYNTAX
+		GNU_AS_ATT_SYNTAX
 			:
 			: "a" (m_state.m_ptr), "c" (iterationCount), "S" (s_sosemanukMulTables), "D" (output), "d" (input)
 	#if CRYPTOPP_BOOL_X64

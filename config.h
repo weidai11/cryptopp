@@ -69,6 +69,10 @@
 // Defining this will cause Crypto++ to make only one call to CryptAcquireContext.
 #define WORKAROUND_MS_BUG_Q258000
 
+// Define this if you are working around Clang's integrated assembler bug by
+// disabling the assembler (https://llvm.org/bugs/show_bug.cgi?id=18916).
+// #define CRYPTOPP_CLANG_NO_INTEGRATED_AS
+
 #ifdef CRYPTOPP_DOXYGEN_PROCESSING
 // Avoid putting "CryptoPP::" in front of everything in Doxygen output
 #	define CryptoPP
