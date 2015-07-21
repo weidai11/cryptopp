@@ -20,8 +20,11 @@ GNUmakefile.deps
 *.patch
 
 #################
-## GCC
+## GNU/GCC
 #################
+
+## Ignore GNU/GCC artifacts
+a.out
 
 ## Ignore GCC temproary files. It appears Fedora
 ## changed a behavior somewhere along the lines
