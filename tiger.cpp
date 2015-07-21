@@ -38,7 +38,7 @@ void Tiger::Transform (word64 *digest, const word64 *X)
 #ifdef __GNUC__
 		__asm__ __volatile__
 		(
-		".intel_syntax noprefix;"
+		GNU_INTEL_SYNTAX
 		AS1(	push	ebx)
 #else
 	#if _MSC_VER < 1300
@@ -194,7 +194,7 @@ void Tiger::Transform (word64 *digest, const word64 *X)
 		AS1(	emms)
 #ifdef __GNUC__
 		AS1(	pop		ebx)
-		".att_syntax prefix;"
+		GNU_ATT_SYNTAX
 			:
 			: "a" (digest), "S" (X), "d" (table)
 			: "%ecx", "%edi", "memory", "cc"

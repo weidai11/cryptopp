@@ -574,7 +574,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 		#ifdef __GNUC__
 			__asm__ __volatile__
 			(
-			".intel_syntax noprefix;"
+			GNU_INTEL_SYNTAX
 		#elif defined(CRYPTOPP_GENERATE_X64_MASM)
 			ALIGN   8
 			GCM_AuthenticateBlocks_2K	PROC FRAME
@@ -702,7 +702,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 		AS_POP_IF86(	bx)
 
 		#ifdef __GNUC__
-				".att_syntax prefix;"
+				GNU_ATT_SYNTAX
 					: 
 					: "c" (data), "d" (len/16), "S" (hashBuffer), "D" (s_reductionTable)
 					: "memory", "cc", "%eax"
@@ -725,7 +725,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 		#ifdef __GNUC__
 			__asm__ __volatile__
 			(
-			".intel_syntax noprefix;"
+			GNU_INTEL_SYNTAX
 		#elif defined(CRYPTOPP_GENERATE_X64_MASM)
 			ALIGN   8
 			GCM_AuthenticateBlocks_64K	PROC FRAME
@@ -779,7 +779,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 		AS2(	movdqa	[WORD_REG(si)], xmm0				)
 
 		#ifdef __GNUC__
-				".att_syntax prefix;"
+				GNU_ATT_SYNTAX
 					: 
 					: "c" (data), "d" (len/16), "S" (hashBuffer)
 					: "memory", "cc", "%edi", "%eax"

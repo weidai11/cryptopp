@@ -401,7 +401,7 @@ void Whirlpool::Transform(word64 *digest, const word64 *block)
 	#endif
 	__asm__ __volatile__
 	(
-		".intel_syntax noprefix;"
+		GNU_INTEL_SYNTAX
 		AS_PUSH_IF86(	bx)
 		AS2(	mov		AS_REG_6, WORD_REG(ax))
 #else
@@ -569,7 +569,7 @@ void Whirlpool::Transform(word64 *digest, const word64 *block)
 		AS_POP_IF86(	bx)
 #endif
 #ifdef __GNUC__
-		".att_syntax prefix;"
+		GNU_ATT_SYNTAX
 			:
 			: "a" (Whirlpool_C), "c" (digest), "d" (block)
 	#if CRYPTOPP_BOOL_X64

@@ -244,7 +244,7 @@ static void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 
 	#if CRYPTOPP_BOOL_X64
 		"lea %4, %%r8;"
 	#endif
-	".intel_syntax noprefix;"
+	GNU_INTEL_SYNTAX
 #elif defined(CRYPTOPP_GENERATE_X64_MASM)
 		ALIGN   8
 	X86_SHA256_HashBlocks	PROC FRAME
@@ -424,7 +424,7 @@ static void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 
 #endif
 
 #ifdef __GNUC__
-	".att_syntax prefix;"
+	GNU_ATT_SYNTAX
 	: 
 	: "c" (state), "d" (data), "S" (SHA256_K+48), "D" (len)
 	#if CRYPTOPP_BOOL_X64
@@ -675,7 +675,7 @@ CRYPTOPP_NAKED static void CRYPTOPP_FASTCALL SHA512_SSE2_Transform(word64 *state
 #ifdef __GNUC__
 	__asm__ __volatile__
 	(
-		".intel_syntax noprefix;"
+		GNU_INTEL_SYNTAX
 	AS1(	push	ebx)
 	AS2(	mov		ebx, eax)
 #else
@@ -841,7 +841,7 @@ CRYPTOPP_NAKED static void CRYPTOPP_FASTCALL SHA512_SSE2_Transform(word64 *state
 
 #if defined(__GNUC__)
 	AS1(	pop		ebx)
-	".att_syntax prefix;"
+	GNU_ATT_SYNTAX
 		:
 		: "a" (SHA512_K), "c" (state), "d" (data)
 		: "%esi", "%edi", "memory", "cc"

@@ -450,9 +450,9 @@ inline word DWord::operator%(word a)
 		int result;	\
 		__asm__ __volatile__ \
 		( \
-			".intel_syntax noprefix;"
+			GNU_INTEL_SYNTAX
 	#define AddEpilogue \
-			".att_syntax prefix;" \
+			GNU_ATT_SYNTAX \
 					: "=a" (result)\
 					: "d" (C), "a" (A), "D" (B), "c" (N) \
 					: "%esi", "memory", "cc" \
@@ -461,12 +461,12 @@ inline word DWord::operator%(word a)
 	#define MulPrologue \
 		__asm__ __volatile__ \
 		( \
-			".intel_syntax noprefix;" \
+			GNU_INTEL_SYNTAX \
 			AS1(	push	ebx) \
 			AS2(	mov		ebx, edx)
 	#define MulEpilogue \
 			AS1(	pop		ebx) \
-			".att_syntax prefix;" \
+			GNU_ATT_SYNTAX \
 			: \
 			: "d" (s_maskLow16), "c" (C), "a" (A), "D" (B) \
 			: "%esi", "memory", "cc" \
@@ -474,7 +474,7 @@ inline word DWord::operator%(word a)
 	#define SquPrologue		MulPrologue
 	#define SquEpilogue	\
 			AS1(	pop		ebx) \
-			".att_syntax prefix;" \
+			GNU_ATT_SYNTAX \
 			: \
 			: "d" (s_maskLow16), "c" (C), "a" (A) \
 			: "%esi", "%edi", "memory", "cc" \
@@ -482,7 +482,7 @@ inline word DWord::operator%(word a)
 	#define TopPrologue		MulPrologue
 	#define TopEpilogue	\
 			AS1(	pop		ebx) \
-			".att_syntax prefix;" \
+			GNU_ATT_SYNTAX \
 			: \
 			: "d" (s_maskLow16), "c" (C), "a" (A), "D" (B), "S" (L) \
 			: "memory", "cc" \
@@ -570,7 +570,7 @@ int Baseline_Sub(size_t N, word *C, const word *A, const word *B)
 	word result;
 	__asm__ __volatile__
 	(
-	".intel_syntax;"
+	GNU_INTEL_SYNTAX
 	AS1(	neg		%1)
 	ASJ(	jz,		1, f)
 	AS2(	mov		%0,[%3+8*%1])
