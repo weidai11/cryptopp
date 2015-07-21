@@ -12,7 +12,7 @@ class CRYPTOPP_DLL BaseN_Encoder : public Unflushable<Filter>
 {
 public:
 	BaseN_Encoder(BufferedTransformation *attachment=NULL)
-		{Detach(attachment);}
+		: m_alphabet(NULL) {Detach(attachment);}
 
 	BaseN_Encoder(const byte *alphabet, int log2base, BufferedTransformation *attachment=NULL, int padding=-1)
 	{
@@ -38,7 +38,7 @@ class CRYPTOPP_DLL BaseN_Decoder : public Unflushable<Filter>
 {
 public:
 	BaseN_Decoder(BufferedTransformation *attachment=NULL)
-		{Detach(attachment);}
+		: m_lookup(NULL) {Detach(attachment);}
 
 	BaseN_Decoder(const int *lookup, int log2base, BufferedTransformation *attachment=NULL)
 	{
@@ -53,7 +53,7 @@ public:
 
 private:
 	const int *m_lookup;
-	int m_padding, m_bitsPerChar, m_outputBlockSize;
+	int /*m_padding,*/ m_bitsPerChar, m_outputBlockSize;
 	int m_bytePos, m_bitPos;
 	SecByteBlock m_outBuf;
 };
