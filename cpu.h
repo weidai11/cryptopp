@@ -228,6 +228,18 @@ inline int GetCacheLineSize()
 	#define AS_HEX(y) 0x##y
 #endif
 
+// https://llvm.org/bugs/show_bug.cgi?id=18916
+#if defined(__clang__)
+# define GNU_ATT_SYNTAX ".att_syntax;"
+# define GNU_INTEL_SYNTAX ".intel_syntax;"
+#elif defined(__GNUC__)
+# define GNU_ATT_SYNTAX ".att_syntax prefix;"
+# define GNU_INTEL_SYNTAX ".intel_syntax noprefix;"
+#else
+# define GNU_ATT_SYNTAX ".att_syntax prefix;"
+# define GNU_INTEL_SYNTAX ".intel_syntax noprefix;"
+#endif
+
 #define IF0(y)
 #define IF1(y) y
 
