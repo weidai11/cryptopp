@@ -71,7 +71,15 @@
 
 // Define this if you are working around Clang's integrated assembler bug by
 // disabling the assembler (https://llvm.org/bugs/show_bug.cgi?id=18916).
-// #define CRYPTOPP_CLANG_NO_INTEGRATED_AS
+// When the LLVM project fixes it, then we turn it on/off automatically.
+#define WORKAROUND_LLVM_BUG_18916
+
+// Define this if you are working with Clang's integrated assembler. As far as we know,
+// the only way to tell is `$(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1`. The
+// integrated assembler will return `clang: error: unsupported argument '-v' option`.
+#if defined(__clang__)
+#define CRYPTOPP_USING_CLANG_INTEGRATED_ASSEMBLER
+#endif
 
 #ifdef CRYPTOPP_DOXYGEN_PROCESSING
 // Avoid putting "CryptoPP::" in front of everything in Doxygen output

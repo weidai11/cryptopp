@@ -25,9 +25,9 @@ ifeq ($(PREFIX),)
 PREFIX = /usr
 endif
 
-# Sadly, we can't actually use GCC_PRAGMA_AWARE because of GCC bug 53431.
-# Its a shame because GCC has so much to offer by the way of analysis.
-# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=53431
+# Sadly, we can't actually use GCC_PRAGMA_AWARE with GCC because of GCC bug 53431.
+# Its a shame because GCC has so much to offer by the way of analysis. Clang works
+# as expected, though. https://gcc.gnu.org/bugzilla/show_bug.cgi?id=53431
 ifneq ($(CLANG_COMPILER),0)
 CXXFLAGS += -Wall
 endif
@@ -36,25 +36,40 @@ ifeq ($(IS_X86),1)
 
 GCC42_OR_LATER = $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "^gcc version (4.[2-9]|[5-9])")
 ICC111_OR_LATER = $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(ICC\) ([2-9][0-9]|1[2-9]|11\.[1-9])")
-GAS210_OR_LATER = $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.[1-9][0-9]|[3-9])")
-GAS217_OR_LATER = $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.1[7-9]|2\.[2-9]|[3-9])")
-GAS219_OR_LATER = $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.19|2\.[2-9]|[3-9])")
+GAS210_OR_LATER ?= $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.[1-9][0-9]|[3-9])")
+GAS217_OR_LATER ?= $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.1[7-9]|2\.[2-9]|[3-9])")
+GAS219_OR_LATER ?= $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.19|2\.[2-9]|[3-9])")
 
 # Enable PIC for x86_64 targets
 ifneq ($(IS_X86_64),0)
 CXXFLAGS += -fPIC
 endif # PIC for x86_64 targets
 
-# Undefined Behavior Sanitzier (Clang and G++)
+# Undefined Behavior Sanitizer (Clang 3.2 and GCC 4.8 and above)
 ifeq ($(findstring ubsan,$(MAKECMDGOALS)),ubsan)
 CXXFLAGS += -fsanitize=undefined
-# CXXFLAGS += -fsanitize-undefined-trap-on-error 
+# CXXFLAGS += -fsanitize-undefined-trap-on-error
 endif # UBsan
 
-# Address Sanitzier (Clang and G++)
+# Address Sanitizer (Clang 3.2 and GCC 4.8 and above)
 ifeq ($(findstring asan,$(MAKECMDGOALS)),asan)
 CXXFLAGS += -fsanitize=address
 endif # Asan
+
+# Test CXXFLAGS in case the user passed the flags directly through it
+ASAN = 0
+UBSAN = 0
+ifeq ($(findstring -fsanitize=address,$(CXXFLAGS)),-fsanitize=address)
+ASAN = 1
+endif
+ifeq ($(findstring -fsanitize=undefined,$(CXXFLAGS)),-fsanitize=undefined)
+UBSAN = 1
+endif
+
+# Enforce Sanitizer business logic...
+ifeq ($(ASAN)$(UBSAN),11)
+$(error Asan and UBsan are mutually exclusive)
+endif
 
 # Cygwin work arounds
 ifneq ($(IS_CYGWIN),0)
@@ -70,7 +85,7 @@ CXXFLAGS := $(subst -fPIC,,$(CXXFLAGS))
 endif # -fPIC
 
 # -O3 fails to link with GCC 4.5.3
-IS_GCC45 = $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "^gcc version 4\.5\.")
+IS_GCC45 = $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "^gcc version 4\.5\.[0-9]")
 ifneq ($(IS_GCC45),0)
 ifeq ($(findstring -O3,$(CXXFLAGS)),-O3)
 CXXFLAGS := $(subst -O3,-O2,$(CXXFLAGS))

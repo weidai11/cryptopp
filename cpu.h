@@ -209,6 +209,23 @@ inline int GetCacheLineSize()
 	#define ASC(x, y) __asm {x label##y}
 	#define CRYPTOPP_NAKED __declspec(naked)
 	#define AS_HEX(y) 0x##y
+#elif defined(__clang__) && defined(CRYPTOPP_USING_CLANG_INTEGRATED_ASSEMBLER)
+	#define CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
+	// define these in two steps to allow arguments to be expanded
+	#define GNU_AS1(x) "\n\t" #x ";"
+	#define GNU_AS2(x, y) "\n\t" #x ", " #y ";"
+	#define GNU_AS3(x, y, z) "\n\t" #x ", " #y ", " #z ";"
+	#define GNU_ASL(x) "\n\t#x:"
+	#define GNU_ASJ(x, y, z) "\n\t#x " #y #z ";"
+	#define AS1(x) GNU_AS1(x)
+	#define AS2(x, y) GNU_AS2(x, y)
+	#define AS3(x, y, z) GNU_AS3(x, y, z)
+	#define ASS(x, y, a, b, c, d) "\n\t" #x ", " #y ", " #a "*64+" #b "*16+" #c "*4+" #d ";"
+	#define ASL(x) GNU_ASL(x)
+	#define ASJ(x, y, z) GNU_ASJ(x, y, z)
+	#define ASC(x, y) "\n\t" #x " " #y ";"
+	#define CRYPTOPP_NAKED
+	#define AS_HEX(y) 0x##y
 #else
 	#define CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
 	// define these in two steps to allow arguments to be expanded
@@ -229,15 +246,15 @@ inline int GetCacheLineSize()
 #endif
 
 // https://llvm.org/bugs/show_bug.cgi?id=18916
-#if defined(__clang__)
-# define GNU_ATT_SYNTAX ".att_syntax;"
-# define GNU_INTEL_SYNTAX ".intel_syntax;"
+#if defined(__clang__) && defined(WORKAROUND_LLVM_BUG_18916)
+# define GNU_AS_ATT_SYNTAX ".att_syntax;"
+# define GNU_AS_INTEL_SYNTAX ".intel_syntax;" "\n"
 #elif defined(__GNUC__)
-# define GNU_ATT_SYNTAX ".att_syntax prefix;"
-# define GNU_INTEL_SYNTAX ".intel_syntax noprefix;"
+# define GNU_AS_ATT_SYNTAX ".att_syntax prefix;"
+# define GNU_AS_INTEL_SYNTAX ".intel_syntax noprefix;"
 #else
-# define GNU_ATT_SYNTAX ".att_syntax prefix;"
-# define GNU_INTEL_SYNTAX ".intel_syntax noprefix;"
+# define GNU_AS_ATT_SYNTAX ".att_syntax prefix;"
+# define GNU_AS_INTEL_SYNTAX ".intel_syntax noprefix;"
 #endif
 
 #define IF0(y)

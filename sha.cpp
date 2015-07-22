@@ -841,7 +841,7 @@ CRYPTOPP_NAKED static void CRYPTOPP_FASTCALL SHA512_SSE2_Transform(word64 *state
 
 #if defined(__GNUC__)
 	AS1(	pop		ebx)
-	GNU_AS_ATT_SYNTAX
+	ASSL(GNU_AS_ATT_SYNTAX)
 		:
 		: "a" (SHA512_K), "c" (state), "d" (data)
 		: "%esi", "%edi", "memory", "cc"

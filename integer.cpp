@@ -538,7 +538,7 @@ int Baseline_Add(size_t N, word *C, const word *A, const word *B)
 	word result;
 	__asm__ __volatile__
 	(
-	".intel_syntax;"
+	".intel_syntax;" "\n"
 	AS1(	neg		%1)
 	ASJ(	jz,		1, f)
 	AS2(	mov		%0,[%3+8*%1])
@@ -557,7 +557,7 @@ int Baseline_Add(size_t N, word *C, const word *A, const word *B)
 	ASL(1)
 	AS2(	mov		%0, 0)
 	AS2(	adc		%0, %0)
-	".att_syntax;"
+	".att_syntax;" "\n"
 	: "=&r" (result), "+c" (N)
 	: "r" (C+N), "r" (A+N), "r" (B+N)
 	: "memory", "cc"
@@ -589,12 +589,12 @@ int Baseline_Sub(size_t N, word *C, const word *A, const word *B)
 	ASL(1)
 	AS2(	mov		%0, 0)
 	AS2(	adc		%0, %0)
-	".att_syntax;"
+	".att_syntax;" "\n"
 	: "=&r" (result), "+c" (N)
 	: "r" (C+N), "r" (A+N), "r" (B+N)
 	: "memory", "cc"
 	);
-	return (int)result;
+	return static_cast<int>(result);
 }
 #elif defined(CRYPTOPP_X86_ASM_AVAILABLE) && CRYPTOPP_BOOL_X86
 CRYPTOPP_NAKED int CRYPTOPP_FASTCALL Baseline_Add(size_t N, word *C, const word *A, const word *B)
@@ -2978,10 +2978,8 @@ static Integer StringToInteger(const T *str)
 	unsigned int length;
 	for (length = 0; str[length] != 0; length++) {}
 
-	Integer v;
-
 	if (length == 0)
-		return v;
+		return Integer::Zero();
 
 	switch (str[length-1])
 	{
@@ -3002,8 +3000,12 @@ static Integer StringToInteger(const T *str)
 	}
 
 	if (length > 2 && str[0] == '0' && str[1] == 'x')
+	{
 		radix = 16;
+		str += 2, length -= 2;
+	}
 
+	Integer v;
 	for (unsigned i=0; i<length; i++)
 	{
 		int digit;
