@@ -158,7 +158,7 @@ VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWord64,
 	(
 	AS2(	mov		%%ebx, %0)
 	AS2(	mov		%1, %%ebx)
-	// GNU_AS_INTEL_SYNTAX
+	GNU_AS_INTEL_SYNTAX
 #else
 	#if _MSC_VER < 1300 || defined(__INTEL_COMPILER)
 	char isFirstBlock = m_isFirstBlock;
@@ -377,7 +377,7 @@ VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWord64,
 	AS1(	pop		ebp)
 	AS1(	emms)
 #ifdef __GNUC__
-	ASSL(GNU_AS_ATT_SYNTAX)
+	GNU_AS_ATT_SYNTAX
 	AS2(	mov	%0, %%ebx)
 		: "=m" (temp)
 		: "m" (L1KeyLength), "c" (blocksRemainingInWord64), "S" (data), "D" (nhK+tagPart*2), "d" (m_isFirstBlock), "a" (polyS+tagPart*4)

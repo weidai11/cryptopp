@@ -38,7 +38,7 @@ void Tiger::Transform (word64 *digest, const word64 *X)
 #ifdef __GNUC__
 		__asm__ __volatile__
 		(
-		// GNU_AS_INTEL_SYNTAX
+		GNU_AS_INTEL_SYNTAX
 		AS1(	push	ebx)
 #else
 	#if _MSC_VER < 1300
@@ -194,7 +194,7 @@ void Tiger::Transform (word64 *digest, const word64 *X)
 		AS1(	emms)
 #ifdef __GNUC__
 		AS1(	pop		ebx)
-		ASSL(GNU_AS_ATT_SYNTAX)
+		GNU_AS_ATT_SYNTAX
 			:
 			: "a" (digest), "S" (X), "d" (table)
 			: "%ecx", "%edi", "memory", "cc"
