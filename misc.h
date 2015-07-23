@@ -4,8 +4,9 @@
 #include "cryptlib.h"
 #include "smartptr.h"
 #include "trap.h"
-#include <string.h>		// for memcpy and memmove
-#include <limits>		// for numeric_limits
+#include <string.h>	// for memcpy and memmove
+#include <iosfwd>	// for std::streamsize
+#include <limits>	// for std::numeric_limits
 
 #ifdef _MSC_VER
 	#if _MSC_VER >= 1400
@@ -363,6 +364,47 @@ inline bool SafeConvert(T1 from, T2 &to)
 {
 	to = (T2)from;
 	if (from != to || (from > 0) != (to > 0))
+		return false;
+	return true;
+}
+
+#if 0
+// files.cpp, line 175
+template<>
+inline bool SafeConvert<lword,std::istream::off_type>(lword from, std::istream::off_type &to)
+{
+	if(from > static_cast<lword>(std::numeric_limits<std::istream::off_type>::max()))
+		return false;
+	return true;
+}
+#endif
+
+// files.cpp, line 235
+template<>
+inline bool SafeConvert<size_t,std::streamsize>(size_t from, std::streamsize &to)
+{
+	to = (std::streamsize)from;
+	if(from > static_cast<size_t>(std::numeric_limits<std::streamsize>::max()))
+		return false;
+	return true;
+}
+
+// files.cpp, line 366
+template<>
+inline bool SafeConvert<long long unsigned int,long int>(long long unsigned int from, long int &to)
+{
+	to = (long int)from;
+	if(from > static_cast<long long unsigned int>(std::numeric_limits<long int>::max()))
+		return false;
+	return true;
+}
+
+// nbtheory.cpp, line 315
+template<>
+inline bool SafeConvert<long int,word>(long int from, word &to)
+{
+	to = (word)from;
+	if(from > static_cast<long int>(std::numeric_limits<word>::max()))
 		return false;
 	return true;
 }
