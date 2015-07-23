@@ -209,7 +209,7 @@ inline int GetCacheLineSize()
 	#define ASC(x, y) __asm {x label##y}
 	#define CRYPTOPP_NAKED __declspec(naked)
 	#define AS_HEX(y) 0x##y
-#elif defined(__clang__) && defined(CRYPTOPP_USING_CLANG_INTEGRATED_ASSEMBLER)
+#elif defined(__clang__) && defined(CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER)
 	#define CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
 	// define these in two steps to allow arguments to be expanded
 	#define GNU_AS1(x) "\n\t" #x ";"
@@ -287,6 +287,7 @@ inline int GetCacheLineSize()
 	#define AS_REG_7d ebp
 	#define WORD_SZ 4
 	#define WORD_REG(x)	e##x
+	#define WORD_REG32(x)	e##x
 	#define WORD_PTR DWORD PTR
 	#define AS_PUSH_IF86(x) AS1(push e##x)
 	#define AS_POP_IF86(x) AS1(pop e##x)
@@ -325,6 +326,7 @@ inline int GetCacheLineSize()
 	#endif
 	#define WORD_SZ 8
 	#define WORD_REG(x)	r##x
+	#define WORD_REG32(x)	e##x
 	#define WORD_PTR QWORD PTR
 	#define AS_PUSH_IF86(x)
 	#define AS_POP_IF86(x)

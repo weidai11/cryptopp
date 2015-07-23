@@ -69,8 +69,8 @@
 // Defining this will cause Crypto++ to make only one call to CryptAcquireContext.
 #define WORKAROUND_MS_BUG_Q258000
 
-// Define this if you are working around Clang's integrated assembler bug by
-// disabling the assembler (https://llvm.org/bugs/show_bug.cgi?id=18916).
+// Define this if you are working around Clang's integrated assembler bug
+// and issues with {prefix|noprefix} (https://llvm.org/bugs/show_bug.cgi?id=18916).
 // When the LLVM project fixes it, then we turn it on/off automatically.
 #define WORKAROUND_LLVM_BUG_18916
 
@@ -78,7 +78,7 @@
 // the only way to tell is `$(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1`. The
 // integrated assembler will return `clang: error: unsupported argument '-v' option`.
 #if defined(__clang__)
-#define CRYPTOPP_USING_CLANG_INTEGRATED_ASSEMBLER
+#define CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER
 #endif
 
 #ifdef CRYPTOPP_DOXYGEN_PROCESSING
@@ -299,7 +299,7 @@ NAMESPACE_END
 	#define CRYPTOPP_X64_MASM_AVAILABLE
 #endif
 
-#if !defined(CRYPTOPP_DISABLE_ASM) && defined(__GNUC__) && defined(__x86_64__)
+#if !defined(CRYPTOPP_DISABLE_ASM) &&!defined(CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER) && defined(__GNUC__) && defined(__x86_64__)
 	#define CRYPTOPP_X64_ASM_AVAILABLE
 #endif
 
