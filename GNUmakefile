@@ -31,9 +31,9 @@ ifeq ($(PREFIX),)
 PREFIX = /usr
 endif
 
-# Sadly, we can't actually use GCC_PRAGMA_AWARE with GCC because of GCC bug 53431.
-# Its a shame because GCC has so much to offer by the way of analysis. Clang works
-# as expected, though. https://gcc.gnu.org/bugzilla/show_bug.cgi?id=53431
+# Sadly, we can't actually use GCC_PRAGMA_AWARE with GCC because of GCC Bug 53431.
+# (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=53431). Its a shame because GCC has
+# so much to offer by the way of analysis. Clang works as expected, though.
 ifneq ($(CLANG_COMPILER),0)
 CXXFLAGS += -Wall
 endif
@@ -211,19 +211,29 @@ LIBIMPORTOBJS = $(LIBOBJS:.o=.import.o)
 TESTIMPORTOBJS = $(TESTOBJS:.o=.import.o)
 DLLTESTOBJS = dlltest.dllonly.o
 
-all: cryptest.exe
+# For various targets, see https://www.gnu.org/prep/standards/html_node/Standard-Targets.html
+# We want to include libcryptopp, cryptest, clean, distclean, install, install-strip, uninstall
+
+all cryptest: cryptest.exe
 static: libcryptopp.a
-dynamic: libcryptopp.so
+shared dynamic: libcryptopp.so
 
 asan ubsan: libcryptopp.a cryptest.exe
 
-test: cryptest.exe
+.PHONY: test check
+test check: cryptest.exe
 	./cryptest.exe v
 
 .PHONY: clean
 clean:
-	-$(RM) cryptest.exe libcryptopp.a libcryptopp.so GNUmakefile.deps $(LIBOBJS) $(TESTOBJS) cryptopp.dll libcryptopp.dll.a libcryptopp.import.a cryptest.import.exe dlltest.exe $(DLLOBJS) $(LIBIMPORTOBJS) $(TESTI MPORTOBJS) $(DLLTESTOBJS)
+	-$(RM) cryptest.exe libcryptopp.a libcrypto++.a libcryptopp.so libcrypto++.so $(LIBOBJS) $(TESTOBJS) cryptopp.dll libcryptopp.dll.a libcryptopp.import.a cryptest.import.exe dlltest.exe $(DLLOBJS) $(LIBIMPORTOBJS) $(TESTI MPORTOBJS) $(DLLTESTOBJS)
 	-$(RM) -r cryptest.exe.dSYM
+
+.PHONY: distclean
+distclean:
+	-$(RM) -r GNUmakefile.deps *.o *.obj *.a *.so *.exe a.out \
+	adhoc.cpp adhoc.cpp.copied *.diff *.patch cryptopp.zip \
+	*.dSYM .DS_Store TestVectors/.DS_Store TestData/.DS_Store
 
 .PHONY: install
 install:
@@ -233,12 +243,31 @@ install:
 	-$(CP) *.so $(PREFIX)/lib
 	-$(CP) *.exe $(PREFIX)/bin
 
-.PHONY: remove
-remove:
+.PHONY: install-strip
+install-strip: libcryptopp.a cryptest.exe
+	$(MKDIR) -p $(PREFIX)/include/cryptopp $(PREFIX)/lib $(PREFIX)/bin
+	-$(CP) *.h $(PREFIX)/include/cryptopp
+	-$(CP) *.a $(PREFIX)/lib
+	-$(CP) *.so $(PREFIX)/lib
+	-$(CP) *.exe $(PREFIX)/bin
+	-$(STRIP) -s $(PREFIX)/bin/cryptest.exe
+	-$(STRIP) -s $(PREFIX)/lib/libcryptopp.so
+
+.PHONY: uninstall remove
+uninstall remove:
 	-$(RM) -rf $(PREFIX)/include/cryptopp
 	-$(RM) $(PREFIX)/lib/libcryptopp.a
 	-$(RM) $(PREFIX)/lib/libcryptopp.so
 	-$(RM) $(PREFIX)/bin/cryptest.exe
+
+.PHONY: dist
+dist: distclean
+	-zip -9 cryptopp.zip *.h *.cpp *.asm License.txt Readme.txt \
+		GNUmakefile GNUmakefile-cross Doxyfile \
+		cryptest_bds.bdsgroup cryptest_bds.bdsproj cryptest_bds.bpf cryptlib_bds.bdsproj \
+		cryptest.sln cryptest.dsp cryptest.dsw cryptest.vcproj \
+		dlltest.dsp dlltest.vcproj cryptlib.dsp cryptlib.vcproj cryptopp.rc \
+		TestVectors/*.txt TestVectors/*.dat TestData/*.txt TestData/*.dat 
 
 libcryptopp.a: $(LIBOBJS)
 	$(AR) $(ARFLAGS) $@ $(LIBOBJS)
@@ -249,9 +278,6 @@ libcryptopp.so: $(LIBOBJS)
 
 cryptest.exe: libcryptopp.a $(TESTOBJS)
 	$(CXX) -o $@ $(CXXFLAGS) $(TESTOBJS) ./libcryptopp.a $(LDFLAGS) $(LDLIBS)
-
-nolib: $(OBJS)		# makes it faster to test changes
-	$(CXX) -o ct $(CXXFLAGS) $(OBJS) $(LDFLAGS) $(LDLIBS)
 
 dll: cryptest.import.exe dlltest.exe
 
@@ -298,4 +324,3 @@ endif
 GNUmakefile.deps:
 	$(CXX) $(CXXFLAGS) -MM *.cpp > GNUmakefile.deps
 endif
-
