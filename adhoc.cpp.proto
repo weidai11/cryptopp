@@ -1,11 +1,17 @@
 #include "filters.h"
 #include "files.h"
 #include "base64.h"
+#include "misc.h"
 #include "hex.h"
 #include <iostream>
 
 USING_NAMESPACE(CryptoPP)
 USING_NAMESPACE(std)
+
+#if GCC_DIAGNOSTIC_AWARE
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wunused-variable"
+#endif
 
 extern int (*AdhocTest)(int argc, char *argv[]);
 
