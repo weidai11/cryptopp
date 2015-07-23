@@ -24,10 +24,10 @@ public:
 	typedef Integer Element;
 
 	ModularArithmetic(const Integer &modulus = Integer::One())
-		: m_modulus(modulus), m_result((word)0, modulus.reg.size()) {}
+		: m_modulus(modulus), m_result((word)0, modulus.reg.size()), m_result1(Integer::Zero()) {}
 
 	ModularArithmetic(const ModularArithmetic &ma)
-		: m_modulus(ma.m_modulus), m_result((word)0, m_modulus.reg.size()) {}
+		: AbstractRing<Integer>(ma), m_modulus(ma.m_modulus), m_result((word)0, m_modulus.reg.size()), m_result1(Integer::Zero()) {}
 
 	ModularArithmetic(BufferedTransformation &bt);	// construct from BER encoded parameters
 
