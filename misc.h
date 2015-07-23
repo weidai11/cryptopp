@@ -895,12 +895,12 @@ template<> inline byte rotrMod<byte>(byte x, unsigned int y)
 
 template<> inline word32 rotlFixed<word32>(word32 x, unsigned int y)
 {
-	return y ? __rlwinm(x,y,0,31) : x;
+	return (__rlwinm(x,y,0,31));
 }
 
 template<> inline word32 rotrFixed<word32>(word32 x, unsigned int y)
 {
-	return y ? __rlwinm(x,32-y,0,31) : x;
+	return (__rlwinm(x,32-y,0,31));
 }
 
 template<> inline word32 rotlVariable<word32>(word32 x, unsigned int y)
