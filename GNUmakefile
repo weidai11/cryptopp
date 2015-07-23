@@ -5,6 +5,7 @@ CXXFLAGS ?= -DNDEBUG -g2 -O3
 # LDFLAGS += -Wl,--gc-sections
 ARFLAGS = -cr	# ar needs the dash on OpenBSD
 RANLIB ?= ranlib
+STRIP ?= strip
 CP = cp
 MKDIR = mkdir
 EGREP = egrep
@@ -231,7 +232,8 @@ clean:
 
 .PHONY: distclean
 distclean:
-	-$(RM) -r GNUmakefile.deps *.o *.obj *.a *.so *.exe a.out \
+	-$(RM) -r GNUmakefile.deps *.o *.obj *.a *.so *.exe \
+	a.out *~ \.*~ *\.h\. *\.cpp\. *.bu *.bak \
 	adhoc.cpp adhoc.cpp.copied *.diff *.patch cryptopp.zip \
 	*.dSYM .DS_Store TestVectors/.DS_Store TestData/.DS_Store
 
