@@ -22,6 +22,9 @@
 #include "validate.h"
 #include "bench.h"
 
+// CRYPTOPP_ASSERT
+#include "trap.h"
+
 #include <iostream>
 #include <time.h>
 
@@ -55,6 +58,10 @@ USING_NAMESPACE(CryptoPP)
 USING_NAMESPACE(std)
 
 const int MAX_PHRASE_LENGTH=250;
+
+#if !defined(NDEBUG) && defined(CRYPTOPP_UNIX_AVAILABLE)
+# include <signal.h>  // SIGTRAP handler
+#endif
 
 void RegisterFactories();
 
@@ -96,14 +103,60 @@ void FIPS140_GenerateRandomFiles();
 
 bool Validate(int, bool, const char *);
 
-int (*AdhocTest)(int argc, char *argv[]) = NULL;
+#if !defined(NDEBUG) && defined(CRYPTOPP_UNIX_AVAILABLE)
+// Add a SIGTRAP handler for *nix, used by CRYPTOPP_ASSERT.
+struct DebugTrapHandler
+{
+	DebugTrapHandler()
+	{
+		// http://pubs.opengroup.org/onlinepubs/007908799/xsh/sigaction.html
+		struct sigaction old_handler, new_handler;
+		memset(&old_handler, 0x00, sizeof(old_handler));
+		memset(&new_handler, 0x00, sizeof(new_handler));
+        
+		do
+		{
+			int ret = 0;
+            
+			ret = sigaction (SIGTRAP, NULL, &old_handler);
+			if (ret != 0) break; // Failed
+            
+			// Don't step on another's handler
+			if (old_handler.sa_handler != NULL) break;
+            
+			// Set up the structure to specify the null action.
+			new_handler.sa_handler = &DebugTrapHandler::NullHandler;
+			new_handler.sa_flags = 0;
+            
+			ret = sigemptyset (&new_handler.sa_mask);
+			if (ret != 0) break; // Failed
+            
+			// Install it
+			ret = sigaction (SIGTRAP, &new_handler, NULL);
+			if (ret != 0) break; // Failed
+            
+		} while(0);
+	}
+    
+	static void NullHandler(int /*unused*/) { }
+};
+
+#if __GNUC__
+// Specify a relatively low priority to make sure we run before other CTORs
+// http://gcc.gnu.org/onlinedocs/gcc/C_002b_002b-Attributes.html#C_002b_002b-Attributes
+static const DebugTrapHandler g_dummyHandler __attribute__ ((init_priority (110)));
+#else
+static const DebugTrapHandler g_dummyHandler;
+#endif // __GNUC__
+#endif // CRYPTOPP_UNIX_AVAILABLE and not NDEBUG
 
 static OFB_Mode<AES>::Encryption s_globalRNG;
-
 RandomNumberGenerator & GlobalRNG()
 {
 	return s_globalRNG;
 }
+
+int (*AdhocTest)(int argc, char *argv[]) = NULL;
 
 int CRYPTOPP_API main(int argc, char *argv[])
 {
@@ -238,7 +291,7 @@ int CRYPTOPP_API main(int argc, char *argv[])
 
 			// compute MAC
 			member_ptr<MessageAuthenticationCode> pMac(NewIntegrityCheckingMAC());
-			assert(pMac->DigestSize() == sizeof(mac));
+			CRYPTOPP_ASSERT(pMac->DigestSize() == sizeof(mac));
 			MeterFilter f(new HashFilter(*pMac, new ArraySink(mac, sizeof(mac))));
 			f.AddRangeToSkip(0, checksumPos, 4);
 			f.AddRangeToSkip(0, certificateTableDirectoryPos, 8);
@@ -545,7 +598,7 @@ void DecryptFile(const char *in, const char *out, const char *passPhrase)
 
 void SecretShareFile(int threshold, int nShares, const char *filename, const char *seed)
 {
-	assert(nShares<=1000);
+	CRYPTOPP_ASSERT(nShares<=1000);
 
 	RandomPool rng;
 	rng.IncorporateEntropy((byte *)seed, strlen(seed));
@@ -573,7 +626,7 @@ void SecretShareFile(int threshold, int nShares, const char *filename, const cha
 
 void SecretRecoverFile(int threshold, const char *outFilename, char *const *inFilenames)
 {
-	assert(threshold<=1000);
+	CRYPTOPP_ASSERT(threshold<=1000);
 
 	SecretRecovery recovery(threshold, new FileSink(outFilename));
 
@@ -598,7 +651,7 @@ void SecretRecoverFile(int threshold, const char *outFilename, char *const *inFi
 
 void InformationDisperseFile(int threshold, int nShares, const char *filename)
 {
-	assert(nShares<=1000);
+	CRYPTOPP_ASSERT(nShares<=1000);
 
 	ChannelSwitch *channelSwitch;
 	FileSource source(filename, false, new InformationDispersal(threshold, nShares, channelSwitch = new ChannelSwitch));
@@ -623,7 +676,7 @@ void InformationDisperseFile(int threshold, int nShares, const char *filename)
 
 void InformationRecoverFile(int threshold, const char *outFilename, char *const *inFilenames)
 {
-	assert(threshold<=1000);
+	CRYPTOPP_ASSERT(threshold<=1000);
 
 	InformationRecovery recovery(threshold, new FileSink(outFilename));
 
