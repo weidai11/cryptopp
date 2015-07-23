@@ -15,15 +15,15 @@ NAMESPACE_BEGIN(CryptoPP)
 
 /* CAST uses three different round functions */
 #define f1(l, r, km, kr) \
-	t = rotlVariable(km + r, kr); \
+	t = rotlMod(km + r, kr); \
 	l ^= ((S[0][U8a(t)] ^ S[1][U8b(t)]) - \
 	 S[2][U8c(t)]) + S[3][U8d(t)];
 #define f2(l, r, km, kr) \
-	t = rotlVariable(km ^ r, kr); \
+	t = rotlMod(km ^ r, kr); \
 	l ^= ((S[0][U8a(t)] - S[1][U8b(t)]) + \
 	 S[2][U8c(t)]) ^ S[3][U8d(t)];
 #define f3(l, r, km, kr) \
-	t = rotlVariable(km - r, kr); \
+	t = rotlMod(km - r, kr); \
 	l ^= ((S[0][U8a(t)] + S[1][U8b(t)]) ^ \
 	 S[2][U8c(t)]) - S[3][U8d(t)];
 
