@@ -671,12 +671,11 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 		AS2(	movdqa	xmm1, xmm2						)
 		AS2(	pslldq	xmm2, 1							)
 		AS2(	pxor	xmm5, xmm2						)
-
 		AS2(	psrldq	xmm0, 15						)
-#if defined(CRYPTOPP_USING_CLANG_INTEGRATED_ASSEMBLER)
-		AS2(	movq	WORD_REG(di), xmm0					)
+#if defined(CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER)
+		AS2(	movd	WORD_REG32(di), xmm0			)
 #else
-		AS2(	movd	WORD_REG(di), xmm0					)
+		AS2(	movd	WORD_REG(di), xmm0				)
 #endif
 		AS2(	movzx	eax, WORD PTR [RED_TABLE + WORD_REG(di)*2]	)
 		AS2(	shl		eax, 8							)
@@ -687,29 +686,29 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 
 		AS2(	psrldq	xmm1, 15						)
 
-#if defined(CRYPTOPP_USING_CLANG_INTEGRATED_ASSEMBLER)
-		AS2(	movq	WORD_REG(di), xmm1					)
+#if defined(CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER)
+		AS2(	movd	WORD_REG32(di), xmm1			)
 #else
-		AS2(	movd	WORD_REG(di), xmm1					)
+		AS2(	movd	WORD_REG(di), xmm1				)
 #endif
 		AS2(	xor		ax, WORD PTR [RED_TABLE + WORD_REG(di)*2]	)
 		AS2(	shl		eax, 8							)
 
 		AS2(	psrldq	xmm0, 15						)
-#if defined(CRYPTOPP_USING_CLANG_INTEGRATED_ASSEMBLER)
-		AS2(	movq	WORD_REG(di), xmm0					)
+#if defined(CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER)
+		AS2(	movd	WORD_REG32(di), xmm0			)
 #else
-		AS2(	movd	WORD_REG(di), xmm0					)
+		AS2(	movd	WORD_REG(di), xmm0				)
 #endif
 		AS2(	xor		ax, WORD PTR [RED_TABLE + WORD_REG(di)*2]	)
 
 		AS2(	movd	xmm0, eax						)
 		AS2(	pxor	xmm0, xmm4						)
 
-		AS2(	add		WORD_REG(cx), 16					)
-		AS2(	sub		WORD_REG(dx), 1						)
+		AS2(	add		WORD_REG(cx), 16				)
+		AS2(	sub		WORD_REG(dx), 1					)
 		ASJ(	jnz,	0, b							)
-		AS2(	movdqa	[WORD_REG(si)], xmm0				)
+		AS2(	movdqa	[WORD_REG(si)], xmm0			)
 
 		AS_POP_IF86(	bp)
 		AS_POP_IF86(	bx)

@@ -74,11 +74,16 @@
 // When the LLVM project fixes it, then we turn it on/off automatically.
 #define WORKAROUND_LLVM_BUG_18916
 
+// Define this if you are working around Clang's integrated assembler bug
+// and issues ".intel_syntax" (https://llvm.org/bugs/show_bug.cgi?id=24232).
+// When the LLVM project fixes it, then we turn it on/off automatically.
+#define WORKAROUND_LLVM_BUG_24232
+
 // Define this if you are working with Clang's integrated assembler. As far as we know,
-// the only way to tell is `$(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1`. The
-// integrated assembler will return `clang: error: unsupported argument '-v' option`.
+//   the only way to tell is `$(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1`. The
+//   integrated assembler will return `clang: error: unsupported argument '-v' option`.
 #if defined(__clang__)
-#define CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER
+# define CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER
 #endif
 
 #ifdef CRYPTOPP_DOXYGEN_PROCESSING

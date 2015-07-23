@@ -23,20 +23,11 @@ SUN_COMPILER = $(shell $(CXX) -V 2>&1 | $(EGREP) -i -c "CC: Sun")
 
 # Also see LLVM Bug 24200 (https://llvm.org/bugs/show_bug.cgi?id=24200)
 # CLANG_ASSEMBLER ?= $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -i -c "^clang")
-# TODO: Uncomment the line above when Clang's integrated assembler can parse inline assembly 
-CLANG_ASSEMBLER ?= 0
-GNU_ASSEMBLER ?= $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -i -c "^GNU assembler")
+# TODO: Uncomment the line above when Clang's integrated assembler can parse and generate code that passes the self tests.
 
 # Default prefix for make install
 ifeq ($(PREFIX),)
 PREFIX = /usr
-endif
-
-# Sadly, we can't actually use GCC_PRAGMA_AWARE with GCC because of GCC Bug 53431.
-# (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=53431). Its a shame because GCC has
-# so much to offer by the way of analysis. Clang works as expected, though.
-ifneq ($(CLANG_COMPILER),0)
-CXXFLAGS += -Wall
 endif
 
 ifeq ($(IS_X86),1)
@@ -44,11 +35,18 @@ ifeq ($(IS_X86),1)
 GCC42_OR_LATER = $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "^gcc version (4.[2-9]|[5-9])")
 ICC111_OR_LATER = $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(ICC\) ([2-9][0-9]|1[2-9]|11\.[1-9])")
 
-ifneq ($(GNU_ASSEMBLER),0)
 # Using system provided assembler. It may be GNU AS (GAS).
 GAS210_OR_LATER ?= $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.[1-9][0-9]|[3-9])")
 GAS217_OR_LATER ?= $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.1[7-9]|2\.[2-9]|[3-9])")
 GAS219_OR_LATER ?= $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.19|2\.[2-9]|[3-9])")
+
+# For testing and development. If CXX=clang++, then it effectively
+#   enables ASM code paths and engages the integrated assembler.
+FORCE_ASM ?= 0
+ifneq ($(FORCE_ASM),0)
+  GAS210_OR_LATER = 1
+  GAS217_OR_LATER = 1
+  GAS219_OR_LATER = 1
 endif
 
 # Enable PIC for x86_64 targets
@@ -106,7 +104,8 @@ endif # GCC 4.5
 endif # Cygwin work arounds
 
 # Build a boolean circuit that says "Darwin && (GCC 4.2 || Clang)"
-MULTIARCH_SUPPORT ?= $(shell echo $$(($(IS_DARWIN) * ($(GCC42_OR_LATER) + $(CLANG_COMPILER)))))
+# MULTIARCH_SUPPORT ?= $(shell echo $$(($(IS_DARWIN) * ($(GCC42_OR_LATER) + $(CLANG_COMPILER)))))
+MULTIARCH_SUPPORT ?= 0
 ifneq ($(MULTIARCH_SUPPORT),0)
 CXXFLAGS += -arch i386 -arch x86_64
 else
@@ -122,54 +121,41 @@ CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
 endif
 endif
 
-# .intel_syntax wasn't supported until GNU assembler 2.10
-SUPPORTS_ASM ?= $(shell echo $$(($(GAS210_OR_LATER) + $(CLANG_ASSEMBLER))))
-ifeq ($(SUPPORTS_ASM),0)
+ifeq ($(GAS210_OR_LATER),0)
 CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
 else
-SUPPORTS_SSE3 ?= GAS217_OR_LATER
-ifeq ($(SUPPORTS_SSE3),0)
+ifeq ($(GAS217_OR_LATER),0)
 CXXFLAGS += -DCRYPTOPP_DISABLE_SSSE3
 else
-SUPPORTS_AESNI ?= GAS219_OR_LATER
-ifeq ($(SUPPORTS_AESNI),0)
+ifeq ($(GAS219_OR_LATER),0)
 CXXFLAGS += -DCRYPTOPP_DISABLE_AESNI
-endif   # SUPPORTS_AESNI
-endif   # SUPPORTS_SSE3
+endif   # GAS219_OR_LATER
+endif   # GAS217_OR_LATER
 ifeq ($(UNAME),SunOS)
 CXXFLAGS += -Wa,--divide	# allow use of "/" operator
 endif   # SunOS
-endif   # SUPPORTS_ASM
+endif   # GAS210_OR_LATER
 
 endif	# IS_X86
 
-ifeq ($(UNAME),)	# for DJGPP, where uname doesn't exist
-CXXFLAGS += -mbnu210
-else
-CXXFLAGS += -pipe
-endif
-
 ifeq ($(IS_MINGW),1)
 LDLIBS += -lws2_32
-endif
+endif 	# IS_MINGW
 
 ifeq ($(IS_LINUX),1)
 LDFLAGS += -pthread
 ifneq ($(IS_X86_64),0)
 M32OR64 = -m64
 endif
-endif
+ifeq ($(findstring -fopenmp,$(MAKECMDGOALS)),-fopenmp)
+LDLIBS += -lgomp
+endif 	# -fopenmp
+endif 	# IS_LINUX
 
 ifneq ($(IS_DARWIN),0)
-AR = libtool
-ARFLAGS = -static -o
+AR ?= libtool
+ARFLAGS ?= -static -o
 CXX ?= c++
-IS_GCC2 = $(shell $(CXX) -v 2>&1 | $(EGREP) -c gcc-932)
-ifeq ($(IS_GCC2),1)
-CXXFLAGS += -fno-coalesce-templates -fno-coalesce-static-vtables
-LDLIBS += -lstdc++
-LDFLAGS += -flat_namespace -undefined suppress -m
-endif
 endif
 
 ifeq ($(UNAME),SunOS)
@@ -177,8 +163,22 @@ LDLIBS += -lnsl -lsocket
 M32OR64 = -m$(shell isainfo -b)
 endif
 
+# -Wall for GCC 4.4 and above. It needs -Wno-unknown-pragmas due to bug
+# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=53431. We can't use -Wall
+# alone because it will light up CentOS 5 (GCC 4.1) and OpenBSD (4.2.1)
+GCC44_OR_LATER = $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "^gcc version (4.[4-9]|[5-9])")
+ifneq ($(GCC44_OR_LATER),0)
+CXXFLAGS += -Wall -Wno-unknown-pragmas
+endif
+
 ifneq ($(CLANG_COMPILER),0)
-CXXFLAGS += -Wno-tautological-compare
+CXXFLAGS += -Wall -Wno-tautological-compare
+endif
+
+ifeq ($(UNAME),)	# for DJGPP, where uname doesn't exist
+CXXFLAGS += -mbnu210
+else
+CXXFLAGS += -pipe
 endif
 
 ifneq ($(SUN_COMPILER),0)	# override flags for CC Sun C++ compiler
@@ -217,7 +217,12 @@ DLLTESTOBJS = dlltest.dllonly.o
 
 all cryptest: cryptest.exe
 static: libcryptopp.a
+	
+ifeq ($(IS_DARWIN),0)
 shared dynamic: libcryptopp.so
+else
+shared dynamic: libcryptopp.dylib
+endif
 
 asan ubsan: libcryptopp.a cryptest.exe
 
@@ -227,7 +232,7 @@ test check: cryptest.exe
 
 .PHONY: clean
 clean:
-	-$(RM) cryptest.exe libcryptopp.a libcrypto++.a libcryptopp.so libcrypto++.so $(LIBOBJS) $(TESTOBJS) cryptopp.dll libcryptopp.dll.a libcryptopp.import.a cryptest.import.exe dlltest.exe $(DLLOBJS) $(LIBIMPORTOBJS) $(TESTI MPORTOBJS) $(DLLTESTOBJS)
+	-$(RM) cryptest.exe libcryptopp.a libcrypto++.a libcryptopp.so libcrypto++.so libcryptopp.dylib $(LIBOBJS) $(TESTOBJS) cryptopp.dll libcryptopp.dll.a libcryptopp.import.a cryptest.import.exe dlltest.exe $(DLLOBJS) $(LIBIMPORTOBJS) $(TESTI MPORTOBJS) $(DLLTESTOBJS)
 	-$(RM) -r cryptest.exe.dSYM
 
 .PHONY: distclean
@@ -242,7 +247,7 @@ install:
 	$(MKDIR) -p $(PREFIX)/include/cryptopp $(PREFIX)/lib $(PREFIX)/bin
 	-$(CP) *.h $(PREFIX)/include/cryptopp
 	-$(CP) *.a $(PREFIX)/lib
-	-$(CP) *.so $(PREFIX)/lib
+	-$(CP) *.so *.dylib $(PREFIX)/lib
 	-$(CP) *.exe $(PREFIX)/bin
 
 .PHONY: install-strip
@@ -254,12 +259,14 @@ install-strip: libcryptopp.a cryptest.exe
 	-$(CP) *.exe $(PREFIX)/bin
 	-$(STRIP) -s $(PREFIX)/bin/cryptest.exe
 	-$(STRIP) -s $(PREFIX)/lib/libcryptopp.so
+	-$(STRIP) -s $(PREFIX)/lib/libcryptopp.dylib
 
 .PHONY: uninstall remove
 uninstall remove:
 	-$(RM) -rf $(PREFIX)/include/cryptopp
 	-$(RM) $(PREFIX)/lib/libcryptopp.a
 	-$(RM) $(PREFIX)/lib/libcryptopp.so
+	-$(RM) $(PREFIX)/lib/libcryptopp.dylib
 	-$(RM) $(PREFIX)/bin/cryptest.exe
 
 .PHONY: dist
@@ -276,8 +283,12 @@ libcryptopp.a: $(LIBOBJS)
 	$(RANLIB) $@
 
 libcryptopp.so: $(LIBOBJS)
-	$(CXX) -shared -o $@ $(LIBOBJS)
+	$(CXX) -shared -o $@ $(CXXFLAGS) $(LIBOBJS)
+	
+libcryptopp.dylib: $(LIBOBJS)
+	$(CXX) -shared -dynamiclib -o $@ $(CXXFLAGS) $(LIBOBJS)
 
+.PHONY: cryptest.exe
 cryptest.exe: libcryptopp.a $(TESTOBJS)
 	$(CXX) -o $@ $(CXXFLAGS) $(TESTOBJS) ./libcryptopp.a $(LDFLAGS) $(LDLIBS)
 
