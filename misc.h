@@ -3,6 +3,7 @@
 
 #include "cryptlib.h"
 #include "smartptr.h"
+#include "trap.h"
 #include <string.h>		// for memcpy and memmove
 #include <limits>		// for numeric_limits
 
@@ -225,8 +226,8 @@ template <class T> inline const T& STDMIN(const T& a, const T& b)
 template <class T1, class T2> inline const T1 UnsignedMin(const T1& a, const T2& b)
 {
 	CRYPTOPP_COMPILE_ASSERT((sizeof(T1)<=sizeof(T2) && T2(-1)>0) || (sizeof(T1)>sizeof(T2) && T1(-1)>0));
-	assert(a==0 || a>0);	// GCC workaround: get rid of the warning "comparison is always true due to limited range of data type"
-	assert(b>=0);
+	CRYPTOPP_ASSERT(a==0 || a>0);	// GCC workaround: get rid of the warning "comparison is always true due to limited range of data type"
+	CRYPTOPP_ASSERT(b>=0);
 
 	if (sizeof(T1)<=sizeof(T2))
 		return b < (T2)a ? (T1)b : a;
@@ -381,7 +382,7 @@ inline bool IsPowerOf2(const T &n)
 template <class T1, class T2>
 inline T2 ModPowerOf2(const T1 &a, const T2 &b)
 {
-	assert(IsPowerOf2(b));
+	CRYPTOPP_ASSERT(IsPowerOf2(b));
 	return T2(a) & (b-1);
 }
 
@@ -694,7 +695,7 @@ CRYPTOPP_DLL void CRYPTOPP_API UnalignedDeallocate(void *p);
 template <class T> inline T rotlFixed(T x, unsigned int y)
 {
 	static const unsigned int THIS_SIZE = sizeof(T)*8;
-	assert(y < THIS_SIZE);
+	CRYPTOPP_ASSERT(y < THIS_SIZE);
 	return y ? T((x<<y) | (x>>(THIS_SIZE-y))) : x;
 }
 
@@ -702,7 +703,7 @@ template <class T> inline T rotlFixed(T x, unsigned int y)
 template <class T> inline T rotrFixed(T x, unsigned int y)
 {
 	static const unsigned int THIS_SIZE = sizeof(T)*8;
-	assert(y < THIS_SIZE);
+	CRYPTOPP_ASSERT(y < THIS_SIZE);
 	return y ? T((x>>y) | (x<<(THIS_SIZE-y))) : x;
 }
 
@@ -710,7 +711,7 @@ template <class T> inline T rotrFixed(T x, unsigned int y)
 template <class T> inline T rotlVariable(T x, unsigned int y)
 {
 	static const unsigned int THIS_SIZE = sizeof(T)*8;
-	assert(y > 0 && y < THIS_SIZE);
+	CRYPTOPP_ASSERT(y > 0 && y < THIS_SIZE);
 	y %= THIS_SIZE;
 	return T((x<<y) | (x>>(THIS_SIZE-y)));
 }
@@ -719,7 +720,7 @@ template <class T> inline T rotlVariable(T x, unsigned int y)
 template <class T> inline T rotrVariable(T x, unsigned int y)
 {
 	static const unsigned int THIS_SIZE = sizeof(T)*8;
-	assert(y > 0 && y < THIS_SIZE);
+	CRYPTOPP_ASSERT(y > 0 && y < THIS_SIZE);
 	y %= THIS_SIZE;
 	return T((x>>y) | (x<<(THIS_SIZE-y)));
 }
@@ -744,25 +745,25 @@ template <class T> inline T rotrMod(T x, unsigned int y)
 
 template<> inline word32 rotlFixed<word32>(word32 x, unsigned int y)
 {
-	assert(y < 8*sizeof(x));
+	CRYPTOPP_ASSERT(y < 8*sizeof(x));
 	return y ? _lrotl(x, y) : x;
 }
 
 template<> inline word32 rotrFixed<word32>(word32 x, unsigned int y)
 {
-	assert(y < 8*sizeof(x));
+	CRYPTOPP_ASSERT(y < 8*sizeof(x));
 	return y ? _lrotr(x, y) : x;
 }
 
 template<> inline word32 rotlVariable<word32>(word32 x, unsigned int y)
 {
-	assert(y < 8*sizeof(x));
+	CRYPTOPP_ASSERT(y < 8*sizeof(x));
 	return _lrotl(x, y);
 }
 
 template<> inline word32 rotrVariable<word32>(word32 x, unsigned int y)
 {
-	assert(y < 8*sizeof(x));
+	CRYPTOPP_ASSERT(y < 8*sizeof(x));
 	return _lrotr(x, y);
 }
 
@@ -783,25 +784,25 @@ template<> inline word32 rotrMod<word32>(word32 x, unsigned int y)
 
 template<> inline word64 rotlFixed<word64>(word64 x, unsigned int y)
 {
-	assert(y < 8*sizeof(x));
+	CRYPTOPP_ASSERT(y < 8*sizeof(x));
 	return y ? _rotl64(x, y) : x;
 }
 
 template<> inline word64 rotrFixed<word64>(word64 x, unsigned int y)
 {
-	assert(y < 8*sizeof(x));
+	CRYPTOPP_ASSERT(y < 8*sizeof(x));
 	return y ? _rotr64(x, y) : x;
 }
 
 template<> inline word64 rotlVariable<word64>(word64 x, unsigned int y)
 {
-	assert(y < 8*sizeof(x));
+	CRYPTOPP_ASSERT(y < 8*sizeof(x));
 	return _rotl64(x, y);
 }
 
 template<> inline word64 rotrVariable<word64>(word64 x, unsigned int y)
 {
-	assert(y < 8*sizeof(x));
+	CRYPTOPP_ASSERT(y < 8*sizeof(x));
 	return _rotr64(x, y);
 }
 
@@ -822,25 +823,25 @@ template<> inline word64 rotrMod<word64>(word64 x, unsigned int y)
 
 template<> inline word16 rotlFixed<word16>(word16 x, unsigned int y)
 {
-	assert(y < 8*sizeof(x));
+	CRYPTOPP_ASSERT(y < 8*sizeof(x));
 	return y ? _rotl16(x, static_cast<byte>(y)) : x;
 }
 
 template<> inline word16 rotrFixed<word16>(word16 x, unsigned int y)
 {
-	assert(y < 8*sizeof(x));
+	CRYPTOPP_ASSERT(y < 8*sizeof(x));
 	return y ? _rotr16(x, static_cast<byte>(y)) : x;
 }
 
 template<> inline word16 rotlVariable<word16>(word16 x, unsigned int y)
 {
-	assert(y < 8*sizeof(x));
+	CRYPTOPP_ASSERT(y < 8*sizeof(x));
 	return _rotl16(x, static_cast<byte>(y));
 }
 
 template<> inline word16 rotrVariable<word16>(word16 x, unsigned int y)
 {
-	assert(y < 8*sizeof(x));
+	CRYPTOPP_ASSERT(y < 8*sizeof(x));
 	return _rotr16(x, static_cast<byte>(y));
 }
 
@@ -856,25 +857,25 @@ template<> inline word16 rotrMod<word16>(word16 x, unsigned int y)
 
 template<> inline byte rotlFixed<byte>(byte x, unsigned int y)
 {
-	assert(y < 8*sizeof(x));
+	CRYPTOPP_ASSERT(y < 8*sizeof(x));
 	return y ? _rotl8(x, static_cast<byte>(y)) : x;
 }
 
 template<> inline byte rotrFixed<byte>(byte x, unsigned int y)
 {
-	assert(y < 8*sizeof(x));
+	CRYPTOPP_ASSERT(y < 8*sizeof(x));
 	return y ? _rotr8(x, static_cast<byte>(y)) : x;
 }
 
 template<> inline byte rotlVariable<byte>(byte x, unsigned int y)
 {
-	assert(y < 8*sizeof(x));
+	CRYPTOPP_ASSERT(y < 8*sizeof(x));
 	return _rotl8(x, static_cast<byte>(y));
 }
 
 template<> inline byte rotrVariable<byte>(byte x, unsigned int y)
 {
-	assert(y < 8*sizeof(x));
+	CRYPTOPP_ASSERT(y < 8*sizeof(x));
 	return _rotr8(x, static_cast<byte>(y));
 }
 
@@ -1235,7 +1236,7 @@ inline T BitReverse(T value)
 		return (T)BitReverse((word32)value);
 	else
 	{
-		assert(sizeof(T) == 8);
+		CRYPTOPP_ASSERT(sizeof(T) == 8);
 		return (T)BitReverse((word64)value);
 	}
 }
@@ -1249,7 +1250,7 @@ inline T ConditionalByteReverse(ByteOrder order, T value)
 template <class T>
 void ByteReverse(T *out, const T *in, size_t byteCount)
 {
-	assert(byteCount % sizeof(T) == 0);
+	CRYPTOPP_ASSERT(byteCount % sizeof(T) == 0);
 	size_t count = byteCount/sizeof(T);
 	for (size_t i=0; i<count; i++)
 		out[i] = ByteReverse(in[i]);
@@ -1268,7 +1269,7 @@ template <class T>
 inline void GetUserKey(ByteOrder order, T *out, size_t outlen, const byte *in, size_t inlen)
 {
 	const size_t U = sizeof(T);
-	assert(inlen <= outlen*U);
+	CRYPTOPP_ASSERT(inlen <= outlen*U);
 	memcpy_s(out, outlen*U, in, inlen);
 	memset_z((byte *)out+inlen, 0, outlen*U-inlen);
 	ConditionalByteReverse(order, out, out, RoundUpToMultipleOf(inlen, U));
@@ -1451,7 +1452,7 @@ inline T GetWord(bool assumeAligned, ByteOrder order, const byte *block)
 // #ifndef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
 //	if (!assumeAligned)
 //		return UnalignedGetWordNonTemplate(order, block, (T*)NULL);
-//	assert(IsAligned<T>(block));
+//	CRYPTOPP_ASSERT(IsAligned<T>(block));
 // #endif
 //	return ConditionalByteReverse(order, *reinterpret_cast<const T *>(block));
 
@@ -1472,8 +1473,8 @@ inline void PutWord(bool assumeAligned, ByteOrder order, byte *block, T value, c
 // #ifndef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
 //	if (!assumeAligned)
 //		return UnalignedPutWordNonTemplate(order, block, value, xorBlock);
-//	assert(IsAligned<T>(block));
-//	assert(IsAligned<T>(xorBlock));
+//	CRYPTOPP_ASSERT(IsAligned<T>(block));
+//	CRYPTOPP_ASSERT(IsAligned<T>(xorBlock));
 //#endif
 //	*reinterpret_cast<T *>(block) = ConditionalByteReverse(order, value) ^ (xorBlock ? *reinterpret_cast<const T *>(xorBlock) : 0);
 
@@ -1574,14 +1575,14 @@ template<> struct SafeShifter<false>
 	template <class T>
 	static inline T RightShift(T value, unsigned int bits)
 	{
-		assert(bits < sizeof(T)*8);
+		CRYPTOPP_ASSERT(bits < sizeof(T)*8);
 		return value >> bits;
 	}
 
 	template <class T>
 	static inline T LeftShift(T value, unsigned int bits)
 	{
-		assert(bits < sizeof(T)*8);
+		CRYPTOPP_ASSERT(bits < sizeof(T)*8);
 		return value << bits;
 	}
 };
