@@ -658,7 +658,7 @@ CRYPTOPP_DLL void CRYPTOPP_API UnalignedDeallocate(void *p);
 //
 // Fixed, or rotlFixed and rotrFixed, are intended to be used with a constant or
 // immediate. Variable, or rotlVariable and rotrVariable, are intended to be used when
-// the shift amount is not constant and passed through a variable. Finally, Mod, or
+// the rotate amount is not constant and passed through a variable. Finally, Mod, or
 // rotlMod and rotrMod, are intended to provide an intrinsic that has special
 // requirements on x86/x64. On x86/x64, the CPU instruction only shifts by an 8-bit
 // value (the value is an immediate-8 or placed in the CL register), so the effect is
@@ -669,8 +669,8 @@ CRYPTOPP_DLL void CRYPTOPP_API UnalignedDeallocate(void *p);
 // compiler intrinsic or inline assembly when available.
 //
 // If the Fixed or Variable variants are used, then the caller is responsible for
-// ensuring the shift amount is smaller than the register size in bits. For example.
-// for a 32-bit register, the shift amount must be [0,31] inclusive. If this is
+// ensuring the rotate amount is smaller than the register size in bits. For example.
+// for a 32-bit register, the rotate amount must be [0,31] inclusive. If this is
 // not honored, then the result is undefined behavior. To help ensure well defined
 // behavior for callers, Fixed and Variable assert in Debug builds in an attempt to
 // alert of potential problems.
@@ -894,25 +894,21 @@ template<> inline byte rotrMod<byte>(byte x, unsigned int y)
 
 template<> inline word32 rotlFixed<word32>(word32 x, unsigned int y)
 {
-	assert(y < 32);
 	return y ? __rlwinm(x,y,0,31) : x;
 }
 
 template<> inline word32 rotrFixed<word32>(word32 x, unsigned int y)
 {
-	assert(y < 32);
 	return y ? __rlwinm(x,32-y,0,31) : x;
 }
 
 template<> inline word32 rotlVariable<word32>(word32 x, unsigned int y)
 {
-	assert(y < 32);
 	return (__rlwnm(x,y,0,31));
 }
 
 template<> inline word32 rotrVariable<word32>(word32 x, unsigned int y)
 {
-	assert(y < 32);
 	return (__rlwnm(x,32-y,0,31));
 }
 
@@ -936,12 +932,15 @@ template<> inline word32 rotrMod<word32>(word32 x, unsigned int y)
 // https://gcc.gnu.org/onlinedocs/gcc/Simple-Constraints.html#Simple-Constraints
 // and https://gcc.gnu.org/onlinedocs/gcc/Machine-Constraints.html#Machine-Constraints
 
+// Clang does not proagate the constant.
+//   See LLVM Bug 24226 (https://llvm.org/bugs/show_bug.cgi?id=24226)
+#if !defined (__clang__)
 template<> inline byte rotlFixed<byte>(byte x, unsigned int y)
 {
 	// The I constraint ensures we use the immediate-8 variant of the
-	// shfit amount y. However, y must be in [0, 31] inclusive. We
-	// rely on the preprocessor to propoagte the constant and perform
-	// the modular reduction so the assembler generates the instruction.
+	// rotate amount y. However, y must be in [0, 31] inclusive. We
+	// rely on the constant being propagated and the modular reduction
+	// being performed early so the assembler generates the instruction.
 	__asm__ ("rolb %1, %0" : "+mq" (x) : "I" ((unsigned char)(y%8)));
 	return x;
 }
@@ -949,18 +948,19 @@ template<> inline byte rotlFixed<byte>(byte x, unsigned int y)
 template<> inline byte rotrFixed<byte>(byte x, unsigned int y)
 {
 	// The I constraint ensures we use the immediate-8 variant of the
-	// shfit amount y. However, y must be in [0, 31] inclusive. We
-	// rely on the preprocessor to propoagte the constant and perform
-	// the modular reduction so the assembler generates the instruction.
+	// rotate amount y. However, y must be in [0, 31] inclusive. We
+	// rely on the constant being propagated and the modular reduction
+	// being performed early so the assembler generates the instruction.
 	__asm__ ("rorb %1, %0" : "+mq" (x) : "I" ((unsigned char)(y%8)));
 	return x;
 }
+#endif
 
 template<> inline byte rotlVariable<byte>(byte x, unsigned int y)
 {
 	// The cI constraint ensures we use either (1) the CL variant or
-	// (2) the immediate-8 variant of the shfit amount y. The cast
-	// effectively performs a modular reduction on the shift amount
+	// (2) the immediate-8 variant of the rotate amount y. The cast
+	// effectively performs a modular reduction on the rotate amount
 	// to ensure the CL variant can be used.
 	__asm__ ("rolb %1, %0" : "+mq" (x) : "cI" ((unsigned char)(y)));
 	return x;
@@ -969,8 +969,8 @@ template<> inline byte rotlVariable<byte>(byte x, unsigned int y)
 template<> inline byte rotrVariable<byte>(byte x, unsigned int y)
 {
 	// The cI constraint ensures we use either (1) the CL variant or
-	// (2) the immediate-8 variant of the shfit amount y. The cast
-	// effectively performs a modular reduction on the shift amount
+	// (2) the immediate-8 variant of the rotate amount y. The cast
+	// effectively performs a modular reduction on the rotate amount
 	// to ensure the CL variant can be used.
 	__asm__ ("rorb %1, %0" : "+mq" (x) : "cI" ((unsigned char)(y)));
 	return x;
@@ -988,6 +988,9 @@ template<> inline byte rotrMod<byte>(byte x, unsigned int y)
 	return x;
 }
 
+// Clang does not proagate the constant.
+//   See LLVM Bug 24226 (https://llvm.org/bugs/show_bug.cgi?id=24226)
+#if !defined (__clang__)
 template<> inline word16 rotlFixed<word16>(word16 x, unsigned int y)
 {
 	__asm__ ("rolw %1, %0" : "+g" (x) : "I" ((unsigned char)(y%16)));
@@ -999,6 +1002,7 @@ template<> inline word16 rotrFixed<word16>(word16 x, unsigned int y)
 	__asm__ ("rorw %1, %0" : "+g" (x) : "I" ((unsigned char)(y%16)));
 	return x;
 }
+#endif
 
 template<> inline word16 rotlVariable<word16>(word16 x, unsigned int y)
 {
@@ -1024,6 +1028,9 @@ template<> inline word16 rotrMod<word16>(word16 x, unsigned int y)
 	return x;
 }
 
+// Clang does not proagate the constant.
+//   See LLVM Bug 24226 (https://llvm.org/bugs/show_bug.cgi?id=24226)
+#if !defined (__clang__)
 template<> inline word32 rotlFixed<word32>(word32 x, unsigned int y)
 {
 	__asm__ ("roll %1, %0" : "+g" (x) : "I" ((unsigned char)(y%32)));
@@ -1035,6 +1042,7 @@ template<> inline word32 rotrFixed<word32>(word32 x, unsigned int y)
 	__asm__ ("rorl %1, %0" : "+g" (x) : "I" ((unsigned char)(y%32)));
 	return x;
 }
+#endif
 
 template<> inline word32 rotlVariable<word32>(word32 x, unsigned int y)
 {
@@ -1062,12 +1070,15 @@ template<> inline word32 rotrMod<word32>(word32 x, unsigned int y)
 
 #if defined(__x86_64__)
 
+// Clang does not proagate the constant.
+//   See LLVM Bug 24226 (https://llvm.org/bugs/show_bug.cgi?id=24226)
+#if !defined (__clang__)
 template<> inline word64 rotlFixed<word64>(word64 x, unsigned int y)
 {
 	// The J constraint ensures we use the immediate-8 variant of the
-	// shfit amount y. However, y must be in [0, 63] inclusive. We
-	// rely on the preprocessor to propoagte the constant and perform
-	// the modular reduction so the assembler generates the instruction.
+	// rotate amount y. However, y must be in [0, 63] inclusive. We
+	// rely on the constant being propagated and the modular reduction
+	// being performed early so the assembler generates the instruction.
 	__asm__ ("rolq %1, %0" : "+g" (x) : "J" ((unsigned char)(y%64)));
 	return x;
 }
@@ -1075,12 +1086,13 @@ template<> inline word64 rotlFixed<word64>(word64 x, unsigned int y)
 template<> inline word64 rotrFixed<word64>(word64 x, unsigned int y)
 {
 	// The J constraint ensures we use the immediate-8 variant of the
-	// shfit amount y. However, y must be in [0, 63] inclusive. We
-	// rely on the preprocessor to propoagte the constant and perform
-	// the modular reduction so the assembler generates the instruction.
+	// rotate amount y. However, y must be in [0, 63] inclusive. We
+	// rely on the constant being propagated and the modular reduction
+	// being performed early so the assembler generates the instruction.
 	__asm__ ("rorq %1, %0" : "+g" (x) : "J" ((unsigned char)(y%64)));
 	return x;
 }
+#endif
 
 template<> inline word64 rotlVariable<word64>(word64 x, unsigned int y)
 {
