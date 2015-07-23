@@ -11,6 +11,7 @@
 #include "argnames.h"
 #include "ec2n.h"
 #include "misc.h"
+#include "trap.h"
 
 #if GCC_DIAGNOSTIC_AWARE
 # pragma GCC diagnostic ignored "-Wunused-function"
@@ -32,8 +33,7 @@ static void ECDSA_TestInstantiations()
 }
 #endif
 
-// VC60 workaround: complains when these functions are put into an anonymous namespace
-static Integer ConvertToInteger(const PolynomialMod2 &x)
+static inline Integer ConvertToInteger(const PolynomialMod2 &x)
 {
 	unsigned int l = x.ByteCount();
 	SecByteBlock temp(l);
@@ -118,7 +118,10 @@ struct OIDLessThan
 	inline bool operator()(const EcRecommendedParameters<T>& a, const EcRecommendedParameters<T>& b) {return a.oid < b.oid;}
 };
 
-static void GetRecommendedParameters(const EcRecommendedParameters<EC2N> *&begin, const EcRecommendedParameters<EC2N> *&end)
+// Declare it so we can attach the attribute
+static void GetRecommendedParameters(const EcRecommendedParameters<EC2N> *&begin, const EcRecommendedParameters<EC2N> *&end) CRYPTOPP_UNUSED_FUNCTION;
+
+void GetRecommendedParameters(const EcRecommendedParameters<EC2N> *&begin, const EcRecommendedParameters<EC2N> *&end)
 {
 	// this array must be sorted by OID
 	static const EcRecommendedParameters<EC2N> rec[] = {
@@ -253,7 +256,10 @@ static void GetRecommendedParameters(const EcRecommendedParameters<EC2N> *&begin
 	end = rec + COUNTOF(rec);
 }
 
-static void GetRecommendedParameters(const EcRecommendedParameters<ECP> *&begin, const EcRecommendedParameters<ECP> *&end)
+// Declare it so we can attach the unused attribute
+static void GetRecommendedParameters(const EcRecommendedParameters<ECP> *&begin, const EcRecommendedParameters<ECP> *&end) CRYPTOPP_UNUSED_FUNCTION;
+
+void GetRecommendedParameters(const EcRecommendedParameters<ECP> *&begin, const EcRecommendedParameters<ECP> *&end)
 {
 	// this array must be sorted by OID
 	static const EcRecommendedParameters<ECP> rec[] = {

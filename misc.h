@@ -95,6 +95,14 @@ struct CompileAssert
 // Cast to void. Portable way to suppress warning
 #define CRYPTOPP_UNUSED(x) ((void)x)
 
+// ************** unused function suppression ***************
+// Not portable, but nearly as old as GCC itself
+#ifdef __GNUC__
+# define CRYPTOPP_UNUSED_FUNCTION __attribute__ ((unused))
+#else
+# define CRYPTOPP_UNUSED_FUNCTION
+#endif
+
 // ************** counting elements in an array ***************
 // VS2005 added _countof macro, fails on pointers
 #ifndef COUNTOF

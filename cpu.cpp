@@ -33,21 +33,26 @@ bool CpuId(word32 input, word32 *output)
 
 #ifndef CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
 extern "C" {
-typedef void (*SigHandler)(int);
+  typedef void (*SigHandler)(int);
 
-static jmp_buf s_jmpNoCPUID;
-static void SigIllHandlerCPUID(int)
-{
+  static jmp_buf s_jmpNoCPUID;
+  static jmp_buf s_jmpNoSSE2;
+
+  //  Declare it so we can attach the attribute
+  static void SigIllHandlerCPUID(int) CRYPTOPP_UNUSED_FUNCTION;
+  static void SigIllHandlerCPUID(int)
+  {
 	longjmp(s_jmpNoCPUID, 1);
-}
+  }
 
-static jmp_buf s_jmpNoSSE2;
-static void SigIllHandlerSSE2(int)
-{
+  //  Declare it so we can attach the attribute
+  static void SigIllHandlerSSE2(int) CRYPTOPP_UNUSED_FUNCTION;
+  static void SigIllHandlerSSE2(int)
+  {
 	longjmp(s_jmpNoSSE2, 1);
+  }
 }
-}
-#endif
+#endif // CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
 
 bool CpuId(word32 input, word32 *output)
 {
