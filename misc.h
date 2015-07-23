@@ -71,11 +71,22 @@ struct CompileAssert
 	static char dummy[2*b-1];
 };
 
+// __attribute__ ((unused)) will help silence the "unused variable warnings. Its available
+//   at least as early as GCC 2.9.3 (https://gcc.gnu.org/onlinedocs/gcc-2.95.3/gcc_4.html#SEC84)
+//   This also works into our -Wall -Wextra strategy for warnings.
 #define CRYPTOPP_COMPILE_ASSERT(assertion) CRYPTOPP_COMPILE_ASSERT_INSTANCE(assertion, __LINE__)
 #if defined(CRYPTOPP_EXPORTS) || defined(CRYPTOPP_IMPORTS)
 #define CRYPTOPP_COMPILE_ASSERT_INSTANCE(assertion, instance)
 #else
-#define CRYPTOPP_COMPILE_ASSERT_INSTANCE(assertion, instance) static CompileAssert<(assertion)> CRYPTOPP_ASSERT_JOIN(cryptopp_assert_, instance)
+# if defined(__GNUC__)
+#  define CRYPTOPP_COMPILE_ASSERT_INSTANCE(assertion, instance) \
+			static CompileAssert<(assertion)> \
+	CRYPTOPP_ASSERT_JOIN(cryptopp_assert_, instance) __attribute__ ((unused))
+# else
+#  define CRYPTOPP_COMPILE_ASSERT_INSTANCE(assertion, instance) \
+		static CompileAssert<(assertion)> \
+		CRYPTOPP_ASSERT_JOIN(cryptopp_assert_, instance)
+# endif // __GNUC__
 #endif
 #define CRYPTOPP_ASSERT_JOIN(X, Y) CRYPTOPP_DO_ASSERT_JOIN(X, Y)
 #define CRYPTOPP_DO_ASSERT_JOIN(X, Y) X##Y
