@@ -100,7 +100,8 @@ public:
 
 	Element RandomElement( RandomNumberGenerator &rng , const RandomizationParameter &ignore_for_now = 0 ) const
 		// left RandomizationParameter arg as ref in case RandomizationParameter becomes a more complicated struct
-	{ 
+	{
+		CRYPTOPP_UNUSED(ignore_for_now);
 		return Element( rng , Integer( (long) 0) , m_modulus - Integer( (long) 1 )   ) ; 
 	}   
 

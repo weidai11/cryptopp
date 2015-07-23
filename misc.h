@@ -60,6 +60,7 @@
 # pragma GCC diagnostic push
 # pragma GCC diagnostic ignored "-Wunused-value"
 # pragma GCC diagnostic ignored "-Wunused-variable"
+# pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)

@@ -82,6 +82,16 @@ and getting me started with this manual.
 #include "config.h"
 #include "stdcpp.h"
 
+// We can't include "misc.h" due to circular references....
+#define GCC_DIAGNOSTIC_AWARE_X ((__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7)) || defined(__clang__))
+
+#if GCC_DIAGNOSTIC_AWARE_X
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wunused-value"
+# pragma GCC diagnostic ignored "-Wunused-variable"
+# pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 // forward declarations
@@ -1672,5 +1682,9 @@ typedef AuthenticatedKeyAgreementDomain PK_AuthenticatedKeyAgreementDomain;
 #endif
 
 NAMESPACE_END
+
+#if GCC_DIAGNOSTIC_AWARE_X
+# pragma GCC diagnostic pop
+#endif
 
 #endif

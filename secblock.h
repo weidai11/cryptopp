@@ -5,7 +5,13 @@
 
 #include "config.h"
 #include "misc.h"
-#include <assert.h>
+
+#if GCC_DIAGNOSTIC_AWARE
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wunused-value"
+# pragma GCC diagnostic ignored "-Wunused-variable"
+# pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -142,13 +148,13 @@ public:
 
 	pointer allocate(size_type n, const void * = NULL)
 	{
-		assert(false);
+		CRYPTOPP_ASSERT(false);
 		return NULL;
 	}
 
 	void deallocate(void *p, size_type n)
 	{
-		assert(false);
+		CRYPTOPP_ASSERT(false);
 	}
 
 	size_type max_size() const {return 0;}
@@ -167,7 +173,7 @@ public:
 
 	pointer allocate(size_type n)
 	{
-		assert(IsAlignedOn(m_array, 8));
+		CRYPTOPP_ASSERT(IsAlignedOn(m_array, 8));
 
 		if (n <= S && !m_allocated)
 		{
@@ -193,8 +199,8 @@ public:
 	{
 		if (p == GetAlignedArray())
 		{
-			assert(n <= S);
-			assert(m_allocated);
+			CRYPTOPP_ASSERT(n <= S);
+			CRYPTOPP_ASSERT(m_allocated);
 			m_allocated = false;
 			SecureWipeArray((pointer)p, n);
 		}
@@ -206,7 +212,7 @@ public:
 	{
 		if (p == GetAlignedArray() && newSize <= S)
 		{
-			assert(oldSize <= S);
+			CRYPTOPP_ASSERT(oldSize <= S);
 			if (oldSize > newSize)
 				SecureWipeArray(p+newSize, oldSize-newSize);
 			return p;
@@ -282,10 +288,10 @@ public:
 //		{return m_ptr+offset;}
 
 //	T& operator[](size_type index)
-//		{assert(index >= 0 && index < m_size); return m_ptr[index];}
+//		{CRYPTOPP_ASSERT(index >= 0 && index < m_size); return m_ptr[index];}
 
 //	const T& operator[](size_type index) const
-//		{assert(index >= 0 && index < m_size); return m_ptr[index];}
+//		{CRYPTOPP_ASSERT(index >= 0 && index < m_size); return m_ptr[index];}
 
 	iterator begin()
 		{return m_ptr;}
@@ -463,5 +469,9 @@ __stl_alloc_rebind(CryptoPP::AllocatorWithCleanup<_Tp1>& __a, const _Tp2*)
 #endif
 
 NAMESPACE_END
+
+#if GCC_DIAGNOSTIC_AWARE
+# pragma GCC diagnostic pop
+#endif
 
 #endif

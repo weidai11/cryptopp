@@ -9,6 +9,13 @@
 #include "cryptlib.h"
 #include "misc.h"
 
+#if GCC_DIAGNOSTIC_AWARE
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wunused-value"
+# pragma GCC diagnostic ignored "-Wunused-variable"
+# pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 //! _
@@ -205,5 +212,9 @@ public:
 };
 
 NAMESPACE_END
+
+#if GCC_DIAGNOSTIC_AWARE
+# pragma GCC diagnostic push
+#endif
 
 #endif

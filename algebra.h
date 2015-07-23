@@ -2,6 +2,7 @@
 #define CRYPTOPP_ALGEBRA_H
 
 #include "config.h"
+#include "misc.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -47,8 +48,8 @@ public:
 	typedef T Element;
 
 	AbstractRing() {m_mg.m_pRing = this;}
-	AbstractRing(const AbstractRing &source) {m_mg.m_pRing = this;}
-	AbstractRing& operator=(const AbstractRing &source) {return *this;}
+	AbstractRing(const AbstractRing &source) : AbstractGroup<T>(source) {m_mg.m_pRing = this;}
+	AbstractRing& operator=(const AbstractRing &source) {CRYTPOPP_UNUSED(source);return *this;}
 
 	virtual bool IsUnit(const Element &a) const =0;
 	virtual const Element& MultiplicativeIdentity() const =0;
