@@ -32,13 +32,23 @@ ifneq ($(CLANG_COMPILER),0)
 CXXFLAGS += -Wall
 endif
 
+# Also see LLVM Bug 24200 (https://llvm.org/bugs/show_bug.cgi?id=24200)
+# CLANG_ASSEMBLER ?= $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -i -c "^clang")
+# TODO: Uncomment the line above when Clang's integrated assembler can parse inline assembly 
+CLANG_ASSEMBLER ?= 0
+
 ifeq ($(IS_X86),1)
 
 GCC42_OR_LATER = $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "^gcc version (4.[2-9]|[5-9])")
 ICC111_OR_LATER = $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(ICC\) ([2-9][0-9]|1[2-9]|11\.[1-9])")
+
+ifeq ($(CLANG_ASSEMBLER),0)
+# Using system provided assembler. It may be GNU AS (GAS).
 GAS210_OR_LATER ?= $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.[1-9][0-9]|[3-9])")
 GAS217_OR_LATER ?= $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.1[7-9]|2\.[2-9]|[3-9])")
 GAS219_OR_LATER ?= $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.19|2\.[2-9]|[3-9])")
+else
+endif
 
 # Enable PIC for x86_64 targets
 ifneq ($(IS_X86_64),0)
@@ -111,20 +121,24 @@ CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
 endif
 endif
 
-ifeq ($(GAS210_OR_LATER),0)	# .intel_syntax wasn't supported until GNU assembler 2.10
+# .intel_syntax wasn't supported until GNU assembler 2.10
+SUPPORTS_ASM ?= $(shell echo $$(($(GAS210_OR_LATER) + $(CLANG_ASSEMBLER))))
+ifeq ($(SUPPORTS_ASM),0)
 CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
 else
-ifeq ($(GAS217_OR_LATER),0)
+SUPPORTS_SSE3 ?= GAS217_OR_LATER
+ifeq ($(SUPPORTS_SSE3),0)
 CXXFLAGS += -DCRYPTOPP_DISABLE_SSSE3
 else
-ifeq ($(GAS219_OR_LATER),0)
+SUPPORTS_AESNI ?= GAS219_OR_LATER
+ifeq ($(SUPPORTS_AESNI),0)
 CXXFLAGS += -DCRYPTOPP_DISABLE_AESNI
-endif
-endif
+endif   # SUPPORTS_AESNI
+endif   # SUPPORTS_SSE3
 ifeq ($(UNAME),SunOS)
 CXXFLAGS += -Wa,--divide	# allow use of "/" operator
-endif
-endif
+endif   # SunOS
+endif   # SUPPORTS_ASM
 
 endif	# IS_X86
 
