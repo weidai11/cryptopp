@@ -2,6 +2,7 @@
 #define CRYPTOPP_GF256_H
 
 #include "cryptlib.h"
+#include "misc.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
