@@ -2,8 +2,16 @@
 #define CRYPTOPP_OBJFACT_H
 
 #include "cryptlib.h"
+#include "misc.h"
 #include <map>
 #include <vector>
+
+#if GCC_DIAGNOSTIC_AWARE
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wunused-value"
+# pragma GCC diagnostic ignored "-Wunused-variable"
+# pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -132,5 +140,9 @@ void RegisterAuthenticatedSymmetricCipherDefaultFactories(const char *name=NULL,
 }
 
 NAMESPACE_END
+
+#if GCC_DIAGNOSTIC_AWARE
+# pragma GCC diagnostic push
+#endif
 
 #endif

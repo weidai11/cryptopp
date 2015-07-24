@@ -5,7 +5,14 @@
 #ifndef CRYPTOPP_IMPORTS
 
 #include "fips140.h"
+#include "misc.h"
 #include "trdlocal.h"	// needs to be included last for cygwin
+
+#if GCC_DIAGNOSTIC_AWARE
+# pragma GCC diagnostic ignored "-Wunused-value"
+# pragma GCC diagnostic ignored "-Wunused-variable"
+# pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
 
 NAMESPACE_BEGIN(CryptoPP)
 

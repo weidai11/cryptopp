@@ -49,7 +49,7 @@ public:
 
 	AbstractRing() {m_mg.m_pRing = this;}
 	AbstractRing(const AbstractRing &source) : AbstractGroup<T>(source) {m_mg.m_pRing = this;}
-	AbstractRing& operator=(const AbstractRing &source) {CRYTPOPP_UNUSED(source);return *this;}
+	AbstractRing& operator=(const AbstractRing &source) {CRYPTOPP_UNUSED(source);return *this;}
 
 	virtual bool IsUnit(const Element &a) const =0;
 	virtual const Element& MultiplicativeIdentity() const =0;
@@ -209,7 +209,7 @@ public:
 		{Element::Divide(r, q, a, d);}
 
 	bool operator==(const EuclideanDomainOf<T> &rhs) const
-		{return true;}
+		{CRYPTOPP_UNUSED(rhs);return true;}
 
 private:
 	mutable Element result;

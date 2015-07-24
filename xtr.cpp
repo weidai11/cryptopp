@@ -2,6 +2,7 @@
 
 #include "pch.h"
 #include "xtr.h"
+#include "misc.h"
 #include "nbtheory.h"
 
 #include "algebra.cpp"

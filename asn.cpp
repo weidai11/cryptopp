@@ -405,12 +405,12 @@ void BERGeneralDecoder::Init(byte asnTag)
 
 BERGeneralDecoder::~BERGeneralDecoder()
 {
-	try	// avoid throwing in constructor
+	try	// avoid throwing in desstructor
 	{
 		if (!m_finished)
 			MessageEnd();
 	}
-	catch (...)
+	catch (const Exception&)
 	{
 	}
 }
@@ -496,12 +496,12 @@ DERGeneralEncoder::DERGeneralEncoder(DERGeneralEncoder &outQueue, byte asnTag)
 
 DERGeneralEncoder::~DERGeneralEncoder()
 {
-	try	// avoid throwing in constructor
+	try	// avoid throwing in destructor
 	{
 		if (!m_finished)
 			MessageEnd();
 	}
-	catch (...)
+	catch (const Exception&)
 	{
 	}
 }
