@@ -163,12 +163,12 @@ LDLIBS += -lnsl -lsocket
 M32OR64 = -m$(shell isainfo -b)
 endif
 
-# -Wall for GCC 4.4 and above. It needs -Wno-unknown-pragmas due to bug
-# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=53431. We can't use -Wall
-# alone because it will light up CentOS 5 (GCC 4.1) and OpenBSD (4.2.1)
-GCC44_OR_LATER = $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "^gcc version (4.[4-9]|[5-9])")
-ifneq ($(GCC44_OR_LATER),0)
-CXXFLAGS += -Wall -Wno-unknown-pragmas
+# -Wall and -Wno-type-limits for GCC 4.3 and above. It needs -Wno-unknown-pragmas due
+# to bug https://gcc.gnu.org/bugzilla/show_bug.cgi?id=53431. We can't use -Wall
+# unguarded because it lights up CentOS 5 (GCC 4.1) and OpenBSD (4.2.1)
+GCC43_OR_LATER = $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "^gcc version (4.[3-9]|[5-9])")
+ifneq ($(GCC43_OR_LATER),0)
+CXXFLAGS += -Wall -Wno-type-limits -Wno-unknown-pragmas
 endif
 
 ifneq ($(CLANG_COMPILER),0)
