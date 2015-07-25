@@ -1053,8 +1053,10 @@ static word LinearMultiply(word *C, const word *A, word B, size_t N)
 #else
 #define Mul_Begin(n)				\
 	Declare2Words(p)				\
+	CRYPTOPP_UNUSED(p##0), CRYPTOPP_UNUSED(p##1);	\
 	word c;	\
 	Declare2Words(d)				\
+	CRYPTOPP_UNUSED(d##0), CRYPTOPP_UNUSED(d##1);	\
 	MultiplyWords(p, A[0], B[0])	\
 	c = LowWord(p);		\
 	AssignWord(d, HighWord(p))
