@@ -360,6 +360,7 @@ inline T Crop(T value, size_t size)
 		return value;
 }
 
+// Provide specializations of these as required. It avoids the signed/unsigned mismatch.
 template <class T1, class T2>
 inline bool SafeConvert(T1 from, T2 &to)
 {
@@ -368,17 +369,6 @@ inline bool SafeConvert(T1 from, T2 &to)
 		return false;
 	return true;
 }
-
-#if 0
-// files.cpp, line 175
-template<>
-inline bool SafeConvert<lword,std::istream::off_type>(lword from, std::istream::off_type &to)
-{
-	if(from > static_cast<lword>(std::numeric_limits<std::istream::off_type>::max()))
-		return false;
-	return true;
-}
-#endif
 
 // files.cpp, line 235
 template<>
@@ -400,12 +390,32 @@ inline bool SafeConvert<long long unsigned int,long int>(long long unsigned int 
 	return true;
 }
 
+// files.cpp, line 366
+template<>
+inline bool SafeConvert<long long unsigned int,long long int>(long long unsigned int from, long long int &to)
+{
+	to = (long long int)from;
+	if(from > static_cast<long long unsigned int>(std::numeric_limits<long long int>::max()))
+		return false;
+	return true;
+}
+
 // nbtheory.cpp, line 315
 template<>
 inline bool SafeConvert<long int,word>(long int from, word &to)
 {
 	to = (word)from;
-	if(from > static_cast<long int>(std::numeric_limits<word>::max()))
+	if(from < 0 || from > static_cast<long int>(std::numeric_limits<word>::max()))
+		return false;
+	return true;
+}
+
+// nbtheory.cpp, line 315
+template<>
+inline bool SafeConvert<int,unsigned int>(int from, unsigned int &to)
+{
+	to = (word)from;
+	if(from < 0 || from > static_cast<int>(std::numeric_limits<unsigned int>::max()))
 		return false;
 	return true;
 }
