@@ -11,6 +11,13 @@ MKDIR ?= mkdir
 EGREP ?= egrep
 UNAME ?= uname
 
+# $(error Flags: $(ARFLAGS))
+
+# Default setting from environment. Disable verbose flag, add create flag
+ifeq ($(findstring rv,$(ARFLAGS)),rv)
+ARFLAGS = cr
+endif
+
 #########################
 # CXXFLAGS
 CXXFLAGS ?= -DNDEBUG -g2 -O3
@@ -33,15 +40,19 @@ SUN_COMPILER = $(shell $(CXX) -V 2>&1 | $(EGREP) -i -c "CC: Sun")
 #################################################################
 # Platform detection
 
-IS_X86 = $(shell uname -m | $(EGREP) -c "i.86|x86|i86|amd64")
-IS_X86_64 = $(shell uname -m | $(EGREP) -c "_64|d64")
-IS_DARWIN = $(shell uname -s | $(EGREP) -i -c "darwin")
+MACHINE ?= $(shell $(UNAME) -m)
+SYSTEM ?= $(shell $(UNAME) -s)
+RELEASE ?= $(shell $(UNAME) -r)
+
+IS_X86 = $(shell echo $(MACHINE) | $(EGREP) -c "i.86|x86|i86|amd64")
+IS_X86_64 = $(shell echo $(MACHINE) | $(EGREP) -c "_64|d64")
+IS_DARWIN = $(shell echo $(SYSTEM) | $(EGREP) -i -c "darwin")
 IS_LINUX = $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "linux")
 IS_MINGW = $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "mingw")
 IS_CYGWIN = $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "cygwin")
 IS_OPENBSD = $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "openbsd")
-IS_SUN = $(shell uname -s | $(EGREP) -i -c "SunOS")
-IS_FEDORA22_i686 = $(shell uname -r | $(EGREP) -i -c "fc22.i686")
+IS_SUN = $(shell echo $(SYSTEM) | $(EGREP) -i -c "SunOS")
+IS_FEDORA22_i686 = $(shell echo $(RELEASE) | $(EGREP) -i -c "fc22.i686")
 
 #################################################################
 # Architecture detection
@@ -187,7 +198,8 @@ endif # -O2
 endif # Fedora 22/i686
 
 #########################
-# Original Crypto++ code. Way back when, this caused a compiler crash with GCC on Ubuntu 9 or 10
+# Way back when, '-march=native' caused a compiler crash with GCC on Ubuntu 9 or 10
+#   Add -march=native if the user did not specify an architecture.
 ifeq ($(findstring -m32 -m64,$(CXXFLAGS)),)
 CXXFLAGS += -march=native
 endif
@@ -335,7 +347,7 @@ endif
 
 .PHONY: distclean
 distclean:
-	-$(RM) -r GNUmakefile.deps *.o *.obj *.a *.so *.exe a.out *~ \.*~ *\.h\. *\.cpp\. *.bu *.bak adhoc.cpp adhoc.cpp.copied *.diff *.patch cryptopp.zip
+	-$(RM) -r GNUmakefile.deps *.o *.obj *.a *.so *.dll *.dylib *.exe *.s *.ii a.out *~ \.*~ *\.h\. *\.cpp\. *.bu *.bak adhoc.cpp adhoc.cpp.copied *.diff *.patch cryptopp.zip
 ifneq ($(IS_DARWIN),0)
 	-$(RM) *.dSYM .DS_Store TestVectors/.DS_Store TestData/.DS_Store
 endif
