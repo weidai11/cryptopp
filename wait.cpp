@@ -318,12 +318,14 @@ bool WaitObjectContainer::Wait(unsigned long milliseconds)
 
 void WaitObjectContainer::AddReadFd(int fd, CallStack const& callStack)	// TODO: do something with callStack
 {
+	CRYPTOPP_UNUSED(callStack);
 	FD_SET(fd, &m_readfds);
 	m_maxFd = STDMAX(m_maxFd, fd);
 }
 
 void WaitObjectContainer::AddWriteFd(int fd, CallStack const& callStack) // TODO: do something with callStack
 {
+	CRYPTOPP_UNUSED(callStack);
 	FD_SET(fd, &m_writefds);
 	m_maxFd = STDMAX(m_maxFd, fd);
 }
