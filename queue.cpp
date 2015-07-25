@@ -131,7 +131,7 @@ public:
 // ********************************************************
 
 ByteQueue::ByteQueue(size_t nodeSize)
-	: m_lazyString(NULL), m_lazyLength(0)
+	: m_autoNodeSize(true), m_nodeSize(0), m_head(NULL), m_tail(NULL), m_lazyString(NULL), m_lazyLength(0), m_lazyStringModifiable(false)
 {
 	SetNodeSize(nodeSize);
 	m_head = m_tail = new ByteQueueNode(m_nodeSize);
@@ -144,7 +144,7 @@ void ByteQueue::SetNodeSize(size_t nodeSize)
 }
 
 ByteQueue::ByteQueue(const ByteQueue &copy)
-	: m_lazyString(NULL)
+	: m_autoNodeSize(true), m_nodeSize(0), m_head(NULL), m_tail(NULL), m_lazyString(NULL), m_lazyLength(0), m_lazyStringModifiable(false)
 {
 	CopyFrom(copy);
 }
