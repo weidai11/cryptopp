@@ -41,7 +41,7 @@ IS_MINGW = $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "mingw")
 IS_CYGWIN = $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "cygwin")
 IS_OPENBSD = $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "openbsd")
 IS_SUN = $(shell uname -s | $(EGREP) -i -c "SunOS")
-IS_FEDORA22_i686 = $(shell uname -r | $(EGREP) -i -c "f22.i686")
+IS_FEDORA22_i686 = $(shell uname -r | $(EGREP) -i -c "fc22.i686")
 
 #################################################################
 # Architecture detection
