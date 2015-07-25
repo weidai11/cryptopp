@@ -11,8 +11,6 @@ MKDIR ?= mkdir
 EGREP ?= egrep
 UNAME ?= uname
 
-# $(error Flags: $(ARFLAGS))
-
 # Default setting from environment. Disable verbose flag, add create flag
 ifeq ($(findstring rv,$(ARFLAGS)),rv)
 ARFLAGS = cr
@@ -20,8 +18,27 @@ endif
 
 #########################
 # CXXFLAGS
+#   -fPIC is supported, and enabled by default for x86_64.
+
+# We can augment CXXFLAGS if the user exports them in the shell, or if the user
+#   omits them. However, if the user `make CXXFLAGS="-g1"`, then that's what
+#   the user gets. Make does not override them, and does not honor our '+='.
 CXXFLAGS ?= -DNDEBUG -g2 -O3
-# -fPIC is supported, and enabled by default for x86_64.
+
+# Add -DNDEBUG if nothing specified
+ifeq ($(filter -DDEBUG -DNDEBUG,$(CXXFLAGS)),)
+CXXFLAGS += -DNDEBUG
+endif
+
+# Add a symolize if nothing specified
+ifeq ($(filter -g -g1 -g2 -g3 -Oz,$(CXXFLAGS)),)
+CXXFLAGS += -g2
+endif
+
+# Add an optimize if nothing specified
+ifeq ($(filter -O -O0 -O1 -O2 -O3 -Og -Os -Oz -Ofast,$(CXXFLAGS)),)
+CXXFLAGS += -O3
+endif
 
 # the following options reduce code size, but breaks link or makes link very slow on some systems
 # CXXFLAGS += -ffunction-sections -fdata-sections
@@ -29,6 +46,7 @@ CXXFLAGS ?= -DNDEBUG -g2 -O3
 
 #########################
 # Compilers
+
 CLANG_COMPILER = $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "clang")
 INTEL_COMPILER = $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "\(ICC\)")
 SUN_COMPILER = $(shell $(CXX) -V 2>&1 | $(EGREP) -i -c "CC: Sun")
