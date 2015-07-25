@@ -318,6 +318,14 @@ TESTIMPORTOBJS = $(TESTOBJS:.o=.import.o)
 DLLTESTOBJS = dlltest.dllonly.o
 
 #################################################################
+# Public service announcement
+
+ALIGNED_ACCESS = $(shell cat config.h | $(EGREP) -c "^\#define CRYPTOPP_NO_UNALIGNED_DATA_ACCESS")
+ifeq ($(ALIGNED_ACCESS),0)
+$(info WARNING: CRYPTOPP_NO_UNALIGNED_DATA_ACCESS is not defined in config.h)
+endif
+
+#################################################################
 # Recipes
 
 # For various targets, see https://www.gnu.org/prep/standards/html_node/Standard-Targets.html
