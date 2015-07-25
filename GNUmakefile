@@ -1,4 +1,3 @@
-
 #################################################################
 # Tool and flag setup
 
@@ -32,7 +31,7 @@ CXXFLAGS += -DNDEBUG
 endif
 
 # Add a symolize if nothing specified
-ifeq ($(filter -g -g1 -g2 -g3 -Oz,$(CXXFLAGS)),)
+ifeq ($(filter -g -g1 -g2 -g3,$(CXXFLAGS)),)
 CXXFLAGS += -g2
 endif
 
@@ -253,11 +252,6 @@ CXXFLAGS += -Wa,--divide	# allow use of "/" operator
 endif   # IS_SUN
 endif   # GAS210_OR_LATER
 
-#########################
-ifeq ($(IS_MINGW),1)
-LDLIBS += -lws2_32
-endif 	# IS_MINGW
-
 endif	# IS_X86
 
 # Should most of this be moved to outside of i386/i686/x86_64 block?
@@ -335,6 +329,11 @@ DLLOBJS = $(DLLSRCS:.cpp=.export.o)
 LIBIMPORTOBJS = $(LIBOBJS:.o=.import.o)
 TESTIMPORTOBJS = $(TESTOBJS:.o=.import.o)
 DLLTESTOBJS = dlltest.dllonly.o
+
+# MinGW's shell fails to match i686 machine
+ifneq ($(IS_MINGW),0)
+LDLIBS += -lws2_32
+endif 	# IS_MINGW
 
 #################################################################
 # Public service announcement
