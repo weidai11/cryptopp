@@ -1,3 +1,4 @@
+
 #################################################################
 # Tool and flag setup
 
@@ -62,15 +63,15 @@ MACHINE ?= $(shell $(UNAME) -m)
 SYSTEM ?= $(shell $(UNAME) -s)
 RELEASE ?= $(shell $(UNAME) -r)
 
-IS_X86 = $(shell echo $(MACHINE) | $(EGREP) -c "i.86|x86|i86|amd64")
-IS_X86_64 = $(shell echo $(MACHINE) | $(EGREP) -c "_64|d64")
-IS_DARWIN = $(shell echo $(SYSTEM) | $(EGREP) -i -c "darwin")
+IS_X86 = $(shell echo $MACHINE | $(EGREP) -c "i.86|x86|i86|amd64")
+IS_X86_64 = $(shell echo $MACHINE | $(EGREP) -c "_64|d64")
+IS_DARWIN = $(shell echo $SYSTEM | $(EGREP) -i -c "darwin")
 IS_LINUX = $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "linux")
 IS_MINGW = $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "mingw")
 IS_CYGWIN = $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "cygwin")
 IS_OPENBSD = $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "openbsd")
-IS_SUN = $(shell echo $(SYSTEM) | $(EGREP) -i -c "SunOS")
-IS_FEDORA22_i686 = $(shell echo $(RELEASE) | $(EGREP) -i -c "fc22.i686")
+IS_SUN = $(shell echo $SYSTEM | $(EGREP) -i -c "SunOS")
+IS_FEDORA22_i686 = $(shell echo $RELEASE | $(EGREP) -i -c "fc22.i686")
 
 #################################################################
 # Architecture detection
