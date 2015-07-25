@@ -734,131 +734,131 @@
 			Filter=".dat"
 			>
 			<File
-				RelativePath=".\TestVectors\aes.txt"
+				RelativePath="TestVectors\aes.txt"
 				>
 			</File>
 			<File
-				RelativePath=".\TestVectors\all.txt"
+				RelativePath="TestVectors\all.txt"
 				>
 			</File>
 			<File
-				RelativePath=".\TestVectors\camellia.txt"
+				RelativePath="TestVectors\camellia.txt"
 				>
 			</File>
 			<File
-				RelativePath=".\TestVectors\ccm.txt"
+				RelativePath="TestVectors\ccm.txt"
 				>
 			</File>
 			<File
-				RelativePath=".\TestVectors\cmac.txt"
+				RelativePath="TestVectors\cmac.txt"
 				>
 			</File>
 			<File
-				RelativePath=".\TestVectors\dlies.txt"
+				RelativePath="TestVectors\dlies.txt"
 				>
 			</File>
 			<File
-				RelativePath=".\TestVectors\dsa.txt"
+				RelativePath="TestVectors\dsa.txt"
 				>
 			</File>
 			<File
-				RelativePath=".\TestVectors\dsa_1363.txt"
+				RelativePath="TestVectors\dsa_1363.txt"
 				>
 			</File>
 			<File
-				RelativePath=".\TestVectors\eax.txt"
+				RelativePath="TestVectors\eax.txt"
 				>
 			</File>
 			<File
-				RelativePath=".\TestVectors\esign.txt"
+				RelativePath="TestVectors\esign.txt"
 				>
 			</File>
 			<File
-				RelativePath=".\TestVectors\gcm.txt"
+				RelativePath="TestVectors\gcm.txt"
 				>
 			</File>
 			<File
-				RelativePath=".\TestVectors\hmac.txt"
+				RelativePath="TestVectors\hmac.txt"
 				>
 			</File>
 			<File
-				RelativePath=".\TestVectors\mars.txt"
+				RelativePath="TestVectors\mars.txt"
 				>
 			</File>
 			<File
-				RelativePath=".\TestVectors\nr.txt"
+				RelativePath="TestVectors\nr.txt"
 				>
 			</File>
 			<File
-				RelativePath=".\TestVectors\panama.txt"
+				RelativePath="TestVectors\panama.txt"
 				>
 			</File>
 			<File
-				RelativePath=".\TestVectors\Readme.txt"
+				RelativePath="TestVectors\Readme.txt"
 				>
 			</File>
 			<File
-				RelativePath=".\TestVectors\rsa_oaep.txt"
+				RelativePath="TestVectors\rsa_oaep.txt"
 				>
 			</File>
 			<File
-				RelativePath=".\TestVectors\rsa_pkcs1_1_5.txt"
+				RelativePath="TestVectors\rsa_pkcs1_1_5.txt"
 				>
 			</File>
 			<File
-				RelativePath=".\TestVectors\rsa_pss.txt"
+				RelativePath="TestVectors\rsa_pss.txt"
 				>
 			</File>
 			<File
-				RelativePath=".\TestVectors\rw.txt"
+				RelativePath="TestVectors\rw.txt"
 				>
 			</File>
 			<File
-				RelativePath=".\TestVectors\salsa.txt"
+				RelativePath="TestVectors\salsa.txt"
 				>
 			</File>
 			<File
-				RelativePath=".\TestVectors\seal.txt"
+				RelativePath="TestVectors\seal.txt"
 				>
 			</File>
 			<File
-				RelativePath=".\TestVectors\seed.txt"
+				RelativePath="TestVectors\seed.txt"
 				>
 			</File>
 			<File
-				RelativePath=".\TestVectors\sha.txt"
+				RelativePath="TestVectors\sha.txt"
 				>
 			</File>
 			<File
-				RelativePath=".\TestVectors\sha3.txt"
+				RelativePath="TestVectors\sha3.txt"
 				>
 			</File>
 			<File
-				RelativePath=".\TestVectors\shacal2.txt"
+				RelativePath="TestVectors\shacal2.txt"
 				>
 			</File>
 			<File
-				RelativePath=".\TestVectors\sosemanuk.txt"
+				RelativePath="TestVectors\sosemanuk.txt"
 				>
 			</File>
 			<File
-				RelativePath=".\TestVectors\tea.txt"
+				RelativePath="TestVectors\tea.txt"
 				>
 			</File>
 			<File
-				RelativePath=".\TestVectors\ttmac.txt"
+				RelativePath="TestVectors\ttmac.txt"
 				>
 			</File>
 			<File
-				RelativePath=".\TestVectors\vmac.txt"
+				RelativePath="TestVectors\vmac.txt"
 				>
 			</File>
 			<File
-				RelativePath=".\TestVectors\wake.txt"
+				RelativePath="TestVectors\wake.txt"
 				>
 			</File>
 			<File
-				RelativePath=".\TestVectors\whrlpool.txt"
+				RelativePath="TestVectors\whrlpool.txt"
 				>
 			</File>
 		</Filter>
@@ -1021,7 +1021,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\bench2.cpp"
+				RelativePath="bench2.cpp"
 				>
 			</File>
 			<File
@@ -1637,223 +1637,223 @@
 			Name="TestData"
 			>
 			<File
-				RelativePath=".\TestData\3desval.dat"
+				RelativePath="TestData\3desval.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\3wayval.dat"
+				RelativePath="TestData\3wayval.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\camellia.dat"
+				RelativePath="TestData\camellia.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\cast128v.dat"
+				RelativePath="TestData\cast128v.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\cast256v.dat"
+				RelativePath="TestData\cast256v.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\descert.dat"
+				RelativePath="TestData\descert.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\dh1024.dat"
+				RelativePath="TestData\dh1024.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\dh2048.dat"
+				RelativePath="TestData\dh2048.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\dlie1024.dat"
+				RelativePath="TestData\dlie1024.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\dlie2048.dat"
+				RelativePath="TestData\dlie2048.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\dsa1024.dat"
+				RelativePath="TestData\dsa1024.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\dsa1024b.dat"
+				RelativePath="TestData\dsa1024b.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\dsa512.dat"
+				RelativePath="TestData\dsa512.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\elgc1024.dat"
+				RelativePath="TestData\elgc1024.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\esig1023.dat"
+				RelativePath="TestData\esig1023.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\esig1536.dat"
+				RelativePath="TestData\esig1536.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\esig2046.dat"
+				RelativePath="TestData\esig2046.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\gostval.dat"
+				RelativePath="TestData\gostval.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\ideaval.dat"
+				RelativePath="TestData\ideaval.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\luc1024.dat"
+				RelativePath="TestData\luc1024.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\luc2048.dat"
+				RelativePath="TestData\luc2048.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\lucc1024.dat"
+				RelativePath="TestData\lucc1024.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\lucc512.dat"
+				RelativePath="TestData\lucc512.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\lucd1024.dat"
+				RelativePath="TestData\lucd1024.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\lucd512.dat"
+				RelativePath="TestData\lucd512.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\lucs1024.dat"
+				RelativePath="TestData\lucs1024.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\lucs512.dat"
+				RelativePath="TestData\lucs512.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\marsval.dat"
+				RelativePath="TestData\marsval.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\mqv1024.dat"
+				RelativePath="TestData\mqv1024.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\mqv2048.dat"
+				RelativePath="TestData\mqv2048.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\nr1024.dat"
+				RelativePath="TestData\nr1024.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\nr2048.dat"
+				RelativePath="TestData\nr2048.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\rabi1024.dat"
+				RelativePath="TestData\rabi1024.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\rabi2048.dat"
+				RelativePath="TestData\rabi2048.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\rc2val.dat"
+				RelativePath="TestData\rc2val.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\rc5val.dat"
+				RelativePath="TestData\rc5val.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\rc6val.dat"
+				RelativePath="TestData\rc6val.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\rijndael.dat"
+				RelativePath="TestData\rijndael.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\rsa1024.dat"
+				RelativePath="TestData\rsa1024.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\rsa2048.dat"
+				RelativePath="TestData\rsa2048.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\rsa400pb.dat"
+				RelativePath="TestData\rsa400pb.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\rsa400pv.dat"
+				RelativePath="TestData\rsa400pv.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\rsa512a.dat"
+				RelativePath="TestData\rsa512a.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\rw1024.dat"
+				RelativePath="TestData\rw1024.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\rw2048.dat"
+				RelativePath="TestData\rw2048.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\saferval.dat"
+				RelativePath="TestData\saferval.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\serpentv.dat"
+				RelativePath="TestData\serpentv.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\shacal2v.dat"
+				RelativePath="TestData\shacal2v.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\sharkval.dat"
+				RelativePath="TestData\sharkval.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\skipjack.dat"
+				RelativePath="TestData\skipjack.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\squareva.dat"
+				RelativePath="TestData\squareva.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\twofishv.dat"
+				RelativePath="TestData\twofishv.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\usage.dat"
+				RelativePath="TestData\usage.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\xtrdh171.dat"
+				RelativePath="TestData\xtrdh171.dat"
 				>
 			</File>
 			<File
-				RelativePath=".\TestData\xtrdh342.dat"
+				RelativePath="TestData\xtrdh342.dat"
 				>
 			</File>
 		</Filter>

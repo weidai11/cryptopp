@@ -1110,7 +1110,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\authenc.cpp"
+				RelativePath="authenc.cpp"
 				>
 			</File>
 			<File
@@ -1854,7 +1854,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\ccm.cpp"
+				RelativePath="ccm.cpp"
 				>
 			</File>
 			<File
@@ -1932,11 +1932,11 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\cmac.cpp"
+				RelativePath="cmac.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\cpu.cpp"
+				RelativePath="cpu.cpp"
 				>
 			</File>
 			<File
@@ -2614,7 +2614,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\eax.cpp"
+				RelativePath="eax.cpp"
 				>
 			</File>
 			<File
@@ -3378,7 +3378,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\gcm.cpp"
+				RelativePath="gcm.cpp"
 				>
 			</File>
 			<File
@@ -6803,7 +6803,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\salsa.cpp"
+				RelativePath="salsa.cpp"
 				>
 			</File>
 			<File
@@ -6881,7 +6881,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\seed.cpp"
+				RelativePath="seed.cpp"
 				>
 			</File>
 			<File
@@ -7033,7 +7033,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\sha3.cpp"
+				RelativePath="sha3.cpp"
 				>
 			</File>
 			<File
@@ -7481,7 +7481,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\sosemanuk.cpp"
+				RelativePath="sosemanuk.cpp"
 				>
 			</File>
 			<File
@@ -8225,7 +8225,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\vmac.cpp"
+				RelativePath="vmac.cpp"
 				>
 			</File>
 			<File
@@ -8525,7 +8525,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\x64dll.asm"
+				RelativePath="x64dll.asm"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -8599,7 +8599,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\x64masm.asm"
+				RelativePath="x64masm.asm"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -9078,7 +9078,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\authenc.h"
+				RelativePath="authenc.h"
 				>
 			</File>
 			<File
@@ -9114,7 +9114,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\ccm.h"
+				RelativePath="ccm.h"
 				>
 			</File>
 			<File
@@ -9122,7 +9122,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\cmac.h"
+				RelativePath="cmac.h"
 				>
 			</File>
 			<File
@@ -9130,7 +9130,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\cpu.h"
+				RelativePath="cpu.h"
 				>
 			</File>
 			<File
@@ -9166,7 +9166,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\eax.h"
+				RelativePath="eax.h"
 				>
 			</File>
 			<File
@@ -9214,7 +9214,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\gcm.h"
+				RelativePath="gcm.h"
 				>
 			</File>
 			<File
@@ -9422,7 +9422,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\salsa.h"
+				RelativePath="salsa.h"
 				>
 			</File>
 			<File
@@ -9438,7 +9438,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\seed.h"
+				RelativePath="seed.h"
 				>
 			</File>
 			<File
@@ -9450,7 +9450,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\sha3.h"
+				RelativePath="sha3.h"
 				>
 			</File>
 			<File
@@ -9478,7 +9478,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\sosemanuk.h"
+				RelativePath="sosemanuk.h"
 				>
 			</File>
 			<File
@@ -9486,7 +9486,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\stdcpp.h"
+				RelativePath="stdcpp.h"
 				>
 			</File>
 			<File
@@ -9499,6 +9499,10 @@
 			</File>
 			<File
 				RelativePath="tiger.h"
+				>
+			</File>
+			<File
+				RelativePath="trap.h"
 				>
 			</File>
 			<File
@@ -9518,7 +9522,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\vmac.h"
+				RelativePath="vmac.h"
 				>
 			</File>
 			<File
@@ -9574,11 +9578,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\License.txt"
+				RelativePath="License.txt"
 				>
 			</File>
 			<File
-				RelativePath=".\Readme.txt"
+				RelativePath="Readme.txt"
 				>
 			</File>
 		</Filter>
