@@ -62,9 +62,9 @@ MACHINE ?= $(shell $(UNAME) -m)
 SYSTEM ?= $(shell $(UNAME) -s)
 RELEASE ?= $(shell $(UNAME) -r)
 
-IS_X86 = $(shell echo $MACHINE | $(EGREP) -c "i.86|x86|i86|amd64")
-IS_X86_64 = $(shell echo $MACHINE | $(EGREP) -c "_64|d64")
-IS_DARWIN = $(shell echo $SYSTEM | $(EGREP) -i -c "darwin")
+IS_X86 = $(shell echo $(MACHINE)| $(EGREP) -c "i.86|x86|i86|i686|amd64")
+IS_X86_64 = $(shell echo $(MACHINE) | $(EGREP) -c "_64|d64")
+IS_DARWIN = $(shell echo $(SYSTEM) | $(EGREP) -i -c "darwin")
 IS_LINUX = $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "linux")
 IS_MINGW = $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "mingw")
 IS_CYGWIN = $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "cygwin")
@@ -252,6 +252,10 @@ CXXFLAGS += -Wa,--divide	# allow use of "/" operator
 endif   # IS_SUN
 endif   # GAS210_OR_LATER
 
+ifneq ($(IS_MINGW),0)
+LDLIBS += -lws2_32
+endif 	# IS_MINGW
+
 endif	# IS_X86
 
 # Should most of this be moved to outside of i386/i686/x86_64 block?
@@ -329,11 +333,6 @@ DLLOBJS = $(DLLSRCS:.cpp=.export.o)
 LIBIMPORTOBJS = $(LIBOBJS:.o=.import.o)
 TESTIMPORTOBJS = $(TESTOBJS:.o=.import.o)
 DLLTESTOBJS = dlltest.dllonly.o
-
-# MinGW's shell fails to match i686 machine
-ifneq ($(IS_MINGW),0)
-LDLIBS += -lws2_32
-endif 	# IS_MINGW
 
 #################################################################
 # Public service announcement
