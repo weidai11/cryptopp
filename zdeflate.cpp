@@ -8,6 +8,7 @@
 #include "pch.h"
 #include "zdeflate.h"
 #include <functional>
+#include <cstddef>	// ptrdiff_t
 
 #if _MSC_VER >= 1600
 // for make_unchecked_array_iterator
@@ -406,7 +407,12 @@ unsigned int Deflator::LongestMatch(unsigned int &bestMatch) const
 			{
 				bestLength = len;
 				bestMatch = current;
-				if (len == (scanEnd - scan))
+
+				// TODO: should we throw here?
+				const ptrdiff_t diff = scanEnd - scan;
+				assert(diff >= 0);
+
+				if (len == static_cast<unsigned int>(diff))
 					break;
 			}
 		}
