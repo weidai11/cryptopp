@@ -79,7 +79,8 @@ void SHARK::Enc::InitForKeySetup()
 	m_rounds = DEFAULT_ROUNDS;
 	m_roundKeys.New(DEFAULT_ROUNDS+1);
 
-	for (unsigned int i=0; i<DEFAULT_ROUNDS; i++)
+	unsigned int i;
+	for (i=0; i<static_cast<unsigned int>(DEFAULT_ROUNDS); i++)
 		m_roundKeys[i] = cbox[0][i];
 
 	m_roundKeys[DEFAULT_ROUNDS] = SHARKTransform(cbox[0][DEFAULT_ROUNDS]);
