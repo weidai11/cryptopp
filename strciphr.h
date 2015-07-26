@@ -201,7 +201,9 @@ struct CRYPTOPP_NO_VTABLE CFB_CipherConcretePolicy : public BASE
 			if (m_dir == ENCRYPTION)
 			{
 				if (m_input == NULL)
+				{
 					CRYPTOPP_ASSERT(m_output == NULL);
+				}
 				else
 				{
 					WordType ct = *(const WordType *)m_input ^ registerWord;
