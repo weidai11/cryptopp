@@ -35,7 +35,7 @@ size_t EAX_Base::AuthenticateBlocks(const byte *data, size_t len)
 
 void EAX_Base::AuthenticateLastHeaderBlock()
 {
-	assert(m_bufferedDataLength == 0);
+	CRYPTOPP_ASSERT(m_bufferedDataLength == 0);
 	MessageAuthenticationCode &mac = AccessMAC();
 	unsigned int blockSize = mac.TagSize();
 
@@ -49,7 +49,7 @@ void EAX_Base::AuthenticateLastHeaderBlock()
 
 void EAX_Base::AuthenticateLastFooterBlock(byte *tag, size_t macSize)
 {
-	assert(m_bufferedDataLength == 0);
+	CRYPTOPP_ASSERT(m_bufferedDataLength == 0);
 	MessageAuthenticationCode &mac = AccessMAC();
 	unsigned int blockSize = mac.TagSize();
 

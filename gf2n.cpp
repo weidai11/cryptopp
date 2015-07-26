@@ -23,7 +23,7 @@ PolynomialMod2::PolynomialMod2()
 PolynomialMod2::PolynomialMod2(word value, size_t bitLength)
 	: reg(BitsToWords(bitLength))
 {
-	assert(value==0 || reg.size()>0);
+	CRYPTOPP_ASSERT(value==0 || reg.size()>0);
 
 	if (reg.size() > 0)
 	{
@@ -550,7 +550,7 @@ GF2NP::Element GF2NP::SquareRoot(const Element &a) const
 
 GF2NP::Element GF2NP::HalfTrace(const Element &a) const
 {
-	assert(m%2 == 1);
+	CRYPTOPP_ASSERT(m%2 == 1);
 	Element h = a;
 	for (unsigned int i=1; i<=(m-1)/2; i++)
 		h = Add(Square(Square(h)), a);
@@ -589,7 +589,7 @@ GF2NT::GF2NT(unsigned int t0, unsigned int t1, unsigned int t2)
 	, t0(t0), t1(t1)
 	, result((word)0, m)
 {
-	assert(t0 > t1 && t1 > t2 && t2==0);
+	CRYPTOPP_ASSERT(t0 > t1 && t1 > t2 && t2==0);
 }
 
 const GF2NT::Element& GF2NT::MultiplicativeInverse(const Element &a) const
@@ -607,7 +607,7 @@ const GF2NT::Element& GF2NT::MultiplicativeInverse(const Element &a) const
 
 	SetWords(T, 0, 3*m_modulus.reg.size());
 	b[0]=1;
-	assert(a.reg.size() <= m_modulus.reg.size());
+	CRYPTOPP_ASSERT(a.reg.size() <= m_modulus.reg.size());
 	CopyWords(f, a.reg, a.reg.size());
 	CopyWords(g, m_modulus.reg, m_modulus.reg.size());
 
@@ -619,7 +619,7 @@ const GF2NT::Element& GF2NT::MultiplicativeInverse(const Element &a) const
 			ShiftWordsRightByWords(f, fgLen, 1);
 			if (c[bcLen-1])
 				bcLen++;
-			assert(bcLen <= m_modulus.reg.size());
+			CRYPTOPP_ASSERT(bcLen <= m_modulus.reg.size());
 			ShiftWordsLeftByWords(c, bcLen, 1);
 			k+=WORD_BITS;
 			t=f[0];
@@ -650,7 +650,7 @@ const GF2NT::Element& GF2NT::MultiplicativeInverse(const Element &a) const
 		{
 			c[bcLen] = t;
 			bcLen++;
-			assert(bcLen <= m_modulus.reg.size());
+			CRYPTOPP_ASSERT(bcLen <= m_modulus.reg.size());
 		}
 
 		if (f[fgLen-1]==0 && g[fgLen-1]==0)
@@ -790,7 +790,7 @@ const GF2NT::Element& GF2NT::Reduced(const Element &a) const
 			if ((t0-t1)%WORD_BITS > t0%WORD_BITS)
 				b[i-(t0-t1)/WORD_BITS-1] ^= temp << (WORD_BITS - (t0-t1)%WORD_BITS);
 			else
-				assert(temp << (WORD_BITS - (t0-t1)%WORD_BITS) == 0);
+				CRYPTOPP_ASSERT(temp << (WORD_BITS - (t0-t1)%WORD_BITS) == 0);
 		}
 		else
 			b[i-(t0-t1)/WORD_BITS] ^= temp;

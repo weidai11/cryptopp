@@ -74,11 +74,11 @@ struct CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AdditiveCipherAbstractPolicy
 	virtual void WriteKeystream(byte *keystream, size_t iterationCount)
 		{OperateKeystream(KeystreamOperation(INPUT_NULL | (KeystreamOperationFlags)IsAlignedOn(keystream, GetAlignment())), keystream, NULL, iterationCount);}
 	virtual bool CanOperateKeystream() const {return false;}
-	virtual void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount) {assert(false);}
+	virtual void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount) {CRYPTOPP_ASSERT(false);}
 	virtual void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length) =0;
 	virtual void CipherResynchronize(byte *keystreamBuffer, const byte *iv, size_t length) {throw NotImplemented("SimpleKeyingInterface: this object doesn't support resynchronization");}
 	virtual bool CipherIsRandomAccess() const =0;
-	virtual void SeekToIteration(lword iterationCount) {assert(!CipherIsRandomAccess()); throw NotImplemented("StreamTransformation: this object doesn't support random access");}
+	virtual void SeekToIteration(lword iterationCount) {CRYPTOPP_ASSERT(!CipherIsRandomAccess()); throw NotImplemented("StreamTransformation: this object doesn't support random access");}
 };
 
 template <typename WT, unsigned int W, unsigned int X = 1, class BASE = AdditiveCipherAbstractPolicy>
@@ -169,7 +169,7 @@ public:
 	virtual byte * GetRegisterBegin() =0;
 	virtual void TransformRegister() =0;
 	virtual bool CanIterate() const {return false;}
-	virtual void Iterate(byte *output, const byte *input, CipherDir dir, size_t iterationCount) {assert(false); throw 0;}
+	virtual void Iterate(byte *output, const byte *input, CipherDir dir, size_t iterationCount) {CRYPTOPP_ASSERT(false); throw 0;}
 	virtual void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length) =0;
 	virtual void CipherResynchronize(const byte *iv, size_t length) {throw NotImplemented("SimpleKeyingInterface: this object doesn't support resynchronization");}
 };
@@ -192,8 +192,8 @@ struct CRYPTOPP_NO_VTABLE CFB_CipherConcretePolicy : public BASE
 
 		inline RegisterOutput& operator()(WordType &registerWord)
 		{
-			assert(IsAligned<WordType>(m_output));
-			assert(IsAligned<WordType>(m_input));
+			CRYPTOPP_ASSERT(IsAligned<WordType>(m_output));
+			CRYPTOPP_ASSERT(IsAligned<WordType>(m_input));
 
 			if (!NativeByteOrderIs(B::ToEnum()))
 				registerWord = ByteReverse(registerWord);
@@ -201,7 +201,7 @@ struct CRYPTOPP_NO_VTABLE CFB_CipherConcretePolicy : public BASE
 			if (m_dir == ENCRYPTION)
 			{
 				if (m_input == NULL)
-					assert(m_output == NULL);
+					CRYPTOPP_ASSERT(m_output == NULL);
 				else
 				{
 					WordType ct = *(const WordType *)m_input ^ registerWord;

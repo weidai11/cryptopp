@@ -447,7 +447,7 @@ template <class EC> void DL_GroupParameters_EC<EC>::Initialize(const OID &oid)
 	Element G;
 	bool result = GetCurve().DecodePoint(G, ssG, (size_t)ssG.MaxRetrievable());
 	this->SetSubgroupGenerator(G);
-	assert(result); CRYPTOPP_UNUSED(result);
+	CRYPTOPP_ASSERT(result); CRYPTOPP_UNUSED(result);
 
 	StringSource ssN(param.n, true, new HexDecoder);
 	m_n.Decode(ssN, (size_t)ssN.MaxRetrievable());

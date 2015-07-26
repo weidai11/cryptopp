@@ -452,7 +452,7 @@ bool ValidateDSA(bool thorough)
 	DSA::Verifier pub(priv);
 	FileSource fs2("TestData/dsa1024b.dat", true, new HexDecoder());
 	DSA::Verifier pub1(fs2);
-	assert(pub.GetKey() == pub1.GetKey());
+	CRYPTOPP_ASSERT(pub.GetKey() == pub1.GetKey());
 	pass = SignatureValidate(priv, pub, thorough) && pass;
 	pass = RunTestDataFile("TestVectors/dsa.txt", g_nullNameValuePairs, thorough) && pass;
 	return pass;

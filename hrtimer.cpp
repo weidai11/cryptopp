@@ -26,7 +26,7 @@ double TimerBase::ConvertTo(TimerWord t, Unit unit)
 {
 	static unsigned long unitsPerSecondTable[] = {1, 1000, 1000*1000, 1000*1000*1000};
 
-	assert(unit < COUNTOF(unitsPerSecondTable));
+	CRYPTOPP_ASSERT(unit < COUNTOF(unitsPerSecondTable));
 	return (double)CRYPTOPP_VC6_INT64 t * unitsPerSecondTable[unit] / CRYPTOPP_VC6_INT64 TicksPerSecond();
 }
 
@@ -56,7 +56,7 @@ double TimerBase::ElapsedTimeAsDouble()
 unsigned long TimerBase::ElapsedTime()
 {
 	double elapsed = ElapsedTimeAsDouble();
-	assert(elapsed <= ULONG_MAX);
+	CRYPTOPP_ASSERT(elapsed <= ULONG_MAX);
 	return (unsigned long)elapsed;
 }
 

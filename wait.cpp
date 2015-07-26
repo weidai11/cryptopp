@@ -171,7 +171,7 @@ DWORD WINAPI WaitingThread(LPVOID lParam)
 		SetEvent(thread.stopWaiting);
 		if (!(result > WAIT_OBJECT_0 && result < WAIT_OBJECT_0 + handles.size()))
 		{
-			assert(!"error in WaitingThread");	// break here so we can see which thread has an error
+			CRYPTOPP_ASSERT(!"error in WaitingThread");	// break here so we can see which thread has an error
 			*thread.error = ::GetLastError();
 		}
 	}

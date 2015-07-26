@@ -263,7 +263,7 @@ void AbstractGroup<T>::SimultaneousMultiply(T *results, const T &base, const Int
 
 	for (i=0; i<expCount; i++)
 	{
-		assert(expBegin->NotNegative());
+		CRYPTOPP_ASSERT(expBegin->NotNegative());
 		exponents.push_back(WindowSlider(*expBegin++, InversionIsFast(), 0));
 		exponents[i].FindNextWindow();
 		buckets[i].resize(1<<(exponents[i].m_windowSize-1), Identity());

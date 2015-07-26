@@ -69,7 +69,7 @@ void SEAL_Policy<B>::CipherSetKey(const NameValuePairs &params, const byte *key,
 template <class B>
 void SEAL_Policy<B>::CipherResynchronize(byte *keystreamBuffer, const byte *IV, size_t length)
 {
-	assert(length==4);
+	CRYPTOPP_ASSERT(length==4);
 	m_outsideCounter = IV ? GetWord<word32>(false, BIG_ENDIAN_ORDER, IV) : 0;
 	m_startCount = m_outsideCounter;
 	m_insideCounter = 0;

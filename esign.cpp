@@ -115,7 +115,7 @@ void InvertibleESIGNFunction::GenerateRandom(RandomNumberGenerator &rng, const N
 
 	m_n = m_p * m_p * m_q;
 
-	assert(m_n.BitCount() == modulusSize);
+	CRYPTOPP_ASSERT(m_n.BitCount() == modulusSize);
 }
 
 void InvertibleESIGNFunction::BERDecode(BufferedTransformation &bt)
@@ -164,7 +164,7 @@ Integer InvertibleESIGNFunction::CalculateRandomizedInverse(RandomNumberGenerato
 	ModularArithmetic modp(m_p);
 	Integer t = modp.Divide(w0 * r % m_p, m_e * re % m_p);
 	Integer s = r + t*pq;
-	assert(s < m_n);
+	CRYPTOPP_ASSERT(s < m_n);
 /*
 	using namespace std;
 	cout << "f = " << x << endl;

@@ -15,7 +15,7 @@ public:
 
 	bool IsRandomAccess() const {return false;}
 	bool IsSelfInverting() const {return true;}
-	void UncheckedSetKey(const byte *,unsigned int,const CryptoPP::NameValuePairs &) {assert(false);}
+	void UncheckedSetKey(const byte *,unsigned int,const CryptoPP::NameValuePairs &) {CRYPTOPP_ASSERT(false);}
 
 	void SetKey(const byte *userKey, size_t keylength, const NameValuePairs &params);
 	void Restart() {if (m_state > State_KeySet) m_state = State_KeySet;}

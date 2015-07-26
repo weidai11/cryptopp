@@ -228,9 +228,9 @@ public:
 		{delete [] this->m_ptr;}
 
 	member_ptr<T>& operator[](size_t index)
-		{assert(index<this->m_size); return this->m_ptr[index];}
+		{CRYPTOPP_ASSERT(index<this->m_size); return this->m_ptr[index];}
 	const member_ptr<T>& operator[](size_t index) const
-		{assert(index<this->m_size); return this->m_ptr[index];}
+		{CRYPTOPP_ASSERT(index<this->m_size); return this->m_ptr[index];}
 
 	size_t size() const {return this->m_size;}
 	void resize(size_t newSize)

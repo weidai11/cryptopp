@@ -22,7 +22,7 @@ void SosemanukPolicy::CipherSetKey(const NameValuePairs &params, const byte *use
 
 void SosemanukPolicy::CipherResynchronize(byte *keystreamBuffer, const byte *iv, size_t length)
 {
-	assert(length==16);
+	CRYPTOPP_ASSERT(length==16);
 
 	word32 a, b, c, d, e;
 	

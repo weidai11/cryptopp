@@ -94,7 +94,7 @@ public:
 		{if (result == SOCKET_ERROR) HandleError(operation);}
 #ifdef USE_WINDOWS_STYLE_SOCKETS
 	void CheckAndHandleError(const char *operation, BOOL result) const
-		{assert(result==TRUE || result==FALSE); if (!result) HandleError(operation);}
+		{CRYPTOPP_ASSERT(result==TRUE || result==FALSE); if (!result) HandleError(operation);}
 	void CheckAndHandleError(const char *operation, bool result) const
 		{if (!result) HandleError(operation);}
 #endif

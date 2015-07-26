@@ -51,9 +51,9 @@ unsigned int HKDF<T>::DeriveKey(byte *derived, size_t derivedLen, const byte *se
 	CRYPTOPP_COMPILE_ASSERT(DIGEST_SIZE <= COUNTOF(s_NullVector));
 	const unsigned int req = static_cast<unsigned int>(derivedLen);
 	
-	assert(secret && secretLen);
-	assert(derived && derivedLen);
-	assert(derivedLen <= MaxDerivedKeyLength());
+	CRYPTOPP_ASSERT(secret && secretLen);
+	CRYPTOPP_ASSERT(derived && derivedLen);
+	CRYPTOPP_ASSERT(derivedLen <= MaxDerivedKeyLength());
 
 	if(derivedLen > MaxDerivedKeyLength())
 		throw InvalidArgument("HKDF: derivedLen must be less than or equal to MaxDerivedKeyLength");

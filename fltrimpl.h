@@ -12,7 +12,7 @@
 #define FILTER_END_NO_MESSAGE_END_NO_RETURN	\
 		break;	\
 	default:	\
-		assert(false);	\
+		CRYPTOPP_ASSERT(false);	\
 	}
 
 #define FILTER_END_NO_MESSAGE_END	\

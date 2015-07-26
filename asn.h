@@ -134,7 +134,7 @@ public:
 	~BERGeneralDecoder();
 
 	bool IsDefiniteLength() const {return m_definiteLength;}
-	lword RemainingLength() const {assert(m_definiteLength); return m_length;}
+	lword RemainingLength() const {CRYPTOPP_ASSERT(m_definiteLength); return m_length;}
 	bool EndReached() const;
 	byte PeekByte() const;
 	void CheckByte(byte b);
@@ -152,7 +152,7 @@ protected:
 
 private:
 	void Init(byte asnTag);
-	void StoreInitialize(const NameValuePairs &parameters) {assert(false);}
+	void StoreInitialize(const NameValuePairs &parameters) {CRYPTOPP_ASSERT(false);}
 	lword ReduceLength(lword delta);
 };
 

@@ -442,14 +442,14 @@ void PanamaHash<B>::TruncatedFinal(byte *hash, size_t size)
 template <class B>
 void PanamaCipherPolicy<B>::CipherSetKey(const NameValuePairs &params, const byte *key, size_t length)
 {
-	assert(length==32);
+	CRYPTOPP_ASSERT(length==32);
 	memcpy(m_key, key, 32);
 }
 
 template <class B>
 void PanamaCipherPolicy<B>::CipherResynchronize(byte *keystreamBuffer, const byte *iv, size_t length)
 {
-	assert(length==32);
+	CRYPTOPP_ASSERT(length==32);
 	this->Reset();
 	this->Iterate(1, m_key);
 	if (iv && IsAligned<word32>(iv))

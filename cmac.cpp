@@ -81,7 +81,7 @@ void CMAC_Base::Update(const byte *input, size_t length)
 
 	if (length > blockSize)
 	{
-		assert(m_counter == 0);
+		CRYPTOPP_ASSERT(m_counter == 0);
 		size_t leftOver = 1 + cipher.AdvancedProcessBlocks(m_reg, input, m_reg, length-1, BlockTransformation::BT_DontIncrementInOutPointers|BlockTransformation::BT_XorInput);
 		input += (length - leftOver);
 		length = leftOver;
@@ -89,12 +89,12 @@ void CMAC_Base::Update(const byte *input, size_t length)
 
 	if (length > 0)
 	{
-		assert(m_counter + length <= blockSize);
+		CRYPTOPP_ASSERT(m_counter + length <= blockSize);
 		xorbuf(m_reg+m_counter, input, length);
 		m_counter += (unsigned int)length;
 	}
 
-	assert(m_counter > 0);
+	CRYPTOPP_ASSERT(m_counter > 0);
 }
 
 void CMAC_Base::TruncatedFinal(byte *mac, size_t size)

@@ -448,7 +448,7 @@ protected:
 	size_t ThrowIfInvalidIVLength(int size);
 	const byte * GetIVAndThrowIfInvalid(const NameValuePairs &params, size_t &size);
 	inline void AssertValidKeyLength(size_t length) const
-		{assert(IsValidKeyLength(length));}
+		{CRYPTOPP_ASSERT(IsValidKeyLength(length));}
 };
 
 //! interface for the data processing part of block ciphers
@@ -542,7 +542,7 @@ public:
 	//! for random access ciphers, seek to an absolute position
 	virtual void Seek(lword n)
 	{
-		assert(!IsRandomAccess());
+		CRYPTOPP_ASSERT(!IsRandomAccess());
 		throw NotImplemented("StreamTransformation: this object doesn't support random access");
 	}
 
@@ -1040,13 +1040,13 @@ public:
 		//! returns whether this object allows attachment
 		virtual bool Attachable() {return false;}
 		//! returns the object immediately attached to this object or NULL for no attachment
-		virtual BufferedTransformation *AttachedTransformation() {assert(!Attachable()); return 0;}
+		virtual BufferedTransformation *AttachedTransformation() {CRYPTOPP_ASSERT(!Attachable()); return 0;}
 		//!
 		virtual const BufferedTransformation *AttachedTransformation() const
 			{return const_cast<BufferedTransformation *>(this)->AttachedTransformation();}
 		//! delete the current attachment chain and replace it with newAttachment
 		virtual void Detach(BufferedTransformation *newAttachment = 0)
-			{assert(!Attachable()); throw NotImplemented("BufferedTransformation: this object is not attachable");}
+			{CRYPTOPP_ASSERT(!Attachable()); throw NotImplemented("BufferedTransformation: this object is not attachable");}
 		//! add newAttachment to the end of attachment chain
 		virtual void Attach(BufferedTransformation *newAttachment);
 	//@}
@@ -1111,13 +1111,13 @@ public:
 		typically it means calculate a table of n objects
 		that can be used later to speed up computation. */
 	virtual void Precompute(unsigned int n)
-		{assert(!SupportsPrecomputation()); throw NotImplemented("CryptoMaterial: this object does not support precomputation");}
+		{CRYPTOPP_ASSERT(!SupportsPrecomputation()); throw NotImplemented("CryptoMaterial: this object does not support precomputation");}
 	//! retrieve previously saved precomputation
 	virtual void LoadPrecomputation(BufferedTransformation &storedPrecomputation)
-		{assert(!SupportsPrecomputation()); throw NotImplemented("CryptoMaterial: this object does not support precomputation");}
+		{CRYPTOPP_ASSERT(!SupportsPrecomputation()); throw NotImplemented("CryptoMaterial: this object does not support precomputation");}
 	//! save precomputation for later use
 	virtual void SavePrecomputation(BufferedTransformation &storedPrecomputation) const
-		{assert(!SupportsPrecomputation()); throw NotImplemented("CryptoMaterial: this object does not support precomputation");}
+		{CRYPTOPP_ASSERT(!SupportsPrecomputation()); throw NotImplemented("CryptoMaterial: this object does not support precomputation");}
 
 	// for internal library use
 	void DoQuickSanityCheck() const	{ThrowIfInvalid(NullRNG(), 0);}

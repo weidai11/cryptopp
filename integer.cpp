@@ -61,7 +61,7 @@ inline static int Compare(const word *A, const word *B, size_t N)
 
 inline static int Increment(word *A, size_t N, word B=1)
 {
-	assert(N);
+	CRYPTOPP_ASSERT(N);
 	word t = A[0];
 	A[0] = t+B;
 	if (A[0] >= t)
@@ -74,7 +74,7 @@ inline static int Increment(word *A, size_t N, word B=1)
 
 inline static int Decrement(word *A, size_t N, word B=1)
 {
-	assert(N);
+	CRYPTOPP_ASSERT(N);
 	word t = A[0];
 	A[0] = t-B;
 	if (A[0] <= t)
@@ -94,14 +94,14 @@ static void TwosComplement(word *A, size_t N)
 
 static word AtomicInverseModPower2(word A)
 {
-	assert(A%2==1);
+	CRYPTOPP_ASSERT(A%2==1);
 
 	word R=A%8;
 
 	for (unsigned i=3; i<WORD_BITS; i*=2)
 		R = R*(2-R*A);
 
-	assert(R*A==1);
+	CRYPTOPP_ASSERT(R*A==1);
 	return R;
 }
 
@@ -358,7 +358,7 @@ template <class S, class D>
 S DivideThreeWordsByTwo(S *A, S B0, S B1, D *dummy=NULL)
 {
 	// assert {A[2],A[1]} < {B1,B0}, so quotient can fit in a S
-	assert(A[2] < B1 || (A[2]==B1 && A[1] < B0));
+	CRYPTOPP_ASSERT(A[2] < B1 || (A[2]==B1 && A[1] < B0));
 
 	// estimate the quotient: do a 2 S by 1 S divide
 	S Q;
@@ -386,7 +386,7 @@ S DivideThreeWordsByTwo(S *A, S B0, S B1, D *dummy=NULL)
 		A[1] = u.GetLowHalf();
 		A[2] += u.GetHighHalf();
 		Q++;
-		assert(Q);	// shouldn't overflow
+		CRYPTOPP_ASSERT(Q);	// shouldn't overflow
 	}
 
 	return Q;
@@ -797,7 +797,7 @@ CRYPTOPP_NAKED int CRYPTOPP_FASTCALL SSE2_Sub(size_t N, word *C, const word *A, 
 #else
 int CRYPTOPP_FASTCALL Baseline_Add(size_t N, word *C, const word *A, const word *B)
 {
-	assert (N%2 == 0);
+	CRYPTOPP_ASSERT (N%2 == 0);
 
 	Declare2Words(u);
 	AssignWord(u, 0);
@@ -813,7 +813,7 @@ int CRYPTOPP_FASTCALL Baseline_Add(size_t N, word *C, const word *A, const word 
 
 int CRYPTOPP_FASTCALL Baseline_Sub(size_t N, word *C, const word *A, const word *B)
 {
-	assert (N%2 == 0);
+	CRYPTOPP_ASSERT (N%2 == 0);
 
 	Declare2Words(u);
 	AssignWord(u, 0);
@@ -2064,7 +2064,7 @@ inline int Subtract(word *C, const word *A, const word *B, size_t N)
 
 void RecursiveMultiply(word *R, word *T, const word *A, const word *B, size_t N)
 {
-	assert(N>=2 && N%2==0);
+	CRYPTOPP_ASSERT(N>=2 && N%2==0);
 
 	if (N <= s_recursionLimit)
 		s_pMul[N/4](R, A, B);
@@ -2095,7 +2095,7 @@ void RecursiveMultiply(word *R, word *T, const word *A, const word *B, size_t N)
 			c3 += Add(R1, R1, T0, N);
 
 		c3 += Increment(R2, N2, c2);
-		assert (c3 >= 0 && c3 <= 2);
+		CRYPTOPP_ASSERT (c3 >= 0 && c3 <= 2);
 		Increment(R3, N2, c3);
 	}
 }
@@ -2106,7 +2106,7 @@ void RecursiveMultiply(word *R, word *T, const word *A, const word *B, size_t N)
 
 void RecursiveSquare(word *R, word *T, const word *A, size_t N)
 {
-	assert(N && N%2==0);
+	CRYPTOPP_ASSERT(N && N%2==0);
 
 	if (N <= s_recursionLimit)
 		s_pSqu[N/4](R, A);
@@ -2131,7 +2131,7 @@ void RecursiveSquare(word *R, word *T, const word *A, size_t N)
 
 void RecursiveMultiplyBottom(word *R, word *T, const word *A, const word *B, size_t N)
 {
-	assert(N>=2 && N%2==0);
+	CRYPTOPP_ASSERT(N>=2 && N%2==0);
 
 	if (N <= s_recursionLimit)
 		s_pBot[N/4](R, A, B);
@@ -2155,7 +2155,7 @@ void RecursiveMultiplyBottom(word *R, word *T, const word *A, const word *B, siz
 
 void MultiplyTop(word *R, word *T, const word *L, const word *A, const word *B, size_t N)
 {
-	assert(N>=2 && N%2==0);
+	CRYPTOPP_ASSERT(N>=2 && N%2==0);
 
 	if (N <= s_recursionLimit)
 		s_pTop[N/4](R, A, B, L[N-1]);
@@ -2197,7 +2197,7 @@ void MultiplyTop(word *R, word *T, const word *L, const word *A, const word *B, 
 			c3 -= Decrement(T2, N2, -c2);
 		c3 += Add(R0, T2, R1, N2);
 
-		assert (c3 >= 0 && c3 <= 2);
+		CRYPTOPP_ASSERT (c3 >= 0 && c3 <= 2);
 		Increment(R1, N2, c3);
 	}
 }
@@ -2240,7 +2240,7 @@ void AsymmetricMultiply(word *R, word *T, const word *A, size_t NA, const word *
 		std::swap(NA, NB);
 	}
 
-	assert(NB % NA == 0);
+	CRYPTOPP_ASSERT(NB % NA == 0);
 
 	if (NA==2 && !A[1])
 	{
@@ -2326,7 +2326,7 @@ void MontgomeryReduce(word *R, word *T, word *X, const word *M, const word *U, s
 	word borrow = Subtract(T, X+N, T, N);
 	// defend against timing attack by doing this Add even when not needed
 	word carry = Add(T+N, T, M, N);
-	assert(carry | !borrow);
+	CRYPTOPP_ASSERT(carry | !borrow);
 	CopyWords(R, T + ((0-borrow) & N), N);
 #elif 0
 	const word u = 0-U[0];
@@ -2393,7 +2393,7 @@ void MontgomeryReduce(word *R, word *T, word *X, const word *M, const word *U, s
 
 void HalfMontgomeryReduce(word *R, word *T, const word *X, const word *M, const word *U, const word *V, size_t N)
 {
-	assert(N%2==0 && N>=4);
+	CRYPTOPP_ASSERT(N%2==0 && N>=4);
 
 #define M0		M
 #define M1		(M+N2)
@@ -2422,7 +2422,7 @@ void HalfMontgomeryReduce(word *R, word *T, const word *X, const word *M, const 
 	else if (c2<0)
 		c3 -= Decrement(R1, N2, -c2);
 
-	assert(c3>=-1 && c3<=1);
+	CRYPTOPP_ASSERT(c3>=-1 && c3<=1);
 	if (c3>0)
 		Subtract(R, R, M, N);
 	else if (c3<0)
@@ -2459,7 +2459,7 @@ void HalfMontgomeryReduce(word *R, word *T, const word *X, const word *M, const 
 static word SubatomicDivide(word *A, word B0, word B1)
 {
 	// assert {A[2],A[1]} < {B1,B0}, so quotient can fit in a word
-	assert(A[2] < B1 || (A[2]==B1 && A[1] < B0));
+	CRYPTOPP_ASSERT(A[2] < B1 || (A[2]==B1 && A[1] < B0));
 
 	// estimate the quotient: do a 2 word by 1 word divide
 	word Q;
@@ -2485,7 +2485,7 @@ static word SubatomicDivide(word *A, word B0, word B1)
 		A[1] = u.GetLowHalf();
 		A[2] += u.GetHighHalf();
 		Q++;
-		assert(Q);	// shouldn't overflow
+		CRYPTOPP_ASSERT(Q);	// shouldn't overflow
 	}
 
 	return Q;
@@ -2508,11 +2508,11 @@ static inline void AtomicDivide(word *Q, const word *A, const word *B)
 
 #ifndef NDEBUG
 		// multiply quotient and divisor and add remainder, make sure it equals dividend
-		assert(!T[2] && !T[3] && (T[1] < B[1] || (T[1]==B[1] && T[0]<B[0])));
+		CRYPTOPP_ASSERT(!T[2] && !T[3] && (T[1] < B[1] || (T[1]==B[1] && T[0]<B[0])));
 		word P[4];
 		LowLevel::Multiply2(P, Q, B);
 		Add(P, P, T, 4);
-		assert(memcmp(P, A, 4*WORD_SIZE)==0);
+		CRYPTOPP_ASSERT(memcmp(P, A, 4*WORD_SIZE)==0);
 #endif
 	}
 }
@@ -2529,11 +2529,11 @@ static inline void AtomicDivide(word *Q, const word *A, const word *B)
 	if (B[0] || B[1])
 	{
 		// multiply quotient and divisor and add remainder, make sure it equals dividend
-		assert(!T[2] && !T[3] && (T[1] < B[1] || (T[1]==B[1] && T[0]<B[0])));
+		CRYPTOPP_ASSERT(!T[2] && !T[3] && (T[1] < B[1] || (T[1]==B[1] && T[0]<B[0])));
 		word P[4];
 		s_pMul[0](P, Q, B);
 		Add(P, P, T, 4);
-		assert(memcmp(P, A, 4*WORD_SIZE)==0);
+		CRYPTOPP_ASSERT(memcmp(P, A, 4*WORD_SIZE)==0);
 	}
 #endif
 }
@@ -2541,18 +2541,18 @@ static inline void AtomicDivide(word *Q, const word *A, const word *B)
 // for use by Divide(), corrects the underestimated quotient {Q1,Q0}
 static void CorrectQuotientEstimate(word *R, word *T, word *Q, const word *B, size_t N)
 {
-	assert(N && N%2==0);
+	CRYPTOPP_ASSERT(N && N%2==0);
 
 	AsymmetricMultiply(T, T+N+2, Q, 2, B, N);
 
 	word borrow = Subtract(R, R, T, N+2);
-	assert(!borrow && !R[N+1]);
+	CRYPTOPP_ASSERT(!borrow && !R[N+1]);
 
 	while (R[N] || Compare(R, B, N) >= 0)
 	{
 		R[N] -= Subtract(R, R, B, N);
 		Q[1] += (++Q[0]==0);
-		assert(Q[0] || Q[1]); // no overflow
+		CRYPTOPP_ASSERT(Q[0] || Q[1]); // no overflow
 	}
 }
 
@@ -2564,9 +2564,9 @@ static void CorrectQuotientEstimate(word *R, word *T, word *Q, const word *B, si
 
 void Divide(word *R, word *Q, word *T, const word *A, size_t NA, const word *B, size_t NB)
 {
-	assert(NA && NB && NA%2==0 && NB%2==0);
-	assert(B[NB-1] || B[NB-2]);
-	assert(NB <= NA);
+	CRYPTOPP_ASSERT(NA && NB && NA%2==0 && NB%2==0);
+	CRYPTOPP_ASSERT(B[NB-1] || B[NB-2]);
+	CRYPTOPP_ASSERT(NB <= NA);
 
 	// set up temporary work space
 	word *const TA=T;
@@ -2578,7 +2578,7 @@ void Divide(word *R, word *Q, word *T, const word *A, size_t NA, const word *B, 
 	TB[0] = TB[NB-1] = 0;
 	CopyWords(TB+shiftWords, B, NB-shiftWords);
 	unsigned shiftBits = WORD_BITS - BitPrecision(TB[NB-1]);
-	assert(shiftBits < WORD_BITS);
+	CRYPTOPP_ASSERT(shiftBits < WORD_BITS);
 	ShiftWordsLeftByBits(TB, NB, shiftBits);
 
 	// copy A into TA and normalize it
@@ -2598,7 +2598,7 @@ void Divide(word *R, word *Q, word *T, const word *A, size_t NA, const word *B, 
 	else
 	{
 		NA+=2;
-		assert(Compare(TA+NA-NB, TB, NB) < 0);
+		CRYPTOPP_ASSERT(Compare(TA+NA-NB, TB, NB) < 0);
 	}
 
 	word BT[2];
@@ -2632,7 +2632,7 @@ static inline size_t EvenWordCount(const word *X, size_t N)
 
 unsigned int AlmostInverse(word *R, word *T, const word *A, size_t NA, const word *M, size_t N)
 {
-	assert(NA<=N && N && N%2==0);
+	CRYPTOPP_ASSERT(NA<=N && N && N%2==0);
 
 	word *b = T;
 	word *c = T+N;
@@ -2660,7 +2660,7 @@ unsigned int AlmostInverse(word *R, word *T, const word *A, size_t NA, const wor
 
 			ShiftWordsRightByWords(f, fgLen, 1);
 			bcLen += 2 * (c[bcLen-1] != 0);
-			assert(bcLen <= N);
+			CRYPTOPP_ASSERT(bcLen <= N);
 			ShiftWordsLeftByWords(c, bcLen, 1);
 			k+=WORD_BITS;
 			t=f[0];
@@ -2683,7 +2683,7 @@ unsigned int AlmostInverse(word *R, word *T, const word *A, size_t NA, const wor
 		t = ShiftWordsLeftByBits(c, bcLen, i);
 		c[bcLen] += t;
 		bcLen += 2 * (t!=0);
-		assert(bcLen <= N);
+		CRYPTOPP_ASSERT(bcLen <= N);
 
 		bool swap = Compare(f, g, fgLen)==-1;
 		ConditionalSwapPointers(swap, f, g);
@@ -2696,7 +2696,7 @@ unsigned int AlmostInverse(word *R, word *T, const word *A, size_t NA, const wor
 		t = Add(b, b, c, bcLen);
 		b[bcLen] += t;
 		bcLen += 2*t;
-		assert(bcLen <= N);
+		CRYPTOPP_ASSERT(bcLen <= N);
 	}
 }
 
@@ -2816,7 +2816,7 @@ bool Integer::IsConvertableToLong() const
 
 signed long Integer::ConvertToLong() const
 {
-	assert(IsConvertableToLong());
+	CRYPTOPP_ASSERT(IsConvertableToLong());
 
 	unsigned long value = (unsigned long)reg[0];
 	value += SafeLeftShift<WORD_BITS, unsigned long>((unsigned long)reg[1]);
@@ -2937,7 +2937,7 @@ void Integer::SetByte(size_t n, byte value)
 lword Integer::GetBits(size_t i, size_t n) const
 {
 	lword v = 0;
-	assert(n <= sizeof(v)*8);
+	CRYPTOPP_ASSERT(n <= sizeof(v)*8);
 	for (unsigned int j=0; j<n; j++)
 		v |= lword(GetBit(i+j)) << j;
 	return v;
@@ -3076,7 +3076,7 @@ void Integer::Decode(const byte *input, size_t inputLen, Signedness s)
 
 void Integer::Decode(BufferedTransformation &bt, size_t inputLen, Signedness s)
 {
-	assert(bt.MaxRetrievable() >= inputLen);
+	CRYPTOPP_ASSERT(bt.MaxRetrievable() >= inputLen);
 
 	byte b;
 	bt.Peek(b);
@@ -3442,7 +3442,7 @@ Integer& Integer::operator++()
 	else
 	{
 		word borrow = Decrement(reg, reg.size());
-		assert(!borrow);
+		CRYPTOPP_ASSERT(!borrow);
 		if (WordCount()==0)
 			*this = Zero();
 	}
@@ -3518,7 +3518,7 @@ void PositiveSubtract(Integer &diff, const Integer &a, const Integer& b)
 		word borrow = Subtract(diff.reg, a.reg, b.reg, bSize);
 		CopyWords(diff.reg+bSize, a.reg+bSize, aSize-bSize);
 		borrow = Decrement(diff.reg+bSize, aSize-bSize, borrow);
-		assert(!borrow);
+		CRYPTOPP_ASSERT(!borrow);
 		diff.sign = Integer::POSITIVE;
 	}
 	else
@@ -3526,7 +3526,7 @@ void PositiveSubtract(Integer &diff, const Integer &a, const Integer& b)
 		word borrow = Subtract(diff.reg, b.reg, a.reg, aSize);
 		CopyWords(diff.reg+aSize, b.reg+aSize, bSize-aSize);
 		borrow = Decrement(diff.reg+aSize, bSize-aSize, borrow);
-		assert(!borrow);
+		CRYPTOPP_ASSERT(!borrow);
 		diff.sign = Integer::NEGATIVE;
 	}
 }
@@ -3798,7 +3798,7 @@ void Integer::Divide(word &remainder, Integer &quotient, const Integer &dividend
 	if (!divisor)
 		throw Integer::DivideByZero();
 
-	assert(divisor);
+	CRYPTOPP_ASSERT(divisor);
 
 	if ((divisor & (divisor-1)) == 0)	// divisor is a power of 2
 	{
@@ -3842,7 +3842,7 @@ word Integer::Modulo(word divisor) const
 	if (!divisor)
 		throw Integer::DivideByZero();
 
-	assert(divisor);
+	CRYPTOPP_ASSERT(divisor);
 
 	word remainder;
 
@@ -3914,7 +3914,7 @@ Integer Integer::SquareRoot() const
 
 	// overestimate square root
 	Integer x, y = Power2((BitCount()+1)/2);
-	assert(y*y >= *this);
+	CRYPTOPP_ASSERT(y*y >= *this);
 
 	do
 	{
@@ -3959,7 +3959,7 @@ Integer Integer::Gcd(const Integer &a, const Integer &b)
 
 Integer Integer::InverseMod(const Integer &m) const
 {
-	assert(m.NotNegative());
+	CRYPTOPP_ASSERT(m.NotNegative());
 
 	if (IsNegative())
 		return Modulo(m).InverseMod(m);
@@ -4175,7 +4175,7 @@ const Integer& MontgomeryRepresentation::Multiply(const Integer &a, const Intege
 	word *const T = m_workspace.begin();
 	word *const R = m_result.reg.begin();
 	const size_t N = m_modulus.reg.size();
-	assert(a.reg.size()<=N && b.reg.size()<=N);
+	CRYPTOPP_ASSERT(a.reg.size()<=N && b.reg.size()<=N);
 
 	AsymmetricMultiply(T, T+2*N, a.reg, a.reg.size(), b.reg, b.reg.size());
 	SetWords(T+a.reg.size()+b.reg.size(), 0, 2*N-a.reg.size()-b.reg.size());
@@ -4188,7 +4188,7 @@ const Integer& MontgomeryRepresentation::Square(const Integer &a) const
 	word *const T = m_workspace.begin();
 	word *const R = m_result.reg.begin();
 	const size_t N = m_modulus.reg.size();
-	assert(a.reg.size()<=N);
+	CRYPTOPP_ASSERT(a.reg.size()<=N);
 
 	CryptoPP::Square(T, T+2*N, a.reg, a.reg.size());
 	SetWords(T+2*a.reg.size(), 0, 2*N-2*a.reg.size());
@@ -4201,7 +4201,7 @@ Integer MontgomeryRepresentation::ConvertOut(const Integer &a) const
 	word *const T = m_workspace.begin();
 	word *const R = m_result.reg.begin();
 	const size_t N = m_modulus.reg.size();
-	assert(a.reg.size()<=N);
+	CRYPTOPP_ASSERT(a.reg.size()<=N);
 
 	CopyWords(T, a.reg, a.reg.size());
 	SetWords(T+a.reg.size(), 0, 2*N-a.reg.size());
@@ -4215,7 +4215,7 @@ const Integer& MontgomeryRepresentation::MultiplicativeInverse(const Integer &a)
 	word *const T = m_workspace.begin();
 	word *const R = m_result.reg.begin();
 	const size_t N = m_modulus.reg.size();
-	assert(a.reg.size()<=N);
+	CRYPTOPP_ASSERT(a.reg.size()<=N);
 
 	CopyWords(T, a.reg, a.reg.size());
 	SetWords(T+a.reg.size(), 0, 2*N-a.reg.size());

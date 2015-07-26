@@ -133,7 +133,7 @@ void VMAC_Base::Resynchronize(const byte *nonce, int len)
 
 void VMAC_Base::HashEndianCorrectedBlock(const word64 *data)
 {
-	assert(false);
+	CRYPTOPP_ASSERT(false);
 	throw 0;
 }
 

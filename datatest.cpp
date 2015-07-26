@@ -264,17 +264,17 @@ void TestSignatureScheme(TestData &v)
 	else if (test == "DeterministicSign")
 	{
 		SignalTestError();
-		assert(false);	// TODO: implement
+		CRYPTOPP_ASSERT(false);	// TODO: implement
 	}
 	else if (test == "RandomSign")
 	{
 		SignalTestError();
-		assert(false);	// TODO: implement
+		CRYPTOPP_ASSERT(false);	// TODO: implement
 	}
 	else
 	{
 		SignalTestError();
-		assert(false);
+		CRYPTOPP_ASSERT(false);
 	}
 }
 
@@ -314,7 +314,7 @@ void TestAsymmetricCipher(TestData &v)
 	else
 	{
 		SignalTestError();
-		assert(false);
+		CRYPTOPP_ASSERT(false);
 	}
 }
 
@@ -412,7 +412,7 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 			while (ss.Pump(64)) {}
 			ss.PumpAll();
 			for (int i=0; i<z.length(); i++)
-				assert(encrypted[i] == z[i]);
+				CRYPTOPP_ASSERT(encrypted[i] == z[i]);
 		}*/
 		if (test != "EncryptXorDigest")
 			ciphertext = GetDecodedDatum(v, "Ciphertext");
@@ -577,7 +577,7 @@ void TestDigestOrMAC(TestData &v, bool testDigest)
 	else
 	{
 		SignalTestError();
-		assert(false);
+		CRYPTOPP_ASSERT(false);
 	}
 }
 
@@ -641,7 +641,7 @@ void OutputPair(const NameValuePairs &v, const char *name)
 {
 	Integer x;
 	bool b = v.GetValue(name, x);
-	assert(b); CRYPTOPP_UNUSED(b);
+	CRYPTOPP_ASSERT(b); CRYPTOPP_UNUSED(b);
 	cout << name << ": \\\n    ";
 	x.Encode(HexEncoder(new FileSink(cout), false, 64, "\\\n    ").Ref(), x.MinEncodedSize());
 	cout << endl;

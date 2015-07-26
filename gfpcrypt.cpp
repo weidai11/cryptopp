@@ -70,8 +70,8 @@ void DL_SignatureMessageEncodingMethod_DSA::ComputeMessageRepresentative(RandomN
 	HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
 	byte *representative, size_t representativeBitLength) const
 {
-	assert(recoverableMessageLength == 0);
-	assert(hashIdentifier.second == 0);
+	CRYPTOPP_ASSERT(recoverableMessageLength == 0);
+	CRYPTOPP_ASSERT(hashIdentifier.second == 0);
 	const size_t representativeByteLength = BitsToBytes(representativeBitLength);
 	const size_t digestSize = hash.DigestSize();
 	const size_t paddingLength = SaturatingSubtract(representativeByteLength, digestSize);
@@ -92,8 +92,8 @@ void DL_SignatureMessageEncodingMethod_NR::ComputeMessageRepresentative(RandomNu
 	HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
 	byte *representative, size_t representativeBitLength) const
 {
-	assert(recoverableMessageLength == 0);
-	assert(hashIdentifier.second == 0);
+	CRYPTOPP_ASSERT(recoverableMessageLength == 0);
+	CRYPTOPP_ASSERT(hashIdentifier.second == 0);
 	const size_t representativeByteLength = BitsToBytes(representativeBitLength);
 	const size_t digestSize = hash.DigestSize();
 	const size_t paddingLength = SaturatingSubtract(representativeByteLength, digestSize);

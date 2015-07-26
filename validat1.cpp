@@ -469,7 +469,7 @@ public:
 		{
 			std::cerr << "incorrect output " << counter << ", " << (word16)validOutput[counter] << ", " << (word16)inByte << "\n";
 			fail = true;
-			assert(false);
+			CRYPTOPP_ASSERT(false);
 		}
 		counter++;
 	}
@@ -482,7 +482,7 @@ public:
 			if (counter != outputLen)
 			{
 				fail = true;
-				assert(false);
+				CRYPTOPP_ASSERT(false);
 			}
 
 		return 0;

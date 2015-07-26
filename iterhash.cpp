@@ -51,7 +51,7 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte
 	{
 		if (input == data)
 		{
-			assert(len == blockSize);
+			CRYPTOPP_ASSERT(len == blockSize);
 			HashBlock(dataBuf);
 			return;
 		}

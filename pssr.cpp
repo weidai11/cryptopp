@@ -49,7 +49,7 @@ void PSSR_MEM_Base::ComputeMessageRepresentative(RandomNumberGenerator &rng,
 	HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
 	byte *representative, size_t representativeBitLength) const
 {
-	assert(representativeBitLength >= MinRepresentativeBitLength(hashIdentifier.second, hash.DigestSize()));
+	CRYPTOPP_ASSERT(representativeBitLength >= MinRepresentativeBitLength(hashIdentifier.second, hash.DigestSize()));
 
 	const size_t u = hashIdentifier.second + 1;
 	const size_t representativeByteLength = BitsToBytes(representativeBitLength);
@@ -91,7 +91,7 @@ DecodingResult PSSR_MEM_Base::RecoverMessageFromRepresentative(
 	byte *representative, size_t representativeBitLength,
 	byte *recoverableMessage) const
 {
-	assert(representativeBitLength >= MinRepresentativeBitLength(hashIdentifier.second, hash.DigestSize()));
+	CRYPTOPP_ASSERT(representativeBitLength >= MinRepresentativeBitLength(hashIdentifier.second, hash.DigestSize()));
 
 	const size_t u = hashIdentifier.second + 1;
 	const size_t representativeByteLength = BitsToBytes(representativeBitLength);

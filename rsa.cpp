@@ -124,7 +124,7 @@ void InvertibleRSAFunction::GenerateRandom(RandomNumberGenerator &rng, const Nam
 	m_q.GenerateRandom(rng, primeParam);
 
 	m_d = m_e.InverseMod(LCM(m_p-1, m_q-1));
-	assert(m_d.IsPositive());
+	CRYPTOPP_ASSERT(m_d.IsPositive());
 
 	m_dp = m_d % (m_p-1);
 	m_dq = m_d % (m_q-1);

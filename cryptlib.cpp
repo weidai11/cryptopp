@@ -153,7 +153,7 @@ size_t BlockTransformation::AdvancedProcessBlocks(const byte *inBlocks, const by
 
 	if (flags & BT_ReverseDirection)
 	{
-		assert(length % blockSize == 0);
+		CRYPTOPP_ASSERT(length % blockSize == 0);
 		inBlocks += length - blockSize;
 		xorBlocks += length - blockSize;
 		outBlocks += length - blockSize;
@@ -199,7 +199,7 @@ unsigned int HashTransformation::OptimalDataAlignment() const
 
 void StreamTransformation::ProcessLastBlock(byte *outString, const byte *inString, size_t length)
 {
-	assert(MinLastBlockSize() == 0);	// this function should be overriden otherwise
+	CRYPTOPP_ASSERT(MinLastBlockSize() == 0);	// this function should be overriden otherwise
 
 	if (length == MandatoryBlockSize())
 		ProcessData(outString, inString, length);
@@ -333,19 +333,19 @@ void BufferedTransformation::GetWaitObjects(WaitObjectContainer &container, Call
 
 void BufferedTransformation::Initialize(const NameValuePairs &parameters, int propagation)
 {
-	assert(!AttachedTransformation());
+	CRYPTOPP_ASSERT(!AttachedTransformation());
 	IsolatedInitialize(parameters);
 }
 
 bool BufferedTransformation::Flush(bool hardFlush, int propagation, bool blocking)
 {
-	assert(!AttachedTransformation());
+	CRYPTOPP_ASSERT(!AttachedTransformation());
 	return IsolatedFlush(hardFlush, blocking);
 }
 
 bool BufferedTransformation::MessageSeriesEnd(int propagation, bool blocking)
 {
-	assert(!AttachedTransformation());
+	CRYPTOPP_ASSERT(!AttachedTransformation());
 	return IsolatedMessageSeriesEnd(blocking);
 }
 
@@ -484,7 +484,7 @@ bool BufferedTransformation::GetNextMessage()
 		return AttachedTransformation()->GetNextMessage();
 	else
 	{
-		assert(!AnyMessages());
+		CRYPTOPP_ASSERT(!AnyMessages());
 		return false;
 	}
 }
@@ -521,7 +521,7 @@ size_t BufferedTransformation::TransferMessagesTo2(BufferedTransformation &targe
 				return 1;
 
 			bool result = GetNextMessage();
-			assert(result);
+			CRYPTOPP_ASSERT(result);
 		}
 		return 0;
 	}
@@ -552,7 +552,7 @@ size_t BufferedTransformation::TransferAllTo2(BufferedTransformation &target, co
 		return AttachedTransformation()->TransferAllTo2(target, channel, blocking);
 	else
 	{
-		assert(!NumberOfMessageSeries());
+		CRYPTOPP_ASSERT(!NumberOfMessageSeries());
 
 		unsigned int messageCount;
 		do
@@ -584,7 +584,7 @@ void BufferedTransformation::CopyAllTo(BufferedTransformation &target, const std
 		AttachedTransformation()->CopyAllTo(target, channel);
 	else
 	{
-		assert(!NumberOfMessageSeries());
+		CRYPTOPP_ASSERT(!NumberOfMessageSeries());
 		while (CopyMessagesTo(target, UINT_MAX, channel)) {}
 	}
 }

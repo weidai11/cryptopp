@@ -30,7 +30,7 @@ size_t PKCS_EncryptionPaddingScheme::MaxUnpaddedLength(size_t paddedLength) cons
 
 void PKCS_EncryptionPaddingScheme::Pad(RandomNumberGenerator &rng, const byte *input, size_t inputLen, byte *pkcsBlock, size_t pkcsBlockLen, const NameValuePairs &parameters) const
 {
-	assert (inputLen <= MaxUnpaddedLength(pkcsBlockLen));	// this should be checked by caller
+	CRYPTOPP_ASSERT (inputLen <= MaxUnpaddedLength(pkcsBlockLen));	// this should be checked by caller
 
 	// convert from bit length to byte length
 	if (pkcsBlockLen % 8 != 0)
@@ -70,7 +70,7 @@ DecodingResult PKCS_EncryptionPaddingScheme::Unpad(const byte *pkcsBlock, size_t
 	size_t i=1;
 	while (i<pkcsBlockLen && pkcsBlock[i++]) { // null body
 		}
-	assert(i==pkcsBlockLen || pkcsBlock[i-1]==0);
+	CRYPTOPP_ASSERT(i==pkcsBlockLen || pkcsBlock[i-1]==0);
 
 	size_t outputLen = pkcsBlockLen - i;
 	invalid = (outputLen > maxOutputLen) || invalid;
@@ -91,7 +91,7 @@ void PKCS1v15_SignatureMessageEncodingMethod::ComputeMessageRepresentative(Rando
 	HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
 	byte *representative, size_t representativeBitLength) const
 {
-	assert(representativeBitLength >= MinRepresentativeBitLength(hashIdentifier.second, hash.DigestSize()));
+	CRYPTOPP_ASSERT(representativeBitLength >= MinRepresentativeBitLength(hashIdentifier.second, hash.DigestSize()));
 
 	size_t pkcsBlockLen = representativeBitLength;
 	// convert from bit length to byte length

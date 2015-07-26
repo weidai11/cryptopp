@@ -30,20 +30,20 @@ inline bool LowFirstBitReader::FillBuffer(unsigned int length)
 		m_buffer |= (unsigned long)b << m_bitsBuffered;
 		m_bitsBuffered += 8;
 	}
-	assert(m_bitsBuffered <= sizeof(unsigned long)*8);
+	CRYPTOPP_ASSERT(m_bitsBuffered <= sizeof(unsigned long)*8);
 	return true;
 }
 
 inline unsigned long LowFirstBitReader::PeekBits(unsigned int length)
 {
 	bool result = FillBuffer(length);
-	assert(result); CRYPTOPP_UNUSED(result);
+	CRYPTOPP_ASSERT(result); CRYPTOPP_UNUSED(result);
 	return m_buffer & (((unsigned long)1 << length) - 1);
 }
 
 inline void LowFirstBitReader::SkipBits(unsigned int length)
 {
-	assert(m_bitsBuffered >= length);
+	CRYPTOPP_ASSERT(m_bitsBuffered >= length);
 	m_buffer >>= length;
 	m_bitsBuffered -= length;
 }
@@ -137,7 +137,7 @@ void HuffmanDecoder::Initialize(const unsigned int *codeBits, unsigned int nCode
 	m_cacheBits = STDMIN(9U, m_maxCodeBits);
 	m_cacheMask = (1 << m_cacheBits) - 1;
 	m_normalizedCacheMask = NormalizeCode(m_cacheMask, m_cacheBits);
-	assert(m_normalizedCacheMask == BitReverse(m_cacheMask));
+	CRYPTOPP_ASSERT(m_normalizedCacheMask == BitReverse(m_cacheMask));
 
 	if (m_cache.size() != size_t(1) << m_cacheBits)
 		m_cache.resize(1 << m_cacheBits);
@@ -175,7 +175,7 @@ void HuffmanDecoder::FillCacheEntry(LookupEntry &entry, code_t normalizedCode) c
 
 inline unsigned int HuffmanDecoder::Decode(code_t code, /* out */ value_t &value) const
 {
-	assert(m_codeToValue.size() > 0);
+	CRYPTOPP_ASSERT(m_codeToValue.size() > 0);
 	LookupEntry &entry = m_cache[code & m_cacheMask];
 
 	code_t normalizedCode;
@@ -468,7 +468,7 @@ bool Inflator::DecodeBody()
 	switch (m_blockType)
 	{
 	case 0:	// stored
-		assert(m_reader.BitsBuffered() == 0);
+		CRYPTOPP_ASSERT(m_reader.BitsBuffered() == 0);
 		while (!m_inQueue.IsEmpty() && !blockEnd)
 		{
 			size_t size;
@@ -576,7 +576,7 @@ void Inflator::FlushOutput()
 {
 	if (m_state != PRE_STREAM)
 	{
-		assert(m_current >= m_lastFlush);
+		CRYPTOPP_ASSERT(m_current >= m_lastFlush);
 		ProcessDecompressedData(m_window + m_lastFlush, m_current - m_lastFlush);
 		m_lastFlush = m_current;
 	}

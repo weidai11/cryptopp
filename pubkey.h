@@ -210,7 +210,7 @@ public:
 		SecByteBlock &semisignature) const
 	{
 		if (RecoverablePartFirst())
-			assert(!"ProcessRecoverableMessage() not implemented");
+			CRYPTOPP_ASSERT(!"ProcessRecoverableMessage() not implemented");
 	}
 
 	virtual void ComputeMessageRepresentative(RandomNumberGenerator &rng, 
@@ -972,7 +972,7 @@ public:
 	size_t MaxRecoverableLength() const 
 		{return GetMessageEncodingInterface().MaxRecoverableLength(0, GetHashIdentifier().second, GetDigestSize());}
 	size_t MaxRecoverableLengthFromSignatureLength(size_t signatureLength) const
-		{assert(false); return 0;}	// TODO
+		{CRYPTOPP_ASSERT(false); return 0;}	// TODO
 
 	bool IsProbabilistic() const 
 		{return true;}
@@ -1460,7 +1460,7 @@ public:
 			return params.ExponentiateElement(publicElement, privateExponent*params.GetCofactor());
 		else
 		{
-			assert(COFACTOR_OPTION::ToEnum() == NO_COFACTOR_MULTIPLICTION);
+			CRYPTOPP_ASSERT(COFACTOR_OPTION::ToEnum() == NO_COFACTOR_MULTIPLICTION);
 
 			if (!validateOtherPublicKey)
 				return params.ExponentiateElement(publicElement, privateExponent);

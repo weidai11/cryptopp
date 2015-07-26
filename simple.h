@@ -68,7 +68,7 @@ public:
 	bool Flush(bool completeFlush, int propagation=-1, bool blocking=true)
 		{return ChannelFlush(DEFAULT_CHANNEL, completeFlush, propagation, blocking);}
 	bool IsolatedFlush(bool hardFlush, bool blocking)
-		{assert(false); return false;}
+		{CRYPTOPP_ASSERT(false); return false;}
 	bool ChannelFlush(const std::string &channel, bool hardFlush, int propagation=-1, bool blocking=true)
 	{
 		if (hardFlush && !InputBufferIsEmpty())
@@ -111,7 +111,7 @@ public:
 	virtual bool Flush(bool hardFlush, int propagation=-1, bool blocking=true) =0;
 
 private:
-	bool IsolatedFlush(bool hardFlush, bool blocking) {assert(false); return false;}
+	bool IsolatedFlush(bool hardFlush, bool blocking) {CRYPTOPP_ASSERT(false); return false;}
 };
 
 //! _
@@ -122,7 +122,7 @@ public:
 	virtual void Initialize(const NameValuePairs &parameters=g_nullNameValuePairs, int propagation=-1) =0;
 
 private:
-	void IsolatedInitialize(const NameValuePairs &parameters) {assert(false);}
+	void IsolatedInitialize(const NameValuePairs &parameters) {CRYPTOPP_ASSERT(false);}
 };
 
 //! _

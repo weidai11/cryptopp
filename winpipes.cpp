@@ -89,7 +89,7 @@ WindowsPipeReceiver::WindowsPipeReceiver()
 
 bool WindowsPipeReceiver::Receive(byte* buf, size_t bufLen)
 {
-	assert(!m_resultPending && !m_eofReceived);
+	CRYPTOPP_ASSERT(!m_resultPending && !m_eofReceived);
 
 	HANDLE h = GetHandle();
 	// don't queue too much at once, or we might use up non-paged memory

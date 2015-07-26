@@ -27,8 +27,8 @@ void Modes_TestInstantiations()
 
 void CFB_ModePolicy::Iterate(byte *output, const byte *input, CipherDir dir, size_t iterationCount)
 {
-	assert(m_cipher->IsForwardTransformation());	// CFB mode needs the "encrypt" direction of the underlying block cipher, even to decrypt
-	assert(m_feedbackSize == BlockSize());
+	CRYPTOPP_ASSERT(m_cipher->IsForwardTransformation());	// CFB mode needs the "encrypt" direction of the underlying block cipher, even to decrypt
+	CRYPTOPP_ASSERT(m_feedbackSize == BlockSize());
 
 	const unsigned int s = BlockSize();
 	if (dir == ENCRYPTION)
@@ -48,7 +48,7 @@ void CFB_ModePolicy::Iterate(byte *output, const byte *input, CipherDir dir, siz
 
 void CFB_ModePolicy::TransformRegister()
 {
-	assert(m_cipher->IsForwardTransformation());	// CFB mode needs the "encrypt" direction of the underlying block cipher, even to decrypt
+	CRYPTOPP_ASSERT(m_cipher->IsForwardTransformation());	// CFB mode needs the "encrypt" direction of the underlying block cipher, even to decrypt
 	m_cipher->ProcessBlock(m_register, m_temp);
 	const unsigned int updateSize = BlockSize()-m_feedbackSize;
 
@@ -59,7 +59,7 @@ void CFB_ModePolicy::TransformRegister()
 
 void CFB_ModePolicy::CipherResynchronize(const byte *iv, size_t length)
 {
-	assert(length == BlockSize());
+	CRYPTOPP_ASSERT(length == BlockSize());
 	CopyOrZero(m_register, iv, length);
 	TransformRegister();
 }
@@ -79,7 +79,7 @@ void CFB_ModePolicy::ResizeBuffers()
 
 void OFB_ModePolicy::WriteKeystream(byte *keystreamBuffer, size_t iterationCount)
 {
-	assert(m_cipher->IsForwardTransformation());	// OFB mode needs the "encrypt" direction of the underlying block cipher, even to decrypt
+	CRYPTOPP_ASSERT(m_cipher->IsForwardTransformation());	// OFB mode needs the "encrypt" direction of the underlying block cipher, even to decrypt
 	unsigned int s = BlockSize();
 	m_cipher->ProcessBlock(m_register, keystreamBuffer);
 	if (iterationCount > 1)
@@ -89,7 +89,7 @@ void OFB_ModePolicy::WriteKeystream(byte *keystreamBuffer, size_t iterationCount
 
 void OFB_ModePolicy::CipherResynchronize(byte *keystreamBuffer, const byte *iv, size_t length)
 {
-	assert(length == BlockSize());
+	CRYPTOPP_ASSERT(length == BlockSize());
 	CopyOrZero(m_register, iv, length);
 }
 
@@ -112,7 +112,7 @@ void CTR_ModePolicy::IncrementCounterBy256()
 
 void CTR_ModePolicy::OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount)
 {
-	assert(m_cipher->IsForwardTransformation());	// CTR mode needs the "encrypt" direction of the underlying block cipher, even to decrypt
+	CRYPTOPP_ASSERT(m_cipher->IsForwardTransformation());	// CTR mode needs the "encrypt" direction of the underlying block cipher, even to decrypt
 	unsigned int s = BlockSize();
 	unsigned int inputIncrement = input ? s : 0;
 
@@ -132,7 +132,7 @@ void CTR_ModePolicy::OperateKeystream(KeystreamOperation operation, byte *output
 
 void CTR_ModePolicy::CipherResynchronize(byte *keystreamBuffer, const byte *iv, size_t length)
 {
-	assert(length == BlockSize());
+	CRYPTOPP_ASSERT(length == BlockSize());
 	CopyOrZero(m_register, iv, length);
 	m_counterArray = m_register;
 }
@@ -151,7 +151,7 @@ void BlockOrientedCipherModeBase::UncheckedSetKey(const byte *key, unsigned int 
 
 void ECB_OneWay::ProcessData(byte *outString, const byte *inString, size_t length)
 {
-	assert(length%BlockSize()==0);
+	CRYPTOPP_ASSERT(length%BlockSize()==0);
 	m_cipher->AdvancedProcessBlocks(inString, NULL, outString, length, BlockTransformation::BT_AllowParallel);
 }
 
@@ -159,7 +159,7 @@ void CBC_Encryption::ProcessData(byte *outString, const byte *inString, size_t l
 {
 	if (!length)
 		return;
-	assert(length%BlockSize()==0);
+	CRYPTOPP_ASSERT(length%BlockSize()==0);
 
 	unsigned int blockSize = BlockSize();
 	m_cipher->AdvancedProcessBlocks(inString, m_register, outString, blockSize, BlockTransformation::BT_XorInput);
@@ -199,7 +199,7 @@ void CBC_Decryption::ProcessData(byte *outString, const byte *inString, size_t l
 {
 	if (!length)
 		return;
-	assert(length%BlockSize()==0);
+	CRYPTOPP_ASSERT(length%BlockSize()==0);
 
 	unsigned int blockSize = BlockSize();
 	memcpy(m_temp, inString+length-blockSize, blockSize);	// save copy now in case of in-place decryption
