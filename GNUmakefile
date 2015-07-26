@@ -337,10 +337,16 @@ DLLTESTOBJS = dlltest.dllonly.o
 #################################################################
 # Public service announcement
 
-ALIGNED_ACCESS = $(shell cat config.h | $(EGREP) -c "^\#define CRYPTOPP_NO_UNALIGNED_DATA_ACCESS")
-ifeq ($(ALIGNED_ACCESS),0)
+# Do not warn for some targets
+NO_WARN = GNUmakefile.deps dist install install-strip uninstall remove clean distclean
+ifeq ($(findstring $(MAKECMDGOALS),$(NO_WARN)),)
+
+UNALIGNED_ACCESS = $(shell $(EGREP) -c "^// \#define CRYPTOPP_NO_UNALIGNED_DATA_ACCESS" config.h)
+ifneq ($(UNALIGNED_ACCESS),0)
 $(info WARNING: CRYPTOPP_NO_UNALIGNED_DATA_ACCESS is not defined in config.h)
 endif
+
+endif # NO_WARN
 
 #################################################################
 # Recipes
@@ -478,7 +484,7 @@ ifeq ($(MULTIARCH),0)
 -include GNUmakefile.deps
 endif
 
-GNUmakefile.deps:
+deps GNUmakefile.deps:
 	$(CXX) $(CXXFLAGS) -MM *.cpp > GNUmakefile.deps
 
 endif # NO_DEPS
