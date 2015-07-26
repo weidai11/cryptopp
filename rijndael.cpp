@@ -1193,7 +1193,7 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)
 	if (HasSSE2())
 	{
-		if (length < BLOCKSIZE)
+		if (length < static_cast<size_t>(BLOCKSIZE))
 			return length;
 
 		struct Locals
