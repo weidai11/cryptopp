@@ -370,7 +370,8 @@ inline bool SafeConvert(T1 from, T2 &to)
 	return true;
 }
 
-#ifndef CRYPTOPP_WIN32_AVAILABLE
+// MSVC see this as a duplicate specialization
+#ifndef _MSC_VER
 // files.cpp, line 235
 template<>
 inline bool SafeConvert<size_t,std::streamsize>(size_t from, std::streamsize &to)
