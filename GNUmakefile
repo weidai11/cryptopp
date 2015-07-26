@@ -56,7 +56,7 @@ SUN_COMPILER = $(shell $(CXX) -V 2>&1 | $(EGREP) -i -c "CC: Sun")
 # TODO: Uncomment the line above when Clang's integrated assembler can parse and generate code that passes the self tests.
 
 #################################################################
-# Platform detection
+# Platform and architecture detection
 
 MACHINE ?= $(shell $(UNAME) -m)
 SYSTEM ?= $(shell $(UNAME) -s)
@@ -71,9 +71,6 @@ IS_CYGWIN = $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "cygwin")
 IS_OPENBSD = $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "openbsd")
 IS_SUN = $(shell echo $SYSTEM | $(EGREP) -i -c "SunOS")
 IS_FEDORA22_i686 = $(shell echo $RELEASE | $(EGREP) -i -c "fc22.i686")
-
-#################################################################
-# Architecture detection
 
 #########################
 # May (or may not) be used below
@@ -418,7 +415,7 @@ endif
 .PHONY: zip dist
 zip dist: distclean
 	-zip -9 cryptopp.zip *.h *.cpp *.asm License.txt Readme.txt \
-		GNUmakefile GNUmakefile-cross Doxyfile \
+		Install.txt GNUmakefile GNUmakefile-cross Doxyfile \
 		cryptest_bds.bdsgroup cryptest_bds.bdsproj cryptest_bds.bpf cryptlib_bds.bdsproj \
 		cryptest.sln cryptest.dsp cryptest.dsw cryptest.vcproj \
 		dlltest.dsp dlltest.vcproj cryptlib.dsp cryptlib.vcproj cryptopp.rc \
