@@ -12,11 +12,13 @@ CONTENTS OF THIS FILE
 INTRODUCTION
 ------------
 
+Crypto++ Library is a free C++ class library of cryptographic schemes. It was written and placed in public domain by Wei Dai. The library homepage is at http://www.cryptopp.com/. The latest library source code can be found at https://github.com/weidai11/cryptopp.
+
 These are general instructions for the BSDs, Linux, Solaris and Unix. For Windows, Crypto++ provides Visual Studio solution roles.
 
-Crypto++ provides a GNU makefile, which combines configuration and a non-anemic make.
+Crypto++ provides a GNU makefile, which combines configuration and a non-anemic make. You should look through the GNUmakefile and config.h to ensure settings look reasonable before building. Please pay particular attention to CRYPTOPP_NO_UNALIGNED_DATA_ACCESS in config.h.
 
-You should look through the GNUmakefile and config.h to ensure settings look reasonable before building. If you start building and things look off, then perform a cleaning and start over.
+If you start building and things look off, then perform a cleaning and start over.
 
 
 MAKEFILE TARGETS
