@@ -11,7 +11,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-static const int IDEA_KEYLEN=(6*IDEA::ROUNDS+4);  // key schedule length in # of word16s
+static const unsigned int IDEA_KEYLEN=(6*IDEA::ROUNDS+4);  // key schedule length in # of word16s
 
 #define low16(x) ((x)&0xffff)	// compiler should be able to optimize this away if word is 16 bits
 #define high16(x) ((x)>>16)
@@ -64,7 +64,7 @@ void IDEA::Base::BuildLogTables()
 void IDEA::Base::LookupKeyLogs()
 {
 	IDEA::Word* Z=key;
-	int r=ROUNDS;
+	unsigned int r=ROUNDS;
 	do
 	{
 		Z[0] = log[Z[0]];
@@ -134,9 +134,10 @@ static inline IDEA::Word AddInv(IDEA::Word x)
 void IDEA::Base::DeKey()
 {
 	FixedSizeSecBlock<IDEA::Word, 6*ROUNDS+4> tempkey;
-	size_t i;
 
-	for (i=0; i<ROUNDS; i++)
+	// Signed/unsigned warning and GCC 4.8 issue under Debian/i386?
+	unsigned int i;
+	for (i=0; i<static_cast<unsigned int>(ROUNDS); i++)
 	{
 		tempkey[i*6+0] = MulInv(m_key[(ROUNDS-i)*6+0]);
 		tempkey[i*6+1] = AddInv(m_key[(ROUNDS-i)*6+1+(i>0)]);
@@ -168,7 +169,9 @@ void IDEA::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
 	IDEA::Word x0,x1,x2,x3,t0,t1;
 	Block::Get(inBlock)(x0)(x1)(x2)(x3);
 
-	for (unsigned int i=0; i<ROUNDS; i++)
+	// Signed/unsigned warning and GCC 4.8 issue under Debian/i386?
+	unsigned int i;
+	for (i=0; i<static_cast<unsigned int>(ROUNDS); i++)
 	{
 		MUL(x0, key[i*6+0]);
 		x1 += key[i*6+1];
