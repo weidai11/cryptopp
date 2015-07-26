@@ -123,10 +123,11 @@ Third, the test harness provides a "validation" option which performs basic syst
 
 Fourth, the test harness provides a "test vector" option which uses many known test vectors, even those published by other people (like Brian Gladman for AES). You run the test vectors with the following. The tail of the output should indicate 0 failed tests.
 
-    ./cryptest.exe v
+    ./cryptest.exe tv all
     ...
 
     Testing SymmetricCipher algorithm MARS/ECB.
     .................
     Tests complete. Total tests = 4094. Failed tests = 0.
 
+Failures in the validation suite or test vectors should be reported on the Crypto++ User Group.
