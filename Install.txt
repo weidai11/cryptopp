@@ -1,0 +1,132 @@
+CONTENTS OF THIS FILE
+---------------------
+
+* Introduction
+* Makefile Targets
+* General Instructions
+* DataDir Patch
+* Dynamic Analysis
+* Library Acceptance Testing
+
+
+INTRODUCTION
+------------
+
+These are general instructions for the BSDs, Linux, Solaris and Unix. For Windows, Crypto++ provides Visual Studio solution roles.
+
+Crypto++ provides a GNU makefile, which combines configuration and a non-anemic make.
+
+You should look through the GNUmakefile and config.h to ensure settings look reasonable before building. If you start building and things look off, then perform a cleaning and start over.
+
+
+MAKEFILE TARGETS
+----------------
+
+The following are some of the targets provided by the GNU makefile.
+
+`make` invokes the default rule, which builds the Crypto++ library and test harness. They are called `libcryptopp.a` and `cryptest.exe`, respectively.
+
+`make libcryptopp.a` and `make static` build the static version of the library.
+
+`make libcryptopp.so` and `make dynamic` build the dynamic version of the library. On Mac OS X, the recipe builds `libcryptopp.dylib` instead.
+
+`make cryptest.exe` builds the library test harness.
+
+`make test` and `make check` are the same recipe and invokes the test harness with the the validation option. That is, it executes `cryptest.exe v`. 
+
+`make install` installs the library. By default, the makefile copies into `/usr`. On OpenBSD, `make install` uses `/usr/local` by default because C++ headers should not be placed with the system headers.
+
+`make clean` cleans most transient, temporary objects.
+
+`make disclean` cleans most objects that are not part of the original distribution.
+
+`make dist` and `make zip` build s ZIP file that is suitable for distribution.
+
+
+GENERAL INSTRUCTIONS
+--------------------
+
+In general, all you should have to do is open a terminal, and then:
+
+    make
+    make test
+    sudo make install
+
+On Mac OS X, you can build fat libraries and test program with:
+
+    make MULTIARCH=1
+
+Or
+
+    export MULTIARCH=1
+    make
+
+To install the library into a user selected directory, perform:
+
+    make install PREFIX=/usr/local
+
+PREFIX is non-standard, but its retained for historical purposes. The makefile also responds to `prefix=<path>`.
+
+There are some open issues with installing the library because cryptest.exe is not sympathetic to path changes of of its test vectors and test data. See the DataDir patch below to fix it.
+
+
+DATADIR PATCH
+-------------
+
+The library offers a DataDir patch to help with post-installation issues regarding the location of the test vectors and test data. Its a patch provided by the community, so it must be applied manually. To acquire the patch, see http://www.cryptopp.com/wiki/DataDir.
+
+
+DYNAMIC ANALYSIS
+----------------
+
+The Crypto++ embraces tools like Undefined Behavior sanitizer (UBsan), Address sanitizer (Asan) and Valgrind. Both Clang 3.2 and above and GCC 4.8 and above provide sanitizers. Please check with your distribution on how to install the compiler with its sanitizer libraries (they are sometimes a separate install item).
+
+UBsan and Asan are mutually exclusive options, so you can perform one or the other of:
+
+    make ubsan
+    ./cryptest.exe v 2>&1 | grep FAILED
+    ./cryptest.exe tv all 2>&1 | grep FAILED
+
+Or:
+
+    make asan
+    ./cryptest.exe v 2>&1 | grep FAILED
+    ./cryptest.exe tv all 2>&1 | grep FAILED
+
+If you get a fault under Asan, then gather more information with:
+
+    ./cryptest.exe v 2>&1 | asan_symbolize
+
+If you moved Crypto++ such that the paths have changed, then perform:
+
+    ./cryptest.exe v 2>&1 | sed "s/<old path>/<new path>/g" | asan_symbolize
+
+Gaps or problems should be reported on the Crypto++ User Group.
+
+LIBRARY ACCEPTANCE TESTING
+--------------------------
+
+There are four tests you can invoke to decide if the Crypto++ library suits your needs and provides a compatible security posture. Crypto++ uses them in its engineering process. The library must maintain the quality provided by the integrity of the tests.
+
+First is the compiler warning system. The code must clean compile under the equivalent of GCC's -Wall -Wextra (modulo -Wno-type-limits -Wno-unknown-pragmas). This is a moving target as compiler analysis improves. Gaps should be reported on the Crypto++ User Group.
+
+Second, the code must pass cleanly though GCC and Clang's Undefined Behavior sanitizer (UBsan) and Address sanitizer (Asan). See DYNAMIC ANALYSIS above on how to execute them with little effort. Gaps should be reported on the Crypto++ User Group.
+
+Third, the test harness provides a "validation" option which performs basic system checks (like endianess and word sizes) and exercises algorithms (like AES and SHA). You run the validation suite with the following. The tail of the output should indicate 0 failed tests.
+
+    ./cryptest.exe v
+    ...
+
+    All tests passed!
+    Test ended at Sun Jul 26 02:10:57 2015
+    Seed used was: 1437891055
+
+Fourth, the test harness provides a "test vector" option which uses many known test vectors, even those published by other people (like Brian Gladman for AES). You run the test vectors with the following. The tail of the output should indicate 0 failed tests.
+
+    ./cryptest.exe v
+    ...
+
+    Testing SymmetricCipher algorithm MARS/ECB.
+    .................
+    Tests complete. Total tests = 4094. Failed tests = 0.
+
