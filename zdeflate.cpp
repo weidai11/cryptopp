@@ -289,7 +289,7 @@ void Deflator::Reset(bool forceReset)
 	m_detectSkip = 0;
 
 	// m_prev will be initialized automaticly in InsertString
-	fill(m_head.begin(), m_head.end(), 0);
+	fill(m_head.begin(), m_head.end(), word16(0));
 
 	fill(m_literalCounts.begin(), m_literalCounts.end(), 0);
 	fill(m_distanceCounts.begin(), m_distanceCounts.end(), 0);
@@ -643,10 +643,10 @@ void Deflator::EncodeBlock(bool eof, unsigned int blockType)
 	if (blockType == STORED)
 	{
 		assert(m_blockStart + m_blockLength <= m_byteBuffer.size());
-		assert(m_blockLength <= 0xffff);
+		assert(m_blockLength <= 65535);
 		FlushBitBuffer();
-		AttachedTransformation()->PutWord16(m_blockLength, LITTLE_ENDIAN_ORDER);
-		AttachedTransformation()->PutWord16(~m_blockLength, LITTLE_ENDIAN_ORDER);
+		AttachedTransformation()->PutWord16(static_cast<word16>(m_blockLength), LITTLE_ENDIAN_ORDER);
+		AttachedTransformation()->PutWord16(static_cast<word16>(~m_blockLength), LITTLE_ENDIAN_ORDER);
 		AttachedTransformation()->Put(m_byteBuffer + m_blockStart, m_blockLength);
 	}
 	else
