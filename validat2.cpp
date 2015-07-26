@@ -112,7 +112,7 @@ bool SignatureValidate(PK_Signer &priv, PK_Verifier &pub, bool thorough = false)
 	cout << "signature key validation\n";
 
 	static const byte message[] = "test message";
-	const int messageLen = COUNTOF(message);
+	const unsigned int messageLen = COUNTOF(message);
 
 	SecByteBlock signature(priv.MaxSignatureLength());
 	size_t signatureLength = priv.SignMessage(GlobalRNG(), message, messageLen, signature);
