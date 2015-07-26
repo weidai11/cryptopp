@@ -370,6 +370,7 @@ inline bool SafeConvert(T1 from, T2 &to)
 	return true;
 }
 
+#ifndef CRYPTOPP_WIN32_AVAILABLE
 // files.cpp, line 235
 template<>
 inline bool SafeConvert<size_t,std::streamsize>(size_t from, std::streamsize &to)
@@ -379,6 +380,7 @@ inline bool SafeConvert<size_t,std::streamsize>(size_t from, std::streamsize &to
 		return false;
 	return true;
 }
+#endif
 
 // files.cpp, line 366
 template<>
