@@ -45,7 +45,7 @@ struct NewPrimeTable
 					break;
 			if (j == testEntriesEnd)
 			{
-				primeTable.push_back(p);
+				primeTable.push_back(static_cast<word16>(p));
 				testEntriesEnd = UnsignedMin(54U, primeTable.size());
 			}
 		}
