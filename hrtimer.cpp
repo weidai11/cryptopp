@@ -78,7 +78,8 @@ TimerWord Timer::GetCurrentTimerValue()
 TimerWord Timer::TicksPerSecond()
 {
 #if defined(CRYPTOPP_WIN32_AVAILABLE)
-	static LARGE_INTEGER freq = { .QuadPart = 0 };
+	// Hack to silence GCC under MinGW
+	static LARGE_INTEGER freq = { {0,0} };
 	if (freq.QuadPart == 0)
 	{
 		if (!QueryPerformanceFrequency(&freq))
