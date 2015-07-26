@@ -12,7 +12,7 @@ CONTENTS OF THIS FILE
 INTRODUCTION
 ------------
 
-Crypto++ Library is a free C++ class library of cryptographic algorithms and schemes. It was written and placed in public domain by Wei Dai. The library homepage is at http://www.cryptopp.com/. The latest library source code can be found at https://github.com/weidai11/cryptopp.
+Crypto++ Library is a free C++ class library of cryptographic algorithms and schemes. It was written and placed in public domain by Wei Dai. The library homepage is at http://www.cryptopp.com/. The latest library source code can be found at https://github.com/weidai11/cryptopp. For licensing and copyright information, please see License.txt.
 
 These are general instructions for the BSDs, Linux, Solaris and Unix. For Windows, Crypto++ provides Visual Studio solution roles.
 
