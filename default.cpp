@@ -15,6 +15,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 static const unsigned int MASH_ITERATIONS = 200;
 static const unsigned int SALTLENGTH = 8;
+static const unsigned int DIGESTSIZE = DefaultHashModule::DIGESTSIZE;
 static const unsigned int BLOCKSIZE = Default_BlockCipher::Encryption::BLOCKSIZE;
 static const unsigned int KEYLENGTH = Default_BlockCipher::Encryption::DEFAULT_KEYLENGTH;
 
@@ -29,14 +30,14 @@ static void Mash(const byte *in, size_t inLen, byte *out, size_t outLen, int ite
 	if (BytePrecision(outLen) > 2)
 		throw InvalidArgument("Mash: output legnth too large");
 
-	size_t bufSize = RoundUpToMultipleOf(outLen, (size_t)DefaultHashModule::DIGESTSIZE);
+	size_t bufSize = RoundUpToMultipleOf(outLen, (size_t)DIGESTSIZE);
 	byte b[2];
 	SecByteBlock buf(bufSize);
 	SecByteBlock outBuf(bufSize);
 	DefaultHashModule hash;
 
 	unsigned int i;
-	for(i=0; i<outLen; i+=DefaultHashModule::DIGESTSIZE)
+	for(i=0; i<outLen; i+=DIGESTSIZE)
 	{
 		b[0] = (byte) (i >> 8);
 		b[1] = (byte) i;
@@ -48,7 +49,7 @@ static void Mash(const byte *in, size_t inLen, byte *out, size_t outLen, int ite
 	while (iterations-- > 1)
 	{
 		memcpy(buf, outBuf, bufSize);
-		for (i=0; i<bufSize; i+=DefaultHashModule::DIGESTSIZE)
+		for (i=0; i<bufSize; i+=DIGESTSIZE)
 		{
 			b[0] = (byte) (i >> 8);
 			b[1] = (byte) i;
@@ -88,10 +89,10 @@ DefaultEncryptor::DefaultEncryptor(const byte *passphrase, size_t passphraseLeng
 void DefaultEncryptor::FirstPut(const byte *)
 {
 	// VC60 workaround: __LINE__ expansion bug
-	CRYPTOPP_COMPILE_ASSERT_INSTANCE(SALTLENGTH <= DefaultHashModule::DIGESTSIZE, 1);
-	CRYPTOPP_COMPILE_ASSERT_INSTANCE(BLOCKSIZE <= DefaultHashModule::DIGESTSIZE, 2);
+	CRYPTOPP_COMPILE_ASSERT_INSTANCE(SALTLENGTH <= DIGESTSIZE, 1);
+	CRYPTOPP_COMPILE_ASSERT_INSTANCE(BLOCKSIZE <= DIGESTSIZE, 2);
 
-	SecByteBlock salt(DefaultHashModule::DIGESTSIZE), keyCheck(DefaultHashModule::DIGESTSIZE);
+	SecByteBlock salt(DIGESTSIZE), keyCheck(DIGESTSIZE);
 	DefaultHashModule hash;
 
 	// use hash(passphrase | time | clock) as salt
@@ -165,7 +166,7 @@ void DefaultDecryptor::LastPut(const byte *inString, size_t length)
 
 void DefaultDecryptor::CheckKey(const byte *salt, const byte *keyCheck)
 {
-	SecByteBlock check(STDMAX((unsigned int)2*BLOCKSIZE, (unsigned int)DefaultHashModule::DIGESTSIZE));
+	SecByteBlock check(STDMAX((unsigned int)2*BLOCKSIZE, (unsigned int)DIGESTSIZE));
 
 	DefaultHashModule hash;
 	hash.Update(m_passphrase, m_passphrase.size());
