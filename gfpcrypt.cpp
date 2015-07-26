@@ -8,6 +8,7 @@
 #include "asn.h"
 #include "oids.h"
 #include "nbtheory.h"
+#include "trap.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 

@@ -6,6 +6,7 @@
 #include "pch.h"
 #include "polynomi.h"
 #include "secblock.h"
+#include "trap.h"
 
 #include <sstream>
 #include <iostream>

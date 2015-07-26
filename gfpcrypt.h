@@ -12,6 +12,7 @@
 #include "asn.h"
 #include "smartptr.h"
 #include "hmac.h"
+#include "trap.h"
 
 #include <limits.h>
 

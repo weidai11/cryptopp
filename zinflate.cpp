@@ -7,6 +7,7 @@
 
 #include "pch.h"
 #include "zinflate.h"
+#include "trap.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 

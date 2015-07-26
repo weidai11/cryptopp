@@ -31,6 +31,7 @@
 #include "seckey.h"
 #include "secblock.h"
 #include "argnames.h"
+#include "trap.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 

@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "wait.h"
 #include "misc.h"
+#include "trap.h"
 
 #ifdef SOCKETS_AVAILABLE
 

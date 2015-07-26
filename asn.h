@@ -3,6 +3,7 @@
 
 #include "filters.h"
 #include "queue.h"
+#include "trap.h"
 #include <vector>
 
 NAMESPACE_BEGIN(CryptoPP)

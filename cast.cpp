@@ -4,6 +4,7 @@
 #include "pch.h"
 #include "cast.h"
 #include "misc.h"
+#include "trap.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 

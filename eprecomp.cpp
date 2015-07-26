@@ -6,6 +6,7 @@
 
 #include "eprecomp.h"
 #include "asn.h"
+#include "trap.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 

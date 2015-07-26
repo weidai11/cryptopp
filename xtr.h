@@ -6,6 +6,7 @@
 */
 
 #include "modarith.h"
+#include "trap.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 

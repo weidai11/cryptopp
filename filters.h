@@ -9,6 +9,8 @@
 #include "smartptr.h"
 #include "queue.h"
 #include "algparam.h"
+#include "trap.h"
+
 #include <deque>
 
 NAMESPACE_BEGIN(CryptoPP)

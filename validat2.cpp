@@ -26,6 +26,7 @@
 #include "oids.h"
 #include "esign.h"
 #include "osrng.h"
+#include "trap.h"
 
 #include <iostream>
 #include <iomanip>

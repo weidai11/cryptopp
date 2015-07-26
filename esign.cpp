@@ -7,6 +7,7 @@
 #include "nbtheory.h"
 #include "sha.h"
 #include "algparam.h"
+#include "trap.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 

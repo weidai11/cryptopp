@@ -8,6 +8,8 @@
 #include "mqueue.h"
 #include "fltrimpl.h"
 #include "argnames.h"
+#include "trap.h"
+
 #include <memory>
 #include <functional>
 

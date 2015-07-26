@@ -6,9 +6,10 @@
 #include "algebra.h"
 #include "gf2_32.h"
 #include "polynomi.h"
-#include <functional>
-
 #include "polynomi.cpp"
+#include "trap.h"
+
+#include <functional>
 
 ANONYMOUS_NAMESPACE_BEGIN
 static const CryptoPP::GF2_32 field;

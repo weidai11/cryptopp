@@ -5,6 +5,7 @@
 #ifndef CRYPTOPP_IMPORTS
 
 #include "strciphr.h"
+#include "trap.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 

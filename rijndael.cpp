@@ -72,6 +72,7 @@ being unloaded from L1 cache, until that round is finished.
 #include "rijndael.h"
 #include "misc.h"
 #include "cpu.h"
+#include "trap.h"
 
 #if GCC_DIAGNOSTIC_AWARE
 # pragma GCC diagnostic push

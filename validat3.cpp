@@ -1,7 +1,6 @@
 // validat3.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
-#include "validate.h"
 
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
 #include "smartptr.h"
@@ -24,9 +23,12 @@
 #include "hex.h"
 #include "misc.h"
 #include "files.h"
+#include "trap.h"
 
 #include <iostream>
 #include <iomanip>
+
+#include "validate.h"
 
 USING_NAMESPACE(CryptoPP)
 USING_NAMESPACE(std)

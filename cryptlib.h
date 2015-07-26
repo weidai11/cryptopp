@@ -81,6 +81,7 @@ and getting me started with this manual.
 
 #include "config.h"
 #include "stdcpp.h"
+#include "trap.h"
 
 // We can't include "misc.h" due to circular references....
 #define GCC_DIAGNOSTIC_AWARE_X ((__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7)) || defined(__clang__))

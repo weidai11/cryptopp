@@ -8,6 +8,7 @@
 
 #include "cryptlib.h"
 #include "misc.h"
+#include "trap.h"
 
 #if GCC_DIAGNOSTIC_AWARE
 # pragma GCC diagnostic push

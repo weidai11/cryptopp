@@ -8,6 +8,7 @@
 #include "modarith.h"
 #include "algparam.h"
 #include "misc.h"
+#include "trap.h"
 
 #include <math.h>
 #include <vector>

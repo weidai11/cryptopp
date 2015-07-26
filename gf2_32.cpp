@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "misc.h"
 #include "gf2_32.h"
+#include "trap.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 

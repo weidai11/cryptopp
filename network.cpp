@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "network.h"
 #include "wait.h"
+#include "trap.h"
 
 #define CRYPTOPP_TRACE_NETWORK 0
 

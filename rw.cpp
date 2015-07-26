@@ -4,10 +4,7 @@
 #include "rw.h"
 #include "nbtheory.h"
 #include "asn.h"
-
-#ifndef NDEBUG
-# include <cassert>
-#endif
+#include "trap.h"
 
 #ifndef CRYPTOPP_IMPORTS
 

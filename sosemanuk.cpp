@@ -9,6 +9,7 @@
 #include "sosemanuk.h"
 #include "misc.h"
 #include "cpu.h"
+#include "trap.h"
 
 #include "serpentp.h"
 

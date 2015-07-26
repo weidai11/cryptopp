@@ -2,6 +2,7 @@
 
 #include "pch.h"
 #include "adler32.h"
+#include "trap.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 

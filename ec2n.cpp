@@ -9,6 +9,7 @@
 
 #include "algebra.cpp"
 #include "eprecomp.cpp"
+#include "trap.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 

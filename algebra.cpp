@@ -7,6 +7,7 @@
 
 #include "algebra.h"
 #include "integer.h"
+#include "trap.h"
 
 #include <vector>
 

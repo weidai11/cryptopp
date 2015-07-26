@@ -5,9 +5,10 @@
 #ifndef CRYPTOPP_IMPORTS
 
 #include "modes.h"
+#include "trap.h"
 
 #ifndef NDEBUG
-#include "des.h"
+# include "des.h"
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)

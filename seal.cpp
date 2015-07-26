@@ -6,6 +6,7 @@
 #include "seal.h"
 #include "sha.h"
 #include "misc.h"
+#include "trap.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 

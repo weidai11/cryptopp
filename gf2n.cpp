@@ -10,6 +10,7 @@
 #include "randpool.h"
 #include "asn.h"
 #include "oids.h"
+#include "trap.h"
 
 #include <iostream>
 

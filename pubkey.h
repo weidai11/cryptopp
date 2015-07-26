@@ -37,6 +37,8 @@
 #include "eprecomp.h"
 #include "fips140.h"
 #include "argnames.h"
+#include "trap.h"
+
 #include <memory>
 
 // VC60 workaround: this macro is defined in shlobj.h and conflicts with a template parameter used in this file

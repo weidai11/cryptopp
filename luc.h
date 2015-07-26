@@ -8,6 +8,7 @@
 #include "oaep.h"
 #include "integer.h"
 #include "dh.h"
+#include "trap.h"
 
 #include <limits.h>
 

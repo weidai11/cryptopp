@@ -2,6 +2,7 @@
 
 #include "pch.h"
 #include "eax.h"
+#include "trap.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 

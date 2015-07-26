@@ -9,6 +9,7 @@
 #include "sha.h"
 #include "algparam.h"
 #include "fips140.h"
+#include "trap.h"
 
 #if !defined(NDEBUG) && !defined(CRYPTOPP_IS_DLL)
 #include "pssr.h"

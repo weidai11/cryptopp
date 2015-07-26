@@ -6,6 +6,7 @@
 
 #include "basecode.h"
 #include "fltrimpl.h"
+#include "trap.h"
 #include <ctype.h>
 
 #if GCC_DIAGNOSTIC_AWARE

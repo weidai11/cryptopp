@@ -5,6 +5,7 @@
 #ifndef CRYPTOPP_IMPORTS
 
 #include "asn.h"
+#include "trap.h"
 
 #include <iomanip>
 #include <time.h>

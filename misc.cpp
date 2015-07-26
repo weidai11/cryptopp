@@ -6,6 +6,8 @@
 
 #include "misc.h"
 #include "words.h"
+#include "trap.h"
+
 #include <new>
 
 #if defined(CRYPTOPP_MEMALIGN_AVAILABLE) || defined(CRYPTOPP_MM_MALLOC_AVAILABLE) || defined(QNX)

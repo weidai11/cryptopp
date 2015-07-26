@@ -7,6 +7,8 @@
 
 #include "network.h"
 #include "queue.h"
+#include "trap.h"
+
 #include <winsock2.h>
 
 NAMESPACE_BEGIN(CryptoPP)

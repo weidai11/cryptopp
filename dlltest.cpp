@@ -3,6 +3,7 @@
 #endif
 
 #include "dll.h"
+#include "trap.h"
 
 USING_NAMESPACE(CryptoPP)
 USING_NAMESPACE(std)

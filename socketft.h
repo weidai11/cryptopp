@@ -7,6 +7,7 @@
 
 #include "network.h"
 #include "queue.h"
+#include "trap.h"
 
 #ifdef USE_WINDOWS_STYLE_SOCKETS
 #	if defined(_WINSOCKAPI_) && !defined(_WINSOCK2API_)

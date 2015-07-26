@@ -9,6 +9,7 @@
 #include "panama.h"
 #include "misc.h"
 #include "cpu.h"
+#include "trap.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 

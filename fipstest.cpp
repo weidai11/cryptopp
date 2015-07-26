@@ -22,6 +22,8 @@ extern "C" {_CRTIMP void __cdecl _CRT_DEBUGGER_HOOK(int);}
 #endif // _MSC_VER
 #endif // CRYPTOPP_WIN32_AVAILABLE
 
+#include "trap.h"
+
 #include <iostream>
 
 #if GCC_DIAGNOSTIC_AWARE

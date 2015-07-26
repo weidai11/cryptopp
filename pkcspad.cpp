@@ -6,7 +6,7 @@
 #define CRYPTOPP_PKCSPAD_CPP
 
 #include "pkcspad.h"
-#include <assert.h>
+#include "trap.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 

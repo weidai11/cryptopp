@@ -1,6 +1,8 @@
 #ifndef CRYPTOPP_FLTRIMPL_H
 #define CRYPTOPP_FLTRIMPL_H
 
+#include "trap.h"
+
 #define FILTER_BEGIN	\
 	switch (m_continueAt)	\
 	{	\

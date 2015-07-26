@@ -10,6 +10,7 @@
 #include "strciphr.h"
 #include "argnames.h"
 #include "algparam.h"
+#include "trap.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 

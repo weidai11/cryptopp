@@ -5,6 +5,7 @@
 #ifndef CRYPTOPP_IMPORTS
 
 #include "ccm.h"
+#include "trap.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 

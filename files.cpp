@@ -5,6 +5,7 @@
 #ifndef CRYPTOPP_IMPORTS
 
 #include "files.h"
+#include "trap.h"
 
 #include <limits>
 

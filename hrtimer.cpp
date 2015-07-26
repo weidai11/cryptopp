@@ -3,6 +3,8 @@
 #include "pch.h"
 #include "hrtimer.h"
 #include "misc.h"
+#include "trap.h"
+
 #include <stddef.h>		// for NULL
 #include <time.h>
 

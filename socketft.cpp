@@ -2,6 +2,7 @@
 
 #include "pch.h"
 #include "socketft.h"
+#include "trap.h"
 
 #ifdef SOCKETS_AVAILABLE
 

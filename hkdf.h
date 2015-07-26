@@ -7,6 +7,7 @@
 #include "hmac.h"
 #include "hrtimer.h"
 #include "secblock.h"
+#include "trap.h"
 
 #include <cstring>
 

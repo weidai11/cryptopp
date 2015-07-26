@@ -13,6 +13,7 @@
 #include "fltrimpl.h"
 #include "trdlocal.h"
 #include "osrng.h"
+#include "trap.h"
 
 #include <memory>
 

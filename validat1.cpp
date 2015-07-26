@@ -36,6 +36,7 @@
 #include "osrng.h"
 #include "zdeflate.h"
 #include "cpu.h"
+#include "trap.h"
 
 #include <time.h>
 #include <memory>

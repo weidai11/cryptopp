@@ -4,8 +4,8 @@
 #include "xtr.h"
 #include "misc.h"
 #include "nbtheory.h"
-
 #include "algebra.cpp"
+#include "trap.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 

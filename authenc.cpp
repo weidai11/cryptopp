@@ -5,6 +5,7 @@
 #ifndef CRYPTOPP_IMPORTS
 
 #include "authenc.h"
+#include "trap.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 

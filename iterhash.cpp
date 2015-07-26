@@ -6,6 +6,7 @@
 
 #include "iterhash.h"
 #include "misc.h"
+#include "trap.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 

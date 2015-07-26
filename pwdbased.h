@@ -7,6 +7,7 @@
 #include "hmac.h"
 #include "hrtimer.h"
 #include "integer.h"
+#include "trap.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 

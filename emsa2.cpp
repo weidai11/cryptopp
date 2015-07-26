@@ -2,6 +2,7 @@
 
 #include "pch.h"
 #include "emsa2.h"
+#include "trap.h"
 
 #ifndef CRYPTOPP_IMPORTS
 

@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "idea.h"
 #include "misc.h"
+#include "trap.h"
 
 #if GCC_DIAGNOSTIC_AWARE
 # pragma GCC diagnostic ignored "-Wunused-value"

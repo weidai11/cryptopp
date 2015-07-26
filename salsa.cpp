@@ -10,6 +10,7 @@
 #include "misc.h"
 #include "argnames.h"
 #include "cpu.h"
+#include "trap.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 

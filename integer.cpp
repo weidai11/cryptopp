@@ -15,6 +15,7 @@
 #include "pubkey.h"		// for P1363_KDF2
 #include "sha.h"
 #include "cpu.h"
+#include "trap.h"
 
 #include <iostream>
 

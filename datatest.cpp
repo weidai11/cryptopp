@@ -7,6 +7,7 @@
 #include "trunhash.h"
 #include "queue.h"
 #include "validate.h"
+#include "trap.h"
 #include <iostream>
 #include <memory>
 

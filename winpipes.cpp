@@ -6,6 +6,7 @@
 #ifdef WINDOWS_PIPES_AVAILABLE
 
 #include "wait.h"
+#include "trap.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
