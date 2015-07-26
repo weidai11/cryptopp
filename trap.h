@@ -16,6 +16,10 @@
 
 // ************** run-time assertion ***************
 
+// See test.cpp and DebugTrapHandler for code to install a NULL
+// signal handler for SIGTRAP. The handler installs itself during
+// initialization of the test program.
+
 // Linux and Unix
 #if !defined(NDEBUG) && defined(CRYPTOPP_UNIX_AVAILABLE)
 #  define CRYPTOPP_ASSERT(exp) {                                  \
@@ -31,7 +35,7 @@
 // Fallback to original behavior (including for NDEBUG)
 #else
 #  define CRYPTOPP_ASSERT(exp) assert(exp)
-#endif // NDEBUG
+#endif // DEBUG and CRYPTOPP_UNIX_AVAILABLE
 
 #endif // CRYPTOPP_TRAP_H
 
