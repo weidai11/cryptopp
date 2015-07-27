@@ -9,7 +9,18 @@
 #include "queue.h"
 #include "trap.h"
 
+// Using _WINSOCK_DEPRECATED_NO_WARNINGS disables warnings for application code, too
+#if (_MSC_VER)
+# pragma warning (push)
+# pragma warning (disable: 4996)
+#endif
+
 #include <winsock2.h>
+
+// Using _WINSOCK_DEPRECATED_NO_WARNINGS disables warnings for application code, too
+#if (_MSC_VER)
+# pragma warning (pop)
+#endif
 
 NAMESPACE_BEGIN(CryptoPP)
 

@@ -10,17 +10,31 @@
 #include "trap.h"
 
 #ifdef USE_WINDOWS_STYLE_SOCKETS
+
 #	if defined(_WINSOCKAPI_) && !defined(_WINSOCK2API_)
 #		error Winsock 1 is not supported by this library. Please include this file or winsock2.h before windows.h.
 #	endif
-#define _WINSOCK_DEPRECATED_NO_WARNINGS
+
+// Using _WINSOCK_DEPRECATED_NO_WARNINGS disables warnings for application code, too
+#if (_MSC_VER)
+# pragma warning (push)
+# pragma warning (disable: 4996)
+#endif
+
 #include <winsock2.h>
 #include "winpipes.h"
+
+#if (_MSC_VER)
+# pragma warning (pop)
+#endif
+
 #else
+
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <unistd.h>
+
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
