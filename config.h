@@ -499,13 +499,16 @@ NAMESPACE_END
 #if defined(CRYPTOPP_CXX11)
 
 // R-values: MS at VS2010 (16.00); GCC at 4.3; Clang at 2.9; and Intel 11.1.
+//   The extra tests on GCC are because Clang claims to be GCC 4.
 #if (_MSC_VER >= 1600)
 # define CRYPTOPP_CXX11_RVALUES 1
 #elif defined(__clang__)
 # if __has_feature(cxx_rvalue_references)
 #  define CRYPTOPP_CXX11_RVALUES 1
 # endif
-#elif (__GNUC__ == 4 && __GNUC_MINOR__ >= 3)
+#elif (__INTEL_COMPILER >= 1110)
+# define CRYPTOPP_CXX11_RVALUES 1
+#elif (__GNUC__ == 4 && __GNUC_MINOR__ >= 3) && !defined(__INTEL_COMPILER || __clang__)
 # define CRYPTOPP_CXX11_RVALUES 1
 #endif // R-value compilers
 
@@ -516,8 +519,11 @@ NAMESPACE_END
 # if __has_feature(cxx_noexcept)
 #  define CRYPTOPP_CXX11_NOEXCEPT 1
 # endif
-#elif (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)
+#elif (__INTEL_COMPILER >= 1400)
+# define CRYPTOPP_CXX11_RVALUES 1
+#elif (__GNUC__ == 4 && __GNUC_MINOR__ >= 6) && !defined(__INTEL_COMPILER || __clang__)
 # define CRYPTOPP_CXX11_NOEXCEPT 1
+# error
 #endif // noexcept compilers
 
 #if defined(CRYPTOPP_CXX11_NOEXCEPT)
