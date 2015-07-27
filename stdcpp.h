@@ -50,7 +50,7 @@
 // #endif
 
 // Nearly everyone gets alloca from <alloca.h>.
-#ifdef CRYPTOPP_UNIX_AVAILABLE
+#if defined(CRYPTOPP_UNIX_AVAILABLE) && !defined(__MINGW32__) && !defined(__BORLANDC__)
 # include <alloca.h>
 #endif
 
