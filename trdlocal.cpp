@@ -36,11 +36,11 @@ ThreadLocalStorage::ThreadLocalStorage()
 ThreadLocalStorage::~ThreadLocalStorage() CRYPTOPP_THROW
 {
 #ifdef HAS_WINTHREADS
-	if (!TlsFree(m_index))
+	if (!TlsFree(m_index) && !std::uncaught_exception())
 		throw Err("TlsFree", GetLastError());
 #else
 	int error = pthread_key_delete(m_index);
-	if (error)
+	if (error && !std::uncaught_exception())
 		throw Err("pthread_key_delete", error);
 #endif
 }
