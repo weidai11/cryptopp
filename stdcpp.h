@@ -49,12 +49,12 @@
 // #endif
 
 // Nearly everyone gets alloca from <alloca.h>.
-#ifndef CRYPTOPP_UNIX_AVAILABLE
+#ifdef CRYPTOPP_UNIX_AVAILABLE
 # include <alloca.h>
 #endif
 
 // Windows includes alloca in <malloc.h>.
-#if defined(CRYPTOPP_UNIX_AVAILABLE) || defined(__MINGW32__) || defined(__BORLANDC__)
+#if defined(CRYPTOPP_WIN32_AVAILABLE) || defined(__MINGW32__) || defined(__BORLANDC__)
 # include <malloc.h>
 #endif
 
