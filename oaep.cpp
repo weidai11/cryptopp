@@ -20,6 +20,12 @@ void OAEP_Base::Pad(RandomNumberGenerator &rng, const byte *input, size_t inputL
 {
 	CRYPTOPP_ASSERT (inputLength <= MaxUnpaddedLength(oaepBlockLen));
 
+#if defined(CRYPTOPP_CXX11)
+	std::unique_ptr<HashTransformation> pHash(NewHash());
+#else
+	std::auto_ptr<HashTransformation> pHash(NewHash());
+#endif
+
 	// convert from bit length to byte length
 	if (oaepBlockLen % 8 != 0)
 	{
@@ -28,7 +34,6 @@ void OAEP_Base::Pad(RandomNumberGenerator &rng, const byte *input, size_t inputL
 	}
 	oaepBlockLen /= 8;
 
-	std::auto_ptr<HashTransformation> pHash(NewHash());
 	const size_t hLen = pHash->DigestSize();
 	const size_t seedLen = hLen, dbLen = oaepBlockLen-seedLen;
 	byte *const maskedSeed = oaepBlock;
