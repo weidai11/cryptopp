@@ -12,9 +12,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-// http://marshall.calepin.co/c-and-xcode-46.html. LLVM places unique_ptr in std:: when using
-//   using -stdlib=libc++ (and not std::tr1::) regardless of C++03/C++11. We detect can detect
-//   it with _LIBCPP_VERSION, but its not accurate because Apple's built-in Clang behaves
+// http://marshall.calepin.co/c-and-xcode-46.html. Apple does some wonky stuff with
+//   <memory>, auto_ptr and unique_ptr. Apple's built-in Clang behaves
 //   differently than a LLVM downloaded and compiled CLang. So we fall back to Clang's
 //   __has_include (http://clang.llvm.org/docs/LanguageExtensions.html#id3).
 #if (__cplusplus >= 201103L) && !defined(__clang__)
