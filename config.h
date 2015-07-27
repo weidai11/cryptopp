@@ -487,11 +487,11 @@ NAMESPACE_END
 
 // ***************** C++11 related ********************
 
-// Visual Studio and C++11 language features began at Visual Studio 2012,
+// Visual Studio and C++11 language features began at Visual Studio 2010,
 // https://msdn.microsoft.com/en-us/library/hh567368%28v=vs.110%29.aspx.
 // Also see the warning on the buggy C++11 feature matrix at
 // http://stackoverflow.com/a/31642496/608639
-#if (_MSC_VER >= 1500) || (__cpluplus >= 201103L)
+#if (_MSC_VER >= 1600) || (__cplusplus >= 201103L)
 # define CRYPTOPP_CXX11 1
 #endif
 
