@@ -49,10 +49,13 @@
 // #include <malloc.h>
 // #endif
 
-// Rijdael uses alloca. Just include it for everyone....
-#include <alloca.h>
+// Nearly everyone gets alloca from <alloca.h>.
+#ifndef CRYPTOPP_UNIX_AVAILABLE
+# include <alloca.h>
+#endif
 
-#if defined(__MINGW32__) || defined(__BORLANDC__)
+// Windows includes alloca in <malloc.h>.
+#if defined(CRYPTOPP_UNIX_AVAILABLE) || defined(__MINGW32__) || defined(__BORLANDC__)
 # include <malloc.h>
 #endif
 
