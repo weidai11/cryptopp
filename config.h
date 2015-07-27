@@ -491,28 +491,33 @@ NAMESPACE_END
 // https://msdn.microsoft.com/en-us/library/hh567368%28v=vs.110%29.aspx.
 // Also see the warning on the buggy C++11 feature matrix at
 // http://stackoverflow.com/a/31642496/608639
-#if (__cpluplus >= 201103L) || (_MSC_VER >= 1500)
-# define CRYPTOPP_CXX11
+#if (_MSC_VER >= 1500) || (__cpluplus >= 201103L)
+# define CRYPTOPP_CXX11 1
 #endif
 
-// C++11 R-values. MS at VS2010 (16.00); GCC at 4.3; Clang at 2.9; and Intel 11.1.
-#if (_MSC_VER >= 1600) || (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3))
+// C++11 is available
+#if defined(CRYPTOPP_CXX11)
+
+// R-values: MS at VS2010 (16.00); GCC at 4.3; Clang at 2.9; and Intel 11.1.
+#if (_MSC_VER >= 1600)
 # define CRYPTOPP_CXX11_RVALUES 1
-#endif
-#if defined(__clang__)
+#elif defined(__clang__)
 # if __has_feature(cxx_rvalue_references)
 #  define CRYPTOPP_CXX11_RVALUES 1
 # endif
+#elif (__GNUC__ == 4 && __GNUC_MINOR__ >= 3)
+# define CRYPTOPP_CXX11_RVALUES 1
 #endif // R-value compilers
 
-// C++11 noexcept. MS at VS2015 (19.00); GCC at 4.6; Clang at 3.0; and Intel 14.0.
-#if (_MSC_VER >= 1900) || (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6))
+// noexcept: MS at VS2015 (19.00); GCC at 4.6; Clang at 3.0; and Intel 14.0.
+#if (_MSC_VER >= 1900)
 # define CRYPTOPP_CXX11_NOEXCEPT 1
-#endif
-#if defined(__clang__)
+#elif defined(__clang__)
 # if __has_feature(cxx_noexcept)
 #  define CRYPTOPP_CXX11_NOEXCEPT 1
 # endif
+#elif (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)
+# define CRYPTOPP_CXX11_NOEXCEPT 1
 #endif // noexcept compilers
 
 #if defined(CRYPTOPP_CXX11_NOEXCEPT)
@@ -523,4 +528,11 @@ NAMESPACE_END
 # define CRYPTOPP_NO_THROW
 #endif // CRYPTOPP_CXX11_NOEXCEPT
 
-#endif
+#else // not CRYPTOPP_CXX11
+
+# define CRYPTOPP_THROW
+# define CRYPTOPP_NO_THROW
+
+#endif // CRYPTOPP_CXX11
+
+#endif // CRYPTOPP_CONFIG_H
