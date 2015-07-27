@@ -283,6 +283,20 @@ endif # SUN_CC10_BUGGY
 endif # SUN_COMPILER
 
 #################################################################
+# Public service announcement
+
+# Do not warn for some targets
+NO_WARN = GNUmakefile.deps dist install install-strip uninstall remove clean distclean
+ifeq ($(findstring $(MAKECMDGOALS),$(NO_WARN)),)
+
+UNALIGNED_ACCESS = $(shell $(EGREP) -c "^// \#define CRYPTOPP_NO_UNALIGNED_DATA_ACCESS" config.h)
+ifneq ($(UNALIGNED_ACCESS),0)
+$(info WARNING: CRYPTOPP_NO_UNALIGNED_DATA_ACCESS is not defined in config.h)
+endif
+
+endif # NO_WARN
+
+#################################################################
 # Compiler diagnostics and warnings
 
 # -Wall, -Wextra and -Wno-type-limits for GCC 4.3 and above. It needs -Wno-unknown-pragmas due
@@ -296,6 +310,11 @@ endif
 # -Wall, -Wextra and -Wno-tautological-compare for Clang
 ifneq ($(CLANG_COMPILER),0)
 CXXFLAGS += -Wall -Wextra -Wno-tautological-compare
+endif
+
+# -Wcast-align if not UNALIGNED_ACCESS
+ifeq ($(UNALIGNED_ACCESS),0)
+# CXXFLAGS += -Wcast-align
 endif
 
 ifeq ($(findstring -pipe,$(CXXFLAGS)),)
@@ -330,20 +349,6 @@ DLLOBJS = $(DLLSRCS:.cpp=.export.o)
 LIBIMPORTOBJS = $(LIBOBJS:.o=.import.o)
 TESTIMPORTOBJS = $(TESTOBJS:.o=.import.o)
 DLLTESTOBJS = dlltest.dllonly.o
-
-#################################################################
-# Public service announcement
-
-# Do not warn for some targets
-NO_WARN = GNUmakefile.deps dist install install-strip uninstall remove clean distclean
-ifeq ($(findstring $(MAKECMDGOALS),$(NO_WARN)),)
-
-UNALIGNED_ACCESS = $(shell $(EGREP) -c "^// \#define CRYPTOPP_NO_UNALIGNED_DATA_ACCESS" config.h)
-ifneq ($(UNALIGNED_ACCESS),0)
-$(info WARNING: CRYPTOPP_NO_UNALIGNED_DATA_ACCESS is not defined in config.h)
-endif
-
-endif # NO_WARN
 
 #################################################################
 # Recipes
