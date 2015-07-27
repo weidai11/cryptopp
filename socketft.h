@@ -13,6 +13,7 @@
 #	if defined(_WINSOCKAPI_) && !defined(_WINSOCK2API_)
 #		error Winsock 1 is not supported by this library. Please include this file or winsock2.h before windows.h.
 #	endif
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include <winsock2.h>
 #include "winpipes.h"
 #else
