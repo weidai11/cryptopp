@@ -2,11 +2,29 @@
 #define CRYPTOPP_SMARTPTR_H
 
 #include "config.h"
+#include "stdcpp.h"
 #include "trap.h"
 
-#include <algorithm>
-
 NAMESPACE_BEGIN(CryptoPP)
+
+// This must be kept in sync with stdcpp.h because <memory> is included based on the same logic.
+#if ((__cplusplus >= 201103L) || (_MSC_VER >= 1600)) && !defined(__clang__)
+#    include <memory>
+  template<typename T>
+    using auto_ptr = std::unique_ptr<T>;
+#elif defined(__clang__)
+#   if (__has_include(<tr1/memory>))
+#      include <tr1/memory>
+  using std::auto_ptr;
+#   endif
+#elif (__cplusplus < 201103L)
+#   include <tr1/memory>
+  using std::auto_ptr;
+#else
+#   include <memory>
+  template<typename T>
+    using auto_ptr = std::unique_ptr<T>;
+#endif
 
 template <class T> class simple_ptr
 {

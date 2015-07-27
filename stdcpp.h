@@ -16,7 +16,9 @@
 //   <memory>, auto_ptr and unique_ptr. Apple's built-in Clang behaves
 //   differently than a LLVM downloaded and compiled CLang. So we fall back to Clang's
 //   __has_include (http://clang.llvm.org/docs/LanguageExtensions.html#id3).
-#if (__cplusplus >= 201103L) && !defined(__clang__)
+// This must be kept in sync with smartptr.h because auto_ptr and unique_ptr are
+//   brought in based on the same logic.
+#if ((__cplusplus >= 201103L) || (_MSC_VER >= 1600)) && !defined(__clang__)
 #    include <memory>
 #elif defined(__clang__)
 #   if (__has_include(<tr1/memory>))
