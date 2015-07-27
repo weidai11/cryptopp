@@ -51,14 +51,15 @@
 // #include <malloc.h>
 // #endif
 
-// Nearly everyone gets alloca from <alloca.h>.
-#if defined(CRYPTOPP_UNIX_AVAILABLE) && !defined(__MINGW32__) && !defined(__BORLANDC__)
-# include <alloca.h>
-#endif
-
-// Windows includes alloca in <malloc.h>.
+// Handle alloca...
 #if defined(CRYPTOPP_WIN32_AVAILABLE) || defined(__MINGW32__) || defined(__BORLANDC__)
-# include <malloc.h>
+#  include <malloc.h>
+#else
+#  ifdef __OpenBSD__
+#    include <stdlib.h>
+#  else
+#    include <alloca.h>
+#  endif
 #endif
 
 #ifdef _MSC_VER
