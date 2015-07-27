@@ -524,7 +524,6 @@ NAMESPACE_END
 # define CRYPTOPP_CXX11_RVALUES 1
 #elif (__GNUC__ >= 5 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)) && !(defined(__INTEL_COMPILER) || defined(__clang__))
 # define CRYPTOPP_CXX11_NOEXCEPT 1
-# error
 #endif // noexcept compilers
 
 #if defined(CRYPTOPP_CXX11_NOEXCEPT)
