@@ -508,7 +508,8 @@ NAMESPACE_END
 # endif
 #elif (__INTEL_COMPILER >= 1110)
 # define CRYPTOPP_CXX11_RVALUES 1
-#elif (__GNUC__ >= 5 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3)) && !defined(__INTEL_COMPILER || __clang__)
+#elif (__GNUC__ >= 5 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3)) && !(defined(__INTEL_COMPILER || defined(__clang__))
+
 # define CRYPTOPP_CXX11_RVALUES 1
 #endif // R-value compilers
 
@@ -521,7 +522,7 @@ NAMESPACE_END
 # endif
 #elif (__INTEL_COMPILER >= 1400)
 # define CRYPTOPP_CXX11_RVALUES 1
-#elif (__GNUC__ >= 5 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)) && !defined(__INTEL_COMPILER || __clang__)
+#elif (__GNUC__ >= 5 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)) && !(defined(__INTEL_COMPILER || defined(__clang__))
 # define CRYPTOPP_CXX11_NOEXCEPT 1
 # error
 #endif // noexcept compilers
