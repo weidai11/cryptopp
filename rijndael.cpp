@@ -74,6 +74,9 @@ being unloaded from L1 cache, until that round is finished.
 #include "cpu.h"
 #include "trap.h"
 
+// Non-conforming C++ program die to alloca. See http://stackoverflow.com/q/31645309/608639.
+#include <alloca.h>
+
 #if GCC_DIAGNOSTIC_AWARE
 # pragma GCC diagnostic push
 # pragma GCC diagnostic ignored "-Wunused-function"
