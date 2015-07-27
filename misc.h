@@ -1,10 +1,14 @@
 #ifndef CRYPTOPP_MISC_H
 #define CRYPTOPP_MISC_H
 
+#include <cstddef>  // for size_t when -stdlib=libc++
+
 #include "cryptlib.h"
 #include "smartptr.h"
 #include "trap.h"
-#include <string.h>	// for memcpy and memmove
+
+#include <cstring>	// for memcpy and memmove
+#include <cstddef>  // for size_t when -stdlib=libc++
 #include <iosfwd>	// for std::streamsize
 #include <limits>	// for std::numeric_limits
 
@@ -370,14 +374,27 @@ inline bool SafeConvert(T1 from, T2 &to)
 	return true;
 }
 
-// MSVC see this as a duplicate specialization
-#ifndef _MSC_VER
+// MSVC see this as a duplicate specialization. Apple can't find std::streamsize.
+#if !defined(_MSC_VER) && !defined(__APPLE__)
 // files.cpp, line 235
 template<>
 inline bool SafeConvert<size_t,std::streamsize>(size_t from, std::streamsize &to)
 {
 	to = (std::streamsize)from;
 	if(from > static_cast<size_t>(std::numeric_limits<std::streamsize>::max()))
+		return false;
+	return true;
+}
+#endif
+
+// Apple can't find std::streamsize
+#if defined(__APPLE__)
+// files.cpp, line 235
+template<>
+inline bool SafeConvert<unsigned long, long>(unsigned long from, long &to)
+{
+	to = (long)from;
+	if(from > static_cast<unsigned long>(std::numeric_limits<long>::max()))
 		return false;
 	return true;
 }
@@ -681,6 +698,11 @@ template<> inline void SecureWipeBuffer(word64 *buf, size_t n)
 
 #endif	// #if (_MSC_VER >= 1400 || defined(__GNUC__)) && (CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X86)
 
+#if GCC_DIAGNOSTIC_AWARE
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wcast-align"
+#endif
+
 template <class T>
 inline void SecureWipeArray(T *buf, size_t n)
 {
@@ -693,6 +715,10 @@ inline void SecureWipeArray(T *buf, size_t n)
 	else
 		SecureWipeBuffer((byte *)buf, n * sizeof(T));
 }
+
+#if GCC_DIAGNOSTIC_AWARE
+# pragma GCC diagnostic pop
+#endif
 
 // this function uses wcstombs(), which assumes that setlocale() has been called
 static inline std::string StringNarrow(const wchar_t *str, bool throwOnError = true)
