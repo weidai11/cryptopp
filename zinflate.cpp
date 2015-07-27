@@ -602,8 +602,12 @@ struct NewFixedDistanceDecoder
 	HuffmanDecoder * operator()() const
 	{
 		unsigned int codeLengths[32];
-		std::fill(codeLengths + 0, codeLengths + 32, 5);
+		std::fill(codeLengths + 0, codeLengths + 32, 5U);
+#if defined(CRYPTOPP_CXX11)
+		std::unique_ptr<HuffmanDecoder> pDecoder(new HuffmanDecoder);
+#else
 		std::auto_ptr<HuffmanDecoder> pDecoder(new HuffmanDecoder);
+#endif
 		pDecoder->Initialize(codeLengths, 32);
 		return pDecoder.release();
 	}
