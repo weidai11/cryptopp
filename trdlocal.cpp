@@ -5,6 +5,7 @@
 #ifndef CRYPTOPP_IMPORTS
 #ifdef THREADS_AVAILABLE
 
+#include "cryptlib.h"
 #include "trdlocal.h"
 
 #ifdef HAS_WINTHREADS
@@ -31,7 +32,7 @@ ThreadLocalStorage::ThreadLocalStorage()
 #endif
 }
 
-ThreadLocalStorage::~ThreadLocalStorage()
+ThreadLocalStorage::~ThreadLocalStorage() CRYPTOPP_THROW
 {
 #ifdef HAS_WINTHREADS
 	if (!TlsFree(m_index))
