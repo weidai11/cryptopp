@@ -1,8 +1,6 @@
 #ifndef CRYPTOPP_MISC_H
 #define CRYPTOPP_MISC_H
 
-#include <cstddef>  // for size_t when -stdlib=libc++
-
 #include "cryptlib.h"
 #include "smartptr.h"
 #include "trap.h"
