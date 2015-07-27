@@ -6,6 +6,7 @@
 // (http://www.kb.cert.org/vuls/id/368819).
 
 #include "pch.h"
+#include "cryptlib.h"
 #include "zinflate.h"
 #include "trap.h"
 

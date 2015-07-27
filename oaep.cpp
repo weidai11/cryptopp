@@ -4,6 +4,7 @@
 
 #ifndef CRYPTOPP_IMPORTS
 
+#include "cryptlib.h"
 #include "oaep.h"
 #include <functional>
 
