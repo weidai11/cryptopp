@@ -8,8 +8,8 @@
 #include "queue.h"
 #include "validate.h"
 #include "trap.h"
+
 #include <iostream>
-#include <memory>
 
 USING_NAMESPACE(CryptoPP)
 USING_NAMESPACE(std)

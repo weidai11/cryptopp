@@ -3,6 +3,7 @@
 #include "pch.h"
 
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
+#include "stdcpp.h"
 #include "files.h"
 #include "misc.h"
 #include "hex.h"
@@ -39,7 +40,6 @@
 #include "trap.h"
 
 #include <time.h>
-#include <memory>
 #include <iostream>
 #include <iomanip>
 

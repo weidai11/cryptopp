@@ -3,12 +3,8 @@
 
 #include "cryptlib.h"
 #include "smartptr.h"
+#include "stdcpp.h"
 #include "trap.h"
-
-#include <cstring>	// for memcpy and memmove
-#include <cstddef>  // for size_t when -stdlib=libc++
-#include <iosfwd>	// for std::streamsize
-#include <limits>	// for std::numeric_limits
 
 #ifdef _MSC_VER
 	#if _MSC_VER >= 1400

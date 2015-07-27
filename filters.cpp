@@ -8,10 +8,8 @@
 #include "mqueue.h"
 #include "fltrimpl.h"
 #include "argnames.h"
+#include "stdcpp.h"
 #include "trap.h"
-
-#include <memory>
-#include <functional>
 
 #if GCC_DIAGNOSTIC_AWARE
 # pragma GCC diagnostic ignored "-Wunused-value"

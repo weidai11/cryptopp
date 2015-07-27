@@ -6,6 +6,8 @@
 
 #include "cryptlib.h"
 #include "misc.h"
+#include "stdcpp.h"
+#include "smartptr.h"
 #include "filters.h"
 #include "algparam.h"
 #include "fips140.h"
@@ -14,8 +16,6 @@
 #include "trdlocal.h"
 #include "osrng.h"
 #include "trap.h"
-
-#include <memory>
 
 #if GCC_DIAGNOSTIC_AWARE
 # pragma GCC diagnostic ignored "-Wunused-value"
