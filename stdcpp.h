@@ -31,6 +31,7 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <limits>
 #include <exception>
 #include <typeinfo>
 #include <algorithm>
