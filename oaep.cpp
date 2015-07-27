@@ -47,9 +47,14 @@ void OAEP_Base::Pad(RandomNumberGenerator &rng, const byte *input, size_t inputL
 	memset(maskedDB+hLen, 0, dbLen-hLen-inputLength-1);
 	maskedDB[dbLen-inputLength-1] = 0x01;
 	memcpy(maskedDB+dbLen-inputLength, input, inputLength);
+    
+#if defined(CRYPTOPP_CXX11)
+	std::unique_ptr<MaskGeneratingFunction> pMGF(NewMGF());
+#else
+	std::auto_ptr<MaskGeneratingFunction> pMGF(NewMGF());
+#endif
 
 	rng.GenerateBlock(maskedSeed, seedLen);
-	std::auto_ptr<MaskGeneratingFunction> pMGF(NewMGF());
 	pMGF->GenerateAndMask(*pHash, maskedDB, dbLen, maskedSeed, seedLen);
 	pMGF->GenerateAndMask(*pHash, maskedSeed, seedLen, maskedDB, dbLen);
 }
@@ -57,6 +62,12 @@ void OAEP_Base::Pad(RandomNumberGenerator &rng, const byte *input, size_t inputL
 DecodingResult OAEP_Base::Unpad(const byte *oaepBlock, size_t oaepBlockLen, byte *output, const NameValuePairs &parameters) const
 {
 	bool invalid = false;
+
+#if defined(CRYPTOPP_CXX11)
+	std::unique_ptr<HashTransformation> pHash(NewHash());
+#else
+	std::auto_ptr<HashTransformation> pHash(NewHash());
+#endif
 
 	// convert from bit length to byte length
 	if (oaepBlockLen % 8 != 0)
@@ -66,7 +77,6 @@ DecodingResult OAEP_Base::Unpad(const byte *oaepBlock, size_t oaepBlockLen, byte
 	}
 	oaepBlockLen /= 8;
 
-	std::auto_ptr<HashTransformation> pHash(NewHash());
 	const size_t hLen = pHash->DigestSize();
 	const size_t seedLen = hLen, dbLen = oaepBlockLen-seedLen;
 
@@ -76,7 +86,12 @@ DecodingResult OAEP_Base::Unpad(const byte *oaepBlock, size_t oaepBlockLen, byte
 	byte *const maskedSeed = t;
 	byte *const maskedDB = t+seedLen;
 
+#if defined(CRYPTOPP_CXX11)
+	std::unique_ptr<MaskGeneratingFunction> pMGF(NewMGF());
+#else
 	std::auto_ptr<MaskGeneratingFunction> pMGF(NewMGF());
+#endif
+
 	pMGF->GenerateAndMask(*pHash, maskedSeed, seedLen, maskedDB, dbLen);
 	pMGF->GenerateAndMask(*pHash, maskedDB, dbLen, maskedSeed, seedLen);
 
