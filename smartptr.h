@@ -7,6 +7,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+#if 0
 // This must be kept in sync with stdcpp.h because <memory> is included based on the same logic.
 #if ((__cplusplus >= 201103L) || (_MSC_VER >= 1600)) && !defined(__clang__)
 #    include <memory>
@@ -25,6 +26,7 @@ NAMESPACE_BEGIN(CryptoPP)
   template<typename T>
     using auto_ptr = std::unique_ptr<T>;
 #endif
+#endif // 0
 
 template <class T> class simple_ptr
 {
