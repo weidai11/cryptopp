@@ -32,6 +32,7 @@ ThreadLocalStorage::ThreadLocalStorage()
 #endif
 }
 
+// TODO: determine a library policy; implement the policy.
 ThreadLocalStorage::~ThreadLocalStorage() CRYPTOPP_THROW
 {
 #ifdef HAS_WINTHREADS
