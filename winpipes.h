@@ -5,22 +5,17 @@
 
 #ifdef WINDOWS_PIPES_AVAILABLE
 
-#include "network.h"
-#include "queue.h"
-#include "trap.h"
-
-// Using _WINSOCK_DEPRECATED_NO_WARNINGS disables warnings for application code, too
+// Avoid _WINSOCK_DEPRECATED_NO_WARNINGS
 #if (_MSC_VER)
 # pragma warning (push)
 # pragma warning (disable: 4996)
 #endif
 
-#include <winsock2.h>
+#include "network.h"
+#include "queue.h"
+#include "trap.h"
 
-// Using _WINSOCK_DEPRECATED_NO_WARNINGS disables warnings for application code, too
-#if (_MSC_VER)
-# pragma warning (pop)
-#endif
+#include <winsock2.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -149,6 +144,11 @@ private:
 };
 
 NAMESPACE_END
+
+// Avoid _WINSOCK_DEPRECATED_NO_WARNINGS
+#if (_MSC_VER)
+# pragma warning (pop)
+#endif
 
 #endif
 
