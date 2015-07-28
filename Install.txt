@@ -2,12 +2,13 @@ CONTENTS OF THIS FILE
 ---------------------
 
 * Introduction
-* General Instructions
+* Building the Library
+* Installing the Library
 * Makefile Targets
 * DataDir Patch
 * Dynamic Analysis
-* Library Acceptance Testing
-
+* Acceptance Testing
+* Reporting problems
 
 INTRODUCTION
 ------------
@@ -21,7 +22,7 @@ Crypto++ uses a GNU makefile, which combines configuration and a non-anemic make
 Crypto++ does not depend upon other tools or libraries. It does not use Autotools, does not use Cmake, and does not use Boost.
 
 
-GENERAL INSTRUCTIONS
+BUILDING THE LIBRARY
 --------------------
 
 In general, all you should have to do is open a terminal, and then:
@@ -47,6 +48,25 @@ Or
     export MULTIARCH=1
     make
 
+If you are experimenting with Clang and its integrated assembler, then you can:
+
+    make FORCE_ASM=1
+
+If you are experimenting with NASM, then you can:
+
+    export AS=nasm
+    make
+
+Or
+
+    make AS=nasm
+
+Be aware that the Clang assembler has a number of open issues, and trying to build with it will probably result in a compile failure or runtime test failure.
+
+
+INSTALLING THE LIBRARY
+----------------------
+
 To install the library into a user selected directory, perform:
 
     make install PREFIX=/usr/local
@@ -56,12 +76,6 @@ During install, the makefile copies cryptest.exe into $PREFIX/bin, copies header
 PREFIX is non-standard, but its retained for historical purposes. The makefile also responds to `prefix=<path>`.
 
 There are some open issues installing the library because cryptest.exe is not sympathetic to path changes of of its test vectors and test data. See the DataDir patch below to fix it.
-
-If you are experimenting with NASM or Clang and its integrated assembler, then you can:
-
-    make FORCE_ASM=1
-
-Be aware that the Clang assembler has a number of open issues, and trying to build with it will probably result in a compile failure or runtime test failure.
 
 
 MAKEFILE TARGETS
@@ -121,19 +135,19 @@ If you moved Crypto++ such that the paths have changed, then perform:
 
     ./cryptest.exe v 2>&1 | sed "s/<old path>/<new path>/g" | asan_symbolize
 
-Gaps or problems should be reported on the Crypto++ User Group.
 
+ACCEPTANCE TESTING
+------------------
 
-LIBRARY ACCEPTANCE TESTING
---------------------------
+Crypto++ uses five security gates in its engineering process. The library must maintain the quality provided by the review system and integrity of the test suites. You can use the information to decide if the Crypto++ library suits your needs and provides a compatible security posture.
 
-There are four tests you can invoke to decide if the Crypto++ library suits your needs and provides a compatible security posture. Crypto++ uses them in its engineering process. The library must maintain the quality provided by the integrity of the tests.
+The first gate is code review and discussion of proposed patches. Git commits often cross reference a User Group discussions.
 
-First is the compiler warning system. The code must clean compile under the equivalent of GCC's -Wall -Wextra (modulo -Wno-type-limits -Wno-unknown-pragmas). This is a moving target as compiler analysis improves.
+Second is the compiler warning system. The code must clean compile under the equivalent of GCC's -Wall -Wextra (modulo -Wno-type-limits -Wno-unknown-pragmas). This is a moving target as compiler analysis improves.
 
-Second, the code must pass cleanly though GCC and Clang's Undefined Behavior sanitizer (UBsan) and Address sanitizer (Asan). See DYNAMIC ANALYSIS above on how to execute them with little effort.
+Third, the code must pass cleanly though GCC and Clang's Undefined Behavior sanitizer (UBsan) and Address sanitizer (Asan) with CRYPTOPP_NO_UNALIGNED_DATA_ACCESS defined in config.h. See DYNAMIC ANALYSIS above on how to execute them.
 
-Third, the test harness provides a "validation" option which performs basic system checks (like endianess and word sizes) and exercises algorithms (like AES and SHA). You run the validation suite with the following. The tail of the output should indicate 0 failed tests.
+Fourth, the test harness provides a "validation" option which performs basic system checks (like endianess and word sizes) and exercises algorithms (like AES and SHA). You run the validation suite as shown below. The tail of the output should indicate 0 failed tests.
 
     ./cryptest.exe v
     ...
@@ -142,7 +156,7 @@ Third, the test harness provides a "validation" option which performs basic syst
     Test ended at Sun Jul 26 02:10:57 2015
     Seed used was: 1437891055
 
-Fourth, the test harness provides a "test vector" option which uses many known test vectors, even those published by other people (like Brian Gladman for AES). You run the test vectors with the following. The tail of the output should indicate 0 failed tests.
+Fifth, the test harness provides a "test vector" option which uses many known test vectors, even those published by other people (like Brian Gladman for AES). You run the test vectors as shown below. The tail of the output should indicate 0 failed tests.
 
     ./cryptest.exe tv all
     ...
@@ -151,4 +165,10 @@ Fourth, the test harness provides a "test vector" option which uses many known t
     .................
     Tests complete. Total tests = 4094. Failed tests = 0.
 
+REPORTING PROBLEMS
+------------------
+
 Dirty compiles and failures in the validation suite or test vectors should be reported at the Crypto++ User Group. The User Group is located at https://groups.google.com/forum/#!forum/cryptopp-users.
+
+Also see http://www.cryptopp.com/wiki/Bug_Report.
+
