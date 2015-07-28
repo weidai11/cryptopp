@@ -388,6 +388,10 @@ NAMESPACE_END
 #define CRYPTOPP_UNIX_AVAILABLE
 #endif
 
+#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
+#define CRYPTOPP_BSD_AVAILABLE
+#endif
+
 #if defined(CRYPTOPP_WIN32_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE)
 #	define HIGHRES_TIMER_AVAILABLE
 #endif

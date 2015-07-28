@@ -44,22 +44,13 @@
 #include <vector.cc>
 #endif
 
-// for alloca
-// #ifdef __sun
-// #include <alloca.h>
-// #elif defined(__MINGW32__) || defined(__BORLANDC__)
-// #include <malloc.h>
-// #endif
-
 // Handle alloca...
 #if defined(CRYPTOPP_WIN32_AVAILABLE) || defined(__MINGW32__) || defined(__BORLANDC__)
 #  include <malloc.h>
-#else
-#  ifdef __OpenBSD__
-#    include <stdlib.h>
-#  else
-#    include <alloca.h>
-#  endif
+#elif defined(CRYPTOPP_BSD_AVAILABLE)
+#  include <stdlib.h>
+#else // CRYPTOPP_UNIX_AVAILABLE
+#  include <alloca.h>
 #endif
 
 #ifdef _MSC_VER
