@@ -116,14 +116,14 @@ The Crypto++ embraces tools like Undefined Behavior sanitizer (UBsan), Address s
 UBsan and Asan are mutually exclusive options, so you can perform only one of these at a time:
 
     make ubsan
-    ./cryptest.exe v 2>&1 | grep FAILED
-    ./cryptest.exe tv all 2>&1 | grep FAILED
+    ./cryptest.exe v 2>&1 | egrep "(error|FAILED)"
+    ./cryptest.exe tv all 2>&1 | egrep "(error|FAILED)"
 
 Or:
 
     make asan
-    ./cryptest.exe v 2>&1 | grep FAILED
-    ./cryptest.exe tv all 2>&1 | grep FAILED
+    ./cryptest.exe v 2>&1 | egrep "(error|FAILED)"
+    ./cryptest.exe tv all 2>&1 | egrep "(error|FAILED)"
 
 If you experience self test failures or see reports of undefined behavior, then you should ensure CRYPTOPP_NO_UNALIGNED_DATA_ACCESS is defined in config.h. CRYPTOPP_NO_UNALIGNED_DATA_ACCESS is not defined due to historical purposes.
 
