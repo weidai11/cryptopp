@@ -143,8 +143,8 @@ class NotCopyable
 public:
 	NotCopyable() {}
 private:
-    NotCopyable(const NotCopyable &);
-    void operator=(const NotCopyable &);
+	NotCopyable(const NotCopyable &);
+	void operator=(const NotCopyable &);
 };
 
 template <class T>
@@ -269,6 +269,14 @@ template <class T> inline const T& STDMAX(const T& a, const T& b)
 
 #define CRYPTOPP_GET_BYTE_AS_BYTE(x, y) byte((x)>>(8*(y)))
 
+// Signed-ness
+template<bool B, class T, class F>
+struct Conditional { typedef T type; };
+template<class T, class F>
+struct Conditional<false, T, F> { typedef F type; };
+template <typename T>
+struct Signedness { typedef typename Conditional<T(-1)<T(0),int,unsigned int>::type type; };
+
 template <class T>
 unsigned int Parity(T value)
 {
@@ -353,84 +361,29 @@ template <class T>
 inline T Crop(T value, size_t size)
 {
 	if (size < 8*sizeof(value))
-    	return T(value & ((T(1) << size) - 1));
+		return T(value & ((T(1) << size) - 1));
 	else
 		return value;
 }
 
-// Provide specializations of these as required. It avoids the signed/unsigned mismatch.
 template <class T1, class T2>
 inline bool SafeConvert(T1 from, T2 &to)
 {
+	// Original code: always perform the assignment
 	to = (T2)from;
-	if (from != to || (from > 0) != (to > 0))
-		return false;
-	return true;
-}
 
-// MSVC see this as a duplicate specialization. Apple can't find std::streamsize.
-#if !defined(_MSC_VER) && !defined(__APPLE__)
-// files.cpp, line 235
-template<>
-inline bool SafeConvert<size_t,std::streamsize>(size_t from, std::streamsize &to)
-{
-	to = (std::streamsize)from;
-	if(from > static_cast<size_t>(std::numeric_limits<std::streamsize>::max()))
-		return false;
-	return true;
-}
-#endif
+	// Check for sign difference
+	if(std::numeric_limits<T1>::is_signed ^ std::numeric_limits<T2>::is_signed)
+	{
+		// Handle T1 is signed
+		if(std::numeric_limits<T1>::is_signed && from < 0)
+			return false;
+		// Fall through for T1 is unsigned
+	}
 
-// Apple can't find std::streamsize
-#if defined(__APPLE__)
-// files.cpp, line 235
-template<>
-inline bool SafeConvert<unsigned long, long>(unsigned long from, long &to)
-{
-	to = (long)from;
-	if(from > static_cast<unsigned long>(std::numeric_limits<long>::max()))
+	if(from > static_cast<T1>(std::numeric_limits<T2>::max()))
 		return false;
-	return true;
-}
-#endif
 
-// files.cpp, line 366
-template<>
-inline bool SafeConvert<long long unsigned int,long int>(long long unsigned int from, long int &to)
-{
-	to = (long int)from;
-	if(from > static_cast<long long unsigned int>(std::numeric_limits<long int>::max()))
-		return false;
-	return true;
-}
-
-// files.cpp, line 366
-template<>
-inline bool SafeConvert<long long unsigned int,long long int>(long long unsigned int from, long long int &to)
-{
-	to = (long long int)from;
-	if(from > static_cast<long long unsigned int>(std::numeric_limits<long long int>::max()))
-		return false;
-	return true;
-}
-
-// nbtheory.cpp, line 315
-template<>
-inline bool SafeConvert<long int,word>(long int from, word &to)
-{
-	to = (word)from;
-	if(from < 0 || from > static_cast<long int>(std::numeric_limits<word>::max()))
-		return false;
-	return true;
-}
-
-// nbtheory.cpp, line 315
-template<>
-inline bool SafeConvert<int,unsigned int>(int from, unsigned int &to)
-{
-	to = (word)from;
-	if(from < 0 || from > static_cast<int>(std::numeric_limits<unsigned int>::max()))
-		return false;
 	return true;
 }
 
@@ -569,6 +522,8 @@ inline bool NativeByteOrderIs(ByteOrder order)
 template <class T>
 std::string IntToString(T a, unsigned int base = 10)
 {
+	typename Signedness<T>::type b = static_cast<typename Signedness<T>::type>(base);
+
 	if (a == 0)
 		return "0";
 	bool negate = false;
@@ -580,9 +535,9 @@ std::string IntToString(T a, unsigned int base = 10)
 	std::string result;
 	while (a > 0)
 	{
-		T digit = a % base;
+		T digit = a % b;
 		result = char((digit < 10 ? '0' : ('a' - 10)) + digit) + result;
-		a /= base;
+		a /= b;
 	}
 	if (negate)
 		result = "-" + result;
@@ -1696,7 +1651,7 @@ inline T SafeLeftShift(T value)
 
 // ************** use one buffer for multiple data members ***************
 
-#define CRYPTOPP_BLOCK_1(n, t, s) t* m_##n() {return (t *)(m_aggregate+0);}     size_t SS1() {return       sizeof(t)*(s);} size_t m_##n##Size() {return (s);}
+#define CRYPTOPP_BLOCK_1(n, t, s) t* m_##n() {return (t *)(m_aggregate+0);}	 size_t SS1() {return	   sizeof(t)*(s);} size_t m_##n##Size() {return (s);}
 #define CRYPTOPP_BLOCK_2(n, t, s) t* m_##n() {return (t *)(m_aggregate+SS1());} size_t SS2() {return SS1()+sizeof(t)*(s);} size_t m_##n##Size() {return (s);}
 #define CRYPTOPP_BLOCK_3(n, t, s) t* m_##n() {return (t *)(m_aggregate+SS2());} size_t SS3() {return SS2()+sizeof(t)*(s);} size_t m_##n##Size() {return (s);}
 #define CRYPTOPP_BLOCK_4(n, t, s) t* m_##n() {return (t *)(m_aggregate+SS3());} size_t SS4() {return SS3()+sizeof(t)*(s);} size_t m_##n##Size() {return (s);}
