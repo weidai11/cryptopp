@@ -16,8 +16,9 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-// Vectorization at -O3 requires IsStrictAligned<word64> for GCC 4.8 and above with xorbuf and VerifyBufsEqual.
-// Problems have not been experienced for the word32 variant, but it may aoccur in the future.
+// Vectorization at -O3 requires IsStrictAligned<word64> for GCC 4.8 and above with xorbuf
+//   and VerifyBufsEqual. With vectorization, GCC generates a `vmovdqa` instruction. The
+//   instruction is sensitive to unaligned data due to XMM register use.
 
 void xorbuf(byte *buf, const byte *mask, size_t count)
 {
