@@ -7,26 +7,26 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#if 0
-// This must be kept in sync with stdcpp.h because <memory> is included based on the same logic.
-#if ((__cplusplus >= 201103L) || (_MSC_VER >= 1600)) && !defined(__clang__)
-#    include <memory>
-  template<typename T>
-    using auto_ptr = std::unique_ptr<T>;
-#elif defined(__clang__)
-#   if (__has_include(<tr1/memory>))
-#      include <tr1/memory>
-  using std::auto_ptr;
-#   endif
-#elif (__cplusplus < 201103L)
-#   include <tr1/memory>
-  using std::auto_ptr;
-#else
-#   include <memory>
-  template<typename T>
-    using auto_ptr = std::unique_ptr<T>;
+// Hack ahead. Apple's standard library does not have C++'s unique_ptr. We can't test
+// for unique_ptr directly because some of the Clangs on Apple fail the same way.
+// However, modern standard libraries have <forward_list>, so we test for it instead.
+// Thanks to Jonathan Wakely for devising the clever test for modern/ancient versions.
+
+#if (__cplusplus >= 201103L) || (_MSC_VER >= 1600)
+#    if defined(__clang__) && (__has_include(<forward_list>))
+#        define CRYPTOPP_HAVE_UNIQUE_PTR 1
+#    else
+#        define CRYPTOPP_HAVE_UNIQUE_PTR 1
+#    endif
 #endif
-#endif // 0
+
+#ifdef CRYPTOPP_HAVE_UNIQUE_PTR
+// use unique_ptr instead of auto_ptr
+template<typename T>
+    using std::auto_ptr = std::unique_ptr<T>;
+#else
+// do nothing; use auto_ptr
+#endif
 
 template <class T> class simple_ptr
 {

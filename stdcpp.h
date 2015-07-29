@@ -12,28 +12,17 @@
 #include <stdlib.h>
 #include <string.h>
 
-// http://marshall.calepin.co/c-and-xcode-46.html. Apple does some wonky stuff with
-//   <memory>, auto_ptr and unique_ptr. Apple's built-in Clang behaves
-//   differently than a LLVM downloaded and compiled CLang. So we fall back to Clang's
-//   __has_include (http://clang.llvm.org/docs/LanguageExtensions.html#id3).
-// This must be kept in sync with smartptr.h because auto_ptr and unique_ptr are
-//   brought in based on the same logic.
-#if ((__cplusplus >= 201103L) || (_MSC_VER >= 1600)) && !defined(__clang__)
-#    include <memory>
-#elif defined(__clang__)
-#   if (__has_include(<tr1/memory>))
-#      include <tr1/memory>
-#   endif
-#elif (__cplusplus < 201103L)
-#   include <tr1/memory>
-#else
-#   include <memory>
+// http://marshall.calepin.co/c-and-xcode-46.html.
+// This include is needed so we can pickup _LIBCPP_VERSION, if needed.
+#if defined(__APPLE__)
+# include <ciso646>
 #endif
 
 #include <map>
 #include <vector>
 #include <string>
 #include <limits>
+#include <memory>
 #include <exception>
 #include <typeinfo>
 #include <algorithm>
