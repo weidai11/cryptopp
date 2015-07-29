@@ -15,6 +15,7 @@
  */
 
 #include "pch.h"
+#include "config.h"
 #include "misc.h"
 #include "des.h"
 
@@ -277,7 +278,14 @@ void RawDES::RawSetKey(CipherDir dir, const byte *key)
 	byte *const pc1m=buffer;                 /* place to modify pc1 into */
 	byte *const pcr=pc1m+56;                 /* place to rotate pc1 into */
 	byte *const ks=pcr+56;
+
+	// C++11 deprecated register
+#if !defined(CRYPTOPP_CXX11)
 	register int i,j,l;
+#else
+	int i,j,l;
+#endif
+
 	int m;
 	
 	for (j=0; j<56; j++) {          /* convert pc1 to bits of key */
