@@ -6,6 +6,8 @@
 	ciphers and signature schemes as defined in PKCS #1 v2.0.
 */
 
+#include "cryptlib.h"
+#include "integer.h"
 #include "pubkey.h"
 #include "asn.h"
 #include "pkcspad.h"

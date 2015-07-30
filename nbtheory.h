@@ -3,6 +3,7 @@
 #ifndef CRYPTOPP_NBTHEORY_H
 #define CRYPTOPP_NBTHEORY_H
 
+#include "cryptlib.h"
 #include "integer.h"
 #include "algparam.h"
 

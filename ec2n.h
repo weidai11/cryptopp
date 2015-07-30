@@ -1,6 +1,8 @@
 #ifndef CRYPTOPP_EC2N_H
 #define CRYPTOPP_EC2N_H
 
+#include "config.h"
+#include "integer.h"
 #include "gf2n.h"
 #include "eprecomp.h"
 #include "smartptr.h"

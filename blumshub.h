@@ -1,6 +1,8 @@
 #ifndef CRYPTOPP_BLUMSHUB_H
 #define CRYPTOPP_BLUMSHUB_H
 
+#include "config.h"
+#include "integer.h"
 #include "modarith.h"
 
 NAMESPACE_BEGIN(CryptoPP)

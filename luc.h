@@ -4,9 +4,10 @@
 /** \file
 */
 
+#include "config.h"
+#include "integer.h"
 #include "pkcspad.h"
 #include "oaep.h"
-#include "integer.h"
 #include "dh.h"
 #include "trap.h"
 

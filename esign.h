@@ -6,8 +6,9 @@
 	ESIGN signature schemes as defined in IEEE P1363a.
 */
 
-#include "pubkey.h"
+#include "config.h"
 #include "integer.h"
+#include "pubkey.h"
 #include "asn.h"
 
 NAMESPACE_BEGIN(CryptoPP)

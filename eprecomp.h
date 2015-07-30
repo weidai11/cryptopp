@@ -1,6 +1,7 @@
 #ifndef CRYPTOPP_EPRECOMP_H
 #define CRYPTOPP_EPRECOMP_H
 
+#include "config.h"
 #include "integer.h"
 #include "algebra.h"
 #include <vector>

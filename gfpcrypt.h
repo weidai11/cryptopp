@@ -5,6 +5,8 @@
 	Implementation of schemes based on DL over GF(p)
 */
 
+#include "config.h"
+#include "integer.h"
 #include "pubkey.h"
 #include "modexppc.h"
 #include "sha.h"

@@ -3,6 +3,7 @@
 
 #include "cryptlib.h"
 #include "smartptr.h"
+#include "integer.h"
 #include "secblock.h"
 
 #if GCC_DIAGNOSTIC_AWARE

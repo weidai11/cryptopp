@@ -4,9 +4,9 @@
 // implementations are in integer.cpp
 
 #include "cryptlib.h"
-#include "misc.h"
 #include "integer.h"
 #include "algebra.h"
+#include "misc.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 

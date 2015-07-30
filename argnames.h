@@ -2,6 +2,7 @@
 #define CRYPTOPP_ARGNAMES_H
 
 #include "cryptlib.h"
+#include "integer.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 

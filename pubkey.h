@@ -32,6 +32,7 @@
 	The "DL_" prefix means an implementation using group operations (in groups where discrete log is hard).
 */
 
+#include "integer.h"
 #include "modarith.h"
 #include "filters.h"
 #include "eprecomp.h"

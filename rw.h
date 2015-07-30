@@ -6,6 +6,8 @@
 	Rabin-Williams signature schemes as defined in IEEE P1363.
 */
 
+#include "cryptlib.h"
+#include "integer.h"
 #include "pubkey.h"
 
 NAMESPACE_BEGIN(CryptoPP)

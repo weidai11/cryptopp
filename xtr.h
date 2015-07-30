@@ -5,6 +5,8 @@
 	"The XTR public key system" by Arjen K. Lenstra and Eric R. Verheul
 */
 
+#include "cryptlib.h"
+#include "integer.h"
 #include "modarith.h"
 #include "trap.h"
 

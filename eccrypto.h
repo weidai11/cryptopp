@@ -4,8 +4,9 @@
 /*! \file
 */
 
-#include "pubkey.h"
+#include "config.h"
 #include "integer.h"
+#include "pubkey.h"
 #include "asn.h"
 #include "hmac.h"
 #include "sha.h"

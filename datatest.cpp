@@ -1,5 +1,8 @@
-#include "factory.h"
+// datatest.cpp - written and placed in public domain by Wei Dai
+
+#include "config.h"
 #include "integer.h"
+#include "factory.h"
 #include "filters.h"
 #include "hex.h"
 #include "randpool.h"

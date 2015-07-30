@@ -7,6 +7,9 @@
 #ifndef CRYPTOPP_IMPORTS
 #define CRYPTOPP_DEFAULT_NO_DLL
 #endif
+
+#include "config.h"
+#include "integer.h"
 #include "dll.h"
 #include "oids.h"
 #include "trap.h"

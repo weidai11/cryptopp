@@ -1,6 +1,8 @@
 #ifndef CRYPTOPP_ECP_H
 #define CRYPTOPP_ECP_H
 
+#include "config.h"
+#include "integer.h"
 #include "modarith.h"
 #include "eprecomp.h"
 #include "smartptr.h"

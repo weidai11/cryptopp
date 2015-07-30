@@ -1,6 +1,8 @@
 #ifndef CRYPTOPP_ELGAMAL_H
 #define CRYPTOPP_ELGAMAL_H
 
+#include "config.h"
+#include "integer.h"
 #include "modexppc.h"
 #include "dsa.h"
 

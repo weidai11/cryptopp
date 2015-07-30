@@ -3,6 +3,8 @@
 #include "pch.h"
 
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
+#include "cryptlib.h"
+#include "integer.h"
 #include "smartptr.h"
 #include "crc.h"
 #include "adler32.h"
@@ -12,12 +14,9 @@
 #include "sha.h"
 #include "tiger.h"
 #include "ripemd.h"
-
 #include "hmac.h"
 #include "hkdf.h"
 #include "ttmac.h"
-
-#include "integer.h"
 #include "pwdbased.h"
 #include "filters.h"
 #include "hex.h"

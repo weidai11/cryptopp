@@ -4,6 +4,7 @@
 #define CRYPTOPP_PWDBASED_H
 
 #include "cryptlib.h"
+#include "integer.h"
 #include "hmac.h"
 #include "hrtimer.h"
 #include "integer.h"
