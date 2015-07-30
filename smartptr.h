@@ -11,7 +11,6 @@ NAMESPACE_BEGIN(CryptoPP)
 // test for unique_ptr directly because some of the non-Apple Clangs on OS X fail the same
 // way. However, modern standard libraries have <forward_list>, so we test for it instead.
 // Thanks to Jonathan Wakely for devising the clever test for modern/ancient versions.
-
 #if (__cplusplus >= 201103L) || (_MSC_VER >= 1600)
 #  if defined(__clang__)
 #    if (__has_include(<forward_list>))
@@ -25,7 +24,7 @@ NAMESPACE_BEGIN(CryptoPP)
 // The result of below is a CryptoPP::auto_ptr in both cases
 #ifdef CRYPTOPP_HAVE_UNIQUE_PTR
   template<typename T>
-    using std::auto_ptr = std::unique_ptr<T>;
+    using auto_ptr = std::unique_ptr<T>;
 #else
   using std::auto_ptr;
 #endif
