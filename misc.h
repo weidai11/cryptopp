@@ -59,7 +59,6 @@
 # pragma GCC diagnostic ignored "-Wunused-value"
 # pragma GCC diagnostic ignored "-Wunused-variable"
 # pragma GCC diagnostic ignored "-Wunused-parameter"
-# pragma GCC diagnostic ignored "-Wtype-limit"
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -198,6 +197,9 @@ const T & Singleton<T, F, instance>::Ref(CRYPTOPP_NOINLINE_DOTDOTDOT) const
 #if (!__STDC_WANT_SECURE_LIB__ && !defined(_MEMORY_S_DEFINED))
 inline void memcpy_s(void *dest, size_t sizeInBytes, const void *src, size_t count)
 {
+	// NULL pointers to memcpy is undefined behavior
+	CRYPTOPP_ASSERT(dest); CRYPTOPP_ASSERT(src);
+
 	if (count > sizeInBytes)
 		throw InvalidArgument("memcpy_s: buffer overflow");
 
@@ -209,6 +211,9 @@ inline void memcpy_s(void *dest, size_t sizeInBytes, const void *src, size_t cou
 
 inline void memmove_s(void *dest, size_t sizeInBytes, const void *src, size_t count)
 {
+	// NULL pointers to memmove is undefined behavior
+	CRYPTOPP_ASSERT(dest); CRYPTOPP_ASSERT(src);
+
 	if (count > sizeInBytes)
 		throw InvalidArgument("memmove_s: buffer overflow");
 
@@ -365,6 +370,11 @@ inline T Crop(T value, size_t size)
 		return value;
 }
 
+#if GCC_DIAGNOSTIC_AWARE
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wsign-compare"
+#endif
+
 template <class T1, class T2>
 inline bool SafeConvert(T1 from, T2 &to)
 {
@@ -373,6 +383,10 @@ inline bool SafeConvert(T1 from, T2 &to)
 		return false;
 	return true;
 }
+
+#if GCC_DIAGNOSTIC_AWARE
+# pragma GCC diagnostic pop
+#endif
 
 inline size_t BitsToBytes(size_t bitCount)
 {
