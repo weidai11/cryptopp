@@ -52,7 +52,7 @@ private:
 
 bool ValidateBBS()
 {
-	cout << "\nBlumBlumShub validation suite running...\n\n";
+	std::cout << "\nBlumBlumShub validation suite running...\n\n";
 
 	Integer p("212004934506826557583707108431463840565872545889679278744389317666981496005411448865750399674653351");
 	Integer q("100677295735404212434355574418077394581488455772477016953458064183204108039226017738610663984508231");
@@ -74,30 +74,30 @@ bool ValidateBBS()
 	fail = !VerifyBufsEqual(output1, buf, 20);
 	pass = pass && !fail;
 
-	cout << (fail ? "FAILED    " : "passed    ");
+	std::cout << (fail ? "FAILED    " : "passed    ");
 	for (j=0;j<20;j++)
-		cout << setw(2) << setfill('0') << hex << (int)buf[j];
-	cout << endl;
+		std::cout << setw(2) << setfill('0') << hex << (int)buf[j];
+	std::cout << std::endl;
 
 	bbs.Seek(10);
 	bbs.GenerateBlock(buf, 10);
 	fail = !VerifyBufsEqual(output1+10, buf, 10);
 	pass = pass && !fail;
 
-	cout << (fail ? "FAILED    " : "passed    ");
+	std::cout << (fail ? "FAILED    " : "passed    ");
 	for (j=0;j<10;j++)
-		cout << setw(2) << setfill('0') << hex << (int)buf[j];
-	cout << endl;
+		std::cout << setw(2) << setfill('0') << hex << (int)buf[j];
+	std::cout << std::endl;
 
 	bbs.Seek(1234567);
 	bbs.GenerateBlock(buf, 20);
 	fail = !VerifyBufsEqual(output2, buf, 20);
 	pass = pass && !fail;
 
-	cout << (fail ? "FAILED    " : "passed    ");
+	std::cout << (fail ? "FAILED    " : "passed    ");
 	for (j=0;j<20;j++)
-		cout << setw(2) << setfill('0') << hex << (int)buf[j];
-	cout << endl;
+		std::cout << setw(2) << setfill('0') << hex << (int)buf[j];
+	std::cout << std::endl;
 
 	return pass;
 }
@@ -109,8 +109,8 @@ bool SignatureValidate(PK_Signer &priv, PK_Verifier &pub, bool thorough = false)
 	fail = !pub.GetMaterial().Validate(GlobalRNG(), thorough ? 3 : 2) || !priv.GetMaterial().Validate(GlobalRNG(), thorough ? 3 : 2);
 	pass = pass && !fail;
 
-	cout << (fail ? "FAILED    " : "passed    ");
-	cout << "signature key validation\n";
+	std::cout << (fail ? "FAILED    " : "passed    ");
+	std::cout << "signature key validation\n";
 
 	static const byte message[] = "test message";
 	const unsigned int messageLen = COUNTOF(message);
@@ -120,15 +120,15 @@ bool SignatureValidate(PK_Signer &priv, PK_Verifier &pub, bool thorough = false)
 	fail = !pub.VerifyMessage(message, messageLen, signature, signatureLength);
 	pass = pass && !fail;
 
-	cout << (fail ? "FAILED    " : "passed    ");
-	cout << "signature and verification\n";
+	std::cout << (fail ? "FAILED    " : "passed    ");
+	std::cout << "signature and verification\n";
 
 	++signature[0];
 	fail = pub.VerifyMessage(message, messageLen, signature, signatureLength);
 	pass = pass && !fail;
 
-	cout << (fail ? "FAILED    " : "passed    ");
-	cout << "checking invalid signature" << endl;
+	std::cout << (fail ? "FAILED    " : "passed    ");
+	std::cout << "checking invalid signature" << std::endl;
 
 	if (priv.MaxRecoverableLength() > 0)
 	{
@@ -138,16 +138,16 @@ bool SignatureValidate(PK_Signer &priv, PK_Verifier &pub, bool thorough = false)
 		fail = !(result.isValidCoding && result.messageLength == messageLen && VerifyBufsEqual(recovered, message, messageLen));
 		pass = pass && !fail;
 
-		cout << (fail ? "FAILED    " : "passed    ");
-		cout << "signature and verification with recovery" << endl;
+		std::cout << (fail ? "FAILED    " : "passed    ");
+		std::cout << "signature and verification with recovery" << std::endl;
 
 		++signature[0];
 		result = pub.RecoverMessage(recovered, NULL, 0, signature, signatureLength);
 		fail = result.isValidCoding;
 		pass = pass && !fail;
 
-		cout << (fail ? "FAILED    " : "passed    ");
-		cout << "recovery with invalid signature" << endl;
+		std::cout << (fail ? "FAILED    " : "passed    ");
+		std::cout << "recovery with invalid signature" << std::endl;
 	}
 
 	return pass;
@@ -160,8 +160,8 @@ bool CryptoSystemValidate(PK_Decryptor &priv, PK_Encryptor &pub, bool thorough =
 	fail = !pub.GetMaterial().Validate(GlobalRNG(), thorough ? 3 : 2) || !priv.GetMaterial().Validate(GlobalRNG(), thorough ? 3 : 2);
 	pass = pass && !fail;
 
-	cout << (fail ? "FAILED    " : "passed    ");
-	cout << "cryptosystem key validation\n";
+	std::cout << (fail ? "FAILED    " : "passed    ");
+	std::cout << "cryptosystem key validation\n";
 
 	static const byte message[] = "test message";
 	const int messageLen = COUNTOF(message);
@@ -174,8 +174,8 @@ bool CryptoSystemValidate(PK_Decryptor &priv, PK_Encryptor &pub, bool thorough =
 	fail = fail || !VerifyBufsEqual(message, plaintext, messageLen);
 	pass = pass && !fail;
 
-	cout << (fail ? "FAILED    " : "passed    ");
-	cout << "encryption and decryption\n";
+	std::cout << (fail ? "FAILED    " : "passed    ");
+	std::cout << "encryption and decryption\n";
 
 	return pass;
 }
@@ -183,10 +183,10 @@ bool CryptoSystemValidate(PK_Decryptor &priv, PK_Encryptor &pub, bool thorough =
 bool SimpleKeyAgreementValidate(SimpleKeyAgreementDomain &d)
 {
 	if (d.GetCryptoParameters().Validate(GlobalRNG(), 3))
-		cout << "passed    simple key agreement domain parameters validation" << endl;
+		std::cout << "passed    simple key agreement domain parameters validation" << std::endl;
 	else
 	{
-		cout << "FAILED    simple key agreement domain parameters invalid" << endl;
+		std::cout << "FAILED    simple key agreement domain parameters invalid" << std::endl;
 		return false;
 	}
 
@@ -202,27 +202,27 @@ bool SimpleKeyAgreementValidate(SimpleKeyAgreementDomain &d)
 
 	if (!(d.Agree(val1, priv1, pub2) && d.Agree(val2, priv2, pub1)))
 	{
-		cout << "FAILED    simple key agreement failed" << endl;
+		std::cout << "FAILED    simple key agreement failed" << std::endl;
 		return false;
 	}
 
 	if (!VerifyBufsEqual(val1.begin(), val2.begin(), d.AgreedValueLength()))
 	{
-		cout << "FAILED    simple agreed values not equal" << endl;
+		std::cout << "FAILED    simple agreed values not equal" << std::endl;
 		return false;
 	}
 
-	cout << "passed    simple key agreement" << endl;
+	std::cout << "passed    simple key agreement" << std::endl;
 	return true;
 }
 
 bool AuthenticatedKeyAgreementValidate(AuthenticatedKeyAgreementDomain &d)
 {
 	if (d.GetCryptoParameters().Validate(GlobalRNG(), 3))
-		cout << "passed    authenticated key agreement domain parameters validation" << endl;
+		std::cout << "passed    authenticated key agreement domain parameters validation" << std::endl;
 	else
 	{
-		cout << "FAILED    authenticated key agreement domain parameters invalid" << endl;
+		std::cout << "FAILED    authenticated key agreement domain parameters invalid" << std::endl;
 		return false;
 	}
 
@@ -242,23 +242,23 @@ bool AuthenticatedKeyAgreementValidate(AuthenticatedKeyAgreementDomain &d)
 
 	if (!(d.Agree(val1, spriv1, epriv1, spub2, epub2) && d.Agree(val2, spriv2, epriv2, spub1, epub1)))
 	{
-		cout << "FAILED    authenticated key agreement failed" << endl;
+		std::cout << "FAILED    authenticated key agreement failed" << std::endl;
 		return false;
 	}
 
 	if (!VerifyBufsEqual(val1.begin(), val2.begin(), d.AgreedValueLength()))
 	{
-		cout << "FAILED    authenticated agreed values not equal" << endl;
+		std::cout << "FAILED    authenticated agreed values not equal" << std::endl;
 		return false;
 	}
 
-	cout << "passed    authenticated key agreement" << endl;
+	std::cout << "passed    authenticated key agreement" << std::endl;
 	return true;
 }
 
 bool ValidateRSA()
 {
-	cout << "\nRSA validation suite running...\n\n";
+	std::cout << "\nRSA validation suite running...\n\n";
 
 	byte out[100], outPlain[100];
 	bool pass = true, fail;
@@ -279,21 +279,21 @@ bool ValidateRSA()
 		fail = !VerifyBufsEqual(signature, out, 64);
 		pass = pass && !fail;
 
-		cout << (fail ? "FAILED    " : "passed    ");
-		cout << "signature check against test vector\n";
+		std::cout << (fail ? "FAILED    " : "passed    ");
+		std::cout << "signature check against test vector\n";
 
 		fail = !rsaPub.VerifyMessage((byte *)plain, strlen(plain), out, signatureLength);
 		pass = pass && !fail;
 
-		cout << (fail ? "FAILED    " : "passed    ");
-		cout << "verification check against test vector\n";
+		std::cout << (fail ? "FAILED    " : "passed    ");
+		std::cout << "verification check against test vector\n";
 
 		out[10]++;
 		fail = rsaPub.VerifyMessage((byte *)plain, strlen(plain), out, signatureLength);
 		pass = pass && !fail;
 
-		cout << (fail ? "FAILED    " : "passed    ");
-		cout << "invalid signature verification\n";
+		std::cout << (fail ? "FAILED    " : "passed    ");
+		std::cout << "invalid signature verification\n";
 	}
 	{
 		FileSource keys("TestData/rsa1024.dat", true, new HexDecoder);
@@ -336,8 +336,8 @@ bool ValidateRSA()
 		fail = !result.isValidCoding || (result.messageLength!=8) || !VerifyBufsEqual(out, encrypted, 50) || !VerifyBufsEqual(plain, outPlain, 8);
 		pass = pass && !fail;
 
-		cout << (fail ? "FAILED    " : "passed    ");
-		cout << "PKCS 2.0 encryption and decryption\n";
+		std::cout << (fail ? "FAILED    " : "passed    ");
+		std::cout << "PKCS 2.0 encryption and decryption\n";
 	}
 
 	return pass;
@@ -345,7 +345,7 @@ bool ValidateRSA()
 
 bool ValidateDH()
 {
-	cout << "\nDH validation suite running...\n\n";
+	std::cout << "\nDH validation suite running...\n\n";
 
 	FileSource f("TestData/dh1024.dat", true, new HexDecoder());
 	DH dh(f);
@@ -354,7 +354,7 @@ bool ValidateDH()
 
 bool ValidateMQV()
 {
-	cout << "\nMQV validation suite running...\n\n";
+	std::cout << "\nMQV validation suite running...\n\n";
 
 	FileSource f("TestData/mqv1024.dat", true, new HexDecoder());
 	MQV mqv(f);
@@ -363,7 +363,7 @@ bool ValidateMQV()
 
 bool ValidateLUC_DH()
 {
-	cout << "\nLUC-DH validation suite running...\n\n";
+	std::cout << "\nLUC-DH validation suite running...\n\n";
 
 	FileSource f("TestData/lucd512.dat", true, new HexDecoder());
 	LUC_DH dh(f);
@@ -372,7 +372,7 @@ bool ValidateLUC_DH()
 
 bool ValidateXTR_DH()
 {
-	cout << "\nXTR-DH validation suite running...\n\n";
+	std::cout << "\nXTR-DH validation suite running...\n\n";
 
 	FileSource f("TestData/xtrdh171.dat", true, new HexDecoder());
 	XTR_DH dh(f);
@@ -381,7 +381,7 @@ bool ValidateXTR_DH()
 
 bool ValidateElGamal()
 {
-	cout << "\nElGamal validation suite running...\n\n";
+	std::cout << "\nElGamal validation suite running...\n\n";
 	bool pass = true;
 	{
 		FileSource fc("TestData/elgc1024.dat", true, new HexDecoder);
@@ -399,7 +399,7 @@ bool ValidateElGamal()
 
 bool ValidateDLIES()
 {
-	cout << "\nDLIES validation suite running...\n\n";
+	std::cout << "\nDLIES validation suite running...\n\n";
 	bool pass = true;
 	{
 		FileSource fc("TestData/dlie1024.dat", true, new HexDecoder);
@@ -408,7 +408,7 @@ bool ValidateDLIES()
 		pass = CryptoSystemValidate(privC, pubC) && pass;
 	}
 	{
-		cout << "Generating new encryption key..." << endl;
+		std::cout << "Generating new encryption key..." << std::endl;
 		DLIES<>::GroupParameters gp;
 		gp.GenerateRandomWithKeySize(GlobalRNG(), 128);
 		DLIES<>::Decryptor decryptor;
@@ -422,7 +422,7 @@ bool ValidateDLIES()
 
 bool ValidateNR()
 {
-	cout << "\nNR validation suite running...\n\n";
+	std::cout << "\nNR validation suite running...\n\n";
 	bool pass = true;
 	{
 		FileSource f("TestData/nr2048.dat", true, new HexDecoder);
@@ -433,7 +433,7 @@ bool ValidateNR()
 		pass = SignatureValidate(privS, pubS) && pass;
 	}
 	{
-		cout << "Generating new signature key..." << endl;
+		std::cout << "Generating new signature key..." << std::endl;
 		NR<SHA>::Signer privS(GlobalRNG(), 256);
 		NR<SHA>::Verifier pubS(privS);
 
@@ -444,7 +444,7 @@ bool ValidateNR()
 
 bool ValidateDSA(bool thorough)
 {
-	cout << "\nDSA validation suite running...\n\n";
+	std::cout << "\nDSA validation suite running...\n\n";
 
 	bool pass = true;
 	FileSource fs1("TestData/dsa1024.dat", true, new HexDecoder());
@@ -460,7 +460,7 @@ bool ValidateDSA(bool thorough)
 
 bool ValidateLUC()
 {
-	cout << "\nLUC validation suite running...\n\n";
+	std::cout << "\nLUC validation suite running...\n\n";
 	bool pass=true;
 
 	{
@@ -479,14 +479,14 @@ bool ValidateLUC()
 
 bool ValidateLUC_DL()
 {
-	cout << "\nLUC-HMP validation suite running...\n\n";
+	std::cout << "\nLUC-HMP validation suite running...\n\n";
 
 	FileSource f("TestData/lucs512.dat", true, new HexDecoder);
 	LUC_HMP<SHA>::Signer privS(f);
 	LUC_HMP<SHA>::Verifier pubS(privS);
 	bool pass = SignatureValidate(privS, pubS);
 
-	cout << "\nLUC-IES validation suite running...\n\n";
+	std::cout << "\nLUC-IES validation suite running...\n\n";
 
 	FileSource fc("TestData/lucc512.dat", true, new HexDecoder);
 	LUC_IES<>::Decryptor privC(fc);
@@ -498,7 +498,7 @@ bool ValidateLUC_DL()
 
 bool ValidateRabin()
 {
-	cout << "\nRabin validation suite running...\n\n";
+	std::cout << "\nRabin validation suite running...\n\n";
 	bool pass=true;
 
 	{
@@ -517,7 +517,7 @@ bool ValidateRabin()
 
 bool ValidateRW()
 {
-	cout << "\nRW validation suite running...\n\n";
+	std::cout << "\nRW validation suite running...\n\n";
 	bool pass=true;
 
     FileSource f("TestData/rw1024.dat", true, new HexDecoder);
@@ -531,7 +531,7 @@ bool ValidateRW()
 /*
 bool ValidateBlumGoldwasser()
 {
-	cout << "\nBlumGoldwasser validation suite running...\n\n";
+	std::cout << "\nBlumGoldwasser validation suite running...\n\n";
 
 	FileSource f("TestData/blum512.dat", true, new HexDecoder);
 	BlumGoldwasserPrivateKey priv(f);
@@ -543,7 +543,7 @@ bool ValidateBlumGoldwasser()
 
 bool ValidateECP()
 {
-	cout << "\nECP validation suite running...\n\n";
+	std::cout << "\nECP validation suite running...\n\n";
 
 	ECIES<ECP>::Decryptor cpriv(GlobalRNG(), ASN1::secp192r1());
 	ECIES<ECP>::Encryptor cpub(cpriv);
@@ -568,7 +568,7 @@ bool ValidateECP()
 	pass = SimpleKeyAgreementValidate(ecdhc) && pass;
 	pass = AuthenticatedKeyAgreementValidate(ecmqvc) && pass;
 
-	cout << "Turning on point compression..." << endl;
+	std::cout << "Turning on point compression..." << std::endl;
 	cpriv.AccessKey().AccessGroupParameters().SetPointCompression(true);
 	cpub.AccessKey().AccessGroupParameters().SetPointCompression(true);
 	ecdhc.AccessGroupParameters().SetPointCompression(true);
@@ -577,13 +577,13 @@ bool ValidateECP()
 	pass = SimpleKeyAgreementValidate(ecdhc) && pass;
 	pass = AuthenticatedKeyAgreementValidate(ecmqvc) && pass;
 
-	cout << "Testing SEC 2, NIST, and Brainpool recommended curves..." << endl;
+	std::cout << "Testing SEC 2, NIST, and Brainpool recommended curves..." << std::endl;
 	OID oid;
 	while (!(oid = DL_GroupParameters_EC<ECP>::GetNextRecommendedParametersOID(oid)).m_values.empty())
 	{
 		DL_GroupParameters_EC<ECP> params(oid);
 		bool fail = !params.Validate(GlobalRNG(), 2);
-		cout << (fail ? "FAILED" : "passed") << "    " << dec << params.GetCurve().GetField().MaxElementBitLength() << " bits" << endl;
+		std::cout << (fail ? "FAILED" : "passed") << "    " << dec << params.GetCurve().GetField().MaxElementBitLength() << " bits" << std::endl;
 		pass = pass && !fail;
 	}
 
@@ -592,7 +592,7 @@ bool ValidateECP()
 
 bool ValidateEC2N()
 {
-	cout << "\nEC2N validation suite running...\n\n";
+	std::cout << "\nEC2N validation suite running...\n\n";
 
 	ECIES<EC2N>::Decryptor cpriv(GlobalRNG(), ASN1::sect193r1());
 	ECIES<EC2N>::Encryptor cpub(cpriv);
@@ -615,7 +615,7 @@ bool ValidateEC2N()
 	pass = SimpleKeyAgreementValidate(ecdhc) && pass;
 	pass = AuthenticatedKeyAgreementValidate(ecmqvc) && pass;
 
-	cout << "Turning on point compression..." << endl;
+	std::cout << "Turning on point compression..." << std::endl;
 	cpriv.AccessKey().AccessGroupParameters().SetPointCompression(true);
 	cpub.AccessKey().AccessGroupParameters().SetPointCompression(true);
 	ecdhc.AccessGroupParameters().SetPointCompression(true);
@@ -625,13 +625,13 @@ bool ValidateEC2N()
 	pass = AuthenticatedKeyAgreementValidate(ecmqvc) && pass;
 
 #if 0	// TODO: turn this back on when I make EC2N faster for pentanomial basis
-	cout << "Testing SEC 2 recommended curves..." << endl;
+	std::cout << "Testing SEC 2 recommended curves..." << std::endl;
 	OID oid;
 	while (!(oid = DL_GroupParameters_EC<EC2N>::GetNextRecommendedParametersOID(oid)).m_values.empty())
 	{
 		DL_GroupParameters_EC<EC2N> params(oid);
 		bool fail = !params.Validate(GlobalRNG(), 2);
-		cout << (fail ? "FAILED" : "passed") << "    " << params.GetCurve().GetField().MaxElementBitLength() << " bits" << endl;
+		std::cout << (fail ? "FAILED" : "passed") << "    " << params.GetCurve().GetField().MaxElementBitLength() << " bits" << std::endl;
 		pass = pass && !fail;
 	}
 #endif
@@ -641,7 +641,7 @@ bool ValidateEC2N()
 
 bool ValidateECDSA()
 {
-	cout << "\nECDSA validation suite running...\n\n";
+	std::cout << "\nECDSA validation suite running...\n\n";
 
 	// from Sample Test Vectors for P1363
 	GF2NT gf2n(191, 9, 0);
@@ -672,14 +672,14 @@ bool ValidateECDSA()
 	fail = (rOut != r) || (sOut != s);
 	pass = pass && !fail;
 
-	cout << (fail ? "FAILED    " : "passed    ");
-	cout << "signature check against test vector\n";
+	std::cout << (fail ? "FAILED    " : "passed    ");
+	std::cout << "signature check against test vector\n";
 
 	fail = !pub.VerifyMessage((byte *)"abc", 3, sig, sizeof(sig));
 	pass = pass && !fail;
 
-	cout << (fail ? "FAILED    " : "passed    ");
-	cout << "verification check against test vector\n";
+	std::cout << (fail ? "FAILED    " : "passed    ");
+	std::cout << "verification check against test vector\n";
 
 	fail = pub.VerifyMessage((byte *)"xyz", 3, sig, sizeof(sig));
 	pass = pass && !fail;
@@ -691,7 +691,7 @@ bool ValidateECDSA()
 
 bool ValidateESIGN()
 {
-	cout << "\nESIGN validation suite running...\n\n";
+	std::cout << "\nESIGN validation suite running...\n\n";
 
 	bool pass = true, fail;
 
@@ -713,10 +713,10 @@ bool ValidateESIGN()
 	fail = !verifier.VerifyMessage((byte *)plain, strlen(plain), signature, verifier.SignatureLength());
 	pass = pass && !fail;
 
-	cout << (fail ? "FAILED    " : "passed    ");
-	cout << "verification check against test vector\n";
+	std::cout << (fail ? "FAILED    " : "passed    ");
+	std::cout << "verification check against test vector\n";
 
-	cout << "Generating signature key from seed..." << endl;
+	std::cout << "Generating signature key from seed..." << std::endl;
 	signer.AccessKey().GenerateRandom(GlobalRNG(), MakeParameters("Seed", ConstByteArrayParameter((const byte *)"test", 4))("KeySize", 3*512));
 	verifier = signer;
 

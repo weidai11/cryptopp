@@ -61,13 +61,13 @@ bool HashModuleTest(HashTransformation &md, const HashTestTuple *testSet, unsign
 		fail = !VerifyBufsEqual(digest, testSet[i].output, md.DigestSize());
 		pass = pass && !fail;
 
-		cout << (fail ? "FAILED   " : "passed   ");
+		std::cout << (fail ? "FAILED   " : "passed   ");
 		for (j=0; j<md.DigestSize(); j++)
-			cout << setw(2) << setfill('0') << hex << (int)digest[j];
-		cout << "   \"" << (char *)testSet[i].input << '\"';
+			std::cout << setw(2) << setfill('0') << hex << (int)digest[j];
+		std::cout << "   \"" << (char *)testSet[i].input << '\"';
 		if (testSet[i].repeatTimes != 1)
-			cout << " repeated " << dec << testSet[i].repeatTimes << " times";
-		cout  << endl;
+			std::cout << " repeated " << dec << testSet[i].repeatTimes << " times";
+		std::cout  << std::endl;
 	}
 
 	return pass;
@@ -89,7 +89,7 @@ bool ValidateCRC32()
 
 	CRC32 crc;
 
-	cout << "\nCRC-32 validation suite running...\n\n";
+	std::cout << "\nCRC-32 validation suite running...\n\n";
 	return HashModuleTest(crc, testSet, COUNTOF(testSet));
 }
 
@@ -108,7 +108,7 @@ bool ValidateAdler32()
 
 	Adler32 md;
 
-	cout << "\nAdler-32 validation suite running...\n\n";
+	std::cout << "\nAdler-32 validation suite running...\n\n";
 	return HashModuleTest(md, testSet, COUNTOF(testSet));
 }
 
@@ -127,7 +127,7 @@ bool ValidateMD2()
 
 	Weak::MD2 md2;
 
-	cout << "\nMD2 validation suite running...\n\n";
+	std::cout << "\nMD2 validation suite running...\n\n";
 	return HashModuleTest(md2, testSet, COUNTOF(testSet));
 }
 
@@ -146,7 +146,7 @@ bool ValidateMD4()
 
 	Weak::MD4 md4;
 
-	cout << "\nMD4 validation suite running...\n\n";
+	std::cout << "\nMD4 validation suite running...\n\n";
 	return HashModuleTest(md4, testSet, COUNTOF(testSet));
 }
 
@@ -165,25 +165,25 @@ bool ValidateMD5()
 
 	Weak::MD5 md5;
 
-	cout << "\nMD5 validation suite running...\n\n";
+	std::cout << "\nMD5 validation suite running...\n\n";
 	return HashModuleTest(md5, testSet, COUNTOF(testSet));
 }
 
 bool ValidateSHA()
 {
-	cout << "\nSHA validation suite running...\n\n";
+	std::cout << "\nSHA validation suite running...\n\n";
 	return RunTestDataFile("TestVectors/sha.txt");
 }
 
 bool ValidateSHA2()
 {
-	cout << "\nSHA validation suite running...\n\n";
+	std::cout << "\nSHA validation suite running...\n\n";
 	return RunTestDataFile("TestVectors/sha.txt");
 }
 
 bool ValidateTiger()
 {
-	cout << "\nTiger validation suite running...\n\n";
+	std::cout << "\nTiger validation suite running...\n\n";
 
 	static const HashTestTuple testSet[] =
 	{
@@ -259,19 +259,19 @@ bool ValidateRIPEMD()
 
 	bool pass = true;
 
-	cout << "\nRIPEMD-128 validation suite running...\n\n";
+	std::cout << "\nRIPEMD-128 validation suite running...\n\n";
 	RIPEMD128 md128;
 	pass = HashModuleTest(md128, testSet128, COUNTOF(testSet128)) && pass;
 
-	cout << "\nRIPEMD-160 validation suite running...\n\n";
+	std::cout << "\nRIPEMD-160 validation suite running...\n\n";
 	RIPEMD160 md160;
 	pass = HashModuleTest(md160, testSet160, COUNTOF(testSet160)) && pass;
 
-	cout << "\nRIPEMD-256 validation suite running...\n\n";
+	std::cout << "\nRIPEMD-256 validation suite running...\n\n";
 	RIPEMD256 md256;
 	pass = HashModuleTest(md256, testSet256, COUNTOF(testSet256)) && pass;
 
-	cout << "\nRIPEMD-320 validation suite running...\n\n";
+	std::cout << "\nRIPEMD-320 validation suite running...\n\n";
 	RIPEMD320 md320;
 	pass = HashModuleTest(md320, testSet320, COUNTOF(testSet320)) && pass;
 
@@ -293,7 +293,7 @@ bool ValidateHAVAL()
 
 	bool pass=true;
 
-	cout << "\nHAVAL validation suite running...\n\n";
+	std::cout << "\nHAVAL validation suite running...\n\n";
 	{
 		HAVAL3 md(16);
 		pass = HashModuleTest(md, testSet+0, 1) && pass;
@@ -368,15 +368,15 @@ bool ValidateMD5MAC()
 	byte digest[MD5MAC::DIGESTSIZE];
 	bool pass=true, fail;
 
-	cout << "\nMD5MAC validation suite running...\n";
+	std::cout << "\nMD5MAC validation suite running...\n";
 
 	for (int k=0; k<2; k++)
 	{
 		MD5MAC mac(keys[k]);
-		cout << "\nKEY: ";
+		std::cout << "\nKEY: ";
 		for (int j=0;j<MD5MAC::KEYLENGTH;j++)
-			cout << setw(2) << setfill('0') << hex << (int)keys[k][j];
-		cout << endl << endl;
+			std::cout << setw(2) << setfill('0') << hex << (int)keys[k][j];
+		std::cout << std::endl << std::endl;
 		for (int i=0;i<7;i++)
 		{
 			mac.Update((byte *)TestVals[i], strlen(TestVals[i]));
@@ -384,10 +384,10 @@ bool ValidateMD5MAC()
 			fail = !VerifyBufsEqual(digest, output[k][i], MD5MAC::DIGESTSIZE)
 				 || !mac.VerifyDigest(output[k][i], (byte *)TestVals[i], strlen(TestVals[i]));
 			pass = pass && !fail;
-			cout << (fail ? "FAILED   " : "passed   ");
+			std::cout << (fail ? "FAILED   " : "passed   ");
 			for (int j=0;j<MD5MAC::DIGESTSIZE;j++)
-				cout << setw(2) << setfill('0') << hex << (int)digest[j];
-			cout << "   \"" << TestVals[i] << '\"' << endl;
+				std::cout << setw(2) << setfill('0') << hex << (int)digest[j];
+			std::cout << "   \"" << TestVals[i] << '\"' << std::endl;
 		}
 	}
 
@@ -439,15 +439,15 @@ bool ValidateXMACC()
 	byte digest[XMACC_MD5::DIGESTSIZE];
 	bool pass=true, fail;
 
-	cout << "\nXMACC/MD5 validation suite running...\n";
+	std::cout << "\nXMACC/MD5 validation suite running...\n";
 
 	for (int k=0; k<2; k++)
 	{
 		XMACC_MD5 mac(keys[k], counters[k]);
-		cout << "\nKEY: ";
+		std::cout << "\nKEY: ";
 		for (int j=0;j<XMACC_MD5::KEYLENGTH;j++)
-			cout << setw(2) << setfill('0') << hex << (int)keys[k][j];
-		cout << "    COUNTER: 0x" << hex << counters[k] << endl << endl;
+			std::cout << setw(2) << setfill('0') << hex << (int)keys[k][j];
+		std::cout << "    COUNTER: 0x" << hex << counters[k] << std::endl << std::endl;
 		for (int i=0;i<7;i++)
 		{
 			mac.Update((byte *)TestVals[i], strlen(TestVals[i]));
@@ -455,10 +455,10 @@ bool ValidateXMACC()
 			fail = !VerifyBufsEqual(digest, output[k][i], XMACC_MD5::DIGESTSIZE)
 				 || !mac.VerifyDigest(output[k][i], (byte *)TestVals[i], strlen(TestVals[i]));
 			pass = pass && !fail;
-			cout << (fail ? "FAILED   " : "passed   ");
+			std::cout << (fail ? "FAILED   " : "passed   ");
 			for (int j=0;j<XMACC_MD5::DIGESTSIZE;j++)
-				cout << setw(2) << setfill('0') << hex << (int)digest[j];
-			cout << "   \"" << TestVals[i] << '\"' << endl;
+				std::cout << setw(2) << setfill('0') << hex << (int)digest[j];
+			std::cout << "   \"" << TestVals[i] << '\"' << std::endl;
 		}
 	}
 
@@ -495,7 +495,7 @@ bool ValidateTTMAC()
 	byte digest[TTMAC::DIGESTSIZE];
 	bool pass=true, fail;
 
-	cout << "\nTwo-Track-MAC validation suite running...\n";
+	std::cout << "\nTwo-Track-MAC validation suite running...\n";
 
 	TTMAC mac(key, sizeof(key));
 	for (size_t k=0; k<COUNTOF(TestVals); k++)
@@ -505,10 +505,10 @@ bool ValidateTTMAC()
 		fail = !VerifyBufsEqual(digest, output[k], TTMAC::DIGESTSIZE)
 			|| !mac.VerifyDigest(output[k], (byte *)TestVals[k], strlen(TestVals[k]));
 		pass = pass && !fail;
-		cout << (fail ? "FAILED   " : "passed   ");
+		std::cout << (fail ? "FAILED   " : "passed   ");
 		for (int j=0;j<TTMAC::DIGESTSIZE;j++)
-			cout << setw(2) << setfill('0') << hex << (int)digest[j];
-		cout << "   \"" << TestVals[k] << '\"' << endl;
+			std::cout << setw(2) << setfill('0') << hex << (int)digest[j];
+		std::cout << "   \"" << TestVals[k] << '\"' << std::endl;
 	}
 
 	return true;
@@ -529,7 +529,7 @@ bool TestPBKDF(PasswordBasedKeyDerivationFunction &pbkdf, const PBKDF_TestTuple 
 	{
 		const PBKDF_TestTuple &tuple = testSet[i];
 
-		string password, salt, derivedKey;
+		std::string password, salt, derivedKey;
 		StringSource(tuple.hexPassword, true, new HexDecoder(new StringSink(password)));
 		StringSource(tuple.hexSalt, true, new HexDecoder(new StringSink(salt)));
 		StringSource(tuple.hexDerivedKey, true, new HexDecoder(new StringSink(derivedKey)));
@@ -539,13 +539,13 @@ bool TestPBKDF(PasswordBasedKeyDerivationFunction &pbkdf, const PBKDF_TestTuple 
 		bool fail = !VerifyBufsEqual(derived, reinterpret_cast<const unsigned char*>(derivedKey.data()), derived.size());
 		pass = pass && !fail;
 
-		HexEncoder enc(new FileSink(cout));
-		cout << (fail ? "FAILED   " : "passed   ");
+		HexEncoder enc(new FileSink(std::cout));
+		std::cout << (fail ? "FAILED   " : "passed   ");
 		enc.Put(tuple.purpose);
-		cout << " " << tuple.iterations;
-		cout << " " << tuple.hexPassword << " " << tuple.hexSalt << " ";
+		std::cout << " " << tuple.iterations;
+		std::cout << " " << tuple.hexPassword << " " << tuple.hexSalt << " ";
 		enc.Put(derived, derived.size());
-		cout << endl;
+		std::cout << std::endl;
 	}
 
 	return pass;
@@ -573,7 +573,7 @@ bool ValidatePBKDF()
 
 	PKCS12_PBKDF<SHA1> pbkdf;
 
-	cout << "\nPKCS #12 PBKDF validation suite running...\n\n";
+	std::cout << "\nPKCS #12 PBKDF validation suite running...\n\n";
 	pass = TestPBKDF(pbkdf, testSet, COUNTOF(testSet)) && pass;
 	}
 
@@ -587,7 +587,7 @@ bool ValidatePBKDF()
 
 	PKCS5_PBKDF2_HMAC<SHA1> pbkdf;
 
-	cout << "\nPKCS #5 PBKDF2 validation suite running...\n\n";
+	std::cout << "\nPKCS #5 PBKDF2 validation suite running...\n\n";
 	pass = TestPBKDF(pbkdf, testSet, COUNTOF(testSet)) && pass;
 	}
 
@@ -608,7 +608,7 @@ bool TestHKDF(KeyDerivationFunction &kdf, const HKDF_TestTuple *testSet, unsigne
 	{
 		const HKDF_TestTuple &tuple = testSet[i];
 
-		string secret, context, salt, derivedKey;
+		std::string secret, context, salt, derivedKey;
 		StringSource(tuple.hexSecret, true, new HexDecoder(new StringSink(secret)));
 		StringSource(tuple.hexSalt ? tuple.hexSalt : "", true, new HexDecoder(new StringSink(salt)));
 		StringSource(tuple.hexContext ? tuple.hexContext : "", true, new HexDecoder(new StringSink(context)));
@@ -624,12 +624,12 @@ bool TestHKDF(KeyDerivationFunction &kdf, const HKDF_TestTuple *testSet, unsigne
 		bool fail = !VerifyBufsEqual(derived, reinterpret_cast<const unsigned char*>(derivedKey.data()), derived.size());
 		pass = pass && !fail;
 
-		HexEncoder enc(new FileSink(cout));
-		cout << (fail ? "FAILED   " : "passed   ");
-		cout << " " << tuple.hexSecret << " " << (tuple.hexSalt ? tuple.hexSalt : "<NO SALT>");
-		cout << " " << (tuple.hexContext ? tuple.hexContext : "<NO CTX>") << " ";
+		HexEncoder enc(new FileSink(std::cout));
+		std::cout << (fail ? "FAILED   " : "passed   ");
+		std::cout << " " << tuple.hexSecret << " " << (tuple.hexSalt ? tuple.hexSalt : "<NO SALT>");
+		std::cout << " " << (tuple.hexContext ? tuple.hexContext : "<NO CTX>") << " ";
 		enc.Put(derived, derived.size());
-		cout << endl;
+		std::cout << std::endl;
 	}
 
 	return pass;
@@ -653,7 +653,7 @@ bool ValidateHKDF()
 
 	HKDF<SHA1> hkdf;
 
-	cout << "\nRFC 5869 HKDF(SHA-1) validation suite running...\n\n";
+	std::cout << "\nRFC 5869 HKDF(SHA-1) validation suite running...\n\n";
 	pass = TestHKDF(hkdf, testSet, COUNTOF(testSet)) && pass;
 	}
 
@@ -671,7 +671,7 @@ bool ValidateHKDF()
 
 	HKDF<SHA256> hkdf;
 
-	cout << "\nRFC 5869 HKDF(SHA-256) validation suite running...\n\n";
+	std::cout << "\nRFC 5869 HKDF(SHA-256) validation suite running...\n\n";
 	pass = TestHKDF(hkdf, testSet, COUNTOF(testSet)) && pass;
 	}
 
@@ -690,7 +690,7 @@ bool ValidateHKDF()
 
 	HKDF<SHA512> hkdf;
 
-	cout << "\nRFC 5869 HKDF(SHA-512) validation suite running...\n\n";
+	std::cout << "\nRFC 5869 HKDF(SHA-512) validation suite running...\n\n";
 	pass = TestHKDF(hkdf, testSet, COUNTOF(testSet)) && pass;
 	}
 
