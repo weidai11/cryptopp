@@ -11,7 +11,7 @@ NAMESPACE_BEGIN(CryptoPP)
 // test for unique_ptr directly because some of the non-Apple Clangs on OS X fail the same
 // way. However, modern standard libraries have <forward_list>, so we test for it instead.
 // Thanks to Jonathan Wakely for devising the clever test for modern/ancient versions.
-#if (__cplusplus >= 201103L) || (_MSC_VER >= 1600)
+#if (__cplusplus >= 201103L) || (_MSC_VER >= 1700)
 #  if defined(__clang__)
 #    if (__has_include(<forward_list>))
 #      define CRYPTOPP_HAVE_UNIQUE_PTR 1
