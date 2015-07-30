@@ -324,7 +324,7 @@ endif
 #################################################################
 # Sources, objects and temporaries
 
-WIN_SRCS = pch.cpp cryptlib_bds.cpp
+WIN_SRCS = pch.cpp fipsalgt.cpp cryptlib_bds.cpp
 ifeq ($(IS_MINGW),0)
 WIN_SRCS += winpipes.cpp
 endif
