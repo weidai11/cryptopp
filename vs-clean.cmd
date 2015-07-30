@@ -9,6 +9,7 @@ attrib -R -A -S -H  "%THIS_DIR%\*.filters"
 
 del "%THIS_DIR%\*.suo" /q
 del "%THIS_DIR%\*.sdf" /q
+del "%THIS_DIR%\*.user" /q
 del "%THIS_DIR%\*.filters" /q
 del "%THIS_DIR%\*.vcxproj" /q
 del "%THIS_DIR%\*.diff" /q
