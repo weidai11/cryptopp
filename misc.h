@@ -59,6 +59,7 @@
 # pragma GCC diagnostic ignored "-Wunused-value"
 # pragma GCC diagnostic ignored "-Wunused-variable"
 # pragma GCC diagnostic ignored "-Wunused-parameter"
+# pragma GCC diagnostic ignored "-Wtype-limit"
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -245,8 +246,6 @@ template <class T> inline const T& STDMIN(const T& a, const T& b)
 template <class T1, class T2> inline const T1 UnsignedMin(const T1& a, const T2& b)
 {
 	CRYPTOPP_COMPILE_ASSERT((sizeof(T1)<=sizeof(T2) && T2(-1)>0) || (sizeof(T1)>sizeof(T2) && T1(-1)>0));
-	CRYPTOPP_ASSERT(a==0 || a>0);	// GCC workaround: get rid of the warning "comparison is always true due to limited range of data type"
-	CRYPTOPP_ASSERT(b>=0);
 
 	if (sizeof(T1)<=sizeof(T2))
 		return b < (T2)a ? (T1)b : a;
@@ -369,27 +368,9 @@ inline T Crop(T value, size_t size)
 template <class T1, class T2>
 inline bool SafeConvert(T1 from, T2 &to)
 {
-	// Original code: always perform the assignment
 	to = (T2)from;
-
-	// Check for sign difference
-	if(std::numeric_limits<T1>::is_signed ^ std::numeric_limits<T2>::is_signed)
-	{
-		// Handle T1 is signed
-		if(std::numeric_limits<T1>::is_signed && from < 0)
-			return false;
-		// Fall through for T1 is unsigned
-	}
-
-	// Handle unsigned greater
-	if(!std::numeric_limits<T1>::is_signed && from > static_cast<T1>(std::numeric_limits<T2>::max())) {
+	if (from != to || (from > 0) != (to > 0))
 		return false;
-	}
-	// Handle signed less
-	else if(from < static_cast<T1>(std::numeric_limits<T2>::min())) {
-		return false;
-	}
-
 	return true;
 }
 
