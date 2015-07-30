@@ -188,6 +188,10 @@ SOURCE=.\test.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\validat0.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\validat1.cpp
 # End Source File
 # Begin Source File
