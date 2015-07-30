@@ -463,6 +463,10 @@ SOURCE=.\hex.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\hkdf.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\hmac.h
 # End Source File
 # Begin Source File
@@ -584,6 +588,10 @@ SOURCE=.\stdcpp.h
 # Begin Source File
 
 SOURCE=.\strciphr.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\trap.h
 # End Source File
 # Begin Source File
 

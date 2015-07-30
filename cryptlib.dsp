@@ -885,6 +885,10 @@ SOURCE=.\hex.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\hkdf.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\hmac.h
 # End Source File
 # Begin Source File
@@ -1130,6 +1134,10 @@ SOURCE=.\tea.h
 # Begin Source File
 
 SOURCE=.\tiger.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\trap.h
 # End Source File
 # Begin Source File
 
