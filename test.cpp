@@ -50,8 +50,8 @@
 #endif
 
 #ifdef __BORLANDC__
-#pragma comment(lib, "cryptlib_bds.lib")
-#pragma comment(lib, "ws2_32.lib")
+# pragma comment(lib, "cryptlib_bds.lib")
+# pragma comment(lib, "ws2_32.lib")
 #endif
 
 USING_NAMESPACE(CryptoPP)
@@ -113,31 +113,31 @@ struct DebugTrapHandler
 		struct sigaction old_handler, new_handler;
 		memset(&old_handler, 0x00, sizeof(old_handler));
 		memset(&new_handler, 0x00, sizeof(new_handler));
-        
+
 		do
 		{
 			int ret = 0;
-            
+
 			ret = sigaction (SIGTRAP, NULL, &old_handler);
 			if (ret != 0) break; // Failed
-            
+
 			// Don't step on another's handler
 			if (old_handler.sa_handler != NULL) break;
-            
+
 			// Set up the structure to specify the null action.
 			new_handler.sa_handler = &DebugTrapHandler::NullHandler;
 			new_handler.sa_flags = 0;
-            
+
 			ret = sigemptyset (&new_handler.sa_mask);
 			if (ret != 0) break; // Failed
-            
-			// Install it
+
+			// Install i
 			ret = sigaction (SIGTRAP, &new_handler, NULL);
 			if (ret != 0) break; // Failed
-            
+
 		} while(0);
 	}
-    
+
 	static void NullHandler(int /*unused*/) { }
 };
 
@@ -170,7 +170,7 @@ int CRYPTOPP_API main(int argc, char *argv[])
 #if defined(__MWERKS__) && defined(macintosh)
 	argc = ccommand(&argv);
 #endif
-    
+
 	CRYPTOPP_UNUSED(argc), CRYPTOPP_UNUSED(argv);
 
 	try
@@ -193,16 +193,16 @@ int CRYPTOPP_API main(int argc, char *argv[])
 			char seed[1024], privFilename[128], pubFilename[128];
 			unsigned int keyLength;
 
-			cout << "Key length in bits: ";
+			std::cout << "Key length in bits: ";
 			cin >> keyLength;
 
-			cout << "\nSave private key to file: ";
+			std::cout << "\nSave private key to file: ";
 			cin >> privFilename;
 
-			cout << "\nSave public key to file: ";
+			std::cout << "\nSave public key to file: ";
 			cin >> pubFilename;
 
-			cout << "\nRandom Seed: ";
+			std::cout << "\nRandom Seed: ";
 			ws(cin);
 			cin.getline(seed, 1024);
 
@@ -213,38 +213,38 @@ int CRYPTOPP_API main(int argc, char *argv[])
 		else if (command == "rv")
 		{
 			bool verified = RSAVerifyFile(argv[2], argv[3], argv[4]);
-			cout << (verified ? "valid signature" : "invalid signature") << endl;
+			std::cout << (verified ? "valid signature" : "invalid signature") << std::endl;
 		}
 		else if (command == "r")
 		{
 			char privFilename[128], pubFilename[128];
 			char seed[1024], message[1024];
 
-			cout << "Private key file: ";
+			std::cout << "Private key file: ";
 			cin >> privFilename;
 
-			cout << "\nPublic key file: ";
+			std::cout << "\nPublic key file: ";
 			cin >> pubFilename;
 
-			cout << "\nRandom Seed: ";
+			std::cout << "\nRandom Seed: ";
 			ws(cin);
 			cin.getline(seed, 1024);
 
-			cout << "\nMessage: ";
+			std::cout << "\nMessage: ";
 			cin.getline(message, 1024);
 
 			string ciphertext = RSAEncryptString(pubFilename, seed, message);
-			cout << "\nCiphertext: " << ciphertext << endl;
+			std::cout << "\nCiphertext: " << ciphertext << std::endl;
 
 			string decrypted = RSADecryptString(privFilename, ciphertext.c_str());
-			cout << "\nDecrypted: " << decrypted << endl;
+			std::cout << "\nDecrypted: " << decrypted << std::endl;
 		}
 		else if (command == "mt")
 		{
 			MaurerRandomnessTest mt;
 			FileStore fs(argv[2]);
 			fs.TransferAllTo(mt);
-			cout << "Maurer Test Value: " << mt.GetTestValue() << endl;
+			std::cout << "Maurer Test Value: " << mt.GetTestValue() << std::endl;
 		}
 		else if (command == "mac_dll")
 		{
@@ -253,7 +253,7 @@ int CRYPTOPP_API main(int argc, char *argv[])
 			std::ifstream::pos_type fileEnd = dllFile.seekg(0, std::ios_base::end).tellg();
 			if (fileEnd > 20*1000*1000)
 			{
-				cerr << "Input file too large (more than 20 MB).\n";
+				std::cerr << "Input file too large (more than 20 MB).\n";
 				return 1;
 			}
 
@@ -269,7 +269,7 @@ int CRYPTOPP_API main(int argc, char *argv[])
 			word16 optionalHeaderMagic = *(word16 *)(buf+optionalHeaderPos);
 			if (optionalHeaderMagic != 0x10b && optionalHeaderMagic != 0x20b)
 			{
-				cerr << "Target file is not a PE32 or PE32+ image.\n";
+				std::cerr << "Target file is not a PE32 or PE32+ image.\n";
 				return 3;
 			}
 			word32 checksumPos = optionalHeaderPos + 64;
@@ -277,14 +277,14 @@ int CRYPTOPP_API main(int argc, char *argv[])
 			word32 certificateTablePos = *(word32 *)(buf+certificateTableDirectoryPos);
 			word32 certificateTableSize = *(word32 *)(buf+certificateTableDirectoryPos+4);
 			if (certificateTableSize != 0)
-				cerr << "Warning: certificate table (IMAGE_DIRECTORY_ENTRY_SECURITY) of target image is not empty.\n";
+				std::cerr << "Warning: certificate table (IMAGE_DIRECTORY_ENTRY_SECURITY) of target image is not empty.\n";
 
 			// find where to place computed MAC
 			byte mac[] = CRYPTOPP_DUMMY_DLL_MAC;
 			byte *found = std::search(buf.begin(), buf.end(), mac+0, mac+sizeof(mac));
 			if (found == buf.end())
 			{
-				cerr << "MAC placeholder not found. Possibly the actual MAC was already placed.\n";
+				std::cerr << "MAC placeholder not found. Possibly the actual MAC was already placed.\n";
 				return 2;
 			}
 			word32 macPos = (unsigned int)(found-buf.begin());
@@ -300,7 +300,7 @@ int CRYPTOPP_API main(int argc, char *argv[])
 			f.PutMessageEnd(buf.begin(), buf.size());
 
 			// place MAC
-			cout << "Placing MAC in file " << argv[2] << ", location " << macPos << ".\n";
+			std::cout << "Placing MAC in file " << argv[2] << ", location " << macPos << ".\n";
 			dllFile.seekg(macPos, std::ios_base::beg);
 			dllFile.write((char *)mac, sizeof(mac));
 		}
@@ -318,17 +318,17 @@ int CRYPTOPP_API main(int argc, char *argv[])
 			// VC60 workaround: use char array instead of std::string to workaround MSVC's getline bug
 			char passPhrase[MAX_PHRASE_LENGTH], plaintext[1024];
 
-			cout << "Passphrase: ";
+			std::cout << "Passphrase: ";
 			cin.getline(passPhrase, MAX_PHRASE_LENGTH);
 
-			cout << "\nPlaintext: ";
+			std::cout << "\nPlaintext: ";
 			cin.getline(plaintext, 1024);
 
 			string ciphertext = EncryptString(plaintext, passPhrase);
-			cout << "\nCiphertext: " << ciphertext << endl;
+			std::cout << "\nCiphertext: " << ciphertext << std::endl;
 
 			string decrypted = DecryptString(ciphertext.c_str(), passPhrase);
-			cout << "\nDecrypted: " << decrypted << endl;
+			std::cout << "\nDecrypted: " << decrypted << std::endl;
 
 			return 0;
 		}
@@ -343,7 +343,7 @@ int CRYPTOPP_API main(int argc, char *argv[])
 		else if (command == "e" || command == "d")
 		{
 			char passPhrase[MAX_PHRASE_LENGTH];
-			cout << "Passphrase: ";
+			std::cout << "Passphrase: ";
 			cin.getline(passPhrase, MAX_PHRASE_LENGTH);
 			if (command == "e")
 				EncryptFile(argv[2], argv[3], passPhrase);
@@ -353,7 +353,7 @@ int CRYPTOPP_API main(int argc, char *argv[])
 		else if (command == "ss")
 		{
 			char seed[1024];
-			cout << "\nRandom Seed: ";
+			std::cout << "\nRandom Seed: ";
 			ws(cin);
 			cin.getline(seed, 1024);
 			SecretShareFile(atoi(argv[2]), atoi(argv[3]), argv[4], seed);
@@ -386,7 +386,7 @@ int CRYPTOPP_API main(int argc, char *argv[])
 				return (*AdhocTest)(argc, argv);
 			else
 			{
-				cerr << "AdhocTest not defined.\n";
+				std::cerr << "AdhocTest not defined.\n";
 				return 1;
 			}
 		}
@@ -396,28 +396,28 @@ int CRYPTOPP_API main(int argc, char *argv[])
 			AES_CTR_Encrypt(argv[2], argv[3], argv[4], argv[5]);
 		else if (command == "h")
 		{
-			FileSource usage("TestData/usage.dat", true, new FileSink(cout));
+			FileSource usage("TestData/usage.dat", true, new FileSink(std::cout));
 			return 1;
 		}
 		else if (command == "V")
 		{
-			cout << CRYPTOPP_VERSION / 100 << '.' << (CRYPTOPP_VERSION % 100) / 10 << '.' << CRYPTOPP_VERSION % 10 << endl;
+			std::cout << CRYPTOPP_VERSION / 100 << '.' << (CRYPTOPP_VERSION % 100) / 10 << '.' << CRYPTOPP_VERSION % 10 << std::endl;
 		}
 		else
 		{
-			cerr << "Unrecognized command. Run \"cryptest h\" to obtain usage information.\n";
+			std::cerr << "Unrecognized command. Run \"cryptest h\" to obtain usage information.\n";
 			return 1;
 		}
 		return 0;
 	}
 	catch(CryptoPP::Exception &e)
 	{
-		cout << "\nCryptoPP::Exception caught: " << e.what() << endl;
+		std::cout << "\nCryptoPP::Exception caught: " << e.what() << std::endl;
 		return -1;
 	}
 	catch(std::exception &e)
 	{
-		cout << "\nstd::exception caught: " << e.what() << endl;
+		std::cout << "\nstd::exception caught: " << e.what() << std::endl;
 		return -2;
 	}
 }
@@ -431,7 +431,7 @@ void FIPS140_GenerateRandomFiles()
 	for (unsigned int i=0; i<100000; i++)
 		store.TransferTo(FileSink((IntToString(i) + ".rnd").c_str()).Ref(), 20000);
 #else
-	cout << "OS provided RNG not available.\n";
+	std::cout << "OS provided RNG not available.\n";
 	exit(-1);
 #endif
 }
@@ -530,12 +530,12 @@ void DigestFile(const char *filename)
 		channelSwitch->AddDefaultRoute(*filters[i]);
 	FileSource(filename, true, channelSwitch.release());
 
-	HexEncoder encoder(new FileSink(cout), false);
+	HexEncoder encoder(new FileSink(std::cout), false);
 	for (i=0; i<filters.size(); i++)
 	{
-		cout << filters[i]->AlgorithmName() << ": ";
+		std::cout << filters[i]->AlgorithmName() << ": ";
 		filters[i]->TransferTo(encoder);
-		cout << "\n";
+		std::cout << "\n";
 	}
 }
 
@@ -544,7 +544,7 @@ void HmacFile(const char *hexKey, const char *file)
 	member_ptr<MessageAuthenticationCode> mac;
 	if (strcmp(hexKey, "selftest") == 0)
 	{
-		cerr << "Computing HMAC/SHA1 value for self test.\n";
+		std::cerr << "Computing HMAC/SHA1 value for self test.\n";
 		mac.reset(NewIntegrityCheckingMAC());
 	}
 	else
@@ -553,7 +553,7 @@ void HmacFile(const char *hexKey, const char *file)
 		StringSource(hexKey, true, new HexDecoder(new StringSink(decodedKey)));
 		mac.reset(new HMAC<SHA1>((const byte *)decodedKey.data(), decodedKey.size()));
 	}
-	FileSource(file, true, new HashFilter(*mac, new HexEncoder(new FileSink(cout))));
+	FileSource(file, true, new HashFilter(*mac, new HexEncoder(new FileSink(std::cout))));
 }
 
 void AES_CTR_Encrypt(const char *hexKey, const char *hexIV, const char *infile, const char *outfile)
@@ -701,17 +701,17 @@ void InformationRecoverFile(int threshold, const char *outFilename, char *const 
 
 void GzipFile(const char *in, const char *out, int deflate_level)
 {
-//	FileSource(in, true, new Gzip(new FileSink(out), deflate_level));
+	//	FileSource(in, true, new Gzip(new FileSink(out), deflate_level));
 
 	// use a filter graph to compare decompressed data with original
 	//
-	// Source ----> Gzip ------> Sink
-	//    \           |
-	//	    \       Gunzip
-	//		  \       |
-	//		    \     v
+	// Source --------> Gzip --------> Sink
+	//    \              |
+	//	    \          Gunzip
+	//		  \          |
+	//		    \        v
 	//		      > ComparisonFilter 
-			   
+
 	EqualityComparisonFilter comparison;
 
 	Gunzip gunzip(new ChannelSwitch(comparison, "0"));
@@ -770,18 +770,18 @@ void ForwardTcpPort(const char *sourcePortName, const char *destinationHost, con
 	sockListen.Bind(sourcePort);
 	setsockopt(sockListen, IPPROTO_TCP, TCP_NODELAY, "\x01", 1);
 
-	cout << "Listing on port " << sourcePort << ".\n";
+	std::cout << "Listing on port " << sourcePort << ".\n";
 	sockListen.Listen();
 
 	sockListen.Accept(sockSource);
-	cout << "Connection accepted on port " << sourcePort << ".\n";
+	std::cout << "Connection accepted on port " << sourcePort << ".\n";
 	sockListen.CloseSocket();
 
-	cout << "Making connection to " << destinationHost << ", port " << destinationPort << ".\n";
+	std::cout << "Making connection to " << destinationHost << ", port " << destinationPort << ".\n";
 	sockDestination.Create();
 	sockDestination.Connect(destinationHost, destinationPort);
 
-	cout << "Connection made to " << destinationHost << ", starting to forward.\n";
+	std::cout << "Connection made to " << destinationHost << ", starting to forward.\n";
 
 	SocketSource out(sockSource, false, new SocketSink(sockDestination));
 	SocketSource in(sockDestination, false, new SocketSink(sockSource));
@@ -799,22 +799,22 @@ void ForwardTcpPort(const char *sourcePortName, const char *destinationHost, con
 
 		if (!out.SourceExhausted())
 		{
-			cout << "o" << flush;
+			std::cout << "o" << flush;
 			out.PumpAll2(false);
 			if (out.SourceExhausted())
-				cout << "EOF received on source socket.\n";
+				std::cout << "EOF received on source socket.\n";
 		}
 
 		if (!in.SourceExhausted())
 		{
-			cout << "i" << flush;
+			std::cout << "i" << flush;
 			in.PumpAll2(false);
 			if (in.SourceExhausted())
-				cout << "EOF received on destination socket.\n";
+				std::cout << "EOF received on destination socket.\n";
 		}
 	}
 #else
-	cout << "Socket support was not enabled at compile time.\n";
+	std::cout << "Socket support was not enabled at compile time.\n";
 	exit(-1);
 #endif
 }
@@ -826,7 +826,7 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 	std::string seed = seedInput ? std::string(seedInput) : IntToString(time(NULL));
 	seed.resize(16);
 
-	cout << "Using seed: " << seed << endl;
+	std::cout << "Using seed: " << seed << std::endl;
 	s_globalRNG.SetKeyWithIV((byte *)seed.data(), 16, (byte *)seed.data());
 
 #ifdef _OPENMP
@@ -836,88 +836,91 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 		tc = omp_get_num_threads();
 	}
 
-	cout << "Using " << tc << " OMP " << (tc == 1 ? "thread" : "threads") << endl;
+	std::cout << "Using " << tc << " OMP " << (tc == 1 ? "thread" : "threads") << std::endl;
 #endif
 
-	cout << endl;
+	std::cout << std::endl;
 
 	switch (alg)
 	{
-	case 0: result = ValidateAll(thorough); break;
-	case 1: result = TestSettings(); break;
-	case 2: result = TestOS_RNG(); break;
-	case 3: result = ValidateMD5(); break;
-	case 4: result = ValidateSHA(); break;
-	case 5: result = ValidateDES(); break;
-	case 6: result = ValidateIDEA(); break;
-	case 7: result = ValidateARC4(); break;
-	case 8: result = ValidateRC5(); break;
-	case 9: result = ValidateBlowfish(); break;
-//	case 10: result = ValidateDiamond2(); break;
-	case 11: result = ValidateThreeWay(); break;
-	case 12: result = ValidateBBS(); break;
-	case 13: result = ValidateDH(); break;
-	case 14: result = ValidateRSA(); break;
-	case 15: result = ValidateElGamal(); break;
-	case 16: result = ValidateDSA(thorough); break;
-//	case 17: result = ValidateHAVAL(); break;
-	case 18: result = ValidateSAFER(); break;
-	case 19: result = ValidateLUC(); break;
-	case 20: result = ValidateRabin(); break;
-//	case 21: result = ValidateBlumGoldwasser(); break;
-	case 22: result = ValidateECP(); break;
-	case 23: result = ValidateEC2N(); break;
-//	case 24: result = ValidateMD5MAC(); break;
-	case 25: result = ValidateGOST(); break;
-	case 26: result = ValidateTiger(); break;
-	case 27: result = ValidateRIPEMD(); break;
-	case 28: result = ValidateHMAC(); break;
-//	case 29: result = ValidateXMACC(); break;
-	case 30: result = ValidateSHARK(); break;
-	case 32: result = ValidateLUC_DH(); break;
-	case 33: result = ValidateLUC_DL(); break;
-	case 34: result = ValidateSEAL(); break;
-	case 35: result = ValidateCAST(); break;
-	case 36: result = ValidateSquare(); break;
-	case 37: result = ValidateRC2(); break;
-	case 38: result = ValidateRC6(); break;
-	case 39: result = ValidateMARS(); break;
-	case 40: result = ValidateRW(); break;
-	case 41: result = ValidateMD2(); break;
-	case 42: result = ValidateNR(); break;
-	case 43: result = ValidateMQV(); break;
-	case 44: result = ValidateRijndael(); break;
-	case 45: result = ValidateTwofish(); break;
-	case 46: result = ValidateSerpent(); break;
-	case 47: result = ValidateCipherModes(); break;
-	case 48: result = ValidateCRC32(); break;
-	case 49: result = ValidateECDSA(); break;
-	case 50: result = ValidateXTR_DH(); break;
-	case 51: result = ValidateSKIPJACK(); break;
-	case 52: result = ValidateSHA2(); break;
-	case 53: result = ValidatePanama(); break;
-	case 54: result = ValidateAdler32(); break;
-	case 55: result = ValidateMD4(); break;
-	case 56: result = ValidatePBKDF(); break;
-	case 57: result = ValidateESIGN(); break;
-	case 58: result = ValidateDLIES(); break;
-	case 59: result = ValidateBaseCode(); break;
-	case 60: result = ValidateSHACAL2(); break;
-	case 61: result = ValidateCamellia(); break;
-	case 62: result = ValidateWhirlpool(); break;
-	case 63: result = ValidateTTMAC(); break;
-	case 64: result = ValidateSalsa(); break;
-	case 65: result = ValidateSosemanuk(); break;
-	case 66: result = ValidateVMAC(); break;
-	case 67: result = ValidateCCM(); break;
-	case 68: result = ValidateGCM(); break;
-	case 69: result = ValidateCMAC(); break;
-	default: return false;
+		case 0: result = ValidateAll(thorough); break;
+		case 1: result = TestSettings(); break;
+		case 70: result = TestRotate(); break;
+		case 71: result = TestConversion(); break;
+		case 2: result = TestOS_RNG(); break;
+		case 3: result = ValidateMD5(); break;
+		case 4: result = ValidateSHA(); break;
+		case 5: result = ValidateDES(); break;
+		case 6: result = ValidateIDEA(); break;
+		case 7: result = ValidateARC4(); break;
+		case 8: result = ValidateRC5(); break;
+		case 9: result = ValidateBlowfish(); break;
+		//	case 10: result = ValidateDiamond2(); break;
+		case 11: result = ValidateThreeWay(); break;
+		case 12: result = ValidateBBS(); break;
+		case 13: result = ValidateDH(); break;
+		case 14: result = ValidateRSA(); break;
+		case 15: result = ValidateElGamal(); break;
+		case 16: result = ValidateDSA(thorough); break;
+		//	case 17: result = ValidateHAVAL(); break;
+		case 18: result = ValidateSAFER(); break;
+		case 19: result = ValidateLUC(); break;
+		case 20: result = ValidateRabin(); break;
+		//	case 21: result = ValidateBlumGoldwasser(); break;
+		case 22: result = ValidateECP(); break;
+		case 23: result = ValidateEC2N(); break;
+		//	case 24: result = ValidateMD5MAC(); break;
+		case 25: result = ValidateGOST(); break;
+		case 26: result = ValidateTiger(); break;
+		case 27: result = ValidateRIPEMD(); break;
+		case 28: result = ValidateHMAC(); break;
+		//	case 29: result = ValidateXMACC(); break;
+		case 30: result = ValidateSHARK(); break;
+		case 32: result = ValidateLUC_DH(); break;
+		case 33: result = ValidateLUC_DL(); break;
+		case 34: result = ValidateSEAL(); break;
+		case 35: result = ValidateCAST(); break;
+		case 36: result = ValidateSquare(); break;
+		case 37: result = ValidateRC2(); break;
+		case 38: result = ValidateRC6(); break;
+		case 39: result = ValidateMARS(); break;
+		case 40: result = ValidateRW(); break;
+		case 41: result = ValidateMD2(); break;
+		case 42: result = ValidateNR(); break;
+		case 43: result = ValidateMQV(); break;
+		case 44: result = ValidateRijndael(); break;
+		case 45: result = ValidateTwofish(); break;
+		case 46: result = ValidateSerpent(); break;
+		case 47: result = ValidateCipherModes(); break;
+		case 48: result = ValidateCRC32(); break;
+		case 49: result = ValidateECDSA(); break;
+		case 50: result = ValidateXTR_DH(); break;
+		case 51: result = ValidateSKIPJACK(); break;
+		case 52: result = ValidateSHA2(); break;
+		case 53: result = ValidatePanama(); break;
+		case 54: result = ValidateAdler32(); break;
+		case 55: result = ValidateMD4(); break;
+		case 56: result = ValidatePBKDF(); break;
+		case 57: result = ValidateESIGN(); break;
+		case 58: result = ValidateDLIES(); break;
+		case 59: result = ValidateBaseCode(); break;
+		case 60: result = ValidateSHACAL2(); break;
+		case 61: result = ValidateCamellia(); break;
+		case 62: result = ValidateWhirlpool(); break;
+		case 63: result = ValidateTTMAC(); break;
+		case 64: result = ValidateSalsa(); break;
+		case 65: result = ValidateSosemanuk(); break;
+		case 66: result = ValidateVMAC(); break;
+		case 67: result = ValidateCCM(); break;
+		case 68: result = ValidateGCM(); break;
+		case 69: result = ValidateCMAC(); break;
+		case 72: result = ValidateHKDF(); break;
+		default: return false;
 	}
 
 	time_t endTime = time(NULL);
-	cout << "\nTest ended at " << asctime(localtime(&endTime));
-	cout << "Seed used was: " << seed << endl;
+	std::cout << "\nTest ended at " << asctime(localtime(&endTime));
+	std::cout << "Seed used was: " << seed << std::endl;
 
 	return result;
 }

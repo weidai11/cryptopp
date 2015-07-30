@@ -7,25 +7,27 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-// Hack ahead. Apple's standard library does not have C++'s unique_ptr. We can't test
-// for unique_ptr directly because some of the Clangs on Apple fail the same way.
-// However, modern standard libraries have <forward_list>, so we test for it instead.
+// Hack ahead. Apple's standard library does not have C++'s unique_ptr in C++11. We can't
+// test for unique_ptr directly because some of the non-Apple Clangs on OS X fail the same
+// way. However, modern standard libraries have <forward_list>, so we test for it instead.
 // Thanks to Jonathan Wakely for devising the clever test for modern/ancient versions.
 
 #if (__cplusplus >= 201103L) || (_MSC_VER >= 1600)
-#    if defined(__clang__) && (__has_include(<forward_list>))
-#        define CRYPTOPP_HAVE_UNIQUE_PTR 1
-#    else
-#        define CRYPTOPP_HAVE_UNIQUE_PTR 1
+#  if defined(__clang__)
+#    if (__has_include(<forward_list>))
+#      define CRYPTOPP_HAVE_UNIQUE_PTR 1
 #    endif
+#  else
+#    define CRYPTOPP_HAVE_UNIQUE_PTR 1
+#  endif
 #endif
 
+// The result of below is a CryptoPP::auto_ptr in both cases
 #ifdef CRYPTOPP_HAVE_UNIQUE_PTR
-// use unique_ptr instead of auto_ptr
-template<typename T>
+  template<typename T>
     using std::auto_ptr = std::unique_ptr<T>;
 #else
-// do nothing; use auto_ptr
+  using std::auto_ptr;
 #endif
 
 template <class T> class simple_ptr
@@ -79,7 +81,7 @@ public:
 		T *old_p = m_p;
 		m_p = 0;
 		return old_p;
-	} 
+	}
 
 	void reset(T *p = 0);
 
@@ -175,7 +177,7 @@ protected:
 };
 
 template <class T> counted_ptr<T>::counted_ptr(T *p)
-	: m_p(p) 
+	: m_p(p)
 {
 	if (m_p)
 		m_p->m_referenceCount = 1;

@@ -30,7 +30,6 @@
 #include "validate.h"
 
 USING_NAMESPACE(CryptoPP)
-USING_NAMESPACE(std)
 
 struct HashTestTuple
 {
@@ -53,19 +52,19 @@ bool HashModuleTest(HashTransformation &md, const HashTestTuple *testSet, unsign
 	for (unsigned int i=0; i<testSetSize; i++)
 	{
 		unsigned j;
-
 		for (j=0; j<testSet[i].repeatTimes; j++)
 			md.Update(testSet[i].input, testSet[i].inputLen);
 		md.Final(digest);
+
 		fail = !VerifyBufsEqual(digest, testSet[i].output, md.DigestSize());
 		pass = pass && !fail;
 
 		std::cout << (fail ? "FAILED   " : "passed   ");
 		for (j=0; j<md.DigestSize(); j++)
-			std::cout << setw(2) << setfill('0') << hex << (int)digest[j];
+			std::cout << std::setw(2) << std::setfill('0') << std::hex << (int)digest[j];
 		std::cout << "   \"" << (char *)testSet[i].input << '\"';
 		if (testSet[i].repeatTimes != 1)
-			std::cout << " repeated " << dec << testSet[i].repeatTimes << " times";
+			std::cout << " repeated " << std::dec << testSet[i].repeatTimes << " times";
 		std::cout  << std::endl;
 	}
 
@@ -374,7 +373,7 @@ bool ValidateMD5MAC()
 		MD5MAC mac(keys[k]);
 		std::cout << "\nKEY: ";
 		for (int j=0;j<MD5MAC::KEYLENGTH;j++)
-			std::cout << setw(2) << setfill('0') << hex << (int)keys[k][j];
+			std::cout << std::setw(2) << std::setfill('0') << std::hex << (int)keys[k][j];
 		std::cout << std::endl << std::endl;
 		for (int i=0;i<7;i++)
 		{
@@ -385,7 +384,7 @@ bool ValidateMD5MAC()
 			pass = pass && !fail;
 			std::cout << (fail ? "FAILED   " : "passed   ");
 			for (int j=0;j<MD5MAC::DIGESTSIZE;j++)
-				std::cout << setw(2) << setfill('0') << hex << (int)digest[j];
+				std::cout << std::setw(2) << std::setfill('0') << std::hex << (int)digest[j];
 			std::cout << "   \"" << TestVals[i] << '\"' << std::endl;
 		}
 	}
@@ -445,8 +444,8 @@ bool ValidateXMACC()
 		XMACC_MD5 mac(keys[k], counters[k]);
 		std::cout << "\nKEY: ";
 		for (int j=0;j<XMACC_MD5::KEYLENGTH;j++)
-			std::cout << setw(2) << setfill('0') << hex << (int)keys[k][j];
-		std::cout << "    COUNTER: 0x" << hex << counters[k] << std::endl << std::endl;
+			std::cout << std::setw(2) << std::setfill('0') << std::hex << (int)keys[k][j];
+		std::cout << "    COUNTER: 0x" << std::hex << counters[k] << std::endl << std::endl;
 		for (int i=0;i<7;i++)
 		{
 			mac.Update((byte *)TestVals[i], strlen(TestVals[i]));
@@ -456,7 +455,7 @@ bool ValidateXMACC()
 			pass = pass && !fail;
 			std::cout << (fail ? "FAILED   " : "passed   ");
 			for (int j=0;j<XMACC_MD5::DIGESTSIZE;j++)
-				std::cout << setw(2) << setfill('0') << hex << (int)digest[j];
+				std::cout << std::setw(2) << std::setfill('0') << std::hex << (int)digest[j];
 			std::cout << "   \"" << TestVals[i] << '\"' << std::endl;
 		}
 	}
@@ -506,7 +505,7 @@ bool ValidateTTMAC()
 		pass = pass && !fail;
 		std::cout << (fail ? "FAILED   " : "passed   ");
 		for (int j=0;j<TTMAC::DIGESTSIZE;j++)
-			std::cout << setw(2) << setfill('0') << hex << (int)digest[j];
+			std::cout << std::setw(2) << std::setfill('0') << std::hex << (int)digest[j];
 		std::cout << "   \"" << TestVals[k] << '\"' << std::endl;
 	}
 

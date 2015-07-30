@@ -36,7 +36,6 @@
 #include "validate.h"
 
 USING_NAMESPACE(CryptoPP)
-USING_NAMESPACE(std)
 
 class FixedRNG : public RandomNumberGenerator
 {
@@ -78,7 +77,7 @@ bool ValidateBBS()
 
 	std::cout << (fail ? "FAILED    " : "passed    ");
 	for (j=0;j<20;j++)
-		std::cout << setw(2) << setfill('0') << hex << (int)buf[j];
+		std::cout << std::setw(2) << std::setfill('0') << std::hex << (int)buf[j];
 	std::cout << std::endl;
 
 	bbs.Seek(10);
@@ -88,7 +87,7 @@ bool ValidateBBS()
 
 	std::cout << (fail ? "FAILED    " : "passed    ");
 	for (j=0;j<10;j++)
-		std::cout << setw(2) << setfill('0') << hex << (int)buf[j];
+		std::cout << std::setw(2) << std::setfill('0') << std::hex << (int)buf[j];
 	std::cout << std::endl;
 
 	bbs.Seek(1234567);
@@ -98,7 +97,7 @@ bool ValidateBBS()
 
 	std::cout << (fail ? "FAILED    " : "passed    ");
 	for (j=0;j<20;j++)
-		std::cout << setw(2) << setfill('0') << hex << (int)buf[j];
+		std::cout << std::setw(2) << std::setfill('0') << std::hex << (int)buf[j];
 	std::cout << std::endl;
 
 	return pass;
@@ -585,7 +584,7 @@ bool ValidateECP()
 	{
 		DL_GroupParameters_EC<ECP> params(oid);
 		bool fail = !params.Validate(GlobalRNG(), 2);
-		std::cout << (fail ? "FAILED" : "passed") << "    " << dec << params.GetCurve().GetField().MaxElementBitLength() << " bits" << std::endl;
+		std::cout << (fail ? "FAILED" : "passed") << "    " << std::dec << params.GetCurve().GetField().MaxElementBitLength() << " bits" << std::endl;
 		pass = pass && !fail;
 	}
 

@@ -6,6 +6,8 @@
 bool ValidateAll(bool thorough);
 bool TestSettings();
 bool TestOS_RNG();
+bool TestConversion();
+bool TestRotate();
 bool ValidateBaseCode();
 
 bool ValidateCRC32();

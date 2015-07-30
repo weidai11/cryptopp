@@ -337,7 +337,7 @@ OBJS = $(SRCS:.cpp=.o)
 TEMPS = $(SRCS:.cpp=.s) $(SRCS:.cpp=.ii)
 
 # test.o needs to be after bench.o for cygwin 1.1.4 (possible ld bug?)
-TESTOBJS = bench.o bench2.o test.o validat1.o validat2.o validat3.o adhoc.o datatest.o regtest.o fipsalgt.o dlltest.o
+TESTOBJS = bench.o bench2.o test.o validat0.o validat1.o validat2.o validat3.o adhoc.o datatest.o regtest.o fipsalgt.o dlltest.o
 LIBOBJS = $(filter-out $(TESTOBJS),$(OBJS))
 
 DLLSRCS = algebra.cpp algparam.cpp asn.cpp basecode.cpp cbcmac.cpp channels.cpp cryptlib.cpp des.cpp dessp.cpp dh.cpp \
