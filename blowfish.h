@@ -1,3 +1,5 @@
+// blowfish.h - written and placed in the public domain by Wei Dai
+
 #ifndef CRYPTOPP_BLOWFISH_H
 #define CRYPTOPP_BLOWFISH_H
 
