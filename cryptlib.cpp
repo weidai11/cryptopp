@@ -761,13 +761,15 @@ BufferedTransformation * PK_Decryptor::CreateDecryptionFilter(RandomNumberGenera
 
 size_t PK_Signer::Sign(RandomNumberGenerator &rng, PK_MessageAccumulator *messageAccumulator, byte *signature) const
 {
-	std::auto_ptr<PK_MessageAccumulator> m(messageAccumulator);
+	using CryptoPP::auto_ptr;
+	auto_ptr<PK_MessageAccumulator> m(messageAccumulator);
 	return SignAndRestart(rng, *m, signature, false);
 }
 
 size_t PK_Signer::SignMessage(RandomNumberGenerator &rng, const byte *message, size_t messageLen, byte *signature) const
 {
-	std::auto_ptr<PK_MessageAccumulator> m(NewSignatureAccumulator(rng));
+	using CryptoPP::auto_ptr;
+	auto_ptr<PK_MessageAccumulator> m(NewSignatureAccumulator(rng));
 	m->Update(message, messageLen);
 	return SignAndRestart(rng, *m, signature, false);
 }
@@ -775,7 +777,8 @@ size_t PK_Signer::SignMessage(RandomNumberGenerator &rng, const byte *message, s
 size_t PK_Signer::SignMessageWithRecovery(RandomNumberGenerator &rng, const byte *recoverableMessage, size_t recoverableMessageLength, 
 	const byte *nonrecoverableMessage, size_t nonrecoverableMessageLength, byte *signature) const
 {
-	std::auto_ptr<PK_MessageAccumulator> m(NewSignatureAccumulator(rng));
+	using CryptoPP::auto_ptr;
+	auto_ptr<PK_MessageAccumulator> m(NewSignatureAccumulator(rng));
 	InputRecoverableMessage(*m, recoverableMessage, recoverableMessageLength);
 	m->Update(nonrecoverableMessage, nonrecoverableMessageLength);
 	return SignAndRestart(rng, *m, signature, false);
@@ -783,13 +786,15 @@ size_t PK_Signer::SignMessageWithRecovery(RandomNumberGenerator &rng, const byte
 
 bool PK_Verifier::Verify(PK_MessageAccumulator *messageAccumulator) const
 {
-	std::auto_ptr<PK_MessageAccumulator> m(messageAccumulator);
+	using CryptoPP::auto_ptr;
+	auto_ptr<PK_MessageAccumulator> m(messageAccumulator);
 	return VerifyAndRestart(*m);
 }
 
 bool PK_Verifier::VerifyMessage(const byte *message, size_t messageLen, const byte *signature, size_t signatureLength) const
 {
-	std::auto_ptr<PK_MessageAccumulator> m(NewVerificationAccumulator());
+	using CryptoPP::auto_ptr;
+	auto_ptr<PK_MessageAccumulator> m(NewVerificationAccumulator());
 	InputSignature(*m, signature, signatureLength);
 	m->Update(message, messageLen);
 	return VerifyAndRestart(*m);
@@ -797,7 +802,8 @@ bool PK_Verifier::VerifyMessage(const byte *message, size_t messageLen, const by
 
 DecodingResult PK_Verifier::Recover(byte *recoveredMessage, PK_MessageAccumulator *messageAccumulator) const
 {
-	std::auto_ptr<PK_MessageAccumulator> m(messageAccumulator);
+	using CryptoPP::auto_ptr;
+	auto_ptr<PK_MessageAccumulator> m(messageAccumulator);
 	return RecoverAndRestart(recoveredMessage, *m);
 }
 
@@ -805,7 +811,8 @@ DecodingResult PK_Verifier::RecoverMessage(byte *recoveredMessage,
 	const byte *nonrecoverableMessage, size_t nonrecoverableMessageLength, 
 	const byte *signature, size_t signatureLength) const
 {
-	std::auto_ptr<PK_MessageAccumulator> m(NewVerificationAccumulator());
+	using CryptoPP::auto_ptr;
+	auto_ptr<PK_MessageAccumulator> m(NewVerificationAccumulator());
 	InputSignature(*m, signature, signatureLength);
 	m->Update(nonrecoverableMessage, nonrecoverableMessageLength);
 	return RecoverAndRestart(recoveredMessage, *m);
