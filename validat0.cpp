@@ -337,14 +337,14 @@ bool TestConversion()
 		signed int v; bool p = true;
 		{
 			// Guard i686 collision of type sizes
-			if(sizeof(signed int) != sizeof(signed long))
+			if (sizeof(signed int) != sizeof(signed long))
 			{
 				signed long v1 = std::numeric_limits<signed long>::min(); p = !SafeConvert(v1, v) && p;
 				signed long v2 = std::numeric_limits<signed long>::max(); p = !SafeConvert(v2, v) && p;
 				unsigned long v3 = std::numeric_limits<unsigned long>::max(); p = !SafeConvert(v3, v) && p;
 			}
 			// Guard i686 collision of type sizes
-			if(sizeof(signed int) != sizeof(signed long long))
+			if (sizeof(signed int) != sizeof(signed long long))
 			{
 				signed long long v1 = std::numeric_limits<signed long long>::min(); p = !SafeConvert(v1, v) && p;
 				signed long long v2 = std::numeric_limits<signed long long>::max(); p = !SafeConvert(v2, v) && p;
@@ -373,12 +373,12 @@ bool TestConversion()
 		unsigned int v; bool p = true;
 		{
 			// Guard i686 collision of type sizes
-			if(sizeof(unsigned int) != sizeof(unsigned long))
+			if (sizeof(unsigned int) != sizeof(unsigned long))
 			{
 				unsigned long v1 = std::numeric_limits<unsigned long>::max(); p = !SafeConvert(v1, v) && p;
 			}
 			// Guard i686 collision of type sizes
-			if(sizeof(unsigned int) != sizeof(unsigned long long))
+			if (sizeof(unsigned int) != sizeof(unsigned long long))
 			{
 				unsigned long long v1 = std::numeric_limits<unsigned long long>::max(); p = !SafeConvert(v1, v) && p;
 			}
@@ -406,7 +406,7 @@ bool TestConversion()
 	/********** signed long overflow **********/
 	{
 		// Guard x86_64 collision of type sizes
-		if(sizeof(signed long) != sizeof(signed long long))
+		if (sizeof(signed long) != sizeof(signed long long))
 		{
 			signed long v; bool p = true;
 			{
@@ -439,7 +439,7 @@ bool TestConversion()
 	/********** unsigned long overflow **********/
 	{
 		// Guard x86_64 collision of type sizes
-		if(sizeof(unsigned long) != sizeof(unsigned long long))
+		if (sizeof(unsigned long) != sizeof(unsigned long long))
 		{
 			unsigned long v; bool p = true;
 			{

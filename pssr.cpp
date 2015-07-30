@@ -78,7 +78,7 @@ void PSSR_MEM_Base::ComputeMessageRepresentative(RandomNumberGenerator &rng,
 	xorbuf(xorStart + 1, recoverableMessage, recoverableMessageLength);
 	xorbuf(xorStart + 1 + recoverableMessageLength, salt, salt.size());
 
-	if(representative && hashIdentifier.first)
+	if (representative && hashIdentifier.first)
 		memcpy(representative + representativeByteLength - u, hashIdentifier.first, hashIdentifier.second);
     representative[representativeByteLength - 1] = hashIdentifier.second ? 0xcc : 0xbc;
 
@@ -115,13 +115,13 @@ DecodingResult PSSR_MEM_Base::RecoverMessageFromRepresentative(
 
 	// extract salt and recoverableMessage from DB = 00 ... || 01 || M || salt
 	byte *salt = representative + representativeByteLength - u - digestSize - saltSize;
-	byte *M = std::find_if(representative, salt-1, std::bind2nd(std::not_equal_to<byte>(), byte(0)));
+	byte *M = std::find_if (representative, salt-1, std::bind2nd(std::not_equal_to<byte>(), byte(0)));
 	recoverableMessageLength = salt-M-1;
 	if (*M == 0x01 
 		&& (size_t)(M - representative - (representativeBitLength % 8 != 0)) >= MinPadLen(digestSize)
 		&& recoverableMessageLength <= MaxRecoverableLength(representativeBitLength, hashIdentifier.second, digestSize))
 	{
-		if(recoverableMessage && M && recoverableMessageLength)
+		if (recoverableMessage && M && recoverableMessageLength)
 			memcpy(recoverableMessage, M+1, recoverableMessageLength);
 	}
 	else

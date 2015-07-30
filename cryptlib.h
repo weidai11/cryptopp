@@ -299,7 +299,7 @@ public:
 	CRYPTOPP_DLL bool GetAsUIntValue(const char *name, unsigned int &value) const
 	{
 		int v;
-		if(!GetValue(name, v) || v < 0) return false;
+		if (!GetValue(name, v) || v < 0) return false;
 		value = static_cast<unsigned int>(v);
 		return true;
 	}
@@ -314,7 +314,7 @@ public:
 	CRYPTOPP_DLL unsigned int GetAsUIntValueWithDefault(const char *name, unsigned int defaultValue) const
 	{
 		int v;
-		if(!GetValue(name, v) || v < 0) return defaultValue;
+		if (!GetValue(name, v) || v < 0) return defaultValue;
 		return static_cast<unsigned int>(v);
 	}
 

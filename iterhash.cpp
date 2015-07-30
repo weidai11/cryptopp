@@ -28,7 +28,7 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte
 	{
 		if (num+len >= blockSize)
 		{
-			if(data && input)
+			if (data && input)
 				memcpy(data+num, input, blockSize-num);
 
 			HashBlock(dataBuf);
@@ -39,7 +39,7 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte
 		}
 		else
 		{
-			if(data && input)
+			if (data && input)
 				memcpy(data+num, input, len);
 
 			return;
@@ -64,7 +64,7 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte
 		else
 			do
 			{   // copy input first if it's not aligned correctly
-				if(data && input)
+				if (data && input)
 					memcpy(data, input, blockSize);
 
 				HashBlock(dataBuf);

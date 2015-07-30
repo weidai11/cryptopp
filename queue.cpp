@@ -42,7 +42,7 @@ public:
 
 	inline size_t Put(const byte *begin, size_t length)
 	{
-		if(!begin || !length) return length;
+		if (!begin || !length) return length;
 		size_t l = STDMIN(length, MaxSize()-m_tail);
 		if (buf+m_tail != begin)
 			memcpy(buf+m_tail, begin, l);
@@ -61,7 +61,7 @@ public:
 
 	inline size_t Peek(byte *target, size_t copyMax) const
 	{
-		if(!target || !copyMax) return 0;
+		if (!target || !copyMax) return 0;
 		size_t len = STDMIN(copyMax, m_tail-m_head);
 		memcpy(target, buf+m_head, len);
 		return len;
@@ -428,7 +428,7 @@ byte * ByteQueue::CreatePutSpace(size_t &size)
 
 ByteQueue & ByteQueue::operator=(const ByteQueue &rhs)
 {
-	if(this == &rhs) return *this;
+	if (this == &rhs) return *this;
 
 	Destroy();
 	CopyFrom(rhs);

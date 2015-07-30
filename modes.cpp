@@ -52,7 +52,7 @@ void CFB_ModePolicy::TransformRegister()
 	m_cipher->ProcessBlock(m_register, m_temp);
 	const unsigned int updateSize = BlockSize()-m_feedbackSize;
 
-	if(updateSize)
+	if (updateSize)
 		memmove_s(m_register, m_register.size(), m_register+m_feedbackSize, updateSize);
 	memcpy_s(m_register+updateSize, m_register.size()-updateSize, m_temp, m_feedbackSize);
 }

@@ -380,7 +380,7 @@ size_t PaddingRemover::Put2(const byte *begin, size_t length, int messageEnd, bo
 
 	if (m_possiblePadding)
 	{
-		size_t len = find_if(begin, end, bind2nd(not_equal_to<byte>(), byte(0))) - begin;
+		size_t len = find_if (begin, end, bind2nd(not_equal_to<byte>(), byte(0))) - begin;
 		m_zeroCount += len;
 		begin += len;
 		if (begin == end)
@@ -401,7 +401,7 @@ size_t PaddingRemover::Put2(const byte *begin, size_t length, int messageEnd, bo
 #else
 	typedef reverse_iterator<const byte *> RevIt;
 #endif
-	const byte *x = find_if(RevIt(end), RevIt(begin), bind2nd(not_equal_to<byte>(), byte(0))).base();
+	const byte *x = find_if (RevIt(end), RevIt(begin), bind2nd(not_equal_to<byte>(), byte(0))).base();
 	if (x != begin && *(x-1) == 1)
 	{
 		AttachedTransformation()->Put(begin, x-begin-1);

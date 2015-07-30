@@ -65,12 +65,12 @@ void Gunzip::ProcessPrestreamHeader()
 
 	if (flags & FILENAME)	// skip filename
 		do
-			if(!m_inQueue.Get(b)) throw HeaderErr();
+			if (!m_inQueue.Get(b)) throw HeaderErr();
 		while (b);
 
 	if (flags & COMMENTS)	// skip comments
 		do
-			if(!m_inQueue.Get(b)) throw HeaderErr();
+			if (!m_inQueue.Get(b)) throw HeaderErr();
 		while (b);
 }
 

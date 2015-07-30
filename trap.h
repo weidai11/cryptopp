@@ -23,7 +23,7 @@
 // Linux and Unix
 #if !defined(NDEBUG) && defined(CRYPTOPP_UNIX_AVAILABLE)
 #  define CRYPTOPP_ASSERT(exp) {                                  \
-    if(!(exp)) {                                                  \
+    if (!(exp)) {                                                  \
       std::ostringstream oss;                                     \
       oss << "Assertion failed: " << (char*)(__FILE__) << "("     \
           << (int)(__LINE__) << "): " << (char*)(__func__)        \

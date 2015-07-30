@@ -191,7 +191,7 @@ public:
 		if (!m_done)
 		{
 			R value;
-			if(!m_source.GetValue(name, value))
+			if (!m_source.GetValue(name, value))
 				throw InvalidArgument(std::string(typeid(T).name()) + ": Missing required parameter '" + name + "'");
 			(m_pObject->*pm)(value);
 		}

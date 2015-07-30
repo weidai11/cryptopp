@@ -47,7 +47,7 @@ OS_RNG_Err::OS_RNG_Err(const std::string &operation)
 
 MicrosoftCryptoProvider::MicrosoftCryptoProvider()
 {
-	if(!CryptAcquireContext(&m_hProvider, 0, 0, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
+	if (!CryptAcquireContext(&m_hProvider, 0, 0, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
 		throw OS_RNG_Err("CryptAcquireContext");
 }
 

@@ -124,7 +124,7 @@ void InvertibleRWFunction::PrecomputeTweakedRoots() const
 {
 	ModularArithmetic modp(m_p), modq(m_q);
 
-	#pragma omp parallel sections if(CRYPTOPP_RW_USE_OMP)
+	#pragma omp parallel sections if (CRYPTOPP_RW_USE_OMP)
 	{
 		#pragma omp section
 			m_pre_2_9p = modp.Exponentiate(2, (9 * m_p - 11)/8);
@@ -150,7 +150,7 @@ void InvertibleRWFunction::LoadPrecomputation(BufferedTransformation &bt)
 
 void InvertibleRWFunction::SavePrecomputation(BufferedTransformation &bt) const
 {
-	if(!m_precompute)
+	if (!m_precompute)
 		Precompute();
 
 	DERSequenceEncoder seq(bt);
@@ -187,7 +187,7 @@ Integer InvertibleRWFunction::CalculateInverse(RandomNumberGenerator &rng, const
 {
 	DoQuickSanityCheck();
 
-	if(!m_precompute)
+	if (!m_precompute)
 		Precompute();
 
 	ModularArithmetic modn(m_n), modp(m_p), modq(m_q);
@@ -210,19 +210,19 @@ Integer InvertibleRWFunction::CalculateInverse(RandomNumberGenerator &rng, const
 	Integer e, f;
 
 	const Integer U = modq.Exponentiate(h, (q+1)/8);
-	if(((modq.Exponentiate(U, 4) - h) % q).IsZero())
+	if (((modq.Exponentiate(U, 4) - h) % q).IsZero())
 		e = Integer::One();
 	else
 		e = -1;
 
 	const Integer eh = e*h, V = modp.Exponentiate(eh, (p-3)/8);
-	if(((modp.Multiply(modp.Exponentiate(V, 4), modp.Exponentiate(eh, 2)) - eh) % p).IsZero())
+	if (((modp.Multiply(modp.Exponentiate(V, 4), modp.Exponentiate(eh, 2)) - eh) % p).IsZero())
 		f = Integer::One();
 	else
 		f = 2;
 
 	Integer W, X;
-	#pragma omp parallel sections if(CRYPTOPP_RW_USE_OMP)
+	#pragma omp parallel sections if (CRYPTOPP_RW_USE_OMP)
 	{
 		#pragma omp section
 		{

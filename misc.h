@@ -205,7 +205,7 @@ inline void memcpy_s(void *dest, size_t sizeInBytes, const void *src, size_t cou
 
 	// TODO: fix callers. Its easier than it sounds because of the way
 	//   Put and Put2 are used in filters.
-	if(dest && src && count)
+	if (dest && src && count)
 		memcpy(dest, src, count);
 }
 
@@ -219,7 +219,7 @@ inline void memmove_s(void *dest, size_t sizeInBytes, const void *src, size_t co
 
 	// TODO: fix callers. Its easier than it sounds because of the way
 	//   Put and Put2 are used in filters.
-	if(dest && src && count)
+	if (dest && src && count)
 		memmove(dest, src, count);
 }
 
@@ -237,8 +237,8 @@ inline void * memset_z(void *ptr, int value, size_t num)
 	if (__builtin_constant_p(num) && num==0)
 		return ptr;
 #endif
-	if(!ptr) return NULL;
-	if(!num) return ptr;
+	if (!ptr) return NULL;
+	if (!num) return ptr;
 	return memset(ptr, value, num);
 }
 
@@ -1531,7 +1531,7 @@ inline void PutWord(bool assumeAligned, ByteOrder order, byte *block, T value, c
 
 	T t1, t2 = 0;
 	t1 = ConditionalByteReverse(order, value);
-	if(xorBlock) memmove(&t2, xorBlock, sizeof(T));
+	if (xorBlock) memmove(&t2, xorBlock, sizeof(T));
 	memmove(block, &(t1 ^= t2), sizeof(T));
 }
 

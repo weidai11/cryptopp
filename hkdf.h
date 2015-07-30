@@ -55,7 +55,7 @@ unsigned int HKDF<T>::DeriveKey(byte *derived, size_t derivedLen, const byte *se
 	CRYPTOPP_ASSERT(derived && derivedLen);
 	CRYPTOPP_ASSERT(derivedLen <= MaxDerivedKeyLength());
 
-	if(derivedLen > MaxDerivedKeyLength())
+	if (derivedLen > MaxDerivedKeyLength())
 		throw InvalidArgument("HKDF: derivedLen must be less than or equal to MaxDerivedKeyLength");
 
 	HMAC<T> hmac;
@@ -74,8 +74,8 @@ unsigned int HKDF<T>::DeriveKey(byte *derived, size_t derivedLen, const byte *se
 
 	while (derivedLen > 0)
 	{
-		if(block++) {hmac.Update(buffer, buffer.size());}
-		if(context && contextLen) {hmac.Update(context, contextLen);}
+		if (block++) {hmac.Update(buffer, buffer.size());}
+		if (context && contextLen) {hmac.Update(context, contextLen);}
 		hmac.CalculateDigest(buffer, &block, 1);
 
 		size_t segmentLen = STDMIN(derivedLen, DIGEST_SIZE);

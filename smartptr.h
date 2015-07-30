@@ -114,7 +114,7 @@ public:
 
 template <class T> value_ptr<T>& value_ptr<T>::operator=(const value_ptr<T>& rhs)
 {
-	if(this != &rhs)
+	if (this != &rhs)
 	{
 		T *old_p = this->m_p;
 		this->m_p = rhs.m_p ? new T(*rhs.m_p) : NULL;
@@ -138,7 +138,7 @@ public:
 
 template <class T> clonable_ptr<T>& clonable_ptr<T>::operator=(const clonable_ptr<T>& rhs)
 {
-	if(this !=  &rhs)
+	if (this !=  &rhs)
 	{
 		T *old_p = this->m_p;
 		this->m_p = rhs.m_p ? rhs.m_p->Clone() : NULL;
@@ -225,7 +225,7 @@ template <class T> T* counted_ptr<T>::get()
 
 template <class T> counted_ptr<T> & counted_ptr<T>::operator=(const counted_ptr<T>& rhs)
 {
-	if(this == &rhs) { return *this; }
+	if (this == &rhs) { return *this; }
 
 	if (m_p != rhs.m_p)
 	{
