@@ -20,12 +20,9 @@ size_t OAEP_Base::MaxUnpaddedLength(size_t paddedLength) const
 void OAEP_Base::Pad(RandomNumberGenerator &rng, const byte *input, size_t inputLength, byte *oaepBlock, size_t oaepBlockLen, const NameValuePairs &parameters) const
 {
 	CRYPTOPP_ASSERT (inputLength <= MaxUnpaddedLength(oaepBlockLen));
-
-#if defined(CRYPTOPP_CXX11)
-	std::unique_ptr<HashTransformation> pHash(NewHash());
-#else
-	std::auto_ptr<HashTransformation> pHash(NewHash());
-#endif
+	
+	using CryptoPP::auto_ptr;
+	auto_ptr<HashTransformation> pHash(NewHash());
 
 	// convert from bit length to byte length
 	if (oaepBlockLen % 8 != 0)
@@ -48,13 +45,8 @@ void OAEP_Base::Pad(RandomNumberGenerator &rng, const byte *input, size_t inputL
 	memset(maskedDB+hLen, 0, dbLen-hLen-inputLength-1);
 	maskedDB[dbLen-inputLength-1] = 0x01;
 	memcpy(maskedDB+dbLen-inputLength, input, inputLength);
-    
-#if defined(CRYPTOPP_CXX11)
-	std::unique_ptr<MaskGeneratingFunction> pMGF(NewMGF());
-#else
-	std::auto_ptr<MaskGeneratingFunction> pMGF(NewMGF());
-#endif
 
+	auto_ptr<MaskGeneratingFunction> pMGF(NewMGF());
 	rng.GenerateBlock(maskedSeed, seedLen);
 	pMGF->GenerateAndMask(*pHash, maskedDB, dbLen, maskedSeed, seedLen);
 	pMGF->GenerateAndMask(*pHash, maskedSeed, seedLen, maskedDB, dbLen);
@@ -64,11 +56,8 @@ DecodingResult OAEP_Base::Unpad(const byte *oaepBlock, size_t oaepBlockLen, byte
 {
 	bool invalid = false;
 
-#if defined(CRYPTOPP_CXX11)
-	std::unique_ptr<HashTransformation> pHash(NewHash());
-#else
+	using CryptoPP::auto_ptr;
 	std::auto_ptr<HashTransformation> pHash(NewHash());
-#endif
 
 	// convert from bit length to byte length
 	if (oaepBlockLen % 8 != 0)
@@ -87,12 +76,8 @@ DecodingResult OAEP_Base::Unpad(const byte *oaepBlock, size_t oaepBlockLen, byte
 	byte *const maskedSeed = t;
 	byte *const maskedDB = t+seedLen;
 
-#if defined(CRYPTOPP_CXX11)
-	std::unique_ptr<MaskGeneratingFunction> pMGF(NewMGF());
-#else
-	std::auto_ptr<MaskGeneratingFunction> pMGF(NewMGF());
-#endif
 
+	std::auto_ptr<MaskGeneratingFunction> pMGF(NewMGF());
 	pMGF->GenerateAndMask(*pHash, maskedSeed, seedLen, maskedDB, dbLen);
 	pMGF->GenerateAndMask(*pHash, maskedDB, dbLen, maskedSeed, seedLen);
 
