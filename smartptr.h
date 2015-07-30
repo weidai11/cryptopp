@@ -8,10 +8,12 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 // Hack ahead. Apple's standard library does not have C++'s unique_ptr in C++11. We can't
-// test for unique_ptr directly because some of the non-Apple Clangs on OS X fail the same
-// way. However, modern standard libraries have <forward_list>, so we test for it instead.
-// Thanks to Jonathan Wakely for devising the clever test for modern/ancient versions.
-#if (__cplusplus >= 201103L) || (_MSC_VER >= 1700)
+//   test for unique_ptr directly because some of the non-Apple Clangs on OS X fail the same
+//   way. However, modern standard libraries have <forward_list>, so we test for it instead.
+//   Thanks to Jonathan Wakely for devising the clever test for modern/ancient versions.
+// Visual Studio did not add template aliases until VS 2015 (v19.00). Compile failed under
+//   Visual Studio 2010 (v16.00) and Visual Studio 2012 (v17.00).
+#if (__cplusplus >= 201103L) || (_MSC_VER >= 1900)
 #  if defined(__clang__)
 #    if (__has_include(<forward_list>))
 #      define CRYPTOPP_HAVE_UNIQUE_PTR 1
