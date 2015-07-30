@@ -15,7 +15,7 @@ INTRODUCTION
 
 Crypto++ Library is a free C++ class library of cryptographic algorithms and schemes. It was written and placed in public domain by Wei Dai. The library homepage is at http://www.cryptopp.com/. The latest library source code can be found at https://github.com/weidai11/cryptopp. For licensing and copyright information, please see License.txt.
 
-These are general instructions for the BSDs, Linux, Solaris and Unix. For Windows, Crypto++ provides Visual Studio solution.
+These are general instructions for the BSDs, Linux, OS X, Solaris and Unix. On BSD you will likely have to use `gmake` to build the library. On Linux, OS X, Solaris and Unix, the system's make should be OK. On Windows, Crypto++ provides Borland and Visual Studio solutions.
 
 Crypto++ uses a GNU makefile, which combines configuration and a non-anemic make. You should look through the GNUmakefile and config.h to ensure settings look reasonable before building. Please pay particular attention to CRYPTOPP_NO_UNALIGNED_DATA_ACCESS in config.h.
 
@@ -46,6 +46,25 @@ On Mac OS X, you can build fat libraries by setting MULTIARCH=1:
 Or
 
     export MULTIARCH=1
+    make
+
+If you would like to use a different compiler, the set CXX:
+
+    export CXX=/opt/intel/bin/icpc
+    make
+
+If you want to build using C++11, then:
+
+    make CXXFLAGS="-std=c++11"
+
+Or:
+
+    CXXFLAGS="-std=c++11"
+    make
+
+LLVM's libc++ is also supported, so you can:
+
+    CXXFLAGS="-std=c++11 -stdlib=libc++"
     make
 
 If you are experimenting with Clang and its integrated assembler, then you can:
