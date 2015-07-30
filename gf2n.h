@@ -91,9 +91,9 @@ public:
 		//* Precondition: bt.MaxRetrievable() >= inputLen
 		void Decode(BufferedTransformation &bt, size_t inputLen);
 
-		//! encode value as big-endian octet string
+		//! encode value as big-endian octet std::string
 		void DEREncodeAsOctetString(BufferedTransformation &bt, size_t length) const;
-		//! decode value as big-endian octet string
+		//! decode value as big-endian octet std::string
 		void BERDecodeAsOctetString(BufferedTransformation &bt, size_t length);
 	//@}
 

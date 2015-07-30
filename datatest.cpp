@@ -15,7 +15,6 @@
 #include <iostream>
 
 USING_NAMESPACE(CryptoPP)
-USING_NAMESPACE(std)
 
 typedef std::map<std::string, std::string> TestData;
 static bool s_thorough;
@@ -32,7 +31,7 @@ static void OutputTestData(const TestData &v)
 {
 	for (TestData::const_iterator i = v.begin(); i != v.end(); ++i)
 	{
-		cerr << i->first << ": " << i->second << endl;
+		std::cerr << i->first << ": " << i->second << std::endl;
 	}
 }
 
@@ -260,7 +259,7 @@ void TestSignatureScheme(TestData &v)
 	}
 	else if (test == "Sign")
 	{
-		SignerFilter f(GlobalRNG(), *signer, new HexEncoder(new FileSink(cout)));
+		SignerFilter f(GlobalRNG(), *signer, new HexEncoder(new FileSink(std::cout)));
 		StringSource ss(GetDecodedDatum(v, "Message"), true, new Redirector(f));
 		SignalTestFailure();
 	}
@@ -594,7 +593,7 @@ bool GetField(std::istream &is, std::string &name, std::string &value)
 	if (name[name.size()-1] != ':')
 	{
 		char c;
-		is >> skipws >> c;
+		is >> std::skipws >> c;
 		if (c != ':')
 			SignalTestError();
 	}
@@ -645,25 +644,25 @@ void OutputPair(const NameValuePairs &v, const char *name)
 	Integer x;
 	bool b = v.GetValue(name, x);
 	CRYPTOPP_ASSERT(b); CRYPTOPP_UNUSED(b);
-	cout << name << ": \\\n    ";
-	x.Encode(HexEncoder(new FileSink(cout), false, 64, "\\\n    ").Ref(), x.MinEncodedSize());
-	cout << endl;
+	std::cout << name << ": \\\n    ";
+	x.Encode(HexEncoder(new FileSink(std::cout), false, 64, "\\\n    ").Ref(), x.MinEncodedSize());
+	std::cout << std::endl;
 }
 
 void OutputNameValuePairs(const NameValuePairs &v)
 {
 	std::string names = v.GetValueNames();
-	string::size_type i = 0;
+	std::string::size_type i = 0;
 	while (i < names.size())
 	{
-		string::size_type j = names.find_first_of (';', i);
+		std::string::size_type j = names.find_first_of (';', i);
 
-		if (j == string::npos)
+		if (j == std::string::npos)
 			return;
 		else
 		{
 			std::string name = names.substr(i, j-i);
-			if (name.find(':') == string::npos)
+			if (name.find(':') == std::string::npos)
 				OutputPair(v, name.c_str());
 		}
 
@@ -700,7 +699,7 @@ void TestDataFile(const std::string &filename, const NameValuePairs &overridePar
 			if (lastAlgName != GetRequiredDatum(v, "Name"))
 			{
 				lastAlgName = GetRequiredDatum(v, "Name");
-				cout << "\nTesting " << algType.c_str() << " algorithm " << lastAlgName.c_str() << ".\n";
+				std::cout << "\nTesting " << algType.c_str() << " algorithm " << lastAlgName.c_str() << ".\n";
 			}
 
 			try
@@ -725,24 +724,24 @@ void TestDataFile(const std::string &filename, const NameValuePairs &overridePar
 			}
 			catch (TestFailure &)
 			{
-				cout << "\nTest failed.\n";
+				std::cout << "\nTest failed.\n";
 			}
 			catch (CryptoPP::Exception &e)
 			{
-				cout << "\nCryptoPP::Exception caught: " << e.what() << endl;
+				std::cout << "\nCryptoPP::Exception caught: " << e.what() << std::endl;
 			}
 			catch (std::exception &e)
 			{
-				cout << "\nstd::exception caught: " << e.what() << endl;
+				std::cout << "\nstd::exception caught: " << e.what() << std::endl;
 			}
 
 			if (failed)
 			{
-				cout << "Skipping to next test.\n";
+				std::cout << "Skipping to next test.\n";
 				failedTests++;
 			}
 			else
-				cout << "." << flush;
+				std::cout << "." << std::flush;
 
 			totalTests++;
 		}
@@ -754,8 +753,8 @@ bool RunTestDataFile(const char *filename, const NameValuePairs &overrideParamet
 	s_thorough = thorough;
 	unsigned int totalTests = 0, failedTests = 0;
 	TestDataFile(filename, overrideParameters, totalTests, failedTests);
-	cout << dec << "\nTests complete. Total tests = " << totalTests << ". Failed tests = " << failedTests << ".\n";
+	std::cout << std::dec << "\nTests complete. Total tests = " << totalTests << ". Failed tests = " << failedTests << ".\n";
 	if (failedTests != 0)
-		cout << "SOME TESTS FAILED!\n";
+		std::cout << "SOME TESTS FAILED!\n";
 	return failedTests == 0;
 }

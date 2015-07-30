@@ -18,7 +18,6 @@
 #include <iomanip>
 
 USING_NAMESPACE(CryptoPP)
-USING_NAMESPACE(std)
 
 #ifdef CLOCKS_PER_SEC
 const double CLOCK_TICKS_PER_SECOND = (double)CLOCKS_PER_SEC;
@@ -36,35 +35,35 @@ static const byte *const key=(byte *)"0123456789abcdefghijklmnopqrstuvwxyzABCDEF
 void OutputResultBytes(const char *name, double length, double timeTaken)
 {
 	double mbs = length / timeTaken / (1024*1024);
-	cout << "\n<TR><TH>" << name;
-//	cout << "<TD>" << setprecision(3) << length / (1024*1024);
-	cout << setiosflags(ios::fixed);
-//	cout << "<TD>" << setprecision(3) << timeTaken;
-	cout << "<TD>" << setprecision(0) << setiosflags(ios::fixed) << mbs;
+	std::cout << "\n<TR><TH>" << name;
+//	std::cout << "<TD>" << std::setprecision(3) << length / (1024*1024);
+	std::cout << std::setiosflags(std::ios::fixed);
+//	std::cout << "<TD>" << std::setprecision(3) << timeTaken;
+	std::cout << "<TD>" << std::setprecision(0) << std::setiosflags(std::ios::fixed) << mbs;
 	if (g_hertz)
-		cout << "<TD>" << setprecision(1) << setiosflags(ios::fixed) << timeTaken * g_hertz / length;
-	cout << resetiosflags(ios::fixed);
+		std::cout << "<TD>" << std::setprecision(1) << std::setiosflags(std::ios::fixed) << timeTaken * g_hertz / length;
+	std::cout << std::setiosflags(std::ios::fixed);
 	logtotal += log(mbs);
 	logcount++;
 }
 
 void OutputResultKeying(double iterations, double timeTaken)
 {
-	cout << "<TD>" << setprecision(3) << setiosflags(ios::fixed) << (1000*1000*timeTaken/iterations);
+	std::cout << "<TD>" << std::setprecision(3) << std::setiosflags(std::ios::fixed) << (1000*1000*timeTaken/iterations);
 	if (g_hertz)
-		cout << "<TD>" << setprecision(0) << setiosflags(ios::fixed) << timeTaken * g_hertz / iterations;
+		std::cout << "<TD>" << std::setprecision(0) << std::setiosflags(std::ios::fixed) << timeTaken * g_hertz / iterations;
 }
 
 void OutputResultOperations(const char *name, const char *operation, bool pc, unsigned long iterations, double timeTaken)
 {
-	cout << "\n<TR><TH>" << name << " " << operation << (pc ? " with precomputation" : "");
-//	cout << "<TD>" << iterations;
-//	cout << setiosflags(ios::fixed);
-//	cout << "<TD>" << setprecision(3) << timeTaken;
-	cout << "<TD>" << setprecision(2) << setiosflags(ios::fixed) << (1000*timeTaken/iterations);
+	std::cout << "\n<TR><TH>" << name << " " << operation << (pc ? " with precomputation" : "");
+//	std::cout << "<TD>" << iterations;
+//	std::cout << std::setiosflags(std::ios::fixed);
+//	std::cout << "<TD>" << std::setprecision(3) << timeTaken;
+	std::cout << "<TD>" << std::setprecision(2) << std::setiosflags(std::ios::fixed) << (1000*timeTaken/iterations);
 	if (g_hertz)
-		cout << "<TD>" << setprecision(2) << setiosflags(ios::fixed) << timeTaken * g_hertz / iterations / 1000000;
-	cout << resetiosflags(ios::fixed);
+		std::cout << "<TD>" << std::setprecision(2) << std::setiosflags(std::ios::fixed) << timeTaken * g_hertz / iterations / 1000000;
+	std::cout << std::setiosflags(std::ios::fixed);
 
 	logtotal += log(iterations/timeTaken);
 	logcount++;
@@ -231,18 +230,18 @@ void BenchmarkAll(double t, double hertz)
 	{
 		cpb = "<TH>Cycles Per Byte";
 		cpk = "<TH>Cycles to<br>Setup Key and IV";
-		cout << "CPU frequency of the test platform is " << g_hertz << " Hz.\n";
+		std::cout << "CPU frequency of the test platform is " << g_hertz << " Hz.\n";
 	}
 	else
 	{
 		cpb = cpk = "";
-		cout << "CPU frequency of the test platform was not provided.\n";
+		std::cout << "CPU frequency of the test platform was not provided.\n";
 	}
 
-	cout << "<TABLE border=1><COLGROUP><COL align=left><COL align=right><COL align=right><COL align=right><COL align=right>" << endl;
-	cout << "<THEAD><TR><TH>Algorithm<TH>MiB/Second" << cpb << "<TH>Microseconds to<br>Setup Key and IV" << cpk << endl;
+	std::cout << "<TABLE border=1><COLGROUP><COL align=left><COL align=right><COL align=right><COL align=right><COL align=right>" << std::endl;
+	std::cout << "<THEAD><TR><TH>Algorithm<TH>MiB/Second" << cpb << "<TH>Microseconds to<br>Setup Key and IV" << cpk << std::endl;
 
-	cout << "\n<TBODY style=\"background: yellow\">";
+	std::cout << "\n<TBODY style=\"background: yellow\">";
 #if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
 	if (HasCLMUL())
 		BenchMarkByName2<AuthenticatedSymmetricCipher, AuthenticatedSymmetricCipher>("AES/GCM", 0, "AES/GCM");
@@ -255,7 +254,7 @@ void BenchmarkAll(double t, double hertz)
 	BenchMarkByName2<AuthenticatedSymmetricCipher, AuthenticatedSymmetricCipher>("AES/CCM");
 	BenchMarkByName2<AuthenticatedSymmetricCipher, AuthenticatedSymmetricCipher>("AES/EAX");
 
-	cout << "\n<TBODY style=\"background: white\">";
+	std::cout << "\n<TBODY style=\"background: white\">";
 #if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
 	if (HasCLMUL())
 		BenchMarkByName2<AuthenticatedSymmetricCipher, MessageAuthenticationCode>("AES/GCM", 0, "GMAC(AES)");
@@ -272,7 +271,7 @@ void BenchmarkAll(double t, double hertz)
 	BenchMarkByName<MessageAuthenticationCode>("CMAC(AES)");
 	BenchMarkByName<MessageAuthenticationCode>("DMAC(AES)");
 
-	cout << "\n<TBODY style=\"background: yellow\">";
+	std::cout << "\n<TBODY style=\"background: yellow\">";
 	BenchMarkByNameKeyLess<HashTransformation>("CRC32");
 	BenchMarkByNameKeyLess<HashTransformation>("Adler32");
 	BenchMarkByNameKeyLess<HashTransformation>("MD5");
@@ -290,7 +289,7 @@ void BenchmarkAll(double t, double hertz)
 	BenchMarkByNameKeyLess<HashTransformation>("RIPEMD-128");
 	BenchMarkByNameKeyLess<HashTransformation>("RIPEMD-256");
 
-	cout << "\n<TBODY style=\"background: white\">";
+	std::cout << "\n<TBODY style=\"background: white\">";
 	BenchMarkByName<SymmetricCipher>("Panama-LE");
 	BenchMarkByName<SymmetricCipher>("Panama-BE");
 	BenchMarkByName<SymmetricCipher>("Salsa20");
@@ -301,7 +300,7 @@ void BenchmarkAll(double t, double hertz)
 	BenchMarkByName<SymmetricCipher>("SEAL-3.0-LE");
 	BenchMarkByName<SymmetricCipher>("WAKE-OFB-LE");
 
-	cout << "\n<TBODY style=\"background: yellow\">";
+	std::cout << "\n<TBODY style=\"background: yellow\">";
 	BenchMarkByName<SymmetricCipher>("AES/CTR", 16);
 	BenchMarkByName<SymmetricCipher>("AES/CTR", 24);
 	BenchMarkByName<SymmetricCipher>("AES/CTR", 32);
@@ -331,13 +330,13 @@ void BenchmarkAll(double t, double hertz)
 	BenchMarkByName<SymmetricCipher>("CAST-128/CTR");
 	BenchMarkByName<SymmetricCipher>("SKIPJACK/CTR");
 	BenchMarkByName<SymmetricCipher>("SEED/CTR", 0, "SEED/CTR (1/2 K table)");
-	cout << "</TABLE>" << endl;
+	std::cout << "</TABLE>" << std::endl;
 
 	BenchmarkAll2(t, hertz);
 
-	cout << "Throughput Geometric Average: " << setiosflags(ios::fixed) << exp(logtotal/logcount) << endl;
+	std::cout << "Throughput Geometric Average: " << std::setiosflags(std::ios::fixed) << exp(logtotal/logcount) << std::endl;
 
 	time_t endTime = time(NULL);
-	cout << "\nTest ended at " << asctime(localtime(&endTime));
+	std::cout << "\nTest ended at " << asctime(localtime(&endTime));
 #endif
 }

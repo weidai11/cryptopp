@@ -102,7 +102,7 @@ protected:
 	
 	The advantage of this approach is that it is easy to use and should be very efficient,
 	involving no allocation from the heap, just a linked list of stack objects containing
-	pointers to static ASCIIZ strings (or possibly additional but simple data if derived). */
+	pointers to static ASCIIZ std::strings (or possibly additional but simple data if derived). */
 class CallStack
 {
 public:
@@ -126,7 +126,7 @@ protected:
 	word32 m_nr;
 };
 
-/*! An extended CallStack entry type with an additional string parameter. */
+/*! An extended CallStack entry type with an additional std::string parameter. */
 class CallStackWithStr : public CallStack
 {
 public:

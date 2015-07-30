@@ -127,7 +127,7 @@ public:
 		NOT_IMPLEMENTED,
 		//! invalid function argument
 		INVALID_ARGUMENT,
-		//! BufferedTransformation received a Flush(true) signal but can't flush buffers
+		//! BufferedTransformation received a Flush(true) signal but can't std::flush buffers
 		CANNOT_FLUSH,
 		//! data integerity check (such as CRC or MAC) failed
 		DATA_INTEGRITY_CHECK_FAILED,
@@ -180,7 +180,7 @@ public:
 	explicit NotImplemented(const std::string &s) : Exception(NOT_IMPLEMENTED, s) {}
 };
 
-//! exception thrown by a class when Flush(true) is called but it can't completely flush its buffers
+//! exception thrown by a class when Flush(true) is called but it can't completely std::flush its buffers
 class CRYPTOPP_DLL CannotFlush : public Exception
 {
 public:
@@ -375,7 +375,7 @@ public:
 	virtual std::string AlgorithmName() const {return "unknown";}
 };
 
-//! keying interface for crypto algorithms that take byte strings as keys
+//! keying interface for crypto algorithms that take byte std::strings as keys
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE SimpleKeyingInterface
 {
 public:
@@ -768,7 +768,7 @@ public:
 	bool Wait(unsigned long milliseconds, CallStack const& callStack);
 };
 
-//! the default channel for BufferedTransformation, equal to the empty string
+//! the default channel for BufferedTransformation, equal to the empty std::string
 extern CRYPTOPP_DLL const std::string DEFAULT_CHANNEL;
 
 //! channel for additional authenticated data, equal to "AAD"
@@ -868,14 +868,14 @@ public:
 
 		//! initialize or reinitialize this object
 		virtual void Initialize(const NameValuePairs &parameters=g_nullNameValuePairs, int propagation=-1);
-		//! flush buffered input and/or output
-		/*! \param hardFlush is used to indicate whether all data should be flushed
-			\note Hard flushes must be used with care. It means try to process and output everything, even if
-			there may not be enough data to complete the action. For example, hard flushing a HexDecoder would
+		//! std::flush buffered input and/or output
+		/*! \param hardFlush is used to indicate whether all data should be std::flushed
+			\note Hard std::flushes must be used with care. It means try to process and output everything, even if
+			there may not be enough data to complete the action. For example, hard std::flushing a HexDecoder would
 			cause an error if you do it after inputing an odd number of hex encoded characters.
-			For some types of filters, for example ZlibDecompressor, hard flushes can only
+			For some types of filters, for example ZlibDecompressor, hard std::flushes can only
 			be done at "synchronization points". These synchronization points are positions in the data
-			stream that are created by hard flushes on the corresponding reverse filters, in this
+			stream that are created by hard std::flushes on the corresponding reverse filters, in this
 			example ZlibCompressor. This is useful when zlib compressed data is moved across a
 			network in packets and compression state is preserved across packets, as in the ssh2 protocol.
 		*/
@@ -1263,7 +1263,7 @@ public:
 		InvalidPlaintextLength() : Exception(OTHER_ERROR, "PK_Encryptor: invalid plaintext length") {}
 	};
 
-	//! encrypt a byte string
+	//! encrypt a byte std::string
 	/*! \pre CiphertextLength(plaintextLength) != 0 (i.e., plaintext isn't too long)
 		\pre size of ciphertext == CiphertextLength(plaintextLength)
 	*/
@@ -1284,7 +1284,7 @@ public:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_Decryptor : public PK_CryptoSystem, public PrivateKeyAlgorithm
 {
 public:
-	//! decrypt a byte string, and return the length of plaintext
+	//! decrypt a byte std::string, and return the length of plaintext
 	/*! \pre size of plaintext == MaxPlaintextLength(ciphertextLength) bytes.
 		\return the actual length of the plaintext, indication that decryption failed.
 	*/
@@ -1478,7 +1478,7 @@ public:
 	//! generate private/public key pair
 	/*! \note equivalent to calling GeneratePrivateKey() and then GeneratePublicKey() */
 	virtual void GenerateKeyPair(RandomNumberGenerator &rng, byte *privateKey, byte *publicKey) const;
-	//! derive agreed value from your private key and couterparty's public key, return false in case of failure
+	//! derive agreed value from your private key and std::couterparty's public key, return false in case of failure
 	/*! \note If you have previously validated the public key, use validateOtherPublicKey=false to save time.
 		\pre size of agreedValue == AgreedValueLength()
 		\pre length of privateKey == PrivateKeyLength()
@@ -1532,7 +1532,7 @@ public:
 	/*! \note equivalent to calling GenerateEphemeralPrivateKey() and then GenerateEphemeralPublicKey() */
 	virtual void GenerateEphemeralKeyPair(RandomNumberGenerator &rng, byte *privateKey, byte *publicKey) const;
 
-	//! derive agreed value from your private keys and couterparty's public keys, return false in case of failure
+	//! derive agreed value from your private keys and std::couterparty's public keys, return false in case of failure
 	/*! \note The ephemeral public key will always be validated.
 		      If you have previously validated the static public key, use validateStaticOtherPublicKey=false to save time.
 		\pre size of agreedValue == AgreedValueLength()

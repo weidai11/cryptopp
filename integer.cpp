@@ -4222,7 +4222,7 @@ const Integer& MontgomeryRepresentation::MultiplicativeInverse(const Integer &a)
 	MontgomeryReduce(R, T+2*N, T, m_modulus.reg, m_u.reg, N);
 	unsigned k = AlmostInverse(R, T, R, N, m_modulus.reg, N);
 
-//	cout << "k=" << k << " N*32=" << 32*N << endl;
+//	std::cout << "k=" << k << " N*32=" << 32*N << std::endl;
 
 	if (k>N*WORD_BITS)
 		DivideByPower2Mod(R, R, k-N*WORD_BITS, m_modulus.reg, N);

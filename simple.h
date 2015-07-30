@@ -72,7 +72,7 @@ public:
 	bool ChannelFlush(const std::string &channel, bool hardFlush, int propagation=-1, bool blocking=true)
 	{
 		if (hardFlush && !InputBufferIsEmpty())
-			throw CannotFlush("Unflushable<T>: this object has buffered input that cannot be flushed");
+			throw CannotFlush("Unflushable<T>: this object has buffered input that cannot be std::flushed");
 		else 
 		{
 			BufferedTransformation *attached = this->AttachedTransformation();

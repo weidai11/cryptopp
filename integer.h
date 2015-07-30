@@ -77,7 +77,7 @@ public:
 		//! convert from two words
 		Integer(Sign s, word highWord, word lowWord);
 
-		//! convert from string
+		//! convert from std::string
 		/*! str can be in base 2, 8, 10, or 16.  Base is determined by a
 			case insensitive suffix of 'h', 'o', or 'b'.  No suffix means base 10.
 		*/
@@ -138,7 +138,7 @@ public:
 		//! encode using Distinguished Encoding Rules, put result into a BufferedTransformation object
 		void DEREncode(BufferedTransformation &bt) const;
 
-		//! encode absolute value as big-endian octet string
+		//! encode absolute value as big-endian octet std::string
 		void DEREncodeAsOctetString(BufferedTransformation &bt, size_t length) const;
 
 		//! encode absolute value in OpenPGP format, return length of output
@@ -157,7 +157,7 @@ public:
 		//!
 		void BERDecode(BufferedTransformation &bt);
 
-		//! decode nonnegative value as big-endian octet string
+		//! decode nonnegative value as big-endian octet std::string
 		void BERDecodeAsOctetString(BufferedTransformation &bt, size_t length);
 
 		class OpenPGPDecodeErr : public Exception

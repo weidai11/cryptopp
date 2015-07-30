@@ -68,7 +68,7 @@ void PolynomialOver<T>::FromStr(const char *str, const Ring &ring)
 			positive = false;
 			break;
 		default:
-			return;		// something's wrong with the input string
+			return;		// something's wrong with the input std::string
 		}
 	}
 }

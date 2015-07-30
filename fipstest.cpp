@@ -40,7 +40,7 @@ extern PowerUpSelfTestStatus g_powerUpSelfTestStatus;
 SecByteBlock g_actualMac;
 unsigned long g_macFileLocation = 0;
 
-// use a random dummy string here, to be searched/replaced later with the real MAC
+// use a random dummy std::string here, to be searched/replaced later with the real MAC
 static const byte s_moduleMac[CryptoPP::HMAC<CryptoPP::SHA1>::DIGESTSIZE] = CRYPTOPP_DUMMY_DLL_MAC;
 CRYPTOPP_COMPILE_ASSERT(sizeof(s_moduleMac) == CryptoPP::SHA1::DIGESTSIZE);
 

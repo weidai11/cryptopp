@@ -55,7 +55,6 @@
 #endif
 
 USING_NAMESPACE(CryptoPP)
-USING_NAMESPACE(std)
 
 const int MAX_PHRASE_LENGTH=250;
 
@@ -66,8 +65,8 @@ const int MAX_PHRASE_LENGTH=250;
 void RegisterFactories();
 
 void GenerateRSAKey(unsigned int keyLength, const char *privFilename, const char *pubFilename, const char *seed);
-string RSAEncryptString(const char *pubFilename, const char *seed, const char *message);
-string RSADecryptString(const char *privFilename, const char *ciphertext);
+std::string RSAEncryptString(const char *pubFilename, const char *seed, const char *message);
+std::string RSADecryptString(const char *privFilename, const char *ciphertext);
 void RSASignFile(const char *privFilename, const char *messageFilename, const char *signatureFilename);
 bool RSAVerifyFile(const char *pubFilename, const char *messageFilename, const char *signatureFilename);
 
@@ -76,8 +75,8 @@ void HmacFile(const char *hexKey, const char *file);
 
 void AES_CTR_Encrypt(const char *hexKey, const char *hexIV, const char *infile, const char *outfile);
 
-string EncryptString(const char *plaintext, const char *passPhrase);
-string DecryptString(const char *ciphertext, const char *passPhrase);
+std::string EncryptString(const char *plaintext, const char *passPhrase);
+std::string DecryptString(const char *ciphertext, const char *passPhrase);
 
 void EncryptFile(const char *in, const char *out, const char *passPhrase);
 void DecryptFile(const char *in, const char *out, const char *passPhrase);
@@ -194,17 +193,17 @@ int CRYPTOPP_API main(int argc, char *argv[])
 			unsigned int keyLength;
 
 			std::cout << "Key length in bits: ";
-			cin >> keyLength;
+			std::cin >> keyLength;
 
 			std::cout << "\nSave private key to file: ";
-			cin >> privFilename;
+			std::cin >> privFilename;
 
 			std::cout << "\nSave public key to file: ";
-			cin >> pubFilename;
+			std::cin >> pubFilename;
 
 			std::cout << "\nRandom Seed: ";
-			ws(cin);
-			cin.getline(seed, 1024);
+			ws(std::cin);
+			std::cin.getline(seed, 1024);
 
 			GenerateRSAKey(keyLength, privFilename, pubFilename, seed);
 		}
@@ -221,22 +220,22 @@ int CRYPTOPP_API main(int argc, char *argv[])
 			char seed[1024], message[1024];
 
 			std::cout << "Private key file: ";
-			cin >> privFilename;
+			std::cin >> privFilename;
 
 			std::cout << "\nPublic key file: ";
-			cin >> pubFilename;
+			std::cin >> pubFilename;
 
 			std::cout << "\nRandom Seed: ";
-			ws(cin);
-			cin.getline(seed, 1024);
+			ws(std::cin);
+			std::cin.getline(seed, 1024);
 
 			std::cout << "\nMessage: ";
-			cin.getline(message, 1024);
+			std::cin.getline(message, 1024);
 
-			string ciphertext = RSAEncryptString(pubFilename, seed, message);
+			std::string ciphertext = RSAEncryptString(pubFilename, seed, message);
 			std::cout << "\nCiphertext: " << ciphertext << std::endl;
 
-			string decrypted = RSADecryptString(privFilename, ciphertext.c_str());
+			std::string decrypted = RSADecryptString(privFilename, ciphertext.c_str());
 			std::cout << "\nDecrypted: " << decrypted << std::endl;
 		}
 		else if (command == "mt")
@@ -249,7 +248,7 @@ int CRYPTOPP_API main(int argc, char *argv[])
 		else if (command == "mac_dll")
 		{
 			// sanity check on file size
-			std::fstream dllFile(argv[2], ios::in | ios::out | ios::binary);
+			std::fstream dllFile(argv[2], std::ios::in | std::ios::out | std::ios::binary);
 			std::ifstream::pos_type fileEnd = dllFile.seekg(0, std::ios_base::end).tellg();
 			if (fileEnd > 20*1000*1000)
 			{
@@ -319,15 +318,15 @@ int CRYPTOPP_API main(int argc, char *argv[])
 			char passPhrase[MAX_PHRASE_LENGTH], plaintext[1024];
 
 			std::cout << "Passphrase: ";
-			cin.getline(passPhrase, MAX_PHRASE_LENGTH);
+			std::cin.getline(passPhrase, MAX_PHRASE_LENGTH);
 
 			std::cout << "\nPlaintext: ";
-			cin.getline(plaintext, 1024);
+			std::cin.getline(plaintext, 1024);
 
-			string ciphertext = EncryptString(plaintext, passPhrase);
+			std::string ciphertext = EncryptString(plaintext, passPhrase);
 			std::cout << "\nCiphertext: " << ciphertext << std::endl;
 
-			string decrypted = DecryptString(ciphertext.c_str(), passPhrase);
+			std::string decrypted = DecryptString(ciphertext.c_str(), passPhrase);
 			std::cout << "\nDecrypted: " << decrypted << std::endl;
 
 			return 0;
@@ -344,7 +343,7 @@ int CRYPTOPP_API main(int argc, char *argv[])
 		{
 			char passPhrase[MAX_PHRASE_LENGTH];
 			std::cout << "Passphrase: ";
-			cin.getline(passPhrase, MAX_PHRASE_LENGTH);
+			std::cin.getline(passPhrase, MAX_PHRASE_LENGTH);
 			if (command == "e")
 				EncryptFile(argv[2], argv[3], passPhrase);
 			else
@@ -354,8 +353,8 @@ int CRYPTOPP_API main(int argc, char *argv[])
 		{
 			char seed[1024];
 			std::cout << "\nRandom Seed: ";
-			ws(cin);
-			cin.getline(seed, 1024);
+			ws(std::cin);
+			std::cin.getline(seed, 1024);
 			SecretShareFile(atoi(argv[2]), atoi(argv[3]), argv[4], seed);
 		}
 		else if (command == "sr")
@@ -460,7 +459,7 @@ void GenerateRSAKey(unsigned int keyLength, const char *privFilename, const char
 	pubFile.MessageEnd();
 }
 
-string RSAEncryptString(const char *pubFilename, const char *seed, const char *message)
+std::string RSAEncryptString(const char *pubFilename, const char *seed, const char *message)
 {
 	FileSource pubFile(pubFilename, true, new HexDecoder);
 	RSAES_OAEP_SHA_Encryptor pub(pubFile);
@@ -468,17 +467,17 @@ string RSAEncryptString(const char *pubFilename, const char *seed, const char *m
 	RandomPool randPool;
 	randPool.IncorporateEntropy((byte *)seed, strlen(seed));
 
-	string result;
+	std::string result;
 	StringSource(message, true, new PK_EncryptorFilter(randPool, pub, new HexEncoder(new StringSink(result))));
 	return result;
 }
 
-string RSADecryptString(const char *privFilename, const char *ciphertext)
+std::string RSADecryptString(const char *privFilename, const char *ciphertext)
 {
 	FileSource privFile(privFilename, true, new HexDecoder);
 	RSAES_OAEP_SHA_Decryptor priv(privFile);
 
-	string result;
+	std::string result;
 	StringSource(ciphertext, true, new HexDecoder(new PK_DecryptorFilter(GlobalRNG(), priv, new StringSink(result))));
 	return result;
 }
@@ -566,9 +565,9 @@ void AES_CTR_Encrypt(const char *hexKey, const char *hexIV, const char *infile, 
 	FileSource(infile, true, new StreamTransformationFilter(aes, new FileSink(outfile)));
 }
 
-string EncryptString(const char *instr, const char *passPhrase)
+std::string EncryptString(const char *instr, const char *passPhrase)
 {
-	string outstr;
+	std::string outstr;
 
 	DefaultEncryptorWithMAC encryptor(passPhrase, new HexEncoder(new StringSink(outstr)));
 	encryptor.Put((byte *)instr, strlen(instr));
@@ -577,9 +576,9 @@ string EncryptString(const char *instr, const char *passPhrase)
 	return outstr;
 }
 
-string DecryptString(const char *instr, const char *passPhrase)
+std::string DecryptString(const char *instr, const char *passPhrase)
 {
-	string outstr;
+	std::string outstr;
 
 	HexDecoder decryptor(new DefaultDecryptorWithMAC(passPhrase, new StringSink(outstr)));
 	decryptor.Put((byte *)instr, strlen(instr));
@@ -609,14 +608,14 @@ void SecretShareFile(int threshold, int nShares, const char *filename, const cha
 	FileSource source(filename, false, new SecretSharing(rng, threshold, nShares, channelSwitch = new ChannelSwitch));
 
 	vector_member_ptrs<FileSink> fileSinks(nShares);
-	string channel;
+	std::string channel;
 	for (int i=0; i<nShares; i++)
 	{
 		char extension[5] = ".000";
 		extension[1]='0'+byte(i/100);
 		extension[2]='0'+byte((i/10)%10);
 		extension[3]='0'+byte(i%10);
-		fileSinks[i].reset(new FileSink((string(filename)+extension).c_str()));
+		fileSinks[i].reset(new FileSink((std::string(filename)+extension).c_str()));
 
 		channel = WordToString<word32>(i);
 		fileSinks[i]->Put((byte *)channel.data(), 4);
@@ -640,7 +639,7 @@ void SecretRecoverFile(int threshold, const char *outFilename, char *const *inFi
 		fileSources[i].reset(new FileSource(inFilenames[i], false));
 		fileSources[i]->Pump(4);
 		fileSources[i]->Get(channel, 4);
-		fileSources[i]->Attach(new ChannelSwitch(recovery, string((char *)channel.begin(), 4)));
+		fileSources[i]->Attach(new ChannelSwitch(recovery, std::string((char *)channel.begin(), 4)));
 	}
 
 	while (fileSources[0]->Pump(256))
@@ -659,14 +658,14 @@ void InformationDisperseFile(int threshold, int nShares, const char *filename)
 	FileSource source(filename, false, new InformationDispersal(threshold, nShares, channelSwitch = new ChannelSwitch));
 
 	vector_member_ptrs<FileSink> fileSinks(nShares);
-	string channel;
+	std::string channel;
 	for (int i=0; i<nShares; i++)
 	{
 		char extension[5] = ".000";
 		extension[1]='0'+byte(i/100);
 		extension[2]='0'+byte((i/10)%10);
 		extension[3]='0'+byte(i%10);
-		fileSinks[i].reset(new FileSink((string(filename)+extension).c_str()));
+		fileSinks[i].reset(new FileSink((std::string(filename)+extension).c_str()));
 
 		channel = WordToString<word32>(i);
 		fileSinks[i]->Put((byte *)channel.data(), 4);
@@ -690,7 +689,7 @@ void InformationRecoverFile(int threshold, const char *outFilename, char *const 
 		fileSources[i].reset(new FileSource(inFilenames[i], false));
 		fileSources[i]->Pump(4);
 		fileSources[i]->Get(channel, 4);
-		fileSources[i]->Attach(new ChannelSwitch(recovery, string((char *)channel.begin(), 4)));
+		fileSources[i]->Attach(new ChannelSwitch(recovery, std::string((char *)channel.begin(), 4)));
 	}
 
 	while (fileSources[0]->Pump(256))
@@ -801,7 +800,7 @@ void ForwardTcpPort(const char *sourcePortName, const char *destinationHost, con
 
 		if (!out.SourceExhausted())
 		{
-			std::cout << "o" << flush;
+			std::cout << "o" << std::flush;
 			out.PumpAll2(false);
 			if (out.SourceExhausted())
 				std::cout << "EOF received on source socket.\n";
@@ -809,7 +808,7 @@ void ForwardTcpPort(const char *sourcePortName, const char *destinationHost, con
 
 		if (!in.SourceExhausted())
 		{
-			std::cout << "i" << flush;
+			std::cout << "i" << std::flush;
 			in.PumpAll2(false);
 			if (in.SourceExhausted())
 				std::cout << "EOF received on destination socket.\n";

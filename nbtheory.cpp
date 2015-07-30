@@ -562,15 +562,15 @@ Integer CRT(const Integer &xp, const Integer &p, const Integer &xq, const Intege
 	return p * (u * (xq-xp) % q) + xp;
 /*
 	Integer t1 = xq-xp;
-	cout << hex << t1 << endl;
+	std::cout << hex << t1 << std::endl;
 	Integer t2 = u * t1;
-	cout << hex << t2 << endl;
+	std::cout << hex << t2 << std::endl;
 	Integer t3 = t2 % q;
-	cout << hex << t3 << endl;
+	std::cout << hex << t3 << std::endl;
 	Integer t4 = p * t3;
-	cout << hex << t4 << endl;
+	std::cout << hex << t4 << std::endl;
 	Integer t5 = t4 + xp;
-	cout << hex << t5 << endl;
+	std::cout << hex << t5 << std::endl;
 	return t5;
 */
 }

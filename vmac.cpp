@@ -793,7 +793,7 @@ void VMAC_Base::TruncatedFinal(byte *mac, size_t size)
 	}
 	else if (m_isFirstBlock)
 	{
-		// special case for empty string
+		// special case for empty std::string
 		m_polyState()[0] = m_polyState()[2];
 		m_polyState()[1] = m_polyState()[3];
 		if (m_is128)

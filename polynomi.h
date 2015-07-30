@@ -64,7 +64,7 @@ public:
 		template <typename Iterator> PolynomialOver(Iterator begin, Iterator end)
 			: m_coefficients(begin, end) {}
 
-		//! convert from string
+		//! convert from std::string
 		PolynomialOver(const char *str, const Ring &ring) {FromStr(str, ring);}
 
 		//! convert from big-endian byte array
@@ -184,7 +184,7 @@ public:
 		template <typename Iterator> PolynomialOverFixedRing(Iterator first, Iterator last)
 			: B(first, last) {}
 
-		//! convert from string
+		//! convert from std::string
 		explicit PolynomialOverFixedRing(const char *str) : B(str, ms_fixedRing) {}
 
 		//! convert from big-endian byte array

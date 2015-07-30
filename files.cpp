@@ -38,7 +38,7 @@ void FileStore::StoreInitialize(const NameValuePairs &parameters)
 			return;
 		}
 
-	ios::openmode binary = parameters.GetValueWithDefault(Name::InputBinaryMode(), true) ? ios::binary : ios::openmode(0);
+	std::ios::openmode binary = parameters.GetValueWithDefault(Name::InputBinaryMode(), true) ? std::ios::binary : std::ios::openmode(0);
 	m_file.reset(new std::ifstream);
 #ifdef CRYPTOPP_UNIX_AVAILABLE
 	std::string narrowed;
@@ -48,14 +48,14 @@ void FileStore::StoreInitialize(const NameValuePairs &parameters)
 #if _MSC_VER >= 1400
 	if (fileNameWide)
 	{
-		m_file->open(fileNameWide, ios::in | binary);
+		m_file->open(fileNameWide, std::ios::in | binary);
 		if (!*m_file)
 			throw OpenErr(StringNarrow(fileNameWide, false));
 	}
 #endif
 	if (fileName)
 	{
-		m_file->open(fileName, ios::in | binary);
+		m_file->open(fileName, std::ios::in | binary);
 		if (!*m_file)
 			throw OpenErr(fileName);
 	}
@@ -68,7 +68,7 @@ lword FileStore::MaxRetrievable() const
 		return 0;
 
 	streampos current = m_stream->tellg();
-	streampos end = m_stream->seekg(0, ios::end).tellg();
+	streampos end = m_stream->seekg(0, std::ios::end).tellg();
 	m_stream->seekg(current);
 	return end-current;
 }
@@ -132,7 +132,7 @@ size_t FileStore::CopyRangeTo2(BufferedTransformation &target, lword &begin, lwo
 
 	// TODO: figure out what happens on cin
 	streampos current = m_stream->tellg();
-	streampos endPosition = m_stream->seekg(0, ios::end).tellg();
+	streampos endPosition = m_stream->seekg(0, std::ios::end).tellg();
 	streampos newPosition = current + (streamoff)begin;
 
 	if (newPosition >= endPosition)
@@ -174,7 +174,7 @@ lword FileStore::Skip(lword skipMax)
 	std::istream::off_type offset;
 	if (!SafeConvert(skipMax, offset))
 		throw InvalidArgument("FileStore: maximum seek offset exceeded");
-	m_stream->seekg(offset, ios::cur);
+	m_stream->seekg(offset, std::ios::cur);
 	return (lword)m_stream->tellg() - oldPos;
 }
 
@@ -194,7 +194,7 @@ void FileSink::IsolatedInitialize(const NameValuePairs &parameters)
 			return;
 		}
 
-	ios::openmode binary = parameters.GetValueWithDefault(Name::OutputBinaryMode(), true) ? ios::binary : ios::openmode(0);
+	std::ios::openmode binary = parameters.GetValueWithDefault(Name::OutputBinaryMode(), true) ? std::ios::binary : std::ios::openmode(0);
 	m_file.reset(new std::ofstream);
 #ifdef CRYPTOPP_UNIX_AVAILABLE
 	std::string narrowed;
@@ -204,14 +204,14 @@ void FileSink::IsolatedInitialize(const NameValuePairs &parameters)
 #if _MSC_VER >= 1400
 	if (fileNameWide)
 	{
-		m_file->open(fileNameWide, ios::out | ios::trunc | binary);
+		m_file->open(fileNameWide, std::ios::out | std::ios::trunc | binary);
 		if (!*m_file)
 			throw OpenErr(StringNarrow(fileNameWide, false));
 	}
 #endif
 	if (fileName)
 	{
-		m_file->open(fileName, ios::out | ios::trunc | binary);
+		m_file->open(fileName, std::ios::out | std::ios::trunc | binary);
 		if (!*m_file)
 			throw OpenErr(fileName);
 	}

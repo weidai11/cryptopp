@@ -21,10 +21,10 @@ static const unsigned int BLOCKSIZE = Default_BlockCipher::Encryption::BLOCKSIZE
 static const unsigned int KEYLENGTH = Default_BlockCipher::Encryption::DEFAULT_KEYLENGTH;
 
 // The purpose of this function Mash() is to take an arbitrary length input
-// string and *deterministicly* produce an arbitrary length output string such
+// std::string and *deterministicly* produce an arbitrary length output std::string such
 // that (1) it looks random, (2) no information about the input is
 // deducible from it, and (3) it contains as much entropy as it can hold, or
-// the amount of entropy in the input string, whichever is smaller.
+// the amount of entropy in the input std::string, whichever is smaller.
 
 static void Mash(const byte *in, size_t inLen, byte *out, size_t outLen, int iterations)
 {

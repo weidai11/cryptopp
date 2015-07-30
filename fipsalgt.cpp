@@ -15,7 +15,6 @@
 #include "trap.h"
 
 USING_NAMESPACE(CryptoPP)
-USING_NAMESPACE(std)
 
 class LineBreakParser : public AutoSignaling<Bufferless<Filter> >
 {
@@ -787,7 +786,7 @@ protected:
 			else if (m_bracketString == "L=64")
 				pMAC.reset(new HMAC<SHA512>);
 			else
-				throw Exception(Exception::OTHER_ERROR, "TestDataParser: unexpected HMAC bracket string: " + m_bracketString);
+				throw Exception(Exception::OTHER_ERROR, "TestDataParser: unexpected HMAC bracket std::string: " + m_bracketString);
 
 			pMAC->SetKey(key, key.size());
 			int Tlen = atol(m_data["Tlen"].c_str());
@@ -1221,7 +1220,7 @@ int FIPS_140_AlgorithmTest(int argc, char **argv)
 
 	if (algorithm == "auto")
 	{
-		string algTable[] = {"AES", "ECDSA", "DSA", "HMAC", "RNG", "RSA", "TDES", "SKIPJACK", "SHA"};	// order is important here
+		std::string algTable[] = {"AES", "ECDSA", "DSA", "HMAC", "RNG", "RSA", "TDES", "SKIPJACK", "SHA"};	// order is important here
 		for (i=0; i<COUNTOF(algTable); i++)
 		{
 			if (dirname.find(algTable[i]) != std::string::npos)
@@ -1277,13 +1276,13 @@ int FIPS_140_AlgorithmTest(int argc, char **argv)
 			pSink = new FileSink(outPathname.c_str(), false);
 		}
 		else
-			pSink = new FileSink(cout);
+			pSink = new FileSink(std::cout);
 
 		FileSource(pathname.c_str(), true, new LineBreakParser(new TestDataParser(algorithm, test, mode, feedbackSize, encrypt, pSink)), false);
 	}
 	catch (...)
 	{
-		cout << "file: " << filename << endl;
+		std::cout << "file: " << filename << std::endl;
 		throw;
 	}
 	return 0;

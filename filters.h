@@ -582,7 +582,7 @@ public:
 		: SimpleProxyFilter(decryptor.CreateDecryptionFilter(rng), attachment) {}
 };
 
-//! Append input to a string object
+//! Append input to a std::string object
 template <class T>
 class StringSinkTemplate : public Bufferless<Sink>
 {
@@ -664,7 +664,7 @@ public:
 	byte * CreatePutSpace(size_t &size) {return BufferedTransformation::CreatePutSpace(size);}
 };
 
-//! string-based implementation of Store interface
+//! std::string-based implementation of Store interface
 class StringStore : public Store
 {
 public:
@@ -778,13 +778,13 @@ protected:
 	T m_store;
 };
 
-//! string-based implementation of Source interface
+//! std::string-based implementation of Source interface
 class CRYPTOPP_DLL StringSource : public SourceTemplate<StringStore>
 {
 public:
 	StringSource(BufferedTransformation *attachment = NULL)
 		: SourceTemplate<StringStore>(attachment) {}
-	//! zero terminated string as source
+	//! zero terminated std::string as source
 	StringSource(const char *string, bool pumpAll, BufferedTransformation *attachment = NULL)
 		: SourceTemplate<StringStore>(attachment) {SourceInitialize(pumpAll, MakeParameters("InputBuffer", ConstByteArrayParameter(string)));}
 	//! binary byte array as source
