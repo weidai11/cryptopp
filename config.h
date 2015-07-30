@@ -175,7 +175,7 @@ const lword LWORD_MAX = W64LIT(0xffffffffffffffff);
 
 // Handle missing ssize_t on Windows. Typedef's taken from:
 // https://msdn.microsoft.com/en-us/library/windows/desktop/aa383751%28v=vs.85%29.aspx
-#if defined(_WIN32) || defined(_WIN64)
+#if (defined(_WIN32) || defined(_WIN64)) && !(defined(__MINGW__) || defined(__MINGW32__))
 #    if defined(_WIN64)
        typedef __int64 LONG_PTR; 
 #    else
