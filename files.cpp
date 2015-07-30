@@ -239,7 +239,9 @@ size_t FileSink::Put2(const byte *inString, size_t length, int messageEnd, bool 
 	while (length > 0)
 	{
 		std::streamsize size;
-		if (!SafeConvert(length, size))
+		bool safe = SafeConvert(length, size);
+		CRYPTOPP_ASSERT(safe);
+		if (!safe)
 			size = numeric_limits<std::streamsize>::max();
 		m_stream->write((const char *)inString, size);
 		inString += size;
