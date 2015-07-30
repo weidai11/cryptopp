@@ -331,6 +331,7 @@ public:
 
 	SecBlock<T, A>& operator=(const SecBlock<T, A> &t)
 	{
+		// Assign guards for self-assignment
 		Assign(t);
 		return *this;
 	}

@@ -428,17 +428,17 @@ byte * ByteQueue::CreatePutSpace(size_t &size)
 
 ByteQueue & ByteQueue::operator=(const ByteQueue &rhs)
 {
-	if (this == &rhs) return *this;
-
-	Destroy();
-	CopyFrom(rhs);
+	if (this != &rhs)
+	{
+		Destroy();
+		CopyFrom(rhs);
+	}
 	return *this;
 }
 
 bool ByteQueue::operator==(const ByteQueue &rhs) const
 {
 	const lword currentSize = CurrentSize();
-
 	if (currentSize != rhs.CurrentSize())
 		return false;
 

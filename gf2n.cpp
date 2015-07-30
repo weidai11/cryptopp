@@ -211,6 +211,7 @@ unsigned int PolynomialMod2::Parity() const
 
 PolynomialMod2& PolynomialMod2::operator=(const PolynomialMod2& t)
 {
+	// Assign guards for self-assignment
 	reg.Assign(t.reg);
 	return *this;
 }

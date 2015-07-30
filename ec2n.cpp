@@ -237,9 +237,11 @@ const EC2N::Point& EC2N::Double(const Point &P) const
 /*
 EcPrecomputation<EC2N>& EcPrecomputation<EC2N>::operator=(const EcPrecomputation<EC2N> &rhs)
 {
-	m_ec = rhs.m_ec;
-	m_ep = rhs.m_ep;
-	m_ep.m_group = m_ec.get();
+	if (this != &rhs)
+	{
+		DL_GroupPrecomputation::operator=(rhs);
+		m_ec = rhs.m_ec;
+	}
 	return *this;
 }
 

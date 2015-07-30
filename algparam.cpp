@@ -61,6 +61,7 @@ AlgorithmParameters::AlgorithmParameters(const AlgorithmParameters &x)
 
 AlgorithmParameters & AlgorithmParameters::operator=(const AlgorithmParameters &x)
 {
+	// Should this be guarded for operations on itself??? This class befuddles me at times...
 	m_next.reset(const_cast<AlgorithmParameters &>(x).m_next.release());
 	return *this;
 }
