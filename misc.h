@@ -381,8 +381,14 @@ inline bool SafeConvert(T1 from, T2 &to)
 		// Fall through for T1 is unsigned
 	}
 
-	if(from > static_cast<T1>(std::numeric_limits<T2>::max()))
+	// Handle unsigned greater
+	if(!std::numeric_limits<T1>::is_signed && from > static_cast<T1>(std::numeric_limits<T2>::max())) {
 		return false;
+	}
+	// Handle signed less
+	else if(from < static_cast<T1>(std::numeric_limits<T2>::min())) {
+		return false;
+	}
 
 	return true;
 }
