@@ -524,7 +524,9 @@ void DigestFile(const char *filename)
 	filters[4].reset(new HashFilter(sha512));
 	filters[5].reset(new HashFilter(whirlpool));
 
+	using CryptoPP::auto_ptr;
 	auto_ptr<ChannelSwitch> channelSwitch(new ChannelSwitch);
+
 	size_t i;
 	for (i=0; i<filters.size(); i++)
 		channelSwitch->AddDefaultRoute(*filters[i]);
