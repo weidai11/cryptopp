@@ -151,7 +151,7 @@ void RawIDA::AddOutputChannel(word32 channelId)
 
 void RawIDA::PrepareInterpolation()
 {
-	CRYPTOPP_ASSERT(m_inputChannelIds.size() == m_threshold);
+	CRYPTOPP_ASSERT(m_inputChannelIds.size() == (unsigned int)m_threshold);
 	PrepareBulkPolynomialInterpolation(field, m_w.begin(), &(m_inputChannelIds[0]), m_threshold);
 	for (unsigned int i=0; i<m_outputChannelIds.size(); i++)
 		ComputeV(i);

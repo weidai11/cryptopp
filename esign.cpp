@@ -75,8 +75,8 @@ void ESIGNFunction::AssignFrom(const NameValuePairs &source)
 
 void InvertibleESIGNFunction::GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &param)
 {
-	int modulusSize = 1023*2;
-	param.GetIntValue("ModulusSize", modulusSize) || param.GetIntValue("KeySize", modulusSize);
+	unsigned int modulusSize = 1023*2;
+	param.GetAsUIntValue("ModulusSize", modulusSize) || param.GetAsUIntValue("KeySize", modulusSize);
 
 	if (modulusSize < 24)
 		throw InvalidArgument("InvertibleESIGNFunction: specified modulus size is too small");
@@ -167,14 +167,14 @@ Integer InvertibleESIGNFunction::CalculateRandomizedInverse(RandomNumberGenerato
 	CRYPTOPP_ASSERT(s < m_n);
 /*
 	using namespace std;
-	cout << "f = " << x << endl;
-	cout << "r = " << r << endl;
-	cout << "z = " << z << endl;
-	cout << "a = " << a << endl;
-	cout << "w0 = " << w0 << endl;
-	cout << "w1 = " << w1 << endl;
-	cout << "t = " << t << endl;
-	cout << "s = " << s << endl;
+	std::cout << "f = " << x << std::endl;
+	std::cout << "r = " << r << std::endl;
+	std::cout << "z = " << z << std::endl;
+	std::cout << "a = " << a << std::endl;
+	std::cout << "w0 = " << w0 << std::endl;
+	std::cout << "w1 = " << w1 << std::endl;
+	std::cout << "t = " << t << std::endl;
+	std::cout << "s = " << s << std::endl;
 */
 	return s;
 }
