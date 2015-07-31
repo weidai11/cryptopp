@@ -514,7 +514,7 @@ NAMESPACE_END
 	
 // C++14 adds a operator”” and Small String Optimizations (SSO)
 // TODO: change this when Microsoft adds support
-#if (_MSC_VER >= 1600) || (__cplusplus >= 201402L)
+#if (_MSC_VER >= 2300) || (__cplusplus >= 201402L)
 # define CRYPTOPP_CXX14 1
 #endif 
 	
