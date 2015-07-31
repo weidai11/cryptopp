@@ -47,10 +47,11 @@ endif
 #########################
 # Compilers
 
+# Cygwin change the version string to "g++ (GCC) 4.9.3"
+GCC_COMPILER = $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "^(gcc|g\+\+) version")
 CLANG_COMPILER = $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "clang")
 INTEL_COMPILER = $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "\(ICC\)")
 SUN_COMPILER = $(shell $(CXX) -V 2>&1 | $(EGREP) -i -c "CC: Sun")
-GCC_COMPILER = $(shell $(CXX) -V 2>&1 | $(EGREP) -i -c "^gcc version")
 
 ifneq ($(GCC_COMPILER),0)
 IS_GCC_41 = $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "^gcc version 4\.1\.")
@@ -312,7 +313,7 @@ endif # SUN_COMPILER
 # Public service announcement
 
 # Do not warn for some targets
-NO_WARN = GNUmakefile.deps dist install install-strip uninstall remove clean distclean
+NO_WARN = GNUmakefile.deps deps system dist zip install install-strip uninstall remove clean distclean
 ifeq ($(findstring $(MAKECMDGOALS),$(NO_WARN)),)
 
 UNALIGNED_ACCESS = $(shell $(EGREP) -c "^// \#define CRYPTOPP_NO_UNALIGNED_DATA_ACCESS" config.h)
@@ -443,14 +444,14 @@ else
 	-$(RM) $(PREFIX)/lib/libcryptopp.dylib
 endif
 
+DIST_FILES = *.h *.cpp *.asm License.txt Readme.txt Install.txt GNUmakefile GNUmakefile-cross \
+		Doxyfile cryptest_bds.bdsgroup cryptest_bds.bdsproj cryptest_bds.bpf cryptlib_bds.bdsproj \
+		cryptest.sln cryptest.dsp cryptest.dsw cryptest.vcproj dlltest.dsp dlltest.vcproj \
+		cryptlib.dsp cryptlib.vcproj cryptopp.rc TestVectors/*.txt TestData/*.dat
+
 .PHONY: zip dist
 zip dist: distclean
-	-zip -9 cryptopp.zip *.h *.cpp *.asm License.txt Readme.txt \
-		Install.txt GNUmakefile GNUmakefile-cross Doxyfile \
-		cryptest_bds.bdsgroup cryptest_bds.bdsproj cryptest_bds.bpf cryptlib_bds.bdsproj \
-		cryptest.sln cryptest.dsp cryptest.dsw cryptest.vcproj \
-		dlltest.dsp dlltest.vcproj cryptlib.dsp cryptlib.vcproj cryptopp.rc \
-		TestVectors/*.txt TestVectors/*.dat TestData/*.txt TestData/*.dat 
+	-zip -q -9 cryptopp.zip $(DIST_FILES)
 
 libcryptopp.a: $(LIBOBJS)
 	$(AR) $(ARFLAGS) $@ $(LIBOBJS)
@@ -488,6 +489,33 @@ else
 	touch adhoc.cpp
 endif
 
+.PHONY: system
+system: ;
+	$(info CXX: $(CXX))
+	$(info CXXFLAGS: $(CXXFLAGS))
+	$(info GCC_COMPILER: $(GCC_COMPILER))
+	$(info CLANG_COMPILER: $(CLANG_COMPILER))
+	$(info INTEL_COMPILER: $(INTEL_COMPILER))
+	$(info SUN_COMPILER: $(SUN_COMPILER))
+	$(info IS_GCC_41: $(IS_GCC_41))
+	$(info IS_GCC_42: $(IS_GCC_42))
+	$(info IS_GCC_45: $(IS_GCC_45))
+	$(info IS_GCC_49: $(IS_GCC_49))
+	$(info UNALIGNED_ACCESS: $(UNALIGNED_ACCESS))
+	$(info UNAME: $(shell $(UNAME) -a))
+	$(info MACHINE: $(MACHINE))
+	$(info SYSTEM: $(SYSTEM))
+	$(info RELEASE: $(RELEASE))
+	$(info IS_X86: $(IS_X86))
+	$(info IS_X86_64: $(IS_X86_64))
+	$(info IS_DARWIN: $(IS_DARWIN))
+	$(info IS_LINUX: $(IS_LINUX))
+	$(info IS_MINGW: $(IS_MINGW))
+	$(info IS_CYGWIN: $(IS_CYGWIN))
+	$(info IS_OPENBSD: $(IS_OPENBSD))
+	$(info IS_SUN: $(IS_SUN))
+	$(info IS_FEDORA22_i686: $(IS_FEDORA22_i686))
+
 %.dllonly.o : %.cpp
 	$(CXX) $(CXXFLAGS) -DCRYPTOPP_DLL_ONLY -c $< -o $@
 
@@ -504,7 +532,7 @@ endif
 # Dependencies
 
 # Do not build dependencies for some targets
-NO_DEPS = dist install install-strip uninstall remove clean distclean
+NO_DEPS = system dist zip install install-strip uninstall remove clean distclean
 ifeq ($(findstring $(MAKECMDGOALS),$(NO_DEPS)),)
 
 # Do not build dependencies when multiarch is in effect
