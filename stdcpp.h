@@ -28,8 +28,8 @@
 #include <algorithm>
 #include <functional>
 
-// R-value references and std::move
-#if defined(__cplusplus >= 201103L)
+// Rvalue references and std::move
+#if (__cplusplus >= 201103L) || (_MSC_VER >= 1600)
 # include <utility>
 #endif
 
