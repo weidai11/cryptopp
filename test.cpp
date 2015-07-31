@@ -149,9 +149,9 @@ static const DebugTrapHandler g_dummyHandler;
 #endif // __GNUC__
 #endif // CRYPTOPP_UNIX_AVAILABLE and not NDEBUG
 
-static OFB_Mode<AES>::Encryption s_globalRNG;
 RandomNumberGenerator & GlobalRNG()
 {
+	static OFB_Mode<AES>::Encryption s_globalRNG;
 	return s_globalRNG;
 }
 
@@ -178,7 +178,9 @@ int CRYPTOPP_API main(int argc, char *argv[])
 
 		std::string seed = IntToString(time(NULL));
 		seed.resize(16);
-		s_globalRNG.SetKeyWithIV((byte *)seed.data(), 16, (byte *)seed.data());
+
+		OFB_Mode<AES>::Encryption& prng = static_cast<OFB_Mode<AES>::Encryption&>(GlobalRNG());
+		prng.SetKeyWithIV((byte *)seed.data(), 16, (byte *)seed.data());
 
 		std::string command, executableName, macFilename;
 
@@ -828,7 +830,9 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 	seed.resize(16);
 
 	std::cout << "Using seed: " << seed << std::endl;
-	s_globalRNG.SetKeyWithIV((byte *)seed.data(), 16, (byte *)seed.data());
+	
+	OFB_Mode<AES>::Encryption& prng = static_cast<OFB_Mode<AES>::Encryption&>(GlobalRNG());
+	prng.SetKeyWithIV((byte *)seed.data(), 16, (byte *)seed.data());
 
 #ifdef _OPENMP
 	int tc = 0;
