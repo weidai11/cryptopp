@@ -51,6 +51,9 @@ CLANG_COMPILER = $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "clang")
 INTEL_COMPILER = $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "\(ICC\)")
 SUN_COMPILER = $(shell $(CXX) -V 2>&1 | $(EGREP) -i -c "CC: Sun")
 
+IS_GCC_41 = $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "^gcc version 4\.1\.")
+IS_GCC_42 = $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "^gcc version 4\.2\.")
+
 # Also see LLVM Bug 24200 (https://llvm.org/bugs/show_bug.cgi?id=24200)
 # CLANG_ASSEMBLER ?= $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -i -c "^clang")
 # TODO: Uncomment the line above when Clang's integrated assembler can parse and generate code that passes the self tests.
@@ -71,6 +74,11 @@ IS_CYGWIN = $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "cygwin")
 IS_OPENBSD = $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "openbsd")
 IS_SUN = $(shell echo $SYSTEM | $(EGREP) -i -c "SunOS")
 IS_FEDORA22_i686 = $(shell echo $RELEASE | $(EGREP) -i -c "fc22.i686")
+IS_CENTOS = $(shell lsb_release -si | $(EGREP) -i -c "CentOS")
+
+ifneq ($(IS_CENTOS),0)
+IS_CENTOS_5 = $(shell lsb_release -sr | $(EGREP) -i -c "5\.")
+endif
 
 #########################
 # May (or may not) be used below
@@ -217,6 +225,18 @@ endif # Fedora 22/i686
 #   Add -march=native if the user did not specify an architecture.
 ifeq ($(findstring -m32 -m64,$(CXXFLAGS)),)
 CXXFLAGS += -march=native
+endif
+
+#########################
+# GCC 4.1 and "error: bad value (native) for -march= switch"
+ifneq ($(IS_GCC_41),0)
+ifneq ($(findstring -march=native,$(CXXFLAGS)),)
+ifneq ($(IS_X86_64),0)
+CXXFLAGS := $(subst -march=native,-m64,$(CXXFLAGS))
+else
+CXXFLAGS := $(subst -march=native,-m32,$(CXXFLAGS))
+endif
+endif
 endif
 
 #########################
