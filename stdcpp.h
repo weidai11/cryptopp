@@ -28,6 +28,11 @@
 #include <algorithm>
 #include <functional>
 
+// R-value references and std::move
+#if defined(__cplusplus >= 201103L)
+# include <utility>
+#endif
+
 #ifdef CRYPTOPP_INCLUDE_VECTOR_CC
 // workaround needed on Sun Studio 12u1 Sun C++ 5.10 SunOS_i386 128229-02 2009/09/21
 #include <vector.cc>
