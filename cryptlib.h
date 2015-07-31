@@ -768,11 +768,21 @@ public:
 	bool Wait(unsigned long milliseconds, CallStack const& callStack);
 };
 
-//! the default channel for BufferedTransformation, equal to the empty std::string
+//! the default channel for BufferedTransformation, equal to the empty string.
+//  New code should call the DefaultChannel() function.
 extern CRYPTOPP_DLL const std::string DEFAULT_CHANNEL;
+inline static const std::string& DefaultChannel() {
+	static const std::string channel = "";
+	return channel;
+}
 
-//! channel for additional authenticated data, equal to "AAD"
+//! channel for additional authenticated data, equal to the string "AAD".
+//  New code should call AadChannel() function.
 extern CRYPTOPP_DLL const std::string AAD_CHANNEL;
+inline static const std::string& AadChannel() {
+	static const std::string channel = "AAD";
+	return channel;
+}
 
 //! interface for buffered transformations
 
@@ -803,8 +813,6 @@ extern CRYPTOPP_DLL const std::string AAD_CHANNEL;
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE BufferedTransformation : public Algorithm, public Waitable
 {
 public:
-	// placed up here for CW8
-	static const std::string &NULL_CHANNEL;	// same as DEFAULT_CHANNEL, for backwards compatibility
 
 	BufferedTransformation() : Algorithm(false) {}
 
@@ -929,18 +937,18 @@ public:
 		size_t PeekWord32(word32 &value, ByteOrder order=BIG_ENDIAN_ORDER) const;
 
 		//! move transferMax bytes of the buffered output to target as input
-		lword TransferTo(BufferedTransformation &target, lword transferMax=LWORD_MAX, const std::string &channel=DEFAULT_CHANNEL)
+		lword TransferTo(BufferedTransformation &target, lword transferMax=LWORD_MAX, const std::string &channel=DefaultChannel())
 			{TransferTo2(target, transferMax, channel); return transferMax;}
 
 		//! discard skipMax bytes from the output buffer
 		virtual lword Skip(lword skipMax=LWORD_MAX);
 
 		//! copy copyMax bytes of the buffered output to target as input
-		lword CopyTo(BufferedTransformation &target, lword copyMax=LWORD_MAX, const std::string &channel=DEFAULT_CHANNEL) const
+		lword CopyTo(BufferedTransformation &target, lword copyMax=LWORD_MAX, const std::string &channel=DefaultChannel()) const
 			{return CopyRangeTo(target, 0, copyMax, channel);}
 
 		//! copy copyMax bytes of the buffered output, starting at position (relative to current position), to target as input
-		lword CopyRangeTo(BufferedTransformation &target, lword position, lword copyMax=LWORD_MAX, const std::string &channel=DEFAULT_CHANNEL) const
+		lword CopyRangeTo(BufferedTransformation &target, lword position, lword copyMax=LWORD_MAX, const std::string &channel=DefaultChannel()) const
 			{lword i = position; CopyRangeTo2(target, i, i+copyMax, channel); return i-position;}
 
 #ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
@@ -965,18 +973,18 @@ public:
 		//! skip count number of messages
 		virtual unsigned int SkipMessages(unsigned int count=UINT_MAX);
 		//!
-		unsigned int TransferMessagesTo(BufferedTransformation &target, unsigned int count=UINT_MAX, const std::string &channel=DEFAULT_CHANNEL)
+		unsigned int TransferMessagesTo(BufferedTransformation &target, unsigned int count=UINT_MAX, const std::string &channel=DefaultChannel())
 			{TransferMessagesTo2(target, count, channel); return count;}
 		//!
-		unsigned int CopyMessagesTo(BufferedTransformation &target, unsigned int count=UINT_MAX, const std::string &channel=DEFAULT_CHANNEL) const;
+		unsigned int CopyMessagesTo(BufferedTransformation &target, unsigned int count=UINT_MAX, const std::string &channel=DefaultChannel()) const;
 
 		//!
 		virtual void SkipAll();
 		//!
-		void TransferAllTo(BufferedTransformation &target, const std::string &channel=DEFAULT_CHANNEL)
+		void TransferAllTo(BufferedTransformation &target, const std::string &channel=DefaultChannel())
 			{TransferAllTo2(target, channel);}
 		//!
-		void CopyAllTo(BufferedTransformation &target, const std::string &channel=DEFAULT_CHANNEL) const;
+		void CopyAllTo(BufferedTransformation &target, const std::string &channel=DefaultChannel()) const;
 
 		virtual bool GetNextMessageSeries() {return false;}
 		virtual unsigned int NumberOfMessagesInThisSeries() const {return NumberOfMessages();}
@@ -986,13 +994,13 @@ public:
 	//!	\name NON-BLOCKING TRANSFER OF OUTPUT
 	//@{
 		//! upon return, byteCount contains number of bytes that have finished being transfered, and returns the number of bytes left in the current transfer block
-		virtual size_t TransferTo2(BufferedTransformation &target, lword &byteCount, const std::string &channel=DEFAULT_CHANNEL, bool blocking=true) =0;
+		virtual size_t TransferTo2(BufferedTransformation &target, lword &byteCount, const std::string &channel=DefaultChannel(), bool blocking=true) =0;
 		//! upon return, begin contains the start position of data yet to be finished copying, and returns the number of bytes left in the current transfer block
-		virtual size_t CopyRangeTo2(BufferedTransformation &target, lword &begin, lword end=LWORD_MAX, const std::string &channel=DEFAULT_CHANNEL, bool blocking=true) const =0;
+		virtual size_t CopyRangeTo2(BufferedTransformation &target, lword &begin, lword end=LWORD_MAX, const std::string &channel=DefaultChannel(), bool blocking=true) const =0;
 		//! upon return, messageCount contains number of messages that have finished being transfered, and returns the number of bytes left in the current transfer block
-		size_t TransferMessagesTo2(BufferedTransformation &target, unsigned int &messageCount, const std::string &channel=DEFAULT_CHANNEL, bool blocking=true);
+		size_t TransferMessagesTo2(BufferedTransformation &target, unsigned int &messageCount, const std::string &channel=DefaultChannel(), bool blocking=true);
 		//! returns the number of bytes left in the current transfer block
-		size_t TransferAllTo2(BufferedTransformation &target, const std::string &channel=DEFAULT_CHANNEL, bool blocking=true);
+		size_t TransferAllTo2(BufferedTransformation &target, const std::string &channel=DefaultChannel(), bool blocking=true);
 	//@}
 
 	//!	\name CHANNELS

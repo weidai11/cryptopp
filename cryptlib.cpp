@@ -32,9 +32,8 @@ CRYPTOPP_COMPILE_ASSERT(sizeof(word64) == 8);
 CRYPTOPP_COMPILE_ASSERT(sizeof(dword) == 2*sizeof(word));
 #endif
 
-const std::string DEFAULT_CHANNEL;
-const std::string AAD_CHANNEL = "AAD";
-const std::string &BufferedTransformation::NULL_CHANNEL = DEFAULT_CHANNEL;
+const std::string DEFAULT_CHANNEL = DefaultChannel();
+const std::string AAD_CHANNEL = AadChannel();
 
 class NullNameValuePairs : public NameValuePairs
 {

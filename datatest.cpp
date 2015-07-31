@@ -61,7 +61,7 @@ const std::string & GetRequiredDatum(const TestData &data, const char *name)
 	return i->second;
 }
 
-void RandomizedTransfer(BufferedTransformation &source, BufferedTransformation &target, bool finish, const std::string &channel=DEFAULT_CHANNEL)
+void RandomizedTransfer(BufferedTransformation &source, BufferedTransformation &target, bool finish, const std::string &channel=DefaultChannel())
 {
 	while (source.MaxRetrievable() > (finish ? 0 : 4096))
 	{
@@ -492,16 +492,16 @@ void TestAuthenticatedSymmetricCipher(TestData &v, const NameValuePairs &overrid
 
 		if (macAtBegin)
 			RandomizedTransfer(sm, df, true);
-		sh.CopyTo(df, LWORD_MAX, AAD_CHANNEL);
+		sh.CopyTo(df, LWORD_MAX, AadChannel());
 		RandomizedTransfer(sc, df, true);
-		sf.CopyTo(df, LWORD_MAX, AAD_CHANNEL);
+		sf.CopyTo(df, LWORD_MAX, AadChannel());
 		if (!macAtBegin)
 			RandomizedTransfer(sm, df, true);
 		df.MessageEnd();
 
-		RandomizedTransfer(sh, ef, true, AAD_CHANNEL);
+		RandomizedTransfer(sh, ef, true, AadChannel());
 		RandomizedTransfer(sp, ef, true);
-		RandomizedTransfer(sf, ef, true, AAD_CHANNEL);
+		RandomizedTransfer(sf, ef, true, AadChannel());
 		ef.MessageEnd();
 
 		if (test == "Encrypt" && encrypted != ciphertext+mac)
