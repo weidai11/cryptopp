@@ -45,21 +45,18 @@ private:
 	void operator=(const simple_ptr<T>& rhs);	// assignment not allowed
 };
 
-#if GCC_OPTIMIZE_AWARE
-# pragma GCC push_options
-# pragma GCC optimize ("-O0")
-#endif
-
-// set m_p to NULL so double destruction (which might occur in Singleton) will be harmless
+// Set m_p to NULL so double destruction (which might occur in Singleton) will be harmless
 template <class T> simple_ptr<T>::~simple_ptr()
 {
 	delete m_p;
 	m_p = NULL;
-}
-
-#if GCC_OPTIMIZE_AWARE
-# pragma GCC pop_options
+	
+#ifdef __GNUC__
+	// From Andrew Haley (GCC Dev), to tame the optimizer so the assignment is always performed.
+	// See "Disable optimizations in one function" on the GCC mailing list.
+	asm volatile ("" : : : "memory");
 #endif
+}
 
 template <class T> class member_ptr
 {
