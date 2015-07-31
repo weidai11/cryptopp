@@ -39,7 +39,7 @@ Or:
 
     make libcryptopp.a libcryptopp.so cryptest.exe
 	
-On Mac OS X, you can build fat libraries by setting MULTIARCH=1:
+On Mac OS X, you can build fat binaries by setting MULTIARCH=1:
 
     make MULTIARCH=1
 
