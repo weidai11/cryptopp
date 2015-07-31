@@ -448,6 +448,16 @@ VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWord64,
 			(rh) += (ih) + ((rl) < (_il));                               \
 		}
 #endif
+		
+// vmac.cpp:404:93: warning: ‘al2’ may be used uninitialized in this function
+//    ... vmac.cpp:479:26: note: ‘al2’ was declared here
+// Valgrind cleared this finding.
+#if GCC_DIAGNOSTIC_AWARE
+# pragma GCC diagnostic push
+# ifndef __clang__
+#  pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+# endif
+#endif
 
 #if !(defined(_MSC_VER) && _MSC_VER < 1300)
 template <bool T_128BitTag>
@@ -708,6 +718,10 @@ void VMAC_Base::VHASH_Update_Template(const word64 *data, size_t blocksRemaining
 		}
 	#endif
 }
+
+#if GCC_DIAGNOSTIC_AWARE
+# pragma GCC diagnostic pop
+#endif
 
 inline void VMAC_Base::VHASH_Update(const word64 *data, size_t blocksRemainingInWord64)
 {
