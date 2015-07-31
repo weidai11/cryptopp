@@ -1,42 +1,69 @@
-CXXFLAGS ?= -DNDEBUG -g2 -Os -fPIC -pipe
+#################################################################
+# Tool and flag setup
 
-# The following options reduce code size, but breaks link or makes link very slow on some systems
+AS ?= as
+AR ?= ar
+ARFLAGS ?= -cr	# ar needs the dash on OpenBSD
+RANLIB ?= ranlib
+STRIP ?= strip -s
+CP ?= cp
+MKDIR ?= mkdir
+EGREP ?= egrep
+UNAME ?= uname
+
+# Default setting from environment. Disable verbose flag, add create flag
+ifeq ($(findstring rv,$(ARFLAGS)),rv)
+ARFLAGS = cr
+endif
+
+#########################
+# CXXFLAGS
+#   -fPIC is supported, and enabled by default for x86_64.
+
+# We can augment CXXFLAGS if the user exports them in the shell, or if the user
+#   omits them. However, if the user `make CXXFLAGS="-g1"`, then that's what
+#   the user gets. Make does not override them, and does not honor our '+='.
+CXXFLAGS ?= -DNDEBUG -g2 -O3 -Wall -Wextra
+
+# Add -DNDEBUG if nothing specified
+ifeq ($(filter -DDEBUG -DNDEBUG,$(CXXFLAGS)),)
+CXXFLAGS += -DNDEBUG
+endif
+
+# Add a symolize if nothing specified
+ifeq ($(filter -g -g1 -g2 -g3,$(CXXFLAGS)),)
+CXXFLAGS += -g2
+endif
+
+# Add an optimize if nothing specified
+ifeq ($(filter -O -O0 -O1 -O2 -O3 -Og -Os -Oz -Ofast,$(CXXFLAGS)),)
+CXXFLAGS += -O3
+endif
+
+# the following options reduce code size, but breaks link or makes link very slow on some systems
 # CXXFLAGS += -ffunction-sections -fdata-sections
 # LDFLAGS += -Wl,--gc-sections
-CXXFLAGS += -Wno-unused-function -Wno-unused-parameter -Wno-unused-variable
 
-ARFLAGS = -cr	# ar needs the dash on OpenBSD
-RANLIB ?= ranlib
-CP = cp
-MKDIR = mkdir
-EGREP = egrep
-CHMOD = chmod
+#########################
+# Compilers
 
+# Cygwin change the version string to "g++ (GCC) 4.9.3"
+GCC_COMPILER = $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "^(gcc|g\+\+) version")
 CLANG_COMPILER = $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "clang")
+INTEL_COMPILER = $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "\(ICC\)")
 
-IS_X86=0
-IS_LINUX=0
-IS_MINGW=0
-IS_DARWIN=0
-UNAME=CrossCompile
+#########################
+# Assemblers
 
-# Default prefix for make install
-ifeq ($(PREFIX),)
-PREFIX = /usr/local
-endif
+# Also see LLVM Bug 24200 (https://llvm.org/bugs/show_bug.cgi?id=24200)
+# CLANG_ASSEMBLER ?= $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -i -c "^clang")
+# TODO: Uncomment the line above when Clang's integrated assembler can parse and generate code that passes the self tests.
 
-# Sadly, we can't actually use GCC_PRAGMA_AWARE because of GCC bug 53431.
-# Its a shame because GCC has so much to offer by the way of analysis.
-# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=53431
-ifneq ($(CLANG_COMPILER),0)
-CXXFLAGS += -Wall
-endif
-
+#################################################################
 # iOS cross-compile configuration. Works in conjunction with IS_CROSS_COMPILE.
 #   See http://www.cryptopp.com/wiki/iOS_(Command_Line).
 ifeq ($(IS_IOS),1)
-  CXX = clang++
-
+  CXX ?= clang++
   CXXFLAGS += -DCRYPTOPP_DISABLE_ASM  $(IOS_FLAGS)
   CXXFLAGS += -arch $(IOS_ARCH) -isysroot $(IOS_SYSROOT)
   CXXFLAGS += -stdlib=libc++
@@ -45,6 +72,7 @@ ifeq ($(IS_IOS),1)
   ARFLAGS = -static -o
 endif
 
+#################################################################
 # Android cross-compile configuration. Works in conjunction with IS_CROSS_COMPILE.
 #   See http://www.cryptopp.com/wiki/Android_(Command_Line).
 ifeq ($(IS_ANDROID),1)
@@ -54,6 +82,7 @@ ifeq ($(IS_ANDROID),1)
   LDLIBS += $(ANDROID_STL_LIB)
 endif
 
+#################################################################
 # ARM embedded cross-compile configuration. Works in conjunction with IS_CROSS_COMPILE.
 #   See http://www.cryptopp.com/wiki/ARM_Embedded_(Command_Line)
 #   and http://www.cryptopp.com/wiki/ARM_Embedded_(Bare Metal).
@@ -63,12 +92,44 @@ ifeq ($(IS_ARM_EMBEDDED),1)
   CXXFLAGS += --sysroot=$(ARM_EMBEDDED_SYSROOT)
 endif
 
-ifneq ($(CLANG_COMPILER),0)
-CXXFLAGS += -Wno-tautological-compare -Wno-unused-value
+#################################################################
+# Warning options
+ifneq ($(GCC_COMPILER),0)
+CXXFLAGS += -Wno-type-limits -Wno-unknown-pragmas
 endif
 
-SRCS = $(filter-out pch.cpp cryptlib_bds.cpp winpipes.cpp, $(wildcard *.cpp))
+ifneq ($(CLANG_COMPILER),0)
+CXXFLAGS += -Wno-tautological-compare
+endif
+
+#################################################################
+# Public service announcement
+
+# Do not warn for some targets
+NO_WARN = GNUmakefile.deps deps system dist zip install install-strip uninstall remove clean distclean
+ifeq ($(findstring $(MAKECMDGOALS),$(NO_WARN)),)
+
+UNALIGNED_ACCESS = $(shell $(EGREP) -c "^// \#define CRYPTOPP_NO_UNALIGNED_DATA_ACCESS" config.h)
+ifneq ($(UNALIGNED_ACCESS),0)
+$(info WARNING: CRYPTOPP_NO_UNALIGNED_DATA_ACCESS is not defined in config.h)
+endif
+
+endif # NO_WARN
+
+#################################################################
+# Sources, objects and temporaries
+
+WIN_SRCS = pch.cpp fipsalgt.cpp cryptlib_bds.cpp
+ifeq ($(IS_MINGW),0)
+WIN_SRCS += winpipes.cpp
+endif
+
+# List of sources to compile and objects to link
+SRCS = $(filter-out $(WIN_SRCS), $(wildcard *.cpp))
 OBJS = $(SRCS:.cpp=.o)
+
+# Compiling with --save-temps creates these
+TEMPS = $(SRCS:.cpp=.s) $(SRCS:.cpp=.ii)
 
 # test.o needs to be after bench.o for cygwin 1.1.4 (possible ld bug?)
 TESTOBJS = bench.o bench2.o test.o validat1.o validat2.o validat3.o adhoc.o datatest.o regtest.o fipsalgt.o dlltest.o
@@ -80,17 +141,25 @@ LIBIMPORTOBJS = $(LIBOBJS:.o=.import.o)
 TESTIMPORTOBJS = $(TESTOBJS:.o=.import.o)
 DLLTESTOBJS = dlltest.dllonly.o
 
-all: cryptest.exe
+#################################################################
+# Recipes
+
+# For various targets, see https://www.gnu.org/prep/standards/html_node/Standard-Targets.html
+# We want to include libcryptopp, cryptest, clean, distclean, install, install-strip, uninstall
+
+all cryptest: cryptest.exe
 static: libcryptopp.a
-dynamic: libcryptopp.so
+shared dynamic: libcryptopp.so
 
 test: cryptest.exe
 	./cryptest.exe v
 
+.PHONY: clean
 clean:
 	-$(RM) cryptest.exe libcryptopp.a libcryptopp.so GNUmakefile.deps $(LIBOBJS) $(DLLOBJS) $(TESTOBJS)
 	-$(RM) -r *.dSYM
 
+.PHONY: install
 install:
 	$(MKDIR) -p $(PREFIX)/include/cryptopp $(PREFIX)/lib $(PREFIX)/bin
 	-$(CP) *.h $(PREFIX)/include/cryptopp
@@ -98,6 +167,7 @@ install:
 	-$(CP) *.so $(PREFIX)/lib
 	-$(CP) *.exe $(PREFIX)/bin
 
+.PHONY: remove
 remove:
 	-$(RM) -rf $(PREFIX)/include/cryptopp
 	-$(RM) $(PREFIX)/lib/libcryptopp.a
@@ -111,6 +181,7 @@ libcryptopp.a: $(LIBOBJS)
 libcryptopp.so: $(LIBOBJS)
 	$(CXX) $(CXXFLAGS) -shared -o $@ $(LIBOBJS) $(LDFLAGS) $(LDLIBS)
 
+.PHONY: system.exe
 cryptest.exe: libcryptopp.a $(TESTOBJS)
 	$(CXX) -o $@ $(CXXFLAGS) $(TESTOBJS) ./libcryptopp.a $(LDFLAGS) $(LDLIBS)
 
@@ -121,13 +192,36 @@ else
 	touch adhoc.cpp
 endif
 
+.PHONY: system
+system: ;
+	$(info CXX: $(CXX))
+	$(info CXXFLAGS: $(CXXFLAGS))
+	$(info LDLIBS: $(LDLIBS))
+	$(info GCC_COMPILER: $(GCC_COMPILER))
+	$(info CLANG_COMPILER: $(CLANG_COMPILER))
+	$(info INTEL_COMPILER: $(INTEL_COMPILER))
+	$(info UNALIGNED_ACCESS: $(UNALIGNED_ACCESS))
+	$(info UNAME: $(shell $(UNAME) -a))
+	$(info MACHINE: $(MACHINE))
+	$(info SYSTEM: $(SYSTEM))
+	$(info RELEASE: $(RELEASE))
+
 %.o : %.cpp
 	$(CXX) $(CXXFLAGS) -c $<
 
-# Do not build dependencies when cleaning
-ifneq ($(findstring clean,$(MAKECMDGOALS)),clean)
+#################################################################
+# Dependencies
+
+# Do not build dependencies for some targets
+NO_DEPS = system dist zip install install-strip uninstall remove clean distclean
+ifeq ($(findstring $(MAKECMDGOALS),$(NO_DEPS)),)
+
+# Do not build dependencies when multiarch is in effect
+ifeq ($(MULTIARCH),0)
 -include GNUmakefile.deps
 endif
 
-GNUmakefile.deps:
+deps GNUmakefile.deps:
 	$(CXX) $(CXXFLAGS) -MM *.cpp > GNUmakefile.deps
+
+endif # NO_DEPS
