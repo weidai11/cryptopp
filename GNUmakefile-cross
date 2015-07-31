@@ -18,12 +18,12 @@ endif
 
 #########################
 # CXXFLAGS
-#   -fPIC is supported, and enabled by default for x86_64.
+#   -fPIC is supported, and enabled by default for x86_64. Its required by Android 5.1
 
 # We can augment CXXFLAGS if the user exports them in the shell, or if the user
 #   omits them. However, if the user `make CXXFLAGS="-g1"`, then that's what
 #   the user gets. Make does not override them, and does not honor our '+='.
-CXXFLAGS ?= -DNDEBUG -g2 -O3 -Wall -Wextra
+CXXFLAGS ?= -DNDEBUG -g2 -Os -Wall -Wextra
 
 # Add -DNDEBUG if nothing specified
 ifeq ($(filter -DDEBUG -DNDEBUG,$(CXXFLAGS)),)
@@ -37,7 +37,7 @@ endif
 
 # Add an optimize if nothing specified
 ifeq ($(filter -O -O0 -O1 -O2 -O3 -Og -Os -Oz -Ofast,$(CXXFLAGS)),)
-CXXFLAGS += -O3
+CXXFLAGS += -Os
 endif
 
 # the following options reduce code size, but breaks link or makes link very slow on some systems
@@ -119,12 +119,8 @@ endif # NO_WARN
 #################################################################
 # Sources, objects and temporaries
 
-WIN_SRCS = pch.cpp fipsalgt.cpp cryptlib_bds.cpp
-ifeq ($(IS_MINGW),0)
-WIN_SRCS += winpipes.cpp
-endif
-
 # List of sources to compile and objects to link
+WIN_SRCS = pch.cpp fipsalgt.cpp cryptlib_bds.cpp winpipes.cpp
 SRCS = $(filter-out $(WIN_SRCS), $(wildcard *.cpp))
 OBJS = $(SRCS:.cpp=.o)
 
@@ -137,9 +133,6 @@ LIBOBJS = $(filter-out $(TESTOBJS),$(OBJS))
 
 DLLSRCS = algebra.cpp algparam.cpp asn.cpp basecode.cpp cbcmac.cpp channels.cpp cryptlib.cpp des.cpp dessp.cpp dh.cpp dll.cpp dsa.cpp ec2n.cpp eccrypto.cpp ecp.cpp eprecomp.cpp files.cpp filters.cpp fips140.cpp fipstest.cpp gf2n.cpp gfpcrypt.cpp hex.cpp hmac.cpp integer.cpp iterhash.cpp misc.cpp modes.cpp modexppc.cpp mqueue.cpp nbtheory.cpp oaep.cpp osrng.cpp pch.cpp pkcspad.cpp pubkey.cpp queue.cpp randpool.cpp rdtables.cpp rijndael.cpp rng.cpp rsa.cpp sha.cpp simple.cpp skipjack.cpp strciphr.cpp trdlocal.cpp
 DLLOBJS = $(DLLSRCS:.cpp=.export.o)
-LIBIMPORTOBJS = $(LIBOBJS:.o=.import.o)
-TESTIMPORTOBJS = $(TESTOBJS:.o=.import.o)
-DLLTESTOBJS = dlltest.dllonly.o
 
 #################################################################
 # Recipes
