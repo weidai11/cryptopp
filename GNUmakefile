@@ -50,9 +50,14 @@ endif
 CLANG_COMPILER = $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "clang")
 INTEL_COMPILER = $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "\(ICC\)")
 SUN_COMPILER = $(shell $(CXX) -V 2>&1 | $(EGREP) -i -c "CC: Sun")
+GCC_COMPILER = $(shell $(CXX) -V 2>&1 | $(EGREP) -i -c "^gcc version")
 
+ifneq ($(GCC_COMPILER),0)
 IS_GCC_41 = $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "^gcc version 4\.1\.")
 IS_GCC_42 = $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "^gcc version 4\.2\.")
+IS_GCC_45 = $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "^gcc version 4\.5\.")
+IS_GCC_49 = $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "^gcc version 4\.9\.")
+endif
 
 # Also see LLVM Bug 24200 (https://llvm.org/bugs/show_bug.cgi?id=24200)
 # CLANG_ASSEMBLER ?= $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -i -c "^clang")
@@ -198,12 +203,18 @@ CXXFLAGS := $(subst -fPIC,,$(CXXFLAGS))
 endif # -fPIC
 
 # -O3 fails to link with GCC 4.5.3
-IS_GCC45 = $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "^gcc version 4\.5\.[0-9]")
-ifneq ($(IS_GCC45),0)
+ifneq ($(IS_GCC_45),0)
 ifeq ($(findstring -O3,$(CXXFLAGS)),-O3)
 CXXFLAGS := $(subst -O3,-O2,$(CXXFLAGS))
 endif # -O3
 endif # GCC 4.5
+
+# -O3 crash in MQV validation with GCC 4.9.3
+ifneq ($(IS_GCC_49),0)
+ifeq ($(findstring -O3,$(CXXFLAGS)),-O3)
+CXXFLAGS := $(subst -O3,-O2,$(CXXFLAGS))
+endif # -O3
+endif # GCC 4.9
 
 endif # Cygwin work arounds
 

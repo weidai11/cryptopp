@@ -79,6 +79,12 @@ public:
 		T *old_p = m_p;
 		m_p = 0;
 		return old_p;
+
+#ifdef __GNUC__
+	// From Andrew Haley (GCC Dev), to tame the optimizer so the assignment is always performed.
+	// See "Disable optimizations in one function" on the GCC mailing list.
+	asm volatile ("" : : : "memory");
+#endif
 	}
 
 	void reset(T *p = 0);
