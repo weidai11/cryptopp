@@ -46,7 +46,7 @@ private:
 };
 
 #if GCC_OPTIMIZE_AWARE
-# pragma GCC optimize push_options
+# pragma GCC push_options
 # pragma GCC optimize ("-O0")
 #endif
 
@@ -58,7 +58,7 @@ template <class T> simple_ptr<T>::~simple_ptr()
 }
 
 #if GCC_OPTIMIZE_AWARE
-# pragma GCC optimize pop_options
+# pragma GCC pop_options
 #endif
 
 template <class T> class member_ptr
