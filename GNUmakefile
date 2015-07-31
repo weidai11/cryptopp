@@ -74,11 +74,6 @@ IS_CYGWIN = $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "cygwin")
 IS_OPENBSD = $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "openbsd")
 IS_SUN = $(shell echo $SYSTEM | $(EGREP) -i -c "SunOS")
 IS_FEDORA22_i686 = $(shell echo $RELEASE | $(EGREP) -i -c "fc22.i686")
-IS_CENTOS = $(shell lsb_release -si | $(EGREP) -i -c "CentOS")
-
-ifneq ($(IS_CENTOS),0)
-IS_CENTOS_5 = $(shell lsb_release -sr | $(EGREP) -i -c "5\.")
-endif
 
 #########################
 # May (or may not) be used below
