@@ -420,9 +420,11 @@ public:
 	T *m_ptr;
 };
 
-typedef SecBlock<byte> SecByteBlock;
+DOCUMENTED_TYPEDEF(SecBlock<byte>, SecByteBlock);
+DOCUMENTED_TYPEDEF(SecBlock<word>, SecWordBlock);
+// typedef SecBlock<byte> SecByteBlock;
 typedef SecBlock<byte, AllocatorWithCleanup<byte, true> > AlignedSecByteBlock;
-typedef SecBlock<word> SecWordBlock;
+// typedef SecBlock<word> SecWordBlock;
 
 //! a SecBlock with fixed size, allocated statically
 template <class T, unsigned int S, class A = FixedSizeAllocatorWithCleanup<T, S> >
