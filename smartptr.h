@@ -3,6 +3,7 @@
 
 #include "config.h"
 #include "stdcpp.h"
+#include "misc.h"
 #include "trap.h"
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -51,11 +52,8 @@ template <class T> simple_ptr<T>::~simple_ptr()
 	delete m_p;
 	m_p = NULL;
 	
-#ifdef __GNUC__
-	// From Andrew Haley (GCC Dev), to tame the optimizer so the assignment is always performed.
-	// See "Disable optimizations in one function" on the GCC mailing list.
-	asm volatile ("" : : : "memory");
-#endif
+	// https://github.com/weidai11/cryptopp/issues/6
+	MEMORY_BARRIER();
 }
 
 template <class T> class member_ptr

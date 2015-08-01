@@ -61,6 +61,17 @@
 # pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
 
+#if defined(_MSC_VER) && (_MSC_VER >= 1400)
+# pragma intrinsic(_ReadWriteBarrier)
+# define MEMORY_BARRIER() _ReadWriteBarrier()
+#elif defined(_INTEL_COMPILER)
+# define MEMORY_BARRIER() __memory_barrier()
+#elif defined(__GNUC__) || defined(__clang__)
+# define MEMORY_BARRIER() __asm__ __volatile__ ("" ::: "memory")
+#else
+# define MEMORY_BARRIER()
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 // ************** compile-time assertion ***************
