@@ -7,24 +7,8 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-// Hack ahead. Apple's standard library does not have C++'s unique_ptr in C++11. We can't
-//   test for unique_ptr directly because some of the non-Apple Clangs on OS X fail the same
-//   way. However, modern standard libraries have <forward_list>, so we test for it instead.
-//   Thanks to Jonathan Wakely for devising the clever test for modern/ancient versions.
-// Visual Studio did not add template aliases until VS 2015 (v19.00). Compile failed under
-//   Visual Studio 2010 (v16.00) and Visual Studio 2012 (v17.00).
-#if (__cplusplus >= 201103L) || (_MSC_VER >= 1900)
-#  if defined(__clang__)
-#    if (__has_include(<forward_list>))
-#      define CRYPTOPP_HAVE_UNIQUE_PTR 1
-#    endif
-#  else
-#    define CRYPTOPP_HAVE_UNIQUE_PTR 1
-#  endif
-#endif
-
-// The result of below is a CryptoPP::auto_ptr in both cases
-#ifdef CRYPTOPP_HAVE_UNIQUE_PTR
+// CryptoPP::auto_ptr in created in both cases
+#if defined(CRYPTOPP_CXX11_UNIQUE_PTR) && defined(CRYPTOPP_CXX11_TEMPLATE_ALIAS)
   template<typename T>
     using auto_ptr = std::unique_ptr<T>;
 #else
@@ -49,11 +33,14 @@ private:
 template <class T> simple_ptr<T>::~simple_ptr()
 {
 	delete m_p;
-	m_p = NULL;
-	
+	*((volatile T**)(&m_p)) = 0;
+
+	// Ensure the assignment is always performed. MSVC and Clang provide expected
+	//   operational behavior for volatile. GCC has a more strict interpretation of
+	//   the keyword (see http://www.airs.com/blog/archives/154), and volatile
+	//   should not be used to tame the optimizer. However, inline assembly
+	//   will tame it (see https://gcc.gnu.org/ml/gcc-help/2015-07/msg00053.html).
 #ifdef __GNUC__
-	// From Andrew Haley (GCC Dev), to tame the optimizer so the assignment is always performed.
-	// See "Disable optimizations in one function" on the GCC mailing list.
 	asm volatile ("" : : : "memory");
 #endif
 }
@@ -77,12 +64,10 @@ public:
 	T* release()
 	{
 		T *old_p = m_p;
-		m_p = 0;
+		*((volatile T**)(&m_p)) = 0;
 		return old_p;
 
 #ifdef __GNUC__
-	// From Andrew Haley (GCC Dev), to tame the optimizer so the assignment is always performed.
-	// See "Disable optimizations in one function" on the GCC mailing list.
 	asm volatile ("" : : : "memory");
 #endif
 	}
