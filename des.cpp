@@ -281,7 +281,7 @@ void RawDES::RawSetKey(CipherDir dir, const byte *key)
 
 	// C++11 deprecated register. Don't pivot on CRYPTOPP_CXX11 because
 	//   configure.h unsets the macro on some Apple platforms if it
-	//   detects an ancient version.
+	//   detects an ancient version of the C++ runtime library.
 #if (__cplusplus < 201103L)
 	register int i,j,l;
 #else
