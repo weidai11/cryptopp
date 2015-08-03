@@ -22,7 +22,7 @@
 #include "validate.h"
 #include "bench.h"
 
-// CRYPTOPP_ASSERT
+// CRYPTOPP_ASSERT, includes <signal.h> for BSD, Linux and Unix
 #include "trap.h"
 
 #include <iostream>
@@ -57,10 +57,6 @@
 USING_NAMESPACE(CryptoPP)
 
 const int MAX_PHRASE_LENGTH=250;
-
-#if !defined(NDEBUG) && defined(CRYPTOPP_UNIX_AVAILABLE)
-# include <signal.h>  // SIGTRAP handler
-#endif
 
 void RegisterFactories();
 
@@ -102,11 +98,11 @@ void FIPS140_GenerateRandomFiles();
 
 bool Validate(int, bool, const char *);
 
-#if !defined(NDEBUG) && defined(CRYPTOPP_UNIX_AVAILABLE)
-// Add a SIGTRAP handler for *nix, used by CRYPTOPP_ASSERT.
+#if defined(CRYPTOPP_DEBUG) && (defined(CRYPTOPP_BSD_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE))
+// Add a SIGTRAP handler for BSD, Linux, Unix; used by CRYPTOPP_ASSERT.
 struct DebugTrapHandler
 {
-	DebugTrapHandler()
+	explicit DebugTrapHandler()
 	{
 		// http://pubs.opengroup.org/onlinepubs/007908799/xsh/sigaction.html
 		struct sigaction old_handler, new_handler;
@@ -120,7 +116,7 @@ struct DebugTrapHandler
 			ret = sigaction (SIGTRAP, NULL, &old_handler);
 			if (ret != 0) break; // Failed
 
-			// Don't step on another's handler
+			// Don't step on another's handler (like a debugger)
 			if (old_handler.sa_handler != NULL) break;
 
 			// Set up the structure to specify the null action.
@@ -130,7 +126,7 @@ struct DebugTrapHandler
 			ret = sigemptyset (&new_handler.sa_mask);
 			if (ret != 0) break; // Failed
 
-			// Install i
+			// Install it.
 			ret = sigaction (SIGTRAP, &new_handler, NULL);
 			if (ret != 0) break; // Failed
 
@@ -179,7 +175,7 @@ int CRYPTOPP_API main(int argc, char *argv[])
 		std::string seed = IntToString(time(NULL));
 		seed.resize(16);
 
-		OFB_Mode<AES>::Encryption& prng = static_cast<OFB_Mode<AES>::Encryption&>(GlobalRNG());
+		OFB_Mode<AES>::Encryption& prng = dynamic_cast<OFB_Mode<AES>::Encryption&>(GlobalRNG());
 		prng.SetKeyWithIV((byte *)seed.data(), 16, (byte *)seed.data());
 
 		std::string command, executableName, macFilename;
@@ -831,7 +827,7 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 
 	std::cout << "Using seed: " << seed << std::endl;
 	
-	OFB_Mode<AES>::Encryption& prng = static_cast<OFB_Mode<AES>::Encryption&>(GlobalRNG());
+	OFB_Mode<AES>::Encryption& prng = dynamic_cast<OFB_Mode<AES>::Encryption&>(GlobalRNG());
 	prng.SetKeyWithIV((byte *)seed.data(), 16, (byte *)seed.data());
 
 #ifdef _OPENMP
