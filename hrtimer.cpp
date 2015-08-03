@@ -16,8 +16,6 @@
 #include <unistd.h>
 #endif
 
-#include <assert.h>
-
 NAMESPACE_BEGIN(CryptoPP)
 
 #ifndef CRYPTOPP_IMPORTS

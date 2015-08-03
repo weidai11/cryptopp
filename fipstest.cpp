@@ -1,6 +1,7 @@
 // fipstest.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
+
 #include "misc.h"
 
 #ifndef CRYPTOPP_IMPORTS
@@ -9,6 +10,7 @@
 #include "dll.h"
 
 #ifdef CRYPTOPP_WIN32_AVAILABLE
+#define WIN32_LEAN_AND_MEAN
 #define _WIN32_WINNT 0x0400
 #include <windows.h>
 
@@ -22,6 +24,8 @@ extern "C" {_CRTIMP void __cdecl _CRT_DEBUGGER_HOOK(int);}
 #endif // _MSC_VER
 #endif // CRYPTOPP_WIN32_AVAILABLE
 
+#include "stdcpp.h"
+#include "smartptr.h"
 #include "trap.h"
 
 #include <iostream>
@@ -29,9 +33,8 @@ extern "C" {_CRTIMP void __cdecl _CRT_DEBUGGER_HOOK(int);}
 #if GCC_DIAGNOSTIC_AWARE
 # pragma GCC diagnostic ignored "-Wunused-value"
 # pragma GCC diagnostic ignored "-Wunused-variable"
-# if defined(__clang__)
-#  pragma GCC diagnostic ignored "-Wunneeded-internal-declaration"
-# endif // Clang
+# pragma GCC diagnostic ignored "-Wunknown-pragmas"
+# pragma GCC diagnostic ignored "-Wunneeded-internal-declaration"
 #endif // GCC Diagnostics
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -256,7 +259,7 @@ MessageAuthenticationCode * NewIntegrityCheckingMAC()
 
 bool IntegrityCheckModule(const char *moduleFilename, const byte *expectedModuleMac, SecByteBlock *pActualMac, unsigned long *pMacFileLocation)
 {
-	std::auto_ptr<MessageAuthenticationCode> mac(NewIntegrityCheckingMAC());
+	auto_ptr<MessageAuthenticationCode> mac(NewIntegrityCheckingMAC());
 	unsigned int macSize = mac->DigestSize();
 
 	SecByteBlock tempMac;
