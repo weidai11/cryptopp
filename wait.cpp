@@ -2,6 +2,8 @@
 
 #include "pch.h"
 #include "wait.h"
+#include "stdcpp.h"
+#include "smartptr.h"
 #include "misc.h"
 #include "trap.h"
 
@@ -145,7 +147,7 @@ void WaitObjectContainer::AddHandle(HANDLE handle, CallStack const& callStack)
 
 DWORD WINAPI WaitingThread(LPVOID lParam)
 {
-	std::auto_ptr<WaitingThreadData> pThread((WaitingThreadData *)lParam);
+	auto_ptr<WaitingThreadData> pThread((WaitingThreadData *)lParam);
 	WaitingThreadData &thread = *pThread;
 	std::vector<HANDLE> handles;
 

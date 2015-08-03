@@ -31,7 +31,7 @@ struct NewPrimeTable
 	{
 		const unsigned int maxPrimeTableSize = 3511;
 
-		std::auto_ptr<std::vector<word16> > pPrimeTable(new std::vector<word16>);
+		auto_ptr<std::vector<word16> > pPrimeTable(new std::vector<word16>);
 		std::vector<word16> &primeTable = *pPrimeTable;
 		primeTable.reserve(maxPrimeTableSize);
 

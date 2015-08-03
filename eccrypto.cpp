@@ -5,6 +5,8 @@
 #ifndef CRYPTOPP_IMPORTS
 
 #include "eccrypto.h"
+#include "stdcpp.h"
+#include "smartptr.h"
 #include "nbtheory.h"
 #include "oids.h"
 #include "hex.h"
@@ -440,7 +442,7 @@ template <class EC> void DL_GroupParameters_EC<EC>::Initialize(const OID &oid)
 
 	const EcRecommendedParameters<EllipticCurve> &param = *it;
 	m_oid = oid;
-	std::auto_ptr<EllipticCurve> ec(param.NewEC());
+	auto_ptr<EllipticCurve> ec(param.NewEC());
 	this->m_groupPrecomputation.SetCurve(*ec);
 
 	StringSource ssG(param.g, true, new HexDecoder);

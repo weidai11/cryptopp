@@ -5,6 +5,8 @@
 #ifndef CRYPTOPP_IMPORTS
 
 #include "filters.h"
+#include "stdcpp.h"
+#include "smartptr.h"
 #include "mqueue.h"
 #include "fltrimpl.h"
 #include "argnames.h"
@@ -500,7 +502,7 @@ void ProxyFilter::SetFilter(Filter *filter)
 	if (filter)
 	{
 		OutputProxy *proxy;
-		std::auto_ptr<OutputProxy> temp(proxy = new OutputProxy(*this, false));
+		auto_ptr<OutputProxy> temp(proxy = new OutputProxy(*this, false));
 		m_filter->TransferAllTo(*proxy);
 		m_filter->Attach(temp.release());
 	}

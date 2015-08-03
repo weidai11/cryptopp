@@ -38,7 +38,7 @@
 #include "eprecomp.h"
 #include "fips140.h"
 #include "argnames.h"
-#include "stdcpp.h"
+#include "smartptr.h"
 #include "trap.h"
 
 // VC60 workaround: this macro is defined in shlobj.h and conflicts with a template parameter used in this file
@@ -1342,7 +1342,7 @@ class DL_SignerImpl : public DL_ObjectImpl<DL_SignerBase<typename SCHEME_OPTIONS
 public:
 	PK_MessageAccumulator * NewSignatureAccumulator(RandomNumberGenerator &rng) const
 	{
-		std::auto_ptr<PK_MessageAccumulatorBase> p(new PK_MessageAccumulatorImpl<CPP_TYPENAME SCHEME_OPTIONS::HashFunction>);
+		auto_ptr<PK_MessageAccumulatorBase> p(new PK_MessageAccumulatorImpl<CPP_TYPENAME SCHEME_OPTIONS::HashFunction>);
 		this->RestartMessageAccumulator(rng, *p);
 		return p.release();
 	}

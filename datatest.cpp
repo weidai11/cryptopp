@@ -1,6 +1,8 @@
 // datatest.cpp - written and placed in public domain by Wei Dai
 
 #include "config.h"
+#include "stdcpp.h"
+#include "smartptr.h"
 #include "integer.h"
 #include "factory.h"
 #include "filters.h"
@@ -208,8 +210,8 @@ void TestSignatureScheme(TestData &v)
 	std::string name = GetRequiredDatum(v, "Name");
 	std::string test = GetRequiredDatum(v, "Test");
 
-	std::auto_ptr<PK_Signer> signer(ObjectFactoryRegistry<PK_Signer>::Registry().CreateObject(name.c_str()));
-	std::auto_ptr<PK_Verifier> verifier(ObjectFactoryRegistry<PK_Verifier>::Registry().CreateObject(name.c_str()));
+	auto_ptr<PK_Signer> signer(ObjectFactoryRegistry<PK_Signer>::Registry().CreateObject(name.c_str()));
+	auto_ptr<PK_Verifier> verifier(ObjectFactoryRegistry<PK_Verifier>::Registry().CreateObject(name.c_str()));
 
 	TestDataNameValuePairs pairs(v);
 
@@ -285,8 +287,8 @@ void TestAsymmetricCipher(TestData &v)
 	std::string name = GetRequiredDatum(v, "Name");
 	std::string test = GetRequiredDatum(v, "Test");
 
-	std::auto_ptr<PK_Encryptor> encryptor(ObjectFactoryRegistry<PK_Encryptor>::Registry().CreateObject(name.c_str()));
-	std::auto_ptr<PK_Decryptor> decryptor(ObjectFactoryRegistry<PK_Decryptor>::Registry().CreateObject(name.c_str()));
+	auto_ptr<PK_Encryptor> encryptor(ObjectFactoryRegistry<PK_Encryptor>::Registry().CreateObject(name.c_str()));
+	auto_ptr<PK_Decryptor> decryptor(ObjectFactoryRegistry<PK_Decryptor>::Registry().CreateObject(name.c_str()));
 
 	std::string keyFormat = GetRequiredDatum(v, "KeyFormat");
 

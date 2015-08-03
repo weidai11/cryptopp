@@ -1,8 +1,10 @@
 // default.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
+
 #include "default.h"
 #include "stdcpp.h"
+#include "smartptr.h"
 #include "queue.h"
 
 #include <time.h>
@@ -179,7 +181,7 @@ void DefaultDecryptor::CheckKey(const byte *salt, const byte *keyCheck)
 	GenerateKeyIV(m_passphrase, m_passphrase.size(), salt, SALTLENGTH, key, IV);
 
 	m_cipher.SetKeyWithIV(key, key.size(), IV);
-	std::auto_ptr<StreamTransformationFilter> decryptor(new StreamTransformationFilter(m_cipher));
+	auto_ptr<StreamTransformationFilter> decryptor(new StreamTransformationFilter(m_cipher));
 
 	decryptor->Put(keyCheck, BLOCKSIZE);
 	decryptor->ForceNextPut();
