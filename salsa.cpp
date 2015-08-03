@@ -8,6 +8,8 @@
 
 #include "salsa.h"
 #include "misc.h"
+#include "stdcpp.h"
+#include "smartptr.h"
 #include "argnames.h"
 #include "cpu.h"
 #include "trap.h"
@@ -89,8 +91,11 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 {
 #endif	// #ifdef CRYPTOPP_GENERATE_X64_MASM
 
+	// m_state.m_ptr was used below. Fetch it through data() member so we can make SecBlock's members private
+	word32* state = m_state.data();
+
 #ifdef CRYPTOPP_X64_MASM_AVAILABLE
-	Salsa20_OperateKeystream(output, input, iterationCount, m_rounds, m_state.data());
+	Salsa20_OperateKeystream(output, input, iterationCount, m_rounds, state);
 	return;
 #endif
 
@@ -154,14 +159,13 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 			GNU_AS_INTEL_SYNTAX
 			AS_PUSH_IF86(	bx)
 	#else
-		void *s = m_state.data();
-		word32 r = m_rounds;
+		word32 rounds = m_rounds;
 
 		AS2(	mov		REG_iterationCount, iterationCount)
 		AS2(	mov		REG_input, input)
 		AS2(	mov		REG_output, output)
-		AS2(	mov		REG_state, s)
-		AS2(	mov		REG_rounds, r)
+		AS2(	mov		REG_state, state)
+		AS2(	mov		REG_rounds, rounds)
 	#endif
 #endif	// #ifndef CRYPTOPP_GENERATE_X64_MASM
 
@@ -462,11 +466,11 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 		GNU_AS_ATT_SYNTAX
 	#if CRYPTOPP_BOOL_X64
 			: "+r" (input), "+r" (output), "+r" (iterationCount)
-			: "r" (m_rounds), "r" (m_state.m_ptr), "r" (workspace)
+			: "r" (m_rounds), "r" (state), "r" (workspace)
 			: "%eax", "%rdx", "memory", "cc", "%xmm0", "%xmm1", "%xmm2", "%xmm3", "%xmm4", "%xmm5", "%xmm6", "%xmm7", "%xmm8", "%xmm9", "%xmm10", "%xmm11", "%xmm12", "%xmm13", "%xmm14", "%xmm15"
 	#else
 			: "+a" (input), "+D" (output), "+c" (iterationCount)
-			: "d" (m_rounds), "S" (m_state.m_ptr)
+			: "d" (m_rounds), "S" (state)
 			: "memory", "cc"
 	#endif
 		);
