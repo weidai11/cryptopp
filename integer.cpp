@@ -1156,10 +1156,18 @@ void Baseline_Square8(word *R, const word *A)
 	Squ_8
 }
 
+#if GCC_DIAGNOSTIC_AWARE
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wunknown-pragmas"
+#  pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#endif
 void Baseline_MultiplyBottom2(word *R, const word *A, const word *B)
 {
 	Bot_2
 }
+#if GCC_DIAGNOSTIC_AWARE
+#  pragma GCC diagnostic pop
+#endif
 
 void Baseline_MultiplyBottom4(word *R, const word *A, const word *B)
 {
