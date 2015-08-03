@@ -279,8 +279,10 @@ void RawDES::RawSetKey(CipherDir dir, const byte *key)
 	byte *const pcr=pc1m+56;                 /* place to rotate pc1 into */
 	byte *const ks=pcr+56;
 
-	// C++11 deprecated register
-#if !defined(CRYPTOPP_CXX11)
+	// C++11 deprecated register. Don't pivot on CRYPTOPP_CXX11 because
+	//   configure.h unsets the macro on some Apple platforms if it
+	//   detects an ancient version.
+#if (__cplusplus < 201103L)
 	register int i,j,l;
 #else
 	int i,j,l;
