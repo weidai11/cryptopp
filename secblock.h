@@ -4,6 +4,7 @@
 #define CRYPTOPP_SECBLOCK_H
 
 #include "config.h"
+#include "stdcpp.h"
 #include "misc.h"
 
 #if GCC_DIAGNOSTIC_AWARE
@@ -37,12 +38,12 @@ public:
 	const_pointer address(const_reference r) const {return (&r); }
 	void construct(pointer p, const T& val) {new (p) T(val);}
 	void destroy(pointer p) {p->~T();}
-	size_type max_size() const {return ~size_type(0)/sizeof(T);}	// switch to std::numeric_limits<T>::max later
+	size_type max_size() const {return std::numeric_limits<size_type>::max()/sizeof(T);}
 
 protected:
 	static void CheckSize(size_t n)
 	{
-		if (n > ~size_t(0) / sizeof(T))
+		if (n > std::numeric_limits<CPP_TYPENAME AllocatorBase::size_type>::max() / sizeof(T))
 			throw InvalidArgument("AllocatorBase: requested size would cause integer overflow");
 	}
 };
@@ -71,7 +72,8 @@ typename A::pointer StandardReallocate(A& a, T *p, typename A::size_type oldSize
 	if (preserve)
 	{
 		typename A::pointer newPointer = a.allocate(newSize, NULL);
-		memcpy_s(newPointer, sizeof(T)*newSize, p, sizeof(T)*STDMIN(oldSize, newSize));
+		const size_t copySize = STDMIN(oldSize, newSize);
+		if(p && copySize) {memcpy_s(newPointer, newSize*sizeof(T), p, copySize*sizeof(T));}
 		a.deallocate(p, oldSize);
 		return newPointer;
 	}
@@ -107,8 +109,10 @@ public:
 	}
 
 	void deallocate(void *p, size_type n)
-	{
+	{	CRYPTOPP_ASSERT((p && n) || (!p && !n));
 		SecureWipeArray((pointer)p, n);
+		// CRYPTOPP_ASSERT((n == 0) || (n > 0 && ((T*)p)[0] == 0));
+		// CRYPTOPP_ASSERT((n == 0) || (n > 0 && ((T*)p)[sizeof(T)*n-1] == 0));
 
 #if CRYPTOPP_BOOL_ALIGN16_ENABLED
 		if (T_Align16 && n*sizeof(T) >= 16)
@@ -203,6 +207,8 @@ public:
 			CRYPTOPP_ASSERT(m_allocated);
 			m_allocated = false;
 			SecureWipeArray((pointer)p, n);
+			// CRYPTOPP_ASSERT((n == 0) || (n > 0 && ((T*)p)[0] == 0));
+			// CRYPTOPP_ASSERT((n == 0) || (n > 0 && ((T*)p)[sizeof(T)*n-1] == 0));
 		}
 		else
 			m_fallbackAllocator.deallocate(p, n);
@@ -219,8 +225,8 @@ public:
 		}
 
 		pointer newPointer = allocate(newSize, NULL);
-		if (preserve)
-			memcpy(newPointer, p, sizeof(T)*STDMIN(oldSize, newSize));
+		if (preserve && newSize)
+			memcpy_s(newPointer, newSize*sizeof(T), p, sizeof(T)*STDMIN(oldSize, newSize));
 		deallocate(p, oldSize);
 		return newPointer;
 	}
@@ -249,19 +255,37 @@ public:
 	typedef typename A::const_pointer const_iterator;
 	typedef typename A::size_type size_type;
 
+	//! construct a SecBlock with space for 'size' elements. To initialize the elements to 0, create a SecBlock and then call CleanNew or CleanGrow.
 	explicit SecBlock(size_type size=0)
-		: m_size(size) {m_ptr = m_alloc.allocate(size, NULL);}
+		: m_size(size), m_ptr(m_alloc.allocate(size, NULL)) { }
+	//! copy construct a SecBlock from another SecBlock
 	SecBlock(const SecBlock<T, A> &t)
-		: m_size(t.m_size) {m_ptr = m_alloc.allocate(m_size, NULL); memcpy_s(m_ptr, m_size*sizeof(T), t.m_ptr, m_size*sizeof(T));}
+		: m_size(t.m_size), m_ptr(m_alloc.allocate(m_size, NULL)) {
+			CRYPTOPP_ASSERT((!t.m_ptr && !m_size) || (t.m_ptr && m_size));
+			if(t.m_ptr && t.m_size){memcpy_s(m_ptr,m_size*sizeof(T),t.m_ptr, m_size*sizeof(T));}
+		}
+	//! construct a SecBlock from an array of elements
 	SecBlock(const T *t, size_type len)
-		: m_size(len)
+		: m_size(len), m_ptr(m_alloc.allocate(m_size, NULL)) {
+			CRYPTOPP_ASSERT((!m_ptr && !m_size) || (m_ptr && m_size));
+			if(m_ptr && m_size){memcpy_s(m_ptr,m_size*sizeof(T),t,m_size*sizeof(T));}
+		}
+
+#if (CRYPTOPP_CXX11_RVALUES && CRYPTOPP_CXX11_MOVE)
+	SecBlock(SecBlock&& t)
+		: m_alloc(std::move(t.m_alloc)), m_size(t.m_size), m_ptr(std::move(t.m_ptr))
 	{
-		m_ptr = m_alloc.allocate(len, NULL);
-		if (t == NULL)
-			memset_z(m_ptr, 0, len*sizeof(T));
-		else
-			memcpy(m_ptr, t, len*sizeof(T));
+		// TODO: research the move on the Allocator, and remove it if not needed.
+		t.m_alloc = A();
+		t.m_size = 0;
+		t.m_ptr = NULL;
 	}
+	SecBlock& operator=(SecBlock&& t)
+	{
+		swap(t);
+		return *this;
+	}
+#endif
 
 	~SecBlock()
 		{m_alloc.deallocate(m_ptr, m_size);}
@@ -281,42 +305,42 @@ public:
 		{return m_ptr;}
 #endif
 
-//	T *operator +(size_type offset)
-//		{return m_ptr+offset;}
-
-//	const T *operator +(size_type offset) const
-//		{return m_ptr+offset;}
-
-//	T& operator[](size_type index)
-//		{CRYPTOPP_ASSERT(index >= 0 && index < m_size); return m_ptr[index];}
-
-//	const T& operator[](size_type index) const
-//		{CRYPTOPP_ASSERT(index >= 0 && index < m_size); return m_ptr[index];}
-
+	//! provide an iterator to the first element of the array
 	iterator begin()
 		{return m_ptr;}
+	//! provide a constant iterator to the first element of the array
 	const_iterator begin() const
 		{return m_ptr;}
+	//! provide an iterator set beyond the last element of the array
 	iterator end()
 		{return m_ptr+m_size;}
+	//! provide a constant iterator set beyond the last element of the array
 	const_iterator end() const
 		{return m_ptr+m_size;}
 
+	//! return a pointer to the first element in the array
 	typename A::pointer data() {return m_ptr;}
+	//! return a constant pointer to the first element in the array
 	typename A::const_pointer data() const {return m_ptr;}
 
+	//! return the number of elements in the array
 	size_type size() const {return m_size;}
+	//! return the number of elements in the array
 	bool empty() const {return m_size == 0;}
 
+	//! return a byte pointer to the first element in the array
 	byte * BytePtr() {return (byte *)m_ptr;}
+	//! return a byte pointer to the first element in the array
 	const byte * BytePtr() const {return (const byte *)m_ptr;}
+	//! return the number of bytes in the array
 	size_type SizeInBytes() const {return m_size*sizeof(T);}
 
-	//! set contents and size
+	//! set contents and size from an array
 	void Assign(const T *t, size_type len)
 	{
+		// if the array is reduced in size, then the unused area is set to 0
 		New(len);
-		memcpy_s(m_ptr, m_size*sizeof(T), t, len*sizeof(T));
+		if(t && len) {memcpy_s(m_ptr,m_size*sizeof(T),t,len*sizeof(T));}
 	}
 
 	//! copy contents and size from another SecBlock
@@ -324,11 +348,13 @@ public:
 	{
 		if (this != &t)
 		{
+			// if the array is reduced in size, then the unused area is set to 0
 			New(t.m_size);
-			memcpy_s(m_ptr, m_size*sizeof(T), t.m_ptr, m_size*sizeof(T));
+			if(t.m_ptr && t.m_size) {memcpy_s(m_ptr,m_size*sizeof(T),t.m_ptr,t.m_size*sizeof(T));}
 		}
 	}
 
+	//! assign contents and size from another SecBlock
 	SecBlock<T, A>& operator=(const SecBlock<T, A> &t)
 	{
 		// Assign guards for self-assignment
@@ -339,46 +365,54 @@ public:
 	// append to this object
 	SecBlock<T, A>& operator+=(const SecBlock<T, A> &t)
 	{
+		CRYPTOPP_ASSERT((!t.m_ptr && !t.m_size) || (t.m_ptr && t.m_size));
+
 		size_type oldSize = m_size;
 		Grow(m_size+t.m_size);
-		memcpy_s(m_ptr+oldSize, m_size*sizeof(T), t.m_ptr, t.m_size*sizeof(T));
+		if(t.m_ptr && t.m_size) {memcpy_s(m_ptr+oldSize, (m_size - oldSize)*sizeof(T), t.m_ptr, t.m_size*sizeof(T));}
 		return *this;
 	}
 
 	// append operator
 	SecBlock<T, A> operator+(const SecBlock<T, A> &t)
 	{
+		CRYPTOPP_ASSERT((!m_ptr && !m_size) || (m_ptr && m_size));
+		CRYPTOPP_ASSERT((!t.m_ptr && !t.m_size) || (t.m_ptr && t.m_size));
+
 		SecBlock<T, A> result(m_size+t.m_size);
-		memcpy_s(result.m_ptr, result.m_size*sizeof(T), m_ptr, m_size*sizeof(T));
-		memcpy_s(result.m_ptr+m_size, t.m_size*sizeof(T), t.m_ptr, t.m_size*sizeof(T));
+		if(m_ptr && m_size) {memcpy_s(result.m_ptr, result.m_size*sizeof(T), m_ptr, m_size*sizeof(T));}
+		if(t.m_ptr && t.m_size) {memcpy_s(result.m_ptr+m_size, (result.m_size - m_size)*sizeof(T), t.m_ptr, t.m_size*sizeof(T));}
 		return result;
 	}
 
+	//! bitwise compare two SecBlocks using a constant time compare if the arrays are equal size
 	bool operator==(const SecBlock<T, A> &t) const
 	{
 		return m_size == t.m_size && VerifyBufsEqual(m_ptr, t.m_ptr, m_size*sizeof(T));
 	}
 
+	//! bitwise compare two SecBlocks using a constant time compare if the arrays are equal size
 	bool operator!=(const SecBlock<T, A> &t) const
 	{
 		return !operator==(t);
 	}
 
-	//! change size, without preserving contents
+	//! change size without preserving contents, new content unintialized
 	void New(size_type newSize)
 	{
+		// if the array is reduced in size, then the unused area is set to 0
 		m_ptr = m_alloc.reallocate(m_ptr, m_size, newSize, false);
 		m_size = newSize;
 	}
 
-	//! change size and set contents to 0
+	//! change size without preserving contents. all content set to 0
 	void CleanNew(size_type newSize)
 	{
 		New(newSize);
 		memset_z(m_ptr, 0, m_size*sizeof(T));
 	}
 
-	//! change size only if newSize > current size. contents are preserved
+	//! change size only if newSize > current size. contents are preserved, new content unintialized
 	void Grow(size_type newSize)
 	{
 		if (newSize > m_size)
@@ -388,18 +422,18 @@ public:
 		}
 	}
 
-	//! change size only if newSize > current size. contents are preserved and additional area is set to 0
+	//! change size only if newSize > current size. contents are preserved, new content set to 0
 	void CleanGrow(size_type newSize)
 	{
 		if (newSize > m_size)
 		{
 			m_ptr = m_alloc.reallocate(m_ptr, m_size, newSize, true);
-			memset(m_ptr+m_size, 0, (newSize-m_size)*sizeof(T));
+			memset_z(m_ptr+m_size, 0, (newSize-m_size)*sizeof(T));
 			m_size = newSize;
 		}
 	}
 
-	//! change size and preserve contents
+	//! change size and preserve contents. new content is uninitialized.
 	void resize(size_type newSize)
 	{
 		m_ptr = m_alloc.reallocate(m_ptr, m_size, newSize, true);
@@ -409,12 +443,13 @@ public:
 	//! swap contents and size with another SecBlock
 	void swap(SecBlock<T, A> &b)
 	{
+		// TODO: research the swap on the Allocator, and remove it if not needed.
 		std::swap(m_alloc, b.m_alloc);
 		std::swap(m_size, b.m_size);
 		std::swap(m_ptr, b.m_ptr);
 	}
 
-//private:
+protected:
 	A m_alloc;
 	size_type m_size;
 	T *m_ptr;
@@ -426,11 +461,15 @@ DOCUMENTED_TYPEDEF(SecBlock<word>, SecWordBlock);
 typedef SecBlock<byte, AllocatorWithCleanup<byte, true> > AlignedSecByteBlock;
 // typedef SecBlock<word> SecWordBlock;
 
+// No need for move semantics on derived class *if* the class does not add any
+//   data members; see http://stackoverflow.com/q/31755703, and Rule of {0|3|5}.
+
 //! a SecBlock with fixed size, allocated statically
 template <class T, unsigned int S, class A = FixedSizeAllocatorWithCleanup<T, S> >
 class FixedSizeSecBlock : public SecBlock<T, A>
 {
 public:
+	//! construct a FixedSizeSecBlock
 	explicit FixedSizeSecBlock() : SecBlock<T, A>(S) {}
 };
 
@@ -444,6 +483,7 @@ template <class T, unsigned int S, class A = FixedSizeAllocatorWithCleanup<T, S,
 class SecBlockWithHint : public SecBlock<T, A>
 {
 public:
+	//! construct a SecBlockWithHint with a count of elements
 	explicit SecBlockWithHint(size_t size) : SecBlock<T, A>(size) {}
 };
 
@@ -474,7 +514,7 @@ __stl_alloc_rebind(CryptoPP::AllocatorWithCleanup<_Tp1>& __a, const _Tp2*)
 NAMESPACE_END
 
 #if GCC_DIAGNOSTIC_AWARE
-# pragma GCC diagnostic pop
+#  pragma GCC diagnostic pop
 #endif
 
 #endif
