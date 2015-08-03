@@ -34,15 +34,6 @@ template <class T> simple_ptr<T>::~simple_ptr()
 {
 	delete m_p;
 	*((volatile T**)(&m_p)) = 0;
-
-	// Ensure the assignment is always performed. MSVC and Clang provide expected
-	//   operational behavior for volatile. GCC has a more strict interpretation of
-	//   the keyword (see http://www.airs.com/blog/archives/154), and volatile
-	//   should not be used to tame the optimizer. However, inline assembly
-	//   will tame it (see https://gcc.gnu.org/ml/gcc-help/2015-07/msg00053.html).
-#ifdef __GNUC__
-	asm volatile ("" : : : "memory");
-#endif
 }
 
 template <class T> class member_ptr
@@ -66,10 +57,6 @@ public:
 		T *old_p = m_p;
 		*((volatile T**)(&m_p)) = 0;
 		return old_p;
-
-#ifdef __GNUC__
-	asm volatile ("" : : : "memory");
-#endif
 	}
 
 	void reset(T *p = 0);
