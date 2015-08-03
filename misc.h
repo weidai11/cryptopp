@@ -170,6 +170,9 @@ private:
 	F m_objectFactory;
 };
 
+// Forward declaration due to circular dependency between smart_ptr.h and misc.h
+template <class T> class simple_ptr;
+
 template <class T, class F, int instance>
 const T & Singleton<T, F, instance>::Ref(CRYPTOPP_NOINLINE_DOTDOTDOT) const
 {
@@ -203,10 +206,7 @@ inline void memcpy_s(void *dest, size_t sizeInBytes, const void *src, size_t cou
 	if (count > sizeInBytes)
 		throw InvalidArgument("memcpy_s: buffer overflow");
 
-	// TODO: fix callers. Its easier than it sounds because of the way
-	//   Put and Put2 are used in filters.
-	if (dest && src && count)
-		memcpy(dest, src, count);
+	memcpy(dest, src, count);
 }
 
 inline void memmove_s(void *dest, size_t sizeInBytes, const void *src, size_t count)
@@ -217,19 +217,18 @@ inline void memmove_s(void *dest, size_t sizeInBytes, const void *src, size_t co
 	if (count > sizeInBytes)
 		throw InvalidArgument("memmove_s: buffer overflow");
 
-	// TODO: fix callers. Its easier than it sounds because of the way
-	//   Put and Put2 are used in filters.
-	if (dest && src && count)
-		memmove(dest, src, count);
+	memmove(dest, src, count);
 }
 
-#if __BORLANDC__ >= 0x620
 // C++Builder 2010 workaround: can't use std::memcpy_s because it doesn't allow 0 lengths
-#define memcpy_s CryptoPP::memcpy_s
-#define memmove_s CryptoPP::memmove_s
-#endif
-#endif
+#if __BORLANDC__ >= 0x620
+# define memcpy_s CryptoPP::memcpy_s
+# define memmove_s CryptoPP::memmove_s
+#endif // __BORLANDC__
 
+#endif // __STDC_WANT_SECURE_LIB__ and _MEMORY_S_DEFINED
+
+//! Initialize an array to a value after creation. Do not use for destruction because its subject to removal by the optimizer
 inline void * memset_z(void *ptr, int value, size_t num)
 {
 // avoid extranous warning on GCC 4.3.2 Ubuntu 8.10
@@ -379,8 +378,11 @@ template <class T1, class T2>
 inline bool SafeConvert(T1 from, T2 &to)
 {
 	to = (T2)from;
-	if (from != to || (from > 0) != (to > 0)) {
-		CRYPTOPP_ASSERT(false); return false;
+	if (from != to || (from > 0) != (to > 0))
+	{
+		// This will assert about 35 times under the test program
+		CRYPTOPP_ASSERT(false);
+		return false;
 	}
 
 	return true;
