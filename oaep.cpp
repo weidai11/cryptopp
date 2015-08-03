@@ -5,8 +5,9 @@
 #ifndef CRYPTOPP_IMPORTS
 
 #include "cryptlib.h"
+#include "stdcpp.h"
+#include "smartptr.h"
 #include "oaep.h"
-#include <functional>
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -57,7 +58,7 @@ DecodingResult OAEP_Base::Unpad(const byte *oaepBlock, size_t oaepBlockLen, byte
 	bool invalid = false;
 
 	using CryptoPP::auto_ptr;
-	std::auto_ptr<HashTransformation> pHash(NewHash());
+	auto_ptr<HashTransformation> pHash(NewHash());
 
 	// convert from bit length to byte length
 	if (oaepBlockLen % 8 != 0)
@@ -77,7 +78,7 @@ DecodingResult OAEP_Base::Unpad(const byte *oaepBlock, size_t oaepBlockLen, byte
 	byte *const maskedDB = t+seedLen;
 
 
-	std::auto_ptr<MaskGeneratingFunction> pMGF(NewMGF());
+	auto_ptr<MaskGeneratingFunction> pMGF(NewMGF());
 	pMGF->GenerateAndMask(*pHash, maskedSeed, seedLen, maskedDB, dbLen);
 	pMGF->GenerateAndMask(*pHash, maskedDB, dbLen, maskedSeed, seedLen);
 
