@@ -162,8 +162,8 @@ bool TestRotate()
 	bool pass = true;
 
 	std::cout << "\nTesting rotate...\n\n";
-	std::cout << (!pass ? "FAILED   " : "passed   ") << " left rotate" << std::endl;
-	std::cout << (!pass ? "FAILED   " : "passed   ") << " right rotate" << std::endl;
+	std::cout << (!pass ? "FAILED" : "passed") << "   left rotate" << std::endl;
+	std::cout << (!pass ? "FAILED" : "passed") << "   right rotate" << std::endl;
 
 	return pass;
 }
@@ -180,12 +180,12 @@ bool TestConversion()
 		v1 = -1; p = SafeConvert(v1, v2) && p;
 		v1 = 0;  p = SafeConvert(v1, v2) && p;
 		v1 = 1;  p = SafeConvert(v1, v2) && p;
-		v1 = std::numeric_limits<signed char>::min();	p = SafeConvert(v1, v2) && p;
+		v1 = std::numeric_limits<signed char>::min();	  p = SafeConvert(v1, v2) && p;
 		v1 = std::numeric_limits<signed char>::min() + 1; p = SafeConvert(v1, v2) && p;
-		v1 = std::numeric_limits<signed char>::max();	 p = SafeConvert(v1, v2) && p;
+		v1 = std::numeric_limits<signed char>::max();	  p = SafeConvert(v1, v2) && p;
 		v1 = std::numeric_limits<signed char>::max() - 1; p = SafeConvert(v1, v2) && p;
 		
-		std::cout << (!p ? "FAILED   " : "passed   ") << " signed char" << std::endl;
+		std::cout << (!p ? "FAILED" : "passed") << "   signed char" << std::endl;
 		pass &= p;
 	}
 
@@ -193,28 +193,28 @@ bool TestConversion()
 	{
 		signed char v; bool p = true;
 		{
-			signed short v1 = std::numeric_limits<signed short>::min(); p = !SafeConvert(v1, v) && p;
-			signed short v2 = std::numeric_limits<signed short>::max(); p = !SafeConvert(v2, v) && p;
+			signed short v1 = std::numeric_limits<signed short>::min();     p = !SafeConvert(v1, v) && p;
+			signed short v2 = std::numeric_limits<signed short>::max();     p = !SafeConvert(v2, v) && p;
 			unsigned short v3 = std::numeric_limits<unsigned short>::max(); p = !SafeConvert(v3, v) && p;
 		}
 		{
-			signed int v1 = std::numeric_limits<signed int>::min(); p = !SafeConvert(v1, v) && p;
-			signed int v2 = std::numeric_limits<signed int>::max(); p = !SafeConvert(v2, v) && p;
+			signed int v1 = std::numeric_limits<signed int>::min();     p = !SafeConvert(v1, v) && p;
+			signed int v2 = std::numeric_limits<signed int>::max();     p = !SafeConvert(v2, v) && p;
 			unsigned int v3 = std::numeric_limits<unsigned int>::max(); p = !SafeConvert(v3, v) && p;
 		}
 		
 		{
-			signed long v1 = std::numeric_limits<signed long>::min(); p = !SafeConvert(v1, v) && p;
-			signed long v2 = std::numeric_limits<signed long>::max(); p = !SafeConvert(v2, v) && p;
+			signed long v1 = std::numeric_limits<signed long>::min();     p = !SafeConvert(v1, v) && p;
+			signed long v2 = std::numeric_limits<signed long>::max();     p = !SafeConvert(v2, v) && p;
 			unsigned long v3 = std::numeric_limits<unsigned long>::max(); p = !SafeConvert(v3, v) && p;
 		}
 		{
-			signed long long v1 = std::numeric_limits<signed long long>::min(); p = !SafeConvert(v1, v) && p;
-			signed long long v2 = std::numeric_limits<signed long long>::max(); p = !SafeConvert(v2, v) && p;
+			signed long long v1 = std::numeric_limits<signed long long>::min();     p = !SafeConvert(v1, v) && p;
+			signed long long v2 = std::numeric_limits<signed long long>::max();     p = !SafeConvert(v2, v) && p;
 			unsigned long long v3 = std::numeric_limits<unsigned long long>::max(); p = !SafeConvert(v3, v) && p;
 		}
 		
-		std::cout << (!p ? "FAILED   " : "passed   ") << " signed char overflow" << std::endl;
+		std::cout << (!p ? "FAILED" : "passed") << "   signed char overflow" << std::endl;
 		pass &= p;
 	}
 	
@@ -223,10 +223,10 @@ bool TestConversion()
 		unsigned char v1, v2; bool p = true;
 		v1 = 0; p = SafeConvert(v1, v2) && p;
 		v1 = 1; p = SafeConvert(v1, v2) && p;
-		v1 = std::numeric_limits<unsigned char>::max();	 p = SafeConvert(v1, v2) && p;
+		v1 = std::numeric_limits<unsigned char>::max();	    p = SafeConvert(v1, v2) && p;
 		v1 = std::numeric_limits<unsigned char>::max() - 1; p = SafeConvert(v1, v2) && p;
 		
-		std::cout << (!p ? "FAILED   " : "passed   ") << " unsigned char" << std::endl;
+		std::cout << (!p ? "FAILED" : "passed") << "   unsigned char" << std::endl;
 		pass &= p;
 	}
 	
@@ -246,7 +246,7 @@ bool TestConversion()
 			unsigned long long v1 = std::numeric_limits<unsigned long long>::max(); p = !SafeConvert(v1, v) && p;
 		}
 		
-		std::cout << (!p ? "FAILED   " : "passed   ") << " unsigned char overflow" << std::endl;
+		std::cout << (!p ? "FAILED" : "passed") << "   unsigned char overflow" << std::endl;
 		pass &= p;
 	}
 
@@ -256,12 +256,12 @@ bool TestConversion()
 		v1 = -1; p = SafeConvert(v1, v2) && p;
 		v1 = 0;  p = SafeConvert(v1, v2) && p;
 		v1 = 1;  p = SafeConvert(v1, v2) && p;
-		v1 = std::numeric_limits<short>::min();	 p = SafeConvert(v1, v2) && p;
+		v1 = std::numeric_limits<short>::min();	    p = SafeConvert(v1, v2) && p;
 		v1 = std::numeric_limits<short>::min() + 1; p = SafeConvert(v1, v2) && p;
-		v1 = std::numeric_limits<short>::max();	 p = SafeConvert(v1, v2) && p;
+		v1 = std::numeric_limits<short>::max();	    p = SafeConvert(v1, v2) && p;
 		v1 = std::numeric_limits<short>::max() - 1; p = SafeConvert(v1, v2) && p;
 		
-		std::cout << (!p ? "FAILED   " : "passed   ") << " signed short" << std::endl;
+		std::cout << (!p ? "FAILED" : "passed") << "   signed short" << std::endl;
 		pass &= p;
 	}
 
@@ -269,22 +269,22 @@ bool TestConversion()
 	{
 		signed short v; bool p = true;
 		{
-			signed int v1 = std::numeric_limits<signed int>::min(); p = !SafeConvert(v1, v) && p;
-			signed int v2 = std::numeric_limits<signed int>::max(); p = !SafeConvert(v2, v) && p;
+			signed int v1 = std::numeric_limits<signed int>::min();     p = !SafeConvert(v1, v) && p;
+			signed int v2 = std::numeric_limits<signed int>::max();     p = !SafeConvert(v2, v) && p;
 			unsigned int v3 = std::numeric_limits<unsigned int>::max(); p = !SafeConvert(v3, v) && p;
 		}
 		{
-			signed long v1 = std::numeric_limits<signed long>::min(); p = !SafeConvert(v1, v) && p;
-			signed long v2 = std::numeric_limits<signed long>::max(); p = !SafeConvert(v2, v) && p;
+			signed long v1 = std::numeric_limits<signed long>::min();     p = !SafeConvert(v1, v) && p;
+			signed long v2 = std::numeric_limits<signed long>::max();     p = !SafeConvert(v2, v) && p;
 			unsigned long v3 = std::numeric_limits<unsigned long>::max(); p = !SafeConvert(v3, v) && p;
 		}
 		{
-			signed long long v1 = std::numeric_limits<signed long long>::min(); p = !SafeConvert(v1, v) && p;
-			signed long long v2 = std::numeric_limits<signed long long>::max(); p = !SafeConvert(v2, v) && p;
+			signed long long v1 = std::numeric_limits<signed long long>::min();     p = !SafeConvert(v1, v) && p;
+			signed long long v2 = std::numeric_limits<signed long long>::max();     p = !SafeConvert(v2, v) && p;
 			unsigned long long v3 = std::numeric_limits<unsigned long long>::max(); p = !SafeConvert(v3, v) && p;
 		}
 		
-		std::cout << (!p ? "FAILED   " : "passed   ") << " signed short overflow" << std::endl;
+		std::cout << (!p ? "FAILED" : "passed") << "   signed short overflow" << std::endl;
 		pass &= p;
 	}
 
@@ -296,7 +296,7 @@ bool TestConversion()
 		v1 = std::numeric_limits<unsigned short>::max();	 p = SafeConvert(v1, v2) && p;
 		v1 = std::numeric_limits<unsigned short>::max() - 1; p = SafeConvert(v1, v2) && p;
 		
-		std::cout << (!p ? "FAILED   " : "passed   ") << " unsigned short" << std::endl;
+		std::cout << (!p ? "FAILED" : "passed") << "   unsigned short" << std::endl;
 		pass &= p;
 	}
 
@@ -313,7 +313,7 @@ bool TestConversion()
 			unsigned long long v1 = std::numeric_limits<unsigned long long>::max(); p = !SafeConvert(v1, v) && p;
 		}
 		
-		std::cout << (!p ? "FAILED   " : "passed   ") << " unsigned short overflow" << std::endl;
+		std::cout << (!p ? "FAILED" : "passed") << "   unsigned short overflow" << std::endl;
 		pass &= p;
 	}
 
@@ -323,12 +323,12 @@ bool TestConversion()
 		v1 = -1; p = SafeConvert(v1, v2) && p;
 		v1 = 0;  p = SafeConvert(v1, v2) && p;
 		v1 = 1;  p = SafeConvert(v1, v2) && p;
-		v1 = std::numeric_limits<int>::min();	 p = SafeConvert(v1, v2) && p;
+		v1 = std::numeric_limits<int>::min();	  p = SafeConvert(v1, v2) && p;
 		v1 = std::numeric_limits<int>::min() + 1; p = SafeConvert(v1, v2) && p;
-		v1 = std::numeric_limits<int>::max();	 p = SafeConvert(v1, v2) && p;
+		v1 = std::numeric_limits<int>::max();	  p = SafeConvert(v1, v2) && p;
 		v1 = std::numeric_limits<int>::max() - 1; p = SafeConvert(v1, v2) && p;
 		
-		std::cout << (!p ? "FAILED   " : "passed   ") << " signed int" << std::endl;
+		std::cout << (!p ? "FAILED" : "passed") << "   signed int" << std::endl;
 		pass &= p;
 	}
 
@@ -339,19 +339,19 @@ bool TestConversion()
 			// Guard i686 collision of type sizes
 			if (sizeof(signed int) != sizeof(signed long))
 			{
-				signed long v1 = std::numeric_limits<signed long>::min(); p = !SafeConvert(v1, v) && p;
-				signed long v2 = std::numeric_limits<signed long>::max(); p = !SafeConvert(v2, v) && p;
+				signed long v1 = std::numeric_limits<signed long>::min();     p = !SafeConvert(v1, v) && p;
+				signed long v2 = std::numeric_limits<signed long>::max();     p = !SafeConvert(v2, v) && p;
 				unsigned long v3 = std::numeric_limits<unsigned long>::max(); p = !SafeConvert(v3, v) && p;
 			}
 			// Guard i686 collision of type sizes
 			if (sizeof(signed int) != sizeof(signed long long))
 			{
-				signed long long v1 = std::numeric_limits<signed long long>::min(); p = !SafeConvert(v1, v) && p;
-				signed long long v2 = std::numeric_limits<signed long long>::max(); p = !SafeConvert(v2, v) && p;
+				signed long long v1 = std::numeric_limits<signed long long>::min();     p = !SafeConvert(v1, v) && p;
+				signed long long v2 = std::numeric_limits<signed long long>::max();     p = !SafeConvert(v2, v) && p;
 				unsigned long long v3 = std::numeric_limits<unsigned long long>::max(); p = !SafeConvert(v3, v) && p;
 			}
 
-			std::cout << (!p ? "FAILED   " : "passed   ") << " signed int overflow" << std::endl;
+			std::cout << (!p ? "FAILED" : "passed") << "   signed int overflow" << std::endl;
 			pass &= p;
 		}
 	}
@@ -361,10 +361,10 @@ bool TestConversion()
 		unsigned int v1, v2; bool p = true;
 		v1 = 0; p = SafeConvert(v1, v2) && p;
 		v1 = 1; p = SafeConvert(v1, v2) && p;
-		v1 = std::numeric_limits<unsigned int>::max();	 p = SafeConvert(v1, v2) && p;
+		v1 = std::numeric_limits<unsigned int>::max();	   p = SafeConvert(v1, v2) && p;
 		v1 = std::numeric_limits<unsigned int>::max() - 1; p = SafeConvert(v1, v2) && p;
 		
-		std::cout << (!p ? "FAILED   " : "passed   ") << " unsigned int" << std::endl;
+		std::cout << (!p ? "FAILED" : "passed") << "   unsigned int" << std::endl;
 		pass &= p;
 	}
 
@@ -383,7 +383,7 @@ bool TestConversion()
 				unsigned long long v1 = std::numeric_limits<unsigned long long>::max(); p = !SafeConvert(v1, v) && p;
 			}
 
-			std::cout << (!p ? "FAILED   " : "passed   ") << " unsigned int overflow" << std::endl;
+			std::cout << (!p ? "FAILED" : "passed") << "   unsigned int overflow" << std::endl;
 			pass &= p;
 		}
 	}
@@ -394,12 +394,12 @@ bool TestConversion()
 		v1 = -1; p = SafeConvert(v1, v2) && p;
 		v1 = 0;  p = SafeConvert(v1, v2) && p;
 		v1 = 1;  p = SafeConvert(v1, v2) && p;
-		v1 = std::numeric_limits<long>::min();	 p = SafeConvert(v1, v2) && p;
+		v1 = std::numeric_limits<long>::min();	   p = SafeConvert(v1, v2) && p;
 		v1 = std::numeric_limits<long>::min() + 1; p = SafeConvert(v1, v2) && p;
-		v1 = std::numeric_limits<long>::max();	 p = SafeConvert(v1, v2) && p;
+		v1 = std::numeric_limits<long>::max();	   p = SafeConvert(v1, v2) && p;
 		v1 = std::numeric_limits<long>::max() - 1; p = SafeConvert(v1, v2) && p;
 		
-		std::cout << (!p ? "FAILED   " : "passed   ") << " signed long" << std::endl;
+		std::cout << (!p ? "FAILED" : "passed") << "   signed long" << std::endl;
 		pass &= p;
 	}
 
@@ -410,12 +410,12 @@ bool TestConversion()
 		{
 			signed long v; bool p = true;
 			{
-				signed long long v1 = std::numeric_limits<signed long long>::min(); p = !SafeConvert(v1, v) && p;
-				signed long long v2 = std::numeric_limits<signed long long>::max(); p = !SafeConvert(v2, v) && p;
+				signed long long v1 = std::numeric_limits<signed long long>::min();     p = !SafeConvert(v1, v) && p;
+				signed long long v2 = std::numeric_limits<signed long long>::max();     p = !SafeConvert(v2, v) && p;
 				unsigned long long v3 = std::numeric_limits<unsigned long long>::max(); p = !SafeConvert(v3, v) && p;
 			}
 			
-			std::cout << (!p ? "FAILED   " : "passed   ") << " signed long overflow" << std::endl;
+			std::cout << (!p ? "FAILED" : "passed") << "   signed long overflow" << std::endl;
 			pass &= p;
 		}
 		else
@@ -429,10 +429,10 @@ bool TestConversion()
 		unsigned long v1, v2; bool p = true;
 		v1 = 0; p = SafeConvert(v1, v2) && p;
 		v1 = 1; p = SafeConvert(v1, v2) && p;
-		v1 = std::numeric_limits<unsigned long>::max();	 p = SafeConvert(v1, v2) && p;
+		v1 = std::numeric_limits<unsigned long>::max();	    p = SafeConvert(v1, v2) && p;
 		v1 = std::numeric_limits<unsigned long>::max() - 1; p = SafeConvert(v1, v2) && p;
 		
-		std::cout << (!p ? "FAILED   " : "passed   ") << " unsigned long" << std::endl;
+		std::cout << (!p ? "FAILED" : "passed") << "   unsigned long" << std::endl;
 		pass &= p;
 	}
 
@@ -446,7 +446,7 @@ bool TestConversion()
 				unsigned long long v1 = std::numeric_limits<unsigned long long>::max(); p = !SafeConvert(v1, v) && p;
 			}
 			
-			std::cout << (!p ? "FAILED   " : "passed   ") << " unsigned long overflow" << std::endl;
+			std::cout << (!p ? "FAILED" : "passed") << "   unsigned long overflow" << std::endl;
 			pass &= p;
 		}
 		else
@@ -461,12 +461,12 @@ bool TestConversion()
 		v1 = -1; p = SafeConvert(v1, v2) && p;
 		v1 = 0;  p = SafeConvert(v1, v2) && p;
 		v1 = 1;  p = SafeConvert(v1, v2) && p;
-		v1 = std::numeric_limits<long long>::min();	 p = SafeConvert(v1, v2) && p;
+		v1 = std::numeric_limits<long long>::min();	    p = SafeConvert(v1, v2) && p;
 		v1 = std::numeric_limits<long long>::min() + 1; p = SafeConvert(v1, v2) && p;
-		v1 = std::numeric_limits<long long>::max();	 p = SafeConvert(v1, v2) && p;
+		v1 = std::numeric_limits<long long>::max();	    p = SafeConvert(v1, v2) && p;
 		v1 = std::numeric_limits<long long>::max() - 1; p = SafeConvert(v1, v2) && p;
 		
-		std::cout << (!p ? "FAILED   " : "passed   ") << " signed long long" << std::endl;
+		std::cout << (!p ? "FAILED" : "passed") << "   signed long long" << std::endl;
 		pass &= p;
 	}
 
@@ -478,7 +478,7 @@ bool TestConversion()
 		v1 = std::numeric_limits<unsigned long long>::max();	 p = SafeConvert(v1, v2) && p;
 		v1 = std::numeric_limits<unsigned long long>::max() - 1; p = SafeConvert(v1, v2) && p;
 		
-		std::cout << (!p ? "FAILED   " : "passed   ") << " unsigned long long" << std::endl;
+		std::cout << (!p ? "FAILED" : "passed") << "   unsigned long long" << std::endl;
 		pass &= p;
 	}
 
@@ -493,7 +493,7 @@ bool TestConversion()
 		v1 = std::numeric_limits<ssize_t>::max();	  p = SafeConvert(v1, v2) && p;
 		v1 = std::numeric_limits<ssize_t>::max() - 1;  p = SafeConvert(v1, v2) && p;
 		
-		std::cout << (!p ? "FAILED   " : "passed   ") << " ssize_t" << std::endl;
+		std::cout << (!p ? "FAILED" : "passed") << "   ssize_t" << std::endl;
 		pass &= p;
 	}
 
@@ -505,7 +505,7 @@ bool TestConversion()
 		v1 = std::numeric_limits<size_t>::max();	 p = SafeConvert(v1, v2) && p;
 		v1 = std::numeric_limits<size_t>::max() - 1; p = SafeConvert(v1, v2) && p;
 		
-		std::cout << (!p ? "FAILED   " : "passed   ") << " size_t" << std::endl;
+		std::cout << (!p ? "FAILED" : "passed") << "   size_t" << std::endl;
 		pass &= p;
 	}
 
@@ -522,7 +522,7 @@ bool TestConversion()
 		v1 = Integer((signed long)std::numeric_limits<char>::max()) - 1; p = SafeConvert(v1, v2) && p;
 		v1 = Integer((signed long)std::numeric_limits<char>::max()) + 1; p = !SafeConvert(v1, v2) && p;
 		
-		std::cout << (!p ? "FAILED   " : "passed   ") << " Integer to signed char" << std::endl;
+		std::cout << (!p ? "FAILED" : "passed") << "   Integer to signed char" << std::endl;
 		pass &= p;
 	}
 
@@ -534,7 +534,7 @@ bool TestConversion()
 		v1 = Integer((signed long)std::numeric_limits<unsigned char>::max()) - 1; p = SafeConvert(v1, v2) && p;
 		v1 = Integer((signed long)std::numeric_limits<unsigned char>::max()) + 1; p = !SafeConvert(v1, v2) && p;
 		
-		std::cout << (!p ? "FAILED   " : "passed   ") << " Integer to unsigned char" << std::endl;
+		std::cout << (!p ? "FAILED" : "passed") << "   Integer to unsigned char" << std::endl;
 		pass &= p;
 	}
 
@@ -550,7 +550,7 @@ bool TestConversion()
 		v1 = Integer((signed long)std::numeric_limits<short>::max()) - 1; p = SafeConvert(v1, v2) && p;
 		v1 = Integer((signed long)std::numeric_limits<short>::max()) + 1; p = !SafeConvert(v1, v2) && p;
 		
-		std::cout << (!p ? "FAILED   " : "passed   ") << " Integer to signed short" << std::endl;
+		std::cout << (!p ? "FAILED" : "passed") << "   Integer to signed short" << std::endl;
 		pass &= p;
 	}
 
@@ -562,7 +562,7 @@ bool TestConversion()
 		v1 = Integer((signed long)std::numeric_limits<unsigned short>::max()) - 1; p = SafeConvert(v1, v2) && p;
 		v1 = Integer((signed long)std::numeric_limits<unsigned short>::max()) + 1; p = !SafeConvert(v1, v2) && p;
 		
-		std::cout << (!p ? "FAILED   " : "passed   ") << " Integer to unsigned short" << std::endl;
+		std::cout << (!p ? "FAILED" : "passed") << "   Integer to unsigned short" << std::endl;
 		pass &= p;
 	}
 
@@ -583,7 +583,7 @@ bool TestConversion()
 		v1 = Integer((signed long)std::numeric_limits<int>::max()) - 1; p = SafeConvert(v1, v2) && p; CRYPTOPP_ASSERT(p);
 		v1 = Integer((signed long)std::numeric_limits<int>::max()) + 1; p = !SafeConvert(v1, v2) && p; CRYPTOPP_ASSERT(p);
 		
-		std::cout << (!p ? "FAILED   " : "passed   ") << " Integer to signed int" << std::endl;
+		std::cout << (!p ? "FAILED" : "passed") << "   Integer to signed int" << std::endl;
 		pass &= p;
 	}
 
@@ -595,7 +595,7 @@ bool TestConversion()
 		v1 = Integer((signed long)std::numeric_limits<unsigned int>::max()) - 1; p = SafeConvert(v1, v2) && p; CRYPTOPP_ASSERT(p);
 		v1 = Integer((signed long)std::numeric_limits<unsigned int>::max()) + 1; p = !SafeConvert(v1, v2) && p; CRYPTOPP_ASSERT(p);
 		
-		std::cout << (!p ? "FAILED   " : "passed   ") << " Integer to unsigned int" << std::endl;
+		std::cout << (!p ? "FAILED" : "passed") << "   Integer to unsigned int" << std::endl;
 		pass &= p;
 	}
 
@@ -611,7 +611,7 @@ bool TestConversion()
 		v1 = Integer((signed long)std::numeric_limits<signed long>::max()) - 1; p = SafeConvert(v1, v2) && p; CRYPTOPP_ASSERT(p);
 		v1 = Integer((signed long)std::numeric_limits<signed long>::max()) + 1; p = !SafeConvert(v1, v2) && p; CRYPTOPP_ASSERT(p);
 		
-		std::cout << (!p ? "FAILED   " : "passed   ") << " Integer to signed long" << std::endl;
+		std::cout << (!p ? "FAILED" : "passed") << "   Integer to signed long" << std::endl;
 		pass &= p;
 	}
 
@@ -623,7 +623,7 @@ bool TestConversion()
 		v1 = Integer((word64)std::numeric_limits<unsigned long>::max()) - 1; p = SafeConvert(v1, v2) && p; CRYPTOPP_ASSERT(p);
 		v1 = Integer((word64)std::numeric_limits<unsigned long>::max()) + 1; p = !SafeConvert(v1, v2) && p; CRYPTOPP_ASSERT(p);
 		
-		std::cout << (!p ? "FAILED   " : "passed   ") << " Integer to signed long" << std::endl;
+		std::cout << (!p ? "FAILED" : "passed") << "   Integer to signed long" << std::endl;
 		pass &= p;
 	}
 
@@ -639,7 +639,7 @@ bool TestConversion()
 		v1 = Integer((signed long)std::numeric_limits<ssize_t>::max()) - 1; p = SafeConvert(v1, v2) && p; CRYPTOPP_ASSERT(p);
 		v1 = Integer((signed long)std::numeric_limits<ssize_t>::max()) + 1; p = !SafeConvert(v1, v2) && p; CRYPTOPP_ASSERT(p);
 		
-		std::cout << (!p ? "FAILED   " : "passed   ") << " Integer to signed ssize_t" << std::endl;
+		std::cout << (!p ? "FAILED" : "passed") << "   Integer to signed ssize_t" << std::endl;
 		pass &= p;
 	}
 
@@ -651,7 +651,7 @@ bool TestConversion()
 		v1 = Integer((word64)std::numeric_limits<size_t>::max()) - 1; p = SafeConvert(v1, v2) && p; CRYPTOPP_ASSERT(p);
 		v1 = Integer((word64)std::numeric_limits<size_t>::max()) + 1; p = !SafeConvert(v1, v2) && p; CRYPTOPP_ASSERT(p);
 		
-		std::cout << (!p ? "FAILED   " : "passed   ") << " Integer to size_t" << std::endl;
+		std::cout << (!p ? "FAILED" : "passed") << "   Integer to size_t" << std::endl;
 		pass &= p;
 	}
 
@@ -664,7 +664,7 @@ bool TestConversion()
 		v1 = Integer((word64)std::numeric_limits<unsigned long long>::max()) - 1; p = SafeConvert(v1, v2) && p; CRYPTOPP_ASSERT(p);
 		v1 = Integer((word64)std::numeric_limits<unsigned long long>::max()) + 1; p = !SafeConvert(v1, v2) && p; CRYPTOPP_ASSERT(p);
 		
-		std::cout << (!p ? "FAILED   " : "passed   ") << " Integer to unsigned long long" << std::endl;
+		std::cout << (!p ? "FAILED" : "passed") << "   Integer to unsigned long long" << std::endl;
 		pass &= p;
 	}
 #endif
