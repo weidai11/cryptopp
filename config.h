@@ -53,15 +53,35 @@
 #define PREFER_BERKELEY_STYLE_SOCKETS
 // #define PREFER_WINDOWS_STYLE_SOCKETS
 
-// set the name of Rijndael cipher, was "Rijndael" before version 5.3
+// Set the name of Rijndael cipher, was "Rijndael" before version 5.3
 #define CRYPTOPP_RIJNDAEL_NAME "AES"
+
+// Only one or the other, but not both
+#if (defined(DEBUG) || defined(_DEBUG)) && (defined(NDEBUG) || defined(_NDEBUG))
+# error Both DEBUG and NDEBUG are defined.
+#endif
+
+// CRYPTOPP_POSIX_ASSERT unconditionally disables the library assert and yields to
+//   Posix assert. Note that you always get an assert if CRYPTOPP_DEBUG is defined.
+//   If you don't want an assert, then be sure to define Posix's NDEBUG or _NDEBUG.
+// #define CRYPTOPP_POSIX_ASSERT 1
+
+// Recognize two build types: debug and release. If NDEBUG is defined, then it is a
+//   Release build *without* asserts. Otherwise, it is a Debug build *with* asserts.
+//   If the developer does not build with either NDEBUG or DEBUG, then we error on
+//   the side of security and stability, and presume its a Debug build. For Debug 
+//   builds, CRYPTOPP_ASSERT will alert to problems it detects, like NULL pointers,
+//   0 sizes, overflow and undefined behavior.
+#if !defined(NDEBUG) && !defined(_NDEBUG)
+# define CRYPTOPP_DEBUG 1
+#endif
 
 // ***************** Important Settings Again ********************
 // But the defaults should be ok.
 
 // namespace support is now required
 #ifdef NO_NAMESPACE
-#	error namespace support is now required
+# error namespace support is now required
 #endif
 
 // Define this to workaround a Microsoft CryptoAPI bug where
@@ -502,66 +522,107 @@ NAMESPACE_END
 #define CRYPTOPP_STATIC_TEMPLATE_CLASS CRYPTOPP_EXTERN_STATIC_TEMPLATE_CLASS
 #endif
 
-// ***************** C++11 related ********************
+// ***************** C++11 and C++14 related ********************
 
-// Visual Studio and C++11 language features began at Visual Studio 2010,
-//   https://msdn.microsoft.com/en-us/library/hh567368%28v=vs.110%29.aspx.
-// Also see the warning on the buggy C++11 feature matrix at
-//   http://stackoverflow.com/a/31642496/608639
+// Visual Studio and C++11 language features began at Visual Studio 2010, https://msdn.microsoft.com/en-us/library/hh567368%28v=vs.110%29.aspx.
+// Intel and C++11 language features, https://software.intel.com/en-us/articles/c0x-features-supported-by-intel-c-compiler
+// GCC and C++11 language features, https://gcc.gnu.org/projects/cxx0x.html
+// Clang and C++11 language features, http://clang.llvm.org/cxx_status.html
 #if (_MSC_VER >= 1600) || (__cplusplus >= 201103L)
 # define CRYPTOPP_CXX11 1
 #endif
-	
+
+// Hack ahead. Apple's standard library does not have C++'s unique_ptr in C++11. We can't
+//   test for unique_ptr directly because some of the non-Apple Clangs on OS X fail the same
+//   way. However, modern standard libraries have <forward_list>, so we test for it instead.
+//   Thanks to Jonathan Wakely for devising the clever test for modern/ancient versions.
+// TODO: test under Xcode 3, where g++ is really g++.
+#if defined(__clang__)
+#  if !(__has_include(<forward_list>))
+#    undef CRYPTOPP_CXX11
+#  endif
+#endif
+
 // C++14 adds a operator”” and Small String Optimizations (SSO)
 // TODO: change this when Microsoft adds support
 #if (_MSC_VER >= 2300) || (__cplusplus >= 201402L)
-# define CRYPTOPP_CXX14 1
+#  define CRYPTOPP_CXX14 1
 #endif 
-	
-// C++11 is available
-#if defined(CRYPTOPP_CXX11)
+
+// C++11 or C++14 is available
+#if defined(CRYPTOPP_CXX11) || defined(CRYPTOPP_CXX14)
+
+// Everone appears to provide this list
+#define CRYPTOPP_CXX11_UNIQUE_PTR 1
+// #define CRYPTOPP_CXX11_ALIGNAS 1
+// #define CRYPTOPP_CXX11_ALIGNOF 1
+
+// std::move: MS at VS2015 (19.00); GCC at 4.6; Clang at 2.9; and Intel 11.1.
+#if (_MSC_VER >= 1600) || (__INTEL_COMPILER >= 1110)
+#  define CRYPTOPP_CXX11_MOVE 1
+#elif (__clang_major__ >= 3 || (__clang_major__ == 2 && __clang_minor__ >= 9))
+#  define CRYPTOPP_CXX11_MOVE 1
+#elif (__GNUC__ >= 5 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6))
+#  define CRYPTOPP_CXX11_MOVE 1
+#endif // std::move
 
 // R-values: MS at VS2010 (16.00); GCC at 4.3; Clang at 2.9; and Intel 11.1.
-//   The extra tests on GCC are because Clang claims to be GCC 4.
-#if (_MSC_VER >= 1600)
-# define CRYPTOPP_CXX11_RVALUES 1
-#elif defined(__clang__)
-# if __has_feature(cxx_rvalue_references)
+#if (_MSC_VER >= 1600) || (__INTEL_COMPILER >= 1110)
 #  define CRYPTOPP_CXX11_RVALUES 1
-# endif
-#elif (__INTEL_COMPILER >= 1110)
-# define CRYPTOPP_CXX11_RVALUES 1
-#elif (__GNUC__ >= 5 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3)) && !(defined(__INTEL_COMPILER) || defined(__clang__))
-
-# define CRYPTOPP_CXX11_RVALUES 1
+#elif (__clang_major__ >= 3 || (__clang_major__ == 2 && __clang_minor__ >= 9))
+#  define CRYPTOPP_CXX11_RVALUES 1
+#elif (__GNUC__ >= 5 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3))
+#  define CRYPTOPP_CXX11_RVALUES 1
 #endif // R-value compilers
 
-// noexcept: MS at VS2015 (19.00); GCC at 4.6; Clang at 3.0; and Intel 14.0.
-#if (_MSC_VER >= 1900)
-# define CRYPTOPP_CXX11_NOEXCEPT 1
+// template aliases: MS at VS 2015 (v19.00); GCC at 4.7; Clang at 3.0; and Intel 12.1.
+#if (_MSC_VER >= 1900) || (__INTEL_COMPILER >= 1210)
+#  define CRYPTOPP_CXX11_TEMPLATE_ALIAS 1
 #elif defined(__clang__)
-# if __has_feature(cxx_noexcept)
+#  if (__has_feature(cxx_alias_templates))
+#    define CCRYPTOPP_CXX11_TEMPLATE_ALIAS 1
+#  endif
+#elif (__GNUC__ >= 5 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7))
+#  define CRYPTOPP_CXX11_TEMPLATE_ALIAS 1
+#endif // template aliases
+
+// noexcept: MS at VS2015 (19.00); GCC at 4.6; Clang at 3.0; and Intel 14.0.
+#if (_MSC_VER >= 1900) || (__INTEL_COMPILER >= 1400)
 #  define CRYPTOPP_CXX11_NOEXCEPT 1
-# endif
-#elif (__INTEL_COMPILER >= 1400)
-# define CRYPTOPP_CXX11_RVALUES 1
-#elif (__GNUC__ >= 5 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)) && !(defined(__INTEL_COMPILER) || defined(__clang__))
-# define CRYPTOPP_CXX11_NOEXCEPT 1
+#elif defined(__clang__)
+#  if __has_feature(cxx_noexcept)
+#    define CRYPTOPP_CXX11_NOEXCEPT 1
+#  endif
+#elif (__GNUC__ >= 5 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6))
+#  define CRYPTOPP_CXX11_NOEXCEPT 1
 #endif // noexcept compilers
 
+// static assert: MS at VS2010 (16.00); GCC at 4.3; Clang at 3.0; and Intel 11.1.
+#if (_MSC_VER >= 1600) || (__INTEL_COMPILER >= 1110)
+#  define CRYPTOPP_CXX11_STATIC_ASSERT 1
+#elif defined(__clang__)
+#  if __has_feature(cxx_static_assert)
+#    define CRYPTOPP_CXX11_STATIC_ASSERT 1
+#  endif
+#elif (__GNUC__ >= 5 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3))
+#  define CRYPTOPP_CXX11_STATIC_ASSERT 1
+#endif // static assert
+
+#endif // #endif // CRYPTOPP_CXX11
+
 #if defined(CRYPTOPP_CXX11_NOEXCEPT)
-# define CRYPTOPP_THROW noexcept(false)
-# define CRYPTOPP_NO_THROW noexcept(true)
+#  define CRYPTOPP_THROW noexcept(false)
+#  define CRYPTOPP_NO_THROW noexcept(true)
 #else
-# define CRYPTOPP_THROW
-# define CRYPTOPP_NO_THROW
+#  define CRYPTOPP_THROW
+#  define CRYPTOPP_NO_THROW
 #endif // CRYPTOPP_CXX11_NOEXCEPT
 
-#else // not CRYPTOPP_CXX11
-
-# define CRYPTOPP_THROW
-# define CRYPTOPP_NO_THROW
-
-#endif // CRYPTOPP_CXX11
+// This tests compatibility with C++11 nullptr
+#if defined(__clang__)
+#  if (__has_feature(cxx_nullptr))
+#    define NULL nullptr
+#  endif
+#endif
 
 #endif // CRYPTOPP_CONFIG_H
