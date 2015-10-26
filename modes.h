@@ -170,11 +170,7 @@ public:
 
 protected:
 	bool RequireAlignedInput() const {return true;}
-	void ResizeBuffers()
-	{
-		CipherModeBase::ResizeBuffers();
-		m_buffer.New(BlockSize());
-	}
+	void ResizeBuffers();
 
 	SecByteBlock m_buffer;
 };
@@ -229,11 +225,7 @@ public:
 	void ProcessData(byte *outString, const byte *inString, size_t length);
 	
 protected:
-	void ResizeBuffers()
-	{
-		BlockOrientedCipherModeBase::ResizeBuffers();
-		m_temp.New(BlockSize());
-	}
+	void ResizeBuffers();
 	AlignedSecByteBlock m_temp;
 };
 
