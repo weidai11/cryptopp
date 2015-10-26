@@ -149,6 +149,12 @@ void BlockOrientedCipherModeBase::UncheckedSetKey(const byte *key, unsigned int 
 	}
 }
 
+void BlockOrientedCipherModeBase::ResizeBuffers()
+{
+	CipherModeBase::ResizeBuffers();
+	m_buffer.New(BlockSize());
+}
+
 void ECB_OneWay::ProcessData(byte *outString, const byte *inString, size_t length)
 {
 	CRYPTOPP_ASSERT(length%BlockSize()==0);
@@ -241,6 +247,12 @@ void CBC_CTS_Decryption::ProcessLastBlock(byte *outString, const byte *inString,
 		m_cipher->ProcessBlock(m_temp);
 		xorbuf(outString, m_temp, m_register, BlockSize());
 	}
+}
+
+void CBC_Decryption::ResizeBuffers()
+{
+	BlockOrientedCipherModeBase::ResizeBuffers();
+	m_temp.New(BlockSize());
 }
 
 NAMESPACE_END
