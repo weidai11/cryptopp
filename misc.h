@@ -6,6 +6,8 @@
 #include "stdcpp.h"
 #include "trap.h"
 
+#include <limits>
+
 #ifdef _MSC_VER
 	#if _MSC_VER >= 1400
 		// VC2005 workaround: disable declarations that conflict with winnt.h
@@ -69,6 +71,16 @@ template <bool b>
 struct CompileAssert
 {
 	static char dummy[2*b-1];
+};
+
+// Checks signed input to be negative or positive.
+template < typename T, bool sig> struct negative{
+  bool operator()(const T &x){ return x < 0; }
+};
+
+// Unsigned input won't be checked, this avoids the compiler warning when unsigned int (or long unsigned int) is used.
+template < typename T> struct negative<T,false>{
+  bool operator()(const T &x){ return false; }
 };
 
 // __attribute__ ((unused)) will help silence the "unused variable warnings. Its available
@@ -532,8 +544,7 @@ std::string IntToString(T a, unsigned int base = 10)
 	if (a == 0)
 		return "0";
 	bool negate = false;
-	if (a < 0)
-	{
+	if (negative<T, std::numeric_limits<T>::is_signed>()(a)) {
 		negate = true;
 		a = 0-a;	// VC .NET does not like -a
 	}
