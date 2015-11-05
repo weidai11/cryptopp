@@ -5,6 +5,7 @@
 
 #include "cryptlib.h"
 #include "filters.h"
+#include "smartptr.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 

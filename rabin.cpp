@@ -2,10 +2,11 @@
 
 #include "pch.h"
 #include "rabin.h"
+#include "integer.h"
 #include "nbtheory.h"
+#include "modarith.h"
 #include "asn.h"
 #include "sha.h"
-#include "modarith.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -39,7 +40,7 @@ Integer RabinFunction::ApplyFunction(const Integer &in) const
 	return out;
 }
 
-bool RabinFunction::Validate(RandomNumberGenerator &rng, unsigned int level) const
+bool RabinFunction::Validate(RandomNumberGenerator& /*rng*/, unsigned int level) const
 {
 	bool pass = true;
 	pass = pass && m_n > Integer::One() && m_n%4 == 1;

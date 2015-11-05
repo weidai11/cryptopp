@@ -3,8 +3,12 @@
 #include "pch.h"
 
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
+
 #include "cryptlib.h"
-#include "integer.h"
+#include "pubkey.h"
+#include "gfpcrypt.h"
+#include "eccrypto.h"
+
 #include "smartptr.h"
 #include "crc.h"
 #include "adler32.h"
@@ -14,22 +18,29 @@
 #include "sha.h"
 #include "tiger.h"
 #include "ripemd.h"
-#include "hmac.h"
+#include "whrlpool.h"
 #include "hkdf.h"
+#include "hmac.h"
 #include "ttmac.h"
+#include "integer.h"
 #include "pwdbased.h"
 #include "filters.h"
-#include "hex.h"
-#include "misc.h"
 #include "files.h"
-#include "trap.h"
+#include "hex.h"
+#include "smartptr.h"
 
 #include <iostream>
 #include <iomanip>
 
 #include "validate.h"
 
+// Aggressive stack checking with VS2005 SP1 and above.
+#if (CRYPTOPP_MSC_VERSION >= 1410)
+# pragma strict_gs_check (on)
+#endif
+
 USING_NAMESPACE(CryptoPP)
+USING_NAMESPACE(std)
 
 struct HashTestTuple
 {
@@ -52,20 +63,20 @@ bool HashModuleTest(HashTransformation &md, const HashTestTuple *testSet, unsign
 	for (unsigned int i=0; i<testSetSize; i++)
 	{
 		unsigned j;
+
 		for (j=0; j<testSet[i].repeatTimes; j++)
 			md.Update(testSet[i].input, testSet[i].inputLen);
 		md.Final(digest);
-
-		fail = !VerifyBufsEqual(digest, testSet[i].output, md.DigestSize());
+		fail = memcmp(digest, testSet[i].output, md.DigestSize()) != 0;
 		pass = pass && !fail;
 
-		std::cout << (fail ? "FAILED   " : "passed   ");
+		cout << (fail ? "FAILED   " : "passed   ");
 		for (j=0; j<md.DigestSize(); j++)
-			std::cout << std::setw(2) << std::setfill('0') << std::hex << (int)digest[j];
-		std::cout << "   \"" << (char *)testSet[i].input << '\"';
+			cout << setw(2) << setfill('0') << hex << (int)digest[j];
+		cout << "   \"" << (char *)testSet[i].input << '\"';
 		if (testSet[i].repeatTimes != 1)
-			std::cout << " repeated " << std::dec << testSet[i].repeatTimes << " times";
-		std::cout  << std::endl;
+			cout << " repeated " << dec << testSet[i].repeatTimes << " times";
+		cout  << endl;
 	}
 
 	return pass;
@@ -73,7 +84,7 @@ bool HashModuleTest(HashTransformation &md, const HashTestTuple *testSet, unsign
 
 bool ValidateCRC32()
 {
-	static const HashTestTuple testSet[] = 
+	HashTestTuple testSet[] = 
 	{
 		HashTestTuple("", "\x00\x00\x00\x00"),
 		HashTestTuple("a", "\x43\xbe\xb7\xe8"),
@@ -87,13 +98,13 @@ bool ValidateCRC32()
 
 	CRC32 crc;
 
-	std::cout << "\nCRC-32 validation suite running...\n\n";
-	return HashModuleTest(crc, testSet, COUNTOF(testSet));
+	cout << "\nCRC-32 validation suite running...\n\n";
+	return HashModuleTest(crc, testSet, sizeof(testSet)/sizeof(testSet[0]));
 }
 
 bool ValidateAdler32()
 {
-	static const HashTestTuple testSet[] = 
+	HashTestTuple testSet[] = 
 	{
 		HashTestTuple("", "\x00\x00\x00\x01"),
 		HashTestTuple("a", "\x00\x62\x00\x62"),
@@ -106,13 +117,13 @@ bool ValidateAdler32()
 
 	Adler32 md;
 
-	std::cout << "\nAdler-32 validation suite running...\n\n";
-	return HashModuleTest(md, testSet, COUNTOF(testSet));
+	cout << "\nAdler-32 validation suite running...\n\n";
+	return HashModuleTest(md, testSet, sizeof(testSet)/sizeof(testSet[0]));
 }
 
 bool ValidateMD2()
 {
-	static const HashTestTuple testSet[] = 
+	HashTestTuple testSet[] = 
 	{
 		HashTestTuple("", "\x83\x50\xe5\xa3\xe2\x4c\x15\x3d\xf2\x27\x5c\x9f\x80\x69\x27\x73"),
 		HashTestTuple("a", "\x32\xec\x01\xec\x4a\x6d\xac\x72\xc0\xab\x96\xfb\x34\xc0\xb5\xd1"),
@@ -125,13 +136,13 @@ bool ValidateMD2()
 
 	Weak::MD2 md2;
 
-	std::cout << "\nMD2 validation suite running...\n\n";
-	return HashModuleTest(md2, testSet, COUNTOF(testSet));
+	cout << "\nMD2 validation suite running...\n\n";
+	return HashModuleTest(md2, testSet, sizeof(testSet)/sizeof(testSet[0]));
 }
 
 bool ValidateMD4()
 {
-	static const HashTestTuple testSet[] = 
+	HashTestTuple testSet[] = 
 	{
 		HashTestTuple("", "\x31\xd6\xcf\xe0\xd1\x6a\xe9\x31\xb7\x3c\x59\xd7\xe0\xc0\x89\xc0"),
 		HashTestTuple("a", "\xbd\xe5\x2c\xb3\x1d\xe3\x3e\x46\x24\x5e\x05\xfb\xdb\xd6\xfb\x24"),
@@ -144,13 +155,13 @@ bool ValidateMD4()
 
 	Weak::MD4 md4;
 
-	std::cout << "\nMD4 validation suite running...\n\n";
-	return HashModuleTest(md4, testSet, COUNTOF(testSet));
+	cout << "\nMD4 validation suite running...\n\n";
+	return HashModuleTest(md4, testSet, sizeof(testSet)/sizeof(testSet[0]));
 }
 
 bool ValidateMD5()
 {
-	static const HashTestTuple testSet[] = 
+	HashTestTuple testSet[] = 
 	{
 		HashTestTuple("", "\xd4\x1d\x8c\xd9\x8f\x00\xb2\x04\xe9\x80\x09\x98\xec\xf8\x42\x7e"),
 		HashTestTuple("a", "\x0c\xc1\x75\xb9\xc0\xf1\xb6\xa8\x31\xc3\x99\xe2\x69\x77\x26\x61"),
@@ -163,27 +174,27 @@ bool ValidateMD5()
 
 	Weak::MD5 md5;
 
-	std::cout << "\nMD5 validation suite running...\n\n";
-	return HashModuleTest(md5, testSet, COUNTOF(testSet));
+	cout << "\nMD5 validation suite running...\n\n";
+	return HashModuleTest(md5, testSet, sizeof(testSet)/sizeof(testSet[0]));
 }
 
 bool ValidateSHA()
 {
-	std::cout << "\nSHA validation suite running...\n\n";
+	cout << "\nSHA validation suite running...\n\n";
 	return RunTestDataFile("TestVectors/sha.txt");
 }
 
 bool ValidateSHA2()
 {
-	std::cout << "\nSHA validation suite running...\n\n";
+	cout << "\nSHA validation suite running...\n\n";
 	return RunTestDataFile("TestVectors/sha.txt");
 }
 
 bool ValidateTiger()
 {
-	std::cout << "\nTiger validation suite running...\n\n";
+	cout << "\nTiger validation suite running...\n\n";
 
-	static const HashTestTuple testSet[] =
+	HashTestTuple testSet[] =
 	{
 		HashTestTuple("", "\x32\x93\xac\x63\x0c\x13\xf0\x24\x5f\x92\xbb\xb1\x76\x6e\x16\x16\x7a\x4e\x58\x49\x2d\xde\x73\xf3"),
 		HashTestTuple("abc", "\x2a\xab\x14\x84\xe8\xc1\x58\xf2\xbf\xb8\xc5\xff\x41\xb5\x7a\x52\x51\x29\x13\x1c\x95\x7b\x5f\x93"),
@@ -198,12 +209,12 @@ bool ValidateTiger()
 
 	Tiger tiger;
 
-	return HashModuleTest(tiger, testSet, COUNTOF(testSet));
+	return HashModuleTest(tiger, testSet, sizeof(testSet)/sizeof(testSet[0]));
 }
 
 bool ValidateRIPEMD()
 {
-	static const HashTestTuple testSet128[] =
+	HashTestTuple testSet128[] = 
 	{
 		HashTestTuple("", "\xcd\xf2\x62\x13\xa1\x50\xdc\x3e\xcb\x61\x0f\x18\xf6\xb3\x8b\x46"),
 		HashTestTuple("a", "\x86\xbe\x7a\xfa\x33\x9d\x0f\xc7\xcf\xc7\x85\xe7\x2f\x57\x8d\x33"),
@@ -216,7 +227,7 @@ bool ValidateRIPEMD()
 		HashTestTuple("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "\x4a\x7f\x57\x23\xf9\x54\xeb\xa1\x21\x6c\x9d\x8f\x63\x20\x43\x1f", 15625)
 	};
 
-	static const HashTestTuple testSet160[] =
+	HashTestTuple testSet160[] = 
 	{
 		HashTestTuple("", "\x9c\x11\x85\xa5\xc5\xe9\xfc\x54\x61\x28\x08\x97\x7e\xe8\xf5\x48\xb2\x25\x8d\x31"),
 		HashTestTuple("a", "\x0b\xdc\x9d\x2d\x25\x6b\x3e\xe9\xda\xae\x34\x7b\xe6\xf4\xdc\x83\x5a\x46\x7f\xfe"),
@@ -229,7 +240,7 @@ bool ValidateRIPEMD()
 		HashTestTuple("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "\x52\x78\x32\x43\xc1\x69\x7b\xdb\xe1\x6d\x37\xf9\x7f\x68\xf0\x83\x25\xdc\x15\x28", 15625)
 	};
 
-	static const HashTestTuple testSet256[] =
+	HashTestTuple testSet256[] = 
 	{
 		HashTestTuple("", "\x02\xba\x4c\x4e\x5f\x8e\xcd\x18\x77\xfc\x52\xd6\x4d\x30\xe3\x7a\x2d\x97\x74\xfb\x1e\x5d\x02\x63\x80\xae\x01\x68\xe3\xc5\x52\x2d"),
 		HashTestTuple("a", "\xf9\x33\x3e\x45\xd8\x57\xf5\xd9\x0a\x91\xba\xb7\x0a\x1e\xba\x0c\xfb\x1b\xe4\xb0\x78\x3c\x9a\xcf\xcd\x88\x3a\x91\x34\x69\x29\x25"),
@@ -242,7 +253,7 @@ bool ValidateRIPEMD()
 		HashTestTuple("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "\xac\x95\x37\x44\xe1\x0e\x31\x51\x4c\x15\x0d\x4d\x8d\x7b\x67\x73\x42\xe3\x33\x99\x78\x82\x96\xe4\x3a\xe4\x85\x0c\xe4\xf9\x79\x78", 15625)
 	};
 
-	static const HashTestTuple testSet320[] =
+	HashTestTuple testSet320[] = 
 	{
 		HashTestTuple("", "\x22\xd6\x5d\x56\x61\x53\x6c\xdc\x75\xc1\xfd\xf5\xc6\xde\x7b\x41\xb9\xf2\x73\x25\xeb\xc6\x1e\x85\x57\x17\x7d\x70\x5a\x0e\xc8\x80\x15\x1c\x3a\x32\xa0\x08\x99\xb8"),
 		HashTestTuple("a", "\xce\x78\x85\x06\x38\xf9\x26\x58\xa5\xa5\x85\x09\x75\x79\x92\x6d\xda\x66\x7a\x57\x16\x56\x2c\xfc\xf6\xfb\xe7\x7f\x63\x54\x2f\x99\xb0\x47\x05\xd6\x97\x0d\xff\x5d"),
@@ -257,21 +268,21 @@ bool ValidateRIPEMD()
 
 	bool pass = true;
 
-	std::cout << "\nRIPEMD-128 validation suite running...\n\n";
+	cout << "\nRIPEMD-128 validation suite running...\n\n";
 	RIPEMD128 md128;
-	pass = HashModuleTest(md128, testSet128, COUNTOF(testSet128)) && pass;
+	pass = HashModuleTest(md128, testSet128, sizeof(testSet128)/sizeof(testSet128[0])) && pass;
 
-	std::cout << "\nRIPEMD-160 validation suite running...\n\n";
+	cout << "\nRIPEMD-160 validation suite running...\n\n";
 	RIPEMD160 md160;
-	pass = HashModuleTest(md160, testSet160, COUNTOF(testSet160)) && pass;
+	pass = HashModuleTest(md160, testSet160, sizeof(testSet160)/sizeof(testSet160[0])) && pass;
 
-	std::cout << "\nRIPEMD-256 validation suite running...\n\n";
+	cout << "\nRIPEMD-256 validation suite running...\n\n";
 	RIPEMD256 md256;
-	pass = HashModuleTest(md256, testSet256, COUNTOF(testSet256)) && pass;
+	pass = HashModuleTest(md256, testSet256, sizeof(testSet256)/sizeof(testSet256[0])) && pass;
 
-	std::cout << "\nRIPEMD-320 validation suite running...\n\n";
+	cout << "\nRIPEMD-320 validation suite running...\n\n";
 	RIPEMD320 md320;
-	pass = HashModuleTest(md320, testSet320, COUNTOF(testSet320)) && pass;
+	pass = HashModuleTest(md320, testSet320, sizeof(testSet320)/sizeof(testSet320[0])) && pass;
 
 	return pass;
 }
@@ -279,7 +290,7 @@ bool ValidateRIPEMD()
 #ifdef CRYPTOPP_REMOVED
 bool ValidateHAVAL()
 {
-	static const HashTestTuple testSet[] = 
+	HashTestTuple testSet[] = 
 	{
 		HashTestTuple("", "\xC6\x8F\x39\x91\x3F\x90\x1F\x3D\xDF\x44\xC7\x07\x35\x7A\x7D\x70"),
 		HashTestTuple("a", "\x4D\xA0\x8F\x51\x4A\x72\x75\xDB\xC4\xCE\xCE\x4A\x34\x73\x85\x98\x39\x83\xA8\x30"),
@@ -291,7 +302,7 @@ bool ValidateHAVAL()
 
 	bool pass=true;
 
-	std::cout << "\nHAVAL validation suite running...\n\n";
+	cout << "\nHAVAL validation suite running...\n\n";
 	{
 		HAVAL3 md(16);
 		pass = HashModuleTest(md, testSet+0, 1) && pass;
@@ -334,11 +345,11 @@ bool ValidateWhirlpool()
 #ifdef CRYPTOPP_REMOVED
 bool ValidateMD5MAC()
 {
-	static const byte keys[2][MD5MAC::KEYLENGTH]={
+	const byte keys[2][MD5MAC::KEYLENGTH]={
 		{0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,0xaa,0xbb,0xcc,0xdd,0xee,0xff},
 		{0x01,0x23,0x45,0x67,0x89,0xab,0xcd,0xef,0xfe,0xdc,0xba,0x98,0x76,0x54,0x32,0x10}};
 
-	static const char *TestVals[7]={
+	const char *TestVals[7]={
 		"",
 		"a",
 		"abc",
@@ -347,7 +358,7 @@ bool ValidateMD5MAC()
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
 		"12345678901234567890123456789012345678901234567890123456789012345678901234567890"};
 
-	static const byte output[2][7][MD5MAC::DIGESTSIZE]={
+	const byte output[2][7][MD5MAC::DIGESTSIZE]={
 		{{0x1f,0x1e,0xf2,0x37,0x5c,0xc0,0xe0,0x84,0x4f,0x98,0xe7,0xe8,0x11,0xa3,0x4d,0xa8},
 		{0x7a,0x76,0xee,0x64,0xca,0x71,0xef,0x23,0x7e,0x26,0x29,0xed,0x94,0x52,0x73,0x65},
 		{0xe8,0x01,0x3c,0x11,0xf7,0x20,0x9d,0x13,0x28,0xc0,0xca,0xa0,0x4f,0xd0,0x12,0xa6},
@@ -366,26 +377,26 @@ bool ValidateMD5MAC()
 	byte digest[MD5MAC::DIGESTSIZE];
 	bool pass=true, fail;
 
-	std::cout << "\nMD5MAC validation suite running...\n";
+	cout << "\nMD5MAC validation suite running...\n";
 
 	for (int k=0; k<2; k++)
 	{
 		MD5MAC mac(keys[k]);
-		std::cout << "\nKEY: ";
+		cout << "\nKEY: ";
 		for (int j=0;j<MD5MAC::KEYLENGTH;j++)
-			std::cout << std::setw(2) << std::setfill('0') << std::hex << (int)keys[k][j];
-		std::cout << std::endl << std::endl;
+			cout << setw(2) << setfill('0') << hex << (int)keys[k][j];
+		cout << endl << endl;
 		for (int i=0;i<7;i++)
 		{
 			mac.Update((byte *)TestVals[i], strlen(TestVals[i]));
 			mac.Final(digest);
-			fail = !VerifyBufsEqual(digest, output[k][i], MD5MAC::DIGESTSIZE)
+			fail = memcmp(digest, output[k][i], MD5MAC::DIGESTSIZE)
 				 || !mac.VerifyDigest(output[k][i], (byte *)TestVals[i], strlen(TestVals[i]));
 			pass = pass && !fail;
-			std::cout << (fail ? "FAILED   " : "passed   ");
+			cout << (fail ? "FAILED   " : "passed   ");
 			for (int j=0;j<MD5MAC::DIGESTSIZE;j++)
-				std::cout << std::setw(2) << std::setfill('0') << std::hex << (int)digest[j];
-			std::cout << "   \"" << TestVals[i] << '\"' << std::endl;
+				cout << setw(2) << setfill('0') << hex << (int)digest[j];
+			cout << "   \"" << TestVals[i] << '\"' << endl;
 		}
 	}
 
@@ -403,13 +414,13 @@ bool ValidateXMACC()
 {
 	typedef XMACC<MD5> XMACC_MD5;
 
-	static const  byte keys[2][XMACC_MD5::KEYLENGTH]={
+	const byte keys[2][XMACC_MD5::KEYLENGTH]={
 		{0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,0xaa,0xbb},
 		{0x01,0x23,0x45,0x67,0x89,0xab,0xcd,0xef,0xfe,0xdc,0xba,0x98}};
 
-	static const word32 counters[2]={0xccddeeff, 0x76543210};
+	const word32 counters[2]={0xccddeeff, 0x76543210};
 
-	static const char *TestVals[7]={
+	const char *TestVals[7]={
 		"",
 		"a",
 		"abc",
@@ -418,7 +429,7 @@ bool ValidateXMACC()
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
 		"12345678901234567890123456789012345678901234567890123456789012345678901234567890"};
 
-	static const byte output[2][7][XMACC_MD5::DIGESTSIZE]={
+	const byte output[2][7][XMACC_MD5::DIGESTSIZE]={
 		{{0xcc,0xdd,0xef,0x00,0xfa,0x89,0x54,0x92,0x86,0x32,0xda,0x2a,0x3f,0x29,0xc5,0x52,0xa0,0x0d,0x05,0x13},
 		{0xcc,0xdd,0xef,0x01,0xae,0xdb,0x8b,0x7b,0x69,0x71,0xc7,0x91,0x71,0x48,0x9d,0x18,0xe7,0xdf,0x9d,0x5a},
 		{0xcc,0xdd,0xef,0x02,0x5e,0x01,0x2e,0x2e,0x4b,0xc3,0x83,0x62,0xc2,0xf4,0xe6,0x18,0x1c,0x44,0xaf,0xca},
@@ -437,26 +448,26 @@ bool ValidateXMACC()
 	byte digest[XMACC_MD5::DIGESTSIZE];
 	bool pass=true, fail;
 
-	std::cout << "\nXMACC/MD5 validation suite running...\n";
+	cout << "\nXMACC/MD5 validation suite running...\n";
 
 	for (int k=0; k<2; k++)
 	{
 		XMACC_MD5 mac(keys[k], counters[k]);
-		std::cout << "\nKEY: ";
+		cout << "\nKEY: ";
 		for (int j=0;j<XMACC_MD5::KEYLENGTH;j++)
-			std::cout << std::setw(2) << std::setfill('0') << std::hex << (int)keys[k][j];
-		std::cout << "    COUNTER: 0x" << std::hex << counters[k] << std::endl << std::endl;
+			cout << setw(2) << setfill('0') << hex << (int)keys[k][j];
+		cout << "    COUNTER: 0x" << hex << counters[k] << endl << endl;
 		for (int i=0;i<7;i++)
 		{
 			mac.Update((byte *)TestVals[i], strlen(TestVals[i]));
 			mac.Final(digest);
-			fail = !VerifyBufsEqual(digest, output[k][i], XMACC_MD5::DIGESTSIZE)
+			fail = memcmp(digest, output[k][i], XMACC_MD5::DIGESTSIZE)
 				 || !mac.VerifyDigest(output[k][i], (byte *)TestVals[i], strlen(TestVals[i]));
 			pass = pass && !fail;
-			std::cout << (fail ? "FAILED   " : "passed   ");
+			cout << (fail ? "FAILED   " : "passed   ");
 			for (int j=0;j<XMACC_MD5::DIGESTSIZE;j++)
-				std::cout << std::setw(2) << std::setfill('0') << std::hex << (int)digest[j];
-			std::cout << "   \"" << TestVals[i] << '\"' << std::endl;
+				cout << setw(2) << setfill('0') << hex << (int)digest[j];
+			cout << "   \"" << TestVals[i] << '\"' << endl;
 		}
 	}
 
@@ -466,11 +477,11 @@ bool ValidateXMACC()
 
 bool ValidateTTMAC()
 {
-	static const  byte key[TTMAC::KEYLENGTH]={
+	const byte key[TTMAC::KEYLENGTH]={
 		0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,
 		0xaa,0xbb,0xcc,0xdd,0xee,0xff,0x01,0x23,0x45,0x67};
 
-	static const char *TestVals[8]={
+	const char *TestVals[8]={
 		"",
 		"a",
 		"abc",
@@ -480,7 +491,7 @@ bool ValidateTTMAC()
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
 		"12345678901234567890123456789012345678901234567890123456789012345678901234567890"};
 
-	static const byte output[8][TTMAC::DIGESTSIZE]={
+	const byte output[8][TTMAC::DIGESTSIZE]={
 		{0x2d,0xec,0x8e,0xd4,0xa0,0xfd,0x71,0x2e,0xd9,0xfb,0xf2,0xab,0x46,0x6e,0xc2,0xdf,0x21,0x21,0x5e,0x4a},
 		{0x58,0x93,0xe3,0xe6,0xe3,0x06,0x70,0x4d,0xd7,0x7a,0xd6,0xe6,0xed,0x43,0x2c,0xde,0x32,0x1a,0x77,0x56},
 		{0x70,0xbf,0xd1,0x02,0x97,0x97,0xa5,0xc1,0x6d,0xa5,0xb5,0x57,0xa1,0xf0,0xb2,0x77,0x9b,0x78,0x49,0x7e},
@@ -493,20 +504,20 @@ bool ValidateTTMAC()
 	byte digest[TTMAC::DIGESTSIZE];
 	bool pass=true, fail;
 
-	std::cout << "\nTwo-Track-MAC validation suite running...\n";
+	cout << "\nTwo-Track-MAC validation suite running...\n";
 
 	TTMAC mac(key, sizeof(key));
-	for (size_t k=0; k<COUNTOF(TestVals); k++)
+	for (unsigned int k=0; k<sizeof(TestVals)/sizeof(TestVals[0]); k++)
 	{
 		mac.Update((byte *)TestVals[k], strlen(TestVals[k]));
 		mac.Final(digest);
-		fail = !VerifyBufsEqual(digest, output[k], TTMAC::DIGESTSIZE)
+		fail = memcmp(digest, output[k], TTMAC::DIGESTSIZE)
 			|| !mac.VerifyDigest(output[k], (byte *)TestVals[k], strlen(TestVals[k]));
 		pass = pass && !fail;
-		std::cout << (fail ? "FAILED   " : "passed   ");
+		cout << (fail ? "FAILED   " : "passed   ");
 		for (int j=0;j<TTMAC::DIGESTSIZE;j++)
-			std::cout << std::setw(2) << std::setfill('0') << std::hex << (int)digest[j];
-		std::cout << "   \"" << TestVals[k] << '\"' << std::endl;
+			cout << setw(2) << setfill('0') << hex << (int)digest[j];
+		cout << "   \"" << TestVals[k] << '\"' << endl;
 	}
 
 	return true;
@@ -527,23 +538,23 @@ bool TestPBKDF(PasswordBasedKeyDerivationFunction &pbkdf, const PBKDF_TestTuple 
 	{
 		const PBKDF_TestTuple &tuple = testSet[i];
 
-		std::string password, salt, derivedKey;
+		string password, salt, derivedKey;
 		StringSource(tuple.hexPassword, true, new HexDecoder(new StringSink(password)));
 		StringSource(tuple.hexSalt, true, new HexDecoder(new StringSink(salt)));
 		StringSource(tuple.hexDerivedKey, true, new HexDecoder(new StringSink(derivedKey)));
 
 		SecByteBlock derived(derivedKey.size());
 		pbkdf.DeriveKey(derived, derived.size(), tuple.purpose, (byte *)password.data(), password.size(), (byte *)salt.data(), salt.size(), tuple.iterations);
-		bool fail = !VerifyBufsEqual(derived, reinterpret_cast<const unsigned char*>(derivedKey.data()), derived.size());
+		bool fail = memcmp(derived, derivedKey.data(), derived.size()) != 0;
 		pass = pass && !fail;
 
-		HexEncoder enc(new FileSink(std::cout));
-		std::cout << (fail ? "FAILED   " : "passed   ");
+		HexEncoder enc(new FileSink(cout));
+		cout << (fail ? "FAILED   " : "passed   ");
 		enc.Put(tuple.purpose);
-		std::cout << " " << tuple.iterations;
-		std::cout << " " << tuple.hexPassword << " " << tuple.hexSalt << " ";
+		cout << " " << tuple.iterations;
+		cout << " " << tuple.hexPassword << " " << tuple.hexSalt << " ";
 		enc.Put(derived, derived.size());
-		std::cout << std::endl;
+		cout << endl;
 	}
 
 	return pass;
@@ -555,7 +566,7 @@ bool ValidatePBKDF()
 
 	{
 	// from OpenSSL PKCS#12 Program FAQ v1.77, at http://www.drh-consultancy.demon.co.uk/test.txt
-	static const PBKDF_TestTuple testSet[] =
+	PBKDF_TestTuple testSet[] = 
 	{
 		{1, 1, "0073006D006500670000", "0A58CF64530D823F", "8AAAE6297B6CB04642AB5B077851284EB7128F1A2A7FBCA3"},
 		{2, 1, "0073006D006500670000", "0A58CF64530D823F", "79993DFE048D3B76"},
@@ -571,13 +582,13 @@ bool ValidatePBKDF()
 
 	PKCS12_PBKDF<SHA1> pbkdf;
 
-	std::cout << "\nPKCS #12 PBKDF validation suite running...\n\n";
-	pass = TestPBKDF(pbkdf, testSet, COUNTOF(testSet)) && pass;
+	cout << "\nPKCS #12 PBKDF validation suite running...\n\n";
+	pass = TestPBKDF(pbkdf, testSet, sizeof(testSet)/sizeof(testSet[0])) && pass;
 	}
 
 	{
 	// from draft-ietf-smime-password-03.txt, at http://www.imc.org/draft-ietf-smime-password
-	static const PBKDF_TestTuple testSet[] = 
+	PBKDF_TestTuple testSet[] = 
 	{
 		{0, 5, "70617373776f7264", "1234567878563412", "D1DAA78615F287E6"},
 		{0, 500, "416C6C206E2D656E746974696573206D75737420636F6D6D756E69636174652077697468206F74686572206E2d656E74697469657320766961206E2D3120656E746974656568656568656573", "1234567878563412","6A8970BF68C92CAEA84A8DF28510858607126380CC47AB2D"}
@@ -585,8 +596,8 @@ bool ValidatePBKDF()
 
 	PKCS5_PBKDF2_HMAC<SHA1> pbkdf;
 
-	std::cout << "\nPKCS #5 PBKDF2 validation suite running...\n\n";
-	pass = TestPBKDF(pbkdf, testSet, COUNTOF(testSet)) && pass;
+	cout << "\nPKCS #5 PBKDF2 validation suite running...\n\n";
+	pass = TestPBKDF(pbkdf, testSet, sizeof(testSet)/sizeof(testSet[0])) && pass;
 	}
 
 	return pass;
@@ -594,7 +605,7 @@ bool ValidatePBKDF()
 
 struct HKDF_TestTuple
 {
-	const char *hexSecret, *hexSalt, *hexContext, *hexDerivedKey;
+	const char *hexSecret, *hexSalt, *hexInfo, *hexExpected;
 	size_t len;
 };
 
@@ -606,26 +617,28 @@ bool TestHKDF(KeyDerivationFunction &kdf, const HKDF_TestTuple *testSet, unsigne
 	{
 		const HKDF_TestTuple &tuple = testSet[i];
 
-		std::string secret, context, salt, derivedKey;
+		std::string secret, salt, info, expected;
 		StringSource(tuple.hexSecret, true, new HexDecoder(new StringSink(secret)));
 		StringSource(tuple.hexSalt ? tuple.hexSalt : "", true, new HexDecoder(new StringSink(salt)));
-		StringSource(tuple.hexContext ? tuple.hexContext : "", true, new HexDecoder(new StringSink(context)));
-		StringSource(tuple.hexDerivedKey, true, new HexDecoder(new StringSink(derivedKey)));
+		StringSource(tuple.hexInfo ? tuple.hexInfo : "", true, new HexDecoder(new StringSink(info)));
+		StringSource(tuple.hexExpected, true, new HexDecoder(new StringSink(expected)));
 
-		SecByteBlock derived(derivedKey.size());
+		SecByteBlock derived(expected.size());
 		unsigned int ret = kdf.DeriveKey(derived, derived.size(),
                                          reinterpret_cast<const unsigned char*>(secret.data()), secret.size(),
-                                         reinterpret_cast<const unsigned char*>(salt.data()), salt.size(),
-                                         reinterpret_cast<const unsigned char*>(context.data()), context.size());
-		pass = pass && (ret == tuple.len);
+                                         (tuple.hexSalt ? reinterpret_cast<const unsigned char*>(salt.data()) : NULL), salt.size(),
+                                         (tuple.hexInfo ? reinterpret_cast<const unsigned char*>(info.data()) : NULL), info.size());
 
-		bool fail = !VerifyBufsEqual(derived, reinterpret_cast<const unsigned char*>(derivedKey.data()), derived.size());
-		pass = pass && !fail;
+		bool fail = !VerifyBufsEqual(derived, reinterpret_cast<const unsigned char*>(expected.data()), derived.size());
+		pass = pass && (ret == tuple.len) && !fail;
 
 		HexEncoder enc(new FileSink(std::cout));
 		std::cout << (fail ? "FAILED   " : "passed   ");
-		std::cout << " " << tuple.hexSecret << " " << (tuple.hexSalt ? tuple.hexSalt : "<NO SALT>");
-		std::cout << " " << (tuple.hexContext ? tuple.hexContext : "<NO CTX>") << " ";
+		std::cout << " " << tuple.hexSecret << " ";
+		std::cout << (tuple.hexSalt ? (strlen(tuple.hexSalt) ? tuple.hexSalt : "<0-LEN SALT>") : "<NO SALT>");
+		std::cout << " ";
+		std::cout << (tuple.hexInfo ? (strlen(tuple.hexInfo) ? tuple.hexInfo : "<0-LEN INFO>") : "<NO INFO>");
+		std::cout << " ";
 		enc.Put(derived, derived.size());
 		std::cout << std::endl;
 	}
@@ -646,7 +659,9 @@ bool ValidateHKDF()
 		// Test Case #5
 		{"000102030405060708090a0b0c0d0e0f 101112131415161718191a1b1c1d1e1f 202122232425262728292a2b2c2d2e2f 303132333435363738393a3b3c3d3e3f 404142434445464748494a4b4c4d4e4f", "606162636465666768696a6b6c6d6e6f 707172737475767778797a7b7c7d7e7f 808182838485868788898a8b8c8d8e8f 909192939495969798999a9b9c9d9e9f a0a1a2a3a4a5a6a7a8a9aaabacadaeaf", "b0b1b2b3b4b5b6b7b8b9babbbcbdbebf c0c1c2c3c4c5c6c7c8c9cacbcccdcecf d0d1d2d3d4d5d6d7d8d9dadbdcdddedf e0e1e2e3e4e5e6e7e8e9eaebecedeeef f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff", "0bd770a74d1160f7c9f12cd5912a06eb ff6adcae899d92191fe4305673ba2ffe 8fa3f1a4e5ad79f3f334b3b202b2173c 486ea37ce3d397ed034c7f9dfeb15c5e 927336d0441f4c4300e2cff0d0900b52 d3b4", 82},
 		// Test Case #6
-		{"0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b", NULL, NULL, "0ac1af7002b3d761d1e55298da9d0506 b9ae52057220a306e07b6b87e8df21d0 ea00033de03984d34918", 42}
+		{"0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b", "", "", "0ac1af7002b3d761d1e55298da9d0506 b9ae52057220a306e07b6b87e8df21d0 ea00033de03984d34918", 42},
+		// Test Case #7		                                                            
+		{"0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c", NULL, "", "2c91117204d745f3500d636a62f64f0 ab3bae548aa53d423b0d1f27ebba6f5e5 673a081d70cce7acfc48", 42}
 	};
 
 	HKDF<SHA1> hkdf;
@@ -664,7 +679,7 @@ bool ValidateHKDF()
 		// Test Case #2
 		{"000102030405060708090a0b0c0d0e0f 101112131415161718191a1b1c1d1e1f 202122232425262728292a2b2c2d2e2f 303132333435363738393a3b3c3d3e3f 404142434445464748494a4b4c4d4e4f", "606162636465666768696a6b6c6d6e6f 707172737475767778797a7b7c7d7e7f 808182838485868788898a8b8c8d8e8f 909192939495969798999a9b9c9d9e9f a0a1a2a3a4a5a6a7a8a9aaabacadaeaf", "b0b1b2b3b4b5b6b7b8b9babbbcbdbebf c0c1c2c3c4c5c6c7c8c9cacbcccdcecf d0d1d2d3d4d5d6d7d8d9dadbdcdddedf e0e1e2e3e4e5e6e7e8e9eaebecedeeef f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff", "b11e398dc80327a1c8e7f78c596a4934 4f012eda2d4efad8a050cc4c19afa97c 59045a99cac7827271cb41c65e590e09 da3275600c2f09b8367793a9aca3db71 cc30c58179ec3e87c14c01d5c1f3434f 1d87", 82},
 		// Test Case #3
-		{"0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b", NULL, NULL, "8da4e775a563c18f715f802a063c5a31 b8a11f5c5ee1879ec3454e5f3c738d2d 9d201395faa4b61a96c8", 42}
+		{"0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b", "", "", "8da4e775a563c18f715f802a063c5a31 b8a11f5c5ee1879ec3454e5f3c738d2d 9d201395faa4b61a96c8", 42}
 	};
 
 	HKDF<SHA256> hkdf;
@@ -674,7 +689,7 @@ bool ValidateHKDF()
 	}
 
 	{
-	// SHA-512 based on RFC 5869, https://tools.ietf.org/html/rfc5869
+	// SHA-512, Crypto++ generated, based on RFC 5869, https://tools.ietf.org/html/rfc5869
 	static const HKDF_TestTuple testSet[] =
 	{
 		// Test Case #0
@@ -682,8 +697,9 @@ bool ValidateHKDF()
 		// Test Case #0
 		{"000102030405060708090a0b0c0d0e0f 101112131415161718191a1b1c1d1e1f 202122232425262728292a2b2c2d2e2f 303132333435363738393a3b3c3d3e3f 404142434445464748494a4b4c4d4e4f", "606162636465666768696a6b6c6d6e6f 707172737475767778797a7b7c7d7e7f 808182838485868788898a8b8c8d8e8f 909192939495969798999a9b9c9d9e9f a0a1a2a3a4a5a6a7a8a9aaabacadaeaf", "b0b1b2b3b4b5b6b7b8b9babbbcbdbebf c0c1c2c3c4c5c6c7c8c9cacbcccdcecf d0d1d2d3d4d5d6d7d8d9dadbdcdddedf e0e1e2e3e4e5e6e7e8e9eaebecedeeef f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff", "CE6C97192805B346E6161E821ED16567 3B84F400A2B514B2FE23D84CD189DDF1 B695B48CBD1C8388441137B3CE28F16A A64BA33BA466B24DF6CFCB021ECFF235 F6A2056CE3AF1DE44D572097A8505D9E 7A93", 82},
 		// Test Case #0
-		{"0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b", NULL, NULL, "F5FA02B18298A72A8C23898A8703472C 6EB179DC204C03425C970E3B164BF90F FF22D04836D0E2343BAC", 42}
-
+		{"0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b", "", "", "F5FA02B18298A72A8C23898A8703472C 6EB179DC204C03425C970E3B164BF90F FF22D04836D0E2343BAC", 42},
+		// Test Case #0
+		{"0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c", NULL, "", "1407D46013D98BC6DECEFCFEE55F0F90 B0C7F63D68EB1A80EAF07E953CFC0A3A 5240A155D6E4DAA965BB", 42}
 	};
 
 	HKDF<SHA512> hkdf;
@@ -692,5 +708,28 @@ bool ValidateHKDF()
 	pass = TestHKDF(hkdf, testSet, COUNTOF(testSet)) && pass;
 	}
 
+
+
+	{
+	// Whirlpool, Crypto++ generated, based on RFC 5869, https://tools.ietf.org/html/rfc5869
+	static const HKDF_TestTuple testSet[] =
+	{
+		// Test Case #0
+		{"0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b", "000102030405060708090a0b0c", "f0f1f2f3f4f5f6f7f8f9", "0D29F74CCD8640F44B0DD9638111C1B5 766EFED752AF358109E2E7C9CD4A28EF 2F90B2AD461FBA0744D4", 42},
+		// Test Case #0
+		{"000102030405060708090a0b0c0d0e0f 101112131415161718191a1b1c1d1e1f 202122232425262728292a2b2c2d2e2f 303132333435363738393a3b3c3d3e3f 404142434445464748494a4b4c4d4e4f", "606162636465666768696a6b6c6d6e6f 707172737475767778797a7b7c7d7e7f 808182838485868788898a8b8c8d8e8f 909192939495969798999a9b9c9d9e9f a0a1a2a3a4a5a6a7a8a9aaabacadaeaf", "b0b1b2b3b4b5b6b7b8b9babbbcbdbebf c0c1c2c3c4c5c6c7c8c9cacbcccdcecf d0d1d2d3d4d5d6d7d8d9dadbdcdddedf e0e1e2e3e4e5e6e7e8e9eaebecedeeef f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff", "4EBE4FE2DCCEC42661699500BE279A99 3FED90351E19373B3926FAA3A410700B2 BBF77E254CF1451AE6068D64A0904D96 6F4FF25498445A501B88F50D21E3A68A8 90E09445DC5886DD00E7F4F7C58A5121 70", 82},
+		// Test Case #0
+		{"0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b", "", "", "110632D0F7AEFAC31771FC66C22BB346 2614B81E4B04BA7F2B662E0BD694F564 58615F9A9CB56C57ECF2", 42},
+		// Test Case #0
+		{"0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c" /*key*/, NULL /*salt*/, "" /*info*/, "4089286EBFB23DD8A02F0C9DAA35D538 EB09CD0A8CBAB203F39083AA3E0BD313 E6F91E64F21A187510B0", 42}
+	};
+
+	HKDF<Whirlpool> hkdf;
+
+	std::cout << "\nRFC 5869 HKDF(Whirlpool) validation suite running...\n\n";
+	pass = TestHKDF(hkdf, testSet, COUNTOF(testSet)) && pass;
+	}
+	
+	
 	return pass;
 }

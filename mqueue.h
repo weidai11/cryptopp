@@ -1,8 +1,11 @@
 #ifndef CRYPTOPP_MQUEUE_H
 #define CRYPTOPP_MQUEUE_H
 
+#include "cryptlib.h"
 #include "queue.h"
 #include "filters.h"
+#include "misc.h"
+
 #include <deque>
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -17,6 +20,7 @@ public:
 		{m_queue.IsolatedInitialize(parameters); m_lengths.assign(1, 0U); m_messageCounts.assign(1, 0U);}
 	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking)
 	{
+		CRYPTOPP_UNUSED(blocking);
 		m_queue.Put(begin, length);
 		m_lengths.back() += length;
 		if (messageEnd)
@@ -26,9 +30,10 @@ public:
 		}
 		return 0;
 	}
-	bool IsolatedFlush(bool hardFlush, bool blocking) {return false;}
+	bool IsolatedFlush(bool hardFlush, bool blocking)
+		{CRYPTOPP_UNUSED(hardFlush), CRYPTOPP_UNUSED(blocking); return false;}
 	bool IsolatedMessageSeriesEnd(bool blocking)
-		{m_messageCounts.push_back(0); return false;}
+		{CRYPTOPP_UNUSED(blocking); m_messageCounts.push_back(0); return false;}
 
 	lword MaxRetrievable() const
 		{return m_lengths.front();}

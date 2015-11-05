@@ -6,17 +6,22 @@
 */
 
 #include "config.h"
-#include "integer.h"
-#include "pubkey.h"
-#include "modexppc.h"
-#include "sha.h"
-#include "algparam.h"
-#include "asn.h"
-#include "smartptr.h"
-#include "hmac.h"
-#include "trap.h"
 
-#include <limits.h>
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(push)
+# pragma warning(disable: 4189)
+#endif
+
+#include "cryptlib.h"
+#include "pubkey.h"
+#include "integer.h"
+#include "modexppc.h"
+#include "algparam.h"
+#include "smartptr.h"
+#include "sha.h"
+#include "asn.h"
+#include "hmac.h"
+#include "misc.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -28,8 +33,6 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE DL_GroupParameters_IntegerBased : public A
 	typedef DL_GroupParameters_IntegerBased ThisClass;
 	
 public:
-	virtual ~DL_GroupParameters_IntegerBased() { }
-
 	void Initialize(const DL_GroupParameters_IntegerBased &params)
 		{Initialize(params.GetModulus(), params.GetSubgroupOrder(), params.GetSubgroupGenerator());}
 	void Initialize(RandomNumberGenerator &rng, unsigned int pbits)
@@ -55,9 +58,18 @@ public:
 	bool ValidateGroup(RandomNumberGenerator &rng, unsigned int level) const;
 	bool ValidateElement(unsigned int level, const Integer &element, const DL_FixedBasePrecomputation<Integer> *precomp) const;
 	bool FastSubgroupCheckAvailable() const {return GetCofactor() == 2;}
+
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	// Cygwin i386 crash at -O3; see .
+	void EncodeElement(bool reversible, const Element &element, byte *encoded) const;
+	unsigned int GetEncodedElementSize(bool reversible) const;
+#else
 	void EncodeElement(bool reversible, const Element &element, byte *encoded) const
-		{element.Encode(encoded, GetModulus().ByteCount());}
-	unsigned int GetEncodedElementSize(bool reversible) const {return GetModulus().ByteCount();}
+		{CRYPTOPP_UNUSED(reversible); element.Encode(encoded, GetModulus().ByteCount());}
+	unsigned int GetEncodedElementSize(bool reversible) const
+		{CRYPTOPP_UNUSED(reversible); return GetModulus().ByteCount();}
+#endif
+
 	Integer DecodeElement(const byte *encoded, bool checkForGroupMembership) const;
 	Integer ConvertElementToInteger(const Element &element) const
 		{return element;}
@@ -71,6 +83,10 @@ public:
 
 	void SetSubgroupOrder(const Integer &q)
 		{m_q = q; ParametersChanged();}
+	
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_GroupParameters_IntegerBased() {}
+#endif
 
 protected:
 	Integer ComputeGroupOrder(const Integer &modulus) const
@@ -92,7 +108,6 @@ class CRYPTOPP_NO_VTABLE DL_GroupParameters_IntegerBasedImpl : public DL_GroupPa
 
 public:
 	typedef typename GROUP_PRECOMP::Element Element;
-	virtual ~DL_GroupParameters_IntegerBasedImpl() { }
 
 	// GeneratibleCryptoMaterial interface
 	bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
@@ -117,6 +132,10 @@ public:
 		{return GetModulus() == rhs.GetModulus() && GetGenerator() == rhs.GetGenerator() && this->GetSubgroupOrder() == rhs.GetSubgroupOrder();}
 	bool operator!=(const DL_GroupParameters_IntegerBasedImpl<GROUP_PRECOMP, BASE_PRECOMP> &rhs) const
 		{return !operator==(rhs);}
+	
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_GroupParameters_IntegerBasedImpl() {}
+#endif
 };
 
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_GroupParameters_IntegerBasedImpl<ModExpPrecomputation>;
@@ -125,8 +144,6 @@ CRYPTOPP_DLL_TEMPLATE_CLASS DL_GroupParameters_IntegerBasedImpl<ModExpPrecomputa
 class CRYPTOPP_DLL DL_GroupParameters_GFP : public DL_GroupParameters_IntegerBasedImpl<ModExpPrecomputation>
 {
 public:
-	virtual ~DL_GroupParameters_GFP() { }
-
 	// DL_GroupParameters
 	bool IsIdentity(const Integer &element) const {return element == Integer::One();}
 	void SimultaneousExponentiate(Element *results, const Element &base, const Integer *exponents, unsigned int exponentsCount) const;
@@ -140,6 +157,10 @@ public:
 	// used by MQV
 	Element MultiplyElements(const Element &a, const Element &b) const;
 	Element CascadeExponentiate(const Element &element1, const Integer &exponent1, const Element &element2, const Integer &exponent2) const;
+	
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_GroupParameters_GFP() {}
+#endif
 
 protected:
 	int GetFieldType() const {return 1;}
@@ -150,6 +171,10 @@ class CRYPTOPP_DLL DL_GroupParameters_GFP_DefaultSafePrime : public DL_GroupPara
 {
 public:
 	typedef NoCofactorMultiplication DefaultCofactorOption;
+	
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_GroupParameters_GFP_DefaultSafePrime() {}
+#endif
 
 protected:
 	unsigned int GetDefaultSubgroupOrderSize(unsigned int modulusSize) const {return modulusSize-1;}
@@ -160,7 +185,6 @@ template <class T>
 class DL_Algorithm_GDSA : public DL_ElgamalLikeSignatureAlgorithm<T>
 {
 public:
-	virtual ~DL_Algorithm_GDSA() { }
 	static const char * CRYPTOPP_API StaticAlgorithmName() {return "DSA-1363";}
 
 	void Sign(const DL_GroupParameters<T> &params, const Integer &x, const Integer &k, const Integer &e, Integer &r, Integer &s) const
@@ -169,7 +193,7 @@ public:
 		r %= q;
 		Integer kInv = k.InverseMod(q);
 		s = (kInv * (x*r + e)) % q;
-		CRYPTOPP_ASSERT(!!r && !!s);
+		assert(!!r && !!s);
 	}
 
 	bool Verify(const DL_GroupParameters<T> &params, const DL_PublicKey<T> &publicKey, const Integer &e, const Integer &r, const Integer &s) const
@@ -184,6 +208,10 @@ public:
 		// verify r == (g^u1 * y^u2 mod p) mod q
 		return r == params.ConvertElementToInteger(publicKey.CascadeExponentiateBaseAndPublicElement(u1, u2)) % q;
 	}
+
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_Algorithm_GDSA() {}
+#endif
 };
 
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_GDSA<Integer>;
@@ -193,7 +221,6 @@ template <class T>
 class DL_Algorithm_NR : public DL_ElgamalLikeSignatureAlgorithm<T>
 {
 public:
-	virtual ~DL_Algorithm_NR() { }
 	static const char * CRYPTOPP_API StaticAlgorithmName() {return "NR";}
 
 	void Sign(const DL_GroupParameters<T> &params, const Integer &x, const Integer &k, const Integer &e, Integer &r, Integer &s) const
@@ -201,7 +228,7 @@ public:
 		const Integer &q = params.GetSubgroupOrder();
 		r = (r + e) % q;
 		s = (k - x*r) % q;
-		CRYPTOPP_ASSERT(!!r);
+		assert(!!r);
 	}
 
 	bool Verify(const DL_GroupParameters<T> &params, const DL_PublicKey<T> &publicKey, const Integer &e, const Integer &r, const Integer &s) const
@@ -213,6 +240,10 @@ public:
 		// check r == (m_g^s * m_y^r + m) mod m_q
 		return r == (params.ConvertElementToInteger(publicKey.CascadeExponentiateBaseAndPublicElement(s, r)) + e) % q;
 	}
+	
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_Algorithm_NR() {}
+#endif
 };
 
 /*! DSA public key format is defined in 7.3.3 of RFC 2459. The
@@ -233,6 +264,10 @@ public:
 		{this->SetPublicElement(Integer(bt));}
 	void DEREncodePublicKey(BufferedTransformation &bt) const
 		{this->GetPublicElement().DEREncode(bt);}
+	
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_PublicKey_GFP() {}
+#endif
 };
 
 //! DL private key (in GF(p) groups)
@@ -252,6 +287,10 @@ public:
 		{this->AccessGroupParameters().Initialize(p, g); this->SetPrivateExponent(x);}
 	void Initialize(const Integer &p, const Integer &q, const Integer &g, const Integer &x)
 		{this->AccessGroupParameters().Initialize(p, q, g); this->SetPrivateExponent(x);}
+	
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_PrivateKey_GFP() {}
+#endif
 };
 
 //! DL signing/verification keys (in GF(p) groups)
@@ -260,6 +299,10 @@ struct DL_SignatureKeys_GFP
 	typedef DL_GroupParameters_GFP GroupParameters;
 	typedef DL_PublicKey_GFP<GroupParameters> PublicKey;
 	typedef DL_PrivateKey_GFP<GroupParameters> PrivateKey;
+	
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_SignatureKeys_GFP() {}
+#endif
 };
 
 //! DL encryption/decryption keys (in GF(p) groups)
@@ -268,6 +311,10 @@ struct DL_CryptoKeys_GFP
 	typedef DL_GroupParameters_GFP_DefaultSafePrime GroupParameters;
 	typedef DL_PublicKey_GFP<GroupParameters> PublicKey;
 	typedef DL_PrivateKey_GFP<GroupParameters> PrivateKey;
+	
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_CryptoKeys_GFP() {}
+#endif
 };
 
 //! provided for backwards compatibility, this class uses the old non-standard Crypto++ key format
@@ -307,6 +354,10 @@ public:
 			this->GetPublicElement().DEREncode(seq);
 		seq.MessageEnd();
 	}
+	
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_PublicKey_GFP_OldFormat() {}
+#endif
 };
 
 //! provided for backwards compatibility, this class uses the old non-standard Crypto++ key format
@@ -348,6 +399,10 @@ public:
 			this->GetPrivateExponent().DEREncode(seq);
 		seq.MessageEnd();
 	}
+	
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_PrivateKey_GFP_OldFormat() {}
+#endif
 };
 
 //! <a href="http://www.weidai.com/scan-mirror/sig.html#DSA-1363">DSA-1363</a>
@@ -358,6 +413,9 @@ struct GDSA : public DL_SS<
 	DL_SignatureMessageEncodingMethod_DSA,
 	H>
 {
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~GDSA() {}
+#endif
 };
 
 //! <a href="http://www.weidai.com/scan-mirror/sig.html#NR">NR</a>
@@ -368,6 +426,9 @@ struct NR : public DL_SS<
 	DL_SignatureMessageEncodingMethod_NR,
 	H>
 {
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~NR() {}
+#endif
 };
 
 //! DSA group parameters, these are GF(p) group parameters that are allowed by the DSA standard
@@ -384,6 +445,10 @@ public:
 		{return pbits >= MIN_PRIME_LENGTH && pbits <= MAX_PRIME_LENGTH && pbits % PRIME_LENGTH_MULTIPLE == 0;}
 
 	enum {MIN_PRIME_LENGTH = 1024, MAX_PRIME_LENGTH = 3072, PRIME_LENGTH_MULTIPLE = 1024};
+	
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_GroupParameters_DSA() {}
+#endif
 };
 
 template <class H>
@@ -394,6 +459,10 @@ struct DL_Keys_DSA
 {
 	typedef DL_PublicKey_GFP<DL_GroupParameters_DSA> PublicKey;
 	typedef DL_PrivateKey_WithSignaturePairwiseConsistencyTest<DL_PrivateKey_GFP<DL_GroupParameters_DSA>, DSA2<SHA> > PrivateKey;
+	
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_Keys_DSA() {}
+#endif
 };
 
 //! <a href="http://en.wikipedia.org/wiki/Digital_Signature_Algorithm">DSA</a>, as specified in FIPS 186-3
@@ -408,6 +477,14 @@ class DSA2 : public DL_SS<
 {
 public:
 	static std::string CRYPTOPP_API StaticAlgorithmName() {return "DSA/" + (std::string)H::StaticAlgorithmName();}
+
+#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
+	enum {MIN_PRIME_LENGTH = 1024, MAX_PRIME_LENGTH = 3072, PRIME_LENGTH_MULTIPLE = 1024};
+#endif
+
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DSA2() {}
+#endif
 };
 
 //! DSA with SHA-1, typedef'd for backwards compatibility
@@ -422,7 +499,6 @@ template <class MAC, bool DHAES_MODE>
 class DL_EncryptionAlgorithm_Xor : public DL_SymmetricEncryptionAlgorithm
 {
 public:
-	virtual ~DL_EncryptionAlgorithm_Xor() { }
 	bool ParameterSupported(const char *name) const {return strcmp(name, Name::EncodingParameters()) == 0;}
 	size_t GetSymmetricKeyLength(size_t plaintextLength) const
 		{return plaintextLength + MAC::DEFAULT_KEYLENGTH;}
@@ -432,7 +508,8 @@ public:
 		{return (unsigned int)SaturatingSubtract(ciphertextLength, (unsigned int)MAC::DIGESTSIZE);}
 	void SymmetricEncrypt(RandomNumberGenerator &rng, const byte *key, const byte *plaintext, size_t plaintextLength, byte *ciphertext, const NameValuePairs &parameters) const
 	{
-		const byte *cipherKey, *macKey;
+		CRYPTOPP_UNUSED(rng);
+		const byte *cipherKey = NULL, *macKey = NULL;
 		if (DHAES_MODE)
 		{
 			macKey = key;
@@ -492,6 +569,10 @@ public:
 		xorbuf(plaintext, ciphertext, cipherKey, plaintextLength);
 		return DecodingResult(plaintextLength);
 	}
+	
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_EncryptionAlgorithm_Xor() {}
+#endif
 };
 
 //! _
@@ -499,7 +580,6 @@ template <class T, bool DHAES_MODE, class KDF>
 class DL_KeyDerivationAlgorithm_P1363 : public DL_KeyDerivationAlgorithm<T>
 {
 public:
-	virtual ~DL_KeyDerivationAlgorithm_P1363() { }
 	bool ParameterSupported(const char *name) const {return strcmp(name, Name::KeyDerivationParameters()) == 0;}
 	void Derive(const DL_GroupParameters<T> &params, byte *derivedKey, size_t derivedLength, const T &agreedElement, const T &ephemeralPublicKey, const NameValuePairs &parameters) const
 	{
@@ -520,6 +600,10 @@ public:
 		parameters.GetValue(Name::KeyDerivationParameters(), derivationParameters);
 		KDF::DeriveKey(derivedKey, derivedLength, agreedSecret, agreedSecret.size(), derivationParameters.begin(), derivationParameters.size());
 	}
+	
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_KeyDerivationAlgorithm_P1363() {}
+#endif
 };
 
 //! Discrete Log Integrated Encryption Scheme, AKA <a href="http://www.weidai.com/scan-mirror/ca.html#DLIES">DLIES</a>
@@ -533,8 +617,16 @@ struct DLIES
 		DLIES<> >
 {
 	static std::string CRYPTOPP_API StaticAlgorithmName() {return "DLIES";}	// TODO: fix this after name is standardized
+	
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DLIES() {}
+#endif
 };
 
 NAMESPACE_END
+	
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(pop)
+#endif
 
 #endif

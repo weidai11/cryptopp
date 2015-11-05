@@ -2,10 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="cryptopp"
+	Name="cryptdll"
 	ProjectGUID="{EBD86293-69A9-456B-B814-916E12AA9BBF}"
-	RootNamespace="cryptopp"
-	SccLocalPath="."
+	RootNamespace="cryptdll"
 	>
 	<Platforms>
 		<Platform
@@ -23,7 +22,6 @@
 			OutputDirectory="$(PlatformName)\DLL_Output\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="2"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
@@ -34,25 +32,13 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
+				Description="Adding MAC to DLL"
 				CommandLine="Win32\output\release\cryptest mac_dll &quot;$(TargetPath)&quot;&#x0D;&#x0A;echo mac done &gt; &quot;$(OutDir)&quot;\cryptopp.mac.done&#x0D;&#x0A;"
 				AdditionalDependencies=""
 				Outputs="$(OutDir)\cryptopp.mac.done"
 			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG"
-				MkTypLibCompatible="true"
-				SuppressStartupBanner="true"
-				TargetEnvironment="1"
-				TypeLibraryName=".\DLL_Release/cryptopp.tlb"
-				HeaderFileName=""
-			/>
-			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/Zm200 "
 				Optimization="1"
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
@@ -83,22 +69,21 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="cryptlib.lib"
 				OutputFile="$(OutDir)\cryptopp.dll"
 				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="$(PlatformName)\DLL_Output\$(ConfigurationName) $(NOINHERIT)"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(TargetDir)cryptopp.pdb"
+				ProgramDatabaseFile="$(TargetDir)\cryptopp.pdb"
 				OptimizeReferences="2"
 				BaseAddress="0x42900000"
-				ImportLibrary="$(TargetDir)cryptopp.lib"
+				ImportLibrary="$(TargetDir)\cryptopp.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
 			/>
 			<Tool
 				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
 			/>
 			<Tool
 				Name="VCBscMakeTool"
@@ -118,7 +103,6 @@
 			OutputDirectory="$(PlatformName)\DLL_Output\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="2"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
@@ -129,25 +113,13 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
+				Description="Adding MAC to DLL"
 				CommandLine="Win32\output\release\cryptest mac_dll &quot;$(TargetPath)&quot;&#x0D;&#x0A;echo mac done &gt; &quot;$(OutDir)&quot;\cryptopp.mac.done&#x0D;&#x0A;"
 				AdditionalDependencies=""
 				Outputs="$(OutDir)\cryptopp.mac.done"
 			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG"
-				MkTypLibCompatible="true"
-				SuppressStartupBanner="true"
-				TargetEnvironment="3"
-				TypeLibraryName=".\DLL_Release/cryptopp.tlb"
-				HeaderFileName=""
-			/>
-			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/Zm200 "
 				Optimization="1"
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
@@ -177,13 +149,15 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="cryptlib.lib"
 				OutputFile="$(OutDir)\cryptopp.dll"
 				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="$(PlatformName)\DLL_Output\$(ConfigurationName) $(NOINHERIT)"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(TargetDir)cryptopp.pdb"
+				ProgramDatabaseFile="$(TargetDir)\cryptopp.pdb"
 				OptimizeReferences="2"
 				BaseAddress="0x42900000"
-				ImportLibrary="$(TargetDir)cryptopp.lib"
+				ImportLibrary="$(TargetDir)\cryptopp.lib"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -191,9 +165,6 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
 			/>
 			<Tool
 				Name="VCBscMakeTool"
@@ -213,35 +184,23 @@
 			OutputDirectory="$(PlatformName)\DLL_Output\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="2"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
+			WholeProgramOptimization="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
+				Description="Adding MAC to DLL"
 				CommandLine="Win32\output\debug\cryptest mac_dll &quot;$(TargetPath)&quot;&#x0D;&#x0A;echo mac done &gt; &quot;$(OutDir)&quot;\cryptopp.mac.done&#x0D;&#x0A;"
 				AdditionalDependencies=""
 				Outputs="$(OutDir)\cryptopp.mac.done"
 			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG"
-				MkTypLibCompatible="true"
-				SuppressStartupBanner="true"
-				TargetEnvironment="1"
-				TypeLibraryName=".\DLL_Debug/cryptopp.tlb"
-				HeaderFileName=""
-			/>
-			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/Zm200 "
 				Optimization="0"
 				EnableIntrinsicFunctions="true"
 				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS"
@@ -268,22 +227,21 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="cryptlib.lib"
 				OutputFile="$(OutDir)\cryptopp.dll"
 				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="$(PlatformName)\DLL_Output\$(ConfigurationName) $(NOINHERIT)"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(TargetDir)cryptopp.pdb"
+				ProgramDatabaseFile="$(TargetDir)\cryptopp.pdb"
 				OptimizeReferences="2"
 				BaseAddress="0x42900000"
-				ImportLibrary="$(TargetDir)cryptopp.lib"
+				ImportLibrary="$(TargetDir)\cryptopp.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
 			/>
 			<Tool
 				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
 			/>
 			<Tool
 				Name="VCBscMakeTool"
@@ -303,35 +261,23 @@
 			OutputDirectory="$(PlatformName)\DLL_Output\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="2"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
+			WholeProgramOptimization="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
+				Description="Adding MAC to DLL"
 				CommandLine="Win32\output\debug\cryptest mac_dll &quot;$(TargetPath)&quot;&#x0D;&#x0A;echo mac done &gt; &quot;$(OutDir)&quot;\cryptopp.mac.done&#x0D;&#x0A;"
 				AdditionalDependencies=""
 				Outputs="$(OutDir)\cryptopp.mac.done"
 			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG"
-				MkTypLibCompatible="true"
-				SuppressStartupBanner="true"
-				TargetEnvironment="3"
-				TypeLibraryName=".\DLL_Debug/cryptopp.tlb"
-				HeaderFileName=""
-			/>
-			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/Zm200 "
 				Optimization="0"
 				EnableIntrinsicFunctions="true"
 				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_USRDLL;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS"
@@ -357,13 +303,15 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="cryptlib.lib"
 				OutputFile="$(OutDir)\cryptopp.dll"
 				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="$(PlatformName)\DLL_Output\$(ConfigurationName) $(NOINHERIT)"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(TargetDir)cryptopp.pdb"
+				ProgramDatabaseFile="$(TargetDir)\cryptopp.pdb"
 				OptimizeReferences="2"
 				BaseAddress="0x42900000"
-				ImportLibrary="$(TargetDir)cryptopp.lib"
+				ImportLibrary="$(TargetDir)\cryptopp.lib"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -371,9 +319,6 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
 			/>
 			<Tool
 				Name="VCBscMakeTool"
@@ -2380,12 +2325,28 @@
 				RelativePath="x64dll.asm"
 				>
 				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|x64"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64dll.obj&quot; /Zi &quot;$(InputPath)&quot;&#x0D;&#x0A;"
+						CommandLine="ml64.exe /c /nologo /D_M_X64 /W3 /Fo&quot;$(IntDir)\x64dll.obj&quot; /Zi &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\x64dll.obj"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -2393,7 +2354,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64dll.obj&quot; /Zi &quot;$(InputPath)&quot;&#x0D;&#x0A;"
+						CommandLine="ml64.exe /c /nologo /D_M_X64 /W3 /Fo&quot;$(IntDir)\x64dll.obj&quot; /Zi &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\x64dll.obj"
 					/>
 				</FileConfiguration>
@@ -2528,6 +2489,10 @@
 				>
 			</File>
 			<File
+				RelativePath="hkdf.h"
+				>
+			</File>
+			<File
 				RelativePath="hmac.h"
 				>
 			</File>
@@ -2653,10 +2618,6 @@
 			</File>
 			<File
 				RelativePath="strciphr.h"
-				>
-			</File>
-			<File
-				RelativePath="trap.h"
 				>
 			</File>
 			<File

@@ -17,7 +17,7 @@ void Blowfish::Base::UncheckedSetKey(const byte *key_string, unsigned int keylen
 	memcpy(sbox, s_init, sizeof(s_init));
 
 	// Xor key string into encryption key vector
-	for (i=0 ; i<static_cast<unsigned int>(ROUNDS)+2 ; ++i)
+	for (i=0 ; i<ROUNDS+2 ; ++i)
 	{
 		data = 0 ;
 		for (k=0 ; k<4 ; ++k )
@@ -27,7 +27,7 @@ void Blowfish::Base::UncheckedSetKey(const byte *key_string, unsigned int keylen
 
 	crypt_block(dspace, pbox);
 
-	for (i=0; i<static_cast<unsigned int>(ROUNDS); i+=2)
+	for (i=0; i<ROUNDS; i+=2)
 		crypt_block(pbox+i, pbox+i+2);
 
 	crypt_block(pbox+ROUNDS, sbox);
@@ -36,7 +36,7 @@ void Blowfish::Base::UncheckedSetKey(const byte *key_string, unsigned int keylen
 		crypt_block(sbox+i, sbox+i+2);
 
 	if (!IsForwardTransformation())
-		for (i=0; i<(static_cast<unsigned int>(ROUNDS)+2)/2; i++)
+		for (i=0; i<(ROUNDS+2)/2; i++)
 			std::swap(pbox[i], pbox[ROUNDS+1-i]);
 }
 

@@ -50,7 +50,7 @@ void LC_RNG::GenerateBlock(byte *output, size_t size)
 		else
 			seed = test+ m;
 
-		*output++ = (GETBYTE(seed, 0) ^ GETBYTE(seed, 1) ^ GETBYTE(seed, 2) ^ GETBYTE(seed, 3));
+		*output++ = byte((GETBYTE(seed, 0) ^ GETBYTE(seed, 1) ^ GETBYTE(seed, 2) ^ GETBYTE(seed, 3)));
 	}
 }
 
@@ -128,7 +128,7 @@ MaurerRandomnessTest::MaurerRandomnessTest()
 		tab[i] = 0;
 }
 
-size_t MaurerRandomnessTest::Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
+size_t MaurerRandomnessTest::Put2(const byte *inString, size_t length, int /*messageEnd*/, bool /*blocking*/)
 {
 	while (length--)
 	{

@@ -1,17 +1,17 @@
 // bench.cpp - written and placed in the public domain by Wei Dai
 
-#define _CRT_SECURE_NO_DEPRECATE
-
+#include "cryptlib.h"
 #include "bench.h"
 #include "validate.h"
-#include "stdcpp.h"
-#include "smartptr.h"
+
 #include "aes.h"
 #include "blumshub.h"
 #include "files.h"
+#include "filters.h"
 #include "hex.h"
 #include "modes.h"
 #include "factory.h"
+#include "smartptr.h"
 #include "cpu.h"
 
 #include <time.h>
@@ -19,7 +19,13 @@
 #include <iostream>
 #include <iomanip>
 
+// These are noisy enoguh due to test.cpp. Turn them off here.
+#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
+# pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 USING_NAMESPACE(CryptoPP)
+USING_NAMESPACE(std)
 
 #ifdef CLOCKS_PER_SEC
 const double CLOCK_TICKS_PER_SECOND = (double)CLOCKS_PER_SEC;
@@ -32,40 +38,40 @@ const double CLOCK_TICKS_PER_SECOND = 1000000.0;
 double logtotal = 0, g_allocatedTime, g_hertz;
 unsigned int logcount = 0;
 
-static const byte *const key=(byte *)"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+static const byte defaultKey[] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
 
 void OutputResultBytes(const char *name, double length, double timeTaken)
 {
 	double mbs = length / timeTaken / (1024*1024);
-	std::cout << "\n<TR><TH>" << name;
-//	std::cout << "<TD>" << std::setprecision(3) << length / (1024*1024);
-	std::cout << std::setiosflags(std::ios::fixed);
-//	std::cout << "<TD>" << std::setprecision(3) << timeTaken;
-	std::cout << "<TD>" << std::setprecision(0) << std::setiosflags(std::ios::fixed) << mbs;
+	cout << "\n<TR><TH>" << name;
+//	cout << "<TD>" << setprecision(3) << length / (1024*1024);
+	cout << setiosflags(ios::fixed);
+//	cout << "<TD>" << setprecision(3) << timeTaken;
+	cout << "<TD>" << setprecision(0) << setiosflags(ios::fixed) << mbs;
 	if (g_hertz)
-		std::cout << "<TD>" << std::setprecision(1) << std::setiosflags(std::ios::fixed) << timeTaken * g_hertz / length;
-	std::cout << std::setiosflags(std::ios::fixed);
+		cout << "<TD>" << setprecision(1) << setiosflags(ios::fixed) << timeTaken * g_hertz / length;
+	cout << resetiosflags(ios::fixed);
 	logtotal += log(mbs);
 	logcount++;
 }
 
 void OutputResultKeying(double iterations, double timeTaken)
 {
-	std::cout << "<TD>" << std::setprecision(3) << std::setiosflags(std::ios::fixed) << (1000*1000*timeTaken/iterations);
+	cout << "<TD>" << setprecision(3) << setiosflags(ios::fixed) << (1000*1000*timeTaken/iterations);
 	if (g_hertz)
-		std::cout << "<TD>" << std::setprecision(0) << std::setiosflags(std::ios::fixed) << timeTaken * g_hertz / iterations;
+		cout << "<TD>" << setprecision(0) << setiosflags(ios::fixed) << timeTaken * g_hertz / iterations;
 }
 
 void OutputResultOperations(const char *name, const char *operation, bool pc, unsigned long iterations, double timeTaken)
 {
-	std::cout << "\n<TR><TH>" << name << " " << operation << (pc ? " with precomputation" : "");
-//	std::cout << "<TD>" << iterations;
-//	std::cout << std::setiosflags(std::ios::fixed);
-//	std::cout << "<TD>" << std::setprecision(3) << timeTaken;
-	std::cout << "<TD>" << std::setprecision(2) << std::setiosflags(std::ios::fixed) << (1000*timeTaken/iterations);
+	cout << "\n<TR><TH>" << name << " " << operation << (pc ? " with precomputation" : "");
+//	cout << "<TD>" << iterations;
+//	cout << setiosflags(ios::fixed);
+//	cout << "<TD>" << setprecision(3) << timeTaken;
+	cout << "<TD>" << setprecision(2) << setiosflags(ios::fixed) << (1000*timeTaken/iterations);
 	if (g_hertz)
-		std::cout << "<TD>" << std::setprecision(2) << std::setiosflags(std::ios::fixed) << timeTaken * g_hertz / iterations / 1000000;
-	std::cout << std::setiosflags(std::ios::fixed);
+		cout << "<TD>" << setprecision(2) << setiosflags(ios::fixed) << timeTaken * g_hertz / iterations / 1000000;
+	cout << resetiosflags(ios::fixed);
 
 	logtotal += log(iterations/timeTaken);
 	logcount++;
@@ -173,7 +179,7 @@ void BenchMarkKeying(SimpleKeyingInterface &c, size_t keyLength, const NameValue
 	do
 	{
 		for (unsigned int i=0; i<1024; i++)
-			c.SetKey(key, keyLength, params);
+			c.SetKey(defaultKey, keyLength, params);
 		timeTaken = double(clock() - start) / CLOCK_TICKS_PER_SECOND;
 		iterations += 1024;
 	}
@@ -187,35 +193,41 @@ void BenchMarkKeying(SimpleKeyingInterface &c, size_t keyLength, const NameValue
 template <class T_FactoryOutput, class T_Interface>
 void BenchMarkByName2(const char *factoryName, size_t keyLength = 0, const char *displayName=NULL, const NameValuePairs &params = g_nullNameValuePairs, T_FactoryOutput *x=NULL, T_Interface *y=NULL)
 {
-	std::string name = factoryName;
+	CRYPTOPP_UNUSED(x), CRYPTOPP_UNUSED(y), CRYPTOPP_UNUSED(params);
+
+	std::string name(factoryName ? factoryName : "");
 	if (displayName)
 		name = displayName;
 	else if (keyLength)
 		name += " (" + IntToString(keyLength * 8) + "-bit key)";
 
-	auto_ptr<T_FactoryOutput> obj(ObjectFactoryRegistry<T_FactoryOutput>::Registry().CreateObject(factoryName));
+	member_ptr<T_FactoryOutput> obj(ObjectFactoryRegistry<T_FactoryOutput>::Registry().CreateObject(factoryName));
 	if (!keyLength)
 		keyLength = obj->DefaultKeyLength();
-	obj->SetKey(key, keyLength, CombinedNameValuePairs(params, MakeParameters(Name::IV(), ConstByteArrayParameter(key, obj->IVSize()), false)));
+	obj->SetKey(defaultKey, keyLength, CombinedNameValuePairs(params, MakeParameters(Name::IV(), ConstByteArrayParameter(defaultKey, obj->IVSize()), false)));
 	BenchMark(name.c_str(), *static_cast<T_Interface *>(obj.get()), g_allocatedTime);
-	BenchMarkKeying(*obj, keyLength, CombinedNameValuePairs(params, MakeParameters(Name::IV(), ConstByteArrayParameter(key, obj->IVSize()), false)));
+	BenchMarkKeying(*obj, keyLength, CombinedNameValuePairs(params, MakeParameters(Name::IV(), ConstByteArrayParameter(defaultKey, obj->IVSize()), false)));
 }
 
 //VC60 workaround: compiler bug triggered without the extra dummy parameters
 template <class T_FactoryOutput>
 void BenchMarkByName(const char *factoryName, size_t keyLength = 0, const char *displayName=NULL, const NameValuePairs &params = g_nullNameValuePairs, T_FactoryOutput *x=NULL)
 {
+	CRYPTOPP_UNUSED(x), CRYPTOPP_UNUSED(params);
+
 	BenchMarkByName2<T_FactoryOutput, T_FactoryOutput>(factoryName, keyLength, displayName, params, x, x);
 }
 
 template <class T>
 void BenchMarkByNameKeyLess(const char *factoryName, const char *displayName=NULL, const NameValuePairs &params = g_nullNameValuePairs, T *x=NULL)
 {
+	CRYPTOPP_UNUSED(x), CRYPTOPP_UNUSED(params);
+
 	std::string name = factoryName;
 	if (displayName)
 		name = displayName;
 
-	auto_ptr<T> obj(ObjectFactoryRegistry<T>::Registry().CreateObject(factoryName));
+	member_ptr<T> obj(ObjectFactoryRegistry<T>::Registry().CreateObject(factoryName));
 	BenchMark(name.c_str(), *obj, g_allocatedTime);
 }
 
@@ -232,18 +244,18 @@ void BenchmarkAll(double t, double hertz)
 	{
 		cpb = "<TH>Cycles Per Byte";
 		cpk = "<TH>Cycles to<br>Setup Key and IV";
-		std::cout << "CPU frequency of the test platform is " << g_hertz << " Hz.\n";
+		cout << "CPU frequency of the test platform is " << g_hertz << " Hz.\n";
 	}
 	else
 	{
 		cpb = cpk = "";
-		std::cout << "CPU frequency of the test platform was not provided.\n";
+		cout << "CPU frequency of the test platform was not provided.\n";
 	}
 
-	std::cout << "<TABLE border=1><COLGROUP><COL align=left><COL align=right><COL align=right><COL align=right><COL align=right>" << std::endl;
-	std::cout << "<THEAD><TR><TH>Algorithm<TH>MiB/Second" << cpb << "<TH>Microseconds to<br>Setup Key and IV" << cpk << std::endl;
+	cout << "<TABLE border=1><COLGROUP><COL align=left><COL align=right><COL align=right><COL align=right><COL align=right>" << endl;
+	cout << "<THEAD><TR><TH>Algorithm<TH>MiB/Second" << cpb << "<TH>Microseconds to<br>Setup Key and IV" << cpk << endl;
 
-	std::cout << "\n<TBODY style=\"background: yellow\">";
+	cout << "\n<TBODY style=\"background: yellow\">";
 #if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
 	if (HasCLMUL())
 		BenchMarkByName2<AuthenticatedSymmetricCipher, AuthenticatedSymmetricCipher>("AES/GCM", 0, "AES/GCM");
@@ -256,7 +268,7 @@ void BenchmarkAll(double t, double hertz)
 	BenchMarkByName2<AuthenticatedSymmetricCipher, AuthenticatedSymmetricCipher>("AES/CCM");
 	BenchMarkByName2<AuthenticatedSymmetricCipher, AuthenticatedSymmetricCipher>("AES/EAX");
 
-	std::cout << "\n<TBODY style=\"background: white\">";
+	cout << "\n<TBODY style=\"background: white\">";
 #if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
 	if (HasCLMUL())
 		BenchMarkByName2<AuthenticatedSymmetricCipher, MessageAuthenticationCode>("AES/GCM", 0, "GMAC(AES)");
@@ -273,7 +285,7 @@ void BenchmarkAll(double t, double hertz)
 	BenchMarkByName<MessageAuthenticationCode>("CMAC(AES)");
 	BenchMarkByName<MessageAuthenticationCode>("DMAC(AES)");
 
-	std::cout << "\n<TBODY style=\"background: yellow\">";
+	cout << "\n<TBODY style=\"background: yellow\">";
 	BenchMarkByNameKeyLess<HashTransformation>("CRC32");
 	BenchMarkByNameKeyLess<HashTransformation>("Adler32");
 	BenchMarkByNameKeyLess<HashTransformation>("MD5");
@@ -291,7 +303,7 @@ void BenchmarkAll(double t, double hertz)
 	BenchMarkByNameKeyLess<HashTransformation>("RIPEMD-128");
 	BenchMarkByNameKeyLess<HashTransformation>("RIPEMD-256");
 
-	std::cout << "\n<TBODY style=\"background: white\">";
+	cout << "\n<TBODY style=\"background: white\">";
 	BenchMarkByName<SymmetricCipher>("Panama-LE");
 	BenchMarkByName<SymmetricCipher>("Panama-BE");
 	BenchMarkByName<SymmetricCipher>("Salsa20");
@@ -302,7 +314,7 @@ void BenchmarkAll(double t, double hertz)
 	BenchMarkByName<SymmetricCipher>("SEAL-3.0-LE");
 	BenchMarkByName<SymmetricCipher>("WAKE-OFB-LE");
 
-	std::cout << "\n<TBODY style=\"background: yellow\">";
+	cout << "\n<TBODY style=\"background: yellow\">";
 	BenchMarkByName<SymmetricCipher>("AES/CTR", 16);
 	BenchMarkByName<SymmetricCipher>("AES/CTR", 24);
 	BenchMarkByName<SymmetricCipher>("AES/CTR", 32);
@@ -332,13 +344,28 @@ void BenchmarkAll(double t, double hertz)
 	BenchMarkByName<SymmetricCipher>("CAST-128/CTR");
 	BenchMarkByName<SymmetricCipher>("SKIPJACK/CTR");
 	BenchMarkByName<SymmetricCipher>("SEED/CTR", 0, "SEED/CTR (1/2 K table)");
-	std::cout << "</TABLE>" << std::endl;
+	cout << "</TABLE>" << endl;
 
 	BenchmarkAll2(t, hertz);
 
-	std::cout << "Throughput Geometric Average: " << std::setiosflags(std::ios::fixed) << exp(logtotal/logcount) << std::endl;
+	cout << "Throughput Geometric Average: " << setiosflags(ios::fixed) << exp(logtotal/logcount) << endl;
 
-	time_t endTime = time(NULL);
-	std::cout << "\nTest ended at " << asctime(localtime(&endTime));
+// Safer functions on Windows for C&A, https://github.com/weidai11/cryptopp/issues/55
+#if defined(CRYPTOPP_MSC_VERSION)
+	tm localTime = {};
+	char timeBuf[64];
+	errno_t err;
+
+	const time_t endTime = time(NULL);
+	err = localtime_s(&localTime, &endTime);
+	assert(err == 0);
+	err = asctime_s(timeBuf, sizeof(timeBuf), &localTime);
+	assert(err == 0);
+
+	cout << "\nTest ended at " << timeBuf;
+#else
+	const time_t endTime = time(NULL);
+	cout << "\nTest ended at " << asctime(localtime(&endTime));
+#endif
 #endif
 }

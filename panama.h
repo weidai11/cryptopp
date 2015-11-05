@@ -3,6 +3,11 @@
 
 #include "strciphr.h"
 #include "iterhash.h"
+#include "secblock.h"
+
+#if CRYPTOPP_BOOL_X32
+# define CRYPTOPP_DISABLE_PANAMA_ASM
+#endif
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -48,6 +53,8 @@ class HermeticHashFunctionMAC : public AlgorithmImpl<SimpleKeyingInterfaceImpl<T
 public:
 	void UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params)
 	{
+		CRYPTOPP_UNUSED(params);
+
 		m_key.Assign(key, length);
 		Restart();
 	}
@@ -124,9 +131,7 @@ protected:
 	void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount);
 	bool CipherIsRandomAccess() const {return false;}
 	void CipherResynchronize(byte *keystreamBuffer, const byte *iv, size_t length);
-#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X64
 	unsigned int GetAlignment() const;
-#endif
 
 	FixedSizeSecBlock<word32, 8> m_key;
 };

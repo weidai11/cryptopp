@@ -3,15 +3,21 @@
 
 //! \file
 
+#include "cryptlib.h"
+
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(push)
+# pragma warning(disable: 4127 4189)
+#endif
+
+#include "cryptlib.h"
 #include "simple.h"
 #include "secblock.h"
 #include "misc.h"
 #include "smartptr.h"
 #include "queue.h"
 #include "algparam.h"
-#include "trap.h"
-
-#include <deque>
+#include "stdcpp.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -61,7 +67,7 @@ struct CRYPTOPP_DLL FilterPutSpaceHelper
 	// desiredSize is how much to ask target, bufferSize is how much to allocate in m_tempSpace
 	byte *HelpCreatePutSpace(BufferedTransformation &target, const std::string &channel, size_t minSize, size_t desiredSize, size_t &bufferSize)
 	{
-		CRYPTOPP_ASSERT(desiredSize >= minSize && bufferSize >= minSize);
+		assert(desiredSize >= minSize && bufferSize >= minSize);
 		if (m_tempSpace.size() < minSize)
 		{
 			byte *result = target.ChannelCreatePutSpace(channel, desiredSize);
@@ -88,12 +94,15 @@ class CRYPTOPP_DLL MeterFilter : public Bufferless<Filter>
 {
 public:
 	MeterFilter(BufferedTransformation *attachment=NULL, bool transparent=true)
-		: m_transparent(transparent) {Detach(attachment); ResetMeter();}
+		: m_transparent(transparent), m_currentMessageBytes(0), m_totalBytes(0)
+		, m_currentSeriesMessages(0), m_totalMessages(0), m_totalMessageSeries(0)
+		, m_begin(NULL), m_length(0) {Detach(attachment); ResetMeter();}
 
 	void SetTransparent(bool transparent) {m_transparent = transparent;}
 	void AddRangeToSkip(unsigned int message, lword position, lword size, bool sortNow = true);
 	void ResetMeter();
-	void IsolatedInitialize(const NameValuePairs &parameters) {ResetMeter();}
+	void IsolatedInitialize(const NameValuePairs &parameters)
+		{CRYPTOPP_UNUSED(parameters); ResetMeter();}
 
 	lword GetCurrentMessageBytes() const {return m_currentMessageBytes;}
 	lword GetTotalBytes() {return m_totalBytes;}
@@ -149,6 +158,13 @@ public:
 class CRYPTOPP_DLL FilterWithBufferedInput : public Filter
 {
 public:
+	
+#if !defined(CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562)
+	//! default FilterWithBufferedInput for temporaries
+	FilterWithBufferedInput();
+#endif
+
+	//! construct a FilterWithBufferedInput with an attached transformation
 	FilterWithBufferedInput(BufferedTransformation *attachment);
 	//! firstSize and lastSize may be 0, blockSize must be at least 1
 	FilterWithBufferedInput(size_t firstSize, size_t blockSize, size_t lastSize, BufferedTransformation *attachment);
@@ -174,13 +190,15 @@ protected:
 	bool DidFirstPut() {return m_firstInputDone;}
 
 	virtual void InitializeDerivedAndReturnNewSizes(const NameValuePairs &parameters, size_t &firstSize, size_t &blockSize, size_t &lastSize)
-		{InitializeDerived(parameters);}
-	virtual void InitializeDerived(const NameValuePairs &parameters) {}
+		{CRYPTOPP_UNUSED(parameters); CRYPTOPP_UNUSED(firstSize); CRYPTOPP_UNUSED(blockSize); CRYPTOPP_UNUSED(lastSize); InitializeDerived(parameters);}
+	virtual void InitializeDerived(const NameValuePairs &parameters)
+		{CRYPTOPP_UNUSED(parameters);}
 	// FirstPut() is called if (firstSize != 0 and totalLength >= firstSize)
 	// or (firstSize == 0 and (totalLength > 0 or a MessageEnd() is received))
 	virtual void FirstPut(const byte *inString) =0;
 	// NextPut() is called if totalLength >= firstSize+blockSize+lastSize
-	virtual void NextPutSingle(const byte *inString) {CRYPTOPP_ASSERT(false);}
+	virtual void NextPutSingle(const byte *inString)
+		{CRYPTOPP_UNUSED(inString); assert(false);}
 	// Same as NextPut() except length can be a multiple of blockSize
 	// Either NextPut() or NextPutMultiple() must be overriden
 	virtual void NextPutMultiple(const byte *inString, size_t length);
@@ -204,7 +222,8 @@ protected:
 
 	// This function should no longer be used, put this here to cause a compiler error
 	// if someone tries to override NextPut().
-	virtual int NextPut(const byte *inString, size_t length) {CRYPTOPP_ASSERT(false); return 0;}
+	virtual int NextPut(const byte *inString, size_t length)
+		{CRYPTOPP_UNUSED(inString); CRYPTOPP_UNUSED(length); assert(false); return 0;}
 
 	class BlockQueue
 	{
@@ -213,7 +232,7 @@ protected:
 		byte *GetBlock();
 		byte *GetContigousBlocks(size_t &numberOfBytes);
 		size_t GetAll(byte *outString);
-		size_t Put(const byte *inString, size_t length);
+		void Put(const byte *inString, size_t length);
 		size_t CurrentSize() const {return m_size;}
 		size_t MaxSize() const {return m_buffer.size();}
 
@@ -250,7 +269,8 @@ public:
 
 protected:
 	virtual bool IsolatedMessageEnd(bool blocking) =0;
-	void IsolatedInitialize(const NameValuePairs &parameters) {m_inQueue.Clear();}
+	void IsolatedInitialize(const NameValuePairs &parameters)
+		{CRYPTOPP_UNUSED(parameters); m_inQueue.Clear();}
 
 	ByteQueue m_inQueue;
 };
@@ -582,7 +602,7 @@ public:
 		: SimpleProxyFilter(decryptor.CreateDecryptionFilter(rng), attachment) {}
 };
 
-//! Append input to a std::string object
+//! Append input to a string object
 template <class T>
 class StringSinkTemplate : public Bufferless<Sink>
 {
@@ -591,13 +611,14 @@ public:
 	typedef typename T::traits_type::char_type char_type;
 
 	StringSinkTemplate(T &output)
-		: m_output(&output) {CRYPTOPP_ASSERT(sizeof(output[0])==1);}
+		: m_output(&output) {assert(sizeof(output[0])==1);}
 
 	void IsolatedInitialize(const NameValuePairs &parameters)
 		{if (!parameters.GetValue("OutputStringPointer", m_output)) throw InvalidArgument("StringSink: OutputStringPointer not specified");}
 
 	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking)
 	{
+		CRYPTOPP_UNUSED(messageEnd); CRYPTOPP_UNUSED(blocking);
 		if (length > 0)
 		{
 			typename T::size_type size = m_output->size();
@@ -637,8 +658,10 @@ private:
 class CRYPTOPP_DLL ArraySink : public Bufferless<Sink>
 {
 public:
-	ArraySink(const NameValuePairs &parameters = g_nullNameValuePairs) {IsolatedInitialize(parameters);}
-	ArraySink(byte *buf, size_t size) : m_buf(buf), m_size(size), m_total(0) {}
+	ArraySink(const NameValuePairs &parameters = g_nullNameValuePairs)
+		: m_buf(NULL), m_size(0), m_total(0) {IsolatedInitialize(parameters);}
+	ArraySink(byte *buf, size_t size)
+		: m_buf(buf), m_size(size), m_total(0) {}
 
 	size_t AvailableSize() {return SaturatingSubtract(m_size, m_total);}
 	lword TotalPutLength() {return m_total;}
@@ -664,7 +687,7 @@ public:
 	byte * CreatePutSpace(size_t &size) {return BufferedTransformation::CreatePutSpace(size);}
 };
 
-//! std::string-based implementation of Store interface
+//! string-based implementation of Store interface
 class StringStore : public Store
 {
 public:
@@ -701,6 +724,7 @@ public:
 	size_t TransferTo2(BufferedTransformation &target, lword &transferBytes, const std::string &channel=DEFAULT_CHANNEL, bool blocking=true);
 	size_t CopyRangeTo2(BufferedTransformation &target, lword &begin, lword end=LWORD_MAX, const std::string &channel=DEFAULT_CHANNEL, bool blocking=true) const
 	{
+		CRYPTOPP_UNUSED(target); CRYPTOPP_UNUSED(begin); CRYPTOPP_UNUSED(end); CRYPTOPP_UNUSED(channel); CRYPTOPP_UNUSED(blocking);
 		throw NotImplemented("RandomNumberStore: CopyRangeTo2() is not supported by this store");
 	}
 
@@ -716,7 +740,8 @@ class CRYPTOPP_DLL NullStore : public Store
 {
 public:
 	NullStore(lword size = ULONG_MAX) : m_size(size) {}
-	void StoreInitialize(const NameValuePairs &parameters) {}
+	void StoreInitialize(const NameValuePairs &parameters)
+		{CRYPTOPP_UNUSED(parameters);}
 	lword MaxRetrievable() const {return m_size;}
 	size_t TransferTo2(BufferedTransformation &target, lword &transferBytes, const std::string &channel=DEFAULT_CHANNEL, bool blocking=true);
 	size_t CopyRangeTo2(BufferedTransformation &target, lword &begin, lword end=LWORD_MAX, const std::string &channel=DEFAULT_CHANNEL, bool blocking=true) const;
@@ -732,7 +757,7 @@ public:
 	Source(BufferedTransformation *attachment = NULL)
 		{Source::Detach(attachment);}
 
-	lword Pump(lword pumpMax=size_t(0)-1)
+	lword Pump(lword pumpMax=size_t(SIZE_MAX))
 		{Pump2(pumpMax); return pumpMax;}
 	unsigned int PumpMessages(unsigned int count=UINT_MAX)
 		{PumpMessages2(count); return count;}
@@ -778,13 +803,13 @@ protected:
 	T m_store;
 };
 
-//! std::string-based implementation of Source interface
+//! string-based implementation of Source interface
 class CRYPTOPP_DLL StringSource : public SourceTemplate<StringStore>
 {
 public:
 	StringSource(BufferedTransformation *attachment = NULL)
 		: SourceTemplate<StringStore>(attachment) {}
-	//! zero terminated std::string as source
+	//! zero terminated string as source
 	StringSource(const char *string, bool pumpAll, BufferedTransformation *attachment = NULL)
 		: SourceTemplate<StringStore>(attachment) {SourceInitialize(pumpAll, MakeParameters("InputBuffer", ConstByteArrayParameter(string)));}
 	//! binary byte array as source
@@ -808,5 +833,9 @@ public:
 };
 
 NAMESPACE_END
+
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(pop)
+#endif
 
 #endif

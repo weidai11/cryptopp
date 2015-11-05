@@ -1,9 +1,9 @@
 // network.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
+
 #include "network.h"
 #include "wait.h"
-#include "trap.h"
 
 #define CRYPTOPP_TRACE_NETWORK 0
 
@@ -16,7 +16,7 @@ lword LimitedBandwidth::ComputeCurrentTransceiveLimit()
 	if (!m_maxBytesPerSecond)
 		return ULONG_MAX;
 
-	double curTime = GetCurTimeAndCleanUp();
+	const double curTime = GetCurTimeAndCleanUp();
 	CRYPTOPP_UNUSED(curTime);
 
 	lword total = 0;
@@ -230,8 +230,8 @@ bool NonblockingSink::IsolatedFlush(bool hardFlush, bool blocking)
 
 NetworkSource::NetworkSource(BufferedTransformation *attachment)
 	: NonblockingSource(attachment), m_buf(1024*16)
-	, m_dataBegin(0), m_dataEnd(0)
-	, m_waitingForResult(false), m_outputBlocked(false)
+	,  m_putSize(0), m_dataBegin(0), m_dataEnd(0)
+	,  m_waitingForResult(false), m_outputBlocked(false)
 {
 }
 
@@ -434,7 +434,7 @@ size_t NetworkSink::Put2(const byte *inString, size_t length, int messageEnd, bo
 	{
 		if (m_skipBytes)
 		{
-			CRYPTOPP_ASSERT(length >= m_skipBytes);
+			assert(length >= m_skipBytes);
 			inString += m_skipBytes;
 			length -= m_skipBytes;
 		}
@@ -450,7 +450,7 @@ size_t NetworkSink::Put2(const byte *inString, size_t length, int messageEnd, bo
 
 		if (m_buffer.CurrentSize() > targetSize)
 		{
-			CRYPTOPP_ASSERT(!blocking);
+			assert(!blocking);
 			m_wasBlocked = true;
 			m_skipBytes += length;
 			size_t blockedBytes = UnsignedMin(length, m_buffer.CurrentSize() - targetSize);

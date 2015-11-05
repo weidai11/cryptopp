@@ -4,6 +4,7 @@
 /** \file
 */
 
+#include "cryptlib.h"
 #include "gfpcrypt.h"
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -79,6 +80,10 @@ public:
 	static std::string CRYPTOPP_API StaticAlgorithmName()
 		{return GroupParameters::StaticAlgorithmNamePrefix() + DH_Algorithm::StaticAlgorithmName();}
 	std::string AlgorithmName() const {return StaticAlgorithmName();}
+	
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DH_Domain() {}
+#endif
 
 private:
 	const DL_KeyAgreementAlgorithm<Element> & GetKeyAgreementAlgorithm() const

@@ -2,11 +2,17 @@
 // Based on Paulo S.L.M. Barreto's public domain implementation
 
 #include "pch.h"
+#include "config.h"
+
 #include "square.h"
 #include "misc.h"
 #include "gf256.h"
 
-#if GCC_DIAGNOSTIC_AWARE
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(disable: 4244)
+#endif
+
+#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
 # pragma GCC diagnostic ignored "-Wmissing-braces"
 #endif
 
@@ -28,8 +34,8 @@ static void SquareTransform (word32 in[4], word32 out[4])
 	for (int i = 0; i < 4; i++)
 	{
 		word32 temp = 0;
-		for (int j = 0; j < 4; j++)
-			for (int k = 0; k < 4; k++)
+		for (unsigned int j = 0; j < 4; j++)
+			for (unsigned int k = 0; k < 4; k++)
 				temp ^= (word32)gf256.Multiply(GETBYTE(in[i], 3-k), G[k][j]) << ((3-j)*8);
 		out[i] = temp;
 	}

@@ -5,7 +5,6 @@
 	Name="cryptlib"
 	ProjectGUID="{3423EC9A-52E4-4A4D-9753-EDEBC38785EF}"
 	RootNamespace="cryptlib"
-	SccLocalPath="."
 	>
 	<Platforms>
 		<Platform
@@ -15,17 +14,15 @@
 			Name="x64"
 		/>
 	</Platforms>
-	<ToolFiles>
-	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="$(PlatformName)\Output\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -33,15 +30,6 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
@@ -56,7 +44,7 @@
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="pch.h"
 				ProgramDataBaseFileName="$(OutDir)\vc80.pdb"
-				WarningLevel="3"
+				WarningLevel="4"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
 			/>
@@ -76,9 +64,6 @@
 			/>
 			<Tool
 				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
 			/>
 			<Tool
 				Name="VCBscMakeTool"
@@ -95,9 +80,9 @@
 			OutputDirectory="$(PlatformName)\Output\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -105,16 +90,6 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				TargetEnvironment="3"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
@@ -129,7 +104,7 @@
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="pch.h"
 				ProgramDataBaseFileName="$(OutDir)\vc80.pdb"
-				WarningLevel="3"
+				WarningLevel="4"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
 			/>
@@ -149,9 +124,6 @@
 			/>
 			<Tool
 				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
 			/>
 			<Tool
 				Name="VCBscMakeTool"
@@ -168,9 +140,9 @@
 			OutputDirectory="$(PlatformName)\DLL_Output\Release"
 			IntermediateDirectory="$(PlatformName)\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -180,21 +152,11 @@
 				Name="VCCustomBuildTool"
 			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				OmitFramePointers="true"
-				WholeProgramOptimization="true"
 				PreprocessorDefinitions="NDEBUG;_WINDOWS;USE_PRECOMPILED_HEADERS;WIN32;CRYPTOPP_IMPORTS"
 				StringPooling="true"
 				RuntimeLibrary="0"
@@ -202,7 +164,7 @@
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="pch.h"
 				ProgramDataBaseFileName="$(OutDir)\vc80.pdb"
-				WarningLevel="3"
+				WarningLevel="4"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
 			/>
@@ -222,9 +184,6 @@
 			/>
 			<Tool
 				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
 			/>
 			<Tool
 				Name="VCBscMakeTool"
@@ -241,9 +200,9 @@
 			OutputDirectory="$(PlatformName)\DLL_Output\Release"
 			IntermediateDirectory="$(PlatformName)\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -253,22 +212,11 @@
 				Name="VCCustomBuildTool"
 			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				TargetEnvironment="3"
-			/>
-			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				OmitFramePointers="true"
-				WholeProgramOptimization="true"
 				PreprocessorDefinitions="NDEBUG;_WINDOWS;USE_PRECOMPILED_HEADERS;WIN32;CRYPTOPP_IMPORTS"
 				StringPooling="true"
 				RuntimeLibrary="0"
@@ -276,7 +224,7 @@
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="pch.h"
 				ProgramDataBaseFileName="$(OutDir)\vc80.pdb"
-				WarningLevel="3"
+				WarningLevel="4"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
 			/>
@@ -296,9 +244,6 @@
 			/>
 			<Tool
 				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
 			/>
 			<Tool
 				Name="VCBscMakeTool"
@@ -315,24 +260,16 @@
 			OutputDirectory="$(PlatformName)\Output\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			WholeProgramOptimization="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
@@ -344,9 +281,9 @@
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="pch.h"
 				ProgramDataBaseFileName="$(OutDir)\vc80.pdb"
-				WarningLevel="3"
+				WarningLevel="4"
 				SuppressStartupBanner="true"
-				DebugInformationFormat="4"
+				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -364,9 +301,6 @@
 			/>
 			<Tool
 				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
 			/>
 			<Tool
 				Name="VCBscMakeTool"
@@ -383,25 +317,16 @@
 			OutputDirectory="$(PlatformName)\Output\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			WholeProgramOptimization="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				TargetEnvironment="3"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
@@ -412,7 +337,7 @@
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="pch.h"
 				ProgramDataBaseFileName="$(OutDir)\vc80.pdb"
-				WarningLevel="3"
+				WarningLevel="4"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
 			/>
@@ -432,9 +357,6 @@
 			/>
 			<Tool
 				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
 			/>
 			<Tool
 				Name="VCBscMakeTool"
@@ -451,24 +373,16 @@
 			OutputDirectory="$(PlatformName)\DLL_Output\Debug"
 			IntermediateDirectory="$(PlatformName)\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			WholeProgramOptimization="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
@@ -479,75 +393,7 @@
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="pch.h"
 				ProgramDataBaseFileName="$(OutDir)\vc80.pdb"
-				WarningLevel="3"
-				SuppressStartupBanner="true"
-				DebugInformationFormat="4"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				Culture="1033"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLibrarianTool"
-				SuppressStartupBanner="true"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="DLL-Import Debug|x64"
-			OutputDirectory="$(PlatformName)\DLL_Output\Debug"
-			IntermediateDirectory="$(PlatformName)\$(ProjectName)\$(ConfigurationName)"
-			ConfigurationType="4"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				TargetEnvironment="3"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="0"
-				EnableIntrinsicFunctions="true"
-				PreprocessorDefinitions="_DEBUG;_WINDOWS;USE_PRECOMPILED_HEADERS;WIN32;CRYPTOPP_IMPORTS"
-				RuntimeLibrary="1"
-				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="pch.h"
-				ProgramDataBaseFileName="$(OutDir)\vc80.pdb"
-				WarningLevel="3"
+				WarningLevel="4"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
 			/>
@@ -569,7 +415,60 @@
 				Name="VCALinkTool"
 			/>
 			<Tool
-				Name="VCXDCMakeTool"
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="DLL-Import Debug|x64"
+			OutputDirectory="$(PlatformName)\DLL_Output\Debug"
+			IntermediateDirectory="$(PlatformName)\$(ProjectName)\$(ConfigurationName)"
+			ConfigurationType="4"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			WholeProgramOptimization="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				EnableIntrinsicFunctions="true"
+				PreprocessorDefinitions="_DEBUG;_WINDOWS;USE_PRECOMPILED_HEADERS;WIN32;CRYPTOPP_IMPORTS"
+				RuntimeLibrary="1"
+				UsePrecompiledHeader="2"
+				PrecompiledHeaderThrough="pch.h"
+				ProgramDataBaseFileName="$(OutDir)\vc80.pdb"
+				WarningLevel="4"
+				SuppressStartupBanner="true"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLibrarianTool"
+				SuppressStartupBanner="true"
+			/>
+			<Tool
+				Name="VCALinkTool"
 			/>
 			<Tool
 				Name="VCBscMakeTool"
@@ -6285,6 +6184,164 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="rdrand.asm"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Building and assembling rdrand.asm"
+						CommandLine="ml.exe /c /nologo /D_M_X86 /W3 /Cx /Zi /safeseh /Fo&quot;$(IntDir)\rdrand-x86.obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
+						Outputs="$(IntDir)\rdrand-x86.obj"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Building and assembling rdrand.asm"
+						CommandLine="ml64.exe /c /nologo /D_M_X64 /W3 /Cx /Zi /Fo&quot;$(IntDir)\rdrand-x64.obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
+						Outputs="$(IntDir)\rdrand-x64.obj"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="DLL-Import Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Building and assembling rdrand.asm"
+						CommandLine="ml.exe /c /nologo /D_M_X86 /W3 /Cx /Zi /safeseh /Fo&quot;$(IntDir)\rdrand-x86.obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
+						Outputs="$(IntDir)\rdrand-x86.obj"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="DLL-Import Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Building and assembling rdrand.asm"
+						CommandLine="ml64.exe /c /nologo /D_M_X64 /W3 /Cx /Zi /Fo&quot;$(IntDir)\rdrand-x64.obj&quot; &quot;$(InputPath)&quot;&#x0D;&#x0A;"
+						Outputs="$(IntDir)\rdrand-x64.obj"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Building and assembling rdrand.asm"
+						CommandLine="ml.exe /c /nologo /D_M_X86 /W3 /Cx /Zi /safeseh /Fo&quot;$(IntDir)\rdrand-x86.obj&quot; /Zi &quot;$(InputPath)&quot;&#x0D;&#x0A;"
+						Outputs="$(IntDir)\rdrand-x86.obj"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Building and assembling rdrand.asm"
+						CommandLine="ml64.exe /c /nologo /D_M_X64 /W3 /Cx /Zi /Fo&quot;$(IntDir)\rdrand-x64.obj&quot; /Zi &quot;$(InputPath)&quot;&#x0D;&#x0A;"
+						Outputs="$(IntDir)\rdrand-x64.obj"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="DLL-Import Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Building and assembling rdrand.asm"
+						CommandLine="ml.exe /c /nologo /D_M_X86 /W3 /Cx /Zi /safeseh /Fo&quot;$(IntDir)\rdrand-x86.obj&quot; /Zi &quot;$(InputPath)&quot;&#x0D;&#x0A;"
+						Outputs="$(IntDir)\rdrand-x86.obj"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="DLL-Import Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Building and assembling rdrand.asm"
+						CommandLine="ml64.exe /c /nologo /D_M_X64 /W3 /Cx /Zi /Fo&quot;$(IntDir)\rdrand-x64.obj&quot; /Zi &quot;$(InputPath)&quot;&#x0D;&#x0A;"
+						Outputs="$(IntDir)\rdrand-x64.obj"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="rdrand.cpp"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="DLL-Import Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="DLL-Import Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="DLL-Import Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="DLL-Import Debug|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="rdtables.cpp"
 				>
 				<FileConfiguration
@@ -8540,7 +8597,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64dll.obj&quot; /Zi &quot;$(InputPath)&quot;&#x0D;&#x0A;"
+						CommandLine="ml64.exe /c /nologo /D_M_X64 /W3 /Fo&quot;$(IntDir)\x64dll.obj&quot; /Zi &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\x64dll.obj"
 					/>
 				</FileConfiguration>
@@ -8558,7 +8615,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64dll.obj&quot; /Zi &quot;$(InputPath)&quot;&#x0D;&#x0A;"
+						CommandLine="ml64.exe /c /nologo /D_M_X64 /W3 /Fo&quot;$(IntDir)\x64dll.obj&quot; /Zi &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\x64dll.obj"
 					/>
 				</FileConfiguration>
@@ -8575,7 +8632,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64dll.obj&quot; /Zi &quot;$(InputPath)&quot;&#x0D;&#x0A;"
+						CommandLine="ml64.exe /c /nologo /D_M_X64 /W3 /Fo&quot;$(IntDir)\x64dll.obj&quot; /Zi &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\x64dll.obj"
 					/>
 				</FileConfiguration>
@@ -8593,7 +8650,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64dll.obj&quot; /Zi &quot;$(InputPath)&quot;&#x0D;&#x0A;"
+						CommandLine="ml64.exe /c /nologo /D_M_X64 /W3 /Fo&quot;$(IntDir)\x64dll.obj&quot; /Zi &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\x64dll.obj"
 					/>
 				</FileConfiguration>
@@ -8614,7 +8671,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64masm.obj&quot; /Zi &quot;$(InputPath)&quot;&#x0D;&#x0A;"
+						CommandLine="ml64.exe /c /nologo /D_M_X64 /W3 /Fo&quot;$(IntDir)\x64masm.obj&quot; /Zi &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\x64masm.obj"
 					/>
 				</FileConfiguration>
@@ -8631,7 +8688,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64masm.obj&quot; /Zi &quot;$(InputPath)&quot;&#x0D;&#x0A;"
+						CommandLine="ml64.exe /c /nologo /D_M_X64 /W3 /Fo&quot;$(IntDir)\x64masm.obj&quot; /Zi &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\x64masm.obj"
 					/>
 				</FileConfiguration>
@@ -8648,7 +8705,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64masm.obj&quot; /Zi &quot;$(InputPath)&quot;&#x0D;&#x0A;"
+						CommandLine="ml64.exe /c /nologo /D_M_X64 /W3 /Fo&quot;$(IntDir)\x64masm.obj&quot; /Zi &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\x64masm.obj"
 					/>
 				</FileConfiguration>
@@ -8665,7 +8722,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="ml64.exe /c /nologo /Fo&quot;$(IntDir)\x64masm.obj&quot; /Zi &quot;$(InputPath)&quot;&#x0D;&#x0A;"
+						CommandLine="ml64.exe /c /nologo /D_M_X64 /W3 /Fo&quot;$(IntDir)\x64masm.obj&quot; /Zi &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)\x64masm.obj"
 					/>
 				</FileConfiguration>
@@ -9246,6 +9303,10 @@
 				>
 			</File>
 			<File
+				RelativePath="hkdf.h"
+				>
+			</File>
+			<File
 				RelativePath="hmac.h"
 				>
 			</File>
@@ -9398,6 +9459,10 @@
 				>
 			</File>
 			<File
+				RelativePath="rdrand.h"
+				>
+			</File>
+			<File
 				RelativePath="rijndael.h"
 				>
 			</File>
@@ -9499,10 +9564,6 @@
 			</File>
 			<File
 				RelativePath="tiger.h"
-				>
-			</File>
-			<File
-				RelativePath="trap.h"
 				>
 			</File>
 			<File

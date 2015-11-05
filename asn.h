@@ -1,10 +1,17 @@
+// asn.h - written and placed in the public domain by Wei Dai
+
+//! \file
+//! \brief Classes and functions for working with ANS.1 objects
+
 #ifndef CRYPTOPP_ASN_H
 #define CRYPTOPP_ASN_H
 
+#include "cryptlib.h"
 #include "filters.h"
+#include "smartptr.h"
+#include "stdcpp.h"
 #include "queue.h"
-#include "trap.h"
-#include <vector>
+#include "misc.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -134,7 +141,7 @@ public:
 	~BERGeneralDecoder();
 
 	bool IsDefiniteLength() const {return m_definiteLength;}
-	lword RemainingLength() const {CRYPTOPP_ASSERT(m_definiteLength); return m_length;}
+	lword RemainingLength() const {assert(m_definiteLength); return m_length;}
 	bool EndReached() const;
 	byte PeekByte() const;
 	void CheckByte(byte b);
@@ -152,16 +159,27 @@ protected:
 
 private:
 	void Init(byte asnTag);
-	void StoreInitialize(const NameValuePairs &parameters) {CRYPTOPP_ASSERT(false);}
+	void StoreInitialize(const NameValuePairs &parameters)
+		{CRYPTOPP_UNUSED(parameters); assert(false);}
 	lword ReduceLength(lword delta);
 };
+
+// GCC (and likely other compilers) identify the explicit DERGeneralEncoder as a copy constructor;
+// and not a constructor. We had to remove the default asnTag value to point the compiler in the
+// proper direction. We did not break the library or versioning based on the output of
+// `nm --demangle libcryptopp.a | grep DERGeneralEncoder::DERGeneralEncoder | grep -v " U "`.
 
 //! DER General Encoder
 class CRYPTOPP_DLL DERGeneralEncoder : public ByteQueue
 {
 public:
+#if defined(CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562)
 	explicit DERGeneralEncoder(BufferedTransformation &outQueue, byte asnTag = SEQUENCE | CONSTRUCTED);
 	explicit DERGeneralEncoder(DERGeneralEncoder &outQueue, byte asnTag = SEQUENCE | CONSTRUCTED);
+#else
+	explicit DERGeneralEncoder(BufferedTransformation &outQueue, byte asnTag /*= SEQUENCE | CONSTRUCTED*/);
+	explicit DERGeneralEncoder(DERGeneralEncoder &outQueue, byte asnTag /*= SEQUENCE | CONSTRUCTED*/);
+#endif
 	~DERGeneralEncoder();
 
 	// call this to denote end of sequence
@@ -321,11 +339,9 @@ size_t DEREncodeUnsigned(BufferedTransformation &out, T w, byte asnTag = INTEGER
 }
 
 //! BER Decode Unsigned
-// VC60 workaround: std::numeric_limits<T>::max conflicts with MFC max macro
-// CW41 workaround: std::numeric_limits<T>::max causes a template error
 template <class T>
 void BERDecodeUnsigned(BufferedTransformation &in, T &w, byte asnTag = INTEGER,
-					   T minValue = 0, T maxValue = 0xffffffff)
+					   T minValue = 0, T maxValue = ((std::numeric_limits<T>::max)()))
 {
 	byte b;
 	if (!in.Get(b) || b != asnTag)

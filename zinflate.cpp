@@ -6,9 +6,10 @@
 // (http://www.kb.cert.org/vuls/id/368819).
 
 #include "pch.h"
-#include "cryptlib.h"
+
 #include "zinflate.h"
-#include "trap.h"
+#include "secblock.h"
+#include "smartptr.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -31,20 +32,20 @@ inline bool LowFirstBitReader::FillBuffer(unsigned int length)
 		m_buffer |= (unsigned long)b << m_bitsBuffered;
 		m_bitsBuffered += 8;
 	}
-	CRYPTOPP_ASSERT(m_bitsBuffered <= sizeof(unsigned long)*8);
+	assert(m_bitsBuffered <= sizeof(unsigned long)*8);
 	return true;
 }
 
 inline unsigned long LowFirstBitReader::PeekBits(unsigned int length)
 {
 	bool result = FillBuffer(length);
-	CRYPTOPP_ASSERT(result); CRYPTOPP_UNUSED(result);
+	CRYPTOPP_UNUSED(result); assert(result);
 	return m_buffer & (((unsigned long)1 << length) - 1);
 }
 
 inline void LowFirstBitReader::SkipBits(unsigned int length)
 {
-	CRYPTOPP_ASSERT(m_bitsBuffered >= length);
+	assert(m_bitsBuffered >= length);
 	m_buffer >>= length;
 	m_bitsBuffered -= length;
 }
@@ -138,7 +139,7 @@ void HuffmanDecoder::Initialize(const unsigned int *codeBits, unsigned int nCode
 	m_cacheBits = STDMIN(9U, m_maxCodeBits);
 	m_cacheMask = (1 << m_cacheBits) - 1;
 	m_normalizedCacheMask = NormalizeCode(m_cacheMask, m_cacheBits);
-	CRYPTOPP_ASSERT(m_normalizedCacheMask == BitReverse(m_cacheMask));
+	assert(m_normalizedCacheMask == BitReverse(m_cacheMask));
 
 	if (m_cache.size() != size_t(1) << m_cacheBits)
 		m_cache.resize(1 << m_cacheBits);
@@ -176,10 +177,10 @@ void HuffmanDecoder::FillCacheEntry(LookupEntry &entry, code_t normalizedCode) c
 
 inline unsigned int HuffmanDecoder::Decode(code_t code, /* out */ value_t &value) const
 {
-	CRYPTOPP_ASSERT(m_codeToValue.size() > 0);
+	assert(m_codeToValue.size() > 0);
 	LookupEntry &entry = m_cache[code & m_cacheMask];
 
-	code_t normalizedCode;
+	code_t normalizedCode = 0;
 	if (entry.type != 1)
 		normalizedCode = BitReverse(code);
 
@@ -404,7 +405,7 @@ void Inflator::DecodeHeader()
 			HuffmanDecoder codeLengthDecoder(codeLengths, 19);
 			for (i = 0; i < hlit+257+hdist+1; )
 			{
-				unsigned int k=0, count=0, repeater=0;
+				unsigned int k = 0, count = 0, repeater = 0;
 				bool result = codeLengthDecoder.Decode(m_reader, k);
 				if (!result)
 					throw UnexpectedEndErr();
@@ -469,15 +470,17 @@ bool Inflator::DecodeBody()
 	switch (m_blockType)
 	{
 	case 0:	// stored
-		CRYPTOPP_ASSERT(m_reader.BitsBuffered() == 0);
+		assert(m_reader.BitsBuffered() == 0);
 		while (!m_inQueue.IsEmpty() && !blockEnd)
 		{
 			size_t size;
 			const byte *block = m_inQueue.Spy(size);
 			size = UnsignedMin(m_storedLen, size);
+			assert(size <= 0xffff);
+			
 			OutputString(block, size);
 			m_inQueue.Skip(size);
-			m_storedLen -= (word16)size;
+			m_storedLen = m_storedLen - (word16)size;
 			if (m_storedLen == 0)
 				blockEnd = true;
 		}
@@ -577,7 +580,7 @@ void Inflator::FlushOutput()
 {
 	if (m_state != PRE_STREAM)
 	{
-		CRYPTOPP_ASSERT(m_current >= m_lastFlush);
+		assert(m_current >= m_lastFlush);
 		ProcessDecompressedData(m_window + m_lastFlush, m_current - m_lastFlush);
 		m_lastFlush = m_current;
 	}
@@ -587,13 +590,12 @@ struct NewFixedLiteralDecoder
 {
 	HuffmanDecoder * operator()() const
 	{
-		using CryptoPP::auto_ptr;
 		unsigned int codeLengths[288];
 		std::fill(codeLengths + 0, codeLengths + 144, 8);
 		std::fill(codeLengths + 144, codeLengths + 256, 9);
 		std::fill(codeLengths + 256, codeLengths + 280, 7);
 		std::fill(codeLengths + 280, codeLengths + 288, 8);
-		auto_ptr<HuffmanDecoder> pDecoder(new HuffmanDecoder);
+		member_ptr<HuffmanDecoder> pDecoder(new HuffmanDecoder);
 		pDecoder->Initialize(codeLengths, 288);
 		return pDecoder.release();
 	}
@@ -603,10 +605,9 @@ struct NewFixedDistanceDecoder
 {
 	HuffmanDecoder * operator()() const
 	{
-		using CryptoPP::auto_ptr;
 		unsigned int codeLengths[32];
-		std::fill(codeLengths + 0, codeLengths + 32, 5U);
-		auto_ptr<HuffmanDecoder> pDecoder(new HuffmanDecoder);
+		std::fill(codeLengths + 0, codeLengths + 32, 5);
+		member_ptr<HuffmanDecoder> pDecoder(new HuffmanDecoder);
 		pDecoder->Initialize(codeLengths, 32);
 		return pDecoder.release();
 	}

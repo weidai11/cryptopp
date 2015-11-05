@@ -6,7 +6,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! .
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CCM_Base : public AuthenticatedSymmetricCipherBase
 {
 public:
@@ -72,7 +71,6 @@ protected:
 	CTR_Mode_ExternalCipher::Encryption m_ctr;
 };
 
-//! .
 template <class T_BlockCipher, int T_DefaultDigestSize, bool T_IsEncryption>
 class CCM_Final : public CCM_Base
 {
@@ -89,6 +87,7 @@ private:
 };
 
 /// <a href="http://www.cryptolounge.org/wiki/CCM">CCM</a>
+//! \brief CCM mode of operation
 template <class T_BlockCipher, int T_DefaultDigestSize = 16>
 struct CCM : public AuthenticatedSymmetricCipherDocumentation
 {

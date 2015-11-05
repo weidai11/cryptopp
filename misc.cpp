@@ -1,13 +1,16 @@
 // misc.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
+#include "config.h"
+
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(disable: 4189 6237)
+#endif
 
 #ifndef CRYPTOPP_IMPORTS
 
 #include "misc.h"
 #include "words.h"
-#include "trap.h"
-
 #include <new>
 
 #if defined(CRYPTOPP_MEMALIGN_AVAILABLE) || defined(CRYPTOPP_MM_MALLOC_AVAILABLE) || defined(QNX)
@@ -16,21 +19,14 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-// Vectorization at -O3 requires IsStrictAligned<word64> for GCC 4.8 and above with xorbuf
-//   and VerifyBufsEqual. With vectorization, GCC generates a `vmovdqa` instruction. The
-//   instruction is sensitive to unaligned data due to XMM register use.
-
 void xorbuf(byte *buf, const byte *mask, size_t count)
 {
 	size_t i;
 
 	if (IsAligned<word32>(buf) && IsAligned<word32>(mask))
 	{
-		if (!CRYPTOPP_BOOL_SLOW_WORD64 && IsStrictAligned<word64>(buf) && IsStrictAligned<word64>(mask))
+		if (!CRYPTOPP_BOOL_SLOW_WORD64 && IsAligned<word64>(buf) && IsAligned<word64>(mask))
 		{
-			CRYPTOPP_ASSERT(IsAlignedOn(buf, GetStrictAlignmentOf<word64>()));
-			CRYPTOPP_ASSERT(IsAlignedOn(mask, GetStrictAlignmentOf<word64>()));
-
 			for (i=0; i<count/8; i++)
 				((word64*)buf)[i] ^= ((word64*)mask)[i];
 			count -= 8*i;
@@ -59,12 +55,8 @@ void xorbuf(byte *output, const byte *input, const byte *mask, size_t count)
 
 	if (IsAligned<word32>(output) && IsAligned<word32>(input) && IsAligned<word32>(mask))
 	{
-		if (!CRYPTOPP_BOOL_SLOW_WORD64 && IsStrictAligned<word64>(output) && IsStrictAligned<word64>(input) && IsStrictAligned<word64>(mask))
+		if (!CRYPTOPP_BOOL_SLOW_WORD64 && IsAligned<word64>(output) && IsAligned<word64>(input) && IsAligned<word64>(mask))
 		{
-			CRYPTOPP_ASSERT(IsAlignedOn(output, GetStrictAlignmentOf<word64>()));
-			CRYPTOPP_ASSERT(IsAlignedOn(input, GetStrictAlignmentOf<word64>()));
-			CRYPTOPP_ASSERT(IsAlignedOn(mask, GetStrictAlignmentOf<word64>()));
-
 			for (i=0; i<count/8; i++)
 				((word64*)output)[i] = ((word64*)input)[i] ^ ((word64*)mask)[i];
 			count -= 8*i;
@@ -97,11 +89,8 @@ bool VerifyBufsEqual(const byte *buf, const byte *mask, size_t count)
 	if (IsAligned<word32>(buf) && IsAligned<word32>(mask))
 	{
 		word32 acc32 = 0;
-		if (!CRYPTOPP_BOOL_SLOW_WORD64 && IsStrictAligned<word64>(buf) && IsStrictAligned<word64>(mask))
+		if (!CRYPTOPP_BOOL_SLOW_WORD64 && IsAligned<word64>(buf) && IsAligned<word64>(mask))
 		{
-			CRYPTOPP_ASSERT(IsAlignedOn(buf, GetStrictAlignmentOf<word64>()));
-			CRYPTOPP_ASSERT(IsAlignedOn(mask, GetStrictAlignmentOf<word64>()));
-
 			word64 acc64 = 0;
 			for (i=0; i<count/8; i++)
 				acc64 |= ((word64*)buf)[i] ^ ((word64*)mask)[i];
@@ -145,19 +134,19 @@ void CallNewHandler()
 		throw std::bad_alloc();
 }
 
-#if CRYPTOPP_BOOL_ALIGN16_ENABLED
+#if CRYPTOPP_BOOL_ALIGN16
 
 void * AlignedAllocate(size_t size)
 {
 	byte *p;
 #ifdef CRYPTOPP_MM_MALLOC_AVAILABLE
-	while (!(p = (byte *)_mm_malloc(size, 16)))
+	while ((p = (byte *)_mm_malloc(size, 16)) == NULL)
 #elif defined(CRYPTOPP_MEMALIGN_AVAILABLE)
-	while (!(p = (byte *)memalign(16, size)))
+	while ((p = (byte *)memalign(16, size)) == NULL)
 #elif defined(CRYPTOPP_MALLOC_ALIGNMENT_IS_16)
-	while (!(p = (byte *)malloc(size)))
+	while ((p = (byte *)malloc(size)) == NULL)
 #else
-	while (!(p = (byte *)malloc(size + 16)))
+	while ((p = (byte *)malloc(size + 16)) == NULL)
 #endif
 		CallNewHandler();
 
@@ -167,7 +156,7 @@ void * AlignedAllocate(size_t size)
 	p[-1] = (byte)adjustment;
 #endif
 
-	CRYPTOPP_ASSERT(IsAlignedOn(p, 16));
+	assert(IsAlignedOn(p, 16));
 	return p;
 }
 
@@ -188,7 +177,7 @@ void AlignedDeallocate(void *p)
 void * UnalignedAllocate(size_t size)
 {
 	void *p;
-	while (!(p = malloc(size)))
+	while ((p = malloc(size)) == NULL)
 		CallNewHandler();
 	return p;
 }

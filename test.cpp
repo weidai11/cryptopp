@@ -1,10 +1,12 @@
 // test.cpp - written and placed in the public domain by Wei Dai
 
-#define _CRT_SECURE_NO_DEPRECATE
 #define CRYPTOPP_DEFAULT_NO_DLL
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
 
 #include "dll.h"
+#include "aes.h"
+#include "cryptlib.h"
+#include "filters.h"
 #include "md5.h"
 #include "ripemd.h"
 #include "rng.h"
@@ -18,14 +20,14 @@
 #include "factory.h"
 #include "whrlpool.h"
 #include "tiger.h"
+#include "smartptr.h"
 
 #include "validate.h"
 #include "bench.h"
 
-// CRYPTOPP_ASSERT, includes <signal.h> for BSD, Linux and Unix
-#include "trap.h"
-
 #include <iostream>
+#include <string>
+#include <algorithm>
 #include <time.h>
 
 #ifdef CRYPTOPP_WIN32_AVAILABLE
@@ -50,19 +52,26 @@
 #endif
 
 #ifdef __BORLANDC__
-# pragma comment(lib, "cryptlib_bds.lib")
-# pragma comment(lib, "ws2_32.lib")
+#pragma comment(lib, "cryptlib_bds.lib")
+#pragma comment(lib, "ws2_32.lib")
+#endif
+
+// Aggressive stack checking with VS2005 SP1 and above.
+#if (CRYPTOPP_MSC_VERSION >= 1410)
+# pragma strict_gs_check (on)
 #endif
 
 USING_NAMESPACE(CryptoPP)
+USING_NAMESPACE(std)
 
 const int MAX_PHRASE_LENGTH=250;
 
 void RegisterFactories();
+void PrintSeedAndThreads(const std::string& seed);
 
 void GenerateRSAKey(unsigned int keyLength, const char *privFilename, const char *pubFilename, const char *seed);
-std::string RSAEncryptString(const char *pubFilename, const char *seed, const char *message);
-std::string RSADecryptString(const char *privFilename, const char *ciphertext);
+string RSAEncryptString(const char *pubFilename, const char *seed, const char *message);
+string RSADecryptString(const char *privFilename, const char *ciphertext);
 void RSASignFile(const char *privFilename, const char *messageFilename, const char *signatureFilename);
 bool RSAVerifyFile(const char *pubFilename, const char *messageFilename, const char *signatureFilename);
 
@@ -71,8 +80,8 @@ void HmacFile(const char *hexKey, const char *file);
 
 void AES_CTR_Encrypt(const char *hexKey, const char *hexIV, const char *infile, const char *outfile);
 
-std::string EncryptString(const char *plaintext, const char *passPhrase);
-std::string DecryptString(const char *ciphertext, const char *passPhrase);
+string EncryptString(const char *plaintext, const char *passPhrase);
+string DecryptString(const char *ciphertext, const char *passPhrase);
 
 void EncryptFile(const char *in, const char *out, const char *passPhrase);
 void DecryptFile(const char *in, const char *out, const char *passPhrase);
@@ -98,60 +107,28 @@ void FIPS140_GenerateRandomFiles();
 
 bool Validate(int, bool, const char *);
 
-#if defined(CRYPTOPP_DEBUG) && (defined(CRYPTOPP_BSD_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE))
-// Add a SIGTRAP handler for BSD, Linux, Unix; used by CRYPTOPP_ASSERT.
-struct DebugTrapHandler
-{
-	explicit DebugTrapHandler()
-	{
-		// http://pubs.opengroup.org/onlinepubs/007908799/xsh/sigaction.html
-		struct sigaction old_handler, new_handler;
-		memset(&old_handler, 0x00, sizeof(old_handler));
-		memset(&new_handler, 0x00, sizeof(new_handler));
-
-		do
-		{
-			int ret = 0;
-
-			ret = sigaction (SIGTRAP, NULL, &old_handler);
-			if (ret != 0) break; // Failed
-
-			// Don't step on another's handler (like a debugger)
-			if (old_handler.sa_handler != NULL) break;
-
-			// Set up the structure to specify the null action.
-			new_handler.sa_handler = &DebugTrapHandler::NullHandler;
-			new_handler.sa_flags = 0;
-
-			ret = sigemptyset (&new_handler.sa_mask);
-			if (ret != 0) break; // Failed
-
-			// Install it.
-			ret = sigaction (SIGTRAP, &new_handler, NULL);
-			if (ret != 0) break; // Failed
-
-		} while(0);
-	}
-
-	static void NullHandler(int /*unused*/) { }
-};
-
-#if __GNUC__
-// Specify a relatively low priority to make sure we run before other CTORs
-// http://gcc.gnu.org/onlinedocs/gcc/C_002b_002b-Attributes.html#C_002b_002b-Attributes
-static const DebugTrapHandler g_dummyHandler __attribute__ ((init_priority (110)));
-#else
-static const DebugTrapHandler g_dummyHandler;
-#endif // __GNUC__
-#endif // CRYPTOPP_UNIX_AVAILABLE and not NDEBUG
+int (*AdhocTest)(int argc, char *argv[]) = NULL;
 
 RandomNumberGenerator & GlobalRNG()
 {
 	static OFB_Mode<AES>::Encryption s_globalRNG;
-	return s_globalRNG;
+	return dynamic_cast<RandomNumberGenerator&>(s_globalRNG);
 }
 
-int (*AdhocTest)(int argc, char *argv[]) = NULL;
+void PrintSeedAndThreads(const std::string& seed)
+{
+	cout << "Using seed: " << seed << endl;
+
+#ifdef _OPENMP
+	int tc = 0;
+	#pragma omp parallel
+	{
+		tc = omp_get_num_threads();
+	}
+
+	std::cout << "Using " << tc << " OMP " << (tc == 1 ? "thread" : "threads") << std::endl;
+#endif
+}
 
 int CRYPTOPP_API main(int argc, char *argv[])
 {
@@ -166,14 +143,15 @@ int CRYPTOPP_API main(int argc, char *argv[])
 	argc = ccommand(&argv);
 #endif
 
-	CRYPTOPP_UNUSED(argc), CRYPTOPP_UNUSED(argv);
-
 	try
 	{
 		RegisterFactories();
 
-		std::string seed = IntToString(time(NULL));
+		std::string seed = IntToString(time(NULL));		
+
+		// Some editors have problems with the '\0' character from redirected output. Leave the trailing '\0' for debugging.
 		seed.resize(16);
+		std::replace(seed.begin(), seed.end() -1, '\0', ' ');
 
 		OFB_Mode<AES>::Encryption& prng = dynamic_cast<OFB_Mode<AES>::Encryption&>(GlobalRNG());
 		prng.SetKeyWithIV((byte *)seed.data(), 16, (byte *)seed.data());
@@ -187,70 +165,79 @@ int CRYPTOPP_API main(int argc, char *argv[])
 
 		if (command == "g")
 		{
-			char seed[1024], privFilename[128], pubFilename[128];
+			char thisSeed[1024], privFilename[128], pubFilename[128];
 			unsigned int keyLength;
 
-			std::cout << "Key length in bits: ";
-			std::cin >> keyLength;
+			cout << "Key length in bits: ";
+			cin >> keyLength;
 
-			std::cout << "\nSave private key to file: ";
-			std::cin >> privFilename;
+			cout << "\nSave private key to file: ";
+			cin >> privFilename;
 
-			std::cout << "\nSave public key to file: ";
-			std::cin >> pubFilename;
+			cout << "\nSave public key to file: ";
+			cin >> pubFilename;
 
-			std::cout << "\nRandom Seed: ";
-			ws(std::cin);
-			std::cin.getline(seed, 1024);
+			cout << "\nRandom Seed: ";
+			ws(cin);
+			cin.getline(thisSeed, 1024);
 
-			GenerateRSAKey(keyLength, privFilename, pubFilename, seed);
+			GenerateRSAKey(keyLength, privFilename, pubFilename, thisSeed);
 		}
 		else if (command == "rs")
 			RSASignFile(argv[2], argv[3], argv[4]);
 		else if (command == "rv")
 		{
 			bool verified = RSAVerifyFile(argv[2], argv[3], argv[4]);
-			std::cout << (verified ? "valid signature" : "invalid signature") << std::endl;
+			cout << (verified ? "valid signature" : "invalid signature") << endl;
 		}
 		else if (command == "r")
 		{
 			char privFilename[128], pubFilename[128];
-			char seed[1024], message[1024];
+			char thisSeed[1024], message[1024];
 
-			std::cout << "Private key file: ";
-			std::cin >> privFilename;
+			cout << "Private key file: ";
+			cin >> privFilename;
 
-			std::cout << "\nPublic key file: ";
-			std::cin >> pubFilename;
+			cout << "\nPublic key file: ";
+			cin >> pubFilename;
 
-			std::cout << "\nRandom Seed: ";
-			ws(std::cin);
-			std::cin.getline(seed, 1024);
+			cout << "\nRandom Seed: ";
+			ws(cin);
+			cin.getline(thisSeed, 1024);
 
-			std::cout << "\nMessage: ";
-			std::cin.getline(message, 1024);
+			cout << "\nMessage: ";
+			cin.getline(message, 1024);
 
-			std::string ciphertext = RSAEncryptString(pubFilename, seed, message);
-			std::cout << "\nCiphertext: " << ciphertext << std::endl;
+			string ciphertext = RSAEncryptString(pubFilename, thisSeed, message);
+			cout << "\nCiphertext: " << ciphertext << endl;
 
-			std::string decrypted = RSADecryptString(privFilename, ciphertext.c_str());
-			std::cout << "\nDecrypted: " << decrypted << std::endl;
+			string decrypted = RSADecryptString(privFilename, ciphertext.c_str());
+			cout << "\nDecrypted: " << decrypted << endl;
 		}
 		else if (command == "mt")
 		{
 			MaurerRandomnessTest mt;
 			FileStore fs(argv[2]);
 			fs.TransferAllTo(mt);
-			std::cout << "Maurer Test Value: " << mt.GetTestValue() << std::endl;
+			cout << "Maurer Test Value: " << mt.GetTestValue() << endl;
 		}
 		else if (command == "mac_dll")
 		{
+			std::string fname(argv[2] ? argv[2] : "");
+
 			// sanity check on file size
-			std::fstream dllFile(argv[2], std::ios::in | std::ios::out | std::ios::binary);
+			std::fstream dllFile(fname.c_str(), ios::in | ios::out | ios::binary);
+			if (!dllFile.good())
+			{
+				cerr << "Failed to open file \"" << fname << "\"\n";
+				return 1;
+			}
+
 			std::ifstream::pos_type fileEnd = dllFile.seekg(0, std::ios_base::end).tellg();
 			if (fileEnd > 20*1000*1000)
 			{
-				std::cerr << "Input file too large (more than 20 MB).\n";
+				cerr << "Input file " << fname << " is too large";
+				cerr << "(size is " << fileEnd << ").\n";
 				return 1;
 			}
 
@@ -266,7 +253,7 @@ int CRYPTOPP_API main(int argc, char *argv[])
 			word16 optionalHeaderMagic = *(word16 *)(buf+optionalHeaderPos);
 			if (optionalHeaderMagic != 0x10b && optionalHeaderMagic != 0x20b)
 			{
-				std::cerr << "Target file is not a PE32 or PE32+ image.\n";
+				cerr << "Target file is not a PE32 or PE32+ image.\n";
 				return 3;
 			}
 			word32 checksumPos = optionalHeaderPos + 64;
@@ -274,21 +261,21 @@ int CRYPTOPP_API main(int argc, char *argv[])
 			word32 certificateTablePos = *(word32 *)(buf+certificateTableDirectoryPos);
 			word32 certificateTableSize = *(word32 *)(buf+certificateTableDirectoryPos+4);
 			if (certificateTableSize != 0)
-				std::cerr << "Warning: certificate table (IMAGE_DIRECTORY_ENTRY_SECURITY) of target image is not empty.\n";
+				cerr << "Warning: certificate table (IMAGE_DIRECTORY_ENTRY_SECURITY) of target image is not empty.\n";
 
 			// find where to place computed MAC
 			byte mac[] = CRYPTOPP_DUMMY_DLL_MAC;
 			byte *found = std::search(buf.begin(), buf.end(), mac+0, mac+sizeof(mac));
 			if (found == buf.end())
 			{
-				std::cerr << "MAC placeholder not found. Possibly the actual MAC was already placed.\n";
+				cerr << "MAC placeholder not found. The MAC may already be placed.\n";
 				return 2;
 			}
 			word32 macPos = (unsigned int)(found-buf.begin());
 
 			// compute MAC
 			member_ptr<MessageAuthenticationCode> pMac(NewIntegrityCheckingMAC());
-			CRYPTOPP_ASSERT(pMac->DigestSize() == sizeof(mac));
+			assert(pMac->DigestSize() == sizeof(mac));
 			MeterFilter f(new HashFilter(*pMac, new ArraySink(mac, sizeof(mac))));
 			f.AddRangeToSkip(0, checksumPos, 4);
 			f.AddRangeToSkip(0, certificateTableDirectoryPos, 8);
@@ -297,7 +284,8 @@ int CRYPTOPP_API main(int argc, char *argv[])
 			f.PutMessageEnd(buf.begin(), buf.size());
 
 			// place MAC
-			std::cout << "Placing MAC in file " << argv[2] << ", location " << macPos << ".\n";
+			cout << "Placing MAC in file " << fname << ", location " << macPos;
+			cout << " (0x" << std::hex << macPos << std::dec << ").\n";
 			dllFile.seekg(macPos, std::ios_base::beg);
 			dllFile.write((char *)mac, sizeof(mac));
 		}
@@ -305,9 +293,11 @@ int CRYPTOPP_API main(int argc, char *argv[])
 			DigestFile(argv[2]);
 		else if (command == "tv")
 		{
-			std::string fname = (argc >= 3 ? argv[2] : "all");
+			std::string fname = (argv[2] ? argv[2] : "all");
 			if (fname.find(".txt") == std::string::npos)
 				fname = "TestVectors/" + fname + ".txt";
+			
+			PrintSeedAndThreads(seed);
 			return !RunTestDataFile(fname.c_str());
 		}
 		else if (command == "t")
@@ -315,17 +305,17 @@ int CRYPTOPP_API main(int argc, char *argv[])
 			// VC60 workaround: use char array instead of std::string to workaround MSVC's getline bug
 			char passPhrase[MAX_PHRASE_LENGTH], plaintext[1024];
 
-			std::cout << "Passphrase: ";
-			std::cin.getline(passPhrase, MAX_PHRASE_LENGTH);
+			cout << "Passphrase: ";
+			cin.getline(passPhrase, MAX_PHRASE_LENGTH);
 
-			std::cout << "\nPlaintext: ";
-			std::cin.getline(plaintext, 1024);
+			cout << "\nPlaintext: ";
+			cin.getline(plaintext, 1024);
 
-			std::string ciphertext = EncryptString(plaintext, passPhrase);
-			std::cout << "\nCiphertext: " << ciphertext << std::endl;
+			string ciphertext = EncryptString(plaintext, passPhrase);
+			cout << "\nCiphertext: " << ciphertext << endl;
 
-			std::string decrypted = DecryptString(ciphertext.c_str(), passPhrase);
-			std::cout << "\nDecrypted: " << decrypted << std::endl;
+			string decrypted = DecryptString(ciphertext.c_str(), passPhrase);
+			cout << "\nDecrypted: " << decrypted << endl;
 
 			return 0;
 		}
@@ -340,8 +330,8 @@ int CRYPTOPP_API main(int argc, char *argv[])
 		else if (command == "e" || command == "d")
 		{
 			char passPhrase[MAX_PHRASE_LENGTH];
-			std::cout << "Passphrase: ";
-			std::cin.getline(passPhrase, MAX_PHRASE_LENGTH);
+			cout << "Passphrase: ";
+			cin.getline(passPhrase, MAX_PHRASE_LENGTH);
 			if (command == "e")
 				EncryptFile(argv[2], argv[3], passPhrase);
 			else
@@ -349,11 +339,11 @@ int CRYPTOPP_API main(int argc, char *argv[])
 		}
 		else if (command == "ss")
 		{
-			char seed[1024];
-			std::cout << "\nRandom Seed: ";
-			ws(std::cin);
-			std::cin.getline(seed, 1024);
-			SecretShareFile(atoi(argv[2]), atoi(argv[3]), argv[4], seed);
+			char thisSeed[1024];
+			cout << "\nRandom Seed: ";
+			ws(cin);
+			cin.getline(thisSeed, 1024);
+			SecretShareFile(atoi(argv[2]), atoi(argv[3]), argv[4], thisSeed);
 		}
 		else if (command == "sr")
 			SecretRecoverFile(argc-3, argv[2], argv+3);
@@ -383,7 +373,7 @@ int CRYPTOPP_API main(int argc, char *argv[])
 				return (*AdhocTest)(argc, argv);
 			else
 			{
-				std::cerr << "AdhocTest not defined.\n";
+				cerr << "AdhocTest not defined.\n";
 				return 1;
 			}
 		}
@@ -393,31 +383,31 @@ int CRYPTOPP_API main(int argc, char *argv[])
 			AES_CTR_Encrypt(argv[2], argv[3], argv[4], argv[5]);
 		else if (command == "h")
 		{
-			FileSource usage("TestData/usage.dat", true, new FileSink(std::cout));
+			FileSource usage("TestData/usage.dat", true, new FileSink(cout));
 			return 1;
 		}
 		else if (command == "V")
 		{
-			std::cout << CRYPTOPP_VERSION / 100 << '.' << (CRYPTOPP_VERSION % 100) / 10 << '.' << CRYPTOPP_VERSION % 10 << std::endl;
+			cout << CRYPTOPP_VERSION / 100 << '.' << (CRYPTOPP_VERSION % 100) / 10 << '.' << CRYPTOPP_VERSION % 10 << endl;
 		}
 		else
 		{
-			std::cerr << "Unrecognized command. Run \"cryptest h\" to obtain usage information.\n";
+			cerr << "Unrecognized command. Run \"cryptest h\" to obtain usage information.\n";
 			return 1;
 		}
 		return 0;
 	}
-	catch(CryptoPP::Exception &e)
+	catch(const CryptoPP::Exception &e)
 	{
-		std::cout << "\nCryptoPP::Exception caught: " << e.what() << std::endl;
+		cout << "\nCryptoPP::Exception caught: " << e.what() << endl;
 		return -1;
 	}
-	catch(std::exception &e)
+	catch(const std::exception &e)
 	{
-		std::cout << "\nstd::exception caught: " << e.what() << std::endl;
+		cout << "\nstd::exception caught: " << e.what() << endl;
 		return -2;
 	}
-}
+} // End main()
 
 void FIPS140_GenerateRandomFiles()
 {
@@ -428,7 +418,7 @@ void FIPS140_GenerateRandomFiles()
 	for (unsigned int i=0; i<100000; i++)
 		store.TransferTo(FileSink((IntToString(i) + ".rnd").c_str()).Ref(), 20000);
 #else
-	std::cout << "OS provided RNG not available.\n";
+	cout << "OS provided RNG not available.\n";
 	exit(-1);
 #endif
 }
@@ -457,7 +447,7 @@ void GenerateRSAKey(unsigned int keyLength, const char *privFilename, const char
 	pubFile.MessageEnd();
 }
 
-std::string RSAEncryptString(const char *pubFilename, const char *seed, const char *message)
+string RSAEncryptString(const char *pubFilename, const char *seed, const char *message)
 {
 	FileSource pubFile(pubFilename, true, new HexDecoder);
 	RSAES_OAEP_SHA_Encryptor pub(pubFile);
@@ -465,17 +455,17 @@ std::string RSAEncryptString(const char *pubFilename, const char *seed, const ch
 	RandomPool randPool;
 	randPool.IncorporateEntropy((byte *)seed, strlen(seed));
 
-	std::string result;
+	string result;
 	StringSource(message, true, new PK_EncryptorFilter(randPool, pub, new HexEncoder(new StringSink(result))));
 	return result;
 }
 
-std::string RSADecryptString(const char *privFilename, const char *ciphertext)
+string RSADecryptString(const char *privFilename, const char *ciphertext)
 {
 	FileSource privFile(privFilename, true, new HexDecoder);
 	RSAES_OAEP_SHA_Decryptor priv(privFile);
 
-	std::string result;
+	string result;
 	StringSource(ciphertext, true, new HexDecoder(new PK_DecryptorFilter(GlobalRNG(), priv, new StringSink(result))));
 	return result;
 }
@@ -521,20 +511,18 @@ void DigestFile(const char *filename)
 	filters[4].reset(new HashFilter(sha512));
 	filters[5].reset(new HashFilter(whirlpool));
 
-	using CryptoPP::auto_ptr;
-	auto_ptr<ChannelSwitch> channelSwitch(new ChannelSwitch);
-
+	member_ptr<ChannelSwitch> channelSwitch(new ChannelSwitch);
 	size_t i;
 	for (i=0; i<filters.size(); i++)
 		channelSwitch->AddDefaultRoute(*filters[i]);
 	FileSource(filename, true, channelSwitch.release());
 
-	HexEncoder encoder(new FileSink(std::cout), false);
+	HexEncoder encoder(new FileSink(cout), false);
 	for (i=0; i<filters.size(); i++)
 	{
-		std::cout << filters[i]->AlgorithmName() << ": ";
+		cout << filters[i]->AlgorithmName() << ": ";
 		filters[i]->TransferTo(encoder);
-		std::cout << "\n";
+		cout << "\n";
 	}
 }
 
@@ -543,7 +531,7 @@ void HmacFile(const char *hexKey, const char *file)
 	member_ptr<MessageAuthenticationCode> mac;
 	if (strcmp(hexKey, "selftest") == 0)
 	{
-		std::cerr << "Computing HMAC/SHA1 value for self test.\n";
+		cerr << "Computing HMAC/SHA1 value for self test.\n";
 		mac.reset(NewIntegrityCheckingMAC());
 	}
 	else
@@ -552,7 +540,7 @@ void HmacFile(const char *hexKey, const char *file)
 		StringSource(hexKey, true, new HexDecoder(new StringSink(decodedKey)));
 		mac.reset(new HMAC<SHA1>((const byte *)decodedKey.data(), decodedKey.size()));
 	}
-	FileSource(file, true, new HashFilter(*mac, new HexEncoder(new FileSink(std::cout))));
+	FileSource(file, true, new HashFilter(*mac, new HexEncoder(new FileSink(cout))));
 }
 
 void AES_CTR_Encrypt(const char *hexKey, const char *hexIV, const char *infile, const char *outfile)
@@ -563,9 +551,9 @@ void AES_CTR_Encrypt(const char *hexKey, const char *hexIV, const char *infile, 
 	FileSource(infile, true, new StreamTransformationFilter(aes, new FileSink(outfile)));
 }
 
-std::string EncryptString(const char *instr, const char *passPhrase)
+string EncryptString(const char *instr, const char *passPhrase)
 {
-	std::string outstr;
+	string outstr;
 
 	DefaultEncryptorWithMAC encryptor(passPhrase, new HexEncoder(new StringSink(outstr)));
 	encryptor.Put((byte *)instr, strlen(instr));
@@ -574,9 +562,9 @@ std::string EncryptString(const char *instr, const char *passPhrase)
 	return outstr;
 }
 
-std::string DecryptString(const char *instr, const char *passPhrase)
+string DecryptString(const char *instr, const char *passPhrase)
 {
-	std::string outstr;
+	string outstr;
 
 	HexDecoder decryptor(new DefaultDecryptorWithMAC(passPhrase, new StringSink(outstr)));
 	decryptor.Put((byte *)instr, strlen(instr));
@@ -597,7 +585,7 @@ void DecryptFile(const char *in, const char *out, const char *passPhrase)
 
 void SecretShareFile(int threshold, int nShares, const char *filename, const char *seed)
 {
-	CRYPTOPP_ASSERT(nShares<=1000);
+	assert(nShares<=1000);
 
 	RandomPool rng;
 	rng.IncorporateEntropy((byte *)seed, strlen(seed));
@@ -606,18 +594,18 @@ void SecretShareFile(int threshold, int nShares, const char *filename, const cha
 	FileSource source(filename, false, new SecretSharing(rng, threshold, nShares, channelSwitch = new ChannelSwitch));
 
 	vector_member_ptrs<FileSink> fileSinks(nShares);
-	std::string channel;
+	string channel;
 	for (int i=0; i<nShares; i++)
 	{
 		char extension[5] = ".000";
 		extension[1]='0'+byte(i/100);
 		extension[2]='0'+byte((i/10)%10);
 		extension[3]='0'+byte(i%10);
-		fileSinks[i].reset(new FileSink((std::string(filename)+extension).c_str()));
+		fileSinks[i].reset(new FileSink((string(filename)+extension).c_str()));
 
 		channel = WordToString<word32>(i);
 		fileSinks[i]->Put((byte *)channel.data(), 4);
-		channelSwitch->AddRoute(channel, *fileSinks[i], DefaultChannel());
+		channelSwitch->AddRoute(channel, *fileSinks[i], DEFAULT_CHANNEL);
 	}
 
 	source.PumpAll();
@@ -625,7 +613,7 @@ void SecretShareFile(int threshold, int nShares, const char *filename, const cha
 
 void SecretRecoverFile(int threshold, const char *outFilename, char *const *inFilenames)
 {
-	CRYPTOPP_ASSERT(threshold<=1000);
+	assert(threshold<=1000);
 
 	SecretRecovery recovery(threshold, new FileSink(outFilename));
 
@@ -637,7 +625,7 @@ void SecretRecoverFile(int threshold, const char *outFilename, char *const *inFi
 		fileSources[i].reset(new FileSource(inFilenames[i], false));
 		fileSources[i]->Pump(4);
 		fileSources[i]->Get(channel, 4);
-		fileSources[i]->Attach(new ChannelSwitch(recovery, std::string((char *)channel.begin(), 4)));
+		fileSources[i]->Attach(new ChannelSwitch(recovery, string((char *)channel.begin(), 4)));
 	}
 
 	while (fileSources[0]->Pump(256))
@@ -650,24 +638,24 @@ void SecretRecoverFile(int threshold, const char *outFilename, char *const *inFi
 
 void InformationDisperseFile(int threshold, int nShares, const char *filename)
 {
-	CRYPTOPP_ASSERT(nShares<=1000);
+	assert(nShares<=1000);
 
 	ChannelSwitch *channelSwitch;
 	FileSource source(filename, false, new InformationDispersal(threshold, nShares, channelSwitch = new ChannelSwitch));
 
 	vector_member_ptrs<FileSink> fileSinks(nShares);
-	std::string channel;
+	string channel;
 	for (int i=0; i<nShares; i++)
 	{
 		char extension[5] = ".000";
 		extension[1]='0'+byte(i/100);
 		extension[2]='0'+byte((i/10)%10);
 		extension[3]='0'+byte(i%10);
-		fileSinks[i].reset(new FileSink((std::string(filename)+extension).c_str()));
+		fileSinks[i].reset(new FileSink((string(filename)+extension).c_str()));
 
 		channel = WordToString<word32>(i);
 		fileSinks[i]->Put((byte *)channel.data(), 4);
-		channelSwitch->AddRoute(channel, *fileSinks[i], DefaultChannel());
+		channelSwitch->AddRoute(channel, *fileSinks[i], DEFAULT_CHANNEL);
 	}
 
 	source.PumpAll();
@@ -675,7 +663,7 @@ void InformationDisperseFile(int threshold, int nShares, const char *filename)
 
 void InformationRecoverFile(int threshold, const char *outFilename, char *const *inFilenames)
 {
-	CRYPTOPP_ASSERT(threshold<=1000);
+	assert(threshold<=1000);
 
 	InformationRecovery recovery(threshold, new FileSink(outFilename));
 
@@ -687,7 +675,7 @@ void InformationRecoverFile(int threshold, const char *outFilename, char *const 
 		fileSources[i].reset(new FileSource(inFilenames[i], false));
 		fileSources[i]->Pump(4);
 		fileSources[i]->Get(channel, 4);
-		fileSources[i]->Attach(new ChannelSwitch(recovery, std::string((char *)channel.begin(), 4)));
+		fileSources[i]->Attach(new ChannelSwitch(recovery, string((char *)channel.begin(), 4)));
 	}
 
 	while (fileSources[0]->Pump(256))
@@ -700,17 +688,17 @@ void InformationRecoverFile(int threshold, const char *outFilename, char *const 
 
 void GzipFile(const char *in, const char *out, int deflate_level)
 {
-	//	FileSource(in, true, new Gzip(new FileSink(out), deflate_level));
+//	FileSource(in, true, new Gzip(new FileSink(out), deflate_level));
 
 	// use a filter graph to compare decompressed data with original
 	//
-	// Source --------> Gzip --------> Sink
-	//    \              |
-	//	    \          Gunzip
-	//		  \          |
-	//		    \        v
+	// Source ----> Gzip ------> Sink
+	//    \           |
+	//	    \       Gunzip
+	//		  \       |
+	//		    \     v
 	//		      > ComparisonFilter 
-
+			   
 	EqualityComparisonFilter comparison;
 
 	Gunzip gunzip(new ChannelSwitch(comparison, "0"));
@@ -769,18 +757,18 @@ void ForwardTcpPort(const char *sourcePortName, const char *destinationHost, con
 	sockListen.Bind(sourcePort);
 	setsockopt(sockListen, IPPROTO_TCP, TCP_NODELAY, "\x01", 1);
 
-	std::cout << "Listing on port " << sourcePort << ".\n";
+	cout << "Listing on port " << sourcePort << ".\n";
 	sockListen.Listen();
 
 	sockListen.Accept(sockSource);
-	std::cout << "Connection accepted on port " << sourcePort << ".\n";
+	cout << "Connection accepted on port " << sourcePort << ".\n";
 	sockListen.CloseSocket();
 
-	std::cout << "Making connection to " << destinationHost << ", port " << destinationPort << ".\n";
+	cout << "Making connection to " << destinationHost << ", port " << destinationPort << ".\n";
 	sockDestination.Create();
 	sockDestination.Connect(destinationHost, destinationPort);
 
-	std::cout << "Connection made to " << destinationHost << ", starting to forward.\n";
+	cout << "Connection made to " << destinationHost << ", starting to forward.\n";
 
 	SocketSource out(sockSource, false, new SocketSink(sockDestination));
 	SocketSource in(sockDestination, false, new SocketSink(sockSource));
@@ -798,22 +786,22 @@ void ForwardTcpPort(const char *sourcePortName, const char *destinationHost, con
 
 		if (!out.SourceExhausted())
 		{
-			std::cout << "o" << std::flush;
+			cout << "o" << flush;
 			out.PumpAll2(false);
 			if (out.SourceExhausted())
-				std::cout << "EOF received on source socket.\n";
+				cout << "EOF received on source socket.\n";
 		}
 
 		if (!in.SourceExhausted())
 		{
-			std::cout << "i" << std::flush;
+			cout << "i" << flush;
 			in.PumpAll2(false);
 			if (in.SourceExhausted())
-				std::cout << "EOF received on destination socket.\n";
+				cout << "EOF received on destination socket.\n";
 		}
 	}
 #else
-	std::cout << "Socket support was not enabled at compile time.\n";
+	cout << "Socket support was not enabled at compile time.\n";
 	exit(-1);
 #endif
 }
@@ -823,105 +811,110 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 	bool result;
 
 	std::string seed = seedInput ? std::string(seedInput) : IntToString(time(NULL));
-	seed.resize(16);
 
-	std::cout << "Using seed: " << seed << std::endl;
-	
+	// Some editors have problems with the '\0' character from redirected output. Leave the trailing '\0' for debugging.
+	seed.resize(16);
+	std::replace(seed.begin(), seed.end() -1, '\0', ' ');
+
 	OFB_Mode<AES>::Encryption& prng = dynamic_cast<OFB_Mode<AES>::Encryption&>(GlobalRNG());
 	prng.SetKeyWithIV((byte *)seed.data(), 16, (byte *)seed.data());
 
-#ifdef _OPENMP
-	int tc = 0;
-	#pragma omp parallel
-	{
-		tc = omp_get_num_threads();
-	}
-
-	std::cout << "Using " << tc << " OMP " << (tc == 1 ? "thread" : "threads") << std::endl;
-#endif
-
-	std::cout << std::endl;
+	PrintSeedAndThreads(seed);
 
 	switch (alg)
 	{
-		case 0: result = ValidateAll(thorough); break;
-		case 1: result = TestSettings(); break;
-		case 70: result = TestRotate(); break;
-		case 71: result = TestConversion(); break;
-		case 2: result = TestOS_RNG(); break;
-		case 3: result = ValidateMD5(); break;
-		case 4: result = ValidateSHA(); break;
-		case 5: result = ValidateDES(); break;
-		case 6: result = ValidateIDEA(); break;
-		case 7: result = ValidateARC4(); break;
-		case 8: result = ValidateRC5(); break;
-		case 9: result = ValidateBlowfish(); break;
-		//	case 10: result = ValidateDiamond2(); break;
-		case 11: result = ValidateThreeWay(); break;
-		case 12: result = ValidateBBS(); break;
-		case 13: result = ValidateDH(); break;
-		case 14: result = ValidateRSA(); break;
-		case 15: result = ValidateElGamal(); break;
-		case 16: result = ValidateDSA(thorough); break;
-		//	case 17: result = ValidateHAVAL(); break;
-		case 18: result = ValidateSAFER(); break;
-		case 19: result = ValidateLUC(); break;
-		case 20: result = ValidateRabin(); break;
-		//	case 21: result = ValidateBlumGoldwasser(); break;
-		case 22: result = ValidateECP(); break;
-		case 23: result = ValidateEC2N(); break;
-		//	case 24: result = ValidateMD5MAC(); break;
-		case 25: result = ValidateGOST(); break;
-		case 26: result = ValidateTiger(); break;
-		case 27: result = ValidateRIPEMD(); break;
-		case 28: result = ValidateHMAC(); break;
-		//	case 29: result = ValidateXMACC(); break;
-		case 30: result = ValidateSHARK(); break;
-		case 32: result = ValidateLUC_DH(); break;
-		case 33: result = ValidateLUC_DL(); break;
-		case 34: result = ValidateSEAL(); break;
-		case 35: result = ValidateCAST(); break;
-		case 36: result = ValidateSquare(); break;
-		case 37: result = ValidateRC2(); break;
-		case 38: result = ValidateRC6(); break;
-		case 39: result = ValidateMARS(); break;
-		case 40: result = ValidateRW(); break;
-		case 41: result = ValidateMD2(); break;
-		case 42: result = ValidateNR(); break;
-		case 43: result = ValidateMQV(); break;
-		case 44: result = ValidateRijndael(); break;
-		case 45: result = ValidateTwofish(); break;
-		case 46: result = ValidateSerpent(); break;
-		case 47: result = ValidateCipherModes(); break;
-		case 48: result = ValidateCRC32(); break;
-		case 49: result = ValidateECDSA(); break;
-		case 50: result = ValidateXTR_DH(); break;
-		case 51: result = ValidateSKIPJACK(); break;
-		case 52: result = ValidateSHA2(); break;
-		case 53: result = ValidatePanama(); break;
-		case 54: result = ValidateAdler32(); break;
-		case 55: result = ValidateMD4(); break;
-		case 56: result = ValidatePBKDF(); break;
-		case 57: result = ValidateESIGN(); break;
-		case 58: result = ValidateDLIES(); break;
-		case 59: result = ValidateBaseCode(); break;
-		case 60: result = ValidateSHACAL2(); break;
-		case 61: result = ValidateCamellia(); break;
-		case 62: result = ValidateWhirlpool(); break;
-		case 63: result = ValidateTTMAC(); break;
-		case 64: result = ValidateSalsa(); break;
-		case 65: result = ValidateSosemanuk(); break;
-		case 66: result = ValidateVMAC(); break;
-		case 67: result = ValidateCCM(); break;
-		case 68: result = ValidateGCM(); break;
-		case 69: result = ValidateCMAC(); break;
-		case 72: result = ValidateHKDF(); break;
-		default: return false;
+	case 0: result = ValidateAll(thorough); break;
+	case 1: result = TestSettings(); break;
+	case 2: result = TestOS_RNG(); break;
+	case 3: result = ValidateMD5(); break;
+	case 4: result = ValidateSHA(); break;
+	case 5: result = ValidateDES(); break;
+	case 6: result = ValidateIDEA(); break;
+	case 7: result = ValidateARC4(); break;
+	case 8: result = ValidateRC5(); break;
+	case 9: result = ValidateBlowfish(); break;
+//	case 10: result = ValidateDiamond2(); break;
+	case 11: result = ValidateThreeWay(); break;
+	case 12: result = ValidateBBS(); break;
+	case 13: result = ValidateDH(); break;
+	case 14: result = ValidateRSA(); break;
+	case 15: result = ValidateElGamal(); break;
+	case 16: result = ValidateDSA(thorough); break;
+//	case 17: result = ValidateHAVAL(); break;
+	case 18: result = ValidateSAFER(); break;
+	case 19: result = ValidateLUC(); break;
+	case 20: result = ValidateRabin(); break;
+//	case 21: result = ValidateBlumGoldwasser(); break;
+	case 22: result = ValidateECP(); break;
+	case 23: result = ValidateEC2N(); break;
+//	case 24: result = ValidateMD5MAC(); break;
+	case 25: result = ValidateGOST(); break;
+	case 26: result = ValidateTiger(); break;
+	case 27: result = ValidateRIPEMD(); break;
+	case 28: result = ValidateHMAC(); break;
+//	case 29: result = ValidateXMACC(); break;
+	case 30: result = ValidateSHARK(); break;
+	case 32: result = ValidateLUC_DH(); break;
+	case 33: result = ValidateLUC_DL(); break;
+	case 34: result = ValidateSEAL(); break;
+	case 35: result = ValidateCAST(); break;
+	case 36: result = ValidateSquare(); break;
+	case 37: result = ValidateRC2(); break;
+	case 38: result = ValidateRC6(); break;
+	case 39: result = ValidateMARS(); break;
+	case 40: result = ValidateRW(); break;
+	case 41: result = ValidateMD2(); break;
+	case 42: result = ValidateNR(); break;
+	case 43: result = ValidateMQV(); break;
+	case 44: result = ValidateRijndael(); break;
+	case 45: result = ValidateTwofish(); break;
+	case 46: result = ValidateSerpent(); break;
+	case 47: result = ValidateCipherModes(); break;
+	case 48: result = ValidateCRC32(); break;
+	case 49: result = ValidateECDSA(); break;
+	case 50: result = ValidateXTR_DH(); break;
+	case 51: result = ValidateSKIPJACK(); break;
+	case 52: result = ValidateSHA2(); break;
+	case 53: result = ValidatePanama(); break;
+	case 54: result = ValidateAdler32(); break;
+	case 55: result = ValidateMD4(); break;
+	case 56: result = ValidatePBKDF(); break;
+	case 57: result = ValidateESIGN(); break;
+	case 58: result = ValidateDLIES(); break;
+	case 59: result = ValidateBaseCode(); break;
+	case 60: result = ValidateSHACAL2(); break;
+	case 61: result = ValidateCamellia(); break;
+	case 62: result = ValidateWhirlpool(); break;
+	case 63: result = ValidateTTMAC(); break;
+	case 64: result = ValidateSalsa(); break;
+	case 65: result = ValidateSosemanuk(); break;
+	case 66: result = ValidateVMAC(); break;
+	case 67: result = ValidateCCM(); break;
+	case 68: result = ValidateGCM(); break;
+	case 69: result = ValidateCMAC(); break;
+	case 70: result = ValidateHKDF(); break;
+	default: return false;
 	}
 
-	time_t endTime = time(NULL);
-	std::cout << "\nTest ended at " << asctime(localtime(&endTime));
-	std::cout << "Seed used was: " << seed << std::endl;
+// Safer functions on Windows for C&A, https://github.com/weidai11/cryptopp/issues/55
+#if defined(CRYPTOPP_MSC_VERSION)
+	tm localTime = {};
+	char timeBuf[64];
+	errno_t err;
+	
+	const time_t endTime = time(NULL);
+	err = localtime_s(&localTime, &endTime);
+	assert(err == 0);
+	err = asctime_s(timeBuf, sizeof(timeBuf), &localTime);
+	assert(err == 0);
+
+	cout << "\nTest ended at " << timeBuf;
+#else
+	const time_t endTime = time(NULL);
+	cout << "\nTest ended at " << asctime(localtime(&endTime));
+#endif
+
+	cout << "Seed used was: " << seed << endl;
 
 	return result;
 }

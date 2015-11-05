@@ -4,7 +4,6 @@
 	Version="8.00"
 	Name="dlltest"
 	ProjectGUID="{A7483CE8-2784-46CE-8CB8-8C0C1D27E232}"
-	SccLocalPath="."
 	>
 	<Platforms>
 		<Platform
@@ -22,7 +21,6 @@
 			OutputDirectory="$(PlatformName)\DLL_Output\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
@@ -33,14 +31,6 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				TypeLibraryName=".\dlltest___Win32_Release/dlltest.tlb"
-				HeaderFileName=""
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
@@ -72,9 +62,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies=""
+				AdditionalDependencies="cryptopp.lib Ws2_32.lib $(NOINHERIT)"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories=""
+				AdditionalLibraryDirectories="$(PlatformName)\DLL_Output\$(ConfigurationName)"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 			/>
@@ -83,9 +73,6 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
 			/>
 			<Tool
 				Name="VCBscMakeTool"
@@ -105,7 +92,6 @@
 			OutputDirectory="$(PlatformName)\DLL_Output\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
@@ -116,15 +102,6 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				TargetEnvironment="3"
-				TypeLibraryName=".\dlltest___Win32_Release/dlltest.tlb"
-				HeaderFileName=""
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
@@ -155,9 +132,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies=""
+				AdditionalDependencies="cryptopp.lib Ws2_32.lib $(NOINHERIT)"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories=""
+				AdditionalLibraryDirectories="$(PlatformName)\DLL_Output\$(ConfigurationName)"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="17"
@@ -167,9 +144,6 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
 			/>
 			<Tool
 				Name="VCBscMakeTool"
@@ -189,24 +163,16 @@
 			OutputDirectory="$(PlatformName)\DLL_Output\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
+			WholeProgramOptimization="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				TypeLibraryName=".\dlltest___Win32_Debug/dlltest.tlb"
-				HeaderFileName=""
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
@@ -219,7 +185,7 @@
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
-				DebugInformationFormat="4"
+				DebugInformationFormat="3"
 				CallingConvention="2"
 			/>
 			<Tool
@@ -235,9 +201,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies=""
+				AdditionalDependencies="cryptopp.lib Ws2_32.lib $(NOINHERIT)"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories=""
+				AdditionalLibraryDirectories="$(PlatformName)\DLL_Output\$(ConfigurationName)"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 			/>
@@ -246,9 +212,6 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
 			/>
 			<Tool
 				Name="VCBscMakeTool"
@@ -268,25 +231,16 @@
 			OutputDirectory="$(PlatformName)\DLL_Output\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
+			WholeProgramOptimization="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				TargetEnvironment="3"
-				TypeLibraryName=".\dlltest___Win32_Debug/dlltest.tlb"
-				HeaderFileName=""
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
@@ -314,9 +268,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies=""
+				AdditionalDependencies="cryptopp.lib Ws2_32.lib $(NOINHERIT)"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories=""
+				AdditionalLibraryDirectories="$(PlatformName)\DLL_Output\$(ConfigurationName)"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="17"
@@ -326,9 +280,6 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
 			/>
 			<Tool
 				Name="VCBscMakeTool"

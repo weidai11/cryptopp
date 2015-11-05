@@ -1,11 +1,16 @@
 // trdlocal.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
+#include "config.h"
+
+// TODO: fix this when more complete C++11 support is cut-in
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(disable: 4297)
+#endif
 
 #ifndef CRYPTOPP_IMPORTS
 #ifdef THREADS_AVAILABLE
 
-#include "cryptlib.h"
 #include "trdlocal.h"
 
 #ifdef HAS_WINTHREADS
@@ -32,16 +37,32 @@ ThreadLocalStorage::ThreadLocalStorage()
 #endif
 }
 
-// TODO: determine a library policy; implement the policy.
 ThreadLocalStorage::~ThreadLocalStorage() CRYPTOPP_THROW
 {
-#ifdef HAS_WINTHREADS
-	if (!TlsFree(m_index) && !std::uncaught_exception())
-		throw Err("TlsFree", GetLastError());
+#ifdef CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE
+	if (!std::uncaught_exception())
 #else
-	int error = pthread_key_delete(m_index);
-	if (error && !std::uncaught_exception())
-		throw Err("pthread_key_delete", error);
+	try
+#endif
+#ifdef HAS_WINTHREADS
+	{
+		int rc = TlsFree(m_index);
+		assert(rc);
+		if (!rc)
+			throw Err("TlsFree", GetLastError());
+	}
+#else
+	{
+		int error = pthread_key_delete(m_index);
+		assert(!error);
+		if (error)
+			throw Err("pthread_key_delete", error);
+	}
+#endif
+#ifndef CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE
+	catch(const Exception&)
+	{
+	}
 #endif
 }
 

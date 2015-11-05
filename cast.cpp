@@ -4,7 +4,6 @@
 #include "pch.h"
 #include "cast.h"
 #include "misc.h"
-#include "trap.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -16,15 +15,15 @@ NAMESPACE_BEGIN(CryptoPP)
 
 /* CAST uses three different round functions */
 #define f1(l, r, km, kr) \
-	t = rotlMod(km + r, kr); \
+	t = rotlVariable(km + r, kr); \
 	l ^= ((S[0][U8a(t)] ^ S[1][U8b(t)]) - \
 	 S[2][U8c(t)]) + S[3][U8d(t)];
 #define f2(l, r, km, kr) \
-	t = rotlMod(km ^ r, kr); \
+	t = rotlVariable(km ^ r, kr); \
 	l ^= ((S[0][U8a(t)] - S[1][U8b(t)]) + \
 	 S[2][U8c(t)]) ^ S[3][U8d(t)];
 #define f3(l, r, km, kr) \
-	t = rotlMod(km - r, kr); \
+	t = rotlVariable(km - r, kr); \
 	l ^= ((S[0][U8a(t)] + S[1][U8b(t)]) ^ \
 	 S[2][U8c(t)]) - S[3][U8d(t)];
 
@@ -283,7 +282,7 @@ void CAST256::Base::UncheckedSetKey(const byte *userKey, unsigned int keylength,
 				int i1=8*j+i;
 				int i2=8*(11-j)+i;
 
-				CRYPTOPP_ASSERT(i1<i2);
+				assert(i1<i2);
 
 				std::swap(K[i1],K[i2]); 
 				std::swap(K[i1+4],K[i2+4]); 

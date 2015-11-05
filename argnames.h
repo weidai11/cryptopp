@@ -1,8 +1,12 @@
+// argnames.h - written and placed in the public domain by Wei Dai
+
+//! \file
+//! \brief Standard names for retrieving values when working with \p NameValuePairs
+
 #ifndef CRYPTOPP_ARGNAMES_H
 #define CRYPTOPP_ARGNAMES_H
 
 #include "cryptlib.h"
-#include "integer.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -74,6 +78,8 @@ CRYPTOPP_DEFINE_NAME_STRING(MaxLineLength)		//< int
 CRYPTOPP_DEFINE_NAME_STRING(DigestSize)			//!< int, in bytes
 CRYPTOPP_DEFINE_NAME_STRING(L1KeyLength)		//!< int, in bytes
 CRYPTOPP_DEFINE_NAME_STRING(TableSize)			//!< int, in bytes
+CRYPTOPP_DEFINE_NAME_STRING(DerivedKey)			//< ByteArrayParameter, key derivation, derived key
+CRYPTOPP_DEFINE_NAME_STRING(DerivedLength)		//< int, key derivation, derived key length in bytes
 
 DOCUMENTED_NAMESPACE_END
 

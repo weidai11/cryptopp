@@ -6,10 +6,16 @@
 // use "cl /EP /P /DCRYPTOPP_GENERATE_X64_MASM sha.cpp" to generate MASM code
 
 #include "pch.h"
+#include "config.h"
+
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(disable: 4100 4731)
+#endif
 
 #ifndef CRYPTOPP_IMPORTS
 #ifndef CRYPTOPP_GENERATE_X64_MASM
 
+#include "secblock.h"
 #include "sha.h"
 #include "misc.h"
 #include "cpu.h"
@@ -121,11 +127,7 @@ extern const word32 SHA256_K[64] = {
 
 #endif // #ifndef CRYPTOPP_GENERATE_X64_MASM
 
-#if defined(CRYPTOPP_X86_ASM_AVAILABLE) || defined(CRYPTOPP_GENERATE_X64_MASM)
-
-#ifdef _MSC_VER
-# pragma warning(disable: 4731)	// frame pointer register 'ebp' modified by inline assembly code
-#endif
+#if defined(CRYPTOPP_X86_ASM_AVAILABLE) || defined(CRYPTOPP_X32_ASM_AVAILABLE) || defined(CRYPTOPP_GENERATE_X64_MASM)
 
 static void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 *data, size_t len
 #if defined(_MSC_VER) && (_MSC_VER == 1200)
@@ -156,7 +158,9 @@ static void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 
 	#define DATA_SAVE	[BASE+8*4+16*4+2*WORD_SZ]
 	#define DATA_END	[BASE+8*4+16*4+3*WORD_SZ]
 	#define Kt(i)		WORD_REG(si)+(i)*4
-#if CRYPTOPP_BOOL_X86
+#if CRYPTOPP_BOOL_X32
+	#define BASE		esp+8
+#elif CRYPTOPP_BOOL_X86
 	#define BASE		esp+4
 #elif defined(__GNUC__)
 	#define BASE		r8
@@ -230,10 +234,19 @@ static void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 
 	AS2(	add eax, AS_REG_7d	)/* T1 + S0(A) + Maj(A,B,C) */\
 	AS2(	mov H(i), eax	)\
 
+// Unroll the use of CRYPTOPP_BOOL_X64 in assembler math. The GAS assembler on X32 (version 2.25)
+//   complains "Error: invalid operands (*ABS* and *UND* sections) for `*` and `-`"
+#if CRYPTOPP_BOOL_X64
 #define SWAP_COPY(i)		\
 	AS2(	mov		WORD_REG(bx), [WORD_REG(dx)+i*WORD_SZ])\
 	AS1(	bswap	WORD_REG(bx))\
-	AS2(	mov		[Wt(i*(1+CRYPTOPP_BOOL_X64)+CRYPTOPP_BOOL_X64)], WORD_REG(bx))
+	AS2(	mov		[Wt(i*2+1)], WORD_REG(bx))
+#else // X86 and X32
+#define SWAP_COPY(i)		\
+	AS2(	mov		WORD_REG(bx), [WORD_REG(dx)+i*WORD_SZ])\
+	AS1(	bswap	WORD_REG(bx))\
+	AS2(	mov		[Wt(i)], WORD_REG(bx))	
+#endif
 
 #if defined(__GNUC__)
 	#if CRYPTOPP_BOOL_X64
@@ -244,7 +257,7 @@ static void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 
 	#if CRYPTOPP_BOOL_X64
 		"lea %4, %%r8;"
 	#endif
-	GNU_AS_INTEL_SYNTAX
+	".intel_syntax noprefix;"
 #elif defined(CRYPTOPP_GENERATE_X64_MASM)
 		ALIGN   8
 	X86_SHA256_HashBlocks	PROC FRAME
@@ -258,7 +271,7 @@ static void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 
 		lea rsi, [?SHA256_K@CryptoPP@@3QBIB + 48*4]
 #endif
 
-#if CRYPTOPP_BOOL_X86
+#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
 	#ifndef __GNUC__
 		AS2(	mov		edi, [len])
 		AS2(	lea		WORD_REG(si), [SHA256_K+48*4])
@@ -280,7 +293,7 @@ static void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 
 	AS2(	mov		K_END, WORD_REG(si))
 
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
-#if CRYPTOPP_BOOL_X86
+#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
 	AS2(	test	edi, 1)
 	ASJ(	jnz,	2, f)
 	AS1(	dec		DWORD PTR K_END)
@@ -289,7 +302,7 @@ static void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 
 	AS2(	movdqa	xmm1, XMMWORD_PTR [WORD_REG(cx)+1*16])
 #endif
 
-#if CRYPTOPP_BOOL_X86
+#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
 	ASJ(	jmp,	0, f)
 #endif
@@ -307,13 +320,13 @@ static void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 
 	AS2(	movdqa	E(0), xmm1)
 	AS2(	movdqa	A(0), xmm0)
 #endif
-#if CRYPTOPP_BOOL_X86
+#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
 	ASL(3)
 #endif
 	AS2(	sub		WORD_REG(si), 48*4)
 	SWAP_COPY(0)	SWAP_COPY(1)	SWAP_COPY(2)	SWAP_COPY(3)
 	SWAP_COPY(4)	SWAP_COPY(5)	SWAP_COPY(6)	SWAP_COPY(7)
-#if CRYPTOPP_BOOL_X86
+#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
 	SWAP_COPY(8)	SWAP_COPY(9)	SWAP_COPY(10)	SWAP_COPY(11)
 	SWAP_COPY(12)	SWAP_COPY(13)	SWAP_COPY(14)	SWAP_COPY(15)
 #endif
@@ -366,7 +379,7 @@ static void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 
 	AS2(	mov		DATA_SAVE, WORD_REG(dx))
 
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
-#if CRYPTOPP_BOOL_X86
+#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
 	AS2(	test	DWORD PTR K_END, 1)
 	ASJ(	jz,		4, f)
 #endif
@@ -380,7 +393,7 @@ static void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 
 	ASJ(	jb,		0, b)
 #endif
 
-#if CRYPTOPP_BOOL_X86
+#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
 	ASJ(	jmp,	5, f)
 	ASL(4)	// non-SSE2
@@ -424,7 +437,7 @@ static void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 
 #endif
 
 #ifdef __GNUC__
-	GNU_AS_ATT_SYNTAX
+	".att_syntax prefix;"
 	: 
 	: "c" (state), "d" (data), "S" (SHA256_K+48), "D" (len)
 	#if CRYPTOPP_BOOL_X64
@@ -438,7 +451,7 @@ static void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 
 #endif
 }
 
-#endif	// #if defined(CRYPTOPP_X86_ASM_AVAILABLE) || defined(CRYPTOPP_GENERATE_X64_MASM)
+#endif	// (defined(CRYPTOPP_X86_ASM_AVAILABLE) || defined(CRYPTOPP_GENERATE_X64_MASM))
 
 #ifndef CRYPTOPP_GENERATE_X64_MASM
 
@@ -448,7 +461,7 @@ void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 *data, 
 }
 #endif
 
-#if defined(CRYPTOPP_X86_ASM_AVAILABLE) || defined(CRYPTOPP_X64_MASM_AVAILABLE)
+#if defined(CRYPTOPP_X86_ASM_AVAILABLE) || defined(CRYPTOPP_X32_ASM_AVAILABLE) || defined(CRYPTOPP_X64_MASM_AVAILABLE)
 
 size_t SHA256::HashMultipleBlocks(const word32 *input, size_t length)
 {
@@ -490,7 +503,7 @@ size_t SHA224::HashMultipleBlocks(const word32 *input, size_t length)
 void SHA256::Transform(word32 *state, const word32 *data)
 {
 	word32 W[16];
-#if defined(CRYPTOPP_X86_ASM_AVAILABLE) || defined(CRYPTOPP_X64_MASM_AVAILABLE)
+#if defined(CRYPTOPP_X86_ASM_AVAILABLE) || defined(CRYPTOPP_X32_ASM_AVAILABLE) || defined(CRYPTOPP_X64_MASM_AVAILABLE)
 	// this byte reverse is a waste of time, but this function is only called by MDC
 	ByteReverse(W, data, BLOCKSIZE);
 	X86_SHA256_HashBlocks(state, W, BLOCKSIZE - !HasSSE2());
@@ -621,7 +634,7 @@ void SHA512::InitState(HashWordType *state)
 	memcpy(state, s, sizeof(s));
 }
 
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && CRYPTOPP_BOOL_X86
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32)
 CRYPTOPP_ALIGN_DATA(16) static const word64 SHA512_K[80] CRYPTOPP_SECTION_ALIGN16 = {
 #else
 static const word64 SHA512_K[80] = {
@@ -668,15 +681,15 @@ static const word64 SHA512_K[80] = {
 	W64LIT(0x5fcb6fab3ad6faec), W64LIT(0x6c44198c4a475817)
 };
 
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && CRYPTOPP_BOOL_X86
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32)
 // put assembly version in separate function, otherwise MSVC 2005 SP1 doesn't generate correct code for the non-assembly version
 CRYPTOPP_NAKED static void CRYPTOPP_FASTCALL SHA512_SSE2_Transform(word64 *state, const word64 *data)
 {
 #ifdef __GNUC__
 	__asm__ __volatile__
 	(
-		GNU_AS_INTEL_SYNTAX
-	AS1(	push	ebx)
+		".intel_syntax noprefix;"
+	AS_PUSH_IF86(	bx)
 	AS2(	mov		ebx, eax)
 #else
 	AS1(	push	ebx)
@@ -688,10 +701,16 @@ CRYPTOPP_NAKED static void CRYPTOPP_FASTCALL SHA512_SSE2_Transform(word64 *state
 	AS2(	mov		eax, esp)
 	AS2(	and		esp, 0xfffffff0)
 	AS2(	sub		esp, 27*16)				// 17*16 for expanded data, 20*8 for state
-	AS1(	push	eax)
+	AS_PUSH_IF86(	ax)
 	AS2(	xor		eax, eax)
+			
+#if CRYPTOPP_BOOL_X32
+	AS2(	lea		edi, [esp+8+8*8])		// start at middle of state buffer. will decrement pointer each round to avoid copying
+	AS2(	lea		esi, [esp+8+20*8+8])	// 16-byte alignment, then add 8
+#else
 	AS2(	lea		edi, [esp+4+8*8])		// start at middle of state buffer. will decrement pointer each round to avoid copying
 	AS2(	lea		esi, [esp+4+20*8+8])	// 16-byte alignment, then add 8
+#endif	
 
 	AS2(	movdqa	xmm0, [ecx+0*16])
 	AS2(	movdq2q	mm4, xmm0)
@@ -821,7 +840,11 @@ CRYPTOPP_NAKED static void CRYPTOPP_FASTCALL SHA512_SSE2_Transform(word64 *state
 	// do housekeeping every 8 rounds
 	AS2(	mov		esi, 0xf)
 	AS2(	and		esi, eax)
+#if CRYPTOPP_BOOL_X32
+	AS2(	lea		esi, [esp+8+20*8+8+esi*8])
+#else
 	AS2(	lea		esi, [esp+4+20*8+8+esi*8])
+#endif
 	AS2(	add		edi, 8*8)
 	AS2(	cmp		eax, 80)
 	ASJ(	jne,	1, b)
@@ -836,12 +859,12 @@ CRYPTOPP_NAKED static void CRYPTOPP_FASTCALL SHA512_SSE2_Transform(word64 *state
 	SSE2_CombineState(2)
 	SSE2_CombineState(3)
 
-	AS1(	pop		esp)
+	AS_POP_IF86(	sp)
 	AS1(	emms)
 
 #if defined(__GNUC__)
-	AS1(	pop		ebx)
-	GNU_AS_ATT_SYNTAX
+	AS_POP_IF86(	bx)
+	".att_syntax prefix;"
 		:
 		: "a" (SHA512_K), "c" (state), "d" (data)
 		: "%esi", "%edi", "memory", "cc"
@@ -857,7 +880,7 @@ CRYPTOPP_NAKED static void CRYPTOPP_FASTCALL SHA512_SSE2_Transform(word64 *state
 
 void SHA512::Transform(word64 *state, const word64 *data)
 {
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && CRYPTOPP_BOOL_X86
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32)
 	if (HasSSE2())
 	{
 		SHA512_SSE2_Transform(state, data);

@@ -1,21 +1,19 @@
 // ida.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
-#include "ida.h"
+#include "config.h"
 
+#include "ida.h"
 #include "algebra.h"
 #include "gf2_32.h"
 #include "polynomi.h"
 #include "polynomi.cpp"
-#include "trap.h"
 
 #include <functional>
 
 ANONYMOUS_NAMESPACE_BEGIN
 static const CryptoPP::GF2_32 field;
 NAMESPACE_END
-
-using namespace std;
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -24,6 +22,7 @@ void RawIDA::IsolatedInitialize(const NameValuePairs &parameters)
 	if (!parameters.GetIntValue("RecoveryThreshold", m_threshold))
 		throw InvalidArgument("RawIDA: missing RecoveryThreshold argument");
 
+	assert(m_threshold > 0);
 	if (m_threshold <= 0)
 		throw InvalidArgument("RawIDA: RecoveryThreshold must be greater than 0");
 
@@ -44,7 +43,9 @@ void RawIDA::IsolatedInitialize(const NameValuePairs &parameters)
 	else
 	{
 		int nShares = parameters.GetIntValueWithDefault("NumberOfShares", m_threshold);
-		for (int i=0; i<nShares; i++)
+		assert(nShares > 0);
+		if (nShares <= 0) {nShares = m_threshold;}
+		for (unsigned int i=0; i< (unsigned int)(nShares); i++)
 			AddOutputChannel(i);
 	}
 }
@@ -64,14 +65,14 @@ unsigned int RawIDA::InsertInputChannel(word32 channelId)
 skipFind:
 	if (m_lastMapPosition == m_inputChannelMap.end())
 	{
-		if (m_inputChannelIds.size() == static_cast<size_t>(m_threshold))
+		if (m_inputChannelIds.size() == size_t(m_threshold))
 			return m_threshold;
 
 		m_lastMapPosition = m_inputChannelMap.insert(InputChannelMap::value_type(channelId, (unsigned int)m_inputChannelIds.size())).first;
 		m_inputQueues.push_back(MessageQueue());
 		m_inputChannelIds.push_back(channelId);
 
-		if (m_inputChannelIds.size() == static_cast<size_t>(m_threshold))
+		if (m_inputChannelIds.size() == size_t(m_threshold))
 			PrepareInterpolation();
 	}
 	return m_lastMapPosition->second;
@@ -79,7 +80,7 @@ skipFind:
 
 unsigned int RawIDA::LookupInputChannel(word32 channelId) const
 {
-	map<word32, unsigned int>::const_iterator it = m_inputChannelMap.find(channelId);
+	std::map<word32, unsigned int>::const_iterator it = m_inputChannelMap.find(channelId);
 	if (it == m_inputChannelMap.end())
 		return m_threshold;
 	else
@@ -96,7 +97,7 @@ void RawIDA::ChannelData(word32 channelId, const byte *inString, size_t length, 
 		if (size < 4 && size + length >= 4)
 		{
 			m_channelsReady++;
-			if (m_channelsReady == static_cast<unsigned int>(m_threshold))
+			if (m_channelsReady == size_t(m_threshold))
 				ProcessInputQueues();
 		}
 
@@ -106,7 +107,7 @@ void RawIDA::ChannelData(word32 channelId, const byte *inString, size_t length, 
 			if (m_inputQueues[i].NumberOfMessages() == 1)
 			{
 				m_channelsFinished++;
-				if (m_channelsFinished == static_cast<unsigned int>(m_threshold))
+				if (m_channelsFinished == size_t(m_threshold))
 				{
 					m_channelsReady = 0;
 					for (i=0; i<m_threshold; i++)
@@ -133,7 +134,7 @@ void RawIDA::ComputeV(unsigned int i)
 	}
 
 	m_outputToInput[i] = LookupInputChannel(m_outputChannelIds[i]);
-	if (m_outputToInput[i] == static_cast<unsigned int>(m_threshold) && i * m_threshold <= 1000*1000)
+	if (m_outputToInput[i] == size_t(m_threshold) && i * size_t(m_threshold) <= 1000*1000)
 	{
 		m_v[i].resize(m_threshold);
 		PrepareBulkPolynomialInterpolationAt(field, m_v[i].begin(), m_outputChannelIds[i], &(m_inputChannelIds[0]), m_w.begin(), m_threshold);
@@ -145,27 +146,27 @@ void RawIDA::AddOutputChannel(word32 channelId)
 	m_outputChannelIds.push_back(channelId);
 	m_outputChannelIdStrings.push_back(WordToString(channelId));
 	m_outputQueues.push_back(ByteQueue());
-	if (m_inputChannelIds.size() == static_cast<size_t>(m_threshold))
+	if (m_inputChannelIds.size() == size_t(m_threshold))
 		ComputeV((unsigned int)m_outputChannelIds.size() - 1);
 }
 
 void RawIDA::PrepareInterpolation()
 {
-	CRYPTOPP_ASSERT(m_inputChannelIds.size() == (unsigned int)m_threshold);
-	PrepareBulkPolynomialInterpolation(field, m_w.begin(), &(m_inputChannelIds[0]), m_threshold);
+	assert(m_inputChannelIds.size() == size_t(m_threshold));
+	PrepareBulkPolynomialInterpolation(field, m_w.begin(), &(m_inputChannelIds[0]), (unsigned int)(m_threshold));
 	for (unsigned int i=0; i<m_outputChannelIds.size(); i++)
 		ComputeV(i);
 }
 
 void RawIDA::ProcessInputQueues()
 {
-	bool finished = (m_channelsFinished == static_cast<unsigned int>(m_threshold));
-	int i;
+	bool finished = (m_channelsFinished == size_t(m_threshold));
+	unsigned int i;
 
-	while (finished ? m_channelsReady > 0 : m_channelsReady == static_cast<size_t>(m_threshold))
+	while (finished ? m_channelsReady > 0 : m_channelsReady == size_t(m_threshold))
 	{
 		m_channelsReady = 0;
-		for (i=0; i<m_threshold; i++)
+		for (i=0; i<size_t(m_threshold); i++)
 		{
 			MessageQueue &queue = m_inputQueues[i];
 			queue.GetWord32(m_y[i]);
@@ -178,9 +179,9 @@ void RawIDA::ProcessInputQueues()
 
 		for (i=0; (unsigned int)i<m_outputChannelIds.size(); i++)
 		{
-			if (m_outputToInput[i] != static_cast<unsigned int>(m_threshold))
+			if (m_outputToInput[i] != size_t(m_threshold))
 				m_outputQueues[i].PutWord32(m_y[m_outputToInput[i]]);
-			else if (m_v[i].size() == static_cast<size_t>(m_threshold))
+			else if (m_v[i].size() == size_t(m_threshold))
 				m_outputQueues[i].PutWord32(BulkPolynomialInterpolateAt(field, m_y.begin(), m_v[i].begin(), m_threshold));
 			else
 			{
@@ -202,15 +203,15 @@ void RawIDA::ProcessInputQueues()
 		m_channelsFinished = 0;
 		m_v.clear();
 
-		vector<MessageQueue> inputQueues;
-		vector<word32> inputChannelIds;
+		std::vector<MessageQueue> inputQueues;
+		std::vector<word32> inputChannelIds;
 
 		inputQueues.swap(m_inputQueues);
 		inputChannelIds.swap(m_inputChannelIds);
 		m_inputChannelMap.clear();
 		m_lastMapPosition = m_inputChannelMap.end();
 
-		for (i=0; i<m_threshold; i++)
+		for (i=0; i<size_t(m_threshold); i++)
 		{
 			inputQueues[i].GetNextMessage();
 			inputQueues[i].TransferAllTo(*AttachedTransformation(), WordToString(inputChannelIds[i]));
@@ -380,7 +381,7 @@ size_t PaddingRemover::Put2(const byte *begin, size_t length, int messageEnd, bo
 
 	if (m_possiblePadding)
 	{
-		size_t len = find_if (begin, end, bind2nd(not_equal_to<byte>(), byte(0))) - begin;
+		size_t len = std::find_if(begin, end, std::bind2nd(std::not_equal_to<byte>(), byte(0))) - begin;
 		m_zeroCount += len;
 		begin += len;
 		if (begin == end)
@@ -395,13 +396,13 @@ size_t PaddingRemover::Put2(const byte *begin, size_t length, int messageEnd, bo
 
 #if defined(_MSC_VER) && !defined(__MWERKS__) && (_MSC_VER <= 1300)
 	// VC60 and VC7 workaround: built-in reverse_iterator has two template parameters, Dinkumware only has one
-	typedef reverse_bidirectional_iterator<const byte *, const byte> RevIt;
+	typedef std::reverse_bidirectional_iterator<const byte *, const byte> RevIt;
 #elif defined(_RWSTD_NO_CLASS_PARTIAL_SPEC)
-	typedef reverse_iterator<const byte *, random_access_iterator_tag, const byte> RevIt;
+	typedef std::reverse_iterator<const byte *, random_access_iterator_tag, const byte> RevIt;
 #else
-	typedef reverse_iterator<const byte *> RevIt;
+	typedef std::reverse_iterator<const byte *> RevIt;
 #endif
-	const byte *x = find_if (RevIt(end), RevIt(begin), bind2nd(not_equal_to<byte>(), byte(0))).base();
+	const byte *x = std::find_if(RevIt(end), RevIt(begin), bind2nd(std::not_equal_to<byte>(), byte(0))).base();
 	if (x != begin && *(x-1) == 1)
 	{
 		AttachedTransformation()->Put(begin, x-begin-1);

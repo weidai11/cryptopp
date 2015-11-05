@@ -7,8 +7,9 @@
 
 #include "pch.h"
 #include "zdeflate.h"
+#include "misc.h"
+
 #include <functional>
-#include <cstddef>	// ptrdiff_t
 
 #if _MSC_VER >= 1600
 // for make_unchecked_array_iterator
@@ -17,8 +18,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-using namespace std;
-
 LowFirstBitWriter::LowFirstBitWriter(BufferedTransformation *attachment)
 	: Filter(attachment), m_counting(false), m_buffer(0), m_bitsBuffered(0), m_bytesBuffered(0)
 {
@@ -26,14 +25,14 @@ LowFirstBitWriter::LowFirstBitWriter(BufferedTransformation *attachment)
 
 void LowFirstBitWriter::StartCounting()
 {
-	CRYPTOPP_ASSERT(!m_counting);
+	assert(!m_counting);
 	m_counting = true;
 	m_bitCount = 0;
 }
 
 unsigned long LowFirstBitWriter::FinishCounting()
 {
-	CRYPTOPP_ASSERT(m_counting);
+	assert(m_counting);
 	m_counting = false;
 	return m_bitCount;
 }
@@ -46,7 +45,7 @@ void LowFirstBitWriter::PutBits(unsigned long value, unsigned int length)
 	{
 		m_buffer |= value << m_bitsBuffered;
 		m_bitsBuffered += length;
-		CRYPTOPP_ASSERT(m_bitsBuffered <= sizeof(unsigned long)*8);
+		assert(m_bitsBuffered <= sizeof(unsigned long)*8);
 		while (m_bitsBuffered >= 8)
 		{
 			m_outputBuffer[m_bytesBuffered++] = (byte)m_buffer;
@@ -109,8 +108,8 @@ struct FreqLessThan
 
 void HuffmanEncoder::GenerateCodeLengths(unsigned int *codeBits, unsigned int maxCodeBits, const unsigned int *codeCounts, size_t nCodes)
 {
-	CRYPTOPP_ASSERT(nCodes > 0);
-	CRYPTOPP_ASSERT(nCodes <= ((size_t)1 << maxCodeBits));
+	assert(nCodes > 0);
+	assert(nCodes <= ((size_t)1 << maxCodeBits));
 
 	size_t i;
 	SecBlockWithHint<HuffmanNode, 2*286> tree(nCodes);
@@ -119,11 +118,11 @@ void HuffmanEncoder::GenerateCodeLengths(unsigned int *codeBits, unsigned int ma
 		tree[i].symbol = i;
 		tree[i].freq = codeCounts[i];
 	}
-	sort(tree.begin(), tree.end(), FreqLessThan());
-	size_t treeBegin = upper_bound(tree.begin(), tree.end(), 0, FreqLessThan()) - tree.begin();
+	std::sort(tree.begin(), tree.end(), FreqLessThan());
+	size_t treeBegin = std::upper_bound(tree.begin(), tree.end(), 0, FreqLessThan()) - tree.begin();
 	if (treeBegin == nCodes)
 	{	// special case for no codes
-		fill(codeBits, codeBits+nCodes, 0);
+		std::fill(codeBits, codeBits+nCodes, 0);
 		return;
 	}
 	tree.resize(nCodes + nCodes - treeBegin - 1);
@@ -146,10 +145,12 @@ void HuffmanEncoder::GenerateCodeLengths(unsigned int *codeBits, unsigned int ma
 			tree[i].depth = tree[tree[i].parent].depth + 1;
 	unsigned int sum = 0;
 	SecBlockWithHint<unsigned int, 15+1> blCount(maxCodeBits+1);
-	fill(blCount.begin(), blCount.end(), 0);
+	std::fill(blCount.begin(), blCount.end(), 0);
 	for (i=treeBegin; i<nCodes; i++)
 	{
-		size_t depth = STDMIN(maxCodeBits, tree[tree[i].parent].depth + 1);
+		// Valgrind finding: unintialized read. Expanding the expression clears it.
+		const size_t n = tree[i].parent;
+		const size_t depth = STDMIN(maxCodeBits, tree[n].depth + 1);
 		blCount[depth]++;
 		sum += 1 << (maxCodeBits - depth);
 	}
@@ -163,7 +164,7 @@ void HuffmanEncoder::GenerateCodeLengths(unsigned int *codeBits, unsigned int ma
 			bits--;
 		blCount[bits]--;
 		blCount[bits+1] += 2;
-		CRYPTOPP_ASSERT(blCount[maxCodeBits] > 0);
+		assert(blCount[maxCodeBits] > 0);
 		blCount[maxCodeBits]--;
 	}
 
@@ -177,18 +178,18 @@ void HuffmanEncoder::GenerateCodeLengths(unsigned int *codeBits, unsigned int ma
 		codeBits[tree[i].symbol] = bits;
 		blCount[bits]--;
 	}
-	CRYPTOPP_ASSERT(blCount[bits] == 0);
+	assert(blCount[bits] == 0);
 }
 
 void HuffmanEncoder::Initialize(const unsigned int *codeBits, unsigned int nCodes)
 {
-	CRYPTOPP_ASSERT(nCodes > 0);
-	unsigned int maxCodeBits = *max_element(codeBits, codeBits+nCodes);
+	assert(nCodes > 0);
+	unsigned int maxCodeBits = *std::max_element(codeBits, codeBits+nCodes);
 	if (maxCodeBits == 0)
 		return;		// assume this object won't be used
 
 	SecBlockWithHint<unsigned int, 15+1> blCount(maxCodeBits+1);
-	fill(blCount.begin(), blCount.end(), 0);
+	std::fill(blCount.begin(), blCount.end(), 0);
 	unsigned int i;
 	for (i=0; i<nCodes; i++)
 		blCount[codeBits[i]]++;
@@ -201,7 +202,7 @@ void HuffmanEncoder::Initialize(const unsigned int *codeBits, unsigned int nCode
 		code = (code + blCount[i-1]) << 1;
 		nextCode[i] = code;
 	}
-	CRYPTOPP_ASSERT(maxCodeBits == 1 || code == (1 << maxCodeBits) - blCount[maxCodeBits]);
+	assert(maxCodeBits == 1 || code == (1 << maxCodeBits) - blCount[maxCodeBits]);
 
 	m_valueToCode.resize(nCodes);
 	for (i=0; i<nCodes; i++)
@@ -214,7 +215,7 @@ void HuffmanEncoder::Initialize(const unsigned int *codeBits, unsigned int nCode
 
 inline void HuffmanEncoder::Encode(LowFirstBitWriter &writer, value_t value) const
 {
-	CRYPTOPP_ASSERT(m_valueToCode[value].len > 0);
+	assert(m_valueToCode[value].len > 0);
 	writer.PutBits(m_valueToCode[value].code, m_valueToCode[value].len);
 }
 
@@ -237,12 +238,12 @@ Deflator::Deflator(const NameValuePairs &parameters, BufferedTransformation *att
 void Deflator::InitializeStaticEncoders()
 {
 	unsigned int codeLengths[288];
-	fill(codeLengths + 0, codeLengths + 144, 8);
-	fill(codeLengths + 144, codeLengths + 256, 9);
-	fill(codeLengths + 256, codeLengths + 280, 7);
-	fill(codeLengths + 280, codeLengths + 288, 8);
+	std::fill(codeLengths + 0, codeLengths + 144, 8);
+	std::fill(codeLengths + 144, codeLengths + 256, 9);
+	std::fill(codeLengths + 256, codeLengths + 280, 7);
+	std::fill(codeLengths + 280, codeLengths + 288, 8);
 	m_staticLiteralEncoder.Initialize(codeLengths, 288);
-	fill(codeLengths + 0, codeLengths + 32, 5);
+	std::fill(codeLengths + 0, codeLengths + 32, 5);
 	m_staticDistanceEncoder.Initialize(codeLengths, 32);
 }
 
@@ -273,7 +274,7 @@ void Deflator::Reset(bool forceReset)
 	if (forceReset)
 		ClearBitBuffer();
 	else
-		CRYPTOPP_ASSERT(m_bitsBuffered == 0);
+		assert(m_bitsBuffered == 0);
 
 	m_headerWritten = false;
 	m_matchAvailable = false;
@@ -289,10 +290,10 @@ void Deflator::Reset(bool forceReset)
 	m_detectSkip = 0;
 
 	// m_prev will be initialized automaticly in InsertString
-	fill(m_head.begin(), m_head.end(), word16(0));
+	std::fill(m_head.begin(), m_head.end(), byte(0));
 
-	fill(m_literalCounts.begin(), m_literalCounts.end(), 0);
-	fill(m_distanceCounts.begin(), m_distanceCounts.end(), 0);
+	std::fill(m_literalCounts.begin(), m_literalCounts.end(), byte(0));
+	std::fill(m_distanceCounts.begin(), m_distanceCounts.end(), byte(0));
 }
 
 void Deflator::SetDeflateLevel(int deflateLevel)
@@ -337,11 +338,11 @@ unsigned int Deflator::FillWindow(const byte *str, size_t length)
 		memcpy(m_byteBuffer, m_byteBuffer + DSIZE, DSIZE);
 
 		m_dictionaryEnd = m_dictionaryEnd < DSIZE ? 0 : m_dictionaryEnd-DSIZE;
-		CRYPTOPP_ASSERT(m_stringStart >= DSIZE);
+		assert(m_stringStart >= DSIZE);
 		m_stringStart -= DSIZE;
-		CRYPTOPP_ASSERT(!m_matchAvailable || m_previousMatch >= DSIZE);
+		assert(!m_matchAvailable || m_previousMatch >= DSIZE);
 		m_previousMatch -= DSIZE;
-		CRYPTOPP_ASSERT(m_blockStart >= DSIZE);
+		assert(m_blockStart >= DSIZE);
 		m_blockStart -= DSIZE;
 
 		unsigned int i;
@@ -353,9 +354,9 @@ unsigned int Deflator::FillWindow(const byte *str, size_t length)
 			m_prev[i] = SaturatingSubtract(m_prev[i], DSIZE);
 	}
 
-	CRYPTOPP_ASSERT(maxBlockSize > m_stringStart+m_lookahead);
+	assert(maxBlockSize > m_stringStart+m_lookahead);
 	unsigned int accepted = UnsignedMin(maxBlockSize-(m_stringStart+m_lookahead), length);
-	CRYPTOPP_ASSERT(accepted > 0);
+	assert(accepted > 0);
 	memcpy(m_byteBuffer + m_stringStart + m_lookahead, str, accepted);
 	m_lookahead += accepted;
 	return accepted;
@@ -363,13 +364,13 @@ unsigned int Deflator::FillWindow(const byte *str, size_t length)
 
 inline unsigned int Deflator::ComputeHash(const byte *str) const
 {
-	CRYPTOPP_ASSERT(str+3 <= m_byteBuffer + m_stringStart + m_lookahead);
+	assert(str+3 <= m_byteBuffer + m_stringStart + m_lookahead);
 	return ((str[0] << 10) ^ (str[1] << 5) ^ str[2]) & HMASK;
 }
 
 unsigned int Deflator::LongestMatch(unsigned int &bestMatch) const
 {
-	CRYPTOPP_ASSERT(m_previousLength < MAX_MATCH);
+	assert(m_previousLength < MAX_MATCH);
 
 	bestMatch = 0;
 	unsigned int bestLength = STDMAX(m_previousLength, (unsigned int)MIN_MATCH-1);
@@ -387,10 +388,10 @@ unsigned int Deflator::LongestMatch(unsigned int &bestMatch) const
 	while (current > limit && --chainLength > 0)
 	{
 		const byte *match = m_byteBuffer + current;
-		CRYPTOPP_ASSERT(scan + bestLength < m_byteBuffer + m_stringStart + m_lookahead);
+		assert(scan + bestLength < m_byteBuffer + m_stringStart + m_lookahead);
 		if (scan[bestLength-1] == match[bestLength-1] && scan[bestLength] == match[bestLength] && scan[0] == match[0] && scan[1] == match[1])
 		{
-			CRYPTOPP_ASSERT(scan[2] == match[2]);
+			assert(scan[2] == match[2]);
 			unsigned int len = (unsigned int)(
 #if defined(_STDEXT_BEGIN) && !(defined(_MSC_VER) && (_MSC_VER < 1400 || _MSC_VER >= 1600)) && !defined(_STLPORT_VERSION)
 				stdext::unchecked_mismatch
@@ -402,17 +403,14 @@ unsigned int Deflator::LongestMatch(unsigned int &bestMatch) const
 #else
 				(scan+3, scanEnd, match+3).first - scan);
 #endif
-			CRYPTOPP_ASSERT(len != bestLength);
+			assert(len != bestLength);
 			if (len > bestLength)
 			{
 				bestLength = len;
 				bestMatch = current;
 
-				// TODO: should we throw here?
-				const ptrdiff_t diff = scanEnd - scan;
-				CRYPTOPP_ASSERT(diff >= 0);
-
-				if (len == static_cast<unsigned int>(diff))
+				assert(scanEnd >= scan);
+				if (len == (unsigned int)(scanEnd - scan))
 					break;
 			}
 		}
@@ -423,9 +421,10 @@ unsigned int Deflator::LongestMatch(unsigned int &bestMatch) const
 
 inline void Deflator::InsertString(unsigned int start)
 {
+	assert(start <= 0xffff);
 	unsigned int hash = ComputeHash(m_byteBuffer + start);
 	m_prev[start & DMASK] = m_head[hash];
-	m_head[hash] = static_cast<word16>(start);
+	m_head[hash] = word16(start);
 }
 
 void Deflator::ProcessBuffer()
@@ -452,7 +451,7 @@ void Deflator::ProcessBuffer()
 
 		if (m_matchAvailable)
 		{
-			unsigned int matchPosition, matchLength;
+			unsigned int matchPosition = 0, matchLength = 0;
 			bool usePreviousMatch;
 			if (m_previousLength >= MAX_LAZYLENGTH)
 				usePreviousMatch = true;
@@ -489,7 +488,7 @@ void Deflator::ProcessBuffer()
 			m_lookahead--;
 		}
 
-		CRYPTOPP_ASSERT(m_stringStart - (m_blockStart+m_blockLength) == (unsigned int)m_matchAvailable);
+		assert(m_stringStart - (m_blockStart+m_blockLength) == (unsigned int)m_matchAvailable);
 	}
 
 	if (m_minLookahead == 0 && m_matchAvailable)
@@ -513,7 +512,7 @@ size_t Deflator::Put2(const byte *str, size_t length, int messageEnd, bool block
 		ProcessUncompressedData(str+accepted, newAccepted);
 		accepted += newAccepted;
 	}
-	CRYPTOPP_ASSERT(accepted == length);
+	assert(accepted == length);
 
 	if (messageEnd)
 	{
@@ -580,11 +579,11 @@ void Deflator::MatchFound(unsigned int distance, unsigned int length)
 		{1,2,3,4,5,7,9,13,17,25,33,49,65,97,129,193,257,385,513,769,1025,1537,2049,3073,4097,6145,8193,12289,16385,24577};
 
 	EncodedMatch &m = m_matchBuffer[m_matchBufferEnd++];
-	CRYPTOPP_ASSERT(length >= 3);
+	assert(length >= 3);
 	unsigned int lengthCode = lengthCodes[length-3];
 	m.literalCode = lengthCode;
 	m.literalExtra = length - lengthBases[lengthCode-257];
-	unsigned int distanceCode = (unsigned int)(upper_bound(distanceBases, distanceBases+30, distance) - distanceBases - 1);
+	unsigned int distanceCode = (unsigned int)(std::upper_bound(distanceBases, distanceBases+30, distance) - distanceBases - 1);
 	m.distanceCode = distanceCode;
 	m.distanceExtra = distance - distanceBases[distanceCode];
 
@@ -642,11 +641,11 @@ void Deflator::EncodeBlock(bool eof, unsigned int blockType)
 
 	if (blockType == STORED)
 	{
-		CRYPTOPP_ASSERT(m_blockStart + m_blockLength <= m_byteBuffer.size());
-		CRYPTOPP_ASSERT(m_blockLength <= 65535);
+		assert(m_blockStart + m_blockLength <= m_byteBuffer.size());
+		assert(m_blockLength <= 0xffff);
 		FlushBitBuffer();
-		AttachedTransformation()->PutWord16(static_cast<word16>(m_blockLength), LITTLE_ENDIAN_ORDER);
-		AttachedTransformation()->PutWord16(static_cast<word16>(~m_blockLength), LITTLE_ENDIAN_ORDER);
+		AttachedTransformation()->PutWord16(word16(m_blockLength), LITTLE_ENDIAN_ORDER);
+		AttachedTransformation()->PutWord16(word16(~m_blockLength), LITTLE_ENDIAN_ORDER);
 		AttachedTransformation()->Put(m_byteBuffer + m_blockStart, m_blockLength);
 	}
 	else
@@ -654,12 +653,12 @@ void Deflator::EncodeBlock(bool eof, unsigned int blockType)
 		if (blockType == DYNAMIC)
 		{
 #if defined(_MSC_VER) && !defined(__MWERKS__) && (_MSC_VER <= 1300)
-			// VC60 and VC7 workaround: built-in reverse_iterator has two template parameters, Dinkumware only has one
+			// VC60 and VC7 workaround: built-in std::reverse_iterator has two template parameters, Dinkumware only has one
 			typedef reverse_bidirectional_iterator<unsigned int *, unsigned int> RevIt;
 #elif defined(_RWSTD_NO_CLASS_PARTIAL_SPEC)
-	typedef reverse_iterator<unsigned int *, random_access_iterator_tag, unsigned int> RevIt;
+	typedef std::reverse_iterator<unsigned int *, random_access_iterator_tag, unsigned int> RevIt;
 #else
-			typedef reverse_iterator<unsigned int *> RevIt;
+			typedef std::reverse_iterator<unsigned int *> RevIt;
 #endif
 
 			FixedSizeSecBlock<unsigned int, 286> literalCodeLengths;
@@ -668,22 +667,22 @@ void Deflator::EncodeBlock(bool eof, unsigned int blockType)
 			m_literalCounts[256] = 1;
 			HuffmanEncoder::GenerateCodeLengths(literalCodeLengths, 15, m_literalCounts, 286);
 			m_dynamicLiteralEncoder.Initialize(literalCodeLengths, 286);
-			unsigned int hlit = (unsigned int)(find_if (RevIt(literalCodeLengths.end()), RevIt(literalCodeLengths.begin()+257), bind2nd(not_equal_to<unsigned int>(), 0)).base() - (literalCodeLengths.begin()+257));
+			unsigned int hlit = (unsigned int)(std::find_if(RevIt(literalCodeLengths.end()), RevIt(literalCodeLengths.begin()+257), std::bind2nd(std::not_equal_to<unsigned int>(), 0)).base() - (literalCodeLengths.begin()+257));
 
 			HuffmanEncoder::GenerateCodeLengths(distanceCodeLengths, 15, m_distanceCounts, 30);
 			m_dynamicDistanceEncoder.Initialize(distanceCodeLengths, 30);
-			unsigned int hdist = (unsigned int)(find_if (RevIt(distanceCodeLengths.end()), RevIt(distanceCodeLengths.begin()+1), bind2nd(not_equal_to<unsigned int>(), 0)).base() - (distanceCodeLengths.begin()+1));
+			unsigned int hdist = (unsigned int)(std::find_if(RevIt(distanceCodeLengths.end()), RevIt(distanceCodeLengths.begin()+1), std::bind2nd(std::not_equal_to<unsigned int>(), 0)).base() - (distanceCodeLengths.begin()+1));
 
 			SecBlockWithHint<unsigned int, 286+30> combinedLengths(hlit+257+hdist+1);
 			memcpy(combinedLengths, literalCodeLengths, (hlit+257)*sizeof(unsigned int));
 			memcpy(combinedLengths+hlit+257, distanceCodeLengths, (hdist+1)*sizeof(unsigned int));
 
 			FixedSizeSecBlock<unsigned int, 19> codeLengthCodeCounts, codeLengthCodeLengths;
-			fill(codeLengthCodeCounts.begin(), codeLengthCodeCounts.end(), 0);
+			std::fill(codeLengthCodeCounts.begin(), codeLengthCodeCounts.end(), 0);
 			const unsigned int *p = combinedLengths.begin(), *begin = combinedLengths.begin(), *end = combinedLengths.end();
 			while (p != end)
 			{
-				unsigned int code, extraBits, extraBitsLength;
+				unsigned int code=0, extraBits=0, extraBitsLength=0;
 				code = CodeLengthEncode(begin, end, p, extraBits, extraBitsLength);
 				codeLengthCodeCounts[code]++;
 			}
@@ -706,7 +705,7 @@ void Deflator::EncodeBlock(bool eof, unsigned int blockType)
 			p = combinedLengths.begin();
 			while (p != end)
 			{
-				unsigned int code, extraBits, extraBitsLength;
+				unsigned int code=0, extraBits=0, extraBitsLength=0;
 				code = CodeLengthEncode(begin, end, p, extraBits, extraBitsLength);
 				codeLengthEncoder.Encode(*this, code);
 				PutBits(extraBits, extraBitsLength);
@@ -730,7 +729,7 @@ void Deflator::EncodeBlock(bool eof, unsigned int blockType)
 			literalEncoder.Encode(*this, literalCode);
 			if (literalCode >= 257)
 			{
-				CRYPTOPP_ASSERT(literalCode <= 285);
+				assert(literalCode <= 285);
 				PutBits(m_matchBuffer[i].literalExtra, lengthExtraBits[literalCode-257]);
 				unsigned int distanceCode = m_matchBuffer[i].distanceCode;
 				distanceEncoder.Encode(*this, distanceCode);
@@ -800,8 +799,8 @@ void Deflator::EndBlock(bool eof)
 	m_matchBufferEnd = 0;
 	m_blockStart += m_blockLength;
 	m_blockLength = 0;
-	fill(m_literalCounts.begin(), m_literalCounts.end(), 0);
-	fill(m_distanceCounts.begin(), m_distanceCounts.end(), 0);
+	std::fill(m_literalCounts.begin(), m_literalCounts.end(), 0);
+	std::fill(m_distanceCounts.begin(), m_distanceCounts.end(), 0);
 }
 
 NAMESPACE_END

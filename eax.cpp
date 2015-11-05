@@ -2,7 +2,6 @@
 
 #include "pch.h"
 #include "eax.h"
-#include "trap.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -35,7 +34,7 @@ size_t EAX_Base::AuthenticateBlocks(const byte *data, size_t len)
 
 void EAX_Base::AuthenticateLastHeaderBlock()
 {
-	CRYPTOPP_ASSERT(m_bufferedDataLength == 0);
+	assert(m_bufferedDataLength == 0);
 	MessageAuthenticationCode &mac = AccessMAC();
 	unsigned int blockSize = mac.TagSize();
 
@@ -49,7 +48,7 @@ void EAX_Base::AuthenticateLastHeaderBlock()
 
 void EAX_Base::AuthenticateLastFooterBlock(byte *tag, size_t macSize)
 {
-	CRYPTOPP_ASSERT(m_bufferedDataLength == 0);
+	assert(m_bufferedDataLength == 0);
 	MessageAuthenticationCode &mac = AccessMAC();
 	unsigned int blockSize = mac.TagSize();
 

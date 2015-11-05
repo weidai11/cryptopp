@@ -1,18 +1,25 @@
+// basecode.h - written and placed in the public domain by Wei Dai
+
+//! \file
+//! \brief Base class files for working with encoders and decoders.
+
 #ifndef CRYPTOPP_BASECODE_H
 #define CRYPTOPP_BASECODE_H
 
+#include "cryptlib.h"
 #include "filters.h"
 #include "algparam.h"
 #include "argnames.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! base n encoder, where n is a power of 2
+//! \class BaseN_Encoder
+//! \details base n encoder, where n is a power of 2
 class CRYPTOPP_DLL BaseN_Encoder : public Unflushable<Filter>
 {
 public:
 	BaseN_Encoder(BufferedTransformation *attachment=NULL)
-		: m_alphabet(NULL) {Detach(attachment);}
+		{Detach(attachment);}
 
 	BaseN_Encoder(const byte *alphabet, int log2base, BufferedTransformation *attachment=NULL, int padding=-1)
 	{
@@ -33,12 +40,13 @@ private:
 	SecByteBlock m_outBuf;
 };
 
-//! base n decoder, where n is a power of 2
+//! \class BaseN_Decoder
+//! \details base n encoder, where n is a power of 2
 class CRYPTOPP_DLL BaseN_Decoder : public Unflushable<Filter>
 {
 public:
 	BaseN_Decoder(BufferedTransformation *attachment=NULL)
-		: m_lookup(NULL) {Detach(attachment);}
+		{Detach(attachment);}
 
 	BaseN_Decoder(const int *lookup, int log2base, BufferedTransformation *attachment=NULL)
 	{
@@ -53,7 +61,7 @@ public:
 
 private:
 	const int *m_lookup;
-	int /*m_padding,*/ m_bitsPerChar, m_outputBlockSize;
+	int m_padding, m_bitsPerChar, m_outputBlockSize;
 	int m_bytePos, m_bitPos;
 	SecByteBlock m_outBuf;
 };

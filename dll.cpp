@@ -4,8 +4,14 @@
 #define CRYPTOPP_DEFAULT_NO_DLL
 
 #include "dll.h"
+#include "config.h"
 
-#ifdef _MSC_VER
+// TODO: fix the C4589 warnings
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(disable: 4589)
+#endif
+
+#if CRYPTOPP_MSC_VERSION
 # pragma warning(default: 4660)
 #endif
 
@@ -56,11 +62,14 @@ static PDelete s_pDelete = NULL;
 static void * New (size_t size)
 {
 	void *p;
-	while (!(p = malloc(size)))
+	while ((p = malloc(size)) == NULL)
 		CallNewHandler();
 
 	return p;
 }
+
+// Cast from FARPROC to funcptr with args, http://stackoverflow.com/q/4192058/608639
+#pragma warning(disable: 4191)
 
 static void SetNewAndDeleteFunctionPointers()
 {
@@ -81,7 +90,6 @@ static void SetNewAndDeleteFunctionPointers()
 			continue;
 
 		hModule = HMODULE(mbi.AllocationBase);
-
 		PGetNewAndDelete pGetNewAndDelete = (PGetNewAndDelete)GetProcAddress(hModule, "GetNewAndDeleteForCryptoPP");
 		if (pGetNewAndDelete)
 		{
@@ -122,6 +130,9 @@ static void SetNewAndDeleteFunctionPointers()
 	OutputDebugString("Crypto++ was not able to obtain new and delete function pointers.\n");
 	throw 0;
 }
+
+// Cast from FARPROC to funcptr with args
+#pragma warning(default: 4191)
 
 void * operator new (size_t size)
 {

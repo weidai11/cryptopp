@@ -49,6 +49,10 @@ public:
 		const byte *staticOtherPublicKey, const byte *ephemeralOtherPublicKey,
 		bool validateStaticOtherPublicKey=true) const;
 
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DH2() {}
+#endif
+
 protected:
 	SimpleKeyAgreementDomain &d1, &d2;
 };

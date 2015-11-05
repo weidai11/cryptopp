@@ -52,7 +52,7 @@ static const byte s_s1[256] = {
 #define SS3(x) ((s_s1[x]*0x01010101UL) & 0xCFF3FC3F)
 #define G(x) (SS0(GETBYTE(x, 0)) ^ SS1(GETBYTE(x, 1)) ^ SS2(GETBYTE(x, 2)) ^ SS3(GETBYTE(x, 3)))
 
-void SEED::Base::UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &params)
+void SEED::Base::UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs& /*params*/)
 {
 	AssertValidKeyLength(length);
 
@@ -67,7 +67,7 @@ void SEED::Base::UncheckedSetKey(const byte *userKey, unsigned int length, const
 		kInc = 0-kInc;
 	}
 
-	for (int i=0; i<ROUNDS; i++)
+	for (unsigned int i=0; i<ROUNDS; i++)
 	{
 		word32 t0 = word32(key01>>32) + word32(key23>>32) - s_kc[i];
 		word32 t1 = word32(key01) - word32(key23) + s_kc[i];

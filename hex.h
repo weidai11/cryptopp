@@ -1,6 +1,7 @@
 #ifndef CRYPTOPP_HEX_H
 #define CRYPTOPP_HEX_H
 
+#include "cryptlib.h"
 #include "basecode.h"
 
 NAMESPACE_BEGIN(CryptoPP)

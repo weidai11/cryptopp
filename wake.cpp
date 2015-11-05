@@ -1,12 +1,9 @@
 // wake.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
-#include "wake.h"
 
-#if GCC_DIAGNOSTIC_AWARE
-# pragma GCC diagnostic ignored "-Wunused-value"
-# pragma GCC diagnostic ignored "-Wunused-variable"
-#endif
+#include "wake.h"
+#include "smartptr.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -65,6 +62,7 @@ void WAKE_Base::GenKey(word32 k0, word32 k1, word32 k2, word32 k3)
 template <class B>
 void WAKE_Policy<B>::CipherSetKey(const NameValuePairs &params, const byte *key, size_t length)
 {
+	CRYPTOPP_UNUSED(params); CRYPTOPP_UNUSED(key); CRYPTOPP_UNUSED(length);
 	word32 k0, k1, k2, k3;
 	BlockGetAndPut<word32, BigEndian>::Get(key)(r3)(r4)(r5)(r6)(k0)(k1)(k2)(k3);
 	GenKey(k0, k1, k2, k3);

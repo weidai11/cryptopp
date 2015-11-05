@@ -2,6 +2,7 @@
 
 #include "pch.h"
 #include "mars.h"
+#include "secblock.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 

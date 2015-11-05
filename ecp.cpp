@@ -6,10 +6,10 @@
 
 #include "ecp.h"
 #include "asn.h"
+#include "integer.h"
 #include "nbtheory.h"
-
+#include "filters.h"
 #include "algebra.cpp"
-#include "trap.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -139,7 +139,7 @@ void ECP::EncodePoint(byte *encodedPoint, const Point &P, bool compressed) const
 {
 	ArraySink sink(encodedPoint, EncodedPointSize(compressed));
 	EncodePoint(sink, P, compressed);
-	CRYPTOPP_ASSERT(sink.TotalPutLength() == EncodedPointSize(compressed));
+	assert(sink.TotalPutLength() == EncodedPointSize(compressed));
 }
 
 ECP::Point ECP::BERDecodePoint(BufferedTransformation &bt) const
@@ -300,6 +300,7 @@ public:
 	ProjectiveDoubling(const ModularArithmetic &mr, const Integer &m_a, const Integer &m_b, const ECPPoint &Q)
 		: mr(mr), firstDoubling(true), negated(false)
 	{
+		CRYPTOPP_UNUSED(m_b);
 		if (Q.identity)
 		{
 			sixteenY4 = P.x = P.y = mr.MultiplicativeIdentity();
@@ -382,7 +383,7 @@ void ECP::SimultaneousMultiply(ECP::Point *results, const ECP::Point &P, const I
 
 	for (i=0; i<expCount; i++)
 	{
-		CRYPTOPP_ASSERT(expBegin->NotNegative());
+		assert(expBegin->NotNegative());
 		exponents.push_back(WindowSlider(*expBegin++, InversionIsFast(), 5));
 		exponents[i].FindNextWindow();
 	}
@@ -396,7 +397,7 @@ void ECP::SimultaneousMultiply(ECP::Point *results, const ECP::Point &P, const I
 		bool baseAdded = false;
 		for (i=0; i<expCount; i++)
 		{
-			if (!exponents[i].m_finished && expBitPosition == exponents[i].m_windowBegin)
+			if (!exponents[i].finished && expBitPosition == exponents[i].windowBegin)
 			{
 				if (!baseAdded)
 				{
@@ -404,13 +405,13 @@ void ECP::SimultaneousMultiply(ECP::Point *results, const ECP::Point &P, const I
 					baseAdded =true;
 				}
 
-				exponentWindows[i].push_back(exponents[i].m_expWindow);
+				exponentWindows[i].push_back(exponents[i].expWindow);
 				baseIndices[i].push_back((word32)bases.size()-1);
-				negateBase[i].push_back(exponents[i].m_negateNext);
+				negateBase[i].push_back(exponents[i].negateNext);
 
 				exponents[i].FindNextWindow();
 			}
-			notDone = notDone || !exponents[i].m_finished;
+			notDone = notDone || !exponents[i].finished;
 		}
 
 		if (notDone)

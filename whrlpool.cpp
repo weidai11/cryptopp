@@ -64,6 +64,12 @@
  */
 
 #include "pch.h"
+#include "config.h"
+
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(disable: 4127)
+#endif
+
 #include "whrlpool.h"
 #include "misc.h"
 #include "cpu.h"
@@ -392,7 +398,7 @@ static const word64 Whirlpool_C[4*256+R] = {
 void Whirlpool::Transform(word64 *digest, const word64 *block)
 {
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
-	if (HasSSE())
+	if (HasISSE())
 	{
 		// MMX version has the same structure as C version below
 #ifdef __GNUC__
@@ -401,7 +407,7 @@ void Whirlpool::Transform(word64 *digest, const word64 *block)
 	#endif
 	__asm__ __volatile__
 	(
-		GNU_AS_INTEL_SYNTAX
+		".intel_syntax noprefix;"
 		AS_PUSH_IF86(	bx)
 		AS2(	mov		AS_REG_6, WORD_REG(ax))
 #else
@@ -412,12 +418,16 @@ void Whirlpool::Transform(word64 *digest, const word64 *block)
 		AS2(	mov		WORD_REG(cx), digest)
 		AS2(	mov		WORD_REG(dx), block)
 #endif
-#if CRYPTOPP_BOOL_X86
+#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
 		AS2(	mov		eax, esp)
 		AS2(	and		esp, -16)
 		AS2(	sub		esp, 16*8)
-		AS1(	push	eax)
-	#define SSE2_workspace	esp+WORD_SZ
+		AS_PUSH_IF86(	ax)
+	#if CRYPTOPP_BOOL_X86
+		#define SSE2_workspace	esp+WORD_SZ
+	#elif CRYPTOPP_BOOL_X32
+		#define SSE2_workspace	esp+(WORD_SZ*2)
+	#endif
 #else
 	#define SSE2_workspace	%3
 #endif
@@ -569,7 +579,7 @@ void Whirlpool::Transform(word64 *digest, const word64 *block)
 		AS_POP_IF86(	bx)
 #endif
 #ifdef __GNUC__
-		GNU_AS_ATT_SYNTAX
+		".att_syntax prefix;"
 			:
 			: "a" (Whirlpool_C), "c" (digest), "d" (block)
 	#if CRYPTOPP_BOOL_X64

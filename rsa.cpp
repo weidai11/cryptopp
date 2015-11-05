@@ -9,7 +9,6 @@
 #include "sha.h"
 #include "algparam.h"
 #include "fips140.h"
-#include "trap.h"
 
 #if !defined(NDEBUG) && !defined(CRYPTOPP_IS_DLL)
 #include "pssr.h"
@@ -68,8 +67,10 @@ Integer RSAFunction::ApplyFunction(const Integer &x) const
 	return a_exp_b_mod_c(x, m_e, m_n);
 }
 
-bool RSAFunction::Validate(RandomNumberGenerator &rng, unsigned int level) const
+bool RSAFunction::Validate(RandomNumberGenerator& rng, unsigned int level) const
 {
+	CRYPTOPP_UNUSED(rng), CRYPTOPP_UNUSED(level);
+
 	bool pass = true;
 	pass = pass && m_n > Integer::One() && m_n.IsOdd();
 	pass = pass && m_e > Integer::One() && m_e.IsOdd() && m_e < m_n;
@@ -98,8 +99,6 @@ class RSAPrimeSelector : public PrimeSelector
 {
 public:
 	RSAPrimeSelector(const Integer &e) : m_e(e) {}
-	virtual ~RSAPrimeSelector() { }
-
 	bool IsAcceptable(const Integer &candidate) const {return RelativelyPrime(m_e, candidate-Integer::One());}
 	Integer m_e;
 };
@@ -124,7 +123,7 @@ void InvertibleRSAFunction::GenerateRandom(RandomNumberGenerator &rng, const Nam
 	m_q.GenerateRandom(rng, primeParam);
 
 	m_d = m_e.InverseMod(LCM(m_p-1, m_q-1));
-	CRYPTOPP_ASSERT(m_d.IsPositive());
+	assert(m_d.IsPositive());
 
 	m_dp = m_d % (m_p-1);
 	m_dq = m_d % (m_q-1);

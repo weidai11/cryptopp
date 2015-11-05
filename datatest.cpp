@@ -1,25 +1,33 @@
-// datatest.cpp - written and placed in public domain by Wei Dai
+// datatest.cpp - written and placed in the public domain by Wei Dai
 
-#include "config.h"
-#include "stdcpp.h"
-#include "smartptr.h"
-#include "integer.h"
+#define CRYPTOPP_DEFAULT_NO_DLL
+#define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
+
+#include "cryptlib.h"
 #include "factory.h"
+#include "integer.h"
 #include "filters.h"
 #include "hex.h"
 #include "randpool.h"
 #include "files.h"
 #include "trunhash.h"
 #include "queue.h"
+#include "smartptr.h"
 #include "validate.h"
-#include "trap.h"
-
+#include "hkdf.h"
+#include "stdcpp.h"
 #include <iostream>
 
+// Aggressive stack checking with VS2005 SP1 and above.
+#if (CRYPTOPP_MSC_VERSION >= 1410)
+# pragma strict_gs_check (on)
+#endif
+
 USING_NAMESPACE(CryptoPP)
+USING_NAMESPACE(std)
 
 typedef std::map<std::string, std::string> TestData;
-static bool s_thorough;
+static bool s_thorough = false;
 
 class TestFailure : public Exception
 {
@@ -33,7 +41,7 @@ static void OutputTestData(const TestData &v)
 {
 	for (TestData::const_iterator i = v.begin(); i != v.end(); ++i)
 	{
-		std::cerr << i->first << ": " << i->second << std::endl;
+		cerr << i->first << ": " << i->second << endl;
 	}
 }
 
@@ -63,7 +71,7 @@ const std::string & GetRequiredDatum(const TestData &data, const char *name)
 	return i->second;
 }
 
-void RandomizedTransfer(BufferedTransformation &source, BufferedTransformation &target, bool finish, const std::string &channel=DefaultChannel())
+void RandomizedTransfer(BufferedTransformation &source, BufferedTransformation &target, bool finish, const std::string &channel=DEFAULT_CHANNEL)
 {
 	while (source.MaxRetrievable() > (finish ? 0 : 4096))
 	{
@@ -192,9 +200,10 @@ private:
 
 void TestKeyPairValidAndConsistent(CryptoMaterial &pub, const CryptoMaterial &priv)
 {
-	if (!pub.Validate(GlobalRNG(), 2+s_thorough))
+	// "!!" converts between bool <-> integral.
+	if (!pub.Validate(GlobalRNG(), 2U+!!s_thorough))
 		SignalTestFailure();
-	if (!priv.Validate(GlobalRNG(), 2+s_thorough))
+	if (!priv.Validate(GlobalRNG(), 2U+!!s_thorough))
 		SignalTestFailure();
 
 	ByteQueue bq1, bq2;
@@ -210,8 +219,8 @@ void TestSignatureScheme(TestData &v)
 	std::string name = GetRequiredDatum(v, "Name");
 	std::string test = GetRequiredDatum(v, "Test");
 
-	auto_ptr<PK_Signer> signer(ObjectFactoryRegistry<PK_Signer>::Registry().CreateObject(name.c_str()));
-	auto_ptr<PK_Verifier> verifier(ObjectFactoryRegistry<PK_Verifier>::Registry().CreateObject(name.c_str()));
+	member_ptr<PK_Signer> signer(ObjectFactoryRegistry<PK_Signer>::Registry().CreateObject(name.c_str()));
+	member_ptr<PK_Verifier> verifier(ObjectFactoryRegistry<PK_Verifier>::Registry().CreateObject(name.c_str()));
 
 	TestDataNameValuePairs pairs(v);
 
@@ -261,24 +270,24 @@ void TestSignatureScheme(TestData &v)
 	}
 	else if (test == "Sign")
 	{
-		SignerFilter f(GlobalRNG(), *signer, new HexEncoder(new FileSink(std::cout)));
+		SignerFilter f(GlobalRNG(), *signer, new HexEncoder(new FileSink(cout)));
 		StringSource ss(GetDecodedDatum(v, "Message"), true, new Redirector(f));
 		SignalTestFailure();
 	}
 	else if (test == "DeterministicSign")
 	{
 		SignalTestError();
-		CRYPTOPP_ASSERT(false);	// TODO: implement
+		assert(false);	// TODO: implement
 	}
 	else if (test == "RandomSign")
 	{
 		SignalTestError();
-		CRYPTOPP_ASSERT(false);	// TODO: implement
+		assert(false);	// TODO: implement
 	}
 	else
 	{
 		SignalTestError();
-		CRYPTOPP_ASSERT(false);
+		assert(false);
 	}
 }
 
@@ -287,8 +296,8 @@ void TestAsymmetricCipher(TestData &v)
 	std::string name = GetRequiredDatum(v, "Name");
 	std::string test = GetRequiredDatum(v, "Test");
 
-	auto_ptr<PK_Encryptor> encryptor(ObjectFactoryRegistry<PK_Encryptor>::Registry().CreateObject(name.c_str()));
-	auto_ptr<PK_Decryptor> decryptor(ObjectFactoryRegistry<PK_Decryptor>::Registry().CreateObject(name.c_str()));
+	member_ptr<PK_Encryptor> encryptor(ObjectFactoryRegistry<PK_Encryptor>::Registry().CreateObject(name.c_str()));
+	member_ptr<PK_Decryptor> decryptor(ObjectFactoryRegistry<PK_Decryptor>::Registry().CreateObject(name.c_str()));
 
 	std::string keyFormat = GetRequiredDatum(v, "KeyFormat");
 
@@ -318,7 +327,7 @@ void TestAsymmetricCipher(TestData &v)
 	else
 	{
 		SignalTestError();
-		CRYPTOPP_ASSERT(false);
+		assert(false);
 	}
 }
 
@@ -416,7 +425,7 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 			while (ss.Pump(64)) {}
 			ss.PumpAll();
 			for (int i=0; i<z.length(); i++)
-				CRYPTOPP_ASSERT(encrypted[i] == z[i]);
+				assert(encrypted[i] == z[i]);
 		}*/
 		if (test != "EncryptXorDigest")
 			ciphertext = GetDecodedDatum(v, "Ciphertext");
@@ -494,16 +503,16 @@ void TestAuthenticatedSymmetricCipher(TestData &v, const NameValuePairs &overrid
 
 		if (macAtBegin)
 			RandomizedTransfer(sm, df, true);
-		sh.CopyTo(df, LWORD_MAX, AadChannel());
+		sh.CopyTo(df, LWORD_MAX, AAD_CHANNEL);
 		RandomizedTransfer(sc, df, true);
-		sf.CopyTo(df, LWORD_MAX, AadChannel());
+		sf.CopyTo(df, LWORD_MAX, AAD_CHANNEL);
 		if (!macAtBegin)
 			RandomizedTransfer(sm, df, true);
 		df.MessageEnd();
 
-		RandomizedTransfer(sh, ef, true, AadChannel());
+		RandomizedTransfer(sh, ef, true, AAD_CHANNEL);
 		RandomizedTransfer(sp, ef, true);
-		RandomizedTransfer(sf, ef, true, AadChannel());
+		RandomizedTransfer(sf, ef, true, AAD_CHANNEL);
 		ef.MessageEnd();
 
 		if (test == "Encrypt" && encrypted != ciphertext+mac)
@@ -581,8 +590,38 @@ void TestDigestOrMAC(TestData &v, bool testDigest)
 	else
 	{
 		SignalTestError();
-		CRYPTOPP_ASSERT(false);
+		assert(false);
 	}
+}
+
+void TestKeyDerivationFunction(TestData &v)
+{	
+	std::string name = GetRequiredDatum(v, "Name");
+	std::string test = GetRequiredDatum(v, "Test");
+
+	if(test == "Skip") return;
+	assert(test == "Verify");
+
+	std::string key = GetDecodedDatum(v, "Key");
+	std::string salt = GetDecodedDatum(v, "Salt");
+	std::string info = GetDecodedDatum(v, "Info");
+	std::string derived = GetDecodedDatum(v, "DerivedKey");
+	std::string t = GetDecodedDatum(v, "DerivedLength");
+	
+	TestDataNameValuePairs pairs(v);
+	unsigned int length = pairs.GetIntValueWithDefault(Name::DerivedLength(), (int)derived.size());
+
+	member_ptr<KeyDerivationFunction> kdf;
+	kdf.reset(ObjectFactoryRegistry<KeyDerivationFunction>::Registry().CreateObject(name.c_str()));
+	
+	std::string calc; calc.resize(length);
+	unsigned int ret = kdf->DeriveKey(reinterpret_cast<byte*>(&calc[0]), calc.size(),
+		reinterpret_cast<const byte*>(key.data()), key.size(),
+		reinterpret_cast<const byte*>(salt.data()), salt.size(),
+		reinterpret_cast<const byte*>(info.data()), info.size());
+							
+	if(calc != derived || ret != length)
+		SignalTestFailure();
 }
 
 bool GetField(std::istream &is, std::string &name, std::string &value)
@@ -595,7 +634,7 @@ bool GetField(std::istream &is, std::string &name, std::string &value)
 	if (name[name.size()-1] != ':')
 	{
 		char c;
-		is >> std::skipws >> c;
+		is >> skipws >> c;
 		if (c != ':')
 			SignalTestError();
 	}
@@ -645,26 +684,26 @@ void OutputPair(const NameValuePairs &v, const char *name)
 {
 	Integer x;
 	bool b = v.GetValue(name, x);
-	CRYPTOPP_ASSERT(b); CRYPTOPP_UNUSED(b);
-	std::cout << name << ": \\\n    ";
-	x.Encode(HexEncoder(new FileSink(std::cout), false, 64, "\\\n    ").Ref(), x.MinEncodedSize());
-	std::cout << std::endl;
+	CRYPTOPP_UNUSED(b); assert(b);
+	cout << name << ": \\\n    ";
+	x.Encode(HexEncoder(new FileSink(cout), false, 64, "\\\n    ").Ref(), x.MinEncodedSize());
+	cout << endl;
 }
 
 void OutputNameValuePairs(const NameValuePairs &v)
 {
 	std::string names = v.GetValueNames();
-	std::string::size_type i = 0;
+	string::size_type i = 0;
 	while (i < names.size())
 	{
-		std::string::size_type j = names.find_first_of (';', i);
+		string::size_type j = names.find_first_of (';', i);
 
-		if (j == std::string::npos)
+		if (j == string::npos)
 			return;
 		else
 		{
 			std::string name = names.substr(i, j-i);
-			if (name.find(':') == std::string::npos)
+			if (name.find(':') == string::npos)
 				OutputPair(v, name.c_str());
 		}
 
@@ -684,7 +723,7 @@ void TestDataFile(const std::string &filename, const NameValuePairs &overridePar
 	while (file)
 	{
 		while (file.peek() == '#')
-			file.ignore(INT_MAX, '\n');
+			file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
 		if (file.peek() == '\n' || file.peek() == '\r')
 			v.clear();
@@ -701,7 +740,7 @@ void TestDataFile(const std::string &filename, const NameValuePairs &overridePar
 			if (lastAlgName != GetRequiredDatum(v, "Name"))
 			{
 				lastAlgName = GetRequiredDatum(v, "Name");
-				std::cout << "\nTesting " << algType.c_str() << " algorithm " << lastAlgName.c_str() << ".\n";
+				cout << "\nTesting " << algType.c_str() << " algorithm " << lastAlgName.c_str() << ".\n";
 			}
 
 			try
@@ -718,6 +757,8 @@ void TestDataFile(const std::string &filename, const NameValuePairs &overridePar
 					TestDigestOrMAC(v, true);
 				else if (algType == "MAC")
 					TestDigestOrMAC(v, false);
+				else if (algType == "KDF")
+					TestKeyDerivationFunction(v);
 				else if (algType == "FileList")
 					TestDataFile(GetRequiredDatum(v, "Test"), g_nullNameValuePairs, totalTests, failedTests);
 				else
@@ -726,24 +767,24 @@ void TestDataFile(const std::string &filename, const NameValuePairs &overridePar
 			}
 			catch (TestFailure &)
 			{
-				std::cout << "\nTest failed.\n";
+				cout << "\nTest failed.\n";
 			}
 			catch (CryptoPP::Exception &e)
 			{
-				std::cout << "\nCryptoPP::Exception caught: " << e.what() << std::endl;
+				cout << "\nCryptoPP::Exception caught: " << e.what() << endl;
 			}
 			catch (std::exception &e)
 			{
-				std::cout << "\nstd::exception caught: " << e.what() << std::endl;
+				cout << "\nstd::exception caught: " << e.what() << endl;
 			}
 
 			if (failed)
 			{
-				std::cout << "Skipping to next test.\n";
+				cout << "Skipping to next test.\n";
 				failedTests++;
 			}
 			else
-				std::cout << "." << std::flush;
+				cout << "." << flush;
 
 			totalTests++;
 		}
@@ -755,8 +796,8 @@ bool RunTestDataFile(const char *filename, const NameValuePairs &overrideParamet
 	s_thorough = thorough;
 	unsigned int totalTests = 0, failedTests = 0;
 	TestDataFile(filename, overrideParameters, totalTests, failedTests);
-	std::cout << std::dec << "\nTests complete. Total tests = " << totalTests << ". Failed tests = " << failedTests << ".\n";
+	cout << dec << "\nTests complete. Total tests = " << totalTests << ". Failed tests = " << failedTests << ".\n";
 	if (failedTests != 0)
-		std::cout << "SOME TESTS FAILED!\n";
+		cout << "SOME TESTS FAILED!\n";
 	return failedTests == 0;
 }

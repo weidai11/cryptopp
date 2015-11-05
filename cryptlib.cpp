@@ -1,13 +1,22 @@
 // cryptlib.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
+#include "config.h"
+
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(disable: 4127 4189 4459)
+#endif
+
+#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
+# pragma GCC diagnostic ignored "-Wunused-value"
+# pragma GCC diagnostic ignored "-Wunused-variable"
+# pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
 
 #ifndef CRYPTOPP_IMPORTS
 
 #include "cryptlib.h"
 #include "misc.h"
-#include "stdcpp.h"
-#include "smartptr.h"
 #include "filters.h"
 #include "algparam.h"
 #include "fips140.h"
@@ -15,12 +24,17 @@
 #include "fltrimpl.h"
 #include "trdlocal.h"
 #include "osrng.h"
-#include "trap.h"
+#include "secblock.h"
+#include "smartptr.h"
 
-#if GCC_DIAGNOSTIC_AWARE
-# pragma GCC diagnostic ignored "-Wunused-value"
-# pragma GCC diagnostic ignored "-Wunused-variable"
+// http://www.cygwin.com/faq.html#faq.api.winsock
+#if (defined(__CYGWIN__) || defined(__CYGWIN32__)) && defined(PREFER_WINDOWS_STYLE_SOCKETS)
+# error Cygwin does not support Windows style sockets. See http://www.cygwin.com/faq.html#faq.api.winsock
 #endif
+
+// MacPorts/GCC does not provide init_priority(priority). Apple/GCC and Fink/GCC do provide it.
+#define HAVE_GCC_INIT_PRIORITY (__GNUC__ && (CRYPTOPP_INIT_PRIORITY > 0) && !(MACPORTS_GCC_COMPILER > 0))
+#define HAVE_MSC_INIT_PRIORITY (_MSC_VER && (CRYPTOPP_INIT_PRIORITY > 0))
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -32,17 +46,38 @@ CRYPTOPP_COMPILE_ASSERT(sizeof(word64) == 8);
 CRYPTOPP_COMPILE_ASSERT(sizeof(dword) == 2*sizeof(word));
 #endif
 
-const std::string DEFAULT_CHANNEL = DefaultChannel();
-const std::string AAD_CHANNEL = AadChannel();
+#if HAVE_GCC_INIT_PRIORITY
+CRYPTOPP_COMPILE_ASSERT(CRYPTOPP_INIT_PRIORITY >= 101);
+const std::string DEFAULT_CHANNEL __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 25)));
+const std::string AAD_CHANNEL __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 26))) = "AAD";
+const std::string &BufferedTransformation::NULL_CHANNEL = DEFAULT_CHANNEL;
+#elif HAVE_MSC_INIT_PRIORITY
+#pragma warning(disable: 4073)
+#pragma init_seg(lib)
+const std::string DEFAULT_CHANNEL;
+const std::string AAD_CHANNEL = "AAD";
+const std::string &BufferedTransformation::NULL_CHANNEL = DEFAULT_CHANNEL;
+#pragma warning(default: 4073)
+#else
+const std::string DEFAULT_CHANNEL;
+const std::string AAD_CHANNEL = "AAD";
+const std::string &BufferedTransformation::NULL_CHANNEL = DEFAULT_CHANNEL;
+#endif
 
 class NullNameValuePairs : public NameValuePairs
 {
 public:
-	bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const {return false;}
+	bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
+		{CRYPTOPP_UNUSED(name); CRYPTOPP_UNUSED(valueType); CRYPTOPP_UNUSED(pValue); return false;}
 };
 
-simple_ptr<NullNameValuePairs> s_pNullNameValuePairs(new NullNameValuePairs);
+#if HAVE_GCC_INIT_PRIORITY
+const simple_ptr<NullNameValuePairs> s_pNullNameValuePairs __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 30))) = new NullNameValuePairs;
 const NameValuePairs &g_nullNameValuePairs = *s_pNullNameValuePairs.m_p;
+#else
+const simple_ptr<NullNameValuePairs> s_pNullNameValuePairs(new NullNameValuePairs);
+const NameValuePairs &g_nullNameValuePairs = *s_pNullNameValuePairs.m_p;
+#endif
 
 BufferedTransformation & TheBitBucket()
 {
@@ -152,7 +187,7 @@ size_t BlockTransformation::AdvancedProcessBlocks(const byte *inBlocks, const by
 
 	if (flags & BT_ReverseDirection)
 	{
-		CRYPTOPP_ASSERT(length % blockSize == 0);
+		assert(length % blockSize == 0);
 		inBlocks += length - blockSize;
 		xorBlocks += length - blockSize;
 		outBlocks += length - blockSize;
@@ -198,7 +233,7 @@ unsigned int HashTransformation::OptimalDataAlignment() const
 
 void StreamTransformation::ProcessLastBlock(byte *outString, const byte *inString, size_t length)
 {
-	CRYPTOPP_ASSERT(MinLastBlockSize() == 0);	// this function should be overriden otherwise
+	assert(MinLastBlockSize() == 0);	// this function should be overriden otherwise
 
 	if (length == MandatoryBlockSize())
 		ProcessData(outString, inString, length);
@@ -252,7 +287,7 @@ byte RandomNumberGenerator::GenerateByte()
 
 word32 RandomNumberGenerator::GenerateWord32(word32 min, word32 max)
 {
-	word32 range = max-min;
+	const word32 range = max-min;
 	const int maxBits = BitPrecision(range);
 
 	word32 value;
@@ -266,8 +301,27 @@ word32 RandomNumberGenerator::GenerateWord32(word32 min, word32 max)
 	return value+min;
 }
 
+// Stack recursion below... GenerateIntoBufferedTransformation calls GenerateBlock,
+// and GenerateBlock calls GenerateIntoBufferedTransformation. Ad infinitum. Also
+// see https://github.com/weidai11/cryptopp/issues/38.
+// 
+// According to Wei, RandomNumberGenerator is an interface, and it should not
+// be instantiable. Its now spilt milk, and we are going to assert it in Debug
+// builds to alert the programmer and throw in Release builds. Developers have
+// a reference implementation in case its needed. If a programmer
+// unintentionally lands here, then they should ensure use of a
+// RandomNumberGenerator pointer or reference so polymorphism can provide the
+// proper runtime dispatching.
+
 void RandomNumberGenerator::GenerateBlock(byte *output, size_t size)
 {
+	CRYPTOPP_UNUSED(output), CRYPTOPP_UNUSED(size);
+
+#if 0
+	// This breaks AutoSeededX917RNG<T> generators.
+	throw NotImplemented("RandomNumberGenerator: GenerateBlock not implemented");
+#endif
+
 	ArraySink s(output, size);
 	GenerateIntoBufferedTransformation(s, DEFAULT_CHANNEL, size);
 }
@@ -284,7 +338,8 @@ void RandomNumberGenerator::GenerateIntoBufferedTransformation(BufferedTransform
 	{
 		size_t len = UnsignedMin(buffer.size(), length);
 		GenerateBlock(buffer, len);
-		target.ChannelPut(channel, buffer, len);
+		size_t rem = target.ChannelPut(channel, buffer, len);
+		CRYPTOPP_UNUSED(rem); assert(rem == 0);
 		length -= len;
 	}
 }
@@ -294,7 +349,11 @@ class ClassNullRNG : public RandomNumberGenerator
 {
 public:
 	std::string AlgorithmName() const {return "NullRNG";}
-	void GenerateBlock(byte *output, size_t size) {throw NotImplemented("NullRNG: NullRNG should only be passed to functions that don't need to generate random bytes");}
+	void GenerateBlock(byte *output, size_t size)
+	{
+		CRYPTOPP_UNUSED(output); CRYPTOPP_UNUSED(size);
+		throw NotImplemented("NullRNG: NullRNG should only be passed to functions that don't need to generate random bytes");
+	}
 };
 
 RandomNumberGenerator & NullRNG()
@@ -332,19 +391,22 @@ void BufferedTransformation::GetWaitObjects(WaitObjectContainer &container, Call
 
 void BufferedTransformation::Initialize(const NameValuePairs &parameters, int propagation)
 {
-	CRYPTOPP_ASSERT(!AttachedTransformation());
+	CRYPTOPP_UNUSED(propagation);
+	assert(!AttachedTransformation());
 	IsolatedInitialize(parameters);
 }
 
 bool BufferedTransformation::Flush(bool hardFlush, int propagation, bool blocking)
 {
-	CRYPTOPP_ASSERT(!AttachedTransformation());
+	CRYPTOPP_UNUSED(propagation);
+	assert(!AttachedTransformation());
 	return IsolatedFlush(hardFlush, blocking);
 }
 
 bool BufferedTransformation::MessageSeriesEnd(int propagation, bool blocking)
 {
-	CRYPTOPP_ASSERT(!AttachedTransformation());
+	CRYPTOPP_UNUSED(propagation);
+	assert(!AttachedTransformation());
 	return IsolatedMessageSeriesEnd(blocking);
 }
 
@@ -483,7 +545,7 @@ bool BufferedTransformation::GetNextMessage()
 		return AttachedTransformation()->GetNextMessage();
 	else
 	{
-		CRYPTOPP_ASSERT(!AnyMessages());
+		assert(!AnyMessages());
 		return false;
 	}
 }
@@ -520,7 +582,7 @@ size_t BufferedTransformation::TransferMessagesTo2(BufferedTransformation &targe
 				return 1;
 
 			bool result = GetNextMessage();
-			CRYPTOPP_ASSERT(result);
+			CRYPTOPP_UNUSED(result); assert(result);
 		}
 		return 0;
 	}
@@ -551,7 +613,7 @@ size_t BufferedTransformation::TransferAllTo2(BufferedTransformation &target, co
 		return AttachedTransformation()->TransferAllTo2(target, channel, blocking);
 	else
 	{
-		CRYPTOPP_ASSERT(!NumberOfMessageSeries());
+		assert(!NumberOfMessageSeries());
 
 		unsigned int messageCount;
 		do
@@ -583,7 +645,7 @@ void BufferedTransformation::CopyAllTo(BufferedTransformation &target, const std
 		AttachedTransformation()->CopyAllTo(target, channel);
 	else
 	{
-		CRYPTOPP_ASSERT(!NumberOfMessageSeries());
+		assert(!NumberOfMessageSeries());
 		while (CopyMessagesTo(target, UINT_MAX, channel)) {}
 	}
 }
@@ -760,15 +822,13 @@ BufferedTransformation * PK_Decryptor::CreateDecryptionFilter(RandomNumberGenera
 
 size_t PK_Signer::Sign(RandomNumberGenerator &rng, PK_MessageAccumulator *messageAccumulator, byte *signature) const
 {
-	using CryptoPP::auto_ptr;
-	auto_ptr<PK_MessageAccumulator> m(messageAccumulator);
+	member_ptr<PK_MessageAccumulator> m(messageAccumulator);
 	return SignAndRestart(rng, *m, signature, false);
 }
 
 size_t PK_Signer::SignMessage(RandomNumberGenerator &rng, const byte *message, size_t messageLen, byte *signature) const
 {
-	using CryptoPP::auto_ptr;
-	auto_ptr<PK_MessageAccumulator> m(NewSignatureAccumulator(rng));
+	member_ptr<PK_MessageAccumulator> m(NewSignatureAccumulator(rng));
 	m->Update(message, messageLen);
 	return SignAndRestart(rng, *m, signature, false);
 }
@@ -776,8 +836,7 @@ size_t PK_Signer::SignMessage(RandomNumberGenerator &rng, const byte *message, s
 size_t PK_Signer::SignMessageWithRecovery(RandomNumberGenerator &rng, const byte *recoverableMessage, size_t recoverableMessageLength, 
 	const byte *nonrecoverableMessage, size_t nonrecoverableMessageLength, byte *signature) const
 {
-	using CryptoPP::auto_ptr;
-	auto_ptr<PK_MessageAccumulator> m(NewSignatureAccumulator(rng));
+	member_ptr<PK_MessageAccumulator> m(NewSignatureAccumulator(rng));
 	InputRecoverableMessage(*m, recoverableMessage, recoverableMessageLength);
 	m->Update(nonrecoverableMessage, nonrecoverableMessageLength);
 	return SignAndRestart(rng, *m, signature, false);
@@ -785,15 +844,13 @@ size_t PK_Signer::SignMessageWithRecovery(RandomNumberGenerator &rng, const byte
 
 bool PK_Verifier::Verify(PK_MessageAccumulator *messageAccumulator) const
 {
-	using CryptoPP::auto_ptr;
-	auto_ptr<PK_MessageAccumulator> m(messageAccumulator);
+	member_ptr<PK_MessageAccumulator> m(messageAccumulator);
 	return VerifyAndRestart(*m);
 }
 
 bool PK_Verifier::VerifyMessage(const byte *message, size_t messageLen, const byte *signature, size_t signatureLength) const
 {
-	using CryptoPP::auto_ptr;
-	auto_ptr<PK_MessageAccumulator> m(NewVerificationAccumulator());
+	member_ptr<PK_MessageAccumulator> m(NewVerificationAccumulator());
 	InputSignature(*m, signature, signatureLength);
 	m->Update(message, messageLen);
 	return VerifyAndRestart(*m);
@@ -801,8 +858,7 @@ bool PK_Verifier::VerifyMessage(const byte *message, size_t messageLen, const by
 
 DecodingResult PK_Verifier::Recover(byte *recoveredMessage, PK_MessageAccumulator *messageAccumulator) const
 {
-	using CryptoPP::auto_ptr;
-	auto_ptr<PK_MessageAccumulator> m(messageAccumulator);
+	member_ptr<PK_MessageAccumulator> m(messageAccumulator);
 	return RecoverAndRestart(recoveredMessage, *m);
 }
 
@@ -810,8 +866,7 @@ DecodingResult PK_Verifier::RecoverMessage(byte *recoveredMessage,
 	const byte *nonrecoverableMessage, size_t nonrecoverableMessageLength, 
 	const byte *signature, size_t signatureLength) const
 {
-	using CryptoPP::auto_ptr;
-	auto_ptr<PK_MessageAccumulator> m(NewVerificationAccumulator());
+	member_ptr<PK_MessageAccumulator> m(NewVerificationAccumulator());
 	InputSignature(*m, signature, signatureLength);
 	m->Update(nonrecoverableMessage, nonrecoverableMessageLength);
 	return RecoverAndRestart(recoveredMessage, *m);

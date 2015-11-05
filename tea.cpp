@@ -101,10 +101,11 @@ void XTEA::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, by
 	Block::Put(xorBlock, outBlock)(y)(z);
 }
 
-#define MX (((z>>5^y<<2)+(y>>3^z<<4))^((sum^y)+(m_k[(p&3)^e]^z)))
+#define MX ((z>>5^y<<2)+(y>>3^z<<4))^((sum^y)+(m_k[(p&3)^e]^z))
 
 void BTEA::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
+	CRYPTOPP_UNUSED(xorBlock);
 	unsigned int n = m_blockSize / 4;
 	word32 *v = (word32*)outBlock;
 	ConditionalByteReverse(BIG_ENDIAN_ORDER, v, (const word32*)inBlock, m_blockSize);
@@ -131,6 +132,7 @@ void BTEA::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, by
 
 void BTEA::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
+	CRYPTOPP_UNUSED(xorBlock);
 	unsigned int n = m_blockSize / 4;
 	word32 *v = (word32*)outBlock;
 	ConditionalByteReverse(BIG_ENDIAN_ORDER, v, (const word32*)inBlock, m_blockSize);

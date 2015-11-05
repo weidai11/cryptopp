@@ -1,6 +1,7 @@
 #ifndef CRYPTOPP_ZDEFLATE_H
 #define CRYPTOPP_ZDEFLATE_H
 
+#include "cryptlib.h"
 #include "filters.h"
 #include "misc.h"
 
@@ -26,15 +27,24 @@ protected:
 	FixedSizeSecBlock<byte, 256> m_outputBuffer;
 };
 
-//! Huffman Encoder
+//! \class HuffmanEncoder
 class HuffmanEncoder
 {
 public:
 	typedef unsigned int code_t;
 	typedef unsigned int value_t;
 
+	//! \brief Construct a HuffmanEncoder
 	HuffmanEncoder() {}
+	
+	//! \brief Construct a HuffmanEncoder
+	//! \param codeBits a table of code bits
+	//! \param nCodes the number of codes in the table
 	HuffmanEncoder(const unsigned int *codeBits, unsigned int nCodes);
+	
+	//! \brief Initialize or reinitialize this object
+	//! \param codeBits a table of code bits
+	//! \param nCodes the number of codes in the table
 	void Initialize(const unsigned int *codeBits, unsigned int nCodes);
 
 	static void GenerateCodeLengths(unsigned int *codeBits, unsigned int maxCodeBits, const unsigned int *codeCounts, size_t nCodes);
@@ -75,7 +85,8 @@ public:
 
 protected:
 	virtual void WritePrestreamHeader() {}
-	virtual void ProcessUncompressedData(const byte *string, size_t length) {}
+	virtual void ProcessUncompressedData(const byte *string, size_t length)
+		{CRYPTOPP_UNUSED(string), CRYPTOPP_UNUSED(length);}
 	virtual void WritePoststreamTail() {}
 
 	enum {STORED = 0, STATIC = 1, DYNAMIC = 2};

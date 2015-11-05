@@ -5,8 +5,9 @@
 */
 
 #include "cryptlib.h"
-#include "integer.h"
 #include "gfpcrypt.h"
+#include "integer.h"
+#include "misc.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -56,6 +57,7 @@ public:
 
 	void GenerateStaticPublicKey(RandomNumberGenerator &rng, const byte *privateKey, byte *publicKey) const
 	{
+		CRYPTOPP_UNUSED(rng);
 		const DL_GroupParameters<Element> &params = GetAbstractGroupParameters();
 		Integer x(privateKey, StaticPrivateKeyLength());
 		Element y = params.ExponentiateBase(x);
@@ -76,6 +78,7 @@ public:
 
 	void GenerateEphemeralPublicKey(RandomNumberGenerator &rng, const byte *privateKey, byte *publicKey) const
 	{
+		CRYPTOPP_UNUSED(rng);
 		memcpy(publicKey, privateKey+StaticPrivateKeyLength(), EphemeralPublicKeyLength());
 	}
 

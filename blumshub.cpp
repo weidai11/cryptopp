@@ -2,6 +2,7 @@
 
 #include "pch.h"
 #include "blumshub.h"
+#include "integer.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -28,7 +29,7 @@ byte PublicBlumBlumShub::GenerateByte()
 {
 	byte b=0;
 	for (int i=0; i<8; i++)
-		b = (b << 1) | PublicBlumBlumShub::GenerateBit();
+		b = byte((b << 1) | PublicBlumBlumShub::GenerateBit());
 	return b;
 }
 

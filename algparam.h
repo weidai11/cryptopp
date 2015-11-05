@@ -1,16 +1,25 @@
+// algparam.h - written and placed in the public domain by Wei Dai
+
+//! \file
+//! \brief Classes and functions for working with NameValuePairs
+
+
 #ifndef CRYPTOPP_ALGPARAM_H
 #define CRYPTOPP_ALGPARAM_H
 
 #include "cryptlib.h"
-#include "smartptr.h"
-#include "integer.h"
-#include "secblock.h"
+#include "config.h"
 
-#if GCC_DIAGNOSTIC_AWARE
-# pragma GCC diagnostic push
-# pragma GCC diagnostic ignored "-Wunused-value"
-# pragma GCC diagnostic ignored "-Wunused-variable"
+// TODO: fix 6011 when the API/ABI can change
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(push)
+# pragma warning(disable: 6011 28193)
 #endif
+
+#include "smartptr.h"
+#include "secblock.h"
+#include "integer.h"
+#include "misc.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -30,7 +39,7 @@ public:
 	}
 	template <class T> ConstByteArrayParameter(const T &string, bool deepCopy = false)
 	{
-		CRYPTOPP_COMPILE_ASSERT(sizeof(CPP_TYPENAME T::value_type) == 1);
+        CRYPTOPP_COMPILE_ASSERT(sizeof(CPP_TYPENAME T::value_type) == 1);
 		Assign((const byte *)string.data(), string.size(), deepCopy);
 	}
 
@@ -159,8 +168,9 @@ private:
 };
 
 template <class BASE, class T>
-GetValueHelperClass<T, BASE> GetValueHelper(const T *pObject, const char *name, const std::type_info &valueType, void *pValue, const NameValuePairs *searchFirst=NULL)
+GetValueHelperClass<T, BASE> GetValueHelper(const T *pObject, const char *name, const std::type_info &valueType, void *pValue, const NameValuePairs *searchFirst=NULL, BASE *dummy=NULL)
 {
+	CRYPTOPP_UNUSED(dummy);
 	return GetValueHelperClass<T, BASE>(pObject, name, valueType, pValue, searchFirst);
 }
 
@@ -172,6 +182,68 @@ GetValueHelperClass<T, T> GetValueHelper(const T *pObject, const char *name, con
 
 // ********************************************************
 
+// VC60 workaround
+#if defined(_MSC_VER) && (_MSC_VER < 1300)
+template <class R>
+R Hack_DefaultValueFromConstReferenceType(const R &)
+{
+	return R();
+}
+
+template <class R>
+bool Hack_GetValueIntoConstReference(const NameValuePairs &source, const char *name, const R &value)
+{
+	return source.GetValue(name, const_cast<R &>(value));
+}
+
+template <class T, class BASE>
+class AssignFromHelperClass
+{
+public:
+	AssignFromHelperClass(T *pObject, const NameValuePairs &source)
+		: m_pObject(pObject), m_source(source), m_done(false)
+	{
+		if (source.GetThisObject(*pObject))
+			m_done = true;
+		else if (typeid(BASE) != typeid(T))
+			pObject->BASE::AssignFrom(source);
+	}
+
+	template <class R>
+	AssignFromHelperClass & operator()(const char *name, void (T::*pm)(R))	// VC60 workaround: "const R &" here causes compiler error
+	{
+		if (!m_done)
+		{
+			R value = Hack_DefaultValueFromConstReferenceType(reinterpret_cast<R>(*(int *)NULL));
+			if (!Hack_GetValueIntoConstReference(m_source, name, value))
+				throw InvalidArgument(std::string(typeid(T).name()) + ": Missing required parameter '" + name + "'");
+			(m_pObject->*pm)(value);
+		}
+		return *this;
+	}
+
+	template <class R, class S>
+	AssignFromHelperClass & operator()(const char *name1, const char *name2, void (T::*pm)(R, S))	// VC60 workaround: "const R &" here causes compiler error
+	{
+		if (!m_done)
+		{
+			R value1 = Hack_DefaultValueFromConstReferenceType(reinterpret_cast<R>(*(int *)NULL));
+			if (!Hack_GetValueIntoConstReference(m_source, name1, value1))
+				throw InvalidArgument(std::string(typeid(T).name()) + ": Missing required parameter '" + name1 + "'");
+			S value2 = Hack_DefaultValueFromConstReferenceType(reinterpret_cast<S>(*(int *)NULL));
+			if (!Hack_GetValueIntoConstReference(m_source, name2, value2))
+				throw InvalidArgument(std::string(typeid(T).name()) + ": Missing required parameter '" + name2 + "'");
+			(m_pObject->*pm)(value1, value2);
+		}
+		return *this;
+	}
+
+private:
+	T *m_pObject;
+	const NameValuePairs &m_source;
+	bool m_done;
+};
+#else
 template <class T, class BASE>
 class AssignFromHelperClass
 {
@@ -219,10 +291,12 @@ private:
 	const NameValuePairs &m_source;
 	bool m_done;
 };
+#endif
 
 template <class BASE, class T>
-AssignFromHelperClass<T, BASE> AssignFromHelper(T *pObject, const NameValuePairs &source)
+AssignFromHelperClass<T, BASE> AssignFromHelper(T *pObject, const NameValuePairs &source, BASE *dummy=NULL)
 {
+	CRYPTOPP_UNUSED(dummy);
 	return AssignFromHelperClass<T, BASE>(pObject, source);
 }
 
@@ -260,7 +334,6 @@ public:
 	AlgorithmParametersBase(const char *name, bool throwIfNotUsed)
 		: m_name(name), m_throwIfNotUsed(throwIfNotUsed), m_used(false) {}
 
-    // TODO: determine a library policy; implement the policy.
 	virtual ~AlgorithmParametersBase() CRYPTOPP_THROW
 	{
 #ifdef CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE
@@ -273,7 +346,7 @@ public:
 				throw ParameterNotUsed(m_name);
 		}
 #ifndef CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE
-		catch(...)
+		catch(const Exception&)
 		{
 		}
 #endif
@@ -316,7 +389,7 @@ public:
 	void MoveInto(void *buffer) const
 	{
 		AlgorithmParametersTemplate<T>* p = new(buffer) AlgorithmParametersTemplate<T>(*this);
-		CRYPTOPP_UNUSED(p);
+		CRYPTOPP_UNUSED(p);	// silence warning
 	}
 
 protected:
@@ -380,7 +453,11 @@ protected:
 typedef AlgorithmParameters MakeParameters;
 #else
 template <class T>
+#if __APPLE__
+AlgorithmParameters MakeParameters(const char *name, const T &value, bool throwIfNotUsed = false)
+#else
 AlgorithmParameters MakeParameters(const char *name, const T &value, bool throwIfNotUsed = true)
+#endif
 {
 	return AlgorithmParameters()(name, value, throwIfNotUsed);
 }
@@ -391,9 +468,5 @@ AlgorithmParameters MakeParameters(const char *name, const T &value, bool throwI
 #define CRYPTOPP_SET_FUNCTION_ENTRY2(name1, name2)	(Name::name1(), Name::name2(), &ThisClass::Set##name1##And##name2)
 
 NAMESPACE_END
-
-#if GCC_DIAGNOSTIC_AWARE
-# pragma GCC diagnostic pop
-#endif
 
 #endif

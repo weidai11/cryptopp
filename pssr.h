@@ -1,6 +1,7 @@
 #ifndef CRYPTOPP_PSSR_H
 #define CRYPTOPP_PSSR_H
 
+#include "cryptlib.h"
 #include "pubkey.h"
 #include "emsa2.h"
 

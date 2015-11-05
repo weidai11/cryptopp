@@ -15,7 +15,6 @@
  */
 
 #include "pch.h"
-#include "config.h"
 #include "misc.h"
 #include "des.h"
 
@@ -274,20 +273,15 @@ static const int bytebit[] = {
 /* Set key (initialize key schedule array) */
 void RawDES::RawSetKey(CipherDir dir, const byte *key)
 {
+#if (_MSC_VER >= 1600) || (__cplusplus >= 201103L)
+# define register /* Define to nothing for C++11 and above */
+#endif
+
 	SecByteBlock buffer(56+56+8);
 	byte *const pc1m=buffer;                 /* place to modify pc1 into */
 	byte *const pcr=pc1m+56;                 /* place to rotate pc1 into */
 	byte *const ks=pcr+56;
-
-	// C++11 deprecated register. Don't pivot on CRYPTOPP_CXX11 because
-	//   configure.h unsets the macro on some Apple platforms if it
-	//   detects an ancient version of the C++ runtime library.
-#if (__cplusplus < 201103L)
 	register int i,j,l;
-#else
-	int i,j,l;
-#endif
-
 	int m;
 	
 	for (j=0; j<56; j++) {          /* convert pc1 to bits of key */

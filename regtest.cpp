@@ -1,6 +1,9 @@
-#include "factory.h"
+// regtest.cpp - written and placed in the public domain by Wei Dai
 
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
+
+#include "cryptlib.h"
+#include "factory.h"
 #include "modes.h"
 #include "dh.h"
 #include "esign.h"
@@ -47,6 +50,12 @@
 #include "crc.h"
 #include "adler32.h"
 #include "sha3.h"
+#include "hkdf.h"
+
+// Aggressive stack checking with VS2005 SP1 and above.
+#if (CRYPTOPP_MSC_VERSION >= 1410)
+# pragma strict_gs_check (on)
+#endif
 
 USING_NAMESPACE(CryptoPP)
 
@@ -148,6 +157,10 @@ void RegisterFactories()
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<Blowfish> >();
 	RegisterSymmetricCipherDefaultFactories<ECB_Mode<SEED> >();
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<SEED> >();
+	RegisterDefaultFactoryFor<KeyDerivationFunction, HKDF<SHA1> >();
+	RegisterDefaultFactoryFor<KeyDerivationFunction, HKDF<SHA256> >();
+	RegisterDefaultFactoryFor<KeyDerivationFunction, HKDF<SHA512> >();
+	RegisterDefaultFactoryFor<KeyDerivationFunction, HKDF<Whirlpool> >();
 
 	s_registered = true;
 }

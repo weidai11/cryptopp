@@ -6,7 +6,6 @@
 
 #include "iterhash.h"
 #include "misc.h"
-#include "trap.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -21,16 +20,16 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte
 
 	unsigned int blockSize = this->BlockSize();
 	unsigned int num = ModPowerOf2(oldCountLo, blockSize);
+
 	T* dataBuf = this->DataBuf();
 	byte* data = (byte *)dataBuf;
+	assert(dataBuf && data);
 
 	if (num != 0)	// process left over data
 	{
 		if (num+len >= blockSize)
 		{
-			if (data && input)
-				memcpy(data+num, input, blockSize-num);
-
+			if (data && input) {memcpy(data+num, input, blockSize-num);}
 			HashBlock(dataBuf);
 			input += (blockSize-num);
 			len -= (blockSize-num);
@@ -39,9 +38,7 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte
 		}
 		else
 		{
-			if (data && input)
-				memcpy(data+num, input, len);
-
+			if (data && input && len) {memcpy(data+num, input, len);}
 			return;
 		}
 	}
@@ -51,7 +48,7 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte
 	{
 		if (input == data)
 		{
-			CRYPTOPP_ASSERT(len == blockSize);
+			assert(len == blockSize);
 			HashBlock(dataBuf);
 			return;
 		}
@@ -64,16 +61,14 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte
 		else
 			do
 			{   // copy input first if it's not aligned correctly
-				if (data && input)
-					memcpy(data, input, blockSize);
-
+				if (data && input) memcpy(data, input, blockSize);
 				HashBlock(dataBuf);
 				input+=blockSize;
 				len-=blockSize;
 			} while (len >= blockSize);
 	}
 
-	if (len && data != input)
+	if (data && input && len && data != input)
 		memcpy(data, input, len);
 }
 

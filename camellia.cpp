@@ -10,6 +10,11 @@ See comments at top of rijndael.cpp for more details.
 */
 
 #include "pch.h"
+#include "config.h"
+
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(disable: 4456 6246)
+#endif
 
 #include "camellia.h"
 #include "misc.h"

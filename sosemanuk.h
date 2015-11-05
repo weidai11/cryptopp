@@ -2,6 +2,11 @@
 #define CRYPTOPP_SOSEMANUK_H
 
 #include "strciphr.h"
+#include "secblock.h"
+
+#if CRYPTOPP_BOOL_X32
+# define CRYPTOPP_DISABLE_SOSEMANUK_ASM
+#endif
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -19,7 +24,7 @@ protected:
 	void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount);
 	void CipherResynchronize(byte *keystreamBuffer, const byte *iv, size_t length);
 	bool CipherIsRandomAccess() const {return false;}
-#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X64
+#if CRYPTOPP_BOOL_X86 || (CRYPTOPP_BOOL_X32 && !defined(CRYPTOPP_DISABLE_SOSEMANUK_ASM)) || CRYPTOPP_BOOL_X64
 	unsigned int GetAlignment() const;
 	unsigned int GetOptimalBlockSize() const;
 #endif

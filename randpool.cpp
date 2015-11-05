@@ -14,11 +14,6 @@
 #include "hrtimer.h"
 #include <time.h>
 
-#if GCC_DIAGNOSTIC_AWARE
-# pragma GCC diagnostic ignored "-Wunused-value"
-# pragma GCC diagnostic ignored "-Wunused-variable"
-#endif
-
 NAMESPACE_BEGIN(CryptoPP)
 
 RandomPool::RandomPool()
@@ -51,7 +46,18 @@ void RandomPool::GenerateIntoBufferedTransformation(BufferedTransformation &targ
 
 		time_t t = time(NULL);
 		CRYPTOPP_COMPILE_ASSERT(sizeof(t) <= 8);
-		*(time_t *)(m_seed.data()+8) += t;
+		
+		// UBsan finding: signed integer overflow: 1876017710 + 1446085457 cannot be represented in type 'long int'
+		// *(time_t *)(m_seed.data()+8) += t;
+		assert(m_seed.size() >= 16);
+		word64 tt1, tt2 = (word64)t;
+		memcpy(&tt1, m_seed.data()+8, 8);
+		memcpy(m_seed.data()+8, &(tt2 += tt1), 8);
+		
+		// Wipe the intermediates
+		*((volatile TimerWord*)&tw) = 0;
+		*((volatile word64*)&tt1) = 0;
+		*((volatile word64*)&tt2) = 0;
 
 		do
 		{

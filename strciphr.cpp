@@ -5,7 +5,6 @@
 #ifndef CRYPTOPP_IMPORTS
 
 #include "strciphr.h"
-#include "trap.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -40,7 +39,7 @@ void AdditiveCipherTemplate<S>::GenerateBlock(byte *outString, size_t length)
 		if (!length)
 			return;
 	}
-	CRYPTOPP_ASSERT(m_leftOver == 0);
+	assert(m_leftOver == 0);
 
 	PolicyInterface &policy = this->AccessPolicy();
 	unsigned int bytesPerIteration = policy.GetBytesPerIteration();
@@ -79,7 +78,7 @@ void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inStrin
 		if (!length)
 			return;
 	}
-	CRYPTOPP_ASSERT(m_leftOver == 0);
+	assert(m_leftOver == 0);
 
 	PolicyInterface &policy = this->AccessPolicy();
 	unsigned int bytesPerIteration = policy.GetBytesPerIteration();
@@ -177,7 +176,7 @@ void CFB_CipherTemplate<BASE>::Resynchronize(const byte *iv, int length)
 template <class BASE>
 void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString, size_t length)
 {
-	CRYPTOPP_ASSERT(length % this->MandatoryBlockSize() == 0);
+	assert(length % this->MandatoryBlockSize() == 0);
 
 	PolicyInterface &policy = this->AccessPolicy();
 	unsigned int bytesPerIteration = policy.GetBytesPerIteration();
@@ -197,7 +196,7 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 	if (!length)
 		return;
 
-	CRYPTOPP_ASSERT(m_leftOver == 0);
+	assert(m_leftOver == 0);
 
 	if (policy.CanIterate() && length >= bytesPerIteration && IsAlignedOn(outString, alignment))
 	{

@@ -1,11 +1,10 @@
 #ifndef CRYPTOPP_CAMELLIA_H
 #define CRYPTOPP_CAMELLIA_H
 
-#include "config.h"
-
 /** \file
 */
 
+#include "config.h"
 #include "seckey.h"
 #include "secblock.h"
 

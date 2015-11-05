@@ -3,16 +3,11 @@
 #include "pch.h"
 #include "idea.h"
 #include "misc.h"
-#include "trap.h"
-
-#if GCC_DIAGNOSTIC_AWARE
-# pragma GCC diagnostic ignored "-Wunused-value"
-# pragma GCC diagnostic ignored "-Wunused-variable"
-#endif
+#include "secblock.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
-static const unsigned int IDEA_KEYLEN=(6*IDEA::ROUNDS+4);  // key schedule length in # of word16s
+static const int IDEA_KEYLEN=(6*IDEA::ROUNDS+4);  // key schedule length in # of word16s
 
 #define low16(x) ((x)&0xffff)	// compiler should be able to optimize this away if word is 16 bits
 #define high16(x) ((x)>>16)
@@ -22,7 +17,7 @@ CRYPTOPP_COMPILE_ASSERT(sizeof(IDEA::Word) >= 2);
 // should use an inline function but macros are still faster in MSVC 4.0
 #define DirectMUL(a,b)					\
 {										\
-	CRYPTOPP_ASSERT(b <= 0xffff);				\
+	assert(b <= 0xffff);				\
 										\
 	word32 p=(word32)low16(a)*b;		\
 										\
@@ -65,7 +60,7 @@ void IDEA::Base::BuildLogTables()
 void IDEA::Base::LookupKeyLogs()
 {
 	IDEA::Word* Z=key;
-	unsigned int r=ROUNDS;
+	int r=ROUNDS;
 	do
 	{
 		Z[0] = log[Z[0]];
@@ -135,10 +130,9 @@ static inline IDEA::Word AddInv(IDEA::Word x)
 void IDEA::Base::DeKey()
 {
 	FixedSizeSecBlock<IDEA::Word, 6*ROUNDS+4> tempkey;
+	size_t i;
 
-	// Signed/unsigned warning and GCC 4.8 issue under Debian/i386?
-	unsigned int i;
-	for (i=0; i<static_cast<unsigned int>(ROUNDS); i++)
+	for (i=0; i<ROUNDS; i++)
 	{
 		tempkey[i*6+0] = MulInv(m_key[(ROUNDS-i)*6+0]);
 		tempkey[i*6+1] = AddInv(m_key[(ROUNDS-i)*6+1+(i>0)]);
@@ -170,9 +164,7 @@ void IDEA::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
 	IDEA::Word x0,x1,x2,x3,t0,t1;
 	Block::Get(inBlock)(x0)(x1)(x2)(x3);
 
-	// Signed/unsigned warning and GCC 4.8 issue under Debian/i386?
-	unsigned int i;
-	for (i=0; i<static_cast<unsigned int>(ROUNDS); i++)
+	for (unsigned int i=0; i<ROUNDS; i++)
 	{
 		MUL(x0, key[i*6+0]);
 		x1 += key[i*6+1];

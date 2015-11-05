@@ -4,9 +4,11 @@
 
 #ifndef CRYPTOPP_IMPORTS
 
+#include "cryptlib.h"
 #include "channels.h"
 
 NAMESPACE_BEGIN(CryptoPP)
+USING_NAMESPACE(std)
 
 #if 0
 void MessageSwitch::AddDefaultRoute(BufferedTransformation &destination, const std::string &channel)
@@ -35,7 +37,7 @@ public:
 	MessageRouteIterator(MessageSwitch &ms, const std::string &channel)
 		: m_channel(channel)
 	{
-		std::pair<MapIterator, MapIterator> range = cs.m_routeMap.equal_range(channel);
+		pair<MapIterator, MapIterator> range = cs.m_routeMap.equal_range(channel);
 		if (range.first == range.second)
 		{
 			m_useDefault = true;
@@ -95,7 +97,7 @@ void MessageSwitch::MessageSeriesEnd(int propagation=-1);
 void ChannelRouteIterator::Reset(const std::string &channel)
 {
 	m_channel = channel;
-	std::pair<MapIterator, MapIterator> range = m_cs.m_routeMap.equal_range(channel);
+	pair<MapIterator, MapIterator> range = m_cs.m_routeMap.equal_range(channel);
 	if (range.first == range.second)
 	{
 		m_useDefault = true;
@@ -166,8 +168,9 @@ WasBlocked:
 	return 0;
 }
 
-void ChannelSwitch::IsolatedInitialize(const NameValuePairs &parameters/* =g_nullNameValuePairs */)
+void ChannelSwitch::IsolatedInitialize(const NameValuePairs& parameters)
 {
+	CRYPTOPP_UNUSED(parameters);
 	m_routeMap.clear();
 	m_defaultRoutes.clear();
 	m_blocked = false;
@@ -200,6 +203,7 @@ bool ChannelSwitch::ChannelFlush(const std::string &channel, bool completeFlush,
 
 bool ChannelSwitch::ChannelMessageSeriesEnd(const std::string &channel, int propagation, bool blocking)
 {
+	CRYPTOPP_UNUSED(blocking);
 	if (m_blocked)
 	{
 		m_blocked = false;
@@ -229,10 +233,10 @@ byte * ChannelSwitch::ChannelCreatePutSpace(const std::string &channel, size_t &
 	if (!m_it.End())
 	{
 		BufferedTransformation &target = m_it.Destination();
-		const std::string &channel = m_it.Channel();
+		const std::string &ch = m_it.Channel();
 		m_it.Next();
 		if (m_it.End())	// there is only one target channel
-			return target.ChannelCreatePutSpace(channel, size);
+			return target.ChannelCreatePutSpace(ch, size);
 	}
 	size = 0;
 	return NULL;
@@ -293,7 +297,7 @@ void ChannelSwitch::AddRoute(const std::string &inChannel, BufferedTransformatio
 void ChannelSwitch::RemoveRoute(const std::string &inChannel, BufferedTransformation &destination, const std::string &outChannel)
 {
 	typedef ChannelSwitch::RouteMap::iterator MapIterator;
-	std::pair<MapIterator, MapIterator> range = m_routeMap.equal_range(inChannel);
+	pair<MapIterator, MapIterator> range = m_routeMap.equal_range(inChannel);
 	
 	for (MapIterator it = range.first; it != range.second; ++it)
 		if (it->second.first == &destination && it->second.second == outChannel)

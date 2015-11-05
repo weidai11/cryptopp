@@ -1,26 +1,36 @@
+// base32.h - written and placed in the public domain by Wei Dai
+
+//! \file
+//! \brief Class files for the Base32 encoder and decoder
+
 #ifndef CRYPTOPP_BASE32_H
 #define CRYPTOPP_BASE32_H
 
+#include "cryptlib.h"
 #include "basecode.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! Converts given data to base 32, the default code is based on draft-ietf-idn-dude-02.txt
-/*! To specify alternative code, call Initialize() with EncodingLookupArray parameter. */
+//! \class Base32Encoder
+//! \brief Base32 encodes data
+//! \details Converts data to base32. The default code is based on draft-ietf-idn-dude-02.txt.
+//! \details To specify alternative alpahabet or code, call Initialize() with EncodingLookupArray parameter.
 class Base32Encoder : public SimpleProxyFilter
 {
 public:
 	Base32Encoder(BufferedTransformation *attachment = NULL, bool uppercase = true, int outputGroupSize = 0, const std::string &separator = ":", const std::string &terminator = "")
 		: SimpleProxyFilter(new BaseN_Encoder(new Grouper), attachment)
 	{
-		IsolatedInitialize(MakeParameters(Name::Uppercase(), uppercase)(Name::GroupSize(), outputGroupSize)(Name::Separator(), ConstByteArrayParameter(separator)));
+		IsolatedInitialize(MakeParameters(Name::Uppercase(), uppercase)(Name::GroupSize(), outputGroupSize)(Name::Separator(), ConstByteArrayParameter(separator))(Name::Terminator(), ConstByteArrayParameter(terminator)));
 	}
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
 };
 
-//! Decode base 32 data back to bytes, the default code is based on draft-ietf-idn-dude-02.txt
-/*! To specify alternative code, call Initialize() with DecodingLookupArray parameter. */
+//! \class Base32Decoder
+//! \brief Base32 decodes data
+//! \details Decode base32 data. The default code is based on draft-ietf-idn-dude-02.txt
+//! \details To specify alternative alpahabet or code, call Initialize() with EncodingLookupArray parameter.
 class Base32Decoder : public BaseN_Decoder
 {
 public:

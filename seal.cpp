@@ -6,7 +6,7 @@
 #include "seal.h"
 #include "sha.h"
 #include "misc.h"
-#include "trap.h"
+#include "secblock.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -46,6 +46,7 @@ word32 SEAL_Gamma::Apply(word32 i)
 template <class B>
 void SEAL_Policy<B>::CipherSetKey(const NameValuePairs &params, const byte *key, size_t length)
 {
+	CRYPTOPP_UNUSED(length);
 	m_insideCounter = m_outsideCounter = m_startCount = 0;
 
 	unsigned int L = params.GetIntValueWithDefault("NumberOfOutputBitsPerPositionIndex", 32*1024);
@@ -69,7 +70,9 @@ void SEAL_Policy<B>::CipherSetKey(const NameValuePairs &params, const byte *key,
 template <class B>
 void SEAL_Policy<B>::CipherResynchronize(byte *keystreamBuffer, const byte *IV, size_t length)
 {
-	CRYPTOPP_ASSERT(length==4);
+	CRYPTOPP_UNUSED(keystreamBuffer), CRYPTOPP_UNUSED(IV), CRYPTOPP_UNUSED(length);
+	assert(length==4);
+
 	m_outsideCounter = IV ? GetWord<word32>(false, BIG_ENDIAN_ORDER, IV) : 0;
 	m_startCount = m_outsideCounter;
 	m_insideCounter = 0;

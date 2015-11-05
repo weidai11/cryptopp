@@ -1,12 +1,20 @@
+// .h - written and placed in the public domain by Wei Dai
+
+//! \file
+//! \brief Class files for the Base64Encoder, Base64Decoder, Base64URLEncoder and Base64URLDecoder
+
 #ifndef CRYPTOPP_BASE64_H
 #define CRYPTOPP_BASE64_H
 
+#include "cryptlib.h"
 #include "basecode.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! Base64 Encoder Class
-// https://tools.ietf.org/html/rfc4648#section-4
+//! \class Base64Encoder
+//! \brief Base64 encodes data
+//! \details Base64 encodes data per RFC 4648 (http://tools.ietf.org/html/rfc4648#section-4)
+//! \details To specify alternative alpahabet or code, call Initialize() with EncodingLookupArray parameter.
 class Base64Encoder : public SimpleProxyFilter
 {
 public:
@@ -19,22 +27,27 @@ public:
 	void IsolatedInitialize(const NameValuePairs &parameters);
 };
 
-//! Base64 Decoder Class
-// https://tools.ietf.org/html/rfc4648#section-4
+//! \class Base64Decoder
+//! \brief Base64 decodes data
+//! \details Base64 decodes data per RFC 4648 (http://tools.ietf.org/html/rfc4648#section-4)
+//! \details To specify alternative alpahabet or code, call Initialize() with EncodingLookupArray parameter.
 class Base64Decoder : public BaseN_Decoder
 {
 public:
 	Base64Decoder(BufferedTransformation *attachment = NULL)
 		: BaseN_Decoder(GetDecodingLookupArray(), 6, attachment) {}
     
-	void IsolatedInitialize(const NameValuePairs &parameters) {}
+	void IsolatedInitialize(const NameValuePairs &parameters)
+		{CRYPTOPP_UNUSED(parameters);}
     
 private:
 	static const int * CRYPTOPP_API GetDecodingLookupArray();
 };
 
-//! Base64 URL Encoder Class
-// https://tools.ietf.org/html/rfc4648#section-5
+//! \class Base64URLEncoder
+//! \brief Base64 encodes data using a web safe alphabet
+//! \details Base64 encodes data using a web safe alphabet per RFC 4648 (http://tools.ietf.org/html/rfc4648#section-5)
+//! \details To specify alternative alpahabet or code, call Initialize() with EncodingLookupArray parameter.
 class Base64URLEncoder : public SimpleProxyFilter
 {
 public:
@@ -47,14 +60,18 @@ public:
 	void IsolatedInitialize(const NameValuePairs &parameters);
 };
 
-//! Base64 URL Decoder Class
+//! \class Base64URLDecoder
+//! \brief Base64 decodes data using a web safe alphabet
+//! \details Base64 decodes data using a web safe alphabet per RFC 4648 (http://tools.ietf.org/html/rfc4648#section-5)
+//! \details To specify alternative alpahabet or code, call Initialize() with EncodingLookupArray parameter.
 class Base64URLDecoder : public BaseN_Decoder
 {
 public:
 	Base64URLDecoder(BufferedTransformation *attachment = NULL)
 		: BaseN_Decoder(GetDecodingLookupArray(), 6, attachment) {}
     
-	void IsolatedInitialize(const NameValuePairs &parameters) {}
+	void IsolatedInitialize(const NameValuePairs &parameters)
+		{CRYPTOPP_UNUSED(parameters);}
     
 private:
 	static const int * CRYPTOPP_API GetDecodingLookupArray();

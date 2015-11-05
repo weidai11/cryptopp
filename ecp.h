@@ -1,7 +1,7 @@
 #ifndef CRYPTOPP_ECP_H
 #define CRYPTOPP_ECP_H
 
-#include "config.h"
+#include "cryptlib.h"
 #include "integer.h"
 #include "modarith.h"
 #include "eprecomp.h"
@@ -21,6 +21,10 @@ struct CRYPTOPP_DLL ECPPoint
 		{return (identity && t.identity) || (!identity && !t.identity && x==t.x && y==t.y);}
 	bool operator< (const ECPPoint &t) const
 		{return identity ? !t.identity : (!t.identity && (x<t.x || (x==t.x && y<t.y)));}
+
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~ECPPoint() {}
+#endif
 
 	bool identity;
 	Integer x, y;
@@ -83,6 +87,10 @@ public:
 
 	bool operator==(const ECP &rhs) const
 		{return GetField() == rhs.GetField() && m_a == rhs.m_a && m_b == rhs.m_b;}
+	
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~ECP() {}
+#endif
 
 private:
 	clonable_ptr<Field> m_fieldPtr;
@@ -111,8 +119,6 @@ public:
 	Element BERDecodeElement(BufferedTransformation &bt) const {return m_ec->BERDecodePoint(bt);}
 	void DEREncodeElement(BufferedTransformation &bt, const Element &v) const {m_ec->DEREncodePoint(bt, v, false);}
 
-	virtual ~EcPrecomputation() { }
-
 	// non-inherited
 	void SetCurve(const ECP &ec)
 	{
@@ -120,6 +126,10 @@ public:
 		m_ecOriginal = ec;
 	}
 	const ECP & GetCurve() const {return *m_ecOriginal;}
+	
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~EcPrecomputation() {}
+#endif
 
 private:
 	value_ptr<ECP> m_ec, m_ecOriginal;

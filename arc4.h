@@ -1,13 +1,22 @@
+// arc4.h - written and placed in the public domain by Wei Dai
+
+//! \file
+//! \brief Implementation of ARC4
+
 #ifndef CRYPTOPP_ARC4_H
 #define CRYPTOPP_ARC4_H
 
+#include "cryptlib.h"
 #include "strciphr.h"
+#include "secblock.h"
+#include "smartptr.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
 namespace Weak1 {
 
-//! _
+//! \class ARC4_Base
+//! \brief Allegedly RC4
 class CRYPTOPP_NO_VTABLE ARC4_Base : public VariableKeyLength<16, 1, 256>, public RandomNumberGenerator, public SymmetricCipher, public SymmetricCipherDocumentation
 {
 public:
@@ -18,7 +27,7 @@ public:
 	void GenerateBlock(byte *output, size_t size);
 	void DiscardBytes(size_t n);
 
-	void ProcessData(byte *outString, const byte *inString, size_t length);
+    void ProcessData(byte *outString, const byte *inString, size_t length);
 	
 	bool IsRandomAccess() const {return false;}
 	bool IsSelfInverting() const {return true;}

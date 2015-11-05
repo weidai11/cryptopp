@@ -11,9 +11,9 @@ Package=<5>
 
 Package=<4>
 {{{
-    Begin Project Dependency
-    Project_Dep_Name cryptest
-    End Project Dependency
+ Begin Project Dependency
+ Project_Dep_Name cryptest
+ End Project Dependency
 }}}
 
 ###############################################################################
@@ -26,9 +26,9 @@ Package=<5>
 
 Package=<4>
 {{{
-    Begin Project Dependency
-    Project_Dep_Name cryptlib
-    End Project Dependency
+ Begin Project Dependency
+ Project_Dep_Name cryptlib
+ End Project Dependency
 }}}
 
 ###############################################################################
@@ -53,9 +53,9 @@ Package=<5>
 
 Package=<4>
 {{{
-    Begin Project Dependency
-    Project_Dep_Name cryptdll
-    End Project Dependency
+ Begin Project Dependency
+ Project_Dep_Name cryptdll
+ End Project Dependency
 }}}
 
 ###############################################################################

@@ -1,6 +1,11 @@
 // cpu.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
+#include "config.h"
+
+#ifndef EXCEPTION_EXECUTE_HANDLER
+# define EXCEPTION_EXECUTE_HANDLER 1
+#endif
 
 #ifndef CRYPTOPP_IMPORTS
 
@@ -23,7 +28,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 #if _MSC_VER >= 1400 && CRYPTOPP_BOOL_X64
 
-bool CpuId(word32 input, word32 *output)
+bool CpuId(word32 input, word32 output[4])
 {
 	__cpuid((int *)output, input);
 	return true;
@@ -33,35 +38,31 @@ bool CpuId(word32 input, word32 *output)
 
 #ifndef CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
 extern "C" {
-  typedef void (*SigHandler)(int);
+typedef void (*SigHandler)(int);
 
-  static jmp_buf s_jmpNoCPUID;
-  static jmp_buf s_jmpNoSSE2;
-
-  //  Declare it so we can attach the attribute
-  static void SigIllHandlerCPUID(int) CRYPTOPP_UNUSED_FUNCTION;
-  static void SigIllHandlerCPUID(int)
-  {
-	longjmp(s_jmpNoCPUID, 1);
-  }
-
-  //  Declare it so we can attach the attribute
-  static void SigIllHandlerSSE2(int) CRYPTOPP_UNUSED_FUNCTION;
-  static void SigIllHandlerSSE2(int)
-  {
-	longjmp(s_jmpNoSSE2, 1);
-  }
-}
-#endif // CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
-
-bool CpuId(word32 input, word32 *output)
+static jmp_buf s_jmpNoCPUID;
+static void SigIllHandlerCPUID(int)
 {
-#ifdef CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
+	longjmp(s_jmpNoCPUID, 1);
+}
+
+static jmp_buf s_jmpNoSSE2;
+static void SigIllHandlerSSE2(int)
+{
+	longjmp(s_jmpNoSSE2, 1);
+}
+}
+#endif
+
+bool CpuId(word32 input, word32 output[4])
+{
+#if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
     __try
 	{
 		__asm
 		{
 			mov eax, input
+			mov ecx, 0
 			cpuid
 			mov edi, output
 			mov [edi], eax
@@ -70,10 +71,16 @@ bool CpuId(word32 input, word32 *output)
 			mov [edi+12], edx
 		}
 	}
-    __except (1)
+	// GetExceptionCode() == EXCEPTION_ILLEGAL_INSTRUCTION
+	__except (EXCEPTION_EXECUTE_HANDLER)
 	{
 		return false;
-    }
+	}
+
+	// function 0 returns the highest basic function understood in EAX
+	if(input == 0)
+		return !!output[0];
+
 	return true;
 #else
 	SigHandler oldHandler = signal(SIGILL, SigIllHandlerCPUID);
@@ -85,16 +92,17 @@ bool CpuId(word32 input, word32 *output)
 		result = false;
 	else
 	{
-		asm
+		asm volatile
 		(
 			// save ebx in case -fPIC is being used
-#if CRYPTOPP_BOOL_X86
-			"push %%ebx; cpuid; mov %%ebx, %%edi; pop %%ebx"
-#else
+			// TODO: this might need an early clobber on EDI.
+# if CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64
 			"pushq %%rbx; cpuid; mov %%ebx, %%edi; popq %%rbx"
-#endif
+# else
+			"push %%ebx; cpuid; mov %%ebx, %%edi; pop %%ebx"
+# endif
 			: "=a" (output[0]), "=D" (output[1]), "=c" (output[2]), "=d" (output[3])
-			: "a" (input)
+			: "a" (input), "c" (0)
 		);
 	}
 
@@ -113,16 +121,17 @@ static bool TrySSE2()
     __try
 	{
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
-        AS2(por xmm0, xmm0)        // executing SSE2 instruction
+		AS2(por xmm0, xmm0)        // executing SSE2 instruction
 #elif CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
 		__m128i x = _mm_setzero_si128();
 		return _mm_cvtsi128_si32(x) == 0;
 #endif
 	}
-    __except (1)
+	// GetExceptionCode() == EXCEPTION_ILLEGAL_INSTRUCTION
+	__except (EXCEPTION_EXECUTE_HANDLER)
 	{
 		return false;
-    }
+	}
 	return true;
 #else
 	SigHandler oldHandler = signal(SIGILL, SigIllHandlerSSE2);
@@ -147,11 +156,27 @@ static bool TrySSE2()
 #endif
 }
 
+#if 0
+static bool g_x86DetectionDone = false;
+static bool g_hasMMX = false, g_hasISSE = false, g_hasSSE2 = false, g_hasSSSE3 = false, g_hasAESNI = false, g_hasCLMUL = false, g_isP4 = false;
+static word32 g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
+#else
 bool g_x86DetectionDone = false;
-bool g_hasSSE = false, g_hasSSE2 = false, g_hasSSSE3 = false, g_hasMMX = false, g_hasAESNI = false, g_hasCLMUL = false, g_isP4 = false;
+bool g_hasMMX = false, g_hasISSE = false, g_hasSSE2 = false, g_hasSSSE3 = false, g_hasAESNI = false, g_hasCLMUL = false, g_isP4 = false;
 word32 g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
+#endif
 
+// MacPorts/GCC does not provide constructor(priority). Apple/GCC and Fink/GCC do provide it.
+#define HAVE_GCC_CONSTRUCTOR1 (__GNUC__ && (CRYPTOPP_INIT_PRIORITY > 0) && ((CRYPTOPP_GCC_VERSION >= 40300) || (CRYPTOPP_CLANG_VERSION >= 20900) || (_INTEL_COMPILER >= 1000)) && !(MACPORTS_GCC_COMPILER > 0))
+#define HAVE_GCC_CONSTRUCTOR0 (__GNUC__ && (CRYPTOPP_INIT_PRIORITY > 0) && !(MACPORTS_GCC_COMPILER > 0))
+
+#if HAVE_GCC_CONSTRUCTOR1
+void __attribute__ ((constructor (CRYPTOPP_INIT_PRIORITY + 50))) DetectX86Features()
+#elif HAVE_GCC_CONSTRUCTOR0
+void __attribute__ ((constructor)) DetectX86Features()
+#else
 void DetectX86Features()
+#endif
 {
 	word32 cpuid[4], cpuid1[4];
 	if (!CpuId(0, cpuid))
@@ -167,7 +192,7 @@ void DetectX86Features()
 	g_hasCLMUL = g_hasSSE2 && (cpuid1[2] & (1<<1));
 
 	if ((cpuid1[3] & (1 << 25)) != 0)
-		g_hasSSE = true;
+		g_hasISSE = true;
 	else
 	{
 		word32 cpuid2[4];
@@ -175,7 +200,7 @@ void DetectX86Features()
 		if (cpuid2[0] >= 0x080000001)
 		{
 			CpuId(0x080000001, cpuid2);
-			g_hasSSE = (cpuid2[3] & (1 << 22)) != 0;
+			g_hasISSE = (cpuid2[3] & (1 << 22)) != 0;
 		}
 	}
 

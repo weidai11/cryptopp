@@ -6,7 +6,7 @@
 #include "modes.h"
 #include "gf256.h"
 
-#if GCC_DIAGNOSTIC_AWARE
+#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
 # pragma GCC diagnostic ignored "-Wmissing-braces"
 #endif
 
@@ -79,8 +79,7 @@ void SHARK::Enc::InitForKeySetup()
 	m_rounds = DEFAULT_ROUNDS;
 	m_roundKeys.New(DEFAULT_ROUNDS+1);
 
-	unsigned int i;
-	for (i=0; i<static_cast<unsigned int>(DEFAULT_ROUNDS); i++)
+	for (unsigned int i=0; i<DEFAULT_ROUNDS; i++)
 		m_roundKeys[i] = cbox[0][i];
 
 	m_roundKeys[DEFAULT_ROUNDS] = SHARKTransform(cbox[0][DEFAULT_ROUNDS]);

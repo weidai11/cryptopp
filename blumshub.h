@@ -1,9 +1,9 @@
 #ifndef CRYPTOPP_BLUMSHUB_H
 #define CRYPTOPP_BLUMSHUB_H
 
-#include "config.h"
-#include "integer.h"
+#include "cryptlib.h"
 #include "modarith.h"
+#include "integer.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -26,6 +26,9 @@ protected:
 	ModularArithmetic modn;
 	word maxBits, bitsLeft;
 	Integer current;
+
+	friend class BlumGoldwasserPublicKey;
+	friend class BlumGoldwasserPrivateKey;
 };
 
 //! BlumBlumShub with factorization of the modulus

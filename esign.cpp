@@ -1,13 +1,20 @@
 // esign.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
+#include "config.h"
+
+// TODO: fix the C4589 warnings
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(disable: 4589)
+#endif
+
 #include "esign.h"
-#include "asn.h"
 #include "modarith.h"
+#include "integer.h"
 #include "nbtheory.h"
-#include "sha.h"
 #include "algparam.h"
-#include "trap.h"
+#include "sha.h"
+#include "asn.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -47,8 +54,9 @@ Integer ESIGNFunction::ApplyFunction(const Integer &x) const
 	return STDMIN(a_exp_b_mod_c(x, m_e, m_n) >> (2*GetK()+2), MaxImage());
 }
 
-bool ESIGNFunction::Validate(RandomNumberGenerator &rng, unsigned int level) const
+bool ESIGNFunction::Validate(RandomNumberGenerator& rng, unsigned int level) const
 {
+	CRYPTOPP_UNUSED(rng), CRYPTOPP_UNUSED(level);
 	bool pass = true;
 	pass = pass && m_n > Integer::One() && m_n.IsOdd();
 	pass = pass && m_e >= 8 && m_e < m_n;
@@ -75,8 +83,8 @@ void ESIGNFunction::AssignFrom(const NameValuePairs &source)
 
 void InvertibleESIGNFunction::GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &param)
 {
-	unsigned int modulusSize = 1023*2;
-	param.GetAsUIntValue("ModulusSize", modulusSize) || param.GetAsUIntValue("KeySize", modulusSize);
+	int modulusSize = 1023*2;
+	param.GetIntValue("ModulusSize", modulusSize) || param.GetIntValue("KeySize", modulusSize);
 
 	if (modulusSize < 24)
 		throw InvalidArgument("InvertibleESIGNFunction: specified modulus size is too small");
@@ -115,7 +123,7 @@ void InvertibleESIGNFunction::GenerateRandom(RandomNumberGenerator &rng, const N
 
 	m_n = m_p * m_p * m_q;
 
-	CRYPTOPP_ASSERT(m_n.BitCount() == modulusSize);
+	assert(m_n.BitCount() == (unsigned int)modulusSize);
 }
 
 void InvertibleESIGNFunction::BERDecode(BufferedTransformation &bt)
@@ -164,18 +172,18 @@ Integer InvertibleESIGNFunction::CalculateRandomizedInverse(RandomNumberGenerato
 	ModularArithmetic modp(m_p);
 	Integer t = modp.Divide(w0 * r % m_p, m_e * re % m_p);
 	Integer s = r + t*pq;
-	CRYPTOPP_ASSERT(s < m_n);
-/*
+	assert(s < m_n);
+#if 0
 	using namespace std;
-	std::cout << "f = " << x << std::endl;
-	std::cout << "r = " << r << std::endl;
-	std::cout << "z = " << z << std::endl;
-	std::cout << "a = " << a << std::endl;
-	std::cout << "w0 = " << w0 << std::endl;
-	std::cout << "w1 = " << w1 << std::endl;
-	std::cout << "t = " << t << std::endl;
-	std::cout << "s = " << s << std::endl;
-*/
+	cout << "f = " << x << endl;
+	cout << "r = " << r << endl;
+	cout << "z = " << z << endl;
+	cout << "a = " << a << endl;
+	cout << "w0 = " << w0 << endl;
+	cout << "w1 = " << w1 << endl;
+	cout << "t = " << t << endl;
+	cout << "s = " << s << endl;
+#endif
 	return s;
 }
 

@@ -4,8 +4,9 @@
 /*! \file */
 
 #include "cryptlib.h"
-#include "misc.h"
+#include "secblock.h"
 #include "algebra.h"
+#include "misc.h"
 
 #include <iosfwd>
 #include <vector>
@@ -64,7 +65,7 @@ public:
 		template <typename Iterator> PolynomialOver(Iterator begin, Iterator end)
 			: m_coefficients(begin, end) {}
 
-		//! convert from std::string
+		//! convert from string
 		PolynomialOver(const char *str, const Ring &ring) {FromStr(str, ring);}
 
 		//! convert from big-endian byte array
@@ -184,7 +185,7 @@ public:
 		template <typename Iterator> PolynomialOverFixedRing(Iterator first, Iterator last)
 			: B(first, last) {}
 
-		//! convert from std::string
+		//! convert from string
 		explicit PolynomialOverFixedRing(const char *str) : B(str, ms_fixedRing) {}
 
 		//! convert from big-endian byte array

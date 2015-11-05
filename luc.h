@@ -4,12 +4,20 @@
 /** \file
 */
 
-#include "config.h"
+#include "cryptlib.h"
+#include "gfpcrypt.h"
 #include "integer.h"
+#include "secblock.h"
+
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(push)
+# pragma warning(disable: 4127 4189)
+#endif
+
 #include "pkcspad.h"
+#include "integer.h"
 #include "oaep.h"
 #include "dh.h"
-#include "trap.h"
 
 #include <limits.h>
 
@@ -47,6 +55,10 @@ public:
 	void SetModulus(const Integer &n) {m_n = n;}
 	void SetPublicExponent(const Integer &e) {m_e = e;}
 
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~LUCFunction() {}
+#endif
+
 protected:
 	Integer m_n, m_e;
 };
@@ -80,6 +92,10 @@ public:
 	void SetPrime1(const Integer &p) {m_p = p;}
 	void SetPrime2(const Integer &q) {m_q = q;}
 	void SetMultiplicativeInverseOfPrime2ModPrime1(const Integer &u) {m_u = u;}
+
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~InvertibleLUCFunction() {}
+#endif
 
 protected:
 	Integer m_p, m_q, m_u;
@@ -117,15 +133,17 @@ typedef LUCSS<PKCS1v15, SHA>::Verifier LUCSSA_PKCS1v15_SHA_Verifier;
 class DL_GroupPrecomputation_LUC : public DL_GroupPrecomputation<Integer>
 {
 public:
-	const AbstractGroup<Element> & GetGroup() const {CRYPTOPP_ASSERT(false); throw 0;}
+	const AbstractGroup<Element> & GetGroup() const {assert(false); throw 0;}
 	Element BERDecodeElement(BufferedTransformation &bt) const {return Integer(bt);}
 	void DEREncodeElement(BufferedTransformation &bt, const Element &v) const {v.DEREncode(bt);}
-
-	virtual ~DL_GroupPrecomputation_LUC() { }
 
 	// non-inherited
 	void SetModulus(const Integer &v) {m_p = v;}
 	const Integer & GetModulus() const {return m_p;}
+
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_GroupPrecomputation_LUC() {}
+#endif
 
 private:
 	Integer m_p;
@@ -137,16 +155,27 @@ class DL_BasePrecomputation_LUC : public DL_FixedBasePrecomputation<Integer>
 public:
 	// DL_FixedBasePrecomputation
 	bool IsInitialized() const {return m_g.NotZero();}
-	void SetBase(const DL_GroupPrecomputation<Element> &group, const Integer &base) {m_g = base;}
-	const Integer & GetBase(const DL_GroupPrecomputation<Element> &group) const {return m_g;}
-	void Precompute(const DL_GroupPrecomputation<Element> &group, unsigned int maxExpBits, unsigned int storage) {}
-	void Load(const DL_GroupPrecomputation<Element> &group, BufferedTransformation &storedPrecomputation) {}
-	void Save(const DL_GroupPrecomputation<Element> &group, BufferedTransformation &storedPrecomputation) const {}
+	void SetBase(const DL_GroupPrecomputation<Element> &group, const Integer &base)
+		{CRYPTOPP_UNUSED(group); m_g = base;}
+	const Integer & GetBase(const DL_GroupPrecomputation<Element> &group) const
+		{CRYPTOPP_UNUSED(group); return m_g;}
+	void Precompute(const DL_GroupPrecomputation<Element> &group, unsigned int maxExpBits, unsigned int storage)
+		{CRYPTOPP_UNUSED(group); CRYPTOPP_UNUSED(maxExpBits); CRYPTOPP_UNUSED(storage);}
+	void Load(const DL_GroupPrecomputation<Element> &group, BufferedTransformation &storedPrecomputation)
+		{CRYPTOPP_UNUSED(group); CRYPTOPP_UNUSED(storedPrecomputation);}
+	void Save(const DL_GroupPrecomputation<Element> &group, BufferedTransformation &storedPrecomputation) const
+		{CRYPTOPP_UNUSED(group); CRYPTOPP_UNUSED(storedPrecomputation);}
 	Integer Exponentiate(const DL_GroupPrecomputation<Element> &group, const Integer &exponent) const;
 	Integer CascadeExponentiate(const DL_GroupPrecomputation<Element> &group, const Integer &exponent, const DL_FixedBasePrecomputation<Integer> &pc2, const Integer &exponent2) const
-		{throw NotImplemented("DL_BasePrecomputation_LUC: CascadeExponentiate not implemented");}	// shouldn't be called
+		{
+			CRYPTOPP_UNUSED(group); CRYPTOPP_UNUSED(exponent); CRYPTOPP_UNUSED(pc2); CRYPTOPP_UNUSED(exponent2);
+			// shouldn't be called
+			throw NotImplemented("DL_BasePrecomputation_LUC: CascadeExponentiate not implemented");
+		}
 
-	virtual ~DL_BasePrecomputation_LUC() { }
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_BasePrecomputation_LUC() {}
+#endif
 
 private:
 	Integer m_g;
@@ -160,17 +189,25 @@ public:
 	bool IsIdentity(const Integer &element) const {return element == Integer::Two();}
 	void SimultaneousExponentiate(Element *results, const Element &base, const Integer *exponents, unsigned int exponentsCount) const;
 	Element MultiplyElements(const Element &a, const Element &b) const
-		{throw NotImplemented("LUC_GroupParameters: MultiplyElements can not be implemented");}
+	{
+		CRYPTOPP_UNUSED(a); CRYPTOPP_UNUSED(b);
+		throw NotImplemented("LUC_GroupParameters: MultiplyElements can not be implemented");
+	}
 	Element CascadeExponentiate(const Element &element1, const Integer &exponent1, const Element &element2, const Integer &exponent2) const
-		{throw NotImplemented("LUC_GroupParameters: MultiplyElements can not be implemented");}
-
-	virtual ~DL_GroupParameters_LUC() { }
+	{
+		CRYPTOPP_UNUSED(element1); CRYPTOPP_UNUSED(exponent1); CRYPTOPP_UNUSED(element2); CRYPTOPP_UNUSED(exponent2);
+		throw NotImplemented("LUC_GroupParameters: MultiplyElements can not be implemented");
+	}
 
 	// NameValuePairs interface
 	bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
 	{
 		return GetValueHelper<DL_GroupParameters_IntegerBased>(this, name, valueType, pValue).Assignable();
 	}
+	
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_GroupParameters_LUC() {}
+#endif
 
 private:
 	int GetFieldType() const {return 2;}
@@ -181,6 +218,10 @@ class DL_GroupParameters_LUC_DefaultSafePrime : public DL_GroupParameters_LUC
 {
 public:
 	typedef NoCofactorMultiplication DefaultCofactorOption;
+	
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_GroupParameters_LUC_DefaultSafePrime() {}
+#endif
 
 protected:
 	unsigned int GetDefaultSubgroupOrderSize(unsigned int modulusSize) const {return modulusSize-1;}
@@ -190,7 +231,6 @@ protected:
 class DL_Algorithm_LUC_HMP : public DL_ElgamalLikeSignatureAlgorithm<Integer>
 {
 public:
-	virtual ~DL_Algorithm_LUC_HMP() { }
 	static const char * StaticAlgorithmName() {return "LUC-HMP";}
 
 	void Sign(const DL_GroupParameters<Integer> &params, const Integer &x, const Integer &k, const Integer &e, Integer &r, Integer &s) const;
@@ -198,6 +238,10 @@ public:
 
 	size_t RLen(const DL_GroupParameters<Integer> &params) const
 		{return params.GetGroupOrder().ByteCount();}
+	
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_Algorithm_LUC_HMP() {}
+#endif
 };
 
 //! _
@@ -206,6 +250,10 @@ struct DL_SignatureKeys_LUC
 	typedef DL_GroupParameters_LUC GroupParameters;
 	typedef DL_PublicKey_GFP<GroupParameters> PublicKey;
 	typedef DL_PrivateKey_GFP<GroupParameters> PrivateKey;
+	
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_SignatureKeys_LUC() {}
+#endif
 };
 
 //! LUC-HMP, based on "Digital signature schemes based on Lucas functions" by Patrick Horster, Markus Michels, Holger Petersen
@@ -220,6 +268,10 @@ struct DL_CryptoKeys_LUC
 	typedef DL_GroupParameters_LUC_DefaultSafePrime GroupParameters;
 	typedef DL_PublicKey_GFP<GroupParameters> PublicKey;
 	typedef DL_PrivateKey_GFP<GroupParameters> PrivateKey;
+	
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_CryptoKeys_LUC() {}
+#endif
 };
 
 //! LUC-IES
@@ -233,6 +285,10 @@ struct LUC_IES
 		LUC_IES<> >
 {
 	static std::string StaticAlgorithmName() {return "LUC-IES";}	// non-standard name
+	
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~LUC_IES() {}
+#endif
 };
 
 // ********************************************************
@@ -241,5 +297,9 @@ struct LUC_IES
 typedef DH_Domain<DL_GroupParameters_LUC_DefaultSafePrime> LUC_DH;
 
 NAMESPACE_END
+
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(pop)
+#endif
 
 #endif

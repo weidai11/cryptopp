@@ -4,6 +4,7 @@
 #define CRYPTOPP_SALSA_H
 
 #include "strciphr.h"
+#include "secblock.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 

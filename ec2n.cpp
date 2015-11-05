@@ -6,10 +6,10 @@
 
 #include "ec2n.h"
 #include "asn.h"
-
+#include "integer.h"
+#include "filters.h"
 #include "algebra.cpp"
 #include "eprecomp.cpp"
-#include "trap.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -71,11 +71,11 @@ bool EC2N::DecodePoint(EC2N::Point &P, BufferedTransformation &bt, size_t encode
 		}
 
 		FieldElement z = m_field->Square(P.x);
-		CRYPTOPP_ASSERT(P.x == m_field->SquareRoot(z));
+		assert(P.x == m_field->SquareRoot(z));
 		P.y = m_field->Divide(m_field->Add(m_field->Multiply(z, m_field->Add(P.x, m_a)), m_b), z);
-		CRYPTOPP_ASSERT(P.x == m_field->Subtract(m_field->Divide(m_field->Subtract(m_field->Multiply(P.y, z), m_b), z), m_a));
+		assert(P.x == m_field->Subtract(m_field->Divide(m_field->Subtract(m_field->Multiply(P.y, z), m_b), z), m_a));
 		z = m_field->SolveQuadraticEquation(P.y);
-		CRYPTOPP_ASSERT(m_field->Add(m_field->Square(z), z) == P.y);
+		assert(m_field->Add(m_field->Square(z), z) == P.y);
 		z.SetCoefficient(0, type & 1);
 
 		P.y = m_field->Multiply(z, P.x);
@@ -119,7 +119,7 @@ void EC2N::EncodePoint(byte *encodedPoint, const Point &P, bool compressed) cons
 {
 	ArraySink sink(encodedPoint, EncodedPointSize(compressed));
 	EncodePoint(sink, P, compressed);
-	CRYPTOPP_ASSERT(sink.TotalPutLength() == EncodedPointSize(compressed));
+	assert(sink.TotalPutLength() == EncodedPointSize(compressed));
 }
 
 EC2N::Point EC2N::BERDecodePoint(BufferedTransformation &bt) const
@@ -141,6 +141,7 @@ void EC2N::DEREncodePoint(BufferedTransformation &bt, const Point &P, bool compr
 
 bool EC2N::ValidateParameters(RandomNumberGenerator &rng, unsigned int level) const
 {
+	CRYPTOPP_UNUSED(rng);
 	bool pass = !!m_b;
 	pass = pass && m_a.CoefficientCount() <= m_field->MaxElementBitLength();
 	pass = pass && m_b.CoefficientCount() <= m_field->MaxElementBitLength();
@@ -237,11 +238,9 @@ const EC2N::Point& EC2N::Double(const Point &P) const
 /*
 EcPrecomputation<EC2N>& EcPrecomputation<EC2N>::operator=(const EcPrecomputation<EC2N> &rhs)
 {
-	if (this != &rhs)
-	{
-		DL_GroupPrecomputation::operator=(rhs);
-		m_ec = rhs.m_ec;
-	}
+	m_ec = rhs.m_ec;
+	m_ep = rhs.m_ep;
+	m_ep.m_group = m_ec.get();
 	return *this;
 }
 

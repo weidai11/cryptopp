@@ -2,6 +2,7 @@
 #define CRYPTOPP_GF2_32_H
 
 #include "cryptlib.h"
+#include "secblock.h"
 #include "misc.h"
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -16,7 +17,7 @@ public:
 	GF2_32(word32 modulus=0x0000008D) : m_modulus(modulus) {}
 
 	Element RandomElement(RandomNumberGenerator &rng, int ignored = 0) const
-		{CRYPTOPP_UNUSED(ignored);return rng.GenerateWord32();}
+		{CRYPTOPP_UNUSED(ignored); return rng.GenerateWord32();}
 
 	bool Equal(Element a, Element b) const
 		{return a==b;}
@@ -40,7 +41,7 @@ public:
 		{return a^=b;}
 
 	Element Double(Element a) const
-		{CRYPTOPP_UNUSED(a);return 0;}
+		{CRYPTOPP_UNUSED(a); return 0;}
 
 	Element MultiplicativeIdentity() const
 		{return 1;}

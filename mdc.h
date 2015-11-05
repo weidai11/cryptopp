@@ -7,6 +7,7 @@
 */
 
 #include "seckey.h"
+#include "secblock.h"
 #include "misc.h"
 
 NAMESPACE_BEGIN(CryptoPP)

@@ -8,13 +8,14 @@
 #define CRYPTOPP_DEFAULT_NO_DLL
 #endif
 
-#include "config.h"
-#include "integer.h"
 #include "dll.h"
+#include "cryptlib.h"
+#include "smartptr.h"
+#include "filters.h"
 #include "oids.h"
-#include "trap.h"
 
 USING_NAMESPACE(CryptoPP)
+USING_NAMESPACE(std)
 
 class LineBreakParser : public AutoSignaling<Bufferless<Filter> >
 {
@@ -261,7 +262,7 @@ protected:
 
 	static inline void Xor(SecByteBlock &z, const SecByteBlock &x, const SecByteBlock &y)
 	{
-		CRYPTOPP_ASSERT(x.size() == y.size());
+		assert(x.size() == y.size());
 		z.resize(x.size());
 		xorbuf(z, x, y, x.size());
 	}
@@ -636,7 +637,7 @@ protected:
 			}
 			else
 			{
-				CRYPTOPP_ASSERT(m_test == "Gen");
+				assert(m_test == "Gen");
 				int modLen = atol(m_bracketString.substr(6).c_str());
 				std::string &encodedKey = m_data["PrivKey"];
 				RSA::PrivateKey priv;
@@ -786,7 +787,7 @@ protected:
 			else if (m_bracketString == "L=64")
 				pMAC.reset(new HMAC<SHA512>);
 			else
-				throw Exception(Exception::OTHER_ERROR, "TestDataParser: unexpected HMAC bracket std::string: " + m_bracketString);
+				throw Exception(Exception::OTHER_ERROR, "TestDataParser: unexpected HMAC bracket string: " + m_bracketString);
 
 			pMAC->SetKey(key, key.size());
 			int Tlen = atol(m_data["Tlen"].c_str());
@@ -1033,7 +1034,7 @@ protected:
 		}
 		else
 		{
-			CRYPTOPP_ASSERT(m_test == "KAT");
+			assert(m_test == "KAT");
 
 			SecByteBlock &input = m_data2[INPUT];
 			SecByteBlock result(input.size());
@@ -1096,7 +1097,7 @@ protected:
 
 		if (m_line.substr(0, 2) == "H>")
 		{
-			CRYPTOPP_ASSERT(m_test == "sha");
+			assert(m_test == "sha");
 			m_bracketString = m_line.substr(2, m_line.size()-4);
 			m_line = m_line.substr(0, 13) + "Hashes<H";
 			copyLine = true;
@@ -1220,8 +1221,8 @@ int FIPS_140_AlgorithmTest(int argc, char **argv)
 
 	if (algorithm == "auto")
 	{
-		std::string algTable[] = {"AES", "ECDSA", "DSA", "HMAC", "RNG", "RSA", "TDES", "SKIPJACK", "SHA"};	// order is important here
-		for (i=0; i<COUNTOF(algTable); i++)
+		string algTable[] = {"AES", "ECDSA", "DSA", "HMAC", "RNG", "RSA", "TDES", "SKIPJACK", "SHA"};	// order is important here
+		for (i=0; i<sizeof(algTable)/sizeof(algTable[0]); i++)
 		{
 			if (dirname.find(algTable[i]) != std::string::npos)
 			{
@@ -1276,13 +1277,13 @@ int FIPS_140_AlgorithmTest(int argc, char **argv)
 			pSink = new FileSink(outPathname.c_str(), false);
 		}
 		else
-			pSink = new FileSink(std::cout);
+			pSink = new FileSink(cout);
 
 		FileSource(pathname.c_str(), true, new LineBreakParser(new TestDataParser(algorithm, test, mode, feedbackSize, encrypt, pSink)), false);
 	}
 	catch (...)
 	{
-		std::cout << "file: " << filename << std::endl;
+		cout << "file: " << filename << endl;
 		throw;
 	}
 	return 0;

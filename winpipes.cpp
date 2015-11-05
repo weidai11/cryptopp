@@ -6,7 +6,6 @@
 #ifdef WINDOWS_PIPES_AVAILABLE
 
 #include "wait.h"
-#include "trap.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -23,8 +22,9 @@ WindowsHandle::~WindowsHandle()
 		{
 			CloseHandle();
 		}
-		catch (...)
+		catch (const Exception&)
 		{
+			assert(0);
 		}
 	}
 }
@@ -89,7 +89,7 @@ WindowsPipeReceiver::WindowsPipeReceiver()
 
 bool WindowsPipeReceiver::Receive(byte* buf, size_t bufLen)
 {
-	CRYPTOPP_ASSERT(!m_resultPending && !m_eofReceived);
+	assert(!m_resultPending && !m_eofReceived);
 
 	HANDLE h = GetHandle();
 	// don't queue too much at once, or we might use up non-paged memory

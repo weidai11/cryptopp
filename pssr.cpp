@@ -2,7 +2,7 @@
 
 #include "pch.h"
 #include "pssr.h"
-#include "trap.h"
+#include "misc.h"
 
 #include <functional>
 
@@ -49,7 +49,9 @@ void PSSR_MEM_Base::ComputeMessageRepresentative(RandomNumberGenerator &rng,
 	HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
 	byte *representative, size_t representativeBitLength) const
 {
-	CRYPTOPP_ASSERT(representativeBitLength >= MinRepresentativeBitLength(hashIdentifier.second, hash.DigestSize()));
+	CRYPTOPP_UNUSED(rng), CRYPTOPP_UNUSED(recoverableMessage), CRYPTOPP_UNUSED(recoverableMessageLength);
+	CRYPTOPP_UNUSED(messageEmpty), CRYPTOPP_UNUSED(hashIdentifier);
+	assert(representativeBitLength >= MinRepresentativeBitLength(hashIdentifier.second, hash.DigestSize()));
 
 	const size_t u = hashIdentifier.second + 1;
 	const size_t representativeByteLength = BitsToBytes(representativeBitLength);
@@ -77,11 +79,15 @@ void PSSR_MEM_Base::ComputeMessageRepresentative(RandomNumberGenerator &rng,
 	xorStart[0] ^= 1;
 	xorbuf(xorStart + 1, recoverableMessage, recoverableMessageLength);
 	xorbuf(xorStart + 1 + recoverableMessageLength, salt, salt.size());
-
-	if (representative && hashIdentifier.first)
+	if (hashIdentifier.first && hashIdentifier.second)
+	{
 		memcpy(representative + representativeByteLength - u, hashIdentifier.first, hashIdentifier.second);
-    representative[representativeByteLength - 1] = hashIdentifier.second ? 0xcc : 0xbc;
-
+		representative[representativeByteLength - 1] = 0xcc;
+	}
+	else
+	{
+		representative[representativeByteLength - 1] = 0xbc;
+	}
 	if (representativeBitLength % 8 != 0)
 		representative[0] = (byte)Crop(representative[0], representativeBitLength % 8);
 }
@@ -91,7 +97,8 @@ DecodingResult PSSR_MEM_Base::RecoverMessageFromRepresentative(
 	byte *representative, size_t representativeBitLength,
 	byte *recoverableMessage) const
 {
-	CRYPTOPP_ASSERT(representativeBitLength >= MinRepresentativeBitLength(hashIdentifier.second, hash.DigestSize()));
+	CRYPTOPP_UNUSED(recoverableMessage), CRYPTOPP_UNUSED(messageEmpty), CRYPTOPP_UNUSED(hashIdentifier);
+	assert(representativeBitLength >= MinRepresentativeBitLength(hashIdentifier.second, hash.DigestSize()));
 
 	const size_t u = hashIdentifier.second + 1;
 	const size_t representativeByteLength = BitsToBytes(representativeBitLength);
@@ -115,13 +122,13 @@ DecodingResult PSSR_MEM_Base::RecoverMessageFromRepresentative(
 
 	// extract salt and recoverableMessage from DB = 00 ... || 01 || M || salt
 	byte *salt = representative + representativeByteLength - u - digestSize - saltSize;
-	byte *M = std::find_if (representative, salt-1, std::bind2nd(std::not_equal_to<byte>(), byte(0)));
+	byte *M = std::find_if(representative, salt-1, std::bind2nd(std::not_equal_to<byte>(), byte(0)));
 	recoverableMessageLength = salt-M-1;
-	if (*M == 0x01 
-		&& (size_t)(M - representative - (representativeBitLength % 8 != 0)) >= MinPadLen(digestSize)
-		&& recoverableMessageLength <= MaxRecoverableLength(representativeBitLength, hashIdentifier.second, digestSize))
+	if (*M == 0x01 &&
+	   (size_t)(M - representative - (representativeBitLength % 8 != 0)) >= MinPadLen(digestSize) &&
+	   recoverableMessageLength <= MaxRecoverableLength(representativeBitLength, hashIdentifier.second, digestSize))
 	{
-		if (recoverableMessage && M && recoverableMessageLength)
+		if (recoverableMessage)
 			memcpy(recoverableMessage, M+1, recoverableMessageLength);
 	}
 	else

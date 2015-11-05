@@ -5,8 +5,7 @@
 #ifndef CRYPTOPP_IMPORTS
 
 #include "algparam.h"
-#include "misc.h"
-#include "trap.h"
+#include "integer.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -20,10 +19,10 @@ bool CombinedNameValuePairs::GetVoidValue(const char *name, const std::type_info
 		return m_pairs1.GetVoidValue(name, valueType, pValue) || m_pairs2.GetVoidValue(name, valueType, pValue);
 }
 
-void AlgorithmParametersBase::operator=(const AlgorithmParametersBase& rhs)
+void AlgorithmParametersBase::operator=(const AlgorithmParametersBase &rhs)
 {
 	CRYPTOPP_UNUSED(rhs);
-	CRYPTOPP_ASSERT(false);
+	assert(false);
 }
 
 bool AlgorithmParametersBase::GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
@@ -61,7 +60,6 @@ AlgorithmParameters::AlgorithmParameters(const AlgorithmParameters &x)
 
 AlgorithmParameters & AlgorithmParameters::operator=(const AlgorithmParameters &x)
 {
-	// Should this be guarded for operations on itself??? This class befuddles me at times...
 	m_next.reset(const_cast<AlgorithmParameters &>(x).m_next.release());
 	return *this;
 }

@@ -3,8 +3,6 @@
 #include "pch.h"
 #include "hrtimer.h"
 #include "misc.h"
-#include "trap.h"
-
 #include <stddef.h>		// for NULL
 #include <time.h>
 
@@ -16,6 +14,8 @@
 #include <unistd.h>
 #endif
 
+#include <assert.h>
+
 NAMESPACE_BEGIN(CryptoPP)
 
 #ifndef CRYPTOPP_IMPORTS
@@ -24,7 +24,8 @@ double TimerBase::ConvertTo(TimerWord t, Unit unit)
 {
 	static unsigned long unitsPerSecondTable[] = {1, 1000, 1000*1000, 1000*1000*1000};
 
-	CRYPTOPP_ASSERT(unit < COUNTOF(unitsPerSecondTable));
+	// When 'unit' is an enum 'Unit', a Clang warning is generated.
+	assert(static_cast<unsigned int>(unit) < COUNTOF(unitsPerSecondTable));
 	return (double)CRYPTOPP_VC6_INT64 t * unitsPerSecondTable[unit] / CRYPTOPP_VC6_INT64 TicksPerSecond();
 }
 
@@ -54,14 +55,15 @@ double TimerBase::ElapsedTimeAsDouble()
 unsigned long TimerBase::ElapsedTime()
 {
 	double elapsed = ElapsedTimeAsDouble();
-	CRYPTOPP_ASSERT(elapsed <= ULONG_MAX);
+	assert(elapsed <= ULONG_MAX);
 	return (unsigned long)elapsed;
 }
 
 TimerWord Timer::GetCurrentTimerValue()
 {
 #if defined(CRYPTOPP_WIN32_AVAILABLE)
-	LARGE_INTEGER now;
+	// Use the first union member to avoid an uninitialized warning
+	LARGE_INTEGER now = {0,0};
 	if (!QueryPerformanceCounter(&now))
 		throw Exception(Exception::OTHER_ERROR, "Timer: QueryPerformanceCounter failed with error " + IntToString(GetLastError()));
 	return now.QuadPart;
@@ -70,7 +72,7 @@ TimerWord Timer::GetCurrentTimerValue()
 	gettimeofday(&now, NULL);
 	return (TimerWord)now.tv_sec * 1000000 + now.tv_usec;
 #else
-	clock_t now;
+	// clock_t now;
 	return clock();
 #endif
 }
@@ -78,8 +80,8 @@ TimerWord Timer::GetCurrentTimerValue()
 TimerWord Timer::TicksPerSecond()
 {
 #if defined(CRYPTOPP_WIN32_AVAILABLE)
-	// Hack to silence GCC under MinGW
-	static LARGE_INTEGER freq = { {0,0} };
+	// Use the second union member to avoid an uninitialized warning
+	static LARGE_INTEGER freq = {0,0};
 	if (freq.QuadPart == 0)
 	{
 		if (!QueryPerformanceFrequency(&freq))

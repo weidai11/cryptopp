@@ -3,8 +3,8 @@
 #ifndef CRYPTOPP_QUEUE_H
 #define CRYPTOPP_QUEUE_H
 
+#include "cryptlib.h"
 #include "simple.h"
-//#include <algorithm>
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -115,7 +115,7 @@ public:
 	LazyPutter(ByteQueue &bq, const byte *inString, size_t size)
 		: m_bq(bq) {bq.LazyPut(inString, size);}
 	~LazyPutter()
-		{try {m_bq.FinalizeLazyPut();} catch(...) {}}
+		{try {m_bq.FinalizeLazyPut();} catch(const Exception&) {assert(0);}}
 protected:
 	LazyPutter(ByteQueue &bq) : m_bq(bq) {}
 private:

@@ -6,16 +6,15 @@
 #ifndef CRYPTOPP_SIMPLE_H
 #define CRYPTOPP_SIMPLE_H
 
+#include "config.h"
+
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(push)
+# pragma warning(disable: 4127 4189)
+#endif
+
 #include "cryptlib.h"
 #include "misc.h"
-#include "trap.h"
-
-#if GCC_DIAGNOSTIC_AWARE
-# pragma GCC diagnostic push
-# pragma GCC diagnostic ignored "-Wunused-value"
-# pragma GCC diagnostic ignored "-Wunused-variable"
-# pragma GCC diagnostic ignored "-Wunused-parameter"
-#endif
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -57,7 +56,8 @@ template <class T>
 class CRYPTOPP_NO_VTABLE Bufferless : public T
 {
 public:
-	bool IsolatedFlush(bool hardFlush, bool blocking) {return false;}
+	bool IsolatedFlush(bool hardFlush, bool blocking)
+		{CRYPTOPP_UNUSED(hardFlush); CRYPTOPP_UNUSED(blocking); return false;}
 };
 
 //! _
@@ -68,11 +68,11 @@ public:
 	bool Flush(bool completeFlush, int propagation=-1, bool blocking=true)
 		{return ChannelFlush(DEFAULT_CHANNEL, completeFlush, propagation, blocking);}
 	bool IsolatedFlush(bool hardFlush, bool blocking)
-		{CRYPTOPP_ASSERT(false); return false;}
+		{CRYPTOPP_UNUSED(hardFlush); CRYPTOPP_UNUSED(blocking); assert(false); return false;}
 	bool ChannelFlush(const std::string &channel, bool hardFlush, int propagation=-1, bool blocking=true)
 	{
 		if (hardFlush && !InputBufferIsEmpty())
-			throw CannotFlush("Unflushable<T>: this object has buffered input that cannot be std::flushed");
+			throw CannotFlush("Unflushable<T>: this object has buffered input that cannot be flushed");
 		else 
 		{
 			BufferedTransformation *attached = this->AttachedTransformation();
@@ -94,13 +94,15 @@ public:
 
 	// shouldn't be calling these functions on this class
 	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking)
-		{throw InputRejected();}
-	bool IsolatedFlush(bool, bool) {return false;}
-	bool IsolatedMessageSeriesEnd(bool) {throw InputRejected();}
-
+		{CRYPTOPP_UNUSED(begin); CRYPTOPP_UNUSED(length); CRYPTOPP_UNUSED(messageEnd); CRYPTOPP_UNUSED(blocking); throw InputRejected();}
+	bool IsolatedFlush(bool hardFlush, bool blocking)
+		{CRYPTOPP_UNUSED(hardFlush); CRYPTOPP_UNUSED(blocking); return false;}
+	bool IsolatedMessageSeriesEnd(bool blocking)
+		{CRYPTOPP_UNUSED(blocking); throw InputRejected();}
 	size_t ChannelPut2(const std::string &channel, const byte *begin, size_t length, int messageEnd, bool blocking)
-		{throw InputRejected();}
-	bool ChannelMessageSeriesEnd(const std::string &, int, bool) {throw InputRejected();}
+		{CRYPTOPP_UNUSED(channel); CRYPTOPP_UNUSED(begin); CRYPTOPP_UNUSED(length); CRYPTOPP_UNUSED(messageEnd); CRYPTOPP_UNUSED(blocking); throw InputRejected();}
+	bool ChannelMessageSeriesEnd(const std::string& channel, int messageEnd, bool blocking)
+		{CRYPTOPP_UNUSED(channel); CRYPTOPP_UNUSED(messageEnd); CRYPTOPP_UNUSED(blocking); throw InputRejected();}
 };
 
 //! _
@@ -111,7 +113,8 @@ public:
 	virtual bool Flush(bool hardFlush, int propagation=-1, bool blocking=true) =0;
 
 private:
-	bool IsolatedFlush(bool hardFlush, bool blocking) {CRYPTOPP_ASSERT(false); return false;}
+	bool IsolatedFlush(bool hardFlush, bool blocking)
+		{CRYPTOPP_UNUSED(hardFlush); CRYPTOPP_UNUSED(blocking); assert(false); return false;}
 };
 
 //! _
@@ -122,7 +125,8 @@ public:
 	virtual void Initialize(const NameValuePairs &parameters=g_nullNameValuePairs, int propagation=-1) =0;
 
 private:
-	void IsolatedInitialize(const NameValuePairs &parameters) {CRYPTOPP_ASSERT(false);}
+	void IsolatedInitialize(const NameValuePairs &parameters)
+		{CRYPTOPP_UNUSED(parameters); assert(false);}
 };
 
 //! _
@@ -144,7 +148,7 @@ public:
 //	void ChannelMessageSeriesEnd(const std::string &channel, int propagation=-1)
 //		{PropagateMessageSeriesEnd(propagation, channel);}
 	byte * ChannelCreatePutSpace(const std::string &channel, size_t &size)
-		{size = 0; return NULL;}
+		{CRYPTOPP_UNUSED(channel); size = 0; return NULL;}
 	bool ChannelPutModifiable(const std::string &channel, byte *inString, size_t length)
 		{this->ChannelPut(channel, inString, length); return false;}
 
@@ -198,24 +202,25 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Sink : public BufferedTransformation
 {
 public:
 	size_t TransferTo2(BufferedTransformation &target, lword &transferBytes, const std::string &channel=DEFAULT_CHANNEL, bool blocking=true)
-		{transferBytes = 0; return 0;}
+		{CRYPTOPP_UNUSED(target); CRYPTOPP_UNUSED(transferBytes); CRYPTOPP_UNUSED(channel); CRYPTOPP_UNUSED(blocking); transferBytes = 0; return 0;}
 	size_t CopyRangeTo2(BufferedTransformation &target, lword &begin, lword end=LWORD_MAX, const std::string &channel=DEFAULT_CHANNEL, bool blocking=true) const
-		{return 0;}
+		{CRYPTOPP_UNUSED(target); CRYPTOPP_UNUSED(begin); CRYPTOPP_UNUSED(end); CRYPTOPP_UNUSED(channel); CRYPTOPP_UNUSED(blocking); return 0;}
 };
 
 class CRYPTOPP_DLL BitBucket : public Bufferless<Sink>
 {
 public:
 	std::string AlgorithmName() const {return "BitBucket";}
-	void IsolatedInitialize(const NameValuePairs &parameters) {}
+	void IsolatedInitialize(const NameValuePairs &params)
+		{CRYPTOPP_UNUSED(params);}
 	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking)
-		{return 0;}
+		{CRYPTOPP_UNUSED(begin); CRYPTOPP_UNUSED(length); CRYPTOPP_UNUSED(messageEnd); CRYPTOPP_UNUSED(blocking); return 0;}
 };
 
 NAMESPACE_END
 
-#if GCC_DIAGNOSTIC_AWARE
-# pragma GCC diagnostic push
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(pop)
 #endif
 
 #endif

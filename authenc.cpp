@@ -5,7 +5,6 @@
 #ifndef CRYPTOPP_IMPORTS
 
 #include "authenc.h"
-#include "trap.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -98,7 +97,7 @@ void AuthenticatedSymmetricCipherBase::Update(const byte *input, size_t length)
 		m_totalFooterLength += length;
 		break;
 	default:
-		CRYPTOPP_ASSERT(false);
+		assert(false);
 	}
 }
 
@@ -130,7 +129,7 @@ reswitch:
 		AuthenticateData(outString, length);
 		break;
 	default:
-		CRYPTOPP_ASSERT(false);
+		assert(false);
 	}
 }
 
@@ -170,7 +169,7 @@ void AuthenticatedSymmetricCipherBase::TruncatedFinal(byte *mac, size_t macSize)
 		break;
 
 	default:
-		CRYPTOPP_ASSERT(false);
+		assert(false);
 	}
 
 	m_state = State_KeySet;

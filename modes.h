@@ -10,7 +10,6 @@
 #include "strciphr.h"
 #include "argnames.h"
 #include "algparam.h"
-#include "trap.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -62,16 +61,22 @@ public:
 
 protected:
 	CipherModeBase() : m_cipher(NULL) {}
-	inline unsigned int BlockSize() const {CRYPTOPP_ASSERT(m_register.size() > 0); return (unsigned int)m_register.size();}
+	inline unsigned int BlockSize() const {assert(m_register.size() > 0); return (unsigned int)m_register.size();}
 	virtual void SetFeedbackSize(unsigned int feedbackSize)
 	{
 		if (!(feedbackSize == 0 || feedbackSize == BlockSize()))
 			throw InvalidArgument("CipherModeBase: feedback size cannot be specified for this cipher mode");
 	}
+	
+// Thanks to Zireael, http://github.com/weidai11/cryptopp/pull/46
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual void ResizeBuffers();
+#else
 	virtual void ResizeBuffers()
 	{
 		m_register.New(m_cipher->BlockSize());
 	}
+#endif
 
 	BlockCipher *m_cipher;
 	AlignedSecByteBlock m_register;
@@ -170,7 +175,17 @@ public:
 
 protected:
 	bool RequireAlignedInput() const {return true;}
+	
+	// Thanks to Zireael, http://github.com/weidai11/cryptopp/pull/46
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	void ResizeBuffers();
+#else
+	void ResizeBuffers()
+	{
+		CipherModeBase::ResizeBuffers();
+		m_buffer.New(BlockSize());
+	}
+#endif
 
 	SecByteBlock m_buffer;
 };
@@ -225,7 +240,18 @@ public:
 	void ProcessData(byte *outString, const byte *inString, size_t length);
 	
 protected:
+	
+	// Thanks to Zireael, http://github.com/weidai11/cryptopp/pull/46
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	void ResizeBuffers();
+#else
+	void ResizeBuffers()
+	{
+		BlockOrientedCipherModeBase::ResizeBuffers();
+		m_temp.New(BlockSize());
+	}
+#endif
+
 	AlignedSecByteBlock m_temp;
 };
 

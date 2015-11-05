@@ -10,13 +10,13 @@
 #include <vector>
 
 #ifdef USE_WINDOWS_STYLE_SOCKETS
-# include <winsock2.h>
+#include <winsock2.h>
 #else
-# include <sys/types.h>
+#include <sys/types.h>
 #endif
 
 #if defined(__ANDROID__)
-# include <sys/select.h>
+#include <sys/select.h>
 #endif
 
 #include "hrtimer.h"
@@ -63,10 +63,10 @@ protected:
 	public: DERIVED(unsigned int level = 0) : Tracer(level) {}
 
 #define CRYPTOPP_BEGIN_TRACER_CLASS_1(DERIVED, BASE1) \
-	class DERIVED : virtual public BASE1 { CRYPTOPP_TRACER_CONSTRUCTOR(DERIVED)
+	class DERIVED : virtual public BASE1, public NotCopyable { CRYPTOPP_TRACER_CONSTRUCTOR(DERIVED)
 
 #define CRYPTOPP_BEGIN_TRACER_CLASS_2(DERIVED, BASE1, BASE2) \
-	class DERIVED : virtual public BASE1, virtual public BASE2 { CRYPTOPP_TRACER_CONSTRUCTOR(DERIVED)
+	class DERIVED : virtual public BASE1, virtual public BASE2, public NotCopyable { CRYPTOPP_TRACER_CONSTRUCTOR(DERIVED)
 
 #define CRYPTOPP_END_TRACER_CLASS };
 
@@ -102,7 +102,7 @@ protected:
 	
 	The advantage of this approach is that it is easy to use and should be very efficient,
 	involving no allocation from the heap, just a linked list of stack objects containing
-	pointers to static ASCIIZ std::strings (or possibly additional but simple data if derived). */
+	pointers to static ASCIIZ strings (or possibly additional but simple data if derived). */
 class CallStack
 {
 public:
@@ -126,7 +126,7 @@ protected:
 	word32 m_nr;
 };
 
-/*! An extended CallStack entry type with an additional std::string parameter. */
+/*! An extended CallStack entry type with an additional string parameter. */
 class CallStackWithStr : public CallStack
 {
 public:
@@ -137,6 +137,7 @@ protected:
 	char const* m_z;
 };
 
+// Thanks to Maximilian Zamorsky for help with http://connect.microsoft.com/VisualStudio/feedback/details/1570496/
 CRYPTOPP_BEGIN_TRACER_CLASS_1(WaitObjectsTracer, Tracer)
 	CRYPTOPP_BEGIN_TRACER_EVENTS(0x48752841)
 		CRYPTOPP_TRACER_EVENT(NoWaitLoop)
@@ -168,7 +169,11 @@ public:
 	bool Wait(unsigned long milliseconds);
 
 #ifdef USE_WINDOWS_STYLE_SOCKETS
+# ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~WaitObjectContainer();
+# else
 	~WaitObjectContainer();
+#endif
 	void AddHandle(HANDLE handle, CallStack const& callStack);
 #else
 	void AddReadFd(int fd, CallStack const& callStack);

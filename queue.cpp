@@ -6,7 +6,6 @@
 
 #include "queue.h"
 #include "filters.h"
-#include "trap.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -42,6 +41,7 @@ public:
 
 	inline size_t Put(const byte *begin, size_t length)
 	{
+		// Avoid passing NULL to memcpy
 		if (!begin || !length) return length;
 		size_t l = STDMIN(length, MaxSize()-m_tail);
 		if (buf+m_tail != begin)
@@ -61,7 +61,6 @@ public:
 
 	inline size_t Peek(byte *target, size_t copyMax) const
 	{
-		if (!target || !copyMax) return 0;
 		size_t len = STDMIN(copyMax, m_tail-m_head);
 		memcpy(target, buf+m_head, len);
 		return len;
@@ -132,7 +131,8 @@ public:
 // ********************************************************
 
 ByteQueue::ByteQueue(size_t nodeSize)
-	: m_autoNodeSize(true), m_nodeSize(0), m_head(NULL), m_tail(NULL), m_lazyString(NULL), m_lazyLength(0), m_lazyStringModifiable(false)
+	: Bufferless<BufferedTransformation>(), m_autoNodeSize(!nodeSize), m_nodeSize(nodeSize)
+	, m_head(NULL), m_tail(NULL), m_lazyString(NULL), m_lazyLength(0)
 {
 	SetNodeSize(nodeSize);
 	m_head = m_tail = new ByteQueueNode(m_nodeSize);
@@ -145,7 +145,7 @@ void ByteQueue::SetNodeSize(size_t nodeSize)
 }
 
 ByteQueue::ByteQueue(const ByteQueue &copy)
-	: m_autoNodeSize(true), m_nodeSize(0), m_head(NULL), m_tail(NULL), m_lazyString(NULL), m_lazyLength(0), m_lazyStringModifiable(false)
+	: Bufferless<BufferedTransformation>(copy), m_lazyString(NULL), m_lazyLength(0)
 {
 	CopyFrom(copy);
 }
@@ -219,6 +219,8 @@ void ByteQueue::Clear()
 
 size_t ByteQueue::Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
 {
+	CRYPTOPP_UNUSED(messageEnd), CRYPTOPP_UNUSED(blocking);
+
 	if (m_lazyLength > 0)
 		FinalizeLazyPut();
 
@@ -242,14 +244,16 @@ size_t ByteQueue::Put2(const byte *inString, size_t length, int messageEnd, bool
 
 void ByteQueue::CleanupUsedNodes()
 {
-	while (m_head != m_tail && m_head->UsedUp())
+	// Test for m_head due to Enterprise Anlysis finding
+	while (m_head && m_head != m_tail && m_head->UsedUp())
 	{
 		ByteQueueNode *temp=m_head;
 		m_head=m_head->next;
 		delete temp;
 	}
 
-	if (m_head->CurrentSize() == 0)
+	// Test for m_head due to Enterprise Anlysis finding
+	if (m_head && m_head->CurrentSize() == 0)
 		m_head->Clear();
 }
 
@@ -428,17 +432,15 @@ byte * ByteQueue::CreatePutSpace(size_t &size)
 
 ByteQueue & ByteQueue::operator=(const ByteQueue &rhs)
 {
-	if (this != &rhs)
-	{
-		Destroy();
-		CopyFrom(rhs);
-	}
+	Destroy();
+	CopyFrom(rhs);
 	return *this;
 }
 
 bool ByteQueue::operator==(const ByteQueue &rhs) const
 {
 	const lword currentSize = CurrentSize();
+
 	if (currentSize != rhs.CurrentSize())
 		return false;
 
@@ -462,7 +464,7 @@ byte ByteQueue::operator[](lword i) const
 		i -= current->CurrentSize();
 	}
 
-	CRYPTOPP_ASSERT(i < m_lazyLength);
+	assert(i < m_lazyLength);
 	return m_lazyString[i];
 }
 
@@ -481,6 +483,8 @@ void ByteQueue::swap(ByteQueue &rhs)
 
 void ByteQueue::Walker::IsolatedInitialize(const NameValuePairs &parameters)
 {
+	CRYPTOPP_UNUSED(parameters);
+
 	m_node = m_queue.m_head;
 	m_position = 0;
 	m_offset = 0;

@@ -1,3 +1,8 @@
+// algebra.h - written and placed in the public domain by Wei Dai
+
+//! \file
+//! \brief Classes and functions for performing mathematics over different fields
+
 #ifndef CRYPTOPP_ALGEBRA_H
 #define CRYPTOPP_ALGEBRA_H
 
@@ -49,8 +54,10 @@ public:
 	typedef T Element;
 
 	AbstractRing() {m_mg.m_pRing = this;}
-	AbstractRing(const AbstractRing &source) : AbstractGroup<T>(source) {m_mg.m_pRing = this;}
-	AbstractRing& operator=(const AbstractRing &source) {CRYPTOPP_UNUSED(source);return *this;}
+	AbstractRing(const AbstractRing &source)
+		{CRYPTOPP_UNUSED(source); m_mg.m_pRing = this;}
+	AbstractRing& operator=(const AbstractRing &source)
+		{CRYPTOPP_UNUSED(source); return *this;}
 
 	virtual bool IsUnit(const Element &a) const =0;
 	virtual const Element& MultiplicativeIdentity() const =0;
@@ -210,7 +217,7 @@ public:
 		{Element::Divide(r, q, a, d);}
 
 	bool operator==(const EuclideanDomainOf<T> &rhs) const
-		{CRYPTOPP_UNUSED(rhs);return true;}
+		{CRYPTOPP_UNUSED(rhs); return true;}
 
 private:
 	mutable Element result;

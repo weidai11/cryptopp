@@ -2,22 +2,31 @@
 
 #include "pch.h"
 
+#include "config.h"
+
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(push)
+# pragma warning(disable: 4127 4189)
+#endif
+
+#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wunused-function"
+#endif
+
 #ifndef CRYPTOPP_IMPORTS
 
 #include "eccrypto.h"
-#include "stdcpp.h"
-#include "smartptr.h"
+#include "integer.h"
 #include "nbtheory.h"
-#include "oids.h"
-#include "hex.h"
+#include "filters.h"
 #include "argnames.h"
+#include "smartptr.h"
+#include "oids.h"
+#include "asn.h"
+#include "hex.h"
 #include "ec2n.h"
 #include "misc.h"
-#include "trap.h"
-
-#if GCC_DIAGNOSTIC_AWARE
-# pragma GCC diagnostic ignored "-Wunused-function"
-#endif
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -35,7 +44,8 @@ static void ECDSA_TestInstantiations()
 }
 #endif
 
-static inline Integer ConvertToInteger(const PolynomialMod2 &x)
+// VC60 workaround: complains when these functions are put into an anonymous namespace
+static Integer ConvertToInteger(const PolynomialMod2 &x)
 {
 	unsigned int l = x.ByteCount();
 	SecByteBlock temp(l);
@@ -120,10 +130,7 @@ struct OIDLessThan
 	inline bool operator()(const EcRecommendedParameters<T>& a, const EcRecommendedParameters<T>& b) {return a.oid < b.oid;}
 };
 
-// Declare it so we can attach the attribute
-static void GetRecommendedParameters(const EcRecommendedParameters<EC2N> *&begin, const EcRecommendedParameters<EC2N> *&end) CRYPTOPP_UNUSED_FUNCTION;
-
-void GetRecommendedParameters(const EcRecommendedParameters<EC2N> *&begin, const EcRecommendedParameters<EC2N> *&end)
+static void GetRecommendedParameters(const EcRecommendedParameters<EC2N> *&begin, const EcRecommendedParameters<EC2N> *&end)
 {
 	// this array must be sorted by OID
 	static const EcRecommendedParameters<EC2N> rec[] = {
@@ -255,13 +262,10 @@ void GetRecommendedParameters(const EcRecommendedParameters<EC2N> *&begin, const
 			2),
 	};
 	begin = rec;
-	end = rec + COUNTOF(rec);
+	end = rec + sizeof(rec)/sizeof(rec[0]);
 }
 
-// Declare it so we can attach the unused attribute
-static void GetRecommendedParameters(const EcRecommendedParameters<ECP> *&begin, const EcRecommendedParameters<ECP> *&end) CRYPTOPP_UNUSED_FUNCTION;
-
-void GetRecommendedParameters(const EcRecommendedParameters<ECP> *&begin, const EcRecommendedParameters<ECP> *&end)
+static void GetRecommendedParameters(const EcRecommendedParameters<ECP> *&begin, const EcRecommendedParameters<ECP> *&end)
 {
 	// this array must be sorted by OID
 	static const EcRecommendedParameters<ECP> rec[] = {
@@ -421,7 +425,7 @@ void GetRecommendedParameters(const EcRecommendedParameters<ECP> *&begin, const 
 			1),
 	};
 	begin = rec;
-	end = rec + COUNTOF(rec);
+	end = rec + sizeof(rec)/sizeof(rec[0]);
 }
 
 template <class EC> OID DL_GroupParameters_EC<EC>::GetNextRecommendedParametersOID(const OID &oid)
@@ -442,14 +446,16 @@ template <class EC> void DL_GroupParameters_EC<EC>::Initialize(const OID &oid)
 
 	const EcRecommendedParameters<EllipticCurve> &param = *it;
 	m_oid = oid;
-	auto_ptr<EllipticCurve> ec(param.NewEC());
+	member_ptr<EllipticCurve> ec(param.NewEC());
 	this->m_groupPrecomputation.SetCurve(*ec);
 
 	StringSource ssG(param.g, true, new HexDecoder);
 	Element G;
 	bool result = GetCurve().DecodePoint(G, ssG, (size_t)ssG.MaxRetrievable());
 	this->SetSubgroupGenerator(G);
-	CRYPTOPP_ASSERT(result); CRYPTOPP_UNUSED(result);
+
+	// TODO: this fails in practice. Should it throw?
+	CRYPTOPP_UNUSED(result); assert(result);
 
 	StringSource ssN(param.n, true, new HexDecoder);
 	m_n.Decode(ssN, (size_t)ssN.MaxRetrievable());
@@ -499,6 +505,7 @@ void DL_GroupParameters_EC<EC>::GenerateRandom(RandomNumberGenerator &rng, const
 {
 	try
 	{
+		CRYPTOPP_UNUSED(rng);
 		AssignFrom(alg);
 	}
 	catch (InvalidArgument &)
@@ -639,6 +646,8 @@ OID DL_GroupParameters_EC<EC>::GetAlgorithmID() const
 template <class EC>
 void DL_PublicKey_EC<EC>::BERDecodePublicKey(BufferedTransformation &bt, bool parametersPresent, size_t size)
 {
+	CRYPTOPP_UNUSED(parametersPresent);
+
 	typename EC::Point P;
 	if (!this->GetGroupParameters().GetCurve().DecodePoint(P, bt, size))
 		BERDecodeError();
@@ -656,6 +665,7 @@ void DL_PublicKey_EC<EC>::DEREncodePublicKey(BufferedTransformation &bt) const
 template <class EC>
 void DL_PrivateKey_EC<EC>::BERDecodePrivateKey(BufferedTransformation &bt, bool parametersPresent, size_t size)
 {
+	CRYPTOPP_UNUSED(size);
 	BERSequenceDecoder seq(bt);
 		word32 version;
 		BERDecodeUnsigned<word32>(seq, version, INTEGER, 1, 1);	// check version
@@ -696,8 +706,8 @@ void DL_PrivateKey_EC<EC>::DEREncodePrivateKey(BufferedTransformation &bt) const
 {
 	DERSequenceEncoder privateKey(bt);
 		DEREncodeUnsigned<word32>(privateKey, 1);	// version
-		// TODO: SEC 1 ver 1.0 says privateKey (m_d) has the same length as order of
-		// the curve this will be changed to order of base point in a future version
+		// SEC 1 ver 1.0 says privateKey (m_d) has the same length as order of the curve
+		// this will be changed to order of base point in a future version
 		this->GetPrivateExponent().DEREncodeAsOctetString(privateKey, this->GetGroupParameters().GetSubgroupOrder().ByteCount());
 	privateKey.MessageEnd();
 }

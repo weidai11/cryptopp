@@ -1,8 +1,13 @@
 #ifndef CRYPTOPP_VMAC_H
 #define CRYPTOPP_VMAC_H
 
+#include "cryptlib.h"
 #include "iterhash.h"
 #include "seckey.h"
+
+#if CRYPTOPP_BOOL_X32
+# define CRYPTOPP_DISABLE_VMAC_ASM
+#endif
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -20,6 +25,7 @@ public:
 	void TruncatedFinal(byte *mac, size_t size);
 	unsigned int BlockSize() const {return m_L1KeyLength;}
 	ByteOrder GetByteOrder() const {return LITTLE_ENDIAN_ORDER;}
+	unsigned int OptimalDataAlignment() const;
 
 protected:
 	virtual BlockCipher & AccessCipher() =0;

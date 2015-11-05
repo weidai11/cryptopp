@@ -6,8 +6,9 @@
 bool ValidateAll(bool thorough);
 bool TestSettings();
 bool TestOS_RNG();
-bool TestConversion();
-bool TestRotate();
+bool TestAutoSeeded();
+bool TestRDRAND();
+bool TestRDSEED();
 bool ValidateBaseCode();
 
 bool ValidateCRC32();

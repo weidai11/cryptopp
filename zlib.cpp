@@ -9,21 +9,23 @@
 #include "zlib.h"
 #include "zdeflate.h"
 #include "zinflate.h"
+#include "secblock.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
 static const byte DEFLATE_METHOD = 8;
-static const byte FDICT_FLAG = 1 << 5;
+static const byte FDICT_FLAG = (1 << 5);
 
 // *************************************************************
 
 void ZlibCompressor::WritePrestreamHeader()
 {
 	m_adler32.Restart();
-	byte cmf = DEFLATE_METHOD | ((GetLog2WindowSize()-8) << 4);
-	byte flags = GetCompressionLevel() << 6;
-	AttachedTransformation()->PutWord16(
-		static_cast<word16>(RoundUpToMultipleOf(cmf*256U+flags, 31U)));
+	assert(((GetLog2WindowSize()-8) << 4) <= 255);
+	byte cmf = byte(DEFLATE_METHOD | ((GetLog2WindowSize()-8) << 4));
+	assert((GetCompressionLevel() << 6) <= 255);
+	byte flags = byte(GetCompressionLevel() << 6);
+	AttachedTransformation()->PutWord16(RoundUpToMultipleOf(word16(cmf*256+flags), word16(31)));
 }
 
 void ZlibCompressor::ProcessUncompressedData(const byte *inString, size_t length)

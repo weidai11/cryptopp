@@ -1,6 +1,8 @@
 #ifndef CRYPTOPP_CPU_H
 #define CRYPTOPP_CPU_H
 
+#include "config.h"
+
 #ifdef CRYPTOPP_GENERATE_X64_MASM
 
 #define CRYPTOPP_X86_ASM_AVAILABLE
@@ -10,11 +12,9 @@
 
 #else
 
-#include "config.h"
-
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
-#include <emmintrin.h>
-#endif
+# if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+#  include <emmintrin.h>
+# endif
 
 #if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
 #if !defined(__GNUC__) || defined(__SSSE3__) || defined(__INTEL_COMPILER)
@@ -96,52 +96,56 @@ _mm_aesdeclast_si128 (__m128i a, __m128i b)
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X64
+#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64
 
 #define CRYPTOPP_CPUID_AVAILABLE
-
+	
 // these should not be used directly
 extern CRYPTOPP_DLL bool g_x86DetectionDone;
+extern CRYPTOPP_DLL bool g_hasMMX;
+extern CRYPTOPP_DLL bool g_hasISSE;
+extern CRYPTOPP_DLL bool g_hasSSE2;
 extern CRYPTOPP_DLL bool g_hasSSSE3;
 extern CRYPTOPP_DLL bool g_hasAESNI;
 extern CRYPTOPP_DLL bool g_hasCLMUL;
 extern CRYPTOPP_DLL bool g_isP4;
 extern CRYPTOPP_DLL word32 g_cacheLineSize;
+
 CRYPTOPP_DLL void CRYPTOPP_API DetectX86Features();
-CRYPTOPP_DLL bool CRYPTOPP_API CpuId(word32 input, word32 *output);
-
-#if CRYPTOPP_BOOL_X64
-inline bool HasSSE2()	{return true;}
-inline bool HasSSE()	{return true;}
-inline bool HasMMX()	{return true;}
-#else
-
-extern CRYPTOPP_DLL bool g_hasSSE2;
-extern CRYPTOPP_DLL bool g_hasSSE;
-extern CRYPTOPP_DLL bool g_hasMMX;
-
-inline bool HasSSE2()
-{
-	if (!g_x86DetectionDone)
-		DetectX86Features();
-	return g_hasSSE2;
-}
-
-inline bool HasSSE()
-{
-	if (!g_x86DetectionDone)
-		DetectX86Features();
-	return g_hasSSE;
-}
+CRYPTOPP_DLL bool CRYPTOPP_API CpuId(word32 input, word32 output[4]);
 
 inline bool HasMMX()
 {
+#if CRYPTOPP_BOOL_X64
+	return true;
+#else
 	if (!g_x86DetectionDone)
 		DetectX86Features();
 	return g_hasMMX;
+#endif
 }
 
+inline bool HasISSE()
+{
+#if CRYPTOPP_BOOL_X64
+	return true;
+#else
+	if (!g_x86DetectionDone)
+		DetectX86Features();
+	return g_hasISSE;
 #endif
+}
+
+inline bool HasSSE2()
+{
+#if CRYPTOPP_BOOL_X64
+	return true;
+#else
+	if (!g_x86DetectionDone)
+		DetectX86Features();
+	return g_hasSSE2;
+#endif
+}
 
 inline bool HasSSSE3()
 {
@@ -209,23 +213,6 @@ inline int GetCacheLineSize()
 	#define ASC(x, y) __asm {x label##y}
 	#define CRYPTOPP_NAKED __declspec(naked)
 	#define AS_HEX(y) 0x##y
-#elif defined(__clang__) && defined(CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER)
-	#define CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
-	// define these in two steps to allow arguments to be expanded
-	#define GNU_AS1(x) "\n\t" #x ";"
-	#define GNU_AS2(x, y) "\n\t" #x ", " #y ";"
-	#define GNU_AS3(x, y, z) "\n\t" #x ", " #y ", " #z ";"
-	#define GNU_ASL(x) "\n\t#x:"
-	#define GNU_ASJ(x, y, z) "\n\t#x " #y #z ";"
-	#define AS1(x) GNU_AS1(x)
-	#define AS2(x, y) GNU_AS2(x, y)
-	#define AS3(x, y, z) GNU_AS3(x, y, z)
-	#define ASS(x, y, a, b, c, d) "\n\t" #x ", " #y ", " #a "*64+" #b "*16+" #c "*4+" #d ";"
-	#define ASL(x) GNU_ASL(x)
-	#define ASJ(x, y, z) GNU_ASJ(x, y, z)
-	#define ASC(x, y) "\n\t" #x " " #y ";"
-	#define CRYPTOPP_NAKED
-	#define AS_HEX(y) 0x##y
 #else
 	#define CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
 	// define these in two steps to allow arguments to be expanded
@@ -243,18 +230,6 @@ inline int GetCacheLineSize()
 	#define ASC(x, y) #x " " #y ";"
 	#define CRYPTOPP_NAKED
 	#define AS_HEX(y) 0x##y
-#endif
-
-// https://llvm.org/bugs/show_bug.cgi?id=18916
-#if defined(__clang__) && defined(WORKAROUND_LLVM_BUG_18916)
-# define GNU_AS_ATT_SYNTAX ".att_syntax;"
-# define GNU_AS_INTEL_SYNTAX ".intel_syntax;" "\n"
-#elif defined(__GNUC__)
-# define GNU_AS_ATT_SYNTAX ".att_syntax prefix;"
-# define GNU_AS_INTEL_SYNTAX ".intel_syntax noprefix;"
-#else
-# define GNU_AS_ATT_SYNTAX ".att_syntax prefix;"
-# define GNU_AS_INTEL_SYNTAX ".intel_syntax noprefix;"
 #endif
 
 #define IF0(y)
@@ -287,10 +262,30 @@ inline int GetCacheLineSize()
 	#define AS_REG_7d ebp
 	#define WORD_SZ 4
 	#define WORD_REG(x)	e##x
-	#define WORD_REG32(x)	e##x
 	#define WORD_PTR DWORD PTR
 	#define AS_PUSH_IF86(x) AS1(push e##x)
 	#define AS_POP_IF86(x) AS1(pop e##x)
+	#define AS_JCXZ jecxz
+#elif CRYPTOPP_BOOL_X32
+	#define AS_REG_1 ecx
+	#define AS_REG_2 edx
+	#define AS_REG_3 r8d
+	#define AS_REG_4 r9d
+	#define AS_REG_5 eax
+	#define AS_REG_6 r10d
+	#define AS_REG_7 r11d
+	#define AS_REG_1d ecx
+	#define AS_REG_2d edx
+	#define AS_REG_3d r8d
+	#define AS_REG_4d r9d
+	#define AS_REG_5d eax
+	#define AS_REG_6d r10d
+	#define AS_REG_7d r11d
+	#define WORD_SZ 4
+	#define WORD_REG(x)	e##x
+	#define WORD_PTR DWORD PTR
+	#define AS_PUSH_IF86(x) AS1(push r##x)
+	#define AS_POP_IF86(x) AS1(pop r##x)
 	#define AS_JCXZ jecxz
 #elif CRYPTOPP_BOOL_X64
 	#ifdef CRYPTOPP_GENERATE_X64_MASM
@@ -326,7 +321,6 @@ inline int GetCacheLineSize()
 	#endif
 	#define WORD_SZ 8
 	#define WORD_REG(x)	r##x
-	#define WORD_REG32(x)	e##x
 	#define WORD_PTR QWORD PTR
 	#define AS_PUSH_IF86(x)
 	#define AS_POP_IF86(x)

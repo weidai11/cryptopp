@@ -3,6 +3,7 @@
 
 #include "pch.h"
 #include "twofish.h"
+#include "secblock.h"
 #include "misc.h"
 
 NAMESPACE_BEGIN(CryptoPP)

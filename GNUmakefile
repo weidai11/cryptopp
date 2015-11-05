@@ -1,256 +1,109 @@
-#################################################################
-# Tool and flag setup
+# Base CXXFLAGS used if the user did not specify them
+CXXFLAGS ?= -DNDEBUG -g2 -O2
 
-AS ?= as
+# -fPIC is supported, please report failures with steps to reproduce
+# If PIC is required but results in a crash, then use -DCRYPTOPP_DISABLE_ASM
+# CXXFLAGS += -fPIC
+
+# Add the following options reduce code size, but breaks link
+#   or makes link very slow on some systems
+# CXXFLAGS += -ffunction-sections -fdata-sections
+#   On OS X, you need to use "LDFLAGS += -Wl,-dead_strip"
+# LDFLAGS += -Wl,--gc-sections
+
 AR ?= ar
 ARFLAGS ?= -cr	# ar needs the dash on OpenBSD
 RANLIB ?= ranlib
-STRIP ?= strip -s
 CP ?= cp
+CHMOD ?= chmod
 MKDIR ?= mkdir
 EGREP ?= egrep
-UNAME ?= uname
 
-# Default setting from environment. Disable verbose flag, add create flag
-ifeq ($(findstring rv,$(ARFLAGS)),rv)
-ARFLAGS = cr
-endif
+UNAME := $(shell uname)
+IS_X86 := $(shell uname -m | $(EGREP) -i -c "i.86|x86|i86|amd64")
+IS_X86_64 := $(shell uname -m | $(EGREP) -i -c "(_64|d64)")
 
-#########################
-# CXXFLAGS
-#   -fPIC is supported, and enabled by default for x86_64.
+IS_SUN := $(shell uname | $(EGREP) -i -c "SunOS")
+IS_LINUX := $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "Linux")
+IS_MINGW := $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "MinGW")
+IS_CYGWIN := $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "Cygwin")
+IS_DARWIN := $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "Darwin")
 
-# We can augment CXXFLAGS if the user exports them in the shell, or if the user
-#   omits them. However, if the user `make CXXFLAGS="-g1"`, then that's what
-#   the user gets. Make does not override them, and does not honor our '+='.
-CXXFLAGS ?= -DNDEBUG -g2 -O3
-
-# Add -DNDEBUG if nothing specified
-ifeq ($(filter -DDEBUG -DNDEBUG,$(CXXFLAGS)),)
-CXXFLAGS += -DNDEBUG
-endif
-
-# Add a symolize if nothing specified
-ifeq ($(filter -g -g1 -g2 -g3,$(CXXFLAGS)),)
-CXXFLAGS += -g2
-endif
-
-# Add an optimize if nothing specified
-ifeq ($(filter -O -O0 -O1 -O2 -O3 -Og -Os -Oz -Ofast,$(CXXFLAGS)),)
-CXXFLAGS += -O3
-endif
-
-# the following options reduce code size, but breaks link or makes link very slow on some systems
-# CXXFLAGS += -ffunction-sections -fdata-sections
-# LDFLAGS += -Wl,--gc-sections
-
-#########################
-# Compilers
-
-# Cygwin change the version string to "g++ (GCC) 4.9.3"
-GCC_COMPILER = $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "^(gcc|g\+\+) version")
-CLANG_COMPILER = $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "clang")
-INTEL_COMPILER = $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "\(ICC\)")
-SUN_COMPILER = $(shell $(CXX) -V 2>&1 | $(EGREP) -i -c "CC: Sun")
-
-ifneq ($(GCC_COMPILER),0)
-IS_GCC_41 = $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "^gcc version 4\.1\.")
-IS_GCC_42 = $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "^gcc version 4\.2\.")
-IS_GCC_45 = $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "^gcc version 4\.5\.")
-IS_GCC_49 = $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "^gcc version 4\.9\.")
-endif
-
-# Also see LLVM Bug 24200 (https://llvm.org/bugs/show_bug.cgi?id=24200)
-# CLANG_ASSEMBLER ?= $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -i -c "^clang")
-# TODO: Uncomment the line above when Clang's integrated assembler can parse and generate code that passes the self tests.
-
-#################################################################
-# Platform and architecture detection
-
-MACHINE ?= $(shell $(UNAME) -m)
-SYSTEM ?= $(shell $(UNAME) -s)
-RELEASE ?= $(shell $(UNAME) -r)
-
-IS_X86 = $(shell echo $(MACHINE)| $(EGREP) -c "i.86|x86|i86|i686|amd64")
-IS_X86_64 = $(shell echo $(MACHINE) | $(EGREP) -c "_64|d64")
-IS_DARWIN = $(shell echo $(SYSTEM) | $(EGREP) -i -c "darwin")
-IS_LINUX = $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "linux")
-IS_MINGW = $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "mingw")
-IS_CYGWIN = $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "cygwin")
-IS_OPENBSD = $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "openbsd")
-IS_SUN = $(shell echo $SYSTEM | $(EGREP) -i -c "SunOS")
-IS_FEDORA22_i686 = $(shell echo $RELEASE | $(EGREP) -i -c "fc22.i686")
-
-#########################
-# May (or may not) be used below
-ifeq ($(findstring -m32 -m64,$(CXXFLAGS)),)
-ifneq ($(IS_X86_64),0)
-M32OR64 = -m64
-endif
-endif # -m32 or -m64
-
-#################################################################
-# User install preferences
-
-# Pick up the user's choice (lower prefix is the standard name)
-ifneq ($(prefix),)
-PREFIX = $(prefix)
-else
+SUN_COMPILER := $(shell $(CXX) -V 2>&1 | $(EGREP) -i -c "CC: Sun")
+GCC_COMPILER := $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "(gcc|g\+\+)")
+CLANG_COMPILER := $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "clang")
+INTEL_COMPILER := $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(ICC\)")
+MACPORTS_COMPILER := $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "macports")
 
 # Default prefix for make install
 ifeq ($(PREFIX),)
 PREFIX = /usr
 endif
 
-# Can't put C++ headers in system include
-ifneq ($(IS_OPENBSD),0)
-PREFIX = /usr/local
+ifeq ($(CXX),gcc)	# for some reason CXX is gcc on cygwin 1.1.4
+CXX := g++
 endif
 
-endif	# prefix
-
-#################################################################
-# Undefined behavior and Address sanitizer
-#   Clang 3.2 and GCC 4.8 and above, i386/i686/x86_64
-
-ifneq ($(IS_X86),0)
-
-# Undefined Behavior Sanitizer (UBsan)
-ifeq ($(findstring ubsan,$(MAKECMDGOALS)),ubsan)
-CXXFLAGS += -fsanitize=undefined
-# CXXFLAGS += -fsanitize-undefined-trap-on-error
-endif # UBsan
-
-# Address Sanitizer (Asan)
-ifeq ($(findstring asan,$(MAKECMDGOALS)),asan)
-CXXFLAGS += -fsanitize=address
-endif # Asan
-
-# Test CXXFLAGS in case the user passed the flags directly through it
-ifeq ($(findstring -fsanitize=address,$(CXXFLAGS)),-fsanitize=address)
-ASAN = 1
-endif
-ifeq ($(findstring -fsanitize=undefined,$(CXXFLAGS)),-fsanitize=undefined)
-UBSAN = 1
+# We honor ARFLAGS, but the "v" often option used by default causes a noisy make
+ifeq ($(ARFLAGS),rv)
+ARFLAGS = r
 endif
 
-# Enforce Sanitizer business logic...
-ifeq ($(ASAN)$(UBSAN),11)
-$(error Asan and UBsan are mutually exclusive)
-endif
+ifeq ($(IS_X86),1)
 
-endif # IS_X86
+IS_GCC_29 := $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c gcc-9[0-9][0-9])
+IS_GCC_41 := $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "gcc version 4\.1\.")
+GCC42_OR_LATER := $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "gcc version (4\.[2-9]|[5-9])")
+GCC46_OR_LATER := $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "gcc version (4\.[6-9]|[5-9])")
+GCC48_OR_LATER := $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "gcc version (4\.[8-9]|[5-9])")
+GCC49_OR_LATER := $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "gcc version (4\.9|[5-9])")
 
-#################################################################
-# Darwin tweaks
+ICC111_OR_LATER := $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(ICC\) ([2-9][0-9]|1[2-9]|11\.[1-9])")
+GAS210_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.[1-9][0-9]|[3-9])")
+GAS217_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.1[7-9]|2\.[2-9]|[3-9])")
+GAS219_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.19|2\.[2-9]|[3-9])")
 
-ifneq ($(IS_DARWIN),0)
-
-CXX ?= c++
-ifeq ($(AR),ar)
-AR = libtool
-ARFLAGS = -static -o
-endif
-
-#########################
-# Build a boolean circuit that says "Darwin && (GCC 4.2 || Clang)"
-# MULTIARCH ?= $(shell echo $$(($(IS_DARWIN) * ($(GCC42_OR_LATER) + $(CLANG_COMPILER)))))
-MULTIARCH ?= 0
-ifneq ($(MULTIARCH),0)
-CXXFLAGS += -arch i386 -arch x86_64
-endif # MULTIARCH
-
-endif # IS_DARWIN
-
-#################################################################
-# i386, i686, x86_64 and friends
-
-ifneq ($(IS_X86),0)
-
-GCC42_OR_LATER = $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "^gcc version (4.[2-9]|[5-9])")
-ICC111_OR_LATER = $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(ICC\) ([2-9][0-9]|1[2-9]|11\.[1-9])")
-
-# Using system provided assembler. It may be GNU AS (GAS).
-GAS210_OR_LATER ?= $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.[1-9][0-9]|[3-9])")
-GAS217_OR_LATER ?= $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.1[7-9]|2\.[2-9]|[3-9])")
-GAS219_OR_LATER ?= $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.19|2\.[2-9]|[3-9])")
-
-# For testing and development. If CXX=clang++, then it effectively
-#   enables ASM code paths and engages the integrated assembler.
-FORCE_ASM ?= 0
-ifneq ($(FORCE_ASM),0)
-  GAS210_OR_LATER = 1
-  GAS217_OR_LATER = 1
-  GAS219_OR_LATER = 1
-endif
-
-# Enable PIC for x86_64 targets
+# Add -fPIC for x86_64, but not X32 or Cygwin
 ifneq ($(IS_X86_64),0)
-CXXFLAGS += -fPIC
-endif # PIC for x86_64 targets
-
-#########################
-# Cygwin work arounds
-ifneq ($(IS_CYGWIN),0)
-
-# CXX is gcc on Cygwin 1.1.4
-ifeq ($(CXX),gcc)
-CXX = g++
-endif # CXX
-
-# -fPIC causes spurious output during compile. Remove it even if the user passed it in.
-ifeq ($(findstring -fPIC,$(CXXFLAGS)),-fPIC)
-CXXFLAGS := $(subst -fPIC,,$(CXXFLAGS))
-endif # -fPIC
-
-# -O3 fails to link with GCC 4.5.3
-ifneq ($(IS_GCC_45),0)
-ifeq ($(findstring -O3,$(CXXFLAGS)),-O3)
-CXXFLAGS := $(subst -O3,-O2,$(CXXFLAGS))
-endif # -O3
-endif # GCC 4.5
-
-# -O3 crash in MQV validation with GCC 4.9.3
-ifneq ($(IS_GCC_49),0)
-ifeq ($(findstring -O3,$(CXXFLAGS)),-O3)
-CXXFLAGS := $(subst -O3,-O2,$(CXXFLAGS))
-endif # -O3
-endif # GCC 4.9
-
-endif # Cygwin work arounds
-
-#########################
-# F22/i386 crash
-ifneq ($(IS_FEDORA22_i686),0)
-ifeq ($(findstring -O3,$(CXXFLAGS)),-O3)
-CXXFLAGS := $(subst -O3,-O2,$(CXXFLAGS))
-endif # -O2
-endif # Fedora 22/i686
-
-#########################
-# Way back when, '-march=native' caused a compiler crash with GCC on Ubuntu 9 or 10
-#   Add -march=native if the user did not specify an architecture.
-ifeq ($(findstring -m32 -m64,$(CXXFLAGS)),)
-CXXFLAGS += -march=native
+ IS_X32 := $(shell $(CXX) -dM -E - < /dev/null 2>&1 | $(EGREP) -c "ILP32")
+ ifeq ($(IS_X32),0)
+ ifeq ($(IS_CYGWIN),0)
+ ifeq ($(findstring -fPIC,$(CXXFLAGS)),)
+   CXXFLAGS += -fPIC
+ endif
+ endif
+ endif
 endif
 
-#########################
-# GCC 4.1 and "error: bad value (native) for -march= switch"
+# Work around GCC 4.1 bug.
 ifneq ($(IS_GCC_41),0)
-ifneq ($(findstring -march=native,$(CXXFLAGS)),)
-ifneq ($(IS_X86_64),0)
-CXXFLAGS := $(subst -march=native,-m64,$(CXXFLAGS))
+  # GCC 4.1 compiler crash with -march=native.
+  # Experienced on CentOS 5, which is still active.
+  ifneq ($(IS_X86_64),0)
+    CXXFLAGS += -m64
+  else
+    CXXFLAGS += -m32
+  endif # X86/X32/X64
+  # Not GCC 4.1, use default
 else
-CXXFLAGS := $(subst -march=native,-m32,$(CXXFLAGS))
-endif
-endif
+  CXXFLAGS += -march=native
 endif
 
-#########################
-# Intel work arounds.
-# Should this be moved to outside of i386/i686/x86_64 block?
+# Aligned access required at -O3 for GCC due to vectorization (circa 08/2008). Expect other compilers to do the same.
+GCC46_OR_LATER ?= 0
+UNALIGNED_ACCESS := $(shell $(EGREP) -c "^[[:space:]]*//[[:space:]]*\#[[:space:]]*define[[:space:]]*CRYPTOPP_NO_UNALIGNED_DATA_ACCESS" config.h)
+ifeq ($(findstring -O3,$(CXXFLAGS)),-O3)
+ifneq ($(UNALIGNED_ACCESS),0)
+ifeq ($(GCC46_OR_LATER),1)
+ifeq ($(findstring -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS,$(CXXFLAGS)),)
+CXXFLAGS += -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS
+endif # CRYPTOPP_NO_UNALIGNED_DATA_ACCESS
+endif # GCC 4.6
+endif # UNALIGNED_ACCESS
+endif # Vectorization
+
 ifneq ($(INTEL_COMPILER),0)
-CXXFLAGS += -wd68 -wd186 -wd279 -wd327
+CXXFLAGS += -wd68 -wd186 -wd279 -wd327 -wd161 -wd3180
 ifeq ($(ICC111_OR_LATER),0)
 # "internal error: backend signals" occurs on some x86 inline assembly with ICC 9 and some x64 inline assembly with ICC 11.0
 # if you want to use Crypto++'s assembly code with ICC, try enabling it on individual files
@@ -258,10 +111,7 @@ CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
 endif
 endif
 
-#########################
-# GAS work arounds.
-# Should this be moved to outside of i386/i686/x86_64 block?
-ifeq ($(GAS210_OR_LATER),0)
+ifeq ($(GAS210_OR_LATER),0)	# .intel_syntax wasn't supported until GNU assembler 2.10
 CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
 else
 ifeq ($(GAS217_OR_LATER),0)
@@ -269,26 +119,48 @@ CXXFLAGS += -DCRYPTOPP_DISABLE_SSSE3
 else
 ifeq ($(GAS219_OR_LATER),0)
 CXXFLAGS += -DCRYPTOPP_DISABLE_AESNI
-endif   # GAS219_OR_LATER
-endif   # GAS217_OR_LATER
+endif
+endif
+
 ifneq ($(IS_SUN),0)
 CXXFLAGS += -Wa,--divide	# allow use of "/" operator
-endif   # IS_SUN
-endif   # GAS210_OR_LATER
-
-ifneq ($(IS_MINGW),0)
-LDLIBS += -lws2_32
-endif 	# IS_MINGW
+endif
+endif
 
 endif	# IS_X86
 
-# Should most of this be moved to outside of i386/i686/x86_64 block?
+ifeq ($(UNAME),)	# for DJGPP, where uname doesn't exist
+CXXFLAGS += -mbnu210
+else ifneq ($(findstring -save-temps,$(CXXFLAGS)),-save-temps)
+CXXFLAGS += -pipe
+endif
+
+ifneq ($(IS_MINGW),0)
+LDLIBS += -lws2_32
+endif
+
 ifeq ($(IS_LINUX),1)
 LDFLAGS += -pthread
-ifeq ($(findstring -fopenmp,$(MAKECMDGOALS)),-fopenmp)
+ifeq ($(findstring -fopenmp,$(CXXFLAGS)),-fopenmp)
+ifeq ($(findstring -lgomp,$(LDLIBS)),)
 LDLIBS += -lgomp
-endif 	# -fopenmp
-endif 	# IS_LINUX
+endif # LDLIBS
+endif # OpenMP
+ifneq ($(IS_X86_64),0)
+M32OR64 = -m64
+endif
+endif # IS_LINUX
+
+ifneq ($(IS_DARWIN),0)
+AR = libtool
+ARFLAGS = -static -o
+CXX ?= c++
+ifeq ($(IS_GCC_29),1)
+CXXFLAGS += -fno-coalesce-templates -fno-coalesce-static-vtables
+LDLIBS += -lstdc++
+LDFLAGS += -flat_namespace -undefined suppress -m
+endif
+endif
 
 ifneq ($(IS_SUN),0)
 LDLIBS += -lnsl -lsocket
@@ -296,176 +168,198 @@ M32OR64 = -m$(shell isainfo -b)
 endif
 
 ifneq ($(SUN_COMPILER),0)	# override flags for CC Sun C++ compiler
-CXXFLAGS = -DNDEBUG -O -g0 -native -template=no%extdef $(M32OR64)
+CXXFLAGS ?= -DNDEBUG -O -g0 -native -template=no%extdef $(M32OR64)
+LDFLAGS =
 AR = $(CXX)
 ARFLAGS = -xar -o
 RANLIB = true
-LDFLAGS =
-SUN_CC10_BUGGY = $(shell $(CXX) -V 2>&1 | $(EGREP) -c "CC: Sun .* 5\.10 .* (2009|2010/0[1-4])")
+SUN_CC10_BUGGY := $(shell $(CXX) -V 2>&1 | $(EGREP) -c "CC: Sun .* 5\.10 .* (2009|2010/0[1-4])")
 ifneq ($(SUN_CC10_BUGGY),0)
 # -DCRYPTOPP_INCLUDE_VECTOR_CC is needed for Sun Studio 12u1 Sun C++ 5.10 SunOS_i386 128229-02 2009/09/21 and was fixed in May 2010
 # remove it if you get "already had a body defined" errors in vector.cc
 CXXFLAGS += -DCRYPTOPP_INCLUDE_VECTOR_CC
-endif # SUN_CC10_BUGGY
-endif # SUN_COMPILER
-
-#################################################################
-# Public service announcement
-
-# Do not warn for some targets
-NO_WARN = GNUmakefile.deps deps system dist zip install install-strip uninstall remove clean distclean
-ifeq ($(findstring $(MAKECMDGOALS),$(NO_WARN)),)
-
-UNALIGNED_ACCESS = $(shell $(EGREP) -c "^// \#define CRYPTOPP_NO_UNALIGNED_DATA_ACCESS" config.h)
-ifneq ($(UNALIGNED_ACCESS),0)
-$(info WARNING: CRYPTOPP_NO_UNALIGNED_DATA_ACCESS is not defined in config.h)
+endif
 endif
 
-endif # NO_WARN
+# Undefined Behavior Sanitizer (UBsan) testing. There's no sense in
+#   allowing unaligned data access. There will too many findings.
+ifeq ($(findstring ubsan,$(MAKECMDGOALS)),ubsan)
+ifeq ($(findstring -fsanitize=undefined,$(CXXFLAGS)),)
+CXXFLAGS += -fsanitize=undefined
+endif # CXXFLAGS
+ifeq ($(findstring -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS,$(CXXFLAGS)),)
+CXXFLAGS += -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS
+endif # CXXFLAGS
+endif # UBsan
 
-#################################################################
-# Compiler diagnostics and warnings
+# Address Sanitizer (Asan) testing
+ifeq ($(findstring asan,$(MAKECMDGOALS)),asan)
+ifeq ($(findstring -fsanitize=address,$(CXXFLAGS)),)
+CXXFLAGS += -fsanitize=address
+endif # CXXFLAGS
+endif # Asan
 
-# -Wall, -Wextra and -Wno-type-limits for GCC 4.3 and above. It needs -Wno-unknown-pragmas due
-# to bug https://gcc.gnu.org/bugzilla/show_bug.cgi?id=53431. We can't use -Wall
-# unguarded because it lights up CentOS 5 (GCC 4.1) and OpenBSD (4.2.1)
-GCC43_OR_LATER = $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "^gcc version (4\.[3-9]|[5-9])")
-ifneq ($(GCC43_OR_LATER),0)
-CXXFLAGS += -Wall -Wextra -Wno-type-limits -Wno-unknown-pragmas
+# LD gold linker testing
+ifeq ($(findstring ld.gold,$(LD)),ld.gold)
+ifeq ($(findstring -Wl,-fuse-ld=gold,$(CXXFLAGS)),)
+ELF_FORMAT := $(shell file `which ld.gold` 2>&1 | cut -d":" -f 2 | $(EGREP) -i -c "elf")
+ifneq ($(ELF_FORMAT),0)
+GOLD_OPTION = -Wl,-fuse-ld=gold
+endif # ELF/ELF64
+endif # CXXFLAGS
+endif # Gold
+
+# Aligned access testing
+ifneq ($(filter align aligned,$(MAKECMDGOALS)),)
+ifeq ($(findstring -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS,$(CXXFLAGS)),)
+CXXFLAGS += -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS
+endif # # CXXFLAGS
+endif # Aligned access
+
+# Debug testing on GNU systems
+ifneq ($(filter -DDEBUG -DDEBUG=1,$(CXXFLAGS)),)
+USING_GLIBCXX := $(shell $(CXX) -x c++ $(CXXFLAGS) -E adhoc.cpp.proto 2>&1 | $(EGREP) -i -c "__GLIBCXX__")
+ifneq ($(USING_GLIBCXX),0)
+ifeq ($(findstring -D_GLIBCXX_DEBUG,$(CXXFLAGS)),)
+CXXFLAGS += -D_GLIBCXX_DEBUG
+endif # CXXFLAGS
+ifeq ($(findstring -D_GLIBCXX_CONCEPT_CHECKS,$(CXXFLAGS)),)
+CXXFLAGS += -D_GLIBCXX_CONCEPT_CHECKS
+endif # CXXFLAGS
+endif # USING_GLIBCXX
+endif # GNU Debug build
+
+# List cryptlib.cpp first and cpu.o second in an attempt to tame C++ static initialization problems. The issue
+#  spills into POD data types, so cpu.cpp is the second candidate for explicit initialization order.
+SRCS := cryptlib.cpp cpu.cpp $(filter-out cryptlib.cpp cpu.cpp pch.cpp simple.cpp winpipes.cpp cryptlib_bds.cpp,$(wildcard *.cpp))
+
+ifneq ($(IS_MINGW),0)
+SRCS += winpipes.cpp
 endif
 
-# -Wall, -Wextra and -Wno-tautological-compare for Clang
-ifneq ($(CLANG_COMPILER),0)
-CXXFLAGS += -Wall -Wextra -Wno-tautological-compare
-endif
-
-# -Wcast-align if not UNALIGNED_ACCESS
-ifeq ($(UNALIGNED_ACCESS),0)
-# CXXFLAGS += -Wcast-align
-endif
-
-ifeq ($(findstring -pipe,$(CXXFLAGS)),)
-CXXFLAGS += -pipe
-endif
-
-#################################################################
-# Sources, objects and temporaries
-
-WIN_SRCS = pch.cpp fipsalgt.cpp cryptlib_bds.cpp
-ifeq ($(IS_MINGW),0)
-WIN_SRCS += winpipes.cpp
-endif
-
-# List of sources to compile and objects to link
-SRCS = $(filter-out $(WIN_SRCS), $(wildcard *.cpp))
-OBJS = $(SRCS:.cpp=.o)
-
-# Compiling with --save-temps creates these
-TEMPS = $(SRCS:.cpp=.s) $(SRCS:.cpp=.ii)
+# List of objects with crytlib.o and cpu.o at the first and second index position
+OBJS := $(SRCS:.cpp=.o)
 
 # test.o needs to be after bench.o for cygwin 1.1.4 (possible ld bug?)
-TESTOBJS = bench.o bench2.o test.o validat0.o validat1.o validat2.o validat3.o adhoc.o datatest.o regtest.o fipsalgt.o dlltest.o
-LIBOBJS = $(filter-out $(TESTOBJS),$(OBJS))
+TESTOBJS := bench.o bench2.o test.o validat1.o validat2.o validat3.o adhoc.o datatest.o regtest.o fipsalgt.o dlltest.o
+LIBOBJS := $(filter-out $(TESTOBJS),$(OBJS))
 
-DLLSRCS = algebra.cpp algparam.cpp asn.cpp basecode.cpp cbcmac.cpp channels.cpp cryptlib.cpp des.cpp dessp.cpp dh.cpp \
-			dll.cpp dsa.cpp ec2n.cpp eccrypto.cpp ecp.cpp eprecomp.cpp files.cpp filters.cpp fips140.cpp fipstest.cpp \
-			gf2n.cpp gfpcrypt.cpp hex.cpp hmac.cpp integer.cpp iterhash.cpp misc.cpp modes.cpp modexppc.cpp mqueue.cpp \
-			nbtheory.cpp oaep.cpp osrng.cpp pch.cpp pkcspad.cpp pubkey.cpp queue.cpp randpool.cpp rdtables.cpp \
-			rijndael.cpp rng.cpp rsa.cpp sha.cpp simple.cpp skipjack.cpp strciphr.cpp trdlocal.cpp
-DLLOBJS = $(DLLSRCS:.cpp=.export.o)
-LIBIMPORTOBJS = $(LIBOBJS:.o=.import.o)
-TESTIMPORTOBJS = $(TESTOBJS:.o=.import.o)
-DLLTESTOBJS = dlltest.dllonly.o
+# List cryptlib.cpp first in an attempt to tame C++ static initialization problems
+DLLSRCS := cryptlib.cpp algebra.cpp algparam.cpp asn.cpp basecode.cpp cbcmac.cpp channels.cpp des.cpp dessp.cpp dh.cpp dll.cpp dsa.cpp ec2n.cpp eccrypto.cpp ecp.cpp eprecomp.cpp files.cpp filters.cpp fips140.cpp fipstest.cpp gf2n.cpp gfpcrypt.cpp hex.cpp hmac.cpp integer.cpp iterhash.cpp misc.cpp modes.cpp modexppc.cpp mqueue.cpp nbtheory.cpp oaep.cpp osrng.cpp pch.cpp pkcspad.cpp pubkey.cpp queue.cpp randpool.cpp rdtables.cpp rijndael.cpp rng.cpp rsa.cpp sha.cpp simple.cpp skipjack.cpp strciphr.cpp trdlocal.cpp
+DLLOBJS := $(DLLSRCS:.cpp=.export.o)
 
-#################################################################
-# Recipes
+# Import lib testing
+LIBIMPORTOBJS := $(LIBOBJS:.o=.import.o)
+TESTIMPORTOBJS := $(TESTOBJS:.o=.import.o)
+DLLTESTOBJS := dlltest.dllonly.o
 
-# For various targets, see https://www.gnu.org/prep/standards/html_node/Standard-Targets.html
-# We want to include libcryptopp, cryptest, clean, distclean, install, install-strip, uninstall
+DIST_FILES := *.h *.cpp *.asm adhoc.cpp.proto License.txt Readme.txt GNUmakefile GNUmakefile-cross Doxyfile cryptest* cryptlib* dlltest* cryptdll* cryptopp.rc TestVectors/*.txt TestData/*.dat
 
-all cryptest: cryptest.exe
+# For Shared Objects, Diff, Dist/Zip rules
+LIB_VER := $(shell $(EGREP) "define CRYPTOPP_VERSION" config.h | cut -d" " -f 3)
+LIB_MAJOR := $(shell echo $(LIB_VER) | cut -c 1)
+LIB_MINOR := $(shell echo $(LIB_VER) | cut -c 2)
+LIB_PATCH := $(shell echo $(LIB_VER) | cut -c 3)
+
+all: cryptest.exe
+
+ifneq ($(IS_DARWIN),0)
 static: libcryptopp.a
-
-ifeq ($(IS_DARWIN),0)
-shared dynamic: libcryptopp.so
+shared dynamic dylib: libcryptopp.dylib
 else
-shared dynamic: libcryptopp.dylib
+static: libcryptopp.a
+shared dynamic: libcryptopp.so
 endif
 
-asan ubsan: libcryptopp.a cryptest.exe
+.PHONY: deps
+deps GNUmakefile.deps:
+	$(CXX) $(CXXFLAGS) -MM *.cpp > GNUmakefile.deps
+
+.PHONY: asan ubsan align aligned
+asan ubsan align aligned: libcryptopp.a cryptest.exe
 
 .PHONY: test check
 test check: cryptest.exe
 	./cryptest.exe v
 
+DOC_DIRECTORY := $(shell $(EGREP) "OUTPUT_DIRECTORY" Doxyfile | grep -v "\#" | cut -d "=" -f 2)
+ifeq ($(DOC_DIRECTORY),)
+DOC_DIRECTORY := html-docs
+endif
+
+.PHONY: docs html
+docs html:
+	-$(RM) -r $(DOC_DIRECTORY)/
+	doxygen Doxyfile -d CRYPTOPP_DOXYGEN_PROCESSING
+	-$(RM) CryptoPPRef.zip
+	zip -9 CryptoPPRef.zip -x ".*" -x "*/.*" -r $(DOC_DIRECTORY)/
+
 .PHONY: clean
 clean:
-	-$(RM) cryptest.exe libcryptopp.a libcrypto++.a libcryptopp.so libcrypto++.so libcryptopp.dylib $(LIBOBJS) $(TESTOBJS) $(TEMPS) cryptopp.dll libcryptopp.dll.a libcryptopp.import.a cryptest.import.exe dlltest.exe $(DLLOBJS) $(LIBIMPORTOBJS) $(TESTI MPORTOBJS) $(DLLTESTOBJS)
-ifneq ($(IS_DARWIN),0)
-	-$(RM) -r cryptest.exe.dSYM
+	-$(RM) libcryptopp.a libcryptopp.so libcryptopp.dylib cryptopp.dll libcryptopp.dll.a libcryptopp.import.a
+	-$(RM) adhoc.cpp.o adhoc.cpp.proto.o $(LIBOBJS) $(TESTOBJS) $(DLLOBJS) $(LIBIMPORTOBJS) $(TESTIMPORTOBJS) $(DLLTESTOBJS) *.stackdump core-*
+	-$(RM) cryptest.exe dlltest.exe cryptest.import.exe ct
+ifneq ($(wildcard *.exe.dSYM),)
+	-$(RM) -r *.exe.dSYM/
 endif
 
 .PHONY: distclean
-distclean:
-	-$(RM) -r GNUmakefile.deps *.o *.obj *.a *.so *.dll *.dylib *.exe *.s *.ii a.out *~ \.*~ *\.h\. *\.cpp\. *.bu *.bak adhoc.cpp adhoc.cpp.copied *.diff *.patch cryptopp.zip
-ifneq ($(IS_DARWIN),0)
-	-$(RM) *.dSYM .DS_Store TestVectors/.DS_Store TestData/.DS_Store
+distclean: clean
+	-$(RM) adhoc.cpp adhoc.cpp.copied GNUmakefile.deps cryptest-*result.txt *.o *.ii *.s
+ifneq ($(wildcard cryptopp$(LIB_VER)\.*),)
+	-$(RM) cryptopp$(LIB_VER)\.*
+endif
+ifneq ($(wildcard $(DOC_DIRECTORY)),)
+	-$(RM) -r $(DOC_DIRECTORY)
+endif
+ifneq ($(wildcard CryptoPPRef.zip),)
+	-$(RM) CryptoPPRef.zip
 endif
 
 .PHONY: install
 install:
 	$(MKDIR) -p $(PREFIX)/include/cryptopp $(PREFIX)/lib $(PREFIX)/bin
 	-$(CP) *.h $(PREFIX)/include/cryptopp
+	-$(CHMOD) 755 $(PREFIX)/include/cryptopp
+	-$(CHMOD) 644 $(PREFIX)/include/cryptopp/*.h
 	-$(CP) libcryptopp.a $(PREFIX)/lib
+	-$(CHMOD) 644 $(PREFIX)/lib/libcryptopp.a
 	-$(CP) cryptest.exe $(PREFIX)/bin
-ifeq ($(IS_DARWIN),0)
-	-$(CP) *.so $(PREFIX)/lib
+	-$(CHMOD) 755 $(PREFIX)/bin/cryptest.exe
+ifneq ($(IS_DARWIN),0)
+	-$(CP) libcryptopp.dylib $(PREFIX)/lib
+	-$(CHMOD) 755 $(PREFIX)/lib/libcryptopp.dylib
 else
-	-$(CP) *.dylib $(PREFIX)/lib
+	-$(CP) libcryptopp.so $(PREFIX)/lib
+	-$(CHMOD) 755 $(PREFIX)/lib/libcryptopp.so
 endif
 
-.PHONY: install-strip
-install-strip: install
-	-$(STRIP) -s $(PREFIX)/bin/cryptest.exe
-ifeq ($(IS_DARWIN),0)
-	-$(STRIP) -s $(PREFIX)/lib/libcryptopp.so
-else
-	-$(STRIP) -s $(PREFIX)/lib/libcryptopp.dylib
-endif
-
-.PHONY: uninstall remove
-uninstall remove:
-	-$(RM) -rf $(PREFIX)/include/cryptopp
+.PHONY: remove uninstall
+remove uninstall:
+	-$(RM) -r $(PREFIX)/include/cryptopp
 	-$(RM) $(PREFIX)/lib/libcryptopp.a
 	-$(RM) $(PREFIX)/bin/cryptest.exe
-ifeq ($(IS_DARWIN),0)
-	-$(RM) $(PREFIX)/lib/libcryptopp.so
-else
+ifneq ($(IS_DARWIN),0)
 	-$(RM) $(PREFIX)/lib/libcryptopp.dylib
+else
+	-$(RM) $(PREFIX)/lib/libcryptopp.so
 endif
 
-DIST_FILES = *.h *.cpp *.asm License.txt Readme.txt Install.txt GNUmakefile GNUmakefile-cross \
-		Doxyfile cryptest_bds.bdsgroup cryptest_bds.bdsproj cryptest_bds.bpf cryptlib_bds.bdsproj \
-		cryptest.sln cryptest.dsp cryptest.dsw cryptest.vcproj dlltest.dsp dlltest.vcproj \
-		cryptlib.dsp cryptlib.vcproj cryptopp.rc TestVectors/*.txt TestData/*.dat
-
-.PHONY: zip dist
-zip dist: distclean
-	-zip -q -9 cryptopp.zip $(DIST_FILES)
-
-libcryptopp.a: $(LIBOBJS)
+libcryptopp.a: public_service | $(LIBOBJS)
 	$(AR) $(ARFLAGS) $@ $(LIBOBJS)
 	$(RANLIB) $@
 
-libcryptopp.so: $(LIBOBJS)
-	$(CXX) -shared -o $@ $(CXXFLAGS) $(LIBOBJS)
+libcryptopp.so: public_service | $(LIBOBJS)
+	$(CXX) -shared -o $@ $(CXXFLAGS) $(GOLD_OPTION) $(LIBOBJS) $(LDLIBS)
 
 libcryptopp.dylib: $(LIBOBJS)
-	$(CXX) -shared -dynamiclib -o $@ $(CXXFLAGS) $(LIBOBJS)
+	$(CXX) -dynamiclib -o $@ $(CXXFLAGS) -install_name "$@" -current_version "$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)" -compatibility_version "$(LIB_MAJOR).$(LIB_MINOR)" $(LIBOBJS)
 
-.PHONY: cryptest.exe
-cryptest.exe: libcryptopp.a $(TESTOBJS)
-	$(CXX) -o $@ $(CXXFLAGS) $(TESTOBJS) ./libcryptopp.a $(LDFLAGS) $(LDLIBS)
+cryptest.exe: public_service | libcryptopp.a $(TESTOBJS)
+	$(CXX) -o $@ $(CXXFLAGS) $(TESTOBJS) ./libcryptopp.a $(LDFLAGS) $(GOLD_OPTION) $(LDLIBS)
+
+nolib: $(OBJS)		# makes it faster to test changes
+	$(CXX) -o ct $(CXXFLAGS) $(OBJS) $(LDFLAGS) $(LDLIBS)
 
 dll: cryptest.import.exe dlltest.exe
 
@@ -482,6 +376,41 @@ cryptest.import.exe: cryptopp.dll libcryptopp.import.a $(TESTIMPORTOBJS)
 dlltest.exe: cryptopp.dll $(DLLTESTOBJS)
 	$(CXX) -o $@ $(CXXFLAGS) $(DLLTESTOBJS) -L. -lcryptopp.dll $(LDFLAGS) $(LDLIBS)
 
+# This recipe requires a previous "svn co -r 541 https://svn.code.sf.net/p/cryptopp/code/trunk/c5"
+.PHONY: diff
+diff:
+	-$(RM) cryptopp$(LIB_VER).diff
+	-svn diff -r 541 > cryptopp$(LIB_VER).diff
+
+# This recipe prepares the distro files
+TEXT_FILES := *.h *.cpp *.asm adhoc.cpp.proto License.txt Readme.txt Doxyfile cryptest* cryptlib* dlltest* cryptdll* cryptopp.rc TestVectors/*.txt TestData/*.dat
+EXEC_FILES := GNUmakefile GNUmakefile-cross TestData/ TestVectors/
+
+.PHONY: convert
+convert:
+	chmod a-x $(TEXT_FILES)
+	chmod u+x $(EXEC_FILES)
+	chmod u+x cryptest.sh
+	unix2dos --keepdate --quiet $(TEXT_FILES)
+	unix2dos --keepdate --quiet *.sln *.vcproj
+	dos2unix --keepdate --quiet GNUmakefile GNUmakefile-cross cryptest.sh
+
+.PHONY: zip dist
+zip dist: | distclean convert diff
+	zip -q -9 cryptopp$(LIB_VER).zip $(DIST_FILES)
+ifeq ($(wildcard cryptopp$(LIB_VER).diff),cryptopp$(LIB_VER).diff)
+	zip -q -9 -u cryptopp$(LIB_VER).zip cryptopp$(LIB_VER).diff
+endif
+ifeq ($(wildcard vs2010.zip),vs2010.zip)
+	zip -q -9 -u cryptopp$(LIB_VER).zip vs2010.zip
+endif
+ifeq ($(wildcard config.recommend),config.recommend)
+	zip -q -9 -u cryptopp$(LIB_VER).zip config.recommend
+endif
+ifeq ($(wildcard cryptest-sh.zip),cryptest-sh.zip)
+	-zip -d cryptopp$(LIB_VER).zip cryptest-sh.zip
+endif
+
 adhoc.cpp: adhoc.cpp.proto
 ifeq ($(wildcard adhoc.cpp),)
 	cp adhoc.cpp.proto adhoc.cpp
@@ -489,32 +418,23 @@ else
 	touch adhoc.cpp
 endif
 
-.PHONY: system
-system: ;
-	$(info CXX: $(CXX))
-	$(info CXXFLAGS: $(CXXFLAGS))
-	$(info GCC_COMPILER: $(GCC_COMPILER))
-	$(info CLANG_COMPILER: $(CLANG_COMPILER))
-	$(info INTEL_COMPILER: $(INTEL_COMPILER))
-	$(info SUN_COMPILER: $(SUN_COMPILER))
-	$(info IS_GCC_41: $(IS_GCC_41))
-	$(info IS_GCC_42: $(IS_GCC_42))
-	$(info IS_GCC_45: $(IS_GCC_45))
-	$(info IS_GCC_49: $(IS_GCC_49))
-	$(info UNALIGNED_ACCESS: $(UNALIGNED_ACCESS))
-	$(info UNAME: $(shell $(UNAME) -a))
-	$(info MACHINE: $(MACHINE))
-	$(info SYSTEM: $(SYSTEM))
-	$(info RELEASE: $(RELEASE))
-	$(info IS_X86: $(IS_X86))
-	$(info IS_X86_64: $(IS_X86_64))
-	$(info IS_DARWIN: $(IS_DARWIN))
-	$(info IS_LINUX: $(IS_LINUX))
-	$(info IS_MINGW: $(IS_MINGW))
-	$(info IS_CYGWIN: $(IS_CYGWIN))
-	$(info IS_OPENBSD: $(IS_OPENBSD))
-	$(info IS_SUN: $(IS_SUN))
-	$(info IS_FEDORA22_i686: $(IS_FEDORA22_i686))
+# Include dependencies, if present. You must issue `make deps` to create them.
+ifeq ($(wildcard GNUmakefile.deps),GNUmakefile.deps)
+-include GNUmakefile.deps
+endif # Dependencies
+
+# Work around MacPorts/GCC issue with init_priority. Apple/GCC and Fink/GCC are fine; limit to MacPorts.
+#     Also see https://lists.macosforge.org/pipermail/macports-users/2015-September/039223.html
+ifneq ($(MACPORTS_COMPILER),0)
+ifneq ($(GCC_COMPILER),0)
+ifeq ($(findstring -DMACPORTS_GCC_COMPILER,$(CXXFLAGS)),)
+cryptlib.o:
+	$(CXX) $(CXXFLAGS) -DMACPORTS_GCC_COMPILER=1 -c cryptlib.cpp
+cpu.o:
+	$(CXX) $(CXXFLAGS) -DMACPORTS_GCC_COMPILER=1 -c cpu.cpp
+endif
+endif
+endif
 
 %.dllonly.o : %.cpp
 	$(CXX) $(CXXFLAGS) -DCRYPTOPP_DLL_ONLY -c $< -o $@
@@ -528,19 +448,24 @@ system: ;
 %.o : %.cpp
 	$(CXX) $(CXXFLAGS) -c $<
 
-#################################################################
-# Dependencies
-
-# Do not build dependencies for some targets
-NO_DEPS = system dist zip install install-strip uninstall remove clean distclean
-ifeq ($(findstring $(MAKECMDGOALS),$(NO_DEPS)),)
-
-# Do not build dependencies when multiarch is in effect
-ifeq ($(MULTIARCH),0)
--include GNUmakefile.deps
+# Warn of potential configurations issues. This will go away after 5.6.3
+UNALIGNED_ACCESS := $(shell $(EGREP) -c "^[[:space:]]*//[[:space:]]*\#[[:space:]]*define[[:space:]]*CRYPTOPP_NO_UNALIGNED_DATA_ACCESS" config.h)
+NO_INIT_PRIORITY := $(shell $(EGREP) -c "^[[:space:]]*//[[:space:]]*\#[[:space:]]*define[[:space:]]*CRYPTOPP_INIT_PRIORITY" config.h)
+COMPATIBILITY_562 := $(shell $(EGREP) -c "^[[:space:]]*\#[[:space:]]*define[[:space:]]*CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562" config.h)
+.PHONY: public_service
+public_service:
+ifneq ($(UNALIGNED_ACCESS),0)
+	$(info WARNING: CRYPTOPP_NO_UNALIGNED_DATA_ACCESS is not defined in config.h.)
 endif
-
-deps GNUmakefile.deps:
-	$(CXX) $(CXXFLAGS) -MM *.cpp > GNUmakefile.deps
-
-endif # NO_DEPS
+ifneq ($(NO_INIT_PRIORITY),0)
+	$(info WARNING: CRYPTOPP_INIT_PRIORITY is not defined in config.h.)
+endif
+ifneq ($(COMPATIBILITY_562),0)
+	$(info WARNING: CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562 is defined in config.h.)
+endif
+ifneq (x$(UNALIGNED_ACCESS)$(NO_INIT_PRIORITY)$(COMPATIBILITY_562),x000)
+	$(info WARNING: You should make these changes in config.h, and not CXXFLAGS.)
+	$(info WARNING: You can 'mv config.recommend config.h', but it breaks versioning.)
+	$(info WARNING: See http://cryptopp.com/wiki/config.h for more details.)
+	$(info )
+endif

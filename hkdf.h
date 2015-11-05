@@ -1,20 +1,12 @@
-// hkdf.h - written and placed in public domain by Jeffrey Walton. Copyright assigned to Crypto++ project
+// hkdf.h - written and placed in public domain by Jeffrey Walton. Copyright assigned to Crypto++ project.
 
 #ifndef CRYPTOPP_HASH_KEY_DERIVATION_FUNCTION_H
 #define CRYPTOPP_HASH_KEY_DERIVATION_FUNCTION_H
 
 #include "cryptlib.h"
-#include "hmac.h"
 #include "hrtimer.h"
 #include "secblock.h"
-#include "trap.h"
-
-#include <cstring>
-
-#if GCC_DIAGNOSTIC_AWARE
-# pragma GCC diagnostic push
-# pragma GCC diagnostic ignored "-Wunused-variable"
-#endif
+#include "hmac.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -22,38 +14,48 @@ NAMESPACE_BEGIN(CryptoPP)
 class KeyDerivationFunction
 {
 public:
+	//! maximum number of bytes which can be produced under a secuirty context
 	virtual size_t MaxDerivedKeyLength() const =0;
-	virtual bool UsesContext() const =0;
-	//! derive key from secret
-	virtual unsigned int DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen, const byte *salt, size_t saltLen, const byte* context=NULL, size_t contextLen=0) const =0;
-	
-	// If salt is missing, then use the NULL vector. The length depends on the Hash function.
-	static const byte s_NullVector[64];
-};
+	virtual bool Usesinfo() const =0;
+	//! derive a key from secret
+	virtual unsigned int DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen, const byte *salt, size_t saltLen, const byte* info=NULL, size_t infoLen=0) const =0;
 
-const byte KeyDerivationFunction::s_NullVector[64] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	virtual ~KeyDerivationFunction() {}
+};
 
 //! General, multipurpose KDF from RFC 5869. T should be a HashTransformation class
 //! https://eprint.iacr.org/2010/264 and https://tools.ietf.org/html/rfc5869
 template <class T>
-class CRYPTOPP_DLL HKDF : public KeyDerivationFunction
+class HKDF : public KeyDerivationFunction
 {
 public:
+	static const char* StaticAlgorithmName () {
+		static const std::string name(std::string("HKDF(") + std::string(T::StaticAlgorithmName()) + std::string(")"));
+		return name.c_str();
+	}
 	size_t MaxDerivedKeyLength() const {return static_cast<size_t>(T::DIGESTSIZE) * 255;}
-	bool UsesContext() const {return true;}
-	unsigned int DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen, const byte *salt, size_t saltLen, const byte* context, size_t contextLen) const;
+	bool Usesinfo() const {return true;}
+	unsigned int DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen, const byte *salt, size_t saltLen, const byte* info, size_t infoLen) const;
+	
+protected:
+	// If salt is missing (NULL), then use the NULL vector. Missing is different than EMPTY (0 length). The length
+	// of s_NullVector used depends on the Hash function. SHA-256 will use 32 bytes of s_NullVector.
+	typedef byte NullVectorType[T::DIGESTSIZE];
+	static const NullVectorType& GetNullVector() {
+		static const NullVectorType s_NullVector = {0};
+		return s_NullVector;
+	}
 };
 
 template <class T>
-unsigned int HKDF<T>::DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen, const byte *salt, size_t saltLen, const byte* context, size_t contextLen) const
+unsigned int HKDF<T>::DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen, const byte *salt, size_t saltLen, const byte* info, size_t infoLen) const
 {
 	static const size_t DIGEST_SIZE = static_cast<size_t>(T::DIGESTSIZE);
-	CRYPTOPP_COMPILE_ASSERT(DIGEST_SIZE <= COUNTOF(s_NullVector));
 	const unsigned int req = static_cast<unsigned int>(derivedLen);
 	
-	CRYPTOPP_ASSERT(secret && secretLen);
-	CRYPTOPP_ASSERT(derived && derivedLen);
-	CRYPTOPP_ASSERT(derivedLen <= MaxDerivedKeyLength());
+	assert(secret && secretLen);
+	assert(derived && derivedLen);
+	assert(derivedLen <= MaxDerivedKeyLength());
 
 	if (derivedLen > MaxDerivedKeyLength())
 		throw InvalidArgument("HKDF: derivedLen must be less than or equal to MaxDerivedKeyLength");
@@ -62,7 +64,7 @@ unsigned int HKDF<T>::DeriveKey(byte *derived, size_t derivedLen, const byte *se
 	FixedSizeSecBlock<byte, DIGEST_SIZE> prk, buffer;
 
 	// Extract
-	const byte* key = (salt ? salt : s_NullVector);
+	const byte* key = (salt ? salt : GetNullVector());
 	const size_t klen = (salt ? saltLen : DIGEST_SIZE);
 
 	hmac.SetKey(key, klen);
@@ -75,11 +77,16 @@ unsigned int HKDF<T>::DeriveKey(byte *derived, size_t derivedLen, const byte *se
 	while (derivedLen > 0)
 	{
 		if (block++) {hmac.Update(buffer, buffer.size());}
-		if (context && contextLen) {hmac.Update(context, contextLen);}
+		if (info && infoLen) {hmac.Update(info, infoLen);}
 		hmac.CalculateDigest(buffer, &block, 1);
 
-		size_t segmentLen = STDMIN(derivedLen, DIGEST_SIZE);
+#if CRYPTOPP_MSC_VERSION
+		const size_t segmentLen = STDMIN(derivedLen, DIGEST_SIZE);
+		memcpy_s(derived, segmentLen, buffer, segmentLen);
+#else
+		const size_t segmentLen = STDMIN(derivedLen, DIGEST_SIZE);
 		std::memcpy(derived, buffer, segmentLen);
+#endif
 
 		derived += segmentLen;
 		derivedLen -= segmentLen;
@@ -89,9 +96,5 @@ unsigned int HKDF<T>::DeriveKey(byte *derived, size_t derivedLen, const byte *se
 }
 
 NAMESPACE_END
-
-#if GCC_DIAGNOSTIC_AWARE
-# pragma GCC diagnostic pop
-#endif
 
 #endif // CRYPTOPP_HASH_KEY_DERIVATION_FUNCTION_H

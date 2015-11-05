@@ -6,6 +6,7 @@
 #include "cryptlib.h"
 #include "integer.h"
 #include "algebra.h"
+#include "secblock.h"
 #include "misc.h"
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -24,10 +25,10 @@ public:
 	typedef Integer Element;
 
 	ModularArithmetic(const Integer &modulus = Integer::One())
-		: m_modulus(modulus), m_result((word)0, modulus.reg.size()), m_result1(Integer::Zero()) {}
+		: m_modulus(modulus), m_result((word)0, modulus.reg.size()) {}
 
 	ModularArithmetic(const ModularArithmetic &ma)
-		: AbstractRing<Integer>(ma), m_modulus(ma.m_modulus), m_result((word)0, m_modulus.reg.size()), m_result1(Integer::Zero()) {}
+		: AbstractRing<Integer>(ma), m_modulus(ma.m_modulus), m_result((word)0, m_modulus.reg.size()) {}
 
 	ModularArithmetic(BufferedTransformation &bt);	// construct from BER encoded parameters
 
@@ -102,7 +103,7 @@ public:
 		// left RandomizationParameter arg as ref in case RandomizationParameter becomes a more complicated struct
 	{
 		CRYPTOPP_UNUSED(ignore_for_now);
-		return Element( rng , Integer( (long) 0) , m_modulus - Integer( (long) 1 )   ) ; 
+		return Element(rng, Integer::Zero(), m_modulus - Integer::One()) ; 
 	}   
 
 	bool operator==(const ModularArithmetic &rhs) const

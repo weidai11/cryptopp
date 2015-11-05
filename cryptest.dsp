@@ -30,7 +30,7 @@ CFG=cryptest - Win32 Debug
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "cryptest - Win32 DLL-Import Release"
+!IF "$(CFG)" == "cryptest - Win32 DLL-Import Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -52,7 +52,7 @@ BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib Ws2_32.lib /nologo /subsystem:console /debug /machine:I386 /OPT:NOWIN98
+# ADD BASE LINK32 kernel32.lib user32.lib advapi32.lib Ws2_32.lib /nologo /subsystem:console /debug /machine:I386 /OPT:NOWIN98
 # ADD LINK32 Ws2_32.lib /nologo /subsystem:console /debug /machine:I386 /out:"DLL_Release/cryptest.exe" /libpath:"DLL_Release" /OPT:NOWIN98 /OPT:REF /OPT:ICF
 # SUBTRACT LINK32 /pdb:none /incremental:yes
 # Begin Special Build Tool
@@ -60,7 +60,7 @@ SOURCE="$(InputPath)"
 PreLink_Cmds=echo This configuration requires cryptopp.dll.	echo You can build it yourself using the cryptdll project, or	echo obtain a pre-built, FIPS 140-2 validated DLL. If you build it yourself	echo the resulting DLL will not be considered FIPS validated	echo unless it undergoes FIPS validation.
 # End Special Build Tool
 
-!ELSEIF  "$(CFG)" == "cryptest - Win32 DLL-Import Debug"
+!ELSEIF "$(CFG)" == "cryptest - Win32 DLL-Import Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -82,14 +82,14 @@ BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib Ws2_32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept /OPT:NOWIN98
+# ADD BASE LINK32 kernel32.lib user32.lib advapi32.lib Ws2_32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept /OPT:NOWIN98
 # ADD LINK32 Ws2_32.lib /nologo /subsystem:console /debug /machine:I386 /out:"DLL_Debug/cryptest.exe" /pdbtype:sept /libpath:"DLL_Debug" /OPT:NOWIN98
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PreLink_Cmds=echo This configuration requires cryptopp.dll.	echo You can build it yourself using the cryptdll project, or	echo obtain a pre-built, FIPS 140-2 validated DLL. If you build it yourself	echo the resulting DLL will not be considered FIPS validated	echo unless it undergoes FIPS validation.
 # End Special Build Tool
 
-!ELSEIF  "$(CFG)" == "cryptest - Win32 Release"
+!ELSEIF "$(CFG)" == "cryptest - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -110,11 +110,11 @@ BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
+# ADD BASE LINK32 kernel32.lib user32.lib advapi32.lib /nologo /subsystem:console /machine:I386
 # ADD LINK32 advapi32.lib Ws2_32.lib /nologo /subsystem:console /map /debug /machine:I386 /OPT:NOWIN98 /OPT:REF /OPT:ICF
 # SUBTRACT LINK32 /pdb:none
 
-!ELSEIF  "$(CFG)" == "cryptest - Win32 Debug"
+!ELSEIF "$(CFG)" == "cryptest - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -135,7 +135,7 @@ BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
+# ADD BASE LINK32 kernel32.lib user32.lib advapi32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
 # ADD LINK32 advapi32.lib Ws2_32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept /OPT:NOWIN98
 # SUBTRACT LINK32 /pdb:none
 
@@ -185,10 +185,6 @@ SOURCE=.\regtest.cpp
 # Begin Source File
 
 SOURCE=.\test.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\validat0.cpp
 # End Source File
 # Begin Source File
 

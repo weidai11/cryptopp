@@ -4,8 +4,9 @@
 #include "sha.h"
 #include "hmac.h"
 #include "des.h"
-#include "filters.h"
 #include "modes.h"
+#include "filters.h"
+#include "smartptr.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -70,7 +71,7 @@ public:
 	DefaultEncryptorWithMAC(const byte *passphrase, size_t passphraseLength, BufferedTransformation *attachment = NULL);
 
 protected:
-	void FirstPut(const byte *inString) {}
+	void FirstPut(const byte *inString) {CRYPTOPP_UNUSED(inString);}
 	void LastPut(const byte *inString, size_t length);
 
 private:
@@ -90,7 +91,7 @@ public:
 	bool CheckLastMAC() const;
 
 protected:
-	void FirstPut(const byte *inString) {}
+	void FirstPut(const byte *inString) {CRYPTOPP_UNUSED(inString);}
 	void LastPut(const byte *inString, size_t length);
 
 private:

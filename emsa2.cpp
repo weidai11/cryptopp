@@ -2,18 +2,18 @@
 
 #include "pch.h"
 #include "emsa2.h"
-#include "trap.h"
 
 #ifndef CRYPTOPP_IMPORTS
 
 NAMESPACE_BEGIN(CryptoPP)
 
-void EMSA2Pad::ComputeMessageRepresentative(RandomNumberGenerator &rng, 
-	const byte *recoverableMessage, size_t recoverableMessageLength,
+void EMSA2Pad::ComputeMessageRepresentative(RandomNumberGenerator& /*rng*/, 
+	const byte* recoverableMessage, size_t recoverableMessageLength,
 	HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
 	byte *representative, size_t representativeBitLength) const
 {
-	CRYPTOPP_ASSERT(representativeBitLength >= MinRepresentativeBitLength(hashIdentifier.second, hash.DigestSize()));
+	CRYPTOPP_UNUSED(recoverableMessage), CRYPTOPP_UNUSED(recoverableMessageLength), CRYPTOPP_UNUSED(representativeBitLength);
+	assert(representativeBitLength >= MinRepresentativeBitLength(hashIdentifier.second, hash.DigestSize()));
 
 	if (representativeBitLength % 8 != 7)
 		throw PK_SignatureScheme::InvalidKeyLength("EMSA2: EMSA2 requires a key length that is a multiple of 8");

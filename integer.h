@@ -9,6 +9,10 @@
 #include <iosfwd>
 #include <algorithm>
 
+#if CRYPTOPP_BOOL_X32
+# define CRYPTOPP_DISABLE_INTEGER_ASM
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 struct InitializeInteger	// used to initialize static variables
@@ -77,7 +81,7 @@ public:
 		//! convert from two words
 		Integer(Sign s, word highWord, word lowWord);
 
-		//! convert from std::string
+		//! convert from string
 		/*! str can be in base 2, 8, 10, or 16.  Base is determined by a
 			case insensitive suffix of 'h', 'o', or 'b'.  No suffix means base 10.
 		*/
@@ -138,7 +142,7 @@ public:
 		//! encode using Distinguished Encoding Rules, put result into a BufferedTransformation object
 		void DEREncode(BufferedTransformation &bt) const;
 
-		//! encode absolute value as big-endian octet std::string
+		//! encode absolute value as big-endian octet string
 		void DEREncodeAsOctetString(BufferedTransformation &bt, size_t length) const;
 
 		//! encode absolute value in OpenPGP format, return length of output
@@ -157,7 +161,7 @@ public:
 		//!
 		void BERDecode(BufferedTransformation &bt);
 
-		//! decode nonnegative value as big-endian octet std::string
+		//! decode nonnegative value as big-endian octet string
 		void BERDecodeAsOctetString(BufferedTransformation &bt, size_t length);
 
 		class OpenPGPDecodeErr : public Exception

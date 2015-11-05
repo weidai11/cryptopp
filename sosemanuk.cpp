@@ -3,26 +3,32 @@
 // use "cl /EP /P /DCRYPTOPP_GENERATE_X64_MASM sosemanuk.cpp" to generate MASM code
 
 #include "pch.h"
+#include "config.h"
+
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(disable: 4702 4731)
+#endif
 
 #ifndef CRYPTOPP_GENERATE_X64_MASM
 
 #include "sosemanuk.h"
+#include "serpentp.h"
+#include "secblock.h"
 #include "misc.h"
 #include "cpu.h"
-#include "trap.h"
-
-#include "serpentp.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
 void SosemanukPolicy::CipherSetKey(const NameValuePairs &params, const byte *userKey, size_t keylen)
 {
+	CRYPTOPP_UNUSED(params);
 	Serpent_KeySchedule(m_key, 24, userKey, keylen);
 }
 
 void SosemanukPolicy::CipherResynchronize(byte *keystreamBuffer, const byte *iv, size_t length)
 {
-	CRYPTOPP_ASSERT(length==16);
+	CRYPTOPP_UNUSED(keystreamBuffer), CRYPTOPP_UNUSED(iv), CRYPTOPP_UNUSED(length);
+	assert(length==16);
 
 	word32 a, b, c, d, e;
 	
@@ -84,7 +90,7 @@ void SosemanukPolicy::CipherResynchronize(byte *keystreamBuffer, const byte *iv,
 
 extern "C" {
 word32 s_sosemanukMulTables[512] = {
-#if CRYPTOPP_BOOL_X86 | CRYPTOPP_BOOL_X64
+#if CRYPTOPP_BOOL_X86 || (CRYPTOPP_BOOL_X32 && !defined(CRYPTOPP_DISABLE_SOSEMANUK_ASM)) || CRYPTOPP_BOOL_X64
 	0x00000000, 0xE19FCF12, 0x6B973724, 0x8A08F836, 
 	0xD6876E48, 0x3718A15A, 0xBD10596C, 0x5C8F967E, 
 	0x05A7DC90, 0xE4381382, 0x6E30EBB4, 0x8FAF24A6, 
@@ -282,10 +288,10 @@ word32 s_sosemanukMulTables[512] = {
 };
 }
 
-#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X64
+#if CRYPTOPP_BOOL_X86 || (CRYPTOPP_BOOL_X32 && !defined(CRYPTOPP_DISABLE_SOSEMANUK_ASM)) || CRYPTOPP_BOOL_X64
 unsigned int SosemanukPolicy::GetAlignment() const
 {
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && !defined(CRYPTOPP_DISABLE_SOSEMANUK_ASM)
 #ifdef __INTEL_COMPILER
 	if (HasSSE2() && !IsP4())	// Intel compiler produces faster code for this algorithm on the P4
 #else
@@ -299,7 +305,7 @@ unsigned int SosemanukPolicy::GetAlignment() const
 
 unsigned int SosemanukPolicy::GetOptimalBlockSize() const
 {
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && !defined(CRYPTOPP_DISABLE_SOSEMANUK_ASM)
 #ifdef __INTEL_COMPILER
 	if (HasSSE2() && !IsP4())	// Intel compiler produces faster code for this algorithm on the P4
 #else
@@ -315,26 +321,19 @@ unsigned int SosemanukPolicy::GetOptimalBlockSize() const
 #ifdef CRYPTOPP_X64_MASM_AVAILABLE
 extern "C" {
 void Sosemanuk_OperateKeystream(size_t iterationCount, const byte *input, byte *output, word32 *state);
-}
-#endif
-
-#ifdef _MSC_VER
-# pragma warning(disable: 4731)	// frame pointer register 'ebp' modified by inline assembly code
+}		
 #endif
 
 void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount)
 {
 #endif	// #ifdef CRYPTOPP_GENERATE_X64_MASM
 
-	// m_state.m_ptr was used below. Fetch it through data() member so we can make SecBlock's members private
-	word32* state = m_state.data();
-
 #ifdef CRYPTOPP_X64_MASM_AVAILABLE
-	Sosemanuk_OperateKeystream(iterationCount, input, output, state);
+	Sosemanuk_OperateKeystream(iterationCount, input, output, m_state.data());
 	return;
 #endif
 
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && !defined(CRYPTOPP_DISABLE_SOSEMANUK_ASM)
 #ifdef CRYPTOPP_GENERATE_X64_MASM
 		ALIGN   8
 	Sosemanuk_OperateKeystream	PROC FRAME
@@ -356,11 +355,10 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 #ifdef __GNUC__
 	#if CRYPTOPP_BOOL_X64
 		FixedSizeAlignedSecBlock<byte, 80*4*2+12*4+8*WORD_SZ> workspace;
-		const byte* space = workspace.data();
 	#endif
 		__asm__ __volatile__
 		(
-		GNU_AS_INTEL_SYNTAX
+		".intel_syntax noprefix;"
 		AS_PUSH_IF86(	bx)
 #else
 		word32 *state = m_state;
@@ -387,7 +385,7 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 #define SSE2_stateCopy		SSE2_workspace + 8*WORD_SZ
 #define	SSE2_uvStart		SSE2_stateCopy + 12*4
 
-#if CRYPTOPP_BOOL_X86
+#if CRYPTOPP_BOOL_X86 || (CRYPTOPP_BOOL_X32 && !defined(CRYPTOPP_DISABLE_SOSEMANUK_ASM))
 		AS_PUSH_IF86(	bp)
 		AS2(	mov		AS_REG_6, esp)
 		AS2(	and		esp, -16)
@@ -541,6 +539,7 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 		AS2(	movdqa		xmm3, xmm6)
 		AS2(	punpcklqdq	xmm6, xmm5)
 		AS2(	punpckhqdq	xmm3, xmm5)
+
 		// output keystream
 		AS_XMM_OUTPUT4(SSE2_Sosemanuk_Output, WORD_REG(ax), AS_REG_7, 2,0,6,3, 1, 0,1,2,3, 4)
 
@@ -600,11 +599,11 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 
 #ifdef __GNUC__
 		AS_POP_IF86(	bx)
-		GNU_AS_ATT_SYNTAX
+		".att_syntax prefix;"
 			:
-			: "a" (state), "c" (iterationCount), "S" (s_sosemanukMulTables), "D" (output), "d" (input)
+			: "a" (m_state.m_ptr), "c" (iterationCount), "S" (s_sosemanukMulTables), "D" (output), "d" (input)
 	#if CRYPTOPP_BOOL_X64
-			, "r" (space)
+			, "r" (workspace.m_ptr)
 			: "memory", "cc", "%r9", "%r10", "%xmm0", "%xmm1", "%xmm2", "%xmm3", "%xmm4", "%xmm5", "%xmm6", "%xmm7"
 	#else
 			: "memory", "cc"
@@ -626,7 +625,7 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 #endif
 #ifndef CRYPTOPP_GENERATE_X64_MASM
 	{
-#if CRYPTOPP_BOOL_X86 | CRYPTOPP_BOOL_X64
+#if CRYPTOPP_BOOL_X86 || (CRYPTOPP_BOOL_X32 && !defined(CRYPTOPP_DISABLE_SOSEMANUK_ASM)) || CRYPTOPP_BOOL_X64
 #define MUL_A(x)    (x = rotlFixed(x, 8), x ^ s_sosemanukMulTables[byte(x)])
 #else
 #define MUL_A(x)    (((x) << 8) ^ s_sosemanukMulTables[(x) >> 24])

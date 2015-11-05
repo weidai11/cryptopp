@@ -4,6 +4,7 @@
 #include "cryptlib.h"
 #include "filters.h"
 #include "argnames.h"
+#include "smartptr.h"
 
 #include <iostream>
 #include <fstream>

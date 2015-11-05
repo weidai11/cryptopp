@@ -5,6 +5,10 @@
 #include "misc.h"
 #include "argnames.h"
 
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(disable: 4244)
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 const byte SAFER::Base::exp_tab[256] = 

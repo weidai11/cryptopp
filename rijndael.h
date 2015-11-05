@@ -7,6 +7,10 @@
 #include "seckey.h"
 #include "secblock.h"
 
+#if CRYPTOPP_BOOL_X32
+# define CRYPTOPP_DISABLE_RIJNDAEL_ASM
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 //! _
@@ -41,7 +45,7 @@ class CRYPTOPP_DLL Rijndael : public Rijndael_Info, public BlockCipherDocumentat
 	{
 	public:
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
-#if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X86
+#if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86
 		size_t AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const;
 #endif
 	};

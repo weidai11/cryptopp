@@ -3,39 +3,23 @@
 
 #include "config.h"
 #include "stdcpp.h"
-#include "trap.h"
 
 NAMESPACE_BEGIN(CryptoPP)
-
-// CryptoPP::auto_ptr in created in both cases
-#if defined(CRYPTOPP_CXX11_UNIQUE_PTR) && defined(CRYPTOPP_CXX11_TEMPLATE_ALIAS)
-  template<typename T>
-    using auto_ptr = std::unique_ptr<T>;
-#else
-  using std::auto_ptr;
-#endif
 
 template <class T> class simple_ptr
 {
 public:
 	simple_ptr(T *p = NULL) : m_p(p) {}
-	~simple_ptr();
+	~simple_ptr()
+	{
+		delete m_p;
+		*((volatile T**)&m_p) = NULL;
+	}
 
-public:
 	T *m_p;
-
-private:
-	simple_ptr(const simple_ptr<T>& rhs);		// copy not allowed
-	void operator=(const simple_ptr<T>& rhs);	// assignment not allowed
 };
 
-// Set m_p to NULL so double destruction (which might occur in Singleton) will be harmless
-template <class T> simple_ptr<T>::~simple_ptr()
-{
-	delete m_p;
-	*((volatile T**)(&m_p)) = 0;
-}
-
+// Expanded use of member_ptr due to https://github.com/weidai11/cryptopp/issues/48
 template <class T> class member_ptr
 {
 public:
@@ -55,18 +39,17 @@ public:
 	T* release()
 	{
 		T *old_p = m_p;
-		*((volatile T**)(&m_p)) = 0;
+		*((volatile T**)&m_p) = NULL;
 		return old_p;
-	}
+	} 
 
 	void reset(T *p = 0);
 
 protected:
-	T *m_p;
-
-private:
 	member_ptr(const member_ptr<T>& rhs);		// copy not allowed
 	void operator=(const member_ptr<T>& rhs);	// assignment not allowed
+
+	T *m_p;
 };
 
 template <class T> member_ptr<T>::~member_ptr() {delete m_p;}
@@ -91,12 +74,9 @@ public:
 
 template <class T> value_ptr<T>& value_ptr<T>::operator=(const value_ptr<T>& rhs)
 {
-	if (this != &rhs)
-	{
-		T *old_p = this->m_p;
-		this->m_p = rhs.m_p ? new T(*rhs.m_p) : NULL;
-		delete old_p;
-	}
+	T *old_p = this->m_p;
+	this->m_p = rhs.m_p ? new T(*rhs.m_p) : NULL;
+	delete old_p;
 	return *this;
 }
 
@@ -115,17 +95,16 @@ public:
 
 template <class T> clonable_ptr<T>& clonable_ptr<T>::operator=(const clonable_ptr<T>& rhs)
 {
-	if (this !=  &rhs)
-	{
-		T *old_p = this->m_p;
-		this->m_p = rhs.m_p ? rhs.m_p->Clone() : NULL;
-		delete old_p;
-	}
+	T *old_p = this->m_p;
+	this->m_p = rhs.m_p ? rhs.m_p->Clone() : NULL;
+	delete old_p;
 	return *this;
 }
 
 // ********************************************************
 
+//! reference counted pointer
+//! /details users should declare \p m_referenceCount as `std::atomic<unsigned>` under C++ 11
 template<class T> class counted_ptr
 {
 public:
@@ -148,12 +127,12 @@ public:
 
 	counted_ptr<T> & operator=(const counted_ptr<T>& rhs);
 
-protected:
+private:
 	T *m_p;
 };
 
 template <class T> counted_ptr<T>::counted_ptr(T *p)
-	: m_p(p)
+	: m_p(p) 
 {
 	if (m_p)
 		m_p->m_referenceCount = 1;
@@ -202,8 +181,6 @@ template <class T> T* counted_ptr<T>::get()
 
 template <class T> counted_ptr<T> & counted_ptr<T>::operator=(const counted_ptr<T>& rhs)
 {
-	if (this == &rhs) { return *this; }
-
 	if (m_p != rhs.m_p)
 	{
 		if (m_p && --m_p->m_referenceCount == 0)
@@ -217,6 +194,56 @@ template <class T> counted_ptr<T> & counted_ptr<T>::operator=(const counted_ptr<
 
 // ********************************************************
 
+//! Manages the resource of an vector of T.
+template <class T> class vector_ptr
+{
+public:
+	vector_ptr(size_t size=0)
+		: m_size(size), m_ptr(new T[m_size]) {}
+	~vector_ptr()
+		{delete [] m_ptr;}
+
+	T& operator[](size_t index)
+		{assert(m_size && index<this->m_size); return this->m_ptr[index];}
+	const T& operator[](size_t index) const
+		{assert(m_size && index<this->m_size); return this->m_ptr[index];}
+
+	size_t size() const {return this->m_size;}
+	void resize(size_t newSize)
+	{
+		T *newPtr = new T[newSize];
+		for (size_t i=0; i<this->m_size && i<newSize; i++)
+			newPtr[i] = m_ptr[i];
+		delete [] this->m_ptr;
+		this->m_size = newSize;
+		this->m_ptr = newPtr;
+	}
+	
+#ifdef __BORLANDC__
+	operator T *() const
+		{return (T*)m_ptr;}
+#else
+	operator const void *() const
+		{return m_ptr;}
+	operator void *()
+		{return m_ptr;}
+
+	operator const T *() const
+		{return m_ptr;}
+	operator T *()
+		{return m_ptr;}
+#endif
+
+private:
+	vector_ptr(const vector_ptr<T> &c);	// copy not allowed
+	void operator=(const vector_ptr<T> &x);		// assignment not allowed
+
+	size_t m_size;
+	T *m_ptr;
+};
+
+// ********************************************************
+
 template <class T> class vector_member_ptrs
 {
 public:
@@ -226,9 +253,9 @@ public:
 		{delete [] this->m_ptr;}
 
 	member_ptr<T>& operator[](size_t index)
-		{CRYPTOPP_ASSERT(index<this->m_size); return this->m_ptr[index];}
+		{assert(index<this->m_size); return this->m_ptr[index];}
 	const member_ptr<T>& operator[](size_t index) const
-		{CRYPTOPP_ASSERT(index<this->m_size); return this->m_ptr[index];}
+		{assert(index<this->m_size); return this->m_ptr[index];}
 
 	size_t size() const {return this->m_size;}
 	void resize(size_t newSize)

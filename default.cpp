@@ -1,46 +1,47 @@
 // default.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
+#include "config.h"
 
-#include "default.h"
-#include "stdcpp.h"
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(disable: 4127 4189)
+#endif
+
+#include "cryptlib.h"
+#include "filters.h"
 #include "smartptr.h"
+#include "default.h"
 #include "queue.h"
 
 #include <time.h>
-
-#if GCC_DIAGNOSTIC_AWARE
-# pragma GCC diagnostic ignored "-Wunused-value"
-# pragma GCC diagnostic ignored "-Wunused-variable"
-#endif
+#include <memory>
 
 NAMESPACE_BEGIN(CryptoPP)
 
 static const unsigned int MASH_ITERATIONS = 200;
 static const unsigned int SALTLENGTH = 8;
-static const unsigned int DIGESTSIZE = DefaultHashModule::DIGESTSIZE;
 static const unsigned int BLOCKSIZE = Default_BlockCipher::Encryption::BLOCKSIZE;
 static const unsigned int KEYLENGTH = Default_BlockCipher::Encryption::DEFAULT_KEYLENGTH;
 
 // The purpose of this function Mash() is to take an arbitrary length input
-// std::string and *deterministicly* produce an arbitrary length output std::string such
+// string and *deterministicly* produce an arbitrary length output string such
 // that (1) it looks random, (2) no information about the input is
 // deducible from it, and (3) it contains as much entropy as it can hold, or
-// the amount of entropy in the input std::string, whichever is smaller.
+// the amount of entropy in the input string, whichever is smaller.
 
 static void Mash(const byte *in, size_t inLen, byte *out, size_t outLen, int iterations)
 {
 	if (BytePrecision(outLen) > 2)
 		throw InvalidArgument("Mash: output legnth too large");
 
-	size_t bufSize = RoundUpToMultipleOf(outLen, (size_t)DIGESTSIZE);
+	size_t bufSize = RoundUpToMultipleOf(outLen, (size_t)DefaultHashModule::DIGESTSIZE);
 	byte b[2];
 	SecByteBlock buf(bufSize);
 	SecByteBlock outBuf(bufSize);
 	DefaultHashModule hash;
 
 	unsigned int i;
-	for(i=0; i<outLen; i+=DIGESTSIZE)
+	for(i=0; i<outLen; i+=DefaultHashModule::DIGESTSIZE)
 	{
 		b[0] = (byte) (i >> 8);
 		b[1] = (byte) i;
@@ -52,7 +53,7 @@ static void Mash(const byte *in, size_t inLen, byte *out, size_t outLen, int ite
 	while (iterations-- > 1)
 	{
 		memcpy(buf, outBuf, bufSize);
-		for (i=0; i<bufSize; i+=DIGESTSIZE)
+		for (i=0; i<bufSize; i+=DefaultHashModule::DIGESTSIZE)
 		{
 			b[0] = (byte) (i >> 8);
 			b[1] = (byte) i;
@@ -92,10 +93,10 @@ DefaultEncryptor::DefaultEncryptor(const byte *passphrase, size_t passphraseLeng
 void DefaultEncryptor::FirstPut(const byte *)
 {
 	// VC60 workaround: __LINE__ expansion bug
-	CRYPTOPP_COMPILE_ASSERT_INSTANCE(SALTLENGTH <= DIGESTSIZE, 1);
-	CRYPTOPP_COMPILE_ASSERT_INSTANCE(BLOCKSIZE <= DIGESTSIZE, 2);
+	CRYPTOPP_COMPILE_ASSERT_INSTANCE(SALTLENGTH <= DefaultHashModule::DIGESTSIZE, 1);
+	CRYPTOPP_COMPILE_ASSERT_INSTANCE(BLOCKSIZE <= DefaultHashModule::DIGESTSIZE, 2);
 
-	SecByteBlock salt(DIGESTSIZE), keyCheck(DIGESTSIZE);
+	SecByteBlock salt(DefaultHashModule::DIGESTSIZE), keyCheck(DefaultHashModule::DIGESTSIZE);
 	DefaultHashModule hash;
 
 	// use hash(passphrase | time | clock) as salt
@@ -126,6 +127,7 @@ void DefaultEncryptor::FirstPut(const byte *)
 
 void DefaultEncryptor::LastPut(const byte *inString, size_t length)
 {
+	CRYPTOPP_UNUSED(inString); CRYPTOPP_UNUSED(length);
 	m_filter->MessageEnd();
 }
 
@@ -154,6 +156,7 @@ void DefaultDecryptor::FirstPut(const byte *inString)
 
 void DefaultDecryptor::LastPut(const byte *inString, size_t length)
 {
+	CRYPTOPP_UNUSED(inString); CRYPTOPP_UNUSED(length);
 	if (m_filter.get() == NULL)
 	{
 		m_state = KEY_BAD;
@@ -169,7 +172,7 @@ void DefaultDecryptor::LastPut(const byte *inString, size_t length)
 
 void DefaultDecryptor::CheckKey(const byte *salt, const byte *keyCheck)
 {
-	SecByteBlock check(STDMAX((unsigned int)2*BLOCKSIZE, (unsigned int)DIGESTSIZE));
+	SecByteBlock check(STDMAX((unsigned int)2*BLOCKSIZE, (unsigned int)DefaultHashModule::DIGESTSIZE));
 
 	DefaultHashModule hash;
 	hash.Update(m_passphrase, m_passphrase.size());
@@ -181,7 +184,7 @@ void DefaultDecryptor::CheckKey(const byte *salt, const byte *keyCheck)
 	GenerateKeyIV(m_passphrase, m_passphrase.size(), salt, SALTLENGTH, key, IV);
 
 	m_cipher.SetKeyWithIV(key, key.size(), IV);
-	auto_ptr<StreamTransformationFilter> decryptor(new StreamTransformationFilter(m_cipher));
+	member_ptr<StreamTransformationFilter> decryptor(new StreamTransformationFilter(m_cipher));
 
 	decryptor->Put(keyCheck, BLOCKSIZE);
 	decryptor->ForceNextPut();
@@ -226,6 +229,7 @@ DefaultEncryptorWithMAC::DefaultEncryptorWithMAC(const byte *passphrase, size_t 
 
 void DefaultEncryptorWithMAC::LastPut(const byte *inString, size_t length)
 {
+	CRYPTOPP_UNUSED(inString); CRYPTOPP_UNUSED(length);
 	m_filter->MessageEnd();
 }
 
@@ -259,6 +263,7 @@ bool DefaultDecryptorWithMAC::CheckLastMAC() const
 
 void DefaultDecryptorWithMAC::LastPut(const byte *inString, size_t length)
 {
+	CRYPTOPP_UNUSED(inString); CRYPTOPP_UNUSED(length);
 	m_filter->MessageEnd();
 	if (m_throwException && !CheckLastMAC())
 		throw MACBadErr();

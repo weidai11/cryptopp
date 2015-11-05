@@ -1,16 +1,17 @@
 // asn.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
+#include "config.h"
 
 #ifndef CRYPTOPP_IMPORTS
 
 #include "asn.h"
-#include "trap.h"
 
 #include <iomanip>
 #include <time.h>
 
 NAMESPACE_BEGIN(CryptoPP)
+USING_NAMESPACE(std)
 
 /// DER Length
 size_t DERLengthEncode(BufferedTransformation &bt, lword length)
@@ -74,9 +75,7 @@ bool BERLengthDecode(BufferedTransformation &bt, lword &length, bool &definiteLe
 
 bool BERLengthDecode(BufferedTransformation &bt, size_t &length)
 {
-	// Initialize to silence warning from diagnostic tools
 	lword lw = 0;
-
 	bool definiteLength;
 	if (!BERLengthDecode(bt, lw, definiteLength))
 		BERDecodeError();
@@ -245,7 +244,7 @@ size_t OID::DecodeValue(BufferedTransformation &bt, word32 &v)
 
 void OID::DEREncode(BufferedTransformation &bt) const
 {
-	CRYPTOPP_ASSERT(m_values.size() >= 2);
+	assert(m_values.size() >= 2);
 	ByteQueue temp;
 	temp.Put(byte(m_values[0] * 40 + m_values[1]));
 	for (size_t i=2; i<m_values.size(); i++)
@@ -351,8 +350,9 @@ void EncodedObjectFilter::Put(const byte *inString, size_t length)
 			if (m_lengthRemaining == 0)
 				m_state = IDENTIFIER;
 
-		case TAIL: case ALL_DONE: ;;
-		default: ;;
+		case TAIL:			// silence warnings
+		case ALL_DONE:
+		default: ;; 
 		}
 
 		if (m_state == IDENTIFIER && m_level == 0)
@@ -405,13 +405,14 @@ void BERGeneralDecoder::Init(byte asnTag)
 
 BERGeneralDecoder::~BERGeneralDecoder()
 {
-	try	// avoid throwing in desstructor
+	try	// avoid throwing in constructor
 	{
 		if (!m_finished)
 			MessageEnd();
 	}
 	catch (const Exception&)
 	{
+		assert(0);
 	}
 }
 
@@ -489,6 +490,8 @@ DERGeneralEncoder::DERGeneralEncoder(BufferedTransformation &outQueue, byte asnT
 {
 }
 
+// TODO: GCC (and likely other compilers) identify this as a copy constructor; and not a constructor.
+//   We have to wait until Crypto++ 6.0 to fix it becuase the signature change breaks versioning.
 DERGeneralEncoder::DERGeneralEncoder(DERGeneralEncoder &outQueue, byte asnTag)
 	: ByteQueue(), m_outQueue(outQueue), m_finished(false), m_asnTag(asnTag)
 {
@@ -496,13 +499,14 @@ DERGeneralEncoder::DERGeneralEncoder(DERGeneralEncoder &outQueue, byte asnTag)
 
 DERGeneralEncoder::~DERGeneralEncoder()
 {
-	try	// avoid throwing in destructor
+	try	// avoid throwing in constructor
 	{
 		if (!m_finished)
 			MessageEnd();
 	}
 	catch (const Exception&)
 	{
+		assert(0);
 	}
 }
 

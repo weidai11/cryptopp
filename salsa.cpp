@@ -3,16 +3,25 @@
 // use "cl /EP /P /DCRYPTOPP_GENERATE_X64_MASM salsa.cpp" to generate MASM code
 
 #include "pch.h"
+#include "config.h"
 
 #ifndef CRYPTOPP_GENERATE_X64_MASM
 
 #include "salsa.h"
-#include "misc.h"
-#include "stdcpp.h"
-#include "smartptr.h"
 #include "argnames.h"
+#include "misc.h"
 #include "cpu.h"
-#include "trap.h"
+
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(disable: 4702 4740)
+#endif
+
+// TODO: work around GCC 4.9+ issue with SSE2 ASM until the exact details are known
+//   and fix is released. Duplicate with "valgrind ./cryptest.exe tv salsa"
+#if (CRYPTOPP_GCC_VERSION >= 40900)
+# undef CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+# define CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE 0
+#endif
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -43,7 +52,9 @@ void Salsa20_Policy::CipherSetKey(const NameValuePairs &params, const byte *key,
 
 void Salsa20_Policy::CipherResynchronize(byte *keystreamBuffer, const byte *IV, size_t length)
 {
-	CRYPTOPP_ASSERT(length==8);
+	CRYPTOPP_UNUSED(keystreamBuffer), CRYPTOPP_UNUSED(length);
+	assert(length==8);
+
 	GetBlock<word32, LittleEndian> get(IV);
 	get(m_state[14])(m_state[11]);
 	m_state[8] = m_state[5] = 0;
@@ -83,7 +94,7 @@ void Salsa20_OperateKeystream(byte *output, const byte *input, size_t iterationC
 }
 #endif
 
-#ifdef _MSC_VER
+#if CRYPTOPP_MSC_VERSION
 # pragma warning(disable: 4731)	// frame pointer register 'ebp' modified by inline assembly code
 #endif
 
@@ -91,11 +102,8 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 {
 #endif	// #ifdef CRYPTOPP_GENERATE_X64_MASM
 
-	// m_state.m_ptr was used below. Fetch it through data() member so we can make SecBlock's members private
-	word32* state = m_state.data();
-
 #ifdef CRYPTOPP_X64_MASM_AVAILABLE
-	Salsa20_OperateKeystream(output, input, iterationCount, m_rounds, state);
+	Salsa20_OperateKeystream(output, input, iterationCount, m_rounds, m_state.data());
 	return;
 #endif
 
@@ -156,16 +164,17 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 	#ifdef __GNUC__
 		__asm__ __volatile__
 		(
-			GNU_AS_INTEL_SYNTAX
+			".intel_syntax noprefix;"
 			AS_PUSH_IF86(	bx)
 	#else
-		word32 rounds = m_rounds;
+		void *s = m_state.data();
+		word32 r = m_rounds;
 
 		AS2(	mov		REG_iterationCount, iterationCount)
 		AS2(	mov		REG_input, input)
 		AS2(	mov		REG_output, output)
-		AS2(	mov		REG_state, state)
-		AS2(	mov		REG_rounds, rounds)
+		AS2(	mov		REG_state, s)
+		AS2(	mov		REG_rounds, r)
 	#endif
 #endif	// #ifndef CRYPTOPP_GENERATE_X64_MASM
 
@@ -463,14 +472,14 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 		AS_POP_IF86(	bp)
 #ifdef __GNUC__
 		AS_POP_IF86(	bx)
-		GNU_AS_ATT_SYNTAX
+		".att_syntax prefix;"
 	#if CRYPTOPP_BOOL_X64
 			: "+r" (input), "+r" (output), "+r" (iterationCount)
-			: "r" (m_rounds), "r" (state), "r" (workspace)
+			: "r" (m_rounds), "r" (m_state.m_ptr), "r" (workspace)
 			: "%eax", "%rdx", "memory", "cc", "%xmm0", "%xmm1", "%xmm2", "%xmm3", "%xmm4", "%xmm5", "%xmm6", "%xmm7", "%xmm8", "%xmm9", "%xmm10", "%xmm11", "%xmm12", "%xmm13", "%xmm14", "%xmm15"
 	#else
 			: "+a" (input), "+D" (output), "+c" (iterationCount)
-			: "d" (m_rounds), "S" (state)
+			: "d" (m_rounds), "S" (m_state.m_ptr)
 			: "memory", "cc"
 	#endif
 		);
@@ -572,7 +581,8 @@ void XSalsa20_Policy::CipherSetKey(const NameValuePairs &params, const byte *key
 
 void XSalsa20_Policy::CipherResynchronize(byte *keystreamBuffer, const byte *IV, size_t length)
 {
-	CRYPTOPP_ASSERT(length==24);
+	CRYPTOPP_UNUSED(keystreamBuffer), CRYPTOPP_UNUSED(length);
+	assert(length==24);
 
 	word32 x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15;
 

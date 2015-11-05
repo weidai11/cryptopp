@@ -1,11 +1,15 @@
 // wait.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
+#include "config.h"
+
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(disable: 4189)
+#endif
+
 #include "wait.h"
-#include "stdcpp.h"
-#include "smartptr.h"
 #include "misc.h"
-#include "trap.h"
+#include "smartptr.h"
 
 #ifdef SOCKETS_AVAILABLE
 
@@ -83,14 +87,14 @@ void WaitObjectContainer::DetectNoWait(LastResultType result, CallStack const& c
 
 void WaitObjectContainer::SetNoWait(CallStack const& callStack)
 {
-	DetectNoWait(LASTRESULT_NOWAIT, CallStack("WaitObjectContainer::SetNoWait()", &callStack));
+	DetectNoWait(LastResultType(LASTRESULT_NOWAIT), CallStack("WaitObjectContainer::SetNoWait()", &callStack));
 	m_noWait = true;
 }
 
 void WaitObjectContainer::ScheduleEvent(double milliseconds, CallStack const& callStack)
 {
 	if (milliseconds <= 3)
-		DetectNoWait(LASTRESULT_SCHEDULED, CallStack("WaitObjectContainer::ScheduleEvent()", &callStack));
+		DetectNoWait(LastResultType(LASTRESULT_SCHEDULED), CallStack("WaitObjectContainer::ScheduleEvent()", &callStack));
 	double thisEventTime = m_eventTimer.ElapsedTimeAsDouble() + milliseconds;
 	if (!m_firstEventTime || thisEventTime < m_firstEventTime)
 		m_firstEventTime = thisEventTime;
@@ -115,29 +119,48 @@ WaitObjectContainer::~WaitObjectContainer()
 	{
 		if (!m_threads.empty())
 		{
-			HANDLE threadHandles[MAXIMUM_WAIT_OBJECTS];
+			HANDLE threadHandles[MAXIMUM_WAIT_OBJECTS] = {0};
+			
 			unsigned int i;
 			for (i=0; i<m_threads.size(); i++)
 			{
+				// Enterprise Analysis warning
+				if(!m_threads[i]) continue;
+
 				WaitingThreadData &thread = *m_threads[i];
 				while (!thread.waitingToWait)	// spin until thread is in the initial "waiting to wait" state
 					Sleep(0);
 				thread.terminate = true;
 				threadHandles[i] = thread.threadHandle;
 			}
-			PulseEvent(m_startWaiting);
-			::WaitForMultipleObjects((DWORD)m_threads.size(), threadHandles, TRUE, INFINITE);
+
+			BOOL bResult = PulseEvent(m_startWaiting);
+			assert(bResult != 0); CRYPTOPP_UNUSED(bResult);
+	
+			// Enterprise Analysis warning
+			DWORD dwResult = ::WaitForMultipleObjects((DWORD)m_threads.size(), threadHandles, TRUE, INFINITE);
+			assert((dwResult >= WAIT_OBJECT_0) && (dwResult < (DWORD)m_threads.size()));
+
 			for (i=0; i<m_threads.size(); i++)
-				CloseHandle(threadHandles[i]);
-			CloseHandle(m_startWaiting);
-			CloseHandle(m_stopWaiting);
+			{
+				// Enterprise Analysis warning
+				if (!threadHandles[i]) continue;
+									
+				bResult = CloseHandle(threadHandles[i]);
+				assert(bResult != 0);
+			}
+
+			bResult = CloseHandle(m_startWaiting);
+			assert(bResult != 0);
+			bResult = CloseHandle(m_stopWaiting);
+			assert(bResult != 0);
 		}
 	}
-	catch (...)
+	catch (const Exception&)
 	{
+		assert(0);
 	}
 }
-
 
 void WaitObjectContainer::AddHandle(HANDLE handle, CallStack const& callStack)
 {
@@ -147,16 +170,17 @@ void WaitObjectContainer::AddHandle(HANDLE handle, CallStack const& callStack)
 
 DWORD WINAPI WaitingThread(LPVOID lParam)
 {
-	auto_ptr<WaitingThreadData> pThread((WaitingThreadData *)lParam);
+	member_ptr<WaitingThreadData> pThread((WaitingThreadData *)lParam);
 	WaitingThreadData &thread = *pThread;
 	std::vector<HANDLE> handles;
 
 	while (true)
 	{
 		thread.waitingToWait = true;
-		::WaitForSingleObject(thread.startWaiting, INFINITE);
+		DWORD result = ::WaitForSingleObject(thread.startWaiting, INFINITE);
+		assert(result != WAIT_FAILED);
+		
 		thread.waitingToWait = false;
-
 		if (thread.terminate)
 			break;
 		if (!thread.count)
@@ -166,14 +190,15 @@ DWORD WINAPI WaitingThread(LPVOID lParam)
 		handles[0] = thread.stopWaiting;
 		std::copy(thread.waitHandles, thread.waitHandles+thread.count, handles.begin()+1);
 
-		DWORD result = ::WaitForMultipleObjects((DWORD)handles.size(), &handles[0], FALSE, INFINITE);
+		result = ::WaitForMultipleObjects((DWORD)handles.size(), &handles[0], FALSE, INFINITE);
+		assert(result != WAIT_FAILED);
 
 		if (result == WAIT_OBJECT_0)
 			continue;	// another thread finished waiting first, so do nothing
 		SetEvent(thread.stopWaiting);
 		if (!(result > WAIT_OBJECT_0 && result < WAIT_OBJECT_0 + handles.size()))
 		{
-			CRYPTOPP_ASSERT(!"error in WaitingThread");	// break here so we can see which thread has an error
+			assert(!"error in WaitingThread");	// break here so we can see which thread has an error
 			*thread.error = ::GetLastError();
 		}
 	}
@@ -195,6 +220,9 @@ void WaitObjectContainer::CreateThreads(unsigned int count)
 		m_threads.resize(count);
 		for (size_t i=currentCount; i<count; i++)
 		{
+			// Enterprise Analysis warning
+			if(!m_threads[i]) continue;
+	
 			m_threads[i] = new WaitingThreadData;
 			WaitingThreadData &thread = *m_threads[i];
 			thread.terminate = false;
@@ -210,7 +238,7 @@ bool WaitObjectContainer::Wait(unsigned long milliseconds)
 {
 	if (m_noWait || (m_handles.empty() && !m_firstEventTime))
 	{
-		SetLastResult(LASTRESULT_NOWAIT);
+		SetLastResult(LastResultType(LASTRESULT_NOWAIT));
 		return true;
 	}
 
@@ -247,6 +275,9 @@ bool WaitObjectContainer::Wait(unsigned long milliseconds)
 		
 		for (unsigned int i=0; i<m_threads.size(); i++)
 		{
+			// Enterprise Analysis warning
+			if(!m_threads[i]) continue;
+
 			WaitingThreadData &thread = *m_threads[i];
 			while (!thread.waitingToWait)	// spin until thread is in the initial "waiting to wait" state
 				Sleep(0);
@@ -264,6 +295,8 @@ bool WaitObjectContainer::Wait(unsigned long milliseconds)
 		PulseEvent(m_startWaiting);
 
 		DWORD result = ::WaitForSingleObject(m_stopWaiting, milliseconds);
+		assert(result != WAIT_FAILED);
+
 		if (result == WAIT_OBJECT_0)
 		{
 			if (error == S_OK)

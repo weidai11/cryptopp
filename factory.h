@@ -3,15 +3,7 @@
 
 #include "cryptlib.h"
 #include "misc.h"
-#include <map>
-#include <vector>
-
-#if GCC_DIAGNOSTIC_AWARE
-# pragma GCC diagnostic push
-# pragma GCC diagnostic ignored "-Wunused-value"
-# pragma GCC diagnostic ignored "-Wunused-variable"
-# pragma GCC diagnostic ignored "-Wunused-parameter"
-#endif
+#include "stdcpp.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -33,7 +25,6 @@ public:
 	{
 		return new ConcreteClass;
 	}
-	
 };
 
 //! _
@@ -114,6 +105,7 @@ RegisterDefaultFactoryFor(const char *name=NULL)
 template <class SchemeClass>
 void RegisterAsymmetricCipherDefaultFactories(const char *name=NULL, SchemeClass *dummy=NULL)
 {
+	CRYPTOPP_UNUSED(dummy);
 	RegisterDefaultFactoryFor<PK_Encryptor, CPP_TYPENAME SchemeClass::Encryptor>((const char *)name);
 	RegisterDefaultFactoryFor<PK_Decryptor, CPP_TYPENAME SchemeClass::Decryptor>((const char *)name);
 }
@@ -121,6 +113,7 @@ void RegisterAsymmetricCipherDefaultFactories(const char *name=NULL, SchemeClass
 template <class SchemeClass>
 void RegisterSignatureSchemeDefaultFactories(const char *name=NULL, SchemeClass *dummy=NULL)
 {
+	CRYPTOPP_UNUSED(dummy);
 	RegisterDefaultFactoryFor<PK_Signer, CPP_TYPENAME SchemeClass::Signer>((const char *)name);
 	RegisterDefaultFactoryFor<PK_Verifier, CPP_TYPENAME SchemeClass::Verifier>((const char *)name);
 }
@@ -128,6 +121,7 @@ void RegisterSignatureSchemeDefaultFactories(const char *name=NULL, SchemeClass 
 template <class SchemeClass>
 void RegisterSymmetricCipherDefaultFactories(const char *name=NULL, SchemeClass *dummy=NULL)
 {
+	CRYPTOPP_UNUSED(dummy);
 	RegisterDefaultFactoryFor<SymmetricCipher, CPP_TYPENAME SchemeClass::Encryption, ENCRYPTION>((const char *)name);
 	RegisterDefaultFactoryFor<SymmetricCipher, CPP_TYPENAME SchemeClass::Decryption, DECRYPTION>((const char *)name);
 }
@@ -135,14 +129,11 @@ void RegisterSymmetricCipherDefaultFactories(const char *name=NULL, SchemeClass 
 template <class SchemeClass>
 void RegisterAuthenticatedSymmetricCipherDefaultFactories(const char *name=NULL, SchemeClass *dummy=NULL)
 {
+	CRYPTOPP_UNUSED(dummy);
 	RegisterDefaultFactoryFor<AuthenticatedSymmetricCipher, CPP_TYPENAME SchemeClass::Encryption, ENCRYPTION>((const char *)name);
 	RegisterDefaultFactoryFor<AuthenticatedSymmetricCipher, CPP_TYPENAME SchemeClass::Decryption, DECRYPTION>((const char *)name);
 }
 
 NAMESPACE_END
-
-#if GCC_DIAGNOSTIC_AWARE
-# pragma GCC diagnostic push
-#endif
 
 #endif

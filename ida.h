@@ -1,9 +1,13 @@
 #ifndef CRYPTOPP_IDA_H
 #define CRYPTOPP_IDA_H
 
+#include "cryptlib.h"
 #include "mqueue.h"
 #include "filters.h"
 #include "channels.h"
+#include "secblock.h"
+#include "misc.h"
+
 #include <map>
 #include <vector>
 
@@ -136,7 +140,8 @@ public:
 	PaddingRemover(BufferedTransformation *attachment=NULL)
 		: m_possiblePadding(false) {Detach(attachment);}
 
-	void IsolatedInitialize(const NameValuePairs &parameters) {m_possiblePadding = false;}
+	void IsolatedInitialize(const NameValuePairs &parameters)
+		{CRYPTOPP_UNUSED(parameters); m_possiblePadding = false;}
 	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking);
 
 	// GetPossiblePadding() == false at the end of a message indicates incorrect padding

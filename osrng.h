@@ -7,11 +7,13 @@
 
 #ifdef OS_RNG_AVAILABLE
 
+#include "cryptlib.h"
 #include "randpool.h"
+#include "smartptr.h"
+#include "fips140.h"
 #include "rng.h"
 #include "aes.h"
 #include "sha.h"
-#include "fips140.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -34,7 +36,7 @@ public:
 // type HCRYPTPROV, avoid #include <windows.h>
 #if defined(__CYGWIN__) && defined(__x86_64__)
 	typedef unsigned long long ProviderHandle;
-#elif defined(_WIN64)
+#elif defined(WIN64) || defined(_WIN64)
 	typedef unsigned __int64 ProviderHandle;
 #else
 	typedef unsigned long ProviderHandle;

@@ -7,6 +7,7 @@
 
 #include "cryptlib.h"
 #include "pubkey.h"
+#include "misc.h"
 
 #ifdef CRYPTOPP_IS_DLL
 #include "sha.h"
@@ -62,7 +63,7 @@ public:
 	static const char * CRYPTOPP_API StaticAlgorithmName() {return "EMSA2";}
 	
 	size_t MinRepresentativeBitLength(size_t hashIdentifierLength, size_t digestLength) const
-		{return 8*digestLength + 31;}
+		{CRYPTOPP_UNUSED(hashIdentifierLength); return 8*digestLength + 31;}
 
 	void ComputeMessageRepresentative(RandomNumberGenerator &rng, 
 		const byte *recoverableMessage, size_t recoverableMessageLength,

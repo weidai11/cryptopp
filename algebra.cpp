@@ -7,7 +7,6 @@
 
 #include "algebra.h"
 #include "integer.h"
-#include "trap.h"
 
 #include <vector>
 
@@ -207,50 +206,49 @@ template <class Element, class Iterator> Element GeneralCascadeMultiplication(co
 struct WindowSlider
 {
 	WindowSlider(const Integer &expIn, bool fastNegate, unsigned int windowSizeIn=0)
-		: m_exp(expIn), m_windowModulus(Integer::One()), m_windowSize(windowSizeIn), m_windowBegin(0), m_fastNegate(fastNegate), m_negateNext(false), m_firstTime(true), m_finished(false)
+		: exp(expIn), windowModulus(Integer::One()), windowSize(windowSizeIn), windowBegin(0), fastNegate(fastNegate), negateNext(false), firstTime(true), finished(false)
 	{
-		if (m_windowSize == 0)
+		if (windowSize == 0)
 		{
-			const unsigned int expLen = m_exp.BitCount();
-			m_windowSize = expLen <= 17 ? 1 : (expLen <= 24 ? 2 : (expLen <= 70 ? 3 : (expLen <= 197 ? 4 : (expLen <= 539 ? 5 : (expLen <= 1434 ? 6 : 7)))));
+			unsigned int expLen = exp.BitCount();
+			windowSize = expLen <= 17 ? 1 : (expLen <= 24 ? 2 : (expLen <= 70 ? 3 : (expLen <= 197 ? 4 : (expLen <= 539 ? 5 : (expLen <= 1434 ? 6 : 7)))));
 		}
-		m_windowModulus <<= m_windowSize;
+		windowModulus <<= windowSize;
 	}
 
 	void FindNextWindow()
 	{
-		const unsigned int expLen = m_exp.WordCount() * WORD_BITS;
-		unsigned int skipCount = m_firstTime ? 0 : m_windowSize;
-		m_firstTime = false;
-
-		while (!m_exp.GetBit(skipCount))
+		unsigned int expLen = exp.WordCount() * WORD_BITS;
+		unsigned int skipCount = firstTime ? 0 : windowSize;
+		firstTime = false;
+		while (!exp.GetBit(skipCount))
 		{
 			if (skipCount >= expLen)
 			{
-				m_finished = true;
+				finished = true;
 				return;
 			}
 			skipCount++;
 		}
 
-		m_exp >>= skipCount;
-		m_windowBegin += skipCount;
-		m_expWindow = word32(m_exp % (word(1) << m_windowSize));
+		exp >>= skipCount;
+		windowBegin += skipCount;
+		expWindow = word32(exp % (word(1) << windowSize));
 
-		if (m_fastNegate && m_exp.GetBit(m_windowSize))
+		if (fastNegate && exp.GetBit(windowSize))
 		{
-			m_negateNext = true;
-			m_expWindow = (word32(1) << m_windowSize) - m_expWindow;
-			m_exp += m_windowModulus;
+			negateNext = true;
+			expWindow = (word32(1) << windowSize) - expWindow;
+			exp += windowModulus;
 		}
 		else
-			m_negateNext = false;
+			negateNext = false;
 	}
 
-	Integer m_exp, m_windowModulus;
-	unsigned int m_windowSize, m_windowBegin;
-	word32 m_expWindow;
-	bool m_fastNegate, m_negateNext, m_firstTime, m_finished;
+	Integer exp, windowModulus;
+	unsigned int windowSize, windowBegin;
+	word32 expWindow;
+	bool fastNegate, negateNext, firstTime, finished;
 };
 
 template <class T>
@@ -263,10 +261,10 @@ void AbstractGroup<T>::SimultaneousMultiply(T *results, const T &base, const Int
 
 	for (i=0; i<expCount; i++)
 	{
-		CRYPTOPP_ASSERT(expBegin->NotNegative());
+		assert(expBegin->NotNegative());
 		exponents.push_back(WindowSlider(*expBegin++, InversionIsFast(), 0));
 		exponents[i].FindNextWindow();
-		buckets[i].resize(1<<(exponents[i].m_windowSize-1), Identity());
+		buckets[i].resize(1<<(exponents[i].windowSize-1), Identity());
 	}
 
 	unsigned int expBitPosition = 0;
@@ -278,16 +276,16 @@ void AbstractGroup<T>::SimultaneousMultiply(T *results, const T &base, const Int
 		notDone = false;
 		for (i=0; i<expCount; i++)
 		{
-			if (!exponents[i].m_finished && expBitPosition == exponents[i].m_windowBegin)
+			if (!exponents[i].finished && expBitPosition == exponents[i].windowBegin)
 			{
-				Element &bucket = buckets[i][exponents[i].m_expWindow/2];
-				if (exponents[i].m_negateNext)
+				Element &bucket = buckets[i][exponents[i].expWindow/2];
+				if (exponents[i].negateNext)
 					Accumulate(bucket, Inverse(g));
 				else
 					Accumulate(bucket, g);
 				exponents[i].FindNextWindow();
 			}
-			notDone = notDone || !exponents[i].m_finished;
+			notDone = notDone || !exponents[i].finished;
 		}
 
 		if (notDone)

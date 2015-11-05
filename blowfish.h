@@ -1,24 +1,32 @@
 // blowfish.h - written and placed in the public domain by Wei Dai
 
+//! \file
+//! \brief Class files for the Blowfish algorithm
+
 #ifndef CRYPTOPP_BLOWFISH_H
 #define CRYPTOPP_BLOWFISH_H
-
-/** \file */
 
 #include "seckey.h"
 #include "secblock.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! _
+//! \class Blowfish_Info
+//! \brief The cipher's key, iv, block size and name information.
 struct Blowfish_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 4, 56>, public FixedRounds<16>
 {
 	static const char *StaticAlgorithmName() {return "Blowfish";}
 };
 
-//! <a href="http://www.weidai.com/scan-mirror/cs.html#Blowfish">Blowfish</a>
+// <a href="http://www.weidai.com/scan-mirror/cs.html#Blowfish">Blowfish</a>
+
+//! \class Blowfish
+//! \brief Provides Blowfish encryption and decryption
 class Blowfish : public Blowfish_Info, public BlockCipherDocumentation
 {
+	//! \class Base
+	//! \brief Class specific implementation and overrides used to operate the cipher.
+	//! \details Implementations and overrides in \p Base apply to both \p ENCRYPTION and \p DECRYPTION directions
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<Blowfish_Info>
 	{
 	public:

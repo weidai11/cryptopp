@@ -1,9 +1,11 @@
 // Twofish tables
 
 #include "pch.h"
+#include "config.h"
+
 #include "twofish.h"
 
-#if GCC_DIAGNOSTIC_AWARE
+#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
 # pragma GCC diagnostic ignored "-Wmissing-braces"
 #endif
 

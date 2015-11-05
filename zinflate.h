@@ -1,9 +1,9 @@
 #ifndef CRYPTOPP_ZINFLATE_H
 #define CRYPTOPP_ZINFLATE_H
 
+#include "cryptlib.h"
 #include "filters.h"
-#include "trap.h"
-
+#include "secblock.h"
 #include <vector>
 
 NAMESPACE_BEGIN(CryptoPP)

@@ -1,16 +1,19 @@
 // gf2n.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
+#include "config.h"
 
 #ifndef CRYPTOPP_IMPORTS
 
-#include "gf2n.h"
+#include "cryptlib.h"
 #include "algebra.h"
 #include "words.h"
 #include "randpool.h"
+#include "filters.h"
+#include "smartptr.h"
+#include "gf2n.h"
 #include "asn.h"
 #include "oids.h"
-#include "trap.h"
 
 #include <iostream>
 
@@ -23,7 +26,7 @@ PolynomialMod2::PolynomialMod2()
 PolynomialMod2::PolynomialMod2(word value, size_t bitLength)
 	: reg(BitsToWords(bitLength))
 {
-	CRYPTOPP_ASSERT(value==0 || reg.size()>0);
+	assert(value==0 || reg.size()>0);
 
 	if (reg.size() > 0)
 	{
@@ -50,7 +53,7 @@ void PolynomialMod2::Randomize(RandomNumberGenerator &rng, size_t nbits)
 PolynomialMod2 PolynomialMod2::AllOnes(size_t bitLength)
 {
 	PolynomialMod2 result((word)0, bitLength);
-	SetWords(result.reg, ~(word)0, result.reg.size());
+	SetWords(result.reg, word(SIZE_MAX), result.reg.size());
 	if (bitLength%WORD_BITS)
 		result.reg[result.reg.size()-1] = (word)Crop(result.reg[result.reg.size()-1], bitLength%WORD_BITS);
 	return result;
@@ -211,7 +214,6 @@ unsigned int PolynomialMod2::Parity() const
 
 PolynomialMod2& PolynomialMod2::operator=(const PolynomialMod2& t)
 {
-	// Assign guards for self-assignment
 	reg.Assign(t.reg);
 	return *this;
 }
@@ -551,7 +553,7 @@ GF2NP::Element GF2NP::SquareRoot(const Element &a) const
 
 GF2NP::Element GF2NP::HalfTrace(const Element &a) const
 {
-	CRYPTOPP_ASSERT(m%2 == 1);
+	assert(m%2 == 1);
 	Element h = a;
 	for (unsigned int i=1; i<=(m-1)/2; i++)
 		h = Add(Square(Square(h)), a);
@@ -590,7 +592,7 @@ GF2NT::GF2NT(unsigned int t0, unsigned int t1, unsigned int t2)
 	, t0(t0), t1(t1)
 	, result((word)0, m)
 {
-	CRYPTOPP_ASSERT(t0 > t1 && t1 > t2 && t2==0);
+	assert(t0 > t1 && t1 > t2 && t2==0);
 }
 
 const GF2NT::Element& GF2NT::MultiplicativeInverse(const Element &a) const
@@ -608,7 +610,7 @@ const GF2NT::Element& GF2NT::MultiplicativeInverse(const Element &a) const
 
 	SetWords(T, 0, 3*m_modulus.reg.size());
 	b[0]=1;
-	CRYPTOPP_ASSERT(a.reg.size() <= m_modulus.reg.size());
+	assert(a.reg.size() <= m_modulus.reg.size());
 	CopyWords(f, a.reg, a.reg.size());
 	CopyWords(g, m_modulus.reg, m_modulus.reg.size());
 
@@ -620,7 +622,7 @@ const GF2NT::Element& GF2NT::MultiplicativeInverse(const Element &a) const
 			ShiftWordsRightByWords(f, fgLen, 1);
 			if (c[bcLen-1])
 				bcLen++;
-			CRYPTOPP_ASSERT(bcLen <= m_modulus.reg.size());
+			assert(bcLen <= m_modulus.reg.size());
 			ShiftWordsLeftByWords(c, bcLen, 1);
 			k+=WORD_BITS;
 			t=f[0];
@@ -651,7 +653,7 @@ const GF2NT::Element& GF2NT::MultiplicativeInverse(const Element &a) const
 		{
 			c[bcLen] = t;
 			bcLen++;
-			CRYPTOPP_ASSERT(bcLen <= m_modulus.reg.size());
+			assert(bcLen <= m_modulus.reg.size());
 		}
 
 		if (f[fgLen-1]==0 && g[fgLen-1]==0)
@@ -791,7 +793,7 @@ const GF2NT::Element& GF2NT::Reduced(const Element &a) const
 			if ((t0-t1)%WORD_BITS > t0%WORD_BITS)
 				b[i-(t0-t1)/WORD_BITS-1] ^= temp << (WORD_BITS - (t0-t1)%WORD_BITS);
 			else
-				CRYPTOPP_ASSERT(temp << (WORD_BITS - (t0-t1)%WORD_BITS) == 0);
+				assert(temp << (WORD_BITS - (t0-t1)%WORD_BITS) == 0);
 		}
 		else
 			b[i-(t0-t1)/WORD_BITS] ^= temp;
@@ -842,7 +844,6 @@ void GF2NPP::DEREncode(BufferedTransformation &bt) const
 
 GF2NP * BERDecodeGF2NP(BufferedTransformation &bt)
 {
-	// VC60 workaround: auto_ptr lacks reset()
 	member_ptr<GF2NP> result;
 
 	BERSequenceDecoder seq(bt);

@@ -1,19 +1,11 @@
 #ifndef CRYPTOPP_SOCKETFT_H
 #define CRYPTOPP_SOCKETFT_H
 
-#include "config.h"
-
 #ifdef SOCKETS_AVAILABLE
 
-// Avoid _WINSOCK_DEPRECATED_NO_WARNINGS
-#if (_MSC_VER)
-# pragma warning (push)
-# pragma warning (disable: 4996)
-#endif
-
+#include "cryptlib.h"
 #include "network.h"
 #include "queue.h"
-#include "trap.h"
 
 #ifdef USE_WINDOWS_STYLE_SOCKETS
 #	if defined(_WINSOCKAPI_) && !defined(_WINSOCK2API_)
@@ -97,10 +89,10 @@ public:
 	void CheckAndHandleError_int(const char *operation, int result) const
 		{if (result == SOCKET_ERROR) HandleError(operation);}
 	void CheckAndHandleError(const char *operation, socket_t result) const
-		{if (result == SOCKET_ERROR) HandleError(operation);}
+		{if (result == static_cast<socket_t>(SOCKET_ERROR)) HandleError(operation);}
 #ifdef USE_WINDOWS_STYLE_SOCKETS
 	void CheckAndHandleError(const char *operation, BOOL result) const
-		{CRYPTOPP_ASSERT(result==TRUE || result==FALSE); if (!result) HandleError(operation);}
+		{assert(result==TRUE || result==FALSE); if (!result) HandleError(operation);}
 	void CheckAndHandleError(const char *operation, bool result) const
 		{if (!result) HandleError(operation);}
 #endif
@@ -127,7 +119,7 @@ class SocketsInitializer
 {
 public:
 	SocketsInitializer() {Socket::StartSockets();}
-	~SocketsInitializer() {try {Socket::ShutdownSockets();} catch (...) {}}
+	~SocketsInitializer() {try {Socket::ShutdownSockets();} catch (const Exception&) {assert(0);}}
 };
 
 class SocketReceiver : public NetworkReceiver
@@ -225,11 +217,6 @@ private:
 };
 
 NAMESPACE_END
-
-// Avoid _WINSOCK_DEPRECATED_NO_WARNINGS
-#if (_MSC_VER)
-# pragma warning (pop)
-#endif
 
 #endif	// #ifdef SOCKETS_AVAILABLE
 

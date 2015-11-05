@@ -1,10 +1,13 @@
 #ifndef CRYPTOPP_ELGAMAL_H
 #define CRYPTOPP_ELGAMAL_H
 
-#include "config.h"
-#include "integer.h"
+#include "cryptlib.h"
 #include "modexppc.h"
+#include "integer.h"
+#include "gfpcrypt.h"
+#include "pubkey.h"
 #include "dsa.h"
+#include "misc.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -15,11 +18,13 @@ class CRYPTOPP_NO_VTABLE ElGamalBase : public DL_KeyAgreementAlgorithm_DH<Intege
 public:
 	void Derive(const DL_GroupParameters<Integer> &groupParams, byte *derivedKey, size_t derivedLength, const Integer &agreedElement, const Integer &ephemeralPublicKey, const NameValuePairs &derivationParams) const
 	{
+		CRYPTOPP_UNUSED(groupParams), CRYPTOPP_UNUSED(ephemeralPublicKey), CRYPTOPP_UNUSED(derivationParams);
 		agreedElement.Encode(derivedKey, derivedLength);
 	}
 
 	size_t GetSymmetricKeyLength(size_t plainTextLength) const
 	{
+		CRYPTOPP_UNUSED(plainTextLength);
 		return GetGroupParameters().GetModulus().ByteCount();
 	}
 
@@ -43,6 +48,7 @@ public:
 
 	void SymmetricEncrypt(RandomNumberGenerator &rng, const byte *key, const byte *plainText, size_t plainTextLength, byte *cipherText, const NameValuePairs &parameters) const
 	{
+		CRYPTOPP_UNUSED(parameters);
 		const Integer &p = GetGroupParameters().GetModulus();
 		unsigned int modulusLen = p.ByteCount();
 
@@ -56,6 +62,7 @@ public:
 
 	DecodingResult SymmetricDecrypt(const byte *key, const byte *cipherText, size_t cipherTextLength, byte *plainText, const NameValuePairs &parameters) const
 	{
+		CRYPTOPP_UNUSED(parameters);
 		const Integer &p = GetGroupParameters().GetModulus();
 		unsigned int modulusLen = p.ByteCount();
 
@@ -74,6 +81,10 @@ public:
 	}
 
 	virtual const DL_GroupParameters_GFP & GetGroupParameters() const =0;
+	
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~ElGamalBase() {}
+#endif
 };
 
 template <class BASE, class SCHEME_OPTIONS, class KEY>
@@ -87,6 +98,10 @@ public:
 
 	DecodingResult FixedLengthDecrypt(RandomNumberGenerator &rng, const byte *cipherText, byte *plainText) const
 		{return Decrypt(rng, cipherText, FixedCiphertextLength(), plainText);}
+
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~ElGamalObjectImpl() {}
+#endif
 
 protected:
 	const DL_KeyAgreementAlgorithm<Integer> & GetKeyAgreementAlgorithm() const {return *this;}

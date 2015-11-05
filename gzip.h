@@ -1,6 +1,7 @@
 #ifndef CRYPTOPP_GZIP_H
 #define CRYPTOPP_GZIP_H
 
+#include "cryptlib.h"
 #include "zdeflate.h"
 #include "zinflate.h"
 #include "crc.h"
@@ -28,7 +29,8 @@ protected:
 	CRC32 m_crc;
 };
 
-/// GZIP Decompression (RFC 1952)
+//! \class Gunzip
+//! \brief GZIP Decompression (RFC 1952)
 class Gunzip : public Inflator
 {
 public:
@@ -38,14 +40,21 @@ public:
 	class CrcErr : public Err {public: CrcErr() : Err(DATA_INTEGRITY_CHECK_FAILED, "Gunzip: CRC check error") {}};
 	class LengthErr : public Err {public: LengthErr() : Err(DATA_INTEGRITY_CHECK_FAILED, "Gunzip: length check error") {}};
 
-	/*! \param repeat decompress multiple compressed streams in series
-		\param autoSignalPropagation 0 to turn off MessageEnd signal
-	*/
+	//! \brief Construct a Gunzip
+	//! \param attachment a \ BufferedTransformation to attach to this object
+	//! \param repeat decompress multiple compressed streams in series
+	//! \param autoSignalPropagation 0 to turn off MessageEnd signal
 	Gunzip(BufferedTransformation *attachment = NULL, bool repeat = false, int autoSignalPropagation = -1);
 
 protected:
-	enum {MAGIC1=0x1f, MAGIC2=0x8b,   // flags for the header
-		DEFLATED=8};
+	enum {
+		//! \brief First header magic value
+		MAGIC1=0x1f,
+		//! \brief Second header magic value
+		MAGIC2=0x8b,
+		//! \brief Deflated flag
+		DEFLATED=8
+	};
 
 	enum FLAG_MASKS {
 		CONTINUED=2, EXTRA_FIELDS=4, FILENAME=8, COMMENTS=16, ENCRYPTED=32};

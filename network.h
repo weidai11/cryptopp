@@ -115,7 +115,7 @@ public:
 	virtual float GetMaxObservedSpeed() const =0;
 };
 
-//! a Sink class that queues input and can std::flush to a device for a specified amount of time.
+//! a Sink class that queues input and can flush to a device for a specified amount of time.
 class CRYPTOPP_NO_VTABLE NonblockingSink : public Sink, public NonblockingSinkInfo, public LimitedBandwidth
 {
 public:
@@ -123,20 +123,20 @@ public:
 
 	bool IsolatedFlush(bool hardFlush, bool blocking);
 
-	//! std::flush to device for no more than maxTime milliseconds
-	/*! This function will repeatedly attempt to std::flush data to some device, until
+	//! flush to device for no more than maxTime milliseconds
+	/*! This function will repeatedly attempt to flush data to some device, until
 		the queue is empty, or a total of maxTime milliseconds have elapsed.
-		If maxTime == 0, at least one attempt will be made to std::flush some data, but
-		it is likely that not all queued data will be std::flushed, even if the device
-		is ready to receive more data without waiting. If you want to std::flush as much data
+		If maxTime == 0, at least one attempt will be made to flush some data, but
+		it is likely that not all queued data will be flushed, even if the device
+		is ready to receive more data without waiting. If you want to flush as much data
 		as possible without waiting for the device, call this function in a loop.
 		For example: while (sink.TimedFlush(0) > 0) {}
-		\return number of bytes std::flushed
+		\return number of bytes flushed
 	*/
 	lword TimedFlush(unsigned long maxTime, size_t targetSize = 0);
 
 	virtual void SetMaxBufferSize(size_t maxBufferSize) =0;
-	//! set a bound which will cause sink to std::flush if exceeded by GetCurrentBufferSize()
+	//! set a bound which will cause sink to flush if exceeded by GetCurrentBufferSize()
 	virtual void SetAutoFlushBound(size_t bound) =0;
 
 protected:
