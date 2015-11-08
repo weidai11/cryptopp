@@ -18,6 +18,7 @@ CP ?= cp
 CHMOD ?= chmod
 MKDIR ?= mkdir
 EGREP ?= egrep
+LN ?= ln -sf
 
 UNAME := $(shell uname)
 IS_X86 := $(shell uname -m | $(EGREP) -i -c "i.86|x86|i86|amd64")
@@ -34,6 +35,8 @@ GCC_COMPILER := $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "(gcc|g\+\+)")
 CLANG_COMPILER := $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "clang")
 INTEL_COMPILER := $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(ICC\)")
 MACPORTS_COMPILER := $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "macports")
+
+HAS_SOLIB_VERSION := $(IS_LINUX)
 
 # Default prefix for make install
 ifeq ($(PREFIX),)
@@ -260,6 +263,12 @@ LIB_VER := $(shell $(EGREP) "define CRYPTOPP_VERSION" config.h | cut -d" " -f 3)
 LIB_MAJOR := $(shell echo $(LIB_VER) | cut -c 1)
 LIB_MINOR := $(shell echo $(LIB_VER) | cut -c 2)
 LIB_PATCH := $(shell echo $(LIB_VER) | cut -c 3)
+ifeq ($(HAS_SOLIB_VERSION),1)
+SOLIB_VERSION_SUFFIX=.$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)
+SOLIB_COMPAT_SUFFIX=.$(LIB_MAJOR).$(LIB_MINOR)
+# Different patchlevels are compatible, minor versions are not
+SOLIB_FLAGS=-Wl,-soname,libcryptopp.so.$(LIB_MAJOR).$(LIB_MINOR)
+endif # HAS_SOLIB_VERSION
 
 all: cryptest.exe
 
@@ -268,7 +277,7 @@ static: libcryptopp.a
 shared dynamic dylib: libcryptopp.dylib
 else
 static: libcryptopp.a
-shared dynamic: libcryptopp.so
+shared dynamic: libcryptopp.so$(SOLIB_VERSION_SUFFIX)
 endif
 
 .PHONY: deps
@@ -296,7 +305,10 @@ docs html:
 
 .PHONY: clean
 clean:
-	-$(RM) libcryptopp.a libcryptopp.so libcryptopp.dylib cryptopp.dll libcryptopp.dll.a libcryptopp.import.a
+	-$(RM) libcryptopp.a libcryptopp.so$(SOLIB_VERSION_SUFFIX) libcryptopp.dylib cryptopp.dll libcryptopp.dll.a libcryptopp.import.a
+ifeq ($(HAS_SOLIB_VERSION),1)
+	-$(RM) libcryptopp.so libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
+endif
 	-$(RM) adhoc.cpp.o adhoc.cpp.proto.o $(LIBOBJS) $(TESTOBJS) $(DLLOBJS) $(LIBIMPORTOBJS) $(TESTIMPORTOBJS) $(DLLTESTOBJS) *.stackdump core-*
 	-$(RM) cryptest.exe dlltest.exe cryptest.import.exe ct
 ifneq ($(wildcard *.exe.dSYM),)
@@ -318,6 +330,7 @@ endif
 
 .PHONY: install
 install:
+	-$(RM) -r $(PREFIX)/include/cryptopp
 	$(MKDIR) -p $(PREFIX)/include/cryptopp $(PREFIX)/lib $(PREFIX)/bin
 	-$(CP) *.h $(PREFIX)/include/cryptopp
 	-$(CHMOD) 755 $(PREFIX)/include/cryptopp
@@ -330,8 +343,14 @@ ifneq ($(IS_DARWIN),0)
 	-$(CP) libcryptopp.dylib $(PREFIX)/lib
 	-$(CHMOD) 755 $(PREFIX)/lib/libcryptopp.dylib
 else
-	-$(CP) libcryptopp.so $(PREFIX)/lib
-	-$(CHMOD) 755 $(PREFIX)/lib/libcryptopp.so
+ifneq ($(wildcard libcryptopp.so$(SOLIB_VERSION_SUFFIX)),)
+	-$(CP) libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(PREFIX)/lib
+	-$(CHMOD) 755 $(PREFIX)/lib/libcryptopp.so$(SOLIB_VERSION_SUFFIX)
+ifeq ($(HAS_SOLIB_VERSION),1)
+	-$(LN) -sf libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(PREFIX)/lib/libcryptopp.so
+	ldconfig
+endif
+endif
 endif
 
 .PHONY: remove uninstall
@@ -342,15 +361,23 @@ remove uninstall:
 ifneq ($(IS_DARWIN),0)
 	-$(RM) $(PREFIX)/lib/libcryptopp.dylib
 else
+	-$(RM) $(PREFIX)/lib/libcryptopp.so$(SOLIB_VERSION_SUFFIX)
+ifeq ($(HAS_SOLIB_VERSION),1)
 	-$(RM) $(PREFIX)/lib/libcryptopp.so
+	ldconfig
+endif
 endif
 
 libcryptopp.a: public_service | $(LIBOBJS)
 	$(AR) $(ARFLAGS) $@ $(LIBOBJS)
 	$(RANLIB) $@
 
-libcryptopp.so: public_service | $(LIBOBJS)
-	$(CXX) -shared -o $@ $(CXXFLAGS) $(GOLD_OPTION) $(LIBOBJS) $(LDLIBS)
+libcryptopp.so$(SOLIB_VERSION_SUFFIX): public_service | $(LIBOBJS)
+	$(CXX) -shared $(SOLIB_FLAGS) -o $@ $(CXXFLAGS) $(GOLD_OPTION) $(LIBOBJS) $(LDLIBS)
+ifeq ($(HAS_SOLIB_VERSION),1)
+	-$(LN) libcryptopp.so$(SOLIB_VERSION_SUFFIX) libcryptopp.so
+	-$(LN) libcryptopp.so$(SOLIB_VERSION_SUFFIX) libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
+endif
 
 libcryptopp.dylib: $(LIBOBJS)
 	$(CXX) -dynamiclib -o $@ $(CXXFLAGS) -install_name "$@" -current_version "$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)" -compatibility_version "$(LIB_MAJOR).$(LIB_MINOR)" $(LIBOBJS)
