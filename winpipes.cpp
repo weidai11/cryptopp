@@ -91,7 +91,7 @@ bool WindowsPipeReceiver::Receive(byte* buf, size_t bufLen)
 {
 	assert(!m_resultPending && !m_eofReceived);
 
-	HANDLE h = GetHandle();
+	const HANDLE h = GetHandle();
 	// don't queue too much at once, or we might use up non-paged memory
 	if (ReadFile(h, buf, UnsignedMin((DWORD)128*1024, bufLen), &m_lastResult, &m_overlapped))
 	{
@@ -128,7 +128,7 @@ unsigned int WindowsPipeReceiver::GetReceiveResult()
 {
 	if (m_resultPending)
 	{
-		HANDLE h = GetHandle();
+		const HANDLE h = GetHandle();
 		if (GetOverlappedResult(h, &m_overlapped, &m_lastResult, false))
 		{
 			if (m_lastResult == 0)
@@ -165,7 +165,7 @@ WindowsPipeSender::WindowsPipeSender()
 void WindowsPipeSender::Send(const byte* buf, size_t bufLen)
 {
 	DWORD written = 0;
-	HANDLE h = GetHandle();
+	const HANDLE h = GetHandle();
 	// don't queue too much at once, or we might use up non-paged memory
 	if (WriteFile(h, buf, UnsignedMin((DWORD)128*1024, bufLen), &written, &m_overlapped))
 	{
@@ -193,7 +193,7 @@ unsigned int WindowsPipeSender::GetSendResult()
 {
 	if (m_resultPending)
 	{
-		HANDLE h = GetHandle();
+		const HANDLE h = GetHandle();
 		BOOL result = GetOverlappedResult(h, &m_overlapped, &m_lastResult, false);
 		CheckAndHandleError("GetOverlappedResult", result);
 		m_resultPending = false;
