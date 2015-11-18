@@ -1,10 +1,9 @@
 ;; rdrand.asm - written and placed in public domain by Jeffrey Walton and Uri Blumenthal.
 ;;              Copyright assigned to the Crypto++ project.
 
-;; This ASM file exists for one reason only - to emit the RDRAND instruction for Microsoft platforms.
-;; We can't call RDRAND directly on some versions of the toolchain (prior to CL 17.00/VS2012).
-;; Additionally, Microsoft/Intel penalizes AMD CPUs with the feature. To avoid these troubles, we
-;; provide the ASM and emit the opcodes for RDRAND by hand.
+;; This ASM file provides RDRAND and RDSEED to downlevel Microsoft tool chains.
+;; Everything "just works" under Visual Studio. Other platforms will have to
+;; run MASM/MASM-64 and then link to the object files.
 
 ;; set ASFLAGS=/nologo /D_M_X86 /W3 /Cx /Zi /safeseh
 ;; set ASFLAGS64=/nologo /D_M_X64 /W3 /Cx /Zi
@@ -14,11 +13,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-TITLE    MSC_RRA_GenerateBlock and MSC_RSA_GenerateBlock
+TITLE    MASM_RRA_GenerateBlock and MASM_RSA_GenerateBlock
 SUBTITLE Microsoft specific ASM code to utilize RDRAND and RDSEED for down level Microsoft toolchains
 
-PUBLIC MSC_RRA_GenerateBlock
-PUBLIC MSC_RSA_GenerateBlock
+PUBLIC MASM_RRA_GenerateBlock
+PUBLIC MASM_RSA_GenerateBlock
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -26,6 +25,7 @@ PUBLIC MSC_RSA_GenerateBlock
 ;; Naming convention used in rdrand.{h|cpp|asm}
 ;;   MSC = Microsoft Compiler (and compatibles)
 ;;   GCC = GNU Compiler (and compatibles)
+;;   ALL = MSC and GCC (and compatibles)
 ;;   RRA = RDRAND, Assembly
 ;;   RSA = RDSEED, Assembly
 ;;   RRI = RDRAND, Intrinsic
@@ -39,9 +39,9 @@ PUBLIC MSC_RSA_GenerateBlock
 
 ;; C/C++ Function prototypes
 ;;   X86:
-;;      extern "C" int MSC_RRA_GenerateBlock(byte* ptr, size_t size, unsigned int safety);
+;;      extern "C" int MASM_RRA_GenerateBlock(byte* ptr, size_t size, unsigned int safety);
 ;;   X64:
-;;      extern "C" int __fastcall MSC_RRA_GenerateBlock(byte* ptr, size_t size, unsigned int safety);
+;;      extern "C" int __fastcall MASM_RRA_GenerateBlock(byte* ptr, size_t size, unsigned int safety);
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -79,8 +79,7 @@ OPTION EPILOGUE:NONE
 ;; Base relative (in): arg3, unsigned int safety
 ;; EAX (out): success (1), failure (0)
 
-;; MSC_RRA_GenerateBlock PROC USES ecx edx edi arg1:DWORD,arg2:DWORD,arg3:DWORD
-MSC_RRA_GenerateBlock PROC arg1:DWORD,arg2:DWORD,arg3:DWORD
+MASM_RRA_GenerateBlock PROC arg1:DWORD,arg2:DWORD,arg3:DWORD
 
 	MWSIZE EQU 04h    ;; machine word size
 	buffer EQU edi
@@ -108,7 +107,7 @@ GenerateBlock_Top:
 Call_RDRAND_EAX:
 			;; RDRAND is not available prior to VS2012. Just emit
 			;;   the byte codes using DB. This is `rdrand eax`.
-	DB 0Fh, 0C7h, 0F0h
+	DB		0Fh, 0C7h, 0F0h
 	
 			;; If CF=1, the number returned by RDRAND is valid.
 			;; If CF=0, a random number was not available.
@@ -152,15 +151,13 @@ Bit_1_Not_Set:
 	
 			;; Test bit 0 to see if size is at least 1
 	test	bsize, 1
-	;; jz		Bit_0_Not_Set
 	jz  	GenerateBlock_Success
 
 	mov		BYTE PTR [buffer], al
 
 Bit_0_Not_Set:
 
-			;; We've hit all the bits, set size to 0
-	;; mov 	bsize, 0
+			;; We've hit all the bits
 	jmp 	GenerateBlock_Success
 
 GenerateBlock_PreRet:
@@ -171,18 +168,17 @@ GenerateBlock_PreRet:
 	
 GenerateBlock_Failure:
 
-	mov		eax, RDRAND_FAILURE
-	jmp		GenerateBlock_Ret
+	xor		eax, eax
+	mov		al, RDRAND_FAILURE
+	ret
 	
 GenerateBlock_Success:
 
-	mov		eax, RDRAND_SUCCESS
-
-GenerateBlock_Ret:
-
+	xor		eax, eax
+	mov		al, RDRAND_SUCCESS
 	ret
 
-MSC_RRA_GenerateBlock ENDP
+MASM_RRA_GenerateBlock ENDP
 
 ENDIF    ;; _M_X86
 
@@ -201,8 +197,7 @@ OPTION EPILOGUE:NONE
 ;; R8d (in): arg3, unsigned int safety
 ;; RAX (out): success (1), failure (0)
 
-;; MSC_RRA_GenerateBlock PROC USES RCX ;; arg1:QWORD,arg2:QWORD,arg3:DWORD
-MSC_RRA_GenerateBlock PROC ;; arg1:QWORD,arg2:QWORD,arg3:DWORD
+MASM_RRA_GenerateBlock PROC
 
 	MWSIZE EQU 08h    ;; machine word size
 	buffer EQU rcx
@@ -227,7 +222,7 @@ GenerateBlock_Top:
 Call_RDRAND_RAX:
 			;; RDRAND is not available prior to VS2012. Just emit
 			;;   the byte codes using DB. This is `rdrand rax`.
-	DB 048h, 0Fh, 0C7h, 0F0h
+	DB		048h, 0Fh, 0C7h, 0F0h
 
 			;; If CF=1, the number returned by RDRAND is valid.
 			;; If CF=0, a random number was not available.
@@ -281,15 +276,13 @@ Bit_1_Not_Set:
 
 			;; Test bit 0 to see if size is at least 1
 	test	bsize, 1
-	;; jz		Bit_0_Not_Set
 	jz  	GenerateBlock_Success
 
 	mov		BYTE PTR [buffer], al
 
 Bit_0_Not_Set:
 
-			;; We've hit all the bits, set size to 0
-	;; mov 	bsize, 0
+			;; We've hit all the bits
 	jmp		GenerateBlock_Success
 		
 GenerateBlock_PreRet:
@@ -300,18 +293,17 @@ GenerateBlock_PreRet:
 	
 GenerateBlock_Failure:
 
-	mov		rax, RDRAND_FAILURE
-	jmp		GenerateBlock_Ret
+	xor		rax, rax
+	mov		al, RDRAND_FAILURE
+	ret
 	
 GenerateBlock_Success:
 
-	mov		rax, RDRAND_SUCCESS
-
-GenerateBlock_Ret:
-
+	xor		rax, rax
+	mov		al, RDRAND_SUCCESS
 	ret
 
-MSC_RRA_GenerateBlock ENDP
+MASM_RRA_GenerateBlock ENDP
 
 ENDIF    ;; _M_X64
 
@@ -331,8 +323,7 @@ OPTION EPILOGUE:NONE
 ;; Base relative (in): arg3, unsigned int safety
 ;; EAX (out): success (1), failure (0)
 
-;; MSC_RSA_GenerateBlock PROC USES ecx edx edi arg1:DWORD,arg2:DWORD,arg3:DWORD
-MSC_RSA_GenerateBlock PROC arg1:DWORD,arg2:DWORD,arg3:DWORD
+MASM_RSA_GenerateBlock PROC arg1:DWORD,arg2:DWORD,arg3:DWORD
 
 	MWSIZE EQU 04h    ;; machine word size
 	buffer EQU edi
@@ -347,20 +338,20 @@ Load_Arguments:
 
 Validate_Pointer:
 
-	cmp 	buffer, 0
-	je 		GenerateBlock_PreRet
+	cmp		buffer, 0
+	je		GenerateBlock_PreRet
 
 			;; Top of While loop
 GenerateBlock_Top:
 
 			;; Check remaining size
-	cmp 	bsize, 0
+	cmp		bsize, 0
 	je		GenerateBlock_Success
 
 Call_RDSEED_EAX:
 			;; RDSEED is not available prior to VS2012. Just emit
 			;;   the byte codes using DB. This is `rdseed eax`.
-	DB 0Fh, 0C7h, 0F8h
+	DB		0Fh, 0C7h, 0F8h
 	
 			;; If CF=1, the number returned by RDSEED is valid.
 			;; If CF=0, a random number was not available.
@@ -404,15 +395,13 @@ Bit_1_Not_Set:
 	
 			;; Test bit 0 to see if size is at least 1
 	test	bsize, 1
-	;; jz		Bit_0_Not_Set
 	jz  	GenerateBlock_Success
 
 	mov		BYTE PTR [buffer], al
 
 Bit_0_Not_Set:
 
-			;; We've hit all the bits, set size to 0
-	;; mov 	bsize, 0
+			;; We've hit all the bits
 	jmp 	GenerateBlock_Success
 
 GenerateBlock_PreRet:
@@ -423,18 +412,17 @@ GenerateBlock_PreRet:
 	
 GenerateBlock_Failure:
 
-	mov		eax, RDSEED_FAILURE
-	jmp		GenerateBlock_Ret
+	xor		eax, eax
+	mov		al, RDSEED_FAILURE
+	ret
 	
 GenerateBlock_Success:
 
-	mov		eax, RDSEED_SUCCESS
-
-GenerateBlock_Ret:
-
+	xor		eax, eax
+	mov		al, RDSEED_SUCCESS
 	ret
 
-MSC_RSA_GenerateBlock ENDP
+MASM_RSA_GenerateBlock ENDP
 
 ENDIF    ;; _M_X86
 
@@ -453,8 +441,7 @@ OPTION EPILOGUE:NONE
 ;; R8d (in): arg3, unsigned int safety
 ;; RAX (out): success (1), failure (0)
 
-;; MSC_RSA_GenerateBlock PROC USES RCX ;; arg1:QWORD,arg2:QWORD,arg3:DWORD
-MSC_RSA_GenerateBlock PROC ;; arg1:QWORD,arg2:QWORD,arg3:DWORD
+MASM_RSA_GenerateBlock PROC ;; arg1:QWORD,arg2:QWORD,arg3:DWORD
 
 	MWSIZE EQU 08h    ;; machine word size
 	buffer EQU rcx
@@ -533,15 +520,13 @@ Bit_1_Not_Set:
 
 			;; Test bit 0 to see if size is at least 1
 	test	bsize, 1
-	;; jz		Bit_0_Not_Set
 	jz  	GenerateBlock_Success
 
 	mov		BYTE PTR [buffer], al
 
 Bit_0_Not_Set:
 
-			;; We've hit all the bits, set size to 0
-	;; mov 	bsize, 0
+			;; We've hit all the bits
 	jmp		GenerateBlock_Success
 		
 GenerateBlock_PreRet:
@@ -552,18 +537,17 @@ GenerateBlock_PreRet:
 	
 GenerateBlock_Failure:
 
-	mov		rax, RDSEED_FAILURE
-	jmp		GenerateBlock_Ret
+	xor		rax, rax
+	mov		al, RDSEED_FAILURE
+	ret
 	
 GenerateBlock_Success:
 
-	mov		rax, RDSEED_SUCCESS
-
-GenerateBlock_Ret:
-
+	xor		rax, rax
+	mov		al, RDSEED_SUCCESS
 	ret
 
-MSC_RSA_GenerateBlock ENDP
+MASM_RSA_GenerateBlock ENDP
 
 ENDIF    ;; _M_X64
 
