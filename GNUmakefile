@@ -22,6 +22,7 @@ EGREP ?= egrep
 UNAME := $(shell uname)
 IS_X86 := $(shell uname -m | $(EGREP) -i -c "i.86|x86|i86|amd64")
 IS_X86_64 := $(shell uname -m | $(EGREP) -i -c "(_64|d64)")
+IS_AARCH64 := $(shell uname -m | $(EGREP) -i -c "aarch64")
 
 IS_SUN := $(shell uname | $(EGREP) -i -c "SunOS")
 IS_LINUX := $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "Linux")
@@ -52,45 +53,42 @@ endif
 ifeq ($(IS_X86),1)
 
 IS_GCC_29 := $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c gcc-9[0-9][0-9])
-IS_GCC_41 := $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "gcc version 4\.1\.")
-GCC42_OR_LATER := $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "gcc version (4\.[2-9]|[5-9])")
-GCC46_OR_LATER := $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "gcc version (4\.[6-9]|[5-9])")
-GCC48_OR_LATER := $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "gcc version (4\.[8-9]|[5-9])")
-GCC49_OR_LATER := $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "gcc version (4\.9|[5-9])")
+GCC42_OR_LATER := $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "gcc version (4\.[2-9]|[5-9]\.)")
+GCC46_OR_LATER := $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "gcc version (4\.[6-9]|[5-9]\.)")
+GCC48_OR_LATER := $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "gcc version (4\.[8-9]|[5-9]\.)")
+GCC49_OR_LATER := $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "gcc version (4\.9|[5-9]\.)")
 
 ICC111_OR_LATER := $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(ICC\) ([2-9][0-9]|1[2-9]|11\.[1-9])")
 GAS210_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.[1-9][0-9]|[3-9])")
 GAS217_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.1[7-9]|2\.[2-9]|[3-9])")
 GAS219_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.19|2\.[2-9]|[3-9])")
 
-# Add -fPIC for x86_64, but not X32 or Cygwin
+# Add -fPIC for x86_64, but not X32, Cygwin or MinGW
 ifneq ($(IS_X86_64),0)
  IS_X32 := $(shell $(CXX) -dM -E - < /dev/null 2>&1 | $(EGREP) -c "ILP32")
- ifeq ($(IS_X32),0)
- ifeq ($(IS_CYGWIN),0)
+ ifeq ($(IS_X32)$(IS_CYGWIN)$(IS_MINGW),000)
  ifeq ($(findstring -fPIC,$(CXXFLAGS)),)
    CXXFLAGS += -fPIC
  endif
  endif
- endif
 endif
 
-# Work around GCC 4.1 bug.
-ifneq ($(IS_GCC_41),0)
+# Guard use of -march=native
+ifeq ($(GCC_COMPILER),0)
+   CXXFLAGS += -march=native
+else ifneq ($(GCC42_OR_LATER),0)
+   CXXFLAGS += -march=native
+else
+  # GCC 3.3 and "unknown option -march="
   # GCC 4.1 compiler crash with -march=native.
-  # Experienced on CentOS 5, which is still active.
   ifneq ($(IS_X86_64),0)
     CXXFLAGS += -m64
   else
     CXXFLAGS += -m32
   endif # X86/X32/X64
-  # Not GCC 4.1, use default
-else
-  CXXFLAGS += -march=native
 endif
 
 # Aligned access required at -O3 for GCC due to vectorization (circa 08/2008). Expect other compilers to do the same.
-GCC46_OR_LATER ?= 0
 UNALIGNED_ACCESS := $(shell $(EGREP) -c "^[[:space:]]*//[[:space:]]*\#[[:space:]]*define[[:space:]]*CRYPTOPP_NO_UNALIGNED_DATA_ACCESS" config.h)
 ifeq ($(findstring -O3,$(CXXFLAGS)),-O3)
 ifneq ($(UNALIGNED_ACCESS),0)
@@ -111,13 +109,13 @@ CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
 endif
 endif
 
-ifeq ($(GAS210_OR_LATER),0)	# .intel_syntax wasn't supported until GNU assembler 2.10
+ifeq ($(GCC_COMPILER)$(GAS210_OR_LATER),10)	# .intel_syntax wasn't supported until GNU assembler 2.10
 CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
 else
-ifeq ($(GAS217_OR_LATER),0)
+ifeq ($(GCC_COMPILER)$(GAS217_OR_LATER),10)
 CXXFLAGS += -DCRYPTOPP_DISABLE_SSSE3
 else
-ifeq ($(GAS219_OR_LATER),0)
+ifeq ($(GCC_COMPILER)$(GAS219_OR_LATER),10)
 CXXFLAGS += -DCRYPTOPP_DISABLE_AESNI
 endif
 endif
@@ -150,6 +148,13 @@ ifneq ($(IS_X86_64),0)
 M32OR64 = -m64
 endif
 endif # IS_LINUX
+
+# And add it for ARM64, too
+ifneq ($(IS_AARCH64),0)
+ ifeq ($(findstring -fPIC,$(CXXFLAGS)),)
+   CXXFLAGS += -fPIC
+ endif
+endif
 
 ifneq ($(IS_DARWIN),0)
 AR = libtool
@@ -233,6 +238,11 @@ endif # GNU Debug build
 #  spills into POD data types, so cpu.cpp is the second candidate for explicit initialization order.
 SRCS := cryptlib.cpp cpu.cpp $(filter-out cryptlib.cpp cpu.cpp pch.cpp simple.cpp winpipes.cpp cryptlib_bds.cpp,$(wildcard *.cpp))
 
+# No need for CPU or RDRAND on non-X86 systems. X32 is represented with X64.
+ifeq ($(IS_X86)$(IS_X86_64),00)
+  SRCS := $(filter-out cpu.cpp rdrand.cpp, $(SRCS))
+endif
+
 ifneq ($(IS_MINGW),0)
 SRCS += winpipes.cpp
 endif
@@ -252,8 +262,6 @@ DLLOBJS := $(DLLSRCS:.cpp=.export.o)
 LIBIMPORTOBJS := $(LIBOBJS:.o=.import.o)
 TESTIMPORTOBJS := $(TESTOBJS:.o=.import.o)
 DLLTESTOBJS := dlltest.dllonly.o
-
-DIST_FILES := *.h *.cpp *.asm adhoc.cpp.proto License.txt Readme.txt GNUmakefile GNUmakefile-cross Doxyfile cryptest* cryptlib* dlltest* cryptdll* cryptopp.rc TestVectors/*.txt TestData/*.dat
 
 # For Shared Objects, Diff, Dist/Zip rules
 LIB_VER := $(shell $(EGREP) "define CRYPTOPP_VERSION" config.h | cut -d" " -f 3)
@@ -282,30 +290,43 @@ asan ubsan align aligned: libcryptopp.a cryptest.exe
 test check: cryptest.exe
 	./cryptest.exe v
 
-DOC_DIRECTORY := $(shell $(EGREP) "OUTPUT_DIRECTORY" Doxyfile | grep -v "\#" | cut -d "=" -f 2)
-ifeq ($(DOC_DIRECTORY),)
-DOC_DIRECTORY := html-docs
+# Directory we want (can't specify on Doygen command line)
+DOCUMENT_DIRECTORY := ref$(LIB_VER)
+# Default directory (missing in config file)
+ifeq ($(strip $(DOXYGEN_DIRECTORY)),)
+DOXYGEN_DIRECTORY := html-docs
+endif
+# Directory Doxygen uses (specified in Doygen config file)
+ifeq ($(wildcard Doxyfile),Doxyfile)
+DOXYGEN_DIRECTORY := $(strip $(shell $(EGREP) "OUTPUT_DIRECTORY" Doxyfile | grep -v "\#" | cut -d "=" -f 2))
 endif
 
 .PHONY: docs html
 docs html:
-	-$(RM) -r $(DOC_DIRECTORY)/
+	-$(RM) -r $(DOXYGEN_DIRECTORY)/ $(DOCUMENT_DIRECTORY)/
 	doxygen Doxyfile -d CRYPTOPP_DOXYGEN_PROCESSING
+	mv $(DOXYGEN_DIRECTORY)/ $(DOCUMENT_DIRECTORY)/
 	-$(RM) CryptoPPRef.zip
-	zip -9 CryptoPPRef.zip -x ".*" -x "*/.*" -r $(DOC_DIRECTORY)/
+	zip -9 CryptoPPRef.zip -x ".*" -x "*/.*" -r $(DOCUMENT_DIRECTORY)/
 
 .PHONY: clean
 clean:
 	-$(RM) libcryptopp.a libcryptopp.so libcryptopp.dylib cryptopp.dll libcryptopp.dll.a libcryptopp.import.a
 	-$(RM) adhoc.cpp.o adhoc.cpp.proto.o $(LIBOBJS) $(TESTOBJS) $(DLLOBJS) $(LIBIMPORTOBJS) $(TESTIMPORTOBJS) $(DLLTESTOBJS) *.stackdump core-*
-	-$(RM) cryptest.exe dlltest.exe cryptest.import.exe ct
+	-$(RM) cryptest.exe dlltest.exe cryptest.import.exe ct rdrand-???.o
 ifneq ($(wildcard *.exe.dSYM),)
 	-$(RM) -r *.exe.dSYM/
+endif
+ifneq ($(wildcard $(DOCUMENT_DIRECTORY)/),)
+	-$(RM) -r $(DOCUMENT_DIRECTORY)/
+endif
+ifneq ($(wildcard cov-int/),)
+	-$(RM) -r cov-int/
 endif
 
 .PHONY: distclean
 distclean: clean
-	-$(RM) adhoc.cpp adhoc.cpp.copied GNUmakefile.deps cryptest-*result.txt *.o *.ii *.s
+	-$(RM) adhoc.cpp adhoc.cpp.copied GNUmakefile.deps benchmarks.html cryptest.txt cryptest-*.txt *.o *.ii *.s
 ifneq ($(wildcard cryptopp$(LIB_VER)\.*),)
 	-$(RM) cryptopp$(LIB_VER)\.*
 endif
@@ -376,40 +397,47 @@ cryptest.import.exe: cryptopp.dll libcryptopp.import.a $(TESTIMPORTOBJS)
 dlltest.exe: cryptopp.dll $(DLLTESTOBJS)
 	$(CXX) -o $@ $(CXXFLAGS) $(DLLTESTOBJS) -L. -lcryptopp.dll $(LDFLAGS) $(LDLIBS)
 
-# This recipe requires a previous "svn co -r 541 https://svn.code.sf.net/p/cryptopp/code/trunk/c5"
+# This recipe requires a previous "svn co -r 541 http://svn.code.sf.net/p/cryptopp/code/trunk/c5"
 .PHONY: diff
 diff:
 	-$(RM) cryptopp$(LIB_VER).diff
 	-svn diff -r 541 > cryptopp$(LIB_VER).diff
 
 # This recipe prepares the distro files
-TEXT_FILES := *.h *.cpp *.asm adhoc.cpp.proto License.txt Readme.txt Doxyfile cryptest* cryptlib* dlltest* cryptdll* cryptopp.rc TestVectors/*.txt TestData/*.dat
-EXEC_FILES := GNUmakefile GNUmakefile-cross TestData/ TestVectors/
+TEXT_FILES := *.h *.cpp *.asm *.S adhoc.cpp.proto License.txt Readme.txt Filelist.txt Doxyfile cryptest* cryptlib* dlltest* cryptdll* cryptopp.rc TestVectors/*.txt TestData/*.dat
+EXEC_FILES := GNUmakefile GNUmakefile-cross cryptest.sh rdrand-nasm.sh TestData/ TestVectors/
+
+ifeq ($(wildcard Filelist.txt),Filelist.txt)
+DIST_FILES := $(shell cat Filelist.txt)
+endif
 
 .PHONY: convert
 convert:
 	chmod a-x $(TEXT_FILES)
 	chmod u+x $(EXEC_FILES)
 	chmod u+x cryptest.sh
-	unix2dos --keepdate --quiet $(TEXT_FILES)
+	unix2dos --keepdate --quiet $(TEXT_FILES) rdrand-masm.cmd
 	unix2dos --keepdate --quiet *.sln *.vcproj
-	dos2unix --keepdate --quiet GNUmakefile GNUmakefile-cross cryptest.sh
+	dos2unix --keepdate --quiet GNUmakefile GNUmakefile-cross cryptest.sh rdrand-nasm.sh
 
 .PHONY: zip dist
 zip dist: | distclean convert diff
 	zip -q -9 cryptopp$(LIB_VER).zip $(DIST_FILES)
-ifeq ($(wildcard cryptopp$(LIB_VER).diff),cryptopp$(LIB_VER).diff)
-	zip -q -9 -u cryptopp$(LIB_VER).zip cryptopp$(LIB_VER).diff
-endif
-ifeq ($(wildcard vs2010.zip),vs2010.zip)
-	zip -q -9 -u cryptopp$(LIB_VER).zip vs2010.zip
-endif
-ifeq ($(wildcard config.recommend),config.recommend)
-	zip -q -9 -u cryptopp$(LIB_VER).zip config.recommend
-endif
-ifeq ($(wildcard cryptest-sh.zip),cryptest-sh.zip)
-	-zip -d cryptopp$(LIB_VER).zip cryptest-sh.zip
-endif
+
+.PHONY: bench benchmark benchmarks
+bench benchmark benchmarks: cryptest.exe
+	rm -f benchmarks.html
+	echo "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" \"http://www.w3.org/TR/REC-html40/loose.dtd\">" >> benchmarks.html
+	echo "<HTML>" >> benchmarks.html
+	echo "<HEAD>" >> benchmarks.html
+	echo "<TITLE>Speed Comparison of Popular Crypto Algorithms</TITLE>" >> benchmarks.html
+	echo "</HEAD>" >> benchmarks.html
+	echo "<BODY>" >> benchmarks.html
+	echo "<H1><a href=\"http://www.cryptopp.com\">Crypto++</a>" $(LIB_MAJOR).$(LIB_MINOR).$(LIB_REVISION) "Benchmarks</H1>" >> benchmarks.html
+	echo "<P>Here are speed benchmarks for some commonly used cryptographic algorithms.</P>"  >> benchmarks.html
+	cryptest.exe b 3 2.4+1e9 >> benchmarks.html
+	echo "</BODY>" >> benchmarks.html
+	echo "</HTML>" >> benchmarks.html
 
 adhoc.cpp: adhoc.cpp.proto
 ifeq ($(wildcard adhoc.cpp),)
@@ -423,16 +451,14 @@ ifeq ($(wildcard GNUmakefile.deps),GNUmakefile.deps)
 -include GNUmakefile.deps
 endif # Dependencies
 
-# Work around MacPorts/GCC issue with init_priority. Apple/GCC and Fink/GCC are fine; limit to MacPorts.
-#     Also see https://lists.macosforge.org/pipermail/macports-users/2015-September/039223.html
-ifneq ($(MACPORTS_COMPILER),0)
-ifneq ($(GCC_COMPILER),0)
+# MacPorts/GCC issue with init_priority. Apple/GCC and Fink/GCC are fine; limit to MacPorts.
+#   Also see http://lists.macosforge.org/pipermail/macports-users/2015-September/039223.html
+ifeq ($(GCC_COMPILER)$(MACPORTS_COMPILER),11)
 ifeq ($(findstring -DMACPORTS_GCC_COMPILER,$(CXXFLAGS)),)
 cryptlib.o:
 	$(CXX) $(CXXFLAGS) -DMACPORTS_GCC_COMPILER=1 -c cryptlib.cpp
 cpu.o:
 	$(CXX) $(CXXFLAGS) -DMACPORTS_GCC_COMPILER=1 -c cpu.cpp
-endif
 endif
 endif
 
@@ -448,7 +474,7 @@ endif
 %.o : %.cpp
 	$(CXX) $(CXXFLAGS) -c $<
 
-# Warn of potential configurations issues. This will go away after 5.6.3
+# Warn of potential configurations issues. They will go away after 5.6.3.
 UNALIGNED_ACCESS := $(shell $(EGREP) -c "^[[:space:]]*//[[:space:]]*\#[[:space:]]*define[[:space:]]*CRYPTOPP_NO_UNALIGNED_DATA_ACCESS" config.h)
 NO_INIT_PRIORITY := $(shell $(EGREP) -c "^[[:space:]]*//[[:space:]]*\#[[:space:]]*define[[:space:]]*CRYPTOPP_INIT_PRIORITY" config.h)
 COMPATIBILITY_562 := $(shell $(EGREP) -c "^[[:space:]]*\#[[:space:]]*define[[:space:]]*CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562" config.h)
@@ -463,7 +489,7 @@ endif
 ifneq ($(COMPATIBILITY_562),0)
 	$(info WARNING: CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562 is defined in config.h.)
 endif
-ifneq (x$(UNALIGNED_ACCESS)$(NO_INIT_PRIORITY)$(COMPATIBILITY_562),x000)
+ifneq ($(UNALIGNED_ACCESS)$(NO_INIT_PRIORITY)$(COMPATIBILITY_562),000)
 	$(info WARNING: You should make these changes in config.h, and not CXXFLAGS.)
 	$(info WARNING: You can 'mv config.recommend config.h', but it breaks versioning.)
 	$(info WARNING: See http://cryptopp.com/wiki/config.h for more details.)

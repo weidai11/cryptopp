@@ -455,6 +455,7 @@ the mailing list.
       - cleared most Undefined Behavior Sanitizer (UBsan) findings
       - cleared all Address Sanitizer (Asan) findings
       - cleared most Valgrind findings
+      - cleared most Coverity findings
       - cleared all Enterprise Analysis (/analyze) findings
       - cleared most GCC warnings with -Wall
       - cleared most Clang warnings with -Wall
