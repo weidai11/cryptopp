@@ -462,7 +462,6 @@ the mailing list.
       - cleared most MSVC warnings with /W4
       - added -fPIC for x86_64/amd64 builds. Off by default for i386
       - added HKDF class for RFC 5868
-      - added generic DeviceState interface and RDRAND/RDSEED classes
       - switched to member_ptr due to C++ 11 warnings for auto_ptr
       - initialization of C++ static objects, off by default
           * GCC and init_priotirty/constructor attributes
@@ -474,6 +473,7 @@ the mailing list.
       - added cryptest.sh for systematic Testing and QA
       - added GNU Gold linker support
       - added Visual Studio 2010 solution and project files in vs2010.zip
+      - added Clang integrated assembler support
       - added more complete ARM, ARM64, MIPS, MIPS64, S/390 and X32 (ILP32) support
       - __ARM_FEATURE_UNALIGNED and definition of CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
       - unconditionally define CRYPTOPP_NO_UNALIGNED_DATA_ACCESS for Makefile
@@ -491,7 +491,7 @@ the mailing list.
       - added additional Doxygen documentation
 
 5.7  - nearly identical to 5.6.3
-     - minor breaks to the ABI and ABI
+     - minor breaks to the ABI and API
      - cleared remaining Undefined Behavior Sanitizer (UBsan) findings
      - cleared remaining Valgrind findings
      - removed CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
