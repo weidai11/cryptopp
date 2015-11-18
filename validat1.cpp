@@ -156,7 +156,7 @@ bool ValidateAll(bool thorough)
 bool TestSettings()
 {
 	// Thanks to IlyaBizyaev and Zireael-N, http://github.com/weidai11/cryptopp/issues/28
-#if defined(__MINGW__)
+#if defined(__MINGW32__)
 	using CryptoPP::memcpy_s;
 #endif
 
