@@ -52,6 +52,10 @@ Signature - encoded string, signature to be verified or compared
 with
 Plaintext - encoded string
 Ciphertext - encoded string
+Header - encoded string
+Footer - encoded string
+DerivedKey - encoded string
+DerivedLength - encoded string
 Digest - encoded string
 TruncatedSize - int, size of truncated digest in bytes
 Seek - int, seek location for random access ciphers
