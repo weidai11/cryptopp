@@ -1,3 +1,8 @@
+// pkcspad.h - written and placed in the public domain by Wei Dai
+
+//! \headerfile pkcspad.h
+//! \brief Classes for PKCS padding schemes
+
 #ifndef CRYPTOPP_PKCSPAD_H
 #define CRYPTOPP_PKCSPAD_H
 

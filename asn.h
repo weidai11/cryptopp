@@ -1,6 +1,7 @@
 // asn.h - written and placed in the public domain by Wei Dai
 
 //! \file
+//! \headerfile asn.h
 //! \brief Classes and functions for working with ANS.1 objects
 
 #ifndef CRYPTOPP_ASN_H
@@ -348,7 +349,9 @@ void BERDecodeUnsigned(BufferedTransformation &in, T &w, byte asnTag = INTEGER,
 		BERDecodeError();
 
 	size_t bc;
-	BERLengthDecode(in, bc);
+	bool definite = BERLengthDecode(in, bc);
+	if (!definite)
+		BERDecodeError();
 
 	SecByteBlock buf(bc);
 

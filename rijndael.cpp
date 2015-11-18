@@ -617,7 +617,7 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 #elif defined(__GNUC__)
 	__asm__ __volatile__
 	(
-	".intel_syntax noprefix;"
+	INTEL_NOPREFIX
 	#if CRYPTOPP_BOOL_X64
 	AS2(	mov		L_REG, rcx)
 	#endif
@@ -972,7 +972,7 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 	Rijndael_Enc_AdvancedProcessBlocks ENDP
 #endif
 #ifdef __GNUC__
-	".att_syntax prefix;"
+	ATT_PREFIX
 	: 
 	: "c" (locals), "d" (k), "S" (Te), "D" (g_cacheLineSize)
 	: "memory", "cc", "%eax"

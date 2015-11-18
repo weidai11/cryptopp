@@ -1,3 +1,9 @@
+// cpu.h - written and placed in the public domain by Wei Dai
+
+//! \file
+//! \headerfile cpu.h
+//! \brief Classes, functions, intrinsics and features for X86, X32 nd X64 assembly
+
 #ifndef CRYPTOPP_CPU_H
 #define CRYPTOPP_CPU_H
 
@@ -20,16 +26,19 @@
 #if !defined(__GNUC__) || defined(__SSSE3__) || defined(__INTEL_COMPILER)
 #include <tmmintrin.h>
 #else
+NAMESPACE_BEGIN(CryptoPP)
 __inline __m128i __attribute__((__gnu_inline__, __always_inline__, __artificial__))
 _mm_shuffle_epi8 (__m128i a, __m128i b)
 {
 	asm ("pshufb %1, %0" : "+x"(a) : "xm"(b));
   	return a;
 }
-#endif
+NAMESPACE_END
+#endif // tmmintrin.h
 #if !defined(__GNUC__) || defined(__SSE4_1__) || defined(__INTEL_COMPILER)
 #include <smmintrin.h>
 #else
+NAMESPACE_BEGIN(CryptoPP)
 __inline int __attribute__((__gnu_inline__, __always_inline__, __artificial__))
 _mm_extract_epi32 (__m128i a, const int i)
 {
@@ -43,10 +52,12 @@ _mm_insert_epi32 (__m128i a, int b, const int i)
 	asm ("pinsrd %2, %1, %0" : "+x"(a) : "rm"(b), "i"(i));
   	return a;
 }
-#endif
+NAMESPACE_END
+#endif // smmintrin.h
 #if !defined(__GNUC__) || (defined(__AES__) && defined(__PCLMUL__)) || defined(__INTEL_COMPILER)
 #include <wmmintrin.h>
 #else
+NAMESPACE_BEGIN(CryptoPP)
 __inline __m128i __attribute__((__gnu_inline__, __always_inline__, __artificial__))
 _mm_clmulepi64_si128 (__m128i a, __m128i b, const int i)
 {
@@ -91,8 +102,9 @@ _mm_aesdeclast_si128 (__m128i a, __m128i b)
 	asm ("aesdeclast %1, %0" : "+x"(a) : "xm"(b));
   	return a;
 }
-#endif
-#endif
+NAMESPACE_END
+#endif // wmmintrin.h
+#endif // CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -109,6 +121,8 @@ extern CRYPTOPP_DLL bool g_hasSSSE3;
 extern CRYPTOPP_DLL bool g_hasAESNI;
 extern CRYPTOPP_DLL bool g_hasCLMUL;
 extern CRYPTOPP_DLL bool g_isP4;
+extern CRYPTOPP_DLL bool g_hasRDRAND;
+extern CRYPTOPP_DLL bool g_hasRDSEED;
 extern CRYPTOPP_DLL word32 g_cacheLineSize;
 
 CRYPTOPP_DLL void CRYPTOPP_API DetectX86Features();
@@ -175,6 +189,20 @@ inline bool IsP4()
 	return g_isP4;
 }
 
+inline bool HasRDRAND()
+{
+	if (!g_x86DetectionDone)
+		DetectX86Features();
+	return g_hasRDRAND;
+}
+
+inline bool HasRDSEED()
+{
+	if (!g_x86DetectionDone)
+		DetectX86Features();
+	return g_hasRDSEED;
+}
+
 inline int GetCacheLineSize()
 {
 	if (!g_x86DetectionDone)
@@ -215,12 +243,27 @@ inline int GetCacheLineSize()
 	#define AS_HEX(y) 0x##y
 #else
 	#define CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
+
+#if defined(CRYPTOPP_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION)
+	#define NEW_LINE "\n"
+	#define INTEL_PREFIX ".intel_syntax;"
+	#define INTEL_NOPREFIX ".intel_syntax;"
+	#define ATT_PREFIX ".att_syntax;"
+	#define ATT_NOPREFIX ".att_syntax;"
+#else
+	#define NEW_LINE
+	#define INTEL_PREFIX ".intel_syntax prefix;"
+	#define INTEL_NOPREFIX ".intel_syntax noprefix;"
+	#define ATT_PREFIX ".att_syntax prefix;"
+	#define ATT_NOPREFIX ".att_syntax noprefix;"
+#endif
+
 	// define these in two steps to allow arguments to be expanded
-	#define GNU_AS1(x) #x ";"
-	#define GNU_AS2(x, y) #x ", " #y ";"
-	#define GNU_AS3(x, y, z) #x ", " #y ", " #z ";"
-	#define GNU_ASL(x) "\n" #x ":"
-	#define GNU_ASJ(x, y, z) #x " " #y #z ";"
+	#define GNU_AS1(x) #x ";" NEW_LINE
+	#define GNU_AS2(x, y) #x ", " #y ";" NEW_LINE
+	#define GNU_AS3(x, y, z) #x ", " #y ", " #z ";" NEW_LINE
+	#define GNU_ASL(x) "\n" #x ":" NEW_LINE
+	#define GNU_ASJ(x, y, z) #x " " #y #z ";" NEW_LINE
 	#define AS1(x) GNU_AS1(x)
 	#define AS2(x, y) GNU_AS2(x, y)
 	#define AS3(x, y, z) GNU_AS3(x, y, z)

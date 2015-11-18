@@ -7,10 +7,13 @@ bool ValidateAll(bool thorough);
 bool TestSettings();
 bool TestOS_RNG();
 bool TestAutoSeeded();
+
+#if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
 bool TestRDRAND();
 bool TestRDSEED();
-bool ValidateBaseCode();
+#endif
 
+bool ValidateBaseCode();
 bool ValidateCRC32();
 bool ValidateAdler32();
 bool ValidateMD2();
@@ -79,7 +82,19 @@ bool ValidateEC2N();
 bool ValidateECDSA();
 bool ValidateESIGN();
 
+#if !defined(NDEBUG)
+bool TestPolynomialMod2();
+#endif
+
+// Coverity findings
+template <class T, bool NON_NEGATIVE>
+T StringToValue(const std::string& str);
+template<>
+int StringToValue<int, true>(const std::string& str);
+
+// Functions that need a RNG; uses AES inf CFB mode with Seed.
 CryptoPP::RandomNumberGenerator & GlobalRNG();
+
 bool RunTestDataFile(const char *filename, const CryptoPP::NameValuePairs &overrideParameters=CryptoPP::g_nullNameValuePairs, bool thorough=true);
 
 #endif

@@ -1,3 +1,9 @@
+// cbcmac.h - written and placed in the public domain by Wei Dai
+
+//! \file
+//! \headerfile cbcmac.h
+//! \brief Classes for CBC MAC
+
 #ifndef CRYPTOPP_CBCMAC_H
 #define CRYPTOPP_CBCMAC_H
 
@@ -10,7 +16,7 @@ NAMESPACE_BEGIN(CryptoPP)
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CBC_MAC_Base : public MessageAuthenticationCode
 {
 public:
-	CBC_MAC_Base() {}
+	CBC_MAC_Base() : m_counter(0) {}
 
 	void UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params);
 	void Update(const byte *input, size_t length);

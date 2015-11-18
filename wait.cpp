@@ -32,7 +32,7 @@ unsigned int WaitObjectContainer::MaxWaitObjects()
 }
 
 WaitObjectContainer::WaitObjectContainer(WaitObjectsTracer* tracer)
-	: m_tracer(tracer), m_eventTimer(Timer::MILLISECONDS)
+	: m_tracer(tracer), m_eventTimer(Timer::MILLISECONDS), m_lastResult(0)
 	, m_sameResultCount(0), m_noWaitTimer(Timer::MILLISECONDS)
 {
 	Clear();

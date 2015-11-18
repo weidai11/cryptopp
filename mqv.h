@@ -6,6 +6,7 @@
 
 #include "cryptlib.h"
 #include "gfpcrypt.h"
+#include "modarith.h"
 #include "integer.h"
 #include "misc.h"
 

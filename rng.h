@@ -1,4 +1,10 @@
-// rng.h - misc RNG related classes, see also osrng.h, randpool.h
+//! rng.h - written and placed in the public domain by Wei Dai
+
+//! \file rng.h
+//! \brief Miscellaneous classes for RNGs
+//! \details This file contains miscellaneous classes for RNGs, including LC_RNG(),
+//!   X917RNG() and MaurerRandomnessTest()
+//! \sa osrng.h, randpool.h
 
 #ifndef CRYPTOPP_RNG_H
 #define CRYPTOPP_RNG_H
@@ -47,10 +53,12 @@ private:
 	SecByteBlock randseed, m_lastBlock, m_deterministicTimeVector;
 };
 
-/** This class implements Maurer's Universal Statistical Test for Random Bit Generators
-    it is intended for measuring the randomness of *PHYSICAL* RNGs.
-    For more details see his paper in Journal of Cryptology, 1992. */
-
+//! \class MaurerRandomnessTest
+//! \brief  Maurer's Universal Statistical Test for Random Bit Generators
+//! \details This class implements Maurer's Universal Statistical Test for
+//!   Random Bit Generators. It is intended for measuring the randomness of
+//!   *PHYSICAL* RNGs.
+//! \details For more details see Maurer's paper in Journal of Cryptology, 1992.
 class MaurerRandomnessTest : public Bufferless<Sink>
 {
 public:

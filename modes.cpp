@@ -13,7 +13,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#ifndef NDEBUG
+#if !defined(NDEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
 void Modes_TestInstantiations()
 {
 	CFB_Mode<DES>::Encryption m0;
@@ -35,20 +35,24 @@ void CipherModeBase::ResizeBuffers()
 
 void CFB_ModePolicy::Iterate(byte *output, const byte *input, CipherDir dir, size_t iterationCount)
 {
+	assert(input);
+	assert(output);
 	assert(m_cipher->IsForwardTransformation());	// CFB mode needs the "encrypt" direction of the underlying block cipher, even to decrypt
 	assert(m_feedbackSize == BlockSize());
 
-	unsigned int s = BlockSize();
+	const unsigned int s = BlockSize();
 	if (dir == ENCRYPTION)
 	{
 		m_cipher->ProcessAndXorBlock(m_register, input, output);
-		m_cipher->AdvancedProcessBlocks(output, input+s, output+s, (iterationCount-1)*s, 0);
+		if (iterationCount > 1)
+			m_cipher->AdvancedProcessBlocks(output, input+s, output+s, (iterationCount-1)*s, 0);
 		memcpy(m_register, output+(iterationCount-1)*s, s);
 	}
 	else
 	{
 		memcpy(m_temp, input+(iterationCount-1)*s, s);	// make copy first in case of in-place decryption
-		m_cipher->AdvancedProcessBlocks(input, input+s, output+s, (iterationCount-1)*s, BlockTransformation::BT_ReverseDirection);
+		if (iterationCount > 1)
+			m_cipher->AdvancedProcessBlocks(input, input+s, output+s, (iterationCount-1)*s, BlockTransformation::BT_ReverseDirection);
 		m_cipher->ProcessAndXorBlock(m_register, input, output);
 		memcpy(m_register, m_temp, s);
 	}

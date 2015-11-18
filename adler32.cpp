@@ -61,14 +61,19 @@ void Adler32::TruncatedFinal(byte *hash, size_t size)
 	{
 	default:
 		hash[3] = byte(m_s1);
+		// fall through
 	case 3:
 		hash[2] = byte(m_s1 >> 8);
+		// fall through
 	case 2:
 		hash[1] = byte(m_s2);
+		// fall through
 	case 1:
 		hash[0] = byte(m_s2 >> 8);
+		// fall through
 	case 0:
-		;
+		;;
+		// fall through
 	}
 
 	Reset();

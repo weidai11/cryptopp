@@ -299,7 +299,7 @@ struct ECIES
 	virtual ~ECIES() {}
 #endif
 	
-#if (CRYPTOPP_GCC_VERSION >= 40300) || (CRYPTOPP_CLANG_VERSION >= 20800) 
+#if (CRYPTOPP_GCC_VERSION >= 40500) || (CRYPTOPP_CLANG_VERSION >= 30000) 
 } __attribute__((deprecated ("ECIES will be changing in the near future due to (1) an implementation bug and (2) an interop issue.")));
 #elif (CRYPTOPP_GCC_VERSION )
 } __attribute__((deprecated));

@@ -37,7 +37,7 @@ void Gzip::WritePoststreamTail()
 // *************************************************************
 
 Gunzip::Gunzip(BufferedTransformation *attachment, bool repeat, int propagation)
-	: Inflator(attachment, repeat, propagation)
+	: Inflator(attachment, repeat, propagation), m_length(0)
 {
 }
 

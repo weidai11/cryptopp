@@ -2,7 +2,7 @@
 
 //! \file
 //! \headerfile 3way.h
-//! \brief Class files for the 3way cipher
+//! \brief Class file for the 3way cipher
 
 #ifndef CRYPTOPP_THREEWAY_H
 #define CRYPTOPP_THREEWAY_H

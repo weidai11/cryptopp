@@ -1,3 +1,9 @@
+// crc.h - written and placed in the public domain by Wei Dai
+
+//! \file
+//! \headerfile crc.h
+//! \brief Classes for CRC-32 checksum algorithm
+
 #ifndef CRYPTOPP_CRC32_H
 #define CRYPTOPP_CRC32_H
 

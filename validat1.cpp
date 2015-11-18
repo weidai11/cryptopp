@@ -64,8 +64,18 @@ bool ValidateAll(bool thorough)
 	bool pass=TestSettings();
 	pass=TestOS_RNG() && pass;
 	pass=TestAutoSeeded() && pass;
+	
+#if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
 	pass=TestRDRAND() && pass;
 	pass=TestRDSEED() && pass;
+#else
+
+#endif
+
+#if !defined(NDEBUG) && !defined(CRYPTOPP_IMPORTS)
+	// http://github.com/weidai11/cryptopp/issues/64
+	pass=TestPolynomialMod2() && pass;
+#endif
 
 	pass=ValidateCRC32() && pass;
 	pass=ValidateAdler32() && pass;
@@ -145,6 +155,11 @@ bool ValidateAll(bool thorough)
 
 bool TestSettings()
 {
+	// Thanks to IlyaBizyaev and Zireael-N, http://github.com/weidai11/cryptopp/issues/28
+#if defined(__MINGW__)
+	using CryptoPP::memcpy_s;
+#endif
+
 	bool pass = true;
 
 	cout << "\nTesting Settings...\n\n";
@@ -262,9 +277,6 @@ bool TestSettings()
 	bool hasSSSE3 = HasSSSE3();
 	bool isP4 = IsP4();
 	int cacheLineSize = GetCacheLineSize();
-	
-	// Hack to avoid changing CPU.h and CPU.cpp at the moment. Eventually, a hasRDRAND will be available.
-	RDRAND rdrand; RDSEED rdseed;
 
 	if ((isP4 && (!hasMMX || !hasSSE2)) || (hasSSE2 && !hasMMX) || (cacheLineSize < 16 || cacheLineSize > 256 || !IsPowerOf2(cacheLineSize)))
 	{
@@ -274,7 +286,7 @@ bool TestSettings()
 	else
 		cout << "passed:  ";
 
-	cout << "hasMMX == " << hasMMX << ", hasISSE == " << hasISSE << ", hasSSE2 == " << hasSSE2 << ", hasSSSE3 == " << hasSSSE3 << ", hasAESNI == " << HasAESNI() << ", hasRDRAND == " << rdrand.Available() << ", hasRDSEED == " << rdseed.Available() << ", hasCLMUL == " << HasCLMUL() << ", isP4 == " << isP4 << ", cacheLineSize == " << cacheLineSize;
+	cout << "hasMMX == " << hasMMX << ", hasISSE == " << hasISSE << ", hasSSE2 == " << hasSSE2 << ", hasSSSE3 == " << hasSSSE3 << ", hasAESNI == " << HasAESNI() << ", hasRDRAND == " << HasRDRAND() << ", hasRDSEED == " << HasRDSEED() << ", hasCLMUL == " << HasCLMUL() << ", isP4 == " << isP4 << ", cacheLineSize == " << cacheLineSize;
 	cout << ", AESNI_INTRINSICS == " << CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE << endl;
 #endif
 
@@ -443,13 +455,12 @@ bool TestAutoSeeded()
 }
 #endif // NO_OS_DEPENDENCE
 
+#if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
 bool TestRDRAND()
-{	
+{
 	RDRAND rdrand;
-
-#if defined(CRYPTOPP_BOOL_X86) || defined(CRYPTOPP_BOOL_X32) || defined(CRYPTOPP_BOOL_X64)
 	bool generate = true, discard = true;
-	if (rdrand.Available())
+	if (HasRDRAND())
 	{
 		cout << "\nTesting RDRAND generator...\n\n";
 
@@ -484,49 +495,20 @@ bool TestRDRAND()
 		cout << "\nRDRAND generator not available, skipping test." << endl;
 	
 	return generate && discard;	
-#else
-	bool available = true, generate = true;
-	if (rdrand.Available())
-	{
-		available = false; /* failed */
-		cout << "FAILED:";
-	}
-	else
-		cout << "passed:";
-	cout << "  RDRAND generator availability." << endl;
-
-	try
-	{
-		SecByteBlock unused(32);
-		rdrand.GenerateBlock(unused, unused.size());
-	}
-	catch(const RDRAND_Err&)
-	{
-		generate = false; /* failed */
-	}
-
-	if (!pass)
-		cout << "FAILED:";
-	else
-		cout << "passed:";
-	cout << "  GenerateBlock and exception." << endl;
-
-	return available && generate;
-#endif
 }
+#endif
 
+#if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
 bool TestRDSEED()
-{	
-	RDSEED rdrand;
-
-#if defined(CRYPTOPP_BOOL_X86) || defined(CRYPTOPP_BOOL_X32) || defined(CRYPTOPP_BOOL_X64)
+{
+	RDSEED rdseed;
 	bool generate = true, discard = true;
-	if (rdrand.Available())
+	if (HasRDSEED())
 	{
 		cout << "\nTesting RDSEED generator...\n\n";
 
 		MeterFilter meter(new Redirector(TheBitBucket()));
-		RandomNumberSource test(rdrand, 100000, true, new Deflator(new Redirector(meter)));
+		RandomNumberSource test(rdseed, 100000, true, new Deflator(new Redirector(meter)));
 		
 		if (meter.GetTotalBytes() < 100000)
 		{
@@ -539,7 +521,7 @@ bool TestRDSEED()
 		
 		try
 		{
-			rdrand.DiscardBytes(100000);
+			rdseed.DiscardBytes(100000);
 		}
 		catch(const Exception&)
 		{
@@ -555,37 +537,9 @@ bool TestRDSEED()
 	else
 		cout << "\nRDSEED generator not available, skipping test." << endl;
 	
-	return generate && discard;	
-#else
-	bool available = true, generate = true;
-	if (rdrand.Available())
-	{
-		available = false; /* failed */
-		cout << "FAILED:";
-	}
-	else
-		cout << "passed:";
-	cout << "  RDSEED generator availability." << endl;
-
-	try
-	{
-		SecByteBlock unused(32);
-		rdrand.GenerateBlock(unused, unused.size());
-	}
-	catch(const RDSEED_Err&)
-	{
-		generate = false; /* failed */
-	}
-
-	if (!pass)
-		cout << "FAILED:";
-	else
-		cout << "passed:";
-	cout << "  GenerateBlock and exception." << endl;
-
-	return available && generate;
-#endif
+	return generate && discard;
 }
+#endif
 
 // VC50 workaround
 typedef auto_ptr<BlockTransformation> apbt;

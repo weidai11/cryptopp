@@ -7,19 +7,14 @@
 
 #include "pch.h"
 #include "zdeflate.h"
+#include "stdcpp.h"
 #include "misc.h"
-
-#include <functional>
-
-#if _MSC_VER >= 1600
-// for make_unchecked_array_iterator
-#include <iterator>
-#endif
 
 NAMESPACE_BEGIN(CryptoPP)
 
 LowFirstBitWriter::LowFirstBitWriter(BufferedTransformation *attachment)
-	: Filter(attachment), m_counting(false), m_buffer(0), m_bitsBuffered(0), m_bytesBuffered(0)
+	: Filter(attachment), m_counting(false), m_bitCount(0), m_buffer(0)
+	, m_bitsBuffered(0), m_bytesBuffered(0)
 {
 }
 
@@ -94,6 +89,12 @@ HuffmanEncoder::HuffmanEncoder(const unsigned int *codeBits, unsigned int nCodes
 
 struct HuffmanNode
 {
+	// Coverity finding on uninitalized 'symbol' member
+	HuffmanNode()
+		: symbol(0), parent(0) {}
+	HuffmanNode(const HuffmanNode& rhs)
+		: symbol(rhs.symbol), parent(rhs.parent) {}
+	
 	size_t symbol;
 	union {size_t parent; unsigned depth, freq;};
 };
@@ -148,7 +149,6 @@ void HuffmanEncoder::GenerateCodeLengths(unsigned int *codeBits, unsigned int ma
 	std::fill(blCount.begin(), blCount.end(), 0);
 	for (i=treeBegin; i<nCodes; i++)
 	{
-		// Valgrind finding: unintialized read. Expanding the expression clears it.
 		const size_t n = tree[i].parent;
 		const size_t depth = STDMIN(maxCodeBits, tree[n].depth + 1);
 		blCount[depth]++;
@@ -264,7 +264,9 @@ void Deflator::IsolatedInitialize(const NameValuePairs &parameters)
 	m_matchBuffer.New(DSIZE/2);
 	Reset(true);
 
-	SetDeflateLevel(parameters.GetIntValueWithDefault("DeflateLevel", DEFAULT_DEFLATE_LEVEL));
+	const int deflateLevel = parameters.GetIntValueWithDefault("DeflateLevel", DEFAULT_DEFLATE_LEVEL);
+	assert(deflateLevel >= MIN_DEFLATE_LEVEL /*0*/ && deflateLevel <= MAX_DEFLATE_LEVEL /*9*/);
+	SetDeflateLevel(deflateLevel);
 	bool detectUncompressible = parameters.GetValueWithDefault("DetectUncompressible", true);
 	m_compressibleDeflateLevel = detectUncompressible ? m_deflateLevel : 0;
 }
@@ -345,10 +347,13 @@ unsigned int Deflator::FillWindow(const byte *str, size_t length)
 		assert(m_blockStart >= DSIZE);
 		m_blockStart -= DSIZE;
 
-		unsigned int i;
+		// These are set to the same value in IsolatedInitialize(). If they
+		//   are the same, then we can clear a Coverity false alarm.
+		assert(DSIZE == HSIZE);
 
+		unsigned int i;
 		for (i=0; i<HSIZE; i++)
-			m_head[i] = SaturatingSubtract(m_head[i], DSIZE);
+			m_head[i] = SaturatingSubtract(m_head[i], HSIZE); // was DSIZE???
 
 		for (i=0; i<DSIZE; i++)
 			m_prev[i] = SaturatingSubtract(m_prev[i], DSIZE);
@@ -574,12 +579,16 @@ void Deflator::MatchFound(unsigned int distance, unsigned int length)
 		283, 283, 283, 283, 283, 283, 283, 283, 283, 283, 283, 283, 283, 283, 283, 283,
 		284, 284, 284, 284, 284, 284, 284, 284, 284, 284, 284, 284, 284, 284, 284, 284,
 		284, 284, 284, 284, 284, 284, 284, 284, 284, 284, 284, 284, 284, 284, 284, 285};
-	static const unsigned int lengthBases[] = {3,4,5,6,7,8,9,10,11,13,15,17,19,23,27,31,35,43,51,59,67,83,99,115,131,163,195,227,258};
+	static const unsigned int lengthBases[] =
+		{3,4,5,6,7,8,9,10,11,13,15,17,19,23,27,31,35,43,51,59,67,83,99,115,131,163,195,
+		 227,258};
 	static const unsigned int distanceBases[30] = 
-		{1,2,3,4,5,7,9,13,17,25,33,49,65,97,129,193,257,385,513,769,1025,1537,2049,3073,4097,6145,8193,12289,16385,24577};
+		{1,2,3,4,5,7,9,13,17,25,33,49,65,97,129,193,257,385,513,769,1025,1537,2049,3073,
+		 4097,6145,8193,12289,16385,24577};
 
+	assert(m_matchBufferEnd < m_matchBuffer.size());
 	EncodedMatch &m = m_matchBuffer[m_matchBufferEnd++];
-	assert(length >= 3);
+	assert(length >= 3 && length < COUNTOF(lengthCodes));
 	unsigned int lengthCode = lengthCodes[length-3];
 	m.literalCode = lengthCode;
 	m.literalExtra = length - lengthBases[lengthCode-257];

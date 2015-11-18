@@ -23,6 +23,10 @@
 # pragma strict_gs_check (on)
 #endif
 
+#if defined(__COVERITY__)
+extern "C" void __coverity_tainted_data_sanitize__(void *);  
+#endif
+
 USING_NAMESPACE(CryptoPP)
 USING_NAMESPACE(std)
 
@@ -579,7 +583,7 @@ void TestDigestOrMAC(TestData &v, bool testDigest)
 	{
 		int digestSize = -1;
 		if (test == "VerifyTruncated")
-			pairs.GetIntValue(Name::DigestSize(), digestSize);
+			digestSize = pairs.GetIntValueWithDefault(Name::DigestSize(), digestSize);
 		HashVerificationFilter verifierFilter(*pHash, NULL, HashVerificationFilter::HASH_AT_BEGIN, digestSize);
 		PutDecodedDatumInto(v, digestName, verifierFilter);
 		PutDecodedDatumInto(v, "Message", verifierFilter);
@@ -628,6 +632,12 @@ bool GetField(std::istream &is, std::string &name, std::string &value)
 {
 	name.resize(0);		// GCC workaround: 2.95.3 doesn't have clear()
 	is >> name;
+
+#if defined(__COVERITY__)
+	// The datafile being read is in /usr/share, and it protected by filesystem ACLs
+	// __coverity_tainted_data_sanitize__(reinterpret_cast<void*>(&name));
+#endif
+
 	if (name.empty())
 		return false;
 

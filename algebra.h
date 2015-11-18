@@ -1,14 +1,15 @@
 // algebra.h - written and placed in the public domain by Wei Dai
 
 //! \file
-//! \brief Classes and functions for performing mathematics over different fields
+//! \headerfile algebra.h
+//! \brief Classes for performing mathematics over different fields
 
 #ifndef CRYPTOPP_ALGEBRA_H
 #define CRYPTOPP_ALGEBRA_H
 
 #include "config.h"
-#include "integer.h"
 #include "misc.h"
+#include "integer.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 

@@ -30,6 +30,7 @@
 #include "smartptr.h"
 
 #include <iostream>
+#include <sstream>
 #include <iomanip>
 
 #include "validate.h"
@@ -60,6 +61,10 @@ bool HashModuleTest(HashTransformation &md, const HashTestTuple *testSet, unsign
 	bool pass=true, fail;
 	SecByteBlock digest(md.DigestSize());
 
+	// Coverity finding (http://stackoverflow.com/a/30968371 does not squash the finding)
+	std::ostringstream out;
+	out.copyfmt(cout);
+
 	for (unsigned int i=0; i<testSetSize; i++)
 	{
 		unsigned j;
@@ -70,15 +75,16 @@ bool HashModuleTest(HashTransformation &md, const HashTestTuple *testSet, unsign
 		fail = memcmp(digest, testSet[i].output, md.DigestSize()) != 0;
 		pass = pass && !fail;
 
-		cout << (fail ? "FAILED   " : "passed   ");
+		out << (fail ? "FAILED   " : "passed   ");
 		for (j=0; j<md.DigestSize(); j++)
-			cout << setw(2) << setfill('0') << hex << (int)digest[j];
-		cout << "   \"" << (char *)testSet[i].input << '\"';
+			out << setw(2) << setfill('0') << hex << (int)digest[j];
+		out << "   \"" << (char *)testSet[i].input << '\"';
 		if (testSet[i].repeatTimes != 1)
-			cout << " repeated " << dec << testSet[i].repeatTimes << " times";
-		cout  << endl;
+			out << " repeated " << dec << testSet[i].repeatTimes << " times";
+		out  << endl;
 	}
 
+	cout << out.str();
 	return pass;
 }
 

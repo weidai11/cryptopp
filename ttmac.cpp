@@ -43,10 +43,10 @@ void TTMAC_Base::TruncatedFinal(byte *hash, size_t size)
 		{
 			case 16:
 				m_digest[3] += m_digest[1] + m_digest[4];
-
+				// fall through
 			case 12:
 				m_digest[2] += m_digest[0] + t3;
-
+				// fall through
 			case 8:
 				m_digest[0] += m_digest[1] + t3;
 				m_digest[1] += m_digest[4] + t2;

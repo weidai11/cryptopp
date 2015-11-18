@@ -1,3 +1,9 @@
+// default.h - written and placed in the public domain by Wei Dai
+
+//! \file
+//! \headerfile default.h
+//! \brief Classes for DefaultEncryptor, DefaultEncryptorWithMAC and decryptors
+
 #ifndef CRYPTOPP_DEFAULT_H
 #define CRYPTOPP_DEFAULT_H
 

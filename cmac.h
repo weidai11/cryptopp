@@ -1,3 +1,9 @@
+// cmac.h - written and placed in the public domain by Wei Dai
+
+//! \file
+//! \headerfile cmac.h
+//! \brief Classes for CMAC message authentication code
+
 #ifndef CRYPTOPP_CMAC_H
 #define CRYPTOPP_CMAC_H
 
@@ -10,7 +16,7 @@ NAMESPACE_BEGIN(CryptoPP)
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CMAC_Base : public MessageAuthenticationCode
 {
 public:
-	CMAC_Base() {}
+	CMAC_Base() : m_counter(0) {}
 
 	void UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params);
 	void Update(const byte *input, size_t length);

@@ -3,14 +3,14 @@
 #include "pch.h"
 #include "rsa.h"
 #include "asn.h"
+#include "sha.h"
 #include "oids.h"
 #include "modarith.h"
 #include "nbtheory.h"
-#include "sha.h"
 #include "algparam.h"
 #include "fips140.h"
 
-#if !defined(NDEBUG) && !defined(CRYPTOPP_IS_DLL)
+#if !defined(NDEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING) && !defined(CRYPTOPP_IS_DLL)
 #include "pssr.h"
 NAMESPACE_BEGIN(CryptoPP)
 void RSA_TestInstantiations()
@@ -108,11 +108,13 @@ void InvertibleRSAFunction::GenerateRandom(RandomNumberGenerator &rng, const Nam
 	int modulusSize = 2048;
 	alg.GetIntValue(Name::ModulusSize(), modulusSize) || alg.GetIntValue(Name::KeySize(), modulusSize);
 
+	assert(modulusSize >= 16);
 	if (modulusSize < 16)
 		throw InvalidArgument("InvertibleRSAFunction: specified modulus size is too small");
 
 	m_e = alg.GetValueWithDefault(Name::PublicExponent(), Integer(17));
 
+	assert(m_e >= 3); assert(!m_e.IsEven());
 	if (m_e < 3 || m_e.IsEven())
 		throw InvalidArgument("InvertibleRSAFunction: invalid public exponent");
 

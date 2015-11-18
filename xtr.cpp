@@ -5,6 +5,7 @@
 #include "xtr.h"
 #include "nbtheory.h"
 #include "integer.h"
+#include "modarith.h"
 #include "algebra.cpp"
 
 NAMESPACE_BEGIN(CryptoPP)

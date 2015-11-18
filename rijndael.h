@@ -1,8 +1,11 @@
+// rijndael.h - written and placed in the public domain by Wei Dai
+
+//! \file
+//! \headerfile rijndael.h
+//! \brief Classes for Rijndael encryption algorithm
+
 #ifndef CRYPTOPP_RIJNDAEL_H
 #define CRYPTOPP_RIJNDAEL_H
-
-/** \file
-*/
 
 #include "seckey.h"
 #include "secblock.h"

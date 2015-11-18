@@ -18,7 +18,8 @@ class RawIDA : public AutoSignaling<Unflushable<Multichannel<Filter> > >
 {
 public:
 	RawIDA(BufferedTransformation *attachment=NULL)
-		{Detach(attachment);}
+		: m_threshold (0), m_channelsReady(0), m_channelsFinished(0)
+			{Detach(attachment);}
 
 	unsigned int GetThreshold() const {return m_threshold;}
 	void AddOutputChannel(word32 channelId);
@@ -100,7 +101,7 @@ class InformationDispersal : public CustomFlushPropagation<Filter>
 {
 public:
 	InformationDispersal(int threshold, int nShares, BufferedTransformation *attachment=NULL, bool addPadding=true)
-		: m_ida(new OutputProxy(*this, true))
+		: m_ida(new OutputProxy(*this, true)), m_pad(false), m_nextChannel(0)
 	{
 		Detach(attachment);
 		IsolatedInitialize(MakeParameters("RecoveryThreshold", threshold)("NumberOfShares", nShares)("AddPadding", addPadding));
@@ -121,7 +122,7 @@ class InformationRecovery : public RawIDA
 {
 public:
 	InformationRecovery(int threshold, BufferedTransformation *attachment=NULL, bool removePadding=true)
-		: RawIDA(attachment)
+		: RawIDA(attachment), m_pad(false)
 		{IsolatedInitialize(MakeParameters("RecoveryThreshold", threshold)("RemovePadding", removePadding));}
 
 	void IsolatedInitialize(const NameValuePairs &parameters=g_nullNameValuePairs);
@@ -138,7 +139,7 @@ class PaddingRemover : public Unflushable<Filter>
 {
 public:
 	PaddingRemover(BufferedTransformation *attachment=NULL)
-		: m_possiblePadding(false) {Detach(attachment);}
+		: m_possiblePadding(false), m_zeroCount(0) {Detach(attachment);}
 
 	void IsolatedInitialize(const NameValuePairs &parameters)
 		{CRYPTOPP_UNUSED(parameters); m_possiblePadding = false;}

@@ -112,7 +112,7 @@ public:
 		byte GetByte(size_t n) const;
 
 		//! the zero polynomial will return a degree of -1
-		signed int Degree() const {return BitCount()-1;}
+		signed int Degree() const {return (signed int)(BitCount()-1U);}
 		//! degree + 1
 		unsigned int CoefficientCount() const {return BitCount();}
 		//! return coefficient for x^i

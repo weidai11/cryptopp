@@ -19,12 +19,12 @@
 #include "secblock.h"
 #include "modarith.h"
 #include "nbtheory.h"
-#include "filters.h"
 #include "smartptr.h"
+#include "algparam.h"
+#include "filters.h"
 #include "asn.h"
 #include "oids.h"
 #include "words.h"
-#include "algparam.h"
 #include "pubkey.h"		// for P1363_KDF2
 #include "sha.h"
 #include "cpu.h"
@@ -44,22 +44,40 @@
 	#pragma message("You do not seem to have the Visual C++ Processor Pack installed, so use of SSE2 instructions will be disabled.")
 #endif
 
-#define CRYPTOPP_INTEGER_SSE2 (CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && (CRYPTOPP_BOOL_X86 || (CRYPTOPP_BOOL_X32 && !defined(CRYPTOPP_DISABLE_INTEGER_ASM))))
+// "Inline assembly operands don't work with .intel_syntax",
+//   http://llvm.org/bugs/show_bug.cgi?id=24232
+#if CRYPTOPP_BOOL_X32 || defined(CRYPTOPP_DISABLE_INTEL_ASM)
+# undef CRYPTOPP_X86_ASM_AVAILABLE
+# undef CRYPTOPP_X32_ASM_AVAILABLE
+# undef CRYPTOPP_X64_ASM_AVAILABLE
+# undef CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+# undef CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE
+# define CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE 0
+# define CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE 0
+#else
+# define CRYPTOPP_INTEGER_SSE2 (CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && CRYPTOPP_BOOL_X86)
+#endif
 
 NAMESPACE_BEGIN(CryptoPP)
 	
-// Debian QEMU/ARMEL issue in MultiplyTop; see https://github.com/weidai11/cryptopp/issues/31.
-// The symptoms speak to undefined behavior, but we have not been able to locate it. It could
-// also be a compiler or linker issue (very possible because it only surfaces for ARMEL and
-// GCC 5.2, and not other Debian cross-compilers, like ARM64 and ARMHF).
-// TODO: revisit this in the future
+// Debian QEMU/ARMEL issue in MultiplyTop; see http://github.com/weidai11/cryptopp/issues/31.
 #if __ARMEL__ && (CRYPTOPP_GCC_VERSION >= 50200) && (CRYPTOPP_GCC_VERSION < 50300) && __OPTIMIZE__
 # define WORKAROUND_ARMEL_BUG 1
 #endif
-	
+
+// Debian QEMU/ARM64 issue in Integer or ModularArithmetic; see http://github.com/weidai11/cryptopp/issues/61.
+#if (__aarch64__ || __AARCH64EL__) && (CRYPTOPP_GCC_VERSION >= 50200) && (CRYPTOPP_GCC_VERSION < 50300)
+# define WORKAROUND_ARM64_BUG 1
+#endif
+
 #if WORKAROUND_ARMEL_BUG
 # pragma GCC push_options
 # pragma GCC optimize("O1")
+#endif
+	
+#if WORKAROUND_ARM64_BUG
+# pragma GCC push_options
+# pragma GCC optimize("no-devirtualize")
 #endif
 
 bool AssignIntToInteger(const std::type_info &valueType, void *pInteger, const void *pInt)
@@ -197,13 +215,20 @@ static word AtomicInverseModPower2(word A)
 class DWord
 {
 public:
+	// Converity finding on default ctor. We've isntrumented the code,
+	//   and cannot uncover a case where it affects a result.
+#if (defined(__COVERITY__) || !defined(NDEBUG)) && defined(CRYPTOPP_NATIVE_DWORD_AVAILABLE)
+	// Repeating pattern of 1010 for debug builds to break things...
+	DWord() : m_whole(0) {memset(&m_whole, 0xa, sizeof(m_whole));}
+#elif (defined(__COVERITY__) || !defined(NDEBUG)) && !defined(CRYPTOPP_NATIVE_DWORD_AVAILABLE)
+	// Repeating pattern of 1010 for debug builds to break things...
+	DWord() : m_halfs() {memset(&m_halfs, 0xa, sizeof(m_halfs));}
+#else
 	DWord() {}
+#endif
 
 #ifdef CRYPTOPP_NATIVE_DWORD_AVAILABLE
-	explicit DWord(word low)
-	{
-		m_whole = low;
-	}
+	explicit DWord(word low) : m_whole(low) {}
 #else
 	explicit DWord(word low)
 	{
@@ -225,6 +250,8 @@ public:
 			r.m_whole = (dword)a * b;
 		#elif defined(MultiplyWordsLoHi)
 			MultiplyWordsLoHi(r.m_halfs.low, r.m_halfs.high, a, b);
+		#else
+			assert(0);
 		#endif
 		return r;
 	}
@@ -322,17 +349,19 @@ private:
 class Word
 {
 public:
+	// Converity finding on default ctor. We've isntrumented the code,
+	//   and cannot uncover a case where it affects a result.
+#if defined(__COVERITY__)
+	Word() : m_whole(0) {}
+#elif !defined(NDEBUG)
+	// Repeating pattern of 1010 for debug builds to break things...
+	Word() : m_whole(0) {memset(&m_whole, 0xa, sizeof(m_whole));}
+#else
 	Word() {}
+#endif
 
-	Word(word value)
-	{
-		m_whole = value;
-	}
-
-	Word(hword low, hword high)
-	{
-		m_whole = low | (word(high) << (WORD_BITS/2));
-	}
+	Word(word value) : m_whole(value) {}
+	Word(hword low, hword high) : m_whole(low | (word(high) << (WORD_BITS/2))) {}
 
 	static Word Multiply(hword a, hword b)
 	{
@@ -469,13 +498,13 @@ inline word DWord::operator%(word a)
 
 // ********************************************************
 
-// use some tricks to share assembly code between MSVC and GCC
+// Use some tricks to share assembly code between MSVC and GCC
 #if defined(__GNUC__)
 	#define AddPrologue \
 		int result;	\
 		__asm__ __volatile__ \
 		( \
-			".intel_syntax noprefix;"
+			INTEL_NOPREFIX
 	#define AddEpilogue \
 			".att_syntax prefix;" \
 					: "=a" (result)\
@@ -563,7 +592,7 @@ int Baseline_Add(size_t N, word *C, const word *A, const word *B)
 	word result;
 	__asm__ __volatile__
 	(
-	".intel_syntax;"
+	INTEL_NOPREFIX
 	AS1(	neg		%1)
 	ASJ(	jz,		1, f)
 	AS2(	mov		%0,[%3+8*%1])
@@ -582,7 +611,7 @@ int Baseline_Add(size_t N, word *C, const word *A, const word *B)
 	ASL(1)
 	AS2(	mov		%0, 0)
 	AS2(	adc		%0, %0)
-	".att_syntax;"
+	ATT_NOPREFIX
 	: "=&r" (result), "+c" (N)
 	: "r" (C+N), "r" (A+N), "r" (B+N)
 	: "memory", "cc"
@@ -595,7 +624,7 @@ int Baseline_Sub(size_t N, word *C, const word *A, const word *B)
 	word result;
 	__asm__ __volatile__
 	(
-	".intel_syntax;"
+	INTEL_NOPREFIX
 	AS1(	neg		%1)
 	ASJ(	jz,		1, f)
 	AS2(	mov		%0,[%3+8*%1])
@@ -614,7 +643,7 @@ int Baseline_Sub(size_t N, word *C, const word *A, const word *B)
 	ASL(1)
 	AS2(	mov		%0, 0)
 	AS2(	adc		%0, %0)
-	".att_syntax;"
+	ATT_NOPREFIX
 	: "=&r" (result), "+c" (N)
 	: "r" (C+N), "r" (A+N), "r" (B+N)
 	: "memory", "cc"
@@ -3446,8 +3475,8 @@ std::ostream& operator<<(std::ostream& out, const Integer &a)
 	static const char lower[]="0123456789abcdef";
 
 	const char* vec = (out.flags() & std::ios::uppercase) ? upper : lower;
-	unsigned i=0;
-	SecBlock<char> s(a.BitCount() / (BitPrecision(base)-1) + 1);
+	unsigned int i=0;
+	SecBlock<char> s(a.BitCount() / (SaturatingSubtract1(BitPrecision(base),1U)) + 1);
 
 	while (!!temp1)
 	{
@@ -3463,6 +3492,7 @@ std::ostream& operator<<(std::ostream& out, const Integer &a)
 //		if (i && !(i%block))
 //			out << ",";
 	}
+
 	return out << suffix;
 }
 
@@ -4271,9 +4301,103 @@ const Integer& MontgomeryRepresentation::MultiplicativeInverse(const Integer &a)
 	return m_result;
 }
 
+// Specialization declared in misc.h to allow us to print integers
+//  with additional control options, like arbirary bases and uppercase.
+template <> CRYPTOPP_DLL
+std::string IntToString<Integer>(Integer value, unsigned int base)
+{
+	// Hack... set the high bit for uppercase. Set the next bit fo a suffix.
+	static const unsigned int BIT_32 = (1U << 31);
+	const bool UPPER = !!(base & BIT_32);
+	static const unsigned int BIT_31 = (1U << 30);
+	const bool BASE = !!(base & BIT_31);
+
+	const char CH = UPPER ? 'A' : 'a';
+	base &= ~(BIT_32|BIT_31);
+	assert(base >= 2 && base <= 32);
+
+	if (value == 0)
+		return "0";
+
+	bool negative = false, zero = false;
+	if (value.IsNegative())
+	{
+		negative = true;
+		value.Negate();
+	}
+
+	if (!value)
+		zero = true;
+
+	SecBlock<char> s(value.BitCount() / (SaturatingSubtract1(BitPrecision(base),1U)) + 1);
+	Integer temp;
+
+	unsigned int i=0;
+	while (!!value)
+	{
+		word digit;
+		Integer::Divide(digit, temp, value, word(base));
+		s[i++]=char((digit < 10 ? '0' : (CH - 10)) + digit);
+		value.swap(temp);
+	}
+
+	std::string result;
+	result.reserve(i+2);
+	
+	if (negative)
+		result += '-';
+
+	if (zero)
+		result += '0';
+
+	while (i--)
+		result += s[i];
+
+	if (BASE)
+	{
+		if (base == 10)
+			result += '.';
+		else if (base == 16)
+			result += 'h';
+		else if (base == 8)
+			result += 'o';
+		else if (base == 2)
+			result += 'b';
+	}
+
+	return result;
+}
+
+// Specialization declared in misc.h to avoid Coverity findings.
+template <> CRYPTOPP_DLL
+std::string IntToString<unsigned long long>(unsigned long long value, unsigned int base)
+{
+	// Hack... set the high bit for uppercase.
+	static const unsigned int HIGH_BIT = (1U << 31);
+	const char CH = !!(base & HIGH_BIT) ? 'A' : 'a';
+	base &= ~HIGH_BIT;
+	
+	assert(base >= 2);
+	if (value == 0)
+		return "0";
+
+	std::string result;
+	while (value > 0)
+	{
+		unsigned long long digit = value % base;
+		result = char((digit < 10 ? '0' : (CH - 10)) + digit) + result;
+		value /= base;
+	}
+	return result;
+}
+
 NAMESPACE_END
 	
 #if WORKAROUND_ARMEL_BUG
+# pragma GCC pop_options
+#endif
+	
+#if WORKAROUND_ARM64_BUG
 # pragma GCC pop_options
 #endif
 

@@ -1,3 +1,9 @@
+// ccm.h - written and placed in the public domain by Wei Dai
+
+//! \file
+//! \headerfile ccm.h
+//! \brief CCM block cipher mode of operation
+
 #ifndef CRYPTOPP_CCM_H
 #define CRYPTOPP_CCM_H
 
@@ -10,7 +16,7 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CCM_Base : public AuthenticatedSymmetricCi
 {
 public:
 	CCM_Base()
-		: m_digestSize(0), m_L(0) {}
+		: m_digestSize(0), m_L(0), m_messageLength(0), m_aadLength(0) {}
 
 	// AuthenticatedSymmetricCipher
 	std::string AlgorithmName() const

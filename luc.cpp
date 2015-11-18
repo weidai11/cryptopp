@@ -10,12 +10,14 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+#if !defined(NDEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
 void LUC_TestInstantiations()
 {
 	LUC_HMP<SHA>::Signer t1;
 	LUCFunction t2;
 	InvertibleLUCFunction t3;
 }
+#endif
 
 void DL_Algorithm_LUC_HMP::Sign(const DL_GroupParameters<Integer> &params, const Integer &x, const Integer &k, const Integer &e, Integer &r, Integer &s) const
 {

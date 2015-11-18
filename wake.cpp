@@ -7,11 +7,13 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+#if !defined(NDEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
 void WAKE_TestInstantiations()
 {
 	WAKE_OFB<>::Encryption x2;
 	WAKE_OFB<>::Decryption x4;
 }
+#endif
 
 inline word32 WAKE_Base::M(word32 x, word32 y)
 {

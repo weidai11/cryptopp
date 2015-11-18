@@ -1,3 +1,9 @@
+// seal.h - written and placed in the public domain by Wei Dai
+
+//! \file
+//! \headerfile seal.h
+//! \brief Classes for SEAL encryption scheme
+
 #ifndef CRYPTOPP_SEAL_H
 #define CRYPTOPP_SEAL_H
 

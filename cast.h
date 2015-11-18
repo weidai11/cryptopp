@@ -1,3 +1,9 @@
+// cast.h - written and placed in the public domain by Wei Dai
+
+//! \file
+//! \headerfile cast.h
+//! \brief Classes for CAST cipher
+
 #ifndef CRYPTOPP_CAST_H
 #define CRYPTOPP_CAST_H
 

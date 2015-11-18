@@ -13,9 +13,9 @@ class Gzip : public Deflator
 {
 public:
 	Gzip(BufferedTransformation *attachment=NULL, unsigned int deflateLevel=DEFAULT_DEFLATE_LEVEL, unsigned int log2WindowSize=DEFAULT_LOG2_WINDOW_SIZE, bool detectUncompressible=true)
-		: Deflator(attachment, deflateLevel, log2WindowSize, detectUncompressible) {}
+		: Deflator(attachment, deflateLevel, log2WindowSize, detectUncompressible), m_totalLen(0) {}
 	Gzip(const NameValuePairs &parameters, BufferedTransformation *attachment=NULL)
-		: Deflator(parameters, attachment) {}
+		: Deflator(parameters, attachment), m_totalLen(0) {}
 
 protected:
 	enum {MAGIC1=0x1f, MAGIC2=0x8b,   // flags for the header

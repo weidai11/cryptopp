@@ -1,7 +1,7 @@
 // .h - written and placed in the public domain by Wei Dai
 
 //! \file
-//! \brief Class files for the Base64Encoder, Base64Decoder, Base64URLEncoder and Base64URLDecoder
+//! \brief Classes for the Base64Encoder, Base64Decoder, Base64URLEncoder and Base64URLDecoder
 
 #ifndef CRYPTOPP_BASE64_H
 #define CRYPTOPP_BASE64_H

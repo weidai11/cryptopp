@@ -251,17 +251,23 @@ static void KeccakF1600(word64 *state)
 
 void SHA3::Update(const byte *input, size_t length)
 {
+	assert((input && length) || !(input || length));
+	if (!length)
+		return;
+
 	size_t spaceLeft;
 	while (length >= (spaceLeft = r() - m_counter))
 	{
-		xorbuf(m_state.BytePtr() + m_counter, input, spaceLeft);
+		if (spaceLeft)
+			xorbuf(m_state.BytePtr() + m_counter, input, spaceLeft);
 		KeccakF1600(m_state);
 		input += spaceLeft;
 		length -= spaceLeft;
 		m_counter = 0;
 	}
 
-	xorbuf(m_state.BytePtr() + m_counter, input, length);
+	if (length)
+		xorbuf(m_state.BytePtr() + m_counter, input, length);
 	m_counter += (unsigned int)length;
 }
 

@@ -1,8 +1,11 @@
+// shark.h - written and placed in the public domain by Wei Dai
+
+//! \file
+//! \headerfile shark.h
+//! \brief Classes for SHARK encryption scheme
+
 #ifndef CRYPTOPP_SHARK_H
 #define CRYPTOPP_SHARK_H
-
-/** \file
-*/
 
 #include "config.h"
 #include "seckey.h"

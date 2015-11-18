@@ -145,7 +145,8 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
 #if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
 	if (HasCLMUL())
 	{
-		params.GetIntValue(Name::TableSize(), tableSize);	// avoid "parameter not used" error
+		// Avoid "parameter not used" error and suppress Coverity finding
+		(void)params.GetIntValue(Name::TableSize(), tableSize);
 		tableSize = s_clmulTableSizeInBlocks * REQUIRED_BLOCKSIZE;
 	}
 	else
@@ -579,7 +580,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 		#ifdef __GNUC__
 			__asm__ __volatile__
 			(
-			".intel_syntax noprefix;"
+			INTEL_NOPREFIX
 		#elif defined(CRYPTOPP_GENERATE_X64_MASM)
 			ALIGN   8
 			GCM_AuthenticateBlocks_2K	PROC FRAME
@@ -683,7 +684,13 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 		AS2(	pxor	xmm5, xmm2						)
 
 		AS2(	psrldq	xmm0, 15						)
-		AS2(	movd	WORD_REG(di), xmm0					)
+#if defined(CRYPTOPP_APPLE_CLANG_VERSION)
+		AS2(	mov		WORD_REG(di), xmm0				)
+#elif defined(CRYPTOPP_CLANG_VERSION)
+		AS2(	movd	edi, xmm0						)
+#else
+		AS2(	movd	WORD_REG(di), xmm0				)
+#endif
 		AS2(	movzx	eax, WORD PTR [RED_TABLE + WORD_REG(di)*2]	)
 		AS2(	shl		eax, 8							)
 
@@ -692,21 +699,33 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 		AS2(	pxor	xmm4, xmm5						)
 
 		AS2(	psrldq	xmm1, 15						)
-		AS2(	movd	WORD_REG(di), xmm1					)
+#if defined(CRYPTOPP_APPLE_CLANG_VERSION)
+		AS2(	mov		WORD_REG(di), xmm1				)
+#elif defined(CRYPTOPP_CLANG_VERSION)
+		AS2(	movd	edi, xmm1						)
+#else
+		AS2(	movd	WORD_REG(di), xmm1				)
+#endif
 		AS2(	xor		ax, WORD PTR [RED_TABLE + WORD_REG(di)*2]	)
 		AS2(	shl		eax, 8							)
 
 		AS2(	psrldq	xmm0, 15						)
-		AS2(	movd	WORD_REG(di), xmm0					)
+#if defined(CRYPTOPP_APPLE_CLANG_VERSION)			
+		AS2(	mov		WORD_REG(di), xmm0				)
+#elif defined(CRYPTOPP_CLANG_VERSION)
+		AS2(	movd	edi, xmm0						)
+#else
+		AS2(	movd	WORD_REG(di), xmm0				)
+#endif
 		AS2(	xor		ax, WORD PTR [RED_TABLE + WORD_REG(di)*2]	)
 
 		AS2(	movd	xmm0, eax						)
 		AS2(	pxor	xmm0, xmm4						)
 
-		AS2(	add		WORD_REG(cx), 16					)
-		AS2(	sub		WORD_REG(dx), 1						)
+		AS2(	add		WORD_REG(cx), 16				)
+		AS2(	sub		WORD_REG(dx), 1					)
 		ASJ(	jnz,	0, b							)
-		AS2(	movdqa	[WORD_REG(si)], xmm0				)
+		AS2(	movdqa	[WORD_REG(si)], xmm0			)
 
 		#if CRYPTOPP_BOOL_X32
 			AS1(pop		rbp)
@@ -717,7 +736,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 		#endif
 
 		#ifdef __GNUC__
-				".att_syntax prefix;"
+				ATT_PREFIX
 					: 
 					: "c" (data), "d" (len/16), "S" (hashBuffer), "D" (s_reductionTable)
 					: "memory", "cc", "%eax"
@@ -740,7 +759,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 		#ifdef __GNUC__
 			__asm__ __volatile__
 			(
-			".intel_syntax noprefix;"
+			INTEL_NOPREFIX
 		#elif defined(CRYPTOPP_GENERATE_X64_MASM)
 			ALIGN   8
 			GCM_AuthenticateBlocks_64K	PROC FRAME
@@ -794,7 +813,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 		AS2(	movdqa	[WORD_REG(si)], xmm0				)
 
 		#ifdef __GNUC__
-				".att_syntax prefix;"
+				ATT_PREFIX
 					: 
 					: "c" (data), "d" (len/16), "S" (hashBuffer)
 					: "memory", "cc", "%edi", "%eax"

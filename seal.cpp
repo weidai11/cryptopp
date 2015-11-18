@@ -10,10 +10,12 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+#if !defined(NDEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
 void SEAL_TestInstantiations()
 {
 	SEAL<>::Encryption x;
 }
+#endif
 
 struct SEAL_Gamma
 {
