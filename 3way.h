@@ -7,6 +7,7 @@
 #ifndef CRYPTOPP_THREEWAY_H
 #define CRYPTOPP_THREEWAY_H
 
+#include "config.h"
 #include "seckey.h"
 #include "secblock.h"
 

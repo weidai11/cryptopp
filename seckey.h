@@ -6,13 +6,14 @@
 #ifndef CRYPTOPP_SECKEY_H
 #define CRYPTOPP_SECKEY_H
 
-#include "cryptlib.h"
+#include "config.h"
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(push)
 # pragma warning(disable: 4189)
 #endif
 
+#include "cryptlib.h"
 #include "misc.h"
 #include "simple.h"
 
