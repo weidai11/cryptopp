@@ -467,6 +467,7 @@ bool ValidateDSA(bool thorough)
 	assert(pub.GetKey() == pub1.GetKey());
 	pass = SignatureValidate(priv, pub, thorough) && pass;
 	pass = RunTestDataFile("TestVectors/dsa.txt", g_nullNameValuePairs, thorough) && pass;
+
 	return pass;
 }
 
@@ -654,9 +655,9 @@ bool TestPolynomialMod2()
 		pass3 &= (str1 == str2);
 	}
 
-	cout << (!pass1 ? "FAILED" : "passed") << "    " << "1 shifted over range [0," << 2 * WORD_BITS + 1 << "]" << "\n";
-	cout << (!pass2 ? "FAILED" : "passed") << "    " << "0x" << hex << word(SIZE_MAX) << " shifted over range [0," << dec << 2 * WORD_BITS + 1 << "]" << "\n";
-	cout << (!pass3 ? "FAILED" : "passed") << "    " << "random values shifted over range [0," << dec << 2 * WORD_BITS + 1 << "]" << "\n";
+	cout << (!pass1 ? "FAILED" : "passed") << "    " << "1 shifted over range [" << dec << start << "," << stop << "]" << "\n";
+	cout << (!pass2 ? "FAILED" : "passed") << "    " << "0x" << hex << word(SIZE_MAX) << dec << " shifted over range [" << start << "," << stop << "]" << "\n";
+	cout << (!pass3 ? "FAILED" : "passed") << "    " << "random values shifted over range [" << dec << start << "," << stop << "]" << "\n";
 
 	if (!(pass1 && pass2 && pass3))
 		cout.flush();

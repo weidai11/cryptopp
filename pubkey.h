@@ -1875,10 +1875,14 @@ public:
 #endif
 };
 
-//! Base class for public key encryption standard classes. These classes are used to select from variants of algorithms. Note that not all standards apply to all algorithms.
+//! \brief Base class for public key encryption standard classes.
+//! \details These classes are used to select from variants of algorithms.
+//! \note Not all standards apply to all algorithms.
 struct EncryptionStandard {};
 
-//! Base class for public key signature standard classes. These classes are used to select from variants of algorithms. Note that not all standards apply to all algorithms.
+//! \brief Base class for public key signature standard classes.
+//! \details These classes are used to select from variants of algorithms.
+//! \note Not all standards apply to all algorithms.
 struct SignatureStandard {};
 
 template <class STANDARD, class KEYS, class ALG_INFO>

@@ -55,7 +55,7 @@ public:
 	}
 	
 	//! \brief Set the number of retries used by the generator
-	//! \param the number of times GenerateBlock will attempt to recover from a failed generation
+	//! \param retries number of times GenerateBlock() will attempt to recover from a failed generation
 	void SetRetries(unsigned int retries)
 	{
 		m_retries = retries;
@@ -134,7 +134,7 @@ public:
 	}
 	
 	//! \brief Set the number of retries used by the generator
-	//! \param the number of times GenerateBlock will attempt to recover from a failed generation
+	//! \param retries number of times GenerateBlock() will attempt to recover from a failed generation
 	void SetRetries(unsigned int retries)
 	{
 		m_retries = retries;

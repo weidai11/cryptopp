@@ -1076,7 +1076,7 @@ typedef SymmetricCipher StreamCipher;
 //! \class RandomNumberGenerator
 //! \brief Interface for random number generators
 //! \details The library provides a number of random number generators, from software based to hardware based generators.
-//! \details All return values are uniformly distributed over the range specified.
+//! \details All generated values are uniformly distributed over the range specified.
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE RandomNumberGenerator : public Algorithm
 {
 public:
@@ -1084,9 +1084,9 @@ public:
 	//! \param input the entropy to add to the generator
 	//! \param length the size of the input buffer 
 	//! \throws NotImplemented
-	//! \details A generator may or may not accept additional entropy. Call  CanIncorporateEntropy to test for the
+	//! \details A generator may or may not accept additional entropy. Call  CanIncorporateEntropy() to test for the
 	//!   ability to use additional entropy.
-	//! \details If a derived class does not override  IncorporateEntropy, then the base class throws
+	//! \details If a derived class does not override IncorporateEntropy(), then the base class throws
 	//!   NotImplemented.
 	virtual void IncorporateEntropy(const byte *input, size_t length)
 	{
@@ -1095,41 +1095,52 @@ public:
 	}
 
 	//! \brief Determines if a generator can accept additional entropy
-	//! \returns true if IncorporateEntropy is implemented
+	//! \returns true if IncorporateEntropy() is implemented
 	virtual bool CanIncorporateEntropy() const {return false;}
 
 	//! \brief Generate new random byte and return it
-	//! \details default implementation is to call GenerateBlock() with one byte
+	//! \returns a random 8-bit byte
+	//! \details Default implementation calls GenerateBlock() with one byte.
+	//! \details All generated values are uniformly distributed over the range specified within the
+	//!   the contraints of a particular generator.
 	virtual byte GenerateByte();
 
 	//! \brief Generate new random bit and return it
 	//! \returns a random bit
 	//! \details The default implementation calls GenerateByte() and return its lowest bit.
+	//! \details All generated values are uniformly distributed over the range specified within the
+	//!   the contraints of a particular generator.
 	virtual unsigned int GenerateBit();
 
 	//! \brief Generate a random 32 bit word in the range min to max, inclusive
 	//! \param min the lower bound of the range
 	//! \param max the upper bound of the range
 	//! \returns a random 32-bit word
-	//! \details The default implementation calls  Crop on the difference between  max and
-	//!    min, and then returns the result added to  min.
+	//! \details The default implementation calls Crop() on the difference between max and
+	//!    min, and then returns the result added to min.
+	//! \details All generated values are uniformly distributed over the range specified within the
+	//!   the contraints of a particular generator.
 	virtual word32 GenerateWord32(word32 min=0, word32 max=0xffffffffUL);
 
 	//! \brief Generate random array of bytes
 	//! \param output the byte buffer
 	//! \param size the length of the buffer, in bytes
-	//! \note A derived generator \a must override either  GenerateBlock or
-	//!    GenerateIntoBufferedTransformation. They can override both, or have one call the other.
+	//! \details All generated values are uniformly distributed over the range specified within the
+	//!   the contraints of a particular generator.
+	//! \note A derived generator \a must override either GenerateBlock() or
+	//!    GenerateIntoBufferedTransformation(). They can override both, or have one call the other.
 	virtual void GenerateBlock(byte *output, size_t size);
 
 	//! \brief Generate random bytes into a BufferedTransformation
 	//! \param target the BufferedTransformation object which receives the bytes
 	//! \param channel the channel on which the bytes should be pumped
 	//! \param length the number of bytes to generate
-	//! \details The default implementation calls  GenerateBlock() and pumps the result into
+	//! \details The default implementation calls GenerateBlock() and pumps the result into
 	//!   the  DEFAULT_CHANNEL of the target.
-	//! \note A derived generator \a must override either  GenerateBlock or
-	//!    GenerateIntoBufferedTransformation. They can override both, or have one call the other.
+	//! \details All generated values are uniformly distributed over the range specified within the
+	//!   the contraints of a particular generator.
+	//! \note A derived generator \a must override either GenerateBlock() or
+	//!    GenerateIntoBufferedTransformation(). They can override both, or have one call the other.
 	virtual void GenerateIntoBufferedTransformation(BufferedTransformation &target, const std::string &channel, lword length);
 
 	//! \brief Generate and discard n bytes

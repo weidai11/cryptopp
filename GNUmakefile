@@ -435,7 +435,7 @@ bench benchmark benchmarks: cryptest.exe
 	echo "<BODY>" >> benchmarks.html
 	echo "<H1><a href=\"http://www.cryptopp.com\">Crypto++</a>" $(LIB_MAJOR).$(LIB_MINOR).$(LIB_REVISION) "Benchmarks</H1>" >> benchmarks.html
 	echo "<P>Here are speed benchmarks for some commonly used cryptographic algorithms.</P>"  >> benchmarks.html
-	cryptest.exe b 3 2.4+1e9 >> benchmarks.html
+	cryptest.exe b 3 2.4 >> benchmarks.html
 	echo "</BODY>" >> benchmarks.html
 	echo "</HTML>" >> benchmarks.html
 

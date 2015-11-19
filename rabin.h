@@ -2,7 +2,7 @@
 
 //! \file
 //! \headerfile rabin.h
-//! \brief Classes Rabin encryption and signature schemes
+//! \brief Classes for Rabin encryption and signature schemes
 
 #ifndef CRYPTOPP_RABIN_H
 #define CRYPTOPP_RABIN_H

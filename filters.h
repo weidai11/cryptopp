@@ -370,11 +370,11 @@ protected:
 };
 
 //! \struct BlockPaddingSchemeDef
-//! \detils Padding schemes used for block ciphers.
+//! \details Padding schemes used for block ciphers.
 struct BlockPaddingSchemeDef
 {
 	//! \enum BlockPaddingScheme
-	//! \detils Padding schemes used for block ciphers.
+	//! \details Padding schemes used for block ciphers.
 	//! \details DEFAULT_PADDING means PKCS_PADDING if <tt>cipher.MandatoryBlockSize() > 1 &&
 	//!   cipher.MinLastBlockSize() == 0</tt>, which holds for ECB or CBC mode. Otherwise,
 	//!   NO_PADDING for modes like OFB, CFB, CTR, CBC-CTS.

@@ -684,11 +684,11 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 		AS2(	pxor	xmm5, xmm2						)
 
 		AS2(	psrldq	xmm0, 15						)
-#if defined(CRYPTOPP_APPLE_CLANG_VERSION)
-		AS2(	mov		WORD_REG(di), xmm0				)
-#elif defined(CRYPTOPP_CLANG_VERSION)
+#if (CRYPTOPP_CLANG_VERSION >= 30600) || (CRYPTOPP_APPLE_CLANG_VERSION >= 70000)
 		AS2(	movd	edi, xmm0						)
-#else
+#elif defined(CRYPTOPP_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION)
+		AS2(	mov		WORD_REG(di), xmm0				)
+#else	// GNU Assembler
 		AS2(	movd	WORD_REG(di), xmm0				)
 #endif
 		AS2(	movzx	eax, WORD PTR [RED_TABLE + WORD_REG(di)*2]	)
@@ -699,10 +699,10 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 		AS2(	pxor	xmm4, xmm5						)
 
 		AS2(	psrldq	xmm1, 15						)
-#if defined(CRYPTOPP_APPLE_CLANG_VERSION)
-		AS2(	mov		WORD_REG(di), xmm1				)
-#elif defined(CRYPTOPP_CLANG_VERSION)
+#if (CRYPTOPP_CLANG_VERSION >= 30600) || (CRYPTOPP_APPLE_CLANG_VERSION >= 70000)
 		AS2(	movd	edi, xmm1						)
+#elif defined(CRYPTOPP_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION)
+		AS2(	mov		WORD_REG(di), xmm1				)
 #else
 		AS2(	movd	WORD_REG(di), xmm1				)
 #endif
@@ -710,10 +710,10 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 		AS2(	shl		eax, 8							)
 
 		AS2(	psrldq	xmm0, 15						)
-#if defined(CRYPTOPP_APPLE_CLANG_VERSION)			
+#if (CRYPTOPP_CLANG_VERSION >= 30600) || (CRYPTOPP_APPLE_CLANG_VERSION >= 70000)
+		AS2(	movd	edi, xmm0						)	
+#elif defined(CRYPTOPP_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION)		
 		AS2(	mov		WORD_REG(di), xmm0				)
-#elif defined(CRYPTOPP_CLANG_VERSION)
-		AS2(	movd	edi, xmm0						)
 #else
 		AS2(	movd	WORD_REG(di), xmm0				)
 #endif

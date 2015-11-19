@@ -1,3 +1,8 @@
+// ida.h - written and placed in the public domain by Wei Dai
+
+//! \file
+//! \brief Classes for Information Dispersal Algorithm (IDA)
+
 #ifndef CRYPTOPP_IDA_H
 #define CRYPTOPP_IDA_H
 
@@ -6,10 +11,8 @@
 #include "filters.h"
 #include "channels.h"
 #include "secblock.h"
+#include "stdcpp.h"
 #include "misc.h"
-
-#include <map>
-#include <vector>
 
 NAMESPACE_BEGIN(CryptoPP)
 

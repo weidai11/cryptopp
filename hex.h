@@ -1,3 +1,8 @@
+// hex.h - written and placed in the public domain by Wei Dai
+
+//! \file
+//! \brief Classes for HexEncoder and HexDecoder
+
 #ifndef CRYPTOPP_HEX_H
 #define CRYPTOPP_HEX_H
 

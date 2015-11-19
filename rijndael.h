@@ -1,8 +1,9 @@
 // rijndael.h - written and placed in the public domain by Wei Dai
 
-//! \file
-//! \headerfile rijndael.h
+//! \file rijndael.h
 //! \brief Classes for Rijndael encryption algorithm
+//! \details All key sizes are supported. The library only provides Rijndael with 128-bit blocks,
+//!   and not 192-bit or 256-bit blocks
 
 #ifndef CRYPTOPP_RIJNDAEL_H
 #define CRYPTOPP_RIJNDAEL_H
@@ -16,15 +17,18 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! _
+//! \brief Rijndael block cipher information
 struct Rijndael_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 16, 32, 8>
 {
 	CRYPTOPP_DLL static const char * CRYPTOPP_API StaticAlgorithmName() {return CRYPTOPP_RIJNDAEL_NAME;}
 };
 
-/// <a href="http://www.weidai.com/scan-mirror/cs.html#Rijndael">Rijndael</a>
+//! \brief Rijndael block cipher implementation details
+//! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#Rijndael">Rijndael</a>
 class CRYPTOPP_DLL Rijndael : public Rijndael_Info, public BlockCipherDocumentation
 {
+	//! \brief Rijndael block cipher data processing functionss
+	//! \details Provides implementation common to encryption and decryption
 	class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<Rijndael_Info>
 	{
 	public:
@@ -44,6 +48,8 @@ class CRYPTOPP_DLL Rijndael : public Rijndael_Info, public BlockCipherDocumentat
 		FixedSizeAlignedSecBlock<word32, 4*15> m_key;
 	};
 
+	//! \brief Rijndael block cipher data processing functions
+	//! \details Provides implementation for encryption transformation
 	class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Enc : public Base
 	{
 	public:
@@ -53,6 +59,8 @@ class CRYPTOPP_DLL Rijndael : public Rijndael_Info, public BlockCipherDocumentat
 #endif
 	};
 
+	//! \brief Rijndael block cipher data processing functions
+	//! \details Provides implementation for decryption transformation
 	class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Dec : public Base
 	{
 	public:

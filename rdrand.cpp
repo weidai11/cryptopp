@@ -102,7 +102,7 @@
 #endif
 
 // Debug diagnostics
-#if !defined(NDEBUG)
+#if 0
 #  if MASM_RDRAND_ASM_AVAILABLE
 #    pragma message ("MASM_RDRAND_ASM_AVAILABLE is 1")
 #  elif NASM_RDRAND_ASM_AVAILABLE

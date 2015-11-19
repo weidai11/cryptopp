@@ -1,4 +1,4 @@
-//! rng.h - written and placed in the public domain by Wei Dai
+// rng.h - written and placed in the public domain by Wei Dai
 
 //! \file rng.h
 //! \brief Miscellaneous classes for RNGs
@@ -15,8 +15,8 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! linear congruential generator
-/*! originally by William S. England, do not use for cryptographic purposes */
+//! \brief Linear Congruential Generator (LCG)
+//! \details Originally by William S. England, do not use for cryptographic purposes
 class LC_RNG : public RandomNumberGenerator
 {
 public:
@@ -36,19 +36,37 @@ private:
 	static const word16 r;
 };
 
-//! RNG derived from ANSI X9.17 Appendix C
-
+//! \class X917RNG
+//! \brief ANSI X9.17 RNG
+//! \details X917RNG is from ANSI X9.17 Appendix C.
+//! \sa AutoSeededX917RNG, DefaultAutoSeededRNG
 class CRYPTOPP_DLL X917RNG : public RandomNumberGenerator, public NotCopyable
 {
 public:
-	// cipher will be deleted by destructor, deterministicTimeVector = 0 means obtain time vector from system
+	//! \brief Construct a X917RNG
+	//! \param cipher the block cipher to use for the generator
+	//! \param seed a byte buffer to use as a seed
+	//! \param deterministicTimeVector additional entropy
+	//! \details <tt>cipher</tt> will be deleted by the destructor. <tt>seed</tt> must be at least
+	//!   BlockSize() in length. <tt>deterministicTimeVector = 0</tt> means obtain time vector
+	//!   from the system.
+	//! \details When constructing an AutoSeededX917RNG, the generator must be keyed or an
+	//!   access violation will occur because the time vector is encrypted using the block cipher.
+	//!   To key the generator during constructions, perform the following:
+	//! <pre>
+	//!   SecByteBlock key(AES::DEFAULT_KEYLENGTH), seed(AES::BLOCKSIZE);
+	//!   OS_GenerateRandomBlock(false, key, key.size());
+	//!   OS_GenerateRandomBlock(false, seed, seed.size());
+	//!   X917RNG prng(new AES::Encryption(key, AES::DEFAULT_KEYLENGTH), seed, NULL);
+	//! </pre>
+	//! \sa AutoSeededX917RNG
 	X917RNG(BlockTransformation *cipher, const byte *seed, const byte *deterministicTimeVector = 0);
 
 	void GenerateIntoBufferedTransformation(BufferedTransformation &target, const std::string &channel, lword size);
 
 private:
 	member_ptr<BlockTransformation> cipher;
-	unsigned int S;			// blocksize of cipher
+	const unsigned int S;	// blocksize of cipher
 	SecByteBlock dtbuf; 	// buffer for enciphered timestamp
 	SecByteBlock randseed, m_lastBlock, m_deterministicTimeVector;
 };
@@ -66,6 +84,8 @@ public:
 
 	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking);
 
+	//! \brief Provides the number of bytes of input is needed by the test
+	//! \returns how many more bytes of input is needed by the test
 	// BytesNeeded() returns how many more bytes of input is needed by the test
 	// GetTestValue() should not be called before BytesNeeded()==0
 	unsigned int BytesNeeded() const {return n >= (Q+K) ? 0 : Q+K-n;}

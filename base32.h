@@ -1,7 +1,7 @@
 // base32.h - written and placed in the public domain by Wei Dai
 
 //! \file
-//! \brief Classes for Base32 encoder and decoder
+//! \brief Classes for Base32Encoder and Base32Decoder
 
 #ifndef CRYPTOPP_BASE32_H
 #define CRYPTOPP_BASE32_H

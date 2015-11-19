@@ -1,3 +1,8 @@
+// ripemd.h - written and placed in the public domain by Wei Dai
+
+//! \file
+//! \brief Classes for RIPEMD message digest
+
 #ifndef CRYPTOPP_RIPEMD_H
 #define CRYPTOPP_RIPEMD_H
 
