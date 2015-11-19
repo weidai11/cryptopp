@@ -42,6 +42,7 @@
 #include "rdrand.h"
 #include "zdeflate.h"
 #include "smartptr.h"
+#include "rng.h"
 #include "cpu.h"
 
 #include <time.h>
