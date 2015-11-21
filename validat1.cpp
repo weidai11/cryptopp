@@ -42,8 +42,8 @@
 #include "rdrand.h"
 #include "zdeflate.h"
 #include "smartptr.h"
-#include "rng.h"
 #include "cpu.h"
+#include "rng.h"
 
 #include <time.h>
 #include <memory>

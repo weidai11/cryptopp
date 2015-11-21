@@ -1,8 +1,7 @@
 // salsa.h - written and placed in the public domain by Wei Dai
 
-//! \file
-//! \headerfile salsa.h
-//! \brief Classes for Salsa encryption scheme
+//! \file salsa.h
+//! \brief Classes for Salsa and Salsa20 stream ciphers
 
 #ifndef CRYPTOPP_SALSA_H
 #define CRYPTOPP_SALSA_H
@@ -82,4 +81,5 @@ struct XSalsa20 : public XSalsa20_Info, public SymmetricCipherDocumentation
 
 NAMESPACE_END
 
+#endif
 #endif

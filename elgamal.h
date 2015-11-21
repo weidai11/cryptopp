@@ -1,3 +1,8 @@
+// elgamal.h - written and placed in the public domain by Wei Dai
+
+//! \file elgamal.h
+//! \brief Classes and functions for ElGamal key agreement and encryption schemes
+
 #ifndef CRYPTOPP_ELGAMAL_H
 #define CRYPTOPP_ELGAMAL_H
 
@@ -116,7 +121,8 @@ struct ElGamalKeys
 	typedef DL_PublicKey_GFP_OldFormat<DL_CryptoKeys_GFP::PublicKey> PublicKey;
 };
 
-//! ElGamal encryption scheme with non-standard padding
+//! \class ElGamal
+//! \brief ElGamal encryption scheme with non-standard padding
 struct ElGamal
 {
 	typedef DL_CryptoSchemeOptions<ElGamal, ElGamalKeys, int, int, int> SchemeOptions;

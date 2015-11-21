@@ -1,7 +1,7 @@
 // skipjack.h - written and placed in the public domain by Wei Dai
 
 //! \file skipjack.h
-//! \brief Classes for Skipjack encryption algorithm
+//! \brief Classes for the SKIPJACK block cipher
 
 #ifndef CRYPTOPP_SKIPJACK_H
 #define CRYPTOPP_SKIPJACK_H
@@ -61,3 +61,4 @@ typedef SKIPJACK::Decryption SKIPJACKDecryption;
 NAMESPACE_END
 
 #endif
+if

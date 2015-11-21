@@ -1,7 +1,7 @@
 // square.h - written and placed in the public domain by Wei Dai
 
 //! \file square.h
-//! \brief Classes for SQUARE encryption algorithm
+//! \brief Classes for the Square block cipher
 
 #ifndef CRYPTOPP_SQUARE_H
 #define CRYPTOPP_SQUARE_H
@@ -58,3 +58,4 @@ typedef Square::Decryption SquareDecryption;
 NAMESPACE_END
 
 #endif
+if

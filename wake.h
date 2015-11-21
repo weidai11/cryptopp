@@ -1,3 +1,8 @@
+// wake.h - written and placed in the public domain by Wei Dai
+
+//! \file wake.h
+//! \brief Classes for WAKE stream cipher
+
 #ifndef CRYPTOPP_WAKE_H
 #define CRYPTOPP_WAKE_H
 

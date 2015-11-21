@@ -1,8 +1,10 @@
+// twofish.h - written and placed in the public domain by Wei Dai
+
+//! \file twofish.h
+//! \brief Classes for the Twofish block cipher
+
 #ifndef CRYPTOPP_TWOFISH_H
 #define CRYPTOPP_TWOFISH_H
-
-/** \file
-*/
 
 #include "seckey.h"
 #include "secblock.h"

@@ -1,3 +1,8 @@
+// panama.h - written and placed in the public domain by Wei Dai
+
+//! \file panama.h
+//! \brief Classes for Panama stream cipher
+
 #ifndef CRYPTOPP_PANAMA_H
 #define CRYPTOPP_PANAMA_H
 

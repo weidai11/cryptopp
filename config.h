@@ -1,7 +1,6 @@
 // config.h - written and placed in the public domain by Wei Dai
 
-//! \file
-//! \headerfile config.h
+//! \file config.h
 //! \brief Library configuration file
 
 #ifndef CRYPTOPP_CONFIG_H
@@ -41,7 +40,7 @@
 // Define this to ensure C/C++ standard compliance and respect for GCC aliasing rules and other alignment fodder. If you
 // experience a break with GCC at -O3, you should try this first. Guard it in case its set on the command line (and it differs).
 #ifndef CRYPTOPP_NO_UNALIGNED_DATA_ACCESS
-// # define CRYPTOPP_NO_UNALIGNED_DATA_ACCESS
+# define CRYPTOPP_NO_UNALIGNED_DATA_ACCESS
 #endif
 
 // ***************** Less Important Settings ***************
@@ -56,7 +55,7 @@
 // Also see https://cryptopp.com/wiki/Config.h#Avoid_MAINTAIN_BACKWARDS_COMPATIBILITY
 #if (CRYPTOPP_VERSION <= 600)
 # if !defined(CRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562) && !defined(CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562)
-#  define CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+// #  define CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 # endif
 #endif
 
@@ -96,7 +95,7 @@
 // Under GCC, the library uses init_priority attribute in the range
 // [CRYPTOPP_INIT_PRIORITY, CRYPTOPP_INIT_PRIORITY+100]. Under Windows,
 // CRYPTOPP_INIT_PRIORITY enlists "#pragma init_seg(lib)".
-// #define CRYPTOPP_INIT_PRIORITY 250
+#define CRYPTOPP_INIT_PRIORITY 250
 
 // CRYPTOPP_USER_PRIORITY is for other libraries and user code that is using Crypto++
 // and managing C++ static object creation. It is guaranteed not to conflict with
@@ -686,6 +685,28 @@ NAMESPACE_END
 #  endif
 #elif (CRYPTOPP_GCC_VERSION >= 40300)
 #  define CRYPTOPP_CXX11_VARIADIC_TEMPLATES 1
+#endif // variadic templates
+
+// TODO: Emplacement, R-values and Move semantics
+// Needed because we are catching warnings with GCC and MSC
+
+#endif // CRYPTOPP_CXX11
+	
+#if defined(CRYPTOPP_CXX11_NOEXCEPT)
+#  define CRYPTOPP_THROW noexcept(false)
+#  define CRYPTOPP_NO_THROW noexcept(true)
+#else
+#  define CRYPTOPP_THROW
+#  define CRYPTOPP_NO_THROW
+#endif // CRYPTOPP_CXX11_NOEXCEPT
+
+// OK to comment the following out, but please report it so we can fix it.
+#if (defined(__cplusplus) && (__cplusplus >= 199711L)) && !defined(CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE)
+# error "std::uncaught_exception is not available. This is likely a configuration error."
+#endif
+
+#endif
+ CRYPTOPP_CXX11_VARIADIC_TEMPLATES 1
 #endif // variadic templates
 
 // TODO: Emplacement, R-values and Move semantics

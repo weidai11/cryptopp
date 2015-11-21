@@ -1,7 +1,7 @@
 // blowfish.h - written and placed in the public domain by Wei Dai
 
-//! \file
-//! \brief Classes for the Blowfish algorithm
+//! \file blowfish.h
+//! \brief Classes for the Blowfish block cipher
 
 #ifndef CRYPTOPP_BLOWFISH_H
 #define CRYPTOPP_BLOWFISH_H

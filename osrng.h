@@ -123,6 +123,7 @@ protected:
 
 //! OS_GenerateRandomBlock
 //! \brief Generate random array of bytes
+//! \param blocking specifies whther a bobcking or non-blocking generator should be used
 //! \param output the byte buffer
 //! \param size the length of the buffer, in bytes
 //! \details OS_GenerateRandomBlock() uses the underlying operating system's

@@ -21,9 +21,6 @@
 ;;   RRI = RDRAND, Intrinsic
 ;;   RSA = RDSEED, Intrinsic
 
-;;  Caller/Callee Saved Registers
-;;    https://msdn.microsoft.com/en-us/library/6t169e9c.aspx
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -100,7 +97,7 @@ NASM_RRA_GenerateBlock:
 .Call_RDRAND_EAX:
 %else
 .Call_RDRAND_RAX:
-	DB 		48h	;; X32 can use the full register, issue the REX.w prefix
+	DB		48h	;; X32 can use the full register, issue the REX.w prefix
 %endif
 			;; RDRAND is not available prior to VS2012. Just emit
 			;;   the byte codes using DB. This is `rdrand eax`.
@@ -237,7 +234,7 @@ NASM_RRA_GenerateBlock:
 .Call_RDRAND_RAX:
 			;; RDRAND is not available prior to VS2012. Just emit
 			;;   the byte codes using DB. This is `rdrand rax`.
-	DB 048h, 0Fh, 0C7h, 0F0h
+	DB		048h, 0Fh, 0C7h, 0F0h
 
 			;; If CF=1, the number returned by RDRAND is valid.
 			;; If CF=0, a random number was not available.
@@ -595,5 +592,8 @@ NASM_RSA_GenerateBlock:
 %endif    ;; _M_X64
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
