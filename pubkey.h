@@ -109,7 +109,7 @@ public:
 	virtual Integer ApplyRandomizedFunction(RandomNumberGenerator &rng, const Integer &x) const =0;
 	
 	//! \brief Determines if the encryption algorithm is randomized
-	//! \returns \p true if the encryption algorithm is randomized, \p false otherwise
+	//! \returns \p true if the encryption algorithm is randominzed, \p false otherwise
 	//! \details If \p IsRandomized() returns \p false, then \p NullRNG() can be used.
 	virtual bool IsRandomized() const {return true;}
 	
@@ -170,7 +170,7 @@ public:
 	virtual Integer CalculateRandomizedInverse(RandomNumberGenerator &rng, const Integer &x) const =0;
 	
 	//! \brief Determines if the decryption algorithm is randomized
-	//! \returns \p true if the decryption algorithm is randomized, \p false otherwise
+	//! \returns \p true if the decryption algorithm is randominzed, \p false otherwise
 	//! \details If \p IsRandomized() returns \p false, then \p NullRNG() can be used.
 	virtual bool IsRandomized() const {return true;}
 };
@@ -197,7 +197,7 @@ public:
 		{return CalculateInverse(rng, x);}
 	
 	//! \brief Determines if the decryption algorithm is randomized
-	//! \returns \p true if the decryption algorithm is randomized, \p false otherwise
+	//! \returns \p true if the decryption algorithm is randominzed, \p false otherwise
 	//! \details If \p IsRandomized() returns \p false, then \p NullRNG() can be used.
 	bool IsRandomized() const {return false;}
 
@@ -1966,4 +1966,3 @@ NAMESPACE_END
 #endif
 
 #endif
-f

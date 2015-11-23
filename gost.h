@@ -1,10 +1,8 @@
-// gost.h - written and placed in the public domain by Wei Dai
-
-//! \file gost.h
-//! \brief Classes for the GIST block cipher
-
 #ifndef CRYPTOPP_GOST_H
 #define CRYPTOPP_GOST_H
+
+/** \file
+*/
 
 #include "seckey.h"
 #include "secblock.h"

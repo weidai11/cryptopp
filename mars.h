@@ -1,7 +1,7 @@
 // mars.h - written and placed in the public domain by Wei Dai
 
-//! \file mars.h
-//! \brief Classes for the MARS block cipher (IBM AES submission)
+//! \file
+//! \brief Implementation of the MARS cipher (IBM AES submission)
 
 
 #ifndef CRYPTOPP_MARS_H

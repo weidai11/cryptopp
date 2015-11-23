@@ -129,8 +129,8 @@ struct CompileAssert
 //! \brief Counts elements in an array
 //! \param arr an array of elements
 //! \details COUNTOF counts elements in an array. On Windows COUNTOF(x) is deinfed
-//!   to <tt>_countof(x)</tt> to ensure correct results for pointers. Since the library code
-//!   is cross-platform, Windows will ensure the safety on non-Windows platforms.
+//!   to _countof(x) to ensure correct results for pointers. Since the library code is
+//!   cross-platform, Windows will ensure the safety on non-Windows platforms.
 //! \note COUNTOF does not produce correct results with pointers, and an array must be used.
 //!   The library ensures correct application of COUNTOF by enlisting _countof on Windows
 //!   platforms. Microsoft's _countof fails to compile using pointers.

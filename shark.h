@@ -1,7 +1,8 @@
 // shark.h - written and placed in the public domain by Wei Dai
 
-//! \file shark.h
-//! \brief Classes for the SHARK block cipher
+//! \file
+//! \headerfile shark.h
+//! \brief Classes for SHARK encryption scheme
 
 #ifndef CRYPTOPP_SHARK_H
 #define CRYPTOPP_SHARK_H
@@ -63,8 +64,5 @@ typedef SHARK::Encryption SHARKEncryption;
 typedef SHARK::Decryption SHARKDecryption;
 
 NAMESPACE_END
-
-#endif
-CE_END
 
 #endif

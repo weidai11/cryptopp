@@ -20,8 +20,8 @@ NAMESPACE_BEGIN(CryptoPP)
 
 static const unsigned int MASH_ITERATIONS = 200;
 static const unsigned int SALTLENGTH = 8;
-static const unsigned int BLOCKSIZE = DefaultBlockCipher::Encryption::BLOCKSIZE;
-static const unsigned int KEYLENGTH = DefaultBlockCipher::Encryption::DEFAULT_KEYLENGTH;
+static const unsigned int BLOCKSIZE = Default_BlockCipher::Encryption::BLOCKSIZE;
+static const unsigned int KEYLENGTH = Default_BlockCipher::Encryption::DEFAULT_KEYLENGTH;
 
 // The purpose of this function Mash() is to take an arbitrary length input
 // string and *deterministicly* produce an arbitrary length output string such
@@ -270,4 +270,3 @@ void DefaultDecryptorWithMAC::LastPut(const byte *inString, size_t length)
 }
 
 NAMESPACE_END
-

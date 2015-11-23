@@ -16,7 +16,7 @@
 //   to select an implementation or "throw NotImplemented". At runtime, the
 //   class uses the result of CPUID to determine if RDRAND or RDSEED are
 //   available. A lazy throw strategy is used in case the CPU does not support
-//   the instruction. I.e., the throw is deferred until GenerateBlock() is called.
+//   the instruction. I.e., the throw is deferred until GenerateBlock is called.
 
 // Microsoft added RDRAND in August 2012, VS2012. GCC added RDRAND in December 2010, GCC 4.6.
 // Clang added RDRAND in July 2012, Clang 3.2. Intel added RDRAND in September 2011, ICC 12.1.
@@ -48,7 +48,7 @@ public:
 	virtual ~RDRAND() {}
 	
 	//! \brief Retrieve the number of retries used by the generator
-	//! \returns the number of times GenerateBlock() will attempt to recover from a failed generation
+	//! returns the number of times GenerateBlock will attempt to recover from a failed generation
 	unsigned int GetRetries() const
 	{
 		return m_retries;
@@ -127,7 +127,7 @@ public:
 	virtual ~RDSEED() {}
 	
 	//! \brief Retrieve the number of retries used by the generator
-	//! \returns the number of times GenerateBlock() will attempt to recover from a failed generation
+	//! returns the number of times GenerateBlock will attempt to recover from a failed generation
 	unsigned int GetRetries() const
 	{
 		return m_retries;

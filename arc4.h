@@ -1,6 +1,7 @@
 // arc4.h - written and placed in the public domain by Wei Dai
 
-//! \file arc4.h
+//! \file
+//! \headerfile arc4.h
 //! \brief Classes for ARC4 cipher
 
 #ifndef CRYPTOPP_ARC4_H
@@ -79,8 +80,5 @@ using namespace Weak1;	// import Weak1 into CryptoPP with warning
 #endif
 
 NAMESPACE_END
-
-#endif
-E_END
 
 #endif

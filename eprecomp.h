@@ -1,15 +1,10 @@
-// eprecomp.h - written and placed in the public domain by Wei Dai
-
-//! \file eprecomp.h
-//! \brief Classes for precomputation in a group
-
 #ifndef CRYPTOPP_EPRECOMP_H
 #define CRYPTOPP_EPRECOMP_H
 
 #include "cryptlib.h"
 #include "integer.h"
 #include "algebra.h"
-#include "stdcpp.h"
+#include <vector>
 
 NAMESPACE_BEGIN(CryptoPP)
 

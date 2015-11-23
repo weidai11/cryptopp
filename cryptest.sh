@@ -7,9 +7,9 @@
 # to automate building the library and running the self test with various
 # combinations of flags, options, and conditions.
 
-# Everything is tee'd into cryptest-result.txt. Change it to suite your taste. You
-# should be able to use `egrep -a "(Error|error|FAILED|Illegal)" cryptest-result.txt`
-# to quickly find errors and failures.
+# Everything is tee'd into cryptest-result.txt. Change it to suite your taste.
+# You should be able to use `egrep "(error|FAILED)" cryptest-result.txt` to
+# quickly find errors and failures.
 
 # Set to suite your taste
 TEST_RESULTS=cryptest-result.txt
@@ -142,22 +142,16 @@ echo "User CXXFLAGS: $CXXFLAGS"
 echo "Retained CXXFLAGS: $ADD_CXXFLAGS"
 echo "Compiler:" $($CXX --version | head -1)
 
+# Remove previous test results
+rm -f "$TEST_RESULTS" > /dev/null 2>&1
+touch "$TEST_RESULTS"
+
 TEST_BEGIN=$(date)
 echo
 echo "Start time: $TEST_BEGIN"
 
 ############################################
 ############################################
-
-# Remove previous test results
-rm -f "$TEST_RESULTS" > /dev/null 2>&1
-touch "$TEST_RESULTS"
-
-rm -f "$BENCHMARK_RESULTS" > /dev/null 2>&1
-touch "$BENCHMARK_RESULTS"
-
-rm -f "$WARN_RESULTS" > /dev/null 2>&1
-touch "$WARN_RESULTS"
 
 ############################################
 # Basic debug build

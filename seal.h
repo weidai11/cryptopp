@@ -1,7 +1,8 @@
 // seal.h - written and placed in the public domain by Wei Dai
 
-//! \file seal.h
-//! \brief Classes for SEAL stream cipher
+//! \file
+//! \headerfile seal.h
+//! \brief Classes for SEAL encryption scheme
 
 #ifndef CRYPTOPP_SEAL_H
 #define CRYPTOPP_SEAL_H
@@ -46,8 +47,5 @@ struct SEAL : public SEAL_Info<B>, public SymmetricCipherDocumentation
 };
 
 NAMESPACE_END
-
-#endif
-SPACE_END
 
 #endif

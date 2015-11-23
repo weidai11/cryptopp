@@ -1,10 +1,8 @@
-// eccrypto.h - written and placed in the public domain by Wei Dai
-
-//! \file eccrypto.h
-//! \brief Classes and functions for Elliptic Curves over prime and binary fields
-
 #ifndef CRYPTOPP_ECCRYPTO_H
 #define CRYPTOPP_ECCRYPTO_H
+
+/*! \file
+*/
 
 #include "config.h"
 #include "cryptlib.h"
@@ -141,8 +139,8 @@ protected:
 
 	OID m_oid;			// set if parameters loaded from a recommended curve
 	Integer m_n;		// order of base point
+	bool m_compress, m_encodeAsOID;
 	mutable Integer m_k;		// cofactor
-	mutable bool m_compress, m_encodeAsOID;		// presentation details
 };
 
 //! EC public key

@@ -610,10 +610,10 @@ void TestKeyDerivationFunction(TestData &v)
 	std::string salt = GetDecodedDatum(v, "Salt");
 	std::string info = GetDecodedDatum(v, "Info");
 	std::string derived = GetDecodedDatum(v, "DerivedKey");
-	std::string t = GetDecodedDatum(v, "DerivedKeyLength");
+	std::string t = GetDecodedDatum(v, "DerivedLength");
 	
 	TestDataNameValuePairs pairs(v);
-	unsigned int length = pairs.GetIntValueWithDefault(Name::DerivedKeyLength(), (int)derived.size());
+	unsigned int length = pairs.GetIntValueWithDefault(Name::DerivedLength(), (int)derived.size());
 
 	member_ptr<KeyDerivationFunction> kdf;
 	kdf.reset(ObjectFactoryRegistry<KeyDerivationFunction>::Registry().CreateObject(name.c_str()));

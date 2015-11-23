@@ -1,10 +1,8 @@
-// idea.h - written and placed in the public domain by Wei Dai
-
-//! \file idea.h
-//! \brief Classes for the IDEA block cipher
-
 #ifndef CRYPTOPP_IDEA_H
 #define CRYPTOPP_IDEA_H
+
+/** \file
+*/
 
 #include "seckey.h"
 #include "secblock.h"

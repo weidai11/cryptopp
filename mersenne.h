@@ -1,9 +1,7 @@
-// mersenne.h - written and placed in public domain by Jeffrey Walton.
-//              Copyright assigned to Crypto++ project.
+// mersenne.h - written and placed in public domain by Jeffrey Walton. Copyright assigned to Crypto++ project.
 
 //! \file
-//! \brief Class file for Mersenne Twister
-//! \note Suitable for Monte Carlo simulations, and not cryptographic use
+//! \brief Implementation of the Mersenne Twister
 
 #ifndef CRYPTOPP_MERSENNE_TWISTER_H
 #define CRYPTOPP_MERSENNE_TWISTER_H
@@ -27,7 +25,7 @@ class MersenneTwister : public RandomNumberGenerator
 {
 public:
 	//! \brief Construct a Mersenne Twister
-	//! \param seed 32-bit seed
+	//! \param seed 32 bit seed
 	//! \details Defaults to template parameter \p S due to changing algorithm
 	//!   parameters over time
 	MersenneTwister(unsigned long seed = S) : m_seed(seed), m_idx(N)
@@ -86,9 +84,8 @@ public:
 		*((volatile word32*)&temp) = 0;
 	}
 	
-	//! \brief Generate a random 32-bit word in the range min to max, inclusive
-	//! \returns random 32-bit word in the range min to max, inclusive
-	//! \details If the 32-bit candidate is not within the range, then it is discarded
+	//! \brief Generate a random 32 bit word in the range min to max, inclusive
+	//! \details If the 32 bit candidate is not within the range, then it is discarded
 	//!   and a new candidate is used.
 	word32 GenerateWord32(word32 min=0, word32 max=0xffffffffL)
 	{
@@ -121,7 +118,6 @@ public:
 protected:
 
 	//! \brief Returns the next 32-bit word from the state array
-	//! \returns the next 32-bit word from the state array
 	//! \details fetches the next word frm the state array, performs bit operations on
 	//!   it, and then returns the value to the caller.
 	word32 NextMersenneWord()
