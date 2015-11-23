@@ -32,6 +32,8 @@
 #include "rc6.h"
 #include "mars.h"
 #include "aes.h"
+#include "cpu.h"
+#include "rng.h"
 #include "rijndael.h"
 #include "twofish.h"
 #include "serpent.h"
@@ -42,8 +44,7 @@
 #include "rdrand.h"
 #include "zdeflate.h"
 #include "smartptr.h"
-#include "rng.h"
-#include "cpu.h"
+#include "channels.h"
 
 #include <time.h>
 #include <memory>
@@ -460,42 +461,44 @@ bool TestAutoSeeded()
 bool TestRDRAND()
 {
 	RDRAND rdrand;
-	bool maurer = true, generate = true, discard = true;
+	bool entropy = true, compress = true, discard = true;
 	static const unsigned int SIZE = 10000;
 
 	if (HasRDRAND())
 	{
 		cout << "\nTesting RDRAND generator...\n\n";
 
-		vector_ptr<byte> rdbytes(SIZE);		
-		RandomNumberSource rns(rdrand, SIZE, true, new ArraySink(rdbytes, rdbytes.size()));
-		ArraySource as(rdbytes, rdbytes.size(), true);
+		MeterFilter meter(new Redirector(TheBitBucket()));
+		Deflator deflator(new Redirector(meter));
+		MaurerRandomnessTest maurer;
 		
-		MaurerRandomnessTest mt;
-		as.CopyTo(mt);
-		
-		const double mv = mt.GetTestValue();
+		ChannelSwitch chsw;
+		chsw.AddDefaultRoute(deflator);
+		chsw.AddDefaultRoute(maurer);
+
+		RandomNumberSource rns(rdrand, SIZE, true, new Redirector(chsw));
+		deflator.Flush(true);
+
+		assert(0 == maurer.BytesNeeded());
+		const double mv = maurer.GetTestValue();
 		if (mv < 0.98f)
 		{
 			cout << "FAILED:";
-			maurer = false;
+			entropy = false;
 		}
 		else
 			cout << "passed:";
 		
-		const std::streamsize oldp = cout.precision(5);
+		const std::streamsize oldp = cout.precision(6);
 		const std::ios::fmtflags oldf = cout.setf(std::ios::fixed, std::ios::floatfield);
-		cout << "  Maurer Randomness Test value of " << mv << endl;
+		cout << "  Maurer Randomness Test returned value " << mv << endl;
 		cout.precision(oldp);
 		cout.setf(oldf, std::ios::floatfield);
-
-		MeterFilter meter(new Redirector(TheBitBucket()));
-		as.CopyTo(meter);
 
 		if (meter.GetTotalBytes() < SIZE)
 		{
 			cout << "FAILED:";
-			generate = false;
+			compress = false;
 		}
 		else
 			cout << "passed:";
@@ -519,10 +522,10 @@ bool TestRDRAND()
 	else
 		cout << "\nRDRAND generator not available, skipping test.\n";
 			
-	if (!(maurer && generate && discard))
+	if (!(entropy && compress && discard))
 		cout.flush();
 	
-	return maurer && generate && discard;
+	return entropy && compress && discard;
 }
 #endif
 
@@ -530,42 +533,44 @@ bool TestRDRAND()
 bool TestRDSEED()
 {
 	RDSEED rdseed;
-	bool maurer = true, generate = true, discard = true;
+	bool entropy = true, compress = true, discard = true;
 	static const unsigned int SIZE = 10000;
 
 	if (HasRDSEED())
 	{
 		cout << "\nTesting RDSEED generator...\n\n";
 
-		vector_ptr<byte> rdbytes(SIZE);		
-		RandomNumberSource rns(rdseed, SIZE, true, new ArraySink(rdbytes, rdbytes.size()));
-		ArraySource as(rdbytes, rdbytes.size(), true);
+		MeterFilter meter(new Redirector(TheBitBucket()));
+		Deflator deflator(new Redirector(meter));
+		MaurerRandomnessTest maurer;
 		
-		MaurerRandomnessTest mt;
-		as.CopyTo(mt);
-		
-		const double mv = mt.GetTestValue();
+		ChannelSwitch chsw;
+		chsw.AddDefaultRoute(deflator);
+		chsw.AddDefaultRoute(maurer);
+
+		RandomNumberSource rns(rdseed, SIZE, true, new Redirector(chsw));
+		deflator.Flush(true);
+
+		assert(0 == maurer.BytesNeeded());
+		const double mv = maurer.GetTestValue();
 		if (mv < 0.98f)
 		{
 			cout << "FAILED:";
-			maurer = false;
+			entropy = false;
 		}
 		else
 			cout << "passed:";
 		
-		const std::streamsize oldp = cout.precision(5);
+		const std::streamsize oldp = cout.precision(6);
 		const std::ios::fmtflags oldf = cout.setf(std::ios::fixed, std::ios::floatfield);
-		cout << "  Maurer Randomness Test value of " << mv << endl;
+		cout << "  Maurer Randomness Test returned value " << mv << endl;
 		cout.precision(oldp);
 		cout.setf(oldf, std::ios::floatfield);
-
-		MeterFilter meter(new Redirector(TheBitBucket()));
-		as.CopyTo(meter);
 
 		if (meter.GetTotalBytes() < SIZE)
 		{
 			cout << "FAILED:";
-			generate = false;
+			compress = false;
 		}
 		else
 			cout << "passed:";
@@ -589,10 +594,10 @@ bool TestRDSEED()
 	else
 		cout << "\nRDSEED generator not available, skipping test.\n";
 			
-	if (!(maurer && generate && discard))
+	if (!(entropy && compress && discard))
 		cout.flush();
 	
-	return maurer && generate && discard;
+	return entropy && compress && discard;
 }
 #endif
 

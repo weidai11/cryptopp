@@ -269,6 +269,10 @@ LIB_MAJOR := $(shell echo $(LIB_VER) | cut -c 1)
 LIB_MINOR := $(shell echo $(LIB_VER) | cut -c 2)
 LIB_PATCH := $(shell echo $(LIB_VER) | cut -c 3)
 
+ifeq ($(strip $(LIB_PATCH)),)
+LIB_PATCH := 0
+endif
+
 all: cryptest.exe
 
 ifneq ($(IS_DARWIN),0)
@@ -292,18 +296,18 @@ test check: cryptest.exe
 
 # Directory we want (can't specify on Doygen command line)
 DOCUMENT_DIRECTORY := ref$(LIB_VER)
-# Default directory (missing in config file)
-ifeq ($(strip $(DOXYGEN_DIRECTORY)),)
-DOXYGEN_DIRECTORY := html-docs
-endif
 # Directory Doxygen uses (specified in Doygen config file)
 ifeq ($(wildcard Doxyfile),Doxyfile)
 DOXYGEN_DIRECTORY := $(strip $(shell $(EGREP) "OUTPUT_DIRECTORY" Doxyfile | grep -v "\#" | cut -d "=" -f 2))
 endif
+# Default directory (missing in config file)
+ifeq ($(strip $(DOXYGEN_DIRECTORY)),)
+DOXYGEN_DIRECTORY := html-docs
+endif
 
 .PHONY: docs html
 docs html:
-	-$(RM) -r $(DOXYGEN_DIRECTORY)/ $(DOCUMENT_DIRECTORY)/
+	-$(RM) -r $(DOXYGEN_DIRECTORY)/ $(DOCUMENT_DIRECTORY)/ html-docs/
 	doxygen Doxyfile -d CRYPTOPP_DOXYGEN_PROCESSING
 	mv $(DOXYGEN_DIRECTORY)/ $(DOCUMENT_DIRECTORY)/
 	-$(RM) CryptoPPRef.zip
@@ -404,7 +408,7 @@ diff:
 	-svn diff -r 541 > cryptopp$(LIB_VER).diff
 
 # This recipe prepares the distro files
-TEXT_FILES := *.h *.cpp *.asm *.S adhoc.cpp.proto License.txt Readme.txt Filelist.txt Doxyfile cryptest* cryptlib* dlltest* cryptdll* cryptopp.rc TestVectors/*.txt TestData/*.dat
+TEXT_FILES := *.h *.cpp adhoc.cpp.proto License.txt Readme.txt Install.txt Filelist.txt config.recommend Doxyfile cryptest* cryptlib* dlltest* cryptdll* *.sln *.vcproj *.dsw *.dsp cryptopp.rc TestVectors/*.txt TestData/*.dat
 EXEC_FILES := GNUmakefile GNUmakefile-cross cryptest.sh rdrand-nasm.sh TestData/ TestVectors/
 
 ifeq ($(wildcard Filelist.txt),Filelist.txt)
@@ -413,12 +417,15 @@ endif
 
 .PHONY: convert
 convert:
-	chmod a-x $(TEXT_FILES)
-	chmod u+x $(EXEC_FILES)
-	chmod u+x cryptest.sh
-	unix2dos --keepdate --quiet $(TEXT_FILES) rdrand-masm.cmd
-	unix2dos --keepdate --quiet *.sln *.vcproj
-	dos2unix --keepdate --quiet GNUmakefile GNUmakefile-cross cryptest.sh rdrand-nasm.sh
+	chmod 0700 TestVectors/ TestData/
+	chmod 0600 $(TEXT_FILES) *.zip
+	chmod 0700 $(EXEC_FILES)
+	chmod u+x *.cmd *.sh
+	unix2dos --keepdate --quiet $(TEXT_FILES) *.asm *.cmd
+	dos2unix --keepdate --quiet GNUmakefile GNUmakefile-cross *.S *.sh
+ifneq ($(IS_DARWIN),0)
+	xattr -c *
+endif
 
 .PHONY: zip dist
 zip dist: | distclean convert diff
@@ -435,7 +442,7 @@ bench benchmark benchmarks: cryptest.exe
 	echo "<BODY>" >> benchmarks.html
 	echo "<H1><a href=\"http://www.cryptopp.com\">Crypto++</a>" $(LIB_MAJOR).$(LIB_MINOR).$(LIB_REVISION) "Benchmarks</H1>" >> benchmarks.html
 	echo "<P>Here are speed benchmarks for some commonly used cryptographic algorithms.</P>"  >> benchmarks.html
-	cryptest.exe b 3 2.4 >> benchmarks.html
+	./cryptest.exe b 3 2.4 >> benchmarks.html
 	echo "</BODY>" >> benchmarks.html
 	echo "</HTML>" >> benchmarks.html
 

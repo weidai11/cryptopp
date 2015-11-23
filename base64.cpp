@@ -5,7 +5,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-
 // Base64
 static const byte s_stdVec[] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";

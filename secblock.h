@@ -12,7 +12,10 @@
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(push)
-# pragma warning(disable: 4700 6386)
+# pragma warning(disable: 4700)
+# if (CRYPTOPP_MSC_VERSION >= 1400)
+#  pragma warning(disable: 6386)
+# endif
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)

@@ -1,7 +1,6 @@
 // arc4.h - written and placed in the public domain by Wei Dai
 
-//! \file
-//! \headerfile arc4.h
+//! \file arc4.h
 //! \brief Classes for ARC4 cipher
 
 #ifndef CRYPTOPP_ARC4_H

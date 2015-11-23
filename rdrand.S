@@ -21,9 +21,6 @@
 ;;   RRI = RDRAND, Intrinsic
 ;;   RSA = RDSEED, Intrinsic
 
-;;  Caller/Callee Saved Registers
-;;    https://msdn.microsoft.com/en-us/library/6t169e9c.aspx
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

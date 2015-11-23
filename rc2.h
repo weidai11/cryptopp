@@ -1,6 +1,7 @@
 // rc2.h - written and placed in the public domain by Wei Dai
+
 //! \file rc2.h
-//! \brief Class file for the RC2 stream cipher
+//! \brief Classes for the RC2 block cipher
 
 #ifndef CRYPTOPP_RC2_H
 #define CRYPTOPP_RC2_H
@@ -91,3 +92,4 @@ typedef RC2::Decryption RC2Decryption;
 NAMESPACE_END
 
 #endif
+

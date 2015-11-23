@@ -379,7 +379,7 @@ void BenchmarkAll(double t, double hertz)
 	cout << "Throughput Geometric Average: " << setiosflags(ios::fixed) << exp(logtotal/(logcount ? logcount : 1)) << endl;
 
 // Safer functions on Windows for C&A, https://github.com/weidai11/cryptopp/issues/55
-#if defined(CRYPTOPP_MSC_VERSION)
+#if (CRYPTOPP_MSC_VERSION >= 1400)
 	tm localTime = {};
 	char timeBuf[64];
 	errno_t err;

@@ -1,7 +1,6 @@
 // ecp.h - written and placed in the public domain by Wei Dai
 
-//! \file
-//! \headerfile ecp.h
+//! \file ecp.h
 //! \brief Classes for Elliptic Curves over prime fields
 
 #ifndef CRYPTOPP_ECP_H

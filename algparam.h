@@ -12,7 +12,7 @@
 #include "config.h"
 
 // TODO: fix 6011 when the API/ABI can change
-#if CRYPTOPP_MSC_VERSION
+#if (CRYPTOPP_MSC_VERSION >= 1400)
 # pragma warning(push)
 # pragma warning(disable: 6011 28193)
 #endif
@@ -493,6 +493,11 @@ AlgorithmParameters MakeParameters(const char *name, const T &value, bool throwI
 #define CRYPTOPP_GET_FUNCTION_ENTRY(name)		(Name::name(), &ThisClass::Get##name)
 #define CRYPTOPP_SET_FUNCTION_ENTRY(name)		(Name::name(), &ThisClass::Set##name)
 #define CRYPTOPP_SET_FUNCTION_ENTRY2(name1, name2)	(Name::name1(), Name::name2(), &ThisClass::Set##name1##And##name2)
+
+// TODO: fix 6011 when the API/ABI can change
+#if (CRYPTOPP_MSC_VERSION >= 1400)
+# pragma warning(pop)
+#endif
 
 NAMESPACE_END
 

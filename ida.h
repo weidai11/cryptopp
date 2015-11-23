@@ -1,6 +1,6 @@
 // ida.h - written and placed in the public domain by Wei Dai
 
-//! \file
+//! \file ida.h
 //! \brief Classes for Information Dispersal Algorithm (IDA)
 
 #ifndef CRYPTOPP_IDA_H

@@ -1,7 +1,9 @@
-// mersenne.h - written and placed in public domain by Jeffrey Walton. Copyright assigned to Crypto++ project.
+// mersenne.h - written and placed in public domain by Jeffrey Walton.
+//              Copyright assigned to Crypto++ project.
 
 //! \file
-//! \brief Implementation of the Mersenne Twister
+//! \brief Class file for Mersenne Twister
+//! \note Suitable for Monte Carlo simulations, and not cryptographic use
 
 #ifndef CRYPTOPP_MERSENNE_TWISTER_H
 #define CRYPTOPP_MERSENNE_TWISTER_H
@@ -19,14 +21,16 @@ NAMESPACE_BEGIN(CryptoPP)
 //! \tparam N Size of the state vector
 //! \tparam F Multiplier constant
 //! \tparam S Sefault seed
-//! \details Provides the \p MersenneTwister implementation. The class is a header-only implementation
+//! \details Provides the MersenneTwister implementation. The class is a header-only implementation.
+//! \warning MersenneTwister is suitable for simulations, where uniformaly distrubuted numbers are
+//!   required quickly. It should not be used for cryptographic purposes.
 template <unsigned int K, unsigned int M, unsigned int N, unsigned int F, unsigned long S>
 class MersenneTwister : public RandomNumberGenerator
 {
 public:
 	//! \brief Construct a Mersenne Twister
-	//! \param seed 32 bit seed
-	//! \details Defaults to template parameter \p S due to changing algorithm
+	//! \param seed 32-bit seed
+	//! \details Defaults to template parameter S due to changing algorithm
 	//!   parameters over time
 	MersenneTwister(unsigned long seed = S) : m_seed(seed), m_idx(N)
 	{
@@ -38,9 +42,9 @@ public:
 	//! \brief Generate random array of bytes
 	//! \param output byte buffer
 	//! \param size length of the buffer, in bytes
-	//! \details Bytes are written to \p output in big endian order. If \p output length
+	//! \details Bytes are written to output in big endian order. If output length
 	//!   is not a multiple of word32, then unused bytes are not accumulated for subsequent
-	//!   calls to \p GenerateBlock. Rather, the unused tail bytes are discarded, and the
+	//!   calls to GenerateBlock. Rather, the unused tail bytes are discarded, and the
 	//!   stream is continued at the next word32 boundary from the state array.
 	void GenerateBlock(byte *output, size_t size)
 	{
@@ -84,8 +88,9 @@ public:
 		*((volatile word32*)&temp) = 0;
 	}
 	
-	//! \brief Generate a random 32 bit word in the range min to max, inclusive
-	//! \details If the 32 bit candidate is not within the range, then it is discarded
+	//! \brief Generate a random 32-bit word in the range min to max, inclusive
+	//! \returns random 32-bit word in the range min to max, inclusive
+	//! \details If the 32-bit candidate is not within the range, then it is discarded
 	//!   and a new candidate is used.
 	word32 GenerateWord32(word32 min=0, word32 max=0xffffffffL)
 	{
@@ -105,8 +110,8 @@ public:
 	
 	//! \brief Generate and discard n bytes
 	//! \param n the number of bytes to discard, rounded up to a <tt>word32</tt> size
-	//! \details If \p n is not a multiple of <tt>word32</tt>, then unused bytes are
-	//!   not accumulated for subsequent calls to \p GenerateBlock. Rather, the unused
+	//! \details If n is not a multiple of <tt>word32</tt>, then unused bytes are
+	//!   not accumulated for subsequent calls to GenerateBlock. Rather, the unused
 	//!   tail bytes are discarded, and the stream is continued at the next
 	//!   <tt>word32</tt> boundary from the state array.
 	void DiscardBytes(size_t n)
@@ -118,6 +123,7 @@ public:
 protected:
 
 	//! \brief Returns the next 32-bit word from the state array
+	//! \returns the next 32-bit word from the state array
 	//! \details fetches the next word frm the state array, performs bit operations on
 	//!   it, and then returns the value to the caller.
 	word32 NextMersenneWord()
@@ -164,7 +170,7 @@ protected:
 
 private:
 
-	//! \brief 32-bit word state array of size \p N
+	//! \brief 32-bit word state array of size N
 	FixedSizeSecBlock<word32, N+1> m_state;
 	//! \brief the value used to seed the generator
 	unsigned int m_seed;
@@ -178,7 +184,7 @@ typedef MersenneTwister<0x9908B0DF /*2567483615*/, 397, 624, 0x10DCD /*69069*/, 
 
 //! \brief Updated MT19937 generator adapted to provide an array for initialization.
 //! \details Also see http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/MT2002/emt19937ar.html; uses 5489 as default initial seed.
-//! \note Use this generator when interoperating with C++11's \p mt19937 class.
+//! \note Use this generator when interoperating with C++11's mt19937 class.
 typedef MersenneTwister<0x9908B0DF /*2567483615*/, 397, 624, 0x6C078965 /*1812433253*/, 5489> MT19937ar;
 
 NAMESPACE_END

@@ -12,7 +12,10 @@
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(push)
-# pragma warning(disable: 6326)
+# pragma warning(disable: 4146)
+# if (CRYPTOPP_MSC_VERSION >= 1400)
+#  pragma warning(disable: 6326)
+# endif
 #endif
 
 #include "cryptlib.h"
@@ -129,8 +132,8 @@ struct CompileAssert
 //! \brief Counts elements in an array
 //! \param arr an array of elements
 //! \details COUNTOF counts elements in an array. On Windows COUNTOF(x) is deinfed
-//!   to _countof(x) to ensure correct results for pointers. Since the library code is
-//!   cross-platform, Windows will ensure the safety on non-Windows platforms.
+//!   to <tt>_countof(x)</tt> to ensure correct results for pointers. Since the library code
+//!   is cross-platform, Windows will ensure the safety on non-Windows platforms.
 //! \note COUNTOF does not produce correct results with pointers, and an array must be used.
 //!   The library ensures correct application of COUNTOF by enlisting _countof on Windows
 //!   platforms. Microsoft's _countof fails to compile using pointers.
@@ -209,7 +212,7 @@ struct NewObject
 //!   <tt>_ReadWriteBarrier()</tt> or <tt>__asm__("" ::: "memory")</tt>.
 #define MEMORY_BARRIER ...
 #else
-#if defined(_MSC_VER)
+#if (_MSC_VER >= 1400)
 # pragma intrinsic(_ReadWriteBarrier)
 # define MEMORY_BARRIER() _ReadWriteBarrier()
 #elif defined(__INTEL_COMPILER)
@@ -217,7 +220,7 @@ struct NewObject
 #elif defined(__GNUC__) || defined(__clang__)
 # define MEMORY_BARRIER() __asm__ __volatile__ ("" ::: "memory")
 #else
-// # error "Unknown compiler"
+# define MEMORY_BARRIER()
 #endif
 #endif // CRYPTOPP_DOXYGEN_PROCESSING
 
@@ -306,7 +309,10 @@ inline void memcpy_s(void *dest, size_t sizeInBytes, const void *src, size_t cou
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(push)
-# pragma warning(disable 4996 6386)
+# pragma warning(disable: 4996)
+# if (CRYPTOPP_MSC_VERSION >= 1400)
+#  pragma warning(disable: 6386)
+# endif
 #endif
 	memcpy(dest, src, count);
 #if CRYPTOPP_MSC_VERSION
@@ -345,7 +351,10 @@ inline void memmove_s(void *dest, size_t sizeInBytes, const void *src, size_t co
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(push)
-# pragma warning(disable 4996 6386)
+# pragma warning(disable: 4996)
+# if (CRYPTOPP_MSC_VERSION >= 1400)
+#  pragma warning(disable: 6386)
+# endif
 #endif
 	memmove(dest, src, count);
 #if CRYPTOPP_MSC_VERSION

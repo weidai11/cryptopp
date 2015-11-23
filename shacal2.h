@@ -1,8 +1,10 @@
+// shacal.h - written and placed in the public domain by Wei Dai
+
+//! \file shacal.h
+//! \brief Classes for the SHACAL-2 block cipher
+
 #ifndef CRYPTOPP_SHACAL2_H
 #define CRYPTOPP_SHACAL2_H
-
-/** \file
-*/
 
 #include "seckey.h"
 #include "secblock.h"

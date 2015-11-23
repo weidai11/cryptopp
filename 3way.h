@@ -1,8 +1,7 @@
 // 3way.h - written and placed in the public domain by Wei Dai
 
-//! \file
-//! \headerfile 3way.h
-//! \brief Class file for the 3way cipher
+//! \file 3way.h
+//! \brief Classes for the 3-Way block cipher
 
 #ifndef CRYPTOPP_THREEWAY_H
 #define CRYPTOPP_THREEWAY_H

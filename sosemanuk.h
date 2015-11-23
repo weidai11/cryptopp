@@ -1,3 +1,8 @@
+// sosemanuk.h - written and placed in the public domain by Wei Dai
+
+//! \file sosemanuk.h
+//! \brief Classes for Sosemanuk stream cipher
+
 #ifndef CRYPTOPP_SOSEMANUK_H
 #define CRYPTOPP_SOSEMANUK_H
 

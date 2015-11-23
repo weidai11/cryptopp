@@ -1,14 +1,10 @@
 // cast.h - written and placed in the public domain by Wei Dai
 
-//! \file
-//! \headerfile cast.h
-//! \brief Classes for CAST cipher
+//! \file cast.h
+//! \brief Classes for the CAST-128 and CAST-256 block ciphers
 
 #ifndef CRYPTOPP_CAST_H
 #define CRYPTOPP_CAST_H
-
-/** \file
-*/
 
 #include "seckey.h"
 #include "secblock.h"

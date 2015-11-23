@@ -1,7 +1,6 @@
 // config.h - written and placed in the public domain by Wei Dai
 
-//! \file
-//! \headerfile config.h
+//! \file config.h
 //! \brief Library configuration file
 
 #ifndef CRYPTOPP_CONFIG_H

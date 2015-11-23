@@ -7,22 +7,26 @@
 <dl>
 <dt>Abstract Base Classes<dd>
 	cryptlib.h
-<dt>Authenticated Encryption<dd>
-	AuthenticatedSymmetricCipherDocumentation
-<dt>Symmetric Ciphers<dd>
-	SymmetricCipherDocumentation
+<dt>Authenticated Encryption Modes<dd>
+	CCM, EAX, \ref GCM "GCM (2K tables)", \ref GCM "GCM (64K tables)"
+<dt>Block Ciphers<dd>
+	\ref Rijndael "AES", Weak::ARC4, Blowfish, BTEA, Camellia, CAST128, CAST256, DES, \ref DES_EDE2 "2-key Triple-DES", \ref DES_EDE3 "3-key Triple-DES",
+	\ref DES_XEX3 "DESX", GOST, IDEA, \ref LR "Luby-Rackoff", MARS, RC2, RC5, RC6, \ref SAFER_K "SAFER-K", \ref SAFER_SK "SAFER-SK", SEED, Serpent,
+	\ref SHACAL2 "SHACAL-2", SHARK, SKIPJACK,
+Square, TEA, \ref ThreeWay "3-Way", Twofish, XTEA
+<dt>Stream Ciphers<dd>
+	\ref Panama "Panama-LE", \ref Panama "Panama-BE", Salsa20, \ref SEAL "SEAL-LE", \ref SEAL "SEAL-BE", WAKE, XSalsa20
 <dt>Hash Functions<dd>
-	SHA1, SHA224, SHA256, SHA384, SHA512, Tiger, Whirlpool, RIPEMD160, RIPEMD320, RIPEMD128, RIPEMD256, Weak::MD2, Weak::MD4, Weak::MD5
+	SHA1, SHA224, SHA256, SHA384, SHA512, \ref SHA3 "SHA-3", Tiger, Whirlpool, RIPEMD160, RIPEMD320, RIPEMD128, RIPEMD256, Weak::MD2, Weak::MD4, Weak::MD5
 <dt>Non-Cryptographic Checksums<dd>
 	CRC32, Adler32
 <dt>Message Authentication Codes<dd>
-	VMAC, HMAC, CBC_MAC, CMAC, DMAC, TTMAC, GCM (GMAC)
+	VMAC, HMAC, CBC_MAC, CMAC, DMAC, TTMAC, \ref GCM "GCM (GMAC)"
 <dt>Random Number Generators<dd>
-	NullRNG(), LC_RNG, RandomPool, BlockingRng, NonblockingRng, AutoSeededRandomPool, AutoSeededX917RNG
-<dt>Key Derivation<dd>
-	HKDF
-<dt>Password-based Cryptography<dd>
-	PasswordBasedKeyDerivationFunction
+	NullRNG(), LC_RNG, RandomPool, BlockingRng, NonblockingRng, AutoSeededRandomPool, AutoSeededX917RNG,
+	\ref MersenneTwister "MersenneTwister (MT19937 and MT19937-AR)", RDRAND, RDSEED
+<dt>Key Derivation and Password-based Cryptography<dd>
+	HKDF, \ref PKCS12_PBKDF "PBKDF (PKCS #12)", \ref PKCS5_PBKDF1 "PBKDF-1 (PKCS #5)", \ref PKCS5_PBKDF2_HMAC "PBKDF-2/HMAC (PKCS #5)"
 <dt>Public Key Cryptosystems<dd>
 	DLIES, ECIES, LUCES, RSAES, RabinES, LUC_IES
 <dt>Public Key Signature Schemes<dd>
@@ -31,8 +35,7 @@
 	DH, DH2, MQV, ECDH, ECMQV, XTR_DH
 <dt>Algebraic Structures<dd>
 	Integer, PolynomialMod2, PolynomialOver, RingOfPolynomialsOver,
-	ModularArithmetic, MontgomeryRepresentation, GFP2_ONB,
-	GF2NP, GF256, GF2_32, EC2N, ECP
+	ModularArithmetic, MontgomeryRepresentation, GFP2_ONB, GF2NP, GF256, GF2_32, EC2N, ECP
 <dt>Secret Sharing and Information Dispersal<dd>
 	SecretSharing, SecretRecovery, InformationDispersal, InformationRecovery
 <dt>Compression<dd>
@@ -40,23 +43,23 @@
 <dt>Input Source Classes<dd>
 	StringSource, ArraySource, FileSource, SocketSource, WindowsPipeSource, RandomNumberSource
 <dt>Output Sink Classes<dd>
-	StringSinkTemplate, ArraySink, FileSink, SocketSink, WindowsPipeSink, RandomNumberSink
+	StringSinkTemplate, StringSink, ArraySink, FileSink, SocketSink, WindowsPipeSink, RandomNumberSink
 <dt>Filter Wrappers<dd>
 	StreamTransformationFilter, HashFilter, HashVerificationFilter, SignerFilter, SignatureVerificationFilter
 <dt>Binary to Text Encoders and Decoders<dd>
-	HexEncoder, HexDecoder, Base64Encoder, Base64Decoder, Base32Encoder, Base32Decoder
+	HexEncoder, HexDecoder, Base64Encoder, Base64Decoder, Base64URLEncoder, Base64URLDecoder, Base32Encoder, Base32Decoder
 <dt>Wrappers for OS features<dd>
 	Timer, Socket, WindowsHandle, ThreadLocalStorage, ThreadUserTimer
-<dt>FIPS 140 related<dd>
+<dt>FIPS 140 validated cryptography<dd>
 	fips140.h
 </dl>
 
 In the DLL version of Crypto++, only the following implementation class are available.
 <dl>
 <dt>Block Ciphers<dd>
-	AES, DES_EDE2, DES_EDE3, SKIPJACK
+	AES, \ref DES_EDE2 "2-key Triple-DES", \ref DES_EDE3 "3-key Triple-DES", SKIPJACK
 <dt>Cipher Modes (replace template parameter BC with one of the block ciphers above)<dd>
-	ECB_Mode\<BC\>, CTR_Mode\<BC\>, CBC_Mode\<BC\>, CFB_FIPS_Mode\<BC\>, OFB_Mode\<BC\>, GCM\<AES\>
+	\ref ECB_Mode "ECB_Mode<BC>", \ref CTR_Mode "CTR_Mode<BC>", \ref CBC_Mode "CBC_Mode<BC>", \ref CFB_FIPS_Mode "CFB_FIPS_Mode<BC>", \ref OFB_Mode "OFB_Mode<BC>", \ref GCM "GCM<AES>"
 <dt>Hash Functions<dd>
 	SHA1, SHA224, SHA256, SHA384, SHA512
 <dt>Public Key Signature Schemes (replace template parameter H with one of the hash functions above)<dd>
@@ -226,15 +229,17 @@ struct CRYPTOPP_DLL DecodingResult
 
 	//! \brief Compare two DecodingResult
 	//! \param rhs the other DecodingResult
-	//! \returns  true if both isValidCoding and messageLength are equal,  false otherwise
+	//! \returns true if both isValidCoding and messageLength are equal, false otherwise
 	bool operator==(const DecodingResult &rhs) const {return isValidCoding == rhs.isValidCoding && messageLength == rhs.messageLength;}
 	//! \brief Compare two DecodingResult
 	//! \param rhs the other DecodingResult
-	//! \returns  true if both isValidCoding and messageLength are \a not equal,  false otherwise
+	//! \returns true if either isValidCoding or messageLength is \a not equal, false otherwise
 	//! \details Returns <tt>!operator==(rhs)</tt>.
 	bool operator!=(const DecodingResult &rhs) const {return !operator==(rhs);}
 
+	//! \brief Flag to indicate the decoding is valid
 	bool isValidCoding;
+	//! \brief Recovered message length if isValidCoding is true, undefined otherwise
 	size_t messageLength;
 
 #ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
@@ -590,7 +595,7 @@ public:
 	}
 
 	//! \brief Gets a secure IV for the next message
-	//! \param rng a  RandomNumberGenerator to produce keying material
+	//! \param rng a RandomNumberGenerator to produce keying material
 	//! \param iv a block of bytes to receive the IV
 	//! \details This method should be called after you finish encrypting one message and are ready
 	//!    to start the next one. After calling it, you must call  SetKey() or  Resynchronize()
@@ -735,7 +740,7 @@ public:
 
 	//! \sa IsForwardTransformation(), IsPermutation(), GetCipherDirection()
 	inline CipherDir GetCipherDirection() const {return IsForwardTransformation() ? ENCRYPTION : DECRYPTION;}
-	
+
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~BlockTransformation() {}
 #endif
@@ -836,7 +841,7 @@ public:
 	//! \returns  true if DIR is ENCRYPTION,  false otherwise
 	//! \sa IsForwardTransformation(), IsPermutation(), GetCipherDirection()
 	virtual bool IsForwardTransformation() const =0;
-	
+
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~StreamTransformation() {}
 #endif
@@ -991,7 +996,7 @@ public:
 	//! \details VerifyTruncatedDigest() restarts the hash for the next nmessage.
 	virtual bool VerifyTruncatedDigest(const byte *digest, size_t digestLength, const byte *input, size_t length)
 		{Update(input, length); return TruncatedVerify(digest, digestLength);}
-	
+
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~HashTransformation() {}
 #endif
@@ -1057,7 +1062,7 @@ public:
 
 	// redeclare this to avoid compiler ambiguity errors
 	virtual std::string AlgorithmName() const =0;
-	
+
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~AuthenticatedSymmetricCipher() {}
 #endif
@@ -1169,6 +1174,7 @@ public:
 	word16 GetShort(word16 a=0, word16 b=0xffff) {return (word16)GenerateWord32(a, b);}
 	void GetBlock(byte *output, size_t size) {GenerateBlock(output, size);}
 #endif
+
 };
 
 //! \brief Random Number Generator that does not produce random numbers
@@ -1874,7 +1880,7 @@ public:
 		
 		virtual void Attach(BufferedTransformation *newAttachment);
 	//@}
-		
+
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~BufferedTransformation() {}
 #endif
@@ -1910,7 +1916,7 @@ public:
 	virtual void AssignFrom(const NameValuePairs &source) =0;
 
 	//! \brief Check this object for errors
-	//! \param rng a  RandomNumberGenerator for objects which use randominzed testing
+	//! \param rng a RandomNumberGenerator for objects which use randomized testing
 	//! \param level the level of thoroughness
 	//! \returns  true if the tests succeed,  false otherwise
 	//! \details There are four levels of thoroughness:
@@ -1920,13 +1926,13 @@ public:
 	//!   <li>2 - ensure this object will function correctly, and perform reasonable security checks
 	//!   <li>3 - perform reasonable security checks, and do checks that may take a long time
 	//!   </ul>
-	//! \details Level 0 does not require a  RandomNumberGenerator. A  NullRNG () can be used for level 0.
+	//! \details Level 0 does not require a  RandomNumberGenerator. A  NullRNG() can be used for level 0.
 	//! \details Level 1 may not check for weak keys and such.
 	//! \details Levels 2 and 3 are recommended.
 	virtual bool Validate(RandomNumberGenerator &rng, unsigned int level) const =0;
 
 	//! \brief Check this object for errors
-	//! \param rng a  RandomNumberGenerator for objects which use randominzed testing
+	//! \param rng a RandomNumberGenerator for objects which use randomized testing
 	//! \param level the level of thoroughness
 	//! \throws InvalidMaterial
 	//! \details Internally,  ThrowIfInvalid() calls  Validate() and throws  InvalidMaterial if validation fails.
@@ -1987,7 +1993,7 @@ public:
 
 	// for internal library use
 	void DoQuickSanityCheck() const	{ThrowIfInvalid(NullRNG(), 0);}
-	
+
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~CryptoMaterial() {}
 #endif
@@ -2005,7 +2011,7 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE GeneratableCryptoMaterial : virtual public
 public:
 
 	//! \brief Generate a random key or crypto parameters
-	//! \param rng a  RandomNumberGenerator to produce keying material
+	//! \param rng a RandomNumberGenerator to produce keying material
 	//! \param params additional initialization parameters
 	//! \throws KeyingErr if a key can't be generated or algorithm parameters are invalid
 	//! \details If a derived class does not override  GenerateRandom, then the base class throws
@@ -2016,13 +2022,13 @@ public:
 	}
 
 	//! \brief Generate a random key or crypto parameters
-	//! \param rng a  RandomNumberGenerator to produce keying material
+	//! \param rng a RandomNumberGenerator to produce keying material
 	//! \param keySize the size of the key, in bits
 	//! \throws KeyingErr if a key can't be generated or algorithm parameters are invalid	
 	//! \details GenerateRandomWithKeySize calls  GenerateRandom with a  NameValuePairs
 	//!    object with only "KeySize"
 	void GenerateRandomWithKeySize(RandomNumberGenerator &rng, unsigned int keySize);
-	
+
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~GeneratableCryptoMaterial() {}
 #endif
@@ -2062,7 +2068,7 @@ public:
 	//! for backwards compatibility, calls GetMaterial().Save(bt)
 	void DEREncode(BufferedTransformation &bt) const
 		{GetMaterial().Save(bt);}
-	
+
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~AsymmetricAlgorithm() {}
 #endif
@@ -2079,7 +2085,7 @@ public:
 
 	virtual PublicKey & AccessPublicKey() =0;
 	virtual const PublicKey & GetPublicKey() const {return const_cast<PublicKeyAlgorithm *>(this)->AccessPublicKey();}
-	
+
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~PublicKeyAlgorithm() {}
 #endif
@@ -2095,7 +2101,7 @@ public:
 
 	virtual PrivateKey & AccessPrivateKey() =0;
 	virtual const PrivateKey & GetPrivateKey() const {return const_cast<PrivateKeyAlgorithm *>(this)->AccessPrivateKey();}
-	
+
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~PrivateKeyAlgorithm() {}
 #endif
@@ -2111,7 +2117,7 @@ public:
 
 	virtual CryptoParameters & AccessCryptoParameters() =0;
 	virtual const CryptoParameters & GetCryptoParameters() const {return const_cast<KeyAgreementAlgorithm *>(this)->AccessCryptoParameters();}
-	
+
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~KeyAgreementAlgorithm() {}
 #endif
@@ -2146,49 +2152,65 @@ public:
 
 	//! return maximum plaintext length given the fixed ciphertext length, if one exists, otherwise return 0
 	virtual size_t FixedMaxPlaintextLength() const {return 0;}
-
+	
 #ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
 	size_t MaxPlainTextLength(size_t cipherTextLength) const {return MaxPlaintextLength(cipherTextLength);}
 	size_t CipherTextLength(size_t plainTextLength) const {return CiphertextLength(plainTextLength);}
 #endif
 };
 
+//! \class PK_Encryptor
 //! \brief Interface for public-key encryptors
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_Encryptor : public PK_CryptoSystem, public PublicKeyAlgorithm
 {
 public:
-	//! exception thrown when trying to encrypt plaintext of invalid length
+	//! \brief Exception thrown when trying to encrypt plaintext of invalid length
 	class CRYPTOPP_DLL InvalidPlaintextLength : public Exception
 	{
 	public:
 		InvalidPlaintextLength() : Exception(OTHER_ERROR, "PK_Encryptor: invalid plaintext length") {}
 	};
 
-	//! encrypt a byte string
-	/*! re CiphertextLength(plaintextLength) != 0 (i.e., plaintext isn't too long)
-		re size of ciphertext == CiphertextLength(plaintextLength)
-	*/
+	//! \brief Encrypt a byte string
+	//! \param rng a RandomNumberGenerator derived class
+	//! \param plaintext the plaintext byte buffer
+	//! \param plaintextLength the size of the plaintext byte buffer
+	//! \param ciphertext a byte buffer to hold the encrypted string
+	//! \param parameters additional configuration options
+	//! \pre <tt>CiphertextLength(plaintextLength) != 0</tt> ensures the plaintext isn't too large
+	//! \pre <tt>COUNTOF(ciphertext) == CiphertextLength(plaintextLength)</tt> ensures the output
+	//!   byte buffer is large enough.
+	//! \sa PK_Decryptor
 	virtual void Encrypt(RandomNumberGenerator &rng, 
 		const byte *plaintext, size_t plaintextLength, 
 		byte *ciphertext, const NameValuePairs &parameters = g_nullNameValuePairs) const =0;
 
-	//! create a new encryption filter
-	/*! \note The caller is responsible for deleting the returned pointer.
-		\note Encoding parameters should be passed in the "EP" channel.
-	*/
+	//! \brief Create a new encryption filter
+	//! \note The caller is responsible for deleting the returned pointer.
+	//! \note Encoding parameters should be passed in the "EP" channel.
 	virtual BufferedTransformation * CreateEncryptionFilter(RandomNumberGenerator &rng, 
 		BufferedTransformation *attachment=NULL, const NameValuePairs &parameters = g_nullNameValuePairs) const;
 };
 
+//! \class PK_Decryptor
 //! \brief Interface for public-key decryptors
-
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_Decryptor : public PK_CryptoSystem, public PrivateKeyAlgorithm
 {
 public:
-	//! decrypt a byte string, and return the length of plaintext
-	/*! re size of plaintext == MaxPlaintextLength(ciphertextLength) bytes.
-		\returns the actual length of the plaintext, indication that decryption failed.
-	*/
+	//! \brief Decrypt a byte string
+	//! \param rng a RandomNumberGenerator derived class
+	//! \param ciphertext the encrypted byte buffer
+	//! \param ciphertextLength the size of the encrypted byte buffer
+	//! \param plaintext a byte buffer to hold the decrypted string
+	//! \param parameters additional configuration options
+	//! \returns the result of the decryption operation
+	//! \pre <tt>COUNTOF(plaintext) == MaxPlaintextLength(ciphertextLength)</tt> ensures the output
+	//!   byte buffer is large enough
+	//! \details If DecodingResult::isValidCoding is true, then DecodingResult::messageLength
+	//!   is valid and holds the the actual length of the plaintext recovered.
+	//!   on success. The result is undefined if decryption failed. If DecodingResult::isValidCoding
+	//!   is false, then DecodingResult::messageLength is undefined.
+	//! \sa PK_Encryptor
 	virtual DecodingResult Decrypt(RandomNumberGenerator &rng, 
 		const byte *ciphertext, size_t ciphertextLength, 
 		byte *plaintext, const NameValuePairs &parameters = g_nullNameValuePairs) const =0;
@@ -2295,30 +2317,30 @@ public:
 	virtual void InputRecoverableMessage(PK_MessageAccumulator &messageAccumulator, const byte *recoverableMessage, size_t recoverableMessageLength) const =0;
 
 	//! sign and delete messageAccumulator (even in case of exception thrown)
-	/*! re size of signature == MaxSignatureLength()
+	/*! \pre size of signature == MaxSignatureLength()
 		\returns actual signature length
 	*/
 	virtual size_t Sign(RandomNumberGenerator &rng, PK_MessageAccumulator *messageAccumulator, byte *signature) const;
 
 	//! sign and restart messageAccumulator
-	/*! re size of signature == MaxSignatureLength()
+	/*! \pre size of signature == MaxSignatureLength()
 		\returns actual signature length
 	*/
 	virtual size_t SignAndRestart(RandomNumberGenerator &rng, PK_MessageAccumulator &messageAccumulator, byte *signature, bool restart=true) const =0;
 
 	//! sign a message
-	/*! re size of signature == MaxSignatureLength()
+	/*! \pre size of signature == MaxSignatureLength()
 		\returns actual signature length
 	*/
 	virtual size_t SignMessage(RandomNumberGenerator &rng, const byte *message, size_t messageLen, byte *signature) const;
 
 	//! sign a recoverable message
-	/*! re size of signature == MaxSignatureLength(recoverableMessageLength)
+	/*! \pre size of signature == MaxSignatureLength(recoverableMessageLength)
 		\returns actual signature length
 	*/
 	virtual size_t SignMessageWithRecovery(RandomNumberGenerator &rng, const byte *recoverableMessage, size_t recoverableMessageLength, 
 		const byte *nonrecoverableMessage, size_t nonrecoverableMessageLength, byte *signature) const;
-		
+
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~PK_Signer() {}
 #endif
@@ -2351,17 +2373,17 @@ public:
 		const byte *signature, size_t signatureLength) const;
 
 	//! recover a message from its signature
-	/*! re size of recoveredMessage == MaxRecoverableLengthFromSignatureLength(signatureLength)
+	/*! \pre size of recoveredMessage == MaxRecoverableLengthFromSignatureLength(signatureLength)
 	*/
 	virtual DecodingResult Recover(byte *recoveredMessage, PK_MessageAccumulator *messageAccumulator) const;
 
 	//! recover a message from its signature
-	/*! re size of recoveredMessage == MaxRecoverableLengthFromSignatureLength(signatureLength)
+	/*! \pre size of recoveredMessage == MaxRecoverableLengthFromSignatureLength(signatureLength)
 	*/
 	virtual DecodingResult RecoverAndRestart(byte *recoveredMessage, PK_MessageAccumulator &messageAccumulator) const =0;
 
 	//! recover a message from its signature
-	/*! re size of recoveredMessage == MaxRecoverableLengthFromSignatureLength(signatureLength)
+	/*! \pre size of recoveredMessage == MaxRecoverableLengthFromSignatureLength(signatureLength)
 	*/
 	virtual DecodingResult RecoverMessage(byte *recoveredMessage, 
 		const byte *nonrecoverableMessage, size_t nonrecoverableMessageLength, 
@@ -2388,7 +2410,7 @@ public:
 	//! return length of public keys in this domain
 	virtual unsigned int PublicKeyLength() const =0;
 	//! generate private key
-	/*! re size of privateKey == PrivateKeyLength() */
+	/*! \pre size of privateKey == PrivateKeyLength() */
 	virtual void GeneratePrivateKey(RandomNumberGenerator &rng, byte *privateKey) const =0;
 	//! generate public key
 	/*!	re size of publicKey == PublicKeyLength() */
@@ -2399,8 +2421,8 @@ public:
 	//! derive agreed value from your private key and couterparty's public key, return false in case of failure
 	/*! \note If you have previously validated the public key, use validateOtherPublicKey=false to save time.
 		re size of agreedValue == AgreedValueLength()
-		re length of privateKey == PrivateKeyLength()
-		re length of otherPublicKey == PublicKeyLength()
+		\pre length of privateKey == PrivateKeyLength()
+		\pre length of otherPublicKey == PublicKeyLength()
 	*/
 	virtual bool Agree(byte *agreedValue, const byte *privateKey, const byte *otherPublicKey, bool validateOtherPublicKey=true) const =0;
 
@@ -2431,7 +2453,7 @@ public:
 	//! return length of static public keys in this domain
 	virtual unsigned int StaticPublicKeyLength() const =0;
 	//! generate static private key
-	/*! re size of privateKey == PrivateStaticKeyLength() */
+	/*! \pre size of privateKey == PrivateStaticKeyLength() */
 	virtual void GenerateStaticPrivateKey(RandomNumberGenerator &rng, byte *privateKey) const =0;
 	//! generate static public key
 	/*!	re size of publicKey == PublicStaticKeyLength() */
@@ -2444,25 +2466,26 @@ public:
 	virtual unsigned int EphemeralPrivateKeyLength() const =0;
 	//! return length of ephemeral public keys in this domain
 	virtual unsigned int EphemeralPublicKeyLength() const =0;
-	//! generate ephemeral private key
-	/*! re size of privateKey == PrivateEphemeralKeyLength() */
+	//! \brief Generate ephemeral private key
+	//! \pre size of privateKey == PrivateEphemeralKeyLength()
 	virtual void GenerateEphemeralPrivateKey(RandomNumberGenerator &rng, byte *privateKey) const =0;
-	//! generate ephemeral public key
-	/*!	re size of publicKey == PublicEphemeralKeyLength() */
+	//! \brief Generate ephemeral public key
+	//! \pre size of publicKey == PublicEphemeralKeyLength()
 	virtual void GenerateEphemeralPublicKey(RandomNumberGenerator &rng, const byte *privateKey, byte *publicKey) const =0;
-	//! generate private/public key pair
+	//! \brief Generate private/public key pair
 	/*! \note equivalent to calling GenerateEphemeralPrivateKey() and then GenerateEphemeralPublicKey() */
 	virtual void GenerateEphemeralKeyPair(RandomNumberGenerator &rng, byte *privateKey, byte *publicKey) const;
 
-	//! derive agreed value from your private keys and couterparty's public keys, return false in case of failure
-	/*! \note The ephemeral public key will always be validated.
-		      If you have previously validated the static public key, use validateStaticOtherPublicKey=false to save time.
-		re size of agreedValue == AgreedValueLength()
-		re length of staticPrivateKey == StaticPrivateKeyLength()
-		re length of ephemeralPrivateKey == EphemeralPrivateKeyLength()
-		re length of staticOtherPublicKey == StaticPublicKeyLength()
-		re length of ephemeralOtherPublicKey == EphemeralPublicKeyLength()
-	*/
+	//! \brief Derive agreed value
+	//! \returns true upon success, false in case of failure
+	//! \details Agree() derives an agreed value from your private keys and couterparty's public keys
+	//! \details The ephemeral public key will always be validated. If you have previously validated the
+	//!   static public key, use validateStaticOtherPublicKey=false to save time.
+	//! \pre size of agreedValue == AgreedValueLength()
+	//! \pre length of staticPrivateKey == StaticPrivateKeyLength()
+	//! \pre length of ephemeralPrivateKey == EphemeralPrivateKeyLength()
+	//! \pre length of staticOtherPublicKey == StaticPublicKeyLength()
+	//! \pre length of ephemeralOtherPublicKey == EphemeralPublicKeyLength()
 	virtual bool Agree(byte *agreedValue,
 		const byte *staticPrivateKey, const byte *ephemeralPrivateKey,
 		const byte *staticOtherPublicKey, const byte *ephemeralOtherPublicKey,
