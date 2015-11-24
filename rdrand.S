@@ -83,7 +83,7 @@ NASM_RRA_GenerateBlock:
 
 .Validate_Pointer:
 
-	cmp 	buffer, 0
+	cmp		buffer, 0
 	je 		.GenerateBlock_PreRet
 
 			;; Top of While loop
@@ -142,7 +142,7 @@ NASM_RRA_GenerateBlock:
 
 %ifdef X32
 			;; Test bit 2 to see if size is at least 4
-	test	bsize, 4
+	test		bsize, 4
 	jz		.Bit_2_Not_Set
 
 	mov		[buffer], eax
@@ -155,7 +155,7 @@ NASM_RRA_GenerateBlock:
 %endif
 
 			;; Test bit 1 to see if size is at least 2
-	test	bsize, 2
+	test		bsize, 2
 	jz		.Bit_1_Not_Set
 
 	mov		[buffer], ax
@@ -165,7 +165,7 @@ NASM_RRA_GenerateBlock:
 .Bit_1_Not_Set:
 	
 			;; Test bit 0 to see if size is at least 1
-	test	bsize, 1
+	test		bsize, 1
 	jz		.GenerateBlock_Success
 
 	mov		[buffer], al
@@ -221,20 +221,20 @@ NASM_RRA_GenerateBlock:
 .Validate_Pointer:
 
 			;; Validate pointer
-	cmp 	buffer, 0
+	cmp		buffer, 0
 	je 		.GenerateBlock_PreRet
 
 			;; Top of While loop
 .GenerateBlock_Top:
 
 			;; Check remaining size
-	cmp 	bsize, 0
+	cmp		bsize, 0
 	je		.GenerateBlock_Success
 
 .Call_RDRAND_RAX:
 			;; RDRAND is not available prior to VS2012. Just emit
 			;;   the byte codes using DB. This is `rdrand rax`.
-	DB 048h, 0Fh, 0C7h, 0F0h
+	DB 		048h, 0Fh, 0C7h, 0F0h
 
 			;; If CF=1, the number returned by RDRAND is valid.
 			;; If CF=0, a random number was not available.
@@ -246,7 +246,7 @@ NASM_RRA_GenerateBlock:
 	cmp		safety, 0h
 	je		.GenerateBlock_Failure
 
-	dec 	safety
+	dec		safety
 	jmp		.GenerateBlock_Top
 
 .RDRAND_succeeded:
@@ -267,7 +267,7 @@ NASM_RRA_GenerateBlock:
 .Partial_Machine_Word:
 
 			;; Test bit 2 to see if size is at least 4
-	test	bsize, 4
+	test		bsize, 4
 	jz		.Bit_2_Not_Set
 
 	mov		[buffer], eax
@@ -277,17 +277,17 @@ NASM_RRA_GenerateBlock:
 .Bit_2_Not_Set:
 
 			;; Test bit 1 to see if size is at least 2
-	test	bsize, 2
+	test		bsize, 2
 	jz		.Bit_1_Not_Set
 
 	mov		[buffer], ax
 	shr		eax, 16
-	add 	buffer, 2
+	add		buffer, 2
 
 .Bit_1_Not_Set:
 
 			;; Test bit 0 to see if size is at least 1
-	test	bsize, 1
+	test		bsize, 1
 	jz		.GenerateBlock_Success
 
 	mov		[buffer], al
@@ -300,7 +300,7 @@ NASM_RRA_GenerateBlock:
 .GenerateBlock_PreRet:
 
 			;; Test for success (was the request completely fulfilled?)
-	cmp 	bsize, 0
+	cmp		bsize, 0
 	je 		.GenerateBlock_Success
 	
 .GenerateBlock_Failure:
