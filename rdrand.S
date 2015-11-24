@@ -101,7 +101,7 @@ NASM_RRA_GenerateBlock:
 %endif
 			;; RDRAND is not available prior to VS2012. Just emit
 			;;   the byte codes using DB. This is `rdrand eax`.
-	DB		0Fh, 07h, F0h
+	DB		0Fh, 07h, 0F0h
 
 			;; If CF=1, the number returned by RDRAND is valid.
 			;; If CF=0, a random number was not available.
