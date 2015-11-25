@@ -1,8 +1,10 @@
+// tea.h - written and placed in the public domain by Wei Dai
+
+//! \file tea.h
+//! \brief Classes for the TEA, BTEA and XTEA block ciphers
+
 #ifndef CRYPTOPP_TEA_H
 #define CRYPTOPP_TEA_H
-
-/** \file
-*/
 
 #include "seckey.h"
 #include "secblock.h"

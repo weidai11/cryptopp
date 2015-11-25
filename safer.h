@@ -1,8 +1,10 @@
+// safer.h - written and placed in the public domain by Wei Dai
+
+//! \file safer.h
+//! \brief Classes for the SAFER block cipher
+
 #ifndef CRYPTOPP_SAFER_H
 #define CRYPTOPP_SAFER_H
-
-/** \file
-*/
 
 #include "seckey.h"
 #include "secblock.h"

@@ -18,9 +18,8 @@
 #include "fltrimpl.h"
 #include "argnames.h"
 #include "smartptr.h"
+#include "stdcpp.h"
 #include "misc.h"
-
-#include <functional>
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -83,9 +82,12 @@ bool Filter::Flush(bool hardFlush, int propagation, bool blocking)
 	case 0:
 		if (IsolatedFlush(hardFlush, blocking))
 			return true;
+		// fall through
 	case 1:
 		if (OutputFlush(1, hardFlush, propagation, blocking))
 			return true;
+		// fall through
+	default: ;;
 	}
 	return false;
 }
@@ -97,9 +99,12 @@ bool Filter::MessageSeriesEnd(int propagation, bool blocking)
 	case 0:
 		if (IsolatedMessageSeriesEnd(blocking))
 			return true;
+		// fall through
 	case 1:
 		if (ShouldPropagateMessageSeriesEnd() && OutputMessageSeriesEnd(1, propagation, blocking))
 			return true;
+		// fall through
+	default: ;;
 	}
 	return false;
 }
@@ -434,7 +439,8 @@ size_t FilterWithBufferedInput::PutMaybeModifiable(byte *inString, size_t length
 		m_firstInputDone = false;
 		m_queue.ResetQueue(1, m_firstSize);
 
-		Output(1, NULL, 0, messageEnd, blocking);
+		// Cast to void to supress Coverity finding
+		(void)Output(1, NULL, 0, messageEnd, blocking);
 	}
 	return 0;
 }
@@ -581,8 +587,8 @@ size_t ArrayXorSink::Put2(const byte *begin, size_t length, int messageEnd, bool
 // *************************************************************
 
 StreamTransformationFilter::StreamTransformationFilter(StreamTransformation &c, BufferedTransformation *attachment, BlockPaddingScheme padding, bool allowAuthenticatedSymmetricCipher)
-   : FilterWithBufferedInput(attachment)
-	, m_cipher(c)
+	: FilterWithBufferedInput(attachment)
+	, m_cipher(c), m_padding(DEFAULT_PADDING), m_optimalBufferSize(0)
 {
 	assert(c.MinLastBlockSize() == 0 || c.MinLastBlockSize() > c.MandatoryBlockSize());
 
@@ -755,7 +761,8 @@ void StreamTransformationFilter::LastPut(const byte *inString, size_t length)
 // *************************************************************
 
 HashFilter::HashFilter(HashTransformation &hm, BufferedTransformation *attachment, bool putMessage, int truncatedDigestSize, const std::string &messagePutChannel, const std::string &hashPutChannel)
-	: m_hashModule(hm), m_putMessage(putMessage), m_messagePutChannel(messagePutChannel), m_hashPutChannel(hashPutChannel)
+	: m_hashModule(hm), m_putMessage(putMessage), m_digestSize(0), m_space(NULL)
+	, m_messagePutChannel(messagePutChannel), m_hashPutChannel(hashPutChannel)
 {
 	m_digestSize = truncatedDigestSize < 0 ? m_hashModule.DigestSize() : truncatedDigestSize;
 	Detach(attachment);
@@ -790,7 +797,7 @@ size_t HashFilter::Put2(const byte *inString, size_t length, int messageEnd, boo
 
 HashVerificationFilter::HashVerificationFilter(HashTransformation &hm, BufferedTransformation *attachment, word32 flags, int truncatedDigestSize)
 	: FilterWithBufferedInput(attachment)
-	, m_hashModule(hm)
+	, m_hashModule(hm), m_flags(0), m_digestSize(0), m_verified(false)
 {
 	IsolatedInitialize(MakeParameters(Name::HashVerificationFilterFlags(), flags)(Name::TruncatedDigestSize(), truncatedDigestSize));
 }
@@ -980,7 +987,7 @@ size_t SignerFilter::Put2(const byte *inString, size_t length, int messageEnd, b
 
 SignatureVerificationFilter::SignatureVerificationFilter(const PK_Verifier &verifier, BufferedTransformation *attachment, word32 flags)
 	: FilterWithBufferedInput(attachment)
-	, m_verifier(verifier)
+	, m_verifier(verifier), m_flags(0), m_verified(0)
 {
 	IsolatedInitialize(MakeParameters(Name::SignatureVerificationFilterFlags(), flags));
 }

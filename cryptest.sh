@@ -7,12 +7,13 @@
 # to automate building the library and running the self test with various
 # combinations of flags, options, and conditions.
 
-# Everything is tee'd into cryptest-result.txt. Change it to suite your taste.
-# You should be able to use `egrep "(error|FAILED)" cryptest-result.txt` to
-# quickly find errors and failures.
+# Everything is tee'd into cryptest-result.txt. Change it to suite your taste. You
+# should be able to use `egrep -a "(Error|error|FAILED|Illegal)" cryptest-result.txt`
+# to quickly find errors and failures.
 
 # Set to suite your taste
 TEST_RESULTS=cryptest-result.txt
+BENCHMARK_RESULTS=cryptest-bench.txt
 WARN_TEST_RESULTS=cryptest-warn-result.txt
 
 # Respect user's preferred flags, but filter the stuff we expliclty test
@@ -58,6 +59,10 @@ else
 	MAKE=make
 fi
 
+if [ -z "$TMP" ]; then
+	TMP=/tmp
+fi
+
 # Use the compiler driver, and not cpp, to tell us if the flag is consumed.
 $CXX -x c++ -dM -E -std=c++11 - < /dev/null > /dev/null 2>&1
 if [ "$?" -eq "0" ]; then
@@ -75,7 +80,7 @@ else
 fi
 
 # Set to 0 if you don't have UBsan
-$CXX -x c++ -dM -E -fsanitize=undefined -std=c++11 - < /dev/null > /dev/null 2>&1
+$CXX -x c++ -fsanitize=undefined adhoc.cpp.proto -o $TMP/adhoc > /dev/null 2>&1
 if [ "$?" -eq "0" ]; then
 	HAVE_UBSAN=1
 else
@@ -88,7 +93,7 @@ if [ "$IS_CYGWIN" -ne "0" ] || [ "$IS_MINGW" -ne "0" ]; then
 fi
 
 # Set to 0 if you don't have Asan
-$CXX -x c++ -dM -E -fsanitize=address -std=c++11 - < /dev/null > /dev/null 2>&1
+$CXX -x c++ -fsanitize=undefined adhoc.cpp.proto -o $TMP/adhoc > /dev/null 2>&1
 if [ "$?" -eq "0" ]; then
 	HAVE_ASAN=1
 else
@@ -97,6 +102,12 @@ fi
 
 # Fixup...
 if [ "$IS_CYGWIN" -ne "0" ] || [ "$IS_MINGW" -ne "0" ]; then
+	HAVE_ASAN=0
+fi
+
+#Final fixups for compilers liek GCC on ARM64
+if [ "$HAVE_UBSAN" -eq "0" ] || [ "$HAVE_ASAN" -eq "0" ]; then
+	HAVE_UBAN=0
 	HAVE_ASAN=0
 fi
 
@@ -115,6 +126,7 @@ if [ "$HAVE_VALGRIND" -ne "0" ]; then
 fi
 if [ "$IS_DARWIN" -ne "0" ]; then
 	echo "IS_DARWIN: $IS_DARWIN"
+	unset MallocScribble MallocPreScribble MallocGuardEdges
 fi
 if [ "$IS_LINUX" -ne "0" ]; then
 	echo "IS_LINUX: $IS_LINUX"
@@ -130,16 +142,22 @@ echo "User CXXFLAGS: $CXXFLAGS"
 echo "Retained CXXFLAGS: $ADD_CXXFLAGS"
 echo "Compiler:" $($CXX --version | head -1)
 
-# Remove previous test results
-rm -f "$TEST_RESULTS" > /dev/null 2>&1
-touch "$TEST_RESULTS"
-
 TEST_BEGIN=$(date)
 echo
 echo "Start time: $TEST_BEGIN"
 
 ############################################
 ############################################
+
+# Remove previous test results
+rm -f "$TEST_RESULTS" > /dev/null 2>&1
+touch "$TEST_RESULTS"
+
+rm -f "$BENCHMARK_RESULTS" > /dev/null 2>&1
+touch "$BENCHMARK_RESULTS"
+
+rm -f "$WARN_RESULTS" > /dev/null 2>&1
+touch "$WARN_RESULTS"
 
 ############################################
 # Basic debug build
@@ -593,6 +611,98 @@ if [ "$IS_DARWIN" -ne "0" ] && [ "$HAVE_CXX11" -ne "0" ]; then
 	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 fi
 
+############################################
+# Darwin, c++03, Malloc Guards
+if [ "$IS_DARWIN" -ne "0" ] && [ "$HAVE_CXX03" -ne "0" ]; then
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Darwin, c++03, Malloc Guards" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++03 $ADD_CXXFLAGS"
+	"$MAKE" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	
+	export MallocScribble=1
+	export MallocPreScribble=1
+	export MallocGuardEdges=1
+	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+	unset MallocScribble MallocPreScribble MallocGuardEdges
+fi
+
+############################################
+# Darwin, c++11, Malloc Guards
+if [ "$IS_DARWIN" -ne "0" ] && [ "$HAVE_CXX11" -ne "0" ]; then
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Darwin, c++11, Malloc Guards" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 $ADD_CXXFLAGS"
+	"$MAKE" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	
+	export MallocScribble=1
+	export MallocPreScribble=1
+	export MallocGuardEdges=1
+	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+	unset MallocScribble MallocPreScribble MallocGuardEdges
+fi
+
+# Try to locate a Xcode compiler for testing under Darwin
+XCODE_COMPILER=$(find /Applications/Xcode*.app/Contents/Developer -name clang++ | head -1)
+
+############################################
+# Xcode compiler
+if [ "$IS_DARWIN" -ne "0" ] && [ -z "$XCODE_COMPILER" ]; then
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Xcode Clang compiler" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	expot CXX="$XCODE_COMPILER"
+	export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 $ADD_CXXFLAGS"
+	"$MAKE" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+fi
+
+############################################
+# Benchmarks, c++03
+if [ "$HAVE_CXX03" -ne "0" ]; then
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Benchmarks, c++03" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	export CXXFLAGS="-DNDEBUG -O3 -std=c++03 $ADD_CXXFLAGS"
+	"$MAKE" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	./cryptest.exe b 3 2.4+1e9 2>&1 | tee -a "$BENCHMARK_RESULTS"
+fi
+
+############################################
+# Benchmarks, c++11
+if [ "$HAVE_CXX11" -ne "0" ]; then
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Benchmarks, c++11" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	export CXXFLAGS="-DNDEBUG -O3 -std=c++11 $ADD_CXXFLAGS"
+	"$MAKE" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	./cryptest.exe b 3 2.4+1e9 2>&1 | tee -a "$BENCHMARK_RESULTS"
+fi
+
 # For Cygwin, we need to test both PREFER_BERKELEY_STYLE_SOCKETS
 #   and PREFER_WINDOWS_STYLE_SOCKETS
 
@@ -674,7 +784,7 @@ if [ "$CXX" == "g++" ] && [ "$HAVE_CXX11" -ne "0" ]; then
 
 	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
-	export CXXFLAGS="-DDEBUG -g2 -O2 -std=c++11 -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 -Wall -Wextra -Wno-unknown-pragmas"
+	export CXXFLAGS="-DDEBUG -g2 -O2 -std=c++11 -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 -Wall -Wextra -Wno-unknown-pragmas -Wstrict-aliasing=3 -Wstrict-overflow -Waggressive-loop-optimizations"
 	"$MAKE" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_TEST_RESULTS"
 
 	############################################
@@ -686,7 +796,7 @@ if [ "$CXX" == "g++" ] && [ "$HAVE_CXX11" -ne "0" ]; then
 
 	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
-	export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 -Wall -Wextra -Wno-unknown-pragmas"
+	export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 -Wall -Wextra -Wno-unknown-pragmas -Wstrict-aliasing=3 -Wstrict-overflow -Waggressive-loop-optimizations"
 	"$MAKE" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_TEST_RESULTS"
 fi
 
@@ -712,15 +822,16 @@ fi
 echo | tee -a "$TEST_RESULTS"
 
 # "FAILED" is from Crypto++
+# "Error" is from the GNU assembler
 # "error" is from the sanitizers
 # "Illegal", "0 errors" and "suppressed errors" are from Valgrind.
-COUNT=$(egrep -a '(error|FAILED|Illegal)' cryptest-result.txt | egrep -v "( 0 errors|suppressed errors|memory error detector)" | wc -l)
+COUNT=$(egrep -a '(Error|error|FAILED|Illegal)' cryptest-result.txt | egrep -v "( 0 errors|suppressed errors|memory error detector)" | wc -l)
 if [ "$COUNT" -eq "0" ]; then
 	echo "No failures detected" | tee -a "$TEST_RESULTS"
 else
 	echo "$COUNT errors detected" | tee -a "$TEST_RESULTS"
 	echo
-	egrep -an "(error|FAILED|Illegal)" cryptest-result.txt
+	egrep -an "(Error|error|FAILED|Illegal)" cryptest-result.txt
 fi
 echo | tee -a "$TEST_RESULTS"
 	

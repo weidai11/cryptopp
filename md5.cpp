@@ -9,10 +9,12 @@
 NAMESPACE_BEGIN(CryptoPP)
 namespace Weak1 {
 
+#if !defined(NDEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
 void MD5_TestInstantiations()
 {
 	MD5 x;
 }
+#endif
 
 void MD5::InitState(HashWordType *state)
 {

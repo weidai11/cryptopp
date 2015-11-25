@@ -4,25 +4,34 @@
 #include "config.h"
 
 #if CRYPTOPP_MSC_VERSION
-# pragma warning(disable: 4189 6237)
+# pragma warning(disable: 4189)
+# if (CRYPTOPP_MSC_VERSION >= 1400)
+#  pragma warning(disable: 6237)
+# endif
 #endif
 
 #ifndef CRYPTOPP_IMPORTS
 
 #include "misc.h"
 #include "words.h"
-#include <new>
+#include "words.h"
+#include "stdcpp.h"
+#include "integer.h"
 
+// for memalign
 #if defined(CRYPTOPP_MEMALIGN_AVAILABLE) || defined(CRYPTOPP_MM_MALLOC_AVAILABLE) || defined(QNX)
-#include <malloc.h>
+# include <malloc.h>
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
 
 void xorbuf(byte *buf, const byte *mask, size_t count)
 {
-	size_t i;
+	assert(buf != NULL);
+	assert(mask != NULL);
+	assert(count > 0);
 
+	size_t i=0;
 	if (IsAligned<word32>(buf) && IsAligned<word32>(mask))
 	{
 		if (!CRYPTOPP_BOOL_SLOW_WORD64 && IsAligned<word64>(buf) && IsAligned<word64>(mask))
@@ -51,8 +60,11 @@ void xorbuf(byte *buf, const byte *mask, size_t count)
 
 void xorbuf(byte *output, const byte *input, const byte *mask, size_t count)
 {
-	size_t i;
+	assert(output != NULL);
+	assert(input != NULL);
+	assert(count > 0);
 
+	size_t i=0;
 	if (IsAligned<word32>(output) && IsAligned<word32>(input) && IsAligned<word32>(mask))
 	{
 		if (!CRYPTOPP_BOOL_SLOW_WORD64 && IsAligned<word64>(output) && IsAligned<word64>(input) && IsAligned<word64>(mask))
@@ -83,7 +95,11 @@ void xorbuf(byte *output, const byte *input, const byte *mask, size_t count)
 
 bool VerifyBufsEqual(const byte *buf, const byte *mask, size_t count)
 {
-	size_t i;
+	assert(buf != NULL);
+	assert(mask != NULL);
+	assert(count > 0);
+
+	size_t i=0;
 	byte acc8 = 0;
 
 	if (IsAligned<word32>(buf) && IsAligned<word32>(mask))
@@ -139,7 +155,9 @@ void CallNewHandler()
 void * AlignedAllocate(size_t size)
 {
 	byte *p;
-#ifdef CRYPTOPP_MM_MALLOC_AVAILABLE
+#if defined(CRYPTOPP_APPLE_ALLOC_AVAILABLE)
+	while ((p = (byte *)calloc(1, size)) == NULL)
+#elif defined(CRYPTOPP_MM_MALLOC_AVAILABLE)
 	while ((p = (byte *)_mm_malloc(size, 16)) == NULL)
 #elif defined(CRYPTOPP_MEMALIGN_AVAILABLE)
 	while ((p = (byte *)memalign(16, size)) == NULL)

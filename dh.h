@@ -1,8 +1,11 @@
+// dh.h - written and placed in the public domain by Wei Dai
+
+//! \file
+//! \headerfile dh.h
+//! \brief Classes for Diffie-Hellman key exchange
+
 #ifndef CRYPTOPP_DH_H
 #define CRYPTOPP_DH_H
-
-/** \file
-*/
 
 #include "cryptlib.h"
 #include "gfpcrypt.h"

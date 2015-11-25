@@ -38,15 +38,7 @@ The command above builds the static library and cryptest.exe program. If you wan
 Or:
 
     make libcryptopp.a libcryptopp.so cryptest.exe
-	
-On Mac OS X, you can build fat binaries by setting MULTIARCH=1:
 
-    make MULTIARCH=1
-
-Or
-
-    export MULTIARCH=1
-    make
 
 If you would like to use a different compiler, the set CXX:
 
@@ -66,21 +58,6 @@ LLVM's libc++ is also supported, so you can:
 
     CXXFLAGS="-std=c++11 -stdlib=libc++"
     make
-
-If you are experimenting with Clang and its integrated assembler, then you can:
-
-    make FORCE_ASM=1
-
-If you are experimenting with NASM, then you can:
-
-    export AS=nasm
-    make
-
-Or
-
-    make AS=nasm
-
-Be aware that the Clang assembler has a number of open issues, and trying to build with it will probably result in a compile failure or runtime test failure.
 
 
 INSTALLING THE LIBRARY
@@ -190,4 +167,3 @@ REPORTING PROBLEMS
 Dirty compiles and failures in the validation suite or test vectors should be reported at the Crypto++ User Group. The User Group is located at https://groups.google.com/forum/#!forum/cryptopp-users.
 
 Also see http://www.cryptopp.com/wiki/Bug_Report.
-

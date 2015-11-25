@@ -45,7 +45,8 @@ public:
 	void SetPublicExponent(const Integer &e) {m_e = e;}
 
 protected:
-	unsigned int GetK() const {return m_n.BitCount()/3-1;}
+	// Covertiy finding on overflow. The library allows small values for research purposes.
+	unsigned int GetK() const {return SaturatingSubtract(m_n.BitCount()/3, 1U);}
 
 	Integer m_n, m_e;
 };

@@ -83,11 +83,15 @@ bool CpuId(word32 input, word32 output[4])
 
 	return true;
 #else
+	// longjmp and clobber warnings. Volatile is required.
+	// http://github.com/weidai11/cryptopp/issues/24
+	// http://stackoverflow.com/q/7721854
+	volatile bool result = true;
+
 	SigHandler oldHandler = signal(SIGILL, SigIllHandlerCPUID);
 	if (oldHandler == SIG_ERR)
-		return false;
+		result = false;
 
-	bool result = true;
 	if (setjmp(s_jmpNoCPUID))
 		result = false;
 	else
@@ -134,13 +138,17 @@ static bool TrySSE2()
 	}
 	return true;
 #else
+	// longjmp and clobber warnings. Volatile is required.
+	// http://github.com/weidai11/cryptopp/issues/24
+	// http://stackoverflow.com/q/7721854
+	volatile bool result = true;
+
 	SigHandler oldHandler = signal(SIGILL, SigIllHandlerSSE2);
 	if (oldHandler == SIG_ERR)
 		return false;
 
-	bool result = true;
 	if (setjmp(s_jmpNoSSE2))
-		result = false;
+		result = true;
 	else
 	{
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
@@ -156,19 +164,29 @@ static bool TrySSE2()
 #endif
 }
 
-#if 0
-static bool g_x86DetectionDone = false;
-static bool g_hasMMX = false, g_hasISSE = false, g_hasSSE2 = false, g_hasSSSE3 = false, g_hasAESNI = false, g_hasCLMUL = false, g_isP4 = false;
-static word32 g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
-#else
 bool g_x86DetectionDone = false;
-bool g_hasMMX = false, g_hasISSE = false, g_hasSSE2 = false, g_hasSSSE3 = false, g_hasAESNI = false, g_hasCLMUL = false, g_isP4 = false;
+bool g_hasMMX = false, g_hasISSE = false, g_hasSSE2 = false, g_hasSSSE3 = false, g_hasAESNI = false, g_hasCLMUL = false, g_isP4 = false, g_hasRDRAND = false, g_hasRDSEED = false;
 word32 g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
-#endif
 
 // MacPorts/GCC does not provide constructor(priority). Apple/GCC and Fink/GCC do provide it.
-#define HAVE_GCC_CONSTRUCTOR1 (__GNUC__ && (CRYPTOPP_INIT_PRIORITY > 0) && ((CRYPTOPP_GCC_VERSION >= 40300) || (CRYPTOPP_CLANG_VERSION >= 20900) || (_INTEL_COMPILER >= 1000)) && !(MACPORTS_GCC_COMPILER > 0))
+#define HAVE_GCC_CONSTRUCTOR1 (__GNUC__ && (CRYPTOPP_INIT_PRIORITY > 0) && ((CRYPTOPP_GCC_VERSION >= 40300) || (CRYPTOPP_CLANG_VERSION >= 20900) || (_INTEL_COMPILER >= 300)) && !(MACPORTS_GCC_COMPILER > 0))
 #define HAVE_GCC_CONSTRUCTOR0 (__GNUC__ && (CRYPTOPP_INIT_PRIORITY > 0) && !(MACPORTS_GCC_COMPILER > 0))
+
+static inline bool IsIntel(const word32 output[4])
+{
+	// This is the "GenuineIntel" string
+	return (output[1] /*EBX*/ == 0x756e6547) &&
+		(output[2] /*ECX*/ == 0x6c65746e) &&
+		(output[3] /*EDX*/ == 0x49656e69);
+}
+
+static inline bool IsAMD(const word32 output[4])
+{
+	// This is the "AuthenticAMD" string
+	return (output[1] /*EBX*/ == 0x68747541) &&
+		(output[2] /*ECX*/ == 0x69746E65) &&
+		(output[3] /*EDX*/ == 0x444D4163);
+}
 
 #if HAVE_GCC_CONSTRUCTOR1
 void __attribute__ ((constructor (CRYPTOPP_INIT_PRIORITY + 50))) DetectX86Features()
@@ -204,22 +222,32 @@ void DetectX86Features()
 		}
 	}
 
-	std::swap(cpuid[2], cpuid[3]);
-	if (memcmp(cpuid+1, "GenuineIntel", 12) == 0)
+	static const unsigned int RDRAND_FLAG = (1 << 30);
+	static const unsigned int RDSEED_FLAG = (1 << 18);
+	if (IsIntel(cpuid))
 	{
 		g_isP4 = ((cpuid1[0] >> 8) & 0xf) == 0xf;
 		g_cacheLineSize = 8 * GETBYTE(cpuid1[1], 1);
+		g_hasRDRAND = !!(cpuid1[2] /*ECX*/ & RDRAND_FLAG);
+
+		if (cpuid[0] /*EAX*/ >= 7)
+		{
+			word32 cpuid3[4];
+			if (CpuId(7, cpuid3))
+				g_hasRDSEED = !!(cpuid3[1] /*EBX*/ & RDSEED_FLAG);
+		}
 	}
-	else if (memcmp(cpuid+1, "AuthenticAMD", 12) == 0)
+	else if (IsAMD(cpuid))
 	{
 		CpuId(0x80000005, cpuid);
 		g_cacheLineSize = GETBYTE(cpuid[2], 0);
+		g_hasRDRAND = !!(cpuid[2] /*ECX*/ & RDRAND_FLAG);
 	}
 
 	if (!g_cacheLineSize)
 		g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
 
-	g_x86DetectionDone = true;
+	*((volatile bool*)&g_x86DetectionDone) = true;
 }
 
 #endif

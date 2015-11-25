@@ -3,7 +3,6 @@ CXXFLAGS ?= -DNDEBUG -g2 -Os -fPIC -pipe
 # The following options reduce code size, but breaks link or makes link very slow on some systems
 # CXXFLAGS += -ffunction-sections -fdata-sections
 # LDFLAGS += -Wl,--gc-sections
-CXXFLAGS += -Wno-unused-function -Wno-unused-parameter -Wno-unused-variable
 
 ARFLAGS = -cr	# ar needs the dash on OpenBSD
 RANLIB ?= ranlib
@@ -64,11 +63,7 @@ ifeq ($(IS_ARM_EMBEDDED),1)
 endif
 
 # List cryptlib.cpp first in an attempt to tame C++ static initialization problems
-SRCS := cryptlib.cpp $(filter-out cryptlib.cpp pch.cpp simple.cpp winpipes.cpp cryptlib_bds.cpp,$(wildcard *.cpp))
-
-ifneq ($(IS_MINGW),0)
-SRCS += winpipes.cpp
-endif
+SRCS := cryptlib.cpp cpu.cpp $(filter-out cryptlib.cpp cpu.cpp pch.cpp simple.cpp winpipes.cpp cryptlib_bds.cpp,$(wildcard *.cpp))
 
 # List of objects with crytlib.o at the first index position
 OBJS := $(SRCS:.cpp=.o)
@@ -78,7 +73,7 @@ TESTOBJS := bench.o bench2.o test.o validat1.o validat2.o validat3.o adhoc.o dat
 LIBOBJS := $(filter-out $(TESTOBJS),$(OBJS))
 
 # List cryptlib.cpp first in an attempt to tame C++ static initialization problems
-DLLSRCS := cryptlib.cpp algebra.cpp algparam.cpp asn.cpp basecode.cpp cbcmac.cpp channels.cpp des.cpp dessp.cpp dh.cpp dll.cpp dsa.cpp ec2n.cpp eccrypto.cpp ecp.cpp eprecomp.cpp files.cpp filters.cpp fips140.cpp fipstest.cpp gf2n.cpp gfpcrypt.cpp hex.cpp hmac.cpp integer.cpp iterhash.cpp misc.cpp modes.cpp modexppc.cpp mqueue.cpp nbtheory.cpp oaep.cpp osrng.cpp pch.cpp pkcspad.cpp pubkey.cpp queue.cpp randpool.cpp rdtables.cpp rijndael.cpp rng.cpp rsa.cpp sha.cpp simple.cpp skipjack.cpp strciphr.cpp trdlocal.cpp
+DLLSRCS := cryptlib.cpp cpu.cpp algebra.cpp algparam.cpp asn.cpp basecode.cpp cbcmac.cpp channels.cpp des.cpp dessp.cpp dh.cpp dll.cpp dsa.cpp ec2n.cpp eccrypto.cpp ecp.cpp eprecomp.cpp files.cpp filters.cpp fips140.cpp fipstest.cpp gf2n.cpp gfpcrypt.cpp hex.cpp hmac.cpp integer.cpp iterhash.cpp misc.cpp modes.cpp modexppc.cpp mqueue.cpp nbtheory.cpp oaep.cpp osrng.cpp pch.cpp pkcspad.cpp pubkey.cpp queue.cpp randpool.cpp rdtables.cpp rijndael.cpp rng.cpp rsa.cpp sha.cpp simple.cpp skipjack.cpp strciphr.cpp trdlocal.cpp
 DLLOBJS := $(DLLSRCS:.cpp=.export.o)
 
 # Import lib testing
@@ -140,14 +135,14 @@ else
 	-$(RM) $(PREFIX)/lib/libcryptopp.so
 endif
 
-libcryptopp.a: $(LIBOBJS)
+libcryptopp.a: public_service | $(LIBOBJS)
 	$(AR) $(ARFLAGS) $@ $(LIBOBJS)
 	$(RANLIB) $@
 
-libcryptopp.so: $(LIBOBJS)
+libcryptopp.so: public_service | $(LIBOBJS)
 	$(CXX) $(CXXFLAGS) -shared -o $@ $(LIBOBJS) $(LDFLAGS) $(LDLIBS)
 
-cryptest.exe: libcryptopp.a $(TESTOBJS)
+cryptest.exe: public_service | libcryptopp.a $(TESTOBJS)
 	$(CXX) -o $@ $(CXXFLAGS) $(TESTOBJS) ./libcryptopp.a $(LDFLAGS) $(LDLIBS)
 
 adhoc.cpp: adhoc.cpp.proto
@@ -157,13 +152,35 @@ else
 	touch adhoc.cpp
 endif
 
+# Include dependencies, if present. You must issue `make deps` to create them.
+ifeq ($(wildcard GNUmakefile.deps),GNUmakefile.deps)
+-include GNUmakefile.deps
+endif # Dependencies
+
 %.o : %.cpp
 	$(CXX) $(CXXFLAGS) -c $<
 
-# Do not build dependencies when cleaning
-ifneq ($(findstring clean,$(MAKECMDGOALS)),clean)
--include GNUmakefile.deps
-endif
-
 GNUmakefile.deps:
 	$(CXX) $(CXXFLAGS) -MM *.cpp > GNUmakefile.deps
+
+# Warn of potential configurations issues. This will go away after 5.6.3
+UNALIGNED_ACCESS := $(shell $(EGREP) -c "^[[:space:]]*//[[:space:]]*\#[[:space:]]*define[[:space:]]*CRYPTOPP_NO_UNALIGNED_DATA_ACCESS" config.h)
+NO_INIT_PRIORITY := $(shell $(EGREP) -c "^[[:space:]]*//[[:space:]]*\#[[:space:]]*define[[:space:]]*CRYPTOPP_INIT_PRIORITY" config.h)
+COMPATIBILITY_562 := $(shell $(EGREP) -c "^[[:space:]]*\#[[:space:]]*define[[:space:]]*CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562" config.h)
+.PHONY: public_service
+public_service:
+ifneq ($(UNALIGNED_ACCESS),0)
+	$(info WARNING: CRYPTOPP_NO_UNALIGNED_DATA_ACCESS is not defined in config.h.)
+endif
+ifneq ($(NO_INIT_PRIORITY),0)
+	$(info WARNING: CRYPTOPP_INIT_PRIORITY is not defined in config.h.)
+endif
+ifneq ($(COMPATIBILITY_562),0)
+	$(info WARNING: CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562 is defined in config.h.)
+endif
+ifneq (x$(UNALIGNED_ACCESS)$(NO_INIT_PRIORITY)$(COMPATIBILITY_562),x000)
+	$(info WARNING: You should make these changes in config.h, and not CXXFLAGS.)
+	$(info WARNING: You can 'mv config.recommend config.h', but it breaks versioning.)
+	$(info WARNING: See http://cryptopp.com/wiki/config.h for more details.)
+	$(info )
+endif

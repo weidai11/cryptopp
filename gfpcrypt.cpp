@@ -11,14 +11,16 @@
 #ifndef CRYPTOPP_IMPORTS
 
 #include "gfpcrypt.h"
-#include "integer.h"
 #include "nbtheory.h"
+#include "modarith.h"
+#include "integer.h"
 #include "asn.h"
 #include "oids.h"
 #include "misc.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
+#if !defined(NDEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
 void TestInstantiations_gfpcrypt()
 {
 	GDSA<SHA>::Signer test;
@@ -30,6 +32,7 @@ void TestInstantiations_gfpcrypt()
 	DLIES<>::Encryptor test6;
 	DLIES<>::Decryptor test7;
 }
+#endif
 
 void DL_GroupParameters_DSA::GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &alg)
 {

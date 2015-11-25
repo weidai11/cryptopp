@@ -49,7 +49,7 @@ unsigned int ZlibCompressor::GetCompressionLevel() const
 // *************************************************************
 
 ZlibDecompressor::ZlibDecompressor(BufferedTransformation *attachment, bool repeat, int propagation)
-	: Inflator(attachment, repeat, propagation)
+	: Inflator(attachment, repeat, propagation), m_log2WindowSize(0)
 {
 }
 

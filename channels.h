@@ -1,11 +1,16 @@
+// channels.h - written and placed in the public domain by Wei Dai
+
+//! \file
+//! \headerfile channels.h
+//! \brief Classes for multiple named channels
+
 #ifndef CRYPTOPP_CHANNELS_H
 #define CRYPTOPP_CHANNELS_H
 
 #include "cryptlib.h"
 #include "simple.h"
 #include "smartptr.h"
-#include <map>
-#include <list>
+#include "stdcpp.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -64,18 +69,23 @@ class ChannelSwitch;
 class ChannelRouteIterator : public ChannelSwitchTypedefs
 {
 public:
-	ChannelSwitch& m_cs;
-	std::string m_channel;
-	bool m_useDefault;
-	MapIterator m_itMapCurrent, m_itMapEnd;
-	ListIterator m_itListCurrent, m_itListEnd;
+	ChannelRouteIterator(ChannelSwitch &cs) : m_cs(cs), m_useDefault(false) {}
 
-	ChannelRouteIterator(ChannelSwitch &cs) : m_cs(cs) {}
 	void Reset(const std::string &channel);
 	bool End() const;
 	void Next();
 	BufferedTransformation & Destination();
 	const std::string & Channel();
+	
+	ChannelSwitch& m_cs;
+	std::string m_channel;
+	bool m_useDefault;
+	MapIterator m_itMapCurrent, m_itMapEnd;
+	ListIterator m_itListCurrent, m_itListEnd;
+	
+protected:
+	// Hide this to see if we break something...
+	ChannelRouteIterator();
 };
 
 //! Route input to different and/or multiple channels based on channel ID

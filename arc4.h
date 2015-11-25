@@ -1,7 +1,7 @@
 // arc4.h - written and placed in the public domain by Wei Dai
 
-//! \file
-//! \brief Implementation of ARC4
+//! \file arc4.h
+//! \brief Classes for ARC4 cipher
 
 #ifndef CRYPTOPP_ARC4_H
 #define CRYPTOPP_ARC4_H
@@ -16,7 +16,8 @@ NAMESPACE_BEGIN(CryptoPP)
 namespace Weak1 {
 
 //! \class ARC4_Base
-//! \brief Allegedly RC4
+//! \brief Class specific methods used to operate the cipher.
+//! \details Implementations and overrides in \p Base apply to both \p ENCRYPTION and \p DECRYPTION directions
 class CRYPTOPP_NO_VTABLE ARC4_Base : public VariableKeyLength<16, 1, 256>, public RandomNumberGenerator, public SymmetricCipher, public SymmetricCipherDocumentation
 {
 public:
@@ -47,7 +48,10 @@ protected:
 //! <a href="http://www.weidai.com/scan-mirror/cs.html#RC4">Alleged RC4</a>
 DOCUMENTED_TYPEDEF(SymmetricCipherFinal<ARC4_Base>, ARC4)
 
-//! _
+//! \class MARC4_Base
+//! \brief Class specific methods used to operate the cipher.
+//! \details Implementations and overrides in \p Base apply to both \p ENCRYPTION and \p DECRYPTION directions
+//! \details MARC4 discards the first 256 bytes of keystream, which may be weaker than the rest
 class CRYPTOPP_NO_VTABLE MARC4_Base : public ARC4_Base
 {
 public:
@@ -60,7 +64,6 @@ protected:
 	unsigned int GetDefaultDiscardBytes() const {return 256;}
 };
 
-//! Modified ARC4: it discards the first 256 bytes of keystream which may be weaker than the rest
 DOCUMENTED_TYPEDEF(SymmetricCipherFinal<MARC4_Base>, MARC4)
 
 }

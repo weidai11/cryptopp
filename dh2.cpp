@@ -5,10 +5,12 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+#if !defined(NDEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
 void DH2_TestInstantiations()
 {
 	DH2 dh(*(SimpleKeyAgreementDomain*)NULL);
 }
+#endif
 
 bool DH2::Agree(byte *agreedValue,
 		const byte *staticSecretKey, const byte *ephemeralSecretKey, 

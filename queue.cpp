@@ -132,7 +132,7 @@ public:
 
 ByteQueue::ByteQueue(size_t nodeSize)
 	: Bufferless<BufferedTransformation>(), m_autoNodeSize(!nodeSize), m_nodeSize(nodeSize)
-	, m_head(NULL), m_tail(NULL), m_lazyString(NULL), m_lazyLength(0)
+	, m_head(NULL), m_tail(NULL), m_lazyString(NULL), m_lazyLength(0), m_lazyStringModifiable(false)
 {
 	SetNodeSize(nodeSize);
 	m_head = m_tail = new ByteQueueNode(m_nodeSize);

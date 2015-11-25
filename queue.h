@@ -1,4 +1,8 @@
-// specification file for an unlimited queue for storing bytes
+// queue.h - written and placed in the public domain by Wei Dai
+
+//! \file
+//! \headerfile queue.h
+//! \brief Classes for an unlimited queue to store bytes
 
 #ifndef CRYPTOPP_QUEUE_H
 #define CRYPTOPP_QUEUE_H
@@ -66,7 +70,8 @@ public:
 	{
 	public:
 		Walker(const ByteQueue &queue)
-			: m_queue(queue) {Initialize();}
+			: m_queue(queue), m_node(NULL), m_position(0), m_offset(0), m_lazyString(NULL), m_lazyLength(0)
+				{Initialize();}
 
 		lword GetCurrentPosition() {return m_position;}
 

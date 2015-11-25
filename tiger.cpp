@@ -40,7 +40,7 @@ void Tiger::Transform (word64 *digest, const word64 *X)
 #ifdef __GNUC__
 		__asm__ __volatile__
 		(
-		".intel_syntax noprefix;"
+		INTEL_NOPREFIX
 		AS_PUSH_IF86(bx)
 #else
 	#if _MSC_VER < 1300
@@ -205,7 +205,7 @@ void Tiger::Transform (word64 *digest, const word64 *X)
 
 #ifdef __GNUC__
 		AS_POP_IF86(bx)
-		".att_syntax prefix;"
+		ATT_PREFIX
 			:
 			: "a" (digest), "S" (X), "d" (table)
 			: "%ecx", "%edi", "memory", "cc"

@@ -1,8 +1,10 @@
+// square.h - written and placed in the public domain by Wei Dai
+
+//! \file square.h
+//! \brief Classes for the Square block cipher
+
 #ifndef CRYPTOPP_SQUARE_H
 #define CRYPTOPP_SQUARE_H
-
-/** \file
-*/
 
 #include "seckey.h"
 #include "secblock.h"

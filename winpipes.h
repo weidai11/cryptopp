@@ -21,7 +21,7 @@ public:
 	bool GetOwnership() const {return m_own;}
 	void SetOwnership(bool own) {m_own = own;}
 
-	operator HANDLE() {return m_h;}
+	operator HANDLE() const {return m_h;}
 	HANDLE GetHandle() const {return m_h;}
 	bool HandleValid() const;
 	void AttachHandle(HANDLE h, bool own=false);
@@ -67,6 +67,7 @@ public:
 	unsigned int GetReceiveResult();
 	bool EofReceived() const {return m_eofReceived;}
 
+	HANDLE GetHandle() const {return m_event;}
 	unsigned int GetMaxWaitObjectCount() const {return 1;}
 	void GetWaitObjects(WaitObjectContainer &container, CallStack const& callStack);
 
@@ -90,6 +91,7 @@ public:
 	bool MustWaitForEof() { return false; }
 	void SendEof() {}
 
+	HANDLE GetHandle() const {return m_event;}
 	unsigned int GetMaxWaitObjectCount() const {return 1;}
 	void GetWaitObjects(WaitObjectContainer &container, CallStack const& callStack);
 

@@ -1,10 +1,12 @@
+// rsa.h - written and placed in the public domain by Wei Dai
+
+//! \file rsa.h
+//! \brief Classes for the RSA cryptosystem
+//! \details This file contains classes that implement the RSA
+//!   ciphers and signature schemes as defined in PKCS #1 v2.0.
+
 #ifndef CRYPTOPP_RSA_H
 #define CRYPTOPP_RSA_H
-
-/** \file
-	This file contains classes that implement the RSA
-	ciphers and signature schemes as defined in PKCS #1 v2.0.
-*/
 
 #include "cryptlib.h"
 #include "pubkey.h"

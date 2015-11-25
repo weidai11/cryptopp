@@ -4,8 +4,9 @@
 
 #include "rw.h"
 #include "asn.h"
-#include "nbtheory.h"
 #include "integer.h"
+#include "nbtheory.h"
+#include "modarith.h"
 
 #ifndef CRYPTOPP_IMPORTS
 

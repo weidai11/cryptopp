@@ -19,7 +19,9 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE TimerBase
 {
 public:
 	enum Unit {SECONDS = 0, MILLISECONDS, MICROSECONDS, NANOSECONDS};
-	TimerBase(Unit unit, bool stuckAtZero)	: m_timerUnit(unit), m_stuckAtZero(stuckAtZero), m_started(false) {}
+	TimerBase(Unit unit, bool stuckAtZero)
+		: m_timerUnit(unit), m_stuckAtZero(stuckAtZero), m_started(false)
+		, m_start(0), m_last(0) {}
 
 	virtual TimerWord GetCurrentTimerValue() =0;	// GetCurrentTime is a macro in MSVC 6.0
 	virtual TimerWord TicksPerSecond() =0;	// this is not the resolution, just a conversion factor into seconds

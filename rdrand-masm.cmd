@@ -14,8 +14,12 @@ REM @set TOOLS32=C:\Program Files (x86)\Microsoft Visual Studio 10\VC\bin
 REM @set TOOLS64=C:\Program Files (x86)\Microsoft Visual Studio 10\VC\bin\amd64
 
 REM Visual Studio 2012
-@set TOOLS32=C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin
-@set TOOLS64=C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\amd64
+REM @set TOOLS32=C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin
+REM @set TOOLS64=C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\amd64
+
+REM Visual Studio 2013
+@set TOOLS32=C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin
+@set TOOLS64=C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\amd64
 
 @set MASM="%TOOLS32%\ml.exe"
 @set MASM64="%TOOLS64%\ml64.exe"

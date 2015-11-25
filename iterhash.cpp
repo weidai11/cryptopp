@@ -18,7 +18,7 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte
 	if (m_countHi < oldCountHi || SafeRightShift<2*8*sizeof(HashWordType)>(len) != 0)
 		throw HashInputTooLong(this->AlgorithmName());
 
-	unsigned int blockSize = this->BlockSize();
+	const unsigned int blockSize = this->BlockSize();
 	unsigned int num = ModPowerOf2(oldCountLo, blockSize);
 
 	T* dataBuf = this->DataBuf();

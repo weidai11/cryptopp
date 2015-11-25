@@ -28,10 +28,13 @@ ThreadLocalStorage::ThreadLocalStorage()
 {
 #ifdef HAS_WINTHREADS
 	m_index = TlsAlloc();
+	assert(m_index != TLS_OUT_OF_INDEXES);
 	if (m_index == TLS_OUT_OF_INDEXES)
 		throw Err("TlsAlloc", GetLastError());
 #else
+	m_index = 0;
 	int error = pthread_key_create(&m_index, NULL);
+	assert(!error);
 	if (error)
 		throw Err("pthread_key_create", error);
 #endif
@@ -82,9 +85,14 @@ void *ThreadLocalStorage::GetValue() const
 {
 #ifdef HAS_WINTHREADS
 	void *result = TlsGetValue(m_index);
-	if (!result && GetLastError() != NO_ERROR)
-		throw Err("TlsGetValue", GetLastError());
+	const DWORD dwRet = GetLastError();
+
+	assert(result || (!result && (dwRet == NO_ERROR)));
+	if (!result && dwRet != NO_ERROR)
+		throw Err("TlsGetValue", dwRet);
 #else
+	// Null is a valid return value. Posix does not provide a way to
+	//  check for a "good" Null vs a "bad" Null (errno is not set).
 	void *result = pthread_getspecific(m_index);
 #endif
 	return result;

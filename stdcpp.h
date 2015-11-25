@@ -10,29 +10,19 @@
 #include <memory>
 #include <exception>
 #include <typeinfo>
+#include <algorithm>
 #include <functional>
 #include <utility>
 #include <vector>
-#include <deque>
 #include <limits>
+#include <deque>
+#include <list>
 #include <map>
 #include <new>
 
-// GCC began indirectly including wmmintrin.h via <algorithm>. Or, maybe it was
-//   doing it all along, but we did not experience issues.
-// The net result is a number of C++11 compile failures on the _mm_* intrinsics
-//   from cpu.h. The _mm_* collisions are on AES and PCLMUL intrinsics (they
-//   are the only intrinsics in the file).
-// TODO: perhaps use a namespace to resolve the symbol collisions. That
-//   needs to occur when symbols can change, which is a major bump.
-#if defined(__GNUC__) && defined(CRYPTOPP_CXX11) && (CRYPTOPP_GCC_VERSION >= 40300)
-# pragma push_macro("_WMMINTRIN_H_INCLUDED")
-# undef  _WMMINTRIN_H_INCLUDED
-# define _WMMINTRIN_H_INCLUDED
-# include <algorithm>
-# pragma pop_macro("_WMMINTRIN_H_INCLUDED")
-#else
-# include <algorithm>
+#if _MSC_VER >= 1600
+// for make_unchecked_array_iterator
+#include <iterator>
 #endif
 
 #include <cstdlib>
@@ -49,9 +39,9 @@
 // for alloca
 #if defined(CRYPTOPP_BSD_AVAILABLE)
 #include <stdlib.h>
-#elif defined(CRYPTOPP_UNIX_AVAILABLE) || defined(__sun)
+#elif defined(CRYPTOPP_UNIX_AVAILABLE) || defined(__sun) || defined(QNX)
 #include <alloca.h>
-#elif defined(CRYPTOPP_WIN32_AVAILABLE) || defined(__MINGW32__) || defined(__BORLANDC__) 
+#elif defined(CRYPTOPP_WIN32_AVAILABLE) || defined(__MINGW32__) || defined(__BORLANDC__)
 #include <malloc.h>
 #endif
 

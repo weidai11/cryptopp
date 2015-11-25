@@ -31,6 +31,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 #if 0
+#if !defined(NDEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
 static void ECDSA_TestInstantiations()
 {
 	ECDSA<EC2N>::Signer t1;
@@ -42,6 +43,7 @@ static void ECDSA_TestInstantiations()
 	ECDH<ECP>::Domain t7;
 	ECMQV<ECP>::Domain t8;
 }
+#endif
 #endif
 
 // VC60 workaround: complains when these functions are put into an anonymous namespace

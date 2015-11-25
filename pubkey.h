@@ -56,23 +56,61 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! _
+//! \class TrapdoorFunctionBounds
+//! \brief Provides range for plaintext and ciphertext lengths
+//! \details A trapdoor function is a function that is easy to compute in one direction,
+//!   but difficult to compute in the opposite direction without special knowledge.
+//!   The special knowledge is usually the private key.
+//! \details Trapdoor functions only handle messages of a limited length or size.
+//!   \p MaxPreimage is the plaintext's maximum length, and \p MaxImage is the
+//!   ciphertext's maximum length.
+//! \sa TrapdoorFunctionBounds(), RandomizedTrapdoorFunction(), TrapdoorFunction(),
+//!   RandomizedTrapdoorFunctionInverse() and TrapdoorFunctionInverse()
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE TrapdoorFunctionBounds
 {
 public:
 	virtual ~TrapdoorFunctionBounds() {}
 
+	//! \brief Returns the maximum size of a message before the trapdoor function is applied
+	//! \returns the maximum size of a message before the trapdoor function is applied
+	//! \details Derived classes must implement \p PreimageBound().
 	virtual Integer PreimageBound() const =0;
+	//! \brief Returns the maximum size of a message after the trapdoor function is applied
+	//! \returns the maximum size of a message after the trapdoor function is applied
+	//! \details Derived classes must implement \p ImageBound().
 	virtual Integer ImageBound() const =0;
+	//! \brief Returns the maximum size of a message before the trapdoor function is applied bound to a public key
+	//! \returns the maximum size of a message before the trapdoor function is applied bound to a public key
+	//! \details The default implementation returns <tt>PreimageBound() - 1</tt>.
 	virtual Integer MaxPreimage() const {return --PreimageBound();}
+	//! \brief Returns the maximum size of a message after the trapdoor function is applied bound to a public key
+	//! \returns the the maximum size of a message after the trapdoor function is applied bound to a public key
+	//! \details The default implementation returns <tt>ImageBound() - 1</tt>.
 	virtual Integer MaxImage() const {return --ImageBound();}
 };
 
-//! _
+//! \class RandomizedTrapdoorFunction
+//! \brief Applies the trapdoor function, using random data if required
+//! \details \p ApplyFunction() is the foundation for encrypting a message under a public key.
+//!   Derived classes will override it at some point.
+//! \sa TrapdoorFunctionBounds(), RandomizedTrapdoorFunction(), TrapdoorFunction(),
+//!   RandomizedTrapdoorFunctionInverse() and TrapdoorFunctionInverse()
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE RandomizedTrapdoorFunction : public TrapdoorFunctionBounds
 {
 public:
+
+	//! \brief Applies the trapdoor function, using random data if required
+	//! \param rng a \p RandomNumberGenerator derived class
+	//! \param x the message on which the encryption function is applied
+	//! \returns the message \p x encrypted under the public key
+	//! \details \p ApplyRandomizedFunction is a generalization of encryption under a public key
+	//!    cryptosystem. The \p RandomNumberGenerator may (or may not) be required.
+	//!    Derived classes must implement it.
 	virtual Integer ApplyRandomizedFunction(RandomNumberGenerator &rng, const Integer &x) const =0;
+	
+	//! \brief Determines if the encryption algorithm is randomized
+	//! \returns \p true if the encryption algorithm is randomized, \p false otherwise
+	//! \details If \p IsRandomized() returns \p false, then \p NullRNG() can be used.
 	virtual bool IsRandomized() const {return true;}
 	
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
@@ -80,40 +118,87 @@ public:
 #endif
 };
 
-//! _
+//! \class TrapdoorFunction
+//! \brief Applies the trapdoor function
+//! \details \p ApplyFunction() is the foundation for encrypting a message under a public key.
+//!    Derived classes will override it at some point.
+//! \sa TrapdoorFunctionBounds(), RandomizedTrapdoorFunction(), TrapdoorFunction(),
+//!   RandomizedTrapdoorFunctionInverse() and TrapdoorFunctionInverse()
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE TrapdoorFunction : public RandomizedTrapdoorFunction
 {
 public:
-	
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~TrapdoorFunction() { }
 #endif
 
+	//! \brief Applies the trapdoor function
+	//! \param rng a \p RandomNumberGenerator derived class
+	//! \param x the message on which the encryption function is applied
+	//! \details \p ApplyRandomizedFunction is a generalization of encryption under a public key
+	//!    cryptosystem. The \p RandomNumberGenerator may (or may not) be required.
+	//! \details Internally, \p ApplyRandomizedFunction() calls \p ApplyFunction() \a
+	//!   without the \p RandomNumberGenerator.
 	Integer ApplyRandomizedFunction(RandomNumberGenerator &rng, const Integer &x) const
 		{CRYPTOPP_UNUSED(rng); return ApplyFunction(x);}
 	bool IsRandomized() const {return false;}
 
+	//! \brief Applies the trapdoor
+	//! \param x the message on which the encryption function is applied
+	//! \returns the message \p x encrypted under the public key
+	//! \details \p ApplyFunction is a generalization of encryption under a public key
+	//!    cryptosystem. Derived classes must implement it.
 	virtual Integer ApplyFunction(const Integer &x) const =0;
 };
 
-//! _
+//! \class RandomizedTrapdoorFunctionInverse
+//! \brief Applies the inverse of the trapdoor function, using random data if required
+//! \details \p CalculateInverse() is the foundation for decrypting a message under a private key
+//!   in a public key cryptosystem. Derived classes will override it at some point.
+//! \sa TrapdoorFunctionBounds(), RandomizedTrapdoorFunction(), TrapdoorFunction(),
+//!   RandomizedTrapdoorFunctionInverse() and TrapdoorFunctionInverse()
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE RandomizedTrapdoorFunctionInverse
 {
 public:
 	virtual ~RandomizedTrapdoorFunctionInverse() {}
 
+	//! \brief Applies the inverse of the trapdoor function, using random data if required
+	//! \param rng a \p RandomNumberGenerator derived class
+	//! \param x the message on which the decryption function is applied
+	//! \returns the message \p x decrypted under the private key
+	//! \details \p CalculateRandomizedInverse is a generalization of decryption using the private key
+	//!    The \p RandomNumberGenerator may (or may not) be required. Derived classes must implement it.
 	virtual Integer CalculateRandomizedInverse(RandomNumberGenerator &rng, const Integer &x) const =0;
+	
+	//! \brief Determines if the decryption algorithm is randomized
+	//! \returns \p true if the decryption algorithm is randomized, \p false otherwise
+	//! \details If \p IsRandomized() returns \p false, then \p NullRNG() can be used.
 	virtual bool IsRandomized() const {return true;}
 };
 
-//! _
+//! \class TrapdoorFunctionInverse
+//! \brief Applies the inverse of the trapdoor function
+//! \details \p CalculateInverse() is the foundation for decrypting a message under a private key
+//!   in a public key cryptosystem. Derived classes will override it at some point.
+//! \sa TrapdoorFunctionBounds(), RandomizedTrapdoorFunction(), TrapdoorFunction(),
+//!   RandomizedTrapdoorFunctionInverse() and TrapdoorFunctionInverse()
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE TrapdoorFunctionInverse : public RandomizedTrapdoorFunctionInverse
 {
 public:
 	virtual ~TrapdoorFunctionInverse() {}
 
+	//! \brief Applies the inverse of the trapdoor function
+	//! \param rng a \p RandomNumberGenerator derived class
+	//! \param x the message on which the decryption function is applied
+	//! \returns the message \p x decrypted under the private key
+	//! \details \p CalculateRandomizedInverse is a generalization of decryption using the private key
+	//! \details Internally, \p CalculateRandomizedInverse() calls \p CalculateInverse() \a
+	//!   without the \p RandomNumberGenerator.
 	Integer CalculateRandomizedInverse(RandomNumberGenerator &rng, const Integer &x) const
 		{return CalculateInverse(rng, x);}
+	
+	//! \brief Determines if the decryption algorithm is randomized
+	//! \returns \p true if the decryption algorithm is randomized, \p false otherwise
+	//! \details If \p IsRandomized() returns \p false, then \p NullRNG() can be used.
 	bool IsRandomized() const {return false;}
 
 	virtual Integer CalculateInverse(RandomNumberGenerator &rng, const Integer &x) const =0;
@@ -121,7 +206,8 @@ public:
 
 // ********************************************************
 
-//! message encoding method for public key encryption
+//! \class PK_EncryptionMessageEncodingMethod
+//! \brief Message encoding method for public key encryption
 class CRYPTOPP_NO_VTABLE PK_EncryptionMessageEncodingMethod
 {
 public:
@@ -140,7 +226,10 @@ public:
 
 // ********************************************************
 
-//! _
+//! \class TF_Base
+//! \brief The base for trapdoor based cryptosystems
+//! \tparam TFI trapdoor function interface derived class
+//! \tparam MEI message encoding interface derived class
 template <class TFI, class MEI>
 class CRYPTOPP_NO_VTABLE TF_Base
 {
@@ -160,7 +249,9 @@ protected:
 
 // ********************************************************
 
-//! _
+//! \class PK_FixedLengthCryptoSystemImpl
+//! \brief Public key trapdoor function base class
+//! \tparam BASE public key cryptosystem with a fixed length
 template <class BASE>
 class CRYPTOPP_NO_VTABLE PK_FixedLengthCryptoSystemImpl : public BASE
 {
@@ -178,7 +269,10 @@ public:
 #endif
 };
 
-//! _
+//! \class TF_CryptoSystemBase
+//! \brief Trapdoor function cryptosystem base class
+//! \tparam INTERFACE public key cryptosystem base interface
+//! \tparam BASE public key cryptosystem implementation base
 template <class INTERFACE, class BASE>
 class CRYPTOPP_NO_VTABLE TF_CryptoSystemBase : public PK_FixedLengthCryptoSystemImpl<INTERFACE>, protected BASE
 {
@@ -189,14 +283,16 @@ public:
 
 protected:
 	size_t PaddedBlockByteLength() const {return BitsToBytes(PaddedBlockBitLength());}
-	size_t PaddedBlockBitLength() const {return this->GetTrapdoorFunctionBounds().PreimageBound().BitCount()-1;}
+	// Coverity finding on potential overflow/underflow.
+	size_t PaddedBlockBitLength() const {return SaturatingSubtract(this->GetTrapdoorFunctionBounds().PreimageBound().BitCount(),1U);}
 	
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~TF_CryptoSystemBase() { }
 #endif
 };
 
-//! _
+//! \class TF_DecryptorBase
+//! \brief Trapdoor function cryptosystems decryption base class
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE TF_DecryptorBase : public TF_CryptoSystemBase<PK_Decryptor, TF_Base<TrapdoorFunctionInverse, PK_EncryptionMessageEncodingMethod> >
 {
 public:
@@ -207,7 +303,8 @@ public:
 #endif
 };
 
-//! _
+//! \class TF_DecryptorBase
+//! \brief Trapdoor function cryptosystems encryption base class
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE TF_EncryptorBase : public TF_CryptoSystemBase<PK_Encryptor, TF_Base<RandomizedTrapdoorFunction, PK_EncryptionMessageEncodingMethod> >
 {
 public:
@@ -222,7 +319,12 @@ public:
 
 typedef std::pair<const byte *, size_t> HashIdentifier;
 
-//! interface for message encoding method for public key signature schemes
+//! \class PK_SignatureMessageEncodingMethod
+//! \brief Interface for message encoding method for public key signature schemes.
+//! \details \p PK_SignatureMessageEncodingMethod provides interfaces for message
+//!   encoding method for public key signature schemes. The methods support both
+//!   trapdoor functions (<tt>TF_*</tt>) and discrete logarithm (<tt>DL_*</tt>)
+//!   based schemes.
 class CRYPTOPP_NO_VTABLE PK_SignatureMessageEncodingMethod
 {
 public:
@@ -295,6 +397,10 @@ public:
 	};
 };
 
+//! \class PK_DeterministicSignatureMessageEncodingMethod
+//! \brief Interface for message encoding method for public key signature schemes.
+//! \details \p PK_DeterministicSignatureMessageEncodingMethod provides interfaces
+//!   for message encoding method for public key signature schemes.
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_DeterministicSignatureMessageEncodingMethod : public PK_SignatureMessageEncodingMethod
 {
 public:
@@ -303,6 +409,10 @@ public:
 		byte *representative, size_t representativeBitLength) const;
 };
 
+//! \class PK_RecoverableSignatureMessageEncodingMethod
+//! \brief Interface for message encoding method for public key signature schemes.
+//! \details \p PK_RecoverableSignatureMessageEncodingMethod provides interfaces
+//!   for message encoding method for public key signature schemes.
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_RecoverableSignatureMessageEncodingMethod : public PK_SignatureMessageEncodingMethod
 {
 public:
@@ -311,6 +421,10 @@ public:
 		byte *representative, size_t representativeBitLength) const;
 };
 
+//! \class DL_SignatureMessageEncodingMethod_DSA
+//! \brief Interface for message encoding method for public key signature schemes.
+//! \details \p DL_SignatureMessageEncodingMethod_DSA provides interfaces
+//!   for message encoding method for DSA.
 class CRYPTOPP_DLL DL_SignatureMessageEncodingMethod_DSA : public PK_DeterministicSignatureMessageEncodingMethod
 {
 public:
@@ -320,6 +434,10 @@ public:
 		byte *representative, size_t representativeBitLength) const;
 };
 
+//! \class DL_SignatureMessageEncodingMethod_NR
+//! \brief Interface for message encoding method for public key signature schemes.
+//! \details \p DL_SignatureMessageEncodingMethod_NR provides interfaces
+//!   for message encoding method for Nyberg-Rueppel.
 class CRYPTOPP_DLL DL_SignatureMessageEncodingMethod_NR : public PK_DeterministicSignatureMessageEncodingMethod
 {
 public:
@@ -329,6 +447,10 @@ public:
 		byte *representative, size_t representativeBitLength) const;
 };
 
+//! \class PK_MessageAccumulatorBase
+//! \brief Interface for message encoding method for public key signature schemes.
+//! \details \p PK_MessageAccumulatorBase provides interfaces
+//!   for message encoding method.
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_MessageAccumulatorBase : public PK_MessageAccumulator
 {
 public:
@@ -347,6 +469,10 @@ public:
 	bool m_empty;
 };
 
+//! \class PK_MessageAccumulatorImpl
+//! \brief Interface for message encoding method for public key signature schemes.
+//! \details \p PK_MessageAccumulatorBase provides interfaces
+//!   for message encoding method.
 template <class HASH_ALGORITHM>
 class PK_MessageAccumulatorImpl : public PK_MessageAccumulatorBase, protected ObjectHolder<HASH_ALGORITHM>
 {
@@ -379,7 +505,8 @@ public:
 
 protected:
 	size_t MessageRepresentativeLength() const {return BitsToBytes(MessageRepresentativeBitLength());}
-	size_t MessageRepresentativeBitLength() const {return this->GetTrapdoorFunctionBounds().ImageBound().BitCount()-1;}
+	// Coverity finding on potential overflow/underflow.
+	size_t MessageRepresentativeBitLength() const {return SaturatingSubtract(this->GetTrapdoorFunctionBounds().ImageBound().BitCount(),1U);}
 	virtual HashIdentifier GetHashIdentifier() const =0;
 	virtual size_t GetDigestSize() const =0;
 };
@@ -1748,10 +1875,14 @@ public:
 #endif
 };
 
-//! Base class for public key encryption standard classes. These classes are used to select from variants of algorithms. Note that not all standards apply to all algorithms.
+//! \brief Base class for public key encryption standard classes.
+//! \details These classes are used to select from variants of algorithms.
+//! \note Not all standards apply to all algorithms.
 struct EncryptionStandard {};
 
-//! Base class for public key signature standard classes. These classes are used to select from variants of algorithms. Note that not all standards apply to all algorithms.
+//! \brief Base class for public key signature standard classes.
+//! \details These classes are used to select from variants of algorithms.
+//! \note Not all standards apply to all algorithms.
 struct SignatureStandard {};
 
 template <class STANDARD, class KEYS, class ALG_INFO>

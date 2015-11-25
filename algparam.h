@@ -1,7 +1,8 @@
 // algparam.h - written and placed in the public domain by Wei Dai
 
 //! \file
-//! \brief Classes and functions for working with NameValuePairs
+//! \headerfile algparam.h
+//! \brief Classes for working with NameValuePairs
 
 
 #ifndef CRYPTOPP_ALGPARAM_H
@@ -11,7 +12,7 @@
 #include "config.h"
 
 // TODO: fix 6011 when the API/ABI can change
-#if CRYPTOPP_MSC_VERSION
+#if (CRYPTOPP_MSC_VERSION >= 1400)
 # pragma warning(push)
 # pragma warning(disable: 6011 28193)
 #endif
@@ -30,21 +31,26 @@ class ConstByteArrayParameter
 {
 public:
 	ConstByteArrayParameter(const char *data = NULL, bool deepCopy = false)
+		: m_deepCopy(false), m_data(NULL), m_size(0)
 	{
 		Assign((const byte *)data, data ? strlen(data) : 0, deepCopy);
 	}
 	ConstByteArrayParameter(const byte *data, size_t size, bool deepCopy = false)
+		: m_deepCopy(false), m_data(NULL), m_size(0)
 	{
 		Assign(data, size, deepCopy);
 	}
 	template <class T> ConstByteArrayParameter(const T &string, bool deepCopy = false)
+		: m_deepCopy(false), m_data(NULL), m_size(0)
 	{
-        CRYPTOPP_COMPILE_ASSERT(sizeof(CPP_TYPENAME T::value_type) == 1);
+		CRYPTOPP_COMPILE_ASSERT(sizeof(CPP_TYPENAME T::value_type) == 1);
 		Assign((const byte *)string.data(), string.size(), deepCopy);
 	}
 
 	void Assign(const byte *data, size_t size, bool deepCopy)
 	{
+		// This fires, which means: no data with a size, or data with no size.
+		// assert((data && size) || !(data || size));
 		if (deepCopy)
 			m_block.Assign(data, size);
 		else
@@ -400,6 +406,19 @@ CRYPTOPP_DLL_TEMPLATE_CLASS AlgorithmParametersTemplate<bool>;
 CRYPTOPP_DLL_TEMPLATE_CLASS AlgorithmParametersTemplate<int>;
 CRYPTOPP_DLL_TEMPLATE_CLASS AlgorithmParametersTemplate<ConstByteArrayParameter>;
 
+//! \class AlgorithmParameters
+//! \brief An object that implements NameValuePairs
+//! \tparam T the class or type
+//! \param name the name of the object or value to retrieve
+//! \param value reference to a variable that receives the value
+//! \param throwIfNotUsed if true, the object will throw an exception if the value is not accessed
+//! \note throwIfNotUsed is ignored if using a compiler that does not support std::uncaught_exception(),
+//!   such as MSVC 7.0 and earlier.
+//! \note A NameValuePairs object containing an arbitrary number of name value pairs may be constructed by
+//!   repeatedly using operator() on the object returned by MakeParameters, for example:
+//!   <pre>
+//!     AlgorithmParameters parameters = MakeParameters(name1, value1)(name2, value2)(name3, value3);
+//!   </pre>
 class CRYPTOPP_DLL AlgorithmParameters : public NameValuePairs
 {
 public:
@@ -418,6 +437,10 @@ public:
 
 	AlgorithmParameters & operator=(const AlgorithmParameters &x);
 
+	//! \tparam T the class or type
+	//! \param name the name of the object or value to retrieve
+	//! \param value reference to a variable that receives the value
+	//! \param throwIfNotUsed if true, the object will throw an exception if the value is not accessed
 	template <class T>
 	AlgorithmParameters & operator()(const char *name, const T &value, bool throwIfNotUsed)
 	{
@@ -428,6 +451,10 @@ public:
 		return *this;
 	}
 
+	//! \brief Appends a NameValuePair to a collection of NameValuePairs
+	//! \tparam T the class or type
+	//! \param name the name of the object or value to retrieve
+	//! \param value reference to a variable that receives the value
 	template <class T>
 	AlgorithmParameters & operator()(const char *name, const T &value)
 	{
@@ -441,23 +468,23 @@ protected:
 	bool m_defaultThrowIfNotUsed;
 };
 
-//! Create an object that implements NameValuePairs for passing parameters
-/*! \param throwIfNotUsed if true, the object will throw an exception if the value is not accessed
-	\note throwIfNotUsed is ignored if using a compiler that does not support std::uncaught_exception(),
-	such as MSVC 7.0 and earlier.
-	\note A NameValuePairs object containing an arbitrary number of name value pairs may be constructed by
-	repeatedly using operator() on the object returned by MakeParameters, for example:
-	AlgorithmParameters parameters = MakeParameters(name1, value1)(name2, value2)(name3, value3);
-*/
+//! \brief Create an object that implements NameValuePairs
+//! \tparam T the class or type
+//! \param name the name of the object or value to retrieve
+//! \param value reference to a variable that receives the value
+//! \param throwIfNotUsed if true, the object will throw an exception if the value is not accessed
+//! \note throwIfNotUsed is ignored if using a compiler that does not support std::uncaught_exception(),
+//!   such as MSVC 7.0 and earlier.
+//! \note A NameValuePairs object containing an arbitrary number of name value pairs may be constructed by
+//!   repeatedly using \p operator() on the object returned by \p MakeParameters, for example:
+//!   <pre>
+//!     AlgorithmParameters parameters = MakeParameters(name1, value1)(name2, value2)(name3, value3);
+//!   </pre>
 #ifdef __BORLANDC__
 typedef AlgorithmParameters MakeParameters;
 #else
 template <class T>
-#if __APPLE__
-AlgorithmParameters MakeParameters(const char *name, const T &value, bool throwIfNotUsed = false)
-#else
 AlgorithmParameters MakeParameters(const char *name, const T &value, bool throwIfNotUsed = true)
-#endif
 {
 	return AlgorithmParameters()(name, value, throwIfNotUsed);
 }
@@ -466,6 +493,11 @@ AlgorithmParameters MakeParameters(const char *name, const T &value, bool throwI
 #define CRYPTOPP_GET_FUNCTION_ENTRY(name)		(Name::name(), &ThisClass::Get##name)
 #define CRYPTOPP_SET_FUNCTION_ENTRY(name)		(Name::name(), &ThisClass::Set##name)
 #define CRYPTOPP_SET_FUNCTION_ENTRY2(name1, name2)	(Name::name1(), Name::name2(), &ThisClass::Set##name1##And##name2)
+
+// TODO: fix 6011 when the API/ABI can change
+#if (CRYPTOPP_MSC_VERSION >= 1400)
+# pragma warning(pop)
+#endif
 
 NAMESPACE_END
 

@@ -1,8 +1,10 @@
+// rc6.h - written and placed in the public domain by Wei Dai
+
+//! \file rc6.h
+//! \brief Classes for the RC6 block cipher
+
 #ifndef CRYPTOPP_RC6_H
 #define CRYPTOPP_RC6_H
-
-/** \file
-*/
 
 #include "seckey.h"
 #include "secblock.h"

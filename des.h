@@ -1,8 +1,10 @@
+// des.h - written and placed in the public domain by Wei Dai
+
+//! \file des.h
+//! \brief Classes for DES, 2-key Triple-DES, 3-key Triple-DES and DESX
+
 #ifndef CRYPTOPP_DES_H
 #define CRYPTOPP_DES_H
-
-/** \file
-*/
 
 #include "seckey.h"
 #include "secblock.h"

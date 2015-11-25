@@ -1,3 +1,9 @@
+// filters.h - written and placed in the public domain by Wei Dai
+
+//! \file filters.h
+//! \brief Implementation of BufferedTransformation's attachment interface in cryptlib.h.
+//! \nosubgrouping
+
 #ifndef CRYPTOPP_FILTERS_H
 #define CRYPTOPP_FILTERS_H
 
@@ -21,24 +27,55 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// provides an implementation of BufferedTransformation's attachment interface
+//! \class Filter
+//! \brief Implementation of BufferedTransformation's attachment interface
+//! \details Filter is a cornerstone of the Pipeline trinitiy. Data flows from
+//!   Sources, through Filters, and then terminates in Sinks. The difference
+//!   between a Source and Filter is a Source \a pumps data, while a Filter does
+//!   not. The difference between a Filter and a Sink is a Filter allows an
+//!   attached transformation, while a Sink does not.
+//! \details See the discussion of BufferedTransformation in cryptlib.h for
+//!   more details.
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Filter : public BufferedTransformation, public NotCopyable
 {
 public:
+	//! \brief Construct a Filter
+	//! \param attachment the filter's attached transformation
+	//! \details attachment can be \p NULL.
 	Filter(BufferedTransformation *attachment = NULL);
 
+	//! \brief Determine if attachable
+	//! \returns \p true if the object allows attached transformations, \p false otherwise.
+	//! \note Source and Filter offer attached transformations; while Sink does not.
 	bool Attachable() {return true;}
+	
+	//! \brief Retrieve attached transformation
+	//! \returns pointer to a BufferedTransformation if there is an attached transformation, \p NULL otherwise.
 	BufferedTransformation *AttachedTransformation();
+	
+	//! \brief Retrieve attached transformation
+	//! \returns pointer to a BufferedTransformation if there is an attached transformation, \p NULL otherwise.
 	const BufferedTransformation *AttachedTransformation() const;
+	
+	//! \brief Replace an attached transformation
+	//! \param newAttachment pointer to a new BufferedTransformation
+	//! \details newAttachment cab ne a single filter, a chain of filters or \p NULL.
+	//!    Pass \p NULL to remove an existing BufferedTransformation or chain of filters
 	void Detach(BufferedTransformation *newAttachment = NULL);
-
+	
+	// See the documentation for BufferedTransformation in cryptlib.h
 	size_t TransferTo2(BufferedTransformation &target, lword &transferBytes, const std::string &channel=DEFAULT_CHANNEL, bool blocking=true);
 	size_t CopyRangeTo2(BufferedTransformation &target, lword &begin, lword end=LWORD_MAX, const std::string &channel=DEFAULT_CHANNEL, bool blocking=true) const;
 
+	// See the documentation for BufferedTransformation in cryptlib.h
 	void Initialize(const NameValuePairs &parameters=g_nullNameValuePairs, int propagation=-1);
 	bool Flush(bool hardFlush, int propagation=-1, bool blocking=true);
 	bool MessageSeriesEnd(int propagation=-1, bool blocking=true);
 
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~Filter() {}
+#endif
+	
 protected:
 	virtual BufferedTransformation * NewDefaultAttachment() const;
 	void Insert(Filter *nextFilter);	// insert filter after this one
@@ -48,10 +85,65 @@ protected:
 
 	void PropagateInitialize(const NameValuePairs &parameters, int propagation);
 
+	//! \brief Forward processed data on to attached transformation
+	//! \param outputSite unknown, system crash between keyboard and chair...
+	//! \param inString the byte buffer to process
+	//! \param length the size of the string, in bytes
+	//! \param messageEnd means how many filters to signal MessageEnd() to, including this one
+	//! \param blocking specifies whether the object should block when processing input
+	//! \param channel the channel to process the data
+	//! \returns 0 indicates all bytes were processed during the call. Non-0 indicates the
+	//!   number of bytes that were \a not processed.
 	size_t Output(int outputSite, const byte *inString, size_t length, int messageEnd, bool blocking, const std::string &channel=DEFAULT_CHANNEL);
+	
+	//! \brief Output multiple bytes that may be modified by callee.
+	//! \param outputSite unknown, system crash between keyboard and chair...
+	//! \param inString the byte buffer to process
+	//! \param length the size of the string, in bytes
+	//! \param messageEnd means how many filters to signal MessageEnd() to, including this one
+	//! \param blocking specifies whether the object should block when processing input
+	//! \param channel the channel to process the data
+	//! \returns 0 indicates all bytes were processed during the call. Non-0 indicates the
+	//!   number of bytes that were \a not processed	
 	size_t OutputModifiable(int outputSite, byte *inString, size_t length, int messageEnd, bool blocking, const std::string &channel=DEFAULT_CHANNEL);
+	
+	//! \brief Signals the end of messages to the object
+	//! \param outputSite unknown, system crash between keyboard and chair...
+	//! \param propagation the number of attached transformations the  MessageEnd() signal should be passed
+	//! \param blocking specifies whether the object should block when processing input
+	//! \param channel the channel to process the data
+	//! \details propagation count includes this object. Setting  propagation to <tt>1</tt> means this
+	//!   object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
 	bool OutputMessageEnd(int outputSite, int propagation, bool blocking, const std::string &channel=DEFAULT_CHANNEL);
+	
+	//! \brief Flush buffered input and/or output, with signal propagation
+	//! \param outputSite unknown, system crash between keyboard and chair...
+	//! \param hardFlush is used to indicate whether all data should be flushed
+	//! \param propagation the number of attached transformations the  Flush() signal should be passed
+	//! \param blocking specifies whether the object should block when processing input
+	//! \param channel the channel to process the data
+	//! \details propagation count includes this object. Setting  propagation to <tt>1</tt> means this
+	//!   object only. Setting  propagation to <tt>-1</tt> means unlimited propagation.
+	//! \note Hard flushes must be used with care. It means try to process and output everything, even if
+	//!   there may not be enough data to complete the action. For example, hard flushing a  HexDecoder
+	//!   would cause an error if you do it after inputing an odd number of hex encoded characters.
+	//! \note For some types of filters, like  ZlibDecompressor, hard flushes can only
+	//!   be done at "synchronization points". These synchronization points are positions in the data
+	//!   stream that are created by hard flushes on the corresponding reverse filters, in this
+	//!   example ZlibCompressor. This is useful when zlib compressed data is moved across a
+	//!   network in packets and compression state is preserved across packets, as in the SSH2 protocol.
 	bool OutputFlush(int outputSite, bool hardFlush, int propagation, bool blocking, const std::string &channel=DEFAULT_CHANNEL);
+	
+	//! \brief Marks the end of a series of messages, with signal propagation
+	//! \param outputSite unknown, system crash between keyboard and chair...
+	//! \param propagation the number of attached transformations the  MessageSeriesEnd() signal should be passed
+	//! \param blocking specifies whether the object should block when processing input
+	//! \param channel the channel to process the data
+	//! \details Each object that receives the signal will perform its processing, decrement
+	//!    propagation, and then pass the signal on to attached transformations if the value is not 0.
+	//! \details propagation count includes this object. Setting  propagation to <tt>1</tt> means this
+	//!   object only. Setting  propagation to <tt>-1</tt> means unlimited propagation.
+	//! \note There should be a MessageEnd() immediately before MessageSeriesEnd().	
 	bool OutputMessageSeriesEnd(int outputSite, int propagation, bool blocking, const std::string &channel=DEFAULT_CHANNEL);
 
 private:
@@ -61,6 +153,8 @@ protected:
 	size_t m_inputPosition;
 	int m_continueAt;
 };
+
+//! \struct FilterPutSpaceHelper
 
 struct CRYPTOPP_DLL FilterPutSpaceHelper
 {
@@ -112,7 +206,7 @@ public:
 
 	byte * CreatePutSpace(size_t &size)
 		{return AttachedTransformation()->CreatePutSpace(size);}
-	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking);
+	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking);
 	size_t PutModifiable2(byte *inString, size_t length, int messageEnd, bool blocking);
 	bool IsolatedMessageSeriesEnd(bool blocking);
 
@@ -275,18 +369,35 @@ protected:
 	ByteQueue m_inQueue;
 };
 
+//! \struct BlockPaddingSchemeDef
+//! \details Padding schemes used for block ciphers.
 struct BlockPaddingSchemeDef
 {
-	enum BlockPaddingScheme {NO_PADDING, ZEROS_PADDING, PKCS_PADDING, ONE_AND_ZEROS_PADDING, DEFAULT_PADDING};
+	//! \enum BlockPaddingScheme
+	//! \details Padding schemes used for block ciphers.
+	//! \details DEFAULT_PADDING means PKCS_PADDING if <tt>cipher.MandatoryBlockSize() > 1 &&
+	//!   cipher.MinLastBlockSize() == 0</tt>, which holds for ECB or CBC mode. Otherwise,
+	//!   NO_PADDING for modes like OFB, CFB, CTR, CBC-CTS.
+	//! \sa <A HREF="http://www.weidai.com/scan-mirror/csp.html">Block Cipher Padding</A> for
+	//!   additional details.
+	enum BlockPaddingScheme {
+		//! \brief No padding added to a block
+		NO_PADDING,
+		//! \brief 0's padding added to a block
+		ZEROS_PADDING,
+		//! \brief PKCS #5 padding added to a block
+		PKCS_PADDING,
+		//! \brief 1 and 0's padding added to a block
+		ONE_AND_ZEROS_PADDING,
+		//! \brief Default padding acheme
+		DEFAULT_PADDING
+	};
 };
 
 //! Filter Wrapper for StreamTransformation, optionally handling padding/unpadding when needed
 class CRYPTOPP_DLL StreamTransformationFilter : public FilterWithBufferedInput, public BlockPaddingSchemeDef, private FilterPutSpaceHelper
 {
 public:
-	/*! DEFAULT_PADDING means PKCS_PADDING if c.MandatoryBlockSize() > 1 && c.MinLastBlockSize() == 0 (e.g. ECB or CBC mode),
-		otherwise NO_PADDING (OFB, CFB, CTR, CBC-CTS modes).
-		See http://www.weidai.com/scan-mirror/csp.html for details of the padding schemes. */
 	StreamTransformationFilter(StreamTransformation &c, BufferedTransformation *attachment = NULL, BlockPaddingScheme padding = DEFAULT_PADDING, bool allowAuthenticatedSymmetricCipher = false);
 
 	std::string AlgorithmName() const {return m_cipher.AlgorithmName();}
@@ -317,7 +428,7 @@ public:
 
 	std::string AlgorithmName() const {return m_hashModule.AlgorithmName();}
 	void IsolatedInitialize(const NameValuePairs &parameters);
-	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking);
+	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking);
 	byte * CreatePutSpace(size_t &size) {return m_hashModule.CreateUpdateSpace(size);}
 
 private:
@@ -415,7 +526,7 @@ public:
 	std::string AlgorithmName() const {return m_signer.AlgorithmName();}
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
-	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking);
+	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking);
 
 private:
 	RandomNumberGenerator &m_rng;
@@ -463,11 +574,17 @@ typedef SignatureVerificationFilter VerifierFilter;	// for backwards compatibili
 class CRYPTOPP_DLL Redirector : public CustomSignalPropagation<Sink>
 {
 public:
+	//! \brief Controls signal propagation behavior
 	enum Behavior
 	{
+		//! \brief Pass data only
 		DATA_ONLY = 0x00,
+		//! \brief Pass signals
 		PASS_SIGNALS = 0x01,
+		//! \brief Pass wait events
 		PASS_WAIT_OBJECTS = 0x02,
+		//! \brief Pass everything
+		//! \details PASS_EVERYTHING is default
 		PASS_EVERYTHING = PASS_SIGNALS | PASS_WAIT_OBJECTS
 	};
 
@@ -491,8 +608,8 @@ public:
 	void Initialize(const NameValuePairs &parameters, int propagation);
 	byte * CreatePutSpace(size_t &size)
 		{return m_target ? m_target->CreatePutSpace(size) : (byte *)(size=0, NULL);}
-	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking)
-		{return m_target ? m_target->Put2(begin, length, GetPassSignals() ? messageEnd : 0, blocking) : 0;}
+	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
+		{return m_target ? m_target->Put2(inString, length, GetPassSignals() ? messageEnd : 0, blocking) : 0;}
 	bool Flush(bool hardFlush, int propagation=-1, bool blocking=true)
 		{return m_target && GetPassSignals() ? m_target->Flush(hardFlush, propagation, blocking) : false;}
 	bool MessageSeriesEnd(int propagation=-1, bool blocking=true)
@@ -530,8 +647,8 @@ public:
 
 	byte * CreatePutSpace(size_t &size)
 		{return m_owner.AttachedTransformation()->CreatePutSpace(size);}
-	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking)
-		{return m_owner.AttachedTransformation()->Put2(begin, length, m_passSignal ? messageEnd : 0, blocking);}
+	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
+		{return m_owner.AttachedTransformation()->Put2(inString, length, m_passSignal ? messageEnd : 0, blocking);}
 	size_t PutModifiable2(byte *begin, size_t length, int messageEnd, bool blocking)
 		{return m_owner.AttachedTransformation()->PutModifiable2(begin, length, m_passSignal ? messageEnd : 0, blocking);}
 	void Initialize(const NameValuePairs &parameters=g_nullNameValuePairs, int propagation=-1)
@@ -616,7 +733,7 @@ public:
 	void IsolatedInitialize(const NameValuePairs &parameters)
 		{if (!parameters.GetValue("OutputStringPointer", m_output)) throw InvalidArgument("StringSink: OutputStringPointer not specified");}
 
-	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking)
+	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
 	{
 		CRYPTOPP_UNUSED(messageEnd); CRYPTOPP_UNUSED(blocking);
 		if (length > 0)
@@ -624,7 +741,7 @@ public:
 			typename T::size_type size = m_output->size();
 			if (length < size && size + length > m_output->capacity())
 				m_output->reserve(2*size);
-		m_output->append((const char_type *)begin, (const char_type *)begin+length);
+		m_output->append((const char_type *)inString, (const char_type *)inString+length);
 		}
 		return 0;
 	}
@@ -648,7 +765,7 @@ public:
 		: m_rng(&rng) {}
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
-	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking);
+	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking);
 
 private:
 	RandomNumberGenerator *m_rng;
@@ -668,7 +785,7 @@ public:
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
 	byte * CreatePutSpace(size_t &size);
-	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking);
+	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking);
 
 protected:
 	byte *m_buf;
@@ -683,7 +800,7 @@ public:
 	ArrayXorSink(byte *buf, size_t size)
 		: ArraySink(buf, size) {}
 
-	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking);
+	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking);
 	byte * CreatePutSpace(size_t &size) {return BufferedTransformation::CreatePutSpace(size);}
 };
 
@@ -750,13 +867,25 @@ private:
 	lword m_size;
 };
 
-//! A Filter that pumps data into its attachment as input
+//! \class Source
+//! \brief Implementation of BufferedTransformation's attachment interface
+//! \details Source is a cornerstone of the Pipeline trinitiy. Data flows from
+//!   Sources, through Filters, and then terminates in Sinks. The difference
+//!   between a Source and Filter is a Source \a pumps data, while a Filter does
+//!   not. The difference between a Filter and a Sink is a Filter allows an
+//!   attached transformation, while a Sink does not.
+//! \details See the discussion of BufferedTransformation in cryptlib.h for
+//!   more details.
+//! \sa Store and SourceTemplate
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Source : public InputRejecting<Filter>
 {
 public:
 	Source(BufferedTransformation *attachment = NULL)
 		{Source::Detach(attachment);}
 
+	//!	\name PIPELINE
+	//@{
+	
 	lword Pump(lword pumpMax=size_t(SIZE_MAX))
 		{Pump2(pumpMax); return pumpMax;}
 	unsigned int PumpMessages(unsigned int count=UINT_MAX)
@@ -768,6 +897,12 @@ public:
 	virtual size_t PumpAll2(bool blocking=true);
 	virtual bool SourceExhausted() const =0;
 
+	//@}
+	
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~Source() {}
+#endif
+
 protected:
 	void SourceInitialize(bool pumpAll, const NameValuePairs &parameters)
 	{
@@ -777,7 +912,9 @@ protected:
 	}
 };
 
-//! Turn a Store into a Source
+//! \class SourceTemplate
+//! \brief Transform a Store into a Source
+//! \tparam T the class or type
 template <class T>
 class SourceTemplate : public Source
 {
@@ -803,7 +940,8 @@ protected:
 	T m_store;
 };
 
-//! string-based implementation of Source interface
+//! \class SourceTemplate
+//! \brief String-based implementation of the Source interface
 class CRYPTOPP_DLL StringSource : public SourceTemplate<StringStore>
 {
 public:

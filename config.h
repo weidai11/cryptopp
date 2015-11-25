@@ -1,3 +1,8 @@
+// config.h - written and placed in the public domain by Wei Dai
+
+//! \file config.h
+//! \brief Library configuration file
+
 #ifndef CRYPTOPP_CONFIG_H
 #define CRYPTOPP_CONFIG_H
 
@@ -54,8 +59,16 @@
 # endif
 #endif
 
+// Define this if you want or need the library's memcpy_s and memmove_s.
+//   See http://github.com/weidai11/cryptopp/issues/28.
+// #if !defined(CRYPTOPP_WANT_SECURE_LIB)
+// # define CRYPTOPP_WANT_SECURE_LIB
+// #endif
+
 // File system code to write to GZIP archive.
-#define GZIP_OS_CODE 0
+#if !defined(GZIP_OS_CODE)
+# define GZIP_OS_CODE 0
+#endif
 
 // Try this if your CPU has 256K internal cache or a slow multiply instruction
 // and you want a (possibly) faster IDEA implementation using log tables
@@ -90,7 +103,7 @@
 #if defined(CRYPTOPP_INIT_PRIORITY) && (CRYPTOPP_INIT_PRIORITY > 0)
 # define CRYPTOPP_USER_PRIORITY (CRYPTOPP_INIT_PRIORITY + 101)
 #else
-# define CRYPTOPP_USER_PRIORITY 500
+# define CRYPTOPP_USER_PRIORITY 250
 #endif
 
 // ***************** Important Settings Again ********************
@@ -113,8 +126,8 @@
 //! \details Nearly all classes are located in the CryptoPP namespace. Within
 //!   the namespace, there are two additional namespaces.
 //!   <ul>
-//!     <li>Name - the namespace for names used with \p NameValuePairs and documented in argnames.h
-//!     <li>Weak - the namespace for weak and wounded algorithms, like ARC4, MD5 and Pananma
+//!     <li>Name - namespace for names used with \p NameValuePairs and documented in argnames.h
+//!     <li>Weak - namespace for weak and wounded algorithms, like ARC4, MD5 and Pananma
 //!   </ul>
 namespace CryptoPP { }
 // Bring in the symbols fund in the weak namespace; and fold Weak1 into Weak
@@ -126,12 +139,15 @@ namespace CryptoPP { }
 #       define NAMESPACE_END
 // Get Doxygen to generate better documentation for these typedefs
 #       define DOCUMENTED_TYPEDEF(x, y) class y : public x {};
+// Make "protected" "private" so the functions and members are not documented
+#		define protected private
 #else
 #       define NAMESPACE_BEGIN(x) namespace x {
 #       define NAMESPACE_END }
 #       define DOCUMENTED_TYPEDEF(x, y) typedef x y;
 #endif
 #define ANONYMOUS_NAMESPACE_BEGIN namespace {
+#define ANONYMOUS_NAMESPACE_END }
 #define USING_NAMESPACE(x) using namespace x;
 #define DOCUMENTED_NAMESPACE_BEGIN(x) namespace x {
 #define DOCUMENTED_NAMESPACE_END }
@@ -175,32 +191,31 @@ const lword LWORD_MAX = W64LIT(0xffffffffffffffff);
 	#define CRYPTOPP_GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
 #endif
 
-#ifdef __clang__
+// Apple and LLVM's Clang. Apple Clang version 7.0 roughly equals LLVM Clang version 3.7
+#if defined(__clang__ ) && !defined(__apple_build_version__)
 	#define CRYPTOPP_CLANG_VERSION (__clang_major__ * 10000 + __clang_minor__ * 100 + __clang_patchlevel__)
+#elif defined(__clang__ ) && defined(__apple_build_version__)
+	#define CRYPTOPP_APPLE_CLANG_VERSION (__clang_major__ * 10000 + __clang_minor__ * 100 + __clang_patchlevel__)
 #endif
 
 #ifdef _MSC_VER
 	#define CRYPTOPP_MSC_VERSION (_MSC_VER)
 #endif
 
-// Need GCC 4.6/Clang 1.7 or above due to "GCC diagnostic {push|pop}"
-#if (CRYPTOPP_GCC_VERSION >= 40600) || (CRYPTOPP_CLANG_VERSION >= 10700)
+// Need GCC 4.6/Clang 1.7/Apple Clang 2.0 or above due to "GCC diagnostic {push|pop}"
+#if (CRYPTOPP_GCC_VERSION >= 40600) || (CRYPTOPP_CLANG_VERSION >= 10700) || (CRYPTOPP_APPLE_CLANG_VERSION >= 20000)
 	#define CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE 1
 #endif
 
-// Detect availabliltiy of int128_t and uint128_t in preprocessor, http://gcc.gnu.org/ml/gcc-help/2015-08/msg00185.html.
-// Both GCC and Clang respond to it.
-#if ((defined(__GNUC__) || defined(__clang__) || defined(_INTEL_COMPILER)) && (__SIZEOF_INT128__ >= 16))
-	#define CRYPTOPP_NATIVE_DWORD_AVAILABLE
-	#define CRYPTOPP_WORD128_AVAILABLE
-	typedef word32 hword;
-	typedef word64 word;
-	typedef __uint128_t dword;
-	typedef __uint128_t word128;
+// Clang due to "Inline assembly operands don't work with .intel_syntax", http://llvm.org/bugs/show_bug.cgi?id=24232
+//   TODO: supply the upper version when LLVM fixes it. We set it to 20.0 for compilation purposes.
+#if (defined(CRYPTOPP_CLANG_VERSION) && CRYPTOPP_CLANG_VERSION <= 200000) || (defined(CRYPTOPP_APPLE_CLANG_VERSION) && CRYPTOPP_APPLE_CLANG_VERSION <= 200000)
+	#define CRYPTOPP_DISABLE_INTEL_ASM 1
+#endif
 
 // define hword, word, and dword. these are used for multiprecision integer arithmetic
 // Intel compiler won't have _umul128 until version 10.0. See http://softwarecommunity.intel.com/isn/Community/en-US/forums/thread/30231625.aspx
-#elif (defined(_MSC_VER) && (!defined(__INTEL_COMPILER) || __INTEL_COMPILER >= 1000) && (defined(_M_X64) || defined(_M_IA64))) || (defined(__DECCXX) && defined(__alpha__)) || (defined(__INTEL_COMPILER) && defined(__x86_64__)) || (defined(__SUNPRO_CC) && defined(__x86_64__))
+#if (defined(_MSC_VER) && (!defined(__INTEL_COMPILER) || __INTEL_COMPILER >= 1000) && (defined(_M_X64) || defined(_M_IA64))) || (defined(__DECCXX) && defined(__alpha__)) || (defined(__INTEL_COMPILER) && (__INTEL_COMPILER < 1000) && defined(__x86_64__)) || (defined(__SUNPRO_CC) && defined(__x86_64__))
 	typedef word32 hword;
 	typedef word64 word;
 #else
@@ -214,12 +229,26 @@ const lword LWORD_MAX = W64LIT(0xffffffffffffffff);
 			typedef word64 word;
 			typedef __uint128_t dword;
 			typedef __uint128_t word128;
+		#elif defined(__GNUC__) && (__SIZEOF_INT128__ >= 16)
+			// Detect availabliltiy of int128_t and uint128_t in preprocessor, http://gcc.gnu.org/ml/gcc-help/2015-08/msg00185.html.
+			#define CRYPTOPP_WORD128_AVAILABLE
+			typedef word32 hword;
+			typedef word64 word;
+			typedef __uint128_t dword;
+			typedef __uint128_t word128;	
 		#else
 			// if we're here, it means we're on a 64-bit CPU but we don't have a way to obtain 128-bit multiplication results
 			typedef word16 hword;
 			typedef word32 word;
 			typedef word64 dword;
 		#endif
+	#elif defined(__GNUC__) && (__SIZEOF_INT128__ >= 16)
+		// Detect availabliltiy of int128_t and uint128_t in preprocessor, http://gcc.gnu.org/ml/gcc-help/2015-08/msg00185.html.
+		#define CRYPTOPP_WORD128_AVAILABLE
+		typedef word32 hword;
+		typedef word64 word;
+		typedef __uint128_t dword;
+		typedef __uint128_t word128;	
 	#else
 		// being here means the native register size is probably 32 bits or less
 		#define CRYPTOPP_BOOL_SLOW_WORD64 1
@@ -233,7 +262,7 @@ const lword LWORD_MAX = W64LIT(0xffffffffffffffff);
 #endif
 
 // Produce a compiler error. It can be commented out, but you may not get the benefit of the fastest integers.
-#if (__SIZEOF_INT128__ >= 16) && !defined(CRYPTOPP_WORD128_AVAILABLE)
+#if (__SIZEOF_INT128__ >= 16) && !defined(CRYPTOPP_WORD128_AVAILABLE) && !defined(__aarch64__)
 # error "An int128_t and uint128_t are available, but CRYPTOPP_WORD128_AVAILABLE is not defined"
 #endif
 
@@ -351,6 +380,11 @@ NAMESPACE_END
 #define CRYPTOPP_DISABLE_ASM
 #define CRYPTOPP_DISABLE_SSE2
 #endif
+	
+// Apple's Clang prior to 5.0 cannot handle SSE2 (and Apple does not use LLVM Clang numbering...)
+#if defined(CRYPTOPP_APPLE_CLANG_VERSION) && (CRYPTOPP_APPLE_CLANG_VERSION < 50000)
+# define CRYPTOPP_DISABLE_ASM
+#endif
 
 #if !defined(CRYPTOPP_DISABLE_ASM) && ((defined(_MSC_VER) && defined(_M_IX86)) || (defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))))
 	// C++Builder 2010 does not allow "call label" where label is defined within inline assembly
@@ -380,7 +414,7 @@ NAMESPACE_END
 	#define CRYPTOPP_X64_ASM_AVAILABLE
 #endif
 
-#if !defined(CRYPTOPP_DISABLE_SSE2) && (defined(CRYPTOPP_MSVC6PP_OR_LATER) || defined(__SSE2__) || defined(__AES__))
+#if !defined(CRYPTOPP_DISABLE_SSE2) && (defined(CRYPTOPP_MSVC6PP_OR_LATER) || defined(__SSE2__))
 	#define CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE 1
 #else
 	#define CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE 0
@@ -401,6 +435,8 @@ NAMESPACE_END
 // how to allocate 16-byte aligned memory (for SSE2)
 #if defined(CRYPTOPP_MSVC6PP_OR_LATER)
 	#define CRYPTOPP_MM_MALLOC_AVAILABLE
+#elif defined(__APPLE__)
+	#define CRYPTOPP_APPLE_MALLOC_AVAILABLE
 #elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
 	#define CRYPTOPP_MALLOC_ALIGNMENT_IS_16
 #elif defined(__linux__) || defined(__sun__) || defined(__CYGWIN__)
@@ -408,6 +444,9 @@ NAMESPACE_END
 #else
 	#define CRYPTOPP_NO_ALIGNED_ALLOC
 #endif
+	
+// Apple always provides 16-byte aligned, and tells us to use calloc
+// http://developer.apple.com/library/mac/documentation/Performance/Conceptual/ManagingMemory/Articles/MemoryAlloc.html
 
 // how to disable inlining
 #if defined(_MSC_VER) && _MSC_VER >= 1300
@@ -460,13 +499,6 @@ NAMESPACE_END
 #if (CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || defined(__powerpc__) || (__ARM_FEATURE_UNALIGNED >= 1))
 	#define CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
 #endif
-#endif
-
-// For use in template parameters; also see CRYPTOPP_BOOL_ALIGN16 for MMX and above.
-#if defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS)
-	#define CRYPTOPP_BOOL_ALIGN 0
-#else
-	#define CRYPTOPP_BOOL_ALIGN 1
 #endif
 
 // ***************** determine availability of OS features ********************
@@ -547,7 +579,7 @@ NAMESPACE_END
 
 #define CRYPTOPP_API __cdecl
 
-#else	// CRYPTOPP_WIN32_AVAILABLE
+#else	// not CRYPTOPP_WIN32_AVAILABLE
 
 #define CRYPTOPP_DLL
 #define CRYPTOPP_API
@@ -583,12 +615,14 @@ NAMESPACE_END
 #endif
 
 // ************** Unused variable ***************
-// Portable way to suppress warning
+
+// Portable way to suppress warnings.
+//   Moved from misc.h due to circular depenedencies.
 #define CRYPTOPP_UNUSED(x) ((void)x)
 
 // ***************** C++11 related ********************
 
-// Visual Studio and C++11 language features began at Visual Studio 2010, http://msdn.microsoft.com/en-us/library/hh567368%28v=vs.110%29.aspx.
+// Visual Studio began at VS2010, http://msdn.microsoft.com/en-us/library/hh567368%28v=vs.110%29.aspx.
 // Intel and C++11 language features, http://software.intel.com/en-us/articles/c0x-features-supported-by-intel-c-compiler
 // GCC and C++11 language features, http://gcc.gnu.org/projects/cxx0x.html
 // Clang and C++11 language features, http://clang.llvm.org/cxx_status.html
@@ -601,8 +635,8 @@ NAMESPACE_END
 //   way. However, modern standard libraries have <forward_list>, so we test for it instead.
 //   Thanks to Jonathan Wakely for devising the clever test for modern/ancient versions.
 // TODO: test under Xcode 3, where g++ is really g++.
-#if defined(__clang__)
-#  if !(__has_include(<forward_list>))
+#if defined(__APPLE__) && defined(__clang__)
+#  if !(defined(__has_include) && __has_include(<forward_list>))
 #    undef CRYPTOPP_CXX11
 #  endif
 #endif
@@ -610,18 +644,22 @@ NAMESPACE_END
 // C++11 or C++14 is available
 #if defined(CRYPTOPP_CXX11) 
 
-// alignof/alignas: MS at VS2013 (18.00); GCC at 4.8; Clang at 3.3; and Intel 15.0.
-#if (CRYPTOPP_MSC_VERSION >= 1800)
+// alignof/alignas: MS at VS2013 (19.00); GCC at 4.8; Clang at 3.3; and Intel 15.0.
+#if (CRYPTOPP_MSC_VERSION >= 1900)
+#  define CRYPTOPP_CXX11_ALIGNAS 1
 #  define CRYPTOPP_CXX11_ALIGNOF 1
 #elif defined(__INTEL_COMPILER) && (__INTEL_COMPILER >= 1500)
+#  define CRYPTOPP_CXX11_ALIGNAS 1
 #  define CRYPTOPP_CXX11_ALIGNOF 1
 #elif defined(__clang__)
 #  if __has_feature(cxx_alignof)
-#    define CRYPTOPP_CXX11_ALIGNOF 1
+#  define CRYPTOPP_CXX11_ALIGNAS 1
+#  define CRYPTOPP_CXX11_ALIGNOF 1
 #  endif
 #elif (CRYPTOPP_GCC_VERSION >= 40800)
+#  define CRYPTOPP_CXX11_ALIGNAS 1
 #  define CRYPTOPP_CXX11_ALIGNOF 1
-#endif
+#endif // alignof/alignas
 
 // noexcept: MS at VS2015 (19.00); GCC at 4.6; Clang at 3.0; and Intel 14.0.
 #if (CRYPTOPP_MSC_VERSION >= 1900)
@@ -647,7 +685,7 @@ NAMESPACE_END
 #  endif
 #elif (CRYPTOPP_GCC_VERSION >= 40300)
 #  define CRYPTOPP_CXX11_VARIADIC_TEMPLATES 1
-#endif // noexcept compilers
+#endif // variadic templates
 
 // TODO: Emplacement, R-values and Move semantics
 // Needed because we are catching warnings with GCC and MSC

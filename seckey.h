@@ -1,18 +1,19 @@
 // seckey.h - written and placed in the public domain by Wei Dai
 
 //! \file
-//! \brief Contains helper classes and functions for implementing secret key algorithms.
+//! \brief Classes and functions for implementing secret key algorithms.
 
 #ifndef CRYPTOPP_SECKEY_H
 #define CRYPTOPP_SECKEY_H
 
-#include "cryptlib.h"
+#include "config.h"
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(push)
 # pragma warning(disable: 4189)
 #endif
 
+#include "cryptlib.h"
 #include "misc.h"
 #include "simple.h"
 
@@ -20,7 +21,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 //! \brief Inverts the cipher's direction
 //! \param dir the cipher's direction
-//! \returns \p DECRYPTION if \p dir is ENCRYPTION, \p DECRYPTION otherwise
+//! \returns DECRYPTION if dir is ENCRYPTION, DECRYPTION otherwise
 inline CipherDir ReverseCipherDir(CipherDir dir)
 {
 	return (dir == ENCRYPTION) ? DECRYPTION : ENCRYPTION;
@@ -68,26 +69,31 @@ public:
 	//! \brief The default number of rounds for the cipher based on key length 
 	//!   provided by a static function.
 	//! \param keylength the size of the key, in bytes
-	//! \details \p keylength is unused in the default implementation.
+	//! \details keylength is unused in the default implementation.
 	static unsigned int StaticGetDefaultRounds(size_t keylength)
 		{CRYPTOPP_UNUSED(keylength); return DEFAULT_ROUNDS;}
 
 protected:
-	//! \brief Validates the number of \p rounds for a cipher.
-	//! \param rounds the canddiate number of \p rounds
-	//! \param alg an \p Algorithm object used if the number of \p rounds are invalid
-	//! \throws InvalidRounds if the number of \p rounds are invalid
+	//! \brief Validates the number of rounds for a cipher.
+	//! \param rounds the canddiate number of rounds
+	//! \param alg an Algorithm object used if the number of rounds are invalid
+	//! \throws InvalidRounds if the number of rounds are invalid
 	inline void ThrowIfInvalidRounds(int rounds, const Algorithm *alg)
 	{
+#if (M==INT_MAX)	// Coverity and result_independent_of_operands
+		if (rounds < MIN_ROUNDS)
+			throw InvalidRounds(alg ? alg->AlgorithmName() : "VariableRounds", rounds);	
+#else
 		if (rounds < MIN_ROUNDS || rounds > MAX_ROUNDS)
 			throw InvalidRounds(alg ? alg->AlgorithmName() : "VariableRounds", rounds);
+#endif
 	}
 
-	//! \brief Validates the number of \p rounds for a cipher
-	//! \param param the canddiate number of \p rounds
-	//! \param alg an \p Algorithm object used if the number of \p rounds are invalid
+	//! \brief Validates the number of rounds for a cipher
+	//! \param param the canddiate number of rounds
+	//! \param alg an Algorithm object used if the number of rounds are invalid
 	//! \returns the number of rounds for the cipher
-	//! \throws InvalidRounds if the number of \p rounds are invalid
+	//! \throws InvalidRounds if the number of rounds are invalid
 	inline unsigned int GetRoundsAndThrowIfInvalid(const NameValuePairs &param, const Algorithm *alg)
 	{
 		int rounds = param.GetIntValueWithDefault("Rounds", DEFAULT_ROUNDS);
@@ -101,34 +107,34 @@ protected:
 //! \class FixedKeyLength
 //! \brief Inherited by keyed algorithms with fixed key length
 //! \tparam N Default key length, in bytes
-//! \tparam IV_REQ The IV requirements. See \p IV_Requirement in cryptlib.h for allowed values
+//! \tparam IV_REQ The IV requirements. See IV_Requirement in cryptlib.h for allowed values
 //! \tparam IV_L Default IV length, in bytes
 template <unsigned int N, unsigned int IV_REQ = SimpleKeyingInterface::NOT_RESYNCHRONIZABLE, unsigned int IV_L = 0>
 class FixedKeyLength
 {
 public:
 	//! \brief The default key length used by the cipher provided as a constant
-	//! \details \p KEYLENGTH is provided in bytes, not bits
+	//! \details KEYLENGTH is provided in bytes, not bits
 	CRYPTOPP_CONSTANT(KEYLENGTH=N)
 	//! \brief The minimum key length used by the cipher provided as a constant
-	//! \details \p MIN_KEYLENGTH is provided in bytes, not bits
+	//! \details MIN_KEYLENGTH is provided in bytes, not bits
 	CRYPTOPP_CONSTANT(MIN_KEYLENGTH=N)
 	//! \brief The maximum key length used by the cipher provided as a constant
-	//! \details \p MAX_KEYLENGTH is provided in bytes, not bits
+	//! \details MAX_KEYLENGTH is provided in bytes, not bits
 	CRYPTOPP_CONSTANT(MAX_KEYLENGTH=N)
 	//! \brief The default key length used by the cipher provided as a constant
-	//! \details \p DEFAULT_KEYLENGTH is provided in bytes, not bits
+	//! \details DEFAULT_KEYLENGTH is provided in bytes, not bits
 	CRYPTOPP_CONSTANT(DEFAULT_KEYLENGTH=N)
 	//! \brief The default IV requirements for the cipher provided as a constant
-	//! \details The default value is \p NOT_RESYNCHRONIZABLE. See \p IV_Requirement
+	//! \details The default value is NOT_RESYNCHRONIZABLE. See IV_Requirement
 	//!  in cryptlib.h for allowed values.
 	CRYPTOPP_CONSTANT(IV_REQUIREMENT = IV_REQ)
 	//! \brief The default IV length used by the cipher provided as a constant
-	//! \details \p IV_LENGTH is provided in bytes, not bits. The default implementation uses \p 0.
+	//! \details IV_LENGTH is provided in bytes, not bits. The default implementation uses 0.
 	CRYPTOPP_CONSTANT(IV_LENGTH = IV_L)
 	//! \brief The default key length for the cipher provided by a static function.
 	//! \param keylength the size of the key, in bytes
-	//! \details The default implementation returns \p KEYLENGTH. \p keylength is unused
+	//! \details The default implementation returns KEYLENGTH. keylength is unused
 	//!   in the default implementation.
 	static size_t CRYPTOPP_API StaticGetValidKeyLength(size_t keylength)
 		{CRYPTOPP_UNUSED(keylength); return KEYLENGTH;}
@@ -140,7 +146,7 @@ public:
 //! \tparam N Minimum key length, in bytes
 //! \tparam M Maximum key length, in bytes
 //! \tparam M Default key length multiple, in bytes. The default multiple is 1.
-//! \tparam IV_REQ The IV requirements. See \p IV_Requirement in cryptlib.h for allowed values
+//! \tparam IV_REQ The IV requirements. See IV_Requirement in cryptlib.h for allowed values
 //! \tparam IV_L Default IV length, in bytes. The default length is 0.
 template <unsigned int D, unsigned int N, unsigned int M, unsigned int Q = 1, unsigned int IV_REQ = SimpleKeyingInterface::NOT_RESYNCHRONIZABLE, unsigned int IV_L = 0>
 class VariableKeyLength
@@ -155,37 +161,40 @@ class VariableKeyLength
 
 public:
 	//! \brief The minimum key length used by the cipher provided as a constant
-	//! \details \p MIN_KEYLENGTH is provided in bytes, not bits
+	//! \details MIN_KEYLENGTH is provided in bytes, not bits
 	CRYPTOPP_CONSTANT(MIN_KEYLENGTH=N)
 	//! \brief The maximum key length used by the cipher provided as a constant
-	//! \details \p MAX_KEYLENGTH is provided in bytes, not bits
+	//! \details MAX_KEYLENGTH is provided in bytes, not bits
 	CRYPTOPP_CONSTANT(MAX_KEYLENGTH=M)
 	//! \brief The default key length used by the cipher provided as a constant
-	//! \details \p DEFAULT_KEYLENGTH is provided in bytes, not bits
+	//! \details DEFAULT_KEYLENGTH is provided in bytes, not bits
 	CRYPTOPP_CONSTANT(DEFAULT_KEYLENGTH=D)
 	//! \brief The key length multiple used by the cipher provided as a constant
-	//! \details \p MAX_KEYLENGTH is provided in bytes, not bits
+	//! \details MAX_KEYLENGTH is provided in bytes, not bits
 	CRYPTOPP_CONSTANT(KEYLENGTH_MULTIPLE=Q)
 	//! \brief The default IV requirements for the cipher provided as a constant
-	//! \details The default value is \p NOT_RESYNCHRONIZABLE. See \p IV_Requirement
+	//! \details The default value is NOT_RESYNCHRONIZABLE. See IV_Requirement
 	//!  in cryptlib.h for allowed values.
 	CRYPTOPP_CONSTANT(IV_REQUIREMENT=IV_REQ)
 	//! \brief The default initialization vector length for the cipher provided as a constant
-	//! \details \p IV_LENGTH is provided in bytes, not bits. The default implementation uses \p 0.
+	//! \details IV_LENGTH is provided in bytes, not bits. The default implementation uses 0.
 	CRYPTOPP_CONSTANT(IV_LENGTH=IV_L)
 	//! \brief Provides a valid key length for the cipher provided by a static function.
 	//! \param keylength the size of the key, in bytes
-	//! \details If \p keylength is less than \p MIN_KEYLENGTH, then the function returns
-	//!   \p MIN_KEYLENGTH. If \p keylength is greater than \p MAX_KEYLENGTH, then the function
-	//!   returns \p MAX_KEYLENGTH. If \p keylength is a multiple of \p KEYLENGTH_MULTIPLE,
-	//!   then \p keylength is returned. Otherwise, the function returns \p keylength rounded
-	//!   \a down to the next smaller multiple of \p KEYLENGTH_MULTIPLE.
-	//! \details \p keylength is provided in bytes, not bits.
+	//! \details If keylength is less than MIN_KEYLENGTH, then the function returns
+	//!   MIN_KEYLENGTH. If keylength is greater than MAX_KEYLENGTH, then the function
+	//!   returns MAX_KEYLENGTH. If keylength is a multiple of KEYLENGTH_MULTIPLE,
+	//!   then keylength is returned. Otherwise, the function returns keylength rounded
+	//!   \a down to the next smaller multiple of KEYLENGTH_MULTIPLE.
+	//! \details keylength is provided in bytes, not bits.
 	static size_t CRYPTOPP_API StaticGetValidKeyLength(size_t keylength)
 	{
+#if MIN_KEYLENGTH > 0
 		if (keylength < (size_t)MIN_KEYLENGTH)
 			return MIN_KEYLENGTH;
-		else if (keylength > (size_t)MAX_KEYLENGTH)
+		else
+#endif
+		if (keylength > (size_t)MAX_KEYLENGTH)
 			return (size_t)MAX_KEYLENGTH;
 		else
 		{
@@ -197,37 +206,37 @@ public:
 
 //! \class SameKeyLengthAs
 //! \brief Provides key lengths based on another class's key length
-//! \tparam T another \p FixedKeyLength or \p VariableKeyLength class
-//! \tparam IV_REQ The IV requirements. See \p IV_Requirement in cryptlib.h for allowed values
+//! \tparam T another FixedKeyLength or VariableKeyLength class
+//! \tparam IV_REQ The IV requirements. See IV_Requirement in cryptlib.h for allowed values
 //! \tparam IV_L Default IV length, in bytes
 template <class T, unsigned int IV_REQ = SimpleKeyingInterface::NOT_RESYNCHRONIZABLE, unsigned int IV_L = 0>
 class SameKeyLengthAs
 {
 public:
 	//! \brief The minimum key length used by the cipher provided as a constant
-	//! \details \p MIN_KEYLENGTH is provided in bytes, not bits
+	//! \details MIN_KEYLENGTH is provided in bytes, not bits
 	CRYPTOPP_CONSTANT(MIN_KEYLENGTH=T::MIN_KEYLENGTH)
 	//! \brief The maximum key length used by the cipher provided as a constant
-	//! \details \p MIN_KEYLENGTH is provided in bytes, not bits
+	//! \details MIN_KEYLENGTH is provided in bytes, not bits
 	CRYPTOPP_CONSTANT(MAX_KEYLENGTH=T::MAX_KEYLENGTH)
 	//! \brief The default key length used by the cipher provided as a constant
-	//! \details \p MIN_KEYLENGTH is provided in bytes, not bits
+	//! \details MIN_KEYLENGTH is provided in bytes, not bits
 	CRYPTOPP_CONSTANT(DEFAULT_KEYLENGTH=T::DEFAULT_KEYLENGTH)
 	//! \brief The default IV requirements for the cipher provided as a constant
-	//! \details The default value is \p NOT_RESYNCHRONIZABLE. See \p IV_Requirement
+	//! \details The default value is NOT_RESYNCHRONIZABLE. See IV_Requirement
 	//!  in cryptlib.h for allowed values.
 	CRYPTOPP_CONSTANT(IV_REQUIREMENT=IV_REQ)
 	//! \brief The default initialization vector length for the cipher provided as a constant
-	//! \details \p IV_LENGTH is provided in bytes, not bits. The default implementation uses \p 0.
+	//! \details IV_LENGTH is provided in bytes, not bits. The default implementation uses 0.
 	CRYPTOPP_CONSTANT(IV_LENGTH=IV_L)
 	//! \brief Provides a valid key length for the cipher provided by a static function.
 	//! \param keylength the size of the key, in bytes
-	//! \details If \p keylength is less than \p MIN_KEYLENGTH, then the function returns
-	//!   \p MIN_KEYLENGTH. If \p keylength is greater than \p MAX_KEYLENGTH, then the function
-	//!   returns \p MAX_KEYLENGTH. If \p keylength is a multiple of \p KEYLENGTH_MULTIPLE,
-	//!   then \p keylength is returned. Otherwise, the function returns \p keylength rounded
-	//!   \a down to the next smaller multiple of \p KEYLENGTH_MULTIPLE.
-	//! \details \p keylength is provided in bytes, not bits.
+	//! \details If keylength is less than MIN_KEYLENGTH, then the function returns
+	//!   MIN_KEYLENGTH. If keylength is greater than MAX_KEYLENGTH, then the function
+	//!   returns MAX_KEYLENGTH. If keylength is a multiple of KEYLENGTH_MULTIPLE,
+	//!   then keylength is returned. Otherwise, the function returns keylength rounded
+	//!   \a down to the next smaller multiple of KEYLENGTH_MULTIPLE.
+	//! \details keylength is provided in bytes, not bits.
 	static size_t CRYPTOPP_API StaticGetValidKeyLength(size_t keylength)
 		{return T::StaticGetValidKeyLength(keylength);}
 };
@@ -256,21 +265,21 @@ public:
 	
 	//! \brief Provides a valid key length for the cipher
 	//! \param keylength the size of the key, in bytes
-	//! \details \p keylength is provided in bytes, not bits. If \p keylength is less than \p MIN_KEYLENGTH,
-	//!   then the function returns \p MIN_KEYLENGTH. If \p keylength is greater than \p MAX_KEYLENGTH,
-	//!   then the function returns \p MAX_KEYLENGTH. if If \p keylength is a multiple of \p KEYLENGTH_MULTIPLE,
-	//!   then \p keylength is returned. Otherwise, the function returns a \a lower multiple of
-	//!   \p KEYLENGTH_MULTIPLE.
+	//! \details keylength is provided in bytes, not bits. If keylength is less than MIN_KEYLENGTH,
+	//!   then the function returns MIN_KEYLENGTH. If keylength is greater than MAX_KEYLENGTH,
+	//!   then the function returns MAX_KEYLENGTH. if If keylength is a multiple of KEYLENGTH_MULTIPLE,
+	//!   then keylength is returned. Otherwise, the function returns a \a lower multiple of
+	//!   KEYLENGTH_MULTIPLE.
 	size_t GetValidKeyLength(size_t keylength) const {return INFO::StaticGetValidKeyLength(keylength);}
 
 	//! \brief The default IV requirements for the cipher
-	//! \details The default value is \p NOT_RESYNCHRONIZABLE. See \p IV_Requirement
+	//! \details The default value is NOT_RESYNCHRONIZABLE. See IV_Requirement
 	//!  in cryptlib.h for allowed values.
 	SimpleKeyingInterface::IV_Requirement IVRequirement() const
 		{return (SimpleKeyingInterface::IV_Requirement)INFO::IV_REQUIREMENT;}
 	
 	//! \brief The default initialization vector length for the cipher
-	//! \details \p IVSize is provided in bytes, not bits. The default implementation uses \p IV_LENGTH, which is 0.
+	//! \details IVSize is provided in bytes, not bits. The default implementation uses IV_LENGTH, which is 0.
 	unsigned int IVSize() const
 		{return INFO::IV_LENGTH;}
 };
@@ -283,7 +292,8 @@ template <class INFO, class BASE = BlockCipher>
 class CRYPTOPP_NO_VTABLE BlockCipherImpl : public AlgorithmImpl<SimpleKeyingInterfaceImpl<TwoBases<BASE, INFO> > >
 {
 public:
-	//! \brief The block size of the cipher
+	//! Provides the block size of the cipher
+	//! \returns the block size of the cipher, in bytes
 	unsigned int BlockSize() const {return this->BLOCKSIZE;}
 };
 
@@ -298,30 +308,34 @@ public:
 	//! \brief Construct a default BlockCipherFinal
 	//! \details The cipher is not keyed.
  	BlockCipherFinal() {}
+
 	//! \brief Construct a BlockCipherFinal
 	//! \param key a byte array used to key the cipher
-	//! \details \p key must be at least \p DEFAULT_KEYLENGTH in length. Internally, the function calls
-	//!    \p SimpleKeyingInterface::SetKey.
+	//! \details key must be at least DEFAULT_KEYLENGTH in length. Internally, the function calls
+	//!    SimpleKeyingInterface::SetKey.
 	BlockCipherFinal(const byte *key)
 		{this->SetKey(key, this->DEFAULT_KEYLENGTH);}
+	
 	//! \brief Construct a BlockCipherFinal
 	//! \param key a byte array used to key the cipher
 	//! \param length the length of the byte array
-	//! \details \p key must be at least \p DEFAULT_KEYLENGTH in length. Internally, the function calls
-	//!    \p SimpleKeyingInterface::SetKey.
+	//! \details key must be at least DEFAULT_KEYLENGTH in length. Internally, the function calls
+	//!    SimpleKeyingInterface::SetKey.
 	BlockCipherFinal(const byte *key, size_t length)
 		{this->SetKey(key, length);}
+	
 	//! \brief Construct a BlockCipherFinal
 	//! \param key a byte array used to key the cipher
 	//! \param length the length of the byte array
 	//! \param rounds the number of rounds
-	//! \details \p key must be at least \p DEFAULT_KEYLENGTH in length. Internally, the function calls
-	//!    \p SimpleKeyingInterface::SetKeyWithRounds.
+	//! \details key must be at least DEFAULT_KEYLENGTH in length. Internally, the function calls
+	//!    SimpleKeyingInterface::SetKeyWithRounds.
 	BlockCipherFinal(const byte *key, size_t length, unsigned int rounds)
 		{this->SetKeyWithRounds(key, length, rounds);}
 
 	//! \brief Provides the direction of the cipher
-	//! \returns \p true if \p DIR is \p ENCRYPTION, \p false otherwise
+	//! \returns true if DIR is ENCRYPTION, false otherwise
+	//! \sa IsForwardTransformation(), IsPermutation(), GetCipherDirection()
 	bool IsForwardTransformation() const {return DIR == ENCRYPTION;}
 };
 
@@ -347,15 +361,15 @@ public:
  	MessageAuthenticationCodeFinal() {}
 	//! \brief Construct a BlockCipherFinal
 	//! \param key a byte array used to key the cipher
-	//! \details \p key must be at least \p DEFAULT_KEYLENGTH in length. Internally, the function calls
-	//!    \p SimpleKeyingInterface::SetKey.
+	//! \details key must be at least DEFAULT_KEYLENGTH in length. Internally, the function calls
+	//!    SimpleKeyingInterface::SetKey.
 	MessageAuthenticationCodeFinal(const byte *key)
 		{this->SetKey(key, this->DEFAULT_KEYLENGTH);}
 	//! \brief Construct a BlockCipherFinal
 	//! \param key a byte array used to key the cipher
 	//! \param length the length of the byte array
-	//! \details \p key must be at least \p DEFAULT_KEYLENGTH in length. Internally, the function calls
-	//!    \p SimpleKeyingInterface::SetKey.
+	//! \details key must be at least DEFAULT_KEYLENGTH in length. Internally, the function calls
+	//!    SimpleKeyingInterface::SetKey.
 	MessageAuthenticationCodeFinal(const byte *key, size_t length)
 		{this->SetKey(key, length);}
 };
@@ -363,7 +377,7 @@ public:
 // ************** documentation ***************
 
 //! \class BlockCipherDocumentation
-//! \brief Provides \p Encryption and \p Decryption typedefs used by derived classes to
+//! \brief Provides Encryption and Decryption typedefs used by derived classes to
 //!    implement a block cipher
 //! \details These objects usually should not be used directly. See CipherModeDocumentation
 //!    instead. Each class derived from this one defines two types, Encryption and Decryption, 
@@ -377,7 +391,7 @@ struct BlockCipherDocumentation
 };
 
 //! \class SymmetricCipherDocumentation
-//! \brief Provides \p Encryption and \p Decryption typedefs used by derived classes to
+//! \brief Provides Encryption and Decryption typedefs used by derived classes to
 //!    implement a symmetric cipher
 //! \details Each class derived from this one defines two types, Encryption and Decryption, 
 //!    both of which implement the SymmetricCipher interface. Two types of classes derive
@@ -393,7 +407,7 @@ struct SymmetricCipherDocumentation
 };
 
 //! \class AuthenticatedSymmetricCipherDocumentation
-//! \brief Provides \p Encryption and \p Decryption typedefs used by derived classes to
+//! \brief Provides Encryption and Decryption typedefs used by derived classes to
 //!    implement an authenticated encryption cipher
 //! \details Each class derived from this one defines two types, Encryption and Decryption, 
 //!    both of which implement the AuthenticatedSymmetricCipher interface.

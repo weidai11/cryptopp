@@ -524,7 +524,9 @@ public:
 		ConstByteArrayParameter encodingParameters;
 		parameters.GetValue(Name::EncodingParameters(), encodingParameters);
 
-		xorbuf(ciphertext, plaintext, cipherKey, plaintextLength);
+		if (plaintextLength)	// Coverity finding
+			xorbuf(ciphertext, plaintext, cipherKey, plaintextLength);
+
 		MAC mac(macKey);
 		mac.Update(ciphertext, plaintextLength);
 		mac.Update(encodingParameters.begin(), encodingParameters.size());
@@ -566,7 +568,9 @@ public:
 		if (!mac.Verify(ciphertext + plaintextLength))
 			return DecodingResult();
 
-		xorbuf(plaintext, ciphertext, cipherKey, plaintextLength);
+		if (plaintextLength)	// Coverity finding
+			xorbuf(plaintext, ciphertext, cipherKey, plaintextLength);
+
 		return DecodingResult(plaintextLength);
 	}
 	

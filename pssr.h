@@ -1,3 +1,9 @@
+// pssr.h - written and placed in the public domain by Wei Dai
+
+//! \file
+//! \headerfile pssr.h
+//! \brief Classes for probablistic signature schemes
+
 #ifndef CRYPTOPP_PSSR_H
 #define CRYPTOPP_PSSR_H
 

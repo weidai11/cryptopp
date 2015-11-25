@@ -1,8 +1,10 @@
+// camellia.h - written and placed in the public domain by Wei Dai
+
+//! \file camellia.h
+//! \brief Classes for the Cameliia block cipher
+
 #ifndef CRYPTOPP_CAMELLIA_H
 #define CRYPTOPP_CAMELLIA_H
-
-/** \file
-*/
 
 #include "config.h"
 #include "seckey.h"

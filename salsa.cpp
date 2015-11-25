@@ -16,19 +16,28 @@
 # pragma warning(disable: 4702 4740)
 #endif
 
-// TODO: work around GCC 4.9+ issue with SSE2 ASM until the exact details are known
+// TODO: work around GCC 4.8+ issue with SSE2 ASM until the exact details are known
 //   and fix is released. Duplicate with "valgrind ./cryptest.exe tv salsa"
-#if (CRYPTOPP_GCC_VERSION >= 40900)
+// Clang due to "Inline assembly operands don't work with .intel_syntax"
+//   https://llvm.org/bugs/show_bug.cgi?id=24232
+#if defined(CRYPTOPP_DISABLE_SALSA_ASM)
+# undef CRYPTOPP_X86_ASM_AVAILABLE
+# undef CRYPTOPP_X32_ASM_AVAILABLE
+# undef CRYPTOPP_X64_ASM_AVAILABLE
 # undef CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+# undef CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE
 # define CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE 0
+# define CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE 0
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
 
+#if !defined(NDEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
 void Salsa20_TestInstantiations()
 {
 	Salsa20::Encryption x;
 }
+#endif
 
 void Salsa20_Policy::CipherSetKey(const NameValuePairs &params, const byte *key, size_t length)
 {
@@ -66,7 +75,7 @@ void Salsa20_Policy::SeekToIteration(lword iterationCount)
 	m_state[5] = (word32)SafeRightShift<32>(iterationCount);
 }
 
-#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X64
+#if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64) && !defined(CRYPTOPP_DISABLE_SALSA_ASM)
 unsigned int Salsa20_Policy::GetAlignment() const
 {
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
@@ -164,7 +173,7 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 	#ifdef __GNUC__
 		__asm__ __volatile__
 		(
-			".intel_syntax noprefix;"
+			INTEL_NOPREFIX
 			AS_PUSH_IF86(	bx)
 	#else
 		void *s = m_state.data();
@@ -472,7 +481,7 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 		AS_POP_IF86(	bp)
 #ifdef __GNUC__
 		AS_POP_IF86(	bx)
-		".att_syntax prefix;"
+		ATT_PREFIX
 	#if CRYPTOPP_BOOL_X64
 			: "+r" (input), "+r" (output), "+r" (iterationCount)
 			: "r" (m_rounds), "r" (m_state.m_ptr), "r" (workspace)

@@ -1,6 +1,7 @@
 // authenc.h - written and placed in the public domain by Wei Dai
 
 //! \file
+//! \headerfile authenc.h
 //! \brief Base classes for working with authenticated encryption modes of encryption
 
 #ifndef CRYPTOPP_AUTHENC_H
@@ -16,7 +17,8 @@ NAMESPACE_BEGIN(CryptoPP)
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AuthenticatedSymmetricCipherBase : public AuthenticatedSymmetricCipher
 {
 public:
-	AuthenticatedSymmetricCipherBase() : m_state(State_Start) {}
+	AuthenticatedSymmetricCipherBase() : m_state(State_Start), m_bufferedDataLength(0),
+		m_totalHeaderLength(0), m_totalMessageLength(0), m_totalFooterLength(0) {}
 
 	bool IsRandomAccess() const {return false;}
 	bool IsSelfInverting() const {return true;}

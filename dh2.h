@@ -1,8 +1,11 @@
+// dh2.h - written and placed in the public domain by Wei Dai
+
+//! \file
+//! \headerfile dh2.h
+//! \brief Classes for Diffie-Hellman authenticated key exchange
+
 #ifndef CRYPTOPP_DH2_H
 #define CRYPTOPP_DH2_H
-
-/** \file
-*/
 
 #include "cryptlib.h"
 

@@ -25,9 +25,11 @@
 #include "validate.h"
 #include "bench.h"
 
-#include <iostream>
-#include <string>
 #include <algorithm>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <locale>
 #include <time.h>
 
 #ifdef CRYPTOPP_WIN32_AVAILABLE
@@ -106,6 +108,7 @@ void FIPS140_SampleApplication();
 void FIPS140_GenerateRandomFiles();
 
 bool Validate(int, bool, const char *);
+void PrintSeedAndThreads(const std::string& seed);
 
 int (*AdhocTest)(int argc, char *argv[]) = NULL;
 
@@ -113,21 +116,6 @@ RandomNumberGenerator & GlobalRNG()
 {
 	static OFB_Mode<AES>::Encryption s_globalRNG;
 	return dynamic_cast<RandomNumberGenerator&>(s_globalRNG);
-}
-
-void PrintSeedAndThreads(const std::string& seed)
-{
-	cout << "Using seed: " << seed << endl;
-
-#ifdef _OPENMP
-	int tc = 0;
-	#pragma omp parallel
-	{
-		tc = omp_get_num_threads();
-	}
-
-	std::cout << "Using " << tc << " OMP " << (tc == 1 ? "thread" : "threads") << std::endl;
-#endif
 }
 
 int CRYPTOPP_API main(int argc, char *argv[])
@@ -144,14 +132,12 @@ int CRYPTOPP_API main(int argc, char *argv[])
 #endif
 
 	try
-	{
+	{		
 		RegisterFactories();
 
-		std::string seed = IntToString(time(NULL));		
-
-		// Some editors have problems with the '\0' character from redirected output. Leave the trailing '\0' for debugging.
-		seed.resize(16);
-		std::replace(seed.begin(), seed.end() -1, '\0', ' ');
+		// Some editors have problems with the '\0' character when redirecting output.
+		std::string seed = IntToString(time(NULL));
+		seed.resize(16, ' ');
 
 		OFB_Mode<AES>::Encryption& prng = dynamic_cast<OFB_Mode<AES>::Encryption&>(GlobalRNG());
 		prng.SetKeyWithIV((byte *)seed.data(), 16, (byte *)seed.data());
@@ -343,20 +329,20 @@ int CRYPTOPP_API main(int argc, char *argv[])
 			cout << "\nRandom Seed: ";
 			ws(cin);
 			cin.getline(thisSeed, 1024);
-			SecretShareFile(atoi(argv[2]), atoi(argv[3]), argv[4], thisSeed);
+			SecretShareFile(StringToValue<int, true>(argv[2]), StringToValue<int, true>(argv[3]), argv[4], thisSeed);
 		}
 		else if (command == "sr")
 			SecretRecoverFile(argc-3, argv[2], argv+3);
 		else if (command == "id")
-			InformationDisperseFile(atoi(argv[2]), atoi(argv[3]), argv[4]);
+			InformationDisperseFile(StringToValue<int, true>(argv[2]), StringToValue<int, true>(argv[3]), argv[4]);
 		else if (command == "ir")
 			InformationRecoverFile(argc-3, argv[2], argv+3);
 		else if (command == "v" || command == "vv")
-			return !Validate(argc>2 ? atoi(argv[2]) : 0, argv[1][1] == 'v', argc>3 ? argv[3] : NULL);
+			return !Validate(argc>2 ? StringToValue<int, true>(argv[2]) : 0, argv[1][1] == 'v', argc>3 ? argv[3] : NULL);
 		else if (command == "b")
-			BenchmarkAll(argc<3 ? 1 : atof(argv[2]), argc<4 ? 0 : atof(argv[3])*1e9);
+			BenchmarkAll(argc<3 ? 1 : StringToValue<float, true>(argv[2]), argc<4 ? 0 : StringToValue<float, true>(argv[3])*1e9);
 		else if (command == "b2")
-			BenchmarkAll2(argc<3 ? 1 : atof(argv[2]), argc<4 ? 0 : atof(argv[3])*1e9);
+			BenchmarkAll2(argc<3 ? 1 : StringToValue<float, true>(argv[2]), argc<4 ? 0 : StringToValue<float, true>(argv[3])*1e9);
 		else if (command == "z")
 			GzipFile(argv[3], argv[4], argv[2][0]-'0');
 		else if (command == "u")
@@ -420,6 +406,52 @@ void FIPS140_GenerateRandomFiles()
 #else
 	cout << "OS provided RNG not available.\n";
 	exit(-1);
+#endif
+}
+
+template <class T, bool NON_NEGATIVE>
+T StringToValue(const std::string& str) {
+	std::istringstream iss(str);
+	T value;
+	iss >> value;
+	
+	// Use fail(), not bad()
+	if (iss.fail())
+		throw InvalidArgument("cryptest.exe: '" + str +"' is not a value");
+
+#if NON_NEGATIVE
+	if (value < 0)
+		throw InvalidArgument("cryptest.exe: '" + str +"' is negative");
+#endif
+
+	return value;	
+}
+
+template<>
+int StringToValue<int, true>(const std::string& str)
+{
+	Integer n(str.c_str());
+	long l = n.ConvertToLong();
+	
+	int r;
+	if(!SafeConvert(l, r))
+		throw InvalidArgument("cryptest.exe: '" + str +"' is not an integer value");
+	
+	return r;
+}
+
+void PrintSeedAndThreads(const std::string& seed)
+{
+	cout << "Using seed: " << seed << endl;
+
+#ifdef _OPENMP
+	int tc = 0;
+	#pragma omp parallel
+	{
+		tc = omp_get_num_threads();
+	}
+
+	std::cout << "Using " << tc << " OMP " << (tc == 1 ? "thread" : "threads") << std::endl;
 #endif
 }
 
@@ -585,7 +617,9 @@ void DecryptFile(const char *in, const char *out, const char *passPhrase)
 
 void SecretShareFile(int threshold, int nShares, const char *filename, const char *seed)
 {
-	assert(nShares<=1000);
+	assert(nShares >= 1 && nShares<=1000);
+	if (nShares < 1 || nShares > 1000)
+		throw InvalidArgument("SecretShareFile: " + IntToString(nShares) + " is not in range [1, 1000]");
 
 	RandomPool rng;
 	rng.IncorporateEntropy((byte *)seed, strlen(seed));
@@ -604,7 +638,7 @@ void SecretShareFile(int threshold, int nShares, const char *filename, const cha
 		fileSinks[i].reset(new FileSink((string(filename)+extension).c_str()));
 
 		channel = WordToString<word32>(i);
-		fileSinks[i]->Put((byte *)channel.data(), 4);
+		fileSinks[i]->Put((const byte *)channel.data(), 4);
 		channelSwitch->AddRoute(channel, *fileSinks[i], DEFAULT_CHANNEL);
 	}
 
@@ -613,7 +647,9 @@ void SecretShareFile(int threshold, int nShares, const char *filename, const cha
 
 void SecretRecoverFile(int threshold, const char *outFilename, char *const *inFilenames)
 {
-	assert(threshold<=1000);
+	assert(threshold >= 1 && threshold <=1000);
+	if (threshold < 1 || threshold > 1000)
+		throw InvalidArgument("SecretRecoverFile: " + IntToString(threshold) + " is not in range [1, 1000]");
 
 	SecretRecovery recovery(threshold, new FileSink(outFilename));
 
@@ -638,7 +674,9 @@ void SecretRecoverFile(int threshold, const char *outFilename, char *const *inFi
 
 void InformationDisperseFile(int threshold, int nShares, const char *filename)
 {
-	assert(nShares<=1000);
+	assert(threshold >= 1 && threshold <=1000);
+	if (threshold < 1 || threshold > 1000)
+		throw InvalidArgument("InformationDisperseFile: " + IntToString(nShares) + " is not in range [1, 1000]");
 
 	ChannelSwitch *channelSwitch;
 	FileSource source(filename, false, new InformationDispersal(threshold, nShares, channelSwitch = new ChannelSwitch));
@@ -654,7 +692,7 @@ void InformationDisperseFile(int threshold, int nShares, const char *filename)
 		fileSinks[i].reset(new FileSink((string(filename)+extension).c_str()));
 
 		channel = WordToString<word32>(i);
-		fileSinks[i]->Put((byte *)channel.data(), 4);
+		fileSinks[i]->Put((const byte *)channel.data(), 4);
 		channelSwitch->AddRoute(channel, *fileSinks[i], DEFAULT_CHANNEL);
 	}
 
@@ -664,6 +702,8 @@ void InformationDisperseFile(int threshold, int nShares, const char *filename)
 void InformationRecoverFile(int threshold, const char *outFilename, char *const *inFilenames)
 {
 	assert(threshold<=1000);
+	if (threshold < 1 || threshold > 1000)
+		throw InvalidArgument("InformationRecoverFile: " + IntToString(threshold) + " is not in range [1, 1000]");
 
 	InformationRecovery recovery(threshold, new FileSink(outFilename));
 
@@ -755,8 +795,12 @@ void ForwardTcpPort(const char *sourcePortName, const char *destinationHost, con
 
 	sockListen.Create();
 	sockListen.Bind(sourcePort);
-	setsockopt(sockListen, IPPROTO_TCP, TCP_NODELAY, "\x01", 1);
-
+	
+	int err = setsockopt(sockListen, IPPROTO_TCP, TCP_NODELAY, "\x01", 1);
+	assert(err == 0);
+	if(err != 0)
+		throw Socket::Err(sockListen, "setsockopt", sockListen.GetLastError());
+	
 	cout << "Listing on port " << sourcePort << ".\n";
 	sockListen.Listen();
 
@@ -810,11 +854,10 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 {
 	bool result;
 
-	std::string seed = seedInput ? std::string(seedInput) : IntToString(time(NULL));
-
-	// Some editors have problems with the '\0' character from redirected output. Leave the trailing '\0' for debugging.
-	seed.resize(16);
-	std::replace(seed.begin(), seed.end() -1, '\0', ' ');
+	// Some editors have problems with the '\0' character when redirecting output.
+	//   seedInput is argv[3] when issuing 'cryptest.exe v all <seed>'
+	std::string seed = (seedInput ? seedInput : IntToString(time(NULL)));
+	seed.resize(16, ' ');
 
 	OFB_Mode<AES>::Encryption& prng = dynamic_cast<OFB_Mode<AES>::Encryption&>(GlobalRNG());
 	prng.SetKeyWithIV((byte *)seed.data(), 16, (byte *)seed.data());
@@ -897,7 +940,7 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 	}
 
 // Safer functions on Windows for C&A, https://github.com/weidai11/cryptopp/issues/55
-#if defined(CRYPTOPP_MSC_VERSION)
+#if (CRYPTOPP_MSC_VERSION >= 1400)
 	tm localTime = {};
 	char timeBuf[64];
 	errno_t err;

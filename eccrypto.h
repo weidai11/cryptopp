@@ -1,8 +1,10 @@
+// eccrypto.h - written and placed in the public domain by Wei Dai
+
+//! \file eccrypto.h
+//! \brief Classes and functions for Elliptic Curves over prime and binary fields
+
 #ifndef CRYPTOPP_ECCRYPTO_H
 #define CRYPTOPP_ECCRYPTO_H
-
-/*! \file
-*/
 
 #include "config.h"
 #include "cryptlib.h"
@@ -139,8 +141,8 @@ protected:
 
 	OID m_oid;			// set if parameters loaded from a recommended curve
 	Integer m_n;		// order of base point
-	bool m_compress, m_encodeAsOID;
 	mutable Integer m_k;		// cofactor
+	mutable bool m_compress, m_encodeAsOID;		// presentation details
 };
 
 //! EC public key
@@ -299,7 +301,7 @@ struct ECIES
 	virtual ~ECIES() {}
 #endif
 	
-#if (CRYPTOPP_GCC_VERSION >= 40300) || (CRYPTOPP_CLANG_VERSION >= 20800) 
+#if (CRYPTOPP_GCC_VERSION >= 40500) || (CRYPTOPP_CLANG_VERSION >= 30000) 
 } __attribute__((deprecated ("ECIES will be changing in the near future due to (1) an implementation bug and (2) an interop issue.")));
 #elif (CRYPTOPP_GCC_VERSION )
 } __attribute__((deprecated));
@@ -473,8 +475,8 @@ protected:
 
 	OID m_oid;			// set if parameters loaded from a recommended curve
 	Integer m_n;		// order of base point
-	bool m_compress, m_encodeAsOID;
 	mutable Integer m_k;		// cofactor
+	mutable bool m_compress, m_encodeAsOID;		// presentation details
 };
 
 //! EC public key

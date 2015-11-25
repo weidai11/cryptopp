@@ -18,6 +18,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+#if !defined(NDEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
 void ESIGN_TestInstantiations()
 {
 	ESIGN<SHA>::Verifier x1(1, 1);
@@ -31,6 +32,7 @@ void ESIGN_TestInstantiations()
 	x3 = ESIGN<SHA>::Verifier(x2);
 	x4 = x2.GetKey();
 }
+#endif
 
 void ESIGNFunction::BERDecode(BufferedTransformation &bt)
 {

@@ -1,8 +1,10 @@
+// seed.h - written and placed in the public domain by Wei Dai
+
+//! \file seed.h
+//! \brief Classes for the SEED block cipher
+
 #ifndef CRYPTOPP_SEED_H
 #define CRYPTOPP_SEED_H
-
-/** \file
-*/
 
 #include "seckey.h"
 #include "secblock.h"

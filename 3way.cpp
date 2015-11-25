@@ -7,11 +7,13 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+#if !defined(NDEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
 void ThreeWay_TestInstantiations()
 {
 	ThreeWay::Encryption x1;
 	ThreeWay::Decryption x2;
 }
+#endif
 
 static const word32 START_E = 0x0b0b; // round constant of first encryption round
 static const word32 START_D = 0xb1b1; // round constant of first decryption round

@@ -90,7 +90,7 @@ void SosemanukPolicy::CipherResynchronize(byte *keystreamBuffer, const byte *iv,
 
 extern "C" {
 word32 s_sosemanukMulTables[512] = {
-#if CRYPTOPP_BOOL_X86 || (CRYPTOPP_BOOL_X32 && !defined(CRYPTOPP_DISABLE_SOSEMANUK_ASM)) || CRYPTOPP_BOOL_X64
+#if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64) && !defined(CRYPTOPP_DISABLE_SOSEMANUK_ASM)
 	0x00000000, 0xE19FCF12, 0x6B973724, 0x8A08F836, 
 	0xD6876E48, 0x3718A15A, 0xBD10596C, 0x5C8F967E, 
 	0x05A7DC90, 0xE4381382, 0x6E30EBB4, 0x8FAF24A6, 
@@ -288,7 +288,7 @@ word32 s_sosemanukMulTables[512] = {
 };
 }
 
-#if CRYPTOPP_BOOL_X86 || (CRYPTOPP_BOOL_X32 && !defined(CRYPTOPP_DISABLE_SOSEMANUK_ASM)) || CRYPTOPP_BOOL_X64
+#if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64) && !defined(CRYPTOPP_DISABLE_SOSEMANUK_ASM)
 unsigned int SosemanukPolicy::GetAlignment() const
 {
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && !defined(CRYPTOPP_DISABLE_SOSEMANUK_ASM)
@@ -321,7 +321,7 @@ unsigned int SosemanukPolicy::GetOptimalBlockSize() const
 #ifdef CRYPTOPP_X64_MASM_AVAILABLE
 extern "C" {
 void Sosemanuk_OperateKeystream(size_t iterationCount, const byte *input, byte *output, word32 *state);
-}		
+}
 #endif
 
 void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount)
@@ -358,7 +358,7 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 	#endif
 		__asm__ __volatile__
 		(
-		".intel_syntax noprefix;"
+		INTEL_NOPREFIX
 		AS_PUSH_IF86(	bx)
 #else
 		word32 *state = m_state;
@@ -385,7 +385,7 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 #define SSE2_stateCopy		SSE2_workspace + 8*WORD_SZ
 #define	SSE2_uvStart		SSE2_stateCopy + 12*4
 
-#if CRYPTOPP_BOOL_X86 || (CRYPTOPP_BOOL_X32 && !defined(CRYPTOPP_DISABLE_SOSEMANUK_ASM))
+#if (CRYPTOPP_BOOL_X86) && !defined(CRYPTOPP_DISABLE_SOSEMANUK_ASM)
 		AS_PUSH_IF86(	bp)
 		AS2(	mov		AS_REG_6, esp)
 		AS2(	and		esp, -16)
@@ -599,7 +599,7 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 
 #ifdef __GNUC__
 		AS_POP_IF86(	bx)
-		".att_syntax prefix;"
+		ATT_PREFIX
 			:
 			: "a" (m_state.m_ptr), "c" (iterationCount), "S" (s_sosemanukMulTables), "D" (output), "d" (input)
 	#if CRYPTOPP_BOOL_X64
@@ -625,7 +625,7 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 #endif
 #ifndef CRYPTOPP_GENERATE_X64_MASM
 	{
-#if CRYPTOPP_BOOL_X86 || (CRYPTOPP_BOOL_X32 && !defined(CRYPTOPP_DISABLE_SOSEMANUK_ASM)) || CRYPTOPP_BOOL_X64
+#if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64) && !defined(CRYPTOPP_DISABLE_SOSEMANUK_ASM)
 #define MUL_A(x)    (x = rotlFixed(x, 8), x ^ s_sosemanukMulTables[byte(x)])
 #else
 #define MUL_A(x)    (((x) << 8) ^ s_sosemanukMulTables[(x) >> 24])

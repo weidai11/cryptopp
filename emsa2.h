@@ -1,9 +1,10 @@
+// emsa2.h - written and placed in the public domain by Wei Dai
+
+//! \file emsa2.h
+//! \brief Classes and functions for various padding schemes used in public key algorithms
+
 #ifndef CRYPTOPP_EMSA2_H
 #define CRYPTOPP_EMSA2_H
-
-/** \file
-	This file contains various padding schemes for public key algorithms.
-*/
 
 #include "cryptlib.h"
 #include "pubkey.h"

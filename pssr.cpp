@@ -77,7 +77,8 @@ void PSSR_MEM_Base::ComputeMessageRepresentative(RandomNumberGenerator &rng,
 	GetMGF().GenerateAndMask(hash, representative, representativeByteLength - u - digestSize, h, digestSize, false);
 	byte *xorStart = representative + representativeByteLength - u - digestSize - salt.size() - recoverableMessageLength - 1;
 	xorStart[0] ^= 1;
-	xorbuf(xorStart + 1, recoverableMessage, recoverableMessageLength);
+	if (recoverableMessage && recoverableMessageLength)
+		xorbuf(xorStart + 1, recoverableMessage, recoverableMessageLength);
 	xorbuf(xorStart + 1 + recoverableMessageLength, salt, salt.size());
 	if (hashIdentifier.first && hashIdentifier.second)
 	{
@@ -114,7 +115,9 @@ DecodingResult PSSR_MEM_Base::RecoverMessageFromRepresentative(
 	size_t &recoverableMessageLength = result.messageLength;
 
 	valid = (representative[representativeByteLength - 1] == (hashIdentifier.second ? 0xcc : 0xbc)) && valid;
-	valid = VerifyBufsEqual(representative + representativeByteLength - u, hashIdentifier.first, hashIdentifier.second) && valid;
+
+	if (hashIdentifier.first && hashIdentifier.second)
+		valid = VerifyBufsEqual(representative + representativeByteLength - u, hashIdentifier.first, hashIdentifier.second) && valid;
 
 	GetMGF().GenerateAndMask(hash, representative, representativeByteLength - u - digestSize, h, digestSize);
 	if (representativeBitLength % 8 != 0)

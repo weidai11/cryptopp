@@ -180,6 +180,10 @@ void SimpleKeyingInterface::GetNextIV(RandomNumberGenerator &rng, byte *IV)
 
 size_t BlockTransformation::AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const
 {
+	assert(inBlocks);
+	assert(outBlocks);
+	assert(length);
+	
 	size_t blockSize = BlockSize();
 	size_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
 	size_t xorIncrement = xorBlocks ? blockSize : 0;
@@ -200,11 +204,20 @@ size_t BlockTransformation::AdvancedProcessBlocks(const byte *inBlocks, const by
 	{
 		if (flags & BT_XorInput)
 		{
+			// Coverity finding. However, xorBlocks is never NULL if BT_XorInput.
+			assert(xorBlocks);
+#if defined(__COVERITY__)
+			if (xorBlocks)
+#endif
 			xorbuf(outBlocks, xorBlocks, inBlocks, blockSize);
 			ProcessBlock(outBlocks);
 		}
 		else
+		{
+			// xorBlocks can be NULL. See, for example, ECB_OneWay::ProcessData.
 			ProcessAndXorBlock(inBlocks, xorBlocks, outBlocks);
+		}
+
 		if (flags & BT_InBlockIsCounter)
 			const_cast<byte *>(inBlocks)[blockSize-1]++;
 		inBlocks += inIncrement;
@@ -344,16 +357,49 @@ void RandomNumberGenerator::GenerateIntoBufferedTransformation(BufferedTransform
 	}
 }
 
-//! see NullRNG()
+//! \class ClassNullRNG
+//! \brief Random Number Generator that does not produce random numbers
+//! \details ClassNullRNG can be used for functions that require a RandomNumberGenerator
+//!   but don't actually use it. The class throws NotImplemented when a generation function is called.
+//! \sa NullRNG()
 class ClassNullRNG : public RandomNumberGenerator
 {
 public:
+	//! \brief The name of the generator
+	//! \returns the string \a NullRNGs
 	std::string AlgorithmName() const {return "NullRNG";}
+	
+#if defined(CRYPTOPP_DOXYGEN_PROCESSING)
+	//! \brief An implementation that throws NotImplemented
+	byte GenerateByte () {}
+	//! \brief An implementation that throws NotImplemented
+	unsigned int GenerateBit () {}
+	//! \brief An implementation that throws NotImplemented
+	word32 GenerateWord32 (word32 min, word32 max) {}
+#endif
+
+	//! \brief An implementation that throws NotImplemented
 	void GenerateBlock(byte *output, size_t size)
 	{
 		CRYPTOPP_UNUSED(output); CRYPTOPP_UNUSED(size);
 		throw NotImplemented("NullRNG: NullRNG should only be passed to functions that don't need to generate random bytes");
 	}
+
+#if defined(CRYPTOPP_DOXYGEN_PROCESSING)
+	//! \brief An implementation that throws NotImplemented
+	void GenerateIntoBufferedTransformation (BufferedTransformation &target, const std::string &channel, lword length) {}
+	//! \brief An implementation that throws NotImplemented
+	void IncorporateEntropy (const byte *input, size_t length) {}
+	//! \brief An implementation that returns \p false
+	bool CanIncorporateEntropy () const {}
+	//! \brief An implementation that does nothing
+	void DiscardBytes (size_t n) {}
+	//! \brief An implementation that does nothing
+	void Shuffle (IT begin, IT end) {}
+	
+private:
+	Clonable* Clone () const { return NULL; }
+#endif
 };
 
 RandomNumberGenerator & NullRNG()

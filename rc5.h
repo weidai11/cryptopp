@@ -1,8 +1,10 @@
+// rc5.h - written and placed in the public domain by Wei Dai
+
+//! \file rc5.h
+//! \brief Classes for the RC5 block cipher
+
 #ifndef CRYPTOPP_RC5_H
 #define CRYPTOPP_RC5_H
-
-/** \file
-*/
 
 #include "seckey.h"
 #include "secblock.h"
