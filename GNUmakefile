@@ -19,6 +19,7 @@ CHMOD ?= chmod
 MKDIR ?= mkdir
 EGREP ?= egrep
 LN ?= ln -sf
+LDCONF ?= /sbin/ldconfig -n
 
 UNAME := $(shell uname)
 IS_X86 := $(shell uname -m | $(EGREP) -i -c "i.86|x86|i86|amd64")
@@ -272,10 +273,11 @@ LIB_MAJOR := $(shell echo $(LIB_VER) | cut -c 1)
 LIB_MINOR := $(shell echo $(LIB_VER) | cut -c 2)
 LIB_PATCH := $(shell echo $(LIB_VER) | cut -c 3)
 ifeq ($(HAS_SOLIB_VERSION),1)
+# Full version suffix for shared library
 SOLIB_VERSION_SUFFIX=.$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)
-SOLIB_COMPAT_SUFFIX=.$(LIB_MAJOR).$(LIB_MINOR)
 # Different patchlevels are compatible, minor versions are not
-SOLIB_FLAGS=-Wl,-soname,libcryptopp.so.$(LIB_MAJOR).$(LIB_MINOR)
+SOLIB_COMPAT_SUFFIX=.$(LIB_MAJOR).$(LIB_MINOR)
+SOLIB_FLAGS=-Wl,-soname,libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
 endif # HAS_SOLIB_VERSION
 
 ifeq ($(strip $(LIB_PATCH)),)
@@ -373,7 +375,7 @@ ifneq ($(wildcard libcryptopp.so$(SOLIB_VERSION_SUFFIX)),)
 	-$(CHMOD) 755 $(PREFIX)/lib/libcryptopp.so$(SOLIB_VERSION_SUFFIX)
 ifeq ($(HAS_SOLIB_VERSION),1)
 	-$(LN) -sf libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(PREFIX)/lib/libcryptopp.so
-	ldconfig
+	$(LDCONF) $(PREFIX)/lib
 endif
 endif
 endif
@@ -388,8 +390,9 @@ ifneq ($(IS_DARWIN),0)
 else
 	-$(RM) $(PREFIX)/lib/libcryptopp.so$(SOLIB_VERSION_SUFFIX)
 ifeq ($(HAS_SOLIB_VERSION),1)
+	-$(RM) $(PREFIX)/lib/libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
 	-$(RM) $(PREFIX)/lib/libcryptopp.so
-	ldconfig
+	$(LDCONF) $(PREFIX)/lib
 endif
 endif
 
@@ -527,5 +530,11 @@ ifneq ($(UNALIGNED_ACCESS)$(NO_INIT_PRIORITY)$(COMPATIBILITY_562),000)
 	$(info WARNING: You should make these changes in config.h, and not CXXFLAGS.)
 	$(info WARNING: You can 'mv config.recommend config.h', but it breaks versioning.)
 	$(info WARNING: See http://cryptopp.com/wiki/config.h for more details.)
+	$(info )
+endif
+ifeq ($(HAS_SOLIB_VERSION),1)
+	$(info WARNING: Only the symlinks to the shared-object library have been updated.)
+	$(info WARNING: If the library is installed in a system directory you will need)
+	$(info WARNING: to run 'ldconfig' to update the shared-object library cache.)
 	$(info )
 endif
