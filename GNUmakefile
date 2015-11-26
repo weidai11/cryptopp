@@ -238,8 +238,9 @@ endif # CXXFLAGS
 endif # USING_GLIBCXX
 endif # GNU Debug build
 
-# List cryptlib.cpp first and cpu.o second in an attempt to tame C++ static initialization problems. The issue
-#  spills into POD data types, so cpu.cpp is the second candidate for explicit initialization order.
+# List cryptlib.cpp first and cpu.cpp second in an attempt to tame C++ static initialization problems.
+#  The issue spills into POD data types of cpu.cpp due to the storage class of the bools, so cpu.cpp
+#  is the second candidate for explicit initialization order.
 SRCS := cryptlib.cpp cpu.cpp $(filter-out cryptlib.cpp cpu.cpp pch.cpp simple.cpp winpipes.cpp cryptlib_bds.cpp,$(wildcard *.cpp))
 
 # No need for CPU or RDRAND on non-X86 systems. X32 is represented with X64.
@@ -311,7 +312,7 @@ DOCUMENT_DIRECTORY := ref$(LIB_VER)
 ifeq ($(wildcard Doxyfile),Doxyfile)
 DOXYGEN_DIRECTORY := $(strip $(shell $(EGREP) "OUTPUT_DIRECTORY" Doxyfile | grep -v "\#" | cut -d "=" -f 2))
 endif
-# Default directory (missing in config file)
+# Default directory (in case its missing in the config file)
 ifeq ($(strip $(DOXYGEN_DIRECTORY)),)
 DOXYGEN_DIRECTORY := html-docs
 endif
@@ -344,7 +345,7 @@ endif
 
 .PHONY: distclean
 distclean: clean
-	-$(RM) adhoc.cpp adhoc.cpp.copied GNUmakefile.deps benchmarks.html cryptest.txt cryptest-*.txt *.o *.ii *.s
+	-$(RM) adhoc.cpp adhoc.cpp.copied GNUmakefile.deps benchmarks.html cryptest.txt cryptest-*.txt *.o *.ii *.s *~
 ifneq ($(wildcard cryptopp$(LIB_VER)\.*),)
 	-$(RM) cryptopp$(LIB_VER)\.*
 endif
