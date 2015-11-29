@@ -17,8 +17,8 @@
 //   indirectly uses CRYPTOPP_BOOL_{X86|X32|X64} (via CRYPTOPP_CPUID_AVAILABLE)
 //   to select an implementation or "throw NotImplemented". At runtime, the
 //   class uses the result of CPUID to determine if RDRAND or RDSEED are
-//   available. A lazy throw strategy is used in case the CPU does not support
-//   the instruction. I.e., the throw is deferred until GenerateBlock is called.
+//   available. If not available, a lazy throw strategy is used. I.e., the
+//   throw is deferred until GenerateBlock() is called.
 
 // Here's the naming convention for the functions....
 //   MSC = Microsoft Compiler (and compatibles)
@@ -196,7 +196,10 @@ static int ALL_RRI_GenerateBlock(byte *output, size_t size, unsigned int safety)
         else
         {
 			if (!safety--)
+			{
+				assert(0);
 				return 0;
+			}
         }
 	}
 
@@ -214,7 +217,10 @@ static int ALL_RRI_GenerateBlock(byte *output, size_t size, unsigned int safety)
 		else
 		{
 			if (!safety--)
+			{
+				assert(0);
 				return 0;
+			}
 		}
     }
 		
@@ -275,7 +281,10 @@ static int GCC_RRA_GenerateBlock(byte *output, size_t size, unsigned int safety)
         else
         {
 			if (!safety--)
-				break;
+			{
+				assert(0);
+				return 0;
+			}
         }
 	}
 
@@ -368,7 +377,10 @@ static int ALL_RSI_GenerateBlock(byte *output, size_t size, unsigned int safety)
         else
         {
 			if (!safety--)
+			{
+				assert(0);
 				return 0;
+			}
         }
 	}
 
@@ -386,7 +398,10 @@ static int ALL_RSI_GenerateBlock(byte *output, size_t size, unsigned int safety)
 		else
 		{
 			if (!safety--)
+			{
+				assert(0);
 				return 0;
+			}
 		}
     }
 		
@@ -447,7 +462,10 @@ static int GCC_RSA_GenerateBlock(byte *output, size_t size, unsigned int safety)
         else
         {
 			if (!safety--)
-				break;
+			{
+				assert(0);
+				return 0;
+			}
         }
 	}
 
