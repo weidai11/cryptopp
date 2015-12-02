@@ -433,6 +433,11 @@ ifneq ($(IS_DARWIN),0)
 	cp cryptopp$(LIB_VER).zip $(PWD)/cryptopp$(LIB_VER)
 	hdiutil makehybrid -iso -joliet -o cryptopp$(LIB_VER).iso $(PWD)/cryptopp$(LIB_VER)
 	-rm -rf $(PWD)/cryptopp$(LIB_VER)
+else ifneq ($(IS_LINUX),0)
+	mkdir -p $(PWD)/cryptopp$(LIB_VER)
+	cp cryptopp$(LIB_VER).zip $(PWD)/cryptopp$(LIB_VER)
+	genisoimage -q -o cryptopp$(LIB_VER).iso $(PWD)/cryptopp$(LIB_VER)
+	-rm -rf $(PWD)/cryptopp$(LIB_VER)
 endif
 
 .PHONY: bench benchmark benchmarks
