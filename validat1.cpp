@@ -460,6 +460,7 @@ bool TestAutoSeeded()
 #if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
 bool TestRDRAND()
 {
+	// Testing on 6th generation i7 shows RDRAND needs less than 8 retries for 10K bytes.
 	RDRAND rdrand;
 	bool entropy = true, compress = true, discard = true;
 	static const unsigned int SIZE = 10000;
@@ -532,7 +533,8 @@ bool TestRDRAND()
 #if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
 bool TestRDSEED()
 {
-	RDSEED rdseed;
+	// Testing on 6th generation i7 shows RDSEED needs about 128 retries for 10K bytes.
+	RDSEED rdseed(128);
 	bool entropy = true, compress = true, discard = true;
 	static const unsigned int SIZE = 10000;
 
