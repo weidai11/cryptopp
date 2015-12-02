@@ -468,8 +468,9 @@ NAMESPACE_END
 #endif
 	
 // Linux provides X32, which is 32-bit integers, longs and pointers on x86_64 using the full x86_64 register set.
-// Detect via __ILP32__ (http://wiki.debian.org/X32Port). Both GCC and Clang provide the preprocessor macro.
-#if ((__ILP32__ >= 1) || (_ILP32 >= 1))
+// Detect via __ILP32__ (http://wiki.debian.org/X32Port). However, __ILP32__ shows up in more places than
+// the System V ABI specs calls out, like on just about any 32-bit system with Clang.
+#if ((__ILP32__ >= 1) || (_ILP32 >= 1)) && defined(__x86_64__)
 	#define CRYPTOPP_BOOL_X32 1
 #else
 	#define CRYPTOPP_BOOL_X32 0

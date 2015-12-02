@@ -14,7 +14,7 @@
 # Set to suite your taste
 TEST_RESULTS=cryptest-result.txt
 BENCHMARK_RESULTS=cryptest-bench.txt
-WARN_TEST_RESULTS=cryptest-warn-result.txt
+WARN_TEST_RESULTS=cryptest-warn.txt
 
 # Respect user's preferred flags, but filter the stuff we expliclty test
 #if [ ! -z "CXXFLAGS" ]; then
@@ -33,6 +33,7 @@ IS_LINUX=$(uname -s | grep -i -c linux)
 IS_CYGWIN=$(uname -s | grep -i -c cygwin)
 IS_MINGW=$(uname -s | grep -i -c mingw)
 IS_OPENBSD=$(uname -s | grep -i -c openbsd)
+IS_X86_OR_X64=$(uname -m | egrep -i -c "(i386|i586|i686|amd64|x86_64)")
 
 # We need to use the C++ compiler to determine if c++11 is available. Otherwise
 #   a mis-detection occurs on Mac OS X 10.9 and above. Below, we use the same
@@ -105,10 +106,20 @@ if [ "$IS_CYGWIN" -ne "0" ] || [ "$IS_MINGW" -ne "0" ]; then
 	HAVE_ASAN=0
 fi
 
-#Final fixups for compilers liek GCC on ARM64
+# Final fixups for compilers like GCC on ARM64
 if [ "$HAVE_UBSAN" -eq "0" ] || [ "$HAVE_ASAN" -eq "0" ]; then
 	HAVE_UBAN=0
 	HAVE_ASAN=0
+fi
+
+# Set to 0 if you don't have Multiarch
+if [ "$IS_X86_OR_X64" -ne "0" ]; then
+$CXX -x c++ -arch i386 -arch x86_64 -c adhoc.cpp.proto -o $TMP/adhoc > /dev/null 2>&1
+if [ "$?" -eq "0" ]; then
+	HAVE_MULTIARCH=1
+else
+	HAVE_MULTIARCH=0
+fi
 fi
 
 # Set to 0 if you don't have Valgrind. Valgrind tests take a long time...
@@ -127,6 +138,9 @@ fi
 if [ "$IS_DARWIN" -ne "0" ]; then
 	echo "IS_DARWIN: $IS_DARWIN"
 	unset MallocScribble MallocPreScribble MallocGuardEdges
+fi
+if [ "$HAVE_MULTIARCH" -ne "0" ]; then
+	echo "HAVE_MULTIARCH: $HAVE_MULTIARCH"
 fi
 if [ "$IS_LINUX" -ne "0" ]; then
 	echo "IS_LINUX: $IS_LINUX"
@@ -609,6 +623,48 @@ if [ "$IS_DARWIN" -ne "0" ] && [ "$HAVE_CXX11" -ne "0" ]; then
 	"$MAKE" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
 	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+fi
+
+############################################
+# Darwin, Multiarch, c++03
+if [ "$IS_DARWIN" -ne "0" ] && [ "$IS_X86_OR_X64" -ne "0" ]; then
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Darwin, Multiarch, c++03" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	export CXXFLAGS="-DNDEBUG -g2 -O2 -arch i386 -arch x86_64 -std=c++03 $ADD_CXXFLAGS"
+	"$MAKE" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	echo "Running i386 version..."
+	arch -i386 ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	arch -i386 ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+	echo "Running x86_64 version..."
+	arch -x86_64 ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	arch -x86_64 ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+fi
+
+############################################
+# Darwin, Multiarch, c++11
+if [ "$IS_DARWIN" -ne "0" ] && [ "$IS_X86_OR_X64" -ne "0" ]; then
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Darwin, Multiarch, c++11" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	export CXXFLAGS="-DNDEBUG -g2 -O2 -arch i386 -arch x86_64 -std=c++11 $ADD_CXXFLAGS"
+	"$MAKE" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	echo "Running i386 version..."
+	arch -i386 ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	arch -i386 ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+	echo "Running x86_64 version..."
+	arch -x86_64 ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	arch -x86_64 ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 fi
 
 ############################################
