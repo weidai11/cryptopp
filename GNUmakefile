@@ -402,12 +402,6 @@ cryptest.import.exe: cryptopp.dll libcryptopp.import.a $(TESTIMPORTOBJS)
 dlltest.exe: cryptopp.dll $(DLLTESTOBJS)
 	$(CXX) -o $@ $(CXXFLAGS) $(DLLTESTOBJS) -L. -lcryptopp.dll $(LDFLAGS) $(LDLIBS)
 
-# This recipe requires a previous "svn co -r 541 http://svn.code.sf.net/p/cryptopp/code/trunk/c5"
-.PHONY: diff
-diff:
-	-$(RM) cryptopp$(LIB_VER).diff
-	-svn diff -r 541 > cryptopp$(LIB_VER).diff
-
 # This recipe prepares the distro files
 TEXT_FILES := *.h *.cpp adhoc.cpp.proto License.txt Readme.txt Install.txt Filelist.txt config.recommend Doxyfile cryptest* cryptlib* dlltest* cryptdll* *.sln *.vcproj *.dsw *.dsp cryptopp.rc TestVectors/*.txt TestData/*.dat
 EXEC_FILES := GNUmakefile GNUmakefile-cross cryptest.sh rdrand-nasm.sh TestData/ TestVectors/
@@ -418,19 +412,28 @@ endif
 
 .PHONY: convert
 convert:
-	chmod 0700 TestVectors/ TestData/
-	chmod 0600 $(TEXT_FILES) *.zip
-	chmod 0700 $(EXEC_FILES)
-	chmod u+x *.cmd *.sh
-	unix2dos --keepdate --quiet $(TEXT_FILES) *.asm *.cmd
-	dos2unix --keepdate --quiet GNUmakefile GNUmakefile-cross *.S *.sh
+	-chmod 0700 TestVectors/ TestData/
+	-chmod 0600 $(TEXT_FILES) *.zip
+	-chmod 0700 $(EXEC_FILES)
+	-chmod 0700 *.cmd *.sh GNUmakefile GNUmakefile-cross
+	-unix2dos --keepdate --quiet $(TEXT_FILES) *.asm *.cmd
+	-dos2unix --keepdate --quiet GNUmakefile GNUmakefile-cross *.S *.sh
 ifneq ($(IS_DARWIN),0)
-	xattr -c *
+	-xattr -c *
 endif
 
 .PHONY: zip dist
-zip dist: | distclean convert diff
+zip dist: | distclean convert
 	zip -q -9 cryptopp$(LIB_VER).zip $(DIST_FILES)
+
+.PHONY: iso
+iso: | zip
+ifneq ($(IS_DARWIN),0)
+	mkdir -p $(PWD)/cryptopp$(LIB_VER)
+	cp cryptopp$(LIB_VER).zip $(PWD)/cryptopp$(LIB_VER)
+	hdiutil makehybrid -iso -joliet -o cryptopp$(LIB_VER).iso $(PWD)/cryptopp$(LIB_VER)
+	-rm -rf $(PWD)/cryptopp$(LIB_VER)
+endif
 
 .PHONY: bench benchmark benchmarks
 bench benchmark benchmarks: cryptest.exe
