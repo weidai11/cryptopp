@@ -641,7 +641,7 @@ fi
 
 ############################################
 # Darwin, Intel multiarch, c++03
-if [ "$IS_DARWIN" -ne "0" ] && [ "$IS_INTEL" -ne "0" ]; then
+if [ "$IS_DARWIN" -ne "0" ] && [ "$HAVE_INTEL_MULTIARCH" -ne "0" ] && [ "$HAVE_CXX03" -ne "0" ]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: Darwin, Intel multiarch, c++03" | tee -a "$TEST_RESULTS"
@@ -662,7 +662,7 @@ fi
 
 ############################################
 # Darwin, Intel multiarch, c++11
-if [ "$IS_DARWIN" -ne "0" ] && [ "$IS_INTEL" -ne "0" ]; then
+if [ "$IS_DARWIN" -ne "0" ] && [ "$HAVE_INTEL_MULTIARCH" -ne "0" ] && [ "$HAVE_CXX11" -ne "0" ]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: Darwin, Intel multiarch, c++11" | tee -a "$TEST_RESULTS"
@@ -683,7 +683,7 @@ fi
 
 ############################################
 # Darwin, PowerPC multiarch
-if [ "$IS_DARWIN" -ne "0" ] && [ "$IS_PPC" -ne "0" ]; then
+if [ "$IS_DARWIN" -ne "0" ] && [ "$HAVE_PPC_MULTIARCH" -ne "0" ]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: Darwin, PowerPC multiarch" | tee -a "$TEST_RESULTS"
@@ -744,12 +744,15 @@ if [ "$IS_DARWIN" -ne "0" ] && [ "$HAVE_CXX11" -ne "0" ]; then
 	unset MallocScribble MallocPreScribble MallocGuardEdges
 fi
 
-# Try to locate a Xcode compiler for testing under Darwin
-XCODE_COMPILER=$(find /Applications/Xcode*.app/Contents/Developer -name clang++ | head -1)
-
 ############################################
 # Xcode compiler
-if [ "$IS_DARWIN" -ne "0" ] && [ -z "$XCODE_COMPILER" ]; then
+if [ "$IS_DARWIN" -ne "0" ]; then
+  XCODE_COMPILER=$(find /Applications/Xcode*.app/Contents/Developer -name clang++ 2>/dev/null | head -1)
+  if [ -z "$XCODE_COMPILER" ]; then
+	  XCODE_COMPILER=$(find /Developer/Applications/Xcode.app -name clang++ 2>/dev/null | head -1)
+  fi
+
+  if [ -z "$XCODE_COMPILER" ]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: Xcode Clang compiler" | tee -a "$TEST_RESULTS"
@@ -757,11 +760,12 @@ if [ "$IS_DARWIN" -ne "0" ] && [ -z "$XCODE_COMPILER" ]; then
 
 	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
-	expot CXX="$XCODE_COMPILER"
-	export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 $ADD_CXXFLAGS"
+	export CXX="$XCODE_COMPILER"
+	export CXXFLAGS="-DNDEBUG -g2 -O2 $ADD_CXXFLAGS"
 	"$MAKE" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
 	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+  fi
 fi
 
 ############################################
