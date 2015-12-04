@@ -752,7 +752,7 @@ if [ "$IS_DARWIN" -ne "0" ]; then
 	  XCODE_COMPILER=$(find /Developer/Applications/Xcode.app -name clang++ 2>/dev/null | head -1)
   fi
 
-  if [ -z "$XCODE_COMPILER" ]; then
+  if [ ! -z "$XCODE_COMPILER" ]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: Xcode Clang compiler" | tee -a "$TEST_RESULTS"

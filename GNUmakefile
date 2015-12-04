@@ -413,8 +413,8 @@ endif
 .PHONY: convert
 convert:
 	-chmod 0700 TestVectors/ TestData/
-	-chmod 0600 $(TEXT_FILES) *.zip
-	-chmod 0700 $(EXEC_FILES)
+	-chmod 0600 $(TEXT_FILES) *.asm *.S *.zip
+	-chmod 0700 $(EXEC_FILES) *.sh *.cmd
 	-chmod 0700 *.cmd *.sh GNUmakefile GNUmakefile-cross
 	-unix2dos --keepdate --quiet $(TEXT_FILES) *.asm *.cmd
 	-dos2unix --keepdate --quiet GNUmakefile GNUmakefile-cross *.S *.sh
