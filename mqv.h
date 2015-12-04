@@ -10,6 +10,7 @@
 #include "gfpcrypt.h"
 #include "modarith.h"
 #include "integer.h"
+#include "algebra.h"
 #include "misc.h"
 
 NAMESPACE_BEGIN(CryptoPP)

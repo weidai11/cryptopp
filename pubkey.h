@@ -43,6 +43,7 @@
 
 #include "cryptlib.h"
 #include "integer.h"
+#include "algebra.h"
 #include "modarith.h"
 #include "filters.h"
 #include "eprecomp.h"

@@ -6,6 +6,7 @@
 
 #include "eprecomp.h"
 #include "integer.h"
+#include "algebra.h"
 #include "asn.h"
 
 NAMESPACE_BEGIN(CryptoPP)

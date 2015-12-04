@@ -5,6 +5,7 @@
 #include "xtr.h"
 #include "nbtheory.h"
 #include "integer.h"
+#include "algebra.h"
 #include "modarith.h"
 #include "algebra.cpp"
 
