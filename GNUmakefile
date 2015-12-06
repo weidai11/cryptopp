@@ -252,7 +252,8 @@ endif
 OBJS := $(SRCS:.cpp=.o)
 
 # test.o needs to be after bench.o for cygwin 1.1.4 (possible ld bug?)
-TESTOBJS := bench.o bench2.o test.o validat1.o validat2.o validat3.o adhoc.o datatest.o regtest.o fipsalgt.o dlltest.o
+TESTSRCS := bench.cpp bench2.cpp test.cpp validat1.cpp validat2.cpp validat3.cpp adhoc.cpp datatest.cpp regtest.cpp fipsalgt.cpp dlltest.cpp
+TESTOBJS := $(TESTSRCS:.cpp=.o)
 LIBOBJS := $(filter-out $(TESTOBJS),$(OBJS))
 
 # List cryptlib.cpp first in an attempt to tame C++ static initialization problems
@@ -295,6 +296,13 @@ asan ubsan align aligned: libcryptopp.a cryptest.exe
 test check: cryptest.exe
 	./cryptest.exe v
 
+# Used to generate list of source files for Autotools and Android.mk
+.PHONY: sources
+sources:
+	$(info Library sources: $(filter-out fipstest.cpp $(TESTSRCS),$(SRCS)))
+	$(info )
+	$(info Test sources: $(TESTSRCS))
+
 # Directory we want (can't specify on Doygen command line)
 DOCUMENT_DIRECTORY := ref$(LIB_VER)
 # Directory Doxygen uses (specified in Doygen config file)
@@ -306,6 +314,7 @@ ifeq ($(strip $(DOXYGEN_DIRECTORY)),)
 DOXYGEN_DIRECTORY := html-docs
 endif
 
+# Builds the documentation. Directory name is ref563, ref570, etc.
 .PHONY: docs html
 docs html:
 	-$(RM) -r $(DOXYGEN_DIRECTORY)/ $(DOCUMENT_DIRECTORY)/ html-docs/
