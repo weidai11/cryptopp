@@ -82,6 +82,7 @@ x64/
 build/
 [Bb]in/
 [Oo]bj/
+[Ll]ibs/
 
 # MSTest test Results
 [Tt]est[Rr]esult*/
@@ -92,6 +93,7 @@ build/
 *.ilk
 *.meta
 *.obj
+*.o
 *.pch
 *.pdb
 *.pgc
@@ -110,6 +112,8 @@ build/
 *.pidb
 *.log
 *.scc
+*.exe
+*.a
 
 # Visual C++ cache files
 ipch/
@@ -249,3 +253,4 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
+
