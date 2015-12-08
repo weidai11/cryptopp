@@ -12,8 +12,9 @@ CXXFLAGS ?= -DNDEBUG -g2 -O2
 # LDFLAGS += -Wl,--gc-sections
 
 AR ?= ar
-ARFLAGS ?= -cr	# ar needs the dash on OpenBSD
+ARFLAGS ?= -cr # ar needs the dash on OpenBSD
 RANLIB ?= ranlib
+
 CP ?= cp
 CHMOD ?= chmod
 MKDIR ?= mkdir
@@ -296,7 +297,7 @@ asan ubsan align aligned: libcryptopp.a cryptest.exe
 test check: cryptest.exe
 	./cryptest.exe v
 
-# Used to generate list of source files for Autotools and Android.mk
+# Used to generate list of source files for Autotools, CMakeList and Android.mk
 .PHONY: sources
 sources:
 	$(info Library sources: $(filter-out fipstest.cpp $(TESTSRCS),$(SRCS)))
@@ -413,7 +414,7 @@ dlltest.exe: cryptopp.dll $(DLLTESTOBJS)
 
 # This recipe prepares the distro files
 TEXT_FILES := *.h *.cpp adhoc.cpp.proto License.txt Readme.txt Install.txt Filelist.txt config.recommend Doxyfile cryptest* cryptlib* dlltest* cryptdll* *.sln *.vcproj *.dsw *.dsp cryptopp.rc TestVectors/*.txt TestData/*.dat
-EXEC_FILES := GNUmakefile GNUmakefile-cross cryptest.sh rdrand-nasm.sh TestData/ TestVectors/
+EXEC_FILES := GNUmakefile GNUmakefile-cross TestData/ TestVectors/
 
 ifeq ($(wildcard Filelist.txt),Filelist.txt)
 DIST_FILES := $(shell cat Filelist.txt)
