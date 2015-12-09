@@ -113,14 +113,17 @@ distclean: clean
 
 .PHONY: install
 install:
-	$(MKDIR) -p $(PREFIX)/include/cryptopp $(PREFIX)/lib $(PREFIX)/bin
+	$(MKDIR) -p $(PREFIX)/include/cryptopp $(PREFIX)/lib
 	-$(CP) *.h $(PREFIX)/include/cryptopp
 	-$(CHMOD) 755 $(PREFIX)/include/cryptopp
 	-$(CHMOD) 644 $(PREFIX)/include/cryptopp/*.h
 	-$(CP) libcryptopp.a $(PREFIX)/lib
 	-$(CHMOD) 644 $(PREFIX)/lib/libcryptopp.a
+ifeq ($(wildcard cryptest.exe),cryptest.exe)
+	$(MKDIR) -p $(PREFIX)/bin
 	-$(CP) cryptest.exe $(PREFIX)/bin
 	-$(CHMOD) 755 $(PREFIX)/bin/cryptest.exe
+endif
 ifneq ($(IS_IOS),0)
 	-$(CP) libcryptopp.dylib $(PREFIX)/lib
 	-$(CHMOD) 755 $(PREFIX)/lib/libcryptopp.dylib
