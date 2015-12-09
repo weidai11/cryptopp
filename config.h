@@ -368,7 +368,7 @@ NAMESPACE_END
 # pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 
-#if (defined(_MSC_VER) && _MSC_VER <= 1300) || defined(__MWERKS__) || defined(_STLPORT_VERSION)
+#if (defined(_MSC_VER) && _MSC_VER <= 1300) || defined(__MWERKS__) || (defined(_STLPORT_VERSION) && ((_STLPORT_VERSION < 0x450) || defined(_STLP_NO_UNCAUGHT_EXCEPT_SUPPORT)))
 #define CRYPTOPP_DISABLE_UNCAUGHT_EXCEPTION
 #endif
 
