@@ -354,31 +354,31 @@ endif
 
 .PHONY: install
 install:
-	$(MKDIR) -p $(PREFIX)/include/cryptopp $(PREFIX)/lib $(PREFIX)/bin
-	-$(CP) *.h $(PREFIX)/include/cryptopp
-	-$(CHMOD) 755 $(PREFIX)/include/cryptopp
-	-$(CHMOD) 644 $(PREFIX)/include/cryptopp/*.h
-	-$(CP) libcryptopp.a $(PREFIX)/lib
-	-$(CHMOD) 644 $(PREFIX)/lib/libcryptopp.a
-	-$(CP) cryptest.exe $(PREFIX)/bin
-	-$(CHMOD) 755 $(PREFIX)/bin/cryptest.exe
+	$(MKDIR) -p $(DESTDIR)$(PREFIX)/include/cryptopp $(DESTDIR)$(PREFIX)/lib $(DESTDIR)$(PREFIX)/bin
+	-$(CP) *.h $(DESTDIR)$(PREFIX)/include/cryptopp
+	-$(CHMOD) 755 $(DESTDIR)$(PREFIX)/include/cryptopp
+	-$(CHMOD) 644 $(DESTDIR)$(PREFIX)/include/cryptopp/*.h
+	-$(CP) libcryptopp.a $(DESTDIR)$(PREFIX)/lib
+	-$(CHMOD) 644 $(DESTDIR)$(PREFIX)/lib/libcryptopp.a
+	-$(CP) cryptest.exe $(DESTDIR)$(PREFIX)/bin
+	-$(CHMOD) 755 $(DESTDIR)$(PREFIX)/bin/cryptest.exe
 ifneq ($(IS_DARWIN),0)
-	-$(CP) libcryptopp.dylib $(PREFIX)/lib
-	-$(CHMOD) 755 $(PREFIX)/lib/libcryptopp.dylib
+	-$(CP) libcryptopp.dylib $(DESTDIR)$(PREFIX)/lib
+	-$(CHMOD) 755 $(DESTDIR)$(PREFIX)/lib/libcryptopp.dylib
 else
-	-$(CP) libcryptopp.so $(PREFIX)/lib
-	-$(CHMOD) 755 $(PREFIX)/lib/libcryptopp.so
+	-$(CP) libcryptopp.so $(DESTDIR)$(PREFIX)/lib
+	-$(CHMOD) 755 $(DESTDIR)$(PREFIX)/lib/libcryptopp.so
 endif
 
 .PHONY: remove uninstall
 remove uninstall:
-	-$(RM) -r $(PREFIX)/include/cryptopp
-	-$(RM) $(PREFIX)/lib/libcryptopp.a
-	-$(RM) $(PREFIX)/bin/cryptest.exe
+	-$(RM) -r $(DESTDIR)$(PREFIX)/include/cryptopp
+	-$(RM) $(DESTDIR)$(PREFIX)/lib/libcryptopp.a
+	-$(RM) $(DESTDIR)$(PREFIX)/bin/cryptest.exe
 ifneq ($(IS_DARWIN),0)
-	-$(RM) $(PREFIX)/lib/libcryptopp.dylib
+	-$(RM) $(DESTDIR)$(PREFIX)/lib/libcryptopp.dylib
 else
-	-$(RM) $(PREFIX)/lib/libcryptopp.so
+	-$(RM) $(DESTDIR)$(PREFIX)/lib/libcryptopp.so
 endif
 
 libcryptopp.a: public_service | $(LIBOBJS)
