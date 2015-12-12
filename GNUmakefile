@@ -364,6 +364,7 @@ install:
 	-$(CHMOD) 755 $(PREFIX)/bin/cryptest.exe
 ifneq ($(IS_DARWIN),0)
 	-$(CP) libcryptopp.dylib $(PREFIX)/lib
+	-install_name_tool -id $(PREFIX)/lib/libcryptopp.dylib $(PREFIX)/lib/libcryptopp.dylib
 	-$(CHMOD) 755 $(PREFIX)/lib/libcryptopp.dylib
 else
 	-$(CP) libcryptopp.so $(PREFIX)/lib
