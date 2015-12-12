@@ -39,7 +39,7 @@ MACPORTS_COMPILER := $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "macports")
 
 # Default prefix for make install
 ifeq ($(PREFIX),)
-PREFIX = /usr
+PREFIX = /usr/local
 endif
 
 ifeq ($(CXX),gcc)	# for some reason CXX is gcc on cygwin 1.1.4
