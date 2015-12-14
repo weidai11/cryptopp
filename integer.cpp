@@ -32,7 +32,7 @@
 
 #include <iostream>
 
-#if _MSC_VER >= 1400
+#if (_MSC_VER >= 1400) && !defined(_M_ARM)
 	#include <intrin.h>
 #endif
 
@@ -186,7 +186,7 @@ static word AtomicInverseModPower2(word A)
 	#define GetBorrow(u)				u##1
 #else
 	#define Declare2Words(x)			dword x;
-	#if _MSC_VER >= 1400 && !defined(__INTEL_COMPILER)
+	#if _MSC_VER >= 1400 && !defined(__INTEL_COMPILER) && !defined(_M_ARM)
 		#define MultiplyWords(p, a, b)		p = __emulu(a, b);
 	#else
 		#define MultiplyWords(p, a, b)		p = (dword)a*b;
