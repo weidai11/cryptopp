@@ -12,12 +12,15 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! _
+//! \class SHARK_Info
+//! \brief SHARK block cipher information
 struct SHARK_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 1, 16>, public VariableRounds<6, 2>
 {
 	static const char *StaticAlgorithmName() {return "SHARK-E";}
 };
 
+//! \class SHARK
+//! \brief SHARK block cipher
 /// <a href="http://www.weidai.com/scan-mirror/cs.html#SHARK-E">SHARK-E</a>
 class SHARK : public SHARK_Info, public BlockCipherDocumentation
 {

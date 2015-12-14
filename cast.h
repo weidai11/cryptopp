@@ -17,13 +17,16 @@ protected:
 	static const word32 S[8][256];
 };
 
-//! algorithm info
+//! \class CAST128_Info
+//! \brief CAST128 block cipher information
 struct CAST128_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 5, 16>
 {
 	static const char *StaticAlgorithmName() {return "CAST-128";}
 };
 
-/// <a href="http://www.weidai.com/scan-mirror/cs.html#CAST-128">CAST-128</a>
+//! \class CAST128
+//! \brief CAST128 block cipher
+//! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#CAST-128">CAST-128</a>
 class CAST128 : public CAST128_Info, public BlockCipherDocumentation
 {
 	class CRYPTOPP_NO_VTABLE Base : public CAST, public BlockCipherImpl<CAST128_Info>
@@ -53,13 +56,16 @@ public:
 	typedef BlockCipherFinal<DECRYPTION, Dec> Decryption;
 };
 
-//! algorithm info
+//! \class CAST256_Info
+//! \brief CAST256 block cipher information
 struct CAST256_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 16, 32>
 {
 	static const char *StaticAlgorithmName() {return "CAST-256";}
 };
 
-//! <a href="http://www.weidai.com/scan-mirror/cs.html#CAST-256">CAST-256</a>
+//! \class CAST256
+//! \brief CAST256 block cipher
+//! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#CAST-256">CAST-256</a>
 class CAST256 : public CAST256_Info, public BlockCipherDocumentation
 {
 	class CRYPTOPP_NO_VTABLE Base : public CAST, public BlockCipherImpl<CAST256_Info>

@@ -493,7 +493,8 @@ public:
 };
 
 //! \class SimpleKeyingInterface
-//! Interface for algorithms that take byte strings as keys
+//! \brief Interface for algorithms that take byte strings as keys
+//! \sa FixedKeyLength(), VariableKeyLength(), SameKeyLengthAs(), SimpleKeyingInterfaceImpl()
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE SimpleKeyingInterface
 {
 public:
@@ -507,11 +508,14 @@ public:
 	virtual size_t DefaultKeyLength() const =0;
 
 	//! \brief
+	//! \param n the desired keylength
 	//! \returns the smallest valid key length in bytes that is greater than or equal to <tt>min(n, GetMaxKeyLength())</tt>
 	virtual size_t GetValidKeyLength(size_t n) const =0;
 
 	//! \brief Returns whether  keylength is a valid key length
-	//! \details Internally the function calls  GetValidKeyLength()
+	//! \param keylength the requested keylength
+	//! \returns true if keylength is valid, false otherwise
+	//! \details Internally the function calls GetValidKeyLength()
 	virtual bool IsValidKeyLength(size_t keylength) const
 		{return keylength == GetValidKeyLength(keylength);}
 
@@ -527,8 +531,8 @@ public:
 	//! \param length the size of the key, in bytes
 	//! \param rounds the number of rounds to apply the transformation function,
 	//!    if applicable
-	//! \details SetKeyWithRounds calls  SetKey with an  NameValuePairs
-	//!   object that just specifies  rounds.  rounds is an integer parameter,
+	//! \details SetKeyWithRounds() calls SetKey() with a NameValuePairs
+	//!   object that only specifies rounds. rounds is an integer parameter,
 	//!   and <tt>-1</tt> means use the default number of rounds.
 	void SetKeyWithRounds(const byte *key, size_t length, int rounds);
 
@@ -537,27 +541,32 @@ public:
 	//! \param length the size of the key, in bytes
 	//! \param iv the intiialization vector to use when keying the object
 	//! \param ivLength the size of the iv, in bytes
-	//! \details SetKeyWithIV calls  SetKey with an  NameValuePairs object
-	//!   that just specifies  iv.  iv is a  byte buffer with size  ivLength.
+	//! \details SetKeyWithIV() calls SetKey() with a NameValuePairs
+	//!   that only specifies IV. The IV is a byte buffer with size ivLength.
+	//!   ivLength is an integer parameter, and <tt>-1</tt> means use IVSize().
 	void SetKeyWithIV(const byte *key, size_t length, const byte *iv, size_t ivLength);
 
 	//! \brief Sets or reset the key of this object
 	//! \param key the key to use when keying the object
 	//! \param length the size of the key, in bytes
 	//! \param iv the intiialization vector to use when keying the object
-	//! \details SetKeyWithIV calls  SetKey with an  NameValuePairs object
-	//!   that just specifies  iv.  iv is a  byte buffer, and it must have
-	//!   a size  IVSize.
+	//! \details SetKeyWithIV() calls SetKey() with a NameValuePairs() object
+	//!   that only specifies iv. iv is a byte buffer, and it must have
+	//!   a size IVSize().
 	void SetKeyWithIV(const byte *key, size_t length, const byte *iv)
 		{SetKeyWithIV(key, length, iv, IVSize());}
 
-	//! \brief Provides IV requirements as an enumerated value.
+	//! \brief Secure IVs requirements as enumerated values.
+	//! \details Provides secure IV requirements as a monotomically increasing enumerated values. Requirements can be
+	//!    compared using less than (&lt;) and greater than (&gt;). For example, <tt>UNIQUE_IV &lt; RANDOM_IV</tt>
+	//!    and <tt>UNPREDICTABLE_RANDOM_IV &gt; RANDOM_IV</tt>.
+	//! \sa IsResynchronizable(), CanUseRandomIVs(), CanUsePredictableIVs(), CanUseStructuredIVs()
 	enum IV_Requirement {
 		//! \brief The IV must be unique
 		UNIQUE_IV = 0,
-		//! \brief The IV must be random
+		//! \brief The IV must be random and possibly predictable
 		RANDOM_IV,
-		//! \brief The IV must be unpredictable
+		//! \brief The IV must be random and unpredictable
 		UNPREDICTABLE_RANDOM_IV,
 		//! \brief The IV is set by the object
 		INTERNALLY_GENERATED_IV,
@@ -565,42 +574,69 @@ public:
 		NOT_RESYNCHRONIZABLE
 	};
 
-	//! returns the minimal requirement for secure IVs
+	//! \brief Minimal requirement for secure IVs
+	//! \returns the secure IV requirement of the algorithm
 	virtual IV_Requirement IVRequirement() const =0;
 
-	//! returns whether the object can be resynchronized (i.e. supports initialization vectors)
-	/*! If this function returns true, and no IV is passed to SetKey() and CanUseStructuredIVs()==true, an IV of all 0's will be assumed. */
+	//! \brief Determines if the object can be resynchronized
+	//! \returns true if the object can be resynchronized (i.e. supports initialization vectors), false otherwise
+	//! \note If this function returns true, and no IV is passed to SetKey() and <tt>CanUseStructuredIVs()==true</tt>,
+	//!   an IV of all 0's will be assumed.
 	bool IsResynchronizable() const {return IVRequirement() < NOT_RESYNCHRONIZABLE;}
-	//! returns whether the object can use random IVs (in addition to ones returned by GetNextIV)
+	
+	//! \brief Determines if the object can use random IVs
+	//! \returns true if the object can use random IVs (in addition to ones returned by GetNextIV), false otherwise
 	bool CanUseRandomIVs() const {return IVRequirement() <= UNPREDICTABLE_RANDOM_IV;}
-	//! returns whether the object can use random but possibly predictable IVs (in addition to ones returned by GetNextIV)
+	
+	//! \brief Determines if the object can use random but possibly predictable IVs
+	//! \returns true if the object can use random but possibly predictable IVs (in addition to ones returned by
+	//!    GetNextIV), false otherwise
 	bool CanUsePredictableIVs() const {return IVRequirement() <= RANDOM_IV;}
-	//! returns whether the object can use structured IVs, for example a counter (in addition to ones returned by GetNextIV)
+	
+	//! \brief Determines if the object can use structured IVs
+	//! returns whether the object can use structured IVs, for example a counter (in addition to ones returned by
+	//!    GetNextIV), false otherwise
 	bool CanUseStructuredIVs() const {return IVRequirement() <= UNIQUE_IV;}
 
 	//! \brief Returns length of the IV accepted by this object
+	//! \returns the size of an IV, in bytes
+	//! \throws NotImplemented() if the object does not support resynchronization
 	//! \details The default implementation throws NotImplemented
 	virtual unsigned int IVSize() const
 		{throw NotImplemented(GetAlgorithm().AlgorithmName() + ": this object doesn't support resynchronization");}
-	//! returns default length of IVs accepted by this object
+
+	//! \brief Provides the default size of an IV
+	//! \returns default length of IVs accepted by this object, in bytes
 	unsigned int DefaultIVLength() const {return IVSize();}
-	//! returns minimal length of IVs accepted by this object
+	
+	//! \brief Provides the minimum size of an IV
+	//! \returns minimal length of IVs accepted by this object, in bytes
+	//! \throws NotImplemented() if the object does not support resynchronization
 	virtual unsigned int MinIVLength() const {return IVSize();}
-	//! returns maximal length of IVs accepted by this object
+	
+	//! \brief Provides the maximum size of an IV
+	//! \returns maximal length of IVs accepted by this object, in bytes
+	//! \throws NotImplemented() if the object does not support resynchronization
 	virtual unsigned int MaxIVLength() const {return IVSize();}
-	//! resynchronize with an IV. ivLength=-1 means use IVSize()
+
+	//! \brief Resynchronize with an IV
+	//! \param iv the initialization vector
+	//! \param ivLength the size of the initialization vector, in bytes
+	//! \details Resynchronize() resynchronizes with an IV provided by the caller. <tt>ivLength=-1</tt> means use IVSize().
+	//! \throws NotImplemented() if the object does not support resynchronization
 	virtual void Resynchronize(const byte *iv, int ivLength=-1) {
 		CRYPTOPP_UNUSED(iv); CRYPTOPP_UNUSED(ivLength);
 		throw NotImplemented(GetAlgorithm().AlgorithmName() + ": this object doesn't support resynchronization");
 	}
 
-	//! \brief Gets a secure IV for the next message
+	//! \brief Retrieves a secure IV for the next message
 	//! \param rng a RandomNumberGenerator to produce keying material
 	//! \param iv a block of bytes to receive the IV
+	//! \details The IV must be at least IVSize() in length.
 	//! \details This method should be called after you finish encrypting one message and are ready
-	//!    to start the next one. After calling it, you must call  SetKey() or  Resynchronize()
-	//!    before using this object again. 
-	//! \details key must be at least  IVSize() in length.
+	//!    to start the next one. After calling it, you must call SetKey() or Resynchronize().
+	//!    before using this object again.
+	//! \details Internally, the base class implementation calls RandomNumberGenerator's GenerateBlock()
 	//! \note This method is not implemented on decryption objects.
 	virtual void GetNextIV(RandomNumberGenerator &rng, byte *iv);
 
@@ -638,7 +674,7 @@ protected:
 	void ThrowIfInvalidIV(const byte *iv);
 	
 	//! \brief Validates the IV length
-	//! \param length the size of the IV, in bytes
+	//! \param length the size of an IV, in bytes
 	//! \throws InvalidArgument if the number of  rounds are invalid
 	size_t ThrowIfInvalidIVLength(int length);
 	
@@ -956,7 +992,7 @@ public:
 	//! \param digest a pointer to the buffer to receive the hash
 	//! \param digestSize the size of the truncated digest, in bytes
 	//! \details TruncatedFinal() call Final() and then copies digestSize bytes to digest
-	//! \details TruncatedFinal() restarts the hash for the next nmessage.
+	//! \details TruncatedFinal() restarts the hash for the next message.
 	virtual void TruncatedFinal(byte *digest, size_t digestSize) =0;
 
 	//! \brief Updates the hash with additional input and computes the hash of the current message
@@ -1002,7 +1038,10 @@ public:
 #endif
 
 protected:
-	//! \brief Exception thrown when the truncated digest size is greater than DigestSize()
+	//! \brief Validates a truncated digest size
+	//! \param size the requested digest size
+	//! \throws InvalidArgument if the algorithm's digest size cannot be truncated to the requested size
+	//! \details Throws an exception when the truncated digest size is greater than DigestSize()
 	void ThrowIfInvalidTruncatedSize(size_t size) const;
 };
 
@@ -2035,37 +2074,41 @@ public:
 };
 
 //! \brief Interface for public keys
-
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PublicKey : virtual public CryptoMaterial
 {
 };
 
 //! \brief Interface for private keys
-
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PrivateKey : public GeneratableCryptoMaterial
 {
 };
 
 //! \brief Interface for crypto prameters
-
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CryptoParameters : public GeneratableCryptoMaterial
 {
 };
 
 //! \brief Interface for asymmetric algorithms
-
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AsymmetricAlgorithm : public Algorithm
 {
 public:
-	//! returns a reference to the crypto material used by this object
+	//! \brief Retrieves a reference to CryptoMaterial
+	//! \returns a reference to the crypto material used by this object
 	virtual CryptoMaterial & AccessMaterial() =0;
-	//! returns a const reference to the crypto material used by this object
+	
+	//! \brief Retrieves a reference to CryptoMaterial
+	//! \returns a const reference to the crypto material used by this object
 	virtual const CryptoMaterial & GetMaterial() const =0;
 
-	//! for backwards compatibility, calls AccessMaterial().Load(bt)
+	//! \brief Loads this object from a BufferedTransformation
+	//! \param bt a BufferedTransformation object
+	//! \deprecated for backwards compatibility, calls <tt>AccessMaterial().Load(bt)</tt>
 	void BERDecode(BufferedTransformation &bt)
 		{AccessMaterial().Load(bt);}
-	//! for backwards compatibility, calls GetMaterial().Save(bt)
+	
+	//! \brief Saves this object to a BufferedTransformation
+	//! \param bt a BufferedTransformation object
+	//! \deprecated for backwards compatibility, calls GetMaterial().Save(bt)
 	void DEREncode(BufferedTransformation &bt) const
 		{GetMaterial().Save(bt);}
 
@@ -2075,16 +2118,18 @@ public:
 };
 
 //! \brief Interface for asymmetric algorithms using public keys
-
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PublicKeyAlgorithm : public AsymmetricAlgorithm
 {
 public:
 	// VC60 workaround: no co-variant return type
-	CryptoMaterial & AccessMaterial() {return AccessPublicKey();}
-	const CryptoMaterial & GetMaterial() const {return GetPublicKey();}
+	CryptoMaterial & AccessMaterial()
+		{return AccessPublicKey();}
+	const CryptoMaterial & GetMaterial() const
+		{return GetPublicKey();}
 
 	virtual PublicKey & AccessPublicKey() =0;
-	virtual const PublicKey & GetPublicKey() const {return const_cast<PublicKeyAlgorithm *>(this)->AccessPublicKey();}
+	virtual const PublicKey & GetPublicKey() const
+		{return const_cast<PublicKeyAlgorithm *>(this)->AccessPublicKey();}
 
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~PublicKeyAlgorithm() {}
@@ -2092,7 +2137,6 @@ public:
 };
 
 //! \brief Interface for asymmetric algorithms using private keys
-
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PrivateKeyAlgorithm : public AsymmetricAlgorithm
 {
 public:
@@ -2108,7 +2152,6 @@ public:
 };
 
 //! \brief Interface for key agreement algorithms
-
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE KeyAgreementAlgorithm : public AsymmetricAlgorithm
 {
 public:
@@ -2124,33 +2167,41 @@ public:
 };
 
 //! \brief Interface for public-key encryptors and decryptors
-
-/*! This class provides an interface common to encryptors and decryptors
-	for querying their plaintext and ciphertext lengths.
-*/
+//! \details This class provides an interface common to encryptors and decryptors
+//!   for querying their plaintext and ciphertext lengths.
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_CryptoSystem
 {
 public:
 	virtual ~PK_CryptoSystem() {}
 
-	//! maximum length of plaintext for a given ciphertext length
-	/*! \note This function returns 0 if ciphertextLength is not valid (too long or too short). */
+	//! \brief Provides the maximum length of plaintext for a given ciphertext length
+	//! \returns the maximum size of the plaintext, in bytes
+	//! \details This function returns 0 if ciphertextLength is not valid (too long or too short).
 	virtual size_t MaxPlaintextLength(size_t ciphertextLength) const =0;
 
-	//! calculate length of ciphertext given length of plaintext
-	/*! \note This function returns 0 if plaintextLength is not valid (too long). */
+	//! \brief Calculate the length of ciphertext given length of plaintext
+	//! \returns the maximum size of the ciphertext, in bytes
+	//! \details This function returns 0 if plaintextLength is not valid (too long).
 	virtual size_t CiphertextLength(size_t plaintextLength) const =0;
 
-	//! this object supports the use of the parameter with the given name
-	/*! some possible parameter names: EncodingParameters, KeyDerivationParameters */
+	//! \brief Determines whether this object supports the use of a named parameter 
+	//! \param name the name of the parameter
+	//! \returns true if the parameter name is supported, false otherwise
+	//! \details Some possible parameter names: EncodingParameters(), KeyDerivationParameters()
+	//!   and others Parameters listed in argnames.h
 	virtual bool ParameterSupported(const char *name) const =0;
 
-	//! return fixed ciphertext length, if one exists, otherwise return 0
-	/*! \note "Fixed" here means length of ciphertext does not depend on length of plaintext.
-		It usually does depend on the key length. */
+	//! \brief Provides the fixed ciphertext length, if one exists
+	//! \returns the fixed ciphertext length if one exists, otherwise 0
+	//! \details "Fixed" here means length of ciphertext does not depend on length of plaintext.
+	//!   In this case, it usually does depend on the key length.
 	virtual size_t FixedCiphertextLength() const {return 0;}
 
-	//! return maximum plaintext length given the fixed ciphertext length, if one exists, otherwise return 0
+	//! \brief Provides the maximum plaintext length given a fixed ciphertext length
+	//! \return maximum plaintext length given the fixed ciphertext length, if one exists,
+	//!   otherwise return 0.
+	//! \details FixedMaxPlaintextLength(0 returns the maximum plaintext length given the fixed ciphertext
+	//!   length, if one exists, otherwise return 0.
 	virtual size_t FixedMaxPlaintextLength() const {return 0;}
 	
 #ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY

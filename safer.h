@@ -11,7 +11,8 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// base class, do not use directly
+//! \class SAFER
+//! \brief SAFER base class
 class SAFER
 {
 public:
@@ -49,13 +50,16 @@ protected:
 	bool Strengthened() const {return STR;}
 };
 
-//! _
+//! \class SAFER_K_Info
+//! \brief SAFER-K block cipher information
 struct SAFER_K_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 8, 16, 8>, public VariableRounds<10, 1, 13>
 {
 	static const char *StaticAlgorithmName() {return "SAFER-K";}
 };
 
-/// <a href="http://www.weidai.com/scan-mirror/cs.html#SAFER-K">SAFER-K</a>
+//! \class SAFER_K
+//! \brief SAFER-K block cipher
+//! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#SAFER-K">SAFER-K</a>
 class SAFER_K : public SAFER_K_Info, public SAFER, public BlockCipherDocumentation
 {
 public:
@@ -63,13 +67,16 @@ public:
 	typedef BlockCipherFinal<DECRYPTION, SAFER_Impl<Dec, SAFER_K_Info, false> > Decryption;
 };
 
-//! _
+//! \class SAFER_SK_Info
+//! \brief SAFER-SK block cipher information
 struct SAFER_SK_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 8, 16, 8>, public VariableRounds<10, 1, 13>
 {
 	static const char *StaticAlgorithmName() {return "SAFER-SK";}
 };
 
-/// <a href="http://www.weidai.com/scan-mirror/cs.html#SAFER-SK">SAFER-SK</a>
+//! \class SAFER_SK
+//! \brief SAFER-SK block cipher
+//! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#SAFER-SK">SAFER-SK</a>
 class SAFER_SK : public SAFER_SK_Info, public SAFER, public BlockCipherDocumentation
 {
 public:
