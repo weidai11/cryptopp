@@ -19,7 +19,12 @@ NAMESPACE_BEGIN(CryptoPP)
 #include <intrin.h>
 #endif
 
-#define VMAC_BOOL_WORD128 (defined(CRYPTOPP_WORD128_AVAILABLE) && !defined(CRYPTOPP_X64_ASM_AVAILABLE))
+#if defined(CRYPTOPP_WORD128_AVAILABLE) && !defined(CRYPTOPP_X64_ASM_AVAILABLE)
+# define VMAC_BOOL_WORD128 1
+#else
+# define VMAC_BOOL_WORD128 0
+#endif
+
 #ifdef __BORLANDC__
 #define const	// Turbo C++ 2006 workaround
 #endif

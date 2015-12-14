@@ -114,9 +114,9 @@ struct EnumToType
 
 //! \brief Provides the byte ordering
 enum ByteOrder {LITTLE_ENDIAN_ORDER = 0, BIG_ENDIAN_ORDER = 1};
-//! \typedef Provides a constant for  LittleEndian
+//! \brief Provides a constant for LittleEndian
 typedef EnumToType<ByteOrder, LITTLE_ENDIAN_ORDER> LittleEndian;
-//! \typedef Provides a constant for  BigEndian
+//! \brief Provides a constant for BigEndian
 typedef EnumToType<ByteOrder, BIG_ENDIAN_ORDER> BigEndian;
 
 //! \class Exception
@@ -725,7 +725,7 @@ public:
 	//! \param inoutBlock the input message before processing
 	//! \details ProcessBlock encrypts or decrypts inoutBlock in-place.
 	//! \details The size of the block is determined by the block cipher and its documentation.
-	//!    Use  BLOCKSIZE at compile time, or BlockSize() at runtime.
+	//!    Use BLOCKSIZE at compile time, or BlockSize() at runtime.
 	//! \sa FixedBlockSize, BlockCipherFinal from seckey.h and BlockSize()
 	void ProcessBlock(byte *inoutBlock) const
 		{ProcessAndXorBlock(inoutBlock, NULL, inoutBlock);}
@@ -1221,7 +1221,7 @@ public:
 //! \details NullRNG() returns a reference that can be passed to functions that require a
 //!   RandomNumberGenerator but don't actually use it. The NullRNG() throws NotImplemented 
 //!   when a generation function is called.
-//! \sa ClassNullRNG
+//! \sa ClassNullRNG, IsProbabilistic()
 CRYPTOPP_DLL RandomNumberGenerator & CRYPTOPP_API NullRNG();
 
 //! \class WaitObjectContainer
@@ -2287,22 +2287,26 @@ typedef PK_Encryptor PK_FixedLengthEncryptor;
 typedef PK_Decryptor PK_FixedLengthDecryptor;
 #endif
 
+//! \class PK_SignatureScheme
 //! \brief Interface for public-key signers and verifiers
-
-/*! This class provides an interface common to signers and verifiers
-	for querying scheme properties.
-*/
+//! \details This class provides an interface common to signers and verifiers for querying scheme properties
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_SignatureScheme
 {
 public:
-	//! invalid key exception, may be thrown by any function in this class if the private or public key has a length that can't be used
+	//! \class InvalidKeyLength
+	//! \brief Exception throw when the private or public key has a length that can't be used
+	//! \details InvalidKeyLength() may be thrown by any function in this class if the private
+	//!   or public key has a length that can't be used
 	class CRYPTOPP_DLL InvalidKeyLength : public Exception
 	{
 	public:
 		InvalidKeyLength(const std::string &message) : Exception(OTHER_ERROR, message) {}
 	};
 
-	//! key too short exception, may be thrown by any function in this class if the private or public key is too short to sign or verify anything
+	//! \class KeyTooShort
+	//! \brief Exception throw when the private or public key is too short to sign or verify
+	//! \details KeyTooShort() may be thrown by any function in this class if the private or public
+	//!   key is too short to sign or verify anything
 	class CRYPTOPP_DLL KeyTooShort : public InvalidKeyLength
 	{
 	public:
@@ -2311,37 +2315,60 @@ public:
 
 	virtual ~PK_SignatureScheme() {}
 
-	//! signature length if it only depends on the key, otherwise 0
+	//! \brief Provides the signature length if it only depends on the key
+	//! \returns the signature length if it only depends on the key, in bytes
+	//! \details SignatureLength() returns the signature length if it only depends on the key, otherwise 0.
 	virtual size_t SignatureLength() const =0;
 
-	//! maximum signature length produced for a given length of recoverable message part
+	//! \brief Provides the maximum signature length produced given the length of the recoverable message part
+	//! \param recoverablePartLength the length of the recoverable message part, in bytes
+	//! \returns the maximum signature length produced for a given length of recoverable message part, in bytes
+	//! \details MaxSignatureLength() returns the maximum signature length produced given the length of the
+	//!   recoverable message part.
 	virtual size_t MaxSignatureLength(size_t recoverablePartLength = 0) const
 	{CRYPTOPP_UNUSED(recoverablePartLength); return SignatureLength();}
 
-	//! length of longest message that can be recovered, or 0 if this signature scheme does not support message recovery
+	//! \brief Provides the length of longest message that can be recovered
+	//! \returns the length of longest message that can be recovered, in bytes
+	//! \details MaxRecoverableLength() returns the length of longest message that can be recovered, or 0 if
+	//!   this signature scheme does not support message recovery.
 	virtual size_t MaxRecoverableLength() const =0;
 
-	//! length of longest message that can be recovered from a signature of given length, or 0 if this signature scheme does not support message recovery
+	//! \brief Provides the length of longest message that can be recovered from a signature of given length
+	//! \param signatureLength the length of the signature, in bytes
+	//! \returns the length of longest message that can be recovered from a signature of given length, in bytes
+	//! \details MaxRecoverableLengthFromSignatureLength() returns the length of longest message that can be
+	//!   recovered from a signature of given length, or 0 if this signature scheme does not support message
+	//!   recovery.
 	virtual size_t MaxRecoverableLengthFromSignatureLength(size_t signatureLength) const =0;
 
-	//! requires a random number generator to sign
-	/*! if this returns false, NullRNG() can be passed to functions that take RandomNumberGenerator & */
+	//! \brief Determines whether a signature scheme requires a random number generator
+	//! \returns true if the signature scheme requires a RandomNumberGenerator() to sign
+	//! \details if IsProbabilistic() returns false, then NullRNG() can be passed to functions that take
+	//!   RandomNumberGenerator().
 	virtual bool IsProbabilistic() const =0;
 
-	//! whether or not a non-recoverable message part can be signed
+	//! \brief Determines whether the non-recoverable message part can be signed
+	//! \returns true if the non-recoverable message part can be signed
 	virtual bool AllowNonrecoverablePart() const =0;
 
-	//! if this function returns true, during verification you must input the signature before the message, otherwise you can input it at anytime */
+	//! \brief Determines whether the signature must be input before the message
+	//! \returns true if the signature must be input before the message during verifcation
+	//! \details if SignatureUpfront() returns true, then you must input the signature before the message
+	//!   during verification. Otherwise you can input the signature at anytime.
 	virtual bool SignatureUpfront() const {return false;}
 
-	//! whether you must input the recoverable part before the non-recoverable part during signing
+	//! \brief Determines whether the recoverable part must be input before the non-recoverable part
+	//! \returns true if the recoverable part must be input before the non-recoverable part during signing
+	//! \details RecoverablePartFirst() determines whether you must input the recoverable part before the
+	//!   non-recoverable part during signing
 	virtual bool RecoverablePartFirst() const =0;
 };
 
+//! \class PK_MessageAccumulator
 //! \brief Interface for accumulating messages to be signed or verified
-/*! Only Update() should be called
-	on this class. No other functions inherited from HashTransformation should be called.
-*/
+//! \details Only Update() should be called from the PK_MessageAccumulator() class. No other functions
+//!   inherited from HashTransformation, like DigestSize() and TruncatedFinal(), should be called.
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_MessageAccumulator : public HashTransformation
 {
 public:
@@ -2357,38 +2384,60 @@ public:
 	}
 };
 
+//! \class PK_Signer
 //! \brief Interface for public-key signers
-
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_Signer : public PK_SignatureScheme, public PrivateKeyAlgorithm
 {
 public:
-	//! create a new HashTransformation to accumulate the message to be signed
+	//! \brief Create a new HashTransformation to accumulate the message to be signed
+	//! \param rng a RandomNumberGenerator derived class
+	//! \returns a pointer to a PK_MessageAccumulator
+	//! \details NewSignatureAccumulator() can be used with all signing methods. Sign() will autimatically delete the
+	//!   accumulator pointer. The caller is responsible for deletion if a methods is called that takes a reference.
 	virtual PK_MessageAccumulator * NewSignatureAccumulator(RandomNumberGenerator &rng) const =0;
 
+	//! \brief Input a recoverable message to an accumulator
+	//! \param messageAccumulator a reference to a PK_MessageAccumulator
+	//! \param recoverableMessage a pointer to the recoverable message part to be signed
+	//! \param recoverableMessageLength the size of the recoverable message part
 	virtual void InputRecoverableMessage(PK_MessageAccumulator &messageAccumulator, const byte *recoverableMessage, size_t recoverableMessageLength) const =0;
 
-	//! sign and delete messageAccumulator (even in case of exception thrown)
-	/*! \pre size of signature == MaxSignatureLength()
-		\returns actual signature length
-	*/
+	//! \brief Sign and delete the messageAccumulator
+	//! \param rng a RandomNumberGenerator derived class
+	//! \param messageAccumulator a pointer to a PK_MessageAccumulator derived class
+	//! \param signature a block of bytes for the signature
+	//! \returns actual signature length
+	//! \details Sign() deletes the messageAccumulator, even if an exception is thrown.
+	//! \pre <tt>size of signature == MaxSignatureLength()</tt>
 	virtual size_t Sign(RandomNumberGenerator &rng, PK_MessageAccumulator *messageAccumulator, byte *signature) const;
 
-	//! sign and restart messageAccumulator
-	/*! \pre size of signature == MaxSignatureLength()
-		\returns actual signature length
-	*/
+	//! \brief Sign and restart messageAccumulator
+	//! \param rng a RandomNumberGenerator derived class
+	//! \param messageAccumulator a pointer to a PK_MessageAccumulator derived class
+	//! \param signature a block of bytes for the signature
+	//! \param restart flag indicating whether the messageAccumulator should be restarted
+	//! \returns actual signature length
+	//! \pre <tt>size of signature == MaxSignatureLength()</tt>
 	virtual size_t SignAndRestart(RandomNumberGenerator &rng, PK_MessageAccumulator &messageAccumulator, byte *signature, bool restart=true) const =0;
 
-	//! sign a message
-	/*! \pre size of signature == MaxSignatureLength()
-		\returns actual signature length
-	*/
+	//! \brief Sign a message
+	//! \param rng a RandomNumberGenerator derived class
+	//! \param message a pointer to the message
+	//! \param messageLen the size of the message to be signed
+	//! \param signature a block of bytes for the signature
+	//! \returns actual signature length
+	//! \pre <tt>size of signature == MaxSignatureLength()</tt>
 	virtual size_t SignMessage(RandomNumberGenerator &rng, const byte *message, size_t messageLen, byte *signature) const;
 
-	//! sign a recoverable message
-	/*! \pre size of signature == MaxSignatureLength(recoverableMessageLength)
-		\returns actual signature length
-	*/
+	//! \brief Sign a recoverable message
+	//! \param rng a RandomNumberGenerator derived class
+	//! \param recoverableMessage a pointer to the recoverable message part to be signed
+	//! \param recoverableMessageLength the size of the recoverable message part
+	//! \param nonrecoverableMessage a pointer to the non-recoverable message part to be signed
+	//! \param nonrecoverableMessageLength the size of the non-recoverable message part
+	//! \param signature a block of bytes for the signature
+	//! \pre <tt>size of signature == MaxSignatureLength(recoverableMessageLength)</tt>
+	//! \returns actual signature length
 	virtual size_t SignMessageWithRecovery(RandomNumberGenerator &rng, const byte *recoverableMessage, size_t recoverableMessageLength, 
 		const byte *nonrecoverableMessage, size_t nonrecoverableMessageLength, byte *signature) const;
 
@@ -2397,13 +2446,13 @@ public:
 #endif
 };
 
+//! \class PK_Verifier
 //! \brief Interface for public-key signature verifiers
-/*! The Recover* functions throw NotImplemented if the signature scheme does not support
-	message recovery.
-	The Verify* functions throw InvalidDataFormat if the scheme does support message
-	recovery and the signature contains a non-empty recoverable message part. The
-	Recovery* functions should be used in that case.
-*/
+//! \details The Recover* functions throw NotImplemented if the signature scheme does not support
+//!   message recovery.
+//! \details The Verify* functions throw InvalidDataFormat if the scheme does support message
+//!   recovery and the signature contains a non-empty recoverable message part. The
+//!   Recovery* functions should be used in that case.
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_Verifier : public PK_SignatureScheme, public PublicKeyAlgorithm
 {
 public:
@@ -2445,12 +2494,11 @@ public:
 #endif
 };
 
+//! \class SimpleKeyAgreementDomain
 //! \brief Interface for domains of simple key agreement protocols
-
-/*! A key agreement domain is a set of parameters that must be shared
-	by two parties in a key agreement protocol, along with the algorithms
-	for generating key pairs and deriving agreed values.
-*/
+//! \details A key agreement domain is a set of parameters that must be shared
+//!   by two parties in a key agreement protocol, along with the algorithms
+//!   for generating key pairs and deriving agreed values.
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE SimpleKeyAgreementDomain : public KeyAgreementAlgorithm
 {
 public:

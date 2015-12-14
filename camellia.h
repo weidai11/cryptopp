@@ -19,7 +19,7 @@ struct Camellia_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 1
 	static const char *StaticAlgorithmName() {return "Camellia";}
 };
 
-//! \class Camellia_Info
+//! \class Camellia
 //! \brief Camellia block cipher
 //! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#Camellia">Camellia</a>
 class Camellia : public Camellia_Info, public BlockCipherDocumentation
