@@ -40,7 +40,7 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Filter : public BufferedTransformation, pu
 {
 public:
 	//! \brief Construct a Filter
-	//! \param attachment the filter's attached transformation
+	//! \param attachment an optional attached transformation
 	//! \details attachment can be \p NULL.
 	Filter(BufferedTransformation *attachment = NULL);
 
@@ -58,8 +58,8 @@ public:
 	const BufferedTransformation *AttachedTransformation() const;
 	
 	//! \brief Replace an attached transformation
-	//! \param newAttachment pointer to a new BufferedTransformation
-	//! \details newAttachment cab ne a single filter, a chain of filters or \p NULL.
+	//! \param newAttachment an optional attached transformation
+	//! \details newAttachment can be a single filter, a chain of filters or \p NULL.
 	//!    Pass \p NULL to remove an existing BufferedTransformation or chain of filters
 	void Detach(BufferedTransformation *newAttachment = NULL);
 	
@@ -154,11 +154,23 @@ protected:
 	int m_continueAt;
 };
 
-//! \struct FilterPutSpaceHelper
-
+//! \class FilterPutSpaceHelper
+//! \brief Create a working space in a BufferedTransformation
 struct CRYPTOPP_DLL FilterPutSpaceHelper
 {
-	// desiredSize is how much to ask target, bufferSize is how much to allocate in m_tempSpace
+	//! \brief Create a working space in a BufferedTransformation
+	//! \param target BufferedTransformation for the working space
+	//! \param channel channel for the working space
+	//! \param minSize minimum size of the allocation, in bytes
+	//! \param desiredSize preferred size of the allocation, in bytes
+	//! \param bufferSize actual size of the allocation, in bytes
+	//! \pre <tt>desiredSize >= minSize</tt> and <tt>bufferSize >= minSize</tt>.
+	//! \details \p bufferSize is an IN and OUT parameter. If HelpCreatePutSpace() returns a non-NULL value, then
+	//!    bufferSize is valid and provides the size of the working space created for the caller.
+	//! \details Internally, HelpCreatePutSpace() calls \ref BufferedTransformation::ChannelCreatePutSpace
+	//!   "ChannelCreatePutSpace()" using \p desiredSize. If the target returns \p desiredSize with a size less
+	//!   than \p minSize (i.e., the request could not be fulfilled), then an internal SecByteBlock
+	//!   called \p m_tempSpace is resized and used for the caller.
 	byte *HelpCreatePutSpace(BufferedTransformation &target, const std::string &channel, size_t minSize, size_t desiredSize, size_t &bufferSize)
 	{
 		assert(desiredSize >= minSize && bufferSize >= minSize);
@@ -176,25 +188,63 @@ struct CRYPTOPP_DLL FilterPutSpaceHelper
 		bufferSize = m_tempSpace.size();
 		return m_tempSpace.begin();
 	}
+
+	//! \brief Create a working space in a BufferedTransformation
+	//! \param target the BufferedTransformation for the working space
+	//! \param channel channel for the working space
+	//! \param minSize minimum size of the allocation, in bytes
+	//! \details Internally, the overload calls HelpCreatePutSpace(BufferedTransformation &target, const std::string &channel, size_t minSize, size_t desiredSize, size_t &bufferSize) using \p minSize for missing arguments.
 	byte *HelpCreatePutSpace(BufferedTransformation &target, const std::string &channel, size_t minSize)
 		{return HelpCreatePutSpace(target, channel, minSize, minSize, minSize);}
+
+	//! \brief Create a working space in a BufferedTransformation
+	//! \param target the BufferedTransformation for the working space
+	//! \param channel channel for the working space
+	//! \param minSize minimum size of the allocation, in bytes
+	//! \param bufferSize the actual size of the allocation, in bytes
+	//! \details Internally, the overload calls HelpCreatePutSpace(BufferedTransformation &target, const std::string &channel, size_t minSize, size_t desiredSize, size_t &bufferSize) using \p minSize for missing arguments.
 	byte *HelpCreatePutSpace(BufferedTransformation &target, const std::string &channel, size_t minSize, size_t bufferSize)
 		{return HelpCreatePutSpace(target, channel, minSize, minSize, bufferSize);}
+
+	//! \brief Temporay working space
 	SecByteBlock m_tempSpace;
 };
 
-//! measure how many byte and messages pass through, also serves as valve
+//! \class MeterFilter
+//! \brief Measure how many bytes and messages pass through the filter
+//! \details measure how many bytes and messages pass through the filter. The filter also serves as valve by
+//!   maintaining a list of ranges to skip during processing.
 class CRYPTOPP_DLL MeterFilter : public Bufferless<Filter>
 {
 public:
+	//! \brief Construct a MeterFilter
+	//! \param attachment an optional attached transformation
+	//! \param transparent flag indicating if the filter should function transparently
+	//! \details \p attachment can be \p NULL. The filter is transparent by default. If the filter is
+	//!   transparent, then PutMaybeModifiable() does not process a request and always returns 0.
 	MeterFilter(BufferedTransformation *attachment=NULL, bool transparent=true)
 		: m_transparent(transparent), m_currentMessageBytes(0), m_totalBytes(0)
 		, m_currentSeriesMessages(0), m_totalMessages(0), m_totalMessageSeries(0)
 		, m_begin(NULL), m_length(0) {Detach(attachment); ResetMeter();}
 
+	//! \brief Set or change the transparent mode of this object
+	//! \param transparent the new transparent mode
 	void SetTransparent(bool transparent) {m_transparent = transparent;}
+
+	//! \brief Adds a range to skip during processing
+	//! \param message the message to apply the range
+	//! \param position the 0-based index in the current stream
+	//! \param size the length of the range
+	//! \param sortNow flag indicating whether the range should be sorted
+	//! \details Internally, MeterFilter maitains a deque of ranges to skip. As messages are processed,
+	//!   ranges of bytes are skipped according to the list of ranges.
 	void AddRangeToSkip(unsigned int message, lword position, lword size, bool sortNow = true);
+
+	//! \brief Resets the meter
+	//! \details ResetMeter() reinitializes the meter by setting counters to 0 and removing previous
+	//!   skip ranges.
 	void ResetMeter();
+
 	void IsolatedInitialize(const NameValuePairs &parameters)
 		{CRYPTOPP_UNUSED(parameters); ResetMeter();}
 
@@ -230,25 +280,35 @@ private:
 	size_t m_length;
 };
 
-//! _
+//! \class TransparentFilter
+//! \brief A transparent MeterFilter
+//! \sa MeterFilter, OpaqueFilter
 class CRYPTOPP_DLL TransparentFilter : public MeterFilter
 {
 public:
+	//! \brief Construct a TransparentFilter
+	//! \param attachment an optional attached transformation
 	TransparentFilter(BufferedTransformation *attachment=NULL) : MeterFilter(attachment, true) {}
 };
 
-//! _
+//! \class OpaqueFilter
+//! \brief A non-transparent MeterFilter
+//! \sa MeterFilter, TransparentFilter
 class CRYPTOPP_DLL OpaqueFilter : public MeterFilter
 {
 public:
+	//! \brief Construct an OpaqueFilter
+	//! \param attachment an optional attached transformation
 	OpaqueFilter(BufferedTransformation *attachment=NULL) : MeterFilter(attachment, false) {}
 };
 
-/*! FilterWithBufferedInput divides up the input stream into
-	a first block, a number of middle blocks, and a last block.
-	First and last blocks are optional, and middle blocks may
-	be a stream instead (i.e. blockSize == 1).
-*/
+//! \class FilterWithBufferedInput
+//! \brief Divides an input stream into discrete blocks
+//! \details FilterWithBufferedInput divides the input stream into a first block, a number of
+//!   middle blocks, and a last block. First and last blocks are optional, and middle blocks may
+//!   be a stream instead (i.e. <tt>blockSize == 1</tt>).
+//! \sa AuthenticatedEncryptionFilter, AuthenticatedDecryptionFilter, HashVerificationFilter,
+//!   SignatureVerificationFilter, StreamTransformationFilter
 class CRYPTOPP_DLL FilterWithBufferedInput : public Filter
 {
 public:
@@ -258,9 +318,16 @@ public:
 	FilterWithBufferedInput();
 #endif
 
-	//! construct a FilterWithBufferedInput with an attached transformation
+	//! \brief Construct a FilterWithBufferedInput with an attached transformation
+	//! \param attachment an attached transformation
 	FilterWithBufferedInput(BufferedTransformation *attachment);
-	//! firstSize and lastSize may be 0, blockSize must be at least 1
+
+	//! \brief Construct a FilterWithBufferedInput with an attached transformation
+	//! \param firstSize the size of the first block
+	//! \param blockSize the size of middle blocks
+	//! \param lastSize the size of the last block
+	//! \param attachment an attached transformation
+	//! \details \p firstSize and \p lastSize may be 0. \p blockSize must be at least 1.
 	FilterWithBufferedInput(size_t firstSize, size_t blockSize, size_t lastSize, BufferedTransformation *attachment);
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
@@ -341,10 +408,16 @@ protected:
 	BlockQueue m_queue;
 };
 
-//! _
+//! \class FilterWithInputQueue
+//! \brief A filter that buffers input using a ByteQueue
+//! \details FilterWithInputQueue will buffer input using a ByteQueue. When the filter receives
+//!   a \ref BufferedTransformation::MessageEnd() "MessageEnd()" signal it will pass the data
+//!   on to its attached transformation.
 class CRYPTOPP_DLL FilterWithInputQueue : public Filter
 {
 public:
+	//! \brief Construct a FilterWithInputQueue
+	//! \param attachment an optional attached transformation
 	FilterWithInputQueue(BufferedTransformation *attachment=NULL) : Filter(attachment) {}
 
 	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
@@ -370,11 +443,11 @@ protected:
 };
 
 //! \struct BlockPaddingSchemeDef
-//! \details Padding schemes used for block ciphers.
+//! \brief Padding schemes used for block ciphers
 struct BlockPaddingSchemeDef
 {
 	//! \enum BlockPaddingScheme
-	//! \details Padding schemes used for block ciphers.
+	//! \brief Padding schemes used for block ciphers.
 	//! \details DEFAULT_PADDING means PKCS_PADDING if <tt>cipher.MandatoryBlockSize() > 1 &&
 	//!   cipher.MinLastBlockSize() == 0</tt>, which holds for ECB or CBC mode. Otherwise,
 	//!   NO_PADDING for modes like OFB, CFB, CTR, CBC-CTS.
@@ -389,15 +462,22 @@ struct BlockPaddingSchemeDef
 		PKCS_PADDING,
 		//! \brief 1 and 0's padding added to a block
 		ONE_AND_ZEROS_PADDING,
-		//! \brief Default padding acheme
+		//! \brief Default padding scheme
 		DEFAULT_PADDING
 	};
 };
 
-//! Filter Wrapper for StreamTransformation, optionally handling padding/unpadding when needed
+//! \class StreamTransformationFilter
+//! \brief Filter wrapper for StreamTransformation
+//! \details Filter wrapper for StreamTransformation. The filter will optionally handle padding/unpadding when needed
 class CRYPTOPP_DLL StreamTransformationFilter : public FilterWithBufferedInput, public BlockPaddingSchemeDef, private FilterPutSpaceHelper
 {
 public:
+	//! \brief Construct a StreamTransformationFilter
+	//! \param c reference to a StreamTransformation
+	//! \param attachment an optional attached transformation
+	//! \param padding the \ref BlockPaddingSchemeDef "padding scheme"
+	//! \param allowAuthenticatedSymmetricCipher flag indicating whether the filter should allow authenticated encryption schemes
 	StreamTransformationFilter(StreamTransformation &c, BufferedTransformation *attachment = NULL, BlockPaddingScheme padding = DEFAULT_PADDING, bool allowAuthenticatedSymmetricCipher = false);
 
 	std::string AlgorithmName() const {return m_cipher.AlgorithmName();}
@@ -420,10 +500,18 @@ protected:
 typedef StreamTransformationFilter StreamCipherFilter;
 #endif
 
-//! Filter Wrapper for HashTransformation
+//! \class HashFilter
+//! \brief Filter wrapper for HashTransformation
 class CRYPTOPP_DLL HashFilter : public Bufferless<Filter>, private FilterPutSpaceHelper
 {
 public:
+	//! \brief Construct a HashFilter
+	//! \param hm reference to a HashTransformation
+	//! \param attachment an optional attached transformation
+	//! \param putMessage flag indicating whether the original message should be passed to an attached transformation
+	//! \param truncatedDigestSize the size of the digest
+	//! \param messagePutChannel the channel on which the message should be output
+	//! \param hashPutChannel the channel on which the digest should be output
 	HashFilter(HashTransformation &hm, BufferedTransformation *attachment = NULL, bool putMessage=false, int truncatedDigestSize=-1, const std::string &messagePutChannel=DEFAULT_CHANNEL, const std::string &hashPutChannel=DEFAULT_CHANNEL);
 
 	std::string AlgorithmName() const {return m_hashModule.AlgorithmName();}
@@ -439,10 +527,13 @@ private:
 	std::string m_messagePutChannel, m_hashPutChannel;
 };
 
-//! Filter Wrapper for HashTransformation
+//! \class HashVerificationFilter
+//! \brief Filter wrapper for HashTransformation
 class CRYPTOPP_DLL HashVerificationFilter : public FilterWithBufferedInput
 {
 public:
+	//! \class HashVerificationFailed
+	//! \brief Exception thrown when a data integrity check failure is encountered
 	class HashVerificationFailed : public Exception
 	{
 	public:
@@ -450,7 +541,32 @@ public:
 			: Exception(DATA_INTEGRITY_CHECK_FAILED, "HashVerificationFilter: message hash or MAC not valid") {}
 	};
 
-	enum Flags {HASH_AT_END=0, HASH_AT_BEGIN=1, PUT_MESSAGE=2, PUT_HASH=4, PUT_RESULT=8, THROW_EXCEPTION=16, DEFAULT_FLAGS = HASH_AT_BEGIN | PUT_RESULT};
+	//! \enum Flags
+	//! \brief Flags controlling filter behavior.
+	//! \details The flags are a bitmask and can be OR'd together.
+	enum Flags {
+		//! \brief Indicates the hash is at the end of the message (i.e., concatenation of message+hash)
+		HASH_AT_END=0,
+		//! \brief Indicates the hash is at the beginning of the message (i.e., concatenation of hash+message)
+		HASH_AT_BEGIN=1,
+		//! \brief Indicates the message should be passed to an attached transformation
+		PUT_MESSAGE=2,
+		//! \brief Indicates the hash should be passed to an attached transformation
+		PUT_HASH=4,
+		//! \brief Indicates the result of the verification should be passed to an attached transformation
+		PUT_RESULT=8,
+		//! \brief Indicates the filter should throw a HashVerificationFailed if a failure is encountered
+		THROW_EXCEPTION=16,
+		//! \brief Default flags using \p HASH_AT_BEGIN and \p PUT_RESULT
+		DEFAULT_FLAGS = HASH_AT_BEGIN | PUT_RESULT
+	};
+
+	//! \brief Construct a HashVerificationFilter
+	//! \param hm reference to a HashTransformation
+	//! \param attachment an optional attached transformation
+	//! \param flags flags indicating behaviors for the filter
+	//! \param truncatedDigestSize the size of the digest
+	//! \details <tt>truncatedDigestSize = -1</tt> indicates \ref HashTransformation::DigestSize() "DigestSize" should be used.
 	HashVerificationFilter(HashTransformation &hm, BufferedTransformation *attachment = NULL, word32 flags = DEFAULT_FLAGS, int truncatedDigestSize=-1);
 
 	std::string AlgorithmName() const {return m_hashModule.AlgorithmName();}
@@ -474,12 +590,20 @@ private:
 
 typedef HashVerificationFilter HashVerifier;	// for backwards compatibility
 
-//! Filter wrapper for encrypting with AuthenticatedSymmetricCipher, optionally handling padding/unpadding when needed
-/*! Additional authenticated data should be given in channel "AAD". If putAAD is true, AAD will be Put() to the attached BufferedTransformation in channel "AAD". */
+//! \class AuthenticatedEncryptionFilter
+//! \brief Filter wrapper for encrypting with AuthenticatedSymmetricCipher
+//! \details Filter wrapper for encrypting with AuthenticatedSymmetricCipher, optionally handling padding/unpadding when needed
 class CRYPTOPP_DLL AuthenticatedEncryptionFilter : public StreamTransformationFilter
 {
 public:
-	/*! See StreamTransformationFilter for documentation on BlockPaddingScheme  */
+	//! \brief Construct a AuthenticatedEncryptionFilter
+	//! \param c reference to a AuthenticatedSymmetricCipher
+	//! \param attachment an optional attached transformation
+	//! \param putAAD flag indicating whether the AAD should be passed to an attached transformation
+	//! \param truncatedDigestSize the size of the digest
+	//! \param macChannel the channel on which the MAC should be output
+	//! \param padding the \ref BlockPaddingSchemeDef "padding scheme"
+	//! \details <tt>truncatedDigestSize = -1</tt> indicates \ref HashTransformation::DigestSize() "DigestSize" should be used.
 	AuthenticatedEncryptionFilter(AuthenticatedSymmetricCipher &c, BufferedTransformation *attachment = NULL, bool putAAD=false, int truncatedDigestSize=-1, const std::string &macChannel=DEFAULT_CHANNEL, BlockPaddingScheme padding = DEFAULT_PADDING);
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
@@ -491,14 +615,34 @@ protected:
 	HashFilter m_hf;
 };
 
-//! Filter wrapper for decrypting with AuthenticatedSymmetricCipher, optionally handling padding/unpadding when needed
-/*! Additional authenticated data should be given in channel "AAD". */
+//! \class AuthenticatedDecryptionFilter
+//! \brief Filter wrapper for decrypting with AuthenticatedSymmetricCipher
+//! \details Filter wrapper wrapper for decrypting with AuthenticatedSymmetricCipher, optionally handling padding/unpadding when needed.
 class CRYPTOPP_DLL AuthenticatedDecryptionFilter : public FilterWithBufferedInput, public BlockPaddingSchemeDef
 {
 public:
-	enum Flags {MAC_AT_END=0, MAC_AT_BEGIN=1, THROW_EXCEPTION=16, DEFAULT_FLAGS = THROW_EXCEPTION};
+	//! \enum Flags
+	//! \brief Flags controlling filter behavior.
+	//! \details The flags are a bitmask and can be OR'd together.
+	enum Flags {
+		//! \brief Indicates the MAC is at the end of the message (i.e., concatenation of message+mac)
+		MAC_AT_END=0,
+		//! \brief Indicates the MAC is at the beginning of the message (i.e., concatenation of mac+message)
+		MAC_AT_BEGIN=1,
+		//! \brief Indicates the filter should throw a HashVerificationFailed if a failure is encountered
+		THROW_EXCEPTION=16,
+		//! \brief Default flags using \p THROW_EXCEPTION
+		DEFAULT_FLAGS = THROW_EXCEPTION
+	};
 
-	/*! See StreamTransformationFilter for documentation on BlockPaddingScheme  */
+	//! \brief Construct a AuthenticatedDecryptionFilter
+	//! \param c reference to a AuthenticatedSymmetricCipher
+	//! \param attachment an optional attached transformation
+	//! \param flags flags indicating behaviors for the filter
+	//! \param truncatedDigestSize the size of the digest
+	//! \param padding the \ref BlockPaddingSchemeDef "padding scheme"
+	//! \details Additional authenticated data should be given in channel "AAD".
+	//! \details <tt>truncatedDigestSize = -1</tt> indicates \ref HashTransformation::DigestSize() "DigestSize" should be used.
 	AuthenticatedDecryptionFilter(AuthenticatedSymmetricCipher &c, BufferedTransformation *attachment = NULL, word32 flags = DEFAULT_FLAGS, int truncatedDigestSize=-1, BlockPaddingScheme padding = DEFAULT_PADDING);
 
 	std::string AlgorithmName() const {return m_hashVerifier.AlgorithmName();}
@@ -516,10 +660,16 @@ protected:
 	StreamTransformationFilter m_streamFilter;
 };
 
-//! Filter Wrapper for PK_Signer
+//! \class SignerFilter
+//! \brief Filter wrapper for PK_Signer
 class CRYPTOPP_DLL SignerFilter : public Unflushable<Filter>
 {
 public:
+	//! \brief Construct a SignerFilter
+	//! \param rng a RandomNumberGenerator derived class
+	//! \param signer a PK_Signer derived class
+	//! \param attachment an optional attached transformation
+	//! \param putMessage flag indicating whether the original message should be passed to an attached transformation
 	SignerFilter(RandomNumberGenerator &rng, const PK_Signer &signer, BufferedTransformation *attachment = NULL, bool putMessage=false)
 		: m_rng(rng), m_signer(signer), m_messageAccumulator(signer.NewSignatureAccumulator(rng)), m_putMessage(putMessage) {Detach(attachment);}
 
@@ -536,10 +686,12 @@ private:
 	SecByteBlock m_buf;
 };
 
-//! Filter Wrapper for PK_Verifier
+//! \class SignatureVerificationFilter
+//! \brief Filter wrapper for PK_Verifier
 class CRYPTOPP_DLL SignatureVerificationFilter : public FilterWithBufferedInput
 {
 public:
+	//! \brief Exception thrown when an invalid signature is encountered
 	class SignatureVerificationFailed : public Exception
 	{
 	public:
@@ -547,11 +699,36 @@ public:
 			: Exception(DATA_INTEGRITY_CHECK_FAILED, "VerifierFilter: digital signature not valid") {}
 	};
 
-	enum Flags {SIGNATURE_AT_END=0, SIGNATURE_AT_BEGIN=1, PUT_MESSAGE=2, PUT_SIGNATURE=4, PUT_RESULT=8, THROW_EXCEPTION=16, DEFAULT_FLAGS = SIGNATURE_AT_BEGIN | PUT_RESULT};
+	//! \enum Flags
+	//! \brief Flags controlling filter behavior.
+	//! \details The flags are a bitmask and can be OR'd together.
+	enum Flags {
+		//! \brief Indicates the signature is at the end of the message (i.e., concatenation of message+signature)
+		SIGNATURE_AT_END=0,
+		//! \brief Indicates the signature is at the beginning of the message (i.e., concatenation of signature+message)
+		SIGNATURE_AT_BEGIN=1,
+		//! \brief Indicates the message should be passed to an attached transformation
+		PUT_MESSAGE=2,
+		//! \brief Indicates the signature should be passed to an attached transformation
+		PUT_SIGNATURE=4,
+		//! \brief Indicates the result of the verification should be passed to an attached transformation
+		PUT_RESULT=8,
+		//! \brief Indicates the filter should throw a HashVerificationFailed if a failure is encountered
+		THROW_EXCEPTION=16,
+		//! \brief Default flags using \p SIGNATURE_AT_BEGIN and \p PUT_RESULT
+		DEFAULT_FLAGS = SIGNATURE_AT_BEGIN | PUT_RESULT
+	};
+
+	//! \brief Construct a SignatureVerificationFilter
+	//! \param verifier a PK_Verifier derived class
+	//! \param attachment an optional attached transformation
+	//! \param flags flags indicating behaviors for the filter
 	SignatureVerificationFilter(const PK_Verifier &verifier, BufferedTransformation *attachment = NULL, word32 flags = DEFAULT_FLAGS);
 
 	std::string AlgorithmName() const {return m_verifier.AlgorithmName();}
 
+	//! \brief Retrieves the result of the last verification
+	//! \returns true if the signature on the previosus message was valid, false otherwise
 	bool GetLastResult() const {return m_verified;}
 
 protected:
@@ -570,10 +747,12 @@ private:
 
 typedef SignatureVerificationFilter VerifierFilter;	// for backwards compatibility
 
-//! Redirect input to another BufferedTransformation without owning it
+//! \class Redirector
+//! \brief Redirect input to another BufferedTransformation without owning it
 class CRYPTOPP_DLL Redirector : public CustomSignalPropagation<Sink>
 {
 public:
+	//! \enum Behavior
 	//! \brief Controls signal propagation behavior
 	enum Behavior
 	{
@@ -588,11 +767,19 @@ public:
 		PASS_EVERYTHING = PASS_SIGNALS | PASS_WAIT_OBJECTS
 	};
 
+	//! \brief Construct a Redirector
 	Redirector() : m_target(NULL), m_behavior(PASS_EVERYTHING) {}
+
+	//! \brief Construct a Redirector
+	//! \param target the destination BufferedTransformation
+	//! \param behavior \ref Behavior "flags" specifying signal propagation
 	Redirector(BufferedTransformation &target, Behavior behavior=PASS_EVERYTHING)
 		: m_target(&target), m_behavior(behavior) {}
 
+	//! \brief Redirect input to another BufferedTransformation 
+	//! \param target the destination BufferedTransformation
 	void Redirect(BufferedTransformation &target) {m_target = &target;}
+	//! \brief Stop redirecting input
 	void StopRedirection() {m_target = NULL;}
 
 	Behavior GetBehavior() {return (Behavior) m_behavior;}

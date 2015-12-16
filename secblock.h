@@ -708,13 +708,13 @@ public:
 
 #ifdef CRYPTOPP_DOXYGEN_PROCESSING
 //! \class SecByteBlock
-//! \brief SecByteBlock is a SecBlock<byte> typedef.
+//! \brief \ref SecBlock "SecBlock<byte>" typedef.
 class SecByteBlock : public SecBlock<byte> {};
 //! \class SecWordBlock
-//! \brief SecWordBlock is a SecBlock<word> typedef.
+//! \brief \ref SecBlock "SecBlock<word>" typedef.
 class SecWordBlock : public SecBlock<word> {};
 //! \class AlignedSecByteBlock
-//! \brief AlignedSecByteBlock is a SecBlock<byte, AllocatorWithCleanup<byte, true> > typedef.
+//! \brief SecBlock using \ref AllocatorWithCleanup "AllocatorWithCleanup<byte, true>" typedef
 class AlignedSecByteBlock SecBlock<byte, AllocatorWithCleanup<byte, true> > {};
 #else
 typedef SecBlock<byte> SecByteBlock;

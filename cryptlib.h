@@ -120,11 +120,15 @@ typedef EnumToType<ByteOrder, LITTLE_ENDIAN_ORDER> LittleEndian;
 typedef EnumToType<ByteOrder, BIG_ENDIAN_ORDER> BigEndian;
 
 //! \class Exception
-//! \brief Base class for all exceptions thrown by Crypto++
+//! \brief Base class for all exceptions thrown by the library
+//! \details All library exceptions directly or indirectly inherit from the Exception class.
+//!   The Exception class itself inherits from std::exception. The library does not use
+//!   std::runtime_error derived classes.
 class CRYPTOPP_DLL Exception : public std::exception
 {
 public:
-	//! error types
+	//! \enum ErrorType
+	//! \brief Error types or categories
 	enum ErrorType {
 		//! \brief A method was called which was not implemented
 		NOT_IMPLEMENTED,
@@ -138,7 +142,7 @@ public:
 		INVALID_DATA_FORMAT,
 		//! \brief Error reading from input device or writing to output device
 		IO_ERROR,
-		//! \brief Some other error occurred not belong to any of the above categories
+		//! \brief Some other error occurred not belonging to other categories
 		OTHER_ERROR
 	};
 
@@ -1395,7 +1399,9 @@ public:
 		virtual size_t PutModifiable2(byte *inString, size_t length, int messageEnd, bool blocking)
 			{return Put2(inString, length, messageEnd, blocking);}
 
-		//! \brief thrown by objects that have not implemented nonblocking input processing
+		//! \class BlockingInputOnly
+		//! \brief Exception thrown by objects that have \a not implemented nonblocking input processing
+		//! \details BlockingInputOnly inherits from NotImplemented
 		struct BlockingInputOnly : public NotImplemented
 			{BlockingInputOnly(const std::string &s) : NotImplemented(s + ": Nonblocking input is not implemented by this object.") {}};
 	//@}
@@ -2237,9 +2243,12 @@ public:
 		byte *ciphertext, const NameValuePairs &parameters = g_nullNameValuePairs) const =0;
 
 	//! \brief Create a new encryption filter
-	//! \note The caller is responsible for deleting the returned pointer.
-	//! \note Encoding parameters should be passed in the "EP" channel.
-	virtual BufferedTransformation * CreateEncryptionFilter(RandomNumberGenerator &rng, 
+	//! \param rng a RandomNumberGenerator derived class
+	//! \param attachment an attached transformation
+	//! \param parameters additional parameters to intialize the object
+	//! \details \p attachment can be \p NULL. The caller is responsible for deleting the returned pointer.
+	//!   Encoding parameters should be passed in the "EP" channel.
+	virtual BufferedTransformation * CreateEncryptionFilter(RandomNumberGenerator &rng,
 		BufferedTransformation *attachment=NULL, const NameValuePairs &parameters = g_nullNameValuePairs) const;
 };
 
