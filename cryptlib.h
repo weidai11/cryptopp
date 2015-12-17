@@ -803,7 +803,7 @@ public:
 
 	//! \brief Provides the input block size most efficient for this cipher.
 	//! \returns The input block size that is most efficient for the cipher
-	//! \details The base class implemnetation returns MandatoryBlockSize().
+	//! \details The base class implementation returns MandatoryBlockSize().
 	//! \note Optimal input length is
 	//!   <tt>n * OptimalBlockSize() - GetOptimalBlockSizeUsed()</tt> for any <tt>n \> 0</tt>.
 	virtual unsigned int OptimalBlockSize() const {return MandatoryBlockSize();}
@@ -948,7 +948,7 @@ public:
 
 	//! \brief Provides the input block size most efficient for this hash.
 	//! \returns The input block size that is most efficient for the cipher
-	//! \details The base class implemnetation returns MandatoryBlockSize().
+	//! \details The base class implementation returns MandatoryBlockSize().
 	//! \note Optimal input length is
 	//!   <tt>n * OptimalBlockSize() - GetOptimalBlockSizeUsed()</tt> for any <tt>n \> 0</tt>.
 	virtual unsigned int OptimalBlockSize() const {return 1;}
@@ -1375,6 +1375,7 @@ public:
 		//! \param length the size of the string, in bytes
 		//! \param propagation the number of attached transformations the  MessageEnd() signal should be passed
 		//! \param blocking specifies whether the object should block when processing input
+		//! \returns the number of bytes that remain in the block (i.e., bytes not processed)
 		//! \details Internally, PutMessageEnd() calls Put2() with a modified  propagation to
 		//!    ensure all attached transformations finish processing the message.
 		//! \details propagation count includes this object. Setting propagation to <tt>1</tt> means this
@@ -1426,14 +1427,13 @@ public:
 	//@{
 		
 		//! \brief Initialize or reinitialize this object, without signal propagation
-		//! \param parameters a set of  NameValuePairs used to initialize this object
+		//! \param parameters a set of NameValuePairs to initialize this object
 		//! \throws NotImplemented
 		//! \details IsolatedInitialize() is used to initialize or reinitialize an object using a variable
 		//!   number of  arbitrarily typed arguments. The function avoids the need for multiple constuctors providing
 		//!   all possible combintations of configurable parameters.
 		//! \details IsolatedInitialize() does not call Initialize() on attached transformations. If initialization
 		//!   should be propagated, then use the Initialize() function.
-		//! \details Setting propagation to <tt>-1</tt> means unlimited propagation.
 		//! \details If a derived class does not override IsolatedInitialize(), then the base class throws
 		//!   NotImplemented.
 		virtual void IsolatedInitialize(const NameValuePairs &parameters) {
@@ -1454,8 +1454,7 @@ public:
 			{CRYPTOPP_UNUSED(blocking); return false;}
 
 		//! \brief Initialize or reinitialize this object, with signal propagation
-		//! \param parameters a set of  NameValuePairs used to initialize or reinitialize this object
-		//!   and attached transformations
+		//! \param parameters a set of NameValuePairs to initialize or reinitialize this object
 		//! \param propagation the number of attached transformations the Initialize() signal should be passed
 		//! \details Initialize() is used to initialize or reinitialize an object using a variable number of 
 		//!   arbitrarily typed arguments. The function avoids the need for multiple constuctors providing
@@ -1826,8 +1825,7 @@ public:
 		//! \param length the size of the string, in bytes
 		//! \param propagation the number of attached transformations the ChannelPutMessageEnd() signal should be passed
 		//! \param blocking specifies whether the object should block when processing input
-		//! \returns 0 indicates all bytes were processed during the call. Non-0 indicates the
-		//!   number of bytes that were \a not processed.
+		//! \returns the number of bytes that remain in the block (i.e., bytes not processed)
 		//! \details propagation count includes this object. Setting propagation to <tt>1</tt> means this
 		//!   object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
 		size_t ChannelPutMessageEnd(const std::string &channel, const byte *inString, size_t length, int propagation=-1, bool blocking=true)
@@ -1836,13 +1834,14 @@ public:
 		//! \brief Request space which can be written into by the caller
 		//! \param channel the channel to process the data
 		//! \param size the requested size of the buffer
+		//! \returns a pointer to a memroy block with length size
 		//! \details The purpose of this method is to help avoid extra memory allocations.
 		//! \details size is an \a IN and \a OUT parameter and used as a hint. When the call is made,
 		//!    size is the requested size of the buffer. When the call returns,  size is the size of
 		//!   the array returned to the caller.
-		//! \details The base class implementation sets  size to 0 and returns  NULL.
-		//! \note Some objects, like ArraySink, cannot create a space because its fixed. In the case of
-		//! an ArraySink, the pointer to the array is returned and the  size is remaining size.
+		//! \details The base class implementation sets size to 0 and returns NULL.
+		//! \note Some objects, like ArraySink(), cannot create a space because its fixed. In the case of
+		//! an ArraySink(), the pointer to the array is returned and the size is remaining size.
 		virtual byte * ChannelCreatePutSpace(const std::string &channel, size_t &size);
 
 		//! \brief Input multiple bytes for processing on a channel.
@@ -1851,6 +1850,7 @@ public:
 		//! \param length the size of the string, in bytes.
 		//! \param messageEnd means how many filters to signal MessageEnd() to, including this one.
 		//! \param blocking specifies whether the object should block when processing input.
+		//! \returns the number of bytes that remain in the block (i.e., bytes not processed)
 		virtual size_t ChannelPut2(const std::string &channel, const byte *inString, size_t length, int messageEnd, bool blocking);
 		
 		//! \brief Input multiple bytes that may be modified by callee on a channel
@@ -1859,6 +1859,7 @@ public:
 		//! \param length the size of the string, in bytes
 		//! \param messageEnd means how many filters to signal MessageEnd() to, including this one
 		//! \param blocking specifies whether the object should block when processing input
+		//! \returns the number of bytes that remain in the block (i.e., bytes not processed)
 		virtual size_t ChannelPutModifiable2(const std::string &channel, byte *inString, size_t length, int messageEnd, bool blocking);
 
 		//! \brief Flush buffered input and/or output on a channel
@@ -1866,6 +1867,7 @@ public:
 		//! \param hardFlush is used to indicate whether all data should be flushed
 		//! \param propagation the number of attached transformations the  ChannelFlush() signal should be passed
 		//! \param blocking specifies whether the object should block when processing input
+		//! \returns true of the Flush was successful
 		//! \details propagation count includes this object. Setting propagation to <tt>1</tt> means this
 		//!   object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
 		virtual bool ChannelFlush(const std::string &channel, bool hardFlush, int propagation=-1, bool blocking=true);
@@ -1901,11 +1903,15 @@ public:
 		virtual bool Attachable() {return false;}
 		
 		//! \brief Returns the object immediately attached to this object
-		//! \details AttachedTransformation returns  NULL if there is no attachment
+		//! \returns the attached transformation
+		//! \details AttachedTransformation() returns NULL if there is no attachment. The non-const
+		//!   version of AttachedTransformation() always returns NULL.
 		virtual BufferedTransformation *AttachedTransformation() {assert(!Attachable()); return 0;}
 		
 		//! \brief Returns the object immediately attached to this object
-		//! \details AttachedTransformation returns  NULL if there is no attachment
+		//! \returns the attached transformation
+		//! \details AttachedTransformation() returns NULL if there is no attachment. The non-const
+		//!   version of AttachedTransformation() always returns NULL.
 		virtual const BufferedTransformation *AttachedTransformation() const
 			{return const_cast<BufferedTransformation *>(this)->AttachedTransformation();}
 
@@ -1922,7 +1928,6 @@ public:
 		
 		//! \brief Add newAttachment to the end of attachment chain
 		//! \param newAttachment the attachment to add to the end of the chain
-		
 		virtual void Attach(BufferedTransformation *newAttachment);
 	//@}
 
@@ -2233,7 +2238,7 @@ public:
 	//! \param plaintext the plaintext byte buffer
 	//! \param plaintextLength the size of the plaintext byte buffer
 	//! \param ciphertext a byte buffer to hold the encrypted string
-	//! \param parameters additional configuration options
+	//! \param parameters a set of NameValuePairs to initialize this object
 	//! \pre <tt>CiphertextLength(plaintextLength) != 0</tt> ensures the plaintext isn't too large
 	//! \pre <tt>COUNTOF(ciphertext) == CiphertextLength(plaintextLength)</tt> ensures the output
 	//!   byte buffer is large enough.
@@ -2245,7 +2250,7 @@ public:
 	//! \brief Create a new encryption filter
 	//! \param rng a RandomNumberGenerator derived class
 	//! \param attachment an attached transformation
-	//! \param parameters additional parameters to intialize the object
+	//! \param parameters a set of NameValuePairs to initialize this object
 	//! \details \p attachment can be \p NULL. The caller is responsible for deleting the returned pointer.
 	//!   Encoding parameters should be passed in the "EP" channel.
 	virtual BufferedTransformation * CreateEncryptionFilter(RandomNumberGenerator &rng,
@@ -2262,7 +2267,7 @@ public:
 	//! \param ciphertext the encrypted byte buffer
 	//! \param ciphertextLength the size of the encrypted byte buffer
 	//! \param plaintext a byte buffer to hold the decrypted string
-	//! \param parameters additional configuration options
+	//! \param parameters a set of NameValuePairs to initialize this object
 	//! \returns the result of the decryption operation
 	//! \pre <tt>COUNTOF(plaintext) == MaxPlaintextLength(ciphertextLength)</tt> ensures the output
 	//!   byte buffer is large enough

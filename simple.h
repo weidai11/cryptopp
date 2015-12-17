@@ -1,7 +1,7 @@
 // simple.h - written and placed in the public domain by Wei Dai
 
 //! \file simple.h
-//! \brief Classes providing simple keying interfaces.
+//! \brief Classes providing basic library services.
 
 #ifndef CRYPTOPP_SIMPLE_H
 #define CRYPTOPP_SIMPLE_H
@@ -228,6 +228,7 @@ private:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Store : public AutoSignaling<InputRejecting<BufferedTransformation> >
 {
 public:
+	//! \brief Construct a Store
 	Store() : m_messageEnd(false) {}
 
 	void IsolatedInitialize(const NameValuePairs &parameters)

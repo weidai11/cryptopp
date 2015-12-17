@@ -1,13 +1,10 @@
 // filters.h - written and placed in the public domain by Wei Dai
 
 //! \file filters.h
-//! \brief Implementation of BufferedTransformation's attachment interface in cryptlib.h.
-//! \nosubgrouping
+//! \brief Implementation of BufferedTransformation's attachment interface.
 
 #ifndef CRYPTOPP_FILTERS_H
 #define CRYPTOPP_FILTERS_H
-
-//! \file
 
 #include "cryptlib.h"
 
@@ -39,6 +36,10 @@ NAMESPACE_BEGIN(CryptoPP)
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Filter : public BufferedTransformation, public NotCopyable
 {
 public:
+	
+	//!	\name ATTACHMENT
+	//@{
+
 	//! \brief Construct a Filter
 	//! \param attachment an optional attached transformation
 	//! \details attachment can be \p NULL.
@@ -62,6 +63,8 @@ public:
 	//! \details newAttachment can be a single filter, a chain of filters or \p NULL.
 	//!    Pass \p NULL to remove an existing BufferedTransformation or chain of filters
 	void Detach(BufferedTransformation *newAttachment = NULL);
+	
+	//@}
 	
 	// See the documentation for BufferedTransformation in cryptlib.h
 	size_t TransferTo2(BufferedTransformation &target, lword &transferBytes, const std::string &channel=DEFAULT_CHANNEL, bool blocking=true);
@@ -92,8 +95,7 @@ protected:
 	//! \param messageEnd means how many filters to signal MessageEnd() to, including this one
 	//! \param blocking specifies whether the object should block when processing input
 	//! \param channel the channel to process the data
-	//! \returns 0 indicates all bytes were processed during the call. Non-0 indicates the
-	//!   number of bytes that were \a not processed.
+	//! \returns the number of bytes that remain in the block (i.e., bytes not processed)
 	size_t Output(int outputSite, const byte *inString, size_t length, int messageEnd, bool blocking, const std::string &channel=DEFAULT_CHANNEL);
 	
 	//! \brief Output multiple bytes that may be modified by callee.
@@ -103,8 +105,7 @@ protected:
 	//! \param messageEnd means how many filters to signal MessageEnd() to, including this one
 	//! \param blocking specifies whether the object should block when processing input
 	//! \param channel the channel to process the data
-	//! \returns 0 indicates all bytes were processed during the call. Non-0 indicates the
-	//!   number of bytes that were \a not processed	
+	//! \returns the number of bytes that remain in the block (i.e., bytes not processed)
 	size_t OutputModifiable(int outputSite, byte *inString, size_t length, int messageEnd, bool blocking, const std::string &channel=DEFAULT_CHANNEL);
 	
 	//! \brief Signals the end of messages to the object
@@ -112,6 +113,7 @@ protected:
 	//! \param propagation the number of attached transformations the  MessageEnd() signal should be passed
 	//! \param blocking specifies whether the object should block when processing input
 	//! \param channel the channel to process the data
+	//! \returns TODO
 	//! \details propagation count includes this object. Setting  propagation to <tt>1</tt> means this
 	//!   object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
 	bool OutputMessageEnd(int outputSite, int propagation, bool blocking, const std::string &channel=DEFAULT_CHANNEL);
@@ -122,6 +124,7 @@ protected:
 	//! \param propagation the number of attached transformations the  Flush() signal should be passed
 	//! \param blocking specifies whether the object should block when processing input
 	//! \param channel the channel to process the data
+	//! \returns TODO
 	//! \details propagation count includes this object. Setting  propagation to <tt>1</tt> means this
 	//!   object only. Setting  propagation to <tt>-1</tt> means unlimited propagation.
 	//! \note Hard flushes must be used with care. It means try to process and output everything, even if
@@ -139,6 +142,7 @@ protected:
 	//! \param propagation the number of attached transformations the  MessageSeriesEnd() signal should be passed
 	//! \param blocking specifies whether the object should block when processing input
 	//! \param channel the channel to process the data
+	//! \returns TODO
 	//! \details Each object that receives the signal will perform its processing, decrement
 	//!    propagation, and then pass the signal on to attached transformations if the value is not 0.
 	//! \details propagation count includes this object. Setting  propagation to <tt>1</tt> means this
@@ -861,14 +865,22 @@ private:
 	bool m_passSignal;
 };
 
-//! Base class for Filter classes that are proxies for a chain of other filters.
+//! \class ProxyFilter
+//! \brief Base class for Filter classes that are proxies for a chain of other filters
 class CRYPTOPP_DLL ProxyFilter : public FilterWithBufferedInput
 {
 public:
+	//! \brief Construct a ProxyFilter
+	//! \param filter an output filter
+	//! \param firstSize the first Put size
+	//! \param lastSize the last Put size
+	//! \param attachment an attached transformation
 	ProxyFilter(BufferedTransformation *filter, size_t firstSize, size_t lastSize, BufferedTransformation *attachment);
 
 	bool IsolatedFlush(bool hardFlush, bool blocking);
 
+	//! \brief Sets the OutputProxy filter
+	//! \param filter an OutputProxy filter
 	void SetFilter(Filter *filter);
 	void NextPutMultiple(const byte *s, size_t len);
 	void NextPutModifiable(byte *inString, size_t length);
@@ -877,36 +889,57 @@ protected:
 	member_ptr<BufferedTransformation> m_filter;
 };
 
-//! simple proxy filter that doesn't modify the underlying filter's input or output
+//! \class SimpleProxyFilter
+//! \brief Proxy filter that doesn't modify the underlying filter's input or output
 class CRYPTOPP_DLL SimpleProxyFilter : public ProxyFilter
 {
 public:
+	//! \brief Construct a SimpleProxyFilter
+	//! \param filter an output filter
+	//! \param attachment an attached transformation
 	SimpleProxyFilter(BufferedTransformation *filter, BufferedTransformation *attachment)
 		: ProxyFilter(filter, 0, 0, attachment) {}
 
-	void FirstPut(const byte *) {}
-	void LastPut(const byte *, size_t) {m_filter->MessageEnd();}
+	void FirstPut(const byte * inString)
+		{CRYPTOPP_UNUSED(inString);}
+	void LastPut(const byte *inString, size_t length)
+		{CRYPTOPP_UNUSED(inString), CRYPTOPP_UNUSED(length); m_filter->MessageEnd();}
 };
 
-//! proxy for the filter created by PK_Encryptor::CreateEncryptionFilter
-/*! This class is here just to provide symmetry with VerifierFilter. */
+//! \class PK_EncryptorFilter
+//! \brief Filter wrapper for PK_Encryptor
+//! \details PK_DecryptorFilter is a proxy for the filter created by PK_Encryptor::CreateEncryptionFilter.
+//!   This class provides symmetry with VerifierFilter.
 class CRYPTOPP_DLL PK_EncryptorFilter : public SimpleProxyFilter
 {
 public:
+	//! \brief Construct a PK_EncryptorFilter
+	//! \param rng a RandomNumberGenerator derived class
+	//! \param encryptor a PK_Encryptor derived class
+	//! \param attachment an optional attached transformation
 	PK_EncryptorFilter(RandomNumberGenerator &rng, const PK_Encryptor &encryptor, BufferedTransformation *attachment = NULL)
 		: SimpleProxyFilter(encryptor.CreateEncryptionFilter(rng), attachment) {}
 };
 
-//! proxy for the filter created by PK_Decryptor::CreateDecryptionFilter
-/*! This class is here just to provide symmetry with SignerFilter. */
+//! \class PK_DecryptorFilter
+//! \brief Filter wrapper for PK_Decryptor
+//! \details PK_DecryptorFilter is a proxy for the filter created by PK_Decryptor::CreateDecryptionFilter.
+//!   This class provides symmetry with SignerFilter.
 class CRYPTOPP_DLL PK_DecryptorFilter : public SimpleProxyFilter
 {
 public:
+	//! \brief Construct a PK_DecryptorFilter
+	//! \param rng a RandomNumberGenerator derived class
+	//! \param decryptor a PK_Decryptor derived class
+	//! \param attachment an optional attached transformation
 	PK_DecryptorFilter(RandomNumberGenerator &rng, const PK_Decryptor &decryptor, BufferedTransformation *attachment = NULL)
 		: SimpleProxyFilter(decryptor.CreateDecryptionFilter(rng), attachment) {}
 };
 
-//! Append input to a string object
+//! \class StringSinkTemplate
+//! \brief Append input to a string object
+//! \tparam T std::basic_string<char> type
+//! \details \ref StringSinkTemplate "StringSink" is a StringSinkTemplate typedef
 template <class T>
 class StringSinkTemplate : public Bufferless<Sink>
 {
@@ -914,6 +947,8 @@ public:
 	// VC60 workaround: no T::char_type
 	typedef typename T::traits_type::char_type char_type;
 
+	//! \brief Construct a StringSinkTemplate
+	//! \param output std::basic_string<char> type
 	StringSinkTemplate(T &output)
 		: m_output(&output) {assert(sizeof(output[0])==1);}
 
@@ -928,7 +963,7 @@ public:
 			typename T::size_type size = m_output->size();
 			if (length < size && size + length > m_output->capacity())
 				m_output->reserve(2*size);
-		m_output->append((const char_type *)inString, (const char_type *)inString+length);
+			m_output->append((const char_type *)inString, (const char_type *)inString+length);
 		}
 		return 0;
 	}
@@ -937,17 +972,20 @@ private:
 	T *m_output;
 };
 
-//! Append input to an std::string
 CRYPTOPP_DLL_TEMPLATE_CLASS StringSinkTemplate<std::string>;
-typedef StringSinkTemplate<std::string> StringSink;
+DOCUMENTED_TYPEDEF(StringSinkTemplate<std::string>, StringSink);
 
-//! incorporates input into RNG as additional entropy
+//! \class RandomNumberSink
+//! \brief Incorporates input into RNG as additional entropy
 class RandomNumberSink : public Bufferless<Sink>
 {
 public:
+	//! \brief Construct a RandomNumberSink
 	RandomNumberSink()
 		: m_rng(NULL) {}
 
+	//! \brief Construct a RandomNumberSink
+	//! \param rng a RandomNumberGenerator derived class
 	RandomNumberSink(RandomNumberGenerator &rng)
 		: m_rng(&rng) {}
 
@@ -958,12 +996,20 @@ private:
 	RandomNumberGenerator *m_rng;
 };
 
-//! Copy input to a memory buffer
+//! \class ArraySink
+//! \brief Copy input to a memory buffer
 class CRYPTOPP_DLL ArraySink : public Bufferless<Sink>
 {
 public:
+	//! \brief Construct an ArraySink
+	//! \param parameters a set of NameValuePairs to initialize this object
+	//! \details Name::OutputBuffer() is a mandatory parameter using this constructor.
 	ArraySink(const NameValuePairs &parameters = g_nullNameValuePairs)
 		: m_buf(NULL), m_size(0), m_total(0) {IsolatedInitialize(parameters);}
+
+	//! \brief Construct an ArraySink
+	//! \param buf pointer to a memory buffer
+	//! \param size length of the memory buffer
 	ArraySink(byte *buf, size_t size)
 		: m_buf(buf), m_size(size), m_total(0) {}
 
@@ -980,10 +1026,14 @@ protected:
 	lword m_total;
 };
 
-//! Xor input to a memory buffer
+//! \class ArrayXorSink
+//! \brief Xor input to a memory buffer
 class CRYPTOPP_DLL ArrayXorSink : public ArraySink
 {
 public:
+	//! \brief Construct an ArrayXorSink
+	//! \param buf pointer to a memory buffer
+	//! \param size length of the memory buffer
 	ArrayXorSink(byte *buf, size_t size)
 		: ArraySink(buf, size) {}
 
@@ -991,14 +1041,25 @@ public:
 	byte * CreatePutSpace(size_t &size) {return BufferedTransformation::CreatePutSpace(size);}
 };
 
-//! string-based implementation of Store interface
+//! \class StringStore
+//! \brief String-based implementation of Store interface
 class StringStore : public Store
 {
 public:
+	//! \brief Construct a StringStore
+	//! \param string pointer to a C-String
 	StringStore(const char *string = NULL)
 		{StoreInitialize(MakeParameters("InputBuffer", ConstByteArrayParameter(string)));}
+
+	//! \brief Construct a StringStore
+	//! \param string pointer to a memory buffer
+	//! \param length size of the memory buffer
 	StringStore(const byte *string, size_t length)
 		{StoreInitialize(MakeParameters("InputBuffer", ConstByteArrayParameter(string, length)));}
+
+	//! \brief Construct a StringStore
+	//! \tparam T std::basic_string<char> type
+	//! \param string reference to a std::basic_string<char> type
 	template <class T> StringStore(const T &string)
 		{StoreInitialize(MakeParameters("InputBuffer", ConstByteArrayParameter(string)));}
 
@@ -1067,21 +1128,57 @@ private:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Source : public InputRejecting<Filter>
 {
 public:
+	//! \brief Construct a Source
+	//! \param attachment an optional attached transformation
 	Source(BufferedTransformation *attachment = NULL)
 		{Source::Detach(attachment);}
 
 	//!	\name PIPELINE
 	//@{
-	
+
+	//! \brief Pump data to attached transformation
+	//! \param pumpMax the maximpum number of bytes to pump
+	//! \returns the number of bytes that remain in the block (i.e., bytes not processed)
+	//! \details Internally, Pump() calls Pump2().
+	//! \note pumpMax is a \p lword, which is a 64-bit value that typically uses \p LWORD_MAX. The default
+	//!   argument is a \p size_t that uses \p SIZE_MAX, and it can be 32-bits or 64-bits.
 	lword Pump(lword pumpMax=size_t(SIZE_MAX))
 		{Pump2(pumpMax); return pumpMax;}
+
+	//! \brief Pump messages to attached transformation
+	//! \param count the maximpum number of messages to pump
+	//! \returns TODO
+	//! \details Internally, PumpMessages() calls PumpMessages2().
 	unsigned int PumpMessages(unsigned int count=UINT_MAX)
 		{PumpMessages2(count); return count;}
+
+	//! \brief Pump all data to attached transformation
+	//! \details Internally, PumpAll() calls PumpAll2().
 	void PumpAll()
 		{PumpAll2();}
+
+	//! \brief Pump data to attached transformation
+	//! \param byteCount the maximpum number of bytes to pump
+	//! \param blocking specifies whether the object should block when processing input
+	//! \returns the number of bytes that remain in the block (i.e., bytes not processed)
+	//! \details byteCount is an \a IN and \a OUT parameter. When the call is made, byteCount is the
+	//!   requested size of the pump. When the call returns, byteCount is the number of bytes that
+	//!   were pumped.
 	virtual size_t Pump2(lword &byteCount, bool blocking=true) =0;
+
+	//! \brief Pump messages to attached transformation
+	//! \param messageCount the maximpum number of messages to pump
+	//! \param blocking specifies whether the object should block when processing input
+	//! \details messageCount is an IN and OUT parameter.
 	virtual size_t PumpMessages2(unsigned int &messageCount, bool blocking=true) =0;
+
+	//! \brief Pump all data to attached transformation
+	//! \param blocking specifies whether the object should block when processing input
+	//! \returns the number of bytes that remain in the block (i.e., bytes not processed)
 	virtual size_t PumpAll2(bool blocking=true);
+
+	//! \brief Determines if the Source is exhausted
+	//! \returns true if the source has been exhausted
 	virtual bool SourceExhausted() const =0;
 
 	//@}
@@ -1106,6 +1203,9 @@ template <class T>
 class SourceTemplate : public Source
 {
 public:
+	//! \brief Construct a SourceTemplate
+	//! \tparam T the class or type
+	//! \param attachment an attached transformation
 	SourceTemplate<T>(BufferedTransformation *attachment)
 		: Source(attachment) {}
 	void IsolatedInitialize(const NameValuePairs &parameters)
@@ -1132,9 +1232,15 @@ protected:
 class CRYPTOPP_DLL StringSource : public SourceTemplate<StringStore>
 {
 public:
+	//! \brief Construct a StringSource
+	//! \param attachment an optional attached transformation
 	StringSource(BufferedTransformation *attachment = NULL)
 		: SourceTemplate<StringStore>(attachment) {}
-	//! zero terminated string as source
+	
+	//! \brief Construct a StringSource
+	//! \param string C-String
+	//! \param pumpAll C-String
+	//! \param attachment an optional attached transformation
 	StringSource(const char *string, bool pumpAll, BufferedTransformation *attachment = NULL)
 		: SourceTemplate<StringStore>(attachment) {SourceInitialize(pumpAll, MakeParameters("InputBuffer", ConstByteArrayParameter(string)));}
 	//! binary byte array as source
@@ -1145,8 +1251,8 @@ public:
 		: SourceTemplate<StringStore>(attachment) {SourceInitialize(pumpAll, MakeParameters("InputBuffer", ConstByteArrayParameter(string)));}
 };
 
-//! use the third constructor for an array source
-typedef StringSource ArraySource;
+// Use the third constructor for an array source
+DOCUMENTED_TYPEDEF(StringSource, ArraySource);
 
 //! RNG-based implementation of Source interface
 class CRYPTOPP_DLL RandomNumberSource : public SourceTemplate<RandomNumberStore>
