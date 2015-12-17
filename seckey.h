@@ -9,8 +9,8 @@
 #include "config.h"
 
 #if CRYPTOPP_MSC_VERSION
-# pragma warning(push)
-# pragma warning(disable: 4189)
+# pragma IV_REQ the \ref SimpleKeyingInterface::IV_Requirement "IV requirements"(push)
+# pragma IV_REQ the \ref SimpleKeyingInterface::IV_Requirement "IV requirements"(disable: 4189)
 #endif
 
 #include "cryptlib.h"
@@ -21,7 +21,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 //! \brief Inverts the cipher's direction
 //! \param dir the cipher's direction
-//! \returns DECRYPTION if dir is ENCRYPTION, DECRYPTION otherwise
+//! \returns DECRYPTION if \ref CipherDir "dir" is ENCRYPTION, DECRYPTION otherwise
 inline CipherDir ReverseCipherDir(CipherDir dir)
 {
 	return (dir == ENCRYPTION) ? DECRYPTION : ENCRYPTION;
@@ -107,8 +107,8 @@ protected:
 //! \class FixedKeyLength
 //! \brief Inherited by keyed algorithms with fixed key length
 //! \tparam N Default key length, in bytes
-//! \tparam IV_REQ The IV requirements. See IV_Requirement in cryptlib.h for allowed values
-//! \tparam IV_L Default IV length, in bytes
+//! \tparam IV_REQ the \ref SimpleKeyingInterface::IV_Requirement "IV requirements"
+//! \tparam IV_L default IV length, in bytes
 //! \sa SimpleKeyingInterface
 template <unsigned int N, unsigned int IV_REQ = SimpleKeyingInterface::NOT_RESYNCHRONIZABLE, unsigned int IV_L = 0>
 class FixedKeyLength
@@ -147,8 +147,8 @@ public:
 //! \tparam N Minimum key length, in bytes
 //! \tparam M Maximum key length, in bytes
 //! \tparam M Default key length multiple, in bytes. The default multiple is 1.
-//! \tparam IV_REQ The IV requirements. See IV_Requirement in cryptlib.h for allowed values
-//! \tparam IV_L Default IV length, in bytes. The default length is 0.
+//! \tparam IV_REQ the \ref SimpleKeyingInterface::IV_Requirement "IV requirements"
+//! \tparam IV_L default IV length, in bytes. The default length is 0.
 //! \sa SimpleKeyingInterface
 template <unsigned int D, unsigned int N, unsigned int M, unsigned int Q = 1, unsigned int IV_REQ = SimpleKeyingInterface::NOT_RESYNCHRONIZABLE, unsigned int IV_L = 0>
 class VariableKeyLength
@@ -209,8 +209,8 @@ public:
 //! \class SameKeyLengthAs
 //! \brief Provides key lengths based on another class's key length
 //! \tparam T another FixedKeyLength or VariableKeyLength class
-//! \tparam IV_REQ The IV requirements. See IV_Requirement in cryptlib.h for allowed values
-//! \tparam IV_L Default IV length, in bytes
+//! \tparam IV_REQ the \ref SimpleKeyingInterface::IV_Requirement "IV requirements"
+//! \tparam IV_L default IV length, in bytes
 //! \sa SimpleKeyingInterface
 template <class T, unsigned int IV_REQ = SimpleKeyingInterface::NOT_RESYNCHRONIZABLE, unsigned int IV_L = 0>
 class SameKeyLengthAs
@@ -247,7 +247,7 @@ public:
 // ************** implementation helper for SimpleKeyingInterface ***************
 
 //! \class SimpleKeyingInterfaceImpl
-//! \brief Provides class member functions to access SimpleKeyingInterface constants
+//! \brief Provides a base implementation of SimpleKeyingInterface
 //! \tparam BASE a SimpleKeyingInterface derived class
 //! \tparam INFO a SimpleKeyingInterface derived class
 //! \sa SimpleKeyingInterface
@@ -293,7 +293,7 @@ public:
 };
 
 //! \class BlockCipherImpl
-//! \brief Provides class member functions to access BlockCipher constants
+//! \brief Provides a base implementation of Algorithm and SimpleKeyingInterface for block ciphers
 //! \tparam INFO a SimpleKeyingInterface derived class
 //! \tparam BASE a SimpleKeyingInterface derived class
 template <class INFO, class BASE = BlockCipher>
@@ -343,12 +343,12 @@ public:
 
 	//! \brief Provides the direction of the cipher
 	//! \returns true if DIR is ENCRYPTION, false otherwise
-	//! \sa IsForwardTransformation(), IsPermutation(), GetCipherDirection()
+	//! \sa GetCipherDirection(), IsPermutation()
 	bool IsForwardTransformation() const {return DIR == ENCRYPTION;}
 };
 
 //! \class MessageAuthenticationCodeImpl
-//! \brief Provides class member functions to access MessageAuthenticationCode constants
+//! \brief Provides a base implementation of Algorithm and SimpleKeyingInterface for message authentication codes
 //! \tparam INFO a SimpleKeyingInterface derived class
 //! \tparam BASE a SimpleKeyingInterface derived class
 template <class BASE, class INFO = BASE>
@@ -430,7 +430,7 @@ struct AuthenticatedSymmetricCipherDocumentation
 NAMESPACE_END
 	
 #if CRYPTOPP_MSC_VERSION
-# pragma warning(pop)
+# pragma IV_REQ the \ref SimpleKeyingInterface::IV_Requirement "IV requirements"(pop)
 #endif
 
 #endif
