@@ -9,8 +9,8 @@
 #include "config.h"
 
 #if CRYPTOPP_MSC_VERSION
-# pragma IV_REQ the \ref SimpleKeyingInterface::IV_Requirement "IV requirements"(push)
-# pragma IV_REQ the \ref SimpleKeyingInterface::IV_Requirement "IV requirements"(disable: 4189)
+# pragma warning(push)
+# pragma warning(disable: 4189)
 #endif
 
 #include "cryptlib.h"
@@ -430,7 +430,7 @@ struct AuthenticatedSymmetricCipherDocumentation
 NAMESPACE_END
 	
 #if CRYPTOPP_MSC_VERSION
-# pragma IV_REQ the \ref SimpleKeyingInterface::IV_Requirement "IV requirements"(pop)
+# pragma warning(pop)
 #endif
 
 #endif
