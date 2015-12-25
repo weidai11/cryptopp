@@ -10,6 +10,11 @@
 #include "config.h"
 #include "iterhash.h"
 
+// Clang 3.3 integrated assembler crash on Linux
+#if defined(CRYPTOPP_CLANG_VERSION) && (CRYPTOPP_CLANG_VERSION < 30400)
+# define CRYPTOPP_DISABLE_SHA_ASM
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 /// <a href="http://www.weidai.com/scan-mirror/md.html#SHA-1">SHA-1</a>
@@ -27,7 +32,7 @@ typedef SHA1 SHA;	// for backwards compatibility
 class CRYPTOPP_DLL SHA256 : public IteratedHashWithStaticTransform<word32, BigEndian, 64, 32, SHA256, 32, true>
 {
 public:
-#if defined(CRYPTOPP_X86_ASM_AVAILABLE) || defined(CRYPTOPP_X32_ASM_AVAILABLE) || defined(CRYPTOPP_X64_MASM_AVAILABLE) && !defined(CRYPTOPP_DISABLE_SHA_ASM)
+#if (defined(CRYPTOPP_X86_ASM_AVAILABLE) || defined(CRYPTOPP_X32_ASM_AVAILABLE) || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_SHA_ASM)
 	size_t HashMultipleBlocks(const word32 *input, size_t length);
 #endif
 	static void CRYPTOPP_API InitState(HashWordType *state);
@@ -39,7 +44,7 @@ public:
 class CRYPTOPP_DLL SHA224 : public IteratedHashWithStaticTransform<word32, BigEndian, 64, 32, SHA224, 28, true>
 {
 public:
-#if defined(CRYPTOPP_X86_ASM_AVAILABLE) || defined(CRYPTOPP_X32_ASM_AVAILABLE) || defined(CRYPTOPP_X64_MASM_AVAILABLE) && !defined(CRYPTOPP_DISABLE_SHA_ASM)
+#if (defined(CRYPTOPP_X86_ASM_AVAILABLE) || defined(CRYPTOPP_X32_ASM_AVAILABLE) || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_SHA_ASM)
 	size_t HashMultipleBlocks(const word32 *input, size_t length);
 #endif
 	static void CRYPTOPP_API InitState(HashWordType *state);

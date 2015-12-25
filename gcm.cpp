@@ -12,6 +12,17 @@
 #ifndef CRYPTOPP_IMPORTS
 #ifndef CRYPTOPP_GENERATE_X64_MASM
 
+// Clang 3.3 integrated assembler crash on Linux
+#if defined(CRYPTOPP_CLANG_VERSION) && (CRYPTOPP_CLANG_VERSION < 30400)
+# undef CRYPTOPP_X86_ASM_AVAILABLE
+# undef CRYPTOPP_X32_ASM_AVAILABLE
+# undef CRYPTOPP_X64_ASM_AVAILABLE
+# undef CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+# undef CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE
+# define CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE 0
+# define CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE 0
+#endif
+
 #include "gcm.h"
 #include "cpu.h"
 
@@ -807,10 +818,10 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 		SSE2_MUL_32BITS(2)
 		SSE2_MUL_32BITS(3)
 
-		AS2(	add		WORD_REG(cx), 16					)
-		AS2(	sub		WORD_REG(dx), 1						)
-		ASJ(	jnz,	1, b							)
-		AS2(	movdqa	[WORD_REG(si)], xmm0				)
+		AS2(	add	WORD_REG(cx), 16		)
+		AS2(	sub	WORD_REG(dx), 1			)
+		ASJ(	jnz,	1, b				)
+		AS2(	movdqa	[WORD_REG(si)], xmm0		)
 
 		#ifdef __GNUC__
 				ATT_PREFIX
