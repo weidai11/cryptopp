@@ -12,8 +12,9 @@ CXXFLAGS ?= -DNDEBUG -g2 -O2
 # LDFLAGS += -Wl,--gc-sections
 
 AR ?= ar
-ARFLAGS ?= -cr	# ar needs the dash on OpenBSD
+ARFLAGS ?= -cr # ar needs the dash on OpenBSD
 RANLIB ?= ranlib
+
 CP ?= cp
 CHMOD ?= chmod
 MKDIR ?= mkdir
@@ -42,7 +43,7 @@ HAS_SOLIB_VERSION := $(IS_LINUX)
 
 # Default prefix for make install
 ifeq ($(PREFIX),)
-PREFIX = /usr
+PREFIX = /usr/local
 endif
 
 ifeq ($(CXX),gcc)	# for some reason CXX is gcc on cygwin 1.1.4
@@ -129,6 +130,13 @@ CXXFLAGS += -Wa,--divide	# allow use of "/" operator
 endif
 endif
 
+else	# Not IS_X86
+
+# Add PIC
+ifeq ($(findstring -fPIC,$(CXXFLAGS)),)
+  CXXFLAGS += -fPIC
+endif
+ 
 endif	# IS_X86
 
 ifeq ($(UNAME),)	# for DJGPP, where uname doesn't exist
@@ -256,7 +264,8 @@ endif
 OBJS := $(SRCS:.cpp=.o)
 
 # test.o needs to be after bench.o for cygwin 1.1.4 (possible ld bug?)
-TESTOBJS := bench.o bench2.o test.o validat1.o validat2.o validat3.o adhoc.o datatest.o regtest.o fipsalgt.o dlltest.o
+TESTSRCS := bench.cpp bench2.cpp test.cpp validat1.cpp validat2.cpp validat3.cpp adhoc.cpp datatest.cpp regtest.cpp fipsalgt.cpp dlltest.cpp
+TESTOBJS := $(TESTSRCS:.cpp=.o)
 LIBOBJS := $(filter-out $(TESTOBJS),$(OBJS))
 
 # List cryptlib.cpp first in an attempt to tame C++ static initialization problems
@@ -273,6 +282,11 @@ LIB_VER := $(shell $(EGREP) "define CRYPTOPP_VERSION" config.h | cut -d" " -f 3)
 LIB_MAJOR := $(shell echo $(LIB_VER) | cut -c 1)
 LIB_MINOR := $(shell echo $(LIB_VER) | cut -c 2)
 LIB_PATCH := $(shell echo $(LIB_VER) | cut -c 3)
+
+ifeq ($(strip $(LIB_PATCH)),)
+LIB_PATCH := 0
+endif
+
 ifeq ($(HAS_SOLIB_VERSION),1)
 # Full version suffix for shared library
 SOLIB_VERSION_SUFFIX=.$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)
@@ -280,10 +294,6 @@ SOLIB_VERSION_SUFFIX=.$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)
 SOLIB_COMPAT_SUFFIX=.$(LIB_MAJOR).$(LIB_MINOR)
 SOLIB_FLAGS=-Wl,-soname,libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
 endif # HAS_SOLIB_VERSION
-
-ifeq ($(strip $(LIB_PATCH)),)
-LIB_PATCH := 0
-endif
 
 all: cryptest.exe
 
@@ -306,6 +316,13 @@ asan ubsan align aligned: libcryptopp.a cryptest.exe
 test check: cryptest.exe
 	./cryptest.exe v
 
+# Used to generate list of source files for Autotools, CMakeList and Android.mk
+.PHONY: sources
+sources:
+	$(info Library sources: $(filter-out fipstest.cpp $(TESTSRCS),$(SRCS)))
+	$(info )
+	$(info Test sources: $(TESTSRCS))
+
 # Directory we want (can't specify on Doygen command line)
 DOCUMENT_DIRECTORY := ref$(LIB_VER)
 # Directory Doxygen uses (specified in Doygen config file)
@@ -317,6 +334,7 @@ ifeq ($(strip $(DOXYGEN_DIRECTORY)),)
 DOXYGEN_DIRECTORY := html-docs
 endif
 
+# Builds the documentation. Directory name is ref563, ref570, etc.
 .PHONY: docs html
 docs html:
 	-$(RM) -r $(DOXYGEN_DIRECTORY)/ $(DOCUMENT_DIRECTORY)/ html-docs/
@@ -358,41 +376,48 @@ endif
 
 .PHONY: install
 install:
-	-$(RM) -r $(PREFIX)/include/cryptopp
-	$(MKDIR) -p $(PREFIX)/include/cryptopp $(PREFIX)/lib $(PREFIX)/bin
-	-$(CP) *.h $(PREFIX)/include/cryptopp
-	-$(CHMOD) 755 $(PREFIX)/include/cryptopp
-	-$(CHMOD) 644 $(PREFIX)/include/cryptopp/*.h
-	-$(CP) libcryptopp.a $(PREFIX)/lib
-	-$(CHMOD) 644 $(PREFIX)/lib/libcryptopp.a
-	-$(CP) cryptest.exe $(PREFIX)/bin
-	-$(CHMOD) 755 $(PREFIX)/bin/cryptest.exe
-ifneq ($(IS_DARWIN),0)
-	-$(CP) libcryptopp.dylib $(PREFIX)/lib
-	-$(CHMOD) 755 $(PREFIX)/lib/libcryptopp.dylib
-else
-ifneq ($(wildcard libcryptopp.so$(SOLIB_VERSION_SUFFIX)),)
-	-$(CP) libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(PREFIX)/lib
-	-$(CHMOD) 755 $(PREFIX)/lib/libcryptopp.so$(SOLIB_VERSION_SUFFIX)
-ifeq ($(HAS_SOLIB_VERSION),1)
-	-$(LN) -sf libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(PREFIX)/lib/libcryptopp.so
-	$(LDCONF) $(PREFIX)/lib
+	$(MKDIR) -p $(DESTDIR)$(PREFIX)/include/cryptopp
+	-$(CP) *.h $(DESTDIR)$(PREFIX)/include/cryptopp
+	-$(CHMOD) 755 $(DESTDIR)$(PREFIX)/include/cryptopp
+	-$(CHMOD) 644 $(DESTDIR)$(PREFIX)/include/cryptopp/*.h
+ifneq ($(wildcard libcryptopp.a),)
+	$(MKDIR) -p $(DESTDIR)$(PREFIX)/lib
+	-$(CP) libcryptopp.a $(DESTDIR)$(PREFIX)/lib
+	-$(CHMOD) 644 $(DESTDIR)$(PREFIX)/lib/libcryptopp.a
 endif
+ifneq ($(wildcard cryptest.exe),)
+	$(MKDIR) -p $(DESTDIR)$(PREFIX)/bin
+	-$(CP) cryptest.exe $(DESTDIR)$(PREFIX)/bin
+	-$(CHMOD) 755 $(DESTDIR)$(PREFIX)/bin/cryptest.exe
+endif
+ifneq ($(wildcard libcryptopp.dylib),)
+	$(MKDIR) -p $(DESTDIR)$(PREFIX)/lib
+	-$(CP) libcryptopp.dylib $(DESTDIR)$(PREFIX)/lib
+	-install_name_tool -id $(DESTDIR)$(PREFIX)/lib/libcryptopp.dylib $(DESTDIR)$(PREFIX)/lib/libcryptopp.dylib
+	-$(CHMOD) 755 $(DESTDIR)$(PREFIX)/lib/libcryptopp.dylib
+endif
+ifneq ($(wildcard libcryptopp.so$(SOLIB_VERSION_SUFFIX)),)
+	$(MKDIR) -p $(DESTDIR)$(PREFIX)/lib
+	-$(CP) libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(DESTDIR)$(PREFIX)/lib
+	-$(CHMOD) 755 $(DESTDIR)$(PREFIX)/lib/libcryptopp.so$(SOLIB_VERSION_SUFFIX)
+ifeq ($(HAS_SOLIB_VERSION),1)
+	-$(LN) -sf libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(DESTDIR)$(PREFIX)/lib/libcryptopp.so
+	$(LDCONF) $(DESTDIR)$(PREFIX)/lib
 endif
 endif
 
 .PHONY: remove uninstall
 remove uninstall:
-	-$(RM) -r $(PREFIX)/include/cryptopp
-	-$(RM) $(PREFIX)/lib/libcryptopp.a
-	-$(RM) $(PREFIX)/bin/cryptest.exe
+	-$(RM) -r $(DESTDIR)$(PREFIX)/include/cryptopp
+	-$(RM) $(DESTDIR)$(PREFIX)/lib/libcryptopp.a
+	-$(RM) $(DESTDIR)$(PREFIX)/bin/cryptest.exe
 ifneq ($(IS_DARWIN),0)
-	-$(RM) $(PREFIX)/lib/libcryptopp.dylib
+	-$(RM) $(DESTDIR)$(PREFIX)/lib/libcryptopp.dylib
 else
-	-$(RM) $(PREFIX)/lib/libcryptopp.so$(SOLIB_VERSION_SUFFIX)
+	-$(RM) $(DESTDIR)$(PREFIX)/lib/libcryptopp.so$(SOLIB_VERSION_SUFFIX)
 ifeq ($(HAS_SOLIB_VERSION),1)
-	-$(RM) $(PREFIX)/lib/libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
-	-$(RM) $(PREFIX)/lib/libcryptopp.so
+	-$(RM) $(DESTDIR)$(PREFIX)/lib/libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
+	-$(RM) $(DESTDIR)$(PREFIX)/lib/libcryptopp.so
 	$(LDCONF) $(PREFIX)/lib
 endif
 endif
@@ -432,15 +457,9 @@ cryptest.import.exe: cryptopp.dll libcryptopp.import.a $(TESTIMPORTOBJS)
 dlltest.exe: cryptopp.dll $(DLLTESTOBJS)
 	$(CXX) -o $@ $(CXXFLAGS) $(DLLTESTOBJS) -L. -lcryptopp.dll $(LDFLAGS) $(LDLIBS)
 
-# This recipe requires a previous "svn co -r 541 http://svn.code.sf.net/p/cryptopp/code/trunk/c5"
-.PHONY: diff
-diff:
-	-$(RM) cryptopp$(LIB_VER).diff
-	-svn diff -r 541 > cryptopp$(LIB_VER).diff
-
 # This recipe prepares the distro files
 TEXT_FILES := *.h *.cpp adhoc.cpp.proto License.txt Readme.txt Install.txt Filelist.txt config.recommend Doxyfile cryptest* cryptlib* dlltest* cryptdll* *.sln *.vcproj *.dsw *.dsp cryptopp.rc TestVectors/*.txt TestData/*.dat
-EXEC_FILES := GNUmakefile GNUmakefile-cross cryptest.sh rdrand-nasm.sh TestData/ TestVectors/
+EXEC_FILES := GNUmakefile GNUmakefile-cross TestData/ TestVectors/
 
 ifeq ($(wildcard Filelist.txt),Filelist.txt)
 DIST_FILES := $(shell cat Filelist.txt)
@@ -448,19 +467,33 @@ endif
 
 .PHONY: convert
 convert:
-	chmod 0700 TestVectors/ TestData/
-	chmod 0600 $(TEXT_FILES) *.zip
-	chmod 0700 $(EXEC_FILES)
-	chmod u+x *.cmd *.sh
-	unix2dos --keepdate --quiet $(TEXT_FILES) *.asm *.cmd
-	dos2unix --keepdate --quiet GNUmakefile GNUmakefile-cross *.S *.sh
+	-chmod 0700 TestVectors/ TestData/
+	-chmod 0600 $(TEXT_FILES) *.asm *.S *.zip
+	-chmod 0700 $(EXEC_FILES) *.sh *.cmd
+	-chmod 0700 *.cmd *.sh GNUmakefile GNUmakefile-cross
+	-unix2dos --keepdate --quiet $(TEXT_FILES) *.asm *.cmd
+	-dos2unix --keepdate --quiet GNUmakefile GNUmakefile-cross *.S *.sh
 ifneq ($(IS_DARWIN),0)
-	xattr -c *
+	-xattr -c *
 endif
 
 .PHONY: zip dist
-zip dist: | distclean convert diff
+zip dist: | distclean convert
 	zip -q -9 cryptopp$(LIB_VER).zip $(DIST_FILES)
+
+.PHONY: iso
+iso: | zip
+ifneq ($(IS_DARWIN),0)
+	mkdir -p $(PWD)/cryptopp$(LIB_VER)
+	cp cryptopp$(LIB_VER).zip $(PWD)/cryptopp$(LIB_VER)
+	hdiutil makehybrid -iso -joliet -o cryptopp$(LIB_VER).iso $(PWD)/cryptopp$(LIB_VER)
+	-rm -rf $(PWD)/cryptopp$(LIB_VER)
+else ifneq ($(IS_LINUX),0)
+	mkdir -p $(PWD)/cryptopp$(LIB_VER)
+	cp cryptopp$(LIB_VER).zip $(PWD)/cryptopp$(LIB_VER)
+	genisoimage -q -o cryptopp$(LIB_VER).iso $(PWD)/cryptopp$(LIB_VER)
+	-rm -rf $(PWD)/cryptopp$(LIB_VER)
+endif
 
 .PHONY: bench benchmark benchmarks
 bench benchmark benchmarks: cryptest.exe
