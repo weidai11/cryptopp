@@ -588,7 +588,7 @@ void Deflator::MatchFound(unsigned int distance, unsigned int length)
 
 	assert(m_matchBufferEnd < m_matchBuffer.size());
 	EncodedMatch &m = m_matchBuffer[m_matchBufferEnd++];
-	assert(length >= 3 && length < COUNTOF(lengthCodes));
+	assert((length >= 3) && (length-3 < COUNTOF(lengthCodes)));
 	unsigned int lengthCode = lengthCodes[length-3];
 	m.literalCode = lengthCode;
 	m.literalExtra = length - lengthBases[lengthCode-257];

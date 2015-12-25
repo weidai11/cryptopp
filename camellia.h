@@ -12,13 +12,16 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! _
+//! \class Camellia_Info
+//! \brief Camellia block cipher information
 struct Camellia_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 16, 32, 8>
 {
 	static const char *StaticAlgorithmName() {return "Camellia";}
 };
 
-/// <a href="http://www.weidai.com/scan-mirror/cs.html#Camellia">Camellia</a>
+//! \class Camellia
+//! \brief Camellia block cipher
+//! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#Camellia">Camellia</a>
 class Camellia : public Camellia_Info, public BlockCipherDocumentation
 {
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<Camellia_Info>

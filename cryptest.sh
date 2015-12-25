@@ -14,7 +14,7 @@
 # Set to suite your taste
 TEST_RESULTS=cryptest-result.txt
 BENCHMARK_RESULTS=cryptest-bench.txt
-WARN_TEST_RESULTS=cryptest-warn-result.txt
+WARN_RESULTS=cryptest-warn.txt
 
 # Respect user's preferred flags, but filter the stuff we expliclty test
 #if [ ! -z "CXXFLAGS" ]; then
@@ -33,6 +33,8 @@ IS_LINUX=$(uname -s | grep -i -c linux)
 IS_CYGWIN=$(uname -s | grep -i -c cygwin)
 IS_MINGW=$(uname -s | grep -i -c mingw)
 IS_OPENBSD=$(uname -s | grep -i -c openbsd)
+IS_INTEL=$(uname -m | egrep -i -c "(i386|i586|i686|amd64|x86_64)")
+IS_PPC=$(uname -m | egrep -i -c "(Power|PPC)")
 
 # We need to use the C++ compiler to determine if c++11 is available. Otherwise
 #   a mis-detection occurs on Mac OS X 10.9 and above. Below, we use the same
@@ -105,10 +107,28 @@ if [ "$IS_CYGWIN" -ne "0" ] || [ "$IS_MINGW" -ne "0" ]; then
 	HAVE_ASAN=0
 fi
 
-#Final fixups for compilers liek GCC on ARM64
+# Final fixups for compilers like GCC on ARM64
 if [ "$HAVE_UBSAN" -eq "0" ] || [ "$HAVE_ASAN" -eq "0" ]; then
 	HAVE_UBAN=0
 	HAVE_ASAN=0
+fi
+
+# Set to 0 if you don't have Intel multiarch
+HAVE_INTEL_MULTIARCH=0
+if [ "$IS_DARWIN" -ne "0" ] && [ "$IS_INTEL" -ne "0" ]; then
+$CXX -x c++ -arch i386 -arch x86_64 -c adhoc.cpp.proto -o $TMP/adhoc > /dev/null 2>&1
+if [ "$?" -eq "0" ]; then
+	HAVE_INTEL_MULTIARCH=1
+fi
+fi
+
+# Set to 0 if you don't have PPC multiarch
+HAVE_PPC_MULTIARCH=0
+if [ "$IS_DARWIN" -ne "0" ] && [ "$IS_PPC" -ne "0" ]; then
+$CXX -x c++ -arch ppc -arch ppc64 -c adhoc.cpp.proto -o $TMP/adhoc > /dev/null 2>&1
+if [ "$?" -eq "0" ]; then
+	HAVE_PPC_MULTIARCH=1
+fi
 fi
 
 # Set to 0 if you don't have Valgrind. Valgrind tests take a long time...
@@ -128,6 +148,12 @@ if [ "$IS_DARWIN" -ne "0" ]; then
 	echo "IS_DARWIN: $IS_DARWIN"
 	unset MallocScribble MallocPreScribble MallocGuardEdges
 fi
+if [ "$HAVE_INTEL_MULTIARCH" -ne "0" ]; then
+	echo "HAVE_INTEL_MULTIARCH: $HAVE_INTEL_MULTIARCH"
+fi
+if [ "$HAVE_PPC_MULTIARCH" -ne "0" ]; then
+	echo "HAVE_PPC_MULTIARCH: $HAVE_PPC_MULTIARCH"
+fi
 if [ "$IS_LINUX" -ne "0" ]; then
 	echo "IS_LINUX: $IS_LINUX"
 fi
@@ -142,11 +168,6 @@ echo "User CXXFLAGS: $CXXFLAGS"
 echo "Retained CXXFLAGS: $ADD_CXXFLAGS"
 echo "Compiler:" $($CXX --version | head -1)
 
-TEST_BEGIN=$(date)
-echo
-echo "Start time: $TEST_BEGIN"
-
-############################################
 ############################################
 
 # Remove previous test results
@@ -158,6 +179,13 @@ touch "$BENCHMARK_RESULTS"
 
 rm -f "$WARN_RESULTS" > /dev/null 2>&1
 touch "$WARN_RESULTS"
+
+############################################
+############################################
+
+TEST_BEGIN=$(date)
+echo
+echo "Start time: $TEST_BEGIN"
 
 ############################################
 # Basic debug build
@@ -612,6 +640,69 @@ if [ "$IS_DARWIN" -ne "0" ] && [ "$HAVE_CXX11" -ne "0" ]; then
 fi
 
 ############################################
+# Darwin, Intel multiarch, c++03
+if [ "$IS_DARWIN" -ne "0" ] && [ "$HAVE_INTEL_MULTIARCH" -ne "0" ] && [ "$HAVE_CXX03" -ne "0" ]; then
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Darwin, Intel multiarch, c++03" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	export CXXFLAGS="-DNDEBUG -g2 -O2 -arch i386 -arch x86_64 -std=c++03 $ADD_CXXFLAGS"
+	"$MAKE" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	echo "Running i386 version..."
+	arch -i386 ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	arch -i386 ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+	echo "Running x86_64 version..."
+	arch -x86_64 ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	arch -x86_64 ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+fi
+
+############################################
+# Darwin, Intel multiarch, c++11
+if [ "$IS_DARWIN" -ne "0" ] && [ "$HAVE_INTEL_MULTIARCH" -ne "0" ] && [ "$HAVE_CXX11" -ne "0" ]; then
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Darwin, Intel multiarch, c++11" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	export CXXFLAGS="-DNDEBUG -g2 -O2 -arch i386 -arch x86_64 -std=c++11 $ADD_CXXFLAGS"
+	"$MAKE" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	echo "Running i386 version..."
+	arch -i386 ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	arch -i386 ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+	echo "Running x86_64 version..."
+	arch -x86_64 ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	arch -x86_64 ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+fi
+
+############################################
+# Darwin, PowerPC multiarch
+if [ "$IS_DARWIN" -ne "0" ] && [ "$HAVE_PPC_MULTIARCH" -ne "0" ]; then
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Darwin, PowerPC multiarch" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	export CXXFLAGS="-DNDEBUG -g2 -O2 -arch ppc -arch ppc64 $ADD_CXXFLAGS"
+	"$MAKE" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	echo "Running PPC version..."
+	arch -ppc ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	arch -ppc ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+	echo "Running PPC64 version..."
+	arch -ppc64 ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	arch -ppc64 ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+fi
+
+############################################
 # Darwin, c++03, Malloc Guards
 if [ "$IS_DARWIN" -ne "0" ] && [ "$HAVE_CXX03" -ne "0" ]; then
 	echo
@@ -653,12 +744,15 @@ if [ "$IS_DARWIN" -ne "0" ] && [ "$HAVE_CXX11" -ne "0" ]; then
 	unset MallocScribble MallocPreScribble MallocGuardEdges
 fi
 
-# Try to locate a Xcode compiler for testing under Darwin
-XCODE_COMPILER=$(find /Applications/Xcode*.app/Contents/Developer -name clang++ | head -1)
-
 ############################################
 # Xcode compiler
-if [ "$IS_DARWIN" -ne "0" ] && [ -z "$XCODE_COMPILER" ]; then
+if [ "$IS_DARWIN" -ne "0" ]; then
+  XCODE_COMPILER=$(find /Applications/Xcode*.app/Contents/Developer -name clang++ 2>/dev/null | head -1)
+  if [ -z "$XCODE_COMPILER" ]; then
+	  XCODE_COMPILER=$(find /Developer/Applications/Xcode.app -name clang++ 2>/dev/null | head -1)
+  fi
+
+  if [ ! -z "$XCODE_COMPILER" ]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: Xcode Clang compiler" | tee -a "$TEST_RESULTS"
@@ -666,11 +760,12 @@ if [ "$IS_DARWIN" -ne "0" ] && [ -z "$XCODE_COMPILER" ]; then
 
 	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
-	expot CXX="$XCODE_COMPILER"
-	export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 $ADD_CXXFLAGS"
+	export CXX="$XCODE_COMPILER"
+	export CXXFLAGS="-DNDEBUG -g2 -O2 $ADD_CXXFLAGS"
 	"$MAKE" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
 	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+  fi
 fi
 
 ############################################
@@ -778,26 +873,52 @@ if [ "$CXX" == "g++" ] && [ "$HAVE_CXX11" -ne "0" ]; then
 	############################################
 	# Basic debug build
 	echo
-	echo "************************************" | tee -a "$WARN_TEST_RESULTS"
-	echo "Testing: debug, c++11, elevated warnings" | tee -a "$WARN_TEST_RESULTS"
+	echo "************************************" | tee -a "$WARN_RESULTS"
+	echo "Testing: debug, c++11, elevated warnings" | tee -a "$WARN_RESULTS"
 	echo
 
 	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	export CXXFLAGS="-DDEBUG -g2 -O2 -std=c++11 -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 -Wall -Wextra -Wno-unknown-pragmas -Wstrict-aliasing=3 -Wstrict-overflow -Waggressive-loop-optimizations"
-	"$MAKE" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_TEST_RESULTS"
+	"$MAKE" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 
 	############################################
 	# Basic release build
 	echo
-	echo "************************************" | tee -a "$WARN_TEST_RESULTS"
-	echo "Testing: release, c++11, elevated warnings" | tee -a "$WARN_TEST_RESULTS"
+	echo "************************************" | tee -a "$WARN_RESULTS"
+	echo "Testing: release, c++11, elevated warnings" | tee -a "$WARN_RESULTS"
 	echo
 
 	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 -Wall -Wextra -Wno-unknown-pragmas -Wstrict-aliasing=3 -Wstrict-overflow -Waggressive-loop-optimizations"
-	"$MAKE" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_TEST_RESULTS"
+	"$MAKE" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
+fi
+
+############################################
+############################################
+
+# If using GCC (likely Linux), then perform a quick check with Clang.
+# This check was added after testing on Ubuntu 14.04 with Clang 3.4.
+if [ "$CXX" == "g++" ]; then
+
+	$(which clang++ | head -1) -x c++ -c adhoc.cpp.proto -o $TMP/adhoc > /dev/null 2>&1
+	if [ "$?" -eq "0" ]; then
+
+		############################################
+		# Basic Clang build
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS"
+		echo "Testing: Clang" | tee -a "$TEST_RESULTS"
+		echo
+
+		unset CXX
+		unset CXXFLAGS
+		export CXX="clang++"
+
+		"$MAKE" clean > /dev/null 2>&1
+		"$MAKE" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	fi
 fi
 
 ############################################
@@ -837,3 +958,10 @@ echo | tee -a "$TEST_RESULTS"
 	
 echo "************************************************" | tee -a "$TEST_RESULTS"
 echo "************************************************" | tee -a "$TEST_RESULTS"
+
+# http://tldp.org/LDP/abs/html/exitcodes.html#EXITCODESREF
+if [ "$COUNT" -eq "0" ]; then
+	exit 0
+else
+	exit 1
+fi

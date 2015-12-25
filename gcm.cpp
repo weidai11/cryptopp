@@ -12,6 +12,17 @@
 #ifndef CRYPTOPP_IMPORTS
 #ifndef CRYPTOPP_GENERATE_X64_MASM
 
+// Clang 3.3 integrated assembler crash on Linux
+#if defined(CRYPTOPP_CLANG_VERSION) && (CRYPTOPP_CLANG_VERSION < 30400)
+# undef CRYPTOPP_X86_ASM_AVAILABLE
+# undef CRYPTOPP_X32_ASM_AVAILABLE
+# undef CRYPTOPP_X64_ASM_AVAILABLE
+# undef CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+# undef CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE
+# define CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE 0
+# define CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE 0
+#endif
+
 #include "gcm.h"
 #include "cpu.h"
 
@@ -686,7 +697,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 		AS2(	psrldq	xmm0, 15						)
 #if (CRYPTOPP_CLANG_VERSION >= 30600) || (CRYPTOPP_APPLE_CLANG_VERSION >= 70000)
 		AS2(	movd	edi, xmm0						)
-#elif defined(CRYPTOPP_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION)
+#elif (defined(CRYPTOPP_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION)) && defined(CRYPTOPP_X64_ASM_AVAILABLE)
 		AS2(	mov		WORD_REG(di), xmm0				)
 #else	// GNU Assembler
 		AS2(	movd	WORD_REG(di), xmm0				)
@@ -701,7 +712,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 		AS2(	psrldq	xmm1, 15						)
 #if (CRYPTOPP_CLANG_VERSION >= 30600) || (CRYPTOPP_APPLE_CLANG_VERSION >= 70000)
 		AS2(	movd	edi, xmm1						)
-#elif defined(CRYPTOPP_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION)
+#elif (defined(CRYPTOPP_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION)) && defined(CRYPTOPP_X64_ASM_AVAILABLE)
 		AS2(	mov		WORD_REG(di), xmm1				)
 #else
 		AS2(	movd	WORD_REG(di), xmm1				)
@@ -712,7 +723,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 		AS2(	psrldq	xmm0, 15						)
 #if (CRYPTOPP_CLANG_VERSION >= 30600) || (CRYPTOPP_APPLE_CLANG_VERSION >= 70000)
 		AS2(	movd	edi, xmm0						)	
-#elif defined(CRYPTOPP_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION)		
+#elif (defined(CRYPTOPP_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION)) && defined(CRYPTOPP_X64_ASM_AVAILABLE)	
 		AS2(	mov		WORD_REG(di), xmm0				)
 #else
 		AS2(	movd	WORD_REG(di), xmm0				)
@@ -724,7 +735,9 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 
 		AS2(	add		WORD_REG(cx), 16				)
 		AS2(	sub		WORD_REG(dx), 1					)
+		ATT_NOPREFIX
 		ASJ(	jnz,	0, b							)
+		INTEL_NOPREFIX
 		AS2(	movdqa	[WORD_REG(si)], xmm0			)
 
 		#if CRYPTOPP_BOOL_X32
@@ -807,10 +820,12 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 		SSE2_MUL_32BITS(2)
 		SSE2_MUL_32BITS(3)
 
-		AS2(	add		WORD_REG(cx), 16					)
-		AS2(	sub		WORD_REG(dx), 1						)
-		ASJ(	jnz,	1, b							)
-		AS2(	movdqa	[WORD_REG(si)], xmm0				)
+		AS2(	add	WORD_REG(cx), 16		)
+		AS2(	sub	WORD_REG(dx), 1			)
+		ATT_NOPREFIX
+		ASJ(	jnz,	1, b				)
+		INTEL_NOPREFIX
+		AS2(	movdqa	[WORD_REG(si)], xmm0		)
 
 		#ifdef __GNUC__
 				ATT_PREFIX

@@ -10,7 +10,8 @@
 #include "iterhash.h"
 #include "secblock.h"
 
-#if CRYPTOPP_BOOL_X32
+// Clang 3.3 integrated assembler crash on Linux. Clang 3.4 due to compiler error with .intel_syntax
+#if CRYPTOPP_BOOL_X32 || (defined(CRYPTOPP_CLANG_VERSION) && (CRYPTOPP_CLANG_VERSION < 30500))
 # define CRYPTOPP_DISABLE_PANAMA_ASM
 #endif
 

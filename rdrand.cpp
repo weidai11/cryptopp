@@ -132,10 +132,8 @@
 
 #if (ALL_RDRAND_INTRIN_AVAILABLE || ALL_RDSEED_INTRIN_AVAILABLE)
 # include <immintrin.h> // rdrand, MSC, ICC, and GCC
-# if defined(__has_include)
-#  if __has_include(<x86intrin.h>)
-#   include <x86intrin.h> // rdseed for some compilers, like GCC
-#  endif
+# if defined(__GNUC__) && (CRYPTOPP_GCC_VERSION >= 40600)
+#  include <x86intrin.h> // rdseed for some compilers, like GCC
 # endif
 #endif
 

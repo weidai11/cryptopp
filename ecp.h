@@ -8,6 +8,7 @@
 
 #include "cryptlib.h"
 #include "integer.h"
+#include "algebra.h"
 #include "modarith.h"
 #include "eprecomp.h"
 #include "smartptr.h"

@@ -11,13 +11,16 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! _
+//! \class Twofish_Info
+//! \brief Twofish block cipher information
 struct Twofish_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 0, 32>, FixedRounds<16>
 {
 	static const char *StaticAlgorithmName() {return "Twofish";}
 };
 
-/// <a href="http://www.weidai.com/scan-mirror/cs.html#Twofish">Twofish</a>
+//! \class Twofish
+//! \brief Twofish block cipher
+//~ \sa <a href="http://www.weidai.com/scan-mirror/cs.html#Twofish">Twofish</a>
 class Twofish : public Twofish_Info, public BlockCipherDocumentation
 {
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<Twofish_Info>

@@ -9,6 +9,7 @@
 
 #include "cryptlib.h"
 #include "gfpcrypt.h"
+#include "algebra.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
