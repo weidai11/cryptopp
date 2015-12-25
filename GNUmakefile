@@ -126,6 +126,13 @@ CXXFLAGS += -Wa,--divide	# allow use of "/" operator
 endif
 endif
 
+else	# Not IS_X86
+
+# Add PIC
+ifeq ($(findstring -fPIC,$(CXXFLAGS)),)
+  CXXFLAGS += -fPIC
+endif
+ 
 endif	# IS_X86
 
 ifeq ($(UNAME),)	# for DJGPP, where uname doesn't exist
