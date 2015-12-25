@@ -361,19 +361,28 @@ endif
 
 .PHONY: install
 install:
-	$(MKDIR) -p $(DESTDIR)$(PREFIX)/include/cryptopp $(DESTDIR)$(PREFIX)/lib $(DESTDIR)$(PREFIX)/bin
+	$(MKDIR) -p $(DESTDIR)$(PREFIX)/include/cryptopp
 	-$(CP) *.h $(DESTDIR)$(PREFIX)/include/cryptopp
 	-$(CHMOD) 755 $(DESTDIR)$(PREFIX)/include/cryptopp
 	-$(CHMOD) 644 $(DESTDIR)$(PREFIX)/include/cryptopp/*.h
+ifneq ($(wildcard libcryptopp.a),)
+	$(MKDIR) -p $(DESTDIR)$(PREFIX)/lib
 	-$(CP) libcryptopp.a $(DESTDIR)$(PREFIX)/lib
 	-$(CHMOD) 644 $(DESTDIR)$(PREFIX)/lib/libcryptopp.a
+endif
+ifneq ($(wildcard cryptest.exe),)
+	$(MKDIR) -p $(DESTDIR)$(PREFIX)/bin
 	-$(CP) cryptest.exe $(DESTDIR)$(PREFIX)/bin
 	-$(CHMOD) 755 $(DESTDIR)$(PREFIX)/bin/cryptest.exe
-ifneq ($(IS_DARWIN),0)
-	-$(CP) libcryptopp.dylib $(PREFIX)/lib
-	-install_name_tool -id $(PREFIX)/lib/libcryptopp.dylib $(PREFIX)/lib/libcryptopp.dylib
-	-$(CHMOD) 755 $(PREFIX)/lib/libcryptopp.dylib
-else
+endif
+ifneq ($(wildcard libcryptopp.dylib),)
+	$(MKDIR) -p $(DESTDIR)$(PREFIX)/lib
+	-$(CP) libcryptopp.dylib $(DESTDIR)$(PREFIX)/lib
+	-install_name_tool -id $(DESTDIR)$(PREFIX)/lib/libcryptopp.dylib $(DESTDIR)$(PREFIX)/lib/libcryptopp.dylib
+	-$(CHMOD) 755 $(DESTDIR)$(PREFIX)/lib/libcryptopp.dylib
+endif
+ifneq ($(wildcard libcryptopp.so),)
+	$(MKDIR) -p $(DESTDIR)$(PREFIX)/lib
 	-$(CP) libcryptopp.so $(DESTDIR)$(PREFIX)/lib
 	-$(CHMOD) 755 $(DESTDIR)$(PREFIX)/lib/libcryptopp.so
 endif
