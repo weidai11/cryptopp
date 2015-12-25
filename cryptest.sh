@@ -898,6 +898,32 @@ fi
 ############################################
 ############################################
 
+# If using GCC (likely Linux), then perform a quick check with Clang.
+# This check was added after testing on Ubuntu 14.04 with Clang 3.4.
+if [ "$CXX" == "g++" ]; then
+
+	$(which clang++ | head -1) -x c++ -c adhoc.cpp.proto -o $TMP/adhoc > /dev/null 2>&1
+	if [ "$?" -eq "0" ]; then
+
+		############################################
+		# Basic Clang build
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS"
+		echo "Testing: Clang" | tee -a "$TEST_RESULTS"
+		echo
+
+		unset CXX
+		unset CXXFLAGS
+		export CXX="clang++"
+
+		"$MAKE" clean > /dev/null 2>&1
+		"$MAKE" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	fi
+fi
+
+############################################
+############################################
+
 TEST_END=$(date)
 
 echo "************************************************" | tee -a "$TEST_RESULTS"
@@ -932,3 +958,10 @@ echo | tee -a "$TEST_RESULTS"
 	
 echo "************************************************" | tee -a "$TEST_RESULTS"
 echo "************************************************" | tee -a "$TEST_RESULTS"
+
+# http://tldp.org/LDP/abs/html/exitcodes.html#EXITCODESREF
+if [ "$COUNT" -eq "0" ]; then
+	exit 0
+else
+	exit 1
+fi
