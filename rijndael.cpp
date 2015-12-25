@@ -651,7 +651,9 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 	AS2(	movdqa	XMMWORD_PTR [L_SUBKEYS+WORD_REG(si)], xmm0)
 	AS2(	add		WORD_REG(si), 16)
 	AS2(	cmp		WORD_REG(si), 16*12)
+	ATT_NOPREFIX
 	ASJ(	jl,		0, b)
+	INTEL_NOPREFIX
 
 	// read subkeys 0, 1 and last
 	AS2(	movdqa	xmm4, [WORD_REG(ax)+WORD_REG(si)])	// last subkey
@@ -673,11 +675,15 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 	AS2(	mov		esi, [AS_REG_7+WORD_REG(ax)])
 	AS2(	add		WORD_REG(ax), WORD_REG(di))
 	AS2(	cmp		WORD_REG(ax), 2048)
+	ATT_NOPREFIX
 	ASJ(	jl,		9, b)
+	INTEL_NOPREFIX
 	AS1(	lfence)
 
 	AS2(	test	DWORD PTR [L_LENGTH], 1)
+	ATT_NOPREFIX
 	ASJ(	jz,		8, f)
+	INTEL_NOPREFIX
 
 	// counter mode one-time setup
 	AS2(	mov		WORD_REG(si), [L_INBLOCKS])
@@ -751,8 +757,9 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 	AS2(	mov		[L_SAVED_X+0*4], eax)
 	AS2(	mov		[L_SAVED_X+1*4], ebx)
 	AS2(	mov		[L_SAVED_X+2*4], edi)
+	ATT_NOPREFIX
 	ASJ(	jmp,	5, f)
-
+	INTEL_NOPREFIX
 	ASL(3)
 	// non-counter mode per-block setup
 	AS2(	MOVD	MM(1), [L_KEY12+0*4])	// 0,1,2,3
@@ -802,8 +809,9 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 
 	AS2(	add		L_REG, [L_KEYS_BEGIN])
 	AS2(	add		L_REG, 4*16)
+	ATT_NOPREFIX
 	ASJ(	jmp,	2, f)
-
+	INTEL_NOPREFIX
 	ASL(1)
 	// counter-mode per-block setup
 	AS2(	MOVD	ecx, MM(2))
@@ -830,7 +838,9 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 
 	AS2(	add		L_REG, [L_KEYS_BEGIN])
 	AS2(	add		L_REG, 3*16)
+	ATT_NOPREFIX
 	ASJ(	jmp,	4, f)
+	INTEL_NOPREFIX
 
 // in: eax(0,1,2,3), ebx(4,5,6,7), ecx(8,9,10,11), edx(12,13,14,15)
 // out: eax, ebx, edi, mm0
@@ -877,7 +887,9 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 
 	AS2(	add		L_REG, 32)
 	AS2(	test	L_REG, 255)
+	ATT_NOPREFIX
 	ASJ(	jnz,	2, b)
+	INTEL_NOPREFIX
 	AS2(	sub		L_REG, 16*16)
 
 #define LAST(a, b, c)												\
@@ -923,16 +935,22 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 	AS2(	pxor	xmm2, [L_LASTROUND])
 	AS2(	movdqu	[WORD_REG(bx)], xmm2)
 
+	ATT_NOPREFIX
 	ASJ(	jle,	7, f)
+	INTEL_NOPREFIX
 	AS2(	mov		[L_LENGTH], WORD_REG(cx))
 	AS2(	test	WORD_REG(cx), 1)
+	ATT_NOPREFIX
 	ASJ(	jnz,	1, b)
+	INTEL_NOPREFIX
 #if CRYPTOPP_BOOL_X64
 	AS2(	movdqa	xmm0, [L_INCREMENTS])
 	AS2(	paddq	xmm0, [L_INBLOCKS])
 	AS2(	movdqa	[L_INBLOCKS], xmm0)
 #endif
+	ATT_NOPREFIX
 	ASJ(	jmp,	3, b)
+	INTEL_NOPREFIX
 
 	ASL(7)
 	// erase keys on stack

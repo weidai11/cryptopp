@@ -278,6 +278,21 @@ inline int GetCacheLineSize()
 #define IF0(y)
 #define IF1(y) y
 
+// Should be confined to GCC, but its used to help manage Clang 3.4 compiler error.
+//   Also see LLVM Bug 24232, http://llvm.org/bugs/show_bug.cgi?id=24232 .
+#ifndef INTEL_PREFIX
+	#define INTEL_PREFIX
+#endif
+#ifndef INTEL_NOPREFIX
+	#define INTEL_NOPREFIX
+#endif
+#ifndef ATT_PREFIX
+	#define ATT_PREFIX
+#endif
+#ifndef ATT_NOPREFIX
+	#define ATT_NOPREFIX
+#endif
+
 #ifdef CRYPTOPP_GENERATE_X64_MASM
 #define ASM_MOD(x, y) ((x) MOD (y))
 #define XMMWORD_PTR XMMWORD PTR
