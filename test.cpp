@@ -279,6 +279,7 @@ int CRYPTOPP_API main(int argc, char *argv[])
 			DigestFile(argv[2]);
 		else if (command == "tv")
 		{
+			// TestDataFile() adds CRYPTOPP_DATA_DIR as required
 			std::string fname = (argv[2] ? argv[2] : "all");
 			if (fname.find(".txt") == std::string::npos)
 				fname = "TestVectors/" + fname + ".txt";
@@ -369,7 +370,7 @@ int CRYPTOPP_API main(int argc, char *argv[])
 			AES_CTR_Encrypt(argv[2], argv[3], argv[4], argv[5]);
 		else if (command == "h")
 		{
-			FileSource usage("TestData/usage.dat", true, new FileSink(cout));
+			FileSource usage(CRYPTOPP_DATA_DIR "TestData/usage.dat", true, new FileSink(cout));
 			return 1;
 		}
 		else if (command == "V")

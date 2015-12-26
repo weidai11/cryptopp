@@ -74,10 +74,10 @@ bool ValidateBBS()
 	bool pass = true, fail;
 	int j;
 
-	const byte output1[] = {
+	static const byte output1[] = {
 		0x49,0xEA,0x2C,0xFD,0xB0,0x10,0x64,0xA0,0xBB,0xB9,
 		0x2A,0xF1,0x01,0xDA,0xC1,0x8A,0x94,0xF7,0xB7,0xCE};
-	const byte output2[] = {
+	static const byte output2[] = {
 		0x74,0x45,0x48,0xAE,0xAC,0xB7,0x0E,0xDF,0xAF,0xD7,
 		0xD5,0x0E,0x8E,0x29,0x83,0x75,0x6B,0x27,0x46,0xA1};
 
@@ -283,7 +283,7 @@ bool ValidateRSA()
 			"\x69\x94\xac\x04\xf3\x41\xb5\x7d\x05\x20\x2d\x42\x8f\xb2\xa2\x7b"
 			"\x5c\x77\xdf\xd9\xb1\x5b\xfc\x3d\x55\x93\x53\x50\x34\x10\xc1\xe1";
 
-		FileSource keys("TestData/rsa512a.dat", true, new HexDecoder);
+		FileSource keys(CRYPTOPP_DATA_DIR "TestData/rsa512a.dat", true, new HexDecoder);
 		Weak::RSASSA_PKCS1v15_MD2_Signer rsaPriv(keys);
 		Weak::RSASSA_PKCS1v15_MD2_Verifier rsaPub(rsaPriv);
 
@@ -308,7 +308,7 @@ bool ValidateRSA()
 		cout << "invalid signature verification\n";
 	}
 	{
-		FileSource keys("TestData/rsa1024.dat", true, new HexDecoder);
+		FileSource keys(CRYPTOPP_DATA_DIR "TestData/rsa1024.dat", true, new HexDecoder);
 		RSAES_PKCS1v15_Decryptor rsaPriv(keys);
 		RSAES_PKCS1v15_Encryptor rsaPub(rsaPriv);
 
@@ -335,8 +335,8 @@ bool ValidateRSA()
 		bq.Put(oaepSeed, 20);
 		FixedRNG rng(bq);
 
-		FileSource privFile("TestData/rsa400pv.dat", true, new HexDecoder);
-		FileSource pubFile("TestData/rsa400pb.dat", true, new HexDecoder);
+		FileSource privFile(CRYPTOPP_DATA_DIR "TestData/rsa400pv.dat", true, new HexDecoder);
+		FileSource pubFile(CRYPTOPP_DATA_DIR "TestData/rsa400pb.dat", true, new HexDecoder);
 		RSAES_OAEP_SHA_Decryptor rsaPriv;
 		rsaPriv.AccessKey().BERDecodePrivateKey(privFile, false, 0);
 		RSAES_OAEP_SHA_Encryptor rsaPub(pubFile);
@@ -359,7 +359,7 @@ bool ValidateDH()
 {
 	cout << "\nDH validation suite running...\n\n";
 
-	FileSource f("TestData/dh1024.dat", true, new HexDecoder());
+	FileSource f(CRYPTOPP_DATA_DIR "TestData/dh1024.dat", true, new HexDecoder());
 	DH dh(f);
 	return SimpleKeyAgreementValidate(dh);
 }
@@ -368,7 +368,7 @@ bool ValidateMQV()
 {
 	cout << "\nMQV validation suite running...\n\n";
 
-	FileSource f("TestData/mqv1024.dat", true, new HexDecoder());
+	FileSource f(CRYPTOPP_DATA_DIR "TestData/mqv1024.dat", true, new HexDecoder());
 	MQV mqv(f);
 	return AuthenticatedKeyAgreementValidate(mqv);
 }
@@ -377,7 +377,7 @@ bool ValidateLUC_DH()
 {
 	cout << "\nLUC-DH validation suite running...\n\n";
 
-	FileSource f("TestData/lucd512.dat", true, new HexDecoder());
+	FileSource f(CRYPTOPP_DATA_DIR "TestData/lucd512.dat", true, new HexDecoder());
 	LUC_DH dh(f);
 	return SimpleKeyAgreementValidate(dh);
 }
@@ -386,7 +386,7 @@ bool ValidateXTR_DH()
 {
 	cout << "\nXTR-DH validation suite running...\n\n";
 
-	FileSource f("TestData/xtrdh171.dat", true, new HexDecoder());
+	FileSource f(CRYPTOPP_DATA_DIR "TestData/xtrdh171.dat", true, new HexDecoder());
 	XTR_DH dh(f);
 	return SimpleKeyAgreementValidate(dh);
 }
@@ -396,7 +396,7 @@ bool ValidateElGamal()
 	cout << "\nElGamal validation suite running...\n\n";
 	bool pass = true;
 	{
-		FileSource fc("TestData/elgc1024.dat", true, new HexDecoder);
+		FileSource fc(CRYPTOPP_DATA_DIR "TestData/elgc1024.dat", true, new HexDecoder);
 		ElGamalDecryptor privC(fc);
 		ElGamalEncryptor pubC(privC);
 		privC.AccessKey().Precompute();
@@ -414,7 +414,7 @@ bool ValidateDLIES()
 	cout << "\nDLIES validation suite running...\n\n";
 	bool pass = true;
 	{
-		FileSource fc("TestData/dlie1024.dat", true, new HexDecoder);
+		FileSource fc(CRYPTOPP_DATA_DIR "TestData/dlie1024.dat", true, new HexDecoder);
 		DLIES<>::Decryptor privC(fc);
 		DLIES<>::Encryptor pubC(privC);
 		pass = CryptoSystemValidate(privC, pubC) && pass;
@@ -437,7 +437,7 @@ bool ValidateNR()
 	cout << "\nNR validation suite running...\n\n";
 	bool pass = true;
 	{
-		FileSource f("TestData/nr2048.dat", true, new HexDecoder);
+		FileSource f(CRYPTOPP_DATA_DIR "TestData/nr2048.dat", true, new HexDecoder);
 		NR<SHA>::Signer privS(f);
 		privS.AccessKey().Precompute();
 		NR<SHA>::Verifier pubS(privS);
@@ -459,14 +459,14 @@ bool ValidateDSA(bool thorough)
 	cout << "\nDSA validation suite running...\n\n";
 
 	bool pass = true;
-	FileSource fs1("TestData/dsa1024.dat", true, new HexDecoder());
+	FileSource fs1(CRYPTOPP_DATA_DIR "TestData/dsa1024.dat", true, new HexDecoder());
 	DSA::Signer priv(fs1);
 	DSA::Verifier pub(priv);
-	FileSource fs2("TestData/dsa1024b.dat", true, new HexDecoder());
+	FileSource fs2(CRYPTOPP_DATA_DIR "TestData/dsa1024b.dat", true, new HexDecoder());
 	DSA::Verifier pub1(fs2);
 	assert(pub.GetKey() == pub1.GetKey());
 	pass = SignatureValidate(priv, pub, thorough) && pass;
-	pass = RunTestDataFile("TestVectors/dsa.txt", g_nullNameValuePairs, thorough) && pass;
+	pass = RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/dsa.txt", g_nullNameValuePairs, thorough) && pass;
 
 	return pass;
 }
@@ -477,7 +477,7 @@ bool ValidateLUC()
 	bool pass=true;
 
 	{
-		FileSource f("TestData/luc1024.dat", true, new HexDecoder);
+		FileSource f(CRYPTOPP_DATA_DIR "TestData/luc1024.dat", true, new HexDecoder);
 		LUCSSA_PKCS1v15_SHA_Signer priv(f);
 		LUCSSA_PKCS1v15_SHA_Verifier pub(priv);
 		pass = SignatureValidate(priv, pub) && pass;
@@ -494,14 +494,14 @@ bool ValidateLUC_DL()
 {
 	cout << "\nLUC-HMP validation suite running...\n\n";
 
-	FileSource f("TestData/lucs512.dat", true, new HexDecoder);
+	FileSource f(CRYPTOPP_DATA_DIR "TestData/lucs512.dat", true, new HexDecoder);
 	LUC_HMP<SHA>::Signer privS(f);
 	LUC_HMP<SHA>::Verifier pubS(privS);
 	bool pass = SignatureValidate(privS, pubS);
 
 	cout << "\nLUC-IES validation suite running...\n\n";
 
-	FileSource fc("TestData/lucc512.dat", true, new HexDecoder);
+	FileSource fc(CRYPTOPP_DATA_DIR "TestData/lucc512.dat", true, new HexDecoder);
 	LUC_IES<>::Decryptor privC(fc);
 	LUC_IES<>::Encryptor pubC(privC);
 	pass = CryptoSystemValidate(privC, pubC) && pass;
@@ -515,7 +515,7 @@ bool ValidateRabin()
 	bool pass=true;
 
 	{
-		FileSource f("TestData/rabi1024.dat", true, new HexDecoder);
+		FileSource f(CRYPTOPP_DATA_DIR "TestData/rabi1024.dat", true, new HexDecoder);
 		RabinSS<PSSR, SHA>::Signer priv(f);
 		RabinSS<PSSR, SHA>::Verifier pub(priv);
 		pass = SignatureValidate(priv, pub) && pass;
@@ -532,7 +532,7 @@ bool ValidateRW()
 {
 	cout << "\nRW validation suite running...\n\n";
 
-	FileSource f("TestData/rw1024.dat", true, new HexDecoder);
+	FileSource f(CRYPTOPP_DATA_DIR "TestData/rw1024.dat", true, new HexDecoder);
 	RWSS<PSSR, SHA>::Signer priv(f);
 	RWSS<PSSR, SHA>::Verifier pub(priv);
 
@@ -544,7 +544,7 @@ bool ValidateBlumGoldwasser()
 {
 	cout << "\nBlumGoldwasser validation suite running...\n\n";
 
-	FileSource f("TestData/blum512.dat", true, new HexDecoder);
+	FileSource f(CRYPTOPP_DATA_DIR "TestData/blum512.dat", true, new HexDecoder);
 	BlumGoldwasserPrivateKey priv(f);
 	BlumGoldwasserPublicKey pub(priv);
 
@@ -828,7 +828,7 @@ bool ValidateESIGN()
 		"\x74\x02\x37\x0E\xED\x0A\x06\xAD\xF4\x15\x65\xB8\xE1\xD1\x45\xAE\x39\x19\xB4\xFF\x5D\xF1\x45\x7B\xE0\xFE\x72\xED\x11\x92\x8F\x61\x41\x4F\x02\x00\xF2\x76\x6F\x7C"
 		"\x79\xA2\xE5\x52\x20\x5D\x97\x5E\xFE\x39\xAE\x21\x10\xFB\x35\xF4\x80\x81\x41\x13\xDD\xE8\x5F\xCA\x1E\x4F\xF8\x9B\xB2\x68\xFB\x28";
 
-	FileSource keys("TestData/esig1536.dat", true, new HexDecoder);
+	FileSource keys(CRYPTOPP_DATA_DIR "TestData/esig1536.dat", true, new HexDecoder);
 	ESIGN<SHA>::Signer signer(keys);
 	ESIGN<SHA>::Verifier verifier(signer);
 

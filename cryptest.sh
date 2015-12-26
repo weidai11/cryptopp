@@ -780,7 +780,7 @@ if [ "$HAVE_CXX03" -ne "0" ]; then
 	"$MAKE" clean > /dev/null 2>&1
 	export CXXFLAGS="-DNDEBUG -O3 -std=c++03 $ADD_CXXFLAGS"
 	"$MAKE" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-	./cryptest.exe b 3 2.4+1e9 2>&1 | tee -a "$BENCHMARK_RESULTS"
+	./cryptest.exe b 1 2.4+1e9 2>&1 | tee -a "$BENCHMARK_RESULTS"
 fi
 
 ############################################
@@ -795,7 +795,7 @@ if [ "$HAVE_CXX11" -ne "0" ]; then
 	"$MAKE" clean > /dev/null 2>&1
 	export CXXFLAGS="-DNDEBUG -O3 -std=c++11 $ADD_CXXFLAGS"
 	"$MAKE" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-	./cryptest.exe b 3 2.4+1e9 2>&1 | tee -a "$BENCHMARK_RESULTS"
+	./cryptest.exe b 1 2.4+1e9 2>&1 | tee -a "$BENCHMARK_RESULTS"
 fi
 
 # For Cygwin, we need to test both PREFER_BERKELEY_STYLE_SOCKETS
@@ -866,7 +866,6 @@ if [ "$HAVE_VALGRIND" -ne "0" ] && [ "$HAVE_CXX11" -ne "0" ]; then
 fi
 
 ############################################
-############################################
 
 if [ "$CXX" == "g++" ] && [ "$HAVE_CXX11" -ne "0" ]; then
 
@@ -896,13 +895,13 @@ if [ "$CXX" == "g++" ] && [ "$HAVE_CXX11" -ne "0" ]; then
 fi
 
 ############################################
-############################################
 
 # If using GCC (likely Linux), then perform a quick check with Clang.
 # This check was added after testing on Ubuntu 14.04 with Clang 3.4.
 if [ "$CXX" == "g++" ]; then
 
-	$(which clang++ | head -1) -x c++ -c adhoc.cpp.proto -o $TMP/adhoc > /dev/null 2>&1
+	CLANG_COMPILER=$(which clang++)
+	"$CLANG_COMPILER" -x c++ -c adhoc.cpp.proto -o $TMP/adhoc > /dev/null 2>&1
 	if [ "$?" -eq "0" ]; then
 
 		############################################
@@ -912,14 +911,65 @@ if [ "$CXX" == "g++" ]; then
 		echo "Testing: Clang" | tee -a "$TEST_RESULTS"
 		echo
 
-		unset CXX
 		unset CXXFLAGS
-		export CXX="clang++"
-
 		"$MAKE" clean > /dev/null 2>&1
-		"$MAKE" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		"$MAKE" CXX="$CLANG_COMPILER" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 	fi
 fi
+
+############################################
+
+# Test an install with CRYPTOPP_DATA_DIR
+
+echo
+echo "************************************" | tee -a "$TEST_RESULTS"
+echo "Testing: Test install with data directory" | tee -a "$TEST_RESULTS"
+echo
+
+unset CXXFLAGS
+"$MAKE" clean > /dev/null 2>&1
+rm -rf /tmp/cryptopp_test/ > /dev/null 2>&1
+
+export CXXFLAGS="-DNDEBUG -g2 -O2 -DCRYPTOPP_DATA_DIR='\"/tmp/cryptopp_test/share/\"' "
+"$MAKE" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+# Still need to manulally place TestData and TestVectors
+mkdir -p /tmp/cryptopp_test/share/TestData /tmp/cryptopp_test/share/TestVectors
+cp -r TestData /tmp/cryptopp_test/share/
+cp -r TestVectors /tmp/cryptopp_test/share/
+
+OLD_DIR=$(pwd)
+make install PREFIX=/tmp/cryptopp_test/ 2>&1 | tee -a "$TEST_RESULTS"
+cd /tmp/cryptopp_test/bin
+
+echo
+echo "************************************" | tee -a "$TEST_RESULTS"
+echo "Testing: Test install (validation suite)" | tee -a "$TEST_RESULTS"
+echo
+./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+
+echo
+echo "************************************" | tee -a "$TEST_RESULTS"
+echo "Testing: Test install (test vectors)" | tee -a "$TEST_RESULTS"
+echo
+./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+
+echo
+echo "************************************" | tee -a "$TEST_RESULTS"
+echo "Testing: Test install (benchmarks)" | tee -a "$TEST_RESULTS"
+echo
+./cryptest.exe b 1 2.4+1e9 2>&1 | tee -a "$BENCHMARK_RESULTS"
+
+echo
+echo "************************************" | tee -a "$TEST_RESULTS"
+echo "Testing: Test install (help file)" | tee -a "$TEST_RESULTS"
+echo
+./cryptest.exe h 2>&1 | tee -a "$BENCHMARK_RESULTS"
+
+cd "$OLD_DIR"
 
 ############################################
 ############################################

@@ -187,13 +187,13 @@ bool ValidateMD5()
 bool ValidateSHA()
 {
 	cout << "\nSHA validation suite running...\n\n";
-	return RunTestDataFile("TestVectors/sha.txt");
+	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/sha.txt");
 }
 
 bool ValidateSHA2()
 {
 	cout << "\nSHA validation suite running...\n\n";
-	return RunTestDataFile("TestVectors/sha.txt");
+	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/sha.txt");
 }
 
 bool ValidateTiger()
@@ -340,12 +340,12 @@ bool ValidateHAVAL()
 
 bool ValidatePanama()
 {
-	return RunTestDataFile("TestVectors/panama.txt");
+	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/panama.txt");
 }
 
 bool ValidateWhirlpool()
 {
-	return RunTestDataFile("TestVectors/whrlpool.txt");
+	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/whrlpool.txt");
 }
 
 #ifdef CRYPTOPP_REMOVED
@@ -412,7 +412,7 @@ bool ValidateMD5MAC()
 
 bool ValidateHMAC()
 {
-	return RunTestDataFile("TestVectors/hmac.txt");
+	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/hmac.txt");
 }
 
 #ifdef CRYPTOPP_REMOVED

@@ -721,8 +721,15 @@ void OutputNameValuePairs(const NameValuePairs &v)
 	}
 }
 
-void TestDataFile(const std::string &filename, const NameValuePairs &overrideParameters, unsigned int &totalTests, unsigned int &failedTests)
+void TestDataFile(std::string filename, const NameValuePairs &overrideParameters, unsigned int &totalTests, unsigned int &failedTests)
 {
+	static const std::string dataDirectory(CRYPTOPP_DATA_DIR);
+	if (!dataDirectory.empty())
+	{
+		if(dataDirectory != filename.substr(0, dataDirectory.length()))
+			filename.insert(0, dataDirectory);
+	}
+
 	std::ifstream file(filename.c_str());
 	if (!file.good())
 		throw Exception(Exception::OTHER_ERROR, "Can not open file " + filename + " for reading");
@@ -805,7 +812,7 @@ bool RunTestDataFile(const char *filename, const NameValuePairs &overrideParamet
 {
 	s_thorough = thorough;
 	unsigned int totalTests = 0, failedTests = 0;
-	TestDataFile(filename, overrideParameters, totalTests, failedTests);
+	TestDataFile((filename ? filename : ""), overrideParameters, totalTests, failedTests);
 	cout << dec << "\nTests complete. Total tests = " << totalTests << ". Failed tests = " << failedTests << ".\n";
 	if (failedTests != 0)
 		cout << "SOME TESTS FAILED!\n";

@@ -48,10 +48,17 @@
 // Library version
 #define CRYPTOPP_VERSION 563
 
+// Define this if you want to set a prefix for TestData/ and TestVectors/
+//   Be mindful of the trailing slash since its simple concatenation.
+//   g++ ... -DCRYPTOPP_DATA_DIR='"/tmp/cryptopp_test/share/"'
+#ifndef CRYPTOPP_DATA_DIR
+# define CRYPTOPP_DATA_DIR ""
+#endif
+
 // define this to retain (as much as possible) old deprecated function and class names
 // #define CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
 
-// define this to retain (as much as possible) ABI and binary compatibility with Crypto++ 5.6.2.
+// Define this to retain (as much as possible) ABI and binary compatibility with Crypto++ 5.6.2.
 // Also see https://cryptopp.com/wiki/Config.h#Avoid_MAINTAIN_BACKWARDS_COMPATIBILITY
 #if (CRYPTOPP_VERSION <= 600)
 # if !defined(CRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562) && !defined(CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562)
