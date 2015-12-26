@@ -418,13 +418,16 @@ else
 ifeq ($(HAS_SOLIB_VERSION),1)
 	-$(RM) $(DESTDIR)$(PREFIX)/lib/libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
 	-$(RM) $(DESTDIR)$(PREFIX)/lib/libcryptopp.so
-	$(LDCONF) $(PREFIX)/lib
+	$(LDCONF) $(DESTDIR)$(PREFIX)/lib
 endif
 endif
 
 libcryptopp.a: public_service | $(LIBOBJS)
 	$(AR) $(ARFLAGS) $@ $(LIBOBJS)
 	$(RANLIB) $@
+
+.PHONY: libcryptopp.so
+libcryptopp.so: libcryptopp$(SOLIB_VERSION_SUFFIX)
 
 libcryptopp.so$(SOLIB_VERSION_SUFFIX): public_service | $(LIBOBJS)
 	$(CXX) -shared $(SOLIB_FLAGS) -o $@ $(CXXFLAGS) $(GOLD_OPTION) $(LIBOBJS) $(LDLIBS)
