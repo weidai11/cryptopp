@@ -15,6 +15,7 @@ option(BUILD_DOCUMENTATION "Use Doxygen to create the HTML based API documentati
 option(DISABLE_ASM "Disable ASM" OFF)
 option(DISABLE_SSSE3 "Disable SSSE3" OFF)
 option(DISABLE_AESNI "Disable AES-NI" OFF)
+set(CRYPTOPP_DATA_DIR "" CACHE PATH "Crypto++ test data directory")
 
 #============================================================================
 # Internal compiler options
@@ -40,6 +41,9 @@ if(DISABLE_SSSE3)
 endif()
 if(DISABLE_AESNI)
 	add_definitions(-DCRYPTOPP_DISABLE_AESNI)
+endif()
+if(NOT CRYPTOPP_DATA_DIR STREQUAL "")
+	add_definitions(-DCRYPTOPP_DATA_DIR=${CRYPTOPP_DATA_DIR})
 endif()
 
 #============================================================================
