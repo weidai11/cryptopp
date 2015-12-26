@@ -16,6 +16,7 @@ ARFLAGS ?= -cr # ar needs the dash on OpenBSD
 RANLIB ?= ranlib
 
 CP ?= cp
+MV ?= mv
 CHMOD ?= chmod
 MKDIR ?= mkdir
 EGREP ?= egrep
@@ -339,7 +340,7 @@ endif
 docs html:
 	-$(RM) -r $(DOXYGEN_DIRECTORY)/ $(DOCUMENT_DIRECTORY)/ html-docs/
 	doxygen Doxyfile -d CRYPTOPP_DOXYGEN_PROCESSING
-	mv $(DOXYGEN_DIRECTORY)/ $(DOCUMENT_DIRECTORY)/
+	$(MV) $(DOXYGEN_DIRECTORY)/ $(DOCUMENT_DIRECTORY)/
 	-$(RM) CryptoPPRef.zip
 	zip -9 CryptoPPRef.zip -x ".*" -x "*/.*" -r $(DOCUMENT_DIRECTORY)/
 
@@ -363,7 +364,12 @@ endif
 
 .PHONY: distclean
 distclean: clean
-	-$(RM) adhoc.cpp adhoc.cpp.copied GNUmakefile.deps benchmarks.html cryptest.txt cryptest-*.txt *.o *.ii *.s *~
+	-$(RM) adhoc.cpp adhoc.cpp.copied GNUmakefile.deps benchmarks.html cryptest.txt cryptest-*.txt
+	-$(RM) CMakeCache.txt Makefile CTestTestfile.cmake cmake_install.cmake cryptopp-config-version.cmake
+	-$(RM)  *.o *.ii *.s *~
+ifneq ($(wildcard CMakeFiles/),)
+	-$(RM) -r CMakeFiles/
+endif
 ifneq ($(wildcard cryptopp$(LIB_VER)\.*),)
 	-$(RM) cryptopp$(LIB_VER)\.*
 endif
@@ -461,7 +467,7 @@ dlltest.exe: cryptopp.dll $(DLLTESTOBJS)
 	$(CXX) -o $@ $(CXXFLAGS) $(DLLTESTOBJS) -L. -lcryptopp.dll $(LDFLAGS) $(LDLIBS)
 
 # This recipe prepares the distro files
-TEXT_FILES := *.h *.cpp adhoc.cpp.proto License.txt Readme.txt Install.txt Filelist.txt config.recommend Doxyfile cryptest* cryptlib* dlltest* cryptdll* *.sln *.vcproj *.dsw *.dsp cryptopp.rc TestVectors/*.txt TestData/*.dat
+TEXT_FILES := *.h *.cpp adhoc.cpp.proto License.txt Readme.txt Install.txt Filelist.txt CMakeLists.txt config.recommend Doxyfile cryptest* cryptlib* dlltest* cryptdll* *.sln *.vcproj *.dsw *.dsp cryptopp.rc TestVectors/*.txt TestData/*.dat
 EXEC_FILES := GNUmakefile GNUmakefile-cross TestData/ TestVectors/
 
 ifeq ($(wildcard Filelist.txt),Filelist.txt)
@@ -470,11 +476,11 @@ endif
 
 .PHONY: convert
 convert:
-	-chmod 0700 TestVectors/ TestData/
-	-chmod 0600 $(TEXT_FILES) *.asm *.S *.zip
-	-chmod 0700 $(EXEC_FILES) *.sh *.cmd
-	-chmod 0700 *.cmd *.sh GNUmakefile GNUmakefile-cross
-	-unix2dos --keepdate --quiet $(TEXT_FILES) *.asm *.cmd
+	-$(CHMOD) 0700 TestVectors/ TestData/
+	-$(CHMOD) 0600 $(TEXT_FILES) *.asm *.S *.zip *.cmake
+	-$(CHMOD) 0700 $(EXEC_FILES) *.sh *.cmd
+	-$(CHMOD) 0700 *.cmd *.sh GNUmakefile GNUmakefile-cross
+	-unix2dos --keepdate --quiet $(TEXT_FILES) *.asm *.cmd *.cmake
 	-dos2unix --keepdate --quiet GNUmakefile GNUmakefile-cross *.S *.sh
 ifneq ($(IS_DARWIN),0)
 	-xattr -c *
@@ -487,15 +493,15 @@ zip dist: | distclean convert
 .PHONY: iso
 iso: | zip
 ifneq ($(IS_DARWIN),0)
-	mkdir -p $(PWD)/cryptopp$(LIB_VER)
-	cp cryptopp$(LIB_VER).zip $(PWD)/cryptopp$(LIB_VER)
+	$(MKDIR) -p $(PWD)/cryptopp$(LIB_VER)
+	$(CP) cryptopp$(LIB_VER).zip $(PWD)/cryptopp$(LIB_VER)
 	hdiutil makehybrid -iso -joliet -o cryptopp$(LIB_VER).iso $(PWD)/cryptopp$(LIB_VER)
-	-rm -rf $(PWD)/cryptopp$(LIB_VER)
+	-$(RM) -r $(PWD)/cryptopp$(LIB_VER)
 else ifneq ($(IS_LINUX),0)
-	mkdir -p $(PWD)/cryptopp$(LIB_VER)
-	cp cryptopp$(LIB_VER).zip $(PWD)/cryptopp$(LIB_VER)
+	$(MKDIR) -p $(PWD)/cryptopp$(LIB_VER)
+	$(CP) cryptopp$(LIB_VER).zip $(PWD)/cryptopp$(LIB_VER)
 	genisoimage -q -o cryptopp$(LIB_VER).iso $(PWD)/cryptopp$(LIB_VER)
-	-rm -rf $(PWD)/cryptopp$(LIB_VER)
+	-$(RM) -r $(PWD)/cryptopp$(LIB_VER)
 endif
 
 .PHONY: bench benchmark benchmarks
