@@ -1,5 +1,10 @@
-cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
-project(cryptopp VERSION 5.6.3)
+cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
+
+project(cryptopp)
+
+set(cryptopp_VERSION_MAJOR 5)
+set(cryptopp_VERSION_MINOR 6)
+set(cryptopp_VERSION_PATCH 3)
 
 include(GNUInstallDirs)
 include(TestBigEndian)
@@ -171,7 +176,7 @@ install(FILES ${cryptopp_HEADERS} DESTINATION include/cryptopp)
 
 # CMake Package
 include(CMakePackageConfigHelpers)
-write_basic_package_version_file("${PROJECT_BINARY_DIR}/cryptopp-config-version.cmake" COMPATIBILITY SameMajorVersion)
+write_basic_package_version_file("${PROJECT_BINARY_DIR}/cryptopp-config-version.cmake" VERSION ${cryptopp_VERSION_MAJOR}.${cryptopp_VERSION_MINOR}.${cryptopp_VERSION_PATCH} COMPATIBILITY SameMajorVersion)
 install(FILES cryptopp-config.cmake ${PROJECT_BINARY_DIR}/cryptopp-config-version.cmake DESTINATION "lib/cmake/cryptopp")
 install(EXPORT ${export_name} DESTINATION "lib/cmake/cryptopp")
 
