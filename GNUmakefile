@@ -19,6 +19,8 @@ CP ?= cp
 CHMOD ?= chmod
 MKDIR ?= mkdir
 EGREP ?= egrep
+LN ?= ln -sf
+LDCONF ?= /sbin/ldconfig -n
 
 UNAME := $(shell uname)
 IS_X86 := $(shell uname -m | $(EGREP) -i -c "i.86|x86|i86|amd64")
@@ -36,6 +38,8 @@ GCC_COMPILER := $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "(gcc|g\+\+)")
 CLANG_COMPILER := $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "clang")
 INTEL_COMPILER := $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(ICC\)")
 MACPORTS_COMPILER := $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "macports")
+
+HAS_SOLIB_VERSION := $(IS_LINUX)
 
 # Default prefix for make install
 ifeq ($(PREFIX),)
@@ -283,6 +287,14 @@ ifeq ($(strip $(LIB_PATCH)),)
 LIB_PATCH := 0
 endif
 
+ifeq ($(HAS_SOLIB_VERSION),1)
+# Full version suffix for shared library
+SOLIB_VERSION_SUFFIX=.$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)
+# Different patchlevels are compatible, minor versions are not
+SOLIB_COMPAT_SUFFIX=.$(LIB_MAJOR).$(LIB_MINOR)
+SOLIB_FLAGS=-Wl,-soname,libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
+endif # HAS_SOLIB_VERSION
+
 all: cryptest.exe
 
 ifneq ($(IS_DARWIN),0)
@@ -290,7 +302,7 @@ static: libcryptopp.a
 shared dynamic dylib: libcryptopp.dylib
 else
 static: libcryptopp.a
-shared dynamic: libcryptopp.so
+shared dynamic: libcryptopp.so$(SOLIB_VERSION_SUFFIX)
 endif
 
 .PHONY: deps
@@ -333,7 +345,10 @@ docs html:
 
 .PHONY: clean
 clean:
-	-$(RM) libcryptopp.a libcryptopp.so libcryptopp.dylib cryptopp.dll libcryptopp.dll.a libcryptopp.import.a
+	-$(RM) libcryptopp.a libcryptopp.so$(SOLIB_VERSION_SUFFIX) libcryptopp.dylib cryptopp.dll libcryptopp.dll.a libcryptopp.import.a
+ifeq ($(HAS_SOLIB_VERSION),1)
+	-$(RM) libcryptopp.so libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
+endif
 	-$(RM) adhoc.cpp.o adhoc.cpp.proto.o $(LIBOBJS) $(TESTOBJS) $(DLLOBJS) $(LIBIMPORTOBJS) $(TESTIMPORTOBJS) $(DLLTESTOBJS) *.stackdump core-*
 	-$(RM) cryptest.exe dlltest.exe cryptest.import.exe ct rdrand-???.o
 ifneq ($(wildcard *.exe.dSYM),)
@@ -381,10 +396,14 @@ ifneq ($(wildcard libcryptopp.dylib),)
 	-install_name_tool -id $(DESTDIR)$(PREFIX)/lib/libcryptopp.dylib $(DESTDIR)$(PREFIX)/lib/libcryptopp.dylib
 	-$(CHMOD) 755 $(DESTDIR)$(PREFIX)/lib/libcryptopp.dylib
 endif
-ifneq ($(wildcard libcryptopp.so),)
+ifneq ($(wildcard libcryptopp.so$(SOLIB_VERSION_SUFFIX)),)
 	$(MKDIR) -p $(DESTDIR)$(PREFIX)/lib
-	-$(CP) libcryptopp.so $(DESTDIR)$(PREFIX)/lib
-	-$(CHMOD) 755 $(DESTDIR)$(PREFIX)/lib/libcryptopp.so
+	-$(CP) libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(DESTDIR)$(PREFIX)/lib
+	-$(CHMOD) 755 $(DESTDIR)$(PREFIX)/lib/libcryptopp.so$(SOLIB_VERSION_SUFFIX)
+ifeq ($(HAS_SOLIB_VERSION),1)
+	-$(LN) -sf libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(DESTDIR)$(PREFIX)/lib/libcryptopp.so
+	$(LDCONF) $(DESTDIR)$(PREFIX)/lib
+endif
 endif
 
 .PHONY: remove uninstall
@@ -395,15 +414,24 @@ remove uninstall:
 ifneq ($(IS_DARWIN),0)
 	-$(RM) $(DESTDIR)$(PREFIX)/lib/libcryptopp.dylib
 else
+	-$(RM) $(DESTDIR)$(PREFIX)/lib/libcryptopp.so$(SOLIB_VERSION_SUFFIX)
+ifeq ($(HAS_SOLIB_VERSION),1)
+	-$(RM) $(DESTDIR)$(PREFIX)/lib/libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
 	-$(RM) $(DESTDIR)$(PREFIX)/lib/libcryptopp.so
+	$(LDCONF) $(PREFIX)/lib
+endif
 endif
 
 libcryptopp.a: public_service | $(LIBOBJS)
 	$(AR) $(ARFLAGS) $@ $(LIBOBJS)
 	$(RANLIB) $@
 
-libcryptopp.so: public_service | $(LIBOBJS)
-	$(CXX) -shared -o $@ $(CXXFLAGS) $(GOLD_OPTION) $(LIBOBJS) $(LDLIBS)
+libcryptopp.so$(SOLIB_VERSION_SUFFIX): public_service | $(LIBOBJS)
+	$(CXX) -shared $(SOLIB_FLAGS) -o $@ $(CXXFLAGS) $(GOLD_OPTION) $(LIBOBJS) $(LDLIBS)
+ifeq ($(HAS_SOLIB_VERSION),1)
+	-$(LN) libcryptopp.so$(SOLIB_VERSION_SUFFIX) libcryptopp.so
+	-$(LN) libcryptopp.so$(SOLIB_VERSION_SUFFIX) libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
+endif
 
 libcryptopp.dylib: $(LIBOBJS)
 	$(CXX) -dynamiclib -o $@ $(CXXFLAGS) -install_name "$@" -current_version "$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)" -compatibility_version "$(LIB_MAJOR).$(LIB_MINOR)" $(LIBOBJS)
@@ -536,5 +564,11 @@ ifneq ($(UNALIGNED_ACCESS)$(NO_INIT_PRIORITY)$(COMPATIBILITY_562),000)
 	$(info WARNING: You should make these changes in config.h, and not CXXFLAGS.)
 	$(info WARNING: You can 'mv config.recommend config.h', but it breaks versioning.)
 	$(info WARNING: See http://cryptopp.com/wiki/config.h for more details.)
+	$(info )
+endif
+ifeq ($(HAS_SOLIB_VERSION),1)
+	$(info WARNING: Only the symlinks to the shared-object library have been updated.)
+	$(info WARNING: If the library is installed in a system directory you will need)
+	$(info WARNING: to run 'ldconfig' to update the shared-object library cache.)
 	$(info )
 endif
