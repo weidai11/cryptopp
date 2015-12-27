@@ -10,6 +10,8 @@ CP = cp
 MKDIR = mkdir
 EGREP = egrep
 CHMOD = chmod
+LN ?= ln -sf
+LDCONF ?= /sbin/ldconfig -n
 
 CLANG_COMPILER = $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "clang")
 
@@ -86,6 +88,14 @@ ifeq ($(strip $(LIB_PATCH)),)
 LIB_PATCH := 0
 endif
 
+ifeq ($(HAS_SOLIB_VERSION),1)
+# Full version suffix for shared library
+SOLIB_VERSION_SUFFIX=.$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)
+# Different patchlevels are compatible, minor versions are not
+SOLIB_COMPAT_SUFFIX=.$(LIB_MAJOR).$(LIB_MINOR)
+SOLIB_FLAGS=-Wl,-soname,libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
+endif # HAS_SOLIB_VERSION
+
 all: cryptest.exe
 
 ifneq ($(IS_IOS),0)
@@ -93,7 +103,7 @@ static: libcryptopp.a
 shared dynamic dylib: libcryptopp.dylib
 else
 static: libcryptopp.a
-shared dynamic: libcryptopp.so
+shared dynamic: libcryptopp.so$(SOLIB_VERSION_SUFFIX)
 endif
 
 test: cryptest.exe
@@ -101,7 +111,10 @@ test: cryptest.exe
 
 .PHONY: clean
 clean:
-	-$(RM) cryptest.exe libcryptopp.a libcryptopp.so libcryptopp.dylib
+	-$(RM) cryptest.exe libcryptopp.a libcryptopp.so$(SOLIB_VERSION_SUFFIX) libcryptopp.dylib
+ifeq ($(HAS_SOLIB_VERSION),1)
+	-$(RM) libcryptopp.so libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
+endif
 	-$(RM) adhoc.cpp.o adhoc.cpp.proto.o $(LIBOBJS) $(TESTOBJS)
 ifneq ($(wildcard *.dSYM),)
 	-$(RM) -r cryptest.exe.dSYM
@@ -129,7 +142,11 @@ ifneq ($(IS_IOS),0)
 	-$(CHMOD) 755 $(PREFIX)/lib/libcryptopp.dylib
 else
 	-$(CP) libcryptopp.so $(PREFIX)/lib
-	-$(CHMOD) 755 $(PREFIX)/lib/libcryptopp.so
+	-$(CHMOD) 755 $(PREFIX)/lib/libcryptopp.so$(SOLIB_VERSION_SUFFIX)
+ifeq ($(HAS_SOLIB_VERSION),1)
+	-$(LN) -sf libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(PREFIX)/lib/libcryptopp.so
+	$(LDCONF) $(PREFIX)/lib
+endif
 endif
 
 .PHONY: remove uninstall
@@ -140,15 +157,27 @@ remove uninstall:
 ifneq ($(IS_IOS),0)
 	-$(RM) $(PREFIX)/lib/libcryptopp.dylib
 else
+	-$(RM) $(PREFIX)/lib/libcryptopp.so$(SOLIB_VERSION_SUFFIX)
+ifeq ($(HAS_SOLIB_VERSION),1)
+	-$(RM) $(PREFIX)/lib/libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
 	-$(RM) $(PREFIX)/lib/libcryptopp.so
+	$(LDCONF) $(PREFIX)/lib
+endif
 endif
 
 libcryptopp.a: $(LIBOBJS)
 	$(AR) $(ARFLAGS) $@ $(LIBOBJS)
 	$(RANLIB) $@
 
+.PHONY: libcryptopp.so
+libcryptopp.so: libcryptopp$(SOLIB_VERSION_SUFFIX)
+
 libcryptopp.so: $(LIBOBJS)
-	$(CXX) -shared -o $@ $(CXXFLAGS) -Wl,--exclude-libs,ALL $(LIBOBJS) $(LDLIBS)
+	$(CXX) -shared $(SOLIB_FLAGS) -o $@ $(CXXFLAGS) -Wl,--exclude-libs,ALL $(LIBOBJS) $(LDLIBS)
+ifeq ($(HAS_SOLIB_VERSION),1)
+	-$(LN) libcryptopp.so$(SOLIB_VERSION_SUFFIX) libcryptopp.so
+	-$(LN) libcryptopp.so$(SOLIB_VERSION_SUFFIX) libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
+endif
 
 libcryptopp.dylib: $(LIBOBJS)
 	$(CXX) -dynamiclib -o $@ $(CXXFLAGS) -install_name "$@" -current_version "$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)" -compatibility_version "$(LIB_MAJOR).$(LIB_MINOR)" $(LIBOBJS)
