@@ -57,6 +57,7 @@ ifeq ($(IS_ANDROID),1)
   endif
 
   LDLIBS += $(AOSP_STL_LIB)
+  HAS_SOLIB_VERSION := 1
 endif
 
 # ARM embedded cross-compile configuration.
@@ -65,6 +66,7 @@ endif
 ifeq ($(IS_ARM_EMBEDDED),1)
   # CPP, CXX, AR, RANLIB, LD, etc are set in 'setenv-embedded.sh'
   CXXFLAGS += $(ARM_EMBEDDED_FLAGS) --sysroot=$(ARM_EMBEDDED_SYSROOT)
+  HAS_SOLIB_VERSION := 1
 endif
 
 # List cryptlib.cpp first and cpu.cpp second in an attempt to tame C++ static initialization problems.
@@ -126,42 +128,49 @@ distclean: clean
 
 .PHONY: install
 install:
-	$(MKDIR) -p $(PREFIX)/include/cryptopp $(PREFIX)/lib
-	-$(CP) *.h $(PREFIX)/include/cryptopp
-	-$(CHMOD) 755 $(PREFIX)/include/cryptopp
-	-$(CHMOD) 644 $(PREFIX)/include/cryptopp/*.h
-	-$(CP) libcryptopp.a $(PREFIX)/lib
-	-$(CHMOD) 644 $(PREFIX)/lib/libcryptopp.a
-ifeq ($(wildcard cryptest.exe),cryptest.exe)
-	$(MKDIR) -p $(PREFIX)/bin
-	-$(CP) cryptest.exe $(PREFIX)/bin
-	-$(CHMOD) 755 $(PREFIX)/bin/cryptest.exe
+	$(MKDIR) -p $(DESTDIR)$(PREFIX)/include/cryptopp
+	-$(CP) *.h $(DESTDIR)$(PREFIX)/include/cryptopp
+	-$(CHMOD) 755 $(DESTDIR)$(PREFIX)/include/cryptopp
+	-$(CHMOD) 644 $(DESTDIR)$(PREFIX)/include/cryptopp/*.h
+	-$(CP) libcryptopp.a $(DESTDIR)$(PREFIX)/lib
+	-$(CHMOD) 644 $(DESTDIR)$(PREFIX)/lib/libcryptopp.a
+ifneq ($(wildcard cryptest.exe),)
+	$(MKDIR) -p $(DESTDIR)$(PREFIX)/bin
+	-$(CP) cryptest.exe $(DESTDIR)$(PREFIX)/bin
+	-$(CHMOD) 755 $(DESTDIR)$(PREFIX)/bin/cryptest.exe
 endif
-ifneq ($(IS_IOS),0)
-	-$(CP) libcryptopp.dylib $(PREFIX)/lib
-	-$(CHMOD) 755 $(PREFIX)/lib/libcryptopp.dylib
-else
-	-$(CP) libcryptopp.so $(PREFIX)/lib
-	-$(CHMOD) 755 $(PREFIX)/lib/libcryptopp.so$(SOLIB_VERSION_SUFFIX)
+ifneq ($(wildcard libcryptopp.a),)
+	$(MKDIR) -p $(DESTDIR)$(PREFIX)/lib
+	-$(CP) libcryptopp.a $(DESTDIR)$(PREFIX)/lib
+	-$(CHMOD) 644 $(DESTDIR)$(PREFIX)/lib/libcryptopp.a
+endif
+ifneq ($(wildcard libcryptopp.dylib),)
+	$(MKDIR) -p $(DESTDIR)$(PREFIX)/lib
+	-$(CP) libcryptopp.dylib $(DESTDIR)$(PREFIX)/lib
+	-$(CHMOD) 755 $(DESTDIR)$(PREFIX)/lib/libcryptopp.dylib
+endif
+ifneq ($(wildcard libcryptopp.so$(SOLIB_VERSION_SUFFIX)),)
+	-$(CP) libcryptopp.so $(DESTDIR)$(PREFIX)/lib
+	-$(CHMOD) 755 $(DESTDIR)$(PREFIX)/lib/libcryptopp.so$(SOLIB_VERSION_SUFFIX)
 ifeq ($(HAS_SOLIB_VERSION),1)
-	-$(LN) -sf libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(PREFIX)/lib/libcryptopp.so
-	$(LDCONF) $(PREFIX)/lib
+	-$(LN) -sf libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(DESTDIR)$(PREFIX)/lib/libcryptopp.so
+	$(LDCONF) $(DESTDIR)$(PREFIX)/lib
 endif
 endif
 
 .PHONY: remove uninstall
 remove uninstall:
-	-$(RM) -r $(PREFIX)/include/cryptopp
-	-$(RM) $(PREFIX)/lib/libcryptopp.a
-	-$(RM) $(PREFIX)/bin/cryptest.exe
+	-$(RM) -r $(DESTDIR)$(PREFIX)/include/cryptopp
+	-$(RM) $(DESTDIR)$(PREFIX)/lib/libcryptopp.a
+	-$(RM) $(DESTDIR)$(PREFIX)/bin/cryptest.exe
 ifneq ($(IS_IOS),0)
-	-$(RM) $(PREFIX)/lib/libcryptopp.dylib
+	-$(RM) $(DESTDIR)$(PREFIX)/lib/libcryptopp.dylib
 else
-	-$(RM) $(PREFIX)/lib/libcryptopp.so$(SOLIB_VERSION_SUFFIX)
+	-$(RM) $(DESTDIR)$(PREFIX)/lib/libcryptopp.so$(SOLIB_VERSION_SUFFIX)
 ifeq ($(HAS_SOLIB_VERSION),1)
-	-$(RM) $(PREFIX)/lib/libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
-	-$(RM) $(PREFIX)/lib/libcryptopp.so
-	$(LDCONF) $(PREFIX)/lib
+	-$(RM) $(DESTDIR)$(PREFIX)/lib/libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
+	-$(RM) $(DESTDIR)$(PREFIX)/lib/libcryptopp.so
+	$(LDCONF) $(DESTDIR)$(PREFIX)/lib
 endif
 endif
 
@@ -170,9 +179,9 @@ libcryptopp.a: $(LIBOBJS)
 	$(RANLIB) $@
 
 .PHONY: libcryptopp.so
-libcryptopp.so: libcryptopp$(SOLIB_VERSION_SUFFIX)
+libcryptopp.so: libcryptopp.so$(SOLIB_VERSION_SUFFIX)
 
-libcryptopp.so: $(LIBOBJS)
+libcryptopp.so$(SOLIB_VERSION_SUFFIX): $(LIBOBJS)
 	$(CXX) -shared $(SOLIB_FLAGS) -o $@ $(CXXFLAGS) -Wl,--exclude-libs,ALL $(LIBOBJS) $(LDLIBS)
 ifeq ($(HAS_SOLIB_VERSION),1)
 	-$(LN) libcryptopp.so$(SOLIB_VERSION_SUFFIX) libcryptopp.so
