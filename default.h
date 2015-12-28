@@ -48,7 +48,7 @@ private:
 	SecByteBlock m_passphrase;
 	CBC_Mode<DefaultBlockCipher>::Encryption m_cipher;
 
-#if (CRYPTOPP_GCC_VERSION >= 40300) || (CRYPTOPP_CLANG_VERSION >= 20800)
+#if (CRYPTOPP_GCC_VERSION >= 40500) || (CRYPTOPP_CLANG_VERSION >= 20800)
 } __attribute__((deprecated ("DefaultEncryptor will be changing in the near future because the algorithms are no longer secure")));
 #elif (CRYPTOPP_GCC_VERSION)
 } __attribute__((deprecated));
@@ -101,7 +101,7 @@ private:
 	member_ptr<FilterWithBufferedInput> m_decryptor;
 	bool m_throwException;
 
-#if (CRYPTOPP_GCC_VERSION >= 40300) || (CRYPTOPP_CLANG_VERSION >= 20800)
+#if (CRYPTOPP_GCC_VERSION >= 40500) || (CRYPTOPP_CLANG_VERSION >= 20800)
 } __attribute__((deprecated ("DefaultDecryptor will be changing in the near future because the algorithms are no longer secure")));
 #elif (CRYPTOPP_GCC_VERSION)
 } __attribute__((deprecated));
@@ -139,7 +139,7 @@ protected:
 private:
 	member_ptr<DefaultMAC> m_mac;
 
-#if (CRYPTOPP_GCC_VERSION >= 40300) || (CRYPTOPP_CLANG_VERSION >= 20800)
+#if (CRYPTOPP_GCC_VERSION >= 40500) || (CRYPTOPP_CLANG_VERSION >= 20800)
 } __attribute__((deprecated ("DefaultEncryptorWithMAC will be changing in the near future because the algorithms are no longer secure")));
 #elif (CRYPTOPP_GCC_VERSION)
 } __attribute__((deprecated));
@@ -188,7 +188,7 @@ private:
 	HashVerifier *m_hashVerifier;
 	bool m_throwException;
 
-#if (CRYPTOPP_GCC_VERSION >= 40300) || (CRYPTOPP_CLANG_VERSION >= 20800)
+#if (CRYPTOPP_GCC_VERSION >= 40500) || (CRYPTOPP_CLANG_VERSION >= 20800)
 } __attribute__((deprecated ("DefaultDecryptorWithMAC will be changing in the near future because the algorithms are no longer secure")));
 #elif (CRYPTOPP_GCC_VERSION)
 } __attribute__((deprecated));
