@@ -303,38 +303,39 @@ bool TestSettings()
 #if !defined(NDEBUG) && !defined(CRYPTOPP_IMPORTS)
 bool TestSecBlock()
 {
-	// SecBlock Assign, append and concatenate are not exercised in the library.
 	cout << "\nTesting SecBlock...\n\n";
-	bool r1 = true, r2 = true, r3 = true;
-	bool r4 = true, r5 = true, r6 = true;
 
-	//********************** Assign
+	bool result = true, temp = true;
+
+	//********** Assign **********//
 
 	try
 	{
+		temp = true;
 		SecByteBlock a, b;
 		a.Assign((const byte*)"a", 1);
 		b.Assign((const byte*)"b", 1);
 
-		r1 &= (a.SizeInBytes() == 1);
-		r1 &= (b.SizeInBytes() == 1);
-		r1 &= (a[0] == 'a');
-		r1 &= (b[0] == 'b');
+		temp &= (a.SizeInBytes() == 1);
+		temp &= (b.SizeInBytes() == 1);
+		temp &= (a[0] == 'a');
+		temp &= (b[0] == 'b');
 
 		a.Assign((const byte*)"ab", 2);
 		b.Assign((const byte*)"cd", 2);
 
-		r1 &= (a.SizeInBytes() == 2);
-		r1 &= (b.SizeInBytes() == 2);
-		r1 &= (a[0] == 'a' && a[1] == 'b');
-		r1 &= (b[0] == 'c' && b[1] == 'd');
+		temp &= (a.SizeInBytes() == 2);
+		temp &= (b.SizeInBytes() == 2);
+		temp &= (a[0] == 'a' && a[1] == 'b');
+		temp &= (b[0] == 'c' && b[1] == 'd');
 	}
 	catch(const Exception& ex)
 	{
-		r1 = false;
+		temp = false;
 	}
 
-	if (!r1)
+	result &= temp;
+	if (!temp)
 		cout << "FAILED:";
 	else
 		cout << "passed:";
@@ -342,75 +343,79 @@ bool TestSecBlock()
 
 	try
 	{
+		temp = true;
 		SecBlock<word32> a, b;
 		word32 one[1] = {1}, two[1] = {2};
 
 		a.Assign(one, 1);
 		b.Assign(two, 1);
 
-		r2 &= (a.SizeInBytes() == 4);
-		r2 &= (b.SizeInBytes() == 4);
-		r2 &= (a[0] == 1);
-		r2 &= (b[0] == 2);
+		temp &= (a.SizeInBytes() == 4);
+		temp &= (b.SizeInBytes() == 4);
+		temp &= (a[0] == 1);
+		temp &= (b[0] == 2);
 
 		word32 three[2] = {1,2}, four[2] = {3,4};
 
 		a.Assign(three, 2);
 		b.Assign(four, 2);
 
-		r2 &= (a.SizeInBytes() == 8);
-		r2 &= (b.SizeInBytes() == 8);
-		r2 &= (a[0] == 1 && a[1] == 2);
-		r2 &= (b[0] == 3 && b[1] == 4);
+		temp &= (a.SizeInBytes() == 8);
+		temp &= (b.SizeInBytes() == 8);
+		temp &= (a[0] == 1 && a[1] == 2);
+		temp &= (b[0] == 3 && b[1] == 4);
 	}
 	catch(const Exception& ex)
 	{
-		r2 = false;
+		temp = false;
 	}
 
-	if (!r2)
+	result &= temp;
+	if (!temp)
 		cout << "FAILED:";
 	else
 		cout << "passed:";
 	cout << "  Assign word32" << endl;
 
-	//********************** Append
+	//********** Append **********//
 
 	try
 	{
+		temp = true;
 		SecByteBlock a, b;
 		a.Assign((const byte*)"a", 1);
 		b.Assign((const byte*)"b", 1);
 
 		a += b;
-		r3 &= (a.SizeInBytes() == 2);
-		r3 &= (a[0] == 'a' && a[1] == 'b');
+		temp &= (a.SizeInBytes() == 2);
+		temp &= (a[0] == 'a' && a[1] == 'b');
 
 		a.Assign((const byte*)"ab", 2);
 		b.Assign((const byte*)"cd", 2);
 
 		a += b;
-		r3 &= (a.SizeInBytes() == 4);
-		r3 &= (a[0] == 'a' && a[1] == 'b' && a[2] == 'c' && a[3] == 'd');
+		temp &= (a.SizeInBytes() == 4);
+		temp &= (a[0] == 'a' && a[1] == 'b' && a[2] == 'c' && a[3] == 'd');
 
 		a.Assign((const byte*)"a", 1);
 
 		a += a;
-		r3 &= (a.SizeInBytes() == 2);
-		r3 &= (a[0] == 'a' && a[1] == 'a');
+		temp &= (a.SizeInBytes() == 2);
+		temp &= (a[0] == 'a' && a[1] == 'a');
 
 		a.Assign((const byte*)"ab", 2);
 
 		a += a;
-		r3 &= (a.SizeInBytes() == 4);
-		r3 &= (a[0] == 'a' && a[1] == 'b' && a[2] == 'a' && a[3] == 'b');
+		temp &= (a.SizeInBytes() == 4);
+		temp &= (a[0] == 'a' && a[1] == 'b' && a[2] == 'a' && a[3] == 'b');
 	}
 	catch(const Exception& ex)
 	{
-		r3 = false;
+		temp = false;
 	}
 
-	if (!r3)
+	result &= temp;
+	if (!temp)
 		cout << "FAILED:";
 	else
 		cout << "passed:";
@@ -418,6 +423,7 @@ bool TestSecBlock()
 
 	try
 	{
+		temp = true;
 		SecBlock<word32> a, b;
 		word32 one[1] = {1}, two[1] = {2};
 
@@ -425,8 +431,8 @@ bool TestSecBlock()
 		b.Assign(two, 1);
 
 		a += b;
-		r4 &= (a.SizeInBytes() == 8);
-		r4 &= (a[0] == 1 && a[1] == 2);
+		temp &= (a.SizeInBytes() == 8);
+		temp &= (a[0] == 1 && a[1] == 2);
 
 		word32 three[2] = {1,2}, four[2] = {3,4};
 
@@ -434,62 +440,65 @@ bool TestSecBlock()
 		b.Assign(four, 2);
 
 		a += b;
-		r4 &= (a.SizeInBytes() == 16);
-		r4 &= (a[0] == 1 && a[1] == 2 && a[2] == 3 && a[3] == 4);
+		temp &= (a.SizeInBytes() == 16);
+		temp &= (a[0] == 1 && a[1] == 2 && a[2] == 3 && a[3] == 4);
 
 		a.Assign(one, 1);
 
 		a += a;
-		r4 &= (a.SizeInBytes() == 8);
-		r4 &= (a[0] == 1 && a[1] == 1);
+		temp &= (a.SizeInBytes() == 8);
+		temp &= (a[0] == 1 && a[1] == 1);
 
 		a.Assign(three, 2);
 
 		a += a;
-		r4 &= (a.SizeInBytes() == 16);
-		r4 &= (a[0] == 1 && a[1] == 2 && a[2] == 1 && a[3] == 2);
+		temp &= (a.SizeInBytes() == 16);
+		temp &= (a[0] == 1 && a[1] == 2 && a[2] == 1 && a[3] == 2);
 
 	}
 	catch(const Exception& ex)
 	{
-		r2 = false;
+		temp = false;
 	}
 
-	if (!r4)
+	result &= temp;
+	if (!temp)
 		cout << "FAILED:";
 	else
 		cout << "passed:";
 	cout << "  Append word32" << endl;
 
-	//********************** Concatenate
+	//********** Append **********//
 
 	try
 	{
+		temp = true;
 		SecByteBlock a, b, c;
 		a.Assign((const byte*)"a", 1);
 		b.Assign((const byte*)"b", 1);
 
 		c = a + b;
-		r5 &= (a[0] == 'a');
-		r5 &= (b[0] == 'b');
-		r5 &= (c.SizeInBytes() == 2);
-		r5 &= (c[0] == 'a' && c[1] == 'b');
+		temp &= (a[0] == 'a');
+		temp &= (b[0] == 'b');
+		temp &= (c.SizeInBytes() == 2);
+		temp &= (c[0] == 'a' && c[1] == 'b');
 
 		a.Assign((const byte*)"ab", 2);
 		b.Assign((const byte*)"cd", 2);
 
 		c = a + b;
-		r5 &= (a[0] == 'a' && a[1] == 'b');
-		r5 &= (b[0] == 'c' && b[1] == 'd');
-		r5 &= (c.SizeInBytes() == 4);
-		r5 &= (c[0] == 'a' && c[1] == 'b' && c[2] == 'c' && c[3] == 'd');
+		temp &= (a[0] == 'a' && a[1] == 'b');
+		temp &= (b[0] == 'c' && b[1] == 'd');
+		temp &= (c.SizeInBytes() == 4);
+		temp &= (c[0] == 'a' && c[1] == 'b' && c[2] == 'c' && c[3] == 'd');
 	}
 	catch(const Exception& ex)
 	{
-		r5 = false;
+		temp = false;
 	}
 
-	if (!r5)
+	result &= temp;
+	if (!temp)
 		cout << "FAILED:";
 	else
 		cout << "passed:";
@@ -497,6 +506,7 @@ bool TestSecBlock()
 
 	try
 	{
+		temp = true;
 		SecBlock<word32> a, b, c;
 		word32 one[1] = {1}, two[1] = {2};
 
@@ -504,10 +514,10 @@ bool TestSecBlock()
 		b.Assign(two, 1);
 
 		c = a + b;
-		r6 &= (a[0] == 1);
-		r6 &= (b[0] == 2);
-		r6 &= (c.SizeInBytes() == 8);
-		r6 &= (c[0] == 1 && c[1] == 2);
+		temp &= (a[0] == 1);
+		temp &= (b[0] == 2);
+		temp &= (c.SizeInBytes() == 8);
+		temp &= (c[0] == 1 && c[1] == 2);
 
 		word32 three[2] = {1,2}, four[2] = {3,4};
 
@@ -515,24 +525,150 @@ bool TestSecBlock()
 		b.Assign(four, 2);
 
 		c = a + b;
-		r6 &= (a[0] == 1 && a[1] == 2);
-		r6 &= (b[0] == 3 && b[1] == 4);
-		r6 &= (c.SizeInBytes() == 16);
-		r6 &= (c[0] == 1 && c[1] == 2 && c[2] == 3 && c[3] == 4);
+		temp &= (a[0] == 1 && a[1] == 2);
+		temp &= (b[0] == 3 && b[1] == 4);
+		temp &= (c.SizeInBytes() == 16);
+		temp &= (c[0] == 1 && c[1] == 2 && c[2] == 3 && c[3] == 4);
 	}
 	catch(const Exception& ex)
 	{
-		r6 = false;
+		temp = false;
 	}
 
-	if (!r6)
+	result &= temp;
+	if (!temp)
 		cout << "FAILED:";
 	else
 		cout << "passed:";
 	cout << "  Concatenate word32" << endl;
 
+	//********** Equality **********//
 
-	return r1 && r2 && r3 && r4 && r5 && r6;
+	try
+	{
+		static const byte str1[] = "abcdefghijklmnopqrstuvwxyz";
+		static const byte str2[] = "zyxwvutsrqponmlkjihgfedcba";
+		static const byte str3[] = "0123456789";
+
+		temp = true;
+		SecByteBlock a,b;
+
+		a.Assign(str1, COUNTOF(str1));
+		b.Assign(str1, COUNTOF(str1));
+		temp &= (a == b);
+
+		a.Assign(str3, COUNTOF(str3));
+		b.Assign(str3, COUNTOF(str3));
+		temp &= (a == b);
+
+		a.Assign(str1, COUNTOF(str1));
+		b.Assign(str2, COUNTOF(str2));
+		temp &= (a.operator!=(b));
+
+		a.Assign(str1, COUNTOF(str1));
+		b.Assign(str3, COUNTOF(str3));
+		temp &= (a != b);
+	}
+	catch(const Exception& ex)
+	{
+		temp = false;
+	}
+
+	result &= temp;
+	if (!temp)
+		cout << "FAILED:";
+	else
+		cout << "passed:";
+	cout << "  Equality byte" << endl;
+
+	try
+	{
+		static const word32 str1[] = {2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97};
+		static const word32 str2[] = {97,89,83,79,73,71,67,61,59,53,47,43,41,37,31,29,23,19,17,13,11,7,5,3,2};
+		static const word32 str3[] = {0,1,2,3,4,5,6,7,8,9};
+
+		temp = true;
+		SecBlock<word32> a,b;
+
+		a.Assign(str1, COUNTOF(str1));
+		b.Assign(str1, COUNTOF(str1));
+		temp &= (a == b);
+
+		a.Assign(str3, COUNTOF(str3));
+		b.Assign(str3, COUNTOF(str3));
+		temp &= (a == b);
+
+		a.Assign(str1, COUNTOF(str1));
+		b.Assign(str2, COUNTOF(str2));
+		temp &= (a.operator!=(b));
+
+		a.Assign(str1, COUNTOF(str1));
+		b.Assign(str3, COUNTOF(str3));
+		temp &= (a != b);
+	}
+	catch(const Exception& ex)
+	{
+		temp = false;
+	}
+
+	result &= temp;
+	if (!temp)
+		cout << "FAILED:";
+	else
+		cout << "passed:";
+	cout << "  Equality word32" << endl;
+
+	//********** Size/Overflow **********//
+
+	try
+	{
+		temp = false;
+		AllocatorBase<word32> A;
+		const size_t max = A.max_size();
+		SecBlock<word32> t(max+1);
+		
+	}
+	catch(const Exception& ex)
+	{
+		temp = true;
+	}
+	catch(const std::exception& ex)
+	{
+		temp = true;
+	}
+
+	result &= temp;
+	if (!temp)
+		cout << "FAILED:";
+	else
+		cout << "passed:";
+	cout << "  Overflow word32" << endl;
+
+	try
+	{
+		temp = false;
+		AllocatorBase<word64> A;
+		const size_t max = A.max_size();
+		SecBlock<word64> t(max+1);
+		
+	}
+	catch(const Exception& ex)
+	{
+		temp = true;
+	}
+	catch(const std::exception& ex)
+	{
+		temp = true;
+	}
+
+	result &= temp;
+	if (!temp)
+		cout << "FAILED:";
+	else
+		cout << "passed:";
+	cout << "  Overflow word64" << endl;
+
+	return result;
 }
 #endif
 

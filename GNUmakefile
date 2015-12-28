@@ -231,7 +231,14 @@ endif # Gold
 ifneq ($(filter align aligned,$(MAKECMDGOALS)),)
 ifeq ($(findstring -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS,$(CXXFLAGS)),)
 CXXFLAGS += -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS
-endif # # CXXFLAGS
+endif # CXXFLAGS
+endif # Aligned access
+
+# GCC code coverage
+ifneq ($(filter coverage,$(MAKECMDGOALS)),)
+ifeq ($(findstring -coverage,$(CXXFLAGS)),)
+CXXFLAGS += -coverage
+endif # -ftest-coverage
 endif # Aligned access
 
 # Debug testing on GNU systems
@@ -313,6 +320,16 @@ deps GNUmakefile.deps:
 .PHONY: asan ubsan align aligned
 asan ubsan align aligned: libcryptopp.a cryptest.exe
 
+# export CXXFLAGS="-g3 -O1"
+.PHONY: coverage
+coverage: libcryptopp.a cryptest.exe
+	lcov --base-directory . --directory . --zerocounters -q
+	./cryptest.exe v
+	lcov --base-directory . --directory . -c -o cryptest.info
+	lcov --remove cryptest.info "/usr/*" -o cryptest.info
+	rm -rf ./TestCoverage/
+	genhtml -o ./TestCoverage/ -t "cryptest.exe test coverage" --num-spaces 4 cryptest.info
+
 .PHONY: test check
 test check: cryptest.exe
 	./cryptest.exe v
@@ -350,13 +367,17 @@ clean:
 ifeq ($(HAS_SOLIB_VERSION),1)
 	-$(RM) libcryptopp.so libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
 endif
-	-$(RM) adhoc.cpp.o adhoc.cpp.proto.o $(LIBOBJS) $(TESTOBJS) $(DLLOBJS) $(LIBIMPORTOBJS) $(TESTIMPORTOBJS) $(DLLTESTOBJS) *.stackdump core-*
+	-$(RM) adhoc.cpp.o adhoc.cpp.proto.o $(LIBOBJS) $(TESTOBJS) $(DLLOBJS) $(LIBIMPORTOBJS) $(TESTIMPORTOBJS) $(DLLTESTOBJS)
 	-$(RM) cryptest.exe dlltest.exe cryptest.import.exe ct rdrand-???.o
+	-$(RM) *.gcno *.gcda *.stackdump core-*
 ifneq ($(wildcard *.exe.dSYM),)
 	-$(RM) -r *.exe.dSYM/
 endif
 ifneq ($(wildcard $(DOCUMENT_DIRECTORY)/),)
 	-$(RM) -r $(DOCUMENT_DIRECTORY)/
+endif
+ifneq ($(wildcard TestCoverage/),)
+	-$(RM) -r TestCoverage/
 endif
 ifneq ($(wildcard cov-int/),)
 	-$(RM) -r cov-int/
@@ -366,7 +387,7 @@ endif
 distclean: clean
 	-$(RM) adhoc.cpp adhoc.cpp.copied GNUmakefile.deps benchmarks.html cryptest.txt cryptest-*.txt
 	-$(RM) CMakeCache.txt Makefile CTestTestfile.cmake cmake_install.cmake cryptopp-config-version.cmake
-	-$(RM)  *.o *.ii *.s *~
+	-$(RM) *.o *.ii *.s *~
 ifneq ($(wildcard CMakeFiles/),)
 	-$(RM) -r CMakeFiles/
 endif
@@ -448,7 +469,8 @@ libcryptopp.dylib: $(LIBOBJS)
 cryptest.exe: public_service | libcryptopp.a $(TESTOBJS)
 	$(CXX) -o $@ $(CXXFLAGS) $(TESTOBJS) ./libcryptopp.a $(LDFLAGS) $(GOLD_OPTION) $(LDLIBS)
 
-nolib: $(OBJS)		# makes it faster to test changes
+# Makes it faster to test changes
+nolib: $(OBJS)
 	$(CXX) -o ct $(CXXFLAGS) $(OBJS) $(LDFLAGS) $(LDLIBS)
 
 dll: cryptest.import.exe dlltest.exe
@@ -513,7 +535,7 @@ bench benchmark benchmarks: cryptest.exe
 	echo "<TITLE>Speed Comparison of Popular Crypto Algorithms</TITLE>" >> benchmarks.html
 	echo "</HEAD>" >> benchmarks.html
 	echo "<BODY>" >> benchmarks.html
-	echo "<H1><a href=\"http://www.cryptopp.com\">Crypto++</a>" $(LIB_MAJOR).$(LIB_MINOR).$(LIB_REVISION) "Benchmarks</H1>" >> benchmarks.html
+	echo "<H1><a href=\"http://www.cryptopp.com\">Crypto++</a>" $(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH) "Benchmarks</H1>" >> benchmarks.html
 	echo "<P>Here are speed benchmarks for some commonly used cryptographic algorithms.</P>"  >> benchmarks.html
 	./cryptest.exe b 3 2.4 >> benchmarks.html
 	echo "</BODY>" >> benchmarks.html

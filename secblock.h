@@ -253,6 +253,7 @@ template <class T>
 class NullAllocator : public AllocatorBase<T>
 {
 public:
+	//LCOV_EXCL_START
 	CRYPTOPP_INHERIT_ALLOCATOR_TYPES
 
 	// TODO: should this return NULL or throw bad_alloc? Non-Windows C++ standard
@@ -271,6 +272,7 @@ public:
 	}
 
 	size_type max_size() const {return 0;}
+	//LCOV_EXCL_STOP
 };
 
 //! \class FixedSizeAllocatorWithCleanup
@@ -611,7 +613,8 @@ public:
 	//! \sa operator!=()
 	bool operator==(const SecBlock<T, A> &t) const
 	{
-		return m_size == t.m_size && VerifyBufsEqual(m_ptr, t.m_ptr, m_size*sizeof(T));
+		return m_size == t.m_size &&
+			VerifyBufsEqual(reinterpret_cast<const byte*>(m_ptr), reinterpret_cast<const byte*>(t.m_ptr), m_size*sizeof(T));
 	}
 
 	//! \brief Bitwise compare two SecBlocks
