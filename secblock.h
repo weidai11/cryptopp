@@ -566,15 +566,23 @@ public:
 	//! \details Internally, this SecBlock calls Grow and then appends t.
 	SecBlock<T, A>& operator+=(const SecBlock<T, A> &t)
 	{
-		assert((!t.m_ptr && !t.m_size) || (t.m_ptr && t.m_ptr.m_size));
+		assert((!t.m_ptr && !t.m_size) || (t.m_ptr && t.m_size));
 
-		if(t.size)
+		if(t.m_size)
 		{
-			size_type oldSize = m_size;
-			Grow(m_size+t.m_size);
-		
-			if (m_ptr && t.m_ptr)
-				{memcpy_s(m_ptr+oldSize, (m_size-oldSize)*sizeof(T), t.m_ptr, t.m_size*sizeof(T));}
+			if(this != &t)  // s += t
+			{
+				const size_type oldSize = m_size;
+				Grow(m_size+t.m_size);
+				memcpy_s(m_ptr+oldSize, (m_size-oldSize)*sizeof(T), t.m_ptr, t.m_size*sizeof(T));
+			}
+			else            // t += t
+			{
+				SecBlock result(m_size+t.m_size);
+				if(m_size) {memcpy_s(result.m_ptr, result.m_size, m_ptr, m_size);}
+				memcpy_s(result.m_ptr+m_size, (result.m_size-m_size), t.m_ptr, t.m_size);
+				swap(result);
+			}
 		}
 		return *this;
 	}
@@ -586,12 +594,12 @@ public:
 	SecBlock<T, A> operator+(const SecBlock<T, A> &t)
 	{
 		assert((!m_ptr && !m_size) || (m_ptr && m_size));
-		assert((!t.m_ptr && !t.m_size) || (t.m_ptr && t.m_ptr.m_size));
+		assert((!t.m_ptr && !t.m_size) || (t.m_ptr && t.m_size));
 		if(!t.size) return SecBlock(*this);
 
 		SecBlock<T, A> result(m_size+t.m_size);
-		memcpy_s(result.m_ptr, result.m_size*sizeof(T), m_ptr, m_size*sizeof(T));
-		memcpy_s(result.m_ptr+m_size, (t.m_size-m_size)*sizeof(T), t.m_ptr, t.m_size*sizeof(T));
+		if(m_size) {memcpy_s(result.m_ptr, result.m_size*sizeof(T), m_ptr, m_size*sizeof(T));}
+		memcpy_s(result.m_ptr+m_size, (result.m_size-m_size)*sizeof(T), t.m_ptr, t.m_size*sizeof(T));
 		return result;
 	}
 
