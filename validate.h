@@ -83,6 +83,7 @@ bool ValidateECDSA();
 bool ValidateESIGN();
 
 #if !defined(NDEBUG)
+bool TestSecBlock();
 bool TestPolynomialMod2();
 #endif
 

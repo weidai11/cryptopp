@@ -70,11 +70,11 @@ bool ValidateAll(bool thorough)
 #if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
 	pass=TestRDRAND() && pass;
 	pass=TestRDSEED() && pass;
-#else
-
 #endif
 
 #if !defined(NDEBUG) && !defined(CRYPTOPP_IMPORTS)
+	// http://github.com/weidai11/cryptopp/issues/92
+	pass=TestSecBlock() && pass;
 	// http://github.com/weidai11/cryptopp/issues/64
 	pass=TestPolynomialMod2() && pass;
 #endif
@@ -157,7 +157,7 @@ bool ValidateAll(bool thorough)
 
 bool TestSettings()
 {
-	// Thanks to IlyaBizyaev and Zireael-N, http://github.com/weidai11/cryptopp/issues/28
+	// Thanks to IlyaBizyaev and Zireael, http://github.com/weidai11/cryptopp/issues/28
 #if defined(__MINGW32__)
 	using CryptoPP::memcpy_s;
 #endif
@@ -299,6 +299,242 @@ bool TestSettings()
 	}
 	return pass;
 }
+
+#if !defined(NDEBUG) && !defined(CRYPTOPP_IMPORTS)
+bool TestSecBlock()
+{
+	// SecBlock Assign, append and concatenate are not exercised in the library.
+	cout << "\nTesting SecBlock...\n\n";
+	bool r1 = true, r2 = true, r3 = true;
+	bool r4 = true, r5 = true, r6 = true;
+
+	//********************** Assign
+
+	try
+	{
+		SecByteBlock a, b;
+		a.Assign((const byte*)"a", 1);
+		b.Assign((const byte*)"b", 1);
+
+		r1 &= (a.SizeInBytes() == 1);
+		r1 &= (b.SizeInBytes() == 1);
+		r1 &= (a[0] == 'a');
+		r1 &= (b[0] == 'b');
+
+		a.Assign((const byte*)"ab", 2);
+		b.Assign((const byte*)"cd", 2);
+
+		r1 &= (a.SizeInBytes() == 2);
+		r1 &= (b.SizeInBytes() == 2);
+		r1 &= (a[0] == 'a' && a[1] == 'b');
+		r1 &= (b[0] == 'c' && b[1] == 'd');
+	}
+	catch(const Exception& ex)
+	{
+		r1 = false;
+	}
+
+	if (!r1)
+		cout << "FAILED:";
+	else
+		cout << "passed:";
+	cout << "  Assign byte" << endl;
+
+	try
+	{
+		SecBlock<word32> a, b;
+		word32 one[1] = {1}, two[1] = {2};
+
+		a.Assign(one, 1);
+		b.Assign(two, 1);
+
+		r2 &= (a.SizeInBytes() == 4);
+		r2 &= (b.SizeInBytes() == 4);
+		r2 &= (a[0] == 1);
+		r2 &= (b[0] == 2);
+
+		word32 three[2] = {1,2}, four[2] = {3,4};
+
+		a.Assign(three, 2);
+		b.Assign(four, 2);
+
+		r2 &= (a.SizeInBytes() == 8);
+		r2 &= (b.SizeInBytes() == 8);
+		r2 &= (a[0] == 1 && a[1] == 2);
+		r2 &= (b[0] == 3 && b[1] == 4);
+	}
+	catch(const Exception& ex)
+	{
+		r2 = false;
+	}
+
+	if (!r2)
+		cout << "FAILED:";
+	else
+		cout << "passed:";
+	cout << "  Assign word32" << endl;
+
+	//********************** Append
+
+	try
+	{
+		SecByteBlock a, b;
+		a.Assign((const byte*)"a", 1);
+		b.Assign((const byte*)"b", 1);
+
+		a += b;
+		r3 &= (a.SizeInBytes() == 2);
+		r3 &= (a[0] == 'a' && a[1] == 'b');
+
+		a.Assign((const byte*)"ab", 2);
+		b.Assign((const byte*)"cd", 2);
+
+		a += b;
+		r3 &= (a.SizeInBytes() == 4);
+		r3 &= (a[0] == 'a' && a[1] == 'b' && a[2] == 'c' && a[3] == 'd');
+
+		a.Assign((const byte*)"a", 1);
+
+		a += a;
+		r3 &= (a.SizeInBytes() == 2);
+		r3 &= (a[0] == 'a' && a[1] == 'a');
+
+		a.Assign((const byte*)"ab", 2);
+
+		a += a;
+		r3 &= (a.SizeInBytes() == 4);
+		r3 &= (a[0] == 'a' && a[1] == 'b' && a[2] == 'a' && a[3] == 'b');
+	}
+	catch(const Exception& ex)
+	{
+		r3 = false;
+	}
+
+	if (!r3)
+		cout << "FAILED:";
+	else
+		cout << "passed:";
+	cout << "  Append byte" << endl;
+
+	try
+	{
+		SecBlock<word32> a, b;
+		word32 one[1] = {1}, two[1] = {2};
+
+		a.Assign(one, 1);
+		b.Assign(two, 1);
+
+		a += b;
+		r4 &= (a.SizeInBytes() == 8);
+		r4 &= (a[0] == 1 && a[1] == 2);
+
+		word32 three[2] = {1,2}, four[2] = {3,4};
+
+		a.Assign(three, 2);
+		b.Assign(four, 2);
+
+		a += b;
+		r4 &= (a.SizeInBytes() == 16);
+		r4 &= (a[0] == 1 && a[1] == 2 && a[2] == 3 && a[3] == 4);
+
+		a.Assign(one, 1);
+
+		a += a;
+		r4 &= (a.SizeInBytes() == 8);
+		r4 &= (a[0] == 1 && a[1] == 1);
+
+		a.Assign(three, 2);
+
+		a += a;
+		r4 &= (a.SizeInBytes() == 16);
+		r4 &= (a[0] == 1 && a[1] == 2 && a[2] == 1 && a[3] == 2);
+
+	}
+	catch(const Exception& ex)
+	{
+		r2 = false;
+	}
+
+	if (!r4)
+		cout << "FAILED:";
+	else
+		cout << "passed:";
+	cout << "  Append word32" << endl;
+
+	//********************** Concatenate
+
+	try
+	{
+		SecByteBlock a, b, c;
+		a.Assign((const byte*)"a", 1);
+		b.Assign((const byte*)"b", 1);
+
+		c = a + b;
+		r5 &= (a[0] == 'a');
+		r5 &= (b[0] == 'b');
+		r5 &= (c.SizeInBytes() == 2);
+		r5 &= (c[0] == 'a' && c[1] == 'b');
+
+		a.Assign((const byte*)"ab", 2);
+		b.Assign((const byte*)"cd", 2);
+
+		c = a + b;
+		r5 &= (a[0] == 'a' && a[1] == 'b');
+		r5 &= (b[0] == 'c' && b[1] == 'd');
+		r5 &= (c.SizeInBytes() == 4);
+		r5 &= (c[0] == 'a' && c[1] == 'b' && c[2] == 'c' && c[3] == 'd');
+	}
+	catch(const Exception& ex)
+	{
+		r5 = false;
+	}
+
+	if (!r5)
+		cout << "FAILED:";
+	else
+		cout << "passed:";
+	cout << "  Concatenate byte" << endl;
+
+	try
+	{
+		SecBlock<word32> a, b, c;
+		word32 one[1] = {1}, two[1] = {2};
+
+		a.Assign(one, 1);
+		b.Assign(two, 1);
+
+		c = a + b;
+		r6 &= (a[0] == 1);
+		r6 &= (b[0] == 2);
+		r6 &= (c.SizeInBytes() == 8);
+		r6 &= (c[0] == 1 && c[1] == 2);
+
+		word32 three[2] = {1,2}, four[2] = {3,4};
+
+		a.Assign(three, 2);
+		b.Assign(four, 2);
+
+		c = a + b;
+		r6 &= (a[0] == 1 && a[1] == 2);
+		r6 &= (b[0] == 3 && b[1] == 4);
+		r6 &= (c.SizeInBytes() == 16);
+		r6 &= (c[0] == 1 && c[1] == 2 && c[2] == 3 && c[3] == 4);
+	}
+	catch(const Exception& ex)
+	{
+		r6 = false;
+	}
+
+	if (!r6)
+		cout << "FAILED:";
+	else
+		cout << "passed:";
+	cout << "  Concatenate word32" << endl;
+
+
+	return r1 && r2 && r3 && r4 && r5 && r6;
+}
+#endif
 
 bool TestOS_RNG()
 {
