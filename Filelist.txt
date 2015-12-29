@@ -304,7 +304,10 @@ Readme.txt
 Install.txt
 Filelist.txt
 CMakeLists.txt
-cryptopp-config.cmake
+cmake/cryptopp-compile-targets.cmake
+cmake/cryptopp-compile-targets-2.8.8.cmake
+cmake/cryptopp-config.cmake
+cmake/cryptopp-config-version.in
 TestData/3desval.dat
 TestData/3wayval.dat
 TestData/camellia.dat
