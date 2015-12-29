@@ -303,6 +303,7 @@ SOLIB_COMPAT_SUFFIX=.$(LIB_MAJOR).$(LIB_MINOR)
 SOLIB_FLAGS=-Wl,-soname,libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
 endif # HAS_SOLIB_VERSION
 
+.PHONY: all
 all: cryptest.exe
 
 ifneq ($(IS_DARWIN),0)
@@ -449,14 +450,14 @@ ifeq ($(HAS_SOLIB_VERSION),1)
 endif
 endif
 
-libcryptopp.a: public_service | $(LIBOBJS)
+libcryptopp.a: $(LIBOBJS) | public_service
 	$(AR) $(ARFLAGS) $@ $(LIBOBJS)
 	$(RANLIB) $@
 
 .PHONY: libcryptopp.so
 libcryptopp.so: libcryptopp$(SOLIB_VERSION_SUFFIX)
 
-libcryptopp.so$(SOLIB_VERSION_SUFFIX): public_service | $(LIBOBJS)
+libcryptopp.so$(SOLIB_VERSION_SUFFIX): $(LIBOBJS) | public_service
 	$(CXX) -shared $(SOLIB_FLAGS) -o $@ $(CXXFLAGS) $(GOLD_OPTION) $(LIBOBJS) $(LDLIBS)
 ifeq ($(HAS_SOLIB_VERSION),1)
 	-$(LN) libcryptopp.so$(SOLIB_VERSION_SUFFIX) libcryptopp.so
@@ -466,7 +467,7 @@ endif
 libcryptopp.dylib: $(LIBOBJS)
 	$(CXX) -dynamiclib -o $@ $(CXXFLAGS) -install_name "$@" -current_version "$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)" -compatibility_version "$(LIB_MAJOR).$(LIB_MINOR)" $(LIBOBJS)
 
-cryptest.exe: public_service | libcryptopp.a $(TESTOBJS)
+cryptest.exe: libcryptopp.a $(TESTOBJS) | public_service
 	$(CXX) -o $@ $(CXXFLAGS) $(TESTOBJS) ./libcryptopp.a $(LDFLAGS) $(GOLD_OPTION) $(LDLIBS)
 
 # Makes it faster to test changes
@@ -576,7 +577,7 @@ endif
 %.o : %.cpp
 	$(CXX) $(CXXFLAGS) -c $<
 
-# Warn of potential configurations issues. They will go away after 5.6.3.
+# Warn of potential configuration issues. They will go away after 5.6.3.
 UNALIGNED_ACCESS := $(shell $(EGREP) -c "^[[:space:]]*//[[:space:]]*\#[[:space:]]*define[[:space:]]*CRYPTOPP_NO_UNALIGNED_DATA_ACCESS" config.h)
 NO_INIT_PRIORITY := $(shell $(EGREP) -c "^[[:space:]]*//[[:space:]]*\#[[:space:]]*define[[:space:]]*CRYPTOPP_INIT_PRIORITY" config.h)
 COMPATIBILITY_562 := $(shell $(EGREP) -c "^[[:space:]]*\#[[:space:]]*define[[:space:]]*CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562" config.h)
