@@ -47,7 +47,22 @@ ifeq ($(PREFIX),)
 PREFIX = /usr/local
 endif
 
-ifeq ($(CXX),gcc)	# for some reason CXX is gcc on cygwin 1.1.4
+# http://www.gnu.org/prep/standards/html_node/Directory-Variables.html
+ifeq ($(DATADIR),)
+DATADIR := $(PREFIX)/share
+endif
+ifeq ($(LIBDIR),)
+LIBDIR := $(PREFIX)/lib
+endif
+ifeq ($(BINDIR),)
+BINDIR := $(PREFIX)/bin
+endif
+ifeq ($(INCLUDEDIR),)
+INCLUDEDIR := $(PREFIX)/include
+endif
+
+# Fix CXX on Cygwin 1.1.4
+ifeq ($(CXX),gcc)
 CXX := g++
 endif
 
@@ -405,49 +420,49 @@ endif
 
 .PHONY: install
 install:
-	$(MKDIR) -p $(DESTDIR)$(PREFIX)/include/cryptopp
-	-$(CP) *.h $(DESTDIR)$(PREFIX)/include/cryptopp
-	-$(CHMOD) 755 $(DESTDIR)$(PREFIX)/include/cryptopp
-	-$(CHMOD) 644 $(DESTDIR)$(PREFIX)/include/cryptopp/*.h
+	$(MKDIR) -p $(DESTDIR)$(INCLUDEDIR)/cryptopp
+	-$(CP) *.h $(DESTDIR)$(INCLUDEDIR)/cryptopp
+	-$(CHMOD) 755 $(DESTDIR)$(INCLUDEDIR)/cryptopp
+	-$(CHMOD) 644 $(DESTDIR)$(INCLUDEDIR)/cryptopp/*.h
 ifneq ($(wildcard libcryptopp.a),)
-	$(MKDIR) -p $(DESTDIR)$(PREFIX)/lib
-	-$(CP) libcryptopp.a $(DESTDIR)$(PREFIX)/lib
-	-$(CHMOD) 644 $(DESTDIR)$(PREFIX)/lib/libcryptopp.a
+	$(MKDIR) -p $(DESTDIR)$(LIBDIR)
+	-$(CP) libcryptopp.a $(DESTDIR)$(LIBDIR)
+	-$(CHMOD) 644 $(DESTDIR)$(LIBDIR)/libcryptopp.a
 endif
 ifneq ($(wildcard cryptest.exe),)
-	$(MKDIR) -p $(DESTDIR)$(PREFIX)/bin
-	-$(CP) cryptest.exe $(DESTDIR)$(PREFIX)/bin
-	-$(CHMOD) 755 $(DESTDIR)$(PREFIX)/bin/cryptest.exe
+	$(MKDIR) -p $(DESTDIR)$(BINDIR)
+	-$(CP) cryptest.exe $(DESTDIR)$(BINDIR)
+	-$(CHMOD) 755 $(DESTDIR)$(BINDIR)/cryptest.exe
 endif
 ifneq ($(wildcard libcryptopp.dylib),)
-	$(MKDIR) -p $(DESTDIR)$(PREFIX)/lib
-	-$(CP) libcryptopp.dylib $(DESTDIR)$(PREFIX)/lib
-	-install_name_tool -id $(DESTDIR)$(PREFIX)/lib/libcryptopp.dylib $(DESTDIR)$(PREFIX)/lib/libcryptopp.dylib
-	-$(CHMOD) 755 $(DESTDIR)$(PREFIX)/lib/libcryptopp.dylib
+	$(MKDIR) -p $(DESTDIR)$(LIBDIR)
+	-$(CP) libcryptopp.dylib $(DESTDIR)$(LIBDIR)
+	-install_name_tool -id $(DESTDIR)$(LIBDIR)/libcryptopp.dylib $(DESTDIR)$(LIBDIR)/libcryptopp.dylib
+	-$(CHMOD) 755 $(DESTDIR)$(LIBDIR)/libcryptopp.dylib
 endif
 ifneq ($(wildcard libcryptopp.so$(SOLIB_VERSION_SUFFIX)),)
-	$(MKDIR) -p $(DESTDIR)$(PREFIX)/lib
-	-$(CP) libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(DESTDIR)$(PREFIX)/lib
-	-$(CHMOD) 755 $(DESTDIR)$(PREFIX)/lib/libcryptopp.so$(SOLIB_VERSION_SUFFIX)
+	$(MKDIR) -p $(DESTDIR)$(LIBDIR)
+	-$(CP) libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(DESTDIR)$(LIBDIR)
+	-$(CHMOD) 755 $(DESTDIR)$(LIBDIR)/libcryptopp.so$(SOLIB_VERSION_SUFFIX)
 ifeq ($(HAS_SOLIB_VERSION),1)
-	-$(LN) -sf libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(DESTDIR)$(PREFIX)/lib/libcryptopp.so
-	$(LDCONF) $(DESTDIR)$(PREFIX)/lib
+	-$(LN) -sf libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(DESTDIR)$(LIBDIR)/libcryptopp.so
+	$(LDCONF) $(DESTDIR)$(LIBDIR)
 endif
 endif
 
 .PHONY: remove uninstall
 remove uninstall:
-	-$(RM) -r $(DESTDIR)$(PREFIX)/include/cryptopp
-	-$(RM) $(DESTDIR)$(PREFIX)/lib/libcryptopp.a
-	-$(RM) $(DESTDIR)$(PREFIX)/bin/cryptest.exe
+	-$(RM) -r $(DESTDIR)$(INCLUDEDIR)/cryptopp
+	-$(RM) $(DESTDIR)$(LIBDIR)/libcryptopp.a
+	-$(RM) $(DESTDIR)$(BINDIR)/cryptest.exe
 ifneq ($(IS_DARWIN),0)
-	-$(RM) $(DESTDIR)$(PREFIX)/lib/libcryptopp.dylib
+	-$(RM) $(DESTDIR)$(LIBDIR)/libcryptopp.dylib
 else
-	-$(RM) $(DESTDIR)$(PREFIX)/lib/libcryptopp.so$(SOLIB_VERSION_SUFFIX)
+	-$(RM) $(DESTDIR)$(LIBDIR)/libcryptopp.so$(SOLIB_VERSION_SUFFIX)
 ifeq ($(HAS_SOLIB_VERSION),1)
-	-$(RM) $(DESTDIR)$(PREFIX)/lib/libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
-	-$(RM) $(DESTDIR)$(PREFIX)/lib/libcryptopp.so
-	$(LDCONF) $(DESTDIR)$(PREFIX)/lib
+	-$(RM) $(DESTDIR)$(LIBDIR)/libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
+	-$(RM) $(DESTDIR)$(LIBDIR)/libcryptopp.so
+	$(LDCONF) $(DESTDIR)$(LIBDIR)
 endif
 endif
 
@@ -510,10 +525,12 @@ ifneq ($(IS_DARWIN),0)
 	-xattr -c *
 endif
 
+# Build the ZIP file with source files. No documentation.
 .PHONY: zip dist
 zip dist: | distclean convert
 	zip -q -9 cryptopp$(LIB_VER).zip $(DIST_FILES)
 
+# Build the ISO to transfer the ZIP to old distros via CDROM
 .PHONY: iso
 iso: | zip
 ifneq ($(IS_DARWIN),0)
