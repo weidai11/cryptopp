@@ -2,6 +2,8 @@
 #define CRYPTOPP_VALIDATE_H
 
 #include "cryptlib.h"
+#include <iostream>
+#include <iomanip>
 
 bool ValidateAll(bool thorough);
 bool TestSettings();
@@ -87,11 +89,34 @@ bool TestSecBlock();
 bool TestPolynomialMod2();
 #endif
 
-// Coverity findings
+// Coverity finding
 template <class T, bool NON_NEGATIVE>
 T StringToValue(const std::string& str);
+
+// Coverity finding
 template<>
 int StringToValue<int, true>(const std::string& str);
+
+// Coverity finding
+class StreamState
+{
+public:
+	StreamState(std::ostream& out)
+		: m_out(out), m_fmt(out.flags()), m_prec(out.precision())
+	{
+	}
+
+	~StreamState()
+	{
+		m_out.precision(m_prec);
+		m_out.flags(m_fmt);
+	}
+
+private:
+	std::ostream& m_out;
+	std::ios_base::fmtflags m_fmt;
+	std::streamsize m_prec;
+};
 
 // Functions that need a RNG; uses AES inf CFB mode with Seed.
 CryptoPP::RandomNumberGenerator & GlobalRNG();

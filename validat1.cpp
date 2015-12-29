@@ -468,7 +468,7 @@ bool TestSecBlock()
 		cout << "passed:";
 	cout << "  Append word32" << endl;
 
-	//********** Append **********//
+	//********** Concatenate **********//
 
 	try
 	{
@@ -555,7 +555,7 @@ bool TestSecBlock()
 
 		a.Assign(str1, COUNTOF(str1));
 		b.Assign(str1, COUNTOF(str1));
-		temp &= (a == b);
+		temp &= (a.operator==(b));
 
 		a.Assign(str3, COUNTOF(str3));
 		b.Assign(str3, COUNTOF(str3));
@@ -592,7 +592,7 @@ bool TestSecBlock()
 
 		a.Assign(str1, COUNTOF(str1));
 		b.Assign(str1, COUNTOF(str1));
-		temp &= (a == b);
+		temp &= (a.operator==(b));
 
 		a.Assign(str3, COUNTOF(str3));
 		b.Assign(str3, COUNTOF(str3));
@@ -861,12 +861,10 @@ bool TestRDRAND()
 		}
 		else
 			cout << "passed:";
-		
-		const std::streamsize oldp = cout.precision(6);
-		const std::ios::fmtflags oldf = cout.setf(std::ios::fixed, std::ios::floatfield);
+
+		StreamState ss(cout);
+		cout << std::setiosflags(std::ios::fixed) << std::setprecision(6);
 		cout << "  Maurer Randomness Test returned value " << mv << endl;
-		cout.precision(oldp);
-		cout.setf(oldf, std::ios::floatfield);
 
 		if (meter.GetTotalBytes() < SIZE)
 		{
@@ -934,12 +932,10 @@ bool TestRDSEED()
 		}
 		else
 			cout << "passed:";
-		
-		const std::streamsize oldp = cout.precision(6);
-		const std::ios::fmtflags oldf = cout.setf(std::ios::fixed, std::ios::floatfield);
+
+		StreamState ss(cout);
+		cout << std::setiosflags(std::ios::fixed) << std::setprecision(6);
 		cout << "  Maurer Randomness Test returned value " << mv << endl;
-		cout.precision(oldp);
-		cout.setf(oldf, std::ios::floatfield);
 
 		if (meter.GetTotalBytes() < SIZE)
 		{
