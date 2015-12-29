@@ -98,6 +98,7 @@ SOLIB_COMPAT_SUFFIX=.$(LIB_MAJOR).$(LIB_MINOR)
 SOLIB_FLAGS=-Wl,-soname,libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
 endif # HAS_SOLIB_VERSION
 
+.PHONY: all
 all: cryptest.exe
 
 ifneq ($(IS_IOS),0)
