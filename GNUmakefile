@@ -238,8 +238,8 @@ endif # Aligned access
 ifneq ($(filter coverage,$(MAKECMDGOALS)),)
 ifeq ($(findstring -coverage,$(CXXFLAGS)),)
 CXXFLAGS += -coverage
-endif # -ftest-coverage
-endif # Aligned access
+endif # -coverage
+endif # GCC code coverage
 
 # Debug testing on GNU systems
 ifneq ($(filter -DDEBUG -DDEBUG=1,$(CXXFLAGS)),)
@@ -326,8 +326,9 @@ asan ubsan align aligned: libcryptopp.a cryptest.exe
 coverage: libcryptopp.a cryptest.exe
 	lcov --base-directory . --directory . --zerocounters -q
 	./cryptest.exe v
+	./cryptest.exe tv all
 	lcov --base-directory . --directory . -c -o cryptest.info
-	lcov --remove cryptest.info "/usr/*" -o cryptest.info
+	lcov --remove cryptest.info "*test.*" "bench*.cpp" "validat*.*" "/usr/*" -o cryptest.info
 	rm -rf ./TestCoverage/
 	genhtml -o ./TestCoverage/ -t "cryptest.exe test coverage" --num-spaces 4 cryptest.info
 
