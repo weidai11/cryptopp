@@ -89,7 +89,7 @@ public:
 	}
 #endif
 
-	//! Update RNG state with additional unpredictable values
+	//! \brief Update RNG state with additional unpredictable values
 	//! \param input unused
 	//! \param length unused
 	//! \details The operation is a nop for this generator.
@@ -171,7 +171,7 @@ public:
 	}
 #endif
 
-	//! Update RNG state with additional unpredictable values
+	//! \brief Update RNG state with additional unpredictable values
 	//! \param input unused
 	//! \param length unused
 	//! \details The operation is a nop for this generator.
