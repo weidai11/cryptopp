@@ -4,12 +4,14 @@ CXXFLAGS ?= -DNDEBUG -g2 -Os -fPIC -pipe
 # CXXFLAGS += -ffunction-sections -fdata-sections
 # LDFLAGS += -Wl,--gc-sections
 
-ARFLAGS = cr
+AR ?= ar
+ARFLAGS ?= cr
 RANLIB ?= ranlib
-CP = cp
-MKDIR = mkdir
-EGREP = egrep
-CHMOD = chmod
+CP ?= cp
+MV ?= mv
+CHMOD ?= chmod
+MKDIR ?= mkdir
+EGREP ?= egrep
 LN ?= ln -sf
 LDCONF ?= /sbin/ldconfig -n
 
@@ -22,6 +24,25 @@ IS_ARM_EMBEDDED ?= 0
 # Default prefix for make install
 ifeq ($(PREFIX),)
 PREFIX = /usr/local
+endif
+
+# http://www.gnu.org/prep/standards/html_node/Directory-Variables.html
+ifeq ($(DATADIR),)
+DATADIR := $(PREFIX)/share
+endif
+ifeq ($(LIBDIR),)
+LIBDIR := $(PREFIX)/lib
+endif
+ifeq ($(BINDIR),)
+BINDIR := $(PREFIX)/bin
+endif
+ifeq ($(INCLUDEDIR),)
+INCLUDEDIR := $(PREFIX)/include
+endif
+
+# We honor ARFLAGS, but the "v" option used by default causes a noisy make
+ifeq ($(ARFLAGS),rv)
+ARFLAGS = r
 endif
 
 # Sadly, we can't actually use GCC_PRAGMA_AWARE because of GCC bug 53431.
@@ -129,49 +150,47 @@ distclean: clean
 
 .PHONY: install
 install:
-	$(MKDIR) -p $(DESTDIR)$(PREFIX)/include/cryptopp
-	-$(CP) *.h $(DESTDIR)$(PREFIX)/include/cryptopp
-	-$(CHMOD) 755 $(DESTDIR)$(PREFIX)/include/cryptopp
-	-$(CHMOD) 644 $(DESTDIR)$(PREFIX)/include/cryptopp/*.h
-	-$(CP) libcryptopp.a $(DESTDIR)$(PREFIX)/lib
-	-$(CHMOD) 644 $(DESTDIR)$(PREFIX)/lib/libcryptopp.a
+	$(MKDIR) -p $(DESTDIR)$(INCLUDEDIR)/cryptopp
+	$(CP) *.h $(DESTDIR)$(INCLUDEDIR)/cryptopp
+	-$(CHMOD) 755 $(DESTDIR)$(INCLUDEDIR)/cryptopp
+	-$(CHMOD) 644 $(DESTDIR)$(INCLUDEDIR)/cryptopp/*.h
 ifneq ($(wildcard cryptest.exe),)
-	$(MKDIR) -p $(DESTDIR)$(PREFIX)/bin
-	-$(CP) cryptest.exe $(DESTDIR)$(PREFIX)/bin
-	-$(CHMOD) 755 $(DESTDIR)$(PREFIX)/bin/cryptest.exe
+	$(MKDIR) -p $(DESTDIR)$(BINDIR)
+	$(CP) cryptest.exe $(DESTDIR)$(BINDIR)
+	-$(CHMOD) 755 $(DESTDIR)$(BINDIR)/cryptest.exe
 endif
 ifneq ($(wildcard libcryptopp.a),)
-	$(MKDIR) -p $(DESTDIR)$(PREFIX)/lib
-	-$(CP) libcryptopp.a $(DESTDIR)$(PREFIX)/lib
-	-$(CHMOD) 644 $(DESTDIR)$(PREFIX)/lib/libcryptopp.a
+	$(MKDIR) -p $(DESTDIR)$(LIBDIR)
+	$(CP) libcryptopp.a $(DESTDIR)$(LIBDIR)
+	-$(CHMOD) 644 $(DESTDIR)$(LIBDIR)/libcryptopp.a
 endif
 ifneq ($(wildcard libcryptopp.dylib),)
-	$(MKDIR) -p $(DESTDIR)$(PREFIX)/lib
-	-$(CP) libcryptopp.dylib $(DESTDIR)$(PREFIX)/lib
-	-$(CHMOD) 755 $(DESTDIR)$(PREFIX)/lib/libcryptopp.dylib
+	$(MKDIR) -p $(DESTDIR)$(LIBDIR)
+	$(CP) libcryptopp.dylib $(DESTDIR)$(LIBDIR)
+	-$(CHMOD) 755 $(DESTDIR)$(LIBDIR)/libcryptopp.dylib
 endif
 ifneq ($(wildcard libcryptopp.so$(SOLIB_VERSION_SUFFIX)),)
-	-$(CP) libcryptopp.so $(DESTDIR)$(PREFIX)/lib
-	-$(CHMOD) 755 $(DESTDIR)$(PREFIX)/lib/libcryptopp.so$(SOLIB_VERSION_SUFFIX)
+	$(CP) libcryptopp.so $(DESTDIR)$(LIBDIR)
+	-$(CHMOD) 755 $(DESTDIR)$(LIBDIR)/libcryptopp.so$(SOLIB_VERSION_SUFFIX)
 ifeq ($(HAS_SOLIB_VERSION),1)
-	-$(LN) -sf libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(DESTDIR)$(PREFIX)/lib/libcryptopp.so
-	$(LDCONF) $(DESTDIR)$(PREFIX)/lib
+	-$(LN) -sf libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(DESTDIR)$(LIBDIR)/libcryptopp.so
+	$(LDCONF) $(DESTDIR)$(LIBDIR)
 endif
 endif
 
 .PHONY: remove uninstall
 remove uninstall:
-	-$(RM) -r $(DESTDIR)$(PREFIX)/include/cryptopp
-	-$(RM) $(DESTDIR)$(PREFIX)/lib/libcryptopp.a
-	-$(RM) $(DESTDIR)$(PREFIX)/bin/cryptest.exe
+	-$(RM) -r $(DESTDIR)$(INCLUDEDIR)/cryptopp
+	-$(RM) $(DESTDIR)$(LIBDIR)/libcryptopp.a
+	-$(RM) $(DESTDIR)$(BINDIR)/cryptest.exe
 ifneq ($(IS_IOS),0)
-	-$(RM) $(DESTDIR)$(PREFIX)/lib/libcryptopp.dylib
+	-$(RM) $(DESTDIR)$(LIBDIR)/libcryptopp.dylib
 else
-	-$(RM) $(DESTDIR)$(PREFIX)/lib/libcryptopp.so$(SOLIB_VERSION_SUFFIX)
+	-$(RM) $(DESTDIR)$(LIBDIR)/libcryptopp.so$(SOLIB_VERSION_SUFFIX)
 ifeq ($(HAS_SOLIB_VERSION),1)
-	-$(RM) $(DESTDIR)$(PREFIX)/lib/libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
-	-$(RM) $(DESTDIR)$(PREFIX)/lib/libcryptopp.so
-	$(LDCONF) $(DESTDIR)$(PREFIX)/lib
+	-$(RM) $(DESTDIR)$(LIBDIR)/libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
+	-$(RM) $(DESTDIR)$(LIBDIR)/libcryptopp.so
+	$(LDCONF) $(DESTDIR)$(LIBDIR)
 endif
 endif
 
@@ -190,7 +209,7 @@ ifeq ($(HAS_SOLIB_VERSION),1)
 endif
 
 libcryptopp.dylib: $(LIBOBJS)
-	$(CXX) -dynamiclib -o $@ $(CXXFLAGS) -install_name "$@" -current_version "$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)" -compatibility_version "$(LIB_MAJOR).$(LIB_MINOR)" $(LIBOBJS)
+	$(CXX) -dynamiclib -o $@ $(CXXFLAGS) -install_name "$@" -current_version "$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)" -compatibility_version "$(LIB_MAJOR).$(LIB_MINOR)" -headerpad_max_install_names $(LIBOBJS)
 
 cryptest.exe: libcryptopp.a $(TESTOBJS)
 	$(CXX) -o $@ $(CXXFLAGS) $(TESTOBJS) ./libcryptopp.a $(LDFLAGS) $(LDLIBS)

@@ -66,7 +66,7 @@ ifeq ($(CXX),gcc)
 CXX := g++
 endif
 
-# We honor ARFLAGS, but the "v" often option used by default causes a noisy make
+# We honor ARFLAGS, but the "v" option used by default causes a noisy make
 ifeq ($(ARFLAGS),rv)
 ARFLAGS = r
 endif
@@ -481,7 +481,7 @@ ifeq ($(HAS_SOLIB_VERSION),1)
 endif
 
 libcryptopp.dylib: $(LIBOBJS)
-	$(CXX) -dynamiclib -o $@ $(CXXFLAGS) -install_name "$@" -current_version "$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)" -compatibility_version "$(LIB_MAJOR).$(LIB_MINOR)" $(LIBOBJS)
+	$(CXX) -dynamiclib -o $@ $(CXXFLAGS) -install_name "$@" -current_version "$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)" -compatibility_version "$(LIB_MAJOR).$(LIB_MINOR)" -headerpad_max_install_names $(LIBOBJS)
 
 cryptest.exe: libcryptopp.a $(TESTOBJS) | public_service
 	$(CXX) -o $@ $(CXXFLAGS) $(TESTOBJS) ./libcryptopp.a $(LDFLAGS) $(GOLD_OPTION) $(LDLIBS)
