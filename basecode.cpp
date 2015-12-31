@@ -58,7 +58,7 @@ size_t BaseN_Encoder::Put2(const byte *begin, size_t length, int messageEnd, boo
 		while (true)
 		{
 			assert(m_bitPos < m_bitsPerChar);
-			unsigned int bitsLeftInTarget = m_bitsPerChar-m_bitPos;
+			unsigned int bitsLeftInTarget = (unsigned int)(m_bitsPerChar-m_bitPos);
 			m_outBuf[m_bytePos] |= b >> (8-bitsLeftInTarget);
 			if (bitsLeftInSource >= bitsLeftInTarget)
 			{
