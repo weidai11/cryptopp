@@ -399,7 +399,7 @@ public:
 		if (preserve && newSize)
 		{
 			const size_t copySize = STDMIN(oldSize, newSize);
-			memcpy_s(newPointer, copySize, oldPtr, copySize);
+			memcpy_s(newPointer, sizeof(T)*newSize, oldPtr, sizeof(T)*copySize);
 		}
 		deallocate(oldPtr, oldSize);
 		return newPointer;

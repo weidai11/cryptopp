@@ -483,7 +483,6 @@ bool TestSecBlock()
 		a += a;
 		temp &= (a.SizeInBytes() == 16);
 		temp &= (a[0] == 1 && a[1] == 2 && a[2] == 1 && a[3] == 2);
-
 	}
 	catch(const Exception& /*ex*/)
 	{
@@ -655,7 +654,6 @@ bool TestSecBlock()
 		AllocatorBase<word32> A;
 		const size_t max = A.max_size();
 		SecBlock<word32> t(max+1);
-		
 	}
 	catch(const Exception& /*ex*/)
 	{
@@ -679,7 +677,6 @@ bool TestSecBlock()
 		AllocatorBase<word64> A;
 		const size_t max = A.max_size();
 		SecBlock<word64> t(max+1);
-		
 	}
 	catch(const Exception& /*ex*/)
 	{
@@ -696,6 +693,81 @@ bool TestSecBlock()
 	else
 		cout << "passed:";
 	cout << "  Overflow word64" << endl;
+
+	//********** FixedSizeAllocatorWithCleanup and Grow **********//
+
+	try
+	{
+		static const unsigned int SIZE = 8;
+		SecBlockWithHint<byte, SIZE> block(SIZE);
+		memset(block, 0xaa, block.SizeInBytes());
+
+		temp = true;
+		block.CleanGrow(SIZE*2);
+		temp &= (block.size() == SIZE*2);
+
+		for (size_t i = 0; i < block.size()/2; i++)
+			temp &= (block[i] == 0xaa);
+		for (size_t i = block.size()/2; i < block.size(); i++)
+			temp &= (block[i] == 0);
+
+		block.CleanNew(SIZE*4);
+		temp &= (block.size() == SIZE*4);
+		for (size_t i = 0; i < block.size(); i++)
+			temp &= (block[i] == 0);
+
+		result &= temp;
+		if (!temp)
+			cout << "FAILED:";
+		else
+			cout << "passed:";
+		cout << "  FixedSizeAllocator and Grow with byte" << endl;
+	}
+	catch(const Exception& /*ex*/)
+	{
+		temp = false;
+	}
+	catch(const std::exception& /*ex*/)
+	{
+		temp = false;
+	}
+
+	try
+	{
+		static const unsigned int SIZE = 8;
+		SecBlockWithHint<word32, SIZE> block(SIZE);
+		memset(block, 0xaa, block.SizeInBytes());
+
+		temp = true;
+		block.CleanGrow(SIZE*2);
+		temp &= (block.size() == SIZE*2);
+
+		for (size_t i = 0; i < block.size()/2; i++)
+			temp &= (block[i] == 0xaaaaaaaa);
+
+		for (size_t i = block.size()/2; i < block.size(); i++)
+			temp &= (block[i] == 0);
+
+		block.CleanNew(SIZE*4);
+		temp &= (block.size() == SIZE*4);
+		for (size_t i = 0; i < block.size(); i++)
+			temp &= (block[i] == 0);
+
+		result &= temp;
+		if (!temp)
+			cout << "FAILED:";
+		else
+			cout << "passed:";
+		cout << "  FixedSizeAllocator and Grow with word32" << endl;
+	}
+	catch(const Exception& /*ex*/)
+	{
+		temp = false;
+	}
+	catch(const std::exception& /*ex*/)
+	{
+		temp = false;
+	}
 
 	return result;
 }
