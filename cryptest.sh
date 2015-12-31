@@ -204,12 +204,12 @@ unset CXXFLAGS
 export CXXFLAGS="-DDEBUG -g2 -O2"
 
 "$MAKE" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-if [ "$?" -ne "0" ]; then
+if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+else
+	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 fi
-
-./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 
 ############################################
 # Basic release build
@@ -223,12 +223,12 @@ unset CXXFLAGS
 export CXXFLAGS="-DNDEBUG -g2 -O2"
 
 "$MAKE" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-if [ "$?" -ne "0" ]; then
+if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+else
+	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 fi
-
-./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 
 ############################################
 # Basic debug build, DISABLE_ASM
@@ -242,12 +242,12 @@ unset CXXFLAGS
 export CXXFLAGS="-DDEBUG -g2 -O2 -DCRYPTOPP_DISABLE_ASM"
 
 "$MAKE" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-if [ "$?" -ne "0" ]; then
+if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+else
+	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 fi
-
-./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 
 ############################################
 # Basic release build, DISABLE_ASM
@@ -261,12 +261,12 @@ unset CXXFLAGS
 export CXXFLAGS="-DNDEBUG -g2 -O2 -DCRYPTOPP_DISABLE_ASM"
 
 "$MAKE" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-if [ "$?" -ne "0" ]; then
+if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+else
+	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 fi
-
-./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 
 ############################################
 # c++03 debug build
@@ -281,12 +281,12 @@ if [ "$HAVE_CXX03" -ne "0" ]; then
 	export CXXFLAGS="-DDEBUG -g2 -O2 -std=c++03 $ADD_CXXFLAGS"
 
 	"$MAKE" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-	if [ "$?" -ne "0" ]; then
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 	fi
-
-	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 fi
 
 ############################################
@@ -302,12 +302,12 @@ if [ "$HAVE_CXX03" -ne "0" ]; then
 	export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++03 $ADD_CXXFLAGS"
 
 	"$MAKE" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-	if [ "$?" -ne "0" ]; then
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 	fi
-
-	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 fi
 
 ############################################
@@ -323,12 +323,12 @@ if [ "$HAVE_CXX11" -ne "0" ]; then
 	export CXXFLAGS="-DDEBUG -g2 -O2 -std=c++11 $ADD_CXXFLAGS"
 
 	"$MAKE" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-	if [ "$?" -ne "0" ]; then
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 	fi
-
-	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 fi
 
 ############################################
@@ -344,12 +344,12 @@ if [ "$HAVE_CXX11" -ne "0" ]; then
 	export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 $ADD_CXXFLAGS"
 
 	"$MAKE" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-	if [ "$?" -ne "0" ]; then
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 	fi
-
-	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 fi
 
 ############################################
@@ -364,12 +364,12 @@ unset CXXFLAGS
 export CXXFLAGS="-DDEBUG -g2 -O2 -DCRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY $ADD_CXXFLAGS"
 
 "$MAKE" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-if [ "$?" -ne "0" ]; then
+if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+else
+	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 fi
-
-./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 
 ############################################
 # Release build, all backwards compatibility.
@@ -383,7 +383,7 @@ unset CXXFLAGS
 export CXXFLAGS="-DNDEBUG -g2 -O2 -DCRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY $ADD_CXXFLAGS"
 
 "$MAKE" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-if [ "$?" -ne "0" ]; then
+if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 fi
 
@@ -402,12 +402,12 @@ unset CXXFLAGS
 export CXXFLAGS="-DDEBUG -g2 -O1 -DCRYPTOPP_INIT_PRIORITY=250 $ADD_CXXFLAGS"
 
 "$MAKE" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-if [ "$?" -ne "0" ]; then
+if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+else
+	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 fi
-
-./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 
 ############################################
 # Release build, init_priority
@@ -421,12 +421,12 @@ unset CXXFLAGS
 export CXXFLAGS="-DNDEBUG -g2 -O2 -DCRYPTOPP_INIT_PRIORITY=250 $ADD_CXXFLAGS"
 
 "$MAKE" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-if [ "$?" -ne "0" ]; then
+if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+else
+	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 fi
-
-./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 
 ############################################
 # Release build, no unaligned data access
@@ -441,12 +441,12 @@ unset CXXFLAGS
 export CXXFLAGS="-DNDEBUG -g2 -O2 -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS $ADD_CXXFLAGS"
 
 "$MAKE" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-if [ "$?" -ne "0" ]; then
+if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+else
+	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 fi
-
-./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 
 ############################################
 # Release build, no backwards compatibility with Crypto++ 5.6.2.
@@ -461,12 +461,12 @@ unset CXXFLAGS
 export CXXFLAGS="-DNDEBUG -g2 -O2 -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 $ADD_CXXFLAGS"
 
 "$MAKE" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-if [ "$?" -ne "0" ]; then
+if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+else
+	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 fi
-
-./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 
 ############################################
 # Debug build, OS Independence
@@ -480,12 +480,12 @@ unset CXXFLAGS
 export CXXFLAGS="-DDEBUG -g2 -O1 -DNO_OS_DEPENDENCE $ADD_CXXFLAGS"
 
 "$MAKE" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-if [ "$?" -ne "0" ]; then
+if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+else
+	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 fi
-
-./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 
 ############################################
 # Release build, OS Independence
@@ -499,12 +499,12 @@ unset CXXFLAGS
 export CXXFLAGS="-DNDEBUG -g2 -O2 -DNO_OS_DEPENDENCE $ADD_CXXFLAGS"
 
 "$MAKE" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-if [ "$?" -ne "0" ]; then
+if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+else
+	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 fi
-
-./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 
 ############################################
 # Debug build at -O3
@@ -518,12 +518,12 @@ unset CXXFLAGS
 export CXXFLAGS="-DDEBUG -g2 -O3 $ADD_CXXFLAGS"
 
 "$MAKE" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-if [ "$?" -ne "0" ]; then
+if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+else
+	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 fi
-
-./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 
 ############################################
 # Release build at -O3
@@ -537,12 +537,12 @@ unset CXXFLAGS
 export CXXFLAGS="-DNDEBUG -g2 -O3 $ADD_CXXFLAGS"
 
 "$MAKE" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-if [ "$?" -ne "0" ]; then
+if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+else
+	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 fi
-
-./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 
 ############################################
 # Debug build at -Os
@@ -556,12 +556,12 @@ unset CXXFLAGS
 export CXXFLAGS="-DDEBUG -g2 -Os $ADD_CXXFLAGS"
 
 "$MAKE" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-if [ "$?" -ne "0" ]; then
+if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+else
+	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 fi
-
-./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 
 ############################################
 # Release build at -Os
@@ -575,12 +575,12 @@ unset CXXFLAGS
 export CXXFLAGS="-DNDEBUG -g2 -Os $ADD_CXXFLAGS"
 
 "$MAKE" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-if [ "$?" -ne "0" ]; then
+if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+else
+	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 fi
-
-./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 
 ############################################
 # Debug build, UBSan, c++03
@@ -595,12 +595,12 @@ if [ "$HAVE_CXX03" -ne "0" ] && [ "$HAVE_UBSAN" -ne "0" ]; then
 	export CXXFLAGS="-DDEBUG -g2 -O1 -std=c++03 $ADD_CXXFLAGS"
 
 	"$MAKE" ubsan | tee -a "$TEST_RESULTS"
-	if [ "$?" -ne "0" ]; then
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 	fi
-
-	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 fi
 
 ############################################
@@ -616,12 +616,12 @@ if [ "$HAVE_CXX03" -ne "0" ] && [ "$HAVE_UBSAN" -ne "0" ]; then
 	export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++03 $ADD_CXXFLAGS"
 
 	"$MAKE" ubsan | tee -a "$TEST_RESULTS"
-	if [ "$?" -ne "0" ]; then
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 	fi
-
-	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 fi
 
 ############################################
@@ -637,12 +637,12 @@ if [ "$HAVE_CXX03" -ne "0" ] && [ "$HAVE_ASAN" -ne "0" ]; then
 	export CXXFLAGS="-DDEBUG -g2 -O1 -std=c++03 $ADD_CXXFLAGS"
 
 	"$MAKE" asan | tee -a "$TEST_RESULTS"
-	if [ "$?" -ne "0" ]; then
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 	fi
-
-	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 fi
 
 ############################################
@@ -658,12 +658,12 @@ if [ "$HAVE_CXX03" -ne "0" ] && [ "$HAVE_ASAN" -ne "0" ]; then
 	export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++03 $ADD_CXXFLAGS"
 
 	"$MAKE" asan | tee -a "$TEST_RESULTS"
-	if [ "$?" -ne "0" ]; then
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 	fi
-
-	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 fi
 
 ############################################
@@ -678,12 +678,12 @@ if [ "$HAVE_CXX11" -ne "0" ] && [ "$HAVE_UBSAN" -ne "0" ]; then
 	export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 $ADD_CXXFLAGS"
 
 	"$MAKE" ubsan | tee -a "$TEST_RESULTS"
-	if [ "$?" -ne "0" ]; then
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 	fi
-
-	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 fi
 
 ############################################
@@ -699,12 +699,12 @@ if [ "$HAVE_CXX11" -ne "0" ] && [ "$HAVE_ASAN" -ne "0" ]; then
 	export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 $ADD_CXXFLAGS"
 
 	"$MAKE" asan | tee -a "$TEST_RESULTS"
-	if [ "$?" -ne "0" ]; then
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 	fi
-
-	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 fi
 
 # For Darwin, we need to test both -stdlib=libstdc++ (GNU) and
@@ -723,12 +723,12 @@ if [ "$HAVE_CXX03" -ne "0" ] && [ "$IS_DARWIN" -ne "0" ]; then
 	export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++03 -stdlib=libc++ $ADD_CXXFLAGS"
 
 	"$MAKE" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-	if [ "$?" -ne "0" ]; then
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 	fi
-
-	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 fi
 
 ############################################
@@ -742,9 +742,14 @@ if [ "$HAVE_CXX03" -ne "0" ] && [ "$IS_DARWIN" -ne "0" ]; then
 	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++03 -stdlib=libstdc++ $ADD_CXXFLAGS"
+
 	"$MAKE" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+	fi
 fi
 
 ############################################
@@ -760,12 +765,12 @@ if [ "$IS_DARWIN" -ne "0" ] && [ "$HAVE_CXX11" -ne "0" ]; then
 	export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 -stdlib=libc++ $ADD_CXXFLAGS"
 
 	"$MAKE" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-	if [ "$?" -ne "0" ]; then
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 	fi
-
-	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 fi
 
 ############################################
@@ -781,12 +786,12 @@ if [ "$IS_DARWIN" -ne "0" ] && [ "$HAVE_CXX11" -ne "0" ]; then
 	export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 -stdlib=libstdc++ $ADD_CXXFLAGS"
 
 	"$MAKE" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-	if [ "$?" -ne "0" ]; then
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 	fi
-
-	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 fi
 
 ############################################
@@ -802,16 +807,17 @@ if [ "$IS_DARWIN" -ne "0" ] && [ "$HAVE_INTEL_MULTIARCH" -ne "0" ] && [ "$HAVE_C
 	export CXXFLAGS="-DNDEBUG -g2 -O2 -arch i386 -arch x86_64 -std=c++03 $ADD_CXXFLAGS"
 
 	"$MAKE" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-	if [ "$?" -ne "0" ]; then
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
-	fi
+	else
+		echo "Running i386 version..."
+		arch -i386 ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		arch -i386 ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 
-	echo "Running i386 version..."
-	arch -i386 ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-	arch -i386 ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
-	echo "Running x86_64 version..."
-	arch -x86_64 ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-	arch -x86_64 ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		echo "Running x86_64 version..."
+		arch -x86_64 ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		arch -x86_64 ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+	fi
 fi
 
 ############################################
@@ -827,16 +833,17 @@ if [ "$IS_DARWIN" -ne "0" ] && [ "$HAVE_INTEL_MULTIARCH" -ne "0" ] && [ "$HAVE_C
 	export CXXFLAGS="-DNDEBUG -g2 -O2 -arch i386 -arch x86_64 -std=c++11 $ADD_CXXFLAGS"
 
 	"$MAKE" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-	if [ "$?" -ne "0" ]; then
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
-	fi
+	else
+		echo "Running i386 version..."
+		arch -i386 ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		arch -i386 ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 
-	echo "Running i386 version..."
-	arch -i386 ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-	arch -i386 ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
-	echo "Running x86_64 version..."
-	arch -x86_64 ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-	arch -x86_64 ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		echo "Running x86_64 version..."
+		arch -x86_64 ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		arch -x86_64 ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+	fi
 fi
 
 ############################################
@@ -852,16 +859,17 @@ if [ "$IS_DARWIN" -ne "0" ] && [ "$HAVE_PPC_MULTIARCH" -ne "0" ]; then
 	export CXXFLAGS="-DNDEBUG -g2 -O2 -arch ppc -arch ppc64 $ADD_CXXFLAGS"
 
 	"$MAKE" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-	if [ "$?" -ne "0" ]; then
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
-	fi
+	else
+		echo "Running PPC version..."
+		arch -ppc ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		arch -ppc ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 
-	echo "Running PPC version..."
-	arch -ppc ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-	arch -ppc ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
-	echo "Running PPC64 version..."
-	arch -ppc64 ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-	arch -ppc64 ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		echo "Running PPC64 version..."
+		arch -ppc64 ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		arch -ppc64 ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+	fi
 fi
 
 ############################################
@@ -877,16 +885,16 @@ if [ "$IS_DARWIN" -ne "0" ] && [ "$HAVE_CXX03" -ne "0" ]; then
 	export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++03 $ADD_CXXFLAGS"
 
 	"$MAKE" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-	if [ "$?" -ne "0" ]; then
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		export MallocScribble=1
+		export MallocPreScribble=1
+		export MallocGuardEdges=1
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		unset MallocScribble MallocPreScribble MallocGuardEdges
 	fi
-
-	export MallocScribble=1
-	export MallocPreScribble=1
-	export MallocGuardEdges=1
-	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
-	unset MallocScribble MallocPreScribble MallocGuardEdges
 fi
 
 ############################################
@@ -902,16 +910,16 @@ if [ "$IS_DARWIN" -ne "0" ] && [ "$HAVE_CXX11" -ne "0" ]; then
 	export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 $ADD_CXXFLAGS"
 
 	"$MAKE" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-	if [ "$?" -ne "0" ]; then
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		export MallocScribble=1
+		export MallocPreScribble=1
+		export MallocGuardEdges=1
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		unset MallocScribble MallocPreScribble MallocGuardEdges
 	fi
-
-	export MallocScribble=1
-	export MallocPreScribble=1
-	export MallocGuardEdges=1
-	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
-	unset MallocScribble MallocPreScribble MallocGuardEdges
 fi
 
 ############################################
@@ -934,12 +942,12 @@ if [ "$IS_DARWIN" -ne "0" ]; then
 	export CXXFLAGS="-DNDEBUG -g2 -O2 $ADD_CXXFLAGS"
 
 	"$MAKE" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-	if [ "$?" -ne "0" ]; then
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 	fi
-
-	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
   fi
 fi
 
@@ -956,11 +964,11 @@ if [ "$HAVE_CXX03" -ne "0" ]; then
 	export CXXFLAGS="-DNDEBUG -O3 -std=c++03 $ADD_CXXFLAGS"
 
 	"$MAKE" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-	if [ "$?" -ne "0" ]; then
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe b 1 2.4+1e9 2>&1 | tee -a "$BENCHMARK_RESULTS"
 	fi
-
-	./cryptest.exe b 1 2.4+1e9 2>&1 | tee -a "$BENCHMARK_RESULTS"
 fi
 
 ############################################
@@ -976,11 +984,11 @@ if [ "$HAVE_CXX11" -ne "0" ]; then
 	export CXXFLAGS="-DNDEBUG -O3 -std=c++11 $ADD_CXXFLAGS"
 
 	"$MAKE" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-	if [ "$?" -ne "0" ]; then
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe b 1 2.4+1e9 2>&1 | tee -a "$BENCHMARK_RESULTS"
 	fi
-
-	./cryptest.exe b 1 2.4+1e9 2>&1 | tee -a "$BENCHMARK_RESULTS"
 fi
 
 # For Cygwin, we need to test both PREFER_BERKELEY_STYLE_SOCKETS
@@ -999,12 +1007,12 @@ if [ "$IS_MINGW" -ne "0" ]; then
 	export CXXFLAGS="-DNDEBUG -g2 -O2 -DPREFER_BERKELEY_STYLE_SOCKETS -DNO_WINDOWS_STYLE_SOCKETS $ADD_CXXFLAGS"
 
 	"$MAKE" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-	if [ "$?" -ne "0" ]; then
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 	fi
-
-	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 fi
 
 ############################################
@@ -1020,12 +1028,12 @@ if [ "$IS_MINGW" -ne "0" ]; then
 	export CXXFLAGS="-DNDEBUG -g2 -O2 -DPREFER_WINDOWS_STYLE_SOCKETS -DNO_BERKELEY_STYLE_SOCKETS $ADD_CXXFLAGS"
 
 	"$MAKE" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-	if [ "$?" -ne "0" ]; then
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 	fi
-
-	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 fi
 
 ############################################
@@ -1041,12 +1049,12 @@ if [ "$HAVE_CXX03" -ne "0" ] && [ "$HAVE_VALGRIND" -ne "0" ]; then
 	export CXXFLAGS="-DNDEBUG -std=c++03 -g3 -O1 $ADD_CXXFLAGS"
 
 	"$MAKE" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-	if [ "$?" -ne "0" ]; then
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		valgrind --track-origins=yes ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		valgrind --track-origins=yes ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 	fi
-
-	valgrind --track-origins=yes ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-	valgrind --track-origins=yes ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 fi
 
 ############################################
@@ -1062,12 +1070,12 @@ if [ "$HAVE_VALGRIND" -ne "0" ] && [ "$HAVE_CXX11" -ne "0" ]; then
 	export CXXFLAGS="-DNDEBUG -std=c++11 -g3 -O1 $ADD_CXXFLAGS"
 
 	"$MAKE" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-	if [ "$?" -ne "0" ]; then
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		valgrind --track-origins=yes ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		valgrind --track-origins=yes ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 	fi
-
-	valgrind --track-origins=yes ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-	valgrind --track-origins=yes ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 fi
 
 ############################################
@@ -1086,7 +1094,7 @@ if [ "$CXX" == "g++" ] && [ "$HAVE_CXX11" -ne "0" ]; then
 	export CXXFLAGS="-DDEBUG -g2 -O2 -std=c++11 -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 -Wall -Wextra -Wno-unknown-pragmas -Wstrict-aliasing=3 -Wstrict-overflow -Waggressive-loop-optimizations"
 
 	"$MAKE" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
-	if [ "$?" -ne "0" ]; then
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	fi
 
@@ -1128,12 +1136,12 @@ if [ "$CXX" == "g++" ]; then
 		"$MAKE" clean > /dev/null 2>&1
 
 		"$MAKE" CXX="$CLANG_COMPILER" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-		if [ "$?" -ne "0" ]; then
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+		else
+			./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+			./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 		fi
-
-		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 	fi
 fi
 
@@ -1152,44 +1160,44 @@ rm -rf /tmp/cryptopp_test/ > /dev/null 2>&1
 
 export CXXFLAGS="-DNDEBUG -g2 -O2 -DCRYPTOPP_DATA_DIR='\"/tmp/cryptopp_test/share/\"' "
 "$MAKE" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-if [ "$?" -ne "0" ]; then
+if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+else
+	# Still need to manulally place TestData and TestVectors
+	mkdir -p /tmp/cryptopp_test/share/TestData /tmp/cryptopp_test/share/TestVectors
+	cp -r TestData /tmp/cryptopp_test/share/
+	cp -r TestVectors /tmp/cryptopp_test/share/
+
+	OLD_DIR=$(pwd)
+	make install PREFIX=/tmp/cryptopp_test/ 2>&1 | tee -a "$TEST_RESULTS"
+	cd /tmp/cryptopp_test/bin
+
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Install (validation suite)" | tee -a "$TEST_RESULTS"
+	echo
+	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Install (test vectors)" | tee -a "$TEST_RESULTS"
+	echo
+	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Install (benchmarks)" | tee -a "$TEST_RESULTS"
+	echo
+	./cryptest.exe b 1 2.4+1e9 2>&1 | tee -a "$BENCHMARK_RESULTS"
+
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Test install (help file)" | tee -a "$TEST_RESULTS"
+	echo
+	./cryptest.exe h 2>&1 | tee -a "$BENCHMARK_RESULTS"
+
+	cd "$OLD_DIR"
 fi
-
-# Still need to manulally place TestData and TestVectors
-mkdir -p /tmp/cryptopp_test/share/TestData /tmp/cryptopp_test/share/TestVectors
-cp -r TestData /tmp/cryptopp_test/share/
-cp -r TestVectors /tmp/cryptopp_test/share/
-
-OLD_DIR=$(pwd)
-make install PREFIX=/tmp/cryptopp_test/ 2>&1 | tee -a "$TEST_RESULTS"
-cd /tmp/cryptopp_test/bin
-
-echo
-echo "************************************" | tee -a "$TEST_RESULTS"
-echo "Testing: Install (validation suite)" | tee -a "$TEST_RESULTS"
-echo
-./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-
-echo
-echo "************************************" | tee -a "$TEST_RESULTS"
-echo "Testing: Install (test vectors)" | tee -a "$TEST_RESULTS"
-echo
-./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
-
-echo
-echo "************************************" | tee -a "$TEST_RESULTS"
-echo "Testing: Install (benchmarks)" | tee -a "$TEST_RESULTS"
-echo
-./cryptest.exe b 1 2.4+1e9 2>&1 | tee -a "$BENCHMARK_RESULTS"
-
-echo
-echo "************************************" | tee -a "$TEST_RESULTS"
-echo "Testing: Test install (help file)" | tee -a "$TEST_RESULTS"
-echo
-./cryptest.exe h 2>&1 | tee -a "$BENCHMARK_RESULTS"
-
-cd "$OLD_DIR"
 
 ############################################
 ############################################
