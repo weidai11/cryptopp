@@ -97,7 +97,7 @@ public:
 	{
 		// Override to avoid the base class' throw.
 		CRYPTOPP_UNUSED(input); CRYPTOPP_UNUSED(length);
-		assert(0); // warn in debug builds
+		// assert(0); // warn in debug builds
 	}
 
 private:
@@ -179,7 +179,7 @@ public:
 	{
 		// Override to avoid the base class' throw.
 		CRYPTOPP_UNUSED(input); CRYPTOPP_UNUSED(length);
-		assert(0); // warn in debug builds
+		// assert(0); // warn in debug builds
 	}
 
 private:
