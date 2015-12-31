@@ -306,6 +306,35 @@ bool TestSecBlock()
 	cout << "\nTesting SecBlock...\n\n";
 
 	bool result = true, temp = true;
+	
+	//********** Zeroized block **********//
+	
+	// NULL ptr with a size means to create a new SecBloc with all elements zero'd
+	SecByteBlock z1(NULL, 256);
+	temp = true;
+
+	for (size_t i = 0; i < z1.size(); i++)
+		temp &= (z1[i] == 0);
+
+	result &= temp;
+	if (!temp)
+		cout << "FAILED:";
+	else
+		cout << "passed:";
+	cout << "  Zeroized byte array" << endl;
+
+	SecBlock<word32> z2(NULL, 256);
+	temp = true;
+
+	for (size_t i = 0; i < z2.size(); i++)
+		temp &= (z2[i] == 0);
+
+	result &= temp;
+	if (!temp)
+		cout << "FAILED:";
+	else
+		cout << "passed:";
+	cout << "  Zeroized word32 array" << endl;
 
 	//********** Assign **********//
 
