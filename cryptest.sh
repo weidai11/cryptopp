@@ -1084,7 +1084,7 @@ fi
 if [ "$CXX" == "g++" ] && [ "$HAVE_CXX11" -ne "0" ]; then
 
 	############################################
-	# Basic debug build
+	# C++11 debug build
 	echo
 	echo "************************************" | tee -a "$WARN_RESULTS"
 	echo "Testing: debug, c++11, elevated warnings" | tee -a "$WARN_RESULTS"
@@ -1100,7 +1100,7 @@ if [ "$CXX" == "g++" ] && [ "$HAVE_CXX11" -ne "0" ]; then
 	fi
 
 	############################################
-	# Basic release build
+	# C++11 release build
 	echo
 	echo "************************************" | tee -a "$WARN_RESULTS"
 	echo "Testing: release, c++11, elevated warnings" | tee -a "$WARN_RESULTS"
@@ -1222,16 +1222,28 @@ fi
 echo | tee -a "$TEST_RESULTS"
 
 # "FAILED" is from Crypto++
+# "ERROR" is from this script
 # "Error" is from the GNU assembler
 # "error" is from the sanitizers
 # "Illegal", "0 errors" and "suppressed errors" are from Valgrind.
-COUNT=$(egrep -a '(Error|error|FAILED|Illegal)' cryptest-result.txt | egrep -v "( 0 errors|suppressed errors|memory error detector)" | wc -l)
-if [ "$COUNT" -eq "0" ]; then
+ECOUNT=$(egrep -a '(Error|ERROR|error|FAILED|Illegal)' cryptest-result.txt | egrep -v '( 0 errors|suppressed errors|memory error detector)' | wc -l)
+if [ "$ECOUNT" -eq "0" ]; then
 	echo "No failures detected" | tee -a "$TEST_RESULTS"
 else
-	echo "$COUNT errors detected" | tee -a "$TEST_RESULTS"
+	echo "$ECOUNT errors detected" | tee -a "$TEST_RESULTS"
 	echo
-	egrep -an "(Error|error|FAILED|Illegal)" cryptest-result.txt
+	egrep -an '(Error|ERROR|error|FAILED|Illegal)' cryptest-result.txt | egrep -v '( 0 errors|suppressed errors|memory error detector)'
+fi
+echo | tee -a "$TEST_RESULTS"
+
+# Write warnings to $TEST_RESULTS
+WCOUNT=$(egrep -a '(warning:)' cryptest-warn.txt | wc -l)
+if [ "$WCOUNT" -eq "0" ]; then
+	echo "No warnings detected" | tee -a "$TEST_RESULTS"
+else
+	echo "$WCOUNT warnings detected" | tee -a "$TEST_RESULTS"
+	echo
+	egrep -an '(warning:)' cryptest-warn.txt
 fi
 echo | tee -a "$TEST_RESULTS"
 	
@@ -1239,7 +1251,7 @@ echo "************************************************" | tee -a "$TEST_RESULTS"
 echo "************************************************" | tee -a "$TEST_RESULTS"
 
 # http://tldp.org/LDP/abs/html/exitcodes.html#EXITCODESREF
-if [ "$COUNT" -eq "0" ]; then
+if [ "$ECOUNT" -eq "0" ]; then
 	exit 0
 else
 	exit 1
