@@ -470,8 +470,10 @@ libcryptopp.a: $(LIBOBJS) | public_service
 	$(AR) $(ARFLAGS) $@ $(LIBOBJS)
 	$(RANLIB) $@
 
+ifeq ($(HAS_SOLIB_VERSION),1)
 .PHONY: libcryptopp.so
-libcryptopp.so: libcryptopp$(SOLIB_VERSION_SUFFIX)
+libcryptopp.so: libcryptopp.so$(SOLIB_VERSION_SUFFIX)
+endif
 
 libcryptopp.so$(SOLIB_VERSION_SUFFIX): $(LIBOBJS) | public_service
 	$(CXX) -shared $(SOLIB_FLAGS) -o $@ $(CXXFLAGS) $(GOLD_OPTION) $(LIBOBJS) $(LDLIBS)
