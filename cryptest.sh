@@ -1081,7 +1081,54 @@ fi
 
 ############################################
 # Build with elevated warnings
-if [ "$CXX" == "g++" ] && [ "$HAVE_CXX11" -ne "0" ]; then
+if [ "$HAVE_CXX03" -ne "0" ]; then
+
+	############################################
+	# C++03 debug build
+	echo
+	echo "************************************" | tee -a "$WARN_RESULTS"
+	echo "Testing: debug, c++03, elevated warnings" | tee -a "$WARN_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+
+	if [ "CXX" -eq "g++" ]; then
+		export CXXFLAGS="-DDEBUG -g2 -O2 -std=c++03 -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 -Wall -Wextra -Wno-unknown-pragmas -Wstrict-aliasing=3 -Wstrict-overflow -Waggressive-loop-optimizations"
+	else
+		export CXXFLAGS="-DDEBUG -g2 -O2 -std=c++03 -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 -Wall -Wextra -Wno-unknown-pragmas"
+	fi
+
+	"$MAKE" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$WARN_RESULTS"
+	fi
+
+	############################################
+	# C++03 release build
+	echo
+	echo "************************************" | tee -a "$WARN_RESULTS"
+	echo "Testing: release, c++03, elevated warnings" | tee -a "$WARN_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+
+	if [ "CXX" -eq "g++" ]; then
+		export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++03 -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 -Wall -Wextra -Wno-unknown-pragmas -Wstrict-aliasing=3 -Wstrict-overflow -Waggressive-loop-optimizations"
+	else
+		export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++03 -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 -Wall -Wextra -Wno-unknown-pragmas"
+	fi
+
+	"$MAKE" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
+	if [ "$?" -ne "0" ]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$WARN_RESULTS"
+	fi
+fi
+
+############################################
+# Build with elevated warnings
+if [ "$HAVE_CXX11" -ne "0" ]; then
 
 	############################################
 	# C++11 debug build
@@ -1092,11 +1139,16 @@ if [ "$CXX" == "g++" ] && [ "$HAVE_CXX11" -ne "0" ]; then
 
 	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
-	export CXXFLAGS="-DDEBUG -g2 -O2 -std=c++11 -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 -Wall -Wextra -Wno-unknown-pragmas -Wstrict-aliasing=3 -Wstrict-overflow -Waggressive-loop-optimizations"
+
+	if [ "CXX" -eq "g++" ]; then
+		export CXXFLAGS="-DDEBUG -g2 -O2 -std=c++11 -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 -Wall -Wextra -Wno-unknown-pragmas -Wstrict-aliasing=3 -Wstrict-overflow -Waggressive-loop-optimizations"
+	else
+		export CXXFLAGS="-DDEBUG -g2 -O2 -std=c++11 -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 -Wall -Wextra -Wno-unknown-pragmas"
+	fi
 
 	"$MAKE" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
-		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$WARN_RESULTS"
 	fi
 
 	############################################
@@ -1108,11 +1160,16 @@ if [ "$CXX" == "g++" ] && [ "$HAVE_CXX11" -ne "0" ]; then
 
 	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
-	export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 -Wall -Wextra -Wno-unknown-pragmas -Wstrict-aliasing=3 -Wstrict-overflow -Waggressive-loop-optimizations"
+
+	if [ "CXX" -eq "g++" ]; then
+		export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 -Wall -Wextra -Wno-unknown-pragmas -Wstrict-aliasing=3 -Wstrict-overflow -Waggressive-loop-optimizations"
+	else
+		export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 -Wall -Wextra -Wno-unknown-pragmas"
+	fi
 
 	"$MAKE" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 	if [ "$?" -ne "0" ]; then
-		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$WARN_RESULTS"
 	fi
 fi
 
