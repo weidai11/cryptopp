@@ -15,6 +15,7 @@
 TEST_RESULTS=cryptest-result.txt
 BENCHMARK_RESULTS=cryptest-bench.txt
 WARN_RESULTS=cryptest-warn.txt
+INSTALL_RESULTS=cryptest-install.txt
 
 # Respect user's preferred flags, but filter the stuff we expliclty test
 #if [ ! -z "CXXFLAGS" ]; then
@@ -1079,7 +1080,7 @@ if [ "$HAVE_VALGRIND" -ne "0" ] && [ "$HAVE_CXX11" -ne "0" ]; then
 fi
 
 ############################################
-
+# Build with elevated warnings
 if [ "$CXX" == "g++" ] && [ "$HAVE_CXX11" -ne "0" ]; then
 
 	############################################
@@ -1116,7 +1117,6 @@ if [ "$CXX" == "g++" ] && [ "$HAVE_CXX11" -ne "0" ]; then
 fi
 
 ############################################
-
 # If using GCC (likely Linux), then perform a quick check with Clang.
 # This check was added after testing on Ubuntu 14.04 with Clang 3.4.
 if [ "$CXX" == "g++" ]; then
@@ -1146,57 +1146,58 @@ if [ "$CXX" == "g++" ]; then
 fi
 
 ############################################
-
 # Test an install with CRYPTOPP_DATA_DIR
-
-echo
-echo "************************************" | tee -a "$TEST_RESULTS"
-echo "Testing: Test install with data directory" | tee -a "$TEST_RESULTS"
-echo
-
-unset CXXFLAGS
-"$MAKE" clean > /dev/null 2>&1
-rm -rf /tmp/cryptopp_test/ > /dev/null 2>&1
-
-export CXXFLAGS="-DNDEBUG -g2 -O2 -DCRYPTOPP_DATA_DIR='\"/tmp/cryptopp_test/share/\"' "
-"$MAKE" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-if [ "${PIPESTATUS[0]}" -ne "0" ]; then
-	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
-else
-	# Still need to manulally place TestData and TestVectors
-	mkdir -p /tmp/cryptopp_test/share/TestData /tmp/cryptopp_test/share/TestVectors
-	cp -r TestData /tmp/cryptopp_test/share/
-	cp -r TestVectors /tmp/cryptopp_test/share/
-
-	OLD_DIR=$(pwd)
-	make install PREFIX=/tmp/cryptopp_test/ 2>&1 | tee -a "$TEST_RESULTS"
-	cd /tmp/cryptopp_test/bin
+if [ "$IS_CYGWIN" -eq "0" ] && [ "$IS_MINGW" -eq "0" ]; then
 
 	echo
-	echo "************************************" | tee -a "$TEST_RESULTS"
-	echo "Testing: Install (validation suite)" | tee -a "$TEST_RESULTS"
+	echo "************************************" | tee -a "$INSTALL_RESULTS"
+	echo "Testing: Test install with data directory" | tee -a "$INSTALL_RESULTS"
 	echo
-	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
 
-	echo
-	echo "************************************" | tee -a "$TEST_RESULTS"
-	echo "Testing: Install (test vectors)" | tee -a "$TEST_RESULTS"
-	echo
-	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	rm -rf /tmp/cryptopp_test/ > /dev/null 2>&1
 
-	echo
-	echo "************************************" | tee -a "$TEST_RESULTS"
-	echo "Testing: Install (benchmarks)" | tee -a "$TEST_RESULTS"
-	echo
-	./cryptest.exe b 1 2.4+1e9 2>&1 | tee -a "$BENCHMARK_RESULTS"
+	export CXXFLAGS="-DNDEBUG -g2 -O2 -DCRYPTOPP_DATA_DIR='\"/tmp/cryptopp_test/share/\"' "
+	"$MAKE" static dynamic cryptest.exe 2>&1 | tee -a "$INSTALL_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$INSTALL_RESULTS"
+	else
+		# Still need to manulally place TestData and TestVectors
+		mkdir -p /tmp/cryptopp_test/share/TestData /tmp/cryptopp_test/share/TestVectors
+		cp -r TestData /tmp/cryptopp_test/share/
+		cp -r TestVectors /tmp/cryptopp_test/share/
 
-	echo
-	echo "************************************" | tee -a "$TEST_RESULTS"
-	echo "Testing: Test install (help file)" | tee -a "$TEST_RESULTS"
-	echo
-	./cryptest.exe h 2>&1 | tee -a "$BENCHMARK_RESULTS"
+		OLD_DIR=$(pwd)
+		make install PREFIX=/tmp/cryptopp_test/ 2>&1 | tee -a "$INSTALL_RESULTS"
+		cd /tmp/cryptopp_test/bin
 
-	cd "$OLD_DIR"
+		echo
+		echo "************************************" | tee -a "$INSTALL_RESULTS"
+		echo "Testing: Install (validation suite)" | tee -a "$INSTALL_RESULTS"
+		echo
+		./cryptest.exe v 2>&1 | tee -a "$INSTALL_RESULTS"
+
+		echo
+		echo "************************************" | tee -a "$INSTALL_RESULTS"
+		echo "Testing: Install (test vectors)" | tee -a "$INSTALL_RESULTS"
+		echo
+		./cryptest.exe tv all 2>&1 | tee -a "$INSTALL_RESULTS"
+
+		echo
+		echo "************************************" | tee -a "$INSTALL_RESULTS"
+		echo "Testing: Install (benchmarks)" | tee -a "$INSTALL_RESULTS"
+		echo
+		./cryptest.exe b 1 2.4+1e9 2>&1 | tee -a "$INSTALL_RESULTS"
+
+		echo
+		echo "************************************" | tee -a "$INSTALL_RESULTS"
+		echo "Testing: Install (help file)" | tee -a "$INSTALL_RESULTS"
+		echo
+		./cryptest.exe h 2>&1 | tee -a "$INSTALL_RESULTS"
+
+		cd "$OLD_DIR"
+	fi
 fi
 
 ############################################
