@@ -209,7 +209,13 @@ if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 else
 	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+	fi
 	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+	fi
 fi
 
 ############################################
@@ -228,7 +234,13 @@ if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 else
 	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+	fi
 	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+	fi
 fi
 
 ############################################
@@ -247,7 +259,13 @@ if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 else
 	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+	fi
 	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+	fi
 fi
 
 ############################################
@@ -266,7 +284,13 @@ if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 else
 	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+	fi
 	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+	fi
 fi
 
 ############################################
@@ -286,7 +310,13 @@ if [ "$HAVE_CXX03" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	else
 		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
 		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
 	fi
 fi
 
@@ -307,7 +337,13 @@ if [ "$HAVE_CXX03" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	else
 		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
 		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
 	fi
 fi
 
@@ -328,7 +364,13 @@ if [ "$HAVE_CXX11" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	else
 		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
 		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
 	fi
 fi
 
@@ -349,7 +391,13 @@ if [ "$HAVE_CXX11" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	else
 		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
 		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
 	fi
 fi
 
@@ -369,7 +417,13 @@ if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 else
 	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+	fi
 	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+	fi
 fi
 
 ############################################
@@ -389,7 +443,13 @@ if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 fi
 
 ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+	echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+fi
 ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+	echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+fi
 
 ############################################
 # Debug build, init_priority
@@ -407,7 +467,13 @@ if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 else
 	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+	fi
 	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+	fi
 fi
 
 ############################################
@@ -426,7 +492,13 @@ if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 else
 	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+	fi
 	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+	fi
 fi
 
 ############################################
@@ -446,7 +518,13 @@ if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 else
 	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+	fi
 	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+	fi
 fi
 
 ############################################
@@ -466,7 +544,13 @@ if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 else
 	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+	fi
 	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+	fi
 fi
 
 ############################################
@@ -485,7 +569,13 @@ if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 else
 	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+	fi
 	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+	fi
 fi
 
 ############################################
@@ -504,7 +594,13 @@ if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 else
 	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+	fi
 	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+	fi
 fi
 
 ############################################
@@ -523,7 +619,13 @@ if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 else
 	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+	fi
 	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+	fi
 fi
 
 ############################################
@@ -542,7 +644,13 @@ if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 else
 	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+	fi
 	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+	fi
 fi
 
 ############################################
@@ -561,7 +669,13 @@ if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 else
 	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+	fi
 	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+	fi
 fi
 
 ############################################
@@ -580,7 +694,13 @@ if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 else
 	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+	fi
 	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+	fi
 fi
 
 ############################################
@@ -600,7 +720,13 @@ if [ "$HAVE_CXX03" -ne "0" ] && [ "$HAVE_UBSAN" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	else
 		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
 		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
 	fi
 fi
 
@@ -621,7 +747,13 @@ if [ "$HAVE_CXX03" -ne "0" ] && [ "$HAVE_UBSAN" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	else
 		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
 		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
 	fi
 fi
 
@@ -642,7 +774,13 @@ if [ "$HAVE_CXX03" -ne "0" ] && [ "$HAVE_ASAN" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	else
 		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
 		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
 	fi
 fi
 
@@ -663,7 +801,13 @@ if [ "$HAVE_CXX03" -ne "0" ] && [ "$HAVE_ASAN" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	else
 		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
 		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
 	fi
 fi
 
@@ -683,7 +827,13 @@ if [ "$HAVE_CXX11" -ne "0" ] && [ "$HAVE_UBSAN" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	else
 		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
 		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
 	fi
 fi
 
@@ -704,7 +854,13 @@ if [ "$HAVE_CXX11" -ne "0" ] && [ "$HAVE_ASAN" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	else
 		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
 		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
 	fi
 fi
 
@@ -728,7 +884,13 @@ if [ "$HAVE_CXX03" -ne "0" ] && [ "$IS_DARWIN" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	else
 		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
 		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
 	fi
 fi
 
@@ -749,7 +911,13 @@ if [ "$HAVE_CXX03" -ne "0" ] && [ "$IS_DARWIN" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	else
 		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
 		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
 	fi
 fi
 
@@ -770,7 +938,13 @@ if [ "$IS_DARWIN" -ne "0" ] && [ "$HAVE_CXX11" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	else
 		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
 		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
 	fi
 fi
 
@@ -791,7 +965,13 @@ if [ "$IS_DARWIN" -ne "0" ] && [ "$HAVE_CXX11" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	else
 		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
 		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
 	fi
 fi
 
@@ -813,11 +993,23 @@ if [ "$IS_DARWIN" -ne "0" ] && [ "$HAVE_INTEL_MULTIARCH" -ne "0" ] && [ "$HAVE_C
 	else
 		echo "Running i386 version..."
 		arch -i386 ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite (i386)" | tee -a "$TEST_RESULTS"
+		fi
 		arch -i386 ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors (i386)" | tee -a "$TEST_RESULTS"
+		fi
 
 		echo "Running x86_64 version..."
 		arch -x86_64 ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite (x86_64)" | tee -a "$TEST_RESULTS"
+		fi
 		arch -x86_64 ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors (x86_64)" | tee -a "$TEST_RESULTS"
+		fi
 	fi
 fi
 
@@ -839,11 +1031,23 @@ if [ "$IS_DARWIN" -ne "0" ] && [ "$HAVE_INTEL_MULTIARCH" -ne "0" ] && [ "$HAVE_C
 	else
 		echo "Running i386 version..."
 		arch -i386 ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite (i386)" | tee -a "$TEST_RESULTS"
+		fi
 		arch -i386 ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors (i386)" | tee -a "$TEST_RESULTS"
+		fi
 
 		echo "Running x86_64 version..."
 		arch -x86_64 ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite (x86_64)" | tee -a "$TEST_RESULTS"
+		fi
 		arch -x86_64 ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors (x86_64)" | tee -a "$TEST_RESULTS"
+		fi
 	fi
 fi
 
@@ -865,11 +1069,23 @@ if [ "$IS_DARWIN" -ne "0" ] && [ "$HAVE_PPC_MULTIARCH" -ne "0" ]; then
 	else
 		echo "Running PPC version..."
 		arch -ppc ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite (PPC)" | tee -a "$TEST_RESULTS"
+		fi
 		arch -ppc ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors (PPC)" | tee -a "$TEST_RESULTS"
+		fi
 
 		echo "Running PPC64 version..."
 		arch -ppc64 ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite (PPC64)" | tee -a "$TEST_RESULTS"
+		fi
 		arch -ppc64 ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors (PPC64)" | tee -a "$TEST_RESULTS"
+		fi
 	fi
 fi
 
@@ -892,8 +1108,16 @@ if [ "$IS_DARWIN" -ne "0" ] && [ "$HAVE_CXX03" -ne "0" ]; then
 		export MallocScribble=1
 		export MallocPreScribble=1
 		export MallocGuardEdges=1
+
 		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
 		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+
 		unset MallocScribble MallocPreScribble MallocGuardEdges
 	fi
 fi
@@ -917,8 +1141,16 @@ if [ "$IS_DARWIN" -ne "0" ] && [ "$HAVE_CXX11" -ne "0" ]; then
 		export MallocScribble=1
 		export MallocPreScribble=1
 		export MallocGuardEdges=1
+
 		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
 		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+
 		unset MallocScribble MallocPreScribble MallocGuardEdges
 	fi
 fi
@@ -947,7 +1179,13 @@ if [ "$IS_DARWIN" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	else
 		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
 		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
 	fi
   fi
 fi
@@ -969,6 +1207,9 @@ if [ "$HAVE_CXX03" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	else
 		./cryptest.exe b 1 2.4+1e9 2>&1 | tee -a "$BENCHMARK_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute benchmarks" | tee -a "$BENCHMARK_RESULTS"
+		fi
 	fi
 fi
 
@@ -989,6 +1230,9 @@ if [ "$HAVE_CXX11" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	else
 		./cryptest.exe b 1 2.4+1e9 2>&1 | tee -a "$BENCHMARK_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute benchmarks" | tee -a "$BENCHMARK_RESULTS"
+		fi
 	fi
 fi
 
@@ -1012,7 +1256,13 @@ if [ "$IS_MINGW" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	else
 		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
 		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
 	fi
 fi
 
@@ -1033,7 +1283,13 @@ if [ "$IS_MINGW" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	else
 		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
 		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
 	fi
 fi
 
@@ -1197,7 +1453,13 @@ if [ "$CXX" == "g++" ]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 		else
 			./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+			if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+			fi
 			./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+			if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+			fi
 		fi
 	fi
 fi
@@ -1234,24 +1496,36 @@ if [ "$IS_CYGWIN" -eq "0" ] && [ "$IS_MINGW" -eq "0" ]; then
 		echo "Testing: Install (validation suite)" | tee -a "$INSTALL_RESULTS"
 		echo
 		./cryptest.exe v 2>&1 | tee -a "$INSTALL_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$INSTALL_RESULTS"
+		fi
 
 		echo
 		echo "************************************" | tee -a "$INSTALL_RESULTS"
 		echo "Testing: Install (test vectors)" | tee -a "$INSTALL_RESULTS"
 		echo
 		./cryptest.exe tv all 2>&1 | tee -a "$INSTALL_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$INSTALL_RESULTS"
+		fi
 
 		echo
 		echo "************************************" | tee -a "$INSTALL_RESULTS"
 		echo "Testing: Install (benchmarks)" | tee -a "$INSTALL_RESULTS"
 		echo
 		./cryptest.exe b 1 2.4+1e9 2>&1 | tee -a "$INSTALL_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute benchmarks" | tee -a "$INSTALL_RESULTS"
+		fi
 
 		echo
 		echo "************************************" | tee -a "$INSTALL_RESULTS"
 		echo "Testing: Install (help file)" | tee -a "$INSTALL_RESULTS"
 		echo
 		./cryptest.exe h 2>&1 | tee -a "$INSTALL_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute help" | tee -a "$INSTALL_RESULTS"
+		fi
 
 		cd "$OLD_DIR"
 	fi
@@ -1294,13 +1568,13 @@ fi
 echo | tee -a "$TEST_RESULTS"
 
 # Write warnings to $TEST_RESULTS
-WCOUNT=$(egrep -a '(warning:)' cryptest-warn.txt | wc -l)
+WCOUNT=$(egrep -a '(warning:)' cryptest-warn.txt | grep -v 'deprecated-declarations' | wc -l)
 if [ "$WCOUNT" -eq "0" ]; then
 	echo "No warnings detected" | tee -a "$TEST_RESULTS"
 else
 	echo "$WCOUNT warnings detected" | tee -a "$TEST_RESULTS"
 	echo
-	egrep -an '(warning:)' cryptest-warn.txt
+	egrep -an '(warning:)' cryptest-warn.txt | grep -v 'deprecated-declarations'
 fi
 echo | tee -a "$TEST_RESULTS"
 	
