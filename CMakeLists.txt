@@ -32,18 +32,20 @@ list(GET cryptopp_VERSION_LIST 0 cryptopp_VERSION_MAJOR)
 list(GET cryptopp_VERSION_LIST 1 cryptopp_VERSION_MINOR)
 list(GET cryptopp_VERSION_LIST 2 cryptopp_VERSION_PATCH)
 
+math(EXPR BITS "8*${CMAKE_SIZEOF_VOID_P}")
+
 if(CMAKE_CXX_COMPILER_ID MATCHES "Intel")
 	add_definitions(-wd68 -wd186 -wd279 -wd327 -wd161 -wd3180)
 endif()
 
 # Endianess
-TEST_BIG_ENDIAN(IS_BIG_ENDIAN)
+test_big_endian(IS_BIG_ENDIAN)
 if(IS_BIG_ENDIAN)
 	add_definitions(-DIS_BIG_ENDIAN)
 endif()
 
 # Position independent code
-if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+if(BITS EQUAL 64)
 	# Enables -fPIC on all 64-bit platforms
 	set(cryptopp_POSITION_INDEPENDENT_CODE TRUE)
 else()
@@ -60,7 +62,7 @@ if(DISABLE_AESNI)
 	add_definitions(-DCRYPTOPP_DISABLE_AESNI)
 endif()
 if(NOT CRYPTOPP_DATA_DIR STREQUAL "")
-	add_definitions(-DCRYPTOPP_DATA_DIR=${CRYPTOPP_DATA_DIR})
+	add_definitions(-DCRYPTOPP_DATA_DIR="${CRYPTOPP_DATA_DIR}")
 endif()
 
 #============================================================================
@@ -90,8 +92,20 @@ set(cryptopp_SOURCES
 		${cryptopp_SOURCES}
 		)
 
-if(MINGW)
+if(WIN32)
 	list(APPEND cryptopp_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/winpipes.cpp)
+endif()
+
+if(MSVC AND NOT DISABLE_ASM)
+	enable_language(ASM_MASM)
+	if(BITS EQUAL 32)
+		set(CMAKE_ASM_MASM_FLAGS "${CMAKE_ASM_MASM_FLAGS} /nologo /D_M_X86 /W3 /Cx /Zi /safeseh")
+	else()
+		set(CMAKE_ASM_MASM_FLAGS "${CMAKE_ASM_MASM_FLAGS} /nologo /D_M_X64 /W3 /Cx /Zi")
+		list(APPEND cryptopp_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/x64dll.asm)
+		list(APPEND cryptopp_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/x64masm.asm)
+	endif()
+	list(APPEND cryptopp_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/rdrand.asm)
 endif()
 
 #============================================================================
