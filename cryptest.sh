@@ -1349,7 +1349,7 @@ if [ "$HAVE_CXX03" -ne "0" ]; then
 	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 
-	if [ "CXX" -eq "g++" ]; then
+	if [ "$CXX" == "g++" ]; then
 		export CXXFLAGS="-DDEBUG -g2 -O2 -std=c++03 -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 -Wall -Wextra -Wno-unknown-pragmas -Wstrict-aliasing=3 -Wstrict-overflow -Waggressive-loop-optimizations -Wcast-align -Wwrite-strings -Wformat=2 -Wformat-security -Wtrampolines"
 	else
 		export CXXFLAGS="-DDEBUG -g2 -O2 -std=c++03 -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 -Wall -Wextra -Wno-unknown-pragmas -Wstrict-overflow -Wcast-align -Wwrite-strings -Wformat=2 -Wformat-security"
@@ -1370,7 +1370,7 @@ if [ "$HAVE_CXX03" -ne "0" ]; then
 	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 
-	if [ "CXX" -eq "g++" ]; then
+	if [ "$CXX" == "g++" ]; then
 		export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++03 -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 -Wall -Wextra -Wno-unknown-pragmas -Wstrict-aliasing=3 -Wstrict-overflow -Waggressive-loop-optimizations -Wcast-align -Wwrite-strings -Wformat=2 -Wformat-security -Wtrampolines"
 	else
 		export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++03 -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 -Wall -Wextra -Wno-unknown-pragmas -Wstrict-overflow -Wcast-align -Wwrite-strings -Wformat=2 -Wformat-security"
@@ -1396,7 +1396,7 @@ if [ "$HAVE_CXX11" -ne "0" ]; then
 	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 
-	if [ "CXX" -eq "g++" ]; then
+	if [ "$CXX" == "g++" ]; then
 		export CXXFLAGS="-DDEBUG -g2 -O2 -std=c++11 -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 -Wall -Wextra -Wno-unknown-pragmas -Wstrict-aliasing=3 -Wstrict-overflow -Waggressive-loop-optimizations -Wcast-align -Wwrite-strings -Wformat=2 -Wformat-security -Wtrampolines"
 	else
 		export CXXFLAGS="-DDEBUG -g2 -O2 -std=c++11 -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 -Wall -Wextra -Wno-unknown-pragmas -Wstrict-overflow -Wcast-align -Wwrite-strings -Wformat=2 -Wformat-security"
@@ -1417,7 +1417,7 @@ if [ "$HAVE_CXX11" -ne "0" ]; then
 	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 
-	if [ "CXX" -eq "g++" ]; then
+	if [ "$CXX" == "g++" ]; then
 		export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 -Wall -Wextra -Wno-unknown-pragmas -Wstrict-aliasing=3 -Wstrict-overflow -Waggressive-loop-optimizations -Wcast-align -Wwrite-strings -Wformat=2 -Wformat-security -Wtrampolines"
 	else
 		export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 -Wall -Wextra -Wno-unknown-pragmas -Wstrict-overflow -Wcast-align -Wwrite-strings -Wformat=2 -Wformat-security"
