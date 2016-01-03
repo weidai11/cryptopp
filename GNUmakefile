@@ -421,29 +421,37 @@ endif
 .PHONY: install
 install:
 	$(MKDIR) -p $(DESTDIR)$(INCLUDEDIR)/cryptopp
-	-$(CP) *.h $(DESTDIR)$(INCLUDEDIR)/cryptopp
-	-$(CHMOD) 755 $(DESTDIR)$(INCLUDEDIR)/cryptopp
-	-$(CHMOD) 644 $(DESTDIR)$(INCLUDEDIR)/cryptopp/*.h
+	$(CP) *.h $(DESTDIR)$(INCLUDEDIR)/cryptopp
+	-$(CHMOD) 0755 $(DESTDIR)$(INCLUDEDIR)/cryptopp
+	-$(CHMOD) 0644 $(DESTDIR)$(INCLUDEDIR)/cryptopp/*.h
 ifneq ($(wildcard libcryptopp.a),)
 	$(MKDIR) -p $(DESTDIR)$(LIBDIR)
-	-$(CP) libcryptopp.a $(DESTDIR)$(LIBDIR)
-	-$(CHMOD) 644 $(DESTDIR)$(LIBDIR)/libcryptopp.a
+	$(CP) libcryptopp.a $(DESTDIR)$(LIBDIR)
+	-$(CHMOD) 0644 $(DESTDIR)$(LIBDIR)/libcryptopp.a
 endif
 ifneq ($(wildcard cryptest.exe),)
 	$(MKDIR) -p $(DESTDIR)$(BINDIR)
-	-$(CP) cryptest.exe $(DESTDIR)$(BINDIR)
-	-$(CHMOD) 755 $(DESTDIR)$(BINDIR)/cryptest.exe
+	$(CP) cryptest.exe $(DESTDIR)$(BINDIR)
+	-$(CHMOD) 0755 $(DESTDIR)$(BINDIR)/cryptest.exe
+	$(MKDIR) -p $(DESTDIR)$(DATADIR)/cryptopp
+	$(CP) -r TestData $(DESTDIR)$(DATADIR)/cryptopp
+	$(CP) -r TestVectors $(DESTDIR)$(DATADIR)/cryptopp
+	-$(CHMOD) 0755 $(DESTDIR)$(DATADIR)/cryptopp
+	-$(CHMOD) 0755 $(DESTDIR)$(DATADIR)/cryptopp/TestData
+	-$(CHMOD) 0755 $(DESTDIR)$(DATADIR)/cryptopp/TestVectors
+	-$(CHMOD) 0644 $(DESTDIR)$(DATADIR)/cryptopp/TestData/*.dat
+	-$(CHMOD) 0644 $(DESTDIR)$(DATADIR)/cryptopp/TestVectors/*.txt
 endif
 ifneq ($(wildcard libcryptopp.dylib),)
 	$(MKDIR) -p $(DESTDIR)$(LIBDIR)
-	-$(CP) libcryptopp.dylib $(DESTDIR)$(LIBDIR)
+	$(CP) libcryptopp.dylib $(DESTDIR)$(LIBDIR)
 	-install_name_tool -id $(DESTDIR)$(LIBDIR)/libcryptopp.dylib $(DESTDIR)$(LIBDIR)/libcryptopp.dylib
-	-$(CHMOD) 755 $(DESTDIR)$(LIBDIR)/libcryptopp.dylib
+	-$(CHMOD) 0755 $(DESTDIR)$(LIBDIR)/libcryptopp.dylib
 endif
 ifneq ($(wildcard libcryptopp.so$(SOLIB_VERSION_SUFFIX)),)
 	$(MKDIR) -p $(DESTDIR)$(LIBDIR)
-	-$(CP) libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(DESTDIR)$(LIBDIR)
-	-$(CHMOD) 755 $(DESTDIR)$(LIBDIR)/libcryptopp.so$(SOLIB_VERSION_SUFFIX)
+	$(CP) libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(DESTDIR)$(LIBDIR)
+	-$(CHMOD) 0755 $(DESTDIR)$(LIBDIR)/libcryptopp.so$(SOLIB_VERSION_SUFFIX)
 ifeq ($(HAS_SOLIB_VERSION),1)
 	-$(LN) -sf libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(DESTDIR)$(LIBDIR)/libcryptopp.so
 	$(LDCONF) $(DESTDIR)$(LIBDIR)
@@ -455,6 +463,7 @@ remove uninstall:
 	-$(RM) -r $(DESTDIR)$(INCLUDEDIR)/cryptopp
 	-$(RM) $(DESTDIR)$(LIBDIR)/libcryptopp.a
 	-$(RM) $(DESTDIR)$(BINDIR)/cryptest.exe
+	-$(RM) -r $(DESTDIR)$(DATADIR)/cryptopp
 ifneq ($(IS_DARWIN),0)
 	-$(RM) $(DESTDIR)$(LIBDIR)/libcryptopp.dylib
 else
@@ -582,6 +591,22 @@ cryptlib.o:
 	$(CXX) $(CXXFLAGS) -DMACPORTS_GCC_COMPILER=1 -c cryptlib.cpp
 cpu.o:
 	$(CXX) $(CXXFLAGS) -DMACPORTS_GCC_COMPILER=1 -c cpu.cpp
+endif
+endif
+
+# Only use CRYPTOPP_DATA_DIR if its not set in CXXFLAGS
+ifeq ($(findstring -DCRYPTOPP_DATA_DIR,$(CXXFLAGS)),)
+ifneq ($(strip $(CRYPTOPP_DATA_DIR)),)
+validat%.o : validat%.cpp
+	$(CXX) $(CXXFLAGS) -DCRYPTOPP_DATA_DIR=\"$(CRYPTOPP_DATA_DIR)\" -c $<
+bench.o : bench.cpp
+	$(CXX) $(CXXFLAGS) -DCRYPTOPP_DATA_DIR=\"$(CRYPTOPP_DATA_DIR)\" -c $<
+bench%.o : bench%.cpp
+	$(CXX) $(CXXFLAGS) -DCRYPTOPP_DATA_DIR=\"$(CRYPTOPP_DATA_DIR)\" -c $<
+datatest.o : datatest.cpp
+	$(CXX) $(CXXFLAGS) -DCRYPTOPP_DATA_DIR=\"$(CRYPTOPP_DATA_DIR)\" -c $<
+test.o : test.cpp
+	$(CXX) $(CXXFLAGS) -DCRYPTOPP_DATA_DIR=\"$(CRYPTOPP_DATA_DIR)\" -c $<
 endif
 endif
 
