@@ -9,6 +9,7 @@ bool ValidateAll(bool thorough);
 bool TestSettings();
 bool TestOS_RNG();
 bool TestAutoSeeded();
+bool TestAutoSeededX917();
 
 #if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
 bool TestRDRAND();
