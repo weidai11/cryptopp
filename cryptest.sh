@@ -24,6 +24,10 @@ INSTALL_RESULTS=cryptest-install.txt
 #	ADD_CXXFLAGS=""
 #fi
 
+# Avoid CRYPTOPP_DATA_DIR
+OLD_CRYPTOPP_DATA_DIR="$CRYPTOPP_DATA_DIR"
+unset CRYPTOPP_DATA_DIR
+
 # I can't seem to get the expression to work in sed on Apple. It returns the original CXXFLAGS.
 #   If you want to test with additional flags, then put them in ADD_CXXFLAGS below.
 # ADD_CXXFLAGS="-mrdrnd -mrdseed"
@@ -95,11 +99,6 @@ else
 	HAVE_UBSAN=0
 fi
 
-# Fixup...
-if [ "$IS_CYGWIN" -ne "0" ] || [ "$IS_MINGW" -ne "0" ]; then
-	HAVE_UBSAN=0
-fi
-
 # Set to 0 if you don't have Asan
 $CXX -x c++ -fsanitize=undefined adhoc.cpp.proto -c -o $TMP/adhoc > /dev/null 2>&1
 if [ "$?" -eq "0" ]; then
@@ -110,6 +109,7 @@ fi
 
 # Fixup...
 if [ "$IS_CYGWIN" -ne "0" ] || [ "$IS_MINGW" -ne "0" ]; then
+	HAVE_UBAN=0
 	HAVE_ASAN=0
 fi
 
@@ -1475,21 +1475,19 @@ if [ "$IS_CYGWIN" -eq "0" ] && [ "$IS_MINGW" -eq "0" ]; then
 
 	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
-	rm -rf /tmp/cryptopp_test/ > /dev/null 2>&1
+	
+	INSTALL_DIR="/tmp/cryptopp_test"
+	rm -rf "$INSTALL_DIR" > /dev/null 2>&1
 
-	export CXXFLAGS="-DNDEBUG -g2 -O2 -DCRYPTOPP_DATA_DIR='\"/tmp/cryptopp_test/share/\"' "
+	export CXXFLAGS="-DNDEBUG -g2 -O2 -DCRYPTOPP_DATA_DIR='\"$INSTALL_DIR/share/cryptopp/\"'"
 	"$MAKE" static dynamic cryptest.exe 2>&1 | tee -a "$INSTALL_RESULTS"
 	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$INSTALL_RESULTS"
 	else
 		# Still need to manulally place TestData and TestVectors
-		mkdir -p /tmp/cryptopp_test/share/TestData /tmp/cryptopp_test/share/TestVectors
-		cp -r TestData /tmp/cryptopp_test/share/
-		cp -r TestVectors /tmp/cryptopp_test/share/
-
 		OLD_DIR=$(pwd)
-		make install PREFIX=/tmp/cryptopp_test/ 2>&1 | tee -a "$INSTALL_RESULTS"
-		cd /tmp/cryptopp_test/bin
+		make install PREFIX="$INSTALL_DIR" 2>&1 | tee -a "$INSTALL_RESULTS"
+		cd "$INSTALL_DIR/bin"
 
 		echo
 		echo "************************************" | tee -a "$INSTALL_RESULTS"
@@ -1523,8 +1521,8 @@ if [ "$IS_CYGWIN" -eq "0" ] && [ "$IS_MINGW" -eq "0" ]; then
 		echo "Testing: Install (help file)" | tee -a "$INSTALL_RESULTS"
 		echo
 		./cryptest.exe h 2>&1 | tee -a "$INSTALL_RESULTS"
-		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
-			echo "ERROR: failed to execute help" | tee -a "$INSTALL_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "1" ]; then
+			echo "ERROR: failed to provide help" | tee -a "$INSTALL_RESULTS"
 		fi
 
 		cd "$OLD_DIR"
@@ -1587,3 +1585,6 @@ if [ "$ECOUNT" -eq "0" ]; then
 else
 	exit 1
 fi
+
+# Restore
+CRYPTOPP_DATA_DIR="$OLD_CRYPTOPP_DATA_DIR"

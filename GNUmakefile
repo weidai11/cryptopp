@@ -556,6 +556,7 @@ else ifneq ($(IS_LINUX),0)
 	-$(RM) -r $(PWD)/cryptopp$(LIB_VER)
 endif
 
+CRYPTOPP_CPU_SPEED ?= 2.4e+09
 .PHONY: bench benchmark benchmarks
 bench benchmark benchmarks: cryptest.exe
 	rm -f benchmarks.html
@@ -567,7 +568,7 @@ bench benchmark benchmarks: cryptest.exe
 	echo "<BODY>" >> benchmarks.html
 	echo "<H1><a href=\"http://www.cryptopp.com\">Crypto++</a>" $(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH) "Benchmarks</H1>" >> benchmarks.html
 	echo "<P>Here are speed benchmarks for some commonly used cryptographic algorithms.</P>"  >> benchmarks.html
-	./cryptest.exe b 3 2.4 >> benchmarks.html
+	./cryptest.exe b 3 $(CRYPTOPP_CPU_SPEED) >> benchmarks.html
 	echo "</BODY>" >> benchmarks.html
 	echo "</HTML>" >> benchmarks.html
 
