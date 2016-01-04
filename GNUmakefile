@@ -1,16 +1,6 @@
 # Base CXXFLAGS used if the user did not specify them
 CXXFLAGS ?= -DNDEBUG -g2 -O2
 
-# -fPIC is supported, please report failures with steps to reproduce
-# If PIC is required but results in a crash, then use -DCRYPTOPP_DISABLE_ASM
-# CXXFLAGS += -fPIC
-
-# Add the following options reduce code size, but breaks link
-#   or makes link very slow on some systems
-# CXXFLAGS += -ffunction-sections -fdata-sections
-#   On OS X, you need to use "LDFLAGS += -Wl,-dead_strip"
-# LDFLAGS += -Wl,--gc-sections
-
 AR ?= ar
 ARFLAGS ?= -cr # ar needs the dash on OpenBSD
 RANLIB ?= ranlib
@@ -225,38 +215,38 @@ CXXFLAGS += -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS
 endif # CXXFLAGS
 endif # UBsan
 
-# Address Sanitizer (Asan) testing
+# Address Sanitizer (Asan) testing. Issue 'make asan'.
 ifeq ($(findstring asan,$(MAKECMDGOALS)),asan)
 ifeq ($(findstring -fsanitize=address,$(CXXFLAGS)),)
 CXXFLAGS += -fsanitize=address
 endif # CXXFLAGS
 endif # Asan
 
-# LD gold linker testing
+# LD gold linker testing. Triggered by 'LD=ld.gold'.
 ifeq ($(findstring ld.gold,$(LD)),ld.gold)
-ifeq ($(findstring -Wl,-fuse-ld=gold,$(CXXFLAGS)),)
+ifeq ($(findstring -Wl,-fuse-ld=gold,$(LDFLAGS)),)
 ELF_FORMAT := $(shell file `which ld.gold` 2>&1 | cut -d":" -f 2 | $(EGREP) -i -c "elf")
 ifneq ($(ELF_FORMAT),0)
-GOLD_OPTION = -Wl,-fuse-ld=gold
+LDFLAGS += -Wl,-fuse-ld=gold
 endif # ELF/ELF64
 endif # CXXFLAGS
 endif # Gold
 
-# Aligned access testing
+# Aligned access testing. Issue 'make aligned'.
 ifneq ($(filter align aligned,$(MAKECMDGOALS)),)
 ifeq ($(findstring -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS,$(CXXFLAGS)),)
 CXXFLAGS += -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS
 endif # CXXFLAGS
 endif # Aligned access
 
-# GCC code coverage
+# GCC code coverage. Issue 'make coverage'.
 ifneq ($(filter coverage,$(MAKECMDGOALS)),)
 ifeq ($(findstring -coverage,$(CXXFLAGS)),)
 CXXFLAGS += -coverage
 endif # -coverage
 endif # GCC code coverage
 
-# Debug testing on GNU systems
+# Debug testing on GNU systems. Triggered by -DDEBUG.
 ifneq ($(filter -DDEBUG -DDEBUG=1,$(CXXFLAGS)),)
 USING_GLIBCXX := $(shell $(CXX) -x c++ $(CXXFLAGS) -E adhoc.cpp.proto 2>&1 | $(EGREP) -i -c "__GLIBCXX__")
 ifneq ($(USING_GLIBCXX),0)
@@ -268,6 +258,25 @@ CXXFLAGS += -D_GLIBCXX_CONCEPT_CHECKS
 endif # CXXFLAGS
 endif # USING_GLIBCXX
 endif # GNU Debug build
+
+# Dead code stripping. Issue 'make lean'.
+ifeq ($(findstring lean,$(MAKECMDGOALS)),lean)
+ifeq ($(findstring -ffunction-sections,$(CXXFLAGS)),)
+CXXFLAGS += -ffunction-sections
+endif # CXXFLAGS
+ifeq ($(findstring -fdata-sections,$(CXXFLAGS)),)
+CXXFLAGS += -fdata-sections
+endif # CXXFLAGS
+ifneq ($(IS_DARWIN),0)
+ifeq ($(findstring -Wl,-dead_strip,$(LDFLAGS)),)
+LDFLAGS += -Wl,-dead_strip
+endif # CXXFLAGS
+else # BSD, Linux and Unix
+ifeq ($(findstring -Wl,--gc-sections,$(LDFLAGS)),)
+LDFLAGS += -Wl,--gc-sections
+endif # LDFLAGS
+endif # MAKECMDGOALS
+endif # Dead code stripping
 
 # List cryptlib.cpp first and cpu.cpp second in an attempt to tame C++ static initialization problems.
 #  The issue spills into POD data types of cpu.cpp due to the storage class of the bools, so cpu.cpp
@@ -333,10 +342,16 @@ endif
 deps GNUmakefile.deps:
 	$(CXX) $(CXXFLAGS) -MM *.cpp > GNUmakefile.deps
 
+# CXXFLAGS are tuned earlier.
 .PHONY: asan ubsan align aligned
 asan ubsan align aligned: libcryptopp.a cryptest.exe
 
-# export CXXFLAGS="-g3 -O1"
+# CXXFLAGS are tuned earlier. Applications must use linker flags
+#  -Wl,--gc-sections (Linux and Unix) or -Wl,-dead_strip (OS X)
+.PHONY: lean
+lean: static dynamic cryptest.exe
+
+# May want to export CXXFLAGS="-g3 -O1"
 .PHONY: coverage
 coverage: libcryptopp.a cryptest.exe
 	lcov --base-directory . --directory . --zerocounters -q
@@ -351,7 +366,7 @@ coverage: libcryptopp.a cryptest.exe
 test check: cryptest.exe
 	./cryptest.exe v
 
-# Used to generate list of source files for Autotools, CMakeList and Android.mk
+# Used to generate list of source files for Autotools, CMakeList, Android.mk, etc
 .PHONY: sources
 sources:
 	$(info Library sources: $(filter-out fipstest.cpp $(TESTSRCS),$(SRCS)))
@@ -485,17 +500,17 @@ libcryptopp.so: libcryptopp.so$(SOLIB_VERSION_SUFFIX)
 endif
 
 libcryptopp.so$(SOLIB_VERSION_SUFFIX): $(LIBOBJS) | public_service
-	$(CXX) -shared $(SOLIB_FLAGS) -o $@ $(CXXFLAGS) $(GOLD_OPTION) $(LIBOBJS) $(LDLIBS)
+	$(CXX) -shared $(SOLIB_FLAGS) -o $@ $(CXXFLAGS) $(LDFLAGS) $(LIBOBJS) $(LDLIBS)
 ifeq ($(HAS_SOLIB_VERSION),1)
 	-$(LN) libcryptopp.so$(SOLIB_VERSION_SUFFIX) libcryptopp.so
 	-$(LN) libcryptopp.so$(SOLIB_VERSION_SUFFIX) libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
 endif
 
 libcryptopp.dylib: $(LIBOBJS)
-	$(CXX) -dynamiclib -o $@ $(CXXFLAGS) -install_name "$@" -current_version "$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)" -compatibility_version "$(LIB_MAJOR).$(LIB_MINOR)" -headerpad_max_install_names $(LIBOBJS)
+	$(CXX) -dynamiclib -o $@ $(CXXFLAGS) -install_name "$@" -current_version "$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)" -compatibility_version "$(LIB_MAJOR).$(LIB_MINOR)" -headerpad_max_install_names $(LDFLAGS) $(LIBOBJS)
 
 cryptest.exe: libcryptopp.a $(TESTOBJS) | public_service
-	$(CXX) -o $@ $(CXXFLAGS) $(TESTOBJS) ./libcryptopp.a $(LDFLAGS) $(GOLD_OPTION) $(LDLIBS)
+	$(CXX) -o $@ $(CXXFLAGS) $(TESTOBJS) ./libcryptopp.a $(LDFLAGS) $(LDLIBS)
 
 # Makes it faster to test changes
 nolib: $(OBJS)

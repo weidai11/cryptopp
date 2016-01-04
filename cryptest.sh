@@ -704,6 +704,56 @@ else
 fi
 
 ############################################
+# Debug build, dead code strip
+echo
+echo "************************************" | tee -a "$TEST_RESULTS"
+echo "Testing: debug, dead code strip" | tee -a "$TEST_RESULTS"
+echo
+
+unset CXXFLAGS
+"$MAKE" clean > /dev/null 2>&1
+export CXXFLAGS="-DDEBUG -g2 -O2 $ADD_CXXFLAGS"
+
+"$MAKE" lean static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+else
+	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+	fi
+	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+	fi
+fi
+
+############################################
+# Release build, dead code strip
+echo
+echo "************************************" | tee -a "$TEST_RESULTS"
+echo "Testing: release, dead code strip" | tee -a "$TEST_RESULTS"
+echo
+
+unset CXXFLAGS
+"$MAKE" clean > /dev/null 2>&1
+export CXXFLAGS="-DNDEBUG -g2 -O2 $ADD_CXXFLAGS"
+
+"$MAKE" lean static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+else
+	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+	fi
+	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+	fi
+fi
+
+############################################
 # Debug build, UBSan, c++03
 if [ "$HAVE_CXX03" -ne "0" ] && [ "$HAVE_UBSAN" -ne "0" ]; then
 	echo
