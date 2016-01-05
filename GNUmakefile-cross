@@ -90,6 +90,25 @@ ifeq ($(IS_ARM_EMBEDDED),1)
   HAS_SOLIB_VERSION := 1
 endif
 
+# Dead code stripping. Issue 'make lean'.
+ifeq ($(findstring lean,$(MAKECMDGOALS)),lean)
+  ifeq ($(findstring -ffunction-sections,$(CXXFLAGS)),)
+    CXXFLAGS += -ffunction-sections
+  endif # CXXFLAGS
+  ifeq ($(findstring -fdata-sections,$(CXXFLAGS)),)
+    CXXFLAGS += -fdata-sections
+  endif # CXXFLAGS
+  ifeq ($(IS_IOS),1)
+    ifeq ($(findstring -Wl,-dead_strip,$(LDFLAGS)),)
+      LDFLAGS += -Wl,-dead_strip
+    endif # CXXFLAGS
+  else # BSD, Linux and Unix
+    ifeq ($(findstring -Wl,--gc-sections,$(LDFLAGS)),)
+      LDFLAGS += -Wl,--gc-sections
+    endif # LDFLAGS
+  endif # MAKECMDGOALS
+endif # Dead code stripping
+
 # List cryptlib.cpp first and cpu.cpp second in an attempt to tame C++ static initialization problems.
 #  The issue spills into POD data types of cpu.cpp due to the storage class of the bools, so cpu.cpp
 #  is the second candidate for explicit initialization order.
@@ -132,6 +151,11 @@ endif
 
 test: cryptest.exe
 	./cryptest.exe v
+
+# CXXFLAGS are tuned earlier. Applications must use linker flags
+#  -Wl,--gc-sections (Linux and Unix) or -Wl,-dead_strip (OS X)
+.PHONY: lean
+lean: static dynamic cryptest.exe
 
 .PHONY: clean
 clean:
@@ -204,14 +228,14 @@ libcryptopp.so: libcryptopp.so$(SOLIB_VERSION_SUFFIX)
 endif
 
 libcryptopp.so$(SOLIB_VERSION_SUFFIX): $(LIBOBJS)
-	$(CXX) -shared $(SOLIB_FLAGS) -o $@ $(CXXFLAGS) -Wl,--exclude-libs,ALL $(LIBOBJS) $(LDLIBS)
+	$(CXX) -shared $(SOLIB_FLAGS) -o $@ $(CXXFLAGS) -Wl,--exclude-libs,ALL $(LIBOBJS) $(LDFLAGS) $(LDLIBS)
 ifeq ($(HAS_SOLIB_VERSION),1)
 	-$(LN) libcryptopp.so$(SOLIB_VERSION_SUFFIX) libcryptopp.so
 	-$(LN) libcryptopp.so$(SOLIB_VERSION_SUFFIX) libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
 endif
 
 libcryptopp.dylib: $(LIBOBJS)
-	$(CXX) -dynamiclib -o $@ $(CXXFLAGS) -install_name "$@" -current_version "$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)" -compatibility_version "$(LIB_MAJOR).$(LIB_MINOR)" -headerpad_max_install_names $(LIBOBJS)
+	$(CXX) -dynamiclib -o $@ $(CXXFLAGS) -install_name "$@" -current_version "$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)" -compatibility_version "$(LIB_MAJOR).$(LIB_MINOR)" -headerpad_max_install_names $(LDFLAGS) $(LIBOBJS)
 
 cryptest.exe: libcryptopp.a $(TESTOBJS)
 	$(CXX) -o $@ $(CXXFLAGS) $(TESTOBJS) ./libcryptopp.a $(LDFLAGS) $(LDLIBS)

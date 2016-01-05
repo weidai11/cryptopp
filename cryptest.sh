@@ -714,7 +714,7 @@ unset CXXFLAGS
 "$MAKE" clean > /dev/null 2>&1
 export CXXFLAGS="-DDEBUG -g2 -O2 $ADD_CXXFLAGS"
 
-"$MAKE" lean static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+"$MAKE" lean 2>&1 | tee -a "$TEST_RESULTS"
 if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 else
@@ -739,7 +739,7 @@ unset CXXFLAGS
 "$MAKE" clean > /dev/null 2>&1
 export CXXFLAGS="-DNDEBUG -g2 -O2 $ADD_CXXFLAGS"
 
-"$MAKE" lean static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+"$MAKE" lean 2>&1 | tee -a "$TEST_RESULTS"
 if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 else
