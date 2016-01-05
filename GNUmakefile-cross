@@ -13,13 +13,16 @@ CHMOD ?= chmod
 MKDIR ?= mkdir
 EGREP ?= egrep
 LN ?= ln -sf
-LDCONF ?= /sbin/ldconfig -n
 
 CLANG_COMPILER = $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "clang")
 
 IS_IOS ?= 0
 IS_ANDROID ?= 0
 IS_ARM_EMBEDDED ?= 0
+
+# Can be used by Android and Embeeded cross-compiles. Disable by default because
+#   Android and embedded users typically don't run this configuration.
+HAS_SOLIB_VERSION ?= 0
 
 # Default prefix for make install
 ifeq ($(PREFIX),)
@@ -78,7 +81,6 @@ ifeq ($(IS_ANDROID),1)
   endif
 
   LDLIBS += $(AOSP_STL_LIB)
-  HAS_SOLIB_VERSION := 1
 endif
 
 # ARM embedded cross-compile configuration.
@@ -87,7 +89,6 @@ endif
 ifeq ($(IS_ARM_EMBEDDED),1)
   # CPP, CXX, AR, RANLIB, LD, etc are set in 'setenv-embedded.sh'
   CXXFLAGS += $(ARM_EMBEDDED_FLAGS) --sysroot=$(ARM_EMBEDDED_SYSROOT)
-  HAS_SOLIB_VERSION := 1
 endif
 
 # Dead code stripping. Issue 'make lean'.
@@ -198,7 +199,6 @@ ifneq ($(wildcard libcryptopp.so$(SOLIB_VERSION_SUFFIX)),)
 	-$(CHMOD) 755 $(DESTDIR)$(LIBDIR)/libcryptopp.so$(SOLIB_VERSION_SUFFIX)
 ifeq ($(HAS_SOLIB_VERSION),1)
 	-$(LN) -sf libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(DESTDIR)$(LIBDIR)/libcryptopp.so
-	$(LDCONF) $(DESTDIR)$(LIBDIR)
 endif
 endif
 
@@ -214,7 +214,6 @@ else
 ifeq ($(HAS_SOLIB_VERSION),1)
 	-$(RM) $(DESTDIR)$(LIBDIR)/libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
 	-$(RM) $(DESTDIR)$(LIBDIR)/libcryptopp.so
-	$(LDCONF) $(DESTDIR)$(LIBDIR)
 endif
 endif
 
