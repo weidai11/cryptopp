@@ -400,7 +400,7 @@ ifeq ($(HAS_SOLIB_VERSION),1)
 	-$(RM) libcryptopp.so libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
 endif
 	-$(RM) adhoc.cpp.o adhoc.cpp.proto.o $(LIBOBJS) $(TESTOBJS) $(DLLOBJS) $(LIBIMPORTOBJS) $(TESTIMPORTOBJS) $(DLLTESTOBJS)
-	-$(RM) cryptest.exe dlltest.exe cryptest.import.exe ct rdrand-???.o
+	-$(RM) cryptest.exe dlltest.exe cryptest.import.exe cryptest.info ct rdrand-???.o
 	-$(RM) *.gcno *.gcda *.stackdump core-*
 ifneq ($(wildcard *.exe.dSYM),)
 	-$(RM) -r *.exe.dSYM/
