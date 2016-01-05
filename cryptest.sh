@@ -1536,7 +1536,7 @@ if [ "$IS_CYGWIN" -eq "0" ] && [ "$IS_MINGW" -eq "0" ]; then
 	else
 		# Still need to manulally place TestData and TestVectors
 		OLD_DIR=$(pwd)
-		make install PREFIX="$INSTALL_DIR" 2>&1 | tee -a "$INSTALL_RESULTS"
+		"$MAKE" install PREFIX="$INSTALL_DIR" 2>&1 | tee -a "$INSTALL_RESULTS"
 		cd "$INSTALL_DIR/bin"
 
 		echo
