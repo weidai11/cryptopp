@@ -1,4 +1,4 @@
-// misc.h - written and placed in the public domain by Wei Dai
+﻿// misc.h - written and placed in the public domain by Wei Dai
 
 //! \file misc.h
 //! \brief Utility functions for the Crypto++ library.
@@ -51,6 +51,7 @@
 
 #ifdef __BORLANDC__
 #include <mem.h>
+#include <stdlib.h>
 #endif
 
 #if defined(__GNUC__) && defined(__linux__)
