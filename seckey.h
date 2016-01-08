@@ -85,7 +85,7 @@ protected:
 			throw InvalidRounds(alg ? alg->AlgorithmName() : "VariableRounds", rounds);	
 #else
 		if (rounds < MIN_ROUNDS || rounds > MAX_ROUNDS)
-			throw InvalidRounds(alg ? alg->AlgorithmName() : "VariableRounds", rounds);
+			throw InvalidRounds(alg ? alg->AlgorithmName() : std::string("VariableRounds"), rounds);
 #endif
 	}
 
