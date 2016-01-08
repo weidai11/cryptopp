@@ -572,18 +572,16 @@ public:
 
 		if(t.m_size)
 		{
+			const size_type oldSize = m_size;
 			if(this != &t)  // s += t
 			{
-				const size_type oldSize = m_size;
 				Grow(m_size+t.m_size);
 				memcpy_s(m_ptr+oldSize, (m_size-oldSize)*sizeof(T), t.m_ptr, t.m_size*sizeof(T));
 			}
 			else            // t += t
 			{
-				SecBlock result(m_size+t.m_size);
-				if(m_size) {memcpy_s(result.m_ptr, result.m_size*sizeof(T), m_ptr, m_size*sizeof(T));}
-				memcpy_s(result.m_ptr+m_size, (result.m_size-m_size)*sizeof(T), t.m_ptr, t.m_size*sizeof(T));
-				swap(result);
+				Grow(m_size*2);
+				memcpy_s(m_ptr+oldSize, (m_size-oldSize)*sizeof(T), m_ptr, oldSize*sizeof(T));
 			}
 		}
 		return *this;
