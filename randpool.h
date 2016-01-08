@@ -25,8 +25,8 @@ public:
 	void Put(const byte *input, size_t length) {IncorporateEntropy(input, length);}
 
 private:
-	FixedSizeSecBlock<byte, 32> m_key;
-	FixedSizeSecBlock<byte, 16> m_seed;
+	FixedSizeAlignedSecBlock<byte, 32> m_key;
+	FixedSizeAlignedSecBlock<byte, 16> m_seed;
 	member_ptr<BlockCipher> m_pCipher;
 	bool m_keySet;
 };
