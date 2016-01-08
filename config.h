@@ -28,7 +28,7 @@
 # error "IS_LITTLE_ENDIAN is set, but __BYTE_ORDER__  does not equal __ORDER_LITTLE_ENDIAN__"
 #endif
 
-// define this if you want to disable all OS-dependent features,
+// Define this if you want to disable all OS-dependent features,
 // such as sockets and OS-provided random number generators
 // #define NO_OS_DEPENDENCE
 
@@ -222,40 +222,26 @@ const lword LWORD_MAX = W64LIT(0xffffffffffffffff);
 
 // define hword, word, and dword. these are used for multiprecision integer arithmetic
 // Intel compiler won't have _umul128 until version 10.0. See http://softwarecommunity.intel.com/isn/Community/en-US/forums/thread/30231625.aspx
-#if (defined(_MSC_VER) && (!defined(__INTEL_COMPILER) || __INTEL_COMPILER >= 1000) && (defined(_M_X64) || defined(_M_IA64))) || (defined(__DECCXX) && defined(__alpha__)) || (defined(__INTEL_COMPILER) && (__INTEL_COMPILER < 1000) && defined(__x86_64__)) || (defined(__SUNPRO_CC) && defined(__x86_64__))
+#if (defined(_MSC_VER) && (!defined(__INTEL_COMPILER) || __INTEL_COMPILER >= 1000) && (defined(_M_X64) || defined(_M_IA64))) || (defined(__DECCXX) && defined(__alpha__)) || (defined(__INTEL_COMPILER) && defined(__x86_64__)) || (defined(__SUNPRO_CC) && defined(__x86_64__))
 	typedef word32 hword;
 	typedef word64 word;
 #else
 	#define CRYPTOPP_NATIVE_DWORD_AVAILABLE
 	#if defined(__alpha__) || defined(__ia64__) || defined(_ARCH_PPC64) || defined(__x86_64__) || defined(__mips64) || defined(__sparc64__)
-		#if defined(__GNUC__) && !defined(__INTEL_COMPILER) && !(CRYPTOPP_GCC_VERSION == 40001 && defined(__APPLE__)) && (CRYPTOPP_GCC_VERSION >= 30400)
+		#if defined(__GNUC__) && !defined(__INTEL_COMPILER) && !(CRYPTOPP_GCC_VERSION == 40001 && defined(__APPLE__)) && CRYPTOPP_GCC_VERSION >= 30400
 			// GCC 4.0.1 on MacOS X is missing __umodti3 and __udivti3
 			// mode(TI) division broken on amd64 with GCC earlier than GCC 3.4
-			#define CRYPTOPP_WORD128_AVAILABLE
 			typedef word32 hword;
 			typedef word64 word;
 			typedef __uint128_t dword;
 			typedef __uint128_t word128;
-		#elif defined(__GNUC__) && (__SIZEOF_INT128__ >= 16)
-			// Detect availabliltiy of int128_t and uint128_t in preprocessor, http://gcc.gnu.org/ml/gcc-help/2015-08/msg00185.html.
 			#define CRYPTOPP_WORD128_AVAILABLE
-			typedef word32 hword;
-			typedef word64 word;
-			typedef __uint128_t dword;
-			typedef __uint128_t word128;	
 		#else
 			// if we're here, it means we're on a 64-bit CPU but we don't have a way to obtain 128-bit multiplication results
 			typedef word16 hword;
 			typedef word32 word;
 			typedef word64 dword;
 		#endif
-	#elif defined(__GNUC__) && (__SIZEOF_INT128__ >= 16)
-		// Detect availabliltiy of int128_t and uint128_t in preprocessor, http://gcc.gnu.org/ml/gcc-help/2015-08/msg00185.html.
-		#define CRYPTOPP_WORD128_AVAILABLE
-		typedef word32 hword;
-		typedef word64 word;
-		typedef __uint128_t dword;
-		typedef __uint128_t word128;	
 	#else
 		// being here means the native register size is probably 32 bits or less
 		#define CRYPTOPP_BOOL_SLOW_WORD64 1
@@ -266,11 +252,6 @@ const lword LWORD_MAX = W64LIT(0xffffffffffffffff);
 #endif
 #ifndef CRYPTOPP_BOOL_SLOW_WORD64
 	#define CRYPTOPP_BOOL_SLOW_WORD64 0
-#endif
-
-// Produce a compiler error. It can be commented out, but you may not get the benefit of the fastest integers.
-#if (__SIZEOF_INT128__ >= 16) && !defined(CRYPTOPP_WORD128_AVAILABLE) && !defined(__aarch64__)
-# error "An int128_t and uint128_t are available, but CRYPTOPP_WORD128_AVAILABLE is not defined"
 #endif
 
 const unsigned int WORD_SIZE = sizeof(word);
@@ -473,7 +454,7 @@ NAMESPACE_END
 #else
 #	define CRYPTOPP_CONSTANT(x) static const int x;
 #endif
-	
+
 // Linux provides X32, which is 32-bit integers, longs and pointers on x86_64 using the full x86_64 register set.
 // Detect via __ILP32__ (http://wiki.debian.org/X32Port). However, __ILP32__ shows up in more places than
 // the System V ABI specs calls out, like on just about any 32-bit system with Clang.
