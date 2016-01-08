@@ -38,7 +38,8 @@ IS_LINUX=$(uname -s | grep -i -c linux)
 IS_CYGWIN=$(uname -s | grep -i -c cygwin)
 IS_MINGW=$(uname -s | grep -i -c mingw)
 IS_OPENBSD=$(uname -s | grep -i -c openbsd)
-IS_INTEL=$(uname -m | egrep -i -c "(i386|i586|i686|amd64|x86_64)")
+IS_X86=$(uname -m | egrep -i -c "(i386|i586|i686|amd64|x86_64)")
+IS_X64=$(uname -m | egrep -i -c "(amd64|x86_64)")
 IS_PPC=$(uname -m | egrep -i -c "(Power|PPC)")
 
 # We need to use the C++ compiler to determine if c++11 is available. Otherwise
@@ -93,7 +94,7 @@ fi
 
 # Set to 0 if you don't have UBsan
 $CXX -x c++ -fsanitize=undefined adhoc.cpp.proto -c -o $TMP/adhoc > /dev/null 2>&1
-if [ "$?" -eq "0" ]; then
+if [ "$?" -eq "0" ] && [ "$IS_X86" -ne "0" ]; then
 	HAVE_UBSAN=1
 else
 	HAVE_UBSAN=0
@@ -101,7 +102,7 @@ fi
 
 # Set to 0 if you don't have Asan
 $CXX -x c++ -fsanitize=undefined adhoc.cpp.proto -c -o $TMP/adhoc > /dev/null 2>&1
-if [ "$?" -eq "0" ]; then
+if [ "$?" -eq "0" ] && [ "$IS_X86" -ne "0" ]; then
 	HAVE_ASAN=1
 else
 	HAVE_ASAN=0
@@ -121,7 +122,7 @@ fi
 
 # Set to 0 if you don't have Intel multiarch
 HAVE_INTEL_MULTIARCH=0
-if [ "$IS_DARWIN" -ne "0" ] && [ "$IS_INTEL" -ne "0" ]; then
+if [ "$IS_DARWIN" -ne "0" ] && [ "$IS_X86" -ne "0" ]; then
 $CXX -x c++ -arch i386 -arch x86_64 -c adhoc.cpp.proto -c -o $TMP/adhoc > /dev/null 2>&1
 if [ "$?" -eq "0" ]; then
 	HAVE_INTEL_MULTIARCH=1
