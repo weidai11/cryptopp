@@ -76,7 +76,7 @@ public:
 		{
 			static HashIdentifier Lookup()
 			{
-				return HashIdentifier(PKCS_DigestDecoration<H>::decoration, PKCS_DigestDecoration<H>::length);
+				return HashIdentifier(PKCS_DigestDecoration<H>::decoration, (size_t)PKCS_DigestDecoration<H>::length);
 			}
 		};
 	};
