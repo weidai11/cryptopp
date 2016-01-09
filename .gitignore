@@ -267,8 +267,5 @@ pip-log.txt
 # User-specific project options
 *.local
 
-# Compiled resource file
-*.res
-
 # Dependency file
 *.d
