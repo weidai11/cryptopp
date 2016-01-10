@@ -81,6 +81,7 @@ bool ValidateRabin();
 bool ValidateRW();
 //bool ValidateBlumGoldwasser();
 bool ValidateECP();
+bool ValidateECPM();
 bool ValidateEC2N();
 bool ValidateECDSA();
 bool ValidateESIGN();

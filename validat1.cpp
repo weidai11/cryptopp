@@ -144,6 +144,7 @@ bool ValidateAll(bool thorough)
 	pass=ValidateRW() && pass;
 //	pass=ValidateBlumGoldwasser() && pass;
 	pass=ValidateECP() && pass;
+	pass = ValidateECPM() && pass;
 	pass=ValidateEC2N() && pass;
 	pass=ValidateECDSA() && pass;
 	pass=ValidateESIGN() && pass;
