@@ -69,10 +69,10 @@ public:
 	void GenerateIntoBufferedTransformation(BufferedTransformation &target, const std::string &channel, lword size);
 
 private:
-	member_ptr<BlockTransformation> cipher;
-	const unsigned int S;	// blocksize of cipher
-	SecByteBlock dtbuf; 	// buffer for enciphered timestamp
-	SecByteBlock randseed, m_lastBlock, m_deterministicTimeVector;
+	member_ptr<BlockTransformation> m_cipher;
+	const unsigned int m_size;  // S, blocksize of cipher
+	SecByteBlock m_datetime;    // DT, buffer for enciphered timestamp
+	SecByteBlock m_randseed, m_lastBlock, m_deterministicTimeVector;
 };
 
 //! \class MaurerRandomnessTest
