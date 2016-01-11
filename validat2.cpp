@@ -591,7 +591,7 @@ bool TestPolynomialMod2()
 	
 	for (unsigned int i=start; i < stop; i++)
 	{
-		const word w(SIZE_MAX);
+		const word w((word)SIZE_MAX);
 
 		PolynomialMod2 p(w);
 		p <<= i;
