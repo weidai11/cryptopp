@@ -80,12 +80,15 @@ protected:
 	//! \throws InvalidRounds if the number of rounds are invalid
 	inline void ThrowIfInvalidRounds(int rounds, const Algorithm *alg)
 	{
-#if (M==INT_MAX)	// Coverity and result_independent_of_operands
+#if defined(__BORLANDC__)
+		if (rounds < MIN_ROUNDS || rounds > MAX_ROUNDS)
+			throw InvalidRounds(alg ? alg->AlgorithmName() : std::string("VariableRounds"), rounds);
+#elif (M==INT_MAX)	// Coverity and result_independent_of_operands
 		if (rounds < MIN_ROUNDS)
 			throw InvalidRounds(alg ? alg->AlgorithmName() : "VariableRounds", rounds);	
 #else
 		if (rounds < MIN_ROUNDS || rounds > MAX_ROUNDS)
-			throw InvalidRounds(alg ? alg->AlgorithmName() : std::string("VariableRounds"), rounds);
+			throw InvalidRounds(alg ? alg->AlgorithmName() : "VariableRounds", rounds);
 #endif
 	}
 
@@ -191,10 +194,12 @@ public:
 	//! \details keylength is provided in bytes, not bits.
 	static size_t CRYPTOPP_API StaticGetValidKeyLength(size_t keylength)
 	{
+#if !defined(__BORLANDC__)
 #if MIN_KEYLENGTH > 0
 		if (keylength < (size_t)MIN_KEYLENGTH)
 			return MIN_KEYLENGTH;
 		else
+#endif
 #endif
 		if (keylength > (size_t)MAX_KEYLENGTH)
 			return (size_t)MAX_KEYLENGTH;
