@@ -101,21 +101,15 @@ else
 fi
 
 # Set to 0 if you don't have Asan
-$CXX -x c++ -fsanitize=undefined adhoc.cpp.proto -c -o $TMP/adhoc > /dev/null 2>&1
+$CXX -x c++ -fsanitize=address adhoc.cpp.proto -c -o $TMP/adhoc > /dev/null 2>&1
 if [ "$?" -eq "0" ] && [ "$IS_X86" -ne "0" ]; then
 	HAVE_ASAN=1
 else
 	HAVE_ASAN=0
 fi
 
-# Fixup...
-if [ "$IS_CYGWIN" -ne "0" ] || [ "$IS_MINGW" -ne "0" ]; then
-	HAVE_UBAN=0
-	HAVE_ASAN=0
-fi
-
-# Final fixups for compilers like GCC on ARM64
-if [ "$HAVE_UBSAN" -eq "0" ] || [ "$HAVE_ASAN" -eq "0" ]; then
+# Fixups... Cygwin and MinGW both advertise sanitizer support, but the program fails to link.
+if [ "$HAVE_UBSAN" -eq "0" ] || [ "$HAVE_ASAN" -eq "0" ] || [ "$IS_CYGWIN" -ne "0" ] || [ "$IS_MINGW" -ne "0" ]; then
 	HAVE_UBAN=0
 	HAVE_ASAN=0
 fi
