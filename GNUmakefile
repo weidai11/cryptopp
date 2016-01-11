@@ -220,6 +220,9 @@ ifeq ($(findstring asan,$(MAKECMDGOALS)),asan)
 ifeq ($(findstring -fsanitize=address,$(CXXFLAGS)),)
 CXXFLAGS += -fsanitize=address
 endif # CXXFLAGS
+ifeq ($(findstring -fno-omit-frame-pointer,$(CXXFLAGS)),)
+CXXFLAGS += -fno-omit-frame-pointer
+endif # CXXFLAGS
 endif # Asan
 
 # LD gold linker testing. Triggered by 'LD=ld.gold'.
