@@ -47,6 +47,13 @@ void Base64URLEncoder::IsolatedInitialize(const NameValuePairs &parameters)
 			(Name::Log2Base(), 6, true)));
 }
 
+void Base64Decoder::IsolatedInitialize(const NameValuePairs &parameters)
+{
+	BaseN_Decoder::IsolatedInitialize(CombinedNameValuePairs(
+		parameters,
+		MakeParameters(Name::DecodingLookupArray(), GetDecodingLookupArray(), false)(Name::Log2Base(), 6, true)));
+}
+
 const int *Base64Decoder::GetDecodingLookupArray()
 {
 	static volatile bool s_initialized = false;
@@ -58,6 +65,13 @@ const int *Base64Decoder::GetDecodingLookupArray()
 		s_initialized = true;
 	}
 	return s_array;
+}
+
+void Base64URLDecoder::IsolatedInitialize(const NameValuePairs &parameters)
+{
+	BaseN_Decoder::IsolatedInitialize(CombinedNameValuePairs(
+		parameters,
+		MakeParameters(Name::DecodingLookupArray(), GetDecodingLookupArray(), false)(Name::Log2Base(), 6, true)));
 }
 
 const int *Base64URLDecoder::GetDecodingLookupArray()
