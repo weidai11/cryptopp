@@ -254,3 +254,18 @@ pip-log.txt
 #Mr Developer
 .mr.developer.cfg
 
+#################
+## C++Builder
+#################
+
+## Ignore C++Builder temporary files and build results.
+## http://docwiki.embarcadero.com/RADStudio/en/File_Extensions_of_Files_Generated_by_RAD_Studio
+
+# Static library file
+*.lib
+
+# User-specific project options
+*.local
+
+# Dependency file
+*.d
