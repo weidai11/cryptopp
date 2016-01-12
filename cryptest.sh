@@ -17,6 +17,16 @@ BENCHMARK_RESULTS=cryptest-bench.txt
 WARN_RESULTS=cryptest-warn.txt
 INSTALL_RESULTS=cryptest-install.txt
 
+# Remove previous test results
+rm -f "$TEST_RESULTS" > /dev/null 2>&1
+touch "$TEST_RESULTS"
+
+rm -f "$BENCHMARK_RESULTS" > /dev/null 2>&1
+touch "$BENCHMARK_RESULTS"
+
+rm -f "$WARN_RESULTS" > /dev/null 2>&1
+touch "$WARN_RESULTS"
+
 # Respect user's preferred flags, but filter the stuff we expliclty test
 #if [ ! -z "CXXFLAGS" ]; then
 #	ADD_CXXFLAGS=$(echo "$CXXFLAGS" | sed 's/\(-DDEBUG\|-DNDEBUG\|-O[0-9]\|-Os\|-Og\|-fsanitize=address\|-fsanitize=undefined\|-DDCRYPTOPP_NO_UNALIGNED_DATA_ACCESS\|-DDCRYPTOPP_NO_UNALIGNED_DATA_ACCESS\|-DDCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562\)//g')
@@ -136,57 +146,45 @@ fi
 HAVE_VALGRIND=$(which valgrind 2>&1 | grep -v "no valgrind" | grep -i -c valgrind)
 
 # Echo back to ensure something is not missed.
-echo
-echo "HAVE_CXX03: $HAVE_CXX03"
-echo "HAVE_CXX11: $HAVE_CXX11"
-echo "HAVE_ASAN: $HAVE_ASAN"
-echo "HAVE_UBSAN: $HAVE_UBSAN"
+echo | tee -a "$TEST_RESULTS"
+echo "HAVE_CXX03: $HAVE_CXX03" | tee -a "$TEST_RESULTS"
+echo "HAVE_CXX11: $HAVE_CXX11" | tee -a "$TEST_RESULTS"
+echo "HAVE_ASAN: $HAVE_ASAN" | tee -a "$TEST_RESULTS"
+echo "HAVE_UBSAN: $HAVE_UBSAN" | tee -a "$TEST_RESULTS"
 
 if [ "$HAVE_VALGRIND" -ne "0" ]; then
-	echo "HAVE_VALGRIND: $HAVE_VALGRIND"
+	echo "HAVE_VALGRIND: $HAVE_VALGRIND" | tee -a "$TEST_RESULTS"
 fi
 if [ "$IS_DARWIN" -ne "0" ]; then
-	echo "IS_DARWIN: $IS_DARWIN"
+	echo "IS_DARWIN: $IS_DARWIN" | tee -a "$TEST_RESULTS"
 	unset MallocScribble MallocPreScribble MallocGuardEdges
 fi
 if [ "$HAVE_INTEL_MULTIARCH" -ne "0" ]; then
-	echo "HAVE_INTEL_MULTIARCH: $HAVE_INTEL_MULTIARCH"
+	echo "HAVE_INTEL_MULTIARCH: $HAVE_INTEL_MULTIARCH" | tee -a "$TEST_RESULTS"
 fi
 if [ "$HAVE_PPC_MULTIARCH" -ne "0" ]; then
-	echo "HAVE_PPC_MULTIARCH: $HAVE_PPC_MULTIARCH"
+	echo "HAVE_PPC_MULTIARCH: $HAVE_PPC_MULTIARCH" | tee -a "$TEST_RESULTS"
 fi
 if [ "$IS_LINUX" -ne "0" ]; then
-	echo "IS_LINUX: $IS_LINUX"
+	echo "IS_LINUX: $IS_LINUX" | tee -a "$TEST_RESULTS"
 fi
 if [ "$IS_CYGWIN" -ne "0" ]; then
-	echo "IS_CYGWIN: $IS_CYGWIN"
+	echo "IS_CYGWIN: $IS_CYGWIN" | tee -a "$TEST_RESULTS"
 fi
 if [ "$IS_MINGW" -ne "0" ]; then
-	echo "IS_MINGW: $IS_MINGW"
+	echo "IS_MINGW: $IS_MINGW" | tee -a "$TEST_RESULTS"
 fi
 
-echo "User CXXFLAGS: $CXXFLAGS"
-echo "Retained CXXFLAGS: $ADD_CXXFLAGS"
-echo "Compiler:" $($CXX --version | head -1)
-
-############################################
-
-# Remove previous test results
-rm -f "$TEST_RESULTS" > /dev/null 2>&1
-touch "$TEST_RESULTS"
-
-rm -f "$BENCHMARK_RESULTS" > /dev/null 2>&1
-touch "$BENCHMARK_RESULTS"
-
-rm -f "$WARN_RESULTS" > /dev/null 2>&1
-touch "$WARN_RESULTS"
+echo "User CXXFLAGS: $CXXFLAGS" | tee -a "$TEST_RESULTS"
+echo "Retained CXXFLAGS: $ADD_CXXFLAGS" | tee -a "$TEST_RESULTS"
+echo "Compiler:" $($CXX --version | head -1) | tee -a "$TEST_RESULTS"
 
 ############################################
 ############################################
 
 TEST_BEGIN=$(date)
-echo
-echo "Start time: $TEST_BEGIN"
+echo | tee -a "$TEST_RESULTS"
+echo "Start time: $TEST_BEGIN" | tee -a "$TEST_RESULTS"
 
 ############################################
 # Basic debug build
