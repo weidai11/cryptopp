@@ -120,7 +120,7 @@ fi
 
 # Fixups... Cygwin and MinGW both advertise sanitizer support, but the program fails to link.
 if [ "$HAVE_UBSAN" -eq "0" ] || [ "$HAVE_ASAN" -eq "0" ] || [ "$IS_CYGWIN" -ne "0" ] || [ "$IS_MINGW" -ne "0" ]; then
-	HAVE_UBAN=0
+	HAVE_UBSAN=0
 	HAVE_ASAN=0
 fi
 
