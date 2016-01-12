@@ -92,6 +92,8 @@ eccrypto.cpp
 eccrypto.h
 ecp.cpp
 ecp.h
+ecpm.cpp
+ecpm.h
 elgamal.cpp
 elgamal.h
 emsa2.cpp
