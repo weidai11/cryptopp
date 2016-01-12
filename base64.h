@@ -62,8 +62,7 @@ public:
 	//! \details IsolatedInitialize() is used to initialize or reinitialize an object using a variable
 	//!   number of arbitrarily typed arguments. IsolatedInitialize() does not call Initialize() on
 	//!  attached transformations. If initialization should be propagated, then use the Initialize() function.
-	void IsolatedInitialize(const NameValuePairs &parameters)
-		{CRYPTOPP_UNUSED(parameters);}
+	void IsolatedInitialize(const NameValuePairs &parameters);
     
 private:
 	static const int * CRYPTOPP_API GetDecodingLookupArray();
@@ -123,8 +122,7 @@ public:
 	//! \details IsolatedInitialize() is used to initialize or reinitialize an object using a variable
 	//!   number of arbitrarily typed arguments. IsolatedInitialize() does not call Initialize() on
 	//!  attached transformations. If initialization should be propagated, then use the Initialize() function.
-	void IsolatedInitialize(const NameValuePairs &parameters)
-		{CRYPTOPP_UNUSED(parameters);}
+	void IsolatedInitialize(const NameValuePairs &parameters);
     
 private:
 	static const int * CRYPTOPP_API GetDecodingLookupArray();
