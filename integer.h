@@ -101,27 +101,31 @@ public:
 
 		//! \brief Convert from a C-string
 		//! \param str C-string value
+		//! \param order byte order
 		//! \details \p str can be in base 2, 8, 10, or 16. Base is determined by a case
 		//!   insensitive suffix of 'h', 'o', or 'b'.  No suffix means base 10.
-		explicit Integer(const char *str);
+		explicit Integer(const char *str, ByteOrder order = BIG_ENDIAN_ORDER);
 		
 		//! \brief Convert from a wide C-string
 		//! \param str wide C-string value
+		//! \param order byte order
 		//! \details \p str can be in base 2, 8, 10, or 16. Base is determined by a case
 		//!   insensitive suffix of 'h', 'o', or 'b'.  No suffix means base 10.
-		explicit Integer(const wchar_t *str);
+		explicit Integer(const wchar_t *str, ByteOrder order = BIG_ENDIAN_ORDER);
 
 		//! \brief Convert from a big-endian byte array
 		//! \param encodedInteger big-endian byte array
 		//! \param byteCount length of the byte array
 		//! \param sign enumeration indicating Signedness
-		Integer(const byte *encodedInteger, size_t byteCount, Signedness sign=UNSIGNED);
+		//! \param order byte order
+		Integer(const byte *encodedInteger, size_t byteCount, Signedness sign=UNSIGNED, ByteOrder order = BIG_ENDIAN_ORDER);
 
 		//! \brief Convert from a big-endian array
 		//! \param bt BufferedTransformation object with big-endian byte array
 		//! \param byteCount length of the byte array
 		//! \param sign enumeration indicating Signedness
-		Integer(BufferedTransformation &bt, size_t byteCount, Signedness sign=UNSIGNED);
+		//! \param order byte order
+		Integer(BufferedTransformation &bt, size_t byteCount, Signedness sign=UNSIGNED, ByteOrder order = BIG_ENDIAN_ORDER);
 
 		//! \brief Convert from a BER encoded byte array
 		//! \param bt BufferedTransformation object with BER encoded byte array
