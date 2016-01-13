@@ -3021,7 +3021,7 @@ Integer::Integer(word value, size_t length)
 template <class T>
 static Integer StringToInteger(const T *str)
 {
-	int radix;
+	int radix, sign = 1;
 	// GCC workaround
 	// std::char_traits<wchar_t>::length() not defined in GCC 3.2 and STLport 4.5.3
 	unsigned int length;
@@ -3030,7 +3030,7 @@ static Integer StringToInteger(const T *str)
 	Integer v;
 
 	if (length == 0)
-		return v;
+		return Integer::Zero();
 
 	switch (str[length-1])
 	{
@@ -3050,30 +3050,102 @@ static Integer StringToInteger(const T *str)
 		radix=10;
 	}
 
-	if (length > 2 && str[0] == '0' && str[1] == 'x')
-		radix = 16;
-
-	for (unsigned i=0; i<length; i++)
+	// 'str' is of length 1 or more
+	if (str[0] == '-')
 	{
-		int digit;
-
-		if (str[i] >= '0' && str[i] <= '9')
-			digit = str[i] - '0';
-		else if (str[i] >= 'A' && str[i] <= 'F')
-			digit = str[i] - 'A' + 10;
-		else if (str[i] >= 'a' && str[i] <= 'f')
-			digit = str[i] - 'a' + 10;
-		else
-			digit = radix;
-
-		if (digit < radix)
-		{
-			v *= radix;
-			v += digit;
-		}
+		sign = -1;
+		str += 1, length -= 1;
 	}
 
-	if (str[0] == '-')
+	if (length > 2 && str[0] == '0' && (str[1] == 'x' || str[1] == 'X'))
+	{
+		radix = 16;
+		str += 2, length -= 2;
+	}
+
+	if(radix == 16 && order == LITTLE_ENDIAN_ORDER)
+	{
+		// Nibble high, low and count
+		unsigned int nh, nl, nc = 0;
+		Integer position(Integer::One());
+        
+		for (unsigned int i=0; i<length; i++)
+		{
+			int digit, ch = static_cast<int>(str[i]);
+            
+			if (ch >= '0' && ch <= '9')
+				digit = ch - '0';
+			else if (ch >= 'A' && ch <= 'F')
+				digit = ch - 'A' + 10;
+			else if (ch >= 'a' && ch <= 'f')
+				digit = ch - 'a' + 10;
+			else
+				digit = radix;
+            
+			if (digit < radix)
+			{
+				if(nc++ == 0)
+					nh = digit;
+				else
+					nl = digit;
+
+				if(nc == 2)
+				{
+					v += position * (nh << 4 | nl);
+					nc = 0, position <<= 8;
+				}
+			}
+		}
+        
+		if(nc == 1)
+			v += nh * position;
+	}
+	else if(order == LITTLE_ENDIAN_ORDER)
+	{
+		for (int i=static_cast<int>(length)-1; i>=0; i--)
+		{
+			int digit, ch = static_cast<int>(str[i]);
+            
+			if (ch >= '0' && ch <= '9')
+				digit = ch - '0';
+			else if (ch >= 'A' && ch <= 'F')
+				digit = ch - 'A' + 10;
+			else if (ch >= 'a' && ch <= 'f')
+				digit = ch - 'a' + 10;
+			else
+				digit = radix;
+            
+			if (digit < radix)
+			{
+				v *= radix;
+				v += digit;
+			}
+		}
+	}
+	else
+	{
+		for (unsigned int i=0; i<length; i++)
+		{
+			int digit, ch = static_cast<int>(str[i]);
+            
+			if (ch >= '0' && ch <= '9')
+				digit = ch - '0';
+			else if (ch >= 'A' && ch <= 'F')
+				digit = ch - 'A' + 10;
+			else if (ch >= 'a' && ch <= 'f')
+				digit = ch - 'a' + 10;
+			else
+				digit = radix;
+				
+			if (digit < radix)
+			{
+				v *= radix;
+				v += digit;
+			}
+		}
+	}
+    
+	if (sign == -1)
 		v.Negate();
 
 	return v;
