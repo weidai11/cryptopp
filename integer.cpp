@@ -2871,13 +2871,36 @@ signed long Integer::ConvertToLong() const
 	return sign==POSITIVE ? value : -(signed long)value;
 }
 
-Integer::Integer(BufferedTransformation &encodedInteger, size_t byteCount, Signedness s)
+Integer::Integer(BufferedTransformation &encodedInteger, size_t byteCount, Signedness s, ByteOrder o)
 {
+	assert(o == BIG_ENDIAN_ORDER || o == LITTLE_ENDIAN_ORDER);
+    
+	if(o == LITTLE_ENDIAN_ORDER)
+	{
+		SecByteBlock block(byteCount);
+		encodedInteger.Get(block, block.size());
+		std::reverse(block.begin(), block.begin()+block.size());
+
+		Decode(block.begin(), block.size(), s);
+		return;
+	}
+    
 	Decode(encodedInteger, byteCount, s);
 }
 
-Integer::Integer(const byte *encodedInteger, size_t byteCount, Signedness s)
+Integer::Integer(const byte *encodedInteger, size_t byteCount, Signedness s, ByteOrder o)
 {
+	assert(o == BIG_ENDIAN_ORDER || o == LITTLE_ENDIAN_ORDER);
+    
+	if(o == LITTLE_ENDIAN_ORDER)
+	{
+		SecByteBlock block(byteCount);
+		std::reverse_copy(encodedInteger, encodedInteger+byteCount, block.begin());
+        
+		Decode(block.begin(), block.size(), s);
+		return;
+	}
+	
 	Decode(encodedInteger, byteCount, s);
 }
 
@@ -3019,8 +3042,10 @@ Integer::Integer(word value, size_t length)
 }
 
 template <class T>
-static Integer StringToInteger(const T *str)
+static Integer StringToInteger(const T *str, ByteOrder order)
 {
+	assert(order == LITTLE_ENDIAN_ORDER || order == BIG_ENDIAN_ORDER);
+	
 	int radix, sign = 1;
 	// GCC workaround
 	// std::char_traits<wchar_t>::length() not defined in GCC 3.2 and STLport 4.5.3
@@ -3151,16 +3176,16 @@ static Integer StringToInteger(const T *str)
 	return v;
 }
 
-Integer::Integer(const char *str)
+Integer::Integer(const char *str, ByteOrder order)
 	: reg(2), sign(POSITIVE)
 {
-	*this = StringToInteger(str);
+	*this = StringToInteger(str,order);
 }
 
-Integer::Integer(const wchar_t *str)
+Integer::Integer(const wchar_t *str, ByteOrder order)
 	: reg(2), sign(POSITIVE)
 {
-	*this = StringToInteger(str);
+	*this = StringToInteger(str,order);
 }
 
 unsigned int Integer::WordCount() const
