@@ -48,33 +48,6 @@ DEFINE_OID(1, iso)
 			DEFINE_OID(oiw()+3, oiw_secsig);
 				DEFINE_OID(oiw_secsig()+2, oiw_secsig_algorithms);
 					DEFINE_OID(oiw_secsig_algorithms()+26, id_sha1);
-			DEFINE_OID(identified_organization() + 6, dod);
-				DEFINE_OID(dod() + 1, dod_internet);
-					DEFINE_OID(dod_internet() + 4, dod_internet_private);
-						DEFINE_OID(dod_internet_private() + 1, dod_internet_private_enterprise);
-							DEFINE_OID(dod_internet_private_enterprise() + 9509, denis_bider);
-								DEFINE_OID(denis_bider() + 5, cryptopp); // denis bider provided us with this OID root, see https://github.com/weidai11/cryptopp/issues/67#issuecomment-160915245
-									DEFINE_OID(cryptopp() + 1, cryptopp_montgomery_curves);
-									// see http://safecurves.cr.yp.to/equation.html for the curves
-										DEFINE_OID(cryptopp_montgomery_curves() + 1, cryptoppM221);
-										DEFINE_OID(cryptopp_montgomery_curves() + 2, cryptoppM383);
-										DEFINE_OID(cryptopp_montgomery_curves() + 3, cryptoppM511);
-										DEFINE_OID(cryptopp_montgomery_curves() + 4, cryptoppCurve383187);
-									DEFINE_OID(cryptopp() + 2, cryptopp_edwards_curves);
-										DEFINE_OID(cryptopp_edwards_curves() + 1, cryptoppE222);
-										DEFINE_OID(cryptopp_edwards_curves() + 2, cryptoppE382);
-										DEFINE_OID(cryptopp_edwards_curves() + 3, cryptoppEd448);
-										DEFINE_OID(cryptopp_edwards_curves() + 4, cryptoppE521);
-										DEFINE_OID(cryptopp_edwards_curves() + 5, cryptoppCurve1174);
-										DEFINE_OID(cryptopp_edwards_curves() + 6, cryptoppCurve41417);
-							DEFINE_OID(dod_internet_private_enterprise() + 11591, gnu);
-								DEFINE_OID(gnu() + 15, gnu_elliptic_curve);
-									// as per https://tools.ietf.org/html/draft-josefsson-pkix-newcurves
-									DEFINE_OID(gnu_elliptic_curve() + 1, ietfCurve25519);
-									DEFINE_OID(gnu_elliptic_curve() + 2, ietfCurve448);
-									DEFINE_OID(gnu_elliptic_curve() + 3, ietfCurve25519ph);
-									DEFINE_OID(gnu_elliptic_curve() + 4, ietfCurve448ph);
-
 		DEFINE_OID(identified_organization()+36, teletrust);
 			DEFINE_OID(teletrust()+3, teletrust_algorithm)
 				DEFINE_OID(teletrust_algorithm()+2+1, id_ripemd160)
