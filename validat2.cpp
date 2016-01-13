@@ -26,7 +26,6 @@
 #include "integer.h"
 #include "gf2n.h"
 #include "ecp.h"
-#include "ecpm.h"
 #include "ec2n.h"
 #include "asn.h"
 #include "rng.h"
@@ -712,112 +711,6 @@ bool ValidateECP()
 		cout << (fail ? "FAILED" : "passed") << "    " << dec << params.GetCurve().GetField().MaxElementBitLength() << " bits" << endl;
 		pass = pass && !fail;
 	}
-
-	return pass;
-}
-
-bool ValidateECPM()
-{
-	cout << "\nECPM validation suite running...\n\n";
-
-	ECIES<ECPM> ::Decryptor cpriv(GlobalRNG(), ASN1::ietfCurve25519());
-	ECIES<ECPM>::Encryptor cpub(cpriv);
-	ByteQueue bq;
-	cpriv.GetKey().DEREncode(bq);
-	cpub.AccessKey().AccessGroupParameters().SetEncodeAsOID(true);
-	cpub.GetKey().DEREncode(bq);
-	ECDSA<ECPM, SHA>::Signer spriv(bq);
-	ECDSA<ECPM, SHA>::Verifier spub(bq);
-	ECDH<ECPM>::Domain ecdhc(ASN1::ietfCurve25519());
-	ECMQV<ECPM>::Domain ecmqvc(ASN1::ietfCurve25519());
-
-	spriv.AccessKey().Precompute();
-	ByteQueue queue;
-	spriv.AccessKey().SavePrecomputation(queue);
-	spriv.AccessKey().LoadPrecomputation(queue);
-
-	bool pass = SignatureValidate(spriv, spub);
-	cpub.AccessKey().Precompute();
-	cpriv.AccessKey().Precompute();
-	pass = CryptoSystemValidate(cpriv, cpub) && pass;
-	pass = SimpleKeyAgreementValidate(ecdhc) && pass;
-	pass = AuthenticatedKeyAgreementValidate(ecmqvc) && pass;
-
-	cout << "Turning on point compression..." << endl;
-	cpriv.AccessKey().AccessGroupParameters().SetPointCompression(true);
-	cpub.AccessKey().AccessGroupParameters().SetPointCompression(true);
-	ecdhc.AccessGroupParameters().SetPointCompression(true);
-	ecmqvc.AccessGroupParameters().SetPointCompression(true);
-	pass = CryptoSystemValidate(cpriv, cpub) && pass;
-	pass = SimpleKeyAgreementValidate(ecdhc) && pass;
-	pass = AuthenticatedKeyAgreementValidate(ecmqvc) && pass;
-
-	cout << "Testing recommended montgomery curves..." << endl;
-	OID oid;
-	while (!(oid = DL_GroupParameters_EC<ECPM>::GetNextRecommendedParametersOID(oid)).m_values.empty())
-	{
-		DL_GroupParameters_EC<ECPM> params(oid);
-		bool fail = !params.Validate(GlobalRNG(), 2);
-		cout << (fail ? "FAILED" : "passed") << "    " << dec << params.GetCurve().GetField().MaxElementBitLength() << " bits" << endl;
-		pass = pass && !fail;
-	}
-
-	/*cout << "Performing the IRTF KATs..." << endl;
-
-	// tests from page 10 of IRTF curves draft 11
-	// calculate the y coordinates for the test
-	DL_GroupParameters_EC<ECPM> Curve25519(ASN1::ietfCurve25519());
-	const char* KAT_Base_25519_1 = "0231029842492115040904895560451863089656472772604678260265531221036453811406496";
-	const char* KAT_Base_25519_2 = "02e5210f12786811d3f4b7959d0538ae2c31dbe7106fc03c3efc4cd549c715a493";
-	StringSource SS25519KAT_1(KAT_Base_25519_1,true,new HexDecoder);
-	StringSource SS25519KAT_2(KAT_Base_25519_2, true, new HexDecoder);
-	Integer()
-	ECPPoint P_KAT_Base_25519_1, P_KAT_Base_25519_2;
-	Curve25519.GetCurve().DecodePoint(P_KAT_Base_25519_1, SS25519KAT_1, 67);
-	Curve25519.GetCurve().DecodePoint(P_KAT_Base_25519_2, SS25519KAT_2, 67);
-	Integer x125519("0xe6db6867583030db3594c1a424b15f7c726624ec26b3353b10a903a6d0ab1c4c");
-	Integer x225519("0xe5210f12786811d3f4b7959d0538ae2c31dbe7106fc03c3efc4cd549c715a493");
-	Integer BInv25519 = Curve25519.GetCurve().GetField().MultiplicativeInverse(Curve25519.GetCurve().GetB());
-	Integer y125519 = (x125519*BInv25519*(x125519*(x125519 + Curve25519.GetCurve().GetA()) + 1)) % Curve25519.GetCurve().GetField().GetModulus();
-	y125519 = ModularSquareRoot(y125519, Curve25519.GetCurve().GetField().GetModulus());
-	Integer y225519 = (x225519*BInv25519*(x225519*(x225519 + Curve25519.GetCurve().GetA()) + 1)) % Curve25519.GetCurve().GetField().GetModulus();
-	y225519 = ModularSquareRoot(y225519, Curve25519.GetCurve().GetField().GetModulus());
-
-	cout <<hex<< "x1: " << x125519 << endl;
-
-	ECPPoint Test125519 = Curve25519.ExponentiateElement(P_KAT_Base_25519_1, Integer("0xa546e36bf0527c9d3b16154b82465edd62144c0ac1fc5a18506a2244ba449ac4"));
-	ECPPoint Test225519 = Curve25519.ExponentiateElement(P_KAT_Base_25519_2, Integer("0x4b66e9d4d1b4673c5ad22691957d6af5c11b6421e0ea01d42ca4169e7918ba0d"));
-
-	Integer Result125519("0xe6db6867583030db3594c1a424b15f7c726624ec26b3353b10a903a6d0ab1c4c");
-	Integer Result225519("0xe5210f12786811d3f4b7959d0538ae2c31dbe7106fc03c3efc4cd549c715a493");
-
-	bool failedKATs = false;
-	pass = pass && (Result125519 == Test125519.x);
-	pass = pass && (Result225519 == Test225519.x);
-	failedKATs = failedKATs || (Result125519 != Test125519.x);
-	failedKATs = failedKATs || (Result225519 != Test225519.x);
-
-	DL_GroupParameters_EC<ECPM> Curve448(ASN1::ietfCurve448());
-	Integer x1448("0x06fce640fa3487bfda5f6cf2d5263f8aad88334cbd07437f020f08f9814dc031ddbdc38c19c6da2583fa5429db94ada18aa7a7fb4ef8a086");
-	Integer x2448("0x0fbcc2f993cd56d3305b0b7d9e55d4c1a8fb5dbb52f8e9a1e9b6201b165d015894e56c4d3570bee52fe205e28a78b91cdfbde71ce8d157db");
-	Integer BInv448 = Curve448.GetCurve().GetField().MultiplicativeInverse(Curve448.GetCurve().GetB());
-	Integer y1448 = (x1448*BInv448*(x1448*(x1448 + Curve448.GetCurve().GetA()) + 1)) % Curve448.GetCurve().GetField().GetModulus();
-	y1448 = ModularSquareRoot(y1448, Curve448.GetCurve().GetField().GetModulus());
-	Integer y2448 = (x2448*BInv448*(x2448*(x2448 + Curve448.GetCurve().GetA()) + 1)) % Curve448.GetCurve().GetField().GetModulus();
-	y2448 = ModularSquareRoot(y2448, Curve448.GetCurve().GetField().GetModulus());
-
-	ECPPoint Test1448 = Curve448.ExponentiateElement(ECPPoint(x1448, y1448), Integer("0x3d262fddf9ec8e88495266fea19a34d28882acef045104d0d1aae121700a779c984c24f8cdd78fbff44943eba368f54b29259a4f1c600ad3"));
-	ECPPoint Test2448 = Curve448.ExponentiateElement(ECPPoint(x2448, y2448), Integer("0x203d494428b8399352665ddca42f9de8fef600908e0d461cb021f8c538345dd77c3e4806e25f46d3315c44e0a5b4371282dd2c8d5be3095f"));
-
-	Integer Result1448("0xce3e4ff95a60dc6697da1db1d85e6afbdf79b50a2412d7546d5f239fe14fbaadeb445fc66a01b0779d98223961111e21766282f73dd96b6f");
-	Integer Result2448("0x884a02576239ff7a2f2f63b2db6a9ff37047ac13568e1e30fe63c4a7ad1b3ee3a5700df34321d62077e63633c575c1c954514e99da7c179d");
-
-	pass = pass && (Result1448 == Test1448.x);
-	pass = pass && (Result2448 == Test2448.x);
-	failedKATs = failedKATs || (Result1448 != Test1448.x);
-	failedKATs = failedKATs || (Result2448 != Test2448.x);
-
-	cout << (failedKATs ? "FAILED" : "passed") << "    " << "known anser tests" << endl;*/
 
 	return pass;
 }
