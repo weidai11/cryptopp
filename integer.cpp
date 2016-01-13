@@ -3483,7 +3483,14 @@ std::ostream& operator<<(std::ostream& out, const Integer &a)
 //			out << ",";
 	}
 
-	return out << suffix;
+#ifdef CRYPTOPP_USE_STD_SHOWBASE
+	if(out.flags() & std::ios_base::showbase)
+		out << suffix;
+        
+	return out;
+#else
+ 	return out << suffix;
+#endif
 }
 
 Integer& Integer::operator++()
