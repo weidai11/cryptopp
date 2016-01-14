@@ -86,6 +86,14 @@
 // CACM paper.
 // #define LCRNG_ORIGINAL_NUMBERS
 
+// Define this if you want Integer's operator<< to honor std::showbase (and
+// std::noshowbase). If defined, Integer will use a suffix of 'b', 'o', 'h'
+// or '.' (the last for decimal) when std::showbase is in effect. If
+// std::noshowbase is set, then the suffix is not added to the Integer. If
+// not defined, existing behavior is preserved and Integer will use a suffix
+// of 'b', 'o', 'h' or '.' (the last for decimal).
+// #define CRYPTOPP_USE_STD_SHOWBASE
+
 // choose which style of sockets to wrap (mostly useful for MinGW which has both)
 #if !defined(NO_BERKELEY_STYLE_SOCKETS) && !defined(PREFER_BERKELEY_STYLE_SOCKETS)
 # define PREFER_BERKELEY_STYLE_SOCKETS
