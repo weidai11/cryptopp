@@ -3044,7 +3044,7 @@ Integer::Integer(word value, size_t length)
 template <class T>
 static Integer StringToInteger(const T *str, ByteOrder order)
 {
-	assert(order == LITTLE_ENDIAN_ORDER || order == BIG_ENDIAN_ORDER);
+	assert( order == BIG_ENDIAN_ORDER || order == LITTLE_ENDIAN_ORDER );
 	
 	int radix, sign = 1;
 	// GCC workaround
@@ -3088,7 +3088,29 @@ static Integer StringToInteger(const T *str, ByteOrder order)
 		str += 2, length -= 2;
 	}
 
-	if(radix == 16 && order == LITTLE_ENDIAN_ORDER)
+	if(order == BIG_ENDIAN_ORDER)
+	{
+		for (unsigned int i=0; i<length; i++)
+		{
+			int digit, ch = static_cast<int>(str[i]);
+            
+			if (ch >= '0' && ch <= '9')
+				digit = ch - '0';
+			else if (ch >= 'A' && ch <= 'F')
+				digit = ch - 'A' + 10;
+			else if (ch >= 'a' && ch <= 'f')
+				digit = ch - 'a' + 10;
+			else
+				digit = radix;
+				
+			if (digit < radix)
+			{
+				v *= radix;
+				v += digit;
+			}
+		}
+	}
+	else if(radix == 16 && order == LITTLE_ENDIAN_ORDER)
 	{
 		// Nibble high, low and count
 		unsigned int nh, nl, nc = 0;
@@ -3125,7 +3147,7 @@ static Integer StringToInteger(const T *str, ByteOrder order)
 		if(nc == 1)
 			v += nh * position;
 	}
-	else if(order == LITTLE_ENDIAN_ORDER)
+	else // LITTLE_ENDIAN_ORDER && radix != 16
 	{
 		for (int i=static_cast<int>(length)-1; i>=0; i--)
 		{
@@ -3140,28 +3162,6 @@ static Integer StringToInteger(const T *str, ByteOrder order)
 			else
 				digit = radix;
             
-			if (digit < radix)
-			{
-				v *= radix;
-				v += digit;
-			}
-		}
-	}
-	else
-	{
-		for (unsigned int i=0; i<length; i++)
-		{
-			int digit, ch = static_cast<int>(str[i]);
-            
-			if (ch >= '0' && ch <= '9')
-				digit = ch - '0';
-			else if (ch >= 'A' && ch <= 'F')
-				digit = ch - 'A' + 10;
-			else if (ch >= 'a' && ch <= 'f')
-				digit = ch - 'a' + 10;
-			else
-				digit = radix;
-				
 			if (digit < radix)
 			{
 				v *= radix;
