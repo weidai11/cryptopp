@@ -24,7 +24,7 @@ typedef SecBlock<word, AllocatorWithCleanup<word, CRYPTOPP_BOOL_X86> > IntegerSe
 //! \details The Integer class can represent positive and negative integers
 //!   with absolute value less than (256**sizeof(word))<sup>(256**sizeof(int))</sup>.
 //! \details Internally, the library uses a sign magnitude representation, and the class
-//!   has two data members. The first is a IntegerSecBlock (a SecBlock<word>) and it i
+//!   has two data members. The first is a IntegerSecBlock (a SecBlock<word>) and it is
 //!   used to hold the representation. The second is a Sign, and its is used to track
 //!   the sign of the Integer.
 //! \nosubgrouping
@@ -104,6 +104,8 @@ public:
 		//! \param order byte order
 		//! \details \p str can be in base 2, 8, 10, or 16. Base is determined by a case
 		//!   insensitive suffix of 'h', 'o', or 'b'.  No suffix means base 10.
+		//! \details Byte order was added at Crypto++ 5.7 to allow use of little-endian
+		//!   integers with curve25519, Poly1305 and Microsoft CAPI.
 		explicit Integer(const char *str, ByteOrder order = BIG_ENDIAN_ORDER);
 		
 		//! \brief Convert from a wide C-string
@@ -111,6 +113,8 @@ public:
 		//! \param order byte order
 		//! \details \p str can be in base 2, 8, 10, or 16. Base is determined by a case
 		//!   insensitive suffix of 'h', 'o', or 'b'.  No suffix means base 10.
+		//! \details Byte order was added at Crypto++ 5.7 to allow use of little-endian
+		//!   integers with curve25519, Poly1305 and Microsoft CAPI.
 		explicit Integer(const wchar_t *str, ByteOrder order = BIG_ENDIAN_ORDER);
 
 		//! \brief Convert from a big-endian byte array
@@ -118,6 +122,8 @@ public:
 		//! \param byteCount length of the byte array
 		//! \param sign enumeration indicating Signedness
 		//! \param order byte order
+		//! \details Byte order was added at Crypto++ 5.7 to allow use of little-endian
+		//!   integers with curve25519, Poly1305 and Microsoft CAPI.
 		Integer(const byte *encodedInteger, size_t byteCount, Signedness sign=UNSIGNED, ByteOrder order = BIG_ENDIAN_ORDER);
 
 		//! \brief Convert from a big-endian array
@@ -125,6 +131,8 @@ public:
 		//! \param byteCount length of the byte array
 		//! \param sign enumeration indicating Signedness
 		//! \param order byte order
+		//! \details Byte order was added at Crypto++ 5.7 to allow use of little-endian
+		//!   integers with curve25519, Poly1305 and Microsoft CAPI.
 		Integer(BufferedTransformation &bt, size_t byteCount, Signedness sign=UNSIGNED, ByteOrder order = BIG_ENDIAN_ORDER);
 
 		//! \brief Convert from a BER encoded byte array
@@ -270,40 +278,58 @@ public:
 
 	//! \name ACCESSORS
 	//@{
-		//! return true if *this can be represented as a signed long
+		//! \brief Determines if the Integer is convertable to Long
+		//! \returns true if *this can be represented as a signed long
+		//! \sa ConvertToLong()
 		bool IsConvertableToLong() const;
-		//! return equivalent signed long if possible, otherwise undefined
+		//! \brief Convert the Integer to Long
+		//! \return equivalent signed long if possible, otherwise undefined
+		//! \sa IsConvertableToLong()
 		signed long ConvertToLong() const;
 
-		//! number of significant bits = floor(log2(abs(*this))) + 1
+		//! \brief Determines the number of bits required to represent the Integer
+		//! \returns number of significant bits = floor(log2(abs(*this))) + 1
 		unsigned int BitCount() const;
-		//! number of significant bytes = ceiling(BitCount()/8)
+		//! \brief Determines the number of bytes required to represent the Integer
+		//! \returns number of significant bytes = ceiling(BitCount()/8)
 		unsigned int ByteCount() const;
-		//! number of significant words = ceiling(ByteCount()/sizeof(word))
+		//! \brief Determines the number of words required to represent the Integer
+		//! \returns number of significant words = ceiling(ByteCount()/sizeof(word))
 		unsigned int WordCount() const;
 
-		//! return the i-th bit, i=0 being the least significant bit
+		//! \brief Provides the i-th bit of the Integer
+		//! \returns the i-th bit, i=0 being the least significant bit
 		bool GetBit(size_t i) const;
-		//! return the i-th byte
+		//! \brief Provides the i-th byte of the Integer
+		//! \returns the i-th byte
 		byte GetByte(size_t i) const;
-		//! return n lowest bits of *this >> i
+		//! \brief Provides the low order bits of the Integer
+		//! \returns n lowest bits of *this >> i
 		lword GetBits(size_t i, size_t n) const;
 
-		//!
+		//! \brief Determines if the Integer is 0
+		//! \returns true if the Integer is 0, false otherwise
 		bool IsZero() const {return !*this;}
-		//!
+		//! \brief Determines if the Integer is non-0
+		//! \returns true if the Integer is non-0, false otherwise
 		bool NotZero() const {return !IsZero();}
-		//!
+		//! \brief Determines if the Integer is negative
+		//! \returns true if the Integer is negative, false otherwise
 		bool IsNegative() const {return sign == NEGATIVE;}
-		//!
+		//! \brief Determines if the Integer is non-negative
+		//! \returns true if the Integer is non-negative, false otherwise
 		bool NotNegative() const {return !IsNegative();}
-		//!
+		//! \brief Determines if the Integer is positive
+		//! \returns true if the Integer is positive, false otherwise
 		bool IsPositive() const {return NotNegative() && NotZero();}
-		//!
+		//! \brief Determines if the Integer is non-positive
+		//! \returns true if the Integer is non-positive, false otherwise
 		bool NotPositive() const {return !IsPositive();}
-		//!
+		//! \brief Determines if the Integer is even parity
+		//! \returns true if the Integer is even, false otherwise
 		bool IsEven() const {return GetBit(0) == 0;}
-		//!
+		//! \brief Determines if the Integer is odd parity
+		//! \returns true if the Integer is odd, false otherwise
 		bool IsOdd() const	{return GetBit(0) == 1;}
 	//@}
 
