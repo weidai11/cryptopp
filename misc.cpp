@@ -10,6 +10,10 @@
 # endif
 #endif
 
+#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
+# pragma GCC diagnostic ignored "-Wcast-align"
+#endif
+
 #ifndef CRYPTOPP_IMPORTS
 
 #include "misc.h"

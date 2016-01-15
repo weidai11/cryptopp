@@ -99,7 +99,11 @@ class RandomNumberGenerator;
 class BufferedTransformation;
 
 //! \brief Specifies a direction for a cipher to operate
-enum CipherDir {ENCRYPTION, DECRYPTION};
+enum CipherDir {
+	//! \brief the cipher is performing encryption
+	ENCRYPTION,
+	//! \brief the cipher is performing decryption
+	DECRYPTION};
 
 //! \brief Represents infinite time
 const unsigned long INFINITE_TIME = ULONG_MAX;
@@ -113,7 +117,12 @@ struct EnumToType
 };
 
 //! \brief Provides the byte ordering
-enum ByteOrder {LITTLE_ENDIAN_ORDER = 0, BIG_ENDIAN_ORDER = 1};
+enum ByteOrder {
+	//! \brief byte order is little-endian
+	LITTLE_ENDIAN_ORDER = 0,
+	//! \brief byte order is big-endian
+	BIG_ENDIAN_ORDER = 1};
+
 //! \brief Provides a constant for LittleEndian
 typedef EnumToType<ByteOrder, LITTLE_ENDIAN_ORDER> LittleEndian;
 //! \brief Provides a constant for BigEndian

@@ -1047,6 +1047,11 @@ template<> inline void SecureWipeBuffer(word64 *buf, size_t n)
 template <class T>
 inline void SecureWipeArray(T *buf, size_t n)
 {
+#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wcast-align"
+#endif
+
 	if (sizeof(T) % 8 == 0 && GetAlignmentOf<T>() % GetAlignmentOf<word64>() == 0)
 		SecureWipeBuffer((word64 *)buf, n * (sizeof(T)/8));
 	else if (sizeof(T) % 4 == 0 && GetAlignmentOf<T>() % GetAlignmentOf<word32>() == 0)
@@ -1055,6 +1060,10 @@ inline void SecureWipeArray(T *buf, size_t n)
 		SecureWipeBuffer((word16 *)buf, n * (sizeof(T)/2));
 	else
 		SecureWipeBuffer((byte *)buf, n * sizeof(T));
+
+#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
+# pragma GCC diagnostic pop
+#endif
 }
 
 //! \brief Converts a wide character C-string to a multibyte string 
