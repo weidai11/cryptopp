@@ -253,10 +253,10 @@ public:
 		{CRYPTOPP_UNUSED(parameters); ResetMeter();}
 
 	lword GetCurrentMessageBytes() const {return m_currentMessageBytes;}
-	lword GetTotalBytes() {return m_totalBytes;}
-	unsigned int GetCurrentSeriesMessages() {return m_currentSeriesMessages;}
-	unsigned int GetTotalMessages() {return m_totalMessages;}
-	unsigned int GetTotalMessageSeries() {return m_totalMessageSeries;}
+	lword GetTotalBytes() const {return m_totalBytes;}
+	unsigned int GetCurrentSeriesMessages() const {return m_currentSeriesMessages;}
+	unsigned int GetTotalMessages() const {return m_totalMessages;}
+	unsigned int GetTotalMessageSeries() const {return m_totalMessageSeries;}
 
 	byte * CreatePutSpace(size_t &size)
 		{return AttachedTransformation()->CreatePutSpace(size);}
