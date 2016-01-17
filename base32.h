@@ -13,7 +13,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 //! \class Base32Encoder
 //! \brief Base32 encodes data
-//! \details Converts data to base32. The default code is based on draft-ietf-idn-dude-02.txt.
+//! \details Converts data to base32. The default code is based on <A HREF="http://www.ietf.org/proceedings/51/I-D/draft-ietf-idn-dude-02.txt">Differential Unicode Domain Encoding (DUDE) (draft-ietf-idn-dude-02.txt)</A>.
 class Base32Encoder : public SimpleProxyFilter
 {
 public:
@@ -41,25 +41,23 @@ public:
 	//!   <pre>
 	//!     Base32Encoder encoder;
 	//!     AlgorithmParameters params = MakeParameters(Pad(), false)(InsertLineBreaks(), false);
-	//!     encoder.IsolatedInitialize(params);
-	//!   </pre>
-	//! \details The default encoding alpahbet is DUDE. You can change the encoding to RFC 4648 alphabet by
-	//!   performing the following:
+	//!     encoder.IsolatedInitialize(params);</pre>
+	//! \details You can change the encoding to <A HREF="http://tools.ietf.org/html/rfc4648#page-10">RFC 4648, Base
+	//!   32 Encoding with Extended Hex Alphabet</A> by performing the following:
 	//!   <pre>
 	//!     Base32Encoder encoder;
-	//!     const byte ALPHABET[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+	//!     const byte ALPHABET[] = "0123456789ABCDEFGHIJKLMNOPQRSTUV";
 	//!     AlgorithmParameters params = MakeParameters(Name::EncodingLookupArray(),(const byte *)ALPHABET);
-	//!     encoder.IsolatedInitialize(params);
-	//!   </pre>
+	//!     encoder.IsolatedInitialize(params);</pre>
 	//! \details If you change the encoding alphabet, then you will need to change the decoding alphabet \a and
 	//!   the decoder's lookup table.
-	//! \sa IsolatedInitialize() for an example of modifying a Base32Encoder after construction.
+	//! \sa Base32Decoder::IsolatedInitialize() for an example of changing a Base32Decoder's lookup table.
 	void IsolatedInitialize(const NameValuePairs &parameters);
 };
 
 //! \class Base32Decoder
 //! \brief Base32 decodes data
-//! \details Decode base32 data. The default code is based on draft-ietf-idn-dude-02.txt
+//! \details Decode base32 data. The default code is based on <A HREF="http://www.ietf.org/proceedings/51/I-D/draft-ietf-idn-dude-02.txt">Differential Unicode Domain Encoding (DUDE) (draft-ietf-idn-dude-02.txt)</A>.
 class Base32Decoder : public BaseN_Decoder
 {
 public:
@@ -74,17 +72,17 @@ public:
 	//! \details IsolatedInitialize() is used to initialize or reinitialize an object using a variable
 	//!   number of arbitrarily typed arguments. IsolatedInitialize() does not call Initialize() on attached
 	//!   transformations. If initialization should be propagated, then use the Initialize() function.
-	//! \details The default decoding alpahbet is DUDE. You can change the to RFC 4868 alphabet by
-	//!   performing the following:
+	//! \details You can change the encoding to <A HREF="http://tools.ietf.org/html/rfc4648#page-10">RFC 4648, Base
+	//!   32 Encoding with Extended Hex Alphabet</A> by performing the following:
 	//!   <pre>
 	//!     int lookup[256];
-	//!     const byte ALPHABET[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+	//!     const byte ALPHABET[] = "0123456789ABCDEFGHIJKLMNOPQRSTUV";
 	//!     Base32Decoder::InitializeDecodingLookupArray(lookup, ALPHABET, 32, true /*insensitive*/);
 	//!
 	//!     Base32Decoder decoder;
 	//!     AlgorithmParameters params = MakeParameters(Name::DecodingLookupArray(),(const int *)lookup);
-	//!     decoder.IsolatedInitialize(params);
-	//!   </pre>
+	//!     decoder.IsolatedInitialize(params);</pre>
+	//! \sa Base32Encoder::IsolatedInitialize() for an example of changing a Base32Encoder's alphabet.
 	void IsolatedInitialize(const NameValuePairs &parameters);
 
 private:

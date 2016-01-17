@@ -2579,6 +2579,7 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_Verifier : public PK_SignatureScheme, p
 {
 public:
 	//! \brief Create a new HashTransformation to accumulate the message to be verified
+	//! \return a pointer to a PK_MessageAccumulator
 	//! \details NewVerificationAccumulator() can be used with all verification methods. Verify() will autimatically delete
 	//!   the accumulator pointer. The caller is responsible for deletion if a method is called that takes a reference.
 	virtual PK_MessageAccumulator * NewVerificationAccumulator() const =0;
@@ -2591,6 +2592,7 @@ public:
 
 	//! \brief Check whether messageAccumulator contains a valid signature and message
 	//! \param messageAccumulator a pointer to a PK_MessageAccumulator derived class
+	//! \return true if the signature is valid, false otherwise
 	//! \details Verify() deletes the messageAccumulator, even if an exception is thrown.
 	virtual bool Verify(PK_MessageAccumulator *messageAccumulator) const;
 
