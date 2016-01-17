@@ -2362,12 +2362,12 @@ public:
 	//! \param plaintext a byte buffer to hold the decrypted string
 	//! \param parameters a set of NameValuePairs to initialize this object
 	//! \return the result of the decryption operation
-	//! \pre <tt>COUNTOF(plaintext) == MaxPlaintextLength(ciphertextLength)</tt> ensures the output
-	//!   byte buffer is large enough
 	//! \details If DecodingResult::isValidCoding is true, then DecodingResult::messageLength
 	//!   is valid and holds the the actual length of the plaintext recovered. The result is undefined
 	//!   if decryption failed. If DecodingResult::isValidCoding is false, then DecodingResult::messageLength
 	//!   is undefined.
+	//! \pre <tt>COUNTOF(plaintext) == MaxPlaintextLength(ciphertextLength)</tt> ensures the output
+	//!   byte buffer is large enough
 	//! \sa PK_Encryptor
 	virtual DecodingResult Decrypt(RandomNumberGenerator &rng, 
 		const byte *ciphertext, size_t ciphertextLength, 
@@ -2388,12 +2388,12 @@ public:
 	//! \param plaintext a byte buffer to hold the decrypted string
 	//! \param parameters a set of NameValuePairs to initialize this object
 	//! \return the result of the decryption operation
-	//! \pre <tt>COUNTOF(plaintext) == MaxPlaintextLength(ciphertextLength)</tt> ensures the output
-	//!   byte buffer is large enough
 	//! \details If DecodingResult::isValidCoding is true, then DecodingResult::messageLength
 	//!   is valid and holds the the actual length of the plaintext recovered. The result is undefined
 	//!   if decryption failed. If DecodingResult::isValidCoding is false, then DecodingResult::messageLength
 	//!   is undefined.
+	//! \pre <tt>COUNTOF(plaintext) == MaxPlaintextLength(ciphertextLength)</tt> ensures the output
+	//!   byte buffer is large enough
 	//! \sa PK_Encryptor
 	DecodingResult FixedLengthDecrypt(RandomNumberGenerator &rng, const byte *ciphertext, byte *plaintext, const NameValuePairs &parameters = g_nullNameValuePairs) const
 		{return Decrypt(rng, ciphertext, FixedCiphertextLength(), plaintext, parameters);}
@@ -2624,27 +2624,52 @@ public:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE SimpleKeyAgreementDomain : public KeyAgreementAlgorithm
 {
 public:
-	//! return length of agreed value produced
+	//! \brief Provides the size of the agreed value
+	//! \return size of agreed value produced  in this domain
 	virtual unsigned int AgreedValueLength() const =0;
-	//! return length of private keys in this domain
+
+	//! \brief Provides the size of the private key
+	//! \return size of private keys in this domain
 	virtual unsigned int PrivateKeyLength() const =0;
-	//! return length of public keys in this domain
+
+	//! \brief Provides the size of the public key
+	//! \return size of public keys in this domain
 	virtual unsigned int PublicKeyLength() const =0;
-	//! generate private key
-	/*! \pre size of privateKey == PrivateKeyLength() */
+
+	//! \brief Generate private key in this domain
+	//! \param rng a RandomNumberGenerator derived class
+	//! \param privateKey a byte buffer for the generated private key in this domain
+	//! \pre <tt>size of privateKey == PrivateKeyLength()</tt>
 	virtual void GeneratePrivateKey(RandomNumberGenerator &rng, byte *privateKey) const =0;
-	//! generate public key
-	/*!	re size of publicKey == PublicKeyLength() */
+
+	//! \brief Generate a public key from a private key in this domain
+	//! \param rng a RandomNumberGenerator derived class
+	//! \param privateKey a byte buffer with the previously generated private key
+	//! \param publicKey a byte buffer for the generated public key in this domain
+	//! \pre <tt>size of publicKey == PublicKeyLength()</tt>
 	virtual void GeneratePublicKey(RandomNumberGenerator &rng, const byte *privateKey, byte *publicKey) const =0;
-	//! generate private/public key pair
-	/*! \note equivalent to calling GeneratePrivateKey() and then GeneratePublicKey() */
+
+	//! \brief Generate a private/public key pair
+	//! \param rng a RandomNumberGenerator derived class
+	//! \param privateKey a byte buffer for the generated private key in this domain
+	//! \param publicKey a byte buffer for the generated public key in this domain
+	//! \details GenerateKeyPair() is equivalent to calling GeneratePrivateKey() and then GeneratePublicKey().
+	//! \pre <tt>size of privateKey == PrivateKeyLength()</tt>
+	//! \pre <tt>size of publicKey == PublicKeyLength()</tt>
 	virtual void GenerateKeyPair(RandomNumberGenerator &rng, byte *privateKey, byte *publicKey) const;
-	//! derive agreed value from your private key and couterparty's public key, return false in case of failure
-	/*! \note If you have previously validated the public key, use validateOtherPublicKey=false to save time.
-		re size of agreedValue == AgreedValueLength()
-		\pre length of privateKey == PrivateKeyLength()
-		\pre length of otherPublicKey == PublicKeyLength()
-	*/
+
+	//! \brief Derive agreed value
+	//! \param agreedValue a byte buffer for the shared secret
+	//! \param privateKey a byte buffer with your private key in this domain
+	//! \param otherPublicKey a byte buffer with the other party's public key in this domain
+	//! \param validateOtherPublicKey a flag indicating if the other party's public key should be validated
+	//! \return true upon success, false in case of failure
+	//! \details Agree() derives an agreed value from your private keys and couterparty's public keys.
+	//! \details The other party's public key is validated by default. If you have previously validated the
+	//!   static public key, use <tt>validateStaticOtherPublicKey=false</tt> to save time.
+	//! \pre <tt>size of agreedValue == AgreedValueLength()</tt>
+	//! \pre <tt>size of privateKey == PrivateKeyLength()</tt>
+	//! \pre <tt>size of otherPublicKey == PublicKeyLength()</tt>
 	virtual bool Agree(byte *agreedValue, const byte *privateKey, const byte *otherPublicKey, bool validateOtherPublicKey=true) const =0;
 
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
@@ -2658,55 +2683,90 @@ public:
 };
 
 //! \brief Interface for domains of authenticated key agreement protocols
-
-/*! In an authenticated key agreement protocol, each party has two
-	key pairs. The long-lived key pair is called the static key pair,
-	and the short-lived key pair is called the ephemeral key pair.
-*/
+//! \details In an authenticated key agreement protocol, each party has two
+//!   key pairs. The long-lived key pair is called the static key pair,
+//!   and the short-lived key pair is called the ephemeral key pair.
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AuthenticatedKeyAgreementDomain : public KeyAgreementAlgorithm
 {
 public:
-	//! return length of agreed value produced
+	//! \brief Provides the size of the agreed value
+	//! \return size of agreed value produced  in this domain
 	virtual unsigned int AgreedValueLength() const =0;
 
-	//! return length of static private keys in this domain
+	//! \brief Provides the size of the static private key
+	//! \return size of static private keys in this domain
 	virtual unsigned int StaticPrivateKeyLength() const =0;
-	//! return length of static public keys in this domain
+
+	//! \brief Provides the size of the static public key
+	//! \return size of static public keys in this domain
 	virtual unsigned int StaticPublicKeyLength() const =0;
-	//! generate static private key
-	/*! \pre size of privateKey == PrivateStaticKeyLength() */
+
+	//! \brief Generate static private key in this domain
+	//! \param rng a RandomNumberGenerator derived class
+	//! \param privateKey a byte buffer for the generated private key in this domain
+	//! \pre <tt>size of privateKey == PrivateStaticKeyLength()</tt>
 	virtual void GenerateStaticPrivateKey(RandomNumberGenerator &rng, byte *privateKey) const =0;
-	//! generate static public key
-	/*!	re size of publicKey == PublicStaticKeyLength() */
+
+	//! \brief Generate a static public key from a private key in this domain
+	//! \param rng a RandomNumberGenerator derived class
+	//! \param privateKey a byte buffer with the previously generated private key
+	//! \param publicKey a byte buffer for the generated public key in this domain
+	//! \pre <tt>size of publicKey == PublicStaticKeyLength()</tt>
 	virtual void GenerateStaticPublicKey(RandomNumberGenerator &rng, const byte *privateKey, byte *publicKey) const =0;
-	//! generate private/public key pair
-	/*! \note equivalent to calling GenerateStaticPrivateKey() and then GenerateStaticPublicKey() */
+
+	//! \brief Generate a static private/public key pair
+	//! \param rng a RandomNumberGenerator derived class
+	//! \param privateKey a byte buffer for the generated private key in this domain
+	//! \param publicKey a byte buffer for the generated public key in this domain
+	//! \details GenerateStaticKeyPair() is equivalent to calling GenerateStaticPrivateKey() and then GenerateStaticPublicKey().
+	//! \pre <tt>size of privateKey == PrivateStaticKeyLength()</tt>
+	//! \pre <tt>size of publicKey == PublicStaticKeyLength()</tt>
 	virtual void GenerateStaticKeyPair(RandomNumberGenerator &rng, byte *privateKey, byte *publicKey) const;
 
-	//! return length of ephemeral private keys in this domain
+	//! \brief Provides the size of ephemeral private key
+	//! \return the size of ephemeral private key in this domain
 	virtual unsigned int EphemeralPrivateKeyLength() const =0;
-	//! return length of ephemeral public keys in this domain
+
+	//! \brief Provides the size of ephemeral public key
+	//! \return the size of ephemeral public key in this domain
 	virtual unsigned int EphemeralPublicKeyLength() const =0;
+
 	//! \brief Generate ephemeral private key
-	//! \pre size of privateKey == PrivateEphemeralKeyLength()
+	//! \param rng a RandomNumberGenerator derived class
+	//! \param privateKey a byte buffer for the generated private key in this domain
+	//! \pre <tt>size of privateKey == PrivateEphemeralKeyLength()</tt>
 	virtual void GenerateEphemeralPrivateKey(RandomNumberGenerator &rng, byte *privateKey) const =0;
+
 	//! \brief Generate ephemeral public key
-	//! \pre size of publicKey == PublicEphemeralKeyLength()
+	//! \param rng a RandomNumberGenerator derived class
+	//! \param privateKey a byte buffer for the generated private key in this domain
+	//! \param publicKey a byte buffer for the generated public key in this domain
+	//! \pre <tt>size of publicKey == PublicEphemeralKeyLength()</tt>
 	virtual void GenerateEphemeralPublicKey(RandomNumberGenerator &rng, const byte *privateKey, byte *publicKey) const =0;
+
 	//! \brief Generate private/public key pair
-	/*! \note equivalent to calling GenerateEphemeralPrivateKey() and then GenerateEphemeralPublicKey() */
+	//! \param rng a RandomNumberGenerator derived class
+	//! \param privateKey a byte buffer for the generated private key in this domain
+	//! \param publicKey a byte buffer for the generated public key in this domain
+	//! \details GenerateEphemeralKeyPair() is equivalent to calling GenerateEphemeralPrivateKey() and then GenerateEphemeralPublicKey()
 	virtual void GenerateEphemeralKeyPair(RandomNumberGenerator &rng, byte *privateKey, byte *publicKey) const;
 
 	//! \brief Derive agreed value
+	//! \param agreedValue a byte buffer for the shared secret
+	//! \param staticPrivateKey a byte buffer with your static private key in this domain
+	//! \param ephemeralPrivateKey a byte buffer with your ephemeral private key in this domain
+	//! \param staticOtherPublicKey a byte buffer with the other party's static public key in this domain
+	//! \param ephemeralOtherPublicKey a byte buffer with the other party's ephemeral public key in this domain
+	//! \param validateStaticOtherPublicKey a flag indicating if the other party's public key should be validated
 	//! \return true upon success, false in case of failure
-	//! \details Agree() derives an agreed value from your private keys and couterparty's public keys
-	//! \details The ephemeral public key will always be validated. If you have previously validated the
-	//!   static public key, use validateStaticOtherPublicKey=false to save time.
-	//! \pre size of agreedValue == AgreedValueLength()
-	//! \pre length of staticPrivateKey == StaticPrivateKeyLength()
-	//! \pre length of ephemeralPrivateKey == EphemeralPrivateKeyLength()
-	//! \pre length of staticOtherPublicKey == StaticPublicKeyLength()
-	//! \pre length of ephemeralOtherPublicKey == EphemeralPublicKeyLength()
+	//! \details Agree() derives an agreed value from your private keys and couterparty's public keys.
+	//! \details The other party's ephemeral public key is validated by default. If you have previously validated
+	//!   the static public key, use <tt>validateStaticOtherPublicKey=false</tt> to save time.
+	//! \pre <tt>size of agreedValue == AgreedValueLength()</tt>
+	//! \pre <tt>size of staticPrivateKey == StaticPrivateKeyLength()</tt>
+	//! \pre <tt>size of ephemeralPrivateKey == EphemeralPrivateKeyLength()</tt>
+	//! \pre <tt>size of staticOtherPublicKey == StaticPublicKeyLength()</tt>
+	//! \pre <tt>size of ephemeralOtherPublicKey == EphemeralPublicKeyLength()</tt>
 	virtual bool Agree(byte *agreedValue,
 		const byte *staticPrivateKey, const byte *ephemeralPrivateKey,
 		const byte *staticOtherPublicKey, const byte *ephemeralOtherPublicKey,
