@@ -694,7 +694,7 @@ protected:
 	//! \throws InvalidArgument if the number of  rounds are invalid
 	size_t ThrowIfInvalidIVLength(int length);
 	
-	//! \brief retrieves and validates the IV
+	//! \brief Retrieves and validates the IV
 	//! \param params  NameValuePairs with the IV supplied as a  ConstByteArrayParameter
 	//! \param size the length of the IV, in bytes
 	//! \return a pointer to the first byte of the  IV
@@ -2515,7 +2515,7 @@ public:
 	//! \param rng a RandomNumberGenerator derived class
 	//! \return a pointer to a PK_MessageAccumulator
 	//! \details NewSignatureAccumulator() can be used with all signing methods. Sign() will autimatically delete the
-	//!   accumulator pointer. The caller is responsible for deletion if a methods is called that takes a reference.
+	//!   accumulator pointer. The caller is responsible for deletion if a method is called that takes a reference.
 	virtual PK_MessageAccumulator * NewSignatureAccumulator(RandomNumberGenerator &rng) const =0;
 
 	//! \brief Input a recoverable message to an accumulator
@@ -2530,7 +2530,7 @@ public:
 	//! \param signature a block of bytes for the signature
 	//! \return actual signature length
 	//! \details Sign() deletes the messageAccumulator, even if an exception is thrown.
-	//! \pre <tt>size of signature == MaxSignatureLength()</tt>
+	//! \pre <tt>COUNTOF(signature) == MaxSignatureLength()</tt>
 	virtual size_t Sign(RandomNumberGenerator &rng, PK_MessageAccumulator *messageAccumulator, byte *signature) const;
 
 	//! \brief Sign and restart messageAccumulator
@@ -2539,7 +2539,7 @@ public:
 	//! \param signature a block of bytes for the signature
 	//! \param restart flag indicating whether the messageAccumulator should be restarted
 	//! \return actual signature length
-	//! \pre <tt>size of signature == MaxSignatureLength()</tt>
+	//! \pre <tt>COUNTOF(signature) == MaxSignatureLength()</tt>
 	virtual size_t SignAndRestart(RandomNumberGenerator &rng, PK_MessageAccumulator &messageAccumulator, byte *signature, bool restart=true) const =0;
 
 	//! \brief Sign a message
@@ -2548,7 +2548,7 @@ public:
 	//! \param messageLen the size of the message to be signed
 	//! \param signature a block of bytes for the signature
 	//! \return actual signature length
-	//! \pre <tt>size of signature == MaxSignatureLength()</tt>
+	//! \pre <tt>COUNTOF(signature) == MaxSignatureLength()</tt>
 	virtual size_t SignMessage(RandomNumberGenerator &rng, const byte *message, size_t messageLen, byte *signature) const;
 
 	//! \brief Sign a recoverable message
@@ -2558,8 +2558,8 @@ public:
 	//! \param nonrecoverableMessage a pointer to the non-recoverable message part to be signed
 	//! \param nonrecoverableMessageLength the size of the non-recoverable message part
 	//! \param signature a block of bytes for the signature
-	//! \pre <tt>size of signature == MaxSignatureLength(recoverableMessageLength)</tt>
 	//! \return actual signature length
+	//! \pre <tt>COUNTOF(signature) == MaxSignatureLength(recoverableMessageLength)</tt>
 	virtual size_t SignMessageWithRecovery(RandomNumberGenerator &rng, const byte *recoverableMessage, size_t recoverableMessageLength, 
 		const byte *nonrecoverableMessage, size_t nonrecoverableMessageLength, byte *signature) const;
 
@@ -2574,41 +2574,67 @@ public:
 //!   message recovery.
 //! \details The Verify* functions throw InvalidDataFormat if the scheme does support message
 //!   recovery and the signature contains a non-empty recoverable message part. The
-//!   Recovery* functions should be used in that case.
+//!   Recover* functions should be used in that case.
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_Verifier : public PK_SignatureScheme, public PublicKeyAlgorithm
 {
 public:
-	//! create a new HashTransformation to accumulate the message to be verified
+	//! \brief Create a new HashTransformation to accumulate the message to be verified
+	//! \details NewVerificationAccumulator() can be used with all verification methods. Verify() will autimatically delete
+	//!   the accumulator pointer. The caller is responsible for deletion if a method is called that takes a reference.
 	virtual PK_MessageAccumulator * NewVerificationAccumulator() const =0;
 
-	//! input signature into a message accumulator
+	//! \brief Input signature into a message accumulator
+	//! \param messageAccumulator a pointer to a PK_MessageAccumulator derived class
+	//! \param signature the signature on the message
+	//! \param signatureLength the size of the signature
 	virtual void InputSignature(PK_MessageAccumulator &messageAccumulator, const byte *signature, size_t signatureLength) const =0;
 
-	//! check whether messageAccumulator contains a valid signature and message, and delete messageAccumulator (even in case of exception thrown)
+	//! \brief Check whether messageAccumulator contains a valid signature and message
+	//! \param messageAccumulator a pointer to a PK_MessageAccumulator derived class
+	//! \details Verify() deletes the messageAccumulator, even if an exception is thrown.
 	virtual bool Verify(PK_MessageAccumulator *messageAccumulator) const;
 
-	//! check whether messageAccumulator contains a valid signature and message, and restart messageAccumulator
+	//! \brief Check whether messageAccumulator contains a valid signature and message, and restart messageAccumulator
+	//! \param messageAccumulator a reference to a PK_MessageAccumulator derived class
+	//! \return true if the signature is valid, false otherwise
+	//! \details VerifyAndRestart() restarts the messageAccumulator 
 	virtual bool VerifyAndRestart(PK_MessageAccumulator &messageAccumulator) const =0;
 
-	//! check whether input signature is a valid signature for input message
+	//! \brief Check whether input signature is a valid signature for input message
+	//! \param message a pointer to the message to be verified
+	//! \param messageLen the size of the message
+	//! \param signature a pointer to the signature over the message
+	//! \param signatureLen the size of the signature
+	//! \return true if the signature is valid, false otherwise
 	virtual bool VerifyMessage(const byte *message, size_t messageLen, 
-		const byte *signature, size_t signatureLength) const;
+		const byte *signature, size_t signatureLen) const;
 
-	//! recover a message from its signature
-	/*! \pre size of recoveredMessage == MaxRecoverableLengthFromSignatureLength(signatureLength)
-	*/
+	//! \brief Recover a message from its signature
+	//! \param recoveredMessage a pointer to the recoverable message part to be verified
+	//! \param messageAccumulator a pointer to a PK_MessageAccumulator derived class
+	//! \return the result of the verification operation
+	//! \details Recover() deletes the messageAccumulator, even if an exception is thrown.
+	//! \pre <tt>COUNTOF(recoveredMessage) == MaxRecoverableLengthFromSignatureLength(signatureLength)</tt>
 	virtual DecodingResult Recover(byte *recoveredMessage, PK_MessageAccumulator *messageAccumulator) const;
 
-	//! recover a message from its signature
-	/*! \pre size of recoveredMessage == MaxRecoverableLengthFromSignatureLength(signatureLength)
-	*/
+	//! \brief Recover a message from its signature
+	//! \param recoveredMessage a pointer to the recoverable message part to be verified
+	//! \param messageAccumulator a pointer to a PK_MessageAccumulator derived class
+	//! \return the result of the verification operation
+	//! \details RecoverAndRestart() restarts the messageAccumulator
+	//! \pre <tt>COUNTOF(recoveredMessage) == MaxRecoverableLengthFromSignatureLength(signatureLength)</tt>
 	virtual DecodingResult RecoverAndRestart(byte *recoveredMessage, PK_MessageAccumulator &messageAccumulator) const =0;
 
-	//! recover a message from its signature
-	/*! \pre size of recoveredMessage == MaxRecoverableLengthFromSignatureLength(signatureLength)
-	*/
+	//! \brief Recover a message from its signature
+	//! \param recoveredMessage a pointer for the recovered message
+	//! \param nonrecoverableMessage a pointer to the non-recoverable message part to be signed
+	//! \param nonrecoverableMessageLength the size of the non-recoverable message part
+	//! \param signature the signature on the message
+	//! \param signatureLength the size of the signature
+	//! \return the result of the verification operation
+	//! \pre <tt>COUNTOF(recoveredMessage) == MaxRecoverableLengthFromSignatureLength(signatureLength)</tt>
 	virtual DecodingResult RecoverMessage(byte *recoveredMessage, 
-		const byte *nonrecoverableMessage, size_t nonrecoverableMessageLength, 
+		const byte *nonrecoverableMessage, size_t nonrecoverableMessageLength,
 		const byte *signature, size_t signatureLength) const;
 
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
@@ -2639,14 +2665,14 @@ public:
 	//! \brief Generate private key in this domain
 	//! \param rng a RandomNumberGenerator derived class
 	//! \param privateKey a byte buffer for the generated private key in this domain
-	//! \pre <tt>size of privateKey == PrivateKeyLength()</tt>
+	//! \pre <tt>COUNTOF(privateKey) == PrivateKeyLength()</tt>
 	virtual void GeneratePrivateKey(RandomNumberGenerator &rng, byte *privateKey) const =0;
 
 	//! \brief Generate a public key from a private key in this domain
 	//! \param rng a RandomNumberGenerator derived class
 	//! \param privateKey a byte buffer with the previously generated private key
 	//! \param publicKey a byte buffer for the generated public key in this domain
-	//! \pre <tt>size of publicKey == PublicKeyLength()</tt>
+	//! \pre <tt>COUNTOF(publicKey) == PublicKeyLength()</tt>
 	virtual void GeneratePublicKey(RandomNumberGenerator &rng, const byte *privateKey, byte *publicKey) const =0;
 
 	//! \brief Generate a private/public key pair
@@ -2654,8 +2680,8 @@ public:
 	//! \param privateKey a byte buffer for the generated private key in this domain
 	//! \param publicKey a byte buffer for the generated public key in this domain
 	//! \details GenerateKeyPair() is equivalent to calling GeneratePrivateKey() and then GeneratePublicKey().
-	//! \pre <tt>size of privateKey == PrivateKeyLength()</tt>
-	//! \pre <tt>size of publicKey == PublicKeyLength()</tt>
+	//! \pre <tt>COUNTOF(privateKey) == PrivateKeyLength()</tt>
+	//! \pre <tt>COUNTOF(publicKey) == PublicKeyLength()</tt>
 	virtual void GenerateKeyPair(RandomNumberGenerator &rng, byte *privateKey, byte *publicKey) const;
 
 	//! \brief Derive agreed value
@@ -2667,9 +2693,9 @@ public:
 	//! \details Agree() derives an agreed value from your private keys and couterparty's public keys.
 	//! \details The other party's public key is validated by default. If you have previously validated the
 	//!   static public key, use <tt>validateStaticOtherPublicKey=false</tt> to save time.
-	//! \pre <tt>size of agreedValue == AgreedValueLength()</tt>
-	//! \pre <tt>size of privateKey == PrivateKeyLength()</tt>
-	//! \pre <tt>size of otherPublicKey == PublicKeyLength()</tt>
+	//! \pre <tt>COUNTOF(agreedValue) == AgreedValueLength()</tt>
+	//! \pre <tt>COUNTOF(privateKey) == PrivateKeyLength()</tt>
+	//! \pre <tt>COUNTOF(otherPublicKey) == PublicKeyLength()</tt>
 	virtual bool Agree(byte *agreedValue, const byte *privateKey, const byte *otherPublicKey, bool validateOtherPublicKey=true) const =0;
 
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
@@ -2704,14 +2730,14 @@ public:
 	//! \brief Generate static private key in this domain
 	//! \param rng a RandomNumberGenerator derived class
 	//! \param privateKey a byte buffer for the generated private key in this domain
-	//! \pre <tt>size of privateKey == PrivateStaticKeyLength()</tt>
+	//! \pre <tt>COUNTOF(privateKey) == PrivateStaticKeyLength()</tt>
 	virtual void GenerateStaticPrivateKey(RandomNumberGenerator &rng, byte *privateKey) const =0;
 
 	//! \brief Generate a static public key from a private key in this domain
 	//! \param rng a RandomNumberGenerator derived class
 	//! \param privateKey a byte buffer with the previously generated private key
 	//! \param publicKey a byte buffer for the generated public key in this domain
-	//! \pre <tt>size of publicKey == PublicStaticKeyLength()</tt>
+	//! \pre <tt>COUNTOF(publicKey) == PublicStaticKeyLength()</tt>
 	virtual void GenerateStaticPublicKey(RandomNumberGenerator &rng, const byte *privateKey, byte *publicKey) const =0;
 
 	//! \brief Generate a static private/public key pair
@@ -2719,8 +2745,8 @@ public:
 	//! \param privateKey a byte buffer for the generated private key in this domain
 	//! \param publicKey a byte buffer for the generated public key in this domain
 	//! \details GenerateStaticKeyPair() is equivalent to calling GenerateStaticPrivateKey() and then GenerateStaticPublicKey().
-	//! \pre <tt>size of privateKey == PrivateStaticKeyLength()</tt>
-	//! \pre <tt>size of publicKey == PublicStaticKeyLength()</tt>
+	//! \pre <tt>COUNTOF(privateKey) == PrivateStaticKeyLength()</tt>
+	//! \pre <tt>COUNTOF(publicKey) == PublicStaticKeyLength()</tt>
 	virtual void GenerateStaticKeyPair(RandomNumberGenerator &rng, byte *privateKey, byte *publicKey) const;
 
 	//! \brief Provides the size of ephemeral private key
@@ -2734,14 +2760,14 @@ public:
 	//! \brief Generate ephemeral private key
 	//! \param rng a RandomNumberGenerator derived class
 	//! \param privateKey a byte buffer for the generated private key in this domain
-	//! \pre <tt>size of privateKey == PrivateEphemeralKeyLength()</tt>
+	//! \pre <tt>COUNTOF(privateKey) == PrivateEphemeralKeyLength()</tt>
 	virtual void GenerateEphemeralPrivateKey(RandomNumberGenerator &rng, byte *privateKey) const =0;
 
 	//! \brief Generate ephemeral public key
 	//! \param rng a RandomNumberGenerator derived class
 	//! \param privateKey a byte buffer for the generated private key in this domain
 	//! \param publicKey a byte buffer for the generated public key in this domain
-	//! \pre <tt>size of publicKey == PublicEphemeralKeyLength()</tt>
+	//! \pre <tt>COUNTOF(publicKey) == PublicEphemeralKeyLength()</tt>
 	virtual void GenerateEphemeralPublicKey(RandomNumberGenerator &rng, const byte *privateKey, byte *publicKey) const =0;
 
 	//! \brief Generate private/public key pair
@@ -2762,11 +2788,11 @@ public:
 	//! \details Agree() derives an agreed value from your private keys and couterparty's public keys.
 	//! \details The other party's ephemeral public key is validated by default. If you have previously validated
 	//!   the static public key, use <tt>validateStaticOtherPublicKey=false</tt> to save time.
-	//! \pre <tt>size of agreedValue == AgreedValueLength()</tt>
-	//! \pre <tt>size of staticPrivateKey == StaticPrivateKeyLength()</tt>
-	//! \pre <tt>size of ephemeralPrivateKey == EphemeralPrivateKeyLength()</tt>
-	//! \pre <tt>size of staticOtherPublicKey == StaticPublicKeyLength()</tt>
-	//! \pre <tt>size of ephemeralOtherPublicKey == EphemeralPublicKeyLength()</tt>
+	//! \pre <tt>COUNTOF(agreedValue) == AgreedValueLength()</tt>
+	//! \pre <tt>COUNTOF(staticPrivateKey) == StaticPrivateKeyLength()</tt>
+	//! \pre <tt>COUNTOF(ephemeralPrivateKey) == EphemeralPrivateKeyLength()</tt>
+	//! \pre <tt>COUNTOF(staticOtherPublicKey) == StaticPublicKeyLength()</tt>
+	//! \pre <tt>COUNTOF(ephemeralOtherPublicKey) == EphemeralPublicKeyLength()</tt>
 	virtual bool Agree(byte *agreedValue,
 		const byte *staticPrivateKey, const byte *ephemeralPrivateKey,
 		const byte *staticOtherPublicKey, const byte *ephemeralOtherPublicKey,
@@ -2896,7 +2922,7 @@ public:
 };
 #endif
 
-//! \brief Exception thrown when an ASN1 BER decoing error is encountered
+//! \brief Exception thrown when an ASN.1 BER decoing error is encountered
 class CRYPTOPP_DLL BERDecodeErr : public InvalidArgument
 {
 public: 
