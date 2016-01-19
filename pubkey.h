@@ -5,7 +5,7 @@
 
 //! \file
 //! \brief This file contains helper classes/functions for implementing public key algorithms.
-//! \details the class hierachies in this header file tend to look like this:
+//! \details The class hierachies in this header file tend to look like this:
 //! 
 //! <pre>
 //!                   x1
@@ -251,7 +251,7 @@ protected:
 // ********************************************************
 
 //! \class PK_FixedLengthCryptoSystemImpl
-//! \brief Public key trapdoor function base class
+//! \brief Public key trapdoor function default implementation
 //! \tparam BASE public key cryptosystem with a fixed length
 template <class BASE>
 class CRYPTOPP_NO_VTABLE PK_FixedLengthCryptoSystemImpl : public BASE
@@ -336,7 +336,7 @@ public:
 	virtual size_t MaxRecoverableLength(size_t representativeBitLength, size_t hashIdentifierLength, size_t digestLength) const
 		{CRYPTOPP_UNUSED(representativeBitLength); CRYPTOPP_UNUSED(representativeBitLength); CRYPTOPP_UNUSED(hashIdentifierLength); CRYPTOPP_UNUSED(digestLength); return 0;}
 
-	bool IsProbabilistic() const 
+	bool IsProbabilistic() const
 		{return true;}
 	bool AllowNonrecoverablePart() const
 		{throw NotImplemented("PK_MessageEncodingMethod: this signature scheme does not support message recovery");}
@@ -674,17 +674,37 @@ class TF_VerifierImpl : public TF_ObjectImpl<TF_VerifierBase, SCHEME_OPTIONS, ty
 
 // ********************************************************
 
-//! _
+//! \class MaskGeneratingFunction
+//! \brief Mask generation function interface
 class CRYPTOPP_NO_VTABLE MaskGeneratingFunction
 {
 public:
 	virtual ~MaskGeneratingFunction() {}
+	//! \brief Generate and apply mask
+	//! \param hash HashTransformation derived class
+	//! \param output the destination byte array
+	//! \param outputLength the size fo the the destination byte array
+	//! \param input the message to hash
+	//! \param inputLength the size of the message
+	//! \param mask flag indicating whether to apply the mask
 	virtual void GenerateAndMask(HashTransformation &hash, byte *output, size_t outputLength, const byte *input, size_t inputLength, bool mask = true) const =0;
 };
 
+//! \fn P1363_MGF1KDF2_Common
+//! \brief P1363 mask generation function
+//! \param hash HashTransformation derived class
+//! \param output the destination byte array
+//! \param outputLength the size fo the the destination byte array
+//! \param input the message to hash
+//! \param inputLength the size of the message
+//! \param derivationParams additional derivation parameters
+//! \param derivationParamsLength the size of the additional derivation parameters
+//! \param mask flag indicating whether to apply the mask
+//! \param counterStart starting counter value used in generation function
 CRYPTOPP_DLL void CRYPTOPP_API P1363_MGF1KDF2_Common(HashTransformation &hash, byte *output, size_t outputLength, const byte *input, size_t inputLength, const byte *derivationParams, size_t derivationParamsLength, bool mask, unsigned int counterStart);
 
-//! _
+//! \class P1363_MGF1
+//! \brief P1363 mask generation function
 class P1363_MGF1 : public MaskGeneratingFunction
 {
 public:
@@ -697,7 +717,9 @@ public:
 
 // ********************************************************
 
-//! _
+//! \class MaskGeneratingFunction
+//! \brief P1363 key derivation function
+//! \tparam H hash function used in the derivation
 template <class H>
 class P1363_KDF2
 {
@@ -711,14 +733,17 @@ public:
 
 // ********************************************************
 
-//! to be thrown by DecodeElement and AgreeWithStaticPrivateKey
+//! \brief Exception thrown when an invalid group element is encountered
+//! \details Thrown by DecodeElement and AgreeWithStaticPrivateKey
 class DL_BadElement : public InvalidDataFormat
 {
 public:
 	DL_BadElement() : InvalidDataFormat("CryptoPP: invalid group element") {}
 };
 
-//! interface for DL group parameters
+//! \brief Interface for Discrete Log (DL) group parameters
+//! \tparam T element in the group
+//! \details The element can be an Integer, \ref ECP "ECP::Point" or \ref EC2N "EC2N::Point"
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_GroupParameters : public CryptoParameters
 {
@@ -772,13 +797,29 @@ public:
 		GetBasePrecomputation().Save(GetGroupPrecomputation(), storedPrecomputation);
 	}
 
-	// non-inherited
+	//! \brief Retrieves the subgroup generator
+	//! \return the subgroup generator
+	//! \details The subgroup generator is retrieved from the base precomputation
 	virtual const Element & GetSubgroupGenerator() const {return GetBasePrecomputation().GetBase(GetGroupPrecomputation());}
+
+	//! \brief Set the subgroup generator
+	//! \param base the new subgroup generator
+	//! \details The subgroup generator is set in the base precomputation
 	virtual void SetSubgroupGenerator(const Element &base) {AccessBasePrecomputation().SetBase(GetGroupPrecomputation(), base);}
+
+	//! \brief Retrieves the subgroup generator
+	//! \return the subgroup generator
+	//! \details The subgroup generator is retrieved from the base precomputation.
 	virtual Element ExponentiateBase(const Integer &exponent) const
 	{
 		return GetBasePrecomputation().Exponentiate(GetGroupPrecomputation(), exponent);
 	}
+
+	//! \brief Exponentiates an element
+	//! \param base the base elemenet
+	//! \param exponent the exponent to raise the base
+	//! \return the result of the exponentiation
+	//! \details Internally, ExponentiateElement() calls SimultaneousExponentiate().
 	virtual Element ExponentiateElement(const Element &base, const Integer &exponent) const
 	{
 		Element result;
@@ -786,21 +827,119 @@ public:
 		return result;
 	}
 
+	//! \brief Retrieves the group precomputation
+	//! \return a const reference to the precomputation
 	virtual const DL_GroupPrecomputation<Element> & GetGroupPrecomputation() const =0;
+
+	//! \brief Retrieves the group precomputation
+	//! \return a const reference to the precomputation using a fixed base
 	virtual const DL_FixedBasePrecomputation<Element> & GetBasePrecomputation() const =0;
+
+	//! \brief Retrieves the group precomputation
+	//! \return a non-const reference to the precomputation using a fixed base
 	virtual DL_FixedBasePrecomputation<Element> & AccessBasePrecomputation() =0;
-	virtual const Integer & GetSubgroupOrder() const =0;	// order of subgroup generated by base element
+
+	//! \brief Retrieves the subgroup order
+	//! \return the order of subgroup generated by the base element
+	virtual const Integer & GetSubgroupOrder() const =0;
+
+	//! \brief Retrieves the maximum exponent for the group
+	//! \return the maximum exponent for the group
 	virtual Integer GetMaxExponent() const =0;
-	virtual Integer GetGroupOrder() const {return GetSubgroupOrder()*GetCofactor();}	// one of these two needs to be overriden
+
+	//! \brief Retrieves the order of the group
+	//! \return the order of the group
+	//! \details Either GetGroupOrder() or GetCofactor() must be overriden in a derived class.
+	virtual Integer GetGroupOrder() const {return GetSubgroupOrder()*GetCofactor();}
+
+	//! \brief Retrieves the cofactor
+	//! \return the cofactor
+	//! \details Either GetGroupOrder() or GetCofactor() must be overriden in a derived class.
 	virtual Integer GetCofactor() const {return GetGroupOrder()/GetSubgroupOrder();}
+
+	//! \brief Retrieves the encoded element's size
+	//! \param reversible flag indicating the encoding format
+	//! \return encoded element's size, in bytes
+	//! \details The format of the encoded element varies by the underlyinhg type of the element and the
+	//!   reversible flag. GetEncodedElementSize() must be implemented in a derived class.
+	//! \sa GetEncodedElementSize(), EncodeElement(), DecodeElement()
 	virtual unsigned int GetEncodedElementSize(bool reversible) const =0;
+
+	//! \brief Encodes the element
+	//! \param reversible flag indicating the encoding format
+	//! \param element reference to the element to encode
+	//! \param encoded destination byte array for the encoded element
+	//! \details EncodeElement() must be implemented in a derived class.
+	//! \pre <tt>COUNTOF(encoded) == GetEncodedElementSize()</tt>
 	virtual void EncodeElement(bool reversible, const Element &element, byte *encoded) const =0;
+
+	//! \brief Decodes the element
+	//! \param encoded byte array with the encoded element
+	//! \param checkForGroupMembership flag indicating if the element should be validated
+	//! \return Element after decoding
+	//! \details DecodeElement() must be implemented in a derived class.
+	//! \pre <tt>COUNTOF(encoded) == GetEncodedElementSize()</tt>
 	virtual Element DecodeElement(const byte *encoded, bool checkForGroupMembership) const =0;
+
+	//! \brief Converts an element to an Integer
+	//! \param element the element to convert to an Integer
+	//! \return Element after converting to an Integer
+	//! \details ConvertElementToInteger() must be implemented in a derived class.
 	virtual Integer ConvertElementToInteger(const Element &element) const =0;
+
+	//! \brief Check the group for errors
+	//! \param rng RandomNumberGenerator for objects which use randomized testing
+	//! \param level level of thoroughness
+	//! \return true if the tests succeed, false otherwise
+	//! \details There are four levels of thoroughness:
+	//!   <ul>
+	//!   <li>0 - using this object won't cause a crash or exception
+	//!   <li>1 - this object will probably function, and encrypt, sign, other operations correctly
+	//!   <li>2 - ensure this object will function correctly, and perform reasonable security checks
+	//!   <li>3 - perform reasonable security checks, and do checks that may take a long time
+	//!   </ul>
+	//! \details Level 0 does not require a RandomNumberGenerator. A NullRNG() can be used for level 0.
+	//!   Level 1 may not check for weak keys and such. Levels 2 and 3 are recommended.
+	//! \details ValidateGroup() must be implemented in a derived class.
 	virtual bool ValidateGroup(RandomNumberGenerator &rng, unsigned int level) const =0;
+
+	//! \brief Check the element for errors
+	//! \param level level of thoroughness
+	//! \param element element to check
+	//! \param precomp optional pointer to DL_FixedBasePrecomputation
+	//! \return true if the tests succeed, false otherwise
+	//! \details There are four levels of thoroughness:
+	//!   <ul>
+	//!   <li>0 - using this object won't cause a crash or exception
+	//!   <li>1 - this object will probably function, and encrypt, sign, other operations correctly
+	//!   <li>2 - ensure this object will function correctly, and perform reasonable security checks
+	//!   <li>3 - perform reasonable security checks, and do checks that may take a long time
+	//!   </ul>
+	//! \details Level 0 performs group membership checks. Level 1 may not check for weak keys and such.
+	//!   Levels 2 and 3 are recommended.
+	//! \details ValidateElement() must be implemented in a derived class.
 	virtual bool ValidateElement(unsigned int level, const Element &element, const DL_FixedBasePrecomputation<Element> *precomp) const =0;
+
 	virtual bool FastSubgroupCheckAvailable() const =0;
+	
+	//! \brief Determines if an element is an identity
+	//! \param element element to check
+	//! \return true if the element is an identity, false otherwise
+	//! \details The identity element or or neutral element is a special element in a group that leaves
+	//!   other elements unchanged when combined with it.
+	//! \details IsIdentity() must be implemented in a derived class.
 	virtual bool IsIdentity(const Element &element) const =0;
+
+	//! \brief Exponentiates a base to multiple exponents
+	//! \param results an array of Elements
+	//! \param base the base to raise to the exponents
+	//! \param exponents an array of exponents
+	//! \param exponentsCount the number of exponents in the array
+	//! \details SimultaneousExponentiate() raises the base to each exponent in the exponents array and stores the
+	//!   result at the respective position in the results array.
+	//! \details SimultaneousExponentiate() must be implemented in a derived class.
+	//! \pre <tt>COUNTOF(results) == exponentsCount</tt>
+	//! \pre <tt>COUNTOF(exponents) == exponentsCount</tt>
 	virtual void SimultaneousExponentiate(Element *results, const Element &base, const Integer *exponents, unsigned int exponentsCount) const =0;
 
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
@@ -845,7 +984,7 @@ public:
 	virtual DL_GroupParameters<T> & AccessAbstractGroupParameters() =0;
 };
 
-//! interface for DL public keys
+//! \brief Interface for DL public keys
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_PublicKey : public DL_Key<T>
 {
@@ -884,7 +1023,7 @@ public:
 #endif
 };
 
-//! interface for DL private keys
+//! \brief Interface for DL private keys
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_PrivateKey : public DL_Key<T>
 {
@@ -1113,7 +1252,7 @@ private:
 	typename GP::BasePrecomputation m_ypc;
 };
 
-//! interface for Elgamal-like signature algorithms
+//! \brief Interface for Elgamal-like signature algorithms
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_ElgamalLikeSignatureAlgorithm
 {
@@ -1131,7 +1270,7 @@ public:
 		{return params.GetSubgroupOrder().ByteCount();}
 };
 
-//! interface for DL key agreement algorithms
+//! \brief Interface for DL key agreement algorithms
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_KeyAgreementAlgorithm
 {
@@ -1146,7 +1285,7 @@ public:
 #endif
 };
 
-//! interface for key derivation algorithms used in DL cryptosystems
+//! \brief Interface for key derivation algorithms used in DL cryptosystems
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_KeyDerivationAlgorithm
 {
@@ -1160,7 +1299,7 @@ public:
 #endif
 };
 
-//! interface for symmetric encryption algorithms used in DL cryptosystems
+//! \brief Interface for symmetric encryption algorithms used in DL cryptosystems
 class CRYPTOPP_NO_VTABLE DL_SymmetricEncryptionAlgorithm
 {
 public:
@@ -1703,12 +1842,27 @@ protected:
 	const DL_GroupParameters<Element> & GetAbstractGroupParameters() const {return const_cast<DL_SimpleKeyAgreementDomainBase<Element> *>(this)->AccessAbstractGroupParameters();}
 };
 
-enum CofactorMultiplicationOption {NO_COFACTOR_MULTIPLICTION, COMPATIBLE_COFACTOR_MULTIPLICTION, INCOMPATIBLE_COFACTOR_MULTIPLICTION};
+//! \brief Methods for avoiding "Small-Subgroup" attacks on Diffie-Hellman Key Agreement
+//! \details Additional methods exist and include public key validation and choice of prime p.
+//! \sa <A HREF="http://tools.ietf.org/html/rfc2785">Methods for Avoiding the "Small-Subgroup" Attacks on the
+//!   Diffie-Hellman Key Agreement Method for S/MIME</A>
+enum CofactorMultiplicationOption {
+	//! \brief No cofactor multiplication applied
+	NO_COFACTOR_MULTIPLICTION,
+	//! \brief Cofactor multiplication compatible with ordinary Diffie-Hellman
+	//! \details Modifies the computation of ZZ by including j (the cofactor) in the computations and is
+	//!   compatible with ordinary Diffie-Hellman.
+	COMPATIBLE_COFACTOR_MULTIPLICTION,
+	//! \brief Cofactor multiplication incompatible with ordinary Diffie-Hellman
+	//! \details Modifies the computation of ZZ by including j (the cofactor) in the computations but is
+	//!   not compatible with ordinary Diffie-Hellman.
+	INCOMPATIBLE_COFACTOR_MULTIPLICTION};
+
 typedef EnumToType<CofactorMultiplicationOption, NO_COFACTOR_MULTIPLICTION> NoCofactorMultiplication;
 typedef EnumToType<CofactorMultiplicationOption, COMPATIBLE_COFACTOR_MULTIPLICTION> CompatibleCofactorMultiplication;
 typedef EnumToType<CofactorMultiplicationOption, INCOMPATIBLE_COFACTOR_MULTIPLICTION> IncompatibleCofactorMultiplication;
 
-//! DH key agreement algorithm
+//! \details Diffie-Hellman key agreement algorithm
 template <class ELEMENT, class COFACTOR_OPTION>
 class DL_KeyAgreementAlgorithm_DH : public DL_KeyAgreementAlgorithm<ELEMENT>
 {
@@ -1766,7 +1920,7 @@ public:
 
 // ********************************************************
 
-//! A template implementing constructors for public key algorithm classes
+//! \details Template implementing constructors for public key algorithm classes
 template <class BASE>
 class CRYPTOPP_NO_VTABLE PK_FinalTemplate : public BASE
 {
@@ -1878,18 +2032,18 @@ public:
 
 //! \brief Base class for public key encryption standard classes.
 //! \details These classes are used to select from variants of algorithms.
-//! \note Not all standards apply to all algorithms.
+//!   Not all standards apply to all algorithms.
 struct EncryptionStandard {};
 
 //! \brief Base class for public key signature standard classes.
 //! \details These classes are used to select from variants of algorithms.
-//! \note Not all standards apply to all algorithms.
+//!   Not all standards apply to all algorithms.
 struct SignatureStandard {};
 
 template <class STANDARD, class KEYS, class ALG_INFO>
 class TF_ES;
 
-//! Trapdoor Function Based Encryption Scheme
+//! \brief Trapdoor Function Based Encryption Scheme
 template <class STANDARD, class KEYS, class ALG_INFO = TF_ES<STANDARD, KEYS, int> >
 class TF_ES : public KEYS
 {
@@ -1911,7 +2065,7 @@ public:
 template <class STANDARD, class H, class KEYS, class ALG_INFO>	// VC60 workaround: doesn't work if KEYS is first parameter
 class TF_SS;
 
-//! Trapdoor Function Based Signature Scheme
+//! \brief Trapdoor Function Based Signature Scheme
 template <class STANDARD, class H, class KEYS, class ALG_INFO = TF_SS<STANDARD, H, KEYS, int> >	// VC60 workaround: doesn't work if KEYS is first parameter
 class TF_SS : public KEYS
 {
@@ -1932,7 +2086,7 @@ public:
 template <class KEYS, class SA, class MEM, class H, class ALG_INFO>
 class DL_SS;
 
-//! Discrete Log Based Signature Scheme
+//! \brief Discrete Log Based Signature Scheme
 template <class KEYS, class SA, class MEM, class H, class ALG_INFO = DL_SS<KEYS, SA, MEM, H, int> >
 class DL_SS : public KEYS
 {
@@ -1947,7 +2101,7 @@ public:
 	typedef PK_FinalTemplate<DL_VerifierImpl<SchemeOptions> > Verifier;
 };
 
-//! Discrete Log Based Encryption Scheme
+//! \brief Discrete Log Based Encryption Scheme
 template <class KEYS, class AA, class DA, class EA, class ALG_INFO>
 class DL_ES : public KEYS
 {

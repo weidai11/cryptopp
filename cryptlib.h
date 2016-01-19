@@ -2036,9 +2036,9 @@ public:
 	//!   <li>2 - ensure this object will function correctly, and perform reasonable security checks
 	//!   <li>3 - perform reasonable security checks, and do checks that may take a long time
 	//!   </ul>
-	//! \details Level 0 does not require a  RandomNumberGenerator. A  NullRNG() can be used for level 0.
-	//! \details Level 1 may not check for weak keys and such.
-	//! \details Levels 2 and 3 are recommended.
+	//! \details Level 0 does not require a RandomNumberGenerator. A NullRNG() can be used for level 0.
+	//!   Level 1 may not check for weak keys and such. Levels 2 and 3 are recommended.
+	//! \sa ThrowIfInvalid()
 	virtual bool Validate(RandomNumberGenerator &rng, unsigned int level) const =0;
 
 	//! \brief Check this object for errors
@@ -2046,13 +2046,14 @@ public:
 	//! \param level the level of thoroughness
 	//! \throws InvalidMaterial
 	//! \details Internally, ThrowIfInvalid() calls Validate() and throws InvalidMaterial() if validation fails.
+	//! \sa Validate()
 	virtual void ThrowIfInvalid(RandomNumberGenerator &rng, unsigned int level) const
 		{if (!Validate(rng, level)) throw InvalidMaterial("CryptoMaterial: this object contains invalid values");}
 
 	//! \brief Saves a key to a BufferedTransformation
 	//! \param bt the destination BufferedTransformation
 	//! \throws NotImplemented
-	//! \details Save writes the material to a BufferedTransformation.
+	//! \details Save() writes the material to a BufferedTransformation.
 	//! \details If the material is a key, then the key is written with ASN.1 DER encoding. The key
 	//!   includes an object identifier with an algorthm id, like a  subjectPublicKeyInfo.
 	//! \details A "raw" key without the "key info" can be saved using a key's DEREncode() method.
@@ -2064,7 +2065,7 @@ public:
 	//! \brief Loads a key from a BufferedTransformation
 	//! \param bt the source BufferedTransformation
 	//! \throws KeyingErr
-	//! \details Load attempts to read material from a BufferedTransformation. If the
+	//! \details Load() attempts to read material from a BufferedTransformation. If the
 	//!   material is a key that was generated outside the library, then the following
 	//!   usually applies:
 	//!   <ul>
@@ -2073,13 +2074,14 @@ public:
 	//!   </ul>
 	//! \details "key info" means the key should have an object identifier with an algorthm id,
 	//!   like a  subjectPublicKeyInfo.
-	//! \details To read a "raw" key without the "key info", then call the key's  BERDecode method.
+	//! \details To read a "raw" key without the "key info", then call the key's BERDecode() method.
 	//! \note  Load generally does not check that the key is valid. Call Validate(), if needed.
 	virtual void Load(BufferedTransformation &bt)
 		{CRYPTOPP_UNUSED(bt); throw NotImplemented("CryptoMaterial: this object does not support loading");}
 
 	//! \brief Determines whether the object supports precomputation
 	//! \return true if the object supports precomputation, false otherwise
+	//! \sa Precompute()
 	virtual bool SupportsPrecomputation() const {return false;}
 
 	//! \brief Perform precomputation
@@ -2089,7 +2091,7 @@ public:
 	//!   a table of n objects that can be used later to speed up computation.
 	//! \details If a derived class does not override Precompute(), then the base class throws
 	//!   NotImplemented.
-	//! \sa SupportsPrecomputation()
+	//! \sa SupportsPrecomputation(), LoadPrecomputation(), SavePrecomputation()
 	virtual void Precompute(unsigned int precomputationStorage) {
 		CRYPTOPP_UNUSED(precomputationStorage); assert(!SupportsPrecomputation());
 		throw NotImplemented("CryptoMaterial: this object does not support precomputation");
@@ -2098,13 +2100,13 @@ public:
 	//! \brief Retrieve previously saved precomputation
 	//! \param storedPrecomputation BufferedTransformation with the saved precomputation
 	//! \throws NotImplemented
-	//! \sa SupportsPrecomputation()
+	//! \sa SupportsPrecomputation(), Precompute()
 	virtual void LoadPrecomputation(BufferedTransformation &storedPrecomputation)
 		{CRYPTOPP_UNUSED(storedPrecomputation); assert(!SupportsPrecomputation()); throw NotImplemented("CryptoMaterial: this object does not support precomputation");}
 	//! \brief Save precomputation for later use
 	//! \param storedPrecomputation BufferedTransformation to write the precomputation
 	//! \throws NotImplemented
-	//! \sa SupportsPrecomputation()
+	//! \sa SupportsPrecomputation(), Precompute()
 	virtual void SavePrecomputation(BufferedTransformation &storedPrecomputation) const
 		{CRYPTOPP_UNUSED(storedPrecomputation); assert(!SupportsPrecomputation()); throw NotImplemented("CryptoMaterial: this object does not support precomputation");}
 
