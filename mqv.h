@@ -43,7 +43,7 @@ public:
 	MQV_Domain(BufferedTransformation &bt)
 		{m_groupParameters.BERDecode(bt);}
 
-	//! \brief Construct a Diffie-Hellman domain
+	//! \brief Construct a MQV domain
 	//! \tparam T1 template parameter used as a constructor parameter
 	//! \tparam T2 template parameter used as a constructor parameter
 	//! \param v1 first parameter 
@@ -53,7 +53,7 @@ public:
 	MQV_Domain(T1 v1, T2 v2)
 		{m_groupParameters.Initialize(v1, v2);}
 
-	//! \brief Construct a Diffie-Hellman domain
+	//! \brief Construct a MQV domain
 	//! \tparam T1 template parameter used as a constructor parameter
 	//! \tparam T2 template parameter used as a constructor parameter
 	//! \tparam T3 template parameter used as a constructor parameter
@@ -65,7 +65,7 @@ public:
 	MQV_Domain(T1 v1, T2 v2, T3 v3)
 		{m_groupParameters.Initialize(v1, v2, v3);}
 
-	//! \brief Construct a Diffie-Hellman domain
+	//! \brief Construct a MQV domain
 	//! \tparam T1 template parameter used as a constructor parameter
 	//! \tparam T2 template parameter used as a constructor parameter
 	//! \tparam T3 template parameter used as a constructor parameter
