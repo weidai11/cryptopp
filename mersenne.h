@@ -1,9 +1,10 @@
 // mersenne.h - written and placed in public domain by Jeffrey Walton.
 //              Copyright assigned to Crypto++ project.
 
-//! \file
+//! \file mersenne.h
 //! \brief Class file for Mersenne Twister
-//! \note Suitable for Monte Carlo simulations, and not cryptographic use
+//! \warning MersenneTwister is suitable for Monte-Carlo simulations, where uniformaly distrubuted
+//!   numbers are required quickly. It should not be used for cryptographic purposes.
 
 #ifndef CRYPTOPP_MERSENNE_TWISTER_H
 #define CRYPTOPP_MERSENNE_TWISTER_H
@@ -20,7 +21,7 @@ NAMESPACE_BEGIN(CryptoPP)
 //! \tparam M Period parameter
 //! \tparam N Size of the state vector
 //! \tparam F Multiplier constant
-//! \tparam S Sefault seed
+//! \tparam S Default seed
 //! \details Provides the MersenneTwister implementation. The class is a header-only implementation.
 //! \warning MersenneTwister is suitable for simulations, where uniformaly distrubuted numbers are
 //!   required quickly. It should not be used for cryptographic purposes.

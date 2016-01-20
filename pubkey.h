@@ -3,7 +3,7 @@
 #ifndef CRYPTOPP_PUBKEY_H
 #define CRYPTOPP_PUBKEY_H
 
-//! \file
+//! \file pubkey.h
 //! \brief This file contains helper classes/functions for implementing public key algorithms.
 //! \details The class hierachies in this header file tend to look like this:
 //! 
@@ -743,7 +743,7 @@ public:
 
 //! \brief Interface for Discrete Log (DL) group parameters
 //! \tparam T element in the group
-//! \details The element can be an Integer, \ref ECP "ECP::Point" or \ref EC2N "EC2N::Point"
+//! \details The element is usually an Integer, \ref ECP "ECP::Point" or \ref EC2N "EC2N::Point"
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_GroupParameters : public CryptoParameters
 {
@@ -828,15 +828,15 @@ public:
 	}
 
 	//! \brief Retrieves the group precomputation
-	//! \return a const reference to the precomputation
+	//! \return a const reference to the group precomputation
 	virtual const DL_GroupPrecomputation<Element> & GetGroupPrecomputation() const =0;
 
 	//! \brief Retrieves the group precomputation
-	//! \return a const reference to the precomputation using a fixed base
+	//! \return a const reference to the group precomputation using a fixed base
 	virtual const DL_FixedBasePrecomputation<Element> & GetBasePrecomputation() const =0;
 
 	//! \brief Retrieves the group precomputation
-	//! \return a non-const reference to the precomputation using a fixed base
+	//! \return a non-const reference to the group precomputation using a fixed base
 	virtual DL_FixedBasePrecomputation<Element> & AccessBasePrecomputation() =0;
 
 	//! \brief Retrieves the subgroup order
@@ -953,7 +953,10 @@ private:
 	mutable unsigned int m_validationLevel;
 };
 
-//! _
+//! \brief Base implmentation of Discrete Log (DL) group parameters
+//! \tparam GROUP_PRECOMP group precomputation class
+//! \tparam BASE_PRECOMP fixed base precomputation class
+//! \tparam BASE class or type of an element
 template <class GROUP_PRECOMP, class BASE_PRECOMP = DL_FixedBasePrecomputationImpl<CPP_TYPENAME GROUP_PRECOMP::Element>, class BASE = DL_GroupParameters<CPP_TYPENAME GROUP_PRECOMP::Element> >
 class DL_GroupParametersImpl : public BASE
 {
@@ -961,9 +964,17 @@ public:
 	typedef GROUP_PRECOMP GroupPrecomputation;
 	typedef typename GROUP_PRECOMP::Element Element;
 	typedef BASE_PRECOMP BasePrecomputation;
-	
+
+	//! \brief Retrieves the group precomputation
+	//! \return a const reference to the group precomputation
 	const DL_GroupPrecomputation<Element> & GetGroupPrecomputation() const {return m_groupPrecomputation;}
+
+	//! \brief Retrieves the group precomputation
+	//! \return a const reference to the group precomputation using a fixed base
 	const DL_FixedBasePrecomputation<Element> & GetBasePrecomputation() const {return m_gpc;}
+
+	//! \brief Retrieves the group precomputation
+	//! \return a non-const reference to the group precomputation using a fixed base
 	DL_FixedBasePrecomputation<Element> & AccessBasePrecomputation() {return m_gpc;}
 
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
@@ -975,16 +986,22 @@ protected:
 	BASE_PRECOMP m_gpc;
 };
 
-//! _
+//! \brief Base class for a Discrete Log (DL) key
+//! \tparam T class or type of an element
+//! \details The element is usually an Integer, \ref ECP "ECP::Point" or \ref EC2N "EC2N::Point"
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_Key
 {
 public:
+	//! \brief Retrieves abstract group parameters
+	//! \return a const reference to the group parameters
 	virtual const DL_GroupParameters<T> & GetAbstractGroupParameters() const =0;
+	//! \brief Retrieves abstract group parameters
+	//! \return a non-const reference to the group parameters
 	virtual DL_GroupParameters<T> & AccessAbstractGroupParameters() =0;
 };
 
-//! \brief Interface for DL public keys
+//! \brief Interface for Discrete Log (DL) public keys
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_PublicKey : public DL_Key<T>
 {
@@ -1023,7 +1040,7 @@ public:
 #endif
 };
 
-//! \brief Interface for DL private keys
+//! \brief Interface for Discrete Log (DL) private keys
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_PrivateKey : public DL_Key<T>
 {
