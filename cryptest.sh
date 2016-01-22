@@ -187,7 +187,7 @@ CPU=1
 MEM=1024
 
 if [ "$IS_DARWIN" -ne "0" ]; then
-	CPU=$(sysctl -a | grep 'hw.availcpu' | head -1 | awk '{print $2}')
+	CPU=$(sysctl -a | grep 'hw.availcpu' | head -1 | awk '{print $3}')
 	MEM=$(sysctl -a | grep 'hw.memsize' | head -1 | awk '{print $3}')
 	MEM=$(($MEM/1024))
 fi
@@ -196,8 +196,11 @@ if [ "$IS_LINUX" -ne "0" ]; then
 	MEM=$(cat /proc/meminfo | grep "MemTotal" | awk '{print $2}')
 fi
 
-if [ "$CPU" -ge "2" ] && [ "$MEM" -ge "2097152" ] ; then
-    MAKEARGS=(-j $CPU)
+echo "CPU: $CPU"
+echo "MEM: $MEM"
+
+if [ "$CPU" -ge "2" ] && [ "$MEM" -ge "2097152" ]; then
+    MAKEARGS=(-j "$CPU")
 fi
 
 ############################################
