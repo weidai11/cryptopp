@@ -2789,7 +2789,7 @@ InitializeInteger::InitializeInteger()
 	if (!g_pAssignIntToInteger)
 	{
 		SetFunctionPointers();
-		g_pAssignIntToInteger = AssignIntToInteger;
+		g_pAssignIntToInteger = (CryptoPP::PAssignIntToInteger)AssignIntToInteger;
 	}
 }
 
