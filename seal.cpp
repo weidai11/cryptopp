@@ -93,9 +93,10 @@ void SEAL_Policy<B>::OperateKeystream(KeystreamOperation operation, byte *output
 	word32 a, b, c, d, n1, n2, n3, n4;
 	unsigned int p, q;
 
+	assert(IsAlignedOn(m_T.begin(),GetAlignmentOf<word32>()));
 	for (size_t iteration = 0; iteration < iterationCount; ++iteration)
 	{
-#define Ttab(x) *(word32 *)((byte *)m_T.begin()+x)
+		#define Ttab(x) *(word32 *)(void*)((byte *)m_T.begin()+x)
 
 		a = m_outsideCounter ^ m_R[4*m_insideCounter];
 		b = rotrFixed(m_outsideCounter, 8U) ^ m_R[4*m_insideCounter+1];
