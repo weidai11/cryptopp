@@ -3,13 +3,8 @@
 # cryptest.sh - written and placed in public domain by Jeffrey Walton and Uri Blumenthal.
 #               Copyright assigned to Crypto++ project.
 
-# This is a test script that can be used on some Linux/Unix/Apple machines
-# to automate building the library and running the self test with various
-# combinations of flags, options, and conditions.
-
-# Everything is tee'd into cryptest-result.txt. Change it to suite your taste. You
-# should be able to use `egrep -a "(Error|error|FAILED|Illegal)" cryptest-result.txt`
-# to quickly find errors and failures.
+# This is a test script that can be used on some Linux/Unix/Apple machines to automate building the
+# library and running the self test with various combinations of flags, options, and conditions.
 
 # Set to suite your taste
 TEST_RESULTS=cryptest-result.txt
@@ -34,8 +29,7 @@ touch "$WARN_RESULTS"
 #	ADD_CXXFLAGS=""
 #fi
 
-# Avoid CRYPTOPP_DATA_DIR
-OLD_CRYPTOPP_DATA_DIR="$CRYPTOPP_DATA_DIR"
+# Avoid CRYPTOPP_DATA_DIR in this shell
 unset CRYPTOPP_DATA_DIR
 
 # I can't seem to get the expression to work in sed on Apple. It returns the original CXXFLAGS.
@@ -175,33 +169,37 @@ if [ "$IS_MINGW" -ne "0" ]; then
 	echo "IS_MINGW: $IS_MINGW" | tee -a "$TEST_RESULTS"
 fi
 
-echo "User CXXFLAGS: $CXXFLAGS" | tee -a "$TEST_RESULTS"
-echo "Retained CXXFLAGS: $ADD_CXXFLAGS" | tee -a "$TEST_RESULTS"
-echo "Compiler:" $($CXX --version | head -1) | tee -a "$TEST_RESULTS"
-
 ############################################
 
-# CPU is core count, memory is in KB. Low resource boards have
-#   fewer than 4 cores and 1GB or less memory.
+# CPU is logical count, memory is in MB. Low resource boards have
+#   fewer than 4 cores and 1GB or less memory. We use this to
+#   determine if we can build in parallel without a OOM kill.
 CPU=1
 MEM=1024
 
 if [ "$IS_DARWIN" -ne "0" ]; then
 	CPU=$(sysctl -a | grep 'hw.availcpu' | head -1 | awk '{print $3}')
 	MEM=$(sysctl -a | grep 'hw.memsize' | head -1 | awk '{print $3}')
-	MEM=$(($MEM/1024))
+	MEM=$(($MEM/1024/1024))
 fi
 if [ "$IS_LINUX" -ne "0" ]; then
 	CPU=$(cat /proc/cpuinfo | grep -c '^processor')
 	MEM=$(cat /proc/meminfo | grep "MemTotal" | awk '{print $2}')
+	MEM=$(($MEM/1024))
 fi
 
-echo "CPU: $CPU"
-echo "MEM: $MEM"
+echo "CPU: $CPU logical, MEM: $MEM MB"
 
-if [ "$CPU" -ge "2" ] && [ "$MEM" -ge "2097152" ]; then
+if [ "$CPU" -ge "2" ] && [ "$MEM" -ge "2048" ]; then
     MAKEARGS=(-j "$CPU")
 fi
+
+############################################
+
+echo | tee -a "$TEST_RESULTS"
+echo "User CXXFLAGS: $CXXFLAGS" | tee -a "$TEST_RESULTS"
+echo "Retained CXXFLAGS: $ADD_CXXFLAGS" | tee -a "$TEST_RESULTS"
+echo "Compiler:" $($CXX --version | head -1) | tee -a "$TEST_RESULTS"
 
 ############################################
 ############################################
@@ -1699,7 +1697,7 @@ echo "Testing started: $TEST_BEGIN" | tee -a "$TEST_RESULTS"
 echo "Testing finished: $TEST_END" | tee -a "$TEST_RESULTS"
 echo | tee -a "$TEST_RESULTS"
 
-COUNT=$(grep -a "Testing: " cryptest-result.txt | wc -l)
+COUNT=$(grep -a 'Testing:' "$TEST_RESULTS" | wc -l)
 if [ "$COUNT" -eq "0" ]; then
 	echo "No configurations tested" | tee -a "$TEST_RESULTS"
 else
@@ -1712,27 +1710,27 @@ echo | tee -a "$TEST_RESULTS"
 # "Error" is from the GNU assembler
 # "error" is from the sanitizers
 # "Illegal", "0 errors" and "suppressed errors" are from Valgrind.
-ECOUNT=$(egrep -a '(Error|ERROR|error|FAILED|Illegal)' cryptest-result.txt | egrep -v '( 0 errors|suppressed errors|memory error detector)' | wc -l)
+ECOUNT=$(egrep -a '(Error|ERROR|error|FAILED|Illegal)' $TEST_RESULTS | egrep -v '( 0 errors|suppressed errors|error detector)' | wc -l)
 if [ "$ECOUNT" -eq "0" ]; then
 	echo "No failures detected" | tee -a "$TEST_RESULTS"
 else
-	echo "$ECOUNT errors detected" | tee -a "$TEST_RESULTS"
+	echo "$ECOUNT errors detected. See $TEST_RESULTS for details" | tee -a "$TEST_RESULTS"
 	echo
-	egrep -an '(Error|ERROR|error|FAILED|Illegal)' cryptest-result.txt | egrep -v '( 0 errors|suppressed errors|memory error detector)'
+	egrep -an '(Error|ERROR|error|FAILED|Illegal)' "$TEST_RESULTS" | egrep -v '( 0 errors|suppressed errors|error detector)'
 fi
 echo | tee -a "$TEST_RESULTS"
 
 # Write warnings to $TEST_RESULTS
-WCOUNT=$(egrep -a '(warning:)' cryptest-warn.txt | grep -v 'deprecated-declarations' | wc -l)
+WCOUNT=$(egrep -a '(warning:)' $WARN_RESULTS | grep -v 'deprecated-declarations' | wc -l)
 if [ "$WCOUNT" -eq "0" ]; then
 	echo "No warnings detected" | tee -a "$TEST_RESULTS"
 else
-	echo "$WCOUNT warnings detected" | tee -a "$TEST_RESULTS"
+	echo "$WCOUNT warnings detected. See $WARN_RESULTS for details" | tee -a "$TEST_RESULTS"
 	echo
-	egrep -an '(warning:)' cryptest-warn.txt | grep -v 'deprecated-declarations'
+#	egrep -an '(warning:)' $WARN_RESULTS | grep -v 'deprecated-declarations'
 fi
 echo | tee -a "$TEST_RESULTS"
-	
+
 echo "************************************************" | tee -a "$TEST_RESULTS"
 echo "************************************************" | tee -a "$TEST_RESULTS"
 
@@ -1742,6 +1740,3 @@ if [ "$ECOUNT" -eq "0" ]; then
 else
 	exit 1
 fi
-
-# Restore
-CRYPTOPP_DATA_DIR="$OLD_CRYPTOPP_DATA_DIR"
