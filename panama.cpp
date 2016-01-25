@@ -500,8 +500,10 @@ template <class B>
 void PanamaCipherPolicy<B>::OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount)
 {
 #if (CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_PANAMA_ASM)
+	assert(IsAlignedOn(input,GetAlignmentOf<word32>()));
+	assert(IsAlignedOn(output,GetAlignmentOf<word32>()));
 	if (B::ToEnum() == LITTLE_ENDIAN_ORDER && HasSSE2())
-		Panama_SSE2_Pull(iterationCount, this->m_state, (word32 *)output, (const word32 *)input);
+		Panama_SSE2_Pull(iterationCount, this->m_state, (word32 *)(void *)output, (const word32 *)(void *)input);
 	else
 #endif
 		this->Iterate(iterationCount, NULL, output, input, operation);

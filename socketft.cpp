@@ -158,7 +158,8 @@ bool Socket::Connect(const char *addr, unsigned int port)
 		}
 		else
 		{
-			sa.sin_addr.s_addr = ((in_addr *)lphost->h_addr)->s_addr;
+			assert(IsAlignedOn(lphost->h_addr,GetAlignmentOf<in_addr>()));
+			sa.sin_addr.s_addr = ((in_addr *)(void *)lphost->h_addr)->s_addr;
 		}
 	}
 
