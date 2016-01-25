@@ -172,12 +172,14 @@ VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWord64,
 {
 	assert(IsAlignedOn(m_polyState(),GetAlignmentOf<word64>()));
 	assert(IsAlignedOn(m_nhKey(),GetAlignmentOf<word64>()));
-	CRYPTOPP_UNUSED(data); CRYPTOPP_UNUSED(tagPart); CRYPTOPP_UNUSED(L1KeyLength);
-	CRYPTOPP_UNUSED(blocksRemainingInWord64);
 
 	const word64 *nhK = m_nhKey();
 	word64 *polyS = (word64*)(void*)m_polyState();
 	word32 L1KeyLength = m_L1KeyLength;
+
+	// These are used in the ASM, but some analysis engines cnnot determine it.
+	CRYPTOPP_UNUSED(data); CRYPTOPP_UNUSED(tagPart); CRYPTOPP_UNUSED(L1KeyLength);
+	CRYPTOPP_UNUSED(blocksRemainingInWord64);
 
 #ifdef __GNUC__
 	word32 temp;
