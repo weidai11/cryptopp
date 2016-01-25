@@ -47,6 +47,8 @@ static const word128 m126 = (word128(m62)<<64)|m64;		 /* 126-bit mask      */
 
 void VMAC_Base::UncheckedSetKey(const byte *userKey, unsigned int keylength, const NameValuePairs &params)
 {
+	assert(IsAlignedOn(m_l3Key(),GetAlignmentOf<word64>()));
+
 	int digestLength = params.GetIntValueWithDefault(Name::DigestSize(), DefaultDigestSize());
 	if (digestLength != 8 && digestLength != 16)
 		throw InvalidArgument("VMAC: DigestSize must be 8 or 16");
@@ -168,12 +170,14 @@ __attribute__ ((noinline))		// Intel Compiler 9.1 workaround
 #endif
 VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWord64, int tagPart)
 {
-	const word64 *nhK = m_nhKey();
-	word64 *polyS = m_polyState();
-	word32 L1KeyLength = m_L1KeyLength;
-
+	assert(IsAlignedOn(m_polyState(),GetAlignmentOf<word64>()));
+	assert(IsAlignedOn(m_nhKey(),GetAlignmentOf<word64>()));
 	CRYPTOPP_UNUSED(data); CRYPTOPP_UNUSED(tagPart); CRYPTOPP_UNUSED(L1KeyLength);
 	CRYPTOPP_UNUSED(blocksRemainingInWord64);
+
+	const word64 *nhK = m_nhKey();
+	word64 *polyS = (word64*)(void*)m_polyState();
+	word32 L1KeyLength = m_L1KeyLength;
 
 #ifdef __GNUC__
 	word32 temp;
@@ -532,6 +536,9 @@ template <bool T_128BitTag>
 #endif
 void VMAC_Base::VHASH_Update_Template(const word64 *data, size_t blocksRemainingInWord64)
 {
+	assert(IsAlignedOn(m_polyState(),GetAlignmentOf<word64>()));
+	assert(IsAlignedOn(m_nhKey(),GetAlignmentOf<word64>()));
+
 	#define INNER_LOOP_ITERATION(j)	{\
 		word64 d0 = ConditionalByteReverse(LITTLE_ENDIAN_ORDER, data[i+2*j+0]);\
 		word64 d1 = ConditionalByteReverse(LITTLE_ENDIAN_ORDER, data[i+2*j+1]);\
@@ -546,7 +553,7 @@ void VMAC_Base::VHASH_Update_Template(const word64 *data, size_t blocksRemaining
 	size_t L1KeyLengthInWord64 = m_L1KeyLength / 8;
 	size_t innerLoopEnd = L1KeyLengthInWord64;
 	const word64 *nhK = m_nhKey();
-	word64 *polyS = m_polyState();
+	word64 *polyS = (word64*)(void*)m_polyState();
 	bool isFirstBlock = true;
 	size_t i;
 
@@ -861,6 +868,8 @@ static word64 L3Hash(const word64 *input, const word64 *l3Key, size_t len)
 
 void VMAC_Base::TruncatedFinal(byte *mac, size_t size)
 {
+	assert(IsAlignedOn(DataBuf(),GetAlignmentOf<word64>()));
+	assert(IsAlignedOn(m_polyState(),GetAlignmentOf<word64>()));
 	size_t len = ModPowerOf2(GetBitCountLo()/8, m_L1KeyLength);
 
 	if (len)

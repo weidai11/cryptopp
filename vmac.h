@@ -41,7 +41,7 @@ protected:
 	size_t HashMultipleBlocks(const word64 *input, size_t length);
 	void Init() {}
 	word64* StateBuf() {return NULL;}
-	word64* DataBuf() {return (word64 *)m_data();}
+	word64* DataBuf() {return (word64 *)(void*)m_data();}
 
 	void VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWord64, int tagPart);
 #if !(defined(_MSC_VER) && _MSC_VER < 1300)		// can't use function template here with VC6
