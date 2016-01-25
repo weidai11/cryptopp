@@ -1059,6 +1059,7 @@ bool TestRDRAND()
 		else
 			cout << "passed:";
 
+		// Coverity finding, also see http://stackoverflow.com/a/34509163/608639.
 		StreamState ss(cout);
 		cout << std::setiosflags(std::ios::fixed) << std::setprecision(6);
 		cout << "  Maurer Randomness Test returned value " << mv << endl;
@@ -1136,6 +1137,7 @@ bool TestRDSEED()
 		else
 			cout << "passed:";
 
+		// Coverity finding, also see http://stackoverflow.com/a/34509163/608639.
 		StreamState ss(cout);
 		cout << std::setiosflags(std::ios::fixed) << std::setprecision(6);
 		cout << "  Maurer Randomness Test returned value " << mv << endl;
