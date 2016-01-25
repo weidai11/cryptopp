@@ -61,10 +61,8 @@ bool HashModuleTest(HashTransformation &md, const HashTestTuple *testSet, unsign
 	bool pass=true, fail;
 	SecByteBlock digest(md.DigestSize());
 
-	// Coverity finding (http://stackoverflow.com/a/30968371 does not squash the finding)
-	std::ostringstream out;
-	out.copyfmt(cout);
-
+	// Coverity finding, also see http://stackoverflow.com/a/34509163/608639.
+	StreamState ss(cout);
 	for (unsigned int i=0; i<testSetSize; i++)
 	{
 		unsigned j;
@@ -75,16 +73,15 @@ bool HashModuleTest(HashTransformation &md, const HashTestTuple *testSet, unsign
 		fail = memcmp(digest, testSet[i].output, md.DigestSize()) != 0;
 		pass = pass && !fail;
 
-		out << (fail ? "FAILED   " : "passed   ");
+		cout << (fail ? "FAILED   " : "passed   ");
 		for (j=0; j<md.DigestSize(); j++)
-			out << setw(2) << setfill('0') << hex << (int)digest[j];
-		out << "   \"" << (char *)testSet[i].input << '\"';
+			cout << setw(2) << setfill('0') << hex << (int)digest[j];
+		cout << "   \"" << (char *)testSet[i].input << '\"';
 		if (testSet[i].repeatTimes != 1)
-			out << " repeated " << dec << testSet[i].repeatTimes << " times";
-		out  << endl;
+			cout << " repeated " << dec << testSet[i].repeatTimes << " times";
+		cout  << endl;
 	}
 
-	cout << out.str();
 	return pass;
 }
 
