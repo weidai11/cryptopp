@@ -54,7 +54,7 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte
 		}
 		else if (IsAligned<T>(input))
 		{
-			size_t leftOver = HashMultipleBlocks((T *)input, len);
+			size_t leftOver = HashMultipleBlocks((T *)(void*)input, len);
 			input += (len - leftOver);
 			len = leftOver;
 		}
@@ -141,7 +141,7 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::TruncatedFinal(by
 	HashBlock(dataBuf);
 
 	if (IsAligned<HashWordType>(digest) && size%sizeof(HashWordType)==0)
-		ConditionalByteReverse<HashWordType>(order, (HashWordType *)digest, stateBuf, size);
+		ConditionalByteReverse<HashWordType>(order, (HashWordType *)(void*)digest, stateBuf, size);
 	else
 	{
 		ConditionalByteReverse<HashWordType>(order, stateBuf, stateBuf, this->DigestSize());
