@@ -106,9 +106,12 @@ void XTEA::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, by
 void BTEA::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
 	CRYPTOPP_UNUSED(xorBlock);
+	assert(IsAlignedOn(inBlock,GetAlignmentOf<word32>()));
+	assert(IsAlignedOn(outBlock,GetAlignmentOf<word32>()));
+
 	unsigned int n = m_blockSize / 4;
-	word32 *v = (word32*)outBlock;
-	ConditionalByteReverse(BIG_ENDIAN_ORDER, v, (const word32*)inBlock, m_blockSize);
+	word32 *v = (word32*)(void *)outBlock;
+	ConditionalByteReverse(BIG_ENDIAN_ORDER, v, (const word32*)(void *)inBlock, m_blockSize);
 
 	word32 y = v[0], z = v[n-1], e;
 	word32 p, q = 6+52/n;
@@ -133,9 +136,12 @@ void BTEA::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, by
 void BTEA::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
 	CRYPTOPP_UNUSED(xorBlock);
+	assert(IsAlignedOn(inBlock,GetAlignmentOf<word32>()));
+	assert(IsAlignedOn(outBlock,GetAlignmentOf<word32>()));
+
 	unsigned int n = m_blockSize / 4;
-	word32 *v = (word32*)outBlock;
-	ConditionalByteReverse(BIG_ENDIAN_ORDER, v, (const word32*)inBlock, m_blockSize);
+	word32 *v = (word32*)(void *)outBlock;
+	ConditionalByteReverse(BIG_ENDIAN_ORDER, v, (const word32*)(void *)inBlock, m_blockSize);
 
 	word32 y = v[0], z = v[n-1], e;
 	word32 p, q = 6+52/n;

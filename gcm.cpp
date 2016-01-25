@@ -80,7 +80,10 @@ __m128i _mm_clmulepi64_si128(const __m128i &a, const __m128i &b, int i)
 inline static void SSE2_Xor16(byte *a, const byte *b, const byte *c)
 {
 #if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
-	*(__m128i *)a = _mm_xor_si128(*(__m128i *)b, *(__m128i *)c);
+	assert(IsAlignedOn(a,GetAlignmentOf<__m128i>()));
+	assert(IsAlignedOn(b,GetAlignmentOf<__m128i>()));
+	assert(IsAlignedOn(c,GetAlignmentOf<__m128i>()));
+	*(__m128i *)(void *)a = _mm_xor_si128(*(__m128i *)(void *)b, *(__m128i *)(void *)c);
 #else
 	asm ("movdqa %1, %%xmm0; pxor %2, %%xmm0; movdqa %%xmm0, %0;" : "=m" (a[0]) : "m"(b[0]), "m"(c[0]));
 #endif
