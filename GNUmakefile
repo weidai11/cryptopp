@@ -21,7 +21,7 @@ UNAME := $(shell uname)
 IS_X86 := $(shell uname -m | $(EGREP) -v "x86_64" | $(EGREP) -i -c "i.86|x86|i86")
 IS_X32 ?= 0
 IS_X86_64 := $(shell uname -m | $(EGREP) -i -c "(_64|d64)")
-IS_PPC := $(shell uname -m | $(EGREP) -i -c "ppc")
+IS_PPC := $(shell uname -m | $(EGREP) -i -c "ppc|power")
 IS_AARCH64 := $(shell uname -m | $(EGREP) -i -c "aarch64")
 
 IS_SUN := $(shell uname | $(EGREP) -i -c "SunOS")
