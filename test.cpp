@@ -234,9 +234,9 @@ int CRYPTOPP_API main(int argc, char *argv[])
 			dllFile.read((char *)buf.begin(), fileSize);
 
 			// find positions of relevant sections in the file, based on version 8 of documentation from http://www.microsoft.com/whdc/system/platform/firmware/PECOFF.mspx
-			word32 coffPos = *(word16 *)(buf+0x3c);
+			word32 coffPos = *(word16 *)(void *)(buf+0x3c);
 			word32 optionalHeaderPos = coffPos + 24;
-			word16 optionalHeaderMagic = *(word16 *)(buf+optionalHeaderPos);
+			word16 optionalHeaderMagic = *(word16 *)(void *)(buf+optionalHeaderPos);
 			if (optionalHeaderMagic != 0x10b && optionalHeaderMagic != 0x20b)
 			{
 				cerr << "Target file is not a PE32 or PE32+ image.\n";
@@ -244,8 +244,8 @@ int CRYPTOPP_API main(int argc, char *argv[])
 			}
 			word32 checksumPos = optionalHeaderPos + 64;
 			word32 certificateTableDirectoryPos = optionalHeaderPos + (optionalHeaderMagic == 0x10b ? 128 : 144);
-			word32 certificateTablePos = *(word32 *)(buf+certificateTableDirectoryPos);
-			word32 certificateTableSize = *(word32 *)(buf+certificateTableDirectoryPos+4);
+			word32 certificateTablePos = *(word32 *)(void *)(buf+certificateTableDirectoryPos);
+			word32 certificateTableSize = *(word32 *)(void *)(buf+certificateTableDirectoryPos+4);
 			if (certificateTableSize != 0)
 				cerr << "Warning: certificate table (IMAGE_DIRECTORY_ENTRY_SECURITY) of target image is not empty.\n";
 
