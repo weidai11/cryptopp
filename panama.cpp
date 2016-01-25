@@ -326,6 +326,7 @@ void CRYPTOPP_NOINLINE Panama_SSE2_Pull(size_t count, word32 *state, word32 *z, 
 template <class B>
 void Panama<B>::Iterate(size_t count, const word32 *p, byte *output, const byte *input, KeystreamOperation operation)
 {
+	assert(IsAlignedOn(m_state,GetAlignmentOf<word32>()));
 	word32 bstart = m_state[17];
 	word32 *const aPtr = m_state;
 	word32 cPtr[17];
@@ -369,11 +370,11 @@ void Panama<B>::Iterate(size_t count, const word32 *p, byte *output, const byte 
 			CRYPTOPP_KEYSTREAM_OUTPUT_SWITCH(PANAMA_OUTPUT, 4*8);
 		}
 
-		word32 *const b16 = (word32 *)(bPtr+((bstart+16*32) & 31*32));
-		word32 *const b4 = (word32 *)(bPtr+((bstart+(32-4)*32) & 31*32));
+		word32 *const b16 = (word32 *)(void *)(bPtr+((bstart+16*32) & 31*32));
+		word32 *const b4 = (word32 *)(void *)(bPtr+((bstart+(32-4)*32) & 31*32));
        	bstart += 32;
-		word32 *const b0 = (word32 *)(bPtr+((bstart) & 31*32));
-		word32 *const b25 = (word32 *)(bPtr+((bstart+(32-25)*32) & 31*32));
+		word32 *const b0 = (word32 *)(void *)(bPtr+((bstart) & 31*32));
+		word32 *const b25 = (word32 *)(void *)(bPtr+((bstart+(32-25)*32) & 31*32));
 
 		if (p)
 		{
@@ -459,11 +460,13 @@ template <class B>
 void PanamaCipherPolicy<B>::CipherResynchronize(byte *keystreamBuffer, const byte *iv, size_t length)
 {
 	CRYPTOPP_UNUSED(keystreamBuffer); CRYPTOPP_UNUSED(iv); CRYPTOPP_UNUSED(length);
+	assert(IsAlignedOn(iv,GetAlignmentOf<word32>()));
 	assert(length==32);
+
 	this->Reset();
 	this->Iterate(1, m_key);
 	if (iv && IsAligned<word32>(iv))
-		this->Iterate(1, (const word32 *)iv);
+		this->Iterate(1, (const word32 *)(void *)iv);
 	else
 	{
 		FixedSizeSecBlock<word32, 8> buf;
