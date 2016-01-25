@@ -3113,7 +3113,7 @@ static Integer StringToInteger(const T *str, ByteOrder order)
 	else if(radix == 16 && order == LITTLE_ENDIAN_ORDER)
 	{
 		// Nibble high, low and count
-		unsigned int nh, nl, nc = 0;
+		unsigned int nh = 0, nl = 0, nc = 0;
 		Integer position(Integer::One());
         
 		for (unsigned int i=0; i<length; i++)
