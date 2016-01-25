@@ -1,3 +1,8 @@
+// randpool.h - written and placed in the public domain by Wei Dai
+
+//! \file randpool.h
+//! \brief Class file for Randomness Pool
+
 #ifndef CRYPTOPP_RANDPOOL_H
 #define CRYPTOPP_RANDPOOL_H
 
@@ -9,12 +14,18 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! Randomness Pool
-/*! This class can be used to generate cryptographic quality
-	pseudorandom bytes after seeding the pool with IncorporateEntropy() */
+//! \brief Randomness Pool
+//! \details RandomPool can be used to generate cryptographic quality pseudorandom bytes
+//!   after seeding the pool with IncorporateEntropy(). Internally, the generator uses
+//!   AES-256 to produce the stream. Entropy is stirred in using SHA-256.
+//! \details RandomPool used to follow the design of randpool in PGP 2.6.x,
+//!   but as of version 5.5 it has been redesigned to reduce the risk
+//!   of reusing random numbers after state rollback (which may occur
+//!   when running in a virtual machine like VMware).
 class CRYPTOPP_DLL RandomPool : public RandomNumberGenerator, public NotCopyable
 {
 public:
+	//! \brief Construct a RandomPool
 	RandomPool();
 
 	bool CanIncorporateEntropy() const {return true;}
@@ -25,8 +36,8 @@ public:
 	void Put(const byte *input, size_t length) {IncorporateEntropy(input, length);}
 
 private:
+	FixedSizeAlignedSecBlock<byte, 16, true> m_seed;
 	FixedSizeAlignedSecBlock<byte, 32> m_key;
-	FixedSizeAlignedSecBlock<byte, 16> m_seed;
 	member_ptr<BlockCipher> m_pCipher;
 	bool m_keySet;
 };
