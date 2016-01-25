@@ -89,8 +89,11 @@ inline static void SSE2_Xor16(byte *a, const byte *b, const byte *c)
 
 inline static void Xor16(byte *a, const byte *b, const byte *c)
 {
-	((word64 *)a)[0] = ((word64 *)b)[0] ^ ((word64 *)c)[0];
-	((word64 *)a)[1] = ((word64 *)b)[1] ^ ((word64 *)c)[1];
+	assert(IsAlignedOn(a,GetAlignmentOf<word64>()));
+	assert(IsAlignedOn(b,GetAlignmentOf<word64>()));
+	assert(IsAlignedOn(c,GetAlignmentOf<word64>()));
+	((word64 *)(void *)a)[0] = ((word64 *)(void *)b)[0] ^ ((word64 *)(void *)c)[0];
+	((word64 *)(void *)a)[1] = ((word64 *)(void *)b)[1] ^ ((word64 *)(void *)c)[1];
 }
 
 #if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
@@ -436,7 +439,8 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 #endif
 
 	typedef BlockGetAndPut<word64, NativeByteOrder> Block;
-	word64 *hashBuffer = (word64 *)HashBuffer();
+	word64 *hashBuffer = (word64 *)(void *)HashBuffer();
+	assert(IsAlignedOn(hashBuffer,GetAlignmentOf<word64>()));
 
 	switch (2*(m_buffer.size()>=64*1024)
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)
@@ -459,7 +463,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 			data += HASH_BLOCKSIZE;
 			len -= HASH_BLOCKSIZE;
 
-			#define READ_TABLE_WORD64_COMMON(a, b, c, d)	*(word64 *)(table+(a*1024)+(b*256)+c+d*8)
+			#define READ_TABLE_WORD64_COMMON(a, b, c, d)	*(word64 *)(void *)(table+(a*1024)+(b*256)+c+d*8)
 
 			#ifdef IS_LITTLE_ENDIAN
 				#if CRYPTOPP_BOOL_SLOW_WORD64
@@ -530,7 +534,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 			#undef READ_TABLE_WORD64_COMMON
 			#undef READ_TABLE_WORD64
 
-			#define READ_TABLE_WORD64_COMMON(a, c, d)	*(word64 *)(table+(a)*256*16+(c)+(d)*8)
+			#define READ_TABLE_WORD64_COMMON(a, c, d)	*(word64 *)(void *)(table+(a)*256*16+(c)+(d)*8)
 
 			#ifdef IS_LITTLE_ENDIAN
 				#if CRYPTOPP_BOOL_SLOW_WORD64

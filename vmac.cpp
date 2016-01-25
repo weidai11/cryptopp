@@ -47,8 +47,6 @@ static const word128 m126 = (word128(m62)<<64)|m64;		 /* 126-bit mask      */
 
 void VMAC_Base::UncheckedSetKey(const byte *userKey, unsigned int keylength, const NameValuePairs &params)
 {
-	assert(IsAlignedOn(m_l3Key(),GetAlignmentOf<word64>()));
-
 	int digestLength = params.GetIntValueWithDefault(Name::DigestSize(), DefaultDigestSize());
 	if (digestLength != 8 && digestLength != 16)
 		throw InvalidArgument("VMAC: DigestSize must be 8 or 16");
@@ -89,6 +87,8 @@ void VMAC_Base::UncheckedSetKey(const byte *userKey, unsigned int keylength, con
 	in[0] = 0xE0;
 	in[15] = 0;
 	word64 *l3Key = m_l3Key();
+	assert(IsAlignedOn(l3Key,GetAlignmentOf<word64>()));
+
 	for (i = 0; i <= (size_t)m_is128; i++)
 		do
 		{
