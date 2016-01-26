@@ -132,12 +132,11 @@ struct CompileAssert
 #if CRYPTOPP_DOXYGEN_PROCESSING
 //! \brief Counts elements in an array
 //! \param arr an array of elements
-//! \details COUNTOF counts elements in an array. On Windows COUNTOF(x) is deinfed
-//!   to <tt>_countof(x)</tt> to ensure correct results for pointers. Since the library code
-//!   is cross-platform, Windows will ensure the safety on non-Windows platforms.
+//! \details COUNTOF counts elements in an array. On Windows COUNTOF(x) is defined
+//!   to <tt>_countof(x)</tt> to ensure correct results for pointers.
 //! \note COUNTOF does not produce correct results with pointers, and an array must be used.
-//!   The library ensures correct application of COUNTOF by enlisting _countof on Windows
-//!   platforms. Microsoft's _countof fails to compile using pointers.
+//!   <tt>sizeof(x)/sizeof(x[0])</tt> suffers the same problem. The risk is eliminated by using
+//!   <tt>_countof(x)</tt> on Windows. Windows will provide the immunity for other platforms.
 # define COUNTOF(arr)
 #else
 // VS2005 added _countof
@@ -1707,18 +1706,41 @@ inline T ConditionalByteReverse(ByteOrder order, T value)
 	return NativeByteOrderIs(order) ? value : ByteReverse(value);
 }
 
-//! \brief Reverses bytes in an element among an array of elements
+//! \brief Reverses bytes in an element from an array of elements
 //! \tparam T the class or type
 //! \param out the output array of elements
 //! \param in the input array of elements
-//! \param byteCount the byte count of the arrays
+//! \param byteCount the total number of bytes in the array
 //! \details Internally, ByteReverse visits each element in the in array
 //!   calls ByteReverse on it, and writes the result to out.
 //! \details ByteReverse does not process tail byes, or bytes that are
 //!   \a not part of a full element. If T is int (and int is 4 bytes), then
-//!   <tt>byteCount = 10</tt> means only the first 8 bytes are reversed.
-//! \note ByteReverse uses the number of bytes in the arrays, and not the count
-//!   of elements in the arrays.
+//!   <tt>byteCount = 10</tt> means only the first 2 elements or 8 bytes are
+//!   reversed.
+//! \details The follwoing program should help illustrate the behavior.
+//! <pre>vector<word32> v1, v2;
+//! 
+//! v1.push_back(1);
+//! v1.push_back(2);
+//! v1.push_back(3);
+//! v1.push_back(4);
+//! 
+//! v2.resize(v1.size());
+//! ByteReverse<word32>(&v2[0], &v1[0], 16);
+//! 
+//! cout << "V1: ";
+//! for(unsigned int i = 0; i < v1.size(); i++)
+//!   cout << std::hex << v1[i] << " ";
+//! cout << endl;
+//! 
+//! cout << "V2: ";
+//! for(unsigned int i = 0; i < v2.size(); i++)
+//!   cout << std::hex << v2[i] << " ";
+//! cout << endl;</pre>
+//! The program above results in the follwoing output.
+//! <pre>V1: 00000001 00000002 00000003 00000004 
+//! V2: 01000000 02000000 03000000 04000000</pre>
+//! \sa ConditionalByteReverse
 template <class T>
 void ByteReverse(T *out, const T *in, size_t byteCount)
 {
@@ -1728,19 +1750,19 @@ void ByteReverse(T *out, const T *in, size_t byteCount)
 		out[i] = ByteReverse(in[i]);
 }
 
-//! \brief Reverses bytes in an element among an array of elements depending upon endianess
+//! \brief Conditionally reverses bytes in an element from an array of elements
 //! \tparam T the class or type
 //! \param order the ByteOrder the data is represented
 //! \param out the output array of elements
 //! \param in the input array of elements
 //! \param byteCount the byte count of the arrays
 //! \details Internally, ByteReverse visits each element in the in array
-//!   calls ByteReverse on it, and writes the result to out.
+//!   calls ByteReverse on it depending on the desired endianess, and writes the result to out.
 //! \details ByteReverse does not process tail byes, or bytes that are
 //!   \a not part of a full element. If T is int (and int is 4 bytes), then
-//!   <tt>byteCount = 10</tt> means only the first 8 bytes are reversed.
-//! \note ByteReverse uses the number of bytes in the arrays, and not the count
-//!   of elements in the arrays.
+//!   <tt>byteCount = 10</tt> means only the first 2 elements or 8 bytes are
+//!   reversed.
+//! \sa ByteReverse
 template <class T>
 inline void ConditionalByteReverse(ByteOrder order, T *out, const T *in, size_t byteCount)
 {
@@ -2048,10 +2070,24 @@ T StringToWord(const std::string &str, ByteOrder order = BIG_ENDIAN_ORDER)
 
 // ************** help remove warning on g++ ***************
 
+//! \class SafeShifter
+//! \brief Safely shift values when undefined behavior could occur
+//! \tparam overflow boolean flag indicating if overflow is present
+//! \details SafeShifter safely shifts values when undefined behavior could occur under C/C++ rules.
+//!   The class behaves much like a saturating arithmetic class, clamping values rather than allowing
+//!   the compiler to remove undefined behavior.
 template <bool overflow> struct SafeShifter;
 
+//! \class SafeShifter<true>
+//! \details the \p true template parameter indicates overflow would occur.
+//!   In this case, SafeShifter clamps the value and returns 0. 
 template<> struct SafeShifter<true>
 {
+	//! \brief Right shifts a value that overflows
+	//! \tparam T class or type
+	//! \return 0
+	//! \details Since <tt>overflow == true</tt>, the value 0 is always returned.
+	//! \sa SafeLeftShift
 	template <class T>
 	static inline T RightShift(T value, unsigned int bits)
 	{
@@ -2059,6 +2095,11 @@ template<> struct SafeShifter<true>
 		return 0;
 	}
 
+	//! \brief Left shifts a value that overflows
+	//! \tparam T class or type
+	//! \return 0
+	//! \details Since <tt>overflow == true</tt>, the value 0 is always returned.
+	//! \sa SafeRightShift
 	template <class T>
 	static inline T LeftShift(T value, unsigned int bits)
 	{
@@ -2067,14 +2108,27 @@ template<> struct SafeShifter<true>
 	}
 };
 
+//! \class SafeShifter<false>
+//! \details the \p false template parameter indicates overflow would \a not occur.
+//!   In this case, SafeShifter returns the shfted value. 
 template<> struct SafeShifter<false>
 {
+	//! \brief Right shifts a value that does not overflow
+	//! \tparam T class or type
+	//! \return the shifted value
+	//! \details Since <tt>overflow == false</tt>, the shifted value is returned.
+	//! \sa SafeLeftShift
 	template <class T>
 	static inline T RightShift(T value, unsigned int bits)
 	{
 		return value >> bits;
 	}
 
+	//! \brief Left shifts a value that does not overflow
+	//! \tparam T class or type
+	//! \return the shifted value
+	//! \details Since <tt>overflow == false</tt>, the shifted value is returned.
+	//! \sa SafeRightShift
 	template <class T>
 	static inline T LeftShift(T value, unsigned int bits)
 	{
@@ -2082,12 +2136,30 @@ template<> struct SafeShifter<false>
 	}
 };
 
+//! \class SafeRightShift
+//! \brief Safely right shift values when undefined behavior could occur
+//! \tparam bits the number of bit positions to shift the value
+//! \tparam T class or type
+//! \param value the value to right shift
+//! \result the shifted value or 0
+//! \details SafeRightShift safely shifts the value to the right when undefined behavior
+//!   could occur under C/C++ rules. SafeRightShift will return the shifted value or 0
+//!   if undefined behavior would occur.
 template <unsigned int bits, class T>
 inline T SafeRightShift(T value)
 {
 	return SafeShifter<(bits>=(8*sizeof(T)))>::RightShift(value, bits);
 }
 
+//! \class SafeLeftShift
+//! \brief Safely left shift values when undefined behavior could occur
+//! \tparam bits the number of bit positions to shift the value
+//! \tparam T class or type
+//! \param value the value to left shift
+//! \result the shifted value or 0
+//! \details SafeLeftShift safely shifts the value to the left when undefined behavior
+//!   could occur under C/C++ rules. SafeLeftShift will return the shifted value or 0
+//!   if undefined behavior would occur.
 template <unsigned int bits, class T>
 inline T SafeLeftShift(T value)
 {
