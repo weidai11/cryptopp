@@ -1944,7 +1944,7 @@ inline T GetWord(bool assumeAligned, ByteOrder order, const byte *block)
 //	return ConditionalByteReverse(order, *reinterpret_cast<const T *>(block));
 	CRYPTOPP_UNUSED(assumeAligned);
 #ifdef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
-	return ConditionalByteReverse(order, *reinterpret_cast<const T *>(block));
+	return ConditionalByteReverse(order, *reinterpret_cast<const T *>((const void *)block));
 #else
 	T temp;
 	memcpy(&temp, block, sizeof(T));
@@ -1970,7 +1970,7 @@ inline void PutWord(bool assumeAligned, ByteOrder order, byte *block, T value, c
 //	*reinterpret_cast<T *>(block) = ConditionalByteReverse(order, value) ^ (xorBlock ? *reinterpret_cast<const T *>(xorBlock) : 0);
 	CRYPTOPP_UNUSED(assumeAligned);
 #ifdef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
-	*reinterpret_cast<T *>(block) = ConditionalByteReverse(order, value) ^ (xorBlock ? *reinterpret_cast<const T *>(xorBlock) : 0);
+	*reinterpret_cast<T *>((void *)block) = ConditionalByteReverse(order, value) ^ (xorBlock ? *reinterpret_cast<const T *>((const void *)xorBlock) : 0);
 #else
 	T t1, t2 = 0;
 	t1 = ConditionalByteReverse(order, value);
