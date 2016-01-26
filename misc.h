@@ -2080,6 +2080,7 @@ T StringToWord(const std::string &str, ByteOrder order = BIG_ENDIAN_ORDER)
 template <bool overflow> struct SafeShifter;
 
 //! \class SafeShifter<true>
+//! \brief Shifts a value in the presence of overflow
 //! \details the \p true template parameter indicates overflow would occur.
 //!   In this case, SafeShifter clamps the value and returns 0. 
 template<> struct SafeShifter<true>
@@ -2110,6 +2111,7 @@ template<> struct SafeShifter<true>
 };
 
 //! \class SafeShifter<false>
+//! \brief Shifts a value in the absence of overflow
 //! \details the \p false template parameter indicates overflow would \a not occur.
 //!   In this case, SafeShifter returns the shfted value. 
 template<> struct SafeShifter<false>
