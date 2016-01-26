@@ -253,11 +253,7 @@ static int GCC_RRA_GenerateBlock(byte *output, size_t size, unsigned int safety)
 			"setc %1; "
 			: "=a" (val), "=qm" (rc)
 			:
-#if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32
-			: "rax", "cc"
-#else
-			: "eax", "cc"
-#endif
+			: "cc"
         );
 
 		if (rc)
@@ -438,11 +434,7 @@ static int GCC_RSA_GenerateBlock(byte *output, size_t size, unsigned int safety)
 			"setc %1; "
 			: "=a" (val), "=qm" (rc)
 			:
-#if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32
-			: "rax", "cc"
-#else
-			: "eax", "cc"
-#endif
+			: "cc"
         );
 
 		if (rc)
