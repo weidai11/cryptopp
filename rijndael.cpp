@@ -130,8 +130,8 @@ static volatile bool s_TeFilled = false, s_TdFilled = false;
 	#define QUARTER_ROUND_FE(t, a, b, c, d)		QUARTER_ROUND(TL_F, Te, t, d, c, b, a)
 	#define QUARTER_ROUND_FD(t, a, b, c, d)		QUARTER_ROUND(TL_F, Td, t, d, c, b, a)
 	#if defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS) || defined(CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS)
-		#define TL_F(T, i, x)	(*(word32 *)((byte *)T + x*8 + (6-i)%4+1))
-		#define TL_M(T, i, x)	(*(word32 *)((byte *)T + x*8 + (i+3)%4+1))
+		#define TL_F(T, i, x)	(*(word32 *)(void *)((byte *)T + x*8 + (6-i)%4+1))
+		#define TL_M(T, i, x)	(*(word32 *)(void *)((byte *)T + x*8 + (i+3)%4+1))
 	#else
 		#define TL_F(T, i, x)	rotrFixed(T[x], (3-i)*8)
 		#define TL_M(T, i, x)	T[i*256 + x]
@@ -140,7 +140,7 @@ static volatile bool s_TeFilled = false, s_TdFilled = false;
 	#define QUARTER_ROUND_FE(t, a, b, c, d)		QUARTER_ROUND(TL_F, Te, t, a, b, c, d)
 	#define QUARTER_ROUND_FD(t, a, b, c, d)		QUARTER_ROUND(TL_F, Td, t, a, b, c, d)
 	#if defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS) || defined(CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS)
-		#define TL_F(T, i, x)	(*(word32 *)((byte *)T + x*8 + (4-i)%4))
+		#define TL_F(T, i, x)	(*(word32 *)(void *)((byte *)T + x*8 + (4-i)%4))
 		#define TL_M			TL_F
 	#else
 		#define TL_F(T, i, x)	rotrFixed(T[x], i*8)
@@ -261,16 +261,16 @@ void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keylen, c
 			rk = m_key;
 			unsigned int i, j;
 
-			std::swap(*(__m128i *)(rk), *(__m128i *)(rk+4*m_rounds));
+			std::swap(*(__m128i *)(void *)(rk), *(__m128i *)(void *)(rk+4*m_rounds));
 
 			for (i = 4, j = 4*m_rounds-4; i < j; i += 4, j -= 4)
 			{
-				temp = _mm_aesimc_si128(*(__m128i *)(rk+i));
-				*(__m128i *)(rk+i) = _mm_aesimc_si128(*(__m128i *)(rk+j));
-				*(__m128i *)(rk+j) = temp;
+				temp = _mm_aesimc_si128(*(__m128i *)(void *)(rk+i));
+				*(__m128i *)(void *)(rk+i) = _mm_aesimc_si128(*(__m128i *)(void *)(rk+j));
+				*(__m128i *)(void *)(rk+j) = temp;
 			}
 
-			*(__m128i *)(rk+i) = _mm_aesimc_si128(*(__m128i *)(rk+i));
+			*(__m128i *)(void *)(rk+i) = _mm_aesimc_si128(*(__m128i *)(void *)(rk+i));
 		}
 
 		return;
@@ -391,7 +391,7 @@ void Rijndael::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 #else
 	for (i=0; i<1024; i+=cacheLineSize)
 #endif
-		u &= *(const word32 *)(((const byte *)Te)+i);
+		u &= *(const word32 *)(void *)(((const byte *)Te)+i);
 	u &= Te[255];
 	s0 |= u; s1 |= u; s2 |= u; s3 |= u;
 
@@ -467,7 +467,7 @@ void Rijndael::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 #else
 	for (i=0; i<1024; i+=cacheLineSize)
 #endif
-		u &= *(const word32 *)(((const byte *)Td)+i);
+		u &= *(const word32 *)(void *)(((const byte *)Td)+i);
 	u &= Td[255];
 	s0 |= u; s1 |= u; s2 |= u; s3 |= u;
 
@@ -503,8 +503,8 @@ void Rijndael::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 	// QUARTER_ROUND_LD will use Td, which is already preloaded.
 	u = 0;
 	for (i=0; i<256; i+=cacheLineSize)
-		u &= *(const word32 *)(Sd+i);
-	u &= *(const word32 *)(Sd+252);
+		u &= *(const word32 *)(void *)(Sd+i);
+	u &= *(const word32 *)(void *)(Sd+252);
 	t0 |= u; t1 |= u; t2 |= u; t3 |= u;
 #endif
 
@@ -1121,7 +1121,7 @@ inline size_t AESNI_AdvancedProcessBlocks(F1 func1, F4 func4, const __m128i *sub
 			__m128i block0 = _mm_loadu_si128((const __m128i *)inBlocks), block1, block2, block3;
 			if (flags & BlockTransformation::BT_InBlockIsCounter)
 			{
-				const __m128i be1 = *(const __m128i *)s_one;
+				const __m128i be1 = *(const __m128i *)(void *)s_one;
 				block1 = _mm_add_epi32(block0, be1);
 				block2 = _mm_add_epi32(block1, be1);
 				block3 = _mm_add_epi32(block2, be1);
@@ -1251,7 +1251,7 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 			increment = 0-increment;
 		}
 
-		Locals &locals = *(Locals *)space;
+		Locals &locals = *(Locals *)(void *)space;
 
 		locals.inBlocks = inBlocks;
 		locals.inXorBlocks = (flags & BT_XorInput) && xorBlocks ? xorBlocks : zeros;
