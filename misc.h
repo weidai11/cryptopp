@@ -152,6 +152,8 @@ struct CompileAssert
 // ************** misc classes ***************
 
 #if !CRYPTOPP_DOXYGEN_PROCESSING
+//! \brief An Emptry class
+//! \details The Empty class can be used as a template parameter <tt>BASE</tt> when no base class exists.
 class CRYPTOPP_DLL Empty
 {
 };
@@ -506,13 +508,12 @@ std::string IntToString<unsigned long long>(unsigned long long value, unsigned i
 //! </pre>
 //! \details The string is presented with lowercase letters by default. A
 //!   hack is available to switch to uppercase letters without modifying
-//!   the function signature.sha
+//!   the function signature.
 //! <pre>
-//!   // Print integer in base 10, uppercase letters
+//!   // Print integer in base 16, uppercase letters
 //!   Integer n...
 //!   const unsigned int UPPER = (1 << 31);
-//!   std::string s = IntToString(n, (UPPER | 10));
-//! </pre>
+//!   std::string s = IntToString(n, (UPPER | 16));</pre>
 template <> CRYPTOPP_DLL
 std::string IntToString<Integer>(Integer value, unsigned int base);
 
@@ -836,7 +837,7 @@ inline bool IsAligned(const void *ptr, T *dummy=NULL)	// VC60 workaround
 //! \returns LittleEndian if the native byte order is little-endian, and BigEndian if the
 	//!   native byte order is big-endian
 //! \details NativeByteOrder is a typedef depending on the platform. If IS_LITTLE_ENDIAN is
-	//!   set in \headerfile config.h, then GetNativeByteOrder returns LittleEndian. If
+	//!   set in config.h, then GetNativeByteOrder returns LittleEndian. If
 	//!   IS_BIG_ENDIAN is set, then GetNativeByteOrder returns BigEndian.
 //! \note There are other byte orders besides little- and big-endian, and they include bi-endian
 	//!   and PDP-endian. If a system is neither little-endian nor big-endian, then a compile time error occurs.
@@ -871,7 +872,8 @@ inline T1 SaturatingSubtract(const T1 &a, const T2 &b)
 //! \param a the minuend
 //! \param b the subtrahend
 //! \returns the difference produced by the saturating subtract
-//! \details Saturating arithmetic restricts results to a fixed range. Results that are less than 1 are clamped at 1.
+//! \details Saturating arithmetic restricts results to a fixed range. Results that are less than
+//!   1 are clamped at 1.
 //! \details Use of saturating arithmetic in places can be advantageous because it can
 //!   avoid a branch by using an instruction like a conditional move (<tt>CMOVE</tt>).
 template <class T1, class T2>
@@ -883,12 +885,13 @@ inline T1 SaturatingSubtract1(const T1 &a, const T2 &b)
 
 //! \brief Returns the direction the cipher is being operated
 //! \param obj the cipher object being queried
-//! \returns /p ENCRYPTION if the cipher obj is being operated in its forward direction,
-//!   DECRYPTION otherwise
-//! \details ciphers can be operated in a "forward" direction (encryption) and a "reverse"
-//!   direction (decryption). The operations do not have to be symmetric, meaning a second application
-//!   of the transformation does not necessariy return the original message. That is, <tt>E(D(m))</tt>
-//!   may not equal <tt>E(E(m))</tt>; and <tt>D(E(m))</tt> may not equal <tt>D(D(m))</tt>.
+//! \returns \p ENCRYPTION if the cipher obj is being operated in its forward direction,
+//!   \p DECRYPTION otherwise
+//! \details A cipher can be operated in a "forward" direction (encryption) or a "reverse"
+//!   direction (decryption). The operations do not have to be symmetric, meaning a second
+//!   application of the transformation does not necessariy return the original message.
+//!   That is, <tt>E(D(m))</tt> may not equal <tt>E(E(m))</tt>; and <tt>D(E(m))</tt> may not
+//!   equal <tt>D(D(m))</tt>.
 template <class T>
 inline CipherDir GetCipherDir(const T &obj)
 {
@@ -965,7 +968,7 @@ inline void ConditionalSwapPointers(bool c, T &a, T &b)
 //! \brief Sets each element of an array to 0
 //! \param buf an array of elements 
 //! \param n the number of elements in the array
-//! \details The operation is effectively a wipe or zeroization. The operation attempts to survive optimizations and dead code removal
+//! \details The operation performs a wipe or zeroization. The function attempts to survive optimizations and dead code removal
 template <class T>
 void SecureWipeBuffer(T *buf, size_t n)
 {
@@ -980,7 +983,7 @@ void SecureWipeBuffer(T *buf, size_t n)
 //! \brief Sets each byte of an array to 0
 //! \param buf an array of bytes 
 //! \param n the number of elements in the array
-//! \details The operation is effectively a wipe or zeroization. The operation attempts to survive optimizations and dead code removal
+//! \details The operation performs a wipe or zeroization. The function attempts to survive optimizations and dead code removal.
 template<> inline void SecureWipeBuffer(byte *buf, size_t n)
 {
 	volatile byte *p = buf;
@@ -994,7 +997,7 @@ template<> inline void SecureWipeBuffer(byte *buf, size_t n)
 //! \brief Sets each 16-bit element of an array to 0
 //! \param buf an array of 16-bit words 
 //! \param n the number of elements in the array
-//! \details The operation is effectively a wipe or zeroization. The operation attempts to survive optimizations and dead code removal
+//! \details The operation performs a wipe or zeroization. The function attempts to survive optimizations and dead code removal.
 template<> inline void SecureWipeBuffer(word16 *buf, size_t n)
 {
 	volatile word16 *p = buf;
@@ -1008,7 +1011,7 @@ template<> inline void SecureWipeBuffer(word16 *buf, size_t n)
 //! \brief Sets each 32-bit element of an array to 0
 //! \param buf an array of 32-bit words 
 //! \param n the number of elements in the array
-//! \details The operation is effectively a wipe or zeroization. The operation attempts to survive optimizations and dead code removal
+//! \details The operation performs a wipe or zeroization. The function attempts to survive optimizations and dead code removal.
 template<> inline void SecureWipeBuffer(word32 *buf, size_t n)
 {
 	volatile word32 *p = buf;
@@ -1022,7 +1025,7 @@ template<> inline void SecureWipeBuffer(word32 *buf, size_t n)
 //! \brief Sets each 64-bit element of an array to 0
 //! \param buf an array of 64-bit words 
 //! \param n the number of elements in the array
-//! \details The operation is effectively a wipe or zeroization. The operation attempts to survive optimizations and dead code removal
+//! \details The operation performs a wipe or zeroization. The function attempts to survive optimizations and dead code removal.
 template<> inline void SecureWipeBuffer(word64 *buf, size_t n)
 {
 #if CRYPTOPP_BOOL_X64
@@ -1042,7 +1045,7 @@ template<> inline void SecureWipeBuffer(word64 *buf, size_t n)
 //! \brief Sets each element of an array to 0
 //! \param buf an array of elements
 //! \param n the number of elements in the array
-//! \details The operation is effectively a wipe or zeroization. The operation attempts to survive optimizations and dead code removal
+//! \details The operation performs a wipe or zeroization. The function attempts to survive optimizations and dead code removal.
 template <class T>
 inline void SecureWipeArray(T *buf, size_t n)
 {
@@ -1178,10 +1181,8 @@ template <class T> inline T rotlFixed(T x, unsigned int y)
 	// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=57157,
 	// https://software.intel.com/en-us/forums/topic/580884 
 	// and https://llvm.org/bugs/show_bug.cgi?id=24226
-
 	static const unsigned int THIS_SIZE = sizeof(T)*8;
 	static const unsigned int MASK = THIS_SIZE-1;
-
 	assert(y < THIS_SIZE);
 	return T((x<<y)|(x>>(-y&MASK)));
 }
@@ -1272,7 +1273,7 @@ template <class T> inline T rotrMod(T x, unsigned int y)
 //! \brief Performs a left rotate
 //! \param x the 32-bit value to rotate
 //! \param y the number of bit positions to rotate the value
-//! \details This is a Microsoft specific implementation using <tt>_lrotl</tt> provided by \headerfile
+//! \details This is a Microsoft specific implementation using <tt>_lrotl</tt> provided by
 //!   <stdlib.h>. The value x to be rotated is 32-bits. y must be in the range
 //!   <tt>[0, sizeof(T)*8 - 1]</tt> to avoid undefined behavior.
 //! \note rotlFixed will assert in Debug builds if is outside the allowed range. 
@@ -1286,7 +1287,7 @@ template<> inline word32 rotlFixed<word32>(word32 x, unsigned int y)
 //! \brief Performs a right rotate
 //! \param x the 32-bit value to rotate
 //! \param y the number of bit positions to rotate the value
-//! \details This is a Microsoft specific implementation using <tt>_lrotr</tt> provided by \headerfile
+//! \details This is a Microsoft specific implementation using <tt>_lrotr</tt> provided by
 //!   <stdlib.h>. The value x to be rotated is 32-bits. y must be in the range
 //!   <tt>[0, sizeof(T)*8 - 1]</tt> to avoid undefined behavior.
 //! \note rotrFixed will assert in Debug builds if is outside the allowed range. 
@@ -1300,7 +1301,7 @@ template<> inline word32 rotrFixed<word32>(word32 x, unsigned int y)
 //! \brief Performs a left rotate
 //! \param x the 32-bit value to rotate
 //! \param y the number of bit positions to rotate the value
-//! \details This is a Microsoft specific implementation using <tt>_lrotl</tt> provided by \headerfile
+//! \details This is a Microsoft specific implementation using <tt>_lrotl</tt> provided by
 //!   <stdlib.h>. The value x to be rotated is 32-bits. y must be in the range
 //!   <tt>[0, sizeof(T)*8 - 1]</tt> to avoid undefined behavior.
 //! \note rotlVariable will assert in Debug builds if is outside the allowed range. 
@@ -1313,7 +1314,7 @@ template<> inline word32 rotlVariable<word32>(word32 x, unsigned int y)
 //! \brief Performs a right rotate
 //! \param x the 32-bit value to rotate
 //! \param y the number of bit positions to rotate the value
-//! \details This is a Microsoft specific implementation using <tt>_lrotr</tt> provided by \headerfile
+//! \details This is a Microsoft specific implementation using <tt>_lrotr</tt> provided by
 //!   <stdlib.h>. The value x to be rotated is 32-bits. y must be in the range
 //!   <tt>[0, sizeof(T)*8 - 1]</tt> to avoid undefined behavior.
 //! \note rotrVariable will assert in Debug builds if is outside the allowed range. 
@@ -1326,7 +1327,7 @@ template<> inline word32 rotrVariable<word32>(word32 x, unsigned int y)
 //! \brief Performs a left rotate
 //! \param x the 32-bit value to rotate
 //! \param y the number of bit positions to rotate the value
-//! \details This is a Microsoft specific implementation using <tt>_lrotl</tt> provided by \headerfile
+//! \details This is a Microsoft specific implementation using <tt>_lrotl</tt> provided by
 //!   <stdlib.h>. The value x to be rotated is 32-bits. y must be in the range
 //!   <tt>[0, sizeof(T)*8 - 1]</tt> to avoid undefined behavior.
 template<> inline word32 rotlMod<word32>(word32 x, unsigned int y)
@@ -1338,7 +1339,7 @@ template<> inline word32 rotlMod<word32>(word32 x, unsigned int y)
 //! \brief Performs a right rotate
 //! \param x the 32-bit value to rotate
 //! \param y the number of bit positions to rotate the value
-//! \details This is a Microsoft specific implementation using <tt>_lrotr</tt> provided by \headerfile
+//! \details This is a Microsoft specific implementation using <tt>_lrotr</tt> provided by
 //!   <stdlib.h>. The value x to be rotated is 32-bits. y must be in the range
 //!   <tt>[0, sizeof(T)*8 - 1]</tt> to avoid undefined behavior.
 template<> inline word32 rotrMod<word32>(word32 x, unsigned int y)
@@ -1355,7 +1356,7 @@ template<> inline word32 rotrMod<word32>(word32 x, unsigned int y)
 //! \brief Performs a left rotate
 //! \param x the 64-bit value to rotate
 //! \param y the number of bit positions to rotate the value
-//! \details This is a Microsoft specific implementation using <tt>_lrotl</tt> provided by \headerfile
+//! \details This is a Microsoft specific implementation using <tt>_lrotl</tt> provided by
 //!   <stdlib.h>. The value x to be rotated is 64-bits. y must be in the range
 //!   <tt>[0, sizeof(T)*8 - 1]</tt> to avoid undefined behavior.
 //! \note rotrFixed will assert in Debug builds if is outside the allowed range. 
@@ -1369,7 +1370,7 @@ template<> inline word64 rotlFixed<word64>(word64 x, unsigned int y)
 //! \brief Performs a right rotate
 //! \param x the 64-bit value to rotate
 //! \param y the number of bit positions to rotate the value
-//! \details This is a Microsoft specific implementation using <tt>_lrotr</tt> provided by \headerfile
+//! \details This is a Microsoft specific implementation using <tt>_lrotr</tt> provided by
 //!   <stdlib.h>. The value x to be rotated is 64-bits. y must be in the range
 //!   <tt>[0, sizeof(T)*8 - 1]</tt> to avoid undefined behavior.
 //! \note rotrFixed will assert in Debug builds if is outside the allowed range. 
@@ -1383,7 +1384,7 @@ template<> inline word64 rotrFixed<word64>(word64 x, unsigned int y)
 //! \brief Performs a left rotate
 //! \param x the 64-bit value to rotate
 //! \param y the number of bit positions to rotate the value
-//! \details This is a Microsoft specific implementation using <tt>_lrotl</tt> provided by \headerfile
+//! \details This is a Microsoft specific implementation using <tt>_lrotl</tt> provided by
 //!   <stdlib.h>. The value x to be rotated is 64-bits. y must be in the range
 //!   <tt>[0, sizeof(T)*8 - 1]</tt> to avoid undefined behavior.
 //! \note rotlVariable will assert in Debug builds if is outside the allowed range. 
@@ -1396,7 +1397,7 @@ template<> inline word64 rotlVariable<word64>(word64 x, unsigned int y)
 //! \brief Performs a right rotate
 //! \param x the 64-bit value to rotate
 //! \param y the number of bit positions to rotate the value
-//! \details This is a Microsoft specific implementation using <tt>_lrotr</tt> provided by \headerfile
+//! \details This is a Microsoft specific implementation using <tt>_lrotr</tt> provided by
 //!   <stdlib.h>. The value x to be rotated is 64-bits. y must be in the range
 //!   <tt>[0, sizeof(T)*8 - 1]</tt> to avoid undefined behavior.
 //! \note rotrVariable will assert in Debug builds if is outside the allowed range. 
@@ -1409,7 +1410,7 @@ template<> inline word64 rotrVariable<word64>(word64 x, unsigned int y)
 //! \brief Performs a left rotate
 //! \param x the 64-bit value to rotate
 //! \param y the number of bit positions to rotate the value
-//! \details This is a Microsoft specific implementation using <tt>_lrotl</tt> provided by \headerfile
+//! \details This is a Microsoft specific implementation using <tt>_lrotl</tt> provided by
 //!   <stdlib.h>. The value x to be rotated is 64-bits. y must be in the range
 //!   <tt>[0, sizeof(T)*8 - 1]</tt> to avoid undefined behavior.
 template<> inline word64 rotlMod<word64>(word64 x, unsigned int y)
@@ -1421,7 +1422,7 @@ template<> inline word64 rotlMod<word64>(word64 x, unsigned int y)
 //! \brief Performs a right rotate
 //! \param x the 64-bit value to rotate
 //! \param y the number of bit positions to rotate the value
-//! \details This is a Microsoft specific implementation using <tt>_lrotr</tt> provided by \headerfile
+//! \details This is a Microsoft specific implementation using <tt>_lrotr</tt> provided by
 //!   <stdlib.h>. The value x to be rotated is 64-bits. y must be in the range
 //!   <tt>[0, sizeof(T)*8 - 1]</tt> to avoid undefined behavior.
 template<> inline word64 rotrMod<word64>(word64 x, unsigned int y)
