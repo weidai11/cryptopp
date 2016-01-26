@@ -391,7 +391,7 @@ void Rijndael::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 #else
 	for (i=0; i<1024; i+=cacheLineSize)
 #endif
-		u &= *(const word32 *)(void *)(((const byte *)Te)+i);
+		u &= *(const word32 *)(const void *)(((const byte *)Te)+i);
 	u &= Te[255];
 	s0 |= u; s1 |= u; s2 |= u; s3 |= u;
 
@@ -467,7 +467,7 @@ void Rijndael::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 #else
 	for (i=0; i<1024; i+=cacheLineSize)
 #endif
-		u &= *(const word32 *)(void *)(((const byte *)Td)+i);
+		u &= *(const word32 *)(const void *)(((const byte *)Td)+i);
 	u &= Td[255];
 	s0 |= u; s1 |= u; s2 |= u; s3 |= u;
 
@@ -503,8 +503,8 @@ void Rijndael::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 	// QUARTER_ROUND_LD will use Td, which is already preloaded.
 	u = 0;
 	for (i=0; i<256; i+=cacheLineSize)
-		u &= *(const word32 *)(void *)(Sd+i);
-	u &= *(const word32 *)(void *)(Sd+252);
+		u &= *(const word32 *)(const void *)(Sd+i);
+	u &= *(const word32 *)(const void *)(Sd+252);
 	t0 |= u; t1 |= u; t2 |= u; t3 |= u;
 #endif
 
@@ -1121,7 +1121,7 @@ inline size_t AESNI_AdvancedProcessBlocks(F1 func1, F4 func4, const __m128i *sub
 			__m128i block0 = _mm_loadu_si128((const __m128i *)inBlocks), block1, block2, block3;
 			if (flags & BlockTransformation::BT_InBlockIsCounter)
 			{
-				const __m128i be1 = *(const __m128i *)(void *)s_one;
+				const __m128i be1 = *(const __m128i *)(const void *)s_one;
 				block1 = _mm_add_epi32(block0, be1);
 				block2 = _mm_add_epi32(block1, be1);
 				block3 = _mm_add_epi32(block2, be1);
