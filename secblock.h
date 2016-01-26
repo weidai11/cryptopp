@@ -409,21 +409,12 @@ public:
 
 private:
 
-#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
-# pragma GCC diagnostic push
-# pragma GCC diagnostic ignored "-Wcast-align"
-#endif
-
 #ifdef __BORLANDC__
 	T* GetAlignedArray() {return m_array;}
 	T m_array[S];
 #else
-	T* GetAlignedArray() {return (CRYPTOPP_BOOL_ALIGN16 && T_Align16) ? (T*)(((byte *)m_array) + (0-(size_t)m_array)%16) : m_array;}
+	T* GetAlignedArray() {return (CRYPTOPP_BOOL_ALIGN16 && T_Align16) ? (T*)(void *)(((byte *)m_array) + (0-(size_t)m_array)%16) : m_array;}
 	CRYPTOPP_ALIGN_DATA(8) T m_array[(CRYPTOPP_BOOL_ALIGN16 && T_Align16) ? S+8/sizeof(T) : S];
-#endif
-
-#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
-# pragma GCC diagnostic pop
 #endif
 
 	A m_fallbackAllocator;

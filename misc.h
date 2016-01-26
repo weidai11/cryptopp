@@ -1047,23 +1047,14 @@ template<> inline void SecureWipeBuffer(word64 *buf, size_t n)
 template <class T>
 inline void SecureWipeArray(T *buf, size_t n)
 {
-#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
-# pragma GCC diagnostic push
-# pragma GCC diagnostic ignored "-Wcast-align"
-#endif
-
 	if (sizeof(T) % 8 == 0 && GetAlignmentOf<T>() % GetAlignmentOf<word64>() == 0)
-		SecureWipeBuffer((word64 *)buf, n * (sizeof(T)/8));
+		SecureWipeBuffer((word64 *)(void *)buf, n * (sizeof(T)/8));
 	else if (sizeof(T) % 4 == 0 && GetAlignmentOf<T>() % GetAlignmentOf<word32>() == 0)
-		SecureWipeBuffer((word32 *)buf, n * (sizeof(T)/4));
+		SecureWipeBuffer((word32 *)(void *)buf, n * (sizeof(T)/4));
 	else if (sizeof(T) % 2 == 0 && GetAlignmentOf<T>() % GetAlignmentOf<word16>() == 0)
-		SecureWipeBuffer((word16 *)buf, n * (sizeof(T)/2));
+		SecureWipeBuffer((word16 *)(void *)buf, n * (sizeof(T)/2));
 	else
-		SecureWipeBuffer((byte *)buf, n * sizeof(T));
-
-#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
-# pragma GCC diagnostic pop
-#endif
+		SecureWipeBuffer((byte *)(void *)buf, n * sizeof(T));
 }
 
 //! \brief Converts a wide character C-string to a multibyte string 
@@ -2105,14 +2096,14 @@ inline T SafeLeftShift(T value)
 
 // ************** use one buffer for multiple data members ***************
 
-#define CRYPTOPP_BLOCK_1(n, t, s) t* m_##n() {return (t *)(m_aggregate+0);}     size_t SS1() {return       sizeof(t)*(s);} size_t m_##n##Size() {return (s);}
-#define CRYPTOPP_BLOCK_2(n, t, s) t* m_##n() {return (t *)(m_aggregate+SS1());} size_t SS2() {return SS1()+sizeof(t)*(s);} size_t m_##n##Size() {return (s);}
-#define CRYPTOPP_BLOCK_3(n, t, s) t* m_##n() {return (t *)(m_aggregate+SS2());} size_t SS3() {return SS2()+sizeof(t)*(s);} size_t m_##n##Size() {return (s);}
-#define CRYPTOPP_BLOCK_4(n, t, s) t* m_##n() {return (t *)(m_aggregate+SS3());} size_t SS4() {return SS3()+sizeof(t)*(s);} size_t m_##n##Size() {return (s);}
-#define CRYPTOPP_BLOCK_5(n, t, s) t* m_##n() {return (t *)(m_aggregate+SS4());} size_t SS5() {return SS4()+sizeof(t)*(s);} size_t m_##n##Size() {return (s);}
-#define CRYPTOPP_BLOCK_6(n, t, s) t* m_##n() {return (t *)(m_aggregate+SS5());} size_t SS6() {return SS5()+sizeof(t)*(s);} size_t m_##n##Size() {return (s);}
-#define CRYPTOPP_BLOCK_7(n, t, s) t* m_##n() {return (t *)(m_aggregate+SS6());} size_t SS7() {return SS6()+sizeof(t)*(s);} size_t m_##n##Size() {return (s);}
-#define CRYPTOPP_BLOCK_8(n, t, s) t* m_##n() {return (t *)(m_aggregate+SS7());} size_t SS8() {return SS7()+sizeof(t)*(s);} size_t m_##n##Size() {return (s);}
+#define CRYPTOPP_BLOCK_1(n, t, s) t* m_##n() {return (t *)(void *)(m_aggregate+0);}     size_t SS1() {return       sizeof(t)*(s);} size_t m_##n##Size() {return (s);}
+#define CRYPTOPP_BLOCK_2(n, t, s) t* m_##n() {return (t *)(void *)(m_aggregate+SS1());} size_t SS2() {return SS1()+sizeof(t)*(s);} size_t m_##n##Size() {return (s);}
+#define CRYPTOPP_BLOCK_3(n, t, s) t* m_##n() {return (t *)(void *)(m_aggregate+SS2());} size_t SS3() {return SS2()+sizeof(t)*(s);} size_t m_##n##Size() {return (s);}
+#define CRYPTOPP_BLOCK_4(n, t, s) t* m_##n() {return (t *)(void *)(m_aggregate+SS3());} size_t SS4() {return SS3()+sizeof(t)*(s);} size_t m_##n##Size() {return (s);}
+#define CRYPTOPP_BLOCK_5(n, t, s) t* m_##n() {return (t *)(void *)(m_aggregate+SS4());} size_t SS5() {return SS4()+sizeof(t)*(s);} size_t m_##n##Size() {return (s);}
+#define CRYPTOPP_BLOCK_6(n, t, s) t* m_##n() {return (t *)(void *)(m_aggregate+SS5());} size_t SS6() {return SS5()+sizeof(t)*(s);} size_t m_##n##Size() {return (s);}
+#define CRYPTOPP_BLOCK_7(n, t, s) t* m_##n() {return (t *)(void *)(m_aggregate+SS6());} size_t SS7() {return SS6()+sizeof(t)*(s);} size_t m_##n##Size() {return (s);}
+#define CRYPTOPP_BLOCK_8(n, t, s) t* m_##n() {return (t *)(void *)(m_aggregate+SS7());} size_t SS8() {return SS7()+sizeof(t)*(s);} size_t m_##n##Size() {return (s);}
 #define CRYPTOPP_BLOCKS_END(i) size_t SST() {return SS##i();} void AllocateBlocks() {m_aggregate.New(SST());} AlignedSecByteBlock m_aggregate;
 
 NAMESPACE_END

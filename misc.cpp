@@ -10,10 +10,6 @@
 # endif
 #endif
 
-#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
-# pragma GCC diagnostic ignored "-Wcast-align"
-#endif
-
 #ifndef CRYPTOPP_IMPORTS
 
 #include "misc.h"
@@ -41,7 +37,7 @@ void xorbuf(byte *buf, const byte *mask, size_t count)
 		if (!CRYPTOPP_BOOL_SLOW_WORD64 && IsAligned<word64>(buf) && IsAligned<word64>(mask))
 		{
 			for (i=0; i<count/8; i++)
-				((word64*)buf)[i] ^= ((word64*)mask)[i];
+				((word64*)(void*)buf)[i] ^= ((word64*)(void*)mask)[i];
 			count -= 8*i;
 			if (!count)
 				return;
@@ -50,7 +46,7 @@ void xorbuf(byte *buf, const byte *mask, size_t count)
 		}
 
 		for (i=0; i<count/4; i++)
-			((word32*)buf)[i] ^= ((word32*)mask)[i];
+			((word32*)(void*)buf)[i] ^= ((word32*)(void*)mask)[i];
 		count -= 4*i;
 		if (!count)
 			return;
@@ -74,7 +70,7 @@ void xorbuf(byte *output, const byte *input, const byte *mask, size_t count)
 		if (!CRYPTOPP_BOOL_SLOW_WORD64 && IsAligned<word64>(output) && IsAligned<word64>(input) && IsAligned<word64>(mask))
 		{
 			for (i=0; i<count/8; i++)
-				((word64*)output)[i] = ((word64*)input)[i] ^ ((word64*)mask)[i];
+				((word64*)(void*)output)[i] = ((word64*)(void*)input)[i] ^ ((word64*)(void*)mask)[i];
 			count -= 8*i;
 			if (!count)
 				return;
@@ -84,7 +80,7 @@ void xorbuf(byte *output, const byte *input, const byte *mask, size_t count)
 		}
 
 		for (i=0; i<count/4; i++)
-			((word32*)output)[i] = ((word32*)input)[i] ^ ((word32*)mask)[i];
+			((word32*)(void*)output)[i] = ((word32*)(void*)input)[i] ^ ((word32*)(void*)mask)[i];
 		count -= 4*i;
 		if (!count)
 			return;
@@ -113,7 +109,7 @@ bool VerifyBufsEqual(const byte *buf, const byte *mask, size_t count)
 		{
 			word64 acc64 = 0;
 			for (i=0; i<count/8; i++)
-				acc64 |= ((word64*)buf)[i] ^ ((word64*)mask)[i];
+				acc64 |= ((word64*)(void*)buf)[i] ^ ((word64*)(void*)mask)[i];
 			count -= 8*i;
 			if (!count)
 				return acc64 == 0;
@@ -123,7 +119,7 @@ bool VerifyBufsEqual(const byte *buf, const byte *mask, size_t count)
 		}
 
 		for (i=0; i<count/4; i++)
-			acc32 |= ((word32*)buf)[i] ^ ((word32*)mask)[i];
+			acc32 |= ((word32*)(void*)buf)[i] ^ ((word32*)(void*)mask)[i];
 		count -= 4*i;
 		if (!count)
 			return acc32 == 0;
