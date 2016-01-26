@@ -222,7 +222,7 @@ void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keylen, c
 		};
 		const word32 *rc = rcLE;
 
-		__m128i temp = _mm_loadu_si128((__m128i *)(userKey+keylen-16));
+		__m128i temp = _mm_loadu_si128((__m128i *)(void *)(userKey+keylen-16));
 		memcpy(rk, userKey, keylen);
 
 		while (true)
@@ -1118,35 +1118,35 @@ inline size_t AESNI_AdvancedProcessBlocks(F1 func1, F4 func4, const __m128i *sub
 	{
 		while (length >= 4*blockSize)
 		{
-			__m128i block0 = _mm_loadu_si128((const __m128i *)inBlocks), block1, block2, block3;
+			__m128i block0 = _mm_loadu_si128((const __m128i *)(const void *)inBlocks), block1, block2, block3;
 			if (flags & BlockTransformation::BT_InBlockIsCounter)
 			{
 				const __m128i be1 = *(const __m128i *)(const void *)s_one;
 				block1 = _mm_add_epi32(block0, be1);
 				block2 = _mm_add_epi32(block1, be1);
 				block3 = _mm_add_epi32(block2, be1);
-				_mm_storeu_si128((__m128i *)inBlocks, _mm_add_epi32(block3, be1));
+				_mm_storeu_si128((__m128i *)(void *)inBlocks, _mm_add_epi32(block3, be1));
 			}
 			else
 			{
 				inBlocks += inIncrement;
-				block1 = _mm_loadu_si128((const __m128i *)inBlocks);
+				block1 = _mm_loadu_si128((const __m128i *)(const void *)inBlocks);
 				inBlocks += inIncrement;
-				block2 = _mm_loadu_si128((const __m128i *)inBlocks);
+				block2 = _mm_loadu_si128((const __m128i *)(const void *)inBlocks);
 				inBlocks += inIncrement;
-				block3 = _mm_loadu_si128((const __m128i *)inBlocks);
+				block3 = _mm_loadu_si128((const __m128i *)(const void *)inBlocks);
 				inBlocks += inIncrement;
 			}
 
 			if (flags & BlockTransformation::BT_XorInput)
 			{
-				block0 = _mm_xor_si128(block0, _mm_loadu_si128((const __m128i *)xorBlocks));
+				block0 = _mm_xor_si128(block0, _mm_loadu_si128((const __m128i *)(const void *)xorBlocks));
 				xorBlocks += xorIncrement;
-				block1 = _mm_xor_si128(block1, _mm_loadu_si128((const __m128i *)xorBlocks));
+				block1 = _mm_xor_si128(block1, _mm_loadu_si128((const __m128i *)(const void *)xorBlocks));
 				xorBlocks += xorIncrement;
-				block2 = _mm_xor_si128(block2, _mm_loadu_si128((const __m128i *)xorBlocks));
+				block2 = _mm_xor_si128(block2, _mm_loadu_si128((const __m128i *)(const void *)xorBlocks));
 				xorBlocks += xorIncrement;
-				block3 = _mm_xor_si128(block3, _mm_loadu_si128((const __m128i *)xorBlocks));
+				block3 = _mm_xor_si128(block3, _mm_loadu_si128((const __m128i *)(const void *)xorBlocks));
 				xorBlocks += xorIncrement;
 			}
 
@@ -1154,23 +1154,23 @@ inline size_t AESNI_AdvancedProcessBlocks(F1 func1, F4 func4, const __m128i *sub
 
 			if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
 			{
-				block0 = _mm_xor_si128(block0, _mm_loadu_si128((const __m128i *)xorBlocks));
+				block0 = _mm_xor_si128(block0, _mm_loadu_si128((const __m128i *)(const void *)xorBlocks));
 				xorBlocks += xorIncrement;
-				block1 = _mm_xor_si128(block1, _mm_loadu_si128((const __m128i *)xorBlocks));
+				block1 = _mm_xor_si128(block1, _mm_loadu_si128((const __m128i *)(const void *)xorBlocks));
 				xorBlocks += xorIncrement;
-				block2 = _mm_xor_si128(block2, _mm_loadu_si128((const __m128i *)xorBlocks));
+				block2 = _mm_xor_si128(block2, _mm_loadu_si128((const __m128i *)(const void *)xorBlocks));
 				xorBlocks += xorIncrement;
-				block3 = _mm_xor_si128(block3, _mm_loadu_si128((const __m128i *)xorBlocks));
+				block3 = _mm_xor_si128(block3, _mm_loadu_si128((const __m128i *)(const void *)xorBlocks));
 				xorBlocks += xorIncrement;
 			}
 
-			_mm_storeu_si128((__m128i *)outBlocks, block0);
+			_mm_storeu_si128((__m128i *)(void *)outBlocks, block0);
 			outBlocks += outIncrement;
-			_mm_storeu_si128((__m128i *)outBlocks, block1);
+			_mm_storeu_si128((__m128i *)(void *)outBlocks, block1);
 			outBlocks += outIncrement;
-			_mm_storeu_si128((__m128i *)outBlocks, block2);
+			_mm_storeu_si128((__m128i *)(void *)outBlocks, block2);
 			outBlocks += outIncrement;
-			_mm_storeu_si128((__m128i *)outBlocks, block3);
+			_mm_storeu_si128((__m128i *)(void *)outBlocks, block3);
 			outBlocks += outIncrement;
 
 			length -= 4*blockSize;
@@ -1179,10 +1179,10 @@ inline size_t AESNI_AdvancedProcessBlocks(F1 func1, F4 func4, const __m128i *sub
 
 	while (length >= blockSize)
 	{
-		__m128i block = _mm_loadu_si128((const __m128i *)inBlocks);
+		__m128i block = _mm_loadu_si128((const __m128i *)(const void *)inBlocks);
 
 		if (flags & BlockTransformation::BT_XorInput)
-			block = _mm_xor_si128(block, _mm_loadu_si128((const __m128i *)xorBlocks));
+			block = _mm_xor_si128(block, _mm_loadu_si128((const __m128i *)(const void *)xorBlocks));
 
 		if (flags & BlockTransformation::BT_InBlockIsCounter)
 			const_cast<byte *>(inBlocks)[15]++;
@@ -1190,9 +1190,9 @@ inline size_t AESNI_AdvancedProcessBlocks(F1 func1, F4 func4, const __m128i *sub
 		func1(block, subkeys, rounds);
 
 		if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
-			block = _mm_xor_si128(block, _mm_loadu_si128((const __m128i *)xorBlocks));
+			block = _mm_xor_si128(block, _mm_loadu_si128((const __m128i *)(const void *)xorBlocks));
 			
-		_mm_storeu_si128((__m128i *)outBlocks, block);
+		_mm_storeu_si128((__m128i *)(void *)outBlocks, block);
 
 		inBlocks += inIncrement;
 		outBlocks += outIncrement;
@@ -1208,7 +1208,7 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 {
 #if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
 	if (HasAESNI())
-		return AESNI_AdvancedProcessBlocks(AESNI_Enc_Block, AESNI_Enc_4_Blocks, (const __m128i *)m_key.begin(), m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+		return AESNI_AdvancedProcessBlocks(AESNI_Enc_Block, AESNI_Enc_4_Blocks, (const __m128i *)(const void *)m_key.begin(), m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 #endif
 	
 #if (CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
@@ -1282,7 +1282,7 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 size_t Rijndael::Dec::AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const
 {
 	if (HasAESNI())
-		return AESNI_AdvancedProcessBlocks(AESNI_Dec_Block, AESNI_Dec_4_Blocks, (const __m128i *)m_key.begin(), m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+		return AESNI_AdvancedProcessBlocks(AESNI_Dec_Block, AESNI_Dec_4_Blocks, (const __m128i *)(const void *)m_key.begin(), m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 	
 	return BlockTransformation::AdvancedProcessBlocks(inBlocks, xorBlocks, outBlocks, length, flags);
 }
