@@ -601,11 +601,11 @@ inline unsigned int TrailingZeros(word32 v)
 {
 	assert(v != 0);
 #if defined(__GNUC__) && CRYPTOPP_GCC_VERSION >= 30400
-	return __builtin_ctz(v);
+	return (unsigned int)__builtin_ctz(v);
 #elif defined(_MSC_VER) && _MSC_VER >= 1400
 	unsigned long result;
 	_BitScanForward(&result, v);
-	return result;
+	return (unsigned int)result;
 #else
 	// from http://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightMultLookup
 	static const int MultiplyDeBruijnBitPosition[32] = 
@@ -627,11 +627,11 @@ inline unsigned int TrailingZeros(word64 v)
 {
 	assert(v != 0);
 #if defined(__GNUC__) && CRYPTOPP_GCC_VERSION >= 30400
-	return __builtin_ctzll(v);
+	return (unsigned int)__builtin_ctzll(v);
 #elif defined(_MSC_VER) && _MSC_VER >= 1400 && (defined(_M_X64) || defined(_M_IA64))
 	unsigned long result;
 	_BitScanForward64(&result, v);
-	return result;
+	return (unsigned int)result;
 #else
 	return word32(v) ? TrailingZeros(word32(v)) : 32 + TrailingZeros(word32(v>>32));
 #endif
@@ -935,7 +935,7 @@ inline void IncrementCounterByOne(byte *output, const byte *input, unsigned int 
 	int i, carry;
 	for (i=int(size-1), carry=1; i>=0 && carry; i--)
 		carry = ((output[i] = input[i]+1) == 0);
-	memcpy_s(output, size, input, i+1);
+	memcpy_s(output, size, input, size_t(i)+1);
 }
 
 //! \brief Performs a branchless swap of values a and b if condition c is true
@@ -1630,8 +1630,8 @@ inline word64 ByteReverse(word64 value)
 //! \details BitReverse performs a combination of shifts on the byte
 inline byte BitReverse(byte value)
 {
-	value = ((value & 0xAA) >> 1) | ((value & 0x55) << 1);
-	value = ((value & 0xCC) >> 2) | ((value & 0x33) << 2);
+	value = byte((value & 0xAA) >> 1) | byte((value & 0x55) << 1);
+	value = byte((value & 0xCC) >> 2) | byte((value & 0x33) << 2);
 	return rotlFixed(value, 4U);
 }
 
@@ -1640,9 +1640,9 @@ inline byte BitReverse(byte value)
 //! \details BitReverse performs a combination of shifts on the word16
 inline word16 BitReverse(word16 value)
 {
-	value = ((value & 0xAAAA) >> 1) | ((value & 0x5555) << 1);
-	value = ((value & 0xCCCC) >> 2) | ((value & 0x3333) << 2);
-	value = ((value & 0xF0F0) >> 4) | ((value & 0x0F0F) << 4);
+	value = word16((value & 0xAAAA) >> 1) | word16((value & 0x5555) << 1);
+	value = word16((value & 0xCCCC) >> 2) | word16((value & 0x3333) << 2);
+	value = word16((value & 0xF0F0) >> 4) | word16((value & 0x0F0F) << 4);
 	return ByteReverse(value);
 }
 
@@ -1651,9 +1651,9 @@ inline word16 BitReverse(word16 value)
 //! \details BitReverse performs a combination of shifts on the word32
 inline word32 BitReverse(word32 value)
 {
-	value = ((value & 0xAAAAAAAA) >> 1) | ((value & 0x55555555) << 1);
-	value = ((value & 0xCCCCCCCC) >> 2) | ((value & 0x33333333) << 2);
-	value = ((value & 0xF0F0F0F0) >> 4) | ((value & 0x0F0F0F0F) << 4);
+	value = word32((value & 0xAAAAAAAA) >> 1) | word32((value & 0x55555555) << 1);
+	value = word32((value & 0xCCCCCCCC) >> 2) | word32((value & 0x33333333) << 2);
+	value = word32((value & 0xF0F0F0F0) >> 4) | word32((value & 0x0F0F0F0F) << 4);
 	return ByteReverse(value);
 }
 
@@ -1665,9 +1665,9 @@ inline word64 BitReverse(word64 value)
 #if CRYPTOPP_BOOL_SLOW_WORD64
 	return (word64(BitReverse(word32(value))) << 32) | BitReverse(word32(value>>32));
 #else
-	value = ((value & W64LIT(0xAAAAAAAAAAAAAAAA)) >> 1) | ((value & W64LIT(0x5555555555555555)) << 1);
-	value = ((value & W64LIT(0xCCCCCCCCCCCCCCCC)) >> 2) | ((value & W64LIT(0x3333333333333333)) << 2);
-	value = ((value & W64LIT(0xF0F0F0F0F0F0F0F0)) >> 4) | ((value & W64LIT(0x0F0F0F0F0F0F0F0F)) << 4);
+	value = word64((value & W64LIT(0xAAAAAAAAAAAAAAAA)) >> 1) | word64((value & W64LIT(0x5555555555555555)) << 1);
+	value = word64((value & W64LIT(0xCCCCCCCCCCCCCCCC)) >> 2) | word64((value & W64LIT(0x3333333333333333)) << 2);
+	value = word64((value & W64LIT(0xF0F0F0F0F0F0F0F0)) >> 4) | word64((value & W64LIT(0x0F0F0F0F0F0F0F0F)) << 4);
 	return ByteReverse(value);
 #endif
 }
