@@ -113,7 +113,8 @@ private:
 //! \brief GCM block cipher mode of operation
 //! \tparam T_BlockCipher block cipher
 //! \tparam T_TablesOption table size, either \p GCM_2K_Tables or \p GCM_64K_Tables
-//! \details \p GCM provides the \p Encryption and \p Decryption typedef.
+//! \details \p GCM provides the \p Encryption and \p Decryption typedef. See GCM_Base
+//!   and GCM_Final for the AuthenticatedSymmetricCipher implementation.
 //! \sa <a href="http://www.cryptolounge.org/wiki/GCM">GCM</a> at the Crypto Lounge
 template <class T_BlockCipher, GCM_TablesOption T_TablesOption=GCM_2K_Tables>
 struct GCM : public AuthenticatedSymmetricCipherDocumentation
