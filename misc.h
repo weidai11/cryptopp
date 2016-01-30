@@ -1060,29 +1060,28 @@ inline void SecureWipeArray(T *buf, size_t n)
 }
 
 //! \brief Converts a wide character C-string to a multibyte string 
-//! \param str a C-string consiting of wide characters
+//! \param str C-string consiting of wide characters
 //! \param throwOnError specifies the function should throw an InvalidArgument exception on error
 //! \returns str converted to a multibyte string or an empty string.
-//! \details This function converts a wide string to a string using C++ wcstombs under the executing
-//!   thread's locale. A locale must be set before using this function, and it can be set with setlocale.
-//!   Upon success, the converted string is returned. Upon failure with throwOnError as false, the
-//!   function returns an empty string. Upon failure with throwOnError as true, the function throws
-//!   InvalidArgument exception.
+//! \details StringNarrow converts a wide string to a narrow string using C++ std::wcstombs under the executing
+//!   thread's locale. A locale must be set before using this function, and it can be set with std::setlocale.
+//!   Upon success, the converted string is returned.
+//! \details Upon failure with throwOnError as false, the function returns an empty string. Upon failure with
+//!   throwOnError as true, the function throws InvalidArgument exception.
 //! \note If you try to convert, say, the Chinese character for "bone" from UTF-16 (0x9AA8) to UTF-8
-//!   (0xE9 0xAA 0xA8), then you should ensure the locales are available. If the locales are not available,
-//!   then a 0x21 error is returned which eventually results in an InvalidArgument exception
+//!   (0xE9 0xAA 0xA8), then you must ensure the locale is available. If the locale is not available,
+//!   then a 0x21 error is returned on Windows which eventually results in an InvalidArgument exception.
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-static inline std::string StringNarrow(const wchar_t *str, bool throwOnError = true)
+std::string StringNarrow(const wchar_t *str, bool throwOnError = true);
 #else
 static std::string StringNarrow(const wchar_t *str, bool throwOnError = true)
-#endif
 {
 	assert(str);
 	std::string result;
 
 	// Safer functions on Windows for C&A, https://github.com/weidai11/cryptopp/issues/55
 #if (CRYPTOPP_MSC_VERSION >= 1400)
-	size_t len=0, size = 0;
+	size_t len=0, size=0;
 	errno_t err = 0;
 
 	//const wchar_t* ptr = str;
@@ -1093,7 +1092,7 @@ static std::string StringNarrow(const wchar_t *str, bool throwOnError = true)
 	assert(err == 0);
 	if (err != 0) {goto CONVERSION_ERROR;}
 
-	result.resize(size);	
+	result.resize(size);
 	err = wcstombs_s(&size, &result[0], size, str, len*sizeof(wchar_t));
 	assert(err == 0);
 
@@ -1113,7 +1112,7 @@ CONVERSION_ERROR:
 	size_t size = wcstombs(NULL, str, 0);
 	assert(size != (size_t)-1);
 	if (size == (size_t)-1) {goto CONVERSION_ERROR;}
-	
+
 	result.resize(size);
 	size = wcstombs(&result[0], str, size);
 	assert(size != (size_t)-1);
@@ -1130,6 +1129,7 @@ CONVERSION_ERROR:
 
 	return result;
 }
+#endif // StringNarrow and CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 
 #ifdef CRYPTOPP_DOXYGEN_PROCESSING
 

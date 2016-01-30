@@ -133,6 +133,64 @@ bool VerifyBufsEqual(const byte *buf, const byte *mask, size_t count)
 	return acc8 == 0;
 }
 
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+std::string StringNarrow(const wchar_t *str, bool throwOnError)
+{
+	assert(str);
+	std::string result;
+
+	// Safer functions on Windows for C&A, https://github.com/weidai11/cryptopp/issues/55
+#if (CRYPTOPP_MSC_VERSION >= 1400)
+	size_t len=0, size=0;
+	errno_t err = 0;
+
+	//const wchar_t* ptr = str;
+	//while (*ptr++) len++;
+	len = wcslen(str)+1;
+
+	err = wcstombs_s(&size, NULL, 0, str, len*sizeof(wchar_t));
+	assert(err == 0);
+	if (err != 0) {goto CONVERSION_ERROR;}
+
+	result.resize(size);
+	err = wcstombs_s(&size, &result[0], size, str, len*sizeof(wchar_t));
+	assert(err == 0);
+
+	if (err != 0)
+	{
+CONVERSION_ERROR:
+		if (throwOnError)
+			throw InvalidArgument("StringNarrow: wcstombs_s() call failed with error " + IntToString(err));
+		else
+			return std::string();
+	}
+
+	// The safe routine's size includes the NULL.
+	if (!result.empty() && result[size - 1] == '\0')
+		result.erase(size - 1);
+#else
+	size_t size = wcstombs(NULL, str, 0);
+	assert(size != (size_t)-1);
+	if (size == (size_t)-1) {goto CONVERSION_ERROR;}
+
+	result.resize(size);
+	size = wcstombs(&result[0], str, size);
+	assert(size != (size_t)-1);
+
+	if (size == (size_t)-1)
+	{
+CONVERSION_ERROR:
+		if (throwOnError)
+			throw InvalidArgument("StringNarrow: wcstombs() call failed");
+		else
+			return std::string();
+	}
+#endif
+
+	return result;
+}
+#endif // StringNarrow and CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+
 #if !(defined(_MSC_VER) && (_MSC_VER < 1300))
 using std::new_handler;
 using std::set_new_handler;
