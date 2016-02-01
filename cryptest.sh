@@ -198,7 +198,7 @@ fi
 
 # Benchmarks expect frequency in GHz.
 CPU_FREQ=2.0
-if [ "$IS_LINUX" -ne "0" ]; then
+if [ "$IS_LINUX" -ne "0" ] && [ -e "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq" ]; then
 	CPU_FREQ=$(cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq)
 	CPU_FREQ=$(awk "BEGIN {print $CPU_FREQ/1024/1024}")
 fi
