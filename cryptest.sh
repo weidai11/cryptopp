@@ -207,9 +207,10 @@ if [ "$IS_DARWIN" -ne "0" ]; then
 	CPU_FREQ=$(awk "BEGIN {print $CPU_FREQ/1024/1024/1024}")
 fi
 
-echo "CPU: $CPU_COUNT logical"
-echo "FREQ: $CPU_FREQ GHz"
-echo "MEM: $MEM_SIZE MB"
+echo | tee -a "$TEST_RESULTS"
+echo "CPU: $CPU_COUNT logical" | tee -a "$TEST_RESULTS"
+echo "FREQ: $CPU_FREQ GHz" | tee -a "$TEST_RESULTS"
+echo "MEM: $MEM_SIZE MB" | tee -a "$TEST_RESULTS"
 
 if [ "$CPU_COUNT" -ge "2" ] && [ "$MEM_SIZE" -ge "1280" ]; then
     MAKEARGS=(-j "$CPU_COUNT")
