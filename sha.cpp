@@ -310,7 +310,9 @@ static void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 
 	AS2(	mov		esi, ecx)
 	AS2(	lea		edi, A(0))
 	AS2(	mov		ecx, 8)
+ATT_NOPREFIX
 	AS1(	rep movsd)
+INTEL_NOPREFIX
 	AS2(	mov		esi, K_END)
 	ASJ(	jmp,	3, f)
 #endif
