@@ -1107,8 +1107,9 @@ bool TestRDRAND()
 #if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
 bool TestRDSEED()
 {
-	// Testing on 6th generation i7 shows RDSEED needs about 128 retries for 10K bytes.
-	RDSEED rdseed(128);
+	// Testing on 5th generation i5 shows RDSEED needs about 128 retries for 10K bytes
+	//  on 64-bit/amd64 VM, and it needs more for an 32-bit/i686 VM.
+	RDSEED rdseed(256);
 	bool entropy = true, compress = true, discard = true;
 	static const unsigned int SIZE = 10000;
 
