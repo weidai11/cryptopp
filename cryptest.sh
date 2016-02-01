@@ -961,7 +961,12 @@ if [ "$HAVE_CXX03" -ne "0" ] && [ "$HAVE_ASAN" -ne "0" ]; then
 	rm -f adhoc.cpp > /dev/null 2>&1
 
 	export CXXFLAGS="-DDEBUG -g2 -O1 -std=c++03 $ADD_CXXFLAGS"
-	"$MAKE" "${MAKEARGS[@]}" asan | asan_symbolize | tee -a "$TEST_RESULTS"
+
+	if [ "$CXX" == "clang++" ]; then
+		"$MAKE" "${MAKEARGS[@]}" asan | asan_symbolize | tee -a "$TEST_RESULTS"
+	else
+		"$MAKE" "${MAKEARGS[@]}" asan | tee -a "$TEST_RESULTS"
+	fi
 
 	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -990,7 +995,12 @@ if [ "$HAVE_CXX03" -ne "0" ] && [ "$HAVE_ASAN" -ne "0" ]; then
 	rm -f adhoc.cpp > /dev/null 2>&1
 
 	export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++03 $ADD_CXXFLAGS"
-	"$MAKE" "${MAKEARGS[@]}" asan | asan_symbolize | tee -a "$TEST_RESULTS"
+
+	if [ "$CXX" == "clang++" ]; then
+		"$MAKE" "${MAKEARGS[@]}" asan | asan_symbolize | tee -a "$TEST_RESULTS"
+	else
+		"$MAKE" "${MAKEARGS[@]}" asan | tee -a "$TEST_RESULTS"
+	fi
 
 	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1047,7 +1057,12 @@ if [ "$HAVE_CXX11" -ne "0" ] && [ "$HAVE_ASAN" -ne "0" ]; then
 	rm -f adhoc.cpp > /dev/null 2>&1
 
 	export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 $ADD_CXXFLAGS"
-	"$MAKE" "${MAKEARGS[@]}" asan | asan_symbolize | tee -a "$TEST_RESULTS"
+
+	if [ "$CXX" == "clang++" ]; then
+		"$MAKE" "${MAKEARGS[@]}" asan | asan_symbolize | tee -a "$TEST_RESULTS"
+	else
+		"$MAKE" "${MAKEARGS[@]}" asan | tee -a "$TEST_RESULTS"
+	fi
 
 	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
