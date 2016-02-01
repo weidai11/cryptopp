@@ -726,7 +726,7 @@ class SecByteBlock : public SecBlock<byte> {};
 class SecWordBlock : public SecBlock<word> {};
 //! \class AlignedSecByteBlock
 //! \brief SecBlock using \ref AllocatorWithCleanup "AllocatorWithCleanup<byte, true>" typedef
-class AlignedSecByteBlock SecBlock<byte, AllocatorWithCleanup<byte, true> > {};
+class AlignedSecByteBlock : public SecBlock<byte, AllocatorWithCleanup<byte, true> > {};
 #else
 typedef SecBlock<byte> SecByteBlock;
 typedef SecBlock<word> SecWordBlock;
