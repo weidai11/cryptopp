@@ -151,13 +151,13 @@ struct CompileAssert
 
 // ************** misc classes ***************
 
-#if !CRYPTOPP_DOXYGEN_PROCESSING
-//! \brief An Emptry class
+//! \brief An Empty class
 //! \details The Empty class can be used as a template parameter <tt>BASE</tt> when no base class exists.
 class CRYPTOPP_DLL Empty
 {
 };
 
+#if !CRYPTOPP_DOXYGEN_PROCESSING
 template <class BASE1, class BASE2>
 class CRYPTOPP_NO_VTABLE TwoBases : public BASE1, public BASE2
 {
@@ -2077,6 +2077,7 @@ T StringToWord(const std::string &str, ByteOrder order = BIG_ENDIAN_ORDER)
 //! \details SafeShifter safely shifts values when undefined behavior could occur under C/C++ rules.
 //!   The class behaves much like a saturating arithmetic class, clamping values rather than allowing
 //!   the compiler to remove undefined behavior.
+//! \sa SafeShifter<true>, SafeShifter<false>
 template <bool overflow> struct SafeShifter;
 
 //! \class SafeShifter<true>
