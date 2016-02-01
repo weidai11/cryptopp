@@ -929,13 +929,14 @@ public:
 	//!   size is the requested size of the buffer. When the call returns, size is the size of
 	//!   the array returned to the caller.
 	//! \details The base class implementation sets  size to 0 and returns  NULL.
-	//! \note Some objects, like ArraySink, cannot create a space because its fixed. In the case of
+	//! \note Some objects, like ArraySink, cannot create a space because its fixed.
 	virtual byte * CreateUpdateSpace(size_t &size) {size=0; return NULL;}
 
 	//! \brief Computes the hash of the current message
 	//! \param digest a pointer to the buffer to receive the hash
-	//! \details digest must be equal to (or greater than) DigestSize(). Final() restarts the
-	//!   hash for a new message.
+	//! \details Final() restarts the hash for a new message.
+	//! \pre <tt>COUNTOF(digest) == DigestSize()</tt> or <tt>COUNTOF(digest) == HASH::DIGESTSIZE</tt> ensures
+	//!   the output byte buffer is large enough for the digest.
 	virtual void Final(byte *digest)
 		{TruncatedFinal(digest, DigestSize());}
 
@@ -946,7 +947,6 @@ public:
 
 	//! Provides the digest size of the hash
 	//! \return the digest size of the hash.
-	//! \details Calls to Final() require a buffer that is equal to (or greater than) DigestSize().
 	virtual unsigned int DigestSize() const =0;
 
 	//! Provides the tag size of the hash
@@ -963,7 +963,7 @@ public:
 	//! \brief Provides the input block size most efficient for this hash.
 	//! \return The input block size that is most efficient for the cipher
 	//! \details The base class implementation returns MandatoryBlockSize().
-	//! \note Optimal input length is
+	//! \details Optimal input length is
 	//!   <tt>n * OptimalBlockSize() - GetOptimalBlockSizeUsed()</tt> for any <tt>n \> 0</tt>.
 	virtual unsigned int OptimalBlockSize() const {return 1;}
 
@@ -977,7 +977,9 @@ public:
 	//! \param length the size of the buffer, in bytes
 	//! \details Use this if your input is in one piece and you don't want to call Update()
 	//!   and Final() separately
-	//! \details CalculateDigest() restarts the hash for the next nmessage.
+	//! \details CalculateDigest() restarts the hash for the next message.
+	//! \pre <tt>COUNTOF(digest) == DigestSize()</tt> or <tt>COUNTOF(digest) == HASH::DIGESTSIZE</tt> ensures
+	//!   the output byte buffer is large enough for the digest.
 	virtual void CalculateDigest(byte *digest, const byte *input, size_t length)
 		{Update(input, length); Final(digest);}
 	
@@ -985,10 +987,11 @@ public:
 	//! \param digest a pointer to the buffer of an \a existing hash
 	//! \return \p true if the existing hash matches the computed hash, \p false otherwise
 	//! \throws ThrowIfInvalidTruncatedSize() if the existing hash's size exceeds DigestSize()
-	//! \details Calls to Verify() require a buffer that is equal to (or greater than) DigestSize().
 	//! \details Verify() performs a bitwise compare on the buffers using VerifyBufsEqual(), which is
 	//!   a constant time comparison function. digestLength cannot exceed DigestSize().
-	//! \details Verify() restarts the hash for the next nmessage.
+	//! \details Verify() restarts the hash for the next message.
+	//! \pre <tt>COUNTOF(digest) == DigestSize()</tt> or <tt>COUNTOF(digest) == HASH::DIGESTSIZE</tt> ensures
+	//!   the output byte buffer is large enough for the digest.
 	virtual bool Verify(const byte *digest)
 		{return TruncatedVerify(digest, DigestSize());}
 
@@ -1002,7 +1005,9 @@ public:
 	//!   and Verify() separately
 	//! \details VerifyDigest() performs a bitwise compare on the buffers using VerifyBufsEqual(),
 	//!   which is a constant time comparison function. digestLength cannot exceed DigestSize().
-	//! \details VerifyDigest() restarts the hash for the next nmessage.
+	//! \details VerifyDigest() restarts the hash for the next message.
+	//! \pre <tt>COUNTOF(digest) == DigestSize()</tt> or <tt>COUNTOF(digest) == HASH::DIGESTSIZE</tt> ensures
+	//!   the output byte buffer is large enough for the digest.
 	virtual bool VerifyDigest(const byte *digest, const byte *input, size_t length)
 		{Update(input, length); return Verify(digest);}
 
@@ -1011,6 +1016,8 @@ public:
 	//! \param digestSize the size of the truncated digest, in bytes
 	//! \details TruncatedFinal() call Final() and then copies digestSize bytes to digest
 	//! \details TruncatedFinal() restarts the hash for the next message.
+	//! \pre <tt>COUNTOF(digest) == DigestSize()</tt> or <tt>COUNTOF(digest) == HASH::DIGESTSIZE</tt> ensures
+	//!   the output byte buffer is large enough for the digest.
 	virtual void TruncatedFinal(byte *digest, size_t digestSize) =0;
 
 	//! \brief Updates the hash with additional input and computes the hash of the current message
@@ -1020,7 +1027,9 @@ public:
 	//! \param length the size of the buffer, in bytes
 	//! \details Use this if your input is in one piece and you don't want to call Update()
 	//!   and CalculateDigest() separately.
-	//! \details CalculateTruncatedDigest() restarts the hash for the next nmessage.
+	//! \details CalculateTruncatedDigest() restarts the hash for the next message.
+	//! \pre <tt>COUNTOF(digest) == DigestSize()</tt> or <tt>COUNTOF(digest) == HASH::DIGESTSIZE</tt> ensures
+	//!   the output byte buffer is large enough for the digest.
 	virtual void CalculateTruncatedDigest(byte *digest, size_t digestSize, const byte *input, size_t length)
 		{Update(input, length); TruncatedFinal(digest, digestSize);}
 
@@ -1033,7 +1042,7 @@ public:
 	//!   buffer smaller than DigestSize(). However, digestLength cannot exceed DigestSize().
 	//! \details Verify() performs a bitwise compare on the buffers using VerifyBufsEqual(), which is
 	//!   a constant time comparison function. digestLength cannot exceed DigestSize().
-	//! \details TruncatedVerify() restarts the hash for the next nmessage.
+	//! \details TruncatedVerify() restarts the hash for the next message.
 	virtual bool TruncatedVerify(const byte *digest, size_t digestLength);
 
 	//! \brief Updates the hash with additional input and verifies the hash of the current message
@@ -1047,7 +1056,9 @@ public:
 	//!   and TruncatedVerify() separately.
 	//! \details VerifyTruncatedDigest() is a truncated version of VerifyDigest(). It can operate
 	//!   on a buffer smaller than DigestSize(). However, digestLength cannot exceed DigestSize().
-	//! \details VerifyTruncatedDigest() restarts the hash for the next nmessage.
+	//! \details VerifyTruncatedDigest() restarts the hash for the next message.
+	//! \pre <tt>COUNTOF(digest) == DigestSize()</tt> or <tt>COUNTOF(digest) == HASH::DIGESTSIZE</tt> ensures
+	//!   the output byte buffer is large enough for the digest.
 	virtual bool VerifyTruncatedDigest(const byte *digest, size_t digestLength, const byte *input, size_t length)
 		{Update(input, length); return TruncatedVerify(digest, digestLength);}
 
