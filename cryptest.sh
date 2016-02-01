@@ -181,25 +181,38 @@ fi
 
 # CPU is logical count, memory is in MB. Low resource boards have
 #   fewer than 4 cores and 1GB or less memory. We use this to
-#   determine if we can build in parallel without a OOM kill.
-CPU=1
-MEM=1024
+#   determine if we can build in parallel without an OOM kill.
+CPU_COUNT=1
+MEM_SIZE=1024
 
 if [ "$IS_DARWIN" -ne "0" ]; then
-	CPU=$(sysctl -a | grep 'hw.availcpu' | head -1 | awk '{print $3}')
-	MEM=$(sysctl -a | grep 'hw.memsize' | head -1 | awk '{print $3}')
-	MEM=$(($MEM/1024/1024))
+	CPU_COUNT=$(sysctl -a | grep 'hw.availcpu' | head -1 | awk '{print $3}')
+	MEM_SIZE=$(sysctl -a | grep 'hw.memsize' | head -1 | awk '{print $3}')
+	MEM_SIZE=$(($MEM_SIZE/1024/1024))
 fi
 if [ "$IS_LINUX" -ne "0" ]; then
-	CPU=$(cat /proc/cpuinfo | grep -c '^processor')
-	MEM=$(cat /proc/meminfo | grep "MemTotal" | awk '{print $2}')
-	MEM=$(($MEM/1024))
+	CPU_COUNT=$(cat /proc/cpuinfo | grep -c '^processor')
+	MEM_SIZE=$(cat /proc/meminfo | grep "MemTotal" | awk '{print $2}')
+	MEM_SIZE=$(($MEM_SIZE/1024))
 fi
 
-echo "CPU: $CPU logical, MEM: $MEM MB"
+# Benchmarks expect frequency in GHz.
+CPU_FREQ=2.0
+if [ "$IS_LINUX" -ne "0" ]; then
+	CPU_FREQ=$(cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq)
+	CPU_FREQ=$(awk "BEGIN {print $CPU_FREQ/1024/1024}")
+fi
+if [ "$IS_DARWIN" -ne "0" ]; then
+	CPU_FREQ=$(sysctl -a | grep 'hw.cpufrequency' | head -1 | awk '{print $3}')
+	CPU_FREQ=$(awk "BEGIN {print $CPU_FREQ/1024/1024/1024}")
+fi
 
-if [ "$CPU" -ge "2" ] && [ "$MEM" -ge "2048" ]; then
-    MAKEARGS=(-j "$CPU")
+echo "CPU: $CPU_COUNT logical"
+echo "FREQ: $CPU_FREQ GHz"
+echo "MEM: $MEM_SIZE MB"
+
+if [ "$CPU_COUNT" -ge "2" ] && [ "$MEM_SIZE" -ge "1280" ]; then
+    MAKEARGS=(-j "$CPU_COUNT")
 fi
 
 ############################################
@@ -948,7 +961,7 @@ if [ "$HAVE_CXX03" -ne "0" ] && [ "$HAVE_ASAN" -ne "0" ]; then
 	rm -f adhoc.cpp > /dev/null 2>&1
 
 	export CXXFLAGS="-DDEBUG -g2 -O1 -std=c++03 $ADD_CXXFLAGS"
-	"$MAKE" "${MAKEARGS[@]}" asan | tee -a "$TEST_RESULTS"
+	"$MAKE" "${MAKEARGS[@]}" asan | asan_symbolize | tee -a "$TEST_RESULTS"
 
 	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -977,7 +990,7 @@ if [ "$HAVE_CXX03" -ne "0" ] && [ "$HAVE_ASAN" -ne "0" ]; then
 	rm -f adhoc.cpp > /dev/null 2>&1
 
 	export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++03 $ADD_CXXFLAGS"
-	"$MAKE" "${MAKEARGS[@]}" asan | tee -a "$TEST_RESULTS"
+	"$MAKE" "${MAKEARGS[@]}" asan | asan_symbolize | tee -a "$TEST_RESULTS"
 
 	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1034,7 +1047,7 @@ if [ "$HAVE_CXX11" -ne "0" ] && [ "$HAVE_ASAN" -ne "0" ]; then
 	rm -f adhoc.cpp > /dev/null 2>&1
 
 	export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 $ADD_CXXFLAGS"
-	"$MAKE" "${MAKEARGS[@]}" asan | tee -a "$TEST_RESULTS"
+	"$MAKE" "${MAKEARGS[@]}" asan | asan_symbolize | tee -a "$TEST_RESULTS"
 
 	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1411,7 +1424,7 @@ if [ "$HAVE_CXX03" -ne "0" ]; then
 	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	else
-		./cryptest.exe b 1 2.4+1e9 2>&1 | tee -a "$BENCHMARK_RESULTS"
+		./cryptest.exe b 1 "$CPU_FREQ" 2>&1 | tee -a "$BENCHMARK_RESULTS"
 		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 			echo "ERROR: failed to execute benchmarks" | tee -a "$BENCHMARK_RESULTS"
 		fi
@@ -1436,7 +1449,7 @@ if [ "$HAVE_CXX11" -ne "0" ]; then
 	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	else
-		./cryptest.exe b 1 2.4+1e9 2>&1 | tee -a "$BENCHMARK_RESULTS"
+		./cryptest.exe b 1 "$CPU_FREQ" 2>&1 | tee -a "$BENCHMARK_RESULTS"
 		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 			echo "ERROR: failed to execute benchmarks" | tee -a "$BENCHMARK_RESULTS"
 		fi
