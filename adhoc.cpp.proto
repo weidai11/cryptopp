@@ -13,7 +13,6 @@ USING_NAMESPACE(CryptoPP)
 USING_NAMESPACE(std)
 
 // Used for testing the compiler and linker in cryptest.sh
-
 #if defined(CRYPTOPP_ADHOC_MAIN)
 
 int main(int argc, char *argv[])
