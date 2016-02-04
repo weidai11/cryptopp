@@ -225,7 +225,7 @@ struct DL_Keys_EC
 #endif
 };
 
-template <class EC, class H>
+template <class EC, class H, bool useDetK = false>
 struct ECDSA;
 
 //! ECDSA keys
@@ -241,8 +241,8 @@ struct DL_Keys_ECDSA
 };
 
 //! ECDSA algorithm
-template <class EC>
-class DL_Algorithm_ECDSA : public DL_Algorithm_GDSA<typename EC::Point>
+template <class EC, class H, bool useDetK = false>
+class DL_Algorithm_ECDSA : public DL_Algorithm_GDSA<typename EC::Point, H, useDetK>
 {
 public:
 	static const char * CRYPTOPP_API StaticAlgorithmName() {return "ECDSA";}
@@ -265,8 +265,8 @@ public:
 };
 
 //! <a href="http://www.weidai.com/scan-mirror/sig.html#ECDSA">ECDSA</a>
-template <class EC, class H>
-struct ECDSA : public DL_SS<DL_Keys_ECDSA<EC>, DL_Algorithm_ECDSA<EC>, DL_SignatureMessageEncodingMethod_DSA, H>
+template <class EC, class H, bool useDetK>
+struct ECDSA : public DL_SS<DL_Keys_ECDSA<EC>, DL_Algorithm_ECDSA<EC, H, useDetK>, DL_SignatureMessageEncodingMethod_DSA, H>
 {
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~ECDSA() {}
@@ -327,8 +327,10 @@ CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKeyImpl<DL_GroupParameters_EC<ECP> >;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKeyImpl<DL_GroupParameters_EC<EC2N> >;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_EC<ECP>;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_EC<EC2N>;
-CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_GDSA<ECP::Point>;
-CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_GDSA<EC2N::Point>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_GDSA<ECP::Point, SHA256, false>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_GDSA<ECP::Point, SHA256, true>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_GDSA<EC2N::Point, SHA256, false>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_GDSA<EC2N::Point, SHA256, true>;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_WithSignaturePairwiseConsistencyTest<DL_PrivateKey_EC<ECP>, ECDSA<ECP, SHA256> >;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_WithSignaturePairwiseConsistencyTest<DL_PrivateKey_EC<EC2N>, ECDSA<EC2N, SHA256> >;
 

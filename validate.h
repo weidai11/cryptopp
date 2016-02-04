@@ -83,6 +83,7 @@ bool ValidateXTR_DH();
 bool ValidateRabin();
 bool ValidateRW();
 //bool ValidateBlumGoldwasser();
+bool ValidateRFC6979();
 bool ValidateECP();
 bool ValidateEC2N();
 bool ValidateECDSA();

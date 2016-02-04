@@ -181,7 +181,7 @@ protected:
 };
 
 //! GDSA algorithm
-template <class T>
+template <class T, class H, bool useDetK>
 class DL_Algorithm_GDSA : public DL_ElgamalLikeSignatureAlgorithm<T>
 {
 public:
@@ -209,12 +209,150 @@ public:
 		return r == params.ConvertElementToInteger(publicKey.CascadeExponentiateBaseAndPublicElement(u1, u2)) % q;
 	}
 
+	bool UseDeterministicK() const
+	{ 
+		return useDetK;
+	}
+
+	// Creates a k-value based on RFC 6979. Uses the message to hash and its size,
+	// the curve order and its bit length, and a private key. Returns true to
+	// indicate that the returned k-value is valid.
+	const bool getDetKVal(const byte* hmsg, const size_t& hmsgSize,
+	                      const Integer& cord, const size_t& cordBits,
+	                      const Integer& pk, Integer& kVal) const
+	{
+		// After doing the initial setup, get the msg hash and work towards the final
+		// k value, per the spec.
+		SecByteBlock zeroByte(1);
+		SecByteBlock oneByte(1);
+		memset(zeroByte, '\x00', 1);
+		memset(oneByte, '\x01', 1);
+
+		size_t cordBytes = (cordBits + 7) / 8;
+		SecByteBlock hkey(H::DIGESTSIZE);
+		memset(hkey, '\x00', H::DIGESTSIZE);
+		K.SetKey(hkey, hkey.size());
+		SecByteBlock msgHash(K.DIGESTSIZE);
+		SecByteBlock V(K.DIGESTSIZE);
+		SecByteBlock prvKeyBlock = int2octets(pk, (const unsigned int)cordBytes);
+		memset(V, '\x01', K.DIGESTSIZE);
+		hashFunct.CalculateDigest(msgHash, hmsg, hmsgSize);
+
+		SecByteBlock octetMsg = bits2octets(msgHash, cord, cordBits);
+		SecByteBlock hmacInput1 = V + zeroByte + prvKeyBlock + octetMsg;
+		K.CalculateDigest(hkey, hmacInput1, hmacInput1.size());
+
+		K.SetKey(hkey, hkey.size());
+		K.CalculateDigest(V, V, V.size());
+
+		SecByteBlock hmacInput2 = V + oneByte + prvKeyBlock + octetMsg;
+		K.CalculateDigest(hkey, hmacInput2, hmacInput2.size());
+
+		K.SetKey(hkey, hkey.size());
+		K.CalculateDigest(V, V, V.size());
+
+		Integer retVal;
+		for(bool done = false; done != true; )
+		{
+			SecByteBlock b2iData;
+			for(size_t s = 0; s < cordBytes; s += hkey.size())
+			{
+				K.CalculateDigest(V, V, V.size());
+				b2iData += V;
+			}
+
+			// Odds of failure are practically nil but we must play it safe.
+			Integer b2i = bits2int(b2iData, (const unsigned int)cordBits);
+			if(b2i >= Integer::One() && b2i < cord)
+			{
+				retVal = b2i;
+				done = true;
+			}
+			else
+			{
+				SecByteBlock newHMACInput = V + zeroByte;
+				K.CalculateDigest(hkey, newHMACInput, newHMACInput.size());
+
+				K.SetKey(hkey, hkey.size());
+				K.CalculateDigest(V, V, V.size());
+			}
+		}
+		// Before running the k-val, hash & HMAC functs need to be cleared.
+		// CalculateDigest() does this every time, though, so we're good.
+		kVal = retVal;
+		return true;
+	}
+
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~DL_Algorithm_GDSA() {}
 #endif
+
+protected:
+	// RFC 6979 support function. Takes a set of bits, takes the most significant
+	// bytes (subject to a given bit limit), and turns them into an integer.
+	Integer bits2int(const SecByteBlock& bits, const unsigned int& qlen) const
+	{
+		Integer retVal(bits, bits.size());
+		if((retVal.ByteCount() * 8) > qlen)
+		{
+			retVal >>= ((retVal.ByteCount() * 8) - qlen);
+		}
+	
+		return retVal;
+	}
+
+	// RFC 6979 support function. Takes an integer and converts it into bytes that
+	// are the same length as an elliptic curve's order.
+	SecByteBlock int2octets(const Integer& val, const unsigned int& rlenBytes) const
+	{
+		SecByteBlock octetBlock(val.ByteCount());
+		val.Encode(octetBlock, val.ByteCount());
+		SecByteBlock retVal = octetBlock;
+
+		// The least significant bytes are the ones we need to preserve.
+		if(octetBlock.size() > rlenBytes)
+		{
+			SecByteBlock octetBlock1(rlenBytes);
+			size_t offset = octetBlock.size() - rlenBytes;
+			memcpy(octetBlock1, octetBlock + offset, rlenBytes);
+			retVal = octetBlock1;
+		}
+		else if(octetBlock.size() < rlenBytes)
+		{
+			SecByteBlock octetBlock2(rlenBytes);
+			memset(octetBlock2, '\x00', rlenBytes);
+			size_t offset = rlenBytes - octetBlock.size();
+			memcpy(octetBlock2 + offset, octetBlock, rlenBytes - offset);
+			retVal = octetBlock2;
+		}
+
+		return retVal;
+	}
+
+	// Turn a stream of bits into a set of bytes with the same length as an elliptic
+	// curve's order.
+	SecByteBlock bits2octets(const SecByteBlock& inData, const Integer& curveOrder,
+	                        const size_t& curveOrderNumBits) const
+	{
+		Integer bintTemp = bits2int(inData, (const unsigned int)curveOrderNumBits);
+		Integer bint = bintTemp - curveOrder;
+		return int2octets(bint.IsNegative() ? bintTemp : bint,
+		                  curveOrder.ByteCount());	
+	}
+
+	// Get() returns const ref
+	const H& GetHash() const { return const_cast<const H&>(hashFunct); }
+	const HMAC<H>& GetHMAC() const { return const_cast<const HMAC<H>&>(K); }
+	// Access() returns non-const ref
+	H& AccessHash() { return hashFunct; }
+	HMAC<H>& AccessHMAC() { return K; }
+private:
+	mutable H hashFunct;
+	mutable HMAC<H> K;
 };
 
-CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_GDSA<Integer>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_GDSA<Integer, SHA256, false>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_GDSA<Integer, SHA256, true>;
 
 //! NR algorithm
 template <class T>
@@ -406,10 +544,10 @@ public:
 };
 
 //! <a href="http://www.weidai.com/scan-mirror/sig.html#DSA-1363">DSA-1363</a>
-template <class H>
+template <class H, bool useDetK = false>
 struct GDSA : public DL_SS<
 	DL_SignatureKeys_GFP, 
-	DL_Algorithm_GDSA<Integer>, 
+	DL_Algorithm_GDSA<Integer, H, useDetK>, 
 	DL_SignatureMessageEncodingMethod_DSA,
 	H>
 {
@@ -451,7 +589,7 @@ public:
 #endif
 };
 
-template <class H>
+template <class H, bool useDetK = false>
 class DSA2;
 
 //! DSA keys
@@ -467,13 +605,13 @@ struct DL_Keys_DSA
 
 //! <a href="http://en.wikipedia.org/wiki/Digital_Signature_Algorithm">DSA</a>, as specified in FIPS 186-3
 // class named DSA2 instead of DSA for backwards compatibility (DSA was a non-template class)
-template <class H>
+template <class H, bool useDetK>
 class DSA2 : public DL_SS<
 	DL_Keys_DSA, 
-	DL_Algorithm_GDSA<Integer>, 
+	DL_Algorithm_GDSA<Integer, H, useDetK>, 
 	DL_SignatureMessageEncodingMethod_DSA,
 	H, 
-	DSA2<H> >
+	DSA2<H, useDetK> >
 {
 public:
 	static std::string CRYPTOPP_API StaticAlgorithmName() {return "DSA/" + (std::string)H::StaticAlgorithmName();}

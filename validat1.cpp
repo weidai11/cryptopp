@@ -161,6 +161,7 @@ bool ValidateAll(bool thorough)
 	pass=ValidateRabin() && pass;
 	pass=ValidateRW() && pass;
 //	pass=ValidateBlumGoldwasser() && pass;
+	pass=ValidateRFC6979() && pass;
 	pass=ValidateECP() && pass;
 	pass=ValidateEC2N() && pass;
 	pass=ValidateECDSA() && pass;
