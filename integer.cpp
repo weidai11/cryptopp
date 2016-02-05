@@ -2874,7 +2874,7 @@ signed long Integer::ConvertToLong() const
 Integer::Integer(BufferedTransformation &encodedInteger, size_t byteCount, Signedness s, ByteOrder o)
 {
 	assert(o == BIG_ENDIAN_ORDER || o == LITTLE_ENDIAN_ORDER);
-    
+
 	if(o == LITTLE_ENDIAN_ORDER)
 	{
 		SecByteBlock block(byteCount);
@@ -2884,23 +2884,27 @@ Integer::Integer(BufferedTransformation &encodedInteger, size_t byteCount, Signe
 		Decode(block.begin(), block.size(), s);
 		return;
 	}
-    
+
 	Decode(encodedInteger, byteCount, s);
 }
 
 Integer::Integer(const byte *encodedInteger, size_t byteCount, Signedness s, ByteOrder o)
 {
 	assert(o == BIG_ENDIAN_ORDER || o == LITTLE_ENDIAN_ORDER);
-    
+
 	if(o == LITTLE_ENDIAN_ORDER)
 	{
 		SecByteBlock block(byteCount);
+#if (CRYPTOPP_MSC_VERSION >= 1500)
+		std::reverse_copy(encodedInteger, encodedInteger+byteCount, 
+			stdext::make_checked_array_iterator(block.begin(), block.size()));
+#else
 		std::reverse_copy(encodedInteger, encodedInteger+byteCount, block.begin());
-        
+#endif
 		Decode(block.begin(), block.size(), s);
 		return;
 	}
-	
+
 	Decode(encodedInteger, byteCount, s);
 }
 
