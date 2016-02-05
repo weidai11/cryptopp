@@ -180,8 +180,8 @@ CPU_COUNT=1
 MEM_SIZE=1024
 
 if [ "$IS_DARWIN" -ne "0" ]; then
-	CPU_COUNT=$(sysctl -a | grep 'hw.availcpu' | head -1 | awk '{print $3}')
-	MEM_SIZE=$(sysctl -a | grep 'hw.memsize' | head -1 | awk '{print $3}')
+	CPU_COUNT=$(sysctl -a 2>/dev/null | grep 'hw.availcpu' | head -1 | awk '{print $3}')
+	MEM_SIZE=$(sysctl -a 2>/dev/null | grep 'hw.memsize' | head -1 | awk '{print $3}')
 	MEM_SIZE=$(($MEM_SIZE/1024/1024))
 fi
 if [ "$IS_LINUX" -ne "0" ]; then
@@ -197,7 +197,7 @@ if [ "$IS_LINUX" -ne "0" ] && [ -e "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo
 	CPU_FREQ=$(awk "BEGIN {print $CPU_FREQ/1024/1024}")
 fi
 if [ "$IS_DARWIN" -ne "0" ]; then
-	CPU_FREQ=$(sysctl -a | grep 'hw.cpufrequency' | head -1 | awk '{print $3}')
+	CPU_FREQ=$(sysctl -a 2>/dev/null | grep 'hw.cpufrequency' | head -1 | awk '{print $3}')
 	CPU_FREQ=$(awk "BEGIN {print $CPU_FREQ/1024/1024/1024}")
 fi
 
@@ -1769,7 +1769,39 @@ if [ "$IS_CYGWIN" -eq "0" ] && [ "$IS_MINGW" -eq "0" ]; then
 			echo "ERROR: failed to provide help" | tee -a "$INSTALL_RESULTS"
 		fi
 
+		# Restore original PWD
 		cd "$OLD_DIR"
+	fi
+fi
+
+############################################
+# Test a remove with CRYPTOPP_DATA_DIR
+if [ "$IS_CYGWIN" -eq "0" ] && [ "$IS_MINGW" -eq "0" ]; then
+
+	echo
+	echo "************************************" | tee -a "$INSTALL_RESULTS"
+	echo "Testing: Test remove with data directory" | tee -a "$INSTALL_RESULTS"
+	echo
+
+	"$MAKE" "${MAKEARGS[@]}" remove PREFIX="$INSTALL_DIR" 2>&1 | tee -a "$INSTALL_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to make remove" | tee -a "$INSTALL_RESULTS"
+	else
+		# Test for complete removal
+		if [ -d "$INSTALL_DIR/include/cryptopp" ]; then
+			echo "ERROR: failed to remove cryptopp include directory" | tee -a "$INSTALL_RESULTS"
+		fi
+		if [ -e "$INSTALL_DIR/bin/cryptest.exe" ]; then
+			echo "ERROR: failed to remove cryptest.exe program" | tee -a "$INSTALL_RESULTS"
+		fi
+		if [ -e "$INSTALL_DIR/lib/libcryptopp.a" ]; then
+			echo "ERROR: failed to remove libcryptopp.a static library" | tee -a "$INSTALL_RESULTS"
+		fi
+		if [ "$IS_DARWIN" -ne "0" ] && [ -e "$INSTALL_DIR/lib/libcryptopp.dylib" ]; then
+			echo "ERROR: failed to remove libcryptopp.dylib dynamic library" | tee -a "$INSTALL_RESULTS"
+		elif [ -e "$INSTALL_DIR/lib/libcryptopp.so" ]; then
+			echo "ERROR: failed to remove libcryptopp.so dynamic library" | tee -a "$INSTALL_RESULTS"
+		fi
 	fi
 fi
 
@@ -1778,6 +1810,7 @@ fi
 
 TEST_END=$(date)
 
+echo
 echo "************************************************" | tee -a "$TEST_RESULTS"
 echo "************************************************" | tee -a "$TEST_RESULTS"
 echo | tee -a "$TEST_RESULTS"
