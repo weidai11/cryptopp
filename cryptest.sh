@@ -1791,6 +1791,15 @@ if [ "$IS_CYGWIN" -eq "0" ] && [ "$IS_MINGW" -eq "0" ]; then
 		if [ -d "$INSTALL_DIR/include/cryptopp" ]; then
 			echo "ERROR: failed to remove cryptopp include directory" | tee -a "$INSTALL_RESULTS"
 		fi
+		if [ -d "$INSTALL_DIR/share/cryptopp" ]; then
+			echo "ERROR: failed to remove cryptopp share directory" | tee -a "$INSTALL_RESULTS"
+		fi
+		if [ -d "$INSTALL_DIR/share/cryptopp/TestData" ]; then
+			echo "ERROR: failed to remove cryptopp test data directory" | tee -a "$INSTALL_RESULTS"
+		fi
+		if [ -d "$INSTALL_DIR/share/cryptopp/TestVector" ]; then
+			echo "ERROR: failed to remove cryptopp test vector directory" | tee -a "$INSTALL_RESULTS"
+		fi
 		if [ -e "$INSTALL_DIR/bin/cryptest.exe" ]; then
 			echo "ERROR: failed to remove cryptest.exe program" | tee -a "$INSTALL_RESULTS"
 		fi
