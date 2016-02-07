@@ -85,9 +85,15 @@ using namespace rdtable;
 static word64 Te[256];
 # endif
 static word64 Td[256];
-#else
-static word32 Te[256*4], Td[256*4];
-#endif
+#else // Not CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
+# if defined(CRYPTOPP_X64_MASM_AVAILABLE)
+// Unused; avoids linker error on Microsoft X64 non-AESNI platforms
+namespace rdtable {CRYPTOPP_ALIGN_DATA(16) word64 Te[256+2];}
+# endif
+static CRYPTOPP_ALIGN_DATA(16) word32 Te[256*4];
+static CRYPTOPP_ALIGN_DATA(16) word32 Td[256*4];
+#endif // CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
+
 static volatile bool s_TeFilled = false, s_TdFilled = false;
 
 // ************************* Portable Code ************************************
