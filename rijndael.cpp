@@ -1232,13 +1232,12 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 			size_t regSpill, lengthAndCounterFlag, keysBegin;
 		};
 
-		size_t increment = BLOCKSIZE;
 		const byte* zeros = (byte *)(Te+256);
-		byte *space;
+		byte *space = NULL;
 
 		do {
+#if (CRYPTOPP_MSC_VERSION >= 1400)
 			// https://msdn.microsoft.com/en-us/library/5471dc8s.aspx
-#if (CRYPTOPP_MSC_VERION >= 1400)
 			space = (byte *)_malloca(255+sizeof(Locals));
 			space += (256-(size_t)space%256)%256;
 #else
@@ -1248,6 +1247,7 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 		}
 		while (AliasedWithTable(space, space+sizeof(Locals)));
 
+		size_t increment = BLOCKSIZE;
 		if (flags & BT_ReverseDirection)
 		{
 			assert(length % BLOCKSIZE == 0);
@@ -1274,6 +1274,11 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 		locals.keysBegin = (12-keysToCopy)*16;
 
 		Rijndael_Enc_AdvancedProcessBlocks(&locals, m_key);
+
+#if (CRYPTOPP_MSC_VERSION >= 1400)
+		_freea(space);
+#endif
+
 		return length % BLOCKSIZE;
 	}
 #endif
