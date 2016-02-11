@@ -45,6 +45,7 @@ IS_OPENBSD=$(uname -s | grep -i -c openbsd)
 IS_X86=$(uname -m | egrep -i -c "(i386|i586|i686|amd64|x86_64)")
 IS_X64=$(uname -m | egrep -i -c "(amd64|x86_64)")
 IS_PPC=$(uname -m | egrep -i -c "(Power|PPC)")
+IS_ARM=$(uname -m | egrep -i -c "arm")
 
 # We need to use the C++ compiler to determine if c++11 is available. Otherwise
 #   a mis-detection occurs on Mac OS X 10.9 and above. Below, we use the same
@@ -179,15 +180,14 @@ fi
 CPU_COUNT=1
 MEM_SIZE=1024
 
-if [ "$IS_DARWIN" -ne "0" ]; then
-	CPU_COUNT=$(sysctl -a 2>/dev/null | grep 'hw.availcpu' | head -1 | awk '{print $3}')
-	MEM_SIZE=$(sysctl -a 2>/dev/null | grep 'hw.memsize' | head -1 | awk '{print $3}')
-	MEM_SIZE=$(($MEM_SIZE/1024/1024))
-fi
 if [ "$IS_LINUX" -ne "0" ]; then
 	CPU_COUNT=$(cat /proc/cpuinfo | grep -c '^processor')
 	MEM_SIZE=$(cat /proc/meminfo | grep "MemTotal" | awk '{print $2}')
 	MEM_SIZE=$(($MEM_SIZE/1024))
+elif [ "$IS_DARWIN" -ne "0" ]; then
+	CPU_COUNT=$(sysctl -a 2>/dev/null | grep 'hw.availcpu' | head -1 | awk '{print $3}')
+	MEM_SIZE=$(sysctl -a 2>/dev/null | grep 'hw.memsize' | head -1 | awk '{print $3}')
+	MEM_SIZE=$(($MEM_SIZE/1024/1024))
 fi
 
 # Benchmarks expect frequency in GHz.
@@ -195,10 +195,19 @@ CPU_FREQ=2.0
 if [ "$IS_LINUX" -ne "0" ] && [ -e "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq" ]; then
 	CPU_FREQ=$(cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq)
 	CPU_FREQ=$(awk "BEGIN {print $CPU_FREQ/1024/1024}")
-fi
-if [ "$IS_DARWIN" -ne "0" ]; then
+elif [ "$IS_DARWIN" -ne "0" ]; then
 	CPU_FREQ=$(sysctl -a 2>/dev/null | grep 'hw.cpufrequency' | head -1 | awk '{print $3}')
 	CPU_FREQ=$(awk "BEGIN {print $CPU_FREQ/1024/1024/1024}")
+fi
+
+# Some ARM devboards cannot use 'make -j N', even with multiple cores and RAM
+#  An 8-core Cubietruck Plus with 2GB RAM experiences OOM kills with '-j 2'.
+HAVE_SWAP=1
+if [ "$IS_ARM" -ne "0" ]; then
+	SWAP_SIZE=$(cat /proc/meminfo | grep "SwapTotal" | awk '{print $2}')
+	if [ "$SWAP_SIZE" -eq "0" ]; then
+		HAVE_SWAP=0
+	fi
 fi
 
 echo | tee -a "$TEST_RESULTS"
@@ -206,8 +215,9 @@ echo "CPU: $CPU_COUNT logical" | tee -a "$TEST_RESULTS"
 echo "FREQ: $CPU_FREQ GHz" | tee -a "$TEST_RESULTS"
 echo "MEM: $MEM_SIZE MB" | tee -a "$TEST_RESULTS"
 
-if [ "$CPU_COUNT" -ge "2" ] && [ "$MEM_SIZE" -ge "1280" ]; then
-    MAKEARGS=(-j "$CPU_COUNT")
+if [ "$CPU_COUNT" -ge "2" ] && [ "$MEM_SIZE" -ge "1280" ] && [ "$HAVE_SWAP" -ne "0" ]; then
+	MAKEARGS=(-j "$CPU_COUNT")
+	echo "Using $MAKE -j $CPU_COUNT"
 fi
 
 ############################################
