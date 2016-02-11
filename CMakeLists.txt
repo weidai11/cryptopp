@@ -132,8 +132,8 @@ if(BUILD_TESTING)
 	add_executable(cryptest $<TARGET_OBJECTS:cryptest-object>)
 	target_link_libraries(cryptest cryptopp-static)
 
-	file(COPY ${CMAKE_SOURCE_DIR}/TestData DESTINATION ${PROJECT_BINARY_DIR})
-	file(COPY ${CMAKE_SOURCE_DIR}/TestVectors DESTINATION ${PROJECT_BINARY_DIR})
+	file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/TestData DESTINATION ${PROJECT_BINARY_DIR})
+	file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/TestVectors DESTINATION ${PROJECT_BINARY_DIR})
 
 	add_test(NAME cryptest COMMAND $<TARGET_FILE:cryptest> v)
 endif()
@@ -144,13 +144,13 @@ endif()
 if(BUILD_DOCUMENTATION)
 	find_package(Doxygen REQUIRED)
 
-	set(in_source_DOCS_DIR "${CMAKE_SOURCE_DIR}/html-docs")
+	set(in_source_DOCS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/html-docs")
 	set(out_source_DOCS_DIR "${PROJECT_BINARY_DIR}/html-docs")
 
 	add_custom_target(docs ALL
 			COMMAND ${DOXYGEN_EXECUTABLE} Doxyfile -d CRYPTOPP_DOXYGEN_PROCESSING
-			WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-			SOURCES ${CMAKE_SOURCE_DIR}/Doxyfile
+			WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+			SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile
 			)
 
 	if(NOT ${in_source_DOCS_DIR} STREQUAL ${out_source_DOCS_DIR})
@@ -183,8 +183,8 @@ install(EXPORT ${export_name} DESTINATION "lib/cmake/cryptopp")
 # Tests
 if(BUILD_TESTING)
 	install(TARGETS cryptest DESTINATION ${CMAKE_INSTALL_BINDIR})
-	install(DIRECTORY ${CMAKE_SOURCE_DIR}/TestData DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cryptopp)
-	install(DIRECTORY ${CMAKE_SOURCE_DIR}/TestVectors DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cryptopp)
+	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/TestData DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cryptopp)
+	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/TestVectors DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cryptopp)
 endif()
 
 
