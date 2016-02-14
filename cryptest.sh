@@ -203,9 +203,13 @@ fi
 # Some ARM devboards cannot use 'make -j N', even with multiple cores and RAM
 #  An 8-core Cubietruck Plus with 2GB RAM experiences OOM kills with '-j 2'.
 HAVE_SWAP=1
-if [ "$IS_ARM" -ne "0" ]; then
-	SWAP_SIZE=$(cat /proc/meminfo | grep "SwapTotal" | awk '{print $2}')
-	if [ "$SWAP_SIZE" -eq "0" ]; then
+if [ "$IS_LINUX" -ne "0" ]; then
+	if [ -e "/proc/meminfo" ]; then
+		SWAP_SIZE=$(cat /proc/meminfo | grep "SwapTotal" | awk '{print $2}')
+		if [ "$SWAP_SIZE" -eq "0" ]; then
+			HAVE_SWAP=0
+		fi
+	else
 		HAVE_SWAP=0
 	fi
 fi
