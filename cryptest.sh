@@ -1690,7 +1690,7 @@ fi
 # This check was added after testing on Ubuntu 14.04 with Clang 3.4.
 if [ "$CXX" == "g++" ]; then
 
-	CLANG_COMPILER=$(which clang++)
+	CLANG_COMPILER=$(which clang++ 2>/dev/null)
 	"$CLANG_COMPILER" -x c++ -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o $TMP/adhoc > /dev/null 2>&1
 	if [ "$?" -eq "0" ]; then
 
@@ -1827,6 +1827,12 @@ if [ "$IS_CYGWIN" -eq "0" ] && [ "$IS_MINGW" -eq "0" ]; then
 		fi
 	fi
 fi
+
+############################################
+# Cleanup
+unset CXXFLAGS
+"$MAKE" clean > /dev/null 2>&1
+rm -f adhoc.cpp > /dev/null 2>&1
 
 ############################################
 ############################################
