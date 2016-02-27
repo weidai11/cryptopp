@@ -20,6 +20,10 @@
 #include <unistd.h>
 #endif
 
+#if defined(CRYPTOPP_MSAN)
+# include <sanitizer/msan_interface.h>
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 unsigned int WaitObjectContainer::MaxWaitObjects()
@@ -47,6 +51,10 @@ void WaitObjectContainer::Clear()
 	m_maxFd = 0;
 	FD_ZERO(&m_readfds);
 	FD_ZERO(&m_writefds);
+# ifdef CRYPTOPP_MSAN
+	__msan_unpoison(&m_readfds, sizeof(m_readfds));
+	__msan_unpoison(&m_writefds, sizeof(m_writefds));
+# endif	
 #endif
 	m_noWait = false;
 	m_firstEventTime = 0;

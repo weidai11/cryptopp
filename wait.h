@@ -18,6 +18,12 @@
 
 #include "hrtimer.h"
 
+#if defined(__has_feature)
+# if __has_feature(memory_sanitizer)
+#  define CRYPTOPP_MSAN 1
+# endif
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 class Tracer

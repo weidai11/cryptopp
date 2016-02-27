@@ -19,6 +19,10 @@
 #include <sys/ioctl.h>
 #endif
 
+#if defined(CRYPTOPP_MSAN)
+# include <sanitizer/msan_interface.h>
+#endif
+
 #ifdef PREFER_WINDOWS_STYLE_SOCKETS
 # pragma comment(lib, "ws2_32.lib")
 #endif
@@ -239,6 +243,10 @@ bool Socket::SendReady(const timeval *timeout)
 	fd_set fds;
 	FD_ZERO(&fds);
 	FD_SET(m_s, &fds);
+#ifdef CRYPTOPP_MSAN
+	__msan_unpoison(&fds, sizeof(fds));
+#endif
+
 	int ready;
 	if (timeout == NULL)
 		ready = select((int)m_s+1, NULL, &fds, NULL, NULL);
@@ -256,6 +264,10 @@ bool Socket::ReceiveReady(const timeval *timeout)
 	fd_set fds;
 	FD_ZERO(&fds);
 	FD_SET(m_s, &fds);
+#ifdef CRYPTOPP_MSAN
+	__msan_unpoison(&fds, sizeof(fds));
+#endif
+	
 	int ready;
 	if (timeout == NULL)
 		ready = select((int)m_s+1, &fds, NULL, NULL, NULL);
