@@ -485,6 +485,10 @@ public:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Algorithm : public Clonable
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~Algorithm() {}
+#endif
+
 	//! \brief Interface for all crypto algorithms
 	//! \param checkSelfTestStatus determines whether the object can proceed if the self
 	//!   tests have not been run or failed.
@@ -502,10 +506,6 @@ public:
 	//!   Shoup's  ECIES.
 	//! \note  AlgorithmName is not universally implemented yet
 	virtual std::string AlgorithmName() const {return "unknown";}
-	
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~Algorithm() {}
-#endif
 };
 
 //! \class SimpleKeyingInterface
@@ -715,6 +715,10 @@ protected:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE BlockTransformation : public Algorithm
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~BlockTransformation() {}
+#endif
+
 	//! \brief Encrypt or decrypt a block
 	//! \param inBlock the input message before processing
 	//! \param outBlock the output message after processing
@@ -794,10 +798,6 @@ public:
 	//! \return ENCRYPTION if IsForwardTransformation() is true, DECRYPTION otherwise
 	//! \sa IsForwardTransformation(), IsPermutation()
 	inline CipherDir GetCipherDirection() const {return IsForwardTransformation() ? ENCRYPTION : DECRYPTION;}
-
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~BlockTransformation() {}
-#endif
 };
 
 //! \class StreamTransformation
@@ -806,6 +806,10 @@ public:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE StreamTransformation : public Algorithm
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~StreamTransformation() {}
+#endif
+
 	//! \brief Provides a reference to this object
 	//! \return A reference to this object
 	//! \details Useful for passing a temporary object to a function that takes a non-const reference
@@ -895,10 +899,6 @@ public:
 	//! \return  true if DIR is ENCRYPTION,  false otherwise
 	//! \sa IsForwardTransformation(), IsPermutation(), GetCipherDirection()
 	virtual bool IsForwardTransformation() const =0;
-
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~StreamTransformation() {}
-#endif
 };
 
 //! \class HashTransformation
@@ -912,6 +912,10 @@ public:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE HashTransformation : public Algorithm
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~HashTransformation() {}
+#endif
+
 	//! \brief Provides a reference to this object
 	//! \return A reference to this object
 	//! \details Useful for passing a temporary object to a function that takes a non-const reference
@@ -1062,10 +1066,6 @@ public:
 	virtual bool VerifyTruncatedDigest(const byte *digest, size_t digestLength, const byte *input, size_t length)
 		{Update(input, length); return TruncatedVerify(digest, digestLength);}
 
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~HashTransformation() {}
-#endif
-
 protected:
 	//! \brief Validates a truncated digest size
 	//! \param size the requested digest size
@@ -1107,6 +1107,10 @@ protected:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AuthenticatedSymmetricCipher : public MessageAuthenticationCode, public StreamTransformation
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~AuthenticatedSymmetricCipher() {}
+#endif
+
 	//! \brief Exception thrown when the object is in the wrong state for the operation
 	//! \details this indicates that a member function was called in the wrong state, for example trying to encrypt
 	//!   a message before having set the key or IV
@@ -1154,10 +1158,6 @@ public:
 	//!   Shoup's  ECIES.
 	virtual std::string AlgorithmName() const =0;
 
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~AuthenticatedSymmetricCipher() {}
-#endif
-
 protected:
 	const Algorithm & GetAlgorithm() const
 		{return *static_cast<const MessageAuthenticationCode *>(this);}
@@ -1176,6 +1176,10 @@ typedef SymmetricCipher StreamCipher;
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE RandomNumberGenerator : public Algorithm
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~RandomNumberGenerator() {}
+#endif
+
 	//! \brief Update RNG state with additional unpredictable values
 	//! \param input the entropy to add to the generator
 	//! \param length the size of the input buffer 
@@ -1253,10 +1257,6 @@ public:
 		for (; begin != end; ++begin)
 			std::iter_swap(begin, begin + GenerateWord32(0, end-begin-1));
 	}
-	
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~RandomNumberGenerator() {}
-#endif
 
 #ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
 	byte GetByte() {return GenerateByte();}
@@ -1345,6 +1345,11 @@ public:
 	// placed up here for CW8
 	static const std::string &NULL_CHANNEL;	// same as DEFAULT_CHANNEL, for backwards compatibility
 
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~BufferedTransformation() {}
+#endif
+
+	//! \brief Construct a BufferedTransformation
 	BufferedTransformation() : Algorithm(false) {}
 
 	//! \brief Provides a reference to this object
@@ -2002,10 +2007,6 @@ public:
 		virtual void Attach(BufferedTransformation *newAttachment);
 	//@}
 
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~BufferedTransformation() {}
-#endif
-
 protected:
 	//! \brief Decrements the propagation count while clamping at 0
 	//! \return the decremented propagation or 0
@@ -2025,6 +2026,10 @@ CRYPTOPP_DLL BufferedTransformation & TheBitBucket();
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CryptoMaterial : public NameValuePairs
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~CryptoMaterial() {}
+#endif
+
 	//! Exception thrown when invalid crypto material is detected
 	class CRYPTOPP_DLL InvalidMaterial : public InvalidDataFormat
 	{
@@ -2125,10 +2130,6 @@ public:
 	//! \details DoQuickSanityCheck() is for internal library use, and it should not be called by library users.
 	void DoQuickSanityCheck() const	{ThrowIfInvalid(NullRNG(), 0);}
 
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~CryptoMaterial() {}
-#endif
-
 #if (defined(__SUNPRO_CC) && __SUNPRO_CC < 0x590)
 	// Sun Studio 11/CC 5.8 workaround: it generates incorrect code when casting to an empty virtual base class
 	char m_sunCCworkaround;
@@ -2140,6 +2141,9 @@ public:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE GeneratableCryptoMaterial : virtual public CryptoMaterial
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~GeneratableCryptoMaterial() {}
+#endif
 
 	//! \brief Generate a random key or crypto parameters
 	//! \param rng a RandomNumberGenerator to produce keying material
@@ -2159,10 +2163,6 @@ public:
 	//! \details GenerateRandomWithKeySize calls  GenerateRandom with a  NameValuePairs
 	//!    object with only "KeySize"
 	void GenerateRandomWithKeySize(RandomNumberGenerator &rng, unsigned int keySize);
-
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~GeneratableCryptoMaterial() {}
-#endif
 };
 
 //! \brief Interface for public keys
@@ -2184,6 +2184,10 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CryptoParameters : public GeneratableCrypt
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AsymmetricAlgorithm : public Algorithm
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~AsymmetricAlgorithm() {}
+#endif
+
 	//! \brief Retrieves a reference to CryptoMaterial
 	//! \return a reference to the crypto material
 	virtual CryptoMaterial & AccessMaterial() =0;
@@ -2203,16 +2207,16 @@ public:
 	//! \deprecated for backwards compatibility, calls GetMaterial().Save(bt)
 	void DEREncode(BufferedTransformation &bt) const
 		{GetMaterial().Save(bt);}
-
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~AsymmetricAlgorithm() {}
-#endif
 };
 
 //! \brief Interface for asymmetric algorithms using public keys
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PublicKeyAlgorithm : public AsymmetricAlgorithm
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~PublicKeyAlgorithm() {}
+#endif
+
 	// VC60 workaround: no co-variant return type
 	
 	//! \brief Retrieves a reference to a Public Key
@@ -2231,16 +2235,16 @@ public:
 	//! \return a const reference the public key
 	virtual const PublicKey & GetPublicKey() const
 		{return const_cast<PublicKeyAlgorithm *>(this)->AccessPublicKey();}
-
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~PublicKeyAlgorithm() {}
-#endif
 };
 
 //! \brief Interface for asymmetric algorithms using private keys
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PrivateKeyAlgorithm : public AsymmetricAlgorithm
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~PrivateKeyAlgorithm() {}
+#endif
+
 	//! \brief Retrieves a reference to a Private Key
 	//! \return a reference the private key
 	CryptoMaterial & AccessMaterial() {return AccessPrivateKey();}
@@ -2254,16 +2258,16 @@ public:
 	//! \brief Retrieves a reference to a Private Key
 	//! \return a const reference the private key
 	virtual const PrivateKey & GetPrivateKey() const {return const_cast<PrivateKeyAlgorithm *>(this)->AccessPrivateKey();}
-
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~PrivateKeyAlgorithm() {}
-#endif
 };
 
 //! \brief Interface for key agreement algorithms
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE KeyAgreementAlgorithm : public AsymmetricAlgorithm
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~KeyAgreementAlgorithm() {}
+#endif
+
 	//! \brief Retrieves a reference to Crypto Parameters
 	//! \return a reference the crypto parameters
 	CryptoMaterial & AccessMaterial() {return AccessCryptoParameters();}
@@ -2277,10 +2281,6 @@ public:
 	//! \brief Retrieves a reference to Crypto Parameters
 	//! \return a const reference the crypto parameters
 	virtual const CryptoParameters & GetCryptoParameters() const {return const_cast<KeyAgreementAlgorithm *>(this)->AccessCryptoParameters();}
-
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~KeyAgreementAlgorithm() {}
-#endif
 };
 
 //! \brief Interface for public-key encryptors and decryptors
@@ -2368,6 +2368,10 @@ public:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_Decryptor : public PK_CryptoSystem, public PrivateKeyAlgorithm
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~PK_Decryptor() {}
+#endif
+
 	//! \brief Decrypt a byte string
 	//! \param rng a RandomNumberGenerator derived class
 	//! \param ciphertext the encrypted byte buffer
@@ -2410,10 +2414,6 @@ public:
 	//! \sa PK_Encryptor
 	DecodingResult FixedLengthDecrypt(RandomNumberGenerator &rng, const byte *ciphertext, byte *plaintext, const NameValuePairs &parameters = g_nullNameValuePairs) const
 		{return Decrypt(rng, ciphertext, FixedCiphertextLength(), plaintext, parameters);}
-
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~PK_Decryptor() {}
-#endif
 };
 
 #ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
@@ -2524,6 +2524,10 @@ public:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_Signer : public PK_SignatureScheme, public PrivateKeyAlgorithm
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~PK_Signer() {}
+#endif
+
 	//! \brief Create a new HashTransformation to accumulate the message to be signed
 	//! \param rng a RandomNumberGenerator derived class
 	//! \return a pointer to a PK_MessageAccumulator
@@ -2575,10 +2579,6 @@ public:
 	//! \pre <tt>COUNTOF(signature) == MaxSignatureLength(recoverableMessageLength)</tt>
 	virtual size_t SignMessageWithRecovery(RandomNumberGenerator &rng, const byte *recoverableMessage, size_t recoverableMessageLength, 
 		const byte *nonrecoverableMessage, size_t nonrecoverableMessageLength, byte *signature) const;
-
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~PK_Signer() {}
-#endif
 };
 
 //! \class PK_Verifier
@@ -2591,6 +2591,10 @@ public:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_Verifier : public PK_SignatureScheme, public PublicKeyAlgorithm
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~PK_Verifier() {}
+#endif
+
 	//! \brief Create a new HashTransformation to accumulate the message to be verified
 	//! \return a pointer to a PK_MessageAccumulator
 	//! \details NewVerificationAccumulator() can be used with all verification methods. Verify() will autimatically delete
@@ -2651,10 +2655,6 @@ public:
 	virtual DecodingResult RecoverMessage(byte *recoveredMessage, 
 		const byte *nonrecoverableMessage, size_t nonrecoverableMessageLength,
 		const byte *signature, size_t signatureLength) const;
-
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~PK_Verifier() {}
-#endif
 };
 
 //! \class SimpleKeyAgreementDomain
@@ -2665,6 +2665,10 @@ public:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE SimpleKeyAgreementDomain : public KeyAgreementAlgorithm
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~SimpleKeyAgreementDomain() {}
+#endif
+
 	//! \brief Provides the size of the agreed value
 	//! \return size of agreed value produced  in this domain
 	virtual unsigned int AgreedValueLength() const =0;
@@ -2713,10 +2717,6 @@ public:
 	//! \pre <tt>COUNTOF(otherPublicKey) == PublicKeyLength()</tt>
 	virtual bool Agree(byte *agreedValue, const byte *privateKey, const byte *otherPublicKey, bool validateOtherPublicKey=true) const =0;
 
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~SimpleKeyAgreementDomain() {}
-#endif
-
 #ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
 	bool ValidateDomainParameters(RandomNumberGenerator &rng) const
 		{return GetCryptoParameters().Validate(rng, 2);}
@@ -2730,6 +2730,10 @@ public:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AuthenticatedKeyAgreementDomain : public KeyAgreementAlgorithm
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~AuthenticatedKeyAgreementDomain() {}
+#endif
+
 	//! \brief Provides the size of the agreed value
 	//! \return size of agreed value produced  in this domain
 	virtual unsigned int AgreedValueLength() const =0;
@@ -2813,10 +2817,6 @@ public:
 		const byte *staticOtherPublicKey, const byte *ephemeralOtherPublicKey,
 		bool validateStaticOtherPublicKey=true) const =0;
 
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~AuthenticatedKeyAgreementDomain() {}
-#endif
-
 #ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
 	bool ValidateDomainParameters(RandomNumberGenerator &rng) const
 		{return GetCryptoParameters().Validate(rng, 2);}
@@ -2895,30 +2895,34 @@ private:
 class KeyAgreementSession : public ProtocolSession
 {
 public:
-	virtual unsigned int GetAgreedValueLength() const =0;
-	virtual void GetAgreedValue(byte *agreedValue) const =0;
-
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~KeyAgreementSession() {}
 #endif
+
+	virtual unsigned int GetAgreedValueLength() const =0;
+	virtual void GetAgreedValue(byte *agreedValue) const =0;
 };
 
 class PasswordAuthenticatedKeyAgreementSession : public KeyAgreementSession
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~PasswordAuthenticatedKeyAgreementSession() {}
+#endif
+
 	void InitializePasswordAuthenticatedKeyAgreementSession(RandomNumberGenerator &rng, 
 		const byte *myId, unsigned int myIdLength, 
 		const byte *counterPartyId, unsigned int counterPartyIdLength, 
 		const byte *passwordOrVerifier, unsigned int passwordOrVerifierLength);
-
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~PasswordAuthenticatedKeyAgreementSession() {}
-#endif
 };
 
 class PasswordAuthenticatedKeyAgreementDomain : public KeyAgreementAlgorithm
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~PasswordAuthenticatedKeyAgreementDomain() {}
+#endif
+
 	//! return whether the domain parameters stored in this object are valid
 	virtual bool ValidateDomainParameters(RandomNumberGenerator &rng) const
 		{return GetCryptoParameters().Validate(rng, 2);}
@@ -2930,10 +2934,6 @@ public:
 
 	virtual bool IsValidRole(unsigned int role) =0;
 	virtual PasswordAuthenticatedKeyAgreementSession * CreateProtocolSession(unsigned int role) const =0;
-
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~PasswordAuthenticatedKeyAgreementDomain() {}
-#endif
 };
 #endif
 
