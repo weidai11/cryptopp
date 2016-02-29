@@ -36,6 +36,9 @@ NAMESPACE_BEGIN(CryptoPP)
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Filter : public BufferedTransformation, public NotCopyable
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~Filter() {}
+#endif
 	
 	//!	\name ATTACHMENT
 	//@{
@@ -74,10 +77,6 @@ public:
 	void Initialize(const NameValuePairs &parameters=g_nullNameValuePairs, int propagation=-1);
 	bool Flush(bool hardFlush, int propagation=-1, bool blocking=true);
 	bool MessageSeriesEnd(int propagation=-1, bool blocking=true);
-
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~Filter() {}
-#endif
 	
 protected:
 	virtual BufferedTransformation * NewDefaultAttachment() const;
@@ -316,7 +315,7 @@ public:
 class CRYPTOPP_DLL FilterWithBufferedInput : public Filter
 {
 public:
-	
+
 #if !defined(CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562)
 	//! default FilterWithBufferedInput for temporaries
 	FilterWithBufferedInput();
@@ -1013,7 +1012,12 @@ public:
 	ArraySink(byte *buf, size_t size)
 		: m_buf(buf), m_size(size), m_total(0) {}
 
+	//! \brief Provides the size remaining in the Sink
+	//! \returns size remaining in the Sink, in bytes
 	size_t AvailableSize() {return SaturatingSubtract(m_size, m_total);}
+
+	//! \brief Provides the number of bytes written to the Sink
+	//! \returns number of bytes written to the Sink, in bytes
 	lword TotalPutLength() {return m_total;}
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
@@ -1128,6 +1132,10 @@ private:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Source : public InputRejecting<Filter>
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~Source() {}
+#endif
+
 	//! \brief Construct a Source
 	//! \param attachment an optional attached transformation
 	Source(BufferedTransformation *attachment = NULL)
@@ -1182,10 +1190,6 @@ public:
 	virtual bool SourceExhausted() const =0;
 
 	//@}
-	
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~Source() {}
-#endif
 
 protected:
 	void SourceInitialize(bool pumpAll, const NameValuePairs &parameters)
