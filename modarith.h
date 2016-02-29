@@ -22,8 +22,12 @@ CRYPTOPP_DLL_TEMPLATE_CLASS AbstractEuclideanDomain<Integer>;
 
 //! \class ModularArithmetic
 //! \brief Ring of congruence classes modulo n
-//! \note this implementation represents each congruence class as the smallest
-//!   non-negative integer in that class
+//! \details This implementation represents each congruence class as the smallest
+//!   non-negative integer in that class.
+//! \details Each instance of the class provides two temporary elements to
+//!   preserve intermediate calculations for future use. For example, 
+//!   \ref ModularArithmetic::Multiply "Multiply" saves its last result in member
+//!   variable <tt>m_result1</tt>.
 class CRYPTOPP_DLL ModularArithmetic : public AbstractRing<Integer>
 {
 public:
@@ -50,6 +54,9 @@ public:
 	ModularArithmetic(BufferedTransformation &bt);	// construct from BER encoded parameters
 
 	//! \brief Clone a ModularArithmetic
+	//! \returns pointer to a new ModularArithmetic
+	//! \details Clone effectively copy constructs a new ModularArithmetic. The caller is
+	//!   responsible for deleting the pointer returned from this method.
 	virtual ModularArithmetic * Clone() const {return new ModularArithmetic(*this);}
 
 	//! \brief Encodes in DER format
@@ -246,7 +253,6 @@ public:
 protected:
 	Integer m_modulus;
 	mutable Integer m_result, m_result1;
-
 };
 
 // const ModularArithmetic::RandomizationParameter ModularArithmetic::DefaultRandomizationParameter = 0 ;
@@ -258,8 +264,19 @@ protected:
 class CRYPTOPP_DLL MontgomeryRepresentation : public ModularArithmetic
 {
 public:
-	MontgomeryRepresentation(const Integer &modulus);	// modulus must be odd
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~MontgomeryRepresentation() {}
+#endif
 
+	//! \brief Construct a IsMontgomeryRepresentation
+	//! \param modulus congruence class modulus
+	//! \note The modulus must be odd.
+	MontgomeryRepresentation(const Integer &modulus);
+
+	//! \brief Clone a MontgomeryRepresentation
+	//! \returns pointer to a new MontgomeryRepresentation
+	//! \details Clone effectively copy constructs a new MontgomeryRepresentation. The caller is
+	//!   responsible for deleting the pointer returned from this method.
 	virtual ModularArithmetic * Clone() const {return new MontgomeryRepresentation(*this);}
 
 	bool IsMontgomeryRepresentation() const {return true;}
@@ -283,10 +300,6 @@ public:
 
 	void SimultaneousExponentiate(Element *results, const Element &base, const Integer *exponents, unsigned int exponentsCount) const
 		{AbstractRing<Integer>::SimultaneousExponentiate(results, base, exponents, exponentsCount);}
-
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~MontgomeryRepresentation() {}
-#endif
 
 private:
 	Integer m_u;
