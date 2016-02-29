@@ -224,8 +224,15 @@ public:
 		return StandardReallocate(*this, oldPtr, oldSize, newSize, preserve);
 	}
 
-	// VS.NET STL enforces the policy of "All STL-compliant allocators have to provide a
-	// template class member called rebind".
+	//! \brief Template class memeber Rebind
+	//! \tparam T allocated class or type
+	//! \tparam T_Align16 boolean that determines whether allocations should be aligned on 16-byte boundaries
+	//! \tparam U bound class or type
+	//! \details Rebind allows a container class to allocate a different type of object
+	//!   to store elements. For example, a std::list will allocate std::list_node to
+	//!   store elements in the list.
+	//! \details VS.NET STL enforces the policy of "All STL-compliant allocators
+	//!   have to provide a template class member called rebind".
     template <class U> struct rebind { typedef AllocatorWithCleanup<U, T_Align16> other; };
 #if _MSC_VER >= 1500
 	AllocatorWithCleanup() {}
