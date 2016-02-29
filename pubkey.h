@@ -99,6 +99,9 @@ public:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE RandomizedTrapdoorFunction : public TrapdoorFunctionBounds
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~RandomizedTrapdoorFunction() { }
+#endif
 
 	//! \brief Applies the trapdoor function, using random data if required
 	//! \param rng a \p RandomNumberGenerator derived class
@@ -113,10 +116,6 @@ public:
 	//! \returns \p true if the encryption algorithm is randomized, \p false otherwise
 	//! \details If \p IsRandomized() returns \p false, then \p NullRNG() can be used.
 	virtual bool IsRandomized() const {return true;}
-	
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~RandomizedTrapdoorFunction() { }
-#endif
 };
 
 //! \class TrapdoorFunction
@@ -235,6 +234,10 @@ template <class TFI, class MEI>
 class CRYPTOPP_NO_VTABLE TF_Base
 {
 protected:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~TF_Base() { }
+#endif
+
 	virtual const TrapdoorFunctionBounds & GetTrapdoorFunctionBounds() const =0;
 
 	typedef TFI TrapdoorFunctionInterface;
@@ -242,10 +245,6 @@ protected:
 
 	typedef MEI MessageEncodingInterface;
 	virtual const MessageEncodingInterface & GetMessageEncodingInterface() const =0;
-	
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~TF_Base() { }
-#endif
 };
 
 // ********************************************************
@@ -257,6 +256,10 @@ template <class BASE>
 class CRYPTOPP_NO_VTABLE PK_FixedLengthCryptoSystemImpl : public BASE
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~PK_FixedLengthCryptoSystemImpl() { }
+#endif
+
 	size_t MaxPlaintextLength(size_t ciphertextLength) const
 		{return ciphertextLength == FixedCiphertextLength() ? FixedMaxPlaintextLength() : 0;}
 	size_t CiphertextLength(size_t plaintextLength) const
@@ -264,10 +267,6 @@ public:
 
 	virtual size_t FixedMaxPlaintextLength() const =0;
 	virtual size_t FixedCiphertextLength() const =0;
-	
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~PK_FixedLengthCryptoSystemImpl() { }
-#endif
 };
 
 //! \class TF_CryptoSystemBase
@@ -278,6 +277,10 @@ template <class INTERFACE, class BASE>
 class CRYPTOPP_NO_VTABLE TF_CryptoSystemBase : public PK_FixedLengthCryptoSystemImpl<INTERFACE>, protected BASE
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~TF_CryptoSystemBase() { }
+#endif
+
 	bool ParameterSupported(const char *name) const {return this->GetMessageEncodingInterface().ParameterSupported(name);}
 	size_t FixedMaxPlaintextLength() const {return this->GetMessageEncodingInterface().MaxUnpaddedLength(PaddedBlockBitLength());}
 	size_t FixedCiphertextLength() const {return this->GetTrapdoorFunctionBounds().MaxImage().ByteCount();}
@@ -286,10 +289,6 @@ protected:
 	size_t PaddedBlockByteLength() const {return BitsToBytes(PaddedBlockBitLength());}
 	// Coverity finding on potential overflow/underflow.
 	size_t PaddedBlockBitLength() const {return SaturatingSubtract(this->GetTrapdoorFunctionBounds().PreimageBound().BitCount(),1U);}
-	
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~TF_CryptoSystemBase() { }
-#endif
 };
 
 //! \class TF_DecryptorBase
@@ -297,11 +296,11 @@ protected:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE TF_DecryptorBase : public TF_CryptoSystemBase<PK_Decryptor, TF_Base<TrapdoorFunctionInverse, PK_EncryptionMessageEncodingMethod> >
 {
 public:
-	DecodingResult Decrypt(RandomNumberGenerator &rng, const byte *ciphertext, size_t ciphertextLength, byte *plaintext, const NameValuePairs &parameters = g_nullNameValuePairs) const;
-	
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~TF_DecryptorBase() { }
 #endif
+
+	DecodingResult Decrypt(RandomNumberGenerator &rng, const byte *ciphertext, size_t ciphertextLength, byte *plaintext, const NameValuePairs &parameters = g_nullNameValuePairs) const;
 };
 
 //! \class TF_DecryptorBase
@@ -309,11 +308,11 @@ public:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE TF_EncryptorBase : public TF_CryptoSystemBase<PK_Encryptor, TF_Base<RandomizedTrapdoorFunction, PK_EncryptionMessageEncodingMethod> >
 {
 public:
-	void Encrypt(RandomNumberGenerator &rng, const byte *plaintext, size_t plaintextLength, byte *ciphertext, const NameValuePairs &parameters = g_nullNameValuePairs) const;
-
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~TF_EncryptorBase() { }
 #endif
+
+	void Encrypt(RandomNumberGenerator &rng, const byte *plaintext, size_t plaintextLength, byte *ciphertext, const NameValuePairs &parameters = g_nullNameValuePairs) const;
 };
 
 // ********************************************************
@@ -486,6 +485,10 @@ template <class INTERFACE, class BASE>
 class CRYPTOPP_NO_VTABLE TF_SignatureSchemeBase : public INTERFACE, protected BASE
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~TF_SignatureSchemeBase() { }
+#endif
+
 	size_t SignatureLength() const 
 		{return this->GetTrapdoorFunctionBounds().MaxPreimage().ByteCount();}
 	size_t MaxRecoverableLength() const 
@@ -499,10 +502,6 @@ public:
 		{return this->GetMessageEncodingInterface().AllowNonrecoverablePart();}
 	bool RecoverablePartFirst() const 
 		{return this->GetMessageEncodingInterface().RecoverablePartFirst();}
-	
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~TF_SignatureSchemeBase() { }
-#endif
 
 protected:
 	size_t MessageRepresentativeLength() const {return BitsToBytes(MessageRepresentativeBitLength());}
@@ -516,25 +515,25 @@ protected:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE TF_SignerBase : public TF_SignatureSchemeBase<PK_Signer, TF_Base<RandomizedTrapdoorFunctionInverse, PK_SignatureMessageEncodingMethod> >
 {
 public:
-	void InputRecoverableMessage(PK_MessageAccumulator &messageAccumulator, const byte *recoverableMessage, size_t recoverableMessageLength) const;
-	size_t SignAndRestart(RandomNumberGenerator &rng, PK_MessageAccumulator &messageAccumulator, byte *signature, bool restart=true) const;
-	
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~TF_SignerBase() { }
 #endif
+
+	void InputRecoverableMessage(PK_MessageAccumulator &messageAccumulator, const byte *recoverableMessage, size_t recoverableMessageLength) const;
+	size_t SignAndRestart(RandomNumberGenerator &rng, PK_MessageAccumulator &messageAccumulator, byte *signature, bool restart=true) const;
 };
 
 //! _
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE TF_VerifierBase : public TF_SignatureSchemeBase<PK_Verifier, TF_Base<TrapdoorFunction, PK_SignatureMessageEncodingMethod> >
 {
 public:
-	void InputSignature(PK_MessageAccumulator &messageAccumulator, const byte *signature, size_t signatureLength) const;
-	bool VerifyAndRestart(PK_MessageAccumulator &messageAccumulator) const;
-	DecodingResult RecoverAndRestart(byte *recoveredMessage, PK_MessageAccumulator &recoveryAccumulator) const;
-	
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~TF_VerifierBase() { }
 #endif
+
+	void InputSignature(PK_MessageAccumulator &messageAccumulator, const byte *signature, size_t signatureLength) const;
+	bool VerifyAndRestart(PK_MessageAccumulator &messageAccumulator) const;
+	DecodingResult RecoverAndRestart(byte *recoveredMessage, PK_MessageAccumulator &recoveryAccumulator) const;
 };
 
 // ********************************************************
@@ -565,6 +564,10 @@ public:
 	typedef SCHEME_OPTIONS SchemeOptions;
 	typedef KEY_CLASS KeyClass;
 
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~TF_ObjectImplBase() { }
+#endif
+
 	PublicKey & AccessPublicKey() {return AccessKey();}
 	const PublicKey & GetPublicKey() const {return GetKey();}
 
@@ -585,10 +588,6 @@ public:
 	{
 		return new PK_MessageAccumulatorImpl<CPP_TYPENAME SCHEME_OPTIONS::HashFunction>;
 	}
-	
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~TF_ObjectImplBase() { }
-#endif
 
 protected:
 	const typename BASE::MessageEncodingInterface & GetMessageEncodingInterface() const 
@@ -616,15 +615,15 @@ template <class BASE, class SCHEME_OPTIONS, class KEY>
 class TF_ObjectImplExtRef : public TF_ObjectImplBase<BASE, SCHEME_OPTIONS, KEY>
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~TF_ObjectImplExtRef() { }
+#endif
+
 	TF_ObjectImplExtRef(const KEY *pKey = NULL) : m_pKey(pKey) {}
 	void SetKeyPtr(const KEY *pKey) {m_pKey = pKey;}
 
 	const KEY & GetKey() const {return *m_pKey;}
 	KEY & AccessKey() {throw NotImplemented("TF_ObjectImplExtRef: cannot modify refererenced key");}
-
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~TF_ObjectImplExtRef() { }
-#endif
 
 private:
 	const KEY * m_pKey;
@@ -637,12 +636,12 @@ class CRYPTOPP_NO_VTABLE TF_ObjectImpl : public TF_ObjectImplBase<BASE, SCHEME_O
 public:
 	typedef KEY_CLASS KeyClass;
 
-	const KeyClass & GetKey() const {return m_trapdoorFunction;}
-	KeyClass & AccessKey() {return m_trapdoorFunction;}
-	
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~TF_ObjectImpl() { }
 #endif
+
+	const KeyClass & GetKey() const {return m_trapdoorFunction;}
+	KeyClass & AccessKey() {return m_trapdoorFunction;}
 
 private:
 	KeyClass m_trapdoorFunction;
@@ -680,6 +679,7 @@ class CRYPTOPP_NO_VTABLE MaskGeneratingFunction
 {
 public:
 	virtual ~MaskGeneratingFunction() {}
+
 	//! \brief Generate and apply mask
 	//! \param hash HashTransformation derived class
 	//! \param output the destination byte array
@@ -751,6 +751,10 @@ class CRYPTOPP_NO_VTABLE DL_GroupParameters : public CryptoParameters
 	
 public:
 	typedef T Element;
+
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_GroupParameters() { }
+#endif
 
 	DL_GroupParameters() : m_validationLevel(0) {}
 
@@ -942,10 +946,6 @@ public:
 	//! \pre <tt>COUNTOF(exponents) == exponentsCount</tt>
 	virtual void SimultaneousExponentiate(Element *results, const Element &base, const Integer *exponents, unsigned int exponentsCount) const =0;
 
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~DL_GroupParameters() { }
-#endif
-
 protected:
 	void ParametersChanged() {m_validationLevel = 0;}
 
@@ -965,6 +965,10 @@ public:
 	typedef typename GROUP_PRECOMP::Element Element;
 	typedef BASE_PRECOMP BasePrecomputation;
 
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_GroupParametersImpl() { }
+#endif
+
 	//! \brief Retrieves the group precomputation
 	//! \return a const reference to the group precomputation
 	const DL_GroupPrecomputation<Element> & GetGroupPrecomputation() const {return m_groupPrecomputation;}
@@ -977,10 +981,6 @@ public:
 	//! \return a non-const reference to the group precomputation using a fixed base
 	DL_FixedBasePrecomputation<Element> & AccessBasePrecomputation() {return m_gpc;}
 
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~DL_GroupParametersImpl() { }
-#endif
-	
 protected:
 	GROUP_PRECOMP m_groupPrecomputation;
 	BASE_PRECOMP m_gpc;
@@ -993,6 +993,10 @@ template <class T>
 class CRYPTOPP_NO_VTABLE DL_Key
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_Key() { }
+#endif
+
 	//! \brief Retrieves abstract group parameters
 	//! \return a const reference to the group parameters
 	virtual const DL_GroupParameters<T> & GetAbstractGroupParameters() const =0;
@@ -1009,6 +1013,10 @@ class CRYPTOPP_NO_VTABLE DL_PublicKey : public DL_Key<T>
 
 public:
 	typedef T Element;
+
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_PublicKey() { }
+#endif
 
 	bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
 	{
@@ -1034,10 +1042,6 @@ public:
 
 	virtual const DL_FixedBasePrecomputation<T> & GetPublicPrecomputation() const =0;
 	virtual DL_FixedBasePrecomputation<T> & AccessPublicPrecomputation() =0;
-	
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~DL_PublicKey() { }
-#endif
 };
 
 //! \brief Interface for Discrete Log (DL) private keys
@@ -1048,6 +1052,10 @@ class CRYPTOPP_NO_VTABLE DL_PrivateKey : public DL_Key<T>
 
 public:
 	typedef T Element;
+
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_PrivateKey() { }
+#endif
 
 	void MakePublicKey(DL_PublicKey<T> &pub) const
 	{
@@ -1070,10 +1078,6 @@ public:
 
 	virtual const Integer & GetPrivateExponent() const =0;
 	virtual void SetPrivateExponent(const Integer &x) =0;
-	
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~DL_PrivateKey() { }
-#endif
 };
 
 template <class T>
@@ -1098,6 +1102,10 @@ class DL_KeyImpl : public PK
 {
 public:
 	typedef GP GroupParameters;
+
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_KeyImpl() { }
+#endif
 
 	O GetAlgorithmID() const {return GetGroupParameters().GetAlgorithmID();}
 //	void BERDecode(BufferedTransformation &bt)
@@ -1125,6 +1133,10 @@ class DL_PrivateKeyImpl : public DL_PrivateKey<CPP_TYPENAME GP::Element>, public
 {
 public:
 	typedef typename GP::Element Element;
+
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_PrivateKeyImpl() { }
+#endif
 
 	// GeneratableCryptoMaterial
 	bool Validate(RandomNumberGenerator &rng, unsigned int level) const
@@ -1195,6 +1207,10 @@ template <class BASE, class SIGNATURE_SCHEME>
 class DL_PrivateKey_WithSignaturePairwiseConsistencyTest : public BASE
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_PrivateKey_WithSignaturePairwiseConsistencyTest() { }
+#endif
+
 	void GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &params)
 	{
 		BASE::GenerateRandom(rng, params);
@@ -1214,6 +1230,10 @@ class DL_PublicKeyImpl : public DL_PublicKey<typename GP::Element>, public DL_Ke
 {
 public:
 	typedef typename GP::Element Element;
+
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_PublicKeyImpl() { }
+#endif
 
 	// CryptoMaterial
 	bool Validate(RandomNumberGenerator &rng, unsigned int level) const
@@ -1274,6 +1294,10 @@ template <class T>
 class CRYPTOPP_NO_VTABLE DL_ElgamalLikeSignatureAlgorithm
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_ElgamalLikeSignatureAlgorithm() { }
+#endif
+
 	virtual void Sign(const DL_GroupParameters<T> &params, const Integer &privateKey, const Integer &k, const Integer &e, Integer &r, Integer &s) const =0;
 	virtual bool Verify(const DL_GroupParameters<T> &params, const DL_PublicKey<T> &publicKey, const Integer &e, const Integer &r, const Integer &s) const =0;
 	virtual Integer RecoverPresignature(const DL_GroupParameters<T> &params, const DL_PublicKey<T> &publicKey, const Integer &r, const Integer &s) const
@@ -1294,12 +1318,12 @@ class CRYPTOPP_NO_VTABLE DL_KeyAgreementAlgorithm
 public:
 	typedef T Element;
 
-	virtual Element AgreeWithEphemeralPrivateKey(const DL_GroupParameters<Element> &params, const DL_FixedBasePrecomputation<Element> &publicPrecomputation, const Integer &privateExponent) const =0;
-	virtual Element AgreeWithStaticPrivateKey(const DL_GroupParameters<Element> &params, const Element &publicElement, bool validateOtherPublicKey, const Integer &privateExponent) const =0;
-
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~DL_KeyAgreementAlgorithm() { }
 #endif
+
+	virtual Element AgreeWithEphemeralPrivateKey(const DL_GroupParameters<Element> &params, const DL_FixedBasePrecomputation<Element> &publicPrecomputation, const Integer &privateExponent) const =0;
+	virtual Element AgreeWithStaticPrivateKey(const DL_GroupParameters<Element> &params, const Element &publicElement, bool validateOtherPublicKey, const Integer &privateExponent) const =0;
 };
 
 //! \brief Interface for key derivation algorithms used in DL cryptosystems
@@ -1307,19 +1331,23 @@ template <class T>
 class CRYPTOPP_NO_VTABLE DL_KeyDerivationAlgorithm
 {
 public:
-	virtual bool ParameterSupported(const char *name) const
-		{CRYPTOPP_UNUSED(name); return false;}
-	virtual void Derive(const DL_GroupParameters<T> &groupParams, byte *derivedKey, size_t derivedLength, const T &agreedElement, const T &ephemeralPublicKey, const NameValuePairs &derivationParams) const =0;
-
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~DL_KeyDerivationAlgorithm() { }
 #endif
+
+	virtual bool ParameterSupported(const char *name) const
+		{CRYPTOPP_UNUSED(name); return false;}
+	virtual void Derive(const DL_GroupParameters<T> &groupParams, byte *derivedKey, size_t derivedLength, const T &agreedElement, const T &ephemeralPublicKey, const NameValuePairs &derivationParams) const =0;
 };
 
 //! \brief Interface for symmetric encryption algorithms used in DL cryptosystems
 class CRYPTOPP_NO_VTABLE DL_SymmetricEncryptionAlgorithm
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_SymmetricEncryptionAlgorithm() { }
+#endif
+
 	virtual bool ParameterSupported(const char *name) const
 		{CRYPTOPP_UNUSED(name); return false;}
 	virtual size_t GetSymmetricKeyLength(size_t plaintextLength) const =0;
@@ -1327,13 +1355,10 @@ public:
 	virtual size_t GetMaxSymmetricPlaintextLength(size_t ciphertextLength) const =0;
 	virtual void SymmetricEncrypt(RandomNumberGenerator &rng, const byte *key, const byte *plaintext, size_t plaintextLength, byte *ciphertext, const NameValuePairs &parameters) const =0;
 	virtual DecodingResult SymmetricDecrypt(const byte *key, const byte *ciphertext, size_t ciphertextLength, byte *plaintext, const NameValuePairs &parameters) const =0;
-
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~DL_SymmetricEncryptionAlgorithm() { }
-#endif
 };
 
-//! _
+//! \brief Discrete Log (DL) base interface
+//! \tparam KI public or private key interface
 template <class KI>
 class CRYPTOPP_NO_VTABLE DL_Base
 {
@@ -1341,42 +1366,65 @@ protected:
 	typedef KI KeyInterface;
 	typedef typename KI::Element Element;
 
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_Base() { }
+#endif
+
 	const DL_GroupParameters<Element> & GetAbstractGroupParameters() const {return GetKeyInterface().GetAbstractGroupParameters();}
 	DL_GroupParameters<Element> & AccessAbstractGroupParameters() {return AccessKeyInterface().AccessAbstractGroupParameters();}
 
 	virtual KeyInterface & AccessKeyInterface() =0;
 	virtual const KeyInterface & GetKeyInterface() const =0;
-	
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~DL_Base() { }
-#endif
 };
 
-//! _
+//! \brief Discrete Log (DL) signature scheme base implementation
+//! \tparam INTERFACE PK_Signer or PK_Verifier derived class
+//! \tparam DL_Base key base used in the scheme
+//! \details DL_SignatureSchemeBase provides common functions for signers and verifiers.
+//!   DL_Base<DL_PrivateKey> is used for signers, and DL_Base<DL_PublicKey> is used for verifiers.
 template <class INTERFACE, class KEY_INTERFACE>
 class CRYPTOPP_NO_VTABLE DL_SignatureSchemeBase : public INTERFACE, public DL_Base<KEY_INTERFACE>
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_SignatureSchemeBase() { }
+#endif
+
+	//! \brief Provides the signature length
+	//! \returns signature length, in bytes
+	//! \details SignatureLength returns the size required for <tt>r+s</tt>.
 	size_t SignatureLength() const
 	{
 		return GetSignatureAlgorithm().RLen(this->GetAbstractGroupParameters())
 			+ GetSignatureAlgorithm().SLen(this->GetAbstractGroupParameters());
 	}
+
+	//! \brief Provides the maximum recoverable length
+	//! \returns maximum recoverable length, in bytes
 	size_t MaxRecoverableLength() const 
 		{return GetMessageEncodingInterface().MaxRecoverableLength(0, GetHashIdentifier().second, GetDigestSize());}
+
+	//! \brief Provides the maximum recoverable length
+	//! \param signatureLength the size fo the signature
+	//! \returns maximum recoverable length based on signature length, in bytes
+	//! \details this function is not implemented and always returns 0.
 	size_t MaxRecoverableLengthFromSignatureLength(size_t signatureLength) const
 		{CRYPTOPP_UNUSED(signatureLength); assert(false); return 0;}	// TODO
 
+	//! \brief Determines if the scheme is probabilistic
+	//! \returns true if the scheme is probabilistic, false otherwise
 	bool IsProbabilistic() const 
 		{return true;}
+
+	//! \brief Determines if the scheme has non-recoverable part
+	//! \returns true if the message encoding has a non-recoverable part, false otherwise.
 	bool AllowNonrecoverablePart() const 
 		{return GetMessageEncodingInterface().AllowNonrecoverablePart();}
+
+	//! \brief Determines if the scheme allows recoverable part first
+	//! \returns true if the message encoding allows the recoverable part, false otherwise.
 	bool RecoverablePartFirst() const 
 		{return GetMessageEncodingInterface().RecoverablePartFirst();}
-	
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~DL_SignatureSchemeBase() { }
-#endif
 
 protected:
 	size_t MessageRepresentativeLength() const {return BitsToBytes(MessageRepresentativeBitLength());}
@@ -1388,12 +1436,21 @@ protected:
 	virtual size_t GetDigestSize() const =0;
 };
 
-//! _
+//! \brief Discrete Log (DL) signature scheme signer base implementation
+//! \tparam T
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_SignerBase : public DL_SignatureSchemeBase<PK_Signer, DL_PrivateKey<T> >
 {
 public:
-	// for validation testing
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_SignerBase() { }
+#endif
+
+	//! \brief Testing interface
+	//! \param k Integer
+	//! \param e Integer
+	//! \param r Integer
+	//! \param s Integer
 	void RawSign(const Integer &k, const Integer &e, Integer &r, Integer &s) const
 	{
 		const DL_ElgamalLikeSignatureAlgorithm<T> &alg = this->GetSignatureAlgorithm();
@@ -1459,10 +1516,6 @@ public:
 
 		return this->SignatureLength();
 	}
-	
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~DL_SignerBase() { }
-#endif
 
 protected:
 	void RestartMessageAccumulator(RandomNumberGenerator &rng, PK_MessageAccumulatorBase &ma) const
@@ -1487,6 +1540,10 @@ template <class T>
 class CRYPTOPP_NO_VTABLE DL_VerifierBase : public DL_SignatureSchemeBase<PK_Verifier, DL_PublicKey<T> >
 {
 public:
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_VerifierBase() { }
+#endif
+
 	void InputSignature(PK_MessageAccumulator &messageAccumulator, const byte *signature, size_t signatureLength) const
 	{
 		CRYPTOPP_UNUSED(signature); CRYPTOPP_UNUSED(signatureLength); 
@@ -1549,18 +1606,20 @@ public:
 			ma.m_semisignature, ma.m_semisignature.size(),
 			recoveredMessage);
 	}
-	
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~DL_VerifierBase() { }
-#endif
 };
 
-//! _
+//! \brief Discrete Log (DL) cryptosystem base implementation
+//! \tparam PK field element type
+//! \tparam KI public or private key interface
 template <class PK, class KI>
 class CRYPTOPP_NO_VTABLE DL_CryptoSystemBase : public PK, public DL_Base<KI>
 {
 public:
 	typedef typename DL_Base<KI>::Element Element;
+
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_CryptoSystemBase() { }
+#endif
 
 	size_t MaxPlaintextLength(size_t ciphertextLength) const
 	{
@@ -1576,10 +1635,6 @@ public:
 
 	bool ParameterSupported(const char *name) const
 		{return GetKeyDerivationAlgorithm().ParameterSupported(name) || GetSymmetricEncryptionAlgorithm().ParameterSupported(name);}
-	
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~DL_CryptoSystemBase() { }
-#endif
 
 protected:
 	virtual const DL_KeyAgreementAlgorithm<Element> & GetKeyAgreementAlgorithm() const =0;
@@ -1587,12 +1642,17 @@ protected:
 	virtual const DL_SymmetricEncryptionAlgorithm & GetSymmetricEncryptionAlgorithm() const =0;
 };
 
-//! _
+//! \brief Discrete Log (DL) decryptor base implementation
+//! \tparam T field element type
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_DecryptorBase : public DL_CryptoSystemBase<PK_Decryptor, DL_PrivateKey<T> >
 {
 public:
 	typedef T Element;
+
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_DecryptorBase() { }
+#endif
 
 	DecodingResult Decrypt(RandomNumberGenerator &rng, const byte *ciphertext, size_t ciphertextLength, byte *plaintext, const NameValuePairs &parameters = g_nullNameValuePairs) const
 	{
@@ -1622,18 +1682,19 @@ public:
 			return DecodingResult();
 		}
 	}
-	
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~DL_DecryptorBase() { }
-#endif
 };
 
-//! _
+//! \brief Discrete Log (DL) encryptor base implementation
+//! \tparam T field element type
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_EncryptorBase : public DL_CryptoSystemBase<PK_Encryptor, DL_PublicKey<T> >
 {
 public:
 	typedef T Element;
+
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_EncryptorBase() { }
+#endif
 
 	void Encrypt(RandomNumberGenerator &rng, const byte *plaintext, size_t plaintextLength, byte *ciphertext, const NameValuePairs &parameters = g_nullNameValuePairs) const
 	{
@@ -1656,13 +1717,11 @@ public:
 
 		encAlg.SymmetricEncrypt(rng, derivedKey, plaintext, plaintextLength, ciphertext, parameters);
 	}
-	
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~DL_EncryptorBase() { }
-#endif
 };
 
-//! _
+//! \brief Discrete Log (DL) scheme options
+//! \tparam T1 algorithm information
+//! \tparam T2 group paramters for the scheme
 template <class T1, class T2>
 struct DL_SchemeOptionsBase
 {
@@ -1671,7 +1730,9 @@ struct DL_SchemeOptionsBase
 	typedef typename GroupParameters::Element Element;
 };
 
-//! _
+//! \brief Discrete Log (DL) key options
+//! \tparam T1 algorithm information
+//! \tparam T2 keys used in the scheme
 template <class T1, class T2>
 struct DL_KeyedSchemeOptions : public DL_SchemeOptionsBase<T1, typename T2::PublicKey::GroupParameters>
 {
@@ -1680,7 +1741,12 @@ struct DL_KeyedSchemeOptions : public DL_SchemeOptionsBase<T1, typename T2::Publ
 	typedef typename Keys::PublicKey PublicKey;
 };
 
-//! _
+//! \brief Discrete Log (DL) signature scheme options
+//! \tparam T1 algorithm information
+//! \tparam T2 keys used in the scheme
+//! \tparam T3 signature algorithm
+//! \tparam T4 message encoding method
+//! \tparam T5 hash function
 template <class T1, class T2, class T3, class T4, class T5>
 struct DL_SignatureSchemeOptions : public DL_KeyedSchemeOptions<T1, T2>
 {
@@ -1689,7 +1755,12 @@ struct DL_SignatureSchemeOptions : public DL_KeyedSchemeOptions<T1, T2>
 	typedef T5 HashFunction;
 };
 
-//! _
+//! \brief Discrete Log (DL) crypto scheme options
+//! \tparam T1 algorithm information
+//! \tparam T2 keys used in the scheme
+//! \tparam T3 key agreement algorithm
+//! \tparam T4 key derivation algorithm
+//! \tparam T5 symmetric encryption algorithm
 template <class T1, class T2, class T3, class T4, class T5>
 struct DL_CryptoSchemeOptions : public DL_KeyedSchemeOptions<T1, T2>
 {
@@ -1698,7 +1769,10 @@ struct DL_CryptoSchemeOptions : public DL_KeyedSchemeOptions<T1, T2>
 	typedef T5 SymmetricEncryptionAlgorithm;
 };
 
-//! _
+//! \brief Discrete Log (DL) base object implementation
+//! \tparam BASE TODO
+//! \tparam SCHEME_OPTIONS options for the scheme
+//! \tparam KEY key used in the scheme
 template <class BASE, class SCHEME_OPTIONS, class KEY>
 class CRYPTOPP_NO_VTABLE DL_ObjectImplBase : public AlgorithmImpl<BASE, typename SCHEME_OPTIONS::AlgorithmInfo>
 {
@@ -1706,16 +1780,16 @@ public:
 	typedef SCHEME_OPTIONS SchemeOptions;
 	typedef typename KEY::Element Element;
 
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_ObjectImplBase() { }
+#endif
+
 	PrivateKey & AccessPrivateKey() {return m_key;}
 	PublicKey & AccessPublicKey() {return m_key;}
 
 	// KeyAccessor
 	const KEY & GetKey() const {return m_key;}
 	KEY & AccessKey() {return m_key;}
-	
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~DL_ObjectImplBase() { }
-#endif
 
 protected:
 	typename BASE::KeyInterface & AccessKeyInterface() {return m_key;}
@@ -1737,7 +1811,10 @@ private:
 	KEY m_key;
 };
 
-//! _
+//! \brief Discrete Log (DL) object implementation
+//! \tparam BASE TODO
+//! \tparam SCHEME_OPTIONS options for the scheme
+//! \tparam KEY key used in the scheme
 template <class BASE, class SCHEME_OPTIONS, class KEY>
 class CRYPTOPP_NO_VTABLE DL_ObjectImpl : public DL_ObjectImplBase<BASE, SCHEME_OPTIONS, KEY>
 {
@@ -1763,7 +1840,8 @@ protected:
 		{return Singleton<CPP_TYPENAME SCHEME_OPTIONS::MessageEncodingMethod>().Ref();}
 };
 
-//! _
+//! \brief Discrete Log (DL) signer implementation
+//! \tparam SCHEME_OPTIONS options for the scheme
 template <class SCHEME_OPTIONS>
 class DL_SignerImpl : public DL_ObjectImpl<DL_SignerBase<typename SCHEME_OPTIONS::Element>, SCHEME_OPTIONS, typename SCHEME_OPTIONS::PrivateKey>
 {
@@ -1776,7 +1854,8 @@ public:
 	}
 };
 
-//! _
+//! \brief Discrete Log (DL) verifier implementation
+//! \tparam SCHEME_OPTIONS options for the scheme
 template <class SCHEME_OPTIONS>
 class DL_VerifierImpl : public DL_ObjectImpl<DL_VerifierBase<typename SCHEME_OPTIONS::Element>, SCHEME_OPTIONS, typename SCHEME_OPTIONS::PublicKey>
 {
@@ -1787,13 +1866,15 @@ public:
 	}
 };
 
-//! _
+//! \brief Discrete Log (DL) encryptor implementation
+//! \tparam SCHEME_OPTIONS options for the scheme
 template <class SCHEME_OPTIONS>
 class DL_EncryptorImpl : public DL_ObjectImpl<DL_EncryptorBase<typename SCHEME_OPTIONS::Element>, SCHEME_OPTIONS, typename SCHEME_OPTIONS::PublicKey>
 {
 };
 
-//! _
+//! \brief Discrete Log (DL) decryptor implementation
+//! \tparam SCHEME_OPTIONS options for the scheme
 template <class SCHEME_OPTIONS>
 class DL_DecryptorImpl : public DL_ObjectImpl<DL_DecryptorBase<typename SCHEME_OPTIONS::Element>, SCHEME_OPTIONS, typename SCHEME_OPTIONS::PrivateKey>
 {
@@ -1801,12 +1882,17 @@ class DL_DecryptorImpl : public DL_ObjectImpl<DL_DecryptorBase<typename SCHEME_O
 
 // ********************************************************
 
-//! _
+//! \brief Discrete Log (DL) simple key agreement base implementation
+//! \tparam T class or type
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_SimpleKeyAgreementDomainBase : public SimpleKeyAgreementDomain
 {
 public:
 	typedef T Element;
+
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_SimpleKeyAgreementDomainBase() { }
+#endif
 
 	CryptoParameters & AccessCryptoParameters() {return AccessAbstractGroupParameters();}
 	unsigned int AgreedValueLength() const {return GetAbstractGroupParameters().GetEncodedElementSize(false);}
@@ -1847,11 +1933,9 @@ public:
 		return true;
 	}
 
+	//! \brief Retrieves a reference to the group generator
+	//! \returns const reference to the group generator
 	const Element &GetGenerator() const {return GetAbstractGroupParameters().GetSubgroupGenerator();}
-	
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~DL_SimpleKeyAgreementDomainBase() { }
-#endif
 
 protected:
 	virtual const DL_KeyAgreementAlgorithm<Element> & GetKeyAgreementAlgorithm() const =0;
@@ -1885,6 +1969,10 @@ class DL_KeyAgreementAlgorithm_DH : public DL_KeyAgreementAlgorithm<ELEMENT>
 {
 public:
 	typedef ELEMENT Element;
+
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_KeyAgreementAlgorithm_DH() {}
+#endif
 
 	static const char * CRYPTOPP_API StaticAlgorithmName()
 		{return COFACTOR_OPTION::ToEnum() == INCOMPATIBLE_COFACTOR_MULTIPLICTION ? "DHC" : "DH";}
@@ -1929,15 +2017,11 @@ public:
 			}
 		}
 	}
-	
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~DL_KeyAgreementAlgorithm_DH() {}
-#endif
 };
 
 // ********************************************************
 
-//! \details Template implementing constructors for public key algorithm classes
+//! \brief Template implementing constructors for public key algorithm classes
 template <class BASE>
 class CRYPTOPP_NO_VTABLE PK_FinalTemplate : public BASE
 {
@@ -2057,10 +2141,13 @@ struct EncryptionStandard {};
 //!   Not all standards apply to all algorithms.
 struct SignatureStandard {};
 
+//! \brief Trapdoor Function (TF) encryption scheme
+//! \tparam STANDARD standard
+//! \tparam KEYS keys used in the encryption scheme
+//! \tparam ALG_INFO algorithm information
 template <class STANDARD, class KEYS, class ALG_INFO>
 class TF_ES;
 
-//! \brief Trapdoor Function Based Encryption Scheme
 template <class STANDARD, class KEYS, class ALG_INFO = TF_ES<STANDARD, KEYS, int> >
 class TF_ES : public KEYS
 {
@@ -2079,10 +2166,15 @@ public:
 	typedef PK_FinalTemplate<TF_EncryptorImpl<SchemeOptions> > Encryptor;
 };
 
+//! \class TF_SS
+//! \brief Trapdoor Function (TF) Signature Scheme
+//! \tparam STANDARD standard
+//! \tparam H hash function
+//! \tparam KEYS keys used in the signature scheme
+//! \tparam ALG_INFO algorithm information
 template <class STANDARD, class H, class KEYS, class ALG_INFO>	// VC60 workaround: doesn't work if KEYS is first parameter
 class TF_SS;
 
-//! \brief Trapdoor Function Based Signature Scheme
 template <class STANDARD, class H, class KEYS, class ALG_INFO = TF_SS<STANDARD, H, KEYS, int> >	// VC60 workaround: doesn't work if KEYS is first parameter
 class TF_SS : public KEYS
 {
@@ -2100,10 +2192,16 @@ public:
 	typedef PK_FinalTemplate<TF_VerifierImpl<SchemeOptions> > Verifier;
 };
 
+//! \class DL_SS
+//! \brief Discrete Log (DL) signature scheme
+//! \tparam KEYS keys used in the signature scheme
+//! \tparam SA signature algorithm
+//! \tparam MEM message encoding method
+//! \tparam H hash function
+//! \tparam ALG_INFO algorithm information
 template <class KEYS, class SA, class MEM, class H, class ALG_INFO>
 class DL_SS;
 
-//! \brief Discrete Log Based Signature Scheme
 template <class KEYS, class SA, class MEM, class H, class ALG_INFO = DL_SS<KEYS, SA, MEM, H, int> >
 class DL_SS : public KEYS
 {
@@ -2118,7 +2216,12 @@ public:
 	typedef PK_FinalTemplate<DL_VerifierImpl<SchemeOptions> > Verifier;
 };
 
-//! \brief Discrete Log Based Encryption Scheme
+//! \brief Discrete Log (DL) encryption scheme
+//! \tparam KEYS keys used in the encryption scheme
+//! \tparam AA key agreement algorithm
+//! \tparam DA key derivation algorithm
+//! \tparam EA encryption algorithm
+//! \tparam ALG_INFO algorithm information
 template <class KEYS, class AA, class DA, class EA, class ALG_INFO>
 class DL_ES : public KEYS
 {
