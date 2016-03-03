@@ -405,14 +405,14 @@ void BERGeneralDecoder::Init(byte asnTag)
 
 BERGeneralDecoder::~BERGeneralDecoder()
 {
-	try	// avoid throwing in constructor
+	try	// avoid throwing in destructor
 	{
 		if (!m_finished)
 			MessageEnd();
 	}
 	catch (const Exception&)
 	{
-		assert(0);
+		// assert(0);
 	}
 }
 
