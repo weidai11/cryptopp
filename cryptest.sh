@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # cryptest.sh - written and placed in public domain by Jeffrey Walton and Uri Blumenthal.
 #               Copyright assigned to Crypto++ project.
@@ -116,7 +116,7 @@ fi
 # Set to 0 if you don't have Intel multiarch
 HAVE_INTEL_MULTIARCH=0
 if [ "$IS_DARWIN" -ne "0" ] && [ "$IS_X86" -ne "0" ]; then
-$CXX -x c++ -DCRYPTOPP_ADHOC_MAIN -arch i386 -arch x86_64 -c adhoc.cpp.proto -o $TMP/adhoc > /dev/null 2>&1
+$CXX -x c++ -DCRYPTOPP_ADHOC_MAIN -arch i386 -arch x86_64 adhoc.cpp.proto -o $TMP/adhoc > /dev/null 2>&1
 if [ "$?" -eq "0" ]; then
 	HAVE_INTEL_MULTIARCH=1
 fi
