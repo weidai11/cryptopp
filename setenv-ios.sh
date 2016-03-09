@@ -40,7 +40,7 @@ SETENV_VERBOSE=1
 
 for ARG in "$@"
 do
-  CL=`echo $ARG | tr '[A-Z]' '[a-z]'`
+  CL=$(echo $ARG | tr '[A-Z]' '[a-z]')
 
   # i386 (simulator)
   if [ "$CL" == "i386" ]; then
@@ -129,11 +129,6 @@ if [ -z "$IOS_ARCH" ]; then
 	# TODO: fill in missing simulator architectures
 fi
 
-########################################
-#####       Error Condition        #####
-########################################
-SETENV_ERROR=0
-
 # Allow a user override? I think we should be doing this. The use case is:
 # move /Applications/Xcode somewhere else for a side-by-side installation.
 # These sorts of tricks are a required procedure on Apple's gear:
@@ -163,24 +158,24 @@ if [ ! -d "$XCODE_DEVELOPER_TOP" ]; then
   [ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
 fi
 
-# APPLE_TOOLCHAIN is the location of the actual compiler tools.
+# IOS_TOOLCHAIN is the location of the actual compiler tools.
 if [ -d "$XCODE_DEVELOPER/Toolchains/XcodeDefault.xctoolchain/usr/bin/" ]; then
-  APPLE_TOOLCHAIN="$XCODE_DEVELOPER/Toolchains/XcodeDefault.xctoolchain/usr/bin/"
+  IOS_TOOLCHAIN="$XCODE_DEVELOPER/Toolchains/XcodeDefault.xctoolchain/usr/bin/"
 elif [ -d "$XCODE_DEVELOPER_TOP/usr/bin/" ]; then
-  APPLE_TOOLCHAIN="$XCODE_DEVELOPER_TOP/usr/bin/"
+  IOS_TOOLCHAIN="$XCODE_DEVELOPER_TOP/usr/bin/"
 fi
 
-if [ -z "$APPLE_TOOLCHAIN" ] || [ ! -d "$APPLE_TOOLCHAIN" ]; then
+if [ -z "$IOS_TOOLCHAIN" ] || [ ! -d "$IOS_TOOLCHAIN" ]; then
   echo "ERROR: unable to find Xcode cross-compiler tools."
   [ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
 fi
 
 #
 # XCODE_SDK is the SDK name/version being used - adjust the list as appropriate.
-# For example, remove 4.3, 6.2, and 6.1 if they are not installed. Note: Apple 
-# makes this available under Xcode via $(SDK_NAME).
+# For example, remove 4.3, 6.2, and 6.1 if they are not installed. We go back to
+# the 1.0 SDKs because Apple WatchOS uses low numbers, like 2.0 and 2.1.
 unset XCODE_SDK
-for i in $(seq -f "%.1f" 20.0 -0.1 4.2)
+for i in $(seq -f "%.1f" 20.0 -0.1 1.0)
 do
 	if [ -d "$XCODE_DEVELOPER/Platforms/$APPLE_SDK.platform/Developer/SDKs/$APPLE_SDK$i.sdk" ]; then
     	XCODE_SDK="$APPLE_SDK$i.sdk"
@@ -238,7 +233,7 @@ if [ "$SETENV_VERBOSE" == "1" ]; then
   echo "XCODE_TOOLCHAIN: $XCODE_TOOLCHAIN"
   echo "XCODE_DEVELOPER_TOP: $XCODE_DEVELOPER_TOP"
   echo "IOS_ARCH: $IOS_ARCH"
-  echo "APPLE_TOOLCHAIN: $APPLE_TOOLCHAIN"
+  echo "IOS_TOOLCHAIN: $IOS_TOOLCHAIN"
   echo "IOS_FLAGS: $IOS_FLAGS"
   echo "IOS_SYSROOT: $IOS_SYSROOT"
 fi
@@ -247,18 +242,18 @@ fi
 #####     Path with Toolchains     #####
 ########################################
 
-# Only modify/export PATH if APPLE_TOOLCHAIN good
-if [ ! -z "$APPLE_TOOLCHAIN" ] && [ ! -z "$XCODE_TOOLCHAIN" ]; then
+# Only modify/export PATH if IOS_TOOLCHAIN good
+if [ ! -z "$IOS_TOOLCHAIN" ] && [ ! -z "$XCODE_TOOLCHAIN" ]; then
 
-  # And only modify PATH if APPLE_TOOLCHAIN is not present
-  TOOL_PATH="$APPLE_TOOLCHAIN:$XCODE_TOOLCHAIN"
-  LEN=${#TOOL_PATH}
-  SUBSTR=${PATH:0:$LEN}
-  if [ "$SUBSTR" != "$TOOL_PATH" ]; then
-    export PATH="$TOOL_PATH":"$PATH"
-  fi
+	# And only modify PATH if IOS_TOOLCHAIN is not present
+	TOOL_PATH="$IOS_TOOLCHAIN:$XCODE_TOOLCHAIN"
+	LEN=${#TOOL_PATH}
+	SUBSTR=${PATH:0:$LEN}
+	if [ "$SUBSTR" != "$TOOL_PATH" ]; then
+		export PATH="$TOOL_PATH":"$PATH"
+	fi
 else
-    echo "ERROR: unable to set new PATH."
+	echo "ERROR: unable to set new PATH."
 	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
 fi
 
@@ -271,17 +266,17 @@ fi
 FOUND_ALL=1
 
 # Apple's embedded g++ cannot compile integer.cpp
-TARGET_TOOLS="clang clang++ ar ranlib libtool ld"
-for tool in $TARGET_TOOLS
+TOOLS=(clang clang++ ar ranlib libtool ld)
+for tool in ${TOOLS[@]}
 do
-  if [ ! -e "$APPLE_TOOLCHAIN/$tool" ] && [ ! -e "$XCODE_TOOLCHAIN/$tool" ]; then
-    echo "WARNING: unable to find $tool at APPLE_TOOLCHAIN or XCODE_TOOLCHAIN"
-    FOUND_ALL=0
-  fi
+	if [ ! -e "$IOS_TOOLCHAIN/$tool" ] && [ ! -e "$XCODE_TOOLCHAIN/$tool" ]; then
+		echo "WARNING: unable to find $tool at IOS_TOOLCHAIN or XCODE_TOOLCHAIN"
+		FOUND_ALL=0
+	fi
 done
 
 if [ "$SETENV_VERBOSE" == "1" ] && [ "$FOUND_ALL" == "1" ]; then
-  echo "TOOL TEST: found all tools, this might actually work"
+	echo "TOOL TEST: found all tools, this might actually work"
 fi
 
 [ "$0" = "$BASH_SOURCE" ] && exit 0 || return 0
