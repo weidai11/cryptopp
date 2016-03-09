@@ -128,3 +128,5 @@ if [ ! -z "$VERBOSE" ] && [ "$VERBOSE" -ne 0 ]; then
   echo "ARM_EMBEDDED_FLAGS: $ARM_EMBEDDED_FLAGS"
   echo "ARM_EMBEDDED_SYSROOT: $ARM_EMBEDDED_SYSROOT"
 fi
+
+[ "$0" = "$BASH_SOURCE" ] && exit 0 || return 0

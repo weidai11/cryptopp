@@ -207,8 +207,8 @@ fi
 
 # Error checking
 if [ ! -e "$AOSP_TOOLCHAIN_PATH/$RANLIB" ]; then
-  echo "ERROR: Failed to find Android ranlib. Please edit this script."
-  # exit 1
+	echo "ERROR: Failed to find Android ranlib. Please edit this script."
+	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
 fi
 
 # Error checking
@@ -219,8 +219,8 @@ fi
 
 # Error checking
 if [ ! -e "$AOSP_TOOLCHAIN_PATH/$AS" ]; then
-  echo "ERROR: Failed to find Android as. Please edit this script."
-# exit 1
+	echo "ERROR: Failed to find Android as. Please edit this script."
+	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
 fi
 
 # Error checking
@@ -339,3 +339,5 @@ if [ ! -z "$VERBOSE" ] && [ "$VERBOSE" != "0" ]; then
     echo "AOSP_BITS_INC: $AOSP_BITS_INC"
   fi
 fi
+
+[ "$0" = "$BASH_SOURCE" ] && exit 0 || return 0
