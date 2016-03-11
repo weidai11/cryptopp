@@ -42,6 +42,7 @@ IS_LINUX=$(uname -s | grep -i -c linux)
 IS_CYGWIN=$(uname -s | grep -i -c cygwin)
 IS_MINGW=$(uname -s | grep -i -c mingw)
 IS_OPENBSD=$(uname -s | grep -i -c openbsd)
+IS_NETBSD=$(uname -s | grep -i -c openbsd)
 IS_X86=$(uname -m | egrep -i -c "(i386|i586|i686|amd64|x86_64)")
 IS_X64=$(uname -m | egrep -i -c "(amd64|x86_64)")
 IS_PPC=$(uname -m | egrep -i -c "(Power|PPC)")
@@ -66,7 +67,7 @@ if [ "$CXX" == "gcc" ]; then
 fi
 
 # Fixup
-if [ "$IS_OPENBSD" -ne "0" ]; then
+if [ "$IS_OPENBSD" -ne "0" ] || [ "$IS_NETBSD" -ne "0" ]; then
 	MAKE=gmake
 else
 	MAKE=make
