@@ -111,8 +111,9 @@ fi
 # Finally, the flags...
 # export ARM_EMBEDDED_FLAGS="-march=armv7-a -mfloat-abi=softfp -mfpu=vfpv3-d16 -Wl,--fix-cortex-a8 -I$ARM_EMBEDDED_CXX_HEADERS -I$ARM_EMBEDDED_CXX_HEADERS/arm-linux-gnueabi"
 
+# Add additional flags below, like -mcpu=cortex-m3.
 if [ -z "$ARM_EMBEDDED_FLAGS" ]; then
-  export ARM_EMBEDDED_FLAGS="-mcpu=cortex-m3 -I$ARM_EMBEDDED_CXX_HEADERS -I$ARM_EMBEDDED_CXX_HEADERS/arm-linux-gnueabi"
+  export ARM_EMBEDDED_FLAGS="-I$ARM_EMBEDDED_CXX_HEADERS -I$ARM_EMBEDDED_CXX_HEADERS/arm-linux-gnueabi"
 fi
 
 # And print stuff to wow the user...
