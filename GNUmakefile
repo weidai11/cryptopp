@@ -29,6 +29,7 @@ IS_LINUX := $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "Linux")
 IS_MINGW := $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "MinGW")
 IS_CYGWIN := $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "Cygwin")
 IS_DARWIN := $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "Darwin")
+IS_NETBSD := $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "NetBSD")
 
 SUN_COMPILER := $(shell $(CXX) -V 2>&1 | $(EGREP) -i -c "CC: Sun")
 GCC_COMPILER := $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "(gcc|g\+\+)")
@@ -92,13 +93,17 @@ ifeq ($(IS_X86)$(IS_X32)$(IS_CYGWIN)$(IS_MINGW),0000)
 endif
 
 # Guard use of -march=native
-ifeq ($(GCC_COMPILER),0)
+ifeq ($(GCC42_OR_LATER)$(IS_NETBSD),10)
    CXXFLAGS += -march=native
-else ifneq ($(GCC42_OR_LATER),0)
+else ifeq ($(CLANG_COMPILER),1)
+   CXXFLAGS += -march=native
+else ifeq ($(INTEL_COMPILER),1)
    CXXFLAGS += -march=native
 else
   # GCC 3.3 and "unknown option -march="
-  # GCC 4.1 compiler crash with -march=native.
+  # Ubuntu GCC 4.1 compiler crash with -march=native
+  # NetBSD GCC 4.8 compiler and "bad value (native) for -march= switch"
+  # Sun compiler from legacy
   ifneq ($(IS_X86_64),0)
     CXXFLAGS += -m64
   else
