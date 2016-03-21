@@ -134,7 +134,7 @@ fi
 # These sorts of tricks are a required procedure on Apple's gear:
 # http://stackoverflow.com/questions/11651773/install-simulator-sdk-4-3-to-xcode-4-4-on-mountain-lion
 if [ -z "$XCODE_DEVELOPER" ]; then
-  XCODE_DEVELOPER=$(xcode-select -print-path)
+  XCODE_DEVELOPER=$(xcode-select -print-path 2>/dev/null)
 fi
 
 if [ ! -d "$XCODE_DEVELOPER" ]; then
