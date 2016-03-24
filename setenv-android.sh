@@ -63,6 +63,9 @@ if [ -z "$ANDROID_NDK_ROOT" ]; then
 	if [ -z "$ANDROID_NDK_ROOT" ]; then
 		ANDROID_NDK_ROOT=$(find $HOME -maxdepth 1 -type d -name android-ndk-r10* 2>/dev/null | tail -1)
 	fi
+	if [ -d "$HOME/Library/Android/sdk/ndk-bundle" ]; then
+		ANDROID_NDK_ROOT="$HOME/Library/Android/sdk/ndk-bundle"
+	fi
 fi
 
 # Error checking
