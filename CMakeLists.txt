@@ -1,14 +1,15 @@
-cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8.7 FATAL_ERROR)
 
 project(cryptopp)
-
-set(cryptopp_VERSION_MAJOR 5)
-set(cryptopp_VERSION_MINOR 6)
-set(cryptopp_VERSION_PATCH 3)
+set(cryptopp_VERSION 5.6.3)
 
 include(GNUInstallDirs)
 include(TestBigEndian)
 include(CheckCXXSymbolExists)
+
+if(POLICY CMP0042)
+	cmake_policy(SET CMP0042 NEW)
+endif()
 
 #============================================================================
 # Settable options
@@ -26,16 +27,29 @@ set(CRYPTOPP_DATA_DIR "" CACHE PATH "Crypto++ test data directory")
 # Internal compiler options
 #============================================================================
 
-set(LIB_VER ${cryptopp_VERSION_MAJOR}${cryptopp_VERSION_MINOR}${cryptopp_VERSION_PATCH})
+string(REPLACE "." ";" cryptopp_VERSION_LIST ${cryptopp_VERSION})
+list(GET cryptopp_VERSION_LIST 0 cryptopp_VERSION_MAJOR)
+list(GET cryptopp_VERSION_LIST 1 cryptopp_VERSION_MINOR)
+list(GET cryptopp_VERSION_LIST 2 cryptopp_VERSION_PATCH)
+
+math(EXPR BITS "8*${CMAKE_SIZEOF_VOID_P}")
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Intel")
 	add_definitions(-wd68 -wd186 -wd279 -wd327 -wd161 -wd3180)
 endif()
 
 # Endianess
-TEST_BIG_ENDIAN(IS_BIG_ENDIAN)
+test_big_endian(IS_BIG_ENDIAN)
 if(IS_BIG_ENDIAN)
 	add_definitions(-DIS_BIG_ENDIAN)
+endif()
+
+# Position independent code
+if(BITS EQUAL 64)
+	# Enables -fPIC on all 64-bit platforms
+	set(cryptopp_POSITION_INDEPENDENT_CODE TRUE)
+else()
+	set(cryptopp_POSITION_INDEPENDENT_CODE FALSE)
 endif()
 
 if(DISABLE_ASM)
@@ -48,7 +62,7 @@ if(DISABLE_AESNI)
 	add_definitions(-DCRYPTOPP_DISABLE_AESNI)
 endif()
 if(NOT CRYPTOPP_DATA_DIR STREQUAL "")
-	add_definitions(-DCRYPTOPP_DATA_DIR=${CRYPTOPP_DATA_DIR})
+	add_definitions(-DCRYPTOPP_DATA_DIR="${CRYPTOPP_DATA_DIR}")
 endif()
 
 #============================================================================
@@ -78,25 +92,30 @@ set(cryptopp_SOURCES
 		${cryptopp_SOURCES}
 		)
 
-if(MINGW)
+if(WIN32)
 	list(APPEND cryptopp_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/winpipes.cpp)
+endif()
+
+if(MSVC AND NOT DISABLE_ASM)
+	enable_language(ASM_MASM)
+	if(BITS EQUAL 32)
+		set(CMAKE_ASM_MASM_FLAGS "${CMAKE_ASM_MASM_FLAGS} /nologo /D_M_X86 /W3 /Cx /Zi /safeseh")
+	else()
+		set(CMAKE_ASM_MASM_FLAGS "${CMAKE_ASM_MASM_FLAGS} /nologo /D_M_X64 /W3 /Cx /Zi")
+		list(APPEND cryptopp_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/x64dll.asm)
+		list(APPEND cryptopp_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/x64masm.asm)
+	endif()
+	list(APPEND cryptopp_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/rdrand.asm)
 endif()
 
 #============================================================================
 # Compile targets
 #============================================================================
-add_library(cryptopp-object OBJECT ${cryptopp_SOURCES})
-
-if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-	# Enables -fPIC on all 64-bit platforms
-	set_target_properties(cryptopp-object PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+if(${CMAKE_VERSION} VERSION_GREATER 2.8.8)
+	include("cmake/cryptopp-compile-targets-2.8.8.cmake")
+else()
+	include("cmake/cryptopp-compile-targets.cmake")
 endif()
-
-add_library(cryptopp-static STATIC $<TARGET_OBJECTS:cryptopp-object>)
-add_library(cryptopp-shared SHARED $<TARGET_OBJECTS:cryptopp-object>)
-
-target_include_directories(cryptopp-shared PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> $<INSTALL_INTERFACE:include/cryptopp>)
-target_include_directories(cryptopp-static PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> $<INSTALL_INTERFACE:include/cryptopp>)
 
 if(NOT MSVC)
 	set(COMPAT_VERSION ${cryptopp_VERSION_MAJOR}.${cryptopp_VERSION_MINOR})
@@ -127,9 +146,7 @@ target_link_libraries(cryptopp-shared ${CMAKE_THREAD_LIBS_INIT})
 #============================================================================
 enable_testing()
 if(BUILD_TESTING)
-	add_library(cryptest-object OBJECT ${cryptopp_SOURCES_TEST})
-
-	add_executable(cryptest $<TARGET_OBJECTS:cryptest-object>)
+	add_executable(cryptest ${cryptopp_SOURCES_TEST})
 	target_link_libraries(cryptest cryptopp-static)
 
 	file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/TestData DESTINATION ${PROJECT_BINARY_DIR})
@@ -175,9 +192,9 @@ install(TARGETS cryptopp-static EXPORT ${export_name} DESTINATION ${CMAKE_INSTAL
 install(FILES ${cryptopp_HEADERS} DESTINATION include/cryptopp)
 
 # CMake Package
-include(CMakePackageConfigHelpers)
-write_basic_package_version_file("${PROJECT_BINARY_DIR}/cryptopp-config-version.cmake" VERSION ${cryptopp_VERSION_MAJOR}.${cryptopp_VERSION_MINOR}.${cryptopp_VERSION_PATCH} COMPATIBILITY SameMajorVersion)
-install(FILES cryptopp-config.cmake ${PROJECT_BINARY_DIR}/cryptopp-config-version.cmake DESTINATION "lib/cmake/cryptopp")
+set(CVF_VERSION "${cryptopp_VERSION}")
+configure_file(cmake/cryptopp-config-version.in ${PROJECT_BINARY_DIR}/cryptopp-config-version.cmake)
+install(FILES cmake/cryptopp-config.cmake ${PROJECT_BINARY_DIR}/cryptopp-config-version.cmake DESTINATION "lib/cmake/cryptopp")
 install(EXPORT ${export_name} DESTINATION "lib/cmake/cryptopp")
 
 # Tests
@@ -186,7 +203,6 @@ if(BUILD_TESTING)
 	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/TestData DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cryptopp)
 	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/TestVectors DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cryptopp)
 endif()
-
 
 # Documentation
 if(BUILD_DOCUMENTATION)
