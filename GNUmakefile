@@ -430,14 +430,12 @@ endif
 	-$(RM) adhoc.cpp.o adhoc.cpp.proto.o $(LIBOBJS) $(TESTOBJS) $(DLLOBJS) $(LIBIMPORTOBJS) $(TESTIMPORTOBJS) $(DLLTESTOBJS)
 	-$(RM) cryptest.exe dlltest.exe cryptest.import.exe cryptest.info ct rdrand-???.o
 	-$(RM) *.gcno *.gcda *.stackdump core-*
+	-$(RM) /tmp/adhoc.exe
+ifneq ($(wildcard /tmp/cryptopp_test/),)
+	-$(RM) -r /tmp/cryptopp_test/
+endif
 ifneq ($(wildcard *.exe.dSYM),)
 	-$(RM) -r *.exe.dSYM/
-endif
-ifneq ($(wildcard $(DOCUMENT_DIRECTORY)/),)
-	-$(RM) -r $(DOCUMENT_DIRECTORY)/
-endif
-ifneq ($(wildcard TestCoverage/),)
-	-$(RM) -r TestCoverage/
 endif
 ifneq ($(wildcard cov-int/),)
 	-$(RM) -r cov-int/
@@ -450,6 +448,12 @@ distclean: clean
 	-$(RM) *.o *.ii *.s *~
 ifneq ($(wildcard CMakeFiles/),)
 	-$(RM) -r CMakeFiles/
+endif
+ifneq ($(wildcard $(DOCUMENT_DIRECTORY)/),)
+	-$(RM) -r $(DOCUMENT_DIRECTORY)/
+endif
+ifneq ($(wildcard TestCoverage/),)
+	-$(RM) -r TestCoverage/
 endif
 ifneq ($(wildcard cryptopp$(LIB_VER)\.*),)
 	-$(RM) cryptopp$(LIB_VER)\.*

@@ -80,7 +80,7 @@ if [ -z "$TMP" ]; then
 	TMP=/tmp
 fi
 
-$CXX -x c++ -DCRYPTOPP_ADHOC_MAIN -Wno-deprecated-declarations adhoc.cpp.proto -o $TMP/adhoc > /dev/null 2>&1
+$CXX -x c++ -DCRYPTOPP_ADHOC_MAIN -Wno-deprecated-declarations adhoc.cpp.proto -o $TMP/adhoc.exe > /dev/null 2>&1
 if [ "$?" -eq "0" ]; then
 	ADD_CXXFLAGS="$ADD_CXXFLAGS -Wno-deprecated-declarations"
 fi
@@ -102,7 +102,7 @@ else
 fi
 
 # Set to 0 if you don't have UBsan
-$CXX -x c++ -DCRYPTOPP_ADHOC_MAIN -fsanitize=undefined adhoc.cpp.proto -o $TMP/adhoc > /dev/null 2>&1
+$CXX -x c++ -DCRYPTOPP_ADHOC_MAIN -fsanitize=undefined adhoc.cpp.proto -o $TMP/adhoc.exe > /dev/null 2>&1
 if [ "$?" -eq "0" ] && [ "$IS_X86" -ne "0" ]; then
 	HAVE_UBSAN=1
 else
@@ -110,7 +110,7 @@ else
 fi
 
 # Set to 0 if you don't have Asan
-$CXX -x c++ -DCRYPTOPP_ADHOC_MAIN -fsanitize=address adhoc.cpp.proto -o $TMP/adhoc > /dev/null 2>&1
+$CXX -x c++ -DCRYPTOPP_ADHOC_MAIN -fsanitize=address adhoc.cpp.proto -o $TMP/adhoc.exe > /dev/null 2>&1
 if [ "$?" -eq "0" ] && [ "$IS_X86" -ne "0" ]; then
 	HAVE_ASAN=1
 else
@@ -120,7 +120,7 @@ fi
 # Set to 0 if you don't have Intel multiarch
 HAVE_INTEL_MULTIARCH=0
 if [ "$IS_DARWIN" -ne "0" ] && [ "$IS_X86" -ne "0" ]; then
-$CXX -x c++ -DCRYPTOPP_ADHOC_MAIN -arch i386 -arch x86_64 adhoc.cpp.proto -o $TMP/adhoc > /dev/null 2>&1
+$CXX -x c++ -DCRYPTOPP_ADHOC_MAIN -arch i386 -arch x86_64 adhoc.cpp.proto -o $TMP/adhoc.exe > /dev/null 2>&1
 if [ "$?" -eq "0" ]; then
 	HAVE_INTEL_MULTIARCH=1
 fi
@@ -129,7 +129,7 @@ fi
 # Set to 0 if you don't have PPC multiarch
 HAVE_PPC_MULTIARCH=0
 if [ "$IS_DARWIN" -ne "0" ] && [ "$IS_PPC" -ne "0" ]; then
-$CXX -x -DCRYPTOPP_ADHOC_MAIN c++ -arch ppc -arch ppc64 adhoc.cpp.proto -o $TMP/adhoc > /dev/null 2>&1
+$CXX -x -DCRYPTOPP_ADHOC_MAIN c++ -arch ppc -arch ppc64 adhoc.cpp.proto -o $TMP/adhoc.exe > /dev/null 2>&1
 if [ "$?" -eq "0" ]; then
 	HAVE_PPC_MULTIARCH=1
 fi
@@ -137,7 +137,7 @@ fi
 
 HAVE_X32=0
 if [ "$IS_X64" -ne "0" ]; then
-$CXX -x -DCRYPTOPP_ADHOC_MAIN c++ -mx32 adhoc.cpp.proto -o $TMP/adhoc > /dev/null 2>&1
+$CXX -x -DCRYPTOPP_ADHOC_MAIN c++ -mx32 adhoc.cpp.proto -o $TMP/adhoc.exe > /dev/null 2>&1
 if [ "$?" -eq "0" ]; then
 	HAVE_X32=1
 fi
@@ -1711,7 +1711,7 @@ fi
 if [ "$CXX" == "g++" ]; then
 
 	CLANG_COMPILER=$(which clang++ 2>/dev/null)
-	"$CLANG_COMPILER" -x c++ -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o $TMP/adhoc > /dev/null 2>&1
+	"$CLANG_COMPILER" -x c++ -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o $TMP/adhoc.exe > /dev/null 2>&1
 	if [ "$?" -eq "0" ]; then
 
 		############################################
