@@ -6,6 +6,13 @@
 #include <intrin.h>
 #endif
 
+#ifdef _MSC_VER
+// Workaround for: https://connect.microsoft.com/VisualStudio/feedback/details/1600701/type-info-does-not-compile-with-has-exceptions-0
+namespace std {
+  using ::type_info;
+}
+#endif
+
 #include <string>
 #include <memory>
 #include <exception>
