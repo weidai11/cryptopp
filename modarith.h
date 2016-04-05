@@ -24,10 +24,13 @@ CRYPTOPP_DLL_TEMPLATE_CLASS AbstractEuclideanDomain<Integer>;
 //! \brief Ring of congruence classes modulo n
 //! \details This implementation represents each congruence class as the smallest
 //!   non-negative integer in that class.
-//! \details Each instance of the class provides two temporary elements to
-//!   preserve intermediate calculations for future use. For example, 
-//!   \ref ModularArithmetic::Multiply "Multiply" saves its last result in member
-//!   variable <tt>m_result1</tt>.
+//! \details <tt>const Element&</tt> returned by member functions are references
+//!   to internal data members. Since each object may have only
+//!   one such data member for holding results, the following code
+//!   will produce incorrect results:
+//!   <pre>    abcd = group.Add(group.Add(a,b), group.Add(c,d));</pre>
+//!   But this should be fine:
+//!   <pre>    abcd = group.Add(a, group.Add(b, group.Add(c,d));</pre>
 class CRYPTOPP_DLL ModularArithmetic : public AbstractRing<Integer>
 {
 public:
@@ -119,7 +122,7 @@ public:
 	const Integer& Identity() const
 		{return Integer::Zero();}
 
-	//! \brief Adds elements in the Ring
+	//! \brief Adds elements in the ring
 	//! \param a first element
 	//! \param b second element
 	//! \returns the sum of <tt>a</tt> and <tt>b</tt>
@@ -131,12 +134,12 @@ public:
 	//! \returns TODO
 	Integer& Accumulate(Integer &a, const Integer &b) const;
 
-	//! \brief Inverts the element in the Ring
+	//! \brief Inverts the element in the ring
 	//! \param a first element
 	//! \returns the inverse of the element
 	const Integer& Inverse(const Integer &a) const;
 
-	//! \brief Subtracts elements in the Ring
+	//! \brief Subtracts elements in the ring
 	//! \param a first element
 	//! \param b second element
 	//! \returns the difference of <tt>a</tt> and <tt>b</tt>. The element <tt>a</tt> must provide a Subtract member function.
@@ -148,7 +151,7 @@ public:
 	//! \returns TODO
 	Integer& Reduce(Integer &a, const Integer &b) const;
 
-	//! \brief Doubles an element in the Ring
+	//! \brief Doubles an element in the ring
 	//! \param a the element
 	//! \returns the element doubled
 	//! \details Double returns <tt>Add(a, a)</tt>. The element <tt>a</tt> must provide an Add member function.
@@ -161,38 +164,38 @@ public:
 	const Integer& MultiplicativeIdentity() const
 		{return Integer::One();}
 
-	//! \brief Multiplies elements in the Ring
-	//! \param a first element
-	//! \param b second element
+	//! \brief Multiplies elements in the ring
+	//! \param a the multiplicand
+	//! \param b the multiplier
 	//! \returns the product of a and b
 	//! \details Multiply returns <tt>a*b\%n</tt>.
 	const Integer& Multiply(const Integer &a, const Integer &b) const
 		{return m_result1 = a*b%m_modulus;}
 
-	//! \brief Square an element in the Ring
+	//! \brief Square an element in the ring
 	//! \param a the element
 	//! \returns the element squared
 	//! \details Square returns <tt>a*a\%n</tt>. The element <tt>a</tt> must provide a Square member function.
 	const Integer& Square(const Integer &a) const
 		{return m_result1 = a.Squared()%m_modulus;}
 
-	//! \brief Determines whether an element is a unit in the Ring
+	//! \brief Determines whether an element is a unit in the ring
 	//! \param a the element
 	//! \returns true if the element is a unit after reduction, false otherwise.
 	bool IsUnit(const Integer &a) const
 		{return Integer::Gcd(a, m_modulus).IsUnit();}
 
-	//! \brief Calculate the multiplicative inverse of an element in the Ring
+	//! \brief Calculate the multiplicative inverse of an element in the ring
 	//! \param a the element
 	//! \details MultiplicativeInverse returns <tt>a<sup>-1</sup>\%n</tt>. The element <tt>a</tt> must
 	//!   provide a InverseMod member function.
 	const Integer& MultiplicativeInverse(const Integer &a) const
 		{return m_result1 = a.InverseMod(m_modulus);}
 
-	//! \brief Divides elements in the Ring
-	//! \param a first element
-	//! \param b second element
-	//! \returns the element squared
+	//! \brief Divides elements in the ring
+	//! \param a the dividend
+	//! \param b the divisor
+	//! \returns the quotient
 	//! \details Divide returns <tt>a*b<sup>-1</sup>\%n</tt>.
 	const Integer& Divide(const Integer &a, const Integer &b) const
 		{return Multiply(a, MultiplicativeInverse(b));}
@@ -205,7 +208,7 @@ public:
 	//! \returns TODO
 	Integer CascadeExponentiate(const Integer &x, const Integer &e1, const Integer &y, const Integer &e2) const;
 
-	//! \brief Exponentiates a base to multiple exponents in the Ring
+	//! \brief Exponentiates a base to multiple exponents in the ring
 	//! \param results an array of Elements
 	//! \param base the base to raise to the exponents
 	//! \param exponents an array of exponents
@@ -217,17 +220,17 @@ public:
 	//! \pre <tt>COUNTOF(exponents) == exponentsCount</tt>
 	void SimultaneousExponentiate(Element *results, const Element &base, const Integer *exponents, unsigned int exponentsCount) const;
 
-	//! \brief Provides the maximum bit size of an element in the Ring
+	//! \brief Provides the maximum bit size of an element in the ring
 	//! \returns maximum bit size of an element
 	unsigned int MaxElementBitLength() const
 		{return (m_modulus-1).BitCount();}
 
-	//! \brief Provides the maximum byte size of an element in the Ring
+	//! \brief Provides the maximum byte size of an element in the ring
 	//! \returns maximum byte size of an element
 	unsigned int MaxElementByteLength() const
 		{return (m_modulus-1).ByteCount();}
 
-	//! \brief Provides a random element in the Ring
+	//! \brief Provides a random element in the ring
 	//! \param rng RandomNumberGenerator used to generate material
 	//! \param ignore_for_now unused
 	//! \returns a random element that is uniformly distributed
@@ -261,6 +264,13 @@ protected:
 //! \brief Performs modular arithmetic in Montgomery representation for increased speed
 //! \details The Montgomery representation represents each congruence class <tt>[a]</tt> as
 //!   <tt>a*r\%n</tt>, where <tt>r</tt> is a convenient power of 2.
+//! \details <tt>const Element&</tt> returned by member functions are references
+//!   to internal data members. Since each object may have only
+//!   one such data member for holding results, the following code
+//!   will produce incorrect results:
+//!   <pre>    abcd = group.Add(group.Add(a,b), group.Add(c,d));</pre>
+//!   But this should be fine:
+//!   <pre>    abcd = group.Add(a, group.Add(b, group.Add(c,d));</pre>
 class CRYPTOPP_DLL MontgomeryRepresentation : public ModularArithmetic
 {
 public:

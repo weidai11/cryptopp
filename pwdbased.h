@@ -32,6 +32,7 @@ public:
 	//! \brief Derive key from the password
 	//! \param derived the byte buffer to receive the derived password
 	//! \param derivedLen the size of the byte buffer to receive the derived password
+	//! \param purpose an octet indicating the purpose of the derivation
 	//! \param password the byte buffer with the password
 	//! \param passwordLen the size of the password, in bytes
 	//! \param salt the byte buffer with the salt
