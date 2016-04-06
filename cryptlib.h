@@ -451,8 +451,18 @@ DOCUMENTED_NAMESPACE_BEGIN(Name)
 DOCUMENTED_NAMESPACE_END
 
 //! \brief Namespace containing weak and wounded algorithms.
-//! \details Weak is part of the CryptoPP namespace. Schemes and algorithms are moved into  Weak
-//!   when their security level is reduced to an unacceptable value by contemporary standards.
+//! \details Weak is part of the CryptoPP namespace. Schemes and algorithms are moved into Weak
+//!   when their security level is reduced to an unacceptable level by contemporary standards.
+//! \details To use an algorithm in the Weak namespace, you must <tt>\c \#define
+//!   CRYPTOPP_ENABLE_NAMESPACE_WEAK 1</tt> before including a header for a weak or wounded
+//!   algorithm. For example:
+//!   <pre>
+//!     \c \#define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
+//!     \c \#include <md5.h>
+//!     ...
+//!     CryptoPP::Weak::MD5 md5;
+//!   </pre>
+
 DOCUMENTED_NAMESPACE_BEGIN(Weak)
 // weak and wounded algorithms
 DOCUMENTED_NAMESPACE_END
