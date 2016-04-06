@@ -6,13 +6,6 @@
 #include <intrin.h>
 #endif
 
-#ifdef _MSC_VER
-// Workaround for: https://connect.microsoft.com/VisualStudio/feedback/details/1600701/type-info-does-not-compile-with-has-exceptions-0
-namespace std {
-  using ::type_info;
-}
-#endif
-
 #include <string>
 #include <memory>
 #include <exception>
@@ -26,6 +19,13 @@ namespace std {
 #include <list>
 #include <map>
 #include <new>
+
+#if defined(_MSC_VER) && (_MSC_VER < 1900) && defined(_HAS_EXCEPTIONS) && (_HAS_EXCEPTIONS == 0)
+// Workaround for: https://connect.microsoft.com/VisualStudio/feedback/details/1600701/type-info-does-not-compile-with-has-exceptions-0
+namespace std {
+  using ::type_info;
+}
+#endif
 
 #if _MSC_VER >= 1600
 // for make_unchecked_array_iterator
