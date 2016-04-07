@@ -388,10 +388,12 @@ void Rijndael::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 	t3 = rk[7];
 	rk += 8;
 
-	// timing attack countermeasure. see comments at top for more details
+	// timing attack countermeasure. see comments at top for more details.
+	// also see http://github.com/weidai11/cryptopp/issues/146
 	const int cacheLineSize = GetCacheLineSize();
 	unsigned int i;
-	volatile word32 u = 0;
+	volatile word32 _u = 0;
+	word32 u = _u;
 #if defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS) || defined(CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS)
 	for (i=0; i<2048; i+=cacheLineSize)
 #else
@@ -464,10 +466,12 @@ void Rijndael::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 	t3 = rk[7];
 	rk += 8;
 
-	// timing attack countermeasure. see comments at top for more details
+	// timing attack countermeasure. see comments at top for more details.
+	// also see http://github.com/weidai11/cryptopp/issues/146
 	const int cacheLineSize = GetCacheLineSize();
 	unsigned int i;
-	volatile word32 u = 0;
+	volatile word32 _u = 0;
+	word32 u = _u;
 #if defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS) || defined(CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS)
 	for (i=0; i<2048; i+=cacheLineSize)
 #else
