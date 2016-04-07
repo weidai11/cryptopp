@@ -391,8 +391,7 @@ void Rijndael::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 	// timing attack countermeasure. see comments at top for more details
 	const int cacheLineSize = GetCacheLineSize();
 	unsigned int i;
-	volatile word32 _u = 0;
-	word32 u = _u;
+	volatile word32 u = 0;
 #if defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS) || defined(CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS)
 	for (i=0; i<2048; i+=cacheLineSize)
 #else
