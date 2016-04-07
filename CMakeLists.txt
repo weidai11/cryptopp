@@ -9,6 +9,7 @@ set(cryptopp_VERSION_PATCH 3)
 include(GNUInstallDirs)
 include(TestBigEndian)
 include(CheckCXXSymbolExists)
+
 #============================================================================
 # Settable options
 #============================================================================
@@ -89,9 +90,9 @@ if(MSVC AND NOT DISABLE_ASM)
         set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/x64masm.asm PROPERTIES COMPILE_FLAGS "/D_M_X64")
         set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/rdrand.asm PROPERTIES COMPILE_FLAGS "/D_M_X64")
  	else()    
-        set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/x64dll.asm PROPERTIES COMPILE_FLAGS "/D_M_X86")
-        set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/x64masm.asm PROPERTIES COMPILE_FLAGS "/D_M_X86")
-        set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/rdrand.asm PROPERTIES COMPILE_FLAGS "/D_M_X86")
+        set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/x64dll.asm PROPERTIES COMPILE_FLAGS "/D_M_X86 /safeseh")
+        set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/x64masm.asm PROPERTIES COMPILE_FLAGS "/D_M_X86 /safeseh")
+        set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/rdrand.asm PROPERTIES COMPILE_FLAGS "/D_M_X86 /safeseh")
  	endif()
  	list(APPEND cryptopp_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/rdrand.asm)
     enable_language(ASM_MASM)
@@ -107,8 +108,8 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 	set_target_properties(cryptopp-object PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 endif()
 
-add_library(cryptopp-static STATIC $<TARGET_OBJECTS:cryptopp-object> )
-add_library(cryptopp-shared SHARED $<TARGET_OBJECTS:cryptopp-object> )
+add_library(cryptopp-static STATIC $<TARGET_OBJECTS:cryptopp-object>)
+add_library(cryptopp-shared SHARED $<TARGET_OBJECTS:cryptopp-object>)
 
 target_include_directories(cryptopp-shared PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> $<INSTALL_INTERFACE:include/cryptopp>)
 target_include_directories(cryptopp-static PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> $<INSTALL_INTERFACE:include/cryptopp>)
