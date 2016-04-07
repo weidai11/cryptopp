@@ -9,7 +9,6 @@ set(cryptopp_VERSION_PATCH 3)
 include(GNUInstallDirs)
 include(TestBigEndian)
 include(CheckCXXSymbolExists)
-
 #============================================================================
 # Settable options
 #============================================================================
@@ -48,7 +47,7 @@ if(DISABLE_AESNI)
 	add_definitions(-DCRYPTOPP_DISABLE_AESNI)
 endif()
 if(NOT CRYPTOPP_DATA_DIR STREQUAL "")
-	add_definitions(-DCRYPTOPP_DATA_DIR=${CRYPTOPP_DATA_DIR})
+	add_definitions(-DCRYPTOPP_DATA_DIR="${CRYPTOPP_DATA_DIR}")
 endif()
 
 #============================================================================
@@ -78,8 +77,24 @@ set(cryptopp_SOURCES
 		${cryptopp_SOURCES}
 		)
 
-if(MINGW)
+if(MINGW OR WIN32)
 	list(APPEND cryptopp_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/winpipes.cpp)
+endif()
+
+if(MSVC AND NOT DISABLE_ASM)
+ 	if(CMAKE_CL_64) 		
+ 		list(APPEND cryptopp_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/x64dll.asm)
+ 		list(APPEND cryptopp_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/x64masm.asm)
+        set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/x64dll.asm PROPERTIES COMPILE_FLAGS "/D_M_X64")
+        set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/x64masm.asm PROPERTIES COMPILE_FLAGS "/D_M_X64")
+        set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/rdrand.asm PROPERTIES COMPILE_FLAGS "/D_M_X64")
+ 	else()    
+        set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/x64dll.asm PROPERTIES COMPILE_FLAGS "/D_M_X86")
+        set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/x64masm.asm PROPERTIES COMPILE_FLAGS "/D_M_X86")
+        set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/rdrand.asm PROPERTIES COMPILE_FLAGS "/D_M_X86")
+ 	endif()
+ 	list(APPEND cryptopp_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/rdrand.asm)
+    enable_language(ASM_MASM)
 endif()
 
 #============================================================================
@@ -92,8 +107,8 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 	set_target_properties(cryptopp-object PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 endif()
 
-add_library(cryptopp-static STATIC $<TARGET_OBJECTS:cryptopp-object>)
-add_library(cryptopp-shared SHARED $<TARGET_OBJECTS:cryptopp-object>)
+add_library(cryptopp-static STATIC $<TARGET_OBJECTS:cryptopp-object> )
+add_library(cryptopp-shared SHARED $<TARGET_OBJECTS:cryptopp-object> )
 
 target_include_directories(cryptopp-shared PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> $<INSTALL_INTERFACE:include/cryptopp>)
 target_include_directories(cryptopp-static PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> $<INSTALL_INTERFACE:include/cryptopp>)
