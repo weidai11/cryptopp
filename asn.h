@@ -181,7 +181,14 @@ public:
 
 	//! \brief BER decode an OID
 	//! \param bt BufferedTransformation object
-	//! \throws BERDecodeErr() if decoded value doesn't equal this OID
+	//! \throws BERDecodeErr() if decoded value doesn't match an expected OID
+	//! \details BERDecodeAndCheck() can be used to parse an OID and verify it matches an expected.
+	//! <pre>
+	//!   BERSequenceDecoder key(bt);
+	//!   ...
+	//!   BERSequenceDecoder algorithm(key);
+	//!   GetAlgorithmID().BERDecodeAndCheck(algorithm);
+	//! </pre>
 	void BERDecodeAndCheck(BufferedTransformation &bt) const;
 
 	std::vector<word32> m_values;
@@ -203,6 +210,9 @@ public:
 	//! \param flags bitwise OR of EncodedObjectFilter::Flag
 	EncodedObjectFilter(BufferedTransformation *attachment = NULL, unsigned int nObjects = 1, word32 flags = 0);
 
+	//! \brief Input a byte buffer for processing
+	//! \param inString the byte buffer to process
+	//! \param length the size of the string, in bytes
 	void Put(const byte *inString, size_t length);
 
 	unsigned int GetNumberOfCompletedObjects() const {return m_nCurrentObject;}
@@ -320,16 +330,26 @@ public:
 		: DERGeneralEncoder(outQueue, asnTag) {}
 };
 
+//! \brief Optional data encoder and decoder
+//! \tparam T class or type
 template <class T>
 class ASNOptional : public member_ptr<T>
 {
 public:
+	//! \brief BER decode optional data
+	//! \param seqDecoder sequence with the optional ASN.1 data
+	//! \param tag ASN.1 tag to match as optional data
+	//! \param mask the mask to apply when matching the tag
+	//! \sa ASNTag and ASNIdFlag
 	void BERDecode(BERSequenceDecoder &seqDecoder, byte tag, byte mask = ~CONSTRUCTED)
 	{
 		byte b;
 		if (seqDecoder.Peek(b) && (b & mask) == tag)
 			reset(new T(seqDecoder));
 	}
+
+	//! \brief DER encode optional data
+	//! \param out BufferedTransformation object
 	void DEREncode(BufferedTransformation &out)
 	{
 		if (this->get() != NULL)
@@ -337,13 +357,24 @@ public:
 	}
 };
 
-//! _
+//! \brief Encode and decode ASN.1 objects with additional information
+//! \tparam BASE base class or type
+//! \details Encodes and decodes public keys, private keys and group
+//!   parameters with OID identifying the algorithm or scheme.
 template <class BASE>
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE ASN1CryptoMaterial : public ASN1Object, public BASE
 {
 public:
+	//! \brief DER encode ASN.1 object
+	//! \param bt BufferedTransformation object
+	//! \details Save() will write the OID associated with algorithm or scheme.
+	//!   In the case of public and private keys, this function writes the
+	//!   subjectPubicKeyInfo and privateKeyInfo parts.
 	void Save(BufferedTransformation &bt) const
 		{BEREncode(bt);}
+
+	//! \brief BER decode ASN.1 object
+	//! \param bt BufferedTransformation object
 	void Load(BufferedTransformation &bt)
 		{BERDecode(bt);}
 };
@@ -397,8 +428,12 @@ protected:
 
 // ********************************************************
 
-//! DER Encode Unsigned
-/*! for INTEGER, BOOLEAN, and ENUM */
+//! \brief DER Encode unsigned value
+//! \tparam T class or type
+//! \param out BufferedTransformation object
+//! \param w unsigned value to encode
+//! \param asnTag the ASN.1 type
+//! \details DEREncodeUnsigned() can be used with INTEGER, BOOLEAN, and ENUM
 template <class T>
 size_t DEREncodeUnsigned(BufferedTransformation &out, T w, byte asnTag = INTEGER)
 {
@@ -426,7 +461,15 @@ size_t DEREncodeUnsigned(BufferedTransformation &out, T w, byte asnTag = INTEGER
 	return 1+lengthBytes+bc;
 }
 
-//! BER Decode Unsigned
+//! \brief BER Decode unsigned value
+//! \tparam T class or type
+//! \param in BufferedTransformation object
+//! \param w unsigned value to encode
+//! \param asnTag the ASN.1 type
+//! \param minValue the minimum expected value
+//! \param maxValue the maximum expected value
+//! \throws BERDecodeErr() if the value cannot be parsed or the decoded value is not within range.
+//! \details DEREncodeUnsigned() can be used with INTEGER, BOOLEAN, and ENUM
 template <class T>
 void BERDecodeUnsigned(BufferedTransformation &in, T &w, byte asnTag = INTEGER,
 					   T minValue = 0, T maxValue = ((std::numeric_limits<T>::max)()))
@@ -462,6 +505,28 @@ void BERDecodeUnsigned(BufferedTransformation &in, T &w, byte asnTag = INTEGER,
 		BERDecodeError();
 }
 
+#ifdef CRYPTOPP_DOXYGEN_PROCESSING
+//! \brief Compare two OIDs for equality
+//! \param lhs the first OID
+//! \param rhs the second OID
+//! \returns true if the OIDs are equal, false otherwise
+inline bool operator==(const OID &lhs, const OID &rhs);
+//! \brief Compare two OIDs for inequality
+//! \param lhs the first OID
+//! \param rhs the second OID
+//! \returns true if the OIDs are not equal, false otherwise
+inline bool operator!=(const OID &lhs, const OID &rhs);
+//! \brief Compare two OIDs for ordering
+//! \param lhs the first OID
+//! \param rhs the second OID
+//! \returns true if the first OID is less than the second OID, false otherwise
+//! \details operator<() calls std::lexicographical_compare() on each element in the array of values.
+inline bool operator<(const OID &lhs, const OID &rhs);
+//! \brief Append a value to an OID
+//! \param lhs the OID
+//! \param rhs the value to append
+inline OID operator+(const OID &lhs, unsigned long rhs);
+#else
 inline bool operator==(const ::CryptoPP::OID &lhs, const ::CryptoPP::OID &rhs)
 	{return lhs.m_values == rhs.m_values;}
 inline bool operator!=(const ::CryptoPP::OID &lhs, const ::CryptoPP::OID &rhs)
@@ -470,6 +535,7 @@ inline bool operator<(const ::CryptoPP::OID &lhs, const ::CryptoPP::OID &rhs)
 	{return std::lexicographical_compare(lhs.m_values.begin(), lhs.m_values.end(), rhs.m_values.begin(), rhs.m_values.end());}
 inline ::CryptoPP::OID operator+(const ::CryptoPP::OID &lhs, unsigned long rhs)
 	{return ::CryptoPP::OID(lhs)+=rhs;}
+#endif
 
 NAMESPACE_END
 
