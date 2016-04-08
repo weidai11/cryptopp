@@ -1,13 +1,10 @@
 // oids.h - written and placed in the public domain by Wei Dai
 
-//! \file
-//! \headerfile oids.h
-//! \brief Object identifiers for algorthms and schemes
+//! \file oids.h
+//! \brief ASN.1 object identifiers for algorthms and schemes
 
 #ifndef CRYPTOPP_OIDS_H
 #define CRYPTOPP_OIDS_H
-
-// crypto-related ASN.1 object identifiers
 
 #include "asn.h"
 

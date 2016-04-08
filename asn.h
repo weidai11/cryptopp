@@ -1,7 +1,6 @@
 // asn.h - written and placed in the public domain by Wei Dai
 
-//! \file
-//! \headerfile asn.h
+//! \file asn.h
 //! \brief Classes and functions for working with ANS.1 objects
 
 #ifndef CRYPTOPP_ASN_H
@@ -16,7 +15,8 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-// these tags and flags are not complete
+//! \brief ASN.1 types
+//! \note These tags and flags are not complete
 enum ASNTag
 {
 	BOOLEAN 			= 0x01,
@@ -44,6 +44,8 @@ enum ASNTag
 	GENERAL_STRING		= 0x1b
 };
 
+//! \brief ASN.1 flags
+//! \note These tags and flags are not complete
 enum ASNIdFlag
 {
 	UNIVERSAL			= 0x00,
@@ -55,52 +57,131 @@ enum ASNIdFlag
 	PRIVATE 			= 0xc0
 };
 
+//! \brief Raises a BERDecodeErr
 inline void BERDecodeError() {throw BERDecodeErr();}
 
+//! \brief Exception thrown when an unknown object identifier is encountered
 class CRYPTOPP_DLL UnknownOID : public BERDecodeErr
 {
 public:
+	//! \brief Construct an UnknownOID
 	UnknownOID() : BERDecodeErr("BER decode error: unknown object identifier") {}
+	//! \brief Construct an UnknownOID
+	//! \param err error message to use for the execption
 	UnknownOID(const char *err) : BERDecodeErr(err) {}
 };
 
 // unsigned int DERLengthEncode(unsigned int length, byte *output=0);
+
+//! \brief DER encode a length
+//! \param out BufferedTransformation object
+//! \param length the size to encode
+//! \returns the number of octets used for the encoding
 CRYPTOPP_DLL size_t CRYPTOPP_API DERLengthEncode(BufferedTransformation &out, lword length);
-// returns false if indefinite length
+
+//! \brief BER decode a length
+//! \param in BufferedTransformation object
+//! \param length the decoded size
+//! \returns true if the value was decoded 
+//! \throws BERDecodeError if the value fails to decode or is too large for size_t
+//! \details BERLengthDecode() returns false if the encoding is indefinite length.
 CRYPTOPP_DLL bool CRYPTOPP_API BERLengthDecode(BufferedTransformation &in, size_t &length);
 
+//! \brief DER encode NULL
+//! \param out BufferedTransformation object
 CRYPTOPP_DLL void CRYPTOPP_API DEREncodeNull(BufferedTransformation &out);
+
+//! \brief BER decode NULL
+//! \param in BufferedTransformation object
 CRYPTOPP_DLL void CRYPTOPP_API BERDecodeNull(BufferedTransformation &in);
 
+//! \brief DER encode octet string
+//! \param out BufferedTransformation object
+//! \param str the string to encode
+//! \param strLen the length of the string
+//! \returns the number of octets used for the encoding
 CRYPTOPP_DLL size_t CRYPTOPP_API DEREncodeOctetString(BufferedTransformation &out, const byte *str, size_t strLen);
+
+//! \brief DER encode octet string
+//! \param out BufferedTransformation object
+//! \param str the string to encode
+//! \returns the number of octets used for the encoding
 CRYPTOPP_DLL size_t CRYPTOPP_API DEREncodeOctetString(BufferedTransformation &out, const SecByteBlock &str);
+
+//! \brief BER decode octet string
+//! \param in BufferedTransformation object
+//! \param str the decoded string
+//! \returns the number of octets used for the encoding
 CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodeOctetString(BufferedTransformation &in, SecByteBlock &str);
+
+//! \brief BER decode octet string
+//! \param in BufferedTransformation object
+//! \param str the decoded string
+//! \returns the number of octets used for the encoding
 CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodeOctetString(BufferedTransformation &in, BufferedTransformation &str);
 
-// for UTF8_STRING, PRINTABLE_STRING, and IA5_STRING
+//! \brief DER encode text string
+//! \param out BufferedTransformation object
+//! \param str the string to encode
+//! \param asnTag the ASN.1 type
+//! \returns the number of octets used for the encoding
+//! \details DEREncodeTextString() can be used for UTF8_STRING, PRINTABLE_STRING, and IA5_STRING
 CRYPTOPP_DLL size_t CRYPTOPP_API DEREncodeTextString(BufferedTransformation &out, const std::string &str, byte asnTag);
+
+//! \brief BER decode text string
+//! \param in BufferedTransformation object
+//! \param str the string to encode
+//! \param asnTag the ASN.1 type
+//! \details DEREncodeTextString() can be used for UTF8_STRING, PRINTABLE_STRING, and IA5_STRING
 CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodeTextString(BufferedTransformation &in, std::string &str, byte asnTag);
 
+//! \brief DER encode bit string
+//! \param out BufferedTransformation object
+//! \param str the string to encode
+//! \param strLen the length of the string
+//! \param unusedBits the number of unused bits
+//! \returns the number of octets used for the encoding
 CRYPTOPP_DLL size_t CRYPTOPP_API DEREncodeBitString(BufferedTransformation &out, const byte *str, size_t strLen, unsigned int unusedBits=0);
+
+//! \brief DER decode bit string
+//! \param in BufferedTransformation object
+//! \param str the decoded string
+//! \param unusedBits the number of unused bits
 CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodeBitString(BufferedTransformation &in, SecByteBlock &str, unsigned int &unusedBits);
 
-// BER decode from source and DER reencode into dest
+//! \brief BER decode and DER re-encode
+//! \param source BufferedTransformation object
+//! \param dest BufferedTransformation object
 CRYPTOPP_DLL void CRYPTOPP_API DERReencode(BufferedTransformation &source, BufferedTransformation &dest);
 
-//! Object Identifier
+//! \brief Object Identifier
 class CRYPTOPP_DLL OID
 {
 public:
+	//! \brief Construct an OID
 	OID() {}
+	//! \brief Construct an OID
+	//! \param v value to initialize the OID
 	OID(word32 v) : m_values(1, v) {}
+	//! \brief Construct an OID
+	//! \param bt BufferedTransformation object
 	OID(BufferedTransformation &bt) {BERDecode(bt);}
 
+	//! \brief Append a value to an OID
+	//! \param rhs the value to append
 	inline OID & operator+=(word32 rhs) {m_values.push_back(rhs); return *this;}
 
+	//! \brief DER encode this OID
+	//! \param bt BufferedTransformation object
 	void DEREncode(BufferedTransformation &bt) const;
+	
+	//! \brief BER decode an OID
+	//! \param bt BufferedTransformation object
 	void BERDecode(BufferedTransformation &bt);
 
-	// throw BERDecodeErr() if decoded value doesn't equal this OID
+	//! \brief BER decode an OID
+	//! \param bt BufferedTransformation object
+	//! \throws BERDecodeErr() if decoded value doesn't equal this OID
 	void BERDecodeAndCheck(BufferedTransformation &bt) const;
 
 	std::vector<word32> m_values;
@@ -110,10 +191,16 @@ private:
 	static size_t DecodeValue(BufferedTransformation &bt, word32 &v);
 };
 
+//! \brief ASN.1 encoded object filter
 class EncodedObjectFilter : public Filter
 {
 public:
 	enum Flag {PUT_OBJECTS=1, PUT_MESSANGE_END_AFTER_EACH_OBJECT=2, PUT_MESSANGE_END_AFTER_ALL_OBJECTS=4, PUT_MESSANGE_SERIES_END_AFTER_ALL_OBJECTS=8};
+
+	//! \brief Construct an EncodedObjectFilter
+	//! \param attachment a BufferedTrasformation to attach to this object
+	//! \param nObjects
+	//! \param flags bitwise OR of EncodedObjectFilter::Flag
 	EncodedObjectFilter(BufferedTransformation *attachment = NULL, unsigned int nObjects = 1, word32 flags = 0);
 
 	void Put(const byte *inString, size_t length);
@@ -133,7 +220,7 @@ private:
 	lword m_lengthRemaining;
 };
 
-//! BER General Decoder
+//! \brief BER General Decoder
 class CRYPTOPP_DLL BERGeneralDecoder : public Store
 {
 public:
@@ -170,7 +257,7 @@ private:
 // proper direction. We did not break the library or versioning based on the output of
 // `nm --demangle libcryptopp.a | grep DERGeneralEncoder::DERGeneralEncoder | grep -v " U "`.
 
-//! DER General Encoder
+//! \brief DER General Encoder
 class CRYPTOPP_DLL DERGeneralEncoder : public ByteQueue
 {
 public:
@@ -193,7 +280,7 @@ private:
 	byte m_asnTag;
 };
 
-//! BER Sequence Decoder
+//! \brief BER Sequence Decoder
 class CRYPTOPP_DLL BERSequenceDecoder : public BERGeneralDecoder
 {
 public:
@@ -203,7 +290,7 @@ public:
 		: BERGeneralDecoder(inQueue, asnTag) {}
 };
 
-//! DER Sequence Encoder
+//! \brief DER Sequence Encoder
 class CRYPTOPP_DLL DERSequenceEncoder : public DERGeneralEncoder
 {
 public:
@@ -213,7 +300,7 @@ public:
 		: DERGeneralEncoder(outQueue, asnTag) {}
 };
 
-//! BER Set Decoder
+//! \brief BER Set Decoder
 class CRYPTOPP_DLL BERSetDecoder : public BERGeneralDecoder
 {
 public:
@@ -223,7 +310,7 @@ public:
 		: BERGeneralDecoder(inQueue, asnTag) {}
 };
 
-//! DER Set Encoder
+//! \brief DER Set Encoder
 class CRYPTOPP_DLL DERSetEncoder : public DERGeneralEncoder
 {
 public:
