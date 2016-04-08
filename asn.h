@@ -379,13 +379,15 @@ public:
 		{BERDecode(bt);}
 };
 
-//! encodes/decodes subjectPublicKeyInfo
+//! \brief Encodes and decodes subjectPublicKeyInfo
 class CRYPTOPP_DLL X509PublicKey : public ASN1CryptoMaterial<PublicKey>
 {
 public:
 	void BERDecode(BufferedTransformation &bt);
 	void DEREncode(BufferedTransformation &bt) const;
 
+	//! \brief Retrieves the OID of the algorithm
+	//! \returns OID of the algorithm
 	virtual OID GetAlgorithmID() const =0;
 	virtual bool BERDecodeAlgorithmParameters(BufferedTransformation &bt)
 		{BERDecodeNull(bt); return false;}
@@ -398,13 +400,15 @@ public:
 	virtual void DEREncodePublicKey(BufferedTransformation &bt) const =0;
 };
 
-//! encodes/decodes privateKeyInfo
+//! \brief Encodes and decodesprivateKeyInfo
 class CRYPTOPP_DLL PKCS8PrivateKey : public ASN1CryptoMaterial<PrivateKey>
 {
 public:
 	void BERDecode(BufferedTransformation &bt);
 	void DEREncode(BufferedTransformation &bt) const;
 
+	//! \brief Retrieves the OID of the algorithm
+	//! \returns OID of the algorithm
 	virtual OID GetAlgorithmID() const =0;
 	virtual bool BERDecodeAlgorithmParameters(BufferedTransformation &bt)
 		{BERDecodeNull(bt); return false;}

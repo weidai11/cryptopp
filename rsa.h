@@ -25,6 +25,9 @@ class CRYPTOPP_DLL RSAFunction : public TrapdoorFunction, public X509PublicKey
 	typedef RSAFunction ThisClass;
 
 public:
+	//! \brief Initialize a RSA public key with {n,e}
+	//! \param n the modulus
+	//! \param e the public exponent
 	void Initialize(const Integer &n, const Integer &e)
 		{m_n = n; m_e = e;}
 
@@ -61,10 +64,28 @@ class CRYPTOPP_DLL InvertibleRSAFunction : public RSAFunction, public TrapdoorFu
 	typedef InvertibleRSAFunction ThisClass;
 
 public:
+	//! \brief Create a RSA private key
+	//! \param rng a RandomNumberGenerator derived class
+	//! \param modulusBits the size of the modulud, in bits
+	//! \param e the desired public exponent
 	void Initialize(RandomNumberGenerator &rng, unsigned int modulusBits, const Integer &e = 17);
+
+	//! \brief Initialize a RSA private key with {n,e,d,p,q,dp,dq,u}
+	//! \param n modulus
+	//! \param e public exponent
+	//! \param d private exponent
+	//! \param p first prime factor
+	//! \param q second prime factor
+	//! \param dp d mod p
+	//! \param dq d mod q
+	//! \param u q<sup>-1</sup> mod p
 	void Initialize(const Integer &n, const Integer &e, const Integer &d, const Integer &p, const Integer &q, const Integer &dp, const Integer &dq, const Integer &u)
 		{m_n = n; m_e = e; m_d = d; m_p = p; m_q = q; m_dp = dp; m_dq = dq; m_u = u;}
-	//! factor n given private exponent
+	//! \brief Initialize a RSA private key with {n,e,d}
+	//! \param n modulus
+	//! \param e public exponent
+	//! \param d private exponent
+	//! \details Initialize() will factor n using d and populate {p,q,dp,dq,u}.
 	void Initialize(const Integer &n, const Integer &e, const Integer &d);
 
 	// PKCS8PrivateKey

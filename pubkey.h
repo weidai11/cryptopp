@@ -1,8 +1,5 @@
 // pubkey.h - written and placed in the public domain by Wei Dai
 
-#ifndef CRYPTOPP_PUBKEY_H
-#define CRYPTOPP_PUBKEY_H
-
 //! \file pubkey.h
 //! \brief This file contains helper classes/functions for implementing public key algorithms.
 //! \details The class hierachies in this header file tend to look like this:
@@ -33,6 +30,9 @@
 //! 
 //! \details The \p TF_ prefix means an implementation using trapdoor functions on integers.
 //! \details The \p DL_ prefix means an implementation using group operations (in groups where discrete log is hard).
+
+#ifndef CRYPTOPP_PUBKEY_H
+#define CRYPTOPP_PUBKEY_H
 
 #include "config.h"
 
@@ -201,6 +201,10 @@ public:
 	//! \details If \p IsRandomized() returns \p false, then \p NullRNG() can be used.
 	bool IsRandomized() const {return false;}
 
+	//! \brief Calculates the inverse of an element
+	//! \param rng a \p RandomNumberGenerator derived class
+	//! \param x the element
+	//! \returns the inverse of the element in the group
 	virtual Integer CalculateInverse(RandomNumberGenerator &rng, const Integer &x) const =0;
 };
 
