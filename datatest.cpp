@@ -782,15 +782,15 @@ void TestDataFile(std::string filename, const NameValuePairs &overrideParameters
 					SignalTestError();
 				failed = false;
 			}
-			catch (TestFailure &)
+			catch (const TestFailure &)
 			{
 				cout << "\nTest failed.\n";
 			}
-			catch (CryptoPP::Exception &e)
+			catch (const CryptoPP::Exception &e)
 			{
 				cout << "\nCryptoPP::Exception caught: " << e.what() << endl;
 			}
-			catch (std::exception &e)
+			catch (const std::exception &e)
 			{
 				cout << "\nstd::exception caught: " << e.what() << endl;
 			}
