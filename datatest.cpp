@@ -55,6 +55,12 @@ static void SignalTestFailure()
 	throw TestFailure();
 }
 
+static void SignalUnknownAlgorithmError(const std::string& algType)
+{
+	OutputTestData(*s_currentTestData);
+	throw Exception(Exception::OTHER_ERROR, "Unknown algorithm " + algType + " during validation test");
+}
+
 static void SignalTestError()
 {
 	OutputTestData(*s_currentTestData);
@@ -779,7 +785,7 @@ void TestDataFile(std::string filename, const NameValuePairs &overrideParameters
 				else if (algType == "FileList")
 					TestDataFile(GetRequiredDatum(v, "Test"), g_nullNameValuePairs, totalTests, failedTests);
 				else
-					SignalTestError();
+					SignalUnknownAlgorithmError(algType);
 				failed = false;
 			}
 			catch (const TestFailure &)
