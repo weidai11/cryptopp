@@ -1,4 +1,5 @@
 Test Data Format
+================
 
 A test data file is an ASCII text file composed of sections separated by 
 blank lines. Each section is stand-alone and independent of other 
@@ -21,6 +22,7 @@ test should always use the last field with any given name that occurs
 before the Test field.
 
 Data Types
+==========
 
 int - small integer (less than 2^32) in decimal representation
 string - human readable string
@@ -32,24 +34,29 @@ encoded string - can be one of the following
 	  r256 0x0011 to repeat 0x0011 256 times
 
 Field Types
+===========
 
 AlgorithmType - string, for example "Signature", "AsymmetricCipher", 
-"SymmetricCipher", "MAC", "MessageDigest", or "KeyFactory"
+    "SymmetricCipher", "MAC", "MessageDigest", or "KeyFactory"
 Name - string, an algorithm name from SCAN
 Test - string, identifies the test to run
 Source - string, text explaining where the test data came from
 Comment - string, other comments about the test data
 KeyFormat - string, specifies the key format. "Component" here means 
-each component of the key or key pair is specified separately as a name, 
-value pair, with the names depending on the algorithm being tested. 
-Otherwise the value names "Key", or "PublicKey" and "PrivateKey" are 
-used.
+    each component of the key or key pair is specified separately as a name, 
+    value pair, with the names depending on the algorithm being tested. 
+    Otherwise the value names "Key", or "PublicKey" and "PrivateKey" are 
+    used.
 Key - encoded string
 PublicKey - encoded string
 PrivateKey - encoded string
+Modulus - the modulus when KeyFormat=Component
+SubgroupOrder - the subgroup order when KeyFormat=Component
+SubgroupGenerator - the subgroup generator when KeyFormat=Component
+PublicElement - the public element when KeyFormat=Component
+PrivateExponent - the private exponent when KeyFormat=Component
 Message - encoded string, message to be signed or verified
-Signature - encoded string, signature to be verified or compared 
-with
+Signature - encoded string, signature to be verified or compared with
 Plaintext - encoded string
 Ciphertext - encoded string
 Header - encoded string
@@ -62,6 +69,7 @@ Seek - int, seek location for random access ciphers
 (more to come here)
 
 Possible Tests
+==============
 
 KeyPairValidAndConsistent - public and private keys are both valid and 
 consistent with each other
@@ -71,6 +79,7 @@ Verify - signature/digest/MAC verification should pass
 VerifyTruncated - truncated digest/MAC verification should pass
 NotVerify - signature/digest/MAC verification should not pass
 DeterministicSign - sign message using given seed, and the resulting 
-signature should be equal to the given signature
+    signature should be equal to the given signature
 DecryptMatch - ciphertext decrypts to plaintext
+
 (more to come here)
