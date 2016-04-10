@@ -290,9 +290,12 @@ void TestSignatureScheme(TestData &v)
 		// for DSA and ECDSA, and access to the seed or secret is not needed. If
 		// additional determinsitic signatures are added, then the test harness will
 		// likely need to be extended.
-		SignerFilter f(GlobalRNG(), *signer, new HexEncoder(new FileSink(cout)));
+		string signature;
+		SignerFilter f(GlobalRNG(), *signer, new HexEncoder(new StringSink(signature)));
 		StringSource ss(GetDecodedDatum(v, "Message"), true, new Redirector(f));
-		SignalTestFailure();
+		if (GetDecodedDatum(v, "Signature") != signature)
+			SignalTestFailure();
+		return;
 	}
 	else if (test == "RandomSign")
 	{
@@ -610,7 +613,7 @@ void TestDigestOrMAC(TestData &v, bool testDigest)
 }
 
 void TestKeyDerivationFunction(TestData &v)
-{	
+{
 	std::string name = GetRequiredDatum(v, "Name");
 	std::string test = GetRequiredDatum(v, "Test");
 
@@ -622,13 +625,13 @@ void TestKeyDerivationFunction(TestData &v)
 	std::string info = GetDecodedDatum(v, "Info");
 	std::string derived = GetDecodedDatum(v, "DerivedKey");
 	std::string t = GetDecodedDatum(v, "DerivedKeyLength");
-	
+
 	TestDataNameValuePairs pairs(v);
 	unsigned int length = pairs.GetIntValueWithDefault(Name::DerivedKeyLength(), (int)derived.size());
 
 	member_ptr<KeyDerivationFunction> kdf;
 	kdf.reset(ObjectFactoryRegistry<KeyDerivationFunction>::Registry().CreateObject(name.c_str()));
-	
+
 	std::string calc; calc.resize(length);
 	unsigned int ret = kdf->DeriveKey(reinterpret_cast<byte*>(&calc[0]), calc.size(),
 		reinterpret_cast<const byte*>(key.data()), key.size(),
@@ -643,11 +646,6 @@ bool GetField(std::istream &is, std::string &name, std::string &value)
 {
 	name.resize(0);		// GCC workaround: 2.95.3 doesn't have clear()
 	is >> name;
-
-#if defined(__COVERITY__)
-	// The datafile being read is in /usr/share, and it protected by filesystem ACLs
-	// __coverity_tainted_data_sanitize__(reinterpret_cast<void*>(&name));
-#endif
 
 	if (name.empty())
 		return false;
@@ -668,7 +666,7 @@ bool GetField(std::istream &is, std::string &name, std::string &value)
 	// VC60 workaround: getline bug
 	char buffer[128];
 	value.resize(0);	// GCC workaround: 2.95.3 doesn't have clear()
-	bool continueLine;
+	bool continueLine, space = false;
 
 	do
 	{
@@ -676,6 +674,8 @@ bool GetField(std::istream &is, std::string &name, std::string &value)
 		{
 			is.get(buffer, sizeof(buffer));
 			value += buffer;
+			if (buffer[0] == ' ')
+				space = true;
 		}
 		while (buffer[0] != 0);
 		is.clear();
@@ -697,6 +697,23 @@ bool GetField(std::istream &is, std::string &name, std::string &value)
 			value.erase(i);
 	}
 	while (continueLine);
+
+	// Strip intermediate spaces for some values.
+	if (space && (name == "Modulus" || name == "SubgroupOrder" || name == "SubgroupGenerator" ||
+		name == "PublicElement" || name == "PrivateExponent" || name == "Signature"))
+	{
+		string temp;
+		temp.reserve(value.size());
+
+		std::string::const_iterator it;
+		for(it = value.begin(); it != value.end(); it++)
+		{
+			if(*it != ' ')
+				temp.push_back(*it);
+		}
+
+		std::swap(temp, value);
+	}
 
 	return true;
 }
@@ -829,3 +846,4 @@ bool RunTestDataFile(const char *filename, const NameValuePairs &overrideParamet
 		cout << "SOME TESTS FAILED!\n";
 	return failedTests == 0;
 }
+
