@@ -286,8 +286,13 @@ void TestSignatureScheme(TestData &v)
 	}
 	else if (test == "DeterministicSign")
 	{
-		SignalTestError();
-		assert(false);	// TODO: implement
+		// This test is specialized for RFC 6979. The RFC is a drop-in replacement
+		// for DSA and ECDSA, and access to the seed or secret is not needed. If
+		// additional determinsitic signatures are added, then the test harness will
+		// likely need to be extended.
+		SignerFilter f(GlobalRNG(), *signer, new HexEncoder(new FileSink(cout)));
+		StringSource ss(GetDecodedDatum(v, "Message"), true, new Redirector(f));
+		SignalTestFailure();
 	}
 	else if (test == "RandomSign")
 	{
