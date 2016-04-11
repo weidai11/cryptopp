@@ -209,7 +209,7 @@ inline unsigned int HuffmanDecoder::Decode(code_t code, /* out */ value_t &value
 bool HuffmanDecoder::Decode(LowFirstBitReader &reader, value_t &value) const
 {
 	bool result = reader.FillBuffer(m_maxCodeBits);
-	if(!result) return false;
+	CRYPTOPP_UNUSED(result); // assert(result);
 
 	unsigned int codeBits = Decode(reader.PeekBuffer(), value);
 	if (codeBits > reader.BitsBuffered())
