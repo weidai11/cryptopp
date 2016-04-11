@@ -445,7 +445,7 @@ endif
 distclean: clean
 	-$(RM) adhoc.cpp adhoc.cpp.copied GNUmakefile.deps benchmarks.html cryptest.txt cryptest-*.txt
 	-$(RM) CMakeCache.txt Makefile CTestTestfile.cmake cmake_install.cmake cryptopp-config-version.cmake
-	-$(RM) *.o *.ii *.s *~
+	-$(RM) cryptopp.tgz *.o *.ii *.s *~
 ifneq ($(wildcard CMakeFiles/),)
 	-$(RM) -r CMakeFiles/
 endif
