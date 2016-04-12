@@ -511,7 +511,7 @@ void Rijndael::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 	// timing attack countermeasure. see comments at top for more details
 	// If CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS is defined, 
 	// QUARTER_ROUND_LD will use Td, which is already preloaded.
-	u = 0;
+	u = _u;
 	for (i=0; i<256; i+=cacheLineSize)
 		u &= *(const word32 *)(const void *)(Sd+i);
 	u &= *(const word32 *)(const void *)(Sd+252);
