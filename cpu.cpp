@@ -165,7 +165,7 @@ static bool TrySSE2()
 }
 
 bool g_x86DetectionDone = false;
-bool g_hasMMX = false, g_hasISSE = false, g_hasSSE2 = false, g_hasSSSE3 = false, g_hasAESNI = false, g_hasCLMUL = false, g_isP4 = false, g_hasRDRAND = false, g_hasRDSEED = false;
+bool g_hasMMX = false, g_hasISSE = false, g_hasSSE2 = false, g_hasSSSE3 = false, g_hasSSE4 = false, g_hasAESNI = false, g_hasCLMUL = false, g_isP4 = false, g_hasRDRAND = false, g_hasRDSEED = false;
 word32 g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
 
 // MacPorts/GCC does not provide constructor(priority). Apple/GCC and Fink/GCC do provide it.
@@ -206,6 +206,7 @@ void DetectX86Features()
 	if ((cpuid1[3] & (1 << 26)) != 0)
 		g_hasSSE2 = TrySSE2();
 	g_hasSSSE3 = g_hasSSE2 && (cpuid1[2] & (1<<9));
+	g_hasSSE4 = g_hasSSE2 && ((cpuid1[2] & (1<<19)) || (cpuid1[2] & (1<<20)));
 	g_hasAESNI = g_hasSSE2 && (cpuid1[2] & (1<<25));
 	g_hasCLMUL = g_hasSSE2 && (cpuid1[2] & (1<<1));
 

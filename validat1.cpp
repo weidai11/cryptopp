@@ -279,6 +279,7 @@ bool TestSettings()
 	bool hasISSE = HasISSE();
 	bool hasSSE2 = HasSSE2();
 	bool hasSSSE3 = HasSSSE3();
+	bool hasSSE4 = HasSSE4();
 	bool isP4 = IsP4();
 	int cacheLineSize = GetCacheLineSize();
 
@@ -290,7 +291,7 @@ bool TestSettings()
 	else
 		cout << "passed:  ";
 
-	cout << "hasMMX == " << hasMMX << ", hasISSE == " << hasISSE << ", hasSSE2 == " << hasSSE2 << ", hasSSSE3 == " << hasSSSE3 << ", hasAESNI == " << HasAESNI() << ", hasRDRAND == " << HasRDRAND() << ", hasRDSEED == " << HasRDSEED() << ", hasCLMUL == " << HasCLMUL() << ", isP4 == " << isP4 << ", cacheLineSize == " << cacheLineSize;
+	cout << "hasMMX == " << hasMMX << ", hasISSE == " << hasISSE << ", hasSSE2 == " << hasSSE2 << ", hasSSSE3 == " << hasSSE4 << ", hasSSE4 == " << hasSSSE3 << ", hasAESNI == " << HasAESNI() << ", hasRDRAND == " << HasRDRAND() << ", hasRDSEED == " << HasRDSEED() << ", hasCLMUL == " << HasCLMUL() << ", isP4 == " << isP4 << ", cacheLineSize == " << cacheLineSize;
 	cout << ", AESNI_INTRINSICS == " << CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE << endl;
 #endif
 

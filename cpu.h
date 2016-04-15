@@ -118,6 +118,7 @@ extern CRYPTOPP_DLL bool g_hasMMX;
 extern CRYPTOPP_DLL bool g_hasISSE;
 extern CRYPTOPP_DLL bool g_hasSSE2;
 extern CRYPTOPP_DLL bool g_hasSSSE3;
+extern CRYPTOPP_DLL bool g_hasSSE4;
 extern CRYPTOPP_DLL bool g_hasAESNI;
 extern CRYPTOPP_DLL bool g_hasCLMUL;
 extern CRYPTOPP_DLL bool g_isP4;
@@ -166,6 +167,13 @@ inline bool HasSSSE3()
 	if (!g_x86DetectionDone)
 		DetectX86Features();
 	return g_hasSSSE3;
+}
+
+inline bool HasSSE4()
+{
+	if (!g_x86DetectionDone)
+		DetectX86Features();
+	return g_hasSSE4;
 }
 
 inline bool HasAESNI()
