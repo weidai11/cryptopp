@@ -172,7 +172,7 @@ struct CRYPTOPP_NO_VTABLE BLAKE2_State
 //! \details BLAKE2b uses BLAKE2_Base<word64, true>, while BLAKE2s
 //!   uses BLAKE2_Base<word32, false>.
 template <class W, bool T_64bit>
-class CRYPTOPP_NO_VTABLE BLAKE2_Base : public SimpleKeyingInterfaceImpl<MessageAuthenticationCode, BLAKE2_Info<T_64bit> >
+class BLAKE2_Base : public SimpleKeyingInterfaceImpl<MessageAuthenticationCode, BLAKE2_Info<T_64bit> >
 {
 public:
 	CRYPTOPP_CONSTANT(DIGESTSIZE = BLAKE2_Info<T_64bit>::DIGESTSIZE);
