@@ -50,6 +50,7 @@
 #include "crc.h"
 #include "adler32.h"
 #include "sha3.h"
+#include "blake2.h"
 #include "hkdf.h"
 
 // Aggressive stack checking with VS2005 SP1 and above.
@@ -157,6 +158,10 @@ void RegisterFactories()
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<Blowfish> >();
 	RegisterSymmetricCipherDefaultFactories<ECB_Mode<SEED> >();
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<SEED> >();
+	RegisterDefaultFactoryFor<HashTransformation, BLAKE2s>();
+	RegisterDefaultFactoryFor<MessageAuthenticationCode, BLAKE2s>();
+	RegisterDefaultFactoryFor<HashTransformation, BLAKE2b>();
+	RegisterDefaultFactoryFor<MessageAuthenticationCode, BLAKE2b>();
 	RegisterDefaultFactoryFor<KeyDerivationFunction, HKDF<SHA1> >();
 	RegisterDefaultFactoryFor<KeyDerivationFunction, HKDF<SHA256> >();
 	RegisterDefaultFactoryFor<KeyDerivationFunction, HKDF<SHA512> >();

@@ -58,6 +58,22 @@ public:
 	explicit InvalidRounds(const std::string &algorithm, unsigned int rounds) : InvalidArgument(algorithm + ": " + IntToString(rounds) + " is not a valid number of rounds") {}
 };
 
+//! \class InvalidPersonalizationLength
+//! \brief Exception thrown when an invalid personalization string length is encountered
+class CRYPTOPP_DLL InvalidPersonalizationLength : public InvalidArgument
+{
+public:
+	explicit InvalidPersonalizationLength(const std::string &algorithm, size_t length) : InvalidArgument(algorithm + ": " + IntToString(length) + " is not a valid salt length") {}
+};
+
+//! \class InvalidSaltLength
+//! \brief Exception thrown when an invalid salt length is encountered
+class CRYPTOPP_DLL InvalidSaltLength : public InvalidArgument
+{
+public:
+	explicit InvalidSaltLength(const std::string &algorithm, size_t length) : InvalidArgument(algorithm + ": " + IntToString(length) + " is not a valid salt length") {}
+};
+
 // *****************************
 
 //! \class Bufferless
