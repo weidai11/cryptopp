@@ -590,6 +590,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\TestVectors\blake2.txt"
+				>
+			<File
+				RelativePath=".\TestVectors\blake2b.txt"
+				>
+			<File
+				RelativePath=".\TestVectors\blake2s.txt"
+				>
+			<File
 				RelativePath=".\TestVectors\camellia.txt"
 				>
 			</File>
@@ -625,6 +634,9 @@
 				RelativePath=".\TestVectors\gcm.txt"
 				>
 			</File>
+			<File
+				RelativePath=".\TestVectors\hkdf.txt"
+				>
 			<File
 				RelativePath=".\TestVectors\hmac.txt"
 				>
