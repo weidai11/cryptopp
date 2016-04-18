@@ -28,6 +28,8 @@ bool ValidateTiger();
 bool ValidateRIPEMD();
 bool ValidatePanama();
 bool ValidateWhirlpool();
+bool ValidateBLAKE2s();
+bool ValidateBLAKE2b();
 
 bool ValidateHMAC();
 bool ValidateTTMAC();
