@@ -306,8 +306,11 @@ void BLAKE2_Base<W, T_64bit>::Update(const byte *input, size_t length)
 		}
 	}
 
-	memcpy_s(&m_state.buffer[m_state.length], BLOCKSIZE - m_state.length, input, length);
-	m_state.length += static_cast<unsigned int>(length);
+	if (input && length)
+	{
+		memcpy_s(&m_state.buffer[m_state.length], BLOCKSIZE - m_state.length, input, length);
+		m_state.length += static_cast<unsigned int>(length);
+	}
 }
 
 template <class W, bool T_64bit>
