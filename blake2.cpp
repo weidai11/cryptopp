@@ -203,7 +203,11 @@ void BLAKE2_Base<W, T_64bit>::UncheckedSetKey(const byte *key, unsigned int leng
 	{
 		AlignedSecByteBlock k(KEYBLOCKSIZE);
 		memcpy_s(k, KEYBLOCKSIZE, key, length);
-		memset(k+length, 0x00, KEYBLOCKSIZE-length);
+
+		const size_t rem = KEYBLOCKSIZE-length;
+		if (rem)
+			memset(k+length, 0x00, rem);
+
 		m_key.swap(k);
 	}
 	else
@@ -232,7 +236,7 @@ template <class W, bool T_64bit>
 BLAKE2_Base<W, T_64bit>::BLAKE2_Base(const byte *key, size_t keyLength, const byte* salt, size_t saltLength,
 	const byte* personalization, size_t personalizationLength, bool treeMode, unsigned int digestSize)
 	: m_block(ParameterBlock(digestSize, keyLength, salt, saltLength,
-	  personalization, personalizationLength)), m_digestSize(digestSize), m_treeMode(false)
+	  personalization, personalizationLength)), m_digestSize(digestSize), m_treeMode(treeMode)
 {
 	this->ThrowIfInvalidKeyLength(keyLength);
 	this->ThrowIfInvalidTruncatedSize(digestSize);
@@ -268,16 +272,13 @@ void BLAKE2_Base<W, T_64bit>::Restart(const BLAKE2_ParameterBlock<T_64bit>& bloc
 		m_state.t[1] = counter[1];
 	}
 
+	for(unsigned int i = 0; i < BLAKE2_IV<T_64bit>::IVSIZE; ++i)
+		m_state.h[i] ^= ReadWord<W, T_64bit>(m_block, i);
+
 	// When BLAKE2 is keyed, the input stream is simply {key||message}. Key it
 	// during Restart to avoid FirstPut and friends. Key size == 0 means no key.
 	if (m_key.size())
-	{
-		// Key is properly sized and padded
 		Update(m_key, m_key.size());
-	}
-
-	for(unsigned int i = 0; i < BLAKE2_IV<T_64bit>::IVSIZE; ++i)
-		m_state.h[i] ^= ReadWord<W, T_64bit>(m_block, i);
 }
 
 template <class W, bool T_64bit>
@@ -539,6 +540,7 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   const word64 m14 = ((const word64*)input)[14];
   const word64 m15 = ((const word64*)input)[15];
 
+
   row1l = _mm_loadu_si128( (const __m128i *)(&state.h[0]) );
   row1h = _mm_loadu_si128( (const __m128i *)(&state.h[2]) );
   row2l = _mm_loadu_si128( (const __m128i *)(&state.h[4]) );
@@ -547,6 +549,7 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row3h = _mm_loadu_si128( (const __m128i *)(&BLAKE2_IV<true>::iv[2]) );
   row4l = _mm_xor_si128( _mm_loadu_si128( (const __m128i *)(&BLAKE2_IV<true>::iv[4]) ), _mm_loadu_si128( (const __m128i *)(&state.t[0]) ) );
   row4h = _mm_xor_si128( _mm_loadu_si128( (const __m128i *)(&BLAKE2_IV<true>::iv[6]) ), _mm_loadu_si128( (const __m128i *)(&state.f[0]) ) );
+
 
   b0 = _mm_set_epi64x(m2, m0);
   b1 = _mm_set_epi64x(m6, m4);
@@ -562,7 +565,6 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2h = _mm_xor_si128(row2h, row3h);
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,24),_mm_slli_epi64(row2l, 40 ));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,24),_mm_slli_epi64(row2h, 40 ));
-
 
 
   b0 = _mm_set_epi64x(m3, m1);

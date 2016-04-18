@@ -37,6 +37,11 @@ NAMESPACE_BEGIN(CryptoPP)
 template <bool T_64bit>
 struct CRYPTOPP_NO_VTABLE BLAKE2_Info : public VariableKeyLength<0,0,(T_64bit ? 64 : 32),1,SimpleKeyingInterface::NOT_RESYNCHRONIZABLE>
 {
+	typedef VariableKeyLength<0,0,(T_64bit ? 64 : 32),1,SimpleKeyingInterface::NOT_RESYNCHRONIZABLE> KeyBase;
+	CRYPTOPP_CONSTANT(MIN_KEYLENGTH = KeyBase::MIN_KEYLENGTH);
+	CRYPTOPP_CONSTANT(MAX_KEYLENGTH = KeyBase::MAX_KEYLENGTH);
+	CRYPTOPP_CONSTANT(DEFAULT_KEYLENGTH = KeyBase::DEFAULT_KEYLENGTH);
+
 	CRYPTOPP_CONSTANT(BLOCKSIZE = (T_64bit ? 128 : 64))
 	CRYPTOPP_CONSTANT(DIGESTSIZE = (T_64bit ? 64 : 32))
 	CRYPTOPP_CONSTANT(SALTSIZE = (T_64bit ? 16 : 8))
@@ -175,6 +180,10 @@ template <class W, bool T_64bit>
 class BLAKE2_Base : public SimpleKeyingInterfaceImpl<MessageAuthenticationCode, BLAKE2_Info<T_64bit> >
 {
 public:
+	CRYPTOPP_CONSTANT(DEFAULT_KEYLENGTH = BLAKE2_Info<T_64bit>::DEFAULT_KEYLENGTH);
+	CRYPTOPP_CONSTANT(MIN_KEYLENGTH = BLAKE2_Info<T_64bit>::MIN_KEYLENGTH);
+	CRYPTOPP_CONSTANT(MAX_KEYLENGTH = BLAKE2_Info<T_64bit>::MAX_KEYLENGTH);
+
 	CRYPTOPP_CONSTANT(DIGESTSIZE = BLAKE2_Info<T_64bit>::DIGESTSIZE);
 	CRYPTOPP_CONSTANT(BLOCKSIZE = BLAKE2_Info<T_64bit>::BLOCKSIZE);
 	CRYPTOPP_CONSTANT(ALIGNSIZE = BLAKE2_Info<T_64bit>::ALIGNSIZE);
@@ -254,14 +263,13 @@ private:
 class BLAKE2b : public BLAKE2_Base<word64, true>
 {
 public:
-	CRYPTOPP_CONSTANT(DIGESTSIZE = BLAKE2_Info<true>::DIGESTSIZE);
-	typedef BLAKE2_Base<word64, true> BaseClass; // Early Visual Studio workaround
+	typedef BLAKE2_Base<word64, true> ThisBase; // Early Visual Studio workaround
 	typedef BLAKE2_ParameterBlock<true> ParameterBlock;
 	CRYPTOPP_COMPILE_ASSERT(sizeof(ParameterBlock) == 64);
 
 	//! \brief Construct a BLAKE2b hash
 	//! \param digestSize the digest size, in bytes
-	BLAKE2b(bool treeMode=false, unsigned int digestSize = DIGESTSIZE) : BaseClass(treeMode, digestSize) {}
+	BLAKE2b(bool treeMode=false, unsigned int digestSize = DIGESTSIZE) : ThisBase(treeMode, digestSize) {}
 
 	//! \brief Construct a BLAKE2b hash
 	//! \param key a byte array used to key the cipher
@@ -275,7 +283,7 @@ public:
 	BLAKE2b(const byte *key, size_t keyLength, const byte* salt = NULL, size_t saltLength = 0,
 		const byte* personalization = NULL, size_t personalizationLength = 0,
 		bool treeMode=false, unsigned int digestSize = DIGESTSIZE)
-		: BaseClass(key, keyLength, salt, saltLength, personalization, personalizationLength, treeMode, digestSize) {}
+		: ThisBase(key, keyLength, salt, saltLength, personalization, personalizationLength, treeMode, digestSize) {}
 };
 
 //! \brief The BLAKE2s cryptographic hash function
@@ -289,14 +297,13 @@ public:
 class BLAKE2s : public BLAKE2_Base<word32, false>
 {
 public:
-	CRYPTOPP_CONSTANT(DIGESTSIZE = BLAKE2_Info<false>::DIGESTSIZE);
-	typedef BLAKE2_Base<word32, false> BaseClass; // Early Visual Studio workaround
+	typedef BLAKE2_Base<word32, false> ThisBase; // Early Visual Studio workaround
 	typedef BLAKE2_ParameterBlock<false> ParameterBlock;
 	CRYPTOPP_COMPILE_ASSERT(sizeof(ParameterBlock) == 32);
 
 	//! \brief Construct a BLAKE2b hash
 	//! \param digestSize the digest size, in bytes
-	BLAKE2s(bool treeMode=false, unsigned int digestSize = DIGESTSIZE) : BaseClass(treeMode, digestSize) {}
+	BLAKE2s(bool treeMode=false, unsigned int digestSize = DIGESTSIZE) : ThisBase(treeMode, digestSize) {}
 
 	//! \brief Construct a BLAKE2b hash
 	//! \param key a byte array used to key the cipher
@@ -310,7 +317,7 @@ public:
 	BLAKE2s(const byte *key, size_t keyLength, const byte* salt = NULL, size_t saltLength = 0,
 		const byte* personalization = NULL, size_t personalizationLength = 0,
 		bool treeMode=false, unsigned int digestSize = DIGESTSIZE)
-		: BaseClass(key, keyLength, salt, saltLength, personalization, personalizationLength, treeMode, digestSize) {}
+		: ThisBase(key, keyLength, salt, saltLength, personalization, personalizationLength, treeMode, digestSize) {}
 };
 
 NAMESPACE_END
