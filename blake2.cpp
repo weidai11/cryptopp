@@ -16,9 +16,6 @@ NAMESPACE_BEGIN(CryptoPP)
 # undef CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
 #endif
 
-// TODO
-#undef CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
-
 // C/C++ implementation
 static inline void BLAKE2_CXX_Compress32(const byte* input, BLAKE2_State<word32, false>& state);
 static inline void BLAKE2_CXX_Compress64(const byte* input, BLAKE2_State<word64, true>& state);
@@ -1923,10 +1920,989 @@ static inline void BLAKE2_SSE4_Compress32(const byte* input, BLAKE2_State<word32
 	BLAKE2_CXX_Compress32(input, state);
 };
 
-static inline void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64,true>& state)
+static inline void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64, true>& state)
 {
-	// TODO... fall back to C++
-	BLAKE2_CXX_Compress64(input, state);
+  __m128i row1l, row1h;
+  __m128i row2l, row2h;
+  __m128i row3l, row3h;
+  __m128i row4l, row4h;
+  __m128i b0, b1, t0, t1;
+
+  const __m128i r16 = _mm_setr_epi8(2, 3, 4, 5, 6, 7, 0, 1, 10, 11, 12, 13, 14, 15, 8, 9);
+  const __m128i r24 = _mm_setr_epi8(3, 4, 5, 6, 7, 0, 1, 2, 11, 12, 13, 14, 15, 8, 9, 10);
+
+  const __m128i m0 = _mm_loadu_si128((const __m128i *)(input + 00));
+  const __m128i m1 = _mm_loadu_si128((const __m128i *)(input + 16));
+  const __m128i m2 = _mm_loadu_si128((const __m128i *)(input + 32));
+  const __m128i m3 = _mm_loadu_si128((const __m128i *)(input + 48));
+  const __m128i m4 = _mm_loadu_si128((const __m128i *)(input + 64));
+  const __m128i m5 = _mm_loadu_si128((const __m128i *)(input + 80));
+  const __m128i m6 = _mm_loadu_si128((const __m128i *)(input + 96));
+  const __m128i m7 = _mm_loadu_si128((const __m128i *)(input + 112));
+  row1l = _mm_loadu_si128((const __m128i *)(&state.h[0]));
+  row1h = _mm_loadu_si128((const __m128i *)(&state.h[2]));
+  row2l = _mm_loadu_si128((const __m128i *)(&state.h[4]));
+  row2h = _mm_loadu_si128((const __m128i *)(&state.h[6]));
+  row3l = _mm_loadu_si128((const __m128i *)(&BLAKE2_IV<true>::iv[0]));
+  row3h = _mm_loadu_si128((const __m128i *)(&BLAKE2_IV<true>::iv[2]));
+  row4l = _mm_xor_si128(_mm_loadu_si128((const __m128i *)(&BLAKE2_IV<true>::iv[4])), _mm_loadu_si128((const __m128i *)(&state.t[0])));
+  row4h = _mm_xor_si128(_mm_loadu_si128((const __m128i *)(&BLAKE2_IV<true>::iv[6])), _mm_loadu_si128((const __m128i *)(&state.f[0])));
+  b0 = _mm_unpacklo_epi64(m0, m1);
+  b1 = _mm_unpacklo_epi64(m2, m3);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi32(row4l, _MM_SHUFFLE(2,3,0,1));
+  row4h = _mm_shuffle_epi32(row4h, _MM_SHUFFLE(2,3,0,1));
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_shuffle_epi8(row2l, r24);
+  row2h = _mm_shuffle_epi8(row2h, r24);
+
+  b0 = _mm_unpackhi_epi64(m0, m1);
+  b1 = _mm_unpackhi_epi64(m2, m3);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi8(row4l, r16);
+  row4h = _mm_shuffle_epi8(row4h, r16);
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_xor_si128(_mm_srli_epi64(row2l, 63), _mm_add_epi64(row2l, row2l));
+  row2h = _mm_xor_si128(_mm_srli_epi64(row2h, 63), _mm_add_epi64(row2h, row2h));
+
+  t0 = _mm_alignr_epi8(row2h, row2l, 8);
+  t1 = _mm_alignr_epi8(row2l, row2h, 8);
+  row2l = t0, row2h = t1, t0 = row3l, row3l = row3h, row3h = t0;
+  t0 = _mm_alignr_epi8(row4h, row4l, 8);
+  t1 = _mm_alignr_epi8(row4l, row4h, 8);
+  row4l = t1, row4h = t0;
+
+  b0 = _mm_unpacklo_epi64(m4, m5);
+  b1 = _mm_unpacklo_epi64(m6, m7);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi32(row4l, _MM_SHUFFLE(2,3,0,1));
+  row4h = _mm_shuffle_epi32(row4h, _MM_SHUFFLE(2,3,0,1));
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_shuffle_epi8(row2l, r24);
+  row2h = _mm_shuffle_epi8(row2h, r24);
+
+  b0 = _mm_unpackhi_epi64(m4, m5);
+  b1 = _mm_unpackhi_epi64(m6, m7);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi8(row4l, r16);
+  row4h = _mm_shuffle_epi8(row4h, r16);
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_xor_si128(_mm_srli_epi64(row2l, 63), _mm_add_epi64(row2l, row2l));
+  row2h = _mm_xor_si128(_mm_srli_epi64(row2h, 63), _mm_add_epi64(row2h, row2h));
+
+  t0 = _mm_alignr_epi8(row2l, row2h, 8);
+  t1 = _mm_alignr_epi8(row2h, row2l, 8);
+  row2l = t0, row2h = t1, t0 = row3l, row3l = row3h, row3h = t0;
+  t0 = _mm_alignr_epi8(row4l, row4h, 8);
+  t1 = _mm_alignr_epi8(row4h, row4l, 8);
+  row4l = t1, row4h = t0;
+
+  
+  b0 = _mm_unpacklo_epi64(m7, m2);
+  b1 = _mm_unpackhi_epi64(m4, m6);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi32(row4l, _MM_SHUFFLE(2,3,0,1));
+  row4h = _mm_shuffle_epi32(row4h, _MM_SHUFFLE(2,3,0,1));
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_shuffle_epi8(row2l, r24);
+  row2h = _mm_shuffle_epi8(row2h, r24);
+
+  b0 = _mm_unpacklo_epi64(m5, m4);
+  b1 = _mm_alignr_epi8(m3, m7, 8);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi8(row4l, r16);
+  row4h = _mm_shuffle_epi8(row4h, r16);
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_xor_si128(_mm_srli_epi64(row2l, 63), _mm_add_epi64(row2l, row2l));
+  row2h = _mm_xor_si128(_mm_srli_epi64(row2h, 63), _mm_add_epi64(row2h, row2h));
+
+  t0 = _mm_alignr_epi8(row2h, row2l, 8);
+  t1 = _mm_alignr_epi8(row2l, row2h, 8);
+  row2l = t0, row2h = t1, t0 = row3l, row3l = row3h, row3h = t0;
+  t0 = _mm_alignr_epi8(row4h, row4l, 8);
+  t1 = _mm_alignr_epi8(row4l, row4h, 8);
+  row4l = t1, row4h = t0;
+
+  b0 = _mm_shuffle_epi32(m0, _MM_SHUFFLE(1,0,3,2));
+  b1 = _mm_unpackhi_epi64(m5, m2);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi32(row4l, _MM_SHUFFLE(2,3,0,1));
+  row4h = _mm_shuffle_epi32(row4h, _MM_SHUFFLE(2,3,0,1));
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_shuffle_epi8(row2l, r24);
+  row2h = _mm_shuffle_epi8(row2h, r24);
+
+  b0 = _mm_unpacklo_epi64(m6, m1);
+  b1 = _mm_unpackhi_epi64(m3, m1);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi8(row4l, r16);
+  row4h = _mm_shuffle_epi8(row4h, r16);
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_xor_si128(_mm_srli_epi64(row2l, 63), _mm_add_epi64(row2l, row2l));
+  row2h = _mm_xor_si128(_mm_srli_epi64(row2h, 63), _mm_add_epi64(row2h, row2h));
+
+  t0 = _mm_alignr_epi8(row2l, row2h, 8);
+  t1 = _mm_alignr_epi8(row2h, row2l, 8);
+  row2l = t0, row2h = t1, t0 = row3l, row3l = row3h, row3h = t0;
+  t0 = _mm_alignr_epi8(row4l, row4h, 8);
+  t1 = _mm_alignr_epi8(row4h, row4l, 8);
+  row4l = t1, row4h = t0;
+
+  
+  b0 = _mm_alignr_epi8(m6, m5, 8);
+  b1 = _mm_unpackhi_epi64(m2, m7);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi32(row4l, _MM_SHUFFLE(2,3,0,1));
+  row4h = _mm_shuffle_epi32(row4h, _MM_SHUFFLE(2,3,0,1));
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_shuffle_epi8(row2l, r24);
+  row2h = _mm_shuffle_epi8(row2h, r24);
+
+  b0 = _mm_unpacklo_epi64(m4, m0);
+  b1 = _mm_blend_epi16(m1, m6, 0xF0);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi8(row4l, r16);
+  row4h = _mm_shuffle_epi8(row4h, r16);
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_xor_si128(_mm_srli_epi64(row2l, 63), _mm_add_epi64(row2l, row2l));
+  row2h = _mm_xor_si128(_mm_srli_epi64(row2h, 63), _mm_add_epi64(row2h, row2h));
+
+  t0 = _mm_alignr_epi8(row2h, row2l, 8);
+  t1 = _mm_alignr_epi8(row2l, row2h, 8);
+  row2l = t0, row2h = t1, t0 = row3l, row3l = row3h, row3h = t0;
+  t0 = _mm_alignr_epi8(row4h, row4l, 8);
+  t1 = _mm_alignr_epi8(row4l, row4h, 8);
+  row4l = t1, row4h = t0;
+
+  b0 = _mm_blend_epi16(m5, m1, 0xF0);
+  b1 = _mm_unpackhi_epi64(m3, m4);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi32(row4l, _MM_SHUFFLE(2,3,0,1));
+  row4h = _mm_shuffle_epi32(row4h, _MM_SHUFFLE(2,3,0,1));
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_shuffle_epi8(row2l, r24);
+  row2h = _mm_shuffle_epi8(row2h, r24);
+
+  b0 = _mm_unpacklo_epi64(m7, m3);
+  b1 = _mm_alignr_epi8(m2, m0, 8);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi8(row4l, r16);
+  row4h = _mm_shuffle_epi8(row4h, r16);
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_xor_si128(_mm_srli_epi64(row2l, 63), _mm_add_epi64(row2l, row2l));
+  row2h = _mm_xor_si128(_mm_srli_epi64(row2h, 63), _mm_add_epi64(row2h, row2h));
+
+  t0 = _mm_alignr_epi8(row2l, row2h, 8);
+  t1 = _mm_alignr_epi8(row2h, row2l, 8);
+  row2l = t0, row2h = t1, t0 = row3l, row3l = row3h, row3h = t0;
+  t0 = _mm_alignr_epi8(row4l, row4h, 8);
+  t1 = _mm_alignr_epi8(row4h, row4l, 8);
+  row4l = t1, row4h = t0;
+
+  
+  b0 = _mm_unpackhi_epi64(m3, m1);
+  b1 = _mm_unpackhi_epi64(m6, m5);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi32(row4l, _MM_SHUFFLE(2,3,0,1));
+  row4h = _mm_shuffle_epi32(row4h, _MM_SHUFFLE(2,3,0,1));
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_shuffle_epi8(row2l, r24);
+  row2h = _mm_shuffle_epi8(row2h, r24);
+
+  b0 = _mm_unpackhi_epi64(m4, m0);
+  b1 = _mm_unpacklo_epi64(m6, m7);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi8(row4l, r16);
+  row4h = _mm_shuffle_epi8(row4h, r16);
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_xor_si128(_mm_srli_epi64(row2l, 63), _mm_add_epi64(row2l, row2l));
+  row2h = _mm_xor_si128(_mm_srli_epi64(row2h, 63), _mm_add_epi64(row2h, row2h));
+
+  t0 = _mm_alignr_epi8(row2h, row2l, 8);
+  t1 = _mm_alignr_epi8(row2l, row2h, 8);
+  row2l = t0, row2h = t1, t0 = row3l, row3l = row3h, row3h = t0;
+  t0 = _mm_alignr_epi8(row4h, row4l, 8);
+  t1 = _mm_alignr_epi8(row4l, row4h, 8);
+  row4l = t1, row4h = t0;
+
+  b0 = _mm_blend_epi16(m1, m2, 0xF0);
+  b1 = _mm_blend_epi16(m2, m7, 0xF0);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi32(row4l, _MM_SHUFFLE(2,3,0,1));
+  row4h = _mm_shuffle_epi32(row4h, _MM_SHUFFLE(2,3,0,1));
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_shuffle_epi8(row2l, r24);
+  row2h = _mm_shuffle_epi8(row2h, r24);
+
+  b0 = _mm_unpacklo_epi64(m3, m5);
+  b1 = _mm_unpacklo_epi64(m0, m4);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi8(row4l, r16);
+  row4h = _mm_shuffle_epi8(row4h, r16);
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_xor_si128(_mm_srli_epi64(row2l, 63), _mm_add_epi64(row2l, row2l));
+  row2h = _mm_xor_si128(_mm_srli_epi64(row2h, 63), _mm_add_epi64(row2h, row2h));
+
+  t0 = _mm_alignr_epi8(row2l, row2h, 8);
+  t1 = _mm_alignr_epi8(row2h, row2l, 8);
+  row2l = t0, row2h = t1, t0 = row3l, row3l = row3h, row3h = t0;
+  t0 = _mm_alignr_epi8(row4l, row4h, 8);
+  t1 = _mm_alignr_epi8(row4h, row4l, 8);
+  row4l = t1, row4h = t0;
+
+  
+  b0 = _mm_unpackhi_epi64(m4, m2);
+  b1 = _mm_unpacklo_epi64(m1, m5);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi32(row4l, _MM_SHUFFLE(2,3,0,1));
+  row4h = _mm_shuffle_epi32(row4h, _MM_SHUFFLE(2,3,0,1));
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_shuffle_epi8(row2l, r24);
+  row2h = _mm_shuffle_epi8(row2h, r24);
+
+  b0 = _mm_blend_epi16(m0, m3, 0xF0);
+  b1 = _mm_blend_epi16(m2, m7, 0xF0);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi8(row4l, r16);
+  row4h = _mm_shuffle_epi8(row4h, r16);
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_xor_si128(_mm_srli_epi64(row2l, 63), _mm_add_epi64(row2l, row2l));
+  row2h = _mm_xor_si128(_mm_srli_epi64(row2h, 63), _mm_add_epi64(row2h, row2h));
+
+  t0 = _mm_alignr_epi8(row2h, row2l, 8);
+  t1 = _mm_alignr_epi8(row2l, row2h, 8);
+  row2l = t0, row2h = t1, t0 = row3l, row3l = row3h, row3h = t0;
+  t0 = _mm_alignr_epi8(row4h, row4l, 8);
+  t1 = _mm_alignr_epi8(row4l, row4h, 8);
+  row4l = t1, row4h = t0;
+
+  b0 = _mm_blend_epi16(m7, m5, 0xF0);
+  b1 = _mm_blend_epi16(m3, m1, 0xF0);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi32(row4l, _MM_SHUFFLE(2,3,0,1));
+  row4h = _mm_shuffle_epi32(row4h, _MM_SHUFFLE(2,3,0,1));
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_shuffle_epi8(row2l, r24);
+  row2h = _mm_shuffle_epi8(row2h, r24);
+
+  b0 = _mm_alignr_epi8(m6, m0, 8);
+  b1 = _mm_blend_epi16(m4, m6, 0xF0);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi8(row4l, r16);
+  row4h = _mm_shuffle_epi8(row4h, r16);
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_xor_si128(_mm_srli_epi64(row2l, 63), _mm_add_epi64(row2l, row2l));
+  row2h = _mm_xor_si128(_mm_srli_epi64(row2h, 63), _mm_add_epi64(row2h, row2h));
+
+  t0 = _mm_alignr_epi8(row2l, row2h, 8);
+  t1 = _mm_alignr_epi8(row2h, row2l, 8);
+  row2l = t0, row2h = t1, t0 = row3l, row3l = row3h, row3h = t0;
+  t0 = _mm_alignr_epi8(row4l, row4h, 8);
+  t1 = _mm_alignr_epi8(row4h, row4l, 8);
+  row4l = t1, row4h = t0;
+
+  
+  b0 = _mm_unpacklo_epi64(m1, m3);
+  b1 = _mm_unpacklo_epi64(m0, m4);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi32(row4l, _MM_SHUFFLE(2,3,0,1));
+  row4h = _mm_shuffle_epi32(row4h, _MM_SHUFFLE(2,3,0,1));
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_shuffle_epi8(row2l, r24);
+  row2h = _mm_shuffle_epi8(row2h, r24);
+
+  b0 = _mm_unpacklo_epi64(m6, m5);
+  b1 = _mm_unpackhi_epi64(m5, m1);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi8(row4l, r16);
+  row4h = _mm_shuffle_epi8(row4h, r16);
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_xor_si128(_mm_srli_epi64(row2l, 63), _mm_add_epi64(row2l, row2l));
+  row2h = _mm_xor_si128(_mm_srli_epi64(row2h, 63), _mm_add_epi64(row2h, row2h));
+
+  t0 = _mm_alignr_epi8(row2h, row2l, 8);
+  t1 = _mm_alignr_epi8(row2l, row2h, 8);
+  row2l = t0, row2h = t1, t0 = row3l, row3l = row3h, row3h = t0;
+  t0 = _mm_alignr_epi8(row4h, row4l, 8);
+  t1 = _mm_alignr_epi8(row4l, row4h, 8);
+  row4l = t1, row4h = t0;
+
+  b0 = _mm_blend_epi16(m2, m3, 0xF0);
+  b1 = _mm_unpackhi_epi64(m7, m0);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi32(row4l, _MM_SHUFFLE(2,3,0,1));
+  row4h = _mm_shuffle_epi32(row4h, _MM_SHUFFLE(2,3,0,1));
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_shuffle_epi8(row2l, r24);
+  row2h = _mm_shuffle_epi8(row2h, r24);
+
+  b0 = _mm_unpackhi_epi64(m6, m2);
+  b1 = _mm_blend_epi16(m7, m4, 0xF0);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi8(row4l, r16);
+  row4h = _mm_shuffle_epi8(row4h, r16);
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_xor_si128(_mm_srli_epi64(row2l, 63), _mm_add_epi64(row2l, row2l));
+  row2h = _mm_xor_si128(_mm_srli_epi64(row2h, 63), _mm_add_epi64(row2h, row2h));
+
+  t0 = _mm_alignr_epi8(row2l, row2h, 8);
+  t1 = _mm_alignr_epi8(row2h, row2l, 8);
+  row2l = t0, row2h = t1, t0 = row3l, row3l = row3h, row3h = t0;
+  t0 = _mm_alignr_epi8(row4l, row4h, 8);
+  t1 = _mm_alignr_epi8(row4h, row4l, 8);
+  row4l = t1, row4h = t0;
+
+  
+  b0 = _mm_blend_epi16(m6, m0, 0xF0);
+  b1 = _mm_unpacklo_epi64(m7, m2);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi32(row4l, _MM_SHUFFLE(2,3,0,1));
+  row4h = _mm_shuffle_epi32(row4h, _MM_SHUFFLE(2,3,0,1));
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_shuffle_epi8(row2l, r24);
+  row2h = _mm_shuffle_epi8(row2h, r24);
+
+  b0 = _mm_unpackhi_epi64(m2, m7);
+  b1 = _mm_alignr_epi8(m5, m6, 8);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi8(row4l, r16);
+  row4h = _mm_shuffle_epi8(row4h, r16);
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_xor_si128(_mm_srli_epi64(row2l, 63), _mm_add_epi64(row2l, row2l));
+  row2h = _mm_xor_si128(_mm_srli_epi64(row2h, 63), _mm_add_epi64(row2h, row2h));
+
+  t0 = _mm_alignr_epi8(row2h, row2l, 8);
+  t1 = _mm_alignr_epi8(row2l, row2h, 8);
+  row2l = t0, row2h = t1, t0 = row3l, row3l = row3h, row3h = t0;
+  t0 = _mm_alignr_epi8(row4h, row4l, 8);
+  t1 = _mm_alignr_epi8(row4l, row4h, 8);
+  row4l = t1, row4h = t0;
+
+  b0 = _mm_unpacklo_epi64(m0, m3);
+  b1 = _mm_shuffle_epi32(m4, _MM_SHUFFLE(1,0,3,2));
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi32(row4l, _MM_SHUFFLE(2,3,0,1));
+  row4h = _mm_shuffle_epi32(row4h, _MM_SHUFFLE(2,3,0,1));
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_shuffle_epi8(row2l, r24);
+  row2h = _mm_shuffle_epi8(row2h, r24);
+
+  b0 = _mm_unpackhi_epi64(m3, m1);
+  b1 = _mm_blend_epi16(m1, m5, 0xF0);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi8(row4l, r16);
+  row4h = _mm_shuffle_epi8(row4h, r16);
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_xor_si128(_mm_srli_epi64(row2l, 63), _mm_add_epi64(row2l, row2l));
+  row2h = _mm_xor_si128(_mm_srli_epi64(row2h, 63), _mm_add_epi64(row2h, row2h));
+
+  t0 = _mm_alignr_epi8(row2l, row2h, 8);
+  t1 = _mm_alignr_epi8(row2h, row2l, 8);
+  row2l = t0, row2h = t1, t0 = row3l, row3l = row3h, row3h = t0;
+  t0 = _mm_alignr_epi8(row4l, row4h, 8);
+  t1 = _mm_alignr_epi8(row4h, row4l, 8);
+  row4l = t1, row4h = t0;
+
+  
+  b0 = _mm_unpackhi_epi64(m6, m3);
+  b1 = _mm_blend_epi16(m6, m1, 0xF0);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi32(row4l, _MM_SHUFFLE(2,3,0,1));
+  row4h = _mm_shuffle_epi32(row4h, _MM_SHUFFLE(2,3,0,1));
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_shuffle_epi8(row2l, r24);
+  row2h = _mm_shuffle_epi8(row2h, r24);
+
+  b0 = _mm_alignr_epi8(m7, m5, 8);
+  b1 = _mm_unpackhi_epi64(m0, m4);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi8(row4l, r16);
+  row4h = _mm_shuffle_epi8(row4h, r16);
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_xor_si128(_mm_srli_epi64(row2l, 63), _mm_add_epi64(row2l, row2l));
+  row2h = _mm_xor_si128(_mm_srli_epi64(row2h, 63), _mm_add_epi64(row2h, row2h));
+
+  t0 = _mm_alignr_epi8(row2h, row2l, 8);
+  t1 = _mm_alignr_epi8(row2l, row2h, 8);
+  row2l = t0, row2h = t1, t0 = row3l, row3l = row3h, row3h = t0;
+  t0 = _mm_alignr_epi8(row4h, row4l, 8);
+  t1 = _mm_alignr_epi8(row4l, row4h, 8);
+  row4l = t1, row4h = t0;
+
+  b0 = _mm_unpackhi_epi64(m2, m7);
+  b1 = _mm_unpacklo_epi64(m4, m1);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi32(row4l, _MM_SHUFFLE(2,3,0,1));
+  row4h = _mm_shuffle_epi32(row4h, _MM_SHUFFLE(2,3,0,1));
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_shuffle_epi8(row2l, r24);
+  row2h = _mm_shuffle_epi8(row2h, r24);
+
+  b0 = _mm_unpacklo_epi64(m0, m2);
+  b1 = _mm_unpacklo_epi64(m3, m5);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi8(row4l, r16);
+  row4h = _mm_shuffle_epi8(row4h, r16);
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_xor_si128(_mm_srli_epi64(row2l, 63), _mm_add_epi64(row2l, row2l));
+  row2h = _mm_xor_si128(_mm_srli_epi64(row2h, 63), _mm_add_epi64(row2h, row2h));
+
+  t0 = _mm_alignr_epi8(row2l, row2h, 8);
+  t1 = _mm_alignr_epi8(row2h, row2l, 8);
+  row2l = t0, row2h = t1, t0 = row3l, row3l = row3h, row3h = t0;
+  t0 = _mm_alignr_epi8(row4l, row4h, 8);
+  t1 = _mm_alignr_epi8(row4h, row4l, 8);
+  row4l = t1, row4h = t0;
+
+  
+  b0 = _mm_unpacklo_epi64(m3, m7);
+  b1 = _mm_alignr_epi8(m0, m5, 8);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi32(row4l, _MM_SHUFFLE(2,3,0,1));
+  row4h = _mm_shuffle_epi32(row4h, _MM_SHUFFLE(2,3,0,1));
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_shuffle_epi8(row2l, r24);
+  row2h = _mm_shuffle_epi8(row2h, r24);
+
+  b0 = _mm_unpackhi_epi64(m7, m4);
+  b1 = _mm_alignr_epi8(m4, m1, 8);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi8(row4l, r16);
+  row4h = _mm_shuffle_epi8(row4h, r16);
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_xor_si128(_mm_srli_epi64(row2l, 63), _mm_add_epi64(row2l, row2l));
+  row2h = _mm_xor_si128(_mm_srli_epi64(row2h, 63), _mm_add_epi64(row2h, row2h));
+
+  t0 = _mm_alignr_epi8(row2h, row2l, 8);
+  t1 = _mm_alignr_epi8(row2l, row2h, 8);
+  row2l = t0, row2h = t1, t0 = row3l, row3l = row3h, row3h = t0;
+  t0 = _mm_alignr_epi8(row4h, row4l, 8);
+  t1 = _mm_alignr_epi8(row4l, row4h, 8);
+  row4l = t1, row4h = t0;
+
+  b0 = m6;
+  b1 = _mm_alignr_epi8(m5, m0, 8);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi32(row4l, _MM_SHUFFLE(2,3,0,1));
+  row4h = _mm_shuffle_epi32(row4h, _MM_SHUFFLE(2,3,0,1));
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_shuffle_epi8(row2l, r24);
+  row2h = _mm_shuffle_epi8(row2h, r24);
+
+  b0 = _mm_blend_epi16(m1, m3, 0xF0);
+  b1 = m2;
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi8(row4l, r16);
+  row4h = _mm_shuffle_epi8(row4h, r16);
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_xor_si128(_mm_srli_epi64(row2l, 63), _mm_add_epi64(row2l, row2l));
+  row2h = _mm_xor_si128(_mm_srli_epi64(row2h, 63), _mm_add_epi64(row2h, row2h));
+
+  t0 = _mm_alignr_epi8(row2l, row2h, 8);
+  t1 = _mm_alignr_epi8(row2h, row2l, 8);
+  row2l = t0, row2h = t1, t0 = row3l, row3l = row3h, row3h = t0;
+  t0 = _mm_alignr_epi8(row4l, row4h, 8);
+  t1 = _mm_alignr_epi8(row4h, row4l, 8);
+  row4l = t1, row4h = t0;
+
+  
+  b0 = _mm_unpacklo_epi64(m5, m4);
+  b1 = _mm_unpackhi_epi64(m3, m0);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi32(row4l, _MM_SHUFFLE(2,3,0,1));
+  row4h = _mm_shuffle_epi32(row4h, _MM_SHUFFLE(2,3,0,1));
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_shuffle_epi8(row2l, r24);
+  row2h = _mm_shuffle_epi8(row2h, r24);
+
+  b0 = _mm_unpacklo_epi64(m1, m2);
+  b1 = _mm_blend_epi16(m3, m2, 0xF0);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi8(row4l, r16);
+  row4h = _mm_shuffle_epi8(row4h, r16);
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_xor_si128(_mm_srli_epi64(row2l, 63), _mm_add_epi64(row2l, row2l));
+  row2h = _mm_xor_si128(_mm_srli_epi64(row2h, 63), _mm_add_epi64(row2h, row2h));
+
+  t0 = _mm_alignr_epi8(row2h, row2l, 8);
+  t1 = _mm_alignr_epi8(row2l, row2h, 8);
+  row2l = t0, row2h = t1, t0 = row3l, row3l = row3h, row3h = t0;
+  t0 = _mm_alignr_epi8(row4h, row4l, 8);
+  t1 = _mm_alignr_epi8(row4l, row4h, 8);
+  row4l = t1, row4h = t0;
+
+  b0 = _mm_unpackhi_epi64(m7, m4);
+  b1 = _mm_unpackhi_epi64(m1, m6);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi32(row4l, _MM_SHUFFLE(2,3,0,1));
+  row4h = _mm_shuffle_epi32(row4h, _MM_SHUFFLE(2,3,0,1));
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_shuffle_epi8(row2l, r24);
+  row2h = _mm_shuffle_epi8(row2h, r24);
+
+  b0 = _mm_alignr_epi8(m7, m5, 8);
+  b1 = _mm_unpacklo_epi64(m6, m0);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi8(row4l, r16);
+  row4h = _mm_shuffle_epi8(row4h, r16);
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_xor_si128(_mm_srli_epi64(row2l, 63), _mm_add_epi64(row2l, row2l));
+  row2h = _mm_xor_si128(_mm_srli_epi64(row2h, 63), _mm_add_epi64(row2h, row2h));
+
+  t0 = _mm_alignr_epi8(row2l, row2h, 8);
+  t1 = _mm_alignr_epi8(row2h, row2l, 8);
+  row2l = t0, row2h = t1, t0 = row3l, row3l = row3h, row3h = t0;
+  t0 = _mm_alignr_epi8(row4l, row4h, 8);
+  t1 = _mm_alignr_epi8(row4h, row4l, 8);
+  row4l = t1, row4h = t0;
+
+  
+  b0 = _mm_unpacklo_epi64(m0, m1);
+  b1 = _mm_unpacklo_epi64(m2, m3);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi32(row4l, _MM_SHUFFLE(2,3,0,1));
+  row4h = _mm_shuffle_epi32(row4h, _MM_SHUFFLE(2,3,0,1));
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_shuffle_epi8(row2l, r24);
+  row2h = _mm_shuffle_epi8(row2h, r24);
+
+  b0 = _mm_unpackhi_epi64(m0, m1);
+  b1 = _mm_unpackhi_epi64(m2, m3);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi8(row4l, r16);
+  row4h = _mm_shuffle_epi8(row4h, r16);
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_xor_si128(_mm_srli_epi64(row2l, 63), _mm_add_epi64(row2l, row2l));
+  row2h = _mm_xor_si128(_mm_srli_epi64(row2h, 63), _mm_add_epi64(row2h, row2h));
+
+  t0 = _mm_alignr_epi8(row2h, row2l, 8);
+  t1 = _mm_alignr_epi8(row2l, row2h, 8);
+  row2l = t0, row2h = t1, t0 = row3l, row3l = row3h, row3h = t0;
+  t0 = _mm_alignr_epi8(row4h, row4l, 8);
+  t1 = _mm_alignr_epi8(row4l, row4h, 8);
+  row4l = t1, row4h = t0;
+
+  b0 = _mm_unpacklo_epi64(m4, m5);
+  b1 = _mm_unpacklo_epi64(m6, m7);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi32(row4l, _MM_SHUFFLE(2,3,0,1));
+  row4h = _mm_shuffle_epi32(row4h, _MM_SHUFFLE(2,3,0,1));
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_shuffle_epi8(row2l, r24);
+  row2h = _mm_shuffle_epi8(row2h, r24);
+
+  b0 = _mm_unpackhi_epi64(m4, m5);
+  b1 = _mm_unpackhi_epi64(m6, m7);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi8(row4l, r16);
+  row4h = _mm_shuffle_epi8(row4h, r16);
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_xor_si128(_mm_srli_epi64(row2l, 63), _mm_add_epi64(row2l, row2l));
+  row2h = _mm_xor_si128(_mm_srli_epi64(row2h, 63), _mm_add_epi64(row2h, row2h));
+
+  t0 = _mm_alignr_epi8(row2l, row2h, 8);
+  t1 = _mm_alignr_epi8(row2h, row2l, 8);
+  row2l = t0, row2h = t1, t0 = row3l, row3l = row3h, row3h = t0;
+  t0 = _mm_alignr_epi8(row4l, row4h, 8);
+  t1 = _mm_alignr_epi8(row4h, row4l, 8);
+  row4l = t1, row4h = t0;
+
+  
+  b0 = _mm_unpacklo_epi64(m7, m2);
+  b1 = _mm_unpackhi_epi64(m4, m6);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi32(row4l, _MM_SHUFFLE(2,3,0,1));
+  row4h = _mm_shuffle_epi32(row4h, _MM_SHUFFLE(2,3,0,1));
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_shuffle_epi8(row2l, r24);
+  row2h = _mm_shuffle_epi8(row2h, r24);
+
+  b0 = _mm_unpacklo_epi64(m5, m4);
+  b1 = _mm_alignr_epi8(m3, m7, 8);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi8(row4l, r16);
+  row4h = _mm_shuffle_epi8(row4h, r16);
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_xor_si128(_mm_srli_epi64(row2l, 63), _mm_add_epi64(row2l, row2l));
+  row2h = _mm_xor_si128(_mm_srli_epi64(row2h, 63), _mm_add_epi64(row2h, row2h));
+
+  t0 = _mm_alignr_epi8(row2h, row2l, 8);
+  t1 = _mm_alignr_epi8(row2l, row2h, 8);
+  row2l = t0, row2h = t1, t0 = row3l, row3l = row3h, row3h = t0;
+  t0 = _mm_alignr_epi8(row4h, row4l, 8);
+  t1 = _mm_alignr_epi8(row4l, row4h, 8);
+  row4l = t1, row4h = t0;
+
+  b0 = _mm_shuffle_epi32(m0, _MM_SHUFFLE(1,0,3,2));
+  b1 = _mm_unpackhi_epi64(m5, m2);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi32(row4l, _MM_SHUFFLE(2,3,0,1));
+  row4h = _mm_shuffle_epi32(row4h, _MM_SHUFFLE(2,3,0,1));
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_shuffle_epi8(row2l, r24);
+  row2h = _mm_shuffle_epi8(row2h, r24);
+
+  b0 = _mm_unpacklo_epi64(m6, m1);
+  b1 = _mm_unpackhi_epi64(m3, m1);
+
+  row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
+  row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
+  row4l = _mm_xor_si128(row4l, row1l);
+  row4h = _mm_xor_si128(row4h, row1h);
+  row4l = _mm_shuffle_epi8(row4l, r16);
+  row4h = _mm_shuffle_epi8(row4h, r16);
+  row3l = _mm_add_epi64(row3l, row4l);
+  row3h = _mm_add_epi64(row3h, row4h);
+  row2l = _mm_xor_si128(row2l, row3l);
+  row2h = _mm_xor_si128(row2h, row3h);
+  row2l = _mm_xor_si128(_mm_srli_epi64(row2l, 63), _mm_add_epi64(row2l, row2l));
+  row2h = _mm_xor_si128(_mm_srli_epi64(row2h, 63), _mm_add_epi64(row2h, row2h));
+
+  t0 = _mm_alignr_epi8(row2l, row2h, 8);
+  t1 = _mm_alignr_epi8(row2h, row2l, 8);
+  row2l = t0, row2h = t1, t0 = row3l, row3l = row3h, row3h = t0;
+  t0 = _mm_alignr_epi8(row4l, row4h, 8);
+  t1 = _mm_alignr_epi8(row4h, row4l, 8);
+  row4l = t1, row4h = t0;
+
+  
+  row1l = _mm_xor_si128(row3l, row1l);
+  row1h = _mm_xor_si128(row3h, row1h);
+  _mm_storeu_si128((__m128i *)(&state.h[0]), _mm_xor_si128(_mm_loadu_si128((const __m128i *)(&state.h[0])), row1l));
+  _mm_storeu_si128((__m128i *)(&state.h[2]), _mm_xor_si128(_mm_loadu_si128((const __m128i *)(&state.h[2])), row1h));
+  row2l = _mm_xor_si128(row4l, row2l);
+  row2h = _mm_xor_si128(row4h, row2h);
+  _mm_storeu_si128((__m128i *)(&state.h[4]), _mm_xor_si128(_mm_loadu_si128((const __m128i *)(&state.h[4])), row2l));
+  _mm_storeu_si128((__m128i *)(&state.h[6]), _mm_xor_si128(_mm_loadu_si128((const __m128i *)(&state.h[6])), row2h));
 }
 #endif  // CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
 
