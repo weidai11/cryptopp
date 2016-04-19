@@ -1,5 +1,5 @@
-// blake2.cpp - written and placed in the public domain by Jeffrey Walton and Zooko Wilcox-O'Hearn.
-//              Copyright assigned to the Crypto++ project.
+// blake2.cpp - written and placed in the public domain by Jeffrey Walton and Zooko
+//              Wilcox-O'Hearn. Copyright assigned to the Crypto++ project.
 //              Based on Aumasson, Neves, Wilcox-O’Hearn and Winnerlein's reference BLAKE2 
 //              implementation at http://github.com/BLAKE2/BLAKE2.
 
@@ -30,17 +30,17 @@ NAMESPACE_BEGIN(CryptoPP)
 #endif
 
 // C/C++ implementation
-static inline void BLAKE2_CXX_Compress32(const byte* input, BLAKE2_State<word32, false>& state);
-static inline void BLAKE2_CXX_Compress64(const byte* input, BLAKE2_State<word64, true>& state);
+static void BLAKE2_CXX_Compress32(const byte* input, BLAKE2_State<word32, false>& state);
+static void BLAKE2_CXX_Compress64(const byte* input, BLAKE2_State<word64, true>& state);
 
 #if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
-static inline void BLAKE2_SSE2_Compress32(const byte* input, BLAKE2_State<word32, false>& state);
-static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64, true>& state);
+static void BLAKE2_SSE2_Compress32(const byte* input, BLAKE2_State<word32, false>& state);
+static void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64, true>& state);
 #endif
 
 #if CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
-static inline void BLAKE2_SSE4_Compress32(const byte* input, BLAKE2_State<word32, false>& state);
-static inline void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64, true>& state);
+static void BLAKE2_SSE4_Compress32(const byte* input, BLAKE2_State<word32, false>& state);
+static void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64, true>& state);
 #endif
 
 #ifndef CRYPTOPP_DOXYGEN_PROCESSING
@@ -85,8 +85,6 @@ struct CRYPTOPP_NO_VTABLE BLAKE2_Sigma {};
 template<>
 struct CRYPTOPP_NO_VTABLE BLAKE2_Sigma<false>
 {
-	CRYPTOPP_CONSTANT(ROW = 10);
-	CRYPTOPP_CONSTANT(COL = 16);
 	static const byte sigma[10][16];
 };
 
@@ -107,8 +105,6 @@ const byte BLAKE2_Sigma<false>::sigma[10][16] = {
 template<>
 struct CRYPTOPP_NO_VTABLE BLAKE2_Sigma<true>
 {
-	CRYPTOPP_CONSTANT(ROW = 12);
-	CRYPTOPP_CONSTANT(COL = 16);
 	static const byte sigma[12][16];
 };
 
@@ -165,6 +161,40 @@ inline void ThrowIfInvalidPersonalization(size_t size)
 	if (size > BLAKE2_Info<T_64bit>::PERSONALIZATIONSIZE)
 		throw InvalidPersonalizationLength(T_64bit ? "Blake2b" : "Blake2s", size);
 }
+
+typedef void (*pfnCompress32)(const byte*, BLAKE2_State<word32, false>&);
+typedef void (*pfnCompress64)(const byte*, BLAKE2_State<word64, true>&);
+
+pfnCompress64 InitializeCompress64Fn()
+{
+#if CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
+	if (HasSSE4())
+		return &BLAKE2_SSE4_Compress64;
+	else
+#endif
+#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+	if (HasSSE2())
+		return &BLAKE2_SSE2_Compress64;
+	else
+#endif
+	return &BLAKE2_CXX_Compress64;
+}
+
+pfnCompress32 InitializeCompress32Fn()
+{
+#if CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
+	if (HasSSE4())
+		return &BLAKE2_SSE4_Compress32;
+	else
+#endif
+#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+	if (HasSSE2())
+		return &BLAKE2_SSE2_Compress32;
+	else
+#endif
+	return &BLAKE2_CXX_Compress32;
+}
+
 #endif // CRYPTOPP_DOXYGEN_PROCESSING
 
 BLAKE2_ParameterBlock<false>::BLAKE2_ParameterBlock(size_t digestLen, size_t keyLen,
@@ -250,7 +280,7 @@ BLAKE2_Base<W, T_64bit>::BLAKE2_Base(const byte *key, size_t keyLength, const by
 	this->ThrowIfInvalidKeyLength(keyLength);
 	this->ThrowIfInvalidTruncatedSize(digestSize);
 
-	UncheckedSetKey(key, keyLength, g_nullNameValuePairs);
+	UncheckedSetKey(key, static_cast<unsigned int>(keyLength), g_nullNameValuePairs);
 	Restart();
 }
 
@@ -307,7 +337,8 @@ void BLAKE2_Base<W, T_64bit>::Update(const byte *input, size_t length)
 		input += fill;
 
 		// Compress in-place to avoid copies
-		while (length > BLOCKSIZE) {
+		while (length > BLOCKSIZE)
+		{
 			IncrementCounter();
 			Compress(input);
 			length -= BLOCKSIZE;
@@ -359,42 +390,24 @@ void BLAKE2_Base<W, T_64bit>::TruncatedFinal(byte *hash, size_t size)
 template <class W, bool T_64bit>
 void BLAKE2_Base<W, T_64bit>::IncrementCounter(size_t count)
 {
-	m_state.t[0] += count;
+	m_state.t[0] += static_cast<W>(count);
 	m_state.t[1] += !!(m_state.t[0] < count);
 }
 
 template <>
 void BLAKE2_Base<word64, true>::Compress(const byte *input)
 {
-#if CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
-	if (HasSSE4())
-		BLAKE2_SSE4_Compress64(input, m_state);
-	else
-#endif
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
-	if (HasSSE2())
-		BLAKE2_SSE2_Compress64(input, m_state);
-	else
-#endif
-
-	BLAKE2_CXX_Compress64(input, m_state);
+	// Selects the most advanced implmentation at runtime
+	static const pfnCompress64 s_pfn = InitializeCompress64Fn();
+	s_pfn(input, m_state);
 }
 
 template <>
 void BLAKE2_Base<word32, false>::Compress(const byte *input)
 {
-#if CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
-	if (HasSSE4())
-		BLAKE2_SSE4_Compress32(input, m_state);
-	else
-#endif
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
-	if (HasSSE2())
-		BLAKE2_SSE2_Compress32(input, m_state);
-	else
-#endif
-
-	BLAKE2_CXX_Compress32(input, m_state);
+	// Selects the most advanced implmentation at runtime
+	static const pfnCompress32 s_pfn = InitializeCompress32Fn();
+	s_pfn(input, m_state);
 }
 
 void BLAKE2_CXX_Compress64(const byte* input, BLAKE2_State<word64, true>& state)
@@ -524,12 +537,8 @@ void BLAKE2_CXX_Compress32(const byte* input, BLAKE2_State<word32, false>& state
 }
 
 #if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
-static inline void BLAKE2_SSE2_Compress32(const byte* input, BLAKE2_State<word32, false>& state)
+static void BLAKE2_SSE2_Compress32(const byte* input, BLAKE2_State<word32, false>& state)
 {
-	// Fallback to C++
-	BLAKE2_CXX_Compress32(input, state);
-
-#if 0
   __m128i row1,row2,row3,row4;
   __m128i buf1,buf2,buf3,buf4;
   __m128i ff0,ff1;
@@ -634,7 +643,6 @@ static inline void BLAKE2_SSE2_Compress32(const byte* input, BLAKE2_State<word32
   row4 = _mm_shuffle_epi32(row4,_MM_SHUFFLE(0,3,2,1));
   row3 = _mm_shuffle_epi32(row3,_MM_SHUFFLE(1,0,3,2));
   row2 = _mm_shuffle_epi32(row2,_MM_SHUFFLE(2,1,0,3));
-
   
   buf1 = _mm_set_epi32(m15,m5,m12,m11);
   row1 = _mm_add_epi32(_mm_add_epi32(row1,buf1),row2);
@@ -958,10 +966,9 @@ static inline void BLAKE2_SSE2_Compress32(const byte* input, BLAKE2_State<word32
   
   _mm_storeu_si128((__m128i *)(&state.h[0]),_mm_xor_si128(ff0,_mm_xor_si128(row1,row3)));
   _mm_storeu_si128((__m128i *)(&state.h[4]),_mm_xor_si128(ff1,_mm_xor_si128(row2,row4)));
-#endif
 }
 
-static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64, true>& state)
+static void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64, true>& state)
 {
   __m128i row1l, row1h, row2l, row2h;
   __m128i row3l, row3h, row4l, row4h;
@@ -1859,12 +1866,8 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
 #endif  // CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
 
 #if CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
-static inline void BLAKE2_SSE4_Compress32(const byte* input, BLAKE2_State<word32, false>& state)
+static void BLAKE2_SSE4_Compress32(const byte* input, BLAKE2_State<word32, false>& state)
 {
-	// Fallback to C++
-	BLAKE2_CXX_Compress32(input, state);
-
-#if 0
   __m128i row1, row2, row3, row4;
   __m128i buf1, buf2, buf3, buf4;
 
@@ -2416,10 +2419,9 @@ static inline void BLAKE2_SSE4_Compress32(const byte* input, BLAKE2_State<word32
 
   _mm_storeu_si128((__m128i *)(&state.h[0]), _mm_xor_si128(ff0, _mm_xor_si128(row1, row3)));
   _mm_storeu_si128((__m128i *)(&state.h[4]), _mm_xor_si128(ff1, _mm_xor_si128(row2, row4)));
-#endif
 }
 
-static inline void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64, true>& state)
+static void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64, true>& state)
 {
   __m128i row1l, row1h;
   __m128i row2l, row2h;

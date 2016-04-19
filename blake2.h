@@ -1,4 +1,5 @@
-// blake2.cpp - written and placed in the public domain by Jeffrey Walton and Zooko Wilcox-O'Hearn
+// blake2.cpp - written and placed in the public domain by Jeffrey Walton and Zooko
+//              Wilcox-O'Hearn. Copyright assigned to the Crypto++ project.
 //              Based on Aumasson, Neves, Wilcox-O’Hearn and Winnerlein's reference BLAKE2 
 //              implementation at http://github.com/BLAKE2/BLAKE2.
 
@@ -165,7 +166,8 @@ struct CRYPTOPP_NO_VTABLE BLAKE2_State
 		memset(this, 0x00, sizeof(*this)-sizeof(buffer));
 	}
 
-	W t[2], h[8], f[2];
+	// SSE2 and SSE4 depend upon t[] and f[] being side-by-side
+	W h[8], t[2], f[2];
 	size_t length;
 	byte  buffer[BLOCKSIZE];
 };
