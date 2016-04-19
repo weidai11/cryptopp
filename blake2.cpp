@@ -1,4 +1,5 @@
-// blake2.cpp - written and placed in the public domain by Jeffrey Walton and Zooko Wilcox-O'Hearn
+// blake2.cpp - written and placed in the public domain by Jeffrey Walton and Zooko Wilcox-O'Hearn.
+//              Copyright assigned to the Crypto++ project.
 //              Based on Aumasson, Neves, Wilcox-O’Hearn and Winnerlein's reference BLAKE2 
 //              implementation at http://github.com/BLAKE2/BLAKE2.
 
@@ -588,7 +589,6 @@ static inline void BLAKE2_SSE2_Compress32(const byte* input, BLAKE2_State<word32
   row3 = _mm_shuffle_epi32(row3,_MM_SHUFFLE(1,0,3,2));
   row2 = _mm_shuffle_epi32(row2,_MM_SHUFFLE(2,1,0,3));
 
-  
   buf1 = _mm_set_epi32(m13,m9,m4,m14);
   row1 = _mm_add_epi32(_mm_add_epi32(row1,buf1),row2);
   row4 = _mm_xor_si128(row4,row1);
@@ -669,7 +669,6 @@ static inline void BLAKE2_SSE2_Compress32(const byte* input, BLAKE2_State<word32
   row4 = _mm_shuffle_epi32(row4,_MM_SHUFFLE(0,3,2,1));
   row3 = _mm_shuffle_epi32(row3,_MM_SHUFFLE(1,0,3,2));
   row2 = _mm_shuffle_epi32(row2,_MM_SHUFFLE(2,1,0,3));
-
   
   buf1 = _mm_set_epi32(m11,m13,m3,m7);
   row1 = _mm_add_epi32(_mm_add_epi32(row1,buf1),row2);
@@ -710,7 +709,6 @@ static inline void BLAKE2_SSE2_Compress32(const byte* input, BLAKE2_State<word32
   row4 = _mm_shuffle_epi32(row4,_MM_SHUFFLE(0,3,2,1));
   row3 = _mm_shuffle_epi32(row3,_MM_SHUFFLE(1,0,3,2));
   row2 = _mm_shuffle_epi32(row2,_MM_SHUFFLE(2,1,0,3));
-
   
   buf1 = _mm_set_epi32(m10,m2,m5,m9);
   row1 = _mm_add_epi32(_mm_add_epi32(row1,buf1),row2);
@@ -751,7 +749,6 @@ static inline void BLAKE2_SSE2_Compress32(const byte* input, BLAKE2_State<word32
   row4 = _mm_shuffle_epi32(row4,_MM_SHUFFLE(0,3,2,1));
   row3 = _mm_shuffle_epi32(row3,_MM_SHUFFLE(1,0,3,2));
   row2 = _mm_shuffle_epi32(row2,_MM_SHUFFLE(2,1,0,3));
-
   
   buf1 = _mm_set_epi32(m8,m0,m6,m2);
   row1 = _mm_add_epi32(_mm_add_epi32(row1,buf1),row2);
@@ -792,7 +789,6 @@ static inline void BLAKE2_SSE2_Compress32(const byte* input, BLAKE2_State<word32
   row4 = _mm_shuffle_epi32(row4,_MM_SHUFFLE(0,3,2,1));
   row3 = _mm_shuffle_epi32(row3,_MM_SHUFFLE(1,0,3,2));
   row2 = _mm_shuffle_epi32(row2,_MM_SHUFFLE(2,1,0,3));
-
   
   buf1 = _mm_set_epi32(m4,m14,m1,m12);
   row1 = _mm_add_epi32(_mm_add_epi32(row1,buf1),row2);
@@ -833,7 +829,6 @@ static inline void BLAKE2_SSE2_Compress32(const byte* input, BLAKE2_State<word32
   row4 = _mm_shuffle_epi32(row4,_MM_SHUFFLE(0,3,2,1));
   row3 = _mm_shuffle_epi32(row3,_MM_SHUFFLE(1,0,3,2));
   row2 = _mm_shuffle_epi32(row2,_MM_SHUFFLE(2,1,0,3));
-
   
   buf1 = _mm_set_epi32(m3,m12,m7,m13);
   row1 = _mm_add_epi32(_mm_add_epi32(row1,buf1),row2);
@@ -874,7 +869,6 @@ static inline void BLAKE2_SSE2_Compress32(const byte* input, BLAKE2_State<word32
   row4 = _mm_shuffle_epi32(row4,_MM_SHUFFLE(0,3,2,1));
   row3 = _mm_shuffle_epi32(row3,_MM_SHUFFLE(1,0,3,2));
   row2 = _mm_shuffle_epi32(row2,_MM_SHUFFLE(2,1,0,3));
-
   
   buf1 = _mm_set_epi32(m0,m11,m14,m6);
   row1 = _mm_add_epi32(_mm_add_epi32(row1,buf1),row2);
@@ -915,7 +909,6 @@ static inline void BLAKE2_SSE2_Compress32(const byte* input, BLAKE2_State<word32
   row4 = _mm_shuffle_epi32(row4,_MM_SHUFFLE(0,3,2,1));
   row3 = _mm_shuffle_epi32(row3,_MM_SHUFFLE(1,0,3,2));
   row2 = _mm_shuffle_epi32(row2,_MM_SHUFFLE(2,1,0,3));
-
   
   buf1 = _mm_set_epi32(m1,m7,m8,m10);
   row1 = _mm_add_epi32(_mm_add_epi32(row1,buf1),row2);
@@ -956,7 +949,6 @@ static inline void BLAKE2_SSE2_Compress32(const byte* input, BLAKE2_State<word32
   row4 = _mm_shuffle_epi32(row4,_MM_SHUFFLE(0,3,2,1));
   row3 = _mm_shuffle_epi32(row3,_MM_SHUFFLE(1,0,3,2));
   row2 = _mm_shuffle_epi32(row2,_MM_SHUFFLE(2,1,0,3));
-
   
   _mm_storeu_si128((__m128i *)(&state.h[0]),_mm_xor_si128(ff0,_mm_xor_si128(row1,row3)));
   _mm_storeu_si128((__m128i *)(&state.h[4]),_mm_xor_si128(ff1,_mm_xor_si128(row2,row4)));
@@ -986,7 +978,6 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   const word64 m14 = ((const word64*)input)[14];
   const word64 m15 = ((const word64*)input)[15];
 
-
   row1l = _mm_loadu_si128( (const __m128i *)(&state.h[0]) );
   row1h = _mm_loadu_si128( (const __m128i *)(&state.h[2]) );
   row2l = _mm_loadu_si128( (const __m128i *)(&state.h[4]) );
@@ -995,7 +986,6 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row3h = _mm_loadu_si128( (const __m128i *)(&BLAKE2_IV<true>::iv[2]) );
   row4l = _mm_xor_si128( _mm_loadu_si128( (const __m128i *)(&BLAKE2_IV<true>::iv[4]) ), _mm_loadu_si128( (const __m128i *)(&state.t[0]) ) );
   row4h = _mm_xor_si128( _mm_loadu_si128( (const __m128i *)(&BLAKE2_IV<true>::iv[6]) ), _mm_loadu_si128( (const __m128i *)(&state.f[0]) ) );
-
 
   b0 = _mm_set_epi64x(m2, m0);
   b1 = _mm_set_epi64x(m6, m4);
@@ -1012,7 +1002,6 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,24),_mm_slli_epi64(row2l, 40 ));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,24),_mm_slli_epi64(row2h, 40 ));
 
-
   b0 = _mm_set_epi64x(m3, m1);
   b1 = _mm_set_epi64x(m7, m5);
   row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
@@ -1027,7 +1016,6 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2h = _mm_xor_si128(row2h, row3h);
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,63),_mm_slli_epi64(row2l,1));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,63),_mm_slli_epi64(row2h,1));
-
 
   t0 = row4l, t1 = row2l, row4l = row3l, row3l = row3h, row3h = row4l;
   row4l = _mm_unpackhi_epi64(row4h, _mm_unpacklo_epi64(t0, t0));
@@ -1049,7 +1037,6 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,24),_mm_slli_epi64(row2l,40));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,24),_mm_slli_epi64(row2h,40));
 
-
   b0 = _mm_set_epi64x(m11, m9);
   b1 = _mm_set_epi64x(m15, m13);
   row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
@@ -1065,13 +1052,11 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,63),_mm_slli_epi64(row2l,1));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,63),_mm_slli_epi64(row2h,1));
 
-
   t0 = row3l, row3l = row3h, row3h = t0, t0 = row2l, t1 = row4l;
   row2l = _mm_unpackhi_epi64(row2h, _mm_unpacklo_epi64(row2l, row2l));
   row2h = _mm_unpackhi_epi64(t0, _mm_unpacklo_epi64(row2h, row2h));
   row4l = _mm_unpackhi_epi64(row4l, _mm_unpacklo_epi64(row4h, row4h));
   row4h = _mm_unpackhi_epi64(row4h, _mm_unpacklo_epi64(t1, t1));
-
 
   b0 = _mm_set_epi64x(m4, m14);
   b1 = _mm_set_epi64x(m13, m9);
@@ -1088,7 +1073,6 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,24),_mm_slli_epi64(row2l,40));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,24),_mm_slli_epi64(row2h,40));
 
-
   b0 = _mm_set_epi64x(m8, m10);
   b1 = _mm_set_epi64x(m6, m15);
   row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
@@ -1103,7 +1087,6 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2h = _mm_xor_si128(row2h, row3h);
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,63),_mm_slli_epi64(row2l,1));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,63),_mm_slli_epi64(row2h,1));
-
 
   t0 = row4l, t1 = row2l, row4l = row3l, row3l = row3h, row3h = row4l;
   row4l = _mm_unpackhi_epi64(row4h, _mm_unpacklo_epi64(t0, t0));
@@ -1125,7 +1108,6 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,24),_mm_slli_epi64(row2l,40));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,24),_mm_slli_epi64(row2h,40));
 
-
   b0 = _mm_set_epi64x(m2, m12);
   b1 = _mm_set_epi64x(m3, m7);
   row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
@@ -1141,13 +1123,11 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,63),_mm_slli_epi64(row2l,1));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,63),_mm_slli_epi64(row2h,1));
 
-
   t0 = row3l, row3l = row3h, row3h = t0, t0 = row2l, t1 = row4l;
   row2l = _mm_unpackhi_epi64(row2h, _mm_unpacklo_epi64(row2l, row2l));
   row2h = _mm_unpackhi_epi64(t0, _mm_unpacklo_epi64(row2h, row2h));
   row4l = _mm_unpackhi_epi64(row4l, _mm_unpacklo_epi64(row4h, row4h));
   row4h = _mm_unpackhi_epi64(row4h, _mm_unpacklo_epi64(t1, t1));
-
 
   b0 = _mm_set_epi64x(m12, m11);
   b1 = _mm_set_epi64x(m15, m5);
@@ -1164,7 +1144,6 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,24),_mm_slli_epi64(row2l,40));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,24),_mm_slli_epi64(row2h,40));
 
-
   b0 = _mm_set_epi64x(m0, m8);
   b1 = _mm_set_epi64x(m13, m2);
   row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
@@ -1179,7 +1158,6 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2h = _mm_xor_si128(row2h, row3h);
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,63),_mm_slli_epi64(row2l,1));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,63),_mm_slli_epi64(row2h,1));
-
 
   t0 = row4l, t1 = row2l, row4l = row3l, row3l = row3h, row3h = row4l;
   row4l = _mm_unpackhi_epi64(row4h, _mm_unpacklo_epi64(t0, t0));
@@ -1201,7 +1179,6 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,24),_mm_slli_epi64(row2l,40));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,24),_mm_slli_epi64(row2h,40));
 
-
   b0 = _mm_set_epi64x(m6, m14);
   b1 = _mm_set_epi64x(m4, m1);
   row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
@@ -1217,13 +1194,11 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,63),_mm_slli_epi64(row2l,1));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,63),_mm_slli_epi64(row2h,1));
 
-
   t0 = row3l, row3l = row3h, row3h = t0, t0 = row2l, t1 = row4l;
   row2l = _mm_unpackhi_epi64(row2h, _mm_unpacklo_epi64(row2l, row2l));
   row2h = _mm_unpackhi_epi64(t0, _mm_unpacklo_epi64(row2h, row2h));
   row4l = _mm_unpackhi_epi64(row4l, _mm_unpacklo_epi64(row4h, row4h));
   row4h = _mm_unpackhi_epi64(row4h, _mm_unpacklo_epi64(t1, t1));
-
 
   b0 = _mm_set_epi64x(m3, m7);
   b1 = _mm_set_epi64x(m11, m13);
@@ -1240,7 +1215,6 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,24),_mm_slli_epi64(row2l,40));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,24),_mm_slli_epi64(row2h,40));
 
-
   b0 = _mm_set_epi64x(m1, m9);
   b1 = _mm_set_epi64x(m14, m12);
   row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
@@ -1255,7 +1229,6 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2h = _mm_xor_si128(row2h, row3h);
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,63),_mm_slli_epi64(row2l,1));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,63),_mm_slli_epi64(row2h,1));
-
 
   t0 = row4l, t1 = row2l, row4l = row3l, row3l = row3h, row3h = row4l;
   row4l = _mm_unpackhi_epi64(row4h, _mm_unpacklo_epi64(t0, t0));
@@ -1277,7 +1250,6 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,24),_mm_slli_epi64(row2l,40));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,24),_mm_slli_epi64(row2h,40));
 
-
   b0 = _mm_set_epi64x(m10, m6);
   b1 = _mm_set_epi64x(m8, m0);
   row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
@@ -1293,13 +1265,11 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,63),_mm_slli_epi64(row2l,1));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,63),_mm_slli_epi64(row2h,1));
 
-
   t0 = row3l, row3l = row3h, row3h = t0, t0 = row2l, t1 = row4l;
   row2l = _mm_unpackhi_epi64(row2h, _mm_unpacklo_epi64(row2l, row2l));
   row2h = _mm_unpackhi_epi64(t0, _mm_unpacklo_epi64(row2h, row2h));
   row4l = _mm_unpackhi_epi64(row4l, _mm_unpacklo_epi64(row4h, row4h));
   row4h = _mm_unpackhi_epi64(row4h, _mm_unpacklo_epi64(t1, t1));
-
 
   b0 = _mm_set_epi64x(m5, m9);
   b1 = _mm_set_epi64x(m10, m2);
@@ -1316,7 +1286,6 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,24),_mm_slli_epi64(row2l,40));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,24),_mm_slli_epi64(row2h,40));
 
-
   b0 = _mm_set_epi64x(m7, m0);
   b1 = _mm_set_epi64x(m15, m4);
   row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
@@ -1331,7 +1300,6 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2h = _mm_xor_si128(row2h, row3h);
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,63),_mm_slli_epi64(row2l,1));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,63),_mm_slli_epi64(row2h,1));
-
 
   t0 = row4l, t1 = row2l, row4l = row3l, row3l = row3h, row3h = row4l;
   row4l = _mm_unpackhi_epi64(row4h, _mm_unpacklo_epi64(t0, t0));
@@ -1369,13 +1337,11 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,63),_mm_slli_epi64(row2l,1));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,63),_mm_slli_epi64(row2h,1));
 
-
   t0 = row3l, row3l = row3h, row3h = t0, t0 = row2l, t1 = row4l;
   row2l = _mm_unpackhi_epi64(row2h, _mm_unpacklo_epi64(row2l, row2l));
   row2h = _mm_unpackhi_epi64(t0, _mm_unpacklo_epi64(row2h, row2h));
   row4l = _mm_unpackhi_epi64(row4l, _mm_unpacklo_epi64(row4h, row4h));
   row4h = _mm_unpackhi_epi64(row4h, _mm_unpacklo_epi64(t1, t1));
-
 
   b0 = _mm_set_epi64x(m6, m2);
   b1 = _mm_set_epi64x(m8, m0);
@@ -1392,7 +1358,6 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,24),_mm_slli_epi64(row2l,40));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,24),_mm_slli_epi64(row2h,40));
 
-
   b0 = _mm_set_epi64x(m10, m12);
   b1 = _mm_set_epi64x(m3, m11);
   row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
@@ -1407,7 +1372,6 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2h = _mm_xor_si128(row2h, row3h);
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,63),_mm_slli_epi64(row2l,1));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,63),_mm_slli_epi64(row2h,1));
-
 
   t0 = row4l, t1 = row2l, row4l = row3l, row3l = row3h, row3h = row4l;
   row4l = _mm_unpackhi_epi64(row4h, _mm_unpacklo_epi64(t0, t0));
@@ -1429,7 +1393,6 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,24),_mm_slli_epi64(row2l,40));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,24),_mm_slli_epi64(row2h,40));
 
-
   b0 = _mm_set_epi64x(m5, m13);
   b1 = _mm_set_epi64x(m9, m14);
   row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
@@ -1445,13 +1408,11 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,63),_mm_slli_epi64(row2l,1));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,63),_mm_slli_epi64(row2h,1));
 
-
   t0 = row3l, row3l = row3h, row3h = t0, t0 = row2l, t1 = row4l;
   row2l = _mm_unpackhi_epi64(row2h, _mm_unpacklo_epi64(row2l, row2l));
   row2h = _mm_unpackhi_epi64(t0, _mm_unpacklo_epi64(row2h, row2h));
   row4l = _mm_unpackhi_epi64(row4l, _mm_unpacklo_epi64(row4h, row4h));
   row4h = _mm_unpackhi_epi64(row4h, _mm_unpacklo_epi64(t1, t1));
-
 
   b0 = _mm_set_epi64x(m1, m12);
   b1 = _mm_set_epi64x(m4, m14);
@@ -1468,7 +1429,6 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,24),_mm_slli_epi64(row2l,40));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,24),_mm_slli_epi64(row2h,40));
 
-
   b0 = _mm_set_epi64x(m15, m5);
   b1 = _mm_set_epi64x(m10, m13);
   row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
@@ -1483,7 +1443,6 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2h = _mm_xor_si128(row2h, row3h);
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,63),_mm_slli_epi64(row2l,1));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,63),_mm_slli_epi64(row2h,1));
-
 
   t0 = row4l, t1 = row2l, row4l = row3l, row3l = row3h, row3h = row4l;
   row4l = _mm_unpackhi_epi64(row4h, _mm_unpacklo_epi64(t0, t0));
@@ -1505,7 +1464,6 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,24),_mm_slli_epi64(row2l,40));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,24),_mm_slli_epi64(row2h,40));
 
-
   b0 = _mm_set_epi64x(m3, m7);
   b1 = _mm_set_epi64x(m11, m2);
   row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
@@ -1521,13 +1479,11 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,63),_mm_slli_epi64(row2l,1));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,63),_mm_slli_epi64(row2h,1));
 
-
   t0 = row3l, row3l = row3h, row3h = t0, t0 = row2l, t1 = row4l;
   row2l = _mm_unpackhi_epi64(row2h, _mm_unpacklo_epi64(row2l, row2l));
   row2h = _mm_unpackhi_epi64(t0, _mm_unpacklo_epi64(row2h, row2h));
   row4l = _mm_unpackhi_epi64(row4l, _mm_unpacklo_epi64(row4h, row4h));
   row4h = _mm_unpackhi_epi64(row4h, _mm_unpacklo_epi64(t1, t1));
-
 
   b0 = _mm_set_epi64x(m7, m13);
   b1 = _mm_set_epi64x(m3, m12);
@@ -1544,7 +1500,6 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,24),_mm_slli_epi64(row2l,40));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,24),_mm_slli_epi64(row2h,40));
 
-
   b0 = _mm_set_epi64x(m14, m11);
   b1 = _mm_set_epi64x(m9, m1);
   row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
@@ -1559,7 +1514,6 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2h = _mm_xor_si128(row2h, row3h);
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,63),_mm_slli_epi64(row2l,1));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,63),_mm_slli_epi64(row2h,1));
-
 
   t0 = row4l, t1 = row2l, row4l = row3l, row3l = row3h, row3h = row4l;
   row4l = _mm_unpackhi_epi64(row4h, _mm_unpacklo_epi64(t0, t0));
@@ -1581,7 +1535,6 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,24),_mm_slli_epi64(row2l,40));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,24),_mm_slli_epi64(row2h,40));
 
-
   b0 = _mm_set_epi64x(m4, m0);
   b1 = _mm_set_epi64x(m10, m6);
   row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
@@ -1597,13 +1550,11 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,63),_mm_slli_epi64(row2l,1));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,63),_mm_slli_epi64(row2h,1));
 
-
   t0 = row3l, row3l = row3h, row3h = t0, t0 = row2l, t1 = row4l;
   row2l = _mm_unpackhi_epi64(row2h, _mm_unpacklo_epi64(row2l, row2l));
   row2h = _mm_unpackhi_epi64(t0, _mm_unpacklo_epi64(row2h, row2h));
   row4l = _mm_unpackhi_epi64(row4l, _mm_unpacklo_epi64(row4h, row4h));
   row4h = _mm_unpackhi_epi64(row4h, _mm_unpacklo_epi64(t1, t1));
-
 
   b0 = _mm_set_epi64x(m14, m6);
   b1 = _mm_set_epi64x(m0, m11);
@@ -1620,7 +1571,6 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,24),_mm_slli_epi64(row2l,40));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,24),_mm_slli_epi64(row2h,40));
 
-
   b0 = _mm_set_epi64x(m9, m15);
   b1 = _mm_set_epi64x(m8, m3);
   row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
@@ -1635,7 +1585,6 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2h = _mm_xor_si128(row2h, row3h);
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,63),_mm_slli_epi64(row2l,1));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,63),_mm_slli_epi64(row2h,1));
-
 
   t0 = row4l, t1 = row2l, row4l = row3l, row3l = row3h, row3h = row4l;
   row4l = _mm_unpackhi_epi64(row4h, _mm_unpacklo_epi64(t0, t0));
@@ -1657,7 +1606,6 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,24),_mm_slli_epi64(row2l,40));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,24),_mm_slli_epi64(row2h,40));
 
-
   b0 = _mm_set_epi64x(m7, m2);
   b1 = _mm_set_epi64x(m5, m4);
   row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
@@ -1673,13 +1621,11 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,63),_mm_slli_epi64(row2l,1));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,63),_mm_slli_epi64(row2h,1));
 
-
   t0 = row3l, row3l = row3h, row3h = t0, t0 = row2l, t1 = row4l;
   row2l = _mm_unpackhi_epi64(row2h, _mm_unpacklo_epi64(row2l, row2l));
   row2h = _mm_unpackhi_epi64(t0, _mm_unpacklo_epi64(row2h, row2h));
   row4l = _mm_unpackhi_epi64(row4l, _mm_unpacklo_epi64(row4h, row4h));
   row4h = _mm_unpackhi_epi64(row4h, _mm_unpacklo_epi64(t1, t1));
-
 
   b0 = _mm_set_epi64x(m8, m10);
   b1 = _mm_set_epi64x(m1, m7);
@@ -1696,7 +1642,6 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,24),_mm_slli_epi64(row2l,40));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,24),_mm_slli_epi64(row2h,40));
 
-
   b0 = _mm_set_epi64x(m4, m2);
   b1 = _mm_set_epi64x(m5, m6);
   row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
@@ -1711,7 +1656,6 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2h = _mm_xor_si128(row2h, row3h);
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,63),_mm_slli_epi64(row2l,1));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,63),_mm_slli_epi64(row2h,1));
-
 
   t0 = row4l, t1 = row2l, row4l = row3l, row3l = row3h, row3h = row4l;
   row4l = _mm_unpackhi_epi64(row4h, _mm_unpacklo_epi64(t0, t0));
@@ -1733,7 +1677,6 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,24),_mm_slli_epi64(row2l,40));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,24),_mm_slli_epi64(row2h,40));
 
-
   b0 = _mm_set_epi64x(m14, m11);
   b1 = _mm_set_epi64x(m0, m12);
   row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
@@ -1749,13 +1692,11 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,63),_mm_slli_epi64(row2l,1));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,63),_mm_slli_epi64(row2h,1));
 
-
   t0 = row3l, row3l = row3h, row3h = t0, t0 = row2l, t1 = row4l;
   row2l = _mm_unpackhi_epi64(row2h, _mm_unpacklo_epi64(row2l, row2l));
   row2h = _mm_unpackhi_epi64(t0, _mm_unpacklo_epi64(row2h, row2h));
   row4l = _mm_unpackhi_epi64(row4l, _mm_unpacklo_epi64(row4h, row4h));
   row4h = _mm_unpackhi_epi64(row4h, _mm_unpacklo_epi64(t1, t1));
-
 
   b0 = _mm_set_epi64x(m2, m0);
   b1 = _mm_set_epi64x(m6, m4);
@@ -1772,7 +1713,6 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,24),_mm_slli_epi64(row2l,40));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,24),_mm_slli_epi64(row2h,40));
 
-
   b0 = _mm_set_epi64x(m3, m1);
   b1 = _mm_set_epi64x(m7, m5);
   row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
@@ -1787,7 +1727,6 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2h = _mm_xor_si128(row2h, row3h);
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,63),_mm_slli_epi64(row2l,1));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,63),_mm_slli_epi64(row2h,1));
-
 
   t0 = row4l, t1 = row2l, row4l = row3l, row3l = row3h, row3h = row4l;
   row4l = _mm_unpackhi_epi64(row4h, _mm_unpacklo_epi64(t0, t0));
@@ -1809,7 +1748,6 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,24),_mm_slli_epi64(row2l,40));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,24),_mm_slli_epi64(row2h,40));
 
-
   b0 = _mm_set_epi64x(m11, m9);
   b1 = _mm_set_epi64x(m15, m13);
   row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
@@ -1825,13 +1763,11 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,63),_mm_slli_epi64(row2l,1));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,63),_mm_slli_epi64(row2h,1));
 
-
   t0 = row3l, row3l = row3h, row3h = t0, t0 = row2l, t1 = row4l;
   row2l = _mm_unpackhi_epi64(row2h, _mm_unpacklo_epi64(row2l, row2l));
   row2h = _mm_unpackhi_epi64(t0, _mm_unpacklo_epi64(row2h, row2h));
   row4l = _mm_unpackhi_epi64(row4l, _mm_unpacklo_epi64(row4h, row4h));
   row4h = _mm_unpackhi_epi64(row4h, _mm_unpacklo_epi64(t1, t1));
-
 
   b0 = _mm_set_epi64x(m4, m14);
   b1 = _mm_set_epi64x(m13, m9);
@@ -1848,7 +1784,6 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,24),_mm_slli_epi64(row2l,40));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,24),_mm_slli_epi64(row2h,40));
 
-
   b0 = _mm_set_epi64x(m8, m10);
   b1 = _mm_set_epi64x(m6, m15);
   row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
@@ -1863,7 +1798,6 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2h = _mm_xor_si128(row2h, row3h);
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,63),_mm_slli_epi64(row2l,1));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,63),_mm_slli_epi64(row2h,1));
-
 
   t0 = row4l, t1 = row2l, row4l = row3l, row3l = row3h, row3h = row4l;
   row4l = _mm_unpackhi_epi64(row4h, _mm_unpacklo_epi64(t0, t0));
@@ -1885,7 +1819,6 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,24),_mm_slli_epi64(row2l,40));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,24),_mm_slli_epi64(row2h,40));
 
-
   b0 = _mm_set_epi64x(m2, m12);
   b1 = _mm_set_epi64x(m3, m7);
   row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
@@ -1901,7 +1834,6 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row2l = _mm_xor_si128(_mm_srli_epi64(row2l,63),_mm_slli_epi64(row2l,1));
   row2h = _mm_xor_si128(_mm_srli_epi64(row2h,63),_mm_slli_epi64(row2h,1));
 
-
   t0 = row3l, row3l = row3h, row3h = t0, t0 = row2l, t1 = row4l;
   row2l = _mm_unpackhi_epi64(row2h, _mm_unpacklo_epi64(row2l, row2l));
   row2h = _mm_unpackhi_epi64(t0, _mm_unpacklo_epi64(row2h, row2h));
@@ -1912,6 +1844,7 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
   row1h = _mm_xor_si128( row3h, row1h );
   _mm_storeu_si128((__m128i *)(&state.h[0]), _mm_xor_si128(_mm_loadu_si128( (const __m128i *)(&state.h[0]) ), row1l));
   _mm_storeu_si128((__m128i *)(&state.h[2]), _mm_xor_si128(_mm_loadu_si128( (const __m128i *)(&state.h[2]) ), row1h));
+
   row2l = _mm_xor_si128( row4l, row2l );
   row2h = _mm_xor_si128( row4h, row2h );
   _mm_storeu_si128((__m128i *)(&state.h[4]), _mm_xor_si128(_mm_loadu_si128( (const __m128i *)(&state.h[4]) ), row2l));
@@ -1922,9 +1855,563 @@ static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64
 #if CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
 static inline void BLAKE2_SSE4_Compress32(const byte* input, BLAKE2_State<word32, false>& state)
 {
-	// TODO... fall back to C++
+	// Fallback to C++
 	BLAKE2_CXX_Compress32(input, state);
-};
+
+#if 0
+  __m128i row1, row2, row3, row4;
+  __m128i buf1, buf2, buf3, buf4;
+
+  __m128i t0, t1, t2;
+  __m128i ff0, ff1;
+
+  const __m128i r8 = _mm_set_epi8(12, 15, 14, 13, 8, 11, 10, 9, 4, 7, 6, 5, 0, 3, 2, 1);
+  const __m128i r16 = _mm_set_epi8(13, 12, 15, 14, 9, 8, 11, 10, 5, 4, 7, 6, 1, 0, 3, 2);
+
+  const __m128i m0 = _mm_loadu_si128((const __m128i *)(input + 00));
+  const __m128i m1 = _mm_loadu_si128((const __m128i *)(input + 16));
+  const __m128i m2 = _mm_loadu_si128((const __m128i *)(input + 32));
+  const __m128i m3 = _mm_loadu_si128((const __m128i *)(input + 48));
+
+  row1 = ff0 = _mm_loadu_si128((const __m128i *)(&state.h[0]));
+  row2 = ff1 = _mm_loadu_si128((const __m128i *)(&state.h[4]));
+  row3 = _mm_setr_epi32(BLAKE2_IV<false>::iv[0], BLAKE2_IV<false>::iv[1], BLAKE2_IV<false>::iv[2], BLAKE2_IV<false>::iv[3]);
+  row4 = _mm_xor_si128(_mm_setr_epi32(BLAKE2_IV<false>::iv[4], BLAKE2_IV<false>::iv[5], BLAKE2_IV<false>::iv[6], BLAKE2_IV<false>::iv[7]), _mm_loadu_si128((const __m128i *)(&state.t[0])));
+  buf1 = _mm_castps_si128((_mm_shuffle_ps(_mm_castsi128_ps((m0)), _mm_castsi128_ps((m1)), _MM_SHUFFLE(2,0,2,0))));
+
+  row1 = _mm_add_epi32(_mm_add_epi32(row1, buf1), row2);
+  row4 = _mm_xor_si128(row4, row1);
+  row4 = _mm_shuffle_epi8(row4,r16);
+  row3 = _mm_add_epi32(row3, row4);
+  row2 = _mm_xor_si128(row2, row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2, 12),_mm_slli_epi32(row2, 20));
+
+  buf2 = _mm_castps_si128((_mm_shuffle_ps(_mm_castsi128_ps((m0)), _mm_castsi128_ps((m1)), _MM_SHUFFLE(3,1,3,1))));
+
+  row1 = _mm_add_epi32(_mm_add_epi32(row1, buf2), row2);
+  row4 = _mm_xor_si128(row4, row1);
+  row4 = _mm_shuffle_epi8(row4,r8);
+  row3 = _mm_add_epi32(row3, row4);
+  row2 = _mm_xor_si128(row2, row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2, 7),_mm_slli_epi32(row2, 25));
+
+  row4 = _mm_shuffle_epi32(row4, _MM_SHUFFLE(2,1,0,3));
+  row3 = _mm_shuffle_epi32(row3, _MM_SHUFFLE(1,0,3,2));
+  row2 = _mm_shuffle_epi32(row2, _MM_SHUFFLE(0,3,2,1));
+
+  buf3 = _mm_castps_si128((_mm_shuffle_ps(_mm_castsi128_ps((m2)), _mm_castsi128_ps((m3)), _MM_SHUFFLE(2,0,2,0))));
+
+  row1 = _mm_add_epi32(_mm_add_epi32(row1, buf3), row2);
+  row4 = _mm_xor_si128(row4, row1);
+  row4 = _mm_shuffle_epi8(row4,r16);
+  row3 = _mm_add_epi32(row3, row4);
+  row2 = _mm_xor_si128(row2, row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2, 12),_mm_slli_epi32(row2, 20));
+
+  buf4 = _mm_castps_si128((_mm_shuffle_ps(_mm_castsi128_ps((m2)), _mm_castsi128_ps((m3)), _MM_SHUFFLE(3,1,3,1))));
+
+  row1 = _mm_add_epi32(_mm_add_epi32(row1, buf4), row2);
+  row4 = _mm_xor_si128(row4, row1);
+  row4 = _mm_shuffle_epi8(row4,r8);
+  row3 = _mm_add_epi32(row3, row4);
+  row2 = _mm_xor_si128(row2, row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2, 7),_mm_slli_epi32(row2, 25));
+
+  row4 = _mm_shuffle_epi32(row4, _MM_SHUFFLE(0,3,2,1));
+  row3 = _mm_shuffle_epi32(row3, _MM_SHUFFLE(1,0,3,2));
+  row2 = _mm_shuffle_epi32(row2, _MM_SHUFFLE(2,1,0,3));
+
+  t0 = _mm_blend_epi16(m1, m2, 0x0C);
+  t1 = _mm_slli_si128(m3, 4);
+  t2 = _mm_blend_epi16(t0, t1, 0xF0);
+  buf1 = _mm_shuffle_epi32(t2, _MM_SHUFFLE(2,1,0,3));
+
+  row1 = _mm_add_epi32(_mm_add_epi32(row1, buf1), row2);
+  row4 = _mm_xor_si128(row4, row1);
+  row4 = _mm_shuffle_epi8(row4,r16);
+  row3 = _mm_add_epi32(row3, row4);
+  row2 = _mm_xor_si128(row2, row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2, 12),_mm_slli_epi32(row2, 20));
+
+  t0 = _mm_shuffle_epi32(m2,_MM_SHUFFLE(0,0,2,0));
+  t1 = _mm_blend_epi16(m1,m3,0xC0);
+  t2 = _mm_blend_epi16(t0, t1, 0xF0);
+  buf2 = _mm_shuffle_epi32(t2, _MM_SHUFFLE(2,3,0,1));
+
+  row1 = _mm_add_epi32(_mm_add_epi32(row1, buf2), row2);
+  row4 = _mm_xor_si128(row4, row1);
+  row4 = _mm_shuffle_epi8(row4,r8);
+  row3 = _mm_add_epi32(row3, row4);
+  row2 = _mm_xor_si128(row2, row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2, 7),_mm_slli_epi32(row2, 25));
+
+  row4 = _mm_shuffle_epi32(row4, _MM_SHUFFLE(2,1,0,3));
+  row3 = _mm_shuffle_epi32(row3, _MM_SHUFFLE(1,0,3,2));
+  row2 = _mm_shuffle_epi32(row2, _MM_SHUFFLE(0,3,2,1));
+
+  t0 = _mm_slli_si128(m1, 4);
+  t1 = _mm_blend_epi16(m2, t0, 0x30);
+  t2 = _mm_blend_epi16(m0, t1, 0xF0);
+  buf3 = _mm_shuffle_epi32(t2, _MM_SHUFFLE(2,3,0,1));
+
+  row1 = _mm_add_epi32(_mm_add_epi32(row1, buf3), row2);
+  row4 = _mm_xor_si128(row4, row1);
+  row4 = _mm_shuffle_epi8(row4,r16);
+  row3 = _mm_add_epi32(row3, row4);
+  row2 = _mm_xor_si128(row2, row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2, 12),_mm_slli_epi32(row2, 20));
+
+  t0 = _mm_unpackhi_epi32(m0,m1);
+  t1 = _mm_slli_si128(m3, 4);
+  t2 = _mm_blend_epi16(t0, t1, 0x0C);
+  buf4 = _mm_shuffle_epi32(t2, _MM_SHUFFLE(2,3,0,1));
+
+  row1 = _mm_add_epi32(_mm_add_epi32(row1, buf4), row2);
+  row4 = _mm_xor_si128(row4, row1);
+  row4 = _mm_shuffle_epi8(row4,r8);
+  row3 = _mm_add_epi32(row3, row4);
+  row2 = _mm_xor_si128(row2, row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2, 7),_mm_slli_epi32(row2, 25));
+
+  row4 = _mm_shuffle_epi32(row4, _MM_SHUFFLE(0,3,2,1));
+  row3 = _mm_shuffle_epi32(row3, _MM_SHUFFLE(1,0,3,2));
+  row2 = _mm_shuffle_epi32(row2, _MM_SHUFFLE(2,1,0,3));
+
+  t0 = _mm_unpackhi_epi32(m2,m3);
+  t1 = _mm_blend_epi16(m3,m1,0x0C);
+  t2 = _mm_blend_epi16(t0, t1, 0x0F);
+  buf1 = _mm_shuffle_epi32(t2, _MM_SHUFFLE(3,1,0,2));
+
+  row1 = _mm_add_epi32(_mm_add_epi32(row1, buf1), row2);
+  row4 = _mm_xor_si128(row4, row1);
+  row4 = _mm_shuffle_epi8(row4,r16);
+  row3 = _mm_add_epi32(row3, row4);
+  row2 = _mm_xor_si128(row2, row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2, 12),_mm_slli_epi32(row2, 20));
+
+  t0 = _mm_unpacklo_epi32(m2,m0);
+  t1 = _mm_blend_epi16(t0, m0, 0xF0);
+  t2 = _mm_slli_si128(m3, 8);
+  buf2 = _mm_blend_epi16(t1, t2, 0xC0);
+
+  row1 = _mm_add_epi32(_mm_add_epi32(row1, buf2), row2);
+  row4 = _mm_xor_si128(row4, row1);
+  row4 = _mm_shuffle_epi8(row4,r8);
+  row3 = _mm_add_epi32(row3, row4);
+  row2 = _mm_xor_si128(row2, row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2, 7),_mm_slli_epi32(row2, 25));
+
+  row4 = _mm_shuffle_epi32(row4, _MM_SHUFFLE(2,1,0,3));
+  row3 = _mm_shuffle_epi32(row3, _MM_SHUFFLE(1,0,3,2));
+  row2 = _mm_shuffle_epi32(row2, _MM_SHUFFLE(0,3,2,1));
+
+  t0 = _mm_blend_epi16(m0, m2, 0x3C);
+  t1 = _mm_srli_si128(m1, 12);
+  t2 = _mm_blend_epi16(t0,t1,0x03);
+  buf3 = _mm_shuffle_epi32(t2, _MM_SHUFFLE(1,0,3,2));
+
+  row1 = _mm_add_epi32(_mm_add_epi32(row1, buf3), row2);
+  row4 = _mm_xor_si128(row4, row1);
+  row4 = _mm_shuffle_epi8(row4,r16);
+  row3 = _mm_add_epi32(row3, row4);
+  row2 = _mm_xor_si128(row2, row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2, 12),_mm_slli_epi32(row2, 20));
+
+  t0 = _mm_slli_si128(m3, 4);
+  t1 = _mm_blend_epi16(m0, m1, 0x33);
+  t2 = _mm_blend_epi16(t1, t0, 0xC0);
+  buf4 = _mm_shuffle_epi32(t2, _MM_SHUFFLE(0,1,2,3));
+
+  row1 = _mm_add_epi32(_mm_add_epi32(row1, buf4), row2);
+  row4 = _mm_xor_si128(row4, row1);
+  row4 = _mm_shuffle_epi8(row4,r8);
+  row3 = _mm_add_epi32(row3, row4);
+  row2 = _mm_xor_si128(row2, row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2, 7),_mm_slli_epi32(row2, 25));
+
+  row4 = _mm_shuffle_epi32(row4, _MM_SHUFFLE(0,3,2,1));
+  row3 = _mm_shuffle_epi32(row3, _MM_SHUFFLE(1,0,3,2));
+  row2 = _mm_shuffle_epi32(row2, _MM_SHUFFLE(2,1,0,3));
+
+  t0 = _mm_unpackhi_epi32(m0,m1);
+  t1 = _mm_unpackhi_epi32(t0, m2);
+  t2 = _mm_blend_epi16(t1, m3, 0x0C);
+  buf1 = _mm_shuffle_epi32(t2, _MM_SHUFFLE(3,1,0,2));
+
+  row1 = _mm_add_epi32(_mm_add_epi32(row1, buf1), row2);
+  row4 = _mm_xor_si128(row4, row1);
+  row4 = _mm_shuffle_epi8(row4,r16);
+  row3 = _mm_add_epi32(row3, row4);
+  row2 = _mm_xor_si128(row2, row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2, 12),_mm_slli_epi32(row2, 20));
+
+  t0 = _mm_slli_si128(m2, 8);
+  t1 = _mm_blend_epi16(m3,m0,0x0C);
+  t2 = _mm_blend_epi16(t1, t0, 0xC0);
+  buf2 = _mm_shuffle_epi32(t2, _MM_SHUFFLE(2,0,1,3));
+
+  row1 = _mm_add_epi32(_mm_add_epi32(row1, buf2), row2);
+  row4 = _mm_xor_si128(row4, row1);
+  row4 = _mm_shuffle_epi8(row4,r8);
+  row3 = _mm_add_epi32(row3, row4);
+  row2 = _mm_xor_si128(row2, row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2, 7),_mm_slli_epi32(row2, 25));
+
+  row4 = _mm_shuffle_epi32(row4, _MM_SHUFFLE(2,1,0,3));
+  row3 = _mm_shuffle_epi32(row3, _MM_SHUFFLE(1,0,3,2));
+  row2 = _mm_shuffle_epi32(row2, _MM_SHUFFLE(0,3,2,1));
+
+  t0 = _mm_blend_epi16(m0,m1,0x0F);
+  t1 = _mm_blend_epi16(t0, m3, 0xC0);
+  buf3 = _mm_shuffle_epi32(t1, _MM_SHUFFLE(3,0,1,2));
+
+  row1 = _mm_add_epi32(_mm_add_epi32(row1, buf3), row2);
+  row4 = _mm_xor_si128(row4, row1);
+  row4 = _mm_shuffle_epi8(row4,r16);
+  row3 = _mm_add_epi32(row3, row4);
+  row2 = _mm_xor_si128(row2, row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2, 12),_mm_slli_epi32(row2, 20));
+
+  t0 = _mm_unpacklo_epi32(m0,m2);
+  t1 = _mm_unpackhi_epi32(m1,m2);
+  buf4 = _mm_unpacklo_epi64(t1,t0);
+
+  row1 = _mm_add_epi32(_mm_add_epi32(row1, buf4), row2);
+  row4 = _mm_xor_si128(row4, row1);
+  row4 = _mm_shuffle_epi8(row4,r8);
+  row3 = _mm_add_epi32(row3, row4);
+  row2 = _mm_xor_si128(row2, row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2, 7),_mm_slli_epi32(row2, 25));
+
+  row4 = _mm_shuffle_epi32(row4, _MM_SHUFFLE(0,3,2,1));
+  row3 = _mm_shuffle_epi32(row3, _MM_SHUFFLE(1,0,3,2));
+  row2 = _mm_shuffle_epi32(row2, _MM_SHUFFLE(2,1,0,3));
+
+  t0 = _mm_unpacklo_epi64(m1,m2);
+  t1 = _mm_unpackhi_epi64(m0,m2);
+  t2 = _mm_blend_epi16(t0,t1,0x33);
+  buf1 = _mm_shuffle_epi32(t2, _MM_SHUFFLE(2,0,1,3));
+
+  row1 = _mm_add_epi32(_mm_add_epi32(row1, buf1), row2);
+  row4 = _mm_xor_si128(row4, row1);
+  row4 = _mm_shuffle_epi8(row4,r16);
+  row3 = _mm_add_epi32(row3, row4);
+  row2 = _mm_xor_si128(row2, row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2, 12),_mm_slli_epi32(row2, 20));
+
+  t0 = _mm_unpackhi_epi64(m1,m3);
+  t1 = _mm_unpacklo_epi64(m0,m1);
+  buf2 = _mm_blend_epi16(t0,t1,0x33);
+
+  row1 = _mm_add_epi32(_mm_add_epi32(row1, buf2), row2);
+  row4 = _mm_xor_si128(row4, row1);
+  row4 = _mm_shuffle_epi8(row4,r8);
+  row3 = _mm_add_epi32(row3, row4);
+  row2 = _mm_xor_si128(row2, row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2, 7),_mm_slli_epi32(row2, 25));
+
+  row4 = _mm_shuffle_epi32(row4, _MM_SHUFFLE(2,1,0,3));
+  row3 = _mm_shuffle_epi32(row3, _MM_SHUFFLE(1,0,3,2));
+  row2 = _mm_shuffle_epi32(row2, _MM_SHUFFLE(0,3,2,1));
+
+  t0 = _mm_unpackhi_epi64(m3,m1);
+  t1 = _mm_unpackhi_epi64(m2,m0);
+  buf3 = _mm_blend_epi16(t1,t0,0x33);
+
+  row1 = _mm_add_epi32(_mm_add_epi32(row1, buf3), row2);
+  row4 = _mm_xor_si128(row4, row1);
+  row4 = _mm_shuffle_epi8(row4,r16);
+  row3 = _mm_add_epi32(row3, row4);
+  row2 = _mm_xor_si128(row2, row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2, 12),_mm_slli_epi32(row2, 20));
+
+  t0 = _mm_blend_epi16(m0,m2,0x03);
+  t1 = _mm_slli_si128(t0, 8);
+  t2 = _mm_blend_epi16(t1,m3,0x0F);
+  buf4 = _mm_shuffle_epi32(t2, _MM_SHUFFLE(1,2,0,3));
+
+  row1 = _mm_add_epi32(_mm_add_epi32(row1, buf4), row2);
+  row4 = _mm_xor_si128(row4, row1);
+  row4 = _mm_shuffle_epi8(row4,r8);
+  row3 = _mm_add_epi32(row3, row4);
+  row2 = _mm_xor_si128(row2, row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2, 7),_mm_slli_epi32(row2, 25));
+
+  row4 = _mm_shuffle_epi32(row4, _MM_SHUFFLE(0,3,2,1));
+  row3 = _mm_shuffle_epi32(row3, _MM_SHUFFLE(1,0,3,2));
+  row2 = _mm_shuffle_epi32(row2, _MM_SHUFFLE(2,1,0,3));
+
+  t0 = _mm_unpackhi_epi32(m0,m1);
+  t1 = _mm_unpacklo_epi32(m0,m2);
+  buf1 = _mm_unpacklo_epi64(t0,t1);
+
+  row1 = _mm_add_epi32(_mm_add_epi32(row1, buf1), row2);
+  row4 = _mm_xor_si128(row4, row1);
+  row4 = _mm_shuffle_epi8(row4,r16);
+  row3 = _mm_add_epi32(row3, row4);
+  row2 = _mm_xor_si128(row2, row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2, 12),_mm_slli_epi32(row2, 20));
+
+  t0 = _mm_srli_si128(m2, 4);
+  t1 = _mm_blend_epi16(m0,m3,0x03);
+  buf2 = _mm_blend_epi16(t1,t0,0x3C);
+
+  row1 = _mm_add_epi32(_mm_add_epi32(row1, buf2), row2);
+  row4 = _mm_xor_si128(row4, row1);
+  row4 = _mm_shuffle_epi8(row4,r8);
+  row3 = _mm_add_epi32(row3, row4);
+  row2 = _mm_xor_si128(row2, row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2, 7),_mm_slli_epi32(row2, 25));
+
+  row4 = _mm_shuffle_epi32(row4, _MM_SHUFFLE(2,1,0,3));
+  row3 = _mm_shuffle_epi32(row3, _MM_SHUFFLE(1,0,3,2));
+  row2 = _mm_shuffle_epi32(row2, _MM_SHUFFLE(0,3,2,1));
+
+  t0 = _mm_blend_epi16(m1,m0,0x0C);
+  t1 = _mm_srli_si128(m3, 4);
+  t2 = _mm_blend_epi16(t0,t1,0x30);
+  buf3 = _mm_shuffle_epi32(t2, _MM_SHUFFLE(1,2,3,0));
+
+  row1 = _mm_add_epi32(_mm_add_epi32(row1, buf3), row2);
+  row4 = _mm_xor_si128(row4, row1);
+  row4 = _mm_shuffle_epi8(row4,r16);
+  row3 = _mm_add_epi32(row3, row4);
+  row2 = _mm_xor_si128(row2, row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2, 12),_mm_slli_epi32(row2, 20));
+
+  t0 = _mm_unpacklo_epi64(m1,m2);
+  t1= _mm_shuffle_epi32(m3, _MM_SHUFFLE(0,2,0,1));
+  buf4 = _mm_blend_epi16(t0,t1,0x33);
+
+  row1 = _mm_add_epi32(_mm_add_epi32(row1, buf4), row2);
+  row4 = _mm_xor_si128(row4, row1);
+  row4 = _mm_shuffle_epi8(row4,r8);
+  row3 = _mm_add_epi32(row3, row4);
+  row2 = _mm_xor_si128(row2, row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2, 7),_mm_slli_epi32(row2, 25));
+
+  row4 = _mm_shuffle_epi32(row4, _MM_SHUFFLE(0,3,2,1));
+  row3 = _mm_shuffle_epi32(row3, _MM_SHUFFLE(1,0,3,2));
+  row2 = _mm_shuffle_epi32(row2, _MM_SHUFFLE(2,1,0,3));
+
+  t0 = _mm_slli_si128(m1, 12);
+  t1 = _mm_blend_epi16(m0,m3,0x33);
+  buf1 = _mm_blend_epi16(t1,t0,0xC0);
+
+  row1 = _mm_add_epi32(_mm_add_epi32(row1, buf1), row2);
+  row4 = _mm_xor_si128(row4, row1);
+  row4 = _mm_shuffle_epi8(row4,r16);
+  row3 = _mm_add_epi32(row3, row4);
+  row2 = _mm_xor_si128(row2, row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2, 12),_mm_slli_epi32(row2, 20));
+
+  t0 = _mm_blend_epi16(m3,m2,0x30);
+  t1 = _mm_srli_si128(m1, 4);
+  t2 = _mm_blend_epi16(t0,t1,0x03);
+  buf2 = _mm_shuffle_epi32(t2, _MM_SHUFFLE(2,1,3,0));
+
+  row1 = _mm_add_epi32(_mm_add_epi32(row1, buf2), row2);
+  row4 = _mm_xor_si128(row4, row1);
+  row4 = _mm_shuffle_epi8(row4,r8);
+  row3 = _mm_add_epi32(row3, row4);
+  row2 = _mm_xor_si128(row2, row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2, 7),_mm_slli_epi32(row2, 25));
+
+  row4 = _mm_shuffle_epi32(row4, _MM_SHUFFLE(2,1,0,3));
+  row3 = _mm_shuffle_epi32(row3, _MM_SHUFFLE(1,0,3,2));
+  row2 = _mm_shuffle_epi32(row2, _MM_SHUFFLE(0,3,2,1));
+
+  t0 = _mm_unpacklo_epi64(m0,m2);
+  t1 = _mm_srli_si128(m1, 4);
+  buf3 = _mm_shuffle_epi32(_mm_blend_epi16(t0,t1,0x0C), _MM_SHUFFLE(2,3,1,0));
+
+  row1 = _mm_add_epi32(_mm_add_epi32(row1, buf3), row2);
+  row4 = _mm_xor_si128(row4, row1);
+  row4 = _mm_shuffle_epi8(row4,r16);
+  row3 = _mm_add_epi32(row3, row4);
+  row2 = _mm_xor_si128(row2, row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2, 12),_mm_slli_epi32(row2, 20));
+
+  t0 = _mm_unpackhi_epi32(m1,m2);
+  t1 = _mm_unpackhi_epi64(m0,t0);
+  buf4 = _mm_shuffle_epi32(t1, _MM_SHUFFLE(3,0,1,2));
+
+  row1 = _mm_add_epi32(_mm_add_epi32(row1, buf4), row2);
+  row4 = _mm_xor_si128(row4, row1);
+  row4 = _mm_shuffle_epi8(row4,r8);
+  row3 = _mm_add_epi32(row3, row4);
+  row2 = _mm_xor_si128(row2, row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2, 7),_mm_slli_epi32(row2, 25));
+
+  row4 = _mm_shuffle_epi32(row4, _MM_SHUFFLE(0,3,2,1));
+  row3 = _mm_shuffle_epi32(row3, _MM_SHUFFLE(1,0,3,2));
+  row2 = _mm_shuffle_epi32(row2, _MM_SHUFFLE(2,1,0,3));
+
+  t0 = _mm_unpackhi_epi32(m0,m1);
+  t1 = _mm_blend_epi16(t0,m3,0x0F);
+  buf1 = _mm_shuffle_epi32(t1,_MM_SHUFFLE(2,0,3,1));
+
+  row1 = _mm_add_epi32(_mm_add_epi32(row1, buf1), row2);
+  row4 = _mm_xor_si128(row4, row1);
+  row4 = _mm_shuffle_epi8(row4,r16);
+  row3 = _mm_add_epi32(row3, row4);
+  row2 = _mm_xor_si128(row2, row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2, 12),_mm_slli_epi32(row2, 20));
+
+  t0 = _mm_blend_epi16(m2,m3,0x30);
+  t1 = _mm_srli_si128(m0,4);
+  t2 = _mm_blend_epi16(t0,t1,0x03);
+  buf2 = _mm_shuffle_epi32(t2, _MM_SHUFFLE(1,0,2,3));
+
+  row1 = _mm_add_epi32(_mm_add_epi32(row1, buf2), row2);
+  row4 = _mm_xor_si128(row4, row1);
+  row4 = _mm_shuffle_epi8(row4,r8);
+  row3 = _mm_add_epi32(row3, row4);
+  row2 = _mm_xor_si128(row2, row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2, 7),_mm_slli_epi32(row2, 25));
+
+  row4 = _mm_shuffle_epi32(row4, _MM_SHUFFLE(2,1,0,3));
+  row3 = _mm_shuffle_epi32(row3, _MM_SHUFFLE(1,0,3,2));
+  row2 = _mm_shuffle_epi32(row2, _MM_SHUFFLE(0,3,2,1));
+
+  t0 = _mm_unpackhi_epi64(m0,m3);
+  t1 = _mm_unpacklo_epi64(m1,m2);
+  t2 = _mm_blend_epi16(t0,t1,0x3C);
+  buf3 = _mm_shuffle_epi32(t2,_MM_SHUFFLE(0,2,3,1));
+
+  row1 = _mm_add_epi32(_mm_add_epi32(row1, buf3), row2);
+  row4 = _mm_xor_si128(row4, row1);
+  row4 = _mm_shuffle_epi8(row4,r16);
+  row3 = _mm_add_epi32(row3, row4);
+  row2 = _mm_xor_si128(row2, row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2, 12),_mm_slli_epi32(row2, 20));
+
+  t0 = _mm_unpacklo_epi32(m0,m1);
+  t1 = _mm_unpackhi_epi32(m1,m2);
+  buf4 = _mm_unpacklo_epi64(t0,t1);
+
+  row1 = _mm_add_epi32(_mm_add_epi32(row1, buf4), row2);
+  row4 = _mm_xor_si128(row4, row1);
+  row4 = _mm_shuffle_epi8(row4,r8);
+  row3 = _mm_add_epi32(row3, row4);
+  row2 = _mm_xor_si128(row2, row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2, 7),_mm_slli_epi32(row2, 25));
+
+  row4 = _mm_shuffle_epi32(row4, _MM_SHUFFLE(0,3,2,1));
+  row3 = _mm_shuffle_epi32(row3, _MM_SHUFFLE(1,0,3,2));
+  row2 = _mm_shuffle_epi32(row2, _MM_SHUFFLE(2,1,0,3));
+
+  t0 = _mm_unpackhi_epi32(m1,m3);
+  t1 = _mm_unpacklo_epi64(t0,m0);
+  t2 = _mm_blend_epi16(t1,m2,0xC0);
+  buf1 = _mm_shufflehi_epi16(t2,_MM_SHUFFLE(1,0,3,2));
+
+  row1 = _mm_add_epi32(_mm_add_epi32(row1, buf1), row2);
+  row4 = _mm_xor_si128(row4, row1);
+  row4 = _mm_shuffle_epi8(row4,r16);
+  row3 = _mm_add_epi32(row3, row4);
+  row2 = _mm_xor_si128(row2, row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2, 12),_mm_slli_epi32(row2, 20));
+
+  t0 = _mm_unpackhi_epi32(m0,m3);
+  t1 = _mm_blend_epi16(m2,t0,0xF0);
+  buf2 = _mm_shuffle_epi32(t1,_MM_SHUFFLE(0,2,1,3));
+
+  row1 = _mm_add_epi32(_mm_add_epi32(row1, buf2), row2);
+  row4 = _mm_xor_si128(row4, row1);
+  row4 = _mm_shuffle_epi8(row4,r8);
+  row3 = _mm_add_epi32(row3, row4);
+  row2 = _mm_xor_si128(row2, row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2, 7),_mm_slli_epi32(row2, 25));
+
+  row4 = _mm_shuffle_epi32(row4, _MM_SHUFFLE(2,1,0,3));
+  row3 = _mm_shuffle_epi32(row3, _MM_SHUFFLE(1,0,3,2));
+  row2 = _mm_shuffle_epi32(row2, _MM_SHUFFLE(0,3,2,1));
+
+  t0 = _mm_blend_epi16(m2,m0,0x0C);
+  t1 = _mm_slli_si128(t0,4);
+  buf3 = _mm_blend_epi16(t1,m3,0x0F);
+
+  row1 = _mm_add_epi32(_mm_add_epi32(row1, buf3), row2);
+  row4 = _mm_xor_si128(row4, row1);
+  row4 = _mm_shuffle_epi8(row4,r16);
+  row3 = _mm_add_epi32(row3, row4);
+  row2 = _mm_xor_si128(row2, row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2, 12),_mm_slli_epi32(row2, 20));
+
+  t0 = _mm_blend_epi16(m1,m0,0x30);
+  buf4 = _mm_shuffle_epi32(t0,_MM_SHUFFLE(1,0,3,2));
+
+  row1 = _mm_add_epi32(_mm_add_epi32(row1, buf4), row2);
+  row4 = _mm_xor_si128(row4, row1);
+  row4 = _mm_shuffle_epi8(row4,r8);
+  row3 = _mm_add_epi32(row3, row4);
+  row2 = _mm_xor_si128(row2, row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2, 7),_mm_slli_epi32(row2, 25));
+
+  row4 = _mm_shuffle_epi32(row4, _MM_SHUFFLE(0,3,2,1));
+  row3 = _mm_shuffle_epi32(row3, _MM_SHUFFLE(1,0,3,2));
+  row2 = _mm_shuffle_epi32(row2, _MM_SHUFFLE(2,1,0,3));
+
+  t0 = _mm_blend_epi16(m0,m2,0x03);
+  t1 = _mm_blend_epi16(m1,m2,0x30);
+  t2 = _mm_blend_epi16(t1,t0,0x0F);
+  buf1 = _mm_shuffle_epi32(t2,_MM_SHUFFLE(1,3,0,2));
+
+  row1 = _mm_add_epi32(_mm_add_epi32(row1, buf1), row2);
+  row4 = _mm_xor_si128(row4, row1);
+  row4 = _mm_shuffle_epi8(row4,r16);
+  row3 = _mm_add_epi32(row3, row4);
+  row2 = _mm_xor_si128(row2, row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2, 12),_mm_slli_epi32(row2, 20));
+
+  t0 = _mm_slli_si128(m0,4);
+  t1 = _mm_blend_epi16(m1,t0,0xC0);
+  buf2 = _mm_shuffle_epi32(t1,_MM_SHUFFLE(1,2,0,3));
+
+  row1 = _mm_add_epi32(_mm_add_epi32(row1, buf2), row2);
+  row4 = _mm_xor_si128(row4, row1);
+  row4 = _mm_shuffle_epi8(row4,r8);
+  row3 = _mm_add_epi32(row3, row4);
+  row2 = _mm_xor_si128(row2, row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2, 7),_mm_slli_epi32(row2, 25));
+
+  row4 = _mm_shuffle_epi32(row4, _MM_SHUFFLE(2,1,0,3));
+  row3 = _mm_shuffle_epi32(row3, _MM_SHUFFLE(1,0,3,2));
+  row2 = _mm_shuffle_epi32(row2, _MM_SHUFFLE(0,3,2,1));
+
+  t0 = _mm_unpackhi_epi32(m0,m3);
+  t1 = _mm_unpacklo_epi32(m2,m3);
+  t2 = _mm_unpackhi_epi64(t0,t1);
+  buf3 = _mm_shuffle_epi32(t2,_MM_SHUFFLE(3,0,2,1));
+
+  row1 = _mm_add_epi32(_mm_add_epi32(row1, buf3), row2);
+  row4 = _mm_xor_si128(row4, row1);
+  row4 = _mm_shuffle_epi8(row4,r16);
+  row3 = _mm_add_epi32(row3, row4);
+  row2 = _mm_xor_si128(row2, row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2, 12),_mm_slli_epi32(row2, 20));
+
+  t0 = _mm_blend_epi16(m3,m2,0xC0);
+  t1 = _mm_unpacklo_epi32(m0,m3);
+  t2 = _mm_blend_epi16(t0,t1,0x0F);
+  buf4 = _mm_shuffle_epi32(t2,_MM_SHUFFLE(0,1,2,3));
+
+  row1 = _mm_add_epi32(_mm_add_epi32(row1, buf4), row2);
+  row4 = _mm_xor_si128(row4, row1);
+  row4 = _mm_shuffle_epi8(row4,r8);
+  row3 = _mm_add_epi32(row3, row4);
+  row2 = _mm_xor_si128(row2, row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2, 7),_mm_slli_epi32(row2, 25));
+
+  row4 = _mm_shuffle_epi32(row4, _MM_SHUFFLE(0,3,2,1));
+  row3 = _mm_shuffle_epi32(row3, _MM_SHUFFLE(1,0,3,2));
+  row2 = _mm_shuffle_epi32(row2, _MM_SHUFFLE(2,1,0,3));
+
+  _mm_storeu_si128((__m128i *)(&state.h[0]), _mm_xor_si128(ff0, _mm_xor_si128(row1, row3)));
+  _mm_storeu_si128((__m128i *)(&state.h[4]), _mm_xor_si128(ff1, _mm_xor_si128(row2, row4)));
+#endif
+}
 
 static inline void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64, true>& state)
 {
@@ -1945,6 +2432,7 @@ static inline void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64
   const __m128i m5 = _mm_loadu_si128((const __m128i *)(input + 80));
   const __m128i m6 = _mm_loadu_si128((const __m128i *)(input + 96));
   const __m128i m7 = _mm_loadu_si128((const __m128i *)(input + 112));
+
   row1l = _mm_loadu_si128((const __m128i *)(&state.h[0]));
   row1h = _mm_loadu_si128((const __m128i *)(&state.h[2]));
   row2l = _mm_loadu_si128((const __m128i *)(&state.h[4]));
@@ -1953,9 +2441,9 @@ static inline void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64
   row3h = _mm_loadu_si128((const __m128i *)(&BLAKE2_IV<true>::iv[2]));
   row4l = _mm_xor_si128(_mm_loadu_si128((const __m128i *)(&BLAKE2_IV<true>::iv[4])), _mm_loadu_si128((const __m128i *)(&state.t[0])));
   row4h = _mm_xor_si128(_mm_loadu_si128((const __m128i *)(&BLAKE2_IV<true>::iv[6])), _mm_loadu_si128((const __m128i *)(&state.f[0])));
+
   b0 = _mm_unpacklo_epi64(m0, m1);
   b1 = _mm_unpacklo_epi64(m2, m3);
-
   row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
   row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h);
   row4l = _mm_xor_si128(row4l, row1l);
@@ -2030,7 +2518,6 @@ static inline void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64
   t0 = _mm_alignr_epi8(row4l, row4h, 8);
   t1 = _mm_alignr_epi8(row4h, row4l, 8);
   row4l = t1, row4h = t0;
-
   
   b0 = _mm_unpacklo_epi64(m7, m2);
   b1 = _mm_unpackhi_epi64(m4, m6);
@@ -2109,7 +2596,6 @@ static inline void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64
   t0 = _mm_alignr_epi8(row4l, row4h, 8);
   t1 = _mm_alignr_epi8(row4h, row4l, 8);
   row4l = t1, row4h = t0;
-
   
   b0 = _mm_alignr_epi8(m6, m5, 8);
   b1 = _mm_unpackhi_epi64(m2, m7);
@@ -2188,7 +2674,6 @@ static inline void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64
   t0 = _mm_alignr_epi8(row4l, row4h, 8);
   t1 = _mm_alignr_epi8(row4h, row4l, 8);
   row4l = t1, row4h = t0;
-
   
   b0 = _mm_unpackhi_epi64(m3, m1);
   b1 = _mm_unpackhi_epi64(m6, m5);
@@ -2267,7 +2752,6 @@ static inline void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64
   t0 = _mm_alignr_epi8(row4l, row4h, 8);
   t1 = _mm_alignr_epi8(row4h, row4l, 8);
   row4l = t1, row4h = t0;
-
   
   b0 = _mm_unpackhi_epi64(m4, m2);
   b1 = _mm_unpacklo_epi64(m1, m5);
@@ -2346,7 +2830,6 @@ static inline void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64
   t0 = _mm_alignr_epi8(row4l, row4h, 8);
   t1 = _mm_alignr_epi8(row4h, row4l, 8);
   row4l = t1, row4h = t0;
-
   
   b0 = _mm_unpacklo_epi64(m1, m3);
   b1 = _mm_unpacklo_epi64(m0, m4);
@@ -2425,7 +2908,6 @@ static inline void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64
   t0 = _mm_alignr_epi8(row4l, row4h, 8);
   t1 = _mm_alignr_epi8(row4h, row4l, 8);
   row4l = t1, row4h = t0;
-
   
   b0 = _mm_blend_epi16(m6, m0, 0xF0);
   b1 = _mm_unpacklo_epi64(m7, m2);
@@ -2504,7 +2986,6 @@ static inline void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64
   t0 = _mm_alignr_epi8(row4l, row4h, 8);
   t1 = _mm_alignr_epi8(row4h, row4l, 8);
   row4l = t1, row4h = t0;
-
   
   b0 = _mm_unpackhi_epi64(m6, m3);
   b1 = _mm_blend_epi16(m6, m1, 0xF0);
@@ -2583,7 +3064,6 @@ static inline void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64
   t0 = _mm_alignr_epi8(row4l, row4h, 8);
   t1 = _mm_alignr_epi8(row4h, row4l, 8);
   row4l = t1, row4h = t0;
-
   
   b0 = _mm_unpacklo_epi64(m3, m7);
   b1 = _mm_alignr_epi8(m0, m5, 8);
@@ -2662,7 +3142,6 @@ static inline void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64
   t0 = _mm_alignr_epi8(row4l, row4h, 8);
   t1 = _mm_alignr_epi8(row4h, row4l, 8);
   row4l = t1, row4h = t0;
-
   
   b0 = _mm_unpacklo_epi64(m5, m4);
   b1 = _mm_unpackhi_epi64(m3, m0);
@@ -2741,7 +3220,6 @@ static inline void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64
   t0 = _mm_alignr_epi8(row4l, row4h, 8);
   t1 = _mm_alignr_epi8(row4h, row4l, 8);
   row4l = t1, row4h = t0;
-
   
   b0 = _mm_unpacklo_epi64(m0, m1);
   b1 = _mm_unpacklo_epi64(m2, m3);
@@ -2820,7 +3298,6 @@ static inline void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64
   t0 = _mm_alignr_epi8(row4l, row4h, 8);
   t1 = _mm_alignr_epi8(row4h, row4l, 8);
   row4l = t1, row4h = t0;
-
   
   b0 = _mm_unpacklo_epi64(m7, m2);
   b1 = _mm_unpackhi_epi64(m4, m6);
@@ -2899,7 +3376,6 @@ static inline void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64
   t0 = _mm_alignr_epi8(row4l, row4h, 8);
   t1 = _mm_alignr_epi8(row4h, row4l, 8);
   row4l = t1, row4h = t0;
-
   
   row1l = _mm_xor_si128(row3l, row1l);
   row1h = _mm_xor_si128(row3h, row1h);
@@ -2916,4 +3392,3 @@ template class BLAKE2_Base<word32, false>;
 template class BLAKE2_Base<word64, true>;
 
 NAMESPACE_END
-
