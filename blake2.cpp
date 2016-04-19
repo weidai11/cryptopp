@@ -23,6 +23,12 @@ NAMESPACE_BEGIN(CryptoPP)
 # undef CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
 #endif
 
+// Apple Clang 6.0/Clang 3.5 does not have SSSE3
+//   http://llvm.org/bugs/show_bug.cgi?id=20213
+#if (defined(CRYPTOPP_APPLE_CLANG_VERSION) && (CRYPTOPP_APPLE_CLANG_VERSION <= 60000)) || (defined(CRYPTOPP_CLANG_VERSION) && (CRYPTOPP_CLANG_VERSION <= 30500))
+# undef CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
+#endif
+
 // C/C++ implementation
 static inline void BLAKE2_CXX_Compress32(const byte* input, BLAKE2_State<word32, false>& state);
 static inline void BLAKE2_CXX_Compress64(const byte* input, BLAKE2_State<word64, true>& state);
