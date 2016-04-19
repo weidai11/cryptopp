@@ -10,9 +10,15 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-// Visual Studio needs both VS2005 and _M_64 for _mm_set_epi64x()
-#if defined(_MSC_VER) && ((_MSC_VER < 1500) || !defined(_M_X64))
+// Visual Studio needs both VS2005 (1400) and _M_64 for SSE2 and _mm_set_epi64x()
+//  http://msdn.microsoft.com/en-us/library/y0dh78ez%28v=vs.80%29.aspx
+#if defined(_MSC_VER) && ((_MSC_VER < 1400) || !defined(_M_X64))
 # undef CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+#endif
+
+// Visual Studio needs both VS2008 (1500) and _M_64 for SSE4
+//   http://msdn.microsoft.com/en-us/library/bb892950%28v=vs.90%29.aspx
+#if defined(_MSC_VER) && ((_MSC_VER < 1500) || !defined(_M_X64))
 # undef CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
 #endif
 
