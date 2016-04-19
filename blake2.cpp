@@ -198,13 +198,12 @@ BLAKE2_ParameterBlock<true>::BLAKE2_ParameterBlock(size_t digestLen, size_t keyL
 template <class W, bool T_64bit>
 void BLAKE2_Base<W, T_64bit>::UncheckedSetKey(const byte *key, unsigned int length, const CryptoPP::NameValuePairs&)
 {
-	CRYPTOPP_CONSTANT(KEYBLOCKSIZE = BLAKE2_Info<T_64bit>::BLOCKSIZE);
 	if (key && length)
 	{
-		AlignedSecByteBlock k(KEYBLOCKSIZE);
-		memcpy_s(k, KEYBLOCKSIZE, key, length);
+		AlignedSecByteBlock k(BLOCKSIZE);
+		memcpy_s(k, BLOCKSIZE, key, length);
 
-		const size_t rem = KEYBLOCKSIZE-length;
+		const size_t rem = BLOCKSIZE - length;
 		if (rem)
 			memset(k+length, 0x00, rem);
 
@@ -337,7 +336,7 @@ void BLAKE2_Base<W, T_64bit>::TruncatedFinal(byte *hash, size_t size)
 	}
 	else
 	{
-		SecByteBlock buffer(DIGESTSIZE);
+		FixedSizeAlignedSecBlock<byte, DIGESTSIZE, CRYPTOPP_BOOL_ALIGN16>  buffer;
 		for(unsigned int i = 0; i < 8; ++i)
 			WriteWord<W, T_64bit>(m_state.h[i], buffer, i);
 
@@ -359,7 +358,7 @@ void BLAKE2_Base<word64, true>::Compress(const byte *input)
 {
 #if CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
 	if (HasSSE4())
-		BLAKE2_SSE4_Compress64(m_state);
+		BLAKE2_SSE4_Compress64(input, m_state);
 	else
 #endif
 #if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
@@ -517,7 +516,448 @@ void BLAKE2_CXX_Compress32(const byte* input, BLAKE2_State<word32, false>& state
 #if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
 static inline void BLAKE2_SSE2_Compress32(const byte* input, BLAKE2_State<word32, false>& state)
 {
+	// Fallback to C++
 	BLAKE2_CXX_Compress32(input, state);
+
+#if 0
+  __m128i row1,row2,row3,row4;
+  __m128i buf1,buf2,buf3,buf4;
+  __m128i ff0,ff1;
+
+  const word32 m0 = ((word32 *)input)[ 0];
+  const word32 m1 = ((word32 *)input)[ 1];
+  const word32 m2 = ((word32 *)input)[ 2];
+  const word32 m3 = ((word32 *)input)[ 3];
+  const word32 m4 = ((word32 *)input)[ 4];
+  const word32 m5 = ((word32 *)input)[ 5];
+  const word32 m6 = ((word32 *)input)[ 6];
+  const word32 m7 = ((word32 *)input)[ 7];
+  const word32 m8 = ((word32 *)input)[ 8];
+  const word32 m9 = ((word32 *)input)[ 9];
+  const word32 m10 = ((word32 *)input)[10];
+  const word32 m11 = ((word32 *)input)[11];
+  const word32 m12 = ((word32 *)input)[12];
+  const word32 m13 = ((word32 *)input)[13];
+  const word32 m14 = ((word32 *)input)[14];
+  const word32 m15 = ((word32 *)input)[15];
+
+  row1 = ff0 = _mm_loadu_si128((const __m128i *)(&state.h[0]));
+  row2 = ff1 = _mm_loadu_si128((const __m128i *)(&state.h[4]));
+  row3 = _mm_setr_epi32(BLAKE2_IV<false>::iv[0],BLAKE2_IV<false>::iv[1],BLAKE2_IV<false>::iv[2],BLAKE2_IV<false>::iv[3]);
+  row4 = _mm_xor_si128(_mm_setr_epi32(BLAKE2_IV<false>::iv[4],BLAKE2_IV<false>::iv[5],BLAKE2_IV<false>::iv[6],BLAKE2_IV<false>::iv[7]),_mm_loadu_si128((const __m128i *)(&state.t[0])));
+  buf1 = _mm_set_epi32(m6,m4,m2,m0);
+  row1 = _mm_add_epi32(_mm_add_epi32(row1,buf1),row2);
+  row4 = _mm_xor_si128(row4,row1);
+  row4 = _mm_xor_si128(_mm_srli_epi32(row4,16),_mm_slli_epi32(row4,16));
+  row3 = _mm_add_epi32(row3,row4);
+  row2 = _mm_xor_si128(row2,row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2,12),_mm_slli_epi32(row2,20));
+
+  buf2 = _mm_set_epi32(m7,m5,m3,m1);
+  row1 = _mm_add_epi32(_mm_add_epi32(row1,buf2),row2);
+  row4 = _mm_xor_si128(row4,row1);
+  row4 = _mm_xor_si128(_mm_srli_epi32(row4,8),_mm_slli_epi32(row4,24));
+  row3 = _mm_add_epi32(row3,row4);
+  row2 = _mm_xor_si128(row2,row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2,7),_mm_slli_epi32(row2,25));
+
+  row4 = _mm_shuffle_epi32(row4,_MM_SHUFFLE(2,1,0,3));
+  row3 = _mm_shuffle_epi32(row3,_MM_SHUFFLE(1,0,3,2));
+  row2 = _mm_shuffle_epi32(row2,_MM_SHUFFLE(0,3,2,1));
+
+  buf3 = _mm_set_epi32(m14,m12,m10,m8);
+  row1 = _mm_add_epi32(_mm_add_epi32(row1,buf3),row2);
+  row4 = _mm_xor_si128(row4,row1);
+  row4 = _mm_xor_si128(_mm_srli_epi32(row4,16),_mm_slli_epi32(row4,16));
+  row3 = _mm_add_epi32(row3,row4);
+  row2 = _mm_xor_si128(row2,row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2,12),_mm_slli_epi32(row2,20));
+
+  buf4 = _mm_set_epi32(m15,m13,m11,m9);
+  row1 = _mm_add_epi32(_mm_add_epi32(row1,buf4),row2);
+  row4 = _mm_xor_si128(row4,row1);
+  row4 = _mm_xor_si128(_mm_srli_epi32(row4,8),_mm_slli_epi32(row4,24));
+  row3 = _mm_add_epi32(row3,row4);
+  row2 = _mm_xor_si128(row2,row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2,7),_mm_slli_epi32(row2,25));
+
+  row4 = _mm_shuffle_epi32(row4,_MM_SHUFFLE(0,3,2,1));
+  row3 = _mm_shuffle_epi32(row3,_MM_SHUFFLE(1,0,3,2));
+  row2 = _mm_shuffle_epi32(row2,_MM_SHUFFLE(2,1,0,3));
+
+  
+  buf1 = _mm_set_epi32(m13,m9,m4,m14);
+  row1 = _mm_add_epi32(_mm_add_epi32(row1,buf1),row2);
+  row4 = _mm_xor_si128(row4,row1);
+  row4 = _mm_xor_si128(_mm_srli_epi32(row4,16),_mm_slli_epi32(row4,16));
+  row3 = _mm_add_epi32(row3,row4);
+  row2 = _mm_xor_si128(row2,row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2,12),_mm_slli_epi32(row2,20));
+
+  buf2 = _mm_set_epi32(m6,m15,m8,m10);
+  row1 = _mm_add_epi32(_mm_add_epi32(row1,buf2),row2);
+  row4 = _mm_xor_si128(row4,row1);
+  row4 = _mm_xor_si128(_mm_srli_epi32(row4,8),_mm_slli_epi32(row4,24));
+  row3 = _mm_add_epi32(row3,row4);
+  row2 = _mm_xor_si128(row2,row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2,7),_mm_slli_epi32(row2,25));
+
+  row4 = _mm_shuffle_epi32(row4,_MM_SHUFFLE(2,1,0,3));
+  row3 = _mm_shuffle_epi32(row3,_MM_SHUFFLE(1,0,3,2));
+  row2 = _mm_shuffle_epi32(row2,_MM_SHUFFLE(0,3,2,1));
+
+  buf3 = _mm_set_epi32(m5,m11,m0,m1);
+  row1 = _mm_add_epi32(_mm_add_epi32(row1,buf3),row2);
+  row4 = _mm_xor_si128(row4,row1);
+  row4 = _mm_xor_si128(_mm_srli_epi32(row4,16),_mm_slli_epi32(row4,16));
+  row3 = _mm_add_epi32(row3,row4);
+  row2 = _mm_xor_si128(row2,row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2,12),_mm_slli_epi32(row2,20));
+
+  buf4 = _mm_set_epi32(m3,m7,m2,m12);
+  row1 = _mm_add_epi32(_mm_add_epi32(row1,buf4),row2);
+  row4 = _mm_xor_si128(row4,row1);
+  row4 = _mm_xor_si128(_mm_srli_epi32(row4,8),_mm_slli_epi32(row4,24));
+  row3 = _mm_add_epi32(row3,row4);
+  row2 = _mm_xor_si128(row2,row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2,7),_mm_slli_epi32(row2,25));
+
+  row4 = _mm_shuffle_epi32(row4,_MM_SHUFFLE(0,3,2,1));
+  row3 = _mm_shuffle_epi32(row3,_MM_SHUFFLE(1,0,3,2));
+  row2 = _mm_shuffle_epi32(row2,_MM_SHUFFLE(2,1,0,3));
+
+  
+  buf1 = _mm_set_epi32(m15,m5,m12,m11);
+  row1 = _mm_add_epi32(_mm_add_epi32(row1,buf1),row2);
+  row4 = _mm_xor_si128(row4,row1);
+  row4 = _mm_xor_si128(_mm_srli_epi32(row4,16),_mm_slli_epi32(row4,16));
+  row3 = _mm_add_epi32(row3,row4);
+  row2 = _mm_xor_si128(row2,row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2,12),_mm_slli_epi32(row2,20));
+
+  buf2 = _mm_set_epi32(m13,m2,m0,m8);
+  row1 = _mm_add_epi32(_mm_add_epi32(row1,buf2),row2);
+  row4 = _mm_xor_si128(row4,row1);
+  row4 = _mm_xor_si128(_mm_srli_epi32(row4,8),_mm_slli_epi32(row4,24));
+  row3 = _mm_add_epi32(row3,row4);
+  row2 = _mm_xor_si128(row2,row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2,7),_mm_slli_epi32(row2,25));
+
+  row4 = _mm_shuffle_epi32(row4,_MM_SHUFFLE(2,1,0,3));
+  row3 = _mm_shuffle_epi32(row3,_MM_SHUFFLE(1,0,3,2));
+  row2 = _mm_shuffle_epi32(row2,_MM_SHUFFLE(0,3,2,1));
+
+  buf3 = _mm_set_epi32(m9,m7,m3,m10);
+  row1 = _mm_add_epi32(_mm_add_epi32(row1,buf3),row2);
+  row4 = _mm_xor_si128(row4,row1);
+  row4 = _mm_xor_si128(_mm_srli_epi32(row4,16),_mm_slli_epi32(row4,16));
+  row3 = _mm_add_epi32(row3,row4);
+  row2 = _mm_xor_si128(row2,row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2,12),_mm_slli_epi32(row2,20));
+
+  buf4 = _mm_set_epi32(m4,m1,m6,m14);
+  row1 = _mm_add_epi32(_mm_add_epi32(row1,buf4),row2);
+  row4 = _mm_xor_si128(row4,row1);
+  row4 = _mm_xor_si128(_mm_srli_epi32(row4,8),_mm_slli_epi32(row4,24));
+  row3 = _mm_add_epi32(row3,row4);
+  row2 = _mm_xor_si128(row2,row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2,7),_mm_slli_epi32(row2,25));
+
+  row4 = _mm_shuffle_epi32(row4,_MM_SHUFFLE(0,3,2,1));
+  row3 = _mm_shuffle_epi32(row3,_MM_SHUFFLE(1,0,3,2));
+  row2 = _mm_shuffle_epi32(row2,_MM_SHUFFLE(2,1,0,3));
+
+  
+  buf1 = _mm_set_epi32(m11,m13,m3,m7);
+  row1 = _mm_add_epi32(_mm_add_epi32(row1,buf1),row2);
+  row4 = _mm_xor_si128(row4,row1);
+  row4 = _mm_xor_si128(_mm_srli_epi32(row4,16),_mm_slli_epi32(row4,16));
+  row3 = _mm_add_epi32(row3,row4);
+  row2 = _mm_xor_si128(row2,row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2,12),_mm_slli_epi32(row2,20));
+
+  buf2 = _mm_set_epi32(m14,m12,m1,m9);
+  row1 = _mm_add_epi32(_mm_add_epi32(row1,buf2),row2);
+  row4 = _mm_xor_si128(row4,row1);
+  row4 = _mm_xor_si128(_mm_srli_epi32(row4,8),_mm_slli_epi32(row4,24));
+  row3 = _mm_add_epi32(row3,row4);
+  row2 = _mm_xor_si128(row2,row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2,7),_mm_slli_epi32(row2,25));
+
+  row4 = _mm_shuffle_epi32(row4,_MM_SHUFFLE(2,1,0,3));
+  row3 = _mm_shuffle_epi32(row3,_MM_SHUFFLE(1,0,3,2));
+  row2 = _mm_shuffle_epi32(row2,_MM_SHUFFLE(0,3,2,1));
+
+  buf3 = _mm_set_epi32(m15,m4,m5,m2);
+  row1 = _mm_add_epi32(_mm_add_epi32(row1,buf3),row2);
+  row4 = _mm_xor_si128(row4,row1);
+  row4 = _mm_xor_si128(_mm_srli_epi32(row4,16),_mm_slli_epi32(row4,16));
+  row3 = _mm_add_epi32(row3,row4);
+  row2 = _mm_xor_si128(row2,row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2,12),_mm_slli_epi32(row2,20));
+
+  buf4 = _mm_set_epi32(m8,m0,m10,m6);
+  row1 = _mm_add_epi32(_mm_add_epi32(row1,buf4),row2);
+  row4 = _mm_xor_si128(row4,row1);
+  row4 = _mm_xor_si128(_mm_srli_epi32(row4,8),_mm_slli_epi32(row4,24));
+  row3 = _mm_add_epi32(row3,row4);
+  row2 = _mm_xor_si128(row2,row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2,7),_mm_slli_epi32(row2,25));
+
+  row4 = _mm_shuffle_epi32(row4,_MM_SHUFFLE(0,3,2,1));
+  row3 = _mm_shuffle_epi32(row3,_MM_SHUFFLE(1,0,3,2));
+  row2 = _mm_shuffle_epi32(row2,_MM_SHUFFLE(2,1,0,3));
+
+  
+  buf1 = _mm_set_epi32(m10,m2,m5,m9);
+  row1 = _mm_add_epi32(_mm_add_epi32(row1,buf1),row2);
+  row4 = _mm_xor_si128(row4,row1);
+  row4 = _mm_xor_si128(_mm_srli_epi32(row4,16),_mm_slli_epi32(row4,16));
+  row3 = _mm_add_epi32(row3,row4);
+  row2 = _mm_xor_si128(row2,row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2,12),_mm_slli_epi32(row2,20));
+
+  buf2 = _mm_set_epi32(m15,m4,m7,m0);
+  row1 = _mm_add_epi32(_mm_add_epi32(row1,buf2),row2);
+  row4 = _mm_xor_si128(row4,row1);
+  row4 = _mm_xor_si128(_mm_srli_epi32(row4,8),_mm_slli_epi32(row4,24));
+  row3 = _mm_add_epi32(row3,row4);
+  row2 = _mm_xor_si128(row2,row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2,7),_mm_slli_epi32(row2,25));
+
+  row4 = _mm_shuffle_epi32(row4,_MM_SHUFFLE(2,1,0,3));
+  row3 = _mm_shuffle_epi32(row3,_MM_SHUFFLE(1,0,3,2));
+  row2 = _mm_shuffle_epi32(row2,_MM_SHUFFLE(0,3,2,1));
+
+  buf3 = _mm_set_epi32(m3,m6,m11,m14);
+  row1 = _mm_add_epi32(_mm_add_epi32(row1,buf3),row2);
+  row4 = _mm_xor_si128(row4,row1);
+  row4 = _mm_xor_si128(_mm_srli_epi32(row4,16),_mm_slli_epi32(row4,16));
+  row3 = _mm_add_epi32(row3,row4);
+  row2 = _mm_xor_si128(row2,row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2,12),_mm_slli_epi32(row2,20));
+
+  buf4 = _mm_set_epi32(m13,m8,m12,m1);
+  row1 = _mm_add_epi32(_mm_add_epi32(row1,buf4),row2);
+  row4 = _mm_xor_si128(row4,row1);
+  row4 = _mm_xor_si128(_mm_srli_epi32(row4,8),_mm_slli_epi32(row4,24));
+  row3 = _mm_add_epi32(row3,row4);
+  row2 = _mm_xor_si128(row2,row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2,7),_mm_slli_epi32(row2,25));
+
+  row4 = _mm_shuffle_epi32(row4,_MM_SHUFFLE(0,3,2,1));
+  row3 = _mm_shuffle_epi32(row3,_MM_SHUFFLE(1,0,3,2));
+  row2 = _mm_shuffle_epi32(row2,_MM_SHUFFLE(2,1,0,3));
+
+  
+  buf1 = _mm_set_epi32(m8,m0,m6,m2);
+  row1 = _mm_add_epi32(_mm_add_epi32(row1,buf1),row2);
+  row4 = _mm_xor_si128(row4,row1);
+  row4 = _mm_xor_si128(_mm_srli_epi32(row4,16),_mm_slli_epi32(row4,16));
+  row3 = _mm_add_epi32(row3,row4);
+  row2 = _mm_xor_si128(row2,row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2,12),_mm_slli_epi32(row2,20));
+
+  buf2 = _mm_set_epi32(m3,m11,m10,m12);
+  row1 = _mm_add_epi32(_mm_add_epi32(row1,buf2),row2);
+  row4 = _mm_xor_si128(row4,row1);
+  row4 = _mm_xor_si128(_mm_srli_epi32(row4,8),_mm_slli_epi32(row4,24));
+  row3 = _mm_add_epi32(row3,row4);
+  row2 = _mm_xor_si128(row2,row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2,7),_mm_slli_epi32(row2,25));
+
+  row4 = _mm_shuffle_epi32(row4,_MM_SHUFFLE(2,1,0,3));
+  row3 = _mm_shuffle_epi32(row3,_MM_SHUFFLE(1,0,3,2));
+  row2 = _mm_shuffle_epi32(row2,_MM_SHUFFLE(0,3,2,1));
+
+  buf3 = _mm_set_epi32(m1,m15,m7,m4);
+  row1 = _mm_add_epi32(_mm_add_epi32(row1,buf3),row2);
+  row4 = _mm_xor_si128(row4,row1);
+  row4 = _mm_xor_si128(_mm_srli_epi32(row4,16),_mm_slli_epi32(row4,16));
+  row3 = _mm_add_epi32(row3,row4);
+  row2 = _mm_xor_si128(row2,row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2,12),_mm_slli_epi32(row2,20));
+
+  buf4 = _mm_set_epi32(m9,m14,m5,m13);
+  row1 = _mm_add_epi32(_mm_add_epi32(row1,buf4),row2);
+  row4 = _mm_xor_si128(row4,row1);
+  row4 = _mm_xor_si128(_mm_srli_epi32(row4,8),_mm_slli_epi32(row4,24));
+  row3 = _mm_add_epi32(row3,row4);
+  row2 = _mm_xor_si128(row2,row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2,7),_mm_slli_epi32(row2,25));
+
+  row4 = _mm_shuffle_epi32(row4,_MM_SHUFFLE(0,3,2,1));
+  row3 = _mm_shuffle_epi32(row3,_MM_SHUFFLE(1,0,3,2));
+  row2 = _mm_shuffle_epi32(row2,_MM_SHUFFLE(2,1,0,3));
+
+  
+  buf1 = _mm_set_epi32(m4,m14,m1,m12);
+  row1 = _mm_add_epi32(_mm_add_epi32(row1,buf1),row2);
+  row4 = _mm_xor_si128(row4,row1);
+  row4 = _mm_xor_si128(_mm_srli_epi32(row4,16),_mm_slli_epi32(row4,16));
+  row3 = _mm_add_epi32(row3,row4);
+  row2 = _mm_xor_si128(row2,row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2,12),_mm_slli_epi32(row2,20));
+
+  buf2 = _mm_set_epi32(m10,m13,m15,m5);
+  row1 = _mm_add_epi32(_mm_add_epi32(row1,buf2),row2);
+  row4 = _mm_xor_si128(row4,row1);
+  row4 = _mm_xor_si128(_mm_srli_epi32(row4,8),_mm_slli_epi32(row4,24));
+  row3 = _mm_add_epi32(row3,row4);
+  row2 = _mm_xor_si128(row2,row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2,7),_mm_slli_epi32(row2,25));
+
+  row4 = _mm_shuffle_epi32(row4,_MM_SHUFFLE(2,1,0,3));
+  row3 = _mm_shuffle_epi32(row3,_MM_SHUFFLE(1,0,3,2));
+  row2 = _mm_shuffle_epi32(row2,_MM_SHUFFLE(0,3,2,1));
+
+  buf3 = _mm_set_epi32(m8,m9,m6,m0);
+  row1 = _mm_add_epi32(_mm_add_epi32(row1,buf3),row2);
+  row4 = _mm_xor_si128(row4,row1);
+  row4 = _mm_xor_si128(_mm_srli_epi32(row4,16),_mm_slli_epi32(row4,16));
+  row3 = _mm_add_epi32(row3,row4);
+  row2 = _mm_xor_si128(row2,row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2,12),_mm_slli_epi32(row2,20));
+
+  buf4 = _mm_set_epi32(m11,m2,m3,m7);
+  row1 = _mm_add_epi32(_mm_add_epi32(row1,buf4),row2);
+  row4 = _mm_xor_si128(row4,row1);
+  row4 = _mm_xor_si128(_mm_srli_epi32(row4,8),_mm_slli_epi32(row4,24));
+  row3 = _mm_add_epi32(row3,row4);
+  row2 = _mm_xor_si128(row2,row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2,7),_mm_slli_epi32(row2,25));
+
+  row4 = _mm_shuffle_epi32(row4,_MM_SHUFFLE(0,3,2,1));
+  row3 = _mm_shuffle_epi32(row3,_MM_SHUFFLE(1,0,3,2));
+  row2 = _mm_shuffle_epi32(row2,_MM_SHUFFLE(2,1,0,3));
+
+  
+  buf1 = _mm_set_epi32(m3,m12,m7,m13);
+  row1 = _mm_add_epi32(_mm_add_epi32(row1,buf1),row2);
+  row4 = _mm_xor_si128(row4,row1);
+  row4 = _mm_xor_si128(_mm_srli_epi32(row4,16),_mm_slli_epi32(row4,16));
+  row3 = _mm_add_epi32(row3,row4);
+  row2 = _mm_xor_si128(row2,row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2,12),_mm_slli_epi32(row2,20));
+
+  buf2 = _mm_set_epi32(m9,m1,m14,m11);
+  row1 = _mm_add_epi32(_mm_add_epi32(row1,buf2),row2);
+  row4 = _mm_xor_si128(row4,row1);
+  row4 = _mm_xor_si128(_mm_srli_epi32(row4,8),_mm_slli_epi32(row4,24));
+  row3 = _mm_add_epi32(row3,row4);
+  row2 = _mm_xor_si128(row2,row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2,7),_mm_slli_epi32(row2,25));
+
+  row4 = _mm_shuffle_epi32(row4,_MM_SHUFFLE(2,1,0,3));
+  row3 = _mm_shuffle_epi32(row3,_MM_SHUFFLE(1,0,3,2));
+  row2 = _mm_shuffle_epi32(row2,_MM_SHUFFLE(0,3,2,1));
+
+  buf3 = _mm_set_epi32(m2,m8,m15,m5);
+  row1 = _mm_add_epi32(_mm_add_epi32(row1,buf3),row2);
+  row4 = _mm_xor_si128(row4,row1);
+  row4 = _mm_xor_si128(_mm_srli_epi32(row4,16),_mm_slli_epi32(row4,16));
+  row3 = _mm_add_epi32(row3,row4);
+  row2 = _mm_xor_si128(row2,row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2,12),_mm_slli_epi32(row2,20));
+
+  buf4 = _mm_set_epi32(m10,m6,m4,m0);
+  row1 = _mm_add_epi32(_mm_add_epi32(row1,buf4),row2);
+  row4 = _mm_xor_si128(row4,row1);
+  row4 = _mm_xor_si128(_mm_srli_epi32(row4,8),_mm_slli_epi32(row4,24));
+  row3 = _mm_add_epi32(row3,row4);
+  row2 = _mm_xor_si128(row2,row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2,7),_mm_slli_epi32(row2,25));
+
+  row4 = _mm_shuffle_epi32(row4,_MM_SHUFFLE(0,3,2,1));
+  row3 = _mm_shuffle_epi32(row3,_MM_SHUFFLE(1,0,3,2));
+  row2 = _mm_shuffle_epi32(row2,_MM_SHUFFLE(2,1,0,3));
+
+  
+  buf1 = _mm_set_epi32(m0,m11,m14,m6);
+  row1 = _mm_add_epi32(_mm_add_epi32(row1,buf1),row2);
+  row4 = _mm_xor_si128(row4,row1);
+  row4 = _mm_xor_si128(_mm_srli_epi32(row4,16),_mm_slli_epi32(row4,16));
+  row3 = _mm_add_epi32(row3,row4);
+  row2 = _mm_xor_si128(row2,row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2,12),_mm_slli_epi32(row2,20));
+
+  buf2 = _mm_set_epi32(m8,m3,m9,m15);
+  row1 = _mm_add_epi32(_mm_add_epi32(row1,buf2),row2);
+  row4 = _mm_xor_si128(row4,row1);
+  row4 = _mm_xor_si128(_mm_srli_epi32(row4,8),_mm_slli_epi32(row4,24));
+  row3 = _mm_add_epi32(row3,row4);
+  row2 = _mm_xor_si128(row2,row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2,7),_mm_slli_epi32(row2,25));
+
+  row4 = _mm_shuffle_epi32(row4,_MM_SHUFFLE(2,1,0,3));
+  row3 = _mm_shuffle_epi32(row3,_MM_SHUFFLE(1,0,3,2));
+  row2 = _mm_shuffle_epi32(row2,_MM_SHUFFLE(0,3,2,1));
+
+  buf3 = _mm_set_epi32(m10,m1,m13,m12);
+  row1 = _mm_add_epi32(_mm_add_epi32(row1,buf3),row2);
+  row4 = _mm_xor_si128(row4,row1);
+  row4 = _mm_xor_si128(_mm_srli_epi32(row4,16),_mm_slli_epi32(row4,16));
+  row3 = _mm_add_epi32(row3,row4);
+  row2 = _mm_xor_si128(row2,row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2,12),_mm_slli_epi32(row2,20));
+
+  buf4 = _mm_set_epi32(m5,m4,m7,m2);
+  row1 = _mm_add_epi32(_mm_add_epi32(row1,buf4),row2);
+  row4 = _mm_xor_si128(row4,row1);
+  row4 = _mm_xor_si128(_mm_srli_epi32(row4,8),_mm_slli_epi32(row4,24));
+  row3 = _mm_add_epi32(row3,row4);
+  row2 = _mm_xor_si128(row2,row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2,7),_mm_slli_epi32(row2,25));
+
+  row4 = _mm_shuffle_epi32(row4,_MM_SHUFFLE(0,3,2,1));
+  row3 = _mm_shuffle_epi32(row3,_MM_SHUFFLE(1,0,3,2));
+  row2 = _mm_shuffle_epi32(row2,_MM_SHUFFLE(2,1,0,3));
+
+  
+  buf1 = _mm_set_epi32(m1,m7,m8,m10);
+  row1 = _mm_add_epi32(_mm_add_epi32(row1,buf1),row2);
+  row4 = _mm_xor_si128(row4,row1);
+  row4 = _mm_xor_si128(_mm_srli_epi32(row4,16),_mm_slli_epi32(row4,16));
+  row3 = _mm_add_epi32(row3,row4);
+  row2 = _mm_xor_si128(row2,row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2,12),_mm_slli_epi32(row2,20));
+
+  buf2 = _mm_set_epi32(m5,m6,m4,m2);
+  row1 = _mm_add_epi32(_mm_add_epi32(row1,buf2),row2);
+  row4 = _mm_xor_si128(row4,row1);
+  row4 = _mm_xor_si128(_mm_srli_epi32(row4,8),_mm_slli_epi32(row4,24));
+  row3 = _mm_add_epi32(row3,row4);
+  row2 = _mm_xor_si128(row2,row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2,7),_mm_slli_epi32(row2,25));
+
+  row4 = _mm_shuffle_epi32(row4,_MM_SHUFFLE(2,1,0,3));
+  row3 = _mm_shuffle_epi32(row3,_MM_SHUFFLE(1,0,3,2));
+  row2 = _mm_shuffle_epi32(row2,_MM_SHUFFLE(0,3,2,1));
+
+  buf3 = _mm_set_epi32(m13,m3,m9,m15);
+  row1 = _mm_add_epi32(_mm_add_epi32(row1,buf3),row2);
+  row4 = _mm_xor_si128(row4,row1);
+  row4 = _mm_xor_si128(_mm_srli_epi32(row4,16),_mm_slli_epi32(row4,16));
+  row3 = _mm_add_epi32(row3,row4);
+  row2 = _mm_xor_si128(row2,row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2,12),_mm_slli_epi32(row2,20));
+
+  buf4 = _mm_set_epi32(m0,m12,m14,m11);
+  row1 = _mm_add_epi32(_mm_add_epi32(row1,buf4),row2);
+  row4 = _mm_xor_si128(row4,row1);
+  row4 = _mm_xor_si128(_mm_srli_epi32(row4,8),_mm_slli_epi32(row4,24));
+  row3 = _mm_add_epi32(row3,row4);
+  row2 = _mm_xor_si128(row2,row3);
+  row2 = _mm_xor_si128(_mm_srli_epi32(row2,7),_mm_slli_epi32(row2,25));
+
+  row4 = _mm_shuffle_epi32(row4,_MM_SHUFFLE(0,3,2,1));
+  row3 = _mm_shuffle_epi32(row3,_MM_SHUFFLE(1,0,3,2));
+  row2 = _mm_shuffle_epi32(row2,_MM_SHUFFLE(2,1,0,3));
+
+  
+  _mm_storeu_si128((__m128i *)(&state.h[0]),_mm_xor_si128(ff0,_mm_xor_si128(row1,row3)));
+  _mm_storeu_si128((__m128i *)(&state.h[4]),_mm_xor_si128(ff1,_mm_xor_si128(row2,row4)));
+#endif
 }
 
 static inline void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64, true>& state)
@@ -1481,9 +1921,9 @@ static inline void BLAKE2_SSE4_Compress32(const byte* input, BLAKE2_State<word32
 {
 	// TODO... fall back to C++
 	BLAKE2_CXX_Compress32(input, state);
-}
+};
 
-static inline void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64, true>& state)
+static inline void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64,true>& state)
 {
 	// TODO... fall back to C++
 	BLAKE2_CXX_Compress64(input, state);
