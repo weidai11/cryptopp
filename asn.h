@@ -74,85 +74,85 @@ public:
 // unsigned int DERLengthEncode(unsigned int length, byte *output=0);
 
 //! \brief DER encode a length
-//! \param out BufferedTransformation object
+//! \param bt BufferedTransformation object for writing
 //! \param length the size to encode
 //! \returns the number of octets used for the encoding
-CRYPTOPP_DLL size_t CRYPTOPP_API DERLengthEncode(BufferedTransformation &out, lword length);
+CRYPTOPP_DLL size_t CRYPTOPP_API DERLengthEncode(BufferedTransformation &bt, lword length);
 
 //! \brief BER decode a length
-//! \param in BufferedTransformation object
+//! \param bt BufferedTransformation object for reading
 //! \param length the decoded size
 //! \returns true if the value was decoded 
 //! \throws BERDecodeError if the value fails to decode or is too large for size_t
 //! \details BERLengthDecode() returns false if the encoding is indefinite length.
-CRYPTOPP_DLL bool CRYPTOPP_API BERLengthDecode(BufferedTransformation &in, size_t &length);
+CRYPTOPP_DLL bool CRYPTOPP_API BERLengthDecode(BufferedTransformation &bt, size_t &length);
 
 //! \brief DER encode NULL
-//! \param out BufferedTransformation object
-CRYPTOPP_DLL void CRYPTOPP_API DEREncodeNull(BufferedTransformation &out);
+//! \param bt BufferedTransformation object for writing
+CRYPTOPP_DLL void CRYPTOPP_API DEREncodeNull(BufferedTransformation &bt);
 
 //! \brief BER decode NULL
-//! \param in BufferedTransformation object
-CRYPTOPP_DLL void CRYPTOPP_API BERDecodeNull(BufferedTransformation &in);
+//! \param bt BufferedTransformation object for reading
+CRYPTOPP_DLL void CRYPTOPP_API BERDecodeNull(BufferedTransformation &bt);
 
 //! \brief DER encode octet string
-//! \param out BufferedTransformation object
+//! \param bt BufferedTransformation object for writing
 //! \param str the string to encode
 //! \param strLen the length of the string
 //! \returns the number of octets used for the encoding
-CRYPTOPP_DLL size_t CRYPTOPP_API DEREncodeOctetString(BufferedTransformation &out, const byte *str, size_t strLen);
+CRYPTOPP_DLL size_t CRYPTOPP_API DEREncodeOctetString(BufferedTransformation &bt, const byte *str, size_t strLen);
 
 //! \brief DER encode octet string
-//! \param out BufferedTransformation object
+//! \param bt BufferedTransformation object for reading
 //! \param str the string to encode
 //! \returns the number of octets used for the encoding
-CRYPTOPP_DLL size_t CRYPTOPP_API DEREncodeOctetString(BufferedTransformation &out, const SecByteBlock &str);
+CRYPTOPP_DLL size_t CRYPTOPP_API DEREncodeOctetString(BufferedTransformation &bt, const SecByteBlock &str);
 
 //! \brief BER decode octet string
-//! \param in BufferedTransformation object
+//! \param bt BufferedTransformation object for reading
 //! \param str the decoded string
 //! \returns the number of octets used for the encoding
-CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodeOctetString(BufferedTransformation &in, SecByteBlock &str);
+CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodeOctetString(BufferedTransformation &bt, SecByteBlock &str);
 
 //! \brief BER decode octet string
-//! \param in BufferedTransformation object
+//! \param bt BufferedTransformation object for reading
 //! \param str the decoded string
 //! \returns the number of octets used for the encoding
-CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodeOctetString(BufferedTransformation &in, BufferedTransformation &str);
+CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodeOctetString(BufferedTransformation &bt, BufferedTransformation &str);
 
 //! \brief DER encode text string
-//! \param out BufferedTransformation object
+//! \param bt BufferedTransformation object for writing
 //! \param str the string to encode
 //! \param asnTag the ASN.1 type
 //! \returns the number of octets used for the encoding
 //! \details DEREncodeTextString() can be used for UTF8_STRING, PRINTABLE_STRING, and IA5_STRING
-CRYPTOPP_DLL size_t CRYPTOPP_API DEREncodeTextString(BufferedTransformation &out, const std::string &str, byte asnTag);
+CRYPTOPP_DLL size_t CRYPTOPP_API DEREncodeTextString(BufferedTransformation &bt, const std::string &str, byte asnTag);
 
 //! \brief BER decode text string
-//! \param in BufferedTransformation object
+//! \param bt BufferedTransformation object for reading
 //! \param str the string to encode
 //! \param asnTag the ASN.1 type
 //! \details DEREncodeTextString() can be used for UTF8_STRING, PRINTABLE_STRING, and IA5_STRING
-CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodeTextString(BufferedTransformation &in, std::string &str, byte asnTag);
+CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodeTextString(BufferedTransformation &bt, std::string &str, byte asnTag);
 
 //! \brief DER encode bit string
-//! \param out BufferedTransformation object
+//! \param bt BufferedTransformation object for writing
 //! \param str the string to encode
 //! \param strLen the length of the string
 //! \param unusedBits the number of unused bits
 //! \returns the number of octets used for the encoding
-CRYPTOPP_DLL size_t CRYPTOPP_API DEREncodeBitString(BufferedTransformation &out, const byte *str, size_t strLen, unsigned int unusedBits=0);
+CRYPTOPP_DLL size_t CRYPTOPP_API DEREncodeBitString(BufferedTransformation &bt, const byte *str, size_t strLen, unsigned int unusedBits=0);
 
 //! \brief DER decode bit string
-//! \param in BufferedTransformation object
+//! \param bt BufferedTransformation object for reading
 //! \param str the decoded string
 //! \param unusedBits the number of unused bits
-CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodeBitString(BufferedTransformation &in, SecByteBlock &str, unsigned int &unusedBits);
+CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodeBitString(BufferedTransformation &bt, SecByteBlock &str, unsigned int &unusedBits);
 
 //! \brief BER decode and DER re-encode
-//! \param source BufferedTransformation object
+//! \param bt BufferedTransformation object for writing
 //! \param dest BufferedTransformation object
-CRYPTOPP_DLL void CRYPTOPP_API DERReencode(BufferedTransformation &source, BufferedTransformation &dest);
+CRYPTOPP_DLL void CRYPTOPP_API DERReencode(BufferedTransformation &bt, BufferedTransformation &dest);
 
 //! \brief Object Identifier
 class CRYPTOPP_DLL OID

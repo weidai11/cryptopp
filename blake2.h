@@ -271,6 +271,7 @@ public:
 
 	//! \brief Construct a BLAKE2b hash
 	//! \param digestSize the digest size, in bytes
+	//! \param treeMode flag indicating tree mode
 	BLAKE2b(bool treeMode=false, unsigned int digestSize = DIGESTSIZE) : ThisBase(treeMode, digestSize) {}
 
 	//! \brief Construct a BLAKE2b hash
@@ -305,6 +306,7 @@ public:
 
 	//! \brief Construct a BLAKE2b hash
 	//! \param digestSize the digest size, in bytes
+	//! \param treeMode flag indicating tree mode
 	BLAKE2s(bool treeMode=false, unsigned int digestSize = DIGESTSIZE) : ThisBase(treeMode, digestSize) {}
 
 	//! \brief Construct a BLAKE2b hash
@@ -325,4 +327,3 @@ public:
 NAMESPACE_END
 
 #endif
-
