@@ -339,7 +339,7 @@ void Inflator::ProcessInput(bool flush)
 			m_wrappedAround = false;
 			m_current = 0;
 			m_lastFlush = 0;
-			m_window.New(1 << GetLog2WindowSize());
+			m_window.New(((size_t) 1) << GetLog2WindowSize());
 			break;
 		case WAIT_HEADER:
 			{
