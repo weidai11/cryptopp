@@ -265,7 +265,7 @@ void AbstractGroup<T>::SimultaneousMultiply(T *results, const T &base, const Int
 		assert(expBegin->NotNegative());
 		exponents.push_back(WindowSlider(*expBegin++, InversionIsFast(), 0));
 		exponents[i].FindNextWindow();
-		buckets[i].resize(1<<(exponents[i].windowSize-1), Identity());
+		buckets[i].resize(((size_t) 1) << (exponents[i].windowSize-1), Identity());
 	}
 
 	unsigned int expBitPosition = 0;
