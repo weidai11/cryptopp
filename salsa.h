@@ -44,7 +44,7 @@ protected:
 
 //! \class Salsa20
 //! \brief Salsa20 stream cipher information
-//! \details XSalsa20 provides a variable number of rounds: 8, 12 or 20. The default number of rounds is 20.
+//! \details Salsa20 provides a variable number of rounds: 8, 12 or 20. The default number of rounds is 20.
 //! \sa <a href="http://www.cryptolounge.org/wiki/XSalsa20">XSalsa20</a>
 struct Salsa20 : public Salsa20_Info, public SymmetricCipherDocumentation
 {
