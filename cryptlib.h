@@ -15,13 +15,13 @@
 	\ref SHACAL2 "SHACAL-2", SHARK, SKIPJACK,
 Square, TEA, \ref ThreeWay "3-Way", Twofish, XTEA
 <dt>Stream Ciphers<dd>
-	\ref Panama "Panama-LE", \ref Panama "Panama-BE", Salsa20, \ref SEAL "SEAL-LE", \ref SEAL "SEAL-BE", WAKE, XSalsa20
+	ChaCha8, ChaCha12, ChaCha20, \ref Panama "Panama-LE", \ref Panama "Panama-BE", Salsa20, \ref SEAL "SEAL-LE", \ref SEAL "SEAL-BE", WAKE, XSalsa20
 <dt>Hash Functions<dd>
-	SHA1, SHA224, SHA256, SHA384, SHA512, \ref SHA3 "SHA-3", Tiger, Whirlpool, RIPEMD160, RIPEMD320, RIPEMD128, RIPEMD256, Weak::MD2, Weak::MD4, Weak::MD5
+	BLAKE2, SHA1, SHA224, SHA256, SHA384, SHA512, \ref SHA3 "SHA-3", Tiger, Whirlpool, RIPEMD160, RIPEMD320, RIPEMD128, RIPEMD256, Weak::MD2, Weak::MD4, Weak::MD5
 <dt>Non-Cryptographic Checksums<dd>
 	CRC32, Adler32
 <dt>Message Authentication Codes<dd>
-	VMAC, HMAC, CBC_MAC, CMAC, DMAC, TTMAC, \ref GCM "GCM (GMAC)"
+	VMAC, HMAC, CBC_MAC, CMAC, DMAC, TTMAC, \ref GCM "GCM (GMAC)", BLAKE2
 <dt>Random Number Generators<dd>
 	NullRNG(), LC_RNG, RandomPool, BlockingRng, NonblockingRng, AutoSeededRandomPool, AutoSeededX917RNG,
 	\ref MersenneTwister "MersenneTwister (MT19937 and MT19937-AR)", RDRAND, RDSEED

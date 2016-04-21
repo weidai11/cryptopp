@@ -23,6 +23,7 @@
 #include "pssr.h"
 #include "aes.h"
 #include "salsa.h"
+#include "chacha.h"
 #include "vmac.h"
 #include "tiger.h"
 #include "md5.h"
@@ -130,6 +131,9 @@ void RegisterFactories()
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<AES> >();
 	RegisterSymmetricCipherDefaultFactories<Salsa20>();
 	RegisterSymmetricCipherDefaultFactories<XSalsa20>();
+	RegisterSymmetricCipherDefaultFactories<ChaCha8>();
+	RegisterSymmetricCipherDefaultFactories<ChaCha12>();
+	RegisterSymmetricCipherDefaultFactories<ChaCha20>();
 	RegisterSymmetricCipherDefaultFactories<Sosemanuk>();
 	RegisterSymmetricCipherDefaultFactories<Weak::MARC4>();
 	RegisterSymmetricCipherDefaultFactories<WAKE_OFB<LittleEndian> >();

@@ -1831,6 +1831,10 @@
 				>
 			</File>
 			<File
+				RelativePath="chacha.cpp"
+				>
+			</File>
+			<File
 				RelativePath="channels.cpp"
 				>
 				<FileConfiguration
@@ -9250,6 +9254,10 @@
 			</File>
 			<File
 				RelativePath="ccm.h"
+				>
+			</File>
+			<File
+				RelativePath="chacha.h"
 				>
 			</File>
 			<File

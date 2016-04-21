@@ -262,6 +262,10 @@ SOURCE=.\ccm.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\chacha.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\channels.cpp
 # End Source File
 # Begin Source File
@@ -758,6 +762,10 @@ SOURCE=.\cbcmac.h
 # Begin Source File
 
 SOURCE=.\ccm.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\chacha.h
 # End Source File
 # Begin Source File
 

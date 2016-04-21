@@ -40,6 +40,8 @@ cbcmac.cpp
 cbcmac.h
 ccm.cpp
 ccm.h
+chacha.cpp
+chacha.h
 channels.cpp
 channels.h
 cmac.cpp
@@ -370,6 +372,7 @@ TestVectors/blake2b.txt
 TestVectors/blake2s.txt
 TestVectors/camellia.txt
 TestVectors/ccm.txt
+TestVectors/chacha.txt
 TestVectors/cmac.txt
 TestVectors/dlies.txt
 TestVectors/dsa.txt

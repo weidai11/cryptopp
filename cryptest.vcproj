@@ -579,7 +579,7 @@
 	<Files>
 		<Filter
 			Name="TestVectors"
-			Filter=".dat"
+			Filter=".txt"
 			>
 			<File
 				RelativePath=".\TestVectors\aes.txt"
@@ -607,6 +607,10 @@
 			</File>
 			<File
 				RelativePath=".\TestVectors\ccm.txt"
+				>
+			</File>
+			<File
+				RelativePath=".\TestVectors\chacha.txt"
 				>
 			</File>
 			<File
@@ -1499,6 +1503,7 @@
 		</Filter>
 		<Filter
 			Name="TestData"
+			Filter=".dat"
 			>
 			<File
 				RelativePath=".\TestData\3desval.dat"
