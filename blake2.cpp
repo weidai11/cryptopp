@@ -543,27 +543,27 @@ static void BLAKE2_SSE2_Compress32(const byte* input, BLAKE2_State<word32, false
   __m128i buf1,buf2,buf3,buf4;
   __m128i ff0,ff1;
 
-  const word32 m0 = ((word32 *)input)[ 0];
-  const word32 m1 = ((word32 *)input)[ 1];
-  const word32 m2 = ((word32 *)input)[ 2];
-  const word32 m3 = ((word32 *)input)[ 3];
-  const word32 m4 = ((word32 *)input)[ 4];
-  const word32 m5 = ((word32 *)input)[ 5];
-  const word32 m6 = ((word32 *)input)[ 6];
-  const word32 m7 = ((word32 *)input)[ 7];
-  const word32 m8 = ((word32 *)input)[ 8];
-  const word32 m9 = ((word32 *)input)[ 9];
-  const word32 m10 = ((word32 *)input)[10];
-  const word32 m11 = ((word32 *)input)[11];
-  const word32 m12 = ((word32 *)input)[12];
-  const word32 m13 = ((word32 *)input)[13];
-  const word32 m14 = ((word32 *)input)[14];
-  const word32 m15 = ((word32 *)input)[15];
+  const word32 m0 = ((const word32*)(const void*)input)[ 0];
+  const word32 m1 = ((const word32*)(const void*)input)[ 1];
+  const word32 m2 = ((const word32*)(const void*)input)[ 2];
+  const word32 m3 = ((const word32*)(const void*)input)[ 3];
+  const word32 m4 = ((const word32*)(const void*)input)[ 4];
+  const word32 m5 = ((const word32*)(const void*)input)[ 5];
+  const word32 m6 = ((const word32*)(const void*)input)[ 6];
+  const word32 m7 = ((const word32*)(const void*)input)[ 7];
+  const word32 m8 = ((const word32*)(const void*)input)[ 8];
+  const word32 m9 = ((const word32*)(const void*)input)[ 9];
+  const word32 m10 = ((const word32*)(const void*)input)[10];
+  const word32 m11 = ((const word32*)(const void*)input)[11];
+  const word32 m12 = ((const word32*)(const void*)input)[12];
+  const word32 m13 = ((const word32*)(const void*)input)[13];
+  const word32 m14 = ((const word32*)(const void*)input)[14];
+  const word32 m15 = ((const word32*)(const void*)input)[15];
 
-  row1 = ff0 = _mm_loadu_si128((const __m128i *)(&state.h[0]));
-  row2 = ff1 = _mm_loadu_si128((const __m128i *)(&state.h[4]));
+  row1 = ff0 = _mm_loadu_si128((const __m128i*)(const void*)(&state.h[0]));
+  row2 = ff1 = _mm_loadu_si128((const __m128i*)(const void*)(&state.h[4]));
   row3 = _mm_setr_epi32(BLAKE2_IV<false>::iv[0],BLAKE2_IV<false>::iv[1],BLAKE2_IV<false>::iv[2],BLAKE2_IV<false>::iv[3]);
-  row4 = _mm_xor_si128(_mm_setr_epi32(BLAKE2_IV<false>::iv[4],BLAKE2_IV<false>::iv[5],BLAKE2_IV<false>::iv[6],BLAKE2_IV<false>::iv[7]),_mm_loadu_si128((const __m128i *)(&state.t[0])));
+  row4 = _mm_xor_si128(_mm_setr_epi32(BLAKE2_IV<false>::iv[4],BLAKE2_IV<false>::iv[5],BLAKE2_IV<false>::iv[6],BLAKE2_IV<false>::iv[7]),_mm_loadu_si128((const __m128i*)(const void*)(&state.t[0])));
   buf1 = _mm_set_epi32(m6,m4,m2,m0);
   row1 = _mm_add_epi32(_mm_add_epi32(row1,buf1),row2);
   row4 = _mm_xor_si128(row4,row1);
@@ -964,8 +964,8 @@ static void BLAKE2_SSE2_Compress32(const byte* input, BLAKE2_State<word32, false
   row3 = _mm_shuffle_epi32(row3,_MM_SHUFFLE(1,0,3,2));
   row2 = _mm_shuffle_epi32(row2,_MM_SHUFFLE(2,1,0,3));
   
-  _mm_storeu_si128((__m128i *)(&state.h[0]),_mm_xor_si128(ff0,_mm_xor_si128(row1,row3)));
-  _mm_storeu_si128((__m128i *)(&state.h[4]),_mm_xor_si128(ff1,_mm_xor_si128(row2,row4)));
+  _mm_storeu_si128((__m128i *)(void*)(&state.h[0]),_mm_xor_si128(ff0,_mm_xor_si128(row1,row3)));
+  _mm_storeu_si128((__m128i *)(void*)(&state.h[4]),_mm_xor_si128(ff1,_mm_xor_si128(row2,row4)));
 }
 
 static void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64, true>& state)
@@ -974,31 +974,31 @@ static void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64, true>
   __m128i row3l, row3h, row4l, row4h;
   __m128i b0, b1, t0, t1;
 
-  const word64 m0 =  ((const word64*)input)[ 0];
-  const word64 m1 =  ((const word64*)input)[ 1];
-  const word64 m2 =  ((const word64*)input)[ 2];
-  const word64 m3 =  ((const word64*)input)[ 3];
-  const word64 m4 =  ((const word64*)input)[ 4];
-  const word64 m5 =  ((const word64*)input)[ 5];
-  const word64 m6 =  ((const word64*)input)[ 6];
-  const word64 m7 =  ((const word64*)input)[ 7];
-  const word64 m8 =  ((const word64*)input)[ 8];
-  const word64 m9 =  ((const word64*)input)[ 9];
-  const word64 m10 = ((const word64*)input)[10];
-  const word64 m11 = ((const word64*)input)[11];
-  const word64 m12 = ((const word64*)input)[12];
-  const word64 m13 = ((const word64*)input)[13];
-  const word64 m14 = ((const word64*)input)[14];
-  const word64 m15 = ((const word64*)input)[15];
+  const word64 m0 =  ((const word64*)(const void*)input)[ 0];
+  const word64 m1 =  ((const word64*)(const void*)input)[ 1];
+  const word64 m2 =  ((const word64*)(const void*)input)[ 2];
+  const word64 m3 =  ((const word64*)(const void*)input)[ 3];
+  const word64 m4 =  ((const word64*)(const void*)input)[ 4];
+  const word64 m5 =  ((const word64*)(const void*)input)[ 5];
+  const word64 m6 =  ((const word64*)(const void*)input)[ 6];
+  const word64 m7 =  ((const word64*)(const void*)input)[ 7];
+  const word64 m8 =  ((const word64*)(const void*)input)[ 8];
+  const word64 m9 =  ((const word64*)(const void*)input)[ 9];
+  const word64 m10 = ((const word64*)(const void*)input)[10];
+  const word64 m11 = ((const word64*)(const void*)input)[11];
+  const word64 m12 = ((const word64*)(const void*)input)[12];
+  const word64 m13 = ((const word64*)(const void*)input)[13];
+  const word64 m14 = ((const word64*)(const void*)input)[14];
+  const word64 m15 = ((const word64*)(const void*)input)[15];
 
-  row1l = _mm_loadu_si128( (const __m128i *)(&state.h[0]) );
-  row1h = _mm_loadu_si128( (const __m128i *)(&state.h[2]) );
-  row2l = _mm_loadu_si128( (const __m128i *)(&state.h[4]) );
-  row2h = _mm_loadu_si128( (const __m128i *)(&state.h[6]) );
-  row3l = _mm_loadu_si128( (const __m128i *)(&BLAKE2_IV<true>::iv[0]) );
-  row3h = _mm_loadu_si128( (const __m128i *)(&BLAKE2_IV<true>::iv[2]) );
-  row4l = _mm_xor_si128( _mm_loadu_si128( (const __m128i *)(&BLAKE2_IV<true>::iv[4]) ), _mm_loadu_si128( (const __m128i *)(&state.t[0]) ) );
-  row4h = _mm_xor_si128( _mm_loadu_si128( (const __m128i *)(&BLAKE2_IV<true>::iv[6]) ), _mm_loadu_si128( (const __m128i *)(&state.f[0]) ) );
+  row1l = _mm_loadu_si128((const __m128i*)(const void*)(&state.h[0]) );
+  row1h = _mm_loadu_si128((const __m128i*)(const void*)(&state.h[2]) );
+  row2l = _mm_loadu_si128((const __m128i*)(const void*)(&state.h[4]) );
+  row2h = _mm_loadu_si128((const __m128i*)(const void*)(&state.h[6]) );
+  row3l = _mm_loadu_si128((const __m128i*)(const void*)(&BLAKE2_IV<true>::iv[0]) );
+  row3h = _mm_loadu_si128((const __m128i*)(const void*)(&BLAKE2_IV<true>::iv[2]) );
+  row4l = _mm_xor_si128( _mm_loadu_si128((const __m128i*)(const void*)(&BLAKE2_IV<true>::iv[4]) ), _mm_loadu_si128((const __m128i*)(const void*)(&state.t[0]) ) );
+  row4h = _mm_xor_si128( _mm_loadu_si128((const __m128i*)(const void*)(&BLAKE2_IV<true>::iv[6]) ), _mm_loadu_si128((const __m128i*)(const void*)(&state.f[0]) ) );
 
   b0 = _mm_set_epi64x(m2, m0);
   b1 = _mm_set_epi64x(m6, m4);
@@ -1855,13 +1855,13 @@ static void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64, true>
 
   row1l = _mm_xor_si128( row3l, row1l );
   row1h = _mm_xor_si128( row3h, row1h );
-  _mm_storeu_si128((__m128i *)(&state.h[0]), _mm_xor_si128(_mm_loadu_si128( (const __m128i *)(&state.h[0]) ), row1l));
-  _mm_storeu_si128((__m128i *)(&state.h[2]), _mm_xor_si128(_mm_loadu_si128( (const __m128i *)(&state.h[2]) ), row1h));
+  _mm_storeu_si128((__m128i *)(void*)(&state.h[0]), _mm_xor_si128(_mm_loadu_si128((const __m128i*)(const void*)(&state.h[0]) ), row1l));
+  _mm_storeu_si128((__m128i *)(void*)(&state.h[2]), _mm_xor_si128(_mm_loadu_si128((const __m128i*)(const void*)(&state.h[2]) ), row1h));
 
   row2l = _mm_xor_si128( row4l, row2l );
   row2h = _mm_xor_si128( row4h, row2h );
-  _mm_storeu_si128((__m128i *)(&state.h[4]), _mm_xor_si128(_mm_loadu_si128( (const __m128i *)(&state.h[4]) ), row2l));
-  _mm_storeu_si128((__m128i *)(&state.h[6]), _mm_xor_si128(_mm_loadu_si128( (const __m128i *)(&state.h[6]) ), row2h));
+  _mm_storeu_si128((__m128i *)(void*)(&state.h[4]), _mm_xor_si128(_mm_loadu_si128((const __m128i*)(const void*)(&state.h[4]) ), row2l));
+  _mm_storeu_si128((__m128i *)(void*)(&state.h[6]), _mm_xor_si128(_mm_loadu_si128((const __m128i*)(const void*)(&state.h[6]) ), row2h));
 }
 #endif  // CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
 
@@ -1877,15 +1877,15 @@ static void BLAKE2_SSE4_Compress32(const byte* input, BLAKE2_State<word32, false
   const __m128i r8 = _mm_set_epi8(12, 15, 14, 13, 8, 11, 10, 9, 4, 7, 6, 5, 0, 3, 2, 1);
   const __m128i r16 = _mm_set_epi8(13, 12, 15, 14, 9, 8, 11, 10, 5, 4, 7, 6, 1, 0, 3, 2);
 
-  const __m128i m0 = _mm_loadu_si128((const __m128i *)(input + 00));
-  const __m128i m1 = _mm_loadu_si128((const __m128i *)(input + 16));
-  const __m128i m2 = _mm_loadu_si128((const __m128i *)(input + 32));
-  const __m128i m3 = _mm_loadu_si128((const __m128i *)(input + 48));
+  const __m128i m0 = _mm_loadu_si128((const __m128i*)(const void*)(input + 00));
+  const __m128i m1 = _mm_loadu_si128((const __m128i*)(const void*)(input + 16));
+  const __m128i m2 = _mm_loadu_si128((const __m128i*)(const void*)(input + 32));
+  const __m128i m3 = _mm_loadu_si128((const __m128i*)(const void*)(input + 48));
 
-  row1 = ff0 = _mm_loadu_si128((const __m128i *)(&state.h[0]));
-  row2 = ff1 = _mm_loadu_si128((const __m128i *)(&state.h[4]));
+  row1 = ff0 = _mm_loadu_si128((const __m128i*)(const void*)(&state.h[0]));
+  row2 = ff1 = _mm_loadu_si128((const __m128i*)(const void*)(&state.h[4]));
   row3 = _mm_setr_epi32(BLAKE2_IV<false>::iv[0], BLAKE2_IV<false>::iv[1], BLAKE2_IV<false>::iv[2], BLAKE2_IV<false>::iv[3]);
-  row4 = _mm_xor_si128(_mm_setr_epi32(BLAKE2_IV<false>::iv[4], BLAKE2_IV<false>::iv[5], BLAKE2_IV<false>::iv[6], BLAKE2_IV<false>::iv[7]), _mm_loadu_si128((const __m128i *)(&state.t[0])));
+  row4 = _mm_xor_si128(_mm_setr_epi32(BLAKE2_IV<false>::iv[4], BLAKE2_IV<false>::iv[5], BLAKE2_IV<false>::iv[6], BLAKE2_IV<false>::iv[7]), _mm_loadu_si128((const __m128i*)(const void*)(&state.t[0])));
   buf1 = _mm_castps_si128((_mm_shuffle_ps(_mm_castsi128_ps((m0)), _mm_castsi128_ps((m1)), _MM_SHUFFLE(2,0,2,0))));
 
   row1 = _mm_add_epi32(_mm_add_epi32(row1, buf1), row2);
@@ -2417,8 +2417,8 @@ static void BLAKE2_SSE4_Compress32(const byte* input, BLAKE2_State<word32, false
   row3 = _mm_shuffle_epi32(row3, _MM_SHUFFLE(1,0,3,2));
   row2 = _mm_shuffle_epi32(row2, _MM_SHUFFLE(2,1,0,3));
 
-  _mm_storeu_si128((__m128i *)(&state.h[0]), _mm_xor_si128(ff0, _mm_xor_si128(row1, row3)));
-  _mm_storeu_si128((__m128i *)(&state.h[4]), _mm_xor_si128(ff1, _mm_xor_si128(row2, row4)));
+  _mm_storeu_si128((__m128i *)(void*)(&state.h[0]), _mm_xor_si128(ff0, _mm_xor_si128(row1, row3)));
+  _mm_storeu_si128((__m128i *)(void*)(&state.h[4]), _mm_xor_si128(ff1, _mm_xor_si128(row2, row4)));
 }
 
 static void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64, true>& state)
@@ -2432,23 +2432,23 @@ static void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64, true>
   const __m128i r16 = _mm_setr_epi8(2, 3, 4, 5, 6, 7, 0, 1, 10, 11, 12, 13, 14, 15, 8, 9);
   const __m128i r24 = _mm_setr_epi8(3, 4, 5, 6, 7, 0, 1, 2, 11, 12, 13, 14, 15, 8, 9, 10);
 
-  const __m128i m0 = _mm_loadu_si128((const __m128i *)(input + 00));
-  const __m128i m1 = _mm_loadu_si128((const __m128i *)(input + 16));
-  const __m128i m2 = _mm_loadu_si128((const __m128i *)(input + 32));
-  const __m128i m3 = _mm_loadu_si128((const __m128i *)(input + 48));
-  const __m128i m4 = _mm_loadu_si128((const __m128i *)(input + 64));
-  const __m128i m5 = _mm_loadu_si128((const __m128i *)(input + 80));
-  const __m128i m6 = _mm_loadu_si128((const __m128i *)(input + 96));
-  const __m128i m7 = _mm_loadu_si128((const __m128i *)(input + 112));
+  const __m128i m0 = _mm_loadu_si128((const __m128i*)(const void*)(input + 00));
+  const __m128i m1 = _mm_loadu_si128((const __m128i*)(const void*)(input + 16));
+  const __m128i m2 = _mm_loadu_si128((const __m128i*)(const void*)(input + 32));
+  const __m128i m3 = _mm_loadu_si128((const __m128i*)(const void*)(input + 48));
+  const __m128i m4 = _mm_loadu_si128((const __m128i*)(const void*)(input + 64));
+  const __m128i m5 = _mm_loadu_si128((const __m128i*)(const void*)(input + 80));
+  const __m128i m6 = _mm_loadu_si128((const __m128i*)(const void*)(input + 96));
+  const __m128i m7 = _mm_loadu_si128((const __m128i*)(const void*)(input + 112));
 
-  row1l = _mm_loadu_si128((const __m128i *)(&state.h[0]));
-  row1h = _mm_loadu_si128((const __m128i *)(&state.h[2]));
-  row2l = _mm_loadu_si128((const __m128i *)(&state.h[4]));
-  row2h = _mm_loadu_si128((const __m128i *)(&state.h[6]));
-  row3l = _mm_loadu_si128((const __m128i *)(&BLAKE2_IV<true>::iv[0]));
-  row3h = _mm_loadu_si128((const __m128i *)(&BLAKE2_IV<true>::iv[2]));
-  row4l = _mm_xor_si128(_mm_loadu_si128((const __m128i *)(&BLAKE2_IV<true>::iv[4])), _mm_loadu_si128((const __m128i *)(&state.t[0])));
-  row4h = _mm_xor_si128(_mm_loadu_si128((const __m128i *)(&BLAKE2_IV<true>::iv[6])), _mm_loadu_si128((const __m128i *)(&state.f[0])));
+  row1l = _mm_loadu_si128((const __m128i*)(const void*)(&state.h[0]));
+  row1h = _mm_loadu_si128((const __m128i*)(const void*)(&state.h[2]));
+  row2l = _mm_loadu_si128((const __m128i*)(const void*)(&state.h[4]));
+  row2h = _mm_loadu_si128((const __m128i*)(const void*)(&state.h[6]));
+  row3l = _mm_loadu_si128((const __m128i*)(const void*)(&BLAKE2_IV<true>::iv[0]));
+  row3h = _mm_loadu_si128((const __m128i*)(const void*)(&BLAKE2_IV<true>::iv[2]));
+  row4l = _mm_xor_si128(_mm_loadu_si128((const __m128i*)(const void*)(&BLAKE2_IV<true>::iv[4])), _mm_loadu_si128((const __m128i*)(const void*)(&state.t[0])));
+  row4h = _mm_xor_si128(_mm_loadu_si128((const __m128i*)(const void*)(&BLAKE2_IV<true>::iv[6])), _mm_loadu_si128((const __m128i*)(const void*)(&state.f[0])));
 
   b0 = _mm_unpacklo_epi64(m0, m1);
   b1 = _mm_unpacklo_epi64(m2, m3);
@@ -3387,12 +3387,13 @@ static void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64, true>
   
   row1l = _mm_xor_si128(row3l, row1l);
   row1h = _mm_xor_si128(row3h, row1h);
-  _mm_storeu_si128((__m128i *)(&state.h[0]), _mm_xor_si128(_mm_loadu_si128((const __m128i *)(&state.h[0])), row1l));
-  _mm_storeu_si128((__m128i *)(&state.h[2]), _mm_xor_si128(_mm_loadu_si128((const __m128i *)(&state.h[2])), row1h));
+  _mm_storeu_si128((__m128i *)(void*)(&state.h[0]), _mm_xor_si128(_mm_loadu_si128((const __m128i*)(const void*)(&state.h[0])), row1l));
+  _mm_storeu_si128((__m128i *)(void*)(&state.h[2]), _mm_xor_si128(_mm_loadu_si128((const __m128i*)(const void*)(&state.h[2])), row1h));
+
   row2l = _mm_xor_si128(row4l, row2l);
   row2h = _mm_xor_si128(row4h, row2h);
-  _mm_storeu_si128((__m128i *)(&state.h[4]), _mm_xor_si128(_mm_loadu_si128((const __m128i *)(&state.h[4])), row2l));
-  _mm_storeu_si128((__m128i *)(&state.h[6]), _mm_xor_si128(_mm_loadu_si128((const __m128i *)(&state.h[6])), row2h));
+  _mm_storeu_si128((__m128i *)(void*)(&state.h[4]), _mm_xor_si128(_mm_loadu_si128((const __m128i*)(const void*)(&state.h[4])), row2l));
+  _mm_storeu_si128((__m128i *)(void*)(&state.h[6]), _mm_xor_si128(_mm_loadu_si128((const __m128i*)(const void*)(&state.h[6])), row2h));
 }
 #endif  // CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
 
