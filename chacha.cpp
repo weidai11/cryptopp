@@ -11,7 +11,7 @@
 #include "cpu.h"
 
 NAMESPACE_BEGIN(CryptoPP)
-	
+
 #define CHACHA_QUARTER_ROUND(a,b,c,d) \
     a += b; d ^= a; d = rotlFixed<word32>(d,16); \
     c += d; b ^= c; b = rotlFixed<word32>(b,12); \
@@ -117,6 +117,7 @@ void ChaCha_Policy<R>::OperateKeystream(KeystreamOperation operation, byte *outp
 			CHACHA_QUARTER_ROUND(x3, x4,  x9, x14);
 		}
 
+		#undef CHACHA_OUTPUT
 		#define CHACHA_OUTPUT(x){\
 			CRYPTOPP_KEYSTREAM_OUTPUT_WORD(x, LITTLE_ENDIAN_ORDER, 0, x0 + m_state[0]);\
 			CRYPTOPP_KEYSTREAM_OUTPUT_WORD(x, LITTLE_ENDIAN_ORDER, 1, x1 + m_state[1]);\
@@ -139,8 +140,8 @@ void ChaCha_Policy<R>::OperateKeystream(KeystreamOperation operation, byte *outp
 		CRYPTOPP_KEYSTREAM_OUTPUT_SWITCH(CHACHA_OUTPUT, BYTES_PER_ITERATION);
 #endif
 
-		if (++m_state[12] == 0)
-			++m_state[13];
+		++m_state[12];
+		m_state[13] += !!(m_state[12] == 0);
 	}
 }
 
