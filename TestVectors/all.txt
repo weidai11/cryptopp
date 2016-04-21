@@ -24,6 +24,7 @@ Test: TestVectors/sha3.txt
 Test: TestVectors/panama.txt
 Test: TestVectors/aes.txt
 Test: TestVectors/salsa.txt
+Test: TestVectors/chacha.txt
 Test: TestVectors/vmac.txt
 Test: TestVectors/sosemanuk.txt
 Test: TestVectors/ccm.txt
