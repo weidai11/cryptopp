@@ -21,8 +21,8 @@ base64.cpp
 base64.h
 basecode.cpp
 basecode.h
-bench.cpp
 bench.h
+bench1.cpp
 bench2.cpp
 bfinit.cpp
 blake2.cpp

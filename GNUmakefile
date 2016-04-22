@@ -338,7 +338,7 @@ endif
 OBJS := $(SRCS:.cpp=.o)
 
 # test.o needs to be after bench.o for cygwin 1.1.4 (possible ld bug?)
-TESTSRCS := bench.cpp bench2.cpp test.cpp validat1.cpp validat2.cpp validat3.cpp adhoc.cpp datatest.cpp regtest.cpp fipsalgt.cpp dlltest.cpp
+TESTSRCS := bench1.cpp bench2.cpp test.cpp validat1.cpp validat2.cpp validat3.cpp adhoc.cpp datatest.cpp regtest.cpp fipsalgt.cpp dlltest.cpp
 TESTOBJS := $(TESTSRCS:.cpp=.o)
 LIBOBJS := $(filter-out $(TESTOBJS),$(OBJS))
 
@@ -646,8 +646,6 @@ endif
 ifeq ($(findstring -DCRYPTOPP_DATA_DIR,$(CXXFLAGS)),)
 ifneq ($(strip $(CRYPTOPP_DATA_DIR)),)
 validat%.o : validat%.cpp
-	$(CXX) $(CXXFLAGS) -DCRYPTOPP_DATA_DIR=\"$(CRYPTOPP_DATA_DIR)\" -c $<
-bench.o : bench.cpp
 	$(CXX) $(CXXFLAGS) -DCRYPTOPP_DATA_DIR=\"$(CRYPTOPP_DATA_DIR)\" -c $<
 bench%.o : bench%.cpp
 	$(CXX) $(CXXFLAGS) -DCRYPTOPP_DATA_DIR=\"$(CRYPTOPP_DATA_DIR)\" -c $<

@@ -156,11 +156,11 @@ SOURCE=.\adhoc.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\bench.cpp
+SOURCE=.\bench.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\bench.h
+SOURCE=.\bench1.cpp
 # End Source File
 # Begin Source File
 

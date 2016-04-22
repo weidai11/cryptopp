@@ -810,7 +810,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="bench.cpp"
+				RelativePath="bench1.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
