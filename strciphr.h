@@ -480,8 +480,8 @@ struct CRYPTOPP_NO_VTABLE CFB_CipherConcretePolicy : public BASE
 	};
 };
 
-//! \class AdditiveCipherTemplate
-//! \brief Base class for stream ciphers with SymmetricCipher interface
+//! \class CFB_CipherTemplate
+//! \brief Base class for feedback based stream ciphers with SymmetricCipher interface
 //! \tparam BASE AbstractPolicyHolder base class
 template <class BASE>
 class CRYPTOPP_NO_VTABLE CFB_CipherTemplate : public BASE
