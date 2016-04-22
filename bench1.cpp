@@ -304,6 +304,8 @@ void BenchmarkAll(double t, double hertz)
 	BenchMarkByName<MessageAuthenticationCode>("Two-Track-MAC");
 	BenchMarkByName<MessageAuthenticationCode>("CMAC(AES)");
 	BenchMarkByName<MessageAuthenticationCode>("DMAC(AES)");
+	BenchMarkByName<MessageAuthenticationCode>("BLAKE2s");
+	BenchMarkByName<MessageAuthenticationCode>("BLAKE2b");
 
 	cout << "\n<TBODY style=\"background: yellow\">";
 	BenchMarkByNameKeyLess<HashTransformation>("CRC32");
