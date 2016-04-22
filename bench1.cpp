@@ -322,6 +322,8 @@ void BenchmarkAll(double t, double hertz)
 	BenchMarkByNameKeyLess<HashTransformation>("RIPEMD-320");
 	BenchMarkByNameKeyLess<HashTransformation>("RIPEMD-128");
 	BenchMarkByNameKeyLess<HashTransformation>("RIPEMD-256");
+	BenchMarkByNameKeyLess<HashTransformation>("BLAKE2s");
+	BenchMarkByNameKeyLess<HashTransformation>("BLAKE2b");
 
 	cout << "\n<TBODY style=\"background: white\">";
 	BenchMarkByName<SymmetricCipher>("Panama-LE");
@@ -329,6 +331,9 @@ void BenchmarkAll(double t, double hertz)
 	BenchMarkByName<SymmetricCipher>("Salsa20");
 	BenchMarkByName<SymmetricCipher>("Salsa20", 0, "Salsa20/12", MakeParameters(Name::Rounds(), 12));
 	BenchMarkByName<SymmetricCipher>("Salsa20", 0, "Salsa20/8", MakeParameters(Name::Rounds(), 8));
+	BenchMarkByName<SymmetricCipher>("ChaCha20");
+	BenchMarkByName<SymmetricCipher>("ChaCha12");
+	BenchMarkByName<SymmetricCipher>("ChaCha8");
 	BenchMarkByName<SymmetricCipher>("Sosemanuk");
 	BenchMarkByName<SymmetricCipher>("MARC4");
 	BenchMarkByName<SymmetricCipher>("SEAL-3.0-LE");
