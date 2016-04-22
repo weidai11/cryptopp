@@ -29,8 +29,10 @@ void ChaCha_TestInstantiations()
 
 void ChaCha_Policy::CipherSetKey(const NameValuePairs &params, const byte *key, size_t length)
 {
-	CRYPTOPP_UNUSED(params);
-	assert(length == 16 || length == 32);
+	m_rounds = params.GetIntValueWithDefault(Name::Rounds(), 20);
+
+	if (!(m_rounds == 8 || m_rounds == 12 || m_rounds == 20))
+		throw InvalidRounds(ChaCha::StaticAlgorithmName(), m_rounds);
 
 	// "expand 16-byte k" or "expand 32-byte k"
 	m_state[0] = 0x61707865;
