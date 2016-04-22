@@ -17,7 +17,7 @@ Square, TEA, \ref ThreeWay "3-Way", Twofish, XTEA
 <dt>Stream Ciphers<dd>
 	ChaCha8, ChaCha12, ChaCha20, \ref Panama "Panama-LE", \ref Panama "Panama-BE", Salsa20, \ref SEAL "SEAL-LE", \ref SEAL "SEAL-BE", WAKE, XSalsa20
 <dt>Hash Functions<dd>
-	BLAKE2, SHA1, SHA224, SHA256, SHA384, SHA512, \ref SHA3 "SHA-3", Tiger, Whirlpool, RIPEMD160, RIPEMD320, RIPEMD128, RIPEMD256, Weak::MD2, Weak::MD4, Weak::MD5
+	BLAKE2s, BLAKE2b, SHA1, SHA224, SHA256, SHA384, SHA512, \ref SHA3 "SHA-3", Tiger, Whirlpool, RIPEMD160, RIPEMD320, RIPEMD128, RIPEMD256, Weak::MD2, Weak::MD4, Weak::MD5
 <dt>Non-Cryptographic Checksums<dd>
 	CRC32, Adler32
 <dt>Message Authentication Codes<dd>
