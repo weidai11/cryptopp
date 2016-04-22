@@ -603,7 +603,8 @@ else ifneq ($(IS_LINUX),0)
 	-$(RM) -r $(PWD)/cryptopp$(LIB_VER)
 endif
 
-CRYPTOPP_CPU_SPEED ?= 2.4e+09
+# CRYPTOPP_CPU_SPEED in GHz
+CRYPTOPP_CPU_SPEED ?= 2.4
 .PHONY: bench benchmark benchmarks
 bench benchmark benchmarks: cryptest.exe
 	rm -f benchmarks.html
