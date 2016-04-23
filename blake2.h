@@ -166,7 +166,9 @@ struct CRYPTOPP_NO_VTABLE BLAKE2_State
 	BLAKE2_State()
 	{
 		// Set all members except scratch buffer[]
-		memset(this, 0x00, sizeof(*this)-sizeof(buffer));
+		h[0]=h[1]=h[2]=h[3]=h[4]=h[5]=h[6]=h[7] = 0;
+		t[0]=t[1]=f[0]=f[1] = 0;
+		length = 0;
 	}
 
 	// SSE2 and SSE4 depend upon t[] and f[] being side-by-side
