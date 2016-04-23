@@ -21,9 +21,8 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 // Can't use GetAlignmentOf<W>() because its not a constant expression. GCC has
-// some bugs spanning 4.0 through 4.9, so we can't use CRYPTOPP_CONSTANT, either.
-// Also see http://stackoverflow.com/q/36642315. We may need to increase alignment
-// to 32 bytes due to SSE4 alignment requirements.
+// some bugs spanning 4.0 through 4.9, so we can't use a template parameter with
+// CRYPTOPP_CONSTANT, either. Also see http://stackoverflow.com/q/36642315.
 #if CRYPTOPP_BOOL_ALIGN16
 # define BLAKE2_DALIGN 16
 #elif defined(_M_X64) || defined(__LP64__) || defined(__x86_64__) || defined(__amd64__)
@@ -94,7 +93,9 @@ struct CRYPTOPP_NO_VTABLE BLAKE2_ParameterBlock<true>
 	BLAKE2_ParameterBlock(size_t digestSize, size_t keyLength, const byte* salt, size_t saltLength,
 		const byte* personalization, size_t personalizationLength);
 
-	byte digestLength, keyLength, fanout, depth;
+	CRYPTOPP_ALIGN_DATA(BLAKE2_DALIGN)
+	byte digestLength;
+	byte keyLength, fanout, depth;
 	byte leafLength[4];
 	byte nodeOffset[8];
 	byte nodeDepth, innerLength, rfu[14];
@@ -134,7 +135,9 @@ struct CRYPTOPP_NO_VTABLE BLAKE2_ParameterBlock<false>
 	BLAKE2_ParameterBlock(size_t digestSize, size_t keyLength, const byte* salt, size_t saltLength,
 		const byte* personalization, size_t personalizationLength);
 
-	byte digestLength, keyLength, fanout, depth;
+	CRYPTOPP_ALIGN_DATA(BLAKE2_DALIGN)
+	byte digestLength;
+	byte keyLength, fanout, depth;
 	byte leafLength[4];
 	byte nodeOffset[6];
 	byte nodeDepth, innerLength;
@@ -162,14 +165,16 @@ struct CRYPTOPP_NO_VTABLE BLAKE2_State
 
 	BLAKE2_State()
 	{
-		// Set all members excpet scratch buf[]
+		// Set all members except scratch buffer[]
 		memset(this, 0x00, sizeof(*this)-sizeof(buffer));
 	}
 
 	// SSE2 and SSE4 depend upon t[] and f[] being side-by-side
-	W h[8], t[2], f[2];
-	size_t length;
+	CRYPTOPP_ALIGN_DATA(BLAKE2_DALIGN)
+	W h[8];
+	W t[2], f[2];
 	byte  buffer[BLOCKSIZE];
+	size_t length;
 };
 
 //! \class BLAKE2_Base
@@ -247,8 +252,8 @@ protected:
 	void UncheckedSetKey(const byte* key, unsigned int length, const CryptoPP::NameValuePairs& params);
 
 private:
-	CRYPTOPP_ALIGN_DATA(BLAKE2_DALIGN) State m_state;
-	CRYPTOPP_ALIGN_DATA(BLAKE2_DALIGN) ParameterBlock m_block;
+	State m_state;
+	ParameterBlock m_block;
 	AlignedSecByteBlock m_key;
 	word32 m_digestSize;
 	bool m_treeMode;
