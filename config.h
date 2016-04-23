@@ -625,6 +625,16 @@ NAMESPACE_END
 //   Moved from misc.h due to circular depenedencies.
 #define CRYPTOPP_UNUSED(x) ((void)x)
 
+// ************** Deprecated ***************
+
+#if (CRYPTOPP_GCC_VERSION >= 40500) || (CRYPTOPP_CLANG_VERSION >= 20800)
+# define CRYPTOPP_DEPRECATED(msg) __attribute__((deprecated (msg)));
+#elif (CRYPTOPP_GCC_VERSION)
+# define CRYPTOPP_DEPRECATED(msg) __attribute__((deprecated));
+#else
+# define CRYPTOPP_DEPRECATED(msg)
+#endif
+
 // ***************** C++11 related ********************
 
 // Visual Studio began at VS2010, http://msdn.microsoft.com/en-us/library/hh567368%28v=vs.110%29.aspx.
