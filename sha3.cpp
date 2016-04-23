@@ -280,7 +280,13 @@ void SHA3::Restart()
 void SHA3::TruncatedFinal(byte *hash, size_t size)
 {
 	ThrowIfInvalidTruncatedSize(size);
+
+#if defined(CRYPTOPP_USE_FIPS_202_SHA3)
 	m_state.BytePtr()[m_counter] ^= 0x06;
+#else
+	m_state.BytePtr()[m_counter] ^= 1;
+#endif
+
 	m_state.BytePtr()[r()-1] ^= 0x80;
 	KeccakF1600(m_state);
 	memcpy(hash, m_state, size);
