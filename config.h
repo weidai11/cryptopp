@@ -45,7 +45,7 @@
 
 // Define this to choose the FIPS 202 version of SHA3, and not the original version of SHA3. NIST selected Keccak as SHA3
 // in January 2013. SHA3 was finalized in FIPS 202 in August 2015, and it was a modified version of the original selection.
-// Note well: you must open TestVectors/all.txt, comment sha3.txt and uncomment sha3_fips_202.txt.
+// If CRYPTOPP_USE_FIPS_202_SHA3 is defined, then sha3_fips_202.txt test vectors will be used instead of sha3.txt.
 // #define CRYPTOPP_USE_FIPS_202_SHA3
 
 // ***************** Less Important Settings ***************
