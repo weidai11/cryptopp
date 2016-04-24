@@ -367,6 +367,7 @@ TestData/xtrdh342.dat
 TestVectors/Readme.txt
 TestVectors/aes.txt
 TestVectors/all.txt
+TestVectors/all_fips_202.txt
 TestVectors/blake2.txt
 TestVectors/blake2b.txt
 TestVectors/blake2s.txt
@@ -394,6 +395,11 @@ TestVectors/seal.txt
 TestVectors/seed.txt
 TestVectors/sha.txt
 TestVectors/sha3.txt
+TestVectors/sha3_fips_202.txt
+TestVectors/sha3_224_fips_202.txt
+TestVectors/sha3_256_fips_202.txt
+TestVectors/sha3_384_fips_202.txt
+TestVectors/sha3_512_fips_202.txt
 TestVectors/shacal2.txt
 TestVectors/sosemanuk.txt
 TestVectors/tea.txt
