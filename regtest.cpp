@@ -78,6 +78,7 @@ void RegisterFactories()
 
 	RegisterDefaultFactoryFor<SimpleKeyAgreementDomain, DH>();
 	RegisterDefaultFactoryFor<HashTransformation, CRC32>();
+	RegisterDefaultFactoryFor<HashTransformation, CRC32C>();
 	RegisterDefaultFactoryFor<HashTransformation, Adler32>();
 	RegisterDefaultFactoryFor<HashTransformation, Weak::MD5>();
 	RegisterDefaultFactoryFor<HashTransformation, SHA1>();
@@ -97,6 +98,8 @@ void RegisterFactories()
 	RegisterDefaultFactoryFor<HashTransformation, SHA3_256>();
 	RegisterDefaultFactoryFor<HashTransformation, SHA3_384>();
 	RegisterDefaultFactoryFor<HashTransformation, SHA3_512>();
+	RegisterDefaultFactoryFor<HashTransformation, BLAKE2s>();
+	RegisterDefaultFactoryFor<HashTransformation, BLAKE2b>();
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, HMAC<Weak::MD5> >();
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, HMAC<SHA1> >();
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, HMAC<RIPEMD160> >();
@@ -112,6 +115,8 @@ void RegisterFactories()
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, CMAC<AES> >();
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, DMAC<AES> >();
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, CMAC<DES_EDE3> >();
+	RegisterDefaultFactoryFor<MessageAuthenticationCode, BLAKE2s>();
+	RegisterDefaultFactoryFor<MessageAuthenticationCode, BLAKE2b>();
 	RegisterAsymmetricCipherDefaultFactories<RSAES<OAEP<SHA1> > >("RSA/OAEP-MGF1(SHA-1)");
 	RegisterAsymmetricCipherDefaultFactories<DLIES<> >("DLIES(NoCofactorMultiplication, KDF2(SHA-1), XOR, HMAC(SHA-1), DHAES)");
 	RegisterSignatureSchemeDefaultFactories<DSA>();
@@ -171,10 +176,6 @@ void RegisterFactories()
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<Blowfish> >();
 	RegisterSymmetricCipherDefaultFactories<ECB_Mode<SEED> >();
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<SEED> >();
-	RegisterDefaultFactoryFor<HashTransformation, BLAKE2s>();
-	RegisterDefaultFactoryFor<MessageAuthenticationCode, BLAKE2s>();
-	RegisterDefaultFactoryFor<HashTransformation, BLAKE2b>();
-	RegisterDefaultFactoryFor<MessageAuthenticationCode, BLAKE2b>();
 	RegisterDefaultFactoryFor<KeyDerivationFunction, HKDF<SHA1> >();
 	RegisterDefaultFactoryFor<KeyDerivationFunction, HKDF<SHA256> >();
 	RegisterDefaultFactoryFor<KeyDerivationFunction, HKDF<SHA512> >();

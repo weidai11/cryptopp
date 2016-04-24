@@ -115,6 +115,26 @@ bool ValidateCRC32()
 	return HashModuleTest(crc, testSet, sizeof(testSet)/sizeof(testSet[0]));
 }
 
+bool ValidateCRC32C()
+{
+	HashTestTuple testSet[] = 
+	{
+		HashTestTuple("", "\x00\x00\x00\x00"),
+		HashTestTuple("a", "\x30\x43\xd0\xc1"),
+		HashTestTuple("abc", "\xb7\x3f\x4b\x36"),
+		HashTestTuple("message digest", "\xd0\x79\xbd\x02"),
+		HashTestTuple("abcdefghijklmnopqrstuvwxyz", "\x25\xef\xe6\x9e"),
+		HashTestTuple("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", "\x7d\xd5\x45\xa2"),
+		HashTestTuple("12345678901234567890123456789012345678901234567890123456789012345678901234567890", "\x81\x67\x7a\x47"),
+		HashTestTuple("123456789", "\x83\x92\x06\xe3")
+	};
+
+	CRC32C crc;
+
+	cout << "\nCRC-32C validation suite running...\n\n";
+	return HashModuleTest(crc, testSet, sizeof(testSet)/sizeof(testSet[0]));
+}
+
 bool ValidateAdler32()
 {
 	HashTestTuple testSet[] = 

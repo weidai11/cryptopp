@@ -309,6 +309,7 @@ void BenchmarkAll(double t, double hertz)
 
 	cout << "\n<TBODY style=\"background: yellow\">";
 	BenchMarkByNameKeyLess<HashTransformation>("CRC32");
+	BenchMarkByNameKeyLess<HashTransformation>("CRC32C");
 	BenchMarkByNameKeyLess<HashTransformation>("Adler32");
 	BenchMarkByNameKeyLess<HashTransformation>("MD5");
 	BenchMarkByNameKeyLess<HashTransformation>("SHA-1");

@@ -90,6 +90,7 @@ bool ValidateAll(bool thorough)
 #endif
 
 	pass=ValidateCRC32() && pass;
+	pass=ValidateCRC32C() && pass;
 	pass=ValidateAdler32() && pass;
 	pass=ValidateMD2() && pass;
 	pass=ValidateMD5() && pass;

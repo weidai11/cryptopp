@@ -18,6 +18,7 @@ bool TestRDSEED();
 
 bool ValidateBaseCode();
 bool ValidateCRC32();
+bool ValidateCRC32C();
 bool ValidateAdler32();
 bool ValidateMD2();
 bool ValidateMD4();
