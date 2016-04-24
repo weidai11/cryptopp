@@ -810,6 +810,60 @@ else
 fi
 
 ############################################
+# Basic debug build, using SHA3/FIPS 202
+echo
+echo "************************************" | tee -a "$TEST_RESULTS"
+echo "Testing: debug, default CXXFLAGS, CRYPTOPP_USE_FIPS_202_SHA3" | tee -a "$TEST_RESULTS"
+echo
+
+unset CXXFLAGS
+"$MAKE" clean > /dev/null 2>&1
+rm -f adhoc.cpp > /dev/null 2>&1
+
+export CXXFLAGS="-DDEBUG -g2 -O2 -DCRYPTOPP_USE_FIPS_202_SHA3"
+"$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+else
+	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+	fi
+	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+	fi
+fi
+
+############################################
+# Basic release build, using SHA3/FIPS 202
+echo
+echo "************************************" | tee -a "$TEST_RESULTS"
+echo "Testing: release, default CXXFLAGS, CRYPTOPP_USE_FIPS_202_SHA3" | tee -a "$TEST_RESULTS"
+echo
+
+unset CXXFLAGS
+"$MAKE" clean > /dev/null 2>&1
+rm -f adhoc.cpp > /dev/null 2>&1
+
+export CXXFLAGS="-DNDEBUG -g2 -O2 -DCRYPTOPP_USE_FIPS_202_SHA3"
+"$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+else
+	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+	fi
+	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+	fi
+fi
+
+############################################
 # Debug build at -O3
 echo
 echo "************************************" | tee -a "$TEST_RESULTS"
