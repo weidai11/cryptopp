@@ -31,7 +31,7 @@ public:
 };
 
 //! \class member_ptr
-//! \brief Pointer that overloads operator→
+//! \brief Pointer that overloads operator ->
 //! \tparam T class or type
 //! \details member_ptr is used frequently in the library to avoid the issues related to
 //!   std::auto_ptr in C++11 (deprecated) and std::unique_ptr in C++03 (non-existent).
