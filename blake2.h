@@ -311,12 +311,12 @@ public:
 	typedef BLAKE2_ParameterBlock<false> ParameterBlock;
 	CRYPTOPP_COMPILE_ASSERT(sizeof(ParameterBlock) == 32);
 
-	//! \brief Construct a BLAKE2b hash
+	//! \brief Construct a BLAKE2s hash
 	//! \param digestSize the digest size, in bytes
 	//! \param treeMode flag indicating tree mode
 	BLAKE2s(bool treeMode=false, unsigned int digestSize = DIGESTSIZE) : ThisBase(treeMode, digestSize) {}
 
-	//! \brief Construct a BLAKE2b hash
+	//! \brief Construct a BLAKE2s hash
 	//! \param key a byte array used to key the cipher
 	//! \param keyLength the size of the byte array
 	//! \param salt a byte array used as salt
