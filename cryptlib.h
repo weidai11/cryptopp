@@ -164,9 +164,9 @@ public:
 	
 	//! \brief Retrieves a C-string describing the exception
 	const char *what() const throw() {return (m_what.c_str());}
-	//! \brief Retrieves a  string describing the exception
+	//! \brief Retrieves a string describing the exception
 	const std::string &GetWhat() const {return m_what;}
-	//! \brief Sets the error  string for the exception
+	//! \brief Sets the error string for the exception
 	void SetWhat(const std::string &s) {m_what = s;}
 	//! \brief Retrieves the error type for the exception
 	ErrorType GetErrorType() const {return m_errorType;}
@@ -398,8 +398,8 @@ public:
 	//! \param name the name of the value
 	//! \param value reference to a variable to receive the value
 	//! \throws InvalidArgument
-	//! \details GetRequiredParameter() throws  InvalidArgument if the  name
-	//!   is not present or not of the expected type  T.
+	//! \details GetRequiredParameter() throws InvalidArgument if the name
+	//!   is not present or not of the expected type T.
 	//! \sa GetValue(), GetValueWithDefault(), GetIntValue(), GetIntValueWithDefault(),
 	//!   GetRequiredParameter() and GetRequiredIntParameter()
 	template <class T>
@@ -414,8 +414,8 @@ public:
 	//! \param name the name of the value
 	//! \param value reference to a variable to receive the value
 	//! \throws InvalidArgument
-	//! \details GetRequiredParameter() throws  InvalidArgument if the  name
-	//!   is not present or not of the expected type  T.
+	//! \details GetRequiredParameter() throws InvalidArgument if the name
+	//!   is not present or not of the expected type T.
 	//! \sa GetValue(), GetValueWithDefault(), GetIntValue(), GetIntValueWithDefault(),
 	//!   GetRequiredParameter() and GetRequiredIntParameter()
 	CRYPTOPP_DLL void GetRequiredIntParameter(const char *className, const char *name, int &value) const
@@ -486,7 +486,7 @@ public:
 	//! \return a copy of this object
 	//! \throws NotImplemented
 	//! \note this is \a not implemented by most classes
-	//! \sa  NotCopyable
+	//! \sa NotCopyable
 	virtual Clonable* Clone() const {throw NotImplemented("Clone() is not implemented yet.");}	// TODO: make this =0
 };
 
@@ -675,7 +675,7 @@ protected:
 	//! \param key a byte buffer used to key the cipher
 	//! \param length the length of the byte buffer
 	//! \param params additional parameters passed as  NameValuePairs
-	//! \details key must be at least  DEFAULT_KEYLENGTH in length.
+	//! \details key must be at least DEFAULT_KEYLENGTH in length.
 	virtual void UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params) =0;
 	
 	//! \brief Validates the key length
@@ -705,7 +705,7 @@ protected:
 	size_t ThrowIfInvalidIVLength(int length);
 	
 	//! \brief Retrieves and validates the IV
-	//! \param params  NameValuePairs with the IV supplied as a  ConstByteArrayParameter
+	//! \param params  NameValuePairs with the IV supplied as a ConstByteArrayParameter
 	//! \param size the length of the IV, in bytes
 	//! \return a pointer to the first byte of the  IV
 	//! \throws InvalidArgument if the number of  rounds are invalid
@@ -1536,7 +1536,7 @@ public:
 		//! \details propagation count includes this object. Setting propagation to <tt>1</tt> means this
 		//!   object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
 		//! \note Hard flushes must be used with care. It means try to process and output everything, even if
-		//!   there may not be enough data to complete the action. For example, hard flushing a  HexDecoder
+		//!   there may not be enough data to complete the action. For example, hard flushing a HexDecoder
 		//!   would cause an error if you do it after inputing an odd number of hex encoded characters.
 		//! \note For some types of filters, like  ZlibDecompressor, hard flushes can only
 		//!   be done at "synchronization points". These synchronization points are positions in the data
@@ -1552,7 +1552,7 @@ public:
 		//!    propagation, and then pass the signal on to attached transformations if the value is not 0.
 		//! \details propagation count includes this object. Setting propagation to <tt>1</tt> means this
 		//!   object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
-		//! \note There should be a  MessageEnd() immediately before MessageSeriesEnd().
+		//! \note There should be a MessageEnd() immediately before MessageSeriesEnd().
 		virtual bool MessageSeriesEnd(int propagation=-1, bool blocking=true);
 
 		//! \brief Set propagation of automatically generated and transferred signals
@@ -1968,7 +1968,7 @@ public:
 		//!     propagation, and then pass the signal on to attached transformations if the value is not 0.
 		//! \details propagation count includes this object. Setting propagation to <tt>1</tt> means this
 		//!   object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
-		//! \note There should be a  MessageEnd() immediately before MessageSeriesEnd().
+		//! \note There should be a MessageEnd() immediately before MessageSeriesEnd().
 		virtual bool ChannelMessageSeriesEnd(const std::string &channel, int propagation=-1, bool blocking=true);
 
 		//! \brief Sets the default retrieval channel
@@ -2081,7 +2081,7 @@ public:
 	//! \throws NotImplemented
 	//! \details Save() writes the material to a BufferedTransformation.
 	//! \details If the material is a key, then the key is written with ASN.1 DER encoding. The key
-	//!   includes an object identifier with an algorthm id, like a  subjectPublicKeyInfo.
+	//!   includes an object identifier with an algorthm id, like a subjectPublicKeyInfo.
 	//! \details A "raw" key without the "key info" can be saved using a key's DEREncode() method.
 	//! \details If a derived class does not override Save(), then the base class throws
 	//!   NotImplemented().
@@ -2099,7 +2099,7 @@ public:
 	//!   <li>the key should be a "key info"
 	//!   </ul>
 	//! \details "key info" means the key should have an object identifier with an algorthm id,
-	//!   like a  subjectPublicKeyInfo.
+	//!   like a subjectPublicKeyInfo.
 	//! \details To read a "raw" key without the "key info", then call the key's BERDecode() method.
 	//! \note  Load generally does not check that the key is valid. Call Validate(), if needed.
 	virtual void Load(BufferedTransformation &bt)
@@ -2170,7 +2170,7 @@ public:
 	//! \param rng a RandomNumberGenerator to produce keying material
 	//! \param keySize the size of the key, in bits
 	//! \throws KeyingErr if a key can't be generated or algorithm parameters are invalid	
-	//! \details GenerateRandomWithKeySize calls  GenerateRandom with a  NameValuePairs
+	//! \details GenerateRandomWithKeySize calls  GenerateRandom with a NameValuePairs
 	//!    object with only "KeySize"
 	void GenerateRandomWithKeySize(RandomNumberGenerator &rng, unsigned int keySize);
 };

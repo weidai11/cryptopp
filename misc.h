@@ -2009,7 +2009,7 @@ inline void PutWord(bool assumeAligned, ByteOrder order, byte *block, T value, c
 //! \tparam A flag indicating alignment
 //! \details GetBlock() provides alternate read access to a block of memory. The enumeration B is
 //!   BigEndian or LittleEndian. The flag A indicates if the memory block is aligned for class or type T.
-//!   Repeatedly applying \ref GetBlock::operator() "operator()" results in advancing in the block of memory.
+//!   Repeatedly applying operator() results in advancing in the block of memory.
 //! \details An example of reading two word32 values from a block of memory is shown below. <tt>w1</tt>
 //!   will be <tt>0x03020100</tt> and <tt>w1</tt> will be <tt>0x07060504</tt>.
 //! <pre>
@@ -2051,7 +2051,7 @@ private:
 //! \tparam A flag indicating alignment
 //! \details GetBlock() provides alternate write access to a block of memory. The enumeration B is
 //!   BigEndian or LittleEndian. The flag A indicates if the memory block is aligned for class or type T.
-//!   Repeatedly applying \ref PutBlock::operator() "operator()" results in advancing in the block of memory.
+//!   Repeatedly applying operator() results in advancing in the block of memory.
 //! \details An example of reading two word32 values from a block of memory is shown below. <tt>w1</tt>
 //!   will be <tt>0x03020100</tt> and <tt>w1</tt> will be <tt>0x07060504</tt>.
 //! <pre>
