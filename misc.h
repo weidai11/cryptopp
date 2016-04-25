@@ -439,7 +439,7 @@ template <class T1, class T2> inline const T1 UnsignedMin(const T1& a, const T2&
 		return (T1)b < a ? (T1)b : a;
 }
 
-//! \brief Tests whether a conversion from → to is safe to perform
+//! \brief Tests whether a conversion from -> to is safe to perform
 //! \param from the first value
 //! \param to the second value
 //! \returns true if its safe to convert from into to, false otherwise.
