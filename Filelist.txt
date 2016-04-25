@@ -59,6 +59,7 @@ cryptest.dsw
 cryptest.sh
 cryptest.sln
 cryptest.vcproj
+cryptest.nmake
 cryptest_bds.bdsgroup
 cryptest_bds.bdsproj
 cryptest_bds.bpf
