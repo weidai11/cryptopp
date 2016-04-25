@@ -59,6 +59,10 @@
 #include <byteswap.h>
 #endif
 
+#if defined(__GNUC__) && defined(__AVX2__)
+# include <immintrin.h>
+#endif
+
 #endif // CRYPTOPP_DOXYGEN_PROCESSING
 
 #if CRYPTOPP_DOXYGEN_PROCESSING
@@ -599,10 +603,15 @@ unsigned int BitPrecision(const T &value)
 //! \note The function does \a not return 0 if no 1-bits are set because 0 collides with a 1-bit at the 0-th position.
 inline unsigned int TrailingZeros(word32 v)
 {
+	// GCC 4.7 and VS2012 provides tzcnt on AVX2/BMI enabled processors
+	// We don't enable for Microsoft because it requires a runtime check.
+	// http://msdn.microsoft.com/en-us/library/hh977023%28v=vs.110%29.aspx
 	assert(v != 0);
-#if defined(__GNUC__) && CRYPTOPP_GCC_VERSION >= 30400
+#if defined(__GNUC__) && defined(__AVX2__)
+	return (unsigned int)_tzcnt_u32(v);
+#elif defined(__GNUC__) && (CRYPTOPP_GCC_VERSION >= 30400)
 	return (unsigned int)__builtin_ctz(v);
-#elif defined(_MSC_VER) && _MSC_VER >= 1400
+#elif defined(_MSC_VER) && (_MSC_VER >= 1400)
 	unsigned long result;
 	_BitScanForward(&result, v);
 	return (unsigned int)result;
@@ -625,10 +634,15 @@ inline unsigned int TrailingZeros(word32 v)
 //! \note The function does \a not return 0 if no 1-bits are set because 0 collides with a 1-bit at the 0-th position.
 inline unsigned int TrailingZeros(word64 v)
 {
+	// GCC 4.7 and VS2012 provides tzcnt on AVX2/BMI enabled processors
+	// We don't enable for Microsoft because it requires a runtime check.
+	// http://msdn.microsoft.com/en-us/library/hh977023%28v=vs.110%29.aspx
 	assert(v != 0);
-#if defined(__GNUC__) && CRYPTOPP_GCC_VERSION >= 30400
+#if defined(__GNUC__) && defined(__AVX2__)
+	return (unsigned int)_tzcnt_u64(v);
+#elif defined(__GNUC__) && (CRYPTOPP_GCC_VERSION >= 30400)
 	return (unsigned int)__builtin_ctzll(v);
-#elif defined(_MSC_VER) && _MSC_VER >= 1400 && (defined(_M_X64) || defined(_M_IA64))
+#elif defined(_MSC_VER) && (_MSC_VER >= 1400) && (defined(_M_X64) || defined(_M_IA64))
 	unsigned long result;
 	_BitScanForward64(&result, v);
 	return (unsigned int)result;
