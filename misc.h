@@ -59,7 +59,7 @@
 #include <byteswap.h>
 #endif
 
-#if defined(__GNUC__) && defined(__AVX2__)
+#if defined(__GNUC__) && defined(__BMI__)
 # include <immintrin.h>
 #endif
 
@@ -607,7 +607,7 @@ inline unsigned int TrailingZeros(word32 v)
 	// We don't enable for Microsoft because it requires a runtime check.
 	// http://msdn.microsoft.com/en-us/library/hh977023%28v=vs.110%29.aspx
 	assert(v != 0);
-#if defined(__GNUC__) && defined(__AVX2__)
+#if defined(__GNUC__) && defined(__BMI__)
 	return (unsigned int)_tzcnt_u32(v);
 #elif defined(__GNUC__) && (CRYPTOPP_GCC_VERSION >= 30400)
 	return (unsigned int)__builtin_ctz(v);
@@ -638,7 +638,7 @@ inline unsigned int TrailingZeros(word64 v)
 	// We don't enable for Microsoft because it requires a runtime check.
 	// http://msdn.microsoft.com/en-us/library/hh977023%28v=vs.110%29.aspx
 	assert(v != 0);
-#if defined(__GNUC__) && defined(__AVX2__)
+#if defined(__GNUC__) && defined(__BMI__)
 	return (unsigned int)_tzcnt_u64(v);
 #elif defined(__GNUC__) && (CRYPTOPP_GCC_VERSION >= 30400)
 	return (unsigned int)__builtin_ctzll(v);
