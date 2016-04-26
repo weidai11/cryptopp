@@ -21,9 +21,15 @@
 #   rdrand.cpp, build it using NASM, and then include the NASM object file rdrand_x86.obj or
 #   rdrand_x64.obj.
 
-LIB_SRCS = cryptlib.cpp cpu.cpp shacal2.cpp md5.cpp shark.cpp zinflate.cpp gf2n.cpp salsa.cpp xtr.cpp oaep.cpp rc2.cpp default.cpp wait.cpp wake.cpp twofish.cpp iterhash.cpp adler32.cpp elgamal.cpp marss.cpp blowfish.cpp ecp.cpp filters.cpp strciphr.cpp camellia.cpp ida.cpp zlib.cpp des.cpp crc.cpp algparam.cpp dessp.cpp tea.cpp eax.cpp network.cpp emsa2.cpp pkcspad.cpp squaretb.cpp idea.cpp authenc.cpp hmac.cpp zdeflate.cpp xtrcrypt.cpp mars.cpp rc5.cpp queue.cpp hrtimer.cpp vmac.cpp eprecomp.cpp hex.cpp tiger.cpp dsa.cpp sha.cpp fips140.cpp gzip.cpp seal.cpp blake2.cpp files.cpp base32.cpp tigertab.cpp sharkbox.cpp safer.cpp randpool.cpp esign.cpp arc4.cpp osrng.cpp skipjack.cpp seed.cpp integer.cpp sha3.cpp sosemanuk.cpp bfinit.cpp rabin.cpp 3way.cpp rw.cpp  rsa.cpp rdtables.cpp gost.cpp socketft.cpp tftables.cpp nbtheory.cpp panama.cpp modes.cpp rijndael.cpp casts.cpp chacha.cpp gfpcrypt.cpp poly1305.cpp dll.cpp ec2n.cpp polynomi.cpp blumshub.cpp algebra.cpp basecode.cpp base64.cpp cbcmac.cpp rc6.cpp dh2.cpp gf256.cpp mqueue.cpp misc.cpp pssr.cpp channels.cpp cast.cpp rng.cpp square.cpp asn.cpp whrlpool.cpp md4.cpp dh.cpp ccm.cpp md2.cpp mqv.cpp gf2_32.cpp ttmac.cpp luc.cpp trdlocal.cpp pubkey.cpp gcm.cpp ripemd.cpp ocb.cpp eccrypto.cpp serpent.cpp cmac.cpp rdrand.cpp
+!MESSAGE
+!MESSAGE ******************************
+!MESSAGE Platform is $(PLATFORM)
+!MESSAGE ******************************
+!MESSAGE
 
-LIB_OBJS = cryptlib.obj cpu.obj shacal2.obj md5.obj shark.obj zinflate.obj gf2n.obj salsa.obj xtr.obj oaep.obj rc2.obj default.obj wait.obj wake.obj twofish.obj iterhash.obj adler32.obj elgamal.obj marss.obj blowfish.obj ecp.obj filters.obj strciphr.obj camellia.obj ida.obj zlib.obj des.obj crc.obj algparam.obj dessp.obj tea.obj eax.obj network.obj emsa2.obj pkcspad.obj squaretb.obj idea.obj authenc.obj hmac.obj zdeflate.obj xtrcrypt.obj mars.obj rc5.obj queue.obj hrtimer.obj vmac.obj eprecomp.obj hex.obj tiger.obj dsa.obj sha.obj fips140.obj gzip.obj seal.obj blake2.obj files.obj base32.obj tigertab.obj sharkbox.obj safer.obj randpool.obj esign.obj arc4.obj osrng.obj skipjack.obj seed.obj integer.obj sha3.obj sosemanuk.obj bfinit.obj rabin.obj 3way.obj rw.obj rsa.obj rdtables.obj gost.obj socketft.obj tftables.obj nbtheory.obj panama.obj modes.obj rijndael.obj casts.obj chacha.obj gfpcrypt.obj dll.obj ec2n.obj polynomi.obj blumshub.obj algebra.obj basecode.obj base64.obj cbcmac.obj rc6.obj dh2.obj gf256.obj mqueue.obj misc.obj pssr.obj channels.obj cast.obj rng.obj square.obj asn.obj whrlpool.obj md4.obj dh.obj ccm.obj md2.obj mqv.obj gf2_32.obj ttmac.obj luc.obj trdlocal.obj pubkey.obj gcm.obj ripemd.obj eccrypto.obj serpent.obj cmac.obj rdrand.obj
+LIB_SRCS = cryptlib.cpp cpu.cpp shacal2.cpp md5.cpp shark.cpp zinflate.cpp gf2n.cpp salsa.cpp xtr.cpp oaep.cpp rc2.cpp default.cpp wait.cpp wake.cpp twofish.cpp iterhash.cpp adler32.cpp elgamal.cpp marss.cpp blowfish.cpp ecp.cpp filters.cpp strciphr.cpp camellia.cpp ida.cpp zlib.cpp des.cpp crc.cpp algparam.cpp dessp.cpp tea.cpp eax.cpp network.cpp emsa2.cpp pkcspad.cpp squaretb.cpp idea.cpp authenc.cpp hmac.cpp zdeflate.cpp xtrcrypt.cpp mars.cpp rc5.cpp queue.cpp hrtimer.cpp vmac.cpp eprecomp.cpp hex.cpp tiger.cpp dsa.cpp sha.cpp fips140.cpp gzip.cpp seal.cpp blake2.cpp files.cpp base32.cpp tigertab.cpp sharkbox.cpp safer.cpp randpool.cpp esign.cpp arc4.cpp osrng.cpp skipjack.cpp seed.cpp integer.cpp sha3.cpp sosemanuk.cpp bfinit.cpp rabin.cpp 3way.cpp rw.cpp  rsa.cpp rdtables.cpp gost.cpp socketft.cpp tftables.cpp nbtheory.cpp panama.cpp modes.cpp rijndael.cpp casts.cpp chacha.cpp gfpcrypt.cpp poly1305.cpp dll.cpp ec2n.cpp polynomi.cpp blumshub.cpp algebra.cpp basecode.cpp base64.cpp cbcmac.cpp rc6.cpp dh2.cpp gf256.cpp mqueue.cpp misc.cpp pssr.cpp channels.cpp cast.cpp rng.cpp square.cpp asn.cpp whrlpool.cpp md4.cpp dh.cpp ccm.cpp md2.cpp mqv.cpp gf2_32.cpp ttmac.cpp luc.cpp trdlocal.cpp pubkey.cpp gcm.cpp ripemd.cpp ocb.cpp eccrypto.cpp serpent.cpp cmac.cpp
+
+LIB_OBJS = cryptlib.obj cpu.obj shacal2.obj md5.obj shark.obj zinflate.obj gf2n.obj salsa.obj xtr.obj oaep.obj rc2.obj default.obj wait.obj wake.obj twofish.obj iterhash.obj adler32.obj elgamal.obj marss.obj blowfish.obj ecp.obj filters.obj strciphr.obj camellia.obj ida.obj zlib.obj des.obj crc.obj algparam.obj dessp.obj tea.obj eax.obj network.obj emsa2.obj pkcspad.obj squaretb.obj idea.obj authenc.obj hmac.obj zdeflate.obj xtrcrypt.obj mars.obj rc5.obj queue.obj hrtimer.obj vmac.obj eprecomp.obj hex.obj tiger.obj dsa.obj sha.obj fips140.obj gzip.obj seal.obj blake2.obj files.obj base32.obj tigertab.obj sharkbox.obj safer.obj randpool.obj esign.obj arc4.obj osrng.obj skipjack.obj seed.obj integer.obj sha3.obj sosemanuk.obj bfinit.obj rabin.obj 3way.obj rw.obj rsa.obj rdtables.obj gost.obj socketft.obj tftables.obj nbtheory.obj panama.obj modes.obj rijndael.obj casts.obj chacha.obj gfpcrypt.obj dll.obj ec2n.obj polynomi.obj blumshub.obj algebra.obj basecode.obj base64.obj cbcmac.obj rc6.obj dh2.obj gf256.obj mqueue.obj misc.obj pssr.obj channels.obj cast.obj rng.obj square.obj asn.obj whrlpool.obj md4.obj dh.obj ccm.obj md2.obj mqv.obj gf2_32.obj ttmac.obj luc.obj trdlocal.obj pubkey.obj gcm.obj ripemd.obj eccrypto.obj serpent.obj cmac.obj
 
 TEST_SRCS = bench1.cpp bench2.cpp test.cpp validat1.cpp validat2.cpp validat3.cpp adhoc.cpp datatest.cpp regtest.cpp fipsalgt.cpp dlltest.cpp fipstest.cpp
 
@@ -34,18 +40,55 @@ LD = link.exe
 AR = lib.exe
 RM = del.exe
 
-CPPFLAGS = /nologo /D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1 /DNO_OS_DEPENDENCE /EHsc
-CXXFLAGS = /nologo /D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1 /DNO_OS_DEPENDENCE /EHsc
-LDFLAGS = /nologo
+CXXFLAGS = /nologo /DUSE_PRECOMPILED_HEADERS /Zi /TP /EHsc /MT
+LDFLAGS = /nologo /SUBSYSTEM:CONSOLE
 ARFLAGS = /nologo
+LDLIBS =
+
+!IF "$(PLATFORM)" == "x86"
+AS = ml.exe
+ASFLAGS = /nologo /D_M_X86 /W3 /Cx /Zi /safeseh
+LIB_SRCS = $(LIB_SRCS) rdrand.asm x64dll.asm
+LIB_OBJS = $(LIB_OBJS) rdrand.obj x64dll.obj
+LDLIBS = $(LDLIBS) ws2_32.lib
+!ENDIF
+
+!IF "$(PLATFORM)" == "x64"
+AS = ml64.exe
+ASFLAGS = /nologo /D_M_X64 /W3 /Cx /Zi
+LIB_SRCS = $(LIB_SRCS) rdrand.asm x64masm.asm x64dll.asm
+LIB_OBJS = $(LIB_OBJS) rdrand.obj x64masm.obj x64dll.obj
+LDLIBS = $(LDLIBS) ws2_32.lib
+!ENDIF
+
+!IF "$(PLATFORM)" == "ARM"
+CXXFLAGS = $(CXXFLAGS) /DNO_OS_DEPENDENCE /D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1
+!ENDIF
 
 all: cryptest.exe
 
-cryptest.exe: cryptlib.lib $(TEST_OBJS)
-	$(LD) $(LDFLAGS) cryptlib.lib $(TEST_OBJS) /out:$@
-	
-cryptlib.lib : $(LIB_OBJS)
+cryptest.exe: cryptlib.lib
+	$(CXX) $(CXXFLAGS) $(TEST_SRCS) /c
+	$(LD) $(LDFLAGS) cryptlib.lib $(TEST_OBJS) $(LDLIBS) /out:$@
+
+cryptlib.lib:
+	$(CXX) $(CXXFLAGS) $(LIB_SRCS) /c
 	$(AR) $(ARFLAGS) $(LIB_OBJS) /out:$@
 
 clean:
-	$(RM) /F /Q $(LIB_OBJS) $(TEST_OBJS) cryptlib.lib cryptest.exe
+	$(RM) /F /Q $(LIB_OBJS) cryptlib.lib $(TEST_OBJS) cryptest.exe
+
+# Built for x86/x64
+rdrand.obj:
+	$(AS) $(ASFLAGS) /Fo rdrand.obj /c rdrand.asm
+
+# Built for x86/x64
+x64masm.obj:
+	$(AS) $(ASFLAGS) /Fo x64masm.obj /c x64masm.asm
+
+# Built for x86/x64
+x64dll.obj:
+	$(AS) $(ASFLAGS) /Fo x64dll.obj /c x64dll.asm
+
+.obj:.cpp
+	$(CXX) $(CXXFLAGS) /c $<
