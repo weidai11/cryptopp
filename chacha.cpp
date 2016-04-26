@@ -33,8 +33,11 @@ void ChaCha_Policy::CipherSetKey(const NameValuePairs &params, const byte *key, 
 
 	if (!(m_rounds == 8 || m_rounds == 12 || m_rounds == 20))
 		throw InvalidRounds(ChaCha::StaticAlgorithmName(), m_rounds);
+<<<<<<< HEAD
 
 	assert(length == 16 || length == 32);
+=======
+>>>>>>> origin/ChaCha-VarRounds
 
 	// "expand 16-byte k" or "expand 32-byte k"
 	m_state[0] = 0x61707865;
