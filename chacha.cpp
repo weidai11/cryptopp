@@ -29,7 +29,11 @@ void ChaCha_TestInstantiations()
 
 void ChaCha_Policy::CipherSetKey(const NameValuePairs &params, const byte *key, size_t length)
 {
-	CRYPTOPP_UNUSED(params);
+	m_rounds = params.GetIntValueWithDefault(Name::Rounds(), 20);
+
+	if (!(m_rounds == 8 || m_rounds == 12 || m_rounds == 20))
+		throw InvalidRounds(ChaCha::StaticAlgorithmName(), m_rounds);
+
 	assert(length == 16 || length == 32);
 
 	// "expand 16-byte k" or "expand 32-byte k"
@@ -58,7 +62,7 @@ void ChaCha_Policy::CipherResynchronize(byte *keystreamBuffer, const byte *IV, s
 void ChaCha_Policy::SeekToIteration(lword iterationCount)
 {
 	CRYPTOPP_UNUSED(iterationCount);
-	throw NotImplemented(std::string(ChaCha_Info<R>::StaticAlgorithmName()) + ":  SeekToIteration is not yet implemented");
+	throw NotImplemented(std::string(ChaCha_Info::StaticAlgorithmName()) + ":  SeekToIteration is not yet implemented");
 
 	// TODO: these were Salsa20, and Wei re-arranged the state array for SSE2 operations.
 	// If we can generate some out-of-band test vectors, then test and implement. Also
@@ -138,9 +142,11 @@ void ChaCha_Policy::OperateKeystream(KeystreamOperation operation, byte *output,
 	}
 }
 
+/*
 template class ChaCha_Policy<8>;
 template class ChaCha_Policy<12>;
 template class ChaCha_Policy<20>;
+*/
 
 NAMESPACE_END
 
