@@ -328,7 +328,7 @@ public:
 	//! \tparam T class or type
 	//! \param name the name of the object or value to retrieve
 	//! \param value reference to a variable that receives the value
-	//! \return  true if the value was retrieved,  false otherwise
+	//! \returns true if the value was retrieved, false otherwise
 	//! \sa GetValue(), GetValueWithDefault(), GetIntValue(), GetIntValueWithDefault(),
 	//!   GetRequiredParameter() and GetRequiredIntParameter()
 	template <class T>
@@ -428,7 +428,7 @@ public:
 	//! \param name the name of the object or value to retrieve
 	//! \param valueType reference to a variable that receives the value
 	//! \param pValue void pointer to a variable that receives the value
-	//! \return  true if the value was retrieved,  false otherwise
+	//! \returns true if the value was retrieved, false otherwise
 	//! \details GetVoidValue() retrives the value of  name if it exists.
 	//! \note  GetVoidValue() is an internal function and should be implemented
 	//!   by derived classes. Users should use one of the other functions instead.
@@ -772,7 +772,7 @@ public:
 	virtual bool IsPermutation() const {return true;}
 
 	//! \brief Determines if the cipher is being operated in its forward direction
-	//! \return  true if DIR is ENCRYPTION,  false otherwise
+	//! \returns true if DIR is ENCRYPTION, false otherwise
 	//! \sa IsForwardTransformation(), IsPermutation(), GetCipherDirection()
 	virtual bool IsForwardTransformation() const =0;
 
@@ -884,7 +884,7 @@ public:
 		{ProcessData(&input, &input, 1); return input;}
 
 	//! \brief Determines whether the cipher supports random access
-	//! \return  true if the cipher supports random access,  false otherwise
+	//! \returns true if the cipher supports random access, false otherwise
 	virtual bool IsRandomAccess() const =0;
 
 	//! \brief Seek to an absolute position
@@ -900,13 +900,13 @@ public:
 	}
 
 	//! \brief Determines whether the cipher is self-inverting
-	//! \return  true if the cipher is self-inverting,  false otherwise
+	//! \returns true if the cipher is self-inverting, false otherwise
 	//! \details IsSelfInverting determines whether this transformation is 
 	//!   self-inverting (e.g. xor with a keystream).
 	virtual bool IsSelfInverting() const =0;
 
 	//! \brief Determines if the cipher is being operated in its forward direction
-	//! \return  true if DIR is ENCRYPTION,  false otherwise
+	//! \returns true if DIR is ENCRYPTION, false otherwise
 	//! \sa IsForwardTransformation(), IsPermutation(), GetCipherDirection()
 	virtual bool IsForwardTransformation() const =0;
 };
@@ -1583,7 +1583,7 @@ public:
 		virtual lword MaxRetrievable() const;
 
 		//! \brief Determines whether bytes are ready for retrieval
-		//! \return  true if bytes are available for retrieval, false otherwise
+		//! \returns true if bytes are available for retrieval, false otherwise
 		virtual bool AnyRetrievable() const;
 
 		//! \brief Retrieve a 8-bit byte
@@ -1705,7 +1705,7 @@ public:
 		virtual unsigned int NumberOfMessages() const;
 
 		//! \brief Determines if any messages are available for retrieval
-		//! \return  true if <tt>NumberOfMessages() &gt; 0</tt>,  false otherwise
+		//! \returns true if <tt>NumberOfMessages() &gt; 0</tt>, false otherwise
 		//! \details AnyMessages returns true if <tt>NumberOfMessages() &gt; 0</tt>
 		virtual bool AnyMessages() const;
 
@@ -1985,7 +1985,7 @@ public:
 	//@{
 		//! \brief Determines whether the object allows attachment
 		//! \return true if the object allows an attachment, false otherwise
-		//! \details Sources and  Filters will return  true, while  Sinks and other objects will return  false.
+		//! \details Sources and  Filters will returns true, while  Sinks and other objects will return  false.
 		virtual bool Attachable() {return false;}
 		
 		//! \brief Returns the object immediately attached to this object
@@ -2054,7 +2054,7 @@ public:
 	//! \brief Check this object for errors
 	//! \param rng a RandomNumberGenerator for objects which use randomized testing
 	//! \param level the level of thoroughness
-	//! \return  true if the tests succeed,  false otherwise
+	//! \returns true if the tests succeed, false otherwise
 	//! \details There are four levels of thoroughness:
 	//!   <ul>
 	//!   <li>0 - using this object won't cause a crash or exception
