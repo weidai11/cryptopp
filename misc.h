@@ -744,6 +744,20 @@ inline bool IsPowerOf2(const T &value)
 	return value > 0 && (value & (value-1)) == 0;
 }
 
+#if defined(__GNUC__) && defined(__BMI__)
+template <>
+inline bool IsPowerOf2<word32>(const word32 &value)
+{
+	return value > 0 && _blsr_u32(value) == 0;
+}
+
+template <>
+inline bool IsPowerOf2<word64>(const word64 &value)
+{
+	return value > 0 && _blsr_u64(value) == 0;
+}
+#endif
+
 //! \brief Tests whether the residue of a value is a power of 2
 //! \param a the value to test
 //! \param b the value to use to reduce \a to its residue
