@@ -7,6 +7,7 @@
 #include <time.h>
 
 #if defined(CRYPTOPP_WIN32_AVAILABLE)
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #elif defined(CRYPTOPP_UNIX_AVAILABLE)
 #include <sys/time.h>
