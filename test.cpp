@@ -641,7 +641,7 @@ void SecretShareFile(int threshold, int nShares, const char *filename, const cha
 	RandomPool rng;
 	rng.IncorporateEntropy((byte *)seed, strlen(seed));
 
-	ChannelSwitch *channelSwitch;
+	ChannelSwitch *channelSwitch = NULL;
 	FileSource source(filename, false, new SecretSharing(rng, threshold, nShares, channelSwitch = new ChannelSwitch));
 
 	vector_member_ptrs<FileSink> fileSinks(nShares);
@@ -695,7 +695,7 @@ void InformationDisperseFile(int threshold, int nShares, const char *filename)
 	if (threshold < 1 || threshold > 1000)
 		throw InvalidArgument("InformationDisperseFile: " + IntToString(nShares) + " is not in range [1, 1000]");
 
-	ChannelSwitch *channelSwitch;
+	ChannelSwitch *channelSwitch = NULL;
 	FileSource source(filename, false, new InformationDispersal(threshold, nShares, channelSwitch = new ChannelSwitch));
 
 	vector_member_ptrs<FileSink> fileSinks(nShares);
