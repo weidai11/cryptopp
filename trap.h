@@ -18,11 +18,7 @@
 #  include <sstream>
 #  if defined(CRYPTOPP_WIN32_AVAILABLE)
 #    pragma push_macro("WIN32_LEAN_AND_MEAN")
-#    pragma push_macro("_WIN32_WINNT")
-#    pragma push_macro("NOMINMAX")
 #    define WIN32_LEAN_AND_MEAN
-#    define _WIN32_WINNT 0x0400
-#    define NOMINMAX
 #    include <Windows.h>
 #  elif defined(CRYPTOPP_BSD_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE)
 #    include <signal.h>
@@ -64,8 +60,6 @@
 
 #if defined(CRYPTOPP_DEBUG) && defined(CRYPTOPP_WIN32_AVAILABLE)
 #  pragma pop_macro("WIN32_LEAN_AND_MEAN")
-#  pragma pop_macro("_WIN32_WINNT")
-#  pragma pop_macro("NOMINMAX")
 #endif
 
 #endif // CRYPTOPP_TRAP_H
