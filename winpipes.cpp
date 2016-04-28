@@ -7,6 +7,13 @@
 
 #include "wait.h"
 
+// Windows 8, Windows Server 2012, and Windows Phone 8.1 need <synchapi.h>
+#if defined(CRYPTOPP_WIN32_AVAILABLE)
+# if defined(_WIN32_WINNT_WIN8) && ((WINVER >= _WIN32_WINNT_WIN8) || (_WIN32_WINNT >= _WIN32_WINNT_WIN8))
+#  include <synchapi.h>
+# endif
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 WindowsHandle::WindowsHandle(HANDLE h, bool own)

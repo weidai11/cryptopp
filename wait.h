@@ -1,19 +1,26 @@
+// wait.h - written and placed in the public domain by Wei Dai
+
 #ifndef CRYPTOPP_WAIT_H
 #define CRYPTOPP_WAIT_H
 
 #include "config.h"
+#include "cryptlib.h"
+#include "misc.h"
+#include "stdcpp.h"
 
 #ifdef SOCKETS_AVAILABLE
-
-#include "misc.h"
-#include "cryptlib.h"
-#include <vector>
 
 #ifdef USE_WINDOWS_STYLE_SOCKETS
 #include <winsock2.h>
 #else
 #include <sys/types.h>
 #include <sys/select.h>
+#endif
+
+// For defintions of VOID, PVOID, HANDLE, PHANDLE, etc.
+#if defined(CRYPTOPP_WIN32_AVAILABLE)
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 #endif
 
 #include "hrtimer.h"
