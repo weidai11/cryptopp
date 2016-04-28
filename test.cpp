@@ -21,7 +21,6 @@
 #include "whrlpool.h"
 #include "tiger.h"
 #include "smartptr.h"
-#include "ocb.h"
 
 #include "validate.h"
 #include "bench.h"
@@ -144,12 +143,6 @@ int CRYPTOPP_API main(int argc, char *argv[])
 
 	try
 	{
-		OCB<AES>::Encryption enc1;
-		OCB<AES>::Decryption dec1;
-
-		OCB3<AES>::Encryption enc2;
-		OCB3<AES>::Decryption dec2;
-
 		RegisterFactories();
 
 		// Some editors have problems with the '\0' character when redirecting output.
