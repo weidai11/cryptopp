@@ -71,10 +71,10 @@ struct CRYPTOPP_NO_VTABLE BLAKE2_IV<true>
 };
 
 const word64 BLAKE2_IV<true>::iv[8] = {
-	0x6a09e667f3bcc908ULL, 0xbb67ae8584caa73bULL,
-	0x3c6ef372fe94f82bULL, 0xa54ff53a5f1d36f1ULL,
-	0x510e527fade682d1ULL, 0x9b05688c2b3e6c1fULL,
-	0x1f83d9abfb41bd6bULL, 0x5be0cd19137e2179ULL
+	W64LIT(0x6a09e667f3bcc908), W64LIT(0xbb67ae8584caa73b),
+	W64LIT(0x3c6ef372fe94f82b), W64LIT(0xa54ff53a5f1d36f1),
+	W64LIT(0x510e527fade682d1), W64LIT(0x9b05688c2b3e6c1f),
+	W64LIT(0x1f83d9abfb41bd6b), W64LIT(0x5be0cd19137e2179)
 };
 
 // IV and Sigma are a better fit as part of BLAKE2_Base, but that

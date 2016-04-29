@@ -497,7 +497,7 @@ std::string IntToString(T value, unsigned int base = 10)
 //! \details this template function specialization was added to suppress
 //!    Coverity findings on IntToString() with unsigned types.
 template <> CRYPTOPP_DLL
-std::string IntToString<unsigned long long>(unsigned long long value, unsigned int base);
+std::string IntToString<word64>(word64 value, unsigned int base);
 
 //! \brief Converts an Integer to a string
 //! \param value the Integer to convert

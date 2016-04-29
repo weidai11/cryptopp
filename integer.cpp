@@ -4468,7 +4468,7 @@ std::string IntToString<Integer>(Integer value, unsigned int base)
 
 // Specialization declared in misc.h to avoid Coverity findings.
 template <> CRYPTOPP_DLL
-std::string IntToString<unsigned long long>(unsigned long long value, unsigned int base)
+std::string IntToString<word64>(word64 value, unsigned int base)
 {
 	// Hack... set the high bit for uppercase.
 	static const unsigned int HIGH_BIT = (1U << 31);
@@ -4482,7 +4482,7 @@ std::string IntToString<unsigned long long>(unsigned long long value, unsigned i
 	std::string result;
 	while (value > 0)
 	{
-		unsigned long long digit = value % base;
+		word64 digit = value % base;
 		result = char((digit < 10 ? '0' : (CH - 10)) + digit) + result;
 		value /= base;
 	}
