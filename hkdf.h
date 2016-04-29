@@ -29,6 +29,8 @@ template <class T>
 class HKDF : public KeyDerivationFunction
 {
 public:
+	CRYPTOPP_CONSTANT(DIGESTSIZE = T::DIGESTSIZE);
+	CRYPTOPP_CONSTANT(SALTSIZE = T::DIGESTSIZE);
 	static const char* StaticAlgorithmName () {
 		static const std::string name(std::string("HKDF(") + std::string(T::StaticAlgorithmName()) + std::string(")"));
 		return name.c_str();
@@ -40,7 +42,7 @@ public:
 protected:
 	// If salt is missing (NULL), then use the NULL vector. Missing is different than EMPTY (0 length). The length
 	// of s_NullVector used depends on the Hash function. SHA-256 will use 32 bytes of s_NullVector.
-	typedef byte NullVectorType[T::DIGESTSIZE];
+	typedef byte NullVectorType[SALTSIZE];
 	static const NullVectorType& GetNullVector() {
 		static const NullVectorType s_NullVector = {0};
 		return s_NullVector;

@@ -114,7 +114,7 @@ void HuffmanDecoder::Initialize(const unsigned int *codeBits, unsigned int nCode
 	}
 
 	// MAX_CODE_BITS is 32, m_maxCodeBits may be smaller.
-	const unsigned long long shiftedMaxCode = (1ULL << m_maxCodeBits);
+	const word64 shiftedMaxCode = ((word64)1 << m_maxCodeBits);
 	if (code > shiftedMaxCode - blCount[m_maxCodeBits])
 		throw Err("codes oversubscribed");
 	else if (m_maxCodeBits != 1 && code < shiftedMaxCode - blCount[m_maxCodeBits])
@@ -143,7 +143,7 @@ void HuffmanDecoder::Initialize(const unsigned int *codeBits, unsigned int nCode
 	m_normalizedCacheMask = NormalizeCode(m_cacheMask, m_cacheBits);
 	assert(m_normalizedCacheMask == BitReverse(m_cacheMask));
 
-	const unsigned long long shiftedCache = (1ULL << m_cacheBits);
+	const word64 shiftedCache = ((word64)1 << m_cacheBits);
 	assert(shiftedCache <= SIZE_MAX);
 	if (m_cache.size() != shiftedCache)
 		m_cache.resize((size_t)shiftedCache);
