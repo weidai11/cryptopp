@@ -219,7 +219,8 @@ void Camellia::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBloc
 	// timing attack countermeasure. see comments at top for more details
 	const int cacheLineSize = GetCacheLineSize();
 	unsigned int i;
-	word32 u = 0;
+	volatile word32 _u = 0;
+	word32 u = _u;
 
 	assert(IsAlignedOn(s1,GetAlignmentOf<word32>()));
 	for (i=0; i<256; i+=cacheLineSize)
