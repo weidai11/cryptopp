@@ -9,7 +9,8 @@
 #endif
 
 #ifndef CRYPTOPP_IMPORTS
-#ifdef THREADS_AVAILABLE
+
+#if !defined(NO_OS_DEPENDENCE) && defined(THREADS_AVAILABLE)
 
 #include "trdlocal.h"
 
@@ -101,5 +102,5 @@ void *ThreadLocalStorage::GetValue() const
 
 NAMESPACE_END
 
-#endif	// #ifdef THREADS_AVAILABLE
-#endif
+#endif	// THREADS_AVAILABLE
+#endif  // CRYPTOPP_IMPORTS

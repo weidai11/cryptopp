@@ -1,19 +1,21 @@
 // socketft.cpp - written and placed in the public domain by Wei Dai
 
 #include "pch.h"
+#include "config.h"
+
+#if !defined(NO_OS_DEPENDENCE) && defined(SOCKETS_AVAILABLE)
 
 // TODO: http://github.com/weidai11/cryptopp/issues/19
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include "socketft.h"
-
-#ifdef SOCKETS_AVAILABLE
-
 #include "wait.h"
 
-// Windows 8, Windows Server 2012, and Windows Phone 8.1 need <synchapi.h>
+// Windows 8, Windows Server 2012, and Windows Phone 8.1 need <synchapi.h> and <ioapiset.h>
 #if defined(CRYPTOPP_WIN32_AVAILABLE)
-# if defined(_WIN32_WINNT_WIN8) && ((WINVER >= _WIN32_WINNT_WIN8) || (_WIN32_WINNT >= _WIN32_WINNT_WIN8))
+# if ((WINVER >= 0x0602 /*_WIN32_WINNT_WIN8*/) || (_WIN32_WINNT >= 0x0602 /*_WIN32_WINNT_WIN8*/))
 #  include <synchapi.h>
+#  include <ioapiset.h>
+#  define USE_WINDOWS8_API
 # endif
 #endif
 
@@ -103,8 +105,15 @@ void Socket::CloseSocket()
 	if (m_s != INVALID_SOCKET)
 	{
 #ifdef USE_WINDOWS_STYLE_SOCKETS
-		CancelIo((HANDLE) m_s);
+# if defined(USE_WINDOWS8_API)
+		BOOL result = CancelIoEx((HANDLE) m_s, NULL);
+		assert(result || (!result && GetLastError() == ERROR_NOT_FOUND));
 		CheckAndHandleError_int("closesocket", closesocket(m_s));
+# else
+		BOOL result = CancelIo((HANDLE) m_s);
+		assert(result || (!result && GetLastError() == ERROR_NOT_FOUND));
+		CheckAndHandleError_int("closesocket", closesocket(m_s));
+# endif
 #else
 		CheckAndHandleError_int("close", close(m_s));
 #endif
@@ -356,7 +365,13 @@ SocketReceiver::SocketReceiver(Socket &s)
 SocketReceiver::~SocketReceiver()
 {
 #ifdef USE_WINDOWS_STYLE_SOCKETS
-	CancelIo((HANDLE) m_s.GetSocket());
+# if defined(USE_WINDOWS8_API)
+	BOOL result = CancelIoEx((HANDLE) m_s.GetSocket(), NULL);
+	assert(result || (!result && GetLastError() == ERROR_NOT_FOUND));
+# else
+	BOOL result = CancelIo((HANDLE) m_s.GetSocket());
+	assert(result || (!result && GetLastError() == ERROR_NOT_FOUND));
+# endif
 #endif
 }
 
@@ -438,7 +453,13 @@ SocketSender::SocketSender(Socket &s)
 SocketSender::~SocketSender()
 {
 #ifdef USE_WINDOWS_STYLE_SOCKETS
-	CancelIo((HANDLE) m_s.GetSocket());
+# if defined(USE_WINDOWS8_API)
+	BOOL result = CancelIoEx((HANDLE) m_s.GetSocket(), NULL);
+	assert(result || (!result && GetLastError() == ERROR_NOT_FOUND));
+# else
+	BOOL result = CancelIo((HANDLE) m_s.GetSocket());
+	assert(result || (!result && GetLastError() == ERROR_NOT_FOUND));
+# endif
 #endif
 }
 
@@ -559,8 +580,8 @@ void SocketSender::GetWaitObjects(WaitObjectContainer &container, CallStack cons
 	container.AddWriteFd(m_s, CallStack("SocketSender::GetWaitObjects()", &callStack));
 }
 
-#endif
+#endif  // USE_BERKELEY_STYLE_SOCKETS
 
 NAMESPACE_END
 
-#endif	// #ifdef SOCKETS_AVAILABLE
+#endif	// SOCKETS_AVAILABLE

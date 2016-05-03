@@ -1,7 +1,9 @@
 #ifndef CRYPTOPP_WINPIPES_H
 #define CRYPTOPP_WINPIPES_H
 
-#ifdef WINDOWS_PIPES_AVAILABLE
+#include "config.h"
+
+#if !defined(NO_OS_DEPENDENCE) && defined(WINDOWS_PIPES_AVAILABLE)
 
 #include "cryptlib.h"
 #include "network.h"
@@ -10,7 +12,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! Windows Handle
+//! \brief Windows Handle
 class WindowsHandle
 {
 public:
@@ -35,7 +37,7 @@ protected:
 	bool m_own;
 };
 
-//! Windows Pipe
+//! \brief Windows Pipe
 class WindowsPipe
 {
 public:
@@ -56,7 +58,7 @@ protected:
 		{assert(result==TRUE || result==FALSE); if (!result) HandleError(operation);}
 };
 
-//! pipe-based implementation of NetworkReceiver
+//! \brief Pipe-based implementation of NetworkReceiver
 class WindowsPipeReceiver : public WindowsPipe, public NetworkReceiver
 {
 public:
@@ -79,7 +81,7 @@ private:
 	bool m_eofReceived;
 };
 
-//! pipe-based implementation of NetworkSender
+//! \brief Pipe-based implementation of NetworkSender
 class WindowsPipeSender : public WindowsPipe, public NetworkSender
 {
 public:
@@ -102,7 +104,7 @@ private:
 	DWORD m_lastResult;
 };
 
-//! Windows Pipe Source
+//! \brief Windows Pipe Source
 class WindowsPipeSource : public WindowsHandle, public NetworkSource, public WindowsPipeReceiver
 {
 public:
@@ -121,7 +123,7 @@ private:
 	NetworkReceiver & AccessReceiver() {return *this;}
 };
 
-//! Windows Pipe Sink
+//! \brief Windows Pipe Sink
 class WindowsPipeSink : public WindowsHandle, public NetworkSink, public WindowsPipeSender
 {
 public:
