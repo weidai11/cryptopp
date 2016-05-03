@@ -51,6 +51,9 @@ if(NOT CRYPTOPP_DATA_DIR STREQUAL "")
 	add_definitions(-DCRYPTOPP_DATA_DIR="${CRYPTOPP_DATA_DIR}")
 endif()
 
+if(WINDOWS_STORE)
+	SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /FI\"winapifamily.h\"" )
+endif()
 #============================================================================
 # Sources & headers
 #============================================================================
