@@ -12,7 +12,7 @@
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(push)
-# pragma warning(disable: 4146)
+# pragma warning(disable: 4146 4514)
 # if (CRYPTOPP_MSC_VERSION >= 1400)
 #  pragma warning(disable: 6326)
 # endif
@@ -1070,6 +1070,36 @@ template<> inline void SecureWipeBuffer(word64 *buf, size_t n)
 
 #endif	// #if (_MSC_VER >= 1400 || defined(__GNUC__)) && (CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X86)
 
+#if (_MSC_VER >= 1700) && defined(_M_ARM)
+template<> inline void SecureWipeBuffer(byte *buf, size_t n)
+{
+	char *p = reinterpret_cast<char*>(buf+n);
+	while (n--)
+		__iso_volatile_store8(--p, 0);
+}
+
+template<> inline void SecureWipeBuffer(word16 *buf, size_t n)
+{
+	short *p = reinterpret_cast<short*>(buf+n);
+	while (n--)
+		__iso_volatile_store16(--p, 0);
+}
+
+template<> inline void SecureWipeBuffer(word32 *buf, size_t n)
+{
+	int *p = reinterpret_cast<int*>(buf+n);
+	while (n--)
+		__iso_volatile_store32(--p, 0);
+}
+
+template<> inline void SecureWipeBuffer(word64 *buf, size_t n)
+{
+	__int64 *p = reinterpret_cast<__int64*>(buf+n);
+	while (n--)
+		__iso_volatile_store64(--p, 0);
+}
+#endif
+
 //! \brief Sets each element of an array to 0
 //! \param buf an array of elements
 //! \param n the number of elements in the array
@@ -1858,7 +1888,7 @@ inline word64 UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, co
 inline void UnalignedbyteNonTemplate(ByteOrder order, byte *block, byte value, const byte *xorBlock)
 {
 	CRYPTOPP_UNUSED(order);
-	block[0] = xorBlock ? (value ^ xorBlock[0]) : value;
+	block[0] = (byte)(xorBlock ? (value ^ xorBlock[0]) : value);
 }
 
 inline void UnalignedbyteNonTemplate(ByteOrder order, byte *block, word16 value, const byte *xorBlock)
