@@ -4,11 +4,12 @@
 #define CRYPTOPP_WAIT_H
 
 #include "config.h"
+
+#if !defined(NO_OS_DEPENDENCE) && (defined(SOCKETS_AVAILABLE) || defined(WINDOWS_PIPES_AVAILABLE))
+
 #include "cryptlib.h"
 #include "misc.h"
 #include "stdcpp.h"
-
-#ifdef SOCKETS_AVAILABLE
 
 #ifdef USE_WINDOWS_STYLE_SOCKETS
 #include <winsock2.h>
