@@ -32,6 +32,10 @@ namespace std {
 #include <iterator>
 #endif
 
+#if defined(CRYPTOPP_CXX11_ATOMICS)
+#include <atomic>
+#endif
+
 #include <cstdlib>
 #include <cstddef>
 #include <cstring>

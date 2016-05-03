@@ -218,7 +218,9 @@ struct NewObject
 //!   <tt>_ReadWriteBarrier()</tt> or <tt>__asm__("" ::: "memory")</tt>.
 #define MEMORY_BARRIER ...
 #else
-#if (_MSC_VER >= 1400)
+#if defined(CRYPTOPP_CXX11_ATOMICS)
+# define MEMORY_BARRIER() std::atomic_thread_fence(std::memory_order_acq_rel)
+#elif (_MSC_VER >= 1400)
 # pragma intrinsic(_ReadWriteBarrier)
 # define MEMORY_BARRIER() _ReadWriteBarrier()
 #elif defined(__INTEL_COMPILER)
@@ -254,6 +256,33 @@ private:
 //! \brief Return a reference to the inner Singleton object
 //! \details Ref() is used to create the object using the object factory. The
 //!   object is only created once with the limitations discussed in the class documentation.
+#if defined(CRYPTOPP_CXX11_ATOMICS)
+template <class T, class F, int instance>
+  const T & Singleton<T, F, instance>::Ref(CRYPTOPP_NOINLINE_DOTDOTDOT) const
+{
+	static volatile simple_ptr<T> s_pObject;
+	T *p = s_pObject.m_p;
+	std::atomic_thread_fence(std::memory_order_acquire);
+
+	if (p)
+		return *p;
+
+	T *newObject = m_objectFactory();
+	p = s_pObject.m_p;
+	std::atomic_thread_fence(std::memory_order_acquire);
+
+	if (p)
+	{
+		delete newObject;
+		return *p;
+	}
+
+	s_pObject.m_p = newObject;
+	std::atomic_thread_fence(std::memory_order_release);
+
+	return *newObject;
+}
+#else
 template <class T, class F, int instance>
 const T & Singleton<T, F, instance>::Ref(CRYPTOPP_NOINLINE_DOTDOTDOT) const
 {
@@ -279,6 +308,7 @@ const T & Singleton<T, F, instance>::Ref(CRYPTOPP_NOINLINE_DOTDOTDOT) const
 
 	return *newObject;
 }
+#endif
 
 // ************** misc functions ***************
 

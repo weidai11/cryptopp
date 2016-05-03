@@ -664,6 +664,19 @@ NAMESPACE_END
 // C++11 or C++14 is available
 #if defined(CRYPTOPP_CXX11) 
 
+// atomics: MS at VS2012 (17.00); GCC at 4.4; Clang at 3.1/3.2; and Intel 13.0.
+#if (CRYPTOPP_MSC_VERSION >= 1700)
+#  define CRYPTOPP_CXX11_ATOMICS 1
+#elif defined(__INTEL_COMPILER) && (__INTEL_COMPILER >= 1300)
+#  define CRYPTOPP_CXX11_ATOMICS 1
+#elif defined(__clang__)
+#  if __has_feature(cxx_atomic)
+#    define CRYPTOPP_CXX11_ATOMICS 1
+#  endif
+#elif (CRYPTOPP_GCC_VERSION >= 40400)
+#  define CRYPTOPP_CXX11_ATOMICS 1
+#endif // atomics
+
 // alignof/alignas: MS at VS2013 (19.00); GCC at 4.8; Clang at 3.3; and Intel 15.0.
 #if (CRYPTOPP_MSC_VERSION >= 1900)
 #  define CRYPTOPP_CXX11_ALIGNAS 1
