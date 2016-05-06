@@ -110,7 +110,7 @@ case "$THE_ARCH" in
 	TOOLNAME_BASE="arm-linux-androideabi"
 	AOSP_ABI="armeabi-v7a"
 	AOSP_ARCH="arch-arm"
-	AOSP_FLAGS="-march=armv7-a -mfpu=vfpv3-d16 -mfloat-abi=softfp -Wl,--fix-cortex-a8 -funwind-tables -fexceptions -frtti"
+	AOSP_FLAGS="-march=armv7-a -mfpu=neon -mfloat-abi=softfp -Wl,--fix-cortex-a8 -funwind-tables -fexceptions -frtti"
 	;;
   armv8|armv8a|aarch64|arm64|arm64-v8a)
 	TOOLCHAIN_BASE="aarch64-linux-android"
