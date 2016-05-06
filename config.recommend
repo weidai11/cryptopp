@@ -381,7 +381,31 @@ NAMESPACE_END
 #define CRYPTOPP_DISABLE_ASM
 #define CRYPTOPP_DISABLE_SSE2
 #endif
-	
+
+#if defined(__arm__) || defined(__aarch32__) || defined(_M_ARM)
+	#define CRYPTOPP_BOOL_ARM32 1
+#else
+	#define CRYPTOPP_BOOL_ARM32 0
+#endif
+
+#if defined(__aarch64__)
+	#define CRYPTOPP_BOOL_ARM64 1
+#else
+	#define CRYPTOPP_BOOL_ARM64 0
+#endif
+
+#if !defined(CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE)
+# if (defined(CRYPTOPP_BOOL_ARM32) || defined(CRYPTOPP_BOOL_ARM64)) && ((CRYPTOPP_GCC_VERSION >= 40400) || (CRYPTOPP_CLANG_VERSION >= 20800))
+#  if defined(__ARM_NEON__) || defined(__ARM_NEON)
+#   define CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE 1
+#  endif
+# endif
+#endif
+
+#ifndef CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
+# define CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE 0
+#endif
+
 // Apple's Clang prior to 5.0 cannot handle SSE2 (and Apple does not use LLVM Clang numbering...)
 #if defined(CRYPTOPP_APPLE_CLANG_VERSION) && (CRYPTOPP_APPLE_CLANG_VERSION < 50000)
 # define CRYPTOPP_DISABLE_ASM
