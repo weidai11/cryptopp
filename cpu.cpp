@@ -23,9 +23,11 @@
 #endif
 
 #if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
-#include <sys/auxv.h>
-#include <asm/hwcap.h>
-#include <arm_neon.h>
+# if defined(__linux__)
+#  include <sys/auxv.h>
+#  include <asm/hwcap.h>
+# endif
+# include <arm_neon.h>
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
