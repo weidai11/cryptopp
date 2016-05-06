@@ -23,9 +23,11 @@
 #endif
 
 #if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
-#include <sys/auxv.h>
-#include <asm/hwcap.h>
-#include <arm_neon.h>
+# if defined(__linux__)
+#  include <sys/auxv.h>
+#  include <asm/hwcap.h>
+# endif
+# include <arm_neon.h>
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -258,6 +260,7 @@ void DetectX86Features()
 }
 
 // http://community.arm.com/groups/android-community/blog/2014/10/10/runtime-detection-of-cpu-features-on-an-armv8-a-cpu
+// http://stackoverflow.com/questions/26701262/how-to-check-the-existence-of-neon-on-arm
 #elif defined(CRYPTOPP_BOOL_ARM32) || defined (CRYPTOPP_BOOL_ARM64)
 
 bool g_ArmDetectionDone = false;
@@ -282,6 +285,8 @@ void DetectArmFeatures()
 # elif defined(__linux__)
 	const long hwcaps = getauxval(AT_HWCAP);
 	g_hasNEON = !!(hwcaps & HWCAP_ARM_NEON);
+# elif defined(_WIN32) && defined(_M_ARM)
+	g_hasNEON = true;
 # endif
 #endif
 	*((volatile bool*)&g_ArmDetectionDone) = true;
