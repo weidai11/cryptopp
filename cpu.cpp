@@ -269,16 +269,23 @@ void __attribute__ ((constructor)) DetectArmFeatures()
 void DetectArmFeatures()
 #endif
 {
-#if defined(__linux__) && defined(__aarch64__)
+#if defined(__linux__) && defined(__aarch64__) // ARM-64
 	const unsigned long hwcaps = getauxval(AT_HWCAP);
 	g_hasNEON = !!(hwcaps & HWCAP_ASIMD);
+# if defined(__ARM_FEATURE_CRC32)
 	g_hasCRC32 = !!(hwcaps & HWCAP_CRC32);
-#elif defined(__linux__)
+# else
+	g_hasCRC32 = false;
+# endif
+#elif defined(__linux__) // ARM-32
 	const unsigned long hwcaps = getauxval(AT_HWCAP);
 	g_hasNEON = !!(hwcaps & HWCAP_ARM_NEON);
-	// g_hasCRC32 = !!(hwcaps & HWCAP_ARM_CRC32);
+# if defined(__ARM_FEATURE_CRC32)
+	g_hasCRC32 = !!(hwcaps & HWCAP_ARM_CRC32);
+# else
 	g_hasCRC32 = false;
-#elif defined(_WIN32) && defined(_M_ARM)
+# endif
+#elif defined(_WIN32) && defined(_M_ARM) // Microsoft ARM
 	g_hasNEON = true;
 	g_hasCRC32 = false;
 #endif
