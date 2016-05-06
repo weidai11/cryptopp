@@ -22,6 +22,12 @@
 #include <emmintrin.h>
 #endif
 
+#if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
+#include <sys/auxv.h>
+#include <asm/hwcap.h>
+#include <arm_neon.h>
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 // MacPorts/GCC does not provide constructor(priority). Apple/GCC and Fink/GCC do provide it.
