@@ -497,12 +497,36 @@ NAMESPACE_END
 #else
 	#define CRYPTOPP_BOOL_X64 0
 #endif
-	
+
 // Undo the ASM and Intrinsic related defines due to X32.
 #if CRYPTOPP_BOOL_X32
 # undef CRYPTOPP_BOOL_X64
 # undef CRYPTOPP_X64_ASM_AVAILABLE
 # undef CRYPTOPP_X64_MASM_AVAILABLE
+#endif
+
+#if defined(__arm__) || defined(__aarch32__) || defined(_M_ARM)
+	#define CRYPTOPP_BOOL_ARM32 1
+#else
+	#define CRYPTOPP_BOOL_ARM32 0
+#endif
+
+#if defined(__aarch64__)
+	#define CRYPTOPP_BOOL_ARM64 1
+#else
+	#define CRYPTOPP_BOOL_ARM64 0
+#endif
+
+#if !defined(CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE)
+# if (defined(CRYPTOPP_BOOL_ARM32) || defined(CRYPTOPP_BOOL_ARM64)) && ((CRYPTOPP_GCC_VERSION >= 40400) || (CRYPTOPP_CLANG_VERSION >= 20800))
+#  if defined(__ARM_NEON__) || defined(__ARM_NEON)
+#   define CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE 1
+#  endif
+# endif
+#endif
+
+#ifndef CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
+# define CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE 0
 #endif
 
 #if !defined(CRYPTOPP_NO_UNALIGNED_DATA_ACCESS) && !defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS)

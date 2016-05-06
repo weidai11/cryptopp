@@ -1,7 +1,6 @@
 // cpu.h - written and placed in the public domain by Wei Dai
 
-//! \file
-//! \headerfile cpu.h
+//! \file cpu.h
 //! \brief Classes, functions, intrinsics and features for X86, X32 nd X64 assembly
 
 #ifndef CRYPTOPP_CPU_H
@@ -218,6 +217,24 @@ inline int GetCacheLineSize()
 	return g_cacheLineSize;
 }
 
+#elif defined(CRYPTOPP_BOOL_ARM32) || defined (CRYPTOPP_BOOL_ARM64)
+
+extern bool g_ArmDetectionDone;
+extern bool g_hasNEON;
+void CRYPTOPP_API DetectArmFeatures();
+
+inline bool HasNEON()
+{
+	if (!g_ArmDetectionDone)
+		DetectArmFeatures();
+	return g_hasNEON;
+}
+
+inline int GetCacheLineSize()
+{
+	return CRYPTOPP_L1_CACHE_LINE_SIZE;
+}
+
 #else
 
 inline int GetCacheLineSize()
@@ -225,7 +242,7 @@ inline int GetCacheLineSize()
 	return CRYPTOPP_L1_CACHE_LINE_SIZE;
 }
 
-#endif
+#endif  // X86/X32/X64 and ARM
 
 #endif
 
