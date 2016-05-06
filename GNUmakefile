@@ -22,7 +22,8 @@ IS_X86 := $(shell uname -m | $(EGREP) -v "x86_64" | $(EGREP) -i -c "i.86|x86|i86
 IS_X32 ?= 0
 IS_X86_64 := $(shell uname -m | $(EGREP) -i -c "(_64|d64)")
 IS_PPC := $(shell uname -m | $(EGREP) -i -c "ppc|power")
-IS_AARCH64 := $(shell uname -m | $(EGREP) -i -c "aarch64")
+IS_ARM32 := $(shell uname -m | $(EGREP) -i -c "arm")
+IS_ARM64 := $(shell uname -m | $(EGREP) -i -c "aarch64")
 
 IS_SUN := $(shell uname | $(EGREP) -i -c "SunOS")
 IS_LINUX := $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "Linux")
@@ -325,9 +326,13 @@ endif # HAS_SOLIB_VERSION
 #  is the second candidate for explicit initialization order.
 SRCS := cryptlib.cpp cpu.cpp $(filter-out cryptlib.cpp cpu.cpp pch.cpp simple.cpp winpipes.cpp cryptlib_bds.cpp,$(wildcard *.cpp))
 
-# No need for CPU or RDRAND on non-X86 systems. X32 is represented with X64.
+# Need CPU for X86/X64/X32 and ARM
+ifeq ($(IS_X86)$(IS_X86_64)$(IS_ARM32)$(IS_ARM64),0000)
+  SRCS := $(filter-out cpu.cpp, $(SRCS))
+endif
+# Need RDRAND for X86/X64/X32
 ifeq ($(IS_X86)$(IS_X86_64),00)
-  SRCS := $(filter-out cpu.cpp rdrand.cpp, $(SRCS))
+  SRCS := $(filter-out rdrand.cpp, $(SRCS))
 endif
 
 ifneq ($(IS_MINGW),0)
