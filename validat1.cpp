@@ -314,9 +314,10 @@ bool TestSettings()
 
 #elif defined(CRYPTOPP_BOOL_ARM32) || defined (CRYPTOPP_BOOL_ARM64)
 	bool hasNEON = HasNEON();
+	bool hasCRC32 = HasCRC32();
 
 	cout << "passed:  ";
-	cout << "hasNEON == " << hasNEON << endl;
+	cout << "hasNEON == " << hasNEON << ", hasCRC32 == " << hasCRC32 << endl;
 #endif
 
 	if (!pass)
@@ -912,7 +913,7 @@ bool TestOS_RNG()
 	return pass;
 }
 
-#ifdef NO_OS_DEPENDENCE
+#if defined(NO_OS_DEPENDENCE) || !defined(OS_RNG_AVAILABLE)
 bool TestAutoSeeded()
 {
 	return true;

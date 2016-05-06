@@ -22,14 +22,6 @@
 #include <emmintrin.h>
 #endif
 
-#if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
-# if defined(__linux__)
-#  include <sys/auxv.h>
-#  include <asm/hwcap.h>
-# endif
-# include <arm_neon.h>
-#endif
-
 NAMESPACE_BEGIN(CryptoPP)
 
 // MacPorts/GCC does not provide constructor(priority). Apple/GCC and Fink/GCC do provide it.
@@ -264,9 +256,9 @@ void DetectX86Features()
 #elif defined(CRYPTOPP_BOOL_ARM32) || defined (CRYPTOPP_BOOL_ARM64)
 
 bool g_ArmDetectionDone = false;
-bool g_hasNEON = false;
+bool g_hasNEON = false, g_hasCRC32 = false;
 
-// This is avaiable in a status register, but we need privileged code to execute the read
+// This is avaiable in a status register, but we need privileged code to perform the read
 word32 g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
 
 #if HAVE_GCC_CONSTRUCTOR1
@@ -277,17 +269,18 @@ void __attribute__ ((constructor)) DetectArmFeatures()
 void DetectArmFeatures()
 #endif
 {
-	g_hasNEON = false;
-#if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
-# if defined(__linux__) && defined(__aarch64__)
-	const long hwcaps = getauxval(AT_HWCAP);
+#if defined(__linux__) && defined(__aarch64__)
+	const unsigned long hwcaps = getauxval(AT_HWCAP);
 	g_hasNEON = !!(hwcaps & HWCAP_ASIMD);
-# elif defined(__linux__)
-	const long hwcaps = getauxval(AT_HWCAP);
+	g_hasCRC32 = !!(hwcaps & HWCAP_CRC32);
+#elif defined(__linux__)
+	const unsigned long hwcaps = getauxval(AT_HWCAP);
 	g_hasNEON = !!(hwcaps & HWCAP_ARM_NEON);
-# elif defined(_WIN32) && defined(_M_ARM)
+	// g_hasCRC32 = !!(hwcaps & HWCAP_ARM_CRC32);
+	g_hasCRC32 = false;
+#elif defined(_WIN32) && defined(_M_ARM)
 	g_hasNEON = true;
-# endif
+	g_hasCRC32 = false;
 #endif
 	*((volatile bool*)&g_ArmDetectionDone) = true;
 }
