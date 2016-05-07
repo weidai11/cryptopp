@@ -11,7 +11,7 @@
 
 #include "config.h"
 
-#if defined(CRYPTOPP_BOOL_ARM32) || defined(CRYPTOPP_BOOL_ARM64)
+#if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
 # if defined(__linux__)
 #  include <sys/auxv.h>
 #  include <asm/hwcap.h>
@@ -234,7 +234,7 @@ inline int GetCacheLineSize()
 	return g_cacheLineSize;
 }
 
-#elif defined(CRYPTOPP_BOOL_ARM32) || defined(CRYPTOPP_BOOL_ARM64)
+#elif (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
 
 extern bool g_ArmDetectionDone;
 extern bool g_hasNEON, g_hasCRC32;
