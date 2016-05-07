@@ -127,7 +127,7 @@ NAMESPACE_BEGIN(CryptoPP)
 #if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64
 
 #define CRYPTOPP_CPUID_AVAILABLE
-	
+
 // these should not be used directly
 extern CRYPTOPP_DLL bool g_x86DetectionDone;
 extern CRYPTOPP_DLL bool g_hasMMX;

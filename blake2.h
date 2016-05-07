@@ -1,6 +1,6 @@
 // blake2.cpp - written and placed in the public domain by Jeffrey Walton and Zooko
 //              Wilcox-O'Hearn. Copyright assigned to the Crypto++ project.
-//              Based on Aumasson, Neves, Wilcox-O’Hearn and Winnerlein's reference BLAKE2 
+//              Based on Aumasson, Neves, Wilcox-O’Hearn and Winnerlein's reference BLAKE2
 //              implementation at http://github.com/BLAKE2/BLAKE2.
 
 //! \file blake2.h
@@ -23,9 +23,9 @@ NAMESPACE_BEGIN(CryptoPP)
 // Can't use GetAlignmentOf<W>() because its not a constant expression. GCC has
 // some bugs spanning 4.0 through 4.9, so we can't use a template parameter with
 // CRYPTOPP_CONSTANT, either. Also see http://stackoverflow.com/q/36642315.
-#if CRYPTOPP_BOOL_ALIGN16
+#if (CRYPTOPP_BOOL_ALIGN16 || CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE)
 # define BLAKE2_DALIGN 16
-#elif defined(_M_X64) || defined(__LP64__) || defined(__x86_64__) || defined(__amd64__)
+#elif defined(_M_X64) || defined(__LP64__) || defined(__x86_64__) || defined(__amd64__) || defined(__aarch64__)
 # define BLAKE2_DALIGN 8
 #else
 # define BLAKE2_DALIGN 4
@@ -203,11 +203,11 @@ public:
 	virtual ~BLAKE2_Base() {}
 
 	//! \brief Retrieve the static algorithm name
-	//! \returns the algorithm name (BLAKE2s or BLAKE2b) 
+	//! \returns the algorithm name (BLAKE2s or BLAKE2b)
 	static const char *StaticAlgorithmName() {return BLAKE2_Info<T_64bit>::StaticAlgorithmName();}
 
 	//! \brief Retrieve the object's name
-	//! \returns the object's algorithm name following RFC 7693 
+	//! \returns the object's algorithm name following RFC 7693
 	//! \details Object algorithm name follows the naming described in
 	//!   <A HREF="http://tools.ietf.org/html/rfc7693#section-4">RFC 7693, The BLAKE2 Cryptographic Hash and
 	//! Message Authentication Code (MAC)</A>. For example, "BLAKE2b-512" and "BLAKE2s-256".

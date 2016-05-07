@@ -1,6 +1,6 @@
 // blake2.cpp - written and placed in the public domain by Jeffrey Walton and Zooko
 //              Wilcox-O'Hearn. Copyright assigned to the Crypto++ project.
-//              Based on Aumasson, Neves, Wilcox-O’Hearn and Winnerlein's reference BLAKE2 
+//              Based on Aumasson, Neves, Wilcox-O’Hearn and Winnerlein's reference BLAKE2
 //              implementation at http://github.com/BLAKE2/BLAKE2.
 
 #include "pch.h"
@@ -10,6 +10,9 @@
 #include "cpu.h"
 
 NAMESPACE_BEGIN(CryptoPP)
+
+// Uncomment for benchmarking C++ against NEON
+// #undef CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
 
 // Visual Studio needs both VS2005 (1400) and _M_64 for SSE2 and _mm_set_epi64x()
 //  http://msdn.microsoft.com/en-us/library/y0dh78ez%28v=vs.80%29.aspx
@@ -43,6 +46,11 @@ static void BLAKE2_SSE4_Compress32(const byte* input, BLAKE2_State<word32, false
 static void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64, true>& state);
 #endif
 
+#if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
+static void BLAKE2_NEON_Compress32(const byte* input, BLAKE2_State<word32, false>& state);
+//static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>& state);
+#endif
+
 #ifndef CRYPTOPP_DOXYGEN_PROCESSING
 
 // IV and Sigma are a better fit as part of BLAKE2_Base, but that
@@ -55,7 +63,7 @@ template<>
 struct CRYPTOPP_NO_VTABLE BLAKE2_IV<false>
 {
 	CRYPTOPP_CONSTANT(IVSIZE = 8);
-	static const word32 iv[8];
+	CRYPTOPP_ALIGN_DATA(BLAKE2_DALIGN) static const word32 iv[8];
 };
 
 const word32 BLAKE2_IV<false>::iv[8] = {
@@ -63,11 +71,13 @@ const word32 BLAKE2_IV<false>::iv[8] = {
 	0x510E527FUL, 0x9B05688CUL, 0x1F83D9ABUL, 0x5BE0CD19UL
 };
 
+#define BLAKE2S_IV(n) BLAKE2_IV<false>::iv[n]
+
 template<>
 struct CRYPTOPP_NO_VTABLE BLAKE2_IV<true>
 {
 	CRYPTOPP_CONSTANT(IVSIZE = 8);
-	static const word64 iv[8];
+	CRYPTOPP_ALIGN_DATA(BLAKE2_DALIGN) static const word64 iv[8];
 };
 
 const word64 BLAKE2_IV<true>::iv[8] = {
@@ -76,6 +86,8 @@ const word64 BLAKE2_IV<true>::iv[8] = {
 	W64LIT(0x510e527fade682d1), W64LIT(0x9b05688c2b3e6c1f),
 	W64LIT(0x1f83d9abfb41bd6b), W64LIT(0x5be0cd19137e2179)
 };
+
+#define BLAKE2B_IV(n) BLAKE2_IV<true>::iv[n]
 
 // IV and Sigma are a better fit as part of BLAKE2_Base, but that
 //   places the constants out of reach for the SSE2 and SSE4 implementations.
@@ -177,6 +189,11 @@ pfnCompress64 InitializeCompress64Fn()
 		return &BLAKE2_SSE2_Compress64;
 	else
 #endif
+#if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE && 0
+	if (HasNEON())
+		return &BLAKE2_NEON_Compress64;
+	else
+#endif
 	return &BLAKE2_CXX_Compress64;
 }
 
@@ -190,6 +207,11 @@ pfnCompress32 InitializeCompress32Fn()
 #if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
 	if (HasSSE2())
 		return &BLAKE2_SSE2_Compress32;
+	else
+#endif
+#if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
+	if (HasNEON())
+		return &BLAKE2_NEON_Compress32;
 	else
 #endif
 	return &BLAKE2_CXX_Compress32;
@@ -369,7 +391,7 @@ void BLAKE2_Base<W, T_64bit>::TruncatedFinal(byte *hash, size_t size)
 	memset(m_state.buffer + m_state.length, 0x00, BLOCKSIZE - m_state.length);
 	Compress(m_state.buffer);
 
-	if (size >= DIGESTSIZE) 
+	if (size >= DIGESTSIZE)
 	{
 		// Write directly to the caller buffer
 		for(unsigned int i = 0; i < 8; ++i)
@@ -448,13 +470,13 @@ void BLAKE2_CXX_Compress64(const byte* input, BLAKE2_State<word64, true>& state)
 	for(i = 0; i < 8; ++i)
 		v[i] = state.h[i];
 
-	v[ 8] = BLAKE2_IV<true>::iv[0];
-	v[ 9] = BLAKE2_IV<true>::iv[1];
-	v[10] = BLAKE2_IV<true>::iv[2];
-	v[11] = BLAKE2_IV<true>::iv[3];
-	v[12] = state.t[0] ^ BLAKE2_IV<true>::iv[4];
+	v[ 8] = BLAKE2B_IV(0);
+	v[ 9] = BLAKE2B_IV(1);
+	v[10] = BLAKE2B_IV(2);
+	v[11] = BLAKE2B_IV(3);
+	v[12] = state.t[0] ^ BLAKE2B_IV(4);
 	v[13] = state.t[1] ^ BLAKE2_IV<true>::iv[5];
-	v[14] = state.f[0] ^ BLAKE2_IV<true>::iv[6];
+	v[14] = state.f[0] ^ BLAKE2B_IV(6);
 	v[15] = state.f[1] ^ BLAKE2_IV<true>::iv[7];
 
 	BLAKE2_ROUND( 0 );
@@ -512,14 +534,14 @@ void BLAKE2_CXX_Compress32(const byte* input, BLAKE2_State<word32, false>& state
 	for(i = 0; i < 8; ++i)
 		v[i] = state.h[i];
 
-	v[ 8] = BLAKE2_IV<false>::iv[0];
-	v[ 9] = BLAKE2_IV<false>::iv[1];
-	v[10] = BLAKE2_IV<false>::iv[2];
-	v[11] = BLAKE2_IV<false>::iv[3];
-	v[12] = state.t[0] ^ BLAKE2_IV<false>::iv[4];
-	v[13] = state.t[1] ^ BLAKE2_IV<false>::iv[5];
-	v[14] = state.f[0] ^ BLAKE2_IV<false>::iv[6];
-	v[15] = state.f[1] ^ BLAKE2_IV<false>::iv[7];
+	v[ 8] = BLAKE2S_IV(0);
+	v[ 9] = BLAKE2S_IV(1);
+	v[10] = BLAKE2S_IV(2);
+	v[11] = BLAKE2S_IV(3);
+	v[12] = state.t[0] ^ BLAKE2S_IV(4);
+	v[13] = state.t[1] ^ BLAKE2S_IV(5);
+	v[14] = state.f[0] ^ BLAKE2S_IV(6);
+	v[15] = state.f[1] ^ BLAKE2S_IV(7);
 
 	BLAKE2_ROUND( 0 );
 	BLAKE2_ROUND( 1 );
@@ -562,8 +584,8 @@ static void BLAKE2_SSE2_Compress32(const byte* input, BLAKE2_State<word32, false
 
   row1 = ff0 = _mm_loadu_si128((const __m128i*)(const void*)(&state.h[0]));
   row2 = ff1 = _mm_loadu_si128((const __m128i*)(const void*)(&state.h[4]));
-  row3 = _mm_setr_epi32(BLAKE2_IV<false>::iv[0],BLAKE2_IV<false>::iv[1],BLAKE2_IV<false>::iv[2],BLAKE2_IV<false>::iv[3]);
-  row4 = _mm_xor_si128(_mm_setr_epi32(BLAKE2_IV<false>::iv[4],BLAKE2_IV<false>::iv[5],BLAKE2_IV<false>::iv[6],BLAKE2_IV<false>::iv[7]),_mm_loadu_si128((const __m128i*)(const void*)(&state.t[0])));
+  row3 = _mm_setr_epi32(BLAKE2S_IV(0),BLAKE2S_IV(1),BLAKE2S_IV(2),BLAKE2S_IV(3));
+  row4 = _mm_xor_si128(_mm_setr_epi32(BLAKE2S_IV(4),BLAKE2S_IV(5),BLAKE2S_IV(6),BLAKE2S_IV(7)),_mm_loadu_si128((const __m128i*)(const void*)(&state.t[0])));
   buf1 = _mm_set_epi32(m6,m4,m2,m0);
   row1 = _mm_add_epi32(_mm_add_epi32(row1,buf1),row2);
   row4 = _mm_xor_si128(row4,row1);
@@ -643,7 +665,7 @@ static void BLAKE2_SSE2_Compress32(const byte* input, BLAKE2_State<word32, false
   row4 = _mm_shuffle_epi32(row4,_MM_SHUFFLE(0,3,2,1));
   row3 = _mm_shuffle_epi32(row3,_MM_SHUFFLE(1,0,3,2));
   row2 = _mm_shuffle_epi32(row2,_MM_SHUFFLE(2,1,0,3));
-  
+
   buf1 = _mm_set_epi32(m15,m5,m12,m11);
   row1 = _mm_add_epi32(_mm_add_epi32(row1,buf1),row2);
   row4 = _mm_xor_si128(row4,row1);
@@ -683,7 +705,7 @@ static void BLAKE2_SSE2_Compress32(const byte* input, BLAKE2_State<word32, false
   row4 = _mm_shuffle_epi32(row4,_MM_SHUFFLE(0,3,2,1));
   row3 = _mm_shuffle_epi32(row3,_MM_SHUFFLE(1,0,3,2));
   row2 = _mm_shuffle_epi32(row2,_MM_SHUFFLE(2,1,0,3));
-  
+
   buf1 = _mm_set_epi32(m11,m13,m3,m7);
   row1 = _mm_add_epi32(_mm_add_epi32(row1,buf1),row2);
   row4 = _mm_xor_si128(row4,row1);
@@ -723,7 +745,7 @@ static void BLAKE2_SSE2_Compress32(const byte* input, BLAKE2_State<word32, false
   row4 = _mm_shuffle_epi32(row4,_MM_SHUFFLE(0,3,2,1));
   row3 = _mm_shuffle_epi32(row3,_MM_SHUFFLE(1,0,3,2));
   row2 = _mm_shuffle_epi32(row2,_MM_SHUFFLE(2,1,0,3));
-  
+
   buf1 = _mm_set_epi32(m10,m2,m5,m9);
   row1 = _mm_add_epi32(_mm_add_epi32(row1,buf1),row2);
   row4 = _mm_xor_si128(row4,row1);
@@ -763,7 +785,7 @@ static void BLAKE2_SSE2_Compress32(const byte* input, BLAKE2_State<word32, false
   row4 = _mm_shuffle_epi32(row4,_MM_SHUFFLE(0,3,2,1));
   row3 = _mm_shuffle_epi32(row3,_MM_SHUFFLE(1,0,3,2));
   row2 = _mm_shuffle_epi32(row2,_MM_SHUFFLE(2,1,0,3));
-  
+
   buf1 = _mm_set_epi32(m8,m0,m6,m2);
   row1 = _mm_add_epi32(_mm_add_epi32(row1,buf1),row2);
   row4 = _mm_xor_si128(row4,row1);
@@ -803,7 +825,7 @@ static void BLAKE2_SSE2_Compress32(const byte* input, BLAKE2_State<word32, false
   row4 = _mm_shuffle_epi32(row4,_MM_SHUFFLE(0,3,2,1));
   row3 = _mm_shuffle_epi32(row3,_MM_SHUFFLE(1,0,3,2));
   row2 = _mm_shuffle_epi32(row2,_MM_SHUFFLE(2,1,0,3));
-  
+
   buf1 = _mm_set_epi32(m4,m14,m1,m12);
   row1 = _mm_add_epi32(_mm_add_epi32(row1,buf1),row2);
   row4 = _mm_xor_si128(row4,row1);
@@ -843,7 +865,7 @@ static void BLAKE2_SSE2_Compress32(const byte* input, BLAKE2_State<word32, false
   row4 = _mm_shuffle_epi32(row4,_MM_SHUFFLE(0,3,2,1));
   row3 = _mm_shuffle_epi32(row3,_MM_SHUFFLE(1,0,3,2));
   row2 = _mm_shuffle_epi32(row2,_MM_SHUFFLE(2,1,0,3));
-  
+
   buf1 = _mm_set_epi32(m3,m12,m7,m13);
   row1 = _mm_add_epi32(_mm_add_epi32(row1,buf1),row2);
   row4 = _mm_xor_si128(row4,row1);
@@ -883,7 +905,7 @@ static void BLAKE2_SSE2_Compress32(const byte* input, BLAKE2_State<word32, false
   row4 = _mm_shuffle_epi32(row4,_MM_SHUFFLE(0,3,2,1));
   row3 = _mm_shuffle_epi32(row3,_MM_SHUFFLE(1,0,3,2));
   row2 = _mm_shuffle_epi32(row2,_MM_SHUFFLE(2,1,0,3));
-  
+
   buf1 = _mm_set_epi32(m0,m11,m14,m6);
   row1 = _mm_add_epi32(_mm_add_epi32(row1,buf1),row2);
   row4 = _mm_xor_si128(row4,row1);
@@ -923,7 +945,7 @@ static void BLAKE2_SSE2_Compress32(const byte* input, BLAKE2_State<word32, false
   row4 = _mm_shuffle_epi32(row4,_MM_SHUFFLE(0,3,2,1));
   row3 = _mm_shuffle_epi32(row3,_MM_SHUFFLE(1,0,3,2));
   row2 = _mm_shuffle_epi32(row2,_MM_SHUFFLE(2,1,0,3));
-  
+
   buf1 = _mm_set_epi32(m1,m7,m8,m10);
   row1 = _mm_add_epi32(_mm_add_epi32(row1,buf1),row2);
   row4 = _mm_xor_si128(row4,row1);
@@ -963,7 +985,7 @@ static void BLAKE2_SSE2_Compress32(const byte* input, BLAKE2_State<word32, false
   row4 = _mm_shuffle_epi32(row4,_MM_SHUFFLE(0,3,2,1));
   row3 = _mm_shuffle_epi32(row3,_MM_SHUFFLE(1,0,3,2));
   row2 = _mm_shuffle_epi32(row2,_MM_SHUFFLE(2,1,0,3));
-  
+
   _mm_storeu_si128((__m128i *)(void*)(&state.h[0]),_mm_xor_si128(ff0,_mm_xor_si128(row1,row3)));
   _mm_storeu_si128((__m128i *)(void*)(&state.h[4]),_mm_xor_si128(ff1,_mm_xor_si128(row2,row4)));
 }
@@ -995,10 +1017,10 @@ static void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64, true>
   row1h = _mm_loadu_si128((const __m128i*)(const void*)(&state.h[2]) );
   row2l = _mm_loadu_si128((const __m128i*)(const void*)(&state.h[4]) );
   row2h = _mm_loadu_si128((const __m128i*)(const void*)(&state.h[6]) );
-  row3l = _mm_loadu_si128((const __m128i*)(const void*)(&BLAKE2_IV<true>::iv[0]) );
-  row3h = _mm_loadu_si128((const __m128i*)(const void*)(&BLAKE2_IV<true>::iv[2]) );
-  row4l = _mm_xor_si128( _mm_loadu_si128((const __m128i*)(const void*)(&BLAKE2_IV<true>::iv[4]) ), _mm_loadu_si128((const __m128i*)(const void*)(&state.t[0]) ) );
-  row4h = _mm_xor_si128( _mm_loadu_si128((const __m128i*)(const void*)(&BLAKE2_IV<true>::iv[6]) ), _mm_loadu_si128((const __m128i*)(const void*)(&state.f[0]) ) );
+  row3l = _mm_loadu_si128((const __m128i*)(const void*)(&BLAKE2B_IV(0)) );
+  row3h = _mm_loadu_si128((const __m128i*)(const void*)(&BLAKE2B_IV(2)) );
+  row4l = _mm_xor_si128( _mm_loadu_si128((const __m128i*)(const void*)(&BLAKE2B_IV(4)) ), _mm_loadu_si128((const __m128i*)(const void*)(&state.t[0]) ) );
+  row4h = _mm_xor_si128( _mm_loadu_si128((const __m128i*)(const void*)(&BLAKE2B_IV(6)) ), _mm_loadu_si128((const __m128i*)(const void*)(&state.f[0]) ) );
 
   b0 = _mm_set_epi64x(m2, m0);
   b1 = _mm_set_epi64x(m6, m4);
@@ -1884,8 +1906,8 @@ static void BLAKE2_SSE4_Compress32(const byte* input, BLAKE2_State<word32, false
 
   row1 = ff0 = _mm_loadu_si128((const __m128i*)(const void*)(&state.h[0]));
   row2 = ff1 = _mm_loadu_si128((const __m128i*)(const void*)(&state.h[4]));
-  row3 = _mm_setr_epi32(BLAKE2_IV<false>::iv[0], BLAKE2_IV<false>::iv[1], BLAKE2_IV<false>::iv[2], BLAKE2_IV<false>::iv[3]);
-  row4 = _mm_xor_si128(_mm_setr_epi32(BLAKE2_IV<false>::iv[4], BLAKE2_IV<false>::iv[5], BLAKE2_IV<false>::iv[6], BLAKE2_IV<false>::iv[7]), _mm_loadu_si128((const __m128i*)(const void*)(&state.t[0])));
+  row3 = _mm_setr_epi32(BLAKE2S_IV(0), BLAKE2S_IV(1), BLAKE2S_IV(2), BLAKE2S_IV(3));
+  row4 = _mm_xor_si128(_mm_setr_epi32(BLAKE2S_IV(4), BLAKE2S_IV(5), BLAKE2S_IV(6), BLAKE2S_IV(7)), _mm_loadu_si128((const __m128i*)(const void*)(&state.t[0])));
   buf1 = _mm_castps_si128((_mm_shuffle_ps(_mm_castsi128_ps((m0)), _mm_castsi128_ps((m1)), _MM_SHUFFLE(2,0,2,0))));
 
   row1 = _mm_add_epi32(_mm_add_epi32(row1, buf1), row2);
@@ -2445,10 +2467,10 @@ static void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64, true>
   row1h = _mm_loadu_si128((const __m128i*)(const void*)(&state.h[2]));
   row2l = _mm_loadu_si128((const __m128i*)(const void*)(&state.h[4]));
   row2h = _mm_loadu_si128((const __m128i*)(const void*)(&state.h[6]));
-  row3l = _mm_loadu_si128((const __m128i*)(const void*)(&BLAKE2_IV<true>::iv[0]));
-  row3h = _mm_loadu_si128((const __m128i*)(const void*)(&BLAKE2_IV<true>::iv[2]));
-  row4l = _mm_xor_si128(_mm_loadu_si128((const __m128i*)(const void*)(&BLAKE2_IV<true>::iv[4])), _mm_loadu_si128((const __m128i*)(const void*)(&state.t[0])));
-  row4h = _mm_xor_si128(_mm_loadu_si128((const __m128i*)(const void*)(&BLAKE2_IV<true>::iv[6])), _mm_loadu_si128((const __m128i*)(const void*)(&state.f[0])));
+  row3l = _mm_loadu_si128((const __m128i*)(const void*)(&BLAKE2B_IV(0)));
+  row3h = _mm_loadu_si128((const __m128i*)(const void*)(&BLAKE2B_IV(2)));
+  row4l = _mm_xor_si128(_mm_loadu_si128((const __m128i*)(const void*)(&BLAKE2B_IV(4))), _mm_loadu_si128((const __m128i*)(const void*)(&state.t[0])));
+  row4h = _mm_xor_si128(_mm_loadu_si128((const __m128i*)(const void*)(&BLAKE2B_IV(6))), _mm_loadu_si128((const __m128i*)(const void*)(&state.f[0])));
 
   b0 = _mm_unpacklo_epi64(m0, m1);
   b1 = _mm_unpacklo_epi64(m2, m3);
@@ -2526,7 +2548,7 @@ static void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64, true>
   t0 = _mm_alignr_epi8(row4l, row4h, 8);
   t1 = _mm_alignr_epi8(row4h, row4l, 8);
   row4l = t1, row4h = t0;
-  
+
   b0 = _mm_unpacklo_epi64(m7, m2);
   b1 = _mm_unpackhi_epi64(m4, m6);
 
@@ -2604,7 +2626,7 @@ static void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64, true>
   t0 = _mm_alignr_epi8(row4l, row4h, 8);
   t1 = _mm_alignr_epi8(row4h, row4l, 8);
   row4l = t1, row4h = t0;
-  
+
   b0 = _mm_alignr_epi8(m6, m5, 8);
   b1 = _mm_unpackhi_epi64(m2, m7);
 
@@ -2682,7 +2704,7 @@ static void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64, true>
   t0 = _mm_alignr_epi8(row4l, row4h, 8);
   t1 = _mm_alignr_epi8(row4h, row4l, 8);
   row4l = t1, row4h = t0;
-  
+
   b0 = _mm_unpackhi_epi64(m3, m1);
   b1 = _mm_unpackhi_epi64(m6, m5);
 
@@ -2760,7 +2782,7 @@ static void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64, true>
   t0 = _mm_alignr_epi8(row4l, row4h, 8);
   t1 = _mm_alignr_epi8(row4h, row4l, 8);
   row4l = t1, row4h = t0;
-  
+
   b0 = _mm_unpackhi_epi64(m4, m2);
   b1 = _mm_unpacklo_epi64(m1, m5);
 
@@ -2838,7 +2860,7 @@ static void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64, true>
   t0 = _mm_alignr_epi8(row4l, row4h, 8);
   t1 = _mm_alignr_epi8(row4h, row4l, 8);
   row4l = t1, row4h = t0;
-  
+
   b0 = _mm_unpacklo_epi64(m1, m3);
   b1 = _mm_unpacklo_epi64(m0, m4);
 
@@ -2916,7 +2938,7 @@ static void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64, true>
   t0 = _mm_alignr_epi8(row4l, row4h, 8);
   t1 = _mm_alignr_epi8(row4h, row4l, 8);
   row4l = t1, row4h = t0;
-  
+
   b0 = _mm_blend_epi16(m6, m0, 0xF0);
   b1 = _mm_unpacklo_epi64(m7, m2);
 
@@ -2994,7 +3016,7 @@ static void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64, true>
   t0 = _mm_alignr_epi8(row4l, row4h, 8);
   t1 = _mm_alignr_epi8(row4h, row4l, 8);
   row4l = t1, row4h = t0;
-  
+
   b0 = _mm_unpackhi_epi64(m6, m3);
   b1 = _mm_blend_epi16(m6, m1, 0xF0);
 
@@ -3072,7 +3094,7 @@ static void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64, true>
   t0 = _mm_alignr_epi8(row4l, row4h, 8);
   t1 = _mm_alignr_epi8(row4h, row4l, 8);
   row4l = t1, row4h = t0;
-  
+
   b0 = _mm_unpacklo_epi64(m3, m7);
   b1 = _mm_alignr_epi8(m0, m5, 8);
 
@@ -3150,7 +3172,7 @@ static void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64, true>
   t0 = _mm_alignr_epi8(row4l, row4h, 8);
   t1 = _mm_alignr_epi8(row4h, row4l, 8);
   row4l = t1, row4h = t0;
-  
+
   b0 = _mm_unpacklo_epi64(m5, m4);
   b1 = _mm_unpackhi_epi64(m3, m0);
 
@@ -3228,7 +3250,7 @@ static void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64, true>
   t0 = _mm_alignr_epi8(row4l, row4h, 8);
   t1 = _mm_alignr_epi8(row4h, row4l, 8);
   row4l = t1, row4h = t0;
-  
+
   b0 = _mm_unpacklo_epi64(m0, m1);
   b1 = _mm_unpacklo_epi64(m2, m3);
 
@@ -3306,7 +3328,7 @@ static void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64, true>
   t0 = _mm_alignr_epi8(row4l, row4h, 8);
   t1 = _mm_alignr_epi8(row4h, row4l, 8);
   row4l = t1, row4h = t0;
-  
+
   b0 = _mm_unpacklo_epi64(m7, m2);
   b1 = _mm_unpackhi_epi64(m4, m6);
 
@@ -3384,7 +3406,7 @@ static void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64, true>
   t0 = _mm_alignr_epi8(row4l, row4h, 8);
   t1 = _mm_alignr_epi8(row4h, row4l, 8);
   row4l = t1, row4h = t0;
-  
+
   row1l = _mm_xor_si128(row3l, row1l);
   row1h = _mm_xor_si128(row3h, row1h);
   _mm_storeu_si128((__m128i *)(void*)(&state.h[0]), _mm_xor_si128(_mm_loadu_si128((const __m128i*)(const void*)(&state.h[0])), row1l));
@@ -3396,6 +3418,452 @@ static void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64, true>
   _mm_storeu_si128((__m128i *)(void*)(&state.h[6]), _mm_xor_si128(_mm_loadu_si128((const __m128i*)(const void*)(&state.h[6])), row2h));
 }
 #endif  // CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
+
+#if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
+static inline int32x4_t VLD1Q_S32(int a, int b, int c, int d)
+{
+    CRYPTOPP_ALIGN_DATA(16) const int32_t data[4] = {d,c,b,a};
+    return vld1q_s32(data);
+}
+#endif
+
+#if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
+static void BLAKE2_NEON_Compress32(const byte* input, BLAKE2_State<word32, false>& state)
+{
+  int32x4_t row1,row2,row3,row4;
+  int32x4_t buf1,buf2,buf3,buf4;
+  int32x4_t ff0,ff1;
+
+  const word32 m0 = ((const word32*)(const void*)input)[ 0];
+  const word32 m1 = ((const word32*)(const void*)input)[ 1];
+  const word32 m2 = ((const word32*)(const void*)input)[ 2];
+  const word32 m3 = ((const word32*)(const void*)input)[ 3];
+  const word32 m4 = ((const word32*)(const void*)input)[ 4];
+  const word32 m5 = ((const word32*)(const void*)input)[ 5];
+  const word32 m6 = ((const word32*)(const void*)input)[ 6];
+  const word32 m7 = ((const word32*)(const void*)input)[ 7];
+  const word32 m8 = ((const word32*)(const void*)input)[ 8];
+  const word32 m9 = ((const word32*)(const void*)input)[ 9];
+  const word32 m10 = ((const word32*)(const void*)input)[10];
+  const word32 m11 = ((const word32*)(const void*)input)[11];
+  const word32 m12 = ((const word32*)(const void*)input)[12];
+  const word32 m13 = ((const word32*)(const void*)input)[13];
+  const word32 m14 = ((const word32*)(const void*)input)[14];
+  const word32 m15 = ((const word32*)(const void*)input)[15];
+
+  assert(IsAlignedOn(&state.h[0],GetAlignmentOf<int32x4_t>()));
+  assert(IsAlignedOn(&state.h[4],GetAlignmentOf<int32x4_t>()));
+  assert(IsAlignedOn(&state.t[0],GetAlignmentOf<int32x4_t>()));
+
+  row1 = ff0 = vld1q_s32((const int32_t*)&state.h[0]);
+  row2 = ff1 = vld1q_s32((const int32_t*)&state.h[4]);
+  row3 = VLD1Q_S32(BLAKE2S_IV(3),BLAKE2S_IV(2),BLAKE2S_IV(1),BLAKE2S_IV(0));
+  row4 = veorq_s32(VLD1Q_S32(BLAKE2S_IV(7),BLAKE2S_IV(6),BLAKE2S_IV(5),BLAKE2S_IV(4)), vld1q_s32(((const int32_t*)&state.t[0])));
+
+  buf1 = VLD1Q_S32(m6,m4,m2,m0);
+  row1 = vaddq_s32(vaddq_s32(row1,buf1),row2);
+  row4 = veorq_s32(row4,row1);
+  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,16),(int32x4_t)vshlq_n_s32((int32x4_t)row4,16));
+  row3 = vaddq_s32(row3,row4);
+  row2 = veorq_s32(row2,row3);
+  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,12),(int32x4_t)vshlq_n_s32((int32x4_t)row2,20));
+
+  buf2 = VLD1Q_S32(m7,m5,m3,m1);
+  row1 = vaddq_s32(vaddq_s32(row1,buf2),row2);
+  row4 = veorq_s32(row4,row1);
+  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,8),(int32x4_t)vshlq_n_s32((int32x4_t)row4,24));
+  row3 = vaddq_s32(row3,row4);
+  row2 = veorq_s32(row2,row3);
+  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,7),(int32x4_t)vshlq_n_s32((int32x4_t)row2,25));
+
+  row4 = vextq_s32(row4,row4,3);
+  row3 = vcombine_s32(vget_high_s32(row3),vget_low_s32(row3));
+  row2 = vextq_s32(row2,row2,1);
+
+  buf3 = VLD1Q_S32(m14,m12,m10,m8);
+  row1 = vaddq_s32(vaddq_s32(row1,buf3),row2);
+  row4 = veorq_s32(row4,row1);
+  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,16),(int32x4_t)vshlq_n_s32((int32x4_t)row4,16));
+  row3 = vaddq_s32(row3,row4);
+  row2 = veorq_s32(row2,row3);
+  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,12),(int32x4_t)vshlq_n_s32((int32x4_t)row2,20));
+
+  buf4 = VLD1Q_S32(m15,m13,m11,m9);
+  row1 = vaddq_s32(vaddq_s32(row1,buf4),row2);
+  row4 = veorq_s32(row4,row1);
+  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,8),(int32x4_t)vshlq_n_s32((int32x4_t)row4,24));
+  row3 = vaddq_s32(row3,row4);
+  row2 = veorq_s32(row2,row3);
+  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,7),(int32x4_t)vshlq_n_s32((int32x4_t)row2,25));
+
+  row4 = vextq_s32(row4,row4,1);
+  row3 = vcombine_s32(vget_high_s32(row3),vget_low_s32(row3));
+  row2 = vextq_s32(row2,row2,3);
+
+  buf1 = VLD1Q_S32(m13,m9,m4,m14);
+  row1 = vaddq_s32(vaddq_s32(row1,buf1),row2);
+  row4 = veorq_s32(row4,row1);
+  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,16),(int32x4_t)vshlq_n_s32((int32x4_t)row4,16));
+  row3 = vaddq_s32(row3,row4);
+  row2 = veorq_s32(row2,row3);
+  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,12),(int32x4_t)vshlq_n_s32((int32x4_t)row2,20));
+
+  buf2 = VLD1Q_S32(m6,m15,m8,m10);
+  row1 = vaddq_s32(vaddq_s32(row1,buf2),row2);
+  row4 = veorq_s32(row4,row1);
+  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,8),(int32x4_t)vshlq_n_s32((int32x4_t)row4,24));
+  row3 = vaddq_s32(row3,row4);
+  row2 = veorq_s32(row2,row3);
+  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,7),(int32x4_t)vshlq_n_s32((int32x4_t)row2,25));
+
+  row4 = vextq_s32(row4,row4,3);
+  row3 = vcombine_s32(vget_high_s32(row3),vget_low_s32(row3));
+  row2 = vextq_s32(row2,row2,1);
+
+  buf3 = VLD1Q_S32(m5,m11,m0,m1);
+  row1 = vaddq_s32(vaddq_s32(row1,buf3),row2);
+  row4 = veorq_s32(row4,row1);
+  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,16),(int32x4_t)vshlq_n_s32((int32x4_t)row4,16));
+  row3 = vaddq_s32(row3,row4);
+  row2 = veorq_s32(row2,row3);
+  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,12),(int32x4_t)vshlq_n_s32((int32x4_t)row2,20));
+
+  buf4 = VLD1Q_S32(m3,m7,m2,m12);
+  row1 = vaddq_s32(vaddq_s32(row1,buf4),row2);
+  row4 = veorq_s32(row4,row1);
+  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,8),(int32x4_t)vshlq_n_s32((int32x4_t)row4,24));
+  row3 = vaddq_s32(row3,row4);
+  row2 = veorq_s32(row2,row3);
+  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,7),(int32x4_t)vshlq_n_s32((int32x4_t)row2,25));
+
+  row4 = vextq_s32(row4,row4,1);
+  row3 = vcombine_s32(vget_high_s32(row3),vget_low_s32(row3));
+  row2 = vextq_s32(row2,row2,3);
+
+  buf1 = VLD1Q_S32(m15,m5,m12,m11);
+  row1 = vaddq_s32(vaddq_s32(row1,buf1),row2);
+  row4 = veorq_s32(row4,row1);
+  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,16),(int32x4_t)vshlq_n_s32((int32x4_t)row4,16));
+  row3 = vaddq_s32(row3,row4);
+  row2 = veorq_s32(row2,row3);
+  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,12),(int32x4_t)vshlq_n_s32((int32x4_t)row2,20));
+
+  buf2 = VLD1Q_S32(m13,m2,m0,m8);
+  row1 = vaddq_s32(vaddq_s32(row1,buf2),row2);
+  row4 = veorq_s32(row4,row1);
+  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,8),(int32x4_t)vshlq_n_s32((int32x4_t)row4,24));
+  row3 = vaddq_s32(row3,row4);
+  row2 = veorq_s32(row2,row3);
+  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,7),(int32x4_t)vshlq_n_s32((int32x4_t)row2,25));
+
+  row4 = vextq_s32(row4,row4,3);
+  row3 = vcombine_s32(vget_high_s32(row3),vget_low_s32(row3));
+  row2 = vextq_s32(row2,row2,1);
+
+  buf3 = VLD1Q_S32(m9,m7,m3,m10);
+  row1 = vaddq_s32(vaddq_s32(row1,buf3),row2);
+  row4 = veorq_s32(row4,row1);
+  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,16),(int32x4_t)vshlq_n_s32((int32x4_t)row4,16));
+  row3 = vaddq_s32(row3,row4);
+  row2 = veorq_s32(row2,row3);
+  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,12),(int32x4_t)vshlq_n_s32((int32x4_t)row2,20));
+
+  buf4 = VLD1Q_S32(m4,m1,m6,m14);
+  row1 = vaddq_s32(vaddq_s32(row1,buf4),row2);
+  row4 = veorq_s32(row4,row1);
+  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,8),(int32x4_t)vshlq_n_s32((int32x4_t)row4,24));
+  row3 = vaddq_s32(row3,row4);
+  row2 = veorq_s32(row2,row3);
+  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,7),(int32x4_t)vshlq_n_s32((int32x4_t)row2,25));
+
+  row4 = vextq_s32(row4,row4,1);
+  row3 = vcombine_s32(vget_high_s32(row3),vget_low_s32(row3));
+  row2 = vextq_s32(row2,row2,3);
+
+  buf1 = VLD1Q_S32(m11,m13,m3,m7);
+  row1 = vaddq_s32(vaddq_s32(row1,buf1),row2);
+  row4 = veorq_s32(row4,row1);
+  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,16),(int32x4_t)vshlq_n_s32((int32x4_t)row4,16));
+  row3 = vaddq_s32(row3,row4);
+  row2 = veorq_s32(row2,row3);
+  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,12),(int32x4_t)vshlq_n_s32((int32x4_t)row2,20));
+
+  buf2 = VLD1Q_S32(m14,m12,m1,m9);
+  row1 = vaddq_s32(vaddq_s32(row1,buf2),row2);
+  row4 = veorq_s32(row4,row1);
+  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,8),(int32x4_t)vshlq_n_s32((int32x4_t)row4,24));
+  row3 = vaddq_s32(row3,row4);
+  row2 = veorq_s32(row2,row3);
+  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,7),(int32x4_t)vshlq_n_s32((int32x4_t)row2,25));
+
+  row4 = vextq_s32(row4,row4,3);
+  row3 = vcombine_s32(vget_high_s32(row3),vget_low_s32(row3));
+  row2 = vextq_s32(row2,row2,1);
+
+  buf3 = VLD1Q_S32(m15,m4,m5,m2);
+  row1 = vaddq_s32(vaddq_s32(row1,buf3),row2);
+  row4 = veorq_s32(row4,row1);
+  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,16),(int32x4_t)vshlq_n_s32((int32x4_t)row4,16));
+  row3 = vaddq_s32(row3,row4);
+  row2 = veorq_s32(row2,row3);
+  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,12),(int32x4_t)vshlq_n_s32((int32x4_t)row2,20));
+
+  buf4 = VLD1Q_S32(m8,m0,m10,m6);
+  row1 = vaddq_s32(vaddq_s32(row1,buf4),row2);
+  row4 = veorq_s32(row4,row1);
+  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,8),(int32x4_t)vshlq_n_s32((int32x4_t)row4,24));
+  row3 = vaddq_s32(row3,row4);
+  row2 = veorq_s32(row2,row3);
+  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,7),(int32x4_t)vshlq_n_s32((int32x4_t)row2,25));
+
+  row4 = vextq_s32(row4,row4,1);
+  row3 = vcombine_s32(vget_high_s32(row3),vget_low_s32(row3));
+  row2 = vextq_s32(row2,row2,3);
+
+  buf1 = VLD1Q_S32(m10,m2,m5,m9);
+  row1 = vaddq_s32(vaddq_s32(row1,buf1),row2);
+  row4 = veorq_s32(row4,row1);
+  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,16),(int32x4_t)vshlq_n_s32((int32x4_t)row4,16));
+  row3 = vaddq_s32(row3,row4);
+  row2 = veorq_s32(row2,row3);
+  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,12),(int32x4_t)vshlq_n_s32((int32x4_t)row2,20));
+
+  buf2 = VLD1Q_S32(m15,m4,m7,m0);
+  row1 = vaddq_s32(vaddq_s32(row1,buf2),row2);
+  row4 = veorq_s32(row4,row1);
+  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,8),(int32x4_t)vshlq_n_s32((int32x4_t)row4,24));
+  row3 = vaddq_s32(row3,row4);
+  row2 = veorq_s32(row2,row3);
+  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,7),(int32x4_t)vshlq_n_s32((int32x4_t)row2,25));
+
+  row4 = vextq_s32(row4,row4,3);
+  row3 = vcombine_s32(vget_high_s32(row3),vget_low_s32(row3));
+  row2 = vextq_s32(row2,row2,1);
+
+  buf3 = VLD1Q_S32(m3,m6,m11,m14);
+  row1 = vaddq_s32(vaddq_s32(row1,buf3),row2);
+  row4 = veorq_s32(row4,row1);
+  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,16),(int32x4_t)vshlq_n_s32((int32x4_t)row4,16));
+  row3 = vaddq_s32(row3,row4);
+  row2 = veorq_s32(row2,row3);
+  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,12),(int32x4_t)vshlq_n_s32((int32x4_t)row2,20));
+
+  buf4 = VLD1Q_S32(m13,m8,m12,m1);
+  row1 = vaddq_s32(vaddq_s32(row1,buf4),row2);
+  row4 = veorq_s32(row4,row1);
+  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,8),(int32x4_t)vshlq_n_s32((int32x4_t)row4,24));
+  row3 = vaddq_s32(row3,row4);
+  row2 = veorq_s32(row2,row3);
+  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,7),(int32x4_t)vshlq_n_s32((int32x4_t)row2,25));
+
+  row4 = vextq_s32(row4,row4,1);
+  row3 = vcombine_s32(vget_high_s32(row3),vget_low_s32(row3));
+  row2 = vextq_s32(row2,row2,3);
+
+  buf1 = VLD1Q_S32(m8,m0,m6,m2);
+  row1 = vaddq_s32(vaddq_s32(row1,buf1),row2);
+  row4 = veorq_s32(row4,row1);
+  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,16),(int32x4_t)vshlq_n_s32((int32x4_t)row4,16));
+  row3 = vaddq_s32(row3,row4);
+  row2 = veorq_s32(row2,row3);
+  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,12),(int32x4_t)vshlq_n_s32((int32x4_t)row2,20));
+
+  buf2 = VLD1Q_S32(m3,m11,m10,m12);
+  row1 = vaddq_s32(vaddq_s32(row1,buf2),row2);
+  row4 = veorq_s32(row4,row1);
+  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,8),(int32x4_t)vshlq_n_s32((int32x4_t)row4,24));
+  row3 = vaddq_s32(row3,row4);
+  row2 = veorq_s32(row2,row3);
+  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,7),(int32x4_t)vshlq_n_s32((int32x4_t)row2,25));
+
+  row4 = vextq_s32(row4,row4,3);
+  row3 = vcombine_s32(vget_high_s32(row3),vget_low_s32(row3));
+  row2 = vextq_s32(row2,row2,1);
+
+  buf3 = VLD1Q_S32(m1,m15,m7,m4);
+  row1 = vaddq_s32(vaddq_s32(row1,buf3),row2);
+  row4 = veorq_s32(row4,row1);
+  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,16),(int32x4_t)vshlq_n_s32((int32x4_t)row4,16));
+  row3 = vaddq_s32(row3,row4);
+  row2 = veorq_s32(row2,row3);
+  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,12),(int32x4_t)vshlq_n_s32((int32x4_t)row2,20));
+
+  buf4 = VLD1Q_S32(m9,m14,m5,m13);
+  row1 = vaddq_s32(vaddq_s32(row1,buf4),row2);
+  row4 = veorq_s32(row4,row1);
+  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,8),(int32x4_t)vshlq_n_s32((int32x4_t)row4,24));
+  row3 = vaddq_s32(row3,row4);
+  row2 = veorq_s32(row2,row3);
+  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,7),(int32x4_t)vshlq_n_s32((int32x4_t)row2,25));
+
+  row4 = vextq_s32(row4,row4,1);
+  row3 = vcombine_s32(vget_high_s32(row3),vget_low_s32(row3));
+  row2 = vextq_s32(row2,row2,3);
+
+  buf1 = VLD1Q_S32(m4,m14,m1,m12);
+  row1 = vaddq_s32(vaddq_s32(row1,buf1),row2);
+  row4 = veorq_s32(row4,row1);
+  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,16),(int32x4_t)vshlq_n_s32((int32x4_t)row4,16));
+  row3 = vaddq_s32(row3,row4);
+  row2 = veorq_s32(row2,row3);
+  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,12),(int32x4_t)vshlq_n_s32((int32x4_t)row2,20));
+
+  buf2 = VLD1Q_S32(m10,m13,m15,m5);
+  row1 = vaddq_s32(vaddq_s32(row1,buf2),row2);
+  row4 = veorq_s32(row4,row1);
+  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,8),(int32x4_t)vshlq_n_s32((int32x4_t)row4,24));
+  row3 = vaddq_s32(row3,row4);
+  row2 = veorq_s32(row2,row3);
+  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,7),(int32x4_t)vshlq_n_s32((int32x4_t)row2,25));
+
+  row4 = vextq_s32(row4,row4,3);
+  row3 = vcombine_s32(vget_high_s32(row3),vget_low_s32(row3));
+  row2 = vextq_s32(row2,row2,1);
+
+  buf3 = VLD1Q_S32(m8,m9,m6,m0);
+  row1 = vaddq_s32(vaddq_s32(row1,buf3),row2);
+  row4 = veorq_s32(row4,row1);
+  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,16),(int32x4_t)vshlq_n_s32((int32x4_t)row4,16));
+  row3 = vaddq_s32(row3,row4);
+  row2 = veorq_s32(row2,row3);
+  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,12),(int32x4_t)vshlq_n_s32((int32x4_t)row2,20));
+
+  buf4 = VLD1Q_S32(m11,m2,m3,m7);
+  row1 = vaddq_s32(vaddq_s32(row1,buf4),row2);
+  row4 = veorq_s32(row4,row1);
+  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,8),(int32x4_t)vshlq_n_s32((int32x4_t)row4,24));
+  row3 = vaddq_s32(row3,row4);
+  row2 = veorq_s32(row2,row3);
+  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,7),(int32x4_t)vshlq_n_s32((int32x4_t)row2,25));
+
+  row4 = vextq_s32(row4,row4,1);
+  row3 = vcombine_s32(vget_high_s32(row3),vget_low_s32(row3));
+  row2 = vextq_s32(row2,row2,3);
+
+  buf1 = VLD1Q_S32(m3,m12,m7,m13);
+  row1 = vaddq_s32(vaddq_s32(row1,buf1),row2);
+  row4 = veorq_s32(row4,row1);
+  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,16),(int32x4_t)vshlq_n_s32((int32x4_t)row4,16));
+  row3 = vaddq_s32(row3,row4);
+  row2 = veorq_s32(row2,row3);
+  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,12),(int32x4_t)vshlq_n_s32((int32x4_t)row2,20));
+
+  buf2 = VLD1Q_S32(m9,m1,m14,m11);
+  row1 = vaddq_s32(vaddq_s32(row1,buf2),row2);
+  row4 = veorq_s32(row4,row1);
+  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,8),(int32x4_t)vshlq_n_s32((int32x4_t)row4,24));
+  row3 = vaddq_s32(row3,row4);
+  row2 = veorq_s32(row2,row3);
+  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,7),(int32x4_t)vshlq_n_s32((int32x4_t)row2,25));
+
+  row4 = vextq_s32(row4,row4,3);
+  row3 = vcombine_s32(vget_high_s32(row3),vget_low_s32(row3));
+  row2 = vextq_s32(row2,row2,1);
+
+  buf3 = VLD1Q_S32(m2,m8,m15,m5);
+  row1 = vaddq_s32(vaddq_s32(row1,buf3),row2);
+  row4 = veorq_s32(row4,row1);
+  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,16),(int32x4_t)vshlq_n_s32((int32x4_t)row4,16));
+  row3 = vaddq_s32(row3,row4);
+  row2 = veorq_s32(row2,row3);
+  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,12),(int32x4_t)vshlq_n_s32((int32x4_t)row2,20));
+
+  buf4 = VLD1Q_S32(m10,m6,m4,m0);
+  row1 = vaddq_s32(vaddq_s32(row1,buf4),row2);
+  row4 = veorq_s32(row4,row1);
+  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,8),(int32x4_t)vshlq_n_s32((int32x4_t)row4,24));
+  row3 = vaddq_s32(row3,row4);
+  row2 = veorq_s32(row2,row3);
+  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,7),(int32x4_t)vshlq_n_s32((int32x4_t)row2,25));
+
+  row4 = vextq_s32(row4,row4,1);
+  row3 = vcombine_s32(vget_high_s32(row3),vget_low_s32(row3));
+  row2 = vextq_s32(row2,row2,3);
+
+  buf1 = VLD1Q_S32(m0,m11,m14,m6);
+  row1 = vaddq_s32(vaddq_s32(row1,buf1),row2);
+  row4 = veorq_s32(row4,row1);
+  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,16),(int32x4_t)vshlq_n_s32((int32x4_t)row4,16));
+  row3 = vaddq_s32(row3,row4);
+  row2 = veorq_s32(row2,row3);
+  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,12),(int32x4_t)vshlq_n_s32((int32x4_t)row2,20));
+
+  buf2 = VLD1Q_S32(m8,m3,m9,m15);
+  row1 = vaddq_s32(vaddq_s32(row1,buf2),row2);
+  row4 = veorq_s32(row4,row1);
+  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,8),(int32x4_t)vshlq_n_s32((int32x4_t)row4,24));
+  row3 = vaddq_s32(row3,row4);
+  row2 = veorq_s32(row2,row3);
+  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,7),(int32x4_t)vshlq_n_s32((int32x4_t)row2,25));
+
+  row4 = vextq_s32(row4,row4,3);
+  row3 = vcombine_s32(vget_high_s32(row3),vget_low_s32(row3));
+  row2 = vextq_s32(row2,row2,1);
+
+  buf3 = VLD1Q_S32(m10,m1,m13,m12);
+  row1 = vaddq_s32(vaddq_s32(row1,buf3),row2);
+  row4 = veorq_s32(row4,row1);
+  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,16),(int32x4_t)vshlq_n_s32((int32x4_t)row4,16));
+  row3 = vaddq_s32(row3,row4);
+  row2 = veorq_s32(row2,row3);
+  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,12),(int32x4_t)vshlq_n_s32((int32x4_t)row2,20));
+
+  buf4 = VLD1Q_S32(m5,m4,m7,m2);
+  row1 = vaddq_s32(vaddq_s32(row1,buf4),row2);
+  row4 = veorq_s32(row4,row1);
+  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,8),(int32x4_t)vshlq_n_s32((int32x4_t)row4,24));
+  row3 = vaddq_s32(row3,row4);
+  row2 = veorq_s32(row2,row3);
+  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,7),(int32x4_t)vshlq_n_s32((int32x4_t)row2,25));
+
+  row4 = vextq_s32(row4,row4,1);
+  row3 = vcombine_s32(vget_high_s32(row3),vget_low_s32(row3));
+  row2 = vextq_s32(row2,row2,3);
+
+  buf1 = VLD1Q_S32(m1,m7,m8,m10);
+  row1 = vaddq_s32(vaddq_s32(row1,buf1),row2);
+  row4 = veorq_s32(row4,row1);
+  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,16),(int32x4_t)vshlq_n_s32((int32x4_t)row4,16));
+  row3 = vaddq_s32(row3,row4);
+  row2 = veorq_s32(row2,row3);
+  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,12),(int32x4_t)vshlq_n_s32((int32x4_t)row2,20));
+
+  buf2 = VLD1Q_S32(m5,m6,m4,m2);
+  row1 = vaddq_s32(vaddq_s32(row1,buf2),row2);
+  row4 = veorq_s32(row4,row1);
+  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,8),(int32x4_t)vshlq_n_s32((int32x4_t)row4,24));
+  row3 = vaddq_s32(row3,row4);
+  row2 = veorq_s32(row2,row3);
+  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,7),(int32x4_t)vshlq_n_s32((int32x4_t)row2,25));
+
+  row4 = vextq_s32(row4,row4,3);
+  row3 = vcombine_s32(vget_high_s32(row3),vget_low_s32(row3));
+  row2 = vextq_s32(row2,row2,1);
+
+  buf3 = VLD1Q_S32(m13,m3,m9,m15);
+  row1 = vaddq_s32(vaddq_s32(row1,buf3),row2);
+  row4 = veorq_s32(row4,row1);
+  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,16),(int32x4_t)vshlq_n_s32((int32x4_t)row4,16));
+  row3 = vaddq_s32(row3,row4);
+  row2 = veorq_s32(row2,row3);
+  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,12),(int32x4_t)vshlq_n_s32((int32x4_t)row2,20));
+
+  buf4 = VLD1Q_S32(m0,m12,m14,m11);
+  row1 = vaddq_s32(vaddq_s32(row1,buf4),row2);
+  row4 = veorq_s32(row4,row1);
+  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,8),(int32x4_t)vshlq_n_s32((int32x4_t)row4,24));
+  row3 = vaddq_s32(row3,row4);
+  row2 = veorq_s32(row2,row3);
+  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,7),(int32x4_t)vshlq_n_s32((int32x4_t)row2,25));
+
+  row4 = vextq_s32(row4,row4,1);
+  row3 = vcombine_s32(vget_high_s32(row3),vget_low_s32(row3));
+  row2 = vextq_s32(row2,row2,3);
+
+  vst1q_s32((int32_t*)&state.h[0],veorq_s32(ff0,veorq_s32(row1,row3)));
+  vst1q_s32((int32_t*)&state.h[4],veorq_s32(ff1,veorq_s32(row2,row4)));
+}
+#endif
 
 template class BLAKE2_Base<word32, false>;
 template class BLAKE2_Base<word64, true>;
