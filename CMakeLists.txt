@@ -52,6 +52,9 @@ if(NOT CRYPTOPP_DATA_DIR STREQUAL "")
 endif()
 
 if(WINDOWS_STORE OR WINDOWS_PHONE)
+	if("${CMAKE_SYSTEM_VERSION}" MATCHES "10\\.0.*")
+		SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /D\"_WIN32_WINNT=0x0A00\"" )
+	endif()
 	SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /FI\"winapifamily.h\"" )
 endif()
 #============================================================================
