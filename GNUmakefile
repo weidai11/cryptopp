@@ -527,16 +527,16 @@ ifeq ($(HAS_SOLIB_VERSION),1)
 endif
 endif
 
-libcryptopp.a: $(LIBOBJS) | public_service
+libcryptopp.a: $(LIBOBJS) | config_warning
 	$(AR) $(ARFLAGS) $@ $(LIBOBJS)
 	$(RANLIB) $@
 
 ifeq ($(HAS_SOLIB_VERSION),1)
 .PHONY: libcryptopp.so
-libcryptopp.so: libcryptopp.so$(SOLIB_VERSION_SUFFIX)
+libcryptopp.so: libcryptopp.so$(SOLIB_VERSION_SUFFIX) | so_warning
 endif
 
-libcryptopp.so$(SOLIB_VERSION_SUFFIX): $(LIBOBJS) | public_service
+libcryptopp.so$(SOLIB_VERSION_SUFFIX): $(LIBOBJS)
 	$(CXX) -shared $(SOLIB_FLAGS) -o $@ $(CXXFLAGS) $(LDFLAGS) $(LIBOBJS) $(LDLIBS)
 ifeq ($(HAS_SOLIB_VERSION),1)
 	-$(LN) libcryptopp.so$(SOLIB_VERSION_SUFFIX) libcryptopp.so
@@ -546,7 +546,7 @@ endif
 libcryptopp.dylib: $(LIBOBJS)
 	$(CXX) -dynamiclib -o $@ $(CXXFLAGS) -install_name "$@" -current_version "$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)" -compatibility_version "$(LIB_MAJOR).$(LIB_MINOR)" -headerpad_max_install_names $(LDFLAGS) $(LIBOBJS)
 
-cryptest.exe: libcryptopp.a $(TESTOBJS) | public_service
+cryptest.exe: libcryptopp.a $(TESTOBJS) | config_warning
 	$(CXX) -o $@ $(CXXFLAGS) $(TESTOBJS) ./libcryptopp.a $(LDFLAGS) $(LDLIBS)
 
 # Makes it faster to test changes
@@ -678,8 +678,8 @@ endif
 UNALIGNED_ACCESS := $(shell $(EGREP) -c "^[[:space:]]*//[[:space:]]*\#[[:space:]]*define[[:space:]]*CRYPTOPP_NO_UNALIGNED_DATA_ACCESS" config.h)
 NO_INIT_PRIORITY := $(shell $(EGREP) -c "^[[:space:]]*//[[:space:]]*\#[[:space:]]*define[[:space:]]*CRYPTOPP_INIT_PRIORITY" config.h)
 COMPATIBILITY_562 := $(shell $(EGREP) -c "^[[:space:]]*\#[[:space:]]*define[[:space:]]*CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562" config.h)
-.PHONY: public_service
-public_service:
+.PHONY: config_warning
+config_warning:
 ifneq ($(UNALIGNED_ACCESS),0)
 	$(info WARNING: CRYPTOPP_NO_UNALIGNED_DATA_ACCESS is not defined in config.h.)
 endif
@@ -695,6 +695,9 @@ ifneq ($(UNALIGNED_ACCESS)$(NO_INIT_PRIORITY)$(COMPATIBILITY_562),000)
 	$(info WARNING: See http://cryptopp.com/wiki/config.h for more details.)
 	$(info )
 endif
+
+.PHONY: so_warning
+so_warning:
 ifeq ($(HAS_SOLIB_VERSION),1)
 	$(info WARNING: Only the symlinks to the shared-object library have been updated.)
 	$(info WARNING: If the library is installed in a system directory you will need)
