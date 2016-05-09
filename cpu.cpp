@@ -253,7 +253,7 @@ void DetectX86Features()
 
 // http://community.arm.com/groups/android-community/blog/2014/10/10/runtime-detection-of-cpu-features-on-an-armv8-a-cpu
 // http://stackoverflow.com/questions/26701262/how-to-check-the-existence-of-neon-on-arm
-#elif defined(CRYPTOPP_BOOL_ARM32) || defined (CRYPTOPP_BOOL_ARM64)
+#elif (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
 
 bool g_ArmDetectionDone = false;
 bool g_hasNEON = false, g_hasCRC32 = false;
