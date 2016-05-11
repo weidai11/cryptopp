@@ -309,7 +309,8 @@ void BLAKE2_Base<W, T_64bit>::Restart(const BLAKE2_ParameterBlock<T_64bit>& bloc
 	}
 
 	PutBlock<W, LittleEndian, true> put(&m_block, m_state.h);
-	put(BLAKE2B_IV(0))(BLAKE2B_IV(1))(BLAKE2B_IV(2))(BLAKE2B_IV(3))(BLAKE2B_IV(4))(BLAKE2B_IV(5))(BLAKE2B_IV(6))(BLAKE2B_IV(7))(BLAKE2B_IV(8));
+	put(BLAKE2_IV<T_64bit>::iv[0])(BLAKE2_IV<T_64bit>::iv[1])(BLAKE2_IV<T_64bit>::iv[2])(BLAKE2_IV<T_64bit>::iv[3]);
+	put(BLAKE2_IV<T_64bit>::iv[4])(BLAKE2_IV<T_64bit>::iv[5])(BLAKE2_IV<T_64bit>::iv[6])(BLAKE2_IV<T_64bit>::iv[7]);
 
 	// When BLAKE2 is keyed, the input stream is simply {key||message}. Key it
 	// during Restart to avoid FirstPut and friends. Key size == 0 means no key.
