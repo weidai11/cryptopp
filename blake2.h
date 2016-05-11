@@ -1,7 +1,7 @@
-// blake2.cpp - written and placed in the public domain by Jeffrey Walton and Zooko
-//              Wilcox-O'Hearn. Copyright assigned to the Crypto++ project.
-//              Based on Aumasson, Neves, Wilcox-O’Hearn and Winnerlein's reference BLAKE2
-//              implementation at http://github.com/BLAKE2/BLAKE2.
+// blake2.h - written and placed in the public domain by Jeffrey Walton and Zooko
+//            Wilcox-O'Hearn. Copyright assigned to the Crypto++ project.
+//            Based on Aumasson, Neves, Wilcox-O’Hearn and Winnerlein's reference BLAKE2
+//            implementation at http://github.com/BLAKE2/BLAKE2.
 
 //! \file blake2.h
 //! \brief Classes for BLAKE2b and BLAKE2s message digests and keyed message digests
@@ -10,6 +10,9 @@
 //!   Static algorithm names return either "BLAKE2b" or "BLAKE2s". An object algorithm name follows
 //!   the naming described in <A HREF="http://tools.ietf.org/html/rfc7693#section-4">RFC 7693, The
 //!   BLAKE2 Cryptographic Hash and Message Authentication Code (MAC)</A>.
+//! \details The library provides specialized SSE2, SSE4 and NEON version of the BLAKE2 compression
+//!   function. For best results under ARM NEON, specify both an architecture and cpu. For example:
+//!   <pre>export CXXFLAGS="-DNDEBUG -g2 -O3 -march=armv8-a+crc -mcpu=cortex-a53"</pre>
 
 #ifndef CRYPTOPP_BLAKE2_H
 #define CRYPTOPP_BLAKE2_H
@@ -171,7 +174,7 @@ struct CRYPTOPP_NO_VTABLE BLAKE2_State
 		length = 0;
 	}
 
-	// SSE2 and SSE4 depend upon t[] and f[] being side-by-side
+	// SSE2, SSE4 and NEON depend upon t[] and f[] being side-by-side
 	CRYPTOPP_ALIGN_DATA(BLAKE2_DALIGN)
 	W h[8];
 	W t[2], f[2];
