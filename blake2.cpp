@@ -48,7 +48,7 @@ static void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64, true>
 
 #if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
 static void BLAKE2_NEON_Compress32(const byte* input, BLAKE2_State<word32, false>& state);
-static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>& state);
+//static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>& state);
 #endif
 
 #ifndef CRYPTOPP_DOXYGEN_PROCESSING
@@ -164,7 +164,7 @@ pfnCompress64 InitializeCompress64Fn()
 		return &BLAKE2_SSE2_Compress64;
 	else
 #endif
-#if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
+#if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE && 0
 	if (HasNEON())
 		return &BLAKE2_NEON_Compress64;
 	else
@@ -1007,6 +1007,7 @@ static void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64, true>
   row4h = _mm_unpackhi_epi64(t0, _mm_unpacklo_epi64(row4h, row4h));
   row2l = _mm_unpackhi_epi64(row2l, _mm_unpacklo_epi64(row2h, row2h));
   row2h = _mm_unpackhi_epi64(row2h, _mm_unpacklo_epi64(t1, t1));
+
   b0 = _mm_set_epi64x(m10, m8);
   b1 = _mm_set_epi64x(m14, m12);
   row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
@@ -1078,6 +1079,7 @@ static void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64, true>
   row4h = _mm_unpackhi_epi64(t0, _mm_unpacklo_epi64(row4h, row4h));
   row2l = _mm_unpackhi_epi64(row2l, _mm_unpacklo_epi64(row2h, row2h));
   row2h = _mm_unpackhi_epi64(row2h, _mm_unpacklo_epi64(t1, t1));
+
   b0 = _mm_set_epi64x(m0, m1);
   b1 = _mm_set_epi64x(m5, m11);
   row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
@@ -1149,6 +1151,7 @@ static void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64, true>
   row4h = _mm_unpackhi_epi64(t0, _mm_unpacklo_epi64(row4h, row4h));
   row2l = _mm_unpackhi_epi64(row2l, _mm_unpacklo_epi64(row2h, row2h));
   row2h = _mm_unpackhi_epi64(row2h, _mm_unpacklo_epi64(t1, t1));
+
   b0 = _mm_set_epi64x(m3, m10);
   b1 = _mm_set_epi64x(m9, m7);
   row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
@@ -1220,6 +1223,7 @@ static void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64, true>
   row4h = _mm_unpackhi_epi64(t0, _mm_unpacklo_epi64(row4h, row4h));
   row2l = _mm_unpackhi_epi64(row2l, _mm_unpacklo_epi64(row2h, row2h));
   row2h = _mm_unpackhi_epi64(row2h, _mm_unpacklo_epi64(t1, t1));
+
   b0 = _mm_set_epi64x(m5, m2);
   b1 = _mm_set_epi64x(m15, m4);
   row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
@@ -1291,6 +1295,7 @@ static void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64, true>
   row4h = _mm_unpackhi_epi64(t0, _mm_unpacklo_epi64(row4h, row4h));
   row2l = _mm_unpackhi_epi64(row2l, _mm_unpacklo_epi64(row2h, row2h));
   row2h = _mm_unpackhi_epi64(row2h, _mm_unpacklo_epi64(t1, t1));
+
   b0 = _mm_set_epi64x(m11, m14);
   b1 = _mm_set_epi64x(m3, m6);
   row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
@@ -1363,6 +1368,7 @@ static void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64, true>
   row4h = _mm_unpackhi_epi64(t0, _mm_unpacklo_epi64(row4h, row4h));
   row2l = _mm_unpackhi_epi64(row2l, _mm_unpacklo_epi64(row2h, row2h));
   row2h = _mm_unpackhi_epi64(row2h, _mm_unpacklo_epi64(t1, t1));
+
   b0 = _mm_set_epi64x(m7, m4);
   b1 = _mm_set_epi64x(m1, m15);
   row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
@@ -1434,6 +1440,7 @@ static void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64, true>
   row4h = _mm_unpackhi_epi64(t0, _mm_unpacklo_epi64(row4h, row4h));
   row2l = _mm_unpackhi_epi64(row2l, _mm_unpacklo_epi64(row2h, row2h));
   row2h = _mm_unpackhi_epi64(row2h, _mm_unpacklo_epi64(t1, t1));
+
   b0 = _mm_set_epi64x(m6, m0);
   b1 = _mm_set_epi64x(m8, m9);
   row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
@@ -1505,6 +1512,7 @@ static void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64, true>
   row4h = _mm_unpackhi_epi64(t0, _mm_unpacklo_epi64(row4h, row4h));
   row2l = _mm_unpackhi_epi64(row2l, _mm_unpacklo_epi64(row2h, row2h));
   row2h = _mm_unpackhi_epi64(row2h, _mm_unpacklo_epi64(t1, t1));
+
   b0 = _mm_set_epi64x(m15, m5);
   b1 = _mm_set_epi64x(m2, m8);
   row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
@@ -1576,6 +1584,7 @@ static void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64, true>
   row4h = _mm_unpackhi_epi64(t0, _mm_unpacklo_epi64(row4h, row4h));
   row2l = _mm_unpackhi_epi64(row2l, _mm_unpacklo_epi64(row2h, row2h));
   row2h = _mm_unpackhi_epi64(row2h, _mm_unpacklo_epi64(t1, t1));
+
   b0 = _mm_set_epi64x(m13, m12);
   b1 = _mm_set_epi64x(m10, m1);
   row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
@@ -1647,6 +1656,7 @@ static void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64, true>
   row4h = _mm_unpackhi_epi64(t0, _mm_unpacklo_epi64(row4h, row4h));
   row2l = _mm_unpackhi_epi64(row2l, _mm_unpacklo_epi64(row2h, row2h));
   row2h = _mm_unpackhi_epi64(row2h, _mm_unpacklo_epi64(t1, t1));
+
   b0 = _mm_set_epi64x(m9, m15);
   b1 = _mm_set_epi64x(m13, m3);
   row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
@@ -1718,6 +1728,7 @@ static void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64, true>
   row4h = _mm_unpackhi_epi64(t0, _mm_unpacklo_epi64(row4h, row4h));
   row2l = _mm_unpackhi_epi64(row2l, _mm_unpacklo_epi64(row2h, row2h));
   row2h = _mm_unpackhi_epi64(row2h, _mm_unpacklo_epi64(t1, t1));
+
   b0 = _mm_set_epi64x(m10, m8);
   b1 = _mm_set_epi64x(m14, m12);
   row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
@@ -1789,6 +1800,7 @@ static void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64, true>
   row4h = _mm_unpackhi_epi64(t0, _mm_unpacklo_epi64(row4h, row4h));
   row2l = _mm_unpackhi_epi64(row2l, _mm_unpacklo_epi64(row2h, row2h));
   row2h = _mm_unpackhi_epi64(row2h, _mm_unpacklo_epi64(t1, t1));
+
   b0 = _mm_set_epi64x(m0, m1);
   b1 = _mm_set_epi64x(m5, m11);
   row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l);
@@ -3371,1443 +3383,1489 @@ static void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64, true>
 
 #if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
 
-// Reverse words for ARM (use arguments to _mm_set_epi32 without reversing them).
-#define vld1q_s32_le(x, a,b,c,d) d[1]=c[0],d[2]=b[0],d[3]=a[0]; x = vld1q_s32(d);
-#define vld1q_s64_le(x, a,b) a[1]=b[0]; x = vld1q_s64(a);
-
-// Performs c = a-high|b-low (c=vcombine_s64(vget_high_s64(a),vget_low_s64(b)))
-#define combine_x_ah_bl(x, a,b) x=vsetq_lane_s64(vgetq_lane_s64(a,1),x,0); x=vsetq_lane_s64(vgetq_lane_s64(b,0),x,1);
-
-// Performs c = a-low|b-high (c=vcombine_s64(vget_low_s64(a),vget_high_s64(b)))
-#define combine_x_al_bh(x, a,b) x=vsetq_lane_s64(vgetq_lane_s64(a,1),x,0); x=vsetq_lane_s64(vgetq_lane_s64(b,0),x,1);
-
-// Performs c = c-high|a-low
-#define combine_x_xl_ah(x, a) x=vsetq_lane_s64(vgetq_lane_s64(a,1),x,1);
-
-// Performs c = c-low|a-low
-#define combine_x_xl_al(x, a) x=vsetq_lane_s64(vgetq_lane_s64(a,0),x,1);
-
-// Performs c = c-high|a-high
-#define combine_x_xh_ah(x, a) x=vsetq_lane_s64(vgetq_lane_s64(x,1),x,0); x=vsetq_lane_s64(vgetq_lane_s64(a,1),x,1);
-
-// Performs c = c-high|a-low
-#define combine_x_xh_al(x, a) x=vsetq_lane_s64(vgetq_lane_s64(x,1),x,0); x=vsetq_lane_s64(vgetq_lane_s64(a,0),x,1);
-
-// Performs x = mX (high) | mY (low). Extraction is needed because m is packed
-#define combine_lanes(x,m1,l1,m2,l2) x=vsetq_lane_s64(vgetq_lane_s64(m1,l1),x,0); x=vsetq_lane_s64(vgetq_lane_s64(m2,l2),x,1);
+#define vld1q_u32_rev(x, a,b,c,d) d[1]=c[0],d[2]=b[0],d[3]=a[0]; x = vld1q_u32(d);
 
 static void BLAKE2_NEON_Compress32(const byte* input, BLAKE2_State<word32, false>& state)
 {
-  assert(IsAlignedOn(&state.h[0],GetAlignmentOf<int32x4_t>()));
-  assert(IsAlignedOn(&state.h[4],GetAlignmentOf<int32x4_t>()));
-  assert(IsAlignedOn(&state.t[0],GetAlignmentOf<int32x4_t>()));
+  assert(IsAlignedOn(&state.h[0],GetAlignmentOf<uint32x4_t>()));
+  assert(IsAlignedOn(&state.h[4],GetAlignmentOf<uint32x4_t>()));
+  assert(IsAlignedOn(&state.t[0],GetAlignmentOf<uint32x4_t>()));
 
-  CRYPTOPP_ALIGN_DATA(BLAKE2_DALIGN) static const int32_t vv1[4] = {BLAKE2S_IV(0),BLAKE2S_IV(1),BLAKE2S_IV(2),BLAKE2S_IV(3)};
-  CRYPTOPP_ALIGN_DATA(BLAKE2_DALIGN) static const int32_t vv2[4] = {BLAKE2S_IV(4),BLAKE2S_IV(5),BLAKE2S_IV(6),BLAKE2S_IV(7)};
-
-  CRYPTOPP_ALIGN_DATA(BLAKE2_DALIGN) int32_t m0[4], m1[4], m2[4], m3[4], m4[4], m5[4], m6[4], m7[4];
-  CRYPTOPP_ALIGN_DATA(BLAKE2_DALIGN) int32_t m8[4], m9[4], m10[4], m11[4], m12[4], m13[4], m14[4], m15[4];
+  CRYPTOPP_ALIGN_DATA(BLAKE2_DALIGN) uint32_t m0[4], m1[4], m2[4], m3[4], m4[4], m5[4], m6[4], m7[4];
+  CRYPTOPP_ALIGN_DATA(BLAKE2_DALIGN) uint32_t m8[4], m9[4], m10[4], m11[4], m12[4], m13[4], m14[4], m15[4];
 
   GetBlock<word32, LittleEndian, true> get(input);
   get(m0[0])(m1[0])(m2[0])(m3[0])(m4[0])(m5[0])(m6[0])(m7[0])(m8[0])(m9[0])(m10[0])(m11[0])(m12[0])(m13[0])(m14[0])(m15[0]);
 
-  int32x4_t row1,row2,row3,row4;
-  int32x4_t buf1,buf2,buf3,buf4;
-  int32x4_t ff0,ff1;
-
-  row1 = ff0 = vld1q_s32((const int32_t*)&state.h[0]);
-  row2 = ff1 = vld1q_s32((const int32_t*)&state.h[4]);
-  row3 = vld1q_s32(vv1);
-  row4 = veorq_s32(vld1q_s32(vv2), vld1q_s32(((const int32_t*)&state.t[0])));
-
-  // buf1 = vld1q_s32(m6,m4,m2,m0);
-  vld1q_s32_le(buf1, m6,m4,m2,m0);
-
-  row1 = vaddq_s32(vaddq_s32(row1,buf1),row2);
-  row4 = veorq_s32(row4,row1);
-  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,16),(int32x4_t)vshlq_n_s32((int32x4_t)row4,16));
-  row3 = vaddq_s32(row3,row4);
-  row2 = veorq_s32(row2,row3);
-  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,12),(int32x4_t)vshlq_n_s32((int32x4_t)row2,20));
-
-  // buf2 = vld1q_s32(m7,m5,m3,m1);
-  vld1q_s32_le(buf2, m7,m5,m3,m1);
-
-  row1 = vaddq_s32(vaddq_s32(row1,buf2),row2);
-  row4 = veorq_s32(row4,row1);
-  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,8),(int32x4_t)vshlq_n_s32((int32x4_t)row4,24));
-  row3 = vaddq_s32(row3,row4);
-  row2 = veorq_s32(row2,row3);
-  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,7),(int32x4_t)vshlq_n_s32((int32x4_t)row2,25));
-
-  row4 = vextq_s32(row4,row4,3);
-  row3 = vcombine_s32(vget_high_s32(row3),vget_low_s32(row3));
-  row2 = vextq_s32(row2,row2,1);
-
-  // buf3 = vld1q_s32(m14,m12,m10,m8);
-  vld1q_s32_le(buf3, m14,m12,m10,m8);
-
-  row1 = vaddq_s32(vaddq_s32(row1,buf3),row2);
-  row4 = veorq_s32(row4,row1);
-  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,16),(int32x4_t)vshlq_n_s32((int32x4_t)row4,16));
-  row3 = vaddq_s32(row3,row4);
-  row2 = veorq_s32(row2,row3);
-  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,12),(int32x4_t)vshlq_n_s32((int32x4_t)row2,20));
-
-  // buf4 = vld1q_s32(m15,m13,m11,m9);
-  vld1q_s32_le(buf4, m15,m13,m11,m9);
-
-  row1 = vaddq_s32(vaddq_s32(row1,buf4),row2);
-  row4 = veorq_s32(row4,row1);
-  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,8),(int32x4_t)vshlq_n_s32((int32x4_t)row4,24));
-  row3 = vaddq_s32(row3,row4);
-  row2 = veorq_s32(row2,row3);
-  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,7),(int32x4_t)vshlq_n_s32((int32x4_t)row2,25));
-
-  row4 = vextq_s32(row4,row4,1);
-  row3 = vcombine_s32(vget_high_s32(row3),vget_low_s32(row3));
-  row2 = vextq_s32(row2,row2,3);
-
-  // buf1 = vld1q_s32(m13,m9,m4,m14);
-  vld1q_s32_le(buf1, m13,m9,m4,m14);
-
-  row1 = vaddq_s32(vaddq_s32(row1,buf1),row2);
-  row4 = veorq_s32(row4,row1);
-  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,16),(int32x4_t)vshlq_n_s32((int32x4_t)row4,16));
-  row3 = vaddq_s32(row3,row4);
-  row2 = veorq_s32(row2,row3);
-  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,12),(int32x4_t)vshlq_n_s32((int32x4_t)row2,20));
-
-  // buf2 = vld1q_s32(m6,m15,m8,m10);
-  vld1q_s32_le(buf2, m6,m15,m8,m10);
-
-  row1 = vaddq_s32(vaddq_s32(row1,buf2),row2);
-  row4 = veorq_s32(row4,row1);
-  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,8),(int32x4_t)vshlq_n_s32((int32x4_t)row4,24));
-  row3 = vaddq_s32(row3,row4);
-  row2 = veorq_s32(row2,row3);
-  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,7),(int32x4_t)vshlq_n_s32((int32x4_t)row2,25));
-
-  row4 = vextq_s32(row4,row4,3);
-  row3 = vcombine_s32(vget_high_s32(row3),vget_low_s32(row3));
-  row2 = vextq_s32(row2,row2,1);
-
-  // buf3 = vld1q_s32(m5,m11,m0,m1);
-  vld1q_s32_le(buf3, m5,m11,m0,m1);
-
-  row1 = vaddq_s32(vaddq_s32(row1,buf3),row2);
-  row4 = veorq_s32(row4,row1);
-  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,16),(int32x4_t)vshlq_n_s32((int32x4_t)row4,16));
-  row3 = vaddq_s32(row3,row4);
-  row2 = veorq_s32(row2,row3);
-  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,12),(int32x4_t)vshlq_n_s32((int32x4_t)row2,20));
-
-  // buf4 = vld1q_s32(m3,m7,m2,m12);
-  vld1q_s32_le(buf4, m3,m7,m2,m12);
-
-  row1 = vaddq_s32(vaddq_s32(row1,buf4),row2);
-  row4 = veorq_s32(row4,row1);
-  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,8),(int32x4_t)vshlq_n_s32((int32x4_t)row4,24));
-  row3 = vaddq_s32(row3,row4);
-  row2 = veorq_s32(row2,row3);
-  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,7),(int32x4_t)vshlq_n_s32((int32x4_t)row2,25));
-
-  row4 = vextq_s32(row4,row4,1);
-  row3 = vcombine_s32(vget_high_s32(row3),vget_low_s32(row3));
-  row2 = vextq_s32(row2,row2,3);
-
-  // buf1 = vld1q_s32(m15,m5,m12,m11);
-  vld1q_s32_le(buf1, m15,m5,m12,m11);
-
-  row1 = vaddq_s32(vaddq_s32(row1,buf1),row2);
-  row4 = veorq_s32(row4,row1);
-  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,16),(int32x4_t)vshlq_n_s32((int32x4_t)row4,16));
-  row3 = vaddq_s32(row3,row4);
-  row2 = veorq_s32(row2,row3);
-  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,12),(int32x4_t)vshlq_n_s32((int32x4_t)row2,20));
-
-  // buf2 = vld1q_s32(m13,m2,m0,m8);
-  vld1q_s32_le(buf2, m13,m2,m0,m8);
-
-  row1 = vaddq_s32(vaddq_s32(row1,buf2),row2);
-  row4 = veorq_s32(row4,row1);
-  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,8),(int32x4_t)vshlq_n_s32((int32x4_t)row4,24));
-  row3 = vaddq_s32(row3,row4);
-  row2 = veorq_s32(row2,row3);
-  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,7),(int32x4_t)vshlq_n_s32((int32x4_t)row2,25));
-
-  row4 = vextq_s32(row4,row4,3);
-  row3 = vcombine_s32(vget_high_s32(row3),vget_low_s32(row3));
-  row2 = vextq_s32(row2,row2,1);
-
-  // buf3 = vld1q_s32(m9,m7,m3,m10);
-  vld1q_s32_le(buf3, m9,m7,m3,m10);
-
-  row1 = vaddq_s32(vaddq_s32(row1,buf3),row2);
-  row4 = veorq_s32(row4,row1);
-  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,16),(int32x4_t)vshlq_n_s32((int32x4_t)row4,16));
-  row3 = vaddq_s32(row3,row4);
-  row2 = veorq_s32(row2,row3);
-  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,12),(int32x4_t)vshlq_n_s32((int32x4_t)row2,20));
-
-  // buf4 = vld1q_s32(m4,m1,m6,m14);
-  vld1q_s32_le(buf4, m4,m1,m6,m14);
-
-  row1 = vaddq_s32(vaddq_s32(row1,buf4),row2);
-  row4 = veorq_s32(row4,row1);
-  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,8),(int32x4_t)vshlq_n_s32((int32x4_t)row4,24));
-  row3 = vaddq_s32(row3,row4);
-  row2 = veorq_s32(row2,row3);
-  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,7),(int32x4_t)vshlq_n_s32((int32x4_t)row2,25));
-
-  row4 = vextq_s32(row4,row4,1);
-  row3 = vcombine_s32(vget_high_s32(row3),vget_low_s32(row3));
-  row2 = vextq_s32(row2,row2,3);
-
-  // buf1 = vld1q_s32(m11,m13,m3,m7);
-  vld1q_s32_le(buf1, m11,m13,m3,m7);
-
-  row1 = vaddq_s32(vaddq_s32(row1,buf1),row2);
-  row4 = veorq_s32(row4,row1);
-  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,16),(int32x4_t)vshlq_n_s32((int32x4_t)row4,16));
-  row3 = vaddq_s32(row3,row4);
-  row2 = veorq_s32(row2,row3);
-  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,12),(int32x4_t)vshlq_n_s32((int32x4_t)row2,20));
-
-  // buf2 = vld1q_s32(m14,m12,m1,m9);
-  vld1q_s32_le(buf2, m14,m12,m1,m9);
-
-  row1 = vaddq_s32(vaddq_s32(row1,buf2),row2);
-  row4 = veorq_s32(row4,row1);
-  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,8),(int32x4_t)vshlq_n_s32((int32x4_t)row4,24));
-  row3 = vaddq_s32(row3,row4);
-  row2 = veorq_s32(row2,row3);
-  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,7),(int32x4_t)vshlq_n_s32((int32x4_t)row2,25));
-
-  row4 = vextq_s32(row4,row4,3);
-  row3 = vcombine_s32(vget_high_s32(row3),vget_low_s32(row3));
-  row2 = vextq_s32(row2,row2,1);
-
-  // buf3 = vld1q_s32(m15,m4,m5,m2);
-  vld1q_s32_le(buf3, m15,m4,m5,m2);
-
-  row1 = vaddq_s32(vaddq_s32(row1,buf3),row2);
-  row4 = veorq_s32(row4,row1);
-  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,16),(int32x4_t)vshlq_n_s32((int32x4_t)row4,16));
-  row3 = vaddq_s32(row3,row4);
-  row2 = veorq_s32(row2,row3);
-  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,12),(int32x4_t)vshlq_n_s32((int32x4_t)row2,20));
-
-  // buf4 = vld1q_s32(m8,m0,m10,m6);
-  vld1q_s32_le(buf4, m8,m0,m10,m6);
-
-  row1 = vaddq_s32(vaddq_s32(row1,buf4),row2);
-  row4 = veorq_s32(row4,row1);
-  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,8),(int32x4_t)vshlq_n_s32((int32x4_t)row4,24));
-  row3 = vaddq_s32(row3,row4);
-  row2 = veorq_s32(row2,row3);
-  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,7),(int32x4_t)vshlq_n_s32((int32x4_t)row2,25));
-
-  row4 = vextq_s32(row4,row4,1);
-  row3 = vcombine_s32(vget_high_s32(row3),vget_low_s32(row3));
-  row2 = vextq_s32(row2,row2,3);
-
-  // buf1 = vld1q_s32(m10,m2,m5,m9);
-  vld1q_s32_le(buf1, m10,m2,m5,m9);
-
-  row1 = vaddq_s32(vaddq_s32(row1,buf1),row2);
-  row4 = veorq_s32(row4,row1);
-  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,16),(int32x4_t)vshlq_n_s32((int32x4_t)row4,16));
-  row3 = vaddq_s32(row3,row4);
-  row2 = veorq_s32(row2,row3);
-  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,12),(int32x4_t)vshlq_n_s32((int32x4_t)row2,20));
-
-  // buf2 = vld1q_s32(m15,m4,m7,m0);
-  vld1q_s32_le(buf2, m15,m4,m7,m0);
-
-  row1 = vaddq_s32(vaddq_s32(row1,buf2),row2);
-  row4 = veorq_s32(row4,row1);
-  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,8),(int32x4_t)vshlq_n_s32((int32x4_t)row4,24));
-  row3 = vaddq_s32(row3,row4);
-  row2 = veorq_s32(row2,row3);
-  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,7),(int32x4_t)vshlq_n_s32((int32x4_t)row2,25));
-
-  row4 = vextq_s32(row4,row4,3);
-  row3 = vcombine_s32(vget_high_s32(row3),vget_low_s32(row3));
-  row2 = vextq_s32(row2,row2,1);
-
-  // buf3 = vld1q_s32(m3,m6,m11,m14);
-  vld1q_s32_le(buf3, m3,m6,m11,m14);
-
-  row1 = vaddq_s32(vaddq_s32(row1,buf3),row2);
-  row4 = veorq_s32(row4,row1);
-  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,16),(int32x4_t)vshlq_n_s32((int32x4_t)row4,16));
-  row3 = vaddq_s32(row3,row4);
-  row2 = veorq_s32(row2,row3);
-  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,12),(int32x4_t)vshlq_n_s32((int32x4_t)row2,20));
-
-  // buf4 = vld1q_s32(m13,m8,m12,m1);
-  vld1q_s32_le(buf4, m13,m8,m12,m1);
-
-  row1 = vaddq_s32(vaddq_s32(row1,buf4),row2);
-  row4 = veorq_s32(row4,row1);
-  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,8),(int32x4_t)vshlq_n_s32((int32x4_t)row4,24));
-  row3 = vaddq_s32(row3,row4);
-  row2 = veorq_s32(row2,row3);
-  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,7),(int32x4_t)vshlq_n_s32((int32x4_t)row2,25));
-
-  row4 = vextq_s32(row4,row4,1);
-  row3 = vcombine_s32(vget_high_s32(row3),vget_low_s32(row3));
-  row2 = vextq_s32(row2,row2,3);
-
-  // buf1 = vld1q_s32(m8,m0,m6,m2);
-  vld1q_s32_le(buf1, m8,m0,m6,m2);
-
-  row1 = vaddq_s32(vaddq_s32(row1,buf1),row2);
-  row4 = veorq_s32(row4,row1);
-  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,16),(int32x4_t)vshlq_n_s32((int32x4_t)row4,16));
-  row3 = vaddq_s32(row3,row4);
-  row2 = veorq_s32(row2,row3);
-  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,12),(int32x4_t)vshlq_n_s32((int32x4_t)row2,20));
-
-  // buf2 = vld1q_s32(m3,m11,m10,m12);
-  vld1q_s32_le(buf2, m3,m11,m10,m12);
-
-  row1 = vaddq_s32(vaddq_s32(row1,buf2),row2);
-  row4 = veorq_s32(row4,row1);
-  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,8),(int32x4_t)vshlq_n_s32((int32x4_t)row4,24));
-  row3 = vaddq_s32(row3,row4);
-  row2 = veorq_s32(row2,row3);
-  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,7),(int32x4_t)vshlq_n_s32((int32x4_t)row2,25));
-
-  row4 = vextq_s32(row4,row4,3);
-  row3 = vcombine_s32(vget_high_s32(row3),vget_low_s32(row3));
-  row2 = vextq_s32(row2,row2,1);
-
-  // buf3 = vld1q_s32(m1,m15,m7,m4);
-  vld1q_s32_le(buf3, m1,m15,m7,m4);
-
-  row1 = vaddq_s32(vaddq_s32(row1,buf3),row2);
-  row4 = veorq_s32(row4,row1);
-  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,16),(int32x4_t)vshlq_n_s32((int32x4_t)row4,16));
-  row3 = vaddq_s32(row3,row4);
-  row2 = veorq_s32(row2,row3);
-  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,12),(int32x4_t)vshlq_n_s32((int32x4_t)row2,20));
-
-  // buf4 = vld1q_s32(m9,m14,m5,m13);
-  vld1q_s32_le(buf4, m9,m14,m5,m13);
-
-  row1 = vaddq_s32(vaddq_s32(row1,buf4),row2);
-  row4 = veorq_s32(row4,row1);
-  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,8),(int32x4_t)vshlq_n_s32((int32x4_t)row4,24));
-  row3 = vaddq_s32(row3,row4);
-  row2 = veorq_s32(row2,row3);
-  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,7),(int32x4_t)vshlq_n_s32((int32x4_t)row2,25));
-
-  row4 = vextq_s32(row4,row4,1);
-  row3 = vcombine_s32(vget_high_s32(row3),vget_low_s32(row3));
-  row2 = vextq_s32(row2,row2,3);
-
-  // buf1 = vld1q_s32(m4,m14,m1,m12);
-  vld1q_s32_le(buf1, m4,m14,m1,m12);
-
-  row1 = vaddq_s32(vaddq_s32(row1,buf1),row2);
-  row4 = veorq_s32(row4,row1);
-  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,16),(int32x4_t)vshlq_n_s32((int32x4_t)row4,16));
-  row3 = vaddq_s32(row3,row4);
-  row2 = veorq_s32(row2,row3);
-  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,12),(int32x4_t)vshlq_n_s32((int32x4_t)row2,20));
-
-  // buf2 = vld1q_s32(m10,m13,m15,m5);
-  vld1q_s32_le(buf2, m10,m13,m15,m5);
-
-  row1 = vaddq_s32(vaddq_s32(row1,buf2),row2);
-  row4 = veorq_s32(row4,row1);
-  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,8),(int32x4_t)vshlq_n_s32((int32x4_t)row4,24));
-  row3 = vaddq_s32(row3,row4);
-  row2 = veorq_s32(row2,row3);
-  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,7),(int32x4_t)vshlq_n_s32((int32x4_t)row2,25));
-
-  row4 = vextq_s32(row4,row4,3);
-  row3 = vcombine_s32(vget_high_s32(row3),vget_low_s32(row3));
-  row2 = vextq_s32(row2,row2,1);
-
-  // buf3 = vld1q_s32(m8,m9,m6,m0);
-  vld1q_s32_le(buf3, m8,m9,m6,m0);
-
-  row1 = vaddq_s32(vaddq_s32(row1,buf3),row2);
-  row4 = veorq_s32(row4,row1);
-  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,16),(int32x4_t)vshlq_n_s32((int32x4_t)row4,16));
-  row3 = vaddq_s32(row3,row4);
-  row2 = veorq_s32(row2,row3);
-  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,12),(int32x4_t)vshlq_n_s32((int32x4_t)row2,20));
-
-  // buf4 = vld1q_s32(m11,m2,m3,m7);
-  vld1q_s32_le(buf4, m11,m2,m3,m7);
-
-  row1 = vaddq_s32(vaddq_s32(row1,buf4),row2);
-  row4 = veorq_s32(row4,row1);
-  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,8),(int32x4_t)vshlq_n_s32((int32x4_t)row4,24));
-  row3 = vaddq_s32(row3,row4);
-  row2 = veorq_s32(row2,row3);
-  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,7),(int32x4_t)vshlq_n_s32((int32x4_t)row2,25));
-
-  row4 = vextq_s32(row4,row4,1);
-  row3 = vcombine_s32(vget_high_s32(row3),vget_low_s32(row3));
-  row2 = vextq_s32(row2,row2,3);
-
-  // buf1 = vld1q_s32(m3,m12,m7,m13);
-  vld1q_s32_le(buf1, m3,m12,m7,m13);
-
-  row1 = vaddq_s32(vaddq_s32(row1,buf1),row2);
-  row4 = veorq_s32(row4,row1);
-  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,16),(int32x4_t)vshlq_n_s32((int32x4_t)row4,16));
-  row3 = vaddq_s32(row3,row4);
-  row2 = veorq_s32(row2,row3);
-  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,12),(int32x4_t)vshlq_n_s32((int32x4_t)row2,20));
-
-  // buf2 = vld1q_s32(m9,m1,m14,m11);
-  vld1q_s32_le(buf2, m9,m1,m14,m11);
-
-  row1 = vaddq_s32(vaddq_s32(row1,buf2),row2);
-  row4 = veorq_s32(row4,row1);
-  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,8),(int32x4_t)vshlq_n_s32((int32x4_t)row4,24));
-  row3 = vaddq_s32(row3,row4);
-  row2 = veorq_s32(row2,row3);
-  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,7),(int32x4_t)vshlq_n_s32((int32x4_t)row2,25));
-
-  row4 = vextq_s32(row4,row4,3);
-  row3 = vcombine_s32(vget_high_s32(row3),vget_low_s32(row3));
-  row2 = vextq_s32(row2,row2,1);
-
-  // buf3 = vld1q_s32(m2,m8,m15,m5);
-  vld1q_s32_le(buf3, m2,m8,m15,m5);
-
-  row1 = vaddq_s32(vaddq_s32(row1,buf3),row2);
-  row4 = veorq_s32(row4,row1);
-  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,16),(int32x4_t)vshlq_n_s32((int32x4_t)row4,16));
-  row3 = vaddq_s32(row3,row4);
-  row2 = veorq_s32(row2,row3);
-  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,12),(int32x4_t)vshlq_n_s32((int32x4_t)row2,20));
-
-  // buf4 = vld1q_s32(m10,m6,m4,m0);
-  vld1q_s32_le(buf4, m10,m6,m4,m0);
-
-  row1 = vaddq_s32(vaddq_s32(row1,buf4),row2);
-  row4 = veorq_s32(row4,row1);
-  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,8),(int32x4_t)vshlq_n_s32((int32x4_t)row4,24));
-  row3 = vaddq_s32(row3,row4);
-  row2 = veorq_s32(row2,row3);
-  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,7),(int32x4_t)vshlq_n_s32((int32x4_t)row2,25));
-
-  row4 = vextq_s32(row4,row4,1);
-  row3 = vcombine_s32(vget_high_s32(row3),vget_low_s32(row3));
-  row2 = vextq_s32(row2,row2,3);
-
-  // buf1 = vld1q_s32(m0,m11,m14,m6);
-  vld1q_s32_le(buf1, m0,m11,m14,m6);
-
-  row1 = vaddq_s32(vaddq_s32(row1,buf1),row2);
-  row4 = veorq_s32(row4,row1);
-  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,16),(int32x4_t)vshlq_n_s32((int32x4_t)row4,16));
-  row3 = vaddq_s32(row3,row4);
-  row2 = veorq_s32(row2,row3);
-  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,12),(int32x4_t)vshlq_n_s32((int32x4_t)row2,20));
-
-  // buf2 = vld1q_s32(m8,m3,m9,m15);
-  vld1q_s32_le(buf2, m8,m3,m9,m15);
-
-  row1 = vaddq_s32(vaddq_s32(row1,buf2),row2);
-  row4 = veorq_s32(row4,row1);
-  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,8),(int32x4_t)vshlq_n_s32((int32x4_t)row4,24));
-  row3 = vaddq_s32(row3,row4);
-  row2 = veorq_s32(row2,row3);
-  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,7),(int32x4_t)vshlq_n_s32((int32x4_t)row2,25));
-
-  row4 = vextq_s32(row4,row4,3);
-  row3 = vcombine_s32(vget_high_s32(row3),vget_low_s32(row3));
-  row2 = vextq_s32(row2,row2,1);
-
-  // buf3 = vld1q_s32(m10,m1,m13,m12);
-  vld1q_s32_le(buf3, m10,m1,m13,m12);
-
-  row1 = vaddq_s32(vaddq_s32(row1,buf3),row2);
-  row4 = veorq_s32(row4,row1);
-  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,16),(int32x4_t)vshlq_n_s32((int32x4_t)row4,16));
-  row3 = vaddq_s32(row3,row4);
-  row2 = veorq_s32(row2,row3);
-  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,12),(int32x4_t)vshlq_n_s32((int32x4_t)row2,20));
-
-  // buf4 = vld1q_s32(m5,m4,m7,m2);
-  vld1q_s32_le(buf4, m5,m4,m7,m2);
-
-  row1 = vaddq_s32(vaddq_s32(row1,buf4),row2);
-  row4 = veorq_s32(row4,row1);
-  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,8),(int32x4_t)vshlq_n_s32((int32x4_t)row4,24));
-  row3 = vaddq_s32(row3,row4);
-  row2 = veorq_s32(row2,row3);
-  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,7),(int32x4_t)vshlq_n_s32((int32x4_t)row2,25));
-
-  row4 = vextq_s32(row4,row4,1);
-  row3 = vcombine_s32(vget_high_s32(row3),vget_low_s32(row3));
-  row2 = vextq_s32(row2,row2,3);
-
-  // buf1 = vld1q_s32(m1,m7,m8,m10);
-  vld1q_s32_le(buf1, m1,m7,m8,m10);
-
-  row1 = vaddq_s32(vaddq_s32(row1,buf1),row2);
-  row4 = veorq_s32(row4,row1);
-  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,16),(int32x4_t)vshlq_n_s32((int32x4_t)row4,16));
-  row3 = vaddq_s32(row3,row4);
-  row2 = veorq_s32(row2,row3);
-  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,12),(int32x4_t)vshlq_n_s32((int32x4_t)row2,20));
-
-  // buf2 = vld1q_s32(m5,m6,m4,m2);
-  vld1q_s32_le(buf2, m5,m6,m4,m2);
-
-  row1 = vaddq_s32(vaddq_s32(row1,buf2),row2);
-  row4 = veorq_s32(row4,row1);
-  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,8),(int32x4_t)vshlq_n_s32((int32x4_t)row4,24));
-  row3 = vaddq_s32(row3,row4);
-  row2 = veorq_s32(row2,row3);
-  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,7),(int32x4_t)vshlq_n_s32((int32x4_t)row2,25));
-
-  row4 = vextq_s32(row4,row4,3);
-  row3 = vcombine_s32(vget_high_s32(row3),vget_low_s32(row3));
-  row2 = vextq_s32(row2,row2,1);
-
-  // buf3 = vld1q_s32(m13,m3,m9,m15);
-  vld1q_s32_le(buf3, m13,m3,m9,m15);
-
-  row1 = vaddq_s32(vaddq_s32(row1,buf3),row2);
-  row4 = veorq_s32(row4,row1);
-  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,16),(int32x4_t)vshlq_n_s32((int32x4_t)row4,16));
-  row3 = vaddq_s32(row3,row4);
-  row2 = veorq_s32(row2,row3);
-  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,12),(int32x4_t)vshlq_n_s32((int32x4_t)row2,20));
-
-  // buf4 = vld1q_s32(m0,m12,m14,m11);
-  vld1q_s32_le(buf4, m0,m12,m14,m11);
-
-  row1 = vaddq_s32(vaddq_s32(row1,buf4),row2);
-  row4 = veorq_s32(row4,row1);
-  row4 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row4,8),(int32x4_t)vshlq_n_s32((int32x4_t)row4,24));
-  row3 = vaddq_s32(row3,row4);
-  row2 = veorq_s32(row2,row3);
-  row2 = veorq_s32((int32x4_t)vshrq_n_u32((uint32x4_t)row2,7),(int32x4_t)vshlq_n_s32((int32x4_t)row2,25));
-
-  row4 = vextq_s32(row4,row4,1);
-  row3 = vcombine_s32(vget_high_s32(row3),vget_low_s32(row3));
-  row2 = vextq_s32(row2,row2,3);
-
-  vst1q_s32((int32_t*)&state.h[0],veorq_s32(ff0,veorq_s32(row1,row3)));
-  vst1q_s32((int32_t*)&state.h[4],veorq_s32(ff1,veorq_s32(row2,row4)));
+  uint32x4_t row1,row2,row3,row4;
+  uint32x4_t buf1,buf2,buf3,buf4;
+  uint32x4_t ff0,ff1;
+
+  row1 = ff0 = vld1q_u32((const uint32_t*)&state.h[0]);
+  row2 = ff1 = vld1q_u32((const uint32_t*)&state.h[4]);
+  row3 = vld1q_u32((const uint32_t*)&BLAKE2S_IV(0));
+  row4 = veorq_u32(vld1q_u32((const uint32_t*)&BLAKE2S_IV(4)), vld1q_u32((const uint32_t*)&state.t[0]));
+
+  // buf1 = vld1q_u32(m6,m4,m2,m0);
+  vld1q_u32_rev(buf1, m6,m4,m2,m0);
+
+  row1 = vaddq_u32(vaddq_u32(row1,buf1),row2);
+  row4 = veorq_u32(row4,row1);
+  row4 = veorq_u32(vshrq_n_u32(row4,16),vshlq_n_u32(row4,16));
+  row3 = vaddq_u32(row3,row4);
+  row2 = veorq_u32(row2,row3);
+  row2 = veorq_u32(vshrq_n_u32(row2,12),vshlq_n_u32(row2,20));
+
+  // buf2 = vld1q_u32(m7,m5,m3,m1);
+  vld1q_u32_rev(buf2, m7,m5,m3,m1);
+
+  row1 = vaddq_u32(vaddq_u32(row1,buf2),row2);
+  row4 = veorq_u32(row4,row1);
+  row4 = veorq_u32(vshrq_n_u32(row4,8),vshlq_n_u32(row4,24));
+  row3 = vaddq_u32(row3,row4);
+  row2 = veorq_u32(row2,row3);
+  row2 = veorq_u32(vshrq_n_u32(row2,7),vshlq_n_u32(row2,25));
+
+  row4 = vextq_u32(row4,row4,3);
+  row3 = vcombine_u32(vget_high_u32(row3),vget_low_u32(row3));
+  row2 = vextq_u32(row2,row2,1);
+
+  // buf3 = vld1q_u32(m14,m12,m10,m8);
+  vld1q_u32_rev(buf3, m14,m12,m10,m8);
+
+  row1 = vaddq_u32(vaddq_u32(row1,buf3),row2);
+  row4 = veorq_u32(row4,row1);
+  row4 = veorq_u32(vshrq_n_u32(row4,16),vshlq_n_u32(row4,16));
+  row3 = vaddq_u32(row3,row4);
+  row2 = veorq_u32(row2,row3);
+  row2 = veorq_u32(vshrq_n_u32(row2,12),vshlq_n_u32(row2,20));
+
+  // buf4 = vld1q_u32(m15,m13,m11,m9);
+  vld1q_u32_rev(buf4, m15,m13,m11,m9);
+
+  row1 = vaddq_u32(vaddq_u32(row1,buf4),row2);
+  row4 = veorq_u32(row4,row1);
+  row4 = veorq_u32(vshrq_n_u32(row4,8),vshlq_n_u32(row4,24));
+  row3 = vaddq_u32(row3,row4);
+  row2 = veorq_u32(row2,row3);
+  row2 = veorq_u32(vshrq_n_u32(row2,7),vshlq_n_u32(row2,25));
+
+  row4 = vextq_u32(row4,row4,1);
+  row3 = vcombine_u32(vget_high_u32(row3),vget_low_u32(row3));
+  row2 = vextq_u32(row2,row2,3);
+
+  // buf1 = vld1q_u32(m13,m9,m4,m14);
+  vld1q_u32_rev(buf1, m13,m9,m4,m14);
+
+  row1 = vaddq_u32(vaddq_u32(row1,buf1),row2);
+  row4 = veorq_u32(row4,row1);
+  row4 = veorq_u32(vshrq_n_u32(row4,16),vshlq_n_u32(row4,16));
+  row3 = vaddq_u32(row3,row4);
+  row2 = veorq_u32(row2,row3);
+  row2 = veorq_u32(vshrq_n_u32(row2,12),vshlq_n_u32(row2,20));
+
+  // buf2 = vld1q_u32(m6,m15,m8,m10);
+  vld1q_u32_rev(buf2, m6,m15,m8,m10);
+
+  row1 = vaddq_u32(vaddq_u32(row1,buf2),row2);
+  row4 = veorq_u32(row4,row1);
+  row4 = veorq_u32(vshrq_n_u32(row4,8),vshlq_n_u32(row4,24));
+  row3 = vaddq_u32(row3,row4);
+  row2 = veorq_u32(row2,row3);
+  row2 = veorq_u32(vshrq_n_u32(row2,7),vshlq_n_u32(row2,25));
+
+  row4 = vextq_u32(row4,row4,3);
+  row3 = vcombine_u32(vget_high_u32(row3),vget_low_u32(row3));
+  row2 = vextq_u32(row2,row2,1);
+
+  // buf3 = vld1q_u32(m5,m11,m0,m1);
+  vld1q_u32_rev(buf3, m5,m11,m0,m1);
+
+  row1 = vaddq_u32(vaddq_u32(row1,buf3),row2);
+  row4 = veorq_u32(row4,row1);
+  row4 = veorq_u32(vshrq_n_u32(row4,16),vshlq_n_u32(row4,16));
+  row3 = vaddq_u32(row3,row4);
+  row2 = veorq_u32(row2,row3);
+  row2 = veorq_u32(vshrq_n_u32(row2,12),vshlq_n_u32(row2,20));
+
+  // buf4 = vld1q_u32(m3,m7,m2,m12);
+  vld1q_u32_rev(buf4, m3,m7,m2,m12);
+
+  row1 = vaddq_u32(vaddq_u32(row1,buf4),row2);
+  row4 = veorq_u32(row4,row1);
+  row4 = veorq_u32(vshrq_n_u32(row4,8),vshlq_n_u32(row4,24));
+  row3 = vaddq_u32(row3,row4);
+  row2 = veorq_u32(row2,row3);
+  row2 = veorq_u32(vshrq_n_u32(row2,7),vshlq_n_u32(row2,25));
+
+  row4 = vextq_u32(row4,row4,1);
+  row3 = vcombine_u32(vget_high_u32(row3),vget_low_u32(row3));
+  row2 = vextq_u32(row2,row2,3);
+
+  // buf1 = vld1q_u32(m15,m5,m12,m11);
+  vld1q_u32_rev(buf1, m15,m5,m12,m11);
+
+  row1 = vaddq_u32(vaddq_u32(row1,buf1),row2);
+  row4 = veorq_u32(row4,row1);
+  row4 = veorq_u32(vshrq_n_u32(row4,16),vshlq_n_u32(row4,16));
+  row3 = vaddq_u32(row3,row4);
+  row2 = veorq_u32(row2,row3);
+  row2 = veorq_u32(vshrq_n_u32(row2,12),vshlq_n_u32(row2,20));
+
+  // buf2 = vld1q_u32(m13,m2,m0,m8);
+  vld1q_u32_rev(buf2, m13,m2,m0,m8);
+
+  row1 = vaddq_u32(vaddq_u32(row1,buf2),row2);
+  row4 = veorq_u32(row4,row1);
+  row4 = veorq_u32(vshrq_n_u32(row4,8),vshlq_n_u32(row4,24));
+  row3 = vaddq_u32(row3,row4);
+  row2 = veorq_u32(row2,row3);
+  row2 = veorq_u32(vshrq_n_u32(row2,7),vshlq_n_u32(row2,25));
+
+  row4 = vextq_u32(row4,row4,3);
+  row3 = vcombine_u32(vget_high_u32(row3),vget_low_u32(row3));
+  row2 = vextq_u32(row2,row2,1);
+
+  // buf3 = vld1q_u32(m9,m7,m3,m10);
+  vld1q_u32_rev(buf3, m9,m7,m3,m10);
+
+  row1 = vaddq_u32(vaddq_u32(row1,buf3),row2);
+  row4 = veorq_u32(row4,row1);
+  row4 = veorq_u32(vshrq_n_u32(row4,16),vshlq_n_u32(row4,16));
+  row3 = vaddq_u32(row3,row4);
+  row2 = veorq_u32(row2,row3);
+  row2 = veorq_u32(vshrq_n_u32(row2,12),vshlq_n_u32(row2,20));
+
+  // buf4 = vld1q_u32(m4,m1,m6,m14);
+  vld1q_u32_rev(buf4, m4,m1,m6,m14);
+
+  row1 = vaddq_u32(vaddq_u32(row1,buf4),row2);
+  row4 = veorq_u32(row4,row1);
+  row4 = veorq_u32(vshrq_n_u32(row4,8),vshlq_n_u32(row4,24));
+  row3 = vaddq_u32(row3,row4);
+  row2 = veorq_u32(row2,row3);
+  row2 = veorq_u32(vshrq_n_u32(row2,7),vshlq_n_u32(row2,25));
+
+  row4 = vextq_u32(row4,row4,1);
+  row3 = vcombine_u32(vget_high_u32(row3),vget_low_u32(row3));
+  row2 = vextq_u32(row2,row2,3);
+
+  // buf1 = vld1q_u32(m11,m13,m3,m7);
+  vld1q_u32_rev(buf1, m11,m13,m3,m7);
+
+  row1 = vaddq_u32(vaddq_u32(row1,buf1),row2);
+  row4 = veorq_u32(row4,row1);
+  row4 = veorq_u32(vshrq_n_u32(row4,16),vshlq_n_u32(row4,16));
+  row3 = vaddq_u32(row3,row4);
+  row2 = veorq_u32(row2,row3);
+  row2 = veorq_u32(vshrq_n_u32(row2,12),vshlq_n_u32(row2,20));
+
+  // buf2 = vld1q_u32(m14,m12,m1,m9);
+  vld1q_u32_rev(buf2, m14,m12,m1,m9);
+
+  row1 = vaddq_u32(vaddq_u32(row1,buf2),row2);
+  row4 = veorq_u32(row4,row1);
+  row4 = veorq_u32(vshrq_n_u32(row4,8),vshlq_n_u32(row4,24));
+  row3 = vaddq_u32(row3,row4);
+  row2 = veorq_u32(row2,row3);
+  row2 = veorq_u32(vshrq_n_u32(row2,7),vshlq_n_u32(row2,25));
+
+  row4 = vextq_u32(row4,row4,3);
+  row3 = vcombine_u32(vget_high_u32(row3),vget_low_u32(row3));
+  row2 = vextq_u32(row2,row2,1);
+
+  // buf3 = vld1q_u32(m15,m4,m5,m2);
+  vld1q_u32_rev(buf3, m15,m4,m5,m2);
+
+  row1 = vaddq_u32(vaddq_u32(row1,buf3),row2);
+  row4 = veorq_u32(row4,row1);
+  row4 = veorq_u32(vshrq_n_u32(row4,16),vshlq_n_u32(row4,16));
+  row3 = vaddq_u32(row3,row4);
+  row2 = veorq_u32(row2,row3);
+  row2 = veorq_u32(vshrq_n_u32(row2,12),vshlq_n_u32(row2,20));
+
+  // buf4 = vld1q_u32(m8,m0,m10,m6);
+  vld1q_u32_rev(buf4, m8,m0,m10,m6);
+
+  row1 = vaddq_u32(vaddq_u32(row1,buf4),row2);
+  row4 = veorq_u32(row4,row1);
+  row4 = veorq_u32(vshrq_n_u32(row4,8),vshlq_n_u32(row4,24));
+  row3 = vaddq_u32(row3,row4);
+  row2 = veorq_u32(row2,row3);
+  row2 = veorq_u32(vshrq_n_u32(row2,7),vshlq_n_u32(row2,25));
+
+  row4 = vextq_u32(row4,row4,1);
+  row3 = vcombine_u32(vget_high_u32(row3),vget_low_u32(row3));
+  row2 = vextq_u32(row2,row2,3);
+
+  // buf1 = vld1q_u32(m10,m2,m5,m9);
+  vld1q_u32_rev(buf1, m10,m2,m5,m9);
+
+  row1 = vaddq_u32(vaddq_u32(row1,buf1),row2);
+  row4 = veorq_u32(row4,row1);
+  row4 = veorq_u32(vshrq_n_u32(row4,16),vshlq_n_u32(row4,16));
+  row3 = vaddq_u32(row3,row4);
+  row2 = veorq_u32(row2,row3);
+  row2 = veorq_u32(vshrq_n_u32(row2,12),vshlq_n_u32(row2,20));
+
+  // buf2 = vld1q_u32(m15,m4,m7,m0);
+  vld1q_u32_rev(buf2, m15,m4,m7,m0);
+
+  row1 = vaddq_u32(vaddq_u32(row1,buf2),row2);
+  row4 = veorq_u32(row4,row1);
+  row4 = veorq_u32(vshrq_n_u32(row4,8),vshlq_n_u32(row4,24));
+  row3 = vaddq_u32(row3,row4);
+  row2 = veorq_u32(row2,row3);
+  row2 = veorq_u32(vshrq_n_u32(row2,7),vshlq_n_u32(row2,25));
+
+  row4 = vextq_u32(row4,row4,3);
+  row3 = vcombine_u32(vget_high_u32(row3),vget_low_u32(row3));
+  row2 = vextq_u32(row2,row2,1);
+
+  // buf3 = vld1q_u32(m3,m6,m11,m14);
+  vld1q_u32_rev(buf3, m3,m6,m11,m14);
+
+  row1 = vaddq_u32(vaddq_u32(row1,buf3),row2);
+  row4 = veorq_u32(row4,row1);
+  row4 = veorq_u32(vshrq_n_u32(row4,16),vshlq_n_u32(row4,16));
+  row3 = vaddq_u32(row3,row4);
+  row2 = veorq_u32(row2,row3);
+  row2 = veorq_u32(vshrq_n_u32(row2,12),vshlq_n_u32(row2,20));
+
+  // buf4 = vld1q_u32(m13,m8,m12,m1);
+  vld1q_u32_rev(buf4, m13,m8,m12,m1);
+
+  row1 = vaddq_u32(vaddq_u32(row1,buf4),row2);
+  row4 = veorq_u32(row4,row1);
+  row4 = veorq_u32(vshrq_n_u32(row4,8),vshlq_n_u32(row4,24));
+  row3 = vaddq_u32(row3,row4);
+  row2 = veorq_u32(row2,row3);
+  row2 = veorq_u32(vshrq_n_u32(row2,7),vshlq_n_u32(row2,25));
+
+  row4 = vextq_u32(row4,row4,1);
+  row3 = vcombine_u32(vget_high_u32(row3),vget_low_u32(row3));
+  row2 = vextq_u32(row2,row2,3);
+
+  // buf1 = vld1q_u32(m8,m0,m6,m2);
+  vld1q_u32_rev(buf1, m8,m0,m6,m2);
+
+  row1 = vaddq_u32(vaddq_u32(row1,buf1),row2);
+  row4 = veorq_u32(row4,row1);
+  row4 = veorq_u32(vshrq_n_u32(row4,16),vshlq_n_u32(row4,16));
+  row3 = vaddq_u32(row3,row4);
+  row2 = veorq_u32(row2,row3);
+  row2 = veorq_u32(vshrq_n_u32(row2,12),vshlq_n_u32(row2,20));
+
+  // buf2 = vld1q_u32(m3,m11,m10,m12);
+  vld1q_u32_rev(buf2, m3,m11,m10,m12);
+
+  row1 = vaddq_u32(vaddq_u32(row1,buf2),row2);
+  row4 = veorq_u32(row4,row1);
+  row4 = veorq_u32(vshrq_n_u32(row4,8),vshlq_n_u32(row4,24));
+  row3 = vaddq_u32(row3,row4);
+  row2 = veorq_u32(row2,row3);
+  row2 = veorq_u32(vshrq_n_u32(row2,7),vshlq_n_u32(row2,25));
+
+  row4 = vextq_u32(row4,row4,3);
+  row3 = vcombine_u32(vget_high_u32(row3),vget_low_u32(row3));
+  row2 = vextq_u32(row2,row2,1);
+
+  // buf3 = vld1q_u32(m1,m15,m7,m4);
+  vld1q_u32_rev(buf3, m1,m15,m7,m4);
+
+  row1 = vaddq_u32(vaddq_u32(row1,buf3),row2);
+  row4 = veorq_u32(row4,row1);
+  row4 = veorq_u32(vshrq_n_u32(row4,16),vshlq_n_u32(row4,16));
+  row3 = vaddq_u32(row3,row4);
+  row2 = veorq_u32(row2,row3);
+  row2 = veorq_u32(vshrq_n_u32(row2,12),vshlq_n_u32(row2,20));
+
+  // buf4 = vld1q_u32(m9,m14,m5,m13);
+  vld1q_u32_rev(buf4, m9,m14,m5,m13);
+
+  row1 = vaddq_u32(vaddq_u32(row1,buf4),row2);
+  row4 = veorq_u32(row4,row1);
+  row4 = veorq_u32(vshrq_n_u32(row4,8),vshlq_n_u32(row4,24));
+  row3 = vaddq_u32(row3,row4);
+  row2 = veorq_u32(row2,row3);
+  row2 = veorq_u32(vshrq_n_u32(row2,7),vshlq_n_u32(row2,25));
+
+  row4 = vextq_u32(row4,row4,1);
+  row3 = vcombine_u32(vget_high_u32(row3),vget_low_u32(row3));
+  row2 = vextq_u32(row2,row2,3);
+
+  // buf1 = vld1q_u32(m4,m14,m1,m12);
+  vld1q_u32_rev(buf1, m4,m14,m1,m12);
+
+  row1 = vaddq_u32(vaddq_u32(row1,buf1),row2);
+  row4 = veorq_u32(row4,row1);
+  row4 = veorq_u32(vshrq_n_u32(row4,16),vshlq_n_u32(row4,16));
+  row3 = vaddq_u32(row3,row4);
+  row2 = veorq_u32(row2,row3);
+  row2 = veorq_u32(vshrq_n_u32(row2,12),vshlq_n_u32(row2,20));
+
+  // buf2 = vld1q_u32(m10,m13,m15,m5);
+  vld1q_u32_rev(buf2, m10,m13,m15,m5);
+
+  row1 = vaddq_u32(vaddq_u32(row1,buf2),row2);
+  row4 = veorq_u32(row4,row1);
+  row4 = veorq_u32(vshrq_n_u32(row4,8),vshlq_n_u32(row4,24));
+  row3 = vaddq_u32(row3,row4);
+  row2 = veorq_u32(row2,row3);
+  row2 = veorq_u32(vshrq_n_u32(row2,7),vshlq_n_u32(row2,25));
+
+  row4 = vextq_u32(row4,row4,3);
+  row3 = vcombine_u32(vget_high_u32(row3),vget_low_u32(row3));
+  row2 = vextq_u32(row2,row2,1);
+
+  // buf3 = vld1q_u32(m8,m9,m6,m0);
+  vld1q_u32_rev(buf3, m8,m9,m6,m0);
+
+  row1 = vaddq_u32(vaddq_u32(row1,buf3),row2);
+  row4 = veorq_u32(row4,row1);
+  row4 = veorq_u32(vshrq_n_u32(row4,16),vshlq_n_u32(row4,16));
+  row3 = vaddq_u32(row3,row4);
+  row2 = veorq_u32(row2,row3);
+  row2 = veorq_u32(vshrq_n_u32(row2,12),vshlq_n_u32(row2,20));
+
+  // buf4 = vld1q_u32(m11,m2,m3,m7);
+  vld1q_u32_rev(buf4, m11,m2,m3,m7);
+
+  row1 = vaddq_u32(vaddq_u32(row1,buf4),row2);
+  row4 = veorq_u32(row4,row1);
+  row4 = veorq_u32(vshrq_n_u32(row4,8),vshlq_n_u32(row4,24));
+  row3 = vaddq_u32(row3,row4);
+  row2 = veorq_u32(row2,row3);
+  row2 = veorq_u32(vshrq_n_u32(row2,7),vshlq_n_u32(row2,25));
+
+  row4 = vextq_u32(row4,row4,1);
+  row3 = vcombine_u32(vget_high_u32(row3),vget_low_u32(row3));
+  row2 = vextq_u32(row2,row2,3);
+
+  // buf1 = vld1q_u32(m3,m12,m7,m13);
+  vld1q_u32_rev(buf1, m3,m12,m7,m13);
+
+  row1 = vaddq_u32(vaddq_u32(row1,buf1),row2);
+  row4 = veorq_u32(row4,row1);
+  row4 = veorq_u32(vshrq_n_u32(row4,16),vshlq_n_u32(row4,16));
+  row3 = vaddq_u32(row3,row4);
+  row2 = veorq_u32(row2,row3);
+  row2 = veorq_u32(vshrq_n_u32(row2,12),vshlq_n_u32(row2,20));
+
+  // buf2 = vld1q_u32(m9,m1,m14,m11);
+  vld1q_u32_rev(buf2, m9,m1,m14,m11);
+
+  row1 = vaddq_u32(vaddq_u32(row1,buf2),row2);
+  row4 = veorq_u32(row4,row1);
+  row4 = veorq_u32(vshrq_n_u32(row4,8),vshlq_n_u32(row4,24));
+  row3 = vaddq_u32(row3,row4);
+  row2 = veorq_u32(row2,row3);
+  row2 = veorq_u32(vshrq_n_u32(row2,7),vshlq_n_u32(row2,25));
+
+  row4 = vextq_u32(row4,row4,3);
+  row3 = vcombine_u32(vget_high_u32(row3),vget_low_u32(row3));
+  row2 = vextq_u32(row2,row2,1);
+
+  // buf3 = vld1q_u32(m2,m8,m15,m5);
+  vld1q_u32_rev(buf3, m2,m8,m15,m5);
+
+  row1 = vaddq_u32(vaddq_u32(row1,buf3),row2);
+  row4 = veorq_u32(row4,row1);
+  row4 = veorq_u32(vshrq_n_u32(row4,16),vshlq_n_u32(row4,16));
+  row3 = vaddq_u32(row3,row4);
+  row2 = veorq_u32(row2,row3);
+  row2 = veorq_u32(vshrq_n_u32(row2,12),vshlq_n_u32(row2,20));
+
+  // buf4 = vld1q_u32(m10,m6,m4,m0);
+  vld1q_u32_rev(buf4, m10,m6,m4,m0);
+
+  row1 = vaddq_u32(vaddq_u32(row1,buf4),row2);
+  row4 = veorq_u32(row4,row1);
+  row4 = veorq_u32(vshrq_n_u32(row4,8),vshlq_n_u32(row4,24));
+  row3 = vaddq_u32(row3,row4);
+  row2 = veorq_u32(row2,row3);
+  row2 = veorq_u32(vshrq_n_u32(row2,7),vshlq_n_u32(row2,25));
+
+  row4 = vextq_u32(row4,row4,1);
+  row3 = vcombine_u32(vget_high_u32(row3),vget_low_u32(row3));
+  row2 = vextq_u32(row2,row2,3);
+
+  // buf1 = vld1q_u32(m0,m11,m14,m6);
+  vld1q_u32_rev(buf1, m0,m11,m14,m6);
+
+  row1 = vaddq_u32(vaddq_u32(row1,buf1),row2);
+  row4 = veorq_u32(row4,row1);
+  row4 = veorq_u32(vshrq_n_u32(row4,16),vshlq_n_u32(row4,16));
+  row3 = vaddq_u32(row3,row4);
+  row2 = veorq_u32(row2,row3);
+  row2 = veorq_u32(vshrq_n_u32(row2,12),vshlq_n_u32(row2,20));
+
+  // buf2 = vld1q_u32(m8,m3,m9,m15);
+  vld1q_u32_rev(buf2, m8,m3,m9,m15);
+
+  row1 = vaddq_u32(vaddq_u32(row1,buf2),row2);
+  row4 = veorq_u32(row4,row1);
+  row4 = veorq_u32(vshrq_n_u32(row4,8),vshlq_n_u32(row4,24));
+  row3 = vaddq_u32(row3,row4);
+  row2 = veorq_u32(row2,row3);
+  row2 = veorq_u32(vshrq_n_u32(row2,7),vshlq_n_u32(row2,25));
+
+  row4 = vextq_u32(row4,row4,3);
+  row3 = vcombine_u32(vget_high_u32(row3),vget_low_u32(row3));
+  row2 = vextq_u32(row2,row2,1);
+
+  // buf3 = vld1q_u32(m10,m1,m13,m12);
+  vld1q_u32_rev(buf3, m10,m1,m13,m12);
+
+  row1 = vaddq_u32(vaddq_u32(row1,buf3),row2);
+  row4 = veorq_u32(row4,row1);
+  row4 = veorq_u32(vshrq_n_u32(row4,16),vshlq_n_u32(row4,16));
+  row3 = vaddq_u32(row3,row4);
+  row2 = veorq_u32(row2,row3);
+  row2 = veorq_u32(vshrq_n_u32(row2,12),vshlq_n_u32(row2,20));
+
+  // buf4 = vld1q_u32(m5,m4,m7,m2);
+  vld1q_u32_rev(buf4, m5,m4,m7,m2);
+
+  row1 = vaddq_u32(vaddq_u32(row1,buf4),row2);
+  row4 = veorq_u32(row4,row1);
+  row4 = veorq_u32(vshrq_n_u32(row4,8),vshlq_n_u32(row4,24));
+  row3 = vaddq_u32(row3,row4);
+  row2 = veorq_u32(row2,row3);
+  row2 = veorq_u32(vshrq_n_u32(row2,7),vshlq_n_u32(row2,25));
+
+  row4 = vextq_u32(row4,row4,1);
+  row3 = vcombine_u32(vget_high_u32(row3),vget_low_u32(row3));
+  row2 = vextq_u32(row2,row2,3);
+
+  // buf1 = vld1q_u32(m1,m7,m8,m10);
+  vld1q_u32_rev(buf1, m1,m7,m8,m10);
+
+  row1 = vaddq_u32(vaddq_u32(row1,buf1),row2);
+  row4 = veorq_u32(row4,row1);
+  row4 = veorq_u32(vshrq_n_u32(row4,16),vshlq_n_u32(row4,16));
+  row3 = vaddq_u32(row3,row4);
+  row2 = veorq_u32(row2,row3);
+  row2 = veorq_u32(vshrq_n_u32(row2,12),vshlq_n_u32(row2,20));
+
+  // buf2 = vld1q_u32(m5,m6,m4,m2);
+  vld1q_u32_rev(buf2, m5,m6,m4,m2);
+
+  row1 = vaddq_u32(vaddq_u32(row1,buf2),row2);
+  row4 = veorq_u32(row4,row1);
+  row4 = veorq_u32(vshrq_n_u32(row4,8),vshlq_n_u32(row4,24));
+  row3 = vaddq_u32(row3,row4);
+  row2 = veorq_u32(row2,row3);
+  row2 = veorq_u32(vshrq_n_u32(row2,7),vshlq_n_u32(row2,25));
+
+  row4 = vextq_u32(row4,row4,3);
+  row3 = vcombine_u32(vget_high_u32(row3),vget_low_u32(row3));
+  row2 = vextq_u32(row2,row2,1);
+
+  // buf3 = vld1q_u32(m13,m3,m9,m15);
+  vld1q_u32_rev(buf3, m13,m3,m9,m15);
+
+  row1 = vaddq_u32(vaddq_u32(row1,buf3),row2);
+  row4 = veorq_u32(row4,row1);
+  row4 = veorq_u32(vshrq_n_u32(row4,16),vshlq_n_u32(row4,16));
+  row3 = vaddq_u32(row3,row4);
+  row2 = veorq_u32(row2,row3);
+  row2 = veorq_u32(vshrq_n_u32(row2,12),vshlq_n_u32(row2,20));
+
+  // buf4 = vld1q_u32(m0,m12,m14,m11);
+  vld1q_u32_rev(buf4, m0,m12,m14,m11);
+
+  row1 = vaddq_u32(vaddq_u32(row1,buf4),row2);
+  row4 = veorq_u32(row4,row1);
+  row4 = veorq_u32(vshrq_n_u32(row4,8),vshlq_n_u32(row4,24));
+  row3 = vaddq_u32(row3,row4);
+  row2 = veorq_u32(row2,row3);
+  row2 = veorq_u32(vshrq_n_u32(row2,7),vshlq_n_u32(row2,25));
+
+  row4 = vextq_u32(row4,row4,1);
+  row3 = vcombine_u32(vget_high_u32(row3),vget_low_u32(row3));
+  row2 = vextq_u32(row2,row2,3);
+
+  vst1q_u32((uint32_t*)&state.h[0],veorq_u32(ff0,veorq_u32(row1,row3)));
+  vst1q_u32((uint32_t*)&state.h[4],veorq_u32(ff1,veorq_u32(row2,row4)));
+}
+#endif  // CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
+
+#if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE && 0
+
+// Keep things straight due to swapping. For a 128-bit vector, H64 denotes
+//   the high 64-bit vector, and L64 denotes the low 64-bit vector. The
+//   vectors are the same as returned by vget_high_u64 and vget_low_u64.
+static const int LANE_H64 = 1;
+static const int LANE_L64 = 0;
+
+// Returns a-high||b-high
+inline uint64x2_t combine_ah_bh(const uint64x2_t& a, const uint64x2_t& b)
+{
+	uint64x2_t ret;
+	ret=vsetq_lane_u64(vgetq_lane_u64(a,LANE_H64),ret,LANE_H64);
+	ret=vsetq_lane_u64(vgetq_lane_u64(b,LANE_H64),ret,LANE_L64);
+	return ret;
+}
+
+// Returns a-high||b-low
+inline uint64x2_t combine_ah_bl(const uint64x2_t& a, const uint64x2_t& b)
+{
+	uint64x2_t ret;
+	ret=vsetq_lane_u64(vgetq_lane_u64(a,LANE_H64),ret,LANE_H64);
+	ret=vsetq_lane_u64(vgetq_lane_u64(b,LANE_L64),ret,LANE_L64);
+	return ret;
+}
+
+// Returns a-high||b-low, reversed lanes
+inline uint64x2_t combine_ah_bl_rev(const uint64x2_t& a, const uint64x2_t& b)
+{
+	uint64x2_t ret;
+	ret=vsetq_lane_u64(vgetq_lane_u64(a,LANE_H64),ret,LANE_L64);
+	ret=vsetq_lane_u64(vgetq_lane_u64(b,LANE_L64),ret,LANE_H64);
+	return ret;
+}
+
+// Returns a-low||b-high
+inline uint64x2_t combine_al_bh(const uint64x2_t& a, const uint64x2_t& b)
+{
+	uint64x2_t ret;
+	ret=vsetq_lane_u64(vgetq_lane_u64(a,LANE_L64),ret,LANE_H64);
+	ret=vsetq_lane_u64(vgetq_lane_u64(b,LANE_H64),ret,LANE_L64);
+	return ret;
+}
+
+// Returns a-low||b-high, reversed lanes
+inline uint64x2_t combine_al_bh_rev(const uint64x2_t& a, const uint64x2_t& b)
+{
+	uint64x2_t ret;
+	ret=vsetq_lane_u64(vgetq_lane_u64(a,LANE_L64),ret,LANE_L64);
+	ret=vsetq_lane_u64(vgetq_lane_u64(b,LANE_H64),ret,LANE_H64);
+	return ret;
+}
+
+// Returns a-low||b-low
+inline uint64x2_t combine_al_bl(const uint64x2_t& a, const uint64x2_t& b)
+{
+	uint64x2_t ret;
+	ret=vsetq_lane_u64(vgetq_lane_u64(a,LANE_L64),ret,LANE_H64);
+	ret=vsetq_lane_u64(vgetq_lane_u64(b,LANE_L64),ret,LANE_L64);
+	return ret;
+}
+
+// Returns mX (high) || mY (low). Extraction is needed because m is packed
+template <int l1, int l2>
+inline uint64x2_t combine_lanes(const uint64x2_t ma, uint64x2_t mb)
+{
+	uint64x2_t ret;
+	ret=vsetq_lane_u64(vgetq_lane_u64(ma, (!!l1 ? LANE_L64:LANE_H64)),ret,LANE_H64);
+	ret=vsetq_lane_u64(vgetq_lane_u64(mb, (!!l2 ? LANE_L64:LANE_H64)),ret,LANE_L64);
+	return ret;
 }
 
 static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>& state)
 {
-  assert(IsAlignedOn(&state.h[0],GetAlignmentOf<int64x2_t>()));
-  assert(IsAlignedOn(&state.h[4],GetAlignmentOf<int64x2_t>()));
-  assert(IsAlignedOn(&state.t[0],GetAlignmentOf<int64x2_t>()));
+  assert(IsAlignedOn(&state.h[0],GetAlignmentOf<uint64x2_t>()));
+  assert(IsAlignedOn(&state.h[4],GetAlignmentOf<uint64x2_t>()));
+  assert(IsAlignedOn(&state.t[0],GetAlignmentOf<uint64x2_t>()));
 
-  CRYPTOPP_ALIGN_DATA(BLAKE2_DALIGN) static const int64_t vv0[2] = {BLAKE2B_IV(0),BLAKE2B_IV(1)}, vv1[2] = {BLAKE2B_IV(2),BLAKE2B_IV(3)};
-  CRYPTOPP_ALIGN_DATA(BLAKE2_DALIGN) static const int64_t vv2[2] = {BLAKE2B_IV(4),BLAKE2B_IV(5)}, vv3[2] = {BLAKE2B_IV(6),BLAKE2B_IV(7)};
+  uint64x2_t m0m1,m2m3,m4m5,m6m7,m8m9,m10m11,m12m13,m14m15;
 
-  int64x2_t m0m1,m2m3,m4m5,m6m7,m8m9,m10m11,m12m13,m14m15;
-  CRYPTOPP_ALIGN_DATA(BLAKE2_DALIGN) int64_t temp[2];
+    m0m1 = vreinterpretq_u64_u8(vld1q_u8(input+  0));
+    m2m3 = vreinterpretq_u64_u8(vld1q_u8(input+ 16));
+    m4m5 = vreinterpretq_u64_u8(vld1q_u8(input+ 32));
+    m6m7 = vreinterpretq_u64_u8(vld1q_u8(input+ 48));
+    m8m9 = vreinterpretq_u64_u8(vld1q_u8(input+ 64));
+  m10m11 = vreinterpretq_u64_u8(vld1q_u8(input+ 80));
+  m12m13 = vreinterpretq_u64_u8(vld1q_u8(input+ 96));
+  m14m15 = vreinterpretq_u64_u8(vld1q_u8(input+112));
 
-  memcpy(temp,input+  0,16);   m0m1=vld1q_s64(temp);
-  memcpy(temp,input+ 16,16);   m2m3=vld1q_s64(temp);
-  memcpy(temp,input+ 32,16);   m4m5=vld1q_s64(temp);
-  memcpy(temp,input+ 48,16);   m6m7=vld1q_s64(temp);
-  memcpy(temp,input+ 64,16);   m8m9=vld1q_s64(temp);
-  memcpy(temp,input+ 80,16); m10m11=vld1q_s64(temp);
-  memcpy(temp,input+ 96,16); m12m13=vld1q_s64(temp);
-  memcpy(temp,input+112,16); m14m15=vld1q_s64(temp);
+  uint64x2_t row1l, row1h, row2l, row2h;
+  uint64x2_t row3l, row3h, row4l, row4h;
+  uint64x2_t b0, b1, t0, t1, t2;
 
-  int64x2_t row1l, row1h, row2l, row2h;
-  int64x2_t row3l, row3h, row4l, row4h;
-  int64x2_t b0, b1, t0, t1;
+  row1l = vld1q_u64((const uint64_t *)&state.h[0]);
+  row1h = vld1q_u64((const uint64_t *)&state.h[2]);
+  row2l = vld1q_u64((const uint64_t *)&state.h[4]);
+  row2h = vld1q_u64((const uint64_t *)&state.h[6]);
+  row3l = vld1q_u64((const uint64_t *)&BLAKE2B_IV(0));
+  row3h = vld1q_u64((const uint64_t *)&BLAKE2B_IV(2));
+  row4l = veorq_u64(vld1q_u64((const uint64_t *)&BLAKE2B_IV(4)), vld1q_u64((const uint64_t*)&state.t[0]));
+  row4h = veorq_u64(vld1q_u64((const uint64_t *)&BLAKE2B_IV(6)), vld1q_u64((const uint64_t*)&state.f[0]));
 
-  row1l = vld1q_s64((const int64_t*)&state.h[0]), row1h = vld1q_s64((const int64_t*)&state.h[2]);
-  row2l = vld1q_s64((const int64_t*)&state.h[4]), row2h = vld1q_s64((const int64_t*)&state.h[6]);
-  row3l = vld1q_s64((const int64_t*)vv0), row3h = vld1q_s64((const int64_t*)vv1);
-  row4l = veorq_s64(vld1q_s64(vv2), vld1q_s64((const int64_t*)&state.t[0]));
-  row4h = veorq_s64(vld1q_s64(vv3), vld1q_s64((const int64_t*)&state.f[0]));
+  b0 = combine_lanes<0,0>(m0m1,m2m3);
+  b1 = combine_lanes<0,0>(m4m5,m6m7);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,32),vshlq_n_u64(row4l,32));
+  row4h = veorq_u64(vshrq_n_u64(row4h,32),vshlq_n_u64(row4h,32));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,24),vshlq_n_u64(row2l,40));
+  row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
-  combine_lanes(b0, m0m1,0,m2m3,0);
-  combine_lanes(b1, m4m5,0,m6m7,0);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,32));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,32));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,40));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,40));
-
-  combine_lanes(b0, m0m1,1,m2m3,1);
-  combine_lanes(b1, m4m5,1,m6m7,1);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,48));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,48));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,1));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,1));
-
-  t0 = row4l, t1 = row2l, row4l = row3l, row3l = row3h, row3h = row4l;
-  combine_x_ah_bl(row4l,row4h,t0);
-  combine_x_xh_al(t0,row4h);
-  combine_x_xh_al(row2l,row2h);
-  combine_x_xh_al(row2h,t1);
-
-  combine_lanes(b0, m8m9,0,m10m11,0);
-  combine_lanes(b1, m12m13,0,m14m15,0);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,32));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,32));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,40));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,40));
-
-  combine_lanes(b0, m8m9,1,m10m11,1);
-  combine_lanes(b1, m12m13,1,m14m15,1);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,48));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,48));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,1));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,1));
-
-  t0 = row3l, row3l = row3h, row3h = t0, t0 = row2l, t1 = row4l;
-  combine_x_xh_al(row2h,row2l);
-  combine_x_xh_al(t0,row2h);
-  combine_x_xh_al(row4l,row4h);
-  combine_x_xh_al(row4h,t1);
-
-  combine_lanes(b0, m14m15,0,m4m5,0);
-  combine_lanes(b1, m8m9,1,m12m13,1);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,32));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,32));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,40));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,40));
-
-  combine_lanes(b0, m10m11,0,m8m9,0);
-  combine_lanes(b1, m14m15,1,m6m7,0);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,48));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,48));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,1));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,1));
+  b0 = combine_lanes<1,1>(m0m1,m2m3);
+  b1 = combine_lanes<1,1>(m4m5,m6m7);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,16),vshlq_n_u64(row4l,48));
+  row4h = veorq_u64(vshrq_n_u64(row4h,16),vshlq_n_u64(row4h,48));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,63),vshlq_n_u64(row2l,1));
+  row2h = veorq_u64(vshrq_n_u64(row2h,63),vshlq_n_u64(row2h,1));
 
   t0 = row4l, t1 = row2l, row4l = row3l, row3l = row3h, row3h = row4l;
-  combine_x_ah_bl(row4l,row4h,t0);
-  combine_x_xh_al(t0,row4h);
-  combine_x_xh_al(row2l,row2h);
-  combine_x_xh_al(row2h,t1);
+  row4l = combine_ah_bl_rev(row4h,t0);
+  row4h = combine_ah_bl_rev(t0,row4h);
+  row2l = combine_ah_bl_rev(row2l,row2h);
+  row2h = combine_ah_bl_rev(row2h,t1);
 
-  combine_lanes(b0, m0m1,1,m0m1,0);
-  combine_lanes(b1, m10m11,1,m4m5,1);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,32));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,32));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,40));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,40));
+  b0 = combine_lanes<0,0>(m8m9,m10m11);
+  b1 = combine_lanes<0,0>(m12m13,m14m15);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,32),vshlq_n_u64(row4l,32));
+  row4h = veorq_u64(vshrq_n_u64(row4h,32),vshlq_n_u64(row4h,32));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,24),vshlq_n_u64(row2l,40));
+  row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
-  combine_lanes(b0, m12m13,0,m2m3,0);
-  combine_lanes(b1, m6m7,1,m2m3,1);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,48));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,48));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,1));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,1));
+  b0 = combine_lanes<1,1>(m8m9,m10m11);
+  b1 = combine_lanes<1,1>(m12m13,m14m15);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,16),vshlq_n_u64(row4l,48));
+  row4h = veorq_u64(vshrq_n_u64(row4h,16),vshlq_n_u64(row4h,48));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,63),vshlq_n_u64(row2l,1));
+  row2h = veorq_u64(vshrq_n_u64(row2h,63),vshlq_n_u64(row2h,1));
 
   t0 = row3l, row3l = row3h, row3h = t0, t0 = row2l, t1 = row4l;
-  combine_x_xh_al(row2h,row2l);
-  combine_x_xh_al(t0,row2h);
-  combine_x_xh_al(row4l,row4h);
-  combine_x_xh_al(row4h,t1);
+  row2h = combine_ah_bl_rev(row2h,row2l);
+  row2h = combine_ah_bl_rev(t0,row2h);
+  row4l = combine_ah_bl_rev(row4l,row4h);
+  row4h = combine_ah_bl_rev(row4h,t1);
 
-  combine_lanes(b0, m10m11,1,m12m13,0);
-  combine_lanes(b1, m4m5,1,m14m15,1);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,32));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,32));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,40));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,40));
+  b0 = combine_lanes<0,0>(m14m15,m4m5);
+  b1 = combine_lanes<1,1>(m8m9,m12m13);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,32),vshlq_n_u64(row4l,32));
+  row4h = veorq_u64(vshrq_n_u64(row4h,32),vshlq_n_u64(row4h,32));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,24),vshlq_n_u64(row2l,40));
+  row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
-  combine_lanes(b0, m8m9,0,m0m1,0);
-  combine_lanes(b1, m2m3,0,m12m13,1);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,48));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,48));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,1));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,1));
+  b0 = combine_lanes<0,0>(m10m11,m8m9);
+  b1 = combine_lanes<1,0>(m14m15,m6m7);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,16),vshlq_n_u64(row4l,48));
+  row4h = veorq_u64(vshrq_n_u64(row4h,16),vshlq_n_u64(row4h,48));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,63),vshlq_n_u64(row2l,1));
+  row2h = veorq_u64(vshrq_n_u64(row2h,63),vshlq_n_u64(row2h,1));
 
   t0 = row4l, t1 = row2l, row4l = row3l, row3l = row3h, row3h = row4l;
-  combine_x_ah_bl(row4l,row4h,t0);
-  combine_x_xh_al(t0,row4h);
-  combine_x_xh_al(row2l,row2h);
-  combine_x_xh_al(row2h,t1);
+  row4l = combine_ah_bl_rev(row4h,t0);
+  row4h = combine_ah_bl_rev(t0,row4h);
+  row2l = combine_ah_bl_rev(row2l,row2h);
+  row2h = combine_ah_bl_rev(row2h,t1);
 
-  combine_lanes(b0, m10m11,0,m2m3,1);
-  combine_lanes(b1, m6m7,1,m8m9,1);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,32));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,32));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,40));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,40));
+  b0 = combine_lanes<1,0>(m0m1,m0m1);
+  b1 = combine_lanes<1,1>(m10m11,m4m5);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,32),vshlq_n_u64(row4l,32));
+  row4h = veorq_u64(vshrq_n_u64(row4h,32),vshlq_n_u64(row4h,32));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,24),vshlq_n_u64(row2l,40));
+  row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
-  combine_lanes(b0, m14m15,0,m6m7,0);
-  combine_lanes(b1, m0m1,1,m4m5,0);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,48));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,48));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,1));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,1));
+  b0 = combine_lanes<0,0>(m12m13,m2m3);
+  b1 = combine_lanes<1,1>(m6m7,m2m3);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,16),vshlq_n_u64(row4l,48));
+  row4h = veorq_u64(vshrq_n_u64(row4h,16),vshlq_n_u64(row4h,48));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,63),vshlq_n_u64(row2l,1));
+  row2h = veorq_u64(vshrq_n_u64(row2h,63),vshlq_n_u64(row2h,1));
 
   t0 = row3l, row3l = row3h, row3h = t0, t0 = row2l, t1 = row4l;
-  combine_x_xh_al(row2h,row2l);
-  combine_x_xh_al(t0,row2h);
-  combine_x_xh_al(row4l,row4h);
-  combine_x_xh_al(row4h,t1);
+  row2h = combine_ah_bl_rev(row2h,row2l);
+  row2h = combine_ah_bl_rev(t0,row2h);
+  row4l = combine_ah_bl_rev(row4l,row4h);
+  row4h = combine_ah_bl_rev(row4h,t1);
 
-  combine_lanes(b0, m6m7,1,m2m3,1);
-  combine_lanes(b1, m12m13,1,m10m11,1);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,32));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,32));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,40));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,40));
+  b0 = combine_lanes<1,0>(m10m11,m12m13);
+  b1 = combine_lanes<1,1>(m4m5,m14m15);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,32),vshlq_n_u64(row4l,32));
+  row4h = veorq_u64(vshrq_n_u64(row4h,32),vshlq_n_u64(row4h,32));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,24),vshlq_n_u64(row2l,40));
+  row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
-  combine_lanes(b0, m8m9,1,m0m1,1);
-  combine_lanes(b1, m12m13,0,m14m15,0);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,48));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,48));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,1));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,1));
+  b0 = combine_lanes<0,0>(m8m9,m0m1);
+  b1 = combine_lanes<0,1>(m2m3,m12m13);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,16),vshlq_n_u64(row4l,48));
+  row4h = veorq_u64(vshrq_n_u64(row4h,16),vshlq_n_u64(row4h,48));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,63),vshlq_n_u64(row2l,1));
+  row2h = veorq_u64(vshrq_n_u64(row2h,63),vshlq_n_u64(row2h,1));
 
   t0 = row4l, t1 = row2l, row4l = row3l, row3l = row3h, row3h = row4l;
-  combine_x_ah_bl(row4l,row4h,t0);
-  combine_x_xh_al(t0,row4h);
-  combine_x_xh_al(row2l,row2h);
-  combine_x_xh_al(row2h,t1);
+  row4l = combine_ah_bl_rev(row4h,t0);
+  row4h = combine_ah_bl_rev(t0,row4h);
+  row2l = combine_ah_bl_rev(row2l,row2h);
+  row2h = combine_ah_bl_rev(row2h,t1);
 
-  combine_lanes(b0, m2m3,0,m4m5,1);
-  combine_lanes(b1, m4m5,0,m14m15,1);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,32));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,32));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,40));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,40));
+  b0 = combine_lanes<0,1>(m10m11,m2m3);
+  b1 = combine_lanes<1,1>(m6m7,m8m9);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,32),vshlq_n_u64(row4l,32));
+  row4h = veorq_u64(vshrq_n_u64(row4h,32),vshlq_n_u64(row4h,32));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,24),vshlq_n_u64(row2l,40));
+  row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
-  combine_lanes(b0, m6m7,0,m10m11,0);
-  combine_lanes(b1, m0m1,0,m8m9,0);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,48));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,48));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,1));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,1));
+  b0 = combine_lanes<0,0>(m14m15,m6m7);
+  b1 = combine_lanes<1,0>(m0m1,m4m5);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,16),vshlq_n_u64(row4l,48));
+  row4h = veorq_u64(vshrq_n_u64(row4h,16),vshlq_n_u64(row4h,48));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,63),vshlq_n_u64(row2l,1));
+  row2h = veorq_u64(vshrq_n_u64(row2h,63),vshlq_n_u64(row2h,1));
 
   t0 = row3l, row3l = row3h, row3h = t0, t0 = row2l, t1 = row4l;
-  combine_x_xh_al(row2h,row2l);
-  combine_x_xh_al(t0,row2h);
-  combine_x_xh_al(row4l,row4h);
-  combine_x_xh_al(row4h,t1);
+  row2h = combine_ah_bl_rev(row2h,row2l);
+  row2h = combine_ah_bl_rev(t0,row2h);
+  row4l = combine_ah_bl_rev(row4l,row4h);
+  row4h = combine_ah_bl_rev(row4h,t1);
 
-  combine_lanes(b0, m8m9,1,m4m5,1);
-  combine_lanes(b1, m2m3,0,m10m11,0);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,32));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,32));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,40));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,40));
+  b0 = combine_lanes<1,1>(m6m7,m2m3);
+  b1 = combine_lanes<1,1>(m12m13,m10m11);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,32),vshlq_n_u64(row4l,32));
+  row4h = veorq_u64(vshrq_n_u64(row4h,32),vshlq_n_u64(row4h,32));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,24),vshlq_n_u64(row2l,40));
+  row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
-  combine_lanes(b0, m0m1,0,m6m7,1);
-  combine_lanes(b1, m4m5,0,m14m15,1);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,48));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,48));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,1));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,1));
+  b0 = combine_lanes<1,1>(m8m9,m0m1);
+  b1 = combine_lanes<0,0>(m12m13,m14m15);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,16),vshlq_n_u64(row4l,48));
+  row4h = veorq_u64(vshrq_n_u64(row4h,16),vshlq_n_u64(row4h,48));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,63),vshlq_n_u64(row2l,1));
+  row2h = veorq_u64(vshrq_n_u64(row2h,63),vshlq_n_u64(row2h,1));
 
   t0 = row4l, t1 = row2l, row4l = row3l, row3l = row3h, row3h = row4l;
-  combine_x_ah_bl(row4l,row4h,t0);
-  combine_x_xh_al(t0,row4h);
-  combine_x_xh_al(row2l,row2h);
-  combine_x_xh_al(row2h,t1);
+  row4l = combine_ah_bl_rev(row4h,t0);
+  row4h = combine_ah_bl_rev(t0,row4h);
+  row2l = combine_ah_bl_rev(row2l,row2h);
+  row2h = combine_ah_bl_rev(row2h,t1);
 
-  combine_lanes(b0, m14m15,0,m10m11,1);
-  combine_lanes(b1, m6m7,0,m2m3,1);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,32));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,32));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,40));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,40));
+  b0 = combine_lanes<0,1>(m2m3,m4m5);
+  b1 = combine_lanes<0,1>(m4m5,m14m15);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,32),vshlq_n_u64(row4l,32));
+  row4h = veorq_u64(vshrq_n_u64(row4h,32),vshlq_n_u64(row4h,32));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,24),vshlq_n_u64(row2l,40));
+  row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
-  combine_lanes(b0, m0m1,1,m12m13,0);
-  combine_lanes(b1, m8m9,0,m12m13,1);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,48));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,48));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,1));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,1));
+  b0 = combine_lanes<0,0>(m6m7,m10m11);
+  b1 = combine_lanes<0,0>(m0m1,m8m9);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,16),vshlq_n_u64(row4l,48));
+  row4h = veorq_u64(vshrq_n_u64(row4h,16),vshlq_n_u64(row4h,48));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,63),vshlq_n_u64(row2l,1));
+  row2h = veorq_u64(vshrq_n_u64(row2h,63),vshlq_n_u64(row2h,1));
 
   t0 = row3l, row3l = row3h, row3h = t0, t0 = row2l, t1 = row4l;
-  combine_x_xh_al(row2h,row2l);
-  combine_x_xh_al(t0,row2h);
-  combine_x_xh_al(row4l,row4h);
-  combine_x_xh_al(row4h,t1);
+  row2h = combine_ah_bl_rev(row2h,row2l);
+  row2h = combine_ah_bl_rev(t0,row2h);
+  row4l = combine_ah_bl_rev(row4l,row4h);
+  row4h = combine_ah_bl_rev(row4h,t1);
 
-  combine_lanes(b0, m2m3,0,m6m7,0);
-  combine_lanes(b1, m0m1,0,m8m9,0);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,32));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,32));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,40));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,40));
+  b0 = combine_lanes<1,1>(m8m9,m4m5);
+  b1 = combine_lanes<0,0>(m2m3,m10m11);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,32),vshlq_n_u64(row4l,32));
+  row4h = veorq_u64(vshrq_n_u64(row4h,32),vshlq_n_u64(row4h,32));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,24),vshlq_n_u64(row2l,40));
+  row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
-  combine_lanes(b0, m12m13,0,m10m11,0);
-  combine_lanes(b1, m10m11,1,m2m3,1);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,48));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,48));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,1));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,1));
+  b0 = combine_lanes<0,1>(m0m1,m6m7);
+  b1 = combine_lanes<0,1>(m4m5,m14m15);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,16),vshlq_n_u64(row4l,48));
+  row4h = veorq_u64(vshrq_n_u64(row4h,16),vshlq_n_u64(row4h,48));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,63),vshlq_n_u64(row2l,1));
+  row2h = veorq_u64(vshrq_n_u64(row2h,63),vshlq_n_u64(row2h,1));
 
   t0 = row4l, t1 = row2l, row4l = row3l, row3l = row3h, row3h = row4l;
-  combine_x_ah_bl(row4l,row4h,t0);
-  combine_x_xh_al(t0,row4h);
-  combine_x_xh_al(row2l,row2h);
-  combine_x_xh_al(row2h,t1);
+  row4l = combine_ah_bl_rev(row4h,t0);
+  row4h = combine_ah_bl_rev(t0,row4h);
+  row2l = combine_ah_bl_rev(row2l,row2h);
+  row2h = combine_ah_bl_rev(row2h,t1);
 
-  combine_lanes(b0, m4m5,0,m6m7,1);
-  combine_lanes(b1, m14m15,1,m0m1,1);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,32));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,32));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,40));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,40));
+  b0 = combine_lanes<0,1>(m14m15,m10m11);
+  b1 = combine_lanes<0,1>(m6m7,m2m3);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,32),vshlq_n_u64(row4l,32));
+  row4h = veorq_u64(vshrq_n_u64(row4h,32),vshlq_n_u64(row4h,32));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,24),vshlq_n_u64(row2l,40));
+  row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
-  combine_lanes(b0, m12m13,1,m4m5,1);
-  combine_lanes(b1, m14m15,0,m8m9,1);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,48));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,48));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,1));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,1));
+  b0 = combine_lanes<1,0>(m0m1,m12m13);
+  b1 = combine_lanes<0,1>(m8m9,m12m13);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,16),vshlq_n_u64(row4l,48));
+  row4h = veorq_u64(vshrq_n_u64(row4h,16),vshlq_n_u64(row4h,48));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,63),vshlq_n_u64(row2l,1));
+  row2h = veorq_u64(vshrq_n_u64(row2h,63),vshlq_n_u64(row2h,1));
 
   t0 = row3l, row3l = row3h, row3h = t0, t0 = row2l, t1 = row4l;
-  combine_x_xh_al(row2h,row2l);
-  combine_x_xh_al(t0,row2h);
-  combine_x_xh_al(row4l,row4h);
-  combine_x_xh_al(row4h,t1);
+  row2h = combine_ah_bl_rev(row2h,row2l);
+  row2h = combine_ah_bl_rev(t0,row2h);
+  row4l = combine_ah_bl_rev(row4l,row4h);
+  row4h = combine_ah_bl_rev(row4h,t1);
 
-  combine_lanes(b0, m12m13,0,m0m1,1);
-  combine_lanes(b1, m14m15,0,m4m5,0);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,32));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,32));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,40));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,40));
+  b0 = combine_lanes<0,0>(m2m3,m6m7);
+  b1 = combine_lanes<0,0>(m0m1,m8m9);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,32),vshlq_n_u64(row4l,32));
+  row4h = veorq_u64(vshrq_n_u64(row4h,32),vshlq_n_u64(row4h,32));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,24),vshlq_n_u64(row2l,40));
+  row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
-  combine_lanes(b0, m4m5,1,m14m15,1);
-  combine_lanes(b1, m12m13,1,m10m11,0);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,48));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,48));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,1));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,1));
+  b0 = combine_lanes<0,0>(m12m13,m10m11);
+  b1 = combine_lanes<1,1>(m10m11,m2m3);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,16),vshlq_n_u64(row4l,48));
+  row4h = veorq_u64(vshrq_n_u64(row4h,16),vshlq_n_u64(row4h,48));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,63),vshlq_n_u64(row2l,1));
+  row2h = veorq_u64(vshrq_n_u64(row2h,63),vshlq_n_u64(row2h,1));
 
   t0 = row4l, t1 = row2l, row4l = row3l, row3l = row3h, row3h = row4l;
-  combine_x_ah_bl(row4l,row4h,t0);
-  combine_x_xh_al(t0,row4h);
-  combine_x_xh_al(row2l,row2h);
-  combine_x_xh_al(row2h,t1);
+  row4l = combine_ah_bl_rev(row4h,t0);
+  row4h = combine_ah_bl_rev(t0,row4h);
+  row2l = combine_ah_bl_rev(row2l,row2h);
+  row2h = combine_ah_bl_rev(row2h,t1);
 
-  combine_lanes(b0, m0m1,0,m6m7,1);
-  combine_lanes(b1, m8m9,1,m8m9,0);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,32));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,32));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,40));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,40));
+  b0 = combine_lanes<0,1>(m4m5,m6m7);
+  b1 = combine_lanes<1,1>(m14m15,m0m1);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,32),vshlq_n_u64(row4l,32));
+  row4h = veorq_u64(vshrq_n_u64(row4h,32),vshlq_n_u64(row4h,32));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,24),vshlq_n_u64(row2l,40));
+  row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
-  combine_lanes(b0, m6m7,1,m2m3,1);
-  combine_lanes(b1, m2m3,0,m10m11,1);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,48));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,48));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,1));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,1));
+  b0 = combine_lanes<1,1>(m12m13,m4m5);
+  b1 = combine_lanes<0,1>(m14m15,m8m9);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,16),vshlq_n_u64(row4l,48));
+  row4h = veorq_u64(vshrq_n_u64(row4h,16),vshlq_n_u64(row4h,48));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,63),vshlq_n_u64(row2l,1));
+  row2h = veorq_u64(vshrq_n_u64(row2h,63),vshlq_n_u64(row2h,1));
 
   t0 = row3l, row3l = row3h, row3h = t0, t0 = row2l, t1 = row4l;
-  combine_x_xh_al(row2h,row2l);
-  combine_x_xh_al(t0,row2h);
-  combine_x_xh_al(row4l,row4h);
-  combine_x_xh_al(row4h,t1);
+  row2h = combine_ah_bl_rev(row2h,row2l);
+  row2h = combine_ah_bl_rev(t0,row2h);
+  row4l = combine_ah_bl_rev(row4l,row4h);
+  row4h = combine_ah_bl_rev(row4h,t1);
 
-  combine_lanes(b0, m12m13,1,m6m7,1);
-  combine_lanes(b1, m12m13,0,m2m3,1);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,32));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,32));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,40));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,40));
+  b0 = combine_lanes<0,1>(m12m13,m0m1);
+  b1 = combine_lanes<0,0>(m14m15,m4m5);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,32),vshlq_n_u64(row4l,32));
+  row4h = veorq_u64(vshrq_n_u64(row4h,32),vshlq_n_u64(row4h,32));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,24),vshlq_n_u64(row2l,40));
+  row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
-  combine_lanes(b0, m10m11,1,m14m15,0);
-  combine_lanes(b1, m0m1,1,m8m9,1);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,48));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,48));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,1));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,1));
+  b0 = combine_lanes<1,1>(m4m5,m14m15);
+  b1 = combine_lanes<1,0>(m12m13,m10m11);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,16),vshlq_n_u64(row4l,48));
+  row4h = veorq_u64(vshrq_n_u64(row4h,16),vshlq_n_u64(row4h,48));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,63),vshlq_n_u64(row2l,1));
+  row2h = veorq_u64(vshrq_n_u64(row2h,63),vshlq_n_u64(row2h,1));
 
   t0 = row4l, t1 = row2l, row4l = row3l, row3l = row3h, row3h = row4l;
-  combine_x_ah_bl(row4l,row4h,t0);
-  combine_x_xh_al(t0,row4h);
-  combine_x_xh_al(row2l,row2h);
-  combine_x_xh_al(row2h,t1);
+  row4l = combine_ah_bl_rev(row4h,t0);
+  row4h = combine_ah_bl_rev(t0,row4h);
+  row2l = combine_ah_bl_rev(row2l,row2h);
+  row2h = combine_ah_bl_rev(row2h,t1);
 
-  combine_lanes(b0, m4m5,1,m14m15,1);
-  combine_lanes(b1, m8m9,0,m2m3,0);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,32));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,32));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,40));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,40));
+  b0 = combine_lanes<0,1>(m0m1,m6m7);
+  b1 = combine_lanes<1,0>(m8m9,m8m9);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,32),vshlq_n_u64(row4l,32));
+  row4h = veorq_u64(vshrq_n_u64(row4h,32),vshlq_n_u64(row4h,32));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,24),vshlq_n_u64(row2l,40));
+  row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
-  combine_lanes(b0, m0m1,0,m4m5,0);
-  combine_lanes(b1, m6m7,0,m10m11,0);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,48));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,48));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,1));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,1));
+  b0 = combine_lanes<1,1>(m6m7,m2m3);
+  b1 = combine_lanes<0,1>(m2m3,m10m11);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,16),vshlq_n_u64(row4l,48));
+  row4h = veorq_u64(vshrq_n_u64(row4h,16),vshlq_n_u64(row4h,48));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,63),vshlq_n_u64(row2l,1));
+  row2h = veorq_u64(vshrq_n_u64(row2h,63),vshlq_n_u64(row2h,1));
 
   t0 = row3l, row3l = row3h, row3h = t0, t0 = row2l, t1 = row4l;
-  combine_x_xh_al(row2h,row2l);
-  combine_x_xh_al(t0,row2h);
-  combine_x_xh_al(row4l,row4h);
-  combine_x_xh_al(row4h,t1);
+  row2h = combine_ah_bl_rev(row2h,row2l);
+  row2h = combine_ah_bl_rev(t0,row2h);
+  row4l = combine_ah_bl_rev(row4l,row4h);
+  row4h = combine_ah_bl_rev(row4h,t1);
 
-  combine_lanes(b0, m6m7,0,m14m15,0);
-  combine_lanes(b1, m10m11,1,m0m1,0);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,32));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,32));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,40));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,40));
+  b0 = combine_lanes<1,1>(m12m13,m6m7);
+  b1 = combine_lanes<0,1>(m12m13,m2m3);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,32),vshlq_n_u64(row4l,32));
+  row4h = veorq_u64(vshrq_n_u64(row4h,32),vshlq_n_u64(row4h,32));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,24),vshlq_n_u64(row2l,40));
+  row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
-  combine_lanes(b0, m14m15,1,m8m9,1);
-  combine_lanes(b1, m2m3,1,m8m9,0);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,48));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,48));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,1));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,1));
+  b0 = combine_lanes<1,0>(m10m11,m14m15);
+  b1 = combine_lanes<1,1>(m0m1,m8m9);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,16),vshlq_n_u64(row4l,48));
+  row4h = veorq_u64(vshrq_n_u64(row4h,16),vshlq_n_u64(row4h,48));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,63),vshlq_n_u64(row2l,1));
+  row2h = veorq_u64(vshrq_n_u64(row2h,63),vshlq_n_u64(row2h,1));
 
   t0 = row4l, t1 = row2l, row4l = row3l, row3l = row3h, row3h = row4l;
-  combine_x_ah_bl(row4l,row4h,t0);
-  combine_x_xh_al(t0,row4h);
-  combine_x_xh_al(row2l,row2h);
-  combine_x_xh_al(row2h,t1);
+  row4l = combine_ah_bl_rev(row4h,t0);
+  row4h = combine_ah_bl_rev(t0,row4h);
+  row2l = combine_ah_bl_rev(row2l,row2h);
+  row2h = combine_ah_bl_rev(row2h,t1);
 
-  combine_lanes(b0, m12m13,0,m12m13,1);
-  combine_lanes(b1, m0m1,1,m10m11,1);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,32));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,32));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,40));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,40));
+  b0 = combine_lanes<1,1>(m4m5,m14m15);
+  b1 = combine_lanes<0,0>(m8m9,m2m3);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,32),vshlq_n_u64(row4l,32));
+  row4h = veorq_u64(vshrq_n_u64(row4h,32),vshlq_n_u64(row4h,32));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,24),vshlq_n_u64(row2l,40));
+  row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
-  combine_lanes(b0, m2m3,0,m6m7,0);
-  combine_lanes(b1, m4m5,0,m4m5,1);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,48));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,48));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,1));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,1));
+  b0 = combine_lanes<0,0>(m0m1,m4m5);
+  b1 = combine_lanes<0,0>(m6m7,m10m11);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,16),vshlq_n_u64(row4l,48));
+  row4h = veorq_u64(vshrq_n_u64(row4h,16),vshlq_n_u64(row4h,48));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,63),vshlq_n_u64(row2l,1));
+  row2h = veorq_u64(vshrq_n_u64(row2h,63),vshlq_n_u64(row2h,1));
 
   t0 = row3l, row3l = row3h, row3h = t0, t0 = row2l, t1 = row4l;
-  combine_x_xh_al(row2h,row2l);
-  combine_x_xh_al(t0,row2h);
-  combine_x_xh_al(row4l,row4h);
-  combine_x_xh_al(row4h,t1);
+  row2h = combine_ah_bl_rev(row2h,row2l);
+  row2h = combine_ah_bl_rev(t0,row2h);
+  row4l = combine_ah_bl_rev(row4l,row4h);
+  row4h = combine_ah_bl_rev(row4h,t1);
 
-  combine_lanes(b0, m10m11,0,m8m9,0);
-  combine_lanes(b1, m6m7,1,m0m1,1);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,32));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,32));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,40));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,40));
+  b0 = combine_lanes<0,0>(m6m7,m14m15);
+  b1 = combine_lanes<1,0>(m10m11,m0m1);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,32),vshlq_n_u64(row4l,32));
+  row4h = veorq_u64(vshrq_n_u64(row4h,32),vshlq_n_u64(row4h,32));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,24),vshlq_n_u64(row2l,40));
+  row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
-  combine_lanes(b0, m2m3,0,m4m5,0);
-  combine_lanes(b1, m6m7,0,m4m5,1);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,48));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,48));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,1));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,1));
+  b0 = combine_lanes<1,1>(m14m15,m8m9);
+  b1 = combine_lanes<1,0>(m2m3,m8m9);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,16),vshlq_n_u64(row4l,48));
+  row4h = veorq_u64(vshrq_n_u64(row4h,16),vshlq_n_u64(row4h,48));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,63),vshlq_n_u64(row2l,1));
+  row2h = veorq_u64(vshrq_n_u64(row2h,63),vshlq_n_u64(row2h,1));
 
   t0 = row4l, t1 = row2l, row4l = row3l, row3l = row3h, row3h = row4l;
-  combine_x_ah_bl(row4l,row4h,t0);
-  combine_x_xh_al(t0,row4h);
-  combine_x_xh_al(row2l,row2h);
-  combine_x_xh_al(row2h,t1);
+  row4l = combine_ah_bl_rev(row4h,t0);
+  row4h = combine_ah_bl_rev(t0,row4h);
+  row2l = combine_ah_bl_rev(row2l,row2h);
+  row2h = combine_ah_bl_rev(row2h,t1);
 
-  combine_lanes(b0, m14m15,1,m8m9,1);
-  combine_lanes(b1, m2m3,1,m12m13,1);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,32));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,32));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,40));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,40));
+  b0 = combine_lanes<0,1>(m12m13,m12m13);
+  b1 = combine_lanes<1,1>(m0m1,m10m11);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,32),vshlq_n_u64(row4l,32));
+  row4h = veorq_u64(vshrq_n_u64(row4h,32),vshlq_n_u64(row4h,32));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,24),vshlq_n_u64(row2l,40));
+  row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
-  combine_lanes(b0, m10m11,1,m14m15,0);
-  combine_lanes(b1, m12m13,0,m0m1,0);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,48));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,48));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,1));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,1));
+  b0 = combine_lanes<0,0>(m2m3,m6m7);
+  b1 = combine_lanes<0,1>(m4m5,m4m5);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,16),vshlq_n_u64(row4l,48));
+  row4h = veorq_u64(vshrq_n_u64(row4h,16),vshlq_n_u64(row4h,48));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,63),vshlq_n_u64(row2l,1));
+  row2h = veorq_u64(vshrq_n_u64(row2h,63),vshlq_n_u64(row2h,1));
 
   t0 = row3l, row3l = row3h, row3h = t0, t0 = row2l, t1 = row4l;
-  combine_x_xh_al(row2h,row2l);
-  combine_x_xh_al(t0,row2h);
-  combine_x_xh_al(row4l,row4h);
-  combine_x_xh_al(row4h,t1);
+  row2h = combine_ah_bl_rev(row2h,row2l);
+  row2h = combine_ah_bl_rev(t0,row2h);
+  row4l = combine_ah_bl_rev(row4l,row4h);
+  row4h = combine_ah_bl_rev(row4h,t1);
 
-  combine_lanes(b0, m0m1,0,m2m3,0);
-  combine_lanes(b1, m4m5,0,m6m7,0);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,32));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,32));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,40));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,40));
+  b0 = combine_lanes<0,0>(m10m11,m8m9);
+  b1 = combine_lanes<1,1>(m6m7,m0m1);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,32),vshlq_n_u64(row4l,32));
+  row4h = veorq_u64(vshrq_n_u64(row4h,32),vshlq_n_u64(row4h,32));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,24),vshlq_n_u64(row2l,40));
+  row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
-  combine_lanes(b0, m0m1,1,m2m3,1);
-  combine_lanes(b1, m4m5,1,m6m7,1);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,48));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,48));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,1));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,1));
+  b0 = combine_lanes<0,0>(m2m3,m4m5);
+  b1 = combine_lanes<0,1>(m6m7,m4m5);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,16),vshlq_n_u64(row4l,48));
+  row4h = veorq_u64(vshrq_n_u64(row4h,16),vshlq_n_u64(row4h,48));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,63),vshlq_n_u64(row2l,1));
+  row2h = veorq_u64(vshrq_n_u64(row2h,63),vshlq_n_u64(row2h,1));
 
   t0 = row4l, t1 = row2l, row4l = row3l, row3l = row3h, row3h = row4l;
-  combine_x_ah_bl(row4l,row4h,t0);
-  combine_x_xh_al(t0,row4h);
-  combine_x_xh_al(row2l,row2h);
-  combine_x_xh_al(row2h,t1);
+  row4l = combine_ah_bl_rev(row4h,t0);
+  row4h = combine_ah_bl_rev(t0,row4h);
+  row2l = combine_ah_bl_rev(row2l,row2h);
+  row2h = combine_ah_bl_rev(row2h,t1);
 
-  combine_lanes(b0, m8m9,0,m10m11,0);
-  combine_lanes(b1, m12m13,0,m14m15,0);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,32));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,32));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,40));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,40));
+  b0 = combine_lanes<1,1>(m14m15,m8m9);
+  b1 = combine_lanes<1,1>(m2m3,m12m13);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,32),vshlq_n_u64(row4l,32));
+  row4h = veorq_u64(vshrq_n_u64(row4h,32),vshlq_n_u64(row4h,32));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,24),vshlq_n_u64(row2l,40));
+  row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
-  combine_lanes(b0, m8m9,1,m10m11,1);
-  combine_lanes(b1, m12m13,1,m14m15,1);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,48));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,48));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,1));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,1));
+  b0 = combine_lanes<1,0>(m10m11,m14m15);
+  b1 = combine_lanes<0,0>(m12m13,m0m1);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,16),vshlq_n_u64(row4l,48));
+  row4h = veorq_u64(vshrq_n_u64(row4h,16),vshlq_n_u64(row4h,48));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,63),vshlq_n_u64(row2l,1));
+  row2h = veorq_u64(vshrq_n_u64(row2h,63),vshlq_n_u64(row2h,1));
 
   t0 = row3l, row3l = row3h, row3h = t0, t0 = row2l, t1 = row4l;
-  combine_x_xh_al(row2h,row2l);
-  combine_x_xh_al(t0,row2h);
-  combine_x_xh_al(row4l,row4h);
-  combine_x_xh_al(row4h,t1);
+  row2h = combine_ah_bl_rev(row2h,row2l);
+  row2h = combine_ah_bl_rev(t0,row2h);
+  row4l = combine_ah_bl_rev(row4l,row4h);
+  row4h = combine_ah_bl_rev(row4h,t1);
 
-  combine_lanes(b0, m14m15,0,m4m5,0);
-  combine_lanes(b1, m8m9,1,m12m13,1);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,32));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,32));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,40));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,40));
+  b0 = combine_lanes<0,0>(m0m1,m2m3);
+  b1 = combine_lanes<0,0>(m4m5,m6m7);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,32),vshlq_n_u64(row4l,32));
+  row4h = veorq_u64(vshrq_n_u64(row4h,32),vshlq_n_u64(row4h,32));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,24),vshlq_n_u64(row2l,40));
+  row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
-  combine_lanes(b0, m10m11,0,m8m9,0);
-  combine_lanes(b1, m14m15,1,m6m7,0);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,48));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,48));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,1));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,1));
+  b0 = combine_lanes<1,1>(m0m1,m2m3);
+  b1 = combine_lanes<1,1>(m4m5,m6m7);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,16),vshlq_n_u64(row4l,48));
+  row4h = veorq_u64(vshrq_n_u64(row4h,16),vshlq_n_u64(row4h,48));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,63),vshlq_n_u64(row2l,1));
+  row2h = veorq_u64(vshrq_n_u64(row2h,63),vshlq_n_u64(row2h,1));
 
   t0 = row4l, t1 = row2l, row4l = row3l, row3l = row3h, row3h = row4l;
-  combine_x_ah_bl(row4l,row4h,t0);
-  combine_x_xh_al(t0,row4h);
-  combine_x_xh_al(row2l,row2h);
-  combine_x_xh_al(row2h,t1);
+  row4l = combine_ah_bl_rev(row4h,t0);
+  row4h = combine_ah_bl_rev(t0,row4h);
+  row2l = combine_ah_bl_rev(row2l,row2h);
+  row2h = combine_ah_bl_rev(row2h,t1);
 
-  combine_lanes(b0, m0m1,1,m0m1,0);
-  combine_lanes(b1, m10m11,1,m4m5,1);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,32));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,32),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,32));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,40));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,24),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,40));
+  b0 = combine_lanes<0,0>(m8m9,m10m11);
+  b1 = combine_lanes<0,0>(m12m13,m14m15);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,32),vshlq_n_u64(row4l,32));
+  row4h = veorq_u64(vshrq_n_u64(row4h,32),vshlq_n_u64(row4h,32));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,24),vshlq_n_u64(row2l,40));
+  row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
-  combine_lanes(b0, m12m13,0,m2m3,0);
-  combine_lanes(b1, m6m7,1,m2m3,1);
-  row1l = vaddq_s64(vaddq_s64(row1l, b0), row2l);
-  row1h = vaddq_s64(vaddq_s64(row1h, b1), row2h);
-  row4l = veorq_s64(row4l, row1l);
-  row4h = veorq_s64(row4h, row1h);
-  row4l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4l,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4l,48));
-  row4h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row4h,16),(int64x2_t)vshlq_n_s64((int64x2_t)row4h,48));
-  row3l = vaddq_s64(row3l, row4l);
-  row3h = vaddq_s64(row3h, row4h);
-  row2l = veorq_s64(row2l, row3l);
-  row2h = veorq_s64(row2h, row3h);
-  row2l = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2l,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2l,1));
-  row2h = veorq_s64((int64x2_t)vshrq_n_u64((uint64x2_t)row2h,63),(int64x2_t)vshlq_n_s64((int64x2_t)row2h,1));
+  b0 = combine_lanes<1,1>(m8m9,m10m11);
+  b1 = combine_lanes<1,1>(m12m13,m14m15);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,16),vshlq_n_u64(row4l,48));
+  row4h = veorq_u64(vshrq_n_u64(row4h,16),vshlq_n_u64(row4h,48));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,63),vshlq_n_u64(row2l,1));
+  row2h = veorq_u64(vshrq_n_u64(row2h,63),vshlq_n_u64(row2h,1));
 
   t0 = row3l, row3l = row3h, row3h = t0, t0 = row2l, t1 = row4l;
-  combine_x_xh_al(row2h,row2l);
-  combine_x_xh_al(t0,row2h);
-  combine_x_xh_al(row4l,row4h);
-  combine_x_xh_al(row4h,t1);
+  row2h = combine_ah_bl_rev(row2h,row2l);
+  row2h = combine_ah_bl_rev(t0,row2h);
+  row4l = combine_ah_bl_rev(row4l,row4h);
+  row4h = combine_ah_bl_rev(row4h,t1);
 
-  row1l = veorq_s64( row3l, row1l);
-  row1h = veorq_s64( row3h, row1h);
-  vst1q_s64((int64_t*)&state.h[0], veorq_s64(vld1q_s64((const int64_t*)&state.h[0]), row1l));
-  vst1q_s64((int64_t*)&state.h[2], veorq_s64(vld1q_s64((const int64_t*)&state.h[2]), row1h));
+  b0 = combine_lanes<0,0>(m14m15,m4m5);
+  b1 = combine_lanes<1,1>(m8m9,m12m13);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,32),vshlq_n_u64(row4l,32));
+  row4h = veorq_u64(vshrq_n_u64(row4h,32),vshlq_n_u64(row4h,32));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,24),vshlq_n_u64(row2l,40));
+  row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
-  row2l = veorq_s64(row4l, row2l);
-  row2h = veorq_s64(row4h, row2h);
-  vst1q_s64((int64_t*)&state.h[4], veorq_s64(vld1q_s64((const int64_t*)&state.h[4]), row2l));
-  vst1q_s64((int64_t*)&state.h[6], veorq_s64(vld1q_s64((const int64_t*)&state.h[6]), row2h));
+  b0 = combine_lanes<0,0>(m10m11,m8m9);
+  b1 = combine_lanes<1,0>(m14m15,m6m7);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,16),vshlq_n_u64(row4l,48));
+  row4h = veorq_u64(vshrq_n_u64(row4h,16),vshlq_n_u64(row4h,48));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,63),vshlq_n_u64(row2l,1));
+  row2h = veorq_u64(vshrq_n_u64(row2h,63),vshlq_n_u64(row2h,1));
+
+  t0 = row4l, t1 = row2l, row4l = row3l, row3l = row3h, row3h = row4l;
+  row4l = combine_ah_bl_rev(row4h,t0);
+  row4h = combine_ah_bl_rev(t0,row4h);
+  row2l = combine_ah_bl_rev(row2l,row2h);
+  row2h = combine_ah_bl_rev(row2h,t1);
+
+  b0 = combine_lanes<1,0>(m0m1,m0m1);
+  b1 = combine_lanes<1,1>(m10m11,m4m5);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,32),vshlq_n_u64(row4l,32));
+  row4h = veorq_u64(vshrq_n_u64(row4h,32),vshlq_n_u64(row4h,32));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,24),vshlq_n_u64(row2l,40));
+  row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
+
+  b0 = combine_lanes<0,0>(m12m13,m2m3);
+  b1 = combine_lanes<1,1>(m6m7,m2m3);
+  row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
+  row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
+  row4l = veorq_u64(row4l, row1l);
+  row4h = veorq_u64(row4h, row1h);
+  row4l = veorq_u64(vshrq_n_u64(row4l,16),vshlq_n_u64(row4l,48));
+  row4h = veorq_u64(vshrq_n_u64(row4h,16),vshlq_n_u64(row4h,48));
+  row3l = vaddq_u64(row3l, row4l);
+  row3h = vaddq_u64(row3h, row4h);
+  row2l = veorq_u64(row2l, row3l);
+  row2h = veorq_u64(row2h, row3h);
+  row2l = veorq_u64(vshrq_n_u64(row2l,63),vshlq_n_u64(row2l,1));
+  row2h = veorq_u64(vshrq_n_u64(row2h,63),vshlq_n_u64(row2h,1));
+
+  t0 = row3l, row3l = row3h, row3h = t0, t0 = row2l, t1 = row4l;
+  row2h = combine_ah_bl_rev(row2h,row2l);
+  row2h = combine_ah_bl_rev(t0,row2h);
+  row4l = combine_ah_bl_rev(row4l,row4h);
+  row4h = combine_ah_bl_rev(row4h,t1);
+
+  row1l = veorq_u64(row3l, row1l);
+  row1h = veorq_u64(row3h, row1h);
+  vst1q_u64((uint64_t*)&state.h[0], veorq_u64(vld1q_u64((uint64_t*)&state.h[0]), row1l));
+  vst1q_u64((uint64_t*)&state.h[2], veorq_u64(vld1q_u64((uint64_t*)&state.h[2]), row1h));
+
+  row2l = veorq_u64(row4l, row2l);
+  row2h = veorq_u64(row4h, row2h);
+  vst1q_u64((uint64_t*)&state.h[4], veorq_u64(vld1q_u64((uint64_t*)&state.h[4]), row2l));
+  vst1q_u64((uint64_t*)&state.h[6], veorq_u64(vld1q_u64((uint64_t*)&state.h[6]), row2h));
 }
 #endif  // CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
 
