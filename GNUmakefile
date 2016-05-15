@@ -22,7 +22,8 @@ IS_X86 := $(shell uname -m | $(EGREP) -v "x86_64" | $(EGREP) -i -c "i.86|x86|i86
 IS_X32 ?= 0
 IS_X86_64 := $(shell uname -m | $(EGREP) -i -c "(_64|d64)")
 IS_PPC := $(shell uname -m | $(EGREP) -i -c "ppc|power")
-IS_AARCH64 := $(shell uname -m | $(EGREP) -i -c "aarch64")
+IS_ARM32 := $(shell uname -m | $(EGREP) -i -c "arm")
+IS_ARM64 := $(shell uname -m | $(EGREP) -i -c "aarch64")
 
 IS_SUN := $(shell uname | $(EGREP) -i -c "SunOS")
 IS_LINUX := $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "Linux")
@@ -325,9 +326,13 @@ endif # HAS_SOLIB_VERSION
 #  is the second candidate for explicit initialization order.
 SRCS := cryptlib.cpp cpu.cpp $(filter-out cryptlib.cpp cpu.cpp pch.cpp simple.cpp winpipes.cpp cryptlib_bds.cpp,$(wildcard *.cpp))
 
-# No need for CPU or RDRAND on non-X86 systems. X32 is represented with X64.
+# Need CPU for X86/X64/X32 and ARM
+ifeq ($(IS_X86)$(IS_X86_64)$(IS_ARM32)$(IS_ARM64),0000)
+  SRCS := $(filter-out cpu.cpp, $(SRCS))
+endif
+# Need RDRAND for X86/X64/X32
 ifeq ($(IS_X86)$(IS_X86_64),00)
-  SRCS := $(filter-out cpu.cpp rdrand.cpp, $(SRCS))
+  SRCS := $(filter-out rdrand.cpp, $(SRCS))
 endif
 
 ifneq ($(IS_MINGW),0)
@@ -522,16 +527,16 @@ ifeq ($(HAS_SOLIB_VERSION),1)
 endif
 endif
 
-libcryptopp.a: $(LIBOBJS) | public_service
+libcryptopp.a: $(LIBOBJS) | config_warning
 	$(AR) $(ARFLAGS) $@ $(LIBOBJS)
 	$(RANLIB) $@
 
 ifeq ($(HAS_SOLIB_VERSION),1)
 .PHONY: libcryptopp.so
-libcryptopp.so: libcryptopp.so$(SOLIB_VERSION_SUFFIX)
+libcryptopp.so: libcryptopp.so$(SOLIB_VERSION_SUFFIX) | so_warning
 endif
 
-libcryptopp.so$(SOLIB_VERSION_SUFFIX): $(LIBOBJS) | public_service
+libcryptopp.so$(SOLIB_VERSION_SUFFIX): $(LIBOBJS)
 	$(CXX) -shared $(SOLIB_FLAGS) -o $@ $(CXXFLAGS) $(LDFLAGS) $(LIBOBJS) $(LDLIBS)
 ifeq ($(HAS_SOLIB_VERSION),1)
 	-$(LN) libcryptopp.so$(SOLIB_VERSION_SUFFIX) libcryptopp.so
@@ -541,7 +546,7 @@ endif
 libcryptopp.dylib: $(LIBOBJS)
 	$(CXX) -dynamiclib -o $@ $(CXXFLAGS) -install_name "$@" -current_version "$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)" -compatibility_version "$(LIB_MAJOR).$(LIB_MINOR)" -headerpad_max_install_names $(LDFLAGS) $(LIBOBJS)
 
-cryptest.exe: libcryptopp.a $(TESTOBJS) | public_service
+cryptest.exe: libcryptopp.a $(TESTOBJS) | config_warning
 	$(CXX) -o $@ $(CXXFLAGS) $(TESTOBJS) ./libcryptopp.a $(LDFLAGS) $(LDLIBS)
 
 # Makes it faster to test changes
@@ -673,8 +678,8 @@ endif
 UNALIGNED_ACCESS := $(shell $(EGREP) -c "^[[:space:]]*//[[:space:]]*\#[[:space:]]*define[[:space:]]*CRYPTOPP_NO_UNALIGNED_DATA_ACCESS" config.h)
 NO_INIT_PRIORITY := $(shell $(EGREP) -c "^[[:space:]]*//[[:space:]]*\#[[:space:]]*define[[:space:]]*CRYPTOPP_INIT_PRIORITY" config.h)
 COMPATIBILITY_562 := $(shell $(EGREP) -c "^[[:space:]]*\#[[:space:]]*define[[:space:]]*CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562" config.h)
-.PHONY: public_service
-public_service:
+.PHONY: config_warning
+config_warning:
 ifneq ($(UNALIGNED_ACCESS),0)
 	$(info WARNING: CRYPTOPP_NO_UNALIGNED_DATA_ACCESS is not defined in config.h.)
 endif
@@ -690,6 +695,9 @@ ifneq ($(UNALIGNED_ACCESS)$(NO_INIT_PRIORITY)$(COMPATIBILITY_562),000)
 	$(info WARNING: See http://cryptopp.com/wiki/config.h for more details.)
 	$(info )
 endif
+
+.PHONY: so_warning
+so_warning:
 ifeq ($(HAS_SOLIB_VERSION),1)
 	$(info WARNING: Only the symlinks to the shared-object library have been updated.)
 	$(info WARNING: If the library is installed in a system directory you will need)
