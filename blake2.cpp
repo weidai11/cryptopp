@@ -502,7 +502,6 @@ void BLAKE2_CXX_Compress32(const byte* input, BLAKE2_State<word32, false>& state
 	  } while(0)
 
 	word32 m[16], v[16];
-	unsigned int i;
 
 	GetBlock<word32, LittleEndian, true> get1(input);
 	get1(m[0])(m[1])(m[2])(m[3])(m[4])(m[5])(m[6])(m[7])(m[8])(m[9])(m[10])(m[11])(m[12])(m[13])(m[14])(m[15]);
@@ -963,14 +962,14 @@ static void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64, true>
   __m128i row3l, row3h, row4l, row4h;
   __m128i b0, b1, t0, t1;
 
-  row1l = _mm_loadu_si128((const __m128i*)(const void*)(&state.h[0]) );
-  row1h = _mm_loadu_si128((const __m128i*)(const void*)(&state.h[2]) );
-  row2l = _mm_loadu_si128((const __m128i*)(const void*)(&state.h[4]) );
-  row2h = _mm_loadu_si128((const __m128i*)(const void*)(&state.h[6]) );
-  row3l = _mm_loadu_si128((const __m128i*)(const void*)(&BLAKE2B_IV(0)) );
-  row3h = _mm_loadu_si128((const __m128i*)(const void*)(&BLAKE2B_IV(2)) );
-  row4l = _mm_xor_si128( _mm_loadu_si128((const __m128i*)(const void*)(&BLAKE2B_IV(4)) ), _mm_loadu_si128((const __m128i*)(const void*)(&state.t[0]) ) );
-  row4h = _mm_xor_si128( _mm_loadu_si128((const __m128i*)(const void*)(&BLAKE2B_IV(6)) ), _mm_loadu_si128((const __m128i*)(const void*)(&state.f[0]) ) );
+  row1l = _mm_loadu_si128((const __m128i*)(const void*)(&state.h[0]));
+  row1h = _mm_loadu_si128((const __m128i*)(const void*)(&state.h[2]));
+  row2l = _mm_loadu_si128((const __m128i*)(const void*)(&state.h[4]));
+  row2h = _mm_loadu_si128((const __m128i*)(const void*)(&state.h[6]));
+  row3l = _mm_loadu_si128((const __m128i*)(const void*)(&BLAKE2B_IV(0)));
+  row3h = _mm_loadu_si128((const __m128i*)(const void*)(&BLAKE2B_IV(2)));
+  row4l = _mm_xor_si128(_mm_loadu_si128((const __m128i*)(const void*)(&BLAKE2B_IV(4))), _mm_loadu_si128((const __m128i*)(const void*)(&state.t[0])));
+  row4h = _mm_xor_si128(_mm_loadu_si128((const __m128i*)(const void*)(&BLAKE2B_IV(6))), _mm_loadu_si128((const __m128i*)(const void*)(&state.f[0])));
 
   b0 = _mm_set_epi64x(m2, m0);
   b1 = _mm_set_epi64x(m6, m4);
@@ -984,8 +983,8 @@ static void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64, true>
   row3h = _mm_add_epi64(row3h, row4h);
   row2l = _mm_xor_si128(row2l, row3l);
   row2h = _mm_xor_si128(row2h, row3h);
-  row2l = _mm_xor_si128(_mm_srli_epi64(row2l,24),_mm_slli_epi64(row2l, 40 ));
-  row2h = _mm_xor_si128(_mm_srli_epi64(row2h,24),_mm_slli_epi64(row2h, 40 ));
+  row2l = _mm_xor_si128(_mm_srli_epi64(row2l,24),_mm_slli_epi64(row2l, 40));
+  row2h = _mm_xor_si128(_mm_srli_epi64(row2h,24),_mm_slli_epi64(row2h, 40));
 
   b0 = _mm_set_epi64x(m3, m1);
   b1 = _mm_set_epi64x(m7, m5);
@@ -1827,15 +1826,15 @@ static void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64, true>
   row4l = _mm_unpackhi_epi64(row4l, _mm_unpacklo_epi64(row4h, row4h));
   row4h = _mm_unpackhi_epi64(row4h, _mm_unpacklo_epi64(t1, t1));
 
-  row1l = _mm_xor_si128( row3l, row1l );
-  row1h = _mm_xor_si128( row3h, row1h );
-  _mm_storeu_si128((__m128i *)(void*)(&state.h[0]), _mm_xor_si128(_mm_loadu_si128((const __m128i*)(const void*)(&state.h[0]) ), row1l));
-  _mm_storeu_si128((__m128i *)(void*)(&state.h[2]), _mm_xor_si128(_mm_loadu_si128((const __m128i*)(const void*)(&state.h[2]) ), row1h));
+  row1l = _mm_xor_si128(row3l, row1l);
+  row1h = _mm_xor_si128(row3h, row1h);
+  _mm_storeu_si128((__m128i *)(void*)(&state.h[0]), _mm_xor_si128(_mm_loadu_si128((const __m128i*)(const void*)(&state.h[0])), row1l));
+  _mm_storeu_si128((__m128i *)(void*)(&state.h[2]), _mm_xor_si128(_mm_loadu_si128((const __m128i*)(const void*)(&state.h[2])), row1h));
 
-  row2l = _mm_xor_si128( row4l, row2l );
-  row2h = _mm_xor_si128( row4h, row2h );
-  _mm_storeu_si128((__m128i *)(void*)(&state.h[4]), _mm_xor_si128(_mm_loadu_si128((const __m128i*)(const void*)(&state.h[4]) ), row2l));
-  _mm_storeu_si128((__m128i *)(void*)(&state.h[6]), _mm_xor_si128(_mm_loadu_si128((const __m128i*)(const void*)(&state.h[6]) ), row2h));
+  row2l = _mm_xor_si128(row4l, row2l);
+  row2h = _mm_xor_si128(row4h, row2h);
+  _mm_storeu_si128((__m128i *)(void*)(&state.h[4]), _mm_xor_si128(_mm_loadu_si128((const __m128i*)(const void*)(&state.h[4])), row2l));
+  _mm_storeu_si128((__m128i *)(void*)(&state.h[6]), _mm_xor_si128(_mm_loadu_si128((const __m128i*)(const void*)(&state.h[6])), row2h));
 }
 #endif  // CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
 
@@ -3894,7 +3893,7 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   assert(IsAlignedOn(&state.t[0],GetAlignmentOf<uint64x2_t>()));
 
   uint64x2_t m0m1,m2m3,m4m5,m6m7,m8m9,m10m11,m12m13,m14m15;
-  
+
     m0m1 = vreinterpretq_u64_u8(vld1q_u8(input+  0));
     m2m3 = vreinterpretq_u64_u8(vld1q_u8(input+ 16));
     m4m5 = vreinterpretq_u64_u8(vld1q_u8(input+ 32));
@@ -3918,9 +3917,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row4h = veorq_u64(vld1q_u64((const uint64_t *)&BLAKE2B_IV(6)), vld1q_u64((const uint64_t*)&state.f[0]));
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m0m1,LANE_L64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m2m3,LANE_L64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m2m3,LANE_L64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m4m5,LANE_L64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m6m7,LANE_L64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m6m7,LANE_L64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -3935,9 +3934,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m0m1,LANE_H64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m2m3,LANE_H64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m2m3,LANE_H64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m4m5,LANE_H64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m6m7,LANE_H64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m6m7,LANE_H64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -3962,9 +3961,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row2h = vsetq_lane_u64(vgetq_lane_u64(t1,LANE_L64),row2h,LANE_H64);
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m8m9,LANE_L64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m10m11,LANE_L64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m10m11,LANE_L64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m12m13,LANE_L64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m14m15,LANE_L64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m14m15,LANE_L64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -3979,9 +3978,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m8m9,LANE_H64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m10m11,LANE_H64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m10m11,LANE_H64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m12m13,LANE_H64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m14m15,LANE_H64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m14m15,LANE_H64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4006,9 +4005,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row4h = vsetq_lane_u64(vgetq_lane_u64(t1,LANE_L64),row4h,LANE_H64);
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m14m15,LANE_L64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m4m5,LANE_L64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m4m5,LANE_L64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m8m9,LANE_H64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m12m13,LANE_H64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m12m13,LANE_H64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4023,9 +4022,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m10m11,LANE_L64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m8m9,LANE_L64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m8m9,LANE_L64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m14m15,LANE_H64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m6m7,LANE_L64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m6m7,LANE_L64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4050,9 +4049,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row2h = vsetq_lane_u64(vgetq_lane_u64(t1,LANE_L64),row2h,LANE_H64);
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m0m1,LANE_H64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m0m1,LANE_L64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m0m1,LANE_L64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m10m11,LANE_H64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m4m5,LANE_H64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m4m5,LANE_H64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4067,9 +4066,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m12m13,LANE_L64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m2m3,LANE_L64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m2m3,LANE_L64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m6m7,LANE_H64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m2m3,LANE_H64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m2m3,LANE_H64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4094,9 +4093,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row4h = vsetq_lane_u64(vgetq_lane_u64(t1,LANE_L64),row4h,LANE_H64);
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m10m11,LANE_H64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m12m13,LANE_L64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m12m13,LANE_L64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m4m5,LANE_H64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m14m15,LANE_H64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m14m15,LANE_H64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4111,9 +4110,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m8m9,LANE_L64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m0m1,LANE_L64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m0m1,LANE_L64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m2m3,LANE_L64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m12m13,LANE_H64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m12m13,LANE_H64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4138,9 +4137,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row2h = vsetq_lane_u64(vgetq_lane_u64(t1,LANE_L64),row2h,LANE_H64);
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m10m11,LANE_L64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m2m3,LANE_H64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m2m3,LANE_H64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m6m7,LANE_H64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m8m9,LANE_H64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m8m9,LANE_H64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4155,9 +4154,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m14m15,LANE_L64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m6m7,LANE_L64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m6m7,LANE_L64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m0m1,LANE_H64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m4m5,LANE_L64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m4m5,LANE_L64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4182,9 +4181,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row4h = vsetq_lane_u64(vgetq_lane_u64(t1,LANE_L64),row4h,LANE_H64);
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m6m7,LANE_H64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m2m3,LANE_H64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m2m3,LANE_H64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m12m13,LANE_H64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m10m11,LANE_H64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m10m11,LANE_H64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4199,9 +4198,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m8m9,LANE_H64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m0m1,LANE_H64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m0m1,LANE_H64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m12m13,LANE_L64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m14m15,LANE_L64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m14m15,LANE_L64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4226,9 +4225,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row2h = vsetq_lane_u64(vgetq_lane_u64(t1,LANE_L64),row2h,LANE_H64);
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m2m3,LANE_L64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m4m5,LANE_H64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m4m5,LANE_H64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m4m5,LANE_L64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m14m15,LANE_H64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m14m15,LANE_H64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4243,9 +4242,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m6m7,LANE_L64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m10m11,LANE_L64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m10m11,LANE_L64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m0m1,LANE_L64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m8m9,LANE_L64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m8m9,LANE_L64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4270,9 +4269,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row4h = vsetq_lane_u64(vgetq_lane_u64(t1,LANE_L64),row4h,LANE_H64);
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m8m9,LANE_H64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m4m5,LANE_H64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m4m5,LANE_H64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m2m3,LANE_L64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m10m11,LANE_L64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m10m11,LANE_L64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4287,9 +4286,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m0m1,LANE_L64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m6m7,LANE_H64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m6m7,LANE_H64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m4m5,LANE_L64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m14m15,LANE_H64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m14m15,LANE_H64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4314,9 +4313,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row2h = vsetq_lane_u64(vgetq_lane_u64(t1,LANE_L64),row2h,LANE_H64);
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m14m15,LANE_L64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m10m11,LANE_H64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m10m11,LANE_H64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m6m7,LANE_L64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m2m3,LANE_H64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m2m3,LANE_H64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4331,9 +4330,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m0m1,LANE_H64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m12m13,LANE_L64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m12m13,LANE_L64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m8m9,LANE_L64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m12m13,LANE_H64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m12m13,LANE_H64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4358,9 +4357,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row4h = vsetq_lane_u64(vgetq_lane_u64(t1,LANE_L64),row4h,LANE_H64);
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m2m3,LANE_L64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m6m7,LANE_L64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m6m7,LANE_L64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m0m1,LANE_L64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m8m9,LANE_L64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m8m9,LANE_L64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4375,9 +4374,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m12m13,LANE_L64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m10m11,LANE_L64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m10m11,LANE_L64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m10m11,LANE_H64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m2m3,LANE_H64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m2m3,LANE_H64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4402,9 +4401,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row2h = vsetq_lane_u64(vgetq_lane_u64(t1,LANE_L64),row2h,LANE_H64);
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m4m5,LANE_L64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m6m7,LANE_H64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m6m7,LANE_H64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m14m15,LANE_H64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m0m1,LANE_H64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m0m1,LANE_H64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4419,9 +4418,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m12m13,LANE_H64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m4m5,LANE_H64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m4m5,LANE_H64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m14m15,LANE_L64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m8m9,LANE_H64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m8m9,LANE_H64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4446,9 +4445,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row4h = vsetq_lane_u64(vgetq_lane_u64(t1,LANE_L64),row4h,LANE_H64);
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m12m13,LANE_L64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m0m1,LANE_H64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m0m1,LANE_H64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m14m15,LANE_L64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m4m5,LANE_L64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m4m5,LANE_L64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4463,9 +4462,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m4m5,LANE_H64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m14m15,LANE_H64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m14m15,LANE_H64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m12m13,LANE_H64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m10m11,LANE_L64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m10m11,LANE_L64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4490,9 +4489,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row2h = vsetq_lane_u64(vgetq_lane_u64(t1,LANE_L64),row2h,LANE_H64);
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m0m1,LANE_L64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m6m7,LANE_L64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m6m7,LANE_L64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m8m9,LANE_H64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m8m9,LANE_L64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m8m9,LANE_L64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4507,9 +4506,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m6m7,LANE_H64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m2m3,LANE_H64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m2m3,LANE_H64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m2m3,LANE_L64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m10m11,LANE_H64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m10m11,LANE_H64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4534,9 +4533,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row4h = vsetq_lane_u64(vgetq_lane_u64(t1,LANE_L64),row4h,LANE_H64);
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m12m13,LANE_H64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m6m7,LANE_H64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m6m7,LANE_H64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m12m13,LANE_L64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m2m3,LANE_H64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m2m3,LANE_H64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4551,9 +4550,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m10m11,LANE_H64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m14m15,LANE_L64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m14m15,LANE_L64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m0m1,LANE_H64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m8m9,LANE_H64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m8m9,LANE_H64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4578,9 +4577,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row2h = vsetq_lane_u64(vgetq_lane_u64(t1,LANE_L64),row2h,LANE_H64);
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m4m5,LANE_H64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m14m15,LANE_H64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m14m15,LANE_H64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m8m9,LANE_L64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m2m3,LANE_L64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m2m3,LANE_L64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4595,9 +4594,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m0m1,LANE_L64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m4m5,LANE_L64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m4m5,LANE_L64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m6m7,LANE_L64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m10m11,LANE_L64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m10m11,LANE_L64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4622,9 +4621,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row4h = vsetq_lane_u64(vgetq_lane_u64(t1,LANE_L64),row4h,LANE_H64);
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m6m7,LANE_L64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m14m15,LANE_L64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m14m15,LANE_L64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m10m11,LANE_H64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m0m1,LANE_L64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m0m1,LANE_L64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4639,9 +4638,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m14m15,LANE_H64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m8m9,LANE_H64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m8m9,LANE_H64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m2m3,LANE_H64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m8m9,LANE_L64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m8m9,LANE_L64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4666,9 +4665,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row2h = vsetq_lane_u64(vgetq_lane_u64(t1,LANE_L64),row2h,LANE_H64);
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m12m13,LANE_L64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m12m13,LANE_H64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m12m13,LANE_H64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m0m1,LANE_H64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m10m11,LANE_L64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m10m11,LANE_L64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4683,9 +4682,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m2m3,LANE_L64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m6m7,LANE_H64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m6m7,LANE_H64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m4m5,LANE_L64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m4m5,LANE_H64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m4m5,LANE_H64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4710,9 +4709,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row4h = vsetq_lane_u64(vgetq_lane_u64(t1,LANE_L64),row4h,LANE_H64);
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m10m11,LANE_L64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m8m9,LANE_L64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m8m9,LANE_L64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m6m7,LANE_H64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m0m1,LANE_H64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m0m1,LANE_H64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4727,9 +4726,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m2m3,LANE_L64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m4m5,LANE_L64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m4m5,LANE_L64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m6m7,LANE_L64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m4m5,LANE_H64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m4m5,LANE_H64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4754,9 +4753,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row2h = vsetq_lane_u64(vgetq_lane_u64(t1,LANE_L64),row2h,LANE_H64);
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m14m15,LANE_H64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m8m9,LANE_H64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m8m9,LANE_H64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m2m3,LANE_H64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m12m13,LANE_H64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m12m13,LANE_H64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4771,9 +4770,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m10m11,LANE_H64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m14m15,LANE_L64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m14m15,LANE_L64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m12m13,LANE_L64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m0m1,LANE_L64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m0m1,LANE_L64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4798,9 +4797,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row4h = vsetq_lane_u64(vgetq_lane_u64(t1,LANE_L64),row4h,LANE_H64);
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m0m1,LANE_L64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m2m3,LANE_L64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m2m3,LANE_L64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m4m5,LANE_L64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m6m7,LANE_L64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m6m7,LANE_L64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4815,9 +4814,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m0m1,LANE_H64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m2m3,LANE_H64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m2m3,LANE_H64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m4m5,LANE_H64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m6m7,LANE_H64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m6m7,LANE_H64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4842,9 +4841,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row2h = vsetq_lane_u64(vgetq_lane_u64(t1,LANE_L64),row2h,LANE_H64);
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m8m9,LANE_L64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m10m11,LANE_L64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m10m11,LANE_L64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m12m13,LANE_L64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m14m15,LANE_L64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m14m15,LANE_L64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4859,9 +4858,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m8m9,LANE_H64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m10m11,LANE_H64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m10m11,LANE_H64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m12m13,LANE_H64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m14m15,LANE_H64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m14m15,LANE_H64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4886,9 +4885,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row4h = vsetq_lane_u64(vgetq_lane_u64(t1,LANE_L64),row4h,LANE_H64);
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m14m15,LANE_L64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m4m5,LANE_L64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m4m5,LANE_L64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m8m9,LANE_H64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m12m13,LANE_H64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m12m13,LANE_H64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4903,9 +4902,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m10m11,LANE_L64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m8m9,LANE_L64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m8m9,LANE_L64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m14m15,LANE_H64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m6m7,LANE_L64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m6m7,LANE_L64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4930,9 +4929,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row2h = vsetq_lane_u64(vgetq_lane_u64(t1,LANE_L64),row2h,LANE_H64);
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m0m1,LANE_H64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m0m1,LANE_L64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m0m1,LANE_L64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m10m11,LANE_H64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m4m5,LANE_H64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m4m5,LANE_H64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4947,9 +4946,9 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row2h = veorq_u64(vshrq_n_u64(row2h,24),vshlq_n_u64(row2h,40));
 
   b0 = vsetq_lane_u64(vgetq_lane_u64(m12m13,LANE_L64),b0,LANE_L64);
-  b0 = vsetq_lane_u64(vgetq_lane_u64(m2m3,LANE_L64),b0,LANE_H64); 
+  b0 = vsetq_lane_u64(vgetq_lane_u64(m2m3,LANE_L64),b0,LANE_H64);
   b1 = vsetq_lane_u64(vgetq_lane_u64(m6m7,LANE_H64),b1,LANE_L64);
-  b1 = vsetq_lane_u64(vgetq_lane_u64(m2m3,LANE_H64),b1,LANE_H64); 
+  b1 = vsetq_lane_u64(vgetq_lane_u64(m2m3,LANE_H64),b1,LANE_H64);
   row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l);
   row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h);
   row4l = veorq_u64(row4l, row1l);
@@ -4973,8 +4972,8 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
   row4h = vsetq_lane_u64(vgetq_lane_u64(row4h,LANE_H64),row4h,LANE_L64);
   row4h = vsetq_lane_u64(vgetq_lane_u64(t1,LANE_L64),row4h,LANE_H64);
 
-  row1l = veorq_u64( row3l, row1l);
-  row1h = veorq_u64( row3h, row1h);
+  row1l = veorq_u64(row3l, row1l);
+  row1h = veorq_u64(row3h, row1h);
   vst1q_u64((uint64_t*)&state.h[0], veorq_u64(vld1q_u64((const uint64_t*)&state.h[0]), row1l));
   vst1q_u64((uint64_t*)&state.h[2], veorq_u64(vld1q_u64((const uint64_t*)&state.h[2]), row1h));
 
