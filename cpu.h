@@ -1,13 +1,29 @@
 // cpu.h - written and placed in the public domain by Wei Dai
 
-//! \file
-//! \headerfile cpu.h
-//! \brief Classes, functions, intrinsics and features for X86, X32 nd X64 assembly
+//! \file cpu.h
+//! \brief Functions for CPU features and intrinsics
+//! \details At the moment, the functions are used heavily in X86/X32/X64 code paths
+//    for SSE, SSE2 and SSE4. The funtions are also used on occassion for AArch32
+//!   and AArch64 code paths for NEON.
 
 #ifndef CRYPTOPP_CPU_H
 #define CRYPTOPP_CPU_H
 
 #include "config.h"
+
+#if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
+# if defined(__linux__)
+#  include <sys/auxv.h>
+#  include <asm/hwcap.h>
+#  include <stdint.h>
+# endif
+# if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
+#  include <arm_neon.h>
+# endif
+# if defined(__ARM_FEATURE_CRC32) || (__ARM_ACLE >= 200)
+#  include <arm_acle.h>
+# endif
+#endif  // ARM-32 or ARM-64
 
 #ifdef CRYPTOPP_GENERATE_X64_MASM
 
@@ -111,7 +127,7 @@ NAMESPACE_BEGIN(CryptoPP)
 #if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64
 
 #define CRYPTOPP_CPUID_AVAILABLE
-	
+
 // these should not be used directly
 extern CRYPTOPP_DLL bool g_x86DetectionDone;
 extern CRYPTOPP_DLL bool g_hasMMX;
@@ -218,6 +234,42 @@ inline int GetCacheLineSize()
 	return g_cacheLineSize;
 }
 
+#elif (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
+
+extern bool g_ArmDetectionDone;
+extern bool g_hasNEON, g_hasCRC32;
+void CRYPTOPP_API DetectArmFeatures();
+
+//! \brief Determine if an ARM processor has Advanced SIMD available
+//! \returns true if the hardware is capable of Advanced SIMD at runtime, false otherwise.
+//! \details Runtime support requires compile time support.
+inline bool HasNEON()
+{
+	if (!g_ArmDetectionDone)
+		DetectArmFeatures();
+	return g_hasNEON;
+}
+
+//! \brief Determine if an ARM processor has CRC32 available
+//! \returns true if the hardware is capable of CRC32 at runtime, false otherwise.
+//! \details Runtime support requires compile time support. When compiling with GCC, you may
+//!   need to compile with <tt>-march=armv8-a+crc</tt>.
+inline bool HasCRC32()
+{
+	if (!g_ArmDetectionDone)
+		DetectArmFeatures();
+	return g_hasCRC32;
+}
+
+//! \brief Provides the cache line size at runtime
+//! \returns true if the hardware is capable of CRC32 at runtime, false otherwise.
+//! \details GetCacheLineSize() provides is an estimate using CRYPTOPP_L1_CACHE_LINE_SIZE.
+//!   The runtime instructions to query the processor are privileged.
+inline int GetCacheLineSize()
+{
+	return CRYPTOPP_L1_CACHE_LINE_SIZE;
+}
+
 #else
 
 inline int GetCacheLineSize()
@@ -225,9 +277,11 @@ inline int GetCacheLineSize()
 	return CRYPTOPP_L1_CACHE_LINE_SIZE;
 }
 
-#endif
+#endif  // X86/X32/X64 and ARM
 
 #endif
+
+#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64
 
 #ifdef CRYPTOPP_GENERATE_X64_MASM
 	#define AS1(x) x*newline*
@@ -431,6 +485,8 @@ inline int GetCacheLineSize()
 	ASL(labelPrefix##9)\
 	AS2(	add		outputPtr, increment*16)
 
+#endif  //  X86/X32/X64
+
 NAMESPACE_END
 
-#endif
+#endif  // CRYPTOPP_CPU_H

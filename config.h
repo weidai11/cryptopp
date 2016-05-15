@@ -379,7 +379,7 @@ NAMESPACE_END
 // 8037: non-const function called for const object. needed to work around BCB2006 bug
 #	pragma warn -8037
 #endif
-	
+
 // [GCC Bug 53431] "C++ preprocessor ignores #pragma GCC diagnostic". Clang honors it.
 #if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
 # pragma GCC diagnostic ignored "-Wunknown-pragmas"
@@ -398,7 +398,7 @@ NAMESPACE_END
 #define CRYPTOPP_DISABLE_ASM
 #define CRYPTOPP_DISABLE_SSE2
 #endif
-	
+
 // Apple's Clang prior to 5.0 cannot handle SSE2 (and Apple does not use LLVM Clang numbering...)
 #if defined(CRYPTOPP_APPLE_CLANG_VERSION) && (CRYPTOPP_APPLE_CLANG_VERSION < 50000)
 # define CRYPTOPP_DISABLE_ASM
@@ -470,7 +470,7 @@ NAMESPACE_END
 #else
 	#define CRYPTOPP_NO_ALIGNED_ALLOC
 #endif
-	
+
 // Apple always provides 16-byte aligned, and tells us to use calloc
 // http://developer.apple.com/library/mac/documentation/Performance/Conceptual/ManagingMemory/Articles/MemoryAlloc.html
 
@@ -483,7 +483,7 @@ NAMESPACE_END
 #	define CRYPTOPP_NOINLINE __attribute__((noinline))
 #else
 #	define CRYPTOPP_NOINLINE_DOTDOTDOT ...
-#	define CRYPTOPP_NOINLINE 
+#	define CRYPTOPP_NOINLINE
 #endif
 
 // how to declare class constants
@@ -508,13 +508,13 @@ NAMESPACE_END
 #else
 	#define CRYPTOPP_BOOL_X86 0
 #endif
-	
+
 #if (defined(_M_X64) || defined(__x86_64__)) && !CRYPTOPP_BOOL_X32
 	#define CRYPTOPP_BOOL_X64 1
 #else
 	#define CRYPTOPP_BOOL_X64 0
 #endif
-	
+
 // Undo the ASM and Intrinsic related defines due to X32.
 #if CRYPTOPP_BOOL_X32
 # undef CRYPTOPP_BOOL_X64
@@ -522,6 +522,29 @@ NAMESPACE_END
 # undef CRYPTOPP_X64_MASM_AVAILABLE
 #endif
 
+#if defined(__arm__) || defined(__aarch32__) || defined(_M_ARM)
+	#define CRYPTOPP_BOOL_ARM32 1
+#else
+	#define CRYPTOPP_BOOL_ARM32 0
+#endif
+
+#if defined(__aarch64__)
+	#define CRYPTOPP_BOOL_ARM64 1
+#else
+	#define CRYPTOPP_BOOL_ARM64 0
+#endif
+
+#if !defined(CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE)
+# if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64) && ((CRYPTOPP_GCC_VERSION >= 40400) || (CRYPTOPP_CLANG_VERSION >= 20800) || (CRYPTOPP_MSC_VERSION >= 1700))
+#  if defined(__ARM_NEON__) || defined(__ARM_NEON) || defined(_M_ARM)
+#   define CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE 1
+#  endif
+# endif
+#endif
+
+#ifndef CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
+# define CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE 0
+#endif
 #if !defined(CRYPTOPP_NO_UNALIGNED_DATA_ACCESS) && !defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS)
 #if (CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || defined(__powerpc__) || (__ARM_FEATURE_UNALIGNED >= 1))
 	#define CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
@@ -539,7 +562,7 @@ NAMESPACE_END
 #if defined(__unix__) || defined(__MACH__) || defined(__NetBSD__) || defined(__sun)
 #define CRYPTOPP_UNIX_AVAILABLE
 #endif
-	
+
 #if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
 #define CRYPTOPP_BSD_AVAILABLE
 #endif
@@ -551,7 +574,7 @@ NAMESPACE_END
 #ifdef CRYPTOPP_WIN32_AVAILABLE
 # if !defined(WINAPI_FAMILY)
 #	define THREAD_TIMER_AVAILABLE
-# elif defined(WINAPI_FAMILY) && defined(WINAPI_FAMILY_PARTITION)
+# elif defined(WINAPI_FAMILY)
 #   if (WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP))
 #	  define THREAD_TIMER_AVAILABLE
 #  endif
@@ -568,7 +591,7 @@ NAMESPACE_END
 # define HAS_WINDOWS_STYLE_SOCKETS
 # if !defined(WINAPI_FAMILY)
 #	define SOCKETS_AVAILABLE
-# elif defined(WINAPI_FAMILY) && defined(WINAPI_FAMILY_PARTITION)
+# elif defined(WINAPI_FAMILY)
 #   if (WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP))
 #	  define SOCKETS_AVAILABLE
 #   endif
@@ -599,7 +622,7 @@ NAMESPACE_END
 #	define THREADS_AVAILABLE
 #	define NONBLOCKING_RNG_AVAILABLE
 #	define OS_RNG_AVAILABLE
-# elif defined(WINAPI_FAMILY) && defined(WINAPI_FAMILY_PARTITION)
+# elif defined(WINAPI_FAMILY)
 #   if (WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP))
 #	  define HAS_WINTHREADS
 #	  define THREADS_AVAILABLE
@@ -705,7 +728,20 @@ NAMESPACE_END
 #endif
 
 // C++11 or C++14 is available
-#if defined(CRYPTOPP_CXX11) 
+#if defined(CRYPTOPP_CXX11)
+
+// atomics: MS at VS2012 (17.00); GCC at 4.4; Clang at 3.1/3.2; and Intel 13.0.
+#if (CRYPTOPP_MSC_VERSION >= 1700)
+#  define CRYPTOPP_CXX11_ATOMICS 1
+#elif defined(__INTEL_COMPILER) && (__INTEL_COMPILER >= 1300)
+#  define CRYPTOPP_CXX11_ATOMICS 1
+#elif defined(__clang__)
+#  if __has_feature(cxx_atomic)
+#    define CRYPTOPP_CXX11_ATOMICS 1
+#  endif
+#elif (CRYPTOPP_GCC_VERSION >= 40400)
+#  define CRYPTOPP_CXX11_ATOMICS 1
+#endif // atomics
 
 // atomics: MS at VS2012 (17.00); GCC at 4.4; Clang at 3.1/3.2; and Intel 13.0.
 #if (CRYPTOPP_MSC_VERSION >= 1700)
@@ -767,7 +803,7 @@ NAMESPACE_END
 // Needed because we are catching warnings with GCC and MSC
 
 #endif // CRYPTOPP_CXX11
-	
+
 #if defined(CRYPTOPP_CXX11_NOEXCEPT)
 #  define CRYPTOPP_THROW noexcept(false)
 #  define CRYPTOPP_NO_THROW noexcept(true)
