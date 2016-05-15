@@ -2077,15 +2077,15 @@ private:
 //! \tparam T class or type
 //! \tparam B enumeration indicating endianess
 //! \tparam A flag indicating alignment
-//! \details GetBlock() provides alternate write access to a block of memory. The enumeration B is
+//! \details PutBlock() provides alternate write access to a block of memory. The enumeration B is
 //!   BigEndian or LittleEndian. The flag A indicates if the memory block is aligned for class or type T.
 //!   Repeatedly applying operator() results in advancing in the block of memory.
-//! \details An example of reading two word32 values from a block of memory is shown below. <tt>w1</tt>
-//!   will be <tt>0x03020100</tt> and <tt>w1</tt> will be <tt>0x07060504</tt>.
+//! \details An example of writing two word32 values from a block of memory is shown below. After the code
+//!   executes, the byte buffer will be <tt>{0,1,2,3,4,5,6,7}</tt>.
 //! <pre>
-//!    word32 w1, w2;
-//!    byte buffer[8] = {0,1,2,3,4,5,6,7};
-//!    GetBlock<word32, LittleEndian> block(buffer);
+//!    word32 w1=0x03020100, w2=0x07060504;
+//!    byte buffer[8];
+//!    PutBlock<word32, LittleEndian> block(NULL, buffer);
 //!    block(w1)(w2);
 //! </pre>
 template <class T, class B, bool A=false>
