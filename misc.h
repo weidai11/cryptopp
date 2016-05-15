@@ -2083,7 +2083,7 @@ private:
 //! \details An example of writing two word32 values from a block of memory is shown below. After the code
 //!   executes, the byte buffer will be <tt>{0,1,2,3,4,5,6,7}</tt>.
 //! <pre>
-//!    word32 w1=0x03020100, w20x07060504;
+//!    word32 w1=0x03020100, w2=0x07060504;
 //!    byte buffer[8];
 //!    PutBlock<word32, LittleEndian> block(NULL, buffer);
 //!    block(w1)(w2);
