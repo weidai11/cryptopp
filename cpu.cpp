@@ -24,6 +24,10 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+// MacPorts/GCC does not provide constructor(priority). Apple/GCC and Fink/GCC do provide it.
+#define HAVE_GCC_CONSTRUCTOR1 (__GNUC__ && (CRYPTOPP_INIT_PRIORITY > 0) && ((CRYPTOPP_GCC_VERSION >= 40300) || (CRYPTOPP_CLANG_VERSION >= 20900) || (_INTEL_COMPILER >= 300)) && !(MACPORTS_GCC_COMPILER > 0))
+#define HAVE_GCC_CONSTRUCTOR0 (__GNUC__ && (CRYPTOPP_INIT_PRIORITY > 0) && !(MACPORTS_GCC_COMPILER > 0))
+
 #ifdef CRYPTOPP_CPUID_AVAILABLE
 
 #if _MSC_VER >= 1400 && CRYPTOPP_BOOL_X64
@@ -168,10 +172,6 @@ bool g_x86DetectionDone = false;
 bool g_hasMMX = false, g_hasISSE = false, g_hasSSE2 = false, g_hasSSSE3 = false, g_hasSSE4 = false, g_hasAESNI = false, g_hasCLMUL = false, g_isP4 = false, g_hasRDRAND = false, g_hasRDSEED = false;
 word32 g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
 
-// MacPorts/GCC does not provide constructor(priority). Apple/GCC and Fink/GCC do provide it.
-#define HAVE_GCC_CONSTRUCTOR1 (__GNUC__ && (CRYPTOPP_INIT_PRIORITY > 0) && ((CRYPTOPP_GCC_VERSION >= 40300) || (CRYPTOPP_CLANG_VERSION >= 20900) || (_INTEL_COMPILER >= 300)) && !(MACPORTS_GCC_COMPILER > 0))
-#define HAVE_GCC_CONSTRUCTOR0 (__GNUC__ && (CRYPTOPP_INIT_PRIORITY > 0) && !(MACPORTS_GCC_COMPILER > 0))
-
 static inline bool IsIntel(const word32 output[4])
 {
 	// This is the "GenuineIntel" string
@@ -249,6 +249,47 @@ void DetectX86Features()
 		g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
 
 	*((volatile bool*)&g_x86DetectionDone) = true;
+}
+
+// http://community.arm.com/groups/android-community/blog/2014/10/10/runtime-detection-of-cpu-features-on-an-armv8-a-cpu
+// http://stackoverflow.com/questions/26701262/how-to-check-the-existence-of-neon-on-arm
+#elif (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
+
+bool g_ArmDetectionDone = false;
+bool g_hasNEON = false, g_hasCRC32 = false;
+
+// This is avaiable in a status register, but we need privileged code to perform the read
+word32 g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
+
+#if HAVE_GCC_CONSTRUCTOR1
+void __attribute__ ((constructor (CRYPTOPP_INIT_PRIORITY + 50))) DetectArmFeatures()
+#elif HAVE_GCC_CONSTRUCTOR0
+void __attribute__ ((constructor)) DetectArmFeatures()
+#else
+void DetectArmFeatures()
+#endif
+{
+#if defined(__linux__) && defined(__aarch64__) // ARM-64
+	const unsigned long hwcaps = getauxval(AT_HWCAP);
+	g_hasNEON = !!(hwcaps & HWCAP_ASIMD);
+# if defined(__ARM_FEATURE_CRC32)
+	g_hasCRC32 = !!(hwcaps & HWCAP_CRC32);
+# else
+	g_hasCRC32 = false;
+# endif
+#elif defined(__linux__) // ARM-32
+	const unsigned long hwcaps = getauxval(AT_HWCAP);
+	g_hasNEON = !!(hwcaps & HWCAP_ARM_NEON);
+# if defined(__ARM_FEATURE_CRC32)
+	g_hasCRC32 = !!(hwcaps & HWCAP_ARM_CRC32);
+# else
+	g_hasCRC32 = false;
+# endif
+#elif defined(_WIN32) && defined(_M_ARM) // Microsoft ARM
+	g_hasNEON = true;
+	g_hasCRC32 = false;
+#endif
+	*((volatile bool*)&g_ArmDetectionDone) = true;
 }
 
 #endif
