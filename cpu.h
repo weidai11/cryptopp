@@ -20,7 +20,7 @@
 # if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
 #  include <arm_neon.h>
 # endif
-# if defined(__ARM_FEATURE_CRC32) || (__ARM_ACLE >= 200)
+# if (defined(__ARM_FEATURE_CRC32) || defined(__ARM_FEATURE_CRYPTO) || (__ARM_ACLE >= 200)) && !defined(__APPLE__)
 #  include <arm_acle.h>
 # endif
 #endif  // ARM-32 or ARM-64
@@ -237,12 +237,14 @@ inline int GetCacheLineSize()
 #elif (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
 
 extern bool g_ArmDetectionDone;
-extern bool g_hasNEON, g_hasCRC32;
+extern bool g_hasNEON, g_hasCRC32, g_hasCrypto;
 void CRYPTOPP_API DetectArmFeatures();
 
 //! \brief Determine if an ARM processor has Advanced SIMD available
 //! \returns true if the hardware is capable of Advanced SIMD at runtime, false otherwise.
-//! \details Runtime support requires compile time support.
+//! \details Runtime support requires compile time support. When compiling with GCC, you may
+//!   need to compile with <tt>-mfpu=neon</tt> (32-bit) or <tt>-march=armv8-a</tt>
+//!   (64-bit). Also see ARM's <tt>__ARM_NEON</tt> preprocessor macro.
 inline bool HasNEON()
 {
 	if (!g_ArmDetectionDone)
@@ -253,12 +255,26 @@ inline bool HasNEON()
 //! \brief Determine if an ARM processor has CRC32 available
 //! \returns true if the hardware is capable of CRC32 at runtime, false otherwise.
 //! \details Runtime support requires compile time support. When compiling with GCC, you may
-//!   need to compile with <tt>-march=armv8-a+crc</tt>.
+//!   need to compile with <tt>-march=armv8-a+crc</tt>. Also see ARM's <tt>__ARM_FEATURE_CRC32</tt>
+//!   preprocessor macro.
 inline bool HasCRC32()
 {
 	if (!g_ArmDetectionDone)
 		DetectArmFeatures();
 	return g_hasCRC32;
+}
+
+//! \brief Determine if an ARM processor has Crypto available
+//! \returns true if the hardware is capable of Crypto at runtime, false otherwise.
+//! \details Runtime support requires compile time support. When compiling with GCC, you may
+//!   need to compile with <tt>-march=armv8-a+crypto</tt>; while Apple requires
+//!   <tt>-arch armv7s</tt> or <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRYPTO</tt>
+//!   preprocessor macro.
+inline bool HasCrypto()
+{
+	if (!g_ArmDetectionDone)
+		DetectArmFeatures();
+	return g_hasCrypto;
 }
 
 //! \brief Provides the cache line size at runtime
