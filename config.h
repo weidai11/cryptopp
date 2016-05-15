@@ -33,9 +33,26 @@
 // #define NO_OS_DEPENDENCE
 
 // Define this to use features provided by Microsoft's CryptoAPI.
-// Currently the only feature used is random number generation.
+// Currently the only feature used is Windows random number generation.
 // This macro will be ignored if NO_OS_DEPENDENCE is defined.
-#define USE_MS_CRYPTOAPI
+// #define USE_MS_CRYPTOAPI
+
+// Define this to use features provided by Microsoft's CryptoNG API.
+// CryptoNG API is available in Vista and above and its cross platform,
+// including desktop apps and store apps. Currently the only feature
+// used is Windows random number generation.
+// This macro will be ignored if NO_OS_DEPENDENCE is defined.
+// #define USE_MS_CNGAPI
+
+// If the user did not make a choice, then select CryptoNG if either
+// Visual Studio 2015 is available, or Windows 10 or above is available.
+#if !defined(USE_MS_CRYPTOAPI) && !defined(USE_MS_CNGAPI)
+# if (_MSC_VER >= 1900) || ((WINVER >= 0x0A00 /*_WIN32_WINNT_WIN10*/) || (_WIN32_WINNT >= 0x0A00 /*_WIN32_WINNT_WIN10*/))
+#  define USE_MS_CNGAPI
+# else
+#  define USE_MS_CRYPTOAPI
+# endif
+#endif
 
 // Define this to ensure C/C++ standard compliance and respect for GCC aliasing rules and other alignment fodder. If you
 // experience a break with GCC at -O3, you should try this first. Guard it in case its set on the command line (and it differs).
@@ -362,7 +379,7 @@ NAMESPACE_END
 // 8037: non-const function called for const object. needed to work around BCB2006 bug
 #	pragma warn -8037
 #endif
-	
+
 // [GCC Bug 53431] "C++ preprocessor ignores #pragma GCC diagnostic". Clang honors it.
 #if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
 # pragma GCC diagnostic ignored "-Wunknown-pragmas"
@@ -381,7 +398,7 @@ NAMESPACE_END
 #define CRYPTOPP_DISABLE_ASM
 #define CRYPTOPP_DISABLE_SSE2
 #endif
-	
+
 // Apple's Clang prior to 5.0 cannot handle SSE2 (and Apple does not use LLVM Clang numbering...)
 #if defined(CRYPTOPP_APPLE_CLANG_VERSION) && (CRYPTOPP_APPLE_CLANG_VERSION < 50000)
 # define CRYPTOPP_DISABLE_ASM
@@ -453,7 +470,7 @@ NAMESPACE_END
 #else
 	#define CRYPTOPP_NO_ALIGNED_ALLOC
 #endif
-	
+
 // Apple always provides 16-byte aligned, and tells us to use calloc
 // http://developer.apple.com/library/mac/documentation/Performance/Conceptual/ManagingMemory/Articles/MemoryAlloc.html
 
@@ -466,7 +483,7 @@ NAMESPACE_END
 #	define CRYPTOPP_NOINLINE __attribute__((noinline))
 #else
 #	define CRYPTOPP_NOINLINE_DOTDOTDOT ...
-#	define CRYPTOPP_NOINLINE 
+#	define CRYPTOPP_NOINLINE
 #endif
 
 // how to declare class constants
@@ -491,7 +508,7 @@ NAMESPACE_END
 #else
 	#define CRYPTOPP_BOOL_X86 0
 #endif
-	
+
 #if (defined(_M_X64) || defined(__x86_64__)) && !CRYPTOPP_BOOL_X32
 	#define CRYPTOPP_BOOL_X64 1
 #else
@@ -528,7 +545,6 @@ NAMESPACE_END
 #ifndef CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
 # define CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE 0
 #endif
-
 #if !defined(CRYPTOPP_NO_UNALIGNED_DATA_ACCESS) && !defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS)
 #if (CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || defined(__powerpc__) || (__ARM_FEATURE_UNALIGNED >= 1))
 	#define CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
@@ -546,7 +562,7 @@ NAMESPACE_END
 #if defined(__unix__) || defined(__MACH__) || defined(__NetBSD__) || defined(__sun)
 #define CRYPTOPP_UNIX_AVAILABLE
 #endif
-	
+
 #if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
 #define CRYPTOPP_BSD_AVAILABLE
 #endif
@@ -555,16 +571,31 @@ NAMESPACE_END
 #	define HIGHRES_TIMER_AVAILABLE
 #endif
 
+#ifdef CRYPTOPP_WIN32_AVAILABLE
+# if !defined(WINAPI_FAMILY)
+#	define THREAD_TIMER_AVAILABLE
+# elif defined(WINAPI_FAMILY)
+#   if (WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP))
+#	  define THREAD_TIMER_AVAILABLE
+#  endif
+# endif
+#endif
+
 #ifdef CRYPTOPP_UNIX_AVAILABLE
 #	define HAS_BERKELEY_STYLE_SOCKETS
-#endif
-
-#ifdef CRYPTOPP_WIN32_AVAILABLE
-#	define HAS_WINDOWS_STYLE_SOCKETS
-#endif
-
-#if defined(HIGHRES_TIMER_AVAILABLE) && (defined(HAS_BERKELEY_STYLE_SOCKETS) || defined(HAS_WINDOWS_STYLE_SOCKETS))
 #	define SOCKETS_AVAILABLE
+#endif
+
+// Sockets are only available under Windows Runtime desktop partition apps (despite the MSDN literature)
+#ifdef CRYPTOPP_WIN32_AVAILABLE
+# define HAS_WINDOWS_STYLE_SOCKETS
+# if !defined(WINAPI_FAMILY)
+#	define SOCKETS_AVAILABLE
+# elif defined(WINAPI_FAMILY)
+#   if (WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP))
+#	  define SOCKETS_AVAILABLE
+#   endif
+# endif
 #endif
 
 #if defined(HAS_WINDOWS_STYLE_SOCKETS) && (!defined(HAS_BERKELEY_STYLE_SOCKETS) || defined(PREFER_WINDOWS_STYLE_SOCKETS))
@@ -573,13 +604,8 @@ NAMESPACE_END
 #	define USE_BERKELEY_STYLE_SOCKETS
 #endif
 
-#if defined(HIGHRES_TIMER_AVAILABLE) && defined(CRYPTOPP_WIN32_AVAILABLE) && !defined(USE_BERKELEY_STYLE_SOCKETS)
+#if defined(CRYPTOPP_WIN32_AVAILABLE) && defined(SOCKETS_AVAILABLE) && !defined(USE_BERKELEY_STYLE_SOCKETS)
 #	define WINDOWS_PIPES_AVAILABLE
-#endif
-
-#if defined(CRYPTOPP_WIN32_AVAILABLE) && defined(USE_MS_CRYPTOAPI)
-#	define NONBLOCKING_RNG_AVAILABLE
-#	define OS_RNG_AVAILABLE
 #endif
 
 #if defined(CRYPTOPP_UNIX_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
@@ -591,8 +617,24 @@ NAMESPACE_END
 #endif
 
 #ifdef CRYPTOPP_WIN32_AVAILABLE
+# if !defined(WINAPI_FAMILY)
 #	define HAS_WINTHREADS
 #	define THREADS_AVAILABLE
+#	define NONBLOCKING_RNG_AVAILABLE
+#	define OS_RNG_AVAILABLE
+# elif defined(WINAPI_FAMILY)
+#   if (WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP))
+#	  define HAS_WINTHREADS
+#	  define THREADS_AVAILABLE
+#	  define NONBLOCKING_RNG_AVAILABLE
+#	  define OS_RNG_AVAILABLE
+#   elif !(WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP))
+#     if ((WINVER >= 0x0A00 /*_WIN32_WINNT_WIN10*/) || (_WIN32_WINNT >= 0x0A00 /*_WIN32_WINNT_WIN10*/))
+#	    define NONBLOCKING_RNG_AVAILABLE
+#	    define OS_RNG_AVAILABLE
+#     endif
+#   endif
+# endif
 #endif
 
 #endif	// NO_OS_DEPENDENCE
@@ -686,7 +728,20 @@ NAMESPACE_END
 #endif
 
 // C++11 or C++14 is available
-#if defined(CRYPTOPP_CXX11) 
+#if defined(CRYPTOPP_CXX11)
+
+// atomics: MS at VS2012 (17.00); GCC at 4.4; Clang at 3.1/3.2; and Intel 13.0.
+#if (CRYPTOPP_MSC_VERSION >= 1700)
+#  define CRYPTOPP_CXX11_ATOMICS 1
+#elif defined(__INTEL_COMPILER) && (__INTEL_COMPILER >= 1300)
+#  define CRYPTOPP_CXX11_ATOMICS 1
+#elif defined(__clang__)
+#  if __has_feature(cxx_atomic)
+#    define CRYPTOPP_CXX11_ATOMICS 1
+#  endif
+#elif (CRYPTOPP_GCC_VERSION >= 40400)
+#  define CRYPTOPP_CXX11_ATOMICS 1
+#endif // atomics
 
 // alignof/alignas: MS at VS2013 (19.00); GCC at 4.8; Clang at 3.3; and Intel 15.0.
 #if (CRYPTOPP_MSC_VERSION >= 1900)
@@ -717,7 +772,7 @@ NAMESPACE_END
 #elif (CRYPTOPP_GCC_VERSION >= 40600)
 #  define CRYPTOPP_CXX11_NOEXCEPT 1
 #endif // noexcept compilers
-	
+
 // variadic templates: MS at VS2013 (18.00); GCC at 4.3; Clang at 2.9; and Intel 12.1.
 #if (CRYPTOPP_MSC_VERSION >= 1800)
 #  define CRYPTOPP_CXX11_VARIADIC_TEMPLATES 1
@@ -735,7 +790,7 @@ NAMESPACE_END
 // Needed because we are catching warnings with GCC and MSC
 
 #endif // CRYPTOPP_CXX11
-	
+
 #if defined(CRYPTOPP_CXX11_NOEXCEPT)
 #  define CRYPTOPP_THROW noexcept(false)
 #  define CRYPTOPP_NO_THROW noexcept(true)
