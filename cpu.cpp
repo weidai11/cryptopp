@@ -256,7 +256,7 @@ void DetectX86Features()
 #elif (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
 
 bool g_ArmDetectionDone = false;
-bool g_hasNEON = false, g_hasCRC32 = false;
+bool g_hasNEON = false, g_hasCRC32 = false, g_hasCrypto = false;
 
 // This is avaiable in a status register, but we need privileged code to perform the read
 word32 g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
@@ -285,9 +285,26 @@ void DetectArmFeatures()
 # else
 	g_hasCRC32 = false;
 # endif
-#elif defined(_WIN32) && defined(_M_ARM) // Microsoft ARM
+#elif defined(__APPLE__)
+	g_hasNEON = true;
+# if defined(__ARM_FEATURE_CRC32)
+	g_hasCRC32 = true;
+# else
+	g_hasCRC32 = false;
+# endif
+# if defined(__ARM_FEATURE_CRYPTO)
+	g_hasCrypto = true;
+# else
+	g_hasCrypto = false;
+# endif
+#elif defined(_WIN32)
 	g_hasNEON = true;
 	g_hasCRC32 = false;
+	g_hasCrypto = false;
+#else
+	g_hasNEON = false;
+	g_hasCRC32 = false;
+	g_hasCrypto = false;
 #endif
 	*((volatile bool*)&g_ArmDetectionDone) = true;
 }
