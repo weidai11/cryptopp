@@ -315,9 +315,10 @@ bool TestSettings()
 #elif (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
 	bool hasNEON = HasNEON();
 	bool hasCRC32 = HasCRC32();
+	bool hasCrypto = HasCrypto();
 
 	cout << "passed:  ";
-	cout << "hasNEON == " << hasNEON << ", hasCRC32 == " << hasCRC32 << endl;
+	cout << "hasNEON == " << hasNEON << ", hasCRC32 == " << hasCRC32 << ", hasCrypto == " << hasCrypto << endl;
 #endif
 
 	if (!pass)
