@@ -131,7 +131,7 @@ CRC32::CRC32()
 
 void CRC32::Update(const byte *s, size_t n)
 {
-#if defined(__ARM_FEATURE_CRC32)
+#if (CRYPTOPP_BOOL_ARM_CRC32_INTRINSICS_AVAILABLE)
 	if (HasCRC32())
 	{
 		for(; !IsAligned<word32>(s) && n > 0; s++, n--)
@@ -313,7 +313,7 @@ void CRC32C::Update(const byte *s, size_t n)
 
 		return;
 	}
-#elif defined(__ARM_FEATURE_CRC32)
+#elif (CRYPTOPP_BOOL_ARM_CRC32_INTRINSICS_AVAILABLE)
 	if (HasCRC32())
 	{
 		for(; !IsAligned<word32>(s) && n > 0; s++, n--)
