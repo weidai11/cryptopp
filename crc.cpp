@@ -131,6 +131,22 @@ CRC32::CRC32()
 
 void CRC32::Update(const byte *s, size_t n)
 {
+#if (CRYPTOPP_BOOL_ARM_CRC32_INTRINSICS_AVAILABLE)
+	if (HasCRC32())
+	{
+		for(; !IsAligned<word32>(s) && n > 0; s++, n--)
+			m_crc = __crc32b(m_crc, *s);
+
+		for(; n > 4; s+=4, n-=4)
+			m_crc = __crc32w(m_crc, *(const word32 *)(void*)s);
+
+		for(; n > 0; s++, n--)
+			m_crc = __crc32b(m_crc, *s);
+
+		return;
+	}
+#endif
+
 	word32 crc = m_crc;
 
 	for(; !IsAligned<word32>(s) && n > 0; n--)
@@ -294,6 +310,20 @@ void CRC32C::Update(const byte *s, size_t n)
 
 		for(; n > 0; s++, n--)
 			m_crc = _mm_crc32_u8(m_crc, *s);
+
+		return;
+	}
+#elif (CRYPTOPP_BOOL_ARM_CRC32_INTRINSICS_AVAILABLE)
+	if (HasCRC32())
+	{
+		for(; !IsAligned<word32>(s) && n > 0; s++, n--)
+			m_crc = __crc32cb(m_crc, *s);
+
+		for(; n > 4; s+=4, n-=4)
+			m_crc = __crc32cw(m_crc, *(const word32 *)(void*)s);
+
+		for(; n > 0; s++, n--)
+			m_crc = __crc32cb(m_crc, *s);
 
 		return;
 	}
