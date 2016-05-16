@@ -12,16 +12,19 @@
 #include "config.h"
 
 #if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
-# if defined(__linux__)
-#  include <sys/auxv.h>
-#  include <asm/hwcap.h>
-#  include <stdint.h>
+# if defined(_MSC_VER) || defined(__BORLANDC__)
+#  define CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
+# else
+#  define CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
 # endif
 # if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
 #  include <arm_neon.h>
 # endif
-# if (defined(__ARM_FEATURE_CRC32) || defined(__ARM_FEATURE_CRYPTO) || (__ARM_ACLE >= 200)) && !defined(__APPLE__)
-#  include <arm_acle.h>
+# if (CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE || CRYPTOPP_BOOL_ARM_CRC32_INTRINSICS_AVAILABLE)
+#  include <stdint.h>
+#  if (defined(__ARM_ACLE) || defined(__GNUC__)) && !defined(__APPLE__)
+#   include <arm_acle.h>
+#  endif
 # endif
 #endif  // ARM-32 or ARM-64
 
@@ -242,6 +245,7 @@ void CRYPTOPP_API DetectArmFeatures();
 
 //! \brief Determine if an ARM processor has Advanced SIMD available
 //! \returns true if the hardware is capable of Advanced SIMD at runtime, false otherwise.
+//! \details Advanced SIMD instructions are available under Aarch64 (ARM-64) and Aarch32 (ARM-32).
 //! \details Runtime support requires compile time support. When compiling with GCC, you may
 //!   need to compile with <tt>-mfpu=neon</tt> (32-bit) or <tt>-march=armv8-a</tt>
 //!   (64-bit). Also see ARM's <tt>__ARM_NEON</tt> preprocessor macro.
@@ -254,9 +258,12 @@ inline bool HasNEON()
 
 //! \brief Determine if an ARM processor has CRC32 available
 //! \returns true if the hardware is capable of CRC32 at runtime, false otherwise.
+//! \details CRC32 instructions provide access to the processor's CRC32 and CRC32-C intructions.
+//!   They are provided by ARM C Language Extensions 2.0 (ACLE 2.0) and available under Aarch64
+//!   (ARM-64) and Aarch32 (ARM-32) running on Aarch64 (i.e., an AArch32 execution environment).
 //! \details Runtime support requires compile time support. When compiling with GCC, you may
-//!   need to compile with <tt>-march=armv8-a+crc</tt>. Also see ARM's <tt>__ARM_FEATURE_CRC32</tt>
-//!   preprocessor macro.
+//!   need to compile with <tt>-march=armv8-a+crc</tt>; while Apple requires
+//!   <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRC32</tt> preprocessor macro.
 inline bool HasCRC32()
 {
 	if (!g_ArmDetectionDone)
@@ -266,10 +273,12 @@ inline bool HasCRC32()
 
 //! \brief Determine if an ARM processor has Crypto available
 //! \returns true if the hardware is capable of Crypto at runtime, false otherwise.
+//! \details Crypto instructions provide access to the processor's AES, SHA-1, SHA-224 and SHA-256 intructions.
+//!   They are provided by ARM C Language Extensions 2.0 (ACLE 2.0) and available under Aarch64
+//!   (ARM-64) and Aarch32 (ARM-32) running on Aarch64 (i.e., an AArch32 execution environment).
 //! \details Runtime support requires compile time support. When compiling with GCC, you may
 //!   need to compile with <tt>-march=armv8-a+crypto</tt>; while Apple requires
-//!   <tt>-arch armv7s</tt> or <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRYPTO</tt>
-//!   preprocessor macro.
+//!   <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRYPTO</tt> preprocessor macro.
 inline bool HasCrypto()
 {
 	if (!g_ArmDetectionDone)
