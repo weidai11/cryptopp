@@ -534,24 +534,35 @@ NAMESPACE_END
 	#define CRYPTOPP_BOOL_ARM64 0
 #endif
 
+// Requires ARMv7 and ACLE 1.0. Testing shows ARMv7 is really ARMv7a under the toolchains.
 #if !defined(CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE)
 # if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64) && ((CRYPTOPP_GCC_VERSION >= 40400) || (CRYPTOPP_CLANG_VERSION >= 20800) || (CRYPTOPP_APPLE_CLANG_VERSION >= 60000) || (CRYPTOPP_MSC_VERSION >= 1700))
-#  if defined(__ARM_NEON__) || defined(__ARM_NEON) || defined(_M_ARM) || (__ARM_ARCH >= 8)
+#  if defined(__ARM_NEON__) || defined(__ARM_NEON) || (__ARM_ARCH >= 7) || defined(_M_ARM)
 #   define CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE 1
 #  endif
 # endif
 #endif
 
-#if !defined(CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE)
-# if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64) && ((CRYPTOPP_GCC_VERSION >= 40400) || (CRYPTOPP_CLANG_VERSION >= 20800) || (CRYPTOPP_APPLE_CLANG_VERSION >= 60000))
-#  if defined(__ARM_FEATURE_CRYPTO)
-#   define CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE 1
+// Requires ARMv8 and ACLE 2.0.
+// Microsoft plans to support ARM-64, but its not clear how to detect it.
+// TODO: Add MSC_VER and ARM-64 platform define when available
+#if !defined(CRYPTOPP_BOOL_ARM_CRC32_INTRINSICS_AVAILABLE)
+# if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64) && ((CRYPTOPP_GCC_VERSION >= 40400) || (CRYPTOPP_CLANG_VERSION >= 20800) || (CRYPTOPP_APPLE_CLANG_VERSION >= 60000) || (CRYPTOPP_MSC_VERSION >= 2000))
+#  if defined(__ARM_FEATURE_CRC32) || (__ARM_ARCH >= 8) || defined(_M_ARM64)
+#   define CRYPTOPP_BOOL_ARM_CRC32_INTRINSICS_AVAILABLE 1
 #  endif
 # endif
 #endif
 
-#ifndef CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
-# define CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE 0
+// Requires ARMv8 and ACLE 2.0.
+// Microsoft plans to support ARM-64, but its not clear how to detect it.
+// TODO: Add MSC_VER and ARM-64 platform define when available
+#if !defined(CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE)
+# if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64) && ((CRYPTOPP_GCC_VERSION >= 40400) || (CRYPTOPP_CLANG_VERSION >= 20800) || (CRYPTOPP_APPLE_CLANG_VERSION >= 60000) || (CRYPTOPP_MSC_VERSION >= 2000))
+#  if defined(__ARM_FEATURE_CRYPTO) || (__ARM_ARCH >= 8) || defined(_M_ARM64)
+#   define CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE 1
+#  endif
+# endif
 #endif
 
 #if !defined(CRYPTOPP_NO_UNALIGNED_DATA_ACCESS) && !defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS)
