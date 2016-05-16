@@ -24,9 +24,16 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+#ifndef CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
+
 // MacPorts/GCC does not provide constructor(priority). Apple/GCC and Fink/GCC do provide it.
 #define HAVE_GCC_CONSTRUCTOR1 (__GNUC__ && (CRYPTOPP_INIT_PRIORITY > 0) && ((CRYPTOPP_GCC_VERSION >= 40300) || (CRYPTOPP_CLANG_VERSION >= 20900) || (_INTEL_COMPILER >= 300)) && !(MACPORTS_GCC_COMPILER > 0))
 #define HAVE_GCC_CONSTRUCTOR0 (__GNUC__ && (CRYPTOPP_INIT_PRIORITY > 0) && !(MACPORTS_GCC_COMPILER > 0))
+
+extern "C" {
+    typedef void (*SigHandler)(int);
+};
+#endif  // Not CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
 
 #ifdef CRYPTOPP_CPUID_AVAILABLE
 
@@ -42,7 +49,6 @@ bool CpuId(word32 input, word32 output[4])
 
 #ifndef CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
 extern "C" {
-typedef void (*SigHandler)(int);
 
 static jmp_buf s_jmpNoCPUID;
 static void SigIllHandlerCPUID(int)
@@ -258,8 +264,188 @@ void DetectX86Features()
 bool g_ArmDetectionDone = false;
 bool g_hasNEON = false, g_hasCRC32 = false, g_hasCrypto = false;
 
-// This is avaiable in a status register, but we need privileged code to perform the read
 word32 g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
+
+// The ARM equivalent of CPUID is reading a MSR. For example, fetch crypto capabilities with:
+//   #if defined(__arm64__) || defined(__aarch64__)
+//	   word64 caps = 0;  // Read ID_AA64ISAR0_EL1
+//	   __asm __volatile("mrs %0, " "id_aa64isar0_el1" : "=r" (caps));
+//   #elif defined(__arm__) || defined(__aarch32__)
+//	   word32 caps = 0;  // Read ID_ISAR5_EL1
+//	   __asm __volatile("mrs %0, " "id_isar5_el1" : "=r" (caps));
+//   #endif
+// The code requires Exception Level 1 (EL1) and above, but user space runs at EL0.
+//   Attempting to run the code results in a SIGILL and termination.
+
+#ifndef CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
+extern "C" {
+
+	static jmp_buf s_jmpNoNEON;
+	static void SigIllHandlerNEON(int)
+	{
+		longjmp(s_jmpNoNEON, 1);
+	}
+
+	static jmp_buf s_jmpNoCRC32;
+	static void SigIllHandlerCRC32(int)
+	{
+		longjmp(s_jmpNoCRC32, 1);
+	}
+
+	static jmp_buf s_jmpNoCrypto;
+	static void SigIllHandlerCrypto(int)
+	{
+		longjmp(s_jmpNoCrypto, 1);
+	}
+};
+#endif  // Not CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
+
+static bool TryNEON()
+{
+#if (CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE)
+# if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
+	__try
+	{
+		static const uint32_t v1[4] = {1,1,1,1};
+		uint32x4_t x1 = vld1q_u32(v1);
+		static const uint64_t v2[2] = {1,1};
+		uint64x2_t x2 = vld1q_u64(v2);
+
+		uint32x4_t x3 = vdupq_n_u32(0);
+		x3 = vsetq_lane_u32(vgetq_lane_u32(x1,0),x3,0);
+		x3 = vsetq_lane_u32(vgetq_lane_u32(x1,3),x3,3);
+		uint64x2_t x4 = vdupq_n_u64(0);
+		x4 = vsetq_lane_u64(vgetq_lane_u64(x2,0),x4,0);
+		x4 = vsetq_lane_u64(vgetq_lane_u64(x2,1),x4,1);
+	}
+	__except (EXCEPTION_EXECUTE_HANDLER)
+	{
+		return false;
+	}
+	return true;
+# else
+	// longjmp and clobber warnings. Volatile is required.
+	// http://github.com/weidai11/cryptopp/issues/24
+	// http://stackoverflow.com/q/7721854
+	volatile bool result = true;
+
+	SigHandler oldHandler = signal(SIGILL, SigIllHandlerNEON);
+	if (oldHandler == SIG_ERR)
+		result = false;
+
+	if (setjmp(s_jmpNoNEON))
+		result = false;
+	else
+	{
+		static const uint32_t v1[4] = {1,1,1,1};
+		uint32x4_t x1 = vld1q_u32(v1);
+		static const uint64_t v2[2] = {1,1};
+		uint64x2_t x2 = vld1q_u64(v2);
+
+		uint32x4_t x3 = vdupq_n_u32(0);
+		x3 = vsetq_lane_u32(vgetq_lane_u32(x1,0),x3,0);
+		x3 = vsetq_lane_u32(vgetq_lane_u32(x1,3),x3,3);
+		uint64x2_t x4 = vdupq_n_u64(0);
+		x4 = vsetq_lane_u64(vgetq_lane_u64(x2,0),x4,0);
+		x4 = vsetq_lane_u64(vgetq_lane_u64(x2,1),x4,1);
+	}
+
+	signal(SIGILL, oldHandler);
+	return result;
+# endif
+#else
+	return false;
+#endif  // CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
+}
+
+static bool TryCRC32()
+{
+#if (CRYPTOPP_BOOL_ARM_CRC32_INTRINSICS_AVAILABLE)
+# if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
+	__try
+	{
+		word32 w=0, x=0; word16 y=0; byte z=0;
+		w = __crc32cw(w,x);
+		w = __crc32ch(w,y);
+		w = __crc32cb(w,z);
+	}
+	__except (EXCEPTION_EXECUTE_HANDLER)
+	{
+		return false;
+	}
+	return true;
+# else
+	// longjmp and clobber warnings. Volatile is required.
+	// http://github.com/weidai11/cryptopp/issues/24
+	// http://stackoverflow.com/q/7721854
+	volatile bool result = true;
+
+	SigHandler oldHandler = signal(SIGILL, SigIllHandlerCRC32);
+	if (oldHandler == SIG_ERR)
+		result = false;
+
+	if (setjmp(s_jmpNoCRC32))
+		result = false;
+	else
+	{
+		word32 w=0, x=0; word16 y=0; byte z=0;
+		w = __crc32cw(w,x);
+		w = __crc32ch(w,y);
+		w = __crc32cb(w,z);
+	}
+
+	signal(SIGILL, oldHandler);
+	return result;
+# endif
+#else
+	return false;
+#endif  // CRYPTOPP_BOOL_ARM_CRC32_INTRINSICS_AVAILABLE
+}
+
+static bool TryCrypto()
+{
+#if (CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE)
+# if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
+	__try
+	{
+		// AES encrypt and decrypt
+		static const uint8x16_t data = vdupq_n_u8(0), key = vdupq_n_u8(0); 
+		uint8x16_t r1 = vaeseq_u8(data, key);
+		uint8x16_t r2 = vaesdq_u8(data, key);
+
+		// 
+	}
+	__except (EXCEPTION_EXECUTE_HANDLER)
+	{
+		return false;
+	}
+	return true;
+# else
+	// longjmp and clobber warnings. Volatile is required.
+	// http://github.com/weidai11/cryptopp/issues/24
+	// http://stackoverflow.com/q/7721854
+	volatile bool result = true;
+
+	SigHandler oldHandler = signal(SIGILL, SigIllHandlerCrypto);
+	if (oldHandler == SIG_ERR)
+		result = false;
+
+	if (setjmp(s_jmpNoCrypto))
+		result = false;
+	else
+	{
+		static const uint8x16_t data = vdupq_n_u8(0), key = vdupq_n_u8(0); 
+		uint8x16_t r1 = vaeseq_u8(data, key);
+		uint8x16_t r2 = vaesdq_u8(data, key);
+	}
+
+	signal(SIGILL, oldHandler);
+	return result;
+# endif
+#else
+	return false;
+#endif  // CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
+}
 
 #if HAVE_GCC_CONSTRUCTOR1
 void __attribute__ ((constructor (CRYPTOPP_INIT_PRIORITY + 50))) DetectArmFeatures()
@@ -269,43 +455,10 @@ void __attribute__ ((constructor)) DetectArmFeatures()
 void DetectArmFeatures()
 #endif
 {
-#if defined(__linux__) && defined(__aarch64__) // ARM-64
-	const unsigned long hwcaps = getauxval(AT_HWCAP);
-	g_hasNEON = !!(hwcaps & HWCAP_ASIMD);
-# if defined(__ARM_FEATURE_CRC32)
-	g_hasCRC32 = !!(hwcaps & HWCAP_CRC32);
-# else
-	g_hasCRC32 = false;
-# endif
-#elif defined(__linux__) // ARM-32
-	const unsigned long hwcaps = getauxval(AT_HWCAP);
-	g_hasNEON = !!(hwcaps & HWCAP_ARM_NEON);
-# if defined(__ARM_FEATURE_CRC32)
-	g_hasCRC32 = !!(hwcaps & HWCAP_ARM_CRC32);
-# else
-	g_hasCRC32 = false;
-# endif
-#elif defined(__APPLE__)
-	g_hasNEON = true;
-# if defined(__ARM_FEATURE_CRC32)
-	g_hasCRC32 = true;
-# else
-	g_hasCRC32 = false;
-# endif
-# if defined(__ARM_FEATURE_CRYPTO)
-	g_hasCrypto = true;
-# else
-	g_hasCrypto = false;
-# endif
-#elif defined(_WIN32)
-	g_hasNEON = true;
-	g_hasCRC32 = false;
-	g_hasCrypto = false;
-#else
-	g_hasNEON = false;
-	g_hasCRC32 = false;
-	g_hasCrypto = false;
-#endif
+	g_hasNEON = TryNEON();
+	g_hasCRC32 = TryCRC32();
+	g_hasCrypto = TryCrypto();
+
 	*((volatile bool*)&g_ArmDetectionDone) = true;
 }
 
