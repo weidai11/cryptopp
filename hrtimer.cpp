@@ -33,7 +33,7 @@ NAMESPACE_BEGIN(CryptoPP)
 #ifndef CRYPTOPP_IMPORTS
 
 #if defined(CRYPTOPP_WIN32_AVAILABLE)
-inline TimerWord InitializePerformanceCounterFrequency()
+static TimerWord InitializePerformanceCounterFrequency()
 {
 	LARGE_INTEGER freq = {0,0};
 	if (!QueryPerformanceFrequency(&freq))
@@ -83,7 +83,7 @@ double TimerBase::ElapsedTimeAsDouble()
 unsigned long TimerBase::ElapsedTime()
 {
 	double elapsed = ElapsedTimeAsDouble();
-	assert(elapsed <= ULONG_MAX);
+	assert(elapsed <= (double)ULONG_MAX);
 	return (unsigned long)elapsed;
 }
 
