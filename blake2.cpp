@@ -1,11 +1,13 @@
 // blake2.cpp - written and placed in the public domain by Jeffrey Walton and Zooko
 //              Wilcox-O'Hearn. Copyright assigned to the Crypto++ project.
-//              Based on Aumasson, Neves, Wilcox-O’Hearn and Winnerlein's reference BLAKE2
+//              Based on Aumasson, Neves, Wilcox-O'Hearn and Winnerlein's reference BLAKE2
 //              implementation at http://github.com/BLAKE2/BLAKE2.
 
 #include "pch.h"
 #include "config.h"
 #include "cryptlib.h"
+#include "argnames.h"
+#include "algparam.h"
 #include "blake2.h"
 #include "cpu.h"
 
@@ -63,7 +65,8 @@ template<>
 struct CRYPTOPP_NO_VTABLE BLAKE2_IV<false>
 {
 	CRYPTOPP_CONSTANT(IVSIZE = 8);
-	CRYPTOPP_ALIGN_DATA(BLAKE2_DALIGN) static const word32 iv[8];
+	// Always align for NEON and SSE
+	CRYPTOPP_ALIGN_DATA(16) static const word32 iv[8];
 };
 
 const word32 BLAKE2_IV<false>::iv[8] = {
@@ -77,7 +80,8 @@ template<>
 struct CRYPTOPP_NO_VTABLE BLAKE2_IV<true>
 {
 	CRYPTOPP_CONSTANT(IVSIZE = 8);
-	CRYPTOPP_ALIGN_DATA(BLAKE2_DALIGN) static const word64 iv[8];
+	// Always align for NEON and SSE
+	CRYPTOPP_ALIGN_DATA(16) static const word64 iv[8];
 };
 
 const word64 BLAKE2_IV<true>::iv[8] = {
@@ -97,7 +101,8 @@ struct CRYPTOPP_NO_VTABLE BLAKE2_Sigma {};
 template<>
 struct CRYPTOPP_NO_VTABLE BLAKE2_Sigma<false>
 {
-	CRYPTOPP_ALIGN_DATA(BLAKE2_DALIGN) static const byte sigma[10][16];
+	// Always align for NEON and SSE
+	CRYPTOPP_ALIGN_DATA(16) static const byte sigma[10][16];
 };
 
 const byte BLAKE2_Sigma<false>::sigma[10][16] = {
@@ -117,7 +122,8 @@ const byte BLAKE2_Sigma<false>::sigma[10][16] = {
 template<>
 struct CRYPTOPP_NO_VTABLE BLAKE2_Sigma<true>
 {
-	CRYPTOPP_ALIGN_DATA(BLAKE2_DALIGN) static const byte sigma[12][16];
+	// Always align for NEON and SSE
+	CRYPTOPP_ALIGN_DATA(16) static const byte sigma[12][16];
 };
 
 const byte BLAKE2_Sigma<true>::sigma[12][16] = {
@@ -233,22 +239,56 @@ BLAKE2_ParameterBlock<true>::BLAKE2_ParameterBlock(size_t digestLen, size_t keyL
 }
 
 template <class W, bool T_64bit>
-void BLAKE2_Base<W, T_64bit>::UncheckedSetKey(const byte *key, unsigned int length, const CryptoPP::NameValuePairs&)
+void BLAKE2_Base<W, T_64bit>::UncheckedSetKey(const byte *key, unsigned int length, const CryptoPP::NameValuePairs& params)
 {
 	if (key && length)
 	{
-		AlignedSecByteBlock k(BLOCKSIZE);
-		memcpy_s(k, BLOCKSIZE, key, length);
+		AlignedSecByteBlock temp(BLOCKSIZE);
+		memcpy_s(temp, BLOCKSIZE, key, length);
 
 		const size_t rem = BLOCKSIZE - length;
 		if (rem)
-			memset(k+length, 0x00, rem);
+			memset(temp+length, 0x00, rem);
 
-		m_key.swap(k);
+		m_key.swap(temp);
 	}
 	else
 	{
 		m_key.resize(0);
+	}
+
+	// Zero everything except the two trailing strings
+	ParameterBlock& block = *m_block;
+	const size_t head = sizeof(block) - sizeof(block.personalization) - sizeof(block.salt);
+	memset(m_block.data(), 0x00, head);
+
+	block.keyLength = (byte)length;
+	block.digestLength = (byte)params.GetIntValueWithDefault(Name::DigestSize(), DIGESTSIZE);
+	block.fanout = block.depth = 1;
+
+	ConstByteArrayParameter t;
+	if (params.GetValue(Name::Salt(), t))
+	{
+		memcpy_s(block.salt, sizeof(block.salt), t.begin(), t.size());
+		const size_t rem = sizeof(block.salt) - t.size();
+		if (rem)
+			memset(block.salt+rem, 0x00, rem);
+	}
+	else
+	{
+		memset(block.salt, 0x00, sizeof(block.salt));
+	}
+
+	if (params.GetValue(Name::Personalization(), t))
+	{
+		memcpy_s(block.personalization, sizeof(block.personalization), t.begin(), t.size());
+		const size_t rem = sizeof(block.personalization) - t.size();
+		if (rem)
+			memset(block.personalization+rem, 0x00, rem);
+	}
+	else
+	{
+		memset(block.personalization, 0x00, sizeof(block.personalization));
 	}
 }
 
@@ -271,13 +311,15 @@ BLAKE2_Base<W, T_64bit>::BLAKE2_Base(bool treeMode, unsigned int digestSize) : m
 template <class W, bool T_64bit>
 BLAKE2_Base<W, T_64bit>::BLAKE2_Base(const byte *key, size_t keyLength, const byte* salt, size_t saltLength,
 	const byte* personalization, size_t personalizationLength, bool treeMode, unsigned int digestSize)
-	: m_block(ParameterBlock(digestSize, keyLength, salt, saltLength,
-	  personalization, personalizationLength)), m_digestSize(digestSize), m_treeMode(treeMode)
+	: m_digestSize(digestSize), m_treeMode(treeMode)
 {
 	this->ThrowIfInvalidKeyLength(keyLength);
 	this->ThrowIfInvalidTruncatedSize(digestSize);
+	ThrowIfInvalidSalt<T_64bit>(saltLength);
+	ThrowIfInvalidPersonalization<T_64bit>(personalizationLength);
 
-	UncheckedSetKey(key, static_cast<unsigned int>(keyLength), g_nullNameValuePairs);
+	UncheckedSetKey(key, static_cast<unsigned int>(keyLength), MakeParameters(Name::DigestSize(),(int)digestSize)(Name::TreeMode(),treeMode, false)
+		(Name::Salt(), ConstByteArrayParameter(salt, saltLength))(Name::Personalization(), ConstByteArrayParameter(personalization, personalizationLength)));
 	Restart();
 }
 
@@ -285,7 +327,7 @@ template <class W, bool T_64bit>
 void BLAKE2_Base<W, T_64bit>::Restart()
 {
 	static const W zero[2] = {0,0};
-	Restart(m_block, zero);
+	Restart(*m_block, zero);
 }
 
 template <class W, bool T_64bit>
@@ -293,22 +335,23 @@ void BLAKE2_Base<W, T_64bit>::Restart(const BLAKE2_ParameterBlock<T_64bit>& bloc
 {
 	// We take a parameter block as a parameter to allow customized state.
 	// Avoid the copy of the parameter block when we are passing our own block.
-	if (&block != &m_block)
+	if (&block != m_block.data())
 	{
-		m_block = block;
-		m_block.digestLength = (byte)m_digestSize;
-		m_block.keyLength = (byte)m_key.size();
+		memcpy_s(m_block, sizeof(*m_block), &block, sizeof(block));
+		(*m_block).digestLength = (byte)m_digestSize;
+		(*m_block).keyLength = (byte)m_key.size();
 	}
 
-	m_state.t[0] = m_state.t[1] = 0, m_state.f[0] = m_state.f[1] = 0, m_state.length = 0;
+	State& state = *m_state;
+	state.t[0] = state.t[1] = 0, state.f[0] = state.f[1] = 0, state.length = 0;
 
 	if (counter != NULL)
 	{
-		m_state.t[0] = counter[0];
-		m_state.t[1] = counter[1];
+		state.t[0] = counter[0];
+		state.t[1] = counter[1];
 	}
 
-	PutBlock<W, LittleEndian, true> put(&m_block, m_state.h);
+	PutBlock<W, LittleEndian, true> put(m_block, state.h);
 	put(BLAKE2_IV<T_64bit>::iv[0])(BLAKE2_IV<T_64bit>::iv[1])(BLAKE2_IV<T_64bit>::iv[2])(BLAKE2_IV<T_64bit>::iv[3]);
 	put(BLAKE2_IV<T_64bit>::iv[4])(BLAKE2_IV<T_64bit>::iv[5])(BLAKE2_IV<T_64bit>::iv[6])(BLAKE2_IV<T_64bit>::iv[7]);
 
@@ -321,63 +364,64 @@ void BLAKE2_Base<W, T_64bit>::Restart(const BLAKE2_ParameterBlock<T_64bit>& bloc
 template <class W, bool T_64bit>
 void BLAKE2_Base<W, T_64bit>::Update(const byte *input, size_t length)
 {
-	if (m_state.length + length > BLOCKSIZE)
+	State& state = *m_state;
+	if (state.length + length > BLOCKSIZE)
 	{
 		// Complete current block
-		const size_t fill = BLOCKSIZE - m_state.length;
-		memcpy_s(&m_state.buffer[m_state.length], fill, input, fill);
+		const size_t fill = BLOCKSIZE - state.length;
+		memcpy_s(&state.buffer[state.length], fill, input, fill);
 
 		IncrementCounter();
-		Compress(m_state.buffer);
-		m_state.length = 0;
+		Compress(state.buffer);
+		state.length = 0;
 
-		length -= fill;
-		input += fill;
+		length -= fill, input += fill;
 
 		// Compress in-place to avoid copies
 		while (length > BLOCKSIZE)
 		{
 			IncrementCounter();
 			Compress(input);
-			length -= BLOCKSIZE;
-			input += BLOCKSIZE;
+			length -= BLOCKSIZE, input += BLOCKSIZE;
 		}
 	}
 
 	if (input && length)
 	{
-		memcpy_s(&m_state.buffer[m_state.length], BLOCKSIZE - m_state.length, input, length);
-		m_state.length += static_cast<unsigned int>(length);
+		memcpy_s(&state.buffer[state.length], BLOCKSIZE - state.length, input, length);
+		state.length += static_cast<unsigned int>(length);
 	}
 }
 
 template <class W, bool T_64bit>
 void BLAKE2_Base<W, T_64bit>::TruncatedFinal(byte *hash, size_t size)
 {
+	State& state = *m_state;
+
 	// Set last block unconditionally
-	m_state.f[0] = static_cast<W>(-1);
+	state.f[0] = static_cast<W>(-1);
 
 	// Set last node if tree mode
 	if (m_treeMode)
-		m_state.f[1] = static_cast<W>(-1);
+		state.f[1] = static_cast<W>(-1);
 
 	// Increment counter for tail bytes only
-	IncrementCounter(m_state.length);
+	IncrementCounter(state.length);
 
-	memset(m_state.buffer + m_state.length, 0x00, BLOCKSIZE - m_state.length);
-	Compress(m_state.buffer);
+	memset(state.buffer + state.length, 0x00, BLOCKSIZE - state.length);
+	Compress(state.buffer);
 
 	if (size >= DIGESTSIZE)
 	{
 		// Write directly to the caller buffer
 		PutBlock<W, LittleEndian, false> put(NULL, hash);
-		put(m_state.h[0])(m_state.h[1])(m_state.h[2])(m_state.h[3])(m_state.h[4])(m_state.h[5])(m_state.h[6])(m_state.h[7]);
+		put(state.h[0])(state.h[1])(state.h[2])(state.h[3])(state.h[4])(state.h[5])(state.h[6])(state.h[7]);
 	}
 	else
 	{
 		FixedSizeAlignedSecBlock<byte, DIGESTSIZE, CRYPTOPP_BOOL_ALIGN16> buffer;
 		PutBlock<W, LittleEndian, true> put(NULL, buffer);
-		put(m_state.h[0])(m_state.h[1])(m_state.h[2])(m_state.h[3])(m_state.h[4])(m_state.h[5])(m_state.h[6])(m_state.h[7]);
+		put(state.h[0])(state.h[1])(state.h[2])(state.h[3])(state.h[4])(state.h[5])(state.h[6])(state.h[7]);
 
 		memcpy_s(hash, DIGESTSIZE, buffer, size);
 	}
@@ -388,8 +432,9 @@ void BLAKE2_Base<W, T_64bit>::TruncatedFinal(byte *hash, size_t size)
 template <class W, bool T_64bit>
 void BLAKE2_Base<W, T_64bit>::IncrementCounter(size_t count)
 {
-	m_state.t[0] += static_cast<W>(count);
-	m_state.t[1] += !!(m_state.t[0] < count);
+	State& state = *m_state;
+	state.t[0] += static_cast<W>(count);
+	state.t[1] += !!(state.t[0] < count);
 }
 
 template <>
@@ -397,7 +442,7 @@ void BLAKE2_Base<word64, true>::Compress(const byte *input)
 {
 	// Selects the most advanced implmentation at runtime
 	static const pfnCompress64 s_pfn = InitializeCompress64Fn();
-	s_pfn(input, m_state);
+	s_pfn(input, *m_state);
 }
 
 template <>
@@ -405,7 +450,7 @@ void BLAKE2_Base<word32, false>::Compress(const byte *input)
 {
 	// Selects the most advanced implmentation at runtime
 	static const pfnCompress32 s_pfn = InitializeCompress32Fn();
-	s_pfn(input, m_state);
+	s_pfn(input, *m_state);
 }
 
 void BLAKE2_CXX_Compress64(const byte* input, BLAKE2_State<word64, true>& state)
@@ -3387,8 +3432,8 @@ static void BLAKE2_NEON_Compress32(const byte* input, BLAKE2_State<word32, false
   assert(IsAlignedOn(&state.h[4],GetAlignmentOf<uint32x4_t>()));
   assert(IsAlignedOn(&state.t[0],GetAlignmentOf<uint32x4_t>()));
 
-  CRYPTOPP_ALIGN_DATA(BLAKE2_DALIGN) uint32_t m0[4], m1[4], m2[4], m3[4], m4[4], m5[4], m6[4], m7[4];
-  CRYPTOPP_ALIGN_DATA(BLAKE2_DALIGN) uint32_t m8[4], m9[4], m10[4], m11[4], m12[4], m13[4], m14[4], m15[4];
+  CRYPTOPP_ALIGN_DATA(16) uint32_t m0[4], m1[4], m2[4], m3[4], m4[4], m5[4], m6[4], m7[4];
+  CRYPTOPP_ALIGN_DATA(16) uint32_t m8[4], m9[4], m10[4], m11[4], m12[4], m13[4], m14[4], m15[4];
 
   GetBlock<word32, LittleEndian, true> get(input);
   get(m0[0])(m1[0])(m2[0])(m3[0])(m4[0])(m5[0])(m6[0])(m7[0])(m8[0])(m9[0])(m10[0])(m11[0])(m12[0])(m13[0])(m14[0])(m15[0]);

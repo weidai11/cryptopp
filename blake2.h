@@ -1,6 +1,6 @@
 // blake2.h - written and placed in the public domain by Jeffrey Walton and Zooko
 //            Wilcox-O'Hearn. Copyright assigned to the Crypto++ project.
-//            Based on Aumasson, Neves, Wilcox-O’Hearn and Winnerlein's reference BLAKE2
+//            Based on Aumasson, Neves, Wilcox-O'Hearn and Winnerlein's reference BLAKE2
 //            implementation at http://github.com/BLAKE2/BLAKE2.
 
 //! \file blake2.h
@@ -23,17 +23,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-// Can't use GetAlignmentOf<W>() because its not a constant expression. GCC has
-// some bugs spanning 4.0 through 4.9, so we can't use a template parameter with
-// CRYPTOPP_CONSTANT, either. Also see http://stackoverflow.com/q/36642315.
-#if (CRYPTOPP_BOOL_ALIGN16 || CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE)
-# define BLAKE2_DALIGN 16
-#elif defined(_M_X64) || defined(__LP64__) || defined(__x86_64__) || defined(__amd64__) || defined(__aarch64__)
-# define BLAKE2_DALIGN 8
-#else
-# define BLAKE2_DALIGN 4
-#endif
-
 //! \class BLAKE2_Info
 //! \brief BLAKE2 hash information
 //! \tparam T_64bit flag indicating 64-bit
@@ -49,7 +38,6 @@ struct CRYPTOPP_NO_VTABLE BLAKE2_Info : public VariableKeyLength<(T_64bit ? 64 :
 	CRYPTOPP_CONSTANT(DIGESTSIZE = (T_64bit ? 64 : 32))
 	CRYPTOPP_CONSTANT(SALTSIZE = (T_64bit ? 16 : 8))
 	CRYPTOPP_CONSTANT(PERSONALIZATIONSIZE = (T_64bit ? 16 : 8))
-	CRYPTOPP_CONSTANT(ALIGNSIZE = BLAKE2_DALIGN);
 
 	static const char *StaticAlgorithmName() {return (T_64bit ? "BLAKE2b" : "BLAKE2s");}
 };
@@ -72,12 +60,6 @@ struct CRYPTOPP_NO_VTABLE BLAKE2_ParameterBlock<true>
 	CRYPTOPP_CONSTANT(DIGESTSIZE = BLAKE2_Info<true>::DIGESTSIZE);
 	CRYPTOPP_CONSTANT(PERSONALIZATIONSIZE = BLAKE2_Info<true>::PERSONALIZATIONSIZE);
 
-	~BLAKE2_ParameterBlock()
-	{
-		// Easier than SecBlock<ParameterBlock> or using an AlignedAllocatorWithCleanup
-		SecureWipeBuffer(reinterpret_cast<byte*>(this), sizeof(*this));
-	};
-
 	BLAKE2_ParameterBlock()
 	{
 		memset(this, 0x00, sizeof(*this));
@@ -96,7 +78,6 @@ struct CRYPTOPP_NO_VTABLE BLAKE2_ParameterBlock<true>
 	BLAKE2_ParameterBlock(size_t digestSize, size_t keyLength, const byte* salt, size_t saltLength,
 		const byte* personalization, size_t personalizationLength);
 
-	CRYPTOPP_ALIGN_DATA(BLAKE2_DALIGN)
 	byte digestLength;
 	byte keyLength, fanout, depth;
 	byte leafLength[4];
@@ -113,12 +94,6 @@ struct CRYPTOPP_NO_VTABLE BLAKE2_ParameterBlock<false>
 	CRYPTOPP_CONSTANT(SALTSIZE = BLAKE2_Info<false>::SALTSIZE);
 	CRYPTOPP_CONSTANT(DIGESTSIZE = BLAKE2_Info<false>::DIGESTSIZE);
 	CRYPTOPP_CONSTANT(PERSONALIZATIONSIZE = BLAKE2_Info<false>::PERSONALIZATIONSIZE);
-
-	~BLAKE2_ParameterBlock()
-	{
-		// Easier than SecBlock<ParameterBlock> or using an AlignedAllocatorWithCleanup
-		SecureWipeBuffer(reinterpret_cast<byte*>(this), sizeof(*this));
-	};
 
 	BLAKE2_ParameterBlock()
 	{
@@ -138,7 +113,6 @@ struct CRYPTOPP_NO_VTABLE BLAKE2_ParameterBlock<false>
 	BLAKE2_ParameterBlock(size_t digestSize, size_t keyLength, const byte* salt, size_t saltLength,
 		const byte* personalization, size_t personalizationLength);
 
-	CRYPTOPP_ALIGN_DATA(BLAKE2_DALIGN)
 	byte digestLength;
 	byte keyLength, fanout, depth;
 	byte leafLength[4];
@@ -157,14 +131,7 @@ struct CRYPTOPP_NO_VTABLE BLAKE2_ParameterBlock<false>
 template <class W, bool T_64bit>
 struct CRYPTOPP_NO_VTABLE BLAKE2_State
 {
-	// CRYPTOPP_CONSTANT(ALIGNSIZE = BLAKE2_Info<T_64bit>::ALIGNSIZE);
 	CRYPTOPP_CONSTANT(BLOCKSIZE = BLAKE2_Info<T_64bit>::BLOCKSIZE);
-
-	~BLAKE2_State()
-	{
-		// Easier than SecBlock<State> or using an AlignedAllocatorWithCleanup
-		SecureWipeBuffer(reinterpret_cast<byte*>(this), sizeof(*this));
-	};
 
 	BLAKE2_State()
 	{
@@ -175,11 +142,9 @@ struct CRYPTOPP_NO_VTABLE BLAKE2_State
 	}
 
 	// SSE2, SSE4 and NEON depend upon t[] and f[] being side-by-side
-	CRYPTOPP_ALIGN_DATA(BLAKE2_DALIGN)
-	W h[8];
-	W t[2], f[2];
-	byte  buffer[BLOCKSIZE];
+	W h[8], t[2], f[2];
 	size_t length;
+	byte  buffer[BLOCKSIZE];
 };
 
 //! \class BLAKE2_Base
@@ -198,7 +163,6 @@ public:
 
 	CRYPTOPP_CONSTANT(DIGESTSIZE = BLAKE2_Info<T_64bit>::DIGESTSIZE);
 	CRYPTOPP_CONSTANT(BLOCKSIZE = BLAKE2_Info<T_64bit>::BLOCKSIZE);
-	CRYPTOPP_CONSTANT(ALIGNSIZE = BLAKE2_Info<T_64bit>::ALIGNSIZE);
 
 	typedef BLAKE2_ParameterBlock<T_64bit> ParameterBlock;
 	typedef BLAKE2_State<W, T_64bit> State;
@@ -217,7 +181,7 @@ public:
 	std::string AlgorithmName() const {return std::string(StaticAlgorithmName()) + "-" + IntToString(this->DigestSize()*8);}
 
 	unsigned int DigestSize() const {return m_digestSize;}
-	unsigned int OptimalDataAlignment() const {return ALIGNSIZE;}
+	unsigned int OptimalDataAlignment() const {return (CRYPTOPP_BOOL_ALIGN16 ? 16 : GetAlignmentOf<W>());}
 
 	void Update(const byte *input, size_t length);
 	void Restart();
@@ -257,8 +221,8 @@ protected:
 	void UncheckedSetKey(const byte* key, unsigned int length, const CryptoPP::NameValuePairs& params);
 
 private:
-	State m_state;
-	ParameterBlock m_block;
+	FixedSizeAlignedSecBlock<State,1> m_state;
+	FixedSizeAlignedSecBlock<ParameterBlock,1> m_block;
 	AlignedSecByteBlock m_key;
 	word32 m_digestSize;
 	bool m_treeMode;
