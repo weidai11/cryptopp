@@ -3,7 +3,7 @@
 
 #include "config.h"
 
-#ifdef SOCKETS_AVAILABLE
+#if !defined(NO_OS_DEPENDENCE) && defined(SOCKETS_AVAILABLE)
 
 #include "filters.h"
 #include "hrtimer.h"

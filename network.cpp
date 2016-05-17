@@ -4,7 +4,7 @@
 
 #include "network.h"
 
-#ifdef SOCKETS_AVAILABLE
+#if !defined(NO_OS_DEPENDENCE) && defined(SOCKETS_AVAILABLE)
 
 #include "wait.h"
 
