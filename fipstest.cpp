@@ -14,7 +14,7 @@
 
 // Simply disable CRYPTOPP_WIN32_AVAILABLE for Windows Phone and Windows Store apps
 #ifdef CRYPTOPP_WIN32_AVAILABLE
-# if defined(WINAPI_FAMILY) && defined(WINAPI_FAMILY_PARTITION)
+# if defined(WINAPI_FAMILY)
 #   if !(WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP))
 #	  undef CRYPTOPP_WIN32_AVAILABLE
 #   endif
