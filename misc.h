@@ -12,7 +12,7 @@
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(push)
-# pragma warning(disable: 4146)
+# pragma warning(disable: 4146 4514)
 # if (CRYPTOPP_MSC_VERSION >= 1400)
 #  pragma warning(disable: 6326)
 # endif
@@ -218,7 +218,9 @@ struct NewObject
 //!   <tt>_ReadWriteBarrier()</tt> or <tt>__asm__("" ::: "memory")</tt>.
 #define MEMORY_BARRIER ...
 #else
-#if (_MSC_VER >= 1400)
+#if defined(CRYPTOPP_CXX11_ATOMICS)
+# define MEMORY_BARRIER() std::atomic_thread_fence(std::memory_order_acq_rel)
+#elif (_MSC_VER >= 1400)
 # pragma intrinsic(_ReadWriteBarrier)
 # define MEMORY_BARRIER() _ReadWriteBarrier()
 #elif defined(__INTEL_COMPILER)
@@ -254,6 +256,33 @@ private:
 //! \brief Return a reference to the inner Singleton object
 //! \details Ref() is used to create the object using the object factory. The
 //!   object is only created once with the limitations discussed in the class documentation.
+#if defined(CRYPTOPP_CXX11_ATOMICS)
+template <class T, class F, int instance>
+  const T & Singleton<T, F, instance>::Ref(CRYPTOPP_NOINLINE_DOTDOTDOT) const
+{
+	static volatile simple_ptr<T> s_pObject;
+	T *p = s_pObject.m_p;
+	std::atomic_thread_fence(std::memory_order_acquire);
+
+	if (p)
+		return *p;
+
+	T *newObject = m_objectFactory();
+	p = s_pObject.m_p;
+	std::atomic_thread_fence(std::memory_order_acquire);
+
+	if (p)
+	{
+		delete newObject;
+		return *p;
+	}
+
+	s_pObject.m_p = newObject;
+	std::atomic_thread_fence(std::memory_order_release);
+
+	return *newObject;
+}
+#else
 template <class T, class F, int instance>
 const T & Singleton<T, F, instance>::Ref(CRYPTOPP_NOINLINE_DOTDOTDOT) const
 {
@@ -279,6 +308,7 @@ const T & Singleton<T, F, instance>::Ref(CRYPTOPP_NOINLINE_DOTDOTDOT) const
 
 	return *newObject;
 }
+#endif
 
 // ************** misc functions ***************
 
@@ -1070,6 +1100,36 @@ template<> inline void SecureWipeBuffer(word64 *buf, size_t n)
 
 #endif	// #if (_MSC_VER >= 1400 || defined(__GNUC__)) && (CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X86)
 
+#if (_MSC_VER >= 1700) && defined(_M_ARM)
+template<> inline void SecureWipeBuffer(byte *buf, size_t n)
+{
+	char *p = reinterpret_cast<char*>(buf+n);
+	while (n--)
+		__iso_volatile_store8(--p, 0);
+}
+
+template<> inline void SecureWipeBuffer(word16 *buf, size_t n)
+{
+	short *p = reinterpret_cast<short*>(buf+n);
+	while (n--)
+		__iso_volatile_store16(--p, 0);
+}
+
+template<> inline void SecureWipeBuffer(word32 *buf, size_t n)
+{
+	int *p = reinterpret_cast<int*>(buf+n);
+	while (n--)
+		__iso_volatile_store32(--p, 0);
+}
+
+template<> inline void SecureWipeBuffer(word64 *buf, size_t n)
+{
+	__int64 *p = reinterpret_cast<__int64*>(buf+n);
+	while (n--)
+		__iso_volatile_store64(--p, 0);
+}
+#endif
+
 //! \brief Sets each element of an array to 0
 //! \param buf an array of elements
 //! \param n the number of elements in the array
@@ -1858,7 +1918,7 @@ inline word64 UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, co
 inline void UnalignedbyteNonTemplate(ByteOrder order, byte *block, byte value, const byte *xorBlock)
 {
 	CRYPTOPP_UNUSED(order);
-	block[0] = xorBlock ? (value ^ xorBlock[0]) : value;
+	block[0] = (byte)(xorBlock ? (value ^ xorBlock[0]) : value);
 }
 
 inline void UnalignedbyteNonTemplate(ByteOrder order, byte *block, word16 value, const byte *xorBlock)

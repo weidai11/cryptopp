@@ -3,13 +3,14 @@
 #include "pch.h"
 
 #include "network.h"
+
+#if !defined(NO_OS_DEPENDENCE) && defined(SOCKETS_AVAILABLE)
+
 #include "wait.h"
 
 #define CRYPTOPP_TRACE_NETWORK 0
 
 NAMESPACE_BEGIN(CryptoPP)
-
-#ifdef HIGHRES_TIMER_AVAILABLE
 
 lword LimitedBandwidth::ComputeCurrentTransceiveLimit()
 {
@@ -548,6 +549,6 @@ lword NetworkSink::DoFlush(unsigned long maxTime, size_t targetSize)
 	return totalFlushSize;
 }
 
-#endif	// #ifdef HIGHRES_TIMER_AVAILABLE
-
 NAMESPACE_END
+
+#endif	// #ifdef SOCKETS_AVAILABLE
