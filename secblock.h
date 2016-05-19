@@ -304,7 +304,7 @@ public:
 	FixedSizeAllocatorWithCleanup() : m_allocated(false) {}
 
 	//! \brief Allocates a block of memory
-	//! \param size size of the memory block
+	//! \param size size of the memory block, in bytes
 	//! \details FixedSizeAllocatorWithCleanup provides a fixed-size, stack-
 	//!   based allocation at compile time. If size is less than or equal to
 	//!   S, then a pointer to the static array is returned.
@@ -314,7 +314,8 @@ public:
 	//!   obsoleted. If a suitable allocator is \a not available, as with a
 	//!   NullAllocator, then the function returns NULL and a runtime error
 	//!   eventually occurs.
-	//! \note size is the count of elements, and not the number of bytes.
+	//! \note size is the number of bytes, and not count of elements. This is somewhat unique among
+	//!   library allocators, and its due to the interactions with <tt>NullAllocator<T></tt>.
 	//! \sa reallocate(), SecBlockWithHint
 	pointer allocate(size_type size)
 	{
@@ -330,7 +331,7 @@ public:
 	}
 
 	//! \brief Allocates a block of memory
-	//! \param size size of the memory block
+	//! \param size size of the memory block, in bytes
 	//! \param hint an unused hint
 	//! \details FixedSizeAllocatorWithCleanup provides a fixed-size, stack-
 	//!   based allocation at compile time. If size is less than or equal to
@@ -341,7 +342,8 @@ public:
 	//!   obsoleted. If a suitable allocator is \a not available, as with a
 	//!   NullAllocator, then the function returns NULL and a runtime error
 	//!   eventually occurs.
-	//! \note size is the count of elements, and not the number of bytes.
+	//! \note size is the number of bytes, and not count of elements. This is somewhat unique among
+	//!   library allocators, and its due to the interactions with <tt>NullAllocator<T></tt>.
 	//! \sa reallocate(), SecBlockWithHint
 	pointer allocate(size_type size, const void *hint)
 	{
