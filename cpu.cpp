@@ -174,6 +174,7 @@ static bool TrySSE2()
 
 bool g_x86DetectionDone = false;
 bool g_hasMMX = false, g_hasISSE = false, g_hasSSE2 = false, g_hasSSSE3 = false, g_hasSSE4 = false, g_hasAESNI = false, g_hasCLMUL = false, g_isP4 = false, g_hasRDRAND = false, g_hasRDSEED = false;
+bool g_hasPadlockRNG = false, g_hasPadlockACE = false, g_hasPadlockACE2 = false, g_hasPadlockPHE = false, g_hasPadlockPMM = false;
 word32 g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
 
 static inline bool IsIntel(const word32 output[4])
@@ -186,10 +187,18 @@ static inline bool IsIntel(const word32 output[4])
 
 static inline bool IsAMD(const word32 output[4])
 {
-	// This is the "AuthenticAMD" string
+	// This is the "AuthenticAMD" string. Some early K5's can return "AMDisbetter!"
 	return (output[1] /*EBX*/ == 0x68747541) &&
-		(output[2] /*ECX*/ == 0x69746E65) &&
-		(output[3] /*EDX*/ == 0x444D4163);
+		(output[2] /*ECX*/ == 0x444D4163) &&
+		(output[3] /*EDX*/ == 0x69746E65);
+}
+
+static inline bool IsVIA(const word32 output[4])
+{
+	// This is the "CentaurHauls" string. Some non-PadLock can return "VIA VIA VIA ".
+	return (output[1] /*EBX*/ == 0x746e6543) &&
+		(output[2] /*ECX*/ == 0x736c7561) &&
+		(output[3] /*EDX*/ == 0x48727561);
 }
 
 #if HAVE_GCC_CONSTRUCTOR1
@@ -227,10 +236,11 @@ void DetectX86Features()
 		}
 	}
 
-	static const unsigned int RDRAND_FLAG = (1 << 30);
-	static const unsigned int RDSEED_FLAG = (1 << 18);
 	if (IsIntel(cpuid))
 	{
+		static const unsigned int RDRAND_FLAG = (1 << 30);
+		static const unsigned int RDSEED_FLAG = (1 << 18);
+
 		g_isP4 = ((cpuid1[0] >> 8) & 0xf) == 0xf;
 		g_cacheLineSize = 8 * GETBYTE(cpuid1[1], 1);
 		g_hasRDRAND = !!(cpuid1[2] /*ECX*/ & RDRAND_FLAG);
@@ -244,9 +254,42 @@ void DetectX86Features()
 	}
 	else if (IsAMD(cpuid))
 	{
+		static const unsigned int RDRAND_FLAG = (1 << 30);
+
+		CpuId(0x01, cpuid);
+		g_hasRDRAND = !!(cpuid[2] /*ECX*/ & RDRAND_FLAG);
+
 		CpuId(0x80000005, cpuid);
 		g_cacheLineSize = GETBYTE(cpuid[2], 0);
-		g_hasRDRAND = !!(cpuid[2] /*ECX*/ & RDRAND_FLAG);
+	}
+	else if (IsVIA(cpuid))
+	{
+		static const unsigned int  RNG_FLAGS = (0x3 << 2);
+		static const unsigned int  ACE_FLAGS = (0x3 << 6);
+		static const unsigned int ACE2_FLAGS = (0x3 << 8);
+		static const unsigned int  PHE_FLAGS = (0x3 << 10);
+		static const unsigned int  PMM_FLAGS = (0x3 << 12);
+
+		CpuId(0xC0000000, cpuid);
+		if (cpuid[0] < 0xC0000001)
+		{
+			// No extended features
+			g_hasPadlockRNG  = false;
+			g_hasPadlockACE  = false;
+			g_hasPadlockACE2 = false;
+			g_hasPadlockPHE  = false;
+			g_hasPadlockPMM  = false;
+		}
+		else
+		{
+			// Extended features available
+			CpuId(0xC0000001, cpuid);
+			g_hasPadlockRNG  = !!(cpuid[3] /*EDX*/ & RNG_FLAGS);
+			g_hasPadlockACE  = !!(cpuid[3] /*EDX*/ & ACE_FLAGS);
+			g_hasPadlockACE2 = !!(cpuid[3] /*EDX*/ & ACE2_FLAGS);
+			g_hasPadlockPHE  = !!(cpuid[3] /*EDX*/ & PHE_FLAGS);
+			g_hasPadlockPMM  = !!(cpuid[3] /*EDX*/ & PMM_FLAGS);
+		}
 	}
 
 	if (!g_cacheLineSize)
@@ -417,7 +460,7 @@ static bool TryAES()
 	__try
 	{
 		// AES encrypt and decrypt
-		static const uint8x16_t data = vdupq_n_u8(0), key = vdupq_n_u8(0); 
+		static const uint8x16_t data = vdupq_n_u8(0), key = vdupq_n_u8(0);
 		uint8x16_t r1 = vaeseq_u8(data, key);
 		uint8x16_t r2 = vaesdq_u8(data, key);
 		CRYPTOPP_UNUSED(r1), CRYPTOPP_UNUSED(r2);
@@ -440,7 +483,7 @@ static bool TryAES()
 		result = false;
 	else
 	{
-		static const uint8x16_t data = vdupq_n_u8(0), key = vdupq_n_u8(0); 
+		static const uint8x16_t data = vdupq_n_u8(0), key = vdupq_n_u8(0);
 		uint8x16_t r1 = vaeseq_u8(data, key);
 		uint8x16_t r2 = vaesdq_u8(data, key);
 		CRYPTOPP_UNUSED(r1), CRYPTOPP_UNUSED(r2);
@@ -460,10 +503,10 @@ static bool TrySHA1()
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
 	__try
 	{
-		static const uint32x4_t data = vdupq_n_u32(0); 
+		static const uint32x4_t data = vdupq_n_u32(0);
 		static const uint32_t hash = 0x0;
 
-	    uint32x4_t r1 = vsha1cq_u32 (data, hash, data);
+		uint32x4_t r1 = vsha1cq_u32 (data, hash, data);
 		uint32x4_t r2 = vsha1mq_u32 (data, hash, data);
 		uint32x4_t r3 = vsha1pq_u32 (data, hash, data);
 		CRYPTOPP_UNUSED(r1), CRYPTOPP_UNUSED(r2), CRYPTOPP_UNUSED(r3);
@@ -486,7 +529,7 @@ static bool TrySHA1()
 		result = false;
 	else
 	{
-		static const uint32x4_t data = vdupq_n_u32(0); 
+		static const uint32x4_t data = vdupq_n_u32(0);
 		static const uint32_t hash = 0x0;
 
 	    uint32x4_t r1 = vsha1cq_u32 (data, hash, data);
@@ -509,7 +552,7 @@ static bool TrySHA2()
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
 	__try
 	{
-		static const uint32x4_t data = vdupq_n_u32(0); 
+		static const uint32x4_t data = vdupq_n_u32(0);
 		static const uint32x4_t hash = vdupq_n_u32(0);
 
 		uint32x4_t r1 = vsha256hq_u32 (hash, hash, data);
@@ -536,7 +579,7 @@ static bool TrySHA2()
 		result = false;
 	else
 	{
-		static const uint32x4_t data = vdupq_n_u32(0); 
+		static const uint32x4_t data = vdupq_n_u32(0);
 		static const uint32x4_t hash = vdupq_n_u32(0);
 
 		uint32x4_t r1 = vsha256hq_u32 (hash, hash, data);
