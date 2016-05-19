@@ -3933,6 +3933,7 @@ static void BLAKE2_NEON_Compress32(const byte* input, BLAKE2_State<word32, false
 
 static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>& state)
 {
+  assert(IsAlignedOn(input,GetAlignmentOf<uint8x16_t>()));
   assert(IsAlignedOn(&state.h[0],GetAlignmentOf<uint64x2_t>()));
   assert(IsAlignedOn(&state.h[4],GetAlignmentOf<uint64x2_t>()));
   assert(IsAlignedOn(&state.t[0],GetAlignmentOf<uint64x2_t>()));

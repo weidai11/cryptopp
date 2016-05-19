@@ -143,8 +143,8 @@ struct CRYPTOPP_NO_VTABLE BLAKE2_State
 
 	// SSE2, SSE4 and NEON depend upon t[] and f[] being side-by-side
 	W h[8], t[2], f[2];
-	size_t length;
 	byte  buffer[BLOCKSIZE];
+	size_t length;
 };
 
 //! \class BLAKE2_Base

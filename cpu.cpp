@@ -94,8 +94,7 @@ bool CpuId(word32 input, word32 output[4])
 	return true;
 #else
 	// longjmp and clobber warnings. Volatile is required.
-	// http://github.com/weidai11/cryptopp/issues/24
-	// http://stackoverflow.com/q/7721854
+	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
 	volatile bool result = true;
 
 	SigHandler oldHandler = signal(SIGILL, SigIllHandlerCPUID);
@@ -149,8 +148,7 @@ static bool TrySSE2()
 	return true;
 #else
 	// longjmp and clobber warnings. Volatile is required.
-	// http://github.com/weidai11/cryptopp/issues/24
-	// http://stackoverflow.com/q/7721854
+	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
 	volatile bool result = true;
 
 	SigHandler oldHandler = signal(SIGILL, SigIllHandlerSSE2);
@@ -262,7 +260,7 @@ void DetectX86Features()
 #elif (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
 
 bool g_ArmDetectionDone = false;
-bool g_hasNEON = false, g_hasCRC32 = false, g_hasCrypto = false;
+bool g_hasNEON = false, g_hasCRC32 = false, g_hasAES = false, g_hasSHA1 = false, g_hasSHA2 = false;
 
 word32 g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
 
@@ -292,10 +290,22 @@ extern "C" {
 		longjmp(s_jmpNoCRC32, 1);
 	}
 
-	static jmp_buf s_jmpNoCrypto;
-	static void SigIllHandlerCrypto(int)
+	static jmp_buf s_jmpNoAES;
+	static void SigIllHandlerAES(int)
 	{
-		longjmp(s_jmpNoCrypto, 1);
+		longjmp(s_jmpNoAES, 1);
+	}
+
+	static jmp_buf s_jmpNoSHA1;
+	static void SigIllHandlerSHA1(int)
+	{
+		longjmp(s_jmpNoSHA1, 1);
+	}
+
+	static jmp_buf s_jmpNoSHA2;
+	static void SigIllHandlerSHA2(int)
+	{
+		longjmp(s_jmpNoSHA2, 1);
 	}
 };
 #endif  // Not CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
@@ -325,8 +335,7 @@ static bool TryNEON()
 	return true;
 # else
 	// longjmp and clobber warnings. Volatile is required.
-	// http://github.com/weidai11/cryptopp/issues/24
-	// http://stackoverflow.com/q/7721854
+	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
 	volatile bool result = true;
 
 	SigHandler oldHandler = signal(SIGILL, SigIllHandlerNEON);
@@ -376,8 +385,7 @@ static bool TryCRC32()
 	return true;
 # else
 	// longjmp and clobber warnings. Volatile is required.
-	// http://github.com/weidai11/cryptopp/issues/24
-	// http://stackoverflow.com/q/7721854
+	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
 	volatile bool result = true;
 
 	SigHandler oldHandler = signal(SIGILL, SigIllHandlerCRC32);
@@ -402,7 +410,7 @@ static bool TryCRC32()
 #endif  // CRYPTOPP_BOOL_ARM_CRC32_INTRINSICS_AVAILABLE
 }
 
-static bool TryCrypto()
+static bool TryAES()
 {
 #if (CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
@@ -412,8 +420,7 @@ static bool TryCrypto()
 		static const uint8x16_t data = vdupq_n_u8(0), key = vdupq_n_u8(0); 
 		uint8x16_t r1 = vaeseq_u8(data, key);
 		uint8x16_t r2 = vaesdq_u8(data, key);
-
-		// 
+		CRYPTOPP_UNUSED(r1), CRYPTOPP_UNUSED(r2);
 	}
 	__except (EXCEPTION_EXECUTE_HANDLER)
 	{
@@ -422,21 +429,121 @@ static bool TryCrypto()
 	return true;
 # else
 	// longjmp and clobber warnings. Volatile is required.
-	// http://github.com/weidai11/cryptopp/issues/24
-	// http://stackoverflow.com/q/7721854
+	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
 	volatile bool result = true;
 
-	SigHandler oldHandler = signal(SIGILL, SigIllHandlerCrypto);
+	SigHandler oldHandler = signal(SIGILL, SigIllHandlerAES);
 	if (oldHandler == SIG_ERR)
 		result = false;
 
-	if (setjmp(s_jmpNoCrypto))
+	if (setjmp(s_jmpNoAES))
 		result = false;
 	else
 	{
 		static const uint8x16_t data = vdupq_n_u8(0), key = vdupq_n_u8(0); 
 		uint8x16_t r1 = vaeseq_u8(data, key);
 		uint8x16_t r2 = vaesdq_u8(data, key);
+		CRYPTOPP_UNUSED(r1), CRYPTOPP_UNUSED(r2);
+	}
+
+	signal(SIGILL, oldHandler);
+	return result;
+# endif
+#else
+	return false;
+#endif  // CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
+}
+
+static bool TrySHA1()
+{
+#if (CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE)
+# if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
+	__try
+	{
+		static const uint32x4_t data = vdupq_n_u32(0); 
+		static const uint32_t hash = 0x0;
+
+	    uint32x4_t r1 = vsha1cq_u32 (data, hash, data);
+		uint32x4_t r2 = vsha1mq_u32 (data, hash, data);
+		uint32x4_t r3 = vsha1pq_u32 (data, hash, data);
+		CRYPTOPP_UNUSED(r1), CRYPTOPP_UNUSED(r2), CRYPTOPP_UNUSED(r3);
+	}
+	__except (EXCEPTION_EXECUTE_HANDLER)
+	{
+		return false;
+	}
+	return true;
+# else
+	// longjmp and clobber warnings. Volatile is required.
+	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
+	volatile bool result = true;
+
+	SigHandler oldHandler = signal(SIGILL, SigIllHandlerSHA1);
+	if (oldHandler == SIG_ERR)
+		result = false;
+
+	if (setjmp(s_jmpNoSHA1))
+		result = false;
+	else
+	{
+		static const uint32x4_t data = vdupq_n_u32(0); 
+		static const uint32_t hash = 0x0;
+
+	    uint32x4_t r1 = vsha1cq_u32 (data, hash, data);
+		uint32x4_t r2 = vsha1mq_u32 (data, hash, data);
+		uint32x4_t r3 = vsha1pq_u32 (data, hash, data);
+		CRYPTOPP_UNUSED(r1), CRYPTOPP_UNUSED(r2), CRYPTOPP_UNUSED(r3);
+	}
+
+	signal(SIGILL, oldHandler);
+	return result;
+# endif
+#else
+	return false;
+#endif  // CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
+}
+
+static bool TrySHA2()
+{
+#if (CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE)
+# if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
+	__try
+	{
+		static const uint32x4_t data = vdupq_n_u32(0); 
+		static const uint32x4_t hash = vdupq_n_u32(0);
+
+		uint32x4_t r1 = vsha256hq_u32 (hash, hash, data);
+		uint32x4_t r2 = vsha256h2q_u32 (hash, hash, data);
+		uint32x4_t r3 = vsha256su0q_u32 (data, data);
+		uint32x4_t r4 = vsha256su1q_u32 (data, data, data);
+		CRYPTOPP_UNUSED(r1), CRYPTOPP_UNUSED(r2), CRYPTOPP_UNUSED(r3), CRYPTOPP_UNUSED(r4);
+	}
+	__except (EXCEPTION_EXECUTE_HANDLER)
+	{
+		return false;
+	}
+	return true;
+# else
+	// longjmp and clobber warnings. Volatile is required.
+	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
+	volatile bool result = true;
+
+	SigHandler oldHandler = signal(SIGILL, SigIllHandlerSHA2);
+	if (oldHandler == SIG_ERR)
+		result = false;
+
+	if (setjmp(s_jmpNoSHA2))
+		result = false;
+	else
+	{
+		static const uint32x4_t data = vdupq_n_u32(0); 
+		static const uint32x4_t hash = vdupq_n_u32(0);
+
+		uint32x4_t r1 = vsha256hq_u32 (hash, hash, data);
+		uint32x4_t r2 = vsha256h2q_u32 (hash, hash, data);
+		uint32x4_t r3 = vsha256su0q_u32 (data, data);
+		uint32x4_t r4 = vsha256su1q_u32 (data, data, data);
+		CRYPTOPP_UNUSED(r1), CRYPTOPP_UNUSED(r2), CRYPTOPP_UNUSED(r3), CRYPTOPP_UNUSED(r4);
 	}
 
 	signal(SIGILL, oldHandler);
@@ -457,7 +564,9 @@ void DetectArmFeatures()
 {
 	g_hasNEON = TryNEON();
 	g_hasCRC32 = TryCRC32();
-	g_hasCrypto = TryCrypto();
+	g_hasAES = TryAES();
+	g_hasSHA1 = TrySHA1();
+	g_hasSHA2 = TrySHA2();
 
 	*((volatile bool*)&g_ArmDetectionDone) = true;
 }
