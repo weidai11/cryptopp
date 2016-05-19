@@ -311,6 +311,16 @@ bool TestSettings()
 
 	cout << "hasMMX == " << hasMMX << ", hasISSE == " << hasISSE << ", hasSSE2 == " << hasSSE2 << ", hasSSSE3 == " << hasSSE4 << ", hasSSE4 == " << hasSSSE3 << ", hasAESNI == " << HasAESNI() << ", hasRDRAND == " << HasRDRAND() << ", hasRDSEED == " << HasRDSEED() << ", hasCLMUL == " << HasCLMUL() << ", isP4 == " << isP4 << ", cacheLineSize == " << cacheLineSize;
 	cout << ", AESNI_INTRINSICS == " << CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE << endl;
+
+#elif (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
+	bool hasNEON = HasNEON();
+	bool hasCRC32 = HasCRC32();
+	bool hasAES = HasAES();
+	bool hasSHA1 = HasSHA1();
+	bool hasSHA2 = HasSHA2();
+
+	cout << "passed:  ";
+	cout << "hasNEON == " << hasNEON << ", hasCRC32 == " << hasCRC32 << ", hasAES == " << hasAES << ", hasSHA1 == " << hasSHA1 << ", hasSHA2 == " << hasSHA2 << endl;
 #endif
 
 	if (!pass)

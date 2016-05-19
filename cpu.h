@@ -240,7 +240,7 @@ inline int GetCacheLineSize()
 #elif (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
 
 extern bool g_ArmDetectionDone;
-extern bool g_hasNEON, g_hasCRC32, g_hasCrypto;
+extern bool g_hasNEON, g_hasCRC32, g_hasAES, g_hasSHA1, g_hasSHA2;
 void CRYPTOPP_API DetectArmFeatures();
 
 //! \brief Determine if an ARM processor has Advanced SIMD available
@@ -271,19 +271,49 @@ inline bool HasCRC32()
 	return g_hasCRC32;
 }
 
-//! \brief Determine if an ARM processor has Crypto available
-//! \returns true if the hardware is capable of Crypto at runtime, false otherwise.
-//! \details Crypto instructions provide access to the processor's AES, SHA-1, SHA-224 and SHA-256 intructions.
-//!   They are provided by ARM C Language Extensions 2.0 (ACLE 2.0) and available under Aarch64
-//!   (ARM-64) and Aarch32 (ARM-32) running on Aarch64 (i.e., an AArch32 execution environment).
+//! \brief Determine if an ARM processor has AES available
+//! \returns true if the hardware is capable of AES at runtime, false otherwise.
+//! \details AES is part of the Crypto extensions from ARM C Language Extensions 2.0 (ACLE 2.0)
+//!   and available under Aarch64 (ARM-64) and Aarch32 (ARM-32) running on Aarch64 (i.e., an
+//!   AArch32 execution environment).
 //! \details Runtime support requires compile time support. When compiling with GCC, you may
 //!   need to compile with <tt>-march=armv8-a+crypto</tt>; while Apple requires
 //!   <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRYPTO</tt> preprocessor macro.
-inline bool HasCrypto()
+inline bool HasAES()
 {
 	if (!g_ArmDetectionDone)
 		DetectArmFeatures();
-	return g_hasCrypto;
+	return g_hasAES;
+}
+
+//! \brief Determine if an ARM processor has SHA1 available
+//! \returns true if the hardware is capable of SHA1 at runtime, false otherwise.
+//! \details SHA1 is part of the Crypto extensions from ARM C Language Extensions 2.0 (ACLE 2.0)
+//!   and available under Aarch64 (ARM-64) and Aarch32 (ARM-32) running on Aarch64 (i.e., an
+//!   AArch32 execution environment).
+//! \details Runtime support requires compile time support. When compiling with GCC, you may
+//!   need to compile with <tt>-march=armv8-a+crypto</tt>; while Apple requires
+//!   <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRYPTO</tt> preprocessor macro.
+inline bool HasSHA1()
+{
+	if (!g_ArmDetectionDone)
+		DetectArmFeatures();
+	return g_hasSHA1;
+}
+
+//! \brief Determine if an ARM processor has SHA2 available
+//! \returns true if the hardware is capable of SHA2 at runtime, false otherwise.
+//! \details SHA2 is part of the Crypto extensions from ARM C Language Extensions 2.0 (ACLE 2.0)
+//!   and available under Aarch64 (ARM-64) and Aarch32 (ARM-32) running on Aarch64 (i.e., an
+//!   AArch32 execution environment).
+//! \details Runtime support requires compile time support. When compiling with GCC, you may
+//!   need to compile with <tt>-march=armv8-a+crypto</tt>; while Apple requires
+//!   <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRYPTO</tt> preprocessor macro.
+inline bool HasSHA2()
+{
+	if (!g_ArmDetectionDone)
+		DetectArmFeatures();
+	return g_hasSHA2;
 }
 
 //! \brief Provides the cache line size at runtime
