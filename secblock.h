@@ -285,13 +285,15 @@ public:
 //! \class FixedSizeAllocatorWithCleanup
 //! \brief Static secure memory block with cleanup
 //! \tparam T class or type
-//! \tparam S fixed-size of the stack-based memory block
+//! \tparam S fixed-size of the stack-based memory block, in bytes
 //! \tparam A AllocatorBase derived class for allocation and cleanup
 //! \details FixedSizeAllocatorWithCleanup provides a fixed-size, stack-
 //!    based allocation at compile time. The class can grow its memory
 //!    block at runtime if a suitable allocator is available. If size
 //!    grows beyond S and a suitable allocator is available, then the
 //!    statically allocated array is obsoleted.
+//! \note The size <tt>S</tt> is the number of bytes, and not count of elements. This is somewhat unique
+//!   among library allocators, and its due to the interactions with <tt>NullAllocator<T></tt>.
 //! \note This allocator can't be used with standard collections because
 //!   they require that all objects of the same allocator type are equivalent.
 template <class T, size_t S, class A = NullAllocator<T>, bool T_Align16 = false>
@@ -761,8 +763,10 @@ public:
 //! \class FixedSizeAlignedSecBlock
 //! \brief Fixed size stack-based SecBlock with 16-byte alignment
 //! \tparam T class or type
-//! \tparam S fixed-size of the stack-based memory block
+//! \tparam S fixed-size of the stack-based memory block, in bytes
 //! \tparam A AllocatorBase derived class for allocation and cleanup
+//! \note The size <tt>S</tt> is the number of bytes, and not count of elements. This is somewhat unique
+//!   among library allocators, and its due to the interactions with <tt>NullAllocator<T></tt>.
 template <class T, unsigned int S, bool T_Align16 = true>
 class FixedSizeAlignedSecBlock : public FixedSizeSecBlock<T, S, FixedSizeAllocatorWithCleanup<T, S, NullAllocator<T>, T_Align16> >
 {
@@ -773,6 +777,8 @@ class FixedSizeAlignedSecBlock : public FixedSizeSecBlock<T, S, FixedSizeAllocat
 //! \tparam T class or type
 //! \tparam S fixed-size of the stack-based memory block
 //! \tparam A AllocatorBase derived class for allocation and cleanup
+//! \note The size <tt>S</tt> is the number of bytes, and not count of elements. This is somewhat unique
+//!   among library allocators, and its due to the interactions with <tt>NullAllocator<T></tt>.
 template <class T, unsigned int S, class A = FixedSizeAllocatorWithCleanup<T, S, AllocatorWithCleanup<T> > >
 class SecBlockWithHint : public SecBlock<T, A>
 {
