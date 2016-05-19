@@ -104,7 +104,7 @@ struct CRYPTOPP_NO_VTABLE BLAKE2_ParameterBlock<false>
 
 	BLAKE2_ParameterBlock(size_t digestSize)
 	{
-		assert(digestSize <= BLAKE2_Info<false>::DIGESTSIZE);
+		assert(digestSize <= DIGESTSIZE);
 		memset(this, 0x00, sizeof(*this));
 		digestLength = (byte)digestSize;
 		fanout = depth = 1;
@@ -221,8 +221,8 @@ protected:
 	void UncheckedSetKey(const byte* key, unsigned int length, const CryptoPP::NameValuePairs& params);
 
 private:
-	FixedSizeAlignedSecBlock<State,1> m_state;
-	FixedSizeAlignedSecBlock<ParameterBlock,1> m_block;
+	FixedSizeAlignedSecBlock<State,sizeof(State)> m_state;
+	FixedSizeAlignedSecBlock<ParameterBlock,sizeof(ParameterBlock)> m_block;
 	AlignedSecByteBlock m_key;
 	word32 m_digestSize;
 	bool m_treeMode;
