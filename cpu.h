@@ -143,6 +143,11 @@ extern CRYPTOPP_DLL bool g_hasCLMUL;
 extern CRYPTOPP_DLL bool g_isP4;
 extern CRYPTOPP_DLL bool g_hasRDRAND;
 extern CRYPTOPP_DLL bool g_hasRDSEED;
+extern CRYPTOPP_DLL bool g_hasPadlockRNG;
+extern CRYPTOPP_DLL bool g_hasPadlockACE;
+extern CRYPTOPP_DLL bool g_hasPadlockACE2;
+extern CRYPTOPP_DLL bool g_hasPadlockPHE;
+extern CRYPTOPP_DLL bool g_hasPadlockPMM;
 extern CRYPTOPP_DLL word32 g_cacheLineSize;
 
 CRYPTOPP_DLL void CRYPTOPP_API DetectX86Features();
@@ -228,6 +233,41 @@ inline bool HasRDSEED()
 	if (!g_x86DetectionDone)
 		DetectX86Features();
 	return g_hasRDSEED;
+}
+
+inline bool HasPadlockRNG()
+{
+	if (!g_x86DetectionDone)
+		DetectX86Features();
+	return g_hasPadlockRNG;
+}
+
+inline bool HasPadlockACE()
+{
+	if (!g_x86DetectionDone)
+		DetectX86Features();
+	return g_hasPadlockACE;
+}
+
+inline bool HasPadlockACE2()
+{
+	if (!g_x86DetectionDone)
+		DetectX86Features();
+	return g_hasPadlockACE2;
+}
+
+inline bool HasPadlockPHE()
+{
+	if (!g_x86DetectionDone)
+		DetectX86Features();
+	return g_hasPadlockPHE;
+}
+
+inline bool HasPadlockPMM()
+{
+	if (!g_x86DetectionDone)
+		DetectX86Features();
+	return g_hasPadlockPMM;
 }
 
 inline int GetCacheLineSize()
