@@ -269,7 +269,9 @@ void BLAKE2_Base<W, T_64bit>::UncheckedSetKey(const byte *key, unsigned int leng
 	ConstByteArrayParameter t;
 	if (params.GetValue(Name::Salt(), t))
 	{
-		memcpy_s(block.salt, sizeof(block.salt), t.begin(), t.size());
+		if (t.begin() && t.size())
+			memcpy_s(block.salt, sizeof(block.salt), t.begin(), t.size());
+
 		const size_t rem = sizeof(block.salt) - t.size();
 		if (rem)
 			memset(block.salt+rem, 0x00, rem);
@@ -281,7 +283,9 @@ void BLAKE2_Base<W, T_64bit>::UncheckedSetKey(const byte *key, unsigned int leng
 
 	if (params.GetValue(Name::Personalization(), t))
 	{
-		memcpy_s(block.personalization, sizeof(block.personalization), t.begin(), t.size());
+		if (t.begin() && t.size())
+			memcpy_s(block.personalization, sizeof(block.personalization), t.begin(), t.size());
+
 		const size_t rem = sizeof(block.personalization) - t.size();
 		if (rem)
 			memset(block.personalization+rem, 0x00, rem);
@@ -337,7 +341,7 @@ void BLAKE2_Base<W, T_64bit>::Restart(const BLAKE2_ParameterBlock<T_64bit>& bloc
 	// Avoid the copy of the parameter block when we are passing our own block.
 	if (&block != m_block.data())
 	{
-		memcpy_s(m_block, sizeof(*m_block), &block, sizeof(block));
+		memcpy_s(m_block, sizeof(block), &block, sizeof(block));
 		(*m_block).digestLength = (byte)m_digestSize;
 		(*m_block).keyLength = (byte)m_key.size();
 	}
@@ -351,7 +355,7 @@ void BLAKE2_Base<W, T_64bit>::Restart(const BLAKE2_ParameterBlock<T_64bit>& bloc
 		state.t[1] = counter[1];
 	}
 
-	PutBlock<W, LittleEndian, true> put(m_block, state.h);
+	PutBlock<W, LittleEndian, true> put(m_block, &state.h[0]);
 	put(BLAKE2_IV<T_64bit>::iv[0])(BLAKE2_IV<T_64bit>::iv[1])(BLAKE2_IV<T_64bit>::iv[2])(BLAKE2_IV<T_64bit>::iv[3]);
 	put(BLAKE2_IV<T_64bit>::iv[4])(BLAKE2_IV<T_64bit>::iv[5])(BLAKE2_IV<T_64bit>::iv[6])(BLAKE2_IV<T_64bit>::iv[7]);
 
@@ -488,7 +492,7 @@ void BLAKE2_CXX_Compress64(const byte* input, BLAKE2_State<word64, true>& state)
 	GetBlock<word64, LittleEndian, true> get1(input);
 	get1(m[0])(m[1])(m[2])(m[3])(m[4])(m[5])(m[6])(m[7])(m[8])(m[9])(m[10])(m[11])(m[12])(m[13])(m[14])(m[15]);
 
-	GetBlock<word64, LittleEndian, true> get2(state.h);
+	GetBlock<word64, LittleEndian, true> get2(&state.h[0]);
 	get2(v[0])(v[1])(v[2])(v[3])(v[4])(v[5])(v[6])(v[7]);
 
 	v[ 8] = BLAKE2B_IV(0);
@@ -496,9 +500,9 @@ void BLAKE2_CXX_Compress64(const byte* input, BLAKE2_State<word64, true>& state)
 	v[10] = BLAKE2B_IV(2);
 	v[11] = BLAKE2B_IV(3);
 	v[12] = state.t[0] ^ BLAKE2B_IV(4);
-	v[13] = state.t[1] ^ BLAKE2_IV<true>::iv[5];
+	v[13] = state.t[1] ^ BLAKE2B_IV(5);
 	v[14] = state.f[0] ^ BLAKE2B_IV(6);
-	v[15] = state.f[1] ^ BLAKE2_IV<true>::iv[7];
+	v[15] = state.f[1] ^ BLAKE2B_IV(7);
 
 	BLAKE2_ROUND( 0 );
 	BLAKE2_ROUND( 1 );
@@ -551,7 +555,7 @@ void BLAKE2_CXX_Compress32(const byte* input, BLAKE2_State<word32, false>& state
 	GetBlock<word32, LittleEndian, true> get1(input);
 	get1(m[0])(m[1])(m[2])(m[3])(m[4])(m[5])(m[6])(m[7])(m[8])(m[9])(m[10])(m[11])(m[12])(m[13])(m[14])(m[15]);
 
-	GetBlock<word32, LittleEndian, true> get2(state.h);
+	GetBlock<word32, LittleEndian, true> get2(&state.h[0]);
 	get2(v[0])(v[1])(v[2])(v[3])(v[4])(v[5])(v[6])(v[7]);
 
 	v[ 8] = BLAKE2S_IV(0);
