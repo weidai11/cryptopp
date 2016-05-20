@@ -292,7 +292,7 @@ NAMESPACE_END
 #ifndef CRYPTOPP_L1_CACHE_LINE_SIZE
 	// This should be a lower bound on the L1 cache line size. It's used for defense against timing attacks.
 	// Also see http://stackoverflow.com/questions/794632/programmatically-get-the-cache-line-size.
-	#if defined(_M_X64) || defined(__x86_64__) || (__ILP32__ >= 1) || (__arm64__) || (__aarch64__)
+	#if defined(_M_X64) || defined(__x86_64__) || (__arm64__) || (__aarch64__)
 		#define CRYPTOPP_L1_CACHE_LINE_SIZE 64
 	#else
 		// L1 cache line size is 32 on Pentium III and earlier
