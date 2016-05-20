@@ -5,14 +5,14 @@
 
 //! \file blake2.h
 //! \brief Classes for BLAKE2b and BLAKE2s message digests and keyed message digests
-//! \details This implmentation follows Aumasson, Neves, Wilcox-O’Hearn and Winnerlein's
+//! \details This implmentation follows Aumasson, Neves, Wilcox-O'Hearn and Winnerlein's
 //!   <A HREF="http://blake2.net/blake2.pdf">BLAKE2: simpler, smaller, fast as MD5</A> (2013.01.29).
-//!   Static algorithm names return either "BLAKE2b" or "BLAKE2s". An object algorithm name follows
+//!   Static algorithm name return either "BLAKE2b" or "BLAKE2s". An object algorithm name follows
 //!   the naming described in <A HREF="http://tools.ietf.org/html/rfc7693#section-4">RFC 7693, The
 //!   BLAKE2 Cryptographic Hash and Message Authentication Code (MAC)</A>.
 //! \details The library provides specialized SSE2, SSE4 and NEON version of the BLAKE2 compression
 //!   function. For best results under ARM NEON, specify both an architecture and cpu. For example:
-//!   <pre>export CXXFLAGS="-DNDEBUG -g2 -O3 -march=armv8-a+crc -mcpu=cortex-a53"</pre>
+//!   <pre>CXXFLAGS="-DNDEBUG -march=armv8-a+crc -mcpu=cortex-a53 ..."</pre>
 
 #ifndef CRYPTOPP_BLAKE2_H
 #define CRYPTOPP_BLAKE2_H
@@ -221,8 +221,8 @@ protected:
 	void UncheckedSetKey(const byte* key, unsigned int length, const CryptoPP::NameValuePairs& params);
 
 private:
-	FixedSizeAlignedSecBlock<State,sizeof(State),true> m_state;
-	FixedSizeAlignedSecBlock<ParameterBlock,sizeof(ParameterBlock),true> m_block;
+	FixedSizeAlignedSecBlock<State,sizeof(State)> m_state;
+	FixedSizeAlignedSecBlock<ParameterBlock,sizeof(ParameterBlock)> m_block;
 	AlignedSecByteBlock m_key;
 	word32 m_digestSize;
 	bool m_treeMode;
@@ -234,7 +234,7 @@ private:
 //!   want a keyed hash, then use the constuctor that accpts the key as a parameter.
 //!   Once a key and digest size are selected, its effectively immutable. The Restart()
 //!   method that accepts a ParameterBlock does not allow you to change it.
-//! \sa Aumasson, Neves, Wilcox-O’Hearn and Winnerlein's
+//! \sa Aumasson, Neves, Wilcox-O'Hearn and Winnerlein's
 //!   <A HREF="http://blake2.net/blake2.pdf">BLAKE2: simpler, smaller, fast as MD5</A> (2013.01.29).
 class BLAKE2b : public BLAKE2_Base<word64, true>
 {
@@ -269,7 +269,7 @@ public:
 //!   want a keyed hash, then use the constuctor that accpts the key as a parameter.
 //!   Once a key and digest size are selected, its effectively immutable. The Restart()
 //!   method that accepts a ParameterBlock does not allow you to change it.
-//! \sa Aumasson, Neves, Wilcox-O’Hearn and Winnerlein's
+//! \sa Aumasson, Neves, Wilcox-O'Hearn and Winnerlein's
 //!   <A HREF="http://blake2.net/blake2.pdf">BLAKE2: simpler, smaller, fast as MD5</A> (2013.01.29).
 class BLAKE2s : public BLAKE2_Base<word32, false>
 {
