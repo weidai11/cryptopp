@@ -78,7 +78,7 @@ public:
 protected:
 	
 	//! \brief Verifies the allocator can satisfy a request based on size
-	//! \param size the number of elements
+	//! \param size the size of the allocation, in elements
 	//! \throws InvalidArgument
 	//! \details CheckSize verifies the number of elements requested is valid. 
 	//! \details If size is greater than max_size(), then InvalidArgument is thrown.
@@ -155,7 +155,7 @@ public:
 
 	//! \brief Allocates a block of memory
 	//! \param ptr the size of the allocation
-	//! \param size the size of the allocation
+	//! \param size the size of the allocation, in elements
 	//! \returns a memory block
 	//! \throws InvalidArgument
 	//! \details allocate() first checks the size of the request. If it is non-0
@@ -185,8 +185,8 @@ public:
 	}
 
 	//! \brief Deallocates a block of memory
-	//! \param ptr the size of the allocation
-	//! \param size the size of the allocation
+	//! \param ptr the pointer for the allocation
+	//! \param size the size of the allocation, in elements
 	//! \details Internally, SecureWipeArray() is called before deallocating the memory.
 	//!   Once the memory block is wiped or zeroized, AlignedDeallocate() or 
 	//!   UnalignedDeallocate() is called.
@@ -285,15 +285,13 @@ public:
 //! \class FixedSizeAllocatorWithCleanup
 //! \brief Static secure memory block with cleanup
 //! \tparam T class or type
-//! \tparam S fixed-size of the stack-based memory block, in bytes
+//! \tparam S fixed-size of the stack-based memory block, in elements
 //! \tparam A AllocatorBase derived class for allocation and cleanup
 //! \details FixedSizeAllocatorWithCleanup provides a fixed-size, stack-
 //!    based allocation at compile time. The class can grow its memory
 //!    block at runtime if a suitable allocator is available. If size
 //!    grows beyond S and a suitable allocator is available, then the
 //!    statically allocated array is obsoleted.
-//! \note The size <tt>S</tt> is the number of bytes, and not count of elements. This is somewhat unique
-//!   among library allocators, and its due to the interactions with <tt>NullAllocator<T></tt>.
 //! \note This allocator can't be used with standard collections because
 //!   they require that all objects of the same allocator type are equivalent.
 template <class T, size_t S, class A = NullAllocator<T>, bool T_Align16 = false>
@@ -306,18 +304,16 @@ public:
 	FixedSizeAllocatorWithCleanup() : m_allocated(false) {}
 
 	//! \brief Allocates a block of memory
-	//! \param size size of the memory block, in bytes
-	//! \details FixedSizeAllocatorWithCleanup provides a fixed-size, stack-
-	//!   based allocation at compile time. If size is less than or equal to
-	//!   S, then a pointer to the static array is returned.
+	//! \param size size of the memory block, in elements
+	//! \details FixedSizeAllocatorWithCleanup provides a fixed-size, stack-based
+	//!   allocation at compile time. If size is less than or equal to
+	//!   <tt>S</tt>, then a pointer to the static array is returned.
 	//! \details The class can grow its memory block at runtime if a suitable
 	//!   allocator is available. If size grows beyond S and a suitable
 	//!   allocator is available, then the statically allocated array is
 	//!   obsoleted. If a suitable allocator is \a not available, as with a
 	//!   NullAllocator, then the function returns NULL and a runtime error
 	//!   eventually occurs.
-	//! \note size is the number of bytes, and not count of elements. This is somewhat unique among
-	//!   library allocators, and its due to the interactions with <tt>NullAllocator<T></tt>.
 	//! \sa reallocate(), SecBlockWithHint
 	pointer allocate(size_type size)
 	{
@@ -333,7 +329,7 @@ public:
 	}
 
 	//! \brief Allocates a block of memory
-	//! \param size size of the memory block, in bytes
+	//! \param size size of the memory block, in elements
 	//! \param hint an unused hint
 	//! \details FixedSizeAllocatorWithCleanup provides a fixed-size, stack-
 	//!   based allocation at compile time. If size is less than or equal to
@@ -344,8 +340,6 @@ public:
 	//!   obsoleted. If a suitable allocator is \a not available, as with a
 	//!   NullAllocator, then the function returns NULL and a runtime error
 	//!   eventually occurs.
-	//! \note size is the number of bytes, and not count of elements. This is somewhat unique among
-	//!   library allocators, and its due to the interactions with <tt>NullAllocator<T></tt>.
 	//! \sa reallocate(), SecBlockWithHint
 	pointer allocate(size_type size, const void *hint)
 	{
@@ -360,7 +354,7 @@ public:
 
 	//! \brief Deallocates a block of memory
 	//! \param ptr a pointer to the memory block to deallocate
-	//! \param size size of the memory block
+	//! \param size size of the memory block, in elements
 	//! \details The memory block is wiped or zeroized before deallocation.
 	//!   If the statically allocated memory block is active, then no
 	//!   additional actions are taken after the wipe.
@@ -446,7 +440,7 @@ public:
 	typedef typename A::size_type size_type;
 
 	//! \brief Construct a SecBlock with space for size elements.
-	//! \param size the number of elements in the allocation
+	//! \param size the size of the allocation, in elements
 	//! \throws std::bad_alloc
 	//! \details The elements are not initialized.
 	//! \note size is the count of elements, and not the number of bytes
@@ -750,7 +744,7 @@ typedef SecBlock<byte, AllocatorWithCleanup<byte, true> > AlignedSecByteBlock;
 //! \class FixedSizeSecBlock
 //! \brief Fixed size stack-based SecBlock
 //! \tparam T class or type
-//! \tparam S fixed-size of the stack-based memory block
+//! \tparam S fixed-size of the stack-based memory block, in elements
 //! \tparam A AllocatorBase derived class for allocation and cleanup
 template <class T, unsigned int S, class A = FixedSizeAllocatorWithCleanup<T, S> >
 class FixedSizeSecBlock : public SecBlock<T, A>
@@ -763,10 +757,8 @@ public:
 //! \class FixedSizeAlignedSecBlock
 //! \brief Fixed size stack-based SecBlock with 16-byte alignment
 //! \tparam T class or type
-//! \tparam S fixed-size of the stack-based memory block, in bytes
+//! \tparam S fixed-size of the stack-based memory block, in elements
 //! \tparam A AllocatorBase derived class for allocation and cleanup
-//! \note The size <tt>S</tt> is the number of bytes, and not count of elements. This is somewhat unique
-//!   among library allocators, and its due to the interactions with <tt>NullAllocator<T></tt>.
 template <class T, unsigned int S, bool T_Align16 = true>
 class FixedSizeAlignedSecBlock : public FixedSizeSecBlock<T, S, FixedSizeAllocatorWithCleanup<T, S, NullAllocator<T>, T_Align16> >
 {
@@ -775,10 +767,8 @@ class FixedSizeAlignedSecBlock : public FixedSizeSecBlock<T, S, FixedSizeAllocat
 //! \class SecBlockWithHint
 //! \brief Stack-based SecBlock that grows into the heap
 //! \tparam T class or type
-//! \tparam S fixed-size of the stack-based memory block
+//! \tparam S fixed-size of the stack-based memory block, in elements
 //! \tparam A AllocatorBase derived class for allocation and cleanup
-//! \note The size <tt>S</tt> is the number of bytes, and not count of elements. This is somewhat unique
-//!   among library allocators, and its due to the interactions with <tt>NullAllocator<T></tt>.
 template <class T, unsigned int S, class A = FixedSizeAllocatorWithCleanup<T, S, AllocatorWithCleanup<T> > >
 class SecBlockWithHint : public SecBlock<T, A>
 {
