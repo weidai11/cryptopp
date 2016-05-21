@@ -422,9 +422,10 @@ void BLAKE2_Base<W, T_64bit>::Update(const byte *input, size_t length)
 template <class W, bool T_64bit>
 void BLAKE2_Base<W, T_64bit>::TruncatedFinal(byte *hash, size_t size)
 {
-	State& state = *m_state;
+	this->ThrowIfInvalidTruncatedSize(size);
 
 	// Set last block unconditionally
+	State& state = *m_state;
 	state.f[0] = static_cast<W>(-1);
 
 	// Set last node if tree mode
@@ -438,7 +439,7 @@ void BLAKE2_Base<W, T_64bit>::TruncatedFinal(byte *hash, size_t size)
 	Compress(state.buffer);
 
 	// Copy to caller buffer
-	memcpy_s(hash, size, &state.h[0], DIGESTSIZE);
+	memcpy_s(hash, size, &state.h[0], size);
 
 	Restart();
 }
