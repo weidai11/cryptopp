@@ -60,7 +60,7 @@
 #endif
 
 #if defined(__GNUC__) && defined(__BMI__)
-# include <immintrin.h>
+# include "cpu.h"
 #endif
 
 #endif // CRYPTOPP_DOXYGEN_PROCESSING
@@ -81,9 +81,9 @@
 //   http://stackoverflow.com/questions/30472731/which-c-standard-header-defines-size-max
 // Avoid NOMINMAX macro on Windows. http://support.microsoft.com/en-us/kb/143208
 #ifndef SIZE_MAX
-# if defined(__SIZE_MAX__)
+# if defined(__SIZE_MAX__) && (__SIZE_MAX__ > 0)
 #  define SIZE_MAX __SIZE_MAX__
-# elif defined(SIZE_T_MAX)
+# elif defined(SIZE_T_MAX) && (SIZE_T_MAX > 0)
 #  define SIZE_MAX SIZE_T_MAX
 # else
 #  define SIZE_MAX ((std::numeric_limits<size_t>::max)())
