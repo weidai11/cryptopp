@@ -141,20 +141,6 @@ const byte BLAKE2_Sigma<true>::sigma[12][16] = {
 	{ 14, 10,  4,  8,  9, 15, 13,  6,  1, 12,  0,  2, 11,  7,  5,  3 }
 };
 
-template<bool T_64bit>
-inline void ThrowIfInvalidSalt(size_t size)
-{
-	if (size > BLAKE2_Info<T_64bit>::SALTSIZE)
-		throw InvalidSaltLength(T_64bit ? "Blake2b" : "Blake2s", size);
-}
-
-template<bool T_64bit>
-inline void ThrowIfInvalidPersonalization(size_t size)
-{
-	if (size > BLAKE2_Info<T_64bit>::PERSONALIZATIONSIZE)
-		throw InvalidPersonalizationLength(T_64bit ? "Blake2b" : "Blake2s", size);
-}
-
 typedef void (*pfnCompress32)(const byte*, BLAKE2_State<word32, false>&);
 typedef void (*pfnCompress64)(const byte*, BLAKE2_State<word64, true>&);
 
@@ -451,20 +437,8 @@ void BLAKE2_Base<W, T_64bit>::TruncatedFinal(byte *hash, size_t size)
 	memset(state.buffer + state.length, 0x00, BLOCKSIZE - state.length);
 	Compress(state.buffer);
 
-	if (size >= DIGESTSIZE)
-	{
-		// Write directly to the caller buffer
-		PutBlock<W, LittleEndian, false> put(NULL, hash);
-		put(state.h[0])(state.h[1])(state.h[2])(state.h[3])(state.h[4])(state.h[5])(state.h[6])(state.h[7]);
-	}
-	else
-	{
-		FixedSizeAlignedSecBlock<byte, DIGESTSIZE, CRYPTOPP_BOOL_ALIGN16> buffer;
-		PutBlock<W, LittleEndian, true> put(NULL, buffer);
-		put(state.h[0])(state.h[1])(state.h[2])(state.h[3])(state.h[4])(state.h[5])(state.h[6])(state.h[7]);
-
-		memcpy_s(hash, DIGESTSIZE, buffer, size);
-	}
+	// Copy to caller buffer
+	memcpy_s(hash, size, &state.h[0], DIGESTSIZE);
 
 	Restart();
 }
@@ -553,8 +527,8 @@ void BLAKE2_CXX_Compress64(const byte* input, BLAKE2_State<word64, true>& state)
 	BLAKE2_ROUND( 10 );
 	BLAKE2_ROUND( 11 );
 
-	for(i = 0; i < 8; ++i)
-		state.h[i] = state.h[i] ^ v[i] ^ v[i + 8];
+	for(unsigned int i = 0; i < 8; ++i)
+		state.h[i] = state.h[i] ^ ConditionalByteReverse(LittleEndian::ToEnum(), v[i] ^ v[i + 8]);
 }
 
 void BLAKE2_CXX_Compress32(const byte* input, BLAKE2_State<word32, false>& state)
@@ -615,7 +589,7 @@ void BLAKE2_CXX_Compress32(const byte* input, BLAKE2_State<word32, false>& state
 	BLAKE2_ROUND( 9 );
 
 	for(unsigned int i = 0; i < 8; ++i)
-		state.h[i] = state.h[i] ^ v[i] ^ v[i + 8];
+		state.h[i] = state.h[i] ^ ConditionalByteReverse(LittleEndian::ToEnum(), v[i] ^ v[i + 8]);
 }
 
 #if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
