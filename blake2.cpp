@@ -319,8 +319,6 @@ void BLAKE2_Base<W, T_64bit>::UncheckedSetKey(const byte *key, unsigned int leng
 template <class W, bool T_64bit>
 BLAKE2_Base<W, T_64bit>::BLAKE2_Base() : m_state(), m_block(), m_digestSize(DIGESTSIZE), m_treeMode(false)
 {
-	assert(digestSize <= DIGESTSIZE);
-
 	UncheckedSetKey(NULL, 0, g_nullNameValuePairs);
 	Restart();
 }
