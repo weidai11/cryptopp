@@ -59,8 +59,8 @@
 #include <byteswap.h>
 #endif
 
-#if defined(__GNUC__) && defined(__BMI__)
-# include "cpu.h"
+#if defined(__GNUC__) && defined(__BMI__) && !defined(CRYPTOPP_DISABLE_ASM)
+# include <immintrin.h>
 #endif
 
 #endif // CRYPTOPP_DOXYGEN_PROCESSING
