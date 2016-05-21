@@ -204,38 +204,72 @@ BLAKE2_ParameterBlock<false>::BLAKE2_ParameterBlock(size_t digestLen, size_t key
 		const byte* salt, size_t saltLen,
 		const byte* personalization, size_t personalizationLen)
 {
-	ThrowIfInvalidSalt<false>(saltLen);
-	ThrowIfInvalidPersonalization<false>(personalizationLen);
+	static const size_t head = sizeof(*this) - sizeof(this->personalization) - sizeof(this->salt);
+	memset(this, 0x00, head);
 
-	memset(this, 0x00, sizeof(*this));
 	this->digestLength = (byte)digestLen;
 	this->keyLength = (byte)keyLen;
 	fanout = depth = 1;
 
 	if (salt && saltLen)
-			memcpy_s(this->salt, sizeof(this->salt), salt, saltLen);
+	{
+		memcpy_s(this->salt, sizeof(this->salt), salt, saltLen);
+		const size_t rem = sizeof(this->salt) - saltLen;
+		if (rem)
+			memset(this->salt+rem, 0x00, rem);
+	}
+	else
+	{
+		memset(this->salt, 0x00, sizeof(this->salt));
+	}
 
 	if (personalization && personalizationLen)
-			memcpy_s(this->personalization, sizeof(this->personalization), personalization, personalizationLen);
+	{
+		memcpy_s(this->personalization, sizeof(this->personalization), personalization, personalizationLen);
+		const size_t rem = sizeof(this->personalization) - personalizationLen;
+		if (rem)
+			memset(this->personalization+rem, 0x00, rem);
+	}
+	else
+	{
+		memset(this->personalization, 0x00, sizeof(this->personalization));
+	}
 }
 
 BLAKE2_ParameterBlock<true>::BLAKE2_ParameterBlock(size_t digestLen, size_t keyLen,
 		const byte* salt, size_t saltLen,
 		const byte* personalization, size_t personalizationLen)
 {
-	ThrowIfInvalidSalt<true>(saltLen);
-	ThrowIfInvalidPersonalization<true>(personalizationLen);
+	static const size_t head = sizeof(*this) - sizeof(this->personalization) - sizeof(this->salt);
+	memset(this, 0x00, head);
 
-	memset(this, 0x00, sizeof(*this));
 	this->digestLength = (byte)digestLen;
 	this->keyLength = (byte)keyLen;
 	fanout = depth = 1;
 
 	if (salt && saltLen)
-			memcpy_s(this->salt, sizeof(this->salt), salt, saltLen);
+	{
+		memcpy_s(this->salt, sizeof(this->salt), salt, saltLen);
+		const size_t rem = sizeof(this->salt) - saltLen;
+		if (rem)
+			memset(this->salt+rem, 0x00, rem);
+	}
+	else
+	{
+		memset(this->salt, 0x00, sizeof(this->salt));
+	}
 
 	if (personalization && personalizationLen)
-			memcpy_s(this->personalization, sizeof(this->personalization), personalization, personalizationLen);
+	{
+		memcpy_s(this->personalization, sizeof(this->personalization), personalization, personalizationLen);
+		const size_t rem = sizeof(this->personalization) - personalizationLen;
+		if (rem)
+			memset(this->personalization+rem, 0x00, rem);
+	}
+	else
+	{
+		memset(this->personalization, 0x00, sizeof(this->personalization));
+	}
 }
 
 template <class W, bool T_64bit>
@@ -297,16 +331,18 @@ void BLAKE2_Base<W, T_64bit>::UncheckedSetKey(const byte *key, unsigned int leng
 }
 
 template <class W, bool T_64bit>
-BLAKE2_Base<W, T_64bit>::BLAKE2_Base() : m_digestSize(DIGESTSIZE), m_treeMode(false)
+BLAKE2_Base<W, T_64bit>::BLAKE2_Base() : m_state(), m_block(), m_digestSize(DIGESTSIZE), m_treeMode(false)
 {
+	assert(digestSize <= DIGESTSIZE);
+
 	UncheckedSetKey(NULL, 0, g_nullNameValuePairs);
 	Restart();
 }
 
 template <class W, bool T_64bit>
-BLAKE2_Base<W, T_64bit>::BLAKE2_Base(bool treeMode, unsigned int digestSize) : m_digestSize(digestSize), m_treeMode(treeMode)
+BLAKE2_Base<W, T_64bit>::BLAKE2_Base(bool treeMode, unsigned int digestSize) : m_state(), m_block(), m_digestSize(digestSize), m_treeMode(treeMode)
 {
-	this->ThrowIfInvalidTruncatedSize(digestSize);
+	assert(digestSize <= DIGESTSIZE);
 
 	UncheckedSetKey(NULL, 0, g_nullNameValuePairs);
 	Restart();
@@ -315,12 +351,12 @@ BLAKE2_Base<W, T_64bit>::BLAKE2_Base(bool treeMode, unsigned int digestSize) : m
 template <class W, bool T_64bit>
 BLAKE2_Base<W, T_64bit>::BLAKE2_Base(const byte *key, size_t keyLength, const byte* salt, size_t saltLength,
 	const byte* personalization, size_t personalizationLength, bool treeMode, unsigned int digestSize)
-	: m_digestSize(digestSize), m_treeMode(treeMode)
+	: m_state(), m_block(), m_digestSize(digestSize), m_treeMode(treeMode)
 {
-	this->ThrowIfInvalidKeyLength(keyLength);
-	this->ThrowIfInvalidTruncatedSize(digestSize);
-	ThrowIfInvalidSalt<T_64bit>(saltLength);
-	ThrowIfInvalidPersonalization<T_64bit>(personalizationLength);
+	assert(keyLength <= MAX_KEYLENGTH);
+	assert(digestSize <= DIGESTSIZE);
+	assert(saltLength <= SALTSIZE);
+	assert(personalizationLength <= PERSONALIZATIONSIZE);
 
 	UncheckedSetKey(key, static_cast<unsigned int>(keyLength), MakeParameters(Name::DigestSize(),(int)digestSize)(Name::TreeMode(),treeMode, false)
 		(Name::Salt(), ConstByteArrayParameter(salt, saltLength))(Name::Personalization(), ConstByteArrayParameter(personalization, personalizationLength)));
