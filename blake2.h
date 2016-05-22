@@ -223,8 +223,8 @@ protected:
 	void UncheckedSetKey(const byte* key, unsigned int length, const CryptoPP::NameValuePairs& params);
 
 private:
-	FixedSizeAlignedSecBlock<State,1> m_state;
-	FixedSizeAlignedSecBlock<ParameterBlock,1> m_block;
+	FixedSizeAlignedSecBlock<State,2> m_state;
+	FixedSizeAlignedSecBlock<ParameterBlock,2> m_block;
 	AlignedSecByteBlock m_key;
 	word32 m_digestSize;
 	bool m_treeMode;
