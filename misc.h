@@ -59,7 +59,7 @@
 #include <byteswap.h>
 #endif
 
-#if defined(__GNUC__) && defined(__BMI__) && !defined(CRYPTOPP_DISABLE_ASM)
+#if defined(__GNUC__) && defined(__BMI__)
 # include <immintrin.h>
 #endif
 
