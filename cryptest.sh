@@ -47,7 +47,7 @@ IS_X86=$(uname -m | egrep -i -c "(i386|i586|i686|amd64|x86_64)")
 IS_X64=$(uname -m | egrep -i -c "(amd64|x86_64)")
 IS_PPC=$(uname -m | egrep -i -c "(Power|PPC)")
 IS_ARM32=$(uname -m | egrep -i -c "arm|aarch32")
-IS_ARM64=$(uname -m | egrep -i -c "arm|aarch64")
+IS_ARM64=$(uname -m | egrep -i -c "arm64|aarch64")
 
 # We need to use the C++ compiler to determine if c++11 is available. Otherwise
 #   a mis-detection occurs on Mac OS X 10.9 and above. Below, we use the same
