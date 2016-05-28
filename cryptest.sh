@@ -180,15 +180,15 @@ echo "HAVE_UBSAN: $HAVE_UBSAN" | tee -a "$TEST_RESULTS"
 if [ "$HAVE_VALGRIND" -ne "0" ]; then
 	echo "HAVE_VALGRIND: $HAVE_VALGRIND" | tee -a "$TEST_RESULTS"
 fi
-if [ "$IS_DARWIN" -ne "0" ]; then
-	echo "IS_DARWIN: $IS_DARWIN" | tee -a "$TEST_RESULTS"
-	unset MallocScribble MallocPreScribble MallocGuardEdges
-fi
 if [ "$HAVE_INTEL_MULTIARCH" -ne "0" ]; then
 	echo "HAVE_INTEL_MULTIARCH: $HAVE_INTEL_MULTIARCH" | tee -a "$TEST_RESULTS"
 fi
 if [ "$HAVE_PPC_MULTIARCH" -ne "0" ]; then
 	echo "HAVE_PPC_MULTIARCH: $HAVE_PPC_MULTIARCH" | tee -a "$TEST_RESULTS"
+fi
+if [ "$IS_DARWIN" -ne "0" ]; then
+	echo "IS_DARWIN: $IS_DARWIN" | tee -a "$TEST_RESULTS"
+	unset MallocScribble MallocPreScribble MallocGuardEdges
 fi
 if [ "$IS_LINUX" -ne "0" ]; then
 	echo "IS_LINUX: $IS_LINUX" | tee -a "$TEST_RESULTS"
@@ -198,6 +198,16 @@ if [ "$IS_CYGWIN" -ne "0" ]; then
 fi
 if [ "$IS_MINGW" -ne "0" ]; then
 	echo "IS_MINGW: $IS_MINGW" | tee -a "$TEST_RESULTS"
+fi
+if [ "$IS_ARM64" -ne "0" ]; then
+	echo "IS_ARM64: $IS_ARM64" | tee -a "$TEST_RESULTS"
+elif [ "$IS_ARM32" -ne "0" ]; then
+	echo "IS_ARM32: $IS_ARM32" | tee -a "$TEST_RESULTS"
+fi
+if [ "$IS_X64" -ne "0" ]; then
+	echo "IS_X64: $IS_X64" | tee -a "$TEST_RESULTS"
+elif [ "$IS_X86" -ne "0" ]; then
+	echo "IS_X86: $IS_X86" | tee -a "$TEST_RESULTS"
 fi
 
 ############################################
