@@ -1643,7 +1643,7 @@ if [ "$HAVE_ARM_CRC" -ne "0" ]; then
 	rm -f adhoc.cpp > /dev/null 2>&1
 
 	export CXXFLAGS="-DNDEBUG -g2 -O2 -march=armv8-a+crc $ADD_CXXFLAGS"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$XCODE_COMPILER" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	"$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1672,7 +1672,7 @@ if [ "$HAVE_ARM_CRYPTO" -ne "0" ]; then
 	rm -f adhoc.cpp > /dev/null 2>&1
 
 	export CXXFLAGS="-DNDEBUG -g2 -O2 -march=armv8-a+crypto $ADD_CXXFLAGS"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$XCODE_COMPILER" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	"$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
