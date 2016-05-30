@@ -364,6 +364,7 @@ static bool TryNEON()
 {
 #if (CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
+	volatile bool result = true;
 	__try
 	{
 		uint32_t v1[4] = {1,1,1,1};
@@ -377,12 +378,14 @@ static bool TryNEON()
 		uint64x2_t x4 = {0,0};
 		x4 = vsetq_lane_u64(vgetq_lane_u64(x2,0),x4,0);
 		x4 = vsetq_lane_u64(vgetq_lane_u64(x2,1),x4,1);
+
+		result = !!(vgetq_lane_u32(x3,0) | vgetq_lane_u64(x4,1));
 	}
 	__except (EXCEPTION_EXECUTE_HANDLER)
 	{
 		return false;
 	}
-	return true;
+	return result;
 # else
 	// longjmp and clobber warnings. Volatile is required.
 	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
@@ -429,18 +432,21 @@ static bool TryCRC32()
 {
 #if (CRYPTOPP_BOOL_ARM_CRC32_INTRINSICS_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
+	volatile bool result = true;
 	__try
 	{
-		word32 w=0, x=0; word16 y=0; byte z=0;
+		word32 w=0, x=1; word16 y=2; byte z=3;
 		w = __crc32cw(w,x);
 		w = __crc32ch(w,y);
 		w = __crc32cb(w,z);
+
+		result = !!w;
 	}
 	__except (EXCEPTION_EXECUTE_HANDLER)
 	{
 		return false;
 	}
-	return true;
+	return result;
 # else
 	// longjmp and clobber warnings. Volatile is required.
 	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
@@ -458,7 +464,7 @@ static bool TryCRC32()
 		result = false;
 	else
 	{
-		word32 w=0, x=0; word16 y=0; byte z=0;
+		word32 w=0, x=1; word16 y=2; byte z=3;
 		w = __crc32cw(w,x);
 		w = __crc32ch(w,y);
 		w = __crc32cb(w,z);
@@ -480,19 +486,21 @@ static bool TryAES()
 {
 #if (CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
+	volatile bool result = true;
 	__try
 	{
 		// AES encrypt and decrypt
 		uint8x16_t data = vdupq_n_u8(0), key = vdupq_n_u8(0);
 		uint8x16_t r1 = vaeseq_u8(data, key);
 		uint8x16_t r2 = vaesdq_u8(data, key);
-		CRYPTOPP_UNUSED(r1), CRYPTOPP_UNUSED(r2);
+
+		result = !!(vgetq_lane_u8(r1,0) | vgetq_lane_u8(r2,7));
 	}
 	__except (EXCEPTION_EXECUTE_HANDLER)
 	{
 		return false;
 	}
-	return true;
+	return result;
 # else
 	// longjmp and clobber warnings. Volatile is required.
 	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
@@ -531,21 +539,24 @@ static bool TrySHA1()
 {
 #if (CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
+	volatile bool result = true;
 	__try
 	{
-		uint32x4_t data = {0,0,0,0};
-		uint32_t hash = 0x0;
+		uint32x4_t data1 = {1,2,3,4}, data2 = {5,6,7,8}, data3 = {9,10,11,12};
 
-		uint32x4_t r1 = vsha1cq_u32 (data, hash, data);
-		uint32x4_t r2 = vsha1mq_u32 (data, hash, data);
-		uint32x4_t r3 = vsha1pq_u32 (data, hash, data);
-		CRYPTOPP_UNUSED(r1), CRYPTOPP_UNUSED(r2), CRYPTOPP_UNUSED(r3);
+		uint32x4_t r1 = vsha1cq_u32 (data1, 0, data2);
+		uint32x4_t r2 = vsha1mq_u32 (data1, 0, data2);
+		uint32x4_t r3 = vsha1pq_u32 (data1, 0, data2);
+		uint32x4_t r4 = vsha1su0q_u32 (data1, data2, data3);
+		uint32x4_t r5 = vsha1su1q_u32 (data1, data2);
+
+		result = !!(vgetq_lane_u32(r1,0) | vgetq_lane_u32(r2,1) | vgetq_lane_u32(r3,2) | vgetq_lane_u32(r4,3) | vgetq_lane_u32(r5,0));
 	}
 	__except (EXCEPTION_EXECUTE_HANDLER)
 	{
 		return false;
 	}
-	return true;
+	return result;
 # else
 	// longjmp and clobber warnings. Volatile is required.
 	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
@@ -563,15 +574,16 @@ static bool TrySHA1()
 		result = false;
 	else
 	{
-		uint32x4_t data = {0,0,0,0};
-		uint32_t hash = 0x0;
+		uint32x4_t data1 = {1,2,3,4}, data2 = {5,6,7,8}, data3 = {9,10,11,12};
 
-		uint32x4_t r1 = vsha1cq_u32 (data, hash, data);
-		uint32x4_t r2 = vsha1mq_u32 (data, hash, data);
-		uint32x4_t r3 = vsha1pq_u32 (data, hash, data);
+		uint32x4_t r1 = vsha1cq_u32 (data1, 0, data2);
+		uint32x4_t r2 = vsha1mq_u32 (data1, 0, data2);
+		uint32x4_t r3 = vsha1pq_u32 (data1, 0, data2);
+		uint32x4_t r4 = vsha1su0q_u32 (data1, data2, data3);
+		uint32x4_t r5 = vsha1su1q_u32 (data1, data2);
 
 		// Hack... GCC optimizes away the code and returns true
-		result = !!(vgetq_lane_u32(r1,0) | vgetq_lane_u32(r2,1) | vgetq_lane_u32(r3,2));
+		result = !!(vgetq_lane_u32(r1,0) | vgetq_lane_u32(r2,1) | vgetq_lane_u32(r3,2) | vgetq_lane_u32(r4,3) | vgetq_lane_u32(r5,0));
 	}
 
 	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULL);
@@ -587,22 +599,23 @@ static bool TrySHA2()
 {
 #if (CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
+	volatile bool result = true;
 	__try
 	{
-		uint32x4_t data = {0,0,0,0};
-		uint32x4_t hash = {0,0,0,0};
+		uint32x4_t data1 = {1,2,3,4}, data2 = {5,6,7,8}, data3 = {9,10,11,12};
 
-		uint32x4_t r1 = vsha256hq_u32 (hash, hash, data);
-		uint32x4_t r2 = vsha256h2q_u32 (hash, hash, data);
-		uint32x4_t r3 = vsha256su0q_u32 (data, data);
-		uint32x4_t r4 = vsha256su1q_u32 (data, data, data);
-		CRYPTOPP_UNUSED(r1), CRYPTOPP_UNUSED(r2), CRYPTOPP_UNUSED(r3), CRYPTOPP_UNUSED(r4);
+		uint32x4_t r1 = vsha256hq_u32 (data1, data2, data3);
+		uint32x4_t r2 = vsha256h2q_u32 (data1, data2, data3);
+		uint32x4_t r3 = vsha256su0q_u32 (data1, data2);
+		uint32x4_t r4 = vsha256su1q_u32 (data1, data2, data3);
+
+		result = !!(vgetq_lane_u32(r1,0) | vgetq_lane_u32(r2,1) | vgetq_lane_u32(r3,2) | vgetq_lane_u32(r4,3));
 	}
 	__except (EXCEPTION_EXECUTE_HANDLER)
 	{
 		return false;
 	}
-	return true;
+	return result;
 # else
 	// longjmp and clobber warnings. Volatile is required.
 	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
@@ -620,13 +633,12 @@ static bool TrySHA2()
 		result = false;
 	else
 	{
-		uint32x4_t data = {0,0,0,0};
-		uint32x4_t hash = {0,0,0,0};
+		uint32x4_t data1 = {1,2,3,4}, data2 = {5,6,7,8}, data3 = {9,10,11,12};
 
-		uint32x4_t r1 = vsha256hq_u32 (hash, hash, data);
-		uint32x4_t r2 = vsha256h2q_u32 (hash, hash, data);
-		uint32x4_t r3 = vsha256su0q_u32 (data, data);
-		uint32x4_t r4 = vsha256su1q_u32 (data, data, data);
+		uint32x4_t r1 = vsha256hq_u32 (data1, data2, data3);
+		uint32x4_t r2 = vsha256h2q_u32 (data1, data2, data3);
+		uint32x4_t r3 = vsha256su0q_u32 (data1, data2);
+		uint32x4_t r4 = vsha256su1q_u32 (data1, data2, data3);
 
 		// Hack... GCC optimizes away the code and returns true
 		result = !!(vgetq_lane_u32(r1,0) | vgetq_lane_u32(r2,1) | vgetq_lane_u32(r3,2) | vgetq_lane_u32(r4,3));
