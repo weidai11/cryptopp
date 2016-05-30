@@ -496,7 +496,6 @@ void BLAKE2_CXX_Compress64(const byte* input, BLAKE2_State<word64, true>& state)
 	  } while(0)
 
 	word64 m[16], v[16];
-	unsigned int i;
 
 	GetBlock<word64, LittleEndian, true> get1(input);
 	get1(m[0])(m[1])(m[2])(m[3])(m[4])(m[5])(m[6])(m[7])(m[8])(m[9])(m[10])(m[11])(m[12])(m[13])(m[14])(m[15]);
