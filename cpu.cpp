@@ -372,10 +372,10 @@ static bool TryNEON()
 		uint64_t v2[2] = {1,1};
 		uint64x2_t x2 = vld1q_u64(v2);
 
-		uint32x4_t x3 = {0,0,0,0};
+		uint32x4_t x3 = vdupq_n_u32(2);
 		x3 = vsetq_lane_u32(vgetq_lane_u32(x1,0),x3,0);
 		x3 = vsetq_lane_u32(vgetq_lane_u32(x1,3),x3,3);
-		uint64x2_t x4 = {0,0};
+		uint64x2_t x4 = vdupq_n_u64(2);
 		x4 = vsetq_lane_u64(vgetq_lane_u64(x2,0),x4,0);
 		x4 = vsetq_lane_u64(vgetq_lane_u64(x2,1),x4,1);
 
