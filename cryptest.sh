@@ -46,7 +46,8 @@ IS_NETBSD=$(uname -s | grep -i -c netbsd)
 IS_X86=$(uname -m | egrep -i -c "(i386|i586|i686|amd64|x86_64)")
 IS_X64=$(uname -m | egrep -i -c "(amd64|x86_64)")
 IS_PPC=$(uname -m | egrep -i -c "(Power|PPC)")
-IS_ARM=$(uname -m | egrep -i -c "arm")
+IS_ARM32=$(uname -m | egrep -i -c "arm|aarch32")
+IS_ARM64=$(uname -m | egrep -i -c "arm64|aarch64")
 
 # We need to use the C++ compiler to determine if c++11 is available. Otherwise
 #   a mis-detection occurs on Mac OS X 10.9 and above. Below, we use the same
@@ -128,27 +129,41 @@ fi
 # Set to 0 if you don't have Intel multiarch
 HAVE_INTEL_MULTIARCH=0
 if [ "$IS_DARWIN" -ne "0" ] && [ "$IS_X86" -ne "0" ]; then
-$CXX -x c++ -DCRYPTOPP_ADHOC_MAIN -arch i386 -arch x86_64 adhoc.cpp.proto -o $TMP/adhoc.exe > /dev/null 2>&1
-if [ "$?" -eq "0" ]; then
-	HAVE_INTEL_MULTIARCH=1
-fi
+	$CXX -x c++ -DCRYPTOPP_ADHOC_MAIN -arch i386 -arch x86_64 adhoc.cpp.proto -o $TMP/adhoc.exe > /dev/null 2>&1
+	if [ "$?" -eq "0" ]; then
+		HAVE_INTEL_MULTIARCH=1
+	fi
 fi
 
 # Set to 0 if you don't have PPC multiarch
 HAVE_PPC_MULTIARCH=0
 if [ "$IS_DARWIN" -ne "0" ] && [ "$IS_PPC" -ne "0" ]; then
-$CXX -x -DCRYPTOPP_ADHOC_MAIN c++ -arch ppc -arch ppc64 adhoc.cpp.proto -o $TMP/adhoc.exe > /dev/null 2>&1
-if [ "$?" -eq "0" ]; then
-	HAVE_PPC_MULTIARCH=1
-fi
+	$CXX -x c++ -DCRYPTOPP_ADHOC_MAIN -arch ppc -arch ppc64 adhoc.cpp.proto -o $TMP/adhoc.exe > /dev/null 2>&1
+	if [ "$?" -eq "0" ]; then
+		HAVE_PPC_MULTIARCH=1
+	fi
 fi
 
 HAVE_X32=0
 if [ "$IS_X64" -ne "0" ]; then
-$CXX -x -DCRYPTOPP_ADHOC_MAIN c++ -mx32 adhoc.cpp.proto -o $TMP/adhoc.exe > /dev/null 2>&1
-if [ "$?" -eq "0" ]; then
-	HAVE_X32=1
+	$CXX -x c++ -DCRYPTOPP_ADHOC_MAIN -mx32 adhoc.cpp.proto -o $TMP/adhoc.exe > /dev/null 2>&1
+	if [ "$?" -eq "0" ]; then
+		HAVE_X32=1
+	fi
 fi
+
+# Set to 0 if you don't have ARMv8
+HAVE_ARM_CRC=0
+HAVE_ARM_CRYPTO=0
+if [ "$IS_ARM32" -ne "0" ] || [ "$IS_ARM64" -ne "0" ]; then
+	$CXX -x c++ -DCRYPTOPP_ADHOC_MAIN -march=armv8-a+crc adhoc.cpp.proto -o $TMP/adhoc.exe > /dev/null 2>&1
+	if [ "$?" -eq "0" ]; then
+		HAVE_ARM_CRC=1
+	fi
+	$CXX -x c++ -DCRYPTOPP_ADHOC_MAIN -march=armv8-a+crypto adhoc.cpp.proto -o $TMP/adhoc.exe > /dev/null 2>&1
+	if [ "$?" -eq "0" ]; then
+		HAVE_ARM_CRYPTO=1
+	fi
 fi
 
 # Set to 0 if you don't have Valgrind. Valgrind tests take a long time...
@@ -165,15 +180,15 @@ echo "HAVE_UBSAN: $HAVE_UBSAN" | tee -a "$TEST_RESULTS"
 if [ "$HAVE_VALGRIND" -ne "0" ]; then
 	echo "HAVE_VALGRIND: $HAVE_VALGRIND" | tee -a "$TEST_RESULTS"
 fi
-if [ "$IS_DARWIN" -ne "0" ]; then
-	echo "IS_DARWIN: $IS_DARWIN" | tee -a "$TEST_RESULTS"
-	unset MallocScribble MallocPreScribble MallocGuardEdges
-fi
 if [ "$HAVE_INTEL_MULTIARCH" -ne "0" ]; then
 	echo "HAVE_INTEL_MULTIARCH: $HAVE_INTEL_MULTIARCH" | tee -a "$TEST_RESULTS"
 fi
 if [ "$HAVE_PPC_MULTIARCH" -ne "0" ]; then
 	echo "HAVE_PPC_MULTIARCH: $HAVE_PPC_MULTIARCH" | tee -a "$TEST_RESULTS"
+fi
+if [ "$IS_DARWIN" -ne "0" ]; then
+	echo "IS_DARWIN: $IS_DARWIN" | tee -a "$TEST_RESULTS"
+	unset MallocScribble MallocPreScribble MallocGuardEdges
 fi
 if [ "$IS_LINUX" -ne "0" ]; then
 	echo "IS_LINUX: $IS_LINUX" | tee -a "$TEST_RESULTS"
@@ -183,6 +198,16 @@ if [ "$IS_CYGWIN" -ne "0" ]; then
 fi
 if [ "$IS_MINGW" -ne "0" ]; then
 	echo "IS_MINGW: $IS_MINGW" | tee -a "$TEST_RESULTS"
+fi
+if [ "$IS_ARM64" -ne "0" ]; then
+	echo "IS_ARM64: $IS_ARM64" | tee -a "$TEST_RESULTS"
+elif [ "$IS_ARM32" -ne "0" ]; then
+	echo "IS_ARM32: $IS_ARM32" | tee -a "$TEST_RESULTS"
+fi
+if [ "$IS_X64" -ne "0" ]; then
+	echo "IS_X64: $IS_X64" | tee -a "$TEST_RESULTS"
+elif [ "$IS_X86" -ne "0" ]; then
+	echo "IS_X86: $IS_X86" | tee -a "$TEST_RESULTS"
 fi
 
 ############################################
@@ -1616,6 +1641,64 @@ if [ "$IS_DARWIN" -ne "0" ]; then
 fi
 
 ############################################
+# ARM CRC32
+if [ "$HAVE_ARM_CRC" -ne "0" ]; then
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: ARM CRC32" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	export CXXFLAGS="-DNDEBUG -g2 -O2 -march=armv8-a+crc $ADD_CXXFLAGS"
+	"$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+fi
+
+############################################
+# ARM Crypto
+if [ "$HAVE_ARM_CRYPTO" -ne "0" ]; then
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: ARM Crypto" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	export CXXFLAGS="-DNDEBUG -g2 -O2 -march=armv8-a+crypto $ADD_CXXFLAGS"
+	"$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+fi
+
+############################################
 # Benchmarks, c++03
 if [ "$HAVE_CXX03" -ne "0" ]; then
 	echo
@@ -1631,7 +1714,7 @@ if [ "$HAVE_CXX03" -ne "0" ]; then
 	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	else
-		./cryptest.exe b 1 "$CPU_FREQ" 2>&1 | tee -a "$BENCHMARK_RESULTS"
+		./cryptest.exe b 3 "$CPU_FREQ" 2>&1 | tee -a "$BENCHMARK_RESULTS"
 		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 			echo "ERROR: failed to execute benchmarks" | tee -a "$BENCHMARK_RESULTS"
 		fi
@@ -1656,7 +1739,7 @@ if [ "$HAVE_CXX11" -ne "0" ]; then
 	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	else
-		./cryptest.exe b 1 "$CPU_FREQ" 2>&1 | tee -a "$BENCHMARK_RESULTS"
+		./cryptest.exe b 3 "$CPU_FREQ" 2>&1 | tee -a "$BENCHMARK_RESULTS"
 		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 			echo "ERROR: failed to execute benchmarks" | tee -a "$BENCHMARK_RESULTS"
 		fi

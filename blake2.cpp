@@ -496,7 +496,6 @@ void BLAKE2_CXX_Compress64(const byte* input, BLAKE2_State<word64, true>& state)
 	  } while(0)
 
 	word64 m[16], v[16];
-	unsigned int i;
 
 	GetBlock<word64, LittleEndian, true> get1(input);
 	get1(m[0])(m[1])(m[2])(m[3])(m[4])(m[5])(m[6])(m[7])(m[8])(m[9])(m[10])(m[11])(m[12])(m[13])(m[14])(m[15]);
@@ -3441,6 +3440,7 @@ static const int LANE_L64 = 0;
 
 static void BLAKE2_NEON_Compress32(const byte* input, BLAKE2_State<word32, false>& state)
 {
+  //assert(IsAlignedOn(input,GetAlignmentOf<uint8_t*>()));
   assert(IsAlignedOn(&state.h[0],GetAlignmentOf<uint32x4_t>()));
   assert(IsAlignedOn(&state.h[4],GetAlignmentOf<uint32x4_t>()));
   assert(IsAlignedOn(&state.t[0],GetAlignmentOf<uint32x4_t>()));
@@ -3946,7 +3946,7 @@ static void BLAKE2_NEON_Compress32(const byte* input, BLAKE2_State<word32, false
 
 static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>& state)
 {
-  assert(IsAlignedOn(input,GetAlignmentOf<uint8x16_t>()));
+  //assert(IsAlignedOn(input,GetAlignmentOf<uint8_t*>()));
   assert(IsAlignedOn(&state.h[0],GetAlignmentOf<uint64x2_t>()));
   assert(IsAlignedOn(&state.h[4],GetAlignmentOf<uint64x2_t>()));
   assert(IsAlignedOn(&state.t[0],GetAlignmentOf<uint64x2_t>()));

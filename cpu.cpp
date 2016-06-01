@@ -48,19 +48,19 @@ bool CpuId(word32 input, word32 output[4])
 #else
 
 #ifndef CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
-extern "C" {
-
-static jmp_buf s_jmpNoCPUID;
-static void SigIllHandlerCPUID(int)
+extern "C"
 {
-	longjmp(s_jmpNoCPUID, 1);
-}
+	static jmp_buf s_jmpNoCPUID;
+	static void SigIllHandlerCPUID(int)
+	{
+		longjmp(s_jmpNoCPUID, 1);
+	}
 
-static jmp_buf s_jmpNoSSE2;
-static void SigIllHandlerSSE2(int)
-{
-	longjmp(s_jmpNoSSE2, 1);
-}
+	static jmp_buf s_jmpNoSSE2;
+	static void SigIllHandlerSSE2(int)
+	{
+		longjmp(s_jmpNoSSE2, 1);
+	}
 }
 #endif
 
@@ -97,9 +97,13 @@ bool CpuId(word32 input, word32 output[4])
 	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
 	volatile bool result = true;
 
-	SigHandler oldHandler = signal(SIGILL, SigIllHandlerCPUID);
+	volatile SigHandler oldHandler = signal(SIGILL, SigIllHandlerCPUID);
 	if (oldHandler == SIG_ERR)
-		result = false;
+		return false;
+
+	volatile sigset_t oldMask;
+	if (sigprocmask(0, NULL, (sigset_t*)&oldMask))
+		return false;
 
 	if (setjmp(s_jmpNoCPUID))
 		result = false;
@@ -119,6 +123,7 @@ bool CpuId(word32 input, word32 output[4])
 		);
 	}
 
+	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULL);
 	signal(SIGILL, oldHandler);
 	return result;
 #endif
@@ -151,12 +156,16 @@ static bool TrySSE2()
 	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
 	volatile bool result = true;
 
-	SigHandler oldHandler = signal(SIGILL, SigIllHandlerSSE2);
+	volatile SigHandler oldHandler = signal(SIGILL, SigIllHandlerSSE2);
 	if (oldHandler == SIG_ERR)
 		return false;
 
+	volatile sigset_t oldMask;
+	if (sigprocmask(0, NULL, (sigset_t*)&oldMask))
+		return false;
+
 	if (setjmp(s_jmpNoSSE2))
-		result = true;
+		result = false;
 	else
 	{
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
@@ -167,6 +176,7 @@ static bool TrySSE2()
 #endif
 	}
 
+	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULL);
 	signal(SIGILL, oldHandler);
 	return result;
 #endif
@@ -298,29 +308,30 @@ void DetectX86Features()
 	*((volatile bool*)&g_x86DetectionDone) = true;
 }
 
-// http://community.arm.com/groups/android-community/blog/2014/10/10/runtime-detection-of-cpu-features-on-an-armv8-a-cpu
-// http://stackoverflow.com/questions/26701262/how-to-check-the-existence-of-neon-on-arm
 #elif (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
 
+// The ARM equivalent of CPUID probing is reading a MSR. The code requires Exception Level 1 (EL1) and above, but user space runs at EL0.
+//   Attempting to run the code results in a SIGILL and termination.
+//
+//     #if defined(__arm64__) || defined(__aarch64__)
+//	     word64 caps = 0;  // Read ID_AA64ISAR0_EL1
+//	     __asm __volatile("mrs %0, " "id_aa64isar0_el1" : "=r" (caps));
+//     #elif defined(__arm__) || defined(__aarch32__)
+//	     word32 caps = 0;  // Read ID_ISAR5_EL1
+//	     __asm __volatile("mrs %0, " "id_isar5_el1" : "=r" (caps));
+//     #endif
+//
+// The following does not work well either. Its appears to be missing constants, and it does not detect Aarch32 execution environments on Aarch64
+// http://community.arm.com/groups/android-community/blog/2014/10/10/runtime-detection-of-cpu-features-on-an-armv8-a-cpu
+//
 bool g_ArmDetectionDone = false;
 bool g_hasNEON = false, g_hasCRC32 = false, g_hasAES = false, g_hasSHA1 = false, g_hasSHA2 = false;
 
 word32 g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
 
-// The ARM equivalent of CPUID is reading a MSR. For example, fetch crypto capabilities with:
-//   #if defined(__arm64__) || defined(__aarch64__)
-//	   word64 caps = 0;  // Read ID_AA64ISAR0_EL1
-//	   __asm __volatile("mrs %0, " "id_aa64isar0_el1" : "=r" (caps));
-//   #elif defined(__arm__) || defined(__aarch32__)
-//	   word32 caps = 0;  // Read ID_ISAR5_EL1
-//	   __asm __volatile("mrs %0, " "id_isar5_el1" : "=r" (caps));
-//   #endif
-// The code requires Exception Level 1 (EL1) and above, but user space runs at EL0.
-//   Attempting to run the code results in a SIGILL and termination.
-
 #ifndef CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
-extern "C" {
-
+extern "C"
+{
 	static jmp_buf s_jmpNoNEON;
 	static void SigIllHandlerNEON(int)
 	{
@@ -357,51 +368,62 @@ static bool TryNEON()
 {
 #if (CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
+	volatile bool result = true;
 	__try
 	{
-		static const uint32_t v1[4] = {1,1,1,1};
+		uint32_t v1[4] = {1,1,1,1};
 		uint32x4_t x1 = vld1q_u32(v1);
-		static const uint64_t v2[2] = {1,1};
+		uint64_t v2[2] = {1,1};
 		uint64x2_t x2 = vld1q_u64(v2);
 
-		uint32x4_t x3 = vdupq_n_u32(0);
+		uint32x4_t x3 = vdupq_n_u32(2);
 		x3 = vsetq_lane_u32(vgetq_lane_u32(x1,0),x3,0);
 		x3 = vsetq_lane_u32(vgetq_lane_u32(x1,3),x3,3);
-		uint64x2_t x4 = vdupq_n_u64(0);
+		uint64x2_t x4 = vdupq_n_u64(2);
 		x4 = vsetq_lane_u64(vgetq_lane_u64(x2,0),x4,0);
 		x4 = vsetq_lane_u64(vgetq_lane_u64(x2,1),x4,1);
+
+		result = !!(vgetq_lane_u32(x3,0) | vgetq_lane_u64(x4,1));
 	}
 	__except (EXCEPTION_EXECUTE_HANDLER)
 	{
 		return false;
 	}
-	return true;
+	return result;
 # else
 	// longjmp and clobber warnings. Volatile is required.
 	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
 	volatile bool result = true;
 
-	SigHandler oldHandler = signal(SIGILL, SigIllHandlerNEON);
+	volatile SigHandler oldHandler = signal(SIGILL, SigIllHandlerNEON);
 	if (oldHandler == SIG_ERR)
-		result = false;
+		return false;
+
+	volatile sigset_t oldMask;
+	if (sigprocmask(0, NULL, (sigset_t*)&oldMask))
+		return false;
 
 	if (setjmp(s_jmpNoNEON))
 		result = false;
 	else
 	{
-		static const uint32_t v1[4] = {1,1,1,1};
+		uint32_t v1[4] = {1,1,1,1};
 		uint32x4_t x1 = vld1q_u32(v1);
-		static const uint64_t v2[2] = {1,1};
+		uint64_t v2[2] = {1,1};
 		uint64x2_t x2 = vld1q_u64(v2);
 
-		uint32x4_t x3 = vdupq_n_u32(0);
+		uint32x4_t x3 = {0,0,0,0};
 		x3 = vsetq_lane_u32(vgetq_lane_u32(x1,0),x3,0);
 		x3 = vsetq_lane_u32(vgetq_lane_u32(x1,3),x3,3);
-		uint64x2_t x4 = vdupq_n_u64(0);
+		uint64x2_t x4 = {0,0};
 		x4 = vsetq_lane_u64(vgetq_lane_u64(x2,0),x4,0);
 		x4 = vsetq_lane_u64(vgetq_lane_u64(x2,1),x4,1);
+
+		// Hack... GCC optimizes away the code and returns true
+		result = !!(vgetq_lane_u32(x3,0) | vgetq_lane_u64(x4,1));
 	}
 
+	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULL);
 	signal(SIGILL, oldHandler);
 	return result;
 # endif
@@ -414,37 +436,48 @@ static bool TryCRC32()
 {
 #if (CRYPTOPP_BOOL_ARM_CRC32_INTRINSICS_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
+	volatile bool result = true;
 	__try
 	{
-		word32 w=0, x=0; word16 y=0; byte z=0;
+		word32 w=0, x=1; word16 y=2; byte z=3;
 		w = __crc32cw(w,x);
 		w = __crc32ch(w,y);
 		w = __crc32cb(w,z);
+
+		result = !!w;
 	}
 	__except (EXCEPTION_EXECUTE_HANDLER)
 	{
 		return false;
 	}
-	return true;
+	return result;
 # else
 	// longjmp and clobber warnings. Volatile is required.
 	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
 	volatile bool result = true;
 
-	SigHandler oldHandler = signal(SIGILL, SigIllHandlerCRC32);
+	volatile SigHandler oldHandler = signal(SIGILL, SigIllHandlerCRC32);
 	if (oldHandler == SIG_ERR)
-		result = false;
+		return false;
+
+	volatile sigset_t oldMask;
+	if (sigprocmask(0, NULL, (sigset_t*)&oldMask))
+		return false;
 
 	if (setjmp(s_jmpNoCRC32))
 		result = false;
 	else
 	{
-		word32 w=0, x=0; word16 y=0; byte z=0;
+		word32 w=0, x=1; word16 y=2; byte z=3;
 		w = __crc32cw(w,x);
 		w = __crc32ch(w,y);
 		w = __crc32cb(w,z);
+
+		// Hack... GCC optimizes away the code and returns true
+		result = !!w;
 	}
 
+	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULL);
 	signal(SIGILL, oldHandler);
 	return result;
 # endif
@@ -457,38 +490,47 @@ static bool TryAES()
 {
 #if (CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
+	volatile bool result = true;
 	__try
 	{
 		// AES encrypt and decrypt
-		static const uint8x16_t data = vdupq_n_u8(0), key = vdupq_n_u8(0);
+		uint8x16_t data = vdupq_n_u8(0), key = vdupq_n_u8(0);
 		uint8x16_t r1 = vaeseq_u8(data, key);
 		uint8x16_t r2 = vaesdq_u8(data, key);
-		CRYPTOPP_UNUSED(r1), CRYPTOPP_UNUSED(r2);
+
+		result = !!(vgetq_lane_u8(r1,0) | vgetq_lane_u8(r2,7));
 	}
 	__except (EXCEPTION_EXECUTE_HANDLER)
 	{
 		return false;
 	}
-	return true;
+	return result;
 # else
 	// longjmp and clobber warnings. Volatile is required.
 	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
 	volatile bool result = true;
 
-	SigHandler oldHandler = signal(SIGILL, SigIllHandlerAES);
+	volatile SigHandler oldHandler = signal(SIGILL, SigIllHandlerAES);
 	if (oldHandler == SIG_ERR)
-		result = false;
+		return false;
+
+	volatile sigset_t oldMask;
+	if (sigprocmask(0, NULL, (sigset_t*)&oldMask))
+		return false;
 
 	if (setjmp(s_jmpNoAES))
 		result = false;
 	else
 	{
-		static const uint8x16_t data = vdupq_n_u8(0), key = vdupq_n_u8(0);
+		uint8x16_t data = vdupq_n_u8(0), key = vdupq_n_u8(0);
 		uint8x16_t r1 = vaeseq_u8(data, key);
 		uint8x16_t r2 = vaesdq_u8(data, key);
-		CRYPTOPP_UNUSED(r1), CRYPTOPP_UNUSED(r2);
+
+		// Hack... GCC optimizes away the code and returns true
+		result = !!(vgetq_lane_u8(r1,0) | vgetq_lane_u8(r2,7));
 	}
 
+	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULL);
 	signal(SIGILL, oldHandler);
 	return result;
 # endif
@@ -501,43 +543,54 @@ static bool TrySHA1()
 {
 #if (CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
+	volatile bool result = true;
 	__try
 	{
-		static const uint32x4_t data = vdupq_n_u32(0);
-		static const uint32_t hash = 0x0;
+		uint32x4_t data1 = {1,2,3,4}, data2 = {5,6,7,8}, data3 = {9,10,11,12};
 
-		uint32x4_t r1 = vsha1cq_u32 (data, hash, data);
-		uint32x4_t r2 = vsha1mq_u32 (data, hash, data);
-		uint32x4_t r3 = vsha1pq_u32 (data, hash, data);
-		CRYPTOPP_UNUSED(r1), CRYPTOPP_UNUSED(r2), CRYPTOPP_UNUSED(r3);
+		uint32x4_t r1 = vsha1cq_u32 (data1, 0, data2);
+		uint32x4_t r2 = vsha1mq_u32 (data1, 0, data2);
+		uint32x4_t r3 = vsha1pq_u32 (data1, 0, data2);
+		uint32x4_t r4 = vsha1su0q_u32 (data1, data2, data3);
+		uint32x4_t r5 = vsha1su1q_u32 (data1, data2);
+
+		result = !!(vgetq_lane_u32(r1,0) | vgetq_lane_u32(r2,1) | vgetq_lane_u32(r3,2) | vgetq_lane_u32(r4,3) | vgetq_lane_u32(r5,0));
 	}
 	__except (EXCEPTION_EXECUTE_HANDLER)
 	{
 		return false;
 	}
-	return true;
+	return result;
 # else
 	// longjmp and clobber warnings. Volatile is required.
 	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
 	volatile bool result = true;
 
-	SigHandler oldHandler = signal(SIGILL, SigIllHandlerSHA1);
+	volatile SigHandler oldHandler = signal(SIGILL, SigIllHandlerSHA1);
 	if (oldHandler == SIG_ERR)
-		result = false;
+		return false;
+
+	volatile sigset_t oldMask;
+	if (sigprocmask(0, NULL, (sigset_t*)&oldMask))
+		return false;
 
 	if (setjmp(s_jmpNoSHA1))
 		result = false;
 	else
 	{
-		static const uint32x4_t data = vdupq_n_u32(0);
-		static const uint32_t hash = 0x0;
+		uint32x4_t data1 = {1,2,3,4}, data2 = {5,6,7,8}, data3 = {9,10,11,12};
 
-	    uint32x4_t r1 = vsha1cq_u32 (data, hash, data);
-		uint32x4_t r2 = vsha1mq_u32 (data, hash, data);
-		uint32x4_t r3 = vsha1pq_u32 (data, hash, data);
-		CRYPTOPP_UNUSED(r1), CRYPTOPP_UNUSED(r2), CRYPTOPP_UNUSED(r3);
+		uint32x4_t r1 = vsha1cq_u32 (data1, 0, data2);
+		uint32x4_t r2 = vsha1mq_u32 (data1, 0, data2);
+		uint32x4_t r3 = vsha1pq_u32 (data1, 0, data2);
+		uint32x4_t r4 = vsha1su0q_u32 (data1, data2, data3);
+		uint32x4_t r5 = vsha1su1q_u32 (data1, data2);
+
+		// Hack... GCC optimizes away the code and returns true
+		result = !!(vgetq_lane_u32(r1,0) | vgetq_lane_u32(r2,1) | vgetq_lane_u32(r3,2) | vgetq_lane_u32(r4,3) | vgetq_lane_u32(r5,0));
 	}
 
+	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULL);
 	signal(SIGILL, oldHandler);
 	return result;
 # endif
@@ -550,45 +603,52 @@ static bool TrySHA2()
 {
 #if (CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
+	volatile bool result = true;
 	__try
 	{
-		static const uint32x4_t data = vdupq_n_u32(0);
-		static const uint32x4_t hash = vdupq_n_u32(0);
+		uint32x4_t data1 = {1,2,3,4}, data2 = {5,6,7,8}, data3 = {9,10,11,12};
 
-		uint32x4_t r1 = vsha256hq_u32 (hash, hash, data);
-		uint32x4_t r2 = vsha256h2q_u32 (hash, hash, data);
-		uint32x4_t r3 = vsha256su0q_u32 (data, data);
-		uint32x4_t r4 = vsha256su1q_u32 (data, data, data);
-		CRYPTOPP_UNUSED(r1), CRYPTOPP_UNUSED(r2), CRYPTOPP_UNUSED(r3), CRYPTOPP_UNUSED(r4);
+		uint32x4_t r1 = vsha256hq_u32 (data1, data2, data3);
+		uint32x4_t r2 = vsha256h2q_u32 (data1, data2, data3);
+		uint32x4_t r3 = vsha256su0q_u32 (data1, data2);
+		uint32x4_t r4 = vsha256su1q_u32 (data1, data2, data3);
+
+		result = !!(vgetq_lane_u32(r1,0) | vgetq_lane_u32(r2,1) | vgetq_lane_u32(r3,2) | vgetq_lane_u32(r4,3));
 	}
 	__except (EXCEPTION_EXECUTE_HANDLER)
 	{
 		return false;
 	}
-	return true;
+	return result;
 # else
 	// longjmp and clobber warnings. Volatile is required.
 	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
 	volatile bool result = true;
 
-	SigHandler oldHandler = signal(SIGILL, SigIllHandlerSHA2);
+	volatile SigHandler oldHandler = signal(SIGILL, SigIllHandlerSHA2);
 	if (oldHandler == SIG_ERR)
-		result = false;
+		return false;
+
+	volatile sigset_t oldMask;
+	if (sigprocmask(0, NULL, (sigset_t*)&oldMask))
+		return false;
 
 	if (setjmp(s_jmpNoSHA2))
 		result = false;
 	else
 	{
-		static const uint32x4_t data = vdupq_n_u32(0);
-		static const uint32x4_t hash = vdupq_n_u32(0);
+		uint32x4_t data1 = {1,2,3,4}, data2 = {5,6,7,8}, data3 = {9,10,11,12};
 
-		uint32x4_t r1 = vsha256hq_u32 (hash, hash, data);
-		uint32x4_t r2 = vsha256h2q_u32 (hash, hash, data);
-		uint32x4_t r3 = vsha256su0q_u32 (data, data);
-		uint32x4_t r4 = vsha256su1q_u32 (data, data, data);
-		CRYPTOPP_UNUSED(r1), CRYPTOPP_UNUSED(r2), CRYPTOPP_UNUSED(r3), CRYPTOPP_UNUSED(r4);
+		uint32x4_t r1 = vsha256hq_u32 (data1, data2, data3);
+		uint32x4_t r2 = vsha256h2q_u32 (data1, data2, data3);
+		uint32x4_t r3 = vsha256su0q_u32 (data1, data2);
+		uint32x4_t r4 = vsha256su1q_u32 (data1, data2, data3);
+
+		// Hack... GCC optimizes away the code and returns true
+		result = !!(vgetq_lane_u32(r1,0) | vgetq_lane_u32(r2,1) | vgetq_lane_u32(r3,2) | vgetq_lane_u32(r4,3));
 	}
 
+	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULL);
 	signal(SIGILL, oldHandler);
 	return result;
 # endif
