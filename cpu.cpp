@@ -99,11 +99,11 @@ bool CpuId(word32 input, word32 output[4])
 
 	volatile SigHandler oldHandler = signal(SIGILL, SigIllHandlerCPUID);
 	if (oldHandler == SIG_ERR)
-		result = false;
+		return false;
 
 	volatile sigset_t oldMask;
 	if (sigprocmask(0, NULL, (sigset_t*)&oldMask))
-		result = false;
+		return false;
 
 	if (setjmp(s_jmpNoCPUID))
 		result = false;
@@ -162,10 +162,10 @@ static bool TrySSE2()
 
 	volatile sigset_t oldMask;
 	if (sigprocmask(0, NULL, (sigset_t*)&oldMask))
-		result = false;
+		return false;
 
 	if (setjmp(s_jmpNoSSE2))
-		result = true;
+		result = false;
 	else
 	{
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
@@ -397,11 +397,11 @@ static bool TryNEON()
 
 	volatile SigHandler oldHandler = signal(SIGILL, SigIllHandlerNEON);
 	if (oldHandler == SIG_ERR)
-		result = false;
+		return false;
 
 	volatile sigset_t oldMask;
 	if (sigprocmask(0, NULL, (sigset_t*)&oldMask))
-		result = false;
+		return false;
 
 	if (setjmp(s_jmpNoNEON))
 		result = false;
@@ -458,11 +458,11 @@ static bool TryCRC32()
 
 	volatile SigHandler oldHandler = signal(SIGILL, SigIllHandlerCRC32);
 	if (oldHandler == SIG_ERR)
-		result = false;
+		return false;
 
 	volatile sigset_t oldMask;
 	if (sigprocmask(0, NULL, (sigset_t*)&oldMask))
-		result = false;
+		return false;
 
 	if (setjmp(s_jmpNoCRC32))
 		result = false;
@@ -512,11 +512,11 @@ static bool TryAES()
 
 	volatile SigHandler oldHandler = signal(SIGILL, SigIllHandlerAES);
 	if (oldHandler == SIG_ERR)
-		result = false;
+		return false;
 
 	volatile sigset_t oldMask;
 	if (sigprocmask(0, NULL, (sigset_t*)&oldMask))
-		result = false;
+		return false;
 
 	if (setjmp(s_jmpNoAES))
 		result = false;
@@ -568,11 +568,11 @@ static bool TrySHA1()
 
 	volatile SigHandler oldHandler = signal(SIGILL, SigIllHandlerSHA1);
 	if (oldHandler == SIG_ERR)
-		result = false;
+		return false;
 
 	volatile sigset_t oldMask;
 	if (sigprocmask(0, NULL, (sigset_t*)&oldMask))
-		result = false;
+		return false;
 
 	if (setjmp(s_jmpNoSHA1))
 		result = false;
@@ -627,11 +627,11 @@ static bool TrySHA2()
 
 	volatile SigHandler oldHandler = signal(SIGILL, SigIllHandlerSHA2);
 	if (oldHandler == SIG_ERR)
-		result = false;
+		return false;
 
 	volatile sigset_t oldMask;
 	if (sigprocmask(0, NULL, (sigset_t*)&oldMask))
-		result = false;
+		return false;
 
 	if (setjmp(s_jmpNoSHA2))
 		result = false;
