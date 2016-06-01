@@ -160,6 +160,10 @@ static bool TrySSE2()
 	if (oldHandler == SIG_ERR)
 		return false;
 
+	volatile sigset_t oldMask;
+	if (sigprocmask(0, NULL, (sigset_t*)&oldMask))
+		result = false;
+
 	if (setjmp(s_jmpNoSSE2))
 		result = true;
 	else
