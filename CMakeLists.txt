@@ -14,6 +14,8 @@ include(CheckCXXSymbolExists)
 # Settable options
 #============================================================================
 
+option(BUILD_STATIC "Build static library" ON)
+option(BUILD_SHARED "Build shared library" ON)
 option(BUILD_TESTING "Build library tests" ON)
 option(BUILD_DOCUMENTATION "Use Doxygen to create the HTML based API documentation" OFF)
 
@@ -119,35 +121,52 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 	set_target_properties(cryptopp-object PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 endif()
 
-add_library(cryptopp-static STATIC $<TARGET_OBJECTS:cryptopp-object>)
-add_library(cryptopp-shared SHARED $<TARGET_OBJECTS:cryptopp-object>)
 
-target_include_directories(cryptopp-shared PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> $<INSTALL_INTERFACE:include/cryptopp>)
-target_include_directories(cryptopp-static PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> $<INSTALL_INTERFACE:include/cryptopp>)
+if (BUILD_STATIC)
+	add_library(cryptopp-static STATIC $<TARGET_OBJECTS:cryptopp-object>)
+	target_include_directories(cryptopp-static PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> $<INSTALL_INTERFACE:include/cryptopp>)
+endif()
+
+if (BUILD_SHARED)
+	add_library(cryptopp-shared SHARED $<TARGET_OBJECTS:cryptopp-object>)
+	target_include_directories(cryptopp-shared PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> $<INSTALL_INTERFACE:include/cryptopp>)
+endif()
 
 if(NOT MSVC)
 	set(COMPAT_VERSION ${cryptopp_VERSION_MAJOR}.${cryptopp_VERSION_MINOR})
 
-	set_target_properties(cryptopp-static
-			PROPERTIES
-			OUTPUT_NAME cryptopp)
-	set_target_properties(cryptopp-shared
-			PROPERTIES
-			SOVERSION ${COMPAT_VERSION}
-			OUTPUT_NAME cryptopp)
+	if (BUILD_STATIC)
+		set_target_properties(cryptopp-static
+				PROPERTIES
+				OUTPUT_NAME cryptopp)
+	endif()
+	if (BUILD_SHARED)
+		set_target_properties(cryptopp-shared
+				PROPERTIES
+				SOVERSION ${COMPAT_VERSION}
+				OUTPUT_NAME cryptopp)
+	endif()
 endif()
 
 #============================================================================
 # Third-party libraries
 #============================================================================
 if(WIN32)
-	target_link_libraries(cryptopp-static ws2_32)
-	target_link_libraries(cryptopp-shared ws2_32)
+	if (BUILD_STATIC)
+		target_link_libraries(cryptopp-static ws2_32)
+	endif()
+	if (BUILD_SHARED)
+		target_link_libraries(cryptopp-shared ws2_32)
+	endif()
 endif()
 
 find_package(Threads)
-target_link_libraries(cryptopp-static ${CMAKE_THREAD_LIBS_INIT})
-target_link_libraries(cryptopp-shared ${CMAKE_THREAD_LIBS_INIT})
+if (BUILD_STATIC)
+	target_link_libraries(cryptopp-static ${CMAKE_THREAD_LIBS_INIT})
+endif()
+if (BUILD_SHARED)
+	target_link_libraries(cryptopp-shared ${CMAKE_THREAD_LIBS_INIT})
+endif()
 
 #============================================================================
 # Tests
@@ -195,10 +214,14 @@ endif()
 set(export_name "cryptopp-targets")
 
 # Runtime package
-install(TARGETS cryptopp-shared EXPORT ${export_name} DESTINATION ${CMAKE_INSTALL_LIBDIR})
+if (BUILD_SHARED)
+	install(TARGETS cryptopp-shared EXPORT ${export_name} DESTINATION ${CMAKE_INSTALL_LIBDIR})
+endif()
 
 # Development package
-install(TARGETS cryptopp-static EXPORT ${export_name} DESTINATION ${CMAKE_INSTALL_LIBDIR})
+if (BUILD_STATIC)
+	install(TARGETS cryptopp-static EXPORT ${export_name} DESTINATION ${CMAKE_INSTALL_LIBDIR})
+endif()
 install(FILES ${cryptopp_HEADERS} DESTINATION include/cryptopp)
 
 # CMake Package
