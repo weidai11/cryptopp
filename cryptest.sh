@@ -48,8 +48,6 @@ if [ ! -z "CXXFLAGS" ]; then
 	done
 fi
 
-echo "Retained user CXXFLAGS: ${RETAINED_CXXFLAGS[@]}"
-
 # Avoid CRYPTOPP_DATA_DIR in this shell
 unset CRYPTOPP_DATA_DIR
 
