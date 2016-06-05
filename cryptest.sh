@@ -25,7 +25,7 @@ touch "$WARN_RESULTS"
 # Respect user's preferred flags, but filter the stuff we expliclty test
 FILTERED_CXXFLAGS=("-DDEBUG" "-DNDEBUG" "-g" "-g0" "-g1" "-g2" "-g3" "-O0" "-O1" "-O2" "-O3" "-Os" "-Og" "-std=c++03" "-std=c++11" "-std=c++14"
                    "-DCRYPTOPP_DISABLE_ASM" "-fsanitize=address" "-fsanitize=undefined" "-march=armv8-a+crypto" "-march=armv8-a+crc"
-				   "-DDCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562" "-DDCRYPTOPP_NO_UNALIGNED_DATA_ACCESS")
+                   "-DDCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562" "-DDCRYPTOPP_NO_UNALIGNED_DATA_ACCESS")
 # Additional CXXFLAGS we did not filter
 RETAINED_CXXFLAGS=("")
 
@@ -179,6 +179,24 @@ if [ "$IS_ARM32" -ne "0" ] || [ "$IS_ARM64" -ne "0" ]; then
 	$CXX -x c++ -DCRYPTOPP_ADHOC_MAIN -march=armv8-a+crypto adhoc.cpp.proto -o $TMP/adhoc.exe > /dev/null 2>&1
 	if [ "$?" -eq "0" ]; then
 		HAVE_ARM_CRYPTO=1
+	fi
+fi
+
+HAVE_X86_AES=0
+HAVE_X86_RDRAND=0
+HAVE_X86_RDSEED=0
+if [ "$IS_X86" -ne "0" ] || [ "$IS_X64" -ne "0" ]; then
+	$CXX -x c++ -DCRYPTOPP_ADHOC_MAIN -maes adhoc.cpp.proto -o $TMP/adhoc.exe > /dev/null 2>&1
+	if [ "$?" -eq "0" ]; then
+		HAVE_X86_AES=1
+	fi
+	$CXX -x c++ -DCRYPTOPP_ADHOC_MAIN -mrdrnd adhoc.cpp.proto -o $TMP/adhoc.exe > /dev/null 2>&1
+	if [ "$?" -eq "0" ]; then
+		HAVE_X86_RDRAND=1
+	fi
+	$CXX -x c++ -DCRYPTOPP_ADHOC_MAIN -mrdseed adhoc.cpp.proto -o $TMP/adhoc.exe > /dev/null 2>&1
+	if [ "$?" -eq "0" ]; then
+		HAVE_X86_RDSEED=1
 	fi
 fi
 
@@ -1072,7 +1090,7 @@ if [ "$HAVE_CXX03" -ne "0" ] && [ "$HAVE_UBSAN" -ne "0" ]; then
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: debug, c++03, UBsan" | tee -a "$TEST_RESULTS"
 	echo
-	
+
 	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
@@ -1101,7 +1119,7 @@ if [ "$HAVE_CXX03" -ne "0" ] && [ "$HAVE_UBSAN" -ne "0" ]; then
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: release, c++03, UBsan" | tee -a "$TEST_RESULTS"
 	echo
-	
+
 	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
@@ -1130,7 +1148,7 @@ if [ "$HAVE_CXX03" -ne "0" ] && [ "$HAVE_ASAN" -ne "0" ]; then
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: debug, c++03, Asan" | tee -a "$TEST_RESULTS"
 	echo
-	
+
 	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
@@ -1164,7 +1182,7 @@ if [ "$HAVE_CXX03" -ne "0" ] && [ "$HAVE_ASAN" -ne "0" ]; then
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: release, c++03, Asan" | tee -a "$TEST_RESULTS"
 	echo
-	
+
 	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
@@ -1197,7 +1215,7 @@ if [ "$HAVE_CXX11" -ne "0" ] && [ "$HAVE_UBSAN" -ne "0" ]; then
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: c++11, UBsan" | tee -a "$TEST_RESULTS"
 	echo
-	
+
 	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
@@ -1226,7 +1244,7 @@ if [ "$HAVE_CXX11" -ne "0" ] && [ "$HAVE_ASAN" -ne "0" ]; then
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: c++11, Asan" | tee -a "$TEST_RESULTS"
 	echo
-	
+
 	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
@@ -1657,6 +1675,42 @@ if [ "$IS_DARWIN" -ne "0" ]; then
 fi
 
 ############################################
+# Modern compiler and old hardware, like PII, PIII or Core2
+if [ "$IS_X86" -ne "0" ] || [ "$IS_X64" -ne "0" ]; then
+
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: AES, RDRAND and RDSEED" | tee -a "$TEST_RESULTS"
+	echo
+
+	OPTS=("")
+	if [ "$HAVE_X86_AES" -ne "0" ]; then
+		OPTS+=("-maes")
+	fi
+	if [ "$HAVE_X86_RDRAND" -ne "0" ]; then
+		OPTS+=("-mrdrnd")
+	fi
+	if [ "$HAVE_X86_RDSEED" -ne "0" ]; then
+		OPTS+=("-mrdseed")
+	fi
+
+	export CXXFLAGS="-DNDEBUG -g2 -O2 -march=native ${OPTS[@]} ${RETAINED_CXXFLAGS[@]}"
+	"$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+fi
+
+############################################
 # ARM CRC32
 if [ "$HAVE_ARM_CRC" -ne "0" ]; then
 	echo
@@ -1805,7 +1859,7 @@ if [ "$IS_MINGW" -ne "0" ]; then
 	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
-	
+
 	export CXXFLAGS="-DNDEBUG -g2 -O2 -DPREFER_WINDOWS_STYLE_SOCKETS -DNO_BERKELEY_STYLE_SOCKETS ${RETAINED_CXXFLAGS[@]}"
 	"$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
@@ -1830,11 +1884,11 @@ if [ "$HAVE_CXX03" -ne "0" ] && [ "$HAVE_VALGRIND" -ne "0" ]; then
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: Valgrind, c++03" | tee -a "$TEST_RESULTS"
 	echo
-	
+
 	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
-	
+
 	export CXXFLAGS="-DNDEBUG -std=c++03 -g3 -O1 ${RETAINED_CXXFLAGS[@]}"
 	"$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
@@ -1853,7 +1907,7 @@ if [ "$HAVE_VALGRIND" -ne "0" ] && [ "$HAVE_CXX11" -ne "0" ]; then
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: Valgrind, c++11" | tee -a "$TEST_RESULTS"
 	echo
-	
+
 	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
@@ -2031,7 +2085,7 @@ if [ "$IS_CYGWIN" -eq "0" ] && [ "$IS_MINGW" -eq "0" ]; then
 	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
-	
+
 	INSTALL_DIR="/tmp/cryptopp_test"
 	rm -rf "$INSTALL_DIR" > /dev/null 2>&1
 
