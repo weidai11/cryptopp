@@ -1674,7 +1674,7 @@ fi
 
 ############################################
 # Modern compiler and old hardware, like PII, PIII or Core2
-if [ "$IS_X86" -ne "0" ] || [ "$IS_X64" -ne "0" ]; then
+if [ "$HAVE_X86_AES" -ne "0" ] || [ "$HAVE_X86_RDRAND" -ne "0" ] || [ "$HAVE_X86_RDSEED" -ne "0" ]; then
 
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
