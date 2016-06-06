@@ -1692,7 +1692,7 @@ if [ "$IS_X86" -ne "0" ] || [ "$IS_X64" -ne "0" ]; then
 		OPTS+=("-mrdseed")
 	fi
 
-	export CXXFLAGS="-DNDEBUG -g2 -O2 -march=native ${OPTS[@]} ${RETAINED_CXXFLAGS[@]}"
+	export CXXFLAGS="-DNDEBUG -g2 -O2 ${OPTS[@]} ${RETAINED_CXXFLAGS[@]}"
 	"$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
