@@ -827,12 +827,6 @@ NAMESPACE_END
 #  define CRYPTOPP_NO_THROW
 #endif // CRYPTOPP_CXX11_NOEXCEPT
 
-// Hack... CRYPTOPP_ALIGN_DATA is defined earlier, before C++11 alignas availability is determined
-#if defined(CRYPTOPP_CXX11_ALIGNAS)
-# undef CRYPTOPP_ALIGN_DATA
-# define CRYPTOPP_ALIGN_DATA(x) alignas(x)
-#endif  // CRYPTOPP_CXX11_ALIGNAS
-
 // OK to comment the following out, but please report it so we can fix it.
 #if (defined(__cplusplus) && (__cplusplus >= 199711L)) && !defined(CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE)
 # error "std::uncaught_exception is not available. This is likely a configuration error."
