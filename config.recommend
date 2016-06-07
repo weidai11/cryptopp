@@ -757,6 +757,18 @@ NAMESPACE_END
 #  define CRYPTOPP_CXX11_ATOMICS 1
 #endif // atomics
 
+// synchronization: MS at VS2012 (17.00); GCC at 4.4; Clang at 3.3; Xcode 5.0; and Intel 12.0.
+// TODO: verify Clang and Intel versions; find __has_feature(x) extension for Clang
+#if (CRYPTOPP_MSC_VERSION >= 1700)
+#  define CRYPTOPP_CXX11_SYNCHRONIZATION 1
+#elif defined(__INTEL_COMPILER) && (__INTEL_COMPILER >= 1200)
+#  define CRYPTOPP_CXX11_SYNCHRONIZATION 1
+#elif (CRYPTOPP_CLANG_VERSION >= 30300) || (CRYPTOPP_APPLE_CLANG_VERSION >= 50000)
+#  define CRYPTOPP_CXX11_SYNCHRONIZATION 1
+#elif (CRYPTOPP_GCC_VERSION >= 40400)
+#  define CRYPTOPP_CXX11_SYNCHRONIZATION 1
+#endif // synchronization
+
 // alignof/alignas: MS at VS2015 (19.00); GCC at 4.8; Clang at 3.3; and Intel 15.0.
 #if (CRYPTOPP_MSC_VERSION >= 1900)
 #  define CRYPTOPP_CXX11_ALIGNAS 1
@@ -765,8 +777,10 @@ NAMESPACE_END
 #  define CRYPTOPP_CXX11_ALIGNAS 1
 #  define CRYPTOPP_CXX11_ALIGNOF 1
 #elif defined(__clang__)
-#  if __has_feature(cxx_alignof)
+#  if __has_feature(cxx_alignas)
 #  define CRYPTOPP_CXX11_ALIGNAS 1
+#  endif
+#  if __has_feature(cxx_alignof)
 #  define CRYPTOPP_CXX11_ALIGNOF 1
 #  endif
 #elif (CRYPTOPP_GCC_VERSION >= 40800)

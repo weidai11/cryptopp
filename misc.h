@@ -68,7 +68,7 @@
 #if CRYPTOPP_DOXYGEN_PROCESSING
 //! \brief The maximum value of a machine word
 //! \details SIZE_MAX provides the maximum value of a machine word. The value is
-//!   \p 0xffffffff on 32-bit machines, and \p 0xffffffffffffffff on 64-bit machines.	
+//!   \p 0xffffffff on 32-bit machines, and \p 0xffffffffffffffff on 64-bit machines.
 //! Internally, SIZE_MAX is defined as __SIZE_MAX__ if __SIZE_MAX__ is defined. If not
 //!   defined, then SIZE_T_MAX is tried. If neither __SIZE_MAX__ nor SIZE_T_MAX is
 //!   is defined, the library uses std::numeric_limits<size_t>::max(). The library
@@ -93,7 +93,7 @@
 #endif // CRYPTOPP_DOXYGEN_PROCESSING
 
 NAMESPACE_BEGIN(CryptoPP)
-		
+
 // Forward declaration for IntToString specialization
 class Integer;
 
@@ -236,10 +236,12 @@ struct NewObject
 //! \tparam T the class or type
 //! \tparam F the object factory for T
 //! \tparam instance the initiali instance count
-//! \details This class safely initializes a static object in a multithreaded environment
-//!   without using locks (for portability). Note that if two threads call Ref() at the same
-//!   time, they may get back different references, and one object may end up being memory
-//!   leaked. This is by design.
+//! \details This class safely initializes a static object in a multithreaded environment. For C++03
+//!   and below it will do so without using locks for portability. If two threads call Ref() at the same
+//!   time, they may get back different references, and one object may end up being memory leaked. This
+//!   is by design. For C++11 and above, a standard double-checked locking pattern with memory fences
+//!   is used. The locks and fences are standard and do not hinder portability.
+//! \sa <A HREF="http://preshing.com/20130930/double-checked-locking-is-fixed-in-cpp11/">Double-Checked Locking is Fixed In C++11</A>
 template <class T, class F = NewObject<T>, int instance=0>
 class Singleton
 {
@@ -256,28 +258,29 @@ private:
 //! \brief Return a reference to the inner Singleton object
 //! \details Ref() is used to create the object using the object factory. The
 //!   object is only created once with the limitations discussed in the class documentation.
-#if defined(CRYPTOPP_CXX11_ATOMICS)
+//! \sa <A HREF="http://preshing.com/20130930/double-checked-locking-is-fixed-in-cpp11/">Double-Checked Locking is Fixed In C++11</A>
+#if defined(CRYPTOPP_CXX11_ATOMICS) && defined(CRYPTOPP_CXX11_SYNCHRONIZATION)
 template <class T, class F, int instance>
   const T & Singleton<T, F, instance>::Ref(CRYPTOPP_NOINLINE_DOTDOTDOT) const
 {
-	static volatile simple_ptr<T> s_pObject;
-	T *p = s_pObject.m_p;
+	static std::mutex s_mutex;
+	static std::atomic<T*> s_pObject;
+
+	T *p = s_pObject.load(std::memory_order_relaxed);
+	std::atomic_thread_fence(std::memory_order_acquire);
+
+	if (p)
+		return *p;
+
+	std::lock_guard<std::mutex> lock(s_mutex);
+	p = s_pObject.load(std::memory_order_relaxed);
 	std::atomic_thread_fence(std::memory_order_acquire);
 
 	if (p)
 		return *p;
 
 	T *newObject = m_objectFactory();
-	p = s_pObject.m_p;
-	std::atomic_thread_fence(std::memory_order_acquire);
-
-	if (p)
-	{
-		delete newObject;
-		return *p;
-	}
-
-	s_pObject.m_p = newObject;
+	s_pObject.store(newObject, std::memory_order_relaxed);
 	std::atomic_thread_fence(std::memory_order_release);
 
 	return *newObject;
@@ -333,9 +336,9 @@ const T & Singleton<T, F, instance>::Ref(CRYPTOPP_NOINLINE_DOTDOTDOT) const
 //! \details memcpy_s() will assert the pointers src and dest are not NULL
 //!   in debug builds. Passing NULL for either pointer is undefined behavior.
 inline void memcpy_s(void *dest, size_t sizeInBytes, const void *src, size_t count)
-{	
+{
 	// Safer functions on Windows for C&A, http://github.com/weidai11/cryptopp/issues/55
-	
+
 	// Pointers must be valid; otherwise undefined behavior
 	assert(dest != NULL); assert(src != NULL);
 	// Destination buffer must be large enough to satsify request
@@ -377,7 +380,7 @@ inline void memcpy_s(void *dest, size_t sizeInBytes, const void *src, size_t cou
 inline void memmove_s(void *dest, size_t sizeInBytes, const void *src, size_t count)
 {
 	// Safer functions on Windows for C&A, http://github.com/weidai11/cryptopp/issues/55
-	
+
 	// Pointers must be valid; otherwise undefined behavior
 	assert(dest != NULL); assert(src != NULL);
 	// Destination buffer must be large enough to satsify request
@@ -497,7 +500,7 @@ std::string IntToString(T value, unsigned int base = 10)
 	static const unsigned int HIGH_BIT = (1U << 31);
 	const char CH = !!(base & HIGH_BIT) ? 'A' : 'a';
 	base &= ~HIGH_BIT;
-	
+
 	assert(base >= 2);
 	if (value == 0)
 		return "0";
@@ -647,9 +650,9 @@ inline unsigned int TrailingZeros(word32 v)
 	return (unsigned int)result;
 #else
 	// from http://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightMultLookup
-	static const int MultiplyDeBruijnBitPosition[32] = 
+	static const int MultiplyDeBruijnBitPosition[32] =
 	{
-	  0, 1, 28, 2, 29, 14, 24, 3, 30, 22, 20, 15, 25, 17, 4, 8, 
+	  0, 1, 28, 2, 29, 14, 24, 3, 30, 22, 20, 15, 25, 17, 4, 8,
 	  31, 27, 13, 23, 21, 19, 16, 7, 26, 12, 18, 6, 11, 5, 10, 9
 	};
 	return MultiplyDeBruijnBitPosition[((word32)((v & -v) * 0x077CB531U)) >> 27];
@@ -840,7 +843,7 @@ inline T1 RoundUpToMultipleOf(const T1 &n, const T2 &m)
 //!   is defined, then the function returns 1.
 template <class T>
 inline unsigned int GetAlignmentOf(T *dummy=NULL)	// VC60 workaround
-{	
+{
 // GCC 4.6 (circa 2008) and above aggressively uses vectorization.
 #if defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS)
 	if (sizeof(T) < 16)
@@ -989,7 +992,7 @@ inline void IncrementCounterByOne(byte *inout, unsigned int size)
 inline void IncrementCounterByOne(byte *output, const byte *input, unsigned int size)
 {
 	assert(output != NULL); assert(input != NULL); assert(size < INT_MAX);
-	
+
 	int i, carry;
 	for (i=int(size-1), carry=1; i>=0 && carry; i--)
 		carry = ((output[i] = input[i]+1) == 0);
@@ -1024,7 +1027,7 @@ inline void ConditionalSwapPointers(bool c, T &a, T &b)
 // and https://www.securecoding.cert.org/confluence/display/cplusplus/MSC06-CPP.+Be+aware+of+compiler+optimization+when+dealing+with+sensitive+data
 
 //! \brief Sets each element of an array to 0
-//! \param buf an array of elements 
+//! \param buf an array of elements
 //! \param n the number of elements in the array
 //! \details The operation performs a wipe or zeroization. The function attempts to survive optimizations and dead code removal
 template <class T>
@@ -1039,7 +1042,7 @@ void SecureWipeBuffer(T *buf, size_t n)
 #if (_MSC_VER >= 1400 || defined(__GNUC__)) && (CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X86)
 
 //! \brief Sets each byte of an array to 0
-//! \param buf an array of bytes 
+//! \param buf an array of bytes
 //! \param n the number of elements in the array
 //! \details The operation performs a wipe or zeroization. The function attempts to survive optimizations and dead code removal.
 template<> inline void SecureWipeBuffer(byte *buf, size_t n)
@@ -1053,7 +1056,7 @@ template<> inline void SecureWipeBuffer(byte *buf, size_t n)
 }
 
 //! \brief Sets each 16-bit element of an array to 0
-//! \param buf an array of 16-bit words 
+//! \param buf an array of 16-bit words
 //! \param n the number of elements in the array
 //! \details The operation performs a wipe or zeroization. The function attempts to survive optimizations and dead code removal.
 template<> inline void SecureWipeBuffer(word16 *buf, size_t n)
@@ -1067,7 +1070,7 @@ template<> inline void SecureWipeBuffer(word16 *buf, size_t n)
 }
 
 //! \brief Sets each 32-bit element of an array to 0
-//! \param buf an array of 32-bit words 
+//! \param buf an array of 32-bit words
 //! \param n the number of elements in the array
 //! \details The operation performs a wipe or zeroization. The function attempts to survive optimizations and dead code removal.
 template<> inline void SecureWipeBuffer(word32 *buf, size_t n)
@@ -1081,7 +1084,7 @@ template<> inline void SecureWipeBuffer(word32 *buf, size_t n)
 }
 
 //! \brief Sets each 64-bit element of an array to 0
-//! \param buf an array of 64-bit words 
+//! \param buf an array of 64-bit words
 //! \param n the number of elements in the array
 //! \details The operation performs a wipe or zeroization. The function attempts to survive optimizations and dead code removal.
 template<> inline void SecureWipeBuffer(word64 *buf, size_t n)
@@ -1147,7 +1150,7 @@ inline void SecureWipeArray(T *buf, size_t n)
 		SecureWipeBuffer((byte *)(void *)buf, n * sizeof(T));
 }
 
-//! \brief Converts a wide character C-string to a multibyte string 
+//! \brief Converts a wide character C-string to a multibyte string
 //! \param str C-string consiting of wide characters
 //! \param throwOnError specifies the function should throw an InvalidArgument exception on error
 //! \returns str converted to a multibyte string or an empty string.
@@ -1267,7 +1270,7 @@ template <class T> inline T rotlFixed(T x, unsigned int y)
 {
 	// Portable rotate that reduces to single instruction...
 	// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=57157,
-	// https://software.intel.com/en-us/forums/topic/580884 
+	// https://software.intel.com/en-us/forums/topic/580884
 	// and https://llvm.org/bugs/show_bug.cgi?id=24226
 	static const unsigned int THIS_SIZE = sizeof(T)*8;
 	static const unsigned int MASK = THIS_SIZE-1;
@@ -1288,7 +1291,7 @@ template <class T> inline T rotrFixed(T x, unsigned int y)
 {
 	// Portable rotate that reduces to single instruction...
 	// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=57157,
-	// https://software.intel.com/en-us/forums/topic/580884 
+	// https://software.intel.com/en-us/forums/topic/580884
 	// and https://llvm.org/bugs/show_bug.cgi?id=24226
 	static const unsigned int THIS_SIZE = sizeof(T)*8;
 	static const unsigned int MASK = THIS_SIZE-1;
@@ -1364,7 +1367,7 @@ template <class T> inline T rotrMod(T x, unsigned int y)
 //! \details This is a Microsoft specific implementation using <tt>_lrotl</tt> provided by
 //!   <stdlib.h>. The value x to be rotated is 32-bits. y must be in the range
 //!   <tt>[0, sizeof(T)*8 - 1]</tt> to avoid undefined behavior.
-//! \note rotlFixed will assert in Debug builds if is outside the allowed range. 
+//! \note rotlFixed will assert in Debug builds if is outside the allowed range.
 template<> inline word32 rotlFixed<word32>(word32 x, unsigned int y)
 {
 	// Uses Microsoft <stdlib.h> call, bound to C/C++ language rules.
@@ -1378,7 +1381,7 @@ template<> inline word32 rotlFixed<word32>(word32 x, unsigned int y)
 //! \details This is a Microsoft specific implementation using <tt>_lrotr</tt> provided by
 //!   <stdlib.h>. The value x to be rotated is 32-bits. y must be in the range
 //!   <tt>[0, sizeof(T)*8 - 1]</tt> to avoid undefined behavior.
-//! \note rotrFixed will assert in Debug builds if is outside the allowed range. 
+//! \note rotrFixed will assert in Debug builds if is outside the allowed range.
 template<> inline word32 rotrFixed<word32>(word32 x, unsigned int y)
 {
 	// Uses Microsoft <stdlib.h> call, bound to C/C++ language rules.
@@ -1392,7 +1395,7 @@ template<> inline word32 rotrFixed<word32>(word32 x, unsigned int y)
 //! \details This is a Microsoft specific implementation using <tt>_lrotl</tt> provided by
 //!   <stdlib.h>. The value x to be rotated is 32-bits. y must be in the range
 //!   <tt>[0, sizeof(T)*8 - 1]</tt> to avoid undefined behavior.
-//! \note rotlVariable will assert in Debug builds if is outside the allowed range. 
+//! \note rotlVariable will assert in Debug builds if is outside the allowed range.
 template<> inline word32 rotlVariable<word32>(word32 x, unsigned int y)
 {
 	assert(y < 8*sizeof(x));
@@ -1405,7 +1408,7 @@ template<> inline word32 rotlVariable<word32>(word32 x, unsigned int y)
 //! \details This is a Microsoft specific implementation using <tt>_lrotr</tt> provided by
 //!   <stdlib.h>. The value x to be rotated is 32-bits. y must be in the range
 //!   <tt>[0, sizeof(T)*8 - 1]</tt> to avoid undefined behavior.
-//! \note rotrVariable will assert in Debug builds if is outside the allowed range. 
+//! \note rotrVariable will assert in Debug builds if is outside the allowed range.
 template<> inline word32 rotrVariable<word32>(word32 x, unsigned int y)
 {
 	assert(y < 8*sizeof(x));
@@ -1447,7 +1450,7 @@ template<> inline word32 rotrMod<word32>(word32 x, unsigned int y)
 //! \details This is a Microsoft specific implementation using <tt>_lrotl</tt> provided by
 //!   <stdlib.h>. The value x to be rotated is 64-bits. y must be in the range
 //!   <tt>[0, sizeof(T)*8 - 1]</tt> to avoid undefined behavior.
-//! \note rotrFixed will assert in Debug builds if is outside the allowed range. 
+//! \note rotrFixed will assert in Debug builds if is outside the allowed range.
 template<> inline word64 rotlFixed<word64>(word64 x, unsigned int y)
 {
 	// Uses Microsoft <stdlib.h> call, bound to C/C++ language rules.
@@ -1461,7 +1464,7 @@ template<> inline word64 rotlFixed<word64>(word64 x, unsigned int y)
 //! \details This is a Microsoft specific implementation using <tt>_lrotr</tt> provided by
 //!   <stdlib.h>. The value x to be rotated is 64-bits. y must be in the range
 //!   <tt>[0, sizeof(T)*8 - 1]</tt> to avoid undefined behavior.
-//! \note rotrFixed will assert in Debug builds if is outside the allowed range. 
+//! \note rotrFixed will assert in Debug builds if is outside the allowed range.
 template<> inline word64 rotrFixed<word64>(word64 x, unsigned int y)
 {
 	// Uses Microsoft <stdlib.h> call, bound to C/C++ language rules.
@@ -1475,7 +1478,7 @@ template<> inline word64 rotrFixed<word64>(word64 x, unsigned int y)
 //! \details This is a Microsoft specific implementation using <tt>_lrotl</tt> provided by
 //!   <stdlib.h>. The value x to be rotated is 64-bits. y must be in the range
 //!   <tt>[0, sizeof(T)*8 - 1]</tt> to avoid undefined behavior.
-//! \note rotlVariable will assert in Debug builds if is outside the allowed range. 
+//! \note rotlVariable will assert in Debug builds if is outside the allowed range.
 template<> inline word64 rotlVariable<word64>(word64 x, unsigned int y)
 {
 	assert(y < 8*sizeof(x));
@@ -1488,7 +1491,7 @@ template<> inline word64 rotlVariable<word64>(word64 x, unsigned int y)
 //! \details This is a Microsoft specific implementation using <tt>_lrotr</tt> provided by
 //!   <stdlib.h>. The value x to be rotated is 64-bits. y must be in the range
 //!   <tt>[0, sizeof(T)*8 - 1]</tt> to avoid undefined behavior.
-//! \note rotrVariable will assert in Debug builds if is outside the allowed range. 
+//! \note rotrVariable will assert in Debug builds if is outside the allowed range.
 template<> inline word64 rotrVariable<word64>(word64 x, unsigned int y)
 {
 	assert(y < 8*sizeof(x));
@@ -1808,26 +1811,26 @@ inline T ConditionalByteReverse(ByteOrder order, T value)
 //!   reversed.
 //! \details The follwoing program should help illustrate the behavior.
 //! <pre>vector<word32> v1, v2;
-//! 
+//!
 //! v1.push_back(1);
 //! v1.push_back(2);
 //! v1.push_back(3);
 //! v1.push_back(4);
-//! 
+//!
 //! v2.resize(v1.size());
 //! ByteReverse<word32>(&v2[0], &v1[0], 16);
-//! 
+//!
 //! cout << "V1: ";
 //! for(unsigned int i = 0; i < v1.size(); i++)
 //!   cout << std::hex << v1[i] << " ";
 //! cout << endl;
-//! 
+//!
 //! cout << "V2: ";
 //! for(unsigned int i = 0; i < v2.size(); i++)
 //!   cout << std::hex << v2[i] << " ";
 //! cout << endl;</pre>
 //! The program above results in the follwoing output.
-//! <pre>V1: 00000001 00000002 00000003 00000004 
+//! <pre>V1: 00000001 00000002 00000003 00000004
 //! V2: 01000000 02000000 03000000 04000000</pre>
 //! \sa ConditionalByteReverse
 template <class T>
@@ -2225,7 +2228,7 @@ template <bool overflow> struct SafeShifter;
 //! \class SafeShifter<true>
 //! \brief Shifts a value in the presence of overflow
 //! \details the \p true template parameter indicates overflow would occur.
-//!   In this case, SafeShifter clamps the value and returns 0. 
+//!   In this case, SafeShifter clamps the value and returns 0.
 template<> struct SafeShifter<true>
 {
 	//! \brief Right shifts a value that overflows
@@ -2256,7 +2259,7 @@ template<> struct SafeShifter<true>
 //! \class SafeShifter<false>
 //! \brief Shifts a value in the absence of overflow
 //! \details the \p false template parameter indicates overflow would \a not occur.
-//!   In this case, SafeShifter returns the shfted value. 
+//!   In this case, SafeShifter returns the shfted value.
 template<> struct SafeShifter<false>
 {
 	//! \brief Right shifts a value that does not overflow

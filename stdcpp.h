@@ -36,6 +36,10 @@ namespace std {
 #include <atomic>
 #endif
 
+#if defined(CRYPTOPP_CXX11_SYNCHRONIZATION)
+#include <mutex>
+#endif
+
 #include <cstdlib>
 #include <cstddef>
 #include <cstring>
