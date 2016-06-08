@@ -28,7 +28,7 @@ template <unsigned int R>
 class CRYPTOPP_NO_VTABLE ChaCha_Policy : public AdditiveCipherConcretePolicy<word32, 16>
 {
 protected:
-	CRYPTOPP_CONSTANT(ROUNDS=FixedRounds<R>::ROUNDS);
+	CRYPTOPP_CONSTANT(ROUNDS=FixedRounds<R>::ROUNDS)
 
 	void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length);
 	void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount);
