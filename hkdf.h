@@ -29,8 +29,8 @@ template <class T>
 class HKDF : public KeyDerivationFunction
 {
 public:
-	CRYPTOPP_CONSTANT(DIGESTSIZE = T::DIGESTSIZE);
-	CRYPTOPP_CONSTANT(SALTSIZE = T::DIGESTSIZE);
+	CRYPTOPP_CONSTANT(DIGESTSIZE = T::DIGESTSIZE)
+	CRYPTOPP_CONSTANT(SALTSIZE = T::DIGESTSIZE)
 	static const char* StaticAlgorithmName () {
 		static const std::string name(std::string("HKDF(") + std::string(T::StaticAlgorithmName()) + std::string(")"));
 		return name.c_str();
