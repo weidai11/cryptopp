@@ -82,6 +82,7 @@ GCC48_OR_LATER := $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "gcc version (4\.[8-9]
 GCC49_OR_LATER := $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "gcc version (4\.9|[5-9]\.)")
 
 ICC111_OR_LATER := $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(ICC\) ([2-9][0-9]|1[2-9]|11\.[1-9])")
+IS_GAS := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler")
 GAS210_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.[1-9][0-9]|[3-9])")
 GAS217_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.1[7-9]|2\.[2-9]|[3-9])")
 GAS219_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.19|2\.[2-9]|[3-9])")
@@ -143,16 +144,30 @@ ifeq ($(GCC_COMPILER)$(GAS219_OR_LATER),10)
 CXXFLAGS += -DCRYPTOPP_DISABLE_AESNI
 endif
 endif
+endif
 
 ifneq ($(IS_SUN),0)
-CXXFLAGS += -Wa,--divide	# allow use of "/" operator
+IS_64 := $(shell isainfo -b 2>/dev/null | grep -i -c "64")
+ifeq ($(SUN_COMPILER)$(IS_64),11)
+CXXFLAGS := -DNDEBUG -g3 -xO2 -native -template=no%extdef -m64 -Kpic
+else ifeq ($(SUN_COMPILER)$(IS_64),10)
+CXXFLAGS := -DNDEBUG -g3 -xO2 -native -template=no%extdef -m32
+endif
+endif  # SunOS
+
+# Allow use of "/" operator for GNU Assembler
+ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
+ifeq ($(IS_GAS),1)
+CXXFLAGS += -Wa,--divide
 endif
 endif
 
 ifeq ($(UNAME),)	# for DJGPP, where uname doesn't exist
 CXXFLAGS += -mbnu210
 else ifneq ($(findstring -save-temps,$(CXXFLAGS)),-save-temps)
+ifeq ($(SUN_COMPILER),0)
 CXXFLAGS += -pipe
+endif
 endif
 
 else
@@ -166,8 +181,8 @@ ifeq ($(findstring -fPIC,$(CXXFLAGS)),)
   CXXFLAGS += -fPIC
 endif
 
-# Add -pipe for everything except ARM
-ifneq ($(IS_PPC),0)
+# Add -pipe for everything except ARM (allow ARM-64 because they seems to have > 1 GB of memory)
+ifeq ($(IS_ARM32),0)
 ifeq ($(findstring -save-temps,$(CXXFLAGS)),)
 CXXFLAGS += -pipe
 endif
