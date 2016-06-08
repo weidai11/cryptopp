@@ -64,7 +64,7 @@ struct CRYPTOPP_NO_VTABLE BLAKE2_IV {};
 template<>
 struct CRYPTOPP_NO_VTABLE BLAKE2_IV<false>
 {
-	CRYPTOPP_CONSTANT(IVSIZE = 8);
+	CRYPTOPP_CONSTANT(IVSIZE = 8)
 	// Always align for NEON and SSE
 	CRYPTOPP_ALIGN_DATA(16) static const word32 iv[8];
 };
@@ -79,7 +79,7 @@ const word32 BLAKE2_IV<false>::iv[8] = {
 template<>
 struct CRYPTOPP_NO_VTABLE BLAKE2_IV<true>
 {
-	CRYPTOPP_CONSTANT(IVSIZE = 8);
+	CRYPTOPP_CONSTANT(IVSIZE = 8)
 	// Always align for NEON and SSE
 	CRYPTOPP_ALIGN_DATA(16) static const word64 iv[8];
 };
@@ -278,7 +278,7 @@ void BLAKE2_Base<W, T_64bit>::UncheckedSetKey(const byte *key, unsigned int leng
 	}
 
 	// Zero everything except the two trailing strings
-	ParameterBlock& block = *m_block;
+	ParameterBlock& block = *m_block.data();
 	const size_t head = sizeof(block) - sizeof(block.personalization) - sizeof(block.salt);
 	memset(m_block.data(), 0x00, head);
 
@@ -351,7 +351,7 @@ template <class W, bool T_64bit>
 void BLAKE2_Base<W, T_64bit>::Restart()
 {
 	static const W zero[2] = {0,0};
-	Restart(*m_block, zero);
+	Restart(*m_block.data(), zero);
 }
 
 template <class W, bool T_64bit>
@@ -362,11 +362,11 @@ void BLAKE2_Base<W, T_64bit>::Restart(const BLAKE2_ParameterBlock<T_64bit>& bloc
 	if (&block != m_block.data())
 	{
 		memcpy_s(m_block, sizeof(block), &block, sizeof(block));
-		(*m_block).digestLength = (byte)m_digestSize;
-		(*m_block).keyLength = (byte)m_key.size();
+		(*m_block.data()).digestLength = (byte)m_digestSize;
+		(*m_block.data()).keyLength = (byte)m_key.size();
 	}
 
-	State& state = *m_state;
+	State& state = *m_state.data();
 	state.t[0] = state.t[1] = 0, state.f[0] = state.f[1] = 0, state.length = 0;
 
 	if (counter != NULL)
@@ -388,7 +388,7 @@ void BLAKE2_Base<W, T_64bit>::Restart(const BLAKE2_ParameterBlock<T_64bit>& bloc
 template <class W, bool T_64bit>
 void BLAKE2_Base<W, T_64bit>::Update(const byte *input, size_t length)
 {
-	State& state = *m_state;
+	State& state = *m_state.data();
 	if (state.length + length > BLOCKSIZE)
 	{
 		// Complete current block
@@ -423,7 +423,7 @@ void BLAKE2_Base<W, T_64bit>::TruncatedFinal(byte *hash, size_t size)
 	this->ThrowIfInvalidTruncatedSize(size);
 
 	// Set last block unconditionally
-	State& state = *m_state;
+	State& state = *m_state.data();
 	state.f[0] = static_cast<W>(-1);
 
 	// Set last node if tree mode
@@ -445,7 +445,7 @@ void BLAKE2_Base<W, T_64bit>::TruncatedFinal(byte *hash, size_t size)
 template <class W, bool T_64bit>
 void BLAKE2_Base<W, T_64bit>::IncrementCounter(size_t count)
 {
-	State& state = *m_state;
+	State& state = *m_state.data();
 	state.t[0] += static_cast<W>(count);
 	state.t[1] += !!(state.t[0] < count);
 }
@@ -455,7 +455,7 @@ void BLAKE2_Base<word64, true>::Compress(const byte *input)
 {
 	// Selects the most advanced implmentation at runtime
 	static const pfnCompress64 s_pfn = InitializeCompress64Fn();
-	s_pfn(input, *m_state);
+	s_pfn(input, *m_state.data());
 }
 
 template <>
@@ -463,7 +463,7 @@ void BLAKE2_Base<word32, false>::Compress(const byte *input)
 {
 	// Selects the most advanced implmentation at runtime
 	static const pfnCompress32 s_pfn = InitializeCompress32Fn();
-	s_pfn(input, *m_state);
+	s_pfn(input, *m_state.data());
 }
 
 void BLAKE2_CXX_Compress64(const byte* input, BLAKE2_State<word64, true>& state)
