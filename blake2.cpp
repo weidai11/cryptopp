@@ -187,74 +187,74 @@ pfnCompress32 InitializeCompress32Fn()
 #endif // CRYPTOPP_DOXYGEN_PROCESSING
 
 BLAKE2_ParameterBlock<false>::BLAKE2_ParameterBlock(size_t digestLen, size_t keyLen,
-		const byte* salt, size_t saltLen,
-		const byte* personalization, size_t personalizationLen)
+		const byte* saltStr, size_t saltLen,
+		const byte* personalizationStr, size_t personalizationLen)
 {
-	static const size_t head = sizeof(*this) - sizeof(this->personalization) - sizeof(this->salt);
+	static const size_t head = sizeof(*this) - sizeof(personalization) - sizeof(salt);
 	memset(this, 0x00, head);
 
-	this->digestLength = (byte)digestLen;
-	this->keyLength = (byte)keyLen;
+	digestLength = (byte)digestLen;
+	keyLength = (byte)keyLen;
 	fanout = depth = 1;
 
-	if (salt && saltLen)
+	if (saltStr && saltLen)
 	{
-		memcpy_s(this->salt, sizeof(this->salt), salt, saltLen);
-		const size_t rem = sizeof(this->salt) - saltLen;
+		memcpy_s(salt, sizeof(salt), saltStr, saltLen);
+		const size_t rem = sizeof(salt) - saltLen;
 		if (rem)
-			memset(this->salt+rem, 0x00, rem);
+			memset(salt+rem, 0x00, rem);
 	}
 	else
 	{
-		memset(this->salt, 0x00, sizeof(this->salt));
+		memset(salt, 0x00, sizeof(salt));
 	}
 
-	if (personalization && personalizationLen)
+	if (personalizationStr && personalizationLen)
 	{
-		memcpy_s(this->personalization, sizeof(this->personalization), personalization, personalizationLen);
-		const size_t rem = sizeof(this->personalization) - personalizationLen;
+		memcpy_s(personalization, sizeof(personalization), personalizationStr, personalizationLen);
+		const size_t rem = sizeof(personalization) - personalizationLen;
 		if (rem)
-			memset(this->personalization+rem, 0x00, rem);
+			memset(personalization+rem, 0x00, rem);
 	}
 	else
 	{
-		memset(this->personalization, 0x00, sizeof(this->personalization));
+		memset(personalization, 0x00, sizeof(personalization));
 	}
 }
 
 BLAKE2_ParameterBlock<true>::BLAKE2_ParameterBlock(size_t digestLen, size_t keyLen,
-		const byte* salt, size_t saltLen,
-		const byte* personalization, size_t personalizationLen)
+		const byte* saltStr, size_t saltLen,
+		const byte* personalizationStr, size_t personalizationLen)
 {
-	static const size_t head = sizeof(*this) - sizeof(this->personalization) - sizeof(this->salt);
+	static const size_t head = sizeof(*this) - sizeof(personalization) - sizeof(salt);
 	memset(this, 0x00, head);
 
-	this->digestLength = (byte)digestLen;
-	this->keyLength = (byte)keyLen;
+	digestLength = (byte)digestLen;
+	keyLength = (byte)keyLen;
 	fanout = depth = 1;
 
-	if (salt && saltLen)
+	if (saltStr && saltLen)
 	{
-		memcpy_s(this->salt, sizeof(this->salt), salt, saltLen);
-		const size_t rem = sizeof(this->salt) - saltLen;
+		memcpy_s(salt, sizeof(salt), saltStr, saltLen);
+		const size_t rem = sizeof(salt) - saltLen;
 		if (rem)
-			memset(this->salt+rem, 0x00, rem);
+			memset(salt+rem, 0x00, rem);
 	}
 	else
 	{
-		memset(this->salt, 0x00, sizeof(this->salt));
+		memset(salt, 0x00, sizeof(salt));
 	}
 
-	if (personalization && personalizationLen)
+	if (personalizationStr && personalizationLen)
 	{
-		memcpy_s(this->personalization, sizeof(this->personalization), personalization, personalizationLen);
-		const size_t rem = sizeof(this->personalization) - personalizationLen;
+		memcpy_s(personalization, sizeof(personalization), personalizationStr, personalizationLen);
+		const size_t rem = sizeof(personalization) - personalizationLen;
 		if (rem)
-			memset(this->personalization+rem, 0x00, rem);
+			memset(personalization+rem, 0x00, rem);
 	}
 	else
 	{
-		memset(this->personalization, 0x00, sizeof(this->personalization));
+		memset(personalization, 0x00, sizeof(personalization));
 	}
 }
 
