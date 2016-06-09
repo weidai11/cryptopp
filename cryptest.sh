@@ -86,9 +86,6 @@ if [ -z "$CXX" ]; then
 	fi
 fi
 
-# Now that the compiler is fixed, see if its GCC 5.1 or above with -Wabi, -Wabi-tag and -Wodr
-GCC_51_OR_ABOVE=$(g++ -v 2>&1 | egrep -i -c 'gcc version (5\.[1-9]|[6-9])')
-
 # Fixup
 if [ "$CXX" == "gcc" ]; then
 	CXX=g++
@@ -103,6 +100,9 @@ if [ "$IS_SOLARIS" -ne "0" ]; then
 	fi
 fi
 SUN_COMPILER=$($CXX -V 2>&1 | egrep -i -c "CC: Sun")
+
+# Now that the compiler is fixed, see if its GCC 5.1 or above with -Wabi, -Wabi-tag and -Wodr
+GCC_51_OR_ABOVE=$(g++ -v 2>&1 | egrep -i -c 'gcc version (5\.[1-9]|[6-9])')
 
 # Fixup
 if [ "$IS_OPENBSD" -ne "0" ] || [ "$IS_NETBSD" -ne "0" ] || [ "$IS_SOLARIS" -ne "0" ]; then
@@ -1868,7 +1868,7 @@ if [ "$IS_DARWIN" -ne "0" ]; then
 	rm -f adhoc.cpp > /dev/null 2>&1
 
 	export CXXFLAGS="-DNDEBUG -g2 -O2 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" CXX="$XCODE_COMPILER" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	"$MAKE" "${MAKEARGS[@]}" CXX="$XCODE_COMPILER" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1904,6 +1904,10 @@ if [ "$HAVE_X86_AES" -ne "0" ] || [ "$HAVE_X86_RDRAND" -ne "0" ] || [ "$HAVE_X86
 	if [ "$HAVE_X86_RDSEED" -ne "0" ]; then
 		OPTS+=("-mrdseed")
 	fi
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
 
 	export CXXFLAGS="-DNDEBUG -g2 -O2 ${OPTS[@]} ${RETAINED_CXXFLAGS[@]}"
 	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
@@ -2288,7 +2292,7 @@ if [ "$CXX" == "g++" ] && [ "$SUN_COMPILER" -eq "0" ]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" CXX="$CLANG_COMPILER" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		"$MAKE" "${MAKEARGS[@]}" CXX="$CLANG_COMPILER" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 		else
@@ -2327,7 +2331,7 @@ if [ "$IS_CYGWIN" -eq "0" ] && [ "$IS_MINGW" -eq "0" ]; then
 	else
 		# Still need to manulally place TestData and TestVectors
 		OLD_DIR=$(pwd)
-		"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" install PREFIX="$INSTALL_DIR" 2>&1 | tee -a "$INSTALL_RESULTS"
+		"$MAKE" "${MAKEARGS[@]}" install PREFIX="$INSTALL_DIR" 2>&1 | tee -a "$INSTALL_RESULTS"
 		cd "$INSTALL_DIR/bin"
 
 		echo
@@ -2380,7 +2384,7 @@ if [ "$IS_CYGWIN" -eq "0" ] && [ "$IS_MINGW" -eq "0" ]; then
 	echo "Testing: Test remove with data directory" | tee -a "$INSTALL_RESULTS"
 	echo
 
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" remove PREFIX="$INSTALL_DIR" 2>&1 | tee -a "$INSTALL_RESULTS"
+	"$MAKE" "${MAKEARGS[@]}" remove PREFIX="$INSTALL_DIR" 2>&1 | tee -a "$INSTALL_RESULTS"
 	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make remove" | tee -a "$INSTALL_RESULTS"
 	else
