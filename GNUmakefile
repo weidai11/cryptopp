@@ -238,7 +238,7 @@ else ifeq ($(SUN_COMPILER)$(IS_64),10)
 CXXFLAGS += -native -template=no%extdef -w -erroff=wvarhidemem -erroff=voidretw -m32
 endif
 ifneq ($(IS_X86),1)
-CXXFLAGS += -Kpic
+CXXFLAGS += -KPIC
 endif
 SUN_CC10_BUGGY := $(shell $(CXX) -V 2>&1 | $(EGREP) -c "CC: Sun .* 5\.10 .* (2009|2010/0[1-4])")
 ifneq ($(SUN_CC10_BUGGY),0)
