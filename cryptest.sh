@@ -96,10 +96,10 @@ fi
 
 # Fixup
 if [ "$IS_SOLARIS" -ne "0" ]; then
-	if [ -e "/opt/solarisstudio12.4/bin/CC" ]; then
-		CXX=/opt/solarisstudio12.4/bin/CC
-	elif [ -e "/opt/solarisstudio12.3/bin/CC" ]; then
+	if [ -e "/opt/solarisstudio12.3/bin/CC" ]; then
 		CXX=/opt/solarisstudio12.3/bin/CC
+	elif [ -e "/opt/solarisstudio12.4/bin/CC" ]; then
+		CXX=/opt/solarisstudio12.4/bin/CC
 	fi
 fi
 SUN_COMPILER=$($CXX -V 2>&1 | egrep -i -c "CC: Sun")
