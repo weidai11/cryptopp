@@ -1133,7 +1133,7 @@ fi
 
 ############################################
 # Debug build at -Os
-if [ "$SUN_COMPILER" -eq "0"]; then
+if [ "$SUN_COMPILER" -eq "0" ]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: debug, -Os optimizations" | tee -a "$TEST_RESULTS"
@@ -1162,7 +1162,7 @@ fi
 
 ############################################
 # Release build at -Os
-if [ "$SUN_COMPILER" -eq "0"]; then
+if [ "$SUN_COMPILER" -eq "0" ]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: release, -Os optimizations" | tee -a "$TEST_RESULTS"
@@ -1191,7 +1191,7 @@ fi
 
 ############################################
 # Debug build, dead code strip
-if [ "$SUN_COMPILER" -eq "0"]; then
+if [ "$SUN_COMPILER" -eq "0" ]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: debug, dead code strip" | tee -a "$TEST_RESULTS"
@@ -1219,7 +1219,7 @@ fi
 
 ############################################
 # Release build, dead code strip
-if [ "$SUN_COMPILER" -eq "0"]; then
+if [ "$SUN_COMPILER" -eq "0" ]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: release, dead code strip" | tee -a "$TEST_RESULTS"
@@ -2336,7 +2336,12 @@ if [ "$IS_CYGWIN" -eq "0" ] && [ "$IS_MINGW" -eq "0" ]; then
 	INSTALL_DIR="/tmp/cryptopp_test"
 	rm -rf "$INSTALL_DIR" > /dev/null 2>&1
 
-	export CXXFLAGS="-DNDEBUG -g2 -O2 -DCRYPTOPP_DATA_DIR='\"$INSTALL_DIR/share/cryptopp/\"'"
+	if [ "$SUN_COMPILER" -ne "0" ]; then
+		export CXXFLAGS="-DNDEBUG -g3 -xO2 -DCRYPTOPP_DATA_DIR='\"$INSTALL_DIR/share/cryptopp/\"' ${RETAINED_CXXFLAGS[@]}"
+	else
+		export CXXFLAGS="-DNDEBUG -g2 -O2 -DCRYPTOPP_DATA_DIR='\"$INSTALL_DIR/share/cryptopp/\"' ${RETAINED_CXXFLAGS[@]}"
+	fi
+
 	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$INSTALL_RESULTS"
 	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$INSTALL_RESULTS"
