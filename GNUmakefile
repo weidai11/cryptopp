@@ -1,9 +1,6 @@
 ###########################################################
-#####                General Variables                #####
+#####        System Attributes and Programs           #####
 ###########################################################
-
-# Base CXXFLAGS used if the user did not specify them
-CXXFLAGS ?= -DNDEBUG -g2 -O2
 
 AR ?= ar
 ARFLAGS ?= -cr # ar needs the dash on OpenBSD
@@ -11,16 +8,16 @@ RANLIB ?= ranlib
 
 CP ?= cp
 MV ?= mv
+EGREP ?= egrep
 CHMOD ?= chmod
 MKDIR ?= mkdir
-EGREP ?= egrep
 LN ?= ln -sf
 LDCONF ?= /sbin/ldconfig -n
-
 UNAME := $(shell uname)
+
 IS_X86 := $(shell uname -m | $(EGREP) -v "x86_64" | $(EGREP) -i -c "i.86|x86|i86")
 IS_X32 ?= 0
-IS_X86_64 := $(shell uname -m | $(EGREP) -i -c "(_64|d64)")
+IS_X64 := $(shell uname -m | $(EGREP) -i -c "(_64|d64)")
 IS_PPC := $(shell uname -m | $(EGREP) -i -c "ppc|power")
 IS_ARM32 := $(shell uname -m | $(EGREP) -i -c "arm")
 IS_ARM64 := $(shell uname -m | $(EGREP) -i -c "aarch64")
@@ -39,6 +36,25 @@ INTEL_COMPILER := $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(ICC\)")
 MACPORTS_COMPILER := $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "macports")
 
 HAS_SOLIB_VERSION := $(IS_LINUX)
+
+# Fixup SunOS
+ifeq ($(IS_SUN),1)
+IS_X64 := $(shell isainfo 2>/dev/null | grep -i -c "amd64")
+ifeq ($(IS_X64),1)
+  IS_X86 := 0
+endif
+endif
+
+###########################################################
+#####                General Variables                #####
+###########################################################
+
+# Base CXXFLAGS used if the user did not specify them
+ifeq ($(IS_SUN),1)
+  CXXFLAGS ?= -DNDEBUG -g3 -xO2
+else
+  CXXFLAGS ?= -DNDEBUG -g2 -O2
+endif
 
 # Default prefix for make install
 ifeq ($(PREFIX),)
@@ -73,7 +89,7 @@ endif
 #####               X86/X32/X64 Options               #####
 ###########################################################
 
-ifneq ($(IS_X86)$(IS_X32)$(IS_X86_64),000)
+ifneq ($(IS_X86)$(IS_X32)$(IS_X64),000)
 
 IS_GCC_29 := $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c gcc-9[0-9][0-9])
 GCC42_OR_LATER := $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "gcc version (4\.[2-9]|[5-9]\.)")
@@ -105,10 +121,10 @@ else
   # GCC 3.3 and "unknown option -march="
   # Ubuntu GCC 4.1 compiler crash with -march=native
   # NetBSD GCC 4.8 compiler and "bad value (native) for -march= switch"
-  # Sun compiler from legacy
-  ifneq ($(IS_X86_64),0)
+  # Sun compiler from legacy and handled below
+  ifeq ($(SUN_COMPILER)$(IS_X64),01)
     CXXFLAGS += -m64
-  else
+  else ifeq ($(SUN_COMPILER)$(IS_X32),01)
     CXXFLAGS += -m32
   endif # X86/X32/X64
 endif
@@ -216,9 +232,9 @@ endif
 ifneq ($(SUN_COMPILER),0)	# override flags for CC Sun C++ compiler
 IS_64 := $(shell isainfo -b 2>/dev/null | grep -i -c "64")
 ifeq ($(SUN_COMPILER)$(IS_64),11)
-CXXFLAGS := -DNDEBUG -g3 -xO2 -native -template=no%extdef -m64 -Kpic
+CXXFLAGS += -native -template=no%extdef -m64 -Kpic
 else ifeq ($(SUN_COMPILER)$(IS_64),10)
-CXXFLAGS := -DNDEBUG -g3 -xO2 -native -template=no%extdef -m32
+CXXFLAGS += -native -template=no%extdef -m32
 endif
 SUN_CC10_BUGGY := $(shell $(CXX) -V 2>&1 | $(EGREP) -c "CC: Sun .* 5\.10 .* (2009|2010/0[1-4])")
 ifneq ($(SUN_CC10_BUGGY),0)
@@ -336,11 +352,11 @@ endif # HAS_SOLIB_VERSION
 SRCS := cryptlib.cpp cpu.cpp $(filter-out cryptlib.cpp cpu.cpp pch.cpp simple.cpp winpipes.cpp cryptlib_bds.cpp,$(wildcard *.cpp))
 
 # Need CPU for X86/X64/X32 and ARM
-ifeq ($(IS_X86)$(IS_X86_64)$(IS_ARM32)$(IS_ARM64),0000)
+ifeq ($(IS_X86)$(IS_X64)$(IS_ARM32)$(IS_ARM64),0000)
   SRCS := $(filter-out cpu.cpp, $(SRCS))
 endif
 # Need RDRAND for X86/X64/X32
-ifeq ($(IS_X86)$(IS_X86_64),00)
+ifeq ($(IS_X86)$(IS_X64),00)
   SRCS := $(filter-out rdrand.cpp, $(SRCS))
 endif
 
