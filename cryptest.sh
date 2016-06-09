@@ -52,25 +52,34 @@ fi
 # Avoid CRYPTOPP_DATA_DIR in this shell
 unset CRYPTOPP_DATA_DIR
 
-IS_DARWIN=$(uname -s | grep -i -c darwin)
-IS_LINUX=$(uname -s | grep -i -c linux)
-IS_CYGWIN=$(uname -s | grep -i -c cygwin)
-IS_MINGW=$(uname -s | grep -i -c mingw)
-IS_OPENBSD=$(uname -s | grep -i -c openbsd)
-IS_NETBSD=$(uname -s | grep -i -c netbsd)
-IS_SOLARIS=$(uname -s | grep -i -c sunos)
-IS_X86=$(uname -m | egrep -i -c "(i386|i586|i686|amd64|x86_64)")
-IS_X64=$(uname -m | egrep -i -c "(amd64|x86_64)")
-IS_PPC=$(uname -m | egrep -i -c "(Power|PPC)")
-IS_ARM32=$(uname -m | egrep -i -c "arm|aarch32")
-IS_ARM64=$(uname -m | egrep -i -c "arm64|aarch64")
+# Non-Posix $GREP and $EGREP on Solaris.
+# We are OK with -i and -c, but we will eventually need more.
+GREP=grep
+EGREP=egrep
+
+IS_DARWIN=$(uname -s | $GREP -i -c darwin)
+IS_LINUX=$(uname -s | $GREP -i -c linux)
+IS_CYGWIN=$(uname -s | $GREP -i -c cygwin)
+IS_MINGW=$(uname -s | $GREP -i -c mingw)
+IS_OPENBSD=$(uname -s | $GREP -i -c openbsd)
+IS_NETBSD=$(uname -s | $GREP -i -c netbsd)
+IS_SOLARIS=$(uname -s | $GREP -i -c sunos)
+IS_X86=$(uname -m | $EGREP -i -c "(i386|i586|i686|amd64|x86_64)")
+IS_X64=$(uname -m | $EGREP -i -c "(amd64|x86_64)")
+IS_PPC=$(uname -m | $EGREP -i -c "(Power|PPC)")
+IS_ARM32=$(uname -m | $EGREP -i -c "arm|aarch32")
+IS_ARM64=$(uname -m | $EGREP -i -c "arm64|aarch64")
 
 # Fixup
 if [ "$IS_SOLARIS" -ne "0" ]; then
-	IS_X64=$(isainfo 2>/dev/null | grep -i -c "amd64")
+	IS_X64=$(isainfo 2>/dev/null | $GREP -i -c "amd64")
 	if [ "$IS_X64" -ne "0" ]; then
 		IS_X86=0
 	fi
+
+	# Need something more powerful than the non-Posix versions
+	if [ -e "/usr/gnu/bin/grep" ]; then GREP=/usr/gnu/bin/grep; fi
+	if [ -e "/usr/gnu/bin/egrep" ]; then EGREP=/usr/gnu/bin/egrep; fi
 fi
 
 # We need to use the C++ compiler to determine if c++11 is available. Otherwise
@@ -99,7 +108,10 @@ if [ "$IS_SOLARIS" -ne "0" ]; then
 		CXX=/opt/solarisstudio12.4/bin/CC
 	fi
 fi
-SUN_COMPILER=$($CXX -V 2>&1 | egrep -i -c "CC: Sun")
+SUN_COMPILER=$($CXX -V 2>&1 | $EGREP -i -c "CC: Sun")
+
+# Now that the compiler is fixed, see if its GCC 5.1 or above with -Wabi, -Wabi-tag and -Wodr
+GCC_51_OR_ABOVE=$(g++ -v 2>&1 | $EGREP -i -c 'gcc version (5\.[1-9]|[6-9])')
 
 # Now that the compiler is fixed, see if its GCC 5.1 or above with -Wabi, -Wabi-tag and -Wodr
 GCC_51_OR_ABOVE=$(g++ -v 2>&1 | egrep -i -c 'gcc version (5\.[1-9]|[6-9])')
@@ -223,7 +235,7 @@ if [ "$IS_X86" -ne "0" ] || [ "$IS_X64" -ne "0" ]; then
 fi
 
 # Set to 0 if you don't have Valgrind. Valgrind tests take a long time...
-HAVE_VALGRIND=$(which valgrind 2>&1 | grep -v "no valgrind" | grep -i -c valgrind)
+HAVE_VALGRIND=$(which valgrind 2>&1 | $GREP -v "no valgrind" | $GREP -i -c valgrind)
 
 # Echo back to ensure something is not missed.
 echo | tee -a "$TEST_RESULTS"
@@ -275,16 +287,16 @@ CPU_COUNT=1
 MEM_SIZE=1024
 
 if [ "$IS_LINUX" -ne "0" ] && [ -e "/proc/cpuinfo" ]; then
-	CPU_COUNT=$(cat /proc/cpuinfo | grep -c '^processor')
-	MEM_SIZE=$(cat /proc/meminfo | grep "MemTotal" | awk '{print $2}')
+	CPU_COUNT=$(cat /proc/cpuinfo | $GREP -c '^processor')
+	MEM_SIZE=$(cat /proc/meminfo | $GREP "MemTotal" | awk '{print $2}')
 	MEM_SIZE=$(($MEM_SIZE/1024))
 elif [ "$IS_DARWIN" -ne "0" ]; then
-	CPU_COUNT=$(sysctl -a 2>/dev/null | grep 'hw.availcpu' | head -1 | awk '{print $3}')
-	MEM_SIZE=$(sysctl -a 2>/dev/null | grep 'hw.memsize' | head -1 | awk '{print $3}')
+	CPU_COUNT=$(sysctl -a 2>/dev/null | $GREP 'hw.availcpu' | head -1 | awk '{print $3}')
+	MEM_SIZE=$(sysctl -a 2>/dev/null | $GREP 'hw.memsize' | head -1 | awk '{print $3}')
 	MEM_SIZE=$(($MEM_SIZE/1024/1024))
 elif [ "$IS_SOLARIS" -ne "0" ]; then
 	CPU_COUNT=$(psrinfo 2>/dev/null | wc -l | nawk '{print $1}')
-	MEM_SIZE=$(prtconf 2>/dev/null | grep Memory | nawk '{print $3}')
+	MEM_SIZE=$(prtconf 2>/dev/null | $GREP Memory | nawk '{print $3}')
 fi
 
 # Benchmarks expect frequency in GHz.
@@ -293,10 +305,10 @@ if [ "$IS_LINUX" -ne "0" ] && [ -e "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo
 	CPU_FREQ=$(cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq)
 	CPU_FREQ=$(awk "BEGIN {print $CPU_FREQ/1024/1024}")
 elif [ "$IS_DARWIN" -ne "0" ]; then
-	CPU_FREQ=$(sysctl -a 2>/dev/null | grep 'hw.cpufrequency' | head -1 | awk '{print $3}')
+	CPU_FREQ=$(sysctl -a 2>/dev/null | $GREP 'hw.cpufrequency' | head -1 | awk '{print $3}')
 	CPU_FREQ=$(awk "BEGIN {print $CPU_FREQ/1024/1024/1024}")
 elif [ "$IS_SOLARIS" -ne "0" ]; then
-    CPU_FREQ=$(psrinfo -v 2>/dev/null | grep 'MHz' | head -1 | nawk '{print $6}')
+    CPU_FREQ=$(psrinfo -v 2>/dev/null | $GREP 'MHz' | head -1 | nawk '{print $6}')
     CPU_FREQ=$(nawk "BEGIN {print $CPU_FREQ/1024}")
 fi
 
@@ -305,7 +317,7 @@ fi
 HAVE_SWAP=1
 if [ "$IS_LINUX" -ne "0" ]; then
 	if [ -e "/proc/meminfo" ]; then
-		SWAP_SIZE=$(cat /proc/meminfo | grep "SwapTotal" | awk '{print $2}')
+		SWAP_SIZE=$(cat /proc/meminfo | $GREP "SwapTotal" | awk '{print $2}')
 		if [ "$SWAP_SIZE" -eq "0" ]; then
 			HAVE_SWAP=0
 		fi
@@ -2435,7 +2447,7 @@ echo "Testing started: $TEST_BEGIN" | tee -a "$TEST_RESULTS"
 echo "Testing finished: $TEST_END" | tee -a "$TEST_RESULTS"
 echo | tee -a "$TEST_RESULTS"
 
-COUNT=$(grep -a 'Testing:' "$TEST_RESULTS" | wc -l)
+COUNT=$($GREP -a 'Testing:' "$TEST_RESULTS" | wc -l)
 if [ "$COUNT" -eq "0" ]; then
 	echo "No configurations tested" | tee -a "$TEST_RESULTS"
 else
@@ -2448,24 +2460,24 @@ echo | tee -a "$TEST_RESULTS"
 # "Error" is from the GNU assembler
 # "error" is from the sanitizers
 # "Illegal", "0 errors" and "suppressed errors" are from Valgrind.
-ECOUNT=$(egrep -a '(Error|ERROR|error|FAILED|Illegal)' $TEST_RESULTS | egrep -v '( 0 errors|suppressed errors|error detector)' | wc -l)
+ECOUNT=$($EGREP -a '(Error|ERROR|error|FAILED|Illegal)' $TEST_RESULTS | $EGREP -v '( 0 errors|suppressed errors|error detector)' | wc -l)
 if [ "$ECOUNT" -eq "0" ]; then
 	echo "No failures detected" | tee -a "$TEST_RESULTS"
 else
 	echo "$ECOUNT errors detected. See $TEST_RESULTS for details" | tee -a "$TEST_RESULTS"
 	echo
-	egrep -an '(Error|ERROR|error|FAILED|Illegal)' "$TEST_RESULTS" | egrep -v '( 0 errors|suppressed errors|error detector)'
+	$EGREP -an '(Error|ERROR|error|FAILED|Illegal)' "$TEST_RESULTS" | $EGREP -v '( 0 errors|suppressed errors|error detector)'
 fi
 echo | tee -a "$TEST_RESULTS"
 
 # Write warnings to $TEST_RESULTS
-WCOUNT=$(egrep -a '(warning:)' $WARN_RESULTS | grep -v 'deprecated-declarations' | wc -l)
+WCOUNT=$($EGREP -a '(warning:)' $WARN_RESULTS | $GREP -v 'deprecated-declarations' | wc -l)
 if [ "$WCOUNT" -eq "0" ]; then
 	echo "No warnings detected" | tee -a "$TEST_RESULTS"
 else
 	echo "$WCOUNT warnings detected. See $WARN_RESULTS for details" | tee -a "$TEST_RESULTS"
 	echo
-#	egrep -an '(warning:)' $WARN_RESULTS | grep -v 'deprecated-declarations'
+#	$EGREP -an '(warning:)' $WARN_RESULTS | $GREP -v 'deprecated-declarations'
 fi
 echo | tee -a "$TEST_RESULTS"
 
@@ -2474,7 +2486,7 @@ echo "************************************************" | tee -a "$TEST_RESULTS"
 
 # http://tldp.org/LDP/abs/html/exitcodes.html#EXITCODESREF
 if [ "$ECOUNT" -eq "0" ]; then
-	exit 0
+	[ "$0" = "$BASH_SOURCE" ] && exit 0 || return 0
 else
-	exit 1
+	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
 fi
