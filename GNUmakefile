@@ -104,7 +104,7 @@ GAS217_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(E
 GAS219_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.19|2\.[2-9]|[3-9])")
 
 # Add -fPIC for targets *except* X86, X32, Cygwin or MinGW
-ifeq ($(IS_X86)$(IS_X32)$(IS_CYGWIN)$(IS_MINGW),0000)
+ifeq ($(IS_X86)$(IS_X32)$(IS_CYGWIN)$(IS_MINGW)$(SUN_COMPILER),00000)
  ifeq ($(findstring -fPIC,$(CXXFLAGS)),)
    CXXFLAGS += -fPIC
  endif
@@ -233,9 +233,12 @@ endif
 ifneq ($(SUN_COMPILER),0)	# override flags for CC Sun C++ compiler
 IS_64 := $(shell isainfo -b 2>/dev/null | grep -i -c "64")
 ifeq ($(SUN_COMPILER)$(IS_64),11)
-CXXFLAGS += -native -template=no%extdef -w -erroff=wvarhidemem -erroff=voidretw -m64 -Kpic
+CXXFLAGS += -native -template=no%extdef -w -erroff=wvarhidemem -erroff=voidretw -m64
 else ifeq ($(SUN_COMPILER)$(IS_64),10)
 CXXFLAGS += -native -template=no%extdef -w -erroff=wvarhidemem -erroff=voidretw -m32
+endif
+ifneq ($(IS_X86),1)
+CXXFLAGS += -Kpic
 endif
 SUN_CC10_BUGGY := $(shell $(CXX) -V 2>&1 | $(EGREP) -c "CC: Sun .* 5\.10 .* (2009|2010/0[1-4])")
 ifneq ($(SUN_CC10_BUGGY),0)
