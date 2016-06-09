@@ -229,12 +229,13 @@ LDFLAGS += -flat_namespace -undefined suppress -m
 endif
 endif
 
+# Add -errtags=yes to get the name for a warning suppression
 ifneq ($(SUN_COMPILER),0)	# override flags for CC Sun C++ compiler
 IS_64 := $(shell isainfo -b 2>/dev/null | grep -i -c "64")
 ifeq ($(SUN_COMPILER)$(IS_64),11)
-CXXFLAGS += -native -template=no%extdef -m64 -Kpic
+CXXFLAGS += -native -template=no%extdef -w -erroff=wvarhidemem -erroff=voidretw -m64 -Kpic
 else ifeq ($(SUN_COMPILER)$(IS_64),10)
-CXXFLAGS += -native -template=no%extdef -m32
+CXXFLAGS += -native -template=no%extdef -w -erroff=wvarhidemem -erroff=voidretw -m32
 endif
 SUN_CC10_BUGGY := $(shell $(CXX) -V 2>&1 | $(EGREP) -c "CC: Sun .* 5\.10 .* (2009|2010/0[1-4])")
 ifneq ($(SUN_CC10_BUGGY),0)
