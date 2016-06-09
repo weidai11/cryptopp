@@ -12,6 +12,10 @@
 USING_NAMESPACE(CryptoPP)
 USING_NAMESPACE(std)
 
+#ifndef CRYPTOPP_UNUSED
+# define CRYPTOPP_UNUSED(x) (void(x))
+#endif
+
 // Used for testing the compiler and linker in cryptest.sh
 #if defined(CRYPTOPP_ADHOC_MAIN)
 
