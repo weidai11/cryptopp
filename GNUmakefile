@@ -50,7 +50,7 @@ endif
 ###########################################################
 
 # Base CXXFLAGS used if the user did not specify them
-ifeq ($(IS_SUN),1)
+ifeq ($(SUN_COMPILER),1)
   CXXFLAGS ?= -DNDEBUG -g3 -xO2
 else
   CXXFLAGS ?= -DNDEBUG -g2 -O2
