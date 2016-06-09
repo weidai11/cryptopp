@@ -146,15 +146,6 @@ endif
 endif
 endif
 
-ifneq ($(IS_SUN),0)
-IS_64 := $(shell isainfo -b 2>/dev/null | grep -i -c "64")
-ifeq ($(SUN_COMPILER)$(IS_64),11)
-CXXFLAGS := -DNDEBUG -g3 -xO2 -native -template=no%extdef -m64 -Kpic
-else ifeq ($(SUN_COMPILER)$(IS_64),10)
-CXXFLAGS := -DNDEBUG -g3 -xO2 -native -template=no%extdef -m32
-endif
-endif  # SunOS
-
 # Allow use of "/" operator for GNU Assembler
 ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
 ifeq ($(IS_GAS),1)
@@ -198,6 +189,10 @@ ifneq ($(IS_MINGW),0)
 LDLIBS += -lws2_32
 endif
 
+ifneq ($(IS_SUN),0)
+LDLIBS += -lnsl -lsocket
+endif
+
 ifeq ($(IS_LINUX),1)
 LDFLAGS += -pthread
 ifeq ($(findstring -fopenmp,$(CXXFLAGS)),-fopenmp)
@@ -218,23 +213,22 @@ LDFLAGS += -flat_namespace -undefined suppress -m
 endif
 endif
 
-ifneq ($(IS_SUN),0)
-LDLIBS += -lnsl -lsocket
-M32OR64 = -m$(shell isainfo -b)
-endif
-
 ifneq ($(SUN_COMPILER),0)	# override flags for CC Sun C++ compiler
-CXXFLAGS ?= -DNDEBUG -O -g0 -native -template=no%extdef $(M32OR64)
-LDFLAGS =
-AR = $(CXX)
-ARFLAGS = -xar -o
-RANLIB = true
+IS_64 := $(shell isainfo -b 2>/dev/null | grep -i -c "64")
+ifeq ($(SUN_COMPILER)$(IS_64),11)
+CXXFLAGS := -DNDEBUG -g3 -xO2 -native -template=no%extdef -m64 -Kpic
+else ifeq ($(SUN_COMPILER)$(IS_64),10)
+CXXFLAGS := -DNDEBUG -g3 -xO2 -native -template=no%extdef -m32
+endif
 SUN_CC10_BUGGY := $(shell $(CXX) -V 2>&1 | $(EGREP) -c "CC: Sun .* 5\.10 .* (2009|2010/0[1-4])")
 ifneq ($(SUN_CC10_BUGGY),0)
 # -DCRYPTOPP_INCLUDE_VECTOR_CC is needed for Sun Studio 12u1 Sun C++ 5.10 SunOS_i386 128229-02 2009/09/21 and was fixed in May 2010
 # remove it if you get "already had a body defined" errors in vector.cc
 CXXFLAGS += -DCRYPTOPP_INCLUDE_VECTOR_CC
 endif
+AR = $(CXX)
+ARFLAGS = -xar -o
+RANLIB = true
 endif
 
 # Undefined Behavior Sanitizer (UBsan) testing. There's no sense in
