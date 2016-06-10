@@ -2016,6 +2016,7 @@ if [ "$HAVE_CXX03" -ne "0" ]; then
 	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	else
+		echo "**************************************" >> "$BENCHMARK_RESULTS"
 		./cryptest.exe b 3 "$CPU_FREQ" 2>&1 | tee -a "$BENCHMARK_RESULTS"
 		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 			echo "ERROR: failed to execute benchmarks" | tee -a "$BENCHMARK_RESULTS"
@@ -2046,6 +2047,7 @@ if [ "$HAVE_CXX11" -ne "0" ]; then
 	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	else
+		echo "**************************************" >> "$BENCHMARK_RESULTS"
 		./cryptest.exe b 3 "$CPU_FREQ" 2>&1 | tee -a "$BENCHMARK_RESULTS"
 		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 			echo "ERROR: failed to execute benchmarks" | tee -a "$BENCHMARK_RESULTS"

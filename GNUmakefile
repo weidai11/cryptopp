@@ -39,10 +39,8 @@ HAS_SOLIB_VERSION := $(IS_LINUX)
 
 # Fixup SunOS
 ifeq ($(IS_SUN),1)
-IS_X64 := $(shell isainfo 2>/dev/null | grep -i -c "amd64")
-ifeq ($(IS_X64),1)
-  IS_X86 := 0
-endif
+IS_X86 := $(shell isainfo -k 2>/dev/null | grep -i -c "i386")
+IS_X64 := $(shell isainfo -k 2>/dev/null | grep -i -c "amd64")
 endif
 
 ###########################################################
