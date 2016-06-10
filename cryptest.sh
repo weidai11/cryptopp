@@ -338,9 +338,21 @@ fi
 
 ############################################
 
+GIT_REPO=$(git branch 2>&1 | $GREP -v "fatal" | wc -l)
+if [ "$GIT_REPO" -ne "0" ]; then
+	GIT_BRANCH=$(git branch| grep '*' | cut -c 3-)
+fi
+
+############################################
+
 echo | tee -a "$TEST_RESULTS"
 echo "User CXXFLAGS: $CXXFLAGS" | tee -a "$TEST_RESULTS"
 echo "Retained CXXFLAGS: ${RETAINED_CXXFLAGS[@]}" | tee -a "$TEST_RESULTS"
+
+echo | tee -a "$TEST_RESULTS"
+if [ ! -z "$GIT_BRANCH" ]; then
+	echo "Git branch: $GIT_BRANCH" | tee -a "$TEST_RESULTS"
+fi
 
 if [ "$SUN_COMPILER" -ne "0" ]; then
 	echo $($CXX -V | head -1) | tee -a "$TEST_RESULTS"
