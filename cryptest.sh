@@ -25,6 +25,7 @@ touch "$WARN_RESULTS"
 # Respect user's preferred flags, but filter the stuff we expliclty test
 FILTERED_CXXFLAGS=("-DDEBUG" "-DNDEBUG" "-g" "-g0" "-g1" "-g2" "-g3" "-O0" "-O1" "-O2" "-O3" "-Os" "-Og"
                    "-xO0" "-xO1" "-xO2" "-xO3" "-xOs" "-xOg" "-std=c++03" "-std=c++11" "-std=c++14"
+                   "-maes" "-mrdrand" "-mrdrnd" "-mrdseed" "-mpclmul"
                    "-DCRYPTOPP_DISABLE_ASM" "-fsanitize=address" "-fsanitize=undefined" "-march=armv8-a+crypto" "-march=armv8-a+crc"
                    "-DDCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562" "-DDCRYPTOPP_NO_UNALIGNED_DATA_ACCESS")
 # Additional CXXFLAGS we did not filter
@@ -219,6 +220,7 @@ fi
 HAVE_X86_AES=0
 HAVE_X86_RDRAND=0
 HAVE_X86_RDSEED=0
+HAVE_X86_PCLMUL=0
 if [ "$IS_X86" -ne "0" ] || [ "$IS_X64" -ne "0" ]; then
 	$CXX -DCRYPTOPP_ADHOC_MAIN -maes adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
 	if [ "$?" -eq "0" ]; then
@@ -231,6 +233,10 @@ if [ "$IS_X86" -ne "0" ] || [ "$IS_X64" -ne "0" ]; then
 	$CXX -DCRYPTOPP_ADHOC_MAIN -mrdseed adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
 	if [ "$?" -eq "0" ]; then
 		HAVE_X86_RDSEED=1
+	fi
+	$CXX -DCRYPTOPP_ADHOC_MAIN -mpclmul adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
+	if [ "$?" -eq "0" ]; then
+		HAVE_X86_PCLMUL=1
 	fi
 fi
 
@@ -1918,7 +1924,7 @@ if [ "$HAVE_X86_AES" -ne "0" ] || [ "$HAVE_X86_RDRAND" -ne "0" ] || [ "$HAVE_X86
 	echo "Testing: AES, RDRAND and RDSEED" | tee -a "$TEST_RESULTS"
 	echo
 
-	OPTS=("")
+	OPTS=("-march=native")
 	if [ "$HAVE_X86_AES" -ne "0" ]; then
 		OPTS+=("-maes")
 	fi
@@ -1927,6 +1933,9 @@ if [ "$HAVE_X86_AES" -ne "0" ] || [ "$HAVE_X86_RDRAND" -ne "0" ] || [ "$HAVE_X86
 	fi
 	if [ "$HAVE_X86_RDSEED" -ne "0" ]; then
 		OPTS+=("-mrdseed")
+	fi
+	if [ "$HAVE_X86_PCLMUL" -ne "0" ]; then
+		OPTS+=("-mpclmul")
 	fi
 
 	unset CXXFLAGS
