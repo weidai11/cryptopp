@@ -41,8 +41,9 @@
 #  include <emmintrin.h>
 # endif
 
+// PUSHFB needs Clang 3.3 and Apple Clang 5.0.
 #if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
-#if !defined(__GNUC__) || defined(__SSSE3__) || defined(__INTEL_COMPILER)
+#if !defined(__GNUC__) || defined(__SSSE3__)|| defined(__INTEL_COMPILER) || (CRYPTOPP_CLANG_VERSION >= 30300) || (CRYPTOPP_APPLE_CLANG_VERSION >= 50000)
 #include <tmmintrin.h>
 #else
 NAMESPACE_BEGIN(CryptoPP)
@@ -54,7 +55,9 @@ _mm_shuffle_epi8 (__m128i a, __m128i b)
 }
 NAMESPACE_END
 #endif // tmmintrin.h
-#if !defined(__GNUC__) || defined(__SSE4_1__) || defined(__INTEL_COMPILER)
+
+// PEXTRD needs Clang 3.3 and Apple Clang 5.0.
+#if !defined(__GNUC__) || defined(__SSE4_1__)|| defined(__INTEL_COMPILER) || (CRYPTOPP_CLANG_VERSION >= 30300) || (CRYPTOPP_APPLE_CLANG_VERSION >= 50000)
 #include <smmintrin.h>
 #else
 NAMESPACE_BEGIN(CryptoPP)
@@ -73,7 +76,9 @@ _mm_insert_epi32 (__m128i a, int b, const int i)
 }
 NAMESPACE_END
 #endif // smmintrin.h
-#if !defined(__GNUC__) || (defined(__AES__) && defined(__PCLMUL__)) || defined(__INTEL_COMPILER)
+
+// AES needs Clang 2.8 and Apple Clang 4.6. PCLMUL needs Clang 3.4 and Apple Clang 6.0
+#if !defined(__GNUC__) || (defined(__AES__) && defined(__PCLMUL__)) || defined(__INTEL_COMPILER) || (CRYPTOPP_CLANG_VERSION >= 30400) || (CRYPTOPP_APPLE_CLANG_VERSION >= 60000)
 #include <wmmintrin.h>
 #else
 NAMESPACE_BEGIN(CryptoPP)
