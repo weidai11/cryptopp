@@ -135,6 +135,11 @@
 # if defined(__GNUC__) && (CRYPTOPP_GCC_VERSION >= 40600)
 #  include <x86intrin.h> // rdseed for some compilers, like GCC
 # endif
+# if defined(__has_include)
+#  if __has_include(<x86intrin.h>)
+#   include <x86intrin.h> // rdseed for Clang (immintrin.h); rdseed for Clang (rdseedintrin.h)
+#  endif
+# endif
 #endif
 
 #if MASM_RDRAND_ASM_AVAILABLE
