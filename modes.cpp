@@ -207,9 +207,18 @@ void CBC_CTS_Encryption::ProcessLastBlock(byte *outString, const byte *inString,
 		// steal from next to last block
 		xorbuf(m_register, inString, BlockSize());
 		m_cipher->ProcessBlock(m_register);
-		inString += BlockSize();
-		length -= BlockSize();
-		memcpy(outString+BlockSize(), m_register, length);
+		if (inString == outString)
+		{
+			length -= BlockSize();
+			memcpy(outString, inString+BlockSize(), length);
+			memcpy(outString+BlockSize(), m_register, length);
+		}
+		else
+		{
+			inString += BlockSize();
+			length -= BlockSize();
+			memcpy(outString+BlockSize(), m_register, length);
+		}
 	}
 
 	// output last full ciphertext block
@@ -267,11 +276,23 @@ void CBC_CTS_Decryption::ProcessLastBlock(byte *outString, const byte *inString,
 		memcpy(outString, m_temp, length);
 	else
 	{
-		memcpy(outString+BlockSize(), m_temp, length);
-		// decrypt next to last plaintext block
-		memcpy(m_temp, pn, length);
-		m_cipher->ProcessBlock(m_temp);
-		xorbuf(outString, m_temp, m_register, BlockSize());
+		if (inString == outString)
+		{
+			memcpy(outString, inString+BlockSize(), length);
+			memcpy(outString+BlockSize(), m_temp, length);
+			// decrypt next to last plaintext block
+			memcpy(m_temp, pn1, length);
+			m_cipher->ProcessBlock(m_temp);
+			xorbuf(outString, m_temp, m_register, BlockSize());
+		}
+		else
+		{
+			memcpy(outString+BlockSize(), m_temp, length);
+			// decrypt next to last plaintext block
+			memcpy(m_temp, pn, length);
+			m_cipher->ProcessBlock(m_temp);
+			xorbuf(outString, m_temp, m_register, BlockSize());
+		}
 	}
 }
 
