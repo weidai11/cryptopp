@@ -346,7 +346,8 @@ fi
 
 GIT_REPO=$(git branch 2>&1 | $GREP -v "fatal" | wc -l)
 if [ "$GIT_REPO" -ne "0" ]; then
-	GIT_BRANCH=$(git branch| grep '*' | cut -c 3-)
+	GIT_BRANCH=$(git branch 2>/dev/null | grep '*' | cut -c 3-)
+	GIT_HASH=$(git rev-parse HEAD 2>/dev/null | cut -c 1-16)
 fi
 
 ############################################
@@ -357,7 +358,7 @@ echo "Retained CXXFLAGS: ${RETAINED_CXXFLAGS[@]}" | tee -a "$TEST_RESULTS"
 
 echo | tee -a "$TEST_RESULTS"
 if [ ! -z "$GIT_BRANCH" ]; then
-	echo "Git branch: $GIT_BRANCH" | tee -a "$TEST_RESULTS"
+	echo "Git branch: $GIT_BRANCH (commit $GIT_HASH)" | tee -a "$TEST_RESULTS"
 fi
 
 if [ "$SUN_COMPILER" -ne "0" ]; then
