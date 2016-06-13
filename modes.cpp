@@ -210,7 +210,7 @@ void CBC_CTS_Encryption::ProcessLastBlock(byte *outString, const byte *inString,
 		if (inString == outString)
 		{
 			length -= BlockSize();
-			memcpy(outString, inString+BlockSize(), length);
+			memmove(outString, inString+BlockSize(), length);
 			memcpy(outString+BlockSize(), m_register, length);
 		}
 		else
@@ -278,7 +278,7 @@ void CBC_CTS_Decryption::ProcessLastBlock(byte *outString, const byte *inString,
 	{
 		if (inString == outString)
 		{
-			memcpy(outString, inString+BlockSize(), length);
+			memmove(outString, inString+BlockSize(), length);
 			memcpy(outString+BlockSize(), m_temp, length);
 			// decrypt next to last plaintext block
 			memcpy(m_temp, pn1, length);
