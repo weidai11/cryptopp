@@ -1,3 +1,9 @@
+# Please ensure your changes or patch meets minimum requirements.
+#   The minimum requirements are below, and they are 2.8.5. Please
+#   do not check in something for 2.8.12. To test your changes,
+#   please set up a Ubuntu 12.04 LTS system. Then, manually install
+#   Cmake 2.8.5 from http://cmake.org/Wiki/CMake_Released_Versions.
+
 cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
 
 project(cryptopp)
