@@ -141,7 +141,7 @@ void Socket::Bind(unsigned int port, const char *addr)
 		sa.sin_addr.s_addr = result;
 	}
 
-	sa.sin_port = htons((u_short)port);
+	sa.sin_port = htons((unsigned short)port);
 
 	Bind((sockaddr *)&sa, sizeof(sa));
 }
@@ -183,7 +183,7 @@ bool Socket::Connect(const char *addr, unsigned int port)
 		}
 	}
 
-	sa.sin_port = htons((u_short)port);
+	sa.sin_port = htons((unsigned short)port);
 
 	return Connect((const sockaddr *)&sa, sizeof(sa));
 }
@@ -283,7 +283,7 @@ bool Socket::ReceiveReady(const timeval *timeout)
 #ifdef CRYPTOPP_MSAN
 	__msan_unpoison(&fds, sizeof(fds));
 #endif
-	
+
 	int ready;
 	if (timeout == NULL)
 		ready = select((int)m_s+1, &fds, NULL, NULL, NULL);
