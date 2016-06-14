@@ -100,7 +100,8 @@ inline static void Xor16(byte *a, const byte *b, const byte *c)
 }
 
 #if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
-static CRYPTOPP_ALIGN_DATA(16) const word64 s_clmulConstants64[] = {
+CRYPTOPP_ALIGN_DATA(16)
+static const word64 s_clmulConstants64[] = {
 	W64LIT(0xe100000000000000), W64LIT(0xc200000000000000),
 	W64LIT(0x08090a0b0c0d0e0f), W64LIT(0x0001020304050607),
 	W64LIT(0x0001020304050607), W64LIT(0x08090a0b0c0d0e0f)};

@@ -9,15 +9,15 @@ July 2010: Added support for AES-NI instructions via compiler intrinsics.
 */
 
 /*
-Feb 2009: The x86/x64 assembly code was rewritten in by Wei Dai to do counter mode 
-caching, which was invented by Hongjun Wu and popularized by Daniel J. Bernstein 
-and Peter Schwabe in their paper "New AES software speed records". The round 
-function was also modified to include a trick similar to one in Brian Gladman's 
-x86 assembly code, doing an 8-bit register move to minimize the number of 
-register spills. Also switched to compressed tables and copying round keys to 
+Feb 2009: The x86/x64 assembly code was rewritten in by Wei Dai to do counter mode
+caching, which was invented by Hongjun Wu and popularized by Daniel J. Bernstein
+and Peter Schwabe in their paper "New AES software speed records". The round
+function was also modified to include a trick similar to one in Brian Gladman's
+x86 assembly code, doing an 8-bit register move to minimize the number of
+register spills. Also switched to compressed tables and copying round keys to
 the stack.
 
-The C++ implementation now uses compressed tables if 
+The C++ implementation now uses compressed tables if
 CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS is defined.
 */
 
@@ -25,15 +25,15 @@ CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS is defined.
 July 2006: Defense against timing attacks was added in by Wei Dai.
 
 The code now uses smaller tables in the first and last rounds,
-and preloads them into L1 cache before usage (by loading at least 
-one element in each cache line). 
+and preloads them into L1 cache before usage (by loading at least
+one element in each cache line).
 
-We try to delay subsequent accesses to each table (used in the first 
+We try to delay subsequent accesses to each table (used in the first
 and last rounds) until all of the table has been preloaded. Hopefully
 the compiler isn't smart enough to optimize that code away.
 
 After preloading the table, we also try not to access any memory location
-other than the table and the stack, in order to prevent table entries from 
+other than the table and the stack, in order to prevent table entries from
 being unloaded from L1 cache, until that round is finished.
 (Some popular CPUs have 2-way associative caches.)
 */
@@ -95,8 +95,8 @@ static word64 Td[256];
 // Unused; avoids linker error on Microsoft X64 non-AESNI platforms
 namespace rdtable {CRYPTOPP_ALIGN_DATA(16) word64 Te[256+2];}
 # endif
-static CRYPTOPP_ALIGN_DATA(16) word32 Te[256*4];
-static CRYPTOPP_ALIGN_DATA(16) word32 Td[256*4];
+CRYPTOPP_ALIGN_DATA(16) static word32 Te[256*4];
+CRYPTOPP_ALIGN_DATA(16) static word32 Td[256*4];
 #endif // CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
 
 static volatile bool s_TeFilled = false, s_TdFilled = false;
@@ -509,7 +509,7 @@ void Rijndael::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 
 #if !(defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS) || defined(CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS))
 	// timing attack countermeasure. see comments at top for more details
-	// If CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS is defined, 
+	// If CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS is defined,
 	// QUARTER_ROUND_LD will use Td, which is already preloaded.
 	u = _u;
 	for (i=0; i<256; i+=cacheLineSize)
@@ -1001,7 +1001,7 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 #endif
 #ifdef __GNUC__
 	ATT_PREFIX
-	: 
+	:
 	: "c" (locals), "d" (k), "S" (Te), "D" (g_cacheLineSize)
 	: "memory", "cc", "%eax"
 	#if CRYPTOPP_BOOL_X64
@@ -1103,7 +1103,8 @@ inline void AESNI_Dec_4_Blocks(__m128i &block0, __m128i &block1, __m128i &block2
 	block3 = _mm_aesdeclast_si128(block3, rk);
 }
 
-static CRYPTOPP_ALIGN_DATA(16) const word32 s_one[] = {0, 0, 0, 1<<24};
+CRYPTOPP_ALIGN_DATA(16)
+static const word32 s_one[] = {0, 0, 0, 1<<24};
 
 template <typename F1, typename F4>
 inline size_t AESNI_AdvancedProcessBlocks(F1 func1, F4 func4, const __m128i *subkeys, unsigned int rounds, const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
@@ -1201,7 +1202,7 @@ inline size_t AESNI_AdvancedProcessBlocks(F1 func1, F4 func4, const __m128i *sub
 
 		if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
 			block = _mm_xor_si128(block, _mm_loadu_si128((const __m128i *)(const void *)xorBlocks));
-			
+
 		_mm_storeu_si128((__m128i *)(void *)outBlocks, block);
 
 		inBlocks += inIncrement;
@@ -1220,7 +1221,7 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 	if (HasAESNI())
 		return AESNI_AdvancedProcessBlocks(AESNI_Enc_Block, AESNI_Enc_4_Blocks, (const __m128i *)(const void *)m_key.begin(), m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 #endif
-	
+
 #if (CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
 	if (HasSSE2())
 	{
@@ -1298,7 +1299,7 @@ size_t Rijndael::Dec::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 {
 	if (HasAESNI())
 		return AESNI_AdvancedProcessBlocks(AESNI_Dec_Block, AESNI_Dec_4_Blocks, (const __m128i *)(const void *)m_key.begin(), m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);
-	
+
 	return BlockTransformation::AdvancedProcessBlocks(inBlocks, xorBlocks, outBlocks, length, flags);
 }
 

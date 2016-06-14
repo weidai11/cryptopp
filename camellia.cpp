@@ -250,6 +250,7 @@ void Camellia::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBloc
 
 // The Camellia s-boxes
 
+CRYPTOPP_ALIGN_DATA(4)
 const byte Camellia::Base::s1[256] =
 {
 	112,130,44,236,179,39,192,229,228,133,87,53,234,12,174,65,
