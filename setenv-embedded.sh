@@ -130,4 +130,11 @@ if [ ! -z "$VERBOSE" ] && [ "$VERBOSE" -ne 0 ]; then
   echo "ARM_EMBEDDED_SYSROOT: $ARM_EMBEDDED_SYSROOT"
 fi
 
+echo
+echo "*******************************************************************************"
+echo "It looks the the environemnt is set correcty. Your next step is"
+echo "build the library with 'make -f GNUmakefile-cross'"
+echo "*******************************************************************************"
+echo
+
 [ "$0" = "$BASH_SOURCE" ] && exit 0 || return 0

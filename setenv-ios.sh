@@ -81,32 +81,32 @@ do
   if [ "$CL" == "iphone" ] || [ "$CL" == "iphoneos" ]; then
     APPLE_SDK=iPhoneOS
   fi
-  
+
   # iPhone Simulator
   if [ "$CL" == "simulator" ] || [ "$CL" == "iphonesimulator" ]; then
     APPLE_SDK=iPhoneSimulator
   fi
-  
+
   # Watch
   if [ "$CL" == "watch" ] || [ "$CL" == "watchos" ] || [ "$CL" == "applewatch" ]; then
     APPLE_SDK=WatchOS
   fi
-  
+
   # Watch Simulator
   if [ "$CL" == "watchsimulator" ]; then
     APPLE_SDK=WatchSimulator
   fi
-  
+
   # Apple TV
   if [ "$CL" == "tv" ] || [ "$CL" == "appletv" ] || [ "$CL" == "appletvos" ]; then
     APPLE_SDK=AppleTVOS
   fi
-  
+
   # Apple TV Simulator
   if [ "$CL" == "tvsimulator" ] || [ "$CL" == "appletvsimulator" ]; then
     APPLE_SDK=AppleTVSimulator
   fi
- 
+
 done
 
 # Defaults if not set
@@ -270,13 +270,20 @@ TOOLS=(clang clang++ ar ranlib libtool ld)
 for tool in ${TOOLS[@]}
 do
 	if [ ! -e "$IOS_TOOLCHAIN/$tool" ] && [ ! -e "$XCODE_TOOLCHAIN/$tool" ]; then
-		echo "WARNING: unable to find $tool at IOS_TOOLCHAIN or XCODE_TOOLCHAIN"
+		echo "ERROR: unable to find $tool at IOS_TOOLCHAIN or XCODE_TOOLCHAIN"
 		FOUND_ALL=0
 	fi
 done
 
-if [ "$SETENV_VERBOSE" == "1" ] && [ "$FOUND_ALL" == "1" ]; then
-	echo "TOOL TEST: found all tools, this might actually work"
+if [ "$FOUND_ALL" -eq "0" ]; then
+	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
 fi
+
+echo
+echo "*******************************************************************************"
+echo "It looks the the environemnt is set correcty. Your next step is"
+echo "build the library with 'make -f GNUmakefile-cross'"
+echo "*******************************************************************************"
+echo
 
 [ "$0" = "$BASH_SOURCE" ] && exit 0 || return 0

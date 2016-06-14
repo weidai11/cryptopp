@@ -332,7 +332,7 @@ VERBOSE=1
 if [ ! -z "$VERBOSE" ] && [ "$VERBOSE" != "0" ]; then
   echo "ANDROID_NDK_ROOT: $ANDROID_NDK_ROOT"
   echo "AOSP_TOOLCHAIN_PATH: $AOSP_TOOLCHAIN_PATH"
-  echo "AOSP_ABI: $AOSP_ABI"  
+  echo "AOSP_ABI: $AOSP_ABI"
   echo "AOSP_API: $AOSP_API"
   echo "AOSP_SYSROOT: $AOSP_SYSROOT"
   echo "AOSP_FLAGS: $AOSP_FLAGS"
@@ -342,5 +342,12 @@ if [ ! -z "$VERBOSE" ] && [ "$VERBOSE" != "0" ]; then
     echo "AOSP_BITS_INC: $AOSP_BITS_INC"
   fi
 fi
+
+echo
+echo "*******************************************************************************"
+echo "It looks the the environemnt is set correcty. Your next step is"
+echo "build the library with 'make -f GNUmakefile-cross'"
+echo "*******************************************************************************"
+echo
 
 [ "$0" = "$BASH_SOURCE" ] && exit 0 || return 0
