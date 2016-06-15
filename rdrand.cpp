@@ -137,7 +137,7 @@
 # endif
 # if defined(__has_include)
 #  if __has_include(<x86intrin.h>)
-#   include <x86intrin.h> // rdseed for Clang (immintrin.h); rdseed for Clang (rdseedintrin.h)
+#   include <x86intrin.h> // rdrand for Clang (immintrin.h); rdseed for Clang (rdseedintrin.h)
 #  endif
 # endif
 #endif
@@ -169,12 +169,12 @@ extern "C" int NASM_RRA_GenerateBlock(byte*, size_t, unsigned int);
 #if NASM_RDSEED_ASM_AVAILABLE
 extern "C" int NASM_RSA_GenerateBlock(byte*, size_t, unsigned int);
 #endif
-	
+
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
 NAMESPACE_BEGIN(CryptoPP)
-	
+
 #if ALL_RDRAND_INTRIN_AVAILABLE
 static int ALL_RRI_GenerateBlock(byte *output, size_t size, unsigned int safety)
 {
@@ -226,7 +226,7 @@ static int ALL_RRI_GenerateBlock(byte *output, size_t size, unsigned int safety)
 			}
 		}
     }
-		
+
 #if CRYPTOPP_BOOL_X64 || CRYTPOPP_BOOL_X32
 	*((volatile word64*)&val) = 0;
 #else
@@ -407,7 +407,7 @@ static int ALL_RSI_GenerateBlock(byte *output, size_t size, unsigned int safety)
 			}
 		}
     }
-		
+
 #if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32
 	*((volatile word64*)&val) = 0;
 #else

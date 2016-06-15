@@ -37,7 +37,7 @@ class RDRAND : public RandomNumberGenerator
 {
 public:
 	std::string AlgorithmName() const {return "RDRAND";}
-	
+
 	//! \brief Construct a RDRAND generator
 	//! \param retries the number of retries for failed calls to the hardware
 	//! \details RDRAND() constructs a generator with a maximum number of retires
@@ -46,16 +46,16 @@ public:
 	//!   to fulfill requests at about 6 to 8 times the rate of RDRAND. The default
 	//!   retries reflects the difference.
 	RDRAND(unsigned int retries = 12) : m_retries(retries) {}
-	
+
 	virtual ~RDRAND() {}
-	
+
 	//! \brief Retrieve the number of retries used by the generator
 	//! \returns the number of times GenerateBlock() will attempt to recover from a failed generation
 	unsigned int GetRetries() const
 	{
 		return m_retries;
 	}
-	
+
 	//! \brief Set the number of retries used by the generator
 	//! \param retries number of times GenerateBlock() will attempt to recover from a failed generation
 	void SetRetries(unsigned int retries)
@@ -119,7 +119,7 @@ class RDSEED : public RandomNumberGenerator
 {
 public:
 	std::string AlgorithmName() const {return "RDSEED";}
-	
+
 	//! \brief Construct a RDSEED generator
 	//! \param retries the number of retries for failed calls to the hardware
 	//! \details RDSEED() constructs a generator with a maximum number of retires
@@ -128,16 +128,16 @@ public:
 	//!   to fulfill requests at about 6 to 8 times the rate of RDRAND. The default
 	//!   retries reflects the difference.
 	RDSEED(unsigned int retries = 64) : m_retries(retries) {}
-	
+
 	virtual ~RDSEED() {}
-	
+
 	//! \brief Retrieve the number of retries used by the generator
 	//! \returns the number of times GenerateBlock() will attempt to recover from a failed generation
 	unsigned int GetRetries() const
 	{
 		return m_retries;
 	}
-	
+
 	//! \brief Set the number of retries used by the generator
 	//! \param retries number of times GenerateBlock() will attempt to recover from a failed generation
 	void SetRetries(unsigned int retries)
