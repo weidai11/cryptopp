@@ -166,12 +166,13 @@ endif
 endif
 endif
 
-# Allow use of "/" operator for GNU Assembler
-# ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
-# ifeq ($(IS_GAS),1)
-# CXXFLAGS += -Wa,--divide
-# endif
-# endif
+# Allow use of "/" operator for GNU Assembler.
+#   http://sourceware.org/bugzilla/show_bug.cgi?id=4572
+ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
+ifeq ($(IS_SUN)$(GCC_COMPILER),11)
+CXXFLAGS += -Wa,--divide
+endif
+endif
 
 ifeq ($(UNAME),)	# for DJGPP, where uname doesn't exist
 CXXFLAGS += -mbnu210
