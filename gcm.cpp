@@ -45,7 +45,7 @@ void gcm_gf_mult(const unsigned char *a, const unsigned char *b, unsigned char *
 	typedef BlockGetAndPut<word64, BigEndian> Block;
 	Block::Get(a)(V0)(V1);
 
-	for (int i=0; i<16; i++) 
+	for (int i=0; i<16; i++)
 	{
 		for (int j=0x80; j!=0; j>>=1)
 		{
@@ -110,8 +110,8 @@ static const unsigned int s_clmulTableSizeInBlocks = 8;
 
 inline __m128i CLMUL_Reduce(__m128i c0, __m128i c1, __m128i c2, const __m128i &r)
 {
-	/* 
-	The polynomial to be reduced is c0 * x^128 + c1 * x^64 + c2. c0t below refers to the most 
+	/*
+	The polynomial to be reduced is c0 * x^128 + c1 * x^64 + c2. c0t below refers to the most
 	significant half of c0 as a polynomial, which, due to GCM's bit reflection, are in the
 	rightmost bit positions, and the lowest byte addresses.
 
@@ -219,7 +219,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
 			k = i%8;
 			Block::Put(NULL, table+(i/8)*256*16+(size_t(1)<<(11-k)))(V0)(V1);
 
-			int x = (int)V1 & 1; 
+			int x = (int)V1 & 1;
 			V1 = (V1>>1) | (V0<<63);
 			V0 = (V0>>1) ^ (x ? W64LIT(0xe1) << 56 : 0);
 		}
@@ -264,7 +264,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
 			else if (k < 8)
 				Block::Put(NULL, table+(i/32)*256+(size_t(1)<<(11-k)))(V0)(V1);
 
-			int x = (int)V1 & 1; 
+			int x = (int)V1 & 1;
 			V1 = (V1>>1) | (V0<<63);
 			V0 = (V0>>1) ^ (x ? W64LIT(0xe1) << 56 : 0);
 		}
@@ -351,9 +351,9 @@ void GCM_Base::Resync(const byte *iv, size_t len)
 
 unsigned int GCM_Base::OptimalDataAlignment() const
 {
-	return 
+	return
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)
-		HasSSE2() ? 16 : 
+		HasSSE2() ? 16 :
 #endif
 		GetBlockCipher().OptimalDataAlignment();
 }
@@ -730,8 +730,8 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 
 		AS2(	psrldq	xmm0, 15						)
 #if (CRYPTOPP_CLANG_VERSION >= 30600) || (CRYPTOPP_APPLE_CLANG_VERSION >= 70000)
-		AS2(	movd	edi, xmm0						)	
-#elif (defined(CRYPTOPP_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION)) && defined(CRYPTOPP_X64_ASM_AVAILABLE)	
+		AS2(	movd	edi, xmm0						)
+#elif (defined(CRYPTOPP_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION)) && defined(CRYPTOPP_X64_ASM_AVAILABLE)
 		AS2(	mov		WORD_REG(di), xmm0				)
 #else
 		AS2(	movd	WORD_REG(di), xmm0				)
@@ -758,7 +758,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 
 		#ifdef __GNUC__
 				ATT_PREFIX
-					: 
+					:
 					: "c" (data), "d" (len/16), "S" (hashBuffer), "D" (s_reductionTable)
 					: "memory", "cc", "%eax"
 			#if CRYPTOPP_BOOL_X64
@@ -837,7 +837,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 
 		#ifdef __GNUC__
 				ATT_PREFIX
-					: 
+					:
 					: "c" (data), "d" (len/16), "S" (hashBuffer)
 					: "memory", "cc", "%edi", "%eax"
 				);

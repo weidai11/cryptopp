@@ -22,6 +22,11 @@ NAMESPACE_BEGIN(CryptoPP)
 # undef CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
 #endif
 
+// Testing shows Sun CC needs 12.4 for _mm_set_epi64x
+#if (__SUNPRO_CC <= 0x5130)
+# undef CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+#endif
+
 // Visual Studio needs VS2008 (1500); no dependency on _mm_set_epi64x()
 //   http://msdn.microsoft.com/en-us/library/bb892950%28v=vs.90%29.aspx
 #if defined(_MSC_VER) && (_MSC_VER < 1500)
