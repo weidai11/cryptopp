@@ -137,7 +137,7 @@ if [ "$?" -eq "0" ]; then
 	RETAINED_CXXFLAGS+=("-Wno-deprecated-declarations")
 fi
 
-# C++17 to ensure no surprises. Use the compiler driver, and not cpp, to tell us if the flag is consumed.
+# Hit or miss, only latest compilers.
 $CXX -DCRYPTOPP_ADHOC_MAIN -std=c++17 adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
 if [ "$?" -eq "0" ]; then
 	HAVE_CXX17=1
@@ -145,7 +145,7 @@ else
 	HAVE_CXX17=0
 fi
 
-# C++14 to ensure no surprises. Use the compiler driver, and not cpp, to tell us if the flag is consumed.
+# Hit or miss, mostly miss.
 $CXX -DCRYPTOPP_ADHOC_MAIN -std=c++14 adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
 if [ "$?" -eq "0" ]; then
 	HAVE_CXX14=1
@@ -153,7 +153,7 @@ else
 	HAVE_CXX14=0
 fi
 
-# Use the compiler driver, and not cpp, to tell us if the flag is consumed.
+# Hit or miss, mostly hit.
 $CXX -DCRYPTOPP_ADHOC_MAIN -std=c++11 adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
 if [ "$?" -eq "0" ]; then
 	HAVE_CXX11=1
@@ -169,7 +169,7 @@ else
 	HAVE_CXX03=0
 fi
 
-# Set to 0 if you don't have UBsan
+# Undefined Behavior sanitizer
 $CXX -DCRYPTOPP_ADHOC_MAIN -fsanitize=undefined adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
 if [ "$?" -eq "0" ] && [ "$IS_X86" -ne "0" ]; then
 	HAVE_UBSAN=1
@@ -177,7 +177,7 @@ else
 	HAVE_UBSAN=0
 fi
 
-# Set to 0 if you don't have Asan
+# Address sanitizer
 $CXX -DCRYPTOPP_ADHOC_MAIN -fsanitize=address adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
 if [ "$?" -eq "0" ] && [ "$IS_X86" -ne "0" ]; then
 	HAVE_ASAN=1
@@ -185,7 +185,7 @@ else
 	HAVE_ASAN=0
 fi
 
-# Set to 0 if you don't have Intel multiarch
+# Darwin and Intel multiarch
 HAVE_INTEL_MULTIARCH=0
 if [ "$IS_DARWIN" -ne "0" ] && [ "$IS_X86" -ne "0" ]; then
 	$CXX -DCRYPTOPP_ADHOC_MAIN -arch i386 -arch x86_64 adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
@@ -194,7 +194,7 @@ if [ "$IS_DARWIN" -ne "0" ] && [ "$IS_X86" -ne "0" ]; then
 	fi
 fi
 
-# Set to 0 if you don't have PPC multiarch
+# Darwin and PowerPC multiarch
 HAVE_PPC_MULTIARCH=0
 if [ "$IS_DARWIN" -ne "0" ] && [ "$IS_PPC" -ne "0" ]; then
 	$CXX -DCRYPTOPP_ADHOC_MAIN -arch ppc -arch ppc64 adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
@@ -203,6 +203,7 @@ if [ "$IS_DARWIN" -ne "0" ] && [ "$IS_PPC" -ne "0" ]; then
 	fi
 fi
 
+# Debian and a couple of others
 HAVE_X32=0
 if [ "$IS_X64" -ne "0" ]; then
 	$CXX -DCRYPTOPP_ADHOC_MAIN -mx32 adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
@@ -211,7 +212,16 @@ if [ "$IS_X64" -ne "0" ]; then
 	fi
 fi
 
-# Set to 0 if you don't have ARMv8
+# ARMv7/Aarch32
+HAVE_ARM_NEON=0
+if [ "$IS_ARM32" -ne "0" ] || [ "$IS_ARM64" -ne "0" ]; then
+	$CXX -DCRYPTOPP_ADHOC_MAIN -march=armv7a -mfpu=neon adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
+	if [ "$?" -eq "0" ]; then
+		HAVE_ARM_CRYPTO=1
+	fi
+fi
+
+# ARMv8/Aarch64, CRC and Crypto
 HAVE_ARM_CRC=0
 HAVE_ARM_CRYPTO=0
 if [ "$IS_ARM32" -ne "0" ] || [ "$IS_ARM64" -ne "0" ]; then
@@ -225,28 +235,34 @@ if [ "$IS_ARM32" -ne "0" ] || [ "$IS_ARM64" -ne "0" ]; then
 	fi
 fi
 
+# "Modern compiler, old hardware" combinations
 HAVE_X86_AES=0
 HAVE_X86_RDRAND=0
 HAVE_X86_RDSEED=0
 HAVE_X86_PCLMUL=0
 if [ "$IS_X86" -ne "0" ] || [ "$IS_X64" -ne "0" ]; then
-	$CXX -DCRYPTOPP_ADHOC_MAIN -maes adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
-	if [ "$?" -eq "0" ]; then
-		HAVE_X86_AES=1
-	fi
-	$CXX -DCRYPTOPP_ADHOC_MAIN -mrdrnd adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
-	if [ "$?" -eq "0" ]; then
-		HAVE_X86_RDRAND=1
-	fi
-	$CXX -DCRYPTOPP_ADHOC_MAIN -mrdseed adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
-	if [ "$?" -eq "0" ]; then
-		HAVE_X86_RDSEED=1
-	fi
-	$CXX -DCRYPTOPP_ADHOC_MAIN -mpclmul adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
-	if [ "$?" -eq "0" ]; then
-		HAVE_X86_PCLMUL=1
+	if [ "$SUN_COMPILER" -eq "0" ]; then
+		$CXX -DCRYPTOPP_ADHOC_MAIN -maes adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
+		if [ "$?" -eq "0" ]; then
+			HAVE_X86_AES=1
+		fi
+		$CXX -DCRYPTOPP_ADHOC_MAIN -mrdrnd adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
+		if [ "$?" -eq "0" ]; then
+			HAVE_X86_RDRAND=1
+		fi
+		$CXX -DCRYPTOPP_ADHOC_MAIN -mrdseed adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
+		if [ "$?" -eq "0" ]; then
+			HAVE_X86_RDSEED=1
+		fi
+		$CXX -DCRYPTOPP_ADHOC_MAIN -mpclmul adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
+		if [ "$?" -eq "0" ]; then
+			HAVE_X86_PCLMUL=1
+		fi
 	fi
 fi
+
+# LD-Gold linker testing
+HAVE_LDGOLD=$(file `which ld.gold` 2>&1 | cut -d":" -f 2 | $(EGREP) -i -c "elf")
 
 # Set to 0 if you don't have Valgrind. Valgrind tests take a long time...
 HAVE_VALGRIND=$(which valgrind 2>&1 | $GREP -v "no valgrind" | $GREP -i -c valgrind)
@@ -261,18 +277,22 @@ fi
 if [ "$HAVE_CXX17" -ne "0" ]; then
 	echo "HAVE_CXX17: $HAVE_CXX17" | tee -a "$TEST_RESULTS"
 fi
+if [ "$HAVE_LDGOLD" -ne "0" ]; then
+	echo "HAVE_LDGOLD: $HAVE_LDGOLD" | tee -a "$TEST_RESULTS"
+fi
+
+# Print these tools
 echo "HAVE_ASAN: $HAVE_ASAN" | tee -a "$TEST_RESULTS"
 echo "HAVE_UBSAN: $HAVE_UBSAN" | tee -a "$TEST_RESULTS"
+echo "HAVE_VALGRIND: $HAVE_VALGRIND" | tee -a "$TEST_RESULTS"
 
-if [ "$HAVE_VALGRIND" -ne "0" ]; then
-	echo "HAVE_VALGRIND: $HAVE_VALGRIND" | tee -a "$TEST_RESULTS"
-fi
 if [ "$HAVE_INTEL_MULTIARCH" -ne "0" ]; then
 	echo "HAVE_INTEL_MULTIARCH: $HAVE_INTEL_MULTIARCH" | tee -a "$TEST_RESULTS"
 fi
 if [ "$HAVE_PPC_MULTIARCH" -ne "0" ]; then
 	echo "HAVE_PPC_MULTIARCH: $HAVE_PPC_MULTIARCH" | tee -a "$TEST_RESULTS"
 fi
+
 if [ "$IS_DARWIN" -ne "0" ]; then
 	echo "IS_DARWIN: $IS_DARWIN" | tee -a "$TEST_RESULTS"
 	unset MallocScribble MallocPreScribble MallocGuardEdges
@@ -286,6 +306,10 @@ fi
 if [ "$IS_MINGW" -ne "0" ]; then
 	echo "IS_MINGW: $IS_MINGW" | tee -a "$TEST_RESULTS"
 fi
+if [ "$IS_SOLARIS" -ne "0" ]; then
+	echo "IS_SOLARIS: $IS_SOLARIS" | tee -a "$TEST_RESULTS"
+fi
+
 if [ "$IS_ARM64" -ne "0" ]; then
 	echo "IS_ARM64: $IS_ARM64" | tee -a "$TEST_RESULTS"
 elif [ "$IS_ARM32" -ne "0" ]; then
@@ -1164,6 +1188,75 @@ else
 	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
 	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+	fi
+fi
+
+############################################
+# Build with LD-Gold
+if [ "$HAVE_LDGOLD" -ne "0" ]; then
+
+	############################################
+	# Debug build with LD-Gold
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: debug, ld-gold linker" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	if [ "$SUN_COMPILER" -ne "0" ]; then
+		export CXXFLAGS="-DDEBUG -g3 -xO3 ${RETAINED_CXXFLAGS[@]}"
+	else
+		export CXXFLAGS="-DDEBUG -g2 -O3 ${RETAINED_CXXFLAGS[@]}"
+	fi
+
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" LD="ld.gold" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+
+	############################################
+	# Release build with LD-Gold
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: release, ld-gold linker" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	if [ "$SUN_COMPILER" -ne "0" ]; then
+		export CXXFLAGS="-DNDEBUG -g3 -xO3 ${RETAINED_CXXFLAGS[@]}"
+	else
+		export CXXFLAGS="-DNDEBUG -g2 -O3 ${RETAINED_CXXFLAGS[@]}"
+	fi
+
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" LD="ld.gold" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
 	fi
 fi
 
