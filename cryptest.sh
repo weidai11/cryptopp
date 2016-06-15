@@ -138,51 +138,45 @@ if [ "$?" -eq "0" ]; then
 fi
 
 # Hit or miss, only latest compilers.
+HAVE_CXX17=0
 $CXX -DCRYPTOPP_ADHOC_MAIN -std=c++17 adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
 if [ "$?" -eq "0" ]; then
 	HAVE_CXX17=1
-else
-	HAVE_CXX17=0
 fi
 
 # Hit or miss, mostly miss.
+HAVE_CXX14=0
 $CXX -DCRYPTOPP_ADHOC_MAIN -std=c++14 adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
 if [ "$?" -eq "0" ]; then
 	HAVE_CXX14=1
-else
-	HAVE_CXX14=0
 fi
 
 # Hit or miss, mostly hit.
+HAVE_CXX11=0
 $CXX -DCRYPTOPP_ADHOC_MAIN -std=c++11 adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
 if [ "$?" -eq "0" ]; then
 	HAVE_CXX11=1
-else
-	HAVE_CXX11=0
 fi
 
 # OpenBSD 5.7 and OS X 10.5 cannot consume -std=c++03
+HAVE_CXX03=0
 $CXX -DCRYPTOPP_ADHOC_MAIN -std=c++03 adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
 if [ "$?" -eq "0" ]; then
 	HAVE_CXX03=1
-else
-	HAVE_CXX03=0
 fi
 
 # Undefined Behavior sanitizer
+HAVE_UBSAN=0
 $CXX -DCRYPTOPP_ADHOC_MAIN -fsanitize=undefined adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
 if [ "$?" -eq "0" ] && [ "$IS_X86" -ne "0" ]; then
 	HAVE_UBSAN=1
-else
-	HAVE_UBSAN=0
 fi
 
 # Address sanitizer
+HAVE_ASAN=0
 $CXX -DCRYPTOPP_ADHOC_MAIN -fsanitize=address adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
 if [ "$?" -eq "0" ] && [ "$IS_X86" -ne "0" ]; then
 	HAVE_ASAN=1
-else
-	HAVE_ASAN=0
 fi
 
 # Darwin and Intel multiarch
@@ -399,7 +393,7 @@ if [ ! -z "$GIT_BRANCH" ]; then
 fi
 
 if [ "$SUN_COMPILER" -ne "0" ]; then
-	echo $($CXX -V | head -1) | tee -a "$TEST_RESULTS"
+	echo $($CXX -V 2>&1 | head -1 | sed 's|CC|Compiler|g') | tee -a "$TEST_RESULTS"
 else
 	echo "Compiler:" $($CXX --version | head -1) | tee -a "$TEST_RESULTS"
 fi
@@ -1131,7 +1125,7 @@ fi
 # Basic debug build, using SHA3/FIPS 202
 echo
 echo "************************************" | tee -a "$TEST_RESULTS"
-echo "Testing: debug, default CXXFLAGS, CRYPTOPP_USE_FIPS_202_SHA3" | tee -a "$TEST_RESULTS"
+echo "Testing: debug, default CXXFLAGS, USE_FIPS_202_SHA3" | tee -a "$TEST_RESULTS"
 echo
 
 unset CXXFLAGS
@@ -1163,7 +1157,7 @@ fi
 # Basic release build, using SHA3/FIPS 202
 echo
 echo "************************************" | tee -a "$TEST_RESULTS"
-echo "Testing: release, default CXXFLAGS, CRYPTOPP_USE_FIPS_202_SHA3" | tee -a "$TEST_RESULTS"
+echo "Testing: release, default CXXFLAGS, USE_FIPS_202_SHA3" | tee -a "$TEST_RESULTS"
 echo
 
 unset CXXFLAGS
@@ -1632,7 +1626,7 @@ if [ "$IS_SOLARIS" -ne "0" ]; then
 
 	############################################
 	# Sun Studio 12.2
-	if [ "$CXX" != "/opt/solstudio12.2/bin/CC" ] && [ -e "/opt/solstudio12.2/bin/CC" ]; then
+	if [ -e "/opt/solstudio12.2/bin/CC" ]; then
 
 		############################################
 		# Basic debug build
@@ -1691,7 +1685,7 @@ if [ "$IS_SOLARIS" -ne "0" ]; then
 
 	############################################
 	# Sun Studio 12.3
-	if [ "$CXX" != "/opt/solarisstudio12.3/bin/CC" ] && [ -e "/opt/solarisstudio12.3/bin/CC" ]; then
+	if [ -e "/opt/solarisstudio12.3/bin/CC" ]; then
 
 		############################################
 		# Basic debug build
@@ -1750,7 +1744,7 @@ if [ "$IS_SOLARIS" -ne "0" ]; then
 
 	############################################
 	# Sun Studio 12.4
-	if [ "$CXX" != "/opt/solarisstudio12.4/bin/CC" ] && [ -e "/opt/solarisstudio12.4/bin/CC" ]; then
+	if [ -e "/opt/solarisstudio12.4/bin/CC" ]; then
 
 		############################################
 		# Basic debug build
@@ -1809,7 +1803,7 @@ if [ "$IS_SOLARIS" -ne "0" ]; then
 
 	############################################
 	# Sun Studio 12.5
-	if [ "$CXX" != "/opt/solarisstudio12.5/bin/CC" ] && [ -e "/opt/solarisstudio12.5/bin/CC" ]; then
+	if [ -e "/opt/solarisstudio12.5/bin/CC" ]; then
 
 		############################################
 		# Basic debug build
@@ -2195,6 +2189,46 @@ if [ "$IS_DARWIN" -ne "0" ] && [ "$HAVE_INTEL_MULTIARCH" -ne "0" ] && [ "$HAVE_C
 	rm -f adhoc.cpp > /dev/null 2>&1
 
 	export CXXFLAGS="-DNDEBUG -g2 -O2 -arch i386 -arch x86_64 -std=c++14 ${RETAINED_CXXFLAGS[@]}"
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		echo "Running i386 version..."
+		arch -i386 ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite (i386)" | tee -a "$TEST_RESULTS"
+		fi
+		arch -i386 ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors (i386)" | tee -a "$TEST_RESULTS"
+		fi
+
+		echo "Running x86_64 version..."
+		arch -x86_64 ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite (x86_64)" | tee -a "$TEST_RESULTS"
+		fi
+		arch -x86_64 ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors (x86_64)" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+fi
+
+############################################
+# Darwin, Intel multiarch, c++17
+if [ "$IS_DARWIN" -ne "0" ] && [ "$HAVE_INTEL_MULTIARCH" -ne "0" ] && [ "$HAVE_CXX17" -ne "0" ]; then
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Darwin, Intel multiarch, c++17" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	export CXXFLAGS="-DNDEBUG -g2 -O2 -arch i386 -arch x86_64 -std=c++17 ${RETAINED_CXXFLAGS[@]}"
 	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
@@ -2763,6 +2797,34 @@ if [ "$HAVE_VALGRIND" -ne "0" ] && [ "$HAVE_CXX14" -ne "0" ]; then
 		export CXXFLAGS="-DNDEBUG -g3 -xO1 -std=c++14 ${RETAINED_CXXFLAGS[@]}"
 	else
 		export CXXFLAGS="-DNDEBUG -g3 -O1 -std=c++14 ${RETAINED_CXXFLAGS[@]}"
+	fi
+
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		valgrind --track-origins=yes ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		valgrind --track-origins=yes ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+	fi
+fi
+
+############################################
+# Valgrind, c++17. Requires -O1 for accurate results
+if [ "$HAVE_VALGRIND" -ne "0" ] && [ "$HAVE_CXX17" -ne "0" ]; then
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Valgrind, c++17" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	if [ "$SUN_COMPILER" -ne "0" ]; then
+		export CXXFLAGS="-DNDEBUG -g3 -xO1 -std=c++17 ${RETAINED_CXXFLAGS[@]}"
+	else
+		export CXXFLAGS="-DNDEBUG -g3 -O1 -std=c++17 ${RETAINED_CXXFLAGS[@]}"
 	fi
 
 	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
