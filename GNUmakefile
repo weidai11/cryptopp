@@ -301,9 +301,6 @@ ifneq ($(USING_GLIBCXX),0)
 ifeq ($(findstring -D_GLIBCXX_DEBUG,$(CXXFLAGS)),)
 CXXFLAGS += -D_GLIBCXX_DEBUG
 endif # CXXFLAGS
-ifeq ($(findstring -D_GLIBCXX_CONCEPT_CHECKS,$(CXXFLAGS)),)
-CXXFLAGS += -D_GLIBCXX_CONCEPT_CHECKS
-endif # CXXFLAGS
 endif # USING_GLIBCXX
 endif # GNU Debug build
 
