@@ -137,6 +137,14 @@ if [ "$?" -eq "0" ]; then
 	RETAINED_CXXFLAGS+=("-Wno-deprecated-declarations")
 fi
 
+# C++17 to ensure no surprises. Use the compiler driver, and not cpp, to tell us if the flag is consumed.
+$CXX -DCRYPTOPP_ADHOC_MAIN -std=c++17 adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
+if [ "$?" -eq "0" ]; then
+	HAVE_CXX17=1
+else
+	HAVE_CXX17=0
+fi
+
 # C++14 to ensure no surprises. Use the compiler driver, and not cpp, to tell us if the flag is consumed.
 $CXX -DCRYPTOPP_ADHOC_MAIN -std=c++14 adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
 if [ "$?" -eq "0" ]; then
@@ -247,7 +255,12 @@ HAVE_VALGRIND=$(which valgrind 2>&1 | $GREP -v "no valgrind" | $GREP -i -c valgr
 echo | tee -a "$TEST_RESULTS"
 echo "HAVE_CXX03: $HAVE_CXX03" | tee -a "$TEST_RESULTS"
 echo "HAVE_CXX11: $HAVE_CXX11" | tee -a "$TEST_RESULTS"
-echo "HAVE_CXX14: $HAVE_CXX14" | tee -a "$TEST_RESULTS"
+if [ "$HAVE_CXX14" -ne "0" ]; then
+	echo "HAVE_CXX14: $HAVE_CXX14" | tee -a "$TEST_RESULTS"
+fi
+if [ "$HAVE_CXX17" -ne "0" ]; then
+	echo "HAVE_CXX17: $HAVE_CXX17" | tee -a "$TEST_RESULTS"
+fi
 echo "HAVE_ASAN: $HAVE_ASAN" | tee -a "$TEST_RESULTS"
 echo "HAVE_UBSAN: $HAVE_UBSAN" | tee -a "$TEST_RESULTS"
 
@@ -688,6 +701,74 @@ if [ "$HAVE_CXX14" -ne "0" ]; then
 		export CXXFLAGS="-DNDEBUG -g3 -xO2 -std=c++14 ${RETAINED_CXXFLAGS[@]}"
 	else
 		export CXXFLAGS="-DNDEBUG -g3 -O2 -std=c++14 ${RETAINED_CXXFLAGS[@]}"
+	fi
+
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+fi
+
+############################################
+# c++17 debug build
+if [ "$HAVE_CXX17" -ne "0" ]; then
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: debug, c++17" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	if [ "$SUN_COMPILER" -ne "0" ]; then
+		export CXXFLAGS="-DDEBUG -g3 -xO0 -std=c++17 ${RETAINED_CXXFLAGS[@]}"
+	else
+		export CXXFLAGS="-DDEBUG -g2 -O0 -std=c++17 ${RETAINED_CXXFLAGS[@]}"
+	fi
+
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+fi
+
+############################################
+# c++17 release build
+if [ "$HAVE_CXX17" -ne "0" ]; then
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: release, c++17" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	if [ "$SUN_COMPILER" -ne "0" ]; then
+		export CXXFLAGS="-DNDEBUG -g3 -xO2 -std=c++17 ${RETAINED_CXXFLAGS[@]}"
+	else
+		export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++17 ${RETAINED_CXXFLAGS[@]}"
 	fi
 
 	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
@@ -1453,68 +1534,248 @@ if [ "$HAVE_CXX11" -ne "0" ] && [ "$HAVE_ASAN" -ne "0" ]; then
 	fi
 fi
 
-# For Solaris, we test under Sun Studio 12.4 because it offers both -std=c++03 and -std=c++11.
-#   We also want to test a couple of builds under Sun Studio 12.3
-if [ "$IS_SOLARIS" -ne "0" ] && [ "$CXX" != "/opt/solarisstudio12.3/bin/CC" ] && [ -e "/opt/solarisstudio12.3/bin/CC" ]; then
-	CXX=/opt/solarisstudio12.3/bin/CC
+# For Solaris, test under Sun Studio 12.2 - 12.5
+if [ "$IS_SOLARIS" -ne "0" ]; then
 
 	############################################
-	# Basic debug build
-	echo
-	echo "************************************" | tee -a "$TEST_RESULTS"
-	echo "Testing: Sun Studio 12.3, debug, default CXXFLAGS" | tee -a "$TEST_RESULTS"
-	echo
+	# Sun Studio 12.2
+	if [ "$CXX" != "/opt/solstudio12.2/bin/CC" ] && [ -e "/opt/solstudio12.2/bin/CC" ]; then
 
-	unset CXXFLAGS
-	"$MAKE" clean > /dev/null 2>&1
-	rm -f adhoc.cpp > /dev/null 2>&1
+		############################################
+		# Basic debug build
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS"
+		echo "Testing: Sun Studio 12.2, debug, default CXXFLAGS" | tee -a "$TEST_RESULTS"
+		echo
 
-	export CXXFLAGS="-DDEBUG -g3 -xO0"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		unset CXXFLAGS
+		"$MAKE" clean > /dev/null 2>&1
+		rm -f adhoc.cpp > /dev/null 2>&1
 
-	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
-		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
-	else
-		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		export CXXFLAGS="-DDEBUG -g -xO0"
+		"$MAKE" "${MAKEARGS[@]}" CXX=/opt/solstudio12.2/bin/CC static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
 		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
-			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+		else
+			./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+			if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+			fi
+			./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+			if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+			fi
 		fi
-		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+
+		############################################
+		# Basic release build
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS"
+		echo "Testing: Sun Studio 12.2, release, default CXXFLAGS" | tee -a "$TEST_RESULTS"
+		echo
+
+		unset CXXFLAGS
+		"$MAKE" clean > /dev/null 2>&1
+		rm -f adhoc.cpp > /dev/null 2>&1
+
+		export CXXFLAGS="-DNDEBUG -g -xO3"
+		"$MAKE" "${MAKEARGS[@]}" CXX=/opt/solstudio12.2/bin/CC static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
 		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
-			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+		else
+			./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+			if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+			fi
+			./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+			if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+			fi
 		fi
 	fi
 
 	############################################
-	# Basic release build
-	echo
-	echo "************************************" | tee -a "$TEST_RESULTS"
-	echo "Testing: Sun Studio 12.3, release, default CXXFLAGS" | tee -a "$TEST_RESULTS"
-	echo
+	# Sun Studio 12.3
+	if [ "$CXX" != "/opt/solarisstudio12.3/bin/CC" ] && [ -e "/opt/solarisstudio12.3/bin/CC" ]; then
 
-	unset CXXFLAGS
-	"$MAKE" clean > /dev/null 2>&1
-	rm -f adhoc.cpp > /dev/null 2>&1
+		############################################
+		# Basic debug build
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS"
+		echo "Testing: Sun Studio 12.3, debug, default CXXFLAGS" | tee -a "$TEST_RESULTS"
+		echo
 
-	export CXXFLAGS="-DNDEBUG -g3 -xO2"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		unset CXXFLAGS
+		"$MAKE" clean > /dev/null 2>&1
+		rm -f adhoc.cpp > /dev/null 2>&1
 
-	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
-		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
-	else
-		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		export CXXFLAGS="-DDEBUG -g3 -xO0"
+		"$MAKE" "${MAKEARGS[@]}" CXX=/opt/solarisstudio12.3/bin/CC static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
 		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
-			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+		else
+			./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+			if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+			fi
+			./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+			if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+			fi
 		fi
-		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+
+		############################################
+		# Basic release build
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS"
+		echo "Testing: Sun Studio 12.3, release, default CXXFLAGS" | tee -a "$TEST_RESULTS"
+		echo
+
+		unset CXXFLAGS
+		"$MAKE" clean > /dev/null 2>&1
+		rm -f adhoc.cpp > /dev/null 2>&1
+
+		export CXXFLAGS="-DNDEBUG -g3 -xO2"
+		"$MAKE" "${MAKEARGS[@]}" CXX=/opt/solarisstudio12.3/bin/CC static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
 		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
-			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+		else
+			./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+			if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+			fi
+			./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+			if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+			fi
+		fi
+	fi
+
+	############################################
+	# Sun Studio 12.4
+	if [ "$CXX" != "/opt/solarisstudio12.4/bin/CC" ] && [ -e "/opt/solarisstudio12.4/bin/CC" ]; then
+
+		############################################
+		# Basic debug build
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS"
+		echo "Testing: Sun Studio 12.4, debug, default CXXFLAGS" | tee -a "$TEST_RESULTS"
+		echo
+
+		unset CXXFLAGS
+		"$MAKE" clean > /dev/null 2>&1
+		rm -f adhoc.cpp > /dev/null 2>&1
+
+		export CXXFLAGS="-DDEBUG -g3 -xO0"
+		"$MAKE" "${MAKEARGS[@]}" CXX=/opt/solarisstudio12.4/bin/CC static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+		else
+			./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+			if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+			fi
+			./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+			if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+			fi
+		fi
+
+		############################################
+		# Basic release build
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS"
+		echo "Testing: Sun Studio 12.4, release, default CXXFLAGS" | tee -a "$TEST_RESULTS"
+		echo
+
+		unset CXXFLAGS
+		"$MAKE" clean > /dev/null 2>&1
+		rm -f adhoc.cpp > /dev/null 2>&1
+
+		export CXXFLAGS="-DNDEBUG -g3 -xO2"
+		"$MAKE" "${MAKEARGS[@]}" CXX=/opt/solarisstudio12.4/bin/CC static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+		else
+			./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+			if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+			fi
+			./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+			if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+			fi
+		fi
+	fi
+
+	############################################
+	# Sun Studio 12.5
+	if [ "$CXX" != "/opt/solarisstudio12.5/bin/CC" ] && [ -e "/opt/solarisstudio12.5/bin/CC" ]; then
+
+		############################################
+		# Basic debug build
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS"
+		echo "Testing: Sun Studio 12.5, debug, default CXXFLAGS" | tee -a "$TEST_RESULTS"
+		echo
+
+		unset CXXFLAGS
+		"$MAKE" clean > /dev/null 2>&1
+		rm -f adhoc.cpp > /dev/null 2>&1
+
+		export CXXFLAGS="-DDEBUG -g3 -xO0"
+		"$MAKE" "${MAKEARGS[@]}" CXX=/opt/solarisstudio12.5/bin/CC static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+		else
+			./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+			if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+			fi
+			./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+			if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+			fi
+		fi
+
+		############################################
+		# Basic release build
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS"
+		echo "Testing: Sun Studio 12.5, release, default CXXFLAGS" | tee -a "$TEST_RESULTS"
+		echo
+
+		unset CXXFLAGS
+		"$MAKE" clean > /dev/null 2>&1
+		rm -f adhoc.cpp > /dev/null 2>&1
+
+		export CXXFLAGS="-DNDEBUG -g3 -xO2"
+		"$MAKE" "${MAKEARGS[@]}" CXX=/opt/solarisstudio12.5/bin/CC static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+		else
+			./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+			if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+			fi
+			./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+			if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+			fi
 		fi
 	fi
 fi
 
 # For Darwin, we need to test both -stdlib=libstdc++ (GNU) and
-#  -stdlib=libc++ (LLVM) crossed with -std=c++03 and -std=c++11.
+#  -stdlib=libc++ (LLVM) crossed with -std=c++03, -std=c++11, and -std=c++17
 
 ############################################
 # Darwin, c++03, libc++
@@ -1691,6 +1952,64 @@ if [ "$IS_DARWIN" -ne "0" ] && [ "$HAVE_CXX14" -ne "0" ]; then
 fi
 
 ############################################
+# Darwin, c++17, libc++
+if [ "$IS_DARWIN" -ne "0" ] && [ "$HAVE_CXX17" -ne "0" ]; then
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Darwin, c++17, libc++ (LLVM)" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++17 -stdlib=libc++ ${RETAINED_CXXFLAGS[@]}"
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+fi
+
+############################################
+# Darwin, c++17, libstdc++
+if [ "$IS_DARWIN" -ne "0" ] && [ "$HAVE_CXX17" -ne "0" ]; then
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Darwin, c++17, libstdc++ (GNU)" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++17 -stdlib=libstdc++ ${RETAINED_CXXFLAGS[@]}"
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+fi
+
+############################################
 # Darwin, Intel multiarch, c++03
 if [ "$IS_DARWIN" -ne "0" ] && [ "$HAVE_INTEL_MULTIARCH" -ne "0" ] && [ "$HAVE_CXX03" -ne "0" ]; then
 	echo
@@ -1743,6 +2062,46 @@ if [ "$IS_DARWIN" -ne "0" ] && [ "$HAVE_INTEL_MULTIARCH" -ne "0" ] && [ "$HAVE_C
 	rm -f adhoc.cpp > /dev/null 2>&1
 
 	export CXXFLAGS="-DNDEBUG -g2 -O2 -arch i386 -arch x86_64 -std=c++11 ${RETAINED_CXXFLAGS[@]}"
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		echo "Running i386 version..."
+		arch -i386 ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite (i386)" | tee -a "$TEST_RESULTS"
+		fi
+		arch -i386 ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors (i386)" | tee -a "$TEST_RESULTS"
+		fi
+
+		echo "Running x86_64 version..."
+		arch -x86_64 ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite (x86_64)" | tee -a "$TEST_RESULTS"
+		fi
+		arch -x86_64 ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors (x86_64)" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+fi
+
+############################################
+# Darwin, Intel multiarch, c++14
+if [ "$IS_DARWIN" -ne "0" ] && [ "$HAVE_INTEL_MULTIARCH" -ne "0" ] && [ "$HAVE_CXX14" -ne "0" ]; then
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Darwin, Intel multiarch, c++14" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	export CXXFLAGS="-DNDEBUG -g2 -O2 -arch i386 -arch x86_64 -std=c++14 ${RETAINED_CXXFLAGS[@]}"
 	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
@@ -1858,6 +2217,76 @@ if [ "$IS_DARWIN" -ne "0" ] && [ "$HAVE_CXX11" -ne "0" ]; then
 	rm -f adhoc.cpp > /dev/null 2>&1
 
 	export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 ${RETAINED_CXXFLAGS[@]}"
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		export MallocScribble=1
+		export MallocPreScribble=1
+		export MallocGuardEdges=1
+
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+
+		unset MallocScribble MallocPreScribble MallocGuardEdges
+	fi
+fi
+
+############################################
+# Darwin, c++14, Malloc Guards
+if [ "$IS_DARWIN" -ne "0" ] && [ "$HAVE_CXX14" -ne "0" ]; then
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Darwin, c++14, Malloc Guards" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++14 ${RETAINED_CXXFLAGS[@]}"
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		export MallocScribble=1
+		export MallocPreScribble=1
+		export MallocGuardEdges=1
+
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+
+		unset MallocScribble MallocPreScribble MallocGuardEdges
+	fi
+fi
+
+############################################
+# Darwin, c++17, Malloc Guards
+if [ "$IS_DARWIN" -ne "0" ] && [ "$HAVE_CXX17" -ne "0" ]; then
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Darwin, c++17, Malloc Guards" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++17 ${RETAINED_CXXFLAGS[@]}"
 	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
@@ -2077,6 +2506,37 @@ if [ "$HAVE_CXX11" -ne "0" ]; then
 	fi
 fi
 
+############################################
+# Benchmarks, c++14
+if [ "$HAVE_CXX14" -ne "0" ]; then
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Benchmarks, c++14" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	if [ "$SUN_COMPILER" -ne "0" ]; then
+		export CXXFLAGS="-DNDEBUG -xO3 -std=c++14 ${RETAINED_CXXFLAGS[@]}"
+	else
+		export CXXFLAGS="-DNDEBUG -O3 -std=c++14 ${RETAINED_CXXFLAGS[@]}"
+	fi
+
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		echo "**************************************" >> "$BENCHMARK_RESULTS"
+		./cryptest.exe b 3 "$CPU_FREQ" 2>&1 | tee -a "$BENCHMARK_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute benchmarks" | tee -a "$BENCHMARK_RESULTS"
+		fi
+	fi
+fi
+
 # For Cygwin, we need to test both PREFER_BERKELEY_STYLE_SOCKETS
 #   and PREFER_WINDOWS_STYLE_SOCKETS
 
@@ -2195,6 +2655,34 @@ if [ "$HAVE_VALGRIND" -ne "0" ] && [ "$HAVE_CXX11" -ne "0" ]; then
 fi
 
 ############################################
+# Valgrind, c++14. Requires -O1 for accurate results
+if [ "$HAVE_VALGRIND" -ne "0" ] && [ "$HAVE_CXX14" -ne "0" ]; then
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Valgrind, c++14" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	if [ "$SUN_COMPILER" -ne "0" ]; then
+		export CXXFLAGS="-DNDEBUG -g3 -xO1 -std=c++14 ${RETAINED_CXXFLAGS[@]}"
+	else
+		export CXXFLAGS="-DNDEBUG -g3 -O1 -std=c++14 ${RETAINED_CXXFLAGS[@]}"
+	fi
+
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		valgrind --track-origins=yes ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		valgrind --track-origins=yes ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+	fi
+fi
+
+############################################
 # Build with elevated warnings
 if [ "$HAVE_CXX03" -ne "0" ] && [ "$SUN_COMPILER" -eq "0" ]; then
 
@@ -2299,6 +2787,63 @@ if [ "$HAVE_CXX11" -ne "0" ] && [ "$SUN_COMPILER" -eq "0" ]; then
 		fi
 	else
 		CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 -Wall -Wextra -Wno-unknown-pragmas -Wstrict-overflow -Wcast-align -Wwrite-strings -Wformat=2 -Wformat-security "
+	fi
+
+	export CXXFLAGS
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
+	if [ "$?" -ne "0" ]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$WARN_RESULTS"
+	fi
+fi
+
+############################################
+# Build with elevated warnings
+if [ "$HAVE_CXX14" -ne "0" ] && [ "$SUN_COMPILER" -eq "0" ]; then
+
+	############################################
+	# C++14 debug build
+	echo
+	echo "************************************" | tee -a "$WARN_RESULTS"
+	echo "Testing: debug, c++14, elevated warnings" | tee -a "$WARN_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	if [ "$CXX" == "g++" ]; then
+		CXXFLAGS="-DDEBUG -g2 -O2 -std=c++14 -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 -Wall -Wextra -Wno-unknown-pragmas -Wstrict-aliasing=3 -Wstrict-overflow -Waggressive-loop-optimizations -Wcast-align -Wwrite-strings -Wformat=2 -Wformat-security -Wtrampolines "
+		if [ "$GCC_51_OR_ABOVE" -ne "0" ]; then
+			CXXFLAGS+="-Wabi -Wodr"
+		fi
+	else
+		CXXFLAGS="-DDEBUG -g2 -O2 -std=c++14 -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 -Wall -Wextra -Wno-unknown-pragmas -Wstrict-overflow -Wcast-align -Wwrite-strings -Wformat=2 -Wformat-security "
+	fi
+
+	export CXXFLAGS
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$WARN_RESULTS"
+	fi
+
+	############################################
+	# C++14 release build
+	echo
+	echo "************************************" | tee -a "$WARN_RESULTS"
+	echo "Testing: release, c++14, elevated warnings" | tee -a "$WARN_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	if [ "$CXX" == "g++" ]; then
+		CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++14 -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 -Wall -Wextra -Wno-unknown-pragmas -Wstrict-aliasing=3 -Wstrict-overflow -Waggressive-loop-optimizations -Wcast-align -Wwrite-strings -Wformat=2 -Wformat-security -Wtrampolines "
+		if [ "$GCC_51_OR_ABOVE" -ne "0" ]; then
+			CXXFLAGS+="-Wabi -Wodr"
+		fi
+	else
+		CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++14 -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 -Wall -Wextra -Wno-unknown-pragmas -Wstrict-overflow -Wcast-align -Wwrite-strings -Wformat=2 -Wformat-security "
 	fi
 
 	export CXXFLAGS
@@ -2457,7 +3002,7 @@ if [ "$IS_CYGWIN" -eq "0" ] && [ "$IS_MINGW" -eq "0" ]; then
 fi
 
 ############################################
-# Cleanup
+# Cleanup, but leave output files
 unset CXXFLAGS
 "$MAKE" clean > /dev/null 2>&1
 rm -f adhoc.cpp > /dev/null 2>&1
