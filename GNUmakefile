@@ -166,6 +166,13 @@ endif
 endif
 endif
 
+# Tell MacPorts GCC to use Clang integrated assembler
+ifeq ($(GCC_COMPILER)$(MACPORTS_COMPILER),11)
+ifneq ($(findstring -Wa,q,$(CXXFLAGS)),-Wa,q)
+CXXFLAGS += -Wa,q
+endif
+endif
+
 # Allow use of "/" operator for GNU Assembler.
 #   http://sourceware.org/bugzilla/show_bug.cgi?id=4572
 ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
