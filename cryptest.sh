@@ -3009,6 +3009,63 @@ if [ "$HAVE_CXX14" -ne "0" ] && [ "$SUN_COMPILER" -eq "0" ]; then
 fi
 
 ############################################
+# Build with elevated warnings
+if [ "$HAVE_CXX17" -ne "0" ] && [ "$SUN_COMPILER" -eq "0" ]; then
+
+	############################################
+	# C++17 debug build
+	echo
+	echo "************************************" | tee -a "$WARN_RESULTS"
+	echo "Testing: debug, c++17, elevated warnings" | tee -a "$WARN_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	if [ "$CXX" == "g++" ]; then
+		CXXFLAGS="-DDEBUG -g2 -O2 -std=c++17 -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 -Wall -Wextra -Wno-unknown-pragmas -Wstrict-aliasing=3 -Wstrict-overflow -Waggressive-loop-optimizations -Wcast-align -Wwrite-strings -Wformat=2 -Wformat-security -Wtrampolines "
+		if [ "$GCC_51_OR_ABOVE" -ne "0" ]; then
+			CXXFLAGS+="-Wabi -Wodr"
+		fi
+	else
+		CXXFLAGS="-DDEBUG -g2 -O2 -std=c++17 -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 -Wall -Wextra -Wno-unknown-pragmas -Wstrict-overflow -Wcast-align -Wwrite-strings -Wformat=2 -Wformat-security "
+	fi
+
+	export CXXFLAGS
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$WARN_RESULTS"
+	fi
+
+	############################################
+	# C++17 release build
+	echo
+	echo "************************************" | tee -a "$WARN_RESULTS"
+	echo "Testing: release, c++17, elevated warnings" | tee -a "$WARN_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	if [ "$CXX" == "g++" ]; then
+		CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++17 -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 -Wall -Wextra -Wno-unknown-pragmas -Wstrict-aliasing=3 -Wstrict-overflow -Waggressive-loop-optimizations -Wcast-align -Wwrite-strings -Wformat=2 -Wformat-security -Wtrampolines "
+		if [ "$GCC_51_OR_ABOVE" -ne "0" ]; then
+			CXXFLAGS+="-Wabi -Wodr"
+		fi
+	else
+		CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++17 -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 -Wall -Wextra -Wno-unknown-pragmas -Wstrict-overflow -Wcast-align -Wwrite-strings -Wformat=2 -Wformat-security "
+	fi
+
+	export CXXFLAGS
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
+	if [ "$?" -ne "0" ]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$WARN_RESULTS"
+	fi
+fi
+
+############################################
 # If using GCC (likely Linux), then perform a quick check with Clang.
 # This check was added after testing on Ubuntu 14.04 with Clang 3.4.
 if [ "$CXX" == "g++" ] && [ "$SUN_COMPILER" -eq "0" ]; then
