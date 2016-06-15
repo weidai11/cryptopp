@@ -217,7 +217,7 @@ HAVE_ARM_NEON=0
 if [ "$IS_ARM32" -ne "0" ] || [ "$IS_ARM64" -ne "0" ]; then
 	$CXX -DCRYPTOPP_ADHOC_MAIN -march=armv7a -mfpu=neon adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
 	if [ "$?" -eq "0" ]; then
-		HAVE_ARM_CRYPTO=1
+		HAVE_ARM_NEON=1
 	fi
 fi
 
@@ -262,7 +262,7 @@ if [ "$IS_X86" -ne "0" ] || [ "$IS_X64" -ne "0" ]; then
 fi
 
 # LD-Gold linker testing
-HAVE_LDGOLD=$(file `which ld.gold` 2>&1 | cut -d":" -f 2 | $(EGREP) -i -c "elf")
+HAVE_LDGOLD=$(file `which ld.gold` 2>&1 | cut -d":" -f 2 | $EGREP -i -c "elf")
 
 # Set to 0 if you don't have Valgrind. Valgrind tests take a long time...
 HAVE_VALGRIND=$(which valgrind 2>&1 | $GREP -v "no valgrind" | $GREP -i -c valgrind)
