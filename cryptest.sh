@@ -101,12 +101,12 @@ if [ "$CXX" == "gcc" ]; then
 	CXX=g++
 fi
 
-# Fixup
-if [ "$IS_SOLARIS" -ne "0" ]; then
-	if [ -e "/opt/solarisstudio12.3/bin/CC" ]; then
-		CXX=/opt/solarisstudio12.3/bin/CC
-	elif [ -e "/opt/solarisstudio12.4/bin/CC" ]; then
+# Fixup. See if the user already set it to CC
+if [ "$IS_SOLARIS" -ne "0" ] && [ $(echo $CXX | grep -c "CC" 2>/dev/null) -ne "0" ]; then
+	if [ -e "/opt/solarisstudio12.4/bin/CC" ]; then
 		CXX=/opt/solarisstudio12.4/bin/CC
+	elif [ -e "/opt/solarisstudio12.3/bin/CC" ]; then
+		CXX=/opt/solarisstudio12.3/bin/CC
 	fi
 fi
 SUN_COMPILER=$($CXX -V 2>&1 | $EGREP -i -c "CC: Sun")
