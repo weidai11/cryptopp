@@ -313,11 +313,11 @@ fi
 
 ############################################
 
-# CPU is logical count, memory is in MB. Low resource boards have
+# CPU is logical count, memory is in MiB. Low resource boards have
 #   fewer than 4 cores and 1GB or less memory. We use this to
 #   determine if we can build in parallel without an OOM kill.
 CPU_COUNT=1
-MEM_SIZE=1024
+MEM_SIZE=512
 
 if [[ (-e "/proc/cpuinfo") && (-e "/proc/meminfo") ]]; then
 	CPU_COUNT=$(cat /proc/cpuinfo | $GREP -c '^processor')
@@ -332,8 +332,8 @@ elif [[ "$IS_SOLARIS" -ne "0" ]]; then
 	MEM_SIZE=$(prtconf 2>/dev/null | $GREP Memory | nawk '{print $3}')
 fi
 
-# Benchmarks expect frequency in GHz.
-CPU_FREQ=2.0
+# Benchmarks expect frequency in GiHz.
+CPU_FREQ=0.5
 if [[ (-e "/proc/cpuinfo") ]]; then
 	CPU_FREQ=$(cat /proc/cpuinfo | grep 'MHz' | head -1 | awk '{print $4}')
 	CPU_FREQ=$(awk "BEGIN {print $CPU_FREQ/1024}")
