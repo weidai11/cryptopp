@@ -97,17 +97,24 @@ endif
 
 ifneq ($(IS_X86)$(IS_X32)$(IS_X64),000)
 
-IS_GCC_29 := $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c gcc-9[0-9][0-9])
-GCC42_OR_LATER := $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "gcc version (4\.[2-9]|[5-9]\.)")
-GCC46_OR_LATER := $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "gcc version (4\.[6-9]|[5-9]\.)")
-GCC48_OR_LATER := $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "gcc version (4\.[8-9]|[5-9]\.)")
-GCC49_OR_LATER := $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "gcc version (4\.9|[5-9]\.)")
+# Fixup. Clang integrated assembler will be used (-Wa,-q)
+ifneq ($(MACPORTS_COMPILER),1)
+  IS_GAS := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler")
+endif
+
+ifneq ($(GCC_COMPILER),0)
+  IS_GCC_29 := $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c gcc-9[0-9][0-9])
+  GCC42_OR_LATER := $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "gcc version (4\.[2-9]|[5-9]\.)")
+  GCC46_OR_LATER := $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "gcc version (4\.[6-9]|[5-9]\.)")
+endif
+
+ifneq ($(IS_GAS),0)
+  GAS210_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.[1-9][0-9]|[3-9])")
+  GAS217_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.1[7-9]|2\.[2-9]|[3-9])")
+  GAS219_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.19|2\.[2-9]|[3-9])")
+endif
 
 ICC111_OR_LATER := $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(ICC\) ([2-9][0-9]|1[2-9]|11\.[1-9])")
-IS_GAS := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler")
-GAS210_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.[1-9][0-9]|[3-9])")
-GAS217_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.1[7-9]|2\.[2-9]|[3-9])")
-GAS219_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.19|2\.[2-9]|[3-9])")
 
 # Add -fPIC for targets *except* X86, X32, Cygwin or MinGW
 ifeq ($(IS_X86)$(IS_X32)$(IS_CYGWIN)$(IS_MINGW)$(SUN_COMPILER),00000)
@@ -154,7 +161,8 @@ CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
 endif
 endif
 
-ifeq ($(GCC_COMPILER)$(MACPORTS_COMPILER)$(GAS210_OR_LATER),100)	# .intel_syntax wasn't supported until GNU assembler 2.10
+# .intel_syntax wasn't supported until GNU assembler 2.10
+ifeq ($(GCC_COMPILER)$(MACPORTS_COMPILER)$(GAS210_OR_LATER),100)
 CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
 else
 ifeq ($(GCC_COMPILER)$(MACPORTS_COMPILER)$(GAS217_OR_LATER),100)
@@ -167,8 +175,7 @@ endif
 endif
 
 # Tell MacPorts GCC to use Clang integrated assembler
-IS_GAS=0
-ifeq ($(GCC_COMPILER)$(MACPORTS_COMPILER)$(IS_GAS),110)
+ifeq ($(GCC_COMPILER)$(MACPORTS_COMPILER),11)
 ifneq ($(findstring -Wa,-q,$(CXXFLAGS)),-Wa,-q)
 CXXFLAGS += -Wa,-q
 endif
