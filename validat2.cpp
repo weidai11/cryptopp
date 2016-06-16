@@ -89,7 +89,7 @@ bool ValidateBBS()
 	static const byte output2[] = {
 		0x74,0x45,0x48,0xAE,0xAC,0xB7,0x0E,0xDF,0xAF,0xD7,
 		0xD5,0x0E,0x8E,0x29,0x83,0x75,0x6B,0x27,0x46,0xA1};
-		
+
 	// Coverity finding, also see http://stackoverflow.com/a/34509163/608639.
 	StreamState ss(cout);
 	byte buf[20];
@@ -570,7 +570,7 @@ bool TestPolynomialMod2()
 	bool pass1 = true, pass2 = true, pass3 = true;
 
 	cout << "\nTesting PolynomialMod2 bit operations...\n\n";
-	
+
 	static const unsigned int start = 0;
 	static const unsigned int stop = 4 * WORD_BITS + 1;
 
@@ -578,28 +578,28 @@ bool TestPolynomialMod2()
 	{
 		PolynomialMod2 p(1);
 		p <<= i;
-		
+
 		Integer n(Integer::One());
 		n <<= i;
-		
+
 		std::ostringstream oss1;
 		oss1 << p;
-		
+
 		std::string str1, str2;
-		
+
 		// str1 needs the commas removed used for grouping
 		str1 = oss1.str();
 		str1.erase(std::remove(str1.begin(), str1.end(), ','), str1.end());
-		
+
 		// str1 needs the trailing 'b' removed
 		str1.erase(str1.end() - 1);
 
 		// str2 is fine as-is
 		str2 = IntToString(n, 2);
-		
+
 		pass1 &= (str1 == str2);
 	}
-	
+
 	for (unsigned int i=start; i < stop; i++)
 	{
 		const word w((word)SIZE_MAX);
@@ -609,25 +609,25 @@ bool TestPolynomialMod2()
 
 		Integer n(Integer::POSITIVE, static_cast<lword>(w));
 		n <<= i;
-		
+
 		std::ostringstream oss1;
 		oss1 << p;
-		
+
 		std::string str1, str2;
-		
+
 		// str1 needs the commas removed used for grouping
 		str1 = oss1.str();
 		str1.erase(std::remove(str1.begin(), str1.end(), ','), str1.end());
-		
+
 		// str1 needs the trailing 'b' removed
 		str1.erase(str1.end() - 1);
 
 		// str2 is fine as-is
 		str2 = IntToString(n, 2);
-		
+
 		pass2 &= (str1 == str2);
 	}
-	
+
 	RandomNumberGenerator& prng = GlobalRNG();
 	for (unsigned int i=start; i < stop; i++)
 	{
@@ -639,16 +639,16 @@ bool TestPolynomialMod2()
 
 		Integer n(Integer::POSITIVE, static_cast<lword>(w));
 		n <<= i;
-		
+
 		std::ostringstream oss1;
 		oss1 << p;
-		
+
 		std::string str1, str2;
-		
+
 		// str1 needs the commas removed used for grouping
 		str1 = oss1.str();
 		str1.erase(std::remove(str1.begin(), str1.end(), ','), str1.end());
-		
+
 		// str1 needs the trailing 'b' removed
 		str1.erase(str1.end() - 1);
 
@@ -662,7 +662,7 @@ bool TestPolynomialMod2()
 			cout << "     str1: " << str1 << "\n";
 			cout << "     str2: " << str2 << "\n";
 		}
-		
+
 		pass3 &= (str1 == str2);
 	}
 

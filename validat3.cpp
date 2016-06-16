@@ -57,7 +57,7 @@ struct HashTestTuple
 {
 	HashTestTuple(const char *input, const char *output, unsigned int repeatTimes=1)
 		: input((byte *)input), output((byte *)output), inputLen(strlen(input)), repeatTimes(repeatTimes) {}
-	
+
 	HashTestTuple(const char *input, unsigned int inputLen, const char *output, unsigned int repeatTimes)
 		: input((byte *)input), output((byte *)output), inputLen(inputLen), repeatTimes(repeatTimes) {}
 
@@ -97,7 +97,7 @@ bool HashModuleTest(HashTransformation &md, const HashTestTuple *testSet, unsign
 
 bool ValidateCRC32()
 {
-	HashTestTuple testSet[] = 
+	HashTestTuple testSet[] =
 	{
 		HashTestTuple("", "\x00\x00\x00\x00"),
 		HashTestTuple("a", "\x43\xbe\xb7\xe8"),
@@ -117,7 +117,7 @@ bool ValidateCRC32()
 
 bool ValidateCRC32C()
 {
-	HashTestTuple testSet[] = 
+	HashTestTuple testSet[] =
 	{
 		HashTestTuple("", "\x00\x00\x00\x00"),
 		HashTestTuple("a", "\x30\x43\xd0\xc1"),
@@ -137,7 +137,7 @@ bool ValidateCRC32C()
 
 bool ValidateAdler32()
 {
-	HashTestTuple testSet[] = 
+	HashTestTuple testSet[] =
 	{
 		HashTestTuple("", "\x00\x00\x00\x01"),
 		HashTestTuple("a", "\x00\x62\x00\x62"),
@@ -156,7 +156,7 @@ bool ValidateAdler32()
 
 bool ValidateMD2()
 {
-	HashTestTuple testSet[] = 
+	HashTestTuple testSet[] =
 	{
 		HashTestTuple("", "\x83\x50\xe5\xa3\xe2\x4c\x15\x3d\xf2\x27\x5c\x9f\x80\x69\x27\x73"),
 		HashTestTuple("a", "\x32\xec\x01\xec\x4a\x6d\xac\x72\xc0\xab\x96\xfb\x34\xc0\xb5\xd1"),
@@ -175,7 +175,7 @@ bool ValidateMD2()
 
 bool ValidateMD4()
 {
-	HashTestTuple testSet[] = 
+	HashTestTuple testSet[] =
 	{
 		HashTestTuple("", "\x31\xd6\xcf\xe0\xd1\x6a\xe9\x31\xb7\x3c\x59\xd7\xe0\xc0\x89\xc0"),
 		HashTestTuple("a", "\xbd\xe5\x2c\xb3\x1d\xe3\x3e\x46\x24\x5e\x05\xfb\xdb\xd6\xfb\x24"),
@@ -194,7 +194,7 @@ bool ValidateMD4()
 
 bool ValidateMD5()
 {
-	HashTestTuple testSet[] = 
+	HashTestTuple testSet[] =
 	{
 		HashTestTuple("", "\xd4\x1d\x8c\xd9\x8f\x00\xb2\x04\xe9\x80\x09\x98\xec\xf8\x42\x7e"),
 		HashTestTuple("a", "\x0c\xc1\x75\xb9\xc0\xf1\xb6\xa8\x31\xc3\x99\xe2\x69\x77\x26\x61"),
@@ -247,7 +247,7 @@ bool ValidateTiger()
 
 bool ValidateRIPEMD()
 {
-	HashTestTuple testSet128[] = 
+	HashTestTuple testSet128[] =
 	{
 		HashTestTuple("", "\xcd\xf2\x62\x13\xa1\x50\xdc\x3e\xcb\x61\x0f\x18\xf6\xb3\x8b\x46"),
 		HashTestTuple("a", "\x86\xbe\x7a\xfa\x33\x9d\x0f\xc7\xcf\xc7\x85\xe7\x2f\x57\x8d\x33"),
@@ -260,7 +260,7 @@ bool ValidateRIPEMD()
 		HashTestTuple("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "\x4a\x7f\x57\x23\xf9\x54\xeb\xa1\x21\x6c\x9d\x8f\x63\x20\x43\x1f", 15625)
 	};
 
-	HashTestTuple testSet160[] = 
+	HashTestTuple testSet160[] =
 	{
 		HashTestTuple("", "\x9c\x11\x85\xa5\xc5\xe9\xfc\x54\x61\x28\x08\x97\x7e\xe8\xf5\x48\xb2\x25\x8d\x31"),
 		HashTestTuple("a", "\x0b\xdc\x9d\x2d\x25\x6b\x3e\xe9\xda\xae\x34\x7b\xe6\xf4\xdc\x83\x5a\x46\x7f\xfe"),
@@ -273,7 +273,7 @@ bool ValidateRIPEMD()
 		HashTestTuple("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "\x52\x78\x32\x43\xc1\x69\x7b\xdb\xe1\x6d\x37\xf9\x7f\x68\xf0\x83\x25\xdc\x15\x28", 15625)
 	};
 
-	HashTestTuple testSet256[] = 
+	HashTestTuple testSet256[] =
 	{
 		HashTestTuple("", "\x02\xba\x4c\x4e\x5f\x8e\xcd\x18\x77\xfc\x52\xd6\x4d\x30\xe3\x7a\x2d\x97\x74\xfb\x1e\x5d\x02\x63\x80\xae\x01\x68\xe3\xc5\x52\x2d"),
 		HashTestTuple("a", "\xf9\x33\x3e\x45\xd8\x57\xf5\xd9\x0a\x91\xba\xb7\x0a\x1e\xba\x0c\xfb\x1b\xe4\xb0\x78\x3c\x9a\xcf\xcd\x88\x3a\x91\x34\x69\x29\x25"),
@@ -286,7 +286,7 @@ bool ValidateRIPEMD()
 		HashTestTuple("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "\xac\x95\x37\x44\xe1\x0e\x31\x51\x4c\x15\x0d\x4d\x8d\x7b\x67\x73\x42\xe3\x33\x99\x78\x82\x96\xe4\x3a\xe4\x85\x0c\xe4\xf9\x79\x78", 15625)
 	};
 
-	HashTestTuple testSet320[] = 
+	HashTestTuple testSet320[] =
 	{
 		HashTestTuple("", "\x22\xd6\x5d\x56\x61\x53\x6c\xdc\x75\xc1\xfd\xf5\xc6\xde\x7b\x41\xb9\xf2\x73\x25\xeb\xc6\x1e\x85\x57\x17\x7d\x70\x5a\x0e\xc8\x80\x15\x1c\x3a\x32\xa0\x08\x99\xb8"),
 		HashTestTuple("a", "\xce\x78\x85\x06\x38\xf9\x26\x58\xa5\xa5\x85\x09\x75\x79\x92\x6d\xda\x66\x7a\x57\x16\x56\x2c\xfc\xf6\xfb\xe7\x7f\x63\x54\x2f\x99\xb0\x47\x05\xd6\x97\x0d\xff\x5d"),
@@ -323,7 +323,7 @@ bool ValidateRIPEMD()
 #ifdef CRYPTOPP_REMOVED
 bool ValidateHAVAL()
 {
-	HashTestTuple testSet[] = 
+	HashTestTuple testSet[] =
 	{
 		HashTestTuple("", "\xC6\x8F\x39\x91\x3F\x90\x1F\x3D\xDF\x44\xC7\x07\x35\x7A\x7D\x70"),
 		HashTestTuple("a", "\x4D\xA0\x8F\x51\x4A\x72\x75\xDB\xC4\xCE\xCE\x4A\x34\x73\x85\x98\x39\x83\xA8\x30"),
@@ -608,7 +608,7 @@ bool ValidatePBKDF()
 
 	{
 	// from OpenSSL PKCS#12 Program FAQ v1.77, at http://www.drh-consultancy.demon.co.uk/test.txt
-	PBKDF_TestTuple testSet[] = 
+	PBKDF_TestTuple testSet[] =
 	{
 		{1, 1, "0073006D006500670000", "0A58CF64530D823F", "8AAAE6297B6CB04642AB5B077851284EB7128F1A2A7FBCA3"},
 		{2, 1, "0073006D006500670000", "0A58CF64530D823F", "79993DFE048D3B76"},
@@ -630,7 +630,7 @@ bool ValidatePBKDF()
 
 	{
 	// from draft-ietf-smime-password-03.txt, at http://www.imc.org/draft-ietf-smime-password
-	PBKDF_TestTuple testSet[] = 
+	PBKDF_TestTuple testSet[] =
 	{
 		{0, 5, "70617373776f7264", "1234567878563412", "D1DAA78615F287E6"},
 		{0, 500, "416C6C206E2D656E746974696573206D75737420636F6D6D756E69636174652077697468206F74686572206E2d656E74697469657320766961206E2D3120656E746974656568656568656573", "1234567878563412","6A8970BF68C92CAEA84A8DF28510858607126380CC47AB2D"}
@@ -702,7 +702,7 @@ bool ValidateHKDF()
 		{"000102030405060708090a0b0c0d0e0f 101112131415161718191a1b1c1d1e1f 202122232425262728292a2b2c2d2e2f 303132333435363738393a3b3c3d3e3f 404142434445464748494a4b4c4d4e4f", "606162636465666768696a6b6c6d6e6f 707172737475767778797a7b7c7d7e7f 808182838485868788898a8b8c8d8e8f 909192939495969798999a9b9c9d9e9f a0a1a2a3a4a5a6a7a8a9aaabacadaeaf", "b0b1b2b3b4b5b6b7b8b9babbbcbdbebf c0c1c2c3c4c5c6c7c8c9cacbcccdcecf d0d1d2d3d4d5d6d7d8d9dadbdcdddedf e0e1e2e3e4e5e6e7e8e9eaebecedeeef f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff", "0bd770a74d1160f7c9f12cd5912a06eb ff6adcae899d92191fe4305673ba2ffe 8fa3f1a4e5ad79f3f334b3b202b2173c 486ea37ce3d397ed034c7f9dfeb15c5e 927336d0441f4c4300e2cff0d0900b52 d3b4", 82},
 		// Test Case #6
 		{"0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b", "", "", "0ac1af7002b3d761d1e55298da9d0506 b9ae52057220a306e07b6b87e8df21d0 ea00033de03984d34918", 42},
-		// Test Case #7		                                                            
+		// Test Case #7
 		{"0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c", NULL, "", "2c91117204d745f3500d636a62f64f0 ab3bae548aa53d423b0d1f27ebba6f5e5 673a081d70cce7acfc48", 42}
 	};
 
@@ -771,8 +771,8 @@ bool ValidateHKDF()
 	std::cout << "\nRFC 5869 HKDF(Whirlpool) validation suite running...\n\n";
 	pass = TestHKDF(hkdf, testSet, COUNTOF(testSet)) && pass;
 	}
-	
-	
+
+
 	return pass;
 }
 
