@@ -24,10 +24,11 @@ touch "$WARN_RESULTS"
 
 # Respect user's preferred flags, but filter the stuff we expliclty test
 FILTERED_CXXFLAGS=("-DDEBUG" "-DNDEBUG" "-g" "-g0" "-g1" "-g2" "-g3" "-O0" "-O1" "-O2" "-O3" "-Os" "-Og"
-                   "-xO0" "-xO1" "-xO2" "-xO3" "-xOs" "-xOg" "-std=c++03" "-std=c++11" "-std=c++14"
-                   "-maes" "-mrdrand" "-mrdrnd" "-mrdseed" "-mpclmul"
-                   "-DCRYPTOPP_DISABLE_ASM" "-fsanitize=address" "-fsanitize=undefined" "-march=armv8-a+crypto" "-march=armv8-a+crc"
-                   "-DDCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562" "-DDCRYPTOPP_NO_UNALIGNED_DATA_ACCESS")
+                   "-xO0" "-xO1" "-xO2" "-xO3" "-xOs" "-xOg" "-std=c++03" "-std=c++11" "-std=c++14" "-std=c++17"
+                   "-m32" "-m64" "-mx32" "-maes" "-mrdrand" "-mrdrnd" "-mrdseed" "-mpclmul" "-Wa,-q"
+                   "-DCRYPTOPP_DISABLE_ASM" "-DCRYPTOPP_DISABLE_SSSE3" "-DCRYPTOPP_DISABLE_AESNI"
+                   "-fsanitize=address" "-fsanitize=undefined" "-march=armv8-a+crypto" "-march=armv8-a+crc"
+                   "-DDCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562" "-DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS")
 # Additional CXXFLAGS we did not filter
 RETAINED_CXXFLAGS=("")
 
@@ -209,8 +210,8 @@ fi
 # ARMv7/Aarch32
 HAVE_ARM_NEON=0
 if [ "$IS_ARM32" -ne "0" ] || [ "$IS_ARM64" -ne "0" ]; then
-	$CXX -DCRYPTOPP_ADHOC_MAIN -march=armv7a -mfpu=neon adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
-	if [ "$?" -eq "0" ]; then
+	# $CXX -DCRYPTOPP_ADHOC_MAIN -march=armv7a -mfpu=neon adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
+	if [ "$?" -eq "0" ] && [ $(cat /proc/cpuinfo 2>/dev/null | grep -i -c NEON) -ne "0" ]; then
 		HAVE_ARM_NEON=1
 	fi
 fi
@@ -2563,6 +2564,35 @@ if [ "$HAVE_X86_AES" -ne "0" ] || [ "$HAVE_X86_RDRAND" -ne "0" ] || [ "$HAVE_X86
 
 	export CXXFLAGS="-DNDEBUG -g2 -O2 ${OPTS[@]} ${RETAINED_CXXFLAGS[@]}"
 	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+fi
+
+############################################
+# ARM NEON
+if [ "$HAVE_ARM_NEON" -ne "0" ]; then
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: ARM NEON" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	export CXXFLAGS="-DNDEBUG -g2 -O2 -march=armv7a -fpu=neon ${RETAINED_CXXFLAGS[@]}"
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
 	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	else
