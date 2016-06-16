@@ -133,11 +133,6 @@ fi
 rm -f adhoc.cpp > /dev/null 2>&1
 cp adhoc.cpp.proto adhoc.cpp
 
-$CXX -DCRYPTOPP_ADHOC_MAIN -Wno-deprecated-declarations adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
-if [ "$?" -eq "0" ]; then
-	RETAINED_CXXFLAGS+=("-Wno-deprecated-declarations")
-fi
-
 # Hit or miss, only latest compilers.
 HAVE_CXX17=0
 $CXX -DCRYPTOPP_ADHOC_MAIN -std=c++17 adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
@@ -211,7 +206,7 @@ fi
 HAVE_ARM_NEON=0
 if [ "$IS_ARM32" -ne "0" ] || [ "$IS_ARM64" -ne "0" ]; then
 	# $CXX -DCRYPTOPP_ADHOC_MAIN -march=armv7a -mfpu=neon adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
-	if [ "$?" -eq "0" ] && [ $(cat /proc/cpuinfo 2>/dev/null | grep -i -c NEON) -ne "0" ]; then
+	if [ $(cat /proc/cpuinfo 2>/dev/null | grep -i -c NEON) -ne "0" ]; then
 		HAVE_ARM_NEON=1
 	fi
 fi
@@ -397,6 +392,19 @@ if [ "$SUN_COMPILER" -ne "0" ]; then
 	echo $($CXX -V 2>&1 | head -1 | sed 's|CC|Compiler|g') | tee -a "$TEST_RESULTS"
 else
 	echo "Compiler:" $($CXX --version | head -1) | tee -a "$TEST_RESULTS"
+fi
+
+############################################
+
+# Add to keep noise to a minimum
+$CXX -DCRYPTOPP_ADHOC_MAIN -Wno-deprecated-declarations adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
+if [ "$?" -eq "0" ]; then
+	RETAINED_CXXFLAGS+=("-Wno-deprecated-declarations")
+fi
+
+# Add to exercise NEON more thoroughly
+if [ "$IS_ARM32" -ne "0" ] && [ "$HAVE_ARM_NEON" -ne "0" ]; then
+	RETAINED_CXXFLAGS+=("-fpu=neon")
 fi
 
 ############################################
