@@ -1621,6 +1621,68 @@ if [ "$HAVE_CXX11" -ne "0" ] && [ "$HAVE_ASAN" -ne "0" ]; then
 	fi
 fi
 
+############################################
+# Release build, UBSan, c++14
+if [ "$HAVE_CXX14" -ne "0" ] && [ "$HAVE_UBSAN" -ne "0" ]; then
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: c++14, UBsan" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++14 ${RETAINED_CXXFLAGS[@]}"
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" ubsan | tee -a "$TEST_RESULTS"
+
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+fi
+
+############################################
+# Release build, Asan, c++14
+if [ "$HAVE_CXX14" -ne "0" ] && [ "$HAVE_ASAN" -ne "0" ]; then
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: c++14, Asan" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	export CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++14 ${RETAINED_CXXFLAGS[@]}"
+
+	if [ "$CXX" == "clang++" ]; then
+		"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" asan | asan_symbolize | tee -a "$TEST_RESULTS"
+	else
+		"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" asan | tee -a "$TEST_RESULTS"
+	fi
+
+	if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [ "${PIPESTATUS[0]}" -ne "0" ]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+fi
+
 # For Solaris, test under Sun Studio 12.2 - 12.5
 if [ "$IS_SOLARIS" -ne "0" ]; then
 
