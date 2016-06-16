@@ -334,7 +334,10 @@ fi
 
 # Benchmarks expect frequency in GHz.
 CPU_FREQ=2.0
-if [[ (("$IS_LINUX" -ne "0") || ("$IS_CYGWIN" -ne "0")) && (-e "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq") ]]; then
+if [[ (-e "/proc/cpuinfo") ]]; then
+	CPU_FREQ=$(cat /proc/cpuinfo | grep 'MHz' | head -1 | awk '{print $4}')
+	CPU_FREQ=$(awk "BEGIN {print $CPU_FREQ/1024}")
+elif [[ (-e "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq") ]]; then
 	CPU_FREQ=$(cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq)
 	CPU_FREQ=$(awk "BEGIN {print $CPU_FREQ/1024/1024}")
 elif [[ "$IS_DARWIN" -ne "0" ]]; then
