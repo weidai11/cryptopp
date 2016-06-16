@@ -167,9 +167,10 @@ endif
 endif
 
 # Tell MacPorts GCC to use Clang integrated assembler
-ifeq ($(GCC_COMPILER)$(MACPORTS_COMPILER),11)
-ifneq ($(findstring -Wa,q,$(CXXFLAGS)),-Wa,q)
-CXXFLAGS += -Wa,q
+IS_GAS=0
+ifeq ($(GCC_COMPILER)$(MACPORTS_COMPILER)$(IS_GAS),110)
+ifneq ($(findstring -Wa,-q,$(CXXFLAGS)),-Wa,-q)
+CXXFLAGS += -Wa,-q
 endif
 endif
 
