@@ -319,7 +319,7 @@ fi
 CPU_COUNT=1
 MEM_SIZE=1024
 
-if [[ (("$IS_LINUX" -ne "0") || ("$IS_CYGWIN" -ne "0")) && (-e "/proc/cpuinfo") ]]; then
+if [[ (-e "/proc/cpuinfo") && (-e "/proc/meminfo") ]]; then
 	CPU_COUNT=$(cat /proc/cpuinfo | $GREP -c '^processor')
 	MEM_SIZE=$(cat /proc/meminfo | $GREP "MemTotal" | awk '{print $2}')
 	MEM_SIZE=$(($MEM_SIZE/1024))
