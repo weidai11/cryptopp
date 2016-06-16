@@ -252,10 +252,10 @@ if [ "$IS_X86" -ne "0" ] || [ "$IS_X64" -ne "0" ]; then
 fi
 
 # LD-Gold linker testing
-HAVE_LDGOLD=$(file `which ld.gold` 2>&1 | cut -d":" -f 2 | $EGREP -i -c "elf")
+HAVE_LDGOLD=$(file `which ld.gold` 2>&1 | $GREP -v "^no ld.gold" | cut -d":" -f 2 | $EGREP -i -c "elf")
 
 # Set to 0 if you don't have Valgrind. Valgrind tests take a long time...
-HAVE_VALGRIND=$(which valgrind 2>&1 | $GREP -v "no valgrind" | $GREP -i -c valgrind)
+HAVE_VALGRIND=$(which valgrind 2>&1 | $GREP -v "^no valgrind" | $GREP -i -c valgrind)
 
 # Echo back to ensure something is not missed.
 echo | tee -a "$TEST_RESULTS"
@@ -319,28 +319,28 @@ fi
 CPU_COUNT=1
 MEM_SIZE=1024
 
-if [ "$IS_LINUX" -ne "0" ] && [ -e "/proc/cpuinfo" ]; then
+if [[ (("$IS_LINUX" -ne "0") || ("$IS_CYGWIN" -ne "0")) && (-e "/proc/cpuinfo") ]]; then
 	CPU_COUNT=$(cat /proc/cpuinfo | $GREP -c '^processor')
 	MEM_SIZE=$(cat /proc/meminfo | $GREP "MemTotal" | awk '{print $2}')
 	MEM_SIZE=$(($MEM_SIZE/1024))
-elif [ "$IS_DARWIN" -ne "0" ]; then
+elif [[ "$IS_DARWIN" -ne "0" ]]; then
 	CPU_COUNT=$(sysctl -a 2>/dev/null | $GREP 'hw.availcpu' | head -1 | awk '{print $3}')
 	MEM_SIZE=$(sysctl -a 2>/dev/null | $GREP 'hw.memsize' | head -1 | awk '{print $3}')
 	MEM_SIZE=$(($MEM_SIZE/1024/1024))
-elif [ "$IS_SOLARIS" -ne "0" ]; then
+elif [[ "$IS_SOLARIS" -ne "0" ]]; then
 	CPU_COUNT=$(psrinfo 2>/dev/null | wc -l | nawk '{print $1}')
 	MEM_SIZE=$(prtconf 2>/dev/null | $GREP Memory | nawk '{print $3}')
 fi
 
 # Benchmarks expect frequency in GHz.
 CPU_FREQ=2.0
-if [ "$IS_LINUX" -ne "0" ] && [ -e "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq" ]; then
+if [[ (("$IS_LINUX" -ne "0") || ("$IS_CYGWIN" -ne "0")) && (-e "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq") ]]; then
 	CPU_FREQ=$(cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq)
 	CPU_FREQ=$(awk "BEGIN {print $CPU_FREQ/1024/1024}")
-elif [ "$IS_DARWIN" -ne "0" ]; then
+elif [[ "$IS_DARWIN" -ne "0" ]]; then
 	CPU_FREQ=$(sysctl -a 2>/dev/null | $GREP 'hw.cpufrequency' | head -1 | awk '{print $3}')
 	CPU_FREQ=$(awk "BEGIN {print $CPU_FREQ/1024/1024/1024}")
-elif [ "$IS_SOLARIS" -ne "0" ]; then
+elif [[ "$IS_SOLARIS" -ne "0" ]]; then
     CPU_FREQ=$(psrinfo -v 2>/dev/null | $GREP 'MHz' | head -1 | nawk '{print $6}')
     CPU_FREQ=$(nawk "BEGIN {print $CPU_FREQ/1024}")
 fi
@@ -3197,7 +3197,7 @@ fi
 ############################################
 # If using GCC (likely Linux), then perform a quick check with Clang.
 # This check was added after testing on Ubuntu 14.04 with Clang 3.4.
-if [ "$CXX" == "g++" ] && [ "$SUN_COMPILER" -eq "0" ]; then
+if [[ ("$CXX" == "g++") && ("$SUN_COMPILER" -eq "0") ]]; then
 
 	CLANG_COMPILER=$(which clang++ 2>/dev/null)
 	"$CLANG_COMPILER" -x c++ -DCRYPTOPP_ADHOC_MAIN adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
@@ -3232,7 +3232,7 @@ fi
 
 ############################################
 # Test an install with CRYPTOPP_DATA_DIR
-if [ "$IS_CYGWIN" -eq "0" ] && [ "$IS_MINGW" -eq "0" ]; then
+if [[ ("$IS_CYGWIN" -eq "0") && ("$IS_MINGW" -eq "0") ]]; then
 
 	echo
 	echo "************************************" | tee -a "$INSTALL_RESULTS"
