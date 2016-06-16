@@ -252,10 +252,10 @@ if [ "$IS_X86" -ne "0" ] || [ "$IS_X64" -ne "0" ]; then
 fi
 
 # LD-Gold linker testing
-HAVE_LDGOLD=$(file `which ld.gold` 2>&1 | $GREP -v "^no ld.gold" | cut -d":" -f 2 | $EGREP -i -c "elf")
+HAVE_LDGOLD=$(file `which ld.gold` 2>&1 | $GREP -v "no ld.gold" | cut -d":" -f 2 | $EGREP -i -c "elf")
 
 # Set to 0 if you don't have Valgrind. Valgrind tests take a long time...
-HAVE_VALGRIND=$(which valgrind 2>&1 | $GREP -v "^no valgrind" | $GREP -i -c valgrind)
+HAVE_VALGRIND=$(which valgrind 2>&1 | $GREP -v "no valgrind" | $GREP -i -c valgrind)
 
 # Echo back to ensure something is not missed.
 echo | tee -a "$TEST_RESULTS"
