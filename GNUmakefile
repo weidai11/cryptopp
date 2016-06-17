@@ -323,12 +323,16 @@ endif # -coverage
 endif # GCC code coverage
 
 # Debug testing on GNU systems. Triggered by -DDEBUG.
+#   Newlib test due to http://sourceware.org/bugzilla/show_bug.cgi?id=20268
 ifneq ($(filter -DDEBUG -DDEBUG=1,$(CXXFLAGS)),)
 USING_GLIBCXX := $(shell $(CXX) -x c++ $(CXXFLAGS) -E adhoc.cpp.proto 2>&1 | $(EGREP) -i -c "__GLIBCXX__")
 ifneq ($(USING_GLIBCXX),0)
+HAS_NEWLIB := $(shell $(CXX) -x c++ $(CXXFLAGS) -E adhoc.cpp.proto 2>&1 | $(EGREP) -i -c "__NEWLIB__")
+ifeq ($(HAS_NEWLIB),0)
 ifeq ($(findstring -D_GLIBCXX_DEBUG,$(CXXFLAGS)),)
 CXXFLAGS += -D_GLIBCXX_DEBUG
 endif # CXXFLAGS
+endif # NAS_NEWLIB
 endif # USING_GLIBCXX
 endif # GNU Debug build
 
