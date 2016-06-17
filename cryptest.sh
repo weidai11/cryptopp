@@ -467,6 +467,36 @@ echo | tee -a "$TEST_RESULTS"
 echo "Start time: $TEST_BEGIN" | tee -a "$TEST_RESULTS"
 
 ############################################
+# Test AES-NI code generation
+if [[ ("$HAVE_X86_AES" -ne "0" && "$HAVE_GDB" -ne "0") ]] && false; then
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: AES-NI code generation" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS -march=native -maes" rijndael.o 2>&1 | tee -a "$TEST_RESULTS"
+
+	DISASS=$(gdb -batch -ex 'disassemble AESNI_Enc_Block AESNI_Enc_4_Blocks' $OBJFILE 2>/dev/null)
+
+	if [[ ($(echo "$DISASS" | grep -i aesenc) -eq "0") ]]; then
+		echo "ERROR: failed to generate aesenc instruction" | tee -a "$TEST_RESULTS"
+	fi
+	if [[ ($(echo "$DISASS" | grep -i aesenclast) -eq "0") ]]; then
+		echo "ERROR: failed to generate aesenclast instruction" | tee -a "$TEST_RESULTS"
+	fi
+	if [[ ($(echo "$DISASS" | grep -i aesdec) -eq "0") ]]; then
+		echo "ERROR: failed to generate aesdec instruction" | tee -a "$TEST_RESULTS"
+	fi
+	if [[ ($(echo "$DISASS" | grep -i aesdeclast) -eq "0") ]]; then
+		echo "ERROR: failed to generate aesdeclast instruction" | tee -a "$TEST_RESULTS"
+	fi
+fi
+
+############################################
 # Basic NEON build
 if [[ ("$IS_ARM32" -ne "0" && "$HAVE_ARM_NEON" -ne "0") ]]; then
 	echo
@@ -936,7 +966,7 @@ unset CXXFLAGS
 "$MAKE" clean > /dev/null 2>&1
 rm -f adhoc.cpp > /dev/null 2>&1
 
-export CXXFLAGS="$RELEASE_CXXFLAGS-DCRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY ${RETAINED_CXXFLAGS[@]}"
+export CXXFLAGS="$RELEASE_CXXFLAGS -DCRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY ${RETAINED_CXXFLAGS[@]}"
 "$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -1185,7 +1215,7 @@ if [[ "$HAVE_LDGOLD" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$DEBUG_CXXFLAGS -g3 -xO0 ${RETAINED_CXXFLAGS[@]}"
+	export CXXFLAGS="$DEBUG_CXXFLAGS ${RETAINED_CXXFLAGS[@]}"
 	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" LD="ld.gold" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -1272,7 +1302,14 @@ unset CXXFLAGS
 "$MAKE" clean > /dev/null 2>&1
 rm -f adhoc.cpp > /dev/null 2>&1
 
-export CXXFLAGS="$RELEASE_CXXFLAGS ${RETAINED_CXXFLAGS[@]}"
+if [[ "$SUN_COMPILER" -ne "0" ]]; then
+	export CXXFLAGS="-DNDEBUG -g -xO3 ${RETAINED_CXXFLAGS[@]}"
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+else
+	export CXXFLAGS="-DNDEBUG -g2 -O3 ${RETAINED_CXXFLAGS[@]}"
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+fi
+
 "$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2773,7 +2810,7 @@ if [[ "$HAVE_CXX03" -ne "0" ]]; then
 	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -xO3 -std=c++03 ${RETAINED_CXXFLAGS[@]}"
+	export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 ${RETAINED_CXXFLAGS[@]}"
 	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
