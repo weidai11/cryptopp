@@ -67,6 +67,7 @@ IS_MINGW=$(uname -s | $GREP -i -c mingw)
 IS_OPENBSD=$(uname -s | $GREP -i -c openbsd)
 IS_NETBSD=$(uname -s | $GREP -i -c netbsd)
 IS_SOLARIS=$(uname -s | $GREP -i -c sunos)
+
 IS_X86=$(uname -m | $EGREP -i -c "(i386|i586|i686|amd64|x86_64)")
 IS_X64=$(uname -m | $EGREP -i -c "(amd64|x86_64)")
 IS_PPC=$(uname -m | $EGREP -i -c "(Power|PPC)")
@@ -260,8 +261,11 @@ fi
 # LD-Gold linker testing
 HAVE_LDGOLD=$(file `which ld.gold 2>&1` 2>/dev/null | $GREP -v "no ld.gold" | cut -d":" -f 2 | $EGREP -i -c "elf")
 
-# Set to 0 if you don't have Valgrind. Valgrind tests take a long time...
+# Valgrind testing of C++03, C++11, C++14 and C++17 binaries. Valgrind tests take a long time...
 HAVE_VALGRIND=$(which valgrind 2>&1 | $GREP -v "no valgrind" | $GREP -i -c valgrind)
+
+# Used to disassemble object modules so we can verify some aspects of code generation
+HAVE_GDB=$(which gdb 2>&1 | $GREP -v "no gdb" | $GREP -i -c gdb)
 
 ############################################
 
@@ -439,9 +443,9 @@ if [[ "$SUN_COMPILER" -ne "0" ]]; then
 fi
 
 if [[ "$GCC_COMPILER" -ne "0" ]]; then
-	ELEVATED_CXXFLAGS+=("-DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562" "-DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS" "-Wall" "-Wextra")
-	ELEVATED_CXXFLAGS+=("-Wno-unknown-pragmas" "-Wstrict-aliasing=3" "-Wstrict-overflow" "-Waggressive-loop-optimizations")
-	ELEVATED_CXXFLAGS+=("-Wcast-align" "-Wwrite-strings" "-Wformat=2" "-Wformat-security" "-Wtrampolines")
+	ELEVATED_CXXFLAGS+=("-DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562" "-DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS" "-Wall" "-Wextra"
+	                    "-Wno-unknown-pragmas" "-Wstrict-aliasing=3" "-Wstrict-overflow" "-Waggressive-loop-optimizations"
+	                    "-Wcast-align" "-Wwrite-strings" "-Wformat=2" "-Wformat-security" "-Wtrampolines")
 
 	if [[ ("$GCC_51_OR_ABOVE" -ne "0") ]]; then
 		ELEVATED_CXXFLAGS+=("-Wabi" "-Wodr")
@@ -2630,7 +2634,7 @@ fi
 
 ############################################
 # Modern compiler and old hardware, like PII, PIII or Core2
-if [[ ("$HAVE_X86_AES" -ne "0" || "$HAVE_X86_RDRAND" -ne "0" || "$HAVE_X86_RDSEED" -ne "0") ]; then
+if [[ ("$HAVE_X86_AES" -ne "0" || "$HAVE_X86_RDRAND" -ne "0" || "$HAVE_X86_RDSEED" -ne "0") ]]; then
 
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
@@ -3327,7 +3331,7 @@ echo | tee -a "$TEST_RESULTS"
 # "error" is from the sanitizers
 # "Illegal", "0 errors" and "suppressed errors" are from Valgrind.
 ECOUNT=$($EGREP -a '(Error|ERROR|error|FAILED|Illegal)' $TEST_RESULTS | $EGREP -v '( 0 errors|suppressed errors|error detector)' | wc -l)
-if [[ "$ECOUNT" -eq "0" ]; then
+if [[ "$ECOUNT" -eq "0" ]]; then
 	echo "No failures detected" | tee -a "$TEST_RESULTS"
 else
 	echo "$ECOUNT errors detected. See $TEST_RESULTS for details" | tee -a "$TEST_RESULTS"
