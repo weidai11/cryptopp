@@ -1401,7 +1401,7 @@ fi
 
 ############################################
 # Debug build, UBSan, c++03
-if [[ "$HAVE_CXX03" -ne "0" && "$HAVE_UBSAN" -ne "0") ]]; then
+if [[ ("$HAVE_CXX03" -ne "0" && "$HAVE_UBSAN" -ne "0") ]]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: debug, c++03, UBsan" | tee -a "$TEST_RESULTS"
@@ -1430,7 +1430,7 @@ fi
 
 ############################################
 # Release build, UBSan, c++03
-if [[ "$HAVE_CXX03" -ne "0" && "$HAVE_UBSAN" -ne "0") ]]; then
+if [[ ("$HAVE_CXX03" -ne "0" && "$HAVE_UBSAN" -ne "0") ]]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: release, c++03, UBsan" | tee -a "$TEST_RESULTS"
@@ -1459,7 +1459,7 @@ fi
 
 ############################################
 # Debug build, Asan, c++03
-if [[ "$HAVE_CXX03" -ne "0" && "$HAVE_ASAN" -ne "0") ]]; then
+if [[ ("$HAVE_CXX03" -ne "0" && "$HAVE_ASAN" -ne "0") ]]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: debug, c++03, Asan" | tee -a "$TEST_RESULTS"
@@ -1493,7 +1493,7 @@ fi
 
 ############################################
 # Release build, Asan, c++03
-if [[ "$HAVE_CXX03" -ne "0" && "$HAVE_ASAN" -ne "0") ]]; then
+if [[ ("$HAVE_CXX03" -ne "0" && "$HAVE_ASAN" -ne "0") ]]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: release, c++03, Asan" | tee -a "$TEST_RESULTS"
@@ -1527,7 +1527,7 @@ fi
 
 ############################################
 # Debug build, UBSan, c++11
-if [[ "$HAVE_CXX11" -ne "0" ]] && [ "$HAVE_UBSAN" -ne "0" ]; then
+if [[ ("$HAVE_CXX11" -ne "0" && "$HAVE_UBSAN" -ne "0") ]]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: debug, c++11, UBsan" | tee -a "$TEST_RESULTS"
@@ -1556,7 +1556,7 @@ fi
 
 ############################################
 # Release build, UBSan, c++11
-if [[ "$HAVE_CXX11" -ne "0" ]] && [ "$HAVE_UBSAN" -ne "0" ]; then
+if [[ ("$HAVE_CXX11" -ne "0" && "$HAVE_UBSAN" -ne "0") ]]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: release, c++11, UBsan" | tee -a "$TEST_RESULTS"
@@ -1585,7 +1585,7 @@ fi
 
 ############################################
 # Debug build, Asan, c++11
-if [[ "$HAVE_CXX11" -ne "0" ]] && [ "$HAVE_ASAN" -ne "0" ]; then
+if [[ ("$HAVE_CXX11" -ne "0" && "$HAVE_ASAN" -ne "0") ]]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: debug, c++11, Asan" | tee -a "$TEST_RESULTS"
@@ -1619,7 +1619,7 @@ fi
 
 ############################################
 # Release build, Asan, c++11
-if [[ "$HAVE_CXX11" -ne "0" ]] && [ "$HAVE_ASAN" -ne "0" ]; then
+if [[ ("$HAVE_CXX11" -ne "0" && "$HAVE_ASAN" -ne "0") ]]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: release, c++11, Asan" | tee -a "$TEST_RESULTS"
@@ -1653,7 +1653,8 @@ fi
 
 ############################################
 # Release build, UBSan, c++14
-if [[ "$HAVE_CXX14" -ne "0" ]] && [ "$HAVE_UBSAN" -ne "0" ]; then
+if [[ ("$HAVE_CXX14" -ne "0" && "$HAVE_UBSAN" -ne "0") ]]; then
+	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: c++14, UBsan" | tee -a "$TEST_RESULTS"
 	echo
@@ -1681,7 +1682,7 @@ fi
 
 ############################################
 # Release build, Asan, c++14
-if [[ "$HAVE_CXX14" -ne "0" ]] && [ "$HAVE_ASAN" -ne "0" ]; then
+if [[ ("$HAVE_CXX14" -ne "0" && "$HAVE_ASAN" -ne "0") ]]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: c++14, Asan" | tee -a "$TEST_RESULTS"
@@ -1715,7 +1716,8 @@ fi
 
 ############################################
 # Release build, UBSan, c++17
-if [[ "$HAVE_CXX17" -ne "0" ]] && [ "$HAVE_UBSAN" -ne "0" ]; then
+if [[ ("$HAVE_CXX17" -ne "0" && "$HAVE_UBSAN" -ne "0") ]]; then
+	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: c++17, UBsan" | tee -a "$TEST_RESULTS"
 	echo
@@ -1743,7 +1745,7 @@ fi
 
 ############################################
 # Release build, Asan, c++17
-if [[ "$HAVE_CXX17" -ne "0" ]] && [ "$HAVE_ASAN" -ne "0" ]; then
+if [[ ("$HAVE_CXX17" -ne "0" && "$HAVE_ASAN" -ne "0") ]]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: c++17, Asan" | tee -a "$TEST_RESULTS"
@@ -2252,7 +2254,7 @@ fi
 
 ############################################
 # Darwin, Intel multiarch, c++03
-if [[ "$IS_DARWIN" -ne "0" ]] && [ "$HAVE_INTEL_MULTIARCH" -ne "0" ] && [[ "$HAVE_CXX03" -ne "0" ]]; then
+if [[ "$IS_DARWIN" -ne "0" && "$HAVE_INTEL_MULTIARCH" -ne "0" &&  "$HAVE_CXX03" -ne "0" ]]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: Darwin, Intel multiarch, c++03" | tee -a "$TEST_RESULTS"
@@ -2292,7 +2294,7 @@ fi
 
 ############################################
 # Darwin, Intel multiarch, c++11
-if [[ "$IS_DARWIN" -ne "0" ]] && [ "$HAVE_INTEL_MULTIARCH" -ne "0" ] && [[ "$HAVE_CXX11" -ne "0" ]]; then
+if [[ "$IS_DARWIN" -ne "0" && "$HAVE_INTEL_MULTIARCH" -ne "0" &&  "$HAVE_CXX11" -ne "0" ]]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: Darwin, Intel multiarch, c++11" | tee -a "$TEST_RESULTS"
@@ -2332,7 +2334,7 @@ fi
 
 ############################################
 # Darwin, Intel multiarch, c++14
-if [[ "$IS_DARWIN" -ne "0" ]] && [ "$HAVE_INTEL_MULTIARCH" -ne "0" ] && [[ "$HAVE_CXX14" -ne "0" ]]; then
+if [[ "$IS_DARWIN" -ne "0" && "$HAVE_INTEL_MULTIARCH" -ne "0" &&  "$HAVE_CXX14" -ne "0" ]]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: Darwin, Intel multiarch, c++14" | tee -a "$TEST_RESULTS"
@@ -2372,7 +2374,7 @@ fi
 
 ############################################
 # Darwin, Intel multiarch, c++17
-if [[ "$IS_DARWIN" -ne "0" ]] && [ "$HAVE_INTEL_MULTIARCH" -ne "0" ] && [[ "$HAVE_CXX17" -ne "0" ]]; then
+if [[ "$IS_DARWIN" -ne "0" && "$HAVE_INTEL_MULTIARCH" -ne "0" &&  "$HAVE_CXX17" -ne "0" ]]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: Darwin, Intel multiarch, c++17" | tee -a "$TEST_RESULTS"
@@ -2412,7 +2414,7 @@ fi
 
 ############################################
 # Darwin, PowerPC multiarch
-if [[ "$IS_DARWIN" -ne "0" ]] && [ "$HAVE_PPC_MULTIARCH" -ne "0" ]; then
+if [[ ("$IS_DARWIN" -ne "0" && "$HAVE_PPC_MULTIARCH" -ne "0") ]]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: Darwin, PowerPC multiarch" | tee -a "$TEST_RESULTS"
@@ -2896,7 +2898,7 @@ fi
 
 ############################################
 # Valgrind, c++03. Requires -O1 for accurate results
-if [[ "$HAVE_CXX03" -ne "0" ]] && [ "$HAVE_VALGRIND" -ne "0" ]; then
+if [[ "$HAVE_CXX03" -ne "0" && "$HAVE_VALGRIND" -ne "0" ]]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: Valgrind, c++03" | tee -a "$TEST_RESULTS"
@@ -2988,7 +2990,7 @@ fi
 
 ############################################
 # Build with elevated warnings
-if [[ "$HAVE_CXX03" -ne "0" ]] && [ "$SUN_COMPILER" -eq "0" ]; then
+if [[ "$HAVE_CXX03" -ne "0" && "$SUN_COMPILER" -eq "0" ]]; then
 
 	############################################
 	# C++03 debug build
@@ -3028,7 +3030,7 @@ fi
 
 ############################################
 # Build with elevated warnings
-if [[ "$HAVE_CXX11" -ne "0" ]] && [ "$SUN_COMPILER" -eq "0" ]; then
+if [[ "$HAVE_CXX11" -ne "0" && "$SUN_COMPILER" -eq "0" ]]; then
 
 	############################################
 	# C++11 debug build
@@ -3068,7 +3070,7 @@ fi
 
 ############################################
 # Build with elevated warnings
-if [[ "$HAVE_CXX14" -ne "0" ]] && [ "$SUN_COMPILER" -eq "0" ]; then
+if [[ "$HAVE_CXX14" -ne "0" && "$SUN_COMPILER" -eq "0" ]]; then
 
 	############################################
 	# C++14 debug build
@@ -3108,7 +3110,7 @@ fi
 
 ############################################
 # Build with elevated warnings
-if [[ "$HAVE_CXX17" -ne "0" ]] && [ "$SUN_COMPILER" -eq "0" ]; then
+if [[ "$HAVE_CXX17" -ne "0" && "$SUN_COMPILER" -eq "0" ]]; then
 
 	############################################
 	# C++17 debug build
