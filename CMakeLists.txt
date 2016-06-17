@@ -34,6 +34,10 @@ set(CRYPTOPP_DATA_DIR "" CACHE PATH "Crypto++ test data directory")
 # Internal compiler options
 #============================================================================
 
+# Don't use RPATH's. The resulting binary could fail a security audit.
+#   Needs 2.8.12; also see http://stackoverflow.com/q/37881058.
+# set(CMAKE_MACOSX_RPATH 0)
+
 set(LIB_VER ${cryptopp_VERSION_MAJOR}${cryptopp_VERSION_MINOR}${cryptopp_VERSION_PATCH})
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Intel")
@@ -72,10 +76,10 @@ endif()
 # Library headers
 file(GLOB cryptopp_HEADERS *.h)
 
-# Test sources
+# Test sources. You can use the GNUmakefile to generate the list: `make sources`.
 file(GLOB cryptopp_SOURCES_TEST bench1.cpp bench2.cpp test.cpp validat1.cpp validat2.cpp validat3.cpp adhoc.cpp datatest.cpp regtest.cpp fipsalgt.cpp dlltest.cpp fipstest.cpp)
 
-# Library sources
+# Library sources. You can use the GNUmakefile to generate the list: `make sources`.
 file(GLOB cryptopp_SOURCES *.cpp)
 list(REMOVE_ITEM cryptopp_SOURCES
 		${CMAKE_CURRENT_SOURCE_DIR}/cryptlib.cpp
@@ -99,7 +103,6 @@ endif()
 if(MSVC AND NOT DISABLE_ASM)
 	if(${CMAKE_GENERATOR} MATCHES ".*ARM")
 		message(STATUS "Disabling ASM because ARM is specified as target platform.")
-		add_definitions(-DCRYPTOPP_DISABLE_ASM)
 	else()
 		if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 			list(APPEND cryptopp_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/x64dll.asm)
