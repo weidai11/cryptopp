@@ -35,8 +35,9 @@ set(CRYPTOPP_DATA_DIR "" CACHE PATH "Crypto++ test data directory")
 #============================================================================
 
 # Don't use RPATH's. The resulting binary could fail a security audit.
-#   Needs 2.8.12; also see http://stackoverflow.com/q/37881058.
-# set(CMAKE_MACOSX_RPATH 0)
+if (NOT CMAKE_VERSION VERSION_LESS 2.8.12)
+  set(CMAKE_MACOSX_RPATH 0)
+endif()
 
 set(LIB_VER ${cryptopp_VERSION_MAJOR}${cryptopp_VERSION_MINOR}${cryptopp_VERSION_PATCH})
 
