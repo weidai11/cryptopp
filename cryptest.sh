@@ -528,7 +528,7 @@ else
 fi
 
 CXX_PATH=$(which $CXX)
-CXX_SYMLINK=$(ls -l "$CXX_PATH" 2>/dev/null | $GREP -c '\-\>' | $AWK '{print $1}')
+CXX_SYMLINK=$(ls -l "$CXX_PATH" 2>/dev/null | $GREP -c '\->' | $AWK '{print $1}')
 if [[ ("$CXX_SYMLINK" -ne "0") ]]; then CXX_PATH="$CXX_PATH (symlinked)"; fi
 echo "Pathname: $CXX_PATH"
 
