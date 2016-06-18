@@ -19,6 +19,9 @@
 #     CXXFLAGS=-Wall ./cryptest.sh
 #     CXXFLAGS="-Wall -Wextra" ./cryptest.sh
 
+# The fastest results (in running time) will most likely use:
+#     HAVE_VALGRIND=0 WANT_BENCHMARKS=0 ./cryptest.sh
+
 ############################################
 # Set to suite your taste
 
@@ -344,6 +347,11 @@ if [[ (-z "$HAVE_DISASS") ]]; then
 			HAVE_DISASS=0
 		fi
 	fi
+fi
+
+# Benchmarks take a long time...
+if [[ (-z "$WANT_BENCHMARKS") ]]; then
+	WANT_BENCHMARKS=1
 fi
 
 ############################################
@@ -3006,78 +3014,83 @@ if [[ "$HAVE_ARM_CRYPTO" -ne "0" ]]; then
 fi
 
 ############################################
-# Benchmarks, c++03
-if [[ "$HAVE_CXX03" -ne "0" ]]; then
-	echo
-	echo "************************************" | tee -a "$TEST_RESULTS"
-	echo "Testing: Benchmarks, c++03" | tee -a "$TEST_RESULTS"
-	echo
+# Benchmarks
+if [[ "$WANT_BENCHMARKS" -ne "0" ]]; then
 
-	unset CXXFLAGS
-	"$MAKE" clean > /dev/null 2>&1
+	############################################
+	# Benchmarks, c++03
+	if [[ "$HAVE_CXX03" -ne "0" ]]; then
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS"
+		echo "Testing: Benchmarks, c++03" | tee -a "$TEST_RESULTS"
+		echo
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		unset CXXFLAGS
+		"$MAKE" clean > /dev/null 2>&1
 
-	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
-	else
-		echo "**************************************" >> "$BENCHMARK_RESULTS"
-		./cryptest.exe b 3 "$CPU_FREQ" 2>&1 | tee -a "$BENCHMARK_RESULTS"
+		export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 ${RETAINED_CXXFLAGS[@]}"
+		"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-			echo "ERROR: failed to execute benchmarks" | tee -a "$BENCHMARK_RESULTS"
+			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+		else
+			echo "**************************************" >> "$BENCHMARK_RESULTS"
+			./cryptest.exe b 3 "$CPU_FREQ" 2>&1 | tee -a "$BENCHMARK_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute benchmarks" | tee -a "$BENCHMARK_RESULTS"
+			fi
 		fi
 	fi
-fi
 
-############################################
-# Benchmarks, c++11
-if [[ "$HAVE_CXX11" -ne "0" ]]; then
-	echo
-	echo "************************************" | tee -a "$TEST_RESULTS"
-	echo "Testing: Benchmarks, c++11" | tee -a "$TEST_RESULTS"
-	echo
+	############################################
+	# Benchmarks, c++11
+	if [[ "$HAVE_CXX11" -ne "0" ]]; then
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS"
+		echo "Testing: Benchmarks, c++11" | tee -a "$TEST_RESULTS"
+		echo
 
-	unset CXXFLAGS
-	"$MAKE" clean > /dev/null 2>&1
-	rm -f adhoc.cpp > /dev/null 2>&1
+		unset CXXFLAGS
+		"$MAKE" clean > /dev/null 2>&1
+		rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 ${RETAINED_CXXFLAGS[@]}"
+		"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
-	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
-	else
-		echo "**************************************" >> "$BENCHMARK_RESULTS"
-		./cryptest.exe b 3 "$CPU_FREQ" 2>&1 | tee -a "$BENCHMARK_RESULTS"
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-			echo "ERROR: failed to execute benchmarks" | tee -a "$BENCHMARK_RESULTS"
+			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+		else
+			echo "**************************************" >> "$BENCHMARK_RESULTS"
+			./cryptest.exe b 3 "$CPU_FREQ" 2>&1 | tee -a "$BENCHMARK_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute benchmarks" | tee -a "$BENCHMARK_RESULTS"
+			fi
 		fi
 	fi
-fi
 
-############################################
-# Benchmarks, c++14
-if [[ "$HAVE_CXX14" -ne "0" ]]; then
-	echo
-	echo "************************************" | tee -a "$TEST_RESULTS"
-	echo "Testing: Benchmarks, c++14" | tee -a "$TEST_RESULTS"
-	echo
+	############################################
+	# Benchmarks, c++14
+	if [[ "$HAVE_CXX14" -ne "0" ]]; then
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS"
+		echo "Testing: Benchmarks, c++14" | tee -a "$TEST_RESULTS"
+		echo
 
-	unset CXXFLAGS
-	"$MAKE" clean > /dev/null 2>&1
-	rm -f adhoc.cpp > /dev/null 2>&1
+		unset CXXFLAGS
+		"$MAKE" clean > /dev/null 2>&1
+		rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 ${RETAINED_CXXFLAGS[@]}"
+		"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
-	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
-	else
-		echo "**************************************" >> "$BENCHMARK_RESULTS"
-		./cryptest.exe b 3 "$CPU_FREQ" 2>&1 | tee -a "$BENCHMARK_RESULTS"
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-			echo "ERROR: failed to execute benchmarks" | tee -a "$BENCHMARK_RESULTS"
+			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+		else
+			echo "**************************************" >> "$BENCHMARK_RESULTS"
+			./cryptest.exe b 3 "$CPU_FREQ" 2>&1 | tee -a "$BENCHMARK_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute benchmarks" | tee -a "$BENCHMARK_RESULTS"
+			fi
 		fi
 	fi
 fi
@@ -3477,13 +3490,15 @@ if [[ ("$IS_CYGWIN" -eq "0") && ("$IS_MINGW" -eq "0") ]]; then
 			echo "ERROR: failed to execute test vectors" | tee -a "$INSTALL_RESULTS"
 		fi
 
-		echo
-		echo "************************************" | tee -a "$INSTALL_RESULTS"
-		echo "Testing: Install (benchmarks)" | tee -a "$INSTALL_RESULTS"
-		echo
-		./cryptest.exe b 1 2.4+1e9 2>&1 | tee -a "$INSTALL_RESULTS"
-		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-			echo "ERROR: failed to execute benchmarks" | tee -a "$INSTALL_RESULTS"
+		if [[ "$WANT_BENCHMARKS" -ne "0" ]]; then
+			echo
+			echo "************************************" | tee -a "$INSTALL_RESULTS"
+			echo "Testing: Install (benchmarks)" | tee -a "$INSTALL_RESULTS"
+			echo
+			./cryptest.exe b 1 2.4+1e9 2>&1 | tee -a "$INSTALL_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute benchmarks" | tee -a "$INSTALL_RESULTS"
+			fi
 		fi
 
 		echo
