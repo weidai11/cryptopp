@@ -79,34 +79,27 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 	if [[ (-e "/usr/gnu/bin/awk") ]]; then AWK=/usr/gnu/bin/awk; else AWK=nawk; fi
 fi
 
-# We need to use the C++ compiler to determine if c++11 is available. Otherwise
-#   a mis-detection occurs on Mac OS X 10.9 and above. Below, we use the same
-#   Implicit Variables as make. Also see
-# https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
-if [[ -z "$CXX" ]]; then
+# We need to use the C++ compiler to determine feature availablility. Otherwise
+#   mis-detections occur on a number of platforms.
+if [[ ((-z "$CXX") || ("$CXX" == "gcc")) ]]; then
 	if [[ "$IS_DARWIN" -ne "0" ]]; then
 		CXX=c++
-	else
-		# Linux, MinGW, Cygwin and fallback ...
+	elif [[ "$IS_SOLARIS" -ne "0" ]]; then
+		if [[ (-e "/opt/solarisstudio12.5/bin/CC") ]]; then
+			CXX=/opt/solarisstudio12.5/bin/CC
+		elif [[ (-e "/opt/solarisstudio12.4/bin/CC") ]]; then
+			CXX=/opt/solarisstudio12.4/bin/CC
+		elif [[ (-e "/opt/solarisstudio12.3/bin/CC") ]]; then
+			CXX=/opt/solarisstudio12.3/bin/CC
+		elif [[ (-e "/opt/solstudio12.2/bin/CC") ]]; then
+			CXX=/opt/solstudio12.2/bin/CC
+		else
+			CXX=CC
+		fi
+	elif [[ ($(which g++ 2>&1 | $GREP -v "no g++" | $GREP -i -c g++) -ne "0") ]]; then
 		CXX=g++
-	fi
-fi
-
-# Fixup
-if [[ "$CXX" == "gcc" ]]; then
-	CXX=g++
-fi
-
-# See if the user already set CC. If not, select the latest Sun Studio we can find.
-if [[ ("$IS_SOLARIS" -ne "0") ]] && [[ $(echo $CXX | $GREP -c "CC" 2>/dev/null) -ne "0" ]]; then
-	if [[ (-e "/opt/solarisstudio12.5/bin/CC") ]]; then
-		CXX=/opt/solarisstudio12.5/bin/CC
-	elif [[ (-e "/opt/solarisstudio12.4/bin/CC") ]]; then
-		CXX=/opt/solarisstudio12.4/bin/CC
-	elif [[ (-e "/opt/solarisstudio12.3/bin/CC") ]]; then
-		CXX=/opt/solarisstudio12.3/bin/CC
-	elif [[ (-e "/opt/solstudio12.2/bin/CC") ]]; then
-		CXX=/opt/solstudio12.2/bin/CC
+	else
+		CXX=c++
 	fi
 fi
 
@@ -126,8 +119,17 @@ else
 	MAKE=make
 fi
 
-if [[ -z "$TMP" ]]; then
-	TMP=/tmp
+if [[ (-z "$TMP") ]]; then
+	if [[ (-d "/tmp") ]]; then
+		TMP=/tmp
+	elif [[ (-d "/temp") ]]; then
+		TMP=/temp
+	elif [[ (-d "$HOME/tmp") ]]; then
+		TMP="$HOME/tmp"
+	else
+		echo "Please set TMP to a valid directory"
+		[[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
+	fi
 fi
 
 # Sun Studio does not allow '-x c++'. Copy it here...
@@ -135,94 +137,164 @@ rm -f adhoc.cpp > /dev/null 2>&1
 cp adhoc.cpp.proto adhoc.cpp
 
 # Hit or miss, only latest compilers.
-HAVE_CXX17=0
-$CXX -DCRYPTOPP_ADHOC_MAIN -std=c++17 adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
-if [[ "$?" -eq "0" ]]; then
-	HAVE_CXX17=1
+if [[ (-z "$HAVE_CXX17") ]]; then
+	HAVE_CXX17=0
+	$CXX -DCRYPTOPP_ADHOC_MAIN -std=c++17 adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
+	if [[ "$?" -eq "0" ]]; then
+		HAVE_CXX17=1
+	fi
 fi
 
 # Hit or miss, mostly miss.
-HAVE_CXX14=0
-$CXX -DCRYPTOPP_ADHOC_MAIN -std=c++14 adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
-if [[ "$?" -eq "0" ]]; then
-	HAVE_CXX14=1
+if [[ (-z "$HAVE_CXX14") ]]; then
+	HAVE_CXX14=0
+	$CXX -DCRYPTOPP_ADHOC_MAIN -std=c++14 adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
+	if [[ "$?" -eq "0" ]]; then
+		HAVE_CXX14=1
+	fi
 fi
 
 # Hit or miss, mostly hit.
-HAVE_CXX11=0
-$CXX -DCRYPTOPP_ADHOC_MAIN -std=c++11 adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
-if [[ "$?" -eq "0" ]]; then
-	HAVE_CXX11=1
+if [[ (-z "$HAVE_CXX11") ]]; then
+	HAVE_CXX11=0
+	$CXX -DCRYPTOPP_ADHOC_MAIN -std=c++11 adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
+	if [[ "$?" -eq "0" ]]; then
+		HAVE_CXX11=1
+	fi
 fi
 
 # OpenBSD 5.7 and OS X 10.5 cannot consume -std=c++03
-HAVE_CXX03=0
-$CXX -DCRYPTOPP_ADHOC_MAIN -std=c++03 adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
-if [[ "$?" -eq "0" ]]; then
-	HAVE_CXX03=1
+if [[ (-z "$HAVE_CXX03") ]]; then
+	HAVE_CXX03=0
+	$CXX -DCRYPTOPP_ADHOC_MAIN -std=c++03 adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
+	if [[ "$?" -eq "0" ]]; then
+		HAVE_CXX03=1
+	fi
+fi
+
+HAVE_O3=0
+OPT_O3=
+$CXX -DCRYPTOPP_ADHOC_MAIN -O3 adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
+if [[ ("$?" -eq "0") ]]; then
+	HAVE_O3=1
+	OPT_O3=-O3
+else
+	$CXX -DCRYPTOPP_ADHOC_MAIN -xO3 adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
+	if [[ ("$?" -eq "0") ]]; then
+		HAVE_O3=1
+		OPT_O3=-xO3
+	fi
+fi
+
+HAVE_O5=0
+OPT_O5=
+$CXX -DCRYPTOPP_ADHOC_MAIN -O5 adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
+if [[ ("$?" -eq "0") ]]; then
+	HAVE_O5=1
+	OPT_O5=-O5
+else
+	$CXX -DCRYPTOPP_ADHOC_MAIN -xO5 adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
+	if [[ ("$?" -eq "0") ]]; then
+		HAVE_O5=1
+		OPT_O5=-xO5
+	fi
+fi
+
+HAVE_OS=0
+OPT_OS=
+$CXX -DCRYPTOPP_ADHOC_MAIN -Os adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
+if [[ ("$?" -eq "0") ]]; then
+	HAVE_OS=1
+	OPT_OS=-Os
+else
+	$CXX -DCRYPTOPP_ADHOC_MAIN -xOs adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
+	if [[ ("$?" -eq "0") ]]; then
+		HAVE_OS=1
+		OPT_OS=-xOs
+	fi
 fi
 
 # Undefined Behavior sanitizer
-HAVE_UBSAN=0
-$CXX -DCRYPTOPP_ADHOC_MAIN -fsanitize=undefined adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
-if [[ ("$?" -eq "0") && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0") ]]; then
-	HAVE_UBSAN=1
+if [[ (-z "$HAVE_UBSAN") ]]; then
+	HAVE_UBSAN=0
+	$CXX -DCRYPTOPP_ADHOC_MAIN -fsanitize=undefined adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
+	if [[ ("$?" -eq "0") && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0") ]]; then
+		HAVE_UBSAN=1
+	fi
 fi
 
 # Address sanitizer
-HAVE_ASAN=0
-$CXX -DCRYPTOPP_ADHOC_MAIN -fsanitize=address adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
-if [[ ("$?" -eq "0") && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0") ]]; then
-	HAVE_ASAN=1
+if [[ (-z "$HAVE_ASAN") ]]; then
+	HAVE_ASAN=0
+	$CXX -DCRYPTOPP_ADHOC_MAIN -fsanitize=address adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
+	if [[ ("$?" -eq "0") && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0") ]]; then
+		HAVE_ASAN=1
+	fi
 fi
 
 # Darwin and Intel multiarch
-HAVE_INTEL_MULTIARCH=0
-if [[ ("$IS_DARWIN" -ne "0") && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0") ]]; then
-	$CXX -DCRYPTOPP_ADHOC_MAIN -arch i386 -arch x86_64 adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
-	if [[ "$?" -eq "0" ]]; then
-		HAVE_INTEL_MULTIARCH=1
+if [[ (-z "$HAVE_INTEL_MULTIARCH") ]]; then
+	HAVE_INTEL_MULTIARCH=0
+	if [[ ("$IS_DARWIN" -ne "0") && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0") ]]; then
+		$CXX -DCRYPTOPP_ADHOC_MAIN -arch i386 -arch x86_64 adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
+		if [[ "$?" -eq "0" ]]; then
+			HAVE_INTEL_MULTIARCH=1
+		fi
 	fi
 fi
 
 # Darwin and PowerPC multiarch
-HAVE_PPC_MULTIARCH=0
-if [[ ("$IS_DARWIN" -ne "0") && ("$IS_PPC" -ne "0") ]]; then
-	$CXX -DCRYPTOPP_ADHOC_MAIN -arch ppc -arch ppc64 adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
-	if [[ "$?" -eq "0" ]]; then
-		HAVE_PPC_MULTIARCH=1
+if [[ (-z "$HAVE_PPC_MULTIARCH") ]]; then
+	HAVE_PPC_MULTIARCH=0
+	if [[ ("$IS_DARWIN" -ne "0") && ("$IS_PPC" -ne "0") ]]; then
+		$CXX -DCRYPTOPP_ADHOC_MAIN -arch ppc -arch ppc64 adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
+		if [[ "$?" -eq "0" ]]; then
+			HAVE_PPC_MULTIARCH=1
+		fi
 	fi
 fi
 
 # Debian and a couple of others
-HAVE_X32=0
-if [[ "$IS_X64" -ne "0" ]]; then
-	$CXX -DCRYPTOPP_ADHOC_MAIN -mx32 adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
-	if [[ "$?" -eq "0" ]]; then
-		HAVE_X32=1
+if [[ (-z "$HAVE_X32") ]]; then
+	HAVE_X32=0
+	if [[ "$IS_X64" -ne "0" ]]; then
+		$CXX -DCRYPTOPP_ADHOC_MAIN -mx32 adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
+		if [[ "$?" -eq "0" ]]; then
+			HAVE_X32=1
+		fi
 	fi
 fi
 
 # ARMv7/Aarch32
-HAVE_ARM_NEON=0
-if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
-	# $CXX -DCRYPTOPP_ADHOC_MAIN -march=armv7a -mfpu=neon adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
-	if [[ $(cat /proc/cpuinfo 2>/dev/null | $GREP -i -c NEON) -ne "0" ]]; then
-		HAVE_ARM_NEON=1
+if [[ (-z "$HAVE_ARM_NEON") ]]; then
+	HAVE_ARM_NEON=0
+	if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
+		# $CXX -DCRYPTOPP_ADHOC_MAIN -march=armv7a -mfpu=neon adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
+		if [[ $(cat /proc/cpuinfo 2>/dev/null | $GREP -i -c NEON) -ne "0" ]]; then
+			HAVE_ARM_NEON=1
+		fi
 	fi
 fi
 
 # ARMv8/Aarch64, CRC and Crypto
-HAVE_ARM_CRC=0
-HAVE_ARM_CRYPTO=0
-if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
-	$CXX -DCRYPTOPP_ADHOC_MAIN -march=armv8-a+crc adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
-	if [[ "$?" -eq "0" ]]; then
-		HAVE_ARM_CRC=1
+if [[ (-z "$HAVE_ARM_CRYPTO") ]]; then
+	HAVE_ARM_CRYPTO=0
+	if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
+		$CXX -DCRYPTOPP_ADHOC_MAIN -march=armv8-a+crypto adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
+		if [[ "$?" -eq "0" ]]; then
+			HAVE_ARM_CRYPTO=1
+		fi
 	fi
-	$CXX -DCRYPTOPP_ADHOC_MAIN -march=armv8-a+crypto adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
-	if [[ "$?" -eq "0" ]]; then
-		HAVE_ARM_CRYPTO=1
+fi
+
+# ARMv8/Aarch64, CRC and Crypto
+if [[ (-z "$HAVE_ARM_CRC") ]]; then
+	HAVE_ARM_CRC=0
+	if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
+		$CXX -DCRYPTOPP_ADHOC_MAIN -march=armv8-a+crc adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
+		if [[ "$?" -eq "0" ]]; then
+			HAVE_ARM_CRC=1
+		fi
 	fi
 fi
 
@@ -251,29 +323,43 @@ if [[ (("$IS_X86" -ne "0") || ("$IS_X64" -ne "0")) && ("$SUN_COMPILER" -eq "0") 
 fi
 
 # ld-gold linker testing
-HAVE_LDGOLD=$(file `which ld.gold 2>&1` 2>/dev/null | $GREP -v "no ld.gold" | cut -d":" -f 2 | $EGREP -i -c "elf")
+if [[ (-z "$HAVE_LDGOLD") ]]; then
+	HAVE_LDGOLD=$(file `which ld.gold 2>&1` 2>/dev/null | $GREP -v "no ld.gold" | cut -d":" -f 2 | $EGREP -i -c "elf")
+fi
 
 # Valgrind testing of C++03, C++11, C++14 and C++17 binaries. Valgrind tests take a long time...
-HAVE_VALGRIND=$(which valgrind 2>&1 | $GREP -v "no valgrind" | $GREP -i -c valgrind)
+if [[ (-z "$HAVE_VALGRIND") ]]; then
+	HAVE_VALGRIND=$(which valgrind 2>&1 | $GREP -v "no valgrind" | $GREP -i -c valgrind)
+fi
 
 # Used to disassemble object modules so we can verify some aspects of code generation
-HAVE_GDB=$(which gdb 2>&1 | $GREP -v "no gdb" | $GREP -i -c gdb)
+if [[ (-z "$HAVE_DISASS") ]]; then
+	echo "int main(int argc, char* argv[]) {return 0;}" > "$TMP/test.cc"
+	gcc "$TMP/test.cc" -o "$TMP/test.exe" > /dev/null 2>&1
+	if [[ "$?" -eq "0" ]]; then
+		gdb -batch -ex 'disassemble main' "$TMP/test.exe" > /dev/null 2>&1
+		if [[ "$?" -eq "0" ]]; then
+			HAVE_DISASS=1
+		else
+			HAVE_DISASS=0
+		fi
+	fi
+fi
 
 ############################################
-# Systm information
+# System information
 
 echo | tee -a "$TEST_RESULTS"
 if [[ "$IS_LINUX" -ne "0" ]]; then
 	echo "IS_LINUX: $IS_LINUX" | tee -a "$TEST_RESULTS"
-fi
-if [[ "$IS_CYGWIN" -ne "0" ]]; then
+elif [[ "$IS_CYGWIN" -ne "0" ]]; then
 	echo "IS_CYGWIN: $IS_CYGWIN" | tee -a "$TEST_RESULTS"
-fi
-if [[ "$IS_MINGW" -ne "0" ]]; then
+elif [[ "$IS_MINGW" -ne "0" ]]; then
 	echo "IS_MINGW: $IS_MINGW" | tee -a "$TEST_RESULTS"
-fi
-if [[ "$IS_SOLARIS" -ne "0" ]]; then
+elif [[ "$IS_SOLARIS" -ne "0" ]]; then
 	echo "IS_SOLARIS: $IS_SOLARIS" | tee -a "$TEST_RESULTS"
+elif [[ "$IS_DARWIN" -ne "0" ]]; then
+	echo "IS_DARWIN: $IS_DARWIN" | tee -a "$TEST_RESULTS"
 fi
 
 if [[ "$IS_ARM64" -ne "0" ]]; then
@@ -281,6 +367,7 @@ if [[ "$IS_ARM64" -ne "0" ]]; then
 elif [[ "$IS_ARM32" -ne "0" ]]; then
 	echo "IS_ARM32: $IS_ARM32" | tee -a "$TEST_RESULTS"
 fi
+
 if [[ "$IS_X64" -ne "0" ]]; then
 	echo "IS_X64: $IS_X64" | tee -a "$TEST_RESULTS"
 elif [[ "$IS_X86" -ne "0" ]]; then
@@ -299,7 +386,16 @@ if [[ "$HAVE_LDGOLD" -ne "0" ]]; then
 	echo "HAVE_LDGOLD: $HAVE_LDGOLD" | tee -a "$TEST_RESULTS"
 fi
 
+# -O3, -O5 and -Os
+echo | tee -a "$TEST_RESULTS"
+echo "HAVE_O3: $HAVE_O3" | tee -a "$TEST_RESULTS"
+if [[ ("$HAVE_O5" -ne "0" || "$HAVE_OS" -ne "0") ]]; then
+	echo "HAVE_O5: $HAVE_O5" | tee -a "$TEST_RESULTS"
+	echo "HAVE_OS: $HAVE_OS" | tee -a "$TEST_RESULTS"
+fi
+
 # Tools available for testing
+echo | tee -a "$TEST_RESULTS"
 echo "HAVE_ASAN: $HAVE_ASAN" | tee -a "$TEST_RESULTS"
 echo "HAVE_UBSAN: $HAVE_UBSAN" | tee -a "$TEST_RESULTS"
 echo "HAVE_VALGRIND: $HAVE_VALGRIND" | tee -a "$TEST_RESULTS"
@@ -376,10 +472,10 @@ fi
 ############################################
 
 # Respect user's preferred flags, but filter the stuff we expliclty test
-FILTERED_CXXFLAGS=("-DDEBUG" "-DNDEBUG" "-g" "-g0" "-g1" "-g2" "-g3" "-O0" "-O1" "-O2" "-O3" "-Os" "-Og"
-                   "-xO0" "-xO1" "-xO2" "-xO3" "-xOs" "-xOg" "-std=c++03" "-std=c++11" "-std=c++14" "-std=c++17"
+FILTERED_CXXFLAGS=("-DDEBUG" "-DNDEBUG" "-g" "-g0" "-g1" "-g2" "-g3" "-O0" "-O1" "-O2" "-O3" "-O4" "-O5" "-Os" "-Og"
+                   "-xO0" "-xO1" "-xO2" "-xO3" "-xO4" "-xO5" "-std=c++03" "-std=c++11" "-std=c++14" "-std=c++17"
                    "-m32" "-m64" "-mx32" "-maes" "-mrdrand" "-mrdrnd" "-mrdseed" "-mpclmul" "-Wa,-q" "-mfpu=neon"
-                   "-Wall" "-Wextra" "-Wcast-align" "-Wformat-security" "-Wtrampolines"
+                   "-Wall" "-Wextra" "-Wconversion" "-Wcast-align" "-Wformat-security" "-Wtrampolines"
                    "-DCRYPTOPP_DISABLE_ASM" "-DCRYPTOPP_DISABLE_SSSE3" "-DCRYPTOPP_DISABLE_AESNI"
                    "-fsanitize=address" "-fsanitize=undefined" "-march=armv8-a+crypto" "-march=armv8-a+crc"
                    "-DDCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562" "-DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS")
@@ -454,8 +550,8 @@ ELEVATED_CXXFLAGS=()
 if [[ "$SUN_COMPILER" -ne "0" ]]; then
 	if [[ "$SUNCC_123_OR_ABOVE" -ne "0" ]]; then
 		DEBUG_CXXFLAGS="-DDEBUG -g3 -xO0"
-		RELEASE_CXXFLAGS="-DNDEBUG -g2 -xO2"
-		VALGRIND_CXXFLAGS="-DNDEBUG -g2 -xO1"
+		RELEASE_CXXFLAGS="-DNDEBUG -g -xO2"
+		VALGRIND_CXXFLAGS="-DNDEBUG -g3 -xO1"
 	else
 		DEBUG_CXXFLAGS="-DDEBUG -g -xO0"
 		RELEASE_CXXFLAGS="-DNDEBUG -g -xO2"
@@ -490,7 +586,7 @@ echo "Start time: $TEST_BEGIN" | tee -a "$TEST_RESULTS"
 
 ############################################
 # Test AES-NI code generation
-if [[ ("$HAVE_X86_AES" -ne "0" && "$HAVE_GDB" -ne "0") ]] && false; then
+if [[ ("$HAVE_X86_AES" -ne "0" && "$HAVE_DISASS" -ne "0") ]] && false; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: AES-NI code generation" | tee -a "$TEST_RESULTS"
@@ -572,6 +668,7 @@ else
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
 	fi
+	echo
 fi
 
 ############################################
@@ -599,6 +696,7 @@ else
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
 	fi
+	echo
 fi
 
 ############################################
@@ -1310,84 +1408,48 @@ if [[ "$HAVE_LDGOLD" -ne "0" ]]; then
 fi
 
 ############################################
-# Debug build at -O3
-echo
-echo "************************************" | tee -a "$TEST_RESULTS"
-echo "Testing: debug, -O3 optimizations" | tee -a "$TEST_RESULTS"
-echo
+# Build at -O3
+if [[ "$HAVE_O3" -ne "0" ]]; then
 
-unset CXXFLAGS
-"$MAKE" clean > /dev/null 2>&1
-rm -f adhoc.cpp > /dev/null 2>&1
-
-if [[ "$SUN_COMPILER" -ne "0" ]]; then
-	export CXXFLAGS="-DDEBUG -g -xO3 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-else
-	export CXXFLAGS="-DDEBUG -g2 -O3 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-fi
-
-if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
-else
-	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-		echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
-	fi
-	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
-	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-		echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
-	fi
-fi
-
-############################################
-# Release build at -O3
-echo
-echo "************************************" | tee -a "$TEST_RESULTS"
-echo "Testing: release, -O3 optimizations" | tee -a "$TEST_RESULTS"
-echo
-
-unset CXXFLAGS
-"$MAKE" clean > /dev/null 2>&1
-rm -f adhoc.cpp > /dev/null 2>&1
-
-if [[ "$SUN_COMPILER" -ne "0" ]]; then
-	export CXXFLAGS="-DNDEBUG -g -xO3 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-else
-	export CXXFLAGS="-DNDEBUG -g2 -O3 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-fi
-
-"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-
-if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
-else
-	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-		echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
-	fi
-	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
-	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-		echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
-	fi
-fi
-
-############################################
-# Debug build at -Os
-if [[ ("$SUN_COMPILER" -eq "0") ]]; then
+	############################################
+	# Debug build at -O3
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
-	echo "Testing: debug, -Os optimizations" | tee -a "$TEST_RESULTS"
+	echo "Testing: debug, -O3 optimizations" | tee -a "$TEST_RESULTS"
 	echo
 
 	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="-DDEBUG -g2 -Os ${RETAINED_CXXFLAGS[@]}"
+	export CXXFLAGS="-DDEBUG $OPT_O3 ${RETAINED_CXXFLAGS[@]}"
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+
+	############################################
+	# Release build at -O3
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: release, -O3 optimizations" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	export CXXFLAGS="-DNDEBUG $OPT_O3 ${RETAINED_CXXFLAGS[@]}"
 	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -1405,8 +1467,97 @@ if [[ ("$SUN_COMPILER" -eq "0") ]]; then
 fi
 
 ############################################
-# Release build at -Os
-if [[ ("$SUN_COMPILER" -eq "0") ]]; then
+# Build at -O5
+if [[ "$HAVE_O5" -ne "0" ]]; then
+
+	############################################
+	# Debug build at -O5
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: debug, -O5 optimizations" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	export CXXFLAGS="-DNDEBUG $OPT_O5 ${RETAINED_CXXFLAGS[@]}"
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+
+	############################################
+	# Release build at -O5
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: release, -O5 optimizations" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	export CXXFLAGS="-DNDEBUG $OPT_O5 ${RETAINED_CXXFLAGS[@]}"
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+fi
+
+############################################
+# Build at -Os
+if [[ "$HAVE_OS" -ne "0" ]]; then
+
+	############################################
+	# Debug build at -Os
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: debug, -Os optimizations" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	export CXXFLAGS="-DNDEBUG $OPT_OS ${RETAINED_CXXFLAGS[@]}"
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+
+	############################################
+	# Release build at -Os
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: release, -Os optimizations" | tee -a "$TEST_RESULTS"
@@ -1416,7 +1567,7 @@ if [[ ("$SUN_COMPILER" -eq "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="-DNDEBUG -g2 -Os ${RETAINED_CXXFLAGS[@]}"
+	export CXXFLAGS="-DNDEBUG $OPT_OS ${RETAINED_CXXFLAGS[@]}"
 	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -1972,7 +2123,7 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		export CXXFLAGS="-DNDEBUG -g2 -xO2"
+		export CXXFLAGS="-DNDEBUG -g3 -xO2"
 		"$MAKE" "${MAKEARGS[@]}" CXX=/opt/solarisstudio12.3/bin/CC static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -3081,7 +3232,7 @@ fi
 
 ############################################
 # Build with elevated warnings
-if [[ "$HAVE_CXX03" -ne "0" && "$SUN_COMPILER" -eq "0" ]]; then
+if [[ ("$HAVE_CXX03" -ne "0" && ("$HAVE_GCC" -ne "0" || "$HAVE_CLANG" -ne "0")) ]]; then
 
 	############################################
 	# C++03 debug build
@@ -3121,7 +3272,7 @@ fi
 
 ############################################
 # Build with elevated warnings
-if [[ "$HAVE_CXX11" -ne "0" && "$SUN_COMPILER" -eq "0" ]]; then
+if [[ ("$HAVE_CXX11" -ne "0" && ("$HAVE_GCC" -ne "0" || "$HAVE_CLANG" -ne "0")) ]]; then
 
 	############################################
 	# C++11 debug build
@@ -3161,7 +3312,7 @@ fi
 
 ############################################
 # Build with elevated warnings
-if [[ "$HAVE_CXX14" -ne "0" && "$SUN_COMPILER" -eq "0" ]]; then
+if [[ ("$HAVE_CXX14" -ne "0" && ("$HAVE_GCC" -ne "0" || "$HAVE_CLANG" -ne "0")) ]]; then
 
 	############################################
 	# C++14 debug build
@@ -3201,7 +3352,7 @@ fi
 
 ############################################
 # Build with elevated warnings
-if [[ "$HAVE_CXX17" -ne "0" && "$SUN_COMPILER" -eq "0" ]]; then
+if [[ ("$HAVE_CXX17" -ne "0" && ("$HAVE_GCC" -ne "0" || "$HAVE_CLANG" -ne "0")) ]]; then
 
 	############################################
 	# C++17 debug build
@@ -3406,28 +3557,21 @@ echo "************************************************" | tee -a "$TEST_RESULTS"
 echo "************************************************" | tee -a "$TEST_RESULTS"
 echo | tee -a "$TEST_RESULTS"
 
-echo "Testing started: $TEST_BEGIN" | tee -a "$TEST_RESULTS"
-echo "Testing finished: $TEST_END" | tee -a "$TEST_RESULTS"
-echo | tee -a "$TEST_RESULTS"
-
 echo "Configurations tested:" | tee -a "$TEST_RESULTS"
-echo $($GREP 'Testing: ' cryptest-result.txt | $SED 's/Testing: /    * /g') | tee -a "$TEST_RESULTS"
-echo | tee -a "$TEST_RESULTS"
+ESCAPED=$($GREP 'Testing: ' "$TEST_RESULTS" | $AWK -F ": " '{print " - " $2 "$"}')
+echo " "$ESCAPED | tr $ '\n' | tee -a "$TEST_RESULTS"
+ESCAPED=$($GREP 'Testing: ' "$WARN_RESULTS" | $AWK -F ": " '{print " - " $2 "$"}')
+echo " "$ESCAPED | tr '$' '\n' | tee -a "$TEST_RESULTS"
 
 ############################################
 # Report errors and warnings
 
 echo
 echo "************************************************" | tee -a "$TEST_RESULTS"
-echo "************************************************" | tee -a "$TEST_RESULTS"
 echo | tee -a "$TEST_RESULTS"
 
-echo "Testing started: $TEST_BEGIN" | tee -a "$TEST_RESULTS"
-echo "Testing finished: $TEST_END" | tee -a "$TEST_RESULTS"
-echo | tee -a "$TEST_RESULTS"
-
-COUNT=$($GREP -a 'Testing:' "$TEST_RESULTS" | wc -l)
-if [[ "$COUNT" -eq "0" ]]; then
+COUNT=$($GREP -a 'Testing:' "$TEST_RESULTS" | wc -l | $AWK '{print $1}')
+if (( "$ECOUNT" == "0" )); then
 	echo "No configurations tested" | tee -a "$TEST_RESULTS"
 else
 	echo "$COUNT configurations tested" | tee -a "$TEST_RESULTS"
@@ -3439,33 +3583,40 @@ echo | tee -a "$TEST_RESULTS"
 # "Error" is from the GNU assembler
 # "error" is from the sanitizers
 # "Illegal", "0 errors" and "suppressed errors" are from Valgrind.
-ECOUNT=$($EGREP -a '(Error|ERROR|error|FAILED|Illegal)' $TEST_RESULTS | $EGREP -v '( 0 errors|suppressed errors|error detector)' | wc -l)
-if [[ "$ECOUNT" -eq "0" ]]; then
+ECOUNT=$($EGREP -a '(Error|ERROR|error|FAILED|Illegal)' $TEST_RESULTS | $EGREP -v '( 0 errors|suppressed errors|error detector)' | wc -l | $AWK '{print $1}')
+if (( "$ECOUNT" == "0" )); then
 	echo "No failures detected" | tee -a "$TEST_RESULTS"
 else
 	echo "$ECOUNT errors detected. See $TEST_RESULTS for details" | tee -a "$TEST_RESULTS"
 	echo
-	$EGREP -an '(Error|ERROR|error|FAILED|Illegal)' "$TEST_RESULTS" | $EGREP -v '( 0 errors|suppressed errors|error detector)'
+
+	if (( "$ECOUNT" < 16 )); then
+		$EGREP -an '(Error|ERROR|error|FAILED|Illegal)' "$TEST_RESULTS" | $EGREP -v '( 0 errors|suppressed errors|error detector)'
+	fi
 fi
 echo | tee -a "$TEST_RESULTS"
 
 # Write warnings to $TEST_RESULTS
-WCOUNT=$($EGREP -a '(warning:)' $WARN_RESULTS | $GREP -v 'deprecated-declarations' | wc -l)
-if [[ "$WCOUNT" -eq "0" ]]; then
+WCOUNT=$($EGREP -a '(warning:)' $WARN_RESULTS | $GREP -v 'deprecated-declarations' | wc -l | $AWK '{print $1}')
+if (( "$WCOUNT" == "0" )); then
 	echo "No warnings detected" | tee -a "$TEST_RESULTS"
 else
 	echo "$WCOUNT warnings detected. See $WARN_RESULTS for details" | tee -a "$TEST_RESULTS"
 	echo
-#	$EGREP -an '(warning:)' $WARN_RESULTS | $GREP -v 'deprecated-declarations'
+	# $EGREP -an '(warning:)' $WARN_RESULTS | $GREP -v 'deprecated-declarations'
 fi
 echo | tee -a "$TEST_RESULTS"
 
 echo "************************************************" | tee -a "$TEST_RESULTS"
-echo "************************************************" | tee -a "$TEST_RESULTS"
+
+echo
+echo "Testing started: $TEST_BEGIN" | tee -a "$TEST_RESULTS"
+echo "Testing finished: $TEST_END" | tee -a "$TEST_RESULTS"
+echo | tee -a "$TEST_RESULTS"
 
 ############################################
 # http://tldp.org/LDP/abs/html/exitcodes.html#EXITCODESREF
-if [[ "$ECOUNT" -eq "0" ]]; then
+if (( "$ECOUNT" == "0" )); then
 	[[ "$0" = "$BASH_SOURCE" ]] && exit 0 || return 0
 else
 	[[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
