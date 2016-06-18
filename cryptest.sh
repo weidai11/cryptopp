@@ -6,7 +6,19 @@
 # This is a test script that can be used on some Linux/Unix/Apple machines to automate building the
 # library and running the self test with various combinations of flags, options, and conditions.
 
+# If you want to test a particular compiler, like clang++ or icpc, issue:
+#   CXX=clang++ ./cryptest.sh
+#   CXX=/opt/intel/bin/icpc ./cryptest.sh
+
+# You can also provide some default CXXFLAGS. Note that user flags which are tested in this script
+# are removed during testing. For a list of all filtered flags, see FILTERED_CXXFLAGS below. For example,
+# -Wall will be removed from all builds and tested by the script when appropriate:
+#   CXXFLAGS=-Wall ./cryptest.sh
+#   CXXFLAGS="-Wall -Wextra" ./cryptest.sh
+
+############################################
 # Set to suite your taste
+
 TEST_RESULTS=cryptest-result.txt
 BENCHMARK_RESULTS=cryptest-bench.txt
 WARN_RESULTS=cryptest-warn.txt
@@ -22,42 +34,18 @@ touch "$BENCHMARK_RESULTS"
 rm -f "$WARN_RESULTS" > /dev/null 2>&1
 touch "$WARN_RESULTS"
 
-# Respect user's preferred flags, but filter the stuff we expliclty test
-FILTERED_CXXFLAGS=("-DDEBUG" "-DNDEBUG" "-g" "-g0" "-g1" "-g2" "-g3" "-O0" "-O1" "-O2" "-O3" "-Os" "-Og"
-                   "-xO0" "-xO1" "-xO2" "-xO3" "-xOs" "-xOg" "-std=c++03" "-std=c++11" "-std=c++14" "-std=c++17"
-                   "-m32" "-m64" "-mx32" "-maes" "-mrdrand" "-mrdrnd" "-mrdseed" "-mpclmul" "-Wa,-q" "-mfpu=neon"
-                   "-DCRYPTOPP_DISABLE_ASM" "-DCRYPTOPP_DISABLE_SSSE3" "-DCRYPTOPP_DISABLE_AESNI"
-                   "-fsanitize=address" "-fsanitize=undefined" "-march=armv8-a+crypto" "-march=armv8-a+crc"
-                   "-DDCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562" "-DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS")
-# Additional CXXFLAGS we did not filter
-RETAINED_CXXFLAGS=("")
-
-if [[ !(-z "CXXFLAGS") ]]; then
-	TEMP_CXXFLAGS=$(echo "$CXXFLAGS" | sed 's/\([[:blank:]]*=[[:blank:]]*\)/=/g')
-	IFS=' ' read -r -a TEMP_ARRAY <<< "$TEMP_CXXFLAGS"
-
-	for flag in "${TEMP_ARRAY[@]}"
-	do
-		found=0
-		for filtered in "${FILTERED_CXXFLAGS[@]}"
-		do
-			if [[ "$flag" = "$filtered" ]]; then
-				found=1
-			fi
-		done
-		if [[ "$found" -eq "0" ]]; then
-			RETAINED_CXXFLAGS+=("$flag")
-		fi
-	done
-fi
-
-# Avoid CRYPTOPP_DATA_DIR in this shell
+# Avoid CRYPTOPP_DATA_DIR in this shell (it is tested below)
 unset CRYPTOPP_DATA_DIR
 
-# Non-Posix $GREP and $EGREP on Solaris.
-# We are OK with -i and -c, but we will eventually need more.
+# Avoid Malloc and Scribble uards on OS X (they are tested below)
+unset MallocScribble MallocPreScribble MallocGuardEdges
+
+############################################
+# Setup tools and platforms
+
 GREP=grep
 EGREP=egrep
+SED=sed
 AWK=awk
 
 IS_DARWIN=$(uname -s | $GREP -i -c darwin)
@@ -84,6 +72,7 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 	# Need something more powerful than the non-Posix versions
 	if [[ (-e "/usr/gnu/bin/grep") ]]; then GREP=/usr/gnu/bin/grep; fi
 	if [[ (-e "/usr/gnu/bin/egrep") ]]; then EGREP=/usr/gnu/bin/egrep; fi
+	if [[ (-e "/usr/gnu/bin/sed") ]]; then SED=/usr/gnu/bin/sed; fi
 	if [[ (-e "/usr/gnu/bin/awk") ]]; then AWK=/usr/gnu/bin/awk; else AWK=nawk; fi
 fi
 
@@ -258,7 +247,7 @@ if [[ (("$IS_X86" -ne "0") || ("$IS_X64" -ne "0")) && ("$SUN_COMPILER" -eq "0") 
 	fi
 fi
 
-# LD-Gold linker testing
+# ld-gold linker testing
 HAVE_LDGOLD=$(file `which ld.gold 2>&1` 2>/dev/null | $GREP -v "no ld.gold" | cut -d":" -f 2 | $EGREP -i -c "elf")
 
 # Valgrind testing of C++03, C++11, C++14 and C++17 binaries. Valgrind tests take a long time...
@@ -268,13 +257,9 @@ HAVE_VALGRIND=$(which valgrind 2>&1 | $GREP -v "no valgrind" | $GREP -i -c valgr
 HAVE_GDB=$(which gdb 2>&1 | $GREP -v "no gdb" | $GREP -i -c gdb)
 
 ############################################
-
 # Systm information
+
 echo | tee -a "$TEST_RESULTS"
-if [[ "$IS_DARWIN" -ne "0" ]]; then
-	echo "IS_DARWIN: $IS_DARWIN" | tee -a "$TEST_RESULTS"
-	unset MallocScribble MallocPreScribble MallocGuardEdges
-fi
 if [[ "$IS_LINUX" -ne "0" ]]; then
 	echo "IS_LINUX: $IS_LINUX" | tee -a "$TEST_RESULTS"
 fi
@@ -387,17 +372,50 @@ fi
 
 ############################################
 
+# Respect user's preferred flags, but filter the stuff we expliclty test
+FILTERED_CXXFLAGS=("-DDEBUG" "-DNDEBUG" "-g" "-g0" "-g1" "-g2" "-g3" "-O0" "-O1" "-O2" "-O3" "-Os" "-Og"
+                   "-xO0" "-xO1" "-xO2" "-xO3" "-xOs" "-xOg" "-std=c++03" "-std=c++11" "-std=c++14" "-std=c++17"
+                   "-m32" "-m64" "-mx32" "-maes" "-mrdrand" "-mrdrnd" "-mrdseed" "-mpclmul" "-Wa,-q" "-mfpu=neon"
+                   "-Wall" "-Wextra" "-Wcast-align" "-Wformat-security" "-Wtrampolines"
+                   "-DCRYPTOPP_DISABLE_ASM" "-DCRYPTOPP_DISABLE_SSSE3" "-DCRYPTOPP_DISABLE_AESNI"
+                   "-fsanitize=address" "-fsanitize=undefined" "-march=armv8-a+crypto" "-march=armv8-a+crc"
+                   "-DDCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562" "-DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS")
+
+# Additional CXXFLAGS we did not filter
+RETAINED_CXXFLAGS=("")
+
+if [[ !(-z "CXXFLAGS") ]]; then
+	TEMP_CXXFLAGS=$(echo "$CXXFLAGS" | $SED 's/\([[:blank:]]*=[[:blank:]]*\)/=/g')
+	IFS=' ' read -r -a TEMP_ARRAY <<< "$TEMP_CXXFLAGS"
+
+	for flag in "${TEMP_ARRAY[@]}"
+	do
+		found=0
+		for filtered in "${FILTERED_CXXFLAGS[@]}"
+		do
+			if [[ "$flag" = "$filtered" ]]; then
+				found=1
+			fi
+		done
+		if [[ "$found" -eq "0" ]]; then
+			RETAINED_CXXFLAGS+=("$flag")
+		fi
+	done
+fi
+
+if [[ !(-z "$CXXFLAGS") || !(-z "$RETAINED_CXXFLAGS") ]]; then
+	echo | tee -a "$TEST_RESULTS"
+	echo "User CXXFLAGS: $CXXFLAGS" | tee -a "$TEST_RESULTS"
+	echo "Retained CXXFLAGS: ${RETAINED_CXXFLAGS[@]}" | tee -a "$TEST_RESULTS"
+fi
+
+############################################
+
 GIT_REPO=$(git branch 2>&1 | $GREP -v "fatal" | wc -l)
 if [[ "$GIT_REPO" -ne "0" ]]; then
 	GIT_BRANCH=$(git branch 2>/dev/null | $GREP '*' | cut -c 3-)
 	GIT_HASH=$(git rev-parse HEAD 2>/dev/null | cut -c 1-16)
 fi
-
-############################################
-
-echo | tee -a "$TEST_RESULTS"
-echo "User CXXFLAGS: $CXXFLAGS" | tee -a "$TEST_RESULTS"
-echo "Retained CXXFLAGS: ${RETAINED_CXXFLAGS[@]}" | tee -a "$TEST_RESULTS"
 
 echo | tee -a "$TEST_RESULTS"
 if [[ ! -z "$GIT_BRANCH" ]]; then
@@ -405,7 +423,7 @@ if [[ ! -z "$GIT_BRANCH" ]]; then
 fi
 
 if [[ "$SUN_COMPILER" -ne "0" ]]; then
-	echo $($CXX -V 2>&1 | head -1 | sed 's|CC|Compiler|g') | tee -a "$TEST_RESULTS"
+	echo $($CXX -V 2>&1 | head -1 | $SED 's|CC|Compiler|g') | tee -a "$TEST_RESULTS"
 else
 	echo "Compiler:" $($CXX --version | head -1) | tee -a "$TEST_RESULTS"
 fi
@@ -457,10 +475,11 @@ if [[ "$CLANG_COMPILER" -ne "0" ]]; then
 	ELEVATED_CXXFLAGS+=("-Wno-unknown-pragmas" "-Wstrict-overflow" "-Wcast-align" "-Wwrite-strings" "-Wformat=2" "-Wformat-security")
 fi
 
-############################################
-############################################
-############################################
-############################################
+#############################################
+#############################################
+############### BEGIN TESTING ###############
+#############################################
+#############################################
 
 TEST_BEGIN=$(date)
 echo | tee -a "$TEST_RESULTS"
@@ -2091,7 +2110,7 @@ fi
 
 ############################################
 # Darwin, c++03, libc++
-if [[ ("$IS_DARWIN" -ne "0" && "$HAVE_CXX03" -ne "0") ]]; then
+if [[ ("$IS_DARWIN" -ne "0") && ("$HAVE_CXX03" -ne "0") ]]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: Darwin, c++03, libc++ (LLVM)" | tee -a "$TEST_RESULTS"
@@ -3362,6 +3381,14 @@ if [[ ("$IS_CYGWIN" -eq "0" && "$IS_MINGW" -eq "0") ]]; then
 	fi
 fi
 
+#############################################
+#############################################
+################ END TESTING ################
+#############################################
+#############################################
+
+TEST_END=$(date)
+
 ############################################
 # Cleanup, but leave output files
 unset CXXFLAGS
@@ -3369,9 +3396,23 @@ unset CXXFLAGS
 rm -f adhoc.cpp > /dev/null 2>&1
 
 ############################################
-############################################
+# Report tests performed
 
-TEST_END=$(date)
+echo
+echo "************************************************" | tee -a "$TEST_RESULTS"
+echo "************************************************" | tee -a "$TEST_RESULTS"
+echo | tee -a "$TEST_RESULTS"
+
+echo "Testing started: $TEST_BEGIN" | tee -a "$TEST_RESULTS"
+echo "Testing finished: $TEST_END" | tee -a "$TEST_RESULTS"
+echo | tee -a "$TEST_RESULTS"
+
+echo
+echo "Configurations tested:" | tee -a "$TEST_RESULTS"
+echo $($GREP 'Testing: ' cryptest-result.txt | $SED 's/Testing: /    /g')
+
+############################################
+# Report errors and warnings
 
 echo
 echo "************************************************" | tee -a "$TEST_RESULTS"
@@ -3419,6 +3460,7 @@ echo | tee -a "$TEST_RESULTS"
 echo "************************************************" | tee -a "$TEST_RESULTS"
 echo "************************************************" | tee -a "$TEST_RESULTS"
 
+############################################
 # http://tldp.org/LDP/abs/html/exitcodes.html#EXITCODESREF
 if [[ "$ECOUNT" -eq "0" ]]; then
 	[[ "$0" = "$BASH_SOURCE" ]] && exit 0 || return 0
