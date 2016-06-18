@@ -6,15 +6,18 @@
 # This is a test script that can be used on some Linux/Unix/Apple machines to automate building the
 # library and running the self test with various combinations of flags, options, and conditions.
 
-# If you want to test a particular compiler, like clang++ or icpc, issue:
-#   CXX=clang++ ./cryptest.sh
-#   CXX=/opt/intel/bin/icpc ./cryptest.sh
+# To run the script, simply perform the following:
+#     ./cryptest.sh
 
-# You can also provide some default CXXFLAGS. Note that user flags which are tested in this script
-# are removed during testing. For a list of all filtered flags, see FILTERED_CXXFLAGS below. For example,
-# -Wall will be removed from all builds and tested by the script when appropriate:
-#   CXXFLAGS=-Wall ./cryptest.sh
-#   CXXFLAGS="-Wall -Wextra" ./cryptest.sh
+# If you want to test a particular compiler, like clang++ or icpc, issue:
+#     CXX=clang++ ./cryptest.sh
+#     CXX=/opt/intel/bin/icpc ./cryptest.sh
+
+# You can also provide some default CXXFLAGS. User supplied flags which are tested in this script
+# are removed during testing. For a list of all filtered flags, see FILTERED_CXXFLAGS below.
+# For example, -Wall will be removed from all builds and tested by the script when appropriate:
+#     CXXFLAGS=-Wall ./cryptest.sh
+#     CXXFLAGS="-Wall -Wextra" ./cryptest.sh
 
 ############################################
 # Set to suite your taste
@@ -37,7 +40,7 @@ touch "$WARN_RESULTS"
 # Avoid CRYPTOPP_DATA_DIR in this shell (it is tested below)
 unset CRYPTOPP_DATA_DIR
 
-# Avoid Malloc and Scribble uards on OS X (they are tested below)
+# Avoid Malloc and Scribble guards on OS X (they are tested below)
 unset MallocScribble MallocPreScribble MallocGuardEdges
 
 ############################################
@@ -3407,9 +3410,9 @@ echo "Testing started: $TEST_BEGIN" | tee -a "$TEST_RESULTS"
 echo "Testing finished: $TEST_END" | tee -a "$TEST_RESULTS"
 echo | tee -a "$TEST_RESULTS"
 
-echo
 echo "Configurations tested:" | tee -a "$TEST_RESULTS"
-echo $($GREP 'Testing: ' cryptest-result.txt | $SED 's/Testing: /    /g')
+echo $($GREP 'Testing: ' cryptest-result.txt | $SED 's/Testing: /    * /g') | tee -a "$TEST_RESULTS"
+echo | tee -a "$TEST_RESULTS"
 
 ############################################
 # Report errors and warnings
