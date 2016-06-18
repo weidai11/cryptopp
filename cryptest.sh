@@ -3576,7 +3576,7 @@ echo "************************************************" | tee -a "$TEST_RESULTS"
 echo | tee -a "$TEST_RESULTS"
 
 COUNT=$($GREP -a 'Testing:' "$TEST_RESULTS" | wc -l | $AWK '{print $1}')
-if (( "$ECOUNT" == "0" )); then
+if (( "$COUNT" == "0" )); then
 	echo "No configurations tested" | tee -a "$TEST_RESULTS"
 else
 	echo "$COUNT configurations tested" | tee -a "$TEST_RESULTS"
