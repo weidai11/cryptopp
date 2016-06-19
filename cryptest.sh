@@ -54,23 +54,23 @@ EGREP=egrep
 SED=sed
 AWK=awk
 
-IS_DARWIN=$(uname -s | $GREP -i -c darwin)
-IS_LINUX=$(uname -s | $GREP -i -c linux)
-IS_CYGWIN=$(uname -s | $GREP -i -c cygwin)
-IS_MINGW=$(uname -s | $GREP -i -c mingw)
-IS_OPENBSD=$(uname -s | $GREP -i -c openbsd)
-IS_NETBSD=$(uname -s | $GREP -i -c netbsd)
-IS_SOLARIS=$(uname -s | $GREP -i -c sunos)
+IS_DARWIN=$(uname -s | "$GREP" -i -c darwin)
+IS_LINUX=$(uname -s | "$GREP" -i -c linux)
+IS_CYGWIN=$(uname -s | "$GREP" -i -c cygwin)
+IS_MINGW=$(uname -s | "$GREP" -i -c mingw)
+IS_OPENBSD=$(uname -s | "$GREP" -i -c openbsd)
+IS_NETBSD=$(uname -s | "$GREP" -i -c netbsd)
+IS_SOLARIS=$(uname -s | "$GREP" -i -c sunos)
 
-IS_X86=$(uname -m | $EGREP -i -c "(i386|i586|i686|amd64|x86_64)")
-IS_X64=$(uname -m | $EGREP -i -c "(amd64|x86_64)")
-IS_PPC=$(uname -m | $EGREP -i -c "(Power|PPC)")
-IS_ARM32=$(uname -m | $EGREP -i -c "arm|aarch32")
-IS_ARM64=$(uname -m | $EGREP -i -c "arm64|aarch64")
+IS_X86=$(uname -m | "$EGREP" -i -c "(i386|i586|i686|amd64|x86_64)")
+IS_X64=$(uname -m | "$EGREP" -i -c "(amd64|x86_64)")
+IS_PPC=$(uname -m | "$EGREP" -i -c "(Power|PPC)")
+IS_ARM32=$(uname -m | "$EGREP" -i -c "arm|aarch32")
+IS_ARM64=$(uname -m | "$EGREP" -i -c "arm64|aarch64")
 
 # Fixup
 if [[ "$IS_SOLARIS" -ne "0" ]]; then
-	IS_X64=$(isainfo 2>/dev/null | $GREP -i -c "amd64")
+	IS_X64=$(isainfo 2>/dev/null | "$GREP" -i -c "amd64")
 	if [[ "$IS_X64" -ne "0" ]]; then
 		IS_X86=0
 	fi
@@ -99,21 +99,21 @@ if [[ ((-z "$CXX") || ("$CXX" == "gcc")) ]]; then
 		else
 			CXX=CC
 		fi
-	elif [[ ($(which g++ 2>&1 | $GREP -v "no g++" | $GREP -i -c g++) -ne "0") ]]; then
+	elif [[ ($(which g++ 2>&1 | "$GREP" -v "no g++" | "$GREP" -i -c g++) -ne "0") ]]; then
 		CXX=g++
 	else
 		CXX=c++
 	fi
 fi
 
-SUN_COMPILER=$($CXX -V 2>&1 | $EGREP -i -c "CC: Sun")
-GCC_COMPILER=$($CXX --version 2>&1 | $EGREP -i -c "(gcc|g\+\+)")
-CLANG_COMPILER=$($CXX --version 2>&1 | $EGREP -i -c "clang")
+SUN_COMPILER=$("$CXX" -V 2>&1 | "$EGREP" -i -c "CC: Sun")
+GCC_COMPILER=$("$CXX" --version 2>&1 | "$EGREP" -i -c "(gcc|g\+\+)")
+CLANG_COMPILER=$("$CXX" --version 2>&1 | "$EGREP" -i -c "clang")
 
 # Now that the compiler is fixed, see if its GCC 5.1 or above with -Wabi, -Wabi-tag and -Wodr
-GCC_51_OR_ABOVE=$($CXX -v 2>&1 | $EGREP -i -c 'gcc version (5\.[1-9]|[6-9])')
+GCC_51_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version (5\.[1-9]|[6-9])')
 # SunCC 12.2 and below needs one set of CXXFLAGS; SunCC 12.3 and above needs another set of CXXFLAGS
-SUNCC_123_OR_ABOVE=$("$CXX" -E -xdumpmacros /dev/null 2>&1 | $GREP " __SUNPRO_CC " 2>/dev/null | $AWK '{print ($2 >= 0x5120) ? "1" : "0"}' )
+SUNCC_123_OR_ABOVE=$("$CXX" -E -xdumpmacros /dev/null 2>&1 | "$GREP" " __SUNPRO_CC " 2>/dev/null | "$AWK" '{print ($2 >= 0x5120) ? "1" : "0"}' )
 
 # Fixup
 if [[ ("$IS_OPENBSD" -ne "0" || "$IS_NETBSD" -ne "0" || "$IS_SOLARIS" -ne "0") ]]; then
@@ -273,7 +273,7 @@ if [[ (-z "$HAVE_ARM_NEON") ]]; then
 	HAVE_ARM_NEON=0
 	if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 		# $CXX -DCRYPTOPP_ADHOC_MAIN -march=armv7a -mfpu=neon adhoc.cpp -o $TMP/adhoc.exe > /dev/null 2>&1
-		if [[ $(cat /proc/cpuinfo 2>/dev/null | $GREP -i -c NEON) -ne "0" ]]; then
+		if [[ $(cat /proc/cpuinfo 2>/dev/null | "$GREP" -i -c NEON) -ne "0" ]]; then
 			HAVE_ARM_NEON=1
 		fi
 	fi
@@ -327,12 +327,12 @@ fi
 
 # ld-gold linker testing
 if [[ (-z "$HAVE_LDGOLD") ]]; then
-	HAVE_LDGOLD=$(file `which ld.gold 2>&1` 2>/dev/null | $GREP -v "no ld.gold" | cut -d":" -f 2 | $EGREP -i -c "elf")
+	HAVE_LDGOLD=$(file `which ld.gold 2>&1` 2>/dev/null | "$GREP" -v "no ld.gold" | cut -d":" -f 2 | "$EGREP" -i -c "elf")
 fi
 
 # Valgrind testing of C++03, C++11, C++14 and C++17 binaries. Valgrind tests take a long time...
 if [[ (-z "$HAVE_VALGRIND") ]]; then
-	HAVE_VALGRIND=$(which valgrind 2>&1 | $GREP -v "no valgrind" | $GREP -i -c valgrind)
+	HAVE_VALGRIND=$(which valgrind 2>&1 | "$GREP" -v "no valgrind" | "$GREP" -i -c valgrind)
 fi
 
 # Used to disassemble object modules so we can verify some aspects of code generation
@@ -424,33 +424,33 @@ CPU_COUNT=1
 MEM_SIZE=512
 
 if [[ (-e "/proc/cpuinfo") && (-e "/proc/meminfo") ]]; then
-	CPU_COUNT=$(cat /proc/cpuinfo | $GREP -c '^processor')
-	MEM_SIZE=$(cat /proc/meminfo | $GREP "MemTotal" | $AWK '{print $2}')
+	CPU_COUNT=$(cat /proc/cpuinfo | "$GREP" -c '^processor')
+	MEM_SIZE=$(cat /proc/meminfo | "$GREP" "MemTotal" | "$AWK" '{print $2}')
 	MEM_SIZE=$(($MEM_SIZE/1024))
 elif [[ "$IS_DARWIN" -ne "0" ]]; then
-	CPU_COUNT=$(sysctl -a 2>/dev/null | $GREP 'hw.availcpu' | head -1 | $AWK '{print $3}')
-	MEM_SIZE=$(sysctl -a 2>/dev/null | $GREP 'hw.memsize' | head -1 | $AWK '{print $3}')
+	CPU_COUNT=$(sysctl -a 2>/dev/null | "$GREP" 'hw.availcpu' | head -1 | "$AWK" '{print $3}')
+	MEM_SIZE=$(sysctl -a 2>/dev/null | "$GREP" 'hw.memsize' | head -1 | "$AWK" '{print $3}')
 	MEM_SIZE=$(($MEM_SIZE/1024/1024))
 elif [[ "$IS_SOLARIS" -ne "0" ]]; then
-	CPU_COUNT=$(psrinfo 2>/dev/null | wc -l | $AWK '{print $1}')
-	MEM_SIZE=$(prtconf 2>/dev/null | $GREP Memory | $AWK '{print $3}')
+	CPU_COUNT=$(psrinfo 2>/dev/null | wc -l | "$AWK" '{print $1}')
+	MEM_SIZE=$(prtconf 2>/dev/null | "$GREP" Memory | "$AWK" '{print $3}')
 fi
 
 # Benchmarks expect frequency in GiHz.
 CPU_FREQ=0.5
 if [[ (-e "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq") ]]; then
 	CPU_FREQ=$(cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq)
-	CPU_FREQ=$($AWK "BEGIN {print $CPU_FREQ/1024/1024}")
+	CPU_FREQ=$("$AWK" "BEGIN {print $CPU_FREQ/1024/1024}")
 elif [[ (-e "/proc/cpuinfo") ]]; then
-	CPU_FREQ=$(cat /proc/cpuinfo | $GREP 'MHz' | head -1 | $AWK '{print $4}')
+	CPU_FREQ=$(cat /proc/cpuinfo | "$GREP" 'MHz' | head -1 | "$AWK" '{print $4}')
 	if [[ -z "$CPU_FREQ" ]]; then CPU_FREQ=512; fi
-	CPU_FREQ=$($AWK "BEGIN {print $CPU_FREQ/1024}")
+	CPU_FREQ=$("$AWK" "BEGIN {print $CPU_FREQ/1024}")
 elif [[ "$IS_DARWIN" -ne "0" ]]; then
-	CPU_FREQ=$(sysctl -a 2>/dev/null | $GREP 'hw.cpufrequency' | head -1 | $AWK '{print $3}')
-	CPU_FREQ=$($AWK "BEGIN {print $CPU_FREQ/1024/1024/1024}")
+	CPU_FREQ=$(sysctl -a 2>/dev/null | "$GREP" 'hw.cpufrequency' | head -1 | "$AWK" '{print $3}')
+	CPU_FREQ=$("$AWK" "BEGIN {print $CPU_FREQ/1024/1024/1024}")
 elif [[ "$IS_SOLARIS" -ne "0" ]]; then
-    CPU_FREQ=$(psrinfo -v 2>/dev/null | $GREP 'MHz' | head -1 | $AWK '{print $6}')
-    CPU_FREQ=$($AWK "BEGIN {print $CPU_FREQ/1024}")
+    CPU_FREQ=$(psrinfo -v 2>/dev/null | "$GREP" 'MHz' | head -1 | "$AWK" '{print $6}')
+    CPU_FREQ=$("$AWK" "BEGIN {print $CPU_FREQ/1024}")
 fi
 
 # Some ARM devboards cannot use 'make -j N', even with multiple cores and RAM
@@ -458,7 +458,7 @@ fi
 HAVE_SWAP=1
 if [[ "$IS_LINUX" -ne "0" ]]; then
 	if [[ (-e "/proc/meminfo") ]]; then
-		SWAP_SIZE=$(cat /proc/meminfo | $GREP "SwapTotal" | $AWK '{print $2}')
+		SWAP_SIZE=$(cat /proc/meminfo | "$GREP" "SwapTotal" | "$AWK" '{print $2}')
 		if [[ "$SWAP_SIZE" -eq "0" ]]; then
 			HAVE_SWAP=0
 		fi
@@ -492,7 +492,7 @@ FILTERED_CXXFLAGS=("-DDEBUG" "-DNDEBUG" "-g" "-g0" "-g1" "-g2" "-g3" "-O0" "-O1"
 RETAINED_CXXFLAGS=("")
 
 if [[ !(-z "CXXFLAGS") ]]; then
-	TEMP_CXXFLAGS=$(echo "$CXXFLAGS" | $SED 's/\([[:blank:]]*=[[:blank:]]*\)/=/g')
+	TEMP_CXXFLAGS=$(echo "$CXXFLAGS" | "$SED" 's/\([[:blank:]]*=[[:blank:]]*\)/=/g')
 	IFS=' ' read -r -a TEMP_ARRAY <<< "$TEMP_CXXFLAGS"
 
 	for flag in "${TEMP_ARRAY[@]}"
@@ -518,9 +518,9 @@ fi
 
 ############################################
 
-GIT_REPO=$(git branch 2>&1 | $GREP -v "fatal" | wc -l)
+GIT_REPO=$(git branch 2>&1 | "$GREP" -v "fatal" | wc -l)
 if [[ "$GIT_REPO" -ne "0" ]]; then
-	GIT_BRANCH=$(git branch 2>/dev/null | $GREP '*' | cut -c 3-)
+	GIT_BRANCH=$(git branch 2>/dev/null | "$GREP" '*' | cut -c 3-)
 	GIT_HASH=$(git rev-parse HEAD 2>/dev/null | cut -c 1-16)
 fi
 
@@ -530,15 +530,15 @@ if [[ ! -z "$GIT_BRANCH" ]]; then
 fi
 
 if [[ "$SUN_COMPILER" -ne "0" ]]; then
-	echo $($CXX -V 2>&1 | head -1 | $SED 's|CC|Compiler|g') | tee -a "$TEST_RESULTS"
+	echo $("$CXX" -V 2>&1 | head -1 | "$SED" 's|CC:|Compiler:|g') | tee -a "$TEST_RESULTS"
 else
-	echo "Compiler:" $($CXX --version | head -1) | tee -a "$TEST_RESULTS"
+	echo "Compiler:" $("$CXX" --version | head -1) | tee -a "$TEST_RESULTS"
 fi
 
 CXX_PATH=$(which $CXX)
-CXX_SYMLINK=$(ls -l "$CXX_PATH" 2>/dev/null | $GREP -c '\->' | $AWK '{print $1}')
+CXX_SYMLINK=$(ls -l "$CXX_PATH" 2>/dev/null | "$GREP" -c '\->' | "$AWK" '{print $1}')
 if [[ ("$CXX_SYMLINK" -ne "0") ]]; then CXX_PATH="$CXX_PATH (symlinked)"; fi
-echo "Pathname: $CXX_PATH"
+echo "Pathname: $CXX_PATH" | tee -a "$TEST_RESULTS"
 
 ############################################
 
@@ -599,7 +599,7 @@ echo "Start time: $TEST_BEGIN" | tee -a "$TEST_RESULTS"
 
 ############################################
 # Test AES-NI code generation
-if [[ ("$HAVE_X86_AES" -ne "0" && "$HAVE_DISASS" -ne "0") ]] && false; then
+if [[ ("$HAVE_DISASS" -ne "0" && "$HAVE_X86_AES" -ne "0") ]] && false; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: AES-NI code generation" | tee -a "$TEST_RESULTS"
@@ -3578,9 +3578,9 @@ echo "************************************************" | tee -a "$TEST_RESULTS"
 echo | tee -a "$TEST_RESULTS"
 
 echo "Configurations tested:" | tee -a "$TEST_RESULTS"
-ESCAPED=$($GREP 'Testing: ' "$TEST_RESULTS" | $AWK -F ": " '{print " - " $2 "$"}')
+ESCAPED=$("$GREP" 'Testing: ' "$TEST_RESULTS" | "$AWK" -F ": " '{print " - " $2 "$"}')
 echo " "$ESCAPED | tr $ '\n' | tee -a "$TEST_RESULTS"
-ESCAPED=$($GREP 'Testing: ' "$WARN_RESULTS" | $AWK -F ": " '{print " - " $2 "$"}')
+ESCAPED=$("$GREP" 'Testing: ' "$WARN_RESULTS" | "$AWK" -F ": " '{print " - " $2 "$"}')
 echo " "$ESCAPED | tr '$' '\n' | tee -a "$TEST_RESULTS"
 
 ############################################
@@ -3590,7 +3590,7 @@ echo
 echo "************************************************" | tee -a "$TEST_RESULTS"
 echo | tee -a "$TEST_RESULTS"
 
-COUNT=$($GREP -a 'Testing:' "$TEST_RESULTS" | wc -l | $AWK '{print $1}')
+COUNT=$("$GREP" -a 'Testing:' "$TEST_RESULTS" | wc -l | "$AWK" '{print $1}')
 if (( "$COUNT" == "0" )); then
 	echo "No configurations tested" | tee -a "$TEST_RESULTS"
 else
@@ -3603,7 +3603,7 @@ echo | tee -a "$TEST_RESULTS"
 # "Error" is from the GNU assembler
 # "error" is from the sanitizers
 # "Illegal", "0 errors" and "suppressed errors" are from Valgrind.
-ECOUNT=$($EGREP -a '(Error|ERROR|error|FAILED|Illegal)' $TEST_RESULTS | $EGREP -v '( 0 errors|suppressed errors|error detector)' | wc -l | $AWK '{print $1}')
+ECOUNT=$("$EGREP" -a '(Error|ERROR|error|FAILED|Illegal)' $TEST_RESULTS | "$EGREP" -v '( 0 errors|suppressed errors|error detector)' | wc -l | "$AWK" '{print $1}')
 if (( "$ECOUNT" == "0" )); then
 	echo "No failures detected" | tee -a "$TEST_RESULTS"
 else
@@ -3611,19 +3611,19 @@ else
 	echo
 
 	if (( "$ECOUNT" < 16 )); then
-		$EGREP -an '(Error|ERROR|error|FAILED|Illegal)' "$TEST_RESULTS" | $EGREP -v '( 0 errors|suppressed errors|error detector)'
+		"$EGREP" -an '(Error|ERROR|error|FAILED|Illegal)' "$TEST_RESULTS" | "$EGREP" -v '( 0 errors|suppressed errors|error detector)'
 	fi
 fi
 echo | tee -a "$TEST_RESULTS"
 
 # Write warnings to $TEST_RESULTS
-WCOUNT=$($EGREP -a '(warning:)' $WARN_RESULTS | $GREP -v 'deprecated-declarations' | wc -l | $AWK '{print $1}')
+WCOUNT=$("$EGREP" -a '(warning:)' $WARN_RESULTS | "$GREP" -v 'deprecated-declarations' | wc -l | "$AWK" '{print $1}')
 if (( "$WCOUNT" == "0" )); then
 	echo "No warnings detected" | tee -a "$TEST_RESULTS"
 else
 	echo "$WCOUNT warnings detected. See $WARN_RESULTS for details" | tee -a "$TEST_RESULTS"
 	echo
-	# $EGREP -an '(warning:)' $WARN_RESULTS | $GREP -v 'deprecated-declarations'
+	# "$EGREP" -an '(warning:)' $WARN_RESULTS | "$GREP" -v 'deprecated-declarations'
 fi
 echo | tee -a "$TEST_RESULTS"
 
