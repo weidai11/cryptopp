@@ -2231,7 +2231,7 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		export CXXFLAGS="$DEBUG_CXXFLAGS"
+		export CXXFLAGS="-DDEBUG -g3 -xO1"
 		"$MAKE" "${MAKEARGS[@]}" CXX=/opt/solarisstudio12.5/bin/CC static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2258,7 +2258,7 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		export CXXFLAGS="$RELEASE_CXXFLAGS"
+		export CXXFLAGS="-DNDEBUG -g2 -xO2"
 		"$MAKE" "${MAKEARGS[@]}" CXX=/opt/solarisstudio12.5/bin/CC static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2290,7 +2290,7 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		export CXXFLAGS="$DEBUG_CXXFLAGS"
+		export CXXFLAGS="-DDEBUG -g3 -O0"
 		"$MAKE" "${MAKEARGS[@]}" CXX="/bin/g++" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2317,7 +2317,7 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		export CXXFLAGS="$RELEASE_CXXFLAGS"
+		export CXXFLAGS="-DNDEBUG -g2 -xO2"
 		"$MAKE" "${MAKEARGS[@]}" CXX="/bin/g++" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
