@@ -2317,7 +2317,7 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		export CXXFLAGS="-DNDEBUG -g2 -xO2"
+		export CXXFLAGS="-DNDEBUG -g2 -O2"
 		"$MAKE" "${MAKEARGS[@]}" CXX="/bin/g++" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
