@@ -41,6 +41,14 @@
 #  include <emmintrin.h>
 # endif
 
+// GCC 5.3/i686 fails to declare __m128 in the headers we use when compiling with -std=c++11 or -std=c++14.
+// Consequently, our _mm_shuffle_epi8, _mm_extract_epi32, etc fails to compile.
+#if defined(__has_include)
+# if __has_include(<xmmintrin.h>)
+#  include <xmmintrin.h>
+# endif
+#endif
+
 // PUSHFB needs Clang 3.3 and Apple Clang 5.0.
 #if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
 #if !defined(__GNUC__) || defined(__SSSE3__)|| defined(__INTEL_COMPILER) || (CRYPTOPP_CLANG_VERSION >= 30300) || (CRYPTOPP_APPLE_CLANG_VERSION >= 50000)
