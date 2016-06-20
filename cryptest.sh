@@ -612,7 +612,7 @@ if [[ "$SUN_COMPILER" -ne "0" ]]; then
 	fi
 fi
 
-if [[ "$GCC_COMPILER" -ne "0" ]]; then
+if [[ ("$GCC_COMPILER" -ne "0") ]]; then
 	ELEVATED_CXXFLAGS+=("-DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562" "-DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS" "-Wall" "-Wextra"
 	                    "-Wno-unknown-pragmas" "-Wstrict-aliasing=3" "-Wstrict-overflow" "-Waggressive-loop-optimizations"
 	                    "-Wcast-align" "-Wwrite-strings" "-Wformat=2" "-Wformat-security" "-Wtrampolines")
@@ -622,7 +622,7 @@ if [[ "$GCC_COMPILER" -ne "0" ]]; then
 	fi
 fi
 
-if [[ "$CLANG_COMPILER" -ne "0" ]]; then
+if [[ ("$CLANG_COMPILER" -ne "0") ]]; then
 	ELEVATED_CXXFLAGS+=("-DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562" "-DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS" "-Wall" "-Wextra")
 	ELEVATED_CXXFLAGS+=("-Wno-unknown-pragmas" "-Wstrict-overflow" "-Wcast-align" "-Wwrite-strings" "-Wformat=2" "-Wformat-security")
 fi
@@ -3530,7 +3530,7 @@ fi
 ############################################
 # Perform a quick check with Clang, if available.
 #   This check was added after testing on Ubuntu 14.04 with Clang 3.4.
-if [[ "$CLANG_COMPILER" -eq "0") ]]; then
+if [[ ("$CLANG_COMPILER" -eq "0") ]]; then
 
 	CLANG_CXX=$(which clang++ 2>/dev/null)
 	"$CLANG_CXX" -x c++ -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMP/adhoc.exe" > /dev/null 2>&1
