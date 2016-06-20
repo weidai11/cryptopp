@@ -25,10 +25,18 @@
 ############################################
 # Set to suite your taste
 
-TEST_RESULTS=cryptest-result.txt
-BENCHMARK_RESULTS=cryptest-bench.txt
-WARN_RESULTS=cryptest-warn.txt
-INSTALL_RESULTS=cryptest-install.txt
+if [[ (-z "$TEST_RESULTS") ]]; then
+	TEST_RESULTS=cryptest-result.txt
+fi
+if [[ (-z "$BENCHMARK_RESULTS") ]]; then
+	BENCHMARK_RESULTS=cryptest-bench.txt
+fi
+if [[ (-z "$WARN_RESULTS") ]]; then
+	WARN_RESULTS=cryptest-warn.txt
+id
+if [[ (-z "$INSTALL_RESULTS") ]]; then
+	INSTALL_RESULTS=cryptest-install.txt
+fi
 
 # Remove previous test results
 rm -f "$TEST_RESULTS" > /dev/null 2>&1
@@ -39,6 +47,9 @@ touch "$BENCHMARK_RESULTS"
 
 rm -f "$WARN_RESULTS" > /dev/null 2>&1
 touch "$WARN_RESULTS"
+
+rm -f "$INSTALL_RESULTS" > /dev/null 2>&1
+touch "$INSTALL_RESULTS"
 
 # Avoid CRYPTOPP_DATA_DIR in this shell (it is tested below)
 unset CRYPTOPP_DATA_DIR
