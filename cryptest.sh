@@ -3480,26 +3480,62 @@ if [[ ("$HAVE_CXX17" -ne "0" && ("$HAVE_GCC" -ne "0" || "$HAVE_CLANG" -ne "0")) 
 fi
 
 ############################################
-# If using GCC (likely Linux), then perform a quick check with Clang.
-# This check was added after testing on Ubuntu 14.04 with Clang 3.4.
-if [[ ("$CXX" == "g++") && ("$SUN_COMPILER" -eq "0") ]]; then
+# Perform a quick check with Clang, if available.
+#   This check was added after testing on Ubuntu 14.04 with Clang 3.4.
+if [[ "$CLANG_COMPILER" -eq "0") ]]; then
 
-	CLANG_COMPILER=$(which clang++ 2>/dev/null)
-	"$CLANG_COMPILER" -x c++ -DCRYPTOPP_ADHOC_MAIN adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	CLANG_CXX=$(which clang++ 2>/dev/null)
+	"$CLANG_CXX" -x c++ -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMP/adhoc.exe" > /dev/null 2>&1
 	if [[ "$?" -eq "0" ]]; then
 
 		############################################
-		# Basic Clang build
+		# Clang build
 		echo
 		echo "************************************" | tee -a "$TEST_RESULTS"
-		echo "Testing: Clang" | tee -a "$TEST_RESULTS"
+		echo "Testing: Clang compiler" | tee -a "$TEST_RESULTS"
 		echo
 
 		unset CXXFLAGS
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		"$MAKE" "${MAKEARGS[@]}" CXX="$CLANG_COMPILER" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		"$MAKE" "${MAKEARGS[@]}" CXX="$CLANG_CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+		else
+			./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+			fi
+			./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+			fi
+		fi
+	fi
+fi
+
+############################################
+# Perform a quick check with GCC, if available.
+#   This check was added after testing on Ubuntu 14.04 with Clang 3.4.
+if [[ ("$GCC_COMPILER" -eq "0") ]]; then
+
+	GCC_CXX=$(which g++ 2>/dev/null)
+	"$GCC_CXX" -x c++ -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	if [[ "$?" -eq "0" ]]; then
+
+		############################################
+		# GCC build
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS"
+		echo "Testing: GCC compiler" | tee -a "$TEST_RESULTS"
+		echo
+
+		unset CXXFLAGS
+		"$MAKE" clean > /dev/null 2>&1
+		rm -f adhoc.cpp > /dev/null 2>&1
+
+		"$MAKE" "${MAKEARGS[@]}" CXX="$GCC_CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 		else
