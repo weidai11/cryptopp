@@ -33,7 +33,7 @@ if [[ (-z "$BENCHMARK_RESULTS") ]]; then
 fi
 if [[ (-z "$WARN_RESULTS") ]]; then
 	WARN_RESULTS=cryptest-warn.txt
-id
+fi
 if [[ (-z "$INSTALL_RESULTS") ]]; then
 	INSTALL_RESULTS=cryptest-install.txt
 fi
