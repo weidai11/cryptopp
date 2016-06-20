@@ -22,6 +22,8 @@
 # The fastest results (in running time) will most likely use:
 #     HAVE_VALGRIND=0 WANT_BENCHMARKS=0 ./cryptest.sh
 
+# For more details, see http://cryptopp.com/wiki/cryptest.sh.
+
 ############################################
 # Set to suite your taste
 
@@ -279,11 +281,22 @@ if [[ (-z "$HAVE_X32") ]]; then
 	fi
 fi
 
-# ARMv7/Aarch32
+# ARMv7a/Aarch32 (may run on Aarch64)
+if [[ (-z "$HAVE_ARMV7A") ]]; then
+	HAVE_ARMV7A=0
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -march=armv7a adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	if [[ "$?" -eq "0" ]]; then
+		"$TMP/adhoc.exe" > /dev/null 2>&1
+		if [[ "$?" -eq "0" ]]; then
+			HAVE_ARMV7A=1
+		fi
+	fi
+fi
+
+# ARM NEON (may run on Aarch64)
 if [[ (-z "$HAVE_ARM_NEON") ]]; then
 	HAVE_ARM_NEON=0
-	if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
-		# "$CXX" -DCRYPTOPP_ADHOC_MAIN -march=armv7a -mfpu=neon adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	if [[ ("$IS_ARM32" -ne "0") ]]; then
 		if [[ $(cat /proc/cpuinfo 2>/dev/null | "$GREP" -i -c NEON) -ne "0" ]]; then
 			HAVE_ARM_NEON=1
 		fi
@@ -389,6 +402,11 @@ if [[ "$IS_ARM64" -ne "0" ]]; then
 	echo "IS_ARM64: $IS_ARM64" | tee -a "$TEST_RESULTS"
 elif [[ "$IS_ARM32" -ne "0" ]]; then
 	echo "IS_ARM32: $IS_ARM32" | tee -a "$TEST_RESULTS"
+fi
+if [[ "$HAVE_ARMV7A" -ne "0" ]]; then
+	echo "HAVE_ARMV7A: $HAVE_ARMV7A" | tee -a "$TEST_RESULTS"
+elif [[ "$HAVE_ARMV8A" -ne "0" ]]; then
+	echo "HAVE_ARMV8A: $HAVE_ARMV8A" | tee -a "$TEST_RESULTS"
 fi
 
 if [[ "$IS_X64" -ne "0" ]]; then
@@ -498,7 +516,7 @@ fi
 FILTERED_CXXFLAGS=("-DDEBUG" "-DNDEBUG" "-g" "-g0" "-g1" "-g2" "-g3" "-O0" "-O1" "-O2" "-O3" "-O4" "-O5" "-Os" "-Og"
                    "-xO0" "-xO1" "-xO2" "-xO3" "-xO4" "-xO5" "-std=c++03" "-std=c++11" "-std=c++14" "-std=c++17"
                    "-m32" "-m64" "-mx32" "-maes" "-mrdrand" "-mrdrnd" "-mrdseed" "-mpclmul" "-Wa,-q" "-mfpu=neon"
-                   "-Wall" "-Wextra" "-Wconversion" "-Wcast-align" "-Wformat-security" "-Wtrampolines"
+                   "-march=armv7a" "-Wall" "-Wextra" "-Wconversion" "-Wcast-align" "-Wformat-security" "-Wtrampolines"
                    "-DCRYPTOPP_DISABLE_ASM" "-DCRYPTOPP_DISABLE_SSSE3" "-DCRYPTOPP_DISABLE_AESNI"
                    "-fsanitize=address" "-fsanitize=undefined" "-march=armv8-a+crypto" "-march=armv8-a+crc"
                    "-DDCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562" "-DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS")
@@ -563,7 +581,11 @@ if [[ "$?" -eq "0" ]]; then
 	RETAINED_CXXFLAGS+=("-Wno-deprecated-declarations")
 fi
 
-# Add to exercise NEON more thoroughly
+# Add to exercise ARMv7a and NEON more thoroughly
+if [[ ("$IS_ARM32" -ne "0") && ("$HAVE_ARMV7A" -ne "0") ]]; then
+	RETAINED_CXXFLAGS+=("-march=armv7a")
+fi
+
 if [[ ("$IS_ARM32" -ne "0") && ("$HAVE_ARM_NEON" -ne "0") ]]; then
 	RETAINED_CXXFLAGS+=("-mfpu=neon")
 fi
@@ -2986,35 +3008,6 @@ if [[ ("$HAVE_X86_AES" -ne "0" || "$HAVE_X86_RDRAND" -ne "0" || "$HAVE_X86_RDSEE
 
 	export CXXFLAGS="$RELEASE_CXXFLAGS ${OPTS[@]} ${RETAINED_CXXFLAGS[@]}"
 	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
-	else
-		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
-		fi
-		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
-		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
-		fi
-	fi
-fi
-
-############################################
-# Explicit ARMv7a NEON
-if [[ ("$IS_ARM32" -ne "0" && "$HAVE_ARM_NEON" -ne "0") ]]; then
-	echo
-	echo "************************************" | tee -a "$TEST_RESULTS"
-	echo "Testing: ARM ARMv7a NEON" | tee -a "$TEST_RESULTS"
-	echo
-
-	unset CXXFLAGS
-	"$MAKE" clean > /dev/null 2>&1
-	rm -f adhoc.cpp > /dev/null 2>&1
-
-	export CXXFLAGS="$RELEASE_CXXFLAGS -march=armv7a -mfpu=neon ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	else
