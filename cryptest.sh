@@ -408,6 +408,8 @@ if [[ "$HAVE_ARMV7A" -ne "0" ]]; then
 elif [[ "$HAVE_ARMV8A" -ne "0" ]]; then
 	echo "HAVE_ARMV8A: $HAVE_ARMV8A" | tee -a "$TEST_RESULTS"
 fi
+if [[ "$HAVE_ARM_NEON" -ne "0" ]]; then
+	echo "HAVE_ARM_NEON: $HAVE_ARM_NEON" | tee -a "$TEST_RESULTS"
 
 if [[ "$IS_X64" -ne "0" ]]; then
 	echo "IS_X64: $IS_X64" | tee -a "$TEST_RESULTS"
@@ -3653,6 +3655,8 @@ echo " "$ESCAPED | tr '$' '\n' | tee -a "$TEST_RESULTS"
 ############################################
 # Report errors and warnings
 
+# Errors
+
 echo
 echo "************************************************" | tee -a "$TEST_RESULTS"
 echo | tee -a "$TEST_RESULTS"
@@ -3683,23 +3687,31 @@ else
 fi
 echo | tee -a "$TEST_RESULTS"
 
-# Write warnings to $TEST_RESULTS
+# Warnings
+
+echo
+echo "************************************************" | tee -a "$WARN_RESULTS"
+echo | tee -a "$WARN_RESULTS"
+
 WCOUNT=$("$EGREP" -a '(warning:)' $WARN_RESULTS | "$GREP" -v 'deprecated-declarations' | wc -l | "$AWK" '{print $1}')
 if (( "$WCOUNT" == "0" )); then
-	echo "No warnings detected" | tee -a "$TEST_RESULTS"
+	echo "No warnings detected" | tee -a "$WARN_RESULTS" | tee -a  "$WARN_RESULTS"
 else
-	echo "$WCOUNT warnings detected. See $WARN_RESULTS for details" | tee -a "$TEST_RESULTS"
+	echo "$WCOUNT warnings detected. See $WARN_RESULTS for details" | tee -a "$WARN_RESULTS"
 	echo
 	# "$EGREP" -an '(warning:)' $WARN_RESULTS | "$GREP" -v 'deprecated-declarations'
 fi
-echo | tee -a "$TEST_RESULTS"
+echo | tee -a "$WARN_RESULTS"
 
-echo "************************************************" | tee -a "$TEST_RESULTS"
+
+# Execution time
+
+echo "************************************************" | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
 
 echo
-echo "Testing started: $TEST_BEGIN" | tee -a "$TEST_RESULTS"
-echo "Testing finished: $TEST_END" | tee -a "$TEST_RESULTS"
-echo | tee -a "$TEST_RESULTS"
+echo "Testing started: $TEST_BEGIN" | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
+echo "Testing finished: $TEST_END" | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
+echo | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
 
 ############################################
 # http://tldp.org/LDP/abs/html/exitcodes.html#EXITCODESREF
