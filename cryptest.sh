@@ -410,6 +410,7 @@ elif [[ "$HAVE_ARMV8A" -ne "0" ]]; then
 fi
 if [[ "$HAVE_ARM_NEON" -ne "0" ]]; then
 	echo "HAVE_ARM_NEON: $HAVE_ARM_NEON" | tee -a "$TEST_RESULTS"
+fi
 
 if [[ "$IS_X64" -ne "0" ]]; then
 	echo "IS_X64: $IS_X64" | tee -a "$TEST_RESULTS"
