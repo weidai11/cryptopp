@@ -651,6 +651,17 @@ if [[ ("$HAVE_DISASS" -ne "0" && "$HAVE_X86_AES" -ne "0") ]] && false; then
 
 	OBJFILE=rijndael.o
 	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS -march=native -maes" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
+
+	MANGLED=($(nm $OBJFILE))
+	UNMANGLED=($(nm $OBJFILE | c++filt))
+	IDX=-1
+
+	for i in "${!UNMANGLED[@]}"; do
+	   if [[ "${UNMANGLED[$i]}" = "${value}" ]]; then
+	       IDX="${i}";
+	   fi
+	done
+
 	DISASS=$(gdb -batch -ex 'disassemble AESNI_Enc_Block AESNI_Enc_4_Blocks' $OBJFILE 2>/dev/null)
 
 	if [[ ($(echo "$DISASS" | grep -i aesenc) -eq "0") ]]; then
@@ -1764,24 +1775,30 @@ if [[ ("$HAVE_CXX03" -ne "0" && "$HAVE_ASAN" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	if [[ ("$HAVE_SYMBOLIZE" -ne "0") ]]; then
-		export CXXFLAGS="$DEBUG_CXXFLAGS  -std=c++03 ${RETAINED_CXXFLAGS[@]}"
-		"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" asan | asan_symbolize | tee -a "$TEST_RESULTS"
-	else
-		export CXXFLAGS="$DEBUG_CXXFLAGS  -std=c++03 ${RETAINED_CXXFLAGS[@]}"
-		"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" asan | tee -a "$TEST_RESULTS"
-	fi
+	export CXXFLAGS="$DEBUG_CXXFLAGS  -std=c++03 ${RETAINED_CXXFLAGS[@]}"
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" asan | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	else
-		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
-		fi
-		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
-		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		if [[ ("$HAVE_SYMBOLIZE" -ne "0") ]]; then
+			./cryptest.exe v 2>&1 | asan_symbolize | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+			fi
+			./cryptest.exe tv all 2>&1 | asan_symbolize | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+			fi
+		else
+			./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+			fi
+			./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+			fi
 		fi
 	fi
 fi
@@ -1798,24 +1815,30 @@ if [[ ("$HAVE_CXX03" -ne "0" && "$HAVE_ASAN" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	if [[ ("$HAVE_SYMBOLIZE" -ne "0") ]]; then
-		export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 ${RETAINED_CXXFLAGS[@]}"
-		"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" asan | asan_symbolize | tee -a "$TEST_RESULTS"
-	else
-		export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 ${RETAINED_CXXFLAGS[@]}"
-		"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" asan | tee -a "$TEST_RESULTS"
-	fi
+	export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 ${RETAINED_CXXFLAGS[@]}"
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" asan | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	else
-		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
-		fi
-		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
-		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		if [[ ("$HAVE_SYMBOLIZE" -ne "0") ]]; then
+			./cryptest.exe v 2>&1 | asan_symbolize | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+			fi
+			./cryptest.exe tv all 2>&1 | asan_symbolize | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+			fi
+		else
+			./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+			fi
+			./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+			fi
 		fi
 	fi
 fi
@@ -1890,25 +1913,32 @@ if [[ ("$HAVE_CXX11" -ne "0" && "$HAVE_ASAN" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	if [[ ("$HAVE_SYMBOLIZE" -ne "0") ]]; then
-		export CXXFLAGS="$DEBUG_CXXFLAGS  -std=c++11 ${RETAINED_CXXFLAGS[@]}"
-		"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" asan | asan_symbolize | tee -a "$TEST_RESULTS"
-	else
-		export CXXFLAGS="$DEBUG_CXXFLAGS  -std=c++11 ${RETAINED_CXXFLAGS[@]}"
-		"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" asan | tee -a "$TEST_RESULTS"
-	fi
+	export CXXFLAGS="$DEBUG_CXXFLAGS  -std=c++11 ${RETAINED_CXXFLAGS[@]}"
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" asan | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	else
-		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		if [[ ("$HAVE_SYMBOLIZE" -ne "0") ]]; then
+			./cryptest.exe v 2>&1 | asan_symbolize | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+			fi
+			./cryptest.exe tv all 2>&1 | asan_symbolize | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+			fi
+		else
+			./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+			fi
+			./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+			fi
 		fi
-		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
-		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
-		fi
+
 	fi
 fi
 
@@ -1924,24 +1954,30 @@ if [[ ("$HAVE_CXX11" -ne "0" && "$HAVE_ASAN" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	if [[ ("$HAVE_SYMBOLIZE" -ne "0") ]]; then
-		export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 ${RETAINED_CXXFLAGS[@]}"
-		"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" asan | asan_symbolize | tee -a "$TEST_RESULTS"
-	else
-		export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 ${RETAINED_CXXFLAGS[@]}"
-		"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" asan | tee -a "$TEST_RESULTS"
-	fi
+	export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 ${RETAINED_CXXFLAGS[@]}"
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" asan | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	else
-		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
-		fi
-		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
-		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		if [[ ("$HAVE_SYMBOLIZE" -ne "0") ]]; then
+			./cryptest.exe v 2>&1 | asan_symbolize | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+			fi
+			./cryptest.exe tv all 2>&1 | asan_symbolize | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+			fi
+		else
+			./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+			fi
+			./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+			fi
 		fi
 	fi
 fi
@@ -1987,24 +2023,30 @@ if [[ ("$HAVE_CXX14" -ne "0" && "$HAVE_ASAN" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	if [[ ("$HAVE_SYMBOLIZE" -ne "0") ]]; then
-		export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 ${RETAINED_CXXFLAGS[@]}"
-		"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" asan | asan_symbolize | tee -a "$TEST_RESULTS"
-	else
-		export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 ${RETAINED_CXXFLAGS[@]}"
-		"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" asan | tee -a "$TEST_RESULTS"
-	fi
+	export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 ${RETAINED_CXXFLAGS[@]}"
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" asan | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	else
-		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
-		fi
-		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
-		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		if [[ ("$HAVE_SYMBOLIZE" -ne "0") ]]; then
+			./cryptest.exe v 2>&1 | asan_symbolize | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+			fi
+			./cryptest.exe tv all 2>&1 | asan_symbolize | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+			fi
+		else
+			./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+			fi
+			./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+			fi
 		fi
 	fi
 fi
@@ -2050,24 +2092,30 @@ if [[ ("$HAVE_CXX17" -ne "0" && "$HAVE_ASAN" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	if [[ ("$HAVE_SYMBOLIZE" -ne "0") ]]; then
-		 export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 ${RETAINED_CXXFLAGS[@]}"
-		"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" asan | asan_symbolize | tee -a "$TEST_RESULTS"
-	else
-		 export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 ${RETAINED_CXXFLAGS[@]}"
-		"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" asan | tee -a "$TEST_RESULTS"
-	fi
+	export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 ${RETAINED_CXXFLAGS[@]}"
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" asan | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	else
-		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
-		fi
-		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
-		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		if [[ ("$HAVE_SYMBOLIZE" -ne "0") ]]; then
+			./cryptest.exe v 2>&1 | asan_symbolize | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+			fi
+			./cryptest.exe tv all 2>&1 | asan_symbolize | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+			fi
+		else
+			./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+			fi
+			./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+			fi
 		fi
 	fi
 fi
