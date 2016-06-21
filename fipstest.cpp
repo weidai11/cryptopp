@@ -34,7 +34,11 @@
 #else
 #define _CRT_DEBUGGER_HOOK __crt_debugger_hook
 #endif
+#if _MSC_VER < 1900
 extern "C" {_CRTIMP void __cdecl _CRT_DEBUGGER_HOOK(int);}
+#else
+extern "C" {void __cdecl _CRT_DEBUGGER_HOOK(int); }
+#endif
 #endif
 #endif
 
