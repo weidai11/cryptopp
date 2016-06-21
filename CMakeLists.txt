@@ -238,6 +238,15 @@ if(BUILD_TESTING)
 	add_executable(cryptest ${cryptopp_SOURCES_TEST})
 	target_link_libraries(cryptest cryptopp-static)
 
+	# Setting "cryptest" binary name to "cryptest.exe"
+	if(NOT WIN32)
+		set_target_properties(cryptest PROPERTIES OUTPUT_NAME cryptest.exe)
+	endif()
+	if(NOT TARGET cryptest.exe)
+		add_custom_target(cryptest.exe)
+		add_dependencies(cryptest.exe cryptest)
+	endif()
+
 	file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/TestData DESTINATION ${PROJECT_BINARY_DIR})
 	file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/TestVectors DESTINATION ${PROJECT_BINARY_DIR})
 
