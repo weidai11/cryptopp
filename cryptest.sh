@@ -5,6 +5,7 @@
 
 # This is a test script that can be used on some Linux/Unix/Apple machines to automate building the
 # library and running the self test with various combinations of flags, options, and conditions.
+# For more details, see http://cryptopp.com/wiki/cryptest.sh.
 
 # To run the script, simply perform the following:
 #     ./cryptest.sh
@@ -21,8 +22,6 @@
 
 # The fastest results (in running time) will most likely use:
 #     HAVE_VALGRIND=0 WANT_BENCHMARKS=0 ./cryptest.sh
-
-# For more details, see http://cryptopp.com/wiki/cryptest.sh.
 
 ############################################
 # Set to suite your taste
@@ -485,8 +484,8 @@ elif [[ "$IS_DARWIN" -ne "0" ]]; then
 	CPU_FREQ=$(sysctl -a 2>/dev/null | "$GREP" 'hw.cpufrequency' | "$AWK" '{print $3; exit;}')
 	CPU_FREQ=$("$AWK" "BEGIN {print $CPU_FREQ/1024/1024/1024}")
 elif [[ "$IS_SOLARIS" -ne "0" ]]; then
-    CPU_FREQ=$(psrinfo -v 2>/dev/null | "$GREP" 'MHz' | "$AWK" '{print $6; exit;}')
-    CPU_FREQ=$("$AWK" "BEGIN {print $CPU_FREQ/1024}")
+	CPU_FREQ=$(psrinfo -v 2>/dev/null | "$GREP" 'MHz' | "$AWK" '{print $6; exit;}')
+	CPU_FREQ=$("$AWK" "BEGIN {print $CPU_FREQ/1024}")
 fi
 
 # Some ARM devboards cannot use 'make -j N', even with multiple cores and RAM
@@ -657,9 +656,9 @@ if [[ ("$HAVE_DISASS" -ne "0" && "$HAVE_X86_AES" -ne "0") ]] && false; then
 	IDX=-1
 
 	for i in "${!UNMANGLED[@]}"; do
-	   if [[ "${UNMANGLED[$i]}" = "${value}" ]]; then
-	       IDX="${i}";
-	   fi
+		if [[ "${UNMANGLED[$i]}" = "${value}" ]]; then
+			IDX="${i}";
+		fi
 	done
 
 	DISASS=$(gdb -batch -ex 'disassemble AESNI_Enc_Block AESNI_Enc_4_Blocks' $OBJFILE 2>/dev/null)
@@ -1277,6 +1276,34 @@ else
 fi
 
 ############################################
+# Debug build, no backwards compatibility with Crypto++ 5.6.2.
+#  This test will not be needed in Crypto++ 5.7 and above
+echo
+echo "************************************" | tee -a "$TEST_RESULTS"
+echo "Testing: debug, NO_BACKWARDS_COMPATIBILITY_562" | tee -a "$TEST_RESULTS"
+echo
+
+unset CXXFLAGS
+"$MAKE" clean > /dev/null 2>&1
+rm -f adhoc.cpp > /dev/null 2>&1
+
+export CXXFLAGS="$DEBUG_CXXFLAGS -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 ${RETAINED_CXXFLAGS[@]}"
+"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+else
+	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+	fi
+	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+	fi
+fi
+
+############################################
 # Release build, no backwards compatibility with Crypto++ 5.6.2.
 #  This test will not be needed in Crypto++ 5.7 and above
 echo
@@ -1775,7 +1802,7 @@ if [[ ("$HAVE_CXX03" -ne "0" && "$HAVE_ASAN" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$DEBUG_CXXFLAGS  -std=c++03 ${RETAINED_CXXFLAGS[@]}"
+	export CXXFLAGS="$DEBUG_CXXFLAGS -std=c++03 ${RETAINED_CXXFLAGS[@]}"
 	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" asan | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -1913,7 +1940,7 @@ if [[ ("$HAVE_CXX11" -ne "0" && "$HAVE_ASAN" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$DEBUG_CXXFLAGS  -std=c++11 ${RETAINED_CXXFLAGS[@]}"
+	export CXXFLAGS="$DEBUG_CXXFLAGS -std=c++11 ${RETAINED_CXXFLAGS[@]}"
 	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" asan | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2656,7 +2683,7 @@ fi
 
 ############################################
 # Darwin, Intel multiarch, c++03
-if [[ "$IS_DARWIN" -ne "0" && "$HAVE_INTEL_MULTIARCH" -ne "0" &&  "$HAVE_CXX03" -ne "0" ]]; then
+if [[ "$IS_DARWIN" -ne "0" && "$HAVE_INTEL_MULTIARCH" -ne "0" && "$HAVE_CXX03" -ne "0" ]]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: Darwin, Intel multiarch, c++03" | tee -a "$TEST_RESULTS"
@@ -2696,7 +2723,7 @@ fi
 
 ############################################
 # Darwin, Intel multiarch, c++11
-if [[ "$IS_DARWIN" -ne "0" && "$HAVE_INTEL_MULTIARCH" -ne "0" &&  "$HAVE_CXX11" -ne "0" ]]; then
+if [[ "$IS_DARWIN" -ne "0" && "$HAVE_INTEL_MULTIARCH" -ne "0" && "$HAVE_CXX11" -ne "0" ]]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: Darwin, Intel multiarch, c++11" | tee -a "$TEST_RESULTS"
@@ -2736,7 +2763,7 @@ fi
 
 ############################################
 # Darwin, Intel multiarch, c++14
-if [[ "$IS_DARWIN" -ne "0" && "$HAVE_INTEL_MULTIARCH" -ne "0" &&  "$HAVE_CXX14" -ne "0" ]]; then
+if [[ "$IS_DARWIN" -ne "0" && "$HAVE_INTEL_MULTIARCH" -ne "0" && "$HAVE_CXX14" -ne "0" ]]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: Darwin, Intel multiarch, c++14" | tee -a "$TEST_RESULTS"
@@ -2776,7 +2803,7 @@ fi
 
 ############################################
 # Darwin, Intel multiarch, c++17
-if [[ "$IS_DARWIN" -ne "0" && "$HAVE_INTEL_MULTIARCH" -ne "0" &&  "$HAVE_CXX17" -ne "0" ]]; then
+if [[ "$IS_DARWIN" -ne "0" && "$HAVE_INTEL_MULTIARCH" -ne "0" && "$HAVE_CXX17" -ne "0" ]]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: Darwin, Intel multiarch, c++17" | tee -a "$TEST_RESULTS"
@@ -3567,9 +3594,9 @@ fi
 if [[ ("$INTEL_COMPILER" -eq "0") ]]; then
 
 	INTEL_CXX=$(which icpc 2>/dev/null)
-    if [[ (-z "$INTEL_CXX") ]]; then
+	if [[ (-z "$INTEL_CXX") ]]; then
 		INTEL_CXX=$(find /opt/intel -name icpc 2>/dev/null | "$GREP" -iv composer | head -1)
-    fi
+	fi
 	"$INTEL_CXX" -x c++ -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMP/adhoc.exe" > /dev/null 2>&1
 	if [[ "$?" -eq "0" ]]; then
 
@@ -3603,37 +3630,37 @@ fi
 ############################################
 # Perform a quick check with Xcode compiler, if available.
 if [[ "$IS_DARWIN" -ne "0" ]]; then
-  XCODE_CXX=$(find /Applications/Xcode*.app/Contents/Developer -name clang++ 2>/dev/null | head -1)
-  if [[ (-z "$XCODE_CXX") ]]; then
-	  XCODE_CXX=$(find /Developer/Applications/Xcode.app -name clang++ 2>/dev/null | head -1)
-  fi
+	XCODE_CXX=$(find /Applications/Xcode*.app/Contents/Developer -name clang++ 2>/dev/null | head -1)
+	if [[ (-z "$XCODE_CXX") ]]; then
+		XCODE_CXX=$(find /Developer/Applications/Xcode.app -name clang++ 2>/dev/null | head -1)
+	fi
 
-  if [[ !(-z "$XCODE_CXX") ]]; then
-	echo
-	echo "************************************" | tee -a "$TEST_RESULTS"
-	echo "Testing: Xcode Clang compiler" | tee -a "$TEST_RESULTS"
-	echo
+	if [[ !(-z "$XCODE_CXX") ]]; then
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS"
+		echo "Testing: Xcode Clang compiler" | tee -a "$TEST_RESULTS"
+		echo
 
-	unset CXXFLAGS
-	"$MAKE" clean > /dev/null 2>&1
-	rm -f adhoc.cpp > /dev/null 2>&1
+		unset CXXFLAGS
+		"$MAKE" clean > /dev/null 2>&1
+		rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$XCODE_CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		export CXXFLAGS="$RELEASE_CXXFLAGS ${RETAINED_CXXFLAGS[@]}"
+		"$MAKE" "${MAKEARGS[@]}" CXX="$XCODE_CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
-	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
-	else
-		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
-		fi
-		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
-		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+		else
+			./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+			fi
+			./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+			fi
 		fi
 	fi
-  fi
 fi
 
 ############################################
@@ -3817,7 +3844,7 @@ echo | tee -a "$WARN_RESULTS"
 
 WCOUNT=$("$EGREP" -a '(warning:)' $WARN_RESULTS | "$GREP" -v 'deprecated-declarations' | wc -l | "$AWK" '{print $1}')
 if (( "$WCOUNT" == "0" )); then
-	echo "No warnings detected" | tee -a "$WARN_RESULTS" | tee -a  "$WARN_RESULTS"
+	echo "No warnings detected" | tee -a "$WARN_RESULTS" | tee -a "$WARN_RESULTS"
 else
 	echo "$WCOUNT warnings detected. See $WARN_RESULTS for details" | tee -a "$WARN_RESULTS"
 	echo
