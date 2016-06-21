@@ -14,7 +14,6 @@ set(cryptopp_VERSION_PATCH 3)
 
 include(GNUInstallDirs)
 include(TestBigEndian)
-include(CheckCXXSymbolExists)
 
 #============================================================================
 # Settable options
@@ -124,31 +123,67 @@ endif()
 #============================================================================
 # Compile targets
 #============================================================================
-add_library(cryptopp-object OBJECT ${cryptopp_SOURCES})
 
-if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-	# Enables -fPIC on all 64-bit platforms
-	set_target_properties(cryptopp-object PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+# Set global includes BEFORE adding any targets for legacy CMake versions
+if(CMAKE_VERSION VERSION_LESS 2.8.12)
+	include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
+endif()
+
+if(NOT CMAKE_VERSION VERSION_LESS 2.8.8)
+	add_library(cryptopp-object OBJECT ${cryptopp_SOURCES})
 endif()
 
 if (BUILD_STATIC)
-	add_library(cryptopp-static STATIC $<TARGET_OBJECTS:cryptopp-object>)
+	if(NOT CMAKE_VERSION VERSION_LESS 2.8.8)
+		add_library(cryptopp-static STATIC $<TARGET_OBJECTS:cryptopp-object>)
+	else()
+		add_library(cryptopp-static STATIC ${cryptopp_SOURCES})
+	endif()
+
 	if (NOT CMAKE_VERSION VERSION_LESS 2.8.12)
 		target_include_directories(cryptopp-static PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> $<INSTALL_INTERFACE:include/cryptopp>)
-	else()
-		include_directories("${ROOT_SOURCE_DIR}")
 	endif()
 endif()
 
 if (BUILD_SHARED)
-	add_library(cryptopp-shared SHARED $<TARGET_OBJECTS:cryptopp-object>)
+	if(NOT CMAKE_VERSION VERSION_LESS 2.8.8)
+		add_library(cryptopp-shared SHARED $<TARGET_OBJECTS:cryptopp-object>)
+	else()
+		add_library(cryptopp-shared SHARED ${cryptopp_SOURCES})
+	endif()
+
 	if (NOT CMAKE_VERSION VERSION_LESS 2.8.12)
 		target_include_directories(cryptopp-shared PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> $<INSTALL_INTERFACE:include/cryptopp>)
-	else()
-		include_directories("${ROOT_SOURCE_DIR}")
 	endif()
 endif()
 
+# Set PIC
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+	# Enables -fPIC on all 64-bit platforms
+	if(NOT CMAKE_VERSION VERSION_LESS 2.8.9)	# POSITION_INDEPENDENT_CODE support
+		set_target_properties(cryptopp-object PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+	elseif(NOT CMAKE_VERSION VERSION_LESS 2.8.8)	# Object library support
+		get_target_property(flags_old cryptopp-object COMPILE_FLAGS)
+		set_target_properties(cryptopp-object PROPERTIES COMPILE_FLAGS "${flags_old} -fPIC")
+	else()
+		if (BUILD_STATIC)
+			get_target_property(flags_old_static cryptopp-static COMPILE_FLAGS)
+			if(NOT flags_old_static)
+				set(flags_old_static "")
+			endif()
+			set_target_properties(cryptopp-static PROPERTIES COMPILE_FLAGS "${flags_old_static} -fPIC")
+		endif()
+		if (BUILD_SHARED)
+			get_target_property(flags_old_shared cryptopp-shared COMPILE_FLAGS)
+			if(NOT flags_old_shared)
+				set(flags_old_shared "")
+			endif()
+			set_target_properties(cryptopp-shared PROPERTIES COMPILE_FLAGS "${flags_old_shared} -fPIC")
+		endif()
+	endif()
+endif()
+
+# Set filenames for targets to be "cryptopp"
 if(NOT MSVC)
 	set(COMPAT_VERSION ${cryptopp_VERSION_MAJOR}.${cryptopp_VERSION_MINOR})
 
@@ -163,6 +198,16 @@ if(NOT MSVC)
 				SOVERSION ${COMPAT_VERSION}
 				OUTPUT_NAME cryptopp)
 	endif()
+endif()
+
+# Targets, compatible with Crypto++ GNUMakefile
+if (BUILD_STATIC)
+	add_custom_target(static)
+	add_dependencies(static cryptopp-static)
+endif()
+if (BUILD_SHARED)
+	add_custom_target(dynamic)
+	add_dependencies(dynamic cryptopp-shared)
 endif()
 
 #============================================================================
@@ -190,15 +235,15 @@ endif()
 #============================================================================
 enable_testing()
 if(BUILD_TESTING)
-	add_library(cryptest-object OBJECT ${cryptopp_SOURCES_TEST})
-
-	add_executable(cryptest $<TARGET_OBJECTS:cryptest-object>)
+	add_executable(cryptest ${cryptopp_SOURCES_TEST})
 	target_link_libraries(cryptest cryptopp-static)
 
 	file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/TestData DESTINATION ${PROJECT_BINARY_DIR})
 	file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/TestVectors DESTINATION ${PROJECT_BINARY_DIR})
 
+	add_test(NAME build_cryptest COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target cryptest)
 	add_test(NAME cryptest COMMAND $<TARGET_FILE:cryptest> v)
+	set_tests_properties(cryptest PROPERTIES DEPENDS build_cryptest)
 endif()
 
 #============================================================================
@@ -242,10 +287,12 @@ endif()
 install(FILES ${cryptopp_HEADERS} DESTINATION include/cryptopp)
 
 # CMake Package
-include(CMakePackageConfigHelpers)
-write_basic_package_version_file("${PROJECT_BINARY_DIR}/cryptopp-config-version.cmake" VERSION ${cryptopp_VERSION_MAJOR}.${cryptopp_VERSION_MINOR}.${cryptopp_VERSION_PATCH} COMPATIBILITY SameMajorVersion)
-install(FILES cryptopp-config.cmake ${PROJECT_BINARY_DIR}/cryptopp-config-version.cmake DESTINATION "lib/cmake/cryptopp")
-install(EXPORT ${export_name} DESTINATION "lib/cmake/cryptopp")
+if(NOT CMAKE_VERSION VERSION_LESS 2.8.8)	# CMakePackageConfigHelpers is supported from 2.8.8
+	include(CMakePackageConfigHelpers)
+	write_basic_package_version_file("${PROJECT_BINARY_DIR}/cryptopp-config-version.cmake" VERSION ${cryptopp_VERSION_MAJOR}.${cryptopp_VERSION_MINOR}.${cryptopp_VERSION_PATCH} COMPATIBILITY SameMajorVersion)
+	install(FILES cryptopp-config.cmake ${PROJECT_BINARY_DIR}/cryptopp-config-version.cmake DESTINATION "lib/cmake/cryptopp")
+	install(EXPORT ${export_name} DESTINATION "lib/cmake/cryptopp")
+endif()
 
 # Tests
 if(BUILD_TESTING)
