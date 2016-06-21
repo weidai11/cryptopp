@@ -464,8 +464,8 @@ if [[ (-e "/proc/cpuinfo") && (-e "/proc/meminfo") ]]; then
 	MEM_SIZE=$(cat /proc/meminfo | "$GREP" "MemTotal" | "$AWK" '{print $2}')
 	MEM_SIZE=$(($MEM_SIZE/1024))
 elif [[ "$IS_DARWIN" -ne "0" ]]; then
-	CPU_COUNT=$(sysctl -a 2>/dev/null | "$GREP" 'hw.availcpu' | head -1 | "$AWK" '{print $3}')
-	MEM_SIZE=$(sysctl -a 2>/dev/null | "$GREP" 'hw.memsize' | head -1 | "$AWK" '{print $3}')
+	CPU_COUNT=$(sysctl -a 2>/dev/null | "$GREP" 'hw.availcpu' | "$AWK" '{print $3; exit}')
+	MEM_SIZE=$(sysctl -a 2>/dev/null | "$GREP" 'hw.memsize' | "$AWK" '{print $3; exit;}')
 	MEM_SIZE=$(($MEM_SIZE/1024/1024))
 elif [[ "$IS_SOLARIS" -ne "0" ]]; then
 	CPU_COUNT=$(psrinfo 2>/dev/null | wc -l | "$AWK" '{print $1}')
@@ -478,14 +478,14 @@ if [[ (-e "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq") ]]; then
 	CPU_FREQ=$(cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq)
 	CPU_FREQ=$("$AWK" "BEGIN {print $CPU_FREQ/1024/1024}")
 elif [[ (-e "/proc/cpuinfo") ]]; then
-	CPU_FREQ=$(cat /proc/cpuinfo | "$GREP" 'MHz' | head -1 | "$AWK" '{print $4}')
+	CPU_FREQ=$(cat /proc/cpuinfo | "$GREP" 'MHz' | "$AWK" '{print $4; exit}')
 	if [[ -z "$CPU_FREQ" ]]; then CPU_FREQ=512; fi
 	CPU_FREQ=$("$AWK" "BEGIN {print $CPU_FREQ/1024}")
 elif [[ "$IS_DARWIN" -ne "0" ]]; then
-	CPU_FREQ=$(sysctl -a 2>/dev/null | "$GREP" 'hw.cpufrequency' | head -1 | "$AWK" '{print $3}')
+	CPU_FREQ=$(sysctl -a 2>/dev/null | "$GREP" 'hw.cpufrequency' | "$AWK" '{print $3; exit;}')
 	CPU_FREQ=$("$AWK" "BEGIN {print $CPU_FREQ/1024/1024/1024}")
 elif [[ "$IS_SOLARIS" -ne "0" ]]; then
-    CPU_FREQ=$(psrinfo -v 2>/dev/null | "$GREP" 'MHz' | head -1 | "$AWK" '{print $6}')
+    CPU_FREQ=$(psrinfo -v 2>/dev/null | "$GREP" 'MHz' | "$AWK" '{print $6; exit;}')
     CPU_FREQ=$("$AWK" "BEGIN {print $CPU_FREQ/1024}")
 fi
 
@@ -566,7 +566,7 @@ if [[ ! -z "$GIT_BRANCH" ]]; then
 fi
 
 if [[ "$SUN_COMPILER" -ne "0" ]]; then
-	echo $("$CXX" -V 2>&1 | head -1 | "$SED" 's|CC:|Compiler:|g') | tee -a "$TEST_RESULTS"
+	echo $("$CXX" -V 2>&1 | "$SED" 's|CC:|Compiler:|g') | head -1 | tee -a "$TEST_RESULTS"
 else
 	echo "Compiler:" $("$CXX" --version | head -1) | tee -a "$TEST_RESULTS"
 fi
@@ -2995,42 +2995,6 @@ if [[ ("$IS_DARWIN" -ne "0" && "$HAVE_CXX17" -ne "0") ]]; then
 fi
 
 ############################################
-# Xcode compiler
-if [[ "$IS_DARWIN" -ne "0" ]]; then
-  XCODE_COMPILER=$(find /Applications/Xcode*.app/Contents/Developer -name clang++ 2>/dev/null | head -1)
-  if [[ (-z "$XCODE_COMPILER") ]]; then
-	  XCODE_COMPILER=$(find /Developer/Applications/Xcode.app -name clang++ 2>/dev/null | head -1)
-  fi
-
-  if [[ !(-z "$XCODE_COMPILER") ]]; then
-	echo
-	echo "************************************" | tee -a "$TEST_RESULTS"
-	echo "Testing: Xcode Clang compiler" | tee -a "$TEST_RESULTS"
-	echo
-
-	unset CXXFLAGS
-	"$MAKE" clean > /dev/null 2>&1
-	rm -f adhoc.cpp > /dev/null 2>&1
-
-	export CXXFLAGS="$RELEASE_CXXFLAGS ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$XCODE_COMPILER" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-
-	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
-	else
-		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
-		fi
-		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
-		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
-		fi
-	fi
-  fi
-fi
-
-############################################
 # Modern compiler and old hardware, like PII, PIII or Core2
 if [[ ("$HAVE_X86_AES" -ne "0" || "$HAVE_X86_RDRAND" -ne "0" || "$HAVE_X86_RDSEED" -ne "0") ]]; then
 
@@ -3565,7 +3529,6 @@ fi
 
 ############################################
 # Perform a quick check with GCC, if available.
-#   This check was added after testing on Ubuntu 14.04 with Clang 3.4.
 if [[ ("$GCC_COMPILER" -eq "0") ]]; then
 
 	GCC_CXX=$(which g++ 2>/dev/null)
@@ -3597,6 +3560,80 @@ if [[ ("$GCC_COMPILER" -eq "0") ]]; then
 			fi
 		fi
 	fi
+fi
+
+############################################
+# Perform a quick check with Intel ICPC, if available.
+if [[ ("$INTEL_COMPILER" -eq "0") ]]; then
+
+	INTEL_CXX=$(which icpc 2>/dev/null)
+    if [[ (-z "$INTEL_CXX") ]]; then
+		INTEL_CXX=$(find /opt/intel -name icpc 2>/dev/null | "$GREP" -iv composer | head -1)
+    fi
+	"$INTEL_CXX" -x c++ -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	if [[ "$?" -eq "0" ]]; then
+
+		############################################
+		# INTEL build
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS"
+		echo "Testing: INTEL compiler" | tee -a "$TEST_RESULTS"
+		echo
+
+		unset CXXFLAGS
+		"$MAKE" clean > /dev/null 2>&1
+		rm -f adhoc.cpp > /dev/null 2>&1
+
+		"$MAKE" "${MAKEARGS[@]}" CXX="$INTEL_CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+		else
+			./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+			fi
+			./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+			fi
+		fi
+	fi
+fi
+
+############################################
+# Perform a quick check with Xcode compiler, if available.
+if [[ "$IS_DARWIN" -ne "0" ]]; then
+  XCODE_CXX=$(find /Applications/Xcode*.app/Contents/Developer -name clang++ 2>/dev/null | head -1)
+  if [[ (-z "$XCODE_CXX") ]]; then
+	  XCODE_CXX=$(find /Developer/Applications/Xcode.app -name clang++ 2>/dev/null | head -1)
+  fi
+
+  if [[ !(-z "$XCODE_CXX") ]]; then
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Xcode Clang compiler" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	export CXXFLAGS="$RELEASE_CXXFLAGS ${RETAINED_CXXFLAGS[@]}"
+	"$MAKE" "${MAKEARGS[@]}" CXX="$XCODE_CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+  fi
 fi
 
 ############################################
