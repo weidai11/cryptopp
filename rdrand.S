@@ -120,19 +120,19 @@ NASM_RRA_GenerateBlock:
 
 	cmp		bsize, MWSIZE
 	jb		.Partial_Machine_Word
-	
+
 .Full_Machine_Word:
 
 %ifdef X32
 	mov		[buffer+4], eax		;; We can only move 4 at a time
-	DB		048h				;; Combined, these result in 
+	DB		048h				;; Combined, these result in
 	shr		eax, 32				;;   `shr rax, 32`
 %endif
 
 	mov		[buffer], eax
 	add		buffer, MWSIZE		;; No need for Intel Core 2 slow word workarounds,
 	sub		bsize, MWSIZE		;;   like `lea buffer,[buffer+MWSIZE]` for faster adds
-	
+
 			;; Continue
 	jmp		.GenerateBlock_Top
 
@@ -148,7 +148,7 @@ NASM_RRA_GenerateBlock:
 	mov		[buffer], eax
 	add		buffer, 4
 
-	DB		048h			;; Combined, these result in 
+	DB		048h			;; Combined, these result in
 	shr		eax, 32			;;   `shr rax, 32`
 
 .Bit_2_Not_Set:
@@ -161,9 +161,9 @@ NASM_RRA_GenerateBlock:
 	mov		[buffer], ax
 	shr		eax, 16
 	add		buffer, 2
-	
+
 .Bit_1_Not_Set:
-	
+
 			;; Test bit 0 to see if size is at least 1
 	test		bsize, 1
 	jz		.GenerateBlock_Success
@@ -179,14 +179,14 @@ NASM_RRA_GenerateBlock:
 
 			;; Test for success (was the request completely fulfilled?)
 	cmp		bsize, 0
-	je 		.GenerateBlock_Success	
-	
+	je 		.GenerateBlock_Success
+
 .GenerateBlock_Failure:
 
 	xor		eax, eax
 	mov		al, RDRAND_FAILURE
 	ret
-	
+
 .GenerateBlock_Success:
 
 	xor		eax, eax
@@ -253,7 +253,7 @@ NASM_RRA_GenerateBlock:
 
 	cmp		bsize, MWSIZE
 	jb		.Partial_Machine_Word
-	
+
 .Full_Machine_Word:
 
 	mov		[buffer], rax
@@ -296,19 +296,19 @@ NASM_RRA_GenerateBlock:
 
 			;; We've hit all the bits
 	jmp		.GenerateBlock_Success
-		
+
 .GenerateBlock_PreRet:
 
 			;; Test for success (was the request completely fulfilled?)
 	cmp		bsize, 0
 	je 		.GenerateBlock_Success
-	
+
 .GenerateBlock_Failure:
 
 	xor		rax, rax
 	mov		al, RDRAND_FAILURE
 	ret
-	
+
 .GenerateBlock_Success:
 
 	xor		rax, rax
@@ -382,7 +382,7 @@ NASM_RSA_GenerateBlock:
 			;; RDSEED is not available prior to VS2012. Just emit
 			;;   the byte codes using DB. This is `rdseed eax`.
 	DB		0Fh, 0C7h, 0F8h
-	
+
 			;; If CF=1, the number returned by RDSEED is valid.
 			;; If CF=0, a random number was not available.
 	jc 		.RDSEED_succeeded
@@ -400,13 +400,13 @@ NASM_RSA_GenerateBlock:
 
 	cmp		bsize, MWSIZE
 	jb		.Partial_Machine_Word
-	
+
 .Full_Machine_Word:
 
 	mov		[buffer], eax
 	add		buffer, MWSIZE		;; No need for Intel Core 2 slow word workarounds,
 	sub		bsize, MWSIZE		;;   like `lea buffer,[buffer+MWSIZE]` for faster adds
-	
+
 			;; Continue
 	jmp		.GenerateBlock_Top
 
@@ -422,7 +422,7 @@ NASM_RSA_GenerateBlock:
 	mov		[buffer], eax
 	add		buffer, 4
 
-	DB		048h			;; Combined, these result in 
+	DB		048h			;; Combined, these result in
 	shr		eax, 32			;;   `shr rax, 32`
 
 .Bit_2_Not_Set:
@@ -435,9 +435,9 @@ NASM_RSA_GenerateBlock:
 	mov		[buffer], ax
 	shr		eax, 16
 	add		buffer, 2
-	
+
 .Bit_1_Not_Set:
-	
+
 			;; Test bit 0 to see if size is at least 1
 	test	bsize, 1
 	jz  	.GenerateBlock_Success
@@ -453,14 +453,14 @@ NASM_RSA_GenerateBlock:
 
 			;; Test for success (was the request completely fulfilled?)
 	cmp		bsize, 0
-	je 		.GenerateBlock_Success	
-	
+	je 		.GenerateBlock_Success
+
 .GenerateBlock_Failure:
 
 	xor		eax, eax
 	mov		al, RDSEED_FAILURE
 	ret
-	
+
 .GenerateBlock_Success:
 
 	xor		eax, eax
@@ -527,7 +527,7 @@ NASM_RSA_GenerateBlock:
 
 	cmp		bsize, MWSIZE
 	jb		.Partial_Machine_Word
-	
+
 .Full_Machine_Word:
 
 	mov		[buffer], rax
@@ -570,19 +570,19 @@ NASM_RSA_GenerateBlock:
 
 			;; We've hit all the bits
 	jmp		.GenerateBlock_Success
-		
+
 .GenerateBlock_PreRet:
 
 			;; Test for success (was the request completely fulfilled?)
 	cmp 	bsize, 0
 	je 		.GenerateBlock_Success
-	
+
 .GenerateBlock_Failure:
 
 	xor		rax, rax
 	mov		al, RDSEED_FAILURE
 	ret
-	
+
 .GenerateBlock_Success:
 
 	xor		rax, rax
