@@ -232,18 +232,24 @@ fi
 # Undefined Behavior sanitizer
 if [[ (-z "$HAVE_UBSAN") ]]; then
 	HAVE_UBSAN=0
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -fsanitize=undefined adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
-	if [[ ("$?" -eq "0") && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0") ]]; then
-		HAVE_UBSAN=1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -fsanitize=undefined adhoc.cpp -o "$TMP/adhoc.exe" &>/dev/null
+	if [[ ("$?" -eq "0") ]]; then
+		"$TMP/adhoc.exe" &>/dev/null
+		if [[ ("$?" -eq "0") ]]; then
+			HAVE_UBSAN=1
+		fi
 	fi
 fi
 
 # Address sanitizer
 if [[ (-z "$HAVE_ASAN") ]]; then
 	HAVE_ASAN=0
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -fsanitize=address adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
-	if [[ ("$?" -eq "0") && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0") ]]; then
-		HAVE_ASAN=1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -fsanitize=address adhoc.cpp -o "$TMP/adhoc.exe" &>/dev/null
+	if [[ ("$?" -eq "0") ]]; then
+		"$TMP/adhoc.exe" &>/dev/null
+		if [[ ("$?" -eq "0") ]]; then
+			HAVE_ASAN=1
+		fi
 	fi
 fi
 
