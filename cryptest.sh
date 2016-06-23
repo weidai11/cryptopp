@@ -79,6 +79,7 @@ IS_X64=$(uname -m | "$EGREP" -i -c "(amd64|x86_64)")
 IS_PPC=$(uname -m | "$EGREP" -i -c "(Power|PPC)")
 IS_ARM32=$(uname -m | "$EGREP" -i -c "arm|aarch32")
 IS_ARM64=$(uname -m | "$EGREP" -i -c "arm64|aarch64")
+IS_X32=0
 
 # Fixup
 if [[ "$IS_SOLARIS" -ne "0" ]]; then
@@ -121,6 +122,10 @@ fi
 SUN_COMPILER=$("$CXX" -V 2>&1 | "$EGREP" -i -c "CC: Sun")
 GCC_COMPILER=$("$CXX" --version 2>&1 | "$EGREP" -i -c "(gcc|g\+\+)")
 CLANG_COMPILER=$("$CXX" --version 2>&1 | "$EGREP" -i -c "clang")
+
+if [[ ($("$CXX" -dM -E - </dev/null 2>/dev/null | "$EGREP" -c '(__x64_64__|__amd64__)') -ne "0") && ($("$CXX" -dM -E -</dev/null 2>/dev/null | "$EGREP" -c '(__ILP32|__ILP32)') -ne "0") ]]; then
+    IS_X32=1
+fi
 
 # Now that the compiler is fixed, see if its GCC 5.1 or above with -Wabi, -Wabi-tag and -Wodr
 GCC_51_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version (5\.[1-9]|[6-9])')
@@ -417,7 +422,9 @@ if [[ "$HAVE_ARM_NEON" -ne "0" ]]; then
 	echo "HAVE_ARM_NEON: $HAVE_ARM_NEON" | tee -a "$TEST_RESULTS"
 fi
 
-if [[ "$IS_X64" -ne "0" ]]; then
+if [[ "$IS_X32" -ne "0" ]]; then
+    echo "IS_X32: $IS_X32" | tee -a "$TEST_RESULTS"
+elif [[ "$IS_X64" -ne "0" ]]; then
 	echo "IS_X64: $IS_X64" | tee -a "$TEST_RESULTS"
 elif [[ "$IS_X86" -ne "0" ]]; then
 	echo "IS_X86: $IS_X86" | tee -a "$TEST_RESULTS"
