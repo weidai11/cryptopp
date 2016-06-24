@@ -95,6 +95,12 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 	if [[ (-e "/usr/gnu/bin/awk") ]]; then AWK=/usr/gnu/bin/awk; else AWK=nawk; fi
 fi
 
+# Recognize "fast" and "quick"...
+if [[ ("$#" -eq "1") && ($("$EGREP" -ix "fast" <<< "$1") || $("$EGREP" -ix "quick" <<< "$1")) ]]; then
+	HAVE_VALGRIND=0
+	WANT_BENCHMARKS=0
+fi
+
 # We need to use the C++ compiler to determine feature availablility. Otherwise
 #   mis-detections occur on a number of platforms.
 if [[ ((-z "$CXX") || ("$CXX" == "gcc")) ]]; then
