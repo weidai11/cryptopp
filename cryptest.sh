@@ -77,8 +77,9 @@ IS_SOLARIS=$(uname -s | "$GREP" -i -c sunos)
 IS_X86=$(uname -m | "$EGREP" -i -c "(i386|i586|i686|amd64|x86_64)")
 IS_X64=$(uname -m | "$EGREP" -i -c "(amd64|x86_64)")
 IS_PPC=$(uname -m | "$EGREP" -i -c "(Power|PPC)")
-IS_ARM32=$(uname -m | "$EGREP" -i -c "arm|aarch32")
+IS_ARM32=$(uname -m | "$GREP" -v "arm64" | "$EGREP" -i -c "arm|aarch32")
 IS_ARM64=$(uname -m | "$EGREP" -i -c "arm64|aarch64")
+IS_S390=$(uname -m | "$EGREP" -i -c "s390")
 IS_X32=0
 
 # Fixup
@@ -427,6 +428,12 @@ fi
 if [[ "$HAVE_ARM_NEON" -ne "0" ]]; then
 	echo "HAVE_ARM_NEON: $HAVE_ARM_NEON" | tee -a "$TEST_RESULTS"
 fi
+if [[ "$HAVE_ARM_CRC" -ne "0" ]]; then
+	echo "HAVE_ARM_CRC: $HAVE_ARM_CRC" | tee -a "$TEST_RESULTS"
+fi
+if [[ "$HAVE_ARM_CRYPTO" -ne "0" ]]; then
+	echo "HAVE_ARM_CRYPTO: $HAVE_ARM_CRYPTO" | tee -a "$TEST_RESULTS"
+fi
 
 if [[ "$IS_X32" -ne "0" ]]; then
     echo "IS_X32: $IS_X32" | tee -a "$TEST_RESULTS"
@@ -434,6 +441,10 @@ elif [[ "$IS_X64" -ne "0" ]]; then
 	echo "IS_X64: $IS_X64" | tee -a "$TEST_RESULTS"
 elif [[ "$IS_X86" -ne "0" ]]; then
 	echo "IS_X86: $IS_X86" | tee -a "$TEST_RESULTS"
+fi
+
+if [[ "$IS_S390" -ne "0" ]]; then
+    echo "IS_S390: $IS_S390" | tee -a "$TEST_RESULTS"
 fi
 
 # C++03, C++11, C++14 and C++17
