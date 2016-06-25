@@ -201,30 +201,32 @@ void CBC_CTS_Encryption::ProcessLastBlock(byte *outString, const byte *inString,
 		// steal from IV
 		memcpy(outString, m_register, length);
 		outString = m_stolenIV;
+
+		// output last full ciphertext block
+		xorbuf(m_register, inString, length);
+		m_cipher->ProcessBlock(m_register);
+		memcpy(outString, m_register, BlockSize());
 	}
 	else
 	{
 		// steal from next to last block
 		xorbuf(m_register, inString, BlockSize());
 		m_cipher->ProcessBlock(m_register);
-		if (inString == outString)
-		{
-			length -= BlockSize();
-			memmove(outString, inString+BlockSize(), length);
-			memcpy(outString+BlockSize(), m_register, length);
-		}
-		else
-		{
-			inString += BlockSize();
-			length -= BlockSize();
-			memcpy(outString+BlockSize(), m_register, length);
-		}
-	}
+		length -= BlockSize();
 
-	// output last full ciphertext block
-	xorbuf(m_register, inString, length);
-	m_cipher->ProcessBlock(m_register);
-	memcpy(outString, m_register, BlockSize());
+		// output last full ciphertext block
+		if (inString == outString) {
+			memcpy(m_buffer, outString+BlockSize(), length);
+			memcpy(outString+BlockSize(), m_register, length);
+			xorbuf(m_register, m_buffer, length);
+		}
+		else {
+			memcpy(outString+BlockSize(), m_register, length);
+			xorbuf(m_register, inString+BlockSize(), length);
+		}
+		m_cipher->ProcessBlock(m_register);
+		memcpy(outString, m_register, BlockSize());
+	}
 }
 
 // Thanks to Zireael, http://github.com/weidai11/cryptopp/pull/46
@@ -259,40 +261,35 @@ void CBC_CTS_Decryption::ProcessLastBlock(byte *outString, const byte *inString,
 	{
 		pn = inString;
 		pn1 = m_register;
-	}
-	else
-	{
-		pn = inString + BlockSize();
-		pn1 = inString;
-		length -= BlockSize();
-	}
 
-	// decrypt last partial plaintext block
-	memcpy(m_temp, pn1, BlockSize());
-	m_cipher->ProcessBlock(m_temp);
-	xorbuf(m_temp, pn, length);
+		// decrypt last partial plaintext block
+		memcpy(m_temp, pn1, BlockSize());
+		m_cipher->ProcessBlock(m_temp);
+		xorbuf(m_temp, pn, length);
 
-	if (stealIV)
 		memcpy(outString, m_temp, length);
+	}
 	else
 	{
-		if (inString == outString)
-		{
-			memmove(outString, inString+BlockSize(), length);
+		length -= BlockSize();
+
+		// decrypt last partial plaintext block
+		memcpy(m_temp, inString, BlockSize());
+		m_cipher->ProcessBlock(m_temp);
+		xorbuf(m_temp, inString+BlockSize(), length);
+
+		// decrypt next to last plaintext block
+		if (inString == outString) {
+			memcpy(m_buffer, outString+BlockSize(), length);
 			memcpy(outString+BlockSize(), m_temp, length);
-			// decrypt next to last plaintext block
-			memcpy(m_temp, pn1, length);
-			m_cipher->ProcessBlock(m_temp);
-			xorbuf(outString, m_temp, m_register, BlockSize());
+			memcpy(m_temp, m_buffer, length);
 		}
-		else
-		{
+		else {
 			memcpy(outString+BlockSize(), m_temp, length);
-			// decrypt next to last plaintext block
-			memcpy(m_temp, pn, length);
-			m_cipher->ProcessBlock(m_temp);
-			xorbuf(outString, m_temp, m_register, BlockSize());
+			memcpy(m_temp, inString+BlockSize(), length);
 		}
+		m_cipher->ProcessBlock(m_temp);
+		xorbuf(outString, m_temp, m_register, BlockSize());
 	}
 }
 
