@@ -215,12 +215,14 @@ void CBC_CTS_Encryption::ProcessLastBlock(byte *outString, const byte *inString,
 		length -= BlockSize();
 
 		// output last full ciphertext block
-		if (inString == outString) {
+		if (inString == outString)
+		{
 			memcpy(m_buffer, outString+BlockSize(), length);
 			memcpy(outString+BlockSize(), m_register, length);
 			xorbuf(m_register, m_buffer, length);
 		}
-		else {
+		else
+		{
 			memcpy(outString+BlockSize(), m_register, length);
 			xorbuf(m_register, inString+BlockSize(), length);
 		}
@@ -279,12 +281,14 @@ void CBC_CTS_Decryption::ProcessLastBlock(byte *outString, const byte *inString,
 		xorbuf(m_temp, inString+BlockSize(), length);
 
 		// decrypt next to last plaintext block
-		if (inString == outString) {
+		if (inString == outString)
+		{
 			memcpy(m_buffer, outString+BlockSize(), length);
 			memcpy(outString+BlockSize(), m_temp, length);
 			memcpy(m_temp, m_buffer, length);
 		}
-		else {
+		else
+		{
 			memcpy(outString+BlockSize(), m_temp, length);
 			memcpy(m_temp, inString+BlockSize(), length);
 		}
