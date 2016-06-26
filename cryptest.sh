@@ -376,8 +376,22 @@ if [[ (-z "$HAVE_VALGRIND") ]]; then
 	HAVE_VALGRIND=$(which valgrind 2>&1 | "$GREP" -v "no valgrind" | "$GREP" -i -c valgrind)
 fi
 
+# Try to find a symbolizer for As an
 if [[ (-z "$HAVE_SYMBOLIZE") ]]; then
-	HAVE_SYMBOLIZE=$(which asan_symbolize 2>&1 | "$GREP" -v "no asan_symbolize" | "$GREP" -i -c asan_symbolize)
+	if [[ (! -z "$ASAN_SYMBOLIZER_PATH") ]]; then
+		HAVE_SYMBOLIZE=1
+		ASAN_SYMBOLIZE="$ASAN_SYMBOLIZER_PATH"
+	fi
+
+	if [[ ("$HAVE_SYMBOLIZE" -eq "0") ]]; then
+		HAVE_SYMBOLIZE=$(which llvm-symbolizer 2>&1 | "$GREP" -v "no llvm-symbolizer" | "$GREP" -i -c llvm-symbolizer)
+		ASAN_SYMBOLIZE=llvm-symbolizer
+	fi
+
+	if [[ ("$HAVE_SYMBOLIZE" -eq "0") ]]; then
+		HAVE_SYMBOLIZE=$(which asan_symbolize 2>&1 | "$GREP" -v "no asan_symbolize" | "$GREP" -i -c "asan_symbolize")
+		"$ASAN_SYMBOLIZE"=asan_symbolize
+	fi
 fi
 
 # Used to disassemble object modules so we can verify some aspects of code generation
@@ -1839,11 +1853,11 @@ if [[ ("$HAVE_CXX03" -ne "0" && "$HAVE_ASAN" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	else
 		if [[ ("$HAVE_SYMBOLIZE" -ne "0") ]]; then
-			./cryptest.exe v 2>&1 | asan_symbolize | tee -a "$TEST_RESULTS"
+			./cryptest.exe v 2>&1 | "$ASAN_SYMBOLIZE" 2>&1 | tee -a "$TEST_RESULTS"
 			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
 			fi
-			./cryptest.exe tv all 2>&1 | asan_symbolize | tee -a "$TEST_RESULTS"
+			./cryptest.exe tv all 2>&1 | "$ASAN_SYMBOLIZE" 2>&1 | tee -a "$TEST_RESULTS"
 			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
 			fi
@@ -1879,11 +1893,11 @@ if [[ ("$HAVE_CXX03" -ne "0" && "$HAVE_ASAN" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	else
 		if [[ ("$HAVE_SYMBOLIZE" -ne "0") ]]; then
-			./cryptest.exe v 2>&1 | asan_symbolize | tee -a "$TEST_RESULTS"
+			./cryptest.exe v 2>&1 | "$ASAN_SYMBOLIZE" 2>&1 | tee -a "$TEST_RESULTS"
 			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
 			fi
-			./cryptest.exe tv all 2>&1 | asan_symbolize | tee -a "$TEST_RESULTS"
+			./cryptest.exe tv all 2>&1 | "$ASAN_SYMBOLIZE" 2>&1 | tee -a "$TEST_RESULTS"
 			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
 			fi
@@ -1977,11 +1991,11 @@ if [[ ("$HAVE_CXX11" -ne "0" && "$HAVE_ASAN" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	else
 		if [[ ("$HAVE_SYMBOLIZE" -ne "0") ]]; then
-			./cryptest.exe v 2>&1 | asan_symbolize | tee -a "$TEST_RESULTS"
+			./cryptest.exe v 2>&1 | "$ASAN_SYMBOLIZE" 2>&1 | tee -a "$TEST_RESULTS"
 			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
 			fi
-			./cryptest.exe tv all 2>&1 | asan_symbolize | tee -a "$TEST_RESULTS"
+			./cryptest.exe tv all 2>&1 | "$ASAN_SYMBOLIZE" 2>&1 | tee -a "$TEST_RESULTS"
 			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
 			fi
@@ -2018,11 +2032,11 @@ if [[ ("$HAVE_CXX11" -ne "0" && "$HAVE_ASAN" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	else
 		if [[ ("$HAVE_SYMBOLIZE" -ne "0") ]]; then
-			./cryptest.exe v 2>&1 | asan_symbolize | tee -a "$TEST_RESULTS"
+			./cryptest.exe v 2>&1 | "$ASAN_SYMBOLIZE" 2>&1 | tee -a "$TEST_RESULTS"
 			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
 			fi
-			./cryptest.exe tv all 2>&1 | asan_symbolize | tee -a "$TEST_RESULTS"
+			./cryptest.exe tv all 2>&1 | "$ASAN_SYMBOLIZE" 2>&1 | tee -a "$TEST_RESULTS"
 			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
 			fi
@@ -2087,11 +2101,11 @@ if [[ ("$HAVE_CXX14" -ne "0" && "$HAVE_ASAN" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	else
 		if [[ ("$HAVE_SYMBOLIZE" -ne "0") ]]; then
-			./cryptest.exe v 2>&1 | asan_symbolize | tee -a "$TEST_RESULTS"
+			./cryptest.exe v 2>&1 | "$ASAN_SYMBOLIZE" 2>&1 | tee -a "$TEST_RESULTS"
 			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
 			fi
-			./cryptest.exe tv all 2>&1 | asan_symbolize | tee -a "$TEST_RESULTS"
+			./cryptest.exe tv all 2>&1 | "$ASAN_SYMBOLIZE" 2>&1 | tee -a "$TEST_RESULTS"
 			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
 			fi
@@ -2156,11 +2170,11 @@ if [[ ("$HAVE_CXX17" -ne "0" && "$HAVE_ASAN" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	else
 		if [[ ("$HAVE_SYMBOLIZE" -ne "0") ]]; then
-			./cryptest.exe v 2>&1 | asan_symbolize | tee -a "$TEST_RESULTS"
+			./cryptest.exe v 2>&1 | "$ASAN_SYMBOLIZE" 2>&1 | tee -a "$TEST_RESULTS"
 			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
 			fi
-			./cryptest.exe tv all 2>&1 | asan_symbolize | tee -a "$TEST_RESULTS"
+			./cryptest.exe tv all 2>&1 | "$ASAN_SYMBOLIZE" 2>&1 | tee -a "$TEST_RESULTS"
 			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
 			fi
