@@ -378,24 +378,18 @@ fi
 
 # Try to find a symbolizer for Asan
 if [[ (-z "$HAVE_SYMBOLIZE") ]]; then
-	HAVE_SYMBOLIZE=0
-	if [[ (! -z "$ASAN_SYMBOLIZER_PATH") ]]; then
-		HAVE_SYMBOLIZE=1
-		ASAN_SYMBOLIZE="$ASAN_SYMBOLIZER_PATH"
-	fi
-
-	if [[ ("$HAVE_SYMBOLIZE" -eq "0") ]]; then
-		HAVE_SYMBOLIZE=$(which llvm-symbolizer 2>&1 | "$GREP" -v "no llvm-symbolizer" | "$GREP" -i -c llvm-symbolizer)
-		ASAN_SYMBOLIZE="llvm-symbolizer"
-	fi
-
-	if [[ ("$HAVE_SYMBOLIZE" -eq "0") ]]; then
-		HAVE_SYMBOLIZE=$(which asan_symbolize 2>&1 | "$GREP" -v "no asan_symbolize" | "$GREP" -i -c "asan_symbolize")
+	# Sets default value
+	HAVE_SYMBOLIZE=$(which asan_symbolize 2>&1 | "$GREP" -v "no asan_symbolize" | "$GREP" -i -c "asan_symbolize")
+	if [[ (("$HAVE_SYMBOLIZE" -ne "0") && (-z "$ASAN_SYMBOLIZE")) ]]; then
 		ASAN_SYMBOLIZE="asan_symbolize"
 	fi
 
-	if [[ ("$HAVE_SYMBOLIZE" -eq "0") ]]; then
-		ASAN_SYMBOLIZE=
+	# Clang implicitly uses ASAN_SYMBOLIZER_PATH; set it if its not set.
+	if [[ (-z "$ASAN_SYMBOLIZER_PATH") ]]; then
+		LLVM_SYMBOLIZER_FOUND=$(which llvm-symbolizer 2>&1 | "$GREP" -v "no llvm-symbolizer" | "$GREP" -i -c llvm-symbolizer)
+		if [[ ("$LLVM_SYMBOLIZER_FOUND" -ne "0") ]]; then
+			export ASAN_SYMBOLIZER_PATH=$(which llvm-symbolizer)
+		fi
 	fi
 fi
 
@@ -489,6 +483,7 @@ fi
 # Tools available for testing
 echo | tee -a "$TEST_RESULTS"
 echo "HAVE_ASAN: $HAVE_ASAN" | tee -a "$TEST_RESULTS"
+if [[ (! -z "$ASAN_SYMBOLIZE") ]]; then echo "ASAN_SYMBOLIZE: $ASAN_SYMBOLIZE" | tee -a "$TEST_RESULTS"; fi
 echo "HAVE_UBSAN: $HAVE_UBSAN" | tee -a "$TEST_RESULTS"
 echo "HAVE_VALGRIND: $HAVE_VALGRIND" | tee -a "$TEST_RESULTS"
 
