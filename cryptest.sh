@@ -376,8 +376,9 @@ if [[ (-z "$HAVE_VALGRIND") ]]; then
 	HAVE_VALGRIND=$(which valgrind 2>&1 | "$GREP" -v "no valgrind" | "$GREP" -i -c valgrind)
 fi
 
-# Try to find a symbolizer for As an
+# Try to find a symbolizer for Asan
 if [[ (-z "$HAVE_SYMBOLIZE") ]]; then
+	HAVE_SYMBOLIZE=0
 	if [[ (! -z "$ASAN_SYMBOLIZER_PATH") ]]; then
 		HAVE_SYMBOLIZE=1
 		ASAN_SYMBOLIZE="$ASAN_SYMBOLIZER_PATH"
