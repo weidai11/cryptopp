@@ -386,12 +386,16 @@ if [[ (-z "$HAVE_SYMBOLIZE") ]]; then
 
 	if [[ ("$HAVE_SYMBOLIZE" -eq "0") ]]; then
 		HAVE_SYMBOLIZE=$(which llvm-symbolizer 2>&1 | "$GREP" -v "no llvm-symbolizer" | "$GREP" -i -c llvm-symbolizer)
-		ASAN_SYMBOLIZE=llvm-symbolizer
+		ASAN_SYMBOLIZE="llvm-symbolizer"
 	fi
 
 	if [[ ("$HAVE_SYMBOLIZE" -eq "0") ]]; then
 		HAVE_SYMBOLIZE=$(which asan_symbolize 2>&1 | "$GREP" -v "no asan_symbolize" | "$GREP" -i -c "asan_symbolize")
-		"$ASAN_SYMBOLIZE"=asan_symbolize
+		ASAN_SYMBOLIZE="asan_symbolize"
+	fi
+
+	if [[ ("$HAVE_SYMBOLIZE" -eq "0") ]]; then
+		ASAN_SYMBOLIZE=
 	fi
 fi
 
