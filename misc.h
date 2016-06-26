@@ -1,3 +1,4 @@
+
 // misc.h - written and placed in the public domain by Wei Dai
 
 //! \file misc.h
@@ -61,6 +62,12 @@
 
 #if defined(__GNUC__) && defined(__BMI__)
 # include <immintrin.h>
+# if defined(__clang__)
+#  define _tzcnt_u32(x) __tzcnt_u32(x)
+#  define _tzcnt_u64(x) __tzcnt_u64(x)
+#  define  _blsr_u32(x)  __blsr_u32(x)
+#  define  _blsr_u64(x)  __blsr_u64(x)
+# endif
 #endif
 
 #endif // CRYPTOPP_DOXYGEN_PROCESSING
