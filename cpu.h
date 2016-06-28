@@ -86,13 +86,9 @@ _mm_insert_epi32 (__m128i a, int b, const int i)
 NAMESPACE_END
 #endif // smmintrin.h
 
-// AES needs Clang 2.8 and Apple Clang 4.6. PCLMUL needs Clang 3.4 and Apple Clang 6.0.
-// GCC 4.4 code path due to http://github.com/weidai11/cryptopp/issues/206.
+// AES needs Clang 2.8 and Apple Clang 4.6. PCLMUL needs Clang 3.4 and Apple Clang 6.0
 #if !defined(__GNUC__) || (defined(__AES__) && defined(__PCLMUL__)) || defined(__INTEL_COMPILER) || (CRYPTOPP_CLANG_VERSION >= 30400) || (CRYPTOPP_APPLE_CLANG_VERSION >= 60000)
-# include <wmmintrin.h>
-#elif defined(__GNUC__) && (CRYPTOPP_GCC_VERSION >= 40400)
-# include <x86intrin.h>
-# include <emmintrin.h>
+#include <wmmintrin.h>
 #else
 NAMESPACE_BEGIN(CryptoPP)
 __inline __m128i __attribute__((__gnu_inline__, __always_inline__, __artificial__))
