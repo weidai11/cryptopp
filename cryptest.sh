@@ -3839,27 +3839,23 @@ echo "************************************************" | tee -a "$TEST_RESULTS"
 echo "************************************************" | tee -a "$TEST_RESULTS"
 echo | tee -a "$TEST_RESULTS"
 
-echo "Configurations tested:" | tee -a "$TEST_RESULTS"
-ESCAPED=$("$GREP" 'Testing: ' "$TEST_RESULTS" | "$AWK" -F ": " '{print " - " $2 "$"}')
-echo " "$ESCAPED | tr $ '\n' | tee -a "$TEST_RESULTS"
-ESCAPED=$("$GREP" 'Testing: ' "$WARN_RESULTS" | "$AWK" -F ": " '{print " - " $2 "$"}')
-echo " "$ESCAPED | tr '$' '\n' | tee -a "$TEST_RESULTS"
-
-############################################
-# Report errors and warnings
-
-# Errors
-
-echo
-echo "************************************************" | tee -a "$TEST_RESULTS"
-echo | tee -a "$TEST_RESULTS"
-
-COUNT=$("$GREP" -a 'Testing:' "$TEST_RESULTS" | wc -l | "$AWK" '{print $1}')
+COUNT=$("$GREP" -a 'Testing:' "$TEST_RESULTS" "$WARN_RESULTS" | wc -l | "$AWK" '{print $1}')
 if (( "$COUNT" == "0" )); then
 	echo "No configurations tested" | tee -a "$TEST_RESULTS"
 else
 	echo "$COUNT configurations tested" | tee -a "$TEST_RESULTS"
+	ESCAPED=$("$GREP" 'Testing: ' "$TEST_RESULTS" | "$AWK" -F ": " '{print " - " $2 "$"}')
+	echo " "$ESCAPED | tr $ '\n' | tee -a "$TEST_RESULTS"
+	ESCAPED=$("$GREP" 'Testing: ' "$WARN_RESULTS" | "$AWK" -F ": " '{print " - " $2 "$"}')
+	echo " "$ESCAPED | tr '$' '\n' | tee -a "$TEST_RESULTS"
 fi
+echo | tee -a "$TEST_RESULTS"
+
+############################################
+# Report errors
+
+echo
+echo "************************************************" | tee -a "$TEST_RESULTS"
 echo | tee -a "$TEST_RESULTS"
 
 # "FAILED" is from Crypto++
@@ -3872,15 +3868,13 @@ if (( "$ECOUNT" == "0" )); then
 	echo "No failures detected" | tee -a "$TEST_RESULTS"
 else
 	echo "$ECOUNT errors detected. See $TEST_RESULTS for details" | tee -a "$TEST_RESULTS"
-	echo
-
 	if (( "$ECOUNT" < 16 )); then
 		"$EGREP" -an '(Error|ERROR|error|FAILED|Illegal)' "$TEST_RESULTS" | "$EGREP" -v '( 0 errors|suppressed errors|error detector)'
 	fi
 fi
-echo | tee -a "$TEST_RESULTS"
 
-# Warnings
+############################################
+# Report warnings
 
 echo
 echo "************************************************" | tee -a "$WARN_RESULTS"
@@ -3891,20 +3885,19 @@ if (( "$WCOUNT" == "0" )); then
 	echo "No warnings detected" | tee -a "$WARN_RESULTS" | tee -a "$WARN_RESULTS"
 else
 	echo "$WCOUNT warnings detected. See $WARN_RESULTS for details" | tee -a "$WARN_RESULTS"
-	echo
 	# "$EGREP" -an '(warning:)' $WARN_RESULTS | "$GREP" -v 'deprecated-declarations'
 fi
-echo | tee -a "$WARN_RESULTS"
 
+############################################
+# Report execution time
 
-# Execution time
-
+echo
 echo "************************************************" | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
 
 echo
 echo "Testing started: $TEST_BEGIN" | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
 echo "Testing finished: $TEST_END" | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
-echo | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
+echo
 
 ############################################
 # http://tldp.org/LDP/abs/html/exitcodes.html#EXITCODESREF
