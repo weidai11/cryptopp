@@ -171,7 +171,7 @@ public:
 	typedef SecBlock<State, AllocatorWithCleanup<State, true> > AlignedState;
 	typedef SecBlock<ParameterBlock, AllocatorWithCleanup<ParameterBlock, true> > AlignedParameterBlock;
 
-	virtual ~BLAKE2_Base() {m_digestSize=0xffffffff,m_treeMode=false;}
+	virtual ~BLAKE2_Base() {}
 
 	//! \brief Retrieve the static algorithm name
 	//! \returns the algorithm name (BLAKE2s or BLAKE2b)
