@@ -33,7 +33,7 @@ NAMESPACE_BEGIN(CryptoPP)
 # undef CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
 #endif
 
-// Apple Clang 6.0/Clang 3.5 does not have SSSE3
+// Apple Clang 6.0/Clang 3.5 does not have SSSE3 intrinsics
 //   http://llvm.org/bugs/show_bug.cgi?id=20213
 #if (defined(CRYPTOPP_APPLE_CLANG_VERSION) && (CRYPTOPP_APPLE_CLANG_VERSION <= 60000)) || (defined(CRYPTOPP_CLANG_VERSION) && (CRYPTOPP_CLANG_VERSION <= 30500))
 # undef CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
@@ -199,7 +199,7 @@ BLAKE2_ParameterBlock<false>::BLAKE2_ParameterBlock(size_t digestLen, size_t key
 		const byte* saltStr, size_t saltLen,
 		const byte* personalizationStr, size_t personalizationLen)
 {
-	static const size_t head = sizeof(*this) - sizeof(personalization) - sizeof(salt);
+	static const size_t head = sizeof(BLAKE2_ParameterBlock<false>) - sizeof(personalization) - sizeof(salt);
 	memset(this, 0x00, head);
 
 	digestLength = (byte)digestLen;
@@ -235,7 +235,7 @@ BLAKE2_ParameterBlock<true>::BLAKE2_ParameterBlock(size_t digestLen, size_t keyL
 		const byte* saltStr, size_t saltLen,
 		const byte* personalizationStr, size_t personalizationLen)
 {
-	static const size_t head = sizeof(*this) - sizeof(personalization) - sizeof(salt);
+	static const size_t head = sizeof(BLAKE2_ParameterBlock<true>) - sizeof(personalization) - sizeof(salt);
 	memset(this, 0x00, head);
 
 	digestLength = (byte)digestLen;
@@ -288,7 +288,7 @@ void BLAKE2_Base<W, T_64bit>::UncheckedSetKey(const byte *key, unsigned int leng
 
 	// Zero everything except the two trailing strings
 	ParameterBlock& block = *m_block.data();
-	const size_t head = sizeof(block) - sizeof(block.personalization) - sizeof(block.salt);
+	const size_t head = sizeof(ParameterBlock) - COUNTOF(block.personalization) - COUNTOF(block.salt);
 	memset(m_block.data(), 0x00, head);
 
 	block.keyLength = (byte)length;
@@ -299,41 +299,43 @@ void BLAKE2_Base<W, T_64bit>::UncheckedSetKey(const byte *key, unsigned int leng
 	if (params.GetValue(Name::Salt(), t))
 	{
 		if (t.begin() && t.size())
-			memcpy_s(block.salt, sizeof(block.salt), t.begin(), t.size());
+			memcpy_s(block.salt, COUNTOF(block.salt), t.begin(), t.size());
 
-		const size_t rem = sizeof(block.salt) - t.size();
+		const size_t rem = COUNTOF(block.salt) - t.size();
+		const size_t off = COUNTOF(block.salt) - rem;
 		if (rem)
-			memset(block.salt+rem, 0x00, rem);
+			memset(&block.salt[off], 0x00, rem);
 	}
 	else
 	{
-		memset(block.salt, 0x00, sizeof(block.salt));
+		memset(block.salt, 0x00, COUNTOF(block.salt));
 	}
 
 	if (params.GetValue(Name::Personalization(), t))
 	{
 		if (t.begin() && t.size())
-			memcpy_s(block.personalization, sizeof(block.personalization), t.begin(), t.size());
+			memcpy_s(block.personalization, COUNTOF(block.personalization), t.begin(), t.size());
 
-		const size_t rem = sizeof(block.personalization) - t.size();
+		const size_t rem = COUNTOF(block.personalization) - t.size();
+		const size_t off = COUNTOF(block.personalization) - rem;
 		if (rem)
-			memset(block.personalization+rem, 0x00, rem);
+			memset(&block.personalization[off], 0x00, rem);
 	}
 	else
 	{
-		memset(block.personalization, 0x00, sizeof(block.personalization));
+		memset(block.personalization, 0x00, COUNTOF(block.personalization));
 	}
 }
 
 template <class W, bool T_64bit>
-BLAKE2_Base<W, T_64bit>::BLAKE2_Base() : m_state(), m_block(), m_digestSize(DIGESTSIZE), m_treeMode(false)
+BLAKE2_Base<W, T_64bit>::BLAKE2_Base() : m_state(1), m_block(1), m_digestSize(DIGESTSIZE), m_treeMode(false)
 {
 	UncheckedSetKey(NULL, 0, g_nullNameValuePairs);
 	Restart();
 }
 
 template <class W, bool T_64bit>
-BLAKE2_Base<W, T_64bit>::BLAKE2_Base(bool treeMode, unsigned int digestSize) : m_state(), m_block(), m_digestSize(digestSize), m_treeMode(treeMode)
+BLAKE2_Base<W, T_64bit>::BLAKE2_Base(bool treeMode, unsigned int digestSize) : m_state(1), m_block(1), m_digestSize(digestSize), m_treeMode(treeMode)
 {
 	assert(digestSize <= DIGESTSIZE);
 
@@ -344,7 +346,7 @@ BLAKE2_Base<W, T_64bit>::BLAKE2_Base(bool treeMode, unsigned int digestSize) : m
 template <class W, bool T_64bit>
 BLAKE2_Base<W, T_64bit>::BLAKE2_Base(const byte *key, size_t keyLength, const byte* salt, size_t saltLength,
 	const byte* personalization, size_t personalizationLength, bool treeMode, unsigned int digestSize)
-	: m_state(), m_block(), m_digestSize(digestSize), m_treeMode(treeMode)
+	: m_state(1), m_block(1), m_digestSize(digestSize), m_treeMode(treeMode)
 {
 	assert(keyLength <= MAX_KEYLENGTH);
 	assert(digestSize <= DIGESTSIZE);
@@ -370,9 +372,9 @@ void BLAKE2_Base<W, T_64bit>::Restart(const BLAKE2_ParameterBlock<T_64bit>& bloc
 	// Avoid the copy of the parameter block when we are passing our own block.
 	if (&block != m_block.data())
 	{
-		memcpy_s(m_block, sizeof(block), &block, sizeof(block));
-		(*m_block.data()).digestLength = (byte)m_digestSize;
-		(*m_block.data()).keyLength = (byte)m_key.size();
+		memcpy_s(m_block.data(), sizeof(ParameterBlock), &block, sizeof(ParameterBlock));
+		m_block.data()->digestLength = (byte)m_digestSize;
+		m_block.data()->keyLength = (byte)m_key.size();
 	}
 
 	State& state = *m_state.data();
@@ -384,7 +386,7 @@ void BLAKE2_Base<W, T_64bit>::Restart(const BLAKE2_ParameterBlock<T_64bit>& bloc
 		state.t[1] = counter[1];
 	}
 
-	PutBlock<W, LittleEndian, true> put(m_block, &state.h[0]);
+	PutBlock<W, LittleEndian, true> put(m_block.data(), &state.h[0]);
 	put(BLAKE2_IV<T_64bit>::iv[0])(BLAKE2_IV<T_64bit>::iv[1])(BLAKE2_IV<T_64bit>::iv[2])(BLAKE2_IV<T_64bit>::iv[3]);
 	put(BLAKE2_IV<T_64bit>::iv[4])(BLAKE2_IV<T_64bit>::iv[5])(BLAKE2_IV<T_64bit>::iv[6])(BLAKE2_IV<T_64bit>::iv[7]);
 
@@ -419,9 +421,11 @@ void BLAKE2_Base<W, T_64bit>::Update(const byte *input, size_t length)
 		}
 	}
 
+	// Copy tail bytes
 	if (input && length)
 	{
-		memcpy_s(&state.buffer[state.length], BLOCKSIZE - state.length, input, length);
+		assert(length <= BLOCKSIZE - state.length);
+		memcpy_s(&state.buffer[state.length], length, input, length);
 		state.length += static_cast<unsigned int>(length);
 	}
 }

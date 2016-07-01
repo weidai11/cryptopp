@@ -27,7 +27,7 @@ NAMESPACE_BEGIN(CryptoPP)
 //! \brief BLAKE2 hash information
 //! \tparam T_64bit flag indicating 64-bit
 template <bool T_64bit>
-struct CRYPTOPP_NO_VTABLE BLAKE2_Info : public VariableKeyLength<(T_64bit ? 64 : 32),0,(T_64bit ? 64 : 32),1,SimpleKeyingInterface::NOT_RESYNCHRONIZABLE>
+struct BLAKE2_Info : public VariableKeyLength<(T_64bit ? 64 : 32),0,(T_64bit ? 64 : 32),1,SimpleKeyingInterface::NOT_RESYNCHRONIZABLE>
 {
 	typedef VariableKeyLength<(T_64bit ? 64 : 32),0,(T_64bit ? 64 : 32),1,SimpleKeyingInterface::NOT_RESYNCHRONIZABLE> KeyBase;
 	CRYPTOPP_CONSTANT(MIN_KEYLENGTH = KeyBase::MIN_KEYLENGTH)
@@ -166,10 +166,12 @@ public:
 	CRYPTOPP_CONSTANT(SALTSIZE = BLAKE2_Info<T_64bit>::SALTSIZE)
 	CRYPTOPP_CONSTANT(PERSONALIZATIONSIZE = BLAKE2_Info<T_64bit>::PERSONALIZATIONSIZE)
 
-	typedef BLAKE2_ParameterBlock<T_64bit> ParameterBlock;
 	typedef BLAKE2_State<W, T_64bit> State;
+	typedef BLAKE2_ParameterBlock<T_64bit> ParameterBlock;
+	typedef SecBlock<State, AllocatorWithCleanup<State, true> > AlignedState;
+	typedef SecBlock<ParameterBlock, AllocatorWithCleanup<ParameterBlock, true> > AlignedParameterBlock;
 
-	virtual ~BLAKE2_Base() {}
+	virtual ~BLAKE2_Base() {m_digestSize=0xffffffff,m_treeMode=false;}
 
 	//! \brief Retrieve the static algorithm name
 	//! \returns the algorithm name (BLAKE2s or BLAKE2b)
@@ -223,8 +225,8 @@ protected:
 	void UncheckedSetKey(const byte* key, unsigned int length, const CryptoPP::NameValuePairs& params);
 
 private:
-	FixedSizeAlignedSecBlock<State,2> m_state;
-	FixedSizeAlignedSecBlock<ParameterBlock,2> m_block;
+	AlignedState m_state;
+	AlignedParameterBlock m_block;
 	AlignedSecByteBlock m_key;
 	word32 m_digestSize;
 	bool m_treeMode;
