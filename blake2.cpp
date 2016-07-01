@@ -199,12 +199,14 @@ BLAKE2_ParameterBlock<false>::BLAKE2_ParameterBlock(size_t digestLen, size_t key
 		const byte* saltStr, size_t saltLen,
 		const byte* personalizationStr, size_t personalizationLen)
 {
-	static const size_t head = sizeof(BLAKE2_ParameterBlock<false>) - sizeof(personalization) - sizeof(salt);
-	memset(this, 0x00, head);
-
+	// Avoid Coverity finding SIZEOF_MISMATCH/suspicious_sizeof
 	digestLength = (byte)digestLen;
 	keyLength = (byte)keyLen;
 	fanout = depth = 1;
+	nodeDepth = innerLength = 0;
+
+	memset(leafLength, 0x00, COUNTOF(leafLength));
+	memset(nodeOffset, 0x00, COUNTOF(nodeOffset));
 
 	if (saltStr && saltLen)
 	{
@@ -212,7 +214,7 @@ BLAKE2_ParameterBlock<false>::BLAKE2_ParameterBlock(size_t digestLen, size_t key
 		const size_t rem = COUNTOF(salt) - saltLen;
 		const size_t off = COUNTOF(salt) - rem;
 		if (rem)
-			memset(&salt[off], 0x00, rem);
+			memset(salt+off, 0x00, rem);
 	}
 	else
 	{
@@ -225,7 +227,7 @@ BLAKE2_ParameterBlock<false>::BLAKE2_ParameterBlock(size_t digestLen, size_t key
 		const size_t rem = COUNTOF(personalization) - personalizationLen;
 		const size_t off = COUNTOF(personalization) - rem;
 		if (rem)
-			memset(&personalization[off], 0x00, rem);
+			memset(personalization+off, 0x00, rem);
 	}
 	else
 	{
@@ -237,12 +239,15 @@ BLAKE2_ParameterBlock<true>::BLAKE2_ParameterBlock(size_t digestLen, size_t keyL
 		const byte* saltStr, size_t saltLen,
 		const byte* personalizationStr, size_t personalizationLen)
 {
-	static const size_t head = sizeof(BLAKE2_ParameterBlock<true>) - sizeof(personalization) - sizeof(salt);
-	memset(this, 0x00, head);
-
+	// Avoid Coverity finding SIZEOF_MISMATCH/suspicious_sizeof
 	digestLength = (byte)digestLen;
 	keyLength = (byte)keyLen;
 	fanout = depth = 1;
+	nodeDepth = innerLength = 0;
+
+	memset(rfu, 0x00, COUNTOF(rfu));
+	memset(leafLength, 0x00, COUNTOF(leafLength));
+	memset(nodeOffset, 0x00, COUNTOF(nodeOffset));
 
 	if (saltStr && saltLen)
 	{
@@ -250,7 +255,7 @@ BLAKE2_ParameterBlock<true>::BLAKE2_ParameterBlock(size_t digestLen, size_t keyL
 		const size_t rem = COUNTOF(salt) - saltLen;
 		const size_t off = COUNTOF(salt) - rem;
 		if (rem)
-			memset(&salt[off], 0x00, rem);
+			memset(salt+off, 0x00, rem);
 	}
 	else
 	{
@@ -263,7 +268,7 @@ BLAKE2_ParameterBlock<true>::BLAKE2_ParameterBlock(size_t digestLen, size_t keyL
 		const size_t rem = COUNTOF(personalization) - personalizationLen;
 		const size_t off = COUNTOF(personalization) - rem;
 		if (rem)
-			memset(&personalization[off], 0x00, rem);
+			memset(personalization+off, 0x00, rem);
 	}
 	else
 	{
@@ -290,40 +295,41 @@ void BLAKE2_Base<W, T_64bit>::UncheckedSetKey(const byte *key, unsigned int leng
 		m_key.resize(0);
 	}
 
-	// Zero everything except the two trailing strings
+#if defined(__COVERITY__)
+	// Avoid Coverity finding SIZEOF_MISMATCH/suspicious_sizeof
 	ParameterBlock& block = *m_block.data();
-	const size_t head = sizeof(ParameterBlock) - COUNTOF(block.personalization) - COUNTOF(block.salt);
-	memset(m_block.data(), 0x00, head);
+	memset(m_block.data(), 0x00, sizeof(ParameterBlock));
+#else
+	// Set Head bytes; Tail bytes are set below
+	ParameterBlock& block = *m_block.data();
+	memset(m_block.data(), 0x00, T_64bit ? 32 : 16);
+#endif
 
 	block.keyLength = (byte)length;
 	block.digestLength = (byte)params.GetIntValueWithDefault(Name::DigestSize(), DIGESTSIZE);
 	block.fanout = block.depth = 1;
 
 	ConstByteArrayParameter t;
-	if (params.GetValue(Name::Salt(), t))
+	if (params.GetValue(Name::Salt(), t) && t.begin() && t.size())
 	{
-		if (t.begin() && t.size())
-			memcpy_s(block.salt, COUNTOF(block.salt), t.begin(), t.size());
-
+		memcpy_s(block.salt, COUNTOF(block.salt), t.begin(), t.size());
 		const size_t rem = COUNTOF(block.salt) - t.size();
 		const size_t off = COUNTOF(block.salt) - rem;
 		if (rem)
-			memset(&block.salt[off], 0x00, rem);
+			memset(block.salt+off, 0x00, rem);
 	}
 	else
 	{
 		memset(block.salt, 0x00, COUNTOF(block.salt));
 	}
 
-	if (params.GetValue(Name::Personalization(), t))
+	if (params.GetValue(Name::Personalization(), t) && t.begin() && t.size())
 	{
-		if (t.begin() && t.size())
-			memcpy_s(block.personalization, COUNTOF(block.personalization), t.begin(), t.size());
-
+		memcpy_s(block.personalization, COUNTOF(block.personalization), t.begin(), t.size());
 		const size_t rem = COUNTOF(block.personalization) - t.size();
 		const size_t off = COUNTOF(block.personalization) - rem;
 		if (rem)
-			memset(&block.personalization[off], 0x00, rem);
+			memset(block.personalization+off, 0x00, rem);
 	}
 	else
 	{
