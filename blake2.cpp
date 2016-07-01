@@ -208,26 +208,28 @@ BLAKE2_ParameterBlock<false>::BLAKE2_ParameterBlock(size_t digestLen, size_t key
 
 	if (saltStr && saltLen)
 	{
-		memcpy_s(salt, sizeof(salt), saltStr, saltLen);
-		const size_t rem = sizeof(salt) - saltLen;
+		memcpy_s(salt, COUNTOF(salt), saltStr, saltLen);
+		const size_t rem = COUNTOF(salt) - saltLen;
+		const size_t off = COUNTOF(salt) - rem;
 		if (rem)
-			memset(salt+rem, 0x00, rem);
+			memset(&salt[off], 0x00, rem);
 	}
 	else
 	{
-		memset(salt, 0x00, sizeof(salt));
+		memset(salt, 0x00, COUNTOF(salt));
 	}
 
 	if (personalizationStr && personalizationLen)
 	{
-		memcpy_s(personalization, sizeof(personalization), personalizationStr, personalizationLen);
-		const size_t rem = sizeof(personalization) - personalizationLen;
+		memcpy_s(personalization, COUNTOF(personalization), personalizationStr, personalizationLen);
+		const size_t rem = COUNTOF(personalization) - personalizationLen;
+		const size_t off = COUNTOF(personalization) - rem;
 		if (rem)
-			memset(personalization+rem, 0x00, rem);
+			memset(&personalization[off], 0x00, rem);
 	}
 	else
 	{
-		memset(personalization, 0x00, sizeof(personalization));
+		memset(personalization, 0x00, COUNTOF(personalization));
 	}
 }
 
@@ -244,26 +246,28 @@ BLAKE2_ParameterBlock<true>::BLAKE2_ParameterBlock(size_t digestLen, size_t keyL
 
 	if (saltStr && saltLen)
 	{
-		memcpy_s(salt, sizeof(salt), saltStr, saltLen);
-		const size_t rem = sizeof(salt) - saltLen;
+		memcpy_s(salt, COUNTOF(salt), saltStr, saltLen);
+		const size_t rem = COUNTOF(salt) - saltLen;
+		const size_t off = COUNTOF(salt) - rem;
 		if (rem)
-			memset(salt+rem, 0x00, rem);
+			memset(&salt[off], 0x00, rem);
 	}
 	else
 	{
-		memset(salt, 0x00, sizeof(salt));
+		memset(salt, 0x00, COUNTOF(salt));
 	}
 
 	if (personalizationStr && personalizationLen)
 	{
-		memcpy_s(personalization, sizeof(personalization), personalizationStr, personalizationLen);
-		const size_t rem = sizeof(personalization) - personalizationLen;
+		memcpy_s(personalization, COUNTOF(personalization), personalizationStr, personalizationLen);
+		const size_t rem = COUNTOF(personalization) - personalizationLen;
+		const size_t off = COUNTOF(personalization) - rem;
 		if (rem)
-			memset(personalization+rem, 0x00, rem);
+			memset(&personalization[off], 0x00, rem);
 	}
 	else
 	{
-		memset(personalization, 0x00, sizeof(personalization));
+		memset(personalization, 0x00, COUNTOF(personalization));
 	}
 }
 
