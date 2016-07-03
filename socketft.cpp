@@ -109,10 +109,12 @@ void Socket::CloseSocket()
 		BOOL result = CancelIoEx((HANDLE) m_s, NULL);
 		assert(result || (!result && GetLastError() == ERROR_NOT_FOUND));
 		CheckAndHandleError_int("closesocket", closesocket(m_s));
+		CRYPTOPP_UNUSED(result);	// Used by assert in debug builds
 # else
 		BOOL result = CancelIo((HANDLE) m_s);
 		assert(result || (!result && GetLastError() == ERROR_NOT_FOUND));
 		CheckAndHandleError_int("closesocket", closesocket(m_s));
+		CRYPTOPP_UNUSED(result);
 # endif
 #else
 		CheckAndHandleError_int("close", close(m_s));
@@ -368,9 +370,11 @@ SocketReceiver::~SocketReceiver()
 # if defined(USE_WINDOWS8_API)
 	BOOL result = CancelIoEx((HANDLE) m_s.GetSocket(), NULL);
 	assert(result || (!result && GetLastError() == ERROR_NOT_FOUND));
+	CRYPTOPP_UNUSED(result);	// Used by assert in debug builds
 # else
 	BOOL result = CancelIo((HANDLE) m_s.GetSocket());
 	assert(result || (!result && GetLastError() == ERROR_NOT_FOUND));
+	CRYPTOPP_UNUSED(result);
 # endif
 #endif
 }
@@ -456,9 +460,11 @@ SocketSender::~SocketSender()
 # if defined(USE_WINDOWS8_API)
 	BOOL result = CancelIoEx((HANDLE) m_s.GetSocket(), NULL);
 	assert(result || (!result && GetLastError() == ERROR_NOT_FOUND));
+	CRYPTOPP_UNUSED(result);	// Used by assert in debug builds
 # else
 	BOOL result = CancelIo((HANDLE) m_s.GetSocket());
 	assert(result || (!result && GetLastError() == ERROR_NOT_FOUND));
+	CRYPTOPP_UNUSED(result);
 # endif
 #endif
 }
