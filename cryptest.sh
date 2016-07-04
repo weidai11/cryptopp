@@ -458,6 +458,9 @@ elif [[ "$IS_DARWIN" -ne "0" ]]; then
 	echo "IS_DARWIN: $IS_DARWIN" | tee -a "$TEST_RESULTS"
 fi
 
+if [[ "$IS_PPC" -ne "0" ]]; then
+	echo "IS_PPC: $IS_PPC" | tee -a "$TEST_RESULTS"
+fi
 if [[ "$IS_ARM64" -ne "0" ]]; then
 	echo "IS_ARM64: $IS_ARM64" | tee -a "$TEST_RESULTS"
 elif [[ "$IS_ARM32" -ne "0" ]]; then
