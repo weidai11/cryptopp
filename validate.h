@@ -71,6 +71,8 @@ bool ValidateCMAC();
 bool ValidateBBS();
 bool ValidateDH();
 bool ValidateMQV();
+bool ValidateHMQV();
+bool ValidateFHMQV();
 bool ValidateRSA();
 bool ValidateElGamal();
 bool ValidateDLIES();
