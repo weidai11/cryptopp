@@ -106,6 +106,8 @@ eprecomp.h
 esign.cpp
 esign.h
 factory.h
+fhmqv.cpp
+fhmqv.h
 files.cpp
 files.h
 filters.cpp
@@ -134,6 +136,8 @@ hex.h
 hkdf.h
 hmac.cpp
 hmac.h
+hmqv.cpp
+hmqv.h
 hrtimer.cpp
 hrtimer.h
 ida.cpp
@@ -327,7 +331,15 @@ TestData/elgc1024.dat
 TestData/esig1023.dat
 TestData/esig1536.dat
 TestData/esig2046.dat
+TestData/fhmqv160.dat
+TestData/fhmqv256.dat
+TestData/fhmqv384.dat
+TestData/fhmqv512.dat
 TestData/gostval.dat
+TestData/hmqv160.dat
+TestData/hmqv256.dat
+TestData/hmqv384.dat
+TestData/hmqv512.dat
 TestData/ideaval.dat
 TestData/luc1024.dat
 TestData/luc2048.dat

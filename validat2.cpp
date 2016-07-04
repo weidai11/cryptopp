@@ -18,6 +18,8 @@
 #include "dsa.h"
 #include "dh.h"
 #include "mqv.h"
+#include "hmqv.h"
+#include "fhmqv.h"
 #include "luc.h"
 #include "xtrcrypt.h"
 #include "rabin.h"
@@ -383,6 +385,240 @@ bool ValidateMQV()
 	MQV mqv(f);
 	return AuthenticatedKeyAgreementValidate(mqv);
 }
+
+bool ValidateHMQV() 
+{ 
+	std::cout << "\nHMQV validation suite running...\n\n"; 
+   
+	//HMQV< ECP >::Domain hmqvB(false /*server*/); 
+	HMQV256 hmqvB(false); 
+	FileSource f256("TestData/hmqv256.dat", true, new HexDecoder()); 
+	FileSource f384("TestData/hmqv384.dat", true, new HexDecoder()); 
+	FileSource f512("TestData/hmqv512.dat", true, new HexDecoder()); 
+	hmqvB.AccessGroupParameters().BERDecode(f256); 
+ 
+	std::cout << "HMQV with NIST P-256 and SHA-256:" << std::endl; 
+	 
+	if (hmqvB.GetCryptoParameters().Validate(GlobalRNG(), 3)) 
+		std::cout << "passed    authenticated key agreement domain parameters validation (server)" << std::endl; 
+	else 
+	{ 
+		std::cout << "FAILED    authenticated key agreement domain parameters invalid (server)" << std::endl; 
+		return false; 
+	} 
+ 
+	const OID oid = ASN1::secp256r1(); 
+	HMQV< ECP >::Domain hmqvA(oid, true /*client*/); 
+ 
+	if (hmqvA.GetCryptoParameters().Validate(GlobalRNG(), 3)) 
+		std::cout << "passed    authenticated key agreement domain parameters validation (client)" << std::endl; 
+	else 
+	{ 
+		std::cout << "FAILED    authenticated key agreement domain parameters invalid (client)" << std::endl; 
+		return false; 
+	} 
+ 
+	SecByteBlock sprivA(hmqvA.StaticPrivateKeyLength()), sprivB(hmqvB.StaticPrivateKeyLength()); 
+	SecByteBlock eprivA(hmqvA.EphemeralPrivateKeyLength()), eprivB(hmqvB.EphemeralPrivateKeyLength()); 
+	SecByteBlock spubA(hmqvA.StaticPublicKeyLength()), spubB(hmqvB.StaticPublicKeyLength()); 
+	SecByteBlock epubA(hmqvA.EphemeralPublicKeyLength()), epubB(hmqvB.EphemeralPublicKeyLength()); 
+	SecByteBlock valA(hmqvA.AgreedValueLength()), valB(hmqvB.AgreedValueLength()); 
+ 
+	hmqvA.GenerateStaticKeyPair(GlobalRNG(), sprivA, spubA); 
+	hmqvB.GenerateStaticKeyPair(GlobalRNG(), sprivB, spubB); 
+	hmqvA.GenerateEphemeralKeyPair(GlobalRNG(), eprivA, epubA); 
+	hmqvB.GenerateEphemeralKeyPair(GlobalRNG(), eprivB, epubB); 
+ 
+	memset(valA.begin(), 0x00, valA.size()); 
+	memset(valB.begin(), 0x11, valB.size()); 
+ 
+	if (!(hmqvA.Agree(valA, sprivA, eprivA, spubB, epubB) && hmqvB.Agree(valB, sprivB, eprivB, spubA, epubA))) 
+	{ 
+		std::cout << "FAILED    authenticated key agreement failed" << std::endl; 
+		return false; 
+	} 
+ 
+	if (memcmp(valA.begin(), valB.begin(), hmqvA.AgreedValueLength())) 
+	{ 
+		std::cout << "FAILED    authenticated agreed values not equal" << std::endl; 
+		return false; 
+	} 
+ 
+	std::cout << "passed    authenticated key agreement" << std::endl; 
+ 
+	// Now test HMQV with NIST P-384 curve and SHA384 hash 
+	std::cout << endl; 
+	std::cout << "HMQV with NIST P-384 and SHA-384:" << std::endl; 
+ 
+	HMQV384 hmqvB384(false); 
+	hmqvB384.AccessGroupParameters().BERDecode(f384); 
+ 
+	if (hmqvB384.GetCryptoParameters().Validate(GlobalRNG(), 3)) 
+		std::cout << "passed    authenticated key agreement domain parameters validation (server)" << std::endl; 
+	else 
+	{ 
+		std::cout << "FAILED    authenticated key agreement domain parameters invalid (server)" << std::endl; 
+		return false; 
+	} 
+ 
+	const OID oid384 = ASN1::secp384r1(); 
+	HMQV384 hmqvA384(oid384, true /*client*/); 
+ 
+	if (hmqvA384.GetCryptoParameters().Validate(GlobalRNG(), 3)) 
+		std::cout << "passed    authenticated key agreement domain parameters validation (client)" << std::endl; 
+	else 
+	{ 
+		std::cout << "FAILED    authenticated key agreement domain parameters invalid (client)" << std::endl; 
+		return false; 
+	} 
+ 
+	SecByteBlock sprivA384(hmqvA384.StaticPrivateKeyLength()), sprivB384(hmqvB384.StaticPrivateKeyLength()); 
+	SecByteBlock eprivA384(hmqvA384.EphemeralPrivateKeyLength()), eprivB384(hmqvB384.EphemeralPrivateKeyLength()); 
+	SecByteBlock spubA384(hmqvA384.StaticPublicKeyLength()), spubB384(hmqvB384.StaticPublicKeyLength()); 
+	SecByteBlock epubA384(hmqvA384.EphemeralPublicKeyLength()), epubB384(hmqvB384.EphemeralPublicKeyLength()); 
+	SecByteBlock valA384(hmqvA384.AgreedValueLength()), valB384(hmqvB384.AgreedValueLength()); 
+ 
+	hmqvA384.GenerateStaticKeyPair(GlobalRNG(), sprivA384, spubA384); 
+	hmqvB384.GenerateStaticKeyPair(GlobalRNG(), sprivB384, spubB384); 
+	hmqvA384.GenerateEphemeralKeyPair(GlobalRNG(), eprivA384, epubA384); 
+	hmqvB384.GenerateEphemeralKeyPair(GlobalRNG(), eprivB384, epubB384); 
+ 
+	memset(valA384.begin(), 0x00, valA384.size()); 
+	memset(valB384.begin(), 0x11, valB384.size()); 
+ 
+	if (!(hmqvA384.Agree(valA384, sprivA384, eprivA384, spubB384, epubB384) && hmqvB384.Agree(valB384, sprivB384, eprivB384, spubA384, epubA384))) 
+	{ 
+		std::cout << "FAILED    authenticated key agreement failed" << std::endl; 
+		return false; 
+	} 
+ 
+	if (memcmp(valA384.begin(), valB384.begin(), hmqvA384.AgreedValueLength())) 
+	{ 
+		std::cout << "FAILED    authenticated agreed values not equal" << std::endl; 
+		return false; 
+	} 
+ 
+	std::cout << "passed    authenticated key agreement" << std::endl; 
+	 
+	return true; 
+} 
+ 
+bool ValidateFHMQV() 
+{ 
+	std::cout << "\nFHMQV validation suite running...\n\n"; 
+   
+	//FHMQV< ECP >::Domain fhmqvB(false /*server*/); 
+	FHMQV256 fhmqvB(false); 
+	FileSource f256("TestData/fhmqv256.dat", true, new HexDecoder()); 
+	FileSource f384("TestData/fhmqv384.dat", true, new HexDecoder()); 
+	FileSource f512("TestData/fhmqv512.dat", true, new HexDecoder()); 
+	fhmqvB.AccessGroupParameters().BERDecode(f256); 
+ 
+	std::cout << "FHMQV with NIST P-256 and SHA-256:" << std::endl; 
+	 
+	if (fhmqvB.GetCryptoParameters().Validate(GlobalRNG(), 3)) 
+		std::cout << "passed    authenticated key agreement domain parameters validation (server)" << std::endl; 
+	else 
+	{ 
+		std::cout << "FAILED    authenticated key agreement domain parameters invalid (server)" << std::endl; 
+		return false; 
+	} 
+ 
+	const OID oid = ASN1::secp256r1(); 
+	FHMQV< ECP >::Domain fhmqvA(oid, true /*client*/); 
+ 
+	if (fhmqvA.GetCryptoParameters().Validate(GlobalRNG(), 3)) 
+		std::cout << "passed    authenticated key agreement domain parameters validation (client)" << std::endl; 
+	else 
+	{ 
+		std::cout << "FAILED    authenticated key agreement domain parameters invalid (client)" << std::endl; 
+		return false; 
+	} 
+ 
+	SecByteBlock sprivA(fhmqvA.StaticPrivateKeyLength()), sprivB(fhmqvB.StaticPrivateKeyLength()); 
+	SecByteBlock eprivA(fhmqvA.EphemeralPrivateKeyLength()), eprivB(fhmqvB.EphemeralPrivateKeyLength()); 
+	SecByteBlock spubA(fhmqvA.StaticPublicKeyLength()), spubB(fhmqvB.StaticPublicKeyLength()); 
+	SecByteBlock epubA(fhmqvA.EphemeralPublicKeyLength()), epubB(fhmqvB.EphemeralPublicKeyLength()); 
+	SecByteBlock valA(fhmqvA.AgreedValueLength()), valB(fhmqvB.AgreedValueLength()); 
+ 
+	fhmqvA.GenerateStaticKeyPair(GlobalRNG(), sprivA, spubA); 
+	fhmqvB.GenerateStaticKeyPair(GlobalRNG(), sprivB, spubB); 
+	fhmqvA.GenerateEphemeralKeyPair(GlobalRNG(), eprivA, epubA); 
+	fhmqvB.GenerateEphemeralKeyPair(GlobalRNG(), eprivB, epubB); 
+ 
+	memset(valA.begin(), 0x00, valA.size()); 
+	memset(valB.begin(), 0x11, valB.size()); 
+ 
+	if (!(fhmqvA.Agree(valA, sprivA, eprivA, spubB, epubB) && fhmqvB.Agree(valB, sprivB, eprivB, spubA, epubA))) 
+	{ 
+		std::cout << "FAILED    authenticated key agreement failed" << std::endl; 
+		return false; 
+	} 
+ 
+	if (memcmp(valA.begin(), valB.begin(), fhmqvA.AgreedValueLength())) 
+	{ 
+		std::cout << "FAILED    authenticated agreed values not equal" << std::endl; 
+		return false; 
+	} 
+ 
+	std::cout << "passed    authenticated key agreement" << std::endl; 
+ 
+	// Now test FHMQV with NIST P-384 curve and SHA384 hash 
+	std::cout << endl; 
+	std::cout << "FHMQV with NIST P-384 and SHA-384:" << std::endl; 
+ 
+	FHMQV384 fhmqvB384(false); 
+	fhmqvB384.AccessGroupParameters().BERDecode(f384); 
+ 
+	if (fhmqvB384.GetCryptoParameters().Validate(GlobalRNG(), 3)) 
+		std::cout << "passed    authenticated key agreement domain parameters validation (server)" << std::endl; 
+	else 
+	{ 
+		std::cout << "FAILED    authenticated key agreement domain parameters invalid (server)" << std::endl; 
+		return false; 
+	} 
+ 
+	const OID oid384 = ASN1::secp384r1(); 
+	FHMQV384 fhmqvA384(oid384, true /*client*/); 
+ 
+	if (fhmqvA384.GetCryptoParameters().Validate(GlobalRNG(), 3)) 
+		std::cout << "passed    authenticated key agreement domain parameters validation (client)" << std::endl; 
+	else 
+	{ 
+		std::cout << "FAILED    authenticated key agreement domain parameters invalid (client)" << std::endl; 
+		return false; 
+	} 
+ 
+	SecByteBlock sprivA384(fhmqvA384.StaticPrivateKeyLength()), sprivB384(fhmqvB384.StaticPrivateKeyLength()); 
+	SecByteBlock eprivA384(fhmqvA384.EphemeralPrivateKeyLength()), eprivB384(fhmqvB384.EphemeralPrivateKeyLength()); 
+	SecByteBlock spubA384(fhmqvA384.StaticPublicKeyLength()), spubB384(fhmqvB384.StaticPublicKeyLength()); 
+	SecByteBlock epubA384(fhmqvA384.EphemeralPublicKeyLength()), epubB384(fhmqvB384.EphemeralPublicKeyLength()); 
+	SecByteBlock valA384(fhmqvA384.AgreedValueLength()), valB384(fhmqvB384.AgreedValueLength()); 
+ 
+	fhmqvA384.GenerateStaticKeyPair(GlobalRNG(), sprivA384, spubA384); 
+	fhmqvB384.GenerateStaticKeyPair(GlobalRNG(), sprivB384, spubB384); 
+	fhmqvA384.GenerateEphemeralKeyPair(GlobalRNG(), eprivA384, epubA384); 
+	fhmqvB384.GenerateEphemeralKeyPair(GlobalRNG(), eprivB384, epubB384); 
+ 
+	memset(valA384.begin(), 0x00, valA384.size()); 
+	memset(valB384.begin(), 0x11, valB384.size()); 
+ 
+	if (!(fhmqvA384.Agree(valA384, sprivA384, eprivA384, spubB384, epubB384) && fhmqvB384.Agree(valB384, sprivB384, eprivB384, spubA384, epubA384))) 
+	{ 
+		std::cout << "FAILED    authenticated key agreement failed" << std::endl; 
+		return false; 
+	} 
+ 
+	if (memcmp(valA384.begin(), valB384.begin(), fhmqvA384.AgreedValueLength())) 
+	{ 
+		std::cout << "FAILED    authenticated agreed values not equal" << std::endl; 
+		return false; 
+	} 
+ 
+	std::cout << "passed    authenticated key agreement" << std::endl; 
+	 
+	return true; 
+} 
 
 bool ValidateLUC_DH()
 {
