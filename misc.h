@@ -471,7 +471,7 @@ template <class T> inline const T& STDMAX(const T& a, const T& b)
 #if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
 # pragma GCC diagnostic push
 # pragma GCC diagnostic ignored "-Wsign-compare"
-# if (CRYPTOPP_CLANG_VERSION >= 20800) || (CRYPTOPP_APPLE_CLANG_VERSION >= 30000)
+# if (CRYPTOPP_LLVM_CLANG_VERSION >= 20800) || (CRYPTOPP_APPLE_CLANG_VERSION >= 30000)
 #  pragma GCC diagnostic ignored "-Wtautological-compare"
 # elif (CRYPTOPP_GCC_VERSION >= 40300)
 #  pragma GCC diagnostic ignored "-Wtype-limits"

@@ -52,7 +52,7 @@
 #endif
 
 // PUSHFB needs Clang 3.3 and Apple Clang 5.0.
-#if !defined(__GNUC__) || defined(__SSSE3__)|| defined(__INTEL_COMPILER) || (CRYPTOPP_CLANG_VERSION >= 30300) || (CRYPTOPP_APPLE_CLANG_VERSION >= 50000)
+#if !defined(__GNUC__) || defined(__SSSE3__)|| defined(__INTEL_COMPILER) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30300) || (CRYPTOPP_APPLE_CLANG_VERSION >= 50000)
 #include <tmmintrin.h>
 #else
 NAMESPACE_BEGIN(CryptoPP)
@@ -66,7 +66,7 @@ NAMESPACE_END
 #endif // tmmintrin.h
 
 // PEXTRD needs Clang 3.3 and Apple Clang 5.0.
-#if !defined(__GNUC__) || defined(__SSE4_1__)|| defined(__INTEL_COMPILER) || (CRYPTOPP_CLANG_VERSION >= 30300) || (CRYPTOPP_APPLE_CLANG_VERSION >= 50000)
+#if !defined(__GNUC__) || defined(__SSE4_1__)|| defined(__INTEL_COMPILER) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30300) || (CRYPTOPP_APPLE_CLANG_VERSION >= 50000)
 #include <smmintrin.h>
 #else
 NAMESPACE_BEGIN(CryptoPP)
@@ -87,7 +87,7 @@ NAMESPACE_END
 #endif // smmintrin.h
 
 // AES needs Clang 2.8 and Apple Clang 4.6. PCLMUL needs Clang 3.4 and Apple Clang 6.0
-#if !defined(__GNUC__) || (defined(__AES__) && defined(__PCLMUL__)) || defined(__INTEL_COMPILER) || (CRYPTOPP_CLANG_VERSION >= 30400) || (CRYPTOPP_APPLE_CLANG_VERSION >= 60000)
+#if !defined(__GNUC__) || (defined(__AES__) && defined(__PCLMUL__)) || defined(__INTEL_COMPILER) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30400) || (CRYPTOPP_APPLE_CLANG_VERSION >= 60000)
 #include <wmmintrin.h>
 #else
 NAMESPACE_BEGIN(CryptoPP)
@@ -415,7 +415,7 @@ inline int GetCacheLineSize()
 #else
 	#define CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
 
-#if defined(CRYPTOPP_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION)
+#if defined(CRYPTOPP_LLVM_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION) || defined(CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER)
 	#define NEW_LINE "\n"
 	#define INTEL_PREFIX ".intel_syntax;"
 	#define INTEL_NOPREFIX ".intel_syntax;"
