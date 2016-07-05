@@ -229,7 +229,7 @@ fi
 
 if [[ (-z "$HAVE_GNU03") ]]; then
 	HAVE_GNU03=0
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=c++03 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=gnu++03 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
 	if [[ "$?" -eq "0" ]]; then
 		HAVE_GNU03=1
 	fi
