@@ -238,7 +238,7 @@ const lword LWORD_MAX = W64LIT(0xffffffffffffffff);
 
 // Apple and LLVM's Clang. Apple Clang version 7.0 roughly equals LLVM Clang version 3.7
 #if defined(__clang__ ) && !defined(__apple_build_version__)
-	#define CRYPTOPP_CLANG_VERSION (__clang_major__ * 10000 + __clang_minor__ * 100 + __clang_patchlevel__)
+	#define CRYPTOPP_LLVM_CLANG_VERSION (__clang_major__ * 10000 + __clang_minor__ * 100 + __clang_patchlevel__)
 #elif defined(__clang__ ) && defined(__apple_build_version__)
 	#define CRYPTOPP_APPLE_CLANG_VERSION (__clang_major__ * 10000 + __clang_minor__ * 100 + __clang_patchlevel__)
 #endif
@@ -248,13 +248,13 @@ const lword LWORD_MAX = W64LIT(0xffffffffffffffff);
 #endif
 
 // Need GCC 4.6/Clang 1.7/Apple Clang 2.0 or above due to "GCC diagnostic {push|pop}"
-#if (CRYPTOPP_GCC_VERSION >= 40600) || (CRYPTOPP_CLANG_VERSION >= 10700) || (CRYPTOPP_APPLE_CLANG_VERSION >= 20000)
+#if (CRYPTOPP_GCC_VERSION >= 40600) || (CRYPTOPP_LLVM_CLANG_VERSION >= 10700) || (CRYPTOPP_APPLE_CLANG_VERSION >= 20000)
 	#define CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE 1
 #endif
 
 // Clang due to "Inline assembly operands don't work with .intel_syntax", http://llvm.org/bugs/show_bug.cgi?id=24232
 //   TODO: supply the upper version when LLVM fixes it. We set it to 20.0 for compilation purposes.
-#if (defined(CRYPTOPP_CLANG_VERSION) && CRYPTOPP_CLANG_VERSION <= 200000) || (defined(CRYPTOPP_APPLE_CLANG_VERSION) && CRYPTOPP_APPLE_CLANG_VERSION <= 200000)
+#if (defined(CRYPTOPP_LLVM_CLANG_VERSION) && CRYPTOPP_LLVM_CLANG_VERSION <= 200000) || (defined(CRYPTOPP_APPLE_CLANG_VERSION) && CRYPTOPP_APPLE_CLANG_VERSION <= 200000)
 	#define CRYPTOPP_DISABLE_INTEL_ASM 1
 #endif
 
@@ -726,7 +726,7 @@ NAMESPACE_END
 
 // ************** Deprecated ***************
 
-#if (CRYPTOPP_GCC_VERSION >= 40500) || (CRYPTOPP_CLANG_VERSION >= 20800)
+#if (CRYPTOPP_GCC_VERSION >= 40500) || (CRYPTOPP_LLVM_CLANG_VERSION >= 20800)
 # define CRYPTOPP_DEPRECATED(msg) __attribute__((deprecated (msg)));
 #elif (CRYPTOPP_GCC_VERSION)
 # define CRYPTOPP_DEPRECATED(msg) __attribute__((deprecated));
@@ -779,7 +779,7 @@ NAMESPACE_END
 #  define CRYPTOPP_CXX11_SYNCHRONIZATION 1
 #elif defined(__INTEL_COMPILER) && (__INTEL_COMPILER >= 1200)
 #  define CRYPTOPP_CXX11_SYNCHRONIZATION 1
-#elif (CRYPTOPP_CLANG_VERSION >= 30300) || (CRYPTOPP_APPLE_CLANG_VERSION >= 50000)
+#elif (CRYPTOPP_LLVM_CLANG_VERSION >= 30300) || (CRYPTOPP_APPLE_CLANG_VERSION >= 50000)
 #  define CRYPTOPP_CXX11_SYNCHRONIZATION 1
 #elif (CRYPTOPP_GCC_VERSION >= 40400)
 #  define CRYPTOPP_CXX11_SYNCHRONIZATION 1
