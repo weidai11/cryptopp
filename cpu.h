@@ -2,9 +2,7 @@
 
 //! \file cpu.h
 //! \brief Functions for CPU features and intrinsics
-//! \details At the moment, the functions are used heavily in X86/X32/X64 code paths
-//    for SSE, SSE2 and SSE4. The funtions are also used on occassion for AArch32
-//!   and AArch64 code paths for NEON.
+//! \details The functions are used in X86/X32/X64 and NEON code paths
 
 #ifndef CRYPTOPP_CPU_H
 #define CRYPTOPP_CPU_H
@@ -141,11 +139,13 @@ NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64
+#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64 || CRYPTOPP_DOXYGEN_PROCESSING
 
 #define CRYPTOPP_CPUID_AVAILABLE
 
-// these should not be used directly
+// Hide from Doxygen
+#ifndef CRYPTOPP_DOXYGEN_PROCESSING
+// These should not be used directly
 extern CRYPTOPP_DLL bool g_x86DetectionDone;
 extern CRYPTOPP_DLL bool g_hasMMX;
 extern CRYPTOPP_DLL bool g_hasISSE;
@@ -166,7 +166,12 @@ extern CRYPTOPP_DLL word32 g_cacheLineSize;
 
 CRYPTOPP_DLL void CRYPTOPP_API DetectX86Features();
 CRYPTOPP_DLL bool CRYPTOPP_API CpuId(word32 input, word32 output[4]);
+#endif // CRYPTOPP_DOXYGEN_PROCESSING
 
+//! \brief Determines MMX availability
+//! \returns true if MMX is determined to be available, false otherwise
+//! \details MMX, SSE and SSE2 are core processor features for x86_64, and
+//!   the function always returns true for the platform.
 inline bool HasMMX()
 {
 #if CRYPTOPP_BOOL_X64
@@ -178,6 +183,10 @@ inline bool HasMMX()
 #endif
 }
 
+//! \brief Determines SSE availability
+//! \returns true if SSE is determined to be available, false otherwise
+//! \details MMX, SSE and SSE2 are core processor features for x86_64, and
+//!   the function always returns true for the platform.
 inline bool HasISSE()
 {
 #if CRYPTOPP_BOOL_X64
@@ -189,6 +198,10 @@ inline bool HasISSE()
 #endif
 }
 
+//! \brief Determines SSE2 availability
+//! \returns true if SSE2 is determined to be available, false otherwise
+//! \details MMX, SSE and SSE2 are core processor features for x86_64, and
+//!   the function always returns true for the platform.
 inline bool HasSSE2()
 {
 #if CRYPTOPP_BOOL_X64
@@ -200,6 +213,10 @@ inline bool HasSSE2()
 #endif
 }
 
+//! \brief Determines SSSE3 availability
+//! \returns true if SSSE3 is determined to be available, false otherwise
+//! \details HasSSSE3() is a runtime check performed using CPUID
+//! \note Some Clang compilers incorrectly omit SSSE3 even though its native to the processor.
 inline bool HasSSSE3()
 {
 	if (!g_x86DetectionDone)
@@ -207,6 +224,9 @@ inline bool HasSSSE3()
 	return g_hasSSSE3;
 }
 
+//! \brief Determines SSE4 availability
+//! \returns true if SSE4.1 and SSE4.2 are determined to be available, false otherwise
+//! \details HasSSE4() is a runtime check performed using CPUID which requires both SSE4.1 and SSE4.2
 inline bool HasSSE4()
 {
 	if (!g_x86DetectionDone)
@@ -214,6 +234,9 @@ inline bool HasSSE4()
 	return g_hasSSE4;
 }
 
+//! \brief Determines AES-NI availability
+//! \returns true if AES-NI is determined to be available, false otherwise
+//! \details HasAESNI() is a runtime check performed using CPUID
 inline bool HasAESNI()
 {
 	if (!g_x86DetectionDone)
@@ -221,6 +244,9 @@ inline bool HasAESNI()
 	return g_hasAESNI;
 }
 
+//! \brief Determines Carryless Multiply availability
+//! \returns true if pclmulqdq is determined to be available, false otherwise
+//! \details HasCLMUL() is a runtime check performed using CPUID
 inline bool HasCLMUL()
 {
 	if (!g_x86DetectionDone)
@@ -228,6 +254,9 @@ inline bool HasCLMUL()
 	return g_hasCLMUL;
 }
 
+//! \brief Determines if the CPU is an Intel P4
+//! \returns true if the CPU is a P4, false otherwise
+//! \details IsP4() is a runtime check performed using CPUID
 inline bool IsP4()
 {
 	if (!g_x86DetectionDone)
@@ -235,6 +264,9 @@ inline bool IsP4()
 	return g_isP4;
 }
 
+//! \brief Determines RDRAND availability
+//! \returns true if RDRAND is determined to be available, false otherwise
+//! \details HasRDRAND() is a runtime check performed using CPUID
 inline bool HasRDRAND()
 {
 	if (!g_x86DetectionDone)
@@ -242,6 +274,9 @@ inline bool HasRDRAND()
 	return g_hasRDRAND;
 }
 
+//! \brief Determines RDSEED availability
+//! \returns true if RDSEED is determined to be available, false otherwise
+//! \details HasRDSEED() is a runtime check performed using CPUID
 inline bool HasRDSEED()
 {
 	if (!g_x86DetectionDone)
@@ -249,6 +284,9 @@ inline bool HasRDSEED()
 	return g_hasRDSEED;
 }
 
+//! \brief Determines Padlock RNG availability
+//! \returns true if VIA Padlock RNG is determined to be available, false otherwise
+//! \details HasPadlockRNG() is a runtime check performed using CPUID
 inline bool HasPadlockRNG()
 {
 	if (!g_x86DetectionDone)
@@ -256,6 +294,9 @@ inline bool HasPadlockRNG()
 	return g_hasPadlockRNG;
 }
 
+//! \brief Determines Padlock ACE availability
+//! \returns true if VIA Padlock ACE is determined to be available, false otherwise
+//! \details HasPadlockACE() is a runtime check performed using CPUID
 inline bool HasPadlockACE()
 {
 	if (!g_x86DetectionDone)
@@ -263,6 +304,9 @@ inline bool HasPadlockACE()
 	return g_hasPadlockACE;
 }
 
+//! \brief Determines Padlock ACE2 availability
+//! \returns true if VIA Padlock ACE2 is determined to be available, false otherwise
+//! \details HasPadlockACE2() is a runtime check performed using CPUID
 inline bool HasPadlockACE2()
 {
 	if (!g_x86DetectionDone)
@@ -270,6 +314,9 @@ inline bool HasPadlockACE2()
 	return g_hasPadlockACE2;
 }
 
+//! \brief Determines Padlock PHE availability
+//! \returns true if VIA Padlock PHE is determined to be available, false otherwise
+//! \details HasPadlockPHE() is a runtime check performed using CPUID
 inline bool HasPadlockPHE()
 {
 	if (!g_x86DetectionDone)
@@ -277,6 +324,9 @@ inline bool HasPadlockPHE()
 	return g_hasPadlockPHE;
 }
 
+//! \brief Determines Padlock PMM availability
+//! \returns true if VIA Padlock PMM is determined to be available, false otherwise
+//! \details HasPadlockPMM() is a runtime check performed using CPUID
 inline bool HasPadlockPMM()
 {
 	if (!g_x86DetectionDone)
@@ -284,6 +334,13 @@ inline bool HasPadlockPMM()
 	return g_hasPadlockPMM;
 }
 
+//! \brief Provides the cache line size
+//! \returns lower bound on the size of a cache line in bytes, if available
+//! \details GetCacheLineSize() returns the lower bound on the size of a cache line, if it
+//!   is available. If the value is not available at runtime, then 32 is returned for a 32-bit
+//!   processor and 64 is returned for a 64-bit processor.
+//! \details x86/x32/x64 uses CPUID to determine the value and its usually accurate. The ARM
+//!   processor equivalent is a privileged instruction, so a compile time value is returned.
 inline int GetCacheLineSize()
 {
 	if (!g_x86DetectionDone)
