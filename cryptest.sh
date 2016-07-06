@@ -128,6 +128,8 @@ fi
 
 SUN_COMPILER=$("$CXX" -V 2>&1 | "$EGREP" -i -c "CC: Sun")
 GCC_COMPILER=$("$CXX" --version 2>&1 | "$EGREP" -i -c "(gcc|g\+\+)")
+INTEL_COMPILER=$("$CXX" --version 2>&1 | "$EGREP" -i -c "\(ICC\)")
+MACPORTS_COMPILER=$("$CXX" --version 2>&1 | "$EGREP" -i -c "MacPorts")
 CLANG_COMPILER=$("$CXX" --version 2>&1 | "$EGREP" -i -c "clang")
 
 if [[ ($("$CXX" -dM -E - </dev/null 2>/dev/null | "$EGREP" -c '(__x64_64__|__amd64__)') -ne "0") && ($("$CXX" -dM -E -</dev/null 2>/dev/null | "$EGREP" -c '(__ILP32|__ILP32)') -ne "0") ]]; then
@@ -135,7 +137,9 @@ if [[ ($("$CXX" -dM -E - </dev/null 2>/dev/null | "$EGREP" -c '(__x64_64__|__amd
 fi
 
 # Now that the compiler is fixed, see if its GCC 5.1 or above with -Wabi, -Wabi-tag and -Wodr
+GCC_60_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version (6\.[0-9]|[7-9])')
 GCC_51_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version (5\.[1-9]|[6-9])')
+GCC_48_COMPILER=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version 4\.8')
 # SunCC 12.2 and below needs one set of CXXFLAGS; SunCC 12.3 and above needs another set of CXXFLAGS
 SUNCC_123_OR_ABOVE=$("$CXX" -E -xdumpmacros /dev/null 2>&1 | "$GREP" " __SUNPRO_CC " 2>/dev/null | "$AWK" '{print ($2 >= 0x5120) ? "1" : "0"}' )
 
@@ -172,12 +176,28 @@ if [[ (-z "$HAVE_CXX17") ]]; then
 	fi
 fi
 
+if [[ (-z "$HAVE_GNU17") ]]; then
+	HAVE_GNU17=0
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=gnu++17 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	if [[ "$?" -eq "0" ]]; then
+		HAVE_GNU17=1
+	fi
+fi
+
 # Hit or miss, mostly miss.
 if [[ (-z "$HAVE_CXX14") ]]; then
 	HAVE_CXX14=0
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=c++14 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
 	if [[ "$?" -eq "0" ]]; then
 		HAVE_CXX14=1
+	fi
+fi
+
+if [[ (-z "$HAVE_GNU14") ]]; then
+	HAVE_GNU14=0
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=gnu++14 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	if [[ "$?" -eq "0" ]]; then
+		HAVE_GNU14=1
 	fi
 fi
 
@@ -190,12 +210,28 @@ if [[ (-z "$HAVE_CXX11") ]]; then
 	fi
 fi
 
+if [[ (-z "$HAVE_GNU11") ]]; then
+	HAVE_GNU11=0
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=gnu++11 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	if [[ "$?" -eq "0" ]]; then
+		HAVE_GNU11=1
+	fi
+fi
+
 # OpenBSD 5.7 and OS X 10.5 cannot consume -std=c++03
 if [[ (-z "$HAVE_CXX03") ]]; then
 	HAVE_CXX03=0
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=c++03 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
 	if [[ "$?" -eq "0" ]]; then
 		HAVE_CXX03=1
+	fi
+fi
+
+if [[ (-z "$HAVE_GNU03") ]]; then
+	HAVE_GNU03=0
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=gnu++03 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	if [[ "$?" -eq "0" ]]; then
+		HAVE_GNU03=1
 	fi
 fi
 
@@ -263,6 +299,11 @@ if [[ (-z "$HAVE_ASAN") ]]; then
 			HAVE_ASAN=1
 		fi
 	fi
+fi
+
+# Fixup; see http://github.com/weidai11/cryptopp/issues/212
+if [[ ("$GCC_48_COMPILER" -ne "0" && "$IS_ARM32" -ne "0") ]]; then
+	HAVE_ASAN=0
 fi
 
 # Darwin and Intel multiarch
@@ -428,6 +469,9 @@ elif [[ "$IS_DARWIN" -ne "0" ]]; then
 	echo "IS_DARWIN: $IS_DARWIN" | tee -a "$TEST_RESULTS"
 fi
 
+if [[ "$IS_PPC" -ne "0" ]]; then
+	echo "IS_PPC: $IS_PPC" | tee -a "$TEST_RESULTS"
+fi
 if [[ "$IS_ARM64" -ne "0" ]]; then
 	echo "IS_ARM64: $IS_ARM64" | tee -a "$TEST_RESULTS"
 elif [[ "$IS_ARM32" -ne "0" ]]; then
@@ -463,10 +507,14 @@ fi
 # C++03, C++11, C++14 and C++17
 echo | tee -a "$TEST_RESULTS"
 echo "HAVE_CXX03: $HAVE_CXX03" | tee -a "$TEST_RESULTS"
+echo "HAVE_GNU03: $HAVE_GNU03" | tee -a "$TEST_RESULTS"
 echo "HAVE_CXX11: $HAVE_CXX11" | tee -a "$TEST_RESULTS"
-if [[ ("$HAVE_CXX14" -ne "0" || "$HAVE_CXX17" -ne "0") ]]; then
+echo "HAVE_GNU11: $HAVE_GNU11" | tee -a "$TEST_RESULTS"
+if [[ ("$HAVE_CXX14" -ne "0" || "$HAVE_CXX17" -ne "0" || "$HAVE_GNU14" -ne "0" || "$HAVE_GNU17" -ne "0") ]]; then
 	echo "HAVE_CXX14: $HAVE_CXX14" | tee -a "$TEST_RESULTS"
+	echo "HAVE_GNU14: $HAVE_GNU14" | tee -a "$TEST_RESULTS"
 	echo "HAVE_CXX17: $HAVE_CXX17" | tee -a "$TEST_RESULTS"
+	echo "HAVE_GNU17: $HAVE_GNU17" | tee -a "$TEST_RESULTS"
 fi
 if [[ "$HAVE_LDGOLD" -ne "0" ]]; then
 	echo "HAVE_LDGOLD: $HAVE_LDGOLD" | tee -a "$TEST_RESULTS"
@@ -660,6 +708,9 @@ if [[ ("$GCC_COMPILER" -ne "0") ]]; then
 	                    "-Wno-unknown-pragmas" "-Wstrict-aliasing=3" "-Wstrict-overflow" "-Waggressive-loop-optimizations"
 	                    "-Wcast-align" "-Wwrite-strings" "-Wformat=2" "-Wformat-security" "-Wtrampolines")
 
+	if [[ ("$GCC_60_OR_ABOVE" -ne "0") ]]; then
+		ELEVATED_CXXFLAGS+=("-Wshift-negative-value -Wshift-overflow=2 -Wnull-dereference -Wduplicated-cond -Wodr-type-mismatch")
+	fi
 	if [[ ("$GCC_51_OR_ABOVE" -ne "0") ]]; then
 		ELEVATED_CXXFLAGS+=("-Wabi" "-Wodr")
 	fi
@@ -920,6 +971,65 @@ if [[ "$HAVE_CXX03" -ne "0" ]]; then
 fi
 
 ############################################
+# gnu++03 debug and release build
+if [[ "$HAVE_GNU03" -ne "0" ]]; then
+
+	############################################
+	# Debug build
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: debug, gnu++03" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	export CXXFLAGS="$DEBUG_CXXFLAGS -std=gnu++03 ${RETAINED_CXXFLAGS[@]}"
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+
+	############################################
+	# Release build
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: release, gnu++03" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	export CXXFLAGS="$RELEASE_CXXFLAGS -std=gnu++03 ${RETAINED_CXXFLAGS[@]}"
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+fi
+
+############################################
 # c++11 debug and release build
 if [[ "$HAVE_CXX11" -ne "0" ]]; then
 
@@ -962,6 +1072,65 @@ if [[ "$HAVE_CXX11" -ne "0" ]]; then
 	rm -f adhoc.cpp > /dev/null 2>&1
 
 	export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 ${RETAINED_CXXFLAGS[@]}"
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+fi
+
+############################################
+# gnu++11 debug and release build
+if [[ "$HAVE_GNU11" -ne "0" ]]; then
+
+	############################################
+	# Debug build
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: debug, gnu++11" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	export CXXFLAGS="$DEBUG_CXXFLAGS -std=gnu++11 ${RETAINED_CXXFLAGS[@]}"
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+
+	############################################
+	# Release build
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: release, gnu++11" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	export CXXFLAGS="$RELEASE_CXXFLAGS -std=gnu++11 ${RETAINED_CXXFLAGS[@]}"
 	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -1038,6 +1207,65 @@ if [[ "$HAVE_CXX14" -ne "0" ]]; then
 fi
 
 ############################################
+# gnu++14 debug and release build
+if [[ "$HAVE_GNU14" -ne "0" ]]; then
+
+	############################################
+	# Debug build
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: debug, gnu++14" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	export CXXFLAGS="$DEBUG_CXXFLAGS -std=gnu++14 ${RETAINED_CXXFLAGS[@]}"
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+
+	############################################
+	# Release build
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: release, gnu++14" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	export CXXFLAGS="$RELEASE_CXXFLAGS -std=gnu++14 ${RETAINED_CXXFLAGS[@]}"
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+fi
+
+############################################
 # c++17 debug and release build
 if [[ "$HAVE_CXX17" -ne "0" ]]; then
 
@@ -1080,6 +1308,65 @@ if [[ "$HAVE_CXX17" -ne "0" ]]; then
 	rm -f adhoc.cpp > /dev/null 2>&1
 
 	export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 ${RETAINED_CXXFLAGS[@]}"
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+fi
+
+############################################
+# gnu++17 debug and release build
+if [[ "$HAVE_GNU17" -ne "0" ]]; then
+
+	############################################
+	# Debug build
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: debug, gnu++17" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	export CXXFLAGS="$DEBUG_CXXFLAGS -std=gnu++17 ${RETAINED_CXXFLAGS[@]}"
+	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+
+	############################################
+	# Release build
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: release, gnu++17" | tee -a "$TEST_RESULTS"
+	echo
+
+	unset CXXFLAGS
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	export CXXFLAGS="$RELEASE_CXXFLAGS -std=gnu++17 ${RETAINED_CXXFLAGS[@]}"
 	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -3672,6 +3959,75 @@ if [[ ("$INTEL_COMPILER" -eq "0") ]]; then
 fi
 
 ############################################
+# Perform a quick check with MacPorts compilers, if available.
+if [[ ("$MACPORTS_COMPILER" -eq "0") ]]; then
+
+	MACPORTS_CXX=$(find /opt/local/bin -name 'g++*' 2>/dev/null | head -1)
+	if [[ (-z "$MACPORTS_CXX") ]]; then
+		"$MACPORTS_CXX" -x c++ -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMP/adhoc.exe" > /dev/null 2>&1
+		if [[ "$?" -eq "0" ]]; then
+
+			############################################
+			# GCC build
+			echo
+			echo "************************************" | tee -a "$TEST_RESULTS"
+			echo "Testing: MacPorts GCC compiler" | tee -a "$TEST_RESULTS"
+			echo
+
+			unset CXXFLAGS
+			"$MAKE" clean > /dev/null 2>&1
+			rm -f adhoc.cpp > /dev/null 2>&1
+
+			"$MAKE" "${MAKEARGS[@]}" CXX="$MACPORTS_CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+			else
+				./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+				if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+					echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+				fi
+				./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+				if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+					echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+				fi
+			fi
+		fi
+	fi
+
+	MACPORTS_CXX=$(find /opt/local/bin -name 'clang++*' 2>/dev/null | head -1)
+	if [[ (-z "$MACPORTS_CXX") ]]; then
+		"$MACPORTS_CXX" -x c++ -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMP/adhoc.exe" > /dev/null 2>&1
+		if [[ "$?" -eq "0" ]]; then
+
+			############################################
+			# Clang build
+			echo
+			echo "************************************" | tee -a "$TEST_RESULTS"
+			echo "Testing: MacPorts Clang compiler" | tee -a "$TEST_RESULTS"
+			echo
+
+			unset CXXFLAGS
+			"$MAKE" clean > /dev/null 2>&1
+			rm -f adhoc.cpp > /dev/null 2>&1
+
+			"$MAKE" "${MAKEARGS[@]}" CXX="$MACPORTS_CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+			else
+				./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+				if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+					echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+				fi
+				./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+				if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+					echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+				fi
+			fi
+		fi
+	fi
+fi
+
+############################################
 # Perform a quick check with Xcode compiler, if available.
 if [[ "$IS_DARWIN" -ne "0" ]]; then
 	XCODE_CXX=$(find /Applications/Xcode*.app/Contents/Developer -name clang++ 2>/dev/null | head -1)
@@ -3877,14 +4233,14 @@ fi
 # Report warnings
 
 echo
-echo "************************************************" | tee -a "$WARN_RESULTS"
-echo | tee -a "$WARN_RESULTS"
+echo "************************************************" | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
+echo | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
 
 WCOUNT=$("$EGREP" -a '(warning:)' $WARN_RESULTS | "$GREP" -v 'deprecated-declarations' | wc -l | "$AWK" '{print $1}')
 if (( "$WCOUNT" == "0" )); then
-	echo "No warnings detected" | tee -a "$WARN_RESULTS" | tee -a "$WARN_RESULTS"
+	echo "No warnings detected" | tee -a "$TEST_RESULTS" "$WARN_RESULTS" | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
 else
-	echo "$WCOUNT warnings detected. See $WARN_RESULTS for details" | tee -a "$WARN_RESULTS"
+	echo "$WCOUNT warnings detected. See $WARN_RESULTS for details" | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
 	# "$EGREP" -an '(warning:)' $WARN_RESULTS | "$GREP" -v 'deprecated-declarations'
 fi
 
@@ -3893,8 +4249,8 @@ fi
 
 echo
 echo "************************************************" | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
+echo | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
 
-echo
 echo "Testing started: $TEST_BEGIN" | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
 echo "Testing finished: $TEST_END" | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
 echo

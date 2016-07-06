@@ -74,7 +74,7 @@
 #endif
 #ifndef _blsr_u64
 #  define  _blsr_u64(x)  __blsr_u64(x)
-# endif
+#endif
 # endif
 #endif
 
@@ -227,10 +227,11 @@ struct NewObject
 //! \brief A memory barrier
 //! \details MEMORY_BARRIER attempts to ensure reads and writes are completed
 //!   in the absence of a language synchronization point. It is used by the
-//!   Singleton class if the compiler supports it. The use is provided at the
-//!   customary check points in a double-checked initialization.
-//! \details Internally, MEMORY_BARRIER uses <tt>intrinsic(_ReadWriteBarrier)</tt>,
-//!   <tt>_ReadWriteBarrier()</tt> or <tt>__asm__("" ::: "memory")</tt>.
+//!   Singleton class if the compiler supports it. The barrier is provided at the
+//!   customary places in a double-checked initialization.
+//! \details Internally, MEMORY_BARRIER uses <tt>std::atomic_thread_fence</tt> if
+//!   C++11 atomics are available. Otherwise, <tt>intrinsic(_ReadWriteBarrier)</tt>,
+//!   <tt>_ReadWriteBarrier()</tt> or <tt>__asm__("" ::: "memory")</tt> is used.
 #define MEMORY_BARRIER ...
 #else
 #if defined(CRYPTOPP_CXX11_ATOMICS)
@@ -254,8 +255,8 @@ struct NewObject
 //! \details This class safely initializes a static object in a multithreaded environment. For C++03
 //!   and below it will do so without using locks for portability. If two threads call Ref() at the same
 //!   time, they may get back different references, and one object may end up being memory leaked. This
-//!   is by design. For C++11 and above, a standard double-checked locking pattern with memory fences
-//!   is used. The locks and fences are standard and do not hinder portability.
+//!   is by design. For C++11 and above, a standard double-checked locking pattern with thread fences
+//!   are used. The locks and fences are standard and do not hinder portability.
 //! \sa <A HREF="http://preshing.com/20130930/double-checked-locking-is-fixed-in-cpp11/">Double-Checked Locking is Fixed In C++11</A>
 template <class T, class F = NewObject<T>, int instance=0>
 class Singleton
@@ -470,7 +471,7 @@ template <class T> inline const T& STDMAX(const T& a, const T& b)
 #if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
 # pragma GCC diagnostic push
 # pragma GCC diagnostic ignored "-Wsign-compare"
-# if (CRYPTOPP_CLANG_VERSION >= 20800) || (CRYPTOPP_APPLE_CLANG_VERSION >= 30000)
+# if (CRYPTOPP_LLVM_CLANG_VERSION >= 20800) || (CRYPTOPP_APPLE_CLANG_VERSION >= 30000)
 #  pragma GCC diagnostic ignored "-Wtautological-compare"
 # elif (CRYPTOPP_GCC_VERSION >= 40300)
 #  pragma GCC diagnostic ignored "-Wtype-limits"
