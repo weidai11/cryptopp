@@ -63,18 +63,12 @@
 #if defined(__GNUC__) && defined(__BMI__)
 # include <immintrin.h>
 # if defined(__clang__)
-#ifndef _tzcnt_u32
 #  define _tzcnt_u32(x) __tzcnt_u32(x)
-#endif
-#ifndef _tzcnt_u64
 #  define _tzcnt_u64(x) __tzcnt_u64(x)
-#endif
-#ifndef _blsr_u32
 #  define  _blsr_u32(x)  __blsr_u32(x)
-#endif
 #ifndef _blsr_u64
 #  define  _blsr_u64(x)  __blsr_u64(x)
-#endif
+# endif
 # endif
 #endif
 
@@ -471,7 +465,7 @@ template <class T> inline const T& STDMAX(const T& a, const T& b)
 #if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
 # pragma GCC diagnostic push
 # pragma GCC diagnostic ignored "-Wsign-compare"
-# if (CRYPTOPP_LLVM_CLANG_VERSION >= 20800) || (CRYPTOPP_APPLE_CLANG_VERSION >= 30000)
+# if (CRYPTOPP_CLANG_VERSION >= 20800) || (CRYPTOPP_APPLE_CLANG_VERSION >= 30000)
 #  pragma GCC diagnostic ignored "-Wtautological-compare"
 # elif (CRYPTOPP_GCC_VERSION >= 40300)
 #  pragma GCC diagnostic ignored "-Wtype-limits"
