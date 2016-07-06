@@ -136,7 +136,6 @@ fi
 
 # Now that the compiler is fixed, see if its GCC 5.1 or above with -Wabi, -Wabi-tag and -Wodr
 GCC_51_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version (5\.[1-9]|[6-9])')
-GCC_48_COMPILER=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version 4\.8')
 # SunCC 12.2 and below needs one set of CXXFLAGS; SunCC 12.3 and above needs another set of CXXFLAGS
 SUNCC_123_OR_ABOVE=$("$CXX" -E -xdumpmacros /dev/null 2>&1 | "$GREP" " __SUNPRO_CC " 2>/dev/null | "$AWK" '{print ($2 >= 0x5120) ? "1" : "0"}' )
 
@@ -288,11 +287,6 @@ if [[ (-z "$HAVE_ASAN") ]]; then
 			HAVE_ASAN=1
 		fi
 	fi
-fi
-
-# Fixup; see http://github.com/weidai11/cryptopp/issues/212
-if [[ ("$GCC_48_COMPILER" -ne "0" && "$IS_ARM32" -ne "0") ]]; then
-	HAVE_ASAN=0
 fi
 
 # Darwin and Intel multiarch
