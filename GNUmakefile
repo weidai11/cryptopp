@@ -303,10 +303,10 @@ endif # Asan
 
 # LD gold linker testing. Triggered by 'LD=ld.gold'.
 ifeq ($(findstring ld.gold,$(LD)),ld.gold)
-ifeq ($(findstring -Wl,-fuse-ld=gold,$(LDFLAGS)),)
+ifeq ($(findstring -fuse-ld=gold,$(CXXFLAGS)),)
 ELF_FORMAT := $(shell file `which ld.gold` 2>&1 | cut -d":" -f 2 | $(EGREP) -i -c "elf")
 ifneq ($(ELF_FORMAT),0)
-LDFLAGS += -Wl,-fuse-ld=gold
+LDFLAGS += -fuse-ld=gold
 endif # ELF/ELF64
 endif # CXXFLAGS
 endif # Gold
