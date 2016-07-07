@@ -16,6 +16,8 @@
 #include "gfpcrypt.h"
 #include "dh.h"
 #include "mqv.h"
+#include "hmqv.h"
+#include "fhmqv.h"
 #include "ecp.h"
 #include "ec2n.h"
 
@@ -213,6 +215,44 @@ struct ECMQV
 #endif
 };
 
+//! Hashed Menezes-Qu-Vanstone in GF(p) with key validation, 
+/*! <a href="http://eprint.iacr.org/2005/176">HMQV: A High-Performance Secure Diffie-Hellman Protocol</a> 
+    Note: this implements HMQV only. HMQV-C (with Key Confirmation) will be provided separately. 
+*/ 
+template <class EC, class COFACTOR_OPTION = CPP_TYPENAME DL_GroupParameters_EC<EC>::DefaultCofactorOption, class HASH = SHA256> 
+struct HMQV 
+{ 
+	typedef HMQV_Domain<DL_GroupParameters_EC<EC>, COFACTOR_OPTION, HASH> Domain; 
+ 
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562 
+	virtual ~HMQV() {} 
+#endif 
+}; 
+ 
+typedef HMQV< ECP, DL_GroupParameters_EC< ECP >::DefaultCofactorOption,   SHA1 >::Domain HMQV160; 
+typedef HMQV< ECP, DL_GroupParameters_EC< ECP >::DefaultCofactorOption, SHA256 >::Domain HMQV256; 
+typedef HMQV< ECP, DL_GroupParameters_EC< ECP >::DefaultCofactorOption, SHA384 >::Domain HMQV384; 
+typedef HMQV< ECP, DL_GroupParameters_EC< ECP >::DefaultCofactorOption, SHA512 >::Domain HMQV512; 
+ 
+//! Fully Hashed Menezes-Qu-Vanstone in GF(p) with key validation, 
+/*! <a href="http://eprint.iacr.org/2009/408">A Secure and Efficient Authenticated DiffieHellman Protocol</a> 
+    Note: this is FHMQV, Protocol 5, from page 11; and not FHMQV-C. 
+*/ 
+template <class EC, class COFACTOR_OPTION = CPP_TYPENAME DL_GroupParameters_EC<EC>::DefaultCofactorOption, class HASH = SHA256> 
+struct FHMQV 
+{ 
+	typedef FHMQV_Domain<DL_GroupParameters_EC<EC>, COFACTOR_OPTION, HASH> Domain; 
+ 
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562 
+	virtual ~FHMQV() {} 
+#endif 
+}; 
+ 
+typedef FHMQV< ECP, DL_GroupParameters_EC< ECP >::DefaultCofactorOption,   SHA1 >::Domain FHMQV160; 
+typedef FHMQV< ECP, DL_GroupParameters_EC< ECP >::DefaultCofactorOption, SHA256 >::Domain FHMQV256; 
+typedef FHMQV< ECP, DL_GroupParameters_EC< ECP >::DefaultCofactorOption, SHA384 >::Domain FHMQV384; 
+typedef FHMQV< ECP, DL_GroupParameters_EC< ECP >::DefaultCofactorOption, SHA512 >::Domain FHMQV512; 
+ 
 //! EC keys
 template <class EC>
 struct DL_Keys_EC
