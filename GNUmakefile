@@ -30,9 +30,9 @@ IS_DARWIN := $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "Darwin")
 IS_NETBSD := $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "NetBSD")
 
 SUN_COMPILER := $(shell $(CXX) -V 2>&1 | $(EGREP) -i -c "CC: Sun")
-GCC_COMPILER := $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "(gcc|g\+\+)")
+GCC_COMPILER := $(shell $(CXX) --version 2>&1 | $(EGREP) -i -v "clang" | $(EGREP) -i -c "(gcc|g\+\+)")
 CLANG_COMPILER := $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "clang")
-INTEL_COMPILER := $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(ICC\)")
+INTEL_COMPILER := $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "\(icc\)")
 MACPORTS_COMPILER := $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "macports")
 
 # Sun Studio 12.0 (0x0510) and 12.3 (0x0512)
@@ -179,6 +179,9 @@ ifeq ($(GCC_COMPILER)$(MACPORTS_COMPILER),11)
 ifneq ($(findstring -Wa,-q,$(CXXFLAGS)),-Wa,-q)
 CXXFLAGS += -Wa,-q
 endif
+ifneq ($(findstring -Wa,-q,$(CXXFLAGS)),-DCRYPTOPP_CLANG_INTEGRATED_ASSEMBLER)
+CXXFLAGS += -DCRYPTOPP_CLANG_INTEGRATED_ASSEMBLER=1
+endif
 endif
 
 # Allow use of "/" operator for GNU Assembler.
@@ -300,10 +303,10 @@ endif # Asan
 
 # LD gold linker testing. Triggered by 'LD=ld.gold'.
 ifeq ($(findstring ld.gold,$(LD)),ld.gold)
-ifeq ($(findstring -Wl,-fuse-ld=gold,$(LDFLAGS)),)
+ifeq ($(findstring -fuse-ld=gold,$(CXXFLAGS)),)
 ELF_FORMAT := $(shell file `which ld.gold` 2>&1 | cut -d":" -f 2 | $(EGREP) -i -c "elf")
 ifneq ($(ELF_FORMAT),0)
-LDFLAGS += -Wl,-fuse-ld=gold
+LDFLAGS += -fuse-ld=gold
 endif # ELF/ELF64
 endif # CXXFLAGS
 endif # Gold

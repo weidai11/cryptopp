@@ -11,7 +11,7 @@
 #include "iterhash.h"
 
 // Clang 3.3 integrated assembler crash on Linux
-#if defined(CRYPTOPP_CLANG_VERSION) && (CRYPTOPP_CLANG_VERSION < 30400)
+#if defined(CRYPTOPP_LLVM_CLANG_VERSION) && (CRYPTOPP_LLVM_CLANG_VERSION < 30400)
 # define CRYPTOPP_DISABLE_SHA_ASM
 #endif
 
