@@ -45,7 +45,7 @@
 #endif
 
 // "Error: The operand ___LKDB cannot be assigned to", http://github.com/weidai11/cryptopp/issues/188
-#if (__SUNPRO_CC == 0x5130)
+#if (__SUNPRO_CC >= 0x5130)
 # define MAYBE_CONST
 # define MAYBE_UNCONST_CAST const_cast<word*>
 #else
