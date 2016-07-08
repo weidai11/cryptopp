@@ -4225,7 +4225,7 @@ if (( "$ECOUNT" == "0" )); then
 else
 	echo "$ECOUNT errors detected. See $TEST_RESULTS for details" | tee -a "$TEST_RESULTS"
 	if (( "$ECOUNT" < 16 )); then
-		"$EGREP" -an '(Error|ERROR|error|FAILED|Illegal)' "$TEST_RESULTS" | "$EGREP" -v '( 0 errors|suppressed errors|error detector)'
+		"$EGREP" -n '(Error|ERROR|error|FAILED|Illegal)' "$TEST_RESULTS" | "$EGREP" -v '( 0 errors|suppressed errors|error detector)'
 	fi
 fi
 
@@ -4241,7 +4241,7 @@ if (( "$WCOUNT" == "0" )); then
 	echo "No warnings detected" | tee -a "$TEST_RESULTS" "$WARN_RESULTS" | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
 else
 	echo "$WCOUNT warnings detected. See $WARN_RESULTS for details" | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
-	# "$EGREP" -an '(warning:)' $WARN_RESULTS | "$GREP" -v 'deprecated-declarations'
+	# "$EGREP" -n '(warning:)' $WARN_RESULTS | "$GREP" -v 'deprecated-declarations'
 fi
 
 ############################################
