@@ -108,8 +108,8 @@ if [[ ((-z "$CXX") || ("$CXX" == "gcc")) ]]; then
 	if [[ "$IS_DARWIN" -ne "0" ]]; then
 		CXX=c++
 	elif [[ "$IS_SOLARIS" -ne "0" ]]; then
-		if [[ (-e "/opt/solarisstudio12.5/bin/CC") ]]; then
-			CXX=/opt/solarisstudio12.5/bin/CC
+		if [[ (-e "/opt/developerstudio12.5/bin/CC") ]]; then
+			CXX=/opt/developerstudio12.5/bin/CC
 		elif [[ (-e "/opt/solarisstudio12.4/bin/CC") ]]; then
 			CXX=/opt/solarisstudio12.4/bin/CC
 		elif [[ (-e "/opt/solarisstudio12.3/bin/CC") ]]; then
@@ -126,9 +126,9 @@ if [[ ((-z "$CXX") || ("$CXX" == "gcc")) ]]; then
 	fi
 fi
 
-SUN_COMPILER=$("$CXX" -V 2>&1 | "$EGREP" -i -c "CC: Sun")
+SUN_COMPILER=$("$CXX" -V 2>&1 | "$EGREP" -i -c "CC: (Sun|Studio)")
 GCC_COMPILER=$("$CXX" --version 2>&1 | "$EGREP" -i -c "(gcc|g\+\+)")
-INTEL_COMPILER=$("$CXX" --version 2>&1 | "$EGREP" -i -c "\(ICC\)")
+INTEL_COMPILER=$("$CXX" --version 2>&1 | "$EGREP" -i -c "\(icc\)")
 MACPORTS_COMPILER=$("$CXX" --version 2>&1 | "$EGREP" -i -c "MacPorts")
 CLANG_COMPILER=$("$CXX" --version 2>&1 | "$EGREP" -i -c "clang")
 
@@ -656,7 +656,7 @@ if [[ ! -z "$GIT_BRANCH" ]]; then
 	echo "Git branch: $GIT_BRANCH (commit $GIT_HASH)" | tee -a "$TEST_RESULTS"
 fi
 
-if [[ "$SUN_COMPILER" -ne "0" ]]; then
+if [[ ("$SUN_COMPILER" -ne "0") ]]; then
 	echo $("$CXX" -V 2>&1 | "$SED" 's|CC:|Compiler:|g') | head -1 | tee -a "$TEST_RESULTS"
 else
 	echo "Compiler:" $("$CXX" --version | head -1) | tee -a "$TEST_RESULTS"
