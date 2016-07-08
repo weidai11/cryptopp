@@ -2660,7 +2660,7 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 
 	############################################
 	# Sun Studio 12.5
-	if [[ (-e "/opt/solarisstudio12.5/bin/CC") ]]; then
+	if [[ (-e "/opt/developerstudio12.5/bin/CC") ]]; then
 
 		############################################
 		# Debug build
@@ -2674,7 +2674,7 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		rm -f adhoc.cpp > /dev/null 2>&1
 
 		export CXXFLAGS="-DDEBUG -g3 -xO1"
-		"$MAKE" "${MAKEARGS[@]}" CXX=/opt/solarisstudio12.5/bin/CC static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		"$MAKE" "${MAKEARGS[@]}" CXX=/opt/developerstudio12.5/bin/CC static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -2701,7 +2701,7 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		rm -f adhoc.cpp > /dev/null 2>&1
 
 		export CXXFLAGS="-DNDEBUG -g2 -xO2"
-		"$MAKE" "${MAKEARGS[@]}" CXX=/opt/solarisstudio12.5/bin/CC static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		"$MAKE" "${MAKEARGS[@]}" CXX=/opt/developerstudio12.5/bin/CC static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
