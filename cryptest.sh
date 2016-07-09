@@ -127,6 +127,14 @@ if [[ ((-z "$CXX") || ("$CXX" == "gcc")) ]]; then
 			CXX=/opt/solarisstudio12.3/bin/CC
 		elif [[ (-e "/opt/solstudio12.2/bin/CC") ]]; then
 			CXX=/opt/solstudio12.2/bin/CC
+		elif [[ (-e "/opt/solstudio12.1/bin/CC") ]]; then
+			CXX=/opt/solstudio12.1/bin/CC
+		elif [[ (-e "/opt/solstudio12.0/bin/CC") ]]; then
+			CXX=/opt/solstudio12.0/bin/CC
+		elif [[ (! -z $(which CC 2>/dev/null | "$GREP" -v "no CC" | head -1)) ]]; then
+			CXX=$(which CC | head -1)
+		elif [[ (! -z $(which g++ 2>/dev/null | "$GREP" -v "no g++" | head -1)) ]]; then
+			CXX=$(which g++ | head -1)
 		else
 			CXX=CC
 		fi
@@ -359,20 +367,22 @@ if [[ (-z "$HAVE_X32") ]]; then
 	fi
 fi
 
-# ARMv7a/Aarch32 (may run on Aarch64)
-if [[ (-z "$HAVE_ARMV7A") ]]; then
+# ARMv7a/Aarch32 (may run on Aarch64). SunCC 12.5 reports Illegal Option and returns 0
+if [[ (-z "$HAVE_ARMV7A") && ("$SUN_COMPILER" -eq "0") ]]; then
 	HAVE_ARMV7A=0
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -march=armv7a adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
-	if [[ "$?" -eq "0" ]]; then
-		"$TMP/adhoc.exe" > /dev/null 2>&1
+	if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
+		"$CXX" -DCRYPTOPP_ADHOC_MAIN -march=armv7a adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
 		if [[ "$?" -eq "0" ]]; then
-			HAVE_ARMV7A=1
+			"$TMP/adhoc.exe" > /dev/null 2>&1
+			if [[ "$?" -eq "0" ]]; then
+				HAVE_ARMV7A=1
+			fi
 		fi
 	fi
 fi
 
-# ARM NEON (may run on Aarch64)
-if [[ (-z "$HAVE_ARM_NEON") ]]; then
+# ARM NEON (may run on Aarch64). SunCC 12.5 reports Illegal Option and returns 0
+if [[ (-z "$HAVE_ARM_NEON") && ("$SUN_COMPILER" -eq "0") ]]; then
 	HAVE_ARM_NEON=0
 	if [[ ("$IS_ARM32" -ne "0") ]]; then
 		if [[ $(cat /proc/cpuinfo 2>/dev/null | "$GREP" -i -c NEON) -ne "0" ]]; then
@@ -381,8 +391,8 @@ if [[ (-z "$HAVE_ARM_NEON") ]]; then
 	fi
 fi
 
-# ARMv8/Aarch64, CRC and Crypto
-if [[ (-z "$HAVE_ARM_CRYPTO") ]]; then
+# ARMv8/Aarch64, CRC and Crypto.  SunCC 12.5 reports Illegal Option and returns 0
+if [[ (-z "$HAVE_ARM_CRYPTO") && ("$SUN_COMPILER" -eq "0") ]]; then
 	HAVE_ARM_CRYPTO=0
 	if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 		"$CXX" -DCRYPTOPP_ADHOC_MAIN -march=armv8-a+crypto adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
@@ -392,8 +402,8 @@ if [[ (-z "$HAVE_ARM_CRYPTO") ]]; then
 	fi
 fi
 
-# ARMv8/Aarch64, CRC and Crypto
-if [[ (-z "$HAVE_ARM_CRC") ]]; then
+# ARMv8/Aarch64, CRC and Crypto. SunCC 12.5 reports Illegal Option and returns 0
+if [[ (-z "$HAVE_ARM_CRC") && ("$SUN_COMPILER" -eq "0") ]]; then
 	HAVE_ARM_CRC=0
 	if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 		"$CXX" -DCRYPTOPP_ADHOC_MAIN -march=armv8-a+crc adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
@@ -429,7 +439,11 @@ fi
 
 # ld-gold linker testing
 if [[ (-z "$HAVE_LDGOLD") ]]; then
-	HAVE_LDGOLD=$(file `which ld.gold 2>&1` 2>/dev/null | "$GREP" -v "no ld.gold" | cut -d":" -f 2 | "$EGREP" -i -c "elf")
+	HAVE_LDGOLD=0
+	LD_GOLD=$(which ld.gold 2>/dev/null | "$GREP" -v "no ld.gold" | head -1)
+	if [[ (! -z "$LD_GOLD") ]]; then
+		HAVE_LDGOLD=$(file "$LD_GOLD" | cut -d":" -f 2 | "$EGREP" -i -c "elf")
+	fi
 fi
 
 # Valgrind testing of C++03, C++11, C++14 and C++17 binaries. Valgrind tests take a long time...
@@ -4215,7 +4229,7 @@ echo "************************************************" | tee -a "$TEST_RESULTS"
 echo "************************************************" | tee -a "$TEST_RESULTS"
 echo | tee -a "$TEST_RESULTS"
 
-COUNT=$("$GREP" -a 'Testing:' "$TEST_RESULTS" "$WARN_RESULTS" | wc -l | "$AWK" '{print $1}')
+COUNT=$("$GREP" 'Testing:' "$TEST_RESULTS" "$WARN_RESULTS" | wc -l | "$AWK" '{print $1}')
 if (( "$COUNT" == "0" )); then
 	echo "No configurations tested" | tee -a "$TEST_RESULTS"
 else
@@ -4239,7 +4253,7 @@ echo | tee -a "$TEST_RESULTS"
 # "Error" is from the GNU assembler
 # "error" is from the sanitizers
 # "Illegal", "0 errors" and "suppressed errors" are from Valgrind.
-ECOUNT=$("$EGREP" -a '(Error|ERROR|error|FAILED|Illegal)' $TEST_RESULTS | "$EGREP" -v '( 0 errors|suppressed errors|error detector)' | wc -l | "$AWK" '{print $1}')
+ECOUNT=$("$EGREP" '(Error|ERROR|error|FAILED|Illegal)' $TEST_RESULTS | "$EGREP" -v '( 0 errors|suppressed errors|error detector)' | wc -l | "$AWK" '{print $1}')
 if (( "$ECOUNT" == "0" )); then
 	echo "No failures detected" | tee -a "$TEST_RESULTS"
 else
@@ -4256,7 +4270,7 @@ echo
 echo "************************************************" | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
 echo | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
 
-WCOUNT=$("$EGREP" -a '(warning:)' $WARN_RESULTS | "$GREP" -v 'deprecated-declarations' | wc -l | "$AWK" '{print $1}')
+WCOUNT=$("$EGREP" '(warning:)' $WARN_RESULTS | "$GREP" -v 'deprecated-declarations' | wc -l | "$AWK" '{print $1}')
 if (( "$WCOUNT" == "0" )); then
 	echo "No warnings detected" | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
 else
