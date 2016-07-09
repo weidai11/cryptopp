@@ -66,20 +66,22 @@ EGREP=egrep
 SED=sed
 AWK=awk
 
-IS_DARWIN=$(uname -s | "$GREP" -i -c darwin)
-IS_LINUX=$(uname -s | "$GREP" -i -c linux)
-IS_CYGWIN=$(uname -s | "$GREP" -i -c cygwin)
-IS_MINGW=$(uname -s | "$GREP" -i -c mingw)
-IS_OPENBSD=$(uname -s | "$GREP" -i -c openbsd)
-IS_NETBSD=$(uname -s | "$GREP" -i -c netbsd)
-IS_SOLARIS=$(uname -s | "$GREP" -i -c sunos)
+THIS_SYSTEM=$(uname -s 2>&1)
+IS_DARWIN=$(echo "$THIS_SYSTEM" | "$GREP" -i -c darwin)
+IS_LINUX=$(echo "$THIS_SYSTEM" | "$GREP" -i -c linux)
+IS_CYGWIN=$(echo "$THIS_SYSTEM" | "$GREP" -i -c cygwin)
+IS_MINGW=$(echo "$THIS_SYSTEM" | "$GREP" -i -c mingw)
+IS_OPENBSD=$(echo "$THIS_SYSTEM" | "$GREP" -i -c openbsd)
+IS_NETBSD=$(echo "$THIS_SYSTEM" | "$GREP" -i -c netbsd)
+IS_SOLARIS=$(echo "$THIS_SYSTEM" | "$GREP" -i -c sunos)
 
-IS_X86=$(uname -m | "$EGREP" -i -c "(i386|i586|i686|amd64|x86_64)")
-IS_X64=$(uname -m | "$EGREP" -i -c "(amd64|x86_64)")
-IS_PPC=$(uname -m | "$EGREP" -i -c "(Power|PPC)")
-IS_ARM32=$(uname -m | "$GREP" -v "arm64" | "$EGREP" -i -c "arm|aarch32")
-IS_ARM64=$(uname -m | "$EGREP" -i -c "arm64|aarch64")
-IS_S390=$(uname -m | "$EGREP" -i -c "s390")
+THIS_MACHINE=$(uname -m 2>&1)
+IS_X86=$(echo "$THIS_MACHINE" | "$EGREP" -i -c "(i386|i586|i686|amd64|x86_64)")
+IS_X64=$(echo "$THIS_MACHINE" | "$EGREP" -i -c "(amd64|x86_64)")
+IS_PPC=$(echo "$THIS_MACHINE" | "$EGREP" -i -c "(Power|PPC)")
+IS_ARM32=$(echo "$THIS_MACHINE" | "$GREP" -v "arm64" | "$EGREP" -i -c "arm|aarch32")
+IS_ARM64=$(echo "$THIS_MACHINE" | "$EGREP" -i -c "(arm64|aarch64)")
+IS_S390=$(echo "$THIS_MACHINE" | "$EGREP" -i -c "s390")
 IS_X32=0
 
 # Fixup
@@ -119,9 +121,9 @@ if [[ ((-z "$CXX") || ("$CXX" == "gcc")) ]]; then
 		CXX=c++
 	elif [[ "$IS_SOLARIS" -ne "0" ]]; then
 		# SunCC 12.5 is mostly broken
-		#if [[ (-e "/opt/developerstudio12.5/bin/CC") ]]; then
-		#	CXX=/opt/developerstudio12.5/bin/CC
-		if [[ (-e "/opt/solarisstudio12.4/bin/CC") ]]; then
+		if [[ (-e "/opt/developerstudio12.5/bin/CC") ]]; then
+			CXX=/opt/developerstudio12.5/bin/CC
+		elif [[ (-e "/opt/solarisstudio12.4/bin/CC") ]]; then
 			CXX=/opt/solarisstudio12.4/bin/CC
 		elif [[ (-e "/opt/solarisstudio12.3/bin/CC") ]]; then
 			CXX=/opt/solarisstudio12.3/bin/CC
@@ -151,9 +153,9 @@ INTEL_COMPILER=$("$CXX" --version 2>&1 | "$EGREP" -i -c "\(icc\)")
 MACPORTS_COMPILER=$("$CXX" --version 2>&1 | "$EGREP" -i -c "MacPorts")
 CLANG_COMPILER=$("$CXX" --version 2>&1 | "$EGREP" -i -c "clang")
 
-if [[ ("$SUN_COMPILER -eq "0"") ]]; then
-	AMD64=$("$CXX" -dM -E - </dev/null 2>/dev/null | "$EGREP" -c '(__x64_64__|__amd64__)')
-	ILP32=$("$CXX" -dM -E - </dev/null 2>/dev/null | "$EGREP" -c '(__ILP32__|__ILP32)')
+if [[ ("$SUN_COMPILER" -eq "0") ]]; then
+	AMD64=$("$CXX" -dM -E - </dev/null 2>/dev/null | "$EGREP" -c "(__x64_64__|__amd64__)")
+	ILP32=$("$CXX" -dM -E - </dev/null 2>/dev/null | "$EGREP" -c "(__ILP32__|__ILP32)")
 	if [[ ("$AMD64" -ne "0") && ("$ILP32" -ne "0") ]]; then
 		IS_X32=1
 	fi
@@ -163,14 +165,12 @@ fi
 GCC_60_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version (6\.[0-9]|[7-9])')
 GCC_51_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version (5\.[1-9]|[6-9])')
 GCC_48_COMPILER=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version 4\.8')
-# SunCC 12.2 and below needs one set of CXXFLAGS; SunCC 12.3 and above needs another set of CXXFLAGS. Beware, SunCC 12.5 is broken.
-SUNCC_123_OR_ABOVE=$("$CXX" -E -xdumpmacros /dev/null 2>&1 | "$GREP" " __SUNPRO_CC " 2>/dev/null | "$AWK" '{print ($2 >= 0x5120) ? "1" : "0"}' )
 
 # Fixup
 if [[ ("$IS_OPENBSD" -ne "0" || "$IS_NETBSD" -ne "0") ]]; then
 	MAKE=gmake
 elif [[ ("$IS_SOLARIS" -ne "0") ]]; then
-	MAKE=$(which gmake 2>/dev/null)
+	MAKE=$(which gmake 2>/dev/null | "$GREP" -v "no gmake" | head -1)
 	if [[ (-z "$MAKE") && (-e "/usr/sfw/bin/gmake") ]]; then
 		MAKE=/usr/sfw/bin/gmake
 	fi
@@ -195,15 +195,17 @@ fi
 rm -f adhoc.cpp > /dev/null 2>&1
 cp adhoc.cpp.proto adhoc.cpp
 
-# Hit or miss, only latest compilers.
+rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_CXX17") ]]; then
 	HAVE_CXX17=0
+	rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=c++17 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
 	if [[ "$?" -eq "0" ]]; then
 		HAVE_CXX17=1
 	fi
 fi
 
+rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_GNU17") ]]; then
 	HAVE_GNU17=0
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=gnu++17 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
@@ -212,7 +214,7 @@ if [[ (-z "$HAVE_GNU17") ]]; then
 	fi
 fi
 
-# Hit or miss, mostly miss.
+rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_CXX14") ]]; then
 	HAVE_CXX14=0
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=c++14 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
@@ -221,6 +223,7 @@ if [[ (-z "$HAVE_CXX14") ]]; then
 	fi
 fi
 
+rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_GNU14") ]]; then
 	HAVE_GNU14=0
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=gnu++14 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
@@ -229,7 +232,7 @@ if [[ (-z "$HAVE_GNU14") ]]; then
 	fi
 fi
 
-# Hit or miss, mostly hit.
+rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_CXX11") ]]; then
 	HAVE_CXX11=0
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=c++11 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
@@ -238,6 +241,7 @@ if [[ (-z "$HAVE_CXX11") ]]; then
 	fi
 fi
 
+rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_GNU11") ]]; then
 	HAVE_GNU11=0
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=gnu++11 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
@@ -246,7 +250,7 @@ if [[ (-z "$HAVE_GNU11") ]]; then
 	fi
 fi
 
-# OpenBSD 5.7 and OS X 10.5 cannot consume -std=c++03
+rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_CXX03") ]]; then
 	HAVE_CXX03=0
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=c++03 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
@@ -255,6 +259,7 @@ if [[ (-z "$HAVE_CXX03") ]]; then
 	fi
 fi
 
+rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_GNU03") ]]; then
 	HAVE_GNU03=0
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=gnu++03 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
@@ -263,13 +268,57 @@ if [[ (-z "$HAVE_GNU03") ]]; then
 	fi
 fi
 
+# Use a fallback strategy so OPT_O0 can be used with DEBUG_CXXFLAGS
+OPT_O0=
+rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
+"$CXX" -DCRYPTOPP_ADHOC_MAIN -O0 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+if [[ ("$?" -eq "0") ]]; then
+	OPT_O0=-O0
+else
+	rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -xO0 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	if [[ ("$?" -eq "0") ]]; then
+		OPT_O0=-xO0
+	fi
+fi
+
+# Use a fallback strategy so OPT_O1 can be used with VALGRIND_CXXFLAGS
+OPT_O1=
+rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
+"$CXX" -DCRYPTOPP_ADHOC_MAIN -O1 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+if [[ ("$?" -eq "0") ]]; then
+	OPT_O1=-O1
+else
+	rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -xO1 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	if [[ ("$?" -eq "0") ]]; then
+		OPT_O1=-xO1
+	fi
+fi
+
+# Use a fallback strategy so OPT_O2 can be used with RELEASE_CXXFLAGS
+OPT_O2=
+rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
+"$CXX" -DCRYPTOPP_ADHOC_MAIN -O2 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+if [[ ("$?" -eq "0") ]]; then
+	OPT_O2=-O2
+else
+	rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -xO2 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	if [[ ("$?" -eq "0") ]]; then
+		OPT_O2=-xO2
+	fi
+fi
+
 HAVE_O3=0
 OPT_O3=
+rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
 "$CXX" -DCRYPTOPP_ADHOC_MAIN -O3 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
 if [[ ("$?" -eq "0") ]]; then
 	HAVE_O3=1
 	OPT_O3=-O3
 else
+	rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -xO3 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
 	if [[ ("$?" -eq "0") ]]; then
 		HAVE_O3=1
@@ -277,13 +326,16 @@ else
 	fi
 fi
 
+# Hit or miss, mostly hit
 HAVE_O5=0
 OPT_O5=
+rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
 "$CXX" -DCRYPTOPP_ADHOC_MAIN -O5 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
 if [[ ("$?" -eq "0") ]]; then
 	HAVE_O5=1
 	OPT_O5=-O5
 else
+	rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -xO5 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
 	if [[ ("$?" -eq "0") ]]; then
 		HAVE_O5=1
@@ -291,13 +343,16 @@ else
 	fi
 fi
 
+# Hit or miss, mostly hit
 HAVE_OS=0
 OPT_OS=
+rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
 "$CXX" -DCRYPTOPP_ADHOC_MAIN -Os adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
 if [[ ("$?" -eq "0") ]]; then
 	HAVE_OS=1
 	OPT_OS=-Os
 else
+	rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -xOs adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
 	if [[ ("$?" -eq "0") ]]; then
 		HAVE_OS=1
@@ -305,7 +360,35 @@ else
 	fi
 fi
 
-# Undefined Behavior sanitizer
+# Use a fallback strategy so OPT_G2 can be used with RELEASE_CXXFLAGS
+OPT_G2=
+rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
+"$CXX" -DCRYPTOPP_ADHOC_MAIN -g2 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+if [[ ("$?" -eq "0") ]]; then
+	OPT_G2=-g2
+else
+	rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -g adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	if [[ ("$?" -eq "0") ]]; then
+		OPT_G2=-g
+	fi
+fi
+
+# Use a fallback strategy so OPT_G3 can be used with DEBUG_CXXFLAGS
+OPT_G3=
+rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
+"$CXX" -DCRYPTOPP_ADHOC_MAIN -g3 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+if [[ ("$?" -eq "0") ]]; then
+	OPT_G3=-g3
+else
+	rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -g adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	if [[ ("$?" -eq "0") ]]; then
+		OPT_G3=-g
+	fi
+fi
+
+rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_UBSAN") ]]; then
 	HAVE_UBSAN=0
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -fsanitize=undefined adhoc.cpp -o "$TMP/adhoc.exe" &>/dev/null
@@ -317,7 +400,7 @@ if [[ (-z "$HAVE_UBSAN") ]]; then
 	fi
 fi
 
-# Address sanitizer
+rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_ASAN") ]]; then
 	HAVE_ASAN=0
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -fsanitize=address adhoc.cpp -o "$TMP/adhoc.exe" &>/dev/null
@@ -329,12 +412,7 @@ if [[ (-z "$HAVE_ASAN") ]]; then
 	fi
 fi
 
-# Fixup; see http://github.com/weidai11/cryptopp/issues/212
-if [[ ("$GCC_48_COMPILER" -ne "0" && "$IS_ARM32" -ne "0") ]]; then
-	HAVE_ASAN=0
-fi
-
-# Darwin and Intel multiarch
+rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_INTEL_MULTIARCH") ]]; then
 	HAVE_INTEL_MULTIARCH=0
 	if [[ ("$IS_DARWIN" -ne "0") && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0") ]]; then
@@ -345,7 +423,7 @@ if [[ (-z "$HAVE_INTEL_MULTIARCH") ]]; then
 	fi
 fi
 
-# Darwin and PowerPC multiarch
+rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_PPC_MULTIARCH") ]]; then
 	HAVE_PPC_MULTIARCH=0
 	if [[ ("$IS_DARWIN" -ne "0") && ("$IS_PPC" -ne "0") ]]; then
@@ -356,10 +434,10 @@ if [[ (-z "$HAVE_PPC_MULTIARCH") ]]; then
 	fi
 fi
 
-# Debian and a couple of others
+rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_X32") ]]; then
 	HAVE_X32=0
-	if [[ "$IS_X64" -ne "0" ]]; then
+	if [[ "$IS_X32" -ne "0" ]]; then
 		"$CXX" -DCRYPTOPP_ADHOC_MAIN -mx32 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
 		if [[ "$?" -eq "0" ]]; then
 			HAVE_X32=1
@@ -367,8 +445,9 @@ if [[ (-z "$HAVE_X32") ]]; then
 	fi
 fi
 
-# ARMv7a/Aarch32 (may run on Aarch64). SunCC 12.5 reports Illegal Option and returns 0
-if [[ (-z "$HAVE_ARMV7A") && ("$SUN_COMPILER" -eq "0") ]]; then
+# ARMv7a/Aarch32 (may run on Aarch64).
+rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
+if [[ (-z "$HAVE_ARMV7A") ]]; then
 	HAVE_ARMV7A=0
 	if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 		"$CXX" -DCRYPTOPP_ADHOC_MAIN -march=armv7a adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
@@ -381,8 +460,9 @@ if [[ (-z "$HAVE_ARMV7A") && ("$SUN_COMPILER" -eq "0") ]]; then
 	fi
 fi
 
-# ARM NEON (may run on Aarch64). SunCC 12.5 reports Illegal Option and returns 0
-if [[ (-z "$HAVE_ARM_NEON") && ("$SUN_COMPILER" -eq "0") ]]; then
+# ARM NEON (may run on Aarch64).
+rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
+if [[ (-z "$HAVE_ARM_NEON") ]]; then
 	HAVE_ARM_NEON=0
 	if [[ ("$IS_ARM32" -ne "0") ]]; then
 		if [[ $(cat /proc/cpuinfo 2>/dev/null | "$GREP" -i -c NEON) -ne "0" ]]; then
@@ -391,8 +471,9 @@ if [[ (-z "$HAVE_ARM_NEON") && ("$SUN_COMPILER" -eq "0") ]]; then
 	fi
 fi
 
-# ARMv8/Aarch64, CRC and Crypto.  SunCC 12.5 reports Illegal Option and returns 0
-if [[ (-z "$HAVE_ARM_CRYPTO") && ("$SUN_COMPILER" -eq "0") ]]; then
+# ARMv8/Aarch64, CRC and Crypto.
+rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
+if [[ (-z "$HAVE_ARM_CRYPTO") ]]; then
 	HAVE_ARM_CRYPTO=0
 	if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 		"$CXX" -DCRYPTOPP_ADHOC_MAIN -march=armv8-a+crypto adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
@@ -402,8 +483,9 @@ if [[ (-z "$HAVE_ARM_CRYPTO") && ("$SUN_COMPILER" -eq "0") ]]; then
 	fi
 fi
 
-# ARMv8/Aarch64, CRC and Crypto. SunCC 12.5 reports Illegal Option and returns 0
-if [[ (-z "$HAVE_ARM_CRC") && ("$SUN_COMPILER" -eq "0") ]]; then
+# ARMv8/Aarch64, CRC and Crypto.
+rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
+if [[ (-z "$HAVE_ARM_CRC") ]]; then
 	HAVE_ARM_CRC=0
 	if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 		"$CXX" -DCRYPTOPP_ADHOC_MAIN -march=armv8-a+crc adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
@@ -418,19 +500,26 @@ HAVE_X86_AES=0
 HAVE_X86_RDRAND=0
 HAVE_X86_RDSEED=0
 HAVE_X86_PCLMUL=0
-if [[ (("$IS_X86" -ne "0") || ("$IS_X64" -ne "0")) && ("$SUN_COMPILER" -eq "0") ]]; then
+if [[ (("$IS_X86" -ne "0") || ("$IS_X64" -ne "0")) ]]; then
+	rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -maes adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
 	if [[ "$?" -eq "0" ]]; then
 		HAVE_X86_AES=1
 	fi
+
+	rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -mrdrnd adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
 	if [[ "$?" -eq "0" ]]; then
 		HAVE_X86_RDRAND=1
 	fi
+
+	rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -mrdseed adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
 	if [[ "$?" -eq "0" ]]; then
 		HAVE_X86_RDSEED=1
 	fi
+
+	rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -mpclmul adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
 	if [[ "$?" -eq "0" ]]; then
 		HAVE_X86_PCLMUL=1
@@ -452,11 +541,11 @@ if [[ (-z "$HAVE_VALGRIND") ]]; then
 fi
 
 # Try to find a symbolizer for Asan
-if [[ (-z "$HAVE_SYMBOLIZE") ]]; then
+if [[ (-z "$HAVE_SYMBOLIZE") && (! -z "$ASAN_SYMBOLIZER_PATH") ]]; then
 	# Sets default value
 	HAVE_SYMBOLIZE=$(which asan_symbolize 2>&1 | "$GREP" -v "no asan_symbolize" | "$GREP" -i -c "asan_symbolize")
 	if [[ (("$HAVE_SYMBOLIZE" -ne "0") && (-z "$ASAN_SYMBOLIZE")) ]]; then
-		ASAN_SYMBOLIZE="asan_symbolize"
+		ASAN_SYMBOLIZE=asan_symbolize
 	fi
 
 	# Clang implicitly uses ASAN_SYMBOLIZER_PATH; set it if its not set.
@@ -556,10 +645,10 @@ fi
 
 # -O3, -O5 and -Os
 echo | tee -a "$TEST_RESULTS"
-echo "HAVE_O3: $HAVE_O3" | tee -a "$TEST_RESULTS"
-if [[ ("$HAVE_O5" -ne "0" || "$HAVE_OS" -ne "0") ]]; then
-	echo "HAVE_O5: $HAVE_O5" | tee -a "$TEST_RESULTS"
-	echo "HAVE_OS: $HAVE_OS" | tee -a "$TEST_RESULTS"
+echo "OPT_O3: $OPT_O3" | tee -a "$TEST_RESULTS"
+if [[ (! -z "$OPT_O5") || (! -z "$OPT_OS") ]]; then
+	echo "OPT_O5: $OPT_O5" | tee -a "$TEST_RESULTS"
+	echo "OPT_OS: $OPT_OS" | tee -a "$TEST_RESULTS"
 fi
 
 # Tools available for testing
@@ -691,7 +780,7 @@ if [[ ! -z "$GIT_BRANCH" ]]; then
 fi
 
 if [[ ("$SUN_COMPILER" -ne "0") ]]; then
-	echo $("$CXX" -V 2>&1 | "$SED" 's|CC:|Compiler:|g') | head -1 | tee -a "$TEST_RESULTS"
+	echo $("$CXX" -V 2>&1 | "$SED" 's|CC:|Compiler:|g' | head -1) | tee -a "$TEST_RESULTS"
 else
 	echo "Compiler:" $("$CXX" --version | head -1) | tee -a "$TEST_RESULTS"
 fi
@@ -719,23 +808,10 @@ if [[ ("$IS_ARM32" -ne "0") && ("$HAVE_ARM_NEON" -ne "0") ]]; then
 fi
 
 # Calcualte these once. They handle Clang, GCC, ICC, etc
-DEBUG_CXXFLAGS="-DDEBUG -g3 -O0"
-RELEASE_CXXFLAGS="-DNDEBUG -g2 -O2"
-VALGRIND_CXXFLAGS="-DNDEBUG -g2 -O1"
+DEBUG_CXXFLAGS="-DDEBUG $OPT_G3 $OPT_O0"
+RELEASE_CXXFLAGS="-DNDEBUG $OPT_G2 $OPT_O2"
+VALGRIND_CXXFLAGS="-DNDEBUG $OPT_G3 $OPT_O1"
 ELEVATED_CXXFLAGS=()
-
-# SunCC is a special case
-if [[ "$SUN_COMPILER" -ne "0" ]]; then
-	if [[ "$SUNCC_123_OR_ABOVE" -ne "0" ]]; then
-		DEBUG_CXXFLAGS="-DDEBUG -g3 -xO0"
-		RELEASE_CXXFLAGS="-DNDEBUG -g -xO2"
-		VALGRIND_CXXFLAGS="-DNDEBUG -g3 -xO1"
-	else
-		DEBUG_CXXFLAGS="-DDEBUG -g -xO0"
-		RELEASE_CXXFLAGS="-DNDEBUG -g -xO2"
-		VALGRIND_CXXFLAGS="-DNDEBUG -g -xO1"
-	fi
-fi
 
 if [[ ("$GCC_COMPILER" -ne "0") ]]; then
 	ELEVATED_CXXFLAGS+=("-DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562" "-DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS" "-Wall" "-Wextra"
@@ -754,6 +830,12 @@ if [[ ("$CLANG_COMPILER" -ne "0") ]]; then
 	ELEVATED_CXXFLAGS+=("-DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562" "-DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS" "-Wall" "-Wextra")
 	ELEVATED_CXXFLAGS+=("-Wno-unknown-pragmas" "-Wstrict-overflow" "-Wcast-align" "-Wwrite-strings" "-Wformat=2" "-Wformat-security")
 fi
+
+echo | tee -a "$TEST_RESULTS"
+echo "DEBUG_CXXFLAGS: $DEBUG_CXXFLAGS" | tee -a "$TEST_RESULTS"
+echo "RELEASE_CXXFLAGS: $RELEASE_CXXFLAGS" | tee -a "$TEST_RESULTS"
+echo "VALGRIND_CXXFLAGS: $VALGRIND_CXXFLAGS" | tee -a "$TEST_RESULTS"
+# echo "ELEVATED_CXXFLAGS: ${ELEVATED_CXXFLAGS[@]}" | tee -a "$TEST_RESULTS"
 
 #############################################
 #############################################
@@ -3888,7 +3970,7 @@ fi
 #   This check was added after testing on Ubuntu 14.04 with Clang 3.4.
 if [[ ("$CLANG_COMPILER" -eq "0") ]]; then
 
-	CLANG_CXX=$(which clang++ 2>/dev/null)
+	CLANG_CXX=$(which clang++ 2>&1 | "$GREP" -v "no clang++" | head -1)
 	"$CLANG_CXX" -x c++ -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMP/adhoc.exe" > /dev/null 2>&1
 	if [[ "$?" -eq "0" ]]; then
 
@@ -3923,7 +4005,7 @@ fi
 # Perform a quick check with GCC, if available.
 if [[ ("$GCC_COMPILER" -eq "0") ]]; then
 
-	GCC_CXX=$(which g++ 2>/dev/null)
+	GCC_CXX=$(which g++ 2>&1 | "$GREP" -v "no g++" | head -1)
 	"$GCC_CXX" -x c++ -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMP/adhoc.exe" > /dev/null 2>&1
 	if [[ "$?" -eq "0" ]]; then
 
@@ -3958,7 +4040,7 @@ fi
 # Perform a quick check with Intel ICPC, if available.
 if [[ ("$INTEL_COMPILER" -eq "0") ]]; then
 
-	INTEL_CXX=$(which icpc 2>/dev/null)
+	INTEL_CXX=$(which icpc 2>&1 | "$GREP" -v "no icpc" | head -1)
 	if [[ (-z "$INTEL_CXX") ]]; then
 		INTEL_CXX=$(find /opt/intel -name icpc 2>/dev/null | "$GREP" -iv composer | head -1)
 	fi
