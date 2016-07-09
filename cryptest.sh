@@ -4238,7 +4238,7 @@ echo | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
 
 WCOUNT=$("$EGREP" -a '(warning:)' $WARN_RESULTS | "$GREP" -v 'deprecated-declarations' | wc -l | "$AWK" '{print $1}')
 if (( "$WCOUNT" == "0" )); then
-	echo "No warnings detected" | tee -a "$TEST_RESULTS" "$WARN_RESULTS" | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
+	echo "No warnings detected" | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
 else
 	echo "$WCOUNT warnings detected. See $WARN_RESULTS for details" | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
 	# "$EGREP" -n '(warning:)' $WARN_RESULTS | "$GREP" -v 'deprecated-declarations'
