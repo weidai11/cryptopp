@@ -367,8 +367,8 @@ if [[ (-z "$HAVE_X32") ]]; then
 	fi
 fi
 
-# ARMv7a/Aarch32 (may run on Aarch64)
-if [[ (-z "$HAVE_ARMV7A") ]]; then
+# ARMv7a/Aarch32 (may run on Aarch64). SunCC reports Illegal Option and returns
+if [[ (-z "$HAVE_ARMV7A") && ("$SUN_COMPILER" -eq "0") ]]; then
 	HAVE_ARMV7A=0
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -march=armv7a adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
 	if [[ "$?" -eq "0" ]]; then
