@@ -90,10 +90,20 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 	fi
 
 	# Need something more powerful than the non-Posix versions
-	if [[ (-e "/usr/gnu/bin/grep") ]]; then GREP=/usr/gnu/bin/grep; fi
-	if [[ (-e "/usr/gnu/bin/egrep") ]]; then EGREP=/usr/gnu/bin/egrep; fi
-	if [[ (-e "/usr/gnu/bin/sed") ]]; then SED=/usr/gnu/bin/sed; fi
-	if [[ (-e "/usr/gnu/bin/awk") ]]; then AWK=/usr/gnu/bin/awk; else AWK=nawk; fi
+	if [[ (-e "/usr/gnu/bin/grep") ]]; then
+		GREP=/usr/gnu/bin/grep;
+	fi
+	if [[ (-e "/usr/gnu/bin/egrep") ]]; then
+		EGREP=/usr/gnu/bin/egrep;
+	fi
+	if [[ (-e "/usr/gnu/bin/sed") ]]; then
+		SED=/usr/gnu/bin/sed;
+	fi
+	if [[ (-e "/usr/gnu/bin/awk") ]]; then
+		AWK=/usr/gnu/bin/awk;
+	else
+		AWK=nawk;
+	fi
 fi
 
 # Recognize "fast" and "quick"...
@@ -108,9 +118,10 @@ if [[ ((-z "$CXX") || ("$CXX" == "gcc")) ]]; then
 	if [[ "$IS_DARWIN" -ne "0" ]]; then
 		CXX=c++
 	elif [[ "$IS_SOLARIS" -ne "0" ]]; then
-		if [[ (-e "/opt/developerstudio12.5/bin/CC") ]]; then
-			CXX=/opt/developerstudio12.5/bin/CC
-		elif [[ (-e "/opt/solarisstudio12.4/bin/CC") ]]; then
+		# SunCC 12.5 is mostly broken
+		#if [[ (-e "/opt/developerstudio12.5/bin/CC") ]]; then
+		#	CXX=/opt/developerstudio12.5/bin/CC
+		if [[ (-e "/opt/solarisstudio12.4/bin/CC") ]]; then
 			CXX=/opt/solarisstudio12.4/bin/CC
 		elif [[ (-e "/opt/solarisstudio12.3/bin/CC") ]]; then
 			CXX=/opt/solarisstudio12.3/bin/CC
@@ -132,20 +143,29 @@ INTEL_COMPILER=$("$CXX" --version 2>&1 | "$EGREP" -i -c "\(icc\)")
 MACPORTS_COMPILER=$("$CXX" --version 2>&1 | "$EGREP" -i -c "MacPorts")
 CLANG_COMPILER=$("$CXX" --version 2>&1 | "$EGREP" -i -c "clang")
 
-if [[ ($("$CXX" -dM -E - </dev/null 2>/dev/null | "$EGREP" -c '(__x64_64__|__amd64__)') -ne "0") && ($("$CXX" -dM -E -</dev/null 2>/dev/null | "$EGREP" -c '(__ILP32|__ILP32)') -ne "0") ]]; then
-    IS_X32=1
+if [[ ("$SUN_COMPILER -eq "0"") ]]; then
+	AMD64=$("$CXX" -dM -E - </dev/null 2>/dev/null | "$EGREP" -c '(__x64_64__|__amd64__)')
+	ILP32=$("$CXX" -dM -E - </dev/null 2>/dev/null | "$EGREP" -c '(__ILP32__|__ILP32)')
+	if [[ ("$AMD64" -ne "0") && ("$ILP32" -ne "0") ]]; then
+		IS_X32=1
+	fi
 fi
 
-# Now that the compiler is fixed, see if its GCC 5.1 or above with -Wabi, -Wabi-tag and -Wodr
+# Now that the compiler is fixed, set some GCC specific flags
 GCC_60_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version (6\.[0-9]|[7-9])')
 GCC_51_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version (5\.[1-9]|[6-9])')
 GCC_48_COMPILER=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version 4\.8')
-# SunCC 12.2 and below needs one set of CXXFLAGS; SunCC 12.3 and above needs another set of CXXFLAGS
+# SunCC 12.2 and below needs one set of CXXFLAGS; SunCC 12.3 and above needs another set of CXXFLAGS. Beware, SunCC 12.5 is broken.
 SUNCC_123_OR_ABOVE=$("$CXX" -E -xdumpmacros /dev/null 2>&1 | "$GREP" " __SUNPRO_CC " 2>/dev/null | "$AWK" '{print ($2 >= 0x5120) ? "1" : "0"}' )
 
 # Fixup
-if [[ ("$IS_OPENBSD" -ne "0" || "$IS_NETBSD" -ne "0" || "$IS_SOLARIS" -ne "0") ]]; then
+if [[ ("$IS_OPENBSD" -ne "0" || "$IS_NETBSD" -ne "0") ]]; then
 	MAKE=gmake
+elif [[ ("$IS_SOLARIS" -ne "0") ]]; then
+	MAKE=$(which gmake 2>/dev/null)
+	if [[ (-z "$MAKE") && (-e "/usr/sfw/bin/gmake") ]]; then
+		MAKE=/usr/sfw/bin/gmake
+	fi
 else
 	MAKE=make
 fi
@@ -645,9 +665,9 @@ fi
 
 ############################################
 
-GIT_REPO=$(git branch 2>&1 | "$GREP" -v "fatal" | wc -l)
+GIT_REPO=$(git branch 2>&1 | "$GREP" -v "fatal" | wc -l | "$AWK" '{print $1; exit;}')
 if [[ "$GIT_REPO" -ne "0" ]]; then
-	GIT_BRANCH=$(git branch 2>/dev/null | "$GREP" '*' | cut -c 3-)
+	GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
 	GIT_HASH=$(git rev-parse HEAD 2>/dev/null | cut -c 1-16)
 fi
 
@@ -4225,7 +4245,7 @@ if (( "$ECOUNT" == "0" )); then
 else
 	echo "$ECOUNT errors detected. See $TEST_RESULTS for details" | tee -a "$TEST_RESULTS"
 	if (( "$ECOUNT" < 16 )); then
-		"$EGREP" -an '(Error|ERROR|error|FAILED|Illegal)' "$TEST_RESULTS" | "$EGREP" -v '( 0 errors|suppressed errors|error detector)'
+		"$EGREP" -n '(Error|ERROR|error|FAILED|Illegal)' "$TEST_RESULTS" | "$EGREP" -v '( 0 errors|suppressed errors|error detector)'
 	fi
 fi
 
@@ -4238,10 +4258,10 @@ echo | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
 
 WCOUNT=$("$EGREP" -a '(warning:)' $WARN_RESULTS | "$GREP" -v 'deprecated-declarations' | wc -l | "$AWK" '{print $1}')
 if (( "$WCOUNT" == "0" )); then
-	echo "No warnings detected" | tee -a "$TEST_RESULTS" "$WARN_RESULTS" | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
+	echo "No warnings detected" | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
 else
 	echo "$WCOUNT warnings detected. See $WARN_RESULTS for details" | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
-	# "$EGREP" -an '(warning:)' $WARN_RESULTS | "$GREP" -v 'deprecated-declarations'
+	# "$EGREP" -n '(warning:)' $WARN_RESULTS | "$GREP" -v 'deprecated-declarations'
 fi
 
 ############################################
