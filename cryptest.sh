@@ -367,20 +367,22 @@ if [[ (-z "$HAVE_X32") ]]; then
 	fi
 fi
 
-# ARMv7a/Aarch32 (may run on Aarch64). SunCC reports Illegal Option and returns
+# ARMv7a/Aarch32 (may run on Aarch64). SunCC 12.5 reports Illegal Option and returns 0
 if [[ (-z "$HAVE_ARMV7A") && ("$SUN_COMPILER" -eq "0") ]]; then
 	HAVE_ARMV7A=0
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -march=armv7a adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
-	if [[ "$?" -eq "0" ]]; then
-		"$TMP/adhoc.exe" > /dev/null 2>&1
+	if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
+		"$CXX" -DCRYPTOPP_ADHOC_MAIN -march=armv7a adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
 		if [[ "$?" -eq "0" ]]; then
-			HAVE_ARMV7A=1
+			"$TMP/adhoc.exe" > /dev/null 2>&1
+			if [[ "$?" -eq "0" ]]; then
+				HAVE_ARMV7A=1
+			fi
 		fi
 	fi
 fi
 
-# ARM NEON (may run on Aarch64)
-if [[ (-z "$HAVE_ARM_NEON") ]]; then
+# ARM NEON (may run on Aarch64). SunCC 12.5 reports Illegal Option and returns 0
+if [[ (-z "$HAVE_ARM_NEON") && ("$SUN_COMPILER" -eq "0") ]]; then
 	HAVE_ARM_NEON=0
 	if [[ ("$IS_ARM32" -ne "0") ]]; then
 		if [[ $(cat /proc/cpuinfo 2>/dev/null | "$GREP" -i -c NEON) -ne "0" ]]; then
@@ -389,8 +391,8 @@ if [[ (-z "$HAVE_ARM_NEON") ]]; then
 	fi
 fi
 
-# ARMv8/Aarch64, CRC and Crypto
-if [[ (-z "$HAVE_ARM_CRYPTO") ]]; then
+# ARMv8/Aarch64, CRC and Crypto.  SunCC 12.5 reports Illegal Option and returns 0
+if [[ (-z "$HAVE_ARM_CRYPTO") && ("$SUN_COMPILER" -eq "0") ]]; then
 	HAVE_ARM_CRYPTO=0
 	if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 		"$CXX" -DCRYPTOPP_ADHOC_MAIN -march=armv8-a+crypto adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
@@ -400,8 +402,8 @@ if [[ (-z "$HAVE_ARM_CRYPTO") ]]; then
 	fi
 fi
 
-# ARMv8/Aarch64, CRC and Crypto
-if [[ (-z "$HAVE_ARM_CRC") ]]; then
+# ARMv8/Aarch64, CRC and Crypto. SunCC 12.5 reports Illegal Option and returns 0
+if [[ (-z "$HAVE_ARM_CRC") && ("$SUN_COMPILER" -eq "0") ]]; then
 	HAVE_ARM_CRC=0
 	if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 		"$CXX" -DCRYPTOPP_ADHOC_MAIN -march=armv8-a+crc adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
