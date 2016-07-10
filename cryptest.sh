@@ -22,6 +22,8 @@
 
 # The fastest results (in running time) will most likely use:
 #     HAVE_VALGRIND=0 WANT_BENCHMARKS=0 ./cryptest.sh
+# Using 'fast' is shorthand for it:
+#     ./cryptest.sh fast
 
 ############################################
 # Set to suite your taste
