@@ -15,7 +15,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 // SunCC 12.4 and above
 #if defined(CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE) && (__SUNPRO_CC >= 0x5130)
-# include <nmminitin.h>
+# include <nmmintrin.h>
 #endif
 
 /* Table of CRC-32's of all single byte values (made by makecrc.c) */
