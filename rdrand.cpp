@@ -68,7 +68,7 @@
 
 #if defined(CRYPTOPP_CPUID_AVAILABLE)
 # define MSC_INTRIN_COMPILER ((CRYPTOPP_MSC_VERSION >= 1700) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30200) || (_INTEL_COMPILER >= 1210))
-# define GCC_INTRIN_COMPILER ((CRYPTOPP_GCC_VERSION >= 40600) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30200) || (_INTEL_COMPILER >= 1210))
+# define GCC_INTRIN_COMPILER ((CRYPTOPP_GCC_VERSION >= 40600) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30200) || (_INTEL_COMPILER >= 1210)) || (__SUNPRO_CC >= 0x5130)
 #else
 # define MSC_INTRIN_COMPILER 0
 # define GCC_INTRIN_COMPILER 0
@@ -95,6 +95,17 @@
 #    define GCC_RDRAND_ASM_AVAILABLE 1
 #  endif
 #  if GCC_INTRIN_COMPILER && defined(__RDSEED__)
+#    define ALL_RDSEED_INTRIN_AVAILABLE 1
+#  elif CRYPTOPP_BOOL_RDSEED_ASM
+#    define GCC_RDSEED_ASM_AVAILABLE 1
+#  endif
+#elif defined(CRYPTOPP_CPUID_AVAILABLE) && (__SUNPRO_CC >= 0x5100)
+#  if GCC_INTRIN_COMPILER && defined(__RDRND__) && (__SUNPRO_CC >= 0x5130)
+#    define ALL_RDRAND_INTRIN_AVAILABLE 1
+#  elif CRYPTOPP_BOOL_RDRAND_ASM
+#    define GCC_RDRAND_ASM_AVAILABLE 1
+#  endif
+#  if GCC_INTRIN_COMPILER && defined(__RDSEED__) && (__SUNPRO_CC >= 0x5150)
 #    define ALL_RDSEED_INTRIN_AVAILABLE 1
 #  elif CRYPTOPP_BOOL_RDSEED_ASM
 #    define GCC_RDSEED_ASM_AVAILABLE 1
@@ -131,7 +142,7 @@
 /////////////////////////////////////////////////////////////////////
 
 #if (ALL_RDRAND_INTRIN_AVAILABLE || ALL_RDSEED_INTRIN_AVAILABLE)
-# include <immintrin.h> // rdrand, MSC, ICC, and GCC
+# include <immintrin.h> // rdrand, MSC, ICC, GCC, and SunCC
 # if defined(__GNUC__) && (CRYPTOPP_GCC_VERSION >= 40600)
 #  include <x86intrin.h> // rdseed for some compilers, like GCC
 # endif

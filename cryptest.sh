@@ -22,6 +22,8 @@
 
 # The fastest results (in running time) will most likely use:
 #     HAVE_VALGRIND=0 WANT_BENCHMARKS=0 ./cryptest.sh
+# Using 'fast' is shorthand for it:
+#     ./cryptest.sh fast
 
 ############################################
 # Set to suite your taste
@@ -343,6 +345,12 @@ else
 	fi
 fi
 
+# Fixup... SunCC appears to botch the code generation
+if [[ ("$SUN_COMPILER" -ne "0" )]];then
+	HAVE_O5=0
+	OPT_O5=
+fi
+
 # Hit or miss, mostly hit
 HAVE_OS=0
 OPT_OS=
@@ -500,7 +508,7 @@ HAVE_X86_AES=0
 HAVE_X86_RDRAND=0
 HAVE_X86_RDSEED=0
 HAVE_X86_PCLMUL=0
-if [[ (("$IS_X86" -ne "0") || ("$IS_X64" -ne "0")) ]]; then
+if [[ (("$IS_X86" -ne "0") || ("$IS_X64" -ne "0")) && ("$SUN_COMPILER" -eq "0") ]]; then
 	rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -maes adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
 	if [[ "$?" -eq "0" ]]; then
@@ -529,8 +537,9 @@ fi
 # ld-gold linker testing
 if [[ (-z "$HAVE_LDGOLD") ]]; then
 	HAVE_LDGOLD=0
-	LD_GOLD=$(which ld.gold 2>/dev/null | "$GREP" -v "no ld.gold" | head -1)
-	if [[ (! -z "$LD_GOLD") ]]; then
+	LD_GOLD=$(which ld.gold 2>&1 | "$GREP" -v "no ld.gold" | head -1)
+	ELF_FILE=$(which file 2>&1 | "$GREP" -v "no file" | head -1)
+	if [[ (! -z "$LD_GOLD") && (! -z "$ELF_FILE") ]]; then
 		HAVE_LDGOLD=$(file "$LD_GOLD" | cut -d":" -f 2 | "$EGREP" -i -c "elf")
 	fi
 fi

@@ -22,9 +22,14 @@ NAMESPACE_BEGIN(CryptoPP)
 # undef CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
 #endif
 
-// Testing shows Sun CC needs 12.4 for _mm_set_epi64x
-#if (__SUNPRO_CC <= 0x5130)
+// SunCC needs 12.4 for _mm_set_epi64x, _mm_blend_epi16, _mm_shuffle_epi16, etc
+#if defined(__SUNPRO_CC) && (__SUNPRO_CC < 0x5130)
 # undef CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+# undef CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
+#elif (__SUNPRO_CC >= 0x5130)
+# include <emmintrin.h>    // _mm_set_epi64x
+# include <smmintrin.h>    // _mm_blend_epi16
+# include <tmmintrin.h>    // _mm_shuffle_epi16
 #endif
 
 // Visual Studio needs VS2008 (1500); no dependency on _mm_set_epi64x()
