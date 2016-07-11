@@ -22,6 +22,12 @@ NAMESPACE_BEGIN(CryptoPP)
 # undef CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
 #endif
 
+// Visual Studio needs VS2008 (1500); no dependency on _mm_set_epi64x()
+//   http://msdn.microsoft.com/en-us/library/bb892950%28v=vs.90%29.aspx
+#if defined(_MSC_VER) && (_MSC_VER < 1500)
+# undef CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
+#endif
+
 // SunCC needs 12.4 for _mm_set_epi64x, _mm_blend_epi16, _mm_shuffle_epi16, etc
 #if defined(__SUNPRO_CC) && (__SUNPRO_CC < 0x5130)
 # undef CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
@@ -30,12 +36,6 @@ NAMESPACE_BEGIN(CryptoPP)
 # include <emmintrin.h>    // _mm_set_epi64x
 # include <smmintrin.h>    // _mm_blend_epi16
 # include <tmmintrin.h>    // _mm_shuffle_epi16
-#endif
-
-// Visual Studio needs VS2008 (1500); no dependency on _mm_set_epi64x()
-//   http://msdn.microsoft.com/en-us/library/bb892950%28v=vs.90%29.aspx
-#if defined(_MSC_VER) && (_MSC_VER < 1500)
-# undef CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
 #endif
 
 // Apple Clang 6.0/Clang 3.5 does not have SSSE3 intrinsics

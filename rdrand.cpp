@@ -45,69 +45,41 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
-// According to Wei, CRYPTOPP_DISABLE_ASM is a failsafe due to the assembler.
-//   We sidestep it because it does not limit us. The assembler does not limit
-//   us because we emit out own byte codes as needed. To diasble RDRAND or
-//    RDSEED, set CRYPTOPP_BOOL_RDRAND_ASM or CRYPTOPP_BOOL_RDSEED_ASM to 0.
-#ifndef CRYPTOPP_CPUID_AVAILABLE
-# if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
+#if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
+# ifndef CRYPTOPP_CPUID_AVAILABLE
 #  define CRYPTOPP_CPUID_AVAILABLE
 # endif
 #endif
 
-#if defined(CRYPTOPP_CPUID_AVAILABLE) && !defined(CRYPTOPP_BOOL_RDRAND_ASM)
-# define CRYPTOPP_BOOL_RDRAND_ASM 1
-#else
-# define CRYPTOPP_BOOL_RDRAND_ASM 0
-#endif
-#if defined(CRYPTOPP_CPUID_AVAILABLE) && !defined(CRYPTOPP_BOOL_RDSEED_ASM)
-# define CRYPTOPP_BOOL_RDSEED_ASM 1
-#else
-# define CRYPTOPP_BOOL_RDSEED_ASM 0
-#endif
-
-#if defined(CRYPTOPP_CPUID_AVAILABLE)
-# define MSC_INTRIN_COMPILER ((CRYPTOPP_MSC_VERSION >= 1700) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30200) || (_INTEL_COMPILER >= 1210))
-# define GCC_INTRIN_COMPILER ((CRYPTOPP_GCC_VERSION >= 40600) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30200) || (_INTEL_COMPILER >= 1210)) || (__SUNPRO_CC >= 0x5130)
-#else
-# define MSC_INTRIN_COMPILER 0
-# define GCC_INTRIN_COMPILER 0
-#endif
-
 // In general, the library's ASM code is best on Windows, and Intrinsics is
-//   the best code under GCC and compatibles. We favor them accordingly.
+//   the best code under GCC. Clang is missing symbols, so it gets ASM.
 //   The NASM code is optimized well on Linux, but its not easy to cut-in.
-#if defined(CRYPTOPP_CPUID_AVAILABLE) && (CRYPTOPP_MSC_VERSION >= 1200)
-#  if CRYPTOPP_BOOL_RDRAND_ASM
-#    define MASM_RDRAND_ASM_AVAILABLE 1
-#  elif MSC_INTRIN_COMPILER
+#if defined(CRYPTOPP_MSC_VERSION)
+#  define MASM_RDRAND_ASM_AVAILABLE 1
+#  define MASM_RDSEED_ASM_AVAILABLE 1
+#elif defined(CRYPTOPP_LLVM_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION)
+#  define GCC_RDRAND_ASM_AVAILABLE 1
+#  define GCC_RDSEED_ASM_AVAILABLE 1
+#elif defined(__SUNPRO_CC)
+#  if defined(__RDRND__) && (__SUNPRO_CC >= 0x5130)
 #    define ALL_RDRAND_INTRIN_AVAILABLE 1
-#  endif
-#  if CRYPTOPP_BOOL_RDSEED_ASM
-#    define MASM_RDSEED_ASM_AVAILABLE 1
-#  elif MSC_INTRIN_COMPILER
-#    define ALL_RDSEED_INTRIN_AVAILABLE 1
-#  endif
-#elif defined(CRYPTOPP_CPUID_AVAILABLE) && (CRYPTOPP_GCC_VERSION >= 30200)
-#  if GCC_INTRIN_COMPILER && defined(__RDRND__)
-#    define ALL_RDRAND_INTRIN_AVAILABLE 1
-#  elif CRYPTOPP_BOOL_RDRAND_ASM
+#  elif (__SUNPRO_CC >= 0x5100)
 #    define GCC_RDRAND_ASM_AVAILABLE 1
 #  endif
-#  if GCC_INTRIN_COMPILER && defined(__RDSEED__)
+#  if defined(__RDSEED__) && (__SUNPRO_CC >= 0x5140)
 #    define ALL_RDSEED_INTRIN_AVAILABLE 1
-#  elif CRYPTOPP_BOOL_RDSEED_ASM
+#  elif (__SUNPRO_CC >= 0x5100)
 #    define GCC_RDSEED_ASM_AVAILABLE 1
 #  endif
-#elif defined(CRYPTOPP_CPUID_AVAILABLE) && (__SUNPRO_CC >= 0x5100)
-#  if GCC_INTRIN_COMPILER && defined(__RDRND__) && (__SUNPRO_CC >= 0x5130)
+#elif defined(CRYPTOPP_GCC_VERSION)
+#  if defined(__RDRND__) && (CRYPTOPP_GCC_VERSION >= 30200)
 #    define ALL_RDRAND_INTRIN_AVAILABLE 1
-#  elif CRYPTOPP_BOOL_RDRAND_ASM
+#  else
 #    define GCC_RDRAND_ASM_AVAILABLE 1
 #  endif
-#  if GCC_INTRIN_COMPILER && defined(__RDSEED__) && (__SUNPRO_CC >= 0x5150)
+#  if defined(__RDSEED__) && (CRYPTOPP_GCC_VERSION >= 30200)
 #    define ALL_RDSEED_INTRIN_AVAILABLE 1
-#  elif CRYPTOPP_BOOL_RDSEED_ASM
+#  else
 #    define GCC_RDSEED_ASM_AVAILABLE 1
 #  endif
 #endif
@@ -238,11 +210,7 @@ static int ALL_RRI_GenerateBlock(byte *output, size_t size, unsigned int safety)
 		}
 	}
 
-#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
-	*((volatile word32*)&val) = 0;
-#else
-	*((volatile word64*)&val) = 0;
-#endif
+	SecureWipeBuffer(&val, 1);
 
 	return int(size == 0);
 }
@@ -302,11 +270,7 @@ static int GCC_RRA_GenerateBlock(byte *output, size_t size, unsigned int safety)
 		}
 	}
 
-#if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32
-	*((volatile word64*)&val) = 0;
-#else
-	*((volatile word32*)&val) = 0;
-#endif
+	SecureWipeBuffer(&val, 1);
 
 	return int(size == 0);
 }
@@ -419,11 +383,7 @@ static int ALL_RSI_GenerateBlock(byte *output, size_t size, unsigned int safety)
 		}
 	}
 
-#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
-	*((volatile word32*)&val) = 0;
-#else
-	*((volatile word64*)&val) = 0;
-#endif
+	SecureWipeBuffer(&val, 1);
 
 	return int(size == 0);
 }
@@ -483,11 +443,7 @@ static int GCC_RSA_GenerateBlock(byte *output, size_t size, unsigned int safety)
 		}
 	}
 
-#if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32
-	*((volatile word64*)&val) = 0;
-#else
-	*((volatile word32*)&val) = 0;
-#endif
+	SecureWipeBuffer(&val, 1);
 
 	return int(size == 0);
 }
