@@ -167,6 +167,7 @@ fi
 GCC_60_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version (6\.[0-9]|[7-9])')
 GCC_51_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version (5\.[1-9]|[6-9])')
 GCC_48_COMPILER=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version 4\.8')
+SUNCC_121_OR_ABOVE=$("$CXX" -V 2>&1 | "$EGREP" -c "CC: (Sun|Studio) .* (5\.1[0-9]|5\.[2-9]|[6-9]\.)")
 
 # Fixup
 if [[ ("$IS_OPENBSD" -ne "0" || "$IS_NETBSD" -ne "0") ]]; then
@@ -2843,6 +2844,93 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 	fi
 
 	############################################
+	# SunCC with GCC defines
+
+	if [[ ("$SUNCC_121_OR_ABOVE" -ne "0") ]]; then
+
+		ISAINFO=$(isainfo -v 2>/dev/null)
+		SUN_SSE2=$(echo "$ISAINFO" | "$GREP" -c "sse2")
+		SUN_SSE3=$(echo "$ISAINFO" | "$GREP" -c "sse3")
+		SUN_SSSE3=$(echo "$ISAINFO" | "$GREP" -c "ssse3")
+		SUN_SSE41=$(echo "$ISAINFO" | "$GREP" -c "sse4.1")
+		SUN_SSE42=$(echo "$ISAINFO" | "$GREP" -c "sse4.2")
+		SUN_AES=$(echo "$ISAINFO" | "$GREP" -c "aes")
+		SUN_PCLMUL=$(echo "$ISAINFO" | "$GREP" -c "pclmulqdq")
+		SUN_RDRAND=$(echo "$ISAINFO" | "$GREP" -c "rdrand")
+		SUN_RDSEED=$(echo "$ISAINFO" | "$GREP" -c "rdseed")
+		SUN_BMI=$(echo "$ISAINFO" | "$GREP" -c "bmi")
+		SUN_BMI2=$(echo "$ISAINFO" | "$GREP" -c "bmi2")
+
+		SUNCC_CXXFLAGS=()
+		if [[ ("$SUN_SSE2" -ne "0") ]]; then SUNCC_CXXFLAGS+="-D__SSE2__ "; fi
+		if [[ ("$SUN_SSE3" -ne "0") ]]; then SUNCC_CXXFLAGS+="-D__SSE3__ "; fi
+		if [[ ("$SUN_SSSE3" -ne "0") ]]; then SUNCC_CXXFLAGS+="-D__SSSE3__ "; fi
+		if [[ ("$SUN_SSE41" -ne "0") ]]; then SUNCC_CXXFLAGS+="-D__SSE4_1__ "; fi
+		if [[ ("$SUN_SSE42" -ne "0") ]]; then SUNCC_CXXFLAGS+="-D__SSE4_2__ "; fi
+		# if [[ ("$SUN_AES" -ne "0") ]]; then SUNCC_CXXFLAGS+="-D__AES__ "; fi
+		if [[ ("$SUN_PCLMUL" -ne "0") ]]; then SUNCC_CXXFLAGS+="-D__PCLMUL__ "; fi
+		if [[ ("$SUN_RDRAND" -ne "0") ]]; then SUNCC_CXXFLAGS+="-D__RDRND__ "; fi
+		if [[ ("$SUN_RDSEED" -ne "0") ]]; then SUNCC_CXXFLAGS+="-D__RDSEED__ "; fi
+		if [[ ("$SUN_BMI" -ne "0") ]]; then SUNCC_CXXFLAGS+="-D__BMI__ "; fi
+		if [[ ("$SUN_BMI2" -ne "0") ]]; then SUNCC_CXXFLAGS+="-D__BMI2__ "; fi
+
+
+		############################################
+		# Debug build
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS"
+		echo "Testing: SunCC with GCC defines, debug CXXFLAGS" | tee -a "$TEST_RESULTS"
+		echo
+
+		unset CXXFLAGS
+		"$MAKE" clean > /dev/null 2>&1
+		rm -f adhoc.cpp > /dev/null 2>&1
+
+		export CXXFLAGS="-DDEBUG -g3 -O0 ${SUNCC_CXXFLAGS[@]}"
+		"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+		else
+			./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+			fi
+			./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+			fi
+		fi
+
+		############################################
+		# Release build
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS"
+		echo "Testing: SunCC with GCC defines, release CXXFLAGS" | tee -a "$TEST_RESULTS"
+		echo
+
+		unset CXXFLAGS
+		"$MAKE" clean > /dev/null 2>&1
+		rm -f adhoc.cpp > /dev/null 2>&1
+
+		export CXXFLAGS="-DNDEBUG -g2 -O2 ${SUNCC_CXXFLAGS[@]}"
+		"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+		else
+			./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+			fi
+			./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+			fi
+		fi
+	fi
+
+	############################################
 	# GCC on Solaris
 	if [[ (-e "/bin/g++") ]]; then
 
@@ -3532,7 +3620,7 @@ if [[ "$HAVE_ARM_CRC" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -march=armv8-a+crc ${RETAINED_CXXFLAGS[@]}"
+	export CXXFLAGS="$RELEASE_CXXFLAGS -march=armv8-a+crc"
 	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -3561,7 +3649,7 @@ if [[ "$HAVE_ARM_CRYPTO" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -march=armv8-a+crypto ${RETAINED_CXXFLAGS[@]}"
+	export CXXFLAGS="$RELEASE_CXXFLAGS -march=armv8-a+crypto"
 	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
