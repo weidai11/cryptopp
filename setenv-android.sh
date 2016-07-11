@@ -345,7 +345,7 @@ fi
 
 echo
 echo "*******************************************************************************"
-echo "It looks the the environemnt is set correcty. Your next step is"
+echo "It looks the the environment is set correctly. Your next step is"
 echo "build the library with 'make -f GNUmakefile-cross'"
 echo "*******************************************************************************"
 echo

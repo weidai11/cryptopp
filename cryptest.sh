@@ -3532,7 +3532,7 @@ if [[ "$HAVE_ARM_CRC" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -march=armv8-a+crc ${RETAINED_CXXFLAGS[@]}"
+	export CXXFLAGS="$RELEASE_CXXFLAGS -march=armv8-a+crc"
 	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -3561,7 +3561,7 @@ if [[ "$HAVE_ARM_CRYPTO" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -march=armv8-a+crypto ${RETAINED_CXXFLAGS[@]}"
+	export CXXFLAGS="$RELEASE_CXXFLAGS -march=armv8-a+crypto"
 	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
