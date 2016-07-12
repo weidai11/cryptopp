@@ -396,6 +396,7 @@ NAMESPACE_END
 # pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 
+// TODO: Figure out C++17 and lack of std::uncaught_exception
 #if (defined(_MSC_VER) && _MSC_VER <= 1300) || defined(__MWERKS__) || (defined(_STLPORT_VERSION) && ((_STLPORT_VERSION < 0x450) || defined(_STLP_NO_UNCAUGHT_EXCEPT_SUPPORT)))
 #define CRYPTOPP_DISABLE_UNCAUGHT_EXCEPTION
 #endif
@@ -456,8 +457,9 @@ NAMESPACE_END
 
 // Intrinsics availible in GCC 4.3 (http://gcc.gnu.org/gcc-4.3/changes.html) and
 //   MSVC 2008 (http://msdn.microsoft.com/en-us/library/bb892950%28v=vs.90%29.aspx)
-//   SunCC could generate SSE4 at 12.1, but the intrinsics are missing until 12.4.
-#if !defined(CRYPTOPP_DISABLE_SSE2) && !defined(CRYPTOPP_DISABLE_SSE4) && (((_MSC_VER >= 1500) && !defined(_M_ARM)) || defined(__SSE4_2__) || (__SUNPRO_CC >= 0x5130))
+//   SunCC could generate SSE4 at 12.1, but the intrinsics are missing until 12.4. However, we don't know
+//     when to activate the code paths because SunCC does not indicate it in the preprocessor with macros.
+#if !defined(CRYPTOPP_DISABLE_SSE2) && !defined(CRYPTOPP_DISABLE_SSE4) && (((_MSC_VER >= 1500) && !defined(_M_ARM)) || (defined(__SSE4_1__) && defined(__SSE4_2__)))
 	#define CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE 1
 #else
 	#define CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE 0
@@ -870,7 +872,8 @@ NAMESPACE_END
 #endif  // CRYPTOPP_CXX11_ALIGNAS
 
 // OK to comment the following out, but please report it so we can fix it.
-#if (defined(__cplusplus) && (__cplusplus >= 199711L)) && !defined(CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE)
+// C++17 value taken from http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4567.pdf.
+#if (defined(__cplusplus) && (__cplusplus >= 199711L) && (__cplusplus < 201402L)) && !defined(CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE)
 # error "std::uncaught_exception is not available. This is likely a configuration error."
 #endif
 
