@@ -802,26 +802,45 @@ echo "Pathname: $CXX_PATH" | tee -a "$TEST_RESULTS"
 
 ############################################
 
-# Keep noise to a minimum
-"$CXX" -DCRYPTOPP_ADHOC_MAIN -Wno-deprecated-declarations adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
-if [[ "$?" -eq "0" ]]; then
-	RETAINED_CXXFLAGS+=("-Wno-deprecated-declarations")
-fi
-
-# Add to exercise ARMv7a and NEON more thoroughly
-if [[ ("$IS_ARM32" -ne "0") && ("$HAVE_ARMV7A" -ne "0") ]]; then
-	RETAINED_CXXFLAGS+=("-march=armv7a")
-fi
-
-if [[ ("$IS_ARM32" -ne "0") && ("$HAVE_ARM_NEON" -ne "0") ]]; then
-	RETAINED_CXXFLAGS+=("-mfpu=neon")
-fi
-
 # Calcualte these once. They handle Clang, GCC, ICC, etc
 DEBUG_CXXFLAGS="-DDEBUG $OPT_G3 $OPT_O0"
 RELEASE_CXXFLAGS="-DNDEBUG $OPT_G2 $OPT_O2"
 VALGRIND_CXXFLAGS="-DNDEBUG $OPT_G3 $OPT_O1"
+PLATFORM_CXXFLAGS=()
 ELEVATED_CXXFLAGS=()
+DEPRECATED_CXXFLAGS=()
+
+# Keep noise to a minimum
+"$CXX" -DCRYPTOPP_ADHOC_MAIN -Wno-deprecated-declarations adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+if [[ "$?" -eq "0" ]]; then
+	DEPRECATED_CXXFLAGS+=("-Wno-deprecated-declarations")
+fi
+
+# Add to exercise ARMv7a and NEON more thoroughly
+if [[ ("$IS_ARM32" -ne "0") ]]; then
+	if [[ ("$HAVE_ARMV7A" -ne "0") ]]; then
+		PLATFORM_CXXFLAGS+=("-march=armv7a ")
+	fi
+
+	if [[ ("$HAVE_ARM_NEON" -ne "0") ]]; then
+		PLATFORM_CXXFLAGS+=("-mfpu=neon ")
+	fi
+fi
+
+if [[ ("$IS_SOLARIS" -ne "0") && ("$SUNCC_121_OR_ABOVE" -ne "0") ]]; then
+	ISAINFO=$(isainfo -v 2>/dev/null)
+	if [[ ($(echo "$ISAINFO" | "$GREP" -c "sse2") -ne "0") ]]; then PLATFORM_CXXFLAGS+="-D__SSE2__ "; fi
+	if [[ ($(echo "$ISAINFO" | "$GREP" -c "sse3") -ne "0") ]]; then PLATFORM_CXXFLAGS+="-D__SSE3__ "; fi
+	if [[ ($(echo "$ISAINFO" | "$GREP" -c "ssse3") -ne "0") ]]; then PLATFORM_CXXFLAGS+="-D__SSSE3__ "; fi
+	if [[ ($(echo "$ISAINFO" | "$GREP" -c "sse4.1") -ne "0") ]]; then PLATFORM_CXXFLAGS+="-D__SSE4_1__ "; fi
+	if [[ ($(echo "$ISAINFO" | "$GREP" -c "sse4.2") -ne "0") ]]; then PLATFORM_CXXFLAGS+="-D__SSE4_2__ "; fi
+	# if [[ ($(echo "$ISAINFO" | "$GREP" -c "aes") -ne "0") ]]; then PLATFORM_CXXFLAGS+="-D__AES__ "; fi
+	if [[ ($(echo "$ISAINFO" | "$GREP" -c "pclmulqdq") -ne "0") ]]; then PLATFORM_CXXFLAGS+="-D__PCLMUL__ "; fi
+	if [[ ($(echo "$ISAINFO" | "$GREP" -c "rdrand") -ne "0") ]]; then PLATFORM_CXXFLAGS+="-D__RDRND__ "; fi
+	if [[ ($(echo "$ISAINFO" | "$GREP" -c "rdseed") -ne "0") ]]; then PLATFORM_CXXFLAGS+="-D__RDSEED__ "; fi
+	if [[ ($(echo "$ISAINFO" | "$GREP" -c "bmi") -ne "0") ]]; then PLATFORM_CXXFLAGS+="-D__BMI__ "; fi
+	if [[ ($(echo "$ISAINFO" | "$GREP" -c "bmi2") -ne "0") ]]; then PLATFORM_CXXFLAGS+="-D__BMI2__ "; fi
+fi
 
 if [[ ("$GCC_COMPILER" -ne "0") ]]; then
 	ELEVATED_CXXFLAGS+=("-DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562" "-DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS" "-Wall" "-Wextra"
@@ -845,6 +864,7 @@ echo | tee -a "$TEST_RESULTS"
 echo "DEBUG_CXXFLAGS: $DEBUG_CXXFLAGS" | tee -a "$TEST_RESULTS"
 echo "RELEASE_CXXFLAGS: $RELEASE_CXXFLAGS" | tee -a "$TEST_RESULTS"
 echo "VALGRIND_CXXFLAGS: $VALGRIND_CXXFLAGS" | tee -a "$TEST_RESULTS"
+if [[ (! -z "$PLATFORM_CXXFLAGS") ]]; then echo "PLATFORM_CXXFLAGS: ${PLATFORM_CXXFLAGS[@]}"; fi
 # echo "ELEVATED_CXXFLAGS: ${ELEVATED_CXXFLAGS[@]}" | tee -a "$TEST_RESULTS"
 
 #############################################
@@ -865,12 +885,11 @@ if [[ ("$HAVE_DISASS" -ne "0" && "$HAVE_X86_AES" -ne "0") ]] && false; then
 	echo "Testing: AES-NI code generation" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
 	OBJFILE=rijndael.o
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS -march=native -maes" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
+	CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS -march=native -maes" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
 
 	MANGLED=($(nm $OBJFILE))
 	UNMANGLED=($(nm $OBJFILE | c++filt))
@@ -899,47 +918,17 @@ if [[ ("$HAVE_DISASS" -ne "0" && "$HAVE_X86_AES" -ne "0") ]] && false; then
 fi
 
 ############################################
-# Basic NEON build
-if [[ ("$IS_ARM32" -ne "0" && "$HAVE_ARM_NEON" -ne "0") ]]; then
-	echo
-	echo "************************************" | tee -a "$TEST_RESULTS"
-	echo "Testing: NEON, default CXXFLAGS" | tee -a "$TEST_RESULTS"
-	echo
-
-	unset CXXFLAGS
-	"$MAKE" clean > /dev/null 2>&1
-	rm -f adhoc.cpp > /dev/null 2>&1
-
-	export CXXFLAGS="-g2 -O2 -mfpu=neon"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-
-	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
-	else
-		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
-		fi
-		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
-		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
-		fi
-	fi
-fi
-
-############################################
 # Debug build
 echo
 echo "************************************" | tee -a "$TEST_RESULTS"
 echo "Testing: debug, default CXXFLAGS" | tee -a "$TEST_RESULTS"
 echo
 
-unset CXXFLAGS
 "$MAKE" clean > /dev/null 2>&1
 rm -f adhoc.cpp > /dev/null 2>&1
 
-export CXXFLAGS="$DEBUG_CXXFLAGS"
-"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+CXXFLAGS="$DEBUG_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -962,12 +951,11 @@ echo "************************************" | tee -a "$TEST_RESULTS"
 echo "Testing: release, default CXXFLAGS" | tee -a "$TEST_RESULTS"
 echo
 
-unset CXXFLAGS
 "$MAKE" clean > /dev/null 2>&1
 rm -f adhoc.cpp > /dev/null 2>&1
 
-export CXXFLAGS="$RELEASE_CXXFLAGS"
-"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+CXXFLAGS="$RELEASE_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -990,12 +978,11 @@ echo "************************************" | tee -a "$TEST_RESULTS"
 echo "Testing: debug, DISABLE_ASM" | tee -a "$TEST_RESULTS"
 echo
 
-unset CXXFLAGS
 "$MAKE" clean > /dev/null 2>&1
 rm -f adhoc.cpp > /dev/null 2>&1
 
-export CXXFLAGS="$DEBUG_CXXFLAGS -DCRYPTOPP_DISABLE_ASM"
-"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+CXXFLAGS="$DEBUG_CXXFLAGS -DCRYPTOPP_DISABLE_ASM ${DEPRECATED_CXXFLAGS[@]}"
+CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1017,12 +1004,11 @@ echo "************************************" | tee -a "$TEST_RESULTS"
 echo "Testing: release, DISABLE_ASM" | tee -a "$TEST_RESULTS"
 echo
 
-unset CXXFLAGS
 "$MAKE" clean > /dev/null 2>&1
 rm -f adhoc.cpp > /dev/null 2>&1
 
-export CXXFLAGS="$RELEASE_CXXFLAGS -DCRYPTOPP_DISABLE_ASM"
-"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+CXXFLAGS="$RELEASE_CXXFLAGS -DCRYPTOPP_DISABLE_ASM ${DEPRECATED_CXXFLAGS[@]}"
+CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1048,12 +1034,11 @@ if [[ "$HAVE_CXX03" -ne "0" ]]; then
 	echo "Testing: debug, c++03" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$DEBUG_CXXFLAGS -std=c++03 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++03 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1075,12 +1060,11 @@ if [[ "$HAVE_CXX03" -ne "0" ]]; then
 	echo "Testing: release, c++03" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1107,12 +1091,11 @@ if [[ "$HAVE_GNU03" -ne "0" ]]; then
 	echo "Testing: debug, gnu++03" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$DEBUG_CXXFLAGS -std=gnu++03 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=gnu++03 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1134,12 +1117,11 @@ if [[ "$HAVE_GNU03" -ne "0" ]]; then
 	echo "Testing: release, gnu++03" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -std=gnu++03 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=gnu++03 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1166,12 +1148,11 @@ if [[ "$HAVE_CXX11" -ne "0" ]]; then
 	echo "Testing: debug, c++11" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$DEBUG_CXXFLAGS -std=c++11 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++11 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1193,12 +1174,11 @@ if [[ "$HAVE_CXX11" -ne "0" ]]; then
 	echo "Testing: release, c++11" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1225,12 +1205,11 @@ if [[ "$HAVE_GNU11" -ne "0" ]]; then
 	echo "Testing: debug, gnu++11" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$DEBUG_CXXFLAGS -std=gnu++11 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=gnu++11 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1252,12 +1231,11 @@ if [[ "$HAVE_GNU11" -ne "0" ]]; then
 	echo "Testing: release, gnu++11" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -std=gnu++11 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=gnu++11 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1284,12 +1262,11 @@ if [[ "$HAVE_CXX14" -ne "0" ]]; then
 	echo "Testing: debug, c++14" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$DEBUG_CXXFLAGS -std=c++14 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++14 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1311,12 +1288,11 @@ if [[ "$HAVE_CXX14" -ne "0" ]]; then
 	echo "Testing: release, c++14" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1343,12 +1319,11 @@ if [[ "$HAVE_GNU14" -ne "0" ]]; then
 	echo "Testing: debug, gnu++14" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$DEBUG_CXXFLAGS -std=gnu++14 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=gnu++14 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1370,12 +1345,11 @@ if [[ "$HAVE_GNU14" -ne "0" ]]; then
 	echo "Testing: release, gnu++14" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -std=gnu++14 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=gnu++14 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1402,12 +1376,11 @@ if [[ "$HAVE_CXX17" -ne "0" ]]; then
 	echo "Testing: debug, c++17" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$DEBUG_CXXFLAGS -std=c++17 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++17 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1429,12 +1402,11 @@ if [[ "$HAVE_CXX17" -ne "0" ]]; then
 	echo "Testing: release, c++17" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1461,12 +1433,11 @@ if [[ "$HAVE_GNU17" -ne "0" ]]; then
 	echo "Testing: debug, gnu++17" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$DEBUG_CXXFLAGS -std=gnu++17 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=gnu++17 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1488,12 +1459,11 @@ if [[ "$HAVE_GNU17" -ne "0" ]]; then
 	echo "Testing: release, gnu++17" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -std=gnu++17 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=gnu++17 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1520,12 +1490,11 @@ if [[ "$HAVE_X32" -ne "0" ]]; then
 	echo "Testing: debug, X32" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$DEBUG_CXXFLAGS -mx32 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$DEBUG_CXXFLAGS -mx32 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1547,12 +1516,11 @@ if [[ "$HAVE_X32" -ne "0" ]]; then
 	echo "Testing: release, X32" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -mx32 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -mx32 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1575,12 +1543,11 @@ echo "************************************" | tee -a "$TEST_RESULTS"
 echo "Testing: debug, MAINTAIN_BACKWARDS_COMPATIBILITY" | tee -a "$TEST_RESULTS"
 echo
 
-unset CXXFLAGS
 "$MAKE" clean > /dev/null 2>&1
 rm -f adhoc.cpp > /dev/null 2>&1
 
-export CXXFLAGS="$DEBUG_CXXFLAGS -DCRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY ${RETAINED_CXXFLAGS[@]}"
-"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+CXXFLAGS="$DEBUG_CXXFLAGS -DCRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1602,12 +1569,11 @@ echo "************************************" | tee -a "$TEST_RESULTS"
 echo "Testing: release, MAINTAIN_BACKWARDS_COMPATIBILITY" | tee -a "$TEST_RESULTS"
 echo
 
-unset CXXFLAGS
 "$MAKE" clean > /dev/null 2>&1
 rm -f adhoc.cpp > /dev/null 2>&1
 
-export CXXFLAGS="$RELEASE_CXXFLAGS -DCRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY ${RETAINED_CXXFLAGS[@]}"
-"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+CXXFLAGS="$RELEASE_CXXFLAGS -DCRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1629,12 +1595,11 @@ echo "************************************" | tee -a "$TEST_RESULTS"
 echo "Testing: debug, INIT_PRIORITY" | tee -a "$TEST_RESULTS"
 echo
 
-unset CXXFLAGS
 "$MAKE" clean > /dev/null 2>&1
 rm -f adhoc.cpp > /dev/null 2>&1
 
-export CXXFLAGS="$DEBUG_CXXFLAGS -DCRYPTOPP_INIT_PRIORITY=250 ${RETAINED_CXXFLAGS[@]}"
-"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+CXXFLAGS="$DEBUG_CXXFLAGS -DCRYPTOPP_INIT_PRIORITY=250 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1656,12 +1621,11 @@ echo "************************************" | tee -a "$TEST_RESULTS"
 echo "Testing: release, INIT_PRIORITY" | tee -a "$TEST_RESULTS"
 echo
 
-unset CXXFLAGS
 "$MAKE" clean > /dev/null 2>&1
 rm -f adhoc.cpp > /dev/null 2>&1
 
-export CXXFLAGS="$RELEASE_CXXFLAGS -DCRYPTOPP_INIT_PRIORITY=250 ${RETAINED_CXXFLAGS[@]}"
-"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+CXXFLAGS="$RELEASE_CXXFLAGS -DCRYPTOPP_INIT_PRIORITY=250 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1684,12 +1648,11 @@ echo "************************************" | tee -a "$TEST_RESULTS"
 echo "Testing: debug, NO_UNALIGNED_DATA_ACCESS" | tee -a "$TEST_RESULTS"
 echo
 
-unset CXXFLAGS
 "$MAKE" clean > /dev/null 2>&1
 rm -f adhoc.cpp > /dev/null 2>&1
 
-export CXXFLAGS="$DEBUG_CXXFLAGS -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS ${RETAINED_CXXFLAGS[@]}"
-"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+CXXFLAGS="$DEBUG_CXXFLAGS -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1712,12 +1675,11 @@ echo "************************************" | tee -a "$TEST_RESULTS"
 echo "Testing: release, NO_UNALIGNED_DATA_ACCESS" | tee -a "$TEST_RESULTS"
 echo
 
-unset CXXFLAGS
 "$MAKE" clean > /dev/null 2>&1
 rm -f adhoc.cpp > /dev/null 2>&1
 
-export CXXFLAGS="$RELEASE_CXXFLAGS -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS ${RETAINED_CXXFLAGS[@]}"
-"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+CXXFLAGS="$RELEASE_CXXFLAGS -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1740,12 +1702,11 @@ echo "************************************" | tee -a "$TEST_RESULTS"
 echo "Testing: debug, NO_BACKWARDS_COMPATIBILITY_562" | tee -a "$TEST_RESULTS"
 echo
 
-unset CXXFLAGS
 "$MAKE" clean > /dev/null 2>&1
 rm -f adhoc.cpp > /dev/null 2>&1
 
-export CXXFLAGS="$DEBUG_CXXFLAGS -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 ${RETAINED_CXXFLAGS[@]}"
-"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+CXXFLAGS="$DEBUG_CXXFLAGS -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1768,12 +1729,11 @@ echo "************************************" | tee -a "$TEST_RESULTS"
 echo "Testing: release, NO_BACKWARDS_COMPATIBILITY_562" | tee -a "$TEST_RESULTS"
 echo
 
-unset CXXFLAGS
 "$MAKE" clean > /dev/null 2>&1
 rm -f adhoc.cpp > /dev/null 2>&1
 
-export CXXFLAGS="$RELEASE_CXXFLAGS -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 ${RETAINED_CXXFLAGS[@]}"
-"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+CXXFLAGS="$RELEASE_CXXFLAGS -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1795,12 +1755,11 @@ echo "************************************" | tee -a "$TEST_RESULTS"
 echo "Testing: debug, NO_OS_DEPENDENCE" | tee -a "$TEST_RESULTS"
 echo
 
-unset CXXFLAGS
 "$MAKE" clean > /dev/null 2>&1
 rm -f adhoc.cpp > /dev/null 2>&1
 
-export CXXFLAGS="$DEBUG_CXXFLAGS -DNO_OS_DEPENDENCE ${RETAINED_CXXFLAGS[@]}"
-"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+CXXFLAGS="$DEBUG_CXXFLAGS -DNO_OS_DEPENDENCE ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1822,12 +1781,11 @@ echo "************************************" | tee -a "$TEST_RESULTS"
 echo "Testing: release, NO_OS_DEPENDENCE" | tee -a "$TEST_RESULTS"
 echo
 
-unset CXXFLAGS
 "$MAKE" clean > /dev/null 2>&1
 rm -f adhoc.cpp > /dev/null 2>&1
 
-export CXXFLAGS="$RELEASE_CXXFLAGS -DNO_OS_DEPENDENCE ${RETAINED_CXXFLAGS[@]}"
-"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+CXXFLAGS="$RELEASE_CXXFLAGS -DNO_OS_DEPENDENCE ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1849,12 +1807,11 @@ echo "************************************" | tee -a "$TEST_RESULTS"
 echo "Testing: debug, USE_FIPS_202_SHA3" | tee -a "$TEST_RESULTS"
 echo
 
-unset CXXFLAGS
 "$MAKE" clean > /dev/null 2>&1
 rm -f adhoc.cpp > /dev/null 2>&1
 
-export CXXFLAGS="$DEBUG_CXXFLAGS -DCRYPTOPP_USE_FIPS_202_SHA3 ${RETAINED_CXXFLAGS[@]}"
-"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+CXXFLAGS="$DEBUG_CXXFLAGS -DCRYPTOPP_USE_FIPS_202_SHA3 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1876,12 +1833,11 @@ echo "************************************" | tee -a "$TEST_RESULTS"
 echo "Testing: release, USE_FIPS_202_SHA3" | tee -a "$TEST_RESULTS"
 echo
 
-unset CXXFLAGS
 "$MAKE" clean > /dev/null 2>&1
 rm -f adhoc.cpp > /dev/null 2>&1
 
-export CXXFLAGS="$RELEASE_CXXFLAGS -DCRYPTOPP_USE_FIPS_202_SHA3 ${RETAINED_CXXFLAGS[@]}"
-"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+CXXFLAGS="$RELEASE_CXXFLAGS -DCRYPTOPP_USE_FIPS_202_SHA3 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1907,12 +1863,11 @@ if [[ "$HAVE_LDGOLD" -ne "0" ]]; then
 	echo "Testing: debug, ld-gold linker" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$DEBUG_CXXFLAGS ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" LD="ld.gold" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$DEBUG_CXXFLAGS ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" LD="ld.gold" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1934,12 +1889,11 @@ if [[ "$HAVE_LDGOLD" -ne "0" ]]; then
 	echo "Testing: release, ld-gold linker" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" LD="ld.gold" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" LD="ld.gold" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1966,12 +1920,11 @@ if [[ "$HAVE_O3" -ne "0" ]]; then
 	echo "Testing: debug, -O3 optimizations" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="-DDEBUG $OPT_O3 -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="-DDEBUG $OPT_O3 -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1993,12 +1946,11 @@ if [[ "$HAVE_O3" -ne "0" ]]; then
 	echo "Testing: release, -O3 optimizations" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="-DNDEBUG $OPT_O3 -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="-DNDEBUG $OPT_O3 -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -2025,12 +1977,11 @@ if [[ "$HAVE_O5" -ne "0" ]]; then
 	echo "Testing: debug, -O5 optimizations" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="-DDEBUG $OPT_O5 -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="-DDEBUG $OPT_O5 -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -2052,12 +2003,11 @@ if [[ "$HAVE_O5" -ne "0" ]]; then
 	echo "Testing: release, -O5 optimizations" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="-DNDEBUG $OPT_O5 -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="-DNDEBUG $OPT_O5 -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -2084,12 +2034,11 @@ if [[ "$HAVE_OS" -ne "0" ]]; then
 	echo "Testing: debug, -Os optimizations" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="-DDEBUG $OPT_OS ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="-DDEBUG $OPT_OS ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -2111,12 +2060,11 @@ if [[ "$HAVE_OS" -ne "0" ]]; then
 	echo "Testing: release, -Os optimizations" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="-DNDEBUG $OPT_OS ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="-DNDEBUG $OPT_OS ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -2140,11 +2088,10 @@ if [[ ("$SUN_COMPILER" -eq "0") ]]; then
 	echo "Testing: debug, dead code strip" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 
-	export CXXFLAGS="$DEBUG_CXXFLAGS ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" lean 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$DEBUG_CXXFLAGS ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" lean 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -2168,12 +2115,11 @@ if [[ ("$SUN_COMPILER" -eq "0") ]]; then
 	echo "Testing: release, dead code strip" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" lean 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" lean 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -2197,12 +2143,11 @@ if [[ ("$HAVE_CXX03" -ne "0" && "$HAVE_UBSAN" -ne "0") ]]; then
 	echo "Testing: debug, c++03, UBsan" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$DEBUG_CXXFLAGS -std=c++03 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" ubsan | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++03 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" ubsan | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -2226,12 +2171,11 @@ if [[ ("$HAVE_CXX03" -ne "0" && "$HAVE_UBSAN" -ne "0") ]]; then
 	echo "Testing: release, c++03, UBsan" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" ubsan | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" ubsan | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -2255,12 +2199,11 @@ if [[ ("$HAVE_CXX03" -ne "0" && "$HAVE_ASAN" -ne "0") ]]; then
 	echo "Testing: debug, c++03, Asan" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$DEBUG_CXXFLAGS -std=c++03 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" asan | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++03 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" asan | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -2295,12 +2238,11 @@ if [[ ("$HAVE_CXX03" -ne "0" && "$HAVE_ASAN" -ne "0") ]]; then
 	echo "Testing: release, c++03, Asan" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" asan | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" asan | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -2335,12 +2277,11 @@ if [[ ("$HAVE_CXX11" -ne "0" && "$HAVE_UBSAN" -ne "0") ]]; then
 	echo "Testing: debug, c++11, UBsan" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$DEBUG_CXXFLAGS -std=c++11 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" ubsan | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++11 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" ubsan | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -2364,12 +2305,11 @@ if [[ ("$HAVE_CXX11" -ne "0" && "$HAVE_UBSAN" -ne "0") ]]; then
 	echo "Testing: release, c++11, UBsan" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" ubsan | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" ubsan | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -2393,12 +2333,11 @@ if [[ ("$HAVE_CXX11" -ne "0" && "$HAVE_ASAN" -ne "0") ]]; then
 	echo "Testing: debug, c++11, Asan" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$DEBUG_CXXFLAGS -std=c++11 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" asan | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++11 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" asan | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -2434,12 +2373,11 @@ if [[ ("$HAVE_CXX11" -ne "0" && "$HAVE_ASAN" -ne "0") ]]; then
 	echo "Testing: release, c++11, Asan" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" asan | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" asan | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -2474,12 +2412,11 @@ if [[ ("$HAVE_CXX14" -ne "0" && "$HAVE_UBSAN" -ne "0") ]]; then
 	echo "Testing: c++14, UBsan" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" ubsan | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" ubsan | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -2503,12 +2440,11 @@ if [[ ("$HAVE_CXX14" -ne "0" && "$HAVE_ASAN" -ne "0") ]]; then
 	echo "Testing: c++14, Asan" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" asan | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" asan | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -2543,12 +2479,11 @@ if [[ ("$HAVE_CXX17" -ne "0" && "$HAVE_UBSAN" -ne "0") ]]; then
 	echo "Testing: c++17, UBsan" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" ubsan | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" ubsan | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -2572,12 +2507,11 @@ if [[ ("$HAVE_CXX17" -ne "0" && "$HAVE_ASAN" -ne "0") ]]; then
 	echo "Testing: c++17, Asan" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" asan | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" asan | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -2618,12 +2552,11 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		echo "Testing: Sun Studio 12.2, debug, default CXXFLAGS" | tee -a "$TEST_RESULTS"
 		echo
 
-		unset CXXFLAGS
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		export CXXFLAGS="-DDEBUG -g -xO0"
-		"$MAKE" "${MAKEARGS[@]}" CXX=/opt/solstudio12.2/bin/CC static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		CXXFLAGS="-DDEBUG -g -xO0"
+		CXX=/opt/solstudio12.2/bin/CC CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -2645,12 +2578,11 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		echo "Testing: Sun Studio 12.2, release, default CXXFLAGS" | tee -a "$TEST_RESULTS"
 		echo
 
-		unset CXXFLAGS
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		export CXXFLAGS="-DNDEBUG -g0 -xO2"
-		"$MAKE" "${MAKEARGS[@]}" CXX=/opt/solstudio12.2/bin/CC static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		CXXFLAGS="-DNDEBUG -g0 -xO2"
+		CXX=/opt/solstudio12.2/bin/CC CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -2677,12 +2609,11 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		echo "Testing: Sun Studio 12.3, debug, default CXXFLAGS" | tee -a "$TEST_RESULTS"
 		echo
 
-		unset CXXFLAGS
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		export CXXFLAGS="-DDEBUG -g3 -xO0"
-		"$MAKE" "${MAKEARGS[@]}" CXX=/opt/solarisstudio12.3/bin/CC static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		CXXFLAGS="-DDEBUG -g3 -xO0"
+		CXX=/opt/solarisstudio12.3/bin/CC CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -2704,12 +2635,11 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		echo "Testing: Sun Studio 12.3, release, default CXXFLAGS" | tee -a "$TEST_RESULTS"
 		echo
 
-		unset CXXFLAGS
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		export CXXFLAGS="-DNDEBUG -g3 -xO2"
-		"$MAKE" "${MAKEARGS[@]}" CXX=/opt/solarisstudio12.3/bin/CC static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		CXXFLAGS="-DNDEBUG -g3 -xO2"
+		CXX=/opt/solarisstudio12.3/bin/CC CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -2736,12 +2666,11 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		echo "Testing: Sun Studio 12.4, debug, default CXXFLAGS" | tee -a "$TEST_RESULTS"
 		echo
 
-		unset CXXFLAGS
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		export CXXFLAGS="-DDEBUG -g3 -xO0"
-		"$MAKE" "${MAKEARGS[@]}" CXX=/opt/solarisstudio12.4/bin/CC static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		CXXFLAGS="-DDEBUG -g3 -xO0"
+		CXX=/opt/solarisstudio12.4/bin/CC CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -2763,12 +2692,11 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		echo "Testing: Sun Studio 12.4, release, default CXXFLAGS" | tee -a "$TEST_RESULTS"
 		echo
 
-		unset CXXFLAGS
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		export CXXFLAGS="-DNDEBUG -g2 -xO2"
-		"$MAKE" "${MAKEARGS[@]}" CXX=/opt/solarisstudio12.4/bin/CC static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		CXXFLAGS="-DNDEBUG -g2 -xO2"
+		CXX=/opt/solarisstudio12.4/bin/CC CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -2795,12 +2723,11 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		echo "Testing: Sun Studio 12.5, debug, default CXXFLAGS" | tee -a "$TEST_RESULTS"
 		echo
 
-		unset CXXFLAGS
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		export CXXFLAGS="-DDEBUG -g3 -xO1"
-		"$MAKE" "${MAKEARGS[@]}" CXX=/opt/developerstudio12.5/bin/CC static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		CXXFLAGS="-DDEBUG -g3 -xO1"
+		CXX=/opt/developerstudio12.5/bin/CC CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -2822,99 +2749,11 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		echo "Testing: Sun Studio 12.5, release, default CXXFLAGS" | tee -a "$TEST_RESULTS"
 		echo
 
-		unset CXXFLAGS
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		export CXXFLAGS="-DNDEBUG -g2 -xO2"
-		"$MAKE" "${MAKEARGS[@]}" CXX=/opt/developerstudio12.5/bin/CC static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-
-		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
-		else
-			./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
-			fi
-			./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
-			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
-			fi
-		fi
-	fi
-
-	############################################
-	# SunCC with GCC defines
-
-	if [[ ("$SUNCC_121_OR_ABOVE" -ne "0") ]]; then
-
-		ISAINFO=$(isainfo -v 2>/dev/null)
-		SUN_SSE2=$(echo "$ISAINFO" | "$GREP" -c "sse2")
-		SUN_SSE3=$(echo "$ISAINFO" | "$GREP" -c "sse3")
-		SUN_SSSE3=$(echo "$ISAINFO" | "$GREP" -c "ssse3")
-		SUN_SSE41=$(echo "$ISAINFO" | "$GREP" -c "sse4.1")
-		SUN_SSE42=$(echo "$ISAINFO" | "$GREP" -c "sse4.2")
-		SUN_AES=$(echo "$ISAINFO" | "$GREP" -c "aes")
-		SUN_PCLMUL=$(echo "$ISAINFO" | "$GREP" -c "pclmulqdq")
-		SUN_RDRAND=$(echo "$ISAINFO" | "$GREP" -c "rdrand")
-		SUN_RDSEED=$(echo "$ISAINFO" | "$GREP" -c "rdseed")
-		SUN_BMI=$(echo "$ISAINFO" | "$GREP" -c "bmi")
-		SUN_BMI2=$(echo "$ISAINFO" | "$GREP" -c "bmi2")
-
-		SUNCC_CXXFLAGS=()
-		if [[ ("$SUN_SSE2" -ne "0") ]]; then SUNCC_CXXFLAGS+="-D__SSE2__ "; fi
-		if [[ ("$SUN_SSE3" -ne "0") ]]; then SUNCC_CXXFLAGS+="-D__SSE3__ "; fi
-		if [[ ("$SUN_SSSE3" -ne "0") ]]; then SUNCC_CXXFLAGS+="-D__SSSE3__ "; fi
-		if [[ ("$SUN_SSE41" -ne "0") ]]; then SUNCC_CXXFLAGS+="-D__SSE4_1__ "; fi
-		if [[ ("$SUN_SSE42" -ne "0") ]]; then SUNCC_CXXFLAGS+="-D__SSE4_2__ "; fi
-		# if [[ ("$SUN_AES" -ne "0") ]]; then SUNCC_CXXFLAGS+="-D__AES__ "; fi
-		if [[ ("$SUN_PCLMUL" -ne "0") ]]; then SUNCC_CXXFLAGS+="-D__PCLMUL__ "; fi
-		if [[ ("$SUN_RDRAND" -ne "0") ]]; then SUNCC_CXXFLAGS+="-D__RDRND__ "; fi
-		if [[ ("$SUN_RDSEED" -ne "0") ]]; then SUNCC_CXXFLAGS+="-D__RDSEED__ "; fi
-		if [[ ("$SUN_BMI" -ne "0") ]]; then SUNCC_CXXFLAGS+="-D__BMI__ "; fi
-		if [[ ("$SUN_BMI2" -ne "0") ]]; then SUNCC_CXXFLAGS+="-D__BMI2__ "; fi
-
-
-		############################################
-		# Debug build
-		echo
-		echo "************************************" | tee -a "$TEST_RESULTS"
-		echo "Testing: SunCC with GCC defines, debug CXXFLAGS" | tee -a "$TEST_RESULTS"
-		echo
-
-		unset CXXFLAGS
-		"$MAKE" clean > /dev/null 2>&1
-		rm -f adhoc.cpp > /dev/null 2>&1
-
-		export CXXFLAGS="-DDEBUG -g3 -O0 ${SUNCC_CXXFLAGS[@]}"
-		"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-
-		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
-		else
-			./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
-			fi
-			./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
-			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
-			fi
-		fi
-
-		############################################
-		# Release build
-		echo
-		echo "************************************" | tee -a "$TEST_RESULTS"
-		echo "Testing: SunCC with GCC defines, release CXXFLAGS" | tee -a "$TEST_RESULTS"
-		echo
-
-		unset CXXFLAGS
-		"$MAKE" clean > /dev/null 2>&1
-		rm -f adhoc.cpp > /dev/null 2>&1
-
-		export CXXFLAGS="-DNDEBUG -g2 -O2 ${SUNCC_CXXFLAGS[@]}"
-		"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		CXXFLAGS="-DNDEBUG -g2 -xO2"
+		CXX=/opt/developerstudio12.5/bin/CC CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -2941,12 +2780,11 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		echo "Testing: Solaris GCC, debug, default CXXFLAGS" | tee -a "$TEST_RESULTS"
 		echo
 
-		unset CXXFLAGS
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		export CXXFLAGS="-DDEBUG -g3 -O0"
-		"$MAKE" "${MAKEARGS[@]}" CXX="/bin/g++" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		CXXFLAGS="-DDEBUG -g3 -O0"
+		CXX="/bin/g++" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -2968,12 +2806,11 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		echo "Testing: Soalris GCC, release, default CXXFLAGS" | tee -a "$TEST_RESULTS"
 		echo
 
-		unset CXXFLAGS
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		export CXXFLAGS="-DNDEBUG -g2 -O2"
-		"$MAKE" "${MAKEARGS[@]}" CXX="/bin/g++" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		CXXFLAGS="-DNDEBUG -g2 -O2"
+		CXX="/bin/g++" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -3001,12 +2838,11 @@ if [[ ("$IS_DARWIN" -ne "0") && ("$HAVE_CXX03" -ne "0") ]]; then
 	echo "Testing: Darwin, c++03, libc++ (LLVM)" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 -stdlib=libc++ ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 -stdlib=libc++ ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -3030,12 +2866,11 @@ if [[ ("$IS_DARWIN" -ne "0" && "$HAVE_CXX03" -ne "0") ]]; then
 	echo "Testing: Darwin, c++03, libstdc++ (GNU)" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 -stdlib=libstdc++ ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 -stdlib=libstdc++ ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -3059,12 +2894,11 @@ if [[ ("$IS_DARWIN" -ne "0" && "$HAVE_CXX11" -ne "0") ]]; then
 	echo "Testing: Darwin, c++11, libc++ (LLVM)" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 -stdlib=libc++ ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 -stdlib=libc++ ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -3088,12 +2922,11 @@ if [[ ("$IS_DARWIN" -ne "0" && "$HAVE_CXX11" -ne "0") ]]; then
 	echo "Testing: Darwin, c++11, libstdc++ (GNU)" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 -stdlib=libstdc++ ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 -stdlib=libstdc++ ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -3117,12 +2950,11 @@ if [[ ("$IS_DARWIN" -ne "0" && "$HAVE_CXX14" -ne "0") ]]; then
 	echo "Testing: Darwin, c++14, libc++ (LLVM)" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 -stdlib=libc++ ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 -stdlib=libc++ ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -3146,12 +2978,11 @@ if [[ ("$IS_DARWIN" -ne "0" && "$HAVE_CXX14" -ne "0") ]]; then
 	echo "Testing: Darwin, c++14, libstdc++ (GNU)" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 -stdlib=libstdc++ ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 -stdlib=libstdc++ ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -3175,12 +3006,11 @@ if [[ ("$IS_DARWIN" -ne "0" && "$HAVE_CXX17" -ne "0") ]]; then
 	echo "Testing: Darwin, c++17, libc++ (LLVM)" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 -stdlib=libc++ ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 -stdlib=libc++ ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -3204,12 +3034,11 @@ if [[ ("$IS_DARWIN" -ne "0" && "$HAVE_CXX17" -ne "0") ]]; then
 	echo "Testing: Darwin, c++17, libstdc++ (GNU)" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 -stdlib=libstdc++ ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 -stdlib=libstdc++ ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -3233,12 +3062,11 @@ if [[ "$IS_DARWIN" -ne "0" && "$HAVE_INTEL_MULTIARCH" -ne "0" && "$HAVE_CXX03" -
 	echo "Testing: Darwin, Intel multiarch, c++03" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -arch i386 -arch x86_64 -std=c++03 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -arch i386 -arch x86_64 -std=c++03 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -3273,12 +3101,11 @@ if [[ "$IS_DARWIN" -ne "0" && "$HAVE_INTEL_MULTIARCH" -ne "0" && "$HAVE_CXX11" -
 	echo "Testing: Darwin, Intel multiarch, c++11" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -arch i386 -arch x86_64 -std=c++11 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -arch i386 -arch x86_64 -std=c++11 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -3313,12 +3140,11 @@ if [[ "$IS_DARWIN" -ne "0" && "$HAVE_INTEL_MULTIARCH" -ne "0" && "$HAVE_CXX14" -
 	echo "Testing: Darwin, Intel multiarch, c++14" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -arch i386 -arch x86_64 -std=c++14 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -arch i386 -arch x86_64 -std=c++14 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -3353,12 +3179,11 @@ if [[ "$IS_DARWIN" -ne "0" && "$HAVE_INTEL_MULTIARCH" -ne "0" && "$HAVE_CXX17" -
 	echo "Testing: Darwin, Intel multiarch, c++17" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -arch i386 -arch x86_64 -std=c++17 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -arch i386 -arch x86_64 -std=c++17 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -3393,12 +3218,11 @@ if [[ ("$IS_DARWIN" -ne "0" && "$HAVE_PPC_MULTIARCH" -ne "0") ]]; then
 	echo "Testing: Darwin, PowerPC multiarch" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -arch ppc -arch ppc64 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -arch ppc -arch ppc64 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -3433,12 +3257,11 @@ if [[ ("$IS_DARWIN" -ne "0" && "$HAVE_CXX03" -ne "0") ]]; then
 	echo "Testing: Darwin, c++03, Malloc Guards" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -3468,12 +3291,11 @@ if [[ ("$IS_DARWIN" -ne "0" && "$HAVE_CXX11" -ne "0") ]]; then
 	echo "Testing: Darwin, c++11, Malloc Guards" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -3503,12 +3325,11 @@ if [[ ("$IS_DARWIN" -ne "0" && "$HAVE_CXX14" -ne "0") ]]; then
 	echo "Testing: Darwin, c++14, Malloc Guards" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -3538,12 +3359,11 @@ if [[ ("$IS_DARWIN" -ne "0" && "$HAVE_CXX17" -ne "0") ]]; then
 	echo "Testing: Darwin, c++17, Malloc Guards" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -3588,12 +3408,11 @@ if [[ ("$HAVE_X86_AES" -ne "0" || "$HAVE_X86_RDRAND" -ne "0" || "$HAVE_X86_RDSEE
 		OPTS+=("-mpclmul")
 	fi
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS ${OPTS[@]} ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS ${OPTS[@]} ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 	else
@@ -3616,12 +3435,11 @@ if [[ "$HAVE_ARM_CRC" -ne "0" ]]; then
 	echo "Testing: ARM CRC32" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -march=armv8-a+crc"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -march=armv8-a+crc"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -3645,12 +3463,11 @@ if [[ "$HAVE_ARM_CRYPTO" -ne "0" ]]; then
 	echo "Testing: ARM Crypto" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -march=armv8-a+crypto"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -march=armv8-a+crypto"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -3678,11 +3495,10 @@ if [[ "$WANT_BENCHMARKS" -ne "0" ]]; then
 		echo "Testing: Benchmarks, c++03" | tee -a "$TEST_RESULTS"
 		echo
 
-		unset CXXFLAGS
 		"$MAKE" clean > /dev/null 2>&1
 
-		export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 ${RETAINED_CXXFLAGS[@]}"
-		"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+		CXX="$CXX" CXXFLAGS="$CXXFLAGS" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -3703,12 +3519,11 @@ if [[ "$WANT_BENCHMARKS" -ne "0" ]]; then
 		echo "Testing: Benchmarks, c++11" | tee -a "$TEST_RESULTS"
 		echo
 
-		unset CXXFLAGS
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 ${RETAINED_CXXFLAGS[@]}"
-		"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+		CXX="$CXX" CXXFLAGS="$CXXFLAGS" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -3729,12 +3544,11 @@ if [[ "$WANT_BENCHMARKS" -ne "0" ]]; then
 		echo "Testing: Benchmarks, c++14" | tee -a "$TEST_RESULTS"
 		echo
 
-		unset CXXFLAGS
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 ${RETAINED_CXXFLAGS[@]}"
-		"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+		CXX="$CXX" CXXFLAGS="$CXXFLAGS" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -3759,12 +3573,11 @@ if [[ "$IS_MINGW" -ne "0" ]]; then
 	echo "Testing: MinGW, PREFER_BERKELEY_STYLE_SOCKETS" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -DPREFER_BERKELEY_STYLE_SOCKETS -DNO_WINDOWS_STYLE_SOCKETS ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -DPREFER_BERKELEY_STYLE_SOCKETS -DNO_WINDOWS_STYLE_SOCKETS ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -3788,12 +3601,11 @@ if [[ "$IS_MINGW" -ne "0" ]]; then
 	echo "Testing: MinGW, PREFER_WINDOWS_STYLE_SOCKETS" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -DPREFER_WINDOWS_STYLE_SOCKETS -DNO_BERKELEY_STYLE_SOCKETS ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -DPREFER_WINDOWS_STYLE_SOCKETS -DNO_BERKELEY_STYLE_SOCKETS ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -3817,12 +3629,11 @@ if [[ "$HAVE_CXX03" -ne "0" && "$HAVE_VALGRIND" -ne "0" ]]; then
 	echo "Testing: Valgrind, c++03" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$VALGRIND_CXXFLAGS -std=c++03 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$VALGRIND_CXXFLAGS -std=c++03 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -3840,12 +3651,11 @@ if [[ ("$HAVE_VALGRIND" -ne "0" && "$HAVE_CXX11" -ne "0") ]]; then
 	echo "Testing: Valgrind, c++11" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$VALGRIND_CXXFLAGS -std=c++11 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$VALGRIND_CXXFLAGS -std=c++11 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -3863,12 +3673,11 @@ if [[ ("$HAVE_VALGRIND" -ne "0" && "$HAVE_CXX14" -ne "0") ]]; then
 	echo "Testing: Valgrind, c++14" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$VALGRIND_CXXFLAGS -std=c++14 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$VALGRIND_CXXFLAGS -std=c++14 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -3886,12 +3695,11 @@ if [[ ("$HAVE_VALGRIND" -ne "0" && "$HAVE_CXX17" -ne "0") ]]; then
 	echo "Testing: Valgrind, c++17" | tee -a "$TEST_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$VALGRIND_CXXFLAGS -std=c++17 ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$VALGRIND_CXXFLAGS -std=c++17 ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -3912,12 +3720,11 @@ if [[ ("$HAVE_CXX03" -ne "0" && ("$HAVE_GCC" -ne "0" || "$HAVE_CLANG" -ne "0")) 
 	echo "Testing: debug, c++03, elevated warnings" | tee -a "$WARN_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$DEBUG_CXXFLAGS -std=c++03 ${ELEVATED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++03 ${DEPRECATED_CXXFLAGS[@]} ${ELEVATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$WARN_RESULTS"
@@ -3930,12 +3737,11 @@ if [[ ("$HAVE_CXX03" -ne "0" && ("$HAVE_GCC" -ne "0" || "$HAVE_CLANG" -ne "0")) 
 	echo "Testing: release, c++03, elevated warnings" | tee -a "$WARN_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 $RELEASE_CXXFLAGS_ELEVATED"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 ${DEPRECATED_CXXFLAGS[@]} $RELEASE_CXXFLAGS_ELEVATED"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 	if [[ "$?" -ne "0" ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$WARN_RESULTS"
 	fi
@@ -3952,12 +3758,11 @@ if [[ ("$HAVE_CXX11" -ne "0" && ("$HAVE_GCC" -ne "0" || "$HAVE_CLANG" -ne "0")) 
 	echo "Testing: debug, c++11, elevated warnings" | tee -a "$WARN_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$DEBUG_CXXFLAGS -std=c++11 ${ELEVATED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++11 ${DEPRECATED_CXXFLAGS[@]}  ${ELEVATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$WARN_RESULTS"
@@ -3970,12 +3775,11 @@ if [[ ("$HAVE_CXX11" -ne "0" && ("$HAVE_GCC" -ne "0" || "$HAVE_CLANG" -ne "0")) 
 	echo "Testing: release, c++11, elevated warnings" | tee -a "$WARN_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 ${ELEVATED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 ${DEPRECATED_CXXFLAGS[@]} ${ELEVATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 	if [[ "$?" -ne "0" ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$WARN_RESULTS"
 	fi
@@ -3992,12 +3796,11 @@ if [[ ("$HAVE_CXX14" -ne "0" && ("$HAVE_GCC" -ne "0" || "$HAVE_CLANG" -ne "0")) 
 	echo "Testing: debug, c++14, elevated warnings" | tee -a "$WARN_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$DEBUG_CXXFLAGS -std=c++14 ${ELEVATED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++14 ${DEPRECATED_CXXFLAGS[@]} ${ELEVATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$WARN_RESULTS"
@@ -4010,12 +3813,11 @@ if [[ ("$HAVE_CXX14" -ne "0" && ("$HAVE_GCC" -ne "0" || "$HAVE_CLANG" -ne "0")) 
 	echo "Testing: release, c++14, elevated warnings" | tee -a "$WARN_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 ${ELEVATED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 ${DEPRECATED_CXXFLAGS[@]} ${ELEVATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 	if [[ "$?" -ne "0" ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$WARN_RESULTS"
 	fi
@@ -4032,12 +3834,11 @@ if [[ ("$HAVE_CXX17" -ne "0" && ("$HAVE_GCC" -ne "0" || "$HAVE_CLANG" -ne "0")) 
 	echo "Testing: debug, c++17, elevated warnings" | tee -a "$WARN_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$DEBUG_CXXFLAGS -std=c++17 ${ELEVATED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++17 ${DEPRECATED_CXXFLAGS[@]} ${ELEVATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$WARN_RESULTS"
@@ -4050,12 +3851,11 @@ if [[ ("$HAVE_CXX17" -ne "0" && ("$HAVE_GCC" -ne "0" || "$HAVE_CLANG" -ne "0")) 
 	echo "Testing: release, c++17, elevated warnings" | tee -a "$WARN_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 ${ELEVATED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 ${DEPRECATED_CXXFLAGS[@]} ${ELEVATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 
 	if [[ "$?" -ne "0" ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$WARN_RESULTS"
@@ -4078,11 +3878,10 @@ if [[ ("$CLANG_COMPILER" -eq "0") ]]; then
 		echo "Testing: Clang compiler" | tee -a "$TEST_RESULTS"
 		echo
 
-		unset CXXFLAGS
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		"$MAKE" "${MAKEARGS[@]}" CXX="$CLANG_CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		CXX="$CLANG_CXX" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 		else
@@ -4113,11 +3912,10 @@ if [[ ("$GCC_COMPILER" -eq "0") ]]; then
 		echo "Testing: GCC compiler" | tee -a "$TEST_RESULTS"
 		echo
 
-		unset CXXFLAGS
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		"$MAKE" "${MAKEARGS[@]}" CXX="$GCC_CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		CXX="$GCC_CXX" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 		else
@@ -4151,11 +3949,10 @@ if [[ ("$INTEL_COMPILER" -eq "0") ]]; then
 		echo "Testing: INTEL compiler" | tee -a "$TEST_RESULTS"
 		echo
 
-		unset CXXFLAGS
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		"$MAKE" "${MAKEARGS[@]}" CXX="$INTEL_CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		CXX="$INTEL_CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 		else
@@ -4181,17 +3978,16 @@ if [[ ("$MACPORTS_COMPILER" -eq "0") ]]; then
 		if [[ "$?" -eq "0" ]]; then
 
 			############################################
-			# GCC build
+			# MacPorts GCC build
 			echo
 			echo "************************************" | tee -a "$TEST_RESULTS"
 			echo "Testing: MacPorts GCC compiler" | tee -a "$TEST_RESULTS"
 			echo
 
-			unset CXXFLAGS
 			"$MAKE" clean > /dev/null 2>&1
 			rm -f adhoc.cpp > /dev/null 2>&1
 
-			"$MAKE" "${MAKEARGS[@]}" CXX="$MACPORTS_CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+			CXX="$MACPORTS_CXX" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 				echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 			else
@@ -4213,17 +4009,16 @@ if [[ ("$MACPORTS_COMPILER" -eq "0") ]]; then
 		if [[ "$?" -eq "0" ]]; then
 
 			############################################
-			# Clang build
+			# MacPorts Clang build
 			echo
 			echo "************************************" | tee -a "$TEST_RESULTS"
 			echo "Testing: MacPorts Clang compiler" | tee -a "$TEST_RESULTS"
 			echo
 
-			unset CXXFLAGS
 			"$MAKE" clean > /dev/null 2>&1
 			rm -f adhoc.cpp > /dev/null 2>&1
 
-			"$MAKE" "${MAKEARGS[@]}" CXX="$MACPORTS_CXX" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+			CXX="$MACPORTS_CXX" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 				echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 			else
@@ -4254,12 +4049,11 @@ if [[ "$IS_DARWIN" -ne "0" ]]; then
 		echo "Testing: Xcode Clang compiler" | tee -a "$TEST_RESULTS"
 		echo
 
-		unset CXXFLAGS
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		export CXXFLAGS="$RELEASE_CXXFLAGS ${RETAINED_CXXFLAGS[@]}"
-		"$MAKE" "${MAKEARGS[@]}" CXX="$XCODE_CXX" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		CXXFLAGS="$RELEASE_CXXFLAGS ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+		CXX="$XCODE_CXX" CXXFLAGS="$CXXFLAGS" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -4285,15 +4079,14 @@ if [[ ("$IS_CYGWIN" -eq "0") && ("$IS_MINGW" -eq "0") ]]; then
 	echo "Testing: Test install with data directory" | tee -a "$INSTALL_RESULTS"
 	echo
 
-	unset CXXFLAGS
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
 	INSTALL_DIR="/tmp/cryptopp_test"
 	rm -rf "$INSTALL_DIR" > /dev/null 2>&1
 
-	export CXXFLAGS="$RELEASE_CXXFLAGS -DCRYPTOPP_DATA_DIR='\"$INSTALL_DIR/share/cryptopp/\"' ${RETAINED_CXXFLAGS[@]}"
-	"$MAKE" "${MAKEARGS[@]}" CXX="$CXX" static dynamic cryptest.exe 2>&1 | tee -a "$INSTALL_RESULTS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -DCRYPTOPP_DATA_DIR='\"$INSTALL_DIR/share/cryptopp/\"' ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$INSTALL_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$INSTALL_RESULTS"
@@ -4396,7 +4189,6 @@ TEST_END=$(date)
 
 ############################################
 # Cleanup, but leave output files
-unset CXXFLAGS
 "$MAKE" clean > /dev/null 2>&1
 rm -f adhoc.cpp > /dev/null 2>&1
 
@@ -4449,7 +4241,7 @@ echo
 echo "************************************************" | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
 echo | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
 
-WCOUNT=$("$EGREP" '(warning:)' $WARN_RESULTS | "$GREP" -v 'deprecated-declarations' | wc -l | "$AWK" '{print $1}')
+WCOUNT=$("$EGREP" '(warning:)' $WARN_RESULTS | wc -l | "$AWK" '{print $1}')
 if (( "$WCOUNT" == "0" )); then
 	echo "No warnings detected" | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
 else
