@@ -744,7 +744,7 @@ fi
 
 # Respect user's preferred flags, but filter the stuff we expliclty test
 FILTERED_CXXFLAGS=("-DDEBUG" "-DNDEBUG" "-g" "-g0" "-g1" "-g2" "-g3" "-O0" "-O1" "-O2" "-O3" "-O4" "-O5" "-Os" "-Og"
-                   "-xO0" "-xO1" "-xO2" "-xO3" "-xO4" "-xO5" "-std=c++03" "-std=c++11" "-std=c++14" "-std=c++17"
+                   "-Ofast" "-xO0" "-xO1" "-xO2" "-xO3" "-xO4" "-xO5" "-std=c++03" "-std=c++11" "-std=c++14" "-std=c++17"
                    "-m32" "-m64" "-mx32" "-maes" "-mrdrand" "-mrdrnd" "-mrdseed" "-mpclmul" "-Wa,-q" "-mfpu=neon"
                    "-march=armv7a" "-Wall" "-Wextra" "-Wconversion" "-Wcast-align" "-Wformat-security" "-Wtrampolines"
                    "-DCRYPTOPP_DISABLE_ASM" "-DCRYPTOPP_DISABLE_SSSE3" "-DCRYPTOPP_DISABLE_AESNI"
@@ -4347,8 +4347,8 @@ echo | tee -a "$TEST_RESULTS"
 # "ERROR" is from this script
 # "Error" is from the GNU assembler
 # "error" is from the sanitizers
-# "Illegal", "0 errors" and "suppressed errors" are from Valgrind.
-ECOUNT=$("$EGREP" '(Error|ERROR|error|FAILED|Illegal)' $TEST_RESULTS | "$EGREP" -v '( 0 errors|suppressed errors|error detector)' | wc -l | "$AWK" '{print $1}')
+# "Illegal", "Conditional", "0 errors" and "suppressed errors" are from Valgrind.
+ECOUNT=$("$EGREP" '(Error|ERROR|error|FAILED|Illegal|Conditional)' $TEST_RESULTS | "$EGREP" -v '( 0 errors|suppressed errors|error detector)' | wc -l | "$AWK" '{print $1}')
 if (( "$ECOUNT" == "0" )); then
 	echo "No failures detected" | tee -a "$TEST_RESULTS"
 else

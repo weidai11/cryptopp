@@ -14,7 +14,7 @@ NAMESPACE_BEGIN(CryptoPP)
 #endif
 
 // SunCC 12.4 and above
-#if defined(CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE) && (__SUNPRO_CC >= 0x5130)
+#if defined(CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE) && ((__SUNPRO_CC >= 0x5130) || defined(__clang__))
 # include <nmmintrin.h>
 #endif
 
