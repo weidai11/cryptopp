@@ -28,20 +28,22 @@ NAMESPACE_BEGIN(CryptoPP)
 # undef CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
 #endif
 
-// SunCC needs 12.4 for _mm_set_epi64x, _mm_blend_epi16, _mm_shuffle_epi16, etc
-#if defined(__SUNPRO_CC) && (__SUNPRO_CC < 0x5130)
-# undef CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
-# undef CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
-#elif (__SUNPRO_CC >= 0x5130)
-# include <emmintrin.h>    // _mm_set_epi64x
-# include <smmintrin.h>    // _mm_blend_epi16
-# include <tmmintrin.h>    // _mm_shuffle_epi16
-#endif
-
 // Apple Clang 6.0/Clang 3.5 does not have SSSE3 intrinsics
 //   http://llvm.org/bugs/show_bug.cgi?id=20213
 #if (defined(CRYPTOPP_APPLE_CLANG_VERSION) && (CRYPTOPP_APPLE_CLANG_VERSION <= 60000)) || (defined(CRYPTOPP_LLVM_CLANG_VERSION) && (CRYPTOPP_LLVM_CLANG_VERSION <= 30500))
 # undef CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
+#endif
+
+// SunCC needs 12.4 for _mm_set_epi64x, _mm_blend_epi16, _mm_shuffle_epi16, etc
+#if defined(__SUNPRO_CC) && (__SUNPRO_CC < 0x5130)
+# undef CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+# undef CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
+#endif
+
+#if defined(CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE) && ((__SUNPRO_CC >= 0x5130) || defined(__clang__))
+# include <emmintrin.h>    // _mm_set_epi64x
+# include <smmintrin.h>    // _mm_blend_epi16
+# include <tmmintrin.h>    // _mm_shuffle_epi16
 #endif
 
 // C/C++ implementation

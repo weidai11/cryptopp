@@ -340,6 +340,15 @@ NAMESPACE_END
 	#endif
 #endif
 
+// The section attribute attempts to initialize CPU flags to avoid Valgrind findings
+#if ((__MACH__ >= 1) && ((CRYPTOPP_LLVM_CLANG_VERSION >= 30600) || (CRYPTOPP_APPLE_CLANG_VERSION >= 70100)))
+	#define CRYPTOPP_SECTION_INIT __attribute__((section ("__DATA,__data")))
+#elif ((__ELF__ >= 1) && (CRYPTOPP_GCC_VERSION >= 40300))
+	#define CRYPTOPP_SECTION_INIT __attribute__((section ("nocommon")))
+#else
+	#define CRYPTOPP_SECTION_INIT
+#endif
+
 #if defined(_MSC_VER) || defined(__fastcall)
 	#define CRYPTOPP_FASTCALL __fastcall
 #else

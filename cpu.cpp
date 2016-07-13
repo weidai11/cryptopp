@@ -182,10 +182,13 @@ static bool TrySSE2()
 #endif
 }
 
-bool g_x86DetectionDone = false;
-bool g_hasMMX = false, g_hasISSE = false, g_hasSSE2 = false, g_hasSSSE3 = false, g_hasSSE4 = false, g_hasAESNI = false, g_hasCLMUL = false, g_isP4 = false, g_hasRDRAND = false, g_hasRDSEED = false;
-bool g_hasPadlockRNG = false, g_hasPadlockACE = false, g_hasPadlockACE2 = false, g_hasPadlockPHE = false, g_hasPadlockPMM = false;
-word32 g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
+bool CRYPTOPP_SECTION_INIT g_x86DetectionDone = false;
+bool CRYPTOPP_SECTION_INIT g_hasMMX = false, CRYPTOPP_SECTION_INIT g_hasISSE = false, CRYPTOPP_SECTION_INIT g_hasSSE2 = false, CRYPTOPP_SECTION_INIT g_hasSSSE3 = false;
+bool CRYPTOPP_SECTION_INIT g_hasSSE4 = false, CRYPTOPP_SECTION_INIT g_hasAESNI = false, CRYPTOPP_SECTION_INIT g_hasCLMUL = false, CRYPTOPP_SECTION_INIT g_isP4 = false;
+bool CRYPTOPP_SECTION_INIT g_hasRDRAND = false, CRYPTOPP_SECTION_INIT g_hasRDSEED = false;
+bool CRYPTOPP_SECTION_INIT g_hasPadlockRNG = false, CRYPTOPP_SECTION_INIT g_hasPadlockACE = false, CRYPTOPP_SECTION_INIT g_hasPadlockACE2 = false;
+bool CRYPTOPP_SECTION_INIT g_hasPadlockPHE = false, CRYPTOPP_SECTION_INIT g_hasPadlockPMM = false;
+word32 CRYPTOPP_SECTION_INIT g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
 
 static inline bool IsIntel(const word32 output[4])
 {
@@ -205,7 +208,7 @@ static inline bool IsAMD(const word32 output[4])
 
 static inline bool IsVIA(const word32 output[4])
 {
-	// This is the "CentaurHauls" string. Some non-PadLock can return "VIA VIA VIA ".
+	// This is the "CentaurHauls" string. Some non-PadLock's can return "VIA VIA VIA "
 	return (output[1] /*EBX*/ == 0x746e6543) &&
 		(output[2] /*ECX*/ == 0x736c7561) &&
 		(output[3] /*EDX*/ == 0x48727561);
@@ -281,16 +284,7 @@ void DetectX86Features()
 		static const unsigned int  PMM_FLAGS = (0x3 << 12);
 
 		CpuId(0xC0000000, cpuid);
-		if (cpuid[0] < 0xC0000001)
-		{
-			// No extended features
-			g_hasPadlockRNG  = false;
-			g_hasPadlockACE  = false;
-			g_hasPadlockACE2 = false;
-			g_hasPadlockPHE  = false;
-			g_hasPadlockPMM  = false;
-		}
-		else
+		if (cpuid[0] >= 0xC0000001)
 		{
 			// Extended features available
 			CpuId(0xC0000001, cpuid);
@@ -324,10 +318,10 @@ void DetectX86Features()
 // The following does not work well either. Its appears to be missing constants, and it does not detect Aarch32 execution environments on Aarch64
 // http://community.arm.com/groups/android-community/blog/2014/10/10/runtime-detection-of-cpu-features-on-an-armv8-a-cpu
 //
-bool g_ArmDetectionDone = false;
-bool g_hasNEON = false, g_hasCRC32 = false, g_hasAES = false, g_hasSHA1 = false, g_hasSHA2 = false;
-
-word32 g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
+bool CRYPTOPP_SECTION_INIT g_ArmDetectionDone = false;
+bool CRYPTOPP_SECTION_INIT g_hasNEON = false, CRYPTOPP_SECTION_INIT g_hasCRC32 = false, CRYPTOPP_SECTION_INIT g_hasAES = false, CRYPTOPP_SECTION_INIT g_hasSHA1 = false;
+bool CRYPTOPP_SECTION_INIT g_hasSHA2 = false;
+word32 CRYPTOPP_SECTION_INIT g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
 
 #ifndef CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
 extern "C"
