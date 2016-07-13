@@ -1578,6 +1578,38 @@
 				>
 			</File>
 			<File
+				RelativePath=".\TestData\fhmqv160.dat"
+				>
+			</File>
+			<File
+				RelativePath=".\TestData\fhmqv256.dat"
+				>
+			</File>
+			<File
+				RelativePath=".\TestData\fhmqv384.dat"
+				>
+			</File>
+			<File
+				RelativePath=".\TestData\fhmqv512.dat"
+				>
+			</File>
+			<File
+				RelativePath=".\TestData\hmqv160.dat"
+				>
+			</File>
+			<File
+				RelativePath=".\TestData\hmqv256.dat"
+				>
+			</File>
+			<File
+				RelativePath=".\TestData\hmqv384.dat"
+				>
+			</File>
+			<File
+				RelativePath=".\TestData\fhmqv512.dat"
+				>
+			</File>
+			<File
 				RelativePath=".\TestData\ideaval.dat"
 				>
 			</File>

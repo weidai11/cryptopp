@@ -9341,6 +9341,10 @@
 				>
 			</File>
 			<File
+				RelativePath="fhmqv.h"
+				>
+			</File>
+			<File
 				RelativePath="files.h"
 				>
 			</File>
@@ -9394,6 +9398,10 @@
 			</File>
 			<File
 				RelativePath="hmac.h"
+				>
+			</File>
+			<File
+				RelativePath="hmqv.h"
 				>
 			</File>
 			<File

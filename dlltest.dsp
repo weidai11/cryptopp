@@ -7,19 +7,19 @@
 CFG=dlltest - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
-!MESSAGE 
+!MESSAGE
 !MESSAGE NMAKE /f "dlltest.mak".
-!MESSAGE 
+!MESSAGE
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
-!MESSAGE 
+!MESSAGE
 !MESSAGE NMAKE /f "dlltest.mak" CFG="dlltest - Win32 Debug"
-!MESSAGE 
+!MESSAGE
 !MESSAGE Possible choices for configuration are:
-!MESSAGE 
+!MESSAGE
 !MESSAGE "dlltest - Win32 Release" (based on "Win32 (x86) Console Application")
 !MESSAGE "dlltest - Win32 Debug" (based on "Win32 (x86) Console Application")
-!MESSAGE 
+!MESSAGE
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
@@ -76,7 +76,7 @@ LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib advapi32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
 # ADD LINK32 /nologo /subsystem:console /debug /machine:I386 /out:"DLL_Debug/dlltest.exe" /pdbtype:sept /libpath:"DLL_Debug"
 
-!ENDIF 
+!ENDIF
 
 # Begin Target
 

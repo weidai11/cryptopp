@@ -2489,10 +2489,6 @@
 				>
 			</File>
 			<File
-				RelativePath="hkdf.h"
-				>
-			</File>
-			<File
 				RelativePath="hmac.h"
 				>
 			</File>
