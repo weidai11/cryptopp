@@ -1,11 +1,11 @@
-// fhmqv.h - written and placed in the public domain by Jeffrey Walton
-// Shamelessly based upon Wei Dai's MQV source files
+// fhmqv.h - written and placed in the public domain by Jeffrey Walton, Ray Clayton and Uri Blumenthal
+//           Shamelessly based upon Wei Dai's MQV source files
 
 #ifndef CRYPTOPP_FHMQV_H
 #define CRYPTOPP_FHMQV_H
 
-/** \file
-*/
+//! \file fhmqv.h
+//! \brief Classes for Fully Hashed Menezes-Qu-Vanstone key agreement in GF(p)
 
 #include "gfpcrypt.h"
 #include "algebra.h"
@@ -13,12 +13,12 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! Fully Hashed Menezes-Qu-Vanstone in GF(p) with key validation,
-/*! <a href="http://eprint.iacr.org/2009/408">A Secure and Efficient Authenticated Diffie�Hellman Protocol</a>
-    Note: this is FHMQV, Protocol 5, from page 11; and not FHMQV-C.
-*/
+//! \brief Fully Hashed Menezes-Qu-Vanstone in GF(p)
+//! \details This implementation follows Augustin P. Sarr and Philippe Elbaz–Vincent, and Jean–Claude Bajard's
+//!   <a href="http://eprint.iacr.org/2009/408">A Secure and Efficient Authenticated Diffie-Hellman Protocol</a>.
+//!   Note: this is FHMQV, Protocol 5, from page 11; and not FHMQV-C.
 template <class GROUP_PARAMETERS, class COFACTOR_OPTION = CPP_TYPENAME GROUP_PARAMETERS::DefaultCofactorOption, class HASH = SHA512>
-class FHMQV_Domain: public AuthenticatedKeyAgreementDomain
+class FHMQV_Domain : public AuthenticatedKeyAgreementDomain
 {
 public:
   typedef GROUP_PARAMETERS GroupParameters;
@@ -53,46 +53,6 @@ public:
   FHMQV_Domain(T1 v1, T2 v2, T3 v3, T4 v4, bool clientRole = true)
     : m_role(clientRole ? RoleClient : RoleServer)
   {m_groupParameters.Initialize(v1, v2, v3, v4);}
-
-protected:
-
-  inline void Hash(const Element* sigma,
-    const byte* e1, size_t e1len, const byte* e2, size_t e2len,
-    const byte* s1, size_t s1len, const byte* s2, size_t s2len,
-    byte* digest, size_t dlen) const
-  {
-    HASH hash;
-    size_t idx = 0, req = dlen;
-    size_t blk = std::min(dlen, (size_t)HASH::DIGESTSIZE);
-
-    if(sigma)
-    {
-      Integer x = GetAbstractGroupParameters().ConvertElementToInteger(*sigma);
-      SecByteBlock sbb(x.MinEncodedSize());
-      x.Encode(sbb.BytePtr(), sbb.SizeInBytes());
-      hash.Update(sbb.BytePtr(), sbb.SizeInBytes());
-    }
-
-    hash.Update(e1, e1len);
-    hash.Update(e2, e2len);
-    hash.Update(s1, s1len);
-    hash.Update(s2, s2len);
-
-    hash.TruncatedFinal(digest, blk);
-    req -= blk;
-
-    // All this to catch tail bytes for large curves and small hashes
-    while(req != 0)
-    {
-      hash.Update(&digest[idx], (size_t)HASH::DIGESTSIZE);
-
-      idx += (size_t)HASH::DIGESTSIZE;
-      blk = std::min(req, (size_t)HASH::DIGESTSIZE);
-      hash.TruncatedFinal(&digest[idx], blk);
-
-      req -= blk;
-    }
-  }
 
 public:
 
@@ -271,6 +231,46 @@ public:
     return true;
   }
 
+protected:
+
+  inline void Hash(const Element* sigma,
+    const byte* e1, size_t e1len, const byte* e2, size_t e2len,
+    const byte* s1, size_t s1len, const byte* s2, size_t s2len,
+    byte* digest, size_t dlen) const
+  {
+    HASH hash;
+    size_t idx = 0, req = dlen;
+    size_t blk = std::min(dlen, (size_t)HASH::DIGESTSIZE);
+
+    if(sigma)
+    {
+      Integer x = GetAbstractGroupParameters().ConvertElementToInteger(*sigma);
+      SecByteBlock sbb(x.MinEncodedSize());
+      x.Encode(sbb.BytePtr(), sbb.SizeInBytes());
+      hash.Update(sbb.BytePtr(), sbb.SizeInBytes());
+    }
+
+    hash.Update(e1, e1len);
+    hash.Update(e2, e2len);
+    hash.Update(s1, s1len);
+    hash.Update(s2, s2len);
+
+    hash.TruncatedFinal(digest, blk);
+    req -= blk;
+
+    // All this to catch tail bytes for large curves and small hashes
+    while(req != 0)
+    {
+      hash.Update(&digest[idx], (size_t)HASH::DIGESTSIZE);
+
+      idx += (size_t)HASH::DIGESTSIZE;
+      blk = std::min(req, (size_t)HASH::DIGESTSIZE);
+      hash.TruncatedFinal(&digest[idx], blk);
+
+      req -= blk;
+    }
+  }
+
 private:
 
   // The paper uses Initiator and Recipient - make it classical.
@@ -279,14 +279,14 @@ private:
   DL_GroupParameters<Element> & AccessAbstractGroupParameters() {return m_groupParameters;}
   const DL_GroupParameters<Element> & GetAbstractGroupParameters() const{return m_groupParameters;}
 
-  KeyAgreementRole m_role;
   GroupParameters m_groupParameters;
+  KeyAgreementRole m_role;
 };
 
-//! Fully Hashed Menezes-Qu-Vanstone in GF(p) with key validation,
-/*! <a href="http://eprint.iacr.org/2009/408">A Secure and Efficient Authenticated Diffie�Hellman Protocol</a>
-    Note: this is FHMQV, Protocol 5, from page 11; and not FHMQV-C.
-*/
+//! \brief Fully Hashed Menezes-Qu-Vanstone in GF(p)
+//! \details This implementation follows Augustin P. Sarr and Philippe Elbaz–Vincent, and Jean–Claude Bajard's
+//!   <a href="http://eprint.iacr.org/2009/408">A Secure and Efficient Authenticated Diffie-Hellman Protocol</a>.
+//!   Note: this is FHMQV, Protocol 5, from page 11; and not FHMQV-C.
 typedef FHMQV_Domain<DL_GroupParameters_GFP_DefaultSafePrime> FullyHashedMQV;
 
 NAMESPACE_END

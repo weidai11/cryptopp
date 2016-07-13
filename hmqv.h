@@ -1,11 +1,11 @@
 // hmqv.h - written and placed in the public domain by Uri Blumenthal
-// Shamelessly based upon Jeffrey Walton's FHMQV and Wei Dai's MQV source files
+//          Shamelessly based upon Jeffrey Walton's FHMQV and Wei Dai's MQV source files
 
 #ifndef CRYPTOPP_HMQV_H
 #define CRYPTOPP_HMQV_H
 
-/** \file
-*/
+//! \file hmqv.h
+//! \brief Classes for Hashed Menezes-Qu-Vanstone key agreement in GF(p)
 
 #include "gfpcrypt.h"
 #include "algebra.h"
@@ -13,10 +13,9 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! Hashed Menezes-Qu-Vanstone in GF(p) with key validation,
-/*! <a href="http://eprint.iacr.org/2005/176">HMQV: A High-Performance Secure Diffie-Hellman Protocol</a>
-    Note: this implements HMQV only. HMQV-C (with Key Confirmation) will be provided separately.
-*/
+//! \brief Hashed Menezes-Qu-Vanstone in GF(p)
+//! \details This implementation follows Hugo Krawczyk's <a href="http://eprint.iacr.org/2005/176">HMQV: A High-Performance
+//!   Secure Diffie-Hellman Protocol</a>. Note: this implements HMQV only. HMQV-C with Key Confirmation is not provided.
 template <class GROUP_PARAMETERS, class COFACTOR_OPTION = CPP_TYPENAME GROUP_PARAMETERS::DefaultCofactorOption, class HASH = SHA512>
 class HMQV_Domain: public AuthenticatedKeyAgreementDomain
 {
@@ -53,52 +52,6 @@ public:
   HMQV_Domain(T1 v1, T2 v2, T3 v3, T4 v4, bool clientRole = true)
     : m_role(clientRole ? RoleClient : RoleServer)
   {m_groupParameters.Initialize(v1, v2, v3, v4);}
-
-protected:
-  // Hash invocation by client and server differ only in what keys
-  // each provides.
-
-  inline void Hash(const Element* sigma,
-    const byte* e1, size_t e1len, // Ephemeral key and key length
-    const byte* s1, size_t s1len, // Static key and key length
-    byte* digest, size_t dlen) const
-  {
-    HASH hash;
-    size_t idx = 0, req = dlen;
-    size_t blk = std::min(dlen, (size_t)HASH::DIGESTSIZE);
-
-    if(sigma)
-    {
-      if (e1len != 0 || s1len != 0) {
-	assert(0);
-      }
-      Integer x = GetAbstractGroupParameters().ConvertElementToInteger(*sigma);
-      SecByteBlock sbb(x.MinEncodedSize());
-      x.Encode(sbb.BytePtr(), sbb.SizeInBytes());
-      hash.Update(sbb.BytePtr(), sbb.SizeInBytes());
-    } else {
-      if (e1len == 0 || s1len == 0) {
-	assert(0);
-      }
-      hash.Update(e1, e1len);
-      hash.Update(s1, s1len);
-    }
-
-    hash.TruncatedFinal(digest, blk);
-    req -= blk;
-
-    // All this to catch tail bytes for large curves and small hashes
-    while(req != 0)
-    {
-      hash.Update(&digest[idx], (size_t)HASH::DIGESTSIZE);
-
-      idx += (size_t)HASH::DIGESTSIZE;
-      blk = std::min(req, (size_t)HASH::DIGESTSIZE);
-      hash.TruncatedFinal(&digest[idx], blk);
-
-      req -= blk;
-    }
-  }
 
 public:
 
@@ -225,7 +178,7 @@ public:
       if(!params.ValidateElement(3, VV2, NULL))
         return false;
 
-//      const Integer& p = params.GetGroupOrder(); // not used, remove later
+      // const Integer& p = params.GetGroupOrder(); // not used, remove later
       const Integer& q = params.GetSubgroupOrder();
       const unsigned int len /*bytes*/ = (((q.BitCount()+1)/2 +7)/8);
 
@@ -253,7 +206,7 @@ public:
         Element t1 = params.ExponentiateElement(A, d);
         Element t2 = m_groupParameters.MultiplyElements(X, t1);
 
-	// $\sigma_B}=(X \cdot A^{d})^{s_B}
+        // $\sigma_B}=(X \cdot A^{d})^{s_B}
         sigma = params.ExponentiateElement(t2, s_B);
       }
       else
@@ -268,7 +221,7 @@ public:
         Element t1 = params.ExponentiateElement(B, e);
         Element t2 = m_groupParameters.MultiplyElements(Y, t1);
 
-	// $\sigma_A}=(Y \cdot B^{e})^{s_A}
+        // $\sigma_A}=(Y \cdot B^{e})^{s_A}
         sigma = params.ExponentiateElement(t2, s_A);
       }
       Hash(&sigma, NULL, 0, NULL, 0, agreedValue, AgreedValueLength());
@@ -280,6 +233,52 @@ public:
     return true;
   }
 
+protected:
+  // Hash invocation by client and server differ only in what keys
+  // each provides.
+
+  inline void Hash(const Element* sigma,
+    const byte* e1, size_t e1len, // Ephemeral key and key length
+    const byte* s1, size_t s1len, // Static key and key length
+    byte* digest, size_t dlen) const
+  {
+    HASH hash;
+    size_t idx = 0, req = dlen;
+    size_t blk = std::min(dlen, (size_t)HASH::DIGESTSIZE);
+
+    if(sigma)
+    {
+      if (e1len != 0 || s1len != 0) {
+	assert(0);
+      }
+      Integer x = GetAbstractGroupParameters().ConvertElementToInteger(*sigma);
+      SecByteBlock sbb(x.MinEncodedSize());
+      x.Encode(sbb.BytePtr(), sbb.SizeInBytes());
+      hash.Update(sbb.BytePtr(), sbb.SizeInBytes());
+    } else {
+      if (e1len == 0 || s1len == 0) {
+	assert(0);
+      }
+      hash.Update(e1, e1len);
+      hash.Update(s1, s1len);
+    }
+
+    hash.TruncatedFinal(digest, blk);
+    req -= blk;
+
+    // All this to catch tail bytes for large curves and small hashes
+    while(req != 0)
+    {
+      hash.Update(&digest[idx], (size_t)HASH::DIGESTSIZE);
+
+      idx += (size_t)HASH::DIGESTSIZE;
+      blk = std::min(req, (size_t)HASH::DIGESTSIZE);
+      hash.TruncatedFinal(&digest[idx], blk);
+
+      req -= blk;
+    }
+  }
+
 private:
 
   // The paper uses Initiator and Recipient - make it classical.
@@ -288,14 +287,13 @@ private:
   DL_GroupParameters<Element> & AccessAbstractGroupParameters() {return m_groupParameters;}
   const DL_GroupParameters<Element> & GetAbstractGroupParameters() const{return m_groupParameters;}
 
-  KeyAgreementRole m_role;
   GroupParameters m_groupParameters;
+  KeyAgreementRole m_role;
 };
 
-//! Hashed Menezes-Qu-Vanstone in GF(p) with key validation,
-/*!  <a href="http://eprint.iacr.org/2005/176">HMQV: A High-Performance Secure Diffie-Hellman Protocol</a>
-    Note: this implements HMQV only. HMQV-C (with Key Confirmation) will be provided separately.
-*/
+//! \brief Hashed Menezes-Qu-Vanstone in GF(p)
+//! \details This implementation follows Hugo Krawczyk's <a href="http://eprint.iacr.org/2005/176">HMQV: A High-Performance
+//!   Secure Diffie-Hellman Protocol</a>. Note: this implements HMQV only. HMQV-C with Key Confirmation is not provided.
 typedef HMQV_Domain<DL_GroupParameters_GFP_DefaultSafePrime> HashedMQV;
 
 NAMESPACE_END
