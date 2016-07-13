@@ -1,4 +1,4 @@
-// hmqv.h - written and placed in the public domain by Uri Blumenthal 
+// hmqv.h - written and placed in the public domain by Uri Blumenthal
 // Shamelessly based upon Jeffrey Walton's FHMQV and Wei Dai's MQV source files
 
 #ifndef CRYPTOPP_HMQV_H
@@ -59,7 +59,7 @@ protected:
   // each provides.
 
   inline void Hash(const Element* sigma,
-    const byte* e1, size_t e1len, // Ephemeral key and key length 
+    const byte* e1, size_t e1len, // Ephemeral key and key length
     const byte* s1, size_t s1len, // Static key and key length
     byte* digest, size_t dlen) const
   {
@@ -83,7 +83,7 @@ protected:
       hash.Update(e1, e1len);
       hash.Update(s1, s1len);
     }
-    
+
     hash.TruncatedFinal(digest, blk);
     req -= blk;
 
@@ -232,11 +232,11 @@ public:
       Integer d, e;
       SecByteBlock dd(len), ee(len);
 
-      // Compute $d = \hat{H}(X, \hat{B})$ 
+      // Compute $d = \hat{H}(X, \hat{B})$
       Hash(NULL, XX, xxs, BB, bbs, dd.BytePtr(), dd.SizeInBytes());
       d.Decode(dd.BytePtr(), dd.SizeInBytes());
 
-      // Compute $e = \hat{H}(Y, \hat{A})$ 
+      // Compute $e = \hat{H}(Y, \hat{A})$
       Hash(NULL, YY, yys, AA, aas, ee.BytePtr(), ee.SizeInBytes());
       e.Decode(ee.BytePtr(), ee.SizeInBytes());
 

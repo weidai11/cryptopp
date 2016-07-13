@@ -46,7 +46,7 @@ public:
 	//! \brief Construct a MQV domain
 	//! \tparam T1 template parameter used as a constructor parameter
 	//! \tparam T2 template parameter used as a constructor parameter
-	//! \param v1 first parameter 
+	//! \param v1 first parameter
 	//! \param v2 second parameter
 	//! \details v1 and v2 are passed directly to the GROUP_PARAMETERS object.
 	template <class T1, class T2>
@@ -57,7 +57,7 @@ public:
 	//! \tparam T1 template parameter used as a constructor parameter
 	//! \tparam T2 template parameter used as a constructor parameter
 	//! \tparam T3 template parameter used as a constructor parameter
-	//! \param v1 first parameter 
+	//! \param v1 first parameter
 	//! \param v2 second parameter
 	//! \param v3 third parameter
 	//! \details v1, v2 and v3 are passed directly to the GROUP_PARAMETERS object.
@@ -70,7 +70,7 @@ public:
 	//! \tparam T2 template parameter used as a constructor parameter
 	//! \tparam T3 template parameter used as a constructor parameter
 	//! \tparam T4 template parameter used as a constructor parameter
-	//! \param v1 first parameter 
+	//! \param v1 first parameter
 	//! \param v2 second parameter
 	//! \param v3 third parameter
 	//! \param v4 third parameter
@@ -156,7 +156,7 @@ public:
 	}
 
 	bool Agree(byte *agreedValue,
-		const byte *staticPrivateKey, const byte *ephemeralPrivateKey, 
+		const byte *staticPrivateKey, const byte *ephemeralPrivateKey,
 		const byte *staticOtherPublicKey, const byte *ephemeralOtherPublicKey,
 		bool validateStaticOtherPublicKey=true) const
 	{
