@@ -137,6 +137,13 @@ NAMESPACE_END
 #endif // wmmintrin.h
 #endif // CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
 
+#if (CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE) && ((__SUNPRO_CC >= 0x5110) || defined(__clang__) || defined(__INTEL_COMPILER))
+# include <emmintrin.h>    // _mm_set_epi64x
+# include <smmintrin.h>    // _mm_blend_epi16
+# include <tmmintrin.h>    // _mm_shuffle_epi16
+# include <nmmintrin.h>    // _mm_crc32_u{8|16|32}
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 #if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64 || CRYPTOPP_DOXYGEN_PROCESSING

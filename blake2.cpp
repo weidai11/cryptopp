@@ -40,12 +40,6 @@ NAMESPACE_BEGIN(CryptoPP)
 # undef CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
 #endif
 
-#if defined(CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE) && ((__SUNPRO_CC >= 0x5130) || defined(__clang__))
-# include <emmintrin.h>    // _mm_set_epi64x
-# include <smmintrin.h>    // _mm_blend_epi16
-# include <tmmintrin.h>    // _mm_shuffle_epi16
-#endif
-
 // C/C++ implementation
 static void BLAKE2_CXX_Compress32(const byte* input, BLAKE2_State<word32, false>& state);
 static void BLAKE2_CXX_Compress64(const byte* input, BLAKE2_State<word64, true>& state);
@@ -3994,7 +3988,7 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
 
   uint64x2_t row1l, row1h, row2l, row2h;
   uint64x2_t row3l, row3h, row4l, row4h;
-  uint64x2_t b0, b1, t0, t1;
+  uint64x2_t b0 = {0,0}, b1 = {0,0}, t0, t1;
 
   row1l = vld1q_u64((const uint64_t *)&state.h[0]);
   row1h = vld1q_u64((const uint64_t *)&state.h[2]);

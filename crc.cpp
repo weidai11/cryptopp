@@ -13,11 +13,6 @@ NAMESPACE_BEGIN(CryptoPP)
 # undef CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
 #endif
 
-// SunCC 12.4 and above
-#if defined(CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE) && ((__SUNPRO_CC >= 0x5130) || defined(__clang__))
-# include <nmmintrin.h>
-#endif
-
 /* Table of CRC-32's of all single byte values (made by makecrc.c) */
 const word32 CRC32::m_tab[] = {
 #ifdef IS_LITTLE_ENDIAN

@@ -45,22 +45,23 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
+// In general, the library's ASM code is best on Windows, and Intrinsics is
+//   the best code under GCC. Clang is missing symbols, so it gets ASM.
+//   The NASM code is optimized well on Linux, but its not easy to cut-in.
 #if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
 # ifndef CRYPTOPP_CPUID_AVAILABLE
 #  define CRYPTOPP_CPUID_AVAILABLE
 # endif
 #endif
 
-// In general, the library's ASM code is best on Windows, and Intrinsics is
-//   the best code under GCC. Clang is missing symbols, so it gets ASM.
-//   The NASM code is optimized well on Linux, but its not easy to cut-in.
-#if defined(CRYPTOPP_MSC_VERSION)
+#if defined(CRYPTOPP_CPUID_AVAILABLE)
+# if defined(CRYPTOPP_MSC_VERSION)
 #  define MASM_RDRAND_ASM_AVAILABLE 1
 #  define MASM_RDSEED_ASM_AVAILABLE 1
-#elif defined(CRYPTOPP_LLVM_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION)
+# elif defined(CRYPTOPP_LLVM_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION)
 #  define GCC_RDRAND_ASM_AVAILABLE 1
 #  define GCC_RDSEED_ASM_AVAILABLE 1
-#elif defined(__SUNPRO_CC)
+# elif defined(__SUNPRO_CC)
 #  if defined(__RDRND__) && (__SUNPRO_CC >= 0x5130)
 #    define ALL_RDRAND_INTRIN_AVAILABLE 1
 #  elif (__SUNPRO_CC >= 0x5100)
@@ -71,7 +72,7 @@
 #  elif (__SUNPRO_CC >= 0x5100)
 #    define GCC_RDSEED_ASM_AVAILABLE 1
 #  endif
-#elif defined(CRYPTOPP_GCC_VERSION)
+# elif defined(CRYPTOPP_GCC_VERSION)
 #  if defined(__RDRND__) && (CRYPTOPP_GCC_VERSION >= 30200)
 #    define ALL_RDRAND_INTRIN_AVAILABLE 1
 #  else
@@ -82,6 +83,7 @@
 #  else
 #    define GCC_RDSEED_ASM_AVAILABLE 1
 #  endif
+# endif
 #endif
 
 // Debug diagnostics
