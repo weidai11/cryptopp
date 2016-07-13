@@ -21,6 +21,8 @@
 #include "asn.h"
 #include "dh.h"
 #include "mqv.h"
+#include "hmqv.h"
+#include "fhmqv.h"
 #include "xtrcrypt.h"
 #include "esign.h"
 #include "pssr.h"
@@ -295,6 +297,18 @@ void BenchmarkAll2(double t, double hertz)
 	BenchMarkKeyAgreement<LUC_DH>(CRYPTOPP_DATA_DIR "TestData/lucd1024.dat", "LUCDIF 1024", t);
 	BenchMarkKeyAgreement<MQV>(CRYPTOPP_DATA_DIR "TestData/mqv1024.dat", "MQV 1024", t);
 	BenchMarkKeyAgreement<MQV>(CRYPTOPP_DATA_DIR "TestData/mqv2048.dat", "MQV 2048", t);
+
+#if 0
+	BenchMarkKeyAgreement<HMQV160>(CRYPTOPP_DATA_DIR "TestData/hmqv160.dat", "HMQV P-160", t);
+	BenchMarkKeyAgreement<HMQV256>(CRYPTOPP_DATA_DIR "TestData/hmqv256.dat", "HMQV P-256", t);
+	BenchMarkKeyAgreement<HMQV384>(CRYPTOPP_DATA_DIR "TestData/hmqv384.dat", "HMQV P-384", t);
+	BenchMarkKeyAgreement<HMQV512>(CRYPTOPP_DATA_DIR "TestData/hmqv512.dat", "HMQV P-512", t);
+
+	BenchMarkKeyAgreement<FHMQV160>(CRYPTOPP_DATA_DIR "TestData/fhmqv160.dat", "FHMQV P-160", t);
+	BenchMarkKeyAgreement<FHMQV256>(CRYPTOPP_DATA_DIR "TestData/fhmqv256.dat", "FHMQV P-256", t);
+	BenchMarkKeyAgreement<FHMQV384>(CRYPTOPP_DATA_DIR "TestData/fhmqv384.dat", "FHMQV P-384", t);
+	BenchMarkKeyAgreement<FHMQV512>(CRYPTOPP_DATA_DIR "TestData/fhmqv512.dat", "FHMQV P-512", t);
+#endif
 
 	cout << "\n<TBODY style=\"background: white\">";
 	{

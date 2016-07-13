@@ -46,7 +46,7 @@ void OutputResultBytes(const char *name, double length, double timeTaken)
 {
 	// Coverity finding, also see http://stackoverflow.com/a/34509163/608639.
 	StreamState ss(cout);
-	
+
 	// Coverity finding
 	if (length < 0.0000000001f) length = 0.000001f;
 	if (timeTaken < 0.0000000001f) timeTaken = 0.000001f;
@@ -67,7 +67,7 @@ void OutputResultKeying(double iterations, double timeTaken)
 {
 	// Coverity finding, also see http://stackoverflow.com/a/34509163/608639.
 	StreamState ss(cout);
-	
+
 	// Coverity finding
 	if (iterations < 0.0000000001f) iterations = 0.000001f;
 	if (timeTaken < 0.0000000001f) timeTaken = 0.000001f;
@@ -81,7 +81,7 @@ void OutputResultOperations(const char *name, const char *operation, bool pc, un
 {
 	// Coverity finding, also see http://stackoverflow.com/a/34509163/608639.
 	StreamState ss(cout);
-	
+
 	// Coverity finding
 	if (!iterations) iterations++;
 	if (timeTaken < 0.0000000001f) timeTaken = 0.000001f;
@@ -215,7 +215,7 @@ void BenchMarkByName2(const char *factoryName, size_t keyLength = 0, const char 
 
 	std::string name(factoryName ? factoryName : "");
 	member_ptr<T_FactoryOutput> obj(ObjectFactoryRegistry<T_FactoryOutput>::Registry().CreateObject(name.c_str()));
-	
+
 	if (!keyLength)
 		keyLength = obj->DefaultKeyLength();
 
