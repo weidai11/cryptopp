@@ -24,6 +24,10 @@ public:
   typedef typename GroupParameters::Element Element;
   typedef HMQV_Domain<GROUP_PARAMETERS, COFACTOR_OPTION, HASH> Domain;
 
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~HMQV_Domain() {}
+#endif
+
   HMQV_Domain(bool clientRole = true): m_role(clientRole ? RoleClient : RoleServer) {}
 
   HMQV_Domain(const GroupParameters &params, bool clientRole = true)
@@ -294,7 +298,7 @@ private:
 //! \brief Hashed Menezes-Qu-Vanstone in GF(p)
 //! \details This implementation follows Hugo Krawczyk's <a href="http://eprint.iacr.org/2005/176">HMQV: A High-Performance
 //!   Secure Diffie-Hellman Protocol</a>. Note: this implements HMQV only. HMQV-C with Key Confirmation is not provided.
-typedef HMQV_Domain<DL_GroupParameters_GFP_DefaultSafePrime> HashedMQV;
+typedef HMQV_Domain<DL_GroupParameters_GFP_DefaultSafePrime> HMQV_GFP;
 
 NAMESPACE_END
 
