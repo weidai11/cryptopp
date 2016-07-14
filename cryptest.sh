@@ -346,12 +346,6 @@ else
 	fi
 fi
 
-# Fixup... SunCC appears to botch the code generation
-if [[ ("$SUN_COMPILER" -ne "0" )]];then
-	HAVE_O5=0
-	OPT_O5=
-fi
-
 # Hit or miss, mostly hit
 HAVE_OS=0
 OPT_OS=
@@ -581,6 +575,14 @@ if [[ (-z "$HAVE_DISASS") ]]; then
 			HAVE_DISASS=0
 		fi
 	fi
+fi
+
+# Fixup... SunCC appears to generate bad code for BLAKE2s
+if [[ ("$SUN_COMPILER" -ne "0") ]];then
+	HAVE_O5=0
+	OPT_O5=
+	HAVE_OFAST=0
+	OPT_OFAST=
 fi
 
 # Benchmarks take a long time...
@@ -950,6 +952,33 @@ else
 fi
 
 ############################################
+# Release build
+echo
+echo "************************************" | tee -a "$TEST_RESULTS"
+echo "Testing: release, default CXXFLAGS" | tee -a "$TEST_RESULTS"
+echo
+
+"$MAKE" clean > /dev/null 2>&1
+rm -f adhoc.cpp > /dev/null 2>&1
+
+CXXFLAGS="$RELEASE_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+else
+	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+	fi
+	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+	fi
+	echo
+fi
+
+############################################
 # Debug build, platform defines
 if [[ ("${#PLATFORM_CXXFLAGS[@]}" -ne "0") ]]; then
 	echo
@@ -976,33 +1005,6 @@ if [[ ("${#PLATFORM_CXXFLAGS[@]}" -ne "0") ]]; then
 		fi
 		echo
 	fi
-fi
-
-############################################
-# Release build
-echo
-echo "************************************" | tee -a "$TEST_RESULTS"
-echo "Testing: release, default CXXFLAGS" | tee -a "$TEST_RESULTS"
-echo
-
-"$MAKE" clean > /dev/null 2>&1
-rm -f adhoc.cpp > /dev/null 2>&1
-
-CXXFLAGS="$RELEASE_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
-CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-
-if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
-else
-	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-		echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
-	fi
-	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
-	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-		echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
-	fi
-	echo
 fi
 
 ############################################
@@ -4345,18 +4347,18 @@ echo
 echo "************************************************" | tee -a "$TEST_RESULTS"
 echo | tee -a "$TEST_RESULTS"
 
-# "FAILED" is from Crypto++
+# "FAILED" and "Exception" are from Crypto++
 # "ERROR" is from this script
 # "Error" is from the GNU assembler
 # "error" is from the sanitizers
 # "Illegal", "Conditional", "0 errors" and "suppressed errors" are from Valgrind.
-ECOUNT=$("$EGREP" '(Error|ERROR|error|FAILED|Illegal|Conditional)' $TEST_RESULTS | "$EGREP" -v '( 0 errors|suppressed errors|error detector)' | wc -l | "$AWK" '{print $1}')
+ECOUNT=$("$EGREP" '(Error|ERROR|error|FAILED|Illegal|Conditional|Exception)' $TEST_RESULTS | "$EGREP" -v '( 0 errors|suppressed errors|error detector)' | wc -l | "$AWK" '{print $1}')
 if (( "$ECOUNT" == "0" )); then
 	echo "No failures detected" | tee -a "$TEST_RESULTS"
 else
 	echo "$ECOUNT errors detected. See $TEST_RESULTS for details" | tee -a "$TEST_RESULTS"
 	if (( "$ECOUNT" < 16 )); then
-		"$EGREP" -n '(Error|ERROR|error|FAILED|Illegal)' "$TEST_RESULTS" | "$EGREP" -v '( 0 errors|suppressed errors|error detector)'
+		"$EGREP" -n '(Error|ERROR|error|FAILED|Illegal|Conditional|Exception)' "$TEST_RESULTS" | "$EGREP" -v '( 0 errors|suppressed errors|error detector)'
 	fi
 fi
 
