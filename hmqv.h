@@ -83,6 +83,7 @@ public:
   /*! \pre size of publicKey == PublicStaticKeyLength() */
   void GenerateStaticPublicKey(RandomNumberGenerator &rng, const byte *privateKey, byte *publicKey) const
   {
+    CRYPTOPP_UNUSED(rng);
     const DL_GroupParameters<Element> &params = GetAbstractGroupParameters();
     Integer x(privateKey, StaticPrivateKeyLength());
     Element y = params.ExponentiateBase(x);
@@ -105,6 +106,7 @@ public:
   //! return length of ephemeral public keys in this domain
   void GenerateEphemeralPublicKey(RandomNumberGenerator &rng, const byte *privateKey, byte *publicKey) const
   {
+    CRYPTOPP_UNUSED(rng);
     memcpy(publicKey, privateKey+StaticPrivateKeyLength(), EphemeralPublicKeyLength());
   }
 
