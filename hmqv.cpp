@@ -9,7 +9,7 @@ NAMESPACE_BEGIN(CryptoPP)
 #if !defined(NDEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
 void TestInstantiations_HMQV()
 {
-    HashedMQV hmqv;
+    HMQV_GFP hmqv;
 }
 #endif
 
