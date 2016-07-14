@@ -346,12 +346,6 @@ else
 	fi
 fi
 
-# Fixup... SunCC appears to botch the code generation
-if [[ ("$SUN_COMPILER" -ne "0" )]];then
-	HAVE_O5=0
-	OPT_O5=
-fi
-
 # Hit or miss, mostly hit
 HAVE_OS=0
 OPT_OS=
@@ -581,6 +575,14 @@ if [[ (-z "$HAVE_DISASS") ]]; then
 			HAVE_DISASS=0
 		fi
 	fi
+fi
+
+# Fixup... SunCC appears to generate bad code for BLAKE2s
+if [[ ("$SUN_COMPILER" -ne "0") ]];then
+	HAVE_O5=0
+	OPT_O5=
+	HAVE_OFAST=0
+	OPT_OFAST=
 fi
 
 # Benchmarks take a long time...
