@@ -2963,7 +2963,7 @@ Integer::Integer(const byte *encodedInteger, size_t byteCount, Signedness s, Byt
 	if(o == LITTLE_ENDIAN_ORDER)
 	{
 		SecByteBlock block(byteCount);
-#if (CRYPTOPP_MSC_VERSION >= 1500)
+#if (CRYPTOPP_MSC_VERSION >= 1400)
 		std::reverse_copy(encodedInteger, encodedInteger+byteCount,
 			stdext::make_checked_array_iterator(block.begin(), block.size()));
 #else
