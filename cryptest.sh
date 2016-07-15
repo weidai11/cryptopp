@@ -25,6 +25,10 @@
 # Using 'fast' is shorthand for it:
 #     ./cryptest.sh fast
 
+# You can also reduce CPU load with the folowing. It will use half the number of CPU cores
+# rather than all of them. Its usefu for the GCC Compile Farm, where its policy.
+#     ./cryptest.sh nice
+
 ############################################
 # Set to suite your taste
 
@@ -110,11 +114,17 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 	fi
 fi
 
-# Recognize "fast" and "quick"...
-if [[ ("$#" -eq "1") && ($("$EGREP" -ix "fast" <<< "$1") || $("$EGREP" -ix "quick" <<< "$1")) ]]; then
-	HAVE_VALGRIND=0
-	WANT_BENCHMARKS=0
-fi
+for ARG in "$@"
+do
+	# Recognize "fast" and "quick", which does not perform tests that take more time to execute
+    if [[ ($("$EGREP" -ix "fast" <<< "$ARG") || $("$EGREP" -ix "quick" <<< "$ARG")) ]]; then
+		HAVE_VALGRIND=0
+		WANT_BENCHMARKS=0
+	# Recognize "farm" and "nice", which uses 1/2 the CPU cores in accordance with GCC Compile Farm policy
+	elif [[ ($("$EGREP" -ix "farm" <<< "$ARG") || $("$EGREP" -ix "nice" <<< "$ARG")) ]]; then
+		WANT_NICE=1
+	fi
+done
 
 # We need to use the C++ compiler to determine feature availablility. Otherwise
 #   mis-detections occur on a number of platforms.
@@ -715,6 +725,9 @@ echo "FREQ: $CPU_FREQ GHz" | tee -a "$TEST_RESULTS"
 echo "MEM: $MEM_SIZE MB" | tee -a "$TEST_RESULTS"
 
 if [[ ("$CPU_COUNT" -ge "2" && "$MEM_SIZE" -ge "1280" && "$HAVE_SWAP" -ne "0") ]]; then
+	if [[ ("$WANT_NICE" -eq "1") ]]; then
+		CPU_COUNT=$(echo "$CPU_COUNT 2" | "$AWK" '{print int($1/$2)}')
+	fi
 	MAKEARGS=(-j "$CPU_COUNT")
 	echo "Using $MAKE -j $CPU_COUNT"
 fi
