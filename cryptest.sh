@@ -2675,6 +2675,9 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 	# Sun Studio 12.2
 	if [[ (-e "/opt/solstudio12.2/bin/CC") ]]; then
 
+		# Sun Studio 12.2 and below workaround, http://github.com/weidai11/cryptopp/issues/228
+		SUNCC_122_CXXFLAGS=$(echo "$SUNCC_CXXFLAGS" | "$AWK" '/SSE/' ORS=' ' RS=' ')
+
 		############################################
 		# Debug build
 		echo
@@ -2685,7 +2688,7 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="-DDEBUG -g -xO0 $SUNCC_CXXFLAGS"
+		CXXFLAGS="-DDEBUG -g -xO0 $SUNCC_122_CXXFLAGS"
 		CXX=/opt/solstudio12.2/bin/CC CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2711,7 +2714,7 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="-DNDEBUG -g0 -xO2 $SUNCC_CXXFLAGS"
+		CXXFLAGS="-DNDEBUG -g0 -xO2 $SUNCC_122_CXXFLAGS"
 		CXX=/opt/solstudio12.2/bin/CC CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
