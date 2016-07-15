@@ -83,7 +83,7 @@ NAMESPACE_BEGIN(CryptoPP)
 #endif
 
 // Hack for SunCC, http://github.com/weidai11/cryptopp/issues/224
-#if defined(__SUNPRO_CC >= 5130)
+#if (__SUNPRO_CC >= 5130)
 # define MAYBE_CONST
 #else
 # define MAYBE_CONST const
