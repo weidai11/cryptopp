@@ -839,7 +839,7 @@ if [[ ("$IS_SOLARIS" -ne "0") && ("$SUNCC_121_OR_ABOVE" -ne "0") ]]; then
 	if [[ ($(echo "$ISAINFO" | "$GREP" -c "ssse3") -ne "0") ]]; then PLATFORM_CXXFLAGS+="-D__SSSE3__ "; fi
 	if [[ ($(echo "$ISAINFO" | "$GREP" -c "sse4.1") -ne "0") ]]; then PLATFORM_CXXFLAGS+="-D__SSE4_1__ "; fi
 	if [[ ($(echo "$ISAINFO" | "$GREP" -c "sse4.2") -ne "0") ]]; then PLATFORM_CXXFLAGS+="-D__SSE4_2__ "; fi
-	# if [[ ($(echo "$ISAINFO" | "$GREP" -c "aes") -ne "0") ]]; then PLATFORM_CXXFLAGS+="-D__AES__ "; fi
+	if [[ ($(echo "$ISAINFO" | "$GREP" -c "aes") -ne "0") ]]; then PLATFORM_CXXFLAGS+="-D__AES__ "; fi
 	if [[ ($(echo "$ISAINFO" | "$GREP" -c "pclmulqdq") -ne "0") ]]; then PLATFORM_CXXFLAGS+="-D__PCLMUL__ "; fi
 	if [[ ($(echo "$ISAINFO" | "$GREP" -c "rdrand") -ne "0") ]]; then PLATFORM_CXXFLAGS+="-D__RDRND__ "; fi
 	if [[ ($(echo "$ISAINFO" | "$GREP" -c "rdseed") -ne "0") ]]; then PLATFORM_CXXFLAGS+="-D__RDSEED__ "; fi
