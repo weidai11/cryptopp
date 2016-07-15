@@ -450,56 +450,6 @@ if [[ (-z "$HAVE_X32") ]]; then
 	fi
 fi
 
-# ARMv7a/Aarch32 (may run on Aarch64).
-rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
-if [[ (-z "$HAVE_ARMV7A") ]]; then
-	HAVE_ARMV7A=0
-	if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
-		"$CXX" -DCRYPTOPP_ADHOC_MAIN -march=armv7a adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
-		if [[ "$?" -eq "0" ]]; then
-			"$TMP/adhoc.exe" > /dev/null 2>&1
-			if [[ "$?" -eq "0" ]]; then
-				HAVE_ARMV7A=1
-			fi
-		fi
-	fi
-fi
-
-# ARM NEON (may run on Aarch64).
-rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
-if [[ (-z "$HAVE_ARM_NEON") ]]; then
-	HAVE_ARM_NEON=0
-	if [[ ("$IS_ARM32" -ne "0") ]]; then
-		if [[ $(cat /proc/cpuinfo 2>/dev/null | "$GREP" -i -c NEON) -ne "0" ]]; then
-			HAVE_ARM_NEON=1
-		fi
-	fi
-fi
-
-# ARMv8/Aarch64, CRC and Crypto.
-rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
-if [[ (-z "$HAVE_ARM_CRYPTO") ]]; then
-	HAVE_ARM_CRYPTO=0
-	if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
-		"$CXX" -DCRYPTOPP_ADHOC_MAIN -march=armv8-a+crypto adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
-		if [[ "$?" -eq "0" ]]; then
-			HAVE_ARM_CRYPTO=1
-		fi
-	fi
-fi
-
-# ARMv8/Aarch64, CRC and Crypto.
-rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
-if [[ (-z "$HAVE_ARM_CRC") ]]; then
-	HAVE_ARM_CRC=0
-	if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
-		"$CXX" -DCRYPTOPP_ADHOC_MAIN -march=armv8-a+crc adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
-		if [[ "$?" -eq "0" ]]; then
-			HAVE_ARM_CRC=1
-		fi
-	fi
-fi
-
 # "Modern compiler, old hardware" combinations
 HAVE_X86_AES=0
 HAVE_X86_RDRAND=0
@@ -541,6 +491,31 @@ if [[ (-z "$HAVE_LDGOLD") ]]; then
 	fi
 fi
 
+# ARMv7 and ARMv8, including NEON, CRC32 and Crypto extensions
+if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
+	ARM_FEATURES=$(cat /proc/cpuinfo 2>&1 | "$AWK" '{IGNORECASE=1}{if ($1 == "Features") print}' | cut -f 2 -d ':')
+
+	if [[  (-z "$HAVE_ARMV7A") ]]; then
+		# NEON is optional on two ARMv7-a cores
+		HAVE_ARMV7A=$(echo "$ARM_FEATURES" | "$GREP" -i -c 'neon')
+	fi
+
+	rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
+	if [[ (-z "$HAVE_ARM_NEON") ]]; then
+		HAVE_ARM_NEON=$(echo "$ARM_FEATURES" | "$GREP" -i -c 'neon')
+	fi
+
+	rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
+	if [[ (-z "$HAVE_ARM_CRYPTO") ]]; then
+		HAVE_ARM_CRYPTO=$(echo "$ARM_FEATURES" | "$EGREP" -i -c '(aes|pmull|sha1|sha2)')
+	fi
+
+	rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
+	if [[ (-z "$HAVE_ARM_CRC") ]]; then
+		HAVE_ARM_CRC=$(echo "$ARM_FEATURES" | "$GREP" -i -c "crc32")
+	fi
+fi
+
 # Valgrind testing of C++03, C++11, C++14 and C++17 binaries. Valgrind tests take a long time...
 if [[ (-z "$HAVE_VALGRIND") ]]; then
 	HAVE_VALGRIND=$(which valgrind 2>&1 | "$GREP" -v "no valgrind" | "$GREP" -i -c valgrind)
@@ -577,12 +552,17 @@ if [[ (-z "$HAVE_DISASS") ]]; then
 	fi
 fi
 
-# Fixup... SunCC appears to generate bad code for BLAKE2s
-if [[ ("$SUN_COMPILER" -ne "0") ]];then
+# Fixup... SunCC appears to generate bad code for BLAKE2
+if [[ ("$SUN_COMPILER" -ne "0") ]]; then
 	HAVE_O5=0
 	OPT_O5=
 	HAVE_OFAST=0
 	OPT_OFAST=
+fi
+
+# Fixup... GCC 4.8 ASAN produces false positives under ARM
+if [[ ( ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") && "$GCC_48_COMPILER" -ne "0") ]]; then
+	HAVE_ASAN=0
 fi
 
 # Benchmarks take a long time...
@@ -829,6 +809,17 @@ if [[ ("$IS_ARM32" -ne "0") ]]; then
 
 	if [[ ("$HAVE_ARM_NEON" -ne "0") ]]; then
 		PLATFORM_CXXFLAGS+=("-mfpu=neon ")
+	fi
+fi
+
+# Add to exercise ARMv8 more thoroughly. NEON is baked in under CPU flag asimd.
+if [[ ("$IS_ARM64" -ne "0") ]]; then
+	if [[ ("$HAVE_ARM_CRC" -ne "0" && "$HAVE_ARM_CRYPTO" -ne "0") ]]; then
+		PLATFORM_CXXFLAGS+=("-march=armv8-a+crc+crypto ")
+	elif [[ ("$HAVE_ARM_CRC" -ne "0") ]]; then
+		PLATFORM_CXXFLAGS+=("-march=armv8-a+crc ")
+	elif [[ ("$HAVE_ARM_CRYPTO" -ne "0") ]]; then
+		PLATFORM_CXXFLAGS+=("-march=armv8-a+crypto ")
 	fi
 fi
 
