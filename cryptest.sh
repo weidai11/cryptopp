@@ -81,7 +81,7 @@ THIS_MACHINE=$(uname -m 2>&1)
 IS_X86=$(echo "$THIS_MACHINE" | "$EGREP" -i -c "(i386|i586|i686|amd64|x86_64)")
 IS_X64=$(echo "$THIS_MACHINE" | "$EGREP" -i -c "(amd64|x86_64)")
 IS_PPC=$(echo "$THIS_MACHINE" | "$EGREP" -i -c "(Power|PPC)")
-IS_ARM32=$(echo "$THIS_MACHINE" | "$GREP" -v "arm64" | "$EGREP" -i -c "arm|aarch32")
+IS_ARM32=$(echo "$THIS_MACHINE" | "$GREP" -v "arm64" | "$EGREP" -i -c "(arm|aarch32)")
 IS_ARM64=$(echo "$THIS_MACHINE" | "$EGREP" -i -c "(arm64|aarch64)")
 IS_S390=$(echo "$THIS_MACHINE" | "$EGREP" -i -c "s390")
 IS_X32=0
@@ -163,7 +163,7 @@ if [[ ("$SUN_COMPILER" -eq "0") ]]; then
 	fi
 fi
 
-# Now that the compiler is fixed, set some GCC specific flags
+# Now that the compiler is fixed, determine the compiler version for fixups
 GCC_60_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version (6\.[0-9]|[7-9])')
 GCC_51_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version (5\.[1-9]|[6-9])')
 GCC_48_COMPILER=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version 4\.8')
@@ -500,19 +500,16 @@ if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 		HAVE_ARMV7A=$(echo "$ARM_FEATURES" | "$GREP" -i -c 'neon')
 	fi
 
-	rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
 	if [[ (-z "$HAVE_ARM_NEON") ]]; then
 		HAVE_ARM_NEON=$(echo "$ARM_FEATURES" | "$GREP" -i -c 'neon')
 	fi
 
-	rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
 	if [[ (-z "$HAVE_ARM_CRYPTO") ]]; then
 		HAVE_ARM_CRYPTO=$(echo "$ARM_FEATURES" | "$EGREP" -i -c '(aes|pmull|sha1|sha2)')
 	fi
 
-	rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
 	if [[ (-z "$HAVE_ARM_CRC") ]]; then
-		HAVE_ARM_CRC=$(echo "$ARM_FEATURES" | "$GREP" -i -c "crc32")
+		HAVE_ARM_CRC=$(echo "$ARM_FEATURES" | "$GREP" -i -c 'crc32')
 	fi
 fi
 
@@ -649,7 +646,7 @@ fi
 # Tools available for testing
 echo | tee -a "$TEST_RESULTS"
 echo "HAVE_ASAN: $HAVE_ASAN" | tee -a "$TEST_RESULTS"
-if [[ (! -z "$ASAN_SYMBOLIZE") ]]; then echo "ASAN_SYMBOLIZE: $ASAN_SYMBOLIZE" | tee -a "$TEST_RESULTS"; fi
+if [[ ("$HAVE_ASAN" -ne "0") && (! -z "$ASAN_SYMBOLIZE") ]]; then echo "ASAN_SYMBOLIZE: $ASAN_SYMBOLIZE" | tee -a "$TEST_RESULTS"; fi
 echo "HAVE_UBSAN: $HAVE_UBSAN" | tee -a "$TEST_RESULTS"
 echo "HAVE_VALGRIND: $HAVE_VALGRIND" | tee -a "$TEST_RESULTS"
 
@@ -728,9 +725,9 @@ fi
 FILTERED_CXXFLAGS=("-DDEBUG" "-DNDEBUG" "-g" "-g0" "-g1" "-g2" "-g3" "-O0" "-O1" "-O2" "-O3" "-O4" "-O5" "-Os" "-Og"
                    "-Ofast" "-xO0" "-xO1" "-xO2" "-xO3" "-xO4" "-xO5" "-std=c++03" "-std=c++11" "-std=c++14" "-std=c++17"
                    "-m32" "-m64" "-mx32" "-maes" "-mrdrand" "-mrdrnd" "-mrdseed" "-mpclmul" "-Wa,-q" "-mfpu=neon"
-                   "-march=armv7a" "-Wall" "-Wextra" "-Wconversion" "-Wcast-align" "-Wformat-security" "-Wtrampolines"
-                   "-DCRYPTOPP_DISABLE_ASM" "-DCRYPTOPP_DISABLE_SSSE3" "-DCRYPTOPP_DISABLE_AESNI"
-                   "-fsanitize=address" "-fsanitize=undefined" "-march=armv8-a+crypto" "-march=armv8-a+crc"
+                   "-march=armv7-a" "-Wall" "-Wextra" "-Wconversion" "-Wcast-align" "-Wformat-security" "-Wtrampolines"
+                   "-DCRYPTOPP_DISABLE_ASM" "-DCRYPTOPP_DISABLE_SSSE3" "-DCRYPTOPP_DISABLE_AESNI" "-fsanitize=address"
+                   "-fsanitize=undefined" "-march=armv8-a+crypto" "-march=armv8-a+crc" "-march=armv8-a+crc+crypto"
                    "-DDCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562" "-DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS")
 
 # Additional CXXFLAGS we did not filter
@@ -804,7 +801,7 @@ fi
 # Add to exercise ARMv7a and NEON more thoroughly
 if [[ ("$IS_ARM32" -ne "0") ]]; then
 	if [[ ("$HAVE_ARMV7A" -ne "0") ]]; then
-		PLATFORM_CXXFLAGS+=("-march=armv7a ")
+		PLATFORM_CXXFLAGS+=("-march=armv7-a ")
 	fi
 
 	if [[ ("$HAVE_ARM_NEON" -ne "0") ]]; then
@@ -862,8 +859,9 @@ echo | tee -a "$TEST_RESULTS"
 echo "DEBUG_CXXFLAGS: $DEBUG_CXXFLAGS" | tee -a "$TEST_RESULTS"
 echo "RELEASE_CXXFLAGS: $RELEASE_CXXFLAGS" | tee -a "$TEST_RESULTS"
 echo "VALGRIND_CXXFLAGS: $VALGRIND_CXXFLAGS" | tee -a "$TEST_RESULTS"
-if [[ ("${#PLATFORM_CXXFLAGS[@]}" -ne "0") ]]; then echo "PLATFORM_CXXFLAGS: ${PLATFORM_CXXFLAGS[@]}"; fi
-# echo "ELEVATED_CXXFLAGS: ${ELEVATED_CXXFLAGS[@]}" | tee -a "$TEST_RESULTS"
+if [[ ("${#PLATFORM_CXXFLAGS[@]}" -ne "0") ]]; then
+	echo "PLATFORM_CXXFLAGS: ${PLATFORM_CXXFLAGS[@]}" | tee -a "$TEST_RESULTS"
+fi
 
 #############################################
 #############################################
