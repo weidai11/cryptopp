@@ -77,9 +77,16 @@ being unloaded from L1 cache, until that round is finished.
 
 NAMESPACE_BEGIN(CryptoPP)
 
-// Hack for https://github.com/weidai11/cryptopp/issues/42 and https://github.com/weidai11/cryptopp/issues/132
+// Hack for http://github.com/weidai11/cryptopp/issues/42 and http://github.com/weidai11/cryptopp/issues/132
 #if (CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS)
 # define CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS 1
+#endif
+
+// Hack for SunCC, http://github.com/weidai11/cryptopp/issues/224
+#if defined(__SUNPRO_CC >= 5130)
+# define MAYBE_CONST
+#else
+# define MAYBE_CONST const
 #endif
 
 #if defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS) || defined(CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS)
@@ -1035,7 +1042,7 @@ static inline bool AliasedWithTable(const byte *begin, const byte *end)
 
 #if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
 
-inline void AESNI_Enc_Block(__m128i &block, const __m128i *subkeys, unsigned int rounds)
+inline void AESNI_Enc_Block(__m128i &block, MAYBE_CONST __m128i *subkeys, unsigned int rounds)
 {
 	block = _mm_xor_si128(block, subkeys[0]);
 	for (unsigned int i=1; i<rounds-1; i+=2)
@@ -1047,7 +1054,7 @@ inline void AESNI_Enc_Block(__m128i &block, const __m128i *subkeys, unsigned int
 	block = _mm_aesenclast_si128(block, subkeys[rounds]);
 }
 
-inline void AESNI_Enc_4_Blocks(__m128i &block0, __m128i &block1, __m128i &block2, __m128i &block3, const __m128i *subkeys, unsigned int rounds)
+inline void AESNI_Enc_4_Blocks(__m128i &block0, __m128i &block1, __m128i &block2, __m128i &block3, MAYBE_CONST __m128i *subkeys, unsigned int rounds)
 {
 	__m128i rk = subkeys[0];
 	block0 = _mm_xor_si128(block0, rk);
@@ -1069,7 +1076,7 @@ inline void AESNI_Enc_4_Blocks(__m128i &block0, __m128i &block1, __m128i &block2
 	block3 = _mm_aesenclast_si128(block3, rk);
 }
 
-inline void AESNI_Dec_Block(__m128i &block, const __m128i *subkeys, unsigned int rounds)
+inline void AESNI_Dec_Block(__m128i &block, MAYBE_CONST __m128i *subkeys, unsigned int rounds)
 {
 	block = _mm_xor_si128(block, subkeys[0]);
 	for (unsigned int i=1; i<rounds-1; i+=2)
@@ -1081,7 +1088,7 @@ inline void AESNI_Dec_Block(__m128i &block, const __m128i *subkeys, unsigned int
 	block = _mm_aesdeclast_si128(block, subkeys[rounds]);
 }
 
-inline void AESNI_Dec_4_Blocks(__m128i &block0, __m128i &block1, __m128i &block2, __m128i &block3, const __m128i *subkeys, unsigned int rounds)
+inline void AESNI_Dec_4_Blocks(__m128i &block0, __m128i &block1, __m128i &block2, __m128i &block3, MAYBE_CONST __m128i *subkeys, unsigned int rounds)
 {
 	__m128i rk = subkeys[0];
 	block0 = _mm_xor_si128(block0, rk);
@@ -1107,7 +1114,7 @@ CRYPTOPP_ALIGN_DATA(16)
 static const word32 s_one[] = {0, 0, 0, 1<<24};
 
 template <typename F1, typename F4>
-inline size_t AESNI_AdvancedProcessBlocks(F1 func1, F4 func4, const __m128i *subkeys, unsigned int rounds, const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
+inline size_t AESNI_AdvancedProcessBlocks(F1 func1, F4 func4, MAYBE_CONST __m128i *subkeys, unsigned int rounds, const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
 	size_t blockSize = 16;
 	size_t inIncrement = (flags & (BlockTransformation::BT_InBlockIsCounter|BlockTransformation::BT_DontIncrementInOutPointers)) ? 0 : blockSize;
@@ -1219,7 +1226,7 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 {
 #if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
 	if (HasAESNI())
-		return AESNI_AdvancedProcessBlocks(AESNI_Enc_Block, AESNI_Enc_4_Blocks, (const __m128i *)(const void *)m_key.begin(), m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+		return AESNI_AdvancedProcessBlocks(AESNI_Enc_Block, AESNI_Enc_4_Blocks, (MAYBE_CONST __m128i *)(const void *)m_key.begin(), m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 #endif
 
 #if (CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
@@ -1242,7 +1249,7 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 
 		do {
 #if (CRYPTOPP_MSC_VERSION >= 1400)
-			// https://msdn.microsoft.com/en-us/library/5471dc8s.aspx
+			// http://msdn.microsoft.com/en-us/library/5471dc8s.aspx
 			space = (byte *)_malloca(255+sizeof(Locals));
 			space += (256-(size_t)space%256)%256;
 #else
@@ -1298,7 +1305,7 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 size_t Rijndael::Dec::AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const
 {
 	if (HasAESNI())
-		return AESNI_AdvancedProcessBlocks(AESNI_Dec_Block, AESNI_Dec_4_Blocks, (const __m128i *)(const void *)m_key.begin(), m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+		return AESNI_AdvancedProcessBlocks(AESNI_Dec_Block, AESNI_Dec_4_Blocks, (MAYBE_CONST __m128i *)(const void *)m_key.begin(), m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 
 	return BlockTransformation::AdvancedProcessBlocks(inBlocks, xorBlocks, outBlocks, length, flags);
 }
