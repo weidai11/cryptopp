@@ -425,6 +425,21 @@ inline void memmove_s(void *dest, size_t sizeInBytes, const void *src, size_t co
 
 #endif // __STDC_WANT_SECURE_LIB__
 
+//! \brief Swaps two variables which are arrays
+//! \param a the first value
+//! \param b the second value
+//! \details C++03 does not provide support for <tt>std::swap(__m128i a, __m128i b)</tt>
+//!   because <tt>__m128i</tt> is an <tt>unsigned long long[2]</tt>. Most compilers
+//!   support it out of the box, but Sun Studio C++ compilers 12.2 and 12.3 do not.
+//! \sa <A HREF="http://stackoverflow.com/q/38417413">How to swap two __m128i variables
+//!   in C++03 given its an opaque type and an array?</A> on Stack Overflow.
+template <class T>
+inline void vec_swap(T& a, T& b)
+{
+	T t;
+	t=a, a=b, b=t;
+}
+
 //! \brief Memory block initializer and eraser that attempts to survive optimizations
 //! \param ptr pointer to the memory block being written
 //! \param value the integer value to write for each byte
