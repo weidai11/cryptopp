@@ -423,7 +423,11 @@ inline void memmove_s(void *dest, size_t sizeInBytes, const void *src, size_t co
 # define memmove_s CryptoPP::memmove_s
 #endif
 
+#endif // __STDC_WANT_SECURE_LIB__
+
 //! \brief Swaps two variables which are arrays
+//! \param a the first value
+//! \param b the second value
 //! \details C++03 does not provide support for <tt>std::swap(__m128i a, __m128i b)</tt>
 //!   because <tt>__m128i</tt> is an <tt>unsigned long long[2]</tt>. Most compilers
 //!   support it out of the box, but Sun Studio C++ compilers 12.2 and 12.3 do not.
@@ -435,8 +439,6 @@ inline void vec_swap(T& a, T& b)
 	T t;
 	t=a, a=b, b=t;
 }
-
-#endif // __STDC_WANT_SECURE_LIB__
 
 //! \brief Memory block initializer and eraser that attempts to survive optimizations
 //! \param ptr pointer to the memory block being written
