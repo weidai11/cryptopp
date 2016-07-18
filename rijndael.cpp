@@ -275,11 +275,9 @@ void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keylen, c
 			unsigned int i, j;
 
 #if defined(__SUNPRO_CC) && (__SUNPRO_CC <= 0x5120)
-			// __m128i is an unsigned long long[2], and support for swapping it was not formally added until C++11.
+			// __m128i is an unsigned long long[2], and support for swapping it was not added until C++11.
 			// SunCC 12.1 - 12.3 fail to consume the swap; while SunCC 12.4 consumes it without -std=c++11.
-			__m128i t = *(__m128i *)(rk);
-			*(__m128i *)(rk) = *(__m128i *)(rk+4*m_rounds);
-			*(__m128i *)(rk+4*m_rounds) = t;
+			vec_swap(*(__m128i *)(rk), *(__m128i *)(rk+4*m_rounds));
 #else
 			std::swap(*(__m128i *)(void *)(rk), *(__m128i *)(void *)(rk+4*m_rounds));
 #endif
