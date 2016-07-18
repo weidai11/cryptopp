@@ -405,6 +405,8 @@ NAMESPACE_END
 # pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 
+// You may need to force include a C++ header on Android when using STLPort to ensure
+// _STLPORT_VERSION is defined: CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 -include iosfwd"
 // TODO: Figure out C++17 and lack of std::uncaught_exception
 #if (defined(_MSC_VER) && _MSC_VER <= 1300) || defined(__MWERKS__) || (defined(_STLPORT_VERSION) && ((_STLPORT_VERSION < 0x450) || defined(_STLP_NO_UNCAUGHT_EXCEPT_SUPPORT)))
 #define CRYPTOPP_DISABLE_UNCAUGHT_EXCEPTION
@@ -756,7 +758,7 @@ NAMESPACE_END
 // Intel and C++11 language features, http://software.intel.com/en-us/articles/c0x-features-supported-by-intel-c-compiler
 // GCC and C++11 language features, http://gcc.gnu.org/projects/cxx0x.html
 // Clang and C++11 language features, http://clang.llvm.org/cxx_status.html
-#if (_MSC_VER >= 1600) || (__cplusplus >= 201103L)
+#if ((_MSC_VER >= 1600) || (__cplusplus >= 201103L)) && !defined(_STLPORT_VERSION)
 # define CRYPTOPP_CXX11 1
 #endif
 

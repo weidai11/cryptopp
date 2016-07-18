@@ -756,7 +756,7 @@ NAMESPACE_END
 // Intel and C++11 language features, http://software.intel.com/en-us/articles/c0x-features-supported-by-intel-c-compiler
 // GCC and C++11 language features, http://gcc.gnu.org/projects/cxx0x.html
 // Clang and C++11 language features, http://clang.llvm.org/cxx_status.html
-#if (_MSC_VER >= 1600) || (__cplusplus >= 201103L)
+#if ((_MSC_VER >= 1600) || (__cplusplus >= 201103L)) && !defined(_STLPORT_VERSION)
 # define CRYPTOPP_CXX11 1
 #endif
 
