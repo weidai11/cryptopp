@@ -862,12 +862,6 @@ NAMESPACE_END
 
 #endif // CRYPTOPP_CXX11
 
-// Hack... CRYPTOPP_ALIGN_DATA is defined earlier, before C++11 alignas available
-#if defined(CRYPTOPP_CXX11_ALIGNAS)
-# undef CRYPTOPP_ALIGN_DATA
-# define CRYPTOPP_ALIGN_DATA(x) alignas(x)
-#endif  // CRYPTOPP_CXX11_ALIGNAS
-
 #if defined(CRYPTOPP_CXX11_NOEXCEPT)
 #  define CRYPTOPP_THROW noexcept(false)
 #  define CRYPTOPP_NO_THROW noexcept(true)
