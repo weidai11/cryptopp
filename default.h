@@ -103,7 +103,7 @@ private:
 //!   bits from the password. The class also uses 2-key TripleDES (DES_EDE2) for encryption, which only
 //!   provides about 80-bits of security.
 //! \details The purpose of the function Mash() is to take an arbitrary length input string and
-//!   *deterministicly* produce an arbitrary length output string such that (1) it looks random,
+//!   *deterministically* produce an arbitrary length output string such that (1) it looks random,
 //!   (2) no information about the input is deducible from it, and (3) it contains as much entropy
 //!   as it can hold, or the amount of entropy in the input string, whichever is smaller.
 class DefaultEncryptorWithMAC : public ProxyFilter
@@ -135,7 +135,7 @@ private:
 //!   bits from the password. The class also uses 2-key TripleDES (DES_EDE2) for encryption, which only
 //!   provides about 80-bits of security.
 //! \details The purpose of the function Mash() is to take an arbitrary length input string and
-//!   *deterministicly* produce an arbitrary length output string such that (1) it looks random,
+//!   *deterministically* produce an arbitrary length output string such that (1) it looks random,
 //!   (2) no information about the input is deducible from it, and (3) it contains as much entropy
 //!   as it can hold, or the amount of entropy in the input string, whichever is smaller.
 class DefaultDecryptorWithMAC : public ProxyFilter
