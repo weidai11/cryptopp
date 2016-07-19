@@ -48,13 +48,7 @@ private:
 	SecByteBlock m_passphrase;
 	CBC_Mode<DefaultBlockCipher>::Encryption m_cipher;
 
-#if (CRYPTOPP_GCC_VERSION >= 40500) || (CRYPTOPP_LLVM_CLANG_VERSION >= 20800)
-} __attribute__((deprecated ("DefaultEncryptor will be changing in the near future because the algorithms are no longer secure")));
-#elif (CRYPTOPP_GCC_VERSION)
-} __attribute__((deprecated));
-#else
-};
-#endif
+} CRYPTOPP_DEPRECATED ("DefaultEncryptor will be changing in the near future because the algorithms are no longer secure");
 
 //! \class DefaultDecryptor
 //! \brief Password-Based Decryptor using TripleDES
@@ -101,13 +95,7 @@ private:
 	member_ptr<FilterWithBufferedInput> m_decryptor;
 	bool m_throwException;
 
-#if (CRYPTOPP_GCC_VERSION >= 40500) || (CRYPTOPP_LLVM_CLANG_VERSION >= 20800)
-} __attribute__((deprecated ("DefaultDecryptor will be changing in the near future because the algorithms are no longer secure")));
-#elif (CRYPTOPP_GCC_VERSION)
-} __attribute__((deprecated));
-#else
-};
-#endif
+} CRYPTOPP_DEPRECATED ("DefaultDecryptor will be changing in the near future because the algorithms are no longer secure");
 
 //! \class DefaultEncryptorWithMAC
 //! \brief Password-Based encryptor using TripleDES and HMAC/SHA-1
@@ -115,7 +103,7 @@ private:
 //!   bits from the password. The class also uses 2-key TripleDES (DES_EDE2) for encryption, which only
 //!   provides about 80-bits of security.
 //! \details The purpose of the function Mash() is to take an arbitrary length input string and
-//!   *deterministicly* produce an arbitrary length output string such that (1) it looks random,
+//!   *deterministically* produce an arbitrary length output string such that (1) it looks random,
 //!   (2) no information about the input is deducible from it, and (3) it contains as much entropy
 //!   as it can hold, or the amount of entropy in the input string, whichever is smaller.
 class DefaultEncryptorWithMAC : public ProxyFilter
@@ -139,13 +127,7 @@ protected:
 private:
 	member_ptr<DefaultMAC> m_mac;
 
-#if (CRYPTOPP_GCC_VERSION >= 40500) || (CRYPTOPP_LLVM_CLANG_VERSION >= 20800)
-} __attribute__((deprecated ("DefaultEncryptorWithMAC will be changing in the near future because the algorithms are no longer secure")));
-#elif (CRYPTOPP_GCC_VERSION)
-} __attribute__((deprecated));
-#else
-};
-#endif
+} CRYPTOPP_DEPRECATED ("DefaultEncryptorWithMAC will be changing in the near future because the algorithms are no longer secure");
 
 //! \class DefaultDecryptorWithMAC
 //! \brief Password-Based decryptor using TripleDES and HMAC/SHA-1
@@ -153,7 +135,7 @@ private:
 //!   bits from the password. The class also uses 2-key TripleDES (DES_EDE2) for encryption, which only
 //!   provides about 80-bits of security.
 //! \details The purpose of the function Mash() is to take an arbitrary length input string and
-//!   *deterministicly* produce an arbitrary length output string such that (1) it looks random,
+//!   *deterministically* produce an arbitrary length output string such that (1) it looks random,
 //!   (2) no information about the input is deducible from it, and (3) it contains as much entropy
 //!   as it can hold, or the amount of entropy in the input string, whichever is smaller.
 class DefaultDecryptorWithMAC : public ProxyFilter
@@ -188,13 +170,7 @@ private:
 	HashVerifier *m_hashVerifier;
 	bool m_throwException;
 
-#if (CRYPTOPP_GCC_VERSION >= 40500) || (CRYPTOPP_LLVM_CLANG_VERSION >= 20800)
-} __attribute__((deprecated ("DefaultDecryptorWithMAC will be changing in the near future because the algorithms are no longer secure")));
-#elif (CRYPTOPP_GCC_VERSION)
-} __attribute__((deprecated));
-#else
-};
-#endif
+} CRYPTOPP_DEPRECATED ("DefaultDecryptorWithMAC will be changing in the near future because the algorithms are no longer secure");
 
 NAMESPACE_END
 

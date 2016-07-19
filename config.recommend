@@ -405,6 +405,8 @@ NAMESPACE_END
 # pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 
+// You may need to force include a C++ header on Android when using STLPort to ensure
+// _STLPORT_VERSION is defined: CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 -include iosfwd"
 // TODO: Figure out C++17 and lack of std::uncaught_exception
 #if (defined(_MSC_VER) && _MSC_VER <= 1300) || defined(__MWERKS__) || (defined(_STLPORT_VERSION) && ((_STLPORT_VERSION < 0x450) || defined(_STLP_NO_UNCAUGHT_EXCEPT_SUPPORT)))
 #define CRYPTOPP_DISABLE_UNCAUGHT_EXCEPTION
@@ -777,7 +779,7 @@ NAMESPACE_END
 // atomics: MS at VS2012 (17.00); GCC at 4.4; Clang at 3.1/3.2; Intel 13.0; SunCC 12.5.
 #if (CRYPTOPP_MSC_VERSION >= 1700)
 #  define CRYPTOPP_CXX11_ATOMICS 1
-#elif defined(__INTEL_COMPILER) && (__INTEL_COMPILER >= 1300)
+#elif (__INTEL_COMPILER >= 1300)
 #  define CRYPTOPP_CXX11_ATOMICS 1
 #elif defined(__clang__)
 #  if __has_feature(cxx_atomic)
@@ -793,7 +795,7 @@ NAMESPACE_END
 // TODO: verify Clang and Intel versions; find __has_feature(x) extension for Clang
 #if (CRYPTOPP_MSC_VERSION >= 1700)
 #  define CRYPTOPP_CXX11_SYNCHRONIZATION 1
-#elif defined(__INTEL_COMPILER) && (__INTEL_COMPILER >= 1200)
+#elif (__INTEL_COMPILER >= 1200)
 #  define CRYPTOPP_CXX11_SYNCHRONIZATION 1
 #elif (CRYPTOPP_LLVM_CLANG_VERSION >= 30300) || (CRYPTOPP_APPLE_CLANG_VERSION >= 50000)
 #  define CRYPTOPP_CXX11_SYNCHRONIZATION 1
@@ -807,7 +809,7 @@ NAMESPACE_END
 #if (CRYPTOPP_MSC_VERSION >= 1900)
 #  define CRYPTOPP_CXX11_ALIGNAS 1
 #  define CRYPTOPP_CXX11_ALIGNOF 1
-#elif defined(__INTEL_COMPILER) && (__INTEL_COMPILER >= 1500)
+#elif (__INTEL_COMPILER >= 1500)
 #  define CRYPTOPP_CXX11_ALIGNAS 1
 #  define CRYPTOPP_CXX11_ALIGNOF 1
 #elif defined(__clang__)
@@ -828,7 +830,7 @@ NAMESPACE_END
 // noexcept: MS at VS2015 (19.00); GCC at 4.6; Clang at 3.0; Intel 14.0; SunCC 12.4.
 #if (CRYPTOPP_MSC_VERSION >= 1900)
 #  define CRYPTOPP_CXX11_NOEXCEPT 1
-#elif defined(__INTEL_COMPILER) && (__INTEL_COMPILER >= 1400)
+#elif (__INTEL_COMPILER >= 1400)
 #  define CRYPTOPP_CXX11_NOEXCEPT 1
 #elif defined(__clang__)
 #  if __has_feature(cxx_noexcept)
@@ -843,7 +845,7 @@ NAMESPACE_END
 // variadic templates: MS at VS2013 (18.00); GCC at 4.3; Clang at 2.9; Intel 12.1; SunCC 12.4.
 #if (CRYPTOPP_MSC_VERSION >= 1800)
 #  define CRYPTOPP_CXX11_VARIADIC_TEMPLATES 1
-#elif defined(__INTEL_COMPILER) && (__INTEL_COMPILER >= 1210)
+#elif (__INTEL_COMPILER >= 1210)
 #  define CRYPTOPP_CXX11_VARIADIC_TEMPLATES 1
 #elif defined(__clang__)
 #  if __has_feature(cxx_variadic_templates)
@@ -859,12 +861,6 @@ NAMESPACE_END
 // Needed because we are catching warnings with GCC and MSC
 
 #endif // CRYPTOPP_CXX11
-
-// Hack... CRYPTOPP_ALIGN_DATA is defined earlier, before C++11 alignas available
-#if defined(CRYPTOPP_CXX11_ALIGNAS)
-# undef CRYPTOPP_ALIGN_DATA
-# define CRYPTOPP_ALIGN_DATA(x) alignas(x)
-#endif  // CRYPTOPP_CXX11_ALIGNAS
 
 #if defined(CRYPTOPP_CXX11_NOEXCEPT)
 #  define CRYPTOPP_THROW noexcept(false)
