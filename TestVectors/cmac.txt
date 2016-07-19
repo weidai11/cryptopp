@@ -2,7 +2,7 @@ AlgorithmType: MAC
 Name: CMAC(AES)
 Source: RFC 4493
 Key: 2b7e1516 28aed2a6 abf71588 09cf4f3c
-Message: 
+Message:
 MAC:     bb1d6929 e9593728 7fa37d12 9b756746
 Test: Verify
 Message: 6bc1bee2 2e409f96 e93d7e11 7393172a
@@ -21,7 +21,7 @@ AlgorithmType: MAC
 Name: CMAC(DES-EDE3)
 Source: http://csrc.nist.gov/groups/STM/cavp/documents/mac/cmactestvectors.zip
 Key: f8fba7b9b3e9d68a 2f70bfd304d32a15 9e13453e0d16928a
-Message: 
+Message:
 MAC: eb61515b
 Test: VerifyTruncated
 Key: 344a6732dc5e5431 e98a4f7c323dc1c4 6b0275dc150e68e9
