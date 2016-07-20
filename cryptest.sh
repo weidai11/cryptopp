@@ -2212,7 +2212,7 @@ if [[ "$HAVE_OFAST" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="-DDEBUG $OPT_OFAST ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="-DDEBUG $OPT_OFAST -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2238,7 +2238,7 @@ if [[ "$HAVE_OFAST" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="-DNDEBUG $OPT_OFAST ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="-DNDEBUG $OPT_OFAST -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
