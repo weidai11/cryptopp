@@ -510,6 +510,14 @@ if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 		HAVE_ARMV7A=$(echo "$ARM_FEATURES" | "$GREP" -i -c 'neon')
 	fi
 
+	if [[ (-z "$HAVE_ARM_VFPV3") ]]; then
+		HAVE_ARM_VFPV3=$(echo "$ARM_FEATURES" | "$GREP" -i -c 'vfpv3')
+	fi
+
+	if [[ (-z "$HAVE_ARM_VFPV4") ]]; then
+		HAVE_ARM_VFPV4=$(echo "$ARM_FEATURES" | "$GREP" -i -c 'vfpv4')
+	fi
+
 	if [[ (-z "$HAVE_ARM_NEON") ]]; then
 		HAVE_ARM_NEON=$(echo "$ARM_FEATURES" | "$GREP" -i -c 'neon')
 	fi
@@ -608,6 +616,12 @@ elif [[ "$HAVE_ARMV8A" -ne "0" ]]; then
 fi
 if [[ "$HAVE_ARM_NEON" -ne "0" ]]; then
 	echo "HAVE_ARM_NEON: $HAVE_ARM_NEON" | tee -a "$TEST_RESULTS"
+fi
+if [[ "$HAVE_ARM_VFPV3" -ne "0" ]]; then
+	echo "HAVE_ARM_VFPV3: $HAVE_ARM_VFPV3" | tee -a "$TEST_RESULTS"
+fi
+if [[ "$HAVE_ARM_VFPV4" -ne "0" ]]; then
+	echo "HAVE_ARM_VFPV4: $HAVE_ARM_VFPV4" | tee -a "$TEST_RESULTS"
 fi
 if [[ "$HAVE_ARM_CRC" -ne "0" ]]; then
 	echo "HAVE_ARM_CRC: $HAVE_ARM_CRC" | tee -a "$TEST_RESULTS"
@@ -811,18 +825,26 @@ if [[ "$?" -eq "0" ]]; then
 	DEPRECATED_CXXFLAGS+=("-Wno-deprecated-declarations")
 fi
 
-# Add to exercise ARMv7a and NEON more thoroughly
+# Add to exercise ARMv7, ARMv7-a, VFPU and NEON more thoroughly
 if [[ ("$IS_ARM32" -ne "0") ]]; then
 	if [[ ("$HAVE_ARMV7A" -ne "0") ]]; then
 		PLATFORM_CXXFLAGS+=("-march=armv7-a ")
+	else
+		PLATFORM_CXXFLAGS+=("-march=armv7 ")
 	fi
 
 	if [[ ("$HAVE_ARM_NEON" -ne "0") ]]; then
 		PLATFORM_CXXFLAGS+=("-mfpu=neon ")
+	elif [[ ("$HAVE_ARM_VFPV4" -ne "0") ]]; then
+		PLATFORM_CXXFLAGS+=("-mfpu=vfpv4-d16 ")
+	elif [[ ("$HAVE_ARM_VFPV3" -ne "0") ]]; then
+		PLATFORM_CXXFLAGS+=("-mfpu=vfpv3-d16 ")
+	else
+		PLATFORM_CXXFLAGS+=("-mfpu=vfpv2 ")
 	fi
 fi
 
-# Add to exercise ARMv8 more thoroughly. NEON is baked in under CPU flag asimd.
+# Add to exercise ARMv8 more thoroughly. NEON is baked into the CPU asimd flag.
 if [[ ("$IS_ARM64" -ne "0") ]]; then
 	if [[ ("$HAVE_ARM_CRC" -ne "0" && "$HAVE_ARM_CRYPTO" -ne "0") ]]; then
 		PLATFORM_CXXFLAGS+=("-march=armv8-a+crc+crypto ")
@@ -2671,12 +2693,12 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		SUNCC_CXXFLAGS="${PLATFORM_CXXFLAGS[@]}"
 	fi
 
+	# Sun Studio 12.3 and below workaround, http://github.com/weidai11/cryptopp/issues/228
+	SUNCC_SSE_CXXFLAGS=$(echo "$SUNCC_CXXFLAGS" | "$AWK" '/SSE/' ORS=' ' RS=' ')
+
 	############################################
 	# Sun Studio 12.2
 	if [[ (-e "/opt/solstudio12.2/bin/CC") ]]; then
-
-		# Sun Studio 12.2 and below workaround, http://github.com/weidai11/cryptopp/issues/228
-		SUNCC_122_CXXFLAGS=$(echo "$SUNCC_CXXFLAGS" | "$AWK" '/SSE/' ORS=' ' RS=' ')
 
 		############################################
 		# Debug build
@@ -2688,7 +2710,7 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="-DDEBUG -g -xO0 $SUNCC_122_CXXFLAGS"
+		CXXFLAGS="-DDEBUG -g -xO0 $SUNCC_SSE_CXXFLAGS"
 		CXX=/opt/solstudio12.2/bin/CC CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2714,7 +2736,7 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="-DNDEBUG -g0 -xO2 $SUNCC_122_CXXFLAGS"
+		CXXFLAGS="-DNDEBUG -g0 -xO2 $SUNCC_SSE_CXXFLAGS"
 		CXX=/opt/solstudio12.2/bin/CC CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2745,7 +2767,7 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="-DDEBUG -g3 -xO0 $SUNCC_CXXFLAGS"
+		CXXFLAGS="-DDEBUG -g3 -xO0 $SUNCC_SSE_CXXFLAGS"
 		CXX=/opt/solarisstudio12.3/bin/CC CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2771,7 +2793,7 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="-DNDEBUG -g3 -xO2 $SUNCC_CXXFLAGS"
+		CXXFLAGS="-DNDEBUG -g3 -xO2 $SUNCC_SSE_CXXFLAGS"
 		CXX=/opt/solarisstudio12.3/bin/CC CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
