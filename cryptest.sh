@@ -859,6 +859,15 @@ if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 		elif [[ ("$HAVE_ARM_VFPV3" -ne "0") ]]; then
 			PLATFORM_CXXFLAGS+=("-mfpu=vfpv3-d16 ")
 		fi
+
+		# Soft/Hard floats only apply to 32-bit ARM
+		# http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.faqs/ka16242.html
+		ARM_HARD_FLOAT=$("$CXX" -v 2>&1 | "$GREP" 'Target' | "$EGREP" -i -c '(armhf|gnueabihf)')
+		if [[ ("$ARM_HARD_FLOAT" -ne "0") ]]; then
+			PLATFORM_CXXFLAGS+=("-mfloat-abi=hard ")
+		else
+			PLATFORM_CXXFLAGS+=("-mfloat-abi=softfp ")
+		fi
 	fi
 
 	# Add to exercise ARMv8 more thoroughly. NEON is baked into the CPU asimd flag.
@@ -874,13 +883,6 @@ if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 		if [[ ("$HAVE_ARM_ASIMD" -ne "0") ]]; then
 			PLATFORM_CXXFLAGS+=("-mfpu=neon-fp-armv8 ")
 		fi
-	fi
-
-	ARM_HARD_FLOAT=$("$CXX" -v 2>&1 | "$GREP" 'Target' | "$EGREP" -i -c '(armhf|gnueabihf)')
-	if [[ ("$ARM_HARD_FLOAT" -ne "0") ]]; then
-		PLATFORM_CXXFLAGS+=("-mfloat-abi=hard ")
-	else
-		PLATFORM_CXXFLAGS+=("-mfloat-abi=softfp ")
 	fi
 fi
 
