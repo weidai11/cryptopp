@@ -15,7 +15,7 @@ Test Driver for Crypto++(R) Library, a C++ Class Library of Cryptographic Scheme
 - To digest a file using several hash functions in parallel
 	cryptest m file
 
-- To encrypt and decrypt a string using DES-EDE in CBC mode 
+- To encrypt and decrypt a string using DES-EDE in CBC mode
 	cryptest t
 
 - To encrypt or decrypt a file

@@ -702,7 +702,7 @@ inline unsigned int TrailingZeros(word64 v)
 	// We don't enable for Microsoft because it requires a runtime check.
 	// http://msdn.microsoft.com/en-us/library/hh977023%28v=vs.110%29.aspx
 	assert(v != 0);
-#if defined(__GNUC__) && defined(__BMI__)
+#if defined(__GNUC__) && defined(__BMI__) && defined(__x86_64__)
 	return (unsigned int)_tzcnt_u64(v);
 #elif defined(__GNUC__) && (CRYPTOPP_GCC_VERSION >= 30400)
 	return (unsigned int)__builtin_ctzll(v);
@@ -815,11 +815,13 @@ inline bool IsPowerOf2<word32>(const word32 &value)
 	return value > 0 && _blsr_u32(value) == 0;
 }
 
+# if defined(__x86_64__)
 template <>
 inline bool IsPowerOf2<word64>(const word64 &value)
 {
 	return value > 0 && _blsr_u64(value) == 0;
 }
+# endif
 #endif
 
 //! \brief Tests whether the residue of a value is a power of 2
