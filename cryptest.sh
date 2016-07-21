@@ -177,6 +177,7 @@ fi
 GCC_60_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version (6\.[0-9]|[7-9])')
 GCC_51_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version (5\.[1-9]|[6-9])')
 GCC_48_COMPILER=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version 4\.8')
+GCC_49_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version (4\.9|[5-9]\.[0-9])')
 SUNCC_121_OR_ABOVE=$("$CXX" -V 2>&1 | "$EGREP" -c "CC: (Sun|Studio) .* (5\.1[0-9]|5\.[2-9]|[6-9]\.)")
 
 # Fixup
@@ -510,8 +511,20 @@ if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 		HAVE_ARMV7A=$(echo "$ARM_FEATURES" | "$GREP" -i -c 'neon')
 	fi
 
+	if [[ (-z "$HAVE_ARM_VFPV3") ]]; then
+		HAVE_ARM_VFPV3=$(echo "$ARM_FEATURES" | "$GREP" -i -c 'vfpv3')
+	fi
+
+	if [[ (-z "$HAVE_ARM_VFPV4") ]]; then
+		HAVE_ARM_VFPV4=$(echo "$ARM_FEATURES" | "$GREP" -i -c 'vfpv4')
+	fi
+
 	if [[ (-z "$HAVE_ARM_NEON") ]]; then
 		HAVE_ARM_NEON=$(echo "$ARM_FEATURES" | "$GREP" -i -c 'neon')
+	fi
+
+	if [[ (-z "$HAVE_ARM_ASIMD") ]]; then
+		HAVE_ARM_ASIMD=$(echo "$ARM_FEATURES" | "$GREP" -i -c 'asimd')
 	fi
 
 	if [[ (-z "$HAVE_ARM_CRYPTO") ]]; then
@@ -601,13 +614,24 @@ if [[ "$IS_ARM64" -ne "0" ]]; then
 elif [[ "$IS_ARM32" -ne "0" ]]; then
 	echo "IS_ARM32: $IS_ARM32" | tee -a "$TEST_RESULTS"
 fi
-if [[ "$HAVE_ARMV7A" -ne "0" ]]; then
+if [[ "$HAVE_ARMV7" -ne "0" ]]; then
+	echo "HAVE_ARMV7: $HAVE_ARMV7" | tee -a "$TEST_RESULTS"
+elif [[ "$HAVE_ARMV7A" -ne "0" ]]; then
 	echo "HAVE_ARMV7A: $HAVE_ARMV7A" | tee -a "$TEST_RESULTS"
 elif [[ "$HAVE_ARMV8A" -ne "0" ]]; then
 	echo "HAVE_ARMV8A: $HAVE_ARMV8A" | tee -a "$TEST_RESULTS"
 fi
 if [[ "$HAVE_ARM_NEON" -ne "0" ]]; then
 	echo "HAVE_ARM_NEON: $HAVE_ARM_NEON" | tee -a "$TEST_RESULTS"
+fi
+if [[ "$HAVE_ARM_VFPV3" -ne "0" ]]; then
+	echo "HAVE_ARM_VFPV3: $HAVE_ARM_VFPV3" | tee -a "$TEST_RESULTS"
+fi
+if [[ "$HAVE_ARM_VFPV4" -ne "0" ]]; then
+	echo "HAVE_ARM_VFPV4: $HAVE_ARM_VFPV4" | tee -a "$TEST_RESULTS"
+fi
+if [[ ("$HAVE_ARM_ASIMD" -ne "0") ]]; then
+	echo "HAVE_ARM_ASIMD: $HAVE_ARM_ASIMD" | tee -a "$TEST_RESULTS"
 fi
 if [[ "$HAVE_ARM_CRC" -ne "0" ]]; then
 	echo "HAVE_ARM_CRC: $HAVE_ARM_CRC" | tee -a "$TEST_RESULTS"
@@ -811,25 +835,51 @@ if [[ "$?" -eq "0" ]]; then
 	DEPRECATED_CXXFLAGS+=("-Wno-deprecated-declarations")
 fi
 
-# Add to exercise ARMv7a and NEON more thoroughly
-if [[ ("$IS_ARM32" -ne "0") ]]; then
-	if [[ ("$HAVE_ARMV7A" -ne "0") ]]; then
-		PLATFORM_CXXFLAGS+=("-march=armv7-a ")
+# Please, someone put an end to the madness of determining Features, ABI, hard floats and soft floats...
+if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
+
+	# Add to exercise ARMv7, ARMv7-a, VFPU and NEON more thoroughly
+	if [[ ("$IS_ARM32" -ne "0") ]]; then
+		if [[ ("$HAVE_ARMV7A" -ne "0") ]]; then
+			PLATFORM_CXXFLAGS+=("-march=armv7-a ")
+		else
+			PLATFORM_CXXFLAGS+=("-march=armv7 ")
+		fi
+
+		# http://community.arm.com/groups/tools/blog/2013/04/15/arm-cortex-a-processors-and-gcc-command-lines
+		#  These may need more tuning. If it was easy to get the CPU brand name, like Cortex-A9, then we could
+		#  be fairly certain of the FPU and ABI flags. But we can't easily get a CPU name, so we suffer through it.
+		if [[ ("$HAVE_ARM_NEON" -ne "0" && "$HAVE_ARM_VFPV4" -ne "0") ]]; then
+			PLATFORM_CXXFLAGS+=("-mfpu=neon-vfpv4 ")
+		elif [[ ("$HAVE_ARM_NEON" -ne "0" && "$HAVE_ARM_VFPV3" -ne "0") ]]; then
+			PLATFORM_CXXFLAGS+=("-mfpu=neon-fp16 ")
+		elif [[ ("$HAVE_ARM_NEON" -ne "0") ]]; then
+			PLATFORM_CXXFLAGS+=("-mfpu=neon ")
+		elif [[ ("$HAVE_ARM_VFPV4" -ne "0") ]]; then
+			PLATFORM_CXXFLAGS+=("-mfpu=vfpv4-d16 ")
+		elif [[ ("$HAVE_ARM_VFPV3" -ne "0") ]]; then
+			PLATFORM_CXXFLAGS+=("-mfpu=vfpv3-d16 ")
+		fi
+
+		# Soft/Hard floats only apply to 32-bit ARM
+		# http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.faqs/ka16242.html
+		ARM_HARD_FLOAT=$("$CXX" -v 2>&1 | "$GREP" 'Target' | "$EGREP" -i -c '(armhf|gnueabihf)')
+		if [[ ("$ARM_HARD_FLOAT" -ne "0") ]]; then
+			PLATFORM_CXXFLAGS+=("-mfloat-abi=hard ")
+		else
+			PLATFORM_CXXFLAGS+=("-mfloat-abi=softfp ")
+		fi
 	fi
 
-	if [[ ("$HAVE_ARM_NEON" -ne "0") ]]; then
-		PLATFORM_CXXFLAGS+=("-mfpu=neon ")
-	fi
-fi
-
-# Add to exercise ARMv8 more thoroughly. NEON is baked in under CPU flag asimd.
-if [[ ("$IS_ARM64" -ne "0") ]]; then
-	if [[ ("$HAVE_ARM_CRC" -ne "0" && "$HAVE_ARM_CRYPTO" -ne "0") ]]; then
-		PLATFORM_CXXFLAGS+=("-march=armv8-a+crc+crypto ")
-	elif [[ ("$HAVE_ARM_CRC" -ne "0") ]]; then
-		PLATFORM_CXXFLAGS+=("-march=armv8-a+crc ")
-	elif [[ ("$HAVE_ARM_CRYPTO" -ne "0") ]]; then
-		PLATFORM_CXXFLAGS+=("-march=armv8-a+crypto ")
+	# Add to exercise ARMv8 more thoroughly. NEON is baked into the CPU asimd flag.
+	if [[ ("$IS_ARM64" -ne "0") ]]; then
+		if [[ ("$HAVE_ARM_CRC" -ne "0" && "$HAVE_ARM_CRYPTO" -ne "0") ]]; then
+			PLATFORM_CXXFLAGS+=("-march=armv8-a+crc+crypto ")
+		elif [[ ("$HAVE_ARM_CRC" -ne "0") ]]; then
+			PLATFORM_CXXFLAGS+=("-march=armv8-a+crc ")
+		elif [[ ("$HAVE_ARM_CRYPTO" -ne "0") ]]; then
+			PLATFORM_CXXFLAGS+=("-march=armv8-a+crypto ")
+		fi
 	fi
 fi
 
@@ -2161,7 +2211,7 @@ if [[ "$HAVE_OFAST" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="-DDEBUG $OPT_OFAST ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="-DDEBUG $OPT_OFAST -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2187,7 +2237,7 @@ if [[ "$HAVE_OFAST" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="-DNDEBUG $OPT_OFAST ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="-DNDEBUG $OPT_OFAST -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS ${PLATFORM_CXXFLAGS[@]} ${RETAINED_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2671,12 +2721,12 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		SUNCC_CXXFLAGS="${PLATFORM_CXXFLAGS[@]}"
 	fi
 
+	# Sun Studio 12.3 and below workaround, http://github.com/weidai11/cryptopp/issues/228
+	SUNCC_SSE_CXXFLAGS=$(echo "$SUNCC_CXXFLAGS" | "$AWK" '/SSE/' ORS=' ' RS=' ')
+
 	############################################
 	# Sun Studio 12.2
 	if [[ (-e "/opt/solstudio12.2/bin/CC") ]]; then
-
-		# Sun Studio 12.2 and below workaround, http://github.com/weidai11/cryptopp/issues/228
-		SUNCC_122_CXXFLAGS=$(echo "$SUNCC_CXXFLAGS" | "$AWK" '/SSE/' ORS=' ' RS=' ')
 
 		############################################
 		# Debug build
@@ -2688,7 +2738,7 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="-DDEBUG -g -xO0 $SUNCC_122_CXXFLAGS"
+		CXXFLAGS="-DDEBUG -g -xO0 $SUNCC_SSE_CXXFLAGS"
 		CXX=/opt/solstudio12.2/bin/CC CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2714,7 +2764,7 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="-DNDEBUG -g0 -xO2 $SUNCC_122_CXXFLAGS"
+		CXXFLAGS="-DNDEBUG -g0 -xO2 $SUNCC_SSE_CXXFLAGS"
 		CXX=/opt/solstudio12.2/bin/CC CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2745,7 +2795,7 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="-DDEBUG -g3 -xO0 $SUNCC_CXXFLAGS"
+		CXXFLAGS="-DDEBUG -g3 -xO0 $SUNCC_SSE_CXXFLAGS"
 		CXX=/opt/solarisstudio12.3/bin/CC CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2771,7 +2821,7 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="-DNDEBUG -g3 -xO2 $SUNCC_CXXFLAGS"
+		CXXFLAGS="-DNDEBUG -g3 -xO2 $SUNCC_SSE_CXXFLAGS"
 		CXX=/opt/solarisstudio12.3/bin/CC CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then

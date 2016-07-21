@@ -521,7 +521,7 @@ endif
 distclean: clean
 	-$(RM) adhoc.cpp adhoc.cpp.copied GNUmakefile.deps benchmarks.html cryptest.txt cryptest-*.txt
 	-$(RM) CMakeCache.txt Makefile CTestTestfile.cmake cmake_install.cmake cryptopp-config-version.cmake
-	-$(RM) cryptopp.tgz *.o *.ii *.s *~
+	-$(RM) cryptopp.tgz *.o *.bc *.ii *.s *~
 ifneq ($(wildcard CMakeFiles/),)
 	-$(RM) -r CMakeFiles/
 endif
@@ -745,6 +745,9 @@ endif
 
 %.export.o : %.cpp
 	$(CXX) $(CXXFLAGS) -DCRYPTOPP_EXPORTS -c $< -o $@
+
+%.bc : %.cpp
+	$(CXX) $(CXXFLAGS) -c $<
 
 %.o : %.cpp
 	$(CXX) $(CXXFLAGS) -c $<
