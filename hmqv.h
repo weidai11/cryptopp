@@ -300,7 +300,7 @@ private:
 //! \brief Hashed Menezes-Qu-Vanstone in GF(p)
 //! \details This implementation follows Hugo Krawczyk's <a href="http://eprint.iacr.org/2005/176">HMQV: A High-Performance
 //!   Secure Diffie-Hellman Protocol</a>. Note: this implements HMQV only. HMQV-C with Key Confirmation is not provided.
-typedef HMQV_Domain<DL_GroupParameters_GFP_DefaultSafePrime> HMQV_GFP;
+typedef HMQV_Domain<DL_GroupParameters_GFP_DefaultSafePrime> HMQV;
 
 NAMESPACE_END
 
