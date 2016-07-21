@@ -292,7 +292,7 @@ private:
 //! \details This implementation follows Augustin P. Sarr and Philippe Elbaz–Vincent, and Jean–Claude Bajard's
 //!   <a href="http://eprint.iacr.org/2009/408">A Secure and Efficient Authenticated Diffie-Hellman Protocol</a>.
 //!   Note: this is FHMQV, Protocol 5, from page 11; and not FHMQV-C.
-typedef FHMQV_Domain<DL_GroupParameters_GFP_DefaultSafePrime> FullyHashedMQV;
+typedef FHMQV_Domain<DL_GroupParameters_GFP_DefaultSafePrime> FHMQV;
 
 NAMESPACE_END
 
