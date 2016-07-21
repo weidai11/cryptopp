@@ -880,10 +880,6 @@ if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 		elif [[ ("$HAVE_ARM_CRYPTO" -ne "0") ]]; then
 			PLATFORM_CXXFLAGS+=("-march=armv8-a+crypto ")
 		fi
-
-		if [[ ("$GCC_49_OR_ABOVE" -ne "0" && "$HAVE_ARM_ASIMD" -ne "0") ]]; then
-			PLATFORM_CXXFLAGS+=("-mfpu=neon-fp-armv8 ")
-		fi
 	fi
 fi
 
