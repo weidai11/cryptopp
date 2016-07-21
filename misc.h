@@ -63,20 +63,22 @@
 #if defined(__GNUC__) && defined(__BMI__)
 # include <immintrin.h>
 # if defined(__clang__)
-#ifndef _tzcnt_u32
-#  define _tzcnt_u32(x) __tzcnt_u32(x)
-#endif
-#ifndef _tzcnt_u64
-#  define _tzcnt_u64(x) __tzcnt_u64(x)
-#endif
-#ifndef _blsr_u32
-#  define  _blsr_u32(x)  __blsr_u32(x)
-#endif
-#ifndef _blsr_u64
-#  define  _blsr_u64(x)  __blsr_u64(x)
-#endif
-# endif
-#endif
+#  ifndef _tzcnt_u32
+#   define _tzcnt_u32(x) __tzcnt_u32(x)
+#  endif
+#  ifndef _blsr_u32
+#    define  _blsr_u32(x)  __blsr_u32(x)
+#  endif
+#  ifdef __x86_64__
+#   ifndef _tzcnt_u64
+#    define _tzcnt_u64(x) __tzcnt_u64(x)
+#   endif
+#   ifndef _blsr_u64
+#     define  _blsr_u64(x)  __blsr_u64(x)
+#   endif
+#  endif  // x86_64
+# endif  // Clang
+#endif  // GNUC and BMI
 
 #endif // CRYPTOPP_DOXYGEN_PROCESSING
 
