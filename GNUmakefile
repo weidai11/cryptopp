@@ -141,17 +141,21 @@ else
   endif # X86/X32/X64
 endif
 
-# Aligned access required at -O3 for GCC due to vectorization (circa 08/2008). Expect other compilers to do the same.
+# Aligned access required for -O3 and above due to vectorization
 UNALIGNED_ACCESS := $(shell $(EGREP) -c "^[[:space:]]*//[[:space:]]*\#[[:space:]]*define[[:space:]]*CRYPTOPP_NO_UNALIGNED_DATA_ACCESS" config.h)
-ifeq ($(findstring -O3,$(CXXFLAGS)),-O3)
 ifneq ($(UNALIGNED_ACCESS),0)
-ifeq ($(GCC46_OR_LATER),1)
 ifeq ($(findstring -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS,$(CXXFLAGS)),)
+ifeq ($(findstring -O3,$(CXXFLAGS)),-O3)
 CXXFLAGS += -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS
+endif # -O3
+ifeq ($(findstring -O5,$(CXXFLAGS)),-O5)
+CXXFLAGS += -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS
+endif # -O5
+ifeq ($(findstring -Ofast,$(CXXFLAGS)),-Ofast)
+CXXFLAGS += -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS
+endif # -Ofast
 endif # CRYPTOPP_NO_UNALIGNED_DATA_ACCESS
-endif # GCC 4.6
 endif # UNALIGNED_ACCESS
-endif # Vectorization
 
 ifneq ($(INTEL_COMPILER),0)
 CXXFLAGS += -wd68 -wd186 -wd279 -wd327 -wd161 -wd3180

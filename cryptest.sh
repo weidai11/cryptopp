@@ -572,14 +572,6 @@ if [[ (-z "$HAVE_DISASS") ]]; then
 	fi
 fi
 
-# Fixup... SunCC appears to generate bad code for BLAKE2
-if [[ ("$SUN_COMPILER" -ne "0") ]]; then
-	HAVE_O5=0
-	OPT_O5=
-	HAVE_OFAST=0
-	OPT_OFAST=
-fi
-
 # Fixup... GCC 4.8 ASAN produces false positives under ARM
 if [[ ( ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") && "$GCC_48_COMPILER" -ne "0") ]]; then
 	HAVE_ASAN=0
