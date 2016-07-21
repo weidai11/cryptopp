@@ -751,13 +751,14 @@ fi
 ############################################
 
 # Respect user's preferred flags, but filter the stuff we expliclty test
-FILTERED_CXXFLAGS=("-DDEBUG" "-DNDEBUG" "-g" "-g0" "-g1" "-g2" "-g3" "-O0" "-O1" "-O2" "-O3" "-O4" "-O5" "-Os" "-Og"
-                   "-Ofast" "-xO0" "-xO1" "-xO2" "-xO3" "-xO4" "-xO5" "-std=c++03" "-std=c++11" "-std=c++14" "-std=c++17"
-                   "-m32" "-m64" "-mx32" "-maes" "-mrdrand" "-mrdrnd" "-mrdseed" "-mpclmul" "-Wa,-q" "-mfpu=neon"
-                   "-march=armv7-a" "-Wall" "-Wextra" "-Wconversion" "-Wcast-align" "-Wformat-security" "-Wtrampolines"
-                   "-DCRYPTOPP_DISABLE_ASM" "-DCRYPTOPP_DISABLE_SSSE3" "-DCRYPTOPP_DISABLE_AESNI" "-fsanitize=address"
-                   "-fsanitize=undefined" "-march=armv8-a+crypto" "-march=armv8-a+crc" "-march=armv8-a+crc+crypto"
-                   "-DDCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562" "-DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS")
+FILTERED_CXXFLAGS=("-DDEBUG" "-DNDEBUG" "-g" "-g0" "-g1" "-g2" "-g3" "-O0" "-O1" "-O2" "-O3" "-O4" "-O5" "-Os" "-Og" "-Ofast" "-xO0" "-xO1" "-xO2"
+                   "-xO3" "-xO4" "-xO5" "-std=c++03" "-std=c++11" "-std=c++14" "-std=c++17" "-std=gnu03" "-std=gnu11" "-std=gnu14" "-std=gnu17"
+                   "-m32" "-m64" "-mx32" "-maes" "-mrdrand" "-mrdrnd" "-mrdseed" "-mpclmul" "-mavx" "-mavx2" "-mbmi" "-mbmi2" "-Wa,-q"
+                   "-march=armv6" "-march=armv7" "-march=armv7-a" "-mfpu=neon-vfpv4" "-mfpu=neon-vfpv3" "-mfpu=neon-vfpv4-d16"
+                   "-mfpu=neon-vfpv3-d16" "-mfpu=neon-fp16" "-mfpu=neon" "-march=armv8-a+crypto" "-march=armv8-a+crc" "-march=armv8-a+crc+crypto"
+                   "-fsanitize=address" "-fsanitize=undefined" "-Wall" "-Wextra" "-Wconversion" "-Wcast-align" "-Wformat-security" "-Wtrampolines"
+                   "-DCRYPTOPP_DISABLE_ASM" "-DCRYPTOPP_DISABLE_SSSE3" "-DCRYPTOPP_DISABLE_AESNI" "-DDCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562"
+                   "-DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS")
 
 # Additional CXXFLAGS we did not filter
 RETAINED_CXXFLAGS=("")
@@ -779,12 +780,6 @@ if [[ !(-z "CXXFLAGS") ]]; then
 			RETAINED_CXXFLAGS+=("$flag")
 		fi
 	done
-fi
-
-if [[ !(-z "$CXXFLAGS") || !(-z "$RETAINED_CXXFLAGS") ]]; then
-	echo | tee -a "$TEST_RESULTS"
-	echo "User CXXFLAGS: $CXXFLAGS" | tee -a "$TEST_RESULTS"
-	echo "Retained CXXFLAGS: ${RETAINED_CXXFLAGS[@]}" | tee -a "$TEST_RESULTS"
 fi
 
 ############################################
@@ -916,6 +911,12 @@ echo "RELEASE_CXXFLAGS: $RELEASE_CXXFLAGS" | tee -a "$TEST_RESULTS"
 echo "VALGRIND_CXXFLAGS: $VALGRIND_CXXFLAGS" | tee -a "$TEST_RESULTS"
 if [[ ("${#PLATFORM_CXXFLAGS[@]}" -ne "0") ]]; then
 	echo "PLATFORM_CXXFLAGS: ${PLATFORM_CXXFLAGS[@]}" | tee -a "$TEST_RESULTS"
+fi
+
+if [[ !(-z "$CXXFLAGS") || !(-z "$RETAINED_CXXFLAGS") ]]; then
+	echo | tee -a "$TEST_RESULTS"
+	echo "User CXXFLAGS: $CXXFLAGS" | tee -a "$TEST_RESULTS"
+	echo "Retained CXXFLAGS: ${RETAINED_CXXFLAGS[@]}" | tee -a "$TEST_RESULTS"
 fi
 
 #############################################
