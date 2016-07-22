@@ -519,6 +519,10 @@ if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 		HAVE_ARM_VFPV4=$(echo "$ARM_FEATURES" | "$GREP" -i -c 'vfpv4')
 	fi
 
+	if [[ (-z "$HAVE_ARM_VFPD32") ]]; then
+		HAVE_ARM_VFPD32=$(echo "$ARM_FEATURES" | "$GREP" -i -c 'vfpd32')
+	fi
+
 	if [[ (-z "$HAVE_ARM_NEON") ]]; then
 		HAVE_ARM_NEON=$(echo "$ARM_FEATURES" | "$GREP" -i -c 'neon')
 	fi
@@ -615,6 +619,9 @@ elif [[ "$HAVE_ARMV8A" -ne "0" ]]; then
 fi
 if [[ "$HAVE_ARM_NEON" -ne "0" ]]; then
 	echo "HAVE_ARM_NEON: $HAVE_ARM_NEON" | tee -a "$TEST_RESULTS"
+fi
+if [[ "$HAVE_ARM_VFPD32" -ne "0" ]]; then
+	echo "HAVE_ARM_VFPD32: $HAVE_ARM_VFPD32" | tee -a "$TEST_RESULTS"
 fi
 if [[ "$HAVE_ARM_VFPV3" -ne "0" ]]; then
 	echo "HAVE_ARM_VFPV3: $HAVE_ARM_VFPV3" | tee -a "$TEST_RESULTS"
@@ -836,10 +843,11 @@ if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 		# http://community.arm.com/groups/tools/blog/2013/04/15/arm-cortex-a-processors-and-gcc-command-lines
 		#  These may need more tuning. If it was easy to get the CPU brand name, like Cortex-A9, then we could
 		#  be fairly certain of the FPU and ABI flags. But we can't easily get a CPU name, so we suffer through it.
+		#  Also see http://lists.linaro.org/pipermail/linaro-toolchain/2016-July/005821.html
 		if [[ ("$HAVE_ARM_NEON" -ne "0" && "$HAVE_ARM_VFPV4" -ne "0") ]]; then
 			PLATFORM_CXXFLAGS+=("-mfpu=neon-vfpv4 ")
-		elif [[ ("$HAVE_ARM_NEON" -ne "0" && "$HAVE_ARM_VFPV3" -ne "0") ]]; then
-			PLATFORM_CXXFLAGS+=("-mfpu=neon-fp16 ")
+		elif [[ ("$HAVE_ARM_VFPV3" -ne "0" || "$HAVE_ARM_VFPV4" -ne "0") && "$HAVE_ARM_VFPD32" -ne "0" ]]; then
+			PLATFORM_CXXFLAGS+=("-mfpu=neon ")
 		elif [[ ("$HAVE_ARM_NEON" -ne "0") ]]; then
 			PLATFORM_CXXFLAGS+=("-mfpu=neon ")
 		elif [[ ("$HAVE_ARM_VFPV4" -ne "0") ]]; then
