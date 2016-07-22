@@ -506,37 +506,43 @@ fi
 if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 	ARM_FEATURES=$(cat /proc/cpuinfo 2>&1 | "$AWK" '{IGNORECASE=1}{if ($1 == "Features") print}' | cut -f 2 -d ':')
 
-	if [[  (-z "$HAVE_ARMV7A") ]]; then
-		# NEON is optional on two ARMv7-a cores
+	if [[  (-z "$HAVE_ARMV7A" && "$IS_ARM32" -ne "0") ]]; then
 		HAVE_ARMV7A=$(echo "$ARM_FEATURES" | "$GREP" -i -c 'neon')
+		if [[ ("$HAVE_ARMV7A" -gt "0") ]]; then HAVE_ARMV7A=1; fi
 	fi
 
 	if [[ (-z "$HAVE_ARM_VFPV3") ]]; then
 		HAVE_ARM_VFPV3=$(echo "$ARM_FEATURES" | "$GREP" -i -c 'vfpv3')
+		if [[ ("$HAVE_ARM_VFPV4" -gt "0") ]]; then HAVE_ARM_VFPV4=1; fi
 	fi
 
 	if [[ (-z "$HAVE_ARM_VFPV4") ]]; then
 		HAVE_ARM_VFPV4=$(echo "$ARM_FEATURES" | "$GREP" -i -c 'vfpv4')
+		if [[ ("$HAVE_ARM_VFPV4" -gt "0") ]]; then HAVE_ARM_VFPV4=1; fi
 	fi
 
 	if [[ (-z "$HAVE_ARM_VFPD32") ]]; then
 		HAVE_ARM_VFPD32=$(echo "$ARM_FEATURES" | "$GREP" -i -c 'vfpd32')
+		if [[ ("$HAVE_ARM_VFPD32" -gt "0") ]]; then HAVE_ARM_VFPD32=1; fi
 	fi
 
 	if [[ (-z "$HAVE_ARM_NEON") ]]; then
 		HAVE_ARM_NEON=$(echo "$ARM_FEATURES" | "$GREP" -i -c 'neon')
+		if [[ ("$HAVE_ARM_NEON" -gt "0") ]]; then HAVE_ARM_NEON=1; fi
 	fi
 
-	if [[ (-z "$HAVE_ARM_ASIMD") ]]; then
-		HAVE_ARM_ASIMD=$(echo "$ARM_FEATURES" | "$GREP" -i -c 'asimd')
+	if [[ (-z "$HAVE_ARMV8") ]]; then
+		HAVE_ARMV8="$IS_ARM64"
 	fi
 
 	if [[ (-z "$HAVE_ARM_CRYPTO") ]]; then
 		HAVE_ARM_CRYPTO=$(echo "$ARM_FEATURES" | "$EGREP" -i -c '(aes|pmull|sha1|sha2)')
+		if [[ ("$HAVE_ARM_CRYPTO" -gt "0") ]]; then HAVE_ARM_CRYPTO=1; fi
 	fi
 
 	if [[ (-z "$HAVE_ARM_CRC") ]]; then
 		HAVE_ARM_CRC=$(echo "$ARM_FEATURES" | "$GREP" -i -c 'crc32')
+		if [[ ("$HAVE_ARM_CRC" -gt "0") ]]; then HAVE_ARM_CRC=1; fi
 	fi
 fi
 
@@ -614,6 +620,8 @@ if [[ "$HAVE_ARMV7" -ne "0" ]]; then
 	echo "HAVE_ARMV7: $HAVE_ARMV7" | tee -a "$TEST_RESULTS"
 elif [[ "$HAVE_ARMV7A" -ne "0" ]]; then
 	echo "HAVE_ARMV7A: $HAVE_ARMV7A" | tee -a "$TEST_RESULTS"
+elif [[ "$HAVE_ARMV8" -ne "0" ]]; then
+	echo "HAVE_ARMV8: $HAVE_ARMV8" | tee -a "$TEST_RESULTS"
 elif [[ "$HAVE_ARMV8A" -ne "0" ]]; then
 	echo "HAVE_ARMV8A: $HAVE_ARMV8A" | tee -a "$TEST_RESULTS"
 fi
@@ -628,9 +636,6 @@ if [[ "$HAVE_ARM_VFPV3" -ne "0" ]]; then
 fi
 if [[ "$HAVE_ARM_VFPV4" -ne "0" ]]; then
 	echo "HAVE_ARM_VFPV4: $HAVE_ARM_VFPV4" | tee -a "$TEST_RESULTS"
-fi
-if [[ ("$HAVE_ARM_ASIMD" -ne "0") ]]; then
-	echo "HAVE_ARM_ASIMD: $HAVE_ARM_ASIMD" | tee -a "$TEST_RESULTS"
 fi
 if [[ "$HAVE_ARM_CRC" -ne "0" ]]; then
 	echo "HAVE_ARM_CRC: $HAVE_ARM_CRC" | tee -a "$TEST_RESULTS"
@@ -874,6 +879,8 @@ if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 			PLATFORM_CXXFLAGS+=("-march=armv8-a+crc ")
 		elif [[ ("$HAVE_ARM_CRYPTO" -ne "0") ]]; then
 			PLATFORM_CXXFLAGS+=("-march=armv8-a+crypto ")
+		elif [[ ("$HAVE_ARMV8" -ne "0") ]]; then
+			PLATFORM_CXXFLAGS+=("-march=armv8-a ")
 		fi
 	fi
 fi
