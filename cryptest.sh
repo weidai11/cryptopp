@@ -514,7 +514,7 @@ if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 
 	if [[ (-z "$HAVE_ARM_VFPV3") ]]; then
 		HAVE_ARM_VFPV3=$(echo "$ARM_FEATURES" | "$GREP" -i -c 'vfpv3')
-		if [[ ("$HAVE_ARM_VFPV4" -gt "0") ]]; then HAVE_ARM_VFPV4=1; fi
+		if [[ ("$HAVE_ARM_VFPV3" -gt "0") ]]; then HAVE_ARM_VFPV3=1; fi
 	fi
 
 	if [[ (-z "$HAVE_ARM_VFPV4") ]]; then
@@ -1057,7 +1057,7 @@ if [[ ("${#PLATFORM_CXXFLAGS[@]}" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS ${PLATFORM_CXXFLAGS} ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS ${PLATFORM_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -1086,7 +1086,7 @@ if [[ ("${#PLATFORM_CXXFLAGS[@]}" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS ${PLATFORM_CXXFLAGS} ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS ${PLATFORM_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
