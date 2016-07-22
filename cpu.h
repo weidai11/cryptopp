@@ -39,6 +39,12 @@
 #  include <emmintrin.h>
 # endif
 
+// #if defined(CRYPTOPP_GCC_VERSION) && (CRYPTOPP_GCC_VERSION < 50000)
+// typedef int __v4si __attribute__ ((__vector_size__ (16)));
+// typedef long long __v2di __attribute__ ((__vector_size__ (16)));
+// typedef long long __m128i __attribute__ ((__vector_size__ (16), __may_alias__));
+// #endif
+
 #if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
 
 // GCC 5.3/i686 fails to declare __m128 in the headers we use when compiling with -std=c++11 or -std=c++14.
