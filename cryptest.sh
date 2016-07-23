@@ -522,6 +522,11 @@ if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 		if [[ ("$HAVE_ARM_VFPV4" -gt "0") ]]; then HAVE_ARM_VFPV4=1; fi
 	fi
 
+	if [[ (-z "$HAVE_ARM_VFPV5") ]]; then
+		HAVE_ARM_VFPV5=$(echo "$ARM_FEATURES" | "$GREP" -i -c 'fpv5')
+		if [[ ("$HAVE_ARM_VFPV5" -gt "0") ]]; then HAVE_ARM_VFPV5=1; fi
+	fi
+
 	if [[ (-z "$HAVE_ARM_VFPD32") ]]; then
 		HAVE_ARM_VFPD32=$(echo "$ARM_FEATURES" | "$GREP" -i -c 'vfpd32')
 		if [[ ("$HAVE_ARM_VFPD32" -gt "0") ]]; then HAVE_ARM_VFPD32=1; fi
@@ -859,10 +864,18 @@ if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 		#  Also see http://lists.linaro.org/pipermail/linaro-toolchain/2016-July/005821.html
 		if [[ ("$HAVE_ARM_NEON" -ne "0" && "$HAVE_ARM_VFPV4" -ne "0") ]]; then
 			PLATFORM_CXXFLAGS+=("-mfpu=neon-vfpv4 ")
-		elif [[ ("$HAVE_ARM_VFPV3" -ne "0" || "$HAVE_ARM_VFPV4" -ne "0") && "$HAVE_ARM_VFPD32" -ne "0" ]]; then
-			PLATFORM_CXXFLAGS+=("-mfpu=neon ")
 		elif [[ ("$HAVE_ARM_NEON" -ne "0") ]]; then
 			PLATFORM_CXXFLAGS+=("-mfpu=neon ")
+		elif [[ ("$HAVE_ARM_VFPV3" -ne "0" || "$HAVE_ARM_VFPV4" -ne "0") && "$HAVE_ARM_VFPD32" -ne "0" ]]; then
+			PLATFORM_CXXFLAGS+=("-mfpu=neon ")
+		elif [[ ("$HAVE_ARM_VFPV5" -ne "0" && "$HAVE_ARM_VFPD32" -ne "0") ]]; then
+			PLATFORM_CXXFLAGS+=("-mfpu=fpv5 ")
+		elif [[ ("$HAVE_ARM_VFPV4" -ne "0" && "$HAVE_ARM_VFPD32" -ne "0") ]]; then
+			PLATFORM_CXXFLAGS+=("-mfpu=vfpv4 ")
+		elif [[ ("$HAVE_ARM_VFPV3" -ne "0" && "$HAVE_ARM_VFPD32" -ne "0") ]]; then
+			PLATFORM_CXXFLAGS+=("-mfpu=vfpv3 ")
+		elif [[ ("$HAVE_ARM_VFPV5" -ne "0") ]]; then
+			PLATFORM_CXXFLAGS+=("-mfpu=fpv5-d16 ")
 		elif [[ ("$HAVE_ARM_VFPV4" -ne "0") ]]; then
 			PLATFORM_CXXFLAGS+=("-mfpu=vfpv4-d16 ")
 		elif [[ ("$HAVE_ARM_VFPV3" -ne "0") ]]; then
