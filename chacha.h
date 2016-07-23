@@ -1,6 +1,6 @@
 // chacha.h - written and placed in the public domain by Jeffrey Walton.
 //            Copyright assigned to the Crypto++ project.
-//            Based on Wei Dai's Salsa20 and Bernstein's reference ChaCha 
+//            Based on Wei Dai's Salsa20 and Bernstein's reference ChaCha
 //            family implementation at http://cr.yp.to/chacha.html.
 
 //! \file chacha.h
