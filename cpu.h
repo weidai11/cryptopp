@@ -364,7 +364,7 @@ inline int GetCacheLineSize()
 #elif (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
 
 extern bool g_ArmDetectionDone;
-extern bool g_hasNEON, g_hasCRC32, g_hasAES, g_hasSHA1, g_hasSHA2;
+extern bool g_hasNEON, g_hasPMULL, g_hasCRC32, g_hasAES, g_hasSHA1, g_hasSHA2;
 void CRYPTOPP_API DetectArmFeatures();
 
 //! \brief Determine if an ARM processor has Advanced SIMD available
@@ -378,6 +378,19 @@ inline bool HasNEON()
 	if (!g_ArmDetectionDone)
 		DetectArmFeatures();
 	return g_hasNEON;
+}
+
+//! \brief Determine if an ARM processor provides Polynomial Multiplication (long)
+//! \returns true if the hardware is capable of polynomial multiplications at runtime, false otherwise.
+//! \details The multiplication instructions are available under Aarch64 (ARM-64) and Aarch32 (ARM-32).
+//! \details Runtime support requires compile time support. When compiling with GCC, you may
+//!   need to compile with <tt>-march=armv8-a+crypto</tt>; while Apple requires
+//!   <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRYPTO</tt> preprocessor macro.
+inline bool HasPMULL()
+{
+	if (!g_ArmDetectionDone)
+		DetectArmFeatures();
+	return g_hasPMULL;
 }
 
 //! \brief Determine if an ARM processor has CRC32 available
@@ -485,20 +498,6 @@ inline int GetCacheLineSize()
 #else
 	#define CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
 
-#if defined(CRYPTOPP_LLVM_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION) || defined(CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER)
-	#define NEW_LINE "\n"
-	#define INTEL_PREFIX ".intel_syntax;"
-	#define INTEL_NOPREFIX ".intel_syntax;"
-	#define ATT_PREFIX ".att_syntax;"
-	#define ATT_NOPREFIX ".att_syntax;"
-#else
-	#define NEW_LINE
-	#define INTEL_PREFIX ".intel_syntax prefix;"
-	#define INTEL_NOPREFIX ".intel_syntax noprefix;"
-	#define ATT_PREFIX ".att_syntax prefix;"
-	#define ATT_NOPREFIX ".att_syntax noprefix;"
-#endif
-
 	// define these in two steps to allow arguments to be expanded
 	#define GNU_AS1(x) #x ";" NEW_LINE
 	#define GNU_AS2(x, y) #x ", " #y ";" NEW_LINE
@@ -518,21 +517,6 @@ inline int GetCacheLineSize()
 
 #define IF0(y)
 #define IF1(y) y
-
-// Should be confined to GCC, but its used to help manage Clang 3.4 compiler error.
-//   Also see LLVM Bug 24232, http://llvm.org/bugs/show_bug.cgi?id=24232 .
-#ifndef INTEL_PREFIX
-	#define INTEL_PREFIX
-#endif
-#ifndef INTEL_NOPREFIX
-	#define INTEL_NOPREFIX
-#endif
-#ifndef ATT_PREFIX
-	#define ATT_PREFIX
-#endif
-#ifndef ATT_NOPREFIX
-	#define ATT_NOPREFIX
-#endif
 
 #ifdef CRYPTOPP_GENERATE_X64_MASM
 #define ASM_MOD(x, y) ((x) MOD (y))
@@ -665,6 +649,21 @@ inline int GetCacheLineSize()
 	AS2(	add		outputPtr, increment*16)
 
 #endif  //  X86/X32/X64
+
+// Applies to both X86/X32/X64 and ARM32/ARM64
+#if defined(CRYPTOPP_LLVM_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION) || defined(CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER)
+	#define NEW_LINE "\n"
+	#define INTEL_PREFIX ".intel_syntax;"
+	#define INTEL_NOPREFIX ".intel_syntax;"
+	#define ATT_PREFIX ".att_syntax;"
+	#define ATT_NOPREFIX ".att_syntax;"
+#else
+	#define NEW_LINE
+	#define INTEL_PREFIX ".intel_syntax prefix;"
+	#define INTEL_NOPREFIX ".intel_syntax noprefix;"
+	#define ATT_PREFIX ".att_syntax prefix;"
+	#define ATT_NOPREFIX ".att_syntax noprefix;"
+#endif
 
 NAMESPACE_END
 
