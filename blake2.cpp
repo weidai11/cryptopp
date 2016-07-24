@@ -14,7 +14,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 // Uncomment for benchmarking C++ against SSE2 or NEON
-#undef CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
+// #undef CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
 // #undef CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
 
 // Visual Studio needs both VS2005 (1400) and _M_64 for SSE2 and _mm_set_epi64x()
