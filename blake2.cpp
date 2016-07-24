@@ -45,7 +45,7 @@ inline __m128i _mm_set_epi64x(const uint64_t a, const uint64_t b)
     };
 
     INT_128_64 v;
-    v.v64[0] = a; v.v64[1] = b; 
+    v.v64[0] = b; v.v64[1] = a; 
     return v.v128;
 }
 #endif
