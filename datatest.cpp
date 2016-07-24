@@ -24,7 +24,7 @@
 #endif
 
 #if defined(__COVERITY__)
-extern "C" void __coverity_tainted_data_sanitize__(void *);  
+extern "C" void __coverity_tainted_data_sanitize__(void *);
 #endif
 
 USING_NAMESPACE(CryptoPP)
@@ -113,7 +113,7 @@ void PutDecodedDatumInto(const TestData &data, const char *name, BufferedTransfo
 			repeat = atoi(s1.c_str()+1);
 			s1 = s1.substr(s1.find(' ')+1);
 		}
-		
+
 		s2 = ""; // MSVC 6 doesn't have clear();
 
 		if (s1[0] == '\"')
@@ -184,9 +184,9 @@ public:
 			else
 				return false;
 		}
-		
+
 		const std::string &value = i->second;
-		
+
 		if (valueType == typeid(int))
 			*reinterpret_cast<int *>(pValue) = atoi(value.c_str());
 		else if (valueType == typeid(Integer))
@@ -637,7 +637,7 @@ void TestKeyDerivationFunction(TestData &v)
 		reinterpret_cast<const byte*>(key.data()), key.size(),
 		reinterpret_cast<const byte*>(salt.data()), salt.size(),
 		reinterpret_cast<const byte*>(info.data()), info.size());
-							
+
 	if(calc != derived || ret != length)
 		SignalTestFailure();
 }
