@@ -37,7 +37,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 // Sun Studio 12.3 and earlier lack SSE2's _mm_set_epi64x.
 // Also see http://stackoverflow.com/a/38547909/608639
-#if defined(__SUNPRO_CC) && (__SUNPRO_CC < 0x5130)
+#if defined(__SUNPRO_CC) && (__SUNPRO_CC < 0x5130) && CRYPTOPP_BOOL_SSE2_AVAILABLE
 inline __m128i _mm_set_epi64x(const uint64_t a, const uint64_t b)
 {
     union INT_128_64x2 {
