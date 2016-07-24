@@ -14,7 +14,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 // Uncomment for benchmarking C++ against SSE2 or NEON
-// #undef CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
+#undef CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
 // #undef CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
 
 // Visual Studio needs both VS2005 (1400) and _M_64 for SSE2 and _mm_set_epi64x()
@@ -40,14 +40,14 @@ NAMESPACE_BEGIN(CryptoPP)
 #if defined(__SUNPRO_CC) && (__SUNPRO_CC < 0x5130)
 inline __m128i _mm_set_epi64x(const uint64_t a, const uint64_t b)
 {
-    union INT_128_64 {
+    union INT_128_64x2 {
         __m128i   v128;
         uint64_t  v64[2];
     };
 
-    INT_128_64 v;
-    v.v64[0] = b; v.v64[1] = a; 
-    return *(reinterpret_cast<__m128i*>(v.v64));
+    INT_128_64x2 val;
+    val.v64[0] = b; val.v64[1] = a;
+    return val.v128;
 }
 #endif
 
