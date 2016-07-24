@@ -13,7 +13,8 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-// Uncomment for benchmarking C++ against NEON
+// Uncomment for benchmarking C++ against SSE2 or NEON
+#undef CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
 // #undef CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
 
 // Visual Studio needs both VS2005 (1400) and _M_64 for SSE2 and _mm_set_epi64x()
@@ -34,10 +35,20 @@ NAMESPACE_BEGIN(CryptoPP)
 # undef CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
 #endif
 
-// SunCC needs 12.4 for _mm_set_epi64x, _mm_blend_epi16, _mm_shuffle_epi16, etc
+// Sun Studio 12.3 and earlier lack SSE2's _mm_set_epi64x.
+// Also see http://stackoverflow.com/a/38547909/608639
 #if defined(__SUNPRO_CC) && (__SUNPRO_CC < 0x5130)
-# undef CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
-# undef CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
+inline __m128i _mm_set_epi64x(const uint64_t a, const uint64_t b)
+{
+    union INT_128_64x2 {
+        __m128i   v128;
+        uint64_t  v64[2];
+    };
+
+    INT_128_64x2 val;
+    val.v64[0] = b; val.v64[1] = a;
+    return val.v128;
+}
 #endif
 
 // C/C++ implementation

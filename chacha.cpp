@@ -1,6 +1,6 @@
 // chacha.cpp - written and placed in the public domain by Jeffrey Walton.
 //              Copyright assigned to the Crypto++ project.
-//              Based on Wei Dai's Salsa20 and Bernstein's reference ChaCha 
+//              Based on Wei Dai's Salsa20 and Bernstein's reference ChaCha
 //              family implementation at http://cr.yp.to/chacha.html.
 
 #include "pch.h"
@@ -141,7 +141,7 @@ void ChaCha_Policy<R>::OperateKeystream(KeystreamOperation operation, byte *outp
 #endif
 
 		++m_state[12];
-		m_state[13] += !!(m_state[12] == 0);
+		m_state[13] += static_cast<word32>(m_state[12] == 0);
 	}
 }
 
