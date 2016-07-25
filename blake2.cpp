@@ -14,20 +14,8 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 // Uncomment for benchmarking C++ against SSE2 or NEON
-#undef CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
+// #undef CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
 // #undef CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
-
-// Visual Studio needs both VS2005 (1400) and _M_64 for SSE2 and _mm_set_epi64x()
-//  http://msdn.microsoft.com/en-us/library/y0dh78ez%28v=vs.80%29.aspx
-#if defined(_MSC_VER) && ((_MSC_VER < 1400) || !defined(_M_X64))
-# undef CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
-#endif
-
-// Visual Studio needs VS2008 (1500); no dependency on _mm_set_epi64x()
-//   http://msdn.microsoft.com/en-us/library/bb892950%28v=vs.90%29.aspx
-#if defined(_MSC_VER) && (_MSC_VER < 1500)
-# undef CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
-#endif
 
 // Apple Clang 6.0/Clang 3.5 does not have SSSE3 intrinsics
 //   http://llvm.org/bugs/show_bug.cgi?id=20213
@@ -37,12 +25,12 @@ NAMESPACE_BEGIN(CryptoPP)
 
 // Sun Studio 12.3 and earlier lack SSE2's _mm_set_epi64x.
 // Also see http://stackoverflow.com/a/38547909/608639
-#if defined(__SUNPRO_CC) && (__SUNPRO_CC < 0x5130)
-inline __m128i _mm_set_epi64x(const uint64_t a, const uint64_t b)
+#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE && ((__SUNPRO_CC >= 0x5100 && __SUNPRO_CC < 0x5130) || (_MSC_VER >= 1200 && _MSC_VER < 1600))
+inline __m128i _mm_set_epi64x(const word64 a, const word64 b)
 {
     union INT_128_64x2 {
         __m128i   v128;
-        uint64_t  v64[2];
+        word64  v64[2];
     };
 
     INT_128_64x2 val;

@@ -112,7 +112,6 @@ done
 # Defaults if not set
 if [ -z "$APPLE_SDK" ]; then
 	APPLE_SDK=iPhoneOS
-	IOS_ARCH=armv7
 fi
 
 if [ -z "$IOS_ARCH" ]; then

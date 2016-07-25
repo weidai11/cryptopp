@@ -299,7 +299,7 @@ int CRYPTOPP_API main(int argc, char *argv[])
 #endif
 			if (fname.find(".txt") == std::string::npos)
 				fname = "TestVectors/" + fname + ".txt";
-			
+
 			PrintSeedAndThreads(seed);
 			return !RunTestDataFile(fname.c_str());
 		}
@@ -431,7 +431,7 @@ T StringToValue(const std::string& str) {
 	std::istringstream iss(str);
 	T value;
 	iss >> value;
-	
+
 	// Use fail(), not bad()
 	if (iss.fail())
 		throw InvalidArgument("cryptest.exe: '" + str +"' is not a value");
@@ -441,7 +441,7 @@ T StringToValue(const std::string& str) {
 		throw InvalidArgument("cryptest.exe: '" + str +"' is negative");
 #endif
 
-	return value;	
+	return value;
 }
 
 template<>
@@ -449,11 +449,11 @@ int StringToValue<int, true>(const std::string& str)
 {
 	Integer n(str.c_str());
 	long l = n.ConvertToLong();
-	
+
 	int r;
 	if(!SafeConvert(l, r))
 		throw InvalidArgument("cryptest.exe: '" + str +"' is not an integer value");
-	
+
 	return r;
 }
 
@@ -754,8 +754,8 @@ void GzipFile(const char *in, const char *out, int deflate_level)
 	//	    \       Gunzip
 	//		  \       |
 	//		    \     v
-	//		      > ComparisonFilter 
-			   
+	//		      > ComparisonFilter
+
 	EqualityComparisonFilter comparison;
 
 	Gunzip gunzip(new ChannelSwitch(comparison, "0"));
@@ -815,12 +815,12 @@ void ForwardTcpPort(const char *sourcePortName, const char *destinationHost, con
 
 	sockListen.Create();
 	sockListen.Bind(sourcePort);
-	
+
 	int err = setsockopt(sockListen, IPPROTO_TCP, TCP_NODELAY, "\x01", 1);
 	assert(err == 0);
 	if(err != 0)
 		throw Socket::Err(sockListen, "setsockopt", sockListen.GetLastError());
-	
+
 	cout << "Listing on port " << sourcePort << ".\n";
 	sockListen.Listen();
 
@@ -966,7 +966,7 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 	tm localTime = {};
 	char timeBuf[64];
 	errno_t err;
-	
+
 	const time_t endTime = time(NULL);
 	err = localtime_s(&localTime, &endTime);
 	assert(err == 0);

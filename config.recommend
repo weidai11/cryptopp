@@ -217,6 +217,9 @@ typedef unsigned int word32;
 #if defined(_MSC_VER) || defined(__BORLANDC__)
 	typedef unsigned __int64 word64;
 	#define W64LIT(x) x##ui64
+#elif ((__arm64__ || __aarch64__) && (_LP64 || __LP64__))
+	typedef unsigned long word64;
+	#define W64LIT(x) x##UL
 #else
 	typedef unsigned long long word64;
 	#define W64LIT(x) x##ULL
