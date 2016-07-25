@@ -657,12 +657,18 @@ inline int GetCacheLineSize()
 	#define INTEL_NOPREFIX ".intel_syntax;"
 	#define ATT_PREFIX ".att_syntax;"
 	#define ATT_NOPREFIX ".att_syntax;"
-#else
+#elif defined(__GNUC__)
 	#define NEW_LINE
 	#define INTEL_PREFIX ".intel_syntax prefix;"
 	#define INTEL_NOPREFIX ".intel_syntax noprefix;"
 	#define ATT_PREFIX ".att_syntax prefix;"
 	#define ATT_NOPREFIX ".att_syntax noprefix;"
+#else
+	#define NEW_LINE
+	#define INTEL_PREFIX
+	#define INTEL_NOPREFIX
+	#define ATT_PREFIX
+	#define ATT_NOPREFIX
 #endif
 
 NAMESPACE_END
