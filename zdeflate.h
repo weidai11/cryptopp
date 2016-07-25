@@ -44,12 +44,12 @@ public:
 
 	//! \brief Construct a HuffmanEncoder
 	HuffmanEncoder() {}
-	
+
 	//! \brief Construct a HuffmanEncoder
 	//! \param codeBits a table of code bits
 	//! \param nCodes the number of codes in the table
 	HuffmanEncoder(const unsigned int *codeBits, unsigned int nCodes);
-	
+
 	//! \brief Initialize or reinitialize this object
 	//! \param codeBits a table of code bits
 	//! \param nCodes the number of codes in the table

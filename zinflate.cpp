@@ -1,7 +1,7 @@
 // zinflate.cpp - written and placed in the public domain by Wei Dai
 
 // This is a complete reimplementation of the DEFLATE decompression algorithm.
-// It should not be affected by any security vulnerabilities in the zlib 
+// It should not be affected by any security vulnerabilities in the zlib
 // compression library. In particular it is not affected by the double free bug
 // (http://www.kb.cert.org/vuls/id/368819).
 
@@ -123,7 +123,7 @@ void HuffmanDecoder::Initialize(const unsigned int *codeBits, unsigned int nCode
 	// compute a vector of <code, length, value> triples sorted by code
 	m_codeToValue.resize(nCodes - blCount[0]);
 	unsigned int j=0;
-	for (i=0; i<nCodes; i++) 
+	for (i=0; i<nCodes; i++)
 	{
 		unsigned int len = codeBits[i];
 		if (len != 0)
@@ -265,7 +265,7 @@ void Inflator::OutputString(const byte *string, size_t length)
 		}
 		string += len;
 		length -= len;
-	}		
+	}
 }
 
 void Inflator::OutputPast(unsigned int length, unsigned int distance)
@@ -485,7 +485,7 @@ bool Inflator::DecodeBody()
 			const byte *block = m_inQueue.Spy(size);
 			size = UnsignedMin(m_storedLen, size);
 			assert(size <= 0xffff);
-			
+
 			OutputString(block, size);
 			m_inQueue.Skip(size);
 			m_storedLen = m_storedLen - (word16)size;
