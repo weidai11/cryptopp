@@ -230,6 +230,22 @@ CXXFLAGS += -pipe
 endif
 endif
 
+# Aligned access required for -O3 and above due to vectorization
+UNALIGNED_ACCESS := $(shell $(EGREP) -c "^[[:space:]]*//[[:space:]]*\#[[:space:]]*define[[:space:]]*CRYPTOPP_NO_UNALIGNED_DATA_ACCESS" config.h)
+ifneq ($(UNALIGNED_ACCESS),0)
+ifeq ($(findstring -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS,$(CXXFLAGS)),)
+ifeq ($(findstring -O3,$(CXXFLAGS)),-O3)
+CXXFLAGS += -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS
+endif # -O3
+ifeq ($(findstring -O5,$(CXXFLAGS)),-O5)
+CXXFLAGS += -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS
+endif # -O5
+ifeq ($(findstring -Ofast,$(CXXFLAGS)),-Ofast)
+CXXFLAGS += -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS
+endif # -Ofast
+endif # CRYPTOPP_NO_UNALIGNED_DATA_ACCESS
+endif # UNALIGNED_ACCESS
+
 endif	# IS_X86
 
 ###########################################################
