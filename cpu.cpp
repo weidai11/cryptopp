@@ -439,12 +439,21 @@ static bool TryPMULL()
 	volatile bool result = true;
 	__try
 	{
-		const poly64_t a1={1}, b1={2};
-		const poly64x2_t a2={1}, b2={2};
+		const poly64_t a1={2}, b1={3};
+		const poly64x2_t a2={4,5}, b2={6,7};
+		const poly64x2_t a3={0x8080808080808080,0xa0a0a0a0a0a0a0a0}, b3={0xc0c0c0c0c0c0c0c0, 0xe0e0e0e0e0e0e0e0};
+
 		const poly128_t r1 = vmull_p64(a1, b1);
 		const poly128_t r2 = vmull_high_p64(a2, b2);
+		const poly128_t r3 = vmull_high_p64(a3, b3);
 
-		result = (r1 != r2);
+		// Also see https://github.com/weidai11/cryptopp/issues/233.
+		const uint64x2_t& t1 = vreinterpretq_u64_p128(r1);  // {6,0}
+		const uint64x2_t& t2 = vreinterpretq_u64_p128(r2);  // {24,0}
+		const uint64x2_t& t3 = vreinterpretq_u64_p128(r3);  // {bignum,bignum}
+
+		result = !!(vgetq_lane_u64(t1,0) == 0x06 && vgetq_lane_u64(t1,1) == 0x00 && vgetq_lane_u64(t2,0) == 0x1b &&
+			vgetq_lane_u64(t2,1) == 0x00 &&	vgetq_lane_u64(t3,0) == 0x6c006c006c006c00 && vgetq_lane_u64(t3,1) == 0x6c006c006c006c00);
 	}
 	__except (EXCEPTION_EXECUTE_HANDLER)
 	{
@@ -468,12 +477,21 @@ static bool TryPMULL()
 		result = false;
 	else
 	{
-		const poly64_t a1={1}, b1={2};
-		const poly64x2_t a2={1}, b2={2};
+		const poly64_t a1={2}, b1={3};
+		const poly64x2_t a2={4,5}, b2={6,7};
+		const poly64x2_t a3={0x8080808080808080,0xa0a0a0a0a0a0a0a0}, b3={0xc0c0c0c0c0c0c0c0, 0xe0e0e0e0e0e0e0e0};
+
 		const poly128_t r1 = vmull_p64(a1, b1);
 		const poly128_t r2 = vmull_high_p64(a2, b2);
+		const poly128_t r3 = vmull_high_p64(a3, b3);
 
-		result = (r1 != r2);
+		// Linaro is missing vreinterpretq_u64_p128. Also see https://github.com/weidai11/cryptopp/issues/233.
+		const uint64x2_t& t1 = (uint64x2_t)(r1);  // {6,0}
+		const uint64x2_t& t2 = (uint64x2_t)(r2);  // {24,0}
+		const uint64x2_t& t3 = (uint64x2_t)(r3);  // {bignum,bignum}
+
+		result = !!(vgetq_lane_u64(t1,0) == 0x06 && vgetq_lane_u64(t1,1) == 0x00 && vgetq_lane_u64(t2,0) == 0x1b &&
+			vgetq_lane_u64(t2,1) == 0x00 &&	vgetq_lane_u64(t3,0) == 0x6c006c006c006c00 && vgetq_lane_u64(t3,1) == 0x6c006c006c006c00);
 	}
 
 	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULL);
@@ -482,7 +500,7 @@ static bool TryPMULL()
 # endif
 #else
 	return false;
-#endif  // CRYPTOPP_BOOL_CRYPTO_INTRINSICS_AVAILABLE
+#endif  // CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
 }
 
 static bool TryCRC32()
