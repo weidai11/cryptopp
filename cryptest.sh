@@ -936,13 +936,11 @@ echo | tee -a "$TEST_RESULTS"
 echo "DEBUG_CXXFLAGS: $DEBUG_CXXFLAGS" | tee -a "$TEST_RESULTS"
 echo "RELEASE_CXXFLAGS: $RELEASE_CXXFLAGS" | tee -a "$TEST_RESULTS"
 echo "VALGRIND_CXXFLAGS: $VALGRIND_CXXFLAGS" | tee -a "$TEST_RESULTS"
+if [[ (! -z "$USER_CXXFLAGS") ]]; then
+	echo "USER_CXXFLAGS: $USER_CXXFLAGS" | tee -a "$TEST_RESULTS"
+fi
 if [[ ("${#PLATFORM_CXXFLAGS[@]}" -ne "0") ]]; then
 	echo "PLATFORM_CXXFLAGS: ${PLATFORM_CXXFLAGS[@]}" | tee -a "$TEST_RESULTS"
-fi
-
-if [[ (! -z "$USER_CXXFLAGS") ]]; then
-	echo | tee -a "$USER_CXXFLAGS"
-	echo "User CXXFLAGS: $CXXFLAGS" | tee -a "$TEST_RESULTS"
 fi
 
 #############################################
