@@ -844,9 +844,9 @@ if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 	# Add to exercise ARMv7, ARMv7-a, VFPU and NEON more thoroughly
 	if [[ ("$IS_ARM32" -ne "0") ]]; then
 		if [[ ("$HAVE_ARMV7A" -ne "0") ]]; then
-			PLATFORM_CXXFLAGS+=("-march=armv7-a ")
+			PLATFORM_CXXFLAGS+=("-march=armv7-a")
 		else
-			PLATFORM_CXXFLAGS+=("-march=armv7 ")
+			PLATFORM_CXXFLAGS+=("-march=armv7")
 		fi
 
 		# http://community.arm.com/groups/tools/blog/2013/04/15/arm-cortex-a-processors-and-gcc-command-lines
@@ -854,64 +854,64 @@ if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 		#  be fairly certain of the FPU and ABI flags. But we can't easily get a CPU name, so we suffer through it.
 		#  Also see http://lists.linaro.org/pipermail/linaro-toolchain/2016-July/005821.html
 		if [[ ("$HAVE_ARM_NEON" -ne "0" && "$HAVE_ARM_VFPV4" -ne "0") ]]; then
-			PLATFORM_CXXFLAGS+=("-mfpu=neon-vfpv4 ")
+			PLATFORM_CXXFLAGS+=("-mfpu=neon-vfpv4")
 		elif [[ ("$HAVE_ARM_NEON" -ne "0") ]]; then
-			PLATFORM_CXXFLAGS+=("-mfpu=neon ")
+			PLATFORM_CXXFLAGS+=("-mfpu=neon")
 		elif [[ ("$HAVE_ARM_VFPV3" -ne "0" || "$HAVE_ARM_VFPV4" -ne "0") && "$HAVE_ARM_VFPD32" -ne "0" ]]; then
-			PLATFORM_CXXFLAGS+=("-mfpu=neon ")
+			PLATFORM_CXXFLAGS+=("-mfpu=neon")
 		elif [[ ("$HAVE_ARM_VFPV5" -ne "0" && "$HAVE_ARM_VFPD32" -ne "0") ]]; then
-			PLATFORM_CXXFLAGS+=("-mfpu=fpv5 ")
+			PLATFORM_CXXFLAGS+=("-mfpu=fpv5")
 		elif [[ ("$HAVE_ARM_VFPV4" -ne "0" && "$HAVE_ARM_VFPD32" -ne "0") ]]; then
-			PLATFORM_CXXFLAGS+=("-mfpu=vfpv4 ")
+			PLATFORM_CXXFLAGS+=("-mfpu=vfpv4")
 		elif [[ ("$HAVE_ARM_VFPV3" -ne "0" && "$HAVE_ARM_VFPD32" -ne "0") ]]; then
-			PLATFORM_CXXFLAGS+=("-mfpu=vfpv3 ")
+			PLATFORM_CXXFLAGS+=("-mfpu=vfpv3")
 		elif [[ ("$HAVE_ARM_VFPV5" -ne "0") ]]; then
-			PLATFORM_CXXFLAGS+=("-mfpu=fpv5-d16 ")
+			PLATFORM_CXXFLAGS+=("-mfpu=fpv5-d16")
 		elif [[ ("$HAVE_ARM_VFPV4" -ne "0") ]]; then
-			PLATFORM_CXXFLAGS+=("-mfpu=vfpv4-d16 ")
+			PLATFORM_CXXFLAGS+=("-mfpu=vfpv4-d16")
 		elif [[ ("$HAVE_ARM_VFPV3" -ne "0") ]]; then
-			PLATFORM_CXXFLAGS+=("-mfpu=vfpv3-d16 ")
+			PLATFORM_CXXFLAGS+=("-mfpu=vfpv3-d16")
 		fi
 
 		# Soft/Hard floats only apply to 32-bit ARM
 		# http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.faqs/ka16242.html
 		ARM_HARD_FLOAT=$("$CXX" -v 2>&1 | "$GREP" 'Target' | "$EGREP" -i -c '(armhf|gnueabihf)')
 		if [[ ("$ARM_HARD_FLOAT" -ne "0") ]]; then
-			PLATFORM_CXXFLAGS+=("-mfloat-abi=hard ")
+			PLATFORM_CXXFLAGS+=("-mfloat-abi=hard")
 		else
-			PLATFORM_CXXFLAGS+=("-mfloat-abi=softfp ")
+			PLATFORM_CXXFLAGS+=("-mfloat-abi=softfp")
 		fi
 	fi
 
 	# Add to exercise ARMv8 more thoroughly. NEON is baked into the CPU asimd flag.
 	if [[ ("$IS_ARM64" -ne "0") ]]; then
 		if [[ ("$HAVE_ARM_CRC" -ne "0" && "$HAVE_ARM_CRYPTO" -ne "0") ]]; then
-			PLATFORM_CXXFLAGS+=("-march=armv8-a+crc+crypto ")
+			PLATFORM_CXXFLAGS+=("-march=armv8-a+crc+crypto")
 		elif [[ ("$HAVE_ARM_CRC" -ne "0") ]]; then
-			PLATFORM_CXXFLAGS+=("-march=armv8-a+crc ")
+			PLATFORM_CXXFLAGS+=("-march=armv8-a+crc")
 		elif [[ ("$HAVE_ARM_CRYPTO" -ne "0") ]]; then
-			PLATFORM_CXXFLAGS+=("-march=armv8-a+crypto ")
+			PLATFORM_CXXFLAGS+=("-march=armv8-a+crypto")
 		elif [[ ("$HAVE_ARMV8" -ne "0") ]]; then
-			PLATFORM_CXXFLAGS+=("-march=armv8-a ")
+			PLATFORM_CXXFLAGS+=("-march=armv8-a")
 		fi
 	fi
 fi
 
 if [[ ("$IS_SOLARIS" -ne "0") && ("$SUNCC_121_OR_ABOVE" -ne "0") ]]; then
 	ISAINFO=$(isainfo -v 2>/dev/null)
-	if [[ ($(echo "$ISAINFO" | "$GREP" -c "sse2") -ne "0") ]]; then PLATFORM_CXXFLAGS+="-D__SSE2__ "; fi
-	if [[ ($(echo "$ISAINFO" | "$GREP" -c "sse3") -ne "0") ]]; then PLATFORM_CXXFLAGS+="-D__SSE3__ "; fi
-	if [[ ($(echo "$ISAINFO" | "$GREP" -c "ssse3") -ne "0") ]]; then PLATFORM_CXXFLAGS+="-D__SSSE3__ "; fi
-	if [[ ($(echo "$ISAINFO" | "$GREP" -c "sse4.1") -ne "0") ]]; then PLATFORM_CXXFLAGS+="-D__SSE4_1__ "; fi
-	if [[ ($(echo "$ISAINFO" | "$GREP" -c "sse4.2") -ne "0") ]]; then PLATFORM_CXXFLAGS+="-D__SSE4_2__ "; fi
-	if [[ ($(echo "$ISAINFO" | "$GREP" -c "aes") -ne "0") ]]; then PLATFORM_CXXFLAGS+="-D__AES__ "; fi
-	if [[ ($(echo "$ISAINFO" | "$GREP" -c "pclmulqdq") -ne "0") ]]; then PLATFORM_CXXFLAGS+="-D__PCLMUL__ "; fi
-	if [[ ($(echo "$ISAINFO" | "$GREP" -c "rdrand") -ne "0") ]]; then PLATFORM_CXXFLAGS+="-D__RDRND__ "; fi
-	if [[ ($(echo "$ISAINFO" | "$GREP" -c "rdseed") -ne "0") ]]; then PLATFORM_CXXFLAGS+="-D__RDSEED__ "; fi
-	if [[ ($(echo "$ISAINFO" | "$GREP" -c "avx") -ne "0") ]]; then PLATFORM_CXXFLAGS+="-D__AVX__ "; fi
-	if [[ ($(echo "$ISAINFO" | "$GREP" -c "avx2") -ne "0") ]]; then PLATFORM_CXXFLAGS+="-D__AVX2__ "; fi
-	if [[ ($(echo "$ISAINFO" | "$GREP" -c "bmi") -ne "0") ]]; then PLATFORM_CXXFLAGS+="-D__BMI__ "; fi
-	if [[ ($(echo "$ISAINFO" | "$GREP" -c "bmi2") -ne "0") ]]; then PLATFORM_CXXFLAGS+="-D__BMI2__ "; fi
+	if [[ ($(echo "$ISAINFO" | "$GREP" -c "sse2") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__SSE2__ "); fi
+	if [[ ($(echo "$ISAINFO" | "$GREP" -c "sse3") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__SSE3__ "); fi
+	if [[ ($(echo "$ISAINFO" | "$GREP" -c "ssse3") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__SSSE3__ "); fi
+	if [[ ($(echo "$ISAINFO" | "$GREP" -c "sse4.1") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__SSE4_1__ "); fi
+	if [[ ($(echo "$ISAINFO" | "$GREP" -c "sse4.2") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__SSE4_2__ "); fi
+	if [[ ($(echo "$ISAINFO" | "$GREP" -c "aes") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__AES__ "); fi
+	if [[ ($(echo "$ISAINFO" | "$GREP" -c "pclmulqdq") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__PCLMUL__ "); fi
+	if [[ ($(echo "$ISAINFO" | "$GREP" -c "rdrand") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__RDRND__ "); fi
+	if [[ ($(echo "$ISAINFO" | "$GREP" -c "rdseed") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__RDSEED__ "); fi
+	if [[ ($(echo "$ISAINFO" | "$GREP" -c "avx") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__AVX__ "); fi
+	if [[ ($(echo "$ISAINFO" | "$GREP" -c "avx2") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__AVX2__ "); fi
+	if [[ ($(echo "$ISAINFO" | "$GREP" -c "bmi") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__BMI__ "); fi
+	if [[ ($(echo "$ISAINFO" | "$GREP" -c "bmi2") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__BMI2__ "); fi
 fi
 
 if [[ ("$GCC_COMPILER" -ne "0") ]]; then
