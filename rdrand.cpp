@@ -175,7 +175,8 @@ static int ALL_RRI_GenerateBlock(byte *output, size_t size, unsigned int safety)
 #if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
 		if (_rdrand32_step((word32*)output))
 #else
-		if (_rdrand64_step((word64*)output))
+		// Cast due to GCC, http://github.com/weidai11/cryptopp/issues/236
+		if (_rdrand64_step(reinterpret_cast<unsigned long long*>(output)))
 #endif
 		{
 			output += sizeof(val);
@@ -196,7 +197,8 @@ static int ALL_RRI_GenerateBlock(byte *output, size_t size, unsigned int safety)
 #if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
 		if (_rdrand32_step(&val))
 #else
-		if (_rdrand64_step(&val))
+		// Cast due to GCC, http://github.com/weidai11/cryptopp/issues/236
+		if (_rdrand64_step(reinterpret_cast<unsigned long long*>(&val)))
 #endif
 		{
 			memcpy(output, &val, size);
@@ -348,7 +350,8 @@ static int ALL_RSI_GenerateBlock(byte *output, size_t size, unsigned int safety)
 #if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
 		if (_rdseed32_step((word32*)output))
 #else
-		if (_rdseed64_step((word64*)output))
+		// Cast due to GCC, http://github.com/weidai11/cryptopp/issues/236
+		if (_rdseed64_step(reinterpret_cast<unsigned long long*>(output)))
 #endif
 		{
 			output += sizeof(val);
@@ -369,7 +372,8 @@ static int ALL_RSI_GenerateBlock(byte *output, size_t size, unsigned int safety)
 #if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
 		if (_rdseed32_step(&val))
 #else
-		if (_rdseed64_step(&val))
+		// Cast due to GCC, http://github.com/weidai11/cryptopp/issues/236
+		if (_rdseed64_step(reinterpret_cast<unsigned long long*>(&val)))
 #endif
 		{
 			memcpy(output, &val, size);
