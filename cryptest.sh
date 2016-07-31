@@ -133,7 +133,6 @@ if [[ ((-z "$CXX") || ("$CXX" == "gcc")) ]]; then
 	if [[ "$IS_DARWIN" -ne "0" ]]; then
 		CXX=c++
 	elif [[ "$IS_SOLARIS" -ne "0" ]]; then
-		# SunCC 12.5 is mostly broken
 		if [[ (-e "/opt/developerstudio12.5/bin/CC") ]]; then
 			CXX=/opt/developerstudio12.5/bin/CC
 		elif [[ (-e "/opt/solarisstudio12.4/bin/CC") ]]; then
@@ -192,6 +191,12 @@ elif [[ ("$IS_SOLARIS" -ne "0") ]]; then
 	fi
 else
 	MAKE=make
+fi
+
+# Fixup, bad code generation
+if [[ ("$SUNCC_121_OR_ABOVE" -ne "0" ]]; then
+	HAVE_O5=0
+	HAVE_OFAST=0
 fi
 
 if [[ (-z "$TMP") ]]; then
@@ -899,19 +904,19 @@ fi
 
 if [[ ("$IS_SOLARIS" -ne "0") && ("$SUNCC_121_OR_ABOVE" -ne "0") ]]; then
 	ISAINFO=$(isainfo -v 2>/dev/null)
-	if [[ ($(echo "$ISAINFO" | "$GREP" -c "sse2") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__SSE2__ "); fi
-	if [[ ($(echo "$ISAINFO" | "$GREP" -c "sse3") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__SSE3__ "); fi
-	if [[ ($(echo "$ISAINFO" | "$GREP" -c "ssse3") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__SSSE3__ "); fi
-	if [[ ($(echo "$ISAINFO" | "$GREP" -c "sse4.1") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__SSE4_1__ "); fi
-	if [[ ($(echo "$ISAINFO" | "$GREP" -c "sse4.2") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__SSE4_2__ "); fi
-	if [[ ($(echo "$ISAINFO" | "$GREP" -c "aes") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__AES__ "); fi
-	if [[ ($(echo "$ISAINFO" | "$GREP" -c "pclmulqdq") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__PCLMUL__ "); fi
-	if [[ ($(echo "$ISAINFO" | "$GREP" -c "rdrand") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__RDRND__ "); fi
-	if [[ ($(echo "$ISAINFO" | "$GREP" -c "rdseed") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__RDSEED__ "); fi
-	if [[ ($(echo "$ISAINFO" | "$GREP" -c "avx") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__AVX__ "); fi
-	if [[ ($(echo "$ISAINFO" | "$GREP" -c "avx2") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__AVX2__ "); fi
-	if [[ ($(echo "$ISAINFO" | "$GREP" -c "bmi") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__BMI__ "); fi
-	if [[ ($(echo "$ISAINFO" | "$GREP" -c "bmi2") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__BMI2__ "); fi
+	if [[ ($(echo "$ISAINFO" | "$GREP" -c "sse2") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__SSE2__"); fi
+	if [[ ($(echo "$ISAINFO" | "$GREP" -c "sse3") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__SSE3__"); fi
+	if [[ ($(echo "$ISAINFO" | "$GREP" -c "ssse3") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__SSSE3__"); fi
+	if [[ ($(echo "$ISAINFO" | "$GREP" -c "sse4.1") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__SSE4_1__"); fi
+	if [[ ($(echo "$ISAINFO" | "$GREP" -c "sse4.2") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__SSE4_2__"); fi
+	if [[ ($(echo "$ISAINFO" | "$GREP" -c "aes") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__AES__"); fi
+	if [[ ($(echo "$ISAINFO" | "$GREP" -c "pclmulqdq") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__PCLMUL__"); fi
+	if [[ ($(echo "$ISAINFO" | "$GREP" -c "rdrand") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__RDRND__"); fi
+	if [[ ($(echo "$ISAINFO" | "$GREP" -c "rdseed") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__RDSEED__"); fi
+	if [[ ($(echo "$ISAINFO" | "$GREP" -c "avx") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__AVX__"); fi
+	if [[ ($(echo "$ISAINFO" | "$GREP" -c "avx2") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__AVX2__"); fi
+	if [[ ($(echo "$ISAINFO" | "$GREP" -c "bmi") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__BMI__"); fi
+	if [[ ($(echo "$ISAINFO" | "$GREP" -c "bmi2") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__BMI2__"); fi
 fi
 
 if [[ ("$GCC_COMPILER" -ne "0") ]]; then
@@ -936,13 +941,11 @@ echo | tee -a "$TEST_RESULTS"
 echo "DEBUG_CXXFLAGS: $DEBUG_CXXFLAGS" | tee -a "$TEST_RESULTS"
 echo "RELEASE_CXXFLAGS: $RELEASE_CXXFLAGS" | tee -a "$TEST_RESULTS"
 echo "VALGRIND_CXXFLAGS: $VALGRIND_CXXFLAGS" | tee -a "$TEST_RESULTS"
+if [[ (! -z "$USER_CXXFLAGS") ]]; then
+	echo "USER_CXXFLAGS: $USER_CXXFLAGS" | tee -a "$TEST_RESULTS"
+fi
 if [[ ("${#PLATFORM_CXXFLAGS[@]}" -ne "0") ]]; then
 	echo "PLATFORM_CXXFLAGS: ${PLATFORM_CXXFLAGS[@]}" | tee -a "$TEST_RESULTS"
-fi
-
-if [[ (! -z "$USER_CXXFLAGS") ]]; then
-	echo | tee -a "$USER_CXXFLAGS"
-	echo "User CXXFLAGS: $CXXFLAGS" | tee -a "$TEST_RESULTS"
 fi
 
 #############################################
