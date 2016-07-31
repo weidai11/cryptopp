@@ -194,7 +194,7 @@ else
 fi
 
 # Fixup, bad code generation
-if [[ ("$SUNCC_121_OR_ABOVE" -ne "0" ]]; then
+if [[ ("$SUNCC_121_OR_ABOVE" -ne "0") ]]; then
 	HAVE_O5=0
 	HAVE_OFAST=0
 fi
