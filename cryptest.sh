@@ -133,7 +133,6 @@ if [[ ((-z "$CXX") || ("$CXX" == "gcc")) ]]; then
 	if [[ "$IS_DARWIN" -ne "0" ]]; then
 		CXX=c++
 	elif [[ "$IS_SOLARIS" -ne "0" ]]; then
-		# SunCC 12.5 is mostly broken
 		if [[ (-e "/opt/developerstudio12.5/bin/CC") ]]; then
 			CXX=/opt/developerstudio12.5/bin/CC
 		elif [[ (-e "/opt/solarisstudio12.4/bin/CC") ]]; then
@@ -192,6 +191,12 @@ elif [[ ("$IS_SOLARIS" -ne "0") ]]; then
 	fi
 else
 	MAKE=make
+fi
+
+# Fixup, bad code generation
+if [[ ("$SUNCC_121_OR_ABOVE" -ne "0" ]]; then
+	HAVE_O5=0
+	HAVE_OFAST=0
 fi
 
 if [[ (-z "$TMP") ]]; then
