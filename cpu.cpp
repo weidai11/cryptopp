@@ -101,9 +101,11 @@ bool CpuId(word32 input, word32 output[4])
 	if (oldHandler == SIG_ERR)
 		return false;
 
+# ifndef __MINGW32__
 	volatile sigset_t oldMask;
 	if (sigprocmask(0, NULL, (sigset_t*)&oldMask))
 		return false;
+# endif
 
 	if (setjmp(s_jmpNoCPUID))
 		result = false;
@@ -123,7 +125,10 @@ bool CpuId(word32 input, word32 output[4])
 		);
 	}
 
+# ifndef __MINGW32__
 	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULL);
+# endif
+
 	signal(SIGILL, oldHandler);
 	return result;
 #endif
@@ -160,9 +165,11 @@ static bool TrySSE2()
 	if (oldHandler == SIG_ERR)
 		return false;
 
+# ifndef __MINGW32__
 	volatile sigset_t oldMask;
 	if (sigprocmask(0, NULL, (sigset_t*)&oldMask))
 		return false;
+# endif
 
 	if (setjmp(s_jmpNoSSE2))
 		result = false;
@@ -176,7 +183,10 @@ static bool TrySSE2()
 #endif
 	}
 
+# ifndef __MINGW32__
 	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULL);
+# endif
+
 	signal(SIGILL, oldHandler);
 	return result;
 #endif
