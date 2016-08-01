@@ -10,21 +10,46 @@
 #include "config.h"
 
 #if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
-# if defined(_MSC_VER) || defined(__BORLANDC__)
-#  define CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
-# else
-#  define CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
+# if __GNUC__
+#  include <stdint.h>
 # endif
 # if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
 #  include <arm_neon.h>
 # endif
 # if (CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE || CRYPTOPP_BOOL_ARM_CRC32_INTRINSICS_AVAILABLE)
-#  include <stdint.h>
-#  if (defined(__ARM_ACLE) || defined(__GNUC__)) && !defined(__APPLE__)
+#  if (defined(__ARM_ACLE))
 #   include <arm_acle.h>
 #  endif
 # endif
 #endif  // ARM-32 or ARM-64
+
+// Applies to both X86/X32/X64 and ARM32/ARM64. And we've got MIPS devices on the way.
+#if defined(_MSC_VER) || defined(__BORLANDC__)
+# define CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
+#else
+# define CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
+#endif
+
+// Applies to both X86/X32/X64 and ARM32/ARM64
+#if defined(CRYPTOPP_LLVM_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION) || defined(CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER)
+	#define NEW_LINE "\n"
+	#define INTEL_PREFIX ".intel_syntax;"
+	#define INTEL_NOPREFIX ".intel_syntax;"
+	#define ATT_PREFIX ".att_syntax;"
+	#define ATT_NOPREFIX ".att_syntax;"
+#elif defined(__GNUC__)
+	#define NEW_LINE
+	#define INTEL_PREFIX ".intel_syntax prefix;"
+	#define INTEL_NOPREFIX ".intel_syntax noprefix;"
+	#define ATT_PREFIX ".att_syntax prefix;"
+	#define ATT_NOPREFIX ".att_syntax noprefix;"
+#else
+	#define NEW_LINE
+	#define INTEL_PREFIX
+	#define INTEL_NOPREFIX
+	#define ATT_PREFIX
+	#define ATT_NOPREFIX
+#endif
 
 #ifdef CRYPTOPP_GENERATE_X64_MASM
 
@@ -38,12 +63,6 @@
 # if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
 #  include <emmintrin.h>
 # endif
-
-// #if defined(CRYPTOPP_GCC_VERSION) && (CRYPTOPP_GCC_VERSION < 50000)
-// typedef int __v4si __attribute__ ((__vector_size__ (16)));
-// typedef long long __v2di __attribute__ ((__vector_size__ (16)));
-// typedef long long __m128i __attribute__ ((__vector_size__ (16), __may_alias__));
-// #endif
 
 #if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
 
@@ -649,27 +668,6 @@ inline int GetCacheLineSize()
 	AS2(	add		outputPtr, increment*16)
 
 #endif  //  X86/X32/X64
-
-// Applies to both X86/X32/X64 and ARM32/ARM64
-#if defined(CRYPTOPP_LLVM_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION) || defined(CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER)
-	#define NEW_LINE "\n"
-	#define INTEL_PREFIX ".intel_syntax;"
-	#define INTEL_NOPREFIX ".intel_syntax;"
-	#define ATT_PREFIX ".att_syntax;"
-	#define ATT_NOPREFIX ".att_syntax;"
-#elif defined(__GNUC__)
-	#define NEW_LINE
-	#define INTEL_PREFIX ".intel_syntax prefix;"
-	#define INTEL_NOPREFIX ".intel_syntax noprefix;"
-	#define ATT_PREFIX ".att_syntax prefix;"
-	#define ATT_NOPREFIX ".att_syntax noprefix;"
-#else
-	#define NEW_LINE
-	#define INTEL_PREFIX
-	#define INTEL_NOPREFIX
-	#define ATT_PREFIX
-	#define ATT_NOPREFIX
-#endif
 
 NAMESPACE_END
 
