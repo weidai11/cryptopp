@@ -331,56 +331,65 @@ else
 	fi
 fi
 
-HAVE_O3=0
-OPT_O3=
-rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
-"$CXX" -DCRYPTOPP_ADHOC_MAIN -O3 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
-if [[ ("$?" -eq "0") ]]; then
-	HAVE_O3=1
-	OPT_O3=-O3
-else
+if [[ (-z "$HAVE_O3") ]]; then
+	HAVE_O3=0
+	OPT_O3=
 	rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -xO3 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -O3 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
 	if [[ ("$?" -eq "0") ]]; then
 		HAVE_O3=1
-		OPT_O3=-xO3
+		OPT_O3=-O3
+	else
+		rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
+		"$CXX" -DCRYPTOPP_ADHOC_MAIN -xO3 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+		if [[ ("$?" -eq "0") ]]; then
+			HAVE_O3=1
+			OPT_O3=-xO3
+		fi
 	fi
 fi
 
 # Hit or miss, mostly hit
-HAVE_O5=0
-OPT_O5=
-rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
-"$CXX" -DCRYPTOPP_ADHOC_MAIN -O5 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
-if [[ ("$?" -eq "0") ]]; then
-	HAVE_O5=1
-	OPT_O5=-O5
-else
+if [[ (-z "$HAVE_O5") ]]; then
+	HAVE_O5=0
+	OPT_O5=
 	rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -xO5 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -O5 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
 	if [[ ("$?" -eq "0") ]]; then
 		HAVE_O5=1
-		OPT_O5=-xO5
+		OPT_O5=-O5
+	else
+		rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
+		"$CXX" -DCRYPTOPP_ADHOC_MAIN -xO5 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+		if [[ ("$?" -eq "0") ]]; then
+			HAVE_O5=1
+			OPT_O5=-xO5
+		fi
 	fi
 fi
 
 # Hit or miss, mostly hit
-HAVE_OS=0
-OPT_OS=
-rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
-"$CXX" -DCRYPTOPP_ADHOC_MAIN -Os adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
-if [[ ("$?" -eq "0") ]]; then
-	HAVE_OS=1
-	OPT_OS=-Os
+if [[ (-z "$HAVE_OS") ]]; then
+	HAVE_OS=0
+	OPT_OS=
+	rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -Os adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	if [[ ("$?" -eq "0") ]]; then
+		HAVE_OS=1
+		HAVE_OS=-Os
+	fi
 fi
 
-HAVE_OFAST=0
-OPT_OFAST=
-rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
-"$CXX" -DCRYPTOPP_ADHOC_MAIN -Ofast adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
-if [[ ("$?" -eq "0") ]]; then
-	HAVE_OFAST=1
-	OPT_OFAST=-Ofast
+# Hit or miss, mostly hit
+if [[ (-z "$HAVE_OFAST") ]]; then
+	HAVE_OFAST=0
+	OPT_OFAST=
+	rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -Ofast adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	if [[ ("$?" -eq "0") ]]; then
+		HAVE_OFAST=1
+		OPT_OFAST=-Ofast
+	fi
 fi
 
 # Use a fallback strategy so OPT_G2 can be used with RELEASE_CXXFLAGS
