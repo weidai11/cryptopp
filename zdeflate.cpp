@@ -130,7 +130,7 @@ void HuffmanEncoder::GenerateCodeLengths(unsigned int *codeBits, unsigned int ma
 	if (1 == nCodes - treeBegin)
 	{
 		// special case when only one leaf in tree
-		fill(codeBits, codeBits + nCodes, 0);
+		std::fill(codeBits, codeBits + nCodes, 0);
 		codeBits[tree[treeBegin].symbol] = 1;
 		return;
 	}
