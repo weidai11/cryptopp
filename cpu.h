@@ -9,19 +9,18 @@
 
 #include "config.h"
 
+// ARM32/ARM64 includes
 #if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
-# if __GNUC__
+# if defined(__GNUC__)
 #  include <stdint.h>
 # endif
-# if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
+# if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE || defined(__ARM_NEON)
 #  include <arm_neon.h>
 # endif
-# if (CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE || CRYPTOPP_BOOL_ARM_CRC32_INTRINSICS_AVAILABLE)
-#  if (defined(__ARM_ACLE))
-#   include <arm_acle.h>
-#  endif
+# if (CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE || CRYPTOPP_BOOL_ARM_CRC32_INTRINSICS_AVAILABLE) || defined(__ARM_ACLE)
+#  include <arm_acle.h>
 # endif
-#endif  // ARM-32 or ARM-64
+#endif  // ARM32 and ARM64
 
 // Applies to both X86/X32/X64 and ARM32/ARM64. And we've got MIPS devices on the way.
 #if defined(_MSC_VER) || defined(__BORLANDC__)
