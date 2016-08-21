@@ -832,6 +832,7 @@ bool TestHuffmanCodes()
     }
     catch(const Exception& ex)
     {
+        CRYPTOPP_UNUSED(ex);
         return false;
     }
 
