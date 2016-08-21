@@ -9,7 +9,7 @@ Test: TestVectors/whrlpool.txt
 Test: TestVectors/dlies.txt
 Test: TestVectors/dsa.txt
 Test: TestVectors/dsa_1363.txt
-Test: TestVectors/dsa_rfc6979.txt
+#Test: TestVectors/dsa_rfc6979.txt
 #Test: TestVectors/ecdsa_rfc6979.txt
 Test: TestVectors/esign.txt
 Test: TestVectors/hmac.txt
