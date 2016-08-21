@@ -23,9 +23,9 @@ NAMESPACE_BEGIN(CryptoPP)
 # undef CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
 #endif
 
-// Sun Studio 12.3 and earlier lack SSE2's _mm_set_epi64x.
+// Sun Studio 12.3 and earlier lack SSE2's _mm_set_epi64x. Win32 lacks _mm_set_epi64x (Win64 supplies it except for VS2008).
 // Also see http://stackoverflow.com/a/38547909/608639
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE && ((__SUNPRO_CC >= 0x5100 && __SUNPRO_CC < 0x5130) || (_MSC_VER >= 1200 && _MSC_VER < 1600))
+#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE && ((__SUNPRO_CC >= 0x5100 && __SUNPRO_CC < 0x5130) || (_MSC_VER >= 1200 && _MSC_VER < 1600) || (defined(_M_IX86) && _MSC_VER >= 1600))
 inline __m128i _mm_set_epi64x(const word64 a, const word64 b)
 {
     union INT_128_64x2 {

@@ -286,7 +286,14 @@ set(export_name "cryptopp-targets")
 
 # Runtime package
 if (BUILD_SHARED)
-	install(TARGETS cryptopp-shared EXPORT ${export_name} DESTINATION ${CMAKE_INSTALL_LIBDIR})
+	install(
+			TARGETS cryptopp-shared
+			EXPORT ${export_name}
+			DESTINATION ${CMAKE_INSTALL_LIBDIR}
+			RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+			LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+			ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	)
 endif()
 
 # Development package
