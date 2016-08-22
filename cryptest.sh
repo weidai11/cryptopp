@@ -558,23 +558,18 @@ if [[ (-z "$HAVE_UNIFIED_ASM") ]]; then
 	fi
 fi
 
-# Aarch32 on Aarch64
-if [[ (-z "$HAVE_AARCH32") ]]; then
-	HAVE_AARCH32=0
-	rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -march=armv8-a+crc -mtune=cortex-a53 -mfpu=crypto-neon-fp-armv8 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
-	if [[ "$?" -eq "0" ]]; then
-		HAVE_AARCH32=1
-	fi
-fi
-
 # ARMv7 and ARMv8, including NEON, CRC32 and Crypto extensions
 if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 	ARM_FEATURES=$(cat /proc/cpuinfo 2>&1 | "$AWK" '{IGNORECASE=1}{if ($1 == "Features") print}' | cut -f 2 -d ':')
 
-	if [[  (-z "$HAVE_ARMV7A" && "$IS_ARM32" -ne "0") ]]; then
+	if [[ (-z "$HAVE_ARMV7A" && "$IS_ARM32" -ne "0") ]]; then
 		HAVE_ARMV7A=$(echo "$ARM_FEATURES" | "$GREP" -i -c 'neon')
 		if [[ ("$HAVE_ARMV7A" -gt "0") ]]; then HAVE_ARMV7A=1; fi
+	fi
+
+	if [[ (-z "$HAVE_ARMV8A" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]]; then
+		HAVE_ARMV8A=$(echo "$ARM_FEATURES" | "$EGREP" -i -c '(asimd|crc|crypto)')
+		if [[ ("$HAVE_ARMV8A" -gt "0") ]]; then HAVE_ARMV8A=1; fi
 	fi
 
 	if [[ (-z "$HAVE_ARM_VFPV3") ]]; then
@@ -602,7 +597,7 @@ if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 		if [[ ("$HAVE_ARM_NEON" -gt "0") ]]; then HAVE_ARM_NEON=1; fi
 	fi
 
-	if [[ (-z "$HAVE_ARMV8") ]]; then
+	if [[ (-z "$HAVE_ARMV8A") ]]; then
 		HAVE_ARMV8="$IS_ARM64"
 	fi
 
@@ -694,13 +689,8 @@ if [[ "$IS_ARM64" -ne "0" ]]; then
 elif [[ "$IS_ARM32" -ne "0" ]]; then
 	echo "IS_ARM32: $IS_ARM32" | tee -a "$TEST_RESULTS"
 fi
-if [[ "$HAVE_AARCH32" -ne "0" ]]; then
-	echo "HAVE_AARCH32: $HAVE_AARCH32" | tee -a "$TEST_RESULTS"
-fi
 if [[ "$HAVE_ARMV7A" -ne "0" ]]; then
 	echo "HAVE_ARMV7A: $HAVE_ARMV7A" | tee -a "$TEST_RESULTS"
-elif [[ "$HAVE_ARMV8" -ne "0" ]]; then
-	echo "HAVE_ARMV8: $HAVE_ARMV8" | tee -a "$TEST_RESULTS"
 elif [[ "$HAVE_ARMV8A" -ne "0" ]]; then
 	echo "HAVE_ARMV8A: $HAVE_ARMV8A" | tee -a "$TEST_RESULTS"
 fi
@@ -886,16 +876,11 @@ fi
 # Please, someone put an end to the madness of determining Features, ABI, hard floats and soft floats...
 if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 
-	# Add to exercise ARMv7, ARMv7-a, VFPU and NEON more thoroughly
-	if [[ ("$IS_ARM32" -ne "0") ]]; then
-		if [[ ("$HAVE_ARMV7A" -ne "0") ]]; then
-			PLATFORM_CXXFLAGS+=("-march=armv7-a")
-		else
-			PLATFORM_CXXFLAGS+=("-march=armv7")
-		fi
+	if [[ (("$HAVE_ARMV7A" -ne "0") && ("$IS_ARM32" -ne "0")) ]]; then
+		PLATFORM_CXXFLAGS+=("-march=armv7-a")
 
 		# http://community.arm.com/groups/tools/blog/2013/04/15/arm-cortex-a-processors-and-gcc-command-lines
-		#  These may need more tuning. If it was easy to get the CPU brand name, like Cortex-A9, then we could
+		#  These may need more tuning. If it was easy to get the CPU model, like Cortex-A9, then we could
 		#  be fairly certain of the FPU and ABI flags. But we can't easily get a CPU name, so we suffer through it.
 		#  Also see http://lists.linaro.org/pipermail/linaro-toolchain/2016-July/005821.html
 		if [[ ("$HAVE_ARM_NEON" -ne "0" && "$HAVE_ARM_VFPV4" -ne "0") ]]; then
@@ -918,26 +903,40 @@ if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 			PLATFORM_CXXFLAGS+=("-mfpu=vfpv3-d16")
 		fi
 
-		# Soft/Hard floats only apply to 32-bit ARM
-		# http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.faqs/ka16242.html
-		ARM_HARD_FLOAT=$("$CXX" -v 2>&1 | "$GREP" 'Target' | "$EGREP" -i -c '(armhf|gnueabihf)')
-		if [[ ("$ARM_HARD_FLOAT" -ne "0") ]]; then
-			PLATFORM_CXXFLAGS+=("-mfloat-abi=hard")
-		else
-			PLATFORM_CXXFLAGS+=("-mfloat-abi=softfp")
-		fi
-	fi
-
-	# Add to exercise ARMv8 more thoroughly. NEON is baked into the CPU asimd flag.
-	if [[ ("$IS_ARM64" -ne "0") ]]; then
+	elif [[ (("$HAVE_ARMV8A" -ne "0") && ("$IS_ARM64" -ne "0")) ]]; then
 		if [[ ("$HAVE_ARM_CRC" -ne "0" && "$HAVE_ARM_CRYPTO" -ne "0") ]]; then
 			PLATFORM_CXXFLAGS+=("-march=armv8-a+crc+crypto")
 		elif [[ ("$HAVE_ARM_CRC" -ne "0") ]]; then
 			PLATFORM_CXXFLAGS+=("-march=armv8-a+crc")
 		elif [[ ("$HAVE_ARM_CRYPTO" -ne "0") ]]; then
 			PLATFORM_CXXFLAGS+=("-march=armv8-a+crypto")
-		elif [[ ("$HAVE_ARMV8" -ne "0") ]]; then
+		else
 			PLATFORM_CXXFLAGS+=("-march=armv8-a")
+		fi
+
+	elif [[ (("$HAVE_ARMV8A" -ne "0") && ("$IS_ARM32" -ne "0")) ]]; then
+
+		if [[ ("$HAVE_ARM_CRC" -ne "0") ]]; then
+			PLATFORM_CXXFLAGS+=("-march=armv8-a+crc")
+		else
+			PLATFORM_CXXFLAGS+=("-march=armv8-a")
+		fi
+
+		if [[ ("$HAVE_ARM_CRYPTO" -ne "0") ]]; then
+			PLATFORM_CXXFLAGS+=("-mfpu=crypto-neon-fp-armv8")
+		else
+			PLATFORM_CXXFLAGS+=("-mfpu=neon-fp-armv8")
+		fi
+	fi
+
+	# Soft/Hard floats only apply to 32-bit ARM
+	# http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.faqs/ka16242.html
+	if [[ ("$IS_ARM32" -ne "0") ]]; then
+		ARM_HARD_FLOAT=$("$CXX" -v 2>&1 | "$GREP" 'Target' | "$EGREP" -i -c '(armhf|gnueabihf)')
+		if [[ ("$ARM_HARD_FLOAT" -ne "0") ]]; then
+			PLATFORM_CXXFLAGS+=("-mfloat-abi=hard")
+		else
+			PLATFORM_CXXFLAGS+=("-mfloat-abi=softfp")
 		fi
 	fi
 fi
@@ -2862,71 +2861,6 @@ if [[ ("$HAVE_CXX17" -ne "0" && "$HAVE_ASAN" -ne "0") ]]; then
 	fi
 fi
 
-############################################
-# Aarch32 on Aarch64
-if [[ ("$HAVE_AARCH32" -ne "0") ]]; then
-
-	AARCH32_CXXFLAGS=("-march=armv8-a+crc" "-mtune=cortex-a53" "-mfpu=crypto-neon-fp-armv8")
-	ARM_HARD_FLOAT=$("$CXX" -v 2>&1 | "$GREP" 'Target' | "$EGREP" -i -c '(armhf|gnueabihf)')
-	if [[ "$ARM_HARD_FLOAT" -ne "0" ]]; then
-		AARCH32_CXXFLAGS+=("-mfloat-abi=hard")
-	else
-		AARCH32_CXXFLAGS+=("-mfloat-abi=softfp")
-	fi
-
-	############################################
-	# Debug build, Aarch32 on Aarch64
-	echo
-	echo "************************************" | tee -a "$TEST_RESULTS"
-	echo "Testing: Debug, Aarch32 on Aarch64" | tee -a "$TEST_RESULTS"
-	echo
-
-	"$MAKE" clean > /dev/null 2>&1
-	rm -f adhoc.cpp > /dev/null 2>&1
-
-	CXXFLAGS="$DEBUG_CXXFLAGS ${AARCH32_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
-	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-
-	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
-	else
-		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
-		fi
-		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
-		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
-		fi
-	fi
-
-	############################################
-	# Release build, Aarch32 on Aarch64
-	echo
-	echo "************************************" | tee -a "$TEST_RESULTS"
-	echo "Testing: Release, Aarch32 on Aarch64" | tee -a "$TEST_RESULTS"
-	echo
-
-	"$MAKE" clean > /dev/null 2>&1
-	rm -f adhoc.cpp > /dev/null 2>&1
-
-	CXXFLAGS="$RELEASE_CXXFLAGS ${AARCH32_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
-	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-
-	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
-	else
-		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
-		fi
-		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
-		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
-		fi
-	fi
-fi
-
 # For Solaris, test under Sun Studio 12.2 - 12.5
 if [[ "$IS_SOLARIS" -ne "0" ]]; then
 
@@ -4102,7 +4036,7 @@ if [[ ("$HAVE_CXX11" -ne "0" && ("$HAVE_GCC" -ne "0" || "$HAVE_CLANG" -ne "0")) 
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++11 ${DEPRECATED_CXXFLAGS[@]}  ${ELEVATED_CXXFLAGS[@]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++11 ${DEPRECATED_CXXFLAGS[@]} ${ELEVATED_CXXFLAGS[@]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
