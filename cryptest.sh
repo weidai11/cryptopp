@@ -433,6 +433,36 @@ if [[ (-z "$HAVE_UBSAN") ]]; then
 fi
 
 rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
+if [[ (-z "$HAVE_OMP") ]]; then
+	HAVE_OMP=0
+	if [[ "$GCC_COMPILER" -ne "0" ]]; then
+		"$CXX" -DCRYPTOPP_ADHOC_MAIN -fopenmp -O3 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+		if [[ "$?" -eq "0" ]]; then
+			HAVE_OMP=1
+			OMP_FLAG=(-fopenmp -O3)
+		fi
+	elif [[ "$INTEL_COMPILER" -ne "0" ]]; then
+		"$CXX" -DCRYPTOPP_ADHOC_MAIN -openmp -O3 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+		if [[ "$?" -eq "0" ]]; then
+			HAVE_OMP=1
+			OMP_FLAG=(-openmp -O3)
+		fi
+	elif [[ "$CLANG_COMPILER" -ne "0" ]]; then
+		"$CXX" -DCRYPTOPP_ADHOC_MAIN -fopenmp=libomp -O3 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+		if [[ "$?" -eq "0" ]]; then
+			HAVE_OMP=1
+			OMP_FLAG=(-fopenmp=libomp -O3)
+		fi
+	elif [[ "$SUN_COMPILER" -ne "0" ]]; then
+		"$CXX" -DCRYPTOPP_ADHOC_MAIN -xopenmp=parallel -xO3 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+		if [[ "$?" -eq "0" ]]; then
+			HAVE_OMP=1
+			OMP_FLAG=(-xopenmp=parallel -xO3)
+		fi
+	fi
+fi
+
+rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_ASAN") ]]; then
 	HAVE_ASAN=0
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -fsanitize=address adhoc.cpp -o "$TMP/adhoc.exe" &>/dev/null
@@ -735,6 +765,9 @@ fi
 
 # Tools available for testing
 echo | tee -a "$TEST_RESULTS"
+if [[ (! -z "$HAVE_OMP") ]]; then
+	echo "HAVE_OMP: $HAVE_OMP" | tee -a "$TEST_RESULTS"
+fi
 echo "HAVE_ASAN: $HAVE_ASAN" | tee -a "$TEST_RESULTS"
 if [[ ("$HAVE_ASAN" -ne "0") && (! -z "$ASAN_SYMBOLIZE") ]]; then echo "ASAN_SYMBOLIZE: $ASAN_SYMBOLIZE" | tee -a "$TEST_RESULTS"; fi
 echo "HAVE_UBSAN: $HAVE_UBSAN" | tee -a "$TEST_RESULTS"
@@ -2398,19 +2431,20 @@ if [[ ("$SUN_COMPILER" -eq "0") ]]; then
 	fi
 fi
 
+***
 ############################################
-# Debug build, UBSan, c++03
-if [[ ("$HAVE_CXX03" -ne "0" && "$HAVE_UBSAN" -ne "0") ]]; then
+# Debug build, dead code strip
+if [[ ("$SUN_COMPILER" -eq "0") ]]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
-	echo "Testing: Debug, c++03, UBsan" | tee -a "$TEST_RESULTS"
+	echo "Testing: Debug, dead code strip" | tee -a "$TEST_RESULTS"
 	echo
 
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++03 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
-	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" ubsan | tee -a "$TEST_RESULTS"
+	CXXFLAGS="$DEBUG_CXXFLAGS ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" lean 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -2427,17 +2461,45 @@ if [[ ("$HAVE_CXX03" -ne "0" && "$HAVE_UBSAN" -ne "0") ]]; then
 fi
 
 ############################################
-# Release build, UBSan, c++03
-if [[ ("$HAVE_CXX03" -ne "0" && "$HAVE_UBSAN" -ne "0") ]]; then
+# Release build, dead code strip
+if [[ ("$SUN_COMPILER" -eq "0") ]]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
-	echo "Testing: Release, c++03, UBsan" | tee -a "$TEST_RESULTS"
+	echo "Testing: Release, dead code strip" | tee -a "$TEST_RESULTS"
 	echo
 
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" lean 2>&1 | tee -a "$TEST_RESULTS"
+
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+fi
+
+############################################
+# OpenMP
+if [[ ("$HAVE_OMP" -ne "0") ]]; then
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Release, OpenMP" | tee -a "$TEST_RESULTS"
+	echo
+
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	CXXFLAGS="${OMP_FLAG[@]} ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" ubsan | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
