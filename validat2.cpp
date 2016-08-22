@@ -392,9 +392,9 @@ bool ValidateHMQV()
 
 	//ECHMQV< ECP >::Domain hmqvB(false /*server*/);
 	ECHMQV256 hmqvB(false);
-	FileSource f256("TestData/hmqv256.dat", true, new HexDecoder());
-	FileSource f384("TestData/hmqv384.dat", true, new HexDecoder());
-	FileSource f512("TestData/hmqv512.dat", true, new HexDecoder());
+	FileSource f256(CRYPTOPP_DATA_DIR "TestData/hmqv256.dat", true, new HexDecoder());
+	FileSource f384(CRYPTOPP_DATA_DIR "TestData/hmqv384.dat", true, new HexDecoder());
+	FileSource f512(CRYPTOPP_DATA_DIR "TestData/hmqv512.dat", true, new HexDecoder());
 	hmqvB.AccessGroupParameters().BERDecode(f256);
 
 	std::cout << "HMQV with NIST P-256 and SHA-256:" << std::endl;
@@ -509,9 +509,9 @@ bool ValidateFHMQV()
 
 	//ECFHMQV< ECP >::Domain fhmqvB(false /*server*/);
 	ECFHMQV256 fhmqvB(false);
-	FileSource f256("TestData/fhmqv256.dat", true, new HexDecoder());
-	FileSource f384("TestData/fhmqv384.dat", true, new HexDecoder());
-	FileSource f512("TestData/fhmqv512.dat", true, new HexDecoder());
+	FileSource f256(CRYPTOPP_DATA_DIR "TestData/fhmqv256.dat", true, new HexDecoder());
+	FileSource f384(CRYPTOPP_DATA_DIR "TestData/fhmqv384.dat", true, new HexDecoder());
+	FileSource f512(CRYPTOPP_DATA_DIR "TestData/fhmqv512.dat", true, new HexDecoder());
 	fhmqvB.AccessGroupParameters().BERDecode(f256);
 
 	std::cout << "FHMQV with NIST P-256 and SHA-256:" << std::endl;
