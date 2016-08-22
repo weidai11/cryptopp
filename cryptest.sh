@@ -376,7 +376,7 @@ if [[ (-z "$HAVE_OS") ]]; then
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -Os adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
 	if [[ ("$?" -eq "0") ]]; then
 		HAVE_OS=1
-		HAVE_OS=-Os
+		OPT_OS=-Os
 	fi
 fi
 
@@ -2273,7 +2273,7 @@ if [[ "$HAVE_OS" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="-DDEBUG $OPT_OS ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="-DDEBUG $OPT_OS -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2299,7 +2299,7 @@ if [[ "$HAVE_OS" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="-DNDEBUG $OPT_OS ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="-DNDEBUG $OPT_OS -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -4416,8 +4416,8 @@ fi
 if [[ ("$IS_CYGWIN" -eq "0") && ("$IS_MINGW" -eq "0") ]]; then
 
 	echo
-	echo "************************************" | tee -a "$INSTALL_RESULTS"
-	echo "Testing: Test install with data directory" | tee -a "$INSTALL_RESULTS"
+	echo "************************************" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
+	echo "Testing: Test install with data directory" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
 	echo
 
 	"$MAKE" clean > /dev/null 2>&1
@@ -4427,52 +4427,51 @@ if [[ ("$IS_CYGWIN" -eq "0") && ("$IS_MINGW" -eq "0") ]]; then
 	rm -rf "$INSTALL_DIR" > /dev/null 2>&1
 
 	CXXFLAGS="$RELEASE_CXXFLAGS -DCRYPTOPP_DATA_DIR='\"$INSTALL_DIR/share/cryptopp/\"' ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
-	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$INSTALL_RESULTS"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-		echo "ERROR: failed to make cryptest.exe" | tee -a "$INSTALL_RESULTS"
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
 	else
-		# Still need to manulally place TestData and TestVectors
 		OLD_DIR=$(pwd)
-		"$MAKE" "${MAKEARGS[@]}" install PREFIX="$INSTALL_DIR" 2>&1 | tee -a "$INSTALL_RESULTS"
+		"$MAKE" "${MAKEARGS[@]}" install PREFIX="$INSTALL_DIR" 2>&1 | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
 		cd "$INSTALL_DIR/bin"
 
 		echo
-		echo "************************************" | tee -a "$INSTALL_RESULTS"
-		echo "Testing: Install (validation suite)" | tee -a "$INSTALL_RESULTS"
+		echo "************************************" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
+		echo "Testing: Install (validation suite)" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
 		echo
-		./cryptest.exe v 2>&1 | tee -a "$INSTALL_RESULTS"
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-			echo "ERROR: failed to execute validation suite" | tee -a "$INSTALL_RESULTS"
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
 		fi
 
 		echo
-		echo "************************************" | tee -a "$INSTALL_RESULTS"
-		echo "Testing: Install (test vectors)" | tee -a "$INSTALL_RESULTS"
+		echo "************************************" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
+		echo "Testing: Install (test vectors)" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
 		echo
-		./cryptest.exe tv all 2>&1 | tee -a "$INSTALL_RESULTS"
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-			echo "ERROR: failed to execute test vectors" | tee -a "$INSTALL_RESULTS"
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
 		fi
 
 		if [[ "$WANT_BENCHMARKS" -ne "0" ]]; then
 			echo
-			echo "************************************" | tee -a "$INSTALL_RESULTS"
-			echo "Testing: Install (benchmarks)" | tee -a "$INSTALL_RESULTS"
+			echo "************************************" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
+			echo "Testing: Install (benchmarks)" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
 			echo
-			./cryptest.exe b 1 2.4+1e9 2>&1 | tee -a "$INSTALL_RESULTS"
+			./cryptest.exe b 1 2.4+1e9 2>&1 | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
 			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-				echo "ERROR: failed to execute benchmarks" | tee -a "$INSTALL_RESULTS"
+				echo "ERROR: failed to execute benchmarks" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
 			fi
 		fi
 
 		echo
-		echo "************************************" | tee -a "$INSTALL_RESULTS"
-		echo "Testing: Install (help file)" | tee -a "$INSTALL_RESULTS"
+		echo "************************************" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
+		echo "Testing: Install (help file)" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
 		echo
-		./cryptest.exe h 2>&1 | tee -a "$INSTALL_RESULTS"
+		./cryptest.exe h 2>&1 | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
 		if [[ ("${PIPESTATUS[0]}" -ne "1") ]]; then
-			echo "ERROR: failed to provide help" | tee -a "$INSTALL_RESULTS"
+			echo "ERROR: failed to provide help" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
 		fi
 
 		# Restore original PWD
@@ -4485,37 +4484,37 @@ fi
 if [[ ("$IS_CYGWIN" -eq "0" && "$IS_MINGW" -eq "0") ]]; then
 
 	echo
-	echo "************************************" | tee -a "$INSTALL_RESULTS"
-	echo "Testing: Test remove with data directory" | tee -a "$INSTALL_RESULTS"
+	echo "************************************" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
+	echo "Testing: Test remove with data directory" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
 	echo
 
-	"$MAKE" "${MAKEARGS[@]}" remove PREFIX="$INSTALL_DIR" 2>&1 | tee -a "$INSTALL_RESULTS"
+	"$MAKE" "${MAKEARGS[@]}" remove PREFIX="$INSTALL_DIR" 2>&1 | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-		echo "ERROR: failed to make remove" | tee -a "$INSTALL_RESULTS"
+		echo "ERROR: failed to make remove" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
 	else
 		# Test for complete removal
 		if [[ (-d "$INSTALL_DIR/include/cryptopp") ]]; then
-			echo "ERROR: failed to remove cryptopp include directory" | tee -a "$INSTALL_RESULTS"
+			echo "ERROR: failed to remove cryptopp include directory" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
 		fi
 		if [[ (-d "$INSTALL_DIR/share/cryptopp") ]]; then
-			echo "ERROR: failed to remove cryptopp share directory" | tee -a "$INSTALL_RESULTS"
+			echo "ERROR: failed to remove cryptopp share directory" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
 		fi
 		if [[ (-d "$INSTALL_DIR/share/cryptopp/TestData") ]]; then
-			echo "ERROR: failed to remove cryptopp test data directory" | tee -a "$INSTALL_RESULTS"
+			echo "ERROR: failed to remove cryptopp test data directory" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
 		fi
 		if [[ (-d "$INSTALL_DIR/share/cryptopp/TestVector") ]]; then
-			echo "ERROR: failed to remove cryptopp test vector directory" | tee -a "$INSTALL_RESULTS"
+			echo "ERROR: failed to remove cryptopp test vector directory" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
 		fi
 		if [[ (-e "$INSTALL_DIR/bin/cryptest.exe") ]]; then
-			echo "ERROR: failed to remove cryptest.exe program" | tee -a "$INSTALL_RESULTS"
+			echo "ERROR: failed to remove cryptest.exe program" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
 		fi
 		if [[ (-e "$INSTALL_DIR/lib/libcryptopp.a") ]]; then
-			echo "ERROR: failed to remove libcryptopp.a static library" | tee -a "$INSTALL_RESULTS"
+			echo "ERROR: failed to remove libcryptopp.a static library" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
 		fi
 		if [[ "$IS_DARWIN" -ne "0" && (-e "$INSTALL_DIR/lib/libcryptopp.dylib") ]]; then
-			echo "ERROR: failed to remove libcryptopp.dylib dynamic library" | tee -a "$INSTALL_RESULTS"
+			echo "ERROR: failed to remove libcryptopp.dylib dynamic library" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
 		elif [[ (-e "$INSTALL_DIR/lib/libcryptopp.so") ]]; then
-			echo "ERROR: failed to remove libcryptopp.so dynamic library" | tee -a "$INSTALL_RESULTS"
+			echo "ERROR: failed to remove libcryptopp.so dynamic library" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
 		fi
 	fi
 fi
