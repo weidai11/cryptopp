@@ -43,9 +43,12 @@ inline __m128i _mm_set_epi64x(const word64 a, const word64 b)
 static void BLAKE2_CXX_Compress32(const byte* input, BLAKE2_State<word32, false>& state);
 static void BLAKE2_CXX_Compress64(const byte* input, BLAKE2_State<word64, true>& state);
 
+// Also see http://github.com/weidai11/cryptopp/issues/247 for singling out SunCC 5.12
 #if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
 static void BLAKE2_SSE2_Compress32(const byte* input, BLAKE2_State<word32, false>& state);
+# if (__SUNPRO_CC != 0x5120)
 static void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64, true>& state);
+# endif
 #endif
 
 #if CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
@@ -161,9 +164,11 @@ pfnCompress64 InitializeCompress64Fn()
 	else
 #endif
 #if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+# if (__SUNPRO_CC != 0x5120)
 	if (HasSSE2())
 		return &BLAKE2_SSE2_Compress64;
 	else
+# endif
 #endif
 #if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
 	if (HasNEON())
@@ -1032,6 +1037,7 @@ static void BLAKE2_SSE2_Compress32(const byte* input, BLAKE2_State<word32, false
   _mm_storeu_si128((__m128i *)(void*)(&state.h[4]),_mm_xor_si128(ff1,_mm_xor_si128(row2,row4)));
 }
 
+# if (__SUNPRO_CC != 0x5120)
 static void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64, true>& state)
 {
   word64 m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15;
@@ -1916,6 +1922,7 @@ static void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64, true>
   _mm_storeu_si128((__m128i *)(void*)(&state.h[4]), _mm_xor_si128(_mm_loadu_si128((const __m128i*)(const void*)(&state.h[4])), row2l));
   _mm_storeu_si128((__m128i *)(void*)(&state.h[6]), _mm_xor_si128(_mm_loadu_si128((const __m128i*)(const void*)(&state.h[6])), row2h));
 }
+# endif // (__SUNPRO_CC != 0x5120)
 #endif  // CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
 
 #if CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
