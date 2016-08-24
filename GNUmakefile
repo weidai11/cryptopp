@@ -35,10 +35,11 @@ CLANG_COMPILER := $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "clang")
 INTEL_COMPILER := $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "\(icc\)")
 MACPORTS_COMPILER := $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "macports")
 
-# Sun Studio 12.0 (0x0510) and 12.3 (0x0512)
-SUNCC_120_OR_LATER := $(shell $(CXX) -V 2>&1 | $(EGREP) -c "CC: (Sun|Studio) .* (5\.1[0-9]|5\.[2-9]|6\.)")
-SUNCC_122_OR_LATER := $(shell $(CXX) -V 2>&1 | $(EGREP) -c "CC: (Sun|Studio) .* (5\.1[1-9]|5\.[2-9]|6\.)")
-SUNCC_123_OR_LATER := $(shell $(CXX) -V 2>&1 | $(EGREP) -c "CC: (Sun|Studio) .* (5\.1[2-9]|5\.[2-9]|6\.)")
+# Sun Studio 12.0 provides SunCC 0x0510; and Sun Studio 12.3 provides SunCC 0x0512
+SUNCC_510_OR_LATER := $(shell $(CXX) -V 2>&1 | $(EGREP) -c "CC: (Sun|Studio) .* (5\.1[0-9]|5\.[2-9]|6\.)")
+SUNCC_511_OR_LATER := $(shell $(CXX) -V 2>&1 | $(EGREP) -c "CC: (Sun|Studio) .* (5\.1[1-9]|5\.[2-9]|6\.)")
+SUNCC_512_OR_LATER := $(shell $(CXX) -V 2>&1 | $(EGREP) -c "CC: (Sun|Studio) .* (5\.1[2-9]|5\.[2-9]|6\.)")
+SUNCC_513_OR_LATER := $(shell $(CXX) -V 2>&1 | $(EGREP) -c "CC: (Sun|Studio) .* (5\.1[3-9]|5\.[2-9]|6\.)")
 
 HAS_SOLIB_VERSION := $(IS_LINUX)
 
@@ -54,7 +55,7 @@ endif
 
 # Base CXXFLAGS used if the user did not specify them
 ifeq ($(SUN_COMPILER),1)
-  ifeq ($(SUNCC_123_OR_LATER),1)
+  ifeq ($(SUNCC_512_OR_LATER),1)
     CXXFLAGS ?= -DNDEBUG -g3 -xO2
   else
     CXXFLAGS ?= -DNDEBUG -g -xO2
@@ -284,9 +285,12 @@ endif
 ifneq ($(SUN_COMPILER),0)	# override flags for CC Sun C++ compiler
 IS_64 := $(shell isainfo -b 2>/dev/null | grep -i -c "64")
 ifeq ($(IS_64),1)
-CXXFLAGS += -native -m64
+CXXFLAGS += -m64
 else ifeq ($(IS_64),0)
-CXXFLAGS += -native -m32
+CXXFLAGS += -m32
+endif
+ifneq ($(SUNCC_513_OR_LATER),0)
+CXXFLAGS += -native
 endif
 # Add for non-i386
 ifneq ($(IS_X86),1)
@@ -295,7 +299,7 @@ endif
 # Add to all Solaris
 CXXFLAGS += -template=no%extdef
 # Add to Sun Studio 12.2 and above
-ifneq ($(SUNCC_122_OR_LATER),0)
+ifneq ($(SUNCC_511_OR_LATER),0)
 CXXFLAGS += -w -erroff=wvarhidemem -erroff=voidretw
 endif
 SUN_CC10_BUGGY := $(shell $(CXX) -V 2>&1 | $(EGREP) -c "CC: Sun .* 5\.10 .* (2009|2010/0[1-4])")
@@ -304,7 +308,7 @@ ifneq ($(SUN_CC10_BUGGY),0)
 # remove it if you get "already had a body defined" errors in vector.cc
 CXXFLAGS += -DCRYPTOPP_INCLUDE_VECTOR_CC
 endif
-#ifneq ($SUNCC_123_OR_LATER),0)
+#ifneq ($SUNCC_512_OR_LATER),0)
 #CXXFLAGS += -xarch=aes -D__AES__=1 -xarch=no%sse4_1 -xarch=no%sse4_2
 #endif
 AR = $(CXX)
