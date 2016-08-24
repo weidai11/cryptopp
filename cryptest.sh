@@ -115,6 +115,9 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 	else
 		AWK=nawk;
 	fi
+
+	DISASS=dis
+	DISASSARGS=()
 fi
 
 # Fixup
@@ -138,7 +141,9 @@ done
 # We need to use the C++ compiler to determine feature availablility. Otherwise
 #   mis-detections occur on a number of platforms.
 if [[ ((-z "$CXX") || ("$CXX" == "gcc")) ]]; then
-	if [[ "$IS_DARWIN" -ne "0" ]]; then
+	if [[ ("$CXX" == "gcc") ]]; then
+		CXX=g++
+	elif [[ "$IS_DARWIN" -ne "0" ]]; then
 		CXX=c++
 	elif [[ "$IS_SOLARIS" -ne "0" ]]; then
 		if [[ (-e "/opt/developerstudio12.5/bin/CC") ]]; then
@@ -182,7 +187,7 @@ if [[ ("$SUN_COMPILER" -eq "0") ]]; then
 fi
 
 # Now that the compiler is fixed, determine the compiler version for fixups
-CLANG_37_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'clang version (3\.[7-9]|[5-9])')
+CLANG_37_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'clang version (3\.[7-9]|[4-9]\.[0-9])')
 GCC_60_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version (6\.[0-9]|[7-9])')
 GCC_51_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version (5\.[1-9]|[6-9])')
 GCC_48_COMPILER=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version 4\.8')
@@ -1026,6 +1031,10 @@ if [[ ("$HAVE_DISASS" -ne "0" && "$HAVE_X86_AES" -ne "0") ]]; then
 	OBJFILE=rijndael.o
 	CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
 
+	# This works for SunCC, but we need something like:
+	# /opt/solarisstudio12.4/bin/CC -DNDEBUG -g2 -O2 -xarch=aes -m64 -D__SSE2__ -D__SSE3__ \
+	#   -D__SSE4_1__ -D__SSE4_2__ -D__AES__ -D__PCLMUL__ -c rijndael.cpp
+
 	COUNT=0
 	FAILED=0
 	DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
@@ -1072,6 +1081,45 @@ if [[ ("$HAVE_DISASS" -ne "0" && "$HAVE_X86_AES" -ne "0") ]]; then
 		if [[ ("$CLANG_COMPILER" -ne "0" && "$CLANG_37_OR_ABOVE" -eq "0") ]]; then
 			echo "This could be due to Clang and lack of expected support for SSSE3 in some versions of the compiler. If so, try Clang 3.7 or above"
 		fi
+	fi
+fi
+
+############################################
+# Test RDRAND and RDSEED code generation
+if [[ ("$HAVE_DISASS" -ne "0" && "$HAVE_X86_RDRAND" -ne "0") ]]; then
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: RDRAND and RDSEED code generation" | tee -a "$TEST_RESULTS"
+	echo
+
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	OBJFILE=rdrand.o
+	CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
+
+	# This works for SunCC, but we need something like:
+	# /opt/solarisstudio12.4/bin/CC -DNDEBUG -g2 -O2 -xarch=avx_i -m64 -D__SSE2__ -D__SSE3__ \
+	# -D__SSE4_1__ -D__SSE4_2__ -D__AES__ -D__PCLMUL__ -D__RDRND__ -D__RDSEED__ -c rdrand.cpp
+
+	COUNT=0
+	FAILED=0
+	DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
+
+	COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c rdrand)
+	if [[ ("$COUNT" -eq "0") ]]; then
+		FAILED=1
+		echo "ERROR: failed to generate rdrand instruction" | tee -a "$TEST_RESULTS"
+	fi
+
+	COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c rdseed)
+	if [[ ("$COUNT" -eq "0") ]]; then
+		FAILED=1
+		echo "ERROR: failed to generate rdseed instruction" | tee -a "$TEST_RESULTS"
+	fi
+
+	if [[ ("$FAILED" -eq "0") ]];then
+		echo "Verified rdrand and rdseed machine instruction generation" | tee -a "$TEST_RESULTS"
 	fi
 fi
 
