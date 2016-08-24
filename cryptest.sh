@@ -72,6 +72,8 @@ GREP=grep
 EGREP=egrep
 SED=sed
 AWK=awk
+DISASS=objdump
+DISASSARGS=("--disassemble")
 
 THIS_SYSTEM=$(uname -s 2>&1)
 IS_DARWIN=$(echo "$THIS_SYSTEM" | "$GREP" -i -c darwin)
@@ -113,6 +115,12 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 	else
 		AWK=nawk;
 	fi
+fi
+
+# Fixup
+if [[ "$IS_DARWIN" -ne 0 ]]; then
+	DISASS=otool
+	DISASSARGS=("-tV")
 fi
 
 for ARG in "$@"
@@ -174,6 +182,7 @@ if [[ ("$SUN_COMPILER" -eq "0") ]]; then
 fi
 
 # Now that the compiler is fixed, determine the compiler version for fixups
+CLANG_37_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'clang version (3\.[7-9]|[5-9])')
 GCC_60_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version (6\.[0-9]|[7-9])')
 GCC_51_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version (5\.[1-9]|[6-9])')
 GCC_48_COMPILER=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version 4\.8')
@@ -637,9 +646,9 @@ fi
 # Used to disassemble object modules so we can verify some aspects of code generation
 if [[ (-z "$HAVE_DISASS") ]]; then
 	echo "int main(int argc, char* argv[]) {return 0;}" > "$TMP/test.cc"
-	gcc "$TMP/test.cc" -o "$TMP/test.exe" > /dev/null 2>&1
+	"$CXX" -x c "$TMP/test.cc" -o "$TMP/test.exe" > /dev/null 2>&1
 	if [[ "$?" -eq "0" ]]; then
-		gdb -batch -ex 'disassemble main' "$TMP/test.exe" > /dev/null 2>&1
+		"$DISASS" "${DISASSARGS[@]}" "$TMP/test.exe" > /dev/null 2>&1
 		if [[ "$?" -eq "0" ]]; then
 			HAVE_DISASS=1
 		else
@@ -877,13 +886,16 @@ fi
 if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 
 	if [[ (("$HAVE_ARMV7A" -ne "0") && ("$IS_ARM32" -ne "0")) ]]; then
+
 		PLATFORM_CXXFLAGS+=("-march=armv7-a")
 
 		# http://community.arm.com/groups/tools/blog/2013/04/15/arm-cortex-a-processors-and-gcc-command-lines
 		#  These may need more tuning. If it was easy to get the CPU model, like Cortex-A9, then we could
 		#  be fairly certain of the FPU and ABI flags. But we can't easily get a CPU name, so we suffer through it.
 		#  Also see http://lists.linaro.org/pipermail/linaro-toolchain/2016-July/005821.html
-		if [[ ("$HAVE_ARM_NEON" -ne "0" && "$HAVE_ARM_VFPV4" -ne "0") ]]; then
+		if [[ ("$HAVE_ARM_NEON" -ne "0" && "$CLANG_COMPILER" -ne "0") ]]; then
+			PLATFORM_CXXFLAGS+=("-mfpu=neon")
+		elif [[ ("$HAVE_ARM_NEON" -ne "0" && "$HAVE_ARM_VFPV4" -ne "0") ]]; then
 			PLATFORM_CXXFLAGS+=("-mfpu=neon-vfpv4")
 		elif [[ ("$HAVE_ARM_NEON" -ne "0") ]]; then
 			PLATFORM_CXXFLAGS+=("-mfpu=neon")
@@ -904,6 +916,7 @@ if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 		fi
 
 	elif [[ (("$HAVE_ARMV8A" -ne "0") && ("$IS_ARM64" -ne "0")) ]]; then
+
 		if [[ ("$HAVE_ARM_CRC" -ne "0" && "$HAVE_ARM_CRYPTO" -ne "0") ]]; then
 			PLATFORM_CXXFLAGS+=("-march=armv8-a+crc+crypto")
 		elif [[ ("$HAVE_ARM_CRC" -ne "0") ]]; then
@@ -922,7 +935,9 @@ if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 			PLATFORM_CXXFLAGS+=("-march=armv8-a")
 		fi
 
-		if [[ ("$HAVE_ARM_CRYPTO" -ne "0") ]]; then
+		if [[ ("$CLANG_COMPILER" -ne "0") ]]; then
+			PLATFORM_CXXFLAGS+=("-mfpu=neon")
+		elif [[ ("$HAVE_ARM_CRYPTO" -ne "0") ]]; then
 			PLATFORM_CXXFLAGS+=("-mfpu=crypto-neon-fp-armv8")
 		else
 			PLATFORM_CXXFLAGS+=("-mfpu=neon-fp-armv8")
@@ -999,7 +1014,7 @@ echo "Start time: $TEST_BEGIN" | tee -a "$TEST_RESULTS"
 
 ############################################
 # Test AES-NI code generation
-if [[ ("$HAVE_DISASS" -ne "0" && "$HAVE_X86_AES" -ne "0") ]] && false; then
+if [[ ("$HAVE_DISASS" -ne "0" && "$HAVE_X86_AES" -ne "0") ]]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: AES-NI code generation" | tee -a "$TEST_RESULTS"
@@ -1009,31 +1024,89 @@ if [[ ("$HAVE_DISASS" -ne "0" && "$HAVE_X86_AES" -ne "0") ]] && false; then
 	rm -f adhoc.cpp > /dev/null 2>&1
 
 	OBJFILE=rijndael.o
-	CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS -march=native -maes" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
+	CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
 
-	MANGLED=($(nm $OBJFILE))
-	UNMANGLED=($(nm $OBJFILE | c++filt))
-	IDX=-1
+	COUNT=0
+	FAILED=0
+	DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
 
-	for i in "${!UNMANGLED[@]}"; do
-		if [[ "${UNMANGLED[$i]}" = "${value}" ]]; then
-			IDX="${i}";
-		fi
-	done
-
-	DISASS=$(gdb -batch -ex 'disassemble AESNI_Enc_Block AESNI_Enc_4_Blocks' $OBJFILE 2>/dev/null)
-
-	if [[ ($(echo "$DISASS" | grep -i aesenc) -eq "0") ]]; then
+	COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c aesenc)
+	if [[ ("$COUNT" -eq "0") ]]; then
+		FAILED=1
 		echo "ERROR: failed to generate aesenc instruction" | tee -a "$TEST_RESULTS"
 	fi
-	if [[ ($(echo "$DISASS" | grep -i aesenclast) -eq "0") ]]; then
+
+	COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c aesenclast)
+	if [[ ("$COUNT" -eq "0") ]]; then
+		FAILED=1
 		echo "ERROR: failed to generate aesenclast instruction" | tee -a "$TEST_RESULTS"
 	fi
-	if [[ ($(echo "$DISASS" | grep -i aesdec) -eq "0") ]]; then
+
+	COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c aesdec)
+	if [[ ("$COUNT" -eq "0") ]]; then
+		FAILED=1
 		echo "ERROR: failed to generate aesdec instruction" | tee -a "$TEST_RESULTS"
 	fi
-	if [[ ($(echo "$DISASS" | grep -i aesdeclast) -eq "0") ]]; then
+
+	COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c aesdeclast)
+	if [[ ("$COUNT" -eq "0") ]]; then
+		FAILED=1
 		echo "ERROR: failed to generate aesdeclast instruction" | tee -a "$TEST_RESULTS"
+	fi
+
+	COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c aesimc)
+	if [[ ("$COUNT" -eq "0") ]]; then
+		FAILED=1
+		echo "ERROR: failed to generate aesimc instruction" | tee -a "$TEST_RESULTS"
+	fi
+
+	COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c aeskeygenassist)
+	if [[ ("$COUNT" -eq "0") ]]; then
+		FAILED=1
+		echo "ERROR: failed to generate aeskeygenassist instruction" | tee -a "$TEST_RESULTS"
+	fi
+
+	if [[ ("$FAILED" -eq "0") ]];then
+		echo "Verified aesenc, aesenclast, aesdec, aesdeclast, aesimc, aeskeygenassist machine instruction generation" | tee -a "$TEST_RESULTS"
+	else
+		if [[ ("$CLANG_COMPILER" -ne "0" && "$CLANG_37_OR_ABOVE" -eq "0") ]]; then
+			echo "This could be due to Clang and lack of expected support for SSSE3 in some versions of the compiler. If so, try Clang 3.7 or above"
+		fi
+	fi
+fi
+
+############################################
+# ARM 64x64→128-bit multiply code generation
+if [[ ("$HAVE_DISASS" -ne "0" && "$HAVE_ARM_CRYPTO" -ne "0") ]]; then
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: ARM 64x64→128-bit multiply code generation" | tee -a "$TEST_RESULTS"
+	echo
+
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	OBJFILE=gcm.o
+	CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
+
+	COUNT=0
+	FAILED=0
+	DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
+
+	COUNT=$(echo "$DISASS_TEXT" | "$GREP" -v pmull2 | "$GREP" -i -c pmull)
+	if [[ ("$COUNT" -eq "0") ]]; then
+		FAILED=1
+		echo "ERROR: failed to generate pmull instruction" | tee -a "$TEST_RESULTS"
+	fi
+
+	COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c pmull2)
+	if [[ ("$COUNT" -eq "0") ]]; then
+		FAILED=1
+		echo "ERROR: failed to generate pmull2 instruction" | tee -a "$TEST_RESULTS"
+	fi
+
+	if [[ ("$FAILED" -eq "0") ]];then
+		echo "Verified pmull and pmull2 machine instruction generation" | tee -a "$TEST_RESULTS"
 	fi
 fi
 
@@ -2870,7 +2943,7 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 	fi
 
 	# Sun Studio 12.3 and below workaround, http://github.com/weidai11/cryptopp/issues/228
-	SUNCC_SSE_CXXFLAGS=$(echo "$SUNCC_CXXFLAGS" | "$AWK" '/SSE/' ORS=' ' RS=' ')
+	SUNCC_SSE_CXXFLAGS=$(echo -n "${SUNCC_CXXFLAGS[@]}" | "$AWK" '/SSE/' ORS=' ' RS=' ')
 
 	############################################
 	# Sun Studio 12.2
@@ -2886,8 +2959,8 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="-DDEBUG -g -xO0 $SUNCC_SSE_CXXFLAGS"
-		CXX=/opt/solstudio12.2/bin/CC CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		CXXFLAGS="-DDEBUG -g -xO0 ${SUNCC_SSE_CXXFLAGS[@]}"
+		CXX="/opt/solstudio12.2/bin/CC" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -2912,8 +2985,8 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="-DNDEBUG -g -xO2 $SUNCC_SSE_CXXFLAGS"
-		CXX=/opt/solstudio12.2/bin/CC CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		CXXFLAGS="-DNDEBUG -g -xO2 ${SUNCC_SSE_CXXFLAGS[@]}"
+		CXX="/opt/solstudio12.2/bin/CC" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -4156,7 +4229,8 @@ if [[ ("$CLANG_COMPILER" -eq "0") ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXX="$CLANG_CXX" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		CXXFLAGS="-DNDEBUG -g2 -O2 ${DEPRECATED_CXXFLAGS[@]}"
+		CXX="$CLANG_CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 		else
@@ -4190,7 +4264,8 @@ if [[ ("$GCC_COMPILER" -eq "0") ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXX="$GCC_CXX" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		CXXFLAGS="-DNDEBUG -g2 -O2 ${DEPRECATED_CXXFLAGS[@]}"
+		CXX="$GCC_CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 		else
@@ -4227,6 +4302,7 @@ if [[ ("$INTEL_COMPILER" -eq "0") ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
+		CXXFLAGS="-DNDEBUG -g2 -O2 ${DEPRECATED_CXXFLAGS[@]}"
 		CXX="$INTEL_CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -4262,7 +4338,8 @@ if [[ ("$MACPORTS_COMPILER" -eq "0") ]]; then
 			"$MAKE" clean > /dev/null 2>&1
 			rm -f adhoc.cpp > /dev/null 2>&1
 
-			CXX="$MACPORTS_CXX" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+			CXXFLAGS="-DNDEBUG -g2 -O2 ${DEPRECATED_CXXFLAGS[@]}"
+			CXX="$MACPORTS_CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 				echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 			else
@@ -4293,7 +4370,8 @@ if [[ ("$MACPORTS_COMPILER" -eq "0") ]]; then
 			"$MAKE" clean > /dev/null 2>&1
 			rm -f adhoc.cpp > /dev/null 2>&1
 
-			CXX="$MACPORTS_CXX" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+			CXXFLAGS="-DNDEBUG -g2 -O2 ${DEPRECATED_CXXFLAGS[@]}"
+			CXX="$MACPORTS_CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 				echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
 			else
@@ -4327,7 +4405,7 @@ if [[ "$IS_DARWIN" -ne "0" ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="$RELEASE_CXXFLAGS ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+		CXXFLAGS="-DNDEBUG -g2 -O2 ${DEPRECATED_CXXFLAGS[@]}"
 		CXX="$XCODE_CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
