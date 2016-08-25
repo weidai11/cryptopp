@@ -1303,8 +1303,22 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 			echo "ERROR: failed to generate expected vector store instructions" | tee -a "$TEST_RESULTS"
 		fi
 
+		# BLAKE2_NEON_Compress{32|64}: 409 each vaddq_u32 and vaddq_u64
+		COUNT=$(echo "$DISASS_TEXT" | "$EGREP" -i -c 'add.*v')
+		if [[ ("$COUNT" -lt "400") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate expected vector add instructions" | tee -a "$TEST_RESULTS"
+		fi
+
+		# BLAKE2_NEON_Compress{32|64}: 559 each veorq_u32 and veorq_u64
+		COUNT=$(echo "$DISASS_TEXT" | "$EGREP" -i -c 'eor.*v')
+		if [[ ("$COUNT" -lt "550") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate expected vector xor instructions" | tee -a "$TEST_RESULTS"
+		fi
+
 		if [[ ("$FAILED" -eq "0") ]];then
-			echo "Verified vector load and store machine instructions" | tee -a "$TEST_RESULTS"
+			echo "Verified vector load, store, add, xor machine instructions" | tee -a "$TEST_RESULTS"
 		fi
 	fi
 fi
