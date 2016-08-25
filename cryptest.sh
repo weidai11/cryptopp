@@ -173,7 +173,7 @@ if [[ ((-z "$CXX") || ("$CXX" == "gcc")) ]]; then
 fi
 
 SUN_COMPILER=$("$CXX" -V 2>&1 | "$EGREP" -i -c "CC: (Sun|Studio)")
-GCC_COMPILER=$("$CXX" --version 2>&1 | "$EGREP" -i -c "(gcc|g\+\+)")
+GCC_COMPILER=$("$CXX" --version 2>&1 | "$GREP" -i -v "clang" | "$EGREP" -i -c "(gcc|g\+\+)")
 INTEL_COMPILER=$("$CXX" --version 2>&1 | "$EGREP" -i -c "\(icc\)")
 MACPORTS_COMPILER=$("$CXX" --version 2>&1 | "$EGREP" -i -c "MacPorts")
 CLANG_COMPILER=$("$CXX" --version 2>&1 | "$EGREP" -i -c "clang")
@@ -891,6 +891,29 @@ if [[ "$?" -eq "0" ]]; then
 	DEPRECATED_CXXFLAGS+=("-Wno-deprecated-declarations")
 fi
 
+# Clang {3.4|3.5|3.6} only advertises SSE2, http://bugs.launchpad.net/ubuntu/+bug/1616723,
+#   http://bugs.launchpad.net/ubuntu/+bug/1616729 and http://bugs.launchpad.net/ubuntu/+bug/1616731
+if [[ (("$IS_X86" -ne "0" || "$IS_X64" -ne "0") && ("$CLANG_COMPILER" -ne "0" && "$CLANG_37_OR_ABOVE" -eq "0")) ]]; then
+	if [[ ("$IS_DARWIN" -ne "0") ]]; then
+		CPUINFO=$(sysctl machdep.cpu.features 2>&1 | cut -f 2 -d ':')
+	else
+		CPUINFO=$(cat /proc/cpuinfo 2>&1 | "$AWK" '{IGNORECASE=1}{if ($1 == "flags") print}' | cut -f 2 -d ':')
+	fi
+	if [[ ($(echo "$CPUINFO" | "$GREP" -c "sse2") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-msse2"); fi
+	if [[ ($(echo "$CPUINFO" | "$GREP" -c "sse3") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-msse3"); fi
+	if [[ ($(echo "$CPUINFO" | "$GREP" -c "ssse3") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-mssse3"); fi
+	if [[ ($(echo "$CPUINFO" | "$GREP" -c "sse4.1") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-msse4.1"); fi
+	if [[ ($(echo "$CPUINFO" | "$GREP" -c "sse4.2") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-msse4.2"); fi
+	if [[ ($(echo "$CPUINFO" | "$GREP" -c "aes") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-maes"); fi
+	if [[ ($(echo "$CPUINFO" | "$GREP" -c "pclmulqdq") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-mpclmul"); fi
+	if [[ ($(echo "$CPUINFO" | "$GREP" -c "rdrand") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-mrdrnd"); fi
+	if [[ ($(echo "$CPUINFO" | "$GREP" -c "rdseed") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-mrdseed"); fi
+	if [[ ($(echo "$CPUINFO" | "$GREP" -c "avx") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-mavx"); fi
+	if [[ ($(echo "$CPUINFO" | "$GREP" -c "avx2") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-mavx2"); fi
+	if [[ ($(echo "$CPUINFO" | "$GREP" -c "bmi") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-mbmi"); fi
+	if [[ ($(echo "$CPUINFO" | "$GREP" -c "bmi2") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-mbmi2"); fi
+fi
+
 # Please, someone put an end to the madness of determining Features, ABI, hard floats and soft floats...
 if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 
@@ -1093,7 +1116,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 			echo "Verified aesenc, aesenclast, aesdec, aesdeclast, aesimc, aeskeygenassist machine instructions" | tee -a "$TEST_RESULTS"
 		else
 			if [[ ("$CLANG_COMPILER" -ne "0" && "$CLANG_37_OR_ABOVE" -eq "0") ]]; then
-				echo "This could be due to Clang and lack of expected support for SSSE3 in some versions of the compiler. If so, try Clang 3.7 or above"
+				echo "This could be due to Clang and lack of expected support for SSSE3 (and above) in some versions of the compiler. If so, try Clang 3.7 or above"
 			fi
 		fi
 	fi
@@ -1146,8 +1169,8 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 		if [[ ("$FAILED" -eq "0") ]];then
 			echo "Verified pclmullqh and pclmullql machine instructions" | tee -a "$TEST_RESULTS"
 		else
-			if [[ ("$CLANG_COMPILER" -ne "0") ]]; then
-				echo "This is probably due to Clang and its integrated assembler. The integrated assembler cannot consume a lot of ASM used by the library"
+			if [[ ("$CLANG_COMPILER" -ne "0" && "$CLANG_37_OR_ABOVE" -eq "0") ]]; then
+				echo "This could be due to Clang and lack of expected support for SSSE3 (and above) in some versions of the compiler. If so, try Clang 3.7 or above"
 			fi
 		fi
 	fi
@@ -1206,6 +1229,10 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 
 		if [[ ("$FAILED" -eq "0") ]];then
 			echo "Verified rdrand and rdseed machine instructions" | tee -a "$TEST_RESULTS"
+		else
+			if [[ ("$CLANG_COMPILER" -ne "0" && "$CLANG_37_OR_ABOVE" -eq "0") ]]; then
+				echo "This could be due to Clang and lack of expected support for SSSE3 (and above) in some versions of the compiler. If so, try Clang 3.7 or above"
+			fi
 		fi
 	fi
 fi
@@ -1256,6 +1283,10 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 
 		if [[ ("$FAILED" -eq "0") ]];then
 			echo "Verified crc32l and crc32b machine instructions" | tee -a "$TEST_RESULTS"
+		else
+			if [[ ("$CLANG_COMPILER" -ne "0" && "$CLANG_37_OR_ABOVE" -eq "0") ]]; then
+				echo "This could be due to Clang and lack of expected support for SSSE3 (and above) in some versions of the compiler. If so, try Clang 3.7 or above"
+			fi
 		fi
 	fi
 fi
