@@ -1286,10 +1286,12 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 		FAILED=0
 		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
 
-		# BLAKE2_NEON_Compress32: 40 each vld1q_u8 and vld1q_u64
+		# BLAKE2_NEON_Compress32: 30 each vld1q_u8 and vld1q_u64
 		# BLAKE2_NEON_Compress64: 22 each vld1q_u8 and vld1q_u64
-		COUNT=$(echo "$DISASS_TEXT" | "$EGREP" -i -c 'ldr.*q')
-		if [[ ("$COUNT" -lt "62") ]]; then
+		COUNT1=$(echo "$DISASS_TEXT" | "$EGREP" -i -c 'ldr.*q')
+		COUNT2=$(echo "$DISASS_TEXT" | "$EGREP" -i -c 'ldp.*q')
+		COUNT=$(($COUNT1 + $(($COUNT2 + $COUNT2))))
+		if [[ ("$COUNT" -lt "25") ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate expected vector load instructions" | tee -a "$TEST_RESULTS"
 		fi
