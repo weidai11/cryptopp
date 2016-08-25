@@ -1261,6 +1261,53 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 fi
 
 ############################################
+# ARM NEON code generation
+if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]]; then
+
+	if [[ ("$IS_DARWIN" -ne "0") ]]; then
+		ARM_NEON=$(sysctl machdep.cpu.features 2>/dev/null | "$EGREP" -i -c '(neon|asimd)')
+	else
+		ARM_NEON=$(cat /proc/cpuinfo 2>/dev/null | "$EGREP" -i -c '(neon|asimd)')
+	fi
+
+	if [[ ("$ARM_NEON" -ne "0" || "$HAVE_ARM_NEON" -ne "0") ]]; then
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS"
+		echo "Testing: ARM NEON code generation" | tee -a "$TEST_RESULTS"
+		echo
+
+		"$MAKE" clean > /dev/null 2>&1
+		rm -f adhoc.cpp > /dev/null 2>&1
+
+		OBJFILE=blake2.o
+		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS ${PLATFORM_CXXFLAGS[@]}" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
+
+		COUNT=0
+		FAILED=0
+		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
+
+		# BLAKE2_NEON_Compress32: 40 each vld1q_u8 and vld1q_u64
+		# BLAKE2_NEON_Compress64: 22 each vld1q_u8 and vld1q_u64
+		COUNT=$(echo "$DISASS_TEXT" | "$EGREP" -i -c 'ldr.*q')
+		if [[ ("$COUNT" -lt "62") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate expected vector load instructions" | tee -a "$TEST_RESULTS"
+		fi
+
+		# BLAKE2_NEON_Compress{32|64}: 6 each vst1q_u32 and vst1q_u64
+		COUNT=$(echo "$DISASS_TEXT" | "$EGREP" -i -c 'str.*q')
+		if [[ ("$COUNT" -lt "6") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate expected vector store instructions" | tee -a "$TEST_RESULTS"
+		fi
+
+		if [[ ("$FAILED" -eq "0") ]];then
+			echo "Verified vector load and store machine instructions" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+fi
+
+############################################
 # ARM carryless multiply code generation
 if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]]; then
 
