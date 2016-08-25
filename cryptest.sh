@@ -72,25 +72,27 @@ GREP=grep
 EGREP=egrep
 SED=sed
 AWK=awk
+
+# Code generation tests
 DISASS=objdump
 DISASSARGS=("--disassemble")
 
 THIS_SYSTEM=$(uname -s 2>&1)
-IS_DARWIN=$(echo "$THIS_SYSTEM" | "$GREP" -i -c darwin)
-IS_LINUX=$(echo "$THIS_SYSTEM" | "$GREP" -i -c linux)
-IS_CYGWIN=$(echo "$THIS_SYSTEM" | "$GREP" -i -c cygwin)
-IS_MINGW=$(echo "$THIS_SYSTEM" | "$GREP" -i -c mingw)
-IS_OPENBSD=$(echo "$THIS_SYSTEM" | "$GREP" -i -c openbsd)
-IS_NETBSD=$(echo "$THIS_SYSTEM" | "$GREP" -i -c netbsd)
-IS_SOLARIS=$(echo "$THIS_SYSTEM" | "$GREP" -i -c sunos)
+IS_DARWIN=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c darwin)
+IS_LINUX=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c linux)
+IS_CYGWIN=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c cygwin)
+IS_MINGW=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c mingw)
+IS_OPENBSD=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c openbsd)
+IS_NETBSD=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c netbsd)
+IS_SOLARIS=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c sunos)
 
 THIS_MACHINE=$(uname -m 2>&1)
-IS_X86=$(echo "$THIS_MACHINE" | "$EGREP" -i -c "(i386|i586|i686|amd64|x86_64)")
-IS_X64=$(echo "$THIS_MACHINE" | "$EGREP" -i -c "(amd64|x86_64)")
-IS_PPC=$(echo "$THIS_MACHINE" | "$EGREP" -i -c "(Power|PPC)")
-IS_ARM32=$(echo "$THIS_MACHINE" | "$GREP" -v "arm64" | "$EGREP" -i -c "(arm|aarch32)")
-IS_ARM64=$(echo "$THIS_MACHINE" | "$EGREP" -i -c "(arm64|aarch64)")
-IS_S390=$(echo "$THIS_MACHINE" | "$EGREP" -i -c "s390")
+IS_X86=$(echo -n "$THIS_MACHINE" | "$EGREP" -i -c "(i386|i586|i686|amd64|x86_64)")
+IS_X64=$(echo -n "$THIS_MACHINE" | "$EGREP" -i -c "(amd64|x86_64)")
+IS_PPC=$(echo -n "$THIS_MACHINE" | "$EGREP" -i -c "(Power|PPC)")
+IS_ARM32=$(echo -n "$THIS_MACHINE" | "$GREP" -v "64" | "$EGREP" -i -c "(arm|aarch32)")
+IS_ARM64=$(echo -n "$THIS_MACHINE" | "$EGREP" -i -c "(arm64|aarch64)")
+IS_S390=$(echo -n "$THIS_MACHINE" | "$EGREP" -i -c "s390")
 IS_X32=0
 
 # Fixup
@@ -124,6 +126,35 @@ fi
 if [[ "$IS_DARWIN" -ne 0 ]]; then
 	DISASS=otool
 	DISASSARGS=("-tV")
+fi
+
+# Fixup
+if [[ ("$IS_OPENBSD" -ne "0" || "$IS_NETBSD" -ne "0") ]]; then
+	MAKE=gmake
+elif [[ ("$IS_SOLARIS" -ne "0") ]]; then
+	MAKE=$(which gmake 2>/dev/null | "$GREP" -v "no gmake" | head -1)
+	if [[ (-z "$MAKE") && (-e "/usr/sfw/bin/gmake") ]]; then
+		MAKE=/usr/sfw/bin/gmake
+	fi
+else
+	MAKE=make
+fi
+
+# CPU features and flags
+if [[ ("$IS_X86" -ne "0" || "$IS_X64" -ne "0") ]]; then
+	if [[ ("$IS_DARWIN" -ne "0") ]]; then
+		X86_CPU_FLAGS=$(sysctl machdep.cpu.features 2>&1 | cut -f 2 -d ':')
+	elif [[ ("$IS_SOLARIS" -ne "0") ]]; then
+		X86_CPU_FLAGS=$(isainfo -v 2>/dev/null)
+	else
+		X86_CPU_FLAGS=$(cat /proc/cpuinfo 2>&1 | "$AWK" '{IGNORECASE=1}{if ($1 == "flags"){print;exit}}' | cut -f 2 -d ':')
+	fi
+elif [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
+	if [[ ("$IS_DARWIN" -ne "0") ]]; then
+		ARM_CPU_FLAGS=$(sysctl machdep.cpu.features 2>&1 | cut -f 2 -d ':')
+	else
+		ARM_CPU_FLAGS=$(cat /proc/cpuinfo 2>&1 | "$AWK" '{IGNORECASE=1}{if ($1 == "Features"){print;exit}}' | cut -f 2 -d ':')
+	fi
 fi
 
 for ARG in "$@"
@@ -173,7 +204,7 @@ if [[ ((-z "$CXX") || ("$CXX" == "gcc")) ]]; then
 fi
 
 SUN_COMPILER=$("$CXX" -V 2>&1 | "$EGREP" -i -c "CC: (Sun|Studio)")
-GCC_COMPILER=$("$CXX" --version 2>&1 | "$EGREP" -i -c "(gcc|g\+\+)")
+GCC_COMPILER=$("$CXX" --version 2>&1 | "$GREP" -i -v "clang" | "$EGREP" -i -c "(gcc|g\+\+)")
 INTEL_COMPILER=$("$CXX" --version 2>&1 | "$EGREP" -i -c "\(icc\)")
 MACPORTS_COMPILER=$("$CXX" --version 2>&1 | "$EGREP" -i -c "MacPorts")
 CLANG_COMPILER=$("$CXX" --version 2>&1 | "$EGREP" -i -c "clang")
@@ -194,18 +225,6 @@ GCC_48_COMPILER=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version 4\.8')
 GCC_49_COMPILER=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version 4\.9')
 GCC_49_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version (4\.9|[5-9]\.[0-9])')
 SUNCC_121_OR_ABOVE=$("$CXX" -V 2>&1 | "$EGREP" -c "CC: (Sun|Studio) .* (5\.1[0-9]|5\.[2-9]|[6-9]\.)")
-
-# Fixup
-if [[ ("$IS_OPENBSD" -ne "0" || "$IS_NETBSD" -ne "0") ]]; then
-	MAKE=gmake
-elif [[ ("$IS_SOLARIS" -ne "0") ]]; then
-	MAKE=$(which gmake 2>/dev/null | "$GREP" -v "no gmake" | head -1)
-	if [[ (-z "$MAKE") && (-e "/usr/sfw/bin/gmake") ]]; then
-		MAKE=/usr/sfw/bin/gmake
-	fi
-else
-	MAKE=make
-fi
 
 # Fixup, bad code generation
 if [[ ("$SUNCC_121_OR_ABOVE" -ne "0") ]]; then
@@ -574,44 +593,39 @@ fi
 
 # ARMv7 and ARMv8, including NEON, CRC32 and Crypto extensions
 if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
-	if [[ ("$IS_DARWIN" -ne "0") ]]; then
-		ARM_FEATURES=$(sysctl machdep.cpu.features 2>&1 | cut -f 2 -d ':')
-	else
-		ARM_FEATURES=$(cat /proc/cpuinfo 2>&1 | "$AWK" '{IGNORECASE=1}{if ($1 == "Features") print}' | cut -f 2 -d ':')
-	fi
 
 	if [[ (-z "$HAVE_ARMV7A" && "$IS_ARM32" -ne "0") ]]; then
-		HAVE_ARMV7A=$(echo "$ARM_FEATURES" | "$GREP" -i -c 'neon')
+		HAVE_ARMV7A=$(echo -n "$ARM_CPU_FLAGS" | "$GREP" -i -c 'neon')
 		if [[ ("$HAVE_ARMV7A" -gt "0") ]]; then HAVE_ARMV7A=1; fi
 	fi
 
 	if [[ (-z "$HAVE_ARMV8A" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]]; then
-		HAVE_ARMV8A=$(echo "$ARM_FEATURES" | "$EGREP" -i -c '(asimd|crc|crypto)')
+		HAVE_ARMV8A=$(echo -n "$ARM_CPU_FLAGS" | "$EGREP" -i -c '(asimd|crc|crypto)')
 		if [[ ("$HAVE_ARMV8A" -gt "0") ]]; then HAVE_ARMV8A=1; fi
 	fi
 
 	if [[ (-z "$HAVE_ARM_VFPV3") ]]; then
-		HAVE_ARM_VFPV3=$(echo "$ARM_FEATURES" | "$GREP" -i -c 'vfpv3')
+		HAVE_ARM_VFPV3=$(echo -n "$ARM_CPU_FLAGS" | "$GREP" -i -c 'vfpv3')
 		if [[ ("$HAVE_ARM_VFPV3" -gt "0") ]]; then HAVE_ARM_VFPV3=1; fi
 	fi
 
 	if [[ (-z "$HAVE_ARM_VFPV4") ]]; then
-		HAVE_ARM_VFPV4=$(echo "$ARM_FEATURES" | "$GREP" -i -c 'vfpv4')
+		HAVE_ARM_VFPV4=$(echo -n "$ARM_CPU_FLAGS" | "$GREP" -i -c 'vfpv4')
 		if [[ ("$HAVE_ARM_VFPV4" -gt "0") ]]; then HAVE_ARM_VFPV4=1; fi
 	fi
 
 	if [[ (-z "$HAVE_ARM_VFPV5") ]]; then
-		HAVE_ARM_VFPV5=$(echo "$ARM_FEATURES" | "$GREP" -i -c 'fpv5')
+		HAVE_ARM_VFPV5=$(echo -n "$ARM_CPU_FLAGS" | "$GREP" -i -c 'fpv5')
 		if [[ ("$HAVE_ARM_VFPV5" -gt "0") ]]; then HAVE_ARM_VFPV5=1; fi
 	fi
 
 	if [[ (-z "$HAVE_ARM_VFPD32") ]]; then
-		HAVE_ARM_VFPD32=$(echo "$ARM_FEATURES" | "$GREP" -i -c 'vfpd32')
+		HAVE_ARM_VFPD32=$(echo -n "$ARM_CPU_FLAGS" | "$GREP" -i -c 'vfpd32')
 		if [[ ("$HAVE_ARM_VFPD32" -gt "0") ]]; then HAVE_ARM_VFPD32=1; fi
 	fi
 
 	if [[ (-z "$HAVE_ARM_NEON") ]]; then
-		HAVE_ARM_NEON=$(echo "$ARM_FEATURES" | "$GREP" -i -c 'neon')
+		HAVE_ARM_NEON=$(echo -n "$ARM_CPU_FLAGS" | "$GREP" -i -c 'neon')
 		if [[ ("$HAVE_ARM_NEON" -gt "0") ]]; then HAVE_ARM_NEON=1; fi
 	fi
 
@@ -620,12 +634,12 @@ if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 	fi
 
 	if [[ (-z "$HAVE_ARM_CRYPTO") ]]; then
-		HAVE_ARM_CRYPTO=$(echo "$ARM_FEATURES" | "$EGREP" -i -c '(aes|pmull|sha1|sha2)')
+		HAVE_ARM_CRYPTO=$(echo -n "$ARM_CPU_FLAGS" | "$EGREP" -i -c '(aes|pmull|sha1|sha2)')
 		if [[ ("$HAVE_ARM_CRYPTO" -gt "0") ]]; then HAVE_ARM_CRYPTO=1; fi
 	fi
 
 	if [[ (-z "$HAVE_ARM_CRC") ]]; then
-		HAVE_ARM_CRC=$(echo "$ARM_FEATURES" | "$GREP" -i -c 'crc32')
+		HAVE_ARM_CRC=$(echo -n "$ARM_CPU_FLAGS" | "$GREP" -i -c 'crc32')
 		if [[ ("$HAVE_ARM_CRC" -gt "0") ]]; then HAVE_ARM_CRC=1; fi
 	fi
 fi
@@ -845,7 +859,7 @@ echo "MEM: $MEM_SIZE MB" | tee -a "$TEST_RESULTS"
 
 if [[ ("$CPU_COUNT" -ge "2" && "$MEM_SIZE" -ge "1280" && "$HAVE_SWAP" -ne "0") ]]; then
 	if [[ ("$WANT_NICE" -eq "1") ]]; then
-		CPU_COUNT=$(echo "$CPU_COUNT 2" | "$AWK" '{print int($1/$2)}')
+		CPU_COUNT=$(echo -n "$CPU_COUNT 2" | "$AWK" '{print int($1/$2)}')
 	fi
 	MAKEARGS=(-j "$CPU_COUNT")
 	echo "Using $MAKE -j $CPU_COUNT"
@@ -891,7 +905,45 @@ if [[ "$?" -eq "0" ]]; then
 	DEPRECATED_CXXFLAGS+=("-Wno-deprecated-declarations")
 fi
 
-# Please, someone put an end to the madness of determining Features, ABI, hard floats and soft floats...
+# Clang {3.4|3.5|3.6} only advertises SSE2, http://bugs.launchpad.net/ubuntu/+bug/1616723,
+#   http://bugs.launchpad.net/ubuntu/+bug/1616729 and http://bugs.launchpad.net/ubuntu/+bug/1616731
+if [[ (("$IS_X86" -ne "0" || "$IS_X64" -ne "0") && ("$CLANG_COMPILER" -ne "0" && "$CLANG_37_OR_ABOVE" -eq "0")) ]]; then
+
+	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "sse2") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-msse2"); fi
+	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "sse3") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-msse3"); fi
+	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "ssse3") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-mssse3"); fi
+	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "sse4.1") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-msse4.1"); fi
+	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "sse4.2") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-msse4.2"); fi
+	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "aes") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-maes"); fi
+	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "pclmulqdq") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-mpclmul"); fi
+	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "rdrand") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-mrdrnd"); fi
+	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "rdseed") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-mrdseed"); fi
+	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "avx") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-mavx"); fi
+	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "avx2") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-mavx2"); fi
+	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "bmi") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-mbmi"); fi
+	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "bmi2") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-mbmi2"); fi
+fi
+
+# Sun Studio 12.1 (and above) compilers consume GCC inline assembly. However, the compiler does not declare
+#   the CPU features, even when using options like -native and -xarch.
+if [[ ("$IS_X86" -ne "0" || "$IS_X64" -ne "0") && ("$IS_SOLARIS" -ne "0") && ("$SUNCC_121_OR_ABOVE" -ne "0") ]]; then
+
+	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "sse2") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__SSE2__"); fi
+	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "sse3") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__SSE3__"); fi
+	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "ssse3") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__SSSE3__"); fi
+	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "sse4.1") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__SSE4_1__"); fi
+	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "sse4.2") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__SSE4_2__"); fi
+	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "aes") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__AES__"); fi
+	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "pclmulqdq") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__PCLMUL__"); fi
+	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "rdrand") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__RDRND__"); fi
+	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "rdseed") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__RDSEED__"); fi
+	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "avx") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__AVX__"); fi
+	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "avx2") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__AVX2__"); fi
+	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "bmi") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__BMI__"); fi
+	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "bmi2") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__BMI2__"); fi
+fi
+
+# Please, someone put an end to the madness of determining Features, FPU, ABI, hard floats and soft floats...
 if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 
 	if [[ (("$HAVE_ARMV7A" -ne "0") && ("$IS_ARM32" -ne "0")) ]]; then
@@ -965,23 +1017,6 @@ if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 	fi
 fi
 
-if [[ ("$IS_SOLARIS" -ne "0") && ("$SUNCC_121_OR_ABOVE" -ne "0") ]]; then
-	ISAINFO=$(isainfo -v 2>/dev/null)
-	if [[ ($(echo "$ISAINFO" | "$GREP" -c "sse2") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__SSE2__"); fi
-	if [[ ($(echo "$ISAINFO" | "$GREP" -c "sse3") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__SSE3__"); fi
-	if [[ ($(echo "$ISAINFO" | "$GREP" -c "ssse3") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__SSSE3__"); fi
-	if [[ ($(echo "$ISAINFO" | "$GREP" -c "sse4.1") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__SSE4_1__"); fi
-	if [[ ($(echo "$ISAINFO" | "$GREP" -c "sse4.2") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__SSE4_2__"); fi
-	if [[ ($(echo "$ISAINFO" | "$GREP" -c "aes") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__AES__"); fi
-	if [[ ($(echo "$ISAINFO" | "$GREP" -c "pclmulqdq") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__PCLMUL__"); fi
-	if [[ ($(echo "$ISAINFO" | "$GREP" -c "rdrand") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__RDRND__"); fi
-	if [[ ($(echo "$ISAINFO" | "$GREP" -c "rdseed") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__RDSEED__"); fi
-	if [[ ($(echo "$ISAINFO" | "$GREP" -c "avx") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__AVX__"); fi
-	if [[ ($(echo "$ISAINFO" | "$GREP" -c "avx2") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__AVX2__"); fi
-	if [[ ($(echo "$ISAINFO" | "$GREP" -c "bmi") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__BMI__"); fi
-	if [[ ($(echo "$ISAINFO" | "$GREP" -c "bmi2") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__BMI2__"); fi
-fi
-
 if [[ ("$GCC_COMPILER" -ne "0") ]]; then
 	ELEVATED_CXXFLAGS+=("-DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562" "-DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS" "-Wall" "-Wextra"
 	                    "-Wno-unknown-pragmas" "-Wstrict-aliasing=3" "-Wstrict-overflow" "-Waggressive-loop-optimizations"
@@ -1022,21 +1057,17 @@ echo | tee -a "$TEST_RESULTS"
 echo "Start time: $TEST_BEGIN" | tee -a "$TEST_RESULTS"
 
 ############################################
-# Test AES-NI code generation
+# X86 code generation tests
 if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; then
+
+	############################################
+	# Test AES-NI code generation
 
 	# This works for SunCC, but we need something like:
 	# /opt/solarisstudio12.4/bin/CC -DNDEBUG -g2 -O2 -xarch=aes -m64 -D__SSE2__ -D__SSE3__ \
 	#     -D__SSE4_1__ -D__SSE4_2__ -D__AES__ -D__PCLMUL__ -c rijndael.cpp
 
-	if [[ ("$IS_DARWIN" -ne "0") ]]; then
-		X86_AESNI=$(sysctl machdep.cpu.features 2>/dev/null | "$GREP" -i -c aes)
-	elif [[ ("$IS_SOLARIS" -ne "0") ]]; then
-		X86_AESNI=$(isainfo -v 2>/dev/null | "$GREP" -i -c aes)
-	else
-		X86_AESNI=$(cat /proc/cpuinfo 2>/dev/null | "$GREP" -i -c aes)
-	fi
-
+	X86_AESNI=$(echo -n "$X86_CPU_FLAGS" | "$GREP" -i -c aes)
 	if [[ ("$X86_AESNI" -ne "0") ]]; then
 		echo
 		echo "************************************" | tee -a "$TEST_RESULTS"
@@ -1053,37 +1084,37 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 		FAILED=0
 		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
 
-		COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c aesenc)
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c aesenc)
 		if [[ ("$COUNT" -eq "0") ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate aesenc instruction" | tee -a "$TEST_RESULTS"
 		fi
 
-		COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c aesenclast)
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c aesenclast)
 		if [[ ("$COUNT" -eq "0") ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate aesenclast instruction" | tee -a "$TEST_RESULTS"
 		fi
 
-		COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c aesdec)
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c aesdec)
 		if [[ ("$COUNT" -eq "0") ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate aesdec instruction" | tee -a "$TEST_RESULTS"
 		fi
 
-		COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c aesdeclast)
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c aesdeclast)
 		if [[ ("$COUNT" -eq "0") ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate aesdeclast instruction" | tee -a "$TEST_RESULTS"
 		fi
 
-		COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c aesimc)
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c aesimc)
 		if [[ ("$COUNT" -eq "0") ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate aesimc instruction" | tee -a "$TEST_RESULTS"
 		fi
 
-		COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c aeskeygenassist)
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c aeskeygenassist)
 		if [[ ("$COUNT" -eq "0") ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate aeskeygenassist instruction" | tee -a "$TEST_RESULTS"
@@ -1093,28 +1124,19 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 			echo "Verified aesenc, aesenclast, aesdec, aesdeclast, aesimc, aeskeygenassist machine instructions" | tee -a "$TEST_RESULTS"
 		else
 			if [[ ("$CLANG_COMPILER" -ne "0" && "$CLANG_37_OR_ABOVE" -eq "0") ]]; then
-				echo "This could be due to Clang and lack of expected support for SSSE3 in some versions of the compiler. If so, try Clang 3.7 or above"
+				echo "This could be due to Clang and lack of expected support for SSSE3 (and above) in some versions of the compiler. If so, try Clang 3.7 or above"
 			fi
 		fi
 	fi
-fi
 
-############################################
-# X86 carryless multiply code generation
-if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; then
+	############################################
+	# X86 carryless multiply code generation
 
 	# This works for SunCC, but we need something like:
 	# /opt/solarisstudio12.4/bin/CC -DNDEBUG -g2 -O2 -xarch=aes -m64 -D__SSE2__ -D__SSE3__ \
 	#     -D__SSE4_1__ -D__SSE4_2__ -D__AES__ -D__PCLMUL__ -D__RDRND__ -D__RDSEED__ -c gcm.cpp
 
-	if [[ ("$IS_DARWIN" -ne "0") ]]; then
-		X86_PCLMUL=$(sysctl machdep.cpu.features 2>/dev/null | "$GREP" -i -c pclmulq)
-	elif [[ ("$IS_SOLARIS" -ne "0") ]]; then
-		X86_PCLMUL=$(isainfo -v 2>/dev/null | "$GREP" -i -c pclmulq)
-	else
-		X86_PCLMUL=$(cat /proc/cpuinfo 2>/dev/null | "$GREP" -i -c pclmulq)
-	fi
-
+	X86_PCLMUL=$(echo -n "$X86_CPU_FLAGS" | "$GREP" -i -c pclmulq)
 	if [[ ("$X86_PCLMUL" -ne "0") ]]; then
 		echo
 		echo "************************************" | tee -a "$TEST_RESULTS"
@@ -1131,13 +1153,13 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 		FAILED=0
 		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
 
-		COUNT=$(echo "$DISASS_TEXT" | "$EGREP" -i -c '(pclmullqh|vpclmulqdq)')
+		COUNT=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c '(pclmullqh|vpclmulqdq)')
 		if [[ ("$COUNT" -eq "0") ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate pclmullqh instruction" | tee -a "$TEST_RESULTS"
 		fi
 
-		COUNT=$(echo "$DISASS_TEXT" | "$EGREP" -i -c '(pclmullql|vpclmulqdq)')
+		COUNT=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c '(pclmullql|vpclmulqdq)')
 		if [[ ("$COUNT" -eq "0") ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate pclmullql instruction" | tee -a "$TEST_RESULTS"
@@ -1146,32 +1168,21 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 		if [[ ("$FAILED" -eq "0") ]];then
 			echo "Verified pclmullqh and pclmullql machine instructions" | tee -a "$TEST_RESULTS"
 		else
-			if [[ ("$CLANG_COMPILER" -ne "0") ]]; then
-				echo "This is probably due to Clang and its integrated assembler. The integrated assembler cannot consume a lot of ASM used by the library"
+			if [[ ("$CLANG_COMPILER" -ne "0" && "$CLANG_37_OR_ABOVE" -eq "0") ]]; then
+				echo "This could be due to Clang and lack of expected support for SSSE3 (and above) in some versions of the compiler. If so, try Clang 3.7 or above"
 			fi
 		fi
 	fi
-fi
 
-############################################
-# Test RDRAND and RDSEED code generation
-if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; then
+	############################################
+	# Test RDRAND and RDSEED code generation
 
 	# This works for SunCC, but we need something like:
 	# /opt/solarisstudio12.4/bin/CC -DNDEBUG -g2 -O2 -xarch=avx_i -m64 -D__SSE2__ -D__SSE3__ \
 	#     -D__SSE4_1__ -D__SSE4_2__ -D__AES__ -D__PCLMUL__ -D__RDRND__ -D__RDSEED__ -c rdrand.cpp
 
-	if [[ ("$IS_DARWIN" -ne "0") ]]; then
-		X86_RDRAND=$(sysctl machdep.cpu.features 2>/dev/null | "$GREP" -i -c rdrand)
-		X86_RDSEED=$(sysctl machdep.cpu.features 2>/dev/null | "$GREP" -i -c rdseed)
-	elif [[ ("$IS_SOLARIS" -ne "0") ]]; then
-		X86_RDRAND=$(isainfo -v 2>/dev/null | "$GREP" -i -c rdrand)
-		X86_RDSEED=$(isainfo -v 2>/dev/null | "$GREP" -i -c rdseed)
-	else
-		X86_RDRAND=$(cat /proc/cpuinfo 2>/dev/null | "$GREP" -i -c rdrand)
-		X86_RDSEED=$(cat /proc/cpuinfo 2>/dev/null | "$GREP" -i -c rdseed)
-	fi
-
+	X86_RDRAND=$(echo -n "$X86_CPU_FLAGS" | "$GREP" -i -c rdrand)
+	X86_RDSEED=$(echo -n "$X86_CPU_FLAGS" | "$GREP" -i -c rdseed)
 	if [[ ("$X86_RDRAND" -ne "0" || "$X86_RDSEED" -ne "0") ]]; then
 		echo
 		echo "************************************" | tee -a "$TEST_RESULTS"
@@ -1189,7 +1200,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
 
 		if [[ "$X86_RDRAND" -ne "0" ]]; then
-			COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c rdrand)
+			COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c rdrand)
 			if [[ ("$COUNT" -eq "0") ]]; then
 				FAILED=1
 				echo "ERROR: failed to generate rdrand instruction" | tee -a "$TEST_RESULTS"
@@ -1197,7 +1208,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 		fi
 
 		if [[ "$X86_RDSEED" -ne "0" ]]; then
-			COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c rdseed)
+			COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c rdseed)
 			if [[ ("$COUNT" -eq "0") ]]; then
 				FAILED=1
 				echo "ERROR: failed to generate rdseed instruction" | tee -a "$TEST_RESULTS"
@@ -1206,26 +1217,21 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 
 		if [[ ("$FAILED" -eq "0") ]];then
 			echo "Verified rdrand and rdseed machine instructions" | tee -a "$TEST_RESULTS"
+		else
+			if [[ ("$CLANG_COMPILER" -ne "0" && "$CLANG_37_OR_ABOVE" -eq "0") ]]; then
+				echo "This could be due to Clang and lack of expected support for SSSE3 (and above) in some versions of the compiler. If so, try Clang 3.7 or above"
+			fi
 		fi
 	fi
-fi
 
-############################################
-# X86 CRC32 code generation
-if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; then
+	############################################
+	# X86 CRC32 code generation
 
 	# This works for SunCC, but we need something like:
 	# /opt/solarisstudio12.3/bin/CC -DNDEBUG -g2 -O2 -xarch=sse4_2 -m64 -D__SSE2__ -D__SSE3__ \
 	#     -D__SSE4_1__ -D__SSE4_2__ -c crc.cpp
 
-	if [[ ("$IS_DARWIN" -ne "0") ]]; then
-		X86_CRC32=$(sysctl machdep.cpu.features 2>/dev/null | "$GREP" -i -c sse4.2)
-	elif [[ ("$IS_SOLARIS" -ne "0") ]]; then
-		X86_CRC32=$(isainfo -v 2>/dev/null | "$GREP" -i -c sse4_2)
-	else
-		X86_CRC32=$(cat /proc/cpuinfo 2>/dev/null | "$GREP" -i -c sse4_2)
-	fi
-
+	X86_CRC32=$(echo -n "$X86_CPU_FLAGS" | "$EGREP" -i -c '(sse4.2|sse4_2)')
 	if [[ ("$X86_CRC32" -ne "0") ]]; then
 		echo
 		echo "************************************" | tee -a "$TEST_RESULTS"
@@ -1242,13 +1248,13 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 		FAILED=0
 		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
 
-		COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c crc32l)
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c crc32l)
 		if [[ ("$COUNT" -eq "0") ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate crc32l instruction" | tee -a "$TEST_RESULTS"
 		fi
 
-		COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c crc32b)
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c crc32b)
 		if [[ ("$COUNT" -eq "0") ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate crc32b instruction" | tee -a "$TEST_RESULTS"
@@ -1256,20 +1262,22 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 
 		if [[ ("$FAILED" -eq "0") ]];then
 			echo "Verified crc32l and crc32b machine instructions" | tee -a "$TEST_RESULTS"
+		else
+			if [[ ("$CLANG_COMPILER" -ne "0" && "$CLANG_37_OR_ABOVE" -eq "0") ]]; then
+				echo "This could be due to Clang and lack of expected support for SSSE3 (and above) in some versions of the compiler. If so, try Clang 3.7 or above"
+			fi
 		fi
 	fi
 fi
 
 ############################################
-# ARM NEON code generation
+# ARM code generation tests
 if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]]; then
 
-	if [[ ("$IS_DARWIN" -ne "0") ]]; then
-		ARM_NEON=$(sysctl machdep.cpu.features 2>/dev/null | "$EGREP" -i -c '(neon|asimd)')
-	else
-		ARM_NEON=$(cat /proc/cpuinfo 2>/dev/null | "$EGREP" -i -c '(neon|asimd)')
-	fi
+	############################################
+	# ARM NEON code generation
 
+	ARM_NEON=$(echo -n "$ARM_CPU_FLAGS" | "$EGREP" -i -c '(neon|asimd)')
 	if [[ ("$ARM_NEON" -ne "0" || "$HAVE_ARM_NEON" -ne "0") ]]; then
 		echo
 		echo "************************************" | tee -a "$TEST_RESULTS"
@@ -1286,37 +1294,46 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 		FAILED=0
 		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
 
-		# BLAKE2_NEON_Compress32: 40 each vld1q_u8 and vld1q_u64
+		# BLAKE2_NEON_Compress32: 30 each vld1q_u8 and vld1q_u64
 		# BLAKE2_NEON_Compress64: 22 each vld1q_u8 and vld1q_u64
-		COUNT=$(echo "$DISASS_TEXT" | "$EGREP" -i -c 'ldr.*q')
-		if [[ ("$COUNT" -lt "62") ]]; then
+		COUNT1=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c 'ldr.*q')
+		COUNT2=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c 'ldp.*q')
+		COUNT=$(($COUNT1 + $(($COUNT2 + $COUNT2))))
+		if [[ ("$COUNT" -lt "25") ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate expected vector load instructions" | tee -a "$TEST_RESULTS"
 		fi
 
 		# BLAKE2_NEON_Compress{32|64}: 6 each vst1q_u32 and vst1q_u64
-		COUNT=$(echo "$DISASS_TEXT" | "$EGREP" -i -c 'str.*q')
+		COUNT=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c 'str.*q')
 		if [[ ("$COUNT" -lt "6") ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate expected vector store instructions" | tee -a "$TEST_RESULTS"
 		fi
 
+		# BLAKE2_NEON_Compress{32|64}: 409 each vaddq_u32 and vaddq_u64
+		COUNT=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c 'add.*v')
+		if [[ ("$COUNT" -lt "400") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate expected vector add instructions" | tee -a "$TEST_RESULTS"
+		fi
+
+		# BLAKE2_NEON_Compress{32|64}: 559 each veorq_u32 and veorq_u64
+		COUNT=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c 'eor.*v')
+		if [[ ("$COUNT" -lt "550") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate expected vector xor instructions" | tee -a "$TEST_RESULTS"
+		fi
+
 		if [[ ("$FAILED" -eq "0") ]];then
-			echo "Verified vector load and store machine instructions" | tee -a "$TEST_RESULTS"
+			echo "Verified vector load, store, add, xor machine instructions" | tee -a "$TEST_RESULTS"
 		fi
 	fi
-fi
 
-############################################
-# ARM carryless multiply code generation
-if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]]; then
+	############################################
+	# ARM carryless multiply code generation
 
-	if [[ ("$IS_DARWIN" -ne "0") ]]; then
-		ARM_PMULL=$(sysctl machdep.cpu.features 2>/dev/null | "$GREP" -i -c pmull)
-	else
-		ARM_PMULL=$(cat /proc/cpuinfo 2>/dev/null | "$GREP" -i -c pmull)
-	fi
-
+	ARM_PMULL=$(echo -n "$ARM_CPU_FLAGS" | "$GREP" -i -c pmull)
 	if [[ ("$ARM_PMULL" -ne "0" || "$HAVE_ARM_CRYPTO" -ne "0") ]]; then
 		echo
 		echo "************************************" | tee -a "$TEST_RESULTS"
@@ -1333,13 +1350,13 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 		FAILED=0
 		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
 
-		COUNT=$(echo "$DISASS_TEXT" | "$GREP" -v pmull2 | "$GREP" -i -c pmull)
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -v pmull2 | "$GREP" -i -c pmull)
 		if [[ ("$COUNT" -eq "0") ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate pmull instruction" | tee -a "$TEST_RESULTS"
 		fi
 
-		COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c pmull2)
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c pmull2)
 		if [[ ("$COUNT" -eq "0") ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate pmull2 instruction" | tee -a "$TEST_RESULTS"
@@ -1349,18 +1366,11 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 			echo "Verified pmull and pmull2 machine instructions" | tee -a "$TEST_RESULTS"
 		fi
 	fi
-fi
 
-############################################
-# ARM CRC32 code generation
-if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]]; then
+	############################################
+	# ARM CRC32 code generation
 
-	if [[ ("$IS_DARWIN" -ne "0") ]]; then
-		ARM_CRC32=$(sysctl machdep.cpu.features 2>/dev/null | "$GREP" -i -c crc)
-	else
-		ARM_CRC32=$(cat /proc/cpuinfo 2>/dev/null | "$GREP" -i -c crc32)
-	fi
-
+	ARM_CRC32=$(echo -n "$ARM_CPU_FLAGS" | "$GREP" -i -c crc32)
 	if [[ ("$ARM_CRC32" -ne "0") ]]; then
 		echo
 		echo "************************************" | tee -a "$TEST_RESULTS"
@@ -1377,25 +1387,25 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 		FAILED=0
 		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
 
-		COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c crc32cb)
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c crc32cb)
 		if [[ ("$COUNT" -eq "0") ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate crc32cb instruction" | tee -a "$TEST_RESULTS"
 		fi
 
-		COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c crc32cw)
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c crc32cw)
 		if [[ ("$COUNT" -eq "0") ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate crc32cw instruction" | tee -a "$TEST_RESULTS"
 		fi
 
-		COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c crc32b)
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c crc32b)
 		if [[ ("$COUNT" -eq "0") ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate crc32b instruction" | tee -a "$TEST_RESULTS"
 		fi
 
-		COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c crc32w)
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c crc32w)
 		if [[ ("$COUNT" -eq "0") ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate crc32w instruction" | tee -a "$TEST_RESULTS"
@@ -3102,7 +3112,7 @@ fi
 if [[ ("$HAVE_CXX14" -ne "0" && "$HAVE_UBSAN" -ne "0") ]]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
-	echo "Testing: c++14, UBsan" | tee -a "$TEST_RESULTS"
+	echo "Testing: Release, c++14, UBsan" | tee -a "$TEST_RESULTS"
 	echo
 
 	"$MAKE" clean > /dev/null 2>&1
@@ -3130,7 +3140,7 @@ fi
 if [[ ("$HAVE_CXX14" -ne "0" && "$HAVE_ASAN" -ne "0") ]]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
-	echo "Testing: c++14, Asan" | tee -a "$TEST_RESULTS"
+	echo "Testing: Release, c++14, Asan" | tee -a "$TEST_RESULTS"
 	echo
 
 	"$MAKE" clean > /dev/null 2>&1
@@ -3169,7 +3179,7 @@ fi
 if [[ ("$HAVE_CXX17" -ne "0" && "$HAVE_UBSAN" -ne "0") ]]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
-	echo "Testing: c++17, UBsan" | tee -a "$TEST_RESULTS"
+	echo "Testing: Release, c++17, UBsan" | tee -a "$TEST_RESULTS"
 	echo
 
 	"$MAKE" clean > /dev/null 2>&1
@@ -3197,7 +3207,7 @@ fi
 if [[ ("$HAVE_CXX17" -ne "0" && "$HAVE_ASAN" -ne "0") ]]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
-	echo "Testing: c++17, Asan" | tee -a "$TEST_RESULTS"
+	echo "Testing: Release, c++17, Asan" | tee -a "$TEST_RESULTS"
 	echo
 
 	"$MAKE" clean > /dev/null 2>&1
