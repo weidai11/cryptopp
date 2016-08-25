@@ -115,6 +115,9 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 	else
 		AWK=nawk;
 	fi
+
+	DISASS=dis
+	DISASSARGS=()
 fi
 
 # Fixup
@@ -138,7 +141,9 @@ done
 # We need to use the C++ compiler to determine feature availablility. Otherwise
 #   mis-detections occur on a number of platforms.
 if [[ ((-z "$CXX") || ("$CXX" == "gcc")) ]]; then
-	if [[ "$IS_DARWIN" -ne "0" ]]; then
+	if [[ ("$CXX" == "gcc") ]]; then
+		CXX=g++
+	elif [[ "$IS_DARWIN" -ne "0" ]]; then
 		CXX=c++
 	elif [[ "$IS_SOLARIS" -ne "0" ]]; then
 		if [[ (-e "/opt/developerstudio12.5/bin/CC") ]]; then
@@ -182,7 +187,7 @@ if [[ ("$SUN_COMPILER" -eq "0") ]]; then
 fi
 
 # Now that the compiler is fixed, determine the compiler version for fixups
-CLANG_37_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'clang version (3\.[7-9]|[5-9])')
+CLANG_37_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'clang version (3\.[7-9]|[4-9]\.[0-9])')
 GCC_60_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version (6\.[0-9]|[7-9])')
 GCC_51_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version (5\.[1-9]|[6-9])')
 GCC_48_COMPILER=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version 4\.8')
@@ -521,7 +526,7 @@ HAVE_X86_AES=0
 HAVE_X86_RDRAND=0
 HAVE_X86_RDSEED=0
 HAVE_X86_PCLMUL=0
-if [[ (("$IS_X86" -ne "0") || ("$IS_X64" -ne "0")) && ("$SUN_COMPILER" -eq "0") ]]; then
+if [[ ("$IS_X86" -ne "0" || "$IS_X64" -ne "0") && ("$SUN_COMPILER" -eq "0") ]]; then
 	rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -maes adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
 	if [[ "$?" -eq "0" ]]; then
@@ -569,7 +574,11 @@ fi
 
 # ARMv7 and ARMv8, including NEON, CRC32 and Crypto extensions
 if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
-	ARM_FEATURES=$(cat /proc/cpuinfo 2>&1 | "$AWK" '{IGNORECASE=1}{if ($1 == "Features") print}' | cut -f 2 -d ':')
+	if [[ ("$IS_DARWIN" -ne "0") ]]; then
+		ARM_FEATURES=$(sysctl machdep.cpu.features 2>&1 | cut -f 2 -d ':')
+	else
+		ARM_FEATURES=$(cat /proc/cpuinfo 2>&1 | "$AWK" '{IGNORECASE=1}{if ($1 == "Features") print}' | cut -f 2 -d ':')
+	fi
 
 	if [[ (-z "$HAVE_ARMV7A" && "$IS_ARM32" -ne "0") ]]; then
 		HAVE_ARMV7A=$(echo "$ARM_FEATURES" | "$GREP" -i -c 'neon')
@@ -646,7 +655,7 @@ fi
 # Used to disassemble object modules so we can verify some aspects of code generation
 if [[ (-z "$HAVE_DISASS") ]]; then
 	echo "int main(int argc, char* argv[]) {return 0;}" > "$TMP/test.cc"
-	"$CXX" -x c "$TMP/test.cc" -o "$TMP/test.exe" > /dev/null 2>&1
+	"$CXX" "$TMP/test.cc" -o "$TMP/test.exe" > /dev/null 2>&1
 	if [[ "$?" -eq "0" ]]; then
 		"$DISASS" "${DISASSARGS[@]}" "$TMP/test.exe" > /dev/null 2>&1
 		if [[ "$?" -eq "0" ]]; then
@@ -1014,99 +1023,387 @@ echo "Start time: $TEST_BEGIN" | tee -a "$TEST_RESULTS"
 
 ############################################
 # Test AES-NI code generation
-if [[ ("$HAVE_DISASS" -ne "0" && "$HAVE_X86_AES" -ne "0") ]]; then
-	echo
-	echo "************************************" | tee -a "$TEST_RESULTS"
-	echo "Testing: AES-NI code generation" | tee -a "$TEST_RESULTS"
-	echo
+if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; then
 
-	"$MAKE" clean > /dev/null 2>&1
-	rm -f adhoc.cpp > /dev/null 2>&1
+	# This works for SunCC, but we need something like:
+	# /opt/solarisstudio12.4/bin/CC -DNDEBUG -g2 -O2 -xarch=aes -m64 -D__SSE2__ -D__SSE3__ \
+	#     -D__SSE4_1__ -D__SSE4_2__ -D__AES__ -D__PCLMUL__ -c rijndael.cpp
 
-	OBJFILE=rijndael.o
-	CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
-
-	COUNT=0
-	FAILED=0
-	DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
-
-	COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c aesenc)
-	if [[ ("$COUNT" -eq "0") ]]; then
-		FAILED=1
-		echo "ERROR: failed to generate aesenc instruction" | tee -a "$TEST_RESULTS"
-	fi
-
-	COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c aesenclast)
-	if [[ ("$COUNT" -eq "0") ]]; then
-		FAILED=1
-		echo "ERROR: failed to generate aesenclast instruction" | tee -a "$TEST_RESULTS"
-	fi
-
-	COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c aesdec)
-	if [[ ("$COUNT" -eq "0") ]]; then
-		FAILED=1
-		echo "ERROR: failed to generate aesdec instruction" | tee -a "$TEST_RESULTS"
-	fi
-
-	COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c aesdeclast)
-	if [[ ("$COUNT" -eq "0") ]]; then
-		FAILED=1
-		echo "ERROR: failed to generate aesdeclast instruction" | tee -a "$TEST_RESULTS"
-	fi
-
-	COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c aesimc)
-	if [[ ("$COUNT" -eq "0") ]]; then
-		FAILED=1
-		echo "ERROR: failed to generate aesimc instruction" | tee -a "$TEST_RESULTS"
-	fi
-
-	COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c aeskeygenassist)
-	if [[ ("$COUNT" -eq "0") ]]; then
-		FAILED=1
-		echo "ERROR: failed to generate aeskeygenassist instruction" | tee -a "$TEST_RESULTS"
-	fi
-
-	if [[ ("$FAILED" -eq "0") ]];then
-		echo "Verified aesenc, aesenclast, aesdec, aesdeclast, aesimc, aeskeygenassist machine instruction generation" | tee -a "$TEST_RESULTS"
+	if [[ ("$IS_DARWIN" -ne "0") ]]; then
+		X86_AESNI=$(sysctl machdep.cpu.features 2>/dev/null | "$GREP" -i -c aes)
+	elif [[ ("$IS_SOLARIS" -ne "0") ]]; then
+		X86_AESNI=$(isainfo -v 2>/dev/null | "$GREP" -i -c aes)
 	else
-		if [[ ("$CLANG_COMPILER" -ne "0" && "$CLANG_37_OR_ABOVE" -eq "0") ]]; then
-			echo "This could be due to Clang and lack of expected support for SSSE3 in some versions of the compiler. If so, try Clang 3.7 or above"
+		X86_AESNI=$(cat /proc/cpuinfo 2>/dev/null | "$GREP" -i -c aes)
+	fi
+
+	if [[ ("$X86_AESNI" -ne "0") ]]; then
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS"
+		echo "Testing: X86 AES-NI code generation" | tee -a "$TEST_RESULTS"
+		echo
+
+		"$MAKE" clean > /dev/null 2>&1
+		rm -f adhoc.cpp > /dev/null 2>&1
+
+		OBJFILE=rijndael.o
+		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS ${PLATFORM_CXXFLAGS[@]}" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
+
+		COUNT=0
+		FAILED=0
+		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
+
+		COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c aesenc)
+		if [[ ("$COUNT" -eq "0") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate aesenc instruction" | tee -a "$TEST_RESULTS"
+		fi
+
+		COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c aesenclast)
+		if [[ ("$COUNT" -eq "0") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate aesenclast instruction" | tee -a "$TEST_RESULTS"
+		fi
+
+		COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c aesdec)
+		if [[ ("$COUNT" -eq "0") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate aesdec instruction" | tee -a "$TEST_RESULTS"
+		fi
+
+		COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c aesdeclast)
+		if [[ ("$COUNT" -eq "0") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate aesdeclast instruction" | tee -a "$TEST_RESULTS"
+		fi
+
+		COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c aesimc)
+		if [[ ("$COUNT" -eq "0") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate aesimc instruction" | tee -a "$TEST_RESULTS"
+		fi
+
+		COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c aeskeygenassist)
+		if [[ ("$COUNT" -eq "0") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate aeskeygenassist instruction" | tee -a "$TEST_RESULTS"
+		fi
+
+		if [[ ("$FAILED" -eq "0") ]];then
+			echo "Verified aesenc, aesenclast, aesdec, aesdeclast, aesimc, aeskeygenassist machine instructions" | tee -a "$TEST_RESULTS"
+		else
+			if [[ ("$CLANG_COMPILER" -ne "0" && "$CLANG_37_OR_ABOVE" -eq "0") ]]; then
+				echo "This could be due to Clang and lack of expected support for SSSE3 in some versions of the compiler. If so, try Clang 3.7 or above"
+			fi
 		fi
 	fi
 fi
 
 ############################################
-# ARM 64x64→128-bit multiply code generation
-if [[ ("$HAVE_DISASS" -ne "0" && "$HAVE_ARM_CRYPTO" -ne "0") ]]; then
-	echo
-	echo "************************************" | tee -a "$TEST_RESULTS"
-	echo "Testing: ARM 64x64→128-bit multiply code generation" | tee -a "$TEST_RESULTS"
-	echo
+# X86 carryless multiply code generation
+if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; then
 
-	"$MAKE" clean > /dev/null 2>&1
-	rm -f adhoc.cpp > /dev/null 2>&1
+	# This works for SunCC, but we need something like:
+	# /opt/solarisstudio12.4/bin/CC -DNDEBUG -g2 -O2 -xarch=aes -m64 -D__SSE2__ -D__SSE3__ \
+	#     -D__SSE4_1__ -D__SSE4_2__ -D__AES__ -D__PCLMUL__ -D__RDRND__ -D__RDSEED__ -c gcm.cpp
 
-	OBJFILE=gcm.o
-	CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
-
-	COUNT=0
-	FAILED=0
-	DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
-
-	COUNT=$(echo "$DISASS_TEXT" | "$GREP" -v pmull2 | "$GREP" -i -c pmull)
-	if [[ ("$COUNT" -eq "0") ]]; then
-		FAILED=1
-		echo "ERROR: failed to generate pmull instruction" | tee -a "$TEST_RESULTS"
+	if [[ ("$IS_DARWIN" -ne "0") ]]; then
+		X86_PCLMUL=$(sysctl machdep.cpu.features 2>/dev/null | "$GREP" -i -c pclmulq)
+	elif [[ ("$IS_SOLARIS" -ne "0") ]]; then
+		X86_PCLMUL=$(isainfo -v 2>/dev/null | "$GREP" -i -c pclmulq)
+	else
+		X86_PCLMUL=$(cat /proc/cpuinfo 2>/dev/null | "$GREP" -i -c pclmulq)
 	fi
 
-	COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c pmull2)
-	if [[ ("$COUNT" -eq "0") ]]; then
-		FAILED=1
-		echo "ERROR: failed to generate pmull2 instruction" | tee -a "$TEST_RESULTS"
+	if [[ ("$X86_PCLMUL" -ne "0") ]]; then
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS"
+		echo "Testing: X86 carryless multiply code generation" | tee -a "$TEST_RESULTS"
+		echo
+
+		"$MAKE" clean > /dev/null 2>&1
+		rm -f adhoc.cpp > /dev/null 2>&1
+
+		OBJFILE=gcm.o
+		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS ${PLATFORM_CXXFLAGS[@]}" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
+
+		COUNT=0
+		FAILED=0
+		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
+
+		COUNT=$(echo "$DISASS_TEXT" | "$EGREP" -i -c '(pclmullqh|vpclmulqdq)')
+		if [[ ("$COUNT" -eq "0") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate pclmullqh instruction" | tee -a "$TEST_RESULTS"
+		fi
+
+		COUNT=$(echo "$DISASS_TEXT" | "$EGREP" -i -c '(pclmullql|vpclmulqdq)')
+		if [[ ("$COUNT" -eq "0") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate pclmullql instruction" | tee -a "$TEST_RESULTS"
+		fi
+
+		if [[ ("$FAILED" -eq "0") ]];then
+			echo "Verified pclmullqh and pclmullql machine instructions" | tee -a "$TEST_RESULTS"
+		else
+			if [[ ("$CLANG_COMPILER" -ne "0") ]]; then
+				echo "This is probably due to Clang and its integrated assembler. The integrated assembler cannot consume a lot of ASM used by the library"
+			fi
+		fi
+	fi
+fi
+
+############################################
+# Test RDRAND and RDSEED code generation
+if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; then
+
+	# This works for SunCC, but we need something like:
+	# /opt/solarisstudio12.4/bin/CC -DNDEBUG -g2 -O2 -xarch=avx_i -m64 -D__SSE2__ -D__SSE3__ \
+	#     -D__SSE4_1__ -D__SSE4_2__ -D__AES__ -D__PCLMUL__ -D__RDRND__ -D__RDSEED__ -c rdrand.cpp
+
+	if [[ ("$IS_DARWIN" -ne "0") ]]; then
+		X86_RDRAND=$(sysctl machdep.cpu.features 2>/dev/null | "$GREP" -i -c rdrand)
+		X86_RDSEED=$(sysctl machdep.cpu.features 2>/dev/null | "$GREP" -i -c rdseed)
+	elif [[ ("$IS_SOLARIS" -ne "0") ]]; then
+		X86_RDRAND=$(isainfo -v 2>/dev/null | "$GREP" -i -c rdrand)
+		X86_RDSEED=$(isainfo -v 2>/dev/null | "$GREP" -i -c rdseed)
+	else
+		X86_RDRAND=$(cat /proc/cpuinfo 2>/dev/null | "$GREP" -i -c rdrand)
+		X86_RDSEED=$(cat /proc/cpuinfo 2>/dev/null | "$GREP" -i -c rdseed)
 	fi
 
-	if [[ ("$FAILED" -eq "0") ]];then
-		echo "Verified pmull and pmull2 machine instruction generation" | tee -a "$TEST_RESULTS"
+	if [[ ("$X86_RDRAND" -ne "0" || "$X86_RDSEED" -ne "0") ]]; then
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS"
+		echo "Testing: X86 RDRAND and RDSEED code generation" | tee -a "$TEST_RESULTS"
+		echo
+
+		"$MAKE" clean > /dev/null 2>&1
+		rm -f adhoc.cpp > /dev/null 2>&1
+
+		OBJFILE=rdrand.o
+		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS ${PLATFORM_CXXFLAGS[@]}" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
+
+		COUNT=0
+		FAILED=0
+		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
+
+		if [[ "$X86_RDRAND" -ne "0" ]]; then
+			COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c rdrand)
+			if [[ ("$COUNT" -eq "0") ]]; then
+				FAILED=1
+				echo "ERROR: failed to generate rdrand instruction" | tee -a "$TEST_RESULTS"
+			fi
+		fi
+
+		if [[ "$X86_RDSEED" -ne "0" ]]; then
+			COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c rdseed)
+			if [[ ("$COUNT" -eq "0") ]]; then
+				FAILED=1
+				echo "ERROR: failed to generate rdseed instruction" | tee -a "$TEST_RESULTS"
+			fi
+		fi
+
+		if [[ ("$FAILED" -eq "0") ]];then
+			echo "Verified rdrand and rdseed machine instructions" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+fi
+
+############################################
+# X86 CRC32 code generation
+if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; then
+
+	# This works for SunCC, but we need something like:
+	# /opt/solarisstudio12.3/bin/CC -DNDEBUG -g2 -O2 -xarch=sse4_2 -m64 -D__SSE2__ -D__SSE3__ \
+	#     -D__SSE4_1__ -D__SSE4_2__ -c crc.cpp
+
+	if [[ ("$IS_DARWIN" -ne "0") ]]; then
+		X86_CRC32=$(sysctl machdep.cpu.features 2>/dev/null | "$GREP" -i -c sse4.2)
+	elif [[ ("$IS_SOLARIS" -ne "0") ]]; then
+		X86_CRC32=$(isainfo -v 2>/dev/null | "$GREP" -i -c sse4_2)
+	else
+		X86_CRC32=$(cat /proc/cpuinfo 2>/dev/null | "$GREP" -i -c sse4_2)
+	fi
+
+	if [[ ("$X86_CRC32" -ne "0") ]]; then
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS"
+		echo "Testing: X86 CRC32 code generation" | tee -a "$TEST_RESULTS"
+		echo
+
+		"$MAKE" clean > /dev/null 2>&1
+		rm -f adhoc.cpp > /dev/null 2>&1
+
+		OBJFILE=crc.o
+		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS ${PLATFORM_CXXFLAGS[@]}" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
+
+		COUNT=0
+		FAILED=0
+		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
+
+		COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c crc32l)
+		if [[ ("$COUNT" -eq "0") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate crc32l instruction" | tee -a "$TEST_RESULTS"
+		fi
+
+		COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c crc32b)
+		if [[ ("$COUNT" -eq "0") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate crc32b instruction" | tee -a "$TEST_RESULTS"
+		fi
+
+		if [[ ("$FAILED" -eq "0") ]];then
+			echo "Verified crc32l and crc32b machine instructions" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+fi
+
+############################################
+# ARM NEON code generation
+if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]]; then
+
+	if [[ ("$IS_DARWIN" -ne "0") ]]; then
+		ARM_NEON=$(sysctl machdep.cpu.features 2>/dev/null | "$EGREP" -i -c '(neon|asimd)')
+	else
+		ARM_NEON=$(cat /proc/cpuinfo 2>/dev/null | "$EGREP" -i -c '(neon|asimd)')
+	fi
+
+	if [[ ("$ARM_NEON" -ne "0" || "$HAVE_ARM_NEON" -ne "0") ]]; then
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS"
+		echo "Testing: ARM NEON code generation" | tee -a "$TEST_RESULTS"
+		echo
+
+		"$MAKE" clean > /dev/null 2>&1
+		rm -f adhoc.cpp > /dev/null 2>&1
+
+		OBJFILE=blake2.o
+		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS ${PLATFORM_CXXFLAGS[@]}" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
+
+		COUNT=0
+		FAILED=0
+		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
+
+		# BLAKE2_NEON_Compress32: 40 each vld1q_u8 and vld1q_u64
+		# BLAKE2_NEON_Compress64: 22 each vld1q_u8 and vld1q_u64
+		COUNT=$(echo "$DISASS_TEXT" | "$EGREP" -i -c 'ldr.*q')
+		if [[ ("$COUNT" -lt "62") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate expected vector load instructions" | tee -a "$TEST_RESULTS"
+		fi
+
+		# BLAKE2_NEON_Compress{32|64}: 6 each vst1q_u32 and vst1q_u64
+		COUNT=$(echo "$DISASS_TEXT" | "$EGREP" -i -c 'str.*q')
+		if [[ ("$COUNT" -lt "6") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate expected vector store instructions" | tee -a "$TEST_RESULTS"
+		fi
+
+		if [[ ("$FAILED" -eq "0") ]];then
+			echo "Verified vector load and store machine instructions" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+fi
+
+############################################
+# ARM carryless multiply code generation
+if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]]; then
+
+	if [[ ("$IS_DARWIN" -ne "0") ]]; then
+		ARM_PMULL=$(sysctl machdep.cpu.features 2>/dev/null | "$GREP" -i -c pmull)
+	else
+		ARM_PMULL=$(cat /proc/cpuinfo 2>/dev/null | "$GREP" -i -c pmull)
+	fi
+
+	if [[ ("$ARM_PMULL" -ne "0" || "$HAVE_ARM_CRYPTO" -ne "0") ]]; then
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS"
+		echo "Testing: ARM carryless multiply code generation" | tee -a "$TEST_RESULTS"
+		echo
+
+		"$MAKE" clean > /dev/null 2>&1
+		rm -f adhoc.cpp > /dev/null 2>&1
+
+		OBJFILE=gcm.o
+		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS ${PLATFORM_CXXFLAGS[@]}" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
+
+		COUNT=0
+		FAILED=0
+		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
+
+		COUNT=$(echo "$DISASS_TEXT" | "$GREP" -v pmull2 | "$GREP" -i -c pmull)
+		if [[ ("$COUNT" -eq "0") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate pmull instruction" | tee -a "$TEST_RESULTS"
+		fi
+
+		COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c pmull2)
+		if [[ ("$COUNT" -eq "0") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate pmull2 instruction" | tee -a "$TEST_RESULTS"
+		fi
+
+		if [[ ("$FAILED" -eq "0") ]];then
+			echo "Verified pmull and pmull2 machine instructions" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+fi
+
+############################################
+# ARM CRC32 code generation
+if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]]; then
+
+	if [[ ("$IS_DARWIN" -ne "0") ]]; then
+		ARM_CRC32=$(sysctl machdep.cpu.features 2>/dev/null | "$GREP" -i -c crc)
+	else
+		ARM_CRC32=$(cat /proc/cpuinfo 2>/dev/null | "$GREP" -i -c crc32)
+	fi
+
+	if [[ ("$ARM_CRC32" -ne "0") ]]; then
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS"
+		echo "Testing: ARM CRC32 code generation" | tee -a "$TEST_RESULTS"
+		echo
+
+		"$MAKE" clean > /dev/null 2>&1
+		rm -f adhoc.cpp > /dev/null 2>&1
+
+		OBJFILE=crc.o
+		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS ${PLATFORM_CXXFLAGS[@]}" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
+
+		COUNT=0
+		FAILED=0
+		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
+
+		COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c crc32cb)
+		if [[ ("$COUNT" -eq "0") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate crc32cb instruction" | tee -a "$TEST_RESULTS"
+		fi
+
+		COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c crc32cw)
+		if [[ ("$COUNT" -eq "0") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate crc32cw instruction" | tee -a "$TEST_RESULTS"
+		fi
+
+		COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c crc32b)
+		if [[ ("$COUNT" -eq "0") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate crc32b instruction" | tee -a "$TEST_RESULTS"
+		fi
+
+		COUNT=$(echo "$DISASS_TEXT" | "$GREP" -i -c crc32w)
+		if [[ ("$COUNT" -eq "0") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate crc32w instruction" | tee -a "$TEST_RESULTS"
+		fi
+
+		if [[ ("$FAILED" -eq "0") ]];then
+			echo "Verified crc32cb, crc32cw, crc32b and crc32w machine instructions" | tee -a "$TEST_RESULTS"
+		fi
 	fi
 fi
 
