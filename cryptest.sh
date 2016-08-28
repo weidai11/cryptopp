@@ -1265,7 +1265,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 
 		# BLAKE2_NEON_Compress32: 30 each vld1q_u8 and vld1q_u64
 		# BLAKE2_NEON_Compress64: 22 each vld1q_u8 and vld1q_u64
-		COUNT1=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c 'ldr.*q')
+		COUNT1=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c 'ldr.*q|vld.*128')
 		COUNT2=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c 'ldp.*q')
 		COUNT=$(($COUNT1 + $(($COUNT2 + $COUNT2))))
 		if [[ ("$COUNT" -lt "25") ]]; then
@@ -1274,21 +1274,21 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 		fi
 
 		# BLAKE2_NEON_Compress{32|64}: 6 each vst1q_u32 and vst1q_u64
-		COUNT=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c 'str.*q')
+		COUNT=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c 'str.*q|vstr')
 		if [[ ("$COUNT" -lt "6") ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate expected vector store instructions" | tee -a "$TEST_RESULTS"
 		fi
 
 		# BLAKE2_NEON_Compress{32|64}: 409 each vaddq_u32 and vaddq_u64
-		COUNT=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c 'add.*v')
+		COUNT=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c 'add.*v|vadd')
 		if [[ ("$COUNT" -lt "400") ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate expected vector add instructions" | tee -a "$TEST_RESULTS"
 		fi
 
 		# BLAKE2_NEON_Compress{32|64}: 559 each veorq_u32 and veorq_u64
-		COUNT=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c 'eor.*v')
+		COUNT=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c 'eor.*v|veor')
 		if [[ ("$COUNT" -lt "550") ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate expected vector xor instructions" | tee -a "$TEST_RESULTS"
