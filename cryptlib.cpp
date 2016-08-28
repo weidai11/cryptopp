@@ -184,7 +184,7 @@ size_t BlockTransformation::AdvancedProcessBlocks(const byte *inBlocks, const by
 	assert(inBlocks);
 	assert(outBlocks);
 	assert(length);
-	
+
 	size_t blockSize = BlockSize();
 	size_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
 	size_t xorIncrement = xorBlocks ? blockSize : 0;
@@ -262,7 +262,7 @@ void AuthenticatedSymmetricCipher::SpecifyDataLengths(lword headerLength, lword 
 
 	if (messageLength > MaxMessageLength())
 		throw InvalidArgument(GetAlgorithm().AlgorithmName() + ": message length " + IntToString(messageLength) + " exceeds the maximum of " + IntToString(MaxMessageLength()));
-		
+
 	if (footerLength > MaxFooterLength())
 		throw InvalidArgument(GetAlgorithm().AlgorithmName() + ": footer length " + IntToString(footerLength) + " exceeds the maximum of " + IntToString(MaxFooterLength()));
 
@@ -318,7 +318,7 @@ word32 RandomNumberGenerator::GenerateWord32(word32 min, word32 max)
 // Stack recursion below... GenerateIntoBufferedTransformation calls GenerateBlock,
 // and GenerateBlock calls GenerateIntoBufferedTransformation. Ad infinitum. Also
 // see https://github.com/weidai11/cryptopp/issues/38.
-// 
+//
 // According to Wei, RandomNumberGenerator is an interface, and it should not
 // be instantiable. Its now spilt milk, and we are going to assert it in Debug
 // builds to alert the programmer and throw in Release builds. Developers have
@@ -369,7 +369,7 @@ public:
 	//! \brief The name of the generator
 	//! \returns the string \a NullRNGs
 	std::string AlgorithmName() const {return "NullRNG";}
-	
+
 #if defined(CRYPTOPP_DOXYGEN_PROCESSING)
 	//! \brief An implementation that throws NotImplemented
 	byte GenerateByte () {}
@@ -397,7 +397,7 @@ public:
 	void DiscardBytes (size_t n) {}
 	//! \brief An implementation that does nothing
 	void Shuffle (IT begin, IT end) {}
-	
+
 private:
 	Clonable* Clone () const { return NULL; }
 #endif
@@ -801,7 +801,7 @@ public:
 			m_ciphertext.resize(ciphertextLength);
 			m_encryptor.Encrypt(m_rng, plaintext, plaintextLength, m_ciphertext, m_parameters);
 			}
-			
+
 			FILTER_OUTPUT(1, m_ciphertext, m_ciphertext.size(), messageEnd);
 		}
 		FILTER_END_NO_MESSAGE_END;
@@ -880,7 +880,7 @@ size_t PK_Signer::SignMessage(RandomNumberGenerator &rng, const byte *message, s
 	return SignAndRestart(rng, *m, signature, false);
 }
 
-size_t PK_Signer::SignMessageWithRecovery(RandomNumberGenerator &rng, const byte *recoverableMessage, size_t recoverableMessageLength, 
+size_t PK_Signer::SignMessageWithRecovery(RandomNumberGenerator &rng, const byte *recoverableMessage, size_t recoverableMessageLength,
 	const byte *nonrecoverableMessage, size_t nonrecoverableMessageLength, byte *signature) const
 {
 	member_ptr<PK_MessageAccumulator> m(NewSignatureAccumulator(rng));
@@ -909,8 +909,8 @@ DecodingResult PK_Verifier::Recover(byte *recoveredMessage, PK_MessageAccumulato
 	return RecoverAndRestart(recoveredMessage, *m);
 }
 
-DecodingResult PK_Verifier::RecoverMessage(byte *recoveredMessage, 
-	const byte *nonrecoverableMessage, size_t nonrecoverableMessageLength, 
+DecodingResult PK_Verifier::RecoverMessage(byte *recoveredMessage,
+	const byte *nonrecoverableMessage, size_t nonrecoverableMessageLength,
 	const byte *signature, size_t signatureLength) const
 {
 	member_ptr<PK_MessageAccumulator> m(NewVerificationAccumulator());
