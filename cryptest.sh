@@ -1063,10 +1063,6 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 	############################################
 	# Test AES-NI code generation
 
-	# This works for SunCC, but we need something like:
-	# /opt/solarisstudio12.4/bin/CC -DNDEBUG -g2 -O2 -xarch=aes -m64 -D__SSE2__ -D__SSE3__ \
-	#     -D__SSE4_1__ -D__SSE4_2__ -D__AES__ -D__PCLMUL__ -c rijndael.cpp
-
 	X86_AESNI=$(echo -n "$X86_CPU_FLAGS" | "$GREP" -i -c aes)
 	if [[ ("$X86_AESNI" -ne "0") ]]; then
 		echo
@@ -1074,10 +1070,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 		echo "Testing: X86 AES-NI code generation" | tee -a "$TEST_RESULTS"
 		echo
 
-		"$MAKE" clean > /dev/null 2>&1
-		rm -f adhoc.cpp > /dev/null 2>&1
-
-		OBJFILE=rijndael.o
+		OBJFILE=rijndael.o; rm -f "$OBJFILE" 2>/dev/null
 		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS ${PLATFORM_CXXFLAGS[@]}" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
 
 		COUNT=0
@@ -1132,10 +1125,6 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 	############################################
 	# X86 carryless multiply code generation
 
-	# This works for SunCC, but we need something like:
-	# /opt/solarisstudio12.4/bin/CC -DNDEBUG -g2 -O2 -xarch=aes -m64 -D__SSE2__ -D__SSE3__ \
-	#     -D__SSE4_1__ -D__SSE4_2__ -D__AES__ -D__PCLMUL__ -D__RDRND__ -D__RDSEED__ -c gcm.cpp
-
 	X86_PCLMUL=$(echo -n "$X86_CPU_FLAGS" | "$GREP" -i -c pclmulq)
 	if [[ ("$X86_PCLMUL" -ne "0") ]]; then
 		echo
@@ -1143,30 +1132,27 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 		echo "Testing: X86 carryless multiply code generation" | tee -a "$TEST_RESULTS"
 		echo
 
-		"$MAKE" clean > /dev/null 2>&1
-		rm -f adhoc.cpp > /dev/null 2>&1
-
-		OBJFILE=gcm.o
+		OBJFILE=gcm.o; rm -f "$OBJFILE" 2>/dev/null
 		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS ${PLATFORM_CXXFLAGS[@]}" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
 
 		COUNT=0
 		FAILED=0
 		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
 
-		COUNT=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c '(pclmullqh|vpclmulqdq)')
+		COUNT=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c '(pclmullqhq|vpclmulqdq)')
 		if [[ ("$COUNT" -eq "0") ]]; then
 			FAILED=1
-			echo "ERROR: failed to generate pclmullqh instruction" | tee -a "$TEST_RESULTS"
+			echo "ERROR: failed to generate pclmullqhq instruction" | tee -a "$TEST_RESULTS"
 		fi
 
-		COUNT=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c '(pclmullql|vpclmulqdq)')
+		COUNT=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c '(pclmullqlq|vpclmulqdq)')
 		if [[ ("$COUNT" -eq "0") ]]; then
 			FAILED=1
-			echo "ERROR: failed to generate pclmullql instruction" | tee -a "$TEST_RESULTS"
+			echo "ERROR: failed to generate pclmullqlq instruction" | tee -a "$TEST_RESULTS"
 		fi
 
 		if [[ ("$FAILED" -eq "0") ]];then
-			echo "Verified pclmullqh and pclmullql machine instructions" | tee -a "$TEST_RESULTS"
+			echo "Verified pclmullqhq and pclmullqlq machine instructions" | tee -a "$TEST_RESULTS"
 		else
 			if [[ ("$CLANG_COMPILER" -ne "0" && "$CLANG_37_OR_ABOVE" -eq "0") ]]; then
 				echo "This could be due to Clang and lack of expected support for SSSE3 (and above) in some versions of the compiler. If so, try Clang 3.7 or above"
@@ -1177,10 +1163,6 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 	############################################
 	# Test RDRAND and RDSEED code generation
 
-	# This works for SunCC, but we need something like:
-	# /opt/solarisstudio12.4/bin/CC -DNDEBUG -g2 -O2 -xarch=avx_i -m64 -D__SSE2__ -D__SSE3__ \
-	#     -D__SSE4_1__ -D__SSE4_2__ -D__AES__ -D__PCLMUL__ -D__RDRND__ -D__RDSEED__ -c rdrand.cpp
-
 	X86_RDRAND=$(echo -n "$X86_CPU_FLAGS" | "$GREP" -i -c rdrand)
 	X86_RDSEED=$(echo -n "$X86_CPU_FLAGS" | "$GREP" -i -c rdseed)
 	if [[ ("$X86_RDRAND" -ne "0" || "$X86_RDSEED" -ne "0") ]]; then
@@ -1189,10 +1171,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 		echo "Testing: X86 RDRAND and RDSEED code generation" | tee -a "$TEST_RESULTS"
 		echo
 
-		"$MAKE" clean > /dev/null 2>&1
-		rm -f adhoc.cpp > /dev/null 2>&1
-
-		OBJFILE=rdrand.o
+		OBJFILE=rdrand.o; rm -f "$OBJFILE" 2>/dev/null
 		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS ${PLATFORM_CXXFLAGS[@]}" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
 
 		COUNT=0
@@ -1227,10 +1206,6 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 	############################################
 	# X86 CRC32 code generation
 
-	# This works for SunCC, but we need something like:
-	# /opt/solarisstudio12.3/bin/CC -DNDEBUG -g2 -O2 -xarch=sse4_2 -m64 -D__SSE2__ -D__SSE3__ \
-	#     -D__SSE4_1__ -D__SSE4_2__ -c crc.cpp
-
 	X86_CRC32=$(echo -n "$X86_CPU_FLAGS" | "$EGREP" -i -c '(sse4.2|sse4_2)')
 	if [[ ("$X86_CRC32" -ne "0") ]]; then
 		echo
@@ -1238,10 +1213,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 		echo "Testing: X86 CRC32 code generation" | tee -a "$TEST_RESULTS"
 		echo
 
-		"$MAKE" clean > /dev/null 2>&1
-		rm -f adhoc.cpp > /dev/null 2>&1
-
-		OBJFILE=crc.o
+		OBJFILE=crc.o; rm -f "$OBJFILE" 2>/dev/null
 		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS ${PLATFORM_CXXFLAGS[@]}" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
 
 		COUNT=0
@@ -1284,10 +1256,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 		echo "Testing: ARM NEON code generation" | tee -a "$TEST_RESULTS"
 		echo
 
-		"$MAKE" clean > /dev/null 2>&1
-		rm -f adhoc.cpp > /dev/null 2>&1
-
-		OBJFILE=blake2.o
+		OBJFILE=blake2.o; rm -f "$OBJFILE" 2>/dev/null
 		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS ${PLATFORM_CXXFLAGS[@]}" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
 
 		COUNT=0
@@ -1296,7 +1265,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 
 		# BLAKE2_NEON_Compress32: 30 each vld1q_u8 and vld1q_u64
 		# BLAKE2_NEON_Compress64: 22 each vld1q_u8 and vld1q_u64
-		COUNT1=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c 'ldr.*q')
+		COUNT1=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c 'ldr.*q|vld.*128')
 		COUNT2=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c 'ldp.*q')
 		COUNT=$(($COUNT1 + $(($COUNT2 + $COUNT2))))
 		if [[ ("$COUNT" -lt "25") ]]; then
@@ -1305,21 +1274,21 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 		fi
 
 		# BLAKE2_NEON_Compress{32|64}: 6 each vst1q_u32 and vst1q_u64
-		COUNT=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c 'str.*q')
+		COUNT=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c 'str.*q|vstr')
 		if [[ ("$COUNT" -lt "6") ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate expected vector store instructions" | tee -a "$TEST_RESULTS"
 		fi
 
 		# BLAKE2_NEON_Compress{32|64}: 409 each vaddq_u32 and vaddq_u64
-		COUNT=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c 'add.*v')
+		COUNT=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c 'add.*v|vadd')
 		if [[ ("$COUNT" -lt "400") ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate expected vector add instructions" | tee -a "$TEST_RESULTS"
 		fi
 
 		# BLAKE2_NEON_Compress{32|64}: 559 each veorq_u32 and veorq_u64
-		COUNT=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c 'eor.*v')
+		COUNT=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c 'eor.*v|veor')
 		if [[ ("$COUNT" -lt "550") ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate expected vector xor instructions" | tee -a "$TEST_RESULTS"
@@ -1340,10 +1309,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 		echo "Testing: ARM carryless multiply code generation" | tee -a "$TEST_RESULTS"
 		echo
 
-		"$MAKE" clean > /dev/null 2>&1
-		rm -f adhoc.cpp > /dev/null 2>&1
-
-		OBJFILE=gcm.o
+		OBJFILE=gcm.o; rm -f "$OBJFILE" 2>/dev/null
 		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS ${PLATFORM_CXXFLAGS[@]}" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
 
 		COUNT=0
@@ -1377,10 +1343,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 		echo "Testing: ARM CRC32 code generation" | tee -a "$TEST_RESULTS"
 		echo
 
-		"$MAKE" clean > /dev/null 2>&1
-		rm -f adhoc.cpp > /dev/null 2>&1
-
-		OBJFILE=crc.o
+		OBJFILE=crc.o; rm -f "$OBJFILE" 2>/dev/null
 		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS ${PLATFORM_CXXFLAGS[@]}" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
 
 		COUNT=0
