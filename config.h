@@ -860,6 +860,22 @@ NAMESPACE_END
 #  define CRYPTOPP_CXX11_VARIADIC_TEMPLATES 1
 #endif // variadic templates
 
+// constexpr: MS at VS2015 (19.00); GCC at 4.6; Clang at 3.0; Intel 16.0; SunCC 12.4.
+// Intel has mis-supported the feature since at least ICPC 13.00
+#if (CRYPTOPP_MSC_VERSION >= 1900)
+#  define CRYPTOPP_CXX11_CONSTEXPR 1
+#elif (__INTEL_COMPILER >= 1600)
+#  define CRYPTOPP_CXX11_CONSTEXPR 1
+#elif defined(__clang__)
+#  if __has_feature(cxx_constexpr)
+#    define CRYPTOPP_CXX11_CONSTEXPR 1
+#  endif
+#elif (CRYPTOPP_GCC_VERSION >= 40600)
+#  define CRYPTOPP_CXX11_CONSTEXPR 1
+#elif (__SUNPRO_CC >= 0x5130)
+#  define CRYPTOPP_CXX11_CONSTEXPR 1
+#endif // constexpr compilers
+
 // TODO: Emplacement, R-values and Move semantics
 // Needed because we are catching warnings with GCC and MSC
 
@@ -872,6 +888,12 @@ NAMESPACE_END
 #  define CRYPTOPP_THROW
 #  define CRYPTOPP_NO_THROW
 #endif // CRYPTOPP_CXX11_NOEXCEPT
+
+#if defined(CRYPTOPP_CXX11_CONSTEXPR)
+#  define CRYPTOPP_CONSTEXPR constexpr
+#else
+#  define CRYPTOPP_CONSTEXPR
+#endif // CRYPTOPP_CXX11_CONSTEXPR
 
 // Hack... CRYPTOPP_ALIGN_DATA is defined earlier, before C++11 alignas availability is determined
 #if defined(CRYPTOPP_CXX11_ALIGNAS)
