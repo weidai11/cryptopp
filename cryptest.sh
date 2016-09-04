@@ -1093,7 +1093,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 
 		if [[ ("$X86_SSE2" -ne "0" && "$X86_SHA256_HASH_BLOCKS" -eq "0") ]]; then
 			echo "ERROR: failed to use X86_SHA256_HashBlocks" | tee -a "$TEST_RESULTS"
-			if [[ ("$CLANG_COMPILER" -ne "0" && "$CLANG_37_OR_ABOVE" -eq "0") ]]; then
+			if [[ ("$CLANG_COMPILER" -ne "0") ]]; then
 				echo "This could be due to Clang and lack of expected support for Intel assembly syntax in some versions of the compiler"
 			fi
 		fi
