@@ -194,12 +194,9 @@ public:
 	//! \details keylength is provided in bytes, not bits.
 	static size_t CRYPTOPP_API StaticGetValidKeyLength(size_t keylength)
 	{
-#if MIN_KEYLENGTH > 0
 		if (keylength < (size_t)MIN_KEYLENGTH)
 			return MIN_KEYLENGTH;
-		else
-#endif
-		if (keylength > (size_t)MAX_KEYLENGTH)
+		else if (keylength > (size_t)MAX_KEYLENGTH)
 			return (size_t)MAX_KEYLENGTH;
 		else
 		{
