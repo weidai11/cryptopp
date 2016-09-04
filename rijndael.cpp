@@ -231,8 +231,11 @@ void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keylen, c
 		static const word32 rcLE[] = {
 			0x01, 0x02, 0x04, 0x08,
 			0x10, 0x20, 0x40, 0x80,
-			0x1B, 0x36, /* for 128-bit blocks, Rijndael never uses more than 10 rcon values */
-		};
+			0x1B, 0x36, 0x6c, 0xd8,
+			0xab, 0x4d, 0x9a, 0x2f,
+			0x5e, 0xbc, 0x63, 0xc6,
+		}; /* 15 rcon values are required */
+
 		const word32 *rc = rcLE;
 
 		__m128i temp = _mm_loadu_si128((__m128i *)(void *)(userKey+keylen-16));
