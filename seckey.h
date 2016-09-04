@@ -80,16 +80,16 @@ protected:
 	//! \throws InvalidRounds if the number of rounds are invalid
 	inline void ThrowIfInvalidRounds(int rounds, const Algorithm *alg)
 	{
-#if defined(__BORLANDC__)
-		if (rounds < MIN_ROUNDS || rounds > MAX_ROUNDS)
-			throw InvalidRounds(alg ? alg->AlgorithmName() : std::string("VariableRounds"), rounds);
-#elif (M==INT_MAX)	// Coverity and result_independent_of_operands
-		if (rounds < MIN_ROUNDS)
-			throw InvalidRounds(alg ? alg->AlgorithmName() : "VariableRounds", rounds);	
-#else
-		if (rounds < MIN_ROUNDS || rounds > MAX_ROUNDS)
-			throw InvalidRounds(alg ? alg->AlgorithmName() : "VariableRounds", rounds);
-#endif
+		if (M == INT_MAX) // Coverity and result_independent_of_operands
+		{
+			if (rounds < MIN_ROUNDS)
+				throw InvalidRounds(alg ? alg->AlgorithmName() : std::string("VariableRounds"), rounds);
+		}
+		else
+		{
+			if (rounds < MIN_ROUNDS || rounds > MAX_ROUNDS)
+				throw InvalidRounds(alg ? alg->AlgorithmName() : std::string("VariableRounds"), rounds);
+		}
 	}
 
 	//! \brief Validates the number of rounds for an algorithm
