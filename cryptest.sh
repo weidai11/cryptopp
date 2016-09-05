@@ -922,6 +922,7 @@ if [[ (("$IS_X86" -ne "0" || "$IS_X64" -ne "0") && ("$CLANG_COMPILER" -ne "0" &&
 	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "avx2") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-mavx2"); fi
 	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "bmi") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-mbmi"); fi
 	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "bmi2") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-mbmi2"); fi
+	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "adx") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-madx"); fi
 fi
 
 # Sun Studio 12.1 (and above) compilers consume GCC inline assembly. However, the compiler does not declare
@@ -941,6 +942,7 @@ if [[ ("$IS_X86" -ne "0" || "$IS_X64" -ne "0") && ("$IS_SOLARIS" -ne "0") && ("$
 	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "avx2") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__AVX2__"); fi
 	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "bmi") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__BMI__"); fi
 	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "bmi2") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__BMI2__"); fi
+	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "adx") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__ADX__"); fi
 fi
 
 # Please, someone put an end to the madness of determining Features, FPU, ABI, hard floats and soft floats...
@@ -1061,6 +1063,51 @@ echo "Start time: $TEST_BEGIN" | tee -a "$TEST_RESULTS"
 if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; then
 
 	############################################
+	# X86 rotate immediate code generation
+
+	X86_ROTATE_IMM=1
+	if [[ ("$X86_ROTATE_IMM" -ne "0") ]]; then
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS"
+		echo "Testing: X86 rotate immediate code generation" | tee -a "$TEST_RESULTS"
+		echo
+
+		OBJFILE=sha.o; rm -f "$OBJFILE" 2>/dev/null
+		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS ${PLATFORM_CXXFLAGS[@]}" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
+
+		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
+
+		X86_SSE2=$(echo -n "$X86_CPU_FLAGS" | "$GREP" -i -c sse2)
+		X86_SHA256_HASH_BLOCKS=$(echo -n "$DISASS_TEXT" | "$EGREP" -c 'X86_SHA256_HashBlocks')
+		if [[ ("$X86_SHA256_HASH_BLOCKS" -ne "0") ]]; then
+			COUNT=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c '(rol.*0x|ror.*0x)')
+			if [[ ("$COUNT" -le "600") ]]; then
+				FAILED=1
+				echo "ERROR: failed to generate rotate immediate instruction (X86_SHA256_HashBlocks)" | tee -a "$TEST_RESULTS"
+			fi
+		else
+			COUNT=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c '(rol.*0x|ror.*0x)')
+			if [[ ("$COUNT" -le "1000") ]]; then
+				FAILED=1
+				echo "ERROR: failed to generate rotate immediate instruction" | tee -a "$TEST_RESULTS"
+			fi
+		fi
+
+		if [[ ("$X86_SSE2" -ne "0" && "$X86_SHA256_HASH_BLOCKS" -eq "0") ]]; then
+			echo "ERROR: failed to use X86_SHA256_HashBlocks" | tee -a "$TEST_RESULTS"
+			if [[ ("$CLANG_COMPILER" -ne "0") ]]; then
+				echo "This could be due to Clang and lack of expected support for Intel assembly syntax in some versions of the compiler"
+			fi
+		fi
+
+		if [[ ("$FAILED" -eq "0" && "$X86_SHA256_HASH_BLOCKS" -ne "0") ]]; then
+			echo "Verified rotate immediate machine instructions (X86_SHA256_HashBlocks)" | tee -a "$TEST_RESULTS"
+		elif [[ ("$FAILED" -eq "0") ]]; then
+			echo "Verified rotate immediate machine instructions" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+
+	############################################
 	# Test AES-NI code generation
 
 	X86_AESNI=$(echo -n "$X86_CPU_FLAGS" | "$GREP" -i -c aes)
@@ -1113,7 +1160,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 			echo "ERROR: failed to generate aeskeygenassist instruction" | tee -a "$TEST_RESULTS"
 		fi
 
-		if [[ ("$FAILED" -eq "0") ]];then
+		if [[ ("$FAILED" -eq "0") ]]; then
 			echo "Verified aesenc, aesenclast, aesdec, aesdeclast, aesimc, aeskeygenassist machine instructions" | tee -a "$TEST_RESULTS"
 		else
 			if [[ ("$CLANG_COMPILER" -ne "0" && "$CLANG_37_OR_ABOVE" -eq "0") ]]; then
@@ -1151,7 +1198,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 			echo "ERROR: failed to generate pclmullqlq instruction" | tee -a "$TEST_RESULTS"
 		fi
 
-		if [[ ("$FAILED" -eq "0") ]];then
+		if [[ ("$FAILED" -eq "0") ]]; then
 			echo "Verified pclmullqhq and pclmullqlq machine instructions" | tee -a "$TEST_RESULTS"
 		else
 			if [[ ("$CLANG_COMPILER" -ne "0" && "$CLANG_37_OR_ABOVE" -eq "0") ]]; then
@@ -1194,7 +1241,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 			fi
 		fi
 
-		if [[ ("$FAILED" -eq "0") ]];then
+		if [[ ("$FAILED" -eq "0") ]]; then
 			echo "Verified rdrand and rdseed machine instructions" | tee -a "$TEST_RESULTS"
 		else
 			if [[ ("$CLANG_COMPILER" -ne "0" && "$CLANG_37_OR_ABOVE" -eq "0") ]]; then
@@ -1232,7 +1279,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 			echo "ERROR: failed to generate crc32b instruction" | tee -a "$TEST_RESULTS"
 		fi
 
-		if [[ ("$FAILED" -eq "0") ]];then
+		if [[ ("$FAILED" -eq "0") ]]; then
 			echo "Verified crc32l and crc32b machine instructions" | tee -a "$TEST_RESULTS"
 		else
 			if [[ ("$CLANG_COMPILER" -ne "0" && "$CLANG_37_OR_ABOVE" -eq "0") ]]; then
@@ -1294,7 +1341,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 			echo "ERROR: failed to generate expected vector xor instructions" | tee -a "$TEST_RESULTS"
 		fi
 
-		if [[ ("$FAILED" -eq "0") ]];then
+		if [[ ("$FAILED" -eq "0") ]]; then
 			echo "Verified vector load, store, add, xor machine instructions" | tee -a "$TEST_RESULTS"
 		fi
 	fi
@@ -1328,7 +1375,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 			echo "ERROR: failed to generate pmull2 instruction" | tee -a "$TEST_RESULTS"
 		fi
 
-		if [[ ("$FAILED" -eq "0") ]];then
+		if [[ ("$FAILED" -eq "0") ]]; then
 			echo "Verified pmull and pmull2 machine instructions" | tee -a "$TEST_RESULTS"
 		fi
 	fi
@@ -1374,7 +1421,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 			echo "ERROR: failed to generate crc32w instruction" | tee -a "$TEST_RESULTS"
 		fi
 
-		if [[ ("$FAILED" -eq "0") ]];then
+		if [[ ("$FAILED" -eq "0") ]]; then
 			echo "Verified crc32cb, crc32cw, crc32b and crc32w machine instructions" | tee -a "$TEST_RESULTS"
 		fi
 	fi
