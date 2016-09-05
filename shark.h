@@ -14,7 +14,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 //! \class SHARK_Info
 //! \brief SHARK block cipher information
-struct SHARK_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 1, 16>, public VariableRounds<6, 2>
+struct SHARK_Info : public FixedBlockSize<8>, public FixedKeyLength<16>, public VariableRounds<6, 2>
 {
 	static const char *StaticAlgorithmName() {return "SHARK-E";}
 };
