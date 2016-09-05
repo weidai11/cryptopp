@@ -255,24 +255,26 @@ public:
 //! \brief Provides a base implementation of SimpleKeyingInterface
 //! \tparam BASE a SimpleKeyingInterface derived class
 //! \tparam INFO a SimpleKeyingInterface derived class
-//! \sa SimpleKeyingInterface
+//! \details SimpleKeyingInterfaceImpl() provides a default implementation for ciphers providing a keying interface.
+//!   Functions are virtual and not subject to C++11 <tt>constexpr</tt>.
+//! \sa Algorithm(), SimpleKeyingInterface()
 template <class BASE, class INFO = BASE>
 class CRYPTOPP_NO_VTABLE SimpleKeyingInterfaceImpl : public BASE
 {
 public:
 	//! \brief The minimum key length used by the algorithm
 	//! \returns minimum key length used by the algorithm, in bytes
-	CRYPTOPP_CONSTEXPR size_t MinKeyLength() const
+	size_t MinKeyLength() const
 		{return INFO::MIN_KEYLENGTH;}
 
 	//! \brief The maximum key length used by the algorithm
 	//! \returns maximum key length used by the algorithm, in bytes
-	CRYPTOPP_CONSTEXPR size_t MaxKeyLength() const
+	size_t MaxKeyLength() const
 		{return (size_t)INFO::MAX_KEYLENGTH;}
 
 	//! \brief The default key length used by the algorithm
 	//! \returns default key length used by the algorithm, in bytes
-	CRYPTOPP_CONSTEXPR size_t DefaultKeyLength() const
+	size_t DefaultKeyLength() const
 		{return INFO::DEFAULT_KEYLENGTH;}
 
 	//! \brief Provides a valid key length for the algorithm
@@ -283,17 +285,17 @@ public:
 	//!   then the function returns MAX_KEYLENGTH. if If keylength is a multiple of KEYLENGTH_MULTIPLE,
 	//!   then keylength is returned. Otherwise, the function returns a \a lower multiple of
 	//!   KEYLENGTH_MULTIPLE.
-	CRYPTOPP_CONSTEXPR size_t GetValidKeyLength(size_t keylength) const {return INFO::StaticGetValidKeyLength(keylength);}
+	size_t GetValidKeyLength(size_t keylength) const {return INFO::StaticGetValidKeyLength(keylength);}
 
 	//! \brief The default IV requirements for the algorithm
 	//! \details The default value is NOT_RESYNCHRONIZABLE. See IV_Requirement
 	//!  in cryptlib.h for allowed values.
-	CRYPTOPP_CONSTEXPR SimpleKeyingInterface::IV_Requirement IVRequirement() const
+	SimpleKeyingInterface::IV_Requirement IVRequirement() const
 		{return (SimpleKeyingInterface::IV_Requirement)INFO::IV_REQUIREMENT;}
 
 	//! \brief The default initialization vector length for the algorithm
 	//! \details IVSize is provided in bytes, not bits. The default implementation uses IV_LENGTH, which is 0.
-	CRYPTOPP_CONSTEXPR unsigned int IVSize() const
+	unsigned int IVSize() const
 		{return INFO::IV_LENGTH;}
 };
 
@@ -301,6 +303,9 @@ public:
 //! \brief Provides a base implementation of Algorithm and SimpleKeyingInterface for block ciphers
 //! \tparam INFO a SimpleKeyingInterface derived class
 //! \tparam BASE a SimpleKeyingInterface derived class
+//! \details BlockCipherImpl() provides a default implementation for block ciphers using AlgorithmImpl()
+//!   and SimpleKeyingInterfaceImpl(). Functions are virtual and not subject to C++11 <tt>constexpr</tt>.
+//! \sa Algorithm(), SimpleKeyingInterface(), AlgorithmImpl(), SimpleKeyingInterfaceImpl()
 template <class INFO, class BASE = BlockCipher>
 class CRYPTOPP_NO_VTABLE BlockCipherImpl : public AlgorithmImpl<SimpleKeyingInterfaceImpl<TwoBases<BASE, INFO> > >
 {
@@ -349,13 +354,17 @@ public:
 	//! \brief Provides the direction of the cipher
 	//! \returns true if DIR is ENCRYPTION, false otherwise
 	//! \sa GetCipherDirection(), IsPermutation()
-	CRYPTOPP_CONSTEXPR bool IsForwardTransformation() const {return DIR == ENCRYPTION;}
+	bool IsForwardTransformation() const {return DIR == ENCRYPTION;}
 };
 
 //! \class MessageAuthenticationCodeImpl
 //! \brief Provides a base implementation of Algorithm and SimpleKeyingInterface for message authentication codes
 //! \tparam INFO a SimpleKeyingInterface derived class
 //! \tparam BASE a SimpleKeyingInterface derived class
+//! \details MessageAuthenticationCodeImpl() provides a default implementation for message authentication codes
+//!   using AlgorithmImpl() and SimpleKeyingInterfaceImpl(). Functions are virtual and not subject to C++11
+//!   <tt>constexpr</tt>.
+//! \sa Algorithm(), SimpleKeyingInterface(), AlgorithmImpl(), SimpleKeyingInterfaceImpl()
 template <class BASE, class INFO = BASE>
 class MessageAuthenticationCodeImpl : public AlgorithmImpl<SimpleKeyingInterfaceImpl<BASE, INFO>, INFO>
 {
