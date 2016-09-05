@@ -90,8 +90,8 @@ public:
 	void SetMultiplicativeInverseOfPrime2ModPrime1(const Integer &u) {m_u = u;}
 
 	virtual bool SupportsPrecomputation() const {return true;}
-	virtual void Precompute(unsigned int unused = 0) {PrecomputeTweakedRoots();}
-	virtual void Precompute(unsigned int unused = 0) const {PrecomputeTweakedRoots();}
+	virtual void Precompute(unsigned int unused = 0) {CRYPTOPP_UNUSED(unused); PrecomputeTweakedRoots();}
+	virtual void Precompute(unsigned int unused = 0) const {CRYPTOPP_UNUSED(unused); PrecomputeTweakedRoots();}
 
 	virtual void LoadPrecomputation(BufferedTransformation &storedPrecomputation);
 	virtual void SavePrecomputation(BufferedTransformation &storedPrecomputation) const;
