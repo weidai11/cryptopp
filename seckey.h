@@ -79,7 +79,6 @@ protected:
 	//! \param alg an Algorithm object used if the number of rounds are invalid
 	//! \throws InvalidRounds if the number of rounds are invalid
 	//! \details ThrowIfInvalidRounds() validates the number of rounds and throws if invalid.
-	//!   The function is not a C++11 <tt>constexpr</tt> due to the potential throw operation.
 	inline void ThrowIfInvalidRounds(int rounds, const Algorithm *alg)
 	{
 		if (M == INT_MAX) // Coverity and result_independent_of_operands
@@ -100,7 +99,6 @@ protected:
 	//! \returns the number of rounds for the algorithm
 	//! \throws InvalidRounds if the number of rounds are invalid
 	//! \details GetRoundsAndThrowIfInvalid() validates the number of rounds and throws if invalid.
-	//!   The function is not a C++11 <tt>constexpr</tt> due to the potential throw operation.
 	inline unsigned int GetRoundsAndThrowIfInvalid(const NameValuePairs &param, const Algorithm *alg)
 	{
 		int rounds = param.GetIntValueWithDefault("Rounds", DEFAULT_ROUNDS);
@@ -256,7 +254,7 @@ public:
 //! \tparam BASE a SimpleKeyingInterface derived class
 //! \tparam INFO a SimpleKeyingInterface derived class
 //! \details SimpleKeyingInterfaceImpl() provides a default implementation for ciphers providing a keying interface.
-//!   Functions are virtual and not subject to C++11 <tt>constexpr</tt>.
+//!   Functions are virtual and not eligible for C++11 <tt>constexpr</tt>-ness.
 //! \sa Algorithm(), SimpleKeyingInterface()
 template <class BASE, class INFO = BASE>
 class CRYPTOPP_NO_VTABLE SimpleKeyingInterfaceImpl : public BASE
@@ -304,7 +302,7 @@ public:
 //! \tparam INFO a SimpleKeyingInterface derived class
 //! \tparam BASE a SimpleKeyingInterface derived class
 //! \details BlockCipherImpl() provides a default implementation for block ciphers using AlgorithmImpl()
-//!   and SimpleKeyingInterfaceImpl(). Functions are virtual and not subject to C++11 <tt>constexpr</tt>.
+//!   and SimpleKeyingInterfaceImpl(). Functions are virtual and not eligible for C++11 <tt>constexpr</tt>-ness.
 //! \sa Algorithm(), SimpleKeyingInterface(), AlgorithmImpl(), SimpleKeyingInterfaceImpl()
 template <class INFO, class BASE = BlockCipher>
 class CRYPTOPP_NO_VTABLE BlockCipherImpl : public AlgorithmImpl<SimpleKeyingInterfaceImpl<TwoBases<BASE, INFO> > >
