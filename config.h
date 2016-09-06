@@ -902,6 +902,12 @@ NAMESPACE_END
 # define CRYPTOPP_ALIGN_DATA(x) alignas(x)
 #endif  // CRYPTOPP_CXX11_ALIGNAS
 
+// Hack... CRYPTOPP_CONSTANT is defined earlier, before C++11 constexpr availability is determined
+#if defined(CRYPTOPP_CXX11_CONSTEXPR)
+# undef CRYPTOPP_CONSTANT
+# define CRYPTOPP_CONSTANT(x) constexpr static int x;
+#endif
+
 // OK to comment the following out, but please report it so we can fix it.
 // C++17 value taken from http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4567.pdf.
 #if (defined(__cplusplus) && (__cplusplus >= 199711L) && (__cplusplus < 201402L)) && !defined(CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE)
