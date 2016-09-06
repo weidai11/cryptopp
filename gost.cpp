@@ -4,9 +4,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-// Hack for OS X 10.5 ld, http://github.com/weidai11/cryptopp/issues/255
-static const size_t s_unused = GOST::KEYLENGTH;
-
 // these are the S-boxes given in Applied Cryptography 2nd Ed., p. 333
 const byte GOST::Base::sBox[8][16]={
 	{4, 10, 9, 2, 13, 8, 0, 14, 6, 11, 1, 12, 7, 15, 5, 3},

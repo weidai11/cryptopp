@@ -7,9 +7,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-// Hack for OS X 10.5 ld, http://github.com/weidai11/cryptopp/issues/255
-static const size_t s_unused = IDEA::KEYLENGTH;
-
 static const int IDEA_KEYLEN=(6*IDEA::ROUNDS+4);  // key schedule length in # of word16s
 
 #define low16(x) ((x)&0xffff)	// compiler should be able to optimize this away if word is 16 bits

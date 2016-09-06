@@ -17,9 +17,6 @@ void SEAL_TestInstantiations()
 }
 #endif
 
-// Hack for OS X 10.5 ld, http://github.com/weidai11/cryptopp/issues/255
-static const size_t s_unused = SEAL<>::KEYLENGTH;
-
 struct SEAL_Gamma
 {
 	SEAL_Gamma(const byte *key)

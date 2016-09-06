@@ -20,12 +20,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-// Hack for OS X 10.5 ld, http://github.com/weidai11/cryptopp/issues/255
-static const size_t s_unused1 = DES::KEYLENGTH;
-static const size_t s_unused2 = DES_EDE2::KEYLENGTH;
-static const size_t s_unused3 = DES_EDE3::KEYLENGTH;
-static const size_t s_unused4 = DES_XEX3::KEYLENGTH;
-
 typedef BlockGetAndPut<word32, BigEndian> Block;
 
 // Richard Outerbridge's initial permutation algorithm

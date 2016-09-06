@@ -17,9 +17,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-// Hack for OS X 10.5 ld, http://github.com/weidai11/cryptopp/issues/255
-static const size_t s_unused = SKIPJACK::KEYLENGTH;
-
 /**
  * The F-table byte permutation (see description of the G-box permutation)
  */

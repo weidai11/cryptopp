@@ -6,9 +6,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-// Hack for OS X 10.5 ld, http://github.com/weidai11/cryptopp/issues/255
-static const size_t s_unused = TEA::KEYLENGTH;
-
 static const word32 DELTA = 0x9e3779b9;
 typedef BlockGetAndPut<word32, BigEndian> Block;
 

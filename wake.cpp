@@ -15,9 +15,6 @@ void WAKE_TestInstantiations()
 }
 #endif
 
-// Hack for OS X 10.5 ld, http://github.com/weidai11/cryptopp/issues/255
-static const size_t s_unused = WAKE_OFB<>::KEYLENGTH;
-
 inline word32 WAKE_Base::M(word32 x, word32 y)
 {
 	word32 w = x+y;

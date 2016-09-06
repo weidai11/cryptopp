@@ -17,9 +17,6 @@ NAMESPACE_BEGIN(CryptoPP)
 # pragma warning(disable: 4731)
 #endif
 
-// Hack for OS X 10.5 ld, http://github.com/weidai11/cryptopp/issues/255
-static const size_t s_unused = PanamaCipher<>::KEYLENGTH;
-
 template <class B>
 void Panama<B>::Reset()
 {

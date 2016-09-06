@@ -7,9 +7,9 @@
 #include "modes.h"
 #include "misc.h"
 
-#ifndef NDEBUG
+//#ifndef NDEBUG
 #include "des.h"
-#endif
+//#endif
 
 NAMESPACE_BEGIN(CryptoPP)
 

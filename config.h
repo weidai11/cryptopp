@@ -544,8 +544,9 @@ NAMESPACE_END
 #	define CRYPTOPP_NOINLINE
 #endif
 
-// how to declare class constants
-#if (defined(_MSC_VER) && _MSC_VER <= 1300) || defined(__INTEL_COMPILER) || defined(__BORLANDC__)
+// How to declare class constants
+// Use enum for OS X 10.5 ld, http://github.com/weidai11/cryptopp/issues/255
+#if (defined(_MSC_VER) && _MSC_VER <= 1300) || defined(__INTEL_COMPILER) || defined(__BORLANDC__) || (defined(__APPLE__) && (__GNUC__ == 4) && (__GNUC_MINOR__ <= 2))
 #	define CRYPTOPP_CONSTANT(x) enum {x};
 #else
 #	define CRYPTOPP_CONSTANT(x) static const int x;

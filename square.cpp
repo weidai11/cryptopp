@@ -18,9 +18,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-// Hack for OS X 10.5 ld, http://github.com/weidai11/cryptopp/issues/255
-static const size_t s_unused = Square::KEYLENGTH;
-
 // apply theta to a roundkey
 static void SquareTransform (word32 in[4], word32 out[4])
 {

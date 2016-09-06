@@ -19,7 +19,7 @@ struct SKIPJACK_Info : public FixedBlockSize<8>, public FixedKeyLength<10>
 };
 
 //! \class SKIPJACK
-//! \brief SKIPJACK block cipher information
+//! \brief SKIPJACK block cipher
 //! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#SKIPJACK">SKIPJACK</a>
 class SKIPJACK : public SKIPJACK_Info, public BlockCipherDocumentation
 {

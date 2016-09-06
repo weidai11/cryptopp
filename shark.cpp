@@ -12,9 +12,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-// Hack for OS X 10.5 ld, http://github.com/weidai11/cryptopp/issues/255
-static const size_t s_unused = SHARK::KEYLENGTH;
-
 static word64 SHARKTransform(word64 a)
 {
 	static const byte iG[8][8] = {

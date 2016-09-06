@@ -40,10 +40,6 @@ void Salsa20_TestInstantiations()
 }
 #endif
 
-// Hack for OS X 10.5 ld, http://github.com/weidai11/cryptopp/issues/255
-// static const size_t s_unused1 = Salsa20::KEYLENGTH;
-static const size_t s_unused2 = XSalsa20::KEYLENGTH;
-
 void Salsa20_Policy::CipherSetKey(const NameValuePairs &params, const byte *key, size_t length)
 {
 	m_rounds = params.GetIntValueWithDefault(Name::Rounds(), 20);
