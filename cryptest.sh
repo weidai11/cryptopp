@@ -4641,7 +4641,7 @@ fi
 if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 
 	MACPORTS_CXX=$(find /opt/local/bin -name 'g++-mp-4*' 2>/dev/null | head -1)
-	if [[ (-z "$MACPORTS_CXX") ]]; then
+	if [[ (! -z "$MACPORTS_CXX") ]]; then
 		"$MACPORTS_CXX" -x c++ -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMP/adhoc.exe" > /dev/null 2>&1
 		if [[ "$?" -eq "0" ]]; then
 
@@ -4655,7 +4655,8 @@ if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 			"$MAKE" clean > /dev/null 2>&1
 			rm -f adhoc.cpp > /dev/null 2>&1
 
-			CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 -stdlib=libstdc++ ${DEPRECATED_CXXFLAGS[@]}"
+			# We want to use -stdlib=libstdc++ below, but it causes a compile error. Maybe MacPorts hardwired libc++.
+			CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 ${DEPRECATED_CXXFLAGS[@]}"
 			CXX="$MACPORTS_CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 				echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -4673,7 +4674,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 	fi
 
 	MACPORTS_CXX=$(find /opt/local/bin -name 'g++-mp-5*' 2>/dev/null | head -1)
-	if [[ (-z "$MACPORTS_CXX") ]]; then
+	if [[ (! -z "$MACPORTS_CXX") ]]; then
 		"$MACPORTS_CXX" -x c++ -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMP/adhoc.exe" > /dev/null 2>&1
 		if [[ "$?" -eq "0" ]]; then
 
@@ -4687,7 +4688,8 @@ if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 			"$MAKE" clean > /dev/null 2>&1
 			rm -f adhoc.cpp > /dev/null 2>&1
 
-			CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 -stdlib=libstdc++ ${DEPRECATED_CXXFLAGS[@]}"
+			# We want to use -stdlib=libstdc++ below, but it causes a compile error. Maybe MacPorts hardwired libc++.
+			CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 ${DEPRECATED_CXXFLAGS[@]}"
 			CXX="$MACPORTS_CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 				echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -4705,7 +4707,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 	fi
 
 	MACPORTS_CXX=$(find /opt/local/bin -name 'g++-mp-6*' 2>/dev/null | head -1)
-	if [[ (-z "$MACPORTS_CXX") ]]; then
+	if [[ (! -z "$MACPORTS_CXX") ]]; then
 		"$MACPORTS_CXX" -x c++ -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMP/adhoc.exe" > /dev/null 2>&1
 		if [[ "$?" -eq "0" ]]; then
 
@@ -4719,7 +4721,8 @@ if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 			"$MAKE" clean > /dev/null 2>&1
 			rm -f adhoc.cpp > /dev/null 2>&1
 
-			CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 -stdlib=libstdc++ ${DEPRECATED_CXXFLAGS[@]}"
+			# We want to use -stdlib=libstdc++ below, but it causes a compile error. Maybe MacPorts hardwired libc++.
+			CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 ${DEPRECATED_CXXFLAGS[@]}"
 			CXX="$MACPORTS_CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 				echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -4737,7 +4740,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 	fi
 
 	MACPORTS_CXX=$(find /opt/local/bin -name 'clang++-mp-3*' 2>/dev/null | head -1)
-	if [[ (-z "$MACPORTS_CXX") ]]; then
+	if [[ (! -z "$MACPORTS_CXX") ]]; then
 		"$MACPORTS_CXX" -x c++ -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMP/adhoc.exe" > /dev/null 2>&1
 		if [[ "$?" -eq "0" ]]; then
 
@@ -4769,7 +4772,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 	fi
 
 	MACPORTS_CXX=$(find /opt/local/bin -name 'clang++-mp-4*' 2>/dev/null | head -1)
-	if [[ (-z "$MACPORTS_CXX") ]]; then
+	if [[ (! -z "$MACPORTS_CXX") ]]; then
 		"$MACPORTS_CXX" -x c++ -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMP/adhoc.exe" > /dev/null 2>&1
 		if [[ "$?" -eq "0" ]]; then
 
