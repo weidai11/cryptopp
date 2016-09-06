@@ -207,7 +207,7 @@ Integer InvertibleRWFunction::CalculateInverse(RandomNumberGenerator &rng, const
 	Integer re = modn.Square(r);
 	re = modn.Multiply(re, x);    // blind
 
-	const Integer &h = re, &p = m_p, &q = m_q, &n = m_n;
+	const Integer &h = re, &p = m_p, &q = m_q;
 	Integer e, f;
 
 	const Integer U = modq.Exponentiate(h, (q+1)/8);
