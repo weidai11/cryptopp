@@ -4638,24 +4638,25 @@ fi
 
 ############################################
 # Perform a quick check with MacPorts compilers, if available.
-if [[ ("$MACPORTS_COMPILER" -eq "0") ]]; then
+if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 
-	MACPORTS_CXX=$(find /opt/local/bin -name 'g++*' 2>/dev/null | head -1)
-	if [[ (-z "$MACPORTS_CXX") ]]; then
+	MACPORTS_CXX=$(find /opt/local/bin -name 'g++-mp-4*' 2>/dev/null | head -1)
+	if [[ (! -z "$MACPORTS_CXX") ]]; then
 		"$MACPORTS_CXX" -x c++ -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMP/adhoc.exe" > /dev/null 2>&1
 		if [[ "$?" -eq "0" ]]; then
 
 			############################################
-			# MacPorts GCC build
+			# MacPorts GCC 4.x build
 			echo
 			echo "************************************" | tee -a "$TEST_RESULTS"
-			echo "Testing: MacPorts GCC compiler" | tee -a "$TEST_RESULTS"
+			echo "Testing: MacPorts 4.x GCC compiler" | tee -a "$TEST_RESULTS"
 			echo
 
 			"$MAKE" clean > /dev/null 2>&1
 			rm -f adhoc.cpp > /dev/null 2>&1
 
-			CXXFLAGS="-DNDEBUG -g2 -O2 ${DEPRECATED_CXXFLAGS[@]}"
+			# We want to use -stdlib=libstdc++ below, but it causes a compile error. Maybe MacPorts hardwired libc++.
+			CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 ${DEPRECATED_CXXFLAGS[@]}"
 			CXX="$MACPORTS_CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 				echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -4672,22 +4673,120 @@ if [[ ("$MACPORTS_COMPILER" -eq "0") ]]; then
 		fi
 	fi
 
-	MACPORTS_CXX=$(find /opt/local/bin -name 'clang++*' 2>/dev/null | head -1)
-	if [[ (-z "$MACPORTS_CXX") ]]; then
+	MACPORTS_CXX=$(find /opt/local/bin -name 'g++-mp-5*' 2>/dev/null | head -1)
+	if [[ (! -z "$MACPORTS_CXX") ]]; then
 		"$MACPORTS_CXX" -x c++ -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMP/adhoc.exe" > /dev/null 2>&1
 		if [[ "$?" -eq "0" ]]; then
 
 			############################################
-			# MacPorts Clang build
+			# MacPorts GCC 5.x build
 			echo
 			echo "************************************" | tee -a "$TEST_RESULTS"
-			echo "Testing: MacPorts Clang compiler" | tee -a "$TEST_RESULTS"
+			echo "Testing: MacPorts 5.x GCC compiler" | tee -a "$TEST_RESULTS"
 			echo
 
 			"$MAKE" clean > /dev/null 2>&1
 			rm -f adhoc.cpp > /dev/null 2>&1
 
-			CXXFLAGS="-DNDEBUG -g2 -O2 ${DEPRECATED_CXXFLAGS[@]}"
+			# We want to use -stdlib=libstdc++ below, but it causes a compile error. Maybe MacPorts hardwired libc++.
+			CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 ${DEPRECATED_CXXFLAGS[@]}"
+			CXX="$MACPORTS_CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+			else
+				./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+				if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+					echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+				fi
+				./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+				if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+					echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+				fi
+			fi
+		fi
+	fi
+
+	MACPORTS_CXX=$(find /opt/local/bin -name 'g++-mp-6*' 2>/dev/null | head -1)
+	if [[ (! -z "$MACPORTS_CXX") ]]; then
+		"$MACPORTS_CXX" -x c++ -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMP/adhoc.exe" > /dev/null 2>&1
+		if [[ "$?" -eq "0" ]]; then
+
+			############################################
+			# MacPorts GCC 6.x build
+			echo
+			echo "************************************" | tee -a "$TEST_RESULTS"
+			echo "Testing: MacPorts 6.x GCC compiler" | tee -a "$TEST_RESULTS"
+			echo
+
+			"$MAKE" clean > /dev/null 2>&1
+			rm -f adhoc.cpp > /dev/null 2>&1
+
+			# We want to use -stdlib=libstdc++ below, but it causes a compile error. Maybe MacPorts hardwired libc++.
+			CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 ${DEPRECATED_CXXFLAGS[@]}"
+			CXX="$MACPORTS_CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+			else
+				./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+				if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+					echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+				fi
+				./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+				if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+					echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+				fi
+			fi
+		fi
+	fi
+
+	MACPORTS_CXX=$(find /opt/local/bin -name 'clang++-mp-3*' 2>/dev/null | head -1)
+	if [[ (! -z "$MACPORTS_CXX") ]]; then
+		"$MACPORTS_CXX" -x c++ -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMP/adhoc.exe" > /dev/null 2>&1
+		if [[ "$?" -eq "0" ]]; then
+
+			############################################
+			# MacPorts 3.x Clang build
+			echo
+			echo "************************************" | tee -a "$TEST_RESULTS"
+			echo "Testing: MacPorts 3.x Clang compiler" | tee -a "$TEST_RESULTS"
+			echo
+
+			"$MAKE" clean > /dev/null 2>&1
+			rm -f adhoc.cpp > /dev/null 2>&1
+
+			CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 -stdlib=libc++ ${DEPRECATED_CXXFLAGS[@]}"
+			CXX="$MACPORTS_CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+			else
+				./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+				if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+					echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+				fi
+				./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+				if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+					echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+				fi
+			fi
+		fi
+	fi
+
+	MACPORTS_CXX=$(find /opt/local/bin -name 'clang++-mp-4*' 2>/dev/null | head -1)
+	if [[ (! -z "$MACPORTS_CXX") ]]; then
+		"$MACPORTS_CXX" -x c++ -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMP/adhoc.exe" > /dev/null 2>&1
+		if [[ "$?" -eq "0" ]]; then
+
+			############################################
+			# MacPorts 4.x Clang build
+			echo
+			echo "************************************" | tee -a "$TEST_RESULTS"
+			echo "Testing: MacPorts 4.x Clang compiler" | tee -a "$TEST_RESULTS"
+			echo
+
+			"$MAKE" clean > /dev/null 2>&1
+			rm -f adhoc.cpp > /dev/null 2>&1
+
+			CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 -stdlib=libc++ ${DEPRECATED_CXXFLAGS[@]}"
 			CXX="$MACPORTS_CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 				echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
