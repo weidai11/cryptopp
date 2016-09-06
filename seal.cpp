@@ -17,6 +17,9 @@ void SEAL_TestInstantiations()
 }
 #endif
 
+// Hack for OS X 10.5 ld, http://github.com/weidai11/cryptopp/issues/255
+static const size_t s_unused = SEAL<>::KEYLENGTH;
+
 struct SEAL_Gamma
 {
 	SEAL_Gamma(const byte *key)
@@ -139,7 +142,7 @@ void SEAL_Policy<B>::OperateKeystream(KeystreamOperation operation, byte *output
 		p = d & 0x7fc;
 		a += Ttab(p);
 		d = rotrFixed(d, 9U);
-		
+
 		// generate 8192 bits
 		for (unsigned int i=0; i<64; i++)
 		{
@@ -197,7 +200,7 @@ void SEAL_Policy<B>::OperateKeystream(KeystreamOperation operation, byte *output
 			else
 			{
 				a += n1;
-				b += n2;        
+				b += n2;
 				c ^= n1;
 				d ^= n2;
 			}

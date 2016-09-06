@@ -24,6 +24,8 @@ struct SHARK_Info : public FixedBlockSize<8>, public FixedKeyLength<16>, public 
 /// <a href="http://www.weidai.com/scan-mirror/cs.html#SHARK-E">SHARK-E</a>
 class SHARK : public SHARK_Info, public BlockCipherDocumentation
 {
+	//! \class Base
+	//! \brief SHARK block cipher default operation
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<SHARK_Info>
 	{
 	public:
@@ -34,6 +36,8 @@ class SHARK : public SHARK_Info, public BlockCipherDocumentation
 		SecBlock<word64> m_roundKeys;
 	};
 
+	//! \class Enc
+	//! \brief SHARK block cipher encryption operation
 	class CRYPTOPP_NO_VTABLE Enc : public Base
 	{
 	public:
@@ -47,6 +51,8 @@ class SHARK : public SHARK_Info, public BlockCipherDocumentation
 		static const word64 cbox[8][256];
 	};
 
+	//! \class Dec
+	//! \brief SHARK block cipher decryption operation
 	class CRYPTOPP_NO_VTABLE Dec : public Base
 	{
 	public:

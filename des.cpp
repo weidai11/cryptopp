@@ -20,6 +20,12 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+// Hack for OS X 10.5 ld, http://github.com/weidai11/cryptopp/issues/255
+static const size_t s_unused1 = DES::KEYLENGTH;
+static const size_t s_unused2 = DES_EDE2::KEYLENGTH;
+static const size_t s_unused3 = DES_EDE3::KEYLENGTH;
+static const size_t s_unused4 = DES_XEX3::KEYLENGTH;
+
 typedef BlockGetAndPut<word32, BigEndian> Block;
 
 // Richard Outerbridge's initial permutation algorithm
@@ -70,8 +76,8 @@ inline void FPERM(word32 &left, word32 &right)
 }
 */
 
-// Wei Dai's modification to Richard Outerbridge's initial permutation 
-// algorithm, this one is faster if you have access to rotate instructions 
+// Wei Dai's modification to Richard Outerbridge's initial permutation
+// algorithm, this one is faster if you have access to rotate instructions
 // (like in MSVC)
 static inline void IPERM(word32 &left, word32 &right)
 {
@@ -283,7 +289,7 @@ void RawDES::RawSetKey(CipherDir dir, const byte *key)
 	byte *const ks=pcr+56;
 	register int i,j,l;
 	int m;
-	
+
 	for (j=0; j<56; j++) {          /* convert pc1 to bits of key */
 		l=pc1[j]-1;             /* integer bit location  */
 		m = l & 07;             /* find bit              */
@@ -314,7 +320,7 @@ void RawDES::RawSetKey(CipherDir dir, const byte *key)
 			| ((word32)ks[5] << 8)
 			| ((word32)ks[7]);
 	}
-	
+
 	if (dir==DECRYPTION)     // reverse key schedule order
 		for (i=0; i<16; i+=2)
 		{

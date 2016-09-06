@@ -6,6 +6,9 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+// Hack for OS X 10.5 ld, http://github.com/weidai11/cryptopp/issues/255
+static const size_t s_unused = SEED::KEYLENGTH;
+
 static const word32 s_kc[16] = {
 	0x9e3779b9, 0x3c6ef373, 0x78dde6e6, 0xf1bbcdcc, 0xe3779b99, 0xc6ef3733, 0x8dde6e67, 0x1bbcdccf,
 	0x3779b99e, 0x6ef3733c, 0xdde6e678, 0xbbcdccf1, 0x779b99e3, 0xef3733c6, 0xde6e678d, 0xbcdccf1b};

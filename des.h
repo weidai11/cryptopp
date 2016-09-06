@@ -35,12 +35,14 @@ struct DES_Info : public FixedBlockSize<8>, public FixedKeyLength<8>
 
 //! \class DES
 //! \brief DES block cipher
-//! \details  The DES implementation in Crypto++ ignores the parity bits
+//! \details The DES implementation in Crypto++ ignores the parity bits
 //!   (the least significant bits of each byte) in the key. However you can use CheckKeyParityBits()
 //!   and CorrectKeyParityBits() to	check or correct the parity bits if you wish.
 //! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#DES">DES</a>
 class DES : public DES_Info, public BlockCipherDocumentation
 {
+	//! \class Base
+	//! \brief DES block cipher default operation
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<DES_Info>, public RawDES
 	{
 	public:
@@ -70,6 +72,8 @@ struct DES_EDE2_Info : public FixedBlockSize<8>, public FixedKeyLength<16>
 /// \sa <a href="http://www.weidai.com/scan-mirror/cs.html#DESede">DES-EDE2</a>
 class DES_EDE2 : public DES_EDE2_Info, public BlockCipherDocumentation
 {
+	//! \class Base
+	//! \brief DES_EDE2 block cipher default operation
 	class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<DES_EDE2_Info>
 	{
 	public:
@@ -97,6 +101,8 @@ struct DES_EDE3_Info : public FixedBlockSize<8>, public FixedKeyLength<24>
 //! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#DESede">DES-EDE3</a>
 class DES_EDE3 : public DES_EDE3_Info, public BlockCipherDocumentation
 {
+	//! \class Base
+	//! \brief DES_EDE3 block cipher default operation
 	class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<DES_EDE3_Info>
 	{
 	public:
@@ -124,6 +130,8 @@ struct DES_XEX3_Info : public FixedBlockSize<8>, public FixedKeyLength<24>
 //! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#DESX">DES-XEX3</a>, AKA DESX
 class DES_XEX3 : public DES_XEX3_Info, public BlockCipherDocumentation
 {
+	//! \class Base
+	//! \brief DES_XEX3 block cipher default operation
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<DES_XEX3_Info>
 	{
 	public:

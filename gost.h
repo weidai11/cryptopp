@@ -23,6 +23,8 @@ struct GOST_Info : public FixedBlockSize<8>, public FixedKeyLength<32>
 //! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#GOST">GOST</a>
 class GOST : public GOST_Info, public BlockCipherDocumentation
 {
+	//! \class Base
+	//! \brief GOST block cipher default operation
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<GOST_Info>
 	{
 	public:
@@ -38,12 +40,16 @@ class GOST : public GOST_Info, public BlockCipherDocumentation
 		FixedSizeSecBlock<word32, 8> key;
 	};
 
+	//! \class Enc
+	//! \brief GOST block cipher encryption operation
 	class CRYPTOPP_NO_VTABLE Enc : public Base
 	{
 	public:
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
 	};
 
+	//! \class Dec
+	//! \brief GOST block cipher decryption operation
 	class CRYPTOPP_NO_VTABLE Dec : public Base
 	{
 	public:

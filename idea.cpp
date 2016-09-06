@@ -7,6 +7,9 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+// Hack for OS X 10.5 ld, http://github.com/weidai11/cryptopp/issues/255
+static const size_t s_unused = IDEA::KEYLENGTH;
+
 static const int IDEA_KEYLEN=(6*IDEA::ROUNDS+4);  // key schedule length in # of word16s
 
 #define low16(x) ((x)&0xffff)	// compiler should be able to optimize this away if word is 16 bits
@@ -42,16 +45,16 @@ void IDEA::Base::BuildLogTables()
 	else
 	{
 		tablesBuilt = true;
-		
+
 		IDEA::Word x=1;
 		word32 i;
-		
+
 		for (i=0; i<0x10000; i++)
 		{
 			antilog[i] = (word16)x;
 			DirectMUL(x, 3);
 		}
-		
+
 		for (i=0; i<0x10000; i++)
 			log[antilog[i]] = (word16)i;
 	}
@@ -82,16 +85,16 @@ inline void IDEA::Base::LookupMUL(IDEA::Word &a, IDEA::Word b)
 void IDEA::Base::UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &)
 {
 	AssertValidKeyLength(length);
-	
+
 #ifdef IDEA_LARGECACHE
 	BuildLogTables();
 #endif
-	
+
 	EnKey(userKey);
-	
+
 	if (!IsForwardTransformation())
 		DeKey();
-	
+
 #ifdef IDEA_LARGECACHE
 	LookupKeyLogs();
 #endif
@@ -100,10 +103,10 @@ void IDEA::Base::UncheckedSetKey(const byte *userKey, unsigned int length, const
 void IDEA::Base::EnKey (const byte *userKey)
 {
 	unsigned int i;
-	
+
 	for (i=0; i<8; i++)
 		m_key[i] = ((IDEA::Word)userKey[2*i]<<8) | userKey[2*i+1];
-	
+
 	for (; i<IDEA_KEYLEN; i++)
 	{
 		unsigned int j = RoundDownToMultipleOf(i,8U)-8;
@@ -170,7 +173,7 @@ void IDEA::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
 		x1 += key[i*6+1];
 		x2 += key[i*6+2];
 		MUL(x3, key[i*6+3]);
-		t0 = x0^x2; 
+		t0 = x0^x2;
 		MUL(t0, key[i*6+4]);
 		t1 = t0 + (x1^x3);
 		MUL(t1, key[i*6+5]);

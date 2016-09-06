@@ -15,6 +15,9 @@ void WAKE_TestInstantiations()
 }
 #endif
 
+// Hack for OS X 10.5 ld, http://github.com/weidai11/cryptopp/issues/255
+static const size_t s_unused = WAKE_OFB<>::KEYLENGTH;
+
 inline word32 WAKE_Base::M(word32 x, word32 y)
 {
 	word32 w = x+y;
@@ -24,7 +27,7 @@ inline word32 WAKE_Base::M(word32 x, word32 y)
 void WAKE_Base::GenKey(word32 k0, word32 k1, word32 k2, word32 k3)
 {
 	// this code is mostly copied from David Wheeler's paper "A Bulk Data Encryption Algorithm"
-	signed int x, z, p;	
+	signed int x, z, p;
 	// x and z were declared as "long" in Wheeler's paper, which is a signed type. I don't know if that was intentional, but it's too late to change it now. -- Wei 7/4/2010
 	CRYPTOPP_COMPILE_ASSERT(sizeof(x) == 4);
 	static unsigned int tt[10]= {
