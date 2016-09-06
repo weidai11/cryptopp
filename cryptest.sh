@@ -4638,7 +4638,7 @@ fi
 
 ############################################
 # Perform a quick check with MacPorts compilers, if available.
-if [[ ("$MACPORTS_COMPILER" -eq "0") ]]; then
+if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 
 	MACPORTS_CXX=$(find /opt/local/bin -name 'g++-mp-4*' 2>/dev/null | head -1)
 	if [[ (-z "$MACPORTS_CXX") ]]; then
