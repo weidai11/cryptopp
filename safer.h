@@ -49,6 +49,12 @@ public:
 	};
 };
 
+//! \class SAFER_Impl
+//! \brief SAFER block cipher default implementation
+//! \tparam BASE SAFER::Enc or SAFER::Dec derived base class
+//! \tparam INFO SAFER_Info derived class
+//! \tparam STR flag indicating a strengthened implementation
+//! \details SAFER-K is not strengthened; while SAFER-SK is strengthened.
 template <class BASE, class INFO, bool STR>
 class CRYPTOPP_NO_VTABLE SAFER_Impl : public BlockCipherImpl<INFO, BASE>
 {
