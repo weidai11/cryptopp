@@ -2692,7 +2692,7 @@ bool ValidateThreeWay()
 	pass1 = enc.StaticGetValidKeyLength(16) == 12 && pass1;
 
 	ThreeWayDecryption dec;  // 96-bit only
-	pass2 = ThreeWayEncryption::KEYLENGTH ==  12 && pass2;
+	pass2 = ThreeWayDecryption::KEYLENGTH ==  12 && pass2;
 	pass2 = dec.StaticGetValidKeyLength(8) == 12 && pass2;
 	pass2 = dec.StaticGetValidKeyLength(12) == 12 && pass2;
 	pass2 = dec.StaticGetValidKeyLength(16) == 12 && pass2;
@@ -2708,6 +2708,7 @@ bool ValidateGOST()
 	bool pass1 = true, pass2 = true;
 
 	GOSTEncryption enc;  // 256-bit only
+	pass1 = GOSTEncryption::KEYLENGTH ==  32 && pass1;
 	pass1 = enc.StaticGetValidKeyLength(16) == 32 && pass1;
 	pass1 = enc.StaticGetValidKeyLength(24) == 32 && pass1;
 	pass1 = enc.StaticGetValidKeyLength(32) == 32 && pass1;
@@ -2715,6 +2716,7 @@ bool ValidateGOST()
 	pass1 = enc.StaticGetValidKeyLength(64) == 32 && pass1;
 
 	GOSTDecryption dec;  // 256-bit only
+	pass2 = GOSTDecryption::KEYLENGTH ==  32 && pass2;
 	pass2 = dec.StaticGetValidKeyLength(16) == 32 && pass2;
 	pass2 = dec.StaticGetValidKeyLength(24) == 32 && pass2;
 	pass2 = dec.StaticGetValidKeyLength(32) == 32 && pass2;
@@ -2732,6 +2734,7 @@ bool ValidateSHARK()
 	bool pass1 = true, pass2 = true;
 
 	SHARKEncryption enc;  // 128-bit only
+	pass1 = SHARKEncryption::KEYLENGTH ==  16 && pass1;
 	pass1 = enc.StaticGetValidKeyLength(8) == 16 && pass1;
 	pass1 = enc.StaticGetValidKeyLength(15) == 16 && pass1;
 	pass1 = enc.StaticGetValidKeyLength(16) == 16 && pass1;
@@ -2739,6 +2742,7 @@ bool ValidateSHARK()
 	pass1 = enc.StaticGetValidKeyLength(32) == 16 && pass1;
 
 	SHARKDecryption dec;  // 128-bit only
+	pass2 = SHARKDecryption::KEYLENGTH ==  16 && pass2;
 	pass2 = dec.StaticGetValidKeyLength(8) == 16 && pass2;
 	pass2 = dec.StaticGetValidKeyLength(15) == 16 && pass2;
 	pass2 = dec.StaticGetValidKeyLength(16) == 16 && pass2;
@@ -2756,6 +2760,7 @@ bool ValidateCAST()
 	bool pass1 = true, pass2 = true, pass3 = true;
 
 	CAST128Encryption enc1;  // 40 to 128-bits (5 to 16-bytes)
+	pass1 = CAST128Encryption::DEFAULT_KEYLENGTH ==  16 && pass1;
 	pass1 = enc1.StaticGetValidKeyLength(4) == 5 && pass1;
 	pass1 = enc1.StaticGetValidKeyLength(5) == 5 && pass1;
 	pass1 = enc1.StaticGetValidKeyLength(15) == 15 && pass1;
@@ -2763,6 +2768,7 @@ bool ValidateCAST()
 	pass1 = enc1.StaticGetValidKeyLength(17) == 16 && pass1;
 
 	CAST128Decryption dec1;  // 40 to 128-bits (5 to 16-bytes)
+	pass2 = CAST128Decryption::DEFAULT_KEYLENGTH ==  16 && pass2;
 	pass2 = dec1.StaticGetValidKeyLength(4) == 5 && pass2;
 	pass2 = dec1.StaticGetValidKeyLength(5) == 5 && pass2;
 	pass2 = dec1.StaticGetValidKeyLength(15) == 15 && pass2;
@@ -2779,6 +2785,7 @@ bool ValidateCAST()
 	bool pass4 = true, pass5 = true, pass6 = true;
 
 	CAST256Encryption enc2;  // 128, 160, 192, 224, or 256-bits (16 to 32-bytes, step 4)
+	pass1 = CAST128Encryption::DEFAULT_KEYLENGTH ==  16 && pass1;
 	pass4 = enc2.StaticGetValidKeyLength(15) == 16 && pass4;
 	pass4 = enc2.StaticGetValidKeyLength(16) == 16 && pass4;
 	pass4 = enc2.StaticGetValidKeyLength(17) == 20 && pass4;
@@ -2790,6 +2797,7 @@ bool ValidateCAST()
 	pass4 = enc2.StaticGetValidKeyLength(33) == 32 && pass4;
 
 	CAST256Decryption dec2;  // 128, 160, 192, 224, or 256-bits (16 to 32-bytes, step 4)
+	pass2 = CAST256Decryption::DEFAULT_KEYLENGTH ==  16 && pass2;
 	pass5 = dec2.StaticGetValidKeyLength(15) == 16 && pass5;
 	pass5 = dec2.StaticGetValidKeyLength(16) == 16 && pass5;
 	pass5 = dec2.StaticGetValidKeyLength(17) == 20 && pass5;
