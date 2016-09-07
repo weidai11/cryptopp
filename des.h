@@ -30,7 +30,7 @@ protected:
 struct DES_Info : public FixedBlockSize<8>, public FixedKeyLength<8>
 {
 	// disable DES in DLL version by not exporting this function
-	static const char * StaticAlgorithmName() {return "DES";}
+	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "DES";}
 };
 
 //! \class DES
@@ -122,7 +122,7 @@ public:
 //! \brief DESX block cipher information
 struct DES_XEX3_Info : public FixedBlockSize<8>, public FixedKeyLength<24>
 {
-	static const char *StaticAlgorithmName() {return "DES-XEX3";}
+	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "DES-XEX3";}
 };
 
 //! \class DES_XEX3

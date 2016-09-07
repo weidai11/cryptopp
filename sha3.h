@@ -52,7 +52,7 @@ public:
 
 	//! \brief Construct a SHA3-224 message digest
 	SHA3_224() : SHA3(DIGESTSIZE) {}
-	static const char * StaticAlgorithmName() {return "SHA-3-224";}
+	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "SHA-3-224";}
 } CRYPTOPP_DEPRECATED("SHA-3 will be changing in the future due to FIPS 202 finalization");
 
 //! \class SHA3_256
@@ -64,7 +64,7 @@ public:
 
 	//! \brief Construct a SHA3-256 message digest
 	SHA3_256() : SHA3(DIGESTSIZE) {}
-	static const char * StaticAlgorithmName() {return "SHA-3-256";}
+	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "SHA-3-256";}
 } CRYPTOPP_DEPRECATED("SHA-3 will be changing in the future due to FIPS 202 finalization");
 
 //! \class SHA3_384
@@ -76,7 +76,7 @@ public:
 
 	//! \brief Construct a SHA3-384 message digest
 	SHA3_384() : SHA3(DIGESTSIZE) {}
-	static const char * StaticAlgorithmName() {return "SHA-3-384";}
+	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "SHA-3-384";}
 } CRYPTOPP_DEPRECATED("SHA-3 will be changing in the future due to FIPS 202 finalization");
 
 //! \class SHA3_512
@@ -88,7 +88,7 @@ public:
 
 	//! \brief Construct a SHA3-512 message digest
 	SHA3_512() : SHA3(DIGESTSIZE) {}
-	static const char * StaticAlgorithmName() {return "SHA-3-512";}
+	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "SHA-3-512";}
 } CRYPTOPP_DEPRECATED("SHA-3 will be changing in the future due to FIPS 202 finalization");
 
 NAMESPACE_END

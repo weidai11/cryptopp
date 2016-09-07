@@ -16,7 +16,7 @@ NAMESPACE_BEGIN(CryptoPP)
 //! \brief ThreeWay block cipher information
 struct ThreeWay_Info : public FixedBlockSize<12>, public FixedKeyLength<12>, public VariableRounds<11>
 {
-	static const char *StaticAlgorithmName() {return "3-Way";}
+	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "3-Way";}
 };
 
 //! \class ThreeWay
