@@ -592,7 +592,13 @@ if [[ (-z "$HAVE_LDGOLD") ]]; then
 	LD_GOLD=$(which ld.gold 2>&1 | "$GREP" -v "no ld.gold" | head -1)
 	ELF_FILE=$(which file 2>&1 | "$GREP" -v "no file" | head -1)
 	if [[ (! -z "$LD_GOLD") && (! -z "$ELF_FILE") ]]; then
-		HAVE_LDGOLD=$(file "$LD_GOLD" | cut -d":" -f 2 | "$EGREP" -i -c "elf")
+		LD_GOLD=$(file "$LD_GOLD" | cut -d":" -f 2 | "$EGREP" -i -c "elf")
+		if [[ ("$LD_GOLD" -ne "0") ]]; then
+			"$CXX" -DCRYPTOPP_ADHOC_MAIN -fuse-ld=gold adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+			if [[ "$?" -eq "0" ]]; then
+				HAVE_LDGOLD=1
+			fi
+		fi
 	fi
 fi
 
