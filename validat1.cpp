@@ -1201,7 +1201,7 @@ bool TestSecBlock()
 		temp &= (block.size() == SIZE*2);
 
 		for (size_t i = 0; i < block.size()/2; i++)
-			temp &= (block[i] == 0xaaaaaaaaaaaaaaaa);
+			temp &= (block[i] == W64LIT(0xaaaaaaaaaaaaaaaa));
 
 		for (size_t i = block.size()/2; i < block.size(); i++)
 			temp &= (block[i] == 0);
