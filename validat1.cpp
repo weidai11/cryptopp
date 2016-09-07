@@ -2436,6 +2436,7 @@ bool ValidateRC5()
 	bool pass1 = true, pass2 = true;
 
 	RC5Encryption enc;  // 0 to 2040-bits (255-bytes)
+	pass1 = RC5Encryption::DEFAULT_KEYLENGTH ==  16 && pass1;
 	pass1 = enc.StaticGetValidKeyLength(0) == 0 && pass1;
 	pass1 = enc.StaticGetValidKeyLength(254) == 254 && pass1;
 	pass1 = enc.StaticGetValidKeyLength(255) == 255 && pass1;
@@ -2444,6 +2445,7 @@ bool ValidateRC5()
 	pass1 = enc.StaticGetValidKeyLength(SIZE_MAX) == enc.MaxKeyLength() && pass1;
 
 	RC5Decryption dec;
+	pass2 = RC5Decryption::DEFAULT_KEYLENGTH ==  16 && pass2;
 	pass2 = dec.StaticGetValidKeyLength(0) == 0 && pass2;
 	pass2 = dec.StaticGetValidKeyLength(254) == 254 && pass2;
 	pass2 = dec.StaticGetValidKeyLength(255) == 255 && pass2;
@@ -2684,11 +2686,13 @@ bool ValidateThreeWay()
 	bool pass1 = true, pass2 = true;
 
 	ThreeWayEncryption enc;  // 96-bit only
+	pass1 = ThreeWayEncryption::KEYLENGTH ==  12 && pass1;
 	pass1 = enc.StaticGetValidKeyLength(8) == 12 && pass1;
 	pass1 = enc.StaticGetValidKeyLength(12) == 12 && pass1;
 	pass1 = enc.StaticGetValidKeyLength(16) == 12 && pass1;
 
 	ThreeWayDecryption dec;  // 96-bit only
+	pass2 = ThreeWayEncryption::KEYLENGTH ==  12 && pass2;
 	pass2 = dec.StaticGetValidKeyLength(8) == 12 && pass2;
 	pass2 = dec.StaticGetValidKeyLength(12) == 12 && pass2;
 	pass2 = dec.StaticGetValidKeyLength(16) == 12 && pass2;

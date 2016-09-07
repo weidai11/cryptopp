@@ -71,11 +71,20 @@ public:
 	//! \param keylength the size of the key, in bytes
 	//! \details keylength is unused in the default implementation.
 	CRYPTOPP_CONSTEXPR static unsigned int StaticGetDefaultRounds(size_t keylength)
-		{return CRYPTOPP_UNUSED(keylength), DEFAULT_ROUNDS;}
+	{
+		// Comma operator breaks Debug builds with GCC 4.0 - 4.6.
+		// Also see http://github.com/weidai11/cryptopp/issues/255
+#if defined(CRYPTOPP_CXX11_CONSTEXPR)
+		return CRYPTOPP_UNUSED(keylength), static_cast<unsigned int>(DEFAULT_ROUNDS);
+#else
+		CRYPTOPP_UNUSED(keylength);
+		return static_cast<unsigned int>(DEFAULT_ROUNDS);
+#endif
+	}
 
 protected:
 	//! \brief Validates the number of rounds for an algorithm.
-	//! \param rounds the canddiate number of rounds
+	//! \param rounds the candidate number of rounds
 	//! \param alg an Algorithm object used if the number of rounds are invalid
 	//! \throws InvalidRounds if the number of rounds are invalid
 	//! \details ThrowIfInvalidRounds() validates the number of rounds and throws if invalid.
@@ -94,7 +103,7 @@ protected:
 	}
 
 	//! \brief Validates the number of rounds for an algorithm
-	//! \param param the canddiate number of rounds
+	//! \param param the candidate number of rounds
 	//! \param alg an Algorithm object used if the number of rounds are invalid
 	//! \returns the number of rounds for the algorithm
 	//! \throws InvalidRounds if the number of rounds are invalid
@@ -143,7 +152,16 @@ public:
 	//! \details The default implementation returns KEYLENGTH. keylength is unused
 	//!   in the default implementation.
 	CRYPTOPP_CONSTEXPR static size_t CRYPTOPP_API StaticGetValidKeyLength(size_t keylength)
-		{return CRYPTOPP_UNUSED(keylength), KEYLENGTH;}
+	{
+		// Comma operator breaks Debug builds with GCC 4.0 - 4.6.
+		// Also see http://github.com/weidai11/cryptopp/issues/255
+#if defined(CRYPTOPP_CXX11_CONSTEXPR)
+		return CRYPTOPP_UNUSED(keylength), static_cast<size_t>(KEYLENGTH);
+#else
+		CRYPTOPP_UNUSED(keylength);
+		return static_cast<size_t>(KEYLENGTH);
+#endif
+	}
 };
 
 //! \class VariableKeyLength
