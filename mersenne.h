@@ -55,7 +55,7 @@ public:
 		{
 #if defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS) && defined(IS_LITTLE_ENDIAN)
 			*((word32*)output) = ByteReverse(NextMersenneWord());
-#elif defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS) 
+#elif defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS)
 			*((word32*)output) = NextMersenneWord();
 #else
 			temp = NextMersenneWord();
@@ -65,7 +65,7 @@ public:
 			output[0] = CRYPTOPP_GET_BYTE_AS_BYTE(temp, 3);
 #endif
 		}
-		
+
 		// No tail bytes
 		if (size%4 == 0)
 		{
@@ -73,7 +73,7 @@ public:
 			*((volatile word32*)&temp) = 0;
 			return;
 		}
-		
+
 		// Handle tail bytes
 		temp = NextMersenneWord();
 		switch (size%4)
@@ -84,11 +84,11 @@ public:
 
 			default: assert(0); ;;
 		}
-		
+
 		// Wipe temp
 		*((volatile word32*)&temp) = 0;
 	}
-	
+
 	//! \brief Generate a random 32-bit word in the range min to max, inclusive
 	//! \returns random 32-bit word in the range min to max, inclusive
 	//! \details If the 32-bit candidate is not within the range, then it is discarded
@@ -98,7 +98,7 @@ public:
 		const word32 range = max-min;
 		if (range == 0xffffffffL)
 			return NextMersenneWord();
-			
+
 		const int maxBits = BitPrecision(range);
 		word32 value;
 
@@ -108,7 +108,7 @@ public:
 
 		return value+min;
 	}
-	
+
 	//! \brief Generate and discard n bytes
 	//! \param n the number of bytes to discard, rounded up to a <tt>word32</tt> size
 	//! \details If n is not a multiple of <tt>word32</tt>, then unused bytes are
@@ -120,7 +120,7 @@ public:
 		for(size_t i=0; i < RoundUpToMultipleOf(n, 4U); i++)
 			NextMersenneWord();
 	}
-	
+
 protected:
 
 	//! \brief Returns the next 32-bit word from the state array
@@ -130,19 +130,19 @@ protected:
 	word32 NextMersenneWord()
 	{
 		if (m_idx >= N) { Twist(); }
-		
+
 		word32 temp = m_state[m_idx++];
 
 		temp ^= (temp >> 11);
 		temp ^= (temp << 7)  & 0x9D2C5680; // 0x9D2C5680 (2636928640)
 		temp ^= (temp << 15) & 0xEFC60000; // 0xEFC60000 (4022730752)
-		
+
 		return temp ^ (temp >> 18);
 	}
 
 	//! \brief Performs the twist operaton on the state array
 	void Twist()
-	{			
+	{
 		static const unsigned long magic[2]={0x0UL, K};
 		word32 kk, temp;
 
@@ -152,19 +152,19 @@ protected:
 			temp = (m_state[kk] & 0x80000000)|(m_state[kk+1] & 0x7FFFFFFF);
 			m_state[kk] = m_state[kk+M] ^ (temp >> 1) ^ magic[temp & 0x1UL];
 		}
-		
+
 		for (;kk<N-1;kk++)
 		{
 			temp = (m_state[kk] & 0x80000000)|(m_state[kk+1] & 0x7FFFFFFF);
 			m_state[kk] = m_state[kk+(M-N)] ^ (temp >> 1) ^ magic[temp & 0x1UL];
 		}
-		
+
 		temp = (m_state[N-1] & 0x80000000)|(m_state[0] & 0x7FFFFFFF);
 		m_state[N-1] = m_state[M-1] ^ (temp >> 1) ^ magic[temp & 0x1UL];
-		
+
 		// Reset index
 		m_idx = 0;
-	
+
 		// Wipe temp
 		*((volatile word32*)&temp) = 0;
 	}
@@ -179,7 +179,7 @@ private:
 	unsigned int m_idx;
 };
 
-//! \brief Original MT19937 generator provided in the ACM paper. 
+//! \brief Original MT19937 generator provided in the ACM paper.
 //! \details Also see http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/ARTICLES/mt.pdf; uses 4537 as default initial seed.
 typedef MersenneTwister<0x9908B0DF /*2567483615*/, 397, 624, 0x10DCD /*69069*/, 4537> MT19937;
 
@@ -191,4 +191,4 @@ typedef MersenneTwister<0x9908B0DF /*2567483615*/, 397, 624, 0x6C078965 /*181243
 NAMESPACE_END
 
 #endif // CRYPTOPP_MERSENNE_TWISTER_H
-	
+

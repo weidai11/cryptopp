@@ -24,7 +24,7 @@ const byte GOST::Base::sBox[8][16]={
 	{ 7, 13, 14,  3,  0,  6,  9, 10,  1,  2,  8,  5, 11, 12,  4, 15 },
 	{10,  0,  9, 14,  6,  3, 15,  5,  1, 13, 12,  7, 11,  4,  2,  8 },
 	{15,  1,  8, 14,  6, 11,  3,  4,  9,  7,  2, 13, 12,  0,  5, 10 },
-	{14,  4, 13,  1,  2, 15, 11,  8,  3, 10,  6, 12,  5,  9,  0,  7 }}; 
+	{14,  4, 13,  1,  2, 15, 11,  8,  3, 10,  6, 12,  5,  9,  0,  7 }};
 */
 
 volatile bool GOST::Base::sTableCalculated = false;
@@ -44,7 +44,7 @@ void GOST::Base::PrecalculateSTable()
 	if (!sTableCalculated)
 	{
 		for (unsigned i = 0; i < 4; i++)
-			for (unsigned j = 0; j < 256; j++) 
+			for (unsigned j = 0; j < 256; j++)
 			{
 				word32 temp = sBox[2*i][j%16] | (sBox[2*i+1][j/16] << 4);
 				sTable[i][j] = rotlMod(temp, 11+8*i);

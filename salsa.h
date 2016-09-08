@@ -19,12 +19,14 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 //! \class Salsa20_Info
-//! \brief Salsa stream cipher information
+//! \brief Salsa20 stream cipher information
 struct Salsa20_Info : public VariableKeyLength<32, 16, 32, 16, SimpleKeyingInterface::UNIQUE_IV, 8>
 {
-	static const char *StaticAlgorithmName() {return "Salsa20";}
+	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "Salsa20";}
 };
 
+//! \class Salsa20_Policy
+//! \brief Salsa20 stream cipher operation
 class CRYPTOPP_NO_VTABLE Salsa20_Policy : public AdditiveCipherConcretePolicy<word32, 16>
 {
 protected:
@@ -43,7 +45,7 @@ protected:
 };
 
 //! \class Salsa20
-//! \brief Salsa20 stream cipher information
+//! \brief Salsa20 stream cipher
 //! \details Salsa20 provides a variable number of rounds: 8, 12 or 20. The default number of rounds is 20.
 //! \sa <a href="http://www.cryptolounge.org/wiki/XSalsa20">XSalsa20</a>
 struct Salsa20 : public Salsa20_Info, public SymmetricCipherDocumentation
@@ -56,9 +58,11 @@ struct Salsa20 : public Salsa20_Info, public SymmetricCipherDocumentation
 //! \brief XSalsa20 stream cipher information
 struct XSalsa20_Info : public FixedKeyLength<32, SimpleKeyingInterface::UNIQUE_IV, 24>
 {
-	static const char *StaticAlgorithmName() {return "XSalsa20";}
+	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "XSalsa20";}
 };
 
+//! \class XSalsa20_Policy
+//! \brief XSalsa20 stream cipher operation
 class CRYPTOPP_NO_VTABLE XSalsa20_Policy : public Salsa20_Policy
 {
 public:
@@ -70,7 +74,7 @@ protected:
 };
 
 //! \class XSalsa20
-//! \brief XSalsa20 stream cipher information
+//! \brief XSalsa20 stream cipher
 //! \details XSalsa20 provides a variable number of rounds: 8, 12 or 20. The default number of rounds is 20.
 //! \sa <a href="http://www.cryptolounge.org/wiki/XSalsa20">XSalsa20</a>
 struct XSalsa20 : public XSalsa20_Info, public SymmetricCipherDocumentation

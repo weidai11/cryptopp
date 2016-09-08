@@ -15,7 +15,7 @@ NAMESPACE_BEGIN(CryptoPP)
 //! \brief RC5 block cipher information
 struct RC5_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 0, 255>, public VariableRounds<16>
 {
-	static const char *StaticAlgorithmName() {return "RC5";}
+	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "RC5";}
 	typedef word32 RC5_WORD;
 };
 

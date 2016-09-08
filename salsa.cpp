@@ -35,7 +35,8 @@ NAMESPACE_BEGIN(CryptoPP)
 #if !defined(NDEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
 void Salsa20_TestInstantiations()
 {
-	Salsa20::Encryption x;
+	Salsa20::Encryption x1;
+	XSalsa20::Encryption x2;
 }
 #endif
 
@@ -247,37 +248,37 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 	AS2(	pxor	xmm##b, xmm5)
 
 #define L01(A,B,C,D,a,b,c,d,i)		AS2(	movdqa	xmm##A, [SSE2_WORKSPACE + d*16 + i*256])	/* y3 */
-#define L02(A,B,C,D,a,b,c,d,i)		AS2(	movdqa	xmm##C, [SSE2_WORKSPACE + a*16 + i*256])	/* y0 */	
-#define L03(A,B,C,D,a,b,c,d,i)		AS2(	paddd	xmm##A, xmm##C)		/* y0+y3 */							
-#define L04(A,B,C,D,a,b,c,d,i)		AS2(	movdqa	xmm##B, xmm##A)											
-#define L05(A,B,C,D,a,b,c,d,i)		AS2(	pslld	xmm##A, 7)											
-#define L06(A,B,C,D,a,b,c,d,i)		AS2(	psrld	xmm##B, 32-7)											
-#define L07(A,B,C,D,a,b,c,d,i)		AS2(	pxor	xmm##A, [SSE2_WORKSPACE + b*16 + i*256])				
-#define L08(A,B,C,D,a,b,c,d,i)		AS2(	pxor	xmm##A, xmm##B)		/* z1 */							
-#define L09(A,B,C,D,a,b,c,d,i)		AS2(	movdqa	[SSE2_WORKSPACE + b*16], xmm##A)				
-#define L10(A,B,C,D,a,b,c,d,i)		AS2(	movdqa	xmm##B, xmm##A)											
-#define L11(A,B,C,D,a,b,c,d,i)		AS2(	paddd	xmm##A, xmm##C)		/* z1+y0 */							
-#define L12(A,B,C,D,a,b,c,d,i)		AS2(	movdqa	xmm##D, xmm##A)											
-#define L13(A,B,C,D,a,b,c,d,i)		AS2(	pslld	xmm##A, 9)											
-#define L14(A,B,C,D,a,b,c,d,i)		AS2(	psrld	xmm##D, 32-9)											
-#define L15(A,B,C,D,a,b,c,d,i)		AS2(	pxor	xmm##A, [SSE2_WORKSPACE + c*16 + i*256])				
-#define L16(A,B,C,D,a,b,c,d,i)		AS2(	pxor	xmm##A, xmm##D)		/* z2 */							
-#define L17(A,B,C,D,a,b,c,d,i)		AS2(	movdqa	[SSE2_WORKSPACE + c*16], xmm##A)				
-#define L18(A,B,C,D,a,b,c,d,i)		AS2(	movdqa	xmm##D, xmm##A)											
-#define L19(A,B,C,D,a,b,c,d,i)		AS2(	paddd	xmm##A, xmm##B)		/* z2+z1 */							
-#define L20(A,B,C,D,a,b,c,d,i)		AS2(	movdqa	xmm##B, xmm##A)											
-#define L21(A,B,C,D,a,b,c,d,i)		AS2(	pslld	xmm##A, 13)											
-#define L22(A,B,C,D,a,b,c,d,i)		AS2(	psrld	xmm##B, 32-13)										
-#define L23(A,B,C,D,a,b,c,d,i)		AS2(	pxor	xmm##A, [SSE2_WORKSPACE + d*16 + i*256])				
-#define L24(A,B,C,D,a,b,c,d,i)		AS2(	pxor	xmm##A, xmm##B)		/* z3 */							
-#define L25(A,B,C,D,a,b,c,d,i)		AS2(	movdqa	[SSE2_WORKSPACE + d*16], xmm##A)				
-#define L26(A,B,C,D,a,b,c,d,i)		AS2(	paddd	xmm##A, xmm##D)		/* z3+z2 */							
-#define L27(A,B,C,D,a,b,c,d,i)		AS2(	movdqa	xmm##D, xmm##A)											
-#define L28(A,B,C,D,a,b,c,d,i)		AS2(	pslld	xmm##A, 18)											
-#define L29(A,B,C,D,a,b,c,d,i)		AS2(	psrld	xmm##D, 32-18)										
-#define L30(A,B,C,D,a,b,c,d,i)		AS2(	pxor	xmm##A, xmm##C)		/* xor y0 */						
-#define L31(A,B,C,D,a,b,c,d,i)		AS2(	pxor	xmm##A, xmm##D)		/* z0 */							
-#define L32(A,B,C,D,a,b,c,d,i)		AS2(	movdqa	[SSE2_WORKSPACE + a*16], xmm##A)				
+#define L02(A,B,C,D,a,b,c,d,i)		AS2(	movdqa	xmm##C, [SSE2_WORKSPACE + a*16 + i*256])	/* y0 */
+#define L03(A,B,C,D,a,b,c,d,i)		AS2(	paddd	xmm##A, xmm##C)		/* y0+y3 */
+#define L04(A,B,C,D,a,b,c,d,i)		AS2(	movdqa	xmm##B, xmm##A)
+#define L05(A,B,C,D,a,b,c,d,i)		AS2(	pslld	xmm##A, 7)
+#define L06(A,B,C,D,a,b,c,d,i)		AS2(	psrld	xmm##B, 32-7)
+#define L07(A,B,C,D,a,b,c,d,i)		AS2(	pxor	xmm##A, [SSE2_WORKSPACE + b*16 + i*256])
+#define L08(A,B,C,D,a,b,c,d,i)		AS2(	pxor	xmm##A, xmm##B)		/* z1 */
+#define L09(A,B,C,D,a,b,c,d,i)		AS2(	movdqa	[SSE2_WORKSPACE + b*16], xmm##A)
+#define L10(A,B,C,D,a,b,c,d,i)		AS2(	movdqa	xmm##B, xmm##A)
+#define L11(A,B,C,D,a,b,c,d,i)		AS2(	paddd	xmm##A, xmm##C)		/* z1+y0 */
+#define L12(A,B,C,D,a,b,c,d,i)		AS2(	movdqa	xmm##D, xmm##A)
+#define L13(A,B,C,D,a,b,c,d,i)		AS2(	pslld	xmm##A, 9)
+#define L14(A,B,C,D,a,b,c,d,i)		AS2(	psrld	xmm##D, 32-9)
+#define L15(A,B,C,D,a,b,c,d,i)		AS2(	pxor	xmm##A, [SSE2_WORKSPACE + c*16 + i*256])
+#define L16(A,B,C,D,a,b,c,d,i)		AS2(	pxor	xmm##A, xmm##D)		/* z2 */
+#define L17(A,B,C,D,a,b,c,d,i)		AS2(	movdqa	[SSE2_WORKSPACE + c*16], xmm##A)
+#define L18(A,B,C,D,a,b,c,d,i)		AS2(	movdqa	xmm##D, xmm##A)
+#define L19(A,B,C,D,a,b,c,d,i)		AS2(	paddd	xmm##A, xmm##B)		/* z2+z1 */
+#define L20(A,B,C,D,a,b,c,d,i)		AS2(	movdqa	xmm##B, xmm##A)
+#define L21(A,B,C,D,a,b,c,d,i)		AS2(	pslld	xmm##A, 13)
+#define L22(A,B,C,D,a,b,c,d,i)		AS2(	psrld	xmm##B, 32-13)
+#define L23(A,B,C,D,a,b,c,d,i)		AS2(	pxor	xmm##A, [SSE2_WORKSPACE + d*16 + i*256])
+#define L24(A,B,C,D,a,b,c,d,i)		AS2(	pxor	xmm##A, xmm##B)		/* z3 */
+#define L25(A,B,C,D,a,b,c,d,i)		AS2(	movdqa	[SSE2_WORKSPACE + d*16], xmm##A)
+#define L26(A,B,C,D,a,b,c,d,i)		AS2(	paddd	xmm##A, xmm##D)		/* z3+z2 */
+#define L27(A,B,C,D,a,b,c,d,i)		AS2(	movdqa	xmm##D, xmm##A)
+#define L28(A,B,C,D,a,b,c,d,i)		AS2(	pslld	xmm##A, 18)
+#define L29(A,B,C,D,a,b,c,d,i)		AS2(	psrld	xmm##D, 32-18)
+#define L30(A,B,C,D,a,b,c,d,i)		AS2(	pxor	xmm##A, xmm##C)		/* xor y0 */
+#define L31(A,B,C,D,a,b,c,d,i)		AS2(	pxor	xmm##A, xmm##D)		/* z0 */
+#define L32(A,B,C,D,a,b,c,d,i)		AS2(	movdqa	[SSE2_WORKSPACE + a*16], xmm##A)
 
 #define SSE2_QUARTER_ROUND_X8(i, a, b, c, d, e, f, g, h)	\
 	L01(0,1,2,3, a,b,c,d, i)	L01(4,5,6,7, e,f,g,h, i)	\

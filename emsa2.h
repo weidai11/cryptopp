@@ -61,7 +61,7 @@ CRYPTOPP_DLL_TEMPLATE_CLASS EMSA2HashId<SHA512>;
 class CRYPTOPP_DLL EMSA2Pad : public EMSA2HashIdLookup<PK_DeterministicSignatureMessageEncodingMethod>
 {
 public:
-	static const char * CRYPTOPP_API StaticAlgorithmName() {return "EMSA2";}
+	CRYPTOPP_CONSTEXPR static const char * CRYPTOPP_API StaticAlgorithmName() {return "EMSA2";}
 	
 	size_t MinRepresentativeBitLength(size_t hashIdentifierLength, size_t digestLength) const
 		{CRYPTOPP_UNUSED(hashIdentifierLength); return 8*digestLength + 31;}

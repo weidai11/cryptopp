@@ -66,18 +66,28 @@ public:
 	CRYPTOPP_CONSTANT(MIN_ROUNDS = N)
 	//! \brief The maximum number of rounds for the algorithm provided as a constant.
 	CRYPTOPP_CONSTANT(MAX_ROUNDS = M)
-	//! \brief The default number of rounds for the algorithm based on key length 
+	//! \brief The default number of rounds for the algorithm based on key length
 	//!   provided by a static function.
 	//! \param keylength the size of the key, in bytes
 	//! \details keylength is unused in the default implementation.
-	static unsigned int StaticGetDefaultRounds(size_t keylength)
-		{CRYPTOPP_UNUSED(keylength); return DEFAULT_ROUNDS;}
+	CRYPTOPP_CONSTEXPR static unsigned int StaticGetDefaultRounds(size_t keylength)
+	{
+		// Comma operator breaks Debug builds with GCC 4.0 - 4.6.
+		// Also see http://github.com/weidai11/cryptopp/issues/255
+#if defined(CRYPTOPP_CXX11_CONSTEXPR)
+		return CRYPTOPP_UNUSED(keylength), static_cast<unsigned int>(DEFAULT_ROUNDS);
+#else
+		CRYPTOPP_UNUSED(keylength);
+		return static_cast<unsigned int>(DEFAULT_ROUNDS);
+#endif
+	}
 
 protected:
 	//! \brief Validates the number of rounds for an algorithm.
-	//! \param rounds the canddiate number of rounds
+	//! \param rounds the candidate number of rounds
 	//! \param alg an Algorithm object used if the number of rounds are invalid
 	//! \throws InvalidRounds if the number of rounds are invalid
+	//! \details ThrowIfInvalidRounds() validates the number of rounds and throws if invalid.
 	inline void ThrowIfInvalidRounds(int rounds, const Algorithm *alg)
 	{
 		if (M == INT_MAX) // Coverity and result_independent_of_operands
@@ -93,10 +103,11 @@ protected:
 	}
 
 	//! \brief Validates the number of rounds for an algorithm
-	//! \param param the canddiate number of rounds
+	//! \param param the candidate number of rounds
 	//! \param alg an Algorithm object used if the number of rounds are invalid
 	//! \returns the number of rounds for the algorithm
 	//! \throws InvalidRounds if the number of rounds are invalid
+	//! \details GetRoundsAndThrowIfInvalid() validates the number of rounds and throws if invalid.
 	inline unsigned int GetRoundsAndThrowIfInvalid(const NameValuePairs &param, const Algorithm *alg)
 	{
 		int rounds = param.GetIntValueWithDefault("Rounds", DEFAULT_ROUNDS);
@@ -140,8 +151,17 @@ public:
 	//! \param keylength the size of the key, in bytes
 	//! \details The default implementation returns KEYLENGTH. keylength is unused
 	//!   in the default implementation.
-	static size_t CRYPTOPP_API StaticGetValidKeyLength(size_t keylength)
-		{CRYPTOPP_UNUSED(keylength); return KEYLENGTH;}
+	CRYPTOPP_CONSTEXPR static size_t CRYPTOPP_API StaticGetValidKeyLength(size_t keylength)
+	{
+		// Comma operator breaks Debug builds with GCC 4.0 - 4.6.
+		// Also see http://github.com/weidai11/cryptopp/issues/255
+#if defined(CRYPTOPP_CXX11_CONSTEXPR)
+		return CRYPTOPP_UNUSED(keylength), static_cast<size_t>(KEYLENGTH);
+#else
+		CRYPTOPP_UNUSED(keylength);
+		return static_cast<size_t>(KEYLENGTH);
+#endif
+	}
 };
 
 //! \class VariableKeyLength
@@ -192,6 +212,7 @@ public:
 	//!   then keylength is returned. Otherwise, the function returns keylength rounded
 	//!   \a down to the next smaller multiple of KEYLENGTH_MULTIPLE.
 	//! \details keylength is provided in bytes, not bits.
+	// TODO: Figure out how to make this CRYPTOPP_CONSTEXPR
 	static size_t CRYPTOPP_API StaticGetValidKeyLength(size_t keylength)
 	{
 		if (keylength < (size_t)MIN_KEYLENGTH)
@@ -240,7 +261,7 @@ public:
 	//!   then keylength is returned. Otherwise, the function returns keylength rounded
 	//!   \a down to the next smaller multiple of KEYLENGTH_MULTIPLE.
 	//! \details keylength is provided in bytes, not bits.
-	static size_t CRYPTOPP_API StaticGetValidKeyLength(size_t keylength)
+	CRYPTOPP_CONSTEXPR static size_t CRYPTOPP_API StaticGetValidKeyLength(size_t keylength)
 		{return T::StaticGetValidKeyLength(keylength);}
 };
 
@@ -250,7 +271,9 @@ public:
 //! \brief Provides a base implementation of SimpleKeyingInterface
 //! \tparam BASE a SimpleKeyingInterface derived class
 //! \tparam INFO a SimpleKeyingInterface derived class
-//! \sa SimpleKeyingInterface
+//! \details SimpleKeyingInterfaceImpl() provides a default implementation for ciphers providing a keying interface.
+//!   Functions are virtual and not eligible for C++11 <tt>constexpr</tt>-ness.
+//! \sa Algorithm(), SimpleKeyingInterface()
 template <class BASE, class INFO = BASE>
 class CRYPTOPP_NO_VTABLE SimpleKeyingInterfaceImpl : public BASE
 {
@@ -264,12 +287,12 @@ public:
 	//! \returns maximum key length used by the algorithm, in bytes
 	size_t MaxKeyLength() const
 		{return (size_t)INFO::MAX_KEYLENGTH;}
-	
+
 	//! \brief The default key length used by the algorithm
 	//! \returns default key length used by the algorithm, in bytes
 	size_t DefaultKeyLength() const
 		{return INFO::DEFAULT_KEYLENGTH;}
-	
+
 	//! \brief Provides a valid key length for the algorithm
 	//! \param keylength the size of the key, in bytes
 	//! \returns the valid key lenght, in bytes
@@ -285,7 +308,7 @@ public:
 	//!  in cryptlib.h for allowed values.
 	SimpleKeyingInterface::IV_Requirement IVRequirement() const
 		{return (SimpleKeyingInterface::IV_Requirement)INFO::IV_REQUIREMENT;}
-	
+
 	//! \brief The default initialization vector length for the algorithm
 	//! \details IVSize is provided in bytes, not bits. The default implementation uses IV_LENGTH, which is 0.
 	unsigned int IVSize() const
@@ -296,6 +319,9 @@ public:
 //! \brief Provides a base implementation of Algorithm and SimpleKeyingInterface for block ciphers
 //! \tparam INFO a SimpleKeyingInterface derived class
 //! \tparam BASE a SimpleKeyingInterface derived class
+//! \details BlockCipherImpl() provides a default implementation for block ciphers using AlgorithmImpl()
+//!   and SimpleKeyingInterfaceImpl(). Functions are virtual and not eligible for C++11 <tt>constexpr</tt>-ness.
+//! \sa Algorithm(), SimpleKeyingInterface(), AlgorithmImpl(), SimpleKeyingInterfaceImpl()
 template <class INFO, class BASE = BlockCipher>
 class CRYPTOPP_NO_VTABLE BlockCipherImpl : public AlgorithmImpl<SimpleKeyingInterfaceImpl<TwoBases<BASE, INFO> > >
 {
@@ -323,7 +349,7 @@ public:
 	//!    SimpleKeyingInterface::SetKey.
 	BlockCipherFinal(const byte *key)
 		{this->SetKey(key, this->DEFAULT_KEYLENGTH);}
-	
+
 	//! \brief Construct a BlockCipherFinal
 	//! \param key a byte array used to key the cipher
 	//! \param length the length of the byte array
@@ -331,7 +357,7 @@ public:
 	//!    SimpleKeyingInterface::SetKey.
 	BlockCipherFinal(const byte *key, size_t length)
 		{this->SetKey(key, length);}
-	
+
 	//! \brief Construct a BlockCipherFinal
 	//! \param key a byte array used to key the cipher
 	//! \param length the length of the byte array
@@ -351,6 +377,10 @@ public:
 //! \brief Provides a base implementation of Algorithm and SimpleKeyingInterface for message authentication codes
 //! \tparam INFO a SimpleKeyingInterface derived class
 //! \tparam BASE a SimpleKeyingInterface derived class
+//! \details MessageAuthenticationCodeImpl() provides a default implementation for message authentication codes
+//!   using AlgorithmImpl() and SimpleKeyingInterfaceImpl(). Functions are virtual and not subject to C++11
+//!   <tt>constexpr</tt>.
+//! \sa Algorithm(), SimpleKeyingInterface(), AlgorithmImpl(), SimpleKeyingInterfaceImpl()
 template <class BASE, class INFO = BASE>
 class MessageAuthenticationCodeImpl : public AlgorithmImpl<SimpleKeyingInterfaceImpl<BASE, INFO>, INFO>
 {
@@ -388,7 +418,7 @@ public:
 //! \brief Provides Encryption and Decryption typedefs used by derived classes to
 //!    implement a block cipher
 //! \details These objects usually should not be used directly. See CipherModeDocumentation
-//!    instead. Each class derived from this one defines two types, Encryption and Decryption, 
+//!    instead. Each class derived from this one defines two types, Encryption and Decryption,
 //!    both of which implement the BlockCipher interface.
 struct BlockCipherDocumentation
 {
@@ -401,7 +431,7 @@ struct BlockCipherDocumentation
 //! \class SymmetricCipherDocumentation
 //! \brief Provides Encryption and Decryption typedefs used by derived classes to
 //!    implement a symmetric cipher
-//! \details Each class derived from this one defines two types, Encryption and Decryption, 
+//! \details Each class derived from this one defines two types, Encryption and Decryption,
 //!    both of which implement the SymmetricCipher interface. Two types of classes derive
 //!    from this class: stream ciphers and block cipher modes. Stream ciphers can be used
 //!    alone, cipher mode classes need to be used with a block cipher. See CipherModeDocumentation
@@ -417,7 +447,7 @@ struct SymmetricCipherDocumentation
 //! \class AuthenticatedSymmetricCipherDocumentation
 //! \brief Provides Encryption and Decryption typedefs used by derived classes to
 //!    implement an authenticated encryption cipher
-//! \details Each class derived from this one defines two types, Encryption and Decryption, 
+//! \details Each class derived from this one defines two types, Encryption and Decryption,
 //!    both of which implement the AuthenticatedSymmetricCipher interface.
 struct AuthenticatedSymmetricCipherDocumentation
 {
@@ -428,7 +458,7 @@ struct AuthenticatedSymmetricCipherDocumentation
 };
 
 NAMESPACE_END
-	
+
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(pop)
 #endif

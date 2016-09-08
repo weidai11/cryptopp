@@ -2435,93 +2435,240 @@ bool ValidateARC4()
 bool ValidateRC5()
 {
 	cout << "\nRC5 validation suite running...\n\n";
+	bool pass1 = true, pass2 = true;
+
+	RC5Encryption enc;  // 0 to 2040-bits (255-bytes)
+	pass1 = RC5Encryption::DEFAULT_KEYLENGTH ==  16 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(0) == 0 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(254) == 254 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(255) == 255 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(256) == 255 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(0) == enc.MinKeyLength() && pass1;
+	pass1 = enc.StaticGetValidKeyLength(SIZE_MAX) == enc.MaxKeyLength() && pass1;
+
+	RC5Decryption dec;
+	pass2 = RC5Decryption::DEFAULT_KEYLENGTH ==  16 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(0) == 0 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(254) == 254 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(255) == 255 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(256) == 255 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(0) == dec.MinKeyLength() && pass2;
+	pass2 = dec.StaticGetValidKeyLength(SIZE_MAX) == dec.MaxKeyLength() && pass2;
+	cout << (pass1 && pass2 ? "passed:" : "FAILED:") << "  Algorithm key lengths\n";
 
 	FileSource valdata(CRYPTOPP_DATA_DIR "TestData/rc5val.dat", true, new HexDecoder);
-	return BlockTransformationTest(VariableRoundsCipherFactory<RC5Encryption, RC5Decryption>(16, 12), valdata);
+	return BlockTransformationTest(VariableRoundsCipherFactory<RC5Encryption, RC5Decryption>(16, 12), valdata) && pass1 && pass2;
 }
 
 bool ValidateRC6()
 {
 	cout << "\nRC6 validation suite running...\n\n";
+	bool pass1 = true, pass2 = true, pass3 = true;
+
+	RC6Encryption enc;
+	pass1 = enc.StaticGetValidKeyLength(8) == 16 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(16) == 16 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(24) == 24 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(32) == 32 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(64) == 32 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(128) == 32 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(0) == enc.MinKeyLength() && pass1;
+	pass1 = enc.StaticGetValidKeyLength(SIZE_MAX) == enc.MaxKeyLength() && pass1;
+
+	RC6Decryption dec;
+	pass2 = dec.StaticGetValidKeyLength(8) == 16 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(16) == 16 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(24) == 24 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(32) == 32 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(64) == 32 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(128) == 32 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(0) == dec.MinKeyLength() && pass2;
+	pass2 = dec.StaticGetValidKeyLength(SIZE_MAX) == dec.MaxKeyLength() && pass2;
+	cout << (pass1 && pass2 ? "passed:" : "FAILED:") << "  Algorithm key lengths\n";
 
 	FileSource valdata(CRYPTOPP_DATA_DIR "TestData/rc6val.dat", true, new HexDecoder);
-	bool pass = true;
-	pass = BlockTransformationTest(FixedRoundsCipherFactory<RC6Encryption, RC6Decryption>(16), valdata, 2) && pass;
-	pass = BlockTransformationTest(FixedRoundsCipherFactory<RC6Encryption, RC6Decryption>(24), valdata, 2) && pass;
-	pass = BlockTransformationTest(FixedRoundsCipherFactory<RC6Encryption, RC6Decryption>(32), valdata, 2) && pass;
-	return pass;
+	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<RC6Encryption, RC6Decryption>(16), valdata, 2) && pass3;
+	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<RC6Encryption, RC6Decryption>(24), valdata, 2) && pass3;
+	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<RC6Encryption, RC6Decryption>(32), valdata, 2) && pass3;
+	return pass1 && pass2 && pass3;
 }
 
 bool ValidateMARS()
 {
 	cout << "\nMARS validation suite running...\n\n";
+	bool pass1 = true, pass2 = true, pass3 = true;
+
+	MARSEncryption enc;
+	pass1 = enc.StaticGetValidKeyLength(8) == 16 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(16) == 16 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(24) == 24 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(32) == 32 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(64) == 32 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(128) == 32 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(0) == enc.MinKeyLength() && pass1;
+	pass1 = enc.StaticGetValidKeyLength(SIZE_MAX) == enc.MaxKeyLength() && pass1;
+
+	MARSDecryption dec;
+	pass2 = dec.StaticGetValidKeyLength(8) == 16 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(16) == 16 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(24) == 24 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(32) == 32 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(64) == 32 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(128) == 32 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(0) == dec.MinKeyLength() && pass2;
+	pass2 = dec.StaticGetValidKeyLength(SIZE_MAX) == dec.MaxKeyLength() && pass2;
+	cout << (pass1 && pass2 ? "passed:" : "FAILED:") << "  Algorithm key lengths\n";
 
 	FileSource valdata(CRYPTOPP_DATA_DIR "TestData/marsval.dat", true, new HexDecoder);
-	bool pass = true;
-	pass = BlockTransformationTest(FixedRoundsCipherFactory<MARSEncryption, MARSDecryption>(16), valdata, 4) && pass;
-	pass = BlockTransformationTest(FixedRoundsCipherFactory<MARSEncryption, MARSDecryption>(24), valdata, 3) && pass;
-	pass = BlockTransformationTest(FixedRoundsCipherFactory<MARSEncryption, MARSDecryption>(32), valdata, 2) && pass;
-	return pass;
+	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<MARSEncryption, MARSDecryption>(16), valdata, 4) && pass3;
+	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<MARSEncryption, MARSDecryption>(24), valdata, 3) && pass3;
+	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<MARSEncryption, MARSDecryption>(32), valdata, 2) && pass3;
+	return pass1 && pass2 && pass3;
 }
 
 bool ValidateRijndael()
 {
 	cout << "\nRijndael (AES) validation suite running...\n\n";
+	bool pass1 = true, pass2 = true, pass3 = true;
+
+	RijndaelEncryption enc;
+	pass1 = enc.StaticGetValidKeyLength(8) == 16 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(16) == 16 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(24) == 24 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(32) == 32 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(64) == 32 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(128) == 32 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(0) == enc.MinKeyLength() && pass1;
+	pass1 = enc.StaticGetValidKeyLength(SIZE_MAX) == enc.MaxKeyLength() && pass1;
+
+	RijndaelDecryption dec;
+	pass2 = dec.StaticGetValidKeyLength(8) == 16 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(16) == 16 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(24) == 24 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(32) == 32 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(64) == 32 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(128) == 32 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(0) == dec.MinKeyLength() && pass2;
+	pass2 = dec.StaticGetValidKeyLength(SIZE_MAX) == dec.MaxKeyLength() && pass2;
+	cout << (pass1 && pass2 ? "passed:" : "FAILED:") << "  Algorithm key lengths\n";
 
 	FileSource valdata(CRYPTOPP_DATA_DIR "TestData/rijndael.dat", true, new HexDecoder);
-	bool pass = true;
-	pass = BlockTransformationTest(FixedRoundsCipherFactory<RijndaelEncryption, RijndaelDecryption>(16), valdata, 4) && pass;
-	pass = BlockTransformationTest(FixedRoundsCipherFactory<RijndaelEncryption, RijndaelDecryption>(24), valdata, 3) && pass;
-	pass = BlockTransformationTest(FixedRoundsCipherFactory<RijndaelEncryption, RijndaelDecryption>(32), valdata, 2) && pass;
-	pass = RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/aes.txt") && pass;
-	return pass;
+	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<RijndaelEncryption, RijndaelDecryption>(16), valdata, 4) && pass3;
+	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<RijndaelEncryption, RijndaelDecryption>(24), valdata, 3) && pass3;
+	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<RijndaelEncryption, RijndaelDecryption>(32), valdata, 2) && pass3;
+	pass3 = RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/aes.txt") && pass3;
+	return pass1 && pass2 && pass3;
 }
 
 bool ValidateTwofish()
 {
 	cout << "\nTwofish validation suite running...\n\n";
+	bool pass1 = true, pass2 = true, pass3 = true;
+
+	TwofishEncryption enc;
+	pass1 = enc.StaticGetValidKeyLength(8) == 16 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(16) == 16 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(24) == 24 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(32) == 32 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(64) == 32 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(128) == 32 && pass1;
+
+	TwofishDecryption dec;
+	pass2 = dec.StaticGetValidKeyLength(8) == 16 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(16) == 16 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(24) == 24 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(32) == 32 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(64) == 32 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(128) == 32 && pass2;
+	cout << (pass1 && pass2 ? "passed:" : "FAILED:") << "  Algorithm key lengths\n";
 
 	FileSource valdata(CRYPTOPP_DATA_DIR "TestData/twofishv.dat", true, new HexDecoder);
-	bool pass = true;
-	pass = BlockTransformationTest(FixedRoundsCipherFactory<TwofishEncryption, TwofishDecryption>(16), valdata, 4) && pass;
-	pass = BlockTransformationTest(FixedRoundsCipherFactory<TwofishEncryption, TwofishDecryption>(24), valdata, 3) && pass;
-	pass = BlockTransformationTest(FixedRoundsCipherFactory<TwofishEncryption, TwofishDecryption>(32), valdata, 2) && pass;
-	return pass;
+	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<TwofishEncryption, TwofishDecryption>(16), valdata, 4) && pass3;
+	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<TwofishEncryption, TwofishDecryption>(24), valdata, 3) && pass3;
+	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<TwofishEncryption, TwofishDecryption>(32), valdata, 2) && pass3;
+	return pass1 && pass2 && pass3;
 }
 
 bool ValidateSerpent()
 {
 	cout << "\nSerpent validation suite running...\n\n";
+	bool pass1 = true, pass2 = true, pass3 = true;
+
+	SerpentEncryption enc;
+	pass1 = enc.StaticGetValidKeyLength(8) == 16 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(16) == 16 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(24) == 24 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(32) == 32 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(64) == 32 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(128) == 32 && pass1;
+
+	SerpentDecryption dec;
+	pass2 = dec.StaticGetValidKeyLength(8) == 16 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(16) == 16 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(24) == 24 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(32) == 32 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(64) == 32 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(128) == 32 && pass2;
+	cout << (pass1 && pass2 ? "passed:" : "FAILED:") << "  Algorithm key lengths\n";
 
 	FileSource valdata(CRYPTOPP_DATA_DIR "TestData/serpentv.dat", true, new HexDecoder);
 	bool pass = true;
 	pass = BlockTransformationTest(FixedRoundsCipherFactory<SerpentEncryption, SerpentDecryption>(16), valdata, 5) && pass;
 	pass = BlockTransformationTest(FixedRoundsCipherFactory<SerpentEncryption, SerpentDecryption>(24), valdata, 4) && pass;
 	pass = BlockTransformationTest(FixedRoundsCipherFactory<SerpentEncryption, SerpentDecryption>(32), valdata, 3) && pass;
-	return pass;
+	return pass1 && pass2 && pass3;
 }
 
 bool ValidateBlowfish()
 {
 	cout << "\nBlowfish validation suite running...\n\n";
+	bool pass1 = true, pass2 = true, pass3 = true, fail;
+
+	BlowfishEncryption enc1;	// 32 to 448-bits (4 to 56-bytes)
+	pass1 = enc1.StaticGetValidKeyLength(3) == 4 && pass1;
+	pass1 = enc1.StaticGetValidKeyLength(4) == 4 && pass1;
+	pass1 = enc1.StaticGetValidKeyLength(5) == 5 && pass1;
+	pass1 = enc1.StaticGetValidKeyLength(8) == 8 && pass1;
+	pass1 = enc1.StaticGetValidKeyLength(16) == 16 && pass1;
+	pass1 = enc1.StaticGetValidKeyLength(24) == 24 && pass1;
+	pass1 = enc1.StaticGetValidKeyLength(32) == 32 && pass1;
+	pass1 = enc1.StaticGetValidKeyLength(56) == 56 && pass1;
+	pass1 = enc1.StaticGetValidKeyLength(57) == 56 && pass1;
+	pass1 = enc1.StaticGetValidKeyLength(60) == 56 && pass1;
+	pass1 = enc1.StaticGetValidKeyLength(64) == 56 && pass1;
+	pass1 = enc1.StaticGetValidKeyLength(128) == 56 && pass1;
+
+	BlowfishDecryption dec1; // 32 to 448-bits (4 to 56-bytes)
+	pass2 = dec1.StaticGetValidKeyLength(3) == 4 && pass2;
+	pass2 = dec1.StaticGetValidKeyLength(4) == 4 && pass2;
+	pass2 = dec1.StaticGetValidKeyLength(5) == 5 && pass2;
+	pass2 = dec1.StaticGetValidKeyLength(8) == 8 && pass2;
+	pass2 = dec1.StaticGetValidKeyLength(16) == 16 && pass2;
+	pass2 = dec1.StaticGetValidKeyLength(24) == 24 && pass2;
+	pass2 = dec1.StaticGetValidKeyLength(32) == 32 && pass2;
+	pass2 = dec1.StaticGetValidKeyLength(56) == 56 && pass2;
+	pass2 = dec1.StaticGetValidKeyLength(57) == 56 && pass2;
+	pass2 = dec1.StaticGetValidKeyLength(60) == 56 && pass2;
+	pass2 = dec1.StaticGetValidKeyLength(64) == 56 && pass2;
+	pass2 = dec1.StaticGetValidKeyLength(128) == 56 && pass2;
+	cout << (pass1 && pass2 ? "passed:" : "FAILED:") << "  Algorithm key lengths\n";
 
 	HexEncoder output(new FileSink(cout));
 	const char *key[]={"abcdefghijklmnopqrstuvwxyz", "Who is John Galt?"};
 	byte *plain[]={(byte *)"BLOWFISH", (byte *)"\xfe\xdc\xba\x98\x76\x54\x32\x10"};
 	byte *cipher[]={(byte *)"\x32\x4e\xd0\xfe\xf4\x13\xa2\x03", (byte *)"\xcc\x91\x73\x2b\x80\x22\xf6\x84"};
 	byte out[8], outplain[8];
-	bool pass=true, fail;
 
 	for (int i=0; i<2; i++)
 	{
-		ECB_Mode<Blowfish>::Encryption enc((byte *)key[i], strlen(key[i]));
-		enc.ProcessData(out, plain[i], 8);
+		ECB_Mode<Blowfish>::Encryption enc2((byte *)key[i], strlen(key[i]));
+		enc2.ProcessData(out, plain[i], 8);
 		fail = memcmp(out, cipher[i], 8) != 0;
 
-		ECB_Mode<Blowfish>::Decryption dec((byte *)key[i], strlen(key[i]));
-		dec.ProcessData(outplain, cipher[i], 8);
+		ECB_Mode<Blowfish>::Decryption dec2((byte *)key[i], strlen(key[i]));
+		dec2.ProcessData(outplain, cipher[i], 8);
 		fail = fail || memcmp(outplain, plain[i], 8);
-		pass = pass && !fail;
+		pass3 = pass3 && !fail;
 
 		cout << (fail ? "FAILED    " : "passed    ");
 		cout << '\"' << key[i] << '\"';
@@ -2532,76 +2679,196 @@ bool ValidateBlowfish()
 		output.Put(out, 8);
 		cout << endl;
 	}
-	return pass;
+	return pass1 && pass2 && pass3;
 }
 
 bool ValidateThreeWay()
 {
 	cout << "\n3-WAY validation suite running...\n\n";
+	bool pass1 = true, pass2 = true;
+
+	ThreeWayEncryption enc;  // 96-bit only
+	pass1 = ThreeWayEncryption::KEYLENGTH ==  12 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(8) == 12 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(12) == 12 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(16) == 12 && pass1;
+
+	ThreeWayDecryption dec;  // 96-bit only
+	pass2 = ThreeWayDecryption::KEYLENGTH ==  12 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(8) == 12 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(12) == 12 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(16) == 12 && pass2;
+	cout << (pass1 && pass2 ? "passed:" : "FAILED:") << "  Algorithm key lengths\n";
 
 	FileSource valdata(CRYPTOPP_DATA_DIR "TestData/3wayval.dat", true, new HexDecoder);
-	return BlockTransformationTest(FixedRoundsCipherFactory<ThreeWayEncryption, ThreeWayDecryption>(), valdata);
+	return BlockTransformationTest(FixedRoundsCipherFactory<ThreeWayEncryption, ThreeWayDecryption>(), valdata) && pass1 && pass2;
 }
 
 bool ValidateGOST()
 {
 	cout << "\nGOST validation suite running...\n\n";
+	bool pass1 = true, pass2 = true;
+
+	GOSTEncryption enc;  // 256-bit only
+	pass1 = GOSTEncryption::KEYLENGTH ==  32 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(16) == 32 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(24) == 32 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(32) == 32 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(40) == 32 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(64) == 32 && pass1;
+
+	GOSTDecryption dec;  // 256-bit only
+	pass2 = GOSTDecryption::KEYLENGTH ==  32 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(16) == 32 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(24) == 32 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(32) == 32 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(40) == 32 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(64) == 32 && pass2;
+	cout << (pass1 && pass2 ? "passed:" : "FAILED:") << "  Algorithm key lengths\n";
 
 	FileSource valdata(CRYPTOPP_DATA_DIR "TestData/gostval.dat", true, new HexDecoder);
-	return BlockTransformationTest(FixedRoundsCipherFactory<GOSTEncryption, GOSTDecryption>(), valdata);
+	return BlockTransformationTest(FixedRoundsCipherFactory<GOSTEncryption, GOSTDecryption>(), valdata) && pass1 && pass2;
 }
 
 bool ValidateSHARK()
 {
 	cout << "\nSHARK validation suite running...\n\n";
+	bool pass1 = true, pass2 = true;
+
+	SHARKEncryption enc;  // 128-bit only
+	pass1 = SHARKEncryption::KEYLENGTH ==  16 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(8) == 16 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(15) == 16 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(16) == 16 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(17) == 16 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(32) == 16 && pass1;
+
+	SHARKDecryption dec;  // 128-bit only
+	pass2 = SHARKDecryption::KEYLENGTH ==  16 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(8) == 16 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(15) == 16 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(16) == 16 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(17) == 16 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(32) == 16 && pass2;
+	cout << (pass1 && pass2 ? "passed:" : "FAILED:") << "  Algorithm key lengths\n";
 
 	FileSource valdata(CRYPTOPP_DATA_DIR "TestData/sharkval.dat", true, new HexDecoder);
-	return BlockTransformationTest(FixedRoundsCipherFactory<SHARKEncryption, SHARKDecryption>(), valdata);
+	return BlockTransformationTest(FixedRoundsCipherFactory<SHARKEncryption, SHARKDecryption>(), valdata) && pass1 && pass2;
 }
 
 bool ValidateCAST()
 {
-	bool pass = true;
-
 	cout << "\nCAST-128 validation suite running...\n\n";
+	bool pass1 = true, pass2 = true, pass3 = true;
+
+	CAST128Encryption enc1;  // 40 to 128-bits (5 to 16-bytes)
+	pass1 = CAST128Encryption::DEFAULT_KEYLENGTH ==  16 && pass1;
+	pass1 = enc1.StaticGetValidKeyLength(4) == 5 && pass1;
+	pass1 = enc1.StaticGetValidKeyLength(5) == 5 && pass1;
+	pass1 = enc1.StaticGetValidKeyLength(15) == 15 && pass1;
+	pass1 = enc1.StaticGetValidKeyLength(16) == 16 && pass1;
+	pass1 = enc1.StaticGetValidKeyLength(17) == 16 && pass1;
+
+	CAST128Decryption dec1;  // 40 to 128-bits (5 to 16-bytes)
+	pass2 = CAST128Decryption::DEFAULT_KEYLENGTH ==  16 && pass2;
+	pass2 = dec1.StaticGetValidKeyLength(4) == 5 && pass2;
+	pass2 = dec1.StaticGetValidKeyLength(5) == 5 && pass2;
+	pass2 = dec1.StaticGetValidKeyLength(15) == 15 && pass2;
+	pass2 = dec1.StaticGetValidKeyLength(16) == 16 && pass2;
+	pass2 = dec1.StaticGetValidKeyLength(17) == 16 && pass2;
+	cout << (pass1 && pass2 ? "passed:" : "FAILED:") << "  Algorithm key lengths\n";
 
 	FileSource val128(CRYPTOPP_DATA_DIR "TestData/cast128v.dat", true, new HexDecoder);
-	pass = BlockTransformationTest(FixedRoundsCipherFactory<CAST128Encryption, CAST128Decryption>(16), val128, 1) && pass;
-	pass = BlockTransformationTest(FixedRoundsCipherFactory<CAST128Encryption, CAST128Decryption>(10), val128, 1) && pass;
-	pass = BlockTransformationTest(FixedRoundsCipherFactory<CAST128Encryption, CAST128Decryption>(5), val128, 1) && pass;
+	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<CAST128Encryption, CAST128Decryption>(16), val128, 1) && pass3;
+	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<CAST128Encryption, CAST128Decryption>(10), val128, 1) && pass3;
+	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<CAST128Encryption, CAST128Decryption>(5), val128, 1) && pass3;
 
 	cout << "\nCAST-256 validation suite running...\n\n";
+	bool pass4 = true, pass5 = true, pass6 = true;
+
+	CAST256Encryption enc2;  // 128, 160, 192, 224, or 256-bits (16 to 32-bytes, step 4)
+	pass1 = CAST128Encryption::DEFAULT_KEYLENGTH ==  16 && pass1;
+	pass4 = enc2.StaticGetValidKeyLength(15) == 16 && pass4;
+	pass4 = enc2.StaticGetValidKeyLength(16) == 16 && pass4;
+	pass4 = enc2.StaticGetValidKeyLength(17) == 20 && pass4;
+	pass4 = enc2.StaticGetValidKeyLength(20) == 20 && pass4;
+	pass4 = enc2.StaticGetValidKeyLength(24) == 24 && pass4;
+	pass4 = enc2.StaticGetValidKeyLength(28) == 28 && pass4;
+	pass4 = enc2.StaticGetValidKeyLength(31) == 32 && pass4;
+	pass4 = enc2.StaticGetValidKeyLength(32) == 32 && pass4;
+	pass4 = enc2.StaticGetValidKeyLength(33) == 32 && pass4;
+
+	CAST256Decryption dec2;  // 128, 160, 192, 224, or 256-bits (16 to 32-bytes, step 4)
+	pass2 = CAST256Decryption::DEFAULT_KEYLENGTH ==  16 && pass2;
+	pass5 = dec2.StaticGetValidKeyLength(15) == 16 && pass5;
+	pass5 = dec2.StaticGetValidKeyLength(16) == 16 && pass5;
+	pass5 = dec2.StaticGetValidKeyLength(17) == 20 && pass5;
+	pass5 = dec2.StaticGetValidKeyLength(20) == 20 && pass5;
+	pass5 = dec2.StaticGetValidKeyLength(24) == 24 && pass5;
+	pass5 = dec2.StaticGetValidKeyLength(28) == 28 && pass5;
+	pass5 = dec2.StaticGetValidKeyLength(31) == 32 && pass5;
+	pass5 = dec2.StaticGetValidKeyLength(32) == 32 && pass5;
+	pass5 = dec2.StaticGetValidKeyLength(33) == 32 && pass5;
+	cout << (pass4 && pass5 ? "passed:" : "FAILED:") << "  Algorithm key lengths\n";
 
 	FileSource val256(CRYPTOPP_DATA_DIR "TestData/cast256v.dat", true, new HexDecoder);
-	pass = BlockTransformationTest(FixedRoundsCipherFactory<CAST256Encryption, CAST256Decryption>(16), val256, 1) && pass;
-	pass = BlockTransformationTest(FixedRoundsCipherFactory<CAST256Encryption, CAST256Decryption>(24), val256, 1) && pass;
-	pass = BlockTransformationTest(FixedRoundsCipherFactory<CAST256Encryption, CAST256Decryption>(32), val256, 1) && pass;
+	pass6 = BlockTransformationTest(FixedRoundsCipherFactory<CAST256Encryption, CAST256Decryption>(16), val256, 1) && pass6;
+	pass6 = BlockTransformationTest(FixedRoundsCipherFactory<CAST256Encryption, CAST256Decryption>(24), val256, 1) && pass6;
+	pass6 = BlockTransformationTest(FixedRoundsCipherFactory<CAST256Encryption, CAST256Decryption>(32), val256, 1) && pass6;
 
-	return pass;
+	return pass1 && pass2 && pass3 && pass4 && pass5 && pass6;
 }
 
 bool ValidateSquare()
 {
 	cout << "\nSquare validation suite running...\n\n";
+	bool pass1 = true, pass2 = true;
+
+	SquareEncryption enc;  // 128-bits only
+	pass1 = enc.StaticGetValidKeyLength(8) == 16 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(15) == 16 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(16) == 16 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(17) == 16 && pass1;
+
+	SquareDecryption dec;  // 128-bits only
+	pass2 = dec.StaticGetValidKeyLength(8) == 16 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(15) == 16 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(16) == 16 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(17) == 16 && pass2;
+	cout << (pass1 && pass2 ? "passed:" : "FAILED:") << "  Algorithm key lengths\n";
 
 	FileSource valdata(CRYPTOPP_DATA_DIR "TestData/squareva.dat", true, new HexDecoder);
-	return BlockTransformationTest(FixedRoundsCipherFactory<SquareEncryption, SquareDecryption>(), valdata);
+	return BlockTransformationTest(FixedRoundsCipherFactory<SquareEncryption, SquareDecryption>(), valdata) && pass1 && pass2;
 }
 
 bool ValidateSKIPJACK()
 {
 	cout << "\nSKIPJACK validation suite running...\n\n";
+	bool pass1 = true, pass2 = true;
+
+	SKIPJACKEncryption enc;  // 80-bits only
+	pass1 = enc.StaticGetValidKeyLength(8) == 10 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(9) == 10 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(10) == 10 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(16) == 10 && pass1;
+
+	SKIPJACKDecryption dec;  // 80-bits only
+	pass2 = dec.StaticGetValidKeyLength(8) == 10 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(9) == 10 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(10) == 10 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(16) == 10 && pass2;
+	cout << (pass1 && pass2 ? "passed:" : "FAILED:") << "  Algorithm key lengths\n";
 
 	FileSource valdata(CRYPTOPP_DATA_DIR "TestData/skipjack.dat", true, new HexDecoder);
-	return BlockTransformationTest(FixedRoundsCipherFactory<SKIPJACKEncryption, SKIPJACKDecryption>(), valdata);
+	return BlockTransformationTest(FixedRoundsCipherFactory<SKIPJACKEncryption, SKIPJACKDecryption>(), valdata) && pass1 && pass2;
 }
 
 bool ValidateSEAL()
 {
-	byte input[] = {0x37,0xa0,0x05,0x95,0x9b,0x84,0xc4,0x9c,0xa4,0xbe,0x1e,0x05,0x06,0x73,0x53,0x0f,0x5f,0xb0,0x97,0xfd,0xf6,0xa1,0x3f,0xbd,0x6c,0x2c,0xde,0xcd,0x81,0xfd,0xee,0x7c};
+	static const byte input[] = {0x37,0xa0,0x05,0x95,0x9b,0x84,0xc4,0x9c,0xa4,0xbe,0x1e,0x05,0x06,0x73,0x53,0x0f,0x5f,0xb0,0x97,0xfd,0xf6,0xa1,0x3f,0xbd,0x6c,0x2c,0xde,0xcd,0x81,0xfd,0xee,0x7c};
+	static const byte key[] = {0x67, 0x45, 0x23, 0x01, 0xef, 0xcd, 0xab, 0x89, 0x98, 0xba, 0xdc, 0xfe, 0x10, 0x32, 0x54, 0x76, 0xc3, 0xd2, 0xe1, 0xf0};
+	static const byte iv[] = {0x01, 0x35, 0x77, 0xaf};
 	byte output[32];
-	byte key[] = {0x67, 0x45, 0x23, 0x01, 0xef, 0xcd, 0xab, 0x89, 0x98, 0xba, 0xdc, 0xfe, 0x10, 0x32, 0x54, 0x76, 0xc3, 0xd2, 0xe1, 0xf0};
-	byte iv[] = {0x01, 0x35, 0x77, 0xaf};
 
 	cout << "\nSEAL validation suite running...\n\n";
 
@@ -2694,24 +2961,66 @@ bool ValidateBaseCode()
 bool ValidateSHACAL2()
 {
 	cout << "\nSHACAL-2 validation suite running...\n\n";
+	bool pass1 = true, pass2 = true, pass3 = true;
 
-	bool pass = true;
+	SHACAL2Encryption enc;  // 128 to 512-bits (16 to 64-bytes)
+	pass1 = enc.StaticGetValidKeyLength(8) == 16 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(15) == 16 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(16) == 16 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(64) == 64 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(65) == 64 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(128) == 64 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(0) == enc.MinKeyLength() && pass1;
+	pass1 = enc.StaticGetValidKeyLength(SIZE_MAX) == enc.MaxKeyLength() && pass1;
+
+	SHACAL2Decryption dec;  // 128 to 512-bits (16 to 64-bytes)
+	pass2 = dec.StaticGetValidKeyLength(8) == 16 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(15) == 16 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(16) == 16 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(64) == 64 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(65) == 64 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(128) == 64 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(0) == dec.MinKeyLength() && pass2;
+	pass2 = dec.StaticGetValidKeyLength(SIZE_MAX) == dec.MaxKeyLength() && pass2;
+	cout << (pass1 && pass2 ? "passed:" : "FAILED:") << "  Algorithm key lengths\n";
+
 	FileSource valdata(CRYPTOPP_DATA_DIR "TestData/shacal2v.dat", true, new HexDecoder);
-	pass = BlockTransformationTest(FixedRoundsCipherFactory<SHACAL2Encryption, SHACAL2Decryption>(16), valdata, 4) && pass;
-	pass = BlockTransformationTest(FixedRoundsCipherFactory<SHACAL2Encryption, SHACAL2Decryption>(64), valdata, 10) && pass;
-	return pass;
+	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<SHACAL2Encryption, SHACAL2Decryption>(16), valdata, 4) && pass3;
+	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<SHACAL2Encryption, SHACAL2Decryption>(64), valdata, 10) && pass3;
+	return pass1 && pass2 && pass3;
 }
 
 bool ValidateCamellia()
 {
 	cout << "\nCamellia validation suite running...\n\n";
+	bool pass1 = true, pass2 = true, pass3 = true;
 
-	bool pass = true;
+	CamelliaEncryption enc;
+	pass1 = enc.StaticGetValidKeyLength(8) == 16 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(16) == 16 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(24) == 24 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(32) == 32 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(64) == 32 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(128) == 32 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(0) == enc.MinKeyLength() && pass1;
+	pass1 = enc.StaticGetValidKeyLength(SIZE_MAX) == enc.MaxKeyLength() && pass1;
+
+	CamelliaDecryption dec;
+	pass2 = dec.StaticGetValidKeyLength(8) == 16 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(16) == 16 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(24) == 24 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(32) == 32 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(64) == 32 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(128) == 32 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(0) == dec.MinKeyLength() && pass2;
+	pass2 = dec.StaticGetValidKeyLength(SIZE_MAX) == dec.MaxKeyLength() && pass2;
+	cout << (pass1 && pass2 ? "passed:" : "FAILED:") << "  Algorithm key lengths\n";
+
 	FileSource valdata(CRYPTOPP_DATA_DIR "TestData/camellia.dat", true, new HexDecoder);
-	pass = BlockTransformationTest(FixedRoundsCipherFactory<CamelliaEncryption, CamelliaDecryption>(16), valdata, 15) && pass;
-	pass = BlockTransformationTest(FixedRoundsCipherFactory<CamelliaEncryption, CamelliaDecryption>(24), valdata, 15) && pass;
-	pass = BlockTransformationTest(FixedRoundsCipherFactory<CamelliaEncryption, CamelliaDecryption>(32), valdata, 15) && pass;
-	return pass;
+	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<CamelliaEncryption, CamelliaDecryption>(16), valdata, 15) && pass3;
+	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<CamelliaEncryption, CamelliaDecryption>(24), valdata, 15) && pass3;
+	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<CamelliaEncryption, CamelliaDecryption>(32), valdata, 15) && pass3;
+	return pass1 && pass2 && pass3;
 }
 
 bool ValidateSalsa()

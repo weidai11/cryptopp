@@ -52,8 +52,8 @@ public:
 	//!   because the latter is \a not a \a constexpr. Some compilers, like Clang, do not
 	//!   optimize it well under all circumstances. Compilers like GCC, ICC and MSVC appear
 	//!   to optimize it well in either form.
-	size_type max_size() const {return (SIZE_MAX/sizeof(T));}
-	
+	CRYPTOPP_CONSTEXPR size_type max_size() const {return (SIZE_MAX/sizeof(T));}
+
 #if defined(CRYPTOPP_CXX11_VARIADIC_TEMPLATES) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 	//! \brief Constructs a new U using variadic arguments
@@ -65,7 +65,7 @@ public:
 	//!   is defined. The define is controlled by compiler versions detected in config.h.
     template<typename U, typename... Args>
     void construct(U* ptr, Args&&... args) {::new ((void*)ptr) U(std::forward<Args>(args)...);}
-    
+
 	//! \brief Destroys an U constructed with variadic arguments
 	//! \tparam U the type to be forwarded
 	//! \details This is a C++11 feature. It is available when CRYPTOPP_CXX11_VARIADIC_TEMPLATES
@@ -76,11 +76,11 @@ public:
 #endif
 
 protected:
-	
+
 	//! \brief Verifies the allocator can satisfy a request based on size
 	//! \param size the size of the allocation, in elements
 	//! \throws InvalidArgument
-	//! \details CheckSize verifies the number of elements requested is valid. 
+	//! \details CheckSize verifies the number of elements requested is valid.
 	//! \details If size is greater than max_size(), then InvalidArgument is thrown.
 	//!   The library throws InvalidArgument if the size is too large to satisfy.
 	//! \details Internally, preprocessor macros are used rather than std::numeric_limits
@@ -126,7 +126,7 @@ typename A::pointer StandardReallocate(A& alloc, T *oldPtr, typename A::size_typ
 	{
 		typename A::pointer newPointer = alloc.allocate(newSize, NULL);
 		const size_t copySize = STDMIN(oldSize, newSize) * sizeof(T);
-		
+
 		if (oldPtr && newPointer) {memcpy_s(newPointer, copySize, oldPtr, copySize);}
 		alloc.deallocate(oldPtr, oldSize);
 		return newPointer;
@@ -140,7 +140,7 @@ typename A::pointer StandardReallocate(A& alloc, T *oldPtr, typename A::size_typ
 
 //! \class AllocatorWithCleanup
 //! \brief Allocates a block of memory with cleanup
-//! \tparam T class or type 
+//! \tparam T class or type
 //! \tparam T_Align16 boolean that determines whether allocations should be aligned on 16-byte boundaries
 //! \details If T_Align16 is true, then AllocatorWithCleanup calls AlignedAllocate()
 //!    for memory allocations. If T_Align16 is false, then AllocatorWithCleanup() calls
@@ -162,10 +162,10 @@ public:
 	//!   and less than max_size(), then an attempt is made to fulfill the request using either
 	//!   AlignedAllocate() or UnalignedAllocate().
 	//! \details AlignedAllocate() is used if T_Align16 is true.
-	//!   UnalignedAllocate() used if T_Align16 is false. 
+	//!   UnalignedAllocate() used if T_Align16 is false.
 	//! \details This is the C++ *Placement New* operator. ptr is not used, and the function
 	//!   asserts in Debug builds if ptr is non-NULL.
-	//! \sa CallNewHandler() for the methods used to recover from a failed 
+	//! \sa CallNewHandler() for the methods used to recover from a failed
 	//!   allocation attempt.
 	//! \note size is the count of elements, and not the number of bytes
 	pointer allocate(size_type size, const void *ptr = NULL)
@@ -188,10 +188,10 @@ public:
 	//! \param ptr the pointer for the allocation
 	//! \param size the size of the allocation, in elements
 	//! \details Internally, SecureWipeArray() is called before deallocating the memory.
-	//!   Once the memory block is wiped or zeroized, AlignedDeallocate() or 
+	//!   Once the memory block is wiped or zeroized, AlignedDeallocate() or
 	//!   UnalignedDeallocate() is called.
 	//! \details AlignedDeallocate() is used if T_Align16 is true.
-	//!   UnalignedDeallocate() used if T_Align16 is false. 
+	//!   UnalignedDeallocate() used if T_Align16 is false.
 	void deallocate(void *ptr, size_type size)
 	{
 		assert((ptr && size) || !(ptr || size));
@@ -278,7 +278,7 @@ public:
 		assert(false);
 	}
 
-	size_type max_size() const {return 0;}
+	CRYPTOPP_CONSTEXPR size_type max_size() const {return 0;}
 	//LCOV_EXCL_STOP
 };
 
@@ -410,7 +410,7 @@ public:
 		return newPointer;
 	}
 
-	size_type max_size() const {return STDMAX(m_fallbackAllocator.max_size(), S);}
+	CRYPTOPP_CONSTEXPR size_type max_size() const {return STDMAX(m_fallbackAllocator.max_size(), S);}
 
 private:
 
@@ -446,7 +446,7 @@ public:
 	//! \note size is the count of elements, and not the number of bytes
 	explicit SecBlock(size_type size=0)
 		: m_size(size), m_ptr(m_alloc.allocate(size, NULL)) { }
-	
+
 	//! \brief Copy construct a SecBlock from another SecBlock
 	//! \param t the other SecBlock
 	//! \throws std::bad_alloc
@@ -460,7 +460,7 @@ public:
 	//! \param ptr a pointer to an array of T
 	//! \param len the number of elements in the memory block
 	//! \throws std::bad_alloc
-	//! \details If <tt>ptr!=NULL</tt> and <tt>len!=0</tt>, then the block is initialized from the pointer ptr. 
+	//! \details If <tt>ptr!=NULL</tt> and <tt>len!=0</tt>, then the block is initialized from the pointer ptr.
 	//!    If <tt>ptr==NULL</tt> and <tt>len!=0</tt>, then the block is initialized to 0.
 	//!    Otherwise, the block is empty and \a not initialized.
 	//! \note size is the count of elements, and not the number of bytes
@@ -802,7 +802,7 @@ __stl_alloc_rebind(CryptoPP::AllocatorWithCleanup<_Tp1>& __a, const _Tp2*)
 #endif
 
 NAMESPACE_END
-	
+
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(pop)
 #endif

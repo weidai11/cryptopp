@@ -57,13 +57,13 @@ static inline word32 reverseBits(word32 a)
 	a0 ^= c ^ b0; 											\
 	a1 ^= c ^ b1; 											\
 	a2 ^= c ^ (b0 >> 16) ^ (b1 << 16); 						\
-}															
+}
 
 #define rho(a0, a1, a2)			\
 {								\
 	theta(a0, a1, a2);			\
 	pi_gamma_pi(a0, a1, a2);	\
-}											
+}
 
 void ThreeWay::Base::UncheckedSetKey(const byte *uk, unsigned int length, const NameValuePairs &params)
 {

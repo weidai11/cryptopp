@@ -15,7 +15,7 @@ NAMESPACE_BEGIN(CryptoPP)
 //! \brief SHACAL2 block cipher information
 struct SHACAL2_Info : public FixedBlockSize<32>, public VariableKeyLength<16, 16, 64>
 {
-	static const char *StaticAlgorithmName() {return "SHACAL-2";}
+	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "SHACAL-2";}
 };
 
 //! \class SHACAL2

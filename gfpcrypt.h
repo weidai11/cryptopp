@@ -185,7 +185,7 @@ template <class T>
 class DL_Algorithm_GDSA : public DL_ElgamalLikeSignatureAlgorithm<T>
 {
 public:
-	static const char * CRYPTOPP_API StaticAlgorithmName() {return "DSA-1363";}
+	CRYPTOPP_CONSTEXPR static const char * CRYPTOPP_API StaticAlgorithmName() {return "DSA-1363";}
 
 	void Sign(const DL_GroupParameters<T> &params, const Integer &x, const Integer &k, const Integer &e, Integer &r, Integer &s) const
 	{
@@ -221,7 +221,7 @@ template <class T>
 class DL_Algorithm_NR : public DL_ElgamalLikeSignatureAlgorithm<T>
 {
 public:
-	static const char * CRYPTOPP_API StaticAlgorithmName() {return "NR";}
+	CRYPTOPP_CONSTEXPR static const char * CRYPTOPP_API StaticAlgorithmName() {return "NR";}
 
 	void Sign(const DL_GroupParameters<T> &params, const Integer &x, const Integer &k, const Integer &e, Integer &r, Integer &s) const
 	{

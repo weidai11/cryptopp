@@ -284,7 +284,7 @@ template <class EC>
 class DL_Algorithm_ECDSA : public DL_Algorithm_GDSA<typename EC::Point>
 {
 public:
-	static const char * CRYPTOPP_API StaticAlgorithmName() {return "ECDSA";}
+	CRYPTOPP_CONSTEXPR static const char * CRYPTOPP_API StaticAlgorithmName() {return "ECDSA";}
 
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~DL_Algorithm_ECDSA() {}
@@ -296,7 +296,7 @@ template <class EC>
 class DL_Algorithm_ECNR : public DL_Algorithm_NR<typename EC::Point>
 {
 public:
-	static const char * CRYPTOPP_API StaticAlgorithmName() {return "ECNR";}
+	CRYPTOPP_CONSTEXPR static const char * CRYPTOPP_API StaticAlgorithmName() {return "ECNR";}
 
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~DL_Algorithm_ECNR() {}
