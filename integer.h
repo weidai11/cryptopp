@@ -107,7 +107,7 @@ public:
 		//! \details Byte order was added at Crypto++ 5.7 to allow use of little-endian
 		//!   integers with curve25519, Poly1305 and Microsoft CAPI.
 		explicit Integer(const char *str, ByteOrder order = BIG_ENDIAN_ORDER);
-		
+
 		//! \brief Convert from a wide C-string
 		//! \param str wide C-string value
 		//! \param order byte order
@@ -225,8 +225,8 @@ public:
 		//! \details OpenPGPEncode places result into a BufferedTransformation object and returns the
 		//!   number of bytes used for the encoding
 		size_t OpenPGPEncode(byte *output, size_t bufferSize) const;
-	
-		//! \brief Encode absolute value in OpenPGP format	
+
+		//! \brief Encode absolute value in OpenPGP format
 		//! \param bt BufferedTransformation object
 		//! \returns length of the output
 		//! \details OpenPGPEncode places result into a BufferedTransformation object and returns the
@@ -238,7 +238,7 @@ public:
 		//! \param inputLen length of the byte array
 		//! \param sign enumeration indicating Signedness
 		void Decode(const byte *input, size_t inputLen, Signedness sign=UNSIGNED);
-		
+
 		//! \brief Decode nonnegative value from big-endian byte array
 		//! \param bt BufferedTransformation object
 		//! \param inputLen length of the byte array
@@ -263,7 +263,7 @@ public:
 		//! \brief Exception thrown when an error is encountered decoding an OpenPGP integer
 		class OpenPGPDecodeErr : public Exception
 		{
-		public: 
+		public:
 			OpenPGPDecodeErr() : Exception(INVALID_DATA_FORMAT, "OpenPGP decode error") {}
 		};
 
@@ -409,10 +409,10 @@ public:
 
 		//! \brief Reverse the Sign of the Integer
 		void Negate();
-		
+
 		//! \brief Sets the Integer to positive
 		void SetPositive() {sign = POSITIVE;}
-		
+
 		//! \brief Sets the Integer to negative
 		void SetNegative() {if (!!(*this)) sign = NEGATIVE;}
 
@@ -528,7 +528,7 @@ public:
 		//! \sa IntToString<Integer>
 		friend CRYPTOPP_DLL std::ostream& CRYPTOPP_API operator<<(std::ostream& out, const Integer &a);
 	//@}
-		
+
 #ifndef CRYPTOPP_DOXYGEN_PROCESSING
 	//! modular multiplication
 	CRYPTOPP_DLL friend Integer CRYPTOPP_API a_times_b_mod_c(const Integer &x, const Integer& y, const Integer& m);
@@ -537,13 +537,13 @@ public:
 #endif
 
 private:
-	
+
 	Integer(word value, size_t length);
 	int PositiveCompare(const Integer &t) const;
-	
+
 	IntegerSecBlock reg;
 	Sign sign;
-	
+
 #ifndef CRYPTOPP_DOXYGEN_PROCESSING
 	friend class ModularArithmetic;
 	friend class MontgomeryRepresentation;
