@@ -283,10 +283,10 @@ struct ECNR : public DL_SS<DL_Keys_EC<EC>, DL_Algorithm_ECNR<EC>, DL_SignatureMe
 };
 
 //! Elliptic Curve Integrated Encryption Scheme, AKA <a href="http://www.weidai.com/scan-mirror/ca.html#ECIES">ECIES</a>
-/*! Default to (NoCofactorMultiplication and DHAES_MODE = false) for compatibilty with SEC1 and Crypto++ 4.2.
+/*! Choose NoCofactorMultiplication and DHAES_MODE = false for compatibilty with SEC1 and Crypto++ 4.2.
 	The combination of (IncompatibleCofactorMultiplication and DHAES_MODE = true) is recommended for best
 	efficiency and security. */
-template <class EC, class COFACTOR_OPTION = NoCofactorMultiplication, bool DHAES_MODE = false>
+template <class EC, class COFACTOR_OPTION = NoCofactorMultiplication, bool DHAES_MODE = true>
 struct ECIES
 	: public DL_ES<
 		DL_Keys_EC<EC>,
