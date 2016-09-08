@@ -347,6 +347,10 @@ SOURCE=.\esign.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\fhmqv.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\files.cpp
 # End Source File
 # Begin Source File
@@ -396,6 +400,10 @@ SOURCE=.\hex.cpp
 # Begin Source File
 
 SOURCE=.\hmac.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\hmqv.cpp
 # End Source File
 # Begin Source File
 
@@ -853,6 +861,10 @@ SOURCE=.\factory.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\fhmqv.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\files.h
 # End Source File
 # Begin Source File
@@ -906,6 +918,10 @@ SOURCE=.\hkdf.h
 # Begin Source File
 
 SOURCE=.\hmac.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\hmqv.h
 # End Source File
 # Begin Source File
 
