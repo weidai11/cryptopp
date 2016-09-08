@@ -666,9 +666,9 @@ bool TestPolynomialMod2()
 		pass3 &= (str1 == str2);
 	}
 
-	cout << (!pass1 ? "FAILED" : "passed") << "    " << "1 shifted over range [" << dec << start << "," << stop << "]" << "\n";
-	cout << (!pass2 ? "FAILED" : "passed") << "    " << "0x" << hex << word(SIZE_MAX) << dec << " shifted over range [" << start << "," << stop << "]" << "\n";
-	cout << (!pass3 ? "FAILED" : "passed") << "    " << "random values shifted over range [" << dec << start << "," << stop << "]" << "\n";
+	cout << (!pass1 ? "FAILED" : "passed") << ":  " << "1 shifted over range [" << dec << start << "," << stop << "]" << "\n";
+	cout << (!pass2 ? "FAILED" : "passed") << ":  " << "0x" << hex << word(SIZE_MAX) << dec << " shifted over range [" << start << "," << stop << "]" << "\n";
+	cout << (!pass3 ? "FAILED" : "passed") << ":  " << "random values shifted over range [" << dec << start << "," << stop << "]" << "\n";
 
 	if (!(pass1 && pass2 && pass3))
 		cout.flush();
