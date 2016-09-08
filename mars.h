@@ -13,9 +13,9 @@ NAMESPACE_BEGIN(CryptoPP)
 
 //! \class MARS_Info
 //! \brief MARS block cipher information
-struct MARS_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 16, 56, 4>
+struct MARS_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 16, 32, 8>
 {
-	static const char *StaticAlgorithmName() {return "MARS";}
+	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "MARS";}
 };
 
 //! \class MARS

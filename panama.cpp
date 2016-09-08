@@ -12,7 +12,7 @@
 #include "cpu.h"
 
 NAMESPACE_BEGIN(CryptoPP)
-	
+
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(disable: 4731)
 #endif
@@ -385,22 +385,22 @@ void Panama<B>::Iterate(size_t count, const word32 *p, byte *output, const byte 
 			UL(0); UL(1); UL(2); UL(3); UL(4); UL(5); UL(6); UL(7);
 		}
 
-		GP(0); 
-		GP(1); 
-		GP(2); 
-		GP(3); 
-		GP(4); 
-		GP(5); 
-		GP(6); 
+		GP(0);
+		GP(1);
+		GP(2);
+		GP(3);
+		GP(4);
+		GP(5);
+		GP(6);
 		GP(7);
-		GP(8); 
-		GP(9); 
-		GP(10); 
-		GP(11); 
-		GP(12); 
-		GP(13); 
-		GP(14); 
-		GP(15); 
+		GP(8);
+		GP(9);
+		GP(10);
+		GP(11);
+		GP(12);
+		GP(13);
+		GP(14);
+		GP(15);
 		GP(16);
 
 		T(0,1);
@@ -434,7 +434,7 @@ void PanamaHash<B>::TruncatedFinal(byte *hash, size_t size)
 	this->ThrowIfInvalidTruncatedSize(size);
 
 	this->PadLastBlock(this->BLOCKSIZE, 0x01);
-	
+
 	HashEndianCorrectedBlock(this->m_data);
 
 	this->Iterate(32);	// pull

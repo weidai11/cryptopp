@@ -1,7 +1,7 @@
 // panama.h - written and placed in the public domain by Wei Dai
 
 //! \file panama.h
-//! \brief Classes for Panama stream cipher
+//! \brief Classes for Panama hash and stream cipher
 
 #ifndef CRYPTOPP_PANAMA_H
 #define CRYPTOPP_PANAMA_H
@@ -17,7 +17,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// base class, do not use directly
+// Base class, do not use directly
 template <class B>
 class CRYPTOPP_NO_VTABLE Panama
 {
@@ -33,7 +33,9 @@ protected:
 };
 
 namespace Weak {
-/// <a href="http://www.weidai.com/scan-mirror/md.html#Panama">Panama Hash</a>
+//! \class PanamaHash
+//! \brief Panama hash
+//! \sa <a href="http://www.weidai.com/scan-mirror/md.html#Panama">Panama Hash</a>
 template <class B = LittleEndian>
 class PanamaHash : protected Panama<B>, public AlgorithmImpl<IteratedHash<word32, NativeByteOrder, 32>, PanamaHash<B> >
 {
@@ -42,7 +44,7 @@ public:
 	PanamaHash() {Panama<B>::Reset();}
 	unsigned int DigestSize() const {return DIGESTSIZE;}
 	void TruncatedFinal(byte *hash, size_t size);
-	static const char * StaticAlgorithmName() {return B::ToEnum() == BIG_ENDIAN_ORDER ? "Panama-BE" : "Panama-LE";}
+	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return B::ToEnum() == BIG_ENDIAN_ORDER ? "Panama-BE" : "Panama-LE";}
 
 protected:
 	void Init() {Panama<B>::Reset();}
@@ -52,7 +54,8 @@ protected:
 };
 }
 
-//! MAC construction using a hermetic hash function
+//! \class HermeticHashFunctionMAC
+//! \brief MAC construction using a hermetic hash function
 template <class T_Hash, class T_Info = T_Hash>
 class HermeticHashFunctionMAC : public AlgorithmImpl<SimpleKeyingInterfaceImpl<TwoBases<MessageAuthenticationCode, VariableKeyLength<32, 0, INT_MAX> > >, T_Info>
 {
@@ -108,7 +111,8 @@ protected:
 };
 
 namespace Weak {
-/// Panama MAC
+//! \class PanamaMAC
+//! \brief Panama message authentication code
 template <class B = LittleEndian>
 class PanamaMAC : public HermeticHashFunctionMAC<PanamaHash<B> >
 {
@@ -119,14 +123,16 @@ public:
 };
 }
 
-//! algorithm info
+//! \class PanamaCipherInfo
+//! \brief Panama stream cipher information
 template <class B>
 struct PanamaCipherInfo : public FixedKeyLength<32, SimpleKeyingInterface::UNIQUE_IV, 32>
 {
-	static const char * StaticAlgorithmName() {return B::ToEnum() == BIG_ENDIAN_ORDER ? "Panama-BE" : "Panama-LE";}
+	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return B::ToEnum() == BIG_ENDIAN_ORDER ? "Panama-BE" : "Panama-LE";}
 };
 
-//! _
+//! \class PanamaCipherPolicy
+//! \brief Panama stream cipher operation
 template <class B>
 class PanamaCipherPolicy : public AdditiveCipherConcretePolicy<word32, 8>,
 							public PanamaCipherInfo<B>,
@@ -142,7 +148,9 @@ protected:
 	FixedSizeSecBlock<word32, 8> m_key;
 };
 
-//! <a href="http://www.cryptolounge.org/wiki/PANAMA">Panama Stream Cipher</a>
+//! \class PanamaCipher
+//! \brief Panama stream cipher
+//! \sa <a href="http://www.cryptolounge.org/wiki/PANAMA">Panama Stream Cipher</a>
 template <class B = LittleEndian>
 struct PanamaCipher : public PanamaCipherInfo<B>, public SymmetricCipherDocumentation
 {

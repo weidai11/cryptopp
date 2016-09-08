@@ -139,7 +139,7 @@ void SEAL_Policy<B>::OperateKeystream(KeystreamOperation operation, byte *output
 		p = d & 0x7fc;
 		a += Ttab(p);
 		d = rotrFixed(d, 9U);
-		
+
 		// generate 8192 bits
 		for (unsigned int i=0; i<64; i++)
 		{
@@ -197,7 +197,7 @@ void SEAL_Policy<B>::OperateKeystream(KeystreamOperation operation, byte *output
 			else
 			{
 				a += n1;
-				b += n2;        
+				b += n2;
 				c ^= n1;
 				d ^= n2;
 			}

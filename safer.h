@@ -1,7 +1,7 @@
 // safer.h - written and placed in the public domain by Wei Dai
 
 //! \file safer.h
-//! \brief Classes for the SAFER block cipher
+//! \brief Classes for the SAFER and SAFER-K block ciphers
 
 #ifndef CRYPTOPP_SAFER_H
 #define CRYPTOPP_SAFER_H
@@ -12,10 +12,12 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 //! \class SAFER
-//! \brief SAFER base class
+//! \brief SAFER block cipher
 class SAFER
 {
 public:
+	//! \class Base
+	//! \brief SAFER block cipher default operation
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipher
 	{
 	public:
@@ -30,12 +32,16 @@ public:
 		static const byte log_tab[256];
 	};
 
+	//! \class Enc
+	//! \brief SAFER block cipher encryption operation
 	class CRYPTOPP_NO_VTABLE Enc : public Base
 	{
 	public:
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
 	};
 
+	//! \class Dec
+	//! \brief SAFER block cipher decryption operation
 	class CRYPTOPP_NO_VTABLE Dec : public Base
 	{
 	public:
@@ -43,6 +49,12 @@ public:
 	};
 };
 
+//! \class SAFER_Impl
+//! \brief SAFER block cipher default implementation
+//! \tparam BASE SAFER::Enc or SAFER::Dec derived base class
+//! \tparam INFO SAFER_Info derived class
+//! \tparam STR flag indicating a strengthened implementation
+//! \details SAFER-K is not strengthened; while SAFER-SK is strengthened.
 template <class BASE, class INFO, bool STR>
 class CRYPTOPP_NO_VTABLE SAFER_Impl : public BlockCipherImpl<INFO, BASE>
 {
@@ -54,7 +66,7 @@ protected:
 //! \brief SAFER-K block cipher information
 struct SAFER_K_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 8, 16, 8>, public VariableRounds<10, 1, 13>
 {
-	static const char *StaticAlgorithmName() {return "SAFER-K";}
+	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "SAFER-K";}
 };
 
 //! \class SAFER_K
@@ -71,7 +83,7 @@ public:
 //! \brief SAFER-SK block cipher information
 struct SAFER_SK_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 8, 16, 8>, public VariableRounds<10, 1, 13>
 {
-	static const char *StaticAlgorithmName() {return "SAFER-SK";}
+	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "SAFER-SK";}
 };
 
 //! \class SAFER_SK

@@ -544,7 +544,8 @@ NAMESPACE_END
 #	define CRYPTOPP_NOINLINE
 #endif
 
-// how to declare class constants
+// How to declare class constants
+// Use enum for OS X 10.5 ld, http://github.com/weidai11/cryptopp/issues/255
 #if (defined(_MSC_VER) && _MSC_VER <= 1300) || defined(__INTEL_COMPILER) || defined(__BORLANDC__)
 #	define CRYPTOPP_CONSTANT(x) enum {x};
 #else
@@ -900,6 +901,12 @@ NAMESPACE_END
 # undef CRYPTOPP_ALIGN_DATA
 # define CRYPTOPP_ALIGN_DATA(x) alignas(x)
 #endif  // CRYPTOPP_CXX11_ALIGNAS
+
+// Hack... CRYPTOPP_CONSTANT is defined earlier, before C++11 constexpr availability is determined
+#if defined(CRYPTOPP_CXX11_CONSTEXPR)
+# undef CRYPTOPP_CONSTANT
+# define CRYPTOPP_CONSTANT(x) constexpr static int x;
+#endif
 
 // OK to comment the following out, but please report it so we can fix it.
 // C++17 value taken from http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4567.pdf.
