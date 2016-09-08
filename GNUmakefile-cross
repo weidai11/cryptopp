@@ -113,7 +113,7 @@ endif # Dead code stripping
 # List cryptlib.cpp first and cpu.cpp second in an attempt to tame C++ static initialization problems.
 #  The issue spills into POD data types of cpu.cpp due to the storage class of the bools, so cpu.cpp
 #  is the second candidate for explicit initialization order.
-SRCS := cryptlib.cpp cpu.cpp $(filter-out cryptlib.cpp cpu.cpp pch.cpp simple.cpp winpipes.cpp cryptlib_bds.cpp,$(wildcard *.cpp))
+SRCS := cryptlib.cpp cpu.cpp integer.cpp $(filter-out cryptlib.cpp cpu.cpp integer.cpp pch.cpp simple.cpp winpipes.cpp cryptlib_bds.cpp,$(wildcard *.cpp))
 OBJS := $(SRCS:.cpp=.o)
 
 # test.o needs to be after bench.o for cygwin 1.1.4 (possible ld bug?)

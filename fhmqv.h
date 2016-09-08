@@ -17,6 +17,7 @@ NAMESPACE_BEGIN(CryptoPP)
 //! \details This implementation follows Augustin P. Sarr and Philippe Elbaz–Vincent, and Jean–Claude Bajard's
 //!   <a href="http://eprint.iacr.org/2009/408">A Secure and Efficient Authenticated Diffie-Hellman Protocol</a>.
 //!   Note: this is FHMQV, Protocol 5, from page 11; and not FHMQV-C.
+//! \sa MQV, HMQV, FHMQV, and AuthenticatedKeyAgreementDomain
 template <class GROUP_PARAMETERS, class COFACTOR_OPTION = CPP_TYPENAME GROUP_PARAMETERS::DefaultCofactorOption, class HASH = SHA512>
 class FHMQV_Domain : public AuthenticatedKeyAgreementDomain
 {
@@ -292,6 +293,7 @@ private:
 //! \details This implementation follows Augustin P. Sarr and Philippe Elbaz–Vincent, and Jean–Claude Bajard's
 //!   <a href="http://eprint.iacr.org/2009/408">A Secure and Efficient Authenticated Diffie-Hellman Protocol</a>.
 //!   Note: this is FHMQV, Protocol 5, from page 11; and not FHMQV-C.
+//! \sa FHMQV, MQV_Domain, HMQV_Domain, AuthenticatedKeyAgreementDomain
 typedef FHMQV_Domain<DL_GroupParameters_GFP_DefaultSafePrime> FHMQV;
 
 NAMESPACE_END
