@@ -22,6 +22,7 @@ NAMESPACE_BEGIN(CryptoPP)
 //! \details GROUP_PARAMETERS paramters include the curve coefcients and the base point.
 //!   Binary curves use a polynomial to represent its characteristic, while prime curves
 //!   use a prime number.
+//! \sa MQV, HMQV, FHMQV, and AuthenticatedKeyAgreementDomain
 template <class GROUP_PARAMETERS, class COFACTOR_OPTION = CPP_TYPENAME GROUP_PARAMETERS::DefaultCofactorOption>
 class MQV_Domain : public AuthenticatedKeyAgreementDomain
 {
@@ -212,6 +213,7 @@ private:
 };
 
 //! Menezes-Qu-Vanstone in GF(p) with key validation, AKA <a href="http://www.weidai.com/scan-mirror/ka.html#MQV">MQV</a>
+//! \sa MQV, HMQV_Domain, FHMQV_Domain, AuthenticatedKeyAgreementDomain
 typedef MQV_Domain<DL_GroupParameters_GFP_DefaultSafePrime> MQV;
 
 NAMESPACE_END

@@ -16,6 +16,7 @@ NAMESPACE_BEGIN(CryptoPP)
 //! \brief Hashed Menezes-Qu-Vanstone in GF(p)
 //! \details This implementation follows Hugo Krawczyk's <a href="http://eprint.iacr.org/2005/176">HMQV: A High-Performance
 //!   Secure Diffie-Hellman Protocol</a>. Note: this implements HMQV only. HMQV-C with Key Confirmation is not provided.
+//! \sa MQV, HMQV, FHMQV, and AuthenticatedKeyAgreementDomain
 template <class GROUP_PARAMETERS, class COFACTOR_OPTION = CPP_TYPENAME GROUP_PARAMETERS::DefaultCofactorOption, class HASH = SHA512>
 class HMQV_Domain: public AuthenticatedKeyAgreementDomain
 {
@@ -300,6 +301,7 @@ private:
 //! \brief Hashed Menezes-Qu-Vanstone in GF(p)
 //! \details This implementation follows Hugo Krawczyk's <a href="http://eprint.iacr.org/2005/176">HMQV: A High-Performance
 //!   Secure Diffie-Hellman Protocol</a>. Note: this implements HMQV only. HMQV-C with Key Confirmation is not provided.
+//! \sa HMQV, MQV_Domain, FHMQV_Domain, AuthenticatedKeyAgreementDomain
 typedef HMQV_Domain<DL_GroupParameters_GFP_DefaultSafePrime> HMQV;
 
 NAMESPACE_END
