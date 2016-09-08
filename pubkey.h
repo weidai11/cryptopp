@@ -1304,6 +1304,18 @@ public:
 
 	virtual void Sign(const DL_GroupParameters<T> &params, const Integer &privateKey, const Integer &k, const Integer &e, Integer &r, Integer &s) const =0;
 	virtual bool Verify(const DL_GroupParameters<T> &params, const DL_PublicKey<T> &publicKey, const Integer &e, const Integer &r, const Integer &s) const =0;
+	virtual bool UseDeterministicK() const
+	{
+		// By default, assume k-value won't be deterministic.
+		return false;
+	}
+	virtual const bool getDetKVal(const byte* hmsg, const size_t& hmsgSize,
+	                              const Integer& cord, const size_t& cordBits,
+	                              const Integer& pk, Integer& kVal) const
+	{
+		// By default, assume there is no deterministic k-value. 
+		return false;
+	}
 	virtual Integer RecoverPresignature(const DL_GroupParameters<T> &params, const DL_PublicKey<T> &publicKey, const Integer &r, const Integer &s) const
 	{
 		CRYPTOPP_UNUSED(params); CRYPTOPP_UNUSED(publicKey); CRYPTOPP_UNUSED(r); CRYPTOPP_UNUSED(s);
@@ -1497,7 +1509,20 @@ public:
 		// after virtual machine rollback
 		if (rng.CanIncorporateEntropy())
 			rng.IncorporateEntropy(representative, representative.size());
-		Integer k(rng, 1, params.GetSubgroupOrder()-1);
+
+		// By default, RFC 6979 won't be applied.
+		Integer k;
+		if(alg.UseDeterministicK()) {
+			alg.getDetKVal(representative,
+			               representative.size(),
+			               params.GetSubgroupOrder(),
+			               params.GetSubgroupOrder().BitCount(),
+			               key.GetPrivateExponent(),
+			               k);
+		}
+		else {
+			k.Randomize(rng, 1, params.GetSubgroupOrder()-1);
+		}
 		Integer r, s;
 		r = params.ConvertElementToInteger(params.ExponentiateBase(k));
 		alg.Sign(params, key.GetPrivateExponent(), k, e, r, s);
