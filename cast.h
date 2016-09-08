@@ -58,7 +58,7 @@ public:
 
 //! \class CAST256_Info
 //! \brief CAST256 block cipher information
-struct CAST256_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 16, 32>
+struct CAST256_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 16, 32, 4>
 {
 	static const char *StaticAlgorithmName() {return "CAST-256";}
 };
