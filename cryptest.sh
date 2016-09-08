@@ -30,6 +30,12 @@
 # rather than all of them. Its useful at places like the GCC Compile Farm, where being nice is policy.
 #     ./cryptest.sh nice
 
+# You can test using original config.h with the following. 'orig', 'original' and 'config.h' are synonyms:
+#     ./cryptest.sh original
+
+# You can test using config.recommend with the following. 'rec', 'recommend' and 'config.recommend' are synonyms:
+#     ./cryptest.sh recommend
+
 ############################################
 # Set to suite your taste
 
@@ -157,6 +163,7 @@ elif [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 	fi
 fi
 
+WANTED_CONFIG=0
 for ARG in "$@"
 do
 	# Recognize "fast" and "quick", which does not perform tests that take more time to execute
@@ -166,6 +173,15 @@ do
 	# Recognize "farm" and "nice", which uses 1/2 the CPU cores in accordance with GCC Compile Farm policy
 	elif [[ ($("$EGREP" -ix "farm" <<< "$ARG") || $("$EGREP" -ix "nice" <<< "$ARG")) ]]; then
 		WANT_NICE=1
+	elif [[ ($("$EGREP" -ix "orig" <<< "$ARG") || $("$EGREP" -ix "original" <<< "$ARG") || $("$EGREP" -ix "config.h" <<< "$ARG")) ]]; then
+		git checkout config.h &>/dev/null
+		WANTED_CONFIG=1
+	elif [[ ($("$EGREP" -ix "rec" <<< "$ARG") || $("$EGREP" -ix "recommend" <<< "$ARG") || $("$EGREP" -ix "config.recommend" <<< "$ARG")) ]]; then
+		git checkout config.recommend &>/dev/null
+		cp config.recommend config.h
+		WANTED_CONFIG=1
+	else
+		echo "Unknown option $ARG"
 	fi
 done
 
