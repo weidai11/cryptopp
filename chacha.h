@@ -49,7 +49,7 @@ protected:
 struct ChaCha8 : public ChaCha_Info<8>, public SymmetricCipherDocumentation
 {
 	typedef SymmetricCipherFinal<ConcretePolicyHolder<ChaCha_Policy<8>, AdditiveCipherTemplate<> >, ChaCha_Info<8> > Encryption;
-	typedef SymmetricCipherFinal<ConcretePolicyHolder<ChaCha_Policy<8>, AdditiveCipherTemplate<> >, ChaCha_Info<8> > Decryption;
+	typedef Encryption Decryption;
 };
 
 //! \class ChaCha12
@@ -58,7 +58,7 @@ struct ChaCha8 : public ChaCha_Info<8>, public SymmetricCipherDocumentation
 struct ChaCha12 : public ChaCha_Info<12>, public SymmetricCipherDocumentation
 {
 	typedef SymmetricCipherFinal<ConcretePolicyHolder<ChaCha_Policy<12>, AdditiveCipherTemplate<> >, ChaCha_Info<12> > Encryption;
-	typedef SymmetricCipherFinal<ConcretePolicyHolder<ChaCha_Policy<12>, AdditiveCipherTemplate<> >, ChaCha_Info<12> > Decryption;
+	typedef Encryption Decryption;
 };
 
 //! \class ChaCha20
@@ -67,7 +67,7 @@ struct ChaCha12 : public ChaCha_Info<12>, public SymmetricCipherDocumentation
 struct ChaCha20 : public ChaCha_Info<20>, public SymmetricCipherDocumentation
 {
 	typedef SymmetricCipherFinal<ConcretePolicyHolder<ChaCha_Policy<20>, AdditiveCipherTemplate<> >, ChaCha_Info<20> > Encryption;
-	typedef SymmetricCipherFinal<ConcretePolicyHolder<ChaCha_Policy<20>, AdditiveCipherTemplate<> >, ChaCha_Info<20> > Decryption;
+	typedef Encryption Decryption;
 };
 
 NAMESPACE_END
