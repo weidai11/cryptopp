@@ -262,7 +262,7 @@ const lword LWORD_MAX = W64LIT(0xffffffffffffffff);
 	typedef word32 hword;
 	typedef word64 word;
 #else
-	#define CRYPTOPP_NATIVE_DWORD_AVAILABLE
+	#define CRYPTOPP_NATIVE_DWORD_AVAILABLE 1
 	#if defined(__alpha__) || defined(__ia64__) || defined(_ARCH_PPC64) || defined(__x86_64__) || defined(__mips64) || defined(__sparc64__)
 		#if defined(__GNUC__) && !defined(__INTEL_COMPILER) && !(CRYPTOPP_GCC_VERSION == 40001 && defined(__APPLE__)) && CRYPTOPP_GCC_VERSION >= 30400
 			// GCC 4.0.1 on MacOS X is missing __umodti3 and __udivti3
@@ -271,7 +271,7 @@ const lword LWORD_MAX = W64LIT(0xffffffffffffffff);
 			typedef word64 word;
 			typedef __uint128_t dword;
 			typedef __uint128_t word128;
-			#define CRYPTOPP_WORD128_AVAILABLE
+			#define CRYPTOPP_WORD128_AVAILABLE 1
 		#else
 			// if we're here, it means we're on a 64-bit CPU but we don't have a way to obtain 128-bit multiplication results
 			typedef word16 hword;
