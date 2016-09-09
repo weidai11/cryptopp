@@ -52,10 +52,7 @@ cpu.cpp
 cpu.h
 crc.cpp
 crc.h
-cryptdll.dsp
 cryptdll.vcproj
-cryptest.dsp
-cryptest.dsw
 cryptest.sh
 cryptest.sln
 cryptest.vcproj
@@ -64,7 +61,6 @@ cryptest_bds.bdsgroup
 cryptest_bds.bdsproj
 cryptest_bds.bpf
 cryptlib.cpp
-cryptlib.dsp
 cryptlib.h
 cryptlib.vcproj
 cryptlib_bds.bdsproj
@@ -84,7 +80,6 @@ dh2.h
 dll.cpp
 dll.h
 dlltest.cpp
-dlltest.dsp
 dlltest.vcproj
 dmac.h
 dsa.cpp
@@ -285,6 +280,7 @@ validat3.cpp
 validate.h
 vmac.cpp
 vmac.h
+vc60.zip
 vs2010.zip
 wait.cpp
 wait.h
