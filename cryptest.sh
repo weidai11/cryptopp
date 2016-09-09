@@ -243,10 +243,10 @@ GCC_51_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version (5\.[1-9]|[6-9])'
 GCC_48_COMPILER=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version 4\.8')
 GCC_49_COMPILER=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version 4\.9')
 GCC_49_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version (4\.9|[5-9]\.[0-9])')
-SUNCC_121_OR_ABOVE=$("$CXX" -V 2>&1 | "$EGREP" -c "CC: (Sun|Studio) .* (5\.1[0-9]|5\.[2-9]|[6-9]\.)")
+SUNCC_510_OR_ABOVE=$("$CXX" -V 2>&1 | "$EGREP" -c "CC: (Sun|Studio) .* (5\.1[0-9]|5\.[2-9]|[6-9]\.)")
 
 # Fixup, bad code generation
-if [[ ("$SUNCC_121_OR_ABOVE" -ne "0") ]]; then
+if [[ ("$SUNCC_510_OR_ABOVE" -ne "0") ]]; then
 	HAVE_O5=0
 	HAVE_OFAST=0
 fi
@@ -984,9 +984,9 @@ if [[ (("$IS_X86" -ne "0" || "$IS_X64" -ne "0") && ("$CLANG_COMPILER" -ne "0" &&
 	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "adx") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-madx"); fi
 fi
 
-# Sun Studio 12.1 (and above) compilers consume GCC inline assembly. However, the compiler does not declare
-#   the CPU features, even when using options like -native and -xarch.
-if [[ ("$IS_X86" -ne "0" || "$IS_X64" -ne "0") && ("$IS_SOLARIS" -ne "0") && ("$SUNCC_121_OR_ABOVE" -ne "0") ]]; then
+# Solaris Studio 12.1/SunCC 5.10 (and above) compilers consume GCC inline assembly. However, the compiler does
+#   not declare the CPU features, even when using options like -native and -xarch=<feature>.
+if [[ ("$IS_X86" -ne "0" || "$IS_X64" -ne "0") && ("$IS_SOLARIS" -ne "0") && ("$SUNCC_510_OR_ABOVE" -ne "0") ]]; then
 
 	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "sse2") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__SSE2__"); fi
 	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "sse3") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__SSE3__"); fi
@@ -3507,7 +3507,7 @@ fi
 if [[ "$IS_SOLARIS" -ne "0" ]]; then
 
 	# If PLATFORM_CXXFLAGS is for SunCC, then use them
-	if [[ ("$SUNCC_121_OR_ABOVE" -ne "0") ]]; then
+	if [[ ("$SUNCC_510_OR_ABOVE" -ne "0") ]]; then
 		SUNCC_CXXFLAGS="${PLATFORM_CXXFLAGS[@]}"
 	fi
 
