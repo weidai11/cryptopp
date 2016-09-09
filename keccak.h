@@ -28,7 +28,7 @@ NAMESPACE_BEGIN(CryptoPP)
 //!   round function and the XOF functions.
 //! \details Perform the following to specify a different digest size. The class will use F1600, 0x80,
 //!   and a new vaue for <tt>r()</tt> (which will be <tt>200-2*24 = 152</tt>).
-//!   <pre>Keccack_192 : public Keccack
+//!   <pre>  Keccack_192 : public Keccack
 //!   {
 //!     public:
 //!       CRYPTOPP_CONSTANT(DIGESTSIZE = 24)
