@@ -5300,8 +5300,8 @@ if [[ ("$HAVE_ZIP" -ne "0") ]]; then
 	OLD_DIR=$(pwd)
 	"$MAKE" zip
 
-	RESULT=$(unzip -aoq cryptopp563.zip -d "$TMP/cryptopp563-zip/")
-	if [[ "$RESULT" -eq "0" ]]; then
+	unzip -aoq cryptopp563.zip -d "$TMP/cryptopp563-zip/"
+	if [[ "$?" -eq "0" ]]; then
 		cd "$TMP/cryptopp563-zip/"
 
 		############################################
