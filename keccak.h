@@ -2,6 +2,13 @@
 
 //! \file keccak.h
 //! \brief Classes for Keccak message digests
+//! \details The Keccak classes use F1600 and XOF byte 0x80, which is effectively
+//!   the behavior specified by NIST at round three of the selection process. If you
+//!   desire FIPS 202 behavior, then use SHA3 classes.
+//! \details Keccak will likely change in the future to accomodate extensibility of the
+//!   round function and the XOF functions.
+//! \details Perform the following to specify a different digest size. It will use F1600 and 0x80.
+//! <pre>Keccack_192 : public Keccack
 //! \sa <a href="http://en.wikipedia.org/wiki/Keccak">Keccak</a>
 
 #ifndef CRYPTOPP_KECCAK_H
@@ -14,6 +21,21 @@ NAMESPACE_BEGIN(CryptoPP)
 
 //! \class Keccak
 //! \brief Keccak message digest base class
+//! \details The Keccak classes use F1600 and XOF byte 0x80, which is effectively
+//!   the behavior specified by NIST at round three of the selection process. If you
+//!   desire FIPS 202 behavior, then use SHA3 classes.
+//! \details Keccak will likely change in the future to accomodate extensibility of the
+//!   round function and the XOF functions.
+//! \details Perform the following to specify a different digest size. The class will use F1600, 0x80,
+//!   and a new vaue for <tt>r()</tt> (which will be <tt>200-2*24 = 152</tt>).
+//!   <pre>Keccack_192 : public Keccack
+//!   {
+//!     public:
+//!       CRYPTOPP_CONSTANT(DIGESTSIZE = 24)
+//!       Keccack_192() : Keccack(DIGESTSIZE) {}
+//!   };
+//!   </pre>
+//!
 class Keccak : public HashTransformation
 {
 public:
