@@ -2,6 +2,12 @@
 
 //! \file integer.h
 //! \brief Multiple precision integer with arithmetic operations
+//! \details The Integer class can represent positive and negative integers
+//!   with absolute value less than (256**sizeof(word))<sup>(256**sizeof(int))</sup>.
+//! \details Internally, the library uses a sign magnitude representation, and the class
+//!   has two data members. The first is a IntegerSecBlock (a SecBlock<word>) and it is
+//!   used to hold the representation. The second is a Sign, and its is used to track
+//!   the sign of the Integer.
 
 #ifndef CRYPTOPP_INTEGER_H
 #define CRYPTOPP_INTEGER_H

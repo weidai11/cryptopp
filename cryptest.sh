@@ -628,6 +628,24 @@ if [[ (-z "$HAVE_UNIFIED_ASM") ]]; then
 	fi
 fi
 
+# Testing 'make zip'
+if [[ (-z "$HAVE_ZIP") ]]; then
+	HAVE_ZIP=0
+	ZIP_PROG=$(which zip 2>&1 | "$GREP" -v "no zip" | head -1)
+	UNZIP_PROG=$(which unzip 2>&1 | "$GREP" -v "no unzip" | head -1)
+	if [[ (! -z "$ZIP_PROG" && ! -z "$UNZIP_PROG") ]]; then
+		HAVE_ZIP=1
+		zip -v &>/dev/null
+		if [[ "$?" -ne "0" ]]; then
+			HAVE_ZIP=0
+		fi
+		unzip -v &>/dev/null
+		if [[ "$?" -ne "0" ]]; then
+			HAVE_ZIP=0
+		fi
+	fi
+fi
+
 # ARMv7 and ARMv8, including NEON, CRC32 and Crypto extensions
 if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 
@@ -5273,6 +5291,68 @@ if [[ ("$IS_CYGWIN" -eq "0" && "$IS_MINGW" -eq "0") ]]; then
 			echo "ERROR: failed to remove libcryptopp.so dynamic library" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
 		fi
 	fi
+fi
+
+############################################
+# Test 'make zip'
+if [[ ("$HAVE_ZIP" -ne "0") ]]; then
+
+	OLD_DIR=$(pwd)
+	"$MAKE" zip
+
+	RESULT=$(unzip -aoq cryptopp563.zip -d "$TMP/cryptopp563-zip/")
+	if [[ "$RESULT" -eq "0" ]]; then
+		cd "$TMP/cryptopp563-zip/"
+
+		############################################
+		# Debug
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
+		echo "Testing: Debug, 'make zip'" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
+		echo
+
+		"$MAKE" clean > /dev/null 2>&1
+		rm -f adhoc.cpp > /dev/null 2>&1
+
+		CXX="$CXX" CXXFLAGS="$DEBUG_CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+		else
+			./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+			fi
+			./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+			fi
+		fi
+
+		############################################
+		# Release
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
+		echo "Testing: Release, 'make zip'" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
+		echo
+
+		"$MAKE" clean > /dev/null 2>&1
+		rm -f adhoc.cpp > /dev/null 2>&1
+
+		CXX="$CXX" CXXFLAGS="$RELEASECXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+		else
+			./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+			fi
+			./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+			fi
+		fi
+	fi
+	cd "$OLD_DIR"
 fi
 
 #############################################
