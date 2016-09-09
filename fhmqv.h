@@ -6,6 +6,7 @@
 
 //! \file fhmqv.h
 //! \brief Classes for Fully Hashed Menezes-Qu-Vanstone key agreement in GF(p)
+//! \since Crypto++ 5.6.4
 
 #include "gfpcrypt.h"
 #include "algebra.h"
@@ -18,6 +19,7 @@ NAMESPACE_BEGIN(CryptoPP)
 //!   <a href="http://eprint.iacr.org/2009/408">A Secure and Efficient Authenticated Diffie-Hellman Protocol</a>.
 //!   Note: this is FHMQV, Protocol 5, from page 11; and not FHMQV-C.
 //! \sa MQV, HMQV, FHMQV, and AuthenticatedKeyAgreementDomain
+//! \since Crypto++ 5.6.4
 template <class GROUP_PARAMETERS, class COFACTOR_OPTION = CPP_TYPENAME GROUP_PARAMETERS::DefaultCofactorOption, class HASH = SHA512>
 class FHMQV_Domain : public AuthenticatedKeyAgreementDomain
 {
@@ -294,6 +296,7 @@ private:
 //!   <a href="http://eprint.iacr.org/2009/408">A Secure and Efficient Authenticated Diffie-Hellman Protocol</a>.
 //!   Note: this is FHMQV, Protocol 5, from page 11; and not FHMQV-C.
 //! \sa FHMQV, MQV_Domain, HMQV_Domain, AuthenticatedKeyAgreementDomain
+//! \since Crypto++ 5.6.4
 typedef FHMQV_Domain<DL_GroupParameters_GFP_DefaultSafePrime> FHMQV;
 
 NAMESPACE_END

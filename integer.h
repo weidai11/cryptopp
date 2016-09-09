@@ -1,7 +1,10 @@
+// integer.h - written and placed in the public domain by Wei Dai
+
+//! \file integer.h
+//! \brief High performance arbitrary size integer class
+
 #ifndef CRYPTOPP_INTEGER_H
 #define CRYPTOPP_INTEGER_H
-
-/** \file */
 
 #include "cryptlib.h"
 #include "secblock.h"

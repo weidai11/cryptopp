@@ -3,9 +3,10 @@
 //! \file sha3.h
 //! \brief Classes for SHA-3 message digests
 //! \details The Crypto++ SHA-3 conforms to FIPS 202 version of SHA-3.
-//!   Previous behavior is available in Keccak classes.
+//!   Previous behavior is available in SHA3 classes.
 //! \sa <a href="http://en.wikipedia.org/wiki/SHA-3">SHA-3</a>,
 //!   <A HREF="http://csrc.nist.gov/groups/ST/hash/sha-3/fips202_standard_2015.html">SHA-3 STANDARD (FIPS 202)</A>.
+//! \since Crypto++ 5.6.2
 
 #ifndef CRYPTOPP_SHA3_H
 #define CRYPTOPP_SHA3_H
@@ -17,13 +18,18 @@ NAMESPACE_BEGIN(CryptoPP)
 
 //! \class SHA3
 //! \brief SHA3 message digest base class
+	//! \details SHA3 is the base class for SHA3_224, SHA3_256, SHA3_384 and SHA3_512.
+	//!   Library users should instantiate a derived class, and only use SHA3
+	//!   as a base class reference or pointer.
+	//! \sa Keccak, SHA3_224, SHA3_256, SHA3_384 and SHA3_512.
+	//! \since Crypto++ 5.6.2
 class SHA3 : public HashTransformation
 {
 public:
 	//! \brief Construct a SHA3
 	//! \param digestSize the digest size, in bytes
 	//! \details SHA3 is the base class for SHA3_224, SHA3_256, SHA3_384 and SHA3_512.
-	//!   Library users should construct a derived class instead, and only use SHA3
+	//!   Library users should instantiate a derived class, and only use SHA3
 	//!   as a base class reference or pointer.
 	SHA3(unsigned int digestSize) : m_digestSize(digestSize) {Restart();}
 	unsigned int DigestSize() const {return m_digestSize;}
@@ -43,6 +49,7 @@ protected:
 
 //! \class SHA3_224
 //! \brief SHA3-224 message digest
+//! \since Crypto++ 5.6.2
 class SHA3_224 : public SHA3
 {
 public:
@@ -55,6 +62,7 @@ public:
 
 //! \class SHA3_256
 //! \brief SHA3-256 message digest
+//! \since Crypto++ 5.6.2
 class SHA3_256 : public SHA3
 {
 public:
@@ -67,6 +75,7 @@ public:
 
 //! \class SHA3_384
 //! \brief SHA3-384 message digest
+//! \since Crypto++ 5.6.2
 class SHA3_384 : public SHA3
 {
 public:
@@ -79,6 +88,7 @@ public:
 
 //! \class SHA3_512
 //! \brief SHA3-512 message digest
+//! \since Crypto++ 5.6.2
 class SHA3_512 : public SHA3
 {
 public:
