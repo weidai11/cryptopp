@@ -18,7 +18,12 @@ struct InitializeInteger
 	InitializeInteger();
 };
 
+// http://github.com/weidai11/cryptopp/issues/256
+#if defined(CRYPTOPP_WORD128_AVAILABLE)
+typedef SecBlock<word, AllocatorWithCleanup<word, true> > IntegerSecBlock;
+#else
 typedef SecBlock<word, AllocatorWithCleanup<word, CRYPTOPP_BOOL_X86> > IntegerSecBlock;
+#endif
 
 //! \brief Multiple precision integer with arithmetic operations
 //! \details The Integer class can represent positive and negative integers
