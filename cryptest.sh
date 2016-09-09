@@ -174,10 +174,10 @@ do
 	elif [[ ($("$EGREP" -ix "farm" <<< "$ARG") || $("$EGREP" -ix "nice" <<< "$ARG")) ]]; then
 		WANT_NICE=1
 	elif [[ ($("$EGREP" -ix "orig" <<< "$ARG") || $("$EGREP" -ix "original" <<< "$ARG") || $("$EGREP" -ix "config.h" <<< "$ARG")) ]]; then
-		git checkout config.h &>/dev/null
+		git checkout config.h > /dev/null 2>&1
 		WANTED_CONFIG=1
 	elif [[ ($("$EGREP" -ix "rec" <<< "$ARG") || $("$EGREP" -ix "recommend" <<< "$ARG") || $("$EGREP" -ix "config.recommend" <<< "$ARG")) ]]; then
-		git checkout config.recommend &>/dev/null
+		git checkout config.recommend > /dev/null 2>&1
 		cp config.recommend config.h
 		WANTED_CONFIG=1
 	else
@@ -473,9 +473,9 @@ fi
 rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_UBSAN") ]]; then
 	HAVE_UBSAN=0
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -fsanitize=undefined adhoc.cpp -o "$TMP/adhoc.exe" &>/dev/null
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -fsanitize=undefined adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
 	if [[ ("$?" -eq "0") ]]; then
-		"$TMP/adhoc.exe" &>/dev/null
+		"$TMP/adhoc.exe" > /dev/null 2>&1
 		if [[ ("$?" -eq "0") ]]; then
 			HAVE_UBSAN=1
 		fi
@@ -486,9 +486,9 @@ fi
 rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_ASAN") ]]; then
 	HAVE_ASAN=0
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -fsanitize=address adhoc.cpp -o "$TMP/adhoc.exe" &>/dev/null
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -fsanitize=address adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
 	if [[ ("$?" -eq "0") ]]; then
-		"$TMP/adhoc.exe" &>/dev/null
+		"$TMP/adhoc.exe" > /dev/null 2>&1
 		if [[ ("$?" -eq "0") ]]; then
 			HAVE_ASAN=1
 		fi
@@ -499,9 +499,9 @@ fi
 rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_BOUNDS_SAN") ]]; then
 	HAVE_BOUNDS_SAN=0
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -fsanitize=bounds-strict adhoc.cpp -o "$TMP/adhoc.exe" &>/dev/null
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -fsanitize=bounds-strict adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
 	if [[ ("$?" -eq "0") ]]; then
-		"$TMP/adhoc.exe" &>/dev/null
+		"$TMP/adhoc.exe" > /dev/null 2>&1
 		if [[ ("$?" -eq "0") ]]; then
 			HAVE_BOUNDS_SAN=1
 		fi
@@ -635,11 +635,11 @@ if [[ (-z "$HAVE_ZIP") ]]; then
 	UNZIP_PROG=$(which unzip 2>&1 | "$GREP" -v "no unzip" | head -1)
 	if [[ (! -z "$ZIP_PROG" && ! -z "$UNZIP_PROG") ]]; then
 		HAVE_ZIP=1
-		zip -v &>/dev/null
+		zip -v > /dev/null 2>&1
 		if [[ "$?" -ne "0" ]]; then
 			HAVE_ZIP=0
 		fi
-		unzip -v &>/dev/null
+		unzip -v > /dev/null 2>&1
 		if [[ "$?" -ne "0" ]]; then
 			HAVE_ZIP=0
 		fi
@@ -5298,10 +5298,10 @@ fi
 if [[ ("$HAVE_ZIP" -ne "0") ]]; then
 
 	OLD_DIR=$(pwd)
-	"$MAKE" zip
+	"$MAKE" zip > /dev/null 2>&1
 
-	RESULT=$(unzip -aoq cryptopp563.zip -d "$TMP/cryptopp563-zip/")
-	if [[ "$RESULT" -eq "0" ]]; then
+	unzip -aoq cryptopp563.zip -d "$TMP/cryptopp563-zip/" > /dev/null 2>&1
+	if [[ "$?" -eq "0" ]]; then
 		cd "$TMP/cryptopp563-zip/"
 
 		############################################
