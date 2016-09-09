@@ -1229,7 +1229,7 @@ bool TestSecBlock()
 	try
 	{
 		static const unsigned int SIZE = 8;
-		SecBlockWithHint<word128, SIZE> block(SIZE);
+		SecBlock<word128, AllocatorWithCleanup<word128, true> > block(SIZE);
 		memset(block, 0xaa, block.SizeInBytes());
 
 		temp = true;
