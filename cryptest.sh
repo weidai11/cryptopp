@@ -89,6 +89,7 @@ IS_LINUX=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c linux)
 IS_CYGWIN=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c cygwin)
 IS_MINGW=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c mingw)
 IS_OPENBSD=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c openbsd)
+IS_FREEBSD=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c freebsd)
 IS_NETBSD=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c netbsd)
 IS_SOLARIS=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c sunos)
 
@@ -135,7 +136,7 @@ if [[ "$IS_DARWIN" -ne 0 ]]; then
 fi
 
 # Fixup
-if [[ ("$IS_OPENBSD" -ne "0" || "$IS_NETBSD" -ne "0") ]]; then
+if [[ ("$IS_FREEBSD" -ne "0" || "$IS_OPENBSD" -ne "0" || "$IS_NETBSD" -ne "0") ]]; then
 	MAKE=gmake
 elif [[ ("$IS_SOLARIS" -ne "0") ]]; then
 	MAKE=$(which gmake 2>/dev/null | "$GREP" -v "no gmake" | head -1)
