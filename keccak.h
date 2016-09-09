@@ -7,8 +7,6 @@
 //!   desire FIPS 202 behavior, then use SHA3 classes.
 //! \details Keccak will likely change in the future to accomodate extensibility of the
 //!   round function and the XOF functions.
-//! \details Perform the following to specify a different digest size. It will use F1600 and 0x80.
-//! <pre>Keccack_192 : public Keccack
 //! \sa <a href="http://en.wikipedia.org/wiki/Keccak">Keccak</a>
 
 #ifndef CRYPTOPP_KECCAK_H
@@ -24,6 +22,9 @@ NAMESPACE_BEGIN(CryptoPP)
 //! \details The Keccak classes use F1600 and XOF byte 0x80, which is effectively
 //!   the behavior specified by NIST at round three of the selection process. If you
 //!   desire FIPS 202 behavior, then use SHA3 classes.
+//! \details Keccak is the base class for Keccak_224, Keccak_256, Keccak_384 and Keccak_512.
+//!   Library users should instantiate a derived class, and only use Keccak
+//!   as a base class reference or pointer.
 //! \details Keccak will likely change in the future to accomodate extensibility of the
 //!   round function and the XOF functions.
 //! \details Perform the following to specify a different digest size. The class will use F1600, 0x80,
@@ -36,13 +37,14 @@ NAMESPACE_BEGIN(CryptoPP)
 //!   };
 //!   </pre>
 //!
+//! \sa SHA3, Keccak_224, Keccak_256, Keccak_384 and Keccak_512.
 class Keccak : public HashTransformation
 {
 public:
 	//! \brief Construct a Keccak
 	//! \param digestSize the digest size, in bytes
 	//! \details Keccak is the base class for Keccak_224, Keccak_256, Keccak_384 and Keccak_512.
-	//!   Library users should construct a derived class instead, and only use Keccak
+	//!   Library users should instantiate a derived class, and only use Keccak
 	//!   as a base class reference or pointer.
 	Keccak(unsigned int digestSize) : m_digestSize(digestSize) {Restart();}
 	unsigned int DigestSize() const {return m_digestSize;}
