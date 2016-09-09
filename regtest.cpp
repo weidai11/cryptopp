@@ -50,6 +50,7 @@
 #include "seal.h"
 #include "crc.h"
 #include "adler32.h"
+#include "keccak.h"
 #include "sha3.h"
 #include "blake2.h"
 #include "hkdf.h"
@@ -94,6 +95,10 @@ void RegisterFactories()
 	RegisterDefaultFactoryFor<HashTransformation, RIPEMD256>();
 	RegisterDefaultFactoryFor<HashTransformation, Weak::PanamaHash<LittleEndian> >();
 	RegisterDefaultFactoryFor<HashTransformation, Weak::PanamaHash<BigEndian> >();
+	RegisterDefaultFactoryFor<HashTransformation, Keccak_224>();
+	RegisterDefaultFactoryFor<HashTransformation, Keccak_256>();
+	RegisterDefaultFactoryFor<HashTransformation, Keccak_384>();
+	RegisterDefaultFactoryFor<HashTransformation, Keccak_512>();
 	RegisterDefaultFactoryFor<HashTransformation, SHA3_224>();
 	RegisterDefaultFactoryFor<HashTransformation, SHA3_256>();
 	RegisterDefaultFactoryFor<HashTransformation, SHA3_384>();

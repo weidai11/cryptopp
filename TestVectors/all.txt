@@ -20,8 +20,8 @@ Test: TestVectors/rsa_pss.txt
 Test: TestVectors/rw.txt
 Test: TestVectors/seal.txt
 Test: TestVectors/sha.txt
-Test: TestVectors/sha3.txt
-#Test: TestVectors/sha3_fips_202.txt
+Test: TestVectors/keccak.txt
+Test: TestVectors/sha3_fips_202.txt
 Test: TestVectors/panama.txt
 Test: TestVectors/aes.txt
 Test: TestVectors/salsa.txt
