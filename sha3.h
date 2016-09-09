@@ -6,6 +6,7 @@
 //!   Previous behavior is available in SHA3 classes.
 //! \sa <a href="http://en.wikipedia.org/wiki/SHA-3">SHA-3</a>,
 //!   <A HREF="http://csrc.nist.gov/groups/ST/hash/sha-3/fips202_standard_2015.html">SHA-3 STANDARD (FIPS 202)</A>.
+//! \since Crypto++ 5.6.2
 
 #ifndef CRYPTOPP_SHA3_H
 #define CRYPTOPP_SHA3_H
@@ -21,6 +22,7 @@ NAMESPACE_BEGIN(CryptoPP)
 	//!   Library users should instantiate a derived class, and only use SHA3
 	//!   as a base class reference or pointer.
 	//! \sa Keccak, SHA3_224, SHA3_256, SHA3_384 and SHA3_512.
+	//! \since Crypto++ 5.6.2
 class SHA3 : public HashTransformation
 {
 public:
@@ -47,6 +49,7 @@ protected:
 
 //! \class SHA3_224
 //! \brief SHA3-224 message digest
+//! \since Crypto++ 5.6.2
 class SHA3_224 : public SHA3
 {
 public:
@@ -59,6 +62,7 @@ public:
 
 //! \class SHA3_256
 //! \brief SHA3-256 message digest
+//! \since Crypto++ 5.6.2
 class SHA3_256 : public SHA3
 {
 public:
@@ -71,6 +75,7 @@ public:
 
 //! \class SHA3_384
 //! \brief SHA3-384 message digest
+//! \since Crypto++ 5.6.2
 class SHA3_384 : public SHA3
 {
 public:
@@ -83,6 +88,7 @@ public:
 
 //! \class SHA3_512
 //! \brief SHA3-512 message digest
+//! \since Crypto++ 5.6.2
 class SHA3_512 : public SHA3
 {
 public:

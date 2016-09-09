@@ -8,6 +8,7 @@
 //! \details Keccak will likely change in the future to accomodate extensibility of the
 //!   round function and the XOF functions.
 //! \sa <a href="http://en.wikipedia.org/wiki/Keccak">Keccak</a>
+//! \since Crypto++ 5.6.4
 
 #ifndef CRYPTOPP_KECCAK_H
 #define CRYPTOPP_KECCAK_H
@@ -38,6 +39,7 @@ NAMESPACE_BEGIN(CryptoPP)
 //!   </pre>
 //!
 //! \sa SHA3, Keccak_224, Keccak_256, Keccak_384 and Keccak_512.
+//! \since Crypto++ 5.6.4
 class Keccak : public HashTransformation
 {
 public:
@@ -46,6 +48,7 @@ public:
 	//! \details Keccak is the base class for Keccak_224, Keccak_256, Keccak_384 and Keccak_512.
 	//!   Library users should instantiate a derived class, and only use Keccak
 	//!   as a base class reference or pointer.
+	//! \since Crypto++ 5.6.4
 	Keccak(unsigned int digestSize) : m_digestSize(digestSize) {Restart();}
 	unsigned int DigestSize() const {return m_digestSize;}
 	std::string AlgorithmName() const {return "Keccak-" + IntToString(m_digestSize*8);}
@@ -64,6 +67,7 @@ protected:
 
 //! \class Keccak_224
 //! \brief Keccak-224 message digest
+//! \since Crypto++ 5.6.4
 class Keccak_224 : public Keccak
 {
 public:
@@ -76,6 +80,7 @@ public:
 
 //! \class Keccak_256
 //! \brief Keccak-256 message digest
+//! \since Crypto++ 5.6.4
 class Keccak_256 : public Keccak
 {
 public:
@@ -88,6 +93,7 @@ public:
 
 //! \class Keccak_384
 //! \brief Keccak-384 message digest
+//! \since Crypto++ 5.6.4
 class Keccak_384 : public Keccak
 {
 public:
@@ -100,6 +106,7 @@ public:
 
 //! \class Keccak_512
 //! \brief Keccak-512 message digest
+//! \since Crypto++ 5.6.4
 class Keccak_512 : public Keccak
 {
 public:

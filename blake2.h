@@ -13,6 +13,7 @@
 //! \details The library provides specialized SSE2, SSE4 and NEON version of the BLAKE2 compression
 //!   function. For best results under ARM NEON, specify both an architecture and cpu. For example:
 //!   <pre>CXXFLAGS="-DNDEBUG -march=armv8-a+crc -mcpu=cortex-a53 ..."</pre>
+//! \since Crypto++ 5.6.4
 
 #ifndef CRYPTOPP_BLAKE2_H
 #define CRYPTOPP_BLAKE2_H
@@ -26,6 +27,7 @@ NAMESPACE_BEGIN(CryptoPP)
 //! \class BLAKE2_Info
 //! \brief BLAKE2 hash information
 //! \tparam T_64bit flag indicating 64-bit
+//! \since Crypto++ 5.6.4
 template <bool T_64bit>
 struct BLAKE2_Info : public VariableKeyLength<(T_64bit ? 64 : 32),0,(T_64bit ? 64 : 32),1,SimpleKeyingInterface::NOT_RESYNCHRONIZABLE>
 {
@@ -47,6 +49,7 @@ struct BLAKE2_Info : public VariableKeyLength<(T_64bit ? 64 : 32),0,(T_64bit ? 6
 //! \tparam T_64bit flag indicating 64-bit
 //! \details BLAKE2b uses BLAKE2_ParameterBlock<true>, while BLAKE2s
 //!   uses BLAKE2_ParameterBlock<false>.
+//! \since Crypto++ 5.6.4
 template <bool T_64bit>
 struct CRYPTOPP_NO_VTABLE BLAKE2_ParameterBlock
 {
@@ -128,6 +131,7 @@ struct CRYPTOPP_NO_VTABLE BLAKE2_ParameterBlock<false>
 //! \tparam T_64bit flag indicating 64-bit
 //! \details BLAKE2b uses BLAKE2_State<word64, true>, while BLAKE2s
 //!   uses BLAKE2_State<word32, false>.
+//! \since Crypto++ 5.6.4
 template <class W, bool T_64bit>
 struct CRYPTOPP_NO_VTABLE BLAKE2_State
 {
@@ -153,6 +157,7 @@ struct CRYPTOPP_NO_VTABLE BLAKE2_State
 //! \tparam T_64bit flag indicating 64-bit
 //! \details BLAKE2b uses BLAKE2_Base<word64, true>, while BLAKE2s
 //!   uses BLAKE2_Base<word32, false>.
+//! \since Crypto++ 5.6.4
 template <class W, bool T_64bit>
 class BLAKE2_Base : public SimpleKeyingInterfaceImpl<MessageAuthenticationCode, BLAKE2_Info<T_64bit> >
 {
@@ -240,6 +245,7 @@ private:
 //!   method that accepts a ParameterBlock does not allow you to change it.
 //! \sa Aumasson, Neves, Wilcox-O'Hearn and Winnerlein's
 //!   <A HREF="http://blake2.net/blake2.pdf">BLAKE2: simpler, smaller, fast as MD5</A> (2013.01.29).
+//! \since Crypto++ 5.6.4
 class BLAKE2b : public BLAKE2_Base<word64, true>
 {
 public:
@@ -275,6 +281,7 @@ public:
 //!   method that accepts a ParameterBlock does not allow you to change it.
 //! \sa Aumasson, Neves, Wilcox-O'Hearn and Winnerlein's
 //!   <A HREF="http://blake2.net/blake2.pdf">BLAKE2: simpler, smaller, fast as MD5</A> (2013.01.29).
+//! \since Crypto++ 5.6.4
 class BLAKE2s : public BLAKE2_Base<word32, false>
 {
 public:

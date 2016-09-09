@@ -2,6 +2,7 @@
 
 //! \file hkdf.h
 //! \brief Classes for HKDF from RFC 5869
+//! \since Crypto++ 5.6.3
 
 #ifndef CRYPTOPP_HASH_KEY_DERIVATION_FUNCTION_H
 #define CRYPTOPP_HASH_KEY_DERIVATION_FUNCTION_H
@@ -30,6 +31,7 @@ public:
 //! \tparam T HashTransformation class
 //! \sa <A HREF="http://eprint.iacr.org/2010/264">Cryptographic Extraction and Key Derivation: The HKDF Scheme</A>
 //!   and <A HREF="http://tools.ietf.org/html/rfc5869">HMAC-based Extract-and-Expand Key Derivation Function (HKDF)</A>
+//! \since Crypto++ 5.6.3
 template <class T>
 class HKDF : public KeyDerivationFunction
 {
