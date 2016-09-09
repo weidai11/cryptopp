@@ -153,6 +153,8 @@ if [[ ("$IS_X86" -ne "0" || "$IS_X64" -ne "0") ]]; then
 		X86_CPU_FLAGS=$(sysctl machdep.cpu.features 2>&1 | cut -f 2 -d ':')
 	elif [[ ("$IS_SOLARIS" -ne "0") ]]; then
 		X86_CPU_FLAGS=$(isainfo -v 2>/dev/null)
+	elif [[ ("$IS_FREEBSD" -ne "0") ]]; then
+		X86_CPU_FLAGS=$(grep Features /var/run/dmesg.boot)
 	else
 		X86_CPU_FLAGS=$(cat /proc/cpuinfo 2>&1 | "$AWK" '{IGNORECASE=1}{if ($1 == "flags"){print;exit}}' | cut -f 2 -d ':')
 	fi
