@@ -1,6 +1,6 @@
 AlgorithmType: MessageDigest
 Source: SHA-3 Hash Function Test Vectors for Hashing Byte-Oriented Messages (http://csrc.nist.gov/groups/STM/cavp/secure-hashing.html)
-Name: SHA-3-224
+Name:  SHA3-224
 Comment: length 0
 Message: ""
 Digest: 6b4e03423667dbb73b6e15454f0eb1abd4597f9a1b078e3f5b5a6bc7

@@ -148,6 +148,8 @@ integer.cpp
 integer.h
 iterhash.cpp
 iterhash.h
+keccak.cpp
+keccak.h
 lubyrack.h
 luc.cpp
 luc.h
@@ -380,7 +382,6 @@ TestData/xtrdh342.dat
 TestVectors/Readme.txt
 TestVectors/aes.txt
 TestVectors/all.txt
-TestVectors/all_fips_202.txt
 TestVectors/blake2.txt
 TestVectors/blake2b.txt
 TestVectors/blake2s.txt
@@ -396,18 +397,19 @@ TestVectors/esign.txt
 TestVectors/gcm.txt
 TestVectors/hkdf.txt
 TestVectors/hmac.txt
+TestVectors/keccak.txt
 TestVectors/mars.txt
 TestVectors/nr.txt
 TestVectors/panama.txt
 TestVectors/rsa_oaep.txt
 TestVectors/rsa_pkcs1_1_5.txt
 TestVectors/rsa_pss.txt
+TestVectors/dsa_rfc6979.txt
 TestVectors/rw.txt
 TestVectors/salsa.txt
 TestVectors/seal.txt
 TestVectors/seed.txt
 TestVectors/sha.txt
-TestVectors/sha3.txt
 TestVectors/sha3_fips_202.txt
 TestVectors/sha3_224_fips_202.txt
 TestVectors/sha3_256_fips_202.txt

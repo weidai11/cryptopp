@@ -291,12 +291,6 @@ int CRYPTOPP_API main(int argc, char *argv[])
 		{
 			// TestDataFile() adds CRYPTOPP_DATA_DIR as required
 			std::string fname = (argv[2] ? argv[2] : "all");
-#if defined(CRYPTOPP_USE_FIPS_202_SHA3)
-			if (fname == "sha3")
-				fname = "sha3_fips_202";
-			if (fname == "all")
-				fname = "all_fips_202";
-#endif
 			if (fname.find(".txt") == std::string::npos)
 				fname = "TestVectors/" + fname + ".txt";
 

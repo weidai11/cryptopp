@@ -1,5 +1,5 @@
 AlgorithmType: MessageDigest
-Name: SHA-3-224
+Name: Keccak-224
 Message: ""
 Digest: f71837502ba8e108 37bdd8d365adb855 91895602fc552b48 b7390abd
 Test: Verify
@@ -23,7 +23,7 @@ Digest: 19f9167be2a04c43 abd0ed554788101b 9c339031acc8e146 8531303f
 Test: Verify
 
 AlgorithmType: MessageDigest
-Name: SHA-3-256
+Name: Keccak-256
 Message: ""
 Digest: c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470
 Test: Verify
@@ -47,7 +47,7 @@ Digest: fadae6b49f129bbb 812be8407b7b2894 f34aecf6dbd1f9b0 f0c7e9853098fc96
 Test: Verify
 
 AlgorithmType: MessageDigest
-Name: SHA-3-384
+Name: Keccak-384
 Message: ""
 Digest: 2c23146a63a29acf99e73b88f8c24eaa7dc60aa771780ccc006afbfa8fe2479b2dd2b21362337441ac12b515911957ff
 Test: Verify
@@ -71,7 +71,7 @@ Digest: 0c8324e1ebc18282 2c5e2a086cac07c2 fe00e3bce61d01ba 8ad6b71780e2dec5 fb89
 Test: Verify
 
 AlgorithmType: MessageDigest
-Name: SHA-3-512
+Name: Keccak-512
 Message: ""
 Digest: 0eab42de4c3ceb9235fc91acffe746b29c29a8c366b7c60e4e67c466f36a4304c00fa9caf9d87976ba469bcbe06713b435f091ef2769fb160cdab33d3670680e
 Test: Verify

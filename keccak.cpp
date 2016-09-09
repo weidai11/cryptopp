@@ -1,4 +1,4 @@
-// sha3.cpp - modified by Wei Dai from Ronny Van Keer's public domain Keccak-simple.c
+// keccak.cpp - modified by Wei Dai from Ronny Van Keer's public domain sha3-simple.c
 // all modifications here are placed in the public domain by Wei Dai
 
 /*
@@ -15,7 +15,7 @@ http://creativecommons.org/publicdomain/zero/1.0/
 */
 
 #include "pch.h"
-#include "sha3.h"
+#include "keccak.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -249,7 +249,7 @@ static void KeccakF1600(word64 *state)
     }
 }
 
-void SHA3::Update(const byte *input, size_t length)
+void Keccak::Update(const byte *input, size_t length)
 {
 	assert((input && length) || !(input || length));
 	if (!length)
@@ -271,17 +271,17 @@ void SHA3::Update(const byte *input, size_t length)
 	m_counter += (unsigned int)length;
 }
 
-void SHA3::Restart()
+void Keccak::Restart()
 {
 	memset(m_state, 0, m_state.SizeInBytes());
 	m_counter = 0;
 }
 
-void SHA3::TruncatedFinal(byte *hash, size_t size)
+void Keccak::TruncatedFinal(byte *hash, size_t size)
 {
 	ThrowIfInvalidTruncatedSize(size);
 
-	m_state.BytePtr()[m_counter] ^= 0x06;
+	m_state.BytePtr()[m_counter] ^= 1;
 	m_state.BytePtr()[r()-1] ^= 0x80;
 	KeccakF1600(m_state);
 	memcpy(hash, m_state, size);

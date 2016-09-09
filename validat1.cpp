@@ -98,11 +98,8 @@ bool ValidateAll(bool thorough)
 	pass=ValidateMD5() && pass;
 	pass=ValidateSHA() && pass;
 
-#if defined(CRYPTOPP_USE_FIPS_202_SHA3)
+	pass=RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/keccak.txt") && pass;
 	pass=RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/sha3_fips_202.txt") && pass;
-#else
-	pass=RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/sha3.txt") && pass;
-#endif
 
 	pass=ValidateTiger() && pass;
 	pass=ValidateRIPEMD() && pass;

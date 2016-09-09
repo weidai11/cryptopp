@@ -347,10 +347,6 @@ SOURCE=.\esign.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\fhmqv.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\files.cpp
 # End Source File
 # Begin Source File
@@ -403,10 +399,6 @@ SOURCE=.\hmac.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\hmqv.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\hrtimer.cpp
 # End Source File
 # Begin Source File
@@ -425,6 +417,10 @@ SOURCE=.\integer.cpp
 
 SOURCE=.\iterhash.cpp
 # SUBTRACT CPP /YX /Yc /Yu
+# End Source File
+# Begin Source File
+
+SOURCE=.\keccak.cpp
 # End Source File
 # Begin Source File
 
@@ -942,6 +938,10 @@ SOURCE=.\integer.h
 # Begin Source File
 
 SOURCE=.\iterhash.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\keccak.h
 # End Source File
 # Begin Source File
 

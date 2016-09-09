@@ -2,12 +2,10 @@
 
 //! \file sha3.h
 //! \brief Classes for SHA-3 message digests
-//! \details The Crypto++ SHA-3 implementation dates back to January 2013 when NIST
-//!   selected Keccak as SHA-3. In August 2015 NIST finalized SHA-3, and it was a
-//!   modified version of the Keccak selection. Crypto++ 5.6.2 through 5.6.4 provides
-//!   the pre-FIPS 202 version of SHA-3; while Crypto++ 5.7 and above provides
-//!   the FIPS 202 version of SHA-3.
-//! \sa <a href="http://en.wikipedia.org/wiki/SHA-3">SHA-3</a>
+//! \details The Crypto++ SHA-3 conforms to FIPS 202 version of SHA-3.
+//!   Previous behavior is available in Keccak classes.
+//! \sa <a href="http://en.wikipedia.org/wiki/SHA-3">SHA-3</a>,
+//!   <A HREF="http://csrc.nist.gov/groups/ST/hash/sha-3/fips202_standard_2015.html">SHA-3 STANDARD (FIPS 202)</A>.
 
 #ifndef CRYPTOPP_SHA3_H
 #define CRYPTOPP_SHA3_H
@@ -29,7 +27,7 @@ public:
 	//!   as a base class reference or pointer.
 	SHA3(unsigned int digestSize) : m_digestSize(digestSize) {Restart();}
 	unsigned int DigestSize() const {return m_digestSize;}
-	std::string AlgorithmName() const {return "SHA-3-" + IntToString(m_digestSize*8);}
+	std::string AlgorithmName() const {return "SHA3-" + IntToString(m_digestSize*8);}
 	unsigned int OptimalDataAlignment() const {return GetAlignmentOf<word64>();}
 
 	void Update(const byte *input, size_t length);
@@ -52,8 +50,8 @@ public:
 
 	//! \brief Construct a SHA3-224 message digest
 	SHA3_224() : SHA3(DIGESTSIZE) {}
-	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "SHA-3-224";}
-} CRYPTOPP_DEPRECATED("SHA-3 will be changing in the future due to FIPS 202 finalization");
+	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "SHA3-224";}
+};
 
 //! \class SHA3_256
 //! \brief SHA3-256 message digest
@@ -64,8 +62,8 @@ public:
 
 	//! \brief Construct a SHA3-256 message digest
 	SHA3_256() : SHA3(DIGESTSIZE) {}
-	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "SHA-3-256";}
-} CRYPTOPP_DEPRECATED("SHA-3 will be changing in the future due to FIPS 202 finalization");
+	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "SHA3-256";}
+};
 
 //! \class SHA3_384
 //! \brief SHA3-384 message digest
@@ -76,8 +74,8 @@ public:
 
 	//! \brief Construct a SHA3-384 message digest
 	SHA3_384() : SHA3(DIGESTSIZE) {}
-	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "SHA-3-384";}
-} CRYPTOPP_DEPRECATED("SHA-3 will be changing in the future due to FIPS 202 finalization");
+	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "SHA3-384";}
+};
 
 //! \class SHA3_512
 //! \brief SHA3-512 message digest
@@ -88,8 +86,8 @@ public:
 
 	//! \brief Construct a SHA3-512 message digest
 	SHA3_512() : SHA3(DIGESTSIZE) {}
-	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "SHA-3-512";}
-} CRYPTOPP_DEPRECATED("SHA-3 will be changing in the future due to FIPS 202 finalization");
+	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "SHA3-512";}
+};
 
 NAMESPACE_END
 

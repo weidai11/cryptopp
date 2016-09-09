@@ -2407,58 +2407,6 @@ else
 fi
 
 ############################################
-# Debug build, SHA3/FIPS 202
-echo
-echo "************************************" | tee -a "$TEST_RESULTS"
-echo "Testing: Debug, USE_FIPS_202_SHA3" | tee -a "$TEST_RESULTS"
-echo
-
-"$MAKE" clean > /dev/null 2>&1
-rm -f adhoc.cpp > /dev/null 2>&1
-
-CXXFLAGS="$DEBUG_CXXFLAGS -DCRYPTOPP_USE_FIPS_202_SHA3 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
-CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-
-if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
-else
-	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-		echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
-	fi
-	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
-	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-		echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
-	fi
-fi
-
-############################################
-# Release build, SHA3/FIPS 202
-echo
-echo "************************************" | tee -a "$TEST_RESULTS"
-echo "Testing: Release, USE_FIPS_202_SHA3" | tee -a "$TEST_RESULTS"
-echo
-
-"$MAKE" clean > /dev/null 2>&1
-rm -f adhoc.cpp > /dev/null 2>&1
-
-CXXFLAGS="$RELEASE_CXXFLAGS -DCRYPTOPP_USE_FIPS_202_SHA3 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
-CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-
-if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
-else
-	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-		echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
-	fi
-	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
-	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-		echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
-	fi
-fi
-
-############################################
 # Build with LD-Gold
 if [[ "$HAVE_LDGOLD" -ne "0" ]]; then
 
