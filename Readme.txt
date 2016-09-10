@@ -68,7 +68,7 @@ Other features include:
       + Windows named pipes
       + /dev/random, /dev/urandom, /dev/srandom
       + Microsoft's CryptGenRandom on Windows
-      + VIA Padlock, Intel RDRAND and RDSEED
+      + VIA Padlock, Amd64 RDRAND and RDSEED
   * A high level interface for most of the above, using a filter/pipeline
     metaphor
   * benchmarks and validation testing
@@ -509,15 +509,19 @@ the mailing list.
       - added BLAKE2 (BLAKE2s and BLAKE2b)
           * C++, SSE2, SSE4, ARM NEON and ARMv8 ASIMD
       - added CRC32-C
-          * C/C++, Intel CRC, and ARMv8 CRC
+          * C/C++, Amd64 CRC, and ARMv8 CRC
+      - improved C++11 support
+          * atomics, threads and fences
+          * alginof, alignas
+          * constexpr
       - improved GCM mode
           * ARM NEON and ARMv8 ASIMD
-          * ARMv8 carry-less multiply	
+          * ARMv8 carry-less multiply
       - improved MIPS, ARMv7 and ARMv8 support
           * more IoT gadget testing
       - improved build systems
           * Visual Studio 2010 default
-          * added Cmake support
+          * added CMake support
           * archived VC++ 5/0/6.0 and VS2005 project files
           * archived Borland project files
       - improved Testing and QA
@@ -525,6 +529,6 @@ the mailing list.
           * additional tests in cryptest.sh
           * added C++11, C++17, C++14, C++17 testing
           * added -O3, -O5, -Ofast and -Os testing
-      - ported to MSVC 2015 SP3, Xcode 9.0, Sun Studio 12.5, GCC 7.0, Clang 4.0, Intel C++ 17.00
+      - ported to MSVC 2015 SP3, Xcode 9.0, Sun Studio 12.5, GCC 7.0, MacPorts GCC 7.0, Clang 3.8, Intel C++ 17.00
 
 Written by Wei Dai and the Crypto++ Project
