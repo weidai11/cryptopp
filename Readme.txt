@@ -516,6 +516,7 @@ the mailing list.
           * atomics, threads and fences
           * alginof, alignas
           * constexpr
+          * noexcept
       - improved GCM mode
           * ARM NEON and ARMv8 ASIMD
           * ARMv8 carry-less multiply
@@ -524,7 +525,7 @@ the mailing list.
           * aggressive use of -march=<arch> and -mfpu=<fpu> in cryptest.sh
       - improved build systems
           * Visual Studio 2010 default
-          * added CMake support
+          * added CMake support (lacks FindCryptopp.cmake)
           * archived VC++ 5/0/6.0 project files (vc60.zip)
           * archived VS2005 project files (vs2005.zip)
           * archived Borland project files (bds10.zip)
