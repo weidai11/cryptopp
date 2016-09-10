@@ -27,7 +27,7 @@ public:
 	{
 		if (!blocking)
 			throw BlockingInputOnly("LineBreakParser");
-		
+
 		unsigned int i, last = 0;
 		for (i=0; i<length; i++)
 		{
@@ -456,7 +456,7 @@ protected:
 				{
 					Integer p, q, h, g;
 					int counter;
-					
+
 					SecByteBlock seed(SHA::DIGESTSIZE);
 					do
 					{

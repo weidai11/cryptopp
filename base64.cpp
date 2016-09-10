@@ -19,7 +19,7 @@ void Base64Encoder::IsolatedInitialize(const NameValuePairs &parameters)
 	int maxLineLength = parameters.GetIntValueWithDefault(Name::MaxLineLength(), 72);
 
 	const char *lineBreak = insertLineBreaks ? "\n" : "";
-	
+
 	m_filter->Initialize(CombinedNameValuePairs(
 		parameters,
 		MakeParameters(Name::EncodingLookupArray(), &s_stdVec[0], false)
@@ -34,9 +34,9 @@ void Base64URLEncoder::IsolatedInitialize(const NameValuePairs &parameters)
 {
 	bool insertLineBreaks = parameters.GetValueWithDefault(Name::InsertLineBreaks(), true);
 	int maxLineLength = parameters.GetIntValueWithDefault(Name::MaxLineLength(), 72);
-    
+
 	const char *lineBreak = insertLineBreaks ? "\n" : "";
-	
+
 	m_filter->Initialize(CombinedNameValuePairs(
 		parameters,
 		MakeParameters(Name::EncodingLookupArray(), &s_urlVec[0], false)
@@ -58,7 +58,7 @@ const int *Base64Decoder::GetDecodingLookupArray()
 {
 	static volatile bool s_initialized = false;
 	static int s_array[256];
-    
+
 	if (!s_initialized)
 	{
 		InitializeDecodingLookupArray(s_array, s_stdVec, 64, false);
@@ -78,7 +78,7 @@ const int *Base64URLDecoder::GetDecodingLookupArray()
 {
 	static volatile bool s_initialized = false;
 	static int s_array[256];
-    
+
 	if (!s_initialized)
 	{
 		InitializeDecodingLookupArray(s_array, s_urlVec, 64, false);

@@ -39,7 +39,7 @@ public:
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~Filter() {}
 #endif
-	
+
 	//!	\name ATTACHMENT
 	//@{
 
@@ -52,23 +52,23 @@ public:
 	//! \returns \p true if the object allows attached transformations, \p false otherwise.
 	//! \note Source and Filter offer attached transformations; while Sink does not.
 	bool Attachable() {return true;}
-	
+
 	//! \brief Retrieve attached transformation
 	//! \returns pointer to a BufferedTransformation if there is an attached transformation, \p NULL otherwise.
 	BufferedTransformation *AttachedTransformation();
-	
+
 	//! \brief Retrieve attached transformation
 	//! \returns pointer to a BufferedTransformation if there is an attached transformation, \p NULL otherwise.
 	const BufferedTransformation *AttachedTransformation() const;
-	
+
 	//! \brief Replace an attached transformation
 	//! \param newAttachment an optional attached transformation
 	//! \details newAttachment can be a single filter, a chain of filters or \p NULL.
 	//!    Pass \p NULL to remove an existing BufferedTransformation or chain of filters
 	void Detach(BufferedTransformation *newAttachment = NULL);
-	
+
 	//@}
-	
+
 	// See the documentation for BufferedTransformation in cryptlib.h
 	size_t TransferTo2(BufferedTransformation &target, lword &transferBytes, const std::string &channel=DEFAULT_CHANNEL, bool blocking=true);
 	size_t CopyRangeTo2(BufferedTransformation &target, lword &begin, lword end=LWORD_MAX, const std::string &channel=DEFAULT_CHANNEL, bool blocking=true) const;
@@ -77,7 +77,7 @@ public:
 	void Initialize(const NameValuePairs &parameters=g_nullNameValuePairs, int propagation=-1);
 	bool Flush(bool hardFlush, int propagation=-1, bool blocking=true);
 	bool MessageSeriesEnd(int propagation=-1, bool blocking=true);
-	
+
 protected:
 	virtual BufferedTransformation * NewDefaultAttachment() const;
 	void Insert(Filter *nextFilter);	// insert filter after this one
@@ -96,7 +96,7 @@ protected:
 	//! \param channel the channel to process the data
 	//! \returns the number of bytes that remain in the block (i.e., bytes not processed)
 	size_t Output(int outputSite, const byte *inString, size_t length, int messageEnd, bool blocking, const std::string &channel=DEFAULT_CHANNEL);
-	
+
 	//! \brief Output multiple bytes that may be modified by callee.
 	//! \param outputSite unknown, system crash between keyboard and chair...
 	//! \param inString the byte buffer to process
@@ -106,7 +106,7 @@ protected:
 	//! \param channel the channel to process the data
 	//! \returns the number of bytes that remain in the block (i.e., bytes not processed)
 	size_t OutputModifiable(int outputSite, byte *inString, size_t length, int messageEnd, bool blocking, const std::string &channel=DEFAULT_CHANNEL);
-	
+
 	//! \brief Signals the end of messages to the object
 	//! \param outputSite unknown, system crash between keyboard and chair...
 	//! \param propagation the number of attached transformations the  MessageEnd() signal should be passed
@@ -116,7 +116,7 @@ protected:
 	//! \details propagation count includes this object. Setting  propagation to <tt>1</tt> means this
 	//!   object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
 	bool OutputMessageEnd(int outputSite, int propagation, bool blocking, const std::string &channel=DEFAULT_CHANNEL);
-	
+
 	//! \brief Flush buffered input and/or output, with signal propagation
 	//! \param outputSite unknown, system crash between keyboard and chair...
 	//! \param hardFlush is used to indicate whether all data should be flushed
@@ -135,7 +135,7 @@ protected:
 	//!   example ZlibCompressor. This is useful when zlib compressed data is moved across a
 	//!   network in packets and compression state is preserved across packets, as in the SSH2 protocol.
 	bool OutputFlush(int outputSite, bool hardFlush, int propagation, bool blocking, const std::string &channel=DEFAULT_CHANNEL);
-	
+
 	//! \brief Marks the end of a series of messages, with signal propagation
 	//! \param outputSite unknown, system crash between keyboard and chair...
 	//! \param propagation the number of attached transformations the  MessageSeriesEnd() signal should be passed
@@ -146,12 +146,12 @@ protected:
 	//!    propagation, and then pass the signal on to attached transformations if the value is not 0.
 	//! \details propagation count includes this object. Setting  propagation to <tt>1</tt> means this
 	//!   object only. Setting  propagation to <tt>-1</tt> means unlimited propagation.
-	//! \note There should be a MessageEnd() immediately before MessageSeriesEnd().	
+	//! \note There should be a MessageEnd() immediately before MessageSeriesEnd().
 	bool OutputMessageSeriesEnd(int outputSite, int propagation, bool blocking, const std::string &channel=DEFAULT_CHANNEL);
 
 private:
 	member_ptr<BufferedTransformation> m_attachment;
-	
+
 protected:
 	size_t m_inputPosition;
 	int m_continueAt;
@@ -427,7 +427,7 @@ public:
 	{
 		if (!blocking)
 			throw BlockingInputOnly("FilterWithInputQueue");
-		
+
 		m_inQueue.Put(inString, length);
 		if (messageEnd)
 		{
@@ -779,7 +779,7 @@ public:
 	Redirector(BufferedTransformation &target, Behavior behavior=PASS_EVERYTHING)
 		: m_target(&target), m_behavior(behavior) {}
 
-	//! \brief Redirect input to another BufferedTransformation 
+	//! \brief Redirect input to another BufferedTransformation
 	//! \param target the destination BufferedTransformation
 	void Redirect(BufferedTransformation &target) {m_target = &target;}
 	//! \brief Stop redirecting input
@@ -983,7 +983,7 @@ public:
 		return 0;
 	}
 
-private:	
+private:
 	T *m_output;
 };
 
@@ -1256,7 +1256,7 @@ public:
 	//! \param attachment an optional attached transformation
 	StringSource(BufferedTransformation *attachment = NULL)
 		: SourceTemplate<StringStore>(attachment) {}
-	
+
 	//! \brief Construct a StringSource
 	//! \param string C-String
 	//! \param pumpAll C-String
@@ -1279,7 +1279,7 @@ class CRYPTOPP_DLL RandomNumberSource : public SourceTemplate<RandomNumberStore>
 {
 public:
 	RandomNumberSource(RandomNumberGenerator &rng, int length, bool pumpAll, BufferedTransformation *attachment = NULL)
-		: SourceTemplate<RandomNumberStore>(attachment) 
+		: SourceTemplate<RandomNumberStore>(attachment)
 		{SourceInitialize(pumpAll, MakeParameters("RandomNumberGeneratorPointer", &rng)("RandomNumberStoreSize", length));}
 };
 

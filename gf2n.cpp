@@ -89,14 +89,14 @@ void PolynomialMod2::SetByte(size_t n, byte value)
 	reg[n/WORD_SIZE] |= (word(value) << 8*(n%WORD_SIZE));
 }
 
-PolynomialMod2 PolynomialMod2::Monomial(size_t i) 
+PolynomialMod2 PolynomialMod2::Monomial(size_t i)
 {
-	PolynomialMod2 r((word)0, i+1); 
-	r.SetBit(i); 
+	PolynomialMod2 r((word)0, i+1);
+	r.SetBit(i);
 	return r;
 }
 
-PolynomialMod2 PolynomialMod2::Trinomial(size_t t0, size_t t1, size_t t2) 
+PolynomialMod2 PolynomialMod2::Trinomial(size_t t0, size_t t1, size_t t2)
 {
 	PolynomialMod2 r((word)0, t0+1);
 	r.SetBit(t0);
@@ -547,7 +547,7 @@ bool PolynomialMod2::IsIrreducible() const
 // ********************************************************
 
 GF2NP::GF2NP(const PolynomialMod2 &modulus)
-	: QuotientRing<EuclideanDomainOf<PolynomialMod2> >(EuclideanDomainOf<PolynomialMod2>(), modulus), m(modulus.Degree()) 
+	: QuotientRing<EuclideanDomainOf<PolynomialMod2> >(EuclideanDomainOf<PolynomialMod2>(), modulus), m(modulus.Degree())
 {
 }
 

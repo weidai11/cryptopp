@@ -241,8 +241,8 @@ public:
 		// left RandomizationParameter arg as ref in case RandomizationParameter becomes a more complicated struct
 	{
 		CRYPTOPP_UNUSED(ignore_for_now);
-		return Element(rng, Integer::Zero(), m_modulus - Integer::One()) ; 
-	}   
+		return Element(rng, Integer::Zero(), m_modulus - Integer::One()) ;
+	}
 
 	//! \brief Compares two ModularArithmetic for equality
 	//! \param rhs other ModularArithmetic

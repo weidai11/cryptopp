@@ -181,13 +181,13 @@ void Tiger::Transform (word64 *digest, const word64 *X)
 
 #if CRYPTOPP_BOOL_X32
 		SSE2_pass(mm0, mm1, mm2, 5, esi)
-		SSE2_key_schedule(esp+8, esi)	
+		SSE2_key_schedule(esp+8, esi)
 		SSE2_pass(mm2, mm0, mm1, 7, esp+8)
 		SSE2_key_schedule(esp+8, esp+8)
 		SSE2_pass(mm1, mm2, mm0, 9, esp+8)
 #else
 		SSE2_pass(mm0, mm1, mm2, 5, esi)
-		SSE2_key_schedule(esp+4, esi)	
+		SSE2_key_schedule(esp+4, esi)
 		SSE2_pass(mm2, mm0, mm1, 7, esp+4)
 		SSE2_key_schedule(esp+4, esp+4)
 		SSE2_pass(mm1, mm2, mm0, 9, esp+4)

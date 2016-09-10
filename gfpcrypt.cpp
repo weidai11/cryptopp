@@ -75,7 +75,7 @@ bool DL_GroupParameters_DSA::ValidateGroup(RandomNumberGenerator &rng, unsigned 
 	return pass;
 }
 
-void DL_SignatureMessageEncodingMethod_DSA::ComputeMessageRepresentative(RandomNumberGenerator &rng, 
+void DL_SignatureMessageEncodingMethod_DSA::ComputeMessageRepresentative(RandomNumberGenerator &rng,
 	const byte *recoverableMessage, size_t recoverableMessageLength,
 	HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
 	byte *representative, size_t representativeBitLength) const
@@ -100,7 +100,7 @@ void DL_SignatureMessageEncodingMethod_DSA::ComputeMessageRepresentative(RandomN
 	}
 }
 
-void DL_SignatureMessageEncodingMethod_NR::ComputeMessageRepresentative(RandomNumberGenerator &rng, 
+void DL_SignatureMessageEncodingMethod_NR::ComputeMessageRepresentative(RandomNumberGenerator &rng,
 	const byte *recoverableMessage, size_t recoverableMessageLength,
 	HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
 	byte *representative, size_t representativeBitLength) const
@@ -179,7 +179,7 @@ bool DL_GroupParameters_IntegerBased::ValidateElement(unsigned int level, const 
 void DL_GroupParameters_IntegerBased::GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &alg)
 {
 	Integer p, q, g;
-	
+
 	if (alg.GetValue("Modulus", p) && alg.GetValue("SubgroupGenerator", g))
 	{
 		q = alg.GetValueWithDefault("SubgroupOrder", ComputeGroupOrder(p)/2);
@@ -208,7 +208,7 @@ void DL_GroupParameters_IntegerBased::GenerateRandom(RandomNumberGenerator &rng,
 void DL_GroupParameters_IntegerBased::EncodeElement(bool reversible, const Element &element, byte *encoded) const
 {
 	CRYPTOPP_UNUSED(reversible);
-	element.Encode(encoded, GetModulus().ByteCount());	
+	element.Encode(encoded, GetModulus().ByteCount());
 }
 
 unsigned int DL_GroupParameters_IntegerBased::GetEncodedElementSize(bool reversible) const

@@ -117,7 +117,7 @@ protected:
 	and would pass this parameter to subsequent functions they call using the construct:
 
 	SubFunc(arg1, arg2, CallStack("my func at place such and such", &callStack));
-	
+
 	The advantage of this approach is that it is easy to use and should be very efficient,
 	involving no allocation from the heap, just a linked list of stack objects containing
 	pointers to static ASCIIZ strings (or possibly additional but simple data if derived). */

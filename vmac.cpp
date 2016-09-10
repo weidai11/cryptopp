@@ -68,7 +68,7 @@ void VMAC_Base::UncheckedSetKey(const byte *userKey, unsigned int keylength, con
 	size_t i;
 
 	/* Fill nh key */
-	in[0] = 0x80; 
+	in[0] = 0x80;
 	cipher.AdvancedProcessBlocks(in, NULL, (byte *)m_nhKey(), m_nhKeySize()*sizeof(word64), cipher.BT_InBlockIsCounter);
 	ConditionalByteReverse<word64>(BIG_ENDIAN_ORDER, m_nhKey(), m_nhKey(), m_nhKeySize()*sizeof(word64));
 
@@ -153,9 +153,9 @@ void VMAC_Base::HashEndianCorrectedBlock(const word64 *data)
 
 unsigned int VMAC_Base::OptimalDataAlignment() const
 {
-	return 
+	return
 #if (CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_VMAC_ASM)
-		HasSSE2() ? 16 : 
+		HasSSE2() ? 16 :
 #endif
 		GetCipher().OptimalDataAlignment();
 }
@@ -687,7 +687,7 @@ void VMAC_Base::VHASH_Update_Template(const word64 *data, size_t blocksRemaining
 			#undef k0
 			#undef k1
 			#undef k2
-			#undef k3		
+			#undef k3
 			#undef kHi
 		#else		// #if VMAC_BOOL_32BIT
 			if (isFirstBlock)

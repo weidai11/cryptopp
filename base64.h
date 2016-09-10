@@ -64,7 +64,7 @@ public:
 	//! \sa IsolatedInitialize() for an example of modifying an encoder after construction.
 	Base64Decoder(BufferedTransformation *attachment = NULL)
 		: BaseN_Decoder(GetDecodingLookupArray(), 6, attachment) {}
-    
+
 	//! \brief Initialize or reinitialize this object, without signal propagation
 	//! \param parameters a set of NameValuePairs used to initialize this object
 	//! \details IsolatedInitialize() is used to initialize or reinitialize an object using a variable
@@ -115,7 +115,7 @@ public:
 		CRYPTOPP_UNUSED(insertLineBreaks), CRYPTOPP_UNUSED(maxLineLength);
 		IsolatedInitialize(MakeParameters(Name::InsertLineBreaks(), false)(Name::MaxLineLength(), -1)(Name::Pad(),false));
 	}
-    
+
 	//! \details IsolatedInitialize() is used to initialize or reinitialize an object using a variable
 	//!   number of arbitrarily typed arguments. IsolatedInitialize() does not call Initialize() on attached
 	//!   transformations. If initialization should be propagated, then use the Initialize() function.
@@ -141,7 +141,7 @@ public:
 	//! \sa Base64Decoder for a decoder that provides a classic alphabet.
 	Base64URLDecoder(BufferedTransformation *attachment = NULL)
 		: BaseN_Decoder(GetDecodingLookupArray(), 6, attachment) {}
-    
+
 	//! \brief Initialize or reinitialize this object, without signal propagation
 	//! \param parameters a set of NameValuePairs used to initialize this object
 	//! \details IsolatedInitialize() is used to initialize or reinitialize an object using a variable
@@ -150,7 +150,7 @@ public:
 	//! \sa Base64Decoder for a decoder that provides a classic alphabet, and Base64URLEncoder::IsolatedInitialize
 	//!   for an example of modifying an encoder after construction.
 	void IsolatedInitialize(const NameValuePairs &parameters);
-    
+
 private:
 	//! \brief Provides the default decoding lookup table
 	//! \return default decoding lookup table

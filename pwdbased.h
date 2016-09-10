@@ -24,9 +24,9 @@ public:
 	//! \brief Provides the maximum derived key length
 	//! \returns maximum derived key length, in bytes
 	virtual size_t MaxDerivedKeyLength() const =0;
-	
+
 	//! \brief Determines if the derivation function uses the purpose byte
-	//! \returns true if the derivation function uses the purpose byte, false otherwise	
+	//! \returns true if the derivation function uses the purpose byte, false otherwise
 	virtual bool UsesPurposeByte() const =0;
 
 	//! \brief Derive key from the password

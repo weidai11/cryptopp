@@ -63,7 +63,7 @@ void WaitObjectContainer::Clear()
 # ifdef CRYPTOPP_MSAN
 	__msan_unpoison(&m_readfds, sizeof(m_readfds));
 	__msan_unpoison(&m_writefds, sizeof(m_writefds));
-# endif	
+# endif
 #endif
 	m_noWait = false;
 	m_firstEventTime = 0;
@@ -137,7 +137,7 @@ WaitObjectContainer::~WaitObjectContainer()
 		if (!m_threads.empty())
 		{
 			HANDLE threadHandles[MAXIMUM_WAIT_OBJECTS] = {0};
-			
+
 			unsigned int i;
 			for (i=0; i<m_threads.size(); i++)
 			{
@@ -153,7 +153,7 @@ WaitObjectContainer::~WaitObjectContainer()
 
 			BOOL bResult = PulseEvent(m_startWaiting);
 			assert(bResult != 0); CRYPTOPP_UNUSED(bResult);
-	
+
 			// Enterprise Analysis warning
 #if defined(USE_WINDOWS8_API)
 			DWORD dwResult = ::WaitForMultipleObjectsEx((DWORD)m_threads.size(), threadHandles, TRUE, INFINITE, FALSE);
@@ -167,7 +167,7 @@ WaitObjectContainer::~WaitObjectContainer()
 			{
 				// Enterprise Analysis warning
 				if (!threadHandles[i]) continue;
-									
+
 				bResult = CloseHandle(threadHandles[i]);
 				assert(bResult != 0);
 			}
@@ -206,7 +206,7 @@ DWORD WINAPI WaitingThread(LPVOID lParam)
 		DWORD result = ::WaitForSingleObject(thread.startWaiting, INFINITE);
 		assert(result != WAIT_FAILED);
 #endif
-		
+
 		thread.waitingToWait = false;
 		if (thread.terminate)
 			break;
@@ -254,7 +254,7 @@ void WaitObjectContainer::CreateThreads(unsigned int count)
 		{
 			// Enterprise Analysis warning
 			if(!m_threads[i]) continue;
-	
+
 			m_threads[i] = new WaitingThreadData;
 			WaitingThreadData &thread = *m_threads[i];
 			thread.terminate = false;
@@ -304,7 +304,7 @@ bool WaitObjectContainer::Wait(unsigned long milliseconds)
 			throw Err("WaitObjectContainer: number of wait objects exceeds limit");
 		CreateThreads(nThreads);
 		DWORD error = S_OK;
-		
+
 		for (unsigned int i=0; i<m_threads.size(); i++)
 		{
 			// Enterprise Analysis warning

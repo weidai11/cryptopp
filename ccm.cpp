@@ -44,7 +44,7 @@ void CCM_Base::Resync(const byte *iv, size_t len)
 		m_ctr.SetCipherWithIV(cipher, m_buffer);
 
 	m_ctr.Seek(REQUIRED_BLOCKSIZE);
-	m_aadLength = 0; 
+	m_aadLength = 0;
 	m_messageLength = 0;
 }
 
@@ -53,7 +53,7 @@ void CCM_Base::UncheckedSpecifyDataLengths(lword headerLength, lword messageLeng
 	if (m_state != State_IVSet)
 		throw BadState(AlgorithmName(), "SpecifyDataLengths", "or after State_IVSet");
 
-	m_aadLength = headerLength; 
+	m_aadLength = headerLength;
 	m_messageLength = messageLength;
 
 	byte *cbcBuffer = CBC_Buffer();

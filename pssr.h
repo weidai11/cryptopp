@@ -36,7 +36,7 @@ public:
 	bool IsProbabilistic() const;
 	bool AllowNonrecoverablePart() const;
 	bool RecoverablePartFirst() const;
-	void ComputeMessageRepresentative(RandomNumberGenerator &rng, 
+	void ComputeMessageRepresentative(RandomNumberGenerator &rng,
 		const byte *recoverableMessage, size_t recoverableMessageLength,
 		HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
 		byte *representative, size_t representativeBitLength) const;

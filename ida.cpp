@@ -318,7 +318,7 @@ size_t InformationDispersal::Put2(const byte *begin, size_t length, int messageE
 {
 	if (!blocking)
 		throw BlockingInputOnly("InformationDispersal");
-	
+
 	while (length--)
 	{
 		m_ida.ChannelData(m_nextChannel, begin, 1, false);

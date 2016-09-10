@@ -29,7 +29,7 @@ struct CRYPTOPP_DLL EC2NPoint
 		{return (identity && t.identity) || (!identity && !t.identity && x==t.x && y==t.y);}
 	bool operator< (const EC2NPoint &t) const
 		{return identity ? !t.identity : (!t.identity && (x<t.x || (x==t.x && y<t.y)));}
-	
+
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~EC2NPoint() {}
 #endif
@@ -91,7 +91,7 @@ public:
 
 	bool operator==(const EC2N &rhs) const
 		{return GetField() == rhs.GetField() && m_a == rhs.m_a && m_b == rhs.m_b;}
-	
+
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~EC2N() {}
 #endif
@@ -121,7 +121,7 @@ public:
 	// non-inherited
 	void SetCurve(const EC2N &ec) {m_ec = ec;}
 	const EC2N & GetCurve() const {return m_ec;}
-	
+
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~EcPrecomputation() {}
 #endif
