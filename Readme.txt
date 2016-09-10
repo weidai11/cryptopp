@@ -510,6 +510,8 @@ the mailing list.
           * C++, SSE2, SSE4, ARM NEON and ARMv8 ASIMD
       - added CRC32-C
           * C/C++, Amd64 CRC, and ARMv8 CRC
+      - improved Rabin-William signatures
+          * Tweaked roots <em>e</em> and <em>f</em>
       - improved C++11 support
           * atomics, threads and fences
           * alginof, alignas
