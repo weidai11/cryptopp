@@ -529,8 +529,7 @@ the mailing list.
           * archived VS2005 project files (vs2005.zip)
           * archived Borland project files (bds10.zip)
       - improved Testing and QA
-          * added more platforms and compilers
-          * added more tests in cryptest.sh
+          * expanded platforms and compilers
           * added code generation tests based on CPU features
           * added C++03, C++11, C++14, C++17 testing
           * added -O3, -O5, -Ofast and -Os testing
