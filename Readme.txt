@@ -518,15 +518,16 @@ the mailing list.
           * ARM NEON and ARMv8 ASIMD
           * ARMv8 carry-less multiply
       - improved MIPS, ARMv7 and ARMv8 support
-          * more IoT gadget testing
-          * cryptest.sh and tailored tests
+          * added scripts setenv-{android|embedded|ios}.sh for GNUmakfile-cross
+          * aggressive use of -march=<arch> and -mfpu=<fpu> in cryptest.sh
       - improved build systems
           * Visual Studio 2010 default
           * added CMake support
-          * archived VC++ 5/0/6.0 and VS2005 project files
-          * archived Borland project files
+          * archived VC++ 5/0/6.0 project files (vc60.zip)
+          * archived VS2005 project files (vs2005.zip)
+          * archived Borland project files (bds10.zip)
       - improved Testing and QA
-          * added more platforms and compilers support
+          * added more platforms and compilers
           * added more tests in cryptest.sh
           * added code generation tests based on CPU features
           * added C++03, C++11, C++14, C++17 testing
