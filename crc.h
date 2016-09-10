@@ -47,6 +47,7 @@ private:
 
 //! \brief CRC-32C Checksum Calculation
 //! \details Uses CRC polynomial 0x82F63B78
+//! \since Crypto++ 5.6.4
 class CRC32C : public HashTransformation
 {
 public:
