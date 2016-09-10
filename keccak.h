@@ -2,9 +2,8 @@
 
 //! \file keccak.h
 //! \brief Classes for Keccak message digests
-//! \details The Keccak classes use F1600 and XOF byte 0x80, which is effectively
-//!   the behavior specified by NIST at round three of the selection process. If you
-//!   desire FIPS 202 behavior, then use SHA3 classes.
+//! \details The Crypto++ Keccak implementation uses F1600 with XOF d=0x01.
+//!   FIPS 202 conformance (XOF d=0x06) is available in SHA3 classes.
 //! \details Keccak will likely change in the future to accomodate extensibility of the
 //!   round function and the XOF functions.
 //! \sa <a href="http://en.wikipedia.org/wiki/Keccak">Keccak</a>
@@ -20,9 +19,8 @@ NAMESPACE_BEGIN(CryptoPP)
 
 //! \class Keccak
 //! \brief Keccak message digest base class
-//! \details The Keccak classes use F1600 and XOF byte 0x80, which is effectively
-//!   the behavior specified by NIST at round three of the selection process. If you
-//!   desire FIPS 202 behavior, then use SHA3 classes.
+//! \details The Crypto++ Keccak implementation uses F1600 with XOF d=0x06.
+//!   FIPS 202 conformance (XOF d=0x01) is available in SHA3 classes.
 //! \details Keccak is the base class for Keccak_224, Keccak_256, Keccak_384 and Keccak_512.
 //!   Library users should instantiate a derived class, and only use Keccak
 //!   as a base class reference or pointer.
