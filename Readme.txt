@@ -520,7 +520,7 @@ the mailing list.
           * ARM NEON and ARMv8 ASIMD
           * ARMv8 carry-less multiply
       - improved MIPS, ARMv7 and ARMv8 support
-          * added scripts setenv-{android|embedded|ios}.sh for GNUmakfile-cross
+          * added scripts setenv-{android|embedded|ios}.sh for GNUmakefile-cross
           * aggressive use of -march=<arch> and -mfpu=<fpu> in cryptest.sh
       - improved build systems
           * Visual Studio 2010 default
