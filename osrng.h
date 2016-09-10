@@ -90,7 +90,7 @@ public:
 	//! \brief Construct a NonblockingRng
 	NonblockingRng();
 	~NonblockingRng();
-	
+
 	//! \brief Generate random array of bytes
 	//! \param output the byte buffer
 	//! \param size the length of the buffer, in bytes
@@ -118,7 +118,7 @@ public:
 	//! \brief Construct a BlockingRng
 	BlockingRng();
 	~BlockingRng();
-	
+
 	//! \brief Generate random array of bytes
 	//! \param output the byte buffer
 	//! \param size the length of the buffer, in bytes
@@ -158,7 +158,7 @@ public:
 	//!   The parameter is ignored if only one of these is available.
 	explicit AutoSeededRandomPool(bool blocking = false, unsigned int seedSize = 32)
 		{Reseed(blocking, seedSize);}
-	
+
 	//! \brief Reseed an AutoSeededRandomPool
 	//! \param blocking controls seeding with BlockingRng or NonblockingRng
 	//! \param seedSize the size of the seed, in bytes

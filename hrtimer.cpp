@@ -144,7 +144,7 @@ GetCurrentThreadNotImplemented:
 	if (!QueryPerformanceCounter(&now))
 	{
 		const DWORD lastError = GetLastError();
-		throw Exception(Exception::OTHER_ERROR, "ThreadUserTimer: QueryPerformanceCounter failed with error " + IntToString(lastError));		
+		throw Exception(Exception::OTHER_ERROR, "ThreadUserTimer: QueryPerformanceCounter failed with error " + IntToString(lastError));
 	}
 	return now.QuadPart;
 #elif defined(CRYPTOPP_UNIX_AVAILABLE)

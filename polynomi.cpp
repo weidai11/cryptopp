@@ -83,7 +83,7 @@ unsigned int PolynomialOver<T>::CoefficientCount(const Ring &ring) const
 }
 
 template <class T>
-typename PolynomialOver<T>::CoefficientType PolynomialOver<T>::GetCoefficient(unsigned int i, const Ring &ring) const 
+typename PolynomialOver<T>::CoefficientType PolynomialOver<T>::GetCoefficient(unsigned int i, const Ring &ring) const
 {
 	return (i < m_coefficients.size()) ? m_coefficients[i] : ring.Identity();
 }
@@ -394,13 +394,13 @@ std::ostream& PolynomialOver<T>::Output(std::ostream &out, const Ring &ring) con
 
 					if (pstr.str().size() <= nstr.str().size())
 					{
-						out << " + "; 
+						out << " + ";
 						if (!i || !ring.Equal(m_coefficients[i], ring.MultiplicativeIdentity()))
 							out << m_coefficients[i];
 					}
 					else
 					{
-						out << " - "; 
+						out << " - ";
 						if (!i || !ring.Equal(inverse, ring.MultiplicativeIdentity()))
 							out << inverse;
 					}

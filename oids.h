@@ -51,11 +51,11 @@ DEFINE_OID(1, iso)
 								DEFINE_OID(ellipticCurve()+1,id_curve25519)
 								DEFINE_OID(ellipticCurve()+2,id_curve448)
 								DEFINE_OID(ellipticCurve()+3,id_curve25519ph)
-								DEFINE_OID(ellipticCurve()+4,id_curve448ph)	
+								DEFINE_OID(ellipticCurve()+4,id_curve448ph)
 		DEFINE_OID(identified_organization()+14, oiw);
 			DEFINE_OID(oiw()+3, oiw_secsig);
 				DEFINE_OID(oiw_secsig()+2, oiw_secsig_algorithms);
-					DEFINE_OID(oiw_secsig_algorithms()+26, id_sha1);					
+					DEFINE_OID(oiw_secsig_algorithms()+26, id_sha1);
 		DEFINE_OID(identified_organization()+36, teletrust);
 			DEFINE_OID(teletrust()+3, teletrust_algorithm)
 				DEFINE_OID(teletrust_algorithm()+2+1, id_ripemd160)

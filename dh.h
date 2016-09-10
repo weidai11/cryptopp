@@ -45,7 +45,7 @@ public:
 
 	//! \brief Construct a Diffie-Hellman domain
 	//! \tparam T2 template parameter used as a constructor parameter
-	//! \param v1 RandomNumberGenerator derived class 
+	//! \param v1 RandomNumberGenerator derived class
 	//! \param v2 second parameter
 	//! \details v1 and v2 are passed directly to the GROUP_PARAMETERS object.
 	template <class T2>
@@ -55,7 +55,7 @@ public:
 	//! \brief Construct a Diffie-Hellman domain
 	//! \tparam T2 template parameter used as a constructor parameter
 	//! \tparam T3 template parameter used as a constructor parameter
-	//! \param v1 RandomNumberGenerator derived class 
+	//! \param v1 RandomNumberGenerator derived class
 	//! \param v2 second parameter
 	//! \param v3 third parameter
 	//! \details v1, v2 and v3 are passed directly to the GROUP_PARAMETERS object.
@@ -67,7 +67,7 @@ public:
 	//! \tparam T2 template parameter used as a constructor parameter
 	//! \tparam T3 template parameter used as a constructor parameter
 	//! \tparam T4 template parameter used as a constructor parameter
-	//! \param v1 RandomNumberGenerator derived class 
+	//! \param v1 RandomNumberGenerator derived class
 	//! \param v2 second parameter
 	//! \param v3 third parameter
 	//! \param v4 fourth parameter
@@ -152,7 +152,7 @@ public:
 	static std::string CRYPTOPP_API StaticAlgorithmName()
 		{return GroupParameters::StaticAlgorithmNamePrefix() + DH_Algorithm::StaticAlgorithmName();}
 	std::string AlgorithmName() const {return StaticAlgorithmName();}
-	
+
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~DH_Domain() {}
 #endif

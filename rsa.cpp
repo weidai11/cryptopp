@@ -224,7 +224,7 @@ void InvertibleRSAFunction::DEREncodePrivateKey(BufferedTransformation &bt) cons
 	privateKey.MessageEnd();
 }
 
-Integer InvertibleRSAFunction::CalculateInverse(RandomNumberGenerator &rng, const Integer &x) const 
+Integer InvertibleRSAFunction::CalculateInverse(RandomNumberGenerator &rng, const Integer &x) const
 {
 	DoQuickSanityCheck();
 	ModularArithmetic modn(m_n);
@@ -297,7 +297,7 @@ Integer RSAFunction_ISO::ApplyFunction(const Integer &x) const
 	return t % 16 == 12 ? t : m_n - t;
 }
 
-Integer InvertibleRSAFunction_ISO::CalculateInverse(RandomNumberGenerator &rng, const Integer &x) const 
+Integer InvertibleRSAFunction_ISO::CalculateInverse(RandomNumberGenerator &rng, const Integer &x) const
 {
 	Integer t = InvertibleRSAFunction::CalculateInverse(rng, x);
 	return STDMIN(t, m_n-t);

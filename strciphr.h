@@ -91,9 +91,9 @@ enum KeystreamOperationFlags {
 //!   and AdditiveCipherAbstractPolicy::GetAlignment()
 enum KeystreamOperation {
 	//! \brief Wirte the keystream to the output buffer, input is NULL
-	WRITE_KEYSTREAM				= INPUT_NULL, 
+	WRITE_KEYSTREAM				= INPUT_NULL,
 	//! \brief Wirte the keystream to the aligned output buffer, input is NULL
-	WRITE_KEYSTREAM_ALIGNED		= INPUT_NULL | OUTPUT_ALIGNED, 
+	WRITE_KEYSTREAM_ALIGNED		= INPUT_NULL | OUTPUT_ALIGNED,
 	//! \brief XOR the input buffer and keystream, write to the output buffer
 	XOR_KEYSTREAM				= 0,
 	//! \brief XOR the aligned input buffer and keystream, write to the output buffer
@@ -425,7 +425,7 @@ struct CRYPTOPP_NO_VTABLE CFB_CipherConcretePolicy : public BASE
 	//! \brief Perform one iteration in the forward direction
 	void TransformRegister() {this->Iterate(NULL, NULL, ENCRYPTION, 1);}
 
-	//! \brief 
+	//! \brief
 	//! \tparam B enumeration indicating endianess
 	//! \details RegisterOutput() provides alternate access to the feedback register. The
 	//!   enumeration B is BigEndian or LittleEndian. Repeatedly applying operator()
@@ -574,7 +574,7 @@ public:
 };
 
 //! \class SymmetricCipherFinal
-//! \brief SymmetricCipher implementation 
+//! \brief SymmetricCipher implementation
 //! \tparam BASE AbstractPolicyHolder derived base class
 //! \tparam INFO AbstractPolicyHolder derived information class
 //! \sa Weak::ARC4, ChaCha8, ChaCha12, ChaCha20, Salsa20, SEAL, Sosemanuk, WAKE

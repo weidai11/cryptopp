@@ -88,7 +88,7 @@ size_t BaseN_Encoder::Put2(const byte *begin, size_t length, int messageEnd, boo
 				m_outBuf[i] = m_alphabet[m_outBuf[i]];
 			}
 			FILTER_OUTPUT(1, m_outBuf, m_outputBlockSize, 0);
-			
+
 			m_bytePos = m_bitPos = 0;
 		}
 	}

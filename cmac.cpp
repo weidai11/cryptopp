@@ -31,7 +31,7 @@ static void MulU(byte *k, unsigned int length)
 			k[15] ^= 0x87;
 			break;
 		case 32:
-			k[30] ^= 4; 
+			k[30] ^= 4;
 			k[31] ^= 0x23;
 			break;
 		default:

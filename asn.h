@@ -82,7 +82,7 @@ CRYPTOPP_DLL size_t CRYPTOPP_API DERLengthEncode(BufferedTransformation &bt, lwo
 //! \brief BER decode a length
 //! \param bt BufferedTransformation object for reading
 //! \param length the decoded size
-//! \returns true if the value was decoded 
+//! \returns true if the value was decoded
 //! \throws BERDecodeError if the value fails to decode or is too large for size_t
 //! \details BERLengthDecode() returns false if the encoding is indefinite length.
 CRYPTOPP_DLL bool CRYPTOPP_API BERLengthDecode(BufferedTransformation &bt, size_t &length);
@@ -174,7 +174,7 @@ public:
 	//! \brief DER encode this OID
 	//! \param bt BufferedTransformation object
 	void DEREncode(BufferedTransformation &bt) const;
-	
+
 	//! \brief BER decode an OID
 	//! \param bt BufferedTransformation object
 	void BERDecode(BufferedTransformation &bt);

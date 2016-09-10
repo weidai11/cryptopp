@@ -7,7 +7,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-void EMSA2Pad::ComputeMessageRepresentative(RandomNumberGenerator& /*rng*/, 
+void EMSA2Pad::ComputeMessageRepresentative(RandomNumberGenerator& /*rng*/,
 	const byte* recoverableMessage, size_t recoverableMessageLength,
 	HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
 	byte *representative, size_t representativeBitLength) const

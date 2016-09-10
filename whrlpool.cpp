@@ -21,7 +21,7 @@
  *      ``The Whirlpool hashing function,''
  *      NESSIE submission, 2000 (tweaked version, 2001),
  *      <https://www.cosic.esat.kuleuven.ac.be/nessie/workshop/submissions/whirlpool.zip>
- * 
+ *
  * @author  Paulo S.L.M. Barreto
  * @author  Vincent Rijmen.
  *

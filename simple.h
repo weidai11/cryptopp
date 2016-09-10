@@ -102,7 +102,7 @@ public:
 	{
 		if (hardFlush && !InputBufferIsEmpty())
 			throw CannotFlush("Unflushable<T>: this object has buffered input that cannot be flushed");
-		else 
+		else
 		{
 			BufferedTransformation *attached = this->AttachedTransformation();
 			return attached && propagation ? attached->ChannelFlush(channel, hardFlush, propagation-1, blocking) : false;

@@ -89,7 +89,7 @@ DecodingResult PKCS_EncryptionPaddingScheme::Unpad(const byte *pkcsBlock, size_t
 
 #ifndef CRYPTOPP_IMPORTS
 
-void PKCS1v15_SignatureMessageEncodingMethod::ComputeMessageRepresentative(RandomNumberGenerator &rng, 
+void PKCS1v15_SignatureMessageEncodingMethod::ComputeMessageRepresentative(RandomNumberGenerator &rng,
 	const byte *recoverableMessage, size_t recoverableMessageLength,
 	HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
 	byte *representative, size_t representativeBitLength) const

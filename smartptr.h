@@ -57,7 +57,7 @@ public:
 		T *old_p = m_p;
 		*((volatile T**)&m_p) = NULL;
 		return old_p;
-	} 
+	}
 
 	void reset(T *p = 0);
 
@@ -74,7 +74,7 @@ template <class T> void member_ptr<T>::reset(T *p) {delete m_p; m_p = p;}
 // ********************************************************
 
 //! \class value_ptr
-//! \brief Value pointer 
+//! \brief Value pointer
 //! \tparam T class or type
 template<class T> class value_ptr : public member_ptr<T>
 {
@@ -158,7 +158,7 @@ private:
 };
 
 template <class T> counted_ptr<T>::counted_ptr(T *p)
-	: m_p(p) 
+	: m_p(p)
 {
 	if (m_p)
 		m_p->m_referenceCount = 1;
@@ -252,7 +252,7 @@ public:
 		this->m_size = newSize;
 		this->m_ptr = newPtr;
 	}
-	
+
 #ifdef __BORLANDC__
 	operator T *() const
 		{return (T*)m_ptr;}

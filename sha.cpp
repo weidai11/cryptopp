@@ -245,7 +245,7 @@ static void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 
 #define SWAP_COPY(i)		\
 	AS2(	mov		WORD_REG(bx), [WORD_REG(dx)+i*WORD_SZ])\
 	AS1(	bswap	WORD_REG(bx))\
-	AS2(	mov		[Wt(i)], WORD_REG(bx))	
+	AS2(	mov		[Wt(i)], WORD_REG(bx))
 #endif
 
 #if defined(__GNUC__)
@@ -444,7 +444,7 @@ INTEL_NOPREFIX
 
 #ifdef __GNUC__
 	ATT_PREFIX
-	: 
+	:
 	: "c" (state), "d" (data), "S" (SHA256_K+48), "D" (len)
 	#if CRYPTOPP_BOOL_X64
 		, "m" (workspace[0])
@@ -537,7 +537,7 @@ void SHA256::Transform(word32 *state, const word32 *data)
 #endif
 }
 
-/* 
+/*
 // smaller but slower
 void SHA256::Transform(word32 *state, const word32 *data)
 {
@@ -549,7 +549,7 @@ void SHA256::Transform(word32 *state, const word32 *data)
 	memcpy(t, state, 8*4);
 	word32 e = t[4], a = t[0];
 
-	do 
+	do
 	{
 		word32 w = data[j];
 		W[j] = w;
@@ -709,14 +709,14 @@ CRYPTOPP_NAKED static void CRYPTOPP_FASTCALL SHA512_SSE2_Transform(word64 *state
 	AS2(	sub		esp, 27*16)				// 17*16 for expanded data, 20*8 for state
 	AS_PUSH_IF86(	ax)
 	AS2(	xor		eax, eax)
-			
+
 #if CRYPTOPP_BOOL_X32
 	AS2(	lea		edi, [esp+8+8*8])		// start at middle of state buffer. will decrement pointer each round to avoid copying
 	AS2(	lea		esi, [esp+8+20*8+8])	// 16-byte alignment, then add 8
 #else
 	AS2(	lea		edi, [esp+4+8*8])		// start at middle of state buffer. will decrement pointer each round to avoid copying
 	AS2(	lea		esi, [esp+4+20*8+8])	// 16-byte alignment, then add 8
-#endif	
+#endif
 
 	AS2(	movdqa	xmm0, [ecx+0*16])
 	AS2(	movdq2q	mm4, xmm0)

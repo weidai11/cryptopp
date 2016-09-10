@@ -58,7 +58,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 #if defined(NONBLOCKING_RNG_AVAILABLE) || defined(BLOCKING_RNG_AVAILABLE)
 OS_RNG_Err::OS_RNG_Err(const std::string &operation)
-	: Exception(OTHER_ERROR, "OS_Rng: " + operation + " operation failed with error " + 
+	: Exception(OTHER_ERROR, "OS_Rng: " + operation + " operation failed with error " +
 #ifdef CRYPTOPP_WIN32_AVAILABLE
 		"0x" + IntToString(GetLastError(), 16)
 #else

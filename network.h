@@ -37,7 +37,7 @@ public:
 	unsigned int GetMaxWaitObjectCount() const { return 0; }
 	void GetWaitObjects(WaitObjectContainer &container, const CallStack &callStack);
 
-private:	
+private:
 	lword m_maxBytesPerSecond;
 
 	typedef std::deque<std::pair<double, lword> > OpQueue;

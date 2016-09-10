@@ -29,7 +29,7 @@ size_t PSSR_MEM_Base::MaxRecoverableLength(size_t representativeBitLength, size_
 	return 0;
 }
 
-bool PSSR_MEM_Base::IsProbabilistic() const 
+bool PSSR_MEM_Base::IsProbabilistic() const
 {
 	return SaltLen(1) > 0;
 }
@@ -44,7 +44,7 @@ bool PSSR_MEM_Base::RecoverablePartFirst() const
 	return false;
 }
 
-void PSSR_MEM_Base::ComputeMessageRepresentative(RandomNumberGenerator &rng, 
+void PSSR_MEM_Base::ComputeMessageRepresentative(RandomNumberGenerator &rng,
 	const byte *recoverableMessage, size_t recoverableMessageLength,
 	HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
 	byte *representative, size_t representativeBitLength) const
@@ -152,7 +152,7 @@ DecodingResult PSSR_MEM_Base::RecoverMessageFromRepresentative(
 
 	if (!AllowRecovery() && valid && recoverableMessageLength != 0)
 		{throw NotImplemented("PSSR_MEM: message recovery disabled");}
-	
+
 	return result;
 }
 
