@@ -3,6 +3,7 @@
 
 //! \file rdrand.h
 //! \brief Classes for RDRAND and RDSEED
+//! \since Crypto++ 5.6.3
 
 #ifndef CRYPTOPP_RDRAND_H
 #define CRYPTOPP_RDRAND_H
@@ -24,6 +25,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 //! \brief Exception thrown when a RDRAND generator encounters
 //!    a generator related error.
+//! \since Crypto++ 5.6.3
 class RDRAND_Err : public Exception
 {
 public:
@@ -33,6 +35,7 @@ public:
 
 //! \brief Hardware generated random numbers using RDRAND instruction
 //! \sa MaurerRandomnessTest() for random bit generators
+//! \since Crypto++ 5.6.3
 class RDRAND : public RandomNumberGenerator
 {
 public:
@@ -109,6 +112,7 @@ private:
 
 //! \brief Exception thrown when a RDSEED generator encounters
 //!    a generator related error.
+//! \since Crypto++ 5.6.3
 class RDSEED_Err : public Exception
 {
 public:
@@ -118,6 +122,7 @@ public:
 
 //! \brief Hardware generated random numbers using RDSEED instruction
 //! \sa MaurerRandomnessTest() for random bit generators
+//! \since Crypto++ 5.6.3
 class RDSEED : public RandomNumberGenerator
 {
 public:

@@ -89,6 +89,7 @@ IS_LINUX=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c linux)
 IS_CYGWIN=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c cygwin)
 IS_MINGW=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c mingw)
 IS_OPENBSD=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c openbsd)
+IS_FREEBSD=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c freebsd)
 IS_NETBSD=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c netbsd)
 IS_SOLARIS=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c sunos)
 
@@ -135,7 +136,7 @@ if [[ "$IS_DARWIN" -ne 0 ]]; then
 fi
 
 # Fixup
-if [[ ("$IS_OPENBSD" -ne "0" || "$IS_NETBSD" -ne "0") ]]; then
+if [[ ("$IS_FREEBSD" -ne "0" || "$IS_OPENBSD" -ne "0" || "$IS_NETBSD" -ne "0") ]]; then
 	MAKE=gmake
 elif [[ ("$IS_SOLARIS" -ne "0") ]]; then
 	MAKE=$(which gmake 2>/dev/null | "$GREP" -v "no gmake" | head -1)
@@ -152,6 +153,8 @@ if [[ ("$IS_X86" -ne "0" || "$IS_X64" -ne "0") ]]; then
 		X86_CPU_FLAGS=$(sysctl machdep.cpu.features 2>&1 | cut -f 2 -d ':')
 	elif [[ ("$IS_SOLARIS" -ne "0") ]]; then
 		X86_CPU_FLAGS=$(isainfo -v 2>/dev/null)
+	elif [[ ("$IS_FREEBSD" -ne "0") ]]; then
+		X86_CPU_FLAGS=$(grep Features /var/run/dmesg.boot)
 	else
 		X86_CPU_FLAGS=$(cat /proc/cpuinfo 2>&1 | "$AWK" '{IGNORECASE=1}{if ($1 == "flags"){print;exit}}' | cut -f 2 -d ':')
 	fi
@@ -240,10 +243,10 @@ GCC_51_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version (5\.[1-9]|[6-9])'
 GCC_48_COMPILER=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version 4\.8')
 GCC_49_COMPILER=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version 4\.9')
 GCC_49_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version (4\.9|[5-9]\.[0-9])')
-SUNCC_121_OR_ABOVE=$("$CXX" -V 2>&1 | "$EGREP" -c "CC: (Sun|Studio) .* (5\.1[0-9]|5\.[2-9]|[6-9]\.)")
+SUNCC_510_OR_ABOVE=$("$CXX" -V 2>&1 | "$EGREP" -c "CC: (Sun|Studio) .* (5\.1[0-9]|5\.[2-9]|[6-9]\.)")
 
 # Fixup, bad code generation
-if [[ ("$SUNCC_121_OR_ABOVE" -ne "0") ]]; then
+if [[ ("$SUNCC_510_OR_ABOVE" -ne "0") ]]; then
 	HAVE_O5=0
 	HAVE_OFAST=0
 fi
@@ -628,24 +631,6 @@ if [[ (-z "$HAVE_UNIFIED_ASM") ]]; then
 	fi
 fi
 
-# Testing 'make zip'
-if [[ (-z "$HAVE_ZIP") ]]; then
-	HAVE_ZIP=0
-	ZIP_PROG=$(which zip 2>&1 | "$GREP" -v "no zip" | head -1)
-	UNZIP_PROG=$(which unzip 2>&1 | "$GREP" -v "no unzip" | head -1)
-	if [[ (! -z "$ZIP_PROG" && ! -z "$UNZIP_PROG") ]]; then
-		HAVE_ZIP=1
-		zip -v > /dev/null 2>&1
-		if [[ "$?" -ne "0" ]]; then
-			HAVE_ZIP=0
-		fi
-		unzip -v > /dev/null 2>&1
-		if [[ "$?" -ne "0" ]]; then
-			HAVE_ZIP=0
-		fi
-	fi
-fi
-
 # ARMv7 and ARMv8, including NEON, CRC32 and Crypto extensions
 if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 
@@ -981,9 +966,9 @@ if [[ (("$IS_X86" -ne "0" || "$IS_X64" -ne "0") && ("$CLANG_COMPILER" -ne "0" &&
 	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "adx") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-madx"); fi
 fi
 
-# Sun Studio 12.1 (and above) compilers consume GCC inline assembly. However, the compiler does not declare
-#   the CPU features, even when using options like -native and -xarch.
-if [[ ("$IS_X86" -ne "0" || "$IS_X64" -ne "0") && ("$IS_SOLARIS" -ne "0") && ("$SUNCC_121_OR_ABOVE" -ne "0") ]]; then
+# Solaris Studio 12.1/SunCC 5.10 (and above) compilers consume GCC inline assembly. However, the compiler does
+#   not declare the CPU features, even when using options like -native and -xarch=<feature>.
+if [[ ("$IS_X86" -ne "0" || "$IS_X64" -ne "0") && ("$IS_SOLARIS" -ne "0") && ("$SUNCC_510_OR_ABOVE" -ne "0") ]]; then
 
 	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "sse2") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__SSE2__"); fi
 	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "sse3") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__SSE3__"); fi
@@ -3504,7 +3489,7 @@ fi
 if [[ "$IS_SOLARIS" -ne "0" ]]; then
 
 	# If PLATFORM_CXXFLAGS is for SunCC, then use them
-	if [[ ("$SUNCC_121_OR_ABOVE" -ne "0") ]]; then
+	if [[ ("$SUNCC_510_OR_ABOVE" -ne "0") ]]; then
 		SUNCC_CXXFLAGS="${PLATFORM_CXXFLAGS[@]}"
 	fi
 
@@ -5291,68 +5276,6 @@ if [[ ("$IS_CYGWIN" -eq "0" && "$IS_MINGW" -eq "0") ]]; then
 			echo "ERROR: failed to remove libcryptopp.so dynamic library" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
 		fi
 	fi
-fi
-
-############################################
-# Test 'make zip'
-if [[ ("$HAVE_ZIP" -ne "0") ]]; then
-
-	OLD_DIR=$(pwd)
-	"$MAKE" zip > /dev/null 2>&1
-
-	unzip -aoq cryptopp563.zip -d "$TMP/cryptopp563-zip/" > /dev/null 2>&1
-	if [[ "$?" -eq "0" ]]; then
-		cd "$TMP/cryptopp563-zip/"
-
-		############################################
-		# Debug
-		echo
-		echo "************************************" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
-		echo "Testing: Debug, 'make zip'" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
-		echo
-
-		"$MAKE" clean > /dev/null 2>&1
-		rm -f adhoc.cpp > /dev/null 2>&1
-
-		CXX="$CXX" CXXFLAGS="$DEBUG_CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
-		else
-			./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
-			fi
-			./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
-			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
-			fi
-		fi
-
-		############################################
-		# Release
-		echo
-		echo "************************************" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
-		echo "Testing: Release, 'make zip'" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
-		echo
-
-		"$MAKE" clean > /dev/null 2>&1
-		rm -f adhoc.cpp > /dev/null 2>&1
-
-		CXX="$CXX" CXXFLAGS="$RELEASECXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
-		else
-			./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
-			fi
-			./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
-			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
-			fi
-		fi
-	fi
-	cd "$OLD_DIR"
 fi
 
 #############################################

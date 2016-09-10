@@ -668,7 +668,7 @@ dlltest.exe: cryptopp.dll $(DLLTESTOBJS)
 	$(CXX) -o $@ $(CXXFLAGS) $(DLLTESTOBJS) -L. -lcryptopp.dll $(LDFLAGS) $(LDLIBS)
 
 # This recipe prepares the distro files
-TEXT_FILES := *.h *.cpp adhoc.cpp.proto License.txt Readme.txt Install.txt Filelist.txt CMakeLists.txt config.recommend Doxyfile cryptest* cryptlib* dlltest* cryptdll* *.sln *.vcproj cryptopp.rc TestVectors/*.txt TestData/*.dat
+TEXT_FILES := *.h *.cpp adhoc.cpp.proto License.txt Readme.txt Install.txt Filelist.txt CMakeLists.txt config.recommend Doxyfile cryptest* cryptlib* dlltest* cryptdll* *.sln *.vcxproj cryptopp.rc TestVectors/*.txt TestData/*.dat
 EXEC_FILES := GNUmakefile GNUmakefile-cross TestData/ TestVectors/
 
 ifeq ($(wildcard Filelist.txt),Filelist.txt)
@@ -776,7 +776,7 @@ endif
 %.o : %.cpp
 	$(CXX) $(CXXFLAGS) -c $<
 
-# Warn of potential configuration issues. They will go away after 5.6.3.
+# Warn of potential configuration issues. They will go away after 5.6.4.
 UNALIGNED_ACCESS := $(shell $(EGREP) -c "^[[:space:]]*//[[:space:]]*\#[[:space:]]*define[[:space:]]*CRYPTOPP_NO_UNALIGNED_DATA_ACCESS" config.h)
 NO_INIT_PRIORITY := $(shell $(EGREP) -c "^[[:space:]]*//[[:space:]]*\#[[:space:]]*define[[:space:]]*CRYPTOPP_INIT_PRIORITY" config.h)
 COMPATIBILITY_562 := $(shell $(EGREP) -c "^[[:space:]]*\#[[:space:]]*define[[:space:]]*CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562" config.h)
