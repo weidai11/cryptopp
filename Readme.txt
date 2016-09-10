@@ -511,7 +511,8 @@ the mailing list.
       - added CRC32-C
           * C/C++, Intel CRC, and ARMv8 CRC
       - improved GCM mode
-          * ARMv8 ASIMD using carry-less multiply
+          * ARM NEON and ARMv8 ASIMD
+          * ARMv8 carry-less multiply	
       - improved MIPS, ARMv7 and ARMv8 support
           * more IoT gadget testing
       - improved build systems
