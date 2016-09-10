@@ -13,9 +13,9 @@ CONTENTS OF THIS FILE
 INTRODUCTION
 ------------
 
-Crypto++ Library is a free C++ class library of cryptographic algorithms and schemes. It was written and placed in public domain by Wei Dai. The library homepage is at http://www.cryptopp.com/. The latest library source code can be found at https://github.com/weidai11/cryptopp. For licensing and copyright information, please see License.txt.
+Crypto++ Library is a free C++ class library of cryptographic algorithms and schemes. It was written and placed in public domain by Wei Dai. The library homepage is at http://www.cryptopp.com/. The latest library source code can be found at http://github.com/weidai11/cryptopp. For licensing and copyright information, please see License.txt.
 
-These are general instructions for the BSDs, Linux, OS X, Solaris and Unix. On BSD you will likely have to use `gmake` to build the library. On Linux, OS X, Solaris and Unix, the system's make should be OK. On Windows, Crypto++ provides Borland and Visual Studio solutions.
+These are general instructions for the BSDs, Linux, OS X, Solaris and Unix. On BSD and Solaris you will likely have to use `gmake` to build the library. On Linux, OS X, Solaris and Unix, the system's make should be OK. On Windows, Crypto++ provides Borland and Visual Studio solutions. Cmake is available, but its still maturing.
 
 Crypto++ uses a GNU makefile, which combines configuration and a non-anemic make. You should look through the GNUmakefile and config.h to ensure settings look reasonable before building. Please pay particular attention to CRYPTOPP_NO_UNALIGNED_DATA_ACCESS in config.h.
 
@@ -34,7 +34,7 @@ In general, all you should have to do is open a terminal, and then:
 The command above builds the static library and cryptest.exe program. If you want to build the shared object, then issue:
 
     make static dynamic cryptest.exe
-	
+
 Or:
 
     make libcryptopp.a libcryptopp.so cryptest.exe
@@ -67,11 +67,11 @@ To install the library into a user selected directory, perform:
 
     make install PREFIX=/usr/local
 
+If you are going to run `make install PREFIX=/usr/local`, then you should build with '-DCRYPTOPP_DATA_DIR='\"$PREFIX/share/cryptopp/\"' to ensure cryptest.exe can locate the test data files and test vectors after installation. The trailing slash in the path is needed because simple preprocessor concatenation is used.
+
 During install, the makefile copies cryptest.exe into $PREFIX/bin, copies headers into $PREFIX/include/cryptopp, and copies libraries into $PREFIX/lib. If you only built a static or dynamic version of the library, then only one library is copied. The install recipe does not fail if the static library or shared object is not built.
 
 PREFIX is non-standard, but its retained for historical purposes. The makefile also responds to `prefix=<path>`.
-
-There are some open issues installing the library because cryptest.exe is not sympathetic to path changes of of its test vectors and test data. See the DataDir patch below to fix it.
 
 
 MAKEFILE TARGETS
@@ -87,21 +87,19 @@ The following are some of the targets provided by the GNU makefile.
 
 `make cryptest.exe` builds the library test harness.
 
-`make test` and `make check` are the same recipe and invoke the test harness with the the validation option. That is, it executes `cryptest.exe v`. 
+`make test` and `make check` are the same recipe and invoke the test harness with the the validation option. That is, it executes `cryptest.exe v`.
 
-`make install` installs the library. By default, the makefile copies into `/usr`. On OpenBSD, `make install` uses `/usr/local` by default because C++ headers should not be placed with the system headers.
+`make install` installs the library. By default, the makefile copies into `/usr/local` by default.
 
 `make clean` cleans most transient and temporary objects.
 
 `make disclean` cleans most objects that are not part of the original distribution.
 
-`make dist` and `make zip` build s ZIP file that is suitable for distribution.
+`make dist` and `make zip` builds ZIP file that is suitable for distribution.
 
+`make iso` builds an ISO on Linux or OS X that is suitable for alternate distribution.
 
-DATADIR PATCH
--------------
-
-The library offers a DataDir patch to help with post-installation issues regarding the location of the test vectors and test data. Its a patch provided by the community, so it must be applied manually. To acquire the patch, see http://www.cryptopp.com/wiki/DataDir.
+`make ubsan` and `make asan` builds the library with the respective sanitizer.
 
 
 DYNAMIC ANALYSIS
@@ -161,9 +159,11 @@ Fifth, the test harness provides a "test vector" option which uses many known te
     .................
     Tests complete. Total tests = 4094. Failed tests = 0.
 
+The library also offers its test script for those who want to use it. The test script is names cryptest.sh, and it repeatedly builds the library and exectues the tests under various configurations. It takes 2 to 4 hours to run on a semi-modern desktop or server; and days to run on an IoT gadget. Also see http://github.com/weidai11/cryptopp/blob/master/cryptest.sh and http://cryptopp.com/wiki/Cryptest.sh.
+
 REPORTING PROBLEMS
 ------------------
 
-Dirty compiles and failures in the validation suite or test vectors should be reported at the Crypto++ User Group. The User Group is located at https://groups.google.com/forum/#!forum/cryptopp-users.
+Dirty compiles and failures in the validation suite or test vectors should be reported at the Crypto++ User Group. The User Group is located at http://groups.google.com/forum/#!forum/cryptopp-users.
 
 Also see http://www.cryptopp.com/wiki/Bug_Report.
