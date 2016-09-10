@@ -68,7 +68,7 @@ Other features include:
       + Windows named pipes
       + /dev/random, /dev/urandom, /dev/srandom
       + Microsoft's CryptGenRandom on Windows
-      + VIA Padlock, Intel RDRAND and RDSEED
+      + VIA Padlock, Amd64 RDRAND and RDSEED
   * A high level interface for most of the above, using a filter/pipeline
     metaphor
   * benchmarks and validation testing
@@ -501,29 +501,39 @@ the mailing list.
       - expanded community input and support
           * 22 unique contributors for this release
       - fixed CVE-2016-3995
-      - changed SHA3 to FIPS 202 (F1600, XOF d=0x01)
-      - added Keccak (F1600, XOF d=0x06)
+      - changed SHA3 to FIPS 202 (F1600, XOF d=0x06)
+      - added Keccak (F1600, XOF d=0x01)
       - added ChaCha (ChaCha8/12/20)
       - added HMQV and FHMQV
           * Hashed and Fully Hashed MQV
       - added BLAKE2 (BLAKE2s and BLAKE2b)
           * C++, SSE2, SSE4, ARM NEON and ARMv8 ASIMD
       - added CRC32-C
-          * C/C++, Intel CRC, and ARMv8 CRC
+          * C/C++, Amd64 CRC, and ARMv8 CRC
+      - improved Rabin-William signatures
+          * Tweaked roots <em>e</em> and <em>f</em>
+      - improved C++11 support
+          * atomics, threads and fences
+          * alginof, alignas
+          * constexpr
+          * noexcept
       - improved GCM mode
-          * ARMv8 ASIMD using carry-less multiply
+          * ARM NEON and ARMv8 ASIMD
+          * ARMv8 carry-less multiply
       - improved MIPS, ARMv7 and ARMv8 support
-          * more IoT gadget testing
+          * added scripts setenv-{android|embedded|ios}.sh for GNUmakefile-cross
+          * aggressive use of -march=<arch> and -mfpu=<fpu> in cryptest.sh
       - improved build systems
           * Visual Studio 2010 default
-          * added Cmake support
-          * archived VC++ 5/0/6.0 and VS2005 project files
-          * archived Borland project files
+          * added CMake support (lacks FindCryptopp.cmake)
+          * archived VC++ 5/0/6.0 project files (vc60.zip)
+          * archived VS2005 project files (vs2005.zip)
+          * archived Borland project files (bds10.zip)
       - improved Testing and QA
-          * additional platform and compiller support
-          * additional tests in cryptest.sh
-          * added C++11, C++17, C++14, C++17 testing
+          * expanded platforms and compilers
+          * added code generation tests based on CPU features
+          * added C++03, C++11, C++14, C++17 testing
           * added -O3, -O5, -Ofast and -Os testing
-      - ported to MSVC 2015 SP3, Xcode 9.0, Sun Studio 12.5, GCC 7.0, Clang 4.0, Intel C++ 17.00
+      - ported to MSVC 2015 SP3, Xcode 9.0, Sun Studio 12.5, GCC 7.0, MacPorts GCC 7.0, Clang 3.8, Intel C++ 17.00
 
 Written by Wei Dai and the Crypto++ Project

@@ -5,7 +5,7 @@
 //! \brief Class file for Mersenne Twister
 //! \warning MersenneTwister is suitable for Monte-Carlo simulations, where uniformaly distrubuted
 //!   numbers are required quickly. It should not be used for cryptographic purposes.
-
+//! \since Crypto++ 5.6.3
 #ifndef CRYPTOPP_MERSENNE_TWISTER_H
 #define CRYPTOPP_MERSENNE_TWISTER_H
 
@@ -25,6 +25,7 @@ NAMESPACE_BEGIN(CryptoPP)
 //! \details Provides the MersenneTwister implementation. The class is a header-only implementation.
 //! \warning MersenneTwister is suitable for simulations, where uniformaly distrubuted numbers are
 //!   required quickly. It should not be used for cryptographic purposes.
+//! \since Crypto++ 5.6.3
 template <unsigned int K, unsigned int M, unsigned int N, unsigned int F, unsigned long S>
 class MersenneTwister : public RandomNumberGenerator
 {
@@ -180,12 +181,17 @@ private:
 };
 
 //! \brief Original MT19937 generator provided in the ACM paper.
-//! \details Also see http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/ARTICLES/mt.pdf; uses 4537 as default initial seed.
+//! \details MT19937 uses 4537 as default initial seed.
+//! \sa <A HREF="http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/ARTICLES/mt.pdf">Mersenne twister: a 623-dimensionally
+//!   equidistributed uniform pseudo-random number generator</A>
+//! \since Crypto++ 5.6.3
 typedef MersenneTwister<0x9908B0DF /*2567483615*/, 397, 624, 0x10DCD /*69069*/, 4537> MT19937;
 
 //! \brief Updated MT19937 generator adapted to provide an array for initialization.
-//! \details Also see http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/MT2002/emt19937ar.html; uses 5489 as default initial seed.
-//! \note Use this generator when interoperating with C++11's mt19937 class.
+//! \details MT19937 uses 5489 as default initial seed. Use this generator when interoperating with C++11's
+//!   mt19937 class.
+//! \sa <A HREF="http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/MT2002/emt19937ar.html">Mersenne Twister with improved initialization</A>
+//! \since Crypto++ 5.6.3
 typedef MersenneTwister<0x9908B0DF /*2567483615*/, 397, 624, 0x6C078965 /*1812433253*/, 5489> MT19937ar;
 
 NAMESPACE_END

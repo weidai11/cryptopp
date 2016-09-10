@@ -52,6 +52,7 @@ protected:
 
 //! \class InvertibleRWFunction
 //! \brief Rabin-Williams trapdoor function using the private key
+//! \since Tweaked roots using <em>e</em> and <em>f</em> since Crypto++ 5.6.4
 class CRYPTOPP_DLL InvertibleRWFunction : public RWFunction, public TrapdoorFunctionInverse, public PrivateKey
 {
 	typedef InvertibleRWFunction ThisClass;

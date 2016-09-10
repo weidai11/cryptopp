@@ -1,9 +1,9 @@
 // sha3.h - written and placed in the public domain by Wei Dai
 
 //! \file sha3.h
-//! \brief Classes for SHA-3 message digests
-//! \details The Crypto++ SHA-3 conforms to FIPS 202 version of SHA-3.
-//!   Previous behavior is available in SHA3 classes.
+//! \brief Classes for SHA3 message digests
+//! \details The Crypto++ implementation conforms to the FIPS 202 version of SHA3 using F1600 with XOF d=0x06.
+//!   Previous behavior (XOF d=0x01) is available in Keccak classes.
 //! \sa <a href="http://en.wikipedia.org/wiki/SHA-3">SHA-3</a>,
 //!   <A HREF="http://csrc.nist.gov/groups/ST/hash/sha-3/fips202_standard_2015.html">SHA-3 STANDARD (FIPS 202)</A>.
 //! \since Crypto++ 5.6.2
@@ -18,11 +18,13 @@ NAMESPACE_BEGIN(CryptoPP)
 
 //! \class SHA3
 //! \brief SHA3 message digest base class
-	//! \details SHA3 is the base class for SHA3_224, SHA3_256, SHA3_384 and SHA3_512.
-	//!   Library users should instantiate a derived class, and only use SHA3
-	//!   as a base class reference or pointer.
-	//! \sa Keccak, SHA3_224, SHA3_256, SHA3_384 and SHA3_512.
-	//! \since Crypto++ 5.6.2
+//! \details The Crypto++ implementation conforms to FIPS 202 version of SHA3 using F1600 with XOF d=0x06.
+//!   Previous behavior (XOF d=0x01) is available in Keccak classes.
+//! \details SHA3 is the base class for SHA3_224, SHA3_256, SHA3_384 and SHA3_512.
+//!   Library users should instantiate a derived class, and only use SHA3
+//!   as a base class reference or pointer.
+//! \sa Keccak, SHA3_224, SHA3_256, SHA3_384 and SHA3_512.
+//! \since Crypto++ 5.6.2
 class SHA3 : public HashTransformation
 {
 public:
