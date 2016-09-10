@@ -537,6 +537,9 @@ endif
 ifneq ($(wildcard *.exe.dSYM),)
 	-$(RM) -r *.exe.dSYM/
 endif
+ifneq ($(wildcard *.dylib.dSYM),)
+	-$(RM) -r *.dylib.dSYM/
+endif
 ifneq ($(wildcard cov-int/),)
 	-$(RM) -r cov-int/
 endif

@@ -165,8 +165,11 @@ ifeq ($(HAS_SOLIB_VERSION),1)
 	-$(RM) libcryptopp.so libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
 endif
 	-$(RM) adhoc.cpp.o adhoc.cpp.proto.o $(LIBOBJS) $(TESTOBJS)
-ifneq ($(wildcard *.dSYM),)
-	-$(RM) -r cryptest.exe.dSYM
+ifneq ($(wildcard *.exe.dSYM),)
+	-$(RM) -r *.exe.dSYM/
+endif
+ifneq ($(wildcard *.dylib.dSYM),)
+	-$(RM) -r *.dylib.dSYM/
 endif
 
 .PHONY: distclean
