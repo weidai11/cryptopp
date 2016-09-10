@@ -524,6 +524,6 @@ the mailing list.
           * additional tests in cryptest.sh
           * added C++11, C++17, C++14, C++17 testing
           * added -O3, -O5, -Ofast and -Os testing
-      - ported to MSVC 2015 SP3, Xcode 9.0, GCC 7.0, Clang 4.0, Intel C++ 17.00
+      - ported to MSVC 2015 SP3, Xcode 9.0, Sun Studio 12.5, GCC 7.0, Clang 4.0, Intel C++ 17.00
 
 Written by Wei Dai and the Crypto++ Project
