@@ -519,15 +519,17 @@ the mailing list.
           * ARMv8 carry-less multiply
       - improved MIPS, ARMv7 and ARMv8 support
           * more IoT gadget testing
+          * cryptest.sh and tailored tests
       - improved build systems
           * Visual Studio 2010 default
           * added CMake support
           * archived VC++ 5/0/6.0 and VS2005 project files
           * archived Borland project files
       - improved Testing and QA
-          * additional platform and compiller support
-          * additional tests in cryptest.sh
-          * added C++11, C++17, C++14, C++17 testing
+          * added more platforms and compilers support
+          * added more tests in cryptest.sh
+          * added code generation tests based on CPU features
+          * added C++03, C++11, C++14, C++17 testing
           * added -O3, -O5, -Ofast and -Os testing
       - ported to MSVC 2015 SP3, Xcode 9.0, Sun Studio 12.5, GCC 7.0, MacPorts GCC 7.0, Clang 3.8, Intel C++ 17.00
 
