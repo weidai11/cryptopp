@@ -501,8 +501,8 @@ the mailing list.
       - expanded community input and support
           * 22 unique contributors for this release
       - fixed CVE-2016-3995
-      - changed SHA3 to FIPS 202 (F1600, XOF d=0x01)
-      - added Keccak (F1600, XOF d=0x06)
+      - changed SHA3 to FIPS 202 (F1600, XOF d=0x06)
+      - added Keccak (F1600, XOF d=0x01)
       - added ChaCha (ChaCha8/12/20)
       - added HMQV and FHMQV
           * Hashed and Fully Hashed MQV
