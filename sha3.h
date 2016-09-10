@@ -18,7 +18,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 //! \class SHA3
 //! \brief SHA3 message digest base class
-//! \details The Crypto++ implementation conforms to FIPS 202 version of SHA3 usinf F1600 with XOF d=0x06.
+//! \details The Crypto++ implementation conforms to FIPS 202 version of SHA3 using F1600 with XOF d=0x06.
 //!   Previous behavior (XOF d=0x01) is available in Keccak classes.
 //! \details SHA3 is the base class for SHA3_224, SHA3_256, SHA3_384 and SHA3_512.
 //!   Library users should instantiate a derived class, and only use SHA3
