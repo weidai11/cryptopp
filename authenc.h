@@ -3,6 +3,7 @@
 //! \file
 //! \headerfile authenc.h
 //! \brief Base classes for working with authenticated encryption modes of encryption
+//! \since Crypto++ 5.6.0
 
 #ifndef CRYPTOPP_AUTHENC_H
 #define CRYPTOPP_AUTHENC_H
@@ -14,6 +15,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 //! \class AuthenticatedSymmetricCipherBase
 //! \brief Base implementation for one direction (encryption or decryption) of a stream cipher or block cipher mode with authentication
+//! \since Crypto++ 5.6.0
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AuthenticatedSymmetricCipherBase : public AuthenticatedSymmetricCipher
 {
 public:

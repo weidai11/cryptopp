@@ -2,6 +2,7 @@
 
 //! \file cmac.h
 //! \brief Classes for CMAC message authentication code
+//! \since Crypto++ 5.6.0
 
 #ifndef CRYPTOPP_CMAC_H
 #define CRYPTOPP_CMAC_H
@@ -13,6 +14,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 //! \class CMAC_Base
 //! \brief CMAC base implementation
+//! \since Crypto++ 5.6.0
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CMAC_Base : public MessageAuthenticationCode
 {
 public:
@@ -40,6 +42,7 @@ protected:
 //! \tparam T block cipher
 //! \details Template parameter T should be a class derived from BlockCipherDocumentation, for example AES, with a block size of 8, 16, or 32.
 //! \sa <a href="http://www.cryptolounge.org/wiki/CMAC">CMAC</a>
+//! \since Crypto++ 5.6.0
 template <class T>
 class CMAC : public MessageAuthenticationCodeImpl<CMAC_Base, CMAC<T> >, public SameKeyLengthAs<T>
 {

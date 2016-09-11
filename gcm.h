@@ -2,6 +2,7 @@
 
 //! \file gcm.h
 //! \brief GCM block cipher mode of operation
+//! \since Crypto++ 5.6.0
 
 #ifndef CRYPTOPP_GCM_H
 #define CRYPTOPP_GCM_H
@@ -22,6 +23,7 @@ enum GCM_TablesOption {
 //! \class GCM_Base
 //! \brief GCM block cipher base implementation
 //! \details Base implementation of the AuthenticatedSymmetricCipher interface
+//! \since Crypto++ 5.6.0
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE GCM_Base : public AuthenticatedSymmetricCipherBase
 {
 public:
@@ -94,6 +96,7 @@ protected:
 //! \tparam T_BlockCipher block cipher
 //! \tparam T_TablesOption table size, either \p GCM_2K_Tables or \p GCM_64K_Tables
 //! \tparam T_IsEncryption direction in which to operate the cipher
+//! \since Crypto++ 5.6.0
 template <class T_BlockCipher, GCM_TablesOption T_TablesOption, bool T_IsEncryption>
 class GCM_Final : public GCM_Base
 {
@@ -116,6 +119,7 @@ private:
 //! \details \p GCM provides the \p Encryption and \p Decryption typedef. See GCM_Base
 //!   and GCM_Final for the AuthenticatedSymmetricCipher implementation.
 //! \sa <a href="http://www.cryptolounge.org/wiki/GCM">GCM</a> at the Crypto Lounge
+//! \since Crypto++ 5.6.0
 template <class T_BlockCipher, GCM_TablesOption T_TablesOption=GCM_2K_Tables>
 struct GCM : public AuthenticatedSymmetricCipherDocumentation
 {
