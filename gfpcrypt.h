@@ -532,8 +532,8 @@ public:
 		mac.Update(encodingParameters.begin(), encodingParameters.size());
 		if (DHAES_MODE)
 		{
-			byte L[8] = {0,0,0,0};
-			PutWord(false, BIG_ENDIAN_ORDER, L+4, word32(encodingParameters.size()));
+			byte L[8] = {0,0,0,0,0,0,0,0};
+			PutWord(false, BIG_ENDIAN_ORDER, L, word64(encodingParameters.size()));
 			mac.Update(L, 8);
 		}
 		mac.Final(ciphertext + plaintextLength);
@@ -561,8 +561,8 @@ public:
 		mac.Update(encodingParameters.begin(), encodingParameters.size());
 		if (DHAES_MODE)
 		{
-			byte L[8] = {0,0,0,0};
-			PutWord(false, BIG_ENDIAN_ORDER, L+4, word32(encodingParameters.size()));
+			byte L[8] = {0,0,0,0,0,0,0,0};
+			PutWord(false, BIG_ENDIAN_ORDER, L, word64(encodingParameters.size()));
 			mac.Update(L, 8);
 		}
 		if (!mac.Verify(ciphertext + plaintextLength))
