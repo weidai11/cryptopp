@@ -520,6 +520,8 @@ the mailing list.
       - improved GCM mode
           * ARM NEON and ARMv8 ASIMD
           * ARMv8 carry-less multiply
+      - improved Windows 8 and 10 support
+          * Windows Phone, Universal Windows Platform, Windows Store
       - improved MIPS, ARMv7 and ARMv8 support
           * added scripts setenv-{android|embedded|ios}.sh for GNUmakefile-cross
           * aggressive use of -march=<arch> and -mfpu=<fpu> in cryptest.sh
