@@ -63,7 +63,7 @@
 // ***************** Less Important Settings ***************
 
 // Library version
-#define CRYPTOPP_VERSION 564
+#define CRYPTOPP_VERSION 565
 
 // Define this if you want to set a prefix for TestData/ and TestVectors/
 //   Be mindful of the trailing slash since its simple concatenation.
