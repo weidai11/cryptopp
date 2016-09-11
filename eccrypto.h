@@ -322,7 +322,7 @@ struct ECNR : public DL_SS<DL_Keys_EC<EC>, DL_Algorithm_ECNR<EC>, DL_SignatureMe
 };
 
 //! Elliptic Curve Integrated Encryption Scheme, AKA <a href="http://www.weidai.com/scan-mirror/ca.html#ECIES">ECIES</a>
-/*!$ Default to (NoCofactorMultiplication and DHAES_MODE = true) for compatibilty with BouncyCastle and Botan-1.11.
+/*! Default to (NoCofactorMultiplication and DHAES_MODE = true) for compatibilty with BouncyCastle and Botan-1.11.
  *      For cmpatibility with SEC1 and Crypto++ 4.2 set DHAES_MODE = false.
 	The combination of (IncompatibleCofactorMultiplication and DHAES_MODE = true) is recommended for best
 	efficiency and security. */
