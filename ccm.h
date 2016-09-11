@@ -2,6 +2,7 @@
 
 //! \file ccm.h
 //! \brief CCM block cipher mode of operation
+//! \since Crypto++ 5.6.0
 
 #ifndef CRYPTOPP_CCM_H
 #define CRYPTOPP_CCM_H
@@ -14,6 +15,7 @@ NAMESPACE_BEGIN(CryptoPP)
 //! \class CCM_Base
 //! \brief CCM block cipher base implementation
 //! \details Base implementation of the AuthenticatedSymmetricCipher interface
+//! \since Crypto++ 5.6.0
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CCM_Base : public AuthenticatedSymmetricCipherBase
 {
 public:
@@ -84,6 +86,7 @@ protected:
 //! \tparam T_BlockCipher block cipher
 //! \tparam T_DefaultDigestSize default digest size, in bytes
 //! \tparam T_IsEncryption direction in which to operate the cipher
+//! \since Crypto++ 5.6.0
 template <class T_BlockCipher, int T_DefaultDigestSize, bool T_IsEncryption>
 class CCM_Final : public CCM_Base
 {
@@ -106,6 +109,7 @@ private:
 //! \details \p CCM provides the \p Encryption and \p Decryption typedef. See GCM_Base
 //!   and GCM_Final for the AuthenticatedSymmetricCipher implementation.
 //! \sa <a href="http://www.cryptolounge.org/wiki/CCM">CCM</a> at the Crypto Lounge
+//! \since Crypto++ 5.6.0
 template <class T_BlockCipher, int T_DefaultDigestSize = 16>
 struct CCM : public AuthenticatedSymmetricCipherDocumentation
 {
