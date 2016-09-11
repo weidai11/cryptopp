@@ -14,7 +14,7 @@ PLATFORMS=(iPhoneOS iPhoneSimulator WatchOS WatchSimulator AppleTVOS AppleTVSimu
 for platform in ${PLATFORMS[@]}
 do
 	make -f GNUmakefile-cross distclean > /dev/null 2>&1
-	
+
 	MESSAGE="Testing for Xcode support of $platform"
 	LEN=${#MESSAGE}
 	HEADER=$(seq  -f "*" -s '' $LEN)
@@ -35,6 +35,6 @@ do
 		make -f GNUmakefile-cross static dynamic cryptest.exe
 	else
 		echo
-		echo "$platform not supported by Xcode"		
+		echo "$platform not supported by Xcode"
 	fi
 done
