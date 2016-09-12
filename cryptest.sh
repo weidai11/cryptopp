@@ -3503,20 +3503,19 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		SUNCC_CXXFLAGS="${PLATFORM_CXXFLAGS[@]}"
 	fi
 
-	# Sun Studio 12.3 and below workaround, http://github.com/weidai11/cryptopp/issues/228
-	SUNCC_SSE_CXXFLAGS=$(echo -n "${SUNCC_CXXFLAGS[@]}" | "$AWK" '/SSE/' ORS=' ' RS=' ')
-
 	############################################
 	# Sun Studio 12.2/SunCC 5.11
 	if [[ (-e "/opt/solstudio12.2/bin/CC") ]]; then
 
-		# More workarounds...
-		if [[ (echo -n "$SUNCC_SSE_CXXFLAGS" | "$GREP" -i -c "ssse3") != "0" ]]; then
-			SUNCC_SSE_XARCH="-xarch=ssse3";
-		elif [[ (echo -n "$SUNCC_SSE_CXXFLAGS" | "$GREP" -i -c "sse3") != "0" ]]; then
-			SUNCC_SSE_XARCH="-xarch=sse3";
+		# More workarounds... SunCC 5.11 only does SSSE3, http://github.com/weidai11/cryptopp/issues/228
+		SUNCC_SSE_CXXFLAGS=$(echo -n "${SUNCC_CXXFLAGS[@]}" | "$AWK" '/__(SSE2|SSE3|SSSE3)__/' ORS=' ' RS=' ')
+
+		if [[ $(echo -n "$SUNCC_SSE_CXXFLAGS" | "$GREP" -i -c "ssse3") != "0" ]]; then
+			SUNCC_SSE_CXXFLAGS="$SUNCC_SSE_CXXFLAGS -xarch=ssse3";
+		elif [[ $(echo -n "$SUNCC_SSE_CXXFLAGS" | "$GREP" -i -c "sse3") != "0" ]]; then
+			SUNCC_SSE_CXXFLAGS="$SUNCC_SSE_CXXFLAGS -xarch=sse3";
 		else
-			SUNCC_SSE_XARCH="-xarch=sse2";
+			SUNCC_SSE_CXXFLAGS="$SUNCC_SSE_CXXFLAGS -xarch=sse2";
 		fi
 
 		############################################
@@ -3529,7 +3528,7 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="-DDEBUG -g -xO0 SUNCC_SSE_CXXFLAGS $SUNCC_SSE_XARCH"
+		CXXFLAGS="-DDEBUG -g -xO0 $SUNCC_SSE_CXXFLAGS"
 		CXX="/opt/solstudio12.2/bin/CC" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -3555,7 +3554,7 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="-DNDEBUG -g -xO2 SUNCC_SSE_CXXFLAGS $SUNCC_SSE_XARCH"
+		CXXFLAGS="-DNDEBUG -g -xO2 $SUNCC_SSE_CXXFLAGS"
 		CXX="/opt/solstudio12.2/bin/CC" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -3576,17 +3575,19 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 	# Sun Studio 12.3/SunCC 5.12
 	if [[ (-e "/opt/solarisstudio12.3/bin/CC") ]]; then
 
-		# More workarounds...
-		if [[ (echo -n "$SUNCC_SSE_CXXFLAGS" | "$GREP" -i -c "sse4_2") != "0" ]]; then
-			SUNCC_SSE_XARCH="-xarch=sse4_2";
-		elif [[ (echo -n "$SUNCC_SSE_CXXFLAGS" | "$GREP" -i -c "sse4_1") != "0" ]]; then
-			SUNCC_SSE_XARCH="-xarch=sse4_1";
-		elif [[ (echo -n "$SUNCC_SSE_CXXFLAGS" | "$GREP" -i -c "ssse3") != "0" ]]; then
-			SUNCC_SSE_XARCH="-xarch=ssse3";
-		elif [[ (echo -n "$SUNCC_SSE_CXXFLAGS" | "$GREP" -i -c "sse3") != "0" ]]; then
-			SUNCC_SSE_XARCH="-xarch=sse3";
+		# More workarounds... SunCC 5.12 only does SSE4, http://github.com/weidai11/cryptopp/issues/228
+		SUNCC_SSE_CXXFLAGS=$(echo -n "${SUNCC_CXXFLAGS[@]}" | "$AWK" '/__(SSE2|SSE3|SSSE3|SSE4_1|SSE4_2)__/' ORS=' ' RS=' ')
+
+		if [[ $(echo -n "$SUNCC_SSE_CXXFLAGS" | "$GREP" -i -c "sse4_2") != "0" ]]; then
+			SUNCC_SSE_CXXFLAGS="$SUNCC_SSE_CXXFLAGS -xarch=sse4_2";
+		elif [[ $(echo -n "$SUNCC_SSE_CXXFLAGS" | "$GREP" -i -c "sse4_1") != "0" ]]; then
+			SUNCC_SSE_CXXFLAGS="$SUNCC_SSE_CXXFLAGS -xarch=sse4_1";
+		elif [[ $(echo -n "$SUNCC_SSE_CXXFLAGS" | "$GREP" -i -c "ssse3") != "0" ]]; then
+			SUNCC_SSE_CXXFLAGS="$SUNCC_SSE_CXXFLAGS -xarch=ssse3";
+		elif [[ $(echo -n "$SUNCC_SSE_CXXFLAGS" | "$GREP" -i -c "sse3") != "0" ]]; then
+			SUNCC_SSE_CXXFLAGS="$SUNCC_SSE_CXXFLAGS -xarch=sse3";
 		else
-			SUNCC_SSE_XARCH="-xarch=sse2";
+			SUNCC_SSE_CXXFLAGS="$SUNCC_SSE_CXXFLAGS -xarch=sse2";
 		fi
 
 		############################################
@@ -3599,7 +3600,7 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="-DDEBUG -g3 -xO0 $SUNCC_SSE_CXXFLAGS $SUNCC_SSE_XARCH"
+		CXXFLAGS="-DDEBUG -g3 -xO0 $SUNCC_SSE_CXXFLAGS"
 		CXX=/opt/solarisstudio12.3/bin/CC CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -3625,7 +3626,7 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="-DNDEBUG -g3 -xO2 $SUNCC_SSE_CXXFLAGS $SUNCC_SSE_XARCH"
+		CXXFLAGS="-DNDEBUG -g3 -xO2 $SUNCC_SSE_CXXFLAGS"
 		CXX=/opt/solarisstudio12.3/bin/CC CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -3652,6 +3653,8 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		echo "************************************" | tee -a "$TEST_RESULTS"
 		echo "Testing: Sun Studio 12.4, debug, default CXXFLAGS" | tee -a "$TEST_RESULTS"
 		echo
+
+		# No workarounds... SunCC 5.13 does AVX, BMI and ADX. The options should be set in SUNCC_CXXFLAGS.
 
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
@@ -3709,6 +3712,8 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		echo "************************************" | tee -a "$TEST_RESULTS"
 		echo "Testing: Sun Studio 12.5, debug, default CXXFLAGS" | tee -a "$TEST_RESULTS"
 		echo
+
+		# No workarounds... SunCC 5.14 does AVX, BMI and ADX. The options shou
 
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
