@@ -12,17 +12,17 @@
 #ifndef CRYPTOPP_IMPORTS
 #ifndef CRYPTOPP_GENERATE_X64_MASM
 
-// Clang 3.3 integrated assembler crash on Linux. MacPorts GCC compile error. SunCC crash under SunCC 5.14 and below.
-#if (defined(CRYPTOPP_LLVM_CLANG_VERSION) && (CRYPTOPP_LLVM_CLANG_VERSION < 30400)) || defined(CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER) || (defined(__SUNPRO_CC) && __SUNPRO_CC <= 0x5140)
-# undef CRYPTOPP_X86_ASM_AVAILABLE
-# undef CRYPTOPP_X32_ASM_AVAILABLE
-# undef CRYPTOPP_X64_ASM_AVAILABLE
+// Clang 3.3 integrated assembler crash on Linux. MacPorts GCC compile error.
+#if (defined(CRYPTOPP_LLVM_CLANG_VERSION) && (CRYPTOPP_LLVM_CLANG_VERSION < 30400)) || defined(CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER)
 # undef CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
-# undef CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE
 # undef CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
-# define CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE 0
-# define CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE 0
-# define CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE 0
+# undef CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
+#endif
+
+// SunCC 5.13 and below crash with AES-NI/CLMUL and C++{03|11}. Disable one or the other.
+//   Also see http://github.com/weidai11/cryptopp/issues/226
+#if defined(__SUNPRO_CC) && (__SUNPRO_CC <= 0x513)
+# undef CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
 #endif
 
 #include "gcm.h"
