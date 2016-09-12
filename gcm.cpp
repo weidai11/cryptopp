@@ -28,13 +28,16 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-// Different assemblers accept different mnemonic: 'movd eax, xmm0' vs 'movd rax, xmm0' vs 'mov eax, xmm0' vs 'mov rax, xmm0'
+// Different assemblers accept different mnemonics: 'movd eax, xmm0' vs 'movd rax, xmm0' vs 'mov eax, xmm0' vs 'mov rax, xmm0'
 #if (CRYPTOPP_LLVM_CLANG_VERSION >= 30600) || (CRYPTOPP_APPLE_CLANG_VERSION >= 70000) || defined(CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER)
-# define USE_MOVD_EXX_REG 1
+// 'movd eax, xmm0' only. REG_WORD() macro not used.
+# define USE_MOVD_REG32 1
 #elif (defined(CRYPTOPP_LLVM_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION)) && defined(CRYPTOPP_X64_ASM_AVAILABLE)
-# define USE_MOVD_EXX_OR_RXX_REG 1
-#else	// GNU Assembler
-# define USE_MOV_EXX_OR_RXX_REG 1
+// 'movd eax, xmm0' or 'movd rax, xmm0'. REG_WORD() macro supplies REG32 or REG64.
+# define USE_MOVD_REG32_OR_REG64 1
+#else
+// 'mov eax, xmm0' or 'mov rax, xmm0'. REG_WORD() macro supplies REG32 or REG64.
+# define USE_MOV_REG32_OR_REG64 1
 #endif
 
 word16 GCM_Base::s_reductionTable[256];
@@ -896,9 +899,9 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 		AS2(	pxor	xmm5, xmm2						)
 
 		AS2(	psrldq	xmm0, 15						)
-#if USE_MOVD_EXX_REG
+#if USE_MOVD_REG32
 		AS2(	movd	edi, xmm0						)
-#elif USE_MOVD_EXX_OR_RXX_REG
+#elif USE_MOVD_REG32_OR_REG64
 		AS2(	mov		WORD_REG(di), xmm0				)
 #else	// GNU Assembler
 		AS2(	movd	WORD_REG(di), xmm0				)
@@ -911,9 +914,9 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 		AS2(	pxor	xmm4, xmm5						)
 
 		AS2(	psrldq	xmm1, 15						)
-#if USE_MOVD_EXX_REG
+#if USE_MOVD_REG32
 		AS2(	movd	edi, xmm1						)
-#elif USE_MOVD_EXX_OR_RXX_REG
+#elif USE_MOVD_REG32_OR_REG64
 		AS2(	mov		WORD_REG(di), xmm1				)
 #else
 		AS2(	movd	WORD_REG(di), xmm1				)
@@ -922,9 +925,9 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 		AS2(	shl		eax, 8							)
 
 		AS2(	psrldq	xmm0, 15						)
-#if USE_MOVD_EXX_REG
+#if USE_MOVD_REG32
 		AS2(	movd	edi, xmm0						)
-#elif USE_MOVD_EXX_OR_RXX_REG
+#elif USE_MOVD_REG32_OR_REG64
 		AS2(	mov		WORD_REG(di), xmm0				)
 #else
 		AS2(	movd	WORD_REG(di), xmm0				)
