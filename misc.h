@@ -872,10 +872,12 @@ inline T1 RoundUpToMultipleOf(const T1 &n, const T2 &m)
 //! \brief Returns the minimum alignment requirements of a type
 //! \param dummy an unused Visual C++ 6.0 workaround
 //! \returns the minimum alignment requirements of a type, in bytes
-//! \details Internally the function calls C++11's alignof if available. If not available, the
-//!   function uses compiler specific extensions such as __alignof and _alignof_. sizeof(T)
-//!   is used if the others are not available. In all cases, if CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
-//!   is defined, then the function returns 1.
+//! \details Internally the function calls C++11's <tt>alignof</tt> if available. If not available,
+//!   then the function uses compiler specific extensions such as <tt>__alignof</tt> and
+//!   <tt>_alignof_</tt>. If an extension is not available, then the function uses
+//!   <tt>__BIGGEST_ALIGNMENT__</tt>. <tt>sizeof(T)</tt> is used if the others are not available.
+//!   In <em>all</em> cases, if <tt>CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS</tt> is defined, then the
+//!   function returns 1.
 template <class T>
 inline unsigned int GetAlignmentOf(T *dummy=NULL)	// VC60 workaround
 {
@@ -891,6 +893,8 @@ inline unsigned int GetAlignmentOf(T *dummy=NULL)	// VC60 workaround
 	return __alignof(T);
 #elif defined(__GNUC__)
 	return __alignof__(T);
+#elif __BIGGEST_ALIGNMENT__
+	return __BIGGEST_ALIGNMENT__;
 #elif CRYPTOPP_BOOL_SLOW_WORD64
 	return UnsignedMin(4U, sizeof(T));
 #else
