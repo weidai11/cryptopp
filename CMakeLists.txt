@@ -10,7 +10,7 @@ project(cryptopp)
 
 set(cryptopp_VERSION_MAJOR 5)
 set(cryptopp_VERSION_MINOR 6)
-set(cryptopp_VERSION_PATCH 4)
+set(cryptopp_VERSION_PATCH 5)
 
 include(GNUInstallDirs)
 include(TestBigEndian)
