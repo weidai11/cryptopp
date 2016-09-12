@@ -5,6 +5,10 @@
 
 //! \file chacha.h
 //! \brief Classes for ChaCha8, ChaCha12 and ChaCha20 stream ciphers
+//! \details Crypto++ provides Bernstein and ECRYPT's ChaCha from <a href="http://cr.yp.to/chacha/chacha-20080128.pdf">ChaCha,
+//!   a variant of Salsa20</a> (2008.01.28). Bernstein's implementation is _slightly_ different from the TLS working group's
+//!   implementation for cipher suites <tt>TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256</tt>,
+//!   <tt>TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256</tt>, and <tt>TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256</tt>.
 //! \since Crypto++ 5.6.4
 
 #ifndef CRYPTOPP_CHACHA_H
@@ -58,6 +62,9 @@ struct ChaCha8 : public ChaCha_Info<8>, public SymmetricCipherDocumentation
 
 //! \class ChaCha12
 //! \brief ChaCha12 stream cipher
+//! \details Bernstein and ECRYPT's ChaCha is _slightly_ different from the TLS working group's implementation for
+//!   cipher suites <tt>TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256</tt>,
+//!   <tt>TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256</tt>, and <tt>TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256</tt>.
 //! \sa <a href="http://cr.yp.to/chacha/chacha-20080128.pdf">ChaCha, a variant of Salsa20</a> (2008.01.28).
 //! \since Crypto++ 5.6.4
 struct ChaCha12 : public ChaCha_Info<12>, public SymmetricCipherDocumentation
@@ -69,6 +76,9 @@ struct ChaCha12 : public ChaCha_Info<12>, public SymmetricCipherDocumentation
 //! \class ChaCha20
 //! \brief ChaCha20 stream cipher
 //! \sa <a href="http://cr.yp.to/chacha/chacha-20080128.pdf">ChaCha, a variant of Salsa20</a> (2008.01.28).
+//! \details Bernstein and ECRYPT's ChaCha is _slightly_ different from the TLS working group's implementation for
+//!   cipher suites <tt>TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256</tt>,
+//!   <tt>TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256</tt>, and <tt>TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256</tt>.
 //! \since Crypto++ 5.6.4
 struct ChaCha20 : public ChaCha_Info<20>, public SymmetricCipherDocumentation
 {
