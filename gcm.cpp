@@ -901,7 +901,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 		AS2(	psrldq	xmm0, 15						)
 #if USE_MOVD_REG32
 		AS2(	movd	edi, xmm0						)
-#elif USE_MOVD_REG32_OR_REG64
+#elif USE_MOV_REG32_OR_REG64
 		AS2(	mov		WORD_REG(di), xmm0				)
 #else	// GNU Assembler
 		AS2(	movd	WORD_REG(di), xmm0				)
@@ -916,7 +916,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 		AS2(	psrldq	xmm1, 15						)
 #if USE_MOVD_REG32
 		AS2(	movd	edi, xmm1						)
-#elif USE_MOVD_REG32_OR_REG64
+#elif USE_MOV_REG32_OR_REG64
 		AS2(	mov		WORD_REG(di), xmm1				)
 #else
 		AS2(	movd	WORD_REG(di), xmm1				)
@@ -927,7 +927,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 		AS2(	psrldq	xmm0, 15						)
 #if USE_MOVD_REG32
 		AS2(	movd	edi, xmm0						)
-#elif USE_MOVD_REG32_OR_REG64
+#elif USE_MOV_REG32_OR_REG64
 		AS2(	mov		WORD_REG(di), xmm0				)
 #else
 		AS2(	movd	WORD_REG(di), xmm0				)
