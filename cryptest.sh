@@ -3507,8 +3507,17 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 	SUNCC_SSE_CXXFLAGS=$(echo -n "${SUNCC_CXXFLAGS[@]}" | "$AWK" '/SSE/' ORS=' ' RS=' ')
 
 	############################################
-	# Sun Studio 12.2
+	# Sun Studio 12.2/SunCC 5.11
 	if [[ (-e "/opt/solstudio12.2/bin/CC") ]]; then
+
+		# More workarounds...
+		if [[ (echo -n "$SUNCC_SSE_CXXFLAGS" | "$GREP" -i -c "ssse3") != "0" ]]; then
+			SUNCC_SSE_XARCH="-xarch=ssse3";
+		elif [[ (echo -n "$SUNCC_SSE_CXXFLAGS" | "$GREP" -i -c "sse3") != "0" ]]; then
+			SUNCC_SSE_XARCH="-xarch=sse3";
+		else
+			SUNCC_SSE_XARCH="-xarch=sse2";
+		fi
 
 		############################################
 		# Debug build
@@ -3520,7 +3529,7 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="-DDEBUG -g -xO0 ${SUNCC_SSE_CXXFLAGS[@]}"
+		CXXFLAGS="-DDEBUG -g -xO0 SUNCC_SSE_CXXFLAGS $SUNCC_SSE_XARCH"
 		CXX="/opt/solstudio12.2/bin/CC" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -3546,7 +3555,7 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="-DNDEBUG -g -xO2 ${SUNCC_SSE_CXXFLAGS[@]}"
+		CXXFLAGS="-DNDEBUG -g -xO2 SUNCC_SSE_CXXFLAGS $SUNCC_SSE_XARCH"
 		CXX="/opt/solstudio12.2/bin/CC" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -3564,8 +3573,21 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 	fi
 
 	############################################
-	# Sun Studio 12.3
+	# Sun Studio 12.3/SunCC 5.12
 	if [[ (-e "/opt/solarisstudio12.3/bin/CC") ]]; then
+
+		# More workarounds...
+		if [[ (echo -n "$SUNCC_SSE_CXXFLAGS" | "$GREP" -i -c "sse4_2") != "0" ]]; then
+			SUNCC_SSE_XARCH="-xarch=sse4_2";
+		elif [[ (echo -n "$SUNCC_SSE_CXXFLAGS" | "$GREP" -i -c "sse4_1") != "0" ]]; then
+			SUNCC_SSE_XARCH="-xarch=sse4_1";
+		elif [[ (echo -n "$SUNCC_SSE_CXXFLAGS" | "$GREP" -i -c "ssse3") != "0" ]]; then
+			SUNCC_SSE_XARCH="-xarch=ssse3";
+		elif [[ (echo -n "$SUNCC_SSE_CXXFLAGS" | "$GREP" -i -c "sse3") != "0" ]]; then
+			SUNCC_SSE_XARCH="-xarch=sse3";
+		else
+			SUNCC_SSE_XARCH="-xarch=sse2";
+		fi
 
 		############################################
 		# Debug build
@@ -3577,7 +3599,7 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="-DDEBUG -g3 -xO0 $SUNCC_SSE_CXXFLAGS"
+		CXXFLAGS="-DDEBUG -g3 -xO0 $SUNCC_SSE_CXXFLAGS $SUNCC_SSE_XARCH"
 		CXX=/opt/solarisstudio12.3/bin/CC CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -3603,7 +3625,7 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="-DNDEBUG -g3 -xO2 $SUNCC_SSE_CXXFLAGS"
+		CXXFLAGS="-DNDEBUG -g3 -xO2 $SUNCC_SSE_CXXFLAGS $SUNCC_SSE_XARCH"
 		CXX=/opt/solarisstudio12.3/bin/CC CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -3621,7 +3643,7 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 	fi
 
 	############################################
-	# Sun Studio 12.4
+	# Sun Studio 12.4/SunCC 5.13
 	if [[ (-e "/opt/solarisstudio12.4/bin/CC") ]]; then
 
 		############################################
@@ -3678,7 +3700,7 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 	fi
 
 	############################################
-	# Sun Studio 12.5
+	# Sun Studio 12.5/SunCC 5.14
 	if [[ (-e "/opt/developerstudio12.5/bin/CC") ]]; then
 
 		############################################
