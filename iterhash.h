@@ -8,7 +8,8 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! exception thrown when trying to hash more data than is allowed by a hash function
+//! \class HashInputTooLong
+//! \brief Exception thrown when trying to hash more data than is allowed by a hash function
 class CRYPTOPP_DLL HashInputTooLong : public InvalidDataFormat
 {
 public:
@@ -16,7 +17,10 @@ public:
 		: InvalidDataFormat("IteratedHashBase: input data exceeds maximum allowed by hash function " + alg) {}
 };
 
-//! _
+//! \class IteratedHashBase
+//! \brief Iterated hash base class
+//! \tparam T Hash word type
+//! \tparam BASE Base class from which this class inherits
 template <class T, class BASE>
 class CRYPTOPP_NO_VTABLE IteratedHashBase : public BASE
 {
@@ -50,7 +54,12 @@ private:
 	T m_countLo, m_countHi;
 };
 
-//! _
+//! \class IteratedHash
+//! \brief Iterated hash base class
+//! \tparam T_HashWordType Hash word type
+//! \tparam T_Endianness Endianess type of hash
+//! \tparam T_BlockSize Block size of the hash
+//! \tparam T_Base Base class from which this class inherits
 template <class T_HashWordType, class T_Endianness, unsigned int T_BlockSize, class T_Base = HashTransformation>
 class CRYPTOPP_NO_VTABLE IteratedHash : public IteratedHashBase<T_HashWordType, T_Base>
 {
@@ -75,7 +84,15 @@ protected:
 	FixedSizeSecBlock<T_HashWordType, T_BlockSize/sizeof(T_HashWordType)> m_data;
 };
 
-//! _
+//! \class IteratedHashWithStaticTransform
+//! \brief Iterated hash with a static transformation function base class
+//! \tparam T_HashWordType Hash word type
+//! \tparam T_Endianness Endianess type of hash
+//! \tparam T_BlockSize Block size of the hash
+//! \tparam T_StateSize Internal state size of the hash
+//! \tparam T_Transform Static transformation class
+//! \tparam T_DigestSize Digest size of the hash
+//! \tparam T_StateAligned Flag indicating if state is 16-byte aligned
 template <class T_HashWordType, class T_Endianness, unsigned int T_BlockSize, unsigned int T_StateSize, class T_Transform, unsigned int T_DigestSize = 0, bool T_StateAligned = false>
 class CRYPTOPP_NO_VTABLE IteratedHashWithStaticTransform
 	: public ClonableImpl<T_Transform, AlgorithmImpl<IteratedHash<T_HashWordType, T_Endianness, T_BlockSize>, T_Transform> >
