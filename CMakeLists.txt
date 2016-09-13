@@ -69,6 +69,7 @@ if(WINDOWS_STORE OR WINDOWS_PHONE)
 	endif()
 	SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /FI\"winapifamily.h\"" )
 endif()
+
 #============================================================================
 # Sources & headers
 #============================================================================
@@ -213,12 +214,23 @@ endif()
 #============================================================================
 # Third-party libraries
 #============================================================================
+
 if(WIN32)
 	if (BUILD_STATIC)
 		target_link_libraries(cryptopp-static ws2_32)
 	endif()
 	if (BUILD_SHARED)
 		target_link_libraries(cryptopp-shared ws2_32)
+	endif()
+endif()
+
+# This may need to be expanded to "Solaris"
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "SunPro")
+	if (BUILD_STATIC)
+		target_link_libraries(cryptopp-static nsl socket)
+	endif()
+	if (BUILD_SHARED)
+		target_link_libraries(cryptopp-shared nsl socket)
 	endif()
 endif()
 
@@ -233,6 +245,7 @@ endif()
 #============================================================================
 # Tests
 #============================================================================
+
 enable_testing()
 if(BUILD_TESTING)
 	add_executable(cryptest ${cryptopp_SOURCES_TEST})
@@ -258,6 +271,7 @@ endif()
 #============================================================================
 # Doxygen documentation
 #============================================================================
+
 if(BUILD_DOCUMENTATION)
 	find_package(Doxygen REQUIRED)
 
@@ -282,6 +296,7 @@ endif()
 #============================================================================
 # Install
 #============================================================================
+
 set(export_name "cryptopp-targets")
 
 # Runtime package
@@ -316,7 +331,6 @@ if(BUILD_TESTING)
 	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/TestData DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cryptopp)
 	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/TestVectors DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cryptopp)
 endif()
-
 
 # Documentation
 if(BUILD_DOCUMENTATION)
