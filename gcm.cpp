@@ -35,6 +35,9 @@ NAMESPACE_BEGIN(CryptoPP)
 #elif (defined(CRYPTOPP_LLVM_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION)) && defined(CRYPTOPP_X64_ASM_AVAILABLE)
 // 'movd eax, xmm0' or 'movd rax, xmm0'. REG_WORD() macro supplies REG32 or REG64.
 # define USE_MOVD_REG32_OR_REG64 1
+#elif defined(__GNUC__) && defined(CRYPTOPP_X64_ASM_AVAILABLE)
+// 'movd eax, xmm0' or 'movd rax, xmm0'. REG_WORD() macro supplies REG32 or REG64.
+# define USE_MOVD_REG32_OR_REG64 1
 #else
 // 'mov eax, xmm0' or 'mov rax, xmm0'. REG_WORD() macro supplies REG32 or REG64.
 # define USE_MOV_REG32_OR_REG64 1
