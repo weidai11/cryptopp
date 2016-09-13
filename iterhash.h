@@ -21,7 +21,8 @@ public:
 //! \brief Iterated hash base class
 //! \tparam T Hash word type
 //! \tparam BASE HashTransformation derived class
-//! \details BASE should be derived from HashTransformation, MessageAuthenticationCode, or similar class.
+//! \details IteratedHashBase() provides an interface for derived classes. BASE should be derived from
+//!   HashTransformation, MessageAuthenticationCode, or a similar class.
 //! \sa HashTransformation, MessageAuthenticationCode
 template <class T, class BASE>
 class CRYPTOPP_NO_VTABLE IteratedHashBase : public BASE
@@ -95,7 +96,8 @@ private:
 //! \tparam T_Endianness Endianness type of hash
 //! \tparam T_BlockSize Block size of the hash
 //! \tparam T_Base HashTransformation derived class
-//! \details T_Base should be derived from HashTransformation, MessageAuthenticationCode, or similar class.
+//! \details IteratedHash is the first implementation of the IteratedHashBase interface. T_Base should be derived
+//!   from HashTransformation, MessageAuthenticationCode, or a similar class.
 //! \sa HashTransformation, MessageAuthenticationCode
 template <class T_HashWordType, class T_Endianness, unsigned int T_BlockSize, class T_Base = HashTransformation>
 class CRYPTOPP_NO_VTABLE IteratedHash : public IteratedHashBase<T_HashWordType, T_Base>
@@ -103,6 +105,10 @@ class CRYPTOPP_NO_VTABLE IteratedHash : public IteratedHashBase<T_HashWordType, 
 public:
 	typedef T_Endianness ByteOrderClass;
 	typedef T_HashWordType HashWordType;
+
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~IteratedHash() { }
+#endif
 
 	CRYPTOPP_CONSTANT(BLOCKSIZE = T_BlockSize)
 	// BCB2006 workaround: can't use BLOCKSIZE here
@@ -143,7 +149,7 @@ protected:
 //! \tparam T_Transform Static transformation class
 //! \tparam T_DigestSize Digest size of the hash
 //! \tparam T_StateAligned Flag indicating if state is 16-byte aligned
-//! \details T_Transform should be derived from HashTransformation, MessageAuthenticationCode, or similar class.
+//! \details T_Transform should be derived from HashTransformation, MessageAuthenticationCode, or a similar class.
 //! \sa HashTransformation, MessageAuthenticationCode
 template <class T_HashWordType, class T_Endianness, unsigned int T_BlockSize, unsigned int T_StateSize, class T_Transform, unsigned int T_DigestSize = 0, bool T_StateAligned = false>
 class CRYPTOPP_NO_VTABLE IteratedHashWithStaticTransform
@@ -151,6 +157,10 @@ class CRYPTOPP_NO_VTABLE IteratedHashWithStaticTransform
 {
 public:
 	CRYPTOPP_CONSTANT(DIGESTSIZE = T_DigestSize ? T_DigestSize : T_StateSize)
+
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~ClonableImpl() { }
+#endif
 
 	//! Provides the digest size of the hash
 	//! \return the digest size of the hash.
