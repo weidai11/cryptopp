@@ -20,7 +20,9 @@ public:
 //! \class IteratedHashBase
 //! \brief Iterated hash base class
 //! \tparam T Hash word type
-//! \tparam BASE Base class from which this class inherits
+//! \tparam BASE HashTransformation derived class
+//! \details BASE should be derived from HashTransformation, MessageAuthenticationCode, or similar class.
+//! \sa HashTransformation, MessageAuthenticationCode
 template <class T, class BASE>
 class CRYPTOPP_NO_VTABLE IteratedHashBase : public BASE
 {
@@ -90,9 +92,11 @@ private:
 //! \class IteratedHash
 //! \brief Iterated hash base class
 //! \tparam T_HashWordType Hash word type
-//! \tparam T_Endianness Endianess type of hash
+//! \tparam T_Endianness Endianness type of hash
 //! \tparam T_BlockSize Block size of the hash
-//! \tparam T_Base Base class from which this class inherits
+//! \tparam T_Base HashTransformation derived class
+//! \details T_Base should be derived from HashTransformation, MessageAuthenticationCode, or similar class.
+//! \sa HashTransformation, MessageAuthenticationCode
 template <class T_HashWordType, class T_Endianness, unsigned int T_BlockSize, class T_Base = HashTransformation>
 class CRYPTOPP_NO_VTABLE IteratedHash : public IteratedHashBase<T_HashWordType, T_Base>
 {
@@ -103,16 +107,24 @@ public:
 	CRYPTOPP_CONSTANT(BLOCKSIZE = T_BlockSize)
 	// BCB2006 workaround: can't use BLOCKSIZE here
 	CRYPTOPP_COMPILE_ASSERT((T_BlockSize & (T_BlockSize - 1)) == 0);	// blockSize is a power of 2
-	unsigned int BlockSize() const {return T_BlockSize;}
+
+	//! \brief Provides the block size of the hash
+	//! \return the block size of the hash, in bytes
+	//! \details BlockSize() returns <tt>T_BlockSize</tt>.
+	CRYPTOPP_CONSTEXPR unsigned int BlockSize() const {return T_BlockSize;}
 
 	//! \brief Provides the byte order of the hash
 	//! \returns the byte order of the hash as an enumeration
 	//! \details GetByteOrder() returns <tt>T_Endianness::ToEnum()</tt>.
 	//! \sa ByteOrder()
-	ByteOrder GetByteOrder() const {return T_Endianness::ToEnum();}
+	CRYPTOPP_CONSTEXPR ByteOrder GetByteOrder() const {return T_Endianness::ToEnum();}
 
-	//! \brief
-	inline static void CorrectEndianess(HashWordType *out, const HashWordType *in, size_t byteCount)
+	//! \brief Adjusts the byte ordering of the hash
+	//! \param out the output buffer
+	//! \param in the input buffer
+	//! \param byteCount the size of the buffers, in bytes
+	//! \details CorrectEndianess() calls ConditionalByteReverse() using <tt>T_Endianness</tt>.
+	inline void CorrectEndianess(HashWordType *out, const HashWordType *in, size_t byteCount)
 	{
 		ConditionalByteReverse(T_Endianness::ToEnum(), out, in, byteCount);
 	}
@@ -125,18 +137,24 @@ protected:
 //! \class IteratedHashWithStaticTransform
 //! \brief Iterated hash with a static transformation function base class
 //! \tparam T_HashWordType Hash word type
-//! \tparam T_Endianness Endianess type of hash
+//! \tparam T_Endianness Endianness type of hash
 //! \tparam T_BlockSize Block size of the hash
 //! \tparam T_StateSize Internal state size of the hash
 //! \tparam T_Transform Static transformation class
 //! \tparam T_DigestSize Digest size of the hash
 //! \tparam T_StateAligned Flag indicating if state is 16-byte aligned
+//! \details T_Transform should be derived from HashTransformation, MessageAuthenticationCode, or similar class.
+//! \sa HashTransformation, MessageAuthenticationCode
 template <class T_HashWordType, class T_Endianness, unsigned int T_BlockSize, unsigned int T_StateSize, class T_Transform, unsigned int T_DigestSize = 0, bool T_StateAligned = false>
 class CRYPTOPP_NO_VTABLE IteratedHashWithStaticTransform
 	: public ClonableImpl<T_Transform, AlgorithmImpl<IteratedHash<T_HashWordType, T_Endianness, T_BlockSize>, T_Transform> >
 {
 public:
 	CRYPTOPP_CONSTANT(DIGESTSIZE = T_DigestSize ? T_DigestSize : T_StateSize)
+
+	//! Provides the digest size of the hash
+	//! \return the digest size of the hash.
+	//! details DigestSize() returns <tt>DIGESTSIZE</tt>.
 	unsigned int DigestSize() const {return DIGESTSIZE;};
 
 protected:
