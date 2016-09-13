@@ -979,7 +979,7 @@ if [[ ("$IS_X86" -ne "0" || "$IS_X64" -ne "0") && ("$IS_SOLARIS" -ne "0") && ("$
 			if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "ssse3") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__SSSE3__"); SUNCC_XARCH=ssse3; fi
 			if [[ ("$SUNCC_512_OR_ABOVE" -ne "0") ]]; then
 				if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "sse4.1") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__SSE4_1__"); SUNCC_XARCH=ssse4_1; fi
-				if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "sse4.2") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__SSE4_2__"); SUNCC_XARCH=ssse4_2; fi
+				if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "sse4.2") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__SSE4_2__"); SUNCC_XARCH=sse4_2; fi
 				if [[ ("$SUNCC_513_OR_ABOVE" -ne "0") ]]; then
 					if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "aes") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__AES__"); SUNCC_XARCH=aes; fi
 					if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "pclmulqdq") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-D__PCLMUL__"); SUNCC_XARCH=aes; fi
