@@ -54,6 +54,16 @@ CRYPTOPP_DLL_TEMPLATE_CLASS PKCS_DigestDecoration<SHA224>;
 CRYPTOPP_DLL_TEMPLATE_CLASS PKCS_DigestDecoration<SHA256>;
 CRYPTOPP_DLL_TEMPLATE_CLASS PKCS_DigestDecoration<SHA384>;
 CRYPTOPP_DLL_TEMPLATE_CLASS PKCS_DigestDecoration<SHA512>;
+#else
+extern template class PKCS_DigestDecoration<SHA1>;
+extern template class PKCS_DigestDecoration<RIPEMD160>;
+extern template class PKCS_DigestDecoration<Tiger>;
+extern template class PKCS_DigestDecoration<SHA224>;
+extern template class PKCS_DigestDecoration<SHA256>;
+extern template class PKCS_DigestDecoration<SHA384>;
+extern template class PKCS_DigestDecoration<SHA512>;
+extern template class PKCS_DigestDecoration<Weak1::MD2>;
+extern template class PKCS_DigestDecoration<Weak1::MD5>;
 #endif
 
 //! <a href="http://www.weidai.com/scan-mirror/sig.html#sem_PKCS1-1.5">EMSA-PKCS1-v1_5</a>
