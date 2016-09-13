@@ -620,8 +620,9 @@ public:
 	bool CanUsePredictableIVs() const {return IVRequirement() <= RANDOM_IV;}
 
 	//! \brief Determines if the object can use structured IVs
-	//! returns whether the object can use structured IVs, for example a counter (in addition to ones returned by
-	//!    GetNextIV), false otherwise
+	//! \returns true if the object can use structured IVs, false otherwise
+	//! \details CanUseStructuredIVs() indicates whether the object can use structured IVs; for example a counter
+	//!    (in addition to ones returned by GetNextIV).
 	bool CanUseStructuredIVs() const {return IVRequirement() <= UNIQUE_IV;}
 
 	//! \brief Returns length of the IV accepted by this object
@@ -859,7 +860,10 @@ public:
 	//!   Currently the only use of this function is CBC-CTS mode.
 	virtual void ProcessLastBlock(byte *outString, const byte *inString, size_t length);
 
-	//! returns the minimum size of the last block, 0 indicating the last block is not special
+	//! \brief Provides the size of the last block
+	//! \returns the minimum size of the last block
+	//! \details MinLastBlockSize() returns the minimum size of the last block. 0 indicates the last
+	//!   block is not special.
 	virtual unsigned int MinLastBlockSize() const {return 0;}
 
 	//! \brief Encrypt or decrypt a string of bytes
@@ -1028,10 +1032,8 @@ public:
 	//! \brief Computes the hash of the current message
 	//! \param digest a pointer to the buffer to receive the hash
 	//! \param digestSize the size of the truncated digest, in bytes
-	//! \details TruncatedFinal() call Final() and then copies digestSize bytes to digest
-	//! \details TruncatedFinal() restarts the hash for the next message.
-	//! \pre <tt>COUNTOF(digest) == DigestSize()</tt> or <tt>COUNTOF(digest) == HASH::DIGESTSIZE</tt> ensures
-	//!   the output byte buffer is large enough for the digest.
+	//! \details TruncatedFinal() call Final() and then copies digestSize bytes to digest.
+	//!   The hash is restarted the hash for the next message.
 	virtual void TruncatedFinal(byte *digest, size_t digestSize) =0;
 
 	//! \brief Updates the hash with additional input and computes the hash of the current message

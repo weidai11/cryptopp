@@ -27,13 +27,46 @@ class CRYPTOPP_NO_VTABLE IteratedHashBase : public BASE
 public:
 	typedef T HashWordType;
 
+	//! \brief Construct an IteratedHashBase
 	IteratedHashBase() : m_countLo(0), m_countHi(0) {}
+
+	//! \brief Provides the input block size most efficient for this cipher.
+	//! \return The input block size that is most efficient for the cipher
+	//! \details The base class implementation returns MandatoryBlockSize().
+	//! \note Optimal input length is
+	//!   <tt>n * OptimalBlockSize() - GetOptimalBlockSizeUsed()</tt> for any <tt>n \> 0</tt>.
 	unsigned int OptimalBlockSize() const {return this->BlockSize();}
+
+	//! \brief Provides input and output data alignment for optimal performance.
+	//! \return the input data alignment that provides optimal performance
+	//! \details OptimalDataAlignment returnes the natural alignment of the hash word.
 	unsigned int OptimalDataAlignment() const {return GetAlignmentOf<T>();}
+
+	//! \brief Updates a hash with additional input
+	//! \param input the additional input as a buffer
+	//! \param length the size of the buffer, in bytes
 	void Update(const byte *input, size_t length);
+
+	//! \brief Request space which can be written into by the caller
+	//! \param size the requested size of the buffer
+	//! \details The purpose of this method is to help avoid extra memory allocations.
+	//! \details size is an \a IN and \a OUT parameter and used as a hint. When the call is made,
+	//!   size is the requested size of the buffer. When the call returns, size is the size of
+	//!   the array returned to the caller.
+	//! \details The base class implementation sets  size to 0 and returns  NULL.
+	//! \note Some objects, like ArraySink, cannot create a space because its fixed.
 	byte * CreateUpdateSpace(size_t &size);
+
+	//! \brief Restart the hash
+	//! \details Discards the current state, and restart for a new message
 	void Restart();
-	void TruncatedFinal(byte *digest, size_t size);
+
+	//! \brief Computes the hash of the current message
+	//! \param digest a pointer to the buffer to receive the hash
+	//! \param digestSize the size of the truncated digest, in bytes
+	//! \details TruncatedFinal() call Final() and then copies digestSize bytes to digest.
+	//!   The hash is restarted the hash for the next message.
+	void TruncatedFinal(byte *digest, size_t digestSize);
 
 protected:
 	inline T GetBitCountHi() const {return (m_countLo >> (8*sizeof(T)-3)) + (m_countHi << 3);}
@@ -72,8 +105,13 @@ public:
 	CRYPTOPP_COMPILE_ASSERT((T_BlockSize & (T_BlockSize - 1)) == 0);	// blockSize is a power of 2
 	unsigned int BlockSize() const {return T_BlockSize;}
 
+	//! \brief Provides the byte order of the hash
+	//! \returns the byte order of the hash as an enumeration
+	//! \details GetByteOrder() returns <tt>T_Endianness::ToEnum()</tt>.
+	//! \sa ByteOrder()
 	ByteOrder GetByteOrder() const {return T_Endianness::ToEnum();}
 
+	//! \brief
 	inline static void CorrectEndianess(HashWordType *out, const HashWordType *in, size_t byteCount)
 	{
 		ConditionalByteReverse(T_Endianness::ToEnum(), out, in, byteCount);
