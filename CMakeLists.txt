@@ -110,6 +110,7 @@ file(GLOB cryptopp_SOURCES *.cpp)
 list(REMOVE_ITEM cryptopp_SOURCES
 		${CMAKE_CURRENT_SOURCE_DIR}/cryptlib.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/cpu.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/integer.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/pch.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/simple.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/winpipes.cpp
@@ -119,6 +120,7 @@ list(REMOVE_ITEM cryptopp_SOURCES
 set(cryptopp_SOURCES
 		${CMAKE_CURRENT_SOURCE_DIR}/cryptlib.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/cpu.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/integer.cpp
 		${cryptopp_SOURCES}
 		)
 
