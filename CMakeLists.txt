@@ -36,10 +36,27 @@ set(CRYPTOPP_DATA_DIR "" CACHE PATH "Crypto++ test data directory")
 # Stop hiding the damn output...
 set(CMAKE_VERBOSE_MAKEFILE on)
 
-# Enable PIC for all targets except 32-bit x86
-#if (CMAKE_SYSTEM_PROCESSOR)
-#	set (CMAKE_CXX_FLAGS "$CMAKE_CXX_FLAGS -fPIC")
-#endif()
+# Enable PIC for all targets except Windows and 32-bit x86.
+# Avoid on 32-bit x86 due to register pressures.
+if (NOT (WINDOWS OR WINDOWS_STORE OR WINDOWS_PHONE))
+
+	set (UNAME_CMD "uname")
+	set (UNAME_ARG "-m")
+	execute_process(COMMAND ${UNAME_CMD} ${UNAME_ARG}
+		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+		RESULT_VARIABLE UNAME_RESULT
+		OUTPUT_VARIABLE UNAME_MACHINE)
+
+	# Use Regex; match i386, i486, i586 and i686
+	if (NOT (${UNAME_MACHINE} MATCHES "i.86"))
+		# message(STATUS "Setting -fPIC for machine ${UNAME_MACHINE}")
+		if (CMAKE_VERSION VERSION_LESS 2.8.12)
+			add_definitions(-fPIC)
+		else()
+			add_compile_options(-fPIC)
+		endif()
+	endif()
+endif()
 
 # Don't use RPATH's. The resulting binary could fail a security audit.
 if (NOT CMAKE_VERSION VERSION_LESS 2.8.12)
