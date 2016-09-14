@@ -66,6 +66,24 @@ if(NOT CRYPTOPP_DATA_DIR STREQUAL "")
 	add_definitions(-DCRYPTOPP_DATA_DIR="${CRYPTOPP_DATA_DIR}")
 endif()
 
+# We need the output 'uname -s' for Unix and Linux system detection
+set (UNAME_CMD "uname")
+set (UNAME_ARG "-s")
+execute_process(COMMAND ${UNAME_CMD} ${UNAME_ARG}
+	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+	RESULT_VARIABLE UNAME_RESULT
+	OUTPUT_VARIABLE UNAME_SYSTEM)
+string(REGEX REPLACE "\n$" "" UNAME_SYSTEM "${UNAME_SYSTEM}")
+
+# We need the output 'uname -m' for Unix and Linux platform detection
+set (UNAME_CMD "uname")
+set (UNAME_ARG "-m")
+execute_process(COMMAND ${UNAME_CMD} ${UNAME_ARG}
+	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+	RESULT_VARIABLE UNAME_RESULT
+	OUTPUT_VARIABLE UNAME_MACHINE)
+string(REGEX REPLACE "\n$" "" UNAME_MACHINE "${UNAME_MACHINE}")
+
 if(WINDOWS_STORE OR WINDOWS_PHONE)
 	if("${CMAKE_SYSTEM_VERSION}" MATCHES "10\\.0.*")
 		SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /D\"_WIN32_WINNT=0x0A00\"" )
@@ -76,14 +94,6 @@ endif()
 # Enable PIC for all targets except Windows and 32-bit x86.
 #   Avoid on 32-bit x86 due to register pressures.
 if (NOT (WINDOWS OR WINDOWS_STORE OR WINDOWS_PHONE))
-
-	set (UNAME_CMD "uname")
-	set (UNAME_ARG "-m")
-	execute_process(COMMAND ${UNAME_CMD} ${UNAME_ARG}
-		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-		RESULT_VARIABLE UNAME_RESULT
-		OUTPUT_VARIABLE UNAME_MACHINE)
-
 	# Use Regex; match i386, i486, i586 and i686
 	if (NOT (${UNAME_MACHINE} MATCHES "i.86"))
 		# message(STATUS "Setting -fPIC for machine ${UNAME_MACHINE}")
@@ -94,6 +104,20 @@ if (NOT (WINDOWS OR WINDOWS_STORE OR WINDOWS_PHONE))
 		endif()
 	endif()
 endif()
+
+# -march=native for GCC, Clang and ICC on i386 and x86_64.
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+	if (("${UNAME_MACHINE}" MATCHES "i.86") OR ("${UNAME_MACHINE}" STREQUAL "x86_64"))
+			message(STATUS, "3")
+		if (CMAKE_VERSION VERSION_LESS 2.8.12)
+			add_definitions(-march=native)
+		else()
+			add_compile_options(-march=native)
+		endif()
+	endif()
+endif()
+
+# if (())
 
 #============================================================================
 # Sources & headers
@@ -336,4 +360,12 @@ endif()
 # Documentation
 if(BUILD_DOCUMENTATION)
 	install(DIRECTORY "${out_source_DOCS_DIR}" DESTINATION ${CMAKE_INSTALL_DOCDIR})
+endif()
+
+# Print a summary
+if (NOT CMAKE_VERSION VERSION_LESS 3.0.0)
+	include(FeatureSummary)
+	feature_summary(WHAT ALL
+		VAR cryptoppFeatures)
+        message(STATUS "${cryptoppFeatures}")
 endif()
