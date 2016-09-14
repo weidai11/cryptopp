@@ -506,39 +506,8 @@ size_t SHA224::HashMultipleBlocks(const word32 *input, size_t length)
 #define s0(x) (rotrFixed(x,7)^rotrFixed(x,18)^(x>>3))
 #define s1(x) (rotrFixed(x,17)^rotrFixed(x,19)^(x>>10))
 
-void SHA256::Transform(word32 *state, const word32 *data)
-{
-	word32 W[16];
-#if (defined(CRYPTOPP_X86_ASM_AVAILABLE) || defined(CRYPTOPP_X32_ASM_AVAILABLE) || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_SHA_ASM)
-	// this byte reverse is a waste of time, but this function is only called by MDC
-	ByteReverse(W, data, BLOCKSIZE);
-	X86_SHA256_HashBlocks(state, W, BLOCKSIZE - !HasSSE2());
-#else
-	word32 T[8];
-    /* Copy context->state[] to working vars */
-	memcpy(T, state, sizeof(T));
-    /* 64 operations, partially loop unrolled */
-	for (unsigned int j=0; j<64; j+=16)
-	{
-		R( 0); R( 1); R( 2); R( 3);
-		R( 4); R( 5); R( 6); R( 7);
-		R( 8); R( 9); R(10); R(11);
-		R(12); R(13); R(14); R(15);
-	}
-    /* Add the working vars back into context.state[] */
-    state[0] += a(0);
-    state[1] += b(0);
-    state[2] += c(0);
-    state[3] += d(0);
-    state[4] += e(0);
-    state[5] += f(0);
-    state[6] += g(0);
-    state[7] += h(0);
-#endif
-}
-
-/*
-// smaller but slower
+// Smaller but slower
+#if defined(__OPTIMIZE_SIZE__)
 void SHA256::Transform(word32 *state, const word32 *data)
 {
 	word32 T[20];
@@ -610,7 +579,38 @@ void SHA256::Transform(word32 *state, const word32 *data)
     state[6] += t[6];
     state[7] += t[7];
 }
-*/
+#else
+void SHA256::Transform(word32 *state, const word32 *data)
+{
+	word32 W[16];
+#if (defined(CRYPTOPP_X86_ASM_AVAILABLE) || defined(CRYPTOPP_X32_ASM_AVAILABLE) || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_SHA_ASM)
+	// this byte reverse is a waste of time, but this function is only called by MDC
+	ByteReverse(W, data, BLOCKSIZE);
+	X86_SHA256_HashBlocks(state, W, BLOCKSIZE - !HasSSE2());
+#else
+	word32 T[8];
+    /* Copy context->state[] to working vars */
+	memcpy(T, state, sizeof(T));
+    /* 64 operations, partially loop unrolled */
+	for (unsigned int j=0; j<64; j+=16)
+	{
+		R( 0); R( 1); R( 2); R( 3);
+		R( 4); R( 5); R( 6); R( 7);
+		R( 8); R( 9); R(10); R(11);
+		R(12); R(13); R(14); R(15);
+	}
+    /* Add the working vars back into context.state[] */
+    state[0] += a(0);
+    state[1] += b(0);
+    state[2] += c(0);
+    state[3] += d(0);
+    state[4] += e(0);
+    state[5] += f(0);
+    state[6] += g(0);
+    state[7] += h(0);
+#endif
+}
+#endif
 
 #undef S0
 #undef S1
