@@ -1,8 +1,8 @@
 # Please ensure your changes or patch meets minimum requirements.
-#   The minimum requirements are below, and they are 2.8.5. Please
-#   do not check in something for 2.8.12. To test your changes,
-#   please set up a Ubuntu 12.04 LTS system. Then, manually install
-#   Cmake 2.8.5 from http://cmake.org/Wiki/CMake_Released_Versions.
+#   The minimum requirements are 2.8.5. They roughly equate to Ubuntu 12.04 LTS
+#   Please do not check in something for 2.8.12 or 3.5.0. To test your changes,
+#   please set up a Ubuntu 12.04 LTS system. Then, manually install Cmake 2.8.5
+#   from http://cmake.org/Wiki/CMake_Released_Versions.
 
 cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
 
@@ -107,7 +107,7 @@ endif()
 
 # -march=native for GCC, Clang and ICC on i386 and x86_64.
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
-	if (("${UNAME_MACHINE}" MATCHES "i.86") OR ("${UNAME_MACHINE}" STREQUAL "x86_64"))
+	if (("${UNAME_MACHINE}" MATCHES "i.86") OR ("${UNAME_MACHINE}" STREQUAL "x86_64") OR ("${UNAME_MACHINE}" STREQUAL "i86pc"))
 			message(STATUS, "3")
 		if (CMAKE_VERSION VERSION_LESS 2.8.12)
 			add_definitions(-march=native)
@@ -117,7 +117,60 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" ST
 	endif()
 endif()
 
-# if (())
+# Solaris specific 
+if ("${UNAME_SYSTEM}" STREQUAL "SunOS")
+
+	# SunCC needs -native
+	if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "SunPro")
+		if (CMAKE_VERSION VERSION_LESS 2.8.12)
+			add_definitions(-native)
+		else()
+			add_compile_options(-native)
+		endif()
+	endif()
+
+	# Determine 32-bit vs 64-bit
+	set (ISA_CMD "isainfo")
+	set (ISA_ARG "-b")
+	execute_process(COMMAND ${ISA_CMD} ${ISA_ARG}
+		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+		RESULT_VARIABLE ISA_RESULT
+		OUTPUT_VARIABLE ISA_INFO)
+	string(REGEX REPLACE "\n$" "" ISA_INFO "${ISA_INFO}")
+
+	# Set 64-bit or 32-bit
+	if ("${ISA_INFO}" STREQUAL "64")
+		if (CMAKE_VERSION VERSION_LESS 2.8.12)
+			add_definitions(-m64)
+		else()
+			add_compile_options(-m64)
+		endif()
+	else()
+		if (CMAKE_VERSION VERSION_LESS 2.8.12)
+			add_definitions(-m32)
+		else()
+			add_compile_options(-m32)
+		endif()
+	endif()
+
+	# GCC needs to enable use of '/'
+	if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+		if (CMAKE_VERSION VERSION_LESS 2.8.12)
+			add_definitions(-Wa,--divide)
+		else()
+			add_compile_options(-Wa,--divide)
+		endif()
+	endif()
+
+	# SunCC needs -native
+	if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "SunPro")
+		if (CMAKE_VERSION VERSION_LESS 2.8.12)
+			add_definitions(-template=no%extdef)
+		else()
+			add_compile_options(-template=no%extdef)
+		endif()
+	endif()
+endif()
 
 #============================================================================
 # Sources & headers
@@ -250,7 +303,7 @@ if(WIN32)
 endif()
 
 # This may need to be expanded to "Solaris"
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "SunPro")
+if ("${UNAME_SYSTEM}" STREQUAL "SunOS")
 	if (BUILD_STATIC)
 		target_link_libraries(cryptopp-static nsl socket)
 	endif()
