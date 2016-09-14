@@ -643,7 +643,7 @@ void SHA512::InitState(HashWordType *state)
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32)
 CRYPTOPP_ALIGN_DATA(16) static const word64 SHA512_K[80] CRYPTOPP_SECTION_ALIGN16 = {
 #else
-static const word64 SHA512_K[80] = {
+CRYPTOPP_ALIGN_DATA(16) static const word64 SHA512_K[80] CRYPTOPP_SECTION_ALIGN16 = {
 #endif
 	W64LIT(0x428a2f98d728ae22), W64LIT(0x7137449123ef65cd),
 	W64LIT(0xb5c0fbcfec4d3b2f), W64LIT(0xe9b5dba58189dbbc),
@@ -886,6 +886,9 @@ CRYPTOPP_NAKED static void CRYPTOPP_FASTCALL SHA512_SSE2_Transform(word64 *state
 
 void SHA512::Transform(word64 *state, const word64 *data)
 {
+	assert(IsAlignedOn(state, GetAlignmentOf<word64>()));
+	assert(IsAlignedOn(data, GetAlignmentOf<word64>()));
+
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32)
 	if (HasSSE2())
 	{

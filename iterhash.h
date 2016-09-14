@@ -21,7 +21,7 @@ public:
 //! \brief Iterated hash base class
 //! \tparam T Hash word type
 //! \tparam BASE HashTransformation derived class
-//! \details BASE should be derived from HashTransformation, MessageAuthenticationCode, or similar class.
+//! \details IteratedHashBase provides an interface for block-based iterated hashes
 //! \sa HashTransformation, MessageAuthenticationCode
 template <class T, class BASE>
 class CRYPTOPP_NO_VTABLE IteratedHashBase : public BASE
@@ -49,7 +49,7 @@ public:
 	//! \param length the size of the buffer, in bytes
 	void Update(const byte *input, size_t length);
 
-	//! \brief Request space which can be written into by the caller
+	//! \brief Requests space which can be written into by the caller
 	//! \param size the requested size of the buffer
 	//! \details The purpose of this method is to help avoid extra memory allocations.
 	//! \details size is an \a IN and \a OUT parameter and used as a hint. When the call is made,
@@ -95,7 +95,7 @@ private:
 //! \tparam T_Endianness Endianness type of hash
 //! \tparam T_BlockSize Block size of the hash
 //! \tparam T_Base HashTransformation derived class
-//! \details T_Base should be derived from HashTransformation, MessageAuthenticationCode, or similar class.
+//! \details IteratedHash provides a default implementation for block-based iterated hashes
 //! \sa HashTransformation, MessageAuthenticationCode
 template <class T_HashWordType, class T_Endianness, unsigned int T_BlockSize, class T_Base = HashTransformation>
 class CRYPTOPP_NO_VTABLE IteratedHash : public IteratedHashBase<T_HashWordType, T_Base>
@@ -104,6 +104,10 @@ public:
 	typedef T_Endianness ByteOrderClass;
 	typedef T_HashWordType HashWordType;
 
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~IteratedHash() { }
+#endif
+
 	CRYPTOPP_CONSTANT(BLOCKSIZE = T_BlockSize)
 	// BCB2006 workaround: can't use BLOCKSIZE here
 	CRYPTOPP_COMPILE_ASSERT((T_BlockSize & (T_BlockSize - 1)) == 0);	// blockSize is a power of 2
@@ -111,13 +115,13 @@ public:
 	//! \brief Provides the block size of the hash
 	//! \return the block size of the hash, in bytes
 	//! \details BlockSize() returns <tt>T_BlockSize</tt>.
-	CRYPTOPP_CONSTEXPR unsigned int BlockSize() const {return T_BlockSize;}
+	unsigned int BlockSize() const {return T_BlockSize;}
 
 	//! \brief Provides the byte order of the hash
 	//! \returns the byte order of the hash as an enumeration
 	//! \details GetByteOrder() returns <tt>T_Endianness::ToEnum()</tt>.
 	//! \sa ByteOrder()
-	CRYPTOPP_CONSTEXPR ByteOrder GetByteOrder() const {return T_Endianness::ToEnum();}
+	ByteOrder GetByteOrder() const {return T_Endianness::ToEnum();}
 
 	//! \brief Adjusts the byte ordering of the hash
 	//! \param out the output buffer
@@ -135,26 +139,30 @@ protected:
 };
 
 //! \class IteratedHashWithStaticTransform
-//! \brief Iterated hash with a static transformation function base class
+//! \brief Iterated hash with a static transformation function
 //! \tparam T_HashWordType Hash word type
 //! \tparam T_Endianness Endianness type of hash
 //! \tparam T_BlockSize Block size of the hash
 //! \tparam T_StateSize Internal state size of the hash
-//! \tparam T_Transform Static transformation class
+//! \tparam T_Transform HashTransformation derived class
 //! \tparam T_DigestSize Digest size of the hash
 //! \tparam T_StateAligned Flag indicating if state is 16-byte aligned
-//! \details T_Transform should be derived from HashTransformation, MessageAuthenticationCode, or similar class.
 //! \sa HashTransformation, MessageAuthenticationCode
 template <class T_HashWordType, class T_Endianness, unsigned int T_BlockSize, unsigned int T_StateSize, class T_Transform, unsigned int T_DigestSize = 0, bool T_StateAligned = false>
 class CRYPTOPP_NO_VTABLE IteratedHashWithStaticTransform
 	: public ClonableImpl<T_Transform, AlgorithmImpl<IteratedHash<T_HashWordType, T_Endianness, T_BlockSize>, T_Transform> >
 {
 public:
+
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~IteratedHashWithStaticTransform() { }
+#endif
+
 	CRYPTOPP_CONSTANT(DIGESTSIZE = T_DigestSize ? T_DigestSize : T_StateSize)
 
-	//! Provides the digest size of the hash
-	//! \return the digest size of the hash.
-	//! details DigestSize() returns <tt>DIGESTSIZE</tt>.
+	//! \brief Provides the digest size of the hash
+	//! \return the digest size of the hash, in bytes
+	//! \details DigestSize() returns <tt>DIGESTSIZE</tt>.
 	unsigned int DigestSize() const {return DIGESTSIZE;};
 
 protected:
