@@ -33,6 +33,14 @@ set(CRYPTOPP_DATA_DIR "" CACHE PATH "Crypto++ test data directory")
 # Internal compiler options
 #============================================================================
 
+# Stop hiding the damn output...
+set(CMAKE_VERBOSE_MAKEFILE on)
+
+# Enable PIC for all targets except 32-bit x86
+#if (CMAKE_SYSTEM_PROCESSOR)
+#	set (CMAKE_CXX_FLAGS "$CMAKE_CXX_FLAGS -fPIC")
+#endif()
+
 # Don't use RPATH's. The resulting binary could fail a security audit.
 if (NOT CMAKE_VERSION VERSION_LESS 2.8.12)
   set(CMAKE_MACOSX_RPATH 0)
