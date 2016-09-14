@@ -875,7 +875,8 @@ inline T1 RoundUpToMultipleOf(const T1 &n, const T2 &m)
 //! \details Internally the function calls C++11's <tt>alignof</tt> if available. If not available,
 //!   then the function uses compiler specific extensions such as <tt>__alignof</tt> and
 //!   <tt>_alignof_</tt>. If an extension is not available, then the function uses
-//!   <tt>__BIGGEST_ALIGNMENT__</tt>. <tt>sizeof(T)</tt> is used if the others are not available.
+//!   <tt>__BIGGEST_ALIGNMENT__</tt> if <tt>__BIGGEST_ALIGNMENT__</tt> is smaller than <tt>sizeof(T)</tt>.
+//!   <tt>sizeof(T)</tt> is used if all others are not available.
 //!   In <em>all</em> cases, if <tt>CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS</tt> is defined, then the
 //!   function returns 1.
 template <class T>
@@ -893,11 +894,14 @@ inline unsigned int GetAlignmentOf(T *dummy=NULL)	// VC60 workaround
 	return __alignof(T);
 #elif defined(__GNUC__)
 	return __alignof__(T);
-#elif __BIGGEST_ALIGNMENT__
-	return __BIGGEST_ALIGNMENT__;
 #elif CRYPTOPP_BOOL_SLOW_WORD64
 	return UnsignedMin(4U, sizeof(T));
 #else
+# if __BIGGEST_ALIGNMENT__
+	if (__BIGGEST_ALIGNMENT__ < sizeof(T))
+		return __BIGGEST_ALIGNMENT__;
+	else
+# endif
 	return sizeof(T);
 #endif
 }
