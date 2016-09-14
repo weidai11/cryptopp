@@ -36,28 +36,6 @@ set(CRYPTOPP_DATA_DIR "" CACHE PATH "Crypto++ test data directory")
 # Stop hiding the damn output...
 set(CMAKE_VERBOSE_MAKEFILE on)
 
-# Enable PIC for all targets except Windows and 32-bit x86.
-# Avoid on 32-bit x86 due to register pressures.
-if (NOT (WINDOWS OR WINDOWS_STORE OR WINDOWS_PHONE))
-
-	set (UNAME_CMD "uname")
-	set (UNAME_ARG "-m")
-	execute_process(COMMAND ${UNAME_CMD} ${UNAME_ARG}
-		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-		RESULT_VARIABLE UNAME_RESULT
-		OUTPUT_VARIABLE UNAME_MACHINE)
-
-	# Use Regex; match i386, i486, i586 and i686
-	if (NOT (${UNAME_MACHINE} MATCHES "i.86"))
-		# message(STATUS "Setting -fPIC for machine ${UNAME_MACHINE}")
-		if (CMAKE_VERSION VERSION_LESS 2.8.12)
-			add_definitions(-fPIC)
-		else()
-			add_compile_options(-fPIC)
-		endif()
-	endif()
-endif()
-
 # Don't use RPATH's. The resulting binary could fail a security audit.
 if (NOT CMAKE_VERSION VERSION_LESS 2.8.12)
   set(CMAKE_MACOSX_RPATH 0)
@@ -93,6 +71,28 @@ if(WINDOWS_STORE OR WINDOWS_PHONE)
 		SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /D\"_WIN32_WINNT=0x0A00\"" )
 	endif()
 	SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /FI\"winapifamily.h\"" )
+endif()
+
+# Enable PIC for all targets except Windows and 32-bit x86.
+#   Avoid on 32-bit x86 due to register pressures.
+if (NOT (WINDOWS OR WINDOWS_STORE OR WINDOWS_PHONE))
+
+	set (UNAME_CMD "uname")
+	set (UNAME_ARG "-m")
+	execute_process(COMMAND ${UNAME_CMD} ${UNAME_ARG}
+		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+		RESULT_VARIABLE UNAME_RESULT
+		OUTPUT_VARIABLE UNAME_MACHINE)
+
+	# Use Regex; match i386, i486, i586 and i686
+	if (NOT (${UNAME_MACHINE} MATCHES "i.86"))
+		# message(STATUS "Setting -fPIC for machine ${UNAME_MACHINE}")
+		if (CMAKE_VERSION VERSION_LESS 2.8.12)
+			add_definitions(-fPIC)
+		else()
+			add_compile_options(-fPIC)
+		endif()
+	endif()
 endif()
 
 #============================================================================
@@ -180,32 +180,6 @@ if (BUILD_SHARED)
 
 	if (NOT CMAKE_VERSION VERSION_LESS 2.8.12)
 		target_include_directories(cryptopp-shared PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> $<INSTALL_INTERFACE:include/cryptopp>)
-	endif()
-endif()
-
-# Set PIC
-if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-	# Enables -fPIC on all 64-bit platforms
-	if(NOT CMAKE_VERSION VERSION_LESS 2.8.9)	# POSITION_INDEPENDENT_CODE support
-		set_target_properties(cryptopp-object PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
-	elseif(NOT CMAKE_VERSION VERSION_LESS 2.8.8)	# Object library support
-		get_target_property(flags_old cryptopp-object COMPILE_FLAGS)
-		set_target_properties(cryptopp-object PROPERTIES COMPILE_FLAGS "${flags_old} -fPIC")
-	else()
-		if (BUILD_STATIC)
-			get_target_property(flags_old_static cryptopp-static COMPILE_FLAGS)
-			if(NOT flags_old_static)
-				set(flags_old_static "")
-			endif()
-			set_target_properties(cryptopp-static PROPERTIES COMPILE_FLAGS "${flags_old_static} -fPIC")
-		endif()
-		if (BUILD_SHARED)
-			get_target_property(flags_old_shared cryptopp-shared COMPILE_FLAGS)
-			if(NOT flags_old_shared)
-				set(flags_old_shared "")
-			endif()
-			set_target_properties(cryptopp-shared PROPERTIES COMPILE_FLAGS "${flags_old_shared} -fPIC")
-		endif()
 	endif()
 endif()
 
