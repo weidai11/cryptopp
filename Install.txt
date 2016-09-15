@@ -3,9 +3,9 @@ CONTENTS OF THIS FILE
 
 * Introduction
 * Building the Library
+* Alternate Build Systems
 * Installing the Library
 * Makefile Targets
-* DataDir Patch
 * Dynamic Analysis
 * Acceptance Testing
 * Reporting problems
@@ -17,9 +17,9 @@ Crypto++ Library is a free C++ class library of cryptographic algorithms and sch
 
 These are general instructions for the BSDs, Linux, OS X, Solaris and Unix. The library uses a GNU makefile, which combines configuration and a non-anemic make. On BSD and Solaris you will likely have to use `gmake` to build the library. On Linux, OS X and Unix, the system's make should be OK. On Windows, Crypto++ provides Borland and Visual Studio solutions.
 
-You should look through the GNUmakefile and config.h to ensure settings look reasonable before building. You are strogly encourgaed to use `config.recommend` in place of `config.h` if you are building the library and you can recompile dependent programs.
+You should look through the GNUmakefile and config.h to ensure settings look reasonable before building. You are strogly encouraged to use `config.recommend` in place of `config.h` if you are building the library and you can recompile dependent programs.
 
-Wiki pages are available for some platforms with specific build instructions. The wiki can be found at http://cryptopp.com/wiki/. The pages include Android, ARM, iOS and Solaris. Solaris users should visit the wiki for important information on compiling the library with different versions of SunCC and options, and information on improving library performnce and features.
+Wiki pages are available for some platforms with specific build instructions. The wiki can be found at http://cryptopp.com/wiki/. The pages include Android, ARM, iOS and Solaris. Solaris users should visit the wiki for important information on compiling the library with different versions of SunCC and options, and information on improving library performance and features.
 
 Crypto++ does not depend upon other tools or libraries. It does not use Autotools, does not use CMake, and does not use Boost. If you use an alternate build system, like Autotools or CMake, then see the warning below about CXXFLAGS and lack of -DNDEBUG. CMake is available in Master as a matter of convenience, but its not officially supported.
 
