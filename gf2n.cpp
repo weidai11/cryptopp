@@ -595,9 +595,9 @@ GF2NP::Element GF2NP::SolveQuadraticEquation(const Element &a) const
 
 // ********************************************************
 
-GF2NT::GF2NT(unsigned int t0, unsigned int t1, unsigned int t2)
-	: GF2NP(PolynomialMod2::Trinomial(t0, t1, t2))
-	, t0(t0), t1(t1)
+GF2NT::GF2NT(unsigned int c0, unsigned int c1, unsigned int c2)
+	: GF2NP(PolynomialMod2::Trinomial(c0, c1, c2))
+	, t0(c0), t1(c1)
 	, result((word)0, m)
 {
 	assert(t0 > t1 && t1 > t2 && t2==0);
