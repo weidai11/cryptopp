@@ -55,6 +55,12 @@
 // VC60 workaround: this macro is defined in shlobj.h and conflicts with a template parameter used in this file
 #undef INTERFACE
 
+#if defined(__SUNPRO_CC)
+# define MAYBE_RETURN_FOR_SOLARIS(x) return x
+#else
+# define MAYBE_RETURN_FOR_SOLARIS(x) CRYPTOPP_UNUSED(x)
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 //! \class TrapdoorFunctionBounds
@@ -1308,6 +1314,7 @@ public:
 	{
 		CRYPTOPP_UNUSED(params); CRYPTOPP_UNUSED(publicKey); CRYPTOPP_UNUSED(r); CRYPTOPP_UNUSED(s);
 		throw NotImplemented("DL_ElgamalLikeSignatureAlgorithm: this signature scheme does not support message recovery");
+		MAYBE_RETURN_FOR_SOLARIS(Integer::Zero());
 	}
 	virtual size_t RLen(const DL_GroupParameters<T> &params) const
 		{return params.GetSubgroupOrder().ByteCount();}
