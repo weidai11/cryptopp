@@ -310,8 +310,6 @@ License.txt
 Readme.txt
 Install.txt
 Filelist.txt
-CMakeLists.txt
-cryptopp-config.cmake
 TestData/3desval.dat
 TestData/3wayval.dat
 TestData/camellia.dat
