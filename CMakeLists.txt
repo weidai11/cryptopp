@@ -36,12 +36,20 @@ set(CRYPTOPP_DATA_DIR "" CACHE PATH "Crypto++ test data directory")
 # Stop hiding the damn output...
 set(CMAKE_VERBOSE_MAKEFILE on)
 
+# Always 1 ahead in Master. Also see http://groups.google.com/forum/#!topic/cryptopp-users/SFhqLDTQPG4
+set(LIB_VER ${cryptopp_VERSION_MAJOR}${cryptopp_VERSION_MINOR}${cryptopp_VERSION_PATCH})
+
+# Only set when cross-compiling, http://www.vtk.org/Wiki/CMake_Cross_Compiling
+if (NOT (CMAKE_SYSTEM_VERSION AND CMAKE_SYSTEM_PROCESSOR))
+	set(CRYPTOPP_CROSS_COMPILE 1)
+else()
+	set(CRYPTOPP_CROSS_COMPILE 0)
+endif()
+
 # Don't use RPATH's. The resulting binary could fail a security audit.
 if (NOT CMAKE_VERSION VERSION_LESS 2.8.12)
   set(CMAKE_MACOSX_RPATH 0)
 endif()
-
-set(LIB_VER ${cryptopp_VERSION_MAJOR}${cryptopp_VERSION_MINOR}${cryptopp_VERSION_PATCH})
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Intel")
 	add_definitions(-wd68 -wd186 -wd279 -wd327 -wd161 -wd3180)
@@ -67,22 +75,26 @@ if(NOT CRYPTOPP_DATA_DIR STREQUAL "")
 endif()
 
 # We need the output 'uname -s' for Unix and Linux system detection
-set (UNAME_CMD "uname")
-set (UNAME_ARG "-s")
-execute_process(COMMAND ${UNAME_CMD} ${UNAME_ARG}
-	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-	RESULT_VARIABLE UNAME_RESULT
-	OUTPUT_VARIABLE UNAME_SYSTEM)
-string(REGEX REPLACE "\n$" "" UNAME_SYSTEM "${UNAME_SYSTEM}")
+if (NOT CRYPTOPP_CROSS_COMPILE)
+	set (UNAME_CMD "uname")
+	set (UNAME_ARG "-s")
+	execute_process(COMMAND ${UNAME_CMD} ${UNAME_ARG}
+		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+		RESULT_VARIABLE UNAME_RESULT
+		OUTPUT_VARIABLE UNAME_SYSTEM)
+		string(REGEX REPLACE "\n$" "" UNAME_SYSTEM "${UNAME_SYSTEM}")
+endif()
 
 # We need the output 'uname -m' for Unix and Linux platform detection
-set (UNAME_CMD "uname")
-set (UNAME_ARG "-m")
-execute_process(COMMAND ${UNAME_CMD} ${UNAME_ARG}
-	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-	RESULT_VARIABLE UNAME_RESULT
-	OUTPUT_VARIABLE UNAME_MACHINE)
-string(REGEX REPLACE "\n$" "" UNAME_MACHINE "${UNAME_MACHINE}")
+if (NOT CRYPTOPP_CROSS_COMPILE)
+	set (UNAME_CMD "uname")
+	set (UNAME_ARG "-m")
+	execute_process(COMMAND ${UNAME_CMD} ${UNAME_ARG}
+		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+		RESULT_VARIABLE UNAME_RESULT
+		OUTPUT_VARIABLE UNAME_MACHINE)
+	string(REGEX REPLACE "\n$" "" UNAME_MACHINE "${UNAME_MACHINE}")
+endif()
 
 if(WINDOWS_STORE OR WINDOWS_PHONE)
 	if("${CMAKE_SYSTEM_VERSION}" MATCHES "10\\.0.*")
@@ -93,40 +105,25 @@ endif()
 
 # Enable PIC for all targets except Windows and 32-bit x86.
 #   Avoid on 32-bit x86 due to register pressures.
-if (NOT (WINDOWS OR WINDOWS_STORE OR WINDOWS_PHONE))
+if ((NOT CRYPTOPP_CROSS_COMPILE) AND (NOT (WINDOWS OR WINDOWS_STORE OR WINDOWS_PHONE)))
 	# Use Regex; match i386, i486, i586 and i686
 	if (NOT (${UNAME_MACHINE} MATCHES "i.86"))
-		# message(STATUS "Setting -fPIC for machine ${UNAME_MACHINE}")
-		if (CMAKE_VERSION VERSION_LESS 2.8.12)
-			add_definitions(-fPIC)
-		else()
-			add_compile_options(-fPIC)
-		endif()
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 	endif()
 endif()
 
 # -march=native for GCC, Clang and ICC on i386 and x86_64.
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+if ((NOT CRYPTOPP_CROSS_COMPILE) AND ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel"))
 	if (("${UNAME_MACHINE}" MATCHES "i.86") OR ("${UNAME_MACHINE}" STREQUAL "x86_64") OR ("${UNAME_MACHINE}" STREQUAL "i86pc"))
-			message(STATUS, "3")
-		if (CMAKE_VERSION VERSION_LESS 2.8.12)
-			add_definitions(-march=native)
-		else()
-			add_compile_options(-march=native)
-		endif()
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
 	endif()
 endif()
 
 # Solaris specific 
-if ("${UNAME_SYSTEM}" STREQUAL "SunOS")
-
+if ((NOT CRYPTOPP_CROSS_COMPILE) AND "${UNAME_SYSTEM}" STREQUAL "SunOS")
 	# SunCC needs -native
 	if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "SunPro")
-		if (CMAKE_VERSION VERSION_LESS 2.8.12)
-			add_definitions(-native)
-		else()
-			add_compile_options(-native)
-		endif()
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -native")
 	endif()
 
 	# Determine 32-bit vs 64-bit
@@ -140,36 +137,26 @@ if ("${UNAME_SYSTEM}" STREQUAL "SunOS")
 
 	# Set 64-bit or 32-bit
 	if ("${ISA_INFO}" STREQUAL "64")
-		if (CMAKE_VERSION VERSION_LESS 2.8.12)
-			add_definitions(-m64)
-		else()
-			add_compile_options(-m64)
-		endif()
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64")
 	else()
-		if (CMAKE_VERSION VERSION_LESS 2.8.12)
-			add_definitions(-m32)
-		else()
-			add_compile_options(-m32)
-		endif()
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
 	endif()
 
 	# GCC needs to enable use of '/'
 	if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-		if (CMAKE_VERSION VERSION_LESS 2.8.12)
-			add_definitions(-Wa,--divide)
-		else()
-			add_compile_options(-Wa,--divide)
-		endif()
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wa,--divide")
 	endif()
 
 	# SunCC needs -native
 	if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "SunPro")
-		if (CMAKE_VERSION VERSION_LESS 2.8.12)
-			add_definitions(-template=no%extdef)
-		else()
-			add_compile_options(-template=no%extdef)
-		endif()
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -template=no%extdef")
 	endif()
+endif()
+
+# Link is driven through the compiler, but CXXFLAGS are not used. Also see
+#   http://public.kitware.com/pipermail/cmake/2003-June/003967.html
+if (NOT (WINDOWS OR WINDOWS_STORE OR WINDOWS_PHONE))
+	SET(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_FLAGS}")
 endif()
 
 #============================================================================
@@ -180,7 +167,7 @@ endif()
 file(GLOB cryptopp_HEADERS *.h)
 
 # Test sources. You can use the GNUmakefile to generate the list: `make sources`.
-file(GLOB cryptopp_SOURCES_TEST bench1.cpp bench2.cpp test.cpp validat1.cpp validat2.cpp validat3.cpp adhoc.cpp datatest.cpp regtest.cpp fipsalgt.cpp dlltest.cpp fipstest.cpp)
+file(GLOB cryptopp_SOURCES_TEST test.cpp bench1.cpp bench2.cpp validat1.cpp validat2.cpp validat3.cpp adhoc.cpp datatest.cpp regtest.cpp fipsalgt.cpp dlltest.cpp fipstest.cpp)
 
 # Library sources. You can use the GNUmakefile to generate the list: `make sources`.
 file(GLOB cryptopp_SOURCES *.cpp)
@@ -415,9 +402,11 @@ if(BUILD_DOCUMENTATION)
 	install(DIRECTORY "${out_source_DOCS_DIR}" DESTINATION ${CMAKE_INSTALL_DOCDIR})
 endif()
 
-# Print a summary
-if (NOT CMAKE_VERSION VERSION_LESS 3.0.0)
+# Print a configuration summary. We want CXX and CXXFLAGS, but they are not includd in ALL.
+if (NOT CMAKE_VERSION VERSION_LESS 3.0.2)
 	include(FeatureSummary)
+	message(STATUS "Compiler: ${CXX}")
+	message(STATUS "Flags: ${CMAKE_CXX_FLAGS}")
 	feature_summary(WHAT ALL
 		VAR cryptoppFeatures)
         message(STATUS "${cryptoppFeatures}")
