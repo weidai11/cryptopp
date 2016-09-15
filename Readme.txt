@@ -162,12 +162,23 @@ and "SetNewAndDeleteFromCryptoPP". If one of these functions is found,
 Crypto++ uses methods 1 or 2, respectively, by calling the function.
 Otherwise, method 3 is used.
 
-*** GCC-Specific Information ***
+*** Linux and Unix-like Specific Information ***
 
-A makefile is included for you to compile Crypto++ with GCC. Make sure
-you are using GNU Make and GNU ld. The make process will produce two files,
-libcryptopp.a and cryptest.exe. Run "cryptest.exe v" for the validation
-suite.
+A makefile is included for you to compile Crypto++ with GCC and compatibles.
+Make sure you are using GNU Make and GNU ld. The make process will produce
+two files, libcryptopp.a and cryptest.exe. Run "cryptest.exe v" for the
+validation suite and "cryptest.exe tv all" for additional test vectors.
+
+The makefile uses '-DNDEBUG -g2 -O2' CXXFLAGS by default. If you use an
+alternate build system, like Autotools or CMake, then ensure the build system
+includes '-DNDEBUG' for production or release builds. The Crypto++ library uses
+asserts for debugging and diagnostics during development; it does not
+rely on them to crash a program at runtime.
+
+If an assert triggers in production software, then unprotected sensitive
+information could be egressed from the program to the filesystem or the
+platform's error reporting program, like Apport on Ubuntu or CrashReporter
+on Apple.
 
 *** Documentation and Support ***
 
