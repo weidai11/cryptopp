@@ -69,6 +69,10 @@ The Crypto++ library is Make based and uses GNU Make by default. The makefile us
 
 If an assert triggers in production software, then unprotected sensitive information could be egressed from the program to the filesystem or the platform's error reporting program, like Apport on Ubuntu or CrashReporter on Apple.
 
+The makefile orders object files to help remediate problems associated with C++ static initialization order. The library does not use custom linker scripts. If you use an alternate build system, like Autotools or CMake, and collect source files into a list, then ensure these three are at the head of the list: 'cryptlib.cpp cpu.cpp integer.cpp <other sources>'. They should be linked in the same order: 'cryptlib.o cpu.o integer.o <other objects>'.
+
+If your linker supports initialization attributes, like init_priority, then you can define CRYPTOPP_INIT_PRIORITY to control object initialization order. Set it to a value like 250. User programs can use CRYPTOPP_USER_PRIORITY to avoid conflicts with library values. Initialization attributes are more reliable than object file ordering, but its not ubiquitously supported by linkers.
+
 INSTALLING THE LIBRARY
 ----------------------
 
