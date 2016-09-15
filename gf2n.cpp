@@ -600,7 +600,7 @@ GF2NT::GF2NT(unsigned int c0, unsigned int c1, unsigned int c2)
 	, t0(c0), t1(c1)
 	, result((word)0, m)
 {
-	assert(t0 > t1 && t1 > t2 && t2==0);
+	assert(c0 > c1 && c1 > c2 && c2==0);
 }
 
 const GF2NT::Element& GF2NT::MultiplicativeInverse(const Element &a) const
