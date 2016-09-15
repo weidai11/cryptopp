@@ -37,7 +37,7 @@ class GOST : public GOST_Info, public BlockCipherDocumentation
 		static volatile bool sTableCalculated;
 		static word32 sTable[4][256];
 
-		FixedSizeSecBlock<word32, 8> key;
+		FixedSizeSecBlock<word32, 8> m_key;
 	};
 
 	//! \class Enc

@@ -36,7 +36,7 @@ void GOST::Base::UncheckedSetKey(const byte *userKey, unsigned int length, const
 
 	PrecalculateSTable();
 
-	GetUserKey(LITTLE_ENDIAN_ORDER, key.begin(), 8, userKey, KEYLENGTH);
+	GetUserKey(LITTLE_ENDIAN_ORDER, m_key.begin(), 8, userKey, KEYLENGTH);
 }
 
 void GOST::Base::PrecalculateSTable()
@@ -68,24 +68,24 @@ void GOST::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, by
 
 	for (unsigned int i=0; i<3; i++)
 	{
-		n2 ^= f(n1+key[0]);
-		n1 ^= f(n2+key[1]);
-		n2 ^= f(n1+key[2]);
-		n1 ^= f(n2+key[3]);
-		n2 ^= f(n1+key[4]);
-		n1 ^= f(n2+key[5]);
-		n2 ^= f(n1+key[6]);
-		n1 ^= f(n2+key[7]);
+		n2 ^= f(n1+m_key[0]);
+		n1 ^= f(n2+m_key[1]);
+		n2 ^= f(n1+m_key[2]);
+		n1 ^= f(n2+m_key[3]);
+		n2 ^= f(n1+m_key[4]);
+		n1 ^= f(n2+m_key[5]);
+		n2 ^= f(n1+m_key[6]);
+		n1 ^= f(n2+m_key[7]);
 	}
 
-	n2 ^= f(n1+key[7]);
-	n1 ^= f(n2+key[6]);
-	n2 ^= f(n1+key[5]);
-	n1 ^= f(n2+key[4]);
-	n2 ^= f(n1+key[3]);
-	n1 ^= f(n2+key[2]);
-	n2 ^= f(n1+key[1]);
-	n1 ^= f(n2+key[0]);
+	n2 ^= f(n1+m_key[7]);
+	n1 ^= f(n2+m_key[6]);
+	n2 ^= f(n1+m_key[5]);
+	n1 ^= f(n2+m_key[4]);
+	n2 ^= f(n1+m_key[3]);
+	n1 ^= f(n2+m_key[2]);
+	n2 ^= f(n1+m_key[1]);
+	n1 ^= f(n2+m_key[0]);
 
 	Block::Put(xorBlock, outBlock)(n2)(n1);
 }
@@ -96,25 +96,25 @@ void GOST::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, by
 
 	Block::Get(inBlock)(n1)(n2);
 
-	n2 ^= f(n1+key[0]);
-	n1 ^= f(n2+key[1]);
-	n2 ^= f(n1+key[2]);
-	n1 ^= f(n2+key[3]);
-	n2 ^= f(n1+key[4]);
-	n1 ^= f(n2+key[5]);
-	n2 ^= f(n1+key[6]);
-	n1 ^= f(n2+key[7]);
+	n2 ^= f(n1+m_key[0]);
+	n1 ^= f(n2+m_key[1]);
+	n2 ^= f(n1+m_key[2]);
+	n1 ^= f(n2+m_key[3]);
+	n2 ^= f(n1+m_key[4]);
+	n1 ^= f(n2+m_key[5]);
+	n2 ^= f(n1+m_key[6]);
+	n1 ^= f(n2+m_key[7]);
 
 	for (unsigned int i=0; i<3; i++)
 	{
-		n2 ^= f(n1+key[7]);
-		n1 ^= f(n2+key[6]);
-		n2 ^= f(n1+key[5]);
-		n1 ^= f(n2+key[4]);
-		n2 ^= f(n1+key[3]);
-		n1 ^= f(n2+key[2]);
-		n2 ^= f(n1+key[1]);
-		n1 ^= f(n2+key[0]);
+		n2 ^= f(n1+m_key[7]);
+		n1 ^= f(n2+m_key[6]);
+		n2 ^= f(n1+m_key[5]);
+		n1 ^= f(n2+m_key[4]);
+		n2 ^= f(n1+m_key[3]);
+		n1 ^= f(n2+m_key[2]);
+		n2 ^= f(n1+m_key[1]);
+		n1 ^= f(n2+m_key[0]);
 	}
 
 	Block::Put(xorBlock, outBlock)(n2)(n1);
