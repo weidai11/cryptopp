@@ -317,22 +317,26 @@ public:
 	word GetHighHalfAsBorrow() const {return 0-m_halfs.high;}
 
 private:
-	union
-	{
-	#ifdef CRYPTOPP_NATIVE_DWORD_AVAILABLE
-		dword m_whole;
-	#endif
-		struct
-		{
-		#ifdef IS_LITTLE_ENDIAN
-			word low;
-			word high;
-		#else
-			word high;
-			word low;
-		#endif
-		} m_halfs;
-	};
+	// Issue 274, "Types cannot be declared in anonymous union",
+	//   http://github.com/weidai11/cryptopp/issues/274
+	//   Thanks to Martin Bonner at http://stackoverflow.com/a/39507183
+    struct half_words
+    {
+    #ifdef IS_LITTLE_ENDIAN
+        word low;
+        word high;
+    #else
+        word high;
+        word low;
+    #endif
+   };
+   union
+   {
+   #ifdef CRYPTOPP_NATIVE_DWORD_AVAILABLE
+       dword m_whole;
+   #endif
+       half_words m_halfs;
+   };
 };
 
 class Word
