@@ -7,13 +7,13 @@
 #include "modes.h"
 #include "misc.h"
 
-//#ifndef NDEBUG
+//#if CRYPTOPP_DEBUG
 #include "des.h"
 //#endif
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#if !defined(NDEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if CRYPTOPP_DEBUG && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
 void Modes_TestInstantiations()
 {
 	CFB_Mode<DES>::Encryption m0;

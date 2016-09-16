@@ -82,7 +82,7 @@ bool ValidateAll(bool thorough)
 	pass=TestRDSEED() && pass;
 #endif
 
-#if !defined(NDEBUG) && !defined(CRYPTOPP_IMPORTS)
+#if CRYPTOPP_DEBUG && !defined(CRYPTOPP_IMPORTS)
 	// http://github.com/weidai11/cryptopp/issues/92
 	pass=TestSecBlock() && pass;
 	// http://github.com/weidai11/cryptopp/issues/64
@@ -334,7 +334,7 @@ bool TestSettings()
 	return pass;
 }
 
-#if !defined(NDEBUG) && !defined(CRYPTOPP_IMPORTS)
+#if CRYPTOPP_DEBUG && !defined(CRYPTOPP_IMPORTS)
 bool TestSecBlock()
 {
 	cout << "\nTesting SecBlock...\n\n";
@@ -1268,7 +1268,7 @@ bool TestSecBlock()
 }
 #endif
 
-#if !defined(NDEBUG) && !defined(CRYPTOPP_IMPORTS)
+#if CRYPTOPP_DEBUG && !defined(CRYPTOPP_IMPORTS)
 bool TestHuffmanCodes()
 {
     cout << "\nTesting Huffman codes...\n\n";

@@ -18,7 +18,7 @@ NAMESPACE_BEGIN(CryptoPP)
     a += b; d ^= a; d = rotlFixed<word32>(d, 8); \
     c += d; b ^= c; b = rotlFixed<word32>(b, 7);
 
-#if !defined(NDEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if CRYPTOPP_DEBUG && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
 void ChaCha_TestInstantiations()
 {
 	 ChaCha8::Encryption x1;

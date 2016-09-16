@@ -206,10 +206,10 @@ class DWord
 public:
 	// Converity finding on default ctor. We've isntrumented the code,
 	//   and cannot uncover a case where it affects a result.
-#if (defined(__COVERITY__) || !defined(NDEBUG)) && defined(CRYPTOPP_NATIVE_DWORD_AVAILABLE)
+#if (defined(__COVERITY__) || CRYPTOPP_DEBUG) && defined(CRYPTOPP_NATIVE_DWORD_AVAILABLE)
 	// Repeating pattern of 1010 for debug builds to break things...
 	DWord() : m_whole(0) {memset(&m_whole, 0xa, sizeof(m_whole));}
-#elif (defined(__COVERITY__) || !defined(NDEBUG)) && !defined(CRYPTOPP_NATIVE_DWORD_AVAILABLE)
+#elif (defined(__COVERITY__) || CRYPTOPP_DEBUG) && !defined(CRYPTOPP_NATIVE_DWORD_AVAILABLE)
 	// Repeating pattern of 1010 for debug builds to break things...
 	DWord() : m_halfs() {memset(&m_halfs, 0xaa, sizeof(m_halfs));}
 #else
@@ -346,7 +346,7 @@ public:
 	//   and cannot uncover a case where it affects a result.
 #if defined(__COVERITY__)
 	Word() : m_whole(0) {}
-#elif !defined(NDEBUG)
+#elif CRYPTOPP_DEBUG
 	// Repeating pattern of 1010 for debug builds to break things...
 	Word() : m_whole(0) {memset(&m_whole, 0xaa, sizeof(m_whole));}
 #else
@@ -2076,7 +2076,7 @@ static void SetFunctionPointers()
 #if CRYPTOPP_INTEGER_SSE2
 	if (HasSSE2())
 	{
-#if _MSC_VER != 1200 || defined(NDEBUG)
+#if _MSC_VER != 1200 || !(CRYPTOPP_DEBUG)
 		if (IsP4())
 		{
 			s_pAdd = &SSE2_Add;
@@ -2614,7 +2614,7 @@ static inline void AtomicDivide(word *Q, const word *A, const word *B)
 		Q[1] = SubatomicDivide(T+1, B[0], B[1]);
 		Q[0] = SubatomicDivide(T, B[0], B[1]);
 
-#ifndef NDEBUG
+#if CRYPTOPP_DEBUG
 		// multiply quotient and divisor and add remainder, make sure it equals dividend
 		CRYPTOPP_ASSERT(!T[2] && !T[3] && (T[1] < B[1] || (T[1]==B[1] && T[0]<B[0])));
 		word P[4];
@@ -2633,7 +2633,7 @@ static inline void AtomicDivide(word *Q, const word *A, const word *B)
 	Q[0] = q.GetLowHalf();
 	Q[1] = q.GetHighHalf();
 
-#ifndef NDEBUG
+#if CRYPTOPP_DEBUG
 	if (B[0] || B[1])
 	{
 		// multiply quotient and divisor and add remainder, make sure it equals dividend
