@@ -56,6 +56,8 @@ public:
 	void Restart();
 	void TruncatedFinal(byte *hash, size_t size);
 
+	unsigned int BlockSize() const { return r(); }
+
 protected:
 	inline unsigned int r() const {return 200 - 2 * m_digestSize;}
 
@@ -70,10 +72,14 @@ class Keccak_224 : public Keccak
 {
 public:
 	CRYPTOPP_CONSTANT(DIGESTSIZE = 28)
+	CRYPTOPP_CONSTANT(BLOCKSIZE = 200 - 2 * DIGESTSIZE)
 
 	//! \brief Construct a Keccak-224 message digest
 	Keccak_224() : Keccak(DIGESTSIZE) {}
 	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "Keccak-224";}
+private:
+	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE < 200); // ensure there was no underflow in the math
+	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE > DIGESTSIZE); // this is a general expectation by HMAC
 };
 
 //! \class Keccak_256
@@ -83,10 +89,14 @@ class Keccak_256 : public Keccak
 {
 public:
 	CRYPTOPP_CONSTANT(DIGESTSIZE = 32)
+	CRYPTOPP_CONSTANT(BLOCKSIZE = 200 - 2 * DIGESTSIZE)
 
 	//! \brief Construct a Keccak-256 message digest
 	Keccak_256() : Keccak(DIGESTSIZE) {}
 	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "Keccak-256";}
+private:
+	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE < 200); // ensure there was no underflow in the math
+	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE > DIGESTSIZE); // this is a general expectation by HMAC
 };
 
 //! \class Keccak_384
@@ -96,10 +106,14 @@ class Keccak_384 : public Keccak
 {
 public:
 	CRYPTOPP_CONSTANT(DIGESTSIZE = 48)
+	CRYPTOPP_CONSTANT(BLOCKSIZE = 200 - 2 * DIGESTSIZE)
 
 	//! \brief Construct a Keccak-384 message digest
 	Keccak_384() : Keccak(DIGESTSIZE) {}
 	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "Keccak-384";}
+private:
+	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE < 200); // ensure there was no underflow in the math
+	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE > DIGESTSIZE); // this is a general expectation by HMAC
 };
 
 //! \class Keccak_512
@@ -109,10 +123,14 @@ class Keccak_512 : public Keccak
 {
 public:
 	CRYPTOPP_CONSTANT(DIGESTSIZE = 64)
+	CRYPTOPP_CONSTANT(BLOCKSIZE = 200 - 2 * DIGESTSIZE)
 
 	//! \brief Construct a Keccak-512 message digest
 	Keccak_512() : Keccak(DIGESTSIZE) {}
 	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "Keccak-512";}
+private:
+	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE < 200); // ensure there was no underflow in the math
+	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE > DIGESTSIZE); // this is a general expectation by HMAC
 };
 
 NAMESPACE_END
