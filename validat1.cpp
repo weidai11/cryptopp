@@ -2500,8 +2500,8 @@ bool ValidateMARS()
 	pass1 = enc.StaticGetValidKeyLength(16) == 16 && pass1;
 	pass1 = enc.StaticGetValidKeyLength(24) == 24 && pass1;
 	pass1 = enc.StaticGetValidKeyLength(32) == 32 && pass1;
-	pass1 = enc.StaticGetValidKeyLength(64) == 32 && pass1;
-	pass1 = enc.StaticGetValidKeyLength(128) == 32 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(64) == 58 && pass1;
+	pass1 = enc.StaticGetValidKeyLength(128) == 58 && pass1;
 	pass1 = enc.StaticGetValidKeyLength(0) == enc.MinKeyLength() && pass1;
 	pass1 = enc.StaticGetValidKeyLength(SIZE_MAX) == enc.MaxKeyLength() && pass1;
 
@@ -2510,8 +2510,8 @@ bool ValidateMARS()
 	pass2 = dec.StaticGetValidKeyLength(16) == 16 && pass2;
 	pass2 = dec.StaticGetValidKeyLength(24) == 24 && pass2;
 	pass2 = dec.StaticGetValidKeyLength(32) == 32 && pass2;
-	pass2 = dec.StaticGetValidKeyLength(64) == 32 && pass2;
-	pass2 = dec.StaticGetValidKeyLength(128) == 32 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(64) == 58 && pass2;
+	pass2 = dec.StaticGetValidKeyLength(128) == 58 && pass2;
 	pass2 = dec.StaticGetValidKeyLength(0) == dec.MinKeyLength() && pass2;
 	pass2 = dec.StaticGetValidKeyLength(SIZE_MAX) == dec.MaxKeyLength() && pass2;
 	cout << (pass1 && pass2 ? "passed:" : "FAILED:") << "  Algorithm key lengths\n";
