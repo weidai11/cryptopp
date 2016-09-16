@@ -1,28 +1,28 @@
 // trap.h - written and placed in public domain by Jeffrey Walton.
 //          Copyright assigned to Crypto++ project
 
+//! \file trap.h
+//! \brief Debugging and diagnostic assertions
+//! \details <tt>CRYPTOPP_ASSERT</tt> is the library's debugging and diagnostic assertion. <tt>CRYPTOPP_ASSERT</tt>
+//!   is enabled by <tt>CRYPTOPP_DEBUG</tt>, <tt>DEBUG</tt> or <tt>_DEBUG</tt>.
+//! \details <tt>CRYPTOPP_ASSERT</tt> raises a <tt>SIGTRAP</tt> (Unix) or calls <tt>DebugBreak()</tt> (Windows).
+//!   <tt>CRYPTOPP_ASSERT</tt> is only in effect when the user requests a debug configuration. Unlike Posix assert,
+//!   <tt>NDEBUG</tt> (or failure to define it) does not affect the library.
+//! The traditional Posix define <tt>NDEBUG</tt> has no effect on <tt>CRYPTOPP_DEBUG</tt> or DebugTrapHandler.
+//! \since Crypto++ 5.6.5
+//! \sa DebugTrapHandler, <A HREF="http://github.com/weidai11/cryptopp/issues/277">Issue 277</A>,
+//!   <A HREF="http://seclists.org/oss-sec/2016/q3/520">CVE-2016-7420</A>
+
 #ifndef CRYPTOPP_TRAP_H
 #define CRYPTOPP_TRAP_H
 
 #include "config.h"
 
-// CRYPTOPP_POSIX_ASSERT unconditionally disables the library assert and yields
-//   to Posix assert. CRYPTOPP_POSIX_ASSERT can be set in config.h. if you want
-//   to disable asserts, then define NDEBUG or _NDEBUG when building the library.
-
-// Needed for NDEBUG and CRYPTOPP_POSIX_ASSERT
-#include <cassert>
-
-#if defined(CRYPTOPP_DEBUG)
+#if CRYPTOPP_DEBUG
 #  include <iostream>
 #  include <sstream>
 #  if defined(CRYPTOPP_WIN32_AVAILABLE)
-#    pragma push_macro("WIN32_LEAN_AND_MEAN")
-#    pragma push_macro("_WIN32_WINNT")
-#    pragma push_macro("NOMINMAX")
 #    define WIN32_LEAN_AND_MEAN
-#    define _WIN32_WINNT 0x0400
-#    define NOMINMAX
 #    include <Windows.h>
 #  elif defined(CRYPTOPP_BSD_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE)
 #    include <signal.h>
@@ -31,11 +31,37 @@
 
 // ************** run-time assertion ***************
 
-// See test.cpp and DebugTrapHandler for code to install a null signal handler
-// for SIGTRAP on BSD, Linux and Unix. The handler installs itself during
-// initialization of the test program.
+#if defined(CRYPTOPP_DOXYGEN_PROCESSING)
+//! \brief Debugging and diagnostic assertion
+//! \details <tt>CRYPTOPP_ASSERT</tt> is the library's debugging and diagnostic assertion. <tt>CRYPTOPP_ASSERT</tt>
+//!   is enabled by the preprocessor macros <tt>CRYPTOPP_DEBUG</tt>, <tt>DEBUG</tt> or <tt>_DEBUG</tt>.
+//! \details <tt>CRYPTOPP_ASSERT</tt> raises a <tt>SIGTRAP</tt> (Unix) or calls <tt>DebugBreak()</tt> (Windows).
+//!   <tt>CRYPTOPP_ASSERT</tt> is only in effect when the user explictly requests a debug configuration.
+//! \details If you want to ensure <tt>CRYPTOPP_ASSERT</tt> is inert, then <em>do not</em> define
+//!   <tt>CRYPTOPP_DEBUG</tt>, <tt>DEBUG</tt> or <tt>_DEBUG</tt>. Avoiding the defines means <tt>CRYPTOPP_ASSERT</tt>
+//!   is processed into <tt>((void)(exp))</tt>.
+//! \details The traditional Posix define <tt>NDEBUG</tt> has no effect on <tt>CRYPTOPP_DEBUG</tt>, <tt>CRYPTOPP_ASSERT</tt>
+//!   or DebugTrapHandler.
+//! \details An example of using \ref CRYPTOPP_ASSERT "CRYPTOPP_ASSERT" and DebugTrapHandler is shown below. The library's
+//!   test program, <tt>cryptest.exe</tt> (from test.cpp), exercises the structure:
+//!  <pre>
+//!    #if CRYPTOPP_DEBUG && (defined(CRYPTOPP_BSD_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE))
+//!    static const DebugTrapHandler g_dummyHandler;
+//!    #endif
+//!
+//!    int main(int argc, char* argv[])
+//!    {
+//!       CRYPTOPP_ASSERT(argv != nullptr);
+//!       ...
+//!    }
+//!  </pre>
+//! \since Crypto++ 5.6.5
+//! \sa DebugTrapHandler, SignalHandler, <A HREF="http://github.com/weidai11/cryptopp/issues/277">Issue 277</A>,
+//!   <A HREF="http://seclists.org/oss-sec/2016/q3/520">CVE-2016-7420</A>
+#  define CRYPTOPP_ASSERT(exp) { ... }
+#endif
 
-#if defined(CRYPTOPP_DEBUG) && (defined(CRYPTOPP_BSD_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE))
+#if CRYPTOPP_DEBUG && (defined(CRYPTOPP_BSD_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE))
 #  define CRYPTOPP_ASSERT(exp) {                                  \
     if (!(exp)) {                                                 \
       std::ostringstream oss;                                     \
@@ -46,26 +72,106 @@
       raise(SIGTRAP);                                             \
     }                                                             \
   }
-#elif defined(CRYPTOPP_DEBUG) && defined(CRYPTOPP_WIN32_AVAILABLE)
+#elif CRYPTOPP_DEBUG && defined(CRYPTOPP_WIN32_AVAILABLE)
 #  define CRYPTOPP_ASSERT(exp) {                                  \
     if (!(exp)) {                                                 \
       std::ostringstream oss;                                     \
       oss << "Assertion failed: " << (char*)(__FILE__) << "("     \
           << (int)(__LINE__) << "): " << (char*)(__FUNCTION__)    \
           << std::endl;                                           \
-      DebugBreak();                                               \
       std::cerr << oss.str();                                     \
+      DebugBreak();                                               \
     }                                                             \
   }
-// Fallback to original behavior for NDEBUG (and non-Windows/non-Unix builds)
-#else
-#  define CRYPTOPP_ASSERT(exp) assert(exp)
 #endif // DEBUG and Unix or Windows
 
-#if defined(CRYPTOPP_DEBUG) && defined(CRYPTOPP_WIN32_AVAILABLE)
-#  pragma pop_macro("WIN32_LEAN_AND_MEAN")
-#  pragma pop_macro("_WIN32_WINNT")
-#  pragma pop_macro("NOMINMAX")
+// Remove CRYPTOPP_ASSERT in non-debug builds.
+//  Can't use CRYPTOPP_UNUSED due to circular dependency
+#ifndef CRYPTOPP_ASSERT
+#  define CRYPTOPP_ASSERT(exp) ((void)(exp))
 #endif
+
+NAMESPACE_BEGIN(CryptoPP)
+
+// ************** SIGTRAP handler ***************
+
+#if (CRYPTOPP_DEBUG && (defined(CRYPTOPP_BSD_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE))) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+//! \brief Default SIGTRAP handler
+//! \details DebugTrapHandler() can be used by a program to install an empty SIGTRAP handler. If present,
+//!   the handler ensures there is a signal handler in place for <tt>SIGTRAP</tt> raised by
+//!   <tt>CRYPTOPP_ASSERT</tt>. If <tt>CRYPTOPP_ASSERT</tt> raises <tt>SIGTRAP</tt> <em>without</em>
+//!   a handler, then one of two things can occur. First, the OS might allow the program
+//!   to continue. Second, the OS might terminate the program. OS X allows the program to continue, while
+//!   some Linuxes terminate the program.
+//! \details If DebugTrapHandler detects another handler in place, then it will not install a handler. This
+//!   ensures a debugger can gain control of the <tt>SIGTRAP</tt> signal without contention. It also allows multiple
+//!   DebugTrapHandler to be created without contentious or unusual behavior. Though muliple DebugTrapHandler can be
+//!   created, a program should only create one, if needed.
+//! \details A DebugTrapHandler is subject to C++ static initialization [dis]order. If you need to install a handler
+//!   and it must be installed early, then reference the code associated with <tt>CRYPTOPP_INIT_PRIORITY</tt> in
+//!   cryptlib.cpp and cpu.cpp.
+//! \details If you want to ensure <tt>CRYPTOPP_ASSERT</tt> is inert, then <em>do not</em> define
+//!   <tt>CRYPTOPP_DEBUG</tt>, <tt>DEBUG</tt> or <tt>_DEBUG</tt>. Avoiding the defines means <tt>CRYPTOPP_ASSERT</tt>
+//!   is processed into <tt>((void)(exp))</tt>.
+//! \details The traditional Posix define <tt>NDEBUG</tt> has no effect on <tt>CRYPTOPP_DEBUG</tt>, <tt>CRYPTOPP_ASSERT</tt>
+//!   or DebugTrapHandler.
+//! \details An example of using \ref CRYPTOPP_ASSERT "CRYPTOPP_ASSERT" and DebugTrapHandler is shown below. The library's
+//!   test program, <tt>cryptest.exe</tt> (from test.cpp), exercises the structure:
+//!  <pre>
+//!    #if CRYPTOPP_DEBUG && (defined(CRYPTOPP_BSD_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE))
+//!    static const DebugTrapHandler g_dummyHandler;
+//!    #endif
+//!
+//!    int main(int argc, char* argv[])
+//!    {
+//!       CRYPTOPP_ASSERT(argv != nullptr);
+//!       ...
+//!    }
+//!  </pre>
+//! \since Crypto++ 5.6.5
+//! \sa \ref CRYPTOPP_ASSERT "CRYPTOPP_ASSERT", SignalHandler, <A HREF="http://github.com/weidai11/cryptopp/issues/277">Issue 277</A>,
+//!   <A HREF="http://seclists.org/oss-sec/2016/q3/520">CVE-2016-7420</A>
+struct DebugTrapHandler
+{
+    DebugTrapHandler()
+    {
+        // http://pubs.opengroup.org/onlinepubs/007908799/xsh/sigaction.html
+        struct sigaction old_handler, new_handler;
+        memset(&old_handler, 0x00, sizeof(old_handler));
+		memset(&new_handler, 0x00, sizeof(new_handler));
+
+        do
+        {
+            int ret = 0;
+
+            ret = sigaction (SIGTRAP, 0, &old_handler);
+            if (ret != 0) break; // Failed
+
+            // Don't step on another's handler
+            if (old_handler.sa_handler != 0) break;
+
+            // Set up the structure to specify the NULL action.
+            new_handler.sa_handler = &DebugTrapHandler::NullHandler;
+            new_handler.sa_flags = 0;
+
+            ret = sigemptyset (&new_handler.sa_mask);
+            if (ret != 0) break; // Failed
+
+            // Install it
+            ret = sigaction (SIGTRAP, &new_handler, 0);
+            if (ret != 0) break; // Failed
+
+        } while(0);
+    }
+
+    static void NullHandler(int /*unused*/) { }
+
+private:
+    DebugTrapHandler(const DebugTrapHandler &);
+    void operator=(const DebugTrapHandler &);
+};
+#endif  // DebugTrapHandler
+
+NAMESPACE_END
 
 #endif // CRYPTOPP_TRAP_H

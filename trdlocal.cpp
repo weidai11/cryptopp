@@ -30,13 +30,13 @@ ThreadLocalStorage::ThreadLocalStorage()
 {
 #ifdef HAS_WINTHREADS
 	m_index = TlsAlloc();
-	assert(m_index != TLS_OUT_OF_INDEXES);
+	CRYPTOPP_ASSERT(m_index != TLS_OUT_OF_INDEXES);
 	if (m_index == TLS_OUT_OF_INDEXES)
 		throw Err("TlsAlloc", GetLastError());
 #else
 	m_index = 0;
 	int error = pthread_key_create(&m_index, NULL);
-	assert(!error);
+	CRYPTOPP_ASSERT(!error);
 	if (error)
 		throw Err("pthread_key_create", error);
 #endif
@@ -52,14 +52,14 @@ ThreadLocalStorage::~ThreadLocalStorage() CRYPTOPP_THROW
 #ifdef HAS_WINTHREADS
 	{
 		int rc = TlsFree(m_index);
-		assert(rc);
+		CRYPTOPP_ASSERT(rc);
 		if (!rc)
 			throw Err("TlsFree", GetLastError());
 	}
 #else
 	{
 		int error = pthread_key_delete(m_index);
-		assert(!error);
+		CRYPTOPP_ASSERT(!error);
 		if (error)
 			throw Err("pthread_key_delete", error);
 	}
@@ -89,7 +89,7 @@ void *ThreadLocalStorage::GetValue() const
 	void *result = TlsGetValue(m_index);
 	const DWORD dwRet = GetLastError();
 
-	assert(result || (!result && (dwRet == NO_ERROR)));
+	CRYPTOPP_ASSERT(result || (!result && (dwRet == NO_ERROR)));
 	if (!result && dwRet != NO_ERROR)
 		throw Err("TlsGetValue", dwRet);
 #else

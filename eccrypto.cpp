@@ -457,7 +457,7 @@ template <class EC> void DL_GroupParameters_EC<EC>::Initialize(const OID &oid)
 	this->SetSubgroupGenerator(G);
 
 	// TODO: this fails in practice. Should it throw?
-	CRYPTOPP_UNUSED(result); assert(result);
+	CRYPTOPP_UNUSED(result); CRYPTOPP_ASSERT(result);
 
 	StringSource ssN(param.n, true, new HexDecoder);
 	m_n.Decode(ssN, (size_t)ssN.MaxRetrievable());

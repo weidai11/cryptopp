@@ -74,7 +74,7 @@ public:
 	void Assign(const byte *data, size_t size, bool deepCopy)
 	{
 		// This fires, which means: no data with a size, or data with no size.
-		// assert((data && size) || !(data || size));
+		// CRYPTOPP_ASSERT((data && size) || !(data || size));
 		if (deepCopy)
 			m_block.Assign(data, size);
 		else

@@ -23,7 +23,7 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte
 
 	T* dataBuf = this->DataBuf();
 	byte* data = (byte *)dataBuf;
-	assert(dataBuf && data);
+	CRYPTOPP_ASSERT(dataBuf && data);
 
 	if (num != 0)	// process left over data
 	{
@@ -48,7 +48,7 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte
 	{
 		if (input == data)
 		{
-			assert(len == blockSize);
+			CRYPTOPP_ASSERT(len == blockSize);
 			HashBlock(dataBuf);
 			return;
 		}

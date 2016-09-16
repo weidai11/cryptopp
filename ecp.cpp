@@ -140,7 +140,7 @@ void ECP::EncodePoint(byte *encodedPoint, const Point &P, bool compressed) const
 {
 	ArraySink sink(encodedPoint, EncodedPointSize(compressed));
 	EncodePoint(sink, P, compressed);
-	assert(sink.TotalPutLength() == EncodedPointSize(compressed));
+	CRYPTOPP_ASSERT(sink.TotalPutLength() == EncodedPointSize(compressed));
 }
 
 ECP::Point ECP::BERDecodePoint(BufferedTransformation &bt) const
@@ -384,7 +384,7 @@ void ECP::SimultaneousMultiply(ECP::Point *results, const ECP::Point &P, const I
 
 	for (i=0; i<expCount; i++)
 	{
-		assert(expBegin->NotNegative());
+		CRYPTOPP_ASSERT(expBegin->NotNegative());
 		exponents.push_back(WindowSlider(*expBegin++, InversionIsFast(), 5));
 		exponents[i].FindNextWindow();
 	}

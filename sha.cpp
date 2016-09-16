@@ -886,8 +886,8 @@ CRYPTOPP_NAKED static void CRYPTOPP_FASTCALL SHA512_SSE2_Transform(word64 *state
 
 void SHA512::Transform(word64 *state, const word64 *data)
 {
-	assert(IsAlignedOn(state, GetAlignmentOf<word64>()));
-	assert(IsAlignedOn(data, GetAlignmentOf<word64>()));
+	CRYPTOPP_ASSERT(IsAlignedOn(state, GetAlignmentOf<word64>()));
+	CRYPTOPP_ASSERT(IsAlignedOn(data, GetAlignmentOf<word64>()));
 
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32)
 	if (HasSSE2())

@@ -84,7 +84,7 @@ public:
 			case 2: output[1] = CRYPTOPP_GET_BYTE_AS_BYTE(temp, 2); /* fall through */
 			case 1: output[0] = CRYPTOPP_GET_BYTE_AS_BYTE(temp, 3); break;
 
-			default: assert(0); ;;
+			default: CRYPTOPP_ASSERT(0); ;;
 		}
 
 		// Wipe temp
@@ -148,7 +148,7 @@ protected:
 		static const unsigned long magic[2]={0x0UL, K};
 		word32 kk, temp;
 
-		assert(N >= M);
+		CRYPTOPP_ASSERT(N >= M);
 		for (kk=0;kk<N-M;kk++)
 		{
 			temp = (m_state[kk] & 0x80000000)|(m_state[kk+1] & 0x7FFFFFFF);

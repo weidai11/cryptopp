@@ -66,7 +66,7 @@ public:
 
 protected:
 	CipherModeBase() : m_cipher(NULL) {}
-	inline unsigned int BlockSize() const {assert(m_register.size() > 0); return (unsigned int)m_register.size();}
+	inline unsigned int BlockSize() const {CRYPTOPP_ASSERT(m_register.size() > 0); return (unsigned int)m_register.size();}
 	virtual void SetFeedbackSize(unsigned int feedbackSize)
 	{
 		if (!(feedbackSize == 0 || feedbackSize == BlockSize()))

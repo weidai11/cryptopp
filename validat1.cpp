@@ -216,7 +216,7 @@ bool TestSettings()
 	}
 
 #ifdef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
-	// Don't assert the alignment of testvals. That's what this test is for.
+	// Don't CRYPTOPP_ASSERT the alignment of testvals. That's what this test is for.
 	byte testvals[10] = {1,2,2,3,3,3,3,2,2,1};
 	if (*(word32 *)(void *)(testvals+3) == 0x03030303 && *(word64 *)(void *)(testvals+1) == W64LIT(0x0202030303030202))
 		cout << "passed:  Your machine allows unaligned data access.\n";
@@ -1580,7 +1580,7 @@ bool TestRDRAND()
 		RandomNumberSource rns(rdrand, SIZE, true, new Redirector(chsw));
 		deflator.Flush(true);
 
-		assert(0 == maurer.BytesNeeded());
+		CRYPTOPP_ASSERT(0 == maurer.BytesNeeded());
 		const double mv = maurer.GetTestValue();
 		if (mv < 0.98f)
 		{
@@ -1659,7 +1659,7 @@ bool TestRDSEED()
 		RandomNumberSource rns(rdseed, SIZE, true, new Redirector(chsw));
 		deflator.Flush(true);
 
-		assert(0 == maurer.BytesNeeded());
+		CRYPTOPP_ASSERT(0 == maurer.BytesNeeded());
 		const double mv = maurer.GetTestValue();
 		if (mv < 0.98f)
 		{
@@ -1803,7 +1803,7 @@ public:
 		{
 			std::cerr << "incorrect output " << counter << ", " << (word16)validOutput[counter] << ", " << (word16)inByte << "\n";
 			fail = true;
-			assert(false);
+			CRYPTOPP_ASSERT(false);
 		}
 		counter++;
 	}
@@ -1818,7 +1818,7 @@ public:
 			if (counter != outputLen)
 			{
 				fail = true;
-				assert(false);
+				CRYPTOPP_ASSERT(false);
 			}
 
 		return 0;

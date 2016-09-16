@@ -895,6 +895,7 @@ IF %ERRORLEVEL% EQU 0 (echo mac done &gt; "$(OutDir)"\cryptopp.mac.done)
     <ClInclude Include="smartptr.h" />
     <ClInclude Include="stdcpp.h" />
     <ClInclude Include="strciphr.h" />
+    <ClInclude Include="trap.h" />
     <ClInclude Include="trdlocal.h" />
     <ClInclude Include="words.h" />
   </ItemGroup>

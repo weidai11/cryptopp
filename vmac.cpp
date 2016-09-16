@@ -87,7 +87,7 @@ void VMAC_Base::UncheckedSetKey(const byte *userKey, unsigned int keylength, con
 	in[0] = 0xE0;
 	in[15] = 0;
 	word64 *l3Key = m_l3Key();
-	assert(IsAlignedOn(l3Key,GetAlignmentOf<word64>()));
+	CRYPTOPP_ASSERT(IsAlignedOn(l3Key,GetAlignmentOf<word64>()));
 
 	for (i = 0; i <= (size_t)m_is128; i++)
 		do
@@ -147,7 +147,7 @@ void VMAC_Base::Resynchronize(const byte *nonce, int len)
 void VMAC_Base::HashEndianCorrectedBlock(const word64 *data)
 {
 	CRYPTOPP_UNUSED(data);
-	assert(false);
+	CRYPTOPP_ASSERT(false);
 	throw NotImplemented("VMAC: HashEndianCorrectedBlock is not implemented");
 }
 
@@ -170,8 +170,8 @@ __attribute__ ((noinline))		// Intel Compiler 9.1 workaround
 #endif
 VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWord64, int tagPart)
 {
-	assert(IsAlignedOn(m_polyState(),GetAlignmentOf<word64>()));
-	assert(IsAlignedOn(m_nhKey(),GetAlignmentOf<word64>()));
+	CRYPTOPP_ASSERT(IsAlignedOn(m_polyState(),GetAlignmentOf<word64>()));
+	CRYPTOPP_ASSERT(IsAlignedOn(m_nhKey(),GetAlignmentOf<word64>()));
 
 	const word64 *nhK = m_nhKey();
 	word64 *polyS = (word64*)(void*)m_polyState();
@@ -538,8 +538,8 @@ template <bool T_128BitTag>
 #endif
 void VMAC_Base::VHASH_Update_Template(const word64 *data, size_t blocksRemainingInWord64)
 {
-	assert(IsAlignedOn(m_polyState(),GetAlignmentOf<word64>()));
-	assert(IsAlignedOn(m_nhKey(),GetAlignmentOf<word64>()));
+	CRYPTOPP_ASSERT(IsAlignedOn(m_polyState(),GetAlignmentOf<word64>()));
+	CRYPTOPP_ASSERT(IsAlignedOn(m_nhKey(),GetAlignmentOf<word64>()));
 
 	#define INNER_LOOP_ITERATION(j)	{\
 		word64 d0 = ConditionalByteReverse(LITTLE_ENDIAN_ORDER, data[i+2*j+0]);\
@@ -870,8 +870,8 @@ static word64 L3Hash(const word64 *input, const word64 *l3Key, size_t len)
 
 void VMAC_Base::TruncatedFinal(byte *mac, size_t size)
 {
-	assert(IsAlignedOn(DataBuf(),GetAlignmentOf<word64>()));
-	assert(IsAlignedOn(m_polyState(),GetAlignmentOf<word64>()));
+	CRYPTOPP_ASSERT(IsAlignedOn(DataBuf(),GetAlignmentOf<word64>()));
+	CRYPTOPP_ASSERT(IsAlignedOn(m_polyState(),GetAlignmentOf<word64>()));
 	size_t len = ModPowerOf2(GetBitCountLo()/8, m_L1KeyLength);
 
 	if (len)

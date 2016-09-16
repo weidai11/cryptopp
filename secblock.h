@@ -118,7 +118,7 @@ typedef typename AllocatorBase<T>::const_reference const_reference;
 template <class T, class A>
 typename A::pointer StandardReallocate(A& alloc, T *oldPtr, typename A::size_type oldSize, typename A::size_type newSize, bool preserve)
 {
-	assert((oldPtr && oldSize) || !(oldPtr || oldSize));
+	CRYPTOPP_ASSERT((oldPtr && oldSize) || !(oldPtr || oldSize));
 	if (oldSize == newSize)
 		return oldPtr;
 
@@ -164,13 +164,13 @@ public:
 	//! \details AlignedAllocate() is used if T_Align16 is true.
 	//!   UnalignedAllocate() used if T_Align16 is false.
 	//! \details This is the C++ *Placement New* operator. ptr is not used, and the function
-	//!   asserts in Debug builds if ptr is non-NULL.
+	//!   CRYPTOPP_ASSERTs in Debug builds if ptr is non-NULL.
 	//! \sa CallNewHandler() for the methods used to recover from a failed
 	//!   allocation attempt.
 	//! \note size is the count of elements, and not the number of bytes
 	pointer allocate(size_type size, const void *ptr = NULL)
 	{
-		CRYPTOPP_UNUSED(ptr); assert(ptr == NULL);
+		CRYPTOPP_UNUSED(ptr); CRYPTOPP_ASSERT(ptr == NULL);
 		this->CheckSize(size);
 		if (size == 0)
 			return NULL;
@@ -194,7 +194,7 @@ public:
 	//!   UnalignedDeallocate() used if T_Align16 is false.
 	void deallocate(void *ptr, size_type size)
 	{
-		assert((ptr && size) || !(ptr || size));
+		CRYPTOPP_ASSERT((ptr && size) || !(ptr || size));
 		SecureWipeArray((pointer)ptr, size);
 
 #if CRYPTOPP_BOOL_ALIGN16
@@ -220,7 +220,7 @@ public:
 	//!   number of bytes.
 	pointer reallocate(T *oldPtr, size_type oldSize, size_type newSize, bool preserve)
 	{
-		assert((oldPtr && oldSize) || !(oldPtr || oldSize));
+		CRYPTOPP_ASSERT((oldPtr && oldSize) || !(oldPtr || oldSize));
 		return StandardReallocate(*this, oldPtr, oldSize, newSize, preserve);
 	}
 
@@ -272,13 +272,13 @@ public:
 	pointer allocate(size_type n, const void* unused = NULL)
 	{
 		CRYPTOPP_UNUSED(n); CRYPTOPP_UNUSED(unused);
-		assert(false); return NULL;
+		CRYPTOPP_ASSERT(false); return NULL;
 	}
 
 	void deallocate(void *p, size_type n)
 	{
 		CRYPTOPP_UNUSED(p); CRYPTOPP_UNUSED(n);
-		assert(false);
+		CRYPTOPP_ASSERT(false);
 	}
 
 	CRYPTOPP_CONSTEXPR size_type max_size() const {return 0;}
@@ -320,7 +320,7 @@ public:
 	//! \sa reallocate(), SecBlockWithHint
 	pointer allocate(size_type size)
 	{
-		assert(IsAlignedOn(m_array, 8));
+		CRYPTOPP_ASSERT(IsAlignedOn(m_array, 8));
 
 		if (size <= S && !m_allocated)
 		{
@@ -367,8 +367,8 @@ public:
 	{
 		if (ptr == GetAlignedArray())
 		{
-			assert(size <= S);
-			assert(m_allocated);
+			CRYPTOPP_ASSERT(size <= S);
+			CRYPTOPP_ASSERT(m_allocated);
 			m_allocated = false;
 			SecureWipeArray((pointer)ptr, size);
 		}
@@ -397,7 +397,7 @@ public:
 	{
 		if (oldPtr == GetAlignedArray() && newSize <= S)
 		{
-			assert(oldSize <= S);
+			CRYPTOPP_ASSERT(oldSize <= S);
 			if (oldSize > newSize)
 				SecureWipeArray(oldPtr+newSize, oldSize-newSize);
 			return oldPtr;
@@ -455,7 +455,7 @@ public:
 	//! \throws std::bad_alloc
 	SecBlock(const SecBlock<T, A> &t)
 		: m_size(t.m_size), m_ptr(m_alloc.allocate(t.m_size, NULL)) {
-			assert((!t.m_ptr && !m_size) || (t.m_ptr && m_size));
+			CRYPTOPP_ASSERT((!t.m_ptr && !m_size) || (t.m_ptr && m_size));
 			if (t.m_ptr) {memcpy_s(m_ptr, m_size*sizeof(T), t.m_ptr, t.m_size*sizeof(T));}
 		}
 
@@ -469,7 +469,7 @@ public:
 	//! \note size is the count of elements, and not the number of bytes
 	SecBlock(const T *ptr, size_type len)
 		: m_size(len), m_ptr(m_alloc.allocate(len, NULL)) {
-			assert((!m_ptr && !m_size) || (m_ptr && m_size));
+			CRYPTOPP_ASSERT((!m_ptr && !m_size) || (m_ptr && m_size));
 			if (ptr && m_ptr)
 				memcpy_s(m_ptr, m_size*sizeof(T), ptr, len*sizeof(T));
 			else if (m_size)
@@ -578,7 +578,7 @@ public:
 	//! \details Internally, this SecBlock calls Grow and then appends t.
 	SecBlock<T, A>& operator+=(const SecBlock<T, A> &t)
 	{
-		assert((!t.m_ptr && !t.m_size) || (t.m_ptr && t.m_size));
+		CRYPTOPP_ASSERT((!t.m_ptr && !t.m_size) || (t.m_ptr && t.m_size));
 
 		if(t.m_size)
 		{
@@ -603,8 +603,8 @@ public:
 	//! \details Internally, a new SecBlock is created from this and a concatenation of t.
 	SecBlock<T, A> operator+(const SecBlock<T, A> &t)
 	{
-		assert((!m_ptr && !m_size) || (m_ptr && m_size));
-		assert((!t.m_ptr && !t.m_size) || (t.m_ptr && t.m_size));
+		CRYPTOPP_ASSERT((!m_ptr && !m_size) || (m_ptr && m_size));
+		CRYPTOPP_ASSERT((!t.m_ptr && !t.m_size) || (t.m_ptr && t.m_size));
 		if(!t.m_size) return SecBlock(*this);
 
 		SecBlock<T, A> result(m_size+t.m_size);

@@ -31,7 +31,7 @@ template <unsigned int R>
 void ChaCha_Policy<R>::CipherSetKey(const NameValuePairs &params, const byte *key, size_t length)
 {
 	CRYPTOPP_UNUSED(params);
-	assert(length == 16 || length == 32);
+	CRYPTOPP_ASSERT(length == 16 || length == 32);
 
 	// "expand 16-byte k" or "expand 32-byte k"
 	m_state[0] = 0x61707865;
@@ -50,7 +50,7 @@ template <unsigned int R>
 void ChaCha_Policy<R>::CipherResynchronize(byte *keystreamBuffer, const byte *IV, size_t length)
 {
 	CRYPTOPP_UNUSED(keystreamBuffer), CRYPTOPP_UNUSED(length);
-	assert(length==8);
+	CRYPTOPP_ASSERT(length==8);
 
 	GetBlock<word32, LittleEndian> get(IV);
 	m_state[12] = m_state[13] = 0;

@@ -171,7 +171,7 @@ public:
       }
       else
       {
-        assert(0);
+        CRYPTOPP_ASSERT(0);
         return false;
       }
 
@@ -248,7 +248,7 @@ protected:
   {
     HASH hash;
     size_t idx = 0, req = dlen;
-    size_t blk = std::min(dlen, (size_t)HASH::DIGESTSIZE);
+    size_t blk = STDMIN(dlen, (size_t)HASH::DIGESTSIZE);
 
     if(sigma)
     {
@@ -272,7 +272,7 @@ protected:
       hash.Update(&digest[idx], (size_t)HASH::DIGESTSIZE);
 
       idx += (size_t)HASH::DIGESTSIZE;
-      blk = std::min(req, (size_t)HASH::DIGESTSIZE);
+      blk = STDMIN(req, (size_t)HASH::DIGESTSIZE);
       hash.TruncatedFinal(&digest[idx], blk);
 
       req -= blk;

@@ -163,7 +163,7 @@ NAMESPACE_BEGIN(CryptoPP)
 #if ALL_RDRAND_INTRIN_AVAILABLE
 static int ALL_RRI_GenerateBlock(byte *output, size_t size, unsigned int safety)
 {
-	assert((output && size) || !(output || size));
+	CRYPTOPP_ASSERT((output && size) || !(output || size));
 #if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
 	word32 val;
 #else
@@ -186,7 +186,7 @@ static int ALL_RRI_GenerateBlock(byte *output, size_t size, unsigned int safety)
 		{
 			if (!safety--)
 			{
-				assert(0);
+				CRYPTOPP_ASSERT(0);
 				return 0;
 			}
 		}
@@ -208,7 +208,7 @@ static int ALL_RRI_GenerateBlock(byte *output, size_t size, unsigned int safety)
 		{
 			if (!safety--)
 			{
-				assert(0);
+				CRYPTOPP_ASSERT(0);
 				return 0;
 			}
 		}
@@ -223,7 +223,7 @@ static int ALL_RRI_GenerateBlock(byte *output, size_t size, unsigned int safety)
 #if GCC_RDRAND_ASM_AVAILABLE
 static int GCC_RRA_GenerateBlock(byte *output, size_t size, unsigned int safety)
 {
-	assert((output && size) || !(output || size));
+	CRYPTOPP_ASSERT((output && size) || !(output || size));
 #if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32
 	word64 val;
 #else
@@ -268,7 +268,7 @@ static int GCC_RRA_GenerateBlock(byte *output, size_t size, unsigned int safety)
 		{
 			if (!safety--)
 			{
-				assert(0);
+				CRYPTOPP_ASSERT(0);
 				return 0;
 			}
 		}
@@ -285,7 +285,7 @@ static int GCC_RRA_GenerateBlock(byte *output, size_t size, unsigned int safety)
 void RDRAND::GenerateBlock(byte *output, size_t size)
 {
 	CRYPTOPP_UNUSED(output), CRYPTOPP_UNUSED(size);
-	assert((output && size) || !(output || size));
+	CRYPTOPP_ASSERT((output && size) || !(output || size));
 
 	if(!HasRDRAND())
 		throw NotImplemented("RDRAND: rdrand is not available on this platform");
@@ -313,7 +313,7 @@ void RDRAND::DiscardBytes(size_t n)
 {
 	// RoundUpToMultipleOf is used because a full word is read, and its cheaper
 	//   to discard full words. There's no sense in dealing with tail bytes.
-	assert(HasRDRAND());
+	CRYPTOPP_ASSERT(HasRDRAND());
 #if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32
 	FixedSizeSecBlock<word64, 16> discard;
 	n = RoundUpToMultipleOf(n, sizeof(word64));
@@ -338,7 +338,7 @@ void RDRAND::DiscardBytes(size_t n)
 #if ALL_RDSEED_INTRIN_AVAILABLE
 static int ALL_RSI_GenerateBlock(byte *output, size_t size, unsigned int safety)
 {
-	assert((output && size) || !(output || size));
+	CRYPTOPP_ASSERT((output && size) || !(output || size));
 #if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
 	word32 val;
 #else
@@ -361,7 +361,7 @@ static int ALL_RSI_GenerateBlock(byte *output, size_t size, unsigned int safety)
 		{
 			if (!safety--)
 			{
-				assert(0);
+				CRYPTOPP_ASSERT(0);
 				return 0;
 			}
 		}
@@ -383,7 +383,7 @@ static int ALL_RSI_GenerateBlock(byte *output, size_t size, unsigned int safety)
 		{
 			if (!safety--)
 			{
-				assert(0);
+				CRYPTOPP_ASSERT(0);
 				return 0;
 			}
 		}
@@ -398,7 +398,7 @@ static int ALL_RSI_GenerateBlock(byte *output, size_t size, unsigned int safety)
 #if GCC_RDSEED_ASM_AVAILABLE
 static int GCC_RSA_GenerateBlock(byte *output, size_t size, unsigned int safety)
 {
-	assert((output && size) || !(output || size));
+	CRYPTOPP_ASSERT((output && size) || !(output || size));
 #if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32
 	word64 val;
 #else
@@ -443,7 +443,7 @@ static int GCC_RSA_GenerateBlock(byte *output, size_t size, unsigned int safety)
 		{
 			if (!safety--)
 			{
-				assert(0);
+				CRYPTOPP_ASSERT(0);
 				return 0;
 			}
 		}
@@ -459,7 +459,7 @@ static int GCC_RSA_GenerateBlock(byte *output, size_t size, unsigned int safety)
 void RDSEED::GenerateBlock(byte *output, size_t size)
 {
 	CRYPTOPP_UNUSED(output), CRYPTOPP_UNUSED(size);
-	assert((output && size) || !(output || size));
+	CRYPTOPP_ASSERT((output && size) || !(output || size));
 
 	if(!HasRDSEED())
 		throw NotImplemented("RDSEED: rdseed is not available on this platform");
@@ -487,7 +487,7 @@ void RDSEED::DiscardBytes(size_t n)
 {
 	// RoundUpToMultipleOf is used because a full word is read, and its cheaper
 	//   to discard full words. There's no sense in dealing with tail bytes.
-	assert(HasRDSEED());
+	CRYPTOPP_ASSERT(HasRDSEED());
 #if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32
 	FixedSizeSecBlock<word64, 16> discard;
 	n = RoundUpToMultipleOf(n, sizeof(word64));

@@ -2391,6 +2391,7 @@ echo: &gt;&gt; adhoc.cpp.copied
     <ClInclude Include="strciphr.h" />
     <ClInclude Include="tea.h" />
     <ClInclude Include="tiger.h" />
+    <ClInclude Include="trap.h" />
     <ClInclude Include="trdlocal.h" />
     <ClInclude Include="trunhash.h" />
     <ClInclude Include="ttmac.h" />

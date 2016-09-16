@@ -72,7 +72,7 @@ struct CRYPTOPP_NO_VTABLE BLAKE2_ParameterBlock<true>
 
 	BLAKE2_ParameterBlock(size_t digestSize)
 	{
-		assert(digestSize <= DIGESTSIZE);
+		CRYPTOPP_ASSERT(digestSize <= DIGESTSIZE);
 		memset(this, 0x00, sizeof(*this));
 		digestLength = (byte)digestSize;
 		fanout = depth = 1;
@@ -107,7 +107,7 @@ struct CRYPTOPP_NO_VTABLE BLAKE2_ParameterBlock<false>
 
 	BLAKE2_ParameterBlock(size_t digestSize)
 	{
-		assert(digestSize <= DIGESTSIZE);
+		CRYPTOPP_ASSERT(digestSize <= DIGESTSIZE);
 		memset(this, 0x00, sizeof(*this));
 		digestLength = (byte)digestSize;
 		fanout = depth = 1;

@@ -193,7 +193,7 @@ public:
 		r %= q;
 		Integer kInv = k.InverseMod(q);
 		s = (kInv * (x*r + e)) % q;
-		assert(!!r && !!s);
+		CRYPTOPP_ASSERT(!!r && !!s);
 	}
 
 	bool Verify(const DL_GroupParameters<T> &params, const DL_PublicKey<T> &publicKey, const Integer &e, const Integer &r, const Integer &s) const
@@ -228,7 +228,7 @@ public:
 		const Integer &q = params.GetSubgroupOrder();
 		r = (r + e) % q;
 		s = (k - x*r) % q;
-		assert(!!r);
+		CRYPTOPP_ASSERT(!!r);
 	}
 
 	bool Verify(const DL_GroupParameters<T> &params, const DL_PublicKey<T> &publicKey, const Integer &e, const Integer &r, const Integer &s) const

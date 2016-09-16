@@ -300,12 +300,12 @@ void TestSignatureScheme(TestData &v)
 	else if (test == "RandomSign")
 	{
 		SignalTestError();
-		assert(false);	// TODO: implement
+		CRYPTOPP_ASSERT(false);	// TODO: implement
 	}
 	else
 	{
 		SignalTestError();
-		assert(false);
+		CRYPTOPP_ASSERT(false);
 	}
 }
 
@@ -345,7 +345,7 @@ void TestAsymmetricCipher(TestData &v)
 	else
 	{
 		SignalTestError();
-		assert(false);
+		CRYPTOPP_ASSERT(false);
 	}
 }
 
@@ -443,7 +443,7 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 			while (ss.Pump(64)) {}
 			ss.PumpAll();
 			for (int i=0; i<z.length(); i++)
-				assert(encrypted[i] == z[i]);
+				CRYPTOPP_ASSERT(encrypted[i] == z[i]);
 		}*/
 		if (test != "EncryptXorDigest")
 			ciphertext = GetDecodedDatum(v, "Ciphertext");
@@ -608,7 +608,7 @@ void TestDigestOrMAC(TestData &v, bool testDigest)
 	else
 	{
 		SignalTestError();
-		assert(false);
+		CRYPTOPP_ASSERT(false);
 	}
 }
 
@@ -618,7 +618,7 @@ void TestKeyDerivationFunction(TestData &v)
 	std::string test = GetRequiredDatum(v, "Test");
 
 	if(test == "Skip") return;
-	assert(test == "Verify");
+	CRYPTOPP_ASSERT(test == "Verify");
 
 	std::string key = GetDecodedDatum(v, "Key");
 	std::string salt = GetDecodedDatum(v, "Salt");
@@ -722,7 +722,7 @@ void OutputPair(const NameValuePairs &v, const char *name)
 {
 	Integer x;
 	bool b = v.GetValue(name, x);
-	CRYPTOPP_UNUSED(b); assert(b);
+	CRYPTOPP_UNUSED(b); CRYPTOPP_ASSERT(b);
 	cout << name << ": \\\n    ";
 	x.Encode(HexEncoder(new FileSink(cout), false, 64, "\\\n    ").Ref(), x.MinEncodedSize());
 	cout << endl;
@@ -768,7 +768,7 @@ void TestDataFile(std::string filename, const NameValuePairs &overrideParameters
 	while (file)
 	{
 		while (file.peek() == '#')
-			file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+			file.ignore((std::numeric_limits<std::streamsize>::max)(), '\n');
 
 		if (file.peek() == '\n' || file.peek() == '\r')
 			v.clear();

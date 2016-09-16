@@ -29,7 +29,7 @@
 //! </ul>
 //!
 //! \details The \p TF_ prefix means an implementation using trapdoor functions on integers.
-//! \details The \p DL_ prefix means an implementation using group operations (in groups where discrete log is hard).
+//! \details The \p DL_ prefix means an implementation using group operations in groups where discrete log is hard.
 
 #ifndef CRYPTOPP_PUBKEY_H
 #define CRYPTOPP_PUBKEY_H
@@ -56,9 +56,9 @@
 #undef INTERFACE
 
 #if defined(__SUNPRO_CC)
-# define MAYBE_RETURN_FOR_SOLARIS(x) return x
+# define MAYBE_RETURN(x) return x
 #else
-# define MAYBE_RETURN_FOR_SOLARIS(x) CRYPTOPP_UNUSED(x)
+# define MAYBE_RETURN(x) CRYPTOPP_UNUSED(x)
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -365,7 +365,7 @@ public:
 		CRYPTOPP_UNUSED(hash);CRYPTOPP_UNUSED(recoverableMessage); CRYPTOPP_UNUSED(recoverableMessageLength);
 		CRYPTOPP_UNUSED(presignature); CRYPTOPP_UNUSED(presignatureLength); CRYPTOPP_UNUSED(semisignature);
 		if (RecoverablePartFirst())
-			assert(!"ProcessRecoverableMessage() not implemented");
+			CRYPTOPP_ASSERT(!"ProcessRecoverableMessage() not implemented");
 	}
 
 	virtual void ComputeMessageRepresentative(RandomNumberGenerator &rng,
@@ -1314,7 +1314,7 @@ public:
 	{
 		CRYPTOPP_UNUSED(params); CRYPTOPP_UNUSED(publicKey); CRYPTOPP_UNUSED(r); CRYPTOPP_UNUSED(s);
 		throw NotImplemented("DL_ElgamalLikeSignatureAlgorithm: this signature scheme does not support message recovery");
-		MAYBE_RETURN_FOR_SOLARIS(Integer::Zero());
+		MAYBE_RETURN(Integer::Zero());
 	}
 	virtual size_t RLen(const DL_GroupParameters<T> &params) const
 		{return params.GetSubgroupOrder().ByteCount();}
@@ -1420,7 +1420,7 @@ public:
 	//! \returns maximum recoverable length based on signature length, in bytes
 	//! \details this function is not implemented and always returns 0.
 	size_t MaxRecoverableLengthFromSignatureLength(size_t signatureLength) const
-		{CRYPTOPP_UNUSED(signatureLength); assert(false); return 0;}	// TODO
+		{CRYPTOPP_UNUSED(signatureLength); CRYPTOPP_ASSERT(false); return 0;}	// TODO
 
 	//! \brief Determines if the scheme is probabilistic
 	//! \returns true if the scheme is probabilistic, false otherwise
@@ -2006,7 +2006,7 @@ public:
 			return params.ExponentiateElement(publicElement, privateExponent*params.GetCofactor());
 		else
 		{
-			assert(COFACTOR_OPTION::ToEnum() == NO_COFACTOR_MULTIPLICTION);
+			CRYPTOPP_ASSERT(COFACTOR_OPTION::ToEnum() == NO_COFACTOR_MULTIPLICTION);
 
 			if (!validateOtherPublicKey)
 				return params.ExponentiateElement(publicElement, privateExponent);

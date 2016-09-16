@@ -239,7 +239,7 @@ Integer InvertibleRWFunction::CalculateInverse(RandomNumberGenerator &rng, const
 
 	// Signature
 	Integer s = modn.Multiply(modn.Square(Y), rInv);
-	assert((e * f * s.Squared()) % m_n == x);
+	CRYPTOPP_ASSERT((e * f * s.Squared()) % m_n == x);
 
 	// IEEE P1363, Section 8.2.8 IFSP-RW, p.44
 	s = STDMIN(s, m_n - s);

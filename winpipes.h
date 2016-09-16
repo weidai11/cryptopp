@@ -55,7 +55,7 @@ protected:
 	virtual HANDLE GetHandle() const =0;
 	virtual void HandleError(const char *operation) const;
 	void CheckAndHandleError(const char *operation, BOOL result) const
-		{assert(result==TRUE || result==FALSE); if (!result) HandleError(operation);}
+		{CRYPTOPP_ASSERT(result==TRUE || result==FALSE); if (!result) HandleError(operation);}
 };
 
 //! \brief Pipe-based implementation of NetworkReceiver

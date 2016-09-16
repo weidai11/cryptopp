@@ -134,7 +134,7 @@ typedef LUCSS<PKCS1v15, SHA>::Verifier LUCSSA_PKCS1v15_SHA_Verifier;
 class DL_GroupPrecomputation_LUC : public DL_GroupPrecomputation<Integer>
 {
 public:
-	const AbstractGroup<Element> & GetGroup() const {assert(false); throw 0;}
+	const AbstractGroup<Element> & GetGroup() const {CRYPTOPP_ASSERT(false); throw 0;}
 	Element BERDecodeElement(BufferedTransformation &bt) const {return Integer(bt);}
 	void DEREncodeElement(BufferedTransformation &bt, const Element &v) const {v.DEREncode(bt);}
 

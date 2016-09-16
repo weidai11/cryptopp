@@ -34,7 +34,7 @@ WindowsHandle::~WindowsHandle()
 		}
 		catch (const Exception&)
 		{
-			assert(0);
+			CRYPTOPP_ASSERT(0);
 		}
 	}
 }
@@ -99,7 +99,7 @@ WindowsPipeReceiver::WindowsPipeReceiver()
 
 bool WindowsPipeReceiver::Receive(byte* buf, size_t bufLen)
 {
-	assert(!m_resultPending && !m_eofReceived);
+	CRYPTOPP_ASSERT(!m_resultPending && !m_eofReceived);
 
 	const HANDLE h = GetHandle();
 	// don't queue too much at once, or we might use up non-paged memory

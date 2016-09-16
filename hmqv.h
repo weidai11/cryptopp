@@ -170,7 +170,7 @@ public:
       }
       else
       {
-        assert(0);
+        CRYPTOPP_ASSERT(0);
         return false;
       }
 
@@ -253,12 +253,12 @@ protected:
   {
     HASH hash;
     size_t idx = 0, req = dlen;
-    size_t blk = std::min(dlen, (size_t)HASH::DIGESTSIZE);
+    size_t blk = STDMIN(dlen, (size_t)HASH::DIGESTSIZE);
 
     if(sigma)
     {
       if (e1len != 0 || s1len != 0) {
-	assert(0);
+	CRYPTOPP_ASSERT(0);
       }
       Integer x = GetAbstractGroupParameters().ConvertElementToInteger(*sigma);
       SecByteBlock sbb(x.MinEncodedSize());
@@ -266,7 +266,7 @@ protected:
       hash.Update(sbb.BytePtr(), sbb.SizeInBytes());
     } else {
       if (e1len == 0 || s1len == 0) {
-	assert(0);
+	CRYPTOPP_ASSERT(0);
       }
       hash.Update(e1, e1len);
       hash.Update(s1, s1len);
@@ -281,7 +281,7 @@ protected:
       hash.Update(&digest[idx], (size_t)HASH::DIGESTSIZE);
 
       idx += (size_t)HASH::DIGESTSIZE;
-      blk = std::min(req, (size_t)HASH::DIGESTSIZE);
+      blk = STDMIN(req, (size_t)HASH::DIGESTSIZE);
       hash.TruncatedFinal(&digest[idx], blk);
 
       req -= blk;

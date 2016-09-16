@@ -282,7 +282,7 @@ void CAST256::Base::UncheckedSetKey(const byte *userKey, unsigned int keylength,
 				int i1=8*j+i;
 				int i2=8*(11-j)+i;
 
-				assert(i1<i2);
+				CRYPTOPP_ASSERT(i1<i2);
 
 				std::swap(K[i1],K[i2]);
 				std::swap(K[i1+4],K[i2+4]);

@@ -31,7 +31,7 @@ public:
 	//! \param params additional parameters passed as  NameValuePairs
 	//! \details key must be at least DEFAULT_KEYLENGTH in length.
 	void UncheckedSetKey(const byte * key, unsigned int length,const CryptoPP::NameValuePairs &params)
-		{CRYPTOPP_UNUSED(key), CRYPTOPP_UNUSED(length), CRYPTOPP_UNUSED(params); assert(false);}
+		{CRYPTOPP_UNUSED(key), CRYPTOPP_UNUSED(length), CRYPTOPP_UNUSED(params); CRYPTOPP_ASSERT(false);}
 
 	void SetKey(const byte *userKey, size_t keylength, const NameValuePairs &params);
 	void Restart() {if (m_state > State_KeySet) m_state = State_KeySet;}

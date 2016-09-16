@@ -251,7 +251,7 @@ static void KeccakF1600(word64 *state)
 
 void Keccak::Update(const byte *input, size_t length)
 {
-	assert((input && length) || !(input || length));
+	CRYPTOPP_ASSERT((input && length) || !(input || length));
 	if (!length)
 		return;
 
