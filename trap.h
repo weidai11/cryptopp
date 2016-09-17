@@ -5,7 +5,7 @@
 //! \brief Debugging and diagnostic assertions
 //! \details <tt>CRYPTOPP_ASSERT</tt> is the library's debugging and diagnostic assertion. <tt>CRYPTOPP_ASSERT</tt>
 //!   is enabled by <tt>CRYPTOPP_DEBUG</tt>, <tt>DEBUG</tt> or <tt>_DEBUG</tt>.
-//! \details <tt>CRYPTOPP_ASSERT</tt> raises a <tt>SIGTRAP</tt> (Unix) or calls <tt>DebugBreak()</tt> (Windows).
+//! \details <tt>CRYPTOPP_ASSERT</tt> raises a <tt>SIGTRAP</tt> (Unix) or calls <tt>__debugbreak()</tt> (Windows).
 //!   <tt>CRYPTOPP_ASSERT</tt> is only in effect when the user requests a debug configuration. Unlike Posix assert,
 //!   <tt>NDEBUG</tt> (or failure to define it) does not affect the library.
 //! The traditional Posix define <tt>NDEBUG</tt> has no effect on <tt>CRYPTOPP_DEBUG</tt> or DebugTrapHandler.
@@ -25,7 +25,9 @@
 #  if defined(CRYPTOPP_BSD_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE)
 #    include <signal.h>
 #  elif defined(CRYPTOPP_WIN32_AVAILABLE)
-#    include <intrin.h>
+#    if (_MSC_VER >= 1400)
+#      include <intrin.h>
+#    endif
 #  endif
 #endif // CRYPTOPP_DEBUG
 
