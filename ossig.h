@@ -1,6 +1,5 @@
 // ossig.h - written and placed in the public domain by Jeffrey Walton
-//           Copyright assigned to Crypto++ project.
-
+//
 //! \file ossig.h
 //! \brief Utility class for trapping OS signals.
 //! \since Crypto++ 5.6.5
