@@ -22,9 +22,10 @@
 #if CRYPTOPP_DEBUG
 #  include <iostream>
 #  include <sstream>
-#  if defined(CRYPTOPP_WIN32_AVAILABLE)
-#    define WIN32_LEAN_AND_MEAN
-#    include <Windows.h>
+#  if defined(CRYPTOPP_BSD_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE)
+#    include <signal.h>
+#  elif defined(CRYPTOPP_WIN32_AVAILABLE)
+#    include <intrin.h>
 #  endif
 #endif // CRYPTOPP_DEBUG
 
@@ -79,7 +80,7 @@
           << (int)(__LINE__) << "): " << (char*)(__FUNCTION__)    \
           << std::endl;                                           \
       std::cerr << oss.str();                                     \
-      DebugBreak();                                               \
+      __debugbreak();                                             \
     }                                                             \
   }
 #endif // DEBUG and Unix or Windows
