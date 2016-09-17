@@ -109,7 +109,7 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		IS_X86=0
 	fi
 
-	# Need something more powerful than the non-Posix versions
+	# Need something more powerful than the Posix versions
 	if [[ (-e "/usr/gnu/bin/grep") ]]; then
 		GREP=/usr/gnu/bin/grep;
 	fi
@@ -1115,6 +1115,40 @@ fi
 TEST_BEGIN=$(date)
 echo | tee -a "$TEST_RESULTS"
 echo "Start time: $TEST_BEGIN" | tee -a "$TEST_RESULTS"
+
+############################################
+# Posix assert
+if true; then
+
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: No Posix assert" | tee -a "$TEST_RESULTS"
+	echo
+
+	FAILED=0
+	COUNT=$(cat *.h *.cpp | "$GREP" -v '//' | "$GREP" -c '(assert.h|cassert)')
+	if [[ "$COUNT" -ne "0" ]]; then
+		FAILED=1
+		echo "Found Posix assert headers" | tee -a "$TEST_RESULTS"
+	fi
+
+	COUNT=$(cat *.h *.cpp | "$GREP" -v '//' | "$GREP" -c 'assert[[:space:]]*\\(')
+	if [[ "$COUNT" -ne "0" ]]; then
+		FAILED=1
+		echo "Found use of Posix assert" | tee -a "$TEST_RESULTS"
+	fi
+
+	# Filter out use of C++ and Doxygen comments.
+	COUNT=$(cat *.h *.cpp | "$GREP" -v '//' | "$GREP" -c 'NDEBUG')
+	if [[ "$COUNT" -ne "0" ]]; then
+		FAILED=1
+		echo "Found use of Posix NDEBUG" | tee -a "$TEST_RESULTS"
+	fi
+
+	if [[ ("$FAILED" -eq "0") ]]; then
+		echo "Verified no Posix NDEBUG or assert" | tee -a "$TEST_RESULTS"
+	fi
+fi
 
 ############################################
 # X86 code generation tests
