@@ -85,6 +85,11 @@ and getting us started on the manual.
 
 #include "config.h"
 #include "stdcpp.h"
+#include "trap.h"
+
+#if defined(CRYPTOPP_BSD_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE)
+# include <signal.h>
+#endif
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(push)
@@ -715,7 +720,7 @@ protected:
 	//! \brief Validates the key length
 	//! \param length the size of the keying material, in bytes
 	inline void AssertValidKeyLength(size_t length) const
-		{CRYPTOPP_UNUSED(length); assert(IsValidKeyLength(length));}
+		{CRYPTOPP_UNUSED(length); CRYPTOPP_ASSERT(IsValidKeyLength(length));}
 };
 
 //! \brief Interface for the data processing part of block ciphers
@@ -895,11 +900,11 @@ public:
 	//! \param pos position to seek
 	//! \throws NotImplemented
 	//! \details The base class implementation throws NotImplemented. The function
-	//!   asserts  IsRandomAccess() in debug builds.
+	//!   \ref CRYPTOPP_ASSERT "asserts" IsRandomAccess() in debug builds.
 	virtual void Seek(lword pos)
 	{
 		CRYPTOPP_UNUSED(pos);
-		assert(!IsRandomAccess());
+		CRYPTOPP_ASSERT(!IsRandomAccess());
 		throw NotImplemented("StreamTransformation: this object doesn't support random access");
 	}
 
@@ -2001,7 +2006,7 @@ public:
 		//! \return the attached transformation
 		//! \details AttachedTransformation() returns NULL if there is no attachment. The non-const
 		//!   version of AttachedTransformation() always returns NULL.
-		virtual BufferedTransformation *AttachedTransformation() {assert(!Attachable()); return 0;}
+		virtual BufferedTransformation *AttachedTransformation() {CRYPTOPP_ASSERT(!Attachable()); return 0;}
 
 		//! \brief Returns the object immediately attached to this object
 		//! \return the attached transformation
@@ -2017,7 +2022,7 @@ public:
 		//! \details If a derived class does not override  Detach, then the base class throws
 		//!   NotImplemented.
 		virtual void Detach(BufferedTransformation *newAttachment = 0) {
-			CRYPTOPP_UNUSED(newAttachment); assert(!Attachable());
+			CRYPTOPP_UNUSED(newAttachment); CRYPTOPP_ASSERT(!Attachable());
 			throw NotImplemented("BufferedTransformation: this object is not attachable");
 		}
 
@@ -2128,7 +2133,7 @@ public:
 	//!   NotImplemented.
 	//! \sa SupportsPrecomputation(), LoadPrecomputation(), SavePrecomputation()
 	virtual void Precompute(unsigned int precomputationStorage) {
-		CRYPTOPP_UNUSED(precomputationStorage); assert(!SupportsPrecomputation());
+		CRYPTOPP_UNUSED(precomputationStorage); CRYPTOPP_ASSERT(!SupportsPrecomputation());
 		throw NotImplemented("CryptoMaterial: this object does not support precomputation");
 	}
 
@@ -2137,13 +2142,13 @@ public:
 	//! \throws NotImplemented
 	//! \sa SupportsPrecomputation(), Precompute()
 	virtual void LoadPrecomputation(BufferedTransformation &storedPrecomputation)
-		{CRYPTOPP_UNUSED(storedPrecomputation); assert(!SupportsPrecomputation()); throw NotImplemented("CryptoMaterial: this object does not support precomputation");}
+		{CRYPTOPP_UNUSED(storedPrecomputation); CRYPTOPP_ASSERT(!SupportsPrecomputation()); throw NotImplemented("CryptoMaterial: this object does not support precomputation");}
 	//! \brief Save precomputation for later use
 	//! \param storedPrecomputation BufferedTransformation to write the precomputation
 	//! \throws NotImplemented
 	//! \sa SupportsPrecomputation(), Precompute()
 	virtual void SavePrecomputation(BufferedTransformation &storedPrecomputation) const
-		{CRYPTOPP_UNUSED(storedPrecomputation); assert(!SupportsPrecomputation()); throw NotImplemented("CryptoMaterial: this object does not support precomputation");}
+		{CRYPTOPP_UNUSED(storedPrecomputation); CRYPTOPP_ASSERT(!SupportsPrecomputation()); throw NotImplemented("CryptoMaterial: this object does not support precomputation");}
 
 	//! \brief Perform a quick sanity check
 	//! \details DoQuickSanityCheck() is for internal library use, and it should not be called by library users.

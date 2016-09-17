@@ -176,7 +176,7 @@ struct CRYPTOPP_DLL FilterPutSpaceHelper
 	//!   called \p m_tempSpace is resized and used for the caller.
 	byte *HelpCreatePutSpace(BufferedTransformation &target, const std::string &channel, size_t minSize, size_t desiredSize, size_t &bufferSize)
 	{
-		assert(desiredSize >= minSize && bufferSize >= minSize);
+		CRYPTOPP_ASSERT(desiredSize >= minSize && bufferSize >= minSize);
 		if (m_tempSpace.size() < minSize)
 		{
 			byte *result = target.ChannelCreatePutSpace(channel, desiredSize);
@@ -362,7 +362,7 @@ protected:
 	virtual void FirstPut(const byte *inString) =0;
 	// NextPut() is called if totalLength >= firstSize+blockSize+lastSize
 	virtual void NextPutSingle(const byte *inString)
-		{CRYPTOPP_UNUSED(inString); assert(false);}
+		{CRYPTOPP_UNUSED(inString); CRYPTOPP_ASSERT(false);}
 	// Same as NextPut() except length can be a multiple of blockSize
 	// Either NextPut() or NextPutMultiple() must be overriden
 	virtual void NextPutMultiple(const byte *inString, size_t length);
@@ -387,7 +387,7 @@ protected:
 	// This function should no longer be used, put this here to cause a compiler error
 	// if someone tries to override NextPut().
 	virtual int NextPut(const byte *inString, size_t length)
-		{CRYPTOPP_UNUSED(inString); CRYPTOPP_UNUSED(length); assert(false); return 0;}
+		{CRYPTOPP_UNUSED(inString); CRYPTOPP_UNUSED(length); CRYPTOPP_ASSERT(false); return 0;}
 
 	class BlockQueue
 	{
@@ -965,7 +965,7 @@ public:
 	//! \brief Construct a StringSinkTemplate
 	//! \param output std::basic_string<char> type
 	StringSinkTemplate(T &output)
-		: m_output(&output) {assert(sizeof(output[0])==1);}
+		: m_output(&output) {CRYPTOPP_ASSERT(sizeof(output[0])==1);}
 
 	void IsolatedInitialize(const NameValuePairs &parameters)
 		{if (!parameters.GetValue("OutputStringPointer", m_output)) throw InvalidArgument("StringSink: OutputStringPointer not specified");}

@@ -96,7 +96,7 @@ template <const byte *sbox, const ArrayOf256Word64s *cbox>
 struct SharkProcessAndXorBlock{		// VC60 workaround: problem with template functions
 inline SharkProcessAndXorBlock(const word64 *roundKeys, unsigned int rounds, const byte *inBlock, const byte *xorBlock, byte *outBlock)
 {
-	assert(IsAlignedOn(inBlock,GetAlignmentOf<word64>()));
+	CRYPTOPP_ASSERT(IsAlignedOn(inBlock,GetAlignmentOf<word64>()));
 	word64 tmp = *(word64 *)(void *)inBlock ^ roundKeys[0];
 
 	ByteOrder order = GetNativeByteOrder();
@@ -125,7 +125,7 @@ inline SharkProcessAndXorBlock(const word64 *roundKeys, unsigned int rounds, con
 		(sbox[GETBYTE(tmp, 1)])
 		(sbox[GETBYTE(tmp, 0)]);
 
-	assert(IsAlignedOn(outBlock,GetAlignmentOf<word64>()));
+	CRYPTOPP_ASSERT(IsAlignedOn(outBlock,GetAlignmentOf<word64>()));
 	*(word64 *)(void *)outBlock ^= roundKeys[rounds];
 }};
 

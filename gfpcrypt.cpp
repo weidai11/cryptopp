@@ -20,7 +20,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#if !defined(NDEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if CRYPTOPP_DEBUG && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
 void TestInstantiations_gfpcrypt()
 {
 	GDSA<SHA>::Signer test;
@@ -82,8 +82,8 @@ void DL_SignatureMessageEncodingMethod_DSA::ComputeMessageRepresentative(RandomN
 {
 	CRYPTOPP_UNUSED(rng), CRYPTOPP_UNUSED(recoverableMessage), CRYPTOPP_UNUSED(recoverableMessageLength);
 	CRYPTOPP_UNUSED(messageEmpty), CRYPTOPP_UNUSED(hashIdentifier);
-	assert(recoverableMessageLength == 0);
-	assert(hashIdentifier.second == 0);
+	CRYPTOPP_ASSERT(recoverableMessageLength == 0);
+	CRYPTOPP_ASSERT(hashIdentifier.second == 0);
 
 	const size_t representativeByteLength = BitsToBytes(representativeBitLength);
 	const size_t digestSize = hash.DigestSize();
@@ -109,8 +109,8 @@ void DL_SignatureMessageEncodingMethod_NR::ComputeMessageRepresentative(RandomNu
 	CRYPTOPP_UNUSED(hash); CRYPTOPP_UNUSED(hashIdentifier); CRYPTOPP_UNUSED(messageEmpty);
 	CRYPTOPP_UNUSED(representative); CRYPTOPP_UNUSED(representativeBitLength);
 
-	assert(recoverableMessageLength == 0);
-	assert(hashIdentifier.second == 0);
+	CRYPTOPP_ASSERT(recoverableMessageLength == 0);
+	CRYPTOPP_ASSERT(hashIdentifier.second == 0);
 	const size_t representativeByteLength = BitsToBytes(representativeBitLength);
 	const size_t digestSize = hash.DigestSize();
 	const size_t paddingLength = SaturatingSubtract(representativeByteLength, digestSize);

@@ -385,9 +385,9 @@ void BenchmarkAll(double t, double hertz)
 
 	const time_t endTime = time(NULL);
 	err = localtime_s(&localTime, &endTime);
-	assert(err == 0);
+	CRYPTOPP_ASSERT(err == 0);
 	err = asctime_s(timeBuf, sizeof(timeBuf), &localTime);
-	assert(err == 0);
+	CRYPTOPP_ASSERT(err == 0);
 
 	cout << "\nTest ended at " << timeBuf;
 #else

@@ -106,8 +106,8 @@ void XTEA::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, by
 void BTEA::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
 	CRYPTOPP_UNUSED(xorBlock);
-	assert(IsAlignedOn(inBlock,GetAlignmentOf<word32>()));
-	assert(IsAlignedOn(outBlock,GetAlignmentOf<word32>()));
+	CRYPTOPP_ASSERT(IsAlignedOn(inBlock,GetAlignmentOf<word32>()));
+	CRYPTOPP_ASSERT(IsAlignedOn(outBlock,GetAlignmentOf<word32>()));
 
 	unsigned int n = m_blockSize / 4;
 	word32 *v = (word32*)(void *)outBlock;
@@ -136,8 +136,8 @@ void BTEA::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, by
 void BTEA::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
 	CRYPTOPP_UNUSED(xorBlock);
-	assert(IsAlignedOn(inBlock,GetAlignmentOf<word32>()));
-	assert(IsAlignedOn(outBlock,GetAlignmentOf<word32>()));
+	CRYPTOPP_ASSERT(IsAlignedOn(inBlock,GetAlignmentOf<word32>()));
+	CRYPTOPP_ASSERT(IsAlignedOn(outBlock,GetAlignmentOf<word32>()));
 
 	unsigned int n = m_blockSize / 4;
 	word32 *v = (word32*)(void *)outBlock;

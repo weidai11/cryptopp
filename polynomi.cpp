@@ -475,7 +475,7 @@ void RingOfPolynomialsOver<T>::CalculateAlpha(std::vector<CoefficientType> &alph
 template <class T>
 typename RingOfPolynomialsOver<T>::Element RingOfPolynomialsOver<T>::Interpolate(const CoefficientType x[], const CoefficientType y[], unsigned int n) const
 {
-	assert(n > 0);
+	CRYPTOPP_ASSERT(n > 0);
 
 	std::vector<CoefficientType> alpha(n);
 	CalculateAlpha(alpha, x, y, n);
@@ -497,7 +497,7 @@ typename RingOfPolynomialsOver<T>::Element RingOfPolynomialsOver<T>::Interpolate
 template <class T>
 typename RingOfPolynomialsOver<T>::CoefficientType RingOfPolynomialsOver<T>::InterpolateAt(const CoefficientType &position, const CoefficientType x[], const CoefficientType y[], unsigned int n) const
 {
-	assert(n > 0);
+	CRYPTOPP_ASSERT(n > 0);
 
 	std::vector<CoefficientType> alpha(n);
 	CalculateAlpha(alpha, x, y, n);
@@ -527,7 +527,7 @@ void PrepareBulkPolynomialInterpolation(const Ring &ring, Element *w, const Elem
 template <class Ring, class Element>
 void PrepareBulkPolynomialInterpolationAt(const Ring &ring, Element *v, const Element &position, const Element x[], const Element w[], unsigned int n)
 {
-	assert(n > 0);
+	CRYPTOPP_ASSERT(n > 0);
 
 	std::vector<Element> a(2*n-1);
 	unsigned int i;

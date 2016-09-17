@@ -435,7 +435,7 @@ size_t NetworkSink::Put2(const byte *inString, size_t length, int messageEnd, bo
 	{
 		if (m_skipBytes)
 		{
-			assert(length >= m_skipBytes);
+			CRYPTOPP_ASSERT(length >= m_skipBytes);
 			inString += m_skipBytes;
 			length -= m_skipBytes;
 		}
@@ -451,7 +451,7 @@ size_t NetworkSink::Put2(const byte *inString, size_t length, int messageEnd, bo
 
 		if (m_buffer.CurrentSize() > targetSize)
 		{
-			assert(!blocking);
+			CRYPTOPP_ASSERT(!blocking);
 			m_wasBlocked = true;
 			m_skipBytes += length;
 			size_t blockedBytes = UnsignedMin(length, m_buffer.CurrentSize() - targetSize);

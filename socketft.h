@@ -94,7 +94,7 @@ public:
 		{if (result == static_cast<socket_t>(SOCKET_ERROR)) HandleError(operation);}
 #ifdef USE_WINDOWS_STYLE_SOCKETS
 	void CheckAndHandleError(const char *operation, BOOL result) const
-		{assert(result==TRUE || result==FALSE); if (!result) HandleError(operation);}
+		{CRYPTOPP_ASSERT(result==TRUE || result==FALSE); if (!result) HandleError(operation);}
 	void CheckAndHandleError(const char *operation, bool result) const
 		{if (!result) HandleError(operation);}
 #endif
@@ -121,7 +121,7 @@ class SocketsInitializer
 {
 public:
 	SocketsInitializer() {Socket::StartSockets();}
-	~SocketsInitializer() {try {Socket::ShutdownSockets();} catch (const Exception&) {assert(0);}}
+	~SocketsInitializer() {try {Socket::ShutdownSockets();} catch (const Exception&) {CRYPTOPP_ASSERT(0);}}
 };
 
 class SocketReceiver : public NetworkReceiver

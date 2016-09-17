@@ -244,7 +244,7 @@ size_t OID::DecodeValue(BufferedTransformation &bt, word32 &v)
 
 void OID::DEREncode(BufferedTransformation &bt) const
 {
-	assert(m_values.size() >= 2);
+	CRYPTOPP_ASSERT(m_values.size() >= 2);
 	ByteQueue temp;
 	temp.Put(byte(m_values[0] * 40 + m_values[1]));
 	for (size_t i=2; i<m_values.size(); i++)
@@ -412,7 +412,7 @@ BERGeneralDecoder::~BERGeneralDecoder()
 	}
 	catch (const Exception&)
 	{
-		// assert(0);
+		// CRYPTOPP_ASSERT(0);
 	}
 }
 
@@ -506,7 +506,7 @@ DERGeneralEncoder::~DERGeneralEncoder()
 	}
 	catch (const Exception&)
 	{
-		assert(0);
+		CRYPTOPP_ASSERT(0);
 	}
 }
 

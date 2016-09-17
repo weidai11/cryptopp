@@ -1128,7 +1128,7 @@ inline size_t AESNI_AdvancedProcessBlocks(F1 func1, F4 func4, MAYBE_CONST __m128
 
 	if (flags & BlockTransformation::BT_ReverseDirection)
 	{
-		assert(length % blockSize == 0);
+		CRYPTOPP_ASSERT(length % blockSize == 0);
 		inBlocks += length - blockSize;
 		xorBlocks += length - blockSize;
 		outBlocks += length - blockSize;
@@ -1267,7 +1267,7 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 		size_t increment = BLOCKSIZE;
 		if (flags & BT_ReverseDirection)
 		{
-			assert(length % BLOCKSIZE == 0);
+			CRYPTOPP_ASSERT(length % BLOCKSIZE == 0);
 			inBlocks += length - BLOCKSIZE;
 			xorBlocks += length - BLOCKSIZE;
 			outBlocks += length - BLOCKSIZE;

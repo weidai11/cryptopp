@@ -22,7 +22,7 @@ void RawIDA::IsolatedInitialize(const NameValuePairs &parameters)
 	if (!parameters.GetIntValue("RecoveryThreshold", m_threshold))
 		throw InvalidArgument("RawIDA: missing RecoveryThreshold argument");
 
-	assert(m_threshold > 0);
+	CRYPTOPP_ASSERT(m_threshold > 0);
 	if (m_threshold <= 0)
 		throw InvalidArgument("RawIDA: RecoveryThreshold must be greater than 0");
 
@@ -43,7 +43,7 @@ void RawIDA::IsolatedInitialize(const NameValuePairs &parameters)
 	else
 	{
 		int nShares = parameters.GetIntValueWithDefault("NumberOfShares", m_threshold);
-		assert(nShares > 0);
+		CRYPTOPP_ASSERT(nShares > 0);
 		if (nShares <= 0) {nShares = m_threshold;}
 		for (unsigned int i=0; i< (unsigned int)(nShares); i++)
 			AddOutputChannel(i);
@@ -152,7 +152,7 @@ void RawIDA::AddOutputChannel(word32 channelId)
 
 void RawIDA::PrepareInterpolation()
 {
-	assert(m_inputChannelIds.size() == size_t(m_threshold));
+	CRYPTOPP_ASSERT(m_inputChannelIds.size() == size_t(m_threshold));
 	PrepareBulkPolynomialInterpolation(field, m_w.begin(), &(m_inputChannelIds[0]), (unsigned int)(m_threshold));
 	for (unsigned int i=0; i<m_outputChannelIds.size(); i++)
 		ComputeV(i);

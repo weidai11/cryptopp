@@ -263,6 +263,7 @@ strciphr.h
 tea.cpp
 tea.h
 test.cpp
+trap.h
 tftables.cpp
 tiger.cpp
 tiger.h

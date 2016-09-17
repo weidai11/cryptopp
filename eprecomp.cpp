@@ -27,8 +27,8 @@ template <class T> void DL_FixedBasePrecomputationImpl<T>::SetBase(const DL_Grou
 
 template <class T> void DL_FixedBasePrecomputationImpl<T>::Precompute(const DL_GroupPrecomputation<Element> &group, unsigned int maxExpBits, unsigned int storage)
 {
-	assert(m_bases.size() > 0);
-	assert(storage <= maxExpBits);
+	CRYPTOPP_ASSERT(m_bases.size() > 0);
+	CRYPTOPP_ASSERT(storage <= maxExpBits);
 
 	if (storage > 1)
 	{

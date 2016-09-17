@@ -21,6 +21,8 @@
 #include "whrlpool.h"
 #include "tiger.h"
 #include "smartptr.h"
+#include "ossig.h"
+#include "trap.h"
 
 #include "validate.h"
 #include "bench.h"
@@ -127,6 +129,12 @@ RandomNumberGenerator & GlobalRNG()
 	static OFB_Mode<AES>::Encryption s_globalRNG;
 	return dynamic_cast<RandomNumberGenerator&>(s_globalRNG);
 }
+
+// See misc.h and trap.h for comments and usage
+#if CRYPTOPP_DEBUG && (defined(CRYPTOPP_BSD_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE))
+static const SignalHandler<SIGTRAP, false> s_dummyHandler;
+// static const DebugTrapHandle s_dummyHandler;
+#endif
 
 int CRYPTOPP_API main(int argc, char *argv[])
 {
@@ -271,7 +279,7 @@ int CRYPTOPP_API main(int argc, char *argv[])
 
 			// compute MAC
 			member_ptr<MessageAuthenticationCode> pMac(NewIntegrityCheckingMAC());
-			assert(pMac->DigestSize() == sizeof(mac));
+			CRYPTOPP_ASSERT(pMac->DigestSize() == sizeof(mac));
 			MeterFilter f(new HashFilter(*pMac, new ArraySink(mac, sizeof(mac))));
 			f.AddRangeToSkip(0, checksumPos, 4);
 			f.AddRangeToSkip(0, certificateTableDirectoryPos, 8);
@@ -628,7 +636,7 @@ void DecryptFile(const char *in, const char *out, const char *passPhrase)
 
 void SecretShareFile(int threshold, int nShares, const char *filename, const char *seed)
 {
-	assert(nShares >= 1 && nShares<=1000);
+	CRYPTOPP_ASSERT(nShares >= 1 && nShares<=1000);
 	if (nShares < 1 || nShares > 1000)
 		throw InvalidArgument("SecretShareFile: " + IntToString(nShares) + " is not in range [1, 1000]");
 
@@ -658,7 +666,7 @@ void SecretShareFile(int threshold, int nShares, const char *filename, const cha
 
 void SecretRecoverFile(int threshold, const char *outFilename, char *const *inFilenames)
 {
-	assert(threshold >= 1 && threshold <=1000);
+	CRYPTOPP_ASSERT(threshold >= 1 && threshold <=1000);
 	if (threshold < 1 || threshold > 1000)
 		throw InvalidArgument("SecretRecoverFile: " + IntToString(threshold) + " is not in range [1, 1000]");
 
@@ -685,7 +693,7 @@ void SecretRecoverFile(int threshold, const char *outFilename, char *const *inFi
 
 void InformationDisperseFile(int threshold, int nShares, const char *filename)
 {
-	assert(threshold >= 1 && threshold <=1000);
+	CRYPTOPP_ASSERT(threshold >= 1 && threshold <=1000);
 	if (threshold < 1 || threshold > 1000)
 		throw InvalidArgument("InformationDisperseFile: " + IntToString(nShares) + " is not in range [1, 1000]");
 
@@ -712,7 +720,7 @@ void InformationDisperseFile(int threshold, int nShares, const char *filename)
 
 void InformationRecoverFile(int threshold, const char *outFilename, char *const *inFilenames)
 {
-	assert(threshold<=1000);
+	CRYPTOPP_ASSERT(threshold<=1000);
 	if (threshold < 1 || threshold > 1000)
 		throw InvalidArgument("InformationRecoverFile: " + IntToString(threshold) + " is not in range [1, 1000]");
 
@@ -811,7 +819,7 @@ void ForwardTcpPort(const char *sourcePortName, const char *destinationHost, con
 	sockListen.Bind(sourcePort);
 
 	int err = setsockopt(sockListen, IPPROTO_TCP, TCP_NODELAY, "\x01", 1);
-	assert(err == 0);
+	CRYPTOPP_ASSERT(err == 0);
 	if(err != 0)
 		throw Socket::Err(sockListen, "setsockopt", sockListen.GetLastError());
 
@@ -963,9 +971,9 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 
 	const time_t endTime = time(NULL);
 	err = localtime_s(&localTime, &endTime);
-	assert(err == 0);
+	CRYPTOPP_ASSERT(err == 0);
 	err = asctime_s(timeBuf, sizeof(timeBuf), &localTime);
-	assert(err == 0);
+	CRYPTOPP_ASSERT(err == 0);
 
 	cout << "\nTest ended at " << timeBuf;
 #else

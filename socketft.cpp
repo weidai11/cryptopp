@@ -68,7 +68,7 @@ Socket::~Socket()
 		}
 		catch (const Exception&)
 		{
-			assert(0);
+			CRYPTOPP_ASSERT(0);
 		}
 	}
 }
@@ -93,7 +93,7 @@ socket_t Socket::DetachSocket()
 
 void Socket::Create(int nType)
 {
-	assert(m_s == INVALID_SOCKET);
+	CRYPTOPP_ASSERT(m_s == INVALID_SOCKET);
 	m_s = socket(AF_INET, nType, 0);
 	CheckAndHandleError("socket", m_s);
 	m_own = true;
@@ -107,12 +107,12 @@ void Socket::CloseSocket()
 #ifdef USE_WINDOWS_STYLE_SOCKETS
 # if defined(USE_WINDOWS8_API)
 		BOOL result = CancelIoEx((HANDLE) m_s, NULL);
-		assert(result || (!result && GetLastError() == ERROR_NOT_FOUND));
+		CRYPTOPP_ASSERT(result || (!result && GetLastError() == ERROR_NOT_FOUND));
 		CheckAndHandleError_int("closesocket", closesocket(m_s));
-		CRYPTOPP_UNUSED(result);	// Used by assert in debug builds
+		CRYPTOPP_UNUSED(result);	// Used by CRYPTOPP_ASSERT in debug builds
 # else
 		BOOL result = CancelIo((HANDLE) m_s);
-		assert(result || (!result && GetLastError() == ERROR_NOT_FOUND));
+		CRYPTOPP_ASSERT(result || (!result && GetLastError() == ERROR_NOT_FOUND));
 		CheckAndHandleError_int("closesocket", closesocket(m_s));
 		CRYPTOPP_UNUSED(result);
 # endif
@@ -150,20 +150,20 @@ void Socket::Bind(unsigned int port, const char *addr)
 
 void Socket::Bind(const sockaddr *psa, socklen_t saLen)
 {
-	assert(m_s != INVALID_SOCKET);
+	CRYPTOPP_ASSERT(m_s != INVALID_SOCKET);
 	// cygwin workaround: needs const_cast
 	CheckAndHandleError_int("bind", bind(m_s, const_cast<sockaddr *>(psa), saLen));
 }
 
 void Socket::Listen(int backlog)
 {
-	assert(m_s != INVALID_SOCKET);
+	CRYPTOPP_ASSERT(m_s != INVALID_SOCKET);
 	CheckAndHandleError_int("listen", listen(m_s, backlog));
 }
 
 bool Socket::Connect(const char *addr, unsigned int port)
 {
-	assert(addr != NULL);
+	CRYPTOPP_ASSERT(addr != NULL);
 
 	sockaddr_in sa;
 	memset(&sa, 0, sizeof(sa));
@@ -180,7 +180,7 @@ bool Socket::Connect(const char *addr, unsigned int port)
 		}
 		else
 		{
-			assert(IsAlignedOn(lphost->h_addr,GetAlignmentOf<in_addr>()));
+			CRYPTOPP_ASSERT(IsAlignedOn(lphost->h_addr,GetAlignmentOf<in_addr>()));
 			sa.sin_addr.s_addr = ((in_addr *)(void *)lphost->h_addr)->s_addr;
 		}
 	}
@@ -192,7 +192,7 @@ bool Socket::Connect(const char *addr, unsigned int port)
 
 bool Socket::Connect(const sockaddr* psa, socklen_t saLen)
 {
-	assert(m_s != INVALID_SOCKET);
+	CRYPTOPP_ASSERT(m_s != INVALID_SOCKET);
 	int result = connect(m_s, const_cast<sockaddr*>(psa), saLen);
 	if (result == SOCKET_ERROR && GetLastError() == SOCKET_EWOULDBLOCK)
 		return false;
@@ -202,7 +202,7 @@ bool Socket::Connect(const sockaddr* psa, socklen_t saLen)
 
 bool Socket::Accept(Socket& target, sockaddr *psa, socklen_t *psaLen)
 {
-	assert(m_s != INVALID_SOCKET);
+	CRYPTOPP_ASSERT(m_s != INVALID_SOCKET);
 	socket_t s = accept(m_s, psa, psaLen);
 	if (s == INVALID_SOCKET && GetLastError() == SOCKET_EWOULDBLOCK)
 		return false;
@@ -213,19 +213,19 @@ bool Socket::Accept(Socket& target, sockaddr *psa, socklen_t *psaLen)
 
 void Socket::GetSockName(sockaddr *psa, socklen_t *psaLen)
 {
-	assert(m_s != INVALID_SOCKET);
+	CRYPTOPP_ASSERT(m_s != INVALID_SOCKET);
 	CheckAndHandleError_int("getsockname", getsockname(m_s, psa, psaLen));
 }
 
 void Socket::GetPeerName(sockaddr *psa, socklen_t *psaLen)
 {
-	assert(m_s != INVALID_SOCKET);
+	CRYPTOPP_ASSERT(m_s != INVALID_SOCKET);
 	CheckAndHandleError_int("getpeername", getpeername(m_s, psa, psaLen));
 }
 
 unsigned int Socket::Send(const byte* buf, size_t bufLen, int flags)
 {
-	assert(m_s != INVALID_SOCKET);
+	CRYPTOPP_ASSERT(m_s != INVALID_SOCKET);
 	int result = send(m_s, (const char *)buf, UnsignedMin(INT_MAX, bufLen), flags);
 	CheckAndHandleError_int("send", result);
 	return result;
@@ -233,7 +233,7 @@ unsigned int Socket::Send(const byte* buf, size_t bufLen, int flags)
 
 unsigned int Socket::Receive(byte* buf, size_t bufLen, int flags)
 {
-	assert(m_s != INVALID_SOCKET);
+	CRYPTOPP_ASSERT(m_s != INVALID_SOCKET);
 	int result = recv(m_s, (char *)buf, UnsignedMin(INT_MAX, bufLen), flags);
 	CheckAndHandleError_int("recv", result);
 	return result;
@@ -241,14 +241,14 @@ unsigned int Socket::Receive(byte* buf, size_t bufLen, int flags)
 
 void Socket::ShutDown(int how)
 {
-	assert(m_s != INVALID_SOCKET);
+	CRYPTOPP_ASSERT(m_s != INVALID_SOCKET);
 	int result = shutdown(m_s, how);
 	CheckAndHandleError_int("shutdown", result);
 }
 
 void Socket::IOCtl(long cmd, unsigned long *argp)
 {
-	assert(m_s != INVALID_SOCKET);
+	CRYPTOPP_ASSERT(m_s != INVALID_SOCKET);
 #ifdef USE_WINDOWS_STYLE_SOCKETS
 	CheckAndHandleError_int("ioctlsocket", ioctlsocket(m_s, cmd, argp));
 #else
@@ -369,11 +369,11 @@ SocketReceiver::~SocketReceiver()
 #ifdef USE_WINDOWS_STYLE_SOCKETS
 # if defined(USE_WINDOWS8_API)
 	BOOL result = CancelIoEx((HANDLE) m_s.GetSocket(), NULL);
-	assert(result || (!result && GetLastError() == ERROR_NOT_FOUND));
-	CRYPTOPP_UNUSED(result);	// Used by assert in debug builds
+	CRYPTOPP_ASSERT(result || (!result && GetLastError() == ERROR_NOT_FOUND));
+	CRYPTOPP_UNUSED(result);	// Used by CRYPTOPP_ASSERT in debug builds
 # else
 	BOOL result = CancelIo((HANDLE) m_s.GetSocket());
-	assert(result || (!result && GetLastError() == ERROR_NOT_FOUND));
+	CRYPTOPP_ASSERT(result || (!result && GetLastError() == ERROR_NOT_FOUND));
 	CRYPTOPP_UNUSED(result);
 # endif
 #endif
@@ -381,7 +381,7 @@ SocketReceiver::~SocketReceiver()
 
 bool SocketReceiver::Receive(byte* buf, size_t bufLen)
 {
-	assert(!m_resultPending && !m_eofReceived);
+	CRYPTOPP_ASSERT(!m_resultPending && !m_eofReceived);
 
 	DWORD flags = 0;
 	// don't queue too much at once, or we might use up non-paged memory
@@ -459,11 +459,11 @@ SocketSender::~SocketSender()
 #ifdef USE_WINDOWS_STYLE_SOCKETS
 # if defined(USE_WINDOWS8_API)
 	BOOL result = CancelIoEx((HANDLE) m_s.GetSocket(), NULL);
-	assert(result || (!result && GetLastError() == ERROR_NOT_FOUND));
-	CRYPTOPP_UNUSED(result);	// Used by assert in debug builds
+	CRYPTOPP_ASSERT(result || (!result && GetLastError() == ERROR_NOT_FOUND));
+	CRYPTOPP_UNUSED(result);	// Used by CRYPTOPP_ASSERT in debug builds
 # else
 	BOOL result = CancelIo((HANDLE) m_s.GetSocket());
-	assert(result || (!result && GetLastError() == ERROR_NOT_FOUND));
+	CRYPTOPP_ASSERT(result || (!result && GetLastError() == ERROR_NOT_FOUND));
 	CRYPTOPP_UNUSED(result);
 # endif
 #endif
@@ -471,7 +471,7 @@ SocketSender::~SocketSender()
 
 void SocketSender::Send(const byte* buf, size_t bufLen)
 {
-	assert(!m_resultPending);
+	CRYPTOPP_ASSERT(!m_resultPending);
 	DWORD written = 0;
 	// don't queue too much at once, or we might use up non-paged memory
 	WSABUF wsabuf = {UnsignedMin((u_long)128*1024, bufLen), (char *)buf};
@@ -491,7 +491,7 @@ void SocketSender::Send(const byte* buf, size_t bufLen)
 
 void SocketSender::SendEof()
 {
-	assert(!m_resultPending);
+	CRYPTOPP_ASSERT(!m_resultPending);
 	m_s.ShutDown(SD_SEND);
 	m_s.CheckAndHandleError("ResetEvent", ResetEvent(m_event));
 	m_s.CheckAndHandleError_int("WSAEventSelect", WSAEventSelect(m_s, m_event, FD_CLOSE));

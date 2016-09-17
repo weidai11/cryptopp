@@ -183,7 +183,7 @@ public:
 	// a^2 - 2a^p
 	const Element & SpecialOperation1(const Element &a) const
 	{
-		assert(&a != &result);
+		CRYPTOPP_ASSERT(&a != &result);
 		result = Square(a);
 		modp.Reduce(result.c1, a.c2);
 		modp.Reduce(result.c1, a.c2);
@@ -195,7 +195,7 @@ public:
 	// x * z - y * z^p
 	const Element & SpecialOperation2(const Element &x, const Element &y, const Element &z) const
 	{
-		assert(&x != &result && &y != &result && &z != &result);
+		CRYPTOPP_ASSERT(&x != &result && &y != &result && &z != &result);
 		t = modp.Add(x.c2, y.c2);
 		result.c1 = modp.Multiply(z.c1, modp.Subtract(y.c1, t));
 		modp.Accumulate(result.c1, modp.Multiply(z.c2, modp.Subtract(t, x.c1)));

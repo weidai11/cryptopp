@@ -27,9 +27,9 @@ NAMESPACE_BEGIN(CryptoPP)
 
 void xorbuf(byte *buf, const byte *mask, size_t count)
 {
-	assert(buf != NULL);
-	assert(mask != NULL);
-	assert(count > 0);
+	CRYPTOPP_ASSERT(buf != NULL);
+	CRYPTOPP_ASSERT(mask != NULL);
+	CRYPTOPP_ASSERT(count > 0);
 
 	size_t i=0;
 	if (IsAligned<word32>(buf) && IsAligned<word32>(mask))
@@ -60,9 +60,9 @@ void xorbuf(byte *buf, const byte *mask, size_t count)
 
 void xorbuf(byte *output, const byte *input, const byte *mask, size_t count)
 {
-	assert(output != NULL);
-	assert(input != NULL);
-	assert(count > 0);
+	CRYPTOPP_ASSERT(output != NULL);
+	CRYPTOPP_ASSERT(input != NULL);
+	CRYPTOPP_ASSERT(count > 0);
 
 	size_t i=0;
 	if (IsAligned<word32>(output) && IsAligned<word32>(input) && IsAligned<word32>(mask))
@@ -95,9 +95,9 @@ void xorbuf(byte *output, const byte *input, const byte *mask, size_t count)
 
 bool VerifyBufsEqual(const byte *buf, const byte *mask, size_t count)
 {
-	assert(buf != NULL);
-	assert(mask != NULL);
-	assert(count > 0);
+	CRYPTOPP_ASSERT(buf != NULL);
+	CRYPTOPP_ASSERT(mask != NULL);
+	CRYPTOPP_ASSERT(count > 0);
 
 	size_t i=0;
 	byte acc8 = 0;
@@ -136,7 +136,7 @@ bool VerifyBufsEqual(const byte *buf, const byte *mask, size_t count)
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 std::string StringNarrow(const wchar_t *str, bool throwOnError)
 {
-	assert(str);
+	CRYPTOPP_ASSERT(str);
 	std::string result;
 
 	// Safer functions on Windows for C&A, https://github.com/weidai11/cryptopp/issues/55
@@ -149,12 +149,12 @@ std::string StringNarrow(const wchar_t *str, bool throwOnError)
 	len = wcslen(str)+1;
 
 	err = wcstombs_s(&size, NULL, 0, str, len*sizeof(wchar_t));
-	assert(err == 0);
+	CRYPTOPP_ASSERT(err == 0);
 	if (err != 0) {goto CONVERSION_ERROR;}
 
 	result.resize(size);
 	err = wcstombs_s(&size, &result[0], size, str, len*sizeof(wchar_t));
-	assert(err == 0);
+	CRYPTOPP_ASSERT(err == 0);
 
 	if (err != 0)
 	{
@@ -170,12 +170,12 @@ CONVERSION_ERROR:
 		result.erase(size - 1);
 #else
 	size_t size = wcstombs(NULL, str, 0);
-	assert(size != (size_t)-1);
+	CRYPTOPP_ASSERT(size != (size_t)-1);
 	if (size == (size_t)-1) {goto CONVERSION_ERROR;}
 
 	result.resize(size);
 	size = wcstombs(&result[0], str, size);
-	assert(size != (size_t)-1);
+	CRYPTOPP_ASSERT(size != (size_t)-1);
 
 	if (size == (size_t)-1)
 	{
@@ -232,7 +232,7 @@ void * AlignedAllocate(size_t size)
 	p[-1] = (byte)adjustment;
 #endif
 
-	assert(IsAlignedOn(p, 16));
+	CRYPTOPP_ASSERT(IsAlignedOn(p, 16));
 	return p;
 }
 

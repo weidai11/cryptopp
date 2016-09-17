@@ -370,6 +370,9 @@
     <ClInclude Include="strciphr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="trap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="trdlocal.h">
       <Filter>Header Files</Filter>
     </ClInclude>

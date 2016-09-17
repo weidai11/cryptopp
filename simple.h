@@ -97,7 +97,7 @@ public:
 	bool Flush(bool completeFlush, int propagation=-1, bool blocking=true)
 		{return ChannelFlush(DEFAULT_CHANNEL, completeFlush, propagation, blocking);}
 	bool IsolatedFlush(bool hardFlush, bool blocking)
-		{CRYPTOPP_UNUSED(hardFlush); CRYPTOPP_UNUSED(blocking); assert(false); return false;}
+		{CRYPTOPP_UNUSED(hardFlush); CRYPTOPP_UNUSED(blocking); CRYPTOPP_ASSERT(false); return false;}
 	bool ChannelFlush(const std::string &channel, bool hardFlush, int propagation=-1, bool blocking=true)
 	{
 		if (hardFlush && !InputBufferIsEmpty())
@@ -167,7 +167,7 @@ public:
 
 private:
 	bool IsolatedFlush(bool hardFlush, bool blocking)
-		{CRYPTOPP_UNUSED(hardFlush); CRYPTOPP_UNUSED(blocking); assert(false); return false;}
+		{CRYPTOPP_UNUSED(hardFlush); CRYPTOPP_UNUSED(blocking); CRYPTOPP_ASSERT(false); return false;}
 };
 
 //! \class CustomSignalPropagation
@@ -182,7 +182,7 @@ public:
 
 private:
 	void IsolatedInitialize(const NameValuePairs &parameters)
-		{CRYPTOPP_UNUSED(parameters); assert(false);}
+		{CRYPTOPP_UNUSED(parameters); CRYPTOPP_ASSERT(false);}
 };
 
 //! \class Multichannel

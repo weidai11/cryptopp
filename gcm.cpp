@@ -95,9 +95,9 @@ __m128i _mm_clmulepi64_si128(const __m128i &a, const __m128i &b, int i)
 inline static void SSE2_Xor16(byte *a, const byte *b, const byte *c)
 {
 #if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
-	assert(IsAlignedOn(a,GetAlignmentOf<__m128i>()));
-	assert(IsAlignedOn(b,GetAlignmentOf<__m128i>()));
-	assert(IsAlignedOn(c,GetAlignmentOf<__m128i>()));
+	CRYPTOPP_ASSERT(IsAlignedOn(a,GetAlignmentOf<__m128i>()));
+	CRYPTOPP_ASSERT(IsAlignedOn(b,GetAlignmentOf<__m128i>()));
+	CRYPTOPP_ASSERT(IsAlignedOn(c,GetAlignmentOf<__m128i>()));
 	*(__m128i *)(void *)a = _mm_xor_si128(*(__m128i *)(void *)b, *(__m128i *)(void *)c);
 #else
 	asm ("movdqa %1, %%xmm0; pxor %2, %%xmm0; movdqa %%xmm0, %0;" : "=m" (a[0]) : "m"(b[0]), "m"(c[0]));
@@ -108,18 +108,18 @@ inline static void SSE2_Xor16(byte *a, const byte *b, const byte *c)
 #if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
 inline static void NEON_Xor16(byte *a, const byte *b, const byte *c)
 {
-	assert(IsAlignedOn(a,GetAlignmentOf<uint64x2_t>()));
-	assert(IsAlignedOn(b,GetAlignmentOf<uint64x2_t>()));
-	assert(IsAlignedOn(c,GetAlignmentOf<uint64x2_t>()));
+	CRYPTOPP_ASSERT(IsAlignedOn(a,GetAlignmentOf<uint64x2_t>()));
+	CRYPTOPP_ASSERT(IsAlignedOn(b,GetAlignmentOf<uint64x2_t>()));
+	CRYPTOPP_ASSERT(IsAlignedOn(c,GetAlignmentOf<uint64x2_t>()));
 	*(uint64x2_t*)a = veorq_u64(*(uint64x2_t*)b, *(uint64x2_t*)c);
 }
 #endif
 
 inline static void Xor16(byte *a, const byte *b, const byte *c)
 {
-	assert(IsAlignedOn(a,GetAlignmentOf<word64>()));
-	assert(IsAlignedOn(b,GetAlignmentOf<word64>()));
-	assert(IsAlignedOn(c,GetAlignmentOf<word64>()));
+	CRYPTOPP_ASSERT(IsAlignedOn(a,GetAlignmentOf<word64>()));
+	CRYPTOPP_ASSERT(IsAlignedOn(b,GetAlignmentOf<word64>()));
+	CRYPTOPP_ASSERT(IsAlignedOn(c,GetAlignmentOf<word64>()));
 	((word64 *)(void *)a)[0] = ((word64 *)(void *)b)[0] ^ ((word64 *)(void *)c)[0];
 	((word64 *)(void *)a)[1] = ((word64 *)(void *)b)[1] ^ ((word64 *)(void *)c)[1];
 }
@@ -641,7 +641,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 
 	typedef BlockGetAndPut<word64, NativeByteOrder> Block;
 	word64 *hashBuffer = (word64 *)(void *)HashBuffer();
-	assert(IsAlignedOn(hashBuffer,GetAlignmentOf<word64>()));
+	CRYPTOPP_ASSERT(IsAlignedOn(hashBuffer,GetAlignmentOf<word64>()));
 
 	switch (2*(m_buffer.size()>=64*1024)
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)

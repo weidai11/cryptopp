@@ -54,7 +54,7 @@ bool PowerUpSelfTestInProgressOnThisThread()
 #if CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2
 	return AccessPowerUpSelfTestInProgress().GetValue() != NULL;
 #else
-	assert(false);	// should not be called
+	CRYPTOPP_ASSERT(false);	// should not be called
 	return false;
 #endif
 }

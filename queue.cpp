@@ -464,7 +464,7 @@ byte ByteQueue::operator[](lword i) const
 		i -= current->CurrentSize();
 	}
 
-	assert(i < m_lazyLength);
+	CRYPTOPP_ASSERT(i < m_lazyLength);
 	return m_lazyString[i];
 }
 

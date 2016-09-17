@@ -138,6 +138,16 @@
 # define CRYPTOPP_USER_PRIORITY 250
 #endif
 
+// CRYPTOPP_DEBUG enables the library's CRYPTOPP_ASSERT. CRYPTOPP_ASSERT
+//   raises a SIGTRAP (Unix) or calls DebugBreak() (Windows). CRYPTOPP_ASSERT
+//   is only in effect when CRYPTOPP_DEBUG, DEBUG or _DEBUG is defined. Unlike
+//   Posix assert, CRYPTOPP_ASSERT is not affected by NDEBUG (or failure to
+//   define it).
+//   Also see http://github.com/weidai11/cryptopp/issues/277, CVE-2010-4179
+#if (defined(DEBUG) || defined(_DEBUG)) && !defined(CRYPTOPP_DEBUG)
+# define CRYPTOPP_DEBUG 1
+#endif
+
 // ***************** Important Settings Again ********************
 // But the defaults should be ok.
 

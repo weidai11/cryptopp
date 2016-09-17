@@ -326,7 +326,7 @@ void CRYPTOPP_NOINLINE Panama_SSE2_Pull(size_t count, word32 *state, word32 *z, 
 template <class B>
 void Panama<B>::Iterate(size_t count, const word32 *p, byte *output, const byte *input, KeystreamOperation operation)
 {
-	assert(IsAlignedOn(m_state,GetAlignmentOf<word32>()));
+	CRYPTOPP_ASSERT(IsAlignedOn(m_state,GetAlignmentOf<word32>()));
 	word32 bstart = m_state[17];
 	word32 *const aPtr = m_state;
 	word32 cPtr[17];
@@ -452,7 +452,7 @@ template <class B>
 void PanamaCipherPolicy<B>::CipherSetKey(const NameValuePairs &params, const byte *key, size_t length)
 {
 	CRYPTOPP_UNUSED(params); CRYPTOPP_UNUSED(length);
-	assert(length==32);
+	CRYPTOPP_ASSERT(length==32);
 	memcpy(m_key, key, 32);
 }
 
@@ -460,8 +460,8 @@ template <class B>
 void PanamaCipherPolicy<B>::CipherResynchronize(byte *keystreamBuffer, const byte *iv, size_t length)
 {
 	CRYPTOPP_UNUSED(keystreamBuffer); CRYPTOPP_UNUSED(iv); CRYPTOPP_UNUSED(length);
-	assert(IsAlignedOn(iv,GetAlignmentOf<word32>()));
-	assert(length==32);
+	CRYPTOPP_ASSERT(IsAlignedOn(iv,GetAlignmentOf<word32>()));
+	CRYPTOPP_ASSERT(length==32);
 
 	this->Reset();
 	this->Iterate(1, m_key);
@@ -500,7 +500,7 @@ template <class B>
 void PanamaCipherPolicy<B>::OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount)
 {
 #if (CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_PANAMA_ASM)
-	// No need for alignment assert. Panama_SSE2_Pull is ASM, and its not bound by C alignment requirements.
+	// No need for alignment CRYPTOPP_ASSERT. Panama_SSE2_Pull is ASM, and its not bound by C alignment requirements.
 	if (B::ToEnum() == LITTLE_ENDIAN_ORDER && HasSSE2())
 		Panama_SSE2_Pull(iterationCount, this->m_state, (word32 *)(void *)output, (const word32 *)(void *)input);
 	else

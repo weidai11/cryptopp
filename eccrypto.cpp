@@ -31,7 +31,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 #if 0
-#if !defined(NDEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if CRYPTOPP_DEBUG && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
 static void ECDSA_TestInstantiations()
 {
 	ECDSA<EC2N>::Signer t1;
@@ -457,7 +457,7 @@ template <class EC> void DL_GroupParameters_EC<EC>::Initialize(const OID &oid)
 	this->SetSubgroupGenerator(G);
 
 	// TODO: this fails in practice. Should it throw?
-	CRYPTOPP_UNUSED(result); assert(result);
+	CRYPTOPP_UNUSED(result); CRYPTOPP_ASSERT(result);
 
 	StringSource ssN(param.n, true, new HexDecoder);
 	m_n.Decode(ssN, (size_t)ssN.MaxRetrievable());
