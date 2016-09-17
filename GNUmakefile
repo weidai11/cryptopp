@@ -665,7 +665,7 @@ dlltest.exe: cryptopp.dll $(DLLTESTOBJS)
 	$(CXX) -o $@ $(CXXFLAGS) $(DLLTESTOBJS) -L. -lcryptopp.dll $(LDFLAGS) $(LDLIBS)
 
 # This recipe prepares the distro files
-TEXT_FILES := *.h *.cpp adhoc.cpp.proto License.txt Readme.txt Install.txt Filelist.txt CMakeLists.txt config.recommend Doxyfile cryptest* cryptlib* dlltest* cryptdll* *.sln *.vcxproj cryptopp.rc TestVectors/*.txt TestData/*.dat
+TEXT_FILES := *.h *.cpp adhoc.cpp.proto License.txt Readme.txt Install.txt Filelist.txt CMakeLists.txt config.recommend Doxyfile cryptest* cryptlib* dlltest* cryptdll* *.sln *.vcxproj *.filters cryptopp.rc TestVectors/*.txt TestData/*.dat
 EXEC_FILES := GNUmakefile GNUmakefile-cross TestData/ TestVectors/
 
 ifeq ($(wildcard Filelist.txt),Filelist.txt)
