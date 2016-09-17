@@ -17,6 +17,7 @@
 #define CRYPTOPP_TRAP_H
 
 #include "config.h"
+#include "ossig.h"
 
 #if CRYPTOPP_DEBUG
 #  include <iostream>
@@ -24,8 +25,6 @@
 #  if defined(CRYPTOPP_WIN32_AVAILABLE)
 #    define WIN32_LEAN_AND_MEAN
 #    include <Windows.h>
-#  elif defined(CRYPTOPP_BSD_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE)
-#    include <signal.h>
 #  endif
 #endif // CRYPTOPP_DEBUG
 
@@ -131,46 +130,14 @@ NAMESPACE_BEGIN(CryptoPP)
 //! \since Crypto++ 5.6.5
 //! \sa \ref CRYPTOPP_ASSERT "CRYPTOPP_ASSERT", SignalHandler, <A HREF="http://github.com/weidai11/cryptopp/issues/277">Issue 277</A>,
 //!   <A HREF="http://seclists.org/oss-sec/2016/q3/520">CVE-2016-7420</A>
-struct DebugTrapHandler
-{
-    DebugTrapHandler()
-    {
-        // http://pubs.opengroup.org/onlinepubs/007908799/xsh/sigaction.html
-        struct sigaction old_handler, new_handler;
-        memset(&old_handler, 0x00, sizeof(old_handler));
-		memset(&new_handler, 0x00, sizeof(new_handler));
 
-        do
-        {
-            int ret = 0;
+#if defined(CRYPTOPP_DOXYGEN_PROCESSING)
+class DebugTrapHandler : public SignalHandler<SIGILL, false> { };
+#else
+typedef SignalHandler<SIGILL, false> DebugTrapHandler;
+#endif
 
-            ret = sigaction (SIGTRAP, 0, &old_handler);
-            if (ret != 0) break; // Failed
-
-            // Don't step on another's handler
-            if (old_handler.sa_handler != 0) break;
-
-            // Set up the structure to specify the NULL action.
-            new_handler.sa_handler = &DebugTrapHandler::NullHandler;
-            new_handler.sa_flags = 0;
-
-            ret = sigemptyset (&new_handler.sa_mask);
-            if (ret != 0) break; // Failed
-
-            // Install it
-            ret = sigaction (SIGTRAP, &new_handler, 0);
-            if (ret != 0) break; // Failed
-
-        } while(0);
-    }
-
-    static void NullHandler(int /*unused*/) { }
-
-private:
-    DebugTrapHandler(const DebugTrapHandler &);
-    void operator=(const DebugTrapHandler &);
-};
-#endif  // DebugTrapHandler
+#endif  // Linux, Unix and Documentation
 
 NAMESPACE_END
 

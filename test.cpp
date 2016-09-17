@@ -21,6 +21,7 @@
 #include "whrlpool.h"
 #include "tiger.h"
 #include "smartptr.h"
+#include "ossig.h"
 #include "trap.h"
 
 #include "validate.h"
@@ -132,6 +133,7 @@ RandomNumberGenerator & GlobalRNG()
 // See misc.h and trap.h for comments and usage
 #if CRYPTOPP_DEBUG && (defined(CRYPTOPP_BSD_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE))
 static const SignalHandler<SIGTRAP, false> s_dummyHandler;
+// static const DebugTrapHandle s_dummyHandler;
 #endif
 
 int CRYPTOPP_API main(int argc, char *argv[])

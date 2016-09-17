@@ -114,13 +114,13 @@ NAMESPACE_BEGIN(CryptoPP)
 // Forward declaration for IntToString specialization
 class Integer;
 
-// ************** compile-time CRYPTOPP_ASSERTion ***************
+// ************** compile-time assertion ***************
 
 #if CRYPTOPP_DOXYGEN_PROCESSING
 //! \brief Compile time CRYPTOPP_ASSERTion
 //! \param expr the expression to evaluate
 //! \details Asserts the expression expr though a dummy struct.
-#define CRYPTOPP_COMPILE_ASSERT(expr) ...
+#define CRYPTOPP_COMPILE_ASSERT(expr) { ... }
 #else // CRYPTOPP_DOXYGEN_PROCESSING
 template <bool b>
 struct CompileAssert
@@ -329,88 +329,6 @@ const T & Singleton<T, F, instance>::Ref(CRYPTOPP_NOINLINE_DOTDOTDOT) const
 
 	return *newObject;
 }
-#endif
-
-#if defined(CRYPTOPP_BSD_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
-//! \brief Signal handler function pointer
-//! \sa SignalHandler
-extern "C" {
-	typedef void (*SignalHandlerFn) (int);
-};
-
-//! Signal handler for Linux and Unix compatibles
-//! \tparam S Signal number
-//! \tparam O Flag indicating exsting handler should be overwriiten
-//! \details SignalHandler() can be used to install a signal handler with the signature
-//!   <tt>void handler_fn(int)</tt>. If <tt>SignalHandlerFn</tt> is not <tt>NULL</tt>, then
-//!   the sigaction is set to the function and the sigaction flags is set to the flags.
-//!   If <tt>SignalHandlerFn</tt> is <tt>NULL</tt>, then a default handler is installed
-//!   using sigaction flags set to 0. The default handler only returns from the call.
-//! \details Upon destruction the previous signal handler is restored.
-//! \warning Do not use SignalHandler in a code block that uses <tt>setjmp</tt> or <tt>longjmp</tt>
-//!   because the destructor may not run.
-//! \since Crypto++ 5.6.5
-//! \sa SignalHandlerFn, \ref CRYPTOPP_ASSERT "CRYPTOPP_ASSERT", DebugTrapHandler
-template <int S, bool O=false>
-struct SignalHandler : private NotCopyable
-{
-	//! \brief Construct a signal handler
-	//! \param pfn Pointer to a signal handler function
-	//! \param flags Flags to use with the signal handler
-	//! \details SignalHandler() installs a signal handler with the signature
-	//!   <tt>void handler_fn(int)</tt>. If <tt>SignalHandlerFn</tt> is not <tt>NULL</tt>, then
-	//!   the sigaction is set to the function and the sigaction flags is set to the flags.
-	//!   If <tt>SignalHandlerFn</tt> is <tt>NULL</tt>, then a default handler is installed
-	//!   using sigaction flags set to 0. The default handler only returns from the call.
-	//! \details Upon destruction the previous signal handler is restored.
-	//! \warning Do not use SignalHandler in a code block that uses <tt>setjmp</tt> or <tt>longjmp</tt>
-	//!   because the destructor may not run.
-	//! \since Crypto++ 5.6.5
-    SignalHandler(SignalHandlerFn pfn = 0, int flags = 0) : m_installed(false)
-	{
-		// http://pubs.opengroup.org/onlinepubs/007908799/xsh/sigaction.html
-		struct sigaction new_handler;
-		// memset(&new_handler, 0x00, sizeof(new_handler));
-
-		do
-		{
-			int ret = 0;
-
-			ret = sigaction (S, 0, &m_old);
-			if (ret != 0) break; // Failed
-
-			// Don't step on another's handler if Overwrite=false
-			if (m_old.sa_handler != 0 && !O) break;
-
-			// Set up the structure to specify the action.
-			new_handler.sa_handler = (pfn ? pfn : &SignalHandler::NullHandler);
-			new_handler.sa_flags = (pfn ? flags : 0);
-
-            ret = sigemptyset (&new_handler.sa_mask);
-            if (ret != 0) break; // Failed
-
-            // Install it
-            ret = sigaction (S, &new_handler, 0);
-            if (ret != 0) break; // Failed
-
-			m_installed = true;
-
-        } while(0);
-    }
-
-	~SignalHandler()
-	{
-		if (m_installed)
-			sigaction (S, &m_old, 0);
-	}
-
-private:
-
-	struct sigaction m_old;
-	bool m_installed;
-
-	static void NullHandler(int /*unused*/) { }
-};
 #endif
 
 // ************** misc functions ***************
