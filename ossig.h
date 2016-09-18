@@ -18,6 +18,7 @@ NAMESPACE_BEGIN(CryptoPP)
 // ************** Unix and Linux compatibles ***************
 
 #if defined(CRYPTOPP_BSD_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+
 //! \brief Signal handler function pointer
 //! \sa SignalHandler
 extern "C" {
@@ -55,11 +56,10 @@ struct SignalHandler
     //!   because the destructor may not run. <tt>setjmp</tt> is why cpu.cpp does not use SignalHandler
     //!   during CPU feature testing.
     //! \since Crypto++ 5.6.5
-    SignalHandler(SignalHandlerFn pfn = 0, int flags = 0) : m_installed(false)
+    SignalHandler(SignalHandlerFn pfn = NULL, int flags = 0) : m_installed(false)
     {
         // http://pubs.opengroup.org/onlinepubs/007908799/xsh/sigaction.html
         struct sigaction new_handler;
-        // memset(&new_handler, 0x00, sizeof(new_handler));
 
         do
         {
@@ -71,8 +71,8 @@ struct SignalHandler
             // Don't step on another's handler if Overwrite=false
             if (m_old.sa_handler != 0 && !O) break;
 
-            // Set up the structure to specify the action.
-            new_handler.sa_handler = (pfn ? pfn : &SignalHandler::NullHandler);
+            // Sun Studio 12.2-12.4 needs the two casts, and they must be C-style casts
+            new_handler.sa_handler = (SignalHandlerFn)(pfn ? pfn : (SignalHandlerFn)&SignalHandler::NullHandler);
             new_handler.sa_flags = (pfn ? flags : 0);
 
             ret = sigemptyset (&new_handler.sa_mask);
