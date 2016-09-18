@@ -1668,6 +1668,121 @@ if [[ ("${#PLATFORM_CXXFLAGS[@]}" -ne "0") ]]; then
 fi
 
 ############################################
+# Minimum platform
+if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0" || "$INTEL_COMPILER" -ne "0") ]]; then
+
+	# i686
+	if [[ "$IS_X86" -ne "0" ]]; then
+		############################################
+		# Debug build, minimum platform
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS"
+		echo "Testing: Debug, i686 minimum platform" | tee -a "$TEST_RESULTS"
+		echo
+
+		"$MAKE" clean > /dev/null 2>&1
+		rm -f adhoc.cpp > /dev/null 2>&1
+
+		CXXFLAGS="$DEBUG_CXXFLAGS -march=i686 -fPIC -pipe ${DEPRECATED_CXXFLAGS[@]}"
+		CXX="$CXX" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="$CXXFLAGS" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+		else
+			./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+			fi
+			./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+			fi
+		fi
+
+		############################################
+		# Release build, minimum platform
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS"
+		echo "Testing: Release, i686 platform CXXFLAGS" | tee -a "$TEST_RESULTS"
+		echo
+
+		"$MAKE" clean > /dev/null 2>&1
+		rm -f adhoc.cpp > /dev/null 2>&1
+
+		CXXFLAGS="$RELEASE_CXXFLAGS -march=i686 -fPIC -pipe ${DEPRECATED_CXXFLAGS[@]}"
+		CXX="$CXX" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="$CXXFLAGS" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+		else
+			./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+			fi
+			./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+			fi
+		fi
+	fi
+
+	# x86_64
+	if [[ "$IS_X64" -ne "0" ]]; then
+		############################################
+		# Debug build, minimum platform
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS"
+		echo "Testing: Debug, x86_64 minimum platform" | tee -a "$TEST_RESULTS"
+		echo
+
+		"$MAKE" clean > /dev/null 2>&1
+		rm -f adhoc.cpp > /dev/null 2>&1
+
+		CXXFLAGS="$DEBUG_CXXFLAGS -march=x86-64 -fPIC -pipe ${DEPRECATED_CXXFLAGS[@]}"
+		CXX="$CXX" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="$CXXFLAGS" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+		else
+			./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+			fi
+			./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+			fi
+		fi
+
+		############################################
+		# Release build, minimum platform
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS"
+		echo "Testing: Release, x86_64 platform CXXFLAGS" | tee -a "$TEST_RESULTS"
+		echo
+
+		"$MAKE" clean > /dev/null 2>&1
+		rm -f adhoc.cpp > /dev/null 2>&1
+
+		CXXFLAGS="$RELEASE_CXXFLAGS -march=x86-64 -fPIC -pipe ${DEPRECATED_CXXFLAGS[@]}"
+		CXX="$CXX" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="$CXXFLAGS" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+		else
+			./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+			fi
+			./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+			fi
+		fi
+	fi
+fi
+
+############################################
 # Debug build, DISABLE_ASM
 echo
 echo "************************************" | tee -a "$TEST_RESULTS"
