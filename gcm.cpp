@@ -94,8 +94,8 @@ __m128i _mm_clmulepi64_si128(const __m128i &a, const __m128i &b, int i)
 #if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE || CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
 inline static void SSE2_Xor16(byte *a, const byte *b, const byte *c)
 {
-// SunCC 5.14 crash (bewildering since asserts are not in effect in rlease builds)
-//   Also see http://github.com/weidai11/cryptopp/issues/226
+// SunCC 5.14 crash (bewildering since asserts are not in effect in release builds)
+//   Also see http://github.com/weidai11/cryptopp/issues/226 and http://github.com/weidai11/cryptopp/issues/284
 # if __SUNPRO_CC
 	*(__m128i *)(void *)a = _mm_xor_si128(*(__m128i *)(void *)b, *(__m128i *)(void *)c);
 # elif CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
