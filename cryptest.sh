@@ -1117,28 +1117,31 @@ echo | tee -a "$TEST_RESULTS"
 echo "Start time: $TEST_BEGIN" | tee -a "$TEST_RESULTS"
 
 ############################################
-# Posix assert
+# Posix NDEBUG and assert
 if true; then
 
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
-	echo "Testing: No Posix assert" | tee -a "$TEST_RESULTS"
+	echo "Testing: No Posix NDEBUG or assert" | tee -a "$TEST_RESULTS"
 	echo
 
 	FAILED=0
+
+	# Filter out C++ and Doxygen comments.
 	COUNT=$(cat *.h *.cpp | "$GREP" -v '//' | "$GREP" -c '(assert.h|cassert)')
 	if [[ "$COUNT" -ne "0" ]]; then
 		FAILED=1
 		echo "Found Posix assert headers" | tee -a "$TEST_RESULTS"
 	fi
 
+	# Filter out C++ and Doxygen comments.
 	COUNT=$(cat *.h *.cpp | "$GREP" -v '//' | "$GREP" -c 'assert[[:space:]]*\\(')
 	if [[ "$COUNT" -ne "0" ]]; then
 		FAILED=1
 		echo "Found use of Posix assert" | tee -a "$TEST_RESULTS"
 	fi
 
-	# Filter out use of C++ and Doxygen comments.
+	# Filter out C++ and Doxygen comments.
 	COUNT=$(cat *.h *.cpp | "$GREP" -v '//' | "$GREP" -c 'NDEBUG')
 	if [[ "$COUNT" -ne "0" ]]; then
 		FAILED=1
@@ -1147,6 +1150,37 @@ if true; then
 
 	if [[ ("$FAILED" -eq "0") ]]; then
 		echo "Verified no Posix NDEBUG or assert" | tee -a "$TEST_RESULTS"
+	fi
+fi
+
+############################################
+# C++ std::min and std::max
+# This is due to Windows.h and NOMINMAX. Linux test fine, while Windows breaks.
+if true; then
+
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: C++ std::min and std::max" | tee -a "$TEST_RESULTS"
+	echo
+
+	FAILED=0
+
+	# If this fires, then use the library's STDMIN(a,b) or (std::min)(a, b);
+	COUNT=$(cat *.h *.cpp | "$GREP" -v '//' | "$GREP" -c 'std::min[[:space:]]*\\(')
+	if [[ "$COUNT" -ne "0" ]]; then
+		FAILED=1
+		echo "Found std::min" | tee -a "$TEST_RESULTS"
+	fi
+
+	# If this fires, then use the library's STDMAX(a,b) or (std::max)(a, b);
+	COUNT=$(cat *.h *.cpp | "$GREP" -v '//' | "$GREP" -c 'std::max[[:space:]]*\\(')
+	if [[ "$COUNT" -ne "0" ]]; then
+		FAILED=1
+		echo "Found std::max" | tee -a "$TEST_RESULTS"
+	fi
+
+	if [[ ("$FAILED" -eq "0") ]]; then
+		echo "Verified std::min and std::max" | tee -a "$TEST_RESULTS"
 	fi
 fi
 
@@ -1520,62 +1554,68 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 fi
 
 ############################################
-# Debug build
-echo
-echo "************************************" | tee -a "$TEST_RESULTS"
-echo "Testing: Debug, default CXXFLAGS" | tee -a "$TEST_RESULTS"
-echo
-
-"$MAKE" clean > /dev/null 2>&1
-rm -f adhoc.cpp > /dev/null 2>&1
-
-CXXFLAGS="$DEBUG_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
-CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-
-if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
-else
-	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-		echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
-	fi
-	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
-	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-		echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
-	fi
+# Default CXXFLAGS
+if true; then
+	############################################
+	# Debug build
 	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Debug, default CXXFLAGS" | tee -a "$TEST_RESULTS"
+	echo
+
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	CXXFLAGS="$DEBUG_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+
+	############################################
+	# Release build
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Release, default CXXFLAGS" | tee -a "$TEST_RESULTS"
+	echo
+
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	CXXFLAGS="$RELEASE_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+		echo
+	fi
 fi
 
 ############################################
-# Release build
-echo
-echo "************************************" | tee -a "$TEST_RESULTS"
-echo "Testing: Release, default CXXFLAGS" | tee -a "$TEST_RESULTS"
-echo
-
-"$MAKE" clean > /dev/null 2>&1
-rm -f adhoc.cpp > /dev/null 2>&1
-
-CXXFLAGS="$RELEASE_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
-CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-
-if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
-else
-	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-		echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
-	fi
-	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
-	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-		echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
-	fi
-	echo
-fi
-
-############################################
-# Debug build, platform defines
+# Platform CXXFLAGS
 if [[ ("${#PLATFORM_CXXFLAGS[@]}" -ne "0") ]]; then
+
+	############################################
+	# Debug build, platform defines
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: Debug, platform CXXFLAGS" | tee -a "$TEST_RESULTS"
@@ -1598,13 +1638,10 @@ if [[ ("${#PLATFORM_CXXFLAGS[@]}" -ne "0") ]]; then
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
 		fi
-		echo
 	fi
-fi
 
-############################################
-# Release build, platform defines
-if [[ ("${#PLATFORM_CXXFLAGS[@]}" -ne "0") ]]; then
+	############################################
+	# Release build, platform defines
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: Release, platform CXXFLAGS" | tee -a "$TEST_RESULTS"
@@ -1627,7 +1664,6 @@ if [[ ("${#PLATFORM_CXXFLAGS[@]}" -ne "0") ]]; then
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
 		fi
-		echo
 	fi
 fi
 
