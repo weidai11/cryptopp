@@ -94,14 +94,18 @@ __m128i _mm_clmulepi64_si128(const __m128i &a, const __m128i &b, int i)
 #if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE || CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
 inline static void SSE2_Xor16(byte *a, const byte *b, const byte *c)
 {
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE && !defined(__SUNPRO_CC)
+// SunCC 5.14 crash (bewildering since asserts are not in effect in rlease builds)
+//   Also see http://github.com/weidai11/cryptopp/issues/226
+# if __SUNPRO_CC
+	*(__m128i *)(void *)a = _mm_xor_si128(*(__m128i *)(void *)b, *(__m128i *)(void *)c);
+# elif CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
 	CRYPTOPP_ASSERT(IsAlignedOn(a,GetAlignmentOf<__m128i>()));
 	CRYPTOPP_ASSERT(IsAlignedOn(b,GetAlignmentOf<__m128i>()));
 	CRYPTOPP_ASSERT(IsAlignedOn(c,GetAlignmentOf<__m128i>()));
 	*(__m128i *)(void *)a = _mm_xor_si128(*(__m128i *)(void *)b, *(__m128i *)(void *)c);
-#else
+# else
 	asm ("movdqa %1, %%xmm0; pxor %2, %%xmm0; movdqa %%xmm0, %0;" : "=m" (a[0]) : "m"(b[0]), "m"(c[0]));
-#endif
+# endif
 }
 #endif
 
