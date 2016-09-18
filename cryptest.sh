@@ -1135,7 +1135,7 @@ if true; then
 	fi
 
 	# Filter out C++ and Doxygen comments.
-	COUNT=$(cat *.h *.cpp | "$GREP" -v '//' | "$GREP" -c 'assert[[:space:]]*\\(')
+	COUNT=$(cat *.h *.cpp | "$GREP" -v '//' | "$EGREP" -c 'assert[[:space:]]*\(')
 	if [[ "$COUNT" -ne "0" ]]; then
 		FAILED=1
 		echo "Found use of Posix assert" | tee -a "$TEST_RESULTS"
@@ -1166,14 +1166,14 @@ if true; then
 	FAILED=0
 
 	# If this fires, then use the library's STDMIN(a,b) or (std::min)(a, b);
-	COUNT=$(cat *.h *.cpp | "$GREP" -v '//' | "$GREP" -c 'std::min[[:space:]]*\\(')
+	COUNT=$(cat *.h *.cpp | "$GREP" -v '//' | "$EGREP" -c 'std::min[[:space:]]*\(')
 	if [[ "$COUNT" -ne "0" ]]; then
 		FAILED=1
 		echo "Found std::min" | tee -a "$TEST_RESULTS"
 	fi
 
 	# If this fires, then use the library's STDMAX(a,b) or (std::max)(a, b);
-	COUNT=$(cat *.h *.cpp | "$GREP" -v '//' | "$GREP" -c 'std::max[[:space:]]*\\(')
+	COUNT=$(cat *.h *.cpp | "$GREP" -v '//' | "$EGREP" -c 'std::max[[:space:]]*\(')
 	if [[ "$COUNT" -ne "0" ]]; then
 		FAILED=1
 		echo "Found std::max" | tee -a "$TEST_RESULTS"
