@@ -117,7 +117,7 @@ class Integer;
 // ************** compile-time assertion ***************
 
 #if CRYPTOPP_DOXYGEN_PROCESSING
-//! \brief Compile time CRYPTOPP_ASSERTion
+//! \brief Compile time assertion
 //! \param expr the expression to evaluate
 //! \details Asserts the expression expr though a dummy struct.
 #define CRYPTOPP_COMPILE_ASSERT(expr) { ... }
@@ -129,17 +129,17 @@ struct CompileAssert
 };
 //! \endif
 
-#define CRYPTOPP_COMPILE_ASSERT(CRYPTOPP_ASSERTion) CRYPTOPP_COMPILE_ASSERT_INSTANCE(CRYPTOPP_ASSERTion, __LINE__)
+#define CRYPTOPP_COMPILE_ASSERT(assertion) CRYPTOPP_COMPILE_ASSERT_INSTANCE(assertion, __LINE__)
 #if defined(CRYPTOPP_EXPORTS) || defined(CRYPTOPP_IMPORTS)
-#define CRYPTOPP_COMPILE_ASSERT_INSTANCE(CRYPTOPP_ASSERTion, instance)
+#define CRYPTOPP_COMPILE_ASSERT_INSTANCE(assertion, instance)
 #else
 # if defined(__GNUC__)
-#  define CRYPTOPP_COMPILE_ASSERT_INSTANCE(CRYPTOPP_ASSERTion, instance) \
-		static CompileAssert<(CRYPTOPP_ASSERTion)> \
+#  define CRYPTOPP_COMPILE_ASSERT_INSTANCE(assertion, instance) \
+		static CompileAssert<(assertion)> \
 		CRYPTOPP_ASSERT_JOIN(cryptopp_CRYPTOPP_ASSERT_, instance) __attribute__ ((unused))
 # else
-#  define CRYPTOPP_COMPILE_ASSERT_INSTANCE(CRYPTOPP_ASSERTion, instance) \
-		static CompileAssert<(CRYPTOPP_ASSERTion)> \
+#  define CRYPTOPP_COMPILE_ASSERT_INSTANCE(assertion, instance) \
+		static CompileAssert<(assertion)> \
 		CRYPTOPP_ASSERT_JOIN(cryptopp_CRYPTOPP_ASSERT_, instance)
 # endif // __GNUC__
 #endif
@@ -351,7 +351,7 @@ const T & Singleton<T, F, instance>::Ref(CRYPTOPP_NOINLINE_DOTDOTDOT) const
 //!   makes memcpy_s() and memmove_s() available. The library will also optionally
 //!   make the symbols available if <tt>CRYPTOPP_WANT_SECURE_LIB</tt> is defined.
 //!   <tt>CRYPTOPP_WANT_SECURE_LIB</tt> is in config.h, but it is disabled by default.
-//! \details memcpy_s() will CRYPTOPP_ASSERT the pointers src and dest are not NULL
+//! \details memcpy_s() will assert the pointers src and dest are not NULL
 //!   in debug builds. Passing NULL for either pointer is undefined behavior.
 inline void memcpy_s(void *dest, size_t sizeInBytes, const void *src, size_t count)
 {
@@ -393,7 +393,7 @@ inline void memcpy_s(void *dest, size_t sizeInBytes, const void *src, size_t cou
 //!   makes memcpy_s() and memmove_s() available. The library will also optionally
 //!   make the symbols available if <tt>CRYPTOPP_WANT_SECURE_LIB</tt> is defined.
 //!   <tt>CRYPTOPP_WANT_SECURE_LIB</tt> is in config.h, but it is disabled by default.
-//! \details memmove_s() will CRYPTOPP_ASSERT the pointers src and dest are not NULL
+//! \details memmove_s() will assert the pointers src and dest are not NULL
 //!   in debug builds. Passing NULL for either pointer is undefined behavior.
 inline void memmove_s(void *dest, size_t sizeInBytes, const void *src, size_t count)
 {
@@ -1417,7 +1417,7 @@ template <class T> inline T rotrMod(T x, unsigned int y)
 //! \details This is a Microsoft specific implementation using <tt>_lrotl</tt> provided by
 //!   <stdlib.h>. The value x to be rotated is 32-bits. y must be in the range
 //!   <tt>[0, sizeof(T)*8 - 1]</tt> to avoid undefined behavior.
-//! \note rotlFixed will CRYPTOPP_ASSERT in Debug builds if is outside the allowed range.
+//! \note rotlFixed will assert in Debug builds if is outside the allowed range.
 template<> inline word32 rotlFixed<word32>(word32 x, unsigned int y)
 {
 	// Uses Microsoft <stdlib.h> call, bound to C/C++ language rules.
@@ -1432,7 +1432,7 @@ template<> inline word32 rotlFixed<word32>(word32 x, unsigned int y)
 //! \details This is a Microsoft specific implementation using <tt>_lrotr</tt> provided by
 //!   <stdlib.h>. The value x to be rotated is 32-bits. y must be in the range
 //!   <tt>[0, sizeof(T)*8 - 1]</tt> to avoid undefined behavior.
-//! \note rotrFixed will CRYPTOPP_ASSERT in Debug builds if is outside the allowed range.
+//! \note rotrFixed will assert in Debug builds if is outside the allowed range.
 template<> inline word32 rotrFixed<word32>(word32 x, unsigned int y)
 {
 	// Uses Microsoft <stdlib.h> call, bound to C/C++ language rules.
@@ -1447,7 +1447,7 @@ template<> inline word32 rotrFixed<word32>(word32 x, unsigned int y)
 //! \details This is a Microsoft specific implementation using <tt>_lrotl</tt> provided by
 //!   <stdlib.h>. The value x to be rotated is 32-bits. y must be in the range
 //!   <tt>[0, sizeof(T)*8 - 1]</tt> to avoid undefined behavior.
-//! \note rotlVariable will CRYPTOPP_ASSERT in Debug builds if is outside the allowed range.
+//! \note rotlVariable will assert in Debug builds if is outside the allowed range.
 template<> inline word32 rotlVariable<word32>(word32 x, unsigned int y)
 {
 	CRYPTOPP_ASSERT(y < 8*sizeof(x));
@@ -1461,7 +1461,7 @@ template<> inline word32 rotlVariable<word32>(word32 x, unsigned int y)
 //! \details This is a Microsoft specific implementation using <tt>_lrotr</tt> provided by
 //!   <stdlib.h>. The value x to be rotated is 32-bits. y must be in the range
 //!   <tt>[0, sizeof(T)*8 - 1]</tt> to avoid undefined behavior.
-//! \note rotrVariable will CRYPTOPP_ASSERT in Debug builds if is outside the allowed range.
+//! \note rotrVariable will assert in Debug builds if is outside the allowed range.
 template<> inline word32 rotrVariable<word32>(word32 x, unsigned int y)
 {
 	CRYPTOPP_ASSERT(y < 8*sizeof(x));
@@ -1506,7 +1506,7 @@ template<> inline word32 rotrMod<word32>(word32 x, unsigned int y)
 //! \details This is a Microsoft specific implementation using <tt>_lrotl</tt> provided by
 //!   <stdlib.h>. The value x to be rotated is 64-bits. y must be in the range
 //!   <tt>[0, sizeof(T)*8 - 1]</tt> to avoid undefined behavior.
-//! \note rotrFixed will CRYPTOPP_ASSERT in Debug builds if is outside the allowed range.
+//! \note rotrFixed will assert in Debug builds if is outside the allowed range.
 template<> inline word64 rotlFixed<word64>(word64 x, unsigned int y)
 {
 	// Uses Microsoft <stdlib.h> call, bound to C/C++ language rules.
@@ -1521,7 +1521,7 @@ template<> inline word64 rotlFixed<word64>(word64 x, unsigned int y)
 //! \details This is a Microsoft specific implementation using <tt>_lrotr</tt> provided by
 //!   <stdlib.h>. The value x to be rotated is 64-bits. y must be in the range
 //!   <tt>[0, sizeof(T)*8 - 1]</tt> to avoid undefined behavior.
-//! \note rotrFixed will CRYPTOPP_ASSERT in Debug builds if is outside the allowed range.
+//! \note rotrFixed will assert in Debug builds if is outside the allowed range.
 template<> inline word64 rotrFixed<word64>(word64 x, unsigned int y)
 {
 	// Uses Microsoft <stdlib.h> call, bound to C/C++ language rules.
@@ -1536,7 +1536,7 @@ template<> inline word64 rotrFixed<word64>(word64 x, unsigned int y)
 //! \details This is a Microsoft specific implementation using <tt>_lrotl</tt> provided by
 //!   <stdlib.h>. The value x to be rotated is 64-bits. y must be in the range
 //!   <tt>[0, sizeof(T)*8 - 1]</tt> to avoid undefined behavior.
-//! \note rotlVariable will CRYPTOPP_ASSERT in Debug builds if is outside the allowed range.
+//! \note rotlVariable will assert in Debug builds if is outside the allowed range.
 template<> inline word64 rotlVariable<word64>(word64 x, unsigned int y)
 {
 	CRYPTOPP_ASSERT(y < 8*sizeof(x));
@@ -1550,7 +1550,7 @@ template<> inline word64 rotlVariable<word64>(word64 x, unsigned int y)
 //! \details This is a Microsoft specific implementation using <tt>_lrotr</tt> provided by
 //!   <stdlib.h>. The value x to be rotated is 64-bits. y must be in the range
 //!   <tt>[0, sizeof(T)*8 - 1]</tt> to avoid undefined behavior.
-//! \note rotrVariable will CRYPTOPP_ASSERT in Debug builds if is outside the allowed range.
+//! \note rotrVariable will assert in Debug builds if is outside the allowed range.
 template<> inline word64 rotrVariable<word64>(word64 x, unsigned int y)
 {
 	CRYPTOPP_ASSERT(y < 8*sizeof(x));
