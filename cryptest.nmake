@@ -12,11 +12,13 @@
 #   point for a DLL project using Crypto++.
 
 # You must also add /DDEBUG if you want a debug build with the library's assert. The library moved
-#   from Posix Assert to CRYPTOPP_ASSERT at 5.6.5 due to CVE-2016-7420. CRYPTOPP_ASSERT has the
-#   additional benefit of using DebugBreak, so the program does not crash while you are debugging it.
+#   from Posix NDEBUG and Assert to CRYPTOPP_ASSERT at 5.6.5 due to CVE-2016-7420. CRYPTOPP_ASSERT has
+#   the additional benefit of using DebugBreak, the program does not crash while you are debugging it.
 
 # The list of LIB_SRCS and TEST_SRCS was generated under Linux with "make sources". The list of
 #   LIB_OBJS and TEST_OBJS was generated under Linux with "make sources | sed 's|.cpp|.obj|g'".
+#   The order of the firt three object files are significant. See C++ Static Initialization Order
+#   Fisaco on the Crypto++ wiki for details.
 
 # You are free to add and remove files to the list. For example, you can remove rdrand.asm
 #   build it using NASM, and then include the NASM object file rdrand_x86.obj or rdrand_x64.obj.
