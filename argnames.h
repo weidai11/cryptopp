@@ -84,6 +84,7 @@ CRYPTOPP_DEFINE_NAME_STRING(DerivedKeyLength)	//!< int, key derivation, derived 
 CRYPTOPP_DEFINE_NAME_STRING(Personalization)	//!< ConstByteArrayParameter
 CRYPTOPP_DEFINE_NAME_STRING(PersonalizationSize)	//!< int, in bytes
 CRYPTOPP_DEFINE_NAME_STRING(Salt)				//!< ConstByteArrayParameter
+CRYPTOPP_DEFINE_NAME_STRING(Tweak)				//!< ConstByteArrayParameter
 CRYPTOPP_DEFINE_NAME_STRING(SaltSize)			//!< int, in bytes
 CRYPTOPP_DEFINE_NAME_STRING(TreeMode)			//< byte
 DOCUMENTED_NAMESPACE_END
