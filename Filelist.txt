@@ -48,7 +48,7 @@ channels.h
 cmac.cpp
 cmac.h
 config.h
-config.recommend
+config.compat
 cpu.cpp
 cpu.h
 crc.cpp

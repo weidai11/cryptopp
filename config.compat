@@ -57,7 +57,7 @@
 // Define this to ensure C/C++ standard compliance and respect for GCC aliasing rules and other alignment fodder. If you
 // experience a break with GCC at -O3, you should try this first. Guard it in case its set on the command line (and it differs).
 #ifndef CRYPTOPP_NO_UNALIGNED_DATA_ACCESS
-# define CRYPTOPP_NO_UNALIGNED_DATA_ACCESS
+// # define CRYPTOPP_NO_UNALIGNED_DATA_ACCESS
 #endif
 
 // ***************** Less Important Settings ***************
@@ -79,7 +79,7 @@
 // Also see https://cryptopp.com/wiki/Config.h#Avoid_MAINTAIN_BACKWARDS_COMPATIBILITY
 #if (CRYPTOPP_VERSION <= 600)
 # if !defined(CRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562) && !defined(CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562)
-// #  define CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+#  define CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 # endif
 #endif
 
@@ -127,7 +127,7 @@
 // Under GCC, the library uses init_priority attribute in the range
 // [CRYPTOPP_INIT_PRIORITY, CRYPTOPP_INIT_PRIORITY+100]. Under Windows,
 // CRYPTOPP_INIT_PRIORITY enlists "#pragma init_seg(lib)".
-#define CRYPTOPP_INIT_PRIORITY 250
+// #define CRYPTOPP_INIT_PRIORITY 250
 
 // CRYPTOPP_USER_PRIORITY is for other libraries and user code that is using Crypto++
 // and managing C++ static object creation. It is guaranteed not to conflict with

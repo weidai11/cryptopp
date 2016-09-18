@@ -17,7 +17,7 @@ Crypto++ Library is a free C++ class library of cryptographic algorithms and sch
 
 These are general instructions for the BSDs, Linux, OS X, Solaris and Unix. The library uses a GNU makefile, which combines configuration and a non-anemic make. On BSD and Solaris you will likely have to use `gmake` to build the library. On Linux, OS X and Unix, the system's make should be OK. On Windows, Crypto++ provides Borland and Visual Studio solutions.
 
-You should look through the GNUmakefile and config.h to ensure settings look reasonable before building. You are strogly encouraged to use `config.recommend` in place of `config.h` if you are building the library and you can recompile dependent programs.
+You should look through the GNUmakefile and config.h to ensure settings look reasonable before building. If you need compatibility with Crypto++ 5.6.2, then you can use `config.compat` in place of `config.h`. You are discouraged from using `config.compat` because it re-introduces undefined behavior that was cleared at Crypto++ 5.6.3.
 
 Wiki pages are available for some platforms with specific build instructions. The wiki can be found at http://cryptopp.com/wiki/. The pages include Android, ARM, iOS and Solaris. Solaris users should visit the wiki for important information on compiling the library with different versions of SunCC and options, and information on improving library performance and features.
 

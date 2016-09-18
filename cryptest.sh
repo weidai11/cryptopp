@@ -33,8 +33,8 @@
 # You can test using original config.h with the following. 'orig', 'original' and 'config.h' are synonyms:
 #     ./cryptest.sh original
 
-# You can test using config.recommend with the following. 'rec', 'recommend' and 'config.recommend' are synonyms:
-#     ./cryptest.sh recommend
+# You can test 5.6.2 compatibility using config.compat with the following. 'compat', 'compatibility' and 'config.compat' are synonyms:
+#     ./cryptest.sh compatibility
 
 ############################################
 # Set to suite your taste
@@ -179,9 +179,9 @@ do
 	elif [[ ($("$EGREP" -ix "orig" <<< "$ARG") || $("$EGREP" -ix "original" <<< "$ARG") || $("$EGREP" -ix "config.h" <<< "$ARG")) ]]; then
 		git checkout config.h > /dev/null 2>&1
 		WANTED_CONFIG=1
-	elif [[ ($("$EGREP" -ix "rec" <<< "$ARG") || $("$EGREP" -ix "recommend" <<< "$ARG") || $("$EGREP" -ix "config.recommend" <<< "$ARG")) ]]; then
-		git checkout config.recommend > /dev/null 2>&1
-		cp config.recommend config.h
+	elif [[ ($("$EGREP" -ix "compat" <<< "$ARG") || $("$EGREP" -ix "compatibility" <<< "$ARG") || $("$EGREP" -ix "config.compat" <<< "$ARG")) ]]; then
+		git checkout config.compatibility > /dev/null 2>&1
+		cp config.compatibility config.h
 		WANTED_CONFIG=1
 	else
 		echo "Unknown option $ARG"
