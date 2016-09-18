@@ -114,7 +114,7 @@ all three forms, and sample applications using each of the three forms
 are also included.
 
 To compile Crypto++ with MSVC, open  "cryptest.sln" (for MSVC 2005 - 2015)
-or "cryptest.dsw" (for MSVC 6 and MSVC .NET 2003) workspace file and build
+or "cryptest.dsw" (for MSVC 6 - MSVC .NET 2003) workspace file and build
 one or more of the following projects:
 
 cryptdll - This builds the DLL. Please note that if you wish to use Crypto++
@@ -192,6 +192,10 @@ define CRYPTOPP_INIT_PRIORITY to control object initialization order. Set it to 
 value like 250. User programs can use CRYPTOPP_USER_PRIORITY to avoid conflicts with
 library values. Initialization attributes are more reliable than object file ordering,
 but its not ubiquitously supported by linkers.
+
+The makefile links to the static version of the Crypto++ library to avoid binary
+planting and other LD_PRELOAD tricks. You should use the static version of the
+library in your programs to help avoid unwanted redirections.
 
 *** Documentation and Support ***
 

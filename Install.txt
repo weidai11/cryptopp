@@ -73,6 +73,8 @@ The makefile orders object files to help remediate problems associated with C++ 
 
 If your linker supports initialization attributes, like init_priority, then you can define CRYPTOPP_INIT_PRIORITY to control object initialization order. Set it to a value like 250. User programs can use CRYPTOPP_USER_PRIORITY to avoid conflicts with library values. Initialization attributes are more reliable than object file ordering, but its not ubiquitously supported by linkers.
 
+The makefile links to the static version of the Crypto++ library to avoid binary planting and other LD_PRELOAD tricks. You should use the static version of the library in your programs to help avoid unwanted redirections.
+
 INSTALLING THE LIBRARY
 ----------------------
 
@@ -173,6 +175,7 @@ Fifth, the test harness provides a "test vector" option which uses many known te
     Tests complete. Total tests = 4094. Failed tests = 0.
 
 The library also offers its test script for those who want to use it. The test script is names cryptest.sh, and it repeatedly builds the library and exectues the tests under various configurations. It takes 2 to 4 hours to run on a semi-modern desktop or server; and days to run on an IoT gadget. Also see http://github.com/weidai11/cryptopp/blob/master/cryptest.sh and http://cryptopp.com/wiki/Cryptest.sh.
+
 
 REPORTING PROBLEMS
 ------------------
