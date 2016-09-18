@@ -28,10 +28,8 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#if defined(__SUNPRO_CC)
-# define USE_MOV_REG32_OR_REG64 1
 // Different assemblers accept different mnemonics: 'movd eax, xmm0' vs 'movd rax, xmm0' vs 'mov eax, xmm0' vs 'mov rax, xmm0'
-#elif (CRYPTOPP_LLVM_CLANG_VERSION >= 30600) || (CRYPTOPP_APPLE_CLANG_VERSION >= 70000) || defined(CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER)
+#if (CRYPTOPP_LLVM_CLANG_VERSION >= 30600) || (CRYPTOPP_APPLE_CLANG_VERSION >= 70000) || defined(CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER)
 // 'movd eax, xmm0' only. REG_WORD() macro not used.
 # define USE_MOVD_REG32 1
 #elif (defined(CRYPTOPP_LLVM_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION)) && defined(CRYPTOPP_X64_ASM_AVAILABLE)
@@ -94,9 +92,9 @@ __m128i _mm_clmulepi64_si128(const __m128i &a, const __m128i &b, int i)
 #endif
 
 #if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE || CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
-inline void SSE2_Xor16(byte *a, const byte *b, const byte *c)
+inline static void SSE2_Xor16(byte *a, const byte *b, const byte *c)
 {
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE && !defined(__SUNPRO_CC)
+#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
 	CRYPTOPP_ASSERT(IsAlignedOn(a,GetAlignmentOf<__m128i>()));
 	CRYPTOPP_ASSERT(IsAlignedOn(b,GetAlignmentOf<__m128i>()));
 	CRYPTOPP_ASSERT(IsAlignedOn(c,GetAlignmentOf<__m128i>()));
@@ -108,7 +106,7 @@ inline void SSE2_Xor16(byte *a, const byte *b, const byte *c)
 #endif
 
 #if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
-inline void NEON_Xor16(byte *a, const byte *b, const byte *c)
+inline static void NEON_Xor16(byte *a, const byte *b, const byte *c)
 {
 	CRYPTOPP_ASSERT(IsAlignedOn(a,GetAlignmentOf<uint64x2_t>()));
 	CRYPTOPP_ASSERT(IsAlignedOn(b,GetAlignmentOf<uint64x2_t>()));
@@ -117,7 +115,7 @@ inline void NEON_Xor16(byte *a, const byte *b, const byte *c)
 }
 #endif
 
-inline void Xor16(byte *a, const byte *b, const byte *c)
+inline static void Xor16(byte *a, const byte *b, const byte *c)
 {
 	CRYPTOPP_ASSERT(IsAlignedOn(a,GetAlignmentOf<word64>()));
 	CRYPTOPP_ASSERT(IsAlignedOn(b,GetAlignmentOf<word64>()));
