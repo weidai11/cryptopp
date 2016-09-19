@@ -17,13 +17,12 @@
 #define CRYPTOPP_TRAP_H
 
 #include "config.h"
-#include "ossig.h"
 
 #if CRYPTOPP_DEBUG
 #  include <iostream>
 #  include <sstream>
 #  if defined(CRYPTOPP_BSD_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE)
-#    include <signal.h>
+#    include "ossig.h"
 #  elif defined(CRYPTOPP_WIN32_AVAILABLE)
 #    if (_MSC_VER >= 1400)
 #      include <intrin.h>
