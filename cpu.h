@@ -9,7 +9,7 @@
 
 #include "config.h"
 
-// ARM32/ARM64 includes
+// ARM32/ARM64 Headers
 #if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
 # if defined(__GNUC__)
 #  include <stdint.h>
@@ -20,7 +20,41 @@
 # if (CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE || CRYPTOPP_BOOL_ARM_CRC32_INTRINSICS_AVAILABLE) || defined(__ARM_ACLE)
 #  include <arm_acle.h>
 # endif
-#endif  // ARM32 and ARM64
+#endif  // ARM32 and ARM64 Headers
+
+// X86/X64/X32 Headers
+#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64
+
+// GCC X86 super-include
+#if (CRYPTOPP_GCC_VERSION >= 40800)
+#  include <x86intrin.h>
+#endif
+
+// Baseline include
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+#  include <emmintrin.h>    // __m64, __m128i, _mm_set_epi64x
+#endif
+
+// PUSHFB needs Clang 3.3 and Apple Clang 5.0.
+// #if (defined(__SSE3__) || defined(__SSSE3__)) || defined(__INTEL_COMPILER) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30300) || (CRYPTOPP_APPLE_CLANG_VERSION >= 50000)
+#if CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE
+#  include <tmmintrin.h>    // _mm_shuffle_epi16
+#endif // tmmintrin.h
+
+// PEXTRD needs Clang 3.3 and Apple Clang 5.0.
+// #if (defined(__SSE4_1__) || defined(__SSE4_1__)) || defined(__INTEL_COMPILER) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30300) || (CRYPTOPP_APPLE_CLANG_VERSION >= 50000)
+#if CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
+#  include <smmintrin.h>    // _mm_blend_epi16
+#  include <nmmintrin.h>    // _mm_crc32_u{8|16|32}
+#endif // smmintrin.h
+
+// AES and CLMUL need Clang 2.8 and Apple Clang 4.6. CLMUL needs Clang 3.4 and Apple Clang 6.0
+// #if (defined(__AES__) || defined(__PCLMUL__)) || defined(__INTEL_COMPILER) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30400) || (CRYPTOPP_APPLE_CLANG_VERSION >= 60000)
+#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
+#  include <wmmintrin.h>
+#endif // wmmintrin.h
+
+#endif  // X86/X64/X32 Headers
 
 // Applies to both X86/X32/X64 and ARM32/ARM64. And we've got MIPS devices on the way.
 #if defined(_MSC_VER) || defined(__BORLANDC__)
@@ -58,38 +92,6 @@
 #define NAMESPACE_END
 
 #else
-
-# if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
-#  include <emmintrin.h>
-# endif
-
-// GCC 5.3/i686 fails to declare __m128 in the headers we use when compiling with -std=c++11 or -std=c++14.
-// Consequently, our _mm_shuffle_epi8, _mm_extract_epi32, etc fails to compile.
-#if (CRYPTOPP_GCC_VERSION >= 40800)
-#  include <x86intrin.h>
-#endif
-
-// PUSHFB needs Clang 3.3 and Apple Clang 5.0.
-#if (defined(__SSE3__) || defined(__SSSE3__)) || defined(__INTEL_COMPILER) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30300) || (CRYPTOPP_APPLE_CLANG_VERSION >= 50000)
-#  include <tmmintrin.h>
-#endif // tmmintrin.h
-
-// PEXTRD needs Clang 3.3 and Apple Clang 5.0.
-#if (defined(__SSE4_1__) || defined(__SSE4_1__)) || defined(__INTEL_COMPILER) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30300) || (CRYPTOPP_APPLE_CLANG_VERSION >= 50000)
-#  include <smmintrin.h>
-#endif // smmintrin.h
-
-// AES and CLMUL need Clang 2.8 and Apple Clang 4.6. CLMUL needs Clang 3.4 and Apple Clang 6.0
-#if (defined(__AES__) || defined(__PCLMUL__)) || defined(__INTEL_COMPILER) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30400) || (CRYPTOPP_APPLE_CLANG_VERSION >= 60000)
-#  include <wmmintrin.h>
-#endif // wmmintrin.h
-
-#if (CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE) && ((__SUNPRO_CC >= 0x5110) || defined(__clang__) || defined(__INTEL_COMPILER))
-# include <emmintrin.h>    // _mm_set_epi64x
-# include <smmintrin.h>    // _mm_blend_epi16
-# include <tmmintrin.h>    // _mm_shuffle_epi16
-# include <nmmintrin.h>    // _mm_crc32_u{8|16|32}
-#endif
 
 NAMESPACE_BEGIN(CryptoPP)
 
