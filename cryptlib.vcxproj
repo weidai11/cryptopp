@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -490,7 +490,7 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-	<ClCompile Include="blowfish.cpp">
+    <ClCompile Include="blowfish.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='DLL-Import Debug|Win32'">Disabled</Optimization>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='DLL-Import Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='DLL-Import Debug|x64'">Disabled</Optimization>
@@ -2239,13 +2239,13 @@ echo: &gt;&gt; adhoc.cpp.copied
       <Command Condition="'$(Platform)'=='Win32'">ml.exe /c /nologo /D_M_X86 /W3 /Cx /Zi /safeseh /Fo"$(IntDir)rdrand-x86.obj" /Zi "%(FullPath)"</Command>
       <Outputs Condition="'$(Platform)'=='Win32'">$(IntDir)rdrand-x86.obj</Outputs>
       <Command Condition="'$(Platform)'=='x64'">ml64.exe /c /nologo /D_M_X64 /W3 /Cx /Zi /Fo"$(IntDir)rdrand-x64.obj" /Zi "%(FullPath)"</Command>
-      <Outputs Condition="'$(Platform)'=='x64'">$(IntDir)rdrand-x64.obj</Outputs> 
+      <Outputs Condition="'$(Platform)'=='x64'">$(IntDir)rdrand-x64.obj</Outputs>
     </CustomBuild>
     <CustomBuild Include="x64dll.asm">
-	  <Message Condition="'$(Configuration)'=='Debug'">Building and assembling x64dll.asm</Message>
-	  <Message Condition="'$(Configuration)'=='Release'">Building and assembling x64dll.asm</Message>
+      <Message Condition="'$(Configuration)'=='Debug'">Building and assembling x64dll.asm</Message>
+      <Message Condition="'$(Configuration)'=='Release'">Building and assembling x64dll.asm</Message>
       <ExcludedFromBuild Condition="'$(Configuration)'=='DLL-Import Debug'">true</ExcludedFromBuild>
-	  <ExcludedFromBuild Condition="'$(Configuration)'=='DLL-Import Release'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='DLL-Import Release'">true</ExcludedFromBuild>
       <Command Condition="'$(Platform)'=='x64'">ml64.exe /c /nologo /D_M_X64 /W3 /Fo"$(IntDir)x64dll.obj" /Zi "%(FullPath)"</Command>
       <Outputs Condition="'$(Platform)'=='x64'">$(IntDir)x64dll.obj</Outputs>
     </CustomBuild>
