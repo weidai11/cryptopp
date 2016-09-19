@@ -127,7 +127,9 @@
 // Under GCC, the library uses init_priority attribute in the range
 // [CRYPTOPP_INIT_PRIORITY, CRYPTOPP_INIT_PRIORITY+100]. Under Windows,
 // CRYPTOPP_INIT_PRIORITY enlists "#pragma init_seg(lib)".
-#define CRYPTOPP_INIT_PRIORITY 250
+#ifndef CRYPTOPP_INIT_PRIORITY
+# define CRYPTOPP_INIT_PRIORITY 250
+#endif
 
 // CRYPTOPP_USER_PRIORITY is for other libraries and user code that is using Crypto++
 // and managing C++ static object creation. It is guaranteed not to conflict with
@@ -135,7 +137,7 @@
 #if defined(CRYPTOPP_INIT_PRIORITY) && (CRYPTOPP_INIT_PRIORITY > 0)
 # define CRYPTOPP_USER_PRIORITY (CRYPTOPP_INIT_PRIORITY + 101)
 #else
-# define CRYPTOPP_USER_PRIORITY 250
+# define CRYPTOPP_USER_PRIORITY 350
 #endif
 
 // CRYPTOPP_DEBUG enables the library's CRYPTOPP_ASSERT. CRYPTOPP_ASSERT
@@ -231,6 +233,14 @@ typedef unsigned int word32;
 // define large word type, used for file offsets and such
 typedef word64 lword;
 const lword LWORD_MAX = W64LIT(0xffffffffffffffff);
+
+// Clang pretends to be GCC, but can't consume the same programs. It breaks completely with -march-x86-64
+#if defined(__GNUC__) && defined(__clang__)
+# undef __GNUC__
+# undef __GNUC_MINOR__
+# undef __GNUC_PATCHLEVEL__
+# define __GNUC__ 4
+#endif
 
 // Clang pretends to be VC++, too.
 //   See http://github.com/weidai11/cryptopp/issues/147
