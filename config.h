@@ -141,7 +141,7 @@
 //   is only in effect when CRYPTOPP_DEBUG, DEBUG or _DEBUG is defined. Unlike
 //   Posix assert, CRYPTOPP_ASSERT is not affected by NDEBUG (or failure to
 //   define it).
-//   Also see http://github.com/weidai11/cryptopp/issues/277, CVE-2010-4179
+//   Also see http://github.com/weidai11/cryptopp/issues/277, CVE-2016-7420
 #if (defined(DEBUG) || defined(_DEBUG)) && !defined(CRYPTOPP_DEBUG)
 # define CRYPTOPP_DEBUG 1
 #endif
@@ -750,7 +750,7 @@ NAMESPACE_END
 
 // Portable way to suppress warnings.
 //   Moved from misc.h due to circular depenedencies.
-#define CRYPTOPP_UNUSED(x) ((void)x)
+#define CRYPTOPP_UNUSED(x) ((void)(x))
 
 // ************** Deprecated ***************
 
