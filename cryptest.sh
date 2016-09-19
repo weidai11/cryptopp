@@ -166,7 +166,6 @@ elif [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 	fi
 fi
 
-WANTED_CONFIG=0
 for ARG in "$@"
 do
 	# Recognize "fast" and "quick", which does not perform tests that take more time to execute
@@ -178,11 +177,9 @@ do
 		WANT_NICE=1
 	elif [[ ($("$EGREP" -ix "orig" <<< "$ARG") || $("$EGREP" -ix "original" <<< "$ARG") || $("$EGREP" -ix "config.h" <<< "$ARG")) ]]; then
 		git checkout config.h > /dev/null 2>&1
-		WANTED_CONFIG=1
 	elif [[ ($("$EGREP" -ix "compat" <<< "$ARG") || $("$EGREP" -ix "compatibility" <<< "$ARG") || $("$EGREP" -ix "config.compat" <<< "$ARG")) ]]; then
 		git checkout config.compatibility > /dev/null 2>&1
 		cp config.compatibility config.h
-		WANTED_CONFIG=1
 	else
 		echo "Unknown option $ARG"
 	fi
