@@ -435,7 +435,7 @@ NAMESPACE_END
 // Sun Studio 12 provides GCC inline assembly, http://blogs.oracle.com/x86be/entry/gcc_style_asm_inlining_support
 // We can enable SSE2 for Sun Studio in the makefile with -D__SSE2__, but users may not compile with it.
 #if !defined(CRYPTOPP_DISABLE_ASM) && !defined(__SSE2__) && defined(__x86_64__) && (__SUNPRO_CC >= 0x5100)
-# define __SSE2__
+# define __SSE2__ 1
 #endif
 
 #if !defined(CRYPTOPP_DISABLE_ASM) && ((defined(_MSC_VER) && defined(_M_IX86)) || (defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))))
@@ -448,10 +448,7 @@ NAMESPACE_END
 		#define CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE 0
 	#endif
 
-	// SSE3 was actually introduced in GNU as 2.17, which was released 6/23/2006, but we can't tell what version of binutils is installed.
-	// GCC 4.1.2 was released on 2/13/2007, so we'll use that as a proxy for the binutils version. Also see the output of
-	// `gcc -dM -E -march=native - < /dev/null | grep -i SSE` for preprocessor defines available.
-	#if !defined(CRYPTOPP_DISABLE_SSSE3) && (_MSC_VER >= 1400 || CRYPTOPP_GCC_VERSION >= 40102 || defined(__SSSE3__))
+	#if !defined(CRYPTOPP_DISABLE_SSE3) && (_MSC_VER >= 1400 || CRYPTOPP_GCC_VERSION >= 40102 || defined(__SSSE3__))
 		#define CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE 1
 	#else
 		#define CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE 0
@@ -466,7 +463,7 @@ NAMESPACE_END
 	#define CRYPTOPP_X64_ASM_AVAILABLE
 #endif
 
-#if !defined(CRYPTOPP_DISABLE_SSE2) && (defined(CRYPTOPP_MSVC6PP_OR_LATER) || defined(__SSE2__)) && !defined(_M_ARM)
+#if !defined(CRYPTOPP_DISABLE_ASM) && (defined(CRYPTOPP_MSVC6PP_OR_LATER) || defined(__SSE2__)) && !defined(_M_ARM)
 	#define CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE 1
 #else
 	#define CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE 0
@@ -474,15 +471,15 @@ NAMESPACE_END
 
 // Intrinsics availible in GCC 4.3 (http://gcc.gnu.org/gcc-4.3/changes.html) and
 //   MSVC 2008 (http://msdn.microsoft.com/en-us/library/bb892950%28v=vs.90%29.aspx)
-//   SunCC could generate SSE4 at 12.1, but the intrinsics are missing until 12.4. However, we don't know
-//     when to activate the code paths because SunCC does not indicate it in the preprocessor with macros.
-#if !defined(CRYPTOPP_DISABLE_SSE2) && !defined(CRYPTOPP_DISABLE_SSE4) && (((_MSC_VER >= 1500) && !defined(_M_ARM)) || (defined(__SSE4_1__) && defined(__SSE4_2__)))
+//   SunCC could generate SSE4 at 12.1, but the intrinsics are missing until 12.4.
+#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_SSE4) && (((_MSC_VER >= 1500) && !defined(_M_ARM)) || (defined(__SSE4_1__) && defined(__SSE4_2__)))
 	#define CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE 1
 #else
 	#define CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE 0
 #endif
 
-#if !defined(CRYPTOPP_DISABLE_SSSE3) && !defined(CRYPTOPP_DISABLE_AESNI) && CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE && (CRYPTOPP_GCC_VERSION >= 40400 || _MSC_FULL_VER >= 150030729 || __INTEL_COMPILER >= 1110 || defined(__AES__))
+// Don't disgorge AES-NI from CLMUL. There will be two to four subtle breaks
+#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_AESNI) && (_MSC_FULL_VER >= 150030729 || __INTEL_COMPILER >= 1110 || (defined(__AES__) && defined(__PCLMUL__)))
 	#define CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE 1
 #else
 	#define CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE 0
