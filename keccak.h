@@ -65,10 +65,10 @@ protected:
 	unsigned int m_digestSize, m_counter;
 };
 
-//! \class Keccak_224
+//! \class Keccak_Final
 //! \tparam DigestSize controls the digest size as a template parameter instead of a per-class constant
 //! \brief Keccak-X message digest, template for more fine-grained typedefs
-//! \since Crypto++ 5.7.0
+//! \since Crypto++ 5.6.5
 template<unsigned int digestSize>
 class Keccak_Final : public Keccak
 {
@@ -76,7 +76,7 @@ public:
 	CRYPTOPP_CONSTANT(DIGESTSIZE = digestSize)
 	CRYPTOPP_CONSTANT(BLOCKSIZE = 200 - 2 * DIGESTSIZE)
 
-		//! \brief Construct a Keccak-X message digest
+	//! \brief Construct a Keccak-X message digest
 	Keccak_Final() : Keccak(DIGESTSIZE) {}
 	CRYPTOPP_CONSTEXPR static std::string StaticAlgorithmName() { return "Keccak-" + IntToString(DIGESTSIZE * 8); }
 	CRYPTOPP_CONSTEXPR unsigned int BlockSize() const { return BLOCKSIZE; }
