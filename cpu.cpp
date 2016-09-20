@@ -25,11 +25,6 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 #ifndef CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
-
-// MacPorts/GCC does not provide constructor(priority). Apple/GCC and Fink/GCC do provide it.
-#define HAVE_GCC_CONSTRUCTOR1 (__GNUC__ && (CRYPTOPP_INIT_PRIORITY > 0) && ((CRYPTOPP_GCC_VERSION >= 40300) || (CRYPTOPP_LLVM_CLANG_VERSION >= 20900) || (_INTEL_COMPILER >= 300)) && !(MACPORTS_GCC_COMPILER > 0))
-#define HAVE_GCC_CONSTRUCTOR0 (__GNUC__ && (CRYPTOPP_INIT_PRIORITY > 0) && !(MACPORTS_GCC_COMPILER > 0))
-
 extern "C" {
     typedef void (*SigHandler)(int);
 };

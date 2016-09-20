@@ -119,6 +119,21 @@
 // set the name of Rijndael cipher, was "Rijndael" before version 5.3
 #define CRYPTOPP_RIJNDAEL_NAME "AES"
 
+// CRYPTOPP_DEBUG enables the library's CRYPTOPP_ASSERT. CRYPTOPP_ASSERT
+//   raises a SIGTRAP (Unix) or calls DebugBreak() (Windows). CRYPTOPP_ASSERT
+//   is only in effect when CRYPTOPP_DEBUG, DEBUG or _DEBUG is defined. Unlike
+//   Posix assert, CRYPTOPP_ASSERT is not affected by NDEBUG (or failure to
+//   define it).
+//   Also see http://github.com/weidai11/cryptopp/issues/277, CVE-2016-7420
+#if (defined(DEBUG) || defined(_DEBUG)) && !defined(CRYPTOPP_DEBUG)
+# define CRYPTOPP_DEBUG 1
+#endif
+
+// ***************** Initialization and Constructor priorities ********************
+
+// MacPorts/GCC and Solaris/GCC does not provide constructor(priority). Apple/GCC and Fink/GCC do provide it.
+// See http://cryptopp.com/wiki/Static_Initialization_Order_Fiasco
+
 // CRYPTOPP_INIT_PRIORITY attempts to manage initialization of C++ static objects.
 // Under GCC, the library uses init_priority attribute in the range
 // [CRYPTOPP_INIT_PRIORITY, CRYPTOPP_INIT_PRIORITY+100]. Under Windows,
@@ -136,14 +151,18 @@
 # define CRYPTOPP_USER_PRIORITY 350
 #endif
 
-// CRYPTOPP_DEBUG enables the library's CRYPTOPP_ASSERT. CRYPTOPP_ASSERT
-//   raises a SIGTRAP (Unix) or calls DebugBreak() (Windows). CRYPTOPP_ASSERT
-//   is only in effect when CRYPTOPP_DEBUG, DEBUG or _DEBUG is defined. Unlike
-//   Posix assert, CRYPTOPP_ASSERT is not affected by NDEBUG (or failure to
-//   define it).
-//   Also see http://github.com/weidai11/cryptopp/issues/277, CVE-2016-7420
-#if (defined(DEBUG) || defined(_DEBUG)) && !defined(CRYPTOPP_DEBUG)
-# define CRYPTOPP_DEBUG 1
+// __attribute__(init_priority(250)) is supported
+#if (__GNUC__ && (CRYPTOPP_INIT_PRIORITY > 0) && ((CRYPTOPP_GCC_VERSION >= 40300) || (CRYPTOPP_LLVM_CLANG_VERSION >= 20900) || (_INTEL_COMPILER >= 300)) && !(MACPORTS_GCC_COMPILER > 0) && !defined(__sun__))
+# define HAVE_GCC_CONSTRUCTOR1 1
+#endif
+
+// __attribute__(init_priority()) is supported
+#if (__GNUC__ && (CRYPTOPP_INIT_PRIORITY > 0) && !HAVE_GCC_CONSTRUCTOR1 && !(MACPORTS_GCC_COMPILER > 0) && !defined(__sun__))
+# define HAVE_GCC_CONSTRUCTOR0 1
+#endif
+
+#if (_MSC_VER && (CRYPTOPP_INIT_PRIORITY > 0))
+# define HAVE_MSC_INIT_PRIORITY 1
 #endif
 
 // ***************** Important Settings Again ********************
