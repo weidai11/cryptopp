@@ -3,7 +3,7 @@
 //! \file keccak.h
 //! \brief Classes for Keccak message digests
 //! \details The Crypto++ Keccak implementation uses F1600 with XOF d=0x01.
-//!   FIPS 202 conformance (XOF d=0x06) is available in SHA3 classes.
+//!   FIPS 202 conformance (XOF d=0x06) is available in Keccak classes.
 //! \details Keccak will likely change in the future to accomodate extensibility of the
 //!   round function and the XOF functions.
 //! \sa <a href="http://en.wikipedia.org/wiki/Keccak">Keccak</a>
@@ -36,7 +36,7 @@ NAMESPACE_BEGIN(CryptoPP)
 //!   };
 //!   </pre>
 //!
-//! \sa SHA3, Keccak_224, Keccak_256, Keccak_384 and Keccak_512.
+//! \sa SHA3, SHA3_224, SHA3_256, SHA3_384 and SHA3_512.
 //! \since Crypto++ 5.6.4
 class Keccak : public HashTransformation
 {
@@ -66,76 +66,41 @@ protected:
 };
 
 //! \class Keccak_224
-//! \brief Keccak-224 message digest
-//! \since Crypto++ 5.6.4
-class Keccak_224 : public Keccak
+//! \tparam DigestSize controls the digest size as a template parameter instead of a per-class constant
+//! \brief Keccak-X message digest, template for more fine-grained typedefs
+//! \since Crypto++ 5.7.0
+template<unsigned int digestSize>
+class Keccak_Final : public Keccak
 {
 public:
-	CRYPTOPP_CONSTANT(DIGESTSIZE = 28)
+	CRYPTOPP_CONSTANT(DIGESTSIZE = digestSize)
 	CRYPTOPP_CONSTANT(BLOCKSIZE = 200 - 2 * DIGESTSIZE)
 
-	//! \brief Construct a Keccak-224 message digest
-	Keccak_224() : Keccak(DIGESTSIZE) {}
-	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "Keccak-224";}
-	unsigned int BlockSize() const { return BLOCKSIZE; }
+		//! \brief Construct a Keccak-X message digest
+	Keccak_Final() : Keccak(DIGESTSIZE) {}
+	CRYPTOPP_CONSTEXPR static std::string StaticAlgorithmName() { return "Keccak-" + IntToString(DIGESTSIZE * 8); }
+	CRYPTOPP_CONSTEXPR unsigned int BlockSize() const { return BLOCKSIZE; }
 private:
 	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE < 200); // ensure there was no underflow in the math
 	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE > DIGESTSIZE); // this is a general expectation by HMAC
 };
 
+//! \class Keccak_224
+//! \brief Keccak-224 message digest
+//! \since Crypto++ 5.6.4
+typedef Keccak_Final<28> Keccak_224;
 //! \class Keccak_256
 //! \brief Keccak-256 message digest
 //! \since Crypto++ 5.6.4
-class Keccak_256 : public Keccak
-{
-public:
-	CRYPTOPP_CONSTANT(DIGESTSIZE = 32)
-	CRYPTOPP_CONSTANT(BLOCKSIZE = 200 - 2 * DIGESTSIZE)
-
-	//! \brief Construct a Keccak-256 message digest
-	Keccak_256() : Keccak(DIGESTSIZE) {}
-	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "Keccak-256";}
-	unsigned int BlockSize() const { return BLOCKSIZE; }
-private:
-	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE < 200); // ensure there was no underflow in the math
-	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE > DIGESTSIZE); // this is a general expectation by HMAC
-};
-
+typedef Keccak_Final<32> Keccak_256;
 //! \class Keccak_384
 //! \brief Keccak-384 message digest
 //! \since Crypto++ 5.6.4
-class Keccak_384 : public Keccak
-{
-public:
-	CRYPTOPP_CONSTANT(DIGESTSIZE = 48)
-	CRYPTOPP_CONSTANT(BLOCKSIZE = 200 - 2 * DIGESTSIZE)
-
-	//! \brief Construct a Keccak-384 message digest
-	Keccak_384() : Keccak(DIGESTSIZE) {}
-	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "Keccak-384";}
-	unsigned int BlockSize() const { return BLOCKSIZE; }
-private:
-	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE < 200); // ensure there was no underflow in the math
-	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE > DIGESTSIZE); // this is a general expectation by HMAC
-};
-
+typedef Keccak_Final<48> Keccak_384;
 //! \class Keccak_512
 //! \brief Keccak-512 message digest
 //! \since Crypto++ 5.6.4
-class Keccak_512 : public Keccak
-{
-public:
-	CRYPTOPP_CONSTANT(DIGESTSIZE = 64)
-	CRYPTOPP_CONSTANT(BLOCKSIZE = 200 - 2 * DIGESTSIZE)
-
-	//! \brief Construct a Keccak-512 message digest
-	Keccak_512() : Keccak(DIGESTSIZE) {}
-	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "Keccak-512";}
-	unsigned int BlockSize() const { return BLOCKSIZE; }
-private:
-	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE < 200); // ensure there was no underflow in the math
-	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE > DIGESTSIZE); // this is a general expectation by HMAC
-};
+typedef Keccak_Final<64> Keccak_512;
 
 NAMESPACE_END
 
