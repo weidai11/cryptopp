@@ -38,7 +38,7 @@
 // PUSHFB needs Clang 3.3 and Apple Clang 5.0.
 // #if (defined(__SSE3__) || defined(__SSSE3__)) || defined(__INTEL_COMPILER) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30300) || (CRYPTOPP_APPLE_CLANG_VERSION >= 50000)
 #if CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE
-#  include <tmmintrin.h>    // _mm_shuffle_epi16
+#  include <tmmintrin.h>    // _mm_shuffle_pi8, _mm_shuffle_epi8
 #endif // tmmintrin.h
 
 // PEXTRD needs Clang 3.3 and Apple Clang 5.0.
