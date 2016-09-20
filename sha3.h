@@ -50,10 +50,10 @@ protected:
 	unsigned int m_digestSize, m_counter;
 };
 
-//! \class SHA3_224
+//! \class SHA3_Final
 //! \tparam DigestSize controls the digest size as a template parameter instead of a per-class constant
 //! \brief SHA3-X message digest, template for more fine-grained typedefs
-//! \since Crypto++ 5.7.0
+//! \since Crypto++ 5.6.5
 template<unsigned int digestSize>
 class SHA3_Final : public SHA3
 {
