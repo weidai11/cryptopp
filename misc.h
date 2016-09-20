@@ -797,6 +797,7 @@ CRYPTOPP_DLL void CRYPTOPP_API xorbuf(byte *output, const byte *input, const byt
 //!   and retruns a result based on the XOR operation. The function is near constant-time because
 //!   CPU micro-code timings could affect the "constant-ness". Calling code is responsible for
 //!   mitigating timing attacks if the buffers are \a not equally sized.
+//! \sa ModPowerOf2
 CRYPTOPP_DLL bool CRYPTOPP_API VerifyBufsEqual(const byte *buf1, const byte *buf2, size_t count);
 
 //! \brief Tests whether a value is a power of 2
@@ -826,12 +827,12 @@ inline bool IsPowerOf2<word64>(const word64 &value)
 # endif
 #endif
 
-//! \brief Tests whether the residue of a value is a power of 2
-//! \param a the value to test
-//! \param b the value to use to reduce \a to its residue
-//! \returns true if <tt>a\%b</tt> is a power of 2, false otherwise
-//! \details The function effectively creates a mask of <tt>b - 1</tt> and returns the result of an
-//!   AND operation compared to 0. b must be a power of 2 or the result is undefined.
+//! \brief Reduces a value to a power of 2
+//! \param a the first value
+//! \param b the second value
+//! \returns ModPowerOf2() returns <tt>a & (b-1)</tt>. <tt>b</tt> must be a power of 2.
+//!   Use IsPowerOf2() to determine if <tt>b</tt> is a suitable candidate.
+//! \sa IsPowerOf2
 template <class T1, class T2>
 inline T2 ModPowerOf2(const T1 &a, const T2 &b)
 {
