@@ -3,7 +3,7 @@
 //! \file keccak.h
 //! \brief Classes for Keccak message digests
 //! \details The Crypto++ Keccak implementation uses F1600 with XOF d=0x01.
-//!   FIPS 202 conformance (XOF d=0x06) is available in Keccak classes.
+//!   FIPS 202 conformance (XOF d=0x06) is available in SHA3 classes.
 //! \details Keccak will likely change in the future to accomodate extensibility of the
 //!   round function and the XOF functions.
 //! \sa <a href="http://en.wikipedia.org/wiki/Keccak">Keccak</a>
@@ -36,7 +36,7 @@ NAMESPACE_BEGIN(CryptoPP)
 //!   };
 //!   </pre>
 //!
-//! \sa SHA3, SHA3_224, SHA3_256, SHA3_384 and SHA3_512.
+//! \sa SHA3, Keccak_224, Keccak_256, Keccak_384 and Keccak_512.
 //! \since Crypto++ 5.6.4
 class Keccak : public HashTransformation
 {
