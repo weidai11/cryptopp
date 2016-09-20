@@ -20,9 +20,20 @@ NAMESPACE_BEGIN(CryptoPP)
 #if defined(CRYPTOPP_BSD_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 //! \brief Signal handler function pointer
-//! \sa SignalHandler
+//! \details SignalHandlerFn is provided as a stand alone function pointer with external "C" linkage
+//! \sa SignalHandler, NullSignalHandler
 extern "C" {
     typedef void (*SignalHandlerFn) (int);
+};
+
+//! \brief Null signal handler function
+//! \param unused the signal number
+//! \details NullSignalHandler is provided as a stand alone function with external "C" linkage
+//!   and not a static member function due to the the member function's implicit
+//!   external "C++" linkage.
+//! \sa SignalHandler, SignalHandlerFn
+extern "C" {
+	inline void NullSignalHandler(int unused) {CRYPTOPP_UNUSED(unused);}
 };
 
 //! Signal handler for Linux and Unix compatibles
@@ -38,7 +49,7 @@ extern "C" {
 //! \warning Do not use SignalHandler in a code block that uses <tt>setjmp</tt> or <tt>longjmp</tt>
 //!   because the destructor may not run.
 //! \since Crypto++ 5.6.5
-//! \sa SignalHandlerFn, \ref CRYPTOPP_ASSERT "CRYPTOPP_ASSERT", DebugTrapHandler
+//! \sa NullSignalHandler, SignalHandlerFn, \ref CRYPTOPP_ASSERT "CRYPTOPP_ASSERT", DebugTrapHandler
 template <int S, bool O=false>
 struct SignalHandler
 {
@@ -72,7 +83,7 @@ struct SignalHandler
             if (m_old.sa_handler != 0 && !O) break;
 
             // Sun Studio 12.2-12.4 needs the two casts, and they must be C-style casts
-            new_handler.sa_handler = (SignalHandlerFn)(pfn ? pfn : (SignalHandlerFn)&SignalHandler::NullHandler);
+            new_handler.sa_handler = (pfn ? pfn : &NullSignalHandler);
             new_handler.sa_flags = (pfn ? flags : 0);
 
             ret = sigemptyset (&new_handler.sa_mask);
@@ -96,8 +107,6 @@ struct SignalHandler
 private:
     struct sigaction m_old;
     bool m_installed;
-
-    static void NullHandler(int /*unused*/) { /* continue*/ }
 
 private:
     // Not copyable

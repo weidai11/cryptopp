@@ -1194,17 +1194,17 @@ inline void SecureWipeArray(T *buf, size_t n)
 }
 
 //! \brief Converts a wide character C-string to a multibyte string
-//! \param str C-string consiting of wide characters
-//! \param throwOnError specifies the function should throw an InvalidArgument exception on error
+//! \param str C-string consisting of wide characters
+//! \param throwOnError flag indication the function should throw on error
 //! \returns str converted to a multibyte string or an empty string.
-//! \details StringNarrow converts a wide string to a narrow string using C++ std::wcstombs under the executing
-//!   thread's locale. A locale must be set before using this function, and it can be set with std::setlocale.
-//!   Upon success, the converted string is returned.
-//! \details Upon failure with throwOnError as false, the function returns an empty string. Upon failure with
-//!   throwOnError as true, the function throws InvalidArgument exception.
+//! \details StringNarrow converts a wide string to a narrow string using C++ std::wcstombs() under
+//!   the executing thread's locale. A locale must be set before using this function, and it can be
+//!   set with std::setlocale() if needed. Upon success, the converted string is returned.
+//! \details Upon failure with throwOnError as false, the function returns an empty string. If
+//!   throwOnError as true, the function throws an InvalidArgument() exception.
 //! \note If you try to convert, say, the Chinese character for "bone" from UTF-16 (0x9AA8) to UTF-8
 //!   (0xE9 0xAA 0xA8), then you must ensure the locale is available. If the locale is not available,
-//!   then a 0x21 error is returned on Windows which eventually results in an InvalidArgument exception.
+//!   then a 0x21 error is returned on Windows which eventually results in an InvalidArgument() exception.
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 std::string StringNarrow(const wchar_t *str, bool throwOnError = true);
 #else
@@ -1269,10 +1269,10 @@ CONVERSION_ERROR:
 
 //! \brief Allocates a buffer on 16-byte boundary
 //! \param size the size of the buffer
-//! \details AlignedAllocate is primarily used when the data will be proccessed by MMX and SSE2
+//! \details AlignedAllocate is primarily used when the data will be proccessed by MMX, SSE2 and NEON
 //!   instructions. The assembly language routines rely on the alignment. If the alignment is not
-//!   respected, then a SIGBUS is generated under Unix and an EXCEPTION_DATATYPE_MISALIGNMENT
-//!   is generated under Windows.
+//!   respected, then a SIGBUS could be generated on Unix and Linux, and an
+//!   EXCEPTION_DATATYPE_MISALIGNMENT could be generated on Windows.
 //! \note AlignedAllocate and AlignedDeallocate are available when CRYPTOPP_BOOL_ALIGN16 is
 //!   defined. CRYPTOPP_BOOL_ALIGN16 is defined in config.h
 CRYPTOPP_DLL void* CRYPTOPP_API AlignedAllocate(size_t size);
@@ -1304,7 +1304,7 @@ CRYPTOPP_DLL void CRYPTOPP_API UnalignedDeallocate(void *ptr);
 //! \tparam T the word type
 //! \param x the value to rotate
 //! \param y the number of bit positions to rotate the value
-//! \details This is a portable C/C++ implementation. The value x to be rotated can be 8 to 64-bits.
+//! \details This is a portable C/C++ implementation. The value x to be rotated can be 8 to 64-bits wide.
 //! \details y must be in the range <tt>[0, sizeof(T)*8 - 1]</tt> to avoid undefined behavior.
 //!   Use rotlMod if the rotate amount y is outside the range.
 //! \note rotlFixed attempts to enlist a <tt>rotate IMM</tt> instruction because its often faster
@@ -1326,7 +1326,7 @@ template <class T> inline T rotlFixed(T x, unsigned int y)
 //! \tparam T the word type
 //! \param x the value to rotate
 //! \param y the number of bit positions to rotate the value
-//! \details This is a portable C/C++ implementation. The value x to be rotated can be 8 to 64-bits.
+//! \details This is a portable C/C++ implementation. The value x to be rotated can be 8 to 64-bits wide.
 //! \details y must be in the range <tt>[0, sizeof(T)*8 - 1]</tt> to avoid undefined behavior.
 //!   Use rotrMod if the rotate amount y is outside the range.
 //! \note rotrFixed attempts to enlist a <tt>rotate IMM</tt> instruction because its often faster
@@ -1348,7 +1348,7 @@ template <class T> inline T rotrFixed(T x, unsigned int y)
 //! \tparam T the word type
 //! \param x the value to rotate
 //! \param y the number of bit positions to rotate the value
-//! \details This is a portable C/C++ implementation. The value x to be rotated can be 8 to 64-bits.
+//! \details This is a portable C/C++ implementation. The value x to be rotated can be 8 to 64-bits wide.
 //! \details y must be in the range <tt>[0, sizeof(T)*8 - 1]</tt> to avoid undefined behavior.
 //!   Use rotlMod if the rotate amount y is outside the range.
 //! \note rotlVariable attempts to enlist a <tt>rotate IMM</tt> instruction because its often faster
@@ -1366,7 +1366,7 @@ template <class T> inline T rotlVariable(T x, unsigned int y)
 //! \tparam T the word type
 //! \param x the value to rotate
 //! \param y the number of bit positions to rotate the value
-//! \details This is a portable C/C++ implementation. The value x to be rotated can be 8 to 64-bits.
+//! \details This is a portable C/C++ implementation. The value x to be rotated can be 8 to 64-bits wide.
 //! \details y must be in the range <tt>[0, sizeof(T)*8 - 1]</tt> to avoid undefined behavior.
 //!   Use rotrMod if the rotate amount y is outside the range.
 //! \note rotrVariable attempts to enlist a <tt>rotate IMM</tt> instruction because its often faster
@@ -1384,7 +1384,7 @@ template <class T> inline T rotrVariable(T x, unsigned int y)
 //! \tparam T the word type
 //! \param x the value to rotate
 //! \param y the number of bit positions to rotate the value
-//! \details This is a portable C/C++ implementation. The value x to be rotated can be 8 to 64-bits.
+//! \details This is a portable C/C++ implementation. The value x to be rotated can be 8 to 64-bits wide.
 //! \details y is reduced to the range <tt>[0, sizeof(T)*8 - 1]</tt> to avoid undefined behavior.
 //! \note rotrVariable will use either <tt>rotate IMM</tt> or <tt>rotate REG</tt>.
 template <class T> inline T rotlMod(T x, unsigned int y)
@@ -1398,7 +1398,7 @@ template <class T> inline T rotlMod(T x, unsigned int y)
 //! \tparam T the word type
 //! \param x the value to rotate
 //! \param y the number of bit positions to rotate the value
-//! \details This is a portable C/C++ implementation. The value x to be rotated can be 8 to 64-bits.
+//! \details This is a portable C/C++ implementation. The value x to be rotated can be 8 to 64-bits wide.
 //! \details y is reduced to the range <tt>[0, sizeof(T)*8 - 1]</tt> to avoid undefined behavior.
 //! \note rotrVariable will use either <tt>rotate IMM</tt> or <tt>rotate REG</tt>.
 template <class T> inline T rotrMod(T x, unsigned int y)

@@ -32,10 +32,6 @@
 # error Cygwin does not support Windows style sockets. See http://www.cygwin.com/faq.html#faq.api.winsock
 #endif
 
-// MacPorts/GCC does not provide init_priority(priority). Apple/GCC and Fink/GCC do provide it.
-#define HAVE_GCC_INIT_PRIORITY (__GNUC__ && (CRYPTOPP_INIT_PRIORITY > 0) && !(MACPORTS_GCC_COMPILER > 0))
-#define HAVE_MSC_INIT_PRIORITY (_MSC_VER && (CRYPTOPP_INIT_PRIORITY > 0))
-
 NAMESPACE_BEGIN(CryptoPP)
 
 CRYPTOPP_COMPILE_ASSERT(sizeof(byte) == 1);
