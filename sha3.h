@@ -51,76 +51,41 @@ protected:
 };
 
 //! \class SHA3_224
-//! \brief SHA3-224 message digest
-//! \since Crypto++ 5.6.2
-class SHA3_224 : public SHA3
+//! \tparam DigestSize controls the digest size as a template parameter instead of a per-class constant
+//! \brief SHA3-X message digest, template for more fine-grained typedefs
+//! \since Crypto++ 5.7.0
+template<unsigned int digestSize>
+class SHA3_Final : public SHA3
 {
 public:
-	CRYPTOPP_CONSTANT(DIGESTSIZE = 28)
+	CRYPTOPP_CONSTANT(DIGESTSIZE = digestSize)
 	CRYPTOPP_CONSTANT(BLOCKSIZE = 200 - 2 * DIGESTSIZE)
 
-	//! \brief Construct a SHA3-224 message digest
-	SHA3_224() : SHA3(DIGESTSIZE) {}
-	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "SHA3-224";}
-	unsigned int BlockSize() const { return BLOCKSIZE; }
+	//! \brief Construct a SHA3-X message digest
+	SHA3_Final() : SHA3(DIGESTSIZE) {}
+	CRYPTOPP_CONSTEXPR static std::string StaticAlgorithmName() { return "SHA3-" + IntToString(DIGESTSIZE * 8); }
+	CRYPTOPP_CONSTEXPR unsigned int BlockSize() const { return BLOCKSIZE; }
 private:
 	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE < 200); // ensure there was no underflow in the math
 	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE > DIGESTSIZE); // this is a general expectation by HMAC
 };
 
+//! \class SHA3_224
+//! \brief SHA3-224 message digest
+//! \since Crypto++ 5.6.2
+typedef SHA3_Final<28> SHA3_224;
 //! \class SHA3_256
 //! \brief SHA3-256 message digest
 //! \since Crypto++ 5.6.2
-class SHA3_256 : public SHA3
-{
-public:
-	CRYPTOPP_CONSTANT(DIGESTSIZE = 32)
-	CRYPTOPP_CONSTANT(BLOCKSIZE = 200 - 2 * DIGESTSIZE)
-
-	//! \brief Construct a SHA3-256 message digest
-	SHA3_256() : SHA3(DIGESTSIZE) {}
-	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "SHA3-256";}
-	unsigned int BlockSize() const { return BLOCKSIZE; }
-private:
-	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE < 200); // ensure there was no underflow in the math
-	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE > DIGESTSIZE); // this is a general expectation by HMAC
-};
-
+typedef SHA3_Final<32> SHA3_256;
 //! \class SHA3_384
 //! \brief SHA3-384 message digest
 //! \since Crypto++ 5.6.2
-class SHA3_384 : public SHA3
-{
-public:
-	CRYPTOPP_CONSTANT(DIGESTSIZE = 48)
-	CRYPTOPP_CONSTANT(BLOCKSIZE = 200 - 2 * DIGESTSIZE)
-
-	//! \brief Construct a SHA3-384 message digest
-	SHA3_384() : SHA3(DIGESTSIZE) {}
-	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "SHA3-384";}
-	unsigned int BlockSize() const { return BLOCKSIZE; }
-private:
-	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE < 200); // ensure there was no underflow in the math
-	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE > DIGESTSIZE); // this is a general expectation by HMAC
-};
-
+typedef SHA3_Final<48> SHA3_384;
 //! \class SHA3_512
 //! \brief SHA3-512 message digest
 //! \since Crypto++ 5.6.2
-class SHA3_512 : public SHA3
-{
-public:
-	CRYPTOPP_CONSTANT(DIGESTSIZE = 64)
-	CRYPTOPP_CONSTANT(BLOCKSIZE = 200 - 2 * DIGESTSIZE)
-
-	//! \brief Construct a SHA3-512 message digest
-	SHA3_512() : SHA3(DIGESTSIZE) {}
-	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "SHA3-512";}
-	unsigned int BlockSize() const { return BLOCKSIZE; }
-private:
-	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE < 200); // ensure there was no underflow in the math
-	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE > DIGESTSIZE); // this is a general expectation by HMAC
-};
+typedef SHA3_Final<64> SHA3_512;
 
 NAMESPACE_END
 
