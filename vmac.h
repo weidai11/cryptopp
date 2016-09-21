@@ -10,7 +10,9 @@
 #include "iterhash.h"
 #include "seckey.h"
 
-#if CRYPTOPP_BOOL_X32
+// Clang 3.3 integrated assembler crash on Linux
+//  http://github.com/weidai11/cryptopp/issues/264
+#if (defined(CRYPTOPP_LLVM_CLANG_VERSION) && (CRYPTOPP_LLVM_CLANG_VERSION < 30400)) || CRYPTOPP_BOOL_X32
 # define CRYPTOPP_DISABLE_VMAC_ASM
 #endif
 

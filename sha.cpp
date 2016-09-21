@@ -20,6 +20,13 @@
 #include "misc.h"
 #include "cpu.h"
 
+#if defined(CRYPTOPP_DISABLE_SHA_ASM)
+# undef CRYPTOPP_X86_ASM_AVAILABLE
+# undef CRYPTOPP_X32_ASM_AVAILABLE
+# undef CRYPTOPP_X64_ASM_AVAILABLE
+# undef CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 // start of Steve Reid's code
@@ -102,7 +109,7 @@ void SHA256::InitState(HashWordType *state)
 	memcpy(state, s, sizeof(s));
 }
 
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && !defined(CRYPTOPP_DISABLE_SHA_ASM)
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
 CRYPTOPP_ALIGN_DATA(16) extern const word32 SHA256_K[64] CRYPTOPP_SECTION_ALIGN16 = {
 #else
 extern const word32 SHA256_K[64] = {
@@ -127,7 +134,7 @@ extern const word32 SHA256_K[64] = {
 
 #endif // #ifndef CRYPTOPP_GENERATE_X64_MASM
 
-#if (defined(CRYPTOPP_X86_ASM_AVAILABLE) || defined(CRYPTOPP_X32_ASM_AVAILABLE) || defined(CRYPTOPP_GENERATE_X64_MASM)) && !defined(CRYPTOPP_DISABLE_SHA_ASM)
+#if (defined(CRYPTOPP_X86_ASM_AVAILABLE) || defined(CRYPTOPP_X32_ASM_AVAILABLE) || defined(CRYPTOPP_GENERATE_X64_MASM))
 
 static void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 *data, size_t len
 #if defined(_MSC_VER) && (_MSC_VER == 1200)

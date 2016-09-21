@@ -7,6 +7,13 @@
 #include "misc.h"
 #include "cpu.h"
 
+#if defined(CRYPTOPP_DISABLE_TIGER_ASM)
+# undef CRYPTOPP_X86_ASM_AVAILABLE
+# undef CRYPTOPP_X32_ASM_AVAILABLE
+# undef CRYPTOPP_X64_ASM_AVAILABLE
+# undef CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 void Tiger::InitState(HashWordType *state)
