@@ -215,8 +215,7 @@ public:
 	// TODO: Figure out how to make this CRYPTOPP_CONSTEXPR
 	static size_t CRYPTOPP_API StaticGetValidKeyLength(size_t keylength)
 	{
-		// Rewrite 'keylength < MIN_KEYLENGTH' to avoid -Wtautological-compare
-		if ((int)keylength - MIN_KEYLENGTH < 0)
+		if (keylength < (size_t)MIN_KEYLENGTH)
 			return MIN_KEYLENGTH;
 		else if (keylength > (size_t)MAX_KEYLENGTH)
 			return (size_t)MAX_KEYLENGTH;
