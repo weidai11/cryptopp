@@ -2,6 +2,28 @@
 
 //! \file randpool.h
 //! \brief Class file for Randomness Pool
+//! \details RandomPool can be used to generate cryptographic quality pseudorandom bytes
+//!   after seeding the pool with IncorporateEntropy(). Internally, the generator uses
+//!   AES-256 to produce the stream. Entropy is stirred in using SHA-256.
+//! \details RandomPool used to follow the design of randpool in PGP 2.6.x. At version 5.5
+//!   RandomPool was redesigned to reduce the risk of reusing random numbers after state
+//!   rollback (which may occur when running in a virtual machine like VMware or a hosted
+//!   environment).
+//! \details If you need the pre-Crypto++ 5.5 generator then you can find it with:
+//! <pre>
+//!    $ git clone https://github.com/weidai11/cryptopp cryptopp-ancient
+//!    $ cryptopp-ancient
+//!
+//!    # Checkout the RandomPool change
+//!    $ git checkout f41245df6fb9b85574260eca9cd32777e8ab5136
+//!
+//!    # Go back one more
+//!    git checkout HEAD~1
+//!
+//!    $ grep 'MDC<SHA>' *.h *.cpp
+//!    randpool.cpp:typedef MDC<SHA> RandomPoolCipher;
+//! </pre>
+//! \since Crypto++ 4.0 (PGP 2.6.x style), Crypto++ 5.5 (AES-256 based)
 
 #ifndef CRYPTOPP_RANDPOOL_H
 #define CRYPTOPP_RANDPOOL_H
@@ -14,14 +36,16 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! \brief Randomness Pool
+//! \class RandomPool
+//! \brief Randomness Pool based on AES-256
 //! \details RandomPool can be used to generate cryptographic quality pseudorandom bytes
 //!   after seeding the pool with IncorporateEntropy(). Internally, the generator uses
 //!   AES-256 to produce the stream. Entropy is stirred in using SHA-256.
-//! \details RandomPool used to follow the design of randpool in PGP 2.6.x,
-//!   but as of version 5.5 it has been redesigned to reduce the risk
-//!   of reusing random numbers after state rollback (which may occur
-//!   when running in a virtual machine like VMware).
+//! \details RandomPool used to follow the design of randpool in PGP 2.6.x. At version 5.5
+//!   RandomPool was redesigned to reduce the risk of reusing random numbers after state
+//!   rollback (which may occur when running in a virtual machine like VMware or a hosted
+//!   environment).
+//! \since Crypto++ 4.0 (PGP 2.6.x style), Crypto++ 5.5 (AES-256 based)
 class CRYPTOPP_DLL RandomPool : public RandomNumberGenerator, public NotCopyable
 {
 public:
