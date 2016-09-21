@@ -489,21 +489,21 @@ NAMESPACE_END
 // Intrinsics availible in GCC 4.3 (http://gcc.gnu.org/gcc-4.3/changes.html) and
 //   MSVC 2008 (http://msdn.microsoft.com/en-us/library/bb892950%28v=vs.90%29.aspx)
 //   SunCC could generate SSE4 at 12.1, but the intrinsics are missing until 12.4.
-#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_SSE4) && (((_MSC_VER >= 1500) && !defined(_M_ARM)) || (defined(__SSE4_1__) && defined(__SSE4_2__)))
+#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_SSE4) && !defined(_M_ARM) && ((_MSC_VER >= 1500) || (defined(__SSE4_1__) && defined(__SSE4_2__)))
 	#define CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE 1
 #else
 	#define CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE 0
 #endif
 
 // Don't disgorge AES-NI from CLMUL. There will be two to four subtle breaks
-#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_AESNI) && (_MSC_FULL_VER >= 150030729 || __INTEL_COMPILER >= 1110 || (defined(__AES__) && defined(__PCLMUL__)))
+#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_AESNI) && !defined(_M_ARM) && (_MSC_FULL_VER >= 150030729 || __INTEL_COMPILER >= 1110 || (defined(__AES__) && defined(__PCLMUL__)))
 	#define CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE 1
 #else
 	#define CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE 0
 #endif
 
 // AVX2 in MSC 18.00
-#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_AVX) && (((_MSC_VER >= 1600) && !defined(_M_ARM)) || (defined(__RDRND__) || defined(__RDSEED__) || defined(__AVX__)))
+#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_AVX) && !defined(_M_ARM) && ((_MSC_VER >= 1600) || (defined(__RDRND__) || defined(__RDSEED__) || defined(__AVX__)))
 	#define CRYPTOPP_BOOL_AVX_AVAILABLE 1
 #else
 	#define CRYPTOPP_BOOL_AVX_AVAILABLE 0
