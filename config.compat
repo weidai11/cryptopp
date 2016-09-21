@@ -249,14 +249,6 @@ typedef unsigned int word32;
 typedef word64 lword;
 const lword LWORD_MAX = W64LIT(0xffffffffffffffff);
 
-// Clang pretends to be GCC, but can't consume the same programs. It breaks completely with -march-x86-64
-#if defined(__GNUC__) && defined(__clang__)
-# undef __GNUC__
-# undef __GNUC_MINOR__
-# undef __GNUC_PATCHLEVEL__
-# define __GNUC__ 4
-#endif
-
 // Clang pretends to be VC++, too.
 //   See http://github.com/weidai11/cryptopp/issues/147
 #if defined(_MSC_VER) && defined(__clang__)
