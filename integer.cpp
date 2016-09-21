@@ -204,32 +204,39 @@ static word AtomicInverseModPower2(word A)
 class DWord
 {
 public:
-	// Converity finding on default ctor. We've isntrumented the code,
-	//   and cannot uncover a case where it affects a result.
-#if (defined(__COVERITY__) || CRYPTOPP_DEBUG) && defined(CRYPTOPP_NATIVE_DWORD_AVAILABLE)
-	// Repeating pattern of 1010 for debug builds to break things...
-	DWord() : m_whole(0) {memset(&m_whole, 0xa, sizeof(m_whole));}
-#elif (defined(__COVERITY__) || CRYPTOPP_DEBUG) && !defined(CRYPTOPP_NATIVE_DWORD_AVAILABLE)
-	// Repeating pattern of 1010 for debug builds to break things...
-	DWord() : m_halfs() {memset(&m_halfs, 0xaa, sizeof(m_halfs));}
+#if defined(CRYPTOPP_NATIVE_DWORD_AVAILABLE)
+	DWord() : m_whole() { }
 #else
-	DWord() {}
+	DWord() : m_halfs() { }
 #endif
 
 #ifdef CRYPTOPP_NATIVE_DWORD_AVAILABLE
-	explicit DWord(word low) : m_whole(low) {}
+	explicit DWord(word low) : m_whole(low) { }
 #else
-	explicit DWord(word low)
+	explicit DWord(word low) : m_halfs()
 	{
 		m_halfs.low = low;
-		m_halfs.high = 0;
 	}
 #endif
 
-	DWord(word low, word high)
+#if defined(CRYPTOPP_NATIVE_DWORD_AVAILABLE)
+	DWord(word low, word high) : m_whole()
+#else
+	DWord(word low, word high) : m_halfs()
+#endif
 	{
+#if defined(CRYPTOPP_NATIVE_DWORD_AVAILABLE)
+#  if defined(IS_LITTLE_ENDIAN)
+		const word t[2] = {low,high};
+		memcpy(&m_whole, &t, sizeof(m_whole));
+#  else
+		const word t[2] = {high,low};
+		memcpy(&m_whole, &t, sizeof(m_whole));
+#  endif
+#else
 		m_halfs.low = low;
 		m_halfs.high = high;
+#endif
 	}
 
 	static DWord Multiply(word a, word b)
@@ -312,6 +319,8 @@ public:
 	#endif
 	}
 
+	// TODO: When NATIVE_DWORD is in effect, we access high and low, which are inactive
+	//  union members, and that's UB. Also see http://stackoverflow.com/q/11373203.
 	word GetLowHalf() const {return m_halfs.low;}
 	word GetHighHalf() const {return m_halfs.high;}
 	word GetHighHalfAsBorrow() const {return 0-m_halfs.high;}
