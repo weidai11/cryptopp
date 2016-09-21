@@ -28,14 +28,9 @@ NAMESPACE_BEGIN(CryptoPP)
 #if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE && ((__SUNPRO_CC >= 0x5100 && __SUNPRO_CC < 0x5130) || (_MSC_VER >= 1200 && _MSC_VER < 1600) || (defined(_M_IX86) && _MSC_VER >= 1600))
 inline __m128i _mm_set_epi64x(const word64 a, const word64 b)
 {
-    union INT_128_64x2 {
-        __m128i   v128;
-        word64  v64[2];
-    };
-
-    INT_128_64x2 val;
-    val.v64[0] = b; val.v64[1] = a;
-    return val.v128;
+	const word64 t[2] = {b,a}; __m128i r;
+	memcpy(&r, &t, sizeof(r));
+	return r;
 }
 #endif
 
