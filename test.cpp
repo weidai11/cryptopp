@@ -431,6 +431,11 @@ void FIPS140_GenerateRandomFiles()
 template <class T, bool NON_NEGATIVE>
 T StringToValue(const std::string& str) {
 	std::istringstream iss(str);
+
+	// Arbitrary, but we need to clear a Coverity finding TAINTED_SCALAR
+	if(iss.str().length() > 25)
+		throw InvalidArgument("cryptest.exe: '" + str +"' is tool ong");
+
 	T value;
 	iss >> std::noskipws >> value;
 
