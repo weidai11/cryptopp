@@ -827,6 +827,35 @@ inline bool IsPowerOf2<word64>(const word64 &value)
 # endif
 #endif
 
+//! \brief Performs a saturating subtract clamped at 0
+//! \param a the minuend
+//! \param b the subtrahend
+//! \returns the difference produced by the saturating subtract
+//! \details Saturating arithmetic restricts results to a fixed range. Results that are less than 0 are clamped at 0.
+//! \details Use of saturating arithmetic in places can be advantageous because it can
+//!   avoid a branch by using an instruction like a conditional move (<tt>CMOVE</tt>).
+template <class T1, class T2>
+inline T1 SaturatingSubtract(const T1 &a, const T2 &b)
+{
+	// Generated ASM of a typical clamp, http://gcc.gnu.org/ml/gcc-help/2014-10/msg00112.html
+	return T1((a > b) ? (a - b) : 0);
+}
+
+//! \brief Performs a saturating subtract clamped at 1
+//! \param a the minuend
+//! \param b the subtrahend
+//! \returns the difference produced by the saturating subtract
+//! \details Saturating arithmetic restricts results to a fixed range. Results that are less than
+//!   1 are clamped at 1.
+//! \details Use of saturating arithmetic in places can be advantageous because it can
+//!   avoid a branch by using an instruction like a conditional move (<tt>CMOVE</tt>).
+template <class T1, class T2>
+inline T1 SaturatingSubtract1(const T1 &a, const T2 &b)
+{
+	// Generated ASM of a typical clamp, http://gcc.gnu.org/ml/gcc-help/2014-10/msg00112.html
+	return T1((a > b) ? (a - b) : 1);
+}
+
 //! \brief Reduces a value to a power of 2
 //! \param a the first value
 //! \param b the second value
@@ -837,7 +866,8 @@ template <class T1, class T2>
 inline T2 ModPowerOf2(const T1 &a, const T2 &b)
 {
 	CRYPTOPP_ASSERT(IsPowerOf2(b));
-	return T2(a) & (b-1);
+	// Coverity finding CID 170383 Overflowed return value (INTEGER_OVERFLOW)
+	return T2(a) & SaturatingSubtract(b,1);
 }
 
 //! \brief Rounds a value down to a multiple of a second value
@@ -957,35 +987,6 @@ inline ByteOrder GetNativeByteOrder()
 inline bool NativeByteOrderIs(ByteOrder order)
 {
 	return order == GetNativeByteOrder();
-}
-
-//! \brief Performs a saturating subtract clamped at 0
-//! \param a the minuend
-//! \param b the subtrahend
-//! \returns the difference produced by the saturating subtract
-//! \details Saturating arithmetic restricts results to a fixed range. Results that are less than 0 are clamped at 0.
-//! \details Use of saturating arithmetic in places can be advantageous because it can
-//!   avoid a branch by using an instruction like a conditional move (<tt>CMOVE</tt>).
-template <class T1, class T2>
-inline T1 SaturatingSubtract(const T1 &a, const T2 &b)
-{
-	// Generated ASM of a typical clamp, http://gcc.gnu.org/ml/gcc-help/2014-10/msg00112.html
-	return T1((a > b) ? (a - b) : 0);
-}
-
-//! \brief Performs a saturating subtract clamped at 1
-//! \param a the minuend
-//! \param b the subtrahend
-//! \returns the difference produced by the saturating subtract
-//! \details Saturating arithmetic restricts results to a fixed range. Results that are less than
-//!   1 are clamped at 1.
-//! \details Use of saturating arithmetic in places can be advantageous because it can
-//!   avoid a branch by using an instruction like a conditional move (<tt>CMOVE</tt>).
-template <class T1, class T2>
-inline T1 SaturatingSubtract1(const T1 &a, const T2 &b)
-{
-	// Generated ASM of a typical clamp, http://gcc.gnu.org/ml/gcc-help/2014-10/msg00112.html
-	return T1((a > b) ? (a - b) : 1);
 }
 
 //! \brief Returns the direction the cipher is being operated
