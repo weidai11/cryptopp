@@ -38,7 +38,7 @@ template<> const unsigned int PKCS_DigestDecoration<SHA384>::length = sizeof(PKC
 template<> const byte PKCS_DigestDecoration<SHA512>::decoration[] = {0x30,0x51,0x30,0x0d,0x06,0x09,0x60,0x86,0x48,0x01,0x65,0x03,0x04,0x02,0x03,0x05,0x00,0x04,0x40};
 template<> const unsigned int PKCS_DigestDecoration<SHA512>::length = sizeof(PKCS_DigestDecoration<SHA512>::decoration);
 
-template<> const byte EMSA2HashId<SHA>::id = 0x33;
+template<> const byte EMSA2HashId<SHA1>::id = 0x33;
 template<> const byte EMSA2HashId<SHA224>::id = 0x38;
 template<> const byte EMSA2HashId<SHA256>::id = 0x34;
 template<> const byte EMSA2HashId<SHA384>::id = 0x36;
