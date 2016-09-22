@@ -13,6 +13,9 @@
       <UniqueIdentifier>{a634d4f4-ddc0-44b4-9c37-d9ffdddc7b06}</UniqueIdentifier>
       <Extensions>.dat</Extensions>
     </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{1f4eac20-7b40-40db-a264-4a9256229c5a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="TestVectors\aes.txt">
@@ -332,9 +335,6 @@
     <ClCompile Include="dlltest.cpp">
       <Filter>Source Code</Filter>
     </ClCompile>
-    <ClCompile Include="fipsalgt.cpp">
-      <Filter>Source Code</Filter>
-    </ClCompile>
     <ClCompile Include="regtest.cpp">
       <Filter>Source Code</Filter>
     </ClCompile>
@@ -350,16 +350,19 @@
     <ClCompile Include="validat3.cpp">
       <Filter>Source Code</Filter>
     </ClCompile>
+    <ClCompile Include="fipsalgt.cpp">
+      <Filter>Source Code</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bench.h">
-      <Filter>Source Code</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="factory.h">
-      <Filter>Source Code</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="validate.h">
-      <Filter>Source Code</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
