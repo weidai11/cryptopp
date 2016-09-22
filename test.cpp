@@ -438,10 +438,8 @@ T StringToValue(const std::string& str) {
 	if (iss.fail())
 		throw InvalidArgument("cryptest.exe: '" + str +"' is not a value");
 
-#if NON_NEGATIVE
-	if (value < 0)
+	if (NON_NEGATIVE && value < 0)
 		throw InvalidArgument("cryptest.exe: '" + str +"' is negative");
-#endif
 
 	return value;
 }
