@@ -867,7 +867,7 @@ inline T2 ModPowerOf2(const T1 &a, const T2 &b)
 {
 	CRYPTOPP_ASSERT(IsPowerOf2(b));
 	// Coverity finding CID 170383 Overflowed return value (INTEGER_OVERFLOW)
-	return T2(a) & SaturatingSubtract(b,1);
+	return T2(a) & SaturatingSubtract(b,1U);
 }
 
 //! \brief Rounds a value down to a multiple of a second value

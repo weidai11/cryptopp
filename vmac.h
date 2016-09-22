@@ -61,7 +61,7 @@ protected:
 	CRYPTOPP_BLOCKS_END(6)
 
 	bool m_is128, m_padCached, m_isFirstBlock;
-	int m_L1KeyLength;
+	unsigned int m_L1KeyLength;
 };
 
 //! \class VMAC
