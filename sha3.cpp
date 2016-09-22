@@ -48,8 +48,8 @@ static void KeccakF1600(word64 *state)
         word64 Esa, Ese, Esi, Eso, Esu;
 
         //copyFromState(A, state)
-		typedef BlockGetAndPut<word64, LittleEndian, true, true> Block;
-		Block::Get(state)(Aba)(Abe)(Abi)(Abo)(Abu)(Aga)(Age)(Agi)(Ago)(Agu)(Aka)(Ake)(Aki)(Ako)(Aku)(Ama)(Ame)(Ami)(Amo)(Amu)(Asa)(Ase)(Asi)(Aso)(Asu);
+        typedef BlockGetAndPut<word64, LittleEndian, true, true> Block;
+        Block::Get(state)(Aba)(Abe)(Abi)(Abo)(Abu)(Aga)(Age)(Agi)(Ago)(Agu)(Aka)(Ake)(Aki)(Ako)(Aku)(Ama)(Ame)(Ami)(Amo)(Amu)(Asa)(Ase)(Asi)(Aso)(Asu);
 
         for( unsigned int round = 0; round < 24; round += 2 )
         {
@@ -245,47 +245,46 @@ static void KeccakF1600(word64 *state)
         }
 
         //copyToState(state, A)
-		Block::Put(NULL, state)(Aba)(Abe)(Abi)(Abo)(Abu)(Aga)(Age)(Agi)(Ago)(Agu)(Aka)(Ake)(Aki)(Ako)(Aku)(Ama)(Ame)(Ami)(Amo)(Amu)(Asa)(Ase)(Asi)(Aso)(Asu);
+        Block::Put(NULL, state)(Aba)(Abe)(Abi)(Abo)(Abu)(Aga)(Age)(Agi)(Ago)(Agu)(Aka)(Ake)(Aki)(Ako)(Aku)(Ama)(Ame)(Ami)(Amo)(Amu)(Asa)(Ase)(Asi)(Aso)(Asu);
     }
 }
 
 void SHA3::Update(const byte *input, size_t length)
 {
-	CRYPTOPP_ASSERT((input && length) || !(input || length));
-	if (!length)
-		return;
+    CRYPTOPP_ASSERT((input && length) || !(input || length));
+    if (!length) { return; }
 
-	size_t spaceLeft;
-	while (length >= (spaceLeft = r() - m_counter))
-	{
-		if (spaceLeft)
-			xorbuf(m_state.BytePtr() + m_counter, input, spaceLeft);
-		KeccakF1600(m_state);
-		input += spaceLeft;
-		length -= spaceLeft;
-		m_counter = 0;
-	}
+    size_t spaceLeft;
+    while (length >= (spaceLeft = r() - m_counter))
+    {
+        if (spaceLeft)
+            xorbuf(m_state.BytePtr() + m_counter, input, spaceLeft);
+        KeccakF1600(m_state);
+        input += spaceLeft;
+        length -= spaceLeft;
+        m_counter = 0;
+    }
 
-	if (length)
-		xorbuf(m_state.BytePtr() + m_counter, input, length);
-	m_counter += (unsigned int)length;
+    if (length)
+        xorbuf(m_state.BytePtr() + m_counter, input, length);
+    m_counter += (unsigned int)length;
 }
 
 void SHA3::Restart()
 {
-	memset(m_state, 0, m_state.SizeInBytes());
-	m_counter = 0;
+    memset(m_state, 0, m_state.SizeInBytes());
+    m_counter = 0;
 }
 
 void SHA3::TruncatedFinal(byte *hash, size_t size)
 {
-	ThrowIfInvalidTruncatedSize(size);
+    ThrowIfInvalidTruncatedSize(size);
 
-	m_state.BytePtr()[m_counter] ^= 0x06;
-	m_state.BytePtr()[r()-1] ^= 0x80;
-	KeccakF1600(m_state);
-	memcpy(hash, m_state, size);
-	Restart();
+    m_state.BytePtr()[m_counter] ^= 0x06;
+    m_state.BytePtr()[r()-1] ^= 0x80;
+    KeccakF1600(m_state);
+    memcpy(hash, m_state, size);
+    Restart();
 }
 
 NAMESPACE_END
