@@ -17,13 +17,18 @@ unset IS_IOS
 unset IS_ANDROID
 unset IS_ARM_EMBEDDED
 
+# Variables used in GNUmakefile-cross
 unset AOSP_FLAGS
 unset AOSP_SYSROOT
 unset AOSP_STL_INC
 unset AOSP_STL_LIB
 unset AOSP_BITS_INC
-unset ANDROID_FLAGS
 
+# Former variables
+unset ANDROID_FLAGS ANDROID_SYSROOT
+unset ANDROID_STL_INC ANDROID_STL_LIB
+
+# Tools set by this script
 unset CPP CC CXX LD AS AR RANLIB STRIP
 
 # Similar to a "make clean"
@@ -350,6 +355,19 @@ if [ ! -z "$VERBOSE" ] && [ "$VERBOSE" != "0" ]; then
   if [ ! -z "$AOSP_BITS_INC" ]; then
     echo "AOSP_BITS_INC: $AOSP_BITS_INC"
   fi
+fi
+
+#####################################################################
+
+COUNT=$(echo -n "$AOSP_STL_LIB" | grep -i -c 'libstdc++')
+if [[ ("$COUNT" -ne "0") ]]; then
+	echo
+	echo "*******************************************************************************"
+	echo "You are using GNU's runtime and STL library. Please ensure the resulting"
+	echo "binary meets licnsing requirements. If you can't use GNU's runtime"
+	echo "and STL library, then reconfigure with stlport or llvm. Also see"
+	echo "http://code.google.com/p/android/issues/detail?id=216331"
+	echo "*******************************************************************************"
 fi
 
 echo
