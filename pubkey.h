@@ -327,7 +327,8 @@ public:
 
 // ********************************************************
 
-typedef std::pair<const byte *, size_t> HashIdentifier;
+// Typedef change due to Clang, http://github.com/weidai11/cryptopp/issues/300
+typedef std::pair<const byte *, unsigned int> HashIdentifier;
 
 //! \class PK_SignatureMessageEncodingMethod
 //! \brief Interface for message encoding method for public key signature schemes.

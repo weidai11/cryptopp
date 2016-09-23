@@ -1,7 +1,8 @@
 // pkcspad.h - written and placed in the public domain by Wei Dai
 
-//! \headerfile pkcspad.h
+//! \file pkcspad.h
 //! \brief Classes for PKCS padding schemes
+//! \details PKCS#1 v1.5, v2.0 and P1363a allow MD2, MD5, SHA1, SHA224, SHA256, SHA384, SHA512, Tiger and RipeMd-160 to be instantiated.
 
 #ifndef CRYPTOPP_PKCSPAD_H
 #define CRYPTOPP_PKCSPAD_H
@@ -15,7 +16,9 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! <a href="http://www.weidai.com/scan-mirror/ca.html#cem_PKCS1-1.5">EME-PKCS1-v1_5</a>
+//! \class PKCS_EncryptionPaddingScheme
+//! \brief PKCS#1 v1.5 Encryption Padding Scheme
+//! \sa <a href="http://www.weidai.com/scan-mirror/ca.html#cem_PKCS1-1.5">EME-PKCS1-v1_5</a>
 class PKCS_EncryptionPaddingScheme : public PK_EncryptionMessageEncodingMethod
 {
 public:
@@ -26,6 +29,8 @@ public:
 	DecodingResult Unpad(const byte *padded, size_t paddedLength, byte *raw, const NameValuePairs &parameters) const;
 };
 
+//! \class PKCS_DigestDecoration
+//! \brief PKCS#1 decoration data structure
 template <class H> class PKCS_DigestDecoration
 {
 public:
@@ -36,12 +41,12 @@ public:
 // PKCS_DigestDecoration can be instantiated with the following
 // classes as specified in PKCS#1 v2.0 and P1363a
 class SHA1;
-class RIPEMD160;
-class Tiger;
 class SHA224;
 class SHA256;
 class SHA384;
 class SHA512;
+class Tiger;
+class RIPEMD160;
 namespace Weak1 {
 class MD2;
 class MD5;
@@ -56,7 +61,9 @@ CRYPTOPP_DLL_TEMPLATE_CLASS PKCS_DigestDecoration<SHA384>;
 CRYPTOPP_DLL_TEMPLATE_CLASS PKCS_DigestDecoration<SHA512>;
 #endif
 
-//! <a href="http://www.weidai.com/scan-mirror/sig.html#sem_PKCS1-1.5">EMSA-PKCS1-v1_5</a>
+//! \class PKCS1v15_SignatureMessageEncodingMethod
+//! \brief PKCS#1 v1.5 Signature Encoding Scheme
+//! \sa <a href="http://www.weidai.com/scan-mirror/sig.html#sem_PKCS1-1.5">EMSA-PKCS1-v1_5</a>
 class CRYPTOPP_DLL PKCS1v15_SignatureMessageEncodingMethod : public PK_DeterministicSignatureMessageEncodingMethod
 {
 public:
@@ -76,7 +83,7 @@ public:
 		{
 			static HashIdentifier Lookup()
 			{
-				return HashIdentifier(PKCS_DigestDecoration<H>::decoration, (size_t)PKCS_DigestDecoration<H>::length);
+				return HashIdentifier(PKCS_DigestDecoration<H>::decoration, PKCS_DigestDecoration<H>::length);
 			}
 		};
 	};
