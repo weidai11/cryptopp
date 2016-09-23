@@ -4707,7 +4707,10 @@ if [[ ("$HAVE_X86_AES" -ne "0" || "$HAVE_X86_RDRAND" -ne "0" || "$HAVE_X86_RDSEE
 	echo "Testing: AES, RDRAND and RDSEED" | tee -a "$TEST_RESULTS"
 	echo
 
-	OPTS=("-march=native")
+	OPTS=()
+	if [[ ("$GCC_COMPILER" -ne "0") ]]; thn
+		OPTS=("-march=native")
+	fi
 	if [[ "$HAVE_X86_AES" -ne "0" ]]; then
 		OPTS+=("-maes")
 	fi
