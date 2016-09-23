@@ -22,6 +22,15 @@ unset AOSP_SYSROOT
 unset AOSP_STL_INC
 unset AOSP_STL_LIB
 unset AOSP_BITS_INC
+unset ANDROID_FLAGS
+
+unset CPP CC CXX LD AS AR RANLIB STRIP
+
+# Similar to a "make clean"
+if [ "$1" = "unset" ]; then
+	echo "Unsetting script variables. PATH may remain tainted"
+	[ "$0" = "$BASH_SOURCE" ] && exit 0 || return 0
+fi
 
 # Set AOSP_TOOLCHAIN_SUFFIX to your preference of tools and STL library.
 #   Note: 4.9 is required for the latest architectures, like ARM64/AARCH64.
@@ -85,64 +94,64 @@ fi
 # https://developer.android.com/ndk/guides/abis.html
 case "$THE_ARCH" in
   arm|armv5|armv6|armv7|armeabi)
-	TOOLCHAIN_BASE="arm-linux-androideabi"
-	TOOLNAME_BASE="arm-linux-androideabi"
+	TOOLCHAIN_ARCH="arm-linux-androideabi"
+	TOOLCHAIN_NAME="arm-linux-androideabi"
 	AOSP_ABI="armeabi"
 	AOSP_ARCH="arch-arm"
 	AOSP_FLAGS="-march=armv5te -mtune=xscale -mthumb -msoft-float -funwind-tables -fexceptions -frtti"
 	;;
   armv7a|armeabi-v7a)
-	TOOLCHAIN_BASE="arm-linux-androideabi"
-	TOOLNAME_BASE="arm-linux-androideabi"
+	TOOLCHAIN_ARCH="arm-linux-androideabi"
+	TOOLCHAIN_NAME="arm-linux-androideabi"
 	AOSP_ABI="armeabi-v7a"
 	AOSP_ARCH="arch-arm"
 	AOSP_FLAGS="-march=armv7-a -mthumb -mfpu=vfpv3-d16 -mfloat-abi=softfp -Wl,--fix-cortex-a8 -funwind-tables -fexceptions -frtti"
 	;;
   hard|armv7a-hard|armeabi-v7a-hard)
-	TOOLCHAIN_BASE="arm-linux-androideabi"
-	TOOLNAME_BASE="arm-linux-androideabi"
+	TOOLCHAIN_ARCH="arm-linux-androideabi"
+	TOOLCHAIN_NAME="arm-linux-androideabi"
 	AOSP_ABI="armeabi-v7a"
 	AOSP_ARCH="arch-arm"
 	AOSP_FLAGS="-mhard-float -D_NDK_MATH_NO_SOFTFP=1 -march=armv7-a -mfpu=vfpv3-d16 -mfloat-abi=softfp -Wl,--fix-cortex-a8 -funwind-tables -fexceptions -frtti -Wl,--no-warn-mismatch -Wl,-lm_hard"
 	;;
   neon|armv7a-neon)
-	TOOLCHAIN_BASE="arm-linux-androideabi"
-	TOOLNAME_BASE="arm-linux-androideabi"
+	TOOLCHAIN_ARCH="arm-linux-androideabi"
+	TOOLCHAIN_NAME="arm-linux-androideabi"
 	AOSP_ABI="armeabi-v7a"
 	AOSP_ARCH="arch-arm"
 	AOSP_FLAGS="-march=armv7-a -mfpu=neon -mfloat-abi=softfp -Wl,--fix-cortex-a8 -funwind-tables -fexceptions -frtti"
 	;;
   armv8|armv8a|aarch64|arm64|arm64-v8a)
-	TOOLCHAIN_BASE="aarch64-linux-android"
-	TOOLNAME_BASE="aarch64-linux-android"
+	TOOLCHAIN_ARCH="aarch64-linux-android"
+	TOOLCHAIN_NAME="aarch64-linux-android"
 	AOSP_ABI="arm64-v8a"
 	AOSP_ARCH="arch-arm64"
 	AOSP_FLAGS="-funwind-tables -fexceptions -frtti"
 	;;
   mips|mipsel)
-	TOOLCHAIN_BASE="mipsel-linux-android"
-	TOOLNAME_BASE="mipsel-linux-android"
+	TOOLCHAIN_ARCH="mipsel-linux-android"
+	TOOLCHAIN_NAME="mipsel-linux-android"
 	AOSP_ABI="mips"
 	AOSP_ARCH="arch-mips"
 	AOSP_FLAGS="-funwind-tables -fexceptions -frtti"
 	;;
   mips64|mipsel64|mips64el)
-	TOOLCHAIN_BASE="mips64el-linux-android"
-	TOOLNAME_BASE="mips64el-linux-android"
+	TOOLCHAIN_ARCH="mips64el-linux-android"
+	TOOLCHAIN_NAME="mips64el-linux-android"
 	AOSP_ABI="mips64"
 	AOSP_ARCH="arch-mips64"
 	AOSP_FLAGS="-funwind-tables -fexceptions -frtti"
 	;;
   x86)
-	TOOLCHAIN_BASE="x86"
-	TOOLNAME_BASE="i686-linux-android"
+	TOOLCHAIN_ARCH="x86"
+	TOOLCHAIN_NAME="i686-linux-android"
 	AOSP_ABI="x86"
 	AOSP_ARCH="arch-x86"
 	AOSP_FLAGS="-march=i686 -mtune=intel -mssse3 -mfpmath=sse -funwind-tables -fexceptions -frtti"
 	;;
   x86_64|x64)
-	TOOLCHAIN_BASE="x86_64"
-	TOOLNAME_BASE="x86_64-linux-android"
+	TOOLCHAIN_ARCH="x86_64"
+	TOOLCHAIN_NAME="x86_64-linux-android"
 	AOSP_ABI="x86_64"
 	AOSP_ARCH="arch-x86_64"
 	AOSP_FLAGS="-march=x86-64 -msse4.2 -mpopcnt -mtune=intel -funwind-tables -fexceptions -frtti"
@@ -162,14 +171,14 @@ export AOSP_FLAGS
 # TODO: for the previous GNUmakefile-cross. These can go away eventually.
 export ANDROID_FLAGS=$AOSP_FLAGS
 
-export CPP="$TOOLNAME_BASE-cpp"
-export CC="$TOOLNAME_BASE-gcc"
-export CXX="$TOOLNAME_BASE-g++"
-export LD="$TOOLNAME_BASE-ld"
-export AS="$TOOLNAME_BASE-as"
-export AR="$TOOLNAME_BASE-ar"
-export RANLIB="$TOOLNAME_BASE-ranlib"
-export STRIP="$TOOLNAME_BASE-strip"
+export CPP="$TOOLCHAIN_NAME-cpp"
+export CC="$TOOLCHAIN_NAME-gcc"
+export CXX="$TOOLCHAIN_NAME-g++"
+export LD="$TOOLCHAIN_NAME-ld"
+export AS="$TOOLCHAIN_NAME-as"
+export AR="$TOOLCHAIN_NAME-ar"
+export RANLIB="$TOOLCHAIN_NAME-ranlib"
+export STRIP="$TOOLCHAIN_NAME-strip"
 
 #####################################################################
 
@@ -179,8 +188,8 @@ export STRIP="$TOOLNAME_BASE-strip"
 AOSP_TOOLCHAIN_PATH=""
 for host in "linux-x86_64" "darwin-x86_64" "linux-x86" "darwin-x86"
 do
-	if [ -d "$ANDROID_NDK_ROOT/toolchains/$TOOLCHAIN_BASE-$AOSP_TOOLCHAIN_SUFFIX/prebuilt/$host/bin" ]; then
-		AOSP_TOOLCHAIN_PATH="$ANDROID_NDK_ROOT/toolchains/$TOOLCHAIN_BASE-$AOSP_TOOLCHAIN_SUFFIX/prebuilt/$host/bin"
+	if [ -d "$ANDROID_NDK_ROOT/toolchains/$TOOLCHAIN_ARCH-$AOSP_TOOLCHAIN_SUFFIX/prebuilt/$host/bin" ]; then
+		AOSP_TOOLCHAIN_PATH="$ANDROID_NDK_ROOT/toolchains/$TOOLCHAIN_ARCH-$AOSP_TOOLCHAIN_SUFFIX/prebuilt/$host/bin"
 		break
 	fi
 done
