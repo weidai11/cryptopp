@@ -1035,6 +1035,9 @@ void Rijndael_Enc_AdvancedProcessBlocks(void *locals, const word32 *k);
 
 #if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86
 
+/* Determine whether the range between begin and end overlaps
+ * with the same 4k block offsets as the Te table.
+ */
 static inline bool AliasedWithTable(const byte *begin, const byte *end)
 {
 	size_t s0 = size_t(begin)%4096, s1 = size_t(end)%4096;
@@ -1250,19 +1253,25 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 		};
 
 		const byte* zeros = (byte *)(Te+256);
-		byte *space = NULL;
+		byte *space = NULL, *originalSpace = NULL;
 
-		do {
+		const size_t aliasPageSize = 4096;
+		const size_t aliasBlockSize = 256;
+		const size_t sizeToAllocate = aliasPageSize + aliasBlockSize + sizeof(Locals);
 #if (CRYPTOPP_MSC_VERSION >= 1400)
-			// http://msdn.microsoft.com/en-us/library/5471dc8s.aspx
-			space = (byte *)_malloca(255+sizeof(Locals));
-			space += (256-(size_t)space%256)%256;
+		originalSpace = (byte *)_malloca(sizeToAllocate);
 #else
-			space = (byte *)alloca(255+sizeof(Locals));
-			space += (256-(size_t)space%256)%256;
+		originalSpace = (byte *)alloca(sizeToAllocate);
 #endif
+		/* round up to nearest 256 byte boundary */
+		space = originalSpace + 
+			(aliasBlockSize - (size_t)originalSpace % aliasBlockSize) 
+				% aliasBlockSize;
+		while (AliasedWithTable(space, space + sizeof(Locals)))
+		{
+			space += 256;
+			CRYPTOPP_ASSERT(space < (originalSpace + aliasPageSize));
 		}
-		while (AliasedWithTable(space, space+sizeof(Locals)));
 
 		size_t increment = BLOCKSIZE;
 		if (flags & BT_ReverseDirection)
@@ -1293,7 +1302,7 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 		Rijndael_Enc_AdvancedProcessBlocks(&locals, m_key);
 
 #if (CRYPTOPP_MSC_VERSION >= 1400)
-		_freea(space);
+		_freea(originalSpace);
 #endif
 
 		return length % BLOCKSIZE;
