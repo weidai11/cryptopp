@@ -364,7 +364,7 @@ if [[ ("$COUNT" -ne "0") ]]; then
 	echo
 	echo "*******************************************************************************"
 	echo "You are using GNU's runtime and STL library. Please ensure the resulting"
-	echo "binary meets licnsing requirements. If you can't use GNU's runtime"
+	echo "binary meets licensing requirements. If you can't use GNU's runtime"
 	echo "and STL library, then reconfigure with stlport or llvm. Also see"
 	echo "http://code.google.com/p/android/issues/detail?id=216331"
 	echo "*******************************************************************************"
