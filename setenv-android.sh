@@ -370,6 +370,26 @@ if [[ ("$COUNT" -ne "0") ]]; then
 	echo "*******************************************************************************"
 fi
 
+COUNT=$(echo -n "$AOSP_STL_LIB" | grep -i -c 'libstlport')
+if [[ ("$COUNT" -ne "0") ]]; then
+	echo
+	echo "*******************************************************************************"
+	echo "You are using STLport's runtime and STL library. STLport could cause problems"
+	echo "if the resulting binary is used in other environments, like a QT project."
+	echo "Also see http://code.google.com/p/android/issues/detail?id=216331"
+	echo "*******************************************************************************"
+fi
+
+COUNT=$(echo -n "$AOSP_STL_LIB" | egrep -i -c 'libc++|libstlport)')
+if [[ ("$COUNT" -ne "0") ]]; then
+	echo
+	echo "*******************************************************************************"
+	echo "You are using LLVM's runtime and STL library. LLVM could cause problems"
+	echo "if the resulting binary is used in other environments, like a QT project."
+	echo "Also see http://code.google.com/p/android/issues/detail?id=216331"
+	echo "*******************************************************************************"
+fi
+
 echo
 echo "*******************************************************************************"
 echo "It looks the the environment is set correctly. Your next step is"
