@@ -280,7 +280,7 @@ export ANDROID_SYSROOT=$AOSP_SYSROOT
 # Android STL. We support GNU, LLVM and STLport out of the box.
 
 if [ "$#" -lt 2 ]; then
-	THE_STL=stlport-shared
+	THE_STL=gnu-shared
 else
 	THE_STL=$(tr [A-Z] [a-z] <<< "$2")
 fi
