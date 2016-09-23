@@ -1254,7 +1254,7 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 
 		do {
 			// Microsoft C&A violation, http://msdn.microsoft.com/en-us/library/5471dc8s.aspx
-			//  Also see http://github.com/weidai11/cryptopp/issues/302
+			//  Also see http://github.com/weidai11/cryptopp/issues/302, CVE-2016-7544.
 			space = (byte *)alloca(255+sizeof(Locals));
 			space += (256-(size_t)space%256)%256;
 		}
