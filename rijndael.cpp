@@ -1253,14 +1253,10 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 		byte *space = NULL;
 
 		do {
-#if (CRYPTOPP_MSC_VERSION >= 1400)
-			// http://msdn.microsoft.com/en-us/library/5471dc8s.aspx
-			space = (byte *)_malloca(255+sizeof(Locals));
-			space += (256-(size_t)space%256)%256;
-#else
+			// Microsoft C&A violation, http://msdn.microsoft.com/en-us/library/5471dc8s.aspx
+			//  Also see http://github.com/weidai11/cryptopp/issues/302
 			space = (byte *)alloca(255+sizeof(Locals));
 			space += (256-(size_t)space%256)%256;
-#endif
 		}
 		while (AliasedWithTable(space, space+sizeof(Locals)));
 
@@ -1291,10 +1287,6 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 		locals.keysBegin = (12-keysToCopy)*16;
 
 		Rijndael_Enc_AdvancedProcessBlocks(&locals, m_key);
-
-#if (CRYPTOPP_MSC_VERSION >= 1400)
-		_freea(space);
-#endif
 
 		return length % BLOCKSIZE;
 	}
