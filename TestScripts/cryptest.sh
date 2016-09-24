@@ -4708,7 +4708,7 @@ if [[ ("$HAVE_X86_AES" -ne "0" || "$HAVE_X86_RDRAND" -ne "0" || "$HAVE_X86_RDSEE
 	echo
 
 	OPTS=()
-	if [[ ("$GCC_COMPILER" -ne "0") ]]; thn
+	if [[ ("$GCC_COMPILER" -ne "0") ]]; then
 		OPTS=("-march=native")
 	fi
 	if [[ "$HAVE_X86_AES" -ne "0" ]]; then
