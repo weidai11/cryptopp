@@ -52,7 +52,7 @@ endif
 # Its a shame because GCC has so much to offer by the way of analysis.
 # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=53431
 ifneq ($(CLANG_COMPILER),0)
-CXXFLAGS += -Wall -Wno-delete-non-virtual-dtor
+CXXFLAGS += -Wall
 endif
 
 # iOS cross-compile configuration.
