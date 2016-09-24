@@ -5579,7 +5579,7 @@ if [[ ("$IS_CYGWIN" -eq "0") && ("$IS_MINGW" -eq "0") ]]; then
 			echo "************************************" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
 			echo "Testing: Install (benchmarks)" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
 			echo
-			./cryptest.exe b 1 2.4+1e9 2>&1 | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
+			./cryptest.exe b 1 "$CPU_FREQ" 2>&1 | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
 			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 				echo "ERROR: failed to execute benchmarks" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
 			fi
