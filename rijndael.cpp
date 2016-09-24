@@ -1264,8 +1264,8 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 		originalSpace = (byte *)alloca(sizeToAllocate);
 #endif
 		/* round up to nearest 256 byte boundary */
-		space = originalSpace + 
-			(aliasBlockSize - (size_t)originalSpace % aliasBlockSize) 
+		space = originalSpace +
+			(aliasBlockSize - (size_t)originalSpace % aliasBlockSize)
 				% aliasBlockSize;
 		while (AliasedWithTable(space, space + sizeof(Locals)))
 		{
