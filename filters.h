@@ -343,22 +343,23 @@ public:
 		return PutMaybeModifiable(inString, length, messageEnd, blocking, true);
 	}
 
-	//! \brief Releases buffered data for processing
-	//! \param hardFlush
-	//! \param blocking
+	//! \brief Flushes data buffered by this object, without signal propagation
+	//! \param hardFlush indicates whether all data should be flushed
+	//! \param blocking specifies whether the object should block when processing input
 	//! \details IsolatedFlush() calls ForceNextPut() if hardFlush is true
+	//! \note  hardFlush must be used with care
 	bool IsolatedFlush(bool hardFlush, bool blocking);
 
-	//! \brief Releases buffered data for processing
+	//! \brief Flushes data buffered by this object
 	//! \details The input buffer may contain more than blockSize bytes if <tt>lastSize != 0</tt>.
 	//!   ForceNextPut() forces a call to NextPut() if this is the case.
 	void ForceNextPut();
 
 protected:
-	bool DidFirstPut() const {return m_firstInputDone;}
-	size_t GetFirstPutSize() const {return m_firstSize;}
-	size_t GetBlockPutSize() const {return m_blockSize;}
-	size_t GetLastPutSize() const {return m_lastSize;}
+	virtual bool DidFirstPut() const {return m_firstInputDone;}
+	virtual size_t GetFirstPutSize() const {return m_firstSize;}
+	virtual size_t GetBlockPutSize() const {return m_blockSize;}
+	virtual size_t GetLastPutSize() const {return m_lastSize;}
 
 	virtual void InitializeDerivedAndReturnNewSizes(const NameValuePairs &parameters, size_t &firstSize, size_t &blockSize, size_t &lastSize)
 		{CRYPTOPP_UNUSED(parameters); CRYPTOPP_UNUSED(firstSize); CRYPTOPP_UNUSED(blockSize); CRYPTOPP_UNUSED(lastSize); InitializeDerived(parameters);}
