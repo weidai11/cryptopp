@@ -342,12 +342,16 @@ public:
 	{
 		return PutMaybeModifiable(inString, length, messageEnd, blocking, true);
 	}
-	/*! calls ForceNextPut() if hardFlush is true */
+
+	//! \brief Releases buffered data for processing
+	//! \param hardFlush
+	//! \param blocking
+	//! \details IsolatedFlush() calls ForceNextPut() if hardFlush is true
 	bool IsolatedFlush(bool hardFlush, bool blocking);
 
-	/*! The input buffer may contain more than blockSize bytes if lastSize != 0.
-		ForceNextPut() forces a call to NextPut() if this is the case.
-	*/
+	//! \brief Releases buffered data for processing
+	//! \details The input buffer may contain more than blockSize bytes if <tt>lastSize != 0</tt>.
+	//!   ForceNextPut() forces a call to NextPut() if this is the case.
 	void ForceNextPut();
 
 protected:
