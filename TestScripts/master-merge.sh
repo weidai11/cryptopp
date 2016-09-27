@@ -12,7 +12,7 @@ if [[ "$?" -ne "0" ]]; then
 	[[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
 fi
 
-for branch in $(git branch -a | cut -b 2- | grep -v "remotes/origin" | awk '{print $1}');
+for branch in $(git branch -a | cut -b 2- | grep "remotes/origin" | cut -f 3 -d '/' | awk '{print $1}');
 do
 	# Skip anything that looks like Master
 	if [[ ((-z "$branch") || ("$branch" = "master") || ("$branch" = "HEAD")) ]]; then
@@ -26,34 +26,38 @@ do
 
 	echo "**************** $branch *******************"
 
-	git checkout "$branch" &>/dev/null
+	git checkout -f "$branch" &>/dev/null
 	if [[ "$?" -ne "0" ]]; then
 		echo "git checkout $branch failed"
 		continue;
 	fi
 
-	git rebase "origin/$branch" &>/dev/null
+	git rebase "origin/$branch"
 	if [[ "$?" -ne "0" ]]; then
 		echo "git rebase $branch failed"
 		continue;
 	fi
 
-	git merge master -S -m "Merge branch 'master' into dev-branch '$branch'"
+	git merge master -S -m "Merge branch 'master' into dev-branch '$branch'" &>/dev/null
 	if [[ "$?" -ne "0" ]]; then
 		echo "git merge $branch failed"
 		continue;
 	fi
 
-	git push
+	git push &>/dev/null
 	if [[ "$?" -ne "0" ]]; then
 		echo "git push $branch failed"
 		continue;
 	fi
+
+	echo "Completed merging for '$branch'"
 
 done
 
 if [[ ! -z  "$current" ]]; then
 	git checkout "$current" &>/dev/null
 fi
+
+echo "Back on branch $current"
 
 [[ "$0" = "$BASH_SOURCE" ]] && exit 0 || return 0
