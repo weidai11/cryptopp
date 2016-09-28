@@ -8,6 +8,17 @@ cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
 
 project(cryptopp)
 
+# Make RelWithDebInfo the default (it does e.g. add '-O2 -g -DNDEBUG' for GNU)
+#   If not in multi-configuration environments, no explicit build type or CXX 
+#   flags are set by the user and if we are the root CMakeLists.txt file.
+if (NOT CMAKE_CONFIGURATION_TYPES AND 
+    NOT CMAKE_NO_BUILD_TYPE AND
+    NOT CMAKE_BUILD_TYPE AND
+    NOT CMAKE_CXX_FLAGS AND
+    CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+	set(CMAKE_BUILD_TYPE RelWithDebInfo)
+endif()
+
 set(cryptopp_VERSION_MAJOR 5)
 set(cryptopp_VERSION_MINOR 6)
 set(cryptopp_VERSION_PATCH 5)
@@ -409,6 +420,7 @@ if (NOT CMAKE_VERSION VERSION_LESS 3.0.2)
 	include(FeatureSummary)
 	message(STATUS "Compiler: ${CXX}")
 	message(STATUS "Flags: ${CMAKE_CXX_FLAGS}")
+	message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 	feature_summary(WHAT ALL
 		VAR cryptoppFeatures)
         message(STATUS "${cryptoppFeatures}")
