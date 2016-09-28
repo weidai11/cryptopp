@@ -717,8 +717,11 @@ const GF2NT::Element& GF2NT::MultiplicativeInverse(const Element &a) const
 			for (unsigned int j=0; j<WORD_BITS-t1; j++)
 			{
 				// Coverity finding on shift amount of 'word x << (t1+j)'.
+				// temp ^= ((temp >> j) & 1) << (t1 + j);
+
 				CRYPTOPP_ASSERT(t1+j < WORD_BITS);
-				temp ^= ((temp >> j) & 1) << (t1 + j);
+				const unsigned int shift = t1 + j;
+				temp ^= ((shift >= WORD_BITS) ? 0 : ((temp >> j) & 1) << shift);
 			}
 		}
 		else
