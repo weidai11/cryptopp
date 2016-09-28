@@ -689,7 +689,13 @@ const GF2NT::Element& GF2NT::MultiplicativeInverse(const Element &a) const
 		//   temp ^= ((temp >> j) & 1) << ((t1 + j) & (sizeof(temp)*8-1));
 		if (t1 < WORD_BITS)
 			for (unsigned int j=0; j<WORD_BITS-t1; j++)
-				temp ^= ((temp >> j) & 1) << (t1 + j);
+			{
+				// Coverity finding on shift amount of 'word x << (t1+j)'.
+				//   temp ^= ((temp >> j) & 1) << (t1 + j);
+				const unsigned int shift = t1 + j;
+				CRYPTOPP_ASSERT(shift < WORD_BITS);
+				temp ^= (CRYPTOPP_UNLIKELY(shift >= WORD_BITS) ? 0 : ((temp >> j) & 1) << shift);
+			}
 		else
 			b[t1/WORD_BITS-1] ^= temp << t1%WORD_BITS;
 
@@ -717,11 +723,10 @@ const GF2NT::Element& GF2NT::MultiplicativeInverse(const Element &a) const
 			for (unsigned int j=0; j<WORD_BITS-t1; j++)
 			{
 				// Coverity finding on shift amount of 'word x << (t1+j)'.
-				// temp ^= ((temp >> j) & 1) << (t1 + j);
-
-				CRYPTOPP_ASSERT(t1+j < WORD_BITS);
+				//   temp ^= ((temp >> j) & 1) << (t1 + j);
 				const unsigned int shift = t1 + j;
-				temp ^= ((shift >= WORD_BITS) ? 0 : ((temp >> j) & 1) << shift);
+				CRYPTOPP_ASSERT(shift < WORD_BITS);
+				temp ^= (CRYPTOPP_UNLIKELY(shift >= WORD_BITS) ? 0 : ((temp >> j) & 1) << shift);
 			}
 		}
 		else

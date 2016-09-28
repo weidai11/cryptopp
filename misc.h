@@ -118,6 +118,7 @@ class Integer;
 
 // Micro-optimization, use juditiously. Be sure you find a hotspot
 // using 'make coverage', and its in a tight loop. Otherwise, DFW.
+// Also see http://www.akkadia.org/drepper/cpumemory.pdf
 #if defined(__GNUC__)
 # define CRYPTOPP_LIKELY(x)    __builtin_expect(!!(x), 1)
 # define CRYPTOPP_UNLIKELY(x)  __builtin_expect(!!(x), 0)
