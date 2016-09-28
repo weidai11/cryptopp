@@ -685,8 +685,6 @@ const GF2NT::Element& GF2NT::MultiplicativeInverse(const Element &a) const
 			b[i] = b[i+1];
 		b[BitsToWords(m)-1] = 0;
 
-		// TODO: the shift by "t1+j" (64-bits) is being flagged as potential UB
-		//   temp ^= ((temp >> j) & 1) << ((t1 + j) & (sizeof(temp)*8-1));
 		if (t1 < WORD_BITS)
 			for (unsigned int j=0; j<WORD_BITS-t1; j++)
 			{
@@ -694,7 +692,7 @@ const GF2NT::Element& GF2NT::MultiplicativeInverse(const Element &a) const
 				//   temp ^= ((temp >> j) & 1) << (t1 + j);
 				const unsigned int shift = t1 + j;
 				CRYPTOPP_ASSERT(shift < WORD_BITS);
-				temp ^= (CRYPTOPP_UNLIKELY(shift >= WORD_BITS) ? 0 : ((temp >> j) & 1) << shift);
+				temp ^= (shift < WORD_BITS) ? (((temp >> j) & 1) << shift) : 0;
 			}
 		else
 			b[t1/WORD_BITS-1] ^= temp << t1%WORD_BITS;
@@ -726,7 +724,7 @@ const GF2NT::Element& GF2NT::MultiplicativeInverse(const Element &a) const
 				//   temp ^= ((temp >> j) & 1) << (t1 + j);
 				const unsigned int shift = t1 + j;
 				CRYPTOPP_ASSERT(shift < WORD_BITS);
-				temp ^= (CRYPTOPP_UNLIKELY(shift >= WORD_BITS) ? 0 : ((temp >> j) & 1) << shift);
+				temp ^= (shift < WORD_BITS) ? (((temp >> j) & 1) << shift) : 0;
 			}
 		}
 		else
