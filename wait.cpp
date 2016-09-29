@@ -372,7 +372,7 @@ bool WaitObjectContainer::Wait(unsigned long milliseconds)
 			lastTime = timeAfterWait;
 		}
 #endif
-		if (result >= WAIT_OBJECT_0 && result < WAIT_OBJECT_0 + m_handles.size())
+		if (result < WAIT_OBJECT_0 + m_handles.size())
 		{
 			if (result == m_lastResult)
 				m_sameResultCount++;
