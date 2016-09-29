@@ -1,0 +1,25 @@
+The following are copy/paste instructions for invoking cov-build, building the library and submitting the artifacts for a scan.
+
+For more information see http://cryptopp.com/wiki/Coverity_Scan.
+
+##############################################
+
+reset
+
+make distclean &>/dev/null
+
+# Usually we test with these flags
+# CXXFLAGS="-DNDEBUG -g3 -O2"
+
+# Testing for Issue 302 (http://github.com/weidai11/cryptopp/issues/302)
+CXXFLAGS="-DNDEBUG -g2 -O3 -march=i686 -msse -msse2 -msse3 -mssse3 -mno-aes" cov-build --dir cov-int make -j 2
+
+tar czvf cryptopp.tgz cov-int
+
+COVERITY_SCAN_NAME="Rijndael-AliasedTable-SSE2-Linux-i686"
+curl --form token="$CRYPTOPP_COVERITY_TOKEN" \
+  --form email=webmaster@cryptopp.com \
+  --form file=@cryptopp.tgz \
+  --form version="$COVERITY_SCAN_NAME" \
+  --form description="$COVERITY_SCAN_NAME" \
+  https://scan.coverity.com/builds?project=Cryptopp
