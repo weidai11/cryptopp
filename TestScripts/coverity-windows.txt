@@ -10,6 +10,8 @@
 
 cls
 
+del /f cryptopp.zip
+rmdir /q /s cov-int
 nmake /f cryptest.nmake clean
 
 # Uncomment CXXFLAGS in makefile. Pay attention to X86, X64 or ARM
