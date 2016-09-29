@@ -1,8 +1,12 @@
-The following are copy/paste instructions for invoking cov-build, building the library and submitting the artifacts for a scan.
+# coverity-windows.txt - Scan build submission instructions for Unix and Linux.
+#                        Written and placed in public domain by Jeffrey Walton and Uri Blumenthal.
+#                        Copyright assigned to Crypto++ project.
+#
+# The following are copy/paste instructions for invoking cov-build, building the library and submitting the artifacts for a scan.
+#
+# For more information see http://cryptopp.com/wiki/Coverity_Scan.
 
-For more information see http://cryptopp.com/wiki/Coverity_Scan.
-
-################################################################
+##################################################################
 
 cls
 
@@ -22,4 +26,4 @@ curl.exe ^
   --form file=@cryptopp.zip ^
   --form version="%COVERITY_SCAN_NAME%" ^
   --form description="%COVERITY_SCAN_NAME%" ^
-https://scan.coverity.com/builds?project=Cryptopp
+  https://scan.coverity.com/builds?project=Cryptopp
