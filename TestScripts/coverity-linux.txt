@@ -2,7 +2,7 @@ The following are copy/paste instructions for invoking cov-build, building the l
 
 For more information see http://cryptopp.com/wiki/Coverity_Scan.
 
-##############################################
+################################################################
 
 reset
 
