@@ -3013,17 +3013,20 @@ struct NewInteger
 
 const Integer &Integer::Zero()
 {
-	return Singleton<Integer>().Ref();
+	static const Integer& s_zero = Singleton<Integer>().Ref();
+	return s_zero;
 }
 
 const Integer &Integer::One()
 {
-	return Singleton<Integer, NewInteger<1> >().Ref();
+	static const Integer& s_one = Singleton<Integer, NewInteger<1> >().Ref();
+	return s_one;
 }
 
 const Integer &Integer::Two()
 {
-	return Singleton<Integer, NewInteger<2> >().Ref();
+	static const Integer& s_two = Singleton<Integer, NewInteger<2> >().Ref();
+	return s_two;
 }
 
 bool Integer::operator!() const
