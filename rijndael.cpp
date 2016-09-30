@@ -1035,13 +1035,33 @@ void Rijndael_Enc_AdvancedProcessBlocks(void *locals, const word32 *k);
 
 #if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86
 
-/* Determine whether the range between begin and end overlaps
- * with the same 4k block offsets as the Te table.
- */
+// Determine whether the range between begin and end overlaps
+//   with the same 4k block offsets as the Te table. Logically,
+//   the code is trying to create the condition:
+//
+// Two sepearate memory pages:
+//
+//  +-----+   +-----+
+//  |XXXXX|   |YYYYY|
+//  |XXXXX|   |YYYYY|
+//  |     |   |     |
+//  |     |   |     |
+//  +-----+   +-----+
+//  Te Table   Locals
+//
+// Have a logical cache view of (X and Y may be inverted):
+//
+// +-----+
+// |XXXXX|
+// |XXXXX|
+// |YYYYY|
+// |YYYYY|
+// +-----+
+//
 static inline bool AliasedWithTable(const byte *begin, const byte *end)
 {
-	size_t s0 = size_t(begin)%4096, s1 = size_t(end)%4096;
-	size_t t0 = size_t(Te)%4096, t1 = (size_t(Te)+sizeof(Te))%4096;
+	ptrdiff_t s0 = uintptr_t(begin)%4096, s1 = uintptr_t(end)%4096;
+	ptrdiff_t t0 = uintptr_t(Te)%4096, t1 = (uintptr_t(Te)+sizeof(Te))%4096;
 	if (t1 > t0)
 		return (s0 >= t0 && s0 < t1) || (s1 > t0 && s1 <= t1);
 	else
@@ -1230,6 +1250,21 @@ inline size_t AESNI_AdvancedProcessBlocks(F1 func1, F4 func4, MAYBE_CONST __m128
 }
 #endif
 
+#if (CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
+struct Locals
+{
+	word32 subkeys[4*12], workspace[8];
+	const byte *inBlocks, *inXorBlocks, *outXorBlocks;
+	byte *outBlocks;
+	size_t inIncrement, inXorIncrement, outXorIncrement, outIncrement;
+	size_t regSpill, lengthAndCounterFlag, keysBegin;
+};
+
+const size_t Rijndael::Enc::aliasPageSize = 4096;
+const size_t Rijndael::Enc::aliasBlockSize = 256;
+const size_t Rijndael::Enc::sizeToAllocate = aliasPageSize + aliasBlockSize + sizeof(Locals);
+#endif
+
 size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const
 {
 #if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
@@ -1243,30 +1278,11 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 		if (length < BLOCKSIZE)
 			return length;
 
-		struct Locals
-		{
-			word32 subkeys[4*12], workspace[8];
-			const byte *inBlocks, *inXorBlocks, *outXorBlocks;
-			byte *outBlocks;
-			size_t inIncrement, inXorIncrement, outXorIncrement, outIncrement;
-			size_t regSpill, lengthAndCounterFlag, keysBegin;
-		};
+		static const byte *zeros = (const byte*)(Te+aliasBlockSize);
+		byte *space = NULL, *originalSpace = const_cast<byte*>(m_aliasBlock.data());
 
-		const byte* zeros = (byte *)(Te+256);
-		byte *space = NULL, *originalSpace = NULL;
-
-		const size_t aliasPageSize = 4096;
-		const size_t aliasBlockSize = 256;
-		const size_t sizeToAllocate = aliasPageSize + aliasBlockSize + sizeof(Locals);
-#if (CRYPTOPP_MSC_VERSION >= 1400)
-		originalSpace = (byte *)_malloca(sizeToAllocate);
-#else
-		originalSpace = (byte *)alloca(sizeToAllocate);
-#endif
-		/* round up to nearest 256 byte boundary */
-		space = originalSpace +
-			(aliasBlockSize - (size_t)originalSpace % aliasBlockSize)
-				% aliasBlockSize;
+		// round up to nearest 256 byte boundary
+		space = originalSpace +	(aliasBlockSize - (uintptr_t)originalSpace % aliasBlockSize) % aliasBlockSize;
 		while (AliasedWithTable(space, space + sizeof(Locals)))
 		{
 			space += 256;
@@ -1300,10 +1316,6 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 		locals.keysBegin = (12-keysToCopy)*16;
 
 		Rijndael_Enc_AdvancedProcessBlocks(&locals, m_key);
-
-#if (CRYPTOPP_MSC_VERSION >= 1400)
-		_freea(originalSpace);
-#endif
 
 		return length % BLOCKSIZE;
 	}

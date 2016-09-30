@@ -490,24 +490,27 @@ NAMESPACE_END
 //   MSVC 2008 (http://msdn.microsoft.com/en-us/library/bb892950%28v=vs.90%29.aspx)
 //   SunCC could generate SSE4 at 12.1, but the intrinsics are missing until 12.4.
 #if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_SSE4) && !defined(_M_ARM) && ((_MSC_VER >= 1500) || (defined(__SSE4_1__) && defined(__SSE4_2__)))
-	#define CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE 1
+	#define CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE 0
 #else
 	#define CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE 0
 #endif
 
 // Don't disgorge AES-NI from CLMUL. There will be two to four subtle breaks
 #if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_AESNI) && !defined(_M_ARM) && (_MSC_FULL_VER >= 150030729 || __INTEL_COMPILER >= 1110 || (defined(__AES__) && defined(__PCLMUL__)))
-	#define CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE 1
+	#define CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE 0
 #else
 	#define CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE 0
 #endif
 
 // AVX2 in MSC 18.00
 #if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_AVX) && !defined(_M_ARM) && ((_MSC_VER >= 1600) || (defined(__RDRND__) || defined(__RDSEED__) || defined(__AVX__)))
-	#define CRYPTOPP_BOOL_AVX_AVAILABLE 1
+	#define CRYPTOPP_BOOL_AVX_AVAILABLE 0
 #else
 	#define CRYPTOPP_BOOL_AVX_AVAILABLE 0
 #endif
+
+// Enabled for testing Issue 302. If this hits production then please raise redflags
+#define CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS 1
 
 // Requires ARMv7 and ACLE 1.0. Testing shows ARMv7 is really ARMv7a under most toolchains.
 #if !defined(CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)

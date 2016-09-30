@@ -56,7 +56,13 @@ class CRYPTOPP_DLL Rijndael : public Rijndael_Info, public BlockCipherDocumentat
 	public:
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
 #if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86
+		Enc() : m_aliasBlock(sizeToAllocate) {}
 		size_t AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const;
+	private:
+		static const size_t aliasPageSize;
+		static const size_t aliasBlockSize;
+		static const size_t sizeToAllocate;
+		SecByteBlock m_aliasBlock;
 #endif
 	};
 

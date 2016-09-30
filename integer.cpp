@@ -415,12 +415,15 @@ S DivideThreeWordsByTwo(S *A, S B0, S B1, D *dummy=NULL)
 	// CRYPTOPP_ASSERT {A[2],A[1]} < {B1,B0}, so quotient can fit in a S
 	CRYPTOPP_ASSERT(A[2] < B1 || (A[2]==B1 && A[1] < B0));
 
-	// estimate the quotient: do a 2 S by 1 S divide
-	S Q;
-	if (S(B1+1) == 0)
-		Q = A[2];
-	else if (B1 > 0)
+	// estimate the quotient: do a 2 S by 1 S divide.
+	// Profiling tells us the original second case was dominant, so it was promoted to the first If statement.
+	// The code change occurred at Commit dc99266599a0e72d.
+
+	S Q; bool pre = (S(B1+1) == 0);
+	if (B1 > 0 && !pre)
 		Q = D(A[1], A[2]) / S(B1+1);
+	else if (pre)
+		Q = A[2];
 	else
 		Q = D(A[0], A[1]) / B0;
 
@@ -451,9 +454,10 @@ S DivideThreeWordsByTwo(S *A, S B0, S B1, D *dummy=NULL)
 template <class S, class D>
 inline D DivideFourWordsByTwo(S *T, const D &Al, const D &Ah, const D &B)
 {
-	if (!B) // if divisor is 0, we assume divisor==2**(2*WORD_BITS)
-		return D(Ah.GetLowHalf(), Ah.GetHighHalf());
-	else
+	// Profiling tells us the original second case was dominant, so it was promoted to the first If statement.
+	// The code change occurred at Commit dc99266599a0e72d.
+
+	if (!!B)
 	{
 		S Q[2];
 		T[0] = Al.GetLowHalf();
@@ -463,6 +467,10 @@ inline D DivideFourWordsByTwo(S *T, const D &Al, const D &Ah, const D &B)
 		Q[1] = DivideThreeWordsByTwo<S, D>(T+1, B.GetLowHalf(), B.GetHighHalf());
 		Q[0] = DivideThreeWordsByTwo<S, D>(T, B.GetLowHalf(), B.GetHighHalf());
 		return D(Q[0], Q[1]);
+	}
+	else  // if divisor is 0, we assume divisor==2**(2*WORD_BITS)
+	{
+		return D(Ah.GetLowHalf(), Ah.GetHighHalf());
 	}
 }
 
@@ -2342,10 +2350,12 @@ void AsymmetricMultiply(word *R, word *T, const word *A, size_t NA, const word *
 {
 	if (NA == NB)
 	{
-		if (A == B)
-			Square(R, T, A, NA);
-		else
+		// Profiling tells us the original second case was dominant, so it was promoted to the first If statement.
+		// The code change occurred at Commit dc99266599a0e72d.
+		if (A != B)
 			Multiply(R, T, A, B, NA);
+		else
+			Square(R, T, A, NA);
 
 		return;
 	}
@@ -2360,18 +2370,20 @@ void AsymmetricMultiply(word *R, word *T, const word *A, size_t NA, const word *
 
 	if (NA==2 && !A[1])
 	{
+		// Profiling tells us the original Default case was dominant, so it was promoted to the first Case statement.
+		// The code change occurred at Commit dc99266599a0e72d.
 		switch (A[0])
 		{
+		default:
+			R[NB] = LinearMultiply(R, B, A[0], NB);
+			R[NB+1] = 0;
+			return;
 		case 0:
 			SetWords(R, 0, NB+2);
 			return;
 		case 1:
 			CopyWords(R, B, NB);
 			R[NB] = R[NB+1] = 0;
-			return;
-		default:
-			R[NB] = LinearMultiply(R, B, A[0], NB);
-			R[NB+1] = 0;
 			return;
 		}
 	}
@@ -2405,16 +2417,9 @@ void AsymmetricMultiply(word *R, word *T, const word *A, size_t NA, const word *
 
 void RecursiveInverseModPower2(word *R, word *T, const word *A, size_t N)
 {
-	if (N==2)
-	{
-		T[0] = AtomicInverseModPower2(A[0]);
-		T[1] = 0;
-		s_pBot[0](T+2, T, A);
-		TwosComplement(T+2, 2);
-		Increment(T+2, 2, 2);
-		s_pBot[0](R, T, T+2);
-	}
-	else
+	// Profiling tells us the original Else was dominant, so it was promoted to the first If statement.
+	// The code change occurred at Commit dc99266599a0e72d.
+	if (N!=2)
 	{
 		const size_t N2 = N/2;
 		RecursiveInverseModPower2(R0, T0, A0, N2);
@@ -2425,6 +2430,15 @@ void RecursiveInverseModPower2(word *R, word *T, const word *A, size_t N)
 		Add(T0, R1, T0, N2);
 		TwosComplement(T0, N2);
 		MultiplyBottom(R1, T1, R0, T0, N2);
+	}
+	else
+	{
+		T[0] = AtomicInverseModPower2(A[0]);
+		T[1] = 0;
+		s_pBot[0](T+2, T, A);
+		TwosComplement(T+2, 2);
+		Increment(T+2, 2, 2);
+		s_pBot[0](R, T, T+2);
 	}
 }
 
@@ -2876,7 +2890,8 @@ static inline size_t RoundupSize(size_t n)
 		return 32;
 	else if (n<=64)
 		return 64;
-	else return size_t(1) << BitPrecision(n-1);
+	else
+		return size_t(1) << BitPrecision(n-1);
 }
 
 Integer::Integer()
@@ -2946,7 +2961,7 @@ Integer::Integer(BufferedTransformation &encodedInteger, size_t byteCount, Signe
 {
 	CRYPTOPP_ASSERT(o == BIG_ENDIAN_ORDER || o == LITTLE_ENDIAN_ORDER);
 
-	if(o == LITTLE_ENDIAN_ORDER)
+	if (o == LITTLE_ENDIAN_ORDER)
 	{
 		SecByteBlock block(byteCount);
 		encodedInteger.Get(block, block.size());
@@ -2963,7 +2978,7 @@ Integer::Integer(const byte *encodedInteger, size_t byteCount, Signedness s, Byt
 {
 	CRYPTOPP_ASSERT(o == BIG_ENDIAN_ORDER || o == LITTLE_ENDIAN_ORDER);
 
-	if(o == LITTLE_ENDIAN_ORDER)
+	if (o == LITTLE_ENDIAN_ORDER)
 	{
 		SecByteBlock block(byteCount);
 #if (CRYPTOPP_MSC_VERSION >= 1400)
@@ -3054,10 +3069,12 @@ Integer& Integer::operator=(const Integer& t)
 
 bool Integer::GetBit(size_t n) const
 {
-	if (n/WORD_BITS >= reg.size())
-		return 0;
-	else
+	// Profiling tells us the original Else was dominant, so it was promoted to the first If statement.
+	// The code change occurred at Commit dc99266599a0e72d.
+	if (n/WORD_BITS < reg.size())
 		return bool((reg[n/WORD_BITS] >> (n % WORD_BITS)) & 1);
+	else
+		return 0;
 }
 
 void Integer::SetBit(size_t n, bool value)
@@ -3076,10 +3093,12 @@ void Integer::SetBit(size_t n, bool value)
 
 byte Integer::GetByte(size_t n) const
 {
-	if (n/WORD_SIZE >= reg.size())
-		return 0;
-	else
+	// Profiling tells us the original Else was dominant, so it was promoted to the first If statement.
+	// The code change occurred at Commit dc99266599a0e72d.
+	if (n/WORD_SIZE < reg.size())
 		return byte(reg[n/WORD_SIZE] >> ((n%WORD_SIZE)*8));
+	else
+		return 0;
 }
 
 void Integer::SetByte(size_t n, byte value)
@@ -3172,18 +3191,20 @@ static Integer StringToInteger(const T *str, ByteOrder order)
 		str += 2, length -= 2;
 	}
 
-	if(order == BIG_ENDIAN_ORDER)
+	if (order == BIG_ENDIAN_ORDER)
 	{
 		for (unsigned int i=0; i<length; i++)
 		{
 			int digit, ch = static_cast<int>(str[i]);
 
+			//  Profiling showd the second and third Else needed to be swapped
+			// The code change occurred at Commit dc99266599a0e72d.
 			if (ch >= '0' && ch <= '9')
 				digit = ch - '0';
-			else if (ch >= 'A' && ch <= 'F')
-				digit = ch - 'A' + 10;
 			else if (ch >= 'a' && ch <= 'f')
 				digit = ch - 'a' + 10;
+			else if (ch >= 'A' && ch <= 'F')
+				digit = ch - 'A' + 10;
 			else
 				digit = radix;
 
@@ -3194,7 +3215,7 @@ static Integer StringToInteger(const T *str, ByteOrder order)
 			}
 		}
 	}
-	else if(radix == 16 && order == LITTLE_ENDIAN_ORDER)
+	else if (radix == 16 && order == LITTLE_ENDIAN_ORDER)
 	{
 		// Nibble high, low and count
 		unsigned int nh = 0, nl = 0, nc = 0;
@@ -3206,21 +3227,21 @@ static Integer StringToInteger(const T *str, ByteOrder order)
 
 			if (ch >= '0' && ch <= '9')
 				digit = ch - '0';
-			else if (ch >= 'A' && ch <= 'F')
-				digit = ch - 'A' + 10;
 			else if (ch >= 'a' && ch <= 'f')
 				digit = ch - 'a' + 10;
+			else if (ch >= 'A' && ch <= 'F')
+				digit = ch - 'A' + 10;
 			else
 				digit = radix;
 
 			if (digit < radix)
 			{
-				if(nc++ == 0)
+				if (nc++ == 0)
 					nh = digit;
 				else
 					nl = digit;
 
-				if(nc == 2)
+				if (nc == 2)
 				{
 					v += position * (nh << 4 | nl);
 					nc = 0, position <<= 8;
@@ -3228,7 +3249,7 @@ static Integer StringToInteger(const T *str, ByteOrder order)
 			}
 		}
 
-		if(nc == 1)
+		if (nc == 1)
 			v += nh * position;
 	}
 	else // LITTLE_ENDIAN_ORDER && radix != 16
@@ -3239,10 +3260,10 @@ static Integer StringToInteger(const T *str, ByteOrder order)
 
 			if (ch >= '0' && ch <= '9')
 				digit = ch - '0';
-			else if (ch >= 'A' && ch <= 'F')
-				digit = ch - 'A' + 10;
 			else if (ch >= 'a' && ch <= 'f')
 				digit = ch - 'a' + 10;
+			else if (ch >= 'A' && ch <= 'F')
+				digit = ch - 'A' + 10;
 			else
 				digit = radix;
 
@@ -3337,11 +3358,14 @@ void Integer::Decode(BufferedTransformation &bt, size_t inputLen, Signedness s)
 
 size_t Integer::MinEncodedSize(Signedness signedness) const
 {
+	// Profiling tells us the original second If was dominant, so it was promoted to the first If statement.
+	// The code change occurred at Commit dc99266599a0e72d.
 	unsigned int outputLen = STDMAX(1U, ByteCount());
-	if (signedness == UNSIGNED)
-		return outputLen;
-	if (NotNegative() && (GetByte(outputLen-1) & 0x80))
+	const bool pre = (signedness == UNSIGNED);
+	if (!pre && NotNegative() && (GetByte(outputLen-1) & 0x80))
 		outputLen++;
+	if (pre)
+		return outputLen;
 	if (IsNegative() && *this < -Power2(outputLen*8-1))
 		outputLen++;
 	return outputLen;
@@ -3665,7 +3689,7 @@ std::ostream& operator<<(std::ostream& out, const Integer &a)
 	}
 
 #ifdef CRYPTOPP_USE_STD_SHOWBASE
-	if(out.flags() & std::ios_base::showbase)
+	if (out.flags() & std::ios_base::showbase)
 		out << suffix;
 
 	return out;
@@ -3716,14 +3740,18 @@ Integer& Integer::operator--()
 
 void PositiveAdd(Integer &sum, const Integer &a, const Integer& b)
 {
-	int carry;
-	if (a.reg.size() == b.reg.size())
-		carry = Add(sum.reg, a.reg, b.reg, a.reg.size());
-	else if (a.reg.size() > b.reg.size())
+	// Profiling tells us the original second Else If was dominant, so it was promoted to the first If statement.
+	// The code change occurred at Commit dc99266599a0e72d.
+	int carry; const bool pre = (a.reg.size() == b.reg.size());
+	if (!pre && a.reg.size() > b.reg.size())
 	{
 		carry = Add(sum.reg, a.reg, b.reg, b.reg.size());
 		CopyWords(sum.reg+b.reg.size(), a.reg+b.reg.size(), a.reg.size()-b.reg.size());
 		carry = Increment(sum.reg+b.reg.size(), a.reg.size()-b.reg.size(), carry);
+	}
+	else if (pre)
+	{
+		carry = Add(sum.reg, a.reg, b.reg, a.reg.size());
 	}
 	else
 	{
@@ -3747,7 +3775,17 @@ void PositiveSubtract(Integer &diff, const Integer &a, const Integer& b)
 	unsigned bSize = b.WordCount();
 	bSize += bSize%2;
 
-	if (aSize == bSize)
+	// Profiling tells us the original second Else If was dominant, so it was promoted to the first If statement.
+	// The code change occurred at Commit dc99266599a0e72d.
+	if (aSize > bSize)
+	{
+		word borrow = Subtract(diff.reg, a.reg, b.reg, bSize);
+		CopyWords(diff.reg+bSize, a.reg+bSize, aSize-bSize);
+		borrow = Decrement(diff.reg+bSize, aSize-bSize, borrow);
+		CRYPTOPP_ASSERT(!borrow);
+		diff.sign = Integer::POSITIVE;
+	}
+	else if (aSize == bSize)
 	{
 		if (Compare(a.reg, b.reg, aSize) >= 0)
 		{
@@ -3759,14 +3797,6 @@ void PositiveSubtract(Integer &diff, const Integer &a, const Integer& b)
 			Subtract(diff.reg, b.reg, a.reg, aSize);
 			diff.sign = Integer::NEGATIVE;
 		}
-	}
-	else if (aSize > bSize)
-	{
-		word borrow = Subtract(diff.reg, a.reg, b.reg, bSize);
-		CopyWords(diff.reg+bSize, a.reg+bSize, aSize-bSize);
-		borrow = Decrement(diff.reg+bSize, aSize-bSize, borrow);
-		CRYPTOPP_ASSERT(!borrow);
-		diff.sign = Integer::POSITIVE;
 	}
 	else
 	{
@@ -4045,8 +4075,6 @@ void Integer::Divide(word &remainder, Integer &quotient, const Integer &dividend
 	if (!divisor)
 		throw Integer::DivideByZero();
 
-	CRYPTOPP_ASSERT(divisor);
-
 	if ((divisor & (divisor-1)) == 0)	// divisor is a power of 2
 	{
 		quotient = dividend >> (BitPrecision(divisor)-1);
@@ -4089,29 +4117,32 @@ word Integer::Modulo(word divisor) const
 	if (!divisor)
 		throw Integer::DivideByZero();
 
-	CRYPTOPP_ASSERT(divisor);
-
 	word remainder;
 
-	if ((divisor & (divisor-1)) == 0)	// divisor is a power of 2
-		remainder = reg[0] & (divisor-1);
-	else
+	// Profiling tells us the original Else was dominant, so it was promoted to the first If statement.
+	// The code change occurred at Commit dc99266599a0e72d.
+	if ((divisor & (divisor-1)) != 0)	// divisor is not a power of 2
 	{
+		// Profiling tells us the original Else was dominant, so it was promoted to the first If statement.
+		// The code change occurred at Commit dc99266599a0e72d.
 		unsigned int i = WordCount();
-
-		if (divisor <= 5)
+		if (divisor > 5)
+		{
+			remainder = 0;
+			while (i--)
+				remainder = DWord(reg[i], remainder) % divisor;
+		}
+		else
 		{
 			DWord sum(0, 0);
 			while (i--)
 				sum += reg[i];
 			remainder = sum % divisor;
 		}
-		else
-		{
-			remainder = 0;
-			while (i--)
-				remainder = DWord(reg[i], remainder) % divisor;
-		}
+	}
+	else  // divisor is a power of 2
+	{
+		remainder = reg[0] & (divisor-1);
 	}
 
 	if (IsNegative() && remainder)
@@ -4128,12 +4159,13 @@ void Integer::Negate()
 
 int Integer::PositiveCompare(const Integer& t) const
 {
-	unsigned size = WordCount(), tSize = t.WordCount();
-
-	if (size == tSize)
-		return CryptoPP::Compare(reg, t.reg, size);
-	else
+	// Profiling tells us the original Else was dominant, so it was promoted to the first If statement.
+	// The code change occurred at Commit dc99266599a0e72d.
+	const unsigned size = WordCount(), tSize = t.WordCount();
+	if (size != tSize)
 		return size > tSize ? 1 : -1;
+	else
+		return CryptoPP::Compare(reg, t.reg, size);
 }
 
 int Integer::Compare(const Integer& t) const

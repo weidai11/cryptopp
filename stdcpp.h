@@ -44,7 +44,11 @@ namespace std {
 #include <cstddef>
 #include <cstring>
 #include <climits>
-#include "trap.h"
+
+// uintptr_t and ptrdiff_t
+#if (__cplusplus < 201103L)
+# include <stdint.h>
+#endif
 
 #ifdef CRYPTOPP_INCLUDE_VECTOR_CC
 // workaround needed on Sun Studio 12u1 Sun C++ 5.10 SunOS_i386 128229-02 2009/09/21
