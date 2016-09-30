@@ -76,8 +76,8 @@ public:
 private:
 	WindowsHandle m_event;
 	OVERLAPPED m_overlapped;
-	bool m_resultPending;
 	DWORD m_lastResult;
+	bool m_resultPending;
 	bool m_eofReceived;
 };
 
@@ -100,8 +100,8 @@ public:
 private:
 	WindowsHandle m_event;
 	OVERLAPPED m_overlapped;
-	bool m_resultPending;
 	DWORD m_lastResult;
+	bool m_resultPending;
 };
 
 //! \brief Windows Pipe Source
