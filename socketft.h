@@ -144,16 +144,17 @@ public:
 
 private:
 	Socket &m_s;
-	bool m_eofReceived;
 
 #ifdef USE_WINDOWS_STYLE_SOCKETS
 	WindowsHandle m_event;
 	OVERLAPPED m_overlapped;
-	bool m_resultPending;
 	DWORD m_lastResult;
+	bool m_resultPending;
 #else
 	unsigned int m_lastResult;
 #endif
+
+	bool m_eofReceived;
 };
 
 class SocketSender : public NetworkSender
@@ -181,8 +182,8 @@ private:
 #ifdef USE_WINDOWS_STYLE_SOCKETS
 	WindowsHandle m_event;
 	OVERLAPPED m_overlapped;
-	bool m_resultPending;
 	DWORD m_lastResult;
+	bool m_resultPending;
 #else
 	unsigned int m_lastResult;
 #endif

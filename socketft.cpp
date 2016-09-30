@@ -356,7 +356,7 @@ void Socket::HandleError(const char *operation) const
 #ifdef USE_WINDOWS_STYLE_SOCKETS
 
 SocketReceiver::SocketReceiver(Socket &s)
-	: m_s(s), m_eofReceived(false), m_resultPending(false)
+	: m_s(s), m_lastResult(0), m_resultPending(false), m_eofReceived(false)
 {
 	m_event.AttachHandle(CreateEvent(NULL, true, false, NULL), true);
 	m_s.CheckAndHandleError("CreateEvent", m_event.HandleValid());
@@ -538,7 +538,7 @@ unsigned int SocketSender::GetSendResult()
 #ifdef USE_BERKELEY_STYLE_SOCKETS
 
 SocketReceiver::SocketReceiver(Socket &s)
-	: m_s(s), m_eofReceived(false), m_lastResult(0)
+	: m_s(s), m_lastResult(0), m_eofReceived(false)
 {
 }
 
