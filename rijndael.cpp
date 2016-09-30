@@ -1250,7 +1250,7 @@ inline size_t AESNI_AdvancedProcessBlocks(F1 func1, F4 func4, MAYBE_CONST __m128
 }
 #endif
 
-#if (CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
+#if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86
 struct Locals
 {
 	word32 subkeys[4*12], workspace[8];
@@ -1260,9 +1260,11 @@ struct Locals
 	size_t regSpill, lengthAndCounterFlag, keysBegin;
 };
 
-const size_t Rijndael::Enc::aliasPageSize = 4096;
-const size_t Rijndael::Enc::aliasBlockSize = 256;
-const size_t Rijndael::Enc::sizeToAllocate = aliasPageSize + aliasBlockSize + sizeof(Locals);
+const size_t s_aliasPageSize = 4096;
+const size_t s_aliasBlockSize = 256;
+const size_t s_sizeToAllocate = s_aliasPageSize + s_aliasBlockSize + sizeof(Locals);
+
+Rijndael::Enc::Enc() : m_aliasBlock(s_sizeToAllocate) { }
 #endif
 
 size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const
@@ -1278,15 +1280,15 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 		if (length < BLOCKSIZE)
 			return length;
 
-		static const byte *zeros = (const byte*)(Te+aliasBlockSize);
+		static const byte *zeros = (const byte*)(Te+256);
 		byte *space = NULL, *originalSpace = const_cast<byte*>(m_aliasBlock.data());
 
 		// round up to nearest 256 byte boundary
-		space = originalSpace +	(aliasBlockSize - (uintptr_t)originalSpace % aliasBlockSize) % aliasBlockSize;
+		space = originalSpace +	(s_aliasBlockSize - (uintptr_t)originalSpace % s_aliasBlockSize) % s_aliasBlockSize;
 		while (AliasedWithTable(space, space + sizeof(Locals)))
 		{
 			space += 256;
-			CRYPTOPP_ASSERT(space < (originalSpace + aliasPageSize));
+			CRYPTOPP_ASSERT(space < (originalSpace + s_aliasPageSize));
 		}
 
 		size_t increment = BLOCKSIZE;
