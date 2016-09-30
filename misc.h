@@ -257,9 +257,12 @@ struct NewObject
 //! \details This class safely initializes a static object in a multithreaded environment. For C++03
 //!   and below it will do so without using locks for portability. If two threads call Ref() at the same
 //!   time, they may get back different references, and one object may end up being memory leaked. This
-//!   is by design. For C++11 and above, a standard double-checked locking pattern with thread fences
+//!   is by design and it avoids a subltle initialization problem ina multithreaded environment with thread
+//!   local storage on early Windows platforms, like Windows XP and Windows 2003.
+//! \details For C++11 and above, a standard double-checked locking pattern with thread fences
 //!   are used. The locks and fences are standard and do not hinder portability.
-//! \sa <A HREF="http://preshing.com/20130930/double-checked-locking-is-fixed-in-cpp11/">Double-Checked Locking is Fixed In C++11</A>
+//! \sa <A HREF="http://preshing.com/20130930/double-checked-locking-is-fixed-in-cpp11/">Double-Checked
+//!   Locking is Fixed In C++11</A>
 template <class T, class F = NewObject<T>, int instance=0>
 class Singleton
 {

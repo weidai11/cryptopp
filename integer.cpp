@@ -3011,21 +3011,27 @@ struct NewInteger
 	}
 };
 
+// File scope static due to subtle initialization problems in a threaded
+//   Windows environment. See the comments for Singleton. Thanks DB.
+static const Integer& s_zero = Singleton<Integer>().Ref();
 const Integer &Integer::Zero()
 {
-	static const Integer& s_zero = Singleton<Integer>().Ref();
 	return s_zero;
 }
 
+// File scope static due to subtle initialization problems in a threaded
+//   Windows environment. See the comments for Singleton. Thanks DB.
+static const Integer& s_one = Singleton<Integer, NewInteger<1> >().Ref();
 const Integer &Integer::One()
 {
-	static const Integer& s_one = Singleton<Integer, NewInteger<1> >().Ref();
 	return s_one;
 }
 
+// File scope static due to subtle initialization problems in a threaded
+//   Windows environment. See the comments for Singleton. Thanks DB.
+static const Integer& s_two = Singleton<Integer, NewInteger<2> >().Ref();
 const Integer &Integer::Two()
 {
-	static const Integer& s_two = Singleton<Integer, NewInteger<2> >().Ref();
 	return s_two;
 }
 
