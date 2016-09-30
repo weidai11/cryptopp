@@ -233,13 +233,18 @@ void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keylen, c
 			0x10, 0x20, 0x40, 0x80,
 			0x1B, 0x36, /* for 128-bit blocks, Rijndael never uses more than 10 rcon values */
 		};
-		const word32 *rc = rcLE;
+
+		// Coverity finding, appears to be false positive. Assert the condition.
+		const word32 *ro = rcLE, *rc = rcLE;
+		CRYPTOPP_UNUSED(ro);
 
 		__m128i temp = _mm_loadu_si128((__m128i *)(void *)(userKey+keylen-16));
 		memcpy(rk, userKey, keylen);
 
 		while (true)
 		{
+			// Coverity finding, appears to be false positive. Assert the condition.
+			CRYPTOPP_ASSERT(rc < ro + COUNTOF(rcLE));
 			rk[keylen/4] = rk[0] ^ _mm_extract_epi32(_mm_aeskeygenassist_si128(temp, 0), 3) ^ *(rc++);
 			rk[keylen/4+1] = rk[1] ^ rk[keylen/4];
 			rk[keylen/4+2] = rk[2] ^ rk[keylen/4+1];
@@ -252,19 +257,29 @@ void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keylen, c
 			{
 				rk[10] = rk[ 4] ^ rk[ 9];
 				rk[11] = rk[ 5] ^ rk[10];
+				// Coverity finding, appears to be false positive. Assert the condition.
+				CRYPTOPP_ASSERT(m_key.size() >= 12);
 				temp = _mm_insert_epi32(temp, rk[11], 3);
 			}
 			else if (keylen == 32)
 			{
+				// Coverity finding, appears to be false positive. Assert the condition.
+				CRYPTOPP_ASSERT(m_key.size() >= 12);
 				temp = _mm_insert_epi32(temp, rk[11], 3);
     			rk[12] = rk[ 4] ^ _mm_extract_epi32(_mm_aeskeygenassist_si128(temp, 0), 2);
     			rk[13] = rk[ 5] ^ rk[12];
     			rk[14] = rk[ 6] ^ rk[13];
     			rk[15] = rk[ 7] ^ rk[14];
+				// Coverity finding, appears to be false positive. Assert the condition.
+				CRYPTOPP_ASSERT(m_key.size() >= 16);
 				temp = _mm_insert_epi32(temp, rk[15], 3);
 			}
 			else
+			{
+				// Coverity finding, appears to be false positive. Assert the condition.
+				CRYPTOPP_ASSERT(m_key.size() >= 8);
 				temp = _mm_insert_epi32(temp, rk[7], 3);
+			}
 
 			rk += keylen/4;
 		}
@@ -1186,6 +1201,8 @@ inline size_t AESNI_AdvancedProcessBlocks(F1 func1, F4 func4, MAYBE_CONST __m128
 
 			if (flags & BlockTransformation::BT_XorInput)
 			{
+				// Coverity finding, appears to be false positive. Assert the condition.
+				CRYPTOPP_ASSERT(xorBlocks);
 				block0 = _mm_xor_si128(block0, _mm_loadu_si128((const __m128i *)(const void *)xorBlocks));
 				xorBlocks += xorIncrement;
 				block1 = _mm_xor_si128(block1, _mm_loadu_si128((const __m128i *)(const void *)xorBlocks));
