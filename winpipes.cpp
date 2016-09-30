@@ -168,7 +168,7 @@ unsigned int WindowsPipeReceiver::GetReceiveResult()
 // *************************************************************
 
 WindowsPipeSender::WindowsPipeSender()
-	: m_lastResult(0), m_resultPending(false), m_eofReceived(false)
+	: m_lastResult(0), m_resultPending(false)
 {
 	m_event.AttachHandle(CreateEvent(NULL, true, false, NULL), true);
 	CheckAndHandleError("CreateEvent", m_event.HandleValid());
