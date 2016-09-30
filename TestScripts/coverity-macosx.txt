@@ -1,0 +1,36 @@
+# coverity-linux.txt - Scan build submission instructions for Unix and Linux.
+#                      Written and placed in public domain by Jeffrey Walton and Uri Blumenthal.
+#                      Copyright assigned to Crypto++ project.
+#
+# The following are copy/paste instructions for invoking cov-build, building the library and submitting the artifacts for a scan.
+#
+# For more information see http://cryptopp.com/wiki/Coverity_Scan.
+
+##################################################################
+
+reset
+
+make distclean &>/dev/null
+
+# Usually we test with these flags
+CXXFLAGS="-DNDEBUG -g3 -O2" cov-build --dir cov-int make -j 2
+
+# Sometimes we need these flags (add COVERITY_UNSUPPORTED)
+# COVERITY_UNSUPPORTED=1 CXXFLAGS="-DNDEBUG -g3 -O2" cov-build --dir cov-int make -j 2
+
+# Sometimes we need these flags (alternate compile, C++11)
+# CXX=/opt/local/bin/clang++-mp-3.7 COVERITY_UNSUPPORTED=1 CXXFLAGS="-DNDEBUG -g3 -O2 -std=c++11" cov-build --dir cov-int make -j 2
+
+
+tar czvf cryptopp.tgz cov-int
+
+CRYPTOPP_COVERITY_TOKEN=XXXXXXXXXXXXXXXX
+COVERITY_SCAN_NAME="Cryptopp-MacOSX-x86_64"
+
+curl
+  --form token="$CRYPTOPP_COVERITY_TOKEN" \
+  --form email=webmaster@cryptopp.com \
+  --form file=@cryptopp.tgz \
+  --form version="$COVERITY_SCAN_NAME" \
+  --form description="$COVERITY_SCAN_NAME" \
+  https://scan.coverity.com/builds?project=Cryptopp
