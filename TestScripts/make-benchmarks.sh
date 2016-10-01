@@ -164,5 +164,3 @@ if [[ ! -z "$current" ]]; then
 fi
 
 [[ "$0" = "$BASH_SOURCE" ]] && exit 0 || return 0
-	
-	
