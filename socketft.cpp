@@ -397,6 +397,7 @@ bool SocketReceiver::Receive(byte* buf, size_t bufLen)
 		{
 		default:
 			m_s.CheckAndHandleError_int("WSARecv", SOCKET_ERROR);
+			// Fall through for non-fatal
 		case WSAEDISCON:
 			m_lastResult = 0;
 			m_eofReceived = true;
@@ -432,6 +433,7 @@ unsigned int SocketReceiver::GetReceiveResult()
 			{
 			default:
 				m_s.CheckAndHandleError("WSAGetOverlappedResult", FALSE);
+				// Fall through for non-fatal
 			case WSAEDISCON:
 				m_lastResult = 0;
 				m_eofReceived = true;

@@ -114,6 +114,7 @@ bool WindowsPipeReceiver::Receive(byte* buf, size_t bufLen)
 		{
 		default:
 			CheckAndHandleError("ReadFile", false);
+			// Fall through for non-fatal
 		case ERROR_BROKEN_PIPE:
 		case ERROR_HANDLE_EOF:
 			m_lastResult = 0;
@@ -154,6 +155,7 @@ unsigned int WindowsPipeReceiver::GetReceiveResult()
 			{
 			default:
 				CheckAndHandleError("GetOverlappedResult", false);
+				// Fall through for non-fatal
 			case ERROR_BROKEN_PIPE:
 			case ERROR_HANDLE_EOF:
 				m_lastResult = 0;
