@@ -55,11 +55,11 @@ protected:
 //! \tparam DigestSize controls the digest size as a template parameter instead of a per-class constant
 //! \brief SHA3-X message digest, template for more fine-grained typedefs
 //! \since Crypto++ 5.7.0
-template<unsigned int digestSize>
+template<unsigned int T_DigestSize>
 class SHA3_Final : public SHA3
 {
 public:
-	CRYPTOPP_CONSTANT(DIGESTSIZE = digestSize)
+	CRYPTOPP_CONSTANT(DIGESTSIZE = T_DigestSize)
 	CRYPTOPP_CONSTANT(BLOCKSIZE = 200 - 2 * DIGESTSIZE)
 
 	//! \brief Construct a SHA3-X message digest
@@ -68,7 +68,7 @@ public:
 	unsigned int BlockSize() const { return BLOCKSIZE; }
 private:
 	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE < 200); // ensure there was no underflow in the math
-	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE > DIGESTSIZE); // this is a general expectation by HMAC
+	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE > T_DigestSize); // this is a general expectation by HMAC
 };
 
 //! \class SHA3_224

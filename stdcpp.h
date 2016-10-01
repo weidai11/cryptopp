@@ -46,8 +46,10 @@ namespace std {
 #include <climits>
 
 // uintptr_t and ptrdiff_t
-#if (__cplusplus < 201103L)
+#if (__cplusplus < 201103L) && (!defined(_MSC_VER) || (_MSC_VER >= 1400))
 # include <stdint.h>
+#elif defined(_MSC_VER) && (_MSC_VER < 1400)
+# include <stddef.h>
 #endif
 
 #ifdef CRYPTOPP_INCLUDE_VECTOR_CC
