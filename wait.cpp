@@ -45,8 +45,12 @@ unsigned int WaitObjectContainer::MaxWaitObjects()
 }
 
 WaitObjectContainer::WaitObjectContainer(WaitObjectsTracer* tracer)
-	: m_tracer(tracer), m_eventTimer(Timer::MILLISECONDS), m_lastResult(0)
-	, m_sameResultCount(0), m_noWaitTimer(Timer::MILLISECONDS)
+	: m_tracer(tracer),
+#ifdef USE_WINDOWS_STYLE_SOCKETS
+	  m_startWaiting(0), m_stopWaiting(0),
+#endif
+	  m_firstEventTime(0.0f), m_eventTimer(Timer::MILLISECONDS), m_lastResult(0),
+	  m_sameResultCount(0), m_noWaitTimer(Timer::MILLISECONDS)
 {
 	Clear();
 	m_eventTimer.StartTimer();
