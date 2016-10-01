@@ -179,6 +179,7 @@ oaep.h
 oids.h
 osrng.cpp
 osrng.h
+ossig.h
 panama.cpp
 panama.h
 pch.cpp
