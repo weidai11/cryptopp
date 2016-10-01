@@ -83,7 +83,7 @@ public:
 	unsigned int BlockSize() const { return BLOCKSIZE; }
 private:
 	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE < 200); // ensure there was no underflow in the math
-	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE > T_DigestSize); // this is a general expectation by HMAC
+	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE > (int)T_DigestSize); // this is a general expectation by HMAC
 };
 
 //! \class Keccak_224
