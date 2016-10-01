@@ -1,6 +1,7 @@
 #!/usr/bin/env perl
 
 # cryptest-windows.sh - written and placed in public domain by Jeffrey Walton and Uri Blumenthal.
+#                       Thanks to Grant McLean on Stack Overflow for help with Perl and string handling.
 #                       Copyright assigned to Crypto++ project.
 
 # This is a test script that can be used on some Windows machines to automate building the
@@ -13,11 +14,10 @@
 use strict;
 use warnings;
 
-my $DEBUG32_CXXFLAGS="/DDEBUG";
-my $RELEASE32_CXXFLAGS="/DNDEBUG";
+my $DEBUG32_CXXFLAGS = "/nologo /DDEBUG";
+my $RELEASE32_CXXFLAGS = "/nologo /DNDEBUG";
+my $DEBUG64_CXXFLAGS = "/nologo /DDEBUG";
+my $RELASE64_CXXFLAGS = "/nologo /DNDEBUG";
 
-my $DEBUG64_CXXFLAGS="/DDEBUG";
-my $RELASE64_CXXFLAGS="/DNDEBUG";
-
-system('nmake', '/f', 'cryptest.nmake', 'clean');
-system('nmake', '/f', 'cryptest.nmake', 'CXXFLAGS="DEBUG32_CXXFLAGS"');
+system('nmake.exe', '/f', 'cryptest.nmake', 'clean');
+system('nmake', '/f', 'cryptest.nmake', "CXXFLAGS=\"$DEBUG32_CXXFLAGS\"");
