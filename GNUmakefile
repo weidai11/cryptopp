@@ -686,9 +686,9 @@ endif
 convert:
 	-$(CHMOD) 0700 TestVectors/ TestData/ TestScripts/
 	-$(CHMOD) 0600 $(TEXT_FILES) *.asm *.S *.zip *.cmake TestVectors/*.txt TestData/*.dat
-	-$(CHMOD) 0700 $(EXEC_FILES) *.sh *.cmd TestScripts/*.sh TestScripts/cryptest-win.pl
-	-$(CHMOD) 0700 *.cmd *.sh GNUmakefile GNUmakefile-cross
-	-unix2dos --keepdate --quiet $(TEXT_FILES) *.asm *.cmd *.cmake TestScripts/cryptest-win.pl
+	-$(CHMOD) 0700 $(EXEC_FILES) *.sh *.cmd TestScripts/*.sh TestScripts/*.pl
+	-$(CHMOD) 0700 *.cmd *.sh GNUmakefile GNUmakefile-cross TestScripts/*.sh TestScripts/*.pl
+	-unix2dos --keepdate --quiet $(TEXT_FILES) *.asm *.cmd *.cmake TestScripts/*.pl
 	-dos2unix --keepdate --quiet GNUmakefile GNUmakefile-cross *.S *.sh TestScripts/*.sh
 ifneq ($(IS_DARWIN),0)
 	-xattr -c *
