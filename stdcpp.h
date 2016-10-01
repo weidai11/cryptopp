@@ -46,9 +46,9 @@ namespace std {
 #include <climits>
 
 // uintptr_t and ptrdiff_t
-#if (__cplusplus < 201103L) && (!defined(_MSC_VER) || (_MSC_VER >= 1400))
+#if (__cplusplus < 201103L) && (!defined(_MSC_VER) || (_MSC_VER >= 1600))
 # include <stdint.h>
-#elif defined(_MSC_VER) && (_MSC_VER < 1400)
+#elif defined(_MSC_VER) && (_MSC_VER < 1600)
 # include <stddef.h>
 #endif
 
