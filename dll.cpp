@@ -131,7 +131,7 @@ static void SetNewAndDeleteFunctionPointers()
 			return;
 	}
 
-	OutputDebugString("Crypto++ was not able to obtain new and delete function pointers.\n");
+	OutputDebugString("Crypto++ DLL was not able to obtain new and delete function pointers.\n");
 	throw 0;
 }
 

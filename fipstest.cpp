@@ -446,7 +446,7 @@ bool IntegrityCheckModule(const char *moduleFilename, const byte *expectedModule
 	// hash from disk instead
 	if (!VerifyBufsEqual(expectedModuleMac, actualMac, macSize))
 	{
-		OutputDebugString("In memory integrity check failed. This may be caused by debug breakpoints or DLL relocation.\n");
+		OutputDebugString("Crypto++ DLL in-memory integrity check failed. This may be caused by debug breakpoints or DLL relocation.\n");
 		moduleStream.clear();
 		moduleStream.seekg(0);
 		verifier.Initialize(MakeParameters(Name::OutputBuffer(), ByteArrayParameter(actualMac, (unsigned int)actualMac.size())));
