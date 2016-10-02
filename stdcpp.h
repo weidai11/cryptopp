@@ -40,6 +40,10 @@ namespace std {
 #include <mutex>
 #endif
 
+#if defined(CRYPTOPP_CXX11_RVALUES)
+# include <utility>
+#endif
+
 #include <cstdlib>
 #include <cstddef>
 #include <cstring>

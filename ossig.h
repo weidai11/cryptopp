@@ -9,7 +9,7 @@
 
 #include "config.h"
 
-#if defined(CRYPTOPP_BSD_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE)
+#if defined(UNIX_SIGNALS_AVAILABLE)
 # include <signal.h>
 #endif
 
@@ -17,7 +17,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 // ************** Unix and Linux compatibles ***************
 
-#if defined(CRYPTOPP_BSD_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if defined(UNIX_SIGNALS_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 //! \brief Signal handler function pointer
 //! \details SignalHandlerFn is provided as a stand alone function pointer with external "C" linkage
