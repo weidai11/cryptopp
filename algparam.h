@@ -459,7 +459,7 @@ public:
 		}
 	}
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1300)
+#if defined(DEBUG_NEW) && (_MSC_VER >= 1300)
 # pragma push_macro("new")
 # undef new
 #endif
@@ -470,7 +470,7 @@ public:
 		CRYPTOPP_UNUSED(p);	// silence warning
 	}
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1300)
+#if defined(DEBUG_NEW) && (_MSC_VER >= 1300)
 # pragma pop_macro("new")
 #endif
 
