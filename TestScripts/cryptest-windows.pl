@@ -14,10 +14,28 @@
 use strict;
 use warnings;
 
-my $DEBUG32_CXXFLAGS = "/nologo /DDEBUG";
-my $RELEASE32_CXXFLAGS = "/nologo /DNDEBUG";
-my $DEBUG64_CXXFLAGS = "/nologo /DDEBUG";
-my $RELASE64_CXXFLAGS = "/nologo /DNDEBUG";
+# Clean previous artifacts
+system('rmdir.exe', '/q', '/s', "Win32", "x64", "ipch");
+system('nmake.exe', '/f', 'cryptest.nmake', 'clean');
+
+# Enable multiple jobs in Nmake
+ENV{CL}="/MP";
+
+# Perl and redirection appears hopelessy broke or hopelessly complex. Take your pick.
+my $LOG_FILE = "cryptest-result.txt";
+system('del.exe', '/q', "$LOG_FILE");
+
+# Choices include SSE2, AVX (VS2013) and AVX2 (VS2015)
+my $ARCH = "/arch:AVX";
+
+my $DEBUG_RUNTIME_CXXFLAG = "/MDd";
+my $RELEASE_RUNTIME_CXXFLAG = "/MD";
+
+my $BASE_CXXFLAGS = "/nologo /W4 /wd4511 /D_MBCS /Zi /TP /GR /EHsc /MP /fp:precise /FI sdkddkver.h";
+my $DEBUG_CXXFLAGS = "$BASE_CXXFLAGS $DEBUG_RUNTIME_CXXFLAG /DDEBUG /D_DEBUG /Oi /Oy- /Od";
+my $RELEASE_CXXFLAGS = "$BASE_CXXFLAGS $RELEASE_RUNTIME_CXXFLAG /DNDEBUG /D_NDEBUG /Oi /Oy /O2";
+
+my BASE_LDFLAGS = "";
 
 system('nmake.exe', '/f', 'cryptest.nmake', 'clean');
-system('nmake', '/f', 'cryptest.nmake', "CXXFLAGS=\"$DEBUG32_CXXFLAGS\"");
+my $ret = system('nmake.exe', '/f', 'cryptest.nmake', "CXXFLAGS=\"$DEBUG_CXXFLAGS $ARCH\"");
