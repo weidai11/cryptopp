@@ -459,11 +459,20 @@ public:
 		}
 	}
 
+#if defined(_MSC_VER) && (_MSC_VER >= 1300)
+# pragma push_macro("new")
+# undef new
+#endif
+
 	void MoveInto(void *buffer) const
 	{
 		AlgorithmParametersTemplate<T>* p = new(buffer) AlgorithmParametersTemplate<T>(*this);
 		CRYPTOPP_UNUSED(p);	// silence warning
 	}
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1300)
+# pragma pop_macro("new")
+#endif
 
 protected:
 	T m_value;
