@@ -42,6 +42,7 @@ extern "C" {void __cdecl _CRT_DEBUGGER_HOOK(int); }
 #endif
 #endif
 
+#include <sstream>
 #include <iostream>
 
 #if CRYPTOPP_MSC_VERSION
@@ -330,11 +331,19 @@ bool IntegrityCheckModule(const char *moduleFilename, const byte *expectedModule
 #endif
 	}
 
-	if (h != g_BaseAddressOfMAC)
+	if (h == g_BaseAddressOfMAC)
+	{
+		std::ostringstream oss;
+		oss << "Crypto++ DLL loaded at base address 0x" << std::hex << h << ".\n";
+#ifdef CRYPTOPP_WIN32_AVAILABLE
+		OutputDebugString(oss.str().c_str());
+#endif
+	}
+	else
 	{
 		std::ostringstream oss;
 		oss << "Crypto++ DLL integrity check may fail. Expected module base address is 0x";
-		oss << std::hex << g_BaseAddressOfMAC << ", but module loaded at 0x" << h << "\n";
+		oss << std::hex << g_BaseAddressOfMAC << ", but module loaded at 0x" << h << ".\n";
 #ifdef CRYPTOPP_WIN32_AVAILABLE
 		OutputDebugString(oss.str().c_str());
 #endif
@@ -456,7 +465,7 @@ bool IntegrityCheckModule(const char *moduleFilename, const byte *expectedModule
 #ifdef CRYPTOPP_WIN32_AVAILABLE
 	std::string hexMac;
 	HexEncoder(new StringSink(hexMac)).PutMessageEnd(actualMac, actualMac.size());
-	OutputDebugString((("Crypto++ DLL integrity check failed. Actual MAC is: " + hexMac) + "\n").c_str());
+	OutputDebugString((("Crypto++ DLL integrity check failed. Actual MAC is: " + hexMac) + ".\n").c_str());
 #endif
 	return false;
 }
