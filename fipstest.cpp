@@ -54,6 +54,13 @@ extern PowerUpSelfTestStatus g_powerUpSelfTestStatus;
 SecByteBlock g_actualMac;
 unsigned long g_macFileLocation = 0;
 
+// $ grep -iIR baseaddress *.*proj
+// cryptdll.vcxproj:      <BaseAddress>0x42900000</BaseAddress>
+// cryptdll.vcxproj:      <BaseAddress>0x42900000</BaseAddress>
+// cryptdll.vcxproj:      <BaseAddress>0x42900000</BaseAddress>
+// cryptdll.vcxproj:      <BaseAddress>0x42900000</BaseAddress>
+const void* g_BaseAddressOfMAC = reinterpret_cast<void*>(0x42900000);
+
 // use a random dummy string here, to be searched/replaced later with the real MAC
 static const byte s_moduleMac[CryptoPP::HMAC<CryptoPP::SHA1>::DIGESTSIZE] = CRYPTOPP_DUMMY_DLL_MAC;
 CRYPTOPP_COMPILE_ASSERT(sizeof(s_moduleMac) == CryptoPP::SHA1::DIGESTSIZE);
@@ -294,12 +301,13 @@ bool IntegrityCheckModule(const char *moduleFilename, const byte *expectedModule
 #ifdef CRYPTOPP_WIN32_AVAILABLE
 	HMODULE h = NULL;
 	{
-	char moduleFilenameBuf[MAX_PATH] = "";
+	const size_t FIPS_MODULE_MAX_PATH = 2*MAX_PATH;
+	char moduleFilenameBuf[FIPS_MODULE_MAX_PATH] = "";
 	if (moduleFilename == NULL)
 	{
 #if (_MSC_VER >= 1400 && !defined(_STLPORT_VERSION))	// ifstream doesn't support wide filename on other compilers
-		wchar_t wideModuleFilename[MAX_PATH];
-		if (GetModuleFileNameW(s_hModule, wideModuleFilename, MAX_PATH) > 0)
+		wchar_t wideModuleFilename[FIPS_MODULE_MAX_PATH];
+		if (GetModuleFileNameW(s_hModule, wideModuleFilename, FIPS_MODULE_MAX_PATH) > 0)
 		{
 			moduleStream.open(wideModuleFilename, std::ios::in | std::ios::binary);
 			h = GetModuleHandleW(wideModuleFilename);
@@ -307,7 +315,7 @@ bool IntegrityCheckModule(const char *moduleFilename, const byte *expectedModule
 		else
 #endif
 		{
-			GetModuleFileNameA(s_hModule, moduleFilenameBuf, MAX_PATH);
+			GetModuleFileNameA(s_hModule, moduleFilenameBuf, FIPS_MODULE_MAX_PATH);
 			moduleFilename = moduleFilenameBuf;
 		}
 	}
@@ -319,6 +327,16 @@ bool IntegrityCheckModule(const char *moduleFilename, const byte *expectedModule
 			h = GetModuleHandleA(moduleFilename);
 			moduleFilename = NULL;
 	}
+#endif
+	}
+
+	if (h != g_BaseAddressOfMAC)
+	{
+		std::ostringstream oss;
+		oss << "Crypto++ DLL integrity check may fail. Expected module base address is 0x";
+		oss << std::hex << g_BaseAddressOfMAC << ", but module loaded at 0x" << h;
+#ifdef CRYPTOPP_WIN32_AVAILABLE
+		OutputDebugStringA(oss.str().c_str());
 #endif
 	}
 

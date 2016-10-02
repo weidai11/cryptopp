@@ -295,7 +295,7 @@ int CRYPTOPP_API main(int argc, char *argv[])
 			encoder.Get(reinterpret_cast<byte*>(&hexEncoded[0]), hexEncoded.size());
 
 			// Report MAC and location
-			std::cout << "Placing MAC " << hexEncoded << " in " << fname << "at location " << macPos;
+			std::cout << "Placing MAC " << hexEncoded << " in " << fname << " at file offset " << macPos;
 			std::cout << " (0x" << std::hex << macPos << std::dec << ").\n";
 
 			// place MAC
