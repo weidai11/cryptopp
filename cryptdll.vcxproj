@@ -113,6 +113,7 @@ IF %ERRORLEVEL% EQU 0 (echo mac done &gt; "$(OutDir)"\cryptopp.mac.done)
       <ProgramDatabaseFile>$(TargetDir)\cryptopp.pdb</ProgramDatabaseFile>
       <OptimizeReferences>true</OptimizeReferences>
       <BaseAddress>0x42900000</BaseAddress>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <ImportLibrary>$(TargetDir)\cryptopp.lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
@@ -153,6 +154,7 @@ IF %ERRORLEVEL% EQU 0 (echo mac done &gt; "$(OutDir)"\cryptopp.mac.done)
       <ProgramDatabaseFile>$(TargetDir)\cryptopp.pdb</ProgramDatabaseFile>
       <OptimizeReferences>true</OptimizeReferences>
       <BaseAddress>0x42900000</BaseAddress>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <ImportLibrary>$(TargetDir)\cryptopp.lib</ImportLibrary>
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
@@ -191,6 +193,7 @@ IF %ERRORLEVEL% EQU 0 (echo mac done &gt; "$(OutDir)"\cryptopp.mac.done)
       <ProgramDatabaseFile>$(TargetDir)\cryptopp.pdb</ProgramDatabaseFile>
       <OptimizeReferences>true</OptimizeReferences>
       <BaseAddress>0x42900000</BaseAddress>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <ImportLibrary>$(TargetDir)\cryptopp.lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
@@ -227,6 +230,7 @@ IF %ERRORLEVEL% EQU 0 (echo mac done &gt; "$(OutDir)"\cryptopp.mac.done)
       <ProgramDatabaseFile>$(TargetDir)\cryptopp.pdb</ProgramDatabaseFile>
       <OptimizeReferences>true</OptimizeReferences>
       <BaseAddress>0x42900000</BaseAddress>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <ImportLibrary>$(TargetDir)\cryptopp.lib</ImportLibrary>
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
