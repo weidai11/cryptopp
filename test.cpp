@@ -287,9 +287,18 @@ int CRYPTOPP_API main(int argc, char *argv[])
 			f.AddRangeToSkip(0, certificateTablePos, certificateTableSize);
 			f.PutMessageEnd(buf.begin(), buf.size());
 
+			// Encode MAC
+			string hexEncoded;
+			HexEncoder encoder;
+			encoder.Put(mac, sizeof(mac)), encoder.MessageEnd();
+			hexEncoded.resize(static_cast<size_t>(encoder.MaxRetrievable()));
+			encoder.Get(reinterpret_cast<byte*>(&hexEncoded[0]), hexEncoded.size());
+
+			// Report MAC and location
+			std::cout << "Placing MAC " << hexEncoded << " in " << fname << "at location " << macPos;
+			std::cout << " (0x" << std::hex << macPos << std::dec << ").\n";
+
 			// place MAC
-			cout << "Placing MAC in file " << fname << ", location " << macPos;
-			cout << " (0x" << std::hex << macPos << std::dec << ").\n";
 			dllFile.seekg(macPos, std::ios_base::beg);
 			dllFile.write((char *)mac, sizeof(mac));
 		}
