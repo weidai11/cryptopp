@@ -180,6 +180,7 @@ static PDelete s_pDelete = NULL;
 
 extern "C" __declspec(dllexport) void __cdecl SetNewAndDeleteFromCryptoPP(PNew pNew, PDelete pDelete, PSetNewHandler pSetNewHandler)
 {
+	(void)(pSetNewHandler);
 	s_pNew = pNew;
 	s_pDelete = pDelete;
 }
