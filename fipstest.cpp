@@ -331,23 +331,21 @@ bool IntegrityCheckModule(const char *moduleFilename, const byte *expectedModule
 #endif
 	}
 
+#ifdef CRYPTOPP_WIN32_AVAILABLE
 	if (h == g_BaseAddressOfMAC)
 	{
 		std::ostringstream oss;
 		oss << "Crypto++ DLL loaded at base address 0x" << std::hex << h << ".\n";
-#ifdef CRYPTOPP_WIN32_AVAILABLE
 		OutputDebugString(oss.str().c_str());
-#endif
 	}
 	else
 	{
 		std::ostringstream oss;
 		oss << "Crypto++ DLL integrity check may fail. Expected module base address is 0x";
 		oss << std::hex << g_BaseAddressOfMAC << ", but module loaded at 0x" << h << ".\n";
-#ifdef CRYPTOPP_WIN32_AVAILABLE
 		OutputDebugString(oss.str().c_str());
-#endif
 	}
+#endif
 
 	if (!moduleStream)
 	{
