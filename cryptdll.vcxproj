@@ -22,719 +22,194 @@
     <ProjectGuid>{94a428a1-9ba8-4db2-b76e-bd2e3c08f257}</ProjectGuid>
     <RootNamespace>cryptdll</RootNamespace>
     <PlatformToolset>v100</PlatformToolset>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
   </PropertyGroup>
+
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <UseOfMfc>false</UseOfMfc>
-    <CharacterSet>MultiByte</CharacterSet>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <UseOfMfc>false</UseOfMfc>
-    <CharacterSet>MultiByte</CharacterSet>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <UseOfMfc>false</UseOfMfc>
-    <CharacterSet>MultiByte</CharacterSet>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <UseOfMfc>false</UseOfMfc>
-    <CharacterSet>MultiByte</CharacterSet>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  <ImportGroup Label="ExtensionSettings">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup>
-	<TargetName>cryptopp</TargetName>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Platform)\DLL_Output\$(Configuration)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Platform)\$(ProjectName)\$(Configuration)\</IntDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(Platform)\DLL_Output\$(Configuration)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(Platform)\$(ProjectName)\$(Configuration)\</IntDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Platform)\DLL_Output\$(Configuration)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Platform)\$(ProjectName)\$(Configuration)\</IntDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(Platform)\DLL_Output\$(Configuration)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(Platform)\$(ProjectName)\$(Configuration)\</IntDir>
+  <!-- End of Visual Studio boilerplate -->
+
+  <!-- All Configurations -->
+  <PropertyGroup Label="All Configurations">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <TargetName>cryptopp</TargetName>
+    <TargetExt>.dll</TargetExt>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <OutDir>$(Platform)\DLL_Output\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <CustomBuildStep>
-      <Message>Adding MAC to DLL</Message>
-      <Command>Win32\output\release\cryptest mac_dll "$(TargetPath)"
-IF %ERRORLEVEL% EQU 0 (echo mac done &gt; "$(OutDir)"\cryptopp.mac.done)
-</Command>
-      <Inputs>%(Inputs)</Inputs>
-      <Outputs>$(OutDir)cryptopp.mac.done;%(Outputs)</Outputs>
-    </CustomBuildStep>
+
+  <!-- All Configurations -->
+  <ItemDefinitionGroup Label="All Configurations">
     <ClCompile>
-      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <OmitFramePointers>true</OmitFramePointers>
-      <PreprocessorDefinitions>NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <StringPooling>true</StringPooling>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <ErrorReporting>None</ErrorReporting>
+      <WarningLevel>Level4</WarningLevel>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <ProgramDataBaseFileName>$(OutDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
-      <WarningLevel>Level4</WarningLevel>
-      <SuppressStartupBanner>true</SuppressStartupBanner>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
-    <ResourceCompile>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <Culture>0x0409</Culture>
-    </ResourceCompile>
     <Link>
-      <OutputFile>$(OutDir)cryptopp.dll</OutputFile>
-      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <ErrorReporting>None</ErrorReporting>
+      <AdditionalDependencies>cryptlib.lib;Ws2_32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(Platform)\DLL_Output\$(Configuration)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>$(TargetDir)\cryptopp.pdb</ProgramDatabaseFile>
-      <OptimizeReferences>true</OptimizeReferences>
+      <ProgramDatabaseFile>$(OutDir)\cryptopp.pdb</ProgramDatabaseFile>
       <BaseAddress>0x42900000</BaseAddress>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <PreventDllBinding>true</PreventDllBinding>
+      <OutputFile>$(OutDir)\cryptopp.dll</OutputFile>
       <ImportLibrary>$(TargetDir)\cryptopp.lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <CustomBuildStep>
-      <Message>Adding MAC to DLL</Message>
-      <Command>Win32\output\release\cryptest mac_dll "$(TargetPath)"
-IF %ERRORLEVEL% EQU 0 (echo mac done &gt; "$(OutDir)"\cryptopp.mac.done)
-</Command>
-      <Inputs>%(Inputs)</Inputs>
-      <Outputs>$(OutDir)cryptopp.mac.done;%(Outputs)</Outputs>
-    </CustomBuildStep>
+
+  <!-- Debug Configurations -->
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'" Label="Debug Configuration">
     <ClCompile>
-      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <OmitFramePointers>true</OmitFramePointers>
-      <PreprocessorDefinitions>NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <StringPooling>true</StringPooling>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <ProgramDataBaseFileName>$(OutDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
-      <WarningLevel>Level4</WarningLevel>
-      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <PreprocessorDefinitions>CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
+      <Optimization>Disabled</Optimization>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
     </ResourceCompile>
+  </ItemDefinitionGroup>
+
+  <!-- Release Configurations -->
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'" Label="Release Configuration">
+    <ClCompile>
+      <PreprocessorDefinitions>NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <OmitFramePointers>true</OmitFramePointers>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+
+  <!-- X86 Configurations -->
+  <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'" Label="X86 Configuration">
+    <ClCompile>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+    </ClCompile>
     <Link>
-      <OutputFile>$(OutDir)cryptopp.dll</OutputFile>
-      <SuppressStartupBanner>true</SuppressStartupBanner>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>$(TargetDir)\cryptopp.pdb</ProgramDatabaseFile>
-      <OptimizeReferences>true</OptimizeReferences>
-      <BaseAddress>0x42900000</BaseAddress>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
-      <ImportLibrary>$(TargetDir)\cryptopp.lib</ImportLibrary>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+
+  <!-- X64 Configurations -->
+  <ItemDefinitionGroup Condition="'$(Platform)'=='x64'" Label="X64 Configuration">
+    <ClCompile>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+    </ClCompile>
+    <Link>
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <CustomBuildStep>
+
+  <!-- DLL Mac'ing -->
+  <ItemDefinitionGroup Label="DLL MAC&#39;ing">
+    <PostBuildEvent>
       <Message>Adding MAC to DLL</Message>
-      <Command>Win32\output\debug\cryptest mac_dll "$(TargetPath)"
+      <Command>Win32\output\debug\cryptest.exe mac_dll "$(TargetPath)"
 IF %ERRORLEVEL% EQU 0 (echo mac done &gt; "$(OutDir)"\cryptopp.mac.done)
 </Command>
       <Inputs>%(Inputs)</Inputs>
       <Outputs>$(OutDir)cryptopp.mac.done;%(Outputs)</Outputs>
-    </CustomBuildStep>
-    <ClCompile>
-      <Optimization>Disabled</Optimization>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <ProgramDataBaseFileName>$(OutDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
-      <WarningLevel>Level4</WarningLevel>
-      <SuppressStartupBanner>true</SuppressStartupBanner>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-    </ClCompile>
-    <ResourceCompile>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <Culture>0x0409</Culture>
-    </ResourceCompile>
-    <Link>
-      <OutputFile>$(OutDir)cryptopp.dll</OutputFile>
-      <SuppressStartupBanner>true</SuppressStartupBanner>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>$(TargetDir)\cryptopp.pdb</ProgramDatabaseFile>
-      <OptimizeReferences>true</OptimizeReferences>
-      <BaseAddress>0x42900000</BaseAddress>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
-      <ImportLibrary>$(TargetDir)\cryptopp.lib</ImportLibrary>
-    </Link>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <CustomBuildStep>
-      <Message>Adding MAC to DLL</Message>
-      <Command>Win32\output\debug\cryptest mac_dll "$(TargetPath)"
-IF %ERRORLEVEL% EQU 0 (echo mac done &gt; "$(OutDir)"\cryptopp.mac.done)
-</Command>
-      <Inputs>%(Inputs)</Inputs>
-      <Outputs>$(OutDir)cryptopp.mac.done;%(Outputs)</Outputs>
-    </CustomBuildStep>
-    <ClCompile>
-      <Optimization>Disabled</Optimization>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <ProgramDataBaseFileName>$(OutDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
-      <WarningLevel>Level4</WarningLevel>
-      <SuppressStartupBanner>true</SuppressStartupBanner>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-    </ClCompile>
-    <ResourceCompile>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <Culture>0x0409</Culture>
-    </ResourceCompile>
-    <Link>
-      <OutputFile>$(OutDir)cryptopp.dll</OutputFile>
-      <SuppressStartupBanner>true</SuppressStartupBanner>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>$(TargetDir)\cryptopp.pdb</ProgramDatabaseFile>
-      <OptimizeReferences>true</OptimizeReferences>
-      <BaseAddress>0x42900000</BaseAddress>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
-      <ImportLibrary>$(TargetDir)\cryptopp.lib</ImportLibrary>
-      <TargetMachine>MachineX64</TargetMachine>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="algebra.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="algparam.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="asn.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="authenc.cpp" />
-    <ClCompile Include="basecode.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="cbcmac.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="ccm.cpp" />
-    <ClCompile Include="channels.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="cmac.cpp" />
-    <ClCompile Include="cpu.cpp" />
-    <ClCompile Include="cryptlib.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="des.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="dessp.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="dh.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="dll.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </PrecompiledHeader>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </PrecompiledHeader>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dsa.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="ec2n.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="eccrypto.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="ecp.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="emsa2.cpp" />
-    <ClCompile Include="eprecomp.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="files.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="filters.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="fips140.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="fipstest.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="gcm.cpp" />
-    <ClCompile Include="gf2n.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="gfpcrypt.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="hex.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="hmac.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="hrtimer.cpp" />
-    <ClCompile Include="integer.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="iterhash.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </PrecompiledHeader>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </PrecompiledHeader>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="misc.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="modes.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="mqueue.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="nbtheory.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="oaep.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="osrng.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="pch.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="pkcspad.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="pssr.cpp" />
-    <ClCompile Include="pubkey.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="queue.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="randpool.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="rdtables.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="rijndael.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="rng.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="rsa.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="rw.cpp" />
-    <ClCompile Include="sha.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="simple.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="skipjack.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="strciphr.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="trdlocal.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;CRYPTOPP_EXPORTS;CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2=1;USE_PRECOMPILED_HEADERS</PreprocessorDefinitions>
-    </ClCompile>
-  </ItemGroup>
+
+  <!-- Original File with special treatment -->
   <ItemGroup>
     <CustomBuild Include="x64dll.asm">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ml64.exe /c /nologo /D_M_X64 /W3 /Fo"$(IntDir)x64dll.obj" /Zi "%(FullPath)"
-</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)x64dll.obj;%(Outputs)</Outputs>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ml64.exe /c /nologo /D_M_X64 /W3 /Fo"$(IntDir)x64dll.obj" /Zi "%(FullPath)"
-</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)x64dll.obj;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
+      <Command Condition="'$(Platform)'=='x64'">ml64.exe /c /nologo /D_M_X64 /W3 /Fo"$(IntDir)x64dll.obj" /Zi "%(FullPath)"</Command>
+      <Outputs Condition="'$(Platform)'=='x64'">$(IntDir)x64dll.obj;%(Outputs)</Outputs>
     </CustomBuild>
   </ItemGroup>
+
+  <!-- Source Files -->
+  <ItemGroup>
+    <ClCompile Include="pch.cpp">
+      <PrecompiledHeader>Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="dll.cpp">
+      <PrecompiledHeader />
+    </ClCompile>
+    <ClCompile Include="iterhash.cpp">
+      <PrecompiledHeader />
+    </ClCompile>
+    <ClCompile Include="algebra.cpp" />
+    <ClCompile Include="algparam.cpp" />
+    <ClCompile Include="asn.cpp" />
+    <ClCompile Include="authenc.cpp" />
+    <ClCompile Include="basecode.cpp" />
+    <ClCompile Include="cbcmac.cpp" />
+    <ClCompile Include="ccm.cpp" />
+    <ClCompile Include="channels.cpp" />
+    <ClCompile Include="cmac.cpp" />
+    <ClCompile Include="cpu.cpp" />
+    <ClCompile Include="cryptlib.cpp" />
+    <ClCompile Include="des.cpp" />
+    <ClCompile Include="dessp.cpp" />
+    <ClCompile Include="dh.cpp" />
+    <ClCompile Include="dsa.cpp" />
+    <ClCompile Include="ec2n.cpp" />
+    <ClCompile Include="eccrypto.cpp" />
+    <ClCompile Include="ecp.cpp" />
+    <ClCompile Include="emsa2.cpp" />
+    <ClCompile Include="eprecomp.cpp" />
+    <ClCompile Include="files.cpp" />
+    <ClCompile Include="filters.cpp" />
+    <ClCompile Include="fips140.cpp" />
+    <ClCompile Include="fipstest.cpp" />
+    <ClCompile Include="gcm.cpp" />
+    <ClCompile Include="gf2n.cpp" />
+    <ClCompile Include="gfpcrypt.cpp" />
+    <ClCompile Include="hex.cpp" />
+    <ClCompile Include="hmac.cpp" />
+    <ClCompile Include="hrtimer.cpp" />
+    <ClCompile Include="integer.cpp" />
+    <ClCompile Include="misc.cpp" />
+    <ClCompile Include="modes.cpp" />
+    <ClCompile Include="mqueue.cpp" />
+    <ClCompile Include="nbtheory.cpp" />
+    <ClCompile Include="oaep.cpp" />
+    <ClCompile Include="osrng.cpp" />
+    <ClCompile Include="pkcspad.cpp" />
+    <ClCompile Include="pssr.cpp" />
+    <ClCompile Include="pubkey.cpp" />
+    <ClCompile Include="queue.cpp" />
+    <ClCompile Include="randpool.cpp" />
+    <ClCompile Include="rdtables.cpp" />
+    <ClCompile Include="rijndael.cpp" />
+    <ClCompile Include="rng.cpp" />
+    <ClCompile Include="rsa.cpp" />
+    <ClCompile Include="rw.cpp" />
+    <ClCompile Include="sha.cpp" />
+    <ClCompile Include="simple.cpp" />
+    <ClCompile Include="skipjack.cpp" />
+    <ClCompile Include="strciphr.cpp" />
+    <ClCompile Include="trdlocal.cpp" />
+  </ItemGroup>
+
+  <!-- Header Files -->
   <ItemGroup>
     <ClInclude Include="aes.h" />
     <ClInclude Include="algebra.h" />
@@ -804,6 +279,8 @@ IF %ERRORLEVEL% EQU 0 (echo mac done &gt; "$(OutDir)"\cryptopp.mac.done)
     <ClInclude Include="trdlocal.h" />
     <ClInclude Include="words.h" />
   </ItemGroup>
+
+  <!-- Back to Visual Studio boilerplate -->
   <ItemGroup>
     <ResourceCompile Include="cryptopp.rc" />
   </ItemGroup>
