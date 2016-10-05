@@ -88,14 +88,6 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
-    <Link>
-      <ErrorReporting>NoErrorReport</ErrorReporting>
-      <AdditionalDependencies>cryptlib.lib;Ws2_32.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories />
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>$(OutDir)\cryptlib.pdb</ProgramDatabaseFile>
-      <OutputFile>$(OutDir)\cryptlib.lib</OutputFile>
-    </Link>
   </ItemDefinitionGroup>
 
   <!-- Debug Configurations -->
@@ -130,10 +122,6 @@
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
     </ResourceCompile>
-    <Link>
-      <OptimizeReferences>true</OptimizeReferences>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-    </Link>
   </ItemDefinitionGroup>
 
   <!-- DLL-Import Overrides for Preprocessor -->
@@ -153,9 +141,10 @@
     <ClCompile>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
-    <Link>
+    <Lib>
       <TargetMachine>MachineX86</TargetMachine>
-    </Link>
+      <ImageHasSafeExceptionHandlers>true</ImageHasSafeExceptionHandlers>
+    </Lib>
   </ItemDefinitionGroup>
 
   <!-- X64 Configurations -->
@@ -163,9 +152,9 @@
     <ClCompile>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
-    <Link>
+    <Lib>
       <TargetMachine>MachineX64</TargetMachine>
-    </Link>
+    </Lib>
   </ItemDefinitionGroup>
 
   <!-- Original File with special treatment -->
