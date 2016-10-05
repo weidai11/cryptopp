@@ -57,7 +57,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
-      <ErrorReporting>NoErrorReport</ErrorReporting
+      <ErrorReporting>NoErrorReport</ErrorReporting>
       <AdditionalDependencies>cryptlib.lib;Ws2_32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(Platform)\DLL_Output\$(Configuration)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
