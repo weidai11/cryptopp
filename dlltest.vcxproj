@@ -22,6 +22,7 @@
     <ProjectGuid>{1974a53a-9863-41c9-886d-b2b8c2fc3c8b}</ProjectGuid>
     <RootNamespace>dlltest</RootNamespace>
     <PlatformToolset>v100</PlatformToolset>
+    <ConfigurationType>Application</ConfigurationType>
   </PropertyGroup>
 
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -32,6 +33,7 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <!-- End of Visual Studio boilerplate -->
 
   <!-- All Configurations -->
   <PropertyGroup Label="All Configurations">
@@ -47,12 +49,13 @@
   <ItemDefinitionGroup Label="All Configurations">
     <ClCompile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
+      <ErrorReporting>None</ErrorReporting>
       <WarningLevel>Level4</WarningLevel>
       <CallingConvention>StdCall</CallingConvention>
-      <ErrorReporting>None</ErrorReporting>
       <PrecompiledHeader />
     </ClCompile>
     <Link>
+      <ErrorReporting>NoErrorReport</ErrorReporting>
       <AdditionalDependencies>cryptopp.lib;Ws2_32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(Platform)\DLL_Output\$(Configuration)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -81,6 +84,7 @@
     <ClCompile>
       <PreprocessorDefinitions>NDEBUG;CRYPTOPP_DLL_ONLY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <OmitFramePointers>true</OmitFramePointers>
+      <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -91,6 +95,10 @@
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
     </ResourceCompile>
+    <Link>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+    </Link>
   </ItemDefinitionGroup>
 
   <!-- X86 Configurations -->
