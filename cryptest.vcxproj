@@ -181,12 +181,13 @@
   <ItemDefinitionGroup Label="FIPS Warning">
     <PreBuildEvent Condition="'$(Configuration)'=='DLL-Import Debug' Or '$(Configuration)'=='DLL-Import Release'">
 	  <Command>
-echo *************************************************************************
-echo This configuration requires cryptopp.dll. You can build it yourself using
-echo the cryptdll project, or obtain a pre-built, FIPS 140-2 validated DLL. If
-echo you build it yourself the resulting DLL will not be considered FIPS
-echo validated unless it undergoes the FIPS validation process.
-echo *************************************************************************%0a</Command>
+        echo *************************************************************************
+        echo This configuration requires cryptopp.dll. You can build it yourself using
+        echo the cryptdll project, or obtain a pre-built, FIPS 140-2 validated DLL. If
+        echo you build it yourself the resulting DLL will not be considered FIPS
+        echo validated unless it undergoes the FIPS validation process.
+        echo *************************************************************************
+      </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
 
