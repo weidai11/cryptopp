@@ -128,7 +128,7 @@
   </ItemDefinitionGroup>
 
   <!-- Win32/Debug cryptest.exe for DLL MAC'ing -->
-  <Target Condition="!Exists('Win32\Output\Debug\cryptest.exe')" Nam="MAC tool"Label="MAC tool">
+  <Target Condition="!Exists('Win32\Output\Debug\cryptest.exe')" Name="MAC tool" Label="MAC tool">
     <MSbuild
       Projects="cryptest.vcxproj"
       Properties="Configuration=Debug;Platform=Win32;"/>
