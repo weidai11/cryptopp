@@ -127,8 +127,20 @@
     </Link>
   </ItemDefinitionGroup>
 
-  <!-- DLL Mac'ing -->
-  <ItemDefinitionGroup Label="DLL MAC&#39;ing">
+  <!-- Win32/Release cryptest.exe for DLL MAC'ing -->
+  <!-- Its and ugly hack, but it gets cryptest.exe built -->
+  <ItemDefinitionGroup Condition="!Exists('Win32\Output\Debug\cryptest.exe')" Label="MAC tool">
+    <PreBuildEvent>
+      <Message>Creating Win32/Release cryptest.exe for MAC computation</Message>
+      <Command>
+        msbuild /t:Build /p:Configuration=Debug;Platform=Win32 cryptlib.vcxproj
+        msbuild /t:Build /p:Configuration=Debug;Platform=Win32 cryptest.vcxproj
+	  </Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+
+  <!-- DLL MAC'ing performed by cryptest.exe -->
+  <ItemDefinitionGroup Label="DLL MAC">
     <PostBuildEvent>
       <Message>Adding MAC to DLL</Message>
       <Command>Win32\output\debug\cryptest.exe mac_dll "$(TargetPath)"
