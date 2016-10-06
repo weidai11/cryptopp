@@ -314,12 +314,15 @@ echo: &gt;&gt; adhoc.cpp.copied
     <None Include="Readme.txt" />
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="rdrand.asm">
+    <CustomBuild Condition="'$(Platform)'=='Win32'" Include="rdrand.asm">
       <Message>Building and assembling rdrand.asm</Message>
-      <Command Condition="'$(Platform)'=='Win32'">ml.exe /c /nologo /D_M_X86 /W3 /Cx /Zi /safeseh /Fo"$(IntDir)rdrand-x86.obj" /Zi "%(FullPath)"</Command>
-      <Outputs Condition="'$(Platform)'=='Win32'">$(IntDir)rdrand-x86.obj</Outputs>
-      <Command Condition="'$(Platform)'=='x64'">ml64.exe /c /nologo /D_M_X64 /W3 /Cx /Zi /Fo"$(IntDir)rdrand-x64.obj" /Zi "%(FullPath)"</Command>
-      <Outputs Condition="'$(Platform)'=='x64'">$(IntDir)rdrand-x64.obj</Outputs>
+      <Command>ml.exe /c /nologo /D_M_X86 /W3 /Cx /Zi /safeseh /Fo"$(IntDir)rdrand-x86.obj" "%(FullPath)"</Command>
+      <Outputs>$(IntDir)\rdrand-x86.obj</Outputs>
+    </CustomBuild>
+    <CustomBuild Condition="'$(Platform)'=='x64'" Include="rdrand.asm">
+      <Message>Building and assembling rdrand.asm</Message>
+      <Command>ml64.exe /c /nologo /D_M_X64 /W3 /Cx /Zi /Fo"$(IntDir)rdrand-x64.obj" "%(FullPath)"</Command>
+      <Outputs>$(IntDir)\rdrand-x64.obj</Outputs>
     </CustomBuild>
     <CustomBuild Include="x64dll.asm">
       <ExcludedFromBuild Condition="'$(Configuration)'=='DLL-Import Debug' Or '$(Configuration)'=='DLL-Import Release'">true</ExcludedFromBuild>
