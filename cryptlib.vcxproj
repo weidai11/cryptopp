@@ -324,16 +324,14 @@ echo: &gt;&gt; adhoc.cpp.copied
       <Command>ml64.exe /c /nologo /D_M_X64 /W3 /Cx /Zi /Fo"$(IntDir)rdrand-x64.obj" "%(FullPath)"</Command>
       <Outputs>$(IntDir)\rdrand-x64.obj</Outputs>
     </CustomBuild>
-    <CustomBuild Include="x64dll.asm">
-      <ExcludedFromBuild Condition="'$(Configuration)'=='DLL-Import Debug' Or '$(Configuration)'=='DLL-Import Release'">true</ExcludedFromBuild>
-      <Message Condition="'$(Configuration)'=='Debug' Or '$(Configuration)'=='Release'">Building and assembling x64dll.asm</Message>
-      <Command Condition="'$(Platform)'=='x64'">ml64.exe /c /nologo /D_M_X64 /W3 /Fo"$(IntDir)x64dll.obj" /Zi "%(FullPath)"</Command>
-      <Outputs Condition="'$(Platform)'=='x64'">$(IntDir)x64dll.obj</Outputs>
+    <CustomBuild Condition="'$(Platform)'=='x64' AND ('$(Configuration)'=='Debug' Or '$(Configuration)'=='Release')" Include="x64dll.asm">
+      <Message>Building and assembling x64dll.asm</Message>
+      <Command>ml64.exe /c /nologo /D_M_X64 /W3 /Zi /Fo"$(IntDir)x64dll.obj" "%(FullPath)"</Command>
+      <Outputs>$(IntDir)x64dll.obj</Outputs>
     </CustomBuild>
-    <CustomBuild Include="x64masm.asm">
-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
+    <CustomBuild Condition="'$(Platform)'=='x64'" Include="x64masm.asm">
       <Message>Building and Assembling x64masm.asm</Message>
-      <Command>ml64.exe /c /nologo /D_M_X64 /W3 /Fo"$(IntDir)x64masm.obj" /Zi "%(FullPath)"</Command>
+      <Command>ml64.exe /c /nologo /D_M_X64 /W3 /Zi /Fo"$(IntDir)x64masm.obj" "%(FullPath)"</Command>
       <Outputs>$(IntDir)x64masm.obj;%(Outputs)</Outputs>
     </CustomBuild>
   </ItemGroup>
