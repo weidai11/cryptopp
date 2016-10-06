@@ -127,25 +127,21 @@
     </Link>
   </ItemDefinitionGroup>
 
-  <!-- Win32/Release cryptest.exe for DLL MAC'ing -->
-  <!-- Its and ugly hack, but it gets cryptest.exe built -->
-  <ItemDefinitionGroup Condition="!Exists('Win32\Output\Debug\cryptest.exe')" Label="MAC tool">
-    <PreBuildEvent>
-      <Message>Creating Win32/Release cryptest.exe for MAC computation</Message>
-      <Command>
-        msbuild /t:Build /p:Configuration=Debug;Platform=Win32 cryptlib.vcxproj
-        msbuild /t:Build /p:Configuration=Debug;Platform=Win32 cryptest.vcxproj
-	  </Command>
-    </PreBuildEvent>
-  </ItemDefinitionGroup>
+  <!-- Win32/Debug cryptest.exe for DLL MAC'ing -->
+  <Target Condition="!Exists('Win32\Output\Debug\cryptest.exe')" Nam="MAC tool"Label="MAC tool">
+    <MSbuild
+      Projects="cryptest.vcxproj"
+      Properties="Configuration=Debug;Platform=Win32;"/>
+  </Target>
 
   <!-- DLL MAC'ing performed by cryptest.exe -->
   <ItemDefinitionGroup Label="DLL MAC">
     <PostBuildEvent>
       <Message>Adding MAC to DLL</Message>
-      <Command>Win32\output\debug\cryptest.exe mac_dll "$(TargetPath)"
-IF %ERRORLEVEL% EQU 0 (echo mac done &gt; "$(OutDir)"\cryptopp.mac.done)
-</Command>
+      <Command>
+        Win32\output\debug\cryptest.exe mac_dll "$(TargetPath)"
+        IF %ERRORLEVEL% EQU 0 (echo mac done &gt; "$(OutDir)"\cryptopp.mac.done)
+      </Command>
       <Inputs>%(Inputs)</Inputs>
       <Outputs>$(OutDir)cryptopp.mac.done;%(Outputs)</Outputs>
     </PostBuildEvent>
