@@ -163,7 +163,11 @@
   <!-- Original File with special treatment -->
 
   <!-- Source Files -->
+  <!-- The order of the first three matters -->
   <ItemGroup>
+    <ClCompile Include="cryptlib.cpp" />
+    <ClCompile Include="cpu.cpp" />
+    <ClCompile Include="integer.cpp" />
     <ClCompile Include="3way.cpp" />
     <ClCompile Include="adler32.cpp" />
     <ClCompile Include="algebra.cpp" />
@@ -186,9 +190,7 @@
     <ClCompile Include="chacha.cpp" />
     <ClCompile Include="channels.cpp" />
     <ClCompile Include="cmac.cpp" />
-    <ClCompile Include="cpu.cpp" />
     <ClCompile Include="crc.cpp" />
-    <ClCompile Include="cryptlib.cpp" />
     <ClCompile Include="default.cpp" />
     <ClCompile Include="des.cpp" />
     <ClCompile Include="dessp.cpp" />
@@ -226,7 +228,6 @@
     <ClCompile Include="hrtimer.cpp" />
     <ClCompile Include="ida.cpp" />
     <ClCompile Include="idea.cpp" />
-    <ClCompile Include="integer.cpp" />
     <ClCompile Include="iterhash.cpp">
       <PrecompiledHeader />
     </ClCompile>
