@@ -128,11 +128,28 @@
   </ItemDefinitionGroup>
 
   <!-- Win32/Debug cryptest.exe for DLL MAC'ing -->
+  <!-- Broken at the moment; see http://stackoverflow.com/q/39900437 -->
+  <!--
   <Target Condition="!Exists('Win32\Output\Debug\cryptest.exe')" Name="MAC tool" Label="MAC tool">
+    <Message>Creating Win32/Debug cryptest.exe for MAC computation</Message>
+    <MSbuild
+      Projects="cryptlib.vcxproj"
+      Properties="Configuration=Debug;Platform=Win32;"/>
     <MSbuild
       Projects="cryptest.vcxproj"
       Properties="Configuration=Debug;Platform=Win32;"/>
   </Target>
+  -->
+
+  <ItemDefinitionGroup Condition="!Exists('Win32\Output\Debug\cryptest.exe')" Label="MAC tool">
+    <PreBuildEvent>
+      <Message>Creating Win32/Debug cryptest.exe for MAC computation</Message>
+      <Command>
+        msbuild /t:Build /p:Configuration=Debug;Platform=Win32 cryptlib.vcxproj
+        msbuild /t:Build /p:Configuration=Debug;Platform=Win32 cryptest.vcxproj
+      </Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
 
   <!-- DLL MAC'ing performed by cryptest.exe -->
   <ItemDefinitionGroup Label="DLL MAC">
