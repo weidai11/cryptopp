@@ -153,7 +153,6 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
 
-
   <!-- DLL MAC'ing performed by cryptest.exe -->
   <ItemDefinitionGroup Label="DLL MAC">
     <PostBuildEvent>
@@ -169,10 +168,10 @@
 
   <!-- Original File with special treatment -->
   <ItemGroup>
-    <CustomBuild Include="x64dll.asm">
-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
-      <Command Condition="'$(Platform)'=='x64'">ml64.exe /c /nologo /D_M_X64 /W3 /Fo"$(IntDir)x64dll.obj" /Zi "%(FullPath)"</Command>
-      <Outputs Condition="'$(Platform)'=='x64'">$(IntDir)x64dll.obj;%(Outputs)</Outputs>
+    <CustomBuild Condition="'$(Platform)'=='x64' AND ('$(Configuration)'=='Debug' Or '$(Configuration)'=='Release')" Include="x64dll.asm">
+      <Message>Building and assembling x64dll.asm</Message>
+      <Command>ml64.exe /c /nologo /D_M_X64 /W3 /Zi /Fo"$(IntDir)x64dll.obj" "%(FullPath)"</Command>
+      <Outputs>$(IntDir)x64dll.obj</Outputs>
     </CustomBuild>
   </ItemGroup>
 
