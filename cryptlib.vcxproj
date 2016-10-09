@@ -304,9 +304,10 @@
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="adhoc.cpp.proto">
-      <Command>if not exist adhoc.cpp copy "%(FullPath)" adhoc.cpp
-echo: &gt;&gt; adhoc.cpp.copied
-</Command>
+      <Command>
+        if not exist adhoc.cpp copy "%(FullPath)" adhoc.cpp
+        echo: &gt;&gt; adhoc.cpp.copied
+      </Command>
       <Outputs>adhoc.cpp.copied;%(Outputs)</Outputs>
     </CustomBuild>
     <None Include="Doxyfile" />
