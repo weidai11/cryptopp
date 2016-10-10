@@ -81,6 +81,7 @@ int inet_pton(int af, const char *src, void *dst)
 #else
 	char temp[MAX_ADDRSTRLEN];
 	strncpy(temp, src, sizeof(temp));
+	temp[MAX_ADDRSTRLEN-1] = '\0';
 #endif
 
 
