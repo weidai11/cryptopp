@@ -211,9 +211,9 @@ private:
 	fd_set m_readfds, m_writefds;
 	int m_maxFd;
 #endif
-	bool m_noWait;
 	double m_firstEventTime;
 	Timer m_eventTimer;
+	bool m_noWait;
 
 #ifdef USE_WINDOWS_STYLE_SOCKETS
 	typedef size_t LastResultType;
