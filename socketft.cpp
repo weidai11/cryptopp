@@ -51,9 +51,14 @@ const int SOCKET_EWOULDBLOCK = EWOULDBLOCK;
 #endif /* INADDR_NONE */
 
 // Some Windows SDKs do not have INET6_ADDRSTRLEN
+#ifndef INET_ADDRSTRLEN
+# define INET_ADDRSTRLEN (22)
+#endif
 #ifndef INET6_ADDRSTRLEN
 # define INET6_ADDRSTRLEN (65)
 #endif
+
+#define MAX_ADDRSTRLEN (INET6_ADDRSTRLEN > INET_ADDRSTRLEN ? INET6_ADDRSTRLEN : INET_ADDRSTRLEN)
 
 #if defined(CRYPTOPP_WIN32_AVAILABLE)
 // http://stackoverflow.com/a/20816961
@@ -68,10 +73,19 @@ int inet_pton(int af, const char *src, void *dst)
 	if(!src || !dst) return 0;
 
 	struct sockaddr_storage ss;
-	int size = sizeof(ss);
-
 	ZeroMemory(&ss, sizeof(ss));
-	if (WSAStringToAddress(const_cast<LPSTR>(src), af, NULL, (struct sockaddr *)&ss, &size) == 0) {
+
+#if CRYPTOPP_MSC_VERSION >= 1400
+	char temp[MAX_ADDRSTRLEN];
+	strcpy_s(temp, sizeof(temp), src);
+#else
+	char temp[MAX_ADDRSTRLEN];
+	strncpy(temp, src, sizeof(temp));
+#endif
+
+
+	int size = sizeof(ss);
+	if (WSAStringToAddress(temp, af, NULL, (struct sockaddr *)&ss, &size) == 0) {
 		switch (af) {
 		case AF_INET:
 			*(struct in_addr *)dst = ((struct sockaddr_in *)&ss)->sin_addr;
