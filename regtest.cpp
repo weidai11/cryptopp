@@ -60,11 +60,6 @@
 # pragma strict_gs_check (on)
 #endif
 
-// Quiet deprecated warnings intended to benefit users.
-#if CRYPTOPP_MSC_VERSION
-# pragma warning(disable: 4996)
-#endif
-
 #if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
 # pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
