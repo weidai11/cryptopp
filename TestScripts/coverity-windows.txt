@@ -1,12 +1,11 @@
-# coverity-windows.txt - Scan build submission instructions for Unix and Linux.
-#                        Written and placed in public domain by Jeffrey Walton and Uri Blumenthal.
-#                        Copyright assigned to Crypto++ project.
-#
-# The following are copy/paste instructions for invoking cov-build, building the library and submitting the artifacts for a scan.
-#
-# For more information see http://cryptopp.com/wiki/Coverity_Scan.
+REM coverity-windows.txt - Scan build submission instructions for Windows using cryptest.nmake.
+REM                        Written and placed in public domain by Jeffrey Walton and Uri Blumenthal.
+REM                        Copyright assigned to Crypto++ project.
+REM
+REM The following are copy/paste instructions for invoking cov-build, building the library and
+REM   submitting the artifacts for a scan. Also see http://cryptopp.com/wiki/Coverity_Scan.
 
-##################################################################
+REM ################################################################
 
 cls
 
@@ -14,10 +13,10 @@ del /f cryptopp.zip
 rmdir /q /s cov-int
 nmake /f cryptest.nmake clean
 
-# Uncomment CXXFLAGS in makefile. Pay attention to X86, X64 or ARM
+REM Uncomment CXXFLAGS in makefile. Pay attention to X86, X64 or ARM
 cov-build.exe --dir cov-int nmake /f cryptest.nmake
 
-7z.exe a -r -tzip cryptopp.zip cov-int
+7z.exe a -r -tzip -mx=9 cryptopp.zip cov-int
 
 set CRYPTOPP_COVERITY_TOKEN=XXXXXXXXXXXXXXXX
 set COVERITY_SCAN_NAME=Rijndael-AliasedTable-SSE2-Windows-X64
