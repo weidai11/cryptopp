@@ -825,7 +825,8 @@ void ForwardTcpPort(const char *sourcePortName, const char *destinationHost, con
 	sockListen.Create();
 	sockListen.Bind(sourcePort);
 
-	int err = setsockopt(sockListen, IPPROTO_TCP, TCP_NODELAY, "\x01", 1);
+	const int flag = 1;
+	int err = setsockopt(sockListen, IPPROTO_TCP, TCP_NODELAY, (char*)&flag, sizeof(int));
 	CRYPTOPP_ASSERT(err == 0);
 	if(err != 0)
 		throw Socket::Err(sockListen, "setsockopt", sockListen.GetLastError());
