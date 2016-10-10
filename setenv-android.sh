@@ -380,7 +380,7 @@ if [[ ("$COUNT" -ne "0") ]]; then
 	echo "*******************************************************************************"
 fi
 
-COUNT=$(echo -n "$AOSP_STL_LIB" | egrep -i -c 'libc++|libstlport)')
+COUNT=$(echo -n "$AOSP_STL_LIB" | egrep -i -c 'libc++)')
 if [[ ("$COUNT" -ne "0") ]]; then
 	echo
 	echo "*******************************************************************************"
