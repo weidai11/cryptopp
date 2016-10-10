@@ -119,16 +119,16 @@ void PrintSeedAndThreads(const std::string& seed);
 
 int (*AdhocTest)(int argc, char *argv[]) = NULL;
 
+namespace { OFB_Mode<AES>::Encryption s_globalRNG; }
 RandomNumberGenerator & GlobalRNG()
 {
-	static OFB_Mode<AES>::Encryption s_globalRNG;
 	return dynamic_cast<RandomNumberGenerator&>(s_globalRNG);
 }
 
 // See misc.h and trap.h for comments and usage
 #if CRYPTOPP_DEBUG && (defined(CRYPTOPP_BSD_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE))
 static const SignalHandler<SIGTRAP, false> s_dummyHandler;
-// static const DebugTrapHandle s_dummyHandler;
+// static const DebugTrapHandler s_dummyHandler;
 #endif
 
 int CRYPTOPP_API main(int argc, char *argv[])
