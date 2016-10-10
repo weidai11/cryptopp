@@ -14,6 +14,7 @@
 #		error Winsock 1 is not supported by this library. Please include this file or winsock2.h before windows.h.
 #	endif
 #include <winsock2.h>
+#include <ws2tcpip.h>
 #include "winpipes.h"
 #else
 #include <sys/time.h>

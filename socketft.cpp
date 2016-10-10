@@ -6,7 +6,6 @@
 #if !defined(NO_OS_DEPENDENCE) && defined(SOCKETS_AVAILABLE)
 
 // TODO: http://github.com/weidai11/cryptopp/issues/19
-#define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include "socketft.h"
 #include "wait.h"
 
@@ -51,6 +50,42 @@ const int SOCKET_EWOULDBLOCK = EWOULDBLOCK;
 #ifndef INADDR_NONE
 # define INADDR_NONE	0xffffffff
 #endif /* INADDR_NONE */
+
+// Some Windows SDKs do not have INET6_ADDRSTRLEN
+#ifndef INET6_ADDRSTRLEN
+# define INET6_ADDRSTRLEN (65)
+#endif
+
+#if defined(CRYPTOPP_WIN32_AVAILABLE)
+// http://stackoverflow.com/a/20816961
+int inet_pton(int af, const char *src, void *dst)
+{
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(push)
+# pragma warning(disable: 4996)
+#endif
+
+	struct sockaddr_storage ss;
+	int size = sizeof(ss);
+
+	ZeroMemory(&ss, sizeof(ss));
+	if (WSAStringToAddress(const_cast<LPSTR>(src), af, NULL, (struct sockaddr *)&ss, &size) == 0) {
+		switch (af) {
+		case AF_INET:
+			*(struct in_addr *)dst = ((struct sockaddr_in *)&ss)->sin_addr;
+			return 1;
+		case AF_INET6:
+			*(struct in6_addr *)dst = ((struct sockaddr_in6 *)&ss)->sin6_addr;
+			return 1;
+		}
+	}
+	return 0;
+
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(pop)
+#endif
+}
+#endif
 
 Socket::Err::Err(socket_t s, const std::string& operation, int error)
 	: OS_Error(IO_ERROR, "Socket: " + operation + " operation failed with error " + IntToString(error), operation, error)
@@ -134,8 +169,9 @@ void Socket::Bind(unsigned int port, const char *addr)
 		sa.sin_addr.s_addr = htonl(INADDR_ANY);
 	else
 	{
-		unsigned long result = inet_addr(addr);
-		if (result == INADDR_NONE)
+		// unsigned long result = inet_addr(addr);
+		unsigned long result;
+		if (inet_pton(AF_INET, addr, &result) < 1 || result == INADDR_NONE)
 		{
 			SetLastError(SOCKET_EINVAL);
 			CheckAndHandleError_int("inet_addr", SOCKET_ERROR);
@@ -168,20 +204,32 @@ bool Socket::Connect(const char *addr, unsigned int port)
 	sockaddr_in sa;
 	memset(&sa, 0, sizeof(sa));
 	sa.sin_family = AF_INET;
-	sa.sin_addr.s_addr = inet_addr(addr);
+
+	if (inet_pton(AF_INET, addr, &sa.sin_addr.s_addr) < 1 || sa.sin_addr.s_addr == INADDR_NONE)
+	{
+		SetLastError(SOCKET_EINVAL);
+		CheckAndHandleError_int("inet_pton", SOCKET_ERROR);
+	}
 
 	if (sa.sin_addr.s_addr == INADDR_NONE)
 	{
-		hostent *lphost = gethostbyname(addr);
-		if (lphost == NULL)
+		addrinfo hints, *result = NULL;
+
+		memset(&hints, 0, sizeof(hints));
+		hints.ai_socktype = SOCK_STREAM;
+		hints.ai_family = AF_INET;
+
+		if (getaddrinfo(addr, NULL, &hints, &result) != 0 || result == NULL)
 		{
+			freeaddrinfo(result);
 			SetLastError(SOCKET_EINVAL);
-			CheckAndHandleError_int("gethostbyname", SOCKET_ERROR);
+			CheckAndHandleError_int("getaddrinfo", SOCKET_ERROR);
 		}
 		else
 		{
-			CRYPTOPP_ASSERT(IsAlignedOn(lphost->h_addr,GetAlignmentOf<in_addr>()));
-			sa.sin_addr.s_addr = ((in_addr *)(void *)lphost->h_addr)->s_addr;
+			// sa.sin_addr.s_addr = ((in_addr *)(void *)lphost->h_addr)->s_addr;
+			sa.sin_addr.s_addr = ((struct sockaddr_in *)(result->ai_addr))->sin_addr.s_addr;
+			freeaddrinfo(result);
 		}
 	}
 
