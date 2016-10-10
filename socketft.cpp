@@ -5,7 +5,6 @@
 
 #if !defined(NO_OS_DEPENDENCE) && defined(SOCKETS_AVAILABLE)
 
-// TODO: http://github.com/weidai11/cryptopp/issues/19
 #include "socketft.h"
 #include "wait.h"
 
@@ -65,6 +64,9 @@ int inet_pton(int af, const char *src, void *dst)
 # pragma warning(disable: 4996)
 #endif
 
+	// Posix states only src is validated. Avoid a bad dst dereference.
+	if(!src || !dst) return 0;
+
 	struct sockaddr_storage ss;
 	int size = sizeof(ss);
 
@@ -79,6 +81,8 @@ int inet_pton(int af, const char *src, void *dst)
 			return 1;
 		}
 	}
+
+	((sockaddr_in *)dst)->sin_addr.s_addr = INADDR_NONE;
 	return 0;
 
 #if CRYPTOPP_MSC_VERSION
@@ -205,17 +209,15 @@ bool Socket::Connect(const char *addr, unsigned int port)
 	memset(&sa, 0, sizeof(sa));
 	sa.sin_family = AF_INET;
 
-	if (inet_pton(AF_INET, addr, &sa.sin_addr.s_addr) < 1 || sa.sin_addr.s_addr == INADDR_NONE)
-	{
-		SetLastError(SOCKET_EINVAL);
-		CheckAndHandleError_int("inet_pton", SOCKET_ERROR);
-	}
+	// Make inet_pton failures non-fatal.
+	if (!addr || inet_pton(AF_INET, addr, &sa.sin_addr.s_addr) < 1)
+		sa.sin_addr.s_addr = INADDR_NONE;
 
 	if (sa.sin_addr.s_addr == INADDR_NONE)
 	{
 		addrinfo hints, *result = NULL;
-
 		memset(&hints, 0, sizeof(hints));
+
 		hints.ai_socktype = SOCK_STREAM;
 		hints.ai_family = AF_INET;
 
