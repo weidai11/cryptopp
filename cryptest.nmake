@@ -11,9 +11,10 @@
 #   you probably want to remove /D_MBCS. The resulting cryptlib.lib may be suitable as a starting
 #   point for a DLL project using Crypto++.
 
-# You must also add /DDEBUG if you want a debug build with the library's assert. The library moved
-#   from Posix NDEBUG and Assert to CRYPTOPP_ASSERT at 5.6.5 due to CVE-2016-7420. CRYPTOPP_ASSERT has
-#   the additional benefit of using DebugBreak, the program does not crash while you are debugging it.
+# You must also add /DCRYPTOPP_DEBUG or /DDEBUG if you want a debug build with the library's assert.
+#   The library moved from Posix NDEBUG and assert() to CRYPTOPP_ASSERT at 5.6.5 due to CVE-2016-7420.
+#   CRYPTOPP_ASSERT has the additional benefit of using DebugBreak(), and the  program does not crash
+#   while you are debugging it like would happen with Posix assert().
 
 # The list of LIB_SRCS and TEST_SRCS was generated under Linux with "make sources". The list of
 #   LIB_OBJS and TEST_OBJS was generated under Linux with "make sources | sed 's|.cpp|.obj|g'".
@@ -33,7 +34,7 @@
 #   - /MT (release) or /MTd (debug)
 # To test with dynamic C++ runtime linking, use the following CXXFLAGS:
 #   - /MD (release) or /MDd (debug)
-# To test desktop app, use the following CXXFLAGS:
+# To test Desktop app, use the following CXXFLAGS:
 #   - /DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP
 # To test Windows Store app, use the following CXXFLAGS:
 #   - /DWINAPI_FAMILY=WINAPI_FAMILY_APP
