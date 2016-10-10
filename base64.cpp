@@ -5,13 +5,12 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-// Base64
-static const byte s_stdVec[] =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-// Base64URL
-static const byte s_urlVec[] =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
-static const byte s_padding = '=';
+namespace
+{
+	const byte s_stdVec[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+	const byte s_urlVec[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+	const byte s_padding = '=';
+}
 
 void Base64Encoder::IsolatedInitialize(const NameValuePairs &parameters)
 {
