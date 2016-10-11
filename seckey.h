@@ -295,7 +295,7 @@ public:
 
 	//! \brief Provides a valid key length for the algorithm
 	//! \param keylength the size of the key, in bytes
-	//! \returns the valid key lenght, in bytes
+	//! \returns the valid key length, in bytes
 	//! \details keylength is provided in bytes, not bits. If keylength is less than MIN_KEYLENGTH,
 	//!   then the function returns MIN_KEYLENGTH. If keylength is greater than MAX_KEYLENGTH,
 	//!   then the function returns MAX_KEYLENGTH. if If keylength is a multiple of KEYLENGTH_MULTIPLE,

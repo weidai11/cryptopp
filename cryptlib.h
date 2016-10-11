@@ -531,19 +531,27 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE SimpleKeyingInterface
 public:
 	virtual ~SimpleKeyingInterface() {}
 
-	//! \brief Returns smallest valid key length in bytes
+	//! \brief Returns smallest valid key length
+	//! \returns the minimum key length, in bytes
 	virtual size_t MinKeyLength() const =0;
-	//! \brief Returns largest valid key length in bytes
+	//! \brief Returns largest valid key length
+	//! \returns the maximum key length, in bytes
 	virtual size_t MaxKeyLength() const =0;
-	//! \brief Returns default (recommended) key length in bytes
+	//! \brief Returns default key length
+	//! \returns the default (recommended) key length, in bytes
 	virtual size_t DefaultKeyLength() const =0;
 
-	//! \brief
-	//! \param n the desired keylength
-	//! \return the smallest valid key length in bytes that is greater than or equal to <tt>min(n, GetMaxKeyLength())</tt>
+	//! \brief Returns a valid key length for the algorithm
+	//! \param keylength the size of the key, in bytes
+	//! \returns the valid key length, in bytes
+	//! \details keylength is provided in bytes, not bits. If keylength is less than MIN_KEYLENGTH,
+	//!   then the function returns MIN_KEYLENGTH. If keylength is greater than MAX_KEYLENGTH,
+	//!   then the function returns MAX_KEYLENGTH. if If keylength is a multiple of KEYLENGTH_MULTIPLE,
+	//!   then keylength is returned. Otherwise, the function returns a \a lower multiple of
+	//!   KEYLENGTH_MULTIPLE.
 	virtual size_t GetValidKeyLength(size_t n) const =0;
 
-	//! \brief Returns whether  keylength is a valid key length
+	//! \brief Returns whether keylength is a valid key length
 	//! \param keylength the requested keylength
 	//! \return true if keylength is valid, false otherwise
 	//! \details Internally the function calls GetValidKeyLength()
