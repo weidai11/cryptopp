@@ -378,10 +378,16 @@ protected:
 	// Same as NextPutMultiple(), but inString can be modified
 	virtual void NextPutModifiable(byte *inString, size_t length)
 		{NextPutMultiple(inString, length);}
-	// LastPut() is always called
-	// if totalLength < firstSize then length == totalLength
-	// else if totalLength <= firstSize+lastSize then length == totalLength-firstSize
-	// else lastSize <= length < lastSize+blockSize
+	//! \brief Input the last block of data
+	//! \param inString the input byte buffer
+	//! \param length the size of the input buffer, in bytes
+	//! \details LastPut() processes the last block of data and signals attached filters to do the same.
+	//!   LastPut() is always called. The pseudo algorithm for the logic is:
+	//! <pre>
+	//!     if totalLength < firstSize</tt> then length == totalLength
+	//!     else if totalLength <= firstSize+lastSize then length == totalLength-firstSize
+	//!     else lastSize <= length < lastSize+blockSize
+	//! </pre>
 	virtual void LastPut(const byte *inString, size_t length) =0;
 	virtual void FlushDerived() {}
 
@@ -604,7 +610,10 @@ typedef HashVerificationFilter HashVerifier;	// for backwards compatibility
 
 //! \class AuthenticatedEncryptionFilter
 //! \brief Filter wrapper for encrypting with AuthenticatedSymmetricCipher
-//! \details Filter wrapper for encrypting with AuthenticatedSymmetricCipher, optionally handling padding/unpadding when needed
+//! \details AuthenticatedEncryptionFilter() is a wrapper for encrypting with AuthenticatedSymmetricCipher(),
+//!   optionally handling padding/unpadding when needed.
+//! \sa AuthenticatedDecryptionFilter, EAX, CCM, GCM, AuthenticatedSymmetricCipher
+//! \since Crypto++ 5.6.0
 class CRYPTOPP_DLL AuthenticatedEncryptionFilter : public StreamTransformationFilter
 {
 public:
@@ -616,11 +625,23 @@ public:
 	//! \param macChannel the channel on which the MAC should be output
 	//! \param padding the \ref BlockPaddingSchemeDef "padding scheme"
 	//! \details <tt>truncatedDigestSize = -1</tt> indicates \ref HashTransformation::DigestSize() "DigestSize" should be used.
+	//! \since Crypto++ 5.6.0
 	AuthenticatedEncryptionFilter(AuthenticatedSymmetricCipher &c, BufferedTransformation *attachment = NULL, bool putAAD=false, int truncatedDigestSize=-1, const std::string &macChannel=DEFAULT_CHANNEL, BlockPaddingScheme padding = DEFAULT_PADDING);
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
 	byte * ChannelCreatePutSpace(const std::string &channel, size_t &size);
 	size_t ChannelPut2(const std::string &channel, const byte *begin, size_t length, int messageEnd, bool blocking);
+
+	//! \brief Input the last block of data
+	//! \param inString the input byte buffer
+	//! \param length the size of the input buffer, in bytes
+	//! \details LastPut() processes the last block of data and signals attached filters to do the same.
+	//!   LastPut() is always called. The pseudo algorithm for the logic is:
+	//! <pre>
+	//!     if totalLength < firstSize</tt> then length == totalLength
+	//!     else if totalLength <= firstSize+lastSize then length == totalLength-firstSize
+	//!     else lastSize <= length < lastSize+blockSize
+	//! </pre>
 	void LastPut(const byte *inString, size_t length);
 
 protected:
@@ -629,7 +650,10 @@ protected:
 
 //! \class AuthenticatedDecryptionFilter
 //! \brief Filter wrapper for decrypting with AuthenticatedSymmetricCipher
-//! \details Filter wrapper wrapper for decrypting with AuthenticatedSymmetricCipher, optionally handling padding/unpadding when needed.
+//! \details AuthenticatedDecryptionFilter() is a wrapper for decrypting with AuthenticatedSymmetricCipher(),
+//!   optionally handling padding/unpadding when needed.
+//! \sa AuthenticatedEncryptionFilter, EAX, CCM, GCM, AuthenticatedSymmetricCipher
+//! \since Crypto++ 5.6.0
 class CRYPTOPP_DLL AuthenticatedDecryptionFilter : public FilterWithBufferedInput, public BlockPaddingSchemeDef
 {
 public:
@@ -655,6 +679,7 @@ public:
 	//! \param padding the \ref BlockPaddingSchemeDef "padding scheme"
 	//! \details Additional authenticated data should be given in channel "AAD".
 	//! \details <tt>truncatedDigestSize = -1</tt> indicates \ref HashTransformation::DigestSize() "DigestSize" should be used.
+	//! \since Crypto++ 5.6.0
 	AuthenticatedDecryptionFilter(AuthenticatedSymmetricCipher &c, BufferedTransformation *attachment = NULL, word32 flags = DEFAULT_FLAGS, int truncatedDigestSize=-1, BlockPaddingScheme padding = DEFAULT_PADDING);
 
 	std::string AlgorithmName() const {return m_hashVerifier.AlgorithmName();}
@@ -666,6 +691,17 @@ protected:
 	void InitializeDerivedAndReturnNewSizes(const NameValuePairs &parameters, size_t &firstSize, size_t &blockSize, size_t &lastSize);
 	void FirstPut(const byte *inString);
 	void NextPutMultiple(const byte *inString, size_t length);
+
+	//! \brief Input the last block of data
+	//! \param inString the input byte buffer
+	//! \param length the size of the input buffer, in bytes
+	//! \details LastPut() processes the last block of data and signals attached filters to do the same.
+	//!   LastPut() is always called. The pseudo algorithm for the logic is:
+	//! <pre>
+	//!     if totalLength < firstSize</tt> then length == totalLength
+	//!     else if totalLength <= firstSize+lastSize then length == totalLength-firstSize
+	//!     else lastSize <= length < lastSize+blockSize
+	//! </pre>
 	void LastPut(const byte *inString, size_t length);
 
 	HashVerificationFilter m_hashVerifier;
@@ -926,6 +962,17 @@ public:
 
 	void FirstPut(const byte * inString)
 		{CRYPTOPP_UNUSED(inString);}
+
+	//! \brief Input the last block of data
+	//! \param inString the input byte buffer
+	//! \param length the size of the input buffer, in bytes
+	//! \details LastPut() processes the last block of data and signals attached filters to do the same.
+	//!   LastPut() is always called. The pseudo algorithm for the logic is:
+	//! <pre>
+	//!     if totalLength < firstSize</tt> then length == totalLength
+	//!     else if totalLength <= firstSize+lastSize then length == totalLength-firstSize
+	//!     else lastSize <= length < lastSize+blockSize
+	//! </pre>
 	void LastPut(const byte *inString, size_t length)
 		{CRYPTOPP_UNUSED(inString), CRYPTOPP_UNUSED(length); m_filter->MessageEnd();}
 };

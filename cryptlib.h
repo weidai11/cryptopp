@@ -1666,12 +1666,13 @@ public:
 		//! \brief Discard skipMax bytes from the output buffer
 		//! \param skipMax the number of bytes to discard
 		//! \details Skip() discards bytes from the output buffer, which is the AttachedTransformation(), if present.
-		//!   The function always returns skipMax.
+		//!   The function always returns the parameter <tt>skipMax</tt>.
 		//! \details If you want to skip bytes from a Source, then perform the following.
-		//! <pre>StringSource ss(str, false, new Redirector(TheBitBucket()));
-		//! ss.Pump(10);    // Skip 10 bytes from Source
-		//! ss.Detach(new FilterChain(...));
-		//! ss.PumpAll();
+		//! <pre>
+		//!     StringSource ss(str, false, new Redirector(TheBitBucket()));
+		//!     ss.Pump(10);    // Skip 10 bytes from Source
+		//!     ss.Detach(new FilterChain(...));
+		//!     ss.PumpAll();
 		//! </pre>
 		virtual lword Skip(lword skipMax=LWORD_MAX);
 
