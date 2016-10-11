@@ -45,6 +45,7 @@
 #include "zdeflate.h"
 #include "smartptr.h"
 #include "channels.h"
+#include "misc.h"
 
 #include <time.h>
 #include <memory>
