@@ -213,6 +213,54 @@ http://www.cryptopp.com. You can also email me directly by visiting
 http://www.weidai.com, but you will probably get a faster response through
 the mailing list.
 
+*** Source Code and Contributing ***
+
+The source code and its planned changes are available at the following locations.
+
+  * The Crypto++ GitHub repository allows you to view the latest (unreleased)
+    Crypto++ source code via the Linux kernel's git beginning around June 2015.
+	Its also serves as an incubator to nuture and grow the library.
+  * The former Crypto++ SourceForge repository allows you to view the Crypto++
+    source code via Apache's subversion until about July 2015. At that time,
+	SourceForge had infrastructure problems and a cutover to GutHub was performed.
+  * The Roadmap on the wiki provides the general direction the library is heading.
+    It includes planned features and releases, and even some wishlist items. 
+
+Contributions of all types are welcomed. Contributions include the following.
+
+  * Bug finding and fixes
+  * Features and enhancements
+  * Test scripts and test cases
+  * Branch and release testing
+  * Documentation and updates 
+
+If you think you have found a bug in the library, then you should discuss it on the
+Users mailing list. Discussing it will help bring the issue to the attention of folks
+who can help resolve the issue. If you want to contribute a bug fix to the library,
+then make a Pull Request or make a Diff available somewhere. Also see Bug Reports on
+the wiki.
+
+Features and enhancements are welcomend additions to the library. This category tends
+to be time consuming because algorithms and their test cases need to be reviewed and
+merged. Please be mindful of the test cases, and attempt to procure them from an
+independent source.
+
+The library cherishes test scripts and test cases. They ensure the library is fit and
+they help uncover issues with the library before users experience them. If you have
+some time, then write some test cases, especially the ones that are intended to break
+things.
+
+Branch and release testing is your chance to ensure Master (and planned merges) meets
+your expectations and perform as expected. If you have a few spare cycles, then please
+test Master on your favorite platform. We need more testing on MinGW, Windows Phone,
+Windows Store, Solaris 10 (and below), and modern iOS and OS X (including TV and
+Watch builds).
+
+Documentation and updates includes both the inline source code annotations using
+Doxygen, and the online information provided in the wiki. The wiki is more verbose and
+usually provides more contextual information than the API reference. Besides testing,
+documentation is one of the highest returns on investment.
+
 *** History ***
 
 1.0 - First public release.  Withdrawn at the request of RSA DSI.
@@ -565,5 +613,21 @@ the mailing list.
           * added C++03, C++11, C++14, C++17 testing
           * added -O3, -O5, -Ofast and -Os testing
       - ported to MSVC 2015 SP3, Xcode 9.0, Sun Studio 12.5, GCC 7.0, MacPorts GCC 7.0, Clang 3.8, Intel C++ 17.00
+
+5.6.5 - maintenance release, recompile of programs recommended
+      - expanded community input and support
+          * 25 unique contributors as of this release 
+      - fixed CVE-2016-7420 (Issue 277, document NDEBUG for production/release)
+      - fixed CVE-2016-7544 (Issue 302, avoid _malloca and _freea)
+      - shipped library in recommended state
+          * backwards compatibility achieved with <config.compat> 
+      - Visual Studio project file cleanup
+          * improved X86 and X64 MSBuild support
+          * added ARM-based MSBuild awareness 
+      - improved Testing and QA
+          * expanded platforms and compilers
+          * expanded Coverity into OS X and Windows platforms
+          * added Windows test scripts using Strawberry Perl 
+      - ported to MSVC 2015 SP3, Xcode 7.3, Sun Studio 12.5, GCC 7.0, MacPorts GCC 7.0, Clang 3.8, Intel C++ 17.00 
 
 Written by Wei Dai and the Crypto++ Project
