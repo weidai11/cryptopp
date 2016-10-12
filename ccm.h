@@ -31,10 +31,10 @@ public:
 		{return GetBlockCipher().MaxKeyLength();}
 	size_t DefaultKeyLength() const
 		{return GetBlockCipher().DefaultKeyLength();}
-	size_t GetValidKeyLength(size_t n) const
-		{return GetBlockCipher().GetValidKeyLength(n);}
-	bool IsValidKeyLength(size_t n) const
-		{return GetBlockCipher().IsValidKeyLength(n);}
+	size_t GetValidKeyLength(size_t keylength) const
+		{return GetBlockCipher().GetValidKeyLength(keylength);}
+	bool IsValidKeyLength(size_t keylength) const
+		{return GetBlockCipher().IsValidKeyLength(keylength);}
 	unsigned int OptimalDataAlignment() const
 		{return GetBlockCipher().OptimalDataAlignment();}
 	IV_Requirement IVRequirement() const

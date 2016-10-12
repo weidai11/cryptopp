@@ -153,16 +153,31 @@ public:
 };
 
 //! \class CustomFlushPropagation
-//! \brief Provides interface for custom flush signals
-//! \tparam T the class or type
-//! \details T should be a BufferedTransformation derived class
+//! \brief Interface for custom flush signals propagation
+//! \tparam T BufferedTransformation derived class
 template <class T>
 class CRYPTOPP_NO_VTABLE CustomFlushPropagation : public T
 {
 public:
 	//!	\name SIGNALS
 	//@{
+
+	//! \brief Flush buffered input and/or output, with signal propagation
+	//! \param hardFlush is used to indicate whether all data should be flushed
+	//! \param propagation the number of attached transformations the  Flush() signal should be passed
+	//! \param blocking specifies whether the object should block when processing input
+	//! \details propagation count includes this object. Setting propagation to <tt>1</tt> means this
+	//!   object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
+	//! \note Hard flushes must be used with care. It means try to process and output everything, even if
+	//!   there may not be enough data to complete the action. For example, hard flushing a HexDecoder
+	//!   would cause an error if you do it after inputing an odd number of hex encoded characters.
+	//! \note For some types of filters, like  ZlibDecompressor, hard flushes can only
+	//!   be done at "synchronization points". These synchronization points are positions in the data
+	//!   stream that are created by hard flushes on the corresponding reverse filters, in this
+	//!   example ZlibCompressor. This is useful when zlib compressed data is moved across a
+	//!   network in packets and compression state is preserved across packets, as in the SSH2 protocol.
 	virtual bool Flush(bool hardFlush, int propagation=-1, bool blocking=true) =0;
+
 	//@}
 
 private:
@@ -171,13 +186,20 @@ private:
 };
 
 //! \class CustomSignalPropagation
-//! \brief Provides interface for initialization of derived filters
-//! \tparam T the class or type
-//! \details T should be a BufferedTransformation derived class
+//! \brief Interface for custom flush signals
+//! \tparam T BufferedTransformation derived class
 template <class T>
 class CRYPTOPP_NO_VTABLE CustomSignalPropagation : public CustomFlushPropagation<T>
 {
 public:
+	//! \brief Initialize or reinitialize this object, with signal propagation
+	//! \param parameters a set of NameValuePairs to initialize or reinitialize this object
+	//! \param propagation the number of attached transformations the Initialize() signal should be passed
+	//! \details Initialize() is used to initialize or reinitialize an object using a variable number of
+	//!   arbitrarily typed arguments. The function avoids the need for multiple constuctors providing
+	//!   all possible combintations of configurable parameters.
+	//! \details propagation count includes this object. Setting propagation to <tt>1</tt> means this
+	//!   object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
 	virtual void Initialize(const NameValuePairs &parameters=g_nullNameValuePairs, int propagation=-1) =0;
 
 private:
@@ -186,7 +208,7 @@ private:
 };
 
 //! \class Multichannel
-//! \brief Provides multiple channels support for custom flush signal processing
+//! \brief Multiple channels support for custom signal processing
 //! \tparam T the class or type
 //! \details T should be a BufferedTransformation derived class
 template <class T>
@@ -195,12 +217,45 @@ class CRYPTOPP_NO_VTABLE Multichannel : public CustomFlushPropagation<T>
 public:
 	bool Flush(bool hardFlush, int propagation=-1, bool blocking=true)
 		{return this->ChannelFlush(DEFAULT_CHANNEL, hardFlush, propagation, blocking);}
+
+	//! \brief Marks the end of a series of messages, with signal propagation
+	//! \param propagation the number of attached transformations the  MessageSeriesEnd() signal should be passed
+	//! \param blocking specifies whether the object should block when processing input
+	//! \details Each object that receives the signal will perform its processing, decrement
+	//!    propagation, and then pass the signal on to attached transformations if the value is not 0.
+	//! \details propagation count includes this object. Setting propagation to <tt>1</tt> means this
+	//!   object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
+	//! \note There should be a MessageEnd() immediately before MessageSeriesEnd().
 	bool MessageSeriesEnd(int propagation=-1, bool blocking=true)
 		{return this->ChannelMessageSeriesEnd(DEFAULT_CHANNEL, propagation, blocking);}
+
+	//! \brief Request space which can be written into by the caller
+	//! \param size the requested size of the buffer
+	//! \details The purpose of this method is to help avoid extra memory allocations.
+	//! \details size is an \a IN and \a OUT parameter and used as a hint. When the call is made,
+	//!    size is the requested size of the buffer. When the call returns,  size is the size of
+	//!   the array returned to the caller.
+	//! \details The base class implementation sets  size to 0 and returns  NULL.
+	//! \note Some objects, like ArraySink, cannot create a space because its fixed. In the case of
+	//! an ArraySink, the pointer to the array is returned and the  size is remaining size.
 	byte * CreatePutSpace(size_t &size)
 		{return this->ChannelCreatePutSpace(DEFAULT_CHANNEL, size);}
+
+	//! \brief Input multiple bytes for processing
+	//! \param inString the byte buffer to process
+	//! \param length the size of the string, in bytes
+	//! \param messageEnd means how many filters to signal MessageEnd() to, including this one
+	//! \param blocking specifies whether the object should block when processing input
+	//! \details Derived classes must implement Put2().
 	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
 		{return this->ChannelPut2(DEFAULT_CHANNEL, inString, length, messageEnd, blocking);}
+
+	//! \brief Input multiple bytes that may be modified by callee.
+	//! \param inString the byte buffer to process.
+	//! \param length the size of the string, in bytes.
+	//! \param messageEnd means how many filters to signal MessageEnd() to, including this one.
+	//! \param blocking specifies whether the object should block when processing input.
+	//! \details Internally, PutModifiable2() calls Put2().
 	size_t PutModifiable2(byte *inString, size_t length, int messageEnd, bool blocking)
 		{return this->ChannelPutModifiable2(DEFAULT_CHANNEL, inString, length, messageEnd, blocking);}
 
@@ -220,12 +275,13 @@ public:
 
 //! \class AutoSignaling
 //! \brief Provides auto signaling support
-//! \tparam T the class or type
-//! \details T should be a BufferedTransformation derived class
+//! \tparam T BufferedTransformation derived class
 template <class T>
 class CRYPTOPP_NO_VTABLE AutoSignaling : public T
 {
 public:
+	//! \brief Construct an AutoSignaling
+	//! \param propagation the propagation count
 	AutoSignaling(int propagation=-1) : m_autoSignalPropagation(propagation) {}
 
 	void SetAutoSignalPropagation(int propagation)
@@ -239,8 +295,7 @@ private:
 
 //! \class Store
 //! \brief Acts as a Source for pre-existing, static data
-//! \tparam T the class or type
-//! \details A BufferedTransformation that only contains pre-existing data as "output"
+//! \tparam T BufferedTransformation that only contains pre-existing data as "output"
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Store : public AutoSignaling<InputRejecting<BufferedTransformation> >
 {
 public:

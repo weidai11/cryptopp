@@ -384,7 +384,7 @@ protected:
 	//! \details LastPut() processes the last block of data and signals attached filters to do the same.
 	//!   LastPut() is always called. The pseudo algorithm for the logic is:
 	//! <pre>
-	//!     if totalLength < firstSize</tt> then length == totalLength
+	//!     if totalLength < firstSize then length == totalLength
 	//!     else if totalLength <= firstSize+lastSize then length == totalLength-firstSize
 	//!     else lastSize <= length < lastSize+blockSize
 	//! </pre>
@@ -638,7 +638,7 @@ public:
 	//! \details LastPut() processes the last block of data and signals attached filters to do the same.
 	//!   LastPut() is always called. The pseudo algorithm for the logic is:
 	//! <pre>
-	//!     if totalLength < firstSize</tt> then length == totalLength
+	//!     if totalLength < firstSize then length == totalLength
 	//!     else if totalLength <= firstSize+lastSize then length == totalLength-firstSize
 	//!     else lastSize <= length < lastSize+blockSize
 	//! </pre>
@@ -698,7 +698,7 @@ protected:
 	//! \details LastPut() processes the last block of data and signals attached filters to do the same.
 	//!   LastPut() is always called. The pseudo algorithm for the logic is:
 	//! <pre>
-	//!     if totalLength < firstSize</tt> then length == totalLength
+	//!     if totalLength < firstSize then length == totalLength
 	//!     else if totalLength <= firstSize+lastSize then length == totalLength-firstSize
 	//!     else lastSize <= length < lastSize+blockSize
 	//! </pre>
@@ -887,13 +887,22 @@ private:
 	word32 m_behavior;
 };
 
-// Used By ProxyFilter
+//! \class OutputProxy
+//! \brief Filter class that is a proxy for a sink
+//! \details Used By ProxyFilter
 class CRYPTOPP_DLL OutputProxy : public CustomSignalPropagation<Sink>
 {
 public:
+	//! \brief Construct an OutputProxy
+	//! \param owner the owning transformation
+	//! \param passSignal flag indicating if signals should be passed
 	OutputProxy(BufferedTransformation &owner, bool passSignal) : m_owner(owner), m_passSignal(passSignal) {}
 
+	//! \brief Retrieve passSignal flag
+	//! \returns flag indicating if signals should be passed
 	bool GetPassSignal() const {return m_passSignal;}
+	//! \brief Set passSignal flag
+	//! \param passSignal flag indicating if signals should be passed
 	void SetPassSignal(bool passSignal) {m_passSignal = passSignal;}
 
 	byte * CreatePutSpace(size_t &size)
@@ -969,7 +978,7 @@ public:
 	//! \details LastPut() processes the last block of data and signals attached filters to do the same.
 	//!   LastPut() is always called. The pseudo algorithm for the logic is:
 	//! <pre>
-	//!     if totalLength < firstSize</tt> then length == totalLength
+	//!     if totalLength < firstSize then length == totalLength
 	//!     else if totalLength <= firstSize+lastSize then length == totalLength-firstSize
 	//!     else lastSize <= length < lastSize+blockSize
 	//! </pre>

@@ -549,7 +549,7 @@ public:
 	//!   then the function returns MAX_KEYLENGTH. if If keylength is a multiple of KEYLENGTH_MULTIPLE,
 	//!   then keylength is returned. Otherwise, the function returns a \a lower multiple of
 	//!   KEYLENGTH_MULTIPLE.
-	virtual size_t GetValidKeyLength(size_t n) const =0;
+	virtual size_t GetValidKeyLength(size_t keylength) const =0;
 
 	//! \brief Returns whether keylength is a valid key length
 	//! \param keylength the requested keylength
