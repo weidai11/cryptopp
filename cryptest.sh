@@ -475,8 +475,9 @@ fi
 # Cygwin and noisy compiles
 rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_PIC") ]]; then
-	HAVE_PIC=$("$CXX" -DCRYPTOPP_ADHOC_MAIN -fPIC adhoc.cpp -o "$TMP/adhoc.exe" 2>&1 | grep -c 'warning')
-	if [[ "$HAVE_PIC" -ne "0" ]]; then
+	HAVE_PIC=0
+	PIC_PROBLEMS=$("$CXX" -DCRYPTOPP_ADHOC_MAIN -fPIC adhoc.cpp -o "$TMP/adhoc.exe" 2>&1 | "$EGREP" -ic '(warning|error)')
+	if [[ "$PIC_PROBLEMS" -eq "0" ]]; then
 		HAVE_PIC=1
 	fi
 fi
