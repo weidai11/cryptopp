@@ -472,6 +472,15 @@ else
 	fi
 fi
 
+# Cygwin and noisy compiles
+rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
+if [[ (-z "$HAVE_PIC") ]]; then
+	HAVE_PIC=$("$CXX" -DCRYPTOPP_ADHOC_MAIN -fPIC adhoc.cpp -o "$TMP/adhoc.exe" 2>&1 | grep -c 'warning')
+	if [[ "$HAVE_PIC" -ne "0" ]]; then
+		HAVE_PIC=1
+	fi
+fi
+
 # GCC 4.8; Clang 3.4
 rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_UBSAN") ]]; then
@@ -1795,10 +1804,14 @@ if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0" || "$INTEL_COMPILER"
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="$DEBUG_CXXFLAGS -march=i686 -fPIC -pipe ${DEPRECATED_CXXFLAGS[@]}"
+		if [[ "$HAVE_PIC" -ne "0" ]]; then
+			PIC_FLAG=-fPIC
+		fi
+
+		CXXFLAGS="$DEBUG_CXXFLAGS -march=i686 $PIC_FLAG -pipe ${DEPRECATED_CXXFLAGS[@]}"
 		CXX="$CXX" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="$CXXFLAGS" static 2>&1 | tee -a "$TEST_RESULTS"
 
-		CXXFLAGS="$DEBUG_CXXFLAGS -march=native -fPIC -pipe ${DEPRECATED_CXXFLAGS[@]}"
+		CXXFLAGS="$DEBUG_CXXFLAGS -march=native $PIC_FLAG -pipe ${DEPRECATED_CXXFLAGS[@]}"
 		CXX="$CXX" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="$CXXFLAGS" cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -1824,10 +1837,10 @@ if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0" || "$INTEL_COMPILER"
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="$RELEASE_CXXFLAGS -march=i686 -fPIC -pipe ${DEPRECATED_CXXFLAGS[@]}"
+		CXXFLAGS="$RELEASE_CXXFLAGS -march=i686 $PIC_FLAG -pipe ${DEPRECATED_CXXFLAGS[@]}"
 		CXX="$CXX" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="$CXXFLAGS" static 2>&1 | tee -a "$TEST_RESULTS"
 
-		CXXFLAGS="$RELEASE_CXXFLAGS -march=native -fPIC -pipe ${DEPRECATED_CXXFLAGS[@]}"
+		CXXFLAGS="$RELEASE_CXXFLAGS -march=native $PIC_FLAG -pipe ${DEPRECATED_CXXFLAGS[@]}"
 		CXX="$CXX" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="$CXXFLAGS" cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
