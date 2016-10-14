@@ -126,7 +126,7 @@ RandomNumberGenerator & GlobalRNG()
 }
 
 // See misc.h and trap.h for comments and usage
-#if CRYPTOPP_DEBUG && (defined(CRYPTOPP_BSD_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE))
+#if CRYPTOPP_DEBUG && defined(UNIX_SIGNALS_AVAILABLE)
 static const SignalHandler<SIGTRAP, false> s_dummyHandler;
 // static const DebugTrapHandler s_dummyHandler;
 #endif

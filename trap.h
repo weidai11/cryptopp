@@ -21,9 +21,9 @@
 #if CRYPTOPP_DEBUG
 #  include <iostream>
 #  include <sstream>
-#  if defined(CRYPTOPP_BSD_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE)
+#  if defined(UNIX_SIGNALS_AVAILABLE)
 #    include "ossig.h"
-#  elif defined(CRYPTOPP_WIN32_AVAILABLE)
+#  elif defined(CRYPTOPP_WIN32_AVAILABLE) && !defined(__CYGWIN__)
 #    if (_MSC_VER >= 1400)
 #      include <intrin.h>
 #    endif
@@ -62,7 +62,7 @@
 #  define CRYPTOPP_ASSERT(exp) { ... }
 #endif
 
-#if CRYPTOPP_DEBUG && (defined(CRYPTOPP_BSD_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE))
+#if CRYPTOPP_DEBUG && defined(UNIX_SIGNALS_AVAILABLE)
 #  define CRYPTOPP_ASSERT(exp) {                                  \
     if (!(exp)) {                                                 \
       std::ostringstream oss;                                     \
@@ -73,7 +73,7 @@
       raise(SIGTRAP);                                             \
     }                                                             \
   }
-#elif CRYPTOPP_DEBUG && defined(CRYPTOPP_WIN32_AVAILABLE)
+#elif CRYPTOPP_DEBUG && defined(CRYPTOPP_WIN32_AVAILABLE) && !defined(__CYGWIN__)
 #  define CRYPTOPP_ASSERT(exp) {                                  \
     if (!(exp)) {                                                 \
       std::ostringstream oss;                                     \
@@ -96,7 +96,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 // ************** SIGTRAP handler ***************
 
-#if (CRYPTOPP_DEBUG && (defined(CRYPTOPP_BSD_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE))) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if (CRYPTOPP_DEBUG && defined(UNIX_SIGNALS_AVAILABLE)) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 //! \brief Default SIGTRAP handler
 //! \details DebugTrapHandler() can be used by a program to install an empty SIGTRAP handler. If present,
 //!   the handler ensures there is a signal handler in place for <tt>SIGTRAP</tt> raised by
