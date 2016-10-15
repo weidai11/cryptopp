@@ -89,9 +89,9 @@ MASM_RRA_GenerateBlock PROC   ;; arg1:DWORD, arg2:DWORD, arg3:DWORD
 
 Load_Arguments:
 
-	mov		buffer, [esp+04h]    ;; arg1
-	mov		bsize,  [esp+08h]    ;; arg2
-	mov		safety, [esp+0Ch]    ;; arg3
+	mov		buffer, DWORD PTR [esp+04h]    ;; arg1
+	mov		bsize,  DWORD PTR [esp+08h]    ;; arg2
+	mov		safety, DWORD PTR [esp+0Ch]    ;; arg3
 
 Validate_Pointer:
 
@@ -340,9 +340,9 @@ MASM_RSA_GenerateBlock PROC   ;; arg1:DWORD, arg2:DWORD, arg3:DWORD
 
 Load_Arguments:
 
-	mov		buffer, [esp+04h]    ;; arg1
-	mov		bsize,  [esp+08h]    ;; arg2
-	mov		safety, [esp+0Ch]    ;; arg3
+	mov		buffer, DWORD PTR [esp+04h]    ;; arg1
+	mov		bsize,  DWORD PTR [esp+08h]    ;; arg2
+	mov		safety, DWORD PTR [esp+0Ch]    ;; arg3
 
 Validate_Pointer:
 
