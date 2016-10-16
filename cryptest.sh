@@ -1087,7 +1087,7 @@ if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 fi
 
 if [[ ("$GCC_COMPILER" -ne "0") ]]; then
-	ELEVATED_CXXFLAGS+=("-DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562" "-DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS" "-Wall" "-Wextra"
+	ELEVATED_CXXFLAGS+=("-DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS" "-Wall" "-Wextra"
 	                    "-Wno-unknown-pragmas" "-Wstrict-aliasing=3" "-Wstrict-overflow" "-Waggressive-loop-optimizations"
 	                    "-Wcast-align" "-Wwrite-strings" "-Wformat=2" "-Wformat-security" "-Wtrampolines")
 
@@ -1100,7 +1100,7 @@ if [[ ("$GCC_COMPILER" -ne "0") ]]; then
 fi
 
 if [[ ("$CLANG_COMPILER" -ne "0") ]]; then
-	ELEVATED_CXXFLAGS+=("-DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562" "-DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS" "-Wall" "-Wextra")
+	ELEVATED_CXXFLAGS+=("-DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS" "-Wall" "-Wextra")
 	ELEVATED_CXXFLAGS+=("-Wno-unknown-pragmas" "-Wstrict-overflow" "-Wcast-align" "-Wwrite-strings" "-Wformat=2" "-Wformat-security")
 fi
 
@@ -2631,60 +2631,6 @@ echo
 rm -f adhoc.cpp > /dev/null 2>&1
 
 CXXFLAGS="$RELEASE_CXXFLAGS -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
-CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-
-if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
-else
-	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-		echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
-	fi
-	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
-	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-		echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
-	fi
-fi
-
-############################################
-# Debug build, no backwards compatibility with Crypto++ 5.6.2.
-#  This test will not be needed in Crypto++ 5.7 and above
-echo
-echo "************************************" | tee -a "$TEST_RESULTS"
-echo "Testing: Debug, NO_BACKWARDS_COMPATIBILITY_562" | tee -a "$TEST_RESULTS"
-echo
-
-"$MAKE" clean > /dev/null 2>&1
-rm -f adhoc.cpp > /dev/null 2>&1
-
-CXXFLAGS="$DEBUG_CXXFLAGS -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
-CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
-
-if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-	echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
-else
-	./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
-	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-		echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
-	fi
-	./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
-	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
-		echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
-	fi
-fi
-
-############################################
-# Release build, no backwards compatibility with Crypto++ 5.6.2.
-#  This test will not be needed in Crypto++ 5.7 and above
-echo
-echo "************************************" | tee -a "$TEST_RESULTS"
-echo "Testing: Release, NO_BACKWARDS_COMPATIBILITY_562" | tee -a "$TEST_RESULTS"
-echo
-
-"$MAKE" clean > /dev/null 2>&1
-rm -f adhoc.cpp > /dev/null 2>&1
-
-CXXFLAGS="$RELEASE_CXXFLAGS -DCRYPTOPP_NO_BACKWARDS_COMPATIBILITY_562 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
 CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
