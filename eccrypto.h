@@ -38,13 +38,13 @@ public:
 	typedef Point Element;
 	typedef IncompatibleCofactorMultiplication DefaultCofactorOption;
 
-	DL_GroupParameters_EC() : m_compress(false), m_encodeAsOID(false) {}
+	DL_GroupParameters_EC() : m_compress(false), m_encodeAsOID(true) {}
 	DL_GroupParameters_EC(const OID &oid)
-		: m_compress(false), m_encodeAsOID(false) {Initialize(oid);}
+		: m_compress(false), m_encodeAsOID(true) {Initialize(oid);}
 	DL_GroupParameters_EC(const EllipticCurve &ec, const Point &G, const Integer &n, const Integer &k = Integer::Zero())
-		: m_compress(false), m_encodeAsOID(false) {Initialize(ec, G, n, k);}
+		: m_compress(false), m_encodeAsOID(true) {Initialize(ec, G, n, k);}
 	DL_GroupParameters_EC(BufferedTransformation &bt)
-		: m_compress(false), m_encodeAsOID(false) {BERDecode(bt);}
+		: m_compress(false), m_encodeAsOID(true) {BERDecode(bt);}
 
 	void Initialize(const EllipticCurve &ec, const Point &G, const Integer &n, const Integer &k = Integer::Zero())
 	{
