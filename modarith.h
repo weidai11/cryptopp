@@ -86,7 +86,7 @@ public:
 		{m_modulus = newModulus; m_result.reg.resize(m_modulus.reg.size());}
 
 	//! \brief Retrieves the representation
-	//! \returns true if the representation is MontgomeryRepresentation, false otherwise
+	//! \returns true if the if the modulus is in Montgomery form for multiplication, false otherwise
 	virtual bool IsMontgomeryRepresentation() const {return false;}
 
 	//! \brief Reduces an element in the congruence class
@@ -105,7 +105,7 @@ public:
 	virtual Integer ConvertOut(const Integer &a) const
 		{return a;}
 
-	//! \brief TODO
+	//! \brief Divides an element by 2
 	//! \param a element to convert
 	const Integer& Half(const Integer &a) const;
 
@@ -237,7 +237,7 @@ public:
 	//! \details RandomElement constructs a new element in the range <tt>[0,n-1]</tt>, inclusive.
 	//!   The element's class must provide a constructor with the signature <tt>Element(RandomNumberGenerator rng,
 	//!   Element min, Element max)</tt>.
-	Element RandomElement( RandomNumberGenerator &rng , const RandomizationParameter &ignore_for_now = 0) const
+	Element RandomElement(RandomNumberGenerator &rng , const RandomizationParameter &ignore_for_now = 0) const
 		// left RandomizationParameter arg as ref in case RandomizationParameter becomes a more complicated struct
 	{
 		CRYPTOPP_UNUSED(ignore_for_now);
@@ -264,10 +264,9 @@ protected:
 //! \brief Performs modular arithmetic in Montgomery representation for increased speed
 //! \details The Montgomery representation represents each congruence class <tt>[a]</tt> as
 //!   <tt>a*r\%n</tt>, where <tt>r</tt> is a convenient power of 2.
-//! \details <tt>const Element&</tt> returned by member functions are references
-//!   to internal data members. Since each object may have only
-//!   one such data member for holding results, the following code
-//!   will produce incorrect results:
+//! \details <tt>const Element&</tt> returned by member functions are references to
+//!   internal data members. Since each object may have only one such data member for holding
+//!   results, the following code will produce incorrect results:
 //!   <pre>    abcd = group.Add(group.Add(a,b), group.Add(c,d));</pre>
 //!   But this should be fine:
 //!   <pre>    abcd = group.Add(a, group.Add(b, group.Add(c,d));</pre>
@@ -278,7 +277,7 @@ public:
 	virtual ~MontgomeryRepresentation() {}
 #endif
 
-	//! \brief Construct a IsMontgomeryRepresentation
+	//! \brief Construct a MontgomeryRepresentation
 	//! \param modulus congruence class modulus
 	//! \note The modulus must be odd.
 	MontgomeryRepresentation(const Integer &modulus);
