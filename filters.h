@@ -1052,8 +1052,11 @@ private:
 	T *m_output;
 };
 
-CRYPTOPP_DLL_TEMPLATE_CLASS StringSinkTemplate<std::string>;
+//! \class StringSink
+//! \brief Append input to a string object
+//! \details StringSink is a typedef for StringSinkTemplate<std::string>.
 DOCUMENTED_TYPEDEF(StringSinkTemplate<std::string>, StringSink);
+CRYPTOPP_DLL_TEMPLATE_CLASS StringSinkTemplate<std::string>;
 
 //! \class RandomNumberSink
 //! \brief Incorporates input into RNG as additional entropy
@@ -1336,7 +1339,11 @@ public:
 		: SourceTemplate<StringStore>(attachment) {SourceInitialize(pumpAll, MakeParameters("InputBuffer", ConstByteArrayParameter(string)));}
 };
 
-// Use the third constructor for an array source
+//! \class ArraySource
+//! \brief Pointer-based implementation of the Source interface
+//! \details ArraySource is a typedef for StringSource. Use the third constructor for an array source.
+//!   The third constructor takes a pointer and length.
+//! \since Crypto++ 5.6.0
 DOCUMENTED_TYPEDEF(StringSource, ArraySource);
 
 //! RNG-based implementation of Source interface
