@@ -38,6 +38,10 @@ public:
 	typedef Point Element;
 	typedef IncompatibleCofactorMultiplication DefaultCofactorOption;
 
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_GroupParameters_EC() {}
+#endif
+
 	DL_GroupParameters_EC() : m_compress(false), m_encodeAsOID(true) {}
 	DL_GroupParameters_EC(const OID &oid)
 		: m_compress(false), m_encodeAsOID(true) {Initialize(oid);}
@@ -133,10 +137,6 @@ public:
 	void LoadRecommendedParameters(const OID &oid) {Initialize(oid);}
 #endif
 
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~DL_GroupParameters_EC() {}
-#endif
-
 protected:
 	unsigned int FieldElementLength() const {return GetCurve().GetField().MaxElementByteLength();}
 	unsigned int ExponentLength() const {return m_n.ByteCount();}
@@ -154,6 +154,10 @@ class DL_PublicKey_EC : public DL_PublicKeyImpl<DL_GroupParameters_EC<EC> >
 public:
 	typedef typename EC::Point Element;
 
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_PublicKey_EC() {}
+#endif
+
 	void Initialize(const DL_GroupParameters_EC<EC> &params, const Element &Q)
 		{this->AccessGroupParameters() = params; this->SetPublicElement(Q);}
 	void Initialize(const EC &ec, const Element &G, const Integer &n, const Element &Q)
@@ -162,10 +166,6 @@ public:
 	// X509PublicKey
 	void BERDecodePublicKey(BufferedTransformation &bt, bool parametersPresent, size_t size);
 	void DEREncodePublicKey(BufferedTransformation &bt) const;
-
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~DL_PublicKey_EC() {}
-#endif
 };
 
 //! EC private key
@@ -174,6 +174,10 @@ class DL_PrivateKey_EC : public DL_PrivateKeyImpl<DL_GroupParameters_EC<EC> >
 {
 public:
 	typedef typename EC::Point Element;
+
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DL_PrivateKey_EC() {}
+#endif
 
 	void Initialize(const DL_GroupParameters_EC<EC> &params, const Integer &x)
 		{this->AccessGroupParameters() = params; this->SetPrivateExponent(x);}
@@ -187,10 +191,6 @@ public:
 	// PKCS8PrivateKey
 	void BERDecodePrivateKey(BufferedTransformation &bt, bool parametersPresent, size_t size);
 	void DEREncodePrivateKey(BufferedTransformation &bt) const;
-
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~DL_PrivateKey_EC() {}
-#endif
 };
 
 //! Elliptic Curve Diffie-Hellman, AKA <a href="http://www.weidai.com/scan-mirror/ka.html#ECDH">ECDH</a>
@@ -340,13 +340,7 @@ struct ECIES
 	virtual ~ECIES() {}
 #endif
 
-#if (CRYPTOPP_GCC_VERSION >= 40500) || (CRYPTOPP_LLVM_CLANG_VERSION >= 20800)
-} __attribute__((deprecated ("ECIES will be changing in the near future due to (1) an implementation bug and (2) an interop issue")));
-#elif (CRYPTOPP_GCC_VERSION)
-} __attribute__((deprecated));
-#else
-};
-#endif
+} CRYPTOPP_DEPRECATED ("ECIES will be changing in the near future due to an interop issue");
 
 NAMESPACE_END
 

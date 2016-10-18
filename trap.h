@@ -18,7 +18,7 @@
 
 #include "config.h"
 
-#if CRYPTOPP_DEBUG
+#if defined(CRYPTOPP_DEBUG)
 #  include <iostream>
 #  include <sstream>
 #  if defined(UNIX_SIGNALS_AVAILABLE)
@@ -46,7 +46,7 @@
 //! \details An example of using \ref CRYPTOPP_ASSERT "CRYPTOPP_ASSERT" and DebugTrapHandler is shown below. The library's
 //!   test program, <tt>cryptest.exe</tt> (from test.cpp), exercises the structure:
 //!  <pre>
-//!    #if CRYPTOPP_DEBUG && (defined(CRYPTOPP_BSD_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE))
+//!    #if defined(CRYPTOPP_DEBUG) && defined(UNIX_SIGNALS_AVAILABLE)
 //!    static const DebugTrapHandler g_dummyHandler;
 //!    #endif
 //!
@@ -62,7 +62,7 @@
 #  define CRYPTOPP_ASSERT(exp) { ... }
 #endif
 
-#if CRYPTOPP_DEBUG && defined(UNIX_SIGNALS_AVAILABLE)
+#if defined(CRYPTOPP_DEBUG) && defined(UNIX_SIGNALS_AVAILABLE)
 #  define CRYPTOPP_ASSERT(exp) {                                  \
     if (!(exp)) {                                                 \
       std::ostringstream oss;                                     \
@@ -89,7 +89,7 @@
 // Remove CRYPTOPP_ASSERT in non-debug builds.
 //  Can't use CRYPTOPP_UNUSED due to circular dependency
 #ifndef CRYPTOPP_ASSERT
-#  define CRYPTOPP_ASSERT(exp) ((void)(exp))
+#  define CRYPTOPP_ASSERT(exp) ((void)0)
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -119,7 +119,7 @@ NAMESPACE_BEGIN(CryptoPP)
 //! \details An example of using \ref CRYPTOPP_ASSERT "CRYPTOPP_ASSERT" and DebugTrapHandler is shown below. The library's
 //!   test program, <tt>cryptest.exe</tt> (from test.cpp), exercises the structure:
 //!  <pre>
-//!    #if CRYPTOPP_DEBUG && (defined(CRYPTOPP_BSD_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE))
+//!    #if defined(CRYPTOPP_DEBUG) && defined(UNIX_SIGNALS_AVAILABLE)
 //!    static const DebugTrapHandler g_dummyHandler;
 //!    #endif
 //!

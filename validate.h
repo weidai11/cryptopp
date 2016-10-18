@@ -90,7 +90,7 @@ bool ValidateEC2N();
 bool ValidateECDSA();
 bool ValidateESIGN();
 
-#if CRYPTOPP_DEBUG
+#if defined(CRYPTOPP_DEBUG)
 bool TestSecBlock();
 bool TestPolynomialMod2();
 bool TestHuffmanCodes();

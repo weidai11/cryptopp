@@ -31,7 +31,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 #if 0
-#if CRYPTOPP_DEBUG && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
 static void ECDSA_TestInstantiations()
 {
 	ECDSA<EC2N>::Signer t1;

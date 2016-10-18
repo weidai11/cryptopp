@@ -19,21 +19,21 @@ NAMESPACE_BEGIN(CryptoPP)
 //! Elliptical Curve Point
 struct CRYPTOPP_DLL ECPPoint
 {
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~ECPPoint() {}
+#endif
+
 	ECPPoint() : identity(true) {}
 	ECPPoint(const Integer &x, const Integer &y)
-		: identity(false), x(x), y(y) {}
+		: x(x), y(y), identity(false) {}
 
 	bool operator==(const ECPPoint &t) const
 		{return (identity && t.identity) || (!identity && !t.identity && x==t.x && y==t.y);}
 	bool operator< (const ECPPoint &t) const
 		{return identity ? !t.identity : (!t.identity && (x<t.x || (x==t.x && y<t.y)));}
 
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~ECPPoint() {}
-#endif
-
-	bool identity;
 	Integer x, y;
+	bool identity;
 };
 
 CRYPTOPP_DLL_TEMPLATE_CLASS AbstractGroup<ECPPoint>;
@@ -45,6 +45,10 @@ public:
 	typedef ModularArithmetic Field;
 	typedef Integer FieldElement;
 	typedef ECPPoint Point;
+
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~ECP() {}
+#endif
 
 	ECP() {}
 	ECP(const ECP &ecp, bool convertToMontgomeryRepresentation = false);
@@ -94,10 +98,6 @@ public:
 	bool operator==(const ECP &rhs) const
 		{return GetField() == rhs.GetField() && m_a == rhs.m_a && m_b == rhs.m_b;}
 
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~ECP() {}
-#endif
-
 private:
 	clonable_ptr<Field> m_fieldPtr;
 	FieldElement m_a, m_b;
@@ -114,6 +114,10 @@ template<> class EcPrecomputation<ECP> : public DL_GroupPrecomputation<ECP::Poin
 {
 public:
 	typedef ECP EllipticCurve;
+
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~EcPrecomputation() {}
+#endif
 
 	// DL_GroupPrecomputation
 	bool NeedConversions() const {return true;}
@@ -132,10 +136,6 @@ public:
 		m_ecOriginal = ec;
 	}
 	const ECP & GetCurve() const {return *m_ecOriginal;}
-
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~EcPrecomputation() {}
-#endif
 
 private:
 	value_ptr<ECP> m_ec, m_ecOriginal;
