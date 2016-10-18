@@ -173,17 +173,19 @@ bool ValidateAll(bool thorough)
 
 bool TestSettings()
 {
-	// Thanks to IlyaBizyaev and Zireael, http://github.com/weidai11/cryptopp/issues/28
-#if defined(__MINGW32__)
-	using CryptoPP::memcpy_s;
-#endif
-
 	bool pass = true;
 
 	cout << "\nTesting Settings...\n\n";
 
 	word32 w;
-	memcpy_s(&w, sizeof(w), "\x01\x02\x03\x04", 4);
+	const byte s[] = "\x01\x02\x03\x04";
+
+#if (CRYPTOPP_MSC_VERSION >= 1400)
+	std::copy(s, s+4,
+		stdext::make_checked_array_iterator(reinterpret_cast<byte*>(&w), sizeof(w)));
+#else
+	std::copy(s, s+4, reinterpret_cast<byte*>(&w));
+#endif
 
 	if (w == 0x04030201L)
 	{
