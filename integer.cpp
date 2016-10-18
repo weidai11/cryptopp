@@ -412,7 +412,7 @@ S DivideThreeWordsByTwo(S *A, S B0, S B1, D *dummy=NULL)
 {
 	CRYPTOPP_UNUSED(dummy);
 
-	// CRYPTOPP_ASSERT {A[2],A[1]} < {B1,B0}, so quotient can fit in a S
+	// Assert {A[2],A[1]} < {B1,B0}, so quotient can fit in a S
 	CRYPTOPP_ASSERT(A[2] < B1 || (A[2]==B1 && A[1] < B0));
 
 	// estimate the quotient: do a 2 S by 1 S divide.
@@ -2589,7 +2589,7 @@ void HalfMontgomeryReduce(word *R, word *T, const word *X, const word *M, const 
 // do a 3 word by 2 word divide, returns quotient and leaves remainder in A
 static word SubatomicDivide(word *A, word B0, word B1)
 {
-	// CRYPTOPP_ASSERT {A[2],A[1]} < {B1,B0}, so quotient can fit in a word
+	// Assert {A[2],A[1]} < {B1,B0}, so quotient can fit in a word
 	CRYPTOPP_ASSERT(A[2] < B1 || (A[2]==B1 && A[1] < B0));
 
 	// estimate the quotient: do a 2 word by 1 word divide

@@ -500,7 +500,6 @@ template <class B>
 void PanamaCipherPolicy<B>::OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount)
 {
 #if (CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_PANAMA_ASM)
-	// No need for alignment CRYPTOPP_ASSERT. Panama_SSE2_Pull is ASM, and its not bound by C alignment requirements.
 	if (B::ToEnum() == LITTLE_ENDIAN_ORDER && HasSSE2())
 		Panama_SSE2_Pull(iterationCount, this->m_state, (word32 *)(void *)output, (const word32 *)(void *)input);
 	else
