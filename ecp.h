@@ -16,14 +16,20 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! Elliptical Curve Point
+//! \class ECPPoint
+//! \brief Elliptical Curve Point over GF(p), where p is prime
 struct CRYPTOPP_DLL ECPPoint
 {
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~ECPPoint() {}
 #endif
 
+	//! \brief Construct an ECPPoint
+	//! \details identity is set to <tt>true</tt>
 	ECPPoint() : identity(true) {}
+
+	//! \brief Construct an ECPPoint from coordinates
+	//! \details identity is set to <tt>false</tt>
 	ECPPoint(const Integer &x, const Integer &y)
 		: x(x), y(y), identity(false) {}
 
@@ -38,7 +44,8 @@ struct CRYPTOPP_DLL ECPPoint
 
 CRYPTOPP_DLL_TEMPLATE_CLASS AbstractGroup<ECPPoint>;
 
-//! Elliptic Curve over GF(p), where p is prime
+//! \class ECP
+//! \brief Elliptic Curve over GF(p), where p is prime
 class CRYPTOPP_DLL ECP : public AbstractGroup<ECPPoint>
 {
 public:
@@ -50,15 +57,29 @@ public:
 	virtual ~ECP() {}
 #endif
 
+	//! \brief Construct an ECP
 	ECP() {}
+
+	//! \brief Copy construct an ECP
+	//! \param ecp the other ECP object
+	//! \param convertToMontgomeryRepresentation flag indicating if the curve should be converted to a MontgomeryRepresentation
+	//! \sa ModularArithmetic, MontgomeryRepresentation
 	ECP(const ECP &ecp, bool convertToMontgomeryRepresentation = false);
+
+	//! \brief Construct an ECP
+	//! \param modulus the prime modulus
+	//! \param a Field::Element
+	//! \param b Field::Element
 	ECP(const Integer &modulus, const FieldElement &a, const FieldElement &b)
 		: m_fieldPtr(new Field(modulus)), m_a(a.IsNegative() ? modulus+a : a), m_b(b) {}
-	// construct from BER encoded parameters
-	// this constructor will decode and extract the the fields fieldID and curve of the sequence ECParameters
+
+	//! \brief Construct an ECP from BER encoded parameters
+	//! \param bt BufferedTransformation derived object
+	//! \details This constructor will decode and extract the the fields fieldID and curve of the sequence ECParameters
 	ECP(BufferedTransformation &bt);
 
-	// encode the fields fieldID and curve of the sequence ECParameters
+	//! \brief Encode the fields fieldID and curve of the sequence ECParameters
+	//! \param bt BufferedTransformation derived object
 	void DEREncode(BufferedTransformation &bt) const;
 
 	bool Equal(const Point &P, const Point &Q) const;
@@ -107,9 +128,16 @@ private:
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_FixedBasePrecomputationImpl<ECP::Point>;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_GroupPrecomputation<ECP::Point>;
 
-template <class T> class EcPrecomputation;
+//! \class EcPrecomputation
+//! \brief Elliptic Curve precomputation
+//! \tparam EC elliptic curve field
+template <class EC> class EcPrecomputation;
 
-//! ECP precomputation
+//! \class EcPrecomputation<ECP>
+//! \brief ECP precomputation specialization
+//! \details Implementation of <tt>DL_GroupPrecomputation<ECP::Point></tt> with input and output
+//!   conversions for Montgomery modular multiplication.
+//! \sa DL_GroupPrecomputation, ModularArithmetic, MontgomeryRepresentation
 template<> class EcPrecomputation<ECP> : public DL_GroupPrecomputation<ECP::Point>
 {
 public:

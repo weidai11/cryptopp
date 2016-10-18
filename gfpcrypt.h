@@ -1,9 +1,10 @@
+// gfpcrypt.h - written and placed in the public domain by Wei Dai
+
+//! \file eccrypto.h
+//! \brief Classes and functions for schemes based on Discrete Logs (DL) over GF(p)
+
 #ifndef CRYPTOPP_GFPCRYPT_H
 #define CRYPTOPP_GFPCRYPT_H
-
-/** \file
-	Implementation of schemes based on DL over GF(p)
-*/
 
 #include "config.h"
 
@@ -544,9 +545,9 @@ CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_WithSignaturePairwiseConsistencyTest<D
 //!   Ecryption Schemes with <tt>NoCofactorMultiplication</tt>, <tt>DHAES_MODE=false</tt> and <tt>LABEL_OCTETS=true</tt>.
 //! \details If you need this method for Crypto++ 4.2 compatibility, then use the ECIES template class with
 //!   <tt>NoCofactorMultiplication</tt>, <tt>DHAES_MODE=false</tt> and <tt>LABEL_OCTETS=true</tt>.
-//! \details If you need this method for Bouncy Castle 1.55 and Botan 1.11 compatibility, then use the ECIES template class with
+//! \details If you need this method for Bouncy Castle 1.54 and Botan 1.11 compatibility, then use the ECIES template class with
 //!   <tt>NoCofactorMultiplication</tt>, <tt>DHAES_MODE=ture</tt> and <tt>LABEL_OCTETS=false</tt>.
-//! \details Bouncy Castle 1.55 and Botan 1.11 compatibility are the default template parameters.
+//! \details Bouncy Castle 1.54 and Botan 1.11 compatibility are the default template parameters.
 //! \since Crypto++ 4.0
 template <class MAC, bool DHAES_MODE, bool LABEL_OCTETS=false>
 class DL_EncryptionAlgorithm_Xor : public DL_SymmetricEncryptionAlgorithm
@@ -678,11 +679,11 @@ public:
 //!   Schemes with <tt>NoCofactorMultiplication</tt>, <tt>DHAES_MODE=false</tt> and <tt>LABEL_OCTETS=true</tt>.
 //! \details If you desire an Integrated Encryption Scheme with Crypto++ 4.2 compatibility, then use the DLIES template class with
 //!   <tt>NoCofactorMultiplication</tt>, <tt>DHAES_MODE=false</tt> and <tt>LABEL_OCTETS=true</tt>.
-//! \details If you desire an Integrated Encryption Scheme with Bouncy Castle 1.55 and Botan 1.11 compatibility, then use the DLIES
+//! \details If you desire an Integrated Encryption Scheme with Bouncy Castle 1.54 and Botan 1.11 compatibility, then use the DLIES
 //!   template class with <tt>NoCofactorMultiplication</tt>, <tt>DHAES_MODE=true</tt> and <tt>LABEL_OCTETS=false</tt>.
-//! \details Bouncy Castle 1.55 and Botan 1.11 compatibility are the default template parameters. The combination of
+//! \details The default template parameters ensure compatibility with Bouncy Castle 1.54 and Botan 1.11. The combination of
 //!   <tt>IncompatibleCofactorMultiplication</tt> and <tt>DHAES_MODE=true</tt> is recommended for best efficiency and security.
-//!   SHA1 is used for compatibility reasons, but it can be changed of if desired. SHA-256 or another hash will likely improve the
+//!   SHA1 is used for compatibility reasons, but it can be changed if desired. SHA-256 or another hash will likely improve the
 //!   security provided by the MAC. The hash is also used in the key derivation function as a PRF.
 //! \details Below is an example of constructing a Crypto++ 4.2 compatible DLIES encryptor and decryptor.
 //! <pre>
@@ -696,7 +697,7 @@ public:
 //! \sa ECIES, <a href="http://www.weidai.com/scan-mirror/ca.html#DLIES">Discrete Log Integrated Encryption Scheme (DLIES)</a>,
 //!   Martínez, Encinas, and Ávila's <A HREF="http://digital.csic.es/bitstream/10261/32671/1/V2-I2-P7-13.pdf">A Survey of the Elliptic
 //!   Curve Integrated Encryption Schemes</A>
-//! \since Crypto++ 4.0
+//! \since Crypto++ 4.0, Crypto++ 5.6.6 for Bouncy Castle and Botan compatibility
 template <class HASH = SHA1, class COFACTOR_OPTION = NoCofactorMultiplication, bool DHAES_MODE = true, bool LABEL_OCTETS=false>
 struct DLIES
 	: public DL_ES<

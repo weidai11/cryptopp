@@ -18,7 +18,8 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! Elliptic Curve Point
+//! \class EC2NPoint
+//! \brief Elliptical Curve Point over GF(2^n)
 struct CRYPTOPP_DLL EC2NPoint
 {
 #ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
@@ -40,7 +41,8 @@ struct CRYPTOPP_DLL EC2NPoint
 
 CRYPTOPP_DLL_TEMPLATE_CLASS AbstractGroup<EC2NPoint>;
 
-//! Elliptic Curve over GF(2^n)
+//! \class EC2N
+//! \brief Elliptic Curve over GF(2^n)
 class CRYPTOPP_DLL EC2N : public AbstractGroup<EC2NPoint>
 {
 public:
@@ -52,14 +54,23 @@ public:
 	virtual ~EC2N() {}
 #endif
 
+	//! \brief Construct an EC2N
 	EC2N() {}
+
+	//! \brief Construct an EC2N
+	//! \param field Field, GF2NP derived class
+	//! \param a Field::Element
+	//! \param b Field::Element
 	EC2N(const Field &field, const Field::Element &a, const Field::Element &b)
 		: m_field(field), m_a(a), m_b(b) {}
-	// construct from BER encoded parameters
-	// this constructor will decode and extract the the fields fieldID and curve of the sequence ECParameters
+
+	//! \brief Construct an EC2N from BER encoded parameters
+	//! \param bt BufferedTransformation derived object
+	//! \details This constructor will decode and extract the the fields fieldID and curve of the sequence ECParameters
 	EC2N(BufferedTransformation &bt);
 
-	// encode the fields fieldID and curve of the sequence ECParameters
+	//! \brief Encode the fields fieldID and curve of the sequence ECParameters
+	//! \param bt BufferedTransformation derived object
 	void DEREncode(BufferedTransformation &bt) const;
 
 	bool Equal(const Point &P, const Point &Q) const;
@@ -105,9 +116,15 @@ private:
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_FixedBasePrecomputationImpl<EC2N::Point>;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_GroupPrecomputation<EC2N::Point>;
 
-template <class T> class EcPrecomputation;
+//! \class EcPrecomputation
+//! \brief Elliptic Curve precomputation
+//! \tparam EC elliptic curve field
+template <class EC> class EcPrecomputation;
 
-//! EC2N precomputation
+//! \class EcPrecomputation<EC2N>
+//! \brief EC2N precomputation specialization
+//! \details Implementation of <tt>DL_GroupPrecomputation<EC2N::Point></tt>
+//! \sa DL_GroupPrecomputation
 template<> class EcPrecomputation<EC2N> : public DL_GroupPrecomputation<EC2N::Point>
 {
 public:

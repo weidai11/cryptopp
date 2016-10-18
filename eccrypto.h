@@ -284,10 +284,7 @@ struct DL_Keys_EC
 #endif
 };
 
-//! \class ECDSA
-//! \brief Elliptic Curve DSA
-//! \tparam EC elliptic curve field
-//! \tparam H HashTransformation derived class
+// Forward declaration; documented below
 template <class EC, class H>
 struct ECDSA;
 
@@ -374,11 +371,11 @@ struct ECNR : public DL_SS<DL_Keys_EC<EC>, DL_Algorithm_ECNR<EC>, DL_SignatureMe
 //!   Schemes with <tt>NoCofactorMultiplication</tt>, <tt>DHAES_MODE=false</tt> and <tt>LABEL_OCTETS=true</tt>.
 //! \details If you desire an Integrated Encryption Scheme with Crypto++ 4.2 compatibility, then use the ECIES template class with
 //!   <tt>NoCofactorMultiplication</tt>, <tt>DHAES_MODE=false</tt> and <tt>LABEL_OCTETS=true</tt>.
-//! \details If you desire an Integrated Encryption Scheme with Bouncy Castle 1.55 and Botan 1.11 compatibility, then use the ECIES
+//! \details If you desire an Integrated Encryption Scheme with Bouncy Castle 1.54 and Botan 1.11 compatibility, then use the ECIES
 //!   template class with <tt>NoCofactorMultiplication</tt>, <tt>DHAES_MODE=true</tt> and <tt>LABEL_OCTETS=false</tt>.
-//! \details Bouncy Castle 1.55 and Botan 1.11 compatibility are the default template parameters. The combination of
+//! \details The default template parameters ensure compatibility with Bouncy Castle 1.54 and Botan 1.11. The combination of
 //!   <tt>IncompatibleCofactorMultiplication</tt> and <tt>DHAES_MODE=true</tt> is recommended for best efficiency and security.
-//!   SHA1 is used for compatibility reasons, but it can be changed of if desired. SHA-256 or another hash will likely improve the
+//!   SHA1 is used for compatibility reasons, but it can be changed if desired. SHA-256 or another hash will likely improve the
 //!   security provided by the MAC. The hash is also used in the key derivation function as a PRF.
 //! \details Below is an example of constructing a Crypto++ 4.2 compatible ECIES encryptor and decryptor.
 //! <pre>
@@ -392,7 +389,7 @@ struct ECNR : public DL_SS<DL_Keys_EC<EC>, DL_Algorithm_ECNR<EC>, DL_SignatureMe
 //! \sa DLIES, <a href="http://www.weidai.com/scan-mirror/ca.html#ECIES">Elliptic Curve Integrated Encryption Scheme (ECIES)</a>,
 //!   Martínez, Encinas, and Ávila's <A HREF="http://digital.csic.es/bitstream/10261/32671/1/V2-I2-P7-13.pdf">A Survey of the Elliptic
 //!   Curve Integrated Encryption Schemes</A>
-//! \since Crypto++ 4.0
+//! \since Crypto++ 4.0, Crypto++ 5.6.6 for Bouncy Castle and Botan compatibility
 template <class EC, class HASH = SHA1, class COFACTOR_OPTION = NoCofactorMultiplication, bool DHAES_MODE = true, bool LABEL_OCTETS = false>
 struct ECIES
 	: public DL_ES<
