@@ -39,6 +39,7 @@ option(BUILD_DOCUMENTATION "Use Doxygen to create the HTML based API documentati
 option(DISABLE_ASM "Disable ASM" OFF)
 option(DISABLE_SSSE3 "Disable SSSE3" OFF)
 option(DISABLE_AESNI "Disable AES-NI" OFF)
+option(DISABLE_CXXFLAGS_OPTIMIZATIONS "Disable CXXFLAGS optimizations" OFF)
 set(CRYPTOPP_DATA_DIR "" CACHE PATH "Crypto++ test data directory")
 
 #============================================================================
@@ -125,7 +126,7 @@ if ((NOT CRYPTOPP_CROSS_COMPILE) AND (NOT (WINDOWS OR WINDOWS_STORE OR WINDOWS_P
 endif()
 
 # -march=native for GCC, Clang and ICC in any version that does support it.
-if ((NOT CRYPTOPP_CROSS_COMPILE) AND (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU|Intel"))
+if ((NOT DISABLE_CXXFLAGS_OPTIMIZATIONS) AND (NOT CRYPTOPP_CROSS_COMPILE) AND (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU|Intel"))
 	CHECK_CXX_COMPILER_FLAG("-march=native" COMPILER_OPT_ARCH_NATIVE_SUPPORTED)
 	if (COMPILER_OPT_ARCH_NATIVE_SUPPORTED AND NOT CMAKE_CXX_FLAGS MATCHES "-march=")
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
@@ -134,25 +135,27 @@ endif()
 
 # Solaris specific 
 if ((NOT CRYPTOPP_CROSS_COMPILE) AND "${UNAME_SYSTEM}" STREQUAL "SunOS")
-	# SunCC needs -native
-	if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "SunPro")
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -native")
-	endif()
+	if (NOT DISABLE_CXXFLAGS_OPTIMIZATIONS)
+		# SunCC needs -native
+		if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "SunPro")
+			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -native")
+		endif()
 
-	# Determine 32-bit vs 64-bit
-	set (ISA_CMD "isainfo")
-	set (ISA_ARG "-b")
-	execute_process(COMMAND ${ISA_CMD} ${ISA_ARG}
-		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-		RESULT_VARIABLE ISA_RESULT
-		OUTPUT_VARIABLE ISA_INFO)
-	string(REGEX REPLACE "\n$" "" ISA_INFO "${ISA_INFO}")
+		# Determine 32-bit vs 64-bit
+		set (ISA_CMD "isainfo")
+		set (ISA_ARG "-b")
+		execute_process(COMMAND ${ISA_CMD} ${ISA_ARG}
+			WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+			RESULT_VARIABLE ISA_RESULT
+			OUTPUT_VARIABLE ISA_INFO)
+		string(REGEX REPLACE "\n$" "" ISA_INFO "${ISA_INFO}")
 
-	# Set 64-bit or 32-bit
-	if ("${ISA_INFO}" STREQUAL "64")
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64")
-	else()
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
+		# Set 64-bit or 32-bit
+		if ("${ISA_INFO}" STREQUAL "64")
+			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64")
+		else()
+			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
+		endif()
 	endif()
 
 	# GCC needs to enable use of '/'

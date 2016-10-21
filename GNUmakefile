@@ -49,6 +49,8 @@ IS_X86 := $(shell isainfo -k 2>/dev/null | grep -i -c "i386")
 IS_X64 := $(shell isainfo -k 2>/dev/null | grep -i -c "amd64")
 endif
 
+DISABLE_CXXFLAGS_OPTIMIZATIONS := 0
+
 ###########################################################
 #####                General Variables                #####
 ###########################################################
@@ -125,21 +127,23 @@ ifeq ($(IS_X86)$(IS_X32)$(IS_CYGWIN)$(IS_MINGW)$(SUN_COMPILER),00000)
  endif
 endif
 
-# Guard use of -march=native
-ifeq ($(GCC42_OR_LATER)$(IS_NETBSD),10)
-   CXXFLAGS += -march=native
-else ifneq ($(CLANG_COMPILER)$(INTEL_COMPILER),00)
-   CXXFLAGS += -march=native
-else
-  # GCC 3.3 and "unknown option -march="
-  # Ubuntu GCC 4.1 compiler crash with -march=native
-  # NetBSD GCC 4.8 compiler and "bad value (native) for -march= switch"
-  # Sun compiler is handled below
-  ifeq ($(SUN_COMPILER)$(IS_X64),01)
-    CXXFLAGS += -m64
-  else ifeq ($(SUN_COMPILER)$(IS_X86),01)
-    CXXFLAGS += -m32
-  endif # X86/X32/X64
+ifeq ($(DISABLE_CXXFLAGS_OPTIMIZATIONS),0)
+   # Guard use of -march=native
+   ifeq ($(GCC42_OR_LATER)$(IS_NETBSD),10)
+      CXXFLAGS += -march=native
+   else ifneq ($(CLANG_COMPILER)$(INTEL_COMPILER),00)
+      CXXFLAGS += -march=native
+   else
+     # GCC 3.3 and "unknown option -march="
+     # Ubuntu GCC 4.1 compiler crash with -march=native
+     # NetBSD GCC 4.8 compiler and "bad value (native) for -march= switch"
+     # Sun compiler is handled below
+     ifeq ($(SUN_COMPILER)$(IS_X64),01)
+       CXXFLAGS += -m64
+     else ifeq ($(SUN_COMPILER)$(IS_X86),01)
+       CXXFLAGS += -m32
+     endif # X86/X32/X64
+   endif
 endif
 
 # Aligned access required for -O3 and above due to vectorization
