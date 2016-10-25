@@ -127,7 +127,7 @@ ifeq ($(IS_X86)$(IS_X32)$(IS_CYGWIN)$(IS_MINGW)$(SUN_COMPILER),00000)
  endif
 endif
 
-ifeq ($(DISABLE_CXXFLAGS_OPTIMIZATIONS),0)
+ifeq ($(findstring -march,$(CXXFLAGS)),)
    # Guard use of -march=native
    ifeq ($(GCC42_OR_LATER)$(IS_NETBSD),10)
       CXXFLAGS += -march=native
