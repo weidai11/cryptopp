@@ -1818,10 +1818,7 @@ if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0" || "$INTEL_COMPILER"
 		rm -f adhoc.cpp > /dev/null 2>&1
 
 		CXXFLAGS="$DEBUG_CXXFLAGS -march=i686 -msse2 $X86_OPTS $OPT_PIC -pipe ${DEPRECATED_CXXFLAGS[@]}"
-		CXX="$CXX" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="$CXXFLAGS" static 2>&1 | tee -a "$TEST_RESULTS"
-
-		CXXFLAGS="$DEBUG_CXXFLAGS -march=native $X86_OPTS $OPT_PIC -pipe ${DEPRECATED_CXXFLAGS[@]}"
-		CXX="$CXX" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="$CXXFLAGS" cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1847,10 +1844,7 @@ if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0" || "$INTEL_COMPILER"
 		rm -f adhoc.cpp > /dev/null 2>&1
 
 		CXXFLAGS="$RELEASE_CXXFLAGS -march=i686 -msse2 $X86_OPTS $OPT_PIC -pipe ${DEPRECATED_CXXFLAGS[@]}"
-		CXX="$CXX" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="$CXXFLAGS" static 2>&1 | tee -a "$TEST_RESULTS"
-
-		CXXFLAGS="$RELEASE_CXXFLAGS -march=native $X86_OPTS $OPT_PIC -pipe ${DEPRECATED_CXXFLAGS[@]}"
-		CXX="$CXX" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="$CXXFLAGS" cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1879,10 +1873,7 @@ if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0" || "$INTEL_COMPILER"
 		rm -f adhoc.cpp > /dev/null 2>&1
 
 		CXXFLAGS="$DEBUG_CXXFLAGS -march=x86-64 $X86_OPTS $OPT_PIC -pipe ${DEPRECATED_CXXFLAGS[@]}"
-		CXX="$CXX" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="$CXXFLAGS" static 2>&1 | tee -a "$TEST_RESULTS"
-
-		CXXFLAGS="$DEBUG_CXXFLAGS -march=native $X86_OPTS $OPT_PIC -pipe ${DEPRECATED_CXXFLAGS[@]}"
-		CXX="$CXX" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="$CXXFLAGS" cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1908,10 +1899,7 @@ if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0" || "$INTEL_COMPILER"
 		rm -f adhoc.cpp > /dev/null 2>&1
 
 		CXXFLAGS="$RELEASE_CXXFLAGS -march=x86-64 $X86_OPTS $OPT_PIC -pipe ${DEPRECATED_CXXFLAGS[@]}"
-		CXX="$CXX" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="$CXXFLAGS" static 2>&1 | tee -a "$TEST_RESULTS"
-
-		CXXFLAGS="$RELEASE_CXXFLAGS -march=native $X86_OPTS $OPT_PIC -pipe ${DEPRECATED_CXXFLAGS[@]}"
-		CXX="$CXX" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="$CXXFLAGS" cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1945,10 +1933,10 @@ if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0" || "$INTEL_COMPILER"
 		rm -f adhoc.cpp > /dev/null 2>&1
 
 		CXXFLAGS="$DEBUG_CXXFLAGS -march=i686 $OPT_PIC -pipe ${DEPRECATED_CXXFLAGS[@]}"
-		CXX="$CXX" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="$CXXFLAGS" static 2>&1 | tee -a "$TEST_RESULTS"
+		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static 2>&1 | tee -a "$TEST_RESULTS"
 
 		CXXFLAGS="$DEBUG_CXXFLAGS -march=native $OPT_PIC -pipe ${DEPRECATED_CXXFLAGS[@]}"
-		CXX="$CXX" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="$CXXFLAGS" cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -1974,10 +1962,10 @@ if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0" || "$INTEL_COMPILER"
 		rm -f adhoc.cpp > /dev/null 2>&1
 
 		CXXFLAGS="$RELEASE_CXXFLAGS -march=i686 $OPT_PIC -pipe ${DEPRECATED_CXXFLAGS[@]}"
-		CXX="$CXX" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="$CXXFLAGS" static 2>&1 | tee -a "$TEST_RESULTS"
+		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static 2>&1 | tee -a "$TEST_RESULTS"
 
 		CXXFLAGS="$RELEASE_CXXFLAGS -march=native $OPT_PIC -pipe ${DEPRECATED_CXXFLAGS[@]}"
-		CXX="$CXX" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="$CXXFLAGS" cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -2006,10 +1994,10 @@ if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0" || "$INTEL_COMPILER"
 		rm -f adhoc.cpp > /dev/null 2>&1
 
 		CXXFLAGS="$DEBUG_CXXFLAGS -march=x86-64 $OPT_PIC -pipe ${DEPRECATED_CXXFLAGS[@]}"
-		CXX="$CXX" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="$CXXFLAGS" static 2>&1 | tee -a "$TEST_RESULTS"
+		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static 2>&1 | tee -a "$TEST_RESULTS"
 
 		CXXFLAGS="$DEBUG_CXXFLAGS -march=native $OPT_PIC -pipe ${DEPRECATED_CXXFLAGS[@]}"
-		CXX="$CXX" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="$CXXFLAGS" cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -2035,10 +2023,10 @@ if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0" || "$INTEL_COMPILER"
 		rm -f adhoc.cpp > /dev/null 2>&1
 
 		CXXFLAGS="$RELEASE_CXXFLAGS -march=x86-64 $OPT_PIC -pipe ${DEPRECATED_CXXFLAGS[@]}"
-		CXX="$CXX" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="$CXXFLAGS" static 2>&1 | tee -a "$TEST_RESULTS"
+		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static 2>&1 | tee -a "$TEST_RESULTS"
 
 		CXXFLAGS="$RELEASE_CXXFLAGS -march=native $OPT_PIC -pipe ${DEPRECATED_CXXFLAGS[@]}"
-		CXX="$CXX" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="$CXXFLAGS" cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"

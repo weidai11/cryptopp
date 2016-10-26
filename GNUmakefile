@@ -468,7 +468,7 @@ endif
 
 .PHONY: deps
 deps GNUmakefile.deps:
-	$(CXX) $(CXXFLAGS) -MM *.cpp > GNUmakefile.deps
+	$(CXX) $(strip $(CXXFLAGS)) -MM *.cpp > GNUmakefile.deps
 
 # CXXFLAGS are tuned earlier.
 .PHONY: asan ubsan align aligned
@@ -754,9 +754,9 @@ endif # Dependencies
 ifeq ($(GCC_COMPILER)$(MACPORTS_COMPILER),11)
 ifeq ($(findstring -DMACPORTS_GCC_COMPILER,$(CXXFLAGS)),)
 cryptlib.o:
-	$(CXX) $(CXXFLAGS) -DMACPORTS_GCC_COMPILER=1 -c cryptlib.cpp
+	$(CXX) $(strip $(CXXFLAGS)) -DMACPORTS_GCC_COMPILER=1 -c cryptlib.cpp
 cpu.o:
-	$(CXX) $(CXXFLAGS) -DMACPORTS_GCC_COMPILER=1 -c cpu.cpp
+	$(CXX) $(strip $(CXXFLAGS)) -DMACPORTS_GCC_COMPILER=1 -c cpu.cpp
 endif
 endif
 
@@ -764,30 +764,30 @@ endif
 ifeq ($(findstring -DCRYPTOPP_DATA_DIR,$(CXXFLAGS)),)
 ifneq ($(strip $(CRYPTOPP_DATA_DIR)),)
 validat%.o : validat%.cpp
-	$(CXX) $(CXXFLAGS) -DCRYPTOPP_DATA_DIR=\"$(CRYPTOPP_DATA_DIR)\" -c $<
+	$(CXX) $(strip $(CXXFLAGS)) -DCRYPTOPP_DATA_DIR=\"$(CRYPTOPP_DATA_DIR)\" -c $<
 bench%.o : bench%.cpp
-	$(CXX) $(CXXFLAGS) -DCRYPTOPP_DATA_DIR=\"$(CRYPTOPP_DATA_DIR)\" -c $<
+	$(CXX) $(strip $(CXXFLAGS)) -DCRYPTOPP_DATA_DIR=\"$(CRYPTOPP_DATA_DIR)\" -c $<
 datatest.o : datatest.cpp
-	$(CXX) $(CXXFLAGS) -DCRYPTOPP_DATA_DIR=\"$(CRYPTOPP_DATA_DIR)\" -c $<
+	$(CXX) $(strip $(CXXFLAGS)) -DCRYPTOPP_DATA_DIR=\"$(CRYPTOPP_DATA_DIR)\" -c $<
 test.o : test.cpp
-	$(CXX) $(CXXFLAGS) -DCRYPTOPP_DATA_DIR=\"$(CRYPTOPP_DATA_DIR)\" -c $<
+	$(CXX) $(strip $(CXXFLAGS)) -DCRYPTOPP_DATA_DIR=\"$(CRYPTOPP_DATA_DIR)\" -c $<
 endif
 endif
 
 %.dllonly.o : %.cpp
-	$(CXX) $(CXXFLAGS) -DCRYPTOPP_DLL_ONLY -c $< -o $@
+	$(CXX) $(strip $(CXXFLAGS)) -DCRYPTOPP_DLL_ONLY -c $< -o $@
 
 %.import.o : %.cpp
-	$(CXX) $(CXXFLAGS) -DCRYPTOPP_IMPORTS -c $< -o $@
+	$(CXX) $(strip $(CXXFLAGS)) -DCRYPTOPP_IMPORTS -c $< -o $@
 
 %.export.o : %.cpp
-	$(CXX) $(CXXFLAGS) -DCRYPTOPP_EXPORTS -c $< -o $@
+	$(CXX) $(strip $(CXXFLAGS)) -DCRYPTOPP_EXPORTS -c $< -o $@
 
 %.bc : %.cpp
-	$(CXX) $(CXXFLAGS) -c $<
+	$(CXX) $(strip $(CXXFLAGS)) -c $<
 
 %.o : %.cpp
-	$(CXX) $(CXXFLAGS) -c $<
+	$(CXX) $(strip $(CXXFLAGS)) -c $<
 
 .PHONY: so_warning
 so_warning:
