@@ -187,10 +187,10 @@ endif
 # Tell MacPorts GCC to use Clang integrated assembler
 #   http://github.com/weidai11/cryptopp/issues/190
 ifeq ($(GCC_COMPILER)$(MACPORTS_COMPILER),11)
-ifneq ($(findstring -Wa,-q,$(CXXFLAGS)),-Wa,-q)
+ifeq ($(findstring -Wa,-q,$(CXXFLAGS)),)
 CXXFLAGS += -Wa,-q
 endif
-ifneq ($(findstring -Wa,-q,$(CXXFLAGS)),-DCRYPTOPP_CLANG_INTEGRATED_ASSEMBLER)
+ifeq ($(findstring -DCRYPTOPP_CLANG_INTEGRATED_ASSEMBLER,$(CXXFLAGS)),)
 CXXFLAGS += -DCRYPTOPP_CLANG_INTEGRATED_ASSEMBLER=1
 endif
 endif
@@ -198,7 +198,9 @@ endif
 # GCC on Solaris needs -m64. Otherwise, i386 is default
 #   http://github.com/weidai11/cryptopp/issues/230
 ifeq ($(IS_SUN)$(GCC_COMPILER)$(IS_X64),111)
+ifeq ($(findstring -m32,$(CXXFLAGS)),)
 CXXFLAGS += -m64
+endif
 endif
 
 # Allow use of "/" operator for GNU Assembler.
