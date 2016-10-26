@@ -1791,6 +1791,144 @@ if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0" || "$INTEL_COMPILER"
 fi
 
 ############################################
+# SSE2 only with AESNI, RDRAND and RDSEED
+if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0" || "$INTEL_COMPILER" -ne "0") ]]; then
+
+	X86_OPTS=()
+	if [[ "$HAVE_X86_AES" -ne "0" ]]; then
+		X86_OPTS+=("-maes")
+	fi
+	if [[ "$HAVE_X86_RDRAND" -ne "0" ]]; then
+		X86_OPTS+=("-mrdrnd")
+	fi
+	if [[ "$HAVE_X86_RDSEED" -ne "0" ]]; then
+		X86_OPTS+=("-mrdseed")
+	fi
+
+	# i686
+	if [[ "$IS_X86" -ne "0" ]]; then
+		############################################
+		# Debug build
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS"
+		echo "Testing: Debug, SSE2, AESNI, RDRAND and RDSEED" | tee -a "$TEST_RESULTS"
+		echo
+
+		"$MAKE" clean > /dev/null 2>&1
+		rm -f adhoc.cpp > /dev/null 2>&1
+
+		CXXFLAGS="$DEBUG_CXXFLAGS -march=i686 -msse2 $X86_OPTS $OPT_PIC -pipe ${DEPRECATED_CXXFLAGS[@]}"
+		CXX="$CXX" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="$CXXFLAGS" static 2>&1 | tee -a "$TEST_RESULTS"
+
+		CXXFLAGS="$DEBUG_CXXFLAGS -march=native $X86_OPTS $OPT_PIC -pipe ${DEPRECATED_CXXFLAGS[@]}"
+		CXX="$CXX" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="$CXXFLAGS" cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+		else
+			./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+			fi
+			./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+			fi
+		fi
+
+		############################################
+		# Release build
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS"
+		echo "Testing: Release, SSE2, AESNI, RDRAND and RDSEED" | tee -a "$TEST_RESULTS"
+		echo
+
+		"$MAKE" clean > /dev/null 2>&1
+		rm -f adhoc.cpp > /dev/null 2>&1
+
+		CXXFLAGS="$RELEASE_CXXFLAGS -march=i686 -msse2 $X86_OPTS $OPT_PIC -pipe ${DEPRECATED_CXXFLAGS[@]}"
+		CXX="$CXX" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="$CXXFLAGS" static 2>&1 | tee -a "$TEST_RESULTS"
+
+		CXXFLAGS="$RELEASE_CXXFLAGS -march=native $X86_OPTS $OPT_PIC -pipe ${DEPRECATED_CXXFLAGS[@]}"
+		CXX="$CXX" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="$CXXFLAGS" cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+		else
+			./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+			fi
+			./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+			fi
+		fi
+	fi
+
+	# x86-64
+	if [[ "$IS_X64" -ne "0" ]]; then
+		############################################
+		# Debug build
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS"
+		echo "Testing: Debug, SSE2, AESNI, RDRAND and RDSEED" | tee -a "$TEST_RESULTS"
+		echo
+
+		"$MAKE" clean > /dev/null 2>&1
+		rm -f adhoc.cpp > /dev/null 2>&1
+
+		CXXFLAGS="$DEBUG_CXXFLAGS -march=x86-64 $X86_OPTS $OPT_PIC -pipe ${DEPRECATED_CXXFLAGS[@]}"
+		CXX="$CXX" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="$CXXFLAGS" static 2>&1 | tee -a "$TEST_RESULTS"
+
+		CXXFLAGS="$DEBUG_CXXFLAGS -march=native $X86_OPTS $OPT_PIC -pipe ${DEPRECATED_CXXFLAGS[@]}"
+		CXX="$CXX" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="$CXXFLAGS" cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+		else
+			./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+			fi
+			./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+			fi
+		fi
+
+		############################################
+		# Release build
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS"
+		echo "Testing: Release, SSE2, AESNI, RDRAND and RDSEED" | tee -a "$TEST_RESULTS"
+		echo
+
+		"$MAKE" clean > /dev/null 2>&1
+		rm -f adhoc.cpp > /dev/null 2>&1
+
+		CXXFLAGS="$RELEASE_CXXFLAGS -march=x86-64 $X86_OPTS $OPT_PIC -pipe ${DEPRECATED_CXXFLAGS[@]}"
+		CXX="$CXX" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="$CXXFLAGS" static 2>&1 | tee -a "$TEST_RESULTS"
+
+		CXXFLAGS="$RELEASE_CXXFLAGS -march=native $X86_OPTS $OPT_PIC -pipe ${DEPRECATED_CXXFLAGS[@]}"
+		CXX="$CXX" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="$CXXFLAGS" cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+		else
+			./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+			fi
+			./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+			fi
+		fi
+	fi
+fi
+
+############################################
 # mismatched arch capabilities
 if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0" || "$INTEL_COMPILER" -ne "0") ]]; then
 
