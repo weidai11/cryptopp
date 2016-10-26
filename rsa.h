@@ -20,6 +20,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 //! \class RSAFunction
 //! \brief RSA trapdoor function using the public key
+//! \since Crypto++ 1.0
 class CRYPTOPP_DLL RSAFunction : public TrapdoorFunction, public X509PublicKey
 {
 	typedef RSAFunction ThisClass;
@@ -59,6 +60,7 @@ protected:
 
 //! \class InvertibleRSAFunction
 //! \brief RSA trapdoor function using the private key
+//! \since Crypto++ 1.0
 class CRYPTOPP_DLL InvertibleRSAFunction : public RSAFunction, public TrapdoorFunctionInverse, public PKCS8PrivateKey
 {
 	typedef InvertibleRSAFunction ThisClass;
@@ -132,6 +134,7 @@ protected:
 
 //! \class RSAFunction_ISO
 //! \brief RSA trapdoor function using the public key
+//! \since Crypto++ 1.0
 class CRYPTOPP_DLL RSAFunction_ISO : public RSAFunction
 {
 public:
@@ -141,6 +144,7 @@ public:
 
 //! \class InvertibleRSAFunction_ISO
 //! \brief RSA trapdoor function using the private key
+//! \since Crypto++ 1.0
 class CRYPTOPP_DLL InvertibleRSAFunction_ISO : public InvertibleRSAFunction
 {
 public:
@@ -150,6 +154,7 @@ public:
 
 //! \class RSA
 //! \brief RSA algorithm
+//! \since Crypto++ 1.0
 struct CRYPTOPP_DLL RSA
 {
 	CRYPTOPP_CONSTEXPR static const char * CRYPTOPP_API StaticAlgorithmName() {return "RSA";}
@@ -161,6 +166,7 @@ struct CRYPTOPP_DLL RSA
 //! \brief RSA encryption algorithm
 //! \tparam STANDARD signature standard
 //! \sa <a href="http://www.weidai.com/scan-mirror/ca.html#RSA">RSA cryptosystem</a>
+//! \since Crypto++ 1.0
 template <class STANDARD>
 struct RSAES : public TF_ES<STANDARD, RSA>
 {
@@ -172,6 +178,7 @@ struct RSAES : public TF_ES<STANDARD, RSA>
 //! \tparam H hash transformation
 //! \details See documentation of PKCS1v15 for a list of hash functions that can be used with it.
 //! \sa <a href="http://www.weidai.com/scan-mirror/sig.html#RSA">RSA signature scheme with appendix</a>
+//! \since Crypto++ 1.0
 template <class STANDARD, class H>
 struct RSASS : public TF_SS<STANDARD, H, RSA>
 {
@@ -179,6 +186,7 @@ struct RSASS : public TF_SS<STANDARD, H, RSA>
 
 //! \class RSA_ISO
 //! \brief RSA algorithm
+//! \since Crypto++ 1.0
 struct CRYPTOPP_DLL RSA_ISO
 {
 	CRYPTOPP_CONSTEXPR static const char * CRYPTOPP_API StaticAlgorithmName() {return "RSA-ISO";}
@@ -189,6 +197,7 @@ struct CRYPTOPP_DLL RSA_ISO
 //! \class RSASS_ISO
 //! \brief RSA signature algorithm
 //! \tparam H hash transformation
+//! \since Crypto++ 1.0
 template <class H>
 struct RSASS_ISO : public TF_SS<P1363_EMSA2, H, RSA_ISO>
 {
@@ -211,25 +220,31 @@ DOCUMENTED_TYPEDEF(RSAES<OAEP<SHA> >::Encryptor, RSAES_OAEP_SHA_Encryptor);
 #ifdef CRYPTOPP_DOXYGEN_PROCESSING
 //! \brief \ref RSASS<STANDARD,HASH> "RSASS<PKCS1v15,SHA>::Signer" typedef
 //! \details RSA signature schemes defined in PKCS #1 v2.0
+//! \since Crypto++ 1.0
 class RSASSA_PKCS1v15_SHA_Signer : public RSASS<PKCS1v15,SHA>::Signer {};
 //! \brief \ref RSASS<STANDARD,HASH> "RSASS<PKCS1v15,SHA>::Verifier" typedef
 //! \details RSA signature schemes defined in PKCS #1 v2.0
+//! \since Crypto++ 1.0
 class RSASSA_PKCS1v15_SHA_Verifier : public RSASS<PKCS1v15,SHA>::Verifier {};
 
 namespace Weak {
 
 //! \brief \ref RSASS<STANDARD,HASH> "RSASS<PKCS1v15, Weak::MD2>::Signer" typedef
 //! \details RSA signature schemes defined in PKCS #1 v2.0
+//! \since Crypto++ 1.0
 class RSASSA_PKCS1v15_MD2_Signer : public RSASS<PKCS1v15, Weak1::MD2>::Signer {};
 //! \brief \ref RSASS<STANDARD,HASH> "RSASS<PKCS1v15, Weak::MD2>::Verifier" typedef
 //! \details RSA signature schemes defined in PKCS #1 v2.0
+//! \since Crypto++ 1.0
 class RSASSA_PKCS1v15_MD2_Verifier : public RSASS<PKCS1v15, Weak1::MD2>::Verifier {};
 
 //! \brief \ref RSASS<STANDARD,HASH> "RSASS<PKCS1v15, Weak::MD5>::Signer" typedef
 //! \details RSA signature schemes defined in PKCS #1 v2.0
+//! \since Crypto++ 1.0
 class RSASSA_PKCS1v15_MD5_Signer : public RSASS<PKCS1v15, Weak1::MD5>::Signer {};
 //! \brief \ref RSASS<STANDARD,HASH> "RSASS<PKCS1v15, Weak::MD5>::Verifier" typedef
 //! \details RSA signature schemes defined in PKCS #1 v2.0
+//! \since Crypto++ 1.0
 class RSASSA_PKCS1v15_MD5_Verifier : public RSASS<PKCS1v15, Weak1::MD5>::Verifier {};
 }
 

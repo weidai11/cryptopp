@@ -436,6 +436,7 @@ public:
 //! \brief DSA signature scheme
 //! \tparam H HashTransformation derived class
 //! \sa <a href="http://www.weidai.com/scan-mirror/sig.html#DSA-1363">DSA-1363</a>
+//! \since Crypto++ 1.0 for DSA, Crypto++ 5.6.2 for DSA2
 template <class H>
 struct GDSA : public DL_SS<
 	DL_SignatureKeys_GFP,
@@ -508,6 +509,7 @@ struct DL_Keys_DSA
 //! \tparam H HashTransformation derived class
 //! \details The class is named DSA2 instead of DSA for backwards compatibility because DSA was a non-template class.
 //! \sa <a href="http://en.wikipedia.org/wiki/Digital_Signature_Algorithm">DSA</a>, as specified in FIPS 186-3
+//! \since Crypto++ 1.0 for DSA, Crypto++ 5.6.2 for DSA2
 template <class H>
 class DSA2 : public DL_SS<
 	DL_Keys_DSA,
@@ -529,7 +531,7 @@ public:
 };
 
 //! DSA with SHA-1, typedef'd for backwards compatibility
-typedef DSA2<SHA> DSA;
+typedef DSA2<SHA1> DSA;
 
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_PublicKey_GFP<DL_GroupParameters_DSA>;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_GFP<DL_GroupParameters_DSA>;

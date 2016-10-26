@@ -12,7 +12,9 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+//! \class LowFirstBitWriter
 //! \brief Encoding table writer
+//! \since Crypto++ 1.0
 class LowFirstBitWriter : public Filter
 {
 public:
@@ -36,6 +38,8 @@ protected:
 };
 
 //! \class HuffmanEncoder
+//! \brief Huffman Encoder
+//! \since Crypto++ 1.0
 class HuffmanEncoder
 {
 public:
@@ -70,6 +74,7 @@ public:
 
 //! \class Deflator
 //! \brief DEFLATE compressor (RFC 1951)
+//! \since Crypto++ 1.0
 class Deflator : public LowFirstBitWriter
 {
 public:

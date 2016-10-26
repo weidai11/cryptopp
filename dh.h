@@ -19,6 +19,8 @@ NAMESPACE_BEGIN(CryptoPP)
 //! \details A Diffie-Hellman domain is a set of parameters that must be shared
 //!   by two parties in a key agreement protocol, along with the algorithms
 //!   for generating key pairs and deriving agreed values.
+//! \sa DL_SimpleKeyAgreementDomainBase
+//! \since Crypto++ 1.0
 template <class GROUP_PARAMETERS, class COFACTOR_OPTION = CPP_TYPENAME GROUP_PARAMETERS::DefaultCofactorOption>
 class DH_Domain : public DL_SimpleKeyAgreementDomainBase<typename GROUP_PARAMETERS::Element>
 {
@@ -29,6 +31,10 @@ public:
 	typedef typename GroupParameters::Element Element;
 	typedef DL_KeyAgreementAlgorithm_DH<Element, COFACTOR_OPTION> DH_Algorithm;
 	typedef DH_Domain<GROUP_PARAMETERS, COFACTOR_OPTION> Domain;
+
+#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
+	virtual ~DH_Domain() {}
+#endif
 
 	//! \brief Construct a Diffie-Hellman domain
 	DH_Domain() {}
@@ -152,10 +158,6 @@ public:
 	static std::string CRYPTOPP_API StaticAlgorithmName()
 		{return GroupParameters::StaticAlgorithmNamePrefix() + DH_Algorithm::StaticAlgorithmName();}
 	std::string AlgorithmName() const {return StaticAlgorithmName();}
-
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~DH_Domain() {}
-#endif
 
 private:
 	const DL_KeyAgreementAlgorithm<Element> & GetKeyAgreementAlgorithm() const

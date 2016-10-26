@@ -13,6 +13,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 //! \class IDEA_Info
 //! \brief IDEA block cipher information
+//! \since Crypto++ 1.0
 struct IDEA_Info : public FixedBlockSize<8>, public FixedKeyLength<16>, public FixedRounds<8>
 {
 	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "IDEA";}
@@ -21,6 +22,7 @@ struct IDEA_Info : public FixedBlockSize<8>, public FixedKeyLength<16>, public F
 //! \class IDEA
 //! \brief IDEA block cipher
 //! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#IDEA">IDEA</a>
+//! \since Crypto++ 1.0
 class IDEA : public IDEA_Info, public BlockCipherDocumentation
 {
 public:		// made public for internal purposes

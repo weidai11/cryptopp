@@ -20,8 +20,9 @@ struct Blowfish_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 4,
 
 // <a href="http://www.weidai.com/scan-mirror/cs.html#Blowfish">Blowfish</a>
 
-//! \class Blowfish_Info
+//! \class Blowfish
 //! \brief Blowfish block cipher
+//! \since Crypto++ 1.0
 class Blowfish : public Blowfish_Info, public BlockCipherDocumentation
 {
 	//! \class Base

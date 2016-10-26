@@ -39,6 +39,7 @@ struct DES_Info : public FixedBlockSize<8>, public FixedKeyLength<8>
 //!   (the least significant bits of each byte) in the key. However you can use CheckKeyParityBits()
 //!   and CorrectKeyParityBits() to	check or correct the parity bits if you wish.
 //! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#DES">DES</a>
+//! \since Crypto++ 1.0
 class DES : public DES_Info, public BlockCipherDocumentation
 {
 	//! \class Base
@@ -69,7 +70,8 @@ struct DES_EDE2_Info : public FixedBlockSize<8>, public FixedKeyLength<16>
 
 //! \class DES_EDE2
 //! \brief 2-key TripleDES block cipher
-/// \sa <a href="http://www.weidai.com/scan-mirror/cs.html#DESede">DES-EDE2</a>
+//! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#DESede">DES-EDE2</a>
+//! \since Crypto++ 1.0
 class DES_EDE2 : public DES_EDE2_Info, public BlockCipherDocumentation
 {
 	//! \class Base
@@ -99,6 +101,7 @@ struct DES_EDE3_Info : public FixedBlockSize<8>, public FixedKeyLength<24>
 //! \class DES_EDE3
 //! \brief 3-key TripleDES block cipher
 //! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#DESede">DES-EDE3</a>
+//! \since Crypto++ 1.0
 class DES_EDE3 : public DES_EDE3_Info, public BlockCipherDocumentation
 {
 	//! \class Base
@@ -128,6 +131,7 @@ struct DES_XEX3_Info : public FixedBlockSize<8>, public FixedKeyLength<24>
 //! \class DES_XEX3
 //! \brief DESX block cipher
 //! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#DESX">DES-XEX3</a>, AKA DESX
+//! \since Crypto++ 1.0
 class DES_XEX3 : public DES_XEX3_Info, public BlockCipherDocumentation
 {
 	//! \class Base
