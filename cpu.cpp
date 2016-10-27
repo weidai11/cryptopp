@@ -185,8 +185,8 @@ static bool TrySSE2()
 
 bool CRYPTOPP_SECTION_INIT g_x86DetectionDone = false;
 bool CRYPTOPP_SECTION_INIT g_hasMMX = false, CRYPTOPP_SECTION_INIT g_hasISSE = false, CRYPTOPP_SECTION_INIT g_hasSSE2 = false, CRYPTOPP_SECTION_INIT g_hasSSSE3 = false;
-bool CRYPTOPP_SECTION_INIT g_hasSSE4 = false, CRYPTOPP_SECTION_INIT g_hasAESNI = false, CRYPTOPP_SECTION_INIT g_hasCLMUL = false, CRYPTOPP_SECTION_INIT g_isP4 = false;
-bool CRYPTOPP_SECTION_INIT g_hasRDRAND = false, CRYPTOPP_SECTION_INIT g_hasRDSEED = false;
+bool CRYPTOPP_SECTION_INIT g_hasSSE4 = false, CRYPTOPP_SECTION_INIT g_hasAESNI = false, CRYPTOPP_SECTION_INIT g_hasCLMUL = false, CRYPTOPP_SECTION_INIT g_hasSHA = false;
+bool CRYPTOPP_SECTION_INIT g_hasRDRAND = false, CRYPTOPP_SECTION_INIT g_hasRDSEED = false, CRYPTOPP_SECTION_INIT g_isP4 = false;
 bool CRYPTOPP_SECTION_INIT g_hasPadlockRNG = false, CRYPTOPP_SECTION_INIT g_hasPadlockACE = false, CRYPTOPP_SECTION_INIT g_hasPadlockACE2 = false;
 bool CRYPTOPP_SECTION_INIT g_hasPadlockPHE = false, CRYPTOPP_SECTION_INIT g_hasPadlockPMM = false;
 word32 CRYPTOPP_SECTION_INIT g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
@@ -254,6 +254,7 @@ void DetectX86Features()
 	{
 		static const unsigned int RDRAND_FLAG = (1 << 30);
 		static const unsigned int RDSEED_FLAG = (1 << 18);
+		static const unsigned int    SHA_FLAG = (1 << 29);
 
 		g_isP4 = ((cpuid1[0] >> 8) & 0xf) == 0xf;
 		g_cacheLineSize = 8 * GETBYTE(cpuid1[1], 1);
@@ -263,7 +264,10 @@ void DetectX86Features()
 		{
 			word32 cpuid3[4];
 			if (CpuId(7, cpuid3))
+			{
 				g_hasRDSEED = !!(cpuid3[1] /*EBX*/ & RDSEED_FLAG);
+				g_hasSHA = !!(cpuid3[1] /*EBX*/ & SHA_FLAG);
+			}
 		}
 	}
 	else if (IsAMD(cpuid))

@@ -109,6 +109,7 @@ extern CRYPTOPP_DLL bool g_hasSSSE3;
 extern CRYPTOPP_DLL bool g_hasSSE4;
 extern CRYPTOPP_DLL bool g_hasAESNI;
 extern CRYPTOPP_DLL bool g_hasCLMUL;
+extern CRYPTOPP_DLL bool g_hasSHA;
 extern CRYPTOPP_DLL bool g_isP4;
 extern CRYPTOPP_DLL bool g_hasRDRAND;
 extern CRYPTOPP_DLL bool g_hasRDSEED;
@@ -207,6 +208,16 @@ inline bool HasCLMUL()
 	if (!g_x86DetectionDone)
 		DetectX86Features();
 	return g_hasCLMUL;
+}
+
+//! \brief Determines SHA availability
+//! \returns true if SHA is determined to be available, false otherwise
+//! \details HasSHA() is a runtime check performed using CPUID
+inline bool HasSHA()
+{
+	if (!g_x86DetectionDone)
+		DetectX86Features();
+	return g_hasSHA;
 }
 
 //! \brief Determines if the CPU is an Intel P4
