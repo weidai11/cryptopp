@@ -34,7 +34,7 @@
 #endif
 
 // Baseline include
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
 #  include <emmintrin.h>    // __m64, __m128i, _mm_set_epi64x
 #endif
 #if CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE

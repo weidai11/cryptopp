@@ -18,10 +18,6 @@
 #include <setjmp.h>
 #endif
 
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
-#include <emmintrin.h>
-#endif
-
 NAMESPACE_BEGIN(CryptoPP)
 
 #ifndef CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
