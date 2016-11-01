@@ -441,7 +441,7 @@ endif
 OBJS := $(SRCS:.cpp=.o)
 
 # List test.cpp first to tame C++ static initialization problems.
-TESTSRCS := test.cpp bench1.cpp bench2.cpp validat1.cpp validat2.cpp validat3.cpp adhoc.cpp datatest.cpp regtest.cpp fipsalgt.cpp dlltest.cpp
+TESTSRCS := adhoc.cpp test.cpp bench1.cpp bench2.cpp validat1.cpp validat2.cpp validat3.cpp datatest.cpp regtest.cpp fipsalgt.cpp dlltest.cpp
 TESTOBJS := $(TESTSRCS:.cpp=.o)
 LIBOBJS := $(filter-out $(TESTOBJS),$(OBJS))
 
@@ -499,8 +499,8 @@ test check: cryptest.exe
 
 # Used to generate list of source files for Autotools, CMakeList, Android.mk, etc
 .PHONY: sources
-sources:
-	$(info Library sources: $(filter-out fipstest.cpp $(TESTSRCS),$(SRCS)))
+sources: adhoc.cpp
+	$(info Library sources: $(filter-out $(TESTSRCS),$(SRCS)))
 	$(info )
 	$(info Test sources: $(TESTSRCS))
 
