@@ -2,6 +2,7 @@
 
 //! \file sosemanuk.h
 //! \brief Classes for Sosemanuk stream cipher
+//! \since Crypto++ 5.5
 
 #ifndef CRYPTOPP_SOSEMANUK_H
 #define CRYPTOPP_SOSEMANUK_H
@@ -17,13 +18,17 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! algorithm info
+//! \class SosemanukInfo
+//! \brief Sosemanuk stream cipher information
+	//! \since Crypto++ 5.5
 struct SosemanukInfo : public VariableKeyLength<16, 1, 32, 1, SimpleKeyingInterface::UNIQUE_IV, 16>
 {
 	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "Sosemanuk";}
 };
 
-//! _
+//! \class SosemanukPolicy
+//! \brief Sosemanuk stream cipher implementation
+//! \since Crypto++ 5.5
 class SosemanukPolicy : public AdditiveCipherConcretePolicy<word32, 20>, public SosemanukInfo
 {
 protected:
@@ -40,7 +45,14 @@ protected:
 	FixedSizeAlignedSecBlock<word32, 12> m_state;
 };
 
-//! <a href="http://www.cryptolounge.org/wiki/Sosemanuk">Sosemanuk</a>
+//! \class Sosemanuk
+//! \brief Sosemanuk stream cipher
+//! \details is a stream cipher developed by Come Berbain, Olivier Billet, Anne Canteaut, Nicolas Courtois,
+//!   Henri Gilbert, Louis Goubin, Aline Gouget, Louis Granboulan, Cédric Lauradoux, Marine Minier, Thomas
+//!   Pornin and Hervé Sibert. Sosemanuk is one of the final four Profile 1 (software) ciphers selected for
+//!   the eSTREAM Portfolio.
+//! \sa <a href="http://www.cryptolounge.org/wiki/Sosemanuk">Sosemanuk</a>
+//! \since Crypto++ 5.5
 struct Sosemanuk : public SosemanukInfo, public SymmetricCipherDocumentation
 {
 	typedef SymmetricCipherFinal<ConcretePolicyHolder<SosemanukPolicy, AdditiveCipherTemplate<> >, SosemanukInfo> Encryption;
