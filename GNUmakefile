@@ -127,6 +127,7 @@ ifeq ($(IS_X86)$(IS_X32)$(IS_CYGWIN)$(IS_MINGW)$(SUN_COMPILER),00000)
  endif
 endif
 
+# BEGIN MARCH_CXXFLAGS
 # Guard use of -march=native (or -m{32|64} on some platforms)
 # Don't add anything if -march=XXX or -mtune=XXX is specified
 ifeq ($(findstring -march,$(CXXFLAGS)),)
@@ -148,6 +149,7 @@ ifeq ($(findstring -mtune,$(CXXFLAGS)),)
    endif
 endif  # -mtune
 endif  # -march
+# END MARCH_CXXFLAGS
 
 # Aligned access required for -O3 and above due to vectorization
 UNALIGNED_ACCESS := $(shell $(EGREP) -c "^[[:space:]]*//[[:space:]]*\#[[:space:]]*define[[:space:]]*CRYPTOPP_NO_UNALIGNED_DATA_ACCESS" config.h)
