@@ -241,6 +241,9 @@
     <ClInclude Include="ecp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ecpoint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="emsa2.h">
       <Filter>Header Files</Filter>
     </ClInclude>

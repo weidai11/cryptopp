@@ -374,6 +374,7 @@
     <ClInclude Include="ec2n.h" />
     <ClInclude Include="eccrypto.h" />
     <ClInclude Include="ecp.h" />
+    <ClInclude Include="ecpoint.h" />
     <ClInclude Include="elgamal.h" />
     <ClInclude Include="emsa2.h" />
     <ClInclude Include="eprecomp.h" />

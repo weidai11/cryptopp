@@ -10,43 +10,16 @@
 #include "integer.h"
 #include "algebra.h"
 #include "modarith.h"
+#include "ecpoint.h"
 #include "eprecomp.h"
 #include "smartptr.h"
 #include "pubkey.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! \class ECPPoint
-//! \brief Elliptical Curve Point over GF(p), where p is prime
-struct CRYPTOPP_DLL ECPPoint
-{
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~ECPPoint() {}
-#endif
-
-	//! \brief Construct an ECPPoint
-	//! \details identity is set to <tt>true</tt>
-	ECPPoint() : identity(true) {}
-
-	//! \brief Construct an ECPPoint from coordinates
-	//! \details identity is set to <tt>false</tt>
-	ECPPoint(const Integer &x, const Integer &y)
-		: x(x), y(y), identity(false) {}
-
-	bool operator==(const ECPPoint &t) const
-		{return (identity && t.identity) || (!identity && !t.identity && x==t.x && y==t.y);}
-	bool operator< (const ECPPoint &t) const
-		{return identity ? !t.identity : (!t.identity && (x<t.x || (x==t.x && y<t.y)));}
-
-	Integer x, y;
-	bool identity;
-};
-
-CRYPTOPP_DLL_TEMPLATE_CLASS AbstractGroup<ECPPoint>;
-
 //! \class ECP
 //! \brief Elliptic Curve over GF(p), where p is prime
-class CRYPTOPP_DLL ECP : public AbstractGroup<ECPPoint>
+class CRYPTOPP_DLL ECP : public AbstractGroup<ECPPoint>, public EncodedPoint<ECPPoint>
 {
 public:
 	typedef ModularArithmetic Field;

@@ -513,6 +513,9 @@
     <ClInclude Include="ecp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ecpoint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="elgamal.h">
       <Filter>Header Files</Filter>
     </ClInclude>

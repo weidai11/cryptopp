@@ -12,38 +12,16 @@
 #include "gf2n.h"
 #include "integer.h"
 #include "algebra.h"
+#include "ecpoint.h"
 #include "eprecomp.h"
 #include "smartptr.h"
 #include "pubkey.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! \class EC2NPoint
-//! \brief Elliptical Curve Point over GF(2^n)
-struct CRYPTOPP_DLL EC2NPoint
-{
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~EC2NPoint() {}
-#endif
-
-	EC2NPoint() : identity(true) {}
-	EC2NPoint(const PolynomialMod2 &x, const PolynomialMod2 &y)
-		: x(x), y(y), identity(false) {}
-
-	bool operator==(const EC2NPoint &t) const
-		{return (identity && t.identity) || (!identity && !t.identity && x==t.x && y==t.y);}
-	bool operator< (const EC2NPoint &t) const
-		{return identity ? !t.identity : (!t.identity && (x<t.x || (x==t.x && y<t.y)));}
-
-	PolynomialMod2 x, y;
-	bool identity;
-};
-
-CRYPTOPP_DLL_TEMPLATE_CLASS AbstractGroup<EC2NPoint>;
-
 //! \class EC2N
 //! \brief Elliptic Curve over GF(2^n)
-class CRYPTOPP_DLL EC2N : public AbstractGroup<EC2NPoint>
+class CRYPTOPP_DLL EC2N : public AbstractGroup<EC2NPoint>, public EncodedPoint<EC2NPoint>
 {
 public:
 	typedef GF2NP Field;
