@@ -110,14 +110,14 @@ ifeq ($(findstring lean,$(MAKECMDGOALS)),lean)
   endif # MAKECMDGOALS
 endif # Dead code stripping
 
-# List cryptlib.cpp first and cpu.cpp second in an attempt to tame C++ static initialization problems.
-#  The issue spills into POD data types of cpu.cpp due to the storage class of the bools, so cpu.cpp
-#  is the second candidate for explicit initialization order.
+# List cryptlib.cpp first, then cpu.cpp, then integer.cpp to tame C++ static initialization problems.
 SRCS := cryptlib.cpp cpu.cpp integer.cpp $(filter-out cryptlib.cpp cpu.cpp integer.cpp pch.cpp simple.cpp winpipes.cpp cryptlib_bds.cpp,$(wildcard *.cpp))
+
+# List cryptlib.cpp first, then cpu.cpp, then integer.cpp to tame C++ static initialization problems.
 OBJS := $(SRCS:.cpp=.o)
 
-# test.o needs to be after bench.o for cygwin 1.1.4 (possible ld bug?)
-TESTSRCS := bench1.cpp bench2.cpp test.cpp validat1.cpp validat2.cpp validat3.cpp adhoc.cpp datatest.cpp regtest.cpp fipsalgt.cpp dlltest.cpp
+# List test.cpp first to tame C++ static initialization problems.
+TESTSRCS := adhoc.cpp test.cpp bench1.cpp bench2.cpp validat1.cpp validat2.cpp validat3.cpp datatest.cpp regtest.cpp fipsalgt.cpp dlltest.cpp
 TESTOBJS := $(TESTSRCS:.cpp=.o)
 LIBOBJS := $(filter-out $(TESTOBJS),$(OBJS))
 
@@ -245,7 +245,7 @@ cryptest.exe: libcryptopp.a $(TESTOBJS)
 # Used to generate list of source files for Autotools, CMakeList and Android.mk
 .PHONY: sources
 sources:
-	$(info Library sources: $(filter-out fipstest.cpp $(TESTSRCS),$(SRCS)))
+	$(info Library sources: $(filter-out $(TESTSRCS),$(SRCS)))
 	$(info )
 	$(info Test sources: $(TESTSRCS))
 
