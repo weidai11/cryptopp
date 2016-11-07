@@ -181,10 +181,12 @@ fi
 
 "$MAKE" distclean &>/dev/null
 
-git checkout "$OLD_VERSION_TAG" -f &>/dev/null
-
 rm -f GNUmakefile-symbols
+
+git checkout master -f &>/dev/null
 cp GNUmakefile GNUmakefile-symbols
+
+git checkout "$OLD_VERSION_TAG" -f &>/dev/null
 
 if [[ "$IS_DARWIN" -ne "0" ]]; then
 	"$SED" "$SED_OPTS" -e 's|libcryptopp.a $(TESTOBJS)|libcryptopp.dylib $(TESTOBJS)|g' GNUmakefile-symbols
@@ -205,11 +207,11 @@ echo "******************************************************"
 
 if [[ -f "cryptest.exe" ]]; then
 	if [[ "$IS_DARWIN" -ne "0" ]]; then
-		DYLD_LIBRARY_PATH=".:$DYLD_LIBRARY_PATH" ./cryptest.exe v 2>&1 | c++filt
-		DYLD_LIBRARY_PATH=".:$DYLD_LIBRARY_PATH" ./cryptest.exe tv all 2>&1 | c++filt
+		DYLD_LIBRARY_PATH="$PWD:$DYLD_LIBRARY_PATH" "$PWD/cryptest.exe" v 2>&1 | c++filt
+		DYLD_LIBRARY_PATH="$PWD:$DYLD_LIBRARY_PATH" "$PWD/cryptest.exe" tv all 2>&1 | c++filt
 	else
-		LD_LIBRARY_PATH=".:$LD_LIBRARY_PATH" ./cryptest.exe v 2>&1 | c++filt
-		LD_LIBRARY_PATH=".:$LD_LIBRARY_PATH" ./cryptest.exe tv all 2>&1 | c++filt
+		LD_LIBRARY_PATH="$PWD:$LD_LIBRARY_PATH" "$PWD/cryptest.exe" v 2>&1 | c++filt
+		LD_LIBRARY_PATH="$PWD:$LD_LIBRARY_PATH" "$PWD/cryptest.exe" tv all 2>&1 | c++filt
 	fi
 else
 	echo "Failed to make cryptest.exe"
@@ -219,12 +221,12 @@ echo "******************************************************"
 echo "Removing the dynamic library for $OLD_VERSION_TAG"
 echo "******************************************************"
 
-rm -f *.o *.so *.dylib 
+rm -f *.o *.so *.dylib
 
 git checkout "$NEW_VERSION_TAG" -f &>/dev/null
 
 echo "******************************************************"
-echo "Building dynamic library for $NEW_VERSION_TAG and linking into $OLD_VERSION_TAG cryptest.exe"
+echo "Building dynamic library for $NEW_VERSION_TAG"
 echo "******************************************************"
 
 "$MAKE" "${MAKEARGS[@]}" -f GNUmakefile-symbols dynamic
@@ -235,14 +237,14 @@ echo "******************************************************"
 
 if [[ -f "cryptest.exe" ]]; then
 	if [[ "$IS_DARWIN" -ne "0" ]]; then
-		DYLD_LIBRARY_PATH=".:$DYLD_LIBRARY_PATH" ./cryptest.exe v 2>&1 | c++filt
-		DYLD_LIBRARY_PATH=".:$DYLD_LIBRARY_PATH" ./cryptest.exe tv all 2>&1 | c++filt
+		DYLD_LIBRARY_PATH="$PWD:$DYLD_LIBRARY_PATH" "$PWD/cryptest.exe" v 2>&1 | c++filt
+		DYLD_LIBRARY_PATH="$PWD:$DYLD_LIBRARY_PATH" "$PWD/cryptest.exe" tv all 2>&1 | c++filt
 	else
-		LD_LIBRARY_PATH=".:$LD_LIBRARY_PATH" ./cryptest.exe v 2>&1 | c++filt
-		LD_LIBRARY_PATH=".:$LD_LIBRARY_PATH" ./cryptest.exe tv all 2>&1 | c++filt
+		LD_LIBRARY_PATH="$PWD:$LD_LIBRARY_PATH" "$PWD/cryptest.exe" v 2>&1 | c++filt
+		LD_LIBRARY_PATH="$PWD:$LD_LIBRARY_PATH" "$PWD/cryptest.exe" tv all 2>&1 | c++filt
 	fi
 else
 	echo "Failed to make cryptest.exe"
 fi
 
-git checkout master -f
+git checkout master -f &>/dev/null
