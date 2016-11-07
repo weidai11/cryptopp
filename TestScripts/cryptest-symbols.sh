@@ -15,7 +15,7 @@ NEW_VERSION_TAG=master
 ############################################
 # If repo is dirty, then promt first
 
-DIRTY=$(git diff --shortstat 2> /dev/null | tail -n1)
+DIRTY=$(git diff --shortstat 2> /dev/null | tail -1)
 if [[ ! (-z "$DIRTY") ]]; then
 
 	echo
@@ -215,9 +215,14 @@ cp GNUmakefile GNUmakefile-symbols
 
 git checkout "$OLD_VERSION_TAG" -f &>/dev/null
 
+if [[ "$?" -ne "0" ]]; then
+	echo "Failed to checkout $OLD_VERSION_TAG"
+	[[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
+fi
+
 echo
 echo "****************************************************************"
-echo "Patching makefile to use dynamic linking for cryptest.exe"
+echo "Patching makefile for dynamic linking by cryptest.exe"
 echo "****************************************************************"
 echo
 
@@ -237,6 +242,17 @@ echo
 
 "$MAKE" "${MAKEARGS[@]}" -f GNUmakefile-symbols dynamic
 
+if [[ "$IS_DARWIN" -ne "0" ]]; then
+	LIBNAME=libcryptopp.dylib
+else
+	LIBNAME=libcryptopp.so
+fi
+
+if [[ ! -f "$LIBNAME" ]]; then
+	echo "Failed to make $OLD_VERSION_TAG library"
+	[[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
+fi
+
 echo
 echo "****************************************************************"
 echo "Building cryptest.exe for $OLD_VERSION_TAG"
@@ -245,23 +261,23 @@ echo
 
 "$MAKE" "${MAKEARGS[@]}" -f GNUmakefile-symbols cryptest.exe
 
-if [[ -f "cryptest.exe" ]]; then
-
-	echo
-	echo "****************************************************************"
-	echo "Running $OLD_VERSION_TAG cryptest.exe using $OLD_VERSION_TAG library"
-	echo "****************************************************************"
-	echo
-
-	if [[ "$IS_DARWIN" -ne "0" ]]; then
-		DYLD_LIBRARY_PATH="$PWD:$DYLD_LIBRARY_PATH" "$PWD/cryptest.exe" v 2>&1 | "$CXXFILT"
-		DYLD_LIBRARY_PATH="$PWD:$DYLD_LIBRARY_PATH" "$PWD/cryptest.exe" tv all 2>&1 | "$CXXFILT"
-	else
-		LD_LIBRARY_PATH="$PWD:$LD_LIBRARY_PATH" "$PWD/cryptest.exe" v 2>&1 | "$CXXFILT"
-		LD_LIBRARY_PATH="$PWD:$LD_LIBRARY_PATH" "$PWD/cryptest.exe" tv all 2>&1 | "$CXXFILT"
-	fi
-else
+if [[ ! -f "cryptest.exe" ]]; then
 	echo "Failed to make cryptest.exe"
+	[[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
+fi
+
+echo
+echo "****************************************************************"
+echo "Running $OLD_VERSION_TAG cryptest.exe using $OLD_VERSION_TAG library"
+echo "****************************************************************"
+echo
+
+if [[ "$IS_DARWIN" -ne "0" ]]; then
+	DYLD_LIBRARY_PATH="$PWD:$DYLD_LIBRARY_PATH" "$PWD/cryptest.exe" v 2>&1 | "$CXXFILT"
+	DYLD_LIBRARY_PATH="$PWD:$DYLD_LIBRARY_PATH" "$PWD/cryptest.exe" tv all 2>&1 | "$CXXFILT"
+else
+	LD_LIBRARY_PATH="$PWD:$LD_LIBRARY_PATH" "$PWD/cryptest.exe" v 2>&1 | "$CXXFILT"
+	LD_LIBRARY_PATH="$PWD:$LD_LIBRARY_PATH" "$PWD/cryptest.exe" tv all 2>&1 | "$CXXFILT"
 fi
 
 echo
@@ -270,9 +286,14 @@ echo "Removing dynamic library for $OLD_VERSION_TAG"
 echo "****************************************************************"
 echo
 
-rm -f *.o *.so *.dylib
+rm -f adhoc.cpp *.o *.so *.dylib
 
 git checkout "$NEW_VERSION_TAG" -f &>/dev/null
+
+if [[ "$?" -ne "0" ]]; then
+	echo "Failed to checkout $OLD_VERSION_TAG"
+	[[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
+fi
 
 echo
 echo "****************************************************************"
@@ -282,25 +303,30 @@ echo
 
 "$MAKE" "${MAKEARGS[@]}" -f GNUmakefile-symbols dynamic
 
-if [[ -f "cryptest.exe" ]]; then
+if [[ ! -f "cryptest.exe" ]]; then
+	echo "Failed to make $NEW_VERSION_TAG library"
+	[[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
+fi
 
-	echo
-	echo "****************************************************************"
-	echo "Running $OLD_VERSION_TAG cryptest.exe using $NEW_VERSION_TAG library"
-	echo "****************************************************************"
-	echo
+echo
+echo "****************************************************************"
+echo "Running $OLD_VERSION_TAG cryptest.exe using $NEW_VERSION_TAG library"
+echo "****************************************************************"
+echo
 
-	if [[ "$IS_DARWIN" -ne "0" ]]; then
-		DYLD_LIBRARY_PATH="$PWD:$DYLD_LIBRARY_PATH" "$PWD/cryptest.exe" v 2>&1 | "$CXXFILT"
-		DYLD_LIBRARY_PATH="$PWD:$DYLD_LIBRARY_PATH" "$PWD/cryptest.exe" tv all 2>&1 | "$CXXFILT"
-	else
-		LD_LIBRARY_PATH="$PWD:$LD_LIBRARY_PATH" "$PWD/cryptest.exe" v 2>&1 | "$CXXFILT"
-		LD_LIBRARY_PATH="$PWD:$LD_LIBRARY_PATH" "$PWD/cryptest.exe" tv all 2>&1 | "$CXXFILT"
-	fi
+if [[ "$IS_DARWIN" -ne "0" ]]; then
+	DYLD_LIBRARY_PATH="$PWD:$DYLD_LIBRARY_PATH" "$PWD/cryptest.exe" v 2>&1 | "$CXXFILT"
+	DYLD_LIBRARY_PATH="$PWD:$DYLD_LIBRARY_PATH" "$PWD/cryptest.exe" tv all 2>&1 | "$CXXFILT"
 else
-	echo "Failed to make cryptest.exe"
+	LD_LIBRARY_PATH="$PWD:$LD_LIBRARY_PATH" "$PWD/cryptest.exe" v 2>&1 | "$CXXFILT"
+	LD_LIBRARY_PATH="$PWD:$LD_LIBRARY_PATH" "$PWD/cryptest.exe" tv all 2>&1 | "$CXXFILT"
 fi
 
 git checkout master -f &>/dev/null
+
+if [[ "$?" -ne "0" ]]; then
+	echo "Failed to checkout Master"
+	[[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
+fi
 
 [[ "$0" = "$BASH_SOURCE" ]] && exit 0 || return 0
