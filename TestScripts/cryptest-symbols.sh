@@ -47,6 +47,7 @@ GREP=grep
 EGREP=egrep
 SED=sed
 AWK=awk
+CXXFILT=c++filt
 
 THIS_SYSTEM=$(uname -s 2>&1)
 IS_DARWIN=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c darwin)
@@ -76,16 +77,19 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 
 	# Need something more powerful than the Posix versions
 	if [[ (-e "/usr/gnu/bin/grep") ]]; then
-		GREP=/usr/gnu/bin/grep;
+		GREP=/usr/gnu/bin/grep
 	fi
 	if [[ (-e "/usr/gnu/bin/egrep") ]]; then
-		EGREP=/usr/gnu/bin/egrep;
+		EGREP=/usr/gnu/bin/egrep
 	fi
 	if [[ (-e "/usr/gnu/bin/sed") ]]; then
-		SED=/usr/gnu/bin/sed;
+		SED=/usr/gnu/bin/sed
+	fi
+	if [[ (-e "/usr/gnu/bin/c++filt") ]]; then
+		CXXFILT=/usr/gnu/bin/c++filt
 	fi
 	if [[ (-e "/usr/gnu/bin/awk") ]]; then
-		AWK=/usr/gnu/bin/awk;
+		AWK=/usr/gnu/bin/awk
 	else
 		AWK=nawk;
 	fi
@@ -250,11 +254,11 @@ if [[ -f "cryptest.exe" ]]; then
 	echo
 
 	if [[ "$IS_DARWIN" -ne "0" ]]; then
-		DYLD_LIBRARY_PATH="$PWD:$DYLD_LIBRARY_PATH" "$PWD/cryptest.exe" v 2>&1 | c++filt
-		DYLD_LIBRARY_PATH="$PWD:$DYLD_LIBRARY_PATH" "$PWD/cryptest.exe" tv all 2>&1 | c++filt
+		DYLD_LIBRARY_PATH="$PWD:$DYLD_LIBRARY_PATH" "$PWD/cryptest.exe" v 2>&1 | "$CXXFILT"
+		DYLD_LIBRARY_PATH="$PWD:$DYLD_LIBRARY_PATH" "$PWD/cryptest.exe" tv all 2>&1 | "$CXXFILT"
 	else
-		LD_LIBRARY_PATH="$PWD:$LD_LIBRARY_PATH" "$PWD/cryptest.exe" v 2>&1 | c++filt
-		LD_LIBRARY_PATH="$PWD:$LD_LIBRARY_PATH" "$PWD/cryptest.exe" tv all 2>&1 | c++filt
+		LD_LIBRARY_PATH="$PWD:$LD_LIBRARY_PATH" "$PWD/cryptest.exe" v 2>&1 | "$CXXFILT"
+		LD_LIBRARY_PATH="$PWD:$LD_LIBRARY_PATH" "$PWD/cryptest.exe" tv all 2>&1 | "$CXXFILT"
 	fi
 else
 	echo "Failed to make cryptest.exe"
@@ -287,11 +291,11 @@ if [[ -f "cryptest.exe" ]]; then
 	echo
 
 	if [[ "$IS_DARWIN" -ne "0" ]]; then
-		DYLD_LIBRARY_PATH="$PWD:$DYLD_LIBRARY_PATH" "$PWD/cryptest.exe" v 2>&1 | c++filt
-		DYLD_LIBRARY_PATH="$PWD:$DYLD_LIBRARY_PATH" "$PWD/cryptest.exe" tv all 2>&1 | c++filt
+		DYLD_LIBRARY_PATH="$PWD:$DYLD_LIBRARY_PATH" "$PWD/cryptest.exe" v 2>&1 | "$CXXFILT"
+		DYLD_LIBRARY_PATH="$PWD:$DYLD_LIBRARY_PATH" "$PWD/cryptest.exe" tv all 2>&1 | "$CXXFILT"
 	else
-		LD_LIBRARY_PATH="$PWD:$LD_LIBRARY_PATH" "$PWD/cryptest.exe" v 2>&1 | c++filt
-		LD_LIBRARY_PATH="$PWD:$LD_LIBRARY_PATH" "$PWD/cryptest.exe" tv all 2>&1 | c++filt
+		LD_LIBRARY_PATH="$PWD:$LD_LIBRARY_PATH" "$PWD/cryptest.exe" v 2>&1 | "$CXXFILT"
+		LD_LIBRARY_PATH="$PWD:$LD_LIBRARY_PATH" "$PWD/cryptest.exe" tv all 2>&1 | "$CXXFILT"
 	fi
 else
 	echo "Failed to make cryptest.exe"
