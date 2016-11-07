@@ -20,10 +20,6 @@ EGREP=egrep
 SED=sed
 AWK=awk
 
-# Code generation tests
-DISASS=objdump
-DISASSARGS=("--disassemble")
-
 THIS_SYSTEM=$(uname -s 2>&1)
 IS_DARWIN=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c darwin)
 IS_LINUX=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c linux)
@@ -198,14 +194,24 @@ fi
 
 git diff --exit-code
 
-echo "******************************************************"
-echo "Building library and cryptest.exe for $OLD_VERSION_TAG"
-echo "******************************************************"
+echo "****************************************************************"
+echo "Building library for $OLD_VERSION_TAG"
+echo "****************************************************************"
 
 "$MAKE" "${MAKEARGS[@]}" -f GNUmakefile-symbols dynamic
+
+echo "****************************************************************"
+echo "Building cryptest.exe for $OLD_VERSION_TAG"
+echo "****************************************************************"
+
 "$MAKE" "${MAKEARGS[@]}" -f GNUmakefile-symbols cryptest.exe
 
 if [[ -f "cryptest.exe" ]]; then
+
+	echo "****************************************************************"
+	echo "Running $OLD_VERSION_TAG cryptest.exe using $OLD_VERSION_TAG library"
+	echo "****************************************************************"
+
 	if [[ "$IS_DARWIN" -ne "0" ]]; then
 		DYLD_LIBRARY_PATH="$PWD:$DYLD_LIBRARY_PATH" "$PWD/cryptest.exe" v 2>&1 | c++filt
 		DYLD_LIBRARY_PATH="$PWD:$DYLD_LIBRARY_PATH" "$PWD/cryptest.exe" tv all 2>&1 | c++filt
@@ -217,25 +223,26 @@ else
 	echo "Failed to make cryptest.exe"
 fi
 
-echo "******************************************************"
-echo "Removing the dynamic library for $OLD_VERSION_TAG"
-echo "******************************************************"
+echo "****************************************************************"
+echo "Removing dynamic library for $OLD_VERSION_TAG"
+echo "****************************************************************"
 
 rm -f *.o *.so *.dylib
 
 git checkout "$NEW_VERSION_TAG" -f &>/dev/null
 
-echo "******************************************************"
+echo "****************************************************************"
 echo "Building dynamic library for $NEW_VERSION_TAG"
-echo "******************************************************"
+echo "****************************************************************"
 
 "$MAKE" "${MAKEARGS[@]}" -f GNUmakefile-symbols dynamic
 
-echo "******************************************************"
-echo "Linking $OLD_VERSION_TAG cryptest.exe to $NEW_VERSION_TAG dynamic library"
-echo "******************************************************"
-
 if [[ -f "cryptest.exe" ]]; then
+
+	echo "****************************************************************"
+	echo "Running $OLD_VERSION_TAG cryptest.exe using $NEW_VERSION_TAG library"
+	echo "****************************************************************"
+
 	if [[ "$IS_DARWIN" -ne "0" ]]; then
 		DYLD_LIBRARY_PATH="$PWD:$DYLD_LIBRARY_PATH" "$PWD/cryptest.exe" v 2>&1 | c++filt
 		DYLD_LIBRARY_PATH="$PWD:$DYLD_LIBRARY_PATH" "$PWD/cryptest.exe" tv all 2>&1 | c++filt
