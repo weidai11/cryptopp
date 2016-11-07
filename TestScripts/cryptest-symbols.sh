@@ -20,22 +20,22 @@ if [[ ! (-z "$DIRTY") ]]; then
 
 	echo
 	echo "The local repo is dirty. Continuing will reset the repo and lose changes."
-	read -p "Type 'Y' to proceed. Proceed? " -n 1 -r
-	echo    # (optional) move to a new line
+	read -p "Type 'Y' to proceed, and 'N' to exit. Proceed? " -n 1 -r
+	echo # (optional) move to a new line
 	if [[ !($REPLY =~ ^[Yy]$) ]]; then
 		[[ "$0" = "$BASH_SOURCE" ]] && exit 0 || return 0
 	fi
 else
 	echo
 	echo "The repo is clean. Proceeding..."
-	echo
 fi
 
 ############################################
 
+echo
 echo "****************************************************************"
 echo "****************************************************************"
-echo "Testing '$OLD_VERSION_TAG' against '$NEW_VERSION_TAG'"
+echo "Testing '$NEW_VERSION_TAG' against '$OLD_VERSION_TAG'"
 echo "****************************************************************"
 echo "****************************************************************"
 echo
@@ -211,6 +211,12 @@ cp GNUmakefile GNUmakefile-symbols
 
 git checkout "$OLD_VERSION_TAG" -f &>/dev/null
 
+echo
+echo "****************************************************************"
+echo "Patching makefile to use dynamic linking for cryptest.exe"
+echo "****************************************************************"
+echo
+
 if [[ "$IS_DARWIN" -ne "0" ]]; then
 	"$SED" "$SED_OPTS" -e 's|libcryptopp.a $(TESTOBJS)|libcryptopp.dylib $(TESTOBJS)|g' GNUmakefile-symbols
 	"$SED" "$SED_OPTS" -e 's|$(TESTOBJS) ./libcryptopp.a |$(TESTOBJS) ./libcryptopp.dylib |g' GNUmakefile-symbols
@@ -219,15 +225,15 @@ else
 	"$SED" "$SED_OPTS" -e 's|$(TESTOBJS) ./libcryptopp.a |$(TESTOBJS) ./libcryptopp.so |g' GNUmakefile-symbols
 fi
 
-git diff --exit-code
-
+echo
 echo "****************************************************************"
-echo "Building library for $OLD_VERSION_TAG"
+echo "Building dynamic library for $OLD_VERSION_TAG"
 echo "****************************************************************"
 echo
 
 "$MAKE" "${MAKEARGS[@]}" -f GNUmakefile-symbols dynamic
 
+echo
 echo "****************************************************************"
 echo "Building cryptest.exe for $OLD_VERSION_TAG"
 echo "****************************************************************"
@@ -237,6 +243,7 @@ echo
 
 if [[ -f "cryptest.exe" ]]; then
 
+	echo
 	echo "****************************************************************"
 	echo "Running $OLD_VERSION_TAG cryptest.exe using $OLD_VERSION_TAG library"
 	echo "****************************************************************"
@@ -253,6 +260,7 @@ else
 	echo "Failed to make cryptest.exe"
 fi
 
+echo
 echo "****************************************************************"
 echo "Removing dynamic library for $OLD_VERSION_TAG"
 echo "****************************************************************"
@@ -262,6 +270,7 @@ rm -f *.o *.so *.dylib
 
 git checkout "$NEW_VERSION_TAG" -f &>/dev/null
 
+echo
 echo "****************************************************************"
 echo "Building dynamic library for $NEW_VERSION_TAG"
 echo "****************************************************************"
@@ -271,6 +280,7 @@ echo
 
 if [[ -f "cryptest.exe" ]]; then
 
+	echo
 	echo "****************************************************************"
 	echo "Running $OLD_VERSION_TAG cryptest.exe using $NEW_VERSION_TAG library"
 	echo "****************************************************************"
