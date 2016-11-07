@@ -9,8 +9,8 @@
 ############################################
 # Tags to test
 
-OLD_VERSION_TAG=CRYPTOPP_5_6_4
-NEW_VERSION_TAG=CRYPTOPP_5_6_5
+OLD_VERSION_TAG=CRYPTOPP_5_6_5
+NEW_VERSION_TAG=master
 
 ############################################
 # If repo is dirty, then promt first
@@ -18,6 +18,7 @@ NEW_VERSION_TAG=CRYPTOPP_5_6_5
 DIRTY=$(git diff --shortstat 2> /dev/null | tail -n1)
 if [[ ! (-z "$DIRTY") ]]; then
 
+	echo
 	echo "The local repo is dirty. Continuing will reset the repo and lose changes."
 	read -p "Type 'Y' to proceed. Proceed? " -n 1 -r
 	echo    # (optional) move to a new line
@@ -25,8 +26,19 @@ if [[ ! (-z "$DIRTY") ]]; then
 		[[ "$0" = "$BASH_SOURCE" ]] && exit 0 || return 0
 	fi
 else
+	echo
 	echo "The repo is clean. Proceeding..."
+	echo
 fi
+
+############################################
+
+echo "****************************************************************"
+echo "****************************************************************"
+echo "Testing '$OLD_VERSION_TAG' against '$NEW_VERSION_TAG'"
+echo "****************************************************************"
+echo "****************************************************************"
+echo
 
 ############################################
 # Setup tools and platforms
@@ -185,7 +197,6 @@ if [[ ("$CPU_COUNT" -ge "2" && "$MEM_SIZE" -ge "1280" && "$HAVE_SWAP" -ne "0") ]
 		CPU_COUNT=$(echo -n "$CPU_COUNT 2" | "$AWK" '{print int($1/$2)}')
 	fi
 	MAKEARGS=(-j "$CPU_COUNT")
-	echo "Using $MAKE -j $CPU_COUNT"
 fi
 
 ###############################################################################
@@ -213,12 +224,14 @@ git diff --exit-code
 echo "****************************************************************"
 echo "Building library for $OLD_VERSION_TAG"
 echo "****************************************************************"
+echo
 
 "$MAKE" "${MAKEARGS[@]}" -f GNUmakefile-symbols dynamic
 
 echo "****************************************************************"
 echo "Building cryptest.exe for $OLD_VERSION_TAG"
 echo "****************************************************************"
+echo
 
 "$MAKE" "${MAKEARGS[@]}" -f GNUmakefile-symbols cryptest.exe
 
@@ -227,6 +240,7 @@ if [[ -f "cryptest.exe" ]]; then
 	echo "****************************************************************"
 	echo "Running $OLD_VERSION_TAG cryptest.exe using $OLD_VERSION_TAG library"
 	echo "****************************************************************"
+	echo
 
 	if [[ "$IS_DARWIN" -ne "0" ]]; then
 		DYLD_LIBRARY_PATH="$PWD:$DYLD_LIBRARY_PATH" "$PWD/cryptest.exe" v 2>&1 | c++filt
@@ -242,6 +256,7 @@ fi
 echo "****************************************************************"
 echo "Removing dynamic library for $OLD_VERSION_TAG"
 echo "****************************************************************"
+echo
 
 rm -f *.o *.so *.dylib
 
@@ -250,6 +265,7 @@ git checkout "$NEW_VERSION_TAG" -f &>/dev/null
 echo "****************************************************************"
 echo "Building dynamic library for $NEW_VERSION_TAG"
 echo "****************************************************************"
+echo
 
 "$MAKE" "${MAKEARGS[@]}" -f GNUmakefile-symbols dynamic
 
@@ -258,6 +274,7 @@ if [[ -f "cryptest.exe" ]]; then
 	echo "****************************************************************"
 	echo "Running $OLD_VERSION_TAG cryptest.exe using $NEW_VERSION_TAG library"
 	echo "****************************************************************"
+	echo
 
 	if [[ "$IS_DARWIN" -ne "0" ]]; then
 		DYLD_LIBRARY_PATH="$PWD:$DYLD_LIBRARY_PATH" "$PWD/cryptest.exe" v 2>&1 | c++filt
@@ -272,4 +289,4 @@ fi
 
 git checkout master -f &>/dev/null
 
-[[ "$0" = "$BASH_SOURCE" ]] && exit 0 || return 0]
+[[ "$0" = "$BASH_SOURCE" ]] && exit 0 || return 0
