@@ -303,7 +303,7 @@ echo
 
 "$MAKE" "${MAKEARGS[@]}" -f GNUmakefile-symbols dynamic
 
-if [[ ! -f "cryptest.exe" ]]; then
+if [[ ! -f "$LIBNAME" ]]; then
 	echo "Failed to make $NEW_VERSION_TAG library"
 	[[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
 fi
