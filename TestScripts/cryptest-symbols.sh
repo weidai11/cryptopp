@@ -13,6 +13,22 @@ OLD_VERSION_TAG=CRYPTOPP_5_6_4
 NEW_VERSION_TAG=CRYPTOPP_5_6_5
 
 ############################################
+# If repo is dirty, then promt first
+
+DIRTY=$(git diff --shortstat 2> /dev/null | tail -n1)
+if [[ ! (-z "$DIRTY") ]]; then
+
+	echo "The local repo is dirty. Continuing will reset the repo and lose changes."
+	read -p "Type 'Y' to proceed. Proceed? " -n 1 -r
+	echo    # (optional) move to a new line
+	if [[ !($REPLY =~ ^[Yy]$) ]]; then
+		[[ "$0" = "$BASH_SOURCE" ]] && exit 0 || return 0
+	fi
+else
+	echo "The repo is clean. Proceeding..."
+fi
+
+############################################
 # Setup tools and platforms
 
 GREP=grep
@@ -255,3 +271,5 @@ else
 fi
 
 git checkout master -f &>/dev/null
+
+[[ "$0" = "$BASH_SOURCE" ]] && exit 0 || return 0]
