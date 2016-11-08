@@ -13,21 +13,21 @@ OLD_VERSION_TAG=CRYPTOPP_5_6_5
 NEW_VERSION_TAG=master
 
 ############################################
-# If repo is dirty, then promt first
+# If local repo is dirty, then promt first
 
 DIRTY=$(git diff --shortstat 2> /dev/null | tail -1)
 if [[ ! (-z "$DIRTY") ]]; then
 
 	echo
 	echo "The local repo is dirty. Continuing will reset the repo and lose changes."
-	read -p "Type 'Y' to proceed, and 'N' to exit. Proceed? " -n 1 -r
+	read -p "Type 'Y' to proceed or 'N' to exit. Proceed? " -n 1 -r
 	echo # (optional) move to a new line
 	if [[ !($REPLY =~ ^[Yy]$) ]]; then
 		[[ "$0" = "$BASH_SOURCE" ]] && exit 0 || return 0
 	fi
 else
 	echo
-	echo "The repo is clean. Proceeding..."
+	echo "The local repo is clean. Proceeding..."
 fi
 
 ############################################
