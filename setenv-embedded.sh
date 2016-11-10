@@ -13,6 +13,8 @@
 # See http://www.cryptopp.com/wiki/ARM_Embedded_(Command_Line) for details.
 # ====================================================================
 
+set -eu
+
 # Unset old options
 
 unset IS_CROSS_COMPILE
@@ -21,7 +23,7 @@ unset IS_IOS
 unset IS_ANDROID
 unset IS_ARM_EMBEDDED
 
-if [ -z "$ARM_EMBEDDED_TOOLCHAIN" ]; then
+if [ -z "${ARM_EMBEDDED_TOOLCHAIN-}" ]; then
 	ARM_EMBEDDED_TOOLCHAIN="/usr/bin"
 fi
 
