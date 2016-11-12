@@ -920,9 +920,12 @@ NAMESPACE_END
 #  define CRYPTOPP_NO_THROW
 #endif // CRYPTOPP_CXX11_NOEXCEPT
 
+// http://stackoverflow.com/a/13867690/608639
 #if defined(CRYPTOPP_CXX11_CONSTEXPR)
+#  define CRYPTOPP_STATIC_CONSTEXPR static constexpr
 #  define CRYPTOPP_CONSTEXPR constexpr
 #else
+#  define CRYPTOPP_STATIC_CONSTEXPR static const
 #  define CRYPTOPP_CONSTEXPR
 #endif // CRYPTOPP_CXX11_CONSTEXPR
 
