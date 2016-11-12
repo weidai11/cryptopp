@@ -1327,14 +1327,23 @@ public:
 
 	//! \brief Construct a StringSource
 	//! \param string C-String
-	//! \param pumpAll C-String
+	//! \param pumpAll flag indicating if source data should be pumped to its attached transformation
 	//! \param attachment an optional attached transformation
 	StringSource(const char *string, bool pumpAll, BufferedTransformation *attachment = NULL)
 		: SourceTemplate<StringStore>(attachment) {SourceInitialize(pumpAll, MakeParameters("InputBuffer", ConstByteArrayParameter(string)));}
-	//! binary byte array as source
+
+	//! \brief Construct a StringSource
+	//! \param string binary byte array
+	//! \param length size of the byte array
+	//! \param pumpAll flag indicating if source data should be pumped to its attached transformation
+	//! \param attachment an optional attached transformation
 	StringSource(const byte *string, size_t length, bool pumpAll, BufferedTransformation *attachment = NULL)
 		: SourceTemplate<StringStore>(attachment) {SourceInitialize(pumpAll, MakeParameters("InputBuffer", ConstByteArrayParameter(string, length)));}
-	//! std::string as source
+
+	//! \brief Construct a StringSource
+	//! \param string std::string
+	//! \param pumpAll flag indicating if source data should be pumped to its attached transformation
+	//! \param attachment an optional attached transformation
 	StringSource(const std::string &string, bool pumpAll, BufferedTransformation *attachment = NULL)
 		: SourceTemplate<StringStore>(attachment) {SourceInitialize(pumpAll, MakeParameters("InputBuffer", ConstByteArrayParameter(string)));}
 };
