@@ -87,10 +87,6 @@ and getting us started on the manual.
 #include "stdcpp.h"
 #include "trap.h"
 
-#if defined(CRYPTOPP_BSD_AVAILABLE) || defined(CRYPTOPP_UNIX_AVAILABLE)
-# include <signal.h>
-#endif
-
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(push)
 # pragma warning(disable: 4127 4189 4702)
