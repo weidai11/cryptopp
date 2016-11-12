@@ -487,7 +487,7 @@ struct BlockPaddingSchemeDef
 
 //! \class StreamTransformationFilter
 //! \brief Filter wrapper for StreamTransformation
-//! \details Filter wrapper for StreamTransformation. The filter will optionally handle padding/unpadding when needed
+//! \details StreamTransformationFilter is a filter wrapper for StreamTransformation. The filter will optionally handle padding/unpadding when needed
 class CRYPTOPP_DLL StreamTransformationFilter : public FilterWithBufferedInput, public BlockPaddingSchemeDef, private FilterPutSpaceHelper
 {
 public:
