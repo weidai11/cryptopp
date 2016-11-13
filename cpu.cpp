@@ -113,6 +113,7 @@ bool CpuId(word32 input, word32 output[4])
 # endif
 			: "=a" (output[0]), "=D" (output[1]), "=c" (output[2]), "=d" (output[3])
 			: "a" (input), "c" (0)
+			: "cc"
 		);
 	}
 
