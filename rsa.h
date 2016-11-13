@@ -157,7 +157,7 @@ public:
 //! \since Crypto++ 1.0
 struct CRYPTOPP_DLL RSA
 {
-	CRYPTOPP_CONSTEXPR static const char * CRYPTOPP_API StaticAlgorithmName() {return "RSA";}
+	CRYPTOPP_STATIC_CONSTEXPR char* const CRYPTOPP_API StaticAlgorithmName() {return "RSA";}
 	typedef RSAFunction PublicKey;
 	typedef InvertibleRSAFunction PrivateKey;
 };
@@ -189,7 +189,7 @@ struct RSASS : public TF_SS<STANDARD, H, RSA>
 //! \since Crypto++ 1.0
 struct CRYPTOPP_DLL RSA_ISO
 {
-	CRYPTOPP_CONSTEXPR static const char * CRYPTOPP_API StaticAlgorithmName() {return "RSA-ISO";}
+	CRYPTOPP_STATIC_CONSTEXPR char* const CRYPTOPP_API StaticAlgorithmName() {return "RSA-ISO";}
 	typedef RSAFunction_ISO PublicKey;
 	typedef InvertibleRSAFunction_ISO PrivateKey;
 };

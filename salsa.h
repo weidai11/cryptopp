@@ -22,7 +22,7 @@ NAMESPACE_BEGIN(CryptoPP)
 //! \brief Salsa20 stream cipher information
 struct Salsa20_Info : public VariableKeyLength<32, 16, 32, 16, SimpleKeyingInterface::UNIQUE_IV, 8>
 {
-	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "Salsa20";}
+	CRYPTOPP_STATIC_CONSTEXPR char* const StaticAlgorithmName() {return "Salsa20";}
 };
 
 //! \class Salsa20_Policy
@@ -58,7 +58,7 @@ struct Salsa20 : public Salsa20_Info, public SymmetricCipherDocumentation
 //! \brief XSalsa20 stream cipher information
 struct XSalsa20_Info : public FixedKeyLength<32, SimpleKeyingInterface::UNIQUE_IV, 24>
 {
-	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "XSalsa20";}
+	CRYPTOPP_STATIC_CONSTEXPR char* const StaticAlgorithmName() {return "XSalsa20";}
 };
 
 //! \class XSalsa20_Policy

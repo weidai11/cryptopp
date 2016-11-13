@@ -25,7 +25,7 @@ NAMESPACE_BEGIN(CryptoPP)
 template <unsigned int R>
 struct ChaCha_Info : public VariableKeyLength<32, 16, 32, 16, SimpleKeyingInterface::UNIQUE_IV, 8>, public FixedRounds<R>
 {
-	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {
+	CRYPTOPP_STATIC_CONSTEXPR char* const StaticAlgorithmName() {
 		return (R==8?"ChaCha8":(R==12?"ChaCha12":(R==20?"ChaCha20":"ChaCha")));
 	}
 };

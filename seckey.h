@@ -70,7 +70,7 @@ public:
 	//!   provided by a static function.
 	//! \param keylength the size of the key, in bytes
 	//! \details keylength is unused in the default implementation.
-	CRYPTOPP_CONSTEXPR static unsigned int StaticGetDefaultRounds(size_t keylength)
+	CRYPTOPP_STATIC_CONSTEXPR unsigned int StaticGetDefaultRounds(size_t keylength)
 	{
 		// Comma operator breaks Debug builds with GCC 4.0 - 4.6.
 		// Also see http://github.com/weidai11/cryptopp/issues/255
@@ -151,7 +151,7 @@ public:
 	//! \param keylength the size of the key, in bytes
 	//! \details The default implementation returns KEYLENGTH. keylength is unused
 	//!   in the default implementation.
-	CRYPTOPP_CONSTEXPR static size_t CRYPTOPP_API StaticGetValidKeyLength(size_t keylength)
+	CRYPTOPP_STATIC_CONSTEXPR size_t CRYPTOPP_API StaticGetValidKeyLength(size_t keylength)
 	{
 		// Comma operator breaks Debug builds with GCC 4.0 - 4.6.
 		// Also see http://github.com/weidai11/cryptopp/issues/255
@@ -261,7 +261,7 @@ public:
 	//!   then keylength is returned. Otherwise, the function returns keylength rounded
 	//!   \a down to the next smaller multiple of KEYLENGTH_MULTIPLE.
 	//! \details keylength is provided in bytes, not bits.
-	CRYPTOPP_CONSTEXPR static size_t CRYPTOPP_API StaticGetValidKeyLength(size_t keylength)
+	CRYPTOPP_STATIC_CONSTEXPR size_t CRYPTOPP_API StaticGetValidKeyLength(size_t keylength)
 		{return T::StaticGetValidKeyLength(keylength);}
 };
 

@@ -15,7 +15,7 @@ NAMESPACE_BEGIN(CryptoPP)
 //! \brief RC6 block cipher information
 struct RC6_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 16, 32, 8>, public VariableRounds<20>
 {
-	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "RC6";}
+	CRYPTOPP_STATIC_CONSTEXPR char* const StaticAlgorithmName() {return "RC6";}
 	typedef word32 RC6_WORD;
 };
 

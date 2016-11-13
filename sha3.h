@@ -36,7 +36,7 @@ public:
 	SHA3(unsigned int digestSize) : m_digestSize(digestSize) {Restart();}
 	unsigned int DigestSize() const {return m_digestSize;}
 	std::string AlgorithmName() const {return "SHA3-" + IntToString(m_digestSize*8);}
-	CRYPTOPP_CONSTEXPR static const char* StaticAlgorithmName() { return "SHA3"; }
+	CRYPTOPP_STATIC_CONSTEXPR char* const StaticAlgorithmName() { return "SHA3"; }
 	unsigned int OptimalDataAlignment() const {return GetAlignmentOf<word64>();}
 
 	void Update(const byte *input, size_t length);

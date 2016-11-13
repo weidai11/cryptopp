@@ -497,7 +497,7 @@ std::ostream& operator<<(std::ostream& out, const PolynomialMod2 &a)
 
 	static const char upper[]="0123456789ABCDEF";
 	static const char lower[]="0123456789abcdef";
-	const char* vec = (out.flags() & std::ios::uppercase) ? upper : lower;
+	const char* const vec = (out.flags() & std::ios::uppercase) ? upper : lower;
 
 	for (i=0; i*bits < a.BitCount(); i++)
 	{

@@ -17,7 +17,7 @@ NAMESPACE_BEGIN(CryptoPP)
 //! \since Crypto++ 5.6.0
 struct SEED_Info : public FixedBlockSize<16>, public FixedKeyLength<16>, public FixedRounds<16>
 {
-	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "SEED";}
+	CRYPTOPP_STATIC_CONSTEXPR char* const StaticAlgorithmName() {return "SEED";}
 };
 
 //! \class SEED

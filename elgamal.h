@@ -138,7 +138,7 @@ struct ElGamal
 {
 	typedef DL_CryptoSchemeOptions<ElGamal, ElGamalKeys, int, int, int> SchemeOptions;
 
-	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "ElgamalEnc/Crypto++Padding";}
+	CRYPTOPP_STATIC_CONSTEXPR char* const StaticAlgorithmName() {return "ElgamalEnc/Crypto++Padding";}
 
 	typedef SchemeOptions::GroupParameters GroupParameters;
 	//! implements PK_Encryptor interface

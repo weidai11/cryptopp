@@ -112,7 +112,7 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CFB_ModePolicy : public ModePolicyCommonTe
 {
 public:
 	IV_Requirement IVRequirement() const {return RANDOM_IV;}
-	CRYPTOPP_CONSTEXPR static const char * CRYPTOPP_API StaticAlgorithmName() {return "CFB";}
+	CRYPTOPP_STATIC_CONSTEXPR char* const CRYPTOPP_API StaticAlgorithmName() {return "CFB";}
 
 protected:
 	unsigned int GetBytesPerIteration() const {return m_feedbackSize;}
@@ -143,7 +143,7 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE OFB_ModePolicy : public ModePolicyCommonTe
 public:
 	bool CipherIsRandomAccess() const {return false;}
 	IV_Requirement IVRequirement() const {return UNIQUE_IV;}
-	CRYPTOPP_CONSTEXPR static const char * CRYPTOPP_API StaticAlgorithmName() {return "OFB";}
+	CRYPTOPP_STATIC_CONSTEXPR char* const CRYPTOPP_API StaticAlgorithmName() {return "OFB";}
 
 private:
 	unsigned int GetBytesPerIteration() const {return BlockSize();}
@@ -159,7 +159,7 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CTR_ModePolicy : public ModePolicyCommonTe
 public:
 	bool CipherIsRandomAccess() const {return true;}
 	IV_Requirement IVRequirement() const {return RANDOM_IV;}
-	CRYPTOPP_CONSTEXPR static const char * CRYPTOPP_API StaticAlgorithmName() {return "CTR";}
+	CRYPTOPP_STATIC_CONSTEXPR char* const CRYPTOPP_API StaticAlgorithmName() {return "CTR";}
 
 protected:
 	virtual void IncrementCounterBy256();
@@ -216,7 +216,7 @@ public:
 	IV_Requirement IVRequirement() const {return NOT_RESYNCHRONIZABLE;}
 	unsigned int OptimalBlockSize() const {return BlockSize() * m_cipher->OptimalNumberOfParallelBlocks();}
 	void ProcessData(byte *outString, const byte *inString, size_t length);
-	CRYPTOPP_CONSTEXPR static const char * CRYPTOPP_API StaticAlgorithmName() {return "ECB";}
+	CRYPTOPP_STATIC_CONSTEXPR char* const CRYPTOPP_API StaticAlgorithmName() {return "ECB";}
 };
 
 //! \class CBC_ModeBase
@@ -227,7 +227,7 @@ public:
 	IV_Requirement IVRequirement() const {return UNPREDICTABLE_RANDOM_IV;}
 	bool RequireAlignedInput() const {return false;}
 	unsigned int MinLastBlockSize() const {return 0;}
-	CRYPTOPP_CONSTEXPR static const char * CRYPTOPP_API StaticAlgorithmName() {return "CBC";}
+	CRYPTOPP_STATIC_CONSTEXPR char* const CRYPTOPP_API StaticAlgorithmName() {return "CBC";}
 };
 
 //! \class CBC_Encryption
@@ -246,7 +246,7 @@ public:
 	void SetStolenIV(byte *iv) {m_stolenIV = iv;}
 	unsigned int MinLastBlockSize() const {return BlockSize()+1;}
 	void ProcessLastBlock(byte *outString, const byte *inString, size_t length);
-	CRYPTOPP_CONSTEXPR static const char * CRYPTOPP_API StaticAlgorithmName() {return "CBC/CTS";}
+	CRYPTOPP_STATIC_CONSTEXPR char* const CRYPTOPP_API StaticAlgorithmName() {return "CBC/CTS";}
 
 protected:
 	void UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params)

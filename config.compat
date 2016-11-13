@@ -936,6 +936,7 @@ NAMESPACE_END
 #endif  // CRYPTOPP_CXX11_ALIGNAS
 
 // Hack... CRYPTOPP_CONSTANT is defined earlier, before C++11 constexpr availability is determined
+// http://stackoverflow.com/q/35213098/608639
 #if defined(CRYPTOPP_CXX11_CONSTEXPR)
 # undef CRYPTOPP_CONSTANT
 # define CRYPTOPP_CONSTANT(x) constexpr static int x;

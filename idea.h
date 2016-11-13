@@ -16,7 +16,7 @@ NAMESPACE_BEGIN(CryptoPP)
 //! \since Crypto++ 1.0
 struct IDEA_Info : public FixedBlockSize<8>, public FixedKeyLength<16>, public FixedRounds<8>
 {
-	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return "IDEA";}
+	CRYPTOPP_STATIC_CONSTEXPR char* const StaticAlgorithmName() {return "IDEA";}
 };
 
 //! \class IDEA

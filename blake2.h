@@ -41,7 +41,7 @@ struct BLAKE2_Info : public VariableKeyLength<(T_64bit ? 64 : 32),0,(T_64bit ? 6
 	CRYPTOPP_CONSTANT(SALTSIZE = (T_64bit ? 16 : 8))
 	CRYPTOPP_CONSTANT(PERSONALIZATIONSIZE = (T_64bit ? 16 : 8))
 
-	CRYPTOPP_CONSTEXPR static const	char *StaticAlgorithmName() {return (T_64bit ? "BLAKE2b" : "BLAKE2s");}
+	CRYPTOPP_STATIC_CONSTEXPR char* const StaticAlgorithmName() {return (T_64bit ? "BLAKE2b" : "BLAKE2s");}
 };
 
 //! \class BLAKE2_ParameterBlock
@@ -180,7 +180,7 @@ public:
 
 	//! \brief Retrieve the static algorithm name
 	//! \returns the algorithm name (BLAKE2s or BLAKE2b)
-	CRYPTOPP_CONSTEXPR static const char *StaticAlgorithmName() {return BLAKE2_Info<T_64bit>::StaticAlgorithmName();}
+	CRYPTOPP_STATIC_CONSTEXPR char* const StaticAlgorithmName() {return BLAKE2_Info<T_64bit>::StaticAlgorithmName();}
 
 	//! \brief Retrieve the object's name
 	//! \returns the object's algorithm name following RFC 7693
