@@ -61,11 +61,21 @@ LD = link.exe
 AR = lib.exe
 RM = del.exe
 
-CXXFLAGS = /nologo /W4 /wd4511 /D_MBCS /Zi /TP /GR /EHsc /MD /FI sdkddkver.h /FI winapifamily.h
+CXXFLAGS = /nologo /W4 /wd4511 /D_MBCS /Zi /TP /GR /EHsc /MD
 LDFLAGS = /nologo /SUBSYSTEM:CONSOLE
 ARFLAGS = /nologo
 LDLIBS =
 
+# Attempt to detect when <sdkddkver.h> and <winapifamily.h> are avilable
+#   http://stackoverflow.com/q/40577415 ?
+!IF "$(WINDOWSSDKDIR)" != "" || "$(WINDOWSSDKLIBVERSION)" != ""
+CXXFLAGS = $(CXXFLAGS) /FI sdkddkver.h
+!ENDIF
+!IF "$(WINDOWSPHONEKITDIR)" != "" || "$(UNIVERSALCRTSDKDIR)" != "" || "$(UCRTVERSION)" != ""
+CXXFLAGS = $(CXXFLAGS) /FI winapifamily.h
+!ENDIF
+
+# Check for empty Platform and Processor
 !IF "$(PLATFORM)" == ""
 !IF "$(PROCESSOR_ARCHITECTURE)" == "x86"
 PLATFORM = x86
