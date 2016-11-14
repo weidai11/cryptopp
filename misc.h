@@ -9,9 +9,9 @@
 
 #include "config.h"
 
-#if !CRYPTOPP_DOXYGEN_PROCESSING
+#if !defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
-#if CRYPTOPP_MSC_VERSION
+#if (CRYPTOPP_MSC_VERSION)
 # pragma warning(push)
 # pragma warning(disable: 4146 4514)
 # if (CRYPTOPP_MSC_VERSION >= 1400)
@@ -178,7 +178,7 @@ class CRYPTOPP_DLL Empty
 {
 };
 
-#if !CRYPTOPP_DOXYGEN_PROCESSING
+#if !defined(CRYPTOPP_DOXYGEN_PROCESSING)
 template <class BASE1, class BASE2>
 class CRYPTOPP_NO_VTABLE TwoBases : public BASE1, public BASE2
 {
@@ -2395,7 +2395,7 @@ inline T SafeLeftShift(T value)
 
 NAMESPACE_END
 
-#if CRYPTOPP_MSC_VERSION
+#if (CRYPTOPP_MSC_VERSION)
 # pragma warning(pop)
 #endif
 
