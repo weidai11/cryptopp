@@ -1400,14 +1400,14 @@ public:
 
 		//! Input a 16-bit word for processing.
 		//! \param value the 16-bit value to be processed
-		//! \param order the  ByteOrder in which the word should be processed
+		//! \param order the ByteOrder of the value to be processed.
 		//! \param blocking specifies whether the object should block when processing input
 		//! \return the number of bytes that remain in the block (i.e., bytes not processed)
 		size_t PutWord16(word16 value, ByteOrder order=BIG_ENDIAN_ORDER, bool blocking=true);
 
 		//! Input a 32-bit word for processing.
 		//! \param value the 32-bit value to be processed.
-		//! \param order the  ByteOrder in which the word should be processed.
+		//! \param order the ByteOrder of the value to be processed.
 		//! \param blocking specifies whether the object should block when processing input.
 		//! \return the number of bytes that remain in the block (i.e., bytes not processed)
 		size_t PutWord32(word32 value, ByteOrder order=BIG_ENDIAN_ORDER, bool blocking=true);
@@ -1627,21 +1627,21 @@ public:
 
 		//! \brief Retrieve a 16-bit word
 		//! \param value the 16-bit value to be retrieved
-		//! \param order the  ByteOrder in which the word should be retrieved
+		//! \param order the ByteOrder of the value to be processed.
 		//! \return the number of bytes consumed during the call.
 		//! \details Use the return value of  GetWord16 to detect short reads.
 		size_t GetWord16(word16 &value, ByteOrder order=BIG_ENDIAN_ORDER);
 
 		//! \brief Retrieve a 32-bit word
 		//! \param value the 32-bit value to be retrieved
-		//! \param order the  ByteOrder in which the word should be retrieved
+		//! \param order the ByteOrder of the value to be processed.
 		//! \return the number of bytes consumed during the call.
 		//! \details Use the return value of  GetWord16 to detect short reads.
 		size_t GetWord32(word32 &value, ByteOrder order=BIG_ENDIAN_ORDER);
 
 		//! \brief Peek a 16-bit word
 		//! \param value the 16-bit value to be retrieved
-		//! \param order the  ByteOrder in which the word should be retrieved
+		//! \param order the ByteOrder of the value to be processed.
 		//! \return the number of bytes consumed during the call.
 		//! \details Peek does not consume bytes in the stream. Use the return value
 		//!    of  GetWord16 to detect short reads.
@@ -1649,7 +1649,7 @@ public:
 
 		//! \brief Peek a 32-bit word
 		//! \param value the 32-bit value to be retrieved
-		//! \param order the  ByteOrder in which the word should be retrieved
+		//! \param order the ByteOrder of the value to be processed.
 		//! \return the number of bytes consumed during the call.
 		//! \details Peek does not consume bytes in the stream. Use the return value
 		//!    of  GetWord16 to detect short reads.
@@ -1900,7 +1900,7 @@ public:
 		//! \brief Input a 16-bit word for processing on a channel.
 		//! \param channel the channel to process the data.
 		//! \param value the 16-bit value to be processed.
-		//! \param order the  ByteOrder in which the word should be processed.
+		//! \param order the ByteOrder of the value to be processed.
 		//! \param blocking specifies whether the object should block when processing input.
 		//! \return 0 indicates all bytes were processed during the call. Non-0 indicates the
 		//!   number of bytes that were \a not processed.
@@ -1909,7 +1909,7 @@ public:
 		//! \brief Input a 32-bit word for processing on a channel.
 		//! \param channel the channel to process the data.
 		//! \param value the 32-bit value to be processed.
-		//! \param order the  ByteOrder in which the word should be processed.
+		//! \param order the ByteOrder of the value to be processed.
 		//! \param blocking specifies whether the object should block when processing input.
 		//! \return 0 indicates all bytes were processed during the call. Non-0 indicates the
 		//!   number of bytes that were \a not processed.

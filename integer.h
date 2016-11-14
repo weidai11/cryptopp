@@ -115,7 +115,7 @@ public:
 
 		//! \brief Convert from a C-string
 		//! \param str C-string value
-		//! \param order byte order
+		//! \param order the ByteOrder of the string to be processed
 		//! \details \p str can be in base 2, 8, 10, or 16. Base is determined by a case
 		//!   insensitive suffix of 'h', 'o', or 'b'.  No suffix means base 10.
 		//! \details Byte order was added at Crypto++ 5.7 to allow use of little-endian
@@ -124,7 +124,7 @@ public:
 
 		//! \brief Convert from a wide C-string
 		//! \param str wide C-string value
-		//! \param order byte order
+		//! \param order the ByteOrder of the string to be processed
 		//! \details \p str can be in base 2, 8, 10, or 16. Base is determined by a case
 		//!   insensitive suffix of 'h', 'o', or 'b'.  No suffix means base 10.
 		//! \details Byte order was added at Crypto++ 5.7 to allow use of little-endian
@@ -135,7 +135,7 @@ public:
 		//! \param encodedInteger big-endian byte array
 		//! \param byteCount length of the byte array
 		//! \param sign enumeration indicating Signedness
-		//! \param order byte order
+		//! \param order the ByteOrder of the array to be processed
 		//! \details Byte order was added at Crypto++ 5.7 to allow use of little-endian
 		//!   integers with curve25519, Poly1305 and Microsoft CAPI.
 		Integer(const byte *encodedInteger, size_t byteCount, Signedness sign=UNSIGNED, ByteOrder order = BIG_ENDIAN_ORDER);
@@ -144,7 +144,7 @@ public:
 		//! \param bt BufferedTransformation object with big-endian byte array
 		//! \param byteCount length of the byte array
 		//! \param sign enumeration indicating Signedness
-		//! \param order byte order
+		//! \param order the ByteOrder of the data to be processed
 		//! \details Byte order was added at Crypto++ 5.7 to allow use of little-endian
 		//!   integers with curve25519, Poly1305 and Microsoft CAPI.
 		Integer(BufferedTransformation &bt, size_t byteCount, Signedness sign=UNSIGNED, ByteOrder order = BIG_ENDIAN_ORDER);

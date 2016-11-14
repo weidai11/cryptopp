@@ -1853,7 +1853,7 @@ inline T BitReverse(T value)
 
 //! \brief Reverses bytes in a value depending upon endianess
 //! \tparam T the class or type
-//! \param order the ByteOrder the data is represented
+//! \param order the ByteOrder of the data
 //! \param value the value to conditionally reverse
 //! \details Internally, the ConditionalByteReverse calls NativeByteOrderIs.
 //!   If order matches native byte order, then the original value is returned.
@@ -1910,7 +1910,7 @@ void ByteReverse(T *out, const T *in, size_t byteCount)
 
 //! \brief Conditionally reverses bytes in an element from an array of elements
 //! \tparam T the class or type
-//! \param order the ByteOrder the data is represented
+//! \param order the ByteOrder of the data
 //! \param out the output array of elements
 //! \param in the input array of elements
 //! \param byteCount the byte count of the arrays
@@ -2113,15 +2113,25 @@ inline void UnalignedbyteNonTemplate(ByteOrder order, byte *block, word64 value,
 }
 #endif	// #ifndef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
 
+//! \brief Access a block of memory
+//! \tparam T class or type
+//! \param assumeAligned flag indicating alignment
+//! \param order the ByteOrder of the data
+//! \param block the byte buffer to be processed
+//! \returns the word in the specified byte order
+//! \details GetWord() provides alternate read access to a block of memory. The flag assumeAligned indicates
+//!   if the memory block is aligned for class or type T. The enumeration ByteOrder is BIG_ENDIAN_ORDER or
+//!   LITTLE_ENDIAN_ORDER.
+//! \details An example of reading two word32 values from a block of memory is shown below. <tt>w</tt>
+//!   will be <tt>0x03020100</tt>.
+//! <pre>
+//!    word32 w;
+//!    byte buffer[4] = {0,1,2,3};
+//!    w = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, buffer);
+//! </pre>
 template <class T>
 inline T GetWord(bool assumeAligned, ByteOrder order, const byte *block)
 {
-//#ifndef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
-//	if (!assumeAligned)
-//		return UnalignedGetWordNonTemplate(order, block, (T*)NULL);
-//	CRYPTOPP_ASSERT(IsAligned<T>(block));
-//#endif
-//	return ConditionalByteReverse(order, *reinterpret_cast<const T *>(block));
 	CRYPTOPP_UNUSED(assumeAligned);
 #ifdef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
 	return ConditionalByteReverse(order, *reinterpret_cast<const T *>((const void *)block));
@@ -2132,12 +2142,38 @@ inline T GetWord(bool assumeAligned, ByteOrder order, const byte *block)
 #endif
 }
 
+//! \brief Access a block of memory
+//! \tparam T class or type
+//! \param assumeAligned flag indicating alignment
+//! \param order the ByteOrder of the data
+//! \param result the word in the specified byte order
+//! \param block the byte buffer to be processed
+//! \details GetWord() provides alternate read access to a block of memory. The flag assumeAligned indicates
+//!   if the memory block is aligned for class or type T. The enumeration ByteOrder is BIG_ENDIAN_ORDER or
+//!   LITTLE_ENDIAN_ORDER.
+//! \details An example of reading two word32 values from a block of memory is shown below. <tt>w</tt>
+//!   will be <tt>0x03020100</tt>.
+//! <pre>
+//!    word32 w;
+//!    byte buffer[4] = {0,1,2,3};
+//!    w = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, buffer);
+//! </pre>
 template <class T>
 inline void GetWord(bool assumeAligned, ByteOrder order, T &result, const byte *block)
 {
 	result = GetWord<T>(assumeAligned, order, block);
 }
 
+//! \brief Access a block of memory
+//! \tparam T class or type
+//! \param assumeAligned flag indicating alignment
+//! \param order the ByteOrder of the data
+//! \param block the destination byte buffer
+//! \param value the word in the specified byte order
+//! \param xorBlock an optional byte buffer to xor
+//! \details PutWord() provides alternate write access to a block of memory. The flag assumeAligned indicates
+//!   if the memory block is aligned for class or type T. The enumeration ByteOrder is BIG_ENDIAN_ORDER or
+//!   LITTLE_ENDIAN_ORDER.
 template <class T>
 inline void PutWord(bool assumeAligned, ByteOrder order, byte *block, T value, const byte *xorBlock = NULL)
 {
@@ -2145,10 +2181,10 @@ inline void PutWord(bool assumeAligned, ByteOrder order, byte *block, T value, c
 #ifdef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
 	*reinterpret_cast<T *>((void *)block) = ConditionalByteReverse(order, value) ^ (xorBlock ? *reinterpret_cast<const T *>((const void *)xorBlock) : 0);
 #else
-	T t1, t2 = 0;
+	T t1, t2;
 	t1 = ConditionalByteReverse(order, value);
-	if (xorBlock) memcpy(&t2, xorBlock, sizeof(T));
-	memmove(block, &(t1 ^= t2), sizeof(T));
+	if (xorBlock) {memcpy(&t2, xorBlock, sizeof(T)); t1 ^= t2;}
+	memcpy(block, &t1, sizeof(T));
 #endif
 }
 
