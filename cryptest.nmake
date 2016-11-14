@@ -61,7 +61,7 @@ LD = link.exe
 AR = lib.exe
 RM = del.exe
 
-CXXFLAGS = /nologo /W4 /wd4511 /D_MBCS /Zi /TP /GR /EHsc /MD
+CXXFLAGS = /nologo /W4 /wd4511 /wd4156 /D_MBCS /Zi /TP /GR /EHsc /MD
 LDFLAGS = /nologo /SUBSYSTEM:CONSOLE
 ARFLAGS = /nologo
 LDLIBS =
@@ -100,6 +100,7 @@ AS = ml.exe
 ASFLAGS = /nologo /D_M_X86 /W3 /Cx /Zi /safeseh
 LIB_SRCS = $(LIB_SRCS) rdrand.cpp rdrand.asm
 LIB_OBJS = $(LIB_OBJS) rdrand.obj rdrand-x86.obj
+LDFLAGS = $(LDFLAGS) /MACHINE:X86
 LDLIBS = $(LDLIBS) ws2_32.lib kernel32.lib
 !ENDIF
 
@@ -112,6 +113,7 @@ AS = ml64.exe
 ASFLAGS = /nologo /D_M_X64 /W3 /Cx /Zi
 LIB_SRCS = $(LIB_SRCS) rdrand.cpp rdrand.asm
 LIB_OBJS = $(LIB_OBJS) rdrand.obj rdrand-x64.obj x64masm.obj x64dll.obj
+LDFLAGS = $(LDFLAGS) /MACHINE:X64
 LDLIBS = $(LDLIBS) ws2_32.lib kernel32.lib
 !ENDIF
 
