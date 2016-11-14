@@ -2141,13 +2141,6 @@ inline void GetWord(bool assumeAligned, ByteOrder order, T &result, const byte *
 template <class T>
 inline void PutWord(bool assumeAligned, ByteOrder order, byte *block, T value, const byte *xorBlock = NULL)
 {
-//#ifndef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
-//	if (!assumeAligned)
-//		return UnalignedbyteNonTemplate(order, block, value, xorBlock);
-//	CRYPTOPP_ASSERT(IsAligned<T>(block));
-//	CRYPTOPP_ASSERT(IsAligned<T>(xorBlock));
-//#endif
-//	*reinterpret_cast<T *>(block) = ConditionalByteReverse(order, value) ^ (xorBlock ? *reinterpret_cast<const T *>(xorBlock) : 0);
 	CRYPTOPP_UNUSED(assumeAligned);
 #ifdef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
 	*reinterpret_cast<T *>((void *)block) = ConditionalByteReverse(order, value) ^ (xorBlock ? *reinterpret_cast<const T *>((const void *)xorBlock) : 0);
