@@ -72,14 +72,7 @@ public:
 	//! \details keylength is unused in the default implementation.
 	CRYPTOPP_STATIC_CONSTEXPR unsigned int StaticGetDefaultRounds(size_t keylength)
 	{
-		// Comma operator breaks Debug builds with GCC 4.0 - 4.6.
-		// Also see http://github.com/weidai11/cryptopp/issues/255
-#if defined(CRYPTOPP_CXX11_CONSTEXPR)
 		return CRYPTOPP_UNUSED(keylength), static_cast<unsigned int>(DEFAULT_ROUNDS);
-#else
-		CRYPTOPP_UNUSED(keylength);
-		return static_cast<unsigned int>(DEFAULT_ROUNDS);
-#endif
 	}
 
 protected:
@@ -153,14 +146,7 @@ public:
 	//!   in the default implementation.
 	CRYPTOPP_STATIC_CONSTEXPR size_t CRYPTOPP_API StaticGetValidKeyLength(size_t keylength)
 	{
-		// Comma operator breaks Debug builds with GCC 4.0 - 4.6.
-		// Also see http://github.com/weidai11/cryptopp/issues/255
-#if defined(CRYPTOPP_CXX11_CONSTEXPR)
 		return CRYPTOPP_UNUSED(keylength), static_cast<size_t>(KEYLENGTH);
-#else
-		CRYPTOPP_UNUSED(keylength);
-		return static_cast<size_t>(KEYLENGTH);
-#endif
 	}
 };
 
@@ -212,18 +198,11 @@ public:
 	//!   then keylength is returned. Otherwise, the function returns keylength rounded
 	//!   \a down to the next smaller multiple of KEYLENGTH_MULTIPLE.
 	//! \details keylength is provided in bytes, not bits.
-	// TODO: Figure out how to make this CRYPTOPP_CONSTEXPR
-	static size_t CRYPTOPP_API StaticGetValidKeyLength(size_t keylength)
+	CRYPTOPP_STATIC_CONSTEXPR size_t CRYPTOPP_API StaticGetValidKeyLength(size_t keylength)
 	{
-		if (keylength < (size_t)MIN_KEYLENGTH)
-			return MIN_KEYLENGTH;
-		else if (keylength > (size_t)MAX_KEYLENGTH)
-			return (size_t)MAX_KEYLENGTH;
-		else
-		{
-			keylength += KEYLENGTH_MULTIPLE-1;
-			return keylength - keylength%KEYLENGTH_MULTIPLE;
-		}
+		return (keylength <= N) ? N :
+			(keylength >= M) ? M :
+			(keylength+Q-1) - (keylength+Q-1)%Q;
 	}
 };
 
