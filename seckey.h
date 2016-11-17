@@ -55,7 +55,7 @@ public:
 //! \brief Inherited by algorithms with variable number of rounds
 //! \tparam D Default number of rounds
 //! \tparam N Minimum number of rounds
-//! \tparam D Maximum number of rounds
+//! \tparam M Maximum number of rounds
 template <unsigned int D, unsigned int N=1, unsigned int M=INT_MAX>		// use INT_MAX here because enums are treated as signed ints
 class VariableRounds
 {
@@ -155,7 +155,7 @@ public:
 //! \tparam D Default key length, in bytes
 //! \tparam N Minimum key length, in bytes
 //! \tparam M Maximum key length, in bytes
-//! \tparam M Default key length multiple, in bytes. The default multiple is 1.
+//! \tparam Q Default key length multiple, in bytes. The default multiple is 1.
 //! \tparam IV_REQ the \ref SimpleKeyingInterface::IV_Requirement "IV requirements"
 //! \tparam IV_L default IV length, in bytes. The default length is 0.
 //! \sa SimpleKeyingInterface
