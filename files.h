@@ -84,18 +84,18 @@ public:
 	typedef FileStore::OpenErr OpenErr;
 	typedef FileStore::ReadErr ReadErr;
 
-	//! \brief Construct a FileStore
+	//! \brief Construct a FileSource
 	FileSource(BufferedTransformation *attachment = NULL)
 		: SourceTemplate<FileStore>(attachment) {}
 
-	//! \brief Construct a FileStore
+	//! \brief Construct a FileSource
 	//! \param in an existing stream
 	//! \param pumpAll flag indicating if source data should be pumped to its attached transformation
 	//! \param attachment an optional attached transformation
 	FileSource(std::istream &in, bool pumpAll, BufferedTransformation *attachment = NULL)
 		: SourceTemplate<FileStore>(attachment) {SourceInitialize(pumpAll, MakeParameters(Name::InputStreamPointer(), &in));}
 
-	//! \brief Construct a FileStore
+	//! \brief Construct a FileSource
 	//! \param filename the narrow name of the file to open
 	//! \param pumpAll flag indicating if source data should be pumped to its attached transformation
 	//! \param attachment an optional attached transformation
