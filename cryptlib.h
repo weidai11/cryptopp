@@ -592,7 +592,7 @@ public:
 		{SetKeyWithIV(key, length, iv, IVSize());}
 
 	//! \brief Secure IVs requirements as enumerated values.
-	//! \details Provides secure IV requirements as a monotomically increasing enumerated values. Requirements can be
+	//! \details Provides secure IV requirements as a monotonically increasing enumerated values. Requirements can be
 	//!    compared using less than (&lt;) and greater than (&gt;). For example, <tt>UNIQUE_IV &lt; RANDOM_IV</tt>
 	//!    and <tt>UNPREDICTABLE_RANDOM_IV &gt; RANDOM_IV</tt>.
 	//! \sa IsResynchronizable(), CanUseRandomIVs(), CanUsePredictableIVs(), CanUseStructuredIVs()

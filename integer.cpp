@@ -3738,6 +3738,84 @@ Integer& Integer::operator--()
 	return *this;
 }
 
+// This is a bit operation. We set sign to POSITIVE, so there's no need to
+//  worry about negative zero. Also see http://stackoverflow.com/q/11644362.
+Integer Integer::And(const Integer& t) const
+{
+	if (this == &t)
+	{
+		return AbsoluteValue();
+	}
+	else if (WordCount() >= t.WordCount())
+	{
+		Integer result(t);
+		AndWords(result.reg, reg, t.WordCount());
+
+		result.sign = POSITIVE;
+		return result;
+	}
+	else // WordCount() < t.WordCount()
+	{
+		Integer result(*this);
+		AndWords(result.reg, t.reg, WordCount());
+
+		result.sign = POSITIVE;
+		return result;
+	}
+}
+
+// This is a bit operation. We set sign to POSITIVE, so there's no need to
+//  worry about negative zero. Also see http://stackoverflow.com/q/11644362.
+Integer Integer::Or(const Integer& t) const
+{
+	if (this == &t)
+	{
+		return AbsoluteValue();
+	}
+	else if (WordCount() >= t.WordCount())
+	{
+		Integer result(*this);
+		OrWords(result.reg, t.reg, t.WordCount());
+
+		result.sign = POSITIVE;
+		return result;
+	}
+	else // WordCount() < t.WordCount()
+	{
+		Integer result(t);
+		OrWords(result.reg, reg, WordCount());
+
+		result.sign = POSITIVE;
+		return result;
+	}
+}
+
+// This is a bit operation. We set sign to POSITIVE, so there's no need to
+//  worry about negative zero. Also see http://stackoverflow.com/q/11644362.
+Integer Integer::Xor(const Integer& t) const
+{
+	if (this == &t)
+	{
+		return Integer::Zero();
+	}
+	else if (WordCount() >= t.WordCount())
+	{
+		Integer result(*this);
+		XorWords(result.reg, t.reg, t.WordCount());
+
+		result.sign = POSITIVE;
+		return result;
+	}
+	else // WordCount() < t.WordCount()
+	{
+		Integer result(t);
+		XorWords(result.reg, reg, WordCount());
+
+		result.sign = POSITIVE;
+		return result;
+	}
+}
+
 void PositiveAdd(Integer &sum, const Integer &a, const Integer& b)
 {
 	// Profiling tells us the original second Else If was dominant, so it was promoted to the first If statement.
@@ -3929,6 +4007,64 @@ Integer& Integer::operator>>=(size_t n)
 		ShiftWordsRightByBits(reg, wordCount-shiftWords, shiftBits);
 	if (IsNegative() && WordCount()==0)   // avoid -0
 		*this = Zero();
+	return *this;
+}
+
+Integer& Integer::operator&=(const Integer& t)
+{
+	if (this != &t)
+	{
+		const size_t size = STDMIN(WordCount(), t.WordCount());
+		reg.resize(size);
+		AndWords(reg, t.reg, size);
+	}
+	sign = POSITIVE;
+	return *this;
+}
+
+Integer& Integer::operator|=(const Integer& t)
+{
+	if (this != &t)
+	{
+		if (WordCount() >= t.WordCount())
+		{
+			OrWords(reg, t.reg, t.WordCount());
+		}
+		else  // WordCount() < t.WordCount()
+		{
+			const size_t head = WordCount();
+			const size_t tail = t.WordCount() - WordCount();
+			reg.resize(head+tail);
+			OrWords(reg, t.reg, head);
+			CopyWords(reg+head,t.reg+head,tail);
+		}
+	}
+	sign = POSITIVE;
+	return *this;
+}
+
+Integer& Integer::operator^=(const Integer& t)
+{
+	if (this == &t)
+	{
+		*this = Zero();
+	}
+	else
+	{
+		if (WordCount() >= t.WordCount())
+		{
+			XorWords(reg, t.reg, t.WordCount());
+		}
+		else  // WordCount() < t.WordCount()
+		{
+			const size_t head = WordCount();
+			const size_t tail = t.WordCount() - WordCount();
+			reg.resize(head+tail);
+			XorWords(reg, t.reg, head);
+			CopyWords(reg+head,t.reg+head,tail);
+		}
+	}
+	sign = POSITIVE;
 	return *this;
 }
 

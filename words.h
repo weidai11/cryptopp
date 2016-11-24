@@ -53,6 +53,18 @@ inline void AndWords(word *r, const word *a, size_t n)
 		r[i] &= a[i];
 }
 
+inline void OrWords(word *r, const word *a, const word *b, size_t n)
+{
+	for (size_t i=0; i<n; i++)
+		r[i] = a[i] | b[i];
+}
+
+inline void OrWords(word *r, const word *a, size_t n)
+{
+	for (size_t i=0; i<n; i++)
+		r[i] |= a[i];
+}
+
 inline word ShiftWordsLeftByBits(word *r, size_t n, unsigned int shiftBits)
 {
 	CRYPTOPP_ASSERT (shiftBits<WORD_BITS);
