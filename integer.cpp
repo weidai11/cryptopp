@@ -4014,7 +4014,7 @@ Integer& Integer::operator&=(const Integer& t)
 {
 	if (this != &t)
 	{
-		const size_t size = STDMIN(WordCount(), t.WordCount());
+		const size_t size = STDMIN(reg.size(), t.reg.size());
 		reg.resize(size);
 		AndWords(reg, t.reg, size);
 	}
@@ -4026,14 +4026,14 @@ Integer& Integer::operator|=(const Integer& t)
 {
 	if (this != &t)
 	{
-		if (WordCount() >= t.WordCount())
+		if (reg.size() >= t.reg.size())
 		{
-			OrWords(reg, t.reg, t.WordCount());
+			OrWords(reg, t.reg, t.reg.size());
 		}
-		else  // WordCount() < t.WordCount()
+		else  // reg.size() < t.reg.size()
 		{
-			const size_t head = WordCount();
-			const size_t tail = t.WordCount() - WordCount();
+			const size_t head = reg.size();
+			const size_t tail = t.reg.size() - reg.size();
 			reg.resize(head+tail);
 			OrWords(reg, t.reg, head);
 			CopyWords(reg+head,t.reg+head,tail);
@@ -4051,14 +4051,14 @@ Integer& Integer::operator^=(const Integer& t)
 	}
 	else
 	{
-		if (WordCount() >= t.WordCount())
+		if (reg.size() >= t.reg.size())
 		{
-			XorWords(reg, t.reg, t.WordCount());
+			XorWords(reg, t.reg, t.reg.size());
 		}
-		else  // WordCount() < t.WordCount()
+		else  // reg.size() < t.reg.size()
 		{
-			const size_t head = WordCount();
-			const size_t tail = t.WordCount() - WordCount();
+			const size_t head = reg.size();
+			const size_t tail = t.reg.size() - reg.size();
 			reg.resize(head+tail);
 			XorWords(reg, t.reg, head);
 			CopyWords(reg+head,t.reg+head,tail);
