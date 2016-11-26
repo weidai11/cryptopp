@@ -3746,18 +3746,18 @@ Integer Integer::And(const Integer& t) const
 	{
 		return AbsoluteValue();
 	}
-	else if (WordCount() >= t.WordCount())
+	else if (reg.size() >= t.reg.size())
 	{
 		Integer result(t);
-		AndWords(result.reg, reg, t.WordCount());
+		AndWords(result.reg, reg, t.reg.size());
 
 		result.sign = POSITIVE;
 		return result;
 	}
-	else // WordCount() < t.WordCount()
+	else // reg.size() < t.reg.size()
 	{
 		Integer result(*this);
-		AndWords(result.reg, t.reg, WordCount());
+		AndWords(result.reg, t.reg, reg.size());
 
 		result.sign = POSITIVE;
 		return result;
@@ -3772,18 +3772,18 @@ Integer Integer::Or(const Integer& t) const
 	{
 		return AbsoluteValue();
 	}
-	else if (WordCount() >= t.WordCount())
+	else if (reg.size() >= t.reg.size())
 	{
 		Integer result(*this);
-		OrWords(result.reg, t.reg, t.WordCount());
+		OrWords(result.reg, t.reg, t.reg.size());
 
 		result.sign = POSITIVE;
 		return result;
 	}
-	else // WordCount() < t.WordCount()
+	else // reg.size() < t.reg.size()
 	{
 		Integer result(t);
-		OrWords(result.reg, reg, WordCount());
+		OrWords(result.reg, reg, reg.size());
 
 		result.sign = POSITIVE;
 		return result;
@@ -3798,18 +3798,18 @@ Integer Integer::Xor(const Integer& t) const
 	{
 		return Integer::Zero();
 	}
-	else if (WordCount() >= t.WordCount())
+	else if (reg.size() >= t.reg.size())
 	{
 		Integer result(*this);
-		XorWords(result.reg, t.reg, t.WordCount());
+		XorWords(result.reg, t.reg, t.reg.size());
 
 		result.sign = POSITIVE;
 		return result;
 	}
-	else // WordCount() < t.WordCount()
+	else // reg.size() < t.reg.size()
 	{
 		Integer result(t);
-		XorWords(result.reg, reg, WordCount());
+		XorWords(result.reg, reg, reg.size());
 
 		result.sign = POSITIVE;
 		return result;
