@@ -7,9 +7,9 @@
 //! \details Poly1305-AES is a state-of-the-art message-authentication code suitable for a wide
 //!   variety of applications. Poly1305-AES computes a 16-byte authenticator of a variable-length
 //!   message, using a 16-byte AES key, a 16-byte additional key, and a 16-byte nonce.
-//! \details Each message must use a uniqus security context, which means either the key or nonce
-//!   must be changed between message authenticators. It can be accomplished in one of two ways.
-//!   First, you can create a Poly1305 object with a key and nonce each time its needed as shown below.
+//! \details Each message must use a unique security context, which means either the key or nonce
+//!   must be changed after each message. It can be accomplished in one of two ways. First, you
+//!   can create a new Poly1305 object with a key and nonce each time its needed.
 //!   <pre>  SecByteBlock key(32), nonce(16);
 //!   prng.GenerateBlock(key, key.size());
 //!   prng.GenerateBlock(nonce, nonce.size());
@@ -18,9 +18,9 @@
 //!   poly1305.Update(...);
 //!   poly1305.Final(...);</pre>
 //!
-//! \details Second, you can create a Poly1305, reuse the key, and set a fresh nonce as needed
-//!   as shown below. The second (and subsequent) nonce can be generated directly using a
-//!   RandomNumberGenerator() drived class; or it can b generated using GetNextIV().
+//! \details Second, you can create a Poly1305, reuse the key, and set a fresh nonce for
+//!   each message. The second and subsequent nonces can be generated directly using a
+//!   RandomNumberGenerator() derived class; or it can be generated using GetNextIV().
 //!   <pre>  SecByteBlock key(32), nonce(16);
 //!   prng.GenerateBlock(key, key.size());
 //!   prng.GenerateBlock(nonce, nonce.size());
@@ -31,7 +31,7 @@
 //!   poly1305.Update(...);
 //!   poly1305.Final(...);
 //!
-//!   // Second message
+//!   // Third message
 //!   poly1305.GetNextIV(prng, nonce);
 //!   poly1305.Resynchronize(nonce, nonce.size());
 //!   poly1305.Update(...);
@@ -101,14 +101,12 @@ protected:
 };
 
 //! \class Poly1305
-//! \brief Poly1305 message authentication code
-//! \tparam T class derived from BlockCipherDocumentation
 //! \details Poly1305-AES is a state-of-the-art message-authentication code suitable for a wide
 //!   variety of applications. Poly1305-AES computes a 16-byte authenticator of a variable-length
 //!   message, using a 16-byte AES key, a 16-byte additional key, and a 16-byte nonce.
-//! \details Each message must use a uniqus security context, which means either the key or nonce
-//!   must be changed between message authenticators. It can be accomplished in one of two ways.
-//!   First, you can create a Poly1305 object with a key and nonce each time its needed as shown below.
+//! \details Each message must use a unique security context, which means either the key or nonce
+//!   must be changed after each message. It can be accomplished in one of two ways. First, you
+//!   can create a new Poly1305 object with a key and nonce each time its needed.
 //!   <pre>  SecByteBlock key(32), nonce(16);
 //!   prng.GenerateBlock(key, key.size());
 //!   prng.GenerateBlock(nonce, nonce.size());
@@ -117,9 +115,9 @@ protected:
 //!   poly1305.Update(...);
 //!   poly1305.Final(...);</pre>
 //!
-//! \details Second, you can create a Poly1305, reuse the key, and set a fresh nonce as needed
-//!   as shown below. The second (and subsequent) nonce can be generated directly using a
-//!   RandomNumberGenerator() drived class; or it can b generated using GetNextIV().
+//! \details Second, you can create a Poly1305, reuse the key, and set a fresh nonce for
+//!   each message. The second and subsequent nonces can be generated directly using a
+//!   RandomNumberGenerator() derived class; or it can be generated using GetNextIV().
 //!   <pre>  SecByteBlock key(32), nonce(16);
 //!   prng.GenerateBlock(key, key.size());
 //!   prng.GenerateBlock(nonce, nonce.size());
@@ -131,6 +129,12 @@ protected:
 //!   poly1305.Final(...);
 //!
 //!   // Second message
+//!   poly1305.GetNextIV(prng, nonce);
+//!   poly1305.Resynchronize(nonce, nonce.size());
+//!   poly1305.Update(...);
+//!   poly1305.Final(...);
+//!
+//!   // Third message
 //!   poly1305.GetNextIV(prng, nonce);
 //!   poly1305.Resynchronize(nonce, nonce.size());
 //!   poly1305.Update(...);
@@ -153,6 +157,8 @@ public:
 	//! \param keyLength the size of the byte array, in bytes
 	//! \param nonce a byte array used to key the cipher
 	//! \param nonceLength the size of the byte array, in bytes
+	//! \details key is the 32-byte key composed of the 16-byte AES key and the 16 additional key
+	//!   bytes used for <tt>r</tt>.
 	//! \details Each message requires a unique security context.
 	Poly1305(const byte *key, size_t keyLength=DEFAULT_KEYLENGTH, const byte *nonce=NULL, size_t nonceLength=0)
 		{this->SetKey(key, keyLength, MakeParameters(Name::IV(), ConstByteArrayParameter(nonce, nonceLength)));}
