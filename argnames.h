@@ -20,6 +20,7 @@ CRYPTOPP_DEFINE_NAME_STRING(Seed)				//!< ConstByteArrayParameter
 CRYPTOPP_DEFINE_NAME_STRING(Key)				//!< ConstByteArrayParameter
 CRYPTOPP_DEFINE_NAME_STRING(IV)					//!< ConstByteArrayParameter, also accepts const byte * for backwards compatibility
 CRYPTOPP_DEFINE_NAME_STRING(StolenIV)			//!< byte *
+CRYPTOPP_DEFINE_NAME_STRING(Nonce)				//!< ConstByteArrayParameter
 CRYPTOPP_DEFINE_NAME_STRING(Rounds)				//!< int
 CRYPTOPP_DEFINE_NAME_STRING(FeedbackSize)		//!< int
 CRYPTOPP_DEFINE_NAME_STRING(WordSize)			//!< int, in bytes

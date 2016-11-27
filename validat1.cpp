@@ -101,6 +101,8 @@ bool ValidateAll(bool thorough)
 	pass=ValidateRIPEMD() && pass;
 	pass=ValidatePanama() && pass;
 	pass=ValidateWhirlpool() && pass;
+
+	pass=ValidatePoly1305() && pass;
 	pass=ValidateBLAKE2s() && pass;
 	pass=ValidateBLAKE2b() && pass;
 

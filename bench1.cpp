@@ -304,6 +304,7 @@ void BenchmarkAll(double t, double hertz)
 	BenchMarkByName<MessageAuthenticationCode>("Two-Track-MAC");
 	BenchMarkByName<MessageAuthenticationCode>("CMAC(AES)");
 	BenchMarkByName<MessageAuthenticationCode>("DMAC(AES)");
+	BenchMarkByName<MessageAuthenticationCode>("Poly1305(AES)");
 	BenchMarkByName<MessageAuthenticationCode>("BLAKE2s");
 	BenchMarkByName<MessageAuthenticationCode>("BLAKE2b");
 

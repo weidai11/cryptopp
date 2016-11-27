@@ -53,6 +53,7 @@
 #include "keccak.h"
 #include "sha3.h"
 #include "blake2.h"
+#include "poly1305.h"
 #include "hkdf.h"
 
 // Aggressive stack checking with VS2005 SP1 and above.
@@ -114,6 +115,7 @@ void RegisterFactories()
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, Weak::PanamaMAC<BigEndian> >();
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, CMAC<AES> >();
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, DMAC<AES> >();
+	RegisterDefaultFactoryFor<MessageAuthenticationCode, Poly1305<AES> >();
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, CMAC<DES_EDE3> >();
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, BLAKE2s>();
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, BLAKE2b>();
