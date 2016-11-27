@@ -187,6 +187,8 @@ pch.cpp
 pch.h
 pkcspad.cpp
 pkcspad.h
+poly1305.cpp
+poly1305.h
 polynomi.cpp
 polynomi.h
 pssr.cpp

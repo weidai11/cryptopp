@@ -251,6 +251,7 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="pkcspad.cpp" />
+    <ClCompile Include="poly1305.cpp" />
     <ClCompile Include="polynomi.cpp" />
     <ClCompile Include="pssr.cpp" />
     <ClCompile Include="pubkey.cpp" />
@@ -423,6 +424,7 @@
     <ClInclude Include="panama.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="pkcspad.h" />
+    <ClInclude Include="poly1305.h" />
     <ClInclude Include="polynomi.h" />
     <ClInclude Include="pssr.h" />
     <ClInclude Include="pubkey.h" />

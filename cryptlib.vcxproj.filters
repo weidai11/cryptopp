@@ -242,6 +242,9 @@
     <ClCompile Include="pkcspad.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="poly1305.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="polynomi.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -658,6 +661,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="pkcspad.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="poly1305.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="polynomi.h">
