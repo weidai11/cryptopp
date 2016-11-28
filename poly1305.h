@@ -102,6 +102,7 @@ protected:
 };
 
 //! \class Poly1305
+//! \brief Poly1305 message authentication code
 //! \details Poly1305-AES is a state-of-the-art message-authentication code suitable for a wide
 //!   variety of applications. Poly1305-AES computes a 16-byte authenticator of a variable-length
 //!   message, using a 16-byte AES key, a 16-byte additional key, and a 16-byte nonce.
@@ -135,8 +136,8 @@ protected:
 //!   poly1305.Update(...);
 //!   poly1305.Final(...);
 //!   ...</pre>
-//! \warn The Poly1305 class does not enforce a fresh nonce for each message. The source code
-//!   will assert in debug builds to alert of nonce reuse. No action is taken in releas builds.
+//! \warning The Poly1305 class does not enforce a fresh nonce for each message. The source code
+//!   will assert in debug builds to alert of nonce reuse. No action is taken in release builds.
 //! \sa Daniel J. Bernstein <A HREF="http://cr.yp.to/mac/poly1305-20050329.pdf">The Poly1305-AES
 //!   Message-Authentication Code (20050329)</A> and Andy Polyakov <A
 //!   HREF="http://www.openssl.org/blog/blog/2016/02/15/poly1305-revised/">Poly1305 Revised</A>
