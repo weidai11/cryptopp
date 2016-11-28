@@ -1,5 +1,5 @@
 // poly1305.h - written and placed in the public domain by Jeffrey Walton and Jean-Pierre Munch
-//              Based on Andy Polyakov's 32-bit OpenSSL implementation using scalar multiplication.
+//              Based on Andy Polyakov's Base-2^26 scalar multiplication implementation for OpenSSL.
 //              Copyright assigned to the Crypto++ project
 
 //! \file poly1305.h
@@ -18,8 +18,8 @@
 //!   poly1305.Update(...);
 //!   poly1305.Final(...);</pre>
 //!
-//! \details Second, you can create a Poly1305, reuse the key, and set a fresh nonce for
-//!   each message. The second and subsequent nonces can be generated directly using a
+//! \details Second, you can create a Poly1305 object, reuse the key, and set a fresh nonce
+//!   for each message. The second and subsequent nonces can be generated directly using a
 //!   RandomNumberGenerator() derived class; or it can be generated using GetNextIV().
 //!   <pre>  SecByteBlock key(32), nonce(16);
 //!   prng.GenerateBlock(key, key.size());
@@ -27,15 +27,16 @@
 //!
 //!   // First message
 //!   Poly1305<AES> poly1305(key, key.size());
-//!   poly1305.Resynchronize(nonce, nonce.size());
+//!   poly1305.Resynchronize(nonce);
 //!   poly1305.Update(...);
 //!   poly1305.Final(...);
 //!
-//!   // Third message
+//!   // Second message
 //!   poly1305.GetNextIV(prng, nonce);
-//!   poly1305.Resynchronize(nonce, nonce.size());
+//!   poly1305.Resynchronize(nonce);
 //!   poly1305.Update(...);
-//!   poly1305.Final(...);</pre>
+//!   poly1305.Final(...);
+//!   ...</pre>
 //! \sa Daniel J. Bernstein <A HREF="http://cr.yp.to/mac/poly1305-20050329.pdf">The Poly1305-AES
 //!   Message-Authentication Code (20050329)</A> and Andy Polyakov <A
 //!   HREF="http://www.openssl.org/blog/blog/2016/02/15/poly1305-revised/">Poly1305 Revised</A>
@@ -82,8 +83,8 @@ public:
 	unsigned int DigestSize() const {return DIGESTSIZE;}
 
 protected:
-	void ProcessBlocks(const byte *input, size_t length, word32 padbit);
-	void ProcessFinal(byte *mac, size_t length);
+	void HashBlocks(const byte *input, size_t length, word32 padbit);
+	void HashFinal(byte *mac, size_t length);
 
 	CPP_TYPENAME T::Encryption m_cipher;
 
@@ -115,8 +116,8 @@ protected:
 //!   poly1305.Update(...);
 //!   poly1305.Final(...);</pre>
 //!
-//! \details Second, you can create a Poly1305, reuse the key, and set a fresh nonce for
-//!   each message. The second and subsequent nonces can be generated directly using a
+//! \details Second, you can create a Poly1305 object, reuse the key, and set a fresh nonce
+//!   for each message. The second and subsequent nonces can be generated directly using a
 //!   RandomNumberGenerator() derived class; or it can be generated using GetNextIV().
 //!   <pre>  SecByteBlock key(32), nonce(16);
 //!   prng.GenerateBlock(key, key.size());
@@ -124,21 +125,18 @@ protected:
 //!
 //!   // First message
 //!   Poly1305<AES> poly1305(key, key.size());
-//!   poly1305.Resynchronize(nonce, nonce.size());
+//!   poly1305.Resynchronize(nonce);
 //!   poly1305.Update(...);
 //!   poly1305.Final(...);
 //!
 //!   // Second message
 //!   poly1305.GetNextIV(prng, nonce);
-//!   poly1305.Resynchronize(nonce, nonce.size());
+//!   poly1305.Resynchronize(nonce);
 //!   poly1305.Update(...);
 //!   poly1305.Final(...);
-//!
-//!   // Third message
-//!   poly1305.GetNextIV(prng, nonce);
-//!   poly1305.Resynchronize(nonce, nonce.size());
-//!   poly1305.Update(...);
-//!   poly1305.Final(...);</pre>
+//!   ...</pre>
+//! \warn The Poly1305 class does not enforce a fresh nonce for each message. The source code
+//!   will assert in debug builds to alert of nonce reuse. No action is taken in releas builds.
 //! \sa Daniel J. Bernstein <A HREF="http://cr.yp.to/mac/poly1305-20050329.pdf">The Poly1305-AES
 //!   Message-Authentication Code (20050329)</A> and Andy Polyakov <A
 //!   HREF="http://www.openssl.org/blog/blog/2016/02/15/poly1305-revised/">Poly1305 Revised</A>

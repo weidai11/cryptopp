@@ -1,5 +1,5 @@
 // poly1305.cpp - written and placed in the public domain by Jeffrey Walton and Jean-Pierre Munch
-//                Based on Andy Polyakov's 32-bit OpenSSL implementation using scalar multiplication.
+//                Based on Andy Polyakov's Base-2^26 scalar multiplication implementation for OpenSSL.
 //                Copyright assigned to the Crypto++ project
 
 #include "pch.h"
@@ -61,7 +61,7 @@ void Poly1305_Base<T>::Update(const byte *input, size_t length)
 		{
 			// Process
 			memcpy_s(m_acc + num, BLOCKSIZE - num, input, rem);
-			ProcessBlocks(m_acc, BLOCKSIZE, 1);
+			HashBlocks(m_acc, BLOCKSIZE, 1);
 			input += rem;
 			length -= rem;
 		}
@@ -78,7 +78,7 @@ void Poly1305_Base<T>::Update(const byte *input, size_t length)
 	length -= rem;
 
 	if (length >= BLOCKSIZE) {
-		ProcessBlocks(input, length, 1);
+		HashBlocks(input, length, 1);
 		input += length;
 	}
 
@@ -89,7 +89,7 @@ void Poly1305_Base<T>::Update(const byte *input, size_t length)
 }
 
 template <class T>
-void Poly1305_Base<T>::ProcessBlocks(const byte *input, size_t length, word32 padbit)
+void Poly1305_Base<T>::HashBlocks(const byte *input, size_t length, word32 padbit)
 {
 	word32 r0, r1, r2, r3;
 	word32 s1, s2, s3;
@@ -174,10 +174,10 @@ void Poly1305_Base<T>::TruncatedFinal(byte *mac, size_t size)
 		m_acc[num++] = 1;   /* pad bit */
 		while (num < BLOCKSIZE)
 			m_acc[num++] = 0;
-		ProcessBlocks(m_acc, BLOCKSIZE, 0);
+		HashBlocks(m_acc, BLOCKSIZE, 0);
 	}
 
-	ProcessFinal(mac, size);
+	HashFinal(mac, size);
 
 	// Restart
 	m_used = true;
@@ -185,7 +185,7 @@ void Poly1305_Base<T>::TruncatedFinal(byte *mac, size_t size)
 }
 
 template <class T>
-void Poly1305_Base<T>::ProcessFinal(byte *mac, size_t size)
+void Poly1305_Base<T>::HashFinal(byte *mac, size_t size)
 {
 	word32 h0, h1, h2, h3, h4;
 	word32 g0, g1, g2, g3, g4;
