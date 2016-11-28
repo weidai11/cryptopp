@@ -91,10 +91,20 @@ void Poly1305_Base<T>::Update(const byte *input, size_t length)
 template <class T>
 void Poly1305_Base<T>::ProcessBlocks(const byte *input, size_t length, word32 padbit)
 {
-	word32 r0 = m_r[0], r1 = m_r[1], r2 = m_r[2], r3 = m_r[3];
-	word32 h0 = m_h[0], h1 = m_h[1], h2 = m_h[2], h3 = m_h[3], h4 = m_h[4];
-	word32 c, s1 = r1 + (r1 >> 2), s2 = r2 + (r2 >> 2), s3 = r3 + (r3 >> 2);
+	word32 r0, r1, r2, r3;
+	word32 s1, s2, s3;
+	word32 h0, h1, h2, h3, h4, c;
 	word64 d0, d1, d2, d3;
+
+	r0 = m_r[0]; r1 = m_r[1];
+	r2 = m_r[2]; r3 = m_r[3];
+
+	s1 = r1 + (r1 >> 2);
+	s2 = r2 + (r2 >> 2);
+	s3 = r3 + (r3 >> 2);
+
+	h0 = m_h[0]; h1 = m_h[1]; h2 = m_h[2];
+	h3 = m_h[3]; h4 = m_h[4];
 
 	while (length >= BLOCKSIZE)
 	{
@@ -141,7 +151,7 @@ void Poly1305_Base<T>::ProcessBlocks(const byte *input, size_t length, word32 pa
 		h1 += (c = CONSTANT_TIME_CARRY(h0,c));
 		h2 += (c = CONSTANT_TIME_CARRY(h1,c));
 		h3 += (c = CONSTANT_TIME_CARRY(h2,c));
-		h4 +=	  CONSTANT_TIME_CARRY(h3,c);
+		h4 +=      CONSTANT_TIME_CARRY(h3,c);
 
 		input += BLOCKSIZE;
 		length -= BLOCKSIZE;
@@ -177,9 +187,16 @@ void Poly1305_Base<T>::TruncatedFinal(byte *mac, size_t size)
 template <class T>
 void Poly1305_Base<T>::ProcessFinal(byte *mac, size_t size)
 {
-	word32 h0 = m_h[0], h1 = m_h[1], h2 = m_h[2], h3 = m_h[3], h4 = m_h[4];
-	word32 g0, g1, g2, g3, g4, mask;
+	word32 h0, h1, h2, h3, h4;
+	word32 g0, g1, g2, g3, g4;
+	word32 mask;
 	word64 t;
+
+	h0 = m_h[0];
+	h1 = m_h[1];
+	h2 = m_h[2];
+	h3 = m_h[3];
+	h4 = m_h[4];
 
 	// compare to modulus by computing h + -p
 	g0 = (word32)(t = (word64)h0 + 5);
