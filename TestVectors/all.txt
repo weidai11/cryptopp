@@ -9,7 +9,7 @@ Test: TestVectors/whrlpool.txt
 Test: TestVectors/dlies.txt
 Test: TestVectors/dsa.txt
 Test: TestVectors/dsa_1363.txt
-Test: TestVectors/dsa_rfc6979.txt
+#Test: TestVectors/dsa_rfc6979.txt
 #Test: TestVectors/ecdsa_rfc6979.txt
 Test: TestVectors/esign.txt
 Test: TestVectors/hmac.txt
@@ -21,6 +21,8 @@ Test: TestVectors/rw.txt
 Test: TestVectors/seal.txt
 Test: TestVectors/sha.txt
 Test: TestVectors/keccak.txt
+Test: TestVectors/sha1_fips_180.txt
+Test: TestVectors/sha2_fips_180.txt
 Test: TestVectors/sha3_fips_202.txt
 Test: TestVectors/panama.txt
 Test: TestVectors/aes.txt

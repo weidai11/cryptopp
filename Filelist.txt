@@ -409,6 +409,13 @@ TestVectors/salsa.txt
 TestVectors/seal.txt
 TestVectors/seed.txt
 TestVectors/sha.txt
+TestVectors/sha1_fips_180.txt
+TestVectors/sha1_160_fips_180.txt
+TestVectors/sha2_fips_180.txt
+TestVectors/sha2_224_fips_180.txt
+TestVectors/sha2_256_fips_180.txt
+TestVectors/sha2_384_fips_180.txt
+TestVectors/sha2_512_fips_180.txt
 TestVectors/sha3_fips_202.txt
 TestVectors/sha3_224_fips_202.txt
 TestVectors/sha3_256_fips_202.txt
