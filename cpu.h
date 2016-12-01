@@ -47,12 +47,9 @@
 #if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
 #  include <wmmintrin.h>    // aesenc, aesdec, etc
 #endif // wmmintrin.h
-#if CRYPTOPP_BOOL_AVX_INTRINSICS_AVAILABLE
-#  include <immintrin.h>    // RDRAND, RDSEED and AVX
-#endif
-#if CRYPTOPP_BOOL_AVX2_INTRINSICS_AVAILABLE
-#  include <zmmintrin.h>    // AVX 512-bit extensions
-#endif
+#if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
+#  include <immintrin.h>    // RDRAND, RDSEED, AVX, SHA
+#endif // immintrin.h
 #endif  // X86/X64/X32 Headers
 
 // Applies to both X86/X32/X64 and ARM32/ARM64. And we've got MIPS devices on the way.

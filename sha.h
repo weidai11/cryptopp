@@ -1,7 +1,6 @@
 // sha.h - written and placed in the public domain by Wei Dai
 
-//! \file
-//! \headerfile sha.h
+//! \file sha.h
 //! \brief Classes for SHA-1 and SHA-2 family of message digests
 
 #ifndef CRYPTOPP_SHA_H

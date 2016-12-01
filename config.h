@@ -502,11 +502,10 @@ NAMESPACE_END
 	#define CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE 0
 #endif
 
-// AVX2 in MSC 18.00
-#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_AVX) && !defined(_M_ARM) && ((_MSC_VER >= 1600) || (defined(__RDRND__) || defined(__RDSEED__) || defined(__AVX__)))
-	#define CRYPTOPP_BOOL_AVX_AVAILABLE 1
+#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_SHA) && !defined(_M_ARM) && ((_MSC_VER >= 1900) || (CRYPTOPP_GCC_VERSION >= 50000) || defined(__SHA__))
+	#define CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE 1
 #else
-	#define CRYPTOPP_BOOL_AVX_AVAILABLE 0
+	#define CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE 0
 #endif
 
 // Requires ARMv7 and ACLE 1.0. Testing shows ARMv7 is really ARMv7a under most toolchains.
