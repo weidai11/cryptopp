@@ -44,7 +44,7 @@ public:
 	PanamaHash() {Panama<B>::Reset();}
 	unsigned int DigestSize() const {return DIGESTSIZE;}
 	void TruncatedFinal(byte *hash, size_t size);
-	CRYPTOPP_STATIC_CONSTEXPR char* const StaticAlgorithmName() {return B::ToEnum() == BIG_ENDIAN_ORDER ? "Panama-BE" : "Panama-LE";}
+	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return B::ToEnum() == BIG_ENDIAN_ORDER ? "Panama-BE" : "Panama-LE";}
 
 protected:
 	void Init() {Panama<B>::Reset();}
@@ -128,7 +128,7 @@ public:
 template <class B>
 struct PanamaCipherInfo : public FixedKeyLength<32, SimpleKeyingInterface::UNIQUE_IV, 32>
 {
-	CRYPTOPP_STATIC_CONSTEXPR char* const StaticAlgorithmName() {return B::ToEnum() == BIG_ENDIAN_ORDER ? "Panama-BE" : "Panama-LE";}
+	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return B::ToEnum() == BIG_ENDIAN_ORDER ? "Panama-BE" : "Panama-LE";}
 };
 
 //! \class PanamaCipherPolicy

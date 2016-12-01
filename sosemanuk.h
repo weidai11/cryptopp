@@ -23,7 +23,7 @@ NAMESPACE_BEGIN(CryptoPP)
 	//! \since Crypto++ 5.5
 struct SosemanukInfo : public VariableKeyLength<16, 1, 32, 1, SimpleKeyingInterface::UNIQUE_IV, 16>
 {
-	CRYPTOPP_STATIC_CONSTEXPR char* const StaticAlgorithmName() {return "Sosemanuk";}
+	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "Sosemanuk";}
 };
 
 //! \class SosemanukPolicy

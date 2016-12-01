@@ -23,7 +23,7 @@ protected:
 //! \brief CAST128 block cipher information
 struct CAST128_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 5, 16>
 {
-	CRYPTOPP_STATIC_CONSTEXPR char* const StaticAlgorithmName() {return "CAST-128";}
+	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "CAST-128";}
 };
 
 //! \class CAST128
@@ -68,7 +68,7 @@ public:
 //! \brief CAST256 block cipher information
 struct CAST256_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 16, 32, 4>
 {
-	CRYPTOPP_STATIC_CONSTEXPR char* const StaticAlgorithmName() {return "CAST-256";}
+	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "CAST-256";}
 };
 
 //! \class CAST256

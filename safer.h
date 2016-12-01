@@ -66,7 +66,7 @@ protected:
 //! \brief SAFER-K block cipher information
 struct SAFER_K_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 8, 16, 8>, public VariableRounds<10, 1, 13>
 {
-	CRYPTOPP_STATIC_CONSTEXPR char* const StaticAlgorithmName() {return "SAFER-K";}
+	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "SAFER-K";}
 };
 
 //! \class SAFER_K
@@ -83,7 +83,7 @@ public:
 //! \brief SAFER-SK block cipher information
 struct SAFER_SK_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 8, 16, 8>, public VariableRounds<10, 1, 13>
 {
-	CRYPTOPP_STATIC_CONSTEXPR char* const StaticAlgorithmName() {return "SAFER-SK";}
+	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "SAFER-SK";}
 };
 
 //! \class SAFER_SK

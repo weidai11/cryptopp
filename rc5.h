@@ -16,7 +16,7 @@ NAMESPACE_BEGIN(CryptoPP)
 //! \since Crypto++ 1.0
 struct RC5_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 0, 255>, public VariableRounds<16>
 {
-	CRYPTOPP_STATIC_CONSTEXPR char* const StaticAlgorithmName() {return "RC5";}
+	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "RC5";}
 	typedef word32 RC5_WORD;
 };
 

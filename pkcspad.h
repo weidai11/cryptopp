@@ -22,7 +22,7 @@ NAMESPACE_BEGIN(CryptoPP)
 class PKCS_EncryptionPaddingScheme : public PK_EncryptionMessageEncodingMethod
 {
 public:
-	CRYPTOPP_STATIC_CONSTEXPR char* const StaticAlgorithmName() {return "EME-PKCS1-v1_5";}
+	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "EME-PKCS1-v1_5";}
 
 	size_t MaxUnpaddedLength(size_t paddedLength) const;
 	void Pad(RandomNumberGenerator &rng, const byte *raw, size_t inputLength, byte *padded, size_t paddedLength, const NameValuePairs &parameters) const;
@@ -67,7 +67,7 @@ CRYPTOPP_DLL_TEMPLATE_CLASS PKCS_DigestDecoration<SHA512>;
 class CRYPTOPP_DLL PKCS1v15_SignatureMessageEncodingMethod : public PK_DeterministicSignatureMessageEncodingMethod
 {
 public:
-	CRYPTOPP_STATIC_CONSTEXPR char* const CRYPTOPP_API StaticAlgorithmName() {return "EMSA-PKCS1-v1_5";}
+	CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "EMSA-PKCS1-v1_5";}
 
 	size_t MinRepresentativeBitLength(size_t hashIdentifierSize, size_t digestSize) const
 		{return 8 * (digestSize + hashIdentifierSize + 10);}
