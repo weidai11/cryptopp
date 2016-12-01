@@ -232,7 +232,7 @@ protected:
 class DL_Algorithm_LUC_HMP : public DL_ElgamalLikeSignatureAlgorithm<Integer>
 {
 public:
-	CRYPTOPP_STATIC_CONSTEXPR char* const StaticAlgorithmName() {return "LUC-HMP";}
+	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "LUC-HMP";}
 
 	void Sign(const DL_GroupParameters<Integer> &params, const Integer &x, const Integer &k, const Integer &e, Integer &r, Integer &s) const;
 	bool Verify(const DL_GroupParameters<Integer> &params, const DL_PublicKey<Integer> &publicKey, const Integer &e, const Integer &r, const Integer &s) const;

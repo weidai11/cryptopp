@@ -26,7 +26,7 @@ class CRYPTOPP_DLL SHA1 : public IteratedHashWithStaticTransform<word32, BigEndi
 public:
 	static void CRYPTOPP_API InitState(HashWordType *state);
 	static void CRYPTOPP_API Transform(word32 *digest, const word32 *data);
-	CRYPTOPP_STATIC_CONSTEXPR char* const CRYPTOPP_API StaticAlgorithmName() {return "SHA-1";}
+	CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "SHA-1";}
 };
 
 typedef SHA1 SHA;	// for backwards compatibility
@@ -43,7 +43,7 @@ public:
 #endif
 	static void CRYPTOPP_API InitState(HashWordType *state);
 	static void CRYPTOPP_API Transform(word32 *digest, const word32 *data);
-	CRYPTOPP_STATIC_CONSTEXPR char* const CRYPTOPP_API StaticAlgorithmName() {return "SHA-256";}
+	CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "SHA-256";}
 };
 
 //! \class SHA224
@@ -58,7 +58,7 @@ public:
 #endif
 	static void CRYPTOPP_API InitState(HashWordType *state);
 	static void CRYPTOPP_API Transform(word32 *digest, const word32 *data) {SHA256::Transform(digest, data);}
-	CRYPTOPP_STATIC_CONSTEXPR char* const CRYPTOPP_API StaticAlgorithmName() {return "SHA-224";}
+	CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "SHA-224";}
 };
 
 //! \class SHA512
@@ -70,7 +70,7 @@ class CRYPTOPP_DLL SHA512 : public IteratedHashWithStaticTransform<word64, BigEn
 public:
 	static void CRYPTOPP_API InitState(HashWordType *state);
 	static void CRYPTOPP_API Transform(word64 *digest, const word64 *data);
-	CRYPTOPP_STATIC_CONSTEXPR char* const CRYPTOPP_API StaticAlgorithmName() {return "SHA-512";}
+	CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "SHA-512";}
 };
 
 //! \class SHA384
@@ -82,7 +82,7 @@ class CRYPTOPP_DLL SHA384 : public IteratedHashWithStaticTransform<word64, BigEn
 public:
 	static void CRYPTOPP_API InitState(HashWordType *state);
 	static void CRYPTOPP_API Transform(word64 *digest, const word64 *data) {SHA512::Transform(digest, data);}
-	CRYPTOPP_STATIC_CONSTEXPR char* const CRYPTOPP_API StaticAlgorithmName() {return "SHA-384";}
+	CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "SHA-384";}
 };
 
 NAMESPACE_END

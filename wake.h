@@ -19,7 +19,7 @@ NAMESPACE_BEGIN(CryptoPP)
 template <class B = BigEndian>
 struct WAKE_OFB_Info : public FixedKeyLength<32>
 {
-	CRYPTOPP_STATIC_CONSTEXPR char* const StaticAlgorithmName() {return B::ToEnum() == LITTLE_ENDIAN_ORDER ? "WAKE-OFB-LE" : "WAKE-OFB-BE";}
+	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return B::ToEnum() == LITTLE_ENDIAN_ORDER ? "WAKE-OFB-LE" : "WAKE-OFB-BE";}
 };
 
 class CRYPTOPP_NO_VTABLE WAKE_Base

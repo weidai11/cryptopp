@@ -19,7 +19,7 @@ class RIPEMD160 : public IteratedHashWithStaticTransform<word32, LittleEndian, 6
 public:
 	static void InitState(HashWordType *state);
 	static void Transform(word32 *digest, const word32 *data);
-	CRYPTOPP_STATIC_CONSTEXPR char* const StaticAlgorithmName() {return "RIPEMD-160";}
+	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "RIPEMD-160";}
 };
 
 //! \class RIPEMD320
@@ -31,7 +31,7 @@ class RIPEMD320 : public IteratedHashWithStaticTransform<word32, LittleEndian, 6
 public:
 	static void InitState(HashWordType *state);
 	static void Transform(word32 *digest, const word32 *data);
-	CRYPTOPP_STATIC_CONSTEXPR char* const StaticAlgorithmName() {return "RIPEMD-320";}
+	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "RIPEMD-320";}
 };
 
 //! \class RIPEMD128
@@ -44,7 +44,7 @@ class RIPEMD128 : public IteratedHashWithStaticTransform<word32, LittleEndian, 6
 public:
 	static void InitState(HashWordType *state);
 	static void Transform(word32 *digest, const word32 *data);
-	CRYPTOPP_STATIC_CONSTEXPR char* const StaticAlgorithmName() {return "RIPEMD-128";}
+	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "RIPEMD-128";}
 };
 
 //! \class RIPEMD256
@@ -57,7 +57,7 @@ class RIPEMD256 : public IteratedHashWithStaticTransform<word32, LittleEndian, 6
 public:
 	static void InitState(HashWordType *state);
 	static void Transform(word32 *digest, const word32 *data);
-	CRYPTOPP_STATIC_CONSTEXPR char* const StaticAlgorithmName() {return "RIPEMD-256";}
+	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "RIPEMD-256";}
 };
 
 NAMESPACE_END

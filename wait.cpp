@@ -164,6 +164,7 @@ WaitObjectContainer::~WaitObjectContainer()
 			CRYPTOPP_ASSERT(dwResult < (DWORD)m_threads.size());
 #else
 			DWORD dwResult = ::WaitForMultipleObjects((DWORD)m_threads.size(), threadHandles, TRUE, INFINITE);
+			CRYPTOPP_UNUSED(dwResult);
 			CRYPTOPP_ASSERT(dwResult < (DWORD)m_threads.size());
 #endif
 

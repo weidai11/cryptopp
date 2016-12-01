@@ -98,7 +98,7 @@ template <class T>
 class EMSA5Pad : public PK_DeterministicSignatureMessageEncodingMethod
 {
 public:
-	CRYPTOPP_STATIC_CONSTEXPR char* const StaticAlgorithmName() {return "EMSA5";}
+	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "EMSA5";}
 
 	void ComputeMessageRepresentative(RandomNumberGenerator &rng,
 		const byte *recoverableMessage, size_t recoverableMessageLength,

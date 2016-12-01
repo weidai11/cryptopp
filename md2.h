@@ -17,7 +17,7 @@ public:
 	void TruncatedFinal(byte *hash, size_t size);
 	unsigned int DigestSize() const {return DIGESTSIZE;}
 	unsigned int BlockSize() const {return BLOCKSIZE;}
-	CRYPTOPP_STATIC_CONSTEXPR char* const StaticAlgorithmName() {return "MD2";}
+	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "MD2";}
 
 	CRYPTOPP_CONSTANT(DIGESTSIZE = 16)
 	CRYPTOPP_CONSTANT(BLOCKSIZE = 16)

@@ -16,7 +16,7 @@ NAMESPACE_BEGIN(CryptoPP)
 //! \brief TEA block cipher information
 struct TEA_Info : public FixedBlockSize<8>, public FixedKeyLength<16>, public VariableRounds<32>
 {
-	CRYPTOPP_STATIC_CONSTEXPR char* const StaticAlgorithmName() {return "TEA";}
+	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "TEA";}
 };
 
 //! \class TEA
@@ -64,7 +64,7 @@ typedef TEA::Decryption TEADecryption;
 //! \brief XTEA block cipher information
 struct XTEA_Info : public FixedBlockSize<8>, public FixedKeyLength<16>, public VariableRounds<32>
 {
-	CRYPTOPP_STATIC_CONSTEXPR char* const StaticAlgorithmName() {return "XTEA";}
+	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "XTEA";}
 };
 
 //! \class XTEA
@@ -109,7 +109,7 @@ public:
 //! \brief BTEA block cipher information
 struct BTEA_Info : public FixedKeyLength<16>
 {
-	CRYPTOPP_STATIC_CONSTEXPR char* const StaticAlgorithmName() {return "BTEA";}
+	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "BTEA";}
 };
 
 //! \class BTEA

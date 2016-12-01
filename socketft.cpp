@@ -512,7 +512,7 @@ unsigned int SocketReceiver::GetReceiveResult()
 // *************************************************************
 
 SocketSender::SocketSender(Socket &s)
-	: m_s(s), m_resultPending(false), m_lastResult(0)
+	: m_s(s), m_lastResult(0), m_resultPending(false)
 {
 	m_event.AttachHandle(CreateEvent(NULL, true, false, NULL), true);
 	m_s.CheckAndHandleError("CreateEvent", m_event.HandleValid());

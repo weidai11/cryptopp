@@ -18,7 +18,7 @@ struct RC2_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 1, 128>
 {
 	CRYPTOPP_CONSTANT(DEFAULT_EFFECTIVE_KEYLENGTH = 1024)
 	CRYPTOPP_CONSTANT(MAX_EFFECTIVE_KEYLENGTH = 1024)
-	CRYPTOPP_STATIC_CONSTEXPR char* const StaticAlgorithmName() {return "RC2";}
+	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "RC2";}
 };
 
 //! \class RC2
