@@ -969,6 +969,7 @@ if [[ (("$IS_X86" -ne "0" || "$IS_X64" -ne "0") && ("$CLANG_COMPILER" -ne "0" &&
 	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "bmi") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-mbmi"); fi
 	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "bmi2") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-mbmi2"); fi
 	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "adx") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-madx"); fi
+	if [[ ($(echo -n "$X86_CPU_FLAGS" | "$GREP" -c "sha_ni") -ne "0") ]]; then PLATFORM_CXXFLAGS+=("-msha"); fi
 fi
 
 # Solaris Studio 12.1/SunCC 5.10 (and above) compilers consume GCC inline assembly. However, the compiler does
@@ -1408,6 +1409,56 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 
 		if [[ ("$FAILED" -eq "0") ]]; then
 			echo "Verified crc32l and crc32b machine instructions" | tee -a "$TEST_RESULTS"
+		else
+			if [[ ("$CLANG_COMPILER" -ne "0" && "$CLANG_37_OR_ABOVE" -eq "0") ]]; then
+				echo "This could be due to Clang and lack of expected support for SSSE3 (and above) in some versions of the compiler. If so, try Clang 3.7 or above"
+			fi
+		fi
+	fi
+
+	############################################
+	# X86 SHA code generation
+
+	X86_SHA=$(echo -n "$X86_CPU_FLAGS" | "$EGREP" -i -c '(sha_ni)')
+	if [[ ("$X86_SHA" -ne "0") ]]; then
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS"
+		echo "Testing: X86 SHA code generation" | tee -a "$TEST_RESULTS"
+		echo
+
+		OBJFILE=sha.o; rm -f "$OBJFILE" 2>/dev/null
+		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS ${PLATFORM_CXXFLAGS[@]}" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
+
+		COUNT=0
+		FAILED=0
+		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
+
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha1rnds4)
+		if [[ ("$COUNT" -eq "0") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate sha1rnds4 instruction" | tee -a "$TEST_RESULTS"
+		fi
+
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha1nexte)
+		if [[ ("$COUNT" -eq "0") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate sha1nexte instruction" | tee -a "$TEST_RESULTS"
+		fi
+
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha1msg1)
+		if [[ ("$COUNT" -eq "0") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate sha1msg1 instruction" | tee -a "$TEST_RESULTS"
+		fi
+
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha1msg2)
+		if [[ ("$COUNT" -eq "0") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate sha1msg2 instruction" | tee -a "$TEST_RESULTS"
+		fi
+
+		if [[ ("$FAILED" -eq "0") ]]; then
+			echo "Verified sha1rnds4, sha1nexte, sha1msg1 and sha1msg2 machine instructions" | tee -a "$TEST_RESULTS"
 		else
 			if [[ ("$CLANG_COMPILER" -ne "0" && "$CLANG_37_OR_ABOVE" -eq "0") ]]; then
 				echo "This could be due to Clang and lack of expected support for SSSE3 (and above) in some versions of the compiler. If so, try Clang 3.7 or above"
