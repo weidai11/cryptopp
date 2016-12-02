@@ -31,8 +31,8 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 // Function pointer for specific SHA1 or SHA256 Transform function
-typedef void (* pfnSHATransform)(word32 *state, const word32 *data);
-typedef void (* CRYPTOPP_FASTCALL pfnSHAHashBlocks)(word32 *state, const word32 *data, size_t length);
+typedef void (*pfnSHATransform)(word32 *state, const word32 *data);
+typedef void (CRYPTOPP_FASTCALL *pfnSHAHashBlocks)(word32 *state, const word32 *data, size_t length);
 
 ////////////////////////////////
 // start of Steve Reid's code //
