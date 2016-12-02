@@ -228,12 +228,12 @@ void Poly1305_Base<T>::HashFinal(byte *mac, size_t size)
 	}
 	else
 	{
-		FixedSizeAlignedSecBlock<byte, BLOCKSIZE> t;
-		PutWord<word32>(false, LITTLE_ENDIAN_ORDER, t +  0, h0);
-		PutWord<word32>(false, LITTLE_ENDIAN_ORDER, t +  4, h1);
-		PutWord<word32>(false, LITTLE_ENDIAN_ORDER, t +  8, h2);
-		PutWord<word32>(false, LITTLE_ENDIAN_ORDER, t + 12, h3);
-		memcpy(mac, t, size);
+		FixedSizeAlignedSecBlock<byte, BLOCKSIZE> m;
+		PutWord<word32>(false, LITTLE_ENDIAN_ORDER, m +  0, h0);
+		PutWord<word32>(false, LITTLE_ENDIAN_ORDER, m +  4, h1);
+		PutWord<word32>(false, LITTLE_ENDIAN_ORDER, m +  8, h2);
+		PutWord<word32>(false, LITTLE_ENDIAN_ORDER, m + 12, h3);
+		memcpy(mac, m, size);
 	}
 }
 

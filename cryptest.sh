@@ -588,7 +588,6 @@ fi
 
 # "Modern compiler, old hardware" combinations
 HAVE_X86_AES=0
-HAVE_X86_SHA=0
 HAVE_X86_RDRAND=0
 HAVE_X86_RDSEED=0
 HAVE_X86_PCLMUL=0
@@ -597,12 +596,6 @@ if [[ ("$IS_X86" -ne "0" || "$IS_X64" -ne "0") && ("$SUN_COMPILER" -eq "0") ]]; 
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -maes adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
 	if [[ "$?" -eq "0" ]]; then
 		HAVE_X86_AES=1
-	fi
-
-	rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -msha adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
-	if [[ "$?" -eq "0" ]]; then
-		HAVE_X86_SHA=1
 	fi
 
 	rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
@@ -1860,7 +1853,7 @@ if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0" || "$INTEL_COMPILER"
 fi
 
 ############################################
-# Minimum arch with AESNI, RDRAND, RDSEED and SHA
+# Minimum arch with AESNI, RDRAND and RDSEED
 if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0" || "$INTEL_COMPILER" -ne "0") ]]; then
 
 	X86_OPTS=()
@@ -1873,9 +1866,6 @@ if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0" || "$INTEL_COMPILER"
 	if [[ "$HAVE_X86_RDSEED" -ne "0" ]]; then
 		X86_OPTS+=("-mrdseed")
 	fi
-	if [[ "$HAVE_X86_SHA" -ne "0" ]]; then
-		X86_OPTS+=("-msha")
-	fi
 
 	# i586 (lacks MMX, SSE and SSE2; enables X86 hardware)
 	if [[ "$IS_X86" -ne "0" ]]; then
@@ -1883,7 +1873,7 @@ if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0" || "$INTEL_COMPILER"
 		# Debug build
 		echo
 		echo "************************************" | tee -a "$TEST_RESULTS"
-		echo "Testing: Debug, i586, AESNI, RDRAND, RDSEED and SHA" | tee -a "$TEST_RESULTS"
+		echo "Testing: Debug, i586, AESNI, RDRAND and RDSEED" | tee -a "$TEST_RESULTS"
 		echo
 
 		"$MAKE" clean > /dev/null 2>&1
@@ -1909,7 +1899,7 @@ if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0" || "$INTEL_COMPILER"
 		# Release build
 		echo
 		echo "************************************" | tee -a "$TEST_RESULTS"
-		echo "Testing: Release, i586, AESNI, RDRAND, RDSEED and SHA" | tee -a "$TEST_RESULTS"
+		echo "Testing: Release, i586, AESNI, RDRAND and RDSEED" | tee -a "$TEST_RESULTS"
 		echo
 
 		"$MAKE" clean > /dev/null 2>&1
@@ -1938,7 +1928,7 @@ if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0" || "$INTEL_COMPILER"
 		# Debug build
 		echo
 		echo "************************************" | tee -a "$TEST_RESULTS"
-		echo "Testing: Debug, SSE2, AESNI, RDRAND, RDSEED and SHA" | tee -a "$TEST_RESULTS"
+		echo "Testing: Debug, SSE2, AESNI, RDRAND and RDSEED" | tee -a "$TEST_RESULTS"
 		echo
 
 		"$MAKE" clean > /dev/null 2>&1
@@ -1964,7 +1954,7 @@ if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0" || "$INTEL_COMPILER"
 		# Release build
 		echo
 		echo "************************************" | tee -a "$TEST_RESULTS"
-		echo "Testing: Release, SSE2, AESNI, RDRAND, RDSEED and SHA" | tee -a "$TEST_RESULTS"
+		echo "Testing: Release, SSE2, AESNI, RDRAND and RDSEED" | tee -a "$TEST_RESULTS"
 		echo
 
 		"$MAKE" clean > /dev/null 2>&1
@@ -4820,7 +4810,7 @@ if [[ ("$HAVE_X86_AES" -ne "0" || "$HAVE_X86_RDRAND" -ne "0" || "$HAVE_X86_RDSEE
 
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
-	echo "Testing: AES, RDRAND, RDSEED and SHA" | tee -a "$TEST_RESULTS"
+	echo "Testing: AES, RDRAND and RDSEED" | tee -a "$TEST_RESULTS"
 	echo
 
 	OPTS=()
@@ -4838,9 +4828,6 @@ if [[ ("$HAVE_X86_AES" -ne "0" || "$HAVE_X86_RDRAND" -ne "0" || "$HAVE_X86_RDSEE
 	fi
 	if [[ "$HAVE_X86_PCLMUL" -ne "0" ]]; then
 		OPTS+=("-mpclmul")
-	fi
-	if [[ "$HAVE_X86_SHA" -ne "0" ]]; then
-		OPTS+=("-msha")
 	fi
 
 	"$MAKE" clean > /dev/null 2>&1

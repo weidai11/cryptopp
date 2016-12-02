@@ -1457,8 +1457,26 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 			echo "ERROR: failed to generate sha1msg2 instruction" | tee -a "$TEST_RESULTS"
 		fi
 
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha256rnds2)
+		if [[ ("$COUNT" -eq "0") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate sha256rnds2 instruction" | tee -a "$TEST_RESULTS"
+		fi
+
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha256msg1)
+		if [[ ("$COUNT" -eq "0") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate sha256msg1 instruction" | tee -a "$TEST_RESULTS"
+		fi
+
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha256msg2)
+		if [[ ("$COUNT" -eq "0") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate sha256msg2 instruction" | tee -a "$TEST_RESULTS"
+		fi
+
 		if [[ ("$FAILED" -eq "0") ]]; then
-			echo "Verified sha1rnds4, sha1nexte, sha1msg1 and sha1msg2 machine instructions" | tee -a "$TEST_RESULTS"
+			echo "Verified sha1rnds4, sha1nexte, sha1msg1, sha1msg2, sha256rnds2, sha256msg1 and sha256msg2 machine instructions" | tee -a "$TEST_RESULTS"
 		else
 			if [[ ("$CLANG_COMPILER" -ne "0" && "$CLANG_37_OR_ABOVE" -eq "0") ]]; then
 				echo "This could be due to Clang and lack of expected support for SSSE3 (and above) in some versions of the compiler. If so, try Clang 3.7 or above"
