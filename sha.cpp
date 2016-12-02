@@ -31,8 +31,8 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 // Function pointer for specific SHA1 or SHA256 Transform function
-typedef void (*pfnSHATransform)(word32 *state, const word32 *data);
-typedef void (*pfnSHAHashBlocks)(word32 *state, const word32 *data, size_t length);
+typedef void (* pfnSHATransform)(word32 *state, const word32 *data);
+typedef void (* CRYPTOPP_FASTCALL pfnSHAHashBlocks)(word32 *state, const word32 *data, size_t length);
 
 ////////////////////////////////
 // start of Steve Reid's code //
@@ -696,7 +696,7 @@ void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 *data, 
 #endif
 
 #if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
-static void SHA256_SSE_SHA_HashBlocks(word32 *state, const word32 *data, size_t blocks);
+static void CRYPTOPP_FASTCALL SHA256_SSE_SHA_HashBlocks(word32 *state, const word32 *data, size_t length);
 #endif
 
 #if (defined(CRYPTOPP_X86_ASM_AVAILABLE) || defined(CRYPTOPP_X32_ASM_AVAILABLE) || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_SHA_ASM)
@@ -878,7 +878,7 @@ static void SHA256_SSE_SHA_Transform(word32 *state, const word32 *data)
 
 #if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
 // Based on http://software.intel.com/en-us/articles/intel-sha-extensions and code by Sean Gulley.
-static void SHA256_SSE_SHA_HashBlocks(word32 *state, const word32 *data, size_t length)
+static void CRYPTOPP_FASTCALL SHA256_SSE_SHA_HashBlocks(word32 *state, const word32 *data, size_t length)
 {
     CRYPTOPP_ASSERT(state);    CRYPTOPP_ASSERT(data);
     CRYPTOPP_ASSERT(length % SHA256::BLOCKSIZE == 0);
