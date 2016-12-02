@@ -15,7 +15,7 @@ NAMESPACE_BEGIN(CryptoPP)
 template <class T>
 void Poly1305_Base<T>::UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params)
 {
-	if(key && length)
+	if (key && length)
 	{
 		// key is {k,r} pair, r is 16 bytes
 		length = SaturatingSubtract(length, (unsigned)BLOCKSIZE);
@@ -32,7 +32,7 @@ void Poly1305_Base<T>::UncheckedSetKey(const byte *key, unsigned int length, con
 	}
 
 	ConstByteArrayParameter t;
-	if(params.GetValue(Name::IV(), t) && t.begin() && t.size())
+	if (params.GetValue(Name::IV(), t) && t.begin() && t.size())
 	{
 		SecByteBlock nk(16);
 		m_cipher.ProcessBlock(t.begin(), nk);
@@ -51,7 +51,8 @@ void Poly1305_Base<T>::UncheckedSetKey(const byte *key, unsigned int length, con
 template <class T>
 void Poly1305_Base<T>::Update(const byte *input, size_t length)
 {
-	CRYPTOPP_ASSERT((input && length) || !(input || length));
+	CRYPTOPP_ASSERT((input && length) || !length);
+	if (!length) return;
 
 	size_t rem, num = m_idx;
 	if (num)
