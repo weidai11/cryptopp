@@ -95,6 +95,10 @@ static void SHA1_CXX_Transform(word32 *state, const word32 *data)
 // end of Steve Reid's code //
 //////////////////////////////
 
+///////////////////////////////////
+// start of Walton/Gulley's code //
+///////////////////////////////////
+
 #if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
 // Based on http://software.intel.com/en-us/articles/intel-sha-extensions and code by Sean Gulley.
 static void SHA1_SSE_SHA_Transform(word32 *state, const word32 *data)
@@ -281,6 +285,10 @@ static void SHA1_SSE_SHA_Transform(word32 *state, const word32 *data)
     state[4] = _mm_extract_epi32(E0, 3);
 }
 #endif
+
+/////////////////////////////////
+// end of Walton/Gulley's code //
+/////////////////////////////////
 
 pfnSHATransform InitializeSHA1Transform()
 {
@@ -693,7 +701,17 @@ static void SHA256_SSE_SHA_HashBlocks(word32 *state, const word32 *data, size_t 
 
 #if (defined(CRYPTOPP_X86_ASM_AVAILABLE) || defined(CRYPTOPP_X32_ASM_AVAILABLE) || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_SHA_ASM)
 
-pfnSHAHashBlocks InitializeSHA256HashBlocks();
+pfnSHAHashBlocks InitializeSHA256HashBlocks()
+{
+#if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
+    if (HasSHA())
+        return &SHA256_SSE_SHA_HashBlocks;
+    else
+#endif
+
+    return &X86_SHA256_HashBlocks;
+}
+
 size_t SHA256::HashMultipleBlocks(const word32 *input, size_t length)
 {
     static const pfnSHAHashBlocks s_pfn = InitializeSHA256HashBlocks();
@@ -707,7 +725,6 @@ size_t SHA224::HashMultipleBlocks(const word32 *input, size_t length)
     s_pfn(m_state, input, (length&(size_t(0)-BLOCKSIZE)) - !HasSSE2());
     return length % BLOCKSIZE;
 }
-
 #endif
 
 #define blk2(i) (W[i&15]+=s1(W[(i-2)&15])+W[(i-7)&15]+s0(W[(i-15)&15]))
@@ -850,6 +867,10 @@ static void SHA256_SSE_SHA_Transform(word32 *state, const word32 *data)
 {
     return SHA256_SSE_SHA_HashBlocks(state, data, SHA256::BLOCKSIZE);
 }
+
+///////////////////////////////////
+// start of Walton/Gulley's code //
+///////////////////////////////////
 
 // Based on http://software.intel.com/en-us/articles/intel-sha-extensions and code by Sean Gulley.
 static void SHA256_SSE_SHA_HashBlocks(word32 *state, const word32 *data, size_t length)
@@ -1049,6 +1070,10 @@ static void SHA256_SSE_SHA_HashBlocks(word32 *state, const word32 *data, size_t 
 }
 #endif  // CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
 
+/////////////////////////////////
+// end of Walton/Gulley's code //
+/////////////////////////////////
+
 pfnSHATransform InitializeSHA256Transform()
 {
 #if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
@@ -1058,17 +1083,6 @@ pfnSHATransform InitializeSHA256Transform()
 #endif
 
     return &SHA256_CXX_Transform;
-}
-
-pfnSHAHashBlocks InitializeSHA256HashBlocks()
-{
-#if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
-    if (HasSHA())
-        return &SHA256_SSE_SHA_HashBlocks;
-    else
-#endif
-
-    return &X86_SHA256_HashBlocks;
 }
 
 void SHA256::Transform(word32 *state, const word32 *data)
