@@ -750,12 +750,11 @@ size_t SHA224::HashMultipleBlocks(const word32 *input, size_t length)
 #define s0(x) (rotrFixed(x,7)^rotrFixed(x,18)^(x>>3))
 #define s1(x) (rotrFixed(x,17)^rotrFixed(x,19)^(x>>10))
 
-// Smaller but slower
 #if defined(__OPTIMIZE_SIZE__)
+// Smaller but slower
 void SHA256_CXX_Transform(word32 *state, const word32 *data)
 {
-	word32 T[20];
-	word32 W[32];
+	word32 W[32], T[20];
 	unsigned int i = 0, j = 0;
 	word32 *t = T+8;
 
@@ -824,15 +823,10 @@ void SHA256_CXX_Transform(word32 *state, const word32 *data)
     state[7] += t[7];
 }
 #else
+// Bigger but faster
 void SHA256_CXX_Transform(word32 *state, const word32 *data)
 {
-	word32 W[16];
-#if (defined(CRYPTOPP_X86_ASM_AVAILABLE) || defined(CRYPTOPP_X32_ASM_AVAILABLE) || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_SHA_ASM)
-	// this byte reverse is a waste of time, but this function is only called by MDC
-	ByteReverse(W, data, SHA256::BLOCKSIZE);
-	X86_SHA256_HashBlocks(state, W, SHA256::BLOCKSIZE - !HasSSE2());
-#else
-	word32 T[8];
+	word32 W[16], T[8];
     /* Copy context->state[] to working vars */
 	memcpy(T, state, sizeof(T));
     /* 64 operations, partially loop unrolled */
@@ -852,9 +846,8 @@ void SHA256_CXX_Transform(word32 *state, const word32 *data)
     state[5] += f(0);
     state[6] += g(0);
     state[7] += h(0);
-#endif
 }
-#endif
+#endif  // __OPTIMIZE_SIZE__
 
 #undef S0
 #undef S1
@@ -862,16 +855,28 @@ void SHA256_CXX_Transform(word32 *state, const word32 *data)
 #undef s1
 #undef R
 
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+static void SHA256_SSE2_Transform(word32 *state, const word32 *data)
+{
+	// this byte reverse is a waste of time, but this function is only called by MDC
+	word32 W[16];
+	ByteReverse(W, data, SHA256::BLOCKSIZE);
+	X86_SHA256_HashBlocks(state, W, SHA256::BLOCKSIZE - !HasSSE2());
+}
+#endif  // CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+
 #if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
 static void SHA256_SSE_SHA_Transform(word32 *state, const word32 *data)
 {
     return SHA256_SSE_SHA_HashBlocks(state, data, SHA256::BLOCKSIZE);
 }
+#endif  // CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
 
 ///////////////////////////////////
 // start of Walton/Gulley's code //
 ///////////////////////////////////
 
+#if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
 // Based on http://software.intel.com/en-us/articles/intel-sha-extensions and code by Sean Gulley.
 static void SHA256_SSE_SHA_HashBlocks(word32 *state, const word32 *data, size_t length)
 {
@@ -1079,6 +1084,11 @@ pfnSHATransform InitializeSHA256Transform()
 #if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
     if (HasSHA())
         return &SHA256_SSE_SHA_Transform;
+    else
+#endif
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+    if (HasSSE2())
+        return &SHA256_SSE2_Transform;
     else
 #endif
 
