@@ -19,6 +19,13 @@
 # endif
 #endif
 
+// Issue 340
+#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wconversion"
+# pragma GCC diagnostic ignored "-Wsign-conversion"
+#endif
+
 #include "cryptlib.h"
 #include "stdcpp.h"
 #include "smartptr.h"
@@ -2426,6 +2433,10 @@ NAMESPACE_END
 
 #if (CRYPTOPP_MSC_VERSION)
 # pragma warning(pop)
+#endif
+
+#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
+# pragma GCC diagnostic pop
 #endif
 
 #endif

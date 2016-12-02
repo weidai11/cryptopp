@@ -9,6 +9,13 @@
 
 #include "config.h"
 
+// Issue 340
+#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wconversion"
+# pragma GCC diagnostic ignored "-Wsign-conversion"
+#endif
+
 // ARM32/ARM64 Headers
 #if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
 # if defined(__GNUC__)
@@ -601,5 +608,10 @@ inline int GetCacheLineSize()
 #endif  //  X86/X32/X64
 
 NAMESPACE_END
+
+// Issue 340
+#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
+# pragma GCC diagnostic pop
+#endif
 
 #endif  // CRYPTOPP_CPU_H

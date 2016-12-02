@@ -13,6 +13,13 @@
 #include "queue.h"
 #include "misc.h"
 
+// Issue 340
+#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wconversion"
+# pragma GCC diagnostic ignored "-Wsign-conversion"
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 //! \brief ASN.1 types
@@ -542,5 +549,10 @@ inline ::CryptoPP::OID operator+(const ::CryptoPP::OID &lhs, unsigned long rhs)
 #endif
 
 NAMESPACE_END
+
+// Issue 340
+#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
+# pragma GCC diagnostic pop
+#endif
 
 #endif

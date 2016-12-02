@@ -1,21 +1,27 @@
 // seckey.h - written and placed in the public domain by Wei Dai
 
-//! \file
+//! \file seckey.h
 //! \brief Classes and functions for implementing secret key algorithms.
 
 #ifndef CRYPTOPP_SECKEY_H
 #define CRYPTOPP_SECKEY_H
 
 #include "config.h"
+#include "cryptlib.h"
+#include "misc.h"
+#include "simple.h"
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(push)
 # pragma warning(disable: 4189)
 #endif
 
-#include "cryptlib.h"
-#include "misc.h"
-#include "simple.h"
+// Issue 340
+#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wconversion"
+# pragma GCC diagnostic ignored "-Wsign-conversion"
+#endif
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -440,6 +446,11 @@ NAMESPACE_END
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(pop)
+#endif
+
+// Issue 340
+#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
+# pragma GCC diagnostic pop
 #endif
 
 #endif

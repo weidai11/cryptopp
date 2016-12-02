@@ -131,13 +131,13 @@ void SimpleKeyingInterface::ThrowIfInvalidIV(const byte *iv)
 size_t SimpleKeyingInterface::ThrowIfInvalidIVLength(int size)
 {
 	if (size < 0)
-		return IVSize();
+		return (size_t)IVSize();
 	else if ((size_t)size < MinIVLength())
 		throw InvalidArgument(GetAlgorithm().AlgorithmName() + ": IV length " + IntToString(size) + " is less than the minimum of " + IntToString(MinIVLength()));
 	else if ((size_t)size > MaxIVLength())
 		throw InvalidArgument(GetAlgorithm().AlgorithmName() + ": IV length " + IntToString(size) + " exceeds the maximum of " + IntToString(MaxIVLength()));
 	else
-		return size;
+		return (size_t)size;
 }
 
 const byte * SimpleKeyingInterface::GetIVAndThrowIfInvalid(const NameValuePairs &params, size_t &size)
@@ -298,7 +298,7 @@ byte RandomNumberGenerator::GenerateByte()
 word32 RandomNumberGenerator::GenerateWord32(word32 min, word32 max)
 {
 	const word32 range = max-min;
-	const int maxBits = BitPrecision(range);
+	const unsigned int maxBits = BitPrecision(range);
 
 	word32 value;
 
@@ -721,6 +721,13 @@ size_t BufferedTransformation::PutWord32(word32 value, ByteOrder order, bool blo
 	return ChannelPutWord32(DEFAULT_CHANNEL, value, order, blocking);
 }
 
+// Issue 340
+#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wconversion"
+# pragma GCC diagnostic ignored "-Wsign-conversion"
+#endif
+
 size_t BufferedTransformation::PeekWord16(word16 &value, ByteOrder order) const
 {
 	byte buf[2] = {0, 0};
@@ -746,6 +753,11 @@ size_t BufferedTransformation::PeekWord32(word32 &value, ByteOrder order) const
 
 	return len;
 }
+
+// Issue 340
+#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
+# pragma GCC diagnostic pop
+#endif
 
 size_t BufferedTransformation::GetWord16(word16 &value, ByteOrder order)
 {

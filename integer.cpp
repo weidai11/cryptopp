@@ -13,6 +13,12 @@
 # pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 
+// Issue 340
+#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
+# pragma GCC diagnostic ignored "-Wconversion"
+# pragma GCC diagnostic ignored "-Wsign-conversion"
+#endif
+
 #ifndef CRYPTOPP_IMPORTS
 
 #include "integer.h"

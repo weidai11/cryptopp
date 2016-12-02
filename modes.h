@@ -13,6 +13,13 @@
 #include "argnames.h"
 #include "algparam.h"
 
+// Issue 340
+#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wconversion"
+# pragma GCC diagnostic ignored "-Wsign-conversion"
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 //! \class CipherModeDocumentation
@@ -481,5 +488,10 @@ typedef CTR_Mode_ExternalCipher::Encryption CounterMode;
 #endif
 
 NAMESPACE_END
+
+// Issue 340
+#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
+# pragma GCC diagnostic pop
+#endif
 
 #endif
