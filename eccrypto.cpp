@@ -85,10 +85,10 @@ template <class T> struct EcRecommendedParameters;
 
 template<> struct EcRecommendedParameters<EC2N>
 {
-	EcRecommendedParameters(const OID &oid, unsigned int t2, unsigned int t3, unsigned int t4, const char *a, const char *b, const char *g, const char *n, unsigned int h)
-		: oid(oid), t0(0), t1(0), t2(t2), t3(t3), t4(t4), a(a), b(b), g(g), n(n), h(h) {}
-	EcRecommendedParameters(const OID &oid, unsigned int t0, unsigned int t1, unsigned int t2, unsigned int t3, unsigned int t4, const char *a, const char *b, const char *g, const char *n, unsigned int h)
-		: oid(oid), t0(t0), t1(t1), t2(t2), t3(t3), t4(t4), a(a), b(b), g(g), n(n), h(h) {}
+	EcRecommendedParameters(const OID &_oid, unsigned int _t2, unsigned int _t3, unsigned int _t4, const char *_a, const char *_b, const char *_g, const char *_n, unsigned int _h)
+		: oid(_oid), t0(0), t1(0), t2(_t2), t3(_t3), t4(_t4), a(_a), b(_b), g(_g), n(_n), h(_h) {}
+	EcRecommendedParameters(const OID &_oid, unsigned int _t0, unsigned int _t1, unsigned int _t2, unsigned int _t3, unsigned int _t4, const char *_a, const char *_b, const char *_g, const char *_n, unsigned int _h)
+		: oid(_oid), t0(_t0), t1(_t1), t2(_t2), t3(_t3), t4(_t4), a(_a), b(_b), g(_g), n(_n), h(_h) {}
 	EC2N *NewEC() const
 	{
 		StringSource ssA(a, true, new HexDecoder);
@@ -107,8 +107,8 @@ template<> struct EcRecommendedParameters<EC2N>
 
 template<> struct EcRecommendedParameters<ECP>
 {
-	EcRecommendedParameters(const OID &oid, const char *p, const char *a, const char *b, const char *g, const char *n, unsigned int h)
-		: oid(oid), p(p), a(a), b(b), g(g), n(n), h(h) {}
+	EcRecommendedParameters(const OID &_oid, const char *_p, const char *_a, const char *_b, const char *_g, const char *_n, unsigned int _h)
+		: oid(_oid), p(_p), a(_a), b(_b), g(_g), n(_n), h(_h) {}
 	ECP *NewEC() const
 	{
 		StringSource ssP(p, true, new HexDecoder);

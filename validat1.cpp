@@ -1198,8 +1198,8 @@ bool BlockTransformationTest(const CipherFactory &cg, BufferedTransformation &va
 class FilterTester : public Unflushable<Sink>
 {
 public:
-	FilterTester(const byte *validOutput, size_t outputLen)
-		: validOutput(validOutput), outputLen(outputLen), counter(0), fail(false) {}
+	FilterTester(const byte *_validOutput, size_t _outputLen)
+		: validOutput(_validOutput), outputLen(_outputLen), counter(0), fail(false) {}
 	void PutByte(byte inByte)
 	{
 		if (counter >= outputLen || validOutput[counter] != inByte)

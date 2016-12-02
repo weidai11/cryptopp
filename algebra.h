@@ -250,7 +250,7 @@ struct BaseAndExponent
 {
 public:
 	BaseAndExponent() {}
-	BaseAndExponent(const T &base, const E &exponent) : base(base), exponent(exponent) {}
+	BaseAndExponent(const T &_base, const E &_exponent) : base(_base), exponent(_exponent) {}
 	bool operator<(const BaseAndExponent<T, E> &rhs) const {return exponent < rhs.exponent;}
 	T base;
 	E exponent;

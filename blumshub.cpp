@@ -45,9 +45,9 @@ void PublicBlumBlumShub::ProcessData(byte *outString, const byte *inString, size
 		*outString++ = *inString++ ^ PublicBlumBlumShub::GenerateByte();
 }
 
-BlumBlumShub::BlumBlumShub(const Integer &p, const Integer &q, const Integer &seed)
-	: PublicBlumBlumShub(p*q, seed),
-	  p(p), q(q),
+BlumBlumShub::BlumBlumShub(const Integer &_p, const Integer &_q, const Integer &seed)
+	: PublicBlumBlumShub(_p*_q, seed),
+	  p(_p), q(_q),
 	  x0(modn.Square(seed))
 {
 }
