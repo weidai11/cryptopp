@@ -16,11 +16,10 @@ NAMESPACE_BEGIN(CryptoPP)
 class WindowsHandle
 {
 public:
-	virtual ~WindowsHandle() {}
+	virtual ~WindowsHandle();
 
 	WindowsHandle(HANDLE h = INVALID_HANDLE_VALUE, bool own=false);
 	WindowsHandle(const WindowsHandle &h) : m_h(h.m_h), m_own(false) {}
-	virtual ~WindowsHandle();
 
 	bool GetOwnership() const {return m_own;}
 	void SetOwnership(bool own) {m_own = own;}
