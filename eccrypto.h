@@ -129,11 +129,11 @@ public:
 	bool operator==(const ThisClass &rhs) const
 		{return this->m_groupPrecomputation.GetCurve() == rhs.m_groupPrecomputation.GetCurve() && this->m_gpc.GetBase(this->m_groupPrecomputation) == rhs.m_gpc.GetBase(rhs.m_groupPrecomputation);}
 
-#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
-	const Point& GetBasePoint() const {return this->GetSubgroupGenerator();}
-	const Integer& GetBasePointOrder() const {return this->GetSubgroupOrder();}
-	void LoadRecommendedParameters(const OID &oid) {Initialize(oid);}
-#endif
+	//#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
+	//const Point& GetBasePoint() const {return this->GetSubgroupGenerator();}
+	//const Integer& GetBasePointOrder() const {return this->GetSubgroupOrder();}
+	//void LoadRecommendedParameters(const OID &oid) {Initialize(oid);}
+	//#endif
 
 protected:
 	unsigned int FieldElementLength() const {return GetCurve().GetField().MaxElementByteLength();}

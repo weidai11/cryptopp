@@ -260,9 +260,9 @@ struct CRYPTOPP_DLL DecodingResult
 	//! \brief Recovered message length if isValidCoding is true, undefined otherwise
 	size_t messageLength;
 
-#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
-	operator size_t() const {return isValidCoding ? messageLength : 0;}
-#endif
+	//#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
+	//operator size_t() const {return isValidCoding ? messageLength : 0;}
+	//#endif
 };
 
 //! \class NameValuePairs
@@ -1177,9 +1177,9 @@ protected:
 		{CRYPTOPP_UNUSED(headerLength); CRYPTOPP_UNUSED(messageLength); CRYPTOPP_UNUSED(footerLength);}
 };
 
-#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
-typedef SymmetricCipher StreamCipher;
-#endif
+//#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
+//typedef SymmetricCipher StreamCipher;
+//#endif
 
 //! \class RandomNumberGenerator
 //! \brief Interface for random number generators
@@ -1268,13 +1268,13 @@ public:
 			std::iter_swap(begin, begin + GenerateWord32(0, end-begin-1));
 	}
 
-#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
-	byte GetByte() {return GenerateByte();}
-	unsigned int GetBit() {return GenerateBit();}
-	word32 GetLong(word32 a=0, word32 b=0xffffffffL) {return GenerateWord32(a, b);}
-	word16 GetShort(word16 a=0, word16 b=0xffff) {return (word16)GenerateWord32(a, b);}
-	void GetBlock(byte *output, size_t size) {GenerateBlock(output, size);}
-#endif
+	//#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
+	//byte GetByte() {return GenerateByte();}
+	//unsigned int GetBit() {return GenerateBit();}
+	//word32 GetLong(word32 a=0, word32 b=0xffffffffL) {return GenerateWord32(a, b);}
+	//word16 GetShort(word16 a=0, word16 b=0xffff) {return (word16)GenerateWord32(a, b);}
+	//void GetBlock(byte *output, size_t size) {GenerateBlock(output, size);}
+	//#endif
 
 };
 
@@ -1566,9 +1566,9 @@ public:
 		virtual int GetAutoSignalPropagation() const {return 0;}
 public:
 
-#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
-		void Close() {MessageEnd();}
-#endif
+	//#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
+	//void Close() {MessageEnd();}
+	//#endif
 	//@}
 
 	//!	\name RETRIEVAL OF ONE MESSAGE
@@ -1692,9 +1692,9 @@ public:
 		lword CopyRangeTo(BufferedTransformation &target, lword position, lword copyMax=LWORD_MAX, const std::string &channel=DEFAULT_CHANNEL) const
 			{lword i = position; CopyRangeTo2(target, i, i+copyMax, channel); return i-position;}
 
-#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
-		unsigned long MaxRetrieveable() const {return MaxRetrievable();}
-#endif
+		//#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
+		//unsigned long MaxRetrieveable() const {return MaxRetrievable();}
+		//#endif
 	//@}
 
 	//!	\name RETRIEVAL OF MULTIPLE MESSAGES
@@ -2325,10 +2325,10 @@ public:
 	//!   length, if one exists, otherwise return 0.
 	virtual size_t FixedMaxPlaintextLength() const {return 0;}
 
-#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
+	//#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
 	//size_t MaxPlainTextLength(size_t cipherTextLength) const {return MaxPlaintextLength(cipherTextLength);}
 	//size_t CipherTextLength(size_t plainTextLength) const {return CiphertextLength(plainTextLength);}
-#endif
+	//#endif
 };
 
 //! \class PK_Encryptor
@@ -2418,11 +2418,11 @@ public:
 		{return Decrypt(rng, ciphertext, FixedCiphertextLength(), plaintext, parameters);}
 };
 
-#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
+//#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
 //typedef PK_CryptoSystem PK_FixedLengthCryptoSystem;
 //typedef PK_Encryptor PK_FixedLengthEncryptor;
 //typedef PK_Decryptor PK_FixedLengthDecryptor;
-#endif
+//#endif
 
 //! \class PK_SignatureScheme
 //! \brief Interface for public-key signers and verifiers
@@ -2713,10 +2713,10 @@ public:
 	//! \pre <tt>COUNTOF(otherPublicKey) == PublicKeyLength()</tt>
 	virtual bool Agree(byte *agreedValue, const byte *privateKey, const byte *otherPublicKey, bool validateOtherPublicKey=true) const =0;
 
-#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
-	bool ValidateDomainParameters(RandomNumberGenerator &rng) const
-		{return GetCryptoParameters().Validate(rng, 2);}
-#endif
+	//#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
+	//bool ValidateDomainParameters(RandomNumberGenerator &rng) const
+	//	{return GetCryptoParameters().Validate(rng, 2);}
+	//#endif
 };
 
 //! \brief Interface for domains of authenticated key agreement protocols
@@ -2811,10 +2811,10 @@ public:
 		const byte *staticOtherPublicKey, const byte *ephemeralOtherPublicKey,
 		bool validateStaticOtherPublicKey=true) const =0;
 
-#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
-	bool ValidateDomainParameters(RandomNumberGenerator &rng) const
-		{return GetCryptoParameters().Validate(rng, 2);}
-#endif
+	//#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
+	// bool ValidateDomainParameters(RandomNumberGenerator &rng) const
+	//	{return GetCryptoParameters().Validate(rng, 2);}
+	//#endif
 };
 
 // interface for password authenticated key agreement protocols, not implemented yet
@@ -2960,11 +2960,11 @@ public:
 	virtual void BEREncode(BufferedTransformation &bt) const {DEREncode(bt);}
 };
 
-#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
-typedef PK_SignatureScheme PK_SignatureSystem;
-typedef SimpleKeyAgreementDomain PK_SimpleKeyAgreementDomain;
-typedef AuthenticatedKeyAgreementDomain PK_AuthenticatedKeyAgreementDomain;
-#endif
+//#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
+//typedef PK_SignatureScheme PK_SignatureSystem;
+//typedef SimpleKeyAgreementDomain PK_SimpleKeyAgreementDomain;
+//typedef AuthenticatedKeyAgreementDomain PK_AuthenticatedKeyAgreementDomain;
+//#endif
 
 NAMESPACE_END
 

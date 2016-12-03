@@ -462,12 +462,12 @@ struct CBC_CTS_Mode_ExternalCipher : public CipherModeDocumentation
 	typedef CipherModeFinalTemplate_ExternalCipher<CBC_CTS_Decryption> Decryption;
 };
 
-#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
+//#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
 //typedef CFB_Mode_ExternalCipher::Encryption CFBEncryption;
 //typedef CFB_Mode_ExternalCipher::Decryption CFBDecryption;
 //typedef OFB_Mode_ExternalCipher::Encryption OFB;
 //typedef CTR_Mode_ExternalCipher::Encryption CounterMode;
-#endif
+//#endif
 
 NAMESPACE_END
 
