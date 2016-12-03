@@ -21,7 +21,7 @@ Square, TEA, \ref ThreeWay "3-Way", Twofish, XTEA
 <dt>Non-Cryptographic Checksums<dd>
 	CRC32, Adler32
 <dt>Message Authentication Codes<dd>
-	VMAC, HMAC, CBC_MAC, CMAC, DMAC, TTMAC, \ref GCM "GCM (GMAC)", BLAKE2
+	VMAC, HMAC, CBC_MAC, CMAC, DMAC, TTMAC, \ref GCM "GCM (GMAC)", BLAKE2 (BLAKE2b and BLAKE2s), Poly1305
 <dt>Random Number Generators<dd>
 	NullRNG(), LC_RNG, RandomPool, BlockingRng, NonblockingRng, AutoSeededRandomPool, AutoSeededX917RNG,
 	\ref MersenneTwister "MersenneTwister (MT19937 and MT19937-AR)", RDRAND, RDSEED
@@ -45,7 +45,7 @@ Square, TEA, \ref ThreeWay "3-Way", Twofish, XTEA
 <dt>Output Sink Classes<dd>
 	StringSinkTemplate, StringSink, ArraySink, FileSink, SocketSink, WindowsPipeSink, RandomNumberSink
 <dt>Filter Wrappers<dd>
-	StreamTransformationFilter, HashFilter, HashVerificationFilter, SignerFilter, SignatureVerificationFilter
+	StreamTransformationFilter, AuthenticatedEncryptionFilter, AuthenticatedDecryptionFilter, HashFilter, HashVerificationFilter, SignerFilter, SignatureVerificationFilter
 <dt>Binary to Text Encoders and Decoders<dd>
 	HexEncoder, HexDecoder, Base64Encoder, Base64Decoder, Base64URLEncoder, Base64URLDecoder, Base32Encoder, Base32Decoder
 <dt>Wrappers for OS features<dd>

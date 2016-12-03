@@ -22,7 +22,7 @@ Currently the library contains the following algorithms:
                                    CFB, OFB, counter mode (CTR)
 
      message authentication codes  VMAC, HMAC, GMAC, CMAC, CBC-MAC, DMAC,
-                                   Two-Track-MAC
+                                   Two-Track-MAC, BLAKE2 (BLAKE2b, BLAKE2s)
 
                                    BLAKE2 (BLAKE2b, BLAKE2s), SHA-1, SHA-2 (SHA-224,
                    hash functions  SHA-256, SHA-384, and SHA-512), SHA-3, Tiger,
