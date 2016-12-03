@@ -23,6 +23,10 @@ class ESIGNFunction : public TrapdoorFunction, public ASN1CryptoMaterial<PublicK
 	typedef ESIGNFunction ThisClass;
 
 public:
+
+	//! \brief Initialize a ESIGN public key with {n,e}
+	//! \param n the modulus
+	//! \param e the public exponent
 	void Initialize(const Integer &n, const Integer &e)
 		{m_n = n; m_e = e;}
 
@@ -62,13 +66,20 @@ class InvertibleESIGNFunction : public ESIGNFunction, public RandomizedTrapdoorF
 	typedef InvertibleESIGNFunction ThisClass;
 
 public:
+
+	//! \brief Initialize a ESIGN private key with {n,e,p,q}
+	//! \param n modulus
+	//! \param e public exponent
+	//! \param p first prime factor
+	//! \param q second prime factor
+	//! \details This Initialize() function overload initializes a private key from existing parameters.
 	void Initialize(const Integer &n, const Integer &e, const Integer &p, const Integer &q)
 		{m_n = n; m_e = e; m_p = p; m_q = q;}
 
-	//! \brief Create a RSA private key
+	//! \brief Create a ESIGN private key
 	//! \param rng a RandomNumberGenerator derived class
 	//! \param modulusBits the size of the modulud, in bits
-	//! \details This function overload of Initialize() creates a new keypair because it
+	//! \details This function overload of Initialize() creates a new private key because it
 	//!   takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
 	//!   then use one of the other Initialize() overloads.
 	void Initialize(RandomNumberGenerator &rng, unsigned int modulusBits)
@@ -133,7 +144,7 @@ struct P1363_EMSA5 : public SignatureStandard
 
 struct ESIGN_Keys
 {
-	static std::string StaticAlgorithmName() {return "ESIGN";}
+	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "ESIGN";}
 	typedef ESIGNFunction PublicKey;
 	typedef InvertibleESIGNFunction PrivateKey;
 };

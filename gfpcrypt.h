@@ -37,18 +37,30 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE DL_GroupParameters_IntegerBased : public A
 public:
 	virtual ~DL_GroupParameters_IntegerBased() {}
 
+	//! \brief Initialize a group parameters over integers
+	//! \param params the group parameters
 	void Initialize(const DL_GroupParameters_IntegerBased &params)
 		{Initialize(params.GetModulus(), params.GetSubgroupOrder(), params.GetSubgroupGenerator());}
-	//! \brief Create a trapdoor function keypair
+
+	//! \brief Create a group parameters over integers
 	//! \param rng a RandomNumberGenerator derived class
 	//! \param pbits the size of p, in bits
-	//! \details This function overload of Initialize() creates a new keypair because it
+	//! \details This function overload of Initialize() creates a new private key because it
 	//!   takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
 	//!   then use one of the other Initialize() overloads.
 	void Initialize(RandomNumberGenerator &rng, unsigned int pbits)
 		{GenerateRandom(rng, MakeParameters("ModulusSize", (int)pbits));}
+
+	//! \brief Initialize a group parameters over integers
+	//! \param p the modulus
+	//! \param g the generator
 	void Initialize(const Integer &p, const Integer &g)
 		{SetModulusAndSubgroupGenerator(p, g); SetSubgroupOrder(ComputeGroupOrder(p)/2);}
+
+	//! \brief Initialize a group parameters over integers
+	//! \param p the modulus
+	//! \param q the subgroup order
+	//! \param g the generator
 	void Initialize(const Integer &p, const Integer &q, const Integer &g)
 		{SetModulusAndSubgroupGenerator(p, g); SetSubgroupOrder(q);}
 
@@ -254,10 +266,24 @@ class DL_PublicKey_GFP : public DL_PublicKeyImpl<GP>
 public:
 	virtual ~DL_PublicKey_GFP() {}
 
+	//! \brief Initialize a public key over GF(p)
+	//! \param params the group parameters
+	//! \param y the public element
 	void Initialize(const DL_GroupParameters_IntegerBased &params, const Integer &y)
 		{this->AccessGroupParameters().Initialize(params); this->SetPublicElement(y);}
+
+	//! \brief Initialize a public key over GF(p)
+	//! \param p the modulus
+	//! \param g the generator
+	//! \param y the public element
 	void Initialize(const Integer &p, const Integer &g, const Integer &y)
 		{this->AccessGroupParameters().Initialize(p, g); this->SetPublicElement(y);}
+
+	//! \brief Initialize a public key over GF(p)
+	//! \param p the modulus
+	//! \param q the subgroup order
+	//! \param g the generator
+	//! \param y the public element
 	void Initialize(const Integer &p, const Integer &q, const Integer &g, const Integer &y)
 		{this->AccessGroupParameters().Initialize(p, q, g); this->SetPublicElement(y);}
 
@@ -280,7 +306,7 @@ public:
 	//! \brief Create a private key
 	//! \param rng a RandomNumberGenerator derived class
 	//! \param modulusBits the size of the modulus, in bits
-	//! \details This function overload of Initialize() creates a new keypair because it
+	//! \details This function overload of Initialize() creates a new private key because it
 	//!   takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
 	//!   then use one of the other Initialize() overloads.
 	void Initialize(RandomNumberGenerator &rng, unsigned int modulusBits)
@@ -288,9 +314,9 @@ public:
 
 	//! \brief Create a private key
 	//! \param rng a RandomNumberGenerator derived class
-	//! \param p TODO
-	//! \param g TODO
-	//! \details This function overload of Initialize() creates a new keypair because it
+	//! \param p the modulus
+	//! \param g the generator
+	//! \details This function overload of Initialize() creates a new private key because it
 	//!   takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
 	//!   then use one of the other Initialize() overloads.
 	void Initialize(RandomNumberGenerator &rng, const Integer &p, const Integer &g)
@@ -298,20 +324,33 @@ public:
 
 	//! \brief Create a private key
 	//! \param rng a RandomNumberGenerator derived class
-	//! \param p TODO
-	//! \param q TODO
-	//! \param g TODO
-	//! \details This function overload of Initialize() creates a new keypair because it
+	//! \param p the modulus
+	//! \param q the subgroup order
+	//! \param g the generator
+	//! \details This function overload of Initialize() creates a new private key because it
 	//!   takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
 	//!   then use one of the other Initialize() overloads.
 	void Initialize(RandomNumberGenerator &rng, const Integer &p, const Integer &q, const Integer &g)
 		{this->GenerateRandom(rng, MakeParameters("Modulus", p)("SubgroupOrder", q)("SubgroupGenerator", g));}
 
+	//! \brief Initialize a private key over GF(p)
+	//! \param params the group parameters
+	//! \param x the private exponent
 	void Initialize(const DL_GroupParameters_IntegerBased &params, const Integer &x)
 		{this->AccessGroupParameters().Initialize(params); this->SetPrivateExponent(x);}
 
+	//! \brief Initialize a private key over GF(p)
+	//! \param p the modulus
+	//! \param g the generator
+	//! \param x the private exponent
 	void Initialize(const Integer &p, const Integer &g, const Integer &x)
 		{this->AccessGroupParameters().Initialize(p, g); this->SetPrivateExponent(x);}
+
+	//! \brief Initialize a private key over GF(p)
+	//! \param p the modulus
+	//! \param q the subgroup order
+	//! \param g the generator
+	//! \param x the private exponent
 	void Initialize(const Integer &p, const Integer &q, const Integer &g, const Integer &x)
 		{this->AccessGroupParameters().Initialize(p, q, g); this->SetPrivateExponent(x);}
 };

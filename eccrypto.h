@@ -40,14 +40,33 @@ public:
 
 	virtual ~DL_GroupParameters_EC() {}
 
+	//! \brief Construct an EC GroupParameters
 	DL_GroupParameters_EC() : m_compress(false), m_encodeAsOID(true) {}
+
+	//! \brief Construct an EC GroupParameters
+	//! \param oid the OID of a curve
 	DL_GroupParameters_EC(const OID &oid)
 		: m_compress(false), m_encodeAsOID(true) {Initialize(oid);}
+
+	//! \brief Construct an EC GroupParameters
+	//! \param ec the elliptic curve
+	//! \param G the base point
+	//! \param n the order of the base point
+	//! \param k the cofactor
 	DL_GroupParameters_EC(const EllipticCurve &ec, const Point &G, const Integer &n, const Integer &k = Integer::Zero())
 		: m_compress(false), m_encodeAsOID(true) {Initialize(ec, G, n, k);}
+
+	//! \brief Construct an EC GroupParameters
+	//! \param bt BufferedTransformation with group parameters
 	DL_GroupParameters_EC(BufferedTransformation &bt)
 		: m_compress(false), m_encodeAsOID(true) {BERDecode(bt);}
 
+	//! \brief Initialize an EC GroupParameters using {EC,G,n,k}
+	//! \param ec the elliptic curve
+	//! \param G the base point
+	//! \param n the order of the base point
+	//! \param k the cofactor
+	//! \details This Initialize() function overload initializes group parameters from existing parameters.
 	void Initialize(const EllipticCurve &ec, const Point &G, const Integer &n, const Integer &k = Integer::Zero())
 	{
 		this->m_groupPrecomputation.SetCurve(ec);
@@ -55,6 +74,10 @@ public:
 		m_n = n;
 		m_k = k;
 	}
+
+	//! \brief Initialize a DL_GroupParameters_EC {EC,G,n,k}
+	//! \param oid the OID of a curve
+	//! \details This Initialize() function overload initializes group parameters from existing parameters.
 	void Initialize(const OID &oid);
 
 	// NameValuePairs
@@ -156,8 +179,19 @@ public:
 
 	virtual ~DL_PublicKey_EC() {}
 
+	//! \brief Initialize an EC Public Key using {GP,Q}
+	//! \param params group parameters
+	//! \param Q the public point
+	//! \details This Initialize() function overload initializes a public key from existing parameters.
 	void Initialize(const DL_GroupParameters_EC<EC> &params, const Element &Q)
 		{this->AccessGroupParameters() = params; this->SetPublicElement(Q);}
+
+	//! \brief Initialize an EC Public Key using {EC,G,n,Q}
+	//! \param ec the elliptic curve
+	//! \param G the base point
+	//! \param n the order of the base point
+	//! \param Q the public point
+	//! \details This Initialize() function overload initializes a public key from existing parameters.
 	void Initialize(const EC &ec, const Element &G, const Integer &n, const Element &Q)
 		{this->AccessGroupParameters().Initialize(ec, G, n); this->SetPublicElement(Q);}
 
@@ -177,24 +211,37 @@ public:
 
 	virtual ~DL_PrivateKey_EC() {}
 
+	//! \brief Initialize an EC Private Key using {GP,x}
+	//! \param params group parameters
+	//! \param x the private exponent
+	//! \details This Initialize() function overload initializes a private key from existing parameters.
 	void Initialize(const DL_GroupParameters_EC<EC> &params, const Integer &x)
 		{this->AccessGroupParameters() = params; this->SetPrivateExponent(x);}
+
+	//! \brief Initialize an EC Private Key using {EC,G,n,x}
+	//! \param ec the elliptic curve
+	//! \param G the base point
+	//! \param n the order of the base point
+	//! \param x the private exponent
+	//! \details This Initialize() function overload initializes a private key from existing parameters.
 	void Initialize(const EC &ec, const Element &G, const Integer &n, const Integer &x)
 		{this->AccessGroupParameters().Initialize(ec, G, n); this->SetPrivateExponent(x);}
+
 	//! \brief Create an EC private key
 	//! \param rng a RandomNumberGenerator derived class
 	//! \param params the EC group parameters
-	//! \details This function overload of Initialize() creates a new keypair because it
+	//! \details This function overload of Initialize() creates a new private key because it
 	//!   takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
 	//!   then use one of the other Initialize() overloads.
 	void Initialize(RandomNumberGenerator &rng, const DL_GroupParameters_EC<EC> &params)
 		{this->GenerateRandom(rng, params);}
+
 	//! \brief Create an EC private key
 	//! \param rng a RandomNumberGenerator derived class
 	//! \param ec the elliptic curve
 	//! \param G the base point
-	//! \param n the cofactor
-	//! \details This function overload of Initialize() creates a new keypair because it
+	//! \param n the order of the base point
+	//! \details This function overload of Initialize() creates a new private key because it
 	//!   takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
 	//!   then use one of the other Initialize() overloads.
 	void Initialize(RandomNumberGenerator &rng, const EC &ec, const Element &G, const Integer &n)
@@ -324,7 +371,6 @@ template <class EC, class H = SHA>
 struct ECNR : public DL_SS<DL_Keys_EC<EC>, DL_Algorithm_ECNR<EC>, DL_SignatureMessageEncodingMethod_NR, H>
 {
 };
-
 
 //! \class ECIES
 //! \brief Elliptic Curve Integrated Encryption Scheme

@@ -40,6 +40,9 @@ class LUCFunction : public TrapdoorFunction, public PublicKey
 public:
 	virtual ~LUCFunction() {}
 
+	//! \brief Initialize a LUC public key with {n,e}
+	//! \param n the modulus
+	//! \param e the public exponent
 	void Initialize(const Integer &n, const Integer &e)
 		{m_n = n; m_e = e;}
 
@@ -85,6 +88,14 @@ public:
 	//!   takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
 	//!   then use one of the other Initialize() overloads.
 	void Initialize(RandomNumberGenerator &rng, unsigned int modulusBits, const Integer &eStart=17);
+
+	//! \brief Initialize a LUC private key with {n,e,p,q,dp,dq,u}
+	//! \param n modulus
+	//! \param e public exponent
+	//! \param p first prime factor
+	//! \param q second prime factor
+	//! \param u q<sup>-1</sup> mod p
+	//! \details This Initialize() function overload initializes a private key from existing parameters.
 	void Initialize(const Integer &n, const Integer &e, const Integer &p, const Integer &q, const Integer &u)
 		{m_n = n; m_e = e; m_p = p; m_q = q; m_u = u;}
 
@@ -120,6 +131,7 @@ struct LUC
 };
 
 //! \brief LUC cryptosystem
+//! \tparam STANDARD signature standard
 //! \details This class is here for historical and pedagogical interest. It has no practical advantages over other
 //!   trapdoor functions and probably shouldn't	be used in production software. The discrete log based LUC schemes
 //!   defined later in this .h file may be of more practical interest.
@@ -129,6 +141,8 @@ struct LUCES : public TF_ES<LUC, STANDARD>
 };
 
 //! \brief LUC signature scheme with appendix
+//! \tparam STANDARD signature standard
+//! \tparam H hash transformation
 //! \details This class is here for historical and pedagogical interest. It has no practical advantages over other
 //!   trapdoor functions and probably shouldn't	be used in production software. The discrete log based LUC schemes
 //!   defined later in this .h file may be of more practical interest.
@@ -194,7 +208,8 @@ private:
 	Integer m_g;
 };
 
-//! _
+//! \class DL_GroupParameters_LUC
+//! \brief LUC GroupParameters specialization
 class DL_GroupParameters_LUC : public DL_GroupParameters_IntegerBasedImpl<DL_GroupPrecomputation_LUC, DL_BasePrecomputation_LUC>
 {
 public:
@@ -224,7 +239,8 @@ private:
 	int GetFieldType() const {return 2;}
 };
 
-//! _
+//! \class DL_GroupParameters_LUC_DefaultSafePrime
+//! \brief GF(p) group parameters that default to safe primes
 class DL_GroupParameters_LUC_DefaultSafePrime : public DL_GroupParameters_LUC
 {
 public:
@@ -234,7 +250,8 @@ protected:
 	unsigned int GetDefaultSubgroupOrderSize(unsigned int modulusSize) const {return modulusSize-1;}
 };
 
-//! _
+//! \class DL_Algorithm_LUC_HMP
+//! \brief LUC HMP signature algorithm
 class DL_Algorithm_LUC_HMP : public DL_ElgamalLikeSignatureAlgorithm<Integer>
 {
 public:
@@ -249,7 +266,7 @@ public:
 		{return params.GetGroupOrder().ByteCount();}
 };
 
-//! _
+//! \brief LUC signature keys
 struct DL_SignatureKeys_LUC
 {
 	typedef DL_GroupParameters_LUC GroupParameters;
@@ -258,6 +275,7 @@ struct DL_SignatureKeys_LUC
 };
 
 //! \brief LUC-HMP, based on "Digital signature schemes based on Lucas functions" by Patrick Horster, Markus Michels, Holger Petersen
+//! \tparam H hash transformation
 //! \details This class is here for historical and pedagogical interest. It has no practical advantages over other
 //!   trapdoor functions and probably shouldn't	be used in production software. The discrete log based LUC schemes
 //!   defined later in this .h file may be of more practical interest.
@@ -266,7 +284,7 @@ struct LUC_HMP : public DL_SS<DL_SignatureKeys_LUC, DL_Algorithm_LUC_HMP, DL_Sig
 {
 };
 
-//! _
+//! \brief LUC encryption keys
 struct DL_CryptoKeys_LUC
 {
 	typedef DL_GroupParameters_LUC_DefaultSafePrime GroupParameters;
@@ -274,17 +292,23 @@ struct DL_CryptoKeys_LUC
 	typedef DL_PrivateKey_GFP<GroupParameters> PrivateKey;
 };
 
-//! LUC-IES
-template <class COFACTOR_OPTION = NoCofactorMultiplication, bool DHAES_MODE = true>
+//! \class LUC-IES
+//! \brief LUC Integrated Encryption Scheme
+//! \tparam COFACTOR_OPTION \ref CofactorMultiplicationOption "cofactor multiplication option"
+//! \tparam HASH HashTransformation derived class used for key drivation and MAC computation
+//! \tparam DHAES_MODE flag indicating if the MAC includes additional context parameters such as <em>u·V</em>, <em>v·U</em> and label
+//! \tparam LABEL_OCTETS flag indicating if the label size is specified in octets or bits
+//! \since Crypto++ 4.0, Crypto++ 5.7 for Bouncy Castle and Botan compatibility
+template <class HASH = SHA1, class COFACTOR_OPTION = NoCofactorMultiplication, bool DHAES_MODE = true, bool LABEL_OCTETS = false>
 struct LUC_IES
 	: public DL_ES<
 		DL_CryptoKeys_LUC,
 		DL_KeyAgreementAlgorithm_DH<Integer, COFACTOR_OPTION>,
-		DL_KeyDerivationAlgorithm_P1363<Integer, DHAES_MODE, P1363_KDF2<SHA1> >,
-		DL_EncryptionAlgorithm_Xor<HMAC<SHA1>, DHAES_MODE>,
+		DL_KeyDerivationAlgorithm_P1363<Integer, DHAES_MODE, P1363_KDF2<HASH> >,
+		DL_EncryptionAlgorithm_Xor<HMAC<HASH>, DHAES_MODE, LABEL_OCTETS>,
 		LUC_IES<> >
 {
-	static std::string StaticAlgorithmName() {return "LUC-IES";}	// non-standard name
+	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "LUC-IES";}	// non-standard name
 };
 
 // ********************************************************
