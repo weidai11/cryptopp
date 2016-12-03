@@ -1446,7 +1446,7 @@ template<> inline word32 rotrMod<word32>(word32 x, unsigned int y)
 
 #endif // #ifdef _MSC_VER
 
-#if _MSC_VER >= 1300 && !defined(__INTEL_COMPILER)
+#if (_MSC_VER >= 1400) || (defined(_MSC_VER) && !defined(_DLL))
 // Intel C++ Compiler 10.0 calls a function instead of using the rotate instruction when using these instructions
 
 //! \brief Performs a left rotate
@@ -1673,7 +1673,7 @@ inline word16 ByteReverse(word16 value)
 {
 #ifdef CRYPTOPP_BYTESWAP_AVAILABLE
 	return bswap_16(value);
-#elif defined(_MSC_VER) && _MSC_VER >= 1300
+#elif (_MSC_VER >= 1400) || (defined(_MSC_VER) && !defined(_DLL))
 	return _byteswap_ushort(value);
 #else
 	return rotlFixed(value, 8U);
@@ -1693,7 +1693,7 @@ inline word32 ByteReverse(word32 value)
 	return bswap_32(value);
 #elif defined(__MWERKS__) && TARGET_CPU_PPC
 	return (word32)__lwbrx(&value,0);
-#elif _MSC_VER >= 1400 || (_MSC_VER >= 1300 && !defined(_DLL))
+#elif (_MSC_VER >= 1400) || (defined(_MSC_VER) && !defined(_DLL))
 	return _byteswap_ulong(value);
 #elif CRYPTOPP_FAST_ROTATE(32)
 	// 5 instructions with rotate instruction, 9 without
@@ -1716,7 +1716,7 @@ inline word64 ByteReverse(word64 value)
 	return value;
 #elif defined(CRYPTOPP_BYTESWAP_AVAILABLE)
 	return bswap_64(value);
-#elif defined(_MSC_VER) && _MSC_VER >= 1300
+#elif (_MSC_VER >= 1400) || (defined(_MSC_VER) && !defined(_DLL))
 	return _byteswap_uint64(value);
 #elif CRYPTOPP_BOOL_SLOW_WORD64
 	return (word64(ByteReverse(word32(value))) << 32) | ByteReverse(word32(value>>32));
