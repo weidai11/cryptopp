@@ -133,7 +133,6 @@ bool VerifyBufsEqual(const byte *buf, const byte *mask, size_t count)
 	return acc8 == 0;
 }
 
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 std::string StringNarrow(const wchar_t *str, bool throwOnError)
 {
 	CRYPTOPP_ASSERT(str);
@@ -150,15 +149,19 @@ std::string StringNarrow(const wchar_t *str, bool throwOnError)
 
 	err = wcstombs_s(&size, NULL, 0, str, len*sizeof(wchar_t));
 	CRYPTOPP_ASSERT(err == 0);
-	if (err != 0) {goto CONVERSION_ERROR;}
+	if (err != 0)
+	{
+		if (throwOnError)
+			throw InvalidArgument("StringNarrow: wcstombs_s() call failed with error " + IntToString(err));
+		else
+			return std::string();
+	}
 
 	result.resize(size);
 	err = wcstombs_s(&size, &result[0], size, str, len*sizeof(wchar_t));
 	CRYPTOPP_ASSERT(err == 0);
-
 	if (err != 0)
 	{
-CONVERSION_ERROR:
 		if (throwOnError)
 			throw InvalidArgument("StringNarrow: wcstombs_s() call failed with error " + IntToString(err));
 		else
@@ -171,15 +174,19 @@ CONVERSION_ERROR:
 #else
 	size_t size = wcstombs(NULL, str, 0);
 	CRYPTOPP_ASSERT(size != (size_t)-1);
-	if (size == (size_t)-1) {goto CONVERSION_ERROR;}
+	if (size == (size_t)-1)
+	{
+		if (throwOnError)
+			throw InvalidArgument("StringNarrow: wcstombs() call failed");
+		else
+			return std::string();
+	}
 
 	result.resize(size);
 	size = wcstombs(&result[0], str, size);
 	CRYPTOPP_ASSERT(size != (size_t)-1);
-
 	if (size == (size_t)-1)
 	{
-CONVERSION_ERROR:
 		if (throwOnError)
 			throw InvalidArgument("StringNarrow: wcstombs() call failed");
 		else
@@ -189,7 +196,6 @@ CONVERSION_ERROR:
 
 	return result;
 }
-#endif // StringNarrow and CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 
 #if !(defined(_MSC_VER) && (_MSC_VER < 1300))
 using std::new_handler;

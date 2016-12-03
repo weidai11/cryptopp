@@ -312,13 +312,6 @@ void FilterWithBufferedInput::BlockQueue::Put(const byte *inString, size_t lengt
 	m_size += length;
 }
 
-#if !defined(CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562)
-FilterWithBufferedInput::FilterWithBufferedInput()
-	: Filter(), m_firstSize(SIZE_MAX), m_blockSize(0), m_lastSize(SIZE_MAX), m_firstInputDone(false)
-{
-}
-#endif
-
 FilterWithBufferedInput::FilterWithBufferedInput(BufferedTransformation *attachment)
 	: Filter(attachment), m_firstSize(SIZE_MAX), m_blockSize(0), m_lastSize(SIZE_MAX), m_firstInputDone(false)
 {

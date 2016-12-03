@@ -75,10 +75,6 @@
 // define this to retain (as much as possible) old deprecated function and class names
 // #define CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
 
-// Define this to retain (as much as possible) ABI and binary compatibility with Crypto++ 5.6.2.
-// Also see https://cryptopp.com/wiki/Config.h#Avoid_MAINTAIN_BACKWARDS_COMPATIBILITY
-// #define CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-
 // Define this if you want or need the library's memcpy_s and memmove_s.
 //   See http://github.com/weidai11/cryptopp/issues/28.
 // #if !defined(CRYPTOPP_WANT_SECURE_LIB)

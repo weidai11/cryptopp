@@ -36,9 +36,7 @@ NAMESPACE_BEGIN(CryptoPP)
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Filter : public BufferedTransformation, public NotCopyable
 {
 public:
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~Filter() {}
-#endif
 
 	//!	\name ATTACHMENT
 	//@{
@@ -149,18 +147,20 @@ protected:
 	//! \note There should be a MessageEnd() immediately before MessageSeriesEnd().
 	bool OutputMessageSeriesEnd(int outputSite, int propagation, bool blocking, const std::string &channel=DEFAULT_CHANNEL);
 
-private:
-	member_ptr<BufferedTransformation> m_attachment;
-
 protected:
 	size_t m_inputPosition;
 	int m_continueAt;
+
+private:
+	member_ptr<BufferedTransformation> m_attachment;
 };
 
 //! \class FilterPutSpaceHelper
 //! \brief Create a working space in a BufferedTransformation
 struct CRYPTOPP_DLL FilterPutSpaceHelper
 {
+	virtual ~FilterPutSpaceHelper() {}
+
 	//! \brief Create a working space in a BufferedTransformation
 	//! \param target BufferedTransformation for the working space
 	//! \param channel channel for the working space
@@ -220,6 +220,8 @@ struct CRYPTOPP_DLL FilterPutSpaceHelper
 class CRYPTOPP_DLL MeterFilter : public Bufferless<Filter>
 {
 public:
+	virtual ~MeterFilter() {}
+
 	//! \brief Construct a MeterFilter
 	//! \param attachment an optional attached transformation
 	//! \param transparent flag indicating if the filter should function transparently
@@ -315,11 +317,7 @@ public:
 class CRYPTOPP_DLL FilterWithBufferedInput : public Filter
 {
 public:
-
-#if !defined(CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562)
-	//! default FilterWithBufferedInput for temporaries
-	FilterWithBufferedInput();
-#endif
+	virtual ~FilterWithBufferedInput() {}
 
 	//! \brief Construct a FilterWithBufferedInput with an attached transformation
 	//! \param attachment an attached transformation
@@ -434,6 +432,8 @@ protected:
 class CRYPTOPP_DLL FilterWithInputQueue : public Filter
 {
 public:
+	virtual ~FilterWithInputQueue() {}
+
 	//! \brief Construct a FilterWithInputQueue
 	//! \param attachment an optional attached transformation
 	FilterWithInputQueue(BufferedTransformation *attachment=NULL) : Filter(attachment) {}
@@ -491,6 +491,8 @@ struct BlockPaddingSchemeDef
 class CRYPTOPP_DLL StreamTransformationFilter : public FilterWithBufferedInput, public BlockPaddingSchemeDef, private FilterPutSpaceHelper
 {
 public:
+	virtual ~StreamTransformationFilter() {}
+
 	//! \brief Construct a StreamTransformationFilter
 	//! \param c reference to a StreamTransformation
 	//! \param attachment an optional attached transformation
@@ -514,15 +516,13 @@ protected:
 	unsigned int m_optimalBufferSize;
 };
 
-#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
-typedef StreamTransformationFilter StreamCipherFilter;
-#endif
-
 //! \class HashFilter
 //! \brief Filter wrapper for HashTransformation
 class CRYPTOPP_DLL HashFilter : public Bufferless<Filter>, private FilterPutSpaceHelper
 {
 public:
+	virtual ~HashFilter() {}
+
 	//! \brief Construct a HashFilter
 	//! \param hm reference to a HashTransformation
 	//! \param attachment an optional attached transformation
@@ -550,6 +550,8 @@ private:
 class CRYPTOPP_DLL HashVerificationFilter : public FilterWithBufferedInput
 {
 public:
+	virtual ~HashVerificationFilter() {}
+
 	//! \class HashVerificationFailed
 	//! \brief Exception thrown when a data integrity check failure is encountered
 	class HashVerificationFailed : public Exception
@@ -606,8 +608,6 @@ private:
 	SecByteBlock m_expectedHash;
 };
 
-typedef HashVerificationFilter HashVerifier;	// for backwards compatibility
-
 //! \class AuthenticatedEncryptionFilter
 //! \brief Filter wrapper for encrypting with AuthenticatedSymmetricCipher
 //! \details AuthenticatedEncryptionFilter() is a wrapper for encrypting with AuthenticatedSymmetricCipher(),
@@ -617,6 +617,8 @@ typedef HashVerificationFilter HashVerifier;	// for backwards compatibility
 class CRYPTOPP_DLL AuthenticatedEncryptionFilter : public StreamTransformationFilter
 {
 public:
+	virtual ~AuthenticatedEncryptionFilter() {}
+
 	//! \brief Construct a AuthenticatedEncryptionFilter
 	//! \param c reference to a AuthenticatedSymmetricCipher
 	//! \param attachment an optional attached transformation
@@ -671,6 +673,8 @@ public:
 		DEFAULT_FLAGS = THROW_EXCEPTION
 	};
 
+	virtual ~AuthenticatedDecryptionFilter() {}
+
 	//! \brief Construct a AuthenticatedDecryptionFilter
 	//! \param c reference to a AuthenticatedSymmetricCipher
 	//! \param attachment an optional attached transformation
@@ -713,6 +717,8 @@ protected:
 class CRYPTOPP_DLL SignerFilter : public Unflushable<Filter>
 {
 public:
+	virtual ~SignerFilter() {}
+
 	//! \brief Construct a SignerFilter
 	//! \param rng a RandomNumberGenerator derived class
 	//! \param signer a PK_Signer derived class
@@ -767,6 +773,8 @@ public:
 		DEFAULT_FLAGS = SIGNATURE_AT_BEGIN | PUT_RESULT
 	};
 
+	virtual ~SignatureVerificationFilter() {}
+
 	//! \brief Construct a SignatureVerificationFilter
 	//! \param verifier a PK_Verifier derived class
 	//! \param attachment an optional attached transformation
@@ -814,6 +822,8 @@ public:
 		//! \details PASS_EVERYTHING is default
 		PASS_EVERYTHING = PASS_SIGNALS | PASS_WAIT_OBJECTS
 	};
+
+	virtual ~Redirector() {}
 
 	//! \brief Construct a Redirector
 	Redirector() : m_target(NULL), m_behavior(PASS_EVERYTHING) {}
@@ -893,6 +903,8 @@ private:
 class CRYPTOPP_DLL OutputProxy : public CustomSignalPropagation<Sink>
 {
 public:
+	virtual ~OutputProxy() {}
+
 	//! \brief Construct an OutputProxy
 	//! \param owner the owning transformation
 	//! \param passSignal flag indicating if signals should be passed
@@ -939,6 +951,8 @@ private:
 class CRYPTOPP_DLL ProxyFilter : public FilterWithBufferedInput
 {
 public:
+	virtual ~ProxyFilter() {}
+
 	//! \brief Construct a ProxyFilter
 	//! \param filter an output filter
 	//! \param firstSize the first Put size
@@ -1024,8 +1038,7 @@ template <class T>
 class StringSinkTemplate : public Bufferless<Sink>
 {
 public:
-	// VC60 workaround: no T::char_type
-	typedef typename T::traits_type::char_type char_type;
+	virtual ~StringSinkTemplate() {}
 
 	//! \brief Construct a StringSinkTemplate
 	//! \param output std::basic_string<char> type
@@ -1038,6 +1051,8 @@ public:
 	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
 	{
 		CRYPTOPP_UNUSED(messageEnd); CRYPTOPP_UNUSED(blocking);
+		typedef typename T::traits_type::char_type char_type;
+
 		if (length > 0)
 		{
 			typename T::size_type size = m_output->size();
@@ -1063,6 +1078,8 @@ CRYPTOPP_DLL_TEMPLATE_CLASS StringSinkTemplate<std::string>;
 class RandomNumberSink : public Bufferless<Sink>
 {
 public:
+	virtual ~RandomNumberSink() {}
+
 	//! \brief Construct a RandomNumberSink
 	RandomNumberSink()
 		: m_rng(NULL) {}
@@ -1084,6 +1101,8 @@ private:
 class CRYPTOPP_DLL ArraySink : public Bufferless<Sink>
 {
 public:
+	virtual ~ArraySink() {}
+
 	//! \brief Construct an ArraySink
 	//! \param parameters a set of NameValuePairs to initialize this object
 	//! \details Name::OutputBuffer() is a mandatory parameter using this constructor.
@@ -1119,6 +1138,8 @@ protected:
 class CRYPTOPP_DLL ArrayXorSink : public ArraySink
 {
 public:
+	virtual ~ArrayXorSink() {}
+
 	//! \brief Construct an ArrayXorSink
 	//! \param buf pointer to a memory buffer
 	//! \param size length of the memory buffer
@@ -1165,6 +1186,8 @@ private:
 class CRYPTOPP_DLL RandomNumberStore : public Store
 {
 public:
+	virtual ~RandomNumberStore() {}
+
 	RandomNumberStore()
 		: m_rng(NULL), m_length(0), m_count(0) {}
 
@@ -1216,9 +1239,7 @@ private:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Source : public InputRejecting<Filter>
 {
 public:
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~Source() {}
-#endif
 
 	//! \brief Construct a Source
 	//! \param attachment an optional attached transformation
@@ -1291,6 +1312,8 @@ template <class T>
 class SourceTemplate : public Source
 {
 public:
+	virtual ~SourceTemplate() {}
+
 	//! \brief Construct a SourceTemplate
 	//! \tparam T the class or type
 	//! \param attachment an attached transformation

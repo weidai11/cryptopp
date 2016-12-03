@@ -357,17 +357,8 @@ extern const word32 SHA256_K[64] = {
 
 #if (defined(CRYPTOPP_X86_ASM_AVAILABLE) || defined(CRYPTOPP_X32_ASM_AVAILABLE) || defined(CRYPTOPP_GENERATE_X64_MASM))
 
-static void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 *data, size_t len
-#if defined(_MSC_VER) && (_MSC_VER == 1200)
-	, ...	// VC60 workaround: prevent VC 6 from inlining this function
-#endif
-	)
+static void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 *data, size_t len)
 {
-#if defined(_MSC_VER) && (_MSC_VER == 1200)
-	AS2(mov ecx, [state])
-	AS2(mov edx, [data])
-#endif
-
 	#define LOCALS_SIZE	8*4 + 16*4 + 4*WORD_SZ
 	#define H(i)		[BASE+ASM_MOD(1024+7-(i),8)*4]
 	#define G(i)		H(i+1)

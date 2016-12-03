@@ -38,9 +38,7 @@ public:
 	typedef Point Element;
 	typedef IncompatibleCofactorMultiplication DefaultCofactorOption;
 
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~DL_GroupParameters_EC() {}
-#endif
 
 	DL_GroupParameters_EC() : m_compress(false), m_encodeAsOID(true) {}
 	DL_GroupParameters_EC(const OID &oid)
@@ -156,9 +154,7 @@ class DL_PublicKey_EC : public DL_PublicKeyImpl<DL_GroupParameters_EC<EC> >
 public:
 	typedef typename EC::Point Element;
 
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~DL_PublicKey_EC() {}
-#endif
 
 	void Initialize(const DL_GroupParameters_EC<EC> &params, const Element &Q)
 		{this->AccessGroupParameters() = params; this->SetPublicElement(Q);}
@@ -179,9 +175,7 @@ class DL_PrivateKey_EC : public DL_PrivateKeyImpl<DL_GroupParameters_EC<EC> >
 public:
 	typedef typename EC::Point Element;
 
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~DL_PrivateKey_EC() {}
-#endif
 
 	void Initialize(const DL_GroupParameters_EC<EC> &params, const Integer &x)
 		{this->AccessGroupParameters() = params; this->SetPrivateExponent(x);}
@@ -206,10 +200,6 @@ template <class EC, class COFACTOR_OPTION = CPP_TYPENAME DL_GroupParameters_EC<E
 struct ECDH
 {
 	typedef DH_Domain<DL_GroupParameters_EC<EC>, COFACTOR_OPTION> Domain;
-
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~ECDH() {}
-#endif
 };
 
 //! \class ECMQV
@@ -221,10 +211,6 @@ template <class EC, class COFACTOR_OPTION = CPP_TYPENAME DL_GroupParameters_EC<E
 struct ECMQV
 {
 	typedef MQV_Domain<DL_GroupParameters_EC<EC>, COFACTOR_OPTION> Domain;
-
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~ECMQV() {}
-#endif
 };
 
 //! \class ECHMQV
@@ -237,10 +223,6 @@ template <class EC, class COFACTOR_OPTION = CPP_TYPENAME DL_GroupParameters_EC<E
 struct ECHMQV
 {
 	typedef HMQV_Domain<DL_GroupParameters_EC<EC>, COFACTOR_OPTION, HASH> Domain;
-
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~ECHMQV() {}
-#endif
 };
 
 typedef ECHMQV< ECP, DL_GroupParameters_EC< ECP >::DefaultCofactorOption,   SHA1 >::Domain ECHMQV160;
@@ -259,10 +241,6 @@ template <class EC, class COFACTOR_OPTION = CPP_TYPENAME DL_GroupParameters_EC<E
 struct ECFHMQV
 {
 	typedef FHMQV_Domain<DL_GroupParameters_EC<EC>, COFACTOR_OPTION, HASH> Domain;
-
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~ECFHMQV() {}
-#endif
 };
 
 typedef ECFHMQV< ECP, DL_GroupParameters_EC< ECP >::DefaultCofactorOption,   SHA1 >::Domain ECFHMQV160;
@@ -278,10 +256,6 @@ struct DL_Keys_EC
 {
 	typedef DL_PublicKey_EC<EC> PublicKey;
 	typedef DL_PrivateKey_EC<EC> PrivateKey;
-
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~DL_Keys_EC() {}
-#endif
 };
 
 // Forward declaration; documented below
@@ -296,10 +270,6 @@ struct DL_Keys_ECDSA
 {
 	typedef DL_PublicKey_EC<EC> PublicKey;
 	typedef DL_PrivateKey_WithSignaturePairwiseConsistencyTest<DL_PrivateKey_EC<EC>, ECDSA<EC, SHA256> > PrivateKey;
-
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~DL_Keys_ECDSA() {}
-#endif
 };
 
 //! \class DL_Algorithm_ECDSA
@@ -310,10 +280,6 @@ class DL_Algorithm_ECDSA : public DL_Algorithm_GDSA<typename EC::Point>
 {
 public:
   CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "ECDSA";}
-
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~DL_Algorithm_ECDSA() {}
-#endif
 };
 
 //! \class DL_Algorithm_ECNR
@@ -324,10 +290,6 @@ class DL_Algorithm_ECNR : public DL_Algorithm_NR<typename EC::Point>
 {
 public:
   CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "ECNR";}
-
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~DL_Algorithm_ECNR() {}
-#endif
 };
 
 //! \class ECDSA
@@ -338,9 +300,6 @@ public:
 template <class EC, class H>
 struct ECDSA : public DL_SS<DL_Keys_ECDSA<EC>, DL_Algorithm_ECDSA<EC>, DL_SignatureMessageEncodingMethod_DSA, H>
 {
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~ECDSA() {}
-#endif
 };
 
 //! \class ECNR
@@ -350,9 +309,6 @@ struct ECDSA : public DL_SS<DL_Keys_ECDSA<EC>, DL_Algorithm_ECDSA<EC>, DL_Signat
 template <class EC, class H = SHA>
 struct ECNR : public DL_SS<DL_Keys_EC<EC>, DL_Algorithm_ECNR<EC>, DL_SignatureMessageEncodingMethod_NR, H>
 {
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~ECNR() {}
-#endif
 };
 
 
@@ -400,10 +356,6 @@ struct ECIES
 		ECIES<EC> >
 {
 	static std::string CRYPTOPP_API StaticAlgorithmName() {return "ECIES";}	// TODO: fix this after name is standardized
-
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~ECIES() {}
-#endif
 };
 
 NAMESPACE_END

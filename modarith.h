@@ -38,9 +38,7 @@ public:
 	typedef int RandomizationParameter;
 	typedef Integer Element;
 
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~ModularArithmetic() {}
-#endif
 
 	//! \brief Construct a ModularArithmetic
 	//! \param modulus congruence class modulus
@@ -273,9 +271,7 @@ protected:
 class CRYPTOPP_DLL MontgomeryRepresentation : public ModularArithmetic
 {
 public:
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~MontgomeryRepresentation() {}
-#endif
 
 	//! \brief Construct a MontgomeryRepresentation
 	//! \param modulus congruence class modulus

@@ -66,9 +66,7 @@ template <class POLICY, class BASE, class POLICY_INTERFACE = CPP_TYPENAME BASE::
 class ConcretePolicyHolder : public BASE, protected POLICY
 {
 public:
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~ConcretePolicyHolder() {}
-#endif
 protected:
 	const POLICY_INTERFACE & GetPolicy() const {return *this;}
 	POLICY_INTERFACE & AccessPolicy() {return *this;}
@@ -269,6 +267,8 @@ template <class BASE = AbstractPolicyHolder<AdditiveCipherAbstractPolicy, Symmet
 class CRYPTOPP_NO_VTABLE AdditiveCipherTemplate : public BASE, public RandomNumberGenerator
 {
 public:
+	virtual ~AdditiveCipherTemplate() {}
+
 	//! \brief Generate random array of bytes
 	//! \param output the byte buffer
 	//! \param size the length of the buffer, in bytes
@@ -584,6 +584,8 @@ template <class BASE, class INFO = BASE>
 class SymmetricCipherFinal : public AlgorithmImpl<SimpleKeyingInterfaceImpl<BASE, INFO>, INFO>
 {
 public:
+	virtual ~SymmetricCipherFinal() {}
+
 	//! \brief Construct a stream cipher
  	SymmetricCipherFinal() {}
 

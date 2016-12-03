@@ -187,11 +187,7 @@ public:
 	bool Wait(unsigned long milliseconds);
 
 #ifdef USE_WINDOWS_STYLE_SOCKETS
-# ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~WaitObjectContainer();
-# else
-	~WaitObjectContainer();
-#endif
 	void AddHandle(HANDLE handle, CallStack const& callStack);
 #else
 	void AddReadFd(int fd, CallStack const& callStack);
@@ -234,6 +230,6 @@ NAMESPACE_END
 # pragma warning(pop)
 #endif
 
-#endif
+#endif  // NO_OS_DEPENDENCE
 
-#endif
+#endif // CRYPTOPP_WAIT_H

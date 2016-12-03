@@ -20,10 +20,7 @@ NAMESPACE_BEGIN(CryptoPP)
 class DH2 : public AuthenticatedKeyAgreementDomain
 {
 public:
-
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~DH2() {}
-#endif
 
 	//! \brief Construct a DH2
 	DH2(SimpleKeyAgreementDomain &domain)

@@ -1,7 +1,6 @@
 // rabin.h - written and placed in the public domain by Wei Dai
 
-//! \file
-//! \headerfile rabin.h
+//! \file rabin.h
 //! \brief Classes for Rabin encryption and signature schemes
 
 #ifndef CRYPTOPP_RABIN_H

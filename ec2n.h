@@ -28,9 +28,7 @@ public:
 	typedef Field::Element FieldElement;
 	typedef EC2NPoint Point;
 
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~EC2N() {}
-#endif
 
 	//! \brief Construct an EC2N
 	EC2N() {}
@@ -108,9 +106,7 @@ template<> class EcPrecomputation<EC2N> : public DL_GroupPrecomputation<EC2N::Po
 public:
 	typedef EC2N EllipticCurve;
 
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~EcPrecomputation() {}
-#endif
 
 	// DL_GroupPrecomputation
 	const AbstractGroup<Element> & GetGroup() const {return m_ec;}

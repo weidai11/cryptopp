@@ -1091,7 +1091,7 @@ void SecureWipeBuffer(T *buf, size_t n)
 	// GCC 4.3.2 on Cygwin optimizes away the first store if this loop is done in the forward direction
 	volatile T *p = buf+n;
 	while (n--)
-		*((volatile T*)(--p)) = 0;
+		*(--p) = 0;
 }
 
 #if (_MSC_VER >= 1400 || defined(__GNUC__)) && (CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X86)
@@ -1217,65 +1217,7 @@ inline void SecureWipeArray(T *buf, size_t n)
 //! \note If you try to convert, say, the Chinese character for "bone" from UTF-16 (0x9AA8) to UTF-8
 //!   (0xE9 0xAA 0xA8), then you must ensure the locale is available. If the locale is not available,
 //!   then a 0x21 error is returned on Windows which eventually results in an InvalidArgument() exception.
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 std::string StringNarrow(const wchar_t *str, bool throwOnError = true);
-#else
-static std::string StringNarrow(const wchar_t *str, bool throwOnError = true)
-{
-	CRYPTOPP_ASSERT(str);
-	std::string result;
-
-	// Safer functions on Windows for C&A, https://github.com/weidai11/cryptopp/issues/55
-#if (CRYPTOPP_MSC_VERSION >= 1400)
-	size_t len=0, size=0;
-	errno_t err = 0;
-
-	//const wchar_t* ptr = str;
-	//while (*ptr++) len++;
-	len = wcslen(str)+1;
-
-	err = wcstombs_s(&size, NULL, 0, str, len*sizeof(wchar_t));
-	CRYPTOPP_ASSERT(err == 0);
-	if (err != 0) {goto CONVERSION_ERROR;}
-
-	result.resize(size);
-	err = wcstombs_s(&size, &result[0], size, str, len*sizeof(wchar_t));
-	CRYPTOPP_ASSERT(err == 0);
-
-	if (err != 0)
-	{
-CONVERSION_ERROR:
-		if (throwOnError)
-			throw InvalidArgument("StringNarrow: wcstombs_s() call failed with error " + IntToString(err));
-		else
-			return std::string();
-	}
-
-	// The safe routine's size includes the NULL.
-	if (!result.empty() && result[size - 1] == '\0')
-		result.erase(size - 1);
-#else
-	size_t size = wcstombs(NULL, str, 0);
-	CRYPTOPP_ASSERT(size != (size_t)-1);
-	if (size == (size_t)-1) {goto CONVERSION_ERROR;}
-
-	result.resize(size);
-	size = wcstombs(&result[0], str, size);
-	CRYPTOPP_ASSERT(size != (size_t)-1);
-
-	if (size == (size_t)-1)
-	{
-CONVERSION_ERROR:
-		if (throwOnError)
-			throw InvalidArgument("StringNarrow: wcstombs() call failed");
-		else
-			return std::string();
-	}
-#endif
-
-	return result;
-}
-#endif // StringNarrow and CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 
 #ifdef CRYPTOPP_DOXYGEN_PROCESSING
 

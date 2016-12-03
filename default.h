@@ -167,7 +167,7 @@ protected:
 
 private:
 	member_ptr<DefaultMAC> m_mac;
-	HashVerifier *m_hashVerifier;
+	HashVerificationFilter *m_hashVerifier;
 	bool m_throwException;
 
 } CRYPTOPP_DEPRECATED ("DefaultDecryptorWithMAC will be changing in the near future because the algorithms are no longer secure");

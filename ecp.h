@@ -26,9 +26,7 @@ public:
 	typedef Integer FieldElement;
 	typedef ECPPoint Point;
 
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~ECP() {}
-#endif
 
 	//! \brief Construct an ECP
 	ECP() {}
@@ -116,9 +114,7 @@ template<> class EcPrecomputation<ECP> : public DL_GroupPrecomputation<ECP::Poin
 public:
 	typedef ECP EllipticCurve;
 
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~EcPrecomputation() {}
-#endif
 
 	// DL_GroupPrecomputation
 	bool NeedConversions() const {return true;}

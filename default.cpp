@@ -240,7 +240,7 @@ DefaultDecryptorWithMAC::DefaultDecryptorWithMAC(const char *passphrase, Buffere
 	, m_mac(NewDefaultEncryptorMAC((const byte *)passphrase, strlen(passphrase)))
 	, m_throwException(throwException)
 {
-	SetFilter(new DefaultDecryptor(passphrase, m_hashVerifier=new HashVerifier(*m_mac, NULL, HashVerifier::PUT_MESSAGE), throwException));
+	SetFilter(new DefaultDecryptor(passphrase, m_hashVerifier=new HashVerificationFilter(*m_mac, NULL, HashVerificationFilter::PUT_MESSAGE), throwException));
 }
 
 DefaultDecryptorWithMAC::DefaultDecryptorWithMAC(const byte *passphrase, size_t passphraseLength, BufferedTransformation *attachment, bool throwException)
@@ -248,7 +248,7 @@ DefaultDecryptorWithMAC::DefaultDecryptorWithMAC(const byte *passphrase, size_t 
 	, m_mac(NewDefaultEncryptorMAC(passphrase, passphraseLength))
 	, m_throwException(throwException)
 {
-	SetFilter(new DefaultDecryptor(passphrase, passphraseLength, m_hashVerifier=new HashVerifier(*m_mac, NULL, HashVerifier::PUT_MESSAGE), throwException));
+	SetFilter(new DefaultDecryptor(passphrase, passphraseLength, m_hashVerifier=new HashVerificationFilter(*m_mac, NULL, HashVerificationFilter::PUT_MESSAGE), throwException));
 }
 
 DefaultDecryptor::State DefaultDecryptorWithMAC::CurrentState() const

@@ -19,9 +19,6 @@ namespace
 {
 	const word32 START_E = 0x0b0b; // round constant of first encryption round
 	const word32 START_D = 0xb1b1; // round constant of first decryption round
-#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	const word32 RC_MODULUS = 0x11011;
-#endif
 }
 
 static inline word32 reverseBits(word32 a)

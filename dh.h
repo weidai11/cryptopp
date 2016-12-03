@@ -32,9 +32,7 @@ public:
 	typedef DL_KeyAgreementAlgorithm_DH<Element, COFACTOR_OPTION> DH_Algorithm;
 	typedef DH_Domain<GROUP_PARAMETERS, COFACTOR_OPTION> Domain;
 
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~DH_Domain() {}
-#endif
 
 	//! \brief Construct a Diffie-Hellman domain
 	DH_Domain() {}

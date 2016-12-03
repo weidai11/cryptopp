@@ -165,6 +165,8 @@ CRYPTOPP_DLL void CRYPTOPP_API DERReencode(BufferedTransformation &bt, BufferedT
 class CRYPTOPP_DLL OID
 {
 public:
+	virtual ~OID() {}
+
 	//! \brief Construct an OID
 	OID() {}
 	//! \brief Construct an OID
@@ -211,6 +213,8 @@ class EncodedObjectFilter : public Filter
 public:
 	enum Flag {PUT_OBJECTS=1, PUT_MESSANGE_END_AFTER_EACH_OBJECT=2, PUT_MESSANGE_END_AFTER_ALL_OBJECTS=4, PUT_MESSANGE_SERIES_END_AFTER_ALL_OBJECTS=8};
 
+	virtual ~EncodedObjectFilter() {}
+
 	//! \brief Construct an EncodedObjectFilter
 	//! \param attachment a BufferedTrasformation to attach to this object
 	//! \param nObjects
@@ -241,9 +245,10 @@ private:
 class CRYPTOPP_DLL BERGeneralDecoder : public Store
 {
 public:
+	virtual ~BERGeneralDecoder();
+
 	explicit BERGeneralDecoder(BufferedTransformation &inQueue, byte asnTag);
 	explicit BERGeneralDecoder(BERGeneralDecoder &inQueue, byte asnTag);
-	~BERGeneralDecoder();
 
 	bool IsDefiniteLength() const {return m_definiteLength;}
 	lword RemainingLength() const {CRYPTOPP_ASSERT(m_definiteLength); return m_length;}
@@ -278,14 +283,10 @@ private:
 class CRYPTOPP_DLL DERGeneralEncoder : public ByteQueue
 {
 public:
-#if defined(CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562)
+	virtual ~DERGeneralEncoder();
+
 	explicit DERGeneralEncoder(BufferedTransformation &outQueue, byte asnTag = SEQUENCE | CONSTRUCTED);
 	explicit DERGeneralEncoder(DERGeneralEncoder &outQueue, byte asnTag = SEQUENCE | CONSTRUCTED);
-#else
-	explicit DERGeneralEncoder(BufferedTransformation &outQueue, byte asnTag /*= SEQUENCE | CONSTRUCTED*/);
-	explicit DERGeneralEncoder(DERGeneralEncoder &outQueue, byte asnTag /*= SEQUENCE | CONSTRUCTED*/);
-#endif
-	~DERGeneralEncoder();
 
 	// call this to denote end of sequence
 	void MessageEnd();
@@ -390,6 +391,8 @@ public:
 class CRYPTOPP_DLL X509PublicKey : public ASN1CryptoMaterial<PublicKey>
 {
 public:
+	virtual ~X509PublicKey() {}
+
 	void BERDecode(BufferedTransformation &bt);
 	void DEREncode(BufferedTransformation &bt) const;
 
@@ -411,6 +414,8 @@ public:
 class CRYPTOPP_DLL PKCS8PrivateKey : public ASN1CryptoMaterial<PrivateKey>
 {
 public:
+	virtual ~PKCS8PrivateKey() {}
+
 	void BERDecode(BufferedTransformation &bt);
 	void DEREncode(BufferedTransformation &bt) const;
 

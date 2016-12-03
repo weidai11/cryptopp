@@ -1,3 +1,5 @@
+// factory.h - written and placed in the public domain by Wei Dai
+
 #ifndef CRYPTOPP_OBJFACT_H
 #define CRYPTOPP_OBJFACT_H
 
@@ -93,14 +95,16 @@ ObjectFactoryRegistry<AbstractClass, instance> & ObjectFactoryRegistry<AbstractC
 }
 
 template <class AbstractClass, class ConcreteClass, int instance = 0>
-struct RegisterDefaultFactoryFor {
-RegisterDefaultFactoryFor(const char *name=NULL)
+struct RegisterDefaultFactoryFor
 {
-	// BCB2006 workaround
-	std::string n = name ? std::string(name) : std::string(ConcreteClass::StaticAlgorithmName());
-	ObjectFactoryRegistry<AbstractClass, instance>::Registry().
+	RegisterDefaultFactoryFor(const char *name=NULL)
+	{
+		// BCB2006 workaround
+		std::string n = name ? std::string(name) : std::string(ConcreteClass::StaticAlgorithmName());
+		ObjectFactoryRegistry<AbstractClass, instance>::Registry().
 		RegisterFactory(n, new DefaultObjectFactory<AbstractClass, ConcreteClass>);
-}};
+	}
+};
 
 template <class SchemeClass>
 void RegisterAsymmetricCipherDefaultFactories(const char *name=NULL, SchemeClass *dummy=NULL)

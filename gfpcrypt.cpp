@@ -204,7 +204,6 @@ void DL_GroupParameters_IntegerBased::GenerateRandom(RandomNumberGenerator &rng,
 	Initialize(p, q, g);
 }
 
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 void DL_GroupParameters_IntegerBased::EncodeElement(bool reversible, const Element &element, byte *encoded) const
 {
 	CRYPTOPP_UNUSED(reversible);
@@ -216,7 +215,6 @@ unsigned int DL_GroupParameters_IntegerBased::GetEncodedElementSize(bool reversi
 	CRYPTOPP_UNUSED(reversible);
 	return GetModulus().ByteCount();
 }
-#endif
 
 Integer DL_GroupParameters_IntegerBased::DecodeElement(const byte *encoded, bool checkForGroupMembership) const
 {

@@ -20,17 +20,15 @@ NAMESPACE_BEGIN(CryptoPP)
 class CRYPTOPP_DLL PSSR_MEM_Base : public PK_RecoverableSignatureMessageEncodingMethod
 {
 public:
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~PSSR_MEM_Base() {}
-#endif
 
-private:
+protected:
 	virtual bool AllowRecovery() const =0;
 	virtual size_t SaltLen(size_t hashLen) const =0;
 	virtual size_t MinPadLen(size_t hashLen) const =0;
 	virtual const MaskGeneratingFunction & GetMGF() const =0;
 
-public:
+private:
 	size_t MinRepresentativeBitLength(size_t hashIdentifierLength, size_t digestLength) const;
 	size_t MaxRecoverableLength(size_t representativeBitLength, size_t hashIdentifierLength, size_t digestLength) const;
 	bool IsProbabilistic() const;

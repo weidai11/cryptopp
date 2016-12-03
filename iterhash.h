@@ -104,13 +104,11 @@ public:
 	typedef T_Endianness ByteOrderClass;
 	typedef T_HashWordType HashWordType;
 
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~IteratedHash() { }
-#endif
-
 	CRYPTOPP_CONSTANT(BLOCKSIZE = T_BlockSize)
 	// BCB2006 workaround: can't use BLOCKSIZE here
 	CRYPTOPP_COMPILE_ASSERT((T_BlockSize & (T_BlockSize - 1)) == 0);	// blockSize is a power of 2
+
+	virtual ~IteratedHash() {}
 
 	//! \brief Provides the block size of the hash
 	//! \return the block size of the hash, in bytes
@@ -153,12 +151,9 @@ class CRYPTOPP_NO_VTABLE IteratedHashWithStaticTransform
 	: public ClonableImpl<T_Transform, AlgorithmImpl<IteratedHash<T_HashWordType, T_Endianness, T_BlockSize>, T_Transform> >
 {
 public:
-
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~IteratedHashWithStaticTransform() { }
-#endif
-
 	CRYPTOPP_CONSTANT(DIGESTSIZE = T_DigestSize ? T_DigestSize : T_StateSize)
+
+	virtual ~IteratedHashWithStaticTransform() {}
 
 	//! \brief Provides the digest size of the hash
 	//! \return the digest size of the hash, in bytes

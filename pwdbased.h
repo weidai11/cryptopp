@@ -17,9 +17,7 @@ NAMESPACE_BEGIN(CryptoPP)
 class PasswordBasedKeyDerivationFunction
 {
 public:
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
 	virtual ~PasswordBasedKeyDerivationFunction() {}
-#endif
 
 	//! \brief Provides the maximum derived key length
 	//! \returns maximum derived key length, in bytes

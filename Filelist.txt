@@ -48,7 +48,6 @@ channels.h
 cmac.cpp
 cmac.h
 config.h
-config.compat
 cpu.cpp
 cpu.h
 crc.cpp
