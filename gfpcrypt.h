@@ -39,6 +39,12 @@ public:
 
 	void Initialize(const DL_GroupParameters_IntegerBased &params)
 		{Initialize(params.GetModulus(), params.GetSubgroupOrder(), params.GetSubgroupGenerator());}
+	//! \brief Create a trapdoor function keypair
+	//! \param rng a RandomNumberGenerator derived class
+	//! \param pbits the size of p, in bits
+	//! \details This function overload of Initialize() creates a new keypair because it
+	//!   takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
+	//!   then use one of the other Initialize() overloads.
 	void Initialize(RandomNumberGenerator &rng, unsigned int pbits)
 		{GenerateRandom(rng, MakeParameters("ModulusSize", (int)pbits));}
 	void Initialize(const Integer &p, const Integer &g)
@@ -271,14 +277,39 @@ class DL_PrivateKey_GFP : public DL_PrivateKeyImpl<GP>
 public:
 	virtual ~DL_PrivateKey_GFP() {}
 
+	//! \brief Create a private key
+	//! \param rng a RandomNumberGenerator derived class
+	//! \param modulusBits the size of the modulus, in bits
+	//! \details This function overload of Initialize() creates a new keypair because it
+	//!   takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
+	//!   then use one of the other Initialize() overloads.
 	void Initialize(RandomNumberGenerator &rng, unsigned int modulusBits)
 		{this->GenerateRandomWithKeySize(rng, modulusBits);}
+
+	//! \brief Create a private key
+	//! \param rng a RandomNumberGenerator derived class
+	//! \param p TODO
+	//! \param g TODO
+	//! \details This function overload of Initialize() creates a new keypair because it
+	//!   takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
+	//!   then use one of the other Initialize() overloads.
 	void Initialize(RandomNumberGenerator &rng, const Integer &p, const Integer &g)
 		{this->GenerateRandom(rng, MakeParameters("Modulus", p)("SubgroupGenerator", g));}
+
+	//! \brief Create a private key
+	//! \param rng a RandomNumberGenerator derived class
+	//! \param p TODO
+	//! \param q TODO
+	//! \param g TODO
+	//! \details This function overload of Initialize() creates a new keypair because it
+	//!   takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
+	//!   then use one of the other Initialize() overloads.
 	void Initialize(RandomNumberGenerator &rng, const Integer &p, const Integer &q, const Integer &g)
 		{this->GenerateRandom(rng, MakeParameters("Modulus", p)("SubgroupOrder", q)("SubgroupGenerator", g));}
+
 	void Initialize(const DL_GroupParameters_IntegerBased &params, const Integer &x)
 		{this->AccessGroupParameters().Initialize(params); this->SetPrivateExponent(x);}
+
 	void Initialize(const Integer &p, const Integer &g, const Integer &x)
 		{this->AccessGroupParameters().Initialize(p, g); this->SetPrivateExponent(x);}
 	void Initialize(const Integer &p, const Integer &q, const Integer &g, const Integer &x)

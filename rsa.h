@@ -68,8 +68,12 @@ class CRYPTOPP_DLL InvertibleRSAFunction : public RSAFunction, public TrapdoorFu
 public:
 	//! \brief Create a RSA private key
 	//! \param rng a RandomNumberGenerator derived class
-	//! \param modulusBits the size of the modulud, in bits
+	//! \param modulusBits the size of the modulus, in bits
 	//! \param e the desired public exponent
+	//! \details Initialize() creates a new keypair using a public exponent of 17.
+	//! \details This function overload of Initialize() creates a new keypair because it
+	//!   takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
+	//!   then use one of the other Initialize() overloads.
 	void Initialize(RandomNumberGenerator &rng, unsigned int modulusBits, const Integer &e = 17);
 
 	//! \brief Initialize a RSA private key with {n,e,d,p,q,dp,dq,u}
@@ -83,6 +87,7 @@ public:
 	//! \param u q<sup>-1</sup> mod p
 	void Initialize(const Integer &n, const Integer &e, const Integer &d, const Integer &p, const Integer &q, const Integer &dp, const Integer &dq, const Integer &u)
 		{m_n = n; m_e = e; m_d = d; m_p = p; m_q = q; m_dp = dp; m_dq = dq; m_u = u;}
+
 	//! \brief Initialize a RSA private key with {n,e,d}
 	//! \param n modulus
 	//! \param e public exponent

@@ -13,7 +13,9 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! _
+//! \class RabinFunction
+//! \brief Rabin trapdoor function using the public key
+//! \since Crypto++ 2.0
 class RabinFunction : public TrapdoorFunction, public PublicKey
 {
 	typedef RabinFunction ThisClass;
@@ -45,7 +47,9 @@ protected:
 	Integer m_n, m_r, m_s;
 };
 
-//! _
+//! \class InvertibleRabinFunction
+//! \brief Rabin trapdoor function using the private key
+//! \since Crypto++ 2.0
 class InvertibleRabinFunction : public RabinFunction, public TrapdoorFunctionInverse, public PrivateKey
 {
 	typedef InvertibleRabinFunction ThisClass;
@@ -54,6 +58,13 @@ public:
 	void Initialize(const Integer &n, const Integer &r, const Integer &s,
 							const Integer &p, const Integer &q, const Integer &u)
 		{m_n = n; m_r = r; m_s = s; m_p = p; m_q = q; m_u = u;}
+
+	//! \brief Create a Rabin private key
+	//! \param rng a RandomNumberGenerator derived class
+	//! \param keybits the size of the key, in bits
+	//! \details This function overload of Initialize() creates a new keypair because it
+	//!   takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
+	//!   then use one of the other Initialize() overloads.
 	void Initialize(RandomNumberGenerator &rng, unsigned int keybits)
 		{GenerateRandomWithKeySize(rng, keybits);}
 
@@ -80,7 +91,7 @@ protected:
 	Integer m_p, m_q, m_u;
 };
 
-//! Rabin
+//! \brief Rabin keys
 struct Rabin
 {
 	static std::string StaticAlgorithmName() {return "Rabin-Crypto++Variant";}
@@ -88,13 +99,16 @@ struct Rabin
 	typedef InvertibleRabinFunction PrivateKey;
 };
 
-//! Rabin encryption
+//! \brief Rabin encryption scheme
+//! \tparam STANDARD encryption standard
 template <class STANDARD>
 struct RabinES : public TF_ES<Rabin, STANDARD>
 {
 };
 
-//! Rabin signature
+//! \brief Rabin signature scheme
+//! \tparam STANDARD signature standard
+//! \tparam H hash transformation
 template <class STANDARD, class H>
 struct RabinSS : public TF_SS<Rabin, STANDARD, H>
 {

@@ -64,7 +64,13 @@ class InvertibleESIGNFunction : public ESIGNFunction, public RandomizedTrapdoorF
 public:
 	void Initialize(const Integer &n, const Integer &e, const Integer &p, const Integer &q)
 		{m_n = n; m_e = e; m_p = p; m_q = q;}
-	// generate a random private key
+
+	//! \brief Create a RSA private key
+	//! \param rng a RandomNumberGenerator derived class
+	//! \param modulusBits the size of the modulud, in bits
+	//! \details This function overload of Initialize() creates a new keypair because it
+	//!   takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
+	//!   then use one of the other Initialize() overloads.
 	void Initialize(RandomNumberGenerator &rng, unsigned int modulusBits)
 		{GenerateRandomWithKeySize(rng, modulusBits);}
 

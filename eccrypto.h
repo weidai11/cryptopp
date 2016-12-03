@@ -181,8 +181,22 @@ public:
 		{this->AccessGroupParameters() = params; this->SetPrivateExponent(x);}
 	void Initialize(const EC &ec, const Element &G, const Integer &n, const Integer &x)
 		{this->AccessGroupParameters().Initialize(ec, G, n); this->SetPrivateExponent(x);}
+	//! \brief Create an EC private key
+	//! \param rng a RandomNumberGenerator derived class
+	//! \param params the EC group parameters
+	//! \details This function overload of Initialize() creates a new keypair because it
+	//!   takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
+	//!   then use one of the other Initialize() overloads.
 	void Initialize(RandomNumberGenerator &rng, const DL_GroupParameters_EC<EC> &params)
 		{this->GenerateRandom(rng, params);}
+	//! \brief Create an EC private key
+	//! \param rng a RandomNumberGenerator derived class
+	//! \param ec the elliptic curve
+	//! \param G the base point
+	//! \param n the cofactor
+	//! \details This function overload of Initialize() creates a new keypair because it
+	//!   takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
+	//!   then use one of the other Initialize() overloads.
 	void Initialize(RandomNumberGenerator &rng, const EC &ec, const Element &G, const Integer &n)
 		{this->GenerateRandom(rng, DL_GroupParameters_EC<EC>(ec, G, n));}
 
