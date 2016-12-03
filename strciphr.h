@@ -62,7 +62,7 @@ protected:
 //! \brief Stream cipher policy object
 //! \tparam POLICY class implementing AbstractPolicyHolder
 //! \tparam BASE class or type to use as a base class
-template <class POLICY, class BASE, class POLICY_INTERFACE = CPP_TYPENAME BASE::PolicyInterface>
+template <class POLICY, class BASE, class POLICY_INTERFACE = typename BASE::PolicyInterface>
 class ConcretePolicyHolder : public BASE, protected POLICY
 {
 public:

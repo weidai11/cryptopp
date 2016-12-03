@@ -90,29 +90,25 @@ void SHARK::Enc::InitForKeySetup()
 #endif
 }
 
-typedef word64 ArrayOf256Word64s[256];
-
-template <const byte *sbox, const ArrayOf256Word64s *cbox>
-struct SharkProcessAndXorBlock{		// VC60 workaround: problem with template functions
-inline SharkProcessAndXorBlock(const word64 *roundKeys, unsigned int rounds, const byte *inBlock, const byte *xorBlock, byte *outBlock)
+void SHARK::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
 	CRYPTOPP_ASSERT(IsAlignedOn(inBlock,GetAlignmentOf<word64>()));
-	word64 tmp = *(word64 *)(void *)inBlock ^ roundKeys[0];
+	word64 tmp = *(word64 *)(void *)inBlock ^ m_roundKeys[0];
 
 	ByteOrder order = GetNativeByteOrder();
 	tmp = cbox[0][GetByte(order, tmp, 0)] ^ cbox[1][GetByte(order, tmp, 1)]
 		^ cbox[2][GetByte(order, tmp, 2)] ^ cbox[3][GetByte(order, tmp, 3)]
 		^ cbox[4][GetByte(order, tmp, 4)] ^ cbox[5][GetByte(order, tmp, 5)]
 		^ cbox[6][GetByte(order, tmp, 6)] ^ cbox[7][GetByte(order, tmp, 7)]
-		^ roundKeys[1];
+		^ m_roundKeys[1];
 
-	for(unsigned int i=2; i<rounds; i++)
+	for(unsigned int i=2; i<m_rounds; i++)
 	{
 		tmp = cbox[0][GETBYTE(tmp, 7)] ^ cbox[1][GETBYTE(tmp, 6)]
 			^ cbox[2][GETBYTE(tmp, 5)] ^ cbox[3][GETBYTE(tmp, 4)]
 			^ cbox[4][GETBYTE(tmp, 3)] ^ cbox[5][GETBYTE(tmp, 2)]
 			^ cbox[6][GETBYTE(tmp, 1)] ^ cbox[7][GETBYTE(tmp, 0)]
-			^ roundKeys[i];
+			^ m_roundKeys[i];
 	}
 
 	PutBlock<byte, BigEndian>(xorBlock, outBlock)
@@ -126,17 +122,42 @@ inline SharkProcessAndXorBlock(const word64 *roundKeys, unsigned int rounds, con
 		(sbox[GETBYTE(tmp, 0)]);
 
 	CRYPTOPP_ASSERT(IsAlignedOn(outBlock,GetAlignmentOf<word64>()));
-	*(word64 *)(void *)outBlock ^= roundKeys[rounds];
-}};
-
-void SHARK::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
-{
-	SharkProcessAndXorBlock<sbox, cbox>(m_roundKeys, m_rounds, inBlock, xorBlock, outBlock);
+	*(word64 *)(void *)outBlock ^= m_roundKeys[m_rounds];
 }
 
 void SHARK::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
-	SharkProcessAndXorBlock<sbox, cbox>(m_roundKeys, m_rounds, inBlock, xorBlock, outBlock);
+	CRYPTOPP_ASSERT(IsAlignedOn(inBlock,GetAlignmentOf<word64>()));
+	word64 tmp = *(word64 *)(void *)inBlock ^ m_roundKeys[0];
+
+	ByteOrder order = GetNativeByteOrder();
+	tmp = cbox[0][GetByte(order, tmp, 0)] ^ cbox[1][GetByte(order, tmp, 1)]
+		^ cbox[2][GetByte(order, tmp, 2)] ^ cbox[3][GetByte(order, tmp, 3)]
+		^ cbox[4][GetByte(order, tmp, 4)] ^ cbox[5][GetByte(order, tmp, 5)]
+		^ cbox[6][GetByte(order, tmp, 6)] ^ cbox[7][GetByte(order, tmp, 7)]
+		^ m_roundKeys[1];
+
+	for(unsigned int i=2; i<m_rounds; i++)
+	{
+		tmp = cbox[0][GETBYTE(tmp, 7)] ^ cbox[1][GETBYTE(tmp, 6)]
+			^ cbox[2][GETBYTE(tmp, 5)] ^ cbox[3][GETBYTE(tmp, 4)]
+			^ cbox[4][GETBYTE(tmp, 3)] ^ cbox[5][GETBYTE(tmp, 2)]
+			^ cbox[6][GETBYTE(tmp, 1)] ^ cbox[7][GETBYTE(tmp, 0)]
+			^ m_roundKeys[i];
+	}
+
+	PutBlock<byte, BigEndian>(xorBlock, outBlock)
+		(sbox[GETBYTE(tmp, 7)])
+		(sbox[GETBYTE(tmp, 6)])
+		(sbox[GETBYTE(tmp, 5)])
+		(sbox[GETBYTE(tmp, 4)])
+		(sbox[GETBYTE(tmp, 3)])
+		(sbox[GETBYTE(tmp, 2)])
+		(sbox[GETBYTE(tmp, 1)])
+		(sbox[GETBYTE(tmp, 0)]);
+
+	CRYPTOPP_ASSERT(IsAlignedOn(outBlock,GetAlignmentOf<word64>()));
+	*(word64 *)(void *)outBlock ^= m_roundKeys[m_rounds];
 }
 
 NAMESPACE_END

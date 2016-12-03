@@ -119,7 +119,7 @@ struct RW
 //! \class RWSS
 //! \brief Rabin-Williams signature scheme
 template <class STANDARD, class H>
-struct RWSS : public TF_SS<STANDARD, H, RW>
+struct RWSS : public TF_SS<RW, STANDARD, H>
 {
 };
 

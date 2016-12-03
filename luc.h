@@ -116,7 +116,7 @@ struct LUC
 //!   trapdoor functions and probably shouldn't	be used in production software. The discrete log based LUC schemes
 //!   defined later in this .h file may be of more practical interest.
 template <class STANDARD>
-struct LUCES : public TF_ES<STANDARD, LUC>
+struct LUCES : public TF_ES<LUC, STANDARD>
 {
 };
 
@@ -125,7 +125,7 @@ struct LUCES : public TF_ES<STANDARD, LUC>
 //!   trapdoor functions and probably shouldn't	be used in production software. The discrete log based LUC schemes
 //!   defined later in this .h file may be of more practical interest.
 template <class STANDARD, class H>
-struct LUCSS : public TF_SS<STANDARD, H, LUC>
+struct LUCSS : public TF_SS<LUC, STANDARD, H>
 {
 };
 

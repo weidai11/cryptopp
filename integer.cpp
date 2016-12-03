@@ -46,10 +46,6 @@
 	#include <c_asm.h>
 #endif
 
-#ifdef CRYPTOPP_MSVC6_NO_PP
-	#pragma message("You do not seem to have the Visual C++ Processor Pack installed, so use of SSE2 instructions will be disabled.")
-#endif
-
 // "Error: The operand ___LKDB cannot be assigned to", http://github.com/weidai11/cryptopp/issues/188
 #if (__SUNPRO_CC >= 0x5130)
 # define MAYBE_CONST
@@ -70,7 +66,7 @@
 # define CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE 0
 # define CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE 0
 #else
-# define CRYPTOPP_INTEGER_SSE2 (CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && CRYPTOPP_BOOL_X86)
+# define CRYPTOPP_INTEGER_SSE2 (CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && (CRYPTOPP_BOOL_X86))
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -567,13 +563,8 @@ inline word DWord::operator%(word a)
 		__asm	pop esi \
 		__asm	pop edi \
 		__asm	ret 8
-#if _MSC_VER < 1300
-	#define SaveEBX		__asm push ebx
-	#define RestoreEBX	__asm pop ebx
-#else
 	#define SaveEBX
 	#define RestoreEBX
-#endif
 	#define SquPrologue					\
 		AS2(	mov		eax, A)			\
 		AS2(	mov		ecx, C)			\
@@ -862,8 +853,8 @@ CRYPTOPP_NAKED int CRYPTOPP_FASTCALL SSE2_Sub(size_t N, word *C, const word *A, 
 
 	AddEpilogue
 }
-#endif	// #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
-#else
+#endif	// CRYPTOPP_INTEGER_SSE2
+#else   // CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
 int CRYPTOPP_FASTCALL Baseline_Add(size_t N, word *C, const word *A, const word *B)
 {
 	CRYPTOPP_ASSERT (N%2 == 0);
@@ -2082,7 +2073,7 @@ static PAdd s_pAdd = &Baseline_Add, s_pSub = &Baseline_Sub;
 static size_t s_recursionLimit = 8;
 #else
 static const size_t s_recursionLimit = 16;
-#endif
+#endif  // CRYPTOPP_INTEGER_SSE2
 
 static PMul s_pMul[9], s_pBot[9];
 static PSqu s_pSqu[9];
@@ -2099,13 +2090,11 @@ static void SetFunctionPointers()
 #if CRYPTOPP_INTEGER_SSE2
 	if (HasSSE2())
 	{
-#if _MSC_VER != 1200 || !(CRYPTOPP_DEBUG)
 		if (IsP4())
 		{
 			s_pAdd = &SSE2_Add;
 			s_pSub = &SSE2_Sub;
 		}
-#endif
 
 		s_recursionLimit = 32;
 
@@ -2129,7 +2118,7 @@ static void SetFunctionPointers()
 		s_pTop[8] = &SSE2_MultiplyTop32;
 	}
 	else
-#endif
+#endif  // CRYPTOPP_INTEGER_SSE2
 	{
 		s_pMul[1] = &Baseline_Multiply4;
 		s_pMul[2] = &Baseline_Multiply8;
@@ -2147,7 +2136,7 @@ static void SetFunctionPointers()
 		s_pBot[4] = &Baseline_MultiplyBottom16;
 		s_pSqu[4] = &Baseline_Square16;
 		s_pTop[4] = &Baseline_MultiplyTop16;
-#endif
+#endif  // !CRYPTOPP_INTEGER_SSE2
 	}
 }
 
@@ -2157,7 +2146,7 @@ inline int Add(word *C, const word *A, const word *B, size_t N)
 	return s_pAdd(N, C, A, B);
 #else
 	return Baseline_Add(N, C, A, B);
-#endif
+#endif  // CRYPTOPP_INTEGER_SSE2
 }
 
 inline int Subtract(word *C, const word *A, const word *B, size_t N)
@@ -2166,7 +2155,7 @@ inline int Subtract(word *C, const word *A, const word *B, size_t N)
 	return s_pSub(N, C, A, B);
 #else
 	return Baseline_Sub(N, C, A, B);
-#endif
+#endif  // CRYPTOPP_INTEGER_SSE2
 }
 
 // ********************************************************

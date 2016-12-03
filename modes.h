@@ -336,8 +336,8 @@ CRYPTOPP_DLL_TEMPLATE_CLASS CFB_DecryptionTemplate<AbstractPolicyHolder<CFB_Ciph
 template <class CIPHER>
 struct CFB_Mode : public CipherModeDocumentation
 {
-	typedef CipherModeFinalTemplate_CipherHolder<CPP_TYPENAME CIPHER::Encryption, ConcretePolicyHolder<Empty, CFB_EncryptionTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, CFB_ModePolicy> > > > Encryption;
-	typedef CipherModeFinalTemplate_CipherHolder<CPP_TYPENAME CIPHER::Encryption, ConcretePolicyHolder<Empty, CFB_DecryptionTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, CFB_ModePolicy> > > > Decryption;
+	typedef CipherModeFinalTemplate_CipherHolder<typename CIPHER::Encryption, ConcretePolicyHolder<Empty, CFB_EncryptionTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, CFB_ModePolicy> > > > Encryption;
+	typedef CipherModeFinalTemplate_CipherHolder<typename CIPHER::Encryption, ConcretePolicyHolder<Empty, CFB_DecryptionTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, CFB_ModePolicy> > > > Decryption;
 };
 
 //! \class CFB_Mode_ExternalCipher
@@ -354,8 +354,8 @@ struct CFB_Mode_ExternalCipher : public CipherModeDocumentation
 template <class CIPHER>
 struct CFB_FIPS_Mode : public CipherModeDocumentation
 {
-	typedef CipherModeFinalTemplate_CipherHolder<CPP_TYPENAME CIPHER::Encryption, ConcretePolicyHolder<Empty, CFB_RequireFullDataBlocks<CFB_EncryptionTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, CFB_ModePolicy> > > > > Encryption;
-	typedef CipherModeFinalTemplate_CipherHolder<CPP_TYPENAME CIPHER::Encryption, ConcretePolicyHolder<Empty, CFB_RequireFullDataBlocks<CFB_DecryptionTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, CFB_ModePolicy> > > > > Decryption;
+	typedef CipherModeFinalTemplate_CipherHolder<typename CIPHER::Encryption, ConcretePolicyHolder<Empty, CFB_RequireFullDataBlocks<CFB_EncryptionTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, CFB_ModePolicy> > > > > Encryption;
+	typedef CipherModeFinalTemplate_CipherHolder<typename CIPHER::Encryption, ConcretePolicyHolder<Empty, CFB_RequireFullDataBlocks<CFB_DecryptionTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, CFB_ModePolicy> > > > > Decryption;
 };
 
 //! \class CFB_FIPS_Mode_ExternalCipher
@@ -374,7 +374,7 @@ CRYPTOPP_DLL_TEMPLATE_CLASS AdditiveCipherTemplate<AbstractPolicyHolder<Additive
 template <class CIPHER>
 struct OFB_Mode : public CipherModeDocumentation
 {
-	typedef CipherModeFinalTemplate_CipherHolder<CPP_TYPENAME CIPHER::Encryption, ConcretePolicyHolder<Empty, AdditiveCipherTemplate<AbstractPolicyHolder<AdditiveCipherAbstractPolicy, OFB_ModePolicy> > > > Encryption;
+	typedef CipherModeFinalTemplate_CipherHolder<typename CIPHER::Encryption, ConcretePolicyHolder<Empty, AdditiveCipherTemplate<AbstractPolicyHolder<AdditiveCipherAbstractPolicy, OFB_ModePolicy> > > > Encryption;
 	typedef Encryption Decryption;
 };
 
@@ -394,7 +394,7 @@ CRYPTOPP_DLL_TEMPLATE_CLASS CipherModeFinalTemplate_ExternalCipher<ConcretePolic
 template <class CIPHER>
 struct CTR_Mode : public CipherModeDocumentation
 {
-	typedef CipherModeFinalTemplate_CipherHolder<CPP_TYPENAME CIPHER::Encryption, ConcretePolicyHolder<Empty, AdditiveCipherTemplate<AbstractPolicyHolder<AdditiveCipherAbstractPolicy, CTR_ModePolicy> > > > Encryption;
+	typedef CipherModeFinalTemplate_CipherHolder<typename CIPHER::Encryption, ConcretePolicyHolder<Empty, AdditiveCipherTemplate<AbstractPolicyHolder<AdditiveCipherAbstractPolicy, CTR_ModePolicy> > > > Encryption;
 	typedef Encryption Decryption;
 };
 
@@ -411,8 +411,8 @@ struct CTR_Mode_ExternalCipher : public CipherModeDocumentation
 template <class CIPHER>
 struct ECB_Mode : public CipherModeDocumentation
 {
-	typedef CipherModeFinalTemplate_CipherHolder<CPP_TYPENAME CIPHER::Encryption, ECB_OneWay> Encryption;
-	typedef CipherModeFinalTemplate_CipherHolder<CPP_TYPENAME CIPHER::Decryption, ECB_OneWay> Decryption;
+	typedef CipherModeFinalTemplate_CipherHolder<typename CIPHER::Encryption, ECB_OneWay> Encryption;
+	typedef CipherModeFinalTemplate_CipherHolder<typename CIPHER::Decryption, ECB_OneWay> Decryption;
 };
 
 CRYPTOPP_DLL_TEMPLATE_CLASS CipherModeFinalTemplate_ExternalCipher<ECB_OneWay>;
@@ -429,8 +429,8 @@ struct ECB_Mode_ExternalCipher : public CipherModeDocumentation
 template <class CIPHER>
 struct CBC_Mode : public CipherModeDocumentation
 {
-	typedef CipherModeFinalTemplate_CipherHolder<CPP_TYPENAME CIPHER::Encryption, CBC_Encryption> Encryption;
-	typedef CipherModeFinalTemplate_CipherHolder<CPP_TYPENAME CIPHER::Decryption, CBC_Decryption> Decryption;
+	typedef CipherModeFinalTemplate_CipherHolder<typename CIPHER::Encryption, CBC_Encryption> Encryption;
+	typedef CipherModeFinalTemplate_CipherHolder<typename CIPHER::Decryption, CBC_Decryption> Decryption;
 };
 
 CRYPTOPP_DLL_TEMPLATE_CLASS CipherModeFinalTemplate_ExternalCipher<CBC_Encryption>;
@@ -447,8 +447,8 @@ struct CBC_Mode_ExternalCipher : public CipherModeDocumentation
 template <class CIPHER>
 struct CBC_CTS_Mode : public CipherModeDocumentation
 {
-	typedef CipherModeFinalTemplate_CipherHolder<CPP_TYPENAME CIPHER::Encryption, CBC_CTS_Encryption> Encryption;
-	typedef CipherModeFinalTemplate_CipherHolder<CPP_TYPENAME CIPHER::Decryption, CBC_CTS_Decryption> Decryption;
+	typedef CipherModeFinalTemplate_CipherHolder<typename CIPHER::Encryption, CBC_CTS_Encryption> Encryption;
+	typedef CipherModeFinalTemplate_CipherHolder<typename CIPHER::Decryption, CBC_CTS_Decryption> Decryption;
 };
 
 CRYPTOPP_DLL_TEMPLATE_CLASS CipherModeFinalTemplate_ExternalCipher<CBC_CTS_Encryption>;

@@ -329,19 +329,8 @@ NAMESPACE_END
 	#endif
 #endif
 
-#if defined(_MSC_VER)
-	#if _MSC_VER == 1200
-		#include <malloc.h>
-	#endif
-	#if _MSC_VER > 1200 || defined(_mm_free)
-		#define CRYPTOPP_MSVC6PP_OR_LATER		// VC 6 processor pack or later
-	#else
-		#define CRYPTOPP_MSVC6_NO_PP			// VC 6 without processor pack
-	#endif
-#endif
-
 #ifndef CRYPTOPP_ALIGN_DATA
-	#if defined(CRYPTOPP_MSVC6PP_OR_LATER)
+	#if defined(_MSC_VER)
 		#define CRYPTOPP_ALIGN_DATA(x) __declspec(align(x))
 	#elif defined(__GNUC__)
 		#define CRYPTOPP_ALIGN_DATA(x) __attribute__((aligned(x)))
@@ -372,20 +361,6 @@ NAMESPACE_END
 	#define CRYPTOPP_FASTCALL __fastcall
 #else
 	#define CRYPTOPP_FASTCALL
-#endif
-
-// VC60 workaround: it doesn't allow typename in some places
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-#define CPP_TYPENAME
-#else
-#define CPP_TYPENAME typename
-#endif
-
-// VC60 workaround: can't cast unsigned __int64 to float or double
-#if defined(_MSC_VER) && !defined(CRYPTOPP_MSVC6PP_OR_LATER)
-#define CRYPTOPP_VC6_INT64 (__int64)
-#else
-#define CRYPTOPP_VC6_INT64
 #endif
 
 #ifdef _MSC_VER
@@ -455,7 +430,7 @@ NAMESPACE_END
 	// C++Builder 2010 does not allow "call label" where label is defined within inline assembly
 	#define CRYPTOPP_X86_ASM_AVAILABLE
 
-	#if !defined(CRYPTOPP_DISABLE_SSE2) && (defined(CRYPTOPP_MSVC6PP_OR_LATER) || CRYPTOPP_GCC_VERSION >= 30300 || defined(__SSE2__))
+	#if !defined(CRYPTOPP_DISABLE_SSE2) && (defined(_MSC_VER) || CRYPTOPP_GCC_VERSION >= 30300 || defined(__SSE2__))
 		#define CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE 1
 	#else
 		#define CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE 0
@@ -476,7 +451,7 @@ NAMESPACE_END
 	#define CRYPTOPP_X64_ASM_AVAILABLE
 #endif
 
-#if !defined(CRYPTOPP_DISABLE_ASM) && (defined(CRYPTOPP_MSVC6PP_OR_LATER) || defined(__SSE2__)) && !defined(_M_ARM)
+#if !defined(CRYPTOPP_DISABLE_ASM) && (defined(_MSC_VER) || defined(__SSE2__)) && !defined(_M_ARM)
 	#define CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE 1
 #else
 	#define CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE 0
@@ -536,7 +511,7 @@ NAMESPACE_END
 #endif
 
 // how to allocate 16-byte aligned memory (for SSE2)
-#if defined(CRYPTOPP_MSVC6PP_OR_LATER)
+#if defined(_MSC_VER)
 	#define CRYPTOPP_MM_MALLOC_AVAILABLE
 #elif defined(__APPLE__)
 	#define CRYPTOPP_APPLE_MALLOC_AVAILABLE
@@ -552,7 +527,7 @@ NAMESPACE_END
 // http://developer.apple.com/library/mac/documentation/Performance/Conceptual/ManagingMemory/Articles/MemoryAlloc.html
 
 // how to disable inlining
-#if defined(_MSC_VER) && _MSC_VER >= 1300
+#if defined(_MSC_VER)
 #	define CRYPTOPP_NOINLINE_DOTDOTDOT
 #	define CRYPTOPP_NOINLINE __declspec(noinline)
 #elif defined(__GNUC__)

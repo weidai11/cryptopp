@@ -1714,17 +1714,14 @@ bool TestRDSEED()
 }
 #endif
 
-// VC50 workaround
-typedef auto_ptr<BlockTransformation> apbt;
-
 class CipherFactory
 {
 public:
 	virtual unsigned int BlockSize() const =0;
 	virtual unsigned int KeyLength() const =0;
 
-	virtual apbt NewEncryption(const byte *keyStr) const =0;
-	virtual apbt NewDecryption(const byte *keyStr) const =0;
+	virtual BlockTransformation* NewEncryption(const byte *keyStr) const =0;
+	virtual BlockTransformation* NewDecryption(const byte *keyStr) const =0;
 };
 
 template <class E, class D> class FixedRoundsCipherFactory : public CipherFactory
@@ -1734,10 +1731,10 @@ public:
 	unsigned int BlockSize() const {return E::BLOCKSIZE;}
 	unsigned int KeyLength() const {return m_keylen;}
 
-	apbt NewEncryption(const byte *keyStr) const
-		{return apbt(new E(keyStr, m_keylen));}
-	apbt NewDecryption(const byte *keyStr) const
-		{return apbt(new D(keyStr, m_keylen));}
+	BlockTransformation* NewEncryption(const byte *keyStr) const
+		{return new E(keyStr, m_keylen);}
+	BlockTransformation* NewDecryption(const byte *keyStr) const
+		{return new D(keyStr, m_keylen);}
 
 	unsigned int m_keylen;
 };
@@ -1750,10 +1747,10 @@ public:
 	unsigned int BlockSize() const {return E::BLOCKSIZE;}
 	unsigned int KeyLength() const {return m_keylen;}
 
-	apbt NewEncryption(const byte *keyStr) const
-		{return apbt(new E(keyStr, m_keylen, m_rounds));}
-	apbt NewDecryption(const byte *keyStr) const
-		{return apbt(new D(keyStr, m_keylen, m_rounds));}
+	BlockTransformation* NewEncryption(const byte *keyStr) const
+		{return new E(keyStr, m_keylen, m_rounds);}
+	BlockTransformation* NewDecryption(const byte *keyStr) const
+		{return new D(keyStr, m_keylen, m_rounds);}
 
 	unsigned int m_keylen, m_rounds;
 };
@@ -1771,11 +1768,11 @@ bool BlockTransformationTest(const CipherFactory &cg, BufferedTransformation &va
 		valdata.Get(plain, cg.BlockSize());
 		valdata.Get(cipher, cg.BlockSize());
 
-		apbt transE = cg.NewEncryption(key);
+		member_ptr<BlockTransformation> transE(cg.NewEncryption(key));
 		transE->ProcessBlock(plain, out);
 		fail = memcmp(out, cipher, cg.BlockSize()) != 0;
 
-		apbt transD = cg.NewDecryption(key);
+		member_ptr<BlockTransformation> transD(cg.NewDecryption(key));
 		transD->ProcessBlock(out, outplain);
 		fail=fail || memcmp(outplain, plain, cg.BlockSize());
 
@@ -2239,11 +2236,11 @@ bool ValidateRC2()
 		valdata.Get(plain, RC2Encryption::BLOCKSIZE);
 		valdata.Get(cipher, RC2Encryption::BLOCKSIZE);
 
-		apbt transE(new RC2Encryption(key, keyLen, effectiveLen));
+		member_ptr<BlockTransformation> transE(new RC2Encryption(key, keyLen, effectiveLen));
 		transE->ProcessBlock(plain, out);
 		fail = memcmp(out, cipher, RC2Encryption::BLOCKSIZE) != 0;
 
-		apbt transD(new RC2Decryption(key, keyLen, effectiveLen));
+		member_ptr<BlockTransformation> transD(new RC2Decryption(key, keyLen, effectiveLen));
 		transD->ProcessBlock(out, outplain);
 		fail=fail || memcmp(outplain, plain, RC2Encryption::BLOCKSIZE);
 
@@ -2386,7 +2383,6 @@ bool ValidateARC4()
 	0x9e,0x27,0x55,0xab,0x18,0x1a,0xb7,0xe9,0x40,0xb0,
 	0xc0};
 
-	// VC60 workaround: auto_ptr lacks reset()
 	member_ptr<Weak::ARC4> arc4;
 	bool pass=true, fail;
 	unsigned int i;

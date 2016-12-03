@@ -86,7 +86,7 @@ protected:
 	void HashBlocks(const byte *input, size_t length, word32 padbit);
 	void HashFinal(byte *mac, size_t length);
 
-	CPP_TYPENAME T::Encryption m_cipher;
+	typename T::Encryption m_cipher;
 
 	// Accumulated hash, clamped r-key, and encrypted nonce
 	FixedSizeAlignedSecBlock<word32, 5> m_h;

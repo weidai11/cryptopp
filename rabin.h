@@ -90,13 +90,13 @@ struct Rabin
 
 //! Rabin encryption
 template <class STANDARD>
-struct RabinES : public TF_ES<STANDARD, Rabin>
+struct RabinES : public TF_ES<Rabin, STANDARD>
 {
 };
 
 //! Rabin signature
 template <class STANDARD, class H>
-struct RabinSS : public TF_SS<STANDARD, H, Rabin>
+struct RabinSS : public TF_SS<Rabin, STANDARD, H>
 {
 };
 

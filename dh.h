@@ -21,7 +21,7 @@ NAMESPACE_BEGIN(CryptoPP)
 //!   for generating key pairs and deriving agreed values.
 //! \sa DL_SimpleKeyAgreementDomainBase
 //! \since Crypto++ 1.0
-template <class GROUP_PARAMETERS, class COFACTOR_OPTION = CPP_TYPENAME GROUP_PARAMETERS::DefaultCofactorOption>
+template <class GROUP_PARAMETERS, class COFACTOR_OPTION = typename GROUP_PARAMETERS::DefaultCofactorOption>
 class DH_Domain : public DL_SimpleKeyAgreementDomainBase<typename GROUP_PARAMETERS::Element>
 {
 	typedef DL_SimpleKeyAgreementDomainBase<typename GROUP_PARAMETERS::Element> Base;

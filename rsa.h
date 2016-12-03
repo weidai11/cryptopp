@@ -168,7 +168,7 @@ struct CRYPTOPP_DLL RSA
 //! \sa <a href="http://www.weidai.com/scan-mirror/ca.html#RSA">RSA cryptosystem</a>
 //! \since Crypto++ 1.0
 template <class STANDARD>
-struct RSAES : public TF_ES<STANDARD, RSA>
+struct RSAES : public TF_ES<RSA, STANDARD>
 {
 };
 
@@ -180,7 +180,7 @@ struct RSAES : public TF_ES<STANDARD, RSA>
 //! \sa <a href="http://www.weidai.com/scan-mirror/sig.html#RSA">RSA signature scheme with appendix</a>
 //! \since Crypto++ 1.0
 template <class STANDARD, class H>
-struct RSASS : public TF_SS<STANDARD, H, RSA>
+struct RSASS : public TF_SS<RSA, STANDARD, H>
 {
 };
 
@@ -199,7 +199,7 @@ struct CRYPTOPP_DLL RSA_ISO
 //! \tparam H hash transformation
 //! \since Crypto++ 1.0
 template <class H>
-struct RSASS_ISO : public TF_SS<P1363_EMSA2, H, RSA_ISO>
+struct RSASS_ISO : public TF_SS<RSA_ISO, P1363_EMSA2, H>
 {
 };
 

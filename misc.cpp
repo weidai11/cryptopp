@@ -197,13 +197,11 @@ std::string StringNarrow(const wchar_t *str, bool throwOnError)
 	return result;
 }
 
-#if !(defined(_MSC_VER) && (_MSC_VER < 1300))
-using std::new_handler;
-using std::set_new_handler;
-#endif
-
 void CallNewHandler()
 {
+	using std::new_handler;
+	using std::set_new_handler;
+
 	new_handler newHandler = set_new_handler(NULL);
 	if (newHandler)
 		set_new_handler(newHandler);

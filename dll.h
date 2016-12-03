@@ -62,14 +62,10 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#if !(defined(_MSC_VER) && (_MSC_VER < 1300))
-using std::new_handler;
-#endif
-
 typedef void * (CRYPTOPP_API * PNew)(size_t);
 typedef void (CRYPTOPP_API * PDelete)(void *);
 typedef void (CRYPTOPP_API * PGetNewAndDelete)(PNew &, PDelete &);
-typedef new_handler (CRYPTOPP_API * PSetNewHandler)(new_handler);
+typedef std::new_handler (CRYPTOPP_API * PSetNewHandler)(std::new_handler);
 typedef void (CRYPTOPP_API * PSetNewAndDelete)(PNew, PDelete, PSetNewHandler);
 
 NAMESPACE_END

@@ -6,13 +6,6 @@
 
 #include "rijndael.h"
 
-// VC60 workaround: gives a C4786 warning without this function
-// when runtime lib is set to multithread debug DLL
-// even though warning 4786 is disabled!
-void Rijndael_VC60Workaround()
-{
-}
-
 NAMESPACE_BEGIN(CryptoPP)
 
 /*

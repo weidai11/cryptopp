@@ -20,7 +20,7 @@ NAMESPACE_BEGIN(CryptoPP)
 //!   Note: this is FHMQV, Protocol 5, from page 11; and not FHMQV-C.
 //! \sa MQV, HMQV, FHMQV, and AuthenticatedKeyAgreementDomain
 //! \since Crypto++ 5.6.4
-template <class GROUP_PARAMETERS, class COFACTOR_OPTION = CPP_TYPENAME GROUP_PARAMETERS::DefaultCofactorOption, class HASH = SHA512>
+template <class GROUP_PARAMETERS, class COFACTOR_OPTION = typename GROUP_PARAMETERS::DefaultCofactorOption, class HASH = SHA512>
 class FHMQV_Domain : public AuthenticatedKeyAgreementDomain
 {
 public:

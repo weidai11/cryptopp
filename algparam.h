@@ -61,7 +61,7 @@ public:
 	template <class T> ConstByteArrayParameter(const T &string, bool deepCopy = false)
 		: m_deepCopy(false), m_data(NULL), m_size(0)
 	{
-		CRYPTOPP_COMPILE_ASSERT(sizeof(CPP_TYPENAME T::value_type) == 1);
+		CRYPTOPP_COMPILE_ASSERT(sizeof(typename T::value_type) == 1);
 		Assign((const byte *)string.data(), string.size(), deepCopy);
 	}
 
@@ -235,68 +235,6 @@ GetValueHelperClass<T, T> GetValueHelper(const T *pObject, const char *name, con
 
 // ********************************************************
 
-// VC60 workaround
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-template <class R>
-R Hack_DefaultValueFromConstReferenceType(const R &)
-{
-	return R();
-}
-
-template <class R>
-bool Hack_GetValueIntoConstReference(const NameValuePairs &source, const char *name, const R &value)
-{
-	return source.GetValue(name, const_cast<R &>(value));
-}
-
-template <class T, class BASE>
-class AssignFromHelperClass
-{
-public:
-	AssignFromHelperClass(T *pObject, const NameValuePairs &source)
-		: m_pObject(pObject), m_source(source), m_done(false)
-	{
-		if (source.GetThisObject(*pObject))
-			m_done = true;
-		else if (typeid(BASE) != typeid(T))
-			pObject->BASE::AssignFrom(source);
-	}
-
-	template <class R>
-	AssignFromHelperClass & operator()(const char *name, void (T::*pm)(R))	// VC60 workaround: "const R &" here causes compiler error
-	{
-		if (!m_done)
-		{
-			R value = Hack_DefaultValueFromConstReferenceType(reinterpret_cast<R>(*(int *)NULL));
-			if (!Hack_GetValueIntoConstReference(m_source, name, value))
-				throw InvalidArgument(std::string(typeid(T).name()) + ": Missing required parameter '" + name + "'");
-			(m_pObject->*pm)(value);
-		}
-		return *this;
-	}
-
-	template <class R, class S>
-	AssignFromHelperClass & operator()(const char *name1, const char *name2, void (T::*pm)(R, S))	// VC60 workaround: "const R &" here causes compiler error
-	{
-		if (!m_done)
-		{
-			R value1 = Hack_DefaultValueFromConstReferenceType(reinterpret_cast<R>(*(int *)NULL));
-			if (!Hack_GetValueIntoConstReference(m_source, name1, value1))
-				throw InvalidArgument(std::string(typeid(T).name()) + ": Missing required parameter '" + name1 + "'");
-			S value2 = Hack_DefaultValueFromConstReferenceType(reinterpret_cast<S>(*(int *)NULL));
-			if (!Hack_GetValueIntoConstReference(m_source, name2, value2))
-				throw InvalidArgument(std::string(typeid(T).name()) + ": Missing required parameter '" + name2 + "'");
-			(m_pObject->*pm)(value1, value2);
-		}
-		return *this;
-	}
-
-private:
-	T *m_pObject;
-	const NameValuePairs &m_source;
-	bool m_done;
-};
-#else
 template <class T, class BASE>
 class AssignFromHelperClass
 {
@@ -344,7 +282,6 @@ private:
 	const NameValuePairs &m_source;
 	bool m_done;
 };
-#endif
 
 template <class BASE, class T>
 AssignFromHelperClass<T, BASE> AssignFromHelper(T *pObject, const NameValuePairs &source, BASE *dummy=NULL)
@@ -382,22 +319,6 @@ public:
 		ParameterNotUsed(const char *name) : Exception(OTHER_ERROR, std::string("AlgorithmParametersBase: parameter \"") + name + "\" not used") {}
 	};
 
-	// this is actually a move, not a copy
-	AlgorithmParametersBase(const AlgorithmParametersBase &x)
-		: m_name(x.m_name), m_throwIfNotUsed(x.m_throwIfNotUsed), m_used(x.m_used)
-	{
-		m_next.reset(const_cast<AlgorithmParametersBase &>(x).m_next.release());
-		x.m_used = true;
-	}
-
-	//! \brief Construct a AlgorithmParametersBase
-	//! \param name the parameter name
-	//! \param throwIfNotUsed flags indicating whether an exception should be thrown
-	//! \details If throwIfNotUsed is true, then a ParameterNotUsed exception
-	//!   will be thrown in the destructor if the parameter is not not retrieved.
-	AlgorithmParametersBase(const char *name, bool throwIfNotUsed)
-		: m_name(name), m_throwIfNotUsed(throwIfNotUsed), m_used(false) {}
-
 	virtual ~AlgorithmParametersBase() CRYPTOPP_THROW
 	{
 #ifdef CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE
@@ -416,11 +337,27 @@ public:
 #endif
 	}
 
+	// this is actually a move, not a copy
+	AlgorithmParametersBase(const AlgorithmParametersBase &x)
+		: m_name(x.m_name), m_throwIfNotUsed(x.m_throwIfNotUsed), m_used(x.m_used)
+	{
+		m_next.reset(const_cast<AlgorithmParametersBase &>(x).m_next.release());
+		x.m_used = true;
+	}
+
+	//! \brief Construct a AlgorithmParametersBase
+	//! \param name the parameter name
+	//! \param throwIfNotUsed flags indicating whether an exception should be thrown
+	//! \details If throwIfNotUsed is true, then a ParameterNotUsed exception
+	//!   will be thrown in the destructor if the parameter is not not retrieved.
+	AlgorithmParametersBase(const char *name, bool throwIfNotUsed)
+		: m_name(name), m_throwIfNotUsed(throwIfNotUsed), m_used(false) {}
+
 	bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const;
 
 protected:
 	friend class AlgorithmParameters;
-	void operator=(const AlgorithmParametersBase& rhs);	// assignment not allowed, declare this for VC60
+	void operator=(const AlgorithmParametersBase& rhs);  // assignment not allowed, declare this for VC60
 
 	virtual void AssignValue(const char *name, const std::type_info &valueType, void *pValue) const =0;
 	virtual void MoveInto(void *p) const =0;	// not really const

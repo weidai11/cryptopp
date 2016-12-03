@@ -48,10 +48,8 @@ protected:
 	word64* DataBuf() {return (word64 *)(void*)m_data();}
 
 	void VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWord64, int tagPart);
-#if !(defined(_MSC_VER) && _MSC_VER < 1300)		// can't use function template here with VC6
 	template <bool T_128BitTag>
-#endif
-	void VHASH_Update_Template(const word64 *data, size_t blockRemainingInWord128);
+		void VHASH_Update_Template(const word64 *data, size_t blockRemainingInWord128);
 	void VHASH_Update(const word64 *data, size_t blocksRemainingInWord128);
 
 	CRYPTOPP_BLOCK_1(polyState, word64, 4*(m_is128+1))

@@ -473,7 +473,7 @@ inline void * memset_z(void *ptr, int value, size_t num)
 //! \param a the first value
 //! \param b the second value
 //! \returns the minimum value based on a comparison of <tt>b \< a</tt> using <tt>operator\<</tt>
-//! \details STDMIN was provided because the library could not use std::min or std::max in MSVC60 or Cygwin 1.1.0
+//! \details STDMIN was provided because the library could not easily use std::min or std::max in Windows or Cygwin 1.1.0
 template <class T> inline const T& STDMIN(const T& a, const T& b)
 {
 	return b < a ? b : a;
@@ -483,10 +483,9 @@ template <class T> inline const T& STDMIN(const T& a, const T& b)
 //! \param a the first value
 //! \param b the second value
 //! \returns the minimum value based on a comparison of <tt>a \< b</tt> using <tt>operator\<</tt>
-//! \details STDMAX was provided because the library could not use std::min or std::max in MSVC60 or Cygwin 1.1.0
+//! \details STDMAX was provided because the library could not easily use std::min or std::max in Windows or Cygwin 1.1.0
 template <class T> inline const T& STDMAX(const T& a, const T& b)
 {
-	// can't use std::min or std::max in MSVC60 or Cygwin 1.1.0
 	return a < b ? b : a;
 }
 
@@ -911,7 +910,6 @@ inline T1 RoundUpToMultipleOf(const T1 &n, const T2 &m)
 }
 
 //! \brief Returns the minimum alignment requirements of a type
-//! \param dummy an unused Visual C++ 6.0 workaround
 //! \returns the minimum alignment requirements of a type, in bytes
 //! \details Internally the function calls C++11's <tt>alignof</tt> if available. If not available,
 //!   then the function uses compiler specific extensions such as <tt>__alignof</tt> and
@@ -921,14 +919,14 @@ inline T1 RoundUpToMultipleOf(const T1 &n, const T2 &m)
 //!   In <em>all</em> cases, if <tt>CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS</tt> is defined, then the
 //!   function returns 1.
 template <class T>
-inline unsigned int GetAlignmentOf(T *dummy=NULL)	// VC60 workaround
+inline unsigned int GetAlignmentOf()
 {
 // GCC 4.6 (circa 2008) and above aggressively uses vectorization.
 #if defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS)
 	if (sizeof(T) < 16)
 		return 1;
 #endif
-	CRYPTOPP_UNUSED(dummy);
+
 #if defined(CRYPTOPP_CXX11_ALIGNOF)
 	return alignof(T);
 #elif (_MSC_VER >= 1300)
@@ -960,13 +958,11 @@ inline bool IsAlignedOn(const void *ptr, unsigned int alignment)
 
 //! \brief Determines whether ptr is minimally aligned
 //! \param ptr the pointer to check for alignment
-//! \param dummy an unused Visual C++ 6.0 workaround
 //! \returns true if ptr follows native byte ordering, false otherwise
 //! \details Internally the function calls IsAlignedOn with a second parameter of GetAlignmentOf<T>
 template <class T>
-inline bool IsAligned(const void *ptr, T *dummy=NULL)	// VC60 workaround
+inline bool IsAligned(const void *ptr)
 {
-	CRYPTOPP_UNUSED(dummy);
 	return IsAlignedOn(ptr, GetAlignmentOf<T>());
 }
 

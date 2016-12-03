@@ -237,12 +237,9 @@ void BenchMarkAgreement(const char *name, AuthenticatedKeyAgreementDomainWithRol
 }
 #endif
 
-//VC60 workaround: compiler bug triggered without the extra dummy parameters
 template <class SCHEME>
-void BenchMarkCrypto(const char *filename, const char *name, double timeTotal, SCHEME *x=NULL)
+void BenchMarkCrypto(const char *filename, const char *name, double timeTotal)
 {
-	CRYPTOPP_UNUSED(x);
-
 	FileSource f(filename, true, new HexDecoder());
 	typename SCHEME::Decryptor priv(f);
 	typename SCHEME::Encryptor pub(priv);
@@ -250,12 +247,9 @@ void BenchMarkCrypto(const char *filename, const char *name, double timeTotal, S
 	BenchMarkDecryption(name, priv, pub, timeTotal);
 }
 
-//VC60 workaround: compiler bug triggered without the extra dummy parameters
 template <class SCHEME>
-void BenchMarkSignature(const char *filename, const char *name, double timeTotal, SCHEME *x=NULL)
+void BenchMarkSignature(const char *filename, const char *name, double timeTotal)
 {
-	CRYPTOPP_UNUSED(x);
-
 	FileSource f(filename, true, new HexDecoder());
 	typename SCHEME::Signer priv(f);
 	typename SCHEME::Verifier pub(priv);
@@ -263,12 +257,9 @@ void BenchMarkSignature(const char *filename, const char *name, double timeTotal
 	BenchMarkVerification(name, priv, pub, timeTotal);
 }
 
-//VC60 workaround: compiler bug triggered without the extra dummy parameters
 template <class D>
-void BenchMarkKeyAgreement(const char *filename, const char *name, double timeTotal, D *x=NULL)
+void BenchMarkKeyAgreement(const char *filename, const char *name, double timeTotal)
 {
-	CRYPTOPP_UNUSED(x);
-
 	FileSource f(filename, true, new HexDecoder());
 	D d(f);
 	BenchMarkKeyGen(name, d, timeTotal);

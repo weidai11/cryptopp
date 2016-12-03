@@ -138,7 +138,7 @@ struct ESIGN_Keys
 //! \tparam STANDARD Signature encoding method
 //! \since Crypto++ 5.0
 template <class H, class STANDARD = P1363_EMSA5>
-struct ESIGN : public TF_SS<STANDARD, H, ESIGN_Keys>
+struct ESIGN : public TF_SS<ESIGN_Keys, STANDARD, H>
 {
 };
 

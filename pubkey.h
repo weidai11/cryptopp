@@ -52,9 +52,6 @@
 #include "smartptr.h"
 #include "stdcpp.h"
 
-// VC60 workaround: this macro is defined in shlobj.h and conflicts with a template parameter used in this file
-#undef INTERFACE
-
 #if defined(__SUNPRO_CC)
 # define MAYBE_RETURN(x) return x
 #else
@@ -273,10 +270,10 @@ public:
 
 //! \class TF_CryptoSystemBase
 //! \brief Trapdoor function cryptosystem base class
-//! \tparam INTERFACE public key cryptosystem base interface
+//! \tparam INTFACE public key cryptosystem base interface
 //! \tparam BASE public key cryptosystem implementation base
-template <class INTERFACE, class BASE>
-class CRYPTOPP_NO_VTABLE TF_CryptoSystemBase : public PK_FixedLengthCryptoSystemImpl<INTERFACE>, protected BASE
+template <class INTFACE, class BASE>
+class CRYPTOPP_NO_VTABLE TF_CryptoSystemBase : public PK_FixedLengthCryptoSystemImpl<INTFACE>, protected BASE
 {
 public:
 	virtual ~TF_CryptoSystemBase() {}
@@ -478,8 +475,8 @@ public:
 };
 
 //! _
-template <class INTERFACE, class BASE>
-class CRYPTOPP_NO_VTABLE TF_SignatureSchemeBase : public INTERFACE, protected BASE
+template <class INTFACE, class BASE>
+class CRYPTOPP_NO_VTABLE TF_SignatureSchemeBase : public INTFACE, protected BASE
 {
 public:
 	virtual ~TF_SignatureSchemeBase() {}
@@ -571,16 +568,16 @@ public:
 	PK_MessageAccumulator * NewSignatureAccumulator(RandomNumberGenerator &rng) const
 	{
 		CRYPTOPP_UNUSED(rng);
-		return new PK_MessageAccumulatorImpl<CPP_TYPENAME SCHEME_OPTIONS::HashFunction>;
+		return new PK_MessageAccumulatorImpl<typename SCHEME_OPTIONS::HashFunction>;
 	}
 	PK_MessageAccumulator * NewVerificationAccumulator() const
 	{
-		return new PK_MessageAccumulatorImpl<CPP_TYPENAME SCHEME_OPTIONS::HashFunction>;
+		return new PK_MessageAccumulatorImpl<typename SCHEME_OPTIONS::HashFunction>;
 	}
 
 protected:
 	const typename BASE::MessageEncodingInterface & GetMessageEncodingInterface() const
-		{return Singleton<CPP_TYPENAME SCHEME_OPTIONS::MessageEncodingMethod>().Ref();}
+		{return Singleton<typename SCHEME_OPTIONS::MessageEncodingMethod>().Ref();}
 	const TrapdoorFunctionBounds & GetTrapdoorFunctionBounds() const
 		{return GetKey();}
 	const typename BASE::TrapdoorFunctionInterface & GetTrapdoorFunctionInterface() const
@@ -589,12 +586,12 @@ protected:
 	// for signature scheme
 	HashIdentifier GetHashIdentifier() const
 	{
-        typedef CPP_TYPENAME SchemeOptions::MessageEncodingMethod::HashIdentifierLookup::template HashIdentifierLookup2<CPP_TYPENAME SchemeOptions::HashFunction> L;
+        typedef typename SchemeOptions::MessageEncodingMethod::HashIdentifierLookup::template HashIdentifierLookup2<typename SchemeOptions::HashFunction> L;
         return L::Lookup();
 	}
 	size_t GetDigestSize() const
 	{
-		typedef CPP_TYPENAME SchemeOptions::HashFunction H;
+		typedef typename SchemeOptions::HashFunction H;
 		return H::DIGESTSIZE;
 	}
 };
@@ -940,7 +937,7 @@ private:
 //! \tparam GROUP_PRECOMP group precomputation class
 //! \tparam BASE_PRECOMP fixed base precomputation class
 //! \tparam BASE class or type of an element
-template <class GROUP_PRECOMP, class BASE_PRECOMP = DL_FixedBasePrecomputationImpl<CPP_TYPENAME GROUP_PRECOMP::Element>, class BASE = DL_GroupParameters<CPP_TYPENAME GROUP_PRECOMP::Element> >
+template <class GROUP_PRECOMP, class BASE_PRECOMP = DL_FixedBasePrecomputationImpl<typename GROUP_PRECOMP::Element>, class BASE = DL_GroupParameters<typename GROUP_PRECOMP::Element> >
 class DL_GroupParametersImpl : public BASE
 {
 public:
@@ -1098,7 +1095,7 @@ class PKCS8PrivateKey;
 
 //! _
 template <class GP>
-class DL_PrivateKeyImpl : public DL_PrivateKey<CPP_TYPENAME GP::Element>, public DL_KeyImpl<PKCS8PrivateKey, GP>
+class DL_PrivateKeyImpl : public DL_PrivateKey<typename GP::Element>, public DL_KeyImpl<PKCS8PrivateKey, GP>
 {
 public:
 	typedef typename GP::Element Element;
@@ -1329,12 +1326,12 @@ protected:
 };
 
 //! \brief Discrete Log (DL) signature scheme base implementation
-//! \tparam INTERFACE PK_Signer or PK_Verifier derived class
+//! \tparam INTFACE PK_Signer or PK_Verifier derived class
 //! \tparam DL_Base key base used in the scheme
 //! \details DL_SignatureSchemeBase provides common functions for signers and verifiers.
 //!   DL_Base<DL_PrivateKey> is used for signers, and DL_Base<DL_PublicKey> is used for verifiers.
-template <class INTERFACE, class KEY_INTERFACE>
-class CRYPTOPP_NO_VTABLE DL_SignatureSchemeBase : public INTERFACE, public DL_Base<KEY_INTERFACE>
+template <class INTFACE, class KEY_INTFACE>
+class CRYPTOPP_NO_VTABLE DL_SignatureSchemeBase : public INTFACE, public DL_Base<KEY_INTFACE>
 {
 public:
 	virtual ~DL_SignatureSchemeBase() {}
@@ -1379,7 +1376,7 @@ protected:
 	size_t MessageRepresentativeLength() const {return BitsToBytes(MessageRepresentativeBitLength());}
 	size_t MessageRepresentativeBitLength() const {return this->GetAbstractGroupParameters().GetSubgroupOrder().BitCount();}
 
-	virtual const DL_ElgamalLikeSignatureAlgorithm<CPP_TYPENAME KEY_INTERFACE::Element> & GetSignatureAlgorithm() const =0;
+	virtual const DL_ElgamalLikeSignatureAlgorithm<typename KEY_INTFACE::Element> & GetSignatureAlgorithm() const =0;
 	virtual const PK_SignatureMessageEncodingMethod & GetMessageEncodingInterface() const =0;
 	virtual HashIdentifier GetHashIdentifier() const =0;
 	virtual size_t GetDigestSize() const =0;
@@ -1736,11 +1733,11 @@ protected:
 	HashIdentifier GetHashIdentifier() const
 	{
 		typedef typename SchemeOptions::MessageEncodingMethod::HashIdentifierLookup HashLookup;
-		return HashLookup::template HashIdentifierLookup2<CPP_TYPENAME SchemeOptions::HashFunction>::Lookup();
+		return HashLookup::template HashIdentifierLookup2<typename SchemeOptions::HashFunction>::Lookup();
 	}
 	size_t GetDigestSize() const
 	{
-		typedef CPP_TYPENAME SchemeOptions::HashFunction H;
+		typedef typename SchemeOptions::HashFunction H;
 		return H::DIGESTSIZE;
 	}
 
@@ -1762,17 +1759,17 @@ public:
 
 protected:
 	const DL_ElgamalLikeSignatureAlgorithm<Element> & GetSignatureAlgorithm() const
-		{return Singleton<CPP_TYPENAME SCHEME_OPTIONS::SignatureAlgorithm>().Ref();}
+		{return Singleton<typename SCHEME_OPTIONS::SignatureAlgorithm>().Ref();}
 	const DL_KeyAgreementAlgorithm<Element> & GetKeyAgreementAlgorithm() const
-		{return Singleton<CPP_TYPENAME SCHEME_OPTIONS::KeyAgreementAlgorithm>().Ref();}
+		{return Singleton<typename SCHEME_OPTIONS::KeyAgreementAlgorithm>().Ref();}
 	const DL_KeyDerivationAlgorithm<Element> & GetKeyDerivationAlgorithm() const
-		{return Singleton<CPP_TYPENAME SCHEME_OPTIONS::KeyDerivationAlgorithm>().Ref();}
+		{return Singleton<typename SCHEME_OPTIONS::KeyDerivationAlgorithm>().Ref();}
 	const DL_SymmetricEncryptionAlgorithm & GetSymmetricEncryptionAlgorithm() const
-		{return Singleton<CPP_TYPENAME SCHEME_OPTIONS::SymmetricEncryptionAlgorithm>().Ref();}
+		{return Singleton<typename SCHEME_OPTIONS::SymmetricEncryptionAlgorithm>().Ref();}
 	HashIdentifier GetHashIdentifier() const
 		{return HashIdentifier();}
 	const PK_SignatureMessageEncodingMethod & GetMessageEncodingInterface() const
-		{return Singleton<CPP_TYPENAME SCHEME_OPTIONS::MessageEncodingMethod>().Ref();}
+		{return Singleton<typename SCHEME_OPTIONS::MessageEncodingMethod>().Ref();}
 };
 
 //! \brief Discrete Log (DL) signer implementation
@@ -1783,7 +1780,7 @@ class DL_SignerImpl : public DL_ObjectImpl<DL_SignerBase<typename SCHEME_OPTIONS
 public:
 	PK_MessageAccumulator * NewSignatureAccumulator(RandomNumberGenerator &rng) const
 	{
-		member_ptr<PK_MessageAccumulatorBase> p(new PK_MessageAccumulatorImpl<CPP_TYPENAME SCHEME_OPTIONS::HashFunction>);
+		member_ptr<PK_MessageAccumulatorBase> p(new PK_MessageAccumulatorImpl<typename SCHEME_OPTIONS::HashFunction>);
 		this->RestartMessageAccumulator(rng, *p);
 		return p.release();
 	}
@@ -1797,7 +1794,7 @@ class DL_VerifierImpl : public DL_ObjectImpl<DL_VerifierBase<typename SCHEME_OPT
 public:
 	PK_MessageAccumulator * NewVerificationAccumulator() const
 	{
-		return new PK_MessageAccumulatorImpl<CPP_TYPENAME SCHEME_OPTIONS::HashFunction>;
+		return new PK_MessageAccumulatorImpl<typename SCHEME_OPTIONS::HashFunction>;
 	}
 };
 
@@ -2042,10 +2039,10 @@ struct SignatureStandard {};
 //! \tparam STANDARD standard
 //! \tparam KEYS keys used in the encryption scheme
 //! \tparam ALG_INFO algorithm information
-template <class STANDARD, class KEYS, class ALG_INFO>
+template <class KEYS, class STANDARD, class ALG_INFO>
 class TF_ES;
 
-template <class STANDARD, class KEYS, class ALG_INFO = TF_ES<STANDARD, KEYS, int> >
+template <class KEYS, class STANDARD, class ALG_INFO = TF_ES<KEYS, STANDARD, int> >
 class TF_ES : public KEYS
 {
 	typedef typename STANDARD::EncryptionMessageEncodingMethod MessageEncodingMethod;
@@ -2069,10 +2066,10 @@ public:
 //! \tparam H hash function
 //! \tparam KEYS keys used in the signature scheme
 //! \tparam ALG_INFO algorithm information
-template <class STANDARD, class H, class KEYS, class ALG_INFO>	// VC60 workaround: doesn't work if KEYS is first parameter
+template <class KEYS, class STANDARD, class H, class ALG_INFO>
 class TF_SS;
 
-template <class STANDARD, class H, class KEYS, class ALG_INFO = TF_SS<STANDARD, H, KEYS, int> >	// VC60 workaround: doesn't work if KEYS is first parameter
+template <class KEYS, class STANDARD, class H, class ALG_INFO = TF_SS<KEYS, STANDARD, H, int> >
 class TF_SS : public KEYS
 {
 public:

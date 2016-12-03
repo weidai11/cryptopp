@@ -89,12 +89,10 @@ DefaultEncryptor::DefaultEncryptor(const byte *passphrase, size_t passphraseLeng
 {
 }
 
-
 void DefaultEncryptor::FirstPut(const byte *)
 {
-	// VC60 workaround: __LINE__ expansion bug
-	CRYPTOPP_COMPILE_ASSERT_INSTANCE(SALTLENGTH <= DefaultHashModule::DIGESTSIZE, 1);
-	CRYPTOPP_COMPILE_ASSERT_INSTANCE(BLOCKSIZE <= DefaultHashModule::DIGESTSIZE, 2);
+	CRYPTOPP_COMPILE_ASSERT(SALTLENGTH <= DefaultHashModule::DIGESTSIZE);
+	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE <= DefaultHashModule::DIGESTSIZE);
 
 	SecByteBlock salt(DefaultHashModule::DIGESTSIZE), keyCheck(DefaultHashModule::DIGESTSIZE);
 	DefaultHashModule hash;

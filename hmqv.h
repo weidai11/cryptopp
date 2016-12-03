@@ -19,7 +19,7 @@ NAMESPACE_BEGIN(CryptoPP)
 //!   Secure Diffie-Hellman Protocol</a>. Note: this implements HMQV only. HMQV-C with Key Confirmation is not provided.
 //! \sa MQV, HMQV, FHMQV, and AuthenticatedKeyAgreementDomain
 //! \since Crypto++ 5.6.4
-template <class GROUP_PARAMETERS, class COFACTOR_OPTION = CPP_TYPENAME GROUP_PARAMETERS::DefaultCofactorOption, class HASH = SHA512>
+template <class GROUP_PARAMETERS, class COFACTOR_OPTION = typename GROUP_PARAMETERS::DefaultCofactorOption, class HASH = SHA512>
 class HMQV_Domain: public AuthenticatedKeyAgreementDomain
 {
 public:

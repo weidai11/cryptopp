@@ -206,13 +206,10 @@ void BenchMarkKeying(SimpleKeyingInterface &c, size_t keyLength, const NameValue
 	OutputResultKeying(iterations, timeTaken);
 }
 
-//VC60 workaround: compiler bug triggered without the extra dummy parameters
-// on VC60 also needs to be named differently from BenchMarkByName
 template <class T_FactoryOutput, class T_Interface>
-void BenchMarkByName2(const char *factoryName, size_t keyLength = 0, const char *displayName=NULL, const NameValuePairs &params = g_nullNameValuePairs, T_FactoryOutput *x=NULL, T_Interface *y=NULL)
+void BenchMarkByName2(const char *factoryName, size_t keyLength = 0, const char *displayName=NULL, const NameValuePairs &params = g_nullNameValuePairs)
 {
-	CRYPTOPP_UNUSED(x), CRYPTOPP_UNUSED(y), CRYPTOPP_UNUSED(params);
-
+	CRYPTOPP_UNUSED(params);
 	std::string name(factoryName ? factoryName : "");
 	member_ptr<T_FactoryOutput> obj(ObjectFactoryRegistry<T_FactoryOutput>::Registry().CreateObject(name.c_str()));
 
@@ -229,20 +226,17 @@ void BenchMarkByName2(const char *factoryName, size_t keyLength = 0, const char 
 	BenchMarkKeying(*obj, keyLength, CombinedNameValuePairs(params, MakeParameters(Name::IV(), ConstByteArrayParameter(defaultKey, obj->IVSize()), false)));
 }
 
-//VC60 workaround: compiler bug triggered without the extra dummy parameters
 template <class T_FactoryOutput>
-void BenchMarkByName(const char *factoryName, size_t keyLength = 0, const char *displayName=NULL, const NameValuePairs &params = g_nullNameValuePairs, T_FactoryOutput *x=NULL)
+void BenchMarkByName(const char *factoryName, size_t keyLength = 0, const char *displayName=NULL, const NameValuePairs &params = g_nullNameValuePairs)
 {
-	CRYPTOPP_UNUSED(x), CRYPTOPP_UNUSED(params);
-
-	BenchMarkByName2<T_FactoryOutput, T_FactoryOutput>(factoryName, keyLength, displayName, params, x, x);
+	CRYPTOPP_UNUSED(params);
+	BenchMarkByName2<T_FactoryOutput, T_FactoryOutput>(factoryName, keyLength, displayName, params);
 }
 
 template <class T>
-void BenchMarkByNameKeyLess(const char *factoryName, const char *displayName=NULL, const NameValuePairs &params = g_nullNameValuePairs, T *x=NULL)
+void BenchMarkByNameKeyLess(const char *factoryName, const char *displayName=NULL, const NameValuePairs &params = g_nullNameValuePairs)
 {
-	CRYPTOPP_UNUSED(x), CRYPTOPP_UNUSED(params);
-
+	CRYPTOPP_UNUSED(params);
 	std::string name = factoryName;
 	if (displayName)
 		name = displayName;

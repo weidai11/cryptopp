@@ -23,7 +23,7 @@ NAMESPACE_BEGIN(CryptoPP)
 //!   Binary curves use a polynomial to represent its characteristic, while prime curves
 //!   use a prime number.
 //! \sa MQV, HMQV, FHMQV, and AuthenticatedKeyAgreementDomain
-template <class GROUP_PARAMETERS, class COFACTOR_OPTION = CPP_TYPENAME GROUP_PARAMETERS::DefaultCofactorOption>
+template <class GROUP_PARAMETERS, class COFACTOR_OPTION = typename GROUP_PARAMETERS::DefaultCofactorOption>
 class MQV_Domain : public AuthenticatedKeyAgreementDomain
 {
 public:

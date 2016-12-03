@@ -42,7 +42,7 @@ public:
 
 	~ObjectFactoryRegistry()
 	{
-		for (CPP_TYPENAME Map::iterator i = m_map.begin(); i != m_map.end(); ++i)
+		for (typename Map::iterator i = m_map.begin(); i != m_map.end(); ++i)
 		{
 			delete (ObjectFactory<AbstractClass> *)i->second;
 			i->second = NULL;
@@ -56,7 +56,7 @@ public:
 
 	const ObjectFactory<AbstractClass> * GetFactory(const char *name) const
 	{
-		CPP_TYPENAME Map::const_iterator i = m_map.find(name);
+		typename Map::const_iterator i = m_map.find(name);
 		return i == m_map.end() ? NULL : (ObjectFactory<AbstractClass> *)i->second;
 	}
 
@@ -73,7 +73,7 @@ public:
 	std::vector<std::string> GetFactoryNames() const
 	{
 		std::vector<std::string> names;
-		CPP_TYPENAME Map::const_iterator iter;
+		typename Map::const_iterator iter;
 		for (iter = m_map.begin(); iter != m_map.end(); ++iter)
 			names.push_back(iter->first);
 		return names;
@@ -110,32 +110,32 @@ template <class SchemeClass>
 void RegisterAsymmetricCipherDefaultFactories(const char *name=NULL, SchemeClass *dummy=NULL)
 {
 	CRYPTOPP_UNUSED(dummy);
-	RegisterDefaultFactoryFor<PK_Encryptor, CPP_TYPENAME SchemeClass::Encryptor>((const char *)name);
-	RegisterDefaultFactoryFor<PK_Decryptor, CPP_TYPENAME SchemeClass::Decryptor>((const char *)name);
+	RegisterDefaultFactoryFor<PK_Encryptor, typename SchemeClass::Encryptor>((const char *)name);
+	RegisterDefaultFactoryFor<PK_Decryptor, typename SchemeClass::Decryptor>((const char *)name);
 }
 
 template <class SchemeClass>
 void RegisterSignatureSchemeDefaultFactories(const char *name=NULL, SchemeClass *dummy=NULL)
 {
 	CRYPTOPP_UNUSED(dummy);
-	RegisterDefaultFactoryFor<PK_Signer, CPP_TYPENAME SchemeClass::Signer>((const char *)name);
-	RegisterDefaultFactoryFor<PK_Verifier, CPP_TYPENAME SchemeClass::Verifier>((const char *)name);
+	RegisterDefaultFactoryFor<PK_Signer, typename SchemeClass::Signer>((const char *)name);
+	RegisterDefaultFactoryFor<PK_Verifier, typename SchemeClass::Verifier>((const char *)name);
 }
 
 template <class SchemeClass>
 void RegisterSymmetricCipherDefaultFactories(const char *name=NULL, SchemeClass *dummy=NULL)
 {
 	CRYPTOPP_UNUSED(dummy);
-	RegisterDefaultFactoryFor<SymmetricCipher, CPP_TYPENAME SchemeClass::Encryption, ENCRYPTION>((const char *)name);
-	RegisterDefaultFactoryFor<SymmetricCipher, CPP_TYPENAME SchemeClass::Decryption, DECRYPTION>((const char *)name);
+	RegisterDefaultFactoryFor<SymmetricCipher, typename SchemeClass::Encryption, ENCRYPTION>((const char *)name);
+	RegisterDefaultFactoryFor<SymmetricCipher, typename SchemeClass::Decryption, DECRYPTION>((const char *)name);
 }
 
 template <class SchemeClass>
 void RegisterAuthenticatedSymmetricCipherDefaultFactories(const char *name=NULL, SchemeClass *dummy=NULL)
 {
 	CRYPTOPP_UNUSED(dummy);
-	RegisterDefaultFactoryFor<AuthenticatedSymmetricCipher, CPP_TYPENAME SchemeClass::Encryption, ENCRYPTION>((const char *)name);
-	RegisterDefaultFactoryFor<AuthenticatedSymmetricCipher, CPP_TYPENAME SchemeClass::Decryption, DECRYPTION>((const char *)name);
+	RegisterDefaultFactoryFor<AuthenticatedSymmetricCipher, typename SchemeClass::Encryption, ENCRYPTION>((const char *)name);
+	RegisterDefaultFactoryFor<AuthenticatedSymmetricCipher, typename SchemeClass::Decryption, DECRYPTION>((const char *)name);
 }
 
 NAMESPACE_END

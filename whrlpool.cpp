@@ -422,9 +422,6 @@ void Whirlpool::Transform(word64 *digest, const word64 *block)
 		AS_PUSH_IF86(	bx)
 		AS2(	mov		AS_REG_6, WORD_REG(ax))
 #else
-	#if _MSC_VER < 1300
-		AS_PUSH_IF86(	bx)
-	#endif
 		AS2(	lea		AS_REG_6, [Whirlpool_C])
 		AS2(	mov		WORD_REG(cx), digest)
 		AS2(	mov		WORD_REG(dx), block)
@@ -586,7 +583,7 @@ void Whirlpool::Transform(word64 *digest, const word64 *block)
 		AS_POP_IF86(	sp)
 		AS1(	emms)
 
-#if defined(__GNUC__) || (defined(_MSC_VER) && _MSC_VER < 1300)
+#if defined(__GNUC__)
 		AS_POP_IF86(	bx)
 #endif
 #ifdef __GNUC__

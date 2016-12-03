@@ -50,12 +50,7 @@ void Tiger::Transform (word64 *digest, const word64 *X)
 		INTEL_NOPREFIX
 		AS_PUSH_IF86(bx)
 #else
-	#if _MSC_VER < 1300
-		const word64 *t = table;
-		AS2(	mov		edx, t)
-	#else
 		AS2(	lea		edx, [table])
-	#endif
 		AS2(	mov		eax, digest)
 		AS2(	mov		esi, X)
 #endif

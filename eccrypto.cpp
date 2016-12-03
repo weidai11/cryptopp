@@ -46,8 +46,8 @@ static void ECDSA_TestInstantiations()
 #endif
 #endif
 
-// VC60 workaround: complains when these functions are put into an anonymous namespace
-static Integer ConvertToInteger(const PolynomialMod2 &x)
+ANONYMOUS_NAMESPACE_BEGIN
+Integer ConvertToInteger(const PolynomialMod2 &x)
 {
 	unsigned int l = x.ByteCount();
 	SecByteBlock temp(l);
@@ -55,12 +55,12 @@ static Integer ConvertToInteger(const PolynomialMod2 &x)
 	return Integer(temp, l);
 }
 
-static inline Integer ConvertToInteger(const Integer &x)
+inline Integer ConvertToInteger(const Integer &x)
 {
 	return x;
 }
 
-static bool CheckMOVCondition(const Integer &q, const Integer &r)
+bool CheckMOVCondition(const Integer &q, const Integer &r)
 {
 	// see "Updated standards for validating elliptic curves", http://eprint.iacr.org/2007/343
 	Integer t = 1;
@@ -77,6 +77,7 @@ static bool CheckMOVCondition(const Integer &q, const Integer &r)
 	}
 	return true;
 }
+ANONYMOUS_NAMESPACE_END
 
 // ******************************************************************
 
@@ -626,13 +627,13 @@ void DL_GroupParameters_EC<EC>::SimultaneousExponentiate(Element *results, const
 }
 
 template <class EC>
-CPP_TYPENAME DL_GroupParameters_EC<EC>::Element DL_GroupParameters_EC<EC>::MultiplyElements(const Element &a, const Element &b) const
+typename DL_GroupParameters_EC<EC>::Element DL_GroupParameters_EC<EC>::MultiplyElements(const Element &a, const Element &b) const
 {
 	return GetCurve().Add(a, b);
 }
 
 template <class EC>
-CPP_TYPENAME DL_GroupParameters_EC<EC>::Element DL_GroupParameters_EC<EC>::CascadeExponentiate(const Element &element1, const Integer &exponent1, const Element &element2, const Integer &exponent2) const
+typename DL_GroupParameters_EC<EC>::Element DL_GroupParameters_EC<EC>::CascadeExponentiate(const Element &element1, const Integer &exponent1, const Element &element2, const Integer &exponent2) const
 {
 	return GetCurve().CascadeMultiply(exponent1, element1, exponent2, element2);
 }

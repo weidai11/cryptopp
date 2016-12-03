@@ -111,7 +111,7 @@ enum CipherDir {
 const unsigned long INFINITE_TIME = ULONG_MAX;
 
 // VC60 workaround: using enums as template parameters causes problems
-//! \brief Converts a typename to an enumerated value
+//! \brief Converts an enumeration to a type suitable for use as a template parameter
 template <typename ENUM_TYPE, int VALUE>
 struct EnumToType
 {

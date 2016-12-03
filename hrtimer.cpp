@@ -54,7 +54,7 @@ double TimerBase::ConvertTo(TimerWord t, Unit unit)
 
 	// When 'unit' is an enum 'Unit', a Clang warning is generated.
 	CRYPTOPP_ASSERT(static_cast<unsigned int>(unit) < COUNTOF(unitsPerSecondTable));
-	return (double)CRYPTOPP_VC6_INT64 t * unitsPerSecondTable[unit] / CRYPTOPP_VC6_INT64 TicksPerSecond();
+	return static_cast<double>(t) * unitsPerSecondTable[unit] / TicksPerSecond();
 }
 
 void TimerBase::StartTimer()
