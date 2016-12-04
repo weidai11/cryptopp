@@ -534,8 +534,7 @@ NAMESPACE_END
 #endif
 
 // How to declare class constants
-// Use enum for OS X 10.5 ld, http://github.com/weidai11/cryptopp/issues/255
-#if (defined(_MSC_VER) && _MSC_VER <= 1300) || defined(__INTEL_COMPILER) || defined(__BORLANDC__) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if (_MSC_VER == 1300) || defined(__INTEL_COMPILER) || defined(__BORLANDC__)
 #	define CRYPTOPP_CONSTANT(x) enum {x};
 #else
 #	define CRYPTOPP_CONSTANT(x) static const int x;
