@@ -12,6 +12,15 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+#if (defined(_MSC_VER) && (_MSC_VER < 1400)) && !defined(__MWERKS__)
+	// VC60 and VC7 workaround: built-in std::reverse_iterator has two template parameters, Dinkumware only has one
+	typedef std::reverse_bidirectional_iterator<unsigned int *, unsigned int> RevIt;
+#elif defined(_RWSTD_NO_CLASS_PARTIAL_SPEC)
+	typedef std::reverse_iterator<unsigned int *, std::random_access_iterator_tag, unsigned int> RevIt;
+#else
+	typedef std::reverse_iterator<unsigned int *> RevIt;
+#endif
+
 LowFirstBitWriter::LowFirstBitWriter(BufferedTransformation *attachment)
 	: Filter(attachment), m_counting(false), m_bitCount(0), m_buffer(0)
 	, m_bitsBuffered(0), m_bytesBuffered(0)
@@ -661,15 +670,6 @@ void Deflator::EncodeBlock(bool eof, unsigned int blockType)
 	{
 		if (blockType == DYNAMIC)
 		{
-#if defined(_MSC_VER) && !defined(__MWERKS__) && (_MSC_VER <= 1300)
-			// VC60 and VC7 workaround: built-in std::reverse_iterator has two template parameters, Dinkumware only has one
-			typedef std::reverse_bidirectional_iterator<unsigned int *, unsigned int> RevIt;
-#elif defined(_RWSTD_NO_CLASS_PARTIAL_SPEC)
-			typedef std::reverse_iterator<unsigned int *, std::random_access_iterator_tag, unsigned int> RevIt;
-#else
-			typedef std::reverse_iterator<unsigned int *> RevIt;
-#endif
-
 			FixedSizeSecBlock<unsigned int, 286> literalCodeLengths;
 			FixedSizeSecBlock<unsigned int, 30> distanceCodeLengths;
 

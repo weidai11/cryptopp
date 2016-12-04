@@ -255,7 +255,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
 		else
 			tableSize = (GetTablesOption() == GCM_64K_Tables) ? 64*1024 : 2*1024;
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1300 && _MSC_VER < 1400)
+#if defined(_MSC_VER) && (_MSC_VER < 1400)
 		// VC 2003 workaround: compiler generates bad code for 64K tables
 		tableSize = 2*1024;
 #endif

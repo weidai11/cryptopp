@@ -4,18 +4,26 @@
 #include "config.h"
 
 #include "ida.h"
+#include "stdcpp.h"
 #include "algebra.h"
 #include "gf2_32.h"
 #include "polynomi.h"
 #include "polynomi.cpp"
 
-#include <functional>
-
 ANONYMOUS_NAMESPACE_BEGIN
-static const CryptoPP::GF2_32 field;
+const CryptoPP::GF2_32 field;
 NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
+
+#if (defined(_MSC_VER) && (_MSC_VER < 1400)) && !defined(__MWERKS__)
+	// VC60 and VC7 workaround: built-in reverse_iterator has two template parameters, Dinkumware only has one
+	typedef std::reverse_bidirectional_iterator<const byte *, const byte> RevIt;
+#elif defined(_RWSTD_NO_CLASS_PARTIAL_SPEC)
+	typedef std::reverse_iterator<const byte *, std::random_access_iterator_tag, const byte> RevIt;
+#else
+	typedef std::reverse_iterator<const byte *> RevIt;
+#endif
 
 void RawIDA::IsolatedInitialize(const NameValuePairs &parameters)
 {
@@ -394,14 +402,6 @@ size_t PaddingRemover::Put2(const byte *begin, size_t length, int messageEnd, bo
 		m_possiblePadding = false;
 	}
 
-#if defined(_MSC_VER) && (_MSC_VER <= 1300) && !defined(__MWERKS__)
-	// VC60 and VC7 workaround: built-in reverse_iterator has two template parameters, Dinkumware only has one
-	typedef std::reverse_bidirectional_iterator<const byte *, const byte> RevIt;
-#elif defined(_RWSTD_NO_CLASS_PARTIAL_SPEC)
-	typedef std::reverse_iterator<const byte *, std::random_access_iterator_tag, const byte> RevIt;
-#else
-	typedef std::reverse_iterator<const byte *> RevIt;
-#endif
 	const byte *x = std::find_if(RevIt(end), RevIt(begin), std::bind2nd(std::not_equal_to<byte>(), byte(0))).base();
 	if (x != begin && *(x-1) == 1)
 	{
