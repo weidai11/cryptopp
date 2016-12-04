@@ -177,7 +177,7 @@ CRYPTOPP_DLL_TEMPLATE_CLASS DH_Domain<DL_GroupParameters_GFP_DefaultSafePrime>;
 //!   time an object is created.
 //! \details Once a DH() object is created, once can retrieve the ephemeral public key for the other party with code similar to the
 //!   following.
-//! <pre>  AutoSeededRandomPool prng;
+//! <pre>   AutoSeededRandomPool prng;
 //!   Integer p, q, g;
 //!   PrimeAndGenerator pg;
 //!
@@ -192,20 +192,21 @@ CRYPTOPP_DLL_TEMPLATE_CLASS DH_Domain<DL_GroupParameters_GFP_DefaultSafePrime>;
 //!   Integer k1(t1, t1.size()), k2(t2, t2.size());
 //!
 //!   cout << "Private key:\n";
-//!   cout << std::hex << k1 << endl;
+//!   cout << hex << k1 << endl;
 //!
 //!   cout << "Public key:\n";
-//!   cout << std::hex << k2 << endl;
-//! </pre>
+//!   cout << hex << k2 << endl;</pre>
+//!
 //! \details Output of the program above will be similar to the following.
-//! <pre>  $ ./cryptest.exe
+//! <pre>   $ ./cryptest.exe
 //!   Private key:
 //!   72b45a42371545e9d4880f48589aefh
 //!   Public key:
 //!   45fdb13f97b1840626f0250cec1dba4a23b894100b51fb5d2dd13693d789948f8bfc88f9200014b2
-//!   ba8dd8a6debc471c69ef1e2326c61184a2eca88ec866346bh
-//! </pre>
-//!\sa <a href="http://www.weidai.com/scan-mirror/ka.html#DH">Diffie-Hellman</a> in GF(p) with key validation
+//!   ba8dd8a6debc471c69ef1e2326c61184a2eca88ec866346bh</pre>
+//! \sa <a href="http://www.cryptopp.com/wiki/Diffie-Hellman">Diffie-Hellman on the Crypto++ wiki</a> and
+//!   <a href="http://www.weidai.com/scan-mirror/ka.html#DH">Diffie-Hellman</a> in GF(p) with key validation
+//! \since Crypto++ 1.0
 #if defined(CRYPTOPP_DOXYGEN_PROCESSING)
 struct DH : public DH_Domain<DL_GroupParameters_GFP_DefaultSafePrime>
 {

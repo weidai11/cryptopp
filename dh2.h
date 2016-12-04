@@ -1,7 +1,7 @@
 // dh2.h - written and placed in the public domain by Wei Dai
 
 //! \file dh2.h
-//! \brief Classes for Diffie-Hellman authenticated key exchange
+//! \brief Classes for Unified Diffie-Hellman key exchange
 
 #ifndef CRYPTOPP_DH2_H
 #define CRYPTOPP_DH2_H
@@ -11,7 +11,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 //! \class DH2
-//! \brief Unified Diffie-Hellman
+//! \brief Unified Diffie-Hellman in GF(p)
 //! \details A Diffie-Hellman domain is a set of parameters that must be shared
 //!   by two parties in a key agreement protocol, along with the algorithms
 //!   for generating key pairs and deriving agreed values.
