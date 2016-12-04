@@ -234,13 +234,11 @@ struct DH : public DH_Domain<DL_GroupParameters_GFP_DefaultSafePrime>
 	DH(RandomNumberGenerator &rng, unsigned int modulusBits) : DH_Domain(rng, modulusBits) {}
 
 	//! \brief Initialize a Diffie-Hellman object
-	//! \param rng a RandomNumberGenerator derived class
 	//! \param p the modulus
 	//! \param g the generator
 	DH(const Integer &p, const Integer &g) : DH_Domain(p, g) {}
 
 	//! \brief Initialize a Diffie-Hellman object
-	//! \param rng a RandomNumberGenerator derived class
 	//! \param p the modulus
 	//! \param q the subgroup order
 	//! \param g the generator
@@ -255,14 +253,12 @@ struct DH : public DH_Domain<DL_GroupParameters_GFP_DefaultSafePrime>
 		{AccessGroupParameters().Initialize(rng, modulusBits);}
 
 	//! \brief Initialize a Diffie-Hellman object
-	//! \param rng a RandomNumberGenerator derived class
 	//! \param p the modulus
 	//! \param g the generator
 	void Initialize(const Integer &p, const Integer &g)
 		{AccessGroupParameters().Initialize(p, g);}
 
 	//! \brief Initialize a Diffie-Hellman object
-	//! \param rng a RandomNumberGenerator derived class
 	//! \param p the modulus
 	//! \param q the subgroup order
 	//! \param g the generator
