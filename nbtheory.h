@@ -150,7 +150,7 @@ class CRYPTOPP_DLL PrimeAndGenerator
 public:
 	//! \brief Construct a PrimeAndGenerator
 	PrimeAndGenerator() {}
-	
+
 	//! \brief Construct a PrimeAndGenerator
 	//! \param delta +1 or -1
 	//! \param rng a RandomNumberGenerator derived class
@@ -161,12 +161,12 @@ public:
 	//! \warning This PrimeAndGenerator() is slow because primes of this form are harder to find.
 	PrimeAndGenerator(signed int delta, RandomNumberGenerator &rng, unsigned int pbits)
 		{Generate(delta, rng, pbits, pbits-1);}
-	
+
 	//! \brief Construct a PrimeAndGenerator
 	//! \param delta +1 or -1
 	//! \param rng a RandomNumberGenerator derived class
-	//! \param pbits the number of bits in the prime p	
-	//! \param qbits the number of bits in the prime q	
+	//! \param pbits the number of bits in the prime p
+	//! \param qbits the number of bits in the prime q
 	//! \details PrimeAndGenerator() generates a random prime p of the form <tt>2*r*q+delta</tt>, where q is also prime.
 	//!    Internally the constructor calls <tt>Generate(delta, rng, pbits, qbits)</tt>.
 	//! \pre <tt>qbits > 4 && pbits > qbits</tt>
@@ -176,15 +176,15 @@ public:
 	//! \brief Generate a Prime and Generator
 	//! \param delta +1 or -1
 	//! \param rng a RandomNumberGenerator derived class
-	//! \param pbits the number of bits in the prime p	
-	//! \param qbits the number of bits in the prime q	
+	//! \param pbits the number of bits in the prime p
+	//! \param qbits the number of bits in the prime q
 	//! \details Generate() generates a random prime p of the form <tt>2*r*q+delta</tt>, where q is also prime.
 	void Generate(signed int delta, RandomNumberGenerator &rng, unsigned int pbits, unsigned qbits);
 
 	//! \brief Retrieve first prime
 	//! \returns Prime() returns the prime p.
 	const Integer& Prime() const {return p;}
-	
+
 	//! \brief Retrieve second prime
 	//! \returns SubPrime() returns the prime q.
 	const Integer& SubPrime() const {return q;}

@@ -106,8 +106,11 @@ static void SHA1_SSE_SHA_Transform(word32 *state, const word32 *data)
     __m128i ABCD, ABCD_SAVE, E0, E0_SAVE, E1;
     __m128i MASK, MSG0, MSG1, MSG2, MSG3;
 
-    word32 T[16];
-    ByteReverse(T, data, 64);
+    // IteratedHashBase<T> has code to perform this step before HashEndianCorrectedBlock()
+    //  is called, but the design does not lend itself to optional hardware components
+    //  where SHA1 needs reversing, but SHA256 does not.
+    word32* dataBuf = const_cast<word32*>(data);
+    ByteReverse(dataBuf, dataBuf, 64);
 
     // Load initial values
     ABCD = _mm_loadu_si128((__m128i*) state);
@@ -120,14 +123,14 @@ static void SHA1_SSE_SHA_Transform(word32 *state, const word32 *data)
     E0_SAVE = E0;
 
     // Rounds 0-3
-    MSG0 = _mm_loadu_si128((__m128i*) T+0);
+    MSG0 = _mm_loadu_si128((__m128i*) data+0);
     MSG0 = _mm_shuffle_epi8(MSG0, MASK);
     E0 = _mm_add_epi32(E0, MSG0);
     E1 = ABCD;
     ABCD = _mm_sha1rnds4_epu32(ABCD, E0, 0);
 
     // Rounds 4-7
-    MSG1 = _mm_loadu_si128((__m128i*) (T+4));
+    MSG1 = _mm_loadu_si128((__m128i*) (data+4));
     MSG1 = _mm_shuffle_epi8(MSG1, MASK);
     E1 = _mm_sha1nexte_epu32(E1, MSG1);
     E0 = ABCD;
@@ -135,7 +138,7 @@ static void SHA1_SSE_SHA_Transform(word32 *state, const word32 *data)
     MSG0 = _mm_sha1msg1_epu32(MSG0, MSG1);
 
     // Rounds 8-11
-    MSG2 = _mm_loadu_si128((__m128i*) (T+8));
+    MSG2 = _mm_loadu_si128((__m128i*) (data+8));
     MSG2 = _mm_shuffle_epi8(MSG2, MASK);
     E0 = _mm_sha1nexte_epu32(E0, MSG2);
     E1 = ABCD;
@@ -144,7 +147,7 @@ static void SHA1_SSE_SHA_Transform(word32 *state, const word32 *data)
     MSG0 = _mm_xor_si128(MSG0, MSG2);
 
     // Rounds 12-15
-    MSG3 = _mm_loadu_si128((__m128i*) (T+12));
+    MSG3 = _mm_loadu_si128((__m128i*) (data+12));
     MSG3 = _mm_shuffle_epi8(MSG3, MASK);
     E1 = _mm_sha1nexte_epu32(E1, MSG3);
     E0 = ABCD;
@@ -879,7 +882,7 @@ static void CRYPTOPP_FASTCALL SHA256_SSE_SHA_HashBlocks(word32 *state, const wor
     __m128i TMSG0, TMSG1, TMSG2, TMSG3;
     __m128i ABEF_SAVE, CDGH_SAVE;
 
-    // Load initial hash values
+    // Load initial values
     TMP = _mm_loadu_si128((__m128i*) &state[0]);
     STATE1 = _mm_loadu_si128((__m128i*) &state[4]);
     MASK = _mm_set_epi64x(W64LIT(0x0c0d0e0f08090a0b), W64LIT(0x0405060700010203));
@@ -891,7 +894,7 @@ static void CRYPTOPP_FASTCALL SHA256_SSE_SHA_HashBlocks(word32 *state, const wor
 
     while (length)
     {
-        // Save hash values for addition after rounds
+        // Save current hash
         ABEF_SAVE = STATE0;
         CDGH_SAVE = STATE1;
 
@@ -1047,7 +1050,7 @@ static void CRYPTOPP_FASTCALL SHA256_SSE_SHA_HashBlocks(word32 *state, const wor
         MSG = _mm_shuffle_epi32(MSG, 0x0E);
         STATE0 = _mm_sha256rnds2_epu32(STATE0, STATE1, MSG);
 
-        // Add current hash values with previously saved
+        // Add values back to state
         STATE0 = _mm_add_epi32(STATE0, ABEF_SAVE);
         STATE1 = _mm_add_epi32(STATE1, CDGH_SAVE);
 
@@ -1055,12 +1058,12 @@ static void CRYPTOPP_FASTCALL SHA256_SSE_SHA_HashBlocks(word32 *state, const wor
         length -= SHA256::BLOCKSIZE;
     }
 
-    // Write hash values back in the correct order
     TMP = _mm_shuffle_epi32(STATE0, 0x1B); // FEBA
     STATE1 = _mm_shuffle_epi32(STATE1, 0xB1); // DCHG
     STATE0 = _mm_blend_epi16(TMP, STATE1, 0xF0); // DCBA
     STATE1 = _mm_alignr_epi8(STATE1, TMP, 8); // ABEF
 
+    // Save state
     _mm_storeu_si128((__m128i*) &state[0], STATE0);
     _mm_storeu_si128((__m128i*) &state[4], STATE1);
 }
