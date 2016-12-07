@@ -278,6 +278,7 @@ ttmac.cpp
 ttmac.h
 twofish.cpp
 twofish.h
+validat0.cpp
 validat1.cpp
 validat2.cpp
 validat3.cpp

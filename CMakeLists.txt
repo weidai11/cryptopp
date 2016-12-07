@@ -183,7 +183,7 @@ endif()
 file(GLOB cryptopp_HEADERS *.h)
 
 # Test sources. You can use the GNUmakefile to generate the list: `make sources`.
-file(GLOB cryptopp_SOURCES_TEST test.cpp bench1.cpp bench2.cpp validat1.cpp validat2.cpp validat3.cpp adhoc.cpp datatest.cpp regtest.cpp fipsalgt.cpp dlltest.cpp fipstest.cpp)
+file(GLOB cryptopp_SOURCES_TEST test.cpp bench1.cpp bench2.cpp validat0.cpp validat1.cpp validat2.cpp validat3.cpp adhoc.cpp datatest.cpp regtest.cpp fipsalgt.cpp dlltest.cpp fipstest.cpp)
 
 # Library sources. You can use the GNUmakefile to generate the list: `make sources`.
 file(GLOB cryptopp_SOURCES *.cpp)

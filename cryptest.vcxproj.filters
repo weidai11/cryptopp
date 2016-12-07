@@ -341,6 +341,9 @@
     <ClCompile Include="test.cpp">
       <Filter>Source Code</Filter>
     </ClCompile>
+    <ClCompile Include="validat0.cpp">
+      <Filter>Source Code</Filter>
+    </ClCompile>
     <ClCompile Include="validat1.cpp">
       <Filter>Source Code</Filter>
     </ClCompile>

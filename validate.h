@@ -95,6 +95,7 @@ bool ValidateESIGN();
 #if defined(CRYPTOPP_DEBUG)
 bool TestSecBlock();
 bool TestPolynomialMod2();
+bool TestIntegerBitops();
 bool TestHuffmanCodes();
 #endif
 
