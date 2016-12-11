@@ -345,8 +345,11 @@ public:
 };
 
 //! \class DL_Algorithm_ECDSA_RFC6979
-//! \brief Elliptic Curve DSA (ECDSA) signature algorithm
+//! \brief Elliptic Curve DSA (ECDSA) signature algorithm based on RFC 6979
 //! \tparam EC elliptic curve field
+//! \sa <a href="http://tools.ietf.org/rfc/rfc6979.txt">RFC 6979, Deterministic Usage of the
+//!   Digital Signature Algorithm (DSA) and Elliptic Curve Digital Signature Algorithm (ECDSA)</a>
+//! \since Crypto++ 5.7
 template <class EC, class H>
 class DL_Algorithm_ECDSA_RFC6979 : public DL_Algorithm_DSA_RFC6979<typename EC::Point, H>
 {

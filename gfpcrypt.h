@@ -226,11 +226,12 @@ public:
 };
 
 //! \class DL_Algorithm_DSA_RFC6979
-//! \brief GDSA algorithm
+//! \brief DSA signature algorithm based on RFC 6979
 //! \tparam T FieldElement type or class
 //! \tparam H HashTransformation derived class
-//! \sa <a href="http://tools.ietf.org/rfc/rfc6979.txt">Deterministic Usage of the
+//! \sa <a href="http://tools.ietf.org/rfc/rfc6979.txt">RFC 6979, Deterministic Usage of the
 //!   Digital Signature Algorithm (DSA) and Elliptic Curve Digital Signature Algorithm (ECDSA)</a>
+//! \since Crypto++ 5.7
 template <class T, class H>
 class DL_Algorithm_DSA_RFC6979 : public DL_Algorithm_GDSA<T>, public DeterministicSignatureAlgorithm
 {
