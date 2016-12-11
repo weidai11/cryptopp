@@ -439,7 +439,7 @@ T StringToValue(const std::string& str) {
 
 	// Arbitrary, but we need to clear a Coverity finding TAINTED_SCALAR
 	if(iss.str().length() > 25)
-		throw InvalidArgument("cryptest.exe: '" + str +"' is tool ong");
+		throw InvalidArgument("cryptest.exe: '" + str +"' is too long");
 
 	T value;
 	iss >> std::noskipws >> value;

@@ -71,7 +71,7 @@ typedef DataParametersInfo<LegacyBlockCipher::BLOCKSIZE, LegacyBlockCipher::DEFA
 typedef DataParametersInfo<DefaultBlockCipher::BLOCKSIZE, DefaultBlockCipher::DEFAULT_KEYLENGTH, DefaultHashModule::DIGESTSIZE, 8, 2500> DefaultParametersInfo;
 
 //! \class DataEncryptor
-//! \brief Password-Based Encryptor
+//! \brief Password-based Encryptor
 //! \tparam BC BlockCipher based class used for encryption
 //! \tparam H HashTransformation based class used for mashing
 //! \tparam Info Constants used by the algorithms
@@ -110,7 +110,7 @@ private:
 };
 
 //! \class DataDecryptor
-//! \brief Password-Based Decryptor
+//! \brief Password-based Decryptor
 //! \tparam BC BlockCipher based class used for encryption
 //! \tparam H HashTransformation based class used for mashing
 //! \tparam Info Constants used by the algorithms
@@ -161,7 +161,7 @@ private:
 };
 
 //! \class DataEncryptorWithMAC
-//! \brief Password-Based encryptor
+//! \brief Password-based encryptor with MAC
 //! \tparam BC BlockCipher based class used for encryption
 //! \tparam H HashTransformation based class used for mashing
 //! \tparam MAC HashTransformation based class used for authentication
@@ -201,7 +201,7 @@ private:
 };
 
 //! \class DataDecryptorWithMAC
-//! \brief Password-Based decryptor
+//! \brief Password-based decryptor with MAC
 //! \tparam BC BlockCipher based class used for encryption
 //! \tparam H HashTransformation based class used for mashing
 //! \tparam MAC HashTransformation based class used for authentication
@@ -246,6 +246,56 @@ private:
 	bool m_throwException;
 };
 
+#if defined(CRYPTOPP_DOXYGEN_PROCESSING)
+//! \class LegacyEncryptor
+//! \brief Password-based encryptor (deprecated)
+//! \details Crypto++ 5.6.5 and earlier used the legacy algorithms, including DES_EDE2 and SHA1.
+//!   Crypto++ 5.7 switched to AES and SHA256. The updated algorithms are available with the
+//!   <tt>Default*</tt> classes, and the old algorithms are available with the <tt>Legacy*</tt> classes.
+struct LegacyEncryptor : public DataEncryptor<LegacyBlockCipher,LegacyHashModule,LegacyParametersInfo> {};
+//! \class LegacyDecryptor
+//! \brief Password-based decryptor (deprecated)
+//! \details Crypto++ 5.6.5 and earlier used the legacy algorithms, including DES_EDE2 and SHA1.
+//!   Crypto++ 5.7 switched to AES and SHA256. The updated algorithms are available with the
+//!   <tt>Default*</tt> classes, and the old algorithms are available with the <tt>Legacy*</tt> classes.
+struct LegacyDecryptor : public DataDecryptor<LegacyBlockCipher,LegacyHashModule,LegacyParametersInfo> {};
+//! \class DefaultEncryptor
+//! \brief Password-based encryptor
+//! \details Crypto++ 5.6.5 and earlier used the legacy algorithms, including DES_EDE2 and SHA1.
+//!   Crypto++ 5.7 switched to AES and SHA256. The updated algorithms are available with the
+//!   <tt>Default*</tt> classes, and the old algorithms are available with the <tt>Legacy*</tt> classes.
+struct DefaultEncryptor : public DataEncryptor<DefaultBlockCipher,DefaultHashModule,DefaultParametersInfo> {};
+//! \class DefaultDecryptor
+//! \brief Password-based decryptor
+//! \details Crypto++ 5.6.5 and earlier used the legacy algorithms, including DES_EDE2 and SHA1.
+//!   Crypto++ 5.7 switched to AES and SHA256. The updated algorithms are available with the
+//!   <tt>Default*</tt> classes, and the old algorithms are available with the <tt>Legacy*</tt> classes.
+struct DefaultDecryptor : public DataDecryptor<DefaultBlockCipher,DefaultHashModule,DefaultParametersInfo> {};
+//! \class LegacyEncryptorWithMAC
+//! \brief Password-based encryptor with MAC (deprecated)
+//! \details Crypto++ 5.6.5 and earlier used the legacy algorithms, including DES_EDE2 and SHA1.
+//!   Crypto++ 5.7 switched to AES and SHA256. The updated algorithms are available with the
+//!   <tt>Default*</tt> classes, and the old algorithms are available with the <tt>Legacy*</tt> classes.
+struct LegacyEncryptorWithMAC : public DataEncryptorWithMAC<LegacyBlockCipher,LegacyHashModule,DefaultMAC,LegacyParametersInfo> {};
+//! \class LegacyDecryptorWithMAC
+//! \brief Password-based decryptor with MAC (deprecated)
+//! \details Crypto++ 5.6.5 and earlier used the legacy algorithms, including DES_EDE2 and SHA1.
+//!   Crypto++ 5.7 switched to AES and SHA256. The updated algorithms are available with the
+//!   <tt>Default*</tt> classes, and the old algorithms are available with the <tt>Legacy*</tt> classes.
+struct LegacyDecryptorWithMAC : public DataDecryptorWithMAC<LegacyBlockCipher,LegacyHashModule,DefaultMAC,LegacyParametersInfo> {};
+//! \class DefaultEncryptorWithMAC
+//! \brief Password-based encryptor with MAC
+//! \details Crypto++ 5.6.5 and earlier used the legacy algorithms, including DES_EDE2 and SHA1.
+//!   Crypto++ 5.7 switched to AES and SHA256. The updated algorithms are available with the
+//!   <tt>Default*</tt> classes, and the old algorithms are available with the <tt>Legacy*</tt> classes.
+struct DefaultEncryptorWithMAC : public DataEncryptorWithMAC<DefaultBlockCipher,DefaultHashModule,DefaultMAC,DefaultParametersInfo> {};
+//! \class DefaultDecryptorWithMAC
+//! \brief Password-based decryptor with MAC
+//! \details Crypto++ 5.6.5 and earlier used the legacy algorithms, including DES_EDE2 and SHA1.
+//!   Crypto++ 5.7 switched to AES and SHA256. The updated algorithms are available with the
+//!   <tt>Default*</tt> classes, and the old algorithms are available with the <tt>Legacy*</tt> classes.
+struct DefaultDecryptorWithMAC : public DataDecryptorWithMAC<DefaultBlockCipher,DefaultHashModule,DefaultMAC,DefaultParametersInfo> {};
+#else
 typedef DataEncryptor<LegacyBlockCipher,LegacyHashModule,LegacyParametersInfo> LegacyEncryptor;
 typedef DataDecryptor<LegacyBlockCipher,LegacyHashModule,LegacyParametersInfo> LegacyDecryptor;
 
@@ -257,6 +307,7 @@ typedef DataDecryptorWithMAC<LegacyBlockCipher,LegacyHashModule,DefaultMAC,Legac
 
 typedef DataEncryptorWithMAC<DefaultBlockCipher,DefaultHashModule,DefaultMAC,DefaultParametersInfo> DefaultEncryptorWithMAC;
 typedef DataDecryptorWithMAC<DefaultBlockCipher,DefaultHashModule,DefaultMAC,DefaultParametersInfo> DefaultDecryptorWithMAC;
+#endif
 
 NAMESPACE_END
 

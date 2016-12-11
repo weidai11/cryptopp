@@ -287,8 +287,9 @@ void DataDecryptorWithMAC<BC,H,MAC,Info>::LastPut(const byte *inString, size_t l
 		throw MACBadErr();
 }
 
-template class DataParametersInfo<LegacyBlockCipher::BLOCKSIZE, LegacyBlockCipher::DEFAULT_KEYLENGTH, LegacyHashModule::DIGESTSIZE, 8, 200>;
-template class DataParametersInfo<DefaultBlockCipher::BLOCKSIZE, DefaultBlockCipher::DEFAULT_KEYLENGTH, DefaultHashModule::DIGESTSIZE, 8, 2500>;
+template struct DataParametersInfo<LegacyBlockCipher::BLOCKSIZE, LegacyBlockCipher::DEFAULT_KEYLENGTH, LegacyHashModule::DIGESTSIZE, 8, 200>;
+template struct DataParametersInfo<DefaultBlockCipher::BLOCKSIZE, DefaultBlockCipher::DEFAULT_KEYLENGTH, DefaultHashModule::DIGESTSIZE, 8, 2500>;
+
 template class DataEncryptor<LegacyBlockCipher,LegacyHashModule,LegacyParametersInfo>;
 template class DataDecryptor<LegacyBlockCipher,LegacyHashModule,LegacyParametersInfo>;
 template class DataEncryptor<DefaultBlockCipher,DefaultHashModule,DefaultParametersInfo>;
