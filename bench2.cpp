@@ -293,6 +293,7 @@ void BenchmarkAll2(double t, double hertz)
 	BenchMarkSignature<LUCSS<PSSR, SHA> >(CRYPTOPP_DATA_DIR "TestData/luc1024.dat", "LUC 1024", t);
 	BenchMarkSignature<NR<SHA> >(CRYPTOPP_DATA_DIR "TestData/nr1024.dat", "NR 1024", t);
 	BenchMarkSignature<DSA>(CRYPTOPP_DATA_DIR "TestData/dsa1024.dat", "DSA 1024", t);
+	// BenchMarkSignature<DSA_RFC6979>(CRYPTOPP_DATA_DIR "TestData/dsa1024.dat", "DSA-RFC6979 1024", t);
 	BenchMarkSignature<LUC_HMP<SHA> >(CRYPTOPP_DATA_DIR "TestData/lucs512.dat", "LUC-HMP 512", t);
 	BenchMarkSignature<ESIGN<SHA> >(CRYPTOPP_DATA_DIR "TestData/esig1023.dat", "ESIGN 1023", t);
 	BenchMarkSignature<ESIGN<SHA> >(CRYPTOPP_DATA_DIR "TestData/esig1536.dat", "ESIGN 1536", t);
@@ -333,6 +334,8 @@ void BenchmarkAll2(double t, double hertz)
 		ECIES<ECP>::Encryptor cpub(cpriv);
 		ECDSA<ECP, SHA>::Signer spriv(cpriv);
 		ECDSA<ECP, SHA>::Verifier spub(spriv);
+		ECDSA_RFC6979<ECP, SHA>::Signer spriv2(cpriv);
+		ECDSA_RFC6979<ECP, SHA>::Verifier spub2(spriv);
 		ECDH<ECP>::Domain ecdhc(ASN1::secp256k1());
 		ECMQV<ECP>::Domain ecmqvc(ASN1::secp256k1());
 
@@ -340,6 +343,8 @@ void BenchmarkAll2(double t, double hertz)
 		BenchMarkDecryption("ECIES over GF(p) 256", cpriv, cpub, t);
 		BenchMarkSigning("ECDSA over GF(p) 256", spriv, t);
 		BenchMarkVerification("ECDSA over GF(p) 256", spriv, spub, t);
+		BenchMarkSigning("ECDSA-RFC6979 over GF(p) 256", spriv2, t);
+		BenchMarkVerification("ECDSA-RFC6979 over GF(p) 256", spriv2, spub2, t);
 		BenchMarkKeyGen("ECDHC over GF(p) 256", ecdhc, t);
 		BenchMarkAgreement("ECDHC over GF(p) 256", ecdhc, t);
 		BenchMarkKeyGen("ECMQVC over GF(p) 256", ecmqvc, t);
@@ -352,6 +357,8 @@ void BenchmarkAll2(double t, double hertz)
 		ECIES<EC2N>::Encryptor cpub(cpriv);
 		ECDSA<EC2N, SHA>::Signer spriv(cpriv);
 		ECDSA<EC2N, SHA>::Verifier spub(spriv);
+		ECDSA_RFC6979<EC2N, SHA>::Signer spriv2(cpriv);
+		ECDSA_RFC6979<EC2N, SHA>::Verifier spub2(spriv);
 		ECDH<EC2N>::Domain ecdhc(ASN1::sect233r1());
 		ECMQV<EC2N>::Domain ecmqvc(ASN1::sect233r1());
 
@@ -359,6 +366,8 @@ void BenchmarkAll2(double t, double hertz)
 		BenchMarkDecryption("ECIES over GF(2^n) 233", cpriv, cpub, t);
 		BenchMarkSigning("ECDSA over GF(2^n) 233", spriv, t);
 		BenchMarkVerification("ECDSA over GF(2^n) 233", spriv, spub, t);
+		BenchMarkSigning("ECDSA-RFC6979 over GF(2^n) 233", spriv2, t);
+		BenchMarkVerification("ECDSA-RFC6979 over GF(2^n) 233", spriv2, spub2, t);
 		BenchMarkKeyGen("ECDHC over GF(2^n) 233", ecdhc, t);
 		BenchMarkAgreement("ECDHC over GF(2^n) 233", ecdhc, t);
 		BenchMarkKeyGen("ECMQVC over GF(2^n) 233", ecmqvc, t);

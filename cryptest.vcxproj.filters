@@ -54,6 +54,9 @@
     <None Include="TestVectors\dsa_1363.txt">
       <Filter>TestVectors</Filter>
     </None>
+    <None Include="TestVectors\dsa_rfc6979.txt">
+      <Filter>TestVectors</Filter>
+    </None>
     <None Include="TestVectors\eax.txt">
       <Filter>TestVectors</Filter>
     </None>

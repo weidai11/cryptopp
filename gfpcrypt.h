@@ -1,6 +1,7 @@
 // gfpcrypt.h - written and placed in the public domain by Wei Dai
+//              deterministic signatures added by by Douglas Roark
 
-//! \file eccrypto.h
+//! \file gfpcrypt.h
 //! \brief Classes and functions for schemes based on Discrete Logs (DL) over GF(p)
 
 #ifndef CRYPTOPP_GFPCRYPT_H
@@ -224,7 +225,179 @@ public:
 	}
 };
 
+//! \class DL_Algorithm_DSA_RFC6979
+//! \brief GDSA algorithm
+//! \tparam T FieldElement type or class
+//! \tparam H HashTransformation derived class
+//! \sa <a href="http://tools.ietf.org/rfc/rfc6979.txt">Deterministic Usage of the
+//!   Digital Signature Algorithm (DSA) and Elliptic Curve Digital Signature Algorithm (ECDSA)</a>
+template <class T, class H>
+class DL_Algorithm_DSA_RFC6979 : public DL_Algorithm_GDSA<T>, public DeterministicSignatureAlgorithm
+{
+public:
+	CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "DSA-RFC6979";}
+
+	virtual ~DL_Algorithm_DSA_RFC6979() {}
+
+	bool IsProbabilistic() const
+		{return false;}
+	bool IsDeterministic() const
+		{return true;}
+
+	// Deterministic K
+	Integer GenerateRandom(const Integer &x, const Integer &q, const Integer &e) const
+	{
+		static const byte zero = 0, one = 1;
+		const size_t qlen = q.BitCount();
+		const size_t rlen = BitsToBytes(qlen);
+
+		// Step (a) - formatted E(m)
+		SecByteBlock BH(e.MinEncodedSize());
+		e.Encode(BH, BH.size());
+		BH = bits2octets(BH, q);
+
+		// Step (a) - private key to byte array
+		SecByteBlock BX(STDMAX(rlen, x.MinEncodedSize()));
+		x.Encode(BX, BX.size());
+
+		// Step (b)
+		SecByteBlock V(H::DIGESTSIZE);
+		std::fill(V.begin(), V.begin()+H::DIGESTSIZE, one);
+
+		// Step (c)
+		SecByteBlock K(H::DIGESTSIZE);
+		std::fill(K.begin(), K.begin()+H::DIGESTSIZE, zero);
+
+		// Step (d)
+		m_hmac.SetKey(K, K.size());
+		m_hmac.Update(V, V.size());
+		m_hmac.Update(&zero, 1);
+		m_hmac.Update(BX, BX.size());
+		m_hmac.Update(BH, BH.size());
+		m_hmac.TruncatedFinal(K, K.size());
+
+		// Step (e)
+		m_hmac.SetKey(K, K.size());
+		m_hmac.Update(V, V.size());
+		m_hmac.TruncatedFinal(V, V.size());
+
+		// Step (f)
+		m_hmac.SetKey(K, K.size());
+		m_hmac.Update(V, V.size());
+		m_hmac.Update(&one, 1);
+		m_hmac.Update(BX, BX.size());
+		m_hmac.Update(BH, BH.size());
+		m_hmac.TruncatedFinal(K, K.size());
+
+		// Step (g)
+		m_hmac.SetKey(K, K.size());
+		m_hmac.Update(V, V.size());
+		m_hmac.TruncatedFinal(V, V.size());
+
+		Integer k;
+		SecByteBlock temp(rlen);
+		for (;;)
+		{
+			// We want qlen bits, but we support only hash functions with an output length
+			//   multiple of 8; hence, we will gather rlen bits, i.e., rolen octets.
+			size_t toff = 0;
+			while (toff < rlen)
+			{
+				m_hmac.Update(V, V.size());
+				m_hmac.TruncatedFinal(V, V.size());
+
+				size_t cc = STDMIN(V.size(), temp.size() - toff);
+				memcpy_s(temp+toff, temp.size() - toff, V, cc);
+				toff += cc;
+			}
+
+			k = bits2int(temp, qlen);
+			if (k > 0 && k < q)
+				break;
+
+			// k is not in the proper range; update K and V, and loop.
+			m_hmac.Update(V, V.size());
+			m_hmac.Update(&zero, 1);
+			m_hmac.TruncatedFinal(K, K.size());
+
+			m_hmac.SetKey(K, K.size());
+			m_hmac.Update(V, V.size());
+			m_hmac.TruncatedFinal(V, V.size());
+		}
+
+		return k;
+	}
+
+protected:
+
+#if 0
+	// Determine bits without converting to an Integer
+	inline unsigned int BitCount(const byte* buffer, size_t size) const
+	{
+		unsigned int idx = 0;
+		while (idx < size && buffer[idx] == 0) { idx++; }
+		return (size-idx)*8 - (8-BitPrecision(buffer[idx]));
+	}
+#endif
+
+	Integer bits2int(const SecByteBlock& bits, size_t qlen) const
+	{
+		Integer ret(bits, bits.size());
+		size_t blen = bits.size()*8;
+
+		if (blen > qlen)
+			ret >>= blen - qlen;
+
+		return ret;
+	}
+
+	// RFC 6979 support function. Takes an integer and converts it into bytes that
+	// are the same length as an elliptic curve's order.
+	SecByteBlock int2octets(const Integer& val, size_t rlen) const
+	{
+		SecByteBlock block(val.MinEncodedSize());
+		val.Encode(block, val.MinEncodedSize());
+
+		if (block.size() == rlen)
+			return block;
+
+		// The least significant bytes are the ones we need to preserve.
+		SecByteBlock t(rlen);
+		if (block.size() > rlen)
+		{
+			size_t offset = block.size() - rlen;
+			memcpy(t, block + offset, rlen);
+		}
+		else // block.size() < rlen
+		{
+			size_t offset = rlen - block.size();
+			memset(t, '\x00', offset);
+			memcpy(t + offset, block, rlen - offset);
+		}
+
+		return t;
+	}
+
+	// Turn a stream of bits into a set of bytes with the same length as an elliptic
+	// curve's order.
+	SecByteBlock bits2octets(const SecByteBlock& in, const Integer& q) const
+	{
+		Integer b2 = bits2int(in, in.size()*8);
+		Integer b1 = b2 - q;
+		return int2octets(b1.IsNegative() ? b2 : b1, q.ByteCount());
+	}
+
+private:
+	mutable H m_hash;
+	mutable HMAC<H> m_hmac;
+};
+
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_GDSA<Integer>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_DSA_RFC6979<Integer, SHA1>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_DSA_RFC6979<Integer, SHA224>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_DSA_RFC6979<Integer, SHA256>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_DSA_RFC6979<Integer, SHA384>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_DSA_RFC6979<Integer, SHA512>;
 
 //! \class DL_Algorithm_NR
 //! \brief NR algorithm
@@ -541,10 +714,22 @@ class DSA2 : public DL_SS<
 {
 public:
 	static std::string CRYPTOPP_API StaticAlgorithmName() {return "DSA/" + (std::string)H::StaticAlgorithmName();}
+};
 
-	//#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
-	//enum {MIN_PRIME_LENGTH = 1024, MAX_PRIME_LENGTH = 3072, PRIME_LENGTH_MULTIPLE = 1024};
-	//#endif
+//! \class DSA_RFC6979
+//! \brief DSA deterministic signature scheme
+//! \tparam H HashTransformation derived class
+//! \sa <a href="http://www.weidai.com/scan-mirror/sig.html#DSA-1363">DSA-1363</a>
+//! \since Crypto++ 1.0 for DSA, Crypto++ 5.6.2 for DSA2
+template <class H>
+struct DSA_RFC6979 : public DL_SS<
+	DL_SignatureKeys_GFP,
+	DL_Algorithm_DSA_RFC6979<Integer, H>,
+	DL_SignatureMessageEncodingMethod_DSA,
+	H,
+	DSA_RFC6979<H> >
+{
+	static std::string CRYPTOPP_API StaticAlgorithmName() {return std::string("DSA-RFC6979/") + H::StaticAlgorithmName();}
 };
 
 //! DSA with SHA-1, typedef'd for backwards compatibility

@@ -228,6 +228,7 @@
     <None Include="TestVectors\dlies.txt" />
     <None Include="TestVectors\dsa.txt" />
     <None Include="TestVectors\dsa_1363.txt" />
+    <None Include="TestVectors\dsa_rfc6979.txt" />
     <None Include="TestVectors\eax.txt" />
     <None Include="TestVectors\esign.txt" />
     <None Include="TestVectors\gcm.txt" />

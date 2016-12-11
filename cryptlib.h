@@ -2427,6 +2427,7 @@ public:
 //! \class PK_SignatureScheme
 //! \brief Interface for public-key signers and verifiers
 //! \details This class provides an interface common to signers and verifiers for querying scheme properties
+//! \sa DL_SignatureSchemeBase, TF_SignatureSchemeBase, DL_SignerBase, TF_SignerBase
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_SignatureScheme
 {
 public:

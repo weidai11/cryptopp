@@ -329,6 +329,12 @@ public:
 	virtual size_t MaxRecoverableLength(size_t representativeBitLength, size_t hashIdentifierLength, size_t digestLength) const
 		{CRYPTOPP_UNUSED(representativeBitLength); CRYPTOPP_UNUSED(representativeBitLength); CRYPTOPP_UNUSED(hashIdentifierLength); CRYPTOPP_UNUSED(digestLength); return 0;}
 
+	//! \brief Determines whether an encoding method requires a random number generator
+	//! \return true if the encoding method requires a RandomNumberGenerator()
+	//! \details if IsProbabilistic() returns false, then NullRNG() can be passed to functions that take
+	//!   RandomNumberGenerator().
+	//! \sa Bellare and Rogaway<a href="http://grouper.ieee.org/groups/1363/P1363a/contributions/pss-submission.pdf">PSS:
+	//!   Provably Secure Encoding Method for Digital Signatures</a>
 	bool IsProbabilistic() const
 		{return true;}
 	bool AllowNonrecoverablePart() const
@@ -1265,6 +1271,19 @@ public:
 		{return params.GetSubgroupOrder().ByteCount();}
 	virtual size_t SLen(const DL_GroupParameters<T> &params) const
 		{return params.GetSubgroupOrder().ByteCount();}
+	// RFC 6979, present in DL signers
+	virtual bool IsDeterministic() const
+		{return false;}
+};
+
+//! \brief Interface for deterministic signers
+//! \details RFC 6979 signers which generate k based on the encoded message and private key
+class CRYPTOPP_NO_VTABLE DeterministicSignatureAlgorithm
+{
+public:
+	virtual ~DeterministicSignatureAlgorithm() {}
+
+	virtual Integer GenerateRandom(const Integer &x, const Integer &q, const Integer &e) const =0;
 };
 
 //! \brief Interface for DL key agreement algorithms
@@ -1376,6 +1395,9 @@ protected:
 	size_t MessageRepresentativeLength() const {return BitsToBytes(MessageRepresentativeBitLength());}
 	size_t MessageRepresentativeBitLength() const {return this->GetAbstractGroupParameters().GetSubgroupOrder().BitCount();}
 
+	// true if the scheme conforms to RFC 6979
+	virtual bool IsDeterministic() const {return false;}
+
 	virtual const DL_ElgamalLikeSignatureAlgorithm<typename KEY_INTFACE::Element> & GetSignatureAlgorithm() const =0;
 	virtual const PK_SignatureMessageEncodingMethod & GetMessageEncodingInterface() const =0;
 	virtual HashIdentifier GetHashIdentifier() const =0;
@@ -1433,11 +1455,24 @@ public:
 		ma.m_empty = true;
 		Integer e(representative, representative.size());
 
-		// hash message digest into random number k to prevent reusing the same k on a different messages
-		// after virtual machine rollback
+		// hash message digest into random number k to prevent reusing the same k on
+		// different messages after virtual machine rollback
 		if (rng.CanIncorporateEntropy())
 			rng.IncorporateEntropy(representative, representative.size());
-		Integer k(rng, 1, params.GetSubgroupOrder()-1);
+
+		Integer k;
+		if (alg.IsDeterministic())
+		{
+			const Integer& q = params.GetSubgroupOrder();
+			const Integer& x = key.GetPrivateExponent();
+			const DeterministicSignatureAlgorithm& det = dynamic_cast<const DeterministicSignatureAlgorithm&>(alg);
+			k = det.GenerateRandom(x, q, e);
+		}
+		else
+		{
+			k.Randomize(rng, 1, params.GetSubgroupOrder()-1);
+		}
+
 		Integer r, s;
 		r = params.ConvertElementToInteger(params.ExponentiateBase(k));
 		alg.Sign(params, key.GetPrivateExponent(), k, e, r, s);

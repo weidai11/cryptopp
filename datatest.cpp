@@ -291,10 +291,12 @@ void TestSignatureScheme(TestData &v)
 		// additional determinsitic signatures are added, then the test harness will
 		// likely need to be extended.
 		string signature;
-		SignerFilter f(GlobalRNG(), *signer, new HexEncoder(new StringSink(signature)));
+		SignerFilter f(GlobalRNG(), *signer, new StringSink(signature));
 		StringSource ss(GetDecodedDatum(v, "Message"), true, new Redirector(f));
+
 		if (GetDecodedDatum(v, "Signature") != signature)
 			SignalTestFailure();
+
 		return;
 	}
 	else if (test == "RandomSign")

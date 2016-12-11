@@ -1,4 +1,5 @@
 // eccrypto.h - written and placed in the public domain by Wei Dai
+//              deterministic signatures added by by Douglas Roark
 
 //! \file eccrypto.h
 //! \brief Classes and functions for Elliptic Curves over prime and binary fields
@@ -343,6 +344,16 @@ public:
   CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "ECDSA";}
 };
 
+//! \class DL_Algorithm_ECDSA_RFC6979
+//! \brief Elliptic Curve DSA (ECDSA) signature algorithm
+//! \tparam EC elliptic curve field
+template <class EC, class H>
+class DL_Algorithm_ECDSA_RFC6979 : public DL_Algorithm_DSA_RFC6979<typename EC::Point, H>
+{
+public:
+  CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "ECDSA-RFC6979";}
+};
+
 //! \class DL_Algorithm_ECNR
 //! \brief Elliptic Curve NR (ECNR) signature algorithm
 //! \tparam EC elliptic curve field
@@ -361,6 +372,23 @@ public:
 template <class EC, class H>
 struct ECDSA : public DL_SS<DL_Keys_ECDSA<EC>, DL_Algorithm_ECDSA<EC>, DL_SignatureMessageEncodingMethod_DSA, H>
 {
+};
+
+//! \class ECDSA_RFC6979
+//! \brief Elliptic Curve DSA (ECDSA) deterministic signature scheme
+//! \tparam EC elliptic curve field
+//! \tparam H HashTransformation derived class
+//! \sa <a href="http://tools.ietf.org/rfc/rfc6979.txt">Deterministic Usage of the
+//!   Digital Signature Algorithm (DSA) and Elliptic Curve Digital Signature Algorithm (ECDSA)</a>
+template <class EC, class H>
+struct ECDSA_RFC6979 : public DL_SS<
+	DL_Keys_ECDSA<EC>,
+	DL_Algorithm_ECDSA_RFC6979<EC, H>,
+	DL_SignatureMessageEncodingMethod_DSA,
+	H,
+	ECDSA_RFC6979<EC,H> >
+{
+	static std::string CRYPTOPP_API StaticAlgorithmName() {return std::string("ECDSA-RFC6979/") + H::StaticAlgorithmName();}
 };
 
 //! \class ECNR
@@ -415,7 +443,8 @@ struct ECIES
 		DL_EncryptionAlgorithm_Xor<HMAC<HASH>, DHAES_MODE, LABEL_OCTETS>,
 		ECIES<EC> >
 {
-	static std::string CRYPTOPP_API StaticAlgorithmName() {return "ECIES";}	// TODO: fix this after name is standardized
+	// TODO: fix this after name is standardized
+	CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "ECIES";}
 };
 
 NAMESPACE_END
