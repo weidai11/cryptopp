@@ -221,9 +221,8 @@ private:
 };
 
 template <class BASE, class T>
-GetValueHelperClass<T, BASE> GetValueHelper(const T *pObject, const char *name, const std::type_info &valueType, void *pValue, const NameValuePairs *searchFirst=NULL, BASE *dummy=NULL)
+GetValueHelperClass<T, BASE> GetValueHelper(const T *pObject, const char *name, const std::type_info &valueType, void *pValue, const NameValuePairs *searchFirst=NULL)
 {
-	CRYPTOPP_UNUSED(dummy);
 	return GetValueHelperClass<T, BASE>(pObject, name, valueType, pValue, searchFirst);
 }
 
@@ -284,9 +283,8 @@ private:
 };
 
 template <class BASE, class T>
-AssignFromHelperClass<T, BASE> AssignFromHelper(T *pObject, const NameValuePairs &source, BASE *dummy=NULL)
+AssignFromHelperClass<T, BASE> AssignFromHelper(T *pObject, const NameValuePairs &source)
 {
-	CRYPTOPP_UNUSED(dummy);
 	return AssignFromHelperClass<T, BASE>(pObject, source);
 }
 

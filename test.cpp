@@ -969,6 +969,7 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 	case 70: result = ValidateHKDF(); break;
 	case 71: result = ValidateBLAKE2s(); break;
 	case 72: result = ValidateBLAKE2b(); break;
+	case 73: result = ValidateECGDSA(); break;
 	default: return false;
 	}
 

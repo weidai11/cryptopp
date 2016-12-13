@@ -90,6 +90,7 @@ bool ValidateRW();
 bool ValidateECP();
 bool ValidateEC2N();
 bool ValidateECDSA();
+bool ValidateECGDSA();
 bool ValidateESIGN();
 
 #if defined(CRYPTOPP_DEBUG)

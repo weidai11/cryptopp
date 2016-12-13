@@ -35,6 +35,8 @@
 #include "oids.h"
 #include "esign.h"
 #include "osrng.h"
+#include "sha.h"
+#include "ripemd.h"
 #include "smartptr.h"
 
 #include <iostream>
@@ -1056,6 +1058,349 @@ bool ValidateECDSA()
 	return pass;
 }
 
+// from http://www.teletrust.de/fileadmin/files/oid/ecgdsa_final.pdf
+bool ValidateECGDSA()
+{
+	cout << "\nECGDSA validation suite running...\n\n";
+
+	bool fail, pass=true;
+
+	// 2.4.1 Examples of ECGDSA over GF(p) with the hash function RIPEMD-160 (p. 10)
+	{
+		OID oid = ASN1::brainpoolP192r1();
+		DL_GroupParameters_EC<ECP> params(oid);
+		Integer x("0x 80F2425E 89B4F585 F27F3536 ED834D68 E3E492DE 08FE84B9");
+		ECGDSA<ECP, RIPEMD160>::Signer signer(params, x);
+		ECGDSA<ECP, RIPEMD160>::Verifier verifier(signer);
+
+		Integer e("0x 00000000 577EF842 B32FDE45 79727FFF 02F7A280 74ADC4EF");
+		Integer k("0x 22C17C2A 367DD85A B8A365ED 06F19C43 F9ED1834 9A9BC044");
+
+		Integer r, s;
+		signer.RawSign(k, e, r, s);
+
+		Integer rExp("0x 2D017BE7 F117FF99 4ED6FC63 CA5B4C7A 0430E9FA 095DAFC4");
+		Integer sExp("0x C02B5CC5 C51D5411 060BF024 5049F824 839F671D 78A1BBF1");
+
+		fail = (r != rExp) || (s != sExp);
+		pass = pass && !fail;
+
+		const byte msg[] = "Example of ECGDSA with the hash function RIPEMD-160";
+		const size_t len = strlen((char*)msg);
+
+		byte signature[48];
+		r.Encode(signature+0, 24);
+		s.Encode(signature+24, 24);
+
+		fail = !verifier.VerifyMessage(msg, len, signature, sizeof(signature));
+		pass = pass && !fail;
+
+		cout << (fail ? "FAILED    " : "passed    ");
+		cout << "brainpoolP192r1 using RIPEMD-160\n";
+
+		fail = !SignatureValidate(signer, verifier);
+		pass = pass && !fail;
+	}
+
+	// 2.4.1 Examples of ECGDSA over GF(p) with the hash function RIPEMD-160 (p. 13)
+	{
+		OID oid = ASN1::brainpoolP256r1();
+		DL_GroupParameters_EC<ECP> params(oid);
+		Integer x("0x 47B3A278 62DEF037 49ACF0D6 00E69F9B 851D01ED AEFA531F 4D168E78 7307F4D8");
+		ECGDSA<ECP, RIPEMD160>::Signer signer(params, x);
+		ECGDSA<ECP, RIPEMD160>::Verifier verifier(signer);
+
+		Integer e("0x 00000000 00000000 00000000 577EF842 B32FDE45 79727FFF 02F7A280 74ADC4EF");
+		Integer k("0x 908E3099 776261A4 558FF7A9 FA6DFFE0 CA6BB3F9 CB35C2E4 E1DC73FD 5E8C08A3");
+
+		Integer r, s;
+		signer.RawSign(k, e, r, s);
+
+		Integer rExp("0x 62CCD1D2 91E62F6A 4FFBD966 C66C85AA BA990BB6 AB0C087D BD54A456 CCC84E4C");
+		Integer sExp("0x 9119719B 08EEA0D6 BC56E4D1 D37369BC F3768445 EF65CAE4 A37BF6D4 3BD01646");
+
+		fail = (r != rExp) || (s != sExp);
+		pass = pass && !fail;
+
+		const byte msg[] = "Example of ECGDSA with the hash function RIPEMD-160";
+		const size_t len = strlen((char*)msg);
+
+		byte signature[64];
+		r.Encode(signature+0, 32);
+		s.Encode(signature+32, 32);
+
+		fail = !verifier.VerifyMessage(msg, len, signature, sizeof(signature));
+		pass = pass && !fail;
+
+		cout << (fail ? "FAILED    " : "passed    ");
+		cout << "brainpoolP256r1 using RIPEMD-160\n";
+
+		fail = !SignatureValidate(signer, verifier);
+		pass = pass && !fail;
+	}
+
+	// 2.4.1 Examples of ECGDSA over GF(p) with the hash function RIPEMD-160 (p. 16)
+	{
+		OID oid = ASN1::brainpoolP320r1();
+		DL_GroupParameters_EC<ECP> params(oid);
+		Integer x("0x 48683594 5A3A284F FC52629A D48D8F37 F4B2E993 9C52BC72 362A9961 40192AEF 7D2AAFF0 C73A51C5");
+		ECGDSA<ECP, RIPEMD160>::Signer signer(params, x);
+		ECGDSA<ECP, RIPEMD160>::Verifier verifier(signer);
+
+		Integer e("0x 00000000 00000000 00000000 00000000 00000000 577EF842 B32FDE45 79727FFF 02F7A280 74ADC4EF");
+		Integer k("0x C70BC00A 77AD7872 5D36CEEC 27D6F956 FB546EEF 6DC90E35 31452BD8 7ECE8A4A 7AD730AD C299D81B");
+
+		Integer r, s;
+		signer.RawSign(k, e, r, s);
+
+		Integer rExp("0x 3C925969 FAB22F7A E7B8CC5D 50CB0867 DFDB2CF4 FADA3D49 0DF75D72 F7563186 419494C9 8F9C82A6");
+		Integer sExp("0x 06AB5250 B31A8E93 56194894 61733200 E4FD5C12 75C0AB37 E7E41149 5BAAE145 41DF6DE6 66B8CA56");
+
+		fail = (r != rExp) || (s != sExp);
+		pass = pass && !fail;
+
+		const byte msg[] = "Example of ECGDSA with the hash function RIPEMD-160";
+		const size_t len = strlen((char*)msg);
+
+		byte signature[80];
+		r.Encode(signature+0, 40);
+		s.Encode(signature+40, 40);
+
+		fail = !verifier.VerifyMessage(msg, len, signature, sizeof(signature));
+		pass = pass && !fail;
+
+		cout << (fail ? "FAILED    " : "passed    ");
+		cout << "brainpoolP320r1 using RIPEMD-160\n";
+
+		fail = !SignatureValidate(signer, verifier);
+		pass = pass && !fail;
+	}
+
+	// 2.4.1 Examples of ECGDSA over GF(p) with the hash function SHA-1 (p. 19)
+	{
+		OID oid = ASN1::brainpoolP192r1();
+		DL_GroupParameters_EC<ECP> params(oid);
+		Integer x("0x 80F2425E 89B4F585 F27F3536 ED834D68 E3E492DE 08FE84B9");
+		ECGDSA<ECP, SHA1>::Signer signer(params, x);
+		ECGDSA<ECP, SHA1>::Verifier verifier(signer);
+
+		Integer e("0x 00000000 CF00CD42 CAA80DDF 8DDEBDFD 32F2DA15 11B53F29");
+		Integer k("0x 22C17C2A 367DD85A B8A365ED 06F19C43 F9ED1834 9A9BC044");
+
+		Integer r, s;
+		signer.RawSign(k, e, r, s);
+
+		Integer rExp("0x 2D017BE7 F117FF99 4ED6FC63 CA5B4C7A 0430E9FA 095DAFC4");
+		Integer sExp("0x 18FD604E 5F00F55B 3585C052 8C319A2B 05B8F2DD EE9CF1A6");
+
+		fail = (r != rExp) || (s != sExp);
+		pass = pass && !fail;
+
+		const byte msg[] = "Example of ECGDSA with the hash function SHA-1";
+		const size_t len = strlen((char*)msg);
+
+		byte signature[48];
+		r.Encode(signature+0, 24);
+		s.Encode(signature+24, 24);
+
+		fail = !verifier.VerifyMessage(msg, len, signature, sizeof(signature));
+		pass = pass && !fail;
+
+		cout << (fail ? "FAILED    " : "passed    ");
+		cout << "brainpoolP192r1 using SHA-1\n";
+
+		fail = !SignatureValidate(signer, verifier);
+		pass = pass && !fail;
+	}
+
+	// 2.4.1 Examples of ECGDSA over GF(p) with the hash function SHA-224 (p. 21)
+	{
+		OID oid = ASN1::brainpoolP256r1();
+		DL_GroupParameters_EC<ECP> params(oid);
+		Integer x("0x 47B3A278 62DEF037 49ACF0D6 00E69F9B 851D01ED AEFA531F 4D168E78 7307F4D8");
+		ECGDSA<ECP, SHA224>::Signer signer(params, x);
+		ECGDSA<ECP, SHA224>::Verifier verifier(signer);
+
+		Integer e("0x 00000000 92AE8A0E 8D08EADE E9426378 714FF3E0 1957587D 2876FA70 D40E3144");
+		Integer k("0x 908E3099 776261A4 558FF7A9 FA6DFFE0 CA6BB3F9 CB35C2E4 E1DC73FD 5E8C08A3");
+
+		Integer r, s;
+		signer.RawSign(k, e, r, s);
+
+		Integer rExp("0x 62CCD1D2 91E62F6A 4FFBD966 C66C85AA BA990BB6 AB0C087D BD54A456 CCC84E4C");
+		Integer sExp("0x 6F029D92 1CBD2552 6EDCCF1C 45E3CBF7 B7A5D8D4 E005F0C4 1C49B052 DECB04EA");
+
+		fail = (r != rExp) || (s != sExp);
+		pass = pass && !fail;
+
+		const byte msg[] = "Example of ECGDSA with the hash function SHA-224";
+		const size_t len = strlen((char*)msg);
+
+		byte signature[64];
+		r.Encode(signature+0, 32);
+		s.Encode(signature+32, 32);
+
+		fail = !verifier.VerifyMessage(msg, len, signature, sizeof(signature));
+		pass = pass && !fail;
+
+		cout << (fail ? "FAILED    " : "passed    ");
+		cout << "brainpoolP256r1 using SHA-224\n";
+
+		fail = !SignatureValidate(signer, verifier);
+		pass = pass && !fail;
+	}
+
+	// 2.4.1 Examples of ECGDSA over GF(p) with the hash function SHA-224 (p. 23)
+	{
+		OID oid = ASN1::brainpoolP320r1();
+		DL_GroupParameters_EC<ECP> params(oid);
+		Integer x("0x 48683594 5A3A284F FC52629A D48D8F37 F4B2E993 9C52BC72 362A9961 40192AEF 7D2AAFF0 C73A51C5");
+		ECGDSA<ECP, SHA224>::Signer signer(params, x);
+		ECGDSA<ECP, SHA224>::Verifier verifier(signer);
+
+		Integer e("0x 00000000 00000000 00000000 92AE8A0E 8D08EADE E9426378 714FF3E0 1957587D 2876FA70 D40E3144");
+		Integer k("0x C70BC00A 77AD7872 5D36CEEC 27D6F956 FB546EEF 6DC90E35 31452BD8 7ECE8A4A 7AD730AD C299D81B");
+
+		Integer r, s;
+		signer.RawSign(k, e, r, s);
+
+		Integer rExp("0x 3C925969 FAB22F7A E7B8CC5D 50CB0867 DFDB2CF4 FADA3D49 0DF75D72 F7563186 419494C9 8F9C82A6");
+		Integer sExp("0x 6EA191CA 0D468AC3 E9568768 9338357C 7D0BACB3 F1D87E0D EC05F635 B7ADB842 75AA0086 60F812CF");
+
+		fail = (r != rExp) || (s != sExp);
+		pass = pass && !fail;
+
+		const byte msg[] = "Example of ECGDSA with the hash function SHA-224";
+		const size_t len = strlen((char*)msg);
+
+		byte signature[80];
+		r.Encode(signature+0, 40);
+		s.Encode(signature+40, 40);
+
+		fail = !verifier.VerifyMessage(msg, len, signature, sizeof(signature));
+		pass = pass && !fail;
+
+		cout << (fail ? "FAILED    " : "passed    ");
+		cout << "brainpoolP320r1 using SHA-224\n";
+
+		fail = !SignatureValidate(signer, verifier);
+		pass = pass && !fail;
+	}
+
+	// 2.4.1 Examples of ECGDSA over GF(p) with the hash function SHA-224 (p. 27)
+	{
+		OID oid = ASN1::brainpoolP320r1();
+		DL_GroupParameters_EC<ECP> params(oid);
+		Integer x("0x 48683594 5A3A284F FC52629A D48D8F37 F4B2E993 9C52BC72 362A9961 40192AEF 7D2AAFF0 C73A51C5");
+		ECGDSA<ECP, SHA256>::Signer signer(params, x);
+		ECGDSA<ECP, SHA256>::Verifier verifier(signer);
+
+		Integer e("0x 00000000 00000000 37ED8AA9 4AE667DB BB753330 E050EB8E 12195807 ECDC4FB1 0E0662B4 22C219D7");
+		Integer k("0x C70BC00A 77AD7872 5D36CEEC 27D6F956 FB546EEF 6DC90E35 31452BD8 7ECE8A4A 7AD730AD C299D81B");
+
+		Integer r, s;
+		signer.RawSign(k, e, r, s);
+
+		Integer rExp("0x 3C925969 FAB22F7A E7B8CC5D 50CB0867 DFDB2CF4 FADA3D49 0DF75D72 F7563186 419494C9 8F9C82A6");
+		Integer sExp("0x 24370797 A9D11717 BBBB2B76 2E08ECD0 7DD7E033 F544E47C BF3C6D16 FD90B51D CC2E4DD8 E6ECD8CD");
+
+		fail = (r != rExp) || (s != sExp);
+		pass = pass && !fail;
+
+		const byte msg[] = "Example of ECGDSA with the hash function SHA-256";
+		const size_t len = strlen((char*)msg);
+
+		byte signature[80];
+		r.Encode(signature+0, 40);
+		s.Encode(signature+40, 40);
+
+		fail = !verifier.VerifyMessage(msg, len, signature, sizeof(signature));
+		pass = pass && !fail;
+
+		cout << (fail ? "FAILED    " : "passed    ");
+		cout << "brainpoolP320r1 using SHA-256\n";
+
+		fail = !SignatureValidate(signer, verifier);
+		pass = pass && !fail;
+	}
+
+	// 2.4.1 Examples of ECGDSA over GF(p) with the hash function SHA-384 (p. 34)
+	{
+		OID oid = ASN1::brainpoolP512r1();
+		DL_GroupParameters_EC<ECP> params(oid);
+		Integer x("0x 92006A98 8AF96D91 57AADCF8 62716962 7CE2ECC4 C58ECE5C 1A0A8642 11AB764C 04236FA0 160857A7 8E71CCAE 4D79D52E 5A69A457 8AF50658 1F598FA9 B4F7DA68");
+		ECGDSA<ECP, SHA384>::Signer signer(params, x);
+		ECGDSA<ECP, SHA384>::Verifier verifier(signer);
+
+		Integer e("0x 00000000 00000000 00000000 00000000 68FEAB7D 8BF8A779 4466E447 5959946B 2136C084 A86090CA 8070C980 68B1250D 88213190 6B7E0CB8 475F9054 E9290C2E");
+		Integer k("0x 6942B01D 5901BEC1 506BB874 9618E22E C0FCD7F3 5159D51E D53BA77A 78752128 A58232AD 8E0E021A FDE1477F F4C74FDF FE88AE2D 15D89B56 F6D73C03 77631D2B");
+
+		Integer r, s;
+		signer.RawSign(k, e, r, s);
+
+		Integer rExp("0x 0104918B 2B32B1A5 49BD43C3 0092953B 4164CA01 A1A97B5B 0756EA06 3AC16B41 B88A1BAB 4538CD7D 8466180B 3E3F5C86 46AC4A45 F564E9B6 8FEE72ED 00C7AC48");
+		Integer sExp("0x 3D233E9F D9EB152E 889F4F7C F325B464 0894E5EA 44C51443 54305CD4 BF70D234 8257C2DB E06C5544 92CE9FDD 6861A565 77B53E5E E80E6062 31A4CF06 8FA1EC21");
+
+		fail = (r != rExp) || (s != sExp);
+		pass = pass && !fail;
+
+		const byte msg[] = "Example of ECGDSA with the hash function SHA-384";
+		const size_t len = strlen((char*)msg);
+
+		byte signature[128];
+		r.Encode(signature+0, 64);
+		s.Encode(signature+64, 64);
+
+		fail = !verifier.VerifyMessage(msg, len, signature, sizeof(signature));
+		pass = pass && !fail;
+
+		cout << (fail ? "FAILED    " : "passed    ");
+		cout << "brainpoolP512r1 using SHA-384\n";
+
+		fail = !SignatureValidate(signer, verifier);
+		pass = pass && !fail;
+	}
+
+	// 2.4.1 Examples of ECGDSA over GF(p) with the hash function SHA-512 (p. 38)
+	{
+		OID oid = ASN1::brainpoolP512r1();
+		DL_GroupParameters_EC<ECP> params(oid);
+		Integer x("0x 92006A98 8AF96D91 57AADCF8 62716962 7CE2ECC4 C58ECE5C 1A0A8642 11AB764C 04236FA0 160857A7 8E71CCAE 4D79D52E 5A69A457 8AF50658 1F598FA9 B4F7DA68");
+		ECGDSA<ECP, SHA512>::Signer signer(params, x);
+		ECGDSA<ECP, SHA512>::Verifier verifier(signer);
+
+		Integer e("0x 1A95EF81 D213BD3B 8191E7FE 7F5BFD43 F51E3EE5 A4FD3D08 4A7C9BB5 411F4649 746AEBC6 623D4DEA 7E02DC5A 85E24AF2 96B5A555 AD470413 71E4BF64 380F3E34");
+		Integer k("0x 6942B01D 5901BEC1 506BB874 9618E22E C0FCD7F3 5159D51E D53BA77A 78752128 A58232AD 8E0E021A FDE1477F F4C74FDF FE88AE2D 15D89B56 F6D73C03 77631D2B");
+
+		Integer r, s;
+		signer.RawSign(k, e, r, s);
+
+		Integer rExp("0x 0104918B 2B32B1A5 49BD43C3 0092953B 4164CA01 A1A97B5B 0756EA06 3AC16B41 B88A1BAB 4538CD7D 8466180B 3E3F5C86 46AC4A45 F564E9B6 8FEE72ED 00C7AC48");
+		Integer sExp("0x 17A011F8 DD7B5665 2B27AA6D 6E7BDF3C 7C23B5FA 32910FBA A107E627 0E1CA8A7 A263F661 8E6098A0 D6CD6BA1 C03544C5 425875EC B3418AF5 A3EE3F32 143E48D2");
+
+		fail = (r != rExp) || (s != sExp);
+		pass = pass && !fail;
+
+		const byte msg[] = "Example of ECGDSA with the hash function SHA-512";
+		const size_t len = strlen((char*)msg);
+
+		byte signature[128];
+		r.Encode(signature+0, 64);
+		s.Encode(signature+64, 64);
+
+		fail = !verifier.VerifyMessage(msg, len, signature, sizeof(signature));
+		pass = pass && !fail;
+
+		cout << (fail ? "FAILED    " : "passed    ");
+		cout << "brainpoolP512r1 using SHA-512\n";
+
+		fail = !SignatureValidate(signer, verifier);
+		pass = pass && !fail;
+	}
+
+	return pass;
+}
+
 bool ValidateESIGN()
 {
 	cout << "\nESIGN validation suite running...\n\n";
@@ -1064,10 +1409,11 @@ bool ValidateESIGN()
 
 	static const char plain[] = "test";
 	static const byte signature[] =
-		"\xA3\xE3\x20\x65\xDE\xDA\xE7\xEC\x05\xC1\xBF\xCD\x25\x79\x7D\x99\xCD\xD5\x73\x9D\x9D\xF3\xA4\xAA\x9A\xA4\x5A\xC8\x23\x3D\x0D\x37\xFE\xBC\x76\x3F\xF1\x84\xF6\x59"
-		"\x14\x91\x4F\x0C\x34\x1B\xAE\x9A\x5C\x2E\x2E\x38\x08\x78\x77\xCB\xDC\x3C\x7E\xA0\x34\x44\x5B\x0F\x67\xD9\x35\x2A\x79\x47\x1A\x52\x37\x71\xDB\x12\x67\xC1\xB6\xC6"
-		"\x66\x73\xB3\x40\x2E\xD6\xF2\x1A\x84\x0A\xB6\x7B\x0F\xEB\x8B\x88\xAB\x33\xDD\xE4\x83\x21\x90\x63\x2D\x51\x2A\xB1\x6F\xAB\xA7\x5C\xFD\x77\x99\xF2\xE1\xEF\x67\x1A"
-		"\x74\x02\x37\x0E\xED\x0A\x06\xAD\xF4\x15\x65\xB8\xE1\xD1\x45\xAE\x39\x19\xB4\xFF\x5D\xF1\x45\x7B\xE0\xFE\x72\xED\x11\x92\x8F\x61\x41\x4F\x02\x00\xF2\x76\x6F\x7C"
+		"\xA3\xE3\x20\x65\xDE\xDA\xE7\xEC\x05\xC1\xBF\xCD\x25\x79\x7D\x99\xCD\xD5\x73\x9D\x9D\xF3\xA4\xAA\x9A\xA4\x5A\xC8\x23\x3D\x0D\x37"
+		"\xFE\xBC\x76\x3F\xF1\x84\xF6\x59\x14\x91\x4F\x0C\x34\x1B\xAE\x9A\x5C\x2E\x2E\x38\x08\x78\x77\xCB\xDC\x3C\x7E\xA0\x34\x44\x5B\x0F"
+		"\x67\xD9\x35\x2A\x79\x47\x1A\x52\x37\x71\xDB\x12\x67\xC1\xB6\xC6\x66\x73\xB3\x40\x2E\xD6\xF2\x1A\x84\x0A\xB6\x7B\x0F\xEB\x8B\x88"
+		"\xAB\x33\xDD\xE4\x83\x21\x90\x63\x2D\x51\x2A\xB1\x6F\xAB\xA7\x5C\xFD\x77\x99\xF2\xE1\xEF\x67\x1A\x74\x02\x37\x0E\xED\x0A\x06\xAD"
+		"\xF4\x15\x65\xB8\xE1\xD1\x45\xAE\x39\x19\xB4\xFF\x5D\xF1\x45\x7B\xE0\xFE\x72\xED\x11\x92\x8F\x61\x41\x4F\x02\x00\xF2\x76\x6F\x7C"
 		"\x79\xA2\xE5\x52\x20\x5D\x97\x5E\xFE\x39\xAE\x21\x10\xFB\x35\xF4\x80\x81\x41\x13\xDD\xE8\x5F\xCA\x1E\x4F\xF8\x9B\xB2\x68\xFB\x28";
 
 	FileSource keys(CRYPTOPP_DATA_DIR "TestData/esig1536.dat", true, new HexDecoder);

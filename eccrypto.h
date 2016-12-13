@@ -403,6 +403,182 @@ struct ECNR : public DL_SS<DL_Keys_EC<EC>, DL_Algorithm_ECNR<EC>, DL_SignatureMe
 {
 };
 
+// ******************************************
+
+template <class EC>
+class DL_PublicKey_ECGDSA_ISO15946;
+template <class EC>
+class DL_PrivateKey_ECGDSA_ISO15946;
+
+//! \class DL_PrivateKey_ECGDSA_ISO15946
+//! \brief Elliptic Curve German DSA key for ISO/IEC 15946
+//! \tparam EC elliptic curve field
+//! \sa ECGDSA_ISO15946
+//! \since Crypto++ 5.7
+template <class EC>
+class DL_PrivateKey_ECGDSA_ISO15946 : public DL_PrivateKeyImpl<DL_GroupParameters_EC<EC> >
+{
+public:
+	typedef typename EC::Point Element;
+
+	virtual ~DL_PrivateKey_ECGDSA_ISO15946() {}
+
+	//! \brief Initialize an EC Private Key using {GP,x}
+	//! \param params group parameters
+	//! \param x the private exponent
+	//! \details This Initialize() function overload initializes a private key from existing parameters.
+	void Initialize(const DL_GroupParameters_EC<EC> &params, const Integer &x)
+		{this->AccessGroupParameters() = params; this->SetPrivateExponent(x);}
+
+	//! \brief Initialize an EC Private Key using {EC,G,n,x}
+	//! \param ec the elliptic curve
+	//! \param G the base point
+	//! \param n the order of the base point
+	//! \param x the private exponent
+	//! \details This Initialize() function overload initializes a private key from existing parameters.
+	void Initialize(const EC &ec, const Element &G, const Integer &n, const Integer &x)
+		{this->AccessGroupParameters().Initialize(ec, G, n); this->SetPrivateExponent(x);}
+
+	//! \brief Create an EC private key
+	//! \param rng a RandomNumberGenerator derived class
+	//! \param params the EC group parameters
+	//! \details This function overload of Initialize() creates a new private key because it
+	//!   takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
+	//!   then use one of the other Initialize() overloads.
+	void Initialize(RandomNumberGenerator &rng, const DL_GroupParameters_EC<EC> &params)
+		{this->GenerateRandom(rng, params);}
+
+	//! \brief Create an EC private key
+	//! \param rng a RandomNumberGenerator derived class
+	//! \param ec the elliptic curve
+	//! \param G the base point
+	//! \param n the order of the base point
+	//! \details This function overload of Initialize() creates a new private key because it
+	//!   takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
+	//!   then use one of the other Initialize() overloads.
+	void Initialize(RandomNumberGenerator &rng, const EC &ec, const Element &G, const Integer &n)
+		{this->GenerateRandom(rng, DL_GroupParameters_EC<EC>(ec, G, n));}
+
+	virtual void MakePublicKey(DL_PublicKey_ECGDSA_ISO15946<EC> &pub) const
+	{
+		const DL_GroupParameters<Element>& params = this->GetAbstractGroupParameters();
+		pub.AccessAbstractGroupParameters().AssignFrom(params);
+		const Integer &xInv = this->GetPrivateExponent().InverseMod(params.GetGroupOrder());
+		pub.SetPublicElement(params.ExponentiateBase(xInv));
+	}
+
+	virtual bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
+	{
+		return GetValueHelper<DL_PrivateKey_ECGDSA_ISO15946<EC>,
+			DL_PrivateKey_ECGDSA_ISO15946<EC> >(this, name, valueType, pValue).Assignable();
+	}
+
+	virtual void AssignFrom(const NameValuePairs &source)
+	{
+		AssignFromHelper<DL_PrivateKey_ECGDSA_ISO15946<EC>,
+			DL_PrivateKey_ECGDSA_ISO15946<EC> >(this, source);
+	}
+
+	// PKCS8PrivateKey
+	void BERDecodePrivateKey(BufferedTransformation &bt, bool parametersPresent, size_t size);
+	void DEREncodePrivateKey(BufferedTransformation &bt) const;
+};
+
+//! \class DL_PublicKey_ECGDSA_ISO15946
+//! \brief Elliptic Curve German DSA key for ISO/IEC 15946
+//! \tparam EC elliptic curve field
+//! \sa ECGDSA_ISO15946
+//! \since Crypto++ 5.7
+template <class EC>
+class DL_PublicKey_ECGDSA_ISO15946 : public DL_PublicKeyImpl<DL_GroupParameters_EC<EC> >
+{
+	typedef DL_PublicKey_ECGDSA_ISO15946<EC> ThisClass;
+
+public:
+	typedef typename EC::Point Element;
+
+	virtual ~DL_PublicKey_ECGDSA_ISO15946() {}
+
+	//! \brief Initialize an EC Public Key using {GP,Q}
+	//! \param params group parameters
+	//! \param Q the public point
+	//! \details This Initialize() function overload initializes a public key from existing parameters.
+	void Initialize(const DL_GroupParameters_EC<EC> &params, const Element &Q)
+		{this->AccessGroupParameters() = params; this->SetPublicElement(Q);}
+
+	//! \brief Initialize an EC Public Key using {EC,G,n,Q}
+	//! \param ec the elliptic curve
+	//! \param G the base point
+	//! \param n the order of the base point
+	//! \param Q the public point
+	//! \details This Initialize() function overload initializes a public key from existing parameters.
+	void Initialize(const EC &ec, const Element &G, const Integer &n, const Element &Q)
+		{this->AccessGroupParameters().Initialize(ec, G, n); this->SetPublicElement(Q);}
+
+	virtual void AssignFrom(const NameValuePairs &source)
+	{
+		DL_PrivateKey_ECGDSA_ISO15946<EC> *pPrivateKey = NULL;
+		if (source.GetThisPointer(pPrivateKey))
+			pPrivateKey->MakePublicKey(*this);
+		else
+		{
+			this->AccessAbstractGroupParameters().AssignFrom(source);
+			AssignFromHelper(this, source)
+				CRYPTOPP_SET_FUNCTION_ENTRY(PublicElement);
+		}
+	}
+
+	// DL_PublicKey<T>
+	virtual void SetPublicElement(const Element &y)
+		{this->AccessPublicPrecomputation().SetBase(this->GetAbstractGroupParameters().GetGroupPrecomputation(), y);}
+
+	// X509PublicKey
+	void BERDecodePublicKey(BufferedTransformation &bt, bool parametersPresent, size_t size);
+	void DEREncodePublicKey(BufferedTransformation &bt) const;
+};
+
+//! \class DL_Keys_ECGDSA_ISO15946
+//! \brief Elliptic Curve German DSA keys for ISO/IEC 15946
+//! \tparam EC elliptic curve field
+//! \sa ECGDSA_ISO15946
+//! \since Crypto++ 5.7
+template <class EC>
+struct DL_Keys_ECGDSA_ISO15946
+{
+	typedef DL_PublicKey_ECGDSA_ISO15946<EC> PublicKey;
+	typedef DL_PrivateKey_ECGDSA_ISO15946<EC> PrivateKey;
+};
+
+//! \class DL_Algorithm_ECGDSA_ISO15946
+//! \brief Elliptic Curve German DSA signature algorithm
+//! \tparam EC elliptic curve field
+//! \sa ECGDSA_ISO15946
+//! \since Crypto++ 5.7
+template <class EC>
+class DL_Algorithm_ECGDSA_ISO15946 : public DL_Algorithm_GDSA_ISO15946<typename EC::Point>
+{
+public:
+  CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "ECGDSA";}
+};
+
+//! \class ECGDSA_ISO15946
+//! \brief Elliptic Curve German Digital Signature Algorithm signature scheme
+//! \tparam EC elliptic curve field
+//! \tparam H HashTransformation derived class
+//! \sa Erwin Hess, Marcus Schafheutle, and Pascale Serf <A HREF="http://www.teletrust.de/fileadmin/files/oid/ecgdsa_final.pdf">The
+//!   Digital Signature Scheme ECGDSA (October 24, 2006)</A>
+template <class EC, class H>
+struct ECGDSA : public DL_SS<
+	DL_Keys_ECGDSA_ISO15946<EC>,
+	DL_Algorithm_ECGDSA_ISO15946<EC>,
+	DL_SignatureMessageEncodingMethod_DSA,
+	H>
+{
+	static std::string CRYPTOPP_API StaticAlgorithmName() {return std::string("ECGDSA-ISO15946/") + H::StaticAlgorithmName();}
+};
+
+// ******************************************
+
 //! \class ECIES
 //! \brief Elliptic Curve Integrated Encryption Scheme
 //! \tparam COFACTOR_OPTION \ref CofactorMultiplicationOption "cofactor multiplication option"
@@ -464,10 +640,14 @@ CRYPTOPP_DLL_TEMPLATE_CLASS DL_PublicKeyImpl<DL_GroupParameters_EC<ECP> >;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_PublicKeyImpl<DL_GroupParameters_EC<EC2N> >;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_PublicKey_EC<ECP>;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_PublicKey_EC<EC2N>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_PublicKey_ECGDSA_ISO15946<ECP>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_PublicKey_ECGDSA_ISO15946<EC2N>;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKeyImpl<DL_GroupParameters_EC<ECP> >;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKeyImpl<DL_GroupParameters_EC<EC2N> >;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_EC<ECP>;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_EC<EC2N>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_ECGDSA_ISO15946<ECP>;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_ECGDSA_ISO15946<EC2N>;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_GDSA<ECP::Point>;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_GDSA<EC2N::Point>;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_WithSignaturePairwiseConsistencyTest<DL_PrivateKey_EC<ECP>, ECDSA<ECP, SHA256> >;

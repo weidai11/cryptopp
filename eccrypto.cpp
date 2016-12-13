@@ -715,6 +715,77 @@ void DL_PrivateKey_EC<EC>::DEREncodePrivateKey(BufferedTransformation &bt) const
 	privateKey.MessageEnd();
 }
 
+// ******************************************************************
+
+template <class EC>
+void DL_PublicKey_ECGDSA_ISO15946<EC>::BERDecodePublicKey(BufferedTransformation &bt, bool parametersPresent, size_t size)
+{
+	CRYPTOPP_UNUSED(parametersPresent);
+
+	typename EC::Point P;
+	if (!this->GetGroupParameters().GetCurve().DecodePoint(P, bt, size))
+		BERDecodeError();
+	this->SetPublicElement(P);
+}
+
+template <class EC>
+void DL_PublicKey_ECGDSA_ISO15946<EC>::DEREncodePublicKey(BufferedTransformation &bt) const
+{
+	this->GetGroupParameters().GetCurve().EncodePoint(bt, this->GetPublicElement(), this->GetGroupParameters().GetPointCompression());
+}
+
+// ******************************************************************
+
+template <class EC>
+void DL_PrivateKey_ECGDSA_ISO15946<EC>::BERDecodePrivateKey(BufferedTransformation &bt, bool parametersPresent, size_t size)
+{
+	CRYPTOPP_UNUSED(size);
+	BERSequenceDecoder seq(bt);
+		word32 version;
+		BERDecodeUnsigned<word32>(seq, version, INTEGER, 1, 1);	// check version
+
+		BERGeneralDecoder dec(seq, OCTET_STRING);
+		if (!dec.IsDefiniteLength())
+			BERDecodeError();
+		Integer x;
+		x.Decode(dec, (size_t)dec.RemainingLength());
+		dec.MessageEnd();
+		if (!parametersPresent && seq.PeekByte() != (CONTEXT_SPECIFIC | CONSTRUCTED | 0))
+			BERDecodeError();
+		if (!seq.EndReached() && seq.PeekByte() == (CONTEXT_SPECIFIC | CONSTRUCTED | 0))
+		{
+			BERGeneralDecoder parameters(seq, CONTEXT_SPECIFIC | CONSTRUCTED | 0);
+			this->AccessGroupParameters().BERDecode(parameters);
+			parameters.MessageEnd();
+		}
+		if (!seq.EndReached())
+		{
+			// skip over the public element
+			SecByteBlock subjectPublicKey;
+			unsigned int unusedBits;
+			BERGeneralDecoder publicKey(seq, CONTEXT_SPECIFIC | CONSTRUCTED | 1);
+			BERDecodeBitString(publicKey, subjectPublicKey, unusedBits);
+			publicKey.MessageEnd();
+			Element Q;
+			if (!(unusedBits == 0 && this->GetGroupParameters().GetCurve().DecodePoint(Q, subjectPublicKey, subjectPublicKey.size())))
+				BERDecodeError();
+		}
+	seq.MessageEnd();
+
+	this->SetPrivateExponent(x);
+}
+
+template <class EC>
+void DL_PrivateKey_ECGDSA_ISO15946<EC>::DEREncodePrivateKey(BufferedTransformation &bt) const
+{
+	DERSequenceEncoder privateKey(bt);
+		DEREncodeUnsigned<word32>(privateKey, 1);	// version
+		// SEC 1 ver 1.0 says privateKey (m_d) has the same length as order of the curve
+		// this will be changed to order of base point in a future version
+		this->GetPrivateExponent().DEREncodeAsOctetString(privateKey, this->GetGroupParameters().GetSubgroupOrder().ByteCount());
+	privateKey.MessageEnd();
+}
+
 NAMESPACE_END
 
 #endif

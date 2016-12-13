@@ -393,6 +393,43 @@ private:
 	mutable HMAC<H> m_hmac;
 };
 
+//! \class DL_Algorithm_GDSA_ISO15946
+//! \brief German Digital Signature Algorithm
+//! \tparam T FieldElement type or class
+//! \sa Erwin Hess, Marcus Schafheutle, and Pascale Serf <A HREF="http://www.teletrust.de/fileadmin/files/oid/ecgdsa_final.pdf">The
+//!   Digital Signature Scheme ECGDSA (October 24, 2006)</A>
+template <class T>
+class DL_Algorithm_GDSA_ISO15946 : public DL_ElgamalLikeSignatureAlgorithm<T>
+{
+public:
+	CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "GDSA-ISO15946";}
+
+	virtual ~DL_Algorithm_GDSA_ISO15946() {}
+
+	void Sign(const DL_GroupParameters<T> &params, const Integer &x, const Integer &k, const Integer &e, Integer &r, Integer &s) const
+	{
+		const Integer &q = params.GetSubgroupOrder();
+		// r = x(k * G) mod q
+		r = params.ConvertElementToInteger(params.ExponentiateBase(k)) % q;
+		// s = (k * r − h(m)) * d_A mod q
+		s = a_times_b_mod_c(k * r - e, x, q);
+		CRYPTOPP_ASSERT(!!r && !!s);
+	}
+
+	bool Verify(const DL_GroupParameters<T> &params, const DL_PublicKey<T> &publicKey, const Integer &e, const Integer &r, const Integer &s) const
+	{
+		const Integer &q = params.GetSubgroupOrder();
+		if (r>=q || r<1 || s>=q || s<1)
+			return false;
+
+		const Integer& rInv = r.InverseMod(q);
+		Integer u1 = (rInv * e) % q;
+		Integer u2 = (rInv * s) % q;
+		// verify x(G^u1 + P_A^u2) mod q
+		return r == params.ConvertElementToInteger(publicKey.CascadeExponentiateBaseAndPublicElement(u1, u2)) % q;
+	}
+};
+
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_GDSA<Integer>;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_DSA_RFC6979<Integer, SHA1>;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_DSA_RFC6979<Integer, SHA224>;
