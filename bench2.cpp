@@ -348,7 +348,7 @@ void BenchmarkAll2(double t, double hertz)
 		BenchMarkSigning("ECDSA-RFC6979 over GF(p) 256", spriv2, t);
 		BenchMarkVerification("ECDSA-RFC6979 over GF(p) 256", spriv2, spub2, t);
 		BenchMarkSigning("ECGDSA over GF(p) 256", spriv3, t);
-		BenchMarkVerification("ECGDSA over GF(p) 256", spriv3, spub, t);
+		BenchMarkVerification("ECGDSA over GF(p) 256", spriv3, spub3, t);
 		BenchMarkKeyGen("ECDHC over GF(p) 256", ecdhc, t);
 		BenchMarkAgreement("ECDHC over GF(p) 256", ecdhc, t);
 		BenchMarkKeyGen("ECMQVC over GF(p) 256", ecmqvc, t);
@@ -375,7 +375,7 @@ void BenchmarkAll2(double t, double hertz)
 		BenchMarkSigning("ECDSA-RFC6979 over GF(2^n) 233", spriv2, t);
 		BenchMarkVerification("ECDSA-RFC6979 over GF(2^n) 233", spriv2, spub2, t);
 		BenchMarkSigning("ECGDSA over GF(2^n) 233", spriv3, t);
-		BenchMarkVerification("ECGDSA over GF(2^n) 233", spriv3, spub, t);
+		BenchMarkVerification("ECGDSA over GF(2^n) 233", spriv3, spub3, t);
 		BenchMarkKeyGen("ECDHC over GF(2^n) 233", ecdhc, t);
 		BenchMarkAgreement("ECDHC over GF(2^n) 233", ecdhc, t);
 		BenchMarkKeyGen("ECMQVC over GF(2^n) 233", ecmqvc, t);
