@@ -146,7 +146,7 @@ template <class T>
 class Poly1305 : public MessageAuthenticationCodeFinal<Poly1305_Base<T> >
 {
 public:
-	CRYPTOPP_CONSTANT(DEFAULT_KEYLENGTH=Poly1305_Base<T>::DEFAULT_KEYLENGTH);
+	CRYPTOPP_CONSTANT(DEFAULT_KEYLENGTH=Poly1305_Base<T>::DEFAULT_KEYLENGTH)
 
 	//! \brief Construct a Poly1305
 	Poly1305() {}
