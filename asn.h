@@ -498,6 +498,8 @@ void BERDecodeUnsigned(BufferedTransformation &in, T &w, byte asnTag = INTEGER,
 	bool definite = BERLengthDecode(in, bc);
 	if (!definite)
 		BERDecodeError();
+	if (bc > in.MaxRetrievable())
+		BERDecodeError();
 
 	SecByteBlock buf(bc);
 

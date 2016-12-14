@@ -123,6 +123,8 @@ size_t BERDecodeOctetString(BufferedTransformation &bt, SecByteBlock &str)
 	size_t bc;
 	if (!BERLengthDecode(bt, bc))
 		BERDecodeError();
+	if (bc > bt.MaxRetrievable())
+		BERDecodeError();
 
 	str.New(bc);
 	if (bc != bt.Get(str, bc))
@@ -138,6 +140,8 @@ size_t BERDecodeOctetString(BufferedTransformation &bt, BufferedTransformation &
 
 	size_t bc;
 	if (!BERLengthDecode(bt, bc))
+		BERDecodeError();
+	if (bc > bt.MaxRetrievable())
 		BERDecodeError();
 
 	bt.TransferTo(str, bc);
@@ -160,6 +164,8 @@ size_t BERDecodeTextString(BufferedTransformation &bt, std::string &str, byte as
 
 	size_t bc;
 	if (!BERLengthDecode(bt, bc))
+		BERDecodeError();
+	if (bc > bt.MaxRetrievable())
 		BERDecodeError();
 
 	SecByteBlock temp(bc);
@@ -187,6 +193,10 @@ size_t BERDecodeBitString(BufferedTransformation &bt, SecByteBlock &str, unsigne
 
 	size_t bc;
 	if (!BERLengthDecode(bt, bc))
+		BERDecodeError();
+	if (bc == 0)
+		BERDecodeError();
+	if (bc > bt.MaxRetrievable())
 		BERDecodeError();
 
 	byte unused;
