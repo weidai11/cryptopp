@@ -412,7 +412,7 @@ public:
 		// r = x(k * G) mod q
 		r = params.ConvertElementToInteger(params.ExponentiateBase(k)) % q;
 		// s = (k * r − h(m)) * d_A mod q
-		s = a_times_b_mod_c(k * r - e, x, q);
+		s = (k * r - e) * x % q;
 		CRYPTOPP_ASSERT(!!r && !!s);
 	}
 
