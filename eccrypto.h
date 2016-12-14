@@ -561,12 +561,13 @@ public:
   CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "ECGDSA";}
 };
 
-//! \class ECGDSA_ISO15946
+//! \class ECGDSA
 //! \brief Elliptic Curve German Digital Signature Algorithm signature scheme
 //! \tparam EC elliptic curve field
 //! \tparam H HashTransformation derived class
 //! \sa Erwin Hess, Marcus Schafheutle, and Pascale Serf <A HREF="http://www.teletrust.de/fileadmin/files/oid/ecgdsa_final.pdf">The
 //!   Digital Signature Scheme ECGDSA (October 24, 2006)</A>
+//! \since Crypto++ 5.7
 template <class EC, class H>
 struct ECGDSA : public DL_SS<
 	DL_Keys_ECGDSA_ISO15946<EC>,
