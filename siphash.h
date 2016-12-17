@@ -33,6 +33,9 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+//! \class SipHash_Info
+//! \brief SipHash message authentication code information
+//! \tparam T_128bit flag indicating 128-bit (true) versus 64-bit (false) digest size
 template <bool T_128bit>
 class SipHash_Info : public FixedKeyLength<16>
 {
@@ -41,6 +44,11 @@ public:
 	CRYPTOPP_CONSTANT(DIGESTSIZE = (T_128bit ? 16 : 8))
 };
 
+//! \class SipHash_Base
+//! \brief SipHash message authentication code base class
+//! \tparam C the number of compression rounds
+//! \tparam D the number of finalization rounds
+//! \tparam T_128bit flag indicating 128-bit (true) versus 64-bit (false) digest size
 template <unsigned int C, unsigned int D, bool T_128bit>
 class SipHash_Base : public MessageAuthenticationCode, public SipHash_Info<T_128bit>
 {
@@ -105,7 +113,7 @@ private:
 };
 
 //! \class SipHash
-//! \brief A family of pseudorandom functions optimized for speed on short messages
+//! \brief SipHash message authentication code
 //! \tparam C the number of compression rounds
 //! \tparam D the number of finalization rounds
 //! \tparam T_128bit flag indicating 128-bit (true) versus 64-bit (false) digest size

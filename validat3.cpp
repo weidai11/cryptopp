@@ -963,41 +963,6 @@ bool ValidateSipHash()
 		pass = pass1 && pass;
 	}
 
-	// Siphash-4-8, 64-bit MAC
-	{
-		const byte key[] = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F";
-		SipHash<4, 8, false> hash(key, 16);
-		byte digest[SipHash<4, 8, false>::DIGESTSIZE];
-
-		hash.Update((const byte*)"", 0);
-		hash.Final(digest);
-		fail = !!memcmp("\x41\xDA\x38\x99\x2B\x05\x79\xC8", digest, COUNTOF(digest));
-		pass2 = !fail && pass2;
-
-		hash.Update((const byte*)"\x00", 1);
-		hash.Final(digest);
-		fail = !!memcmp("\x51\xB8\x95\x52\xF9\x14\x59\xC8", digest, COUNTOF(digest));
-		pass2 = !fail && pass2;
-
-		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06", 7);
-		hash.Final(digest);
-		fail = !!memcmp("\x47\xD7\x3F\x71\x5A\xBE\xFD\x4E", digest, COUNTOF(digest));
-		pass2 = !fail && pass2;
-
-		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06\x07", 8);
-		hash.Final(digest);
-		fail = !!memcmp("\x20\xB5\x8B\x9C\x07\x2F\xDB\x50", digest, COUNTOF(digest));
-		pass2 = !fail && pass2;
-
-		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06\x07\x08", 9);
-		hash.Final(digest);
-		fail = !!memcmp("\x36\x31\x9A\xF3\x5E\xE1\x12\x53", digest, COUNTOF(digest));
-		pass2 = !fail && pass2;
-
-		cout << (pass2 ? "passed   " : "FAILED   ") << "SipHash-4-8 64-bit MAC\n";
-		pass = pass2 && pass;
-	}
-
 	// Siphash-2-4, 128-bit MAC
 	{
 		const byte key[] = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F";
@@ -1031,6 +996,41 @@ bool ValidateSipHash()
 
 		cout << (pass3 ? "passed   " : "FAILED   ") << "SipHash-2-4 128-bit MAC\n";
 		pass = pass3 && pass;
+	}
+
+	// Siphash-4-8, 64-bit MAC
+	{
+		const byte key[] = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F";
+		SipHash<4, 8, false> hash(key, 16);
+		byte digest[SipHash<4, 8, false>::DIGESTSIZE];
+
+		hash.Update((const byte*)"", 0);
+		hash.Final(digest);
+		fail = !!memcmp("\x41\xDA\x38\x99\x2B\x05\x79\xC8", digest, COUNTOF(digest));
+		pass2 = !fail && pass2;
+
+		hash.Update((const byte*)"\x00", 1);
+		hash.Final(digest);
+		fail = !!memcmp("\x51\xB8\x95\x52\xF9\x14\x59\xC8", digest, COUNTOF(digest));
+		pass2 = !fail && pass2;
+
+		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06", 7);
+		hash.Final(digest);
+		fail = !!memcmp("\x47\xD7\x3F\x71\x5A\xBE\xFD\x4E", digest, COUNTOF(digest));
+		pass2 = !fail && pass2;
+
+		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06\x07", 8);
+		hash.Final(digest);
+		fail = !!memcmp("\x20\xB5\x8B\x9C\x07\x2F\xDB\x50", digest, COUNTOF(digest));
+		pass2 = !fail && pass2;
+
+		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06\x07\x08", 9);
+		hash.Final(digest);
+		fail = !!memcmp("\x36\x31\x9A\xF3\x5E\xE1\x12\x53", digest, COUNTOF(digest));
+		pass2 = !fail && pass2;
+
+		cout << (pass2 ? "passed   " : "FAILED   ") << "SipHash-4-8 64-bit MAC\n";
+		pass = pass2 && pass;
 	}
 
 	// Siphash-4-8, 128-bit MAC
