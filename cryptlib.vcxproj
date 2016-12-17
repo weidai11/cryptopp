@@ -453,6 +453,7 @@
     <ClInclude Include="shacal2.h" />
     <ClInclude Include="shark.h" />
     <ClInclude Include="simple.h" />
+    <ClInclude Include="siphash.h" />
     <ClInclude Include="skipjack.h" />
     <ClInclude Include="smartptr.h" />
     <ClInclude Include="socketft.h" />

@@ -55,6 +55,7 @@
 #include "blake2.h"
 #include "poly1305.h"
 #include "hkdf.h"
+#include "siphash.h"
 
 // Aggressive stack checking with VS2005 SP1 and above.
 #if (CRYPTOPP_MSC_VERSION >= 1410)
@@ -119,6 +120,8 @@ void RegisterFactories()
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, CMAC<DES_EDE3> >();
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, BLAKE2s>();
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, BLAKE2b>();
+	RegisterDefaultFactoryFor<MessageAuthenticationCode, SipHash<2,4> >();
+	RegisterDefaultFactoryFor<MessageAuthenticationCode, SipHash<4,8> >();
 	RegisterAsymmetricCipherDefaultFactories<RSAES<OAEP<SHA1> > >("RSA/OAEP-MGF1(SHA-1)");
 	RegisterAsymmetricCipherDefaultFactories<DLIES<> >("DLIES(NoCofactorMultiplication, KDF2(SHA-1), XOR, HMAC(SHA-1), DHAES)");
 	RegisterSignatureSchemeDefaultFactories<DSA>();

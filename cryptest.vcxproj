@@ -248,6 +248,7 @@
     <None Include="TestVectors\sha.txt" />
     <None Include="TestVectors\sha3.txt" />
     <None Include="TestVectors\shacal2.txt" />
+    <None Include="TestVectors\siphash.txt" />
     <None Include="TestVectors\sosemanuk.txt" />
     <None Include="TestVectors\tea.txt" />
     <None Include="TestVectors\ttmac.txt" />

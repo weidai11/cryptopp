@@ -750,6 +750,9 @@
     <ClInclude Include="simple.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="siphash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="skipjack.h">
       <Filter>Header Files</Filter>
     </ClInclude>

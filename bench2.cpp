@@ -293,7 +293,6 @@ void BenchmarkAll2(double t, double hertz)
 	BenchMarkSignature<LUCSS<PSSR, SHA> >(CRYPTOPP_DATA_DIR "TestData/luc1024.dat", "LUC 1024", t);
 	BenchMarkSignature<NR<SHA> >(CRYPTOPP_DATA_DIR "TestData/nr1024.dat", "NR 1024", t);
 	BenchMarkSignature<DSA>(CRYPTOPP_DATA_DIR "TestData/dsa1024.dat", "DSA 1024", t);
-	// BenchMarkSignature<DSA_RFC6979>(CRYPTOPP_DATA_DIR "TestData/dsa1024.dat", "DSA-RFC6979 1024", t);
 	BenchMarkSignature<LUC_HMP<SHA> >(CRYPTOPP_DATA_DIR "TestData/lucs512.dat", "LUC-HMP 512", t);
 	BenchMarkSignature<ESIGN<SHA> >(CRYPTOPP_DATA_DIR "TestData/esig1023.dat", "ESIGN 1023", t);
 	BenchMarkSignature<ESIGN<SHA> >(CRYPTOPP_DATA_DIR "TestData/esig1536.dat", "ESIGN 1536", t);

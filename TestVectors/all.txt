@@ -37,4 +37,5 @@ Test: TestVectors/eax.txt
 Test: TestVectors/mars.txt
 Test: TestVectors/blake2s.txt
 Test: TestVectors/blake2b.txt
+Test: TestVectors/siphash.txt
 Test: TestVectors/hkdf.txt

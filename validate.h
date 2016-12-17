@@ -30,9 +30,10 @@ bool ValidateRIPEMD();
 bool ValidatePanama();
 bool ValidateWhirlpool();
 
-bool ValidatePoly1305();
 bool ValidateBLAKE2s();
 bool ValidateBLAKE2b();
+bool ValidatePoly1305();
+bool ValidateSipHash();
 
 bool ValidateHMAC();
 bool ValidateTTMAC();

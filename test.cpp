@@ -972,6 +972,7 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 	case 73: result = ValidateBLAKE2s(); break;
 	case 74: result = ValidateBLAKE2b(); break;
 	case 75: result = ValidatePoly1305(); break;
+	case 76: result = ValidateSipHash(); break;
 	default: return false;
 	}
 

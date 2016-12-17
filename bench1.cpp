@@ -301,6 +301,8 @@ void BenchmarkAll(double t, double hertz)
 	BenchMarkByName<MessageAuthenticationCode>("Poly1305(AES)");
 	BenchMarkByName<MessageAuthenticationCode>("BLAKE2s");
 	BenchMarkByName<MessageAuthenticationCode>("BLAKE2b");
+	BenchMarkByName<MessageAuthenticationCode>("SipHash-2-4");
+	BenchMarkByName<MessageAuthenticationCode>("SipHash-4-8");
 
 	cout << "\n<TBODY style=\"background: yellow\">";
 	BenchMarkByNameKeyLess<HashTransformation>("CRC32");

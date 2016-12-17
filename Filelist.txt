@@ -250,6 +250,7 @@ shark.h
 sharkbox.cpp
 simple.cpp
 simple.h
+siphash.h
 skipjack.cpp
 skipjack.h
 smartptr.h
@@ -285,7 +286,6 @@ validat3.cpp
 validate.h
 vmac.cpp
 vmac.h
-vc60.zip
 vs2005.zip
 wait.cpp
 wait.h
@@ -422,6 +422,7 @@ TestVectors/sha3_256_fips_202.txt
 TestVectors/sha3_384_fips_202.txt
 TestVectors/sha3_512_fips_202.txt
 TestVectors/shacal2.txt
+TestVectors/siphash.txt
 TestVectors/sosemanuk.txt
 TestVectors/tea.txt
 TestVectors/ttmac.txt
