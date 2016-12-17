@@ -31,8 +31,6 @@
 #include "secblock.h"
 #include "misc.h"
 
-#include <iostream>
-
 NAMESPACE_BEGIN(CryptoPP)
 
 template <bool T_128bit>
@@ -80,26 +78,26 @@ protected:
 
 	inline void SIPROUND()
 	{
-	    m_v[0] += m_v[1];
-	    m_v[1] = rotlFixed(m_v[1], 13U);
-	    m_v[1] ^= m_v[0];
-	    m_v[0] = rotlFixed(m_v[0], 32U);
-	    m_v[2] += m_v[3];
-	    m_v[3] = rotlFixed(m_v[3], 16U);
-	    m_v[3] ^= m_v[2];
-	    m_v[0] += m_v[3];
-	    m_v[3] = rotlFixed(m_v[3], 21U);
-	    m_v[3] ^= m_v[0];
-	    m_v[2] += m_v[1];
-	    m_v[1] = rotlFixed(m_v[1], 17U);
-	    m_v[1] ^= m_v[2];
+		m_v[0] += m_v[1];
+		m_v[1] = rotlFixed(m_v[1], 13U);
+		m_v[1] ^= m_v[0];
+		m_v[0] = rotlFixed(m_v[0], 32U);
+		m_v[2] += m_v[3];
+		m_v[3] = rotlFixed(m_v[3], 16U);
+		m_v[3] ^= m_v[2];
+		m_v[0] += m_v[3];
+		m_v[3] = rotlFixed(m_v[3], 21U);
+		m_v[3] ^= m_v[0];
+		m_v[2] += m_v[1];
+		m_v[1] = rotlFixed(m_v[1], 17U);
+		m_v[1] ^= m_v[2];
 		m_v[2] = rotlFixed(m_v[2], 32U);
 	}
 
 private:
 	FixedSizeSecBlock<word64, 4> m_v;
 	FixedSizeSecBlock<word64, 2> m_k;
-	FixedSizeSecBlock<word64, 1> m_b;
+	FixedSizeSecBlock<word64, 2> m_b;
 
 	// Tail bytes
 	FixedSizeSecBlock<byte, 8> m_acc;
@@ -199,25 +197,25 @@ void SipHash_Base<C,D,T_128bit>::TruncatedFinal(byte *digest, size_t digestSize)
 {
 	// The high octet holds length and is digested mod 256
 	m_b[0] += m_idx; m_b[0] <<= 56U;
-    switch (m_idx)
+	switch (m_idx)
 	{
 		// all fall through
-    case 7:
-		m_b[0] |= ((word64)m_acc[6]) << 48;
-    case 6:
-		m_b[0] |= ((word64)m_acc[5]) << 40;
-    case 5:
-		m_b[0] |= ((word64)m_acc[4]) << 32;
-    case 4:
-		m_b[0] |= ((word64)m_acc[3]) << 24;
-    case 3:
-		m_b[0] |= ((word64)m_acc[2]) << 16;
-    case 2:
-		m_b[0] |= ((word64)m_acc[1]) << 8;
-    case 1:
-		m_b[0] |= ((word64)m_acc[0]);
-    case 0:
-		break;
+		case 7:
+			m_b[0] |= ((word64)m_acc[6]) << 48;
+		case 6:
+			m_b[0] |= ((word64)m_acc[5]) << 40;
+		case 5:
+			m_b[0] |= ((word64)m_acc[4]) << 32;
+		case 4:
+			m_b[0] |= ((word64)m_acc[3]) << 24;
+		case 3:
+			m_b[0] |= ((word64)m_acc[2]) << 16;
+		case 2:
+			m_b[0] |= ((word64)m_acc[1]) << 8;
+		case 1:
+			m_b[0] |= ((word64)m_acc[0]);
+		case 0:
+			break;
 	}
 
 	m_v[3] ^= m_b[0];
@@ -235,9 +233,8 @@ void SipHash_Base<C,D,T_128bit>::TruncatedFinal(byte *digest, size_t digestSize)
 	for (unsigned int i=0; i<D; i++)
 		SIPROUND();
 
-	word64 t[2];
 	m_b[0] = m_v[0] ^ m_v[1] ^ m_v[2] ^ m_v[3];
-	t[0] = ConditionalByteReverse(LITTLE_ENDIAN_ORDER, m_b[0]);
+	m_b[0] = ConditionalByteReverse(LITTLE_ENDIAN_ORDER, m_b[0]);
 
 	if (T_128bit)
 	{
@@ -245,11 +242,11 @@ void SipHash_Base<C,D,T_128bit>::TruncatedFinal(byte *digest, size_t digestSize)
 		for (unsigned int i = 0; i<D; ++i)
 			SIPROUND();
 
-		m_b[0] = m_v[0] ^ m_v[1] ^ m_v[2] ^ m_v[3];
-		t[1] = ConditionalByteReverse(LITTLE_ENDIAN_ORDER, m_b[0]);
+		m_b[1] = m_v[0] ^ m_v[1] ^ m_v[2] ^ m_v[3];
+		m_b[1] = ConditionalByteReverse(LITTLE_ENDIAN_ORDER, m_b[1]);
 	}
 
-	memcpy_s(digest, digestSize, t, STDMIN(digestSize, (size_t)SipHash_Info<T_128bit>::DIGESTSIZE));
+	memcpy_s(digest, digestSize, m_b.begin(), STDMIN(digestSize, (size_t)SipHash_Info<T_128bit>::DIGESTSIZE));
 	Restart();
 }
 
@@ -273,15 +270,15 @@ void SipHash_Base<C,D,T_128bit>::UncheckedSetKey(const byte *key, unsigned int l
 template <unsigned int C, unsigned int D, bool T_128bit>
 void SipHash_Base<C,D,T_128bit>::Restart ()
 {
-    m_v[0] = W64LIT(0x736f6d6570736575);
-    m_v[1] = W64LIT(0x646f72616e646f6d);
-    m_v[2] = W64LIT(0x6c7967656e657261);
-    m_v[3] = W64LIT(0x7465646279746573);
+	m_v[0] = W64LIT(0x736f6d6570736575);
+	m_v[1] = W64LIT(0x646f72616e646f6d);
+	m_v[2] = W64LIT(0x6c7967656e657261);
+	m_v[3] = W64LIT(0x7465646279746573);
 
-    m_v[3] ^= m_k[1];
-    m_v[2] ^= m_k[0];
-    m_v[1] ^= m_k[1];
-    m_v[0] ^= m_k[0];
+	m_v[3] ^= m_k[1];
+	m_v[2] ^= m_k[0];
+	m_v[1] ^= m_k[1];
+	m_v[0] ^= m_k[0];
 
 	if (T_128bit)
 	{
