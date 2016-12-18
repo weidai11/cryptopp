@@ -61,10 +61,15 @@ LD = link.exe
 AR = lib.exe
 RM = del.exe
 
-CXXFLAGS = /nologo /W4 /wd4511 /wd4156 /D_MBCS /Zi /TP /GR /EHsc /MD
+CXXFLAGS = /nologo /W4 /wd4511 /wd4156 /D_MBCS /Zi /TP /GR /EHsc
 LDFLAGS = /nologo /SUBSYSTEM:CONSOLE
 ARFLAGS = /nologo
 LDLIBS =
+
+# Debug build
+# CXXFLAGS = $(CXXFLAGS) /DDEBUG /D_DEBUG /Oi /Oy- /Od /MTd
+# Release build
+CXXFLAGS = $(CXXFLAGS) /DNDEBUG /D_NDEBUG /Oi /Oy /O2 /MT
 
 # Attempt to detect when <sdkddkver.h> and <winapifamily.h> are avilable
 #   http://stackoverflow.com/q/40577415 ?
@@ -119,7 +124,7 @@ LDLIBS = $(LDLIBS) ws2_32.lib kernel32.lib
 
 !IF "$(PLATFORM)" == "ARM"
 # CXXFLAGS = $(CXXFLAGS) /D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1 /DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP
-# CXXFLAGS = $(CXXFLAGS) /DWINAPI_FAMILY=WINAPI_FAMILY_PHONE_APP
+CXXFLAGS = $(CXXFLAGS) /DWINAPI_FAMILY=WINAPI_FAMILY_PHONE_APP
 # CXXFLAGS = $(CXXFLAGS) /DWINAPI_FAMILY=WINAPI_FAMILY_APP
 # LDLIBS = $(LDLIBS) ws2_32.lib
 !ENDIF

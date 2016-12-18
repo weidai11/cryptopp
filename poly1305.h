@@ -103,6 +103,7 @@ protected:
 
 //! \class Poly1305
 //! \brief Poly1305 message authentication code
+//! \tparam T class derived from BlockCipherDocumentation with 16-byte key and 16-byte blocksize
 //! \details Poly1305-AES is a state-of-the-art message-authentication code suitable for a wide
 //!   variety of applications. Poly1305-AES computes a 16-byte authenticator of a variable-length
 //!   message, using a 16-byte AES key, a 16-byte additional key, and a 16-byte nonce.
