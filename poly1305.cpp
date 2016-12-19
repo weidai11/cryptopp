@@ -165,6 +165,7 @@ void Poly1305_Base<T>::HashBlocks(const byte *input, size_t length, word32 padbi
 template <class T>
 void Poly1305_Base<T>::TruncatedFinal(byte *mac, size_t size)
 {
+	CRYPTOPP_ASSERT(mac);      // Pointer is valid
 	CRYPTOPP_ASSERT(!m_used);  // Nonce is fresh
 
 	ThrowIfInvalidTruncatedSize(size);

@@ -203,6 +203,10 @@ void SipHash_Base<C,D,T_128bit>::Update(const byte *input, size_t length)
 template <unsigned int C, unsigned int D, bool T_128bit>
 void SipHash_Base<C,D,T_128bit>::TruncatedFinal(byte *digest, size_t digestSize)
 {
+	CRYPTOPP_ASSERT(digest);      // Pointer is valid
+
+	ThrowIfInvalidTruncatedSize(digestSize);
+
 	// The high octet holds length and is digested mod 256
 	m_b[0] += m_idx; m_b[0] <<= 56U;
 	switch (m_idx)
