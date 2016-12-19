@@ -72,7 +72,7 @@ public:
 	void Create(int nType = SOCK_STREAM);
 	void Bind(unsigned int port, const char *addr=NULL);
 	void Bind(const sockaddr* psa, socklen_t saLen);
-	void Listen(int backlog=5);
+	void Listen(int backlog = SOMAXCONN);
 	// the next three functions return false if the socket is in nonblocking mode
 	// and the operation cannot be completed immediately
 	bool Connect(const char *addr, unsigned int port);
