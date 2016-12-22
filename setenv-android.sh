@@ -11,7 +11,7 @@
 # See http://www.cryptopp.com/wiki/Android_(Command_Line) for more details
 # ====================================================================
 
-set -eu
+# set -eu
 
 unset IS_CROSS_COMPILE
 
@@ -382,7 +382,7 @@ if [[ ("$COUNT" -ne "0") ]]; then
 	echo "*******************************************************************************"
 fi
 
-COUNT=$(echo -n "$AOSP_STL_LIB" | egrep -i -c 'libc++)')
+COUNT=$(echo -n "$AOSP_STL_LIB" | egrep -i -c 'libc\+\+)')
 if [[ ("$COUNT" -ne "0") ]]; then
 	echo
 	echo "*******************************************************************************"

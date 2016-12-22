@@ -13,7 +13,7 @@
 # See http://www.cryptopp.com/wiki/ARM_Embedded_(Command_Line) for details.
 # ====================================================================
 
-set -eu
+# set -eu
 
 # Unset old options
 

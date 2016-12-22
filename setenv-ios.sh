@@ -11,7 +11,7 @@
 # See http://www.cryptopp.com/wiki/iOS_(Command_Line) for more details
 # ====================================================================
 
-set -eu
+# set -eu
 
 #########################################
 #####       Clear old options       #####
