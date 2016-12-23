@@ -147,12 +147,12 @@ protected:
 	//! \note There should be a MessageEnd() immediately before MessageSeriesEnd().
 	bool OutputMessageSeriesEnd(int outputSite, int propagation, bool blocking, const std::string &channel=DEFAULT_CHANNEL);
 
+private:
+	member_ptr<BufferedTransformation> m_attachment;
+
 protected:
 	size_t m_inputPosition;
 	int m_continueAt;
-
-private:
-	member_ptr<BufferedTransformation> m_attachment;
 };
 
 //! \class FilterPutSpaceHelper
