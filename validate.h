@@ -87,18 +87,23 @@ bool ValidateLUC_DH();
 bool ValidateXTR_DH();
 bool ValidateRabin();
 bool ValidateRW();
-//bool ValidateBlumGoldwasser();
 bool ValidateECP();
 bool ValidateEC2N();
 bool ValidateECDSA();
 bool ValidateECGDSA();
 bool ValidateESIGN();
 
-#if defined(CRYPTOPP_DEBUG)
+#if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_IMPORTS)
+// http://github.com/weidai11/cryptopp/issues/92
 bool TestSecBlock();
+// http://github.com/weidai11/cryptopp/issues/64
 bool TestPolynomialMod2();
+// http://github.com/weidai11/cryptopp/issues/336
 bool TestIntegerBitops();
+// http://github.com/weidai11/cryptopp/issues/242
 bool TestHuffmanCodes();
+// http://github.com/weidai11/cryptopp/issues/346
+bool TestASN1Parse();
 #endif
 
 // Coverity finding

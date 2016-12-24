@@ -973,6 +973,20 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 	case 74: result = ValidateBLAKE2b(); break;
 	case 75: result = ValidatePoly1305(); break;
 	case 76: result = ValidateSipHash(); break;
+
+#if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_IMPORTS)
+	// http://github.com/weidai11/cryptopp/issues/92
+	case 9999: result = TestSecBlock(); break;
+	// http://github.com/weidai11/cryptopp/issues/64
+	case 9998: result = TestPolynomialMod2(); break;
+	// http://github.com/weidai11/cryptopp/issues/336
+	case 9997: result = TestIntegerBitops(); break;
+	// http://github.com/weidai11/cryptopp/issues/242
+	case 9996: result = TestHuffmanCodes(); break;
+	// http://github.com/weidai11/cryptopp/issues/346
+	case 9995: result = TestASN1Parse(); break;
+#endif
+
 	default: return false;
 	}
 

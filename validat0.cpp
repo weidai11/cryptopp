@@ -6,6 +6,9 @@
 #include "secblock.h"
 #include "integer.h"
 #include "zdeflate.h"
+#include "filters.h"
+#include "hex.h"
+#include "asn.h"
 
 #include <iostream>
 #include <iomanip>
@@ -22,6 +25,257 @@
 #endif
 
 USING_NAMESPACE(CryptoPP)
+
+#if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_IMPORTS)
+struct ASN1_TestTuple
+{
+	int disposition;
+	int identifier;
+	const char* name;
+	const char* data;
+	size_t len;
+};
+
+bool RunASN1TestSet(const ASN1_TestTuple asnTuples[], size_t count)
+{
+	bool pass=true, fail;
+
+	// Disposition
+	enum {REJECT=3, ACCEPT=4};
+
+	for(size_t i=0; i<count; i++)
+	{
+		const ASN1_TestTuple & thisTest = asnTuples[i];
+		ArraySource as1((const byte*)thisTest.data, thisTest.len, true);
+		ArraySource as2((const byte*)thisTest.data, thisTest.len, true);
+
+		SecByteBlock unused1;
+		std::string unused2;
+		unsigned int unused3;
+		word32 unused4;
+		word64 unused5;
+
+		// Reporting
+		std::string val;
+		HexEncoder encoder(new StringSink(val));
+		encoder.Put((const byte*)thisTest.data, thisTest.len);
+		encoder.MessageEnd();
+
+		try
+		{
+			int tag = thisTest.identifier;
+			switch (tag)
+			{
+				case BIT_STRING:
+					BERDecodeBitString(as1, unused1, unused3);
+					break;
+
+				case OCTET_STRING:
+					BERDecodeOctetString(as1, unused1);
+					break;
+
+				case INTEGER:
+					BERDecodeUnsigned(as1, unused4);
+					BERDecodeUnsigned<word64>(as2, unused5, byte(INTEGER), 0, W64LIT(0xffffffffffffffff));
+					break;
+
+				case UTF8_STRING: case PRINTABLE_STRING: case IA5_STRING:
+					BERDecodeTextString(as1, unused2, tag);
+					break;
+
+				default:
+					BERGeneralDecoder(as1, tag);
+					break;
+			}
+
+			fail = !(thisTest.disposition == ACCEPT);
+		}
+		catch(const Exception&)
+		{
+			fail = !(thisTest.disposition == REJECT);
+		}
+
+		std::cout << (fail ? "FAILED:   " : "passed:   ") << (thisTest.disposition == ACCEPT ? "accept " : "reject ");
+		std::cout << asnTuples[i].name << " " << val << "\n";
+		pass = !fail && pass;
+	}
+
+	return pass;
+}
+
+bool TestASN1Parse()
+{
+	std::cout << "\nTesting ASN.1 parser...\n\n";
+
+	bool pass = true;
+
+	// Disposition
+	enum {REJECT=3, ACCEPT=4};
+
+	// All the types Crypto++ recognizes.
+	//   "C" is one content octet with value 0x43.
+	static const ASN1_TestTuple bitStrings[] =
+	{
+		// The first "\x00" content octet is the "initial octet" representing unused bits. In the
+		//   primitive encoding form, there may be zero, one or more contents after the initial octet.
+		{ACCEPT, BIT_STRING, "BIT_STRING", "\x03\x01" "\x00", 3},  // definite length, short form, initial octet, zero subsequent octets
+		{REJECT, BIT_STRING, "BIT_STRING", "\x03\x01" "\x08", 3},  // definite length, short form, initial octet, zero subsequent octets
+		{ACCEPT, BIT_STRING, "BIT_STRING", "\x03\x02" "\x00" "C", 4},  // definite length, short form, expected subsequent octets
+		{REJECT, BIT_STRING, "BIT_STRING", "\x03\x02" "\x08" "C", 4},  // too many unused bits
+		{REJECT, BIT_STRING, "BIT_STRING", "\x03\x7F" "\x00" "C", 4},  // runt or underrun
+		{ACCEPT, BIT_STRING, "BIT_STRING", "\x03\x81\x01" "\x00", 4},  // definite length, long form, initial octet, zero subsequent octets
+		{REJECT, BIT_STRING, "BIT_STRING", "\x03\x81\x01" "\x08", 4},  // definite length, long form, initial octet, zero subsequent octets
+		{ACCEPT, BIT_STRING, "BIT_STRING", "\x03\x81\x02" "\x00" "C", 5},  // definite length, long form
+		{REJECT, BIT_STRING, "BIT_STRING", "\x03\x81\x02" "\x08" "C", 5},  // too many unused bits
+		{REJECT, BIT_STRING, "BIT_STRING", "\x03\x81\xff" "\x00" "C", 5},  // runt or underrun
+		{ACCEPT, BIT_STRING, "BIT_STRING", "\x03\x82\x00\x02" "\x00" "C", 6},  // definite length, long form
+		{REJECT, BIT_STRING, "BIT_STRING", "\x03\x82\x00\x02" "\x08" "C", 6},  // too many unused bits
+		{REJECT, BIT_STRING, "BIT_STRING", "\x03\x82\xff\xff" "\x00" "C", 6},  // runt or underrun
+		{ACCEPT, BIT_STRING, "BIT_STRING", "\x03\x83\x00\x00\x02" "\x00" "C", 7},  // definite length, long form
+		{REJECT, BIT_STRING, "BIT_STRING", "\x03\x83\x00\x00\x02" "\x08" "C", 7},  // too many unused bits
+		{REJECT, BIT_STRING, "BIT_STRING", "\x03\x83\xff\xff\xff" "\x00" "C", 7},  // runt or underrun
+		{ACCEPT, BIT_STRING, "BIT_STRING", "\x03\x84\x00\x00\x00\x02" "\x00" "C", 8},  // definite length, long form
+		{REJECT, BIT_STRING, "BIT_STRING", "\x03\x84\x00\x00\x00\x02" "\x08" "C", 8},  // too many unused bits
+		{REJECT, BIT_STRING, "BIT_STRING", "\x03\x84\xff\xff\xff\xff" "\x00" "C", 8},  // <== Issue 346; requires large allocation
+	};
+
+	pass = RunASN1TestSet(bitStrings, COUNTOF(bitStrings)) && pass;
+
+	static const ASN1_TestTuple octetStrings[] =
+	{
+		// In the primitive encoding form, there may be zero, one or more contents.
+		{ACCEPT, OCTET_STRING, "OCTET_STRING", "\x04\x00", 2},  // definite length, short form, zero content octets
+		{ACCEPT, OCTET_STRING, "OCTET_STRING", "\x04\x01" "C", 3},  // definite length, short form, expected content octets
+		{REJECT, OCTET_STRING, "OCTET_STRING", "\x04\x02" "C", 3},  // runt or underrun
+		{REJECT, OCTET_STRING, "OCTET_STRING", "\x04\x7F" "C", 3},  // runt or underrun
+		{ACCEPT, OCTET_STRING, "OCTET_STRING", "\x04\x81\x00", 3},  // definite length, long form, zero content octets
+		{ACCEPT, OCTET_STRING, "OCTET_STRING", "\x04\x81\x01" "C", 4},  // definite length, long form, expected content octets
+		{REJECT, OCTET_STRING, "OCTET_STRING", "\x04\x81\x02" "C", 4},  // runt or underrun
+		{REJECT, OCTET_STRING, "OCTET_STRING", "\x04\x81\xff" "C", 4},  // runt or underrun
+		{ACCEPT, OCTET_STRING, "OCTET_STRING", "\x04\x82\x00\x00", 4},  // definite length, long form, zero content octets
+		{ACCEPT, OCTET_STRING, "OCTET_STRING", "\x04\x82\x00\x01" "C", 5},  // definite length, long form, expected content octets
+		{REJECT, OCTET_STRING, "OCTET_STRING", "\x04\x82\x00\x02" "C", 5},  // runt or underrun
+		{REJECT, OCTET_STRING, "OCTET_STRING", "\x04\x82\xff\xff" "C", 5},  // runt or underrun
+		{ACCEPT, OCTET_STRING, "OCTET_STRING", "\x04\x83\x00\x00\x00", 5},  // definite length, long form, zero content octets
+		{ACCEPT, OCTET_STRING, "OCTET_STRING", "\x04\x83\x00\x00\x01" "C", 6},  // definite length, long form, expected content octets
+		{REJECT, OCTET_STRING, "OCTET_STRING", "\x04\x83\x00\x00\x02" "C", 6},  // runt or underrun
+		{REJECT, OCTET_STRING, "OCTET_STRING", "\x04\x83\xff\xff\xff" "C", 6},  // runt or underrun
+		{ACCEPT, OCTET_STRING, "OCTET_STRING", "\x04\x84\x00\x00\x00\x00", 6},  // definite length, long form, zero content octets
+		{ACCEPT, OCTET_STRING, "OCTET_STRING", "\x04\x84\x00\x00\x00\x01" "C", 7},  // definite length, long form, expected content octets
+		{REJECT, OCTET_STRING, "OCTET_STRING", "\x04\x84\x00\x00\x00\x02" "C", 7},  // runt or underrun
+		{REJECT, OCTET_STRING, "OCTET_STRING", "\x04\x84\xff\xff\xff\xff" "C", 7},  // <== Issue 346; requires large allocation
+	};
+
+	pass = RunASN1TestSet(octetStrings, COUNTOF(octetStrings)) && pass;
+
+	static const ASN1_TestTuple utf8Strings[] =
+	{
+		{ACCEPT, UTF8_STRING, "UTF8_STRING", "\x0c\x00", 2},  // definite length, short form, zero content octets
+		{ACCEPT, UTF8_STRING, "UTF8_STRING", "\x0c\x01" "C", 3},  // definite length, short form, expected content octets
+		{REJECT, UTF8_STRING, "UTF8_STRING", "\x0c\x02" "C", 3},  // runt or underrun
+		{REJECT, UTF8_STRING, "UTF8_STRING", "\x0c\x7F" "C", 3},  // runt or underrun
+		{ACCEPT, UTF8_STRING, "UTF8_STRING", "\x0c\x81\x00", 3},  // definite length, long form, zero content octets
+		{ACCEPT, UTF8_STRING, "UTF8_STRING", "\x0c\x81\x01" "C", 4},  // definite length, long form, expected content octets
+		{REJECT, UTF8_STRING, "UTF8_STRING", "\x0c\x81\x02" "C", 4},  // runt or underrun
+		{REJECT, UTF8_STRING, "UTF8_STRING", "\x0c\x81\xff" "C", 4},  // runt or underrun
+		{ACCEPT, UTF8_STRING, "UTF8_STRING", "\x0c\x82\x00\x00", 4},  // definite length, long form, zero content octets
+		{ACCEPT, UTF8_STRING, "UTF8_STRING", "\x0c\x82\x00\x01" "C", 5},  // definite length, long form, expected content octets
+		{REJECT, UTF8_STRING, "UTF8_STRING", "\x0c\x82\x00\x02" "C", 5},  // runt or underrun
+		{REJECT, UTF8_STRING, "UTF8_STRING", "\x0c\x82\xff\xff" "C", 5},  // runt or underrun
+		{ACCEPT, UTF8_STRING, "UTF8_STRING", "\x0c\x83\x00\x00\x00", 5},  // definite length, long form, zero content octets
+		{ACCEPT, UTF8_STRING, "UTF8_STRING", "\x0c\x83\x00\x00\x01" "C", 6},  // definite length, long form, expected content octets
+		{REJECT, UTF8_STRING, "UTF8_STRING", "\x0c\x83\x00\x00\x02" "C", 6},  // runt or underrun
+		{REJECT, UTF8_STRING, "UTF8_STRING", "\x0c\x83\xff\xff\xff" "C", 6},  // runt or underrun
+		{ACCEPT, UTF8_STRING, "UTF8_STRING", "\x0c\x84\x00\x00\x00\x00", 6},  // definite length, long form, zero content octets
+		{ACCEPT, UTF8_STRING, "UTF8_STRING", "\x0c\x84\x00\x00\x00\x01" "C", 7},  // definite length, long form, expected content octets
+		{REJECT, UTF8_STRING, "UTF8_STRING", "\x0c\x84\x00\x00\x00\x02" "C", 7},  // runt or underrun
+		{REJECT, UTF8_STRING, "UTF8_STRING", "\x0c\x84\xff\xff\xff\xff" "C", 7},  // <== Issue 346; requires large allocation
+	};
+
+	pass = RunASN1TestSet(utf8Strings, COUNTOF(utf8Strings)) && pass;
+
+	static const ASN1_TestTuple printableStrings[] =
+	{
+		{ACCEPT, PRINTABLE_STRING, "PRINTABLE_STRING", "\x13\x00", 2},  // definite length, short form, zero content octets
+		{ACCEPT, PRINTABLE_STRING, "PRINTABLE_STRING", "\x13\x01" "C", 3},  // definite length, short form, expected content octets
+		{REJECT, PRINTABLE_STRING, "PRINTABLE_STRING", "\x13\x02" "C", 3},  // runt or underrun
+		{REJECT, PRINTABLE_STRING, "PRINTABLE_STRING", "\x13\x7F" "C", 3},  // runt or underrun
+		{ACCEPT, PRINTABLE_STRING, "PRINTABLE_STRING", "\x13\x81\x00", 3},  // definite length, long form, zero content octets
+		{ACCEPT, PRINTABLE_STRING, "PRINTABLE_STRING", "\x13\x81\x01" "C", 4},  // definite length, long form, expected content octets
+		{REJECT, PRINTABLE_STRING, "PRINTABLE_STRING", "\x13\x81\x02" "C", 4},  // runt or underrun
+		{REJECT, PRINTABLE_STRING, "PRINTABLE_STRING", "\x13\x81\xff" "C", 4},  // runt or underrun
+		{ACCEPT, PRINTABLE_STRING, "PRINTABLE_STRING", "\x13\x82\x00\x00", 4},  // definite length, long form, zero content octets
+		{ACCEPT, PRINTABLE_STRING, "PRINTABLE_STRING", "\x13\x82\x00\x01" "C", 5},  // definite length, long form, expected content octets
+		{REJECT, PRINTABLE_STRING, "PRINTABLE_STRING", "\x13\x82\x00\x02" "C", 5},  // runt or underrun
+		{REJECT, PRINTABLE_STRING, "PRINTABLE_STRING", "\x13\x82\xff\xff" "C", 5},  // runt or underrun
+		{ACCEPT, PRINTABLE_STRING, "PRINTABLE_STRING", "\x13\x83\x00\x00\x00", 5},  // definite length, long form, zero content octets
+		{ACCEPT, PRINTABLE_STRING, "PRINTABLE_STRING", "\x13\x83\x00\x00\x01" "C", 6},  // definite length, long form, expected content octets
+		{REJECT, PRINTABLE_STRING, "PRINTABLE_STRING", "\x13\x83\x00\x00\x02" "C", 6},  // runt or underrun
+		{REJECT, PRINTABLE_STRING, "PRINTABLE_STRING", "\x13\x83\xff\xff\xff" "C", 6},  // runt or underrun
+		{ACCEPT, PRINTABLE_STRING, "PRINTABLE_STRING", "\x13\x84\x00\x00\x00\x00", 6},  // definite length, long form, zero content octets
+		{ACCEPT, PRINTABLE_STRING, "PRINTABLE_STRING", "\x13\x84\x00\x00\x00\x01" "C", 7},  // definite length, long form, expected content octets
+		{REJECT, PRINTABLE_STRING, "PRINTABLE_STRING", "\x13\x84\x00\x00\x00\x02" "C", 7},  // runt or underrun
+		{REJECT, PRINTABLE_STRING, "PRINTABLE_STRING", "\x13\x84\xff\xff\xff\xff" "C", 7},  // <== Issue 346; requires large allocation
+	};
+
+	pass = RunASN1TestSet(printableStrings, COUNTOF(printableStrings)) && pass;
+
+	static const ASN1_TestTuple ia5Strings[] =
+	{
+		{ACCEPT, IA5_STRING, "IA5_STRING", "\x16\x00", 2},  // definite length, short form, zero content octets
+		{ACCEPT, IA5_STRING, "IA5_STRING", "\x16\x01" "C", 3},  // definite length, short form, expected content octets
+		{REJECT, IA5_STRING, "IA5_STRING", "\x16\x02" "C", 3},  // runt or underrun
+		{REJECT, IA5_STRING, "IA5_STRING", "\x16\x7F" "C", 3},  // runt or underrun
+		{ACCEPT, IA5_STRING, "IA5_STRING", "\x16\x81\x00", 3},  // definite length, long form, zero content octets
+		{ACCEPT, IA5_STRING, "IA5_STRING", "\x16\x81\x01" "C", 4},  // definite length, long form, expected content octets
+		{REJECT, IA5_STRING, "IA5_STRING", "\x16\x81\x02" "C", 4},  // runt or underrun
+		{REJECT, IA5_STRING, "IA5_STRING", "\x16\x81\xff" "C", 4},  // runt or underrun
+		{ACCEPT, IA5_STRING, "IA5_STRING", "\x16\x82\x00\x00", 4},  // definite length, long form, zero content octets
+		{ACCEPT, IA5_STRING, "IA5_STRING", "\x16\x82\x00\x01" "C", 5},  // definite length, long form, expected content octets
+		{REJECT, IA5_STRING, "IA5_STRING", "\x16\x82\x00\x02" "C", 5},  // runt or underrun
+		{REJECT, IA5_STRING, "IA5_STRING", "\x16\x82\xff\xff" "C", 5},  // runt or underrun
+		{ACCEPT, IA5_STRING, "IA5_STRING", "\x16\x83\x00\x00\x00", 5},  // definite length, long form, zero content octets
+		{ACCEPT, IA5_STRING, "IA5_STRING", "\x16\x83\x00\x00\x01" "C", 6},  // definite length, long form, expected content octets
+		{REJECT, IA5_STRING, "IA5_STRING", "\x16\x83\x00\x00\x02" "C", 6},  // runt or underrun
+		{REJECT, IA5_STRING, "IA5_STRING", "\x16\x83\xff\xff\xff" "C", 6},  // runt or underrun
+		{ACCEPT, IA5_STRING, "IA5_STRING", "\x16\x84\x00\x00\x00\x00", 6},  // definite length, long form, zero content octets
+		{ACCEPT, IA5_STRING, "IA5_STRING", "\x16\x84\x00\x00\x00\x01" "C", 7},  // definite length, long form, expected content octets
+		{REJECT, IA5_STRING, "IA5_STRING", "\x16\x84\x00\x00\x00\x02" "C", 7},  // runt or underrun
+		{REJECT, IA5_STRING, "IA5_STRING", "\x16\x84\xff\xff\xff\xff" "C", 7},  // <== Issue 346; requires large allocation
+	};
+
+	pass = RunASN1TestSet(ia5Strings, COUNTOF(ia5Strings)) && pass;
+
+	static const ASN1_TestTuple integerValues[] =
+	{
+		// 8.3.1 The encoding of an integer value shall be primitive. The contents octets shall consist of one or more octets.
+		{REJECT, INTEGER, "INTEGER", "\x02\x00", 2},  // definite length, short form, zero content octets
+		{ACCEPT, INTEGER, "INTEGER", "\x02\x01" "C", 3},  // definite length, short form, expected content octets
+		{REJECT, INTEGER, "INTEGER", "\x02\x02" "C", 3},  // runt or underrun
+		{REJECT, INTEGER, "INTEGER", "\x02\x7F" "C", 3},  // runt or underrun
+		{REJECT, INTEGER, "INTEGER", "\x02\x81\x00", 3},  // definite length, long form, zero content octets
+		{ACCEPT, INTEGER, "INTEGER", "\x02\x81\x01" "C", 4},  // definite length, long form, expected content octets
+		{REJECT, INTEGER, "INTEGER", "\x02\x81\x02" "C", 4},  // runt or underrun
+		{REJECT, INTEGER, "INTEGER", "\x02\x81\xff" "C", 4},  // runt or underrun
+		{REJECT, INTEGER, "INTEGER", "\x02\x82\x00\x00", 4},  // definite length, long form, zero content octets
+		{ACCEPT, INTEGER, "INTEGER", "\x02\x82\x00\x01" "C", 5},  // definite length, long form, expected content octets
+		{REJECT, INTEGER, "INTEGER", "\x02\x82\x00\x02" "C", 5},  // runt or underrun
+		{REJECT, INTEGER, "INTEGER", "\x02\x82\xff\xff" "C", 5},  // runt or underrun
+		{REJECT, INTEGER, "INTEGER", "\x02\x83\x00\x00\x00", 5},  // definite length, long form, zero content octets
+		{ACCEPT, INTEGER, "INTEGER", "\x02\x83\x00\x00\x01" "C", 6},  // definite length, long form, expected content octets
+		{REJECT, INTEGER, "INTEGER", "\x02\x83\x00\x00\x02" "C", 6},  // runt or underrun
+		{REJECT, INTEGER, "INTEGER", "\x02\x83\xff\xff\xff" "C", 6},  // runt or underrun
+		{REJECT, INTEGER, "INTEGER", "\x02\x84\x00\x00\x00\x00", 6},  // definite length, long form, zero content octets
+		{ACCEPT, INTEGER, "INTEGER", "\x02\x84\x00\x00\x00\x01" "C", 7},  // definite length, long form, expected content octets
+		{REJECT, INTEGER, "INTEGER", "\x02\x84\x00\x00\x00\x02" "C", 7},  // runt or underrun
+		{REJECT, INTEGER, "INTEGER", "\x02\x84\xff\xff\xff\xff" "C", 7},  // <== Issue 346; requires large allocation
+	};
+
+	pass = RunASN1TestSet(integerValues, COUNTOF(integerValues)) && pass;
+
+	return pass;
+}
+#endif
 
 #if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_IMPORTS)
 bool TestSecBlock()
