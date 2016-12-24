@@ -123,7 +123,7 @@ size_t BERDecodeOctetString(BufferedTransformation &bt, SecByteBlock &str)
 	size_t bc;
 	if (!BERLengthDecode(bt, bc))
 		BERDecodeError();
-	if (bc > bt.MaxRetrievable())
+	if (bc > bt.MaxRetrievable()) // Issue 346
 		BERDecodeError();
 
 	str.New(bc);
@@ -141,7 +141,7 @@ size_t BERDecodeOctetString(BufferedTransformation &bt, BufferedTransformation &
 	size_t bc;
 	if (!BERLengthDecode(bt, bc))
 		BERDecodeError();
-	if (bc > bt.MaxRetrievable())
+	if (bc > bt.MaxRetrievable()) // Issue 346
 		BERDecodeError();
 
 	bt.TransferTo(str, bc);
@@ -165,7 +165,7 @@ size_t BERDecodeTextString(BufferedTransformation &bt, std::string &str, byte as
 	size_t bc;
 	if (!BERLengthDecode(bt, bc))
 		BERDecodeError();
-	if (bc > bt.MaxRetrievable())
+	if (bc > bt.MaxRetrievable()) // Issue 346
 		BERDecodeError();
 
 	SecByteBlock temp(bc);
@@ -196,11 +196,12 @@ size_t BERDecodeBitString(BufferedTransformation &bt, SecByteBlock &str, unsigne
 		BERDecodeError();
 	if (bc == 0)
 		BERDecodeError();
-	if (bc > bt.MaxRetrievable())
+	if (bc > bt.MaxRetrievable()) // Issue 346
 		BERDecodeError();
 
+	// X.690, 8.6.2.2: "The number [of unused bits] shall be in the range zero to seven"
 	byte unused;
-	if (!bt.Get(unused))
+	if (!bt.Get(unused) || unused > 7)
 		BERDecodeError();
 	unusedBits = unused;
 	str.resize(bc-1);

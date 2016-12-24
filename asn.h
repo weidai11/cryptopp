@@ -55,13 +55,14 @@ enum ASNTag
 //! \note These tags and flags are not complete
 enum ASNIdFlag
 {
-	UNIVERSAL			= 0x00,
-//	DATA				= 0x01,
-//	HEADER				= 0x02,
-	CONSTRUCTED 		= 0x20,
-	APPLICATION 		= 0x40,
-	CONTEXT_SPECIFIC	= 0x80,
-	PRIVATE 			= 0xc0
+	UNIVERSAL           = 0x00,
+//	DATA                = 0x01,
+//	HEADER              = 0x02,
+	PRIMITIVE           = 0x00,
+	CONSTRUCTED         = 0x20,
+	APPLICATION         = 0x40,
+	CONTEXT_SPECIFIC    = 0x80,
+	PRIVATE             = 0xc0
 };
 
 //! \brief Raises a BERDecodeErr
@@ -478,9 +479,9 @@ size_t DEREncodeUnsigned(BufferedTransformation &out, T w, byte asnTag = INTEGER
 }
 
 //! \brief BER Decode unsigned value
-//! \tparam T class or type
+//! \tparam T fundamental C++ type
 //! \param in BufferedTransformation object
-//! \param w unsigned value to encode
+//! \param w the decoded value
 //! \param asnTag the ASN.1 type
 //! \param minValue the minimum expected value
 //! \param maxValue the maximum expected value
@@ -488,7 +489,7 @@ size_t DEREncodeUnsigned(BufferedTransformation &out, T w, byte asnTag = INTEGER
 //! \details DEREncodeUnsigned() can be used with INTEGER, BOOLEAN, and ENUM
 template <class T>
 void BERDecodeUnsigned(BufferedTransformation &in, T &w, byte asnTag = INTEGER,
-					   T minValue = 0, T maxValue = ((std::numeric_limits<T>::max)()))
+					   T minValue = 0, T maxValue = T(0xffffffff))
 {
 	byte b;
 	if (!in.Get(b) || b != asnTag)
@@ -498,7 +499,11 @@ void BERDecodeUnsigned(BufferedTransformation &in, T &w, byte asnTag = INTEGER,
 	bool definite = BERLengthDecode(in, bc);
 	if (!definite)
 		BERDecodeError();
-	if (bc > in.MaxRetrievable())
+	if (bc > in.MaxRetrievable())  // Issue 346
+		BERDecodeError();
+	if (asnTag == BOOLEAN && bc != 1) // X.690, 8.2.1
+		BERDecodeError();
+	if ((asnTag == INTEGER || asnTag == ENUMERATED) && bc == 0) // X.690, 8.3.1 and 8.4
 		BERDecodeError();
 
 	SecByteBlock buf(bc);
@@ -506,6 +511,11 @@ void BERDecodeUnsigned(BufferedTransformation &in, T &w, byte asnTag = INTEGER,
 	if (bc != in.Get(buf, bc))
 		BERDecodeError();
 
+	// This consumes leading 0 octets. According to X.690, 8.3.2, it could be non-conforming behavior.
+	//  X.690, 8.3.2 says "the bits of the first octet and bit 8 of the second octet ... (a) shall
+	//  not all be ones and (b) shall not all be zeros ... These rules ensure that an integer value
+	//  is always encoded in the smallest possible number of octet".
+	// We invented AER (Alternate Encoding Rules), which is more relaxed than BER, CER, and DER.
 	const byte *ptr = buf;
 	while (bc > sizeof(w) && *ptr == 0)
 	{
