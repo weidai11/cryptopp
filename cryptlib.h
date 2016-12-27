@@ -431,7 +431,7 @@ public:
 	//! \param valueType reference to a variable that receives the value
 	//! \param pValue void pointer to a variable that receives the value
 	//! \returns true if the value was retrieved, false otherwise
-	//! \details GetVoidValue() retrives the value of  name if it exists.
+	//! \details GetVoidValue() retrieves the value of  name if it exists.
 	//! \note  GetVoidValue() is an internal function and should be implemented
 	//!   by derived classes. Users should use one of the other functions instead.
 	//! \sa GetValue(), GetValueWithDefault(), GetIntValue(), GetIntValueWithDefault(),
@@ -1212,14 +1212,14 @@ public:
 	//! \return a random 8-bit byte
 	//! \details Default implementation calls GenerateBlock() with one byte.
 	//! \details All generated values are uniformly distributed over the range specified within the
-	//!   the contraints of a particular generator.
+	//!   the constraints of a particular generator.
 	virtual byte GenerateByte();
 
 	//! \brief Generate new random bit and return it
 	//! \return a random bit
 	//! \details The default implementation calls GenerateByte() and return its lowest bit.
 	//! \details All generated values are uniformly distributed over the range specified within the
-	//!   the contraints of a particular generator.
+	//!   the constraints of a particular generator.
 	virtual unsigned int GenerateBit();
 
 	//! \brief Generate a random 32 bit word in the range min to max, inclusive
@@ -1229,14 +1229,14 @@ public:
 	//! \details The default implementation calls Crop() on the difference between max and
 	//!    min, and then returns the result added to min.
 	//! \details All generated values are uniformly distributed over the range specified within the
-	//!   the contraints of a particular generator.
+	//!   the constraints of a particular generator.
 	virtual word32 GenerateWord32(word32 min=0, word32 max=0xffffffffUL);
 
 	//! \brief Generate random array of bytes
 	//! \param output the byte buffer
 	//! \param size the length of the buffer, in bytes
 	//! \details All generated values are uniformly distributed over the range specified within the
-	//!   the contraints of a particular generator.
+	//!   the constraints of a particular generator.
 	//! \note A derived generator \a must override either GenerateBlock() or
 	//!    GenerateIntoBufferedTransformation(). They can override both, or have one call the other.
 	virtual void GenerateBlock(byte *output, size_t size);
@@ -1248,7 +1248,7 @@ public:
 	//! \details The default implementation calls GenerateBlock() and pumps the result into
 	//!   the  DEFAULT_CHANNEL of the target.
 	//! \details All generated values are uniformly distributed over the range specified within the
-	//!   the contraints of a particular generator.
+	//!   the constraints of a particular generator.
 	//! \note A derived generator \a must override either GenerateBlock() or
 	//!    GenerateIntoBufferedTransformation(). They can override both, or have one call the other.
 	virtual void GenerateIntoBufferedTransformation(BufferedTransformation &target, const std::string &channel, lword length);
@@ -1411,7 +1411,7 @@ public:
 		virtual byte * CreatePutSpace(size_t &size)
 			{size=0; return NULL;}
 
-		//! \brief Determines whether input can be modifed by the callee
+		//! \brief Determines whether input can be modified by the callee
 		//! \return true if input can be modified, false otherwise
 		//! \details The base class implementation returns  false.
 		virtual bool CanModifyInput() const
@@ -1494,7 +1494,7 @@ public:
 		//! \param parameters a set of NameValuePairs to initialize this object
 		//! \throws NotImplemented
 		//! \details IsolatedInitialize() is used to initialize or reinitialize an object using a variable
-		//!   number of  arbitrarily typed arguments. The function avoids the need for multiple constuctors providing
+		//!   number of  arbitrarily typed arguments. The function avoids the need for multiple constructors providing
 		//!   all possible combintations of configurable parameters.
 		//! \details IsolatedInitialize() does not call Initialize() on attached transformations. If initialization
 		//!   should be propagated, then use the Initialize() function.
@@ -1521,7 +1521,7 @@ public:
 		//! \param parameters a set of NameValuePairs to initialize or reinitialize this object
 		//! \param propagation the number of attached transformations the Initialize() signal should be passed
 		//! \details Initialize() is used to initialize or reinitialize an object using a variable number of
-		//!   arbitrarily typed arguments. The function avoids the need for multiple constuctors providing
+		//!   arbitrarily typed arguments. The function avoids the need for multiple constructors providing
 		//!   all possible combintations of configurable parameters.
 		//! \details propagation count includes this object. Setting propagation to <tt>1</tt> means this
 		//!   object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
@@ -1555,13 +1555,13 @@ public:
 
 		//! \brief Set propagation of automatically generated and transferred signals
 		//! \param propagation then new value
-		//! \details Setting propagation to <tt>0</tt> means do not automaticly generate signals. Setting
+		//! \details Setting propagation to <tt>0</tt> means do not automatically generate signals. Setting
 		//!    propagation to <tt>-1</tt> means unlimited propagation.
 		virtual void SetAutoSignalPropagation(int propagation)
 			{CRYPTOPP_UNUSED(propagation);}
 
 		//! \brief Retrieve automatic signal propagation value
-		//! \return the number of attached transformations the signal is propogated to. 0 indicates
+		//! \return the number of attached transformations the signal is propagated to. 0 indicates
 		//!   the signal is only witnessed by this object
 		virtual int GetAutoSignalPropagation() const {return 0;}
 public:
@@ -1784,7 +1784,7 @@ public:
 	//!	\name NON-BLOCKING TRANSFER OF OUTPUT
 	//@{
 
-		// upon return, byteCount contains number of bytes that have finished being transfered,
+		// upon return, byteCount contains number of bytes that have finished being transferred,
 		// and returns the number of bytes left in the current transfer block
 
 		//! \brief Transfer bytes from this object to another BufferedTransformation
@@ -1820,7 +1820,7 @@ public:
 		//!   subsequent calls to  CopyRangeTo2.
 		virtual size_t CopyRangeTo2(BufferedTransformation &target, lword &begin, lword end=LWORD_MAX, const std::string &channel=DEFAULT_CHANNEL, bool blocking=true) const =0;
 
-		// upon return, messageCount contains number of messages that have finished being transfered,
+		// upon return, messageCount contains number of messages that have finished being transferred,
 		// and returns the number of bytes left in the current transfer block
 
 		//! \brief Transfer messages from this object to another BufferedTransformation

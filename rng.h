@@ -84,7 +84,7 @@ private:
 class MaurerRandomnessTest : public Bufferless<Sink>
 {
 public:
-	//! \brief Contruct a MaurerRandomnessTest
+	//! \brief Construct a MaurerRandomnessTest
 	MaurerRandomnessTest();
 
 	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking);

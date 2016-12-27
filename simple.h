@@ -134,7 +134,7 @@ public:
 	//! \param blocking specifies whether the object should block when processing input
 	//! \throws InputRejected
 	//! \returns the number of bytes that remain in the block (i.e., bytes not processed)
-	//! \details Internally, the default implmentation throws InputRejected.
+	//! \details Internally, the default implementation throws InputRejected.
 	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
 		{CRYPTOPP_UNUSED(inString); CRYPTOPP_UNUSED(length); CRYPTOPP_UNUSED(messageEnd); CRYPTOPP_UNUSED(blocking); throw InputRejected();}
 	//@}
@@ -196,7 +196,7 @@ public:
 	//! \param parameters a set of NameValuePairs to initialize or reinitialize this object
 	//! \param propagation the number of attached transformations the Initialize() signal should be passed
 	//! \details Initialize() is used to initialize or reinitialize an object using a variable number of
-	//!   arbitrarily typed arguments. The function avoids the need for multiple constuctors providing
+	//!   arbitrarily typed arguments. The function avoids the need for multiple constructors providing
 	//!   all possible combintations of configurable parameters.
 	//! \details propagation count includes this object. Setting propagation to <tt>1</tt> means this
 	//!   object only. Setting propagation to <tt>-1</tt> means unlimited propagation.

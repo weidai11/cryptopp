@@ -243,12 +243,12 @@ unsigned int HashTransformation::OptimalDataAlignment() const
 
 void StreamTransformation::ProcessLastBlock(byte *outString, const byte *inString, size_t length)
 {
-	CRYPTOPP_ASSERT(MinLastBlockSize() == 0);	// this function should be overriden otherwise
+	CRYPTOPP_ASSERT(MinLastBlockSize() == 0);	// this function should be overridden otherwise
 
 	if (length == MandatoryBlockSize())
 		ProcessData(outString, inString, length);
 	else if (length != 0)
-		throw NotImplemented(AlgorithmName() + ": this object does't support a special last block");
+		throw NotImplemented(AlgorithmName() + ": this object doesn't support a special last block");
 }
 
 void AuthenticatedSymmetricCipher::SpecifyDataLengths(lword headerLength, lword messageLength, lword footerLength)

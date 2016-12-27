@@ -19,7 +19,7 @@ NAMESPACE_BEGIN(CryptoPP)
 //! \brief MQV domain for performing authenticated key agreement
 //! \tparam GROUP_PARAMETERS doamin parameters
 //! \tparam COFACTOR_OPTION cofactor option
-//! \details GROUP_PARAMETERS paramters include the curve coefcients and the base point.
+//! \details GROUP_PARAMETERS parameters include the curve coefcients and the base point.
 //!   Binary curves use a polynomial to represent its characteristic, while prime curves
 //!   use a prime number.
 //! \sa MQV, HMQV, FHMQV, and AuthenticatedKeyAgreementDomain

@@ -151,7 +151,7 @@ struct LUCSS : public TF_SS<LUC, STANDARD, H>
 {
 };
 
-// analagous to the RSA schemes defined in PKCS #1 v2.0
+// analogous to the RSA schemes defined in PKCS #1 v2.0
 typedef LUCES<OAEP<SHA> >::Decryptor LUCES_OAEP_SHA_Decryptor;
 typedef LUCES<OAEP<SHA> >::Encryptor LUCES_OAEP_SHA_Encryptor;
 

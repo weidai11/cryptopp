@@ -476,7 +476,7 @@ void BLAKE2_Base<W, T_64bit>::IncrementCounter(size_t count)
 template <>
 void BLAKE2_Base<word64, true>::Compress(const byte *input)
 {
-	// Selects the most advanced implmentation at runtime
+	// Selects the most advanced implementation at runtime
 	static const pfnCompress64 s_pfn = InitializeCompress64Fn();
 	s_pfn(input, *m_state.data());
 }
@@ -484,7 +484,7 @@ void BLAKE2_Base<word64, true>::Compress(const byte *input)
 template <>
 void BLAKE2_Base<word32, false>::Compress(const byte *input)
 {
-	// Selects the most advanced implmentation at runtime
+	// Selects the most advanced implementation at runtime
 	static const pfnCompress32 s_pfn = InitializeCompress32Fn();
 	s_pfn(input, *m_state.data());
 }

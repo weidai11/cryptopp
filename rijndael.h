@@ -39,7 +39,7 @@ class CRYPTOPP_DLL Rijndael : public Rijndael_Info, public BlockCipherDocumentat
 		static void FillEncTable();
 		static void FillDecTable();
 
-		// VS2005 workaround: have to put these on seperate lines, or error C2487 is triggered in DLL build
+		// VS2005 workaround: have to put these on separate lines, or error C2487 is triggered in DLL build
 		static const byte Se[256];
 		static const byte Sd[256];
 

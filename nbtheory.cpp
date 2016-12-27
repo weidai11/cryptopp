@@ -450,7 +450,7 @@ static bool ProvePrime(const Integer &p, const Integer &q)
 // this is the Quisquater test. Numbers p having passed the Lucas - Lehmer test
 // for q and verifying p < q^3 can only be built up of two factors, both = 1 mod q,
 // or be prime. The next two lines build the discriminant of a quadratic equation
-// which holds iff p is built up of two factors (excercise ... )
+// which holds iff p is built up of two factors (exercise ... )
 
 	Integer r = (p-1)/q;
 	if (((r%q).Squared()-4*(r/q)).IsSquare())

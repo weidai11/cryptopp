@@ -33,7 +33,7 @@ REM /Zi - Porgram Database information
 @set ASFLAGS64=/nologo /D_M_X64 /W3 /Cx /Zi
 @set LIBFLAGS=/nologo /SUBSYSTEM:CONSOLE
 
-REM Use _M_X86 and _M_X64 becuase cl.exe uses them. It keeps preprocessor defines consistent.
+REM Use _M_X86 and _M_X64 because cl.exe uses them. It keeps preprocessor defines consistent.
 echo ****************************************
 echo Assembling rdrand.asm into rdrand-x86.obj
 call %MASM% %ASFLAGS% /Fo rdrand-x86.obj /c rdrand.asm > nul

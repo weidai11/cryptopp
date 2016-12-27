@@ -22,7 +22,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 //! \struct InitializeInteger
-//! \brief Performs static intialization of the Integer class
+//! \brief Performs static initialization of the Integer class
 struct InitializeInteger
 {
 	InitializeInteger();
@@ -610,7 +610,7 @@ public:
 		//! \returns a reference to a std::ostream reference
 		//! \details The output integer responds to std::hex, std::oct, std::hex, std::upper and
 		//!   std::lower. The output includes the suffix \a \b h (for hex), \a \b . (\a \b dot, for dec)
-		//!   and \a \b o (for octal). There is currently no way to supress the suffix.
+		//!   and \a \b o (for octal). There is currently no way to suppress the suffix.
 		//! \details If you want to print an Integer without the suffix or using an arbitrary base, then
 		//!   use IntToString<Integer>().
 		//! \sa IntToString<Integer>

@@ -379,7 +379,7 @@ NAMESPACE_END
 	// 4512: assignment operator not generated
 	// 4660: explicitly instantiating a class that's already implicitly instantiated
 	// 4661: no suitable definition provided for explicit template instantiation request
-	// 4786: identifer was truncated in debug information
+	// 4786: identifier was truncated in debug information
 	// 4355: 'this' : used in base member initializer list
 	// 4910: '__declspec(dllexport)' and 'extern' are incompatible on an explicit instantiation
 #	pragma warning(disable: 4127 4231 4250 4251 4275 4505 4512 4660 4661 4786 4355 4910)

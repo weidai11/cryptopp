@@ -502,7 +502,7 @@ DERGeneralEncoder::DERGeneralEncoder(BufferedTransformation &outQueue, byte asnT
 }
 
 // TODO: GCC (and likely other compilers) identify this as a copy constructor; and not a constructor.
-//   We have to wait until Crypto++ 6.0 to fix it becuase the signature change breaks versioning.
+//   We have to wait until Crypto++ 6.0 to fix it because the signature change breaks versioning.
 DERGeneralEncoder::DERGeneralEncoder(DERGeneralEncoder &outQueue, byte asnTag)
 	: ByteQueue(), m_outQueue(outQueue), m_finished(false), m_asnTag(asnTag)
 {

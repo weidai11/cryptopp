@@ -68,7 +68,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Intel")
 	add_definitions(-wd68 -wd186 -wd279 -wd327 -wd161 -wd3180)
 endif()
 
-# Endianess
+# Endianness
 TEST_BIG_ENDIAN(IS_BIG_ENDIAN)
 if(IS_BIG_ENDIAN)
 	add_definitions(-DIS_BIG_ENDIAN)

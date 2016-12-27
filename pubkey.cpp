@@ -56,7 +56,7 @@ void TF_SignerBase::InputRecoverableMessage(PK_MessageAccumulator &messageAccumu
 	size_t maxRecoverableLength = encoding.MaxRecoverableLength(MessageRepresentativeBitLength(), GetHashIdentifier().second, ma.AccessHash().DigestSize());
 
 	if (maxRecoverableLength == 0)
-		{throw NotImplemented("TF_SignerBase: this algorithm does not support messsage recovery or the key is too short");}
+		{throw NotImplemented("TF_SignerBase: this algorithm does not support message recovery or the key is too short");}
 	if (recoverableMessageLength > maxRecoverableLength)
 		throw InvalidArgument("TF_SignerBase: the recoverable message part is too long for the given key and algorithm");
 
