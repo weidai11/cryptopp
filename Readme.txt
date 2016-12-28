@@ -121,7 +121,7 @@ cryptdll - This builds the DLL. Please note that if you wish to use Crypto++
   as a FIPS validated module, you must use a pre-built DLL that has undergone
   the FIPS validation process instead of building your own.
 dlltest - This builds a sample application that only uses the DLL.
-cryptest Non-DLL-Import Configuration - This builds the full static library
+cryptlib Non-DLL-Import Configuration - This builds the full static library
   along with a full test driver.
 cryptest DLL-Import Configuration - This builds a static library containing
   only algorithms not in the DLL, along with a full test driver that uses
