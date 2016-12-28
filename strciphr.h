@@ -21,7 +21,7 @@
 //!   to take a policy class as a template parameter (although this is allowed), so that
 //!   their code is not duplicated for each new cipher. Instead they each
 //!   get a reference to an abstract policy interface by calling AccessPolicy() on itself, so
-//!   AccessPolicy() must be overriden to return the actual policy reference. This is done
+//!   AccessPolicy() must be overridden to return the actual policy reference. This is done
 //!   by the ConceretePolicyHolder class. Finally, SymmetricCipherFinal implements the constructors and
 //!   other functions that must be implemented by the most derived class.
 
@@ -273,7 +273,7 @@ public:
 	//! \param output the byte buffer
 	//! \param size the length of the buffer, in bytes
 	//! \details All generated values are uniformly distributed over the range specified within the
-	//!   the contraints of a particular generator.
+	//!   the constraints of a particular generator.
 	void GenerateBlock(byte *output, size_t size);
 
 	//! \brief Apply keystream to data
@@ -426,7 +426,7 @@ struct CRYPTOPP_NO_VTABLE CFB_CipherConcretePolicy : public BASE
 	void TransformRegister() {this->Iterate(NULL, NULL, ENCRYPTION, 1);}
 
 	//! \brief
-	//! \tparam B enumeration indicating endianess
+	//! \tparam B enumeration indicating endianness
 	//! \details RegisterOutput() provides alternate access to the feedback register. The
 	//!   enumeration B is BigEndian or LittleEndian. Repeatedly applying operator()
 	//!   results in advancing in the register.

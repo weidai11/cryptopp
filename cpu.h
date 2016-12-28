@@ -352,7 +352,7 @@ inline bool HasPMULL()
 
 //! \brief Determine if an ARM processor has CRC32 available
 //! \returns true if the hardware is capable of CRC32 at runtime, false otherwise.
-//! \details CRC32 instructions provide access to the processor's CRC32 and CRC32-C intructions.
+//! \details CRC32 instructions provide access to the processor's CRC32 and CRC32-C instructions.
 //!   They are provided by ARM C Language Extensions 2.0 (ACLE 2.0) and available under Aarch64
 //!   (ARM-64) and Aarch32 (ARM-32) running on Aarch64 (i.e., an AArch32 execution environment).
 //! \details Runtime support requires compile time support. When compiling with GCC, you may

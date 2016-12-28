@@ -5,7 +5,7 @@
 
 //! \file blake2.h
 //! \brief Classes for BLAKE2b and BLAKE2s message digests and keyed message digests
-//! \details This implmentation follows Aumasson, Neves, Wilcox-O'Hearn and Winnerlein's
+//! \details This implementation follows Aumasson, Neves, Wilcox-O'Hearn and Winnerlein's
 //!   <A HREF="http://blake2.net/blake2.pdf">BLAKE2: simpler, smaller, fast as MD5</A> (2013.01.29).
 //!   Static algorithm name return either "BLAKE2b" or "BLAKE2s". An object algorithm name follows
 //!   the naming described in <A HREF="http://tools.ietf.org/html/rfc7693#section-4">RFC 7693, The
@@ -196,7 +196,7 @@ public:
 	void Restart();
 
 	//! \brief Restart a hash with parameter block and counter
-	//! \param block paramter block
+	//! \param block parameter block
 	//! \param counter counter array
 	//! \details Parameter block is persisted across calls to Restart().
 	void Restart(const BLAKE2_ParameterBlock<T_64bit>& block, const W counter[2]);
@@ -240,7 +240,7 @@ private:
 //! \brief The BLAKE2b cryptographic hash function
 //! \details BLAKE2b can function as both a hash and keyed hash. If you want only the hash,
 //!   then use the BLAKE2b constructor that accepts no parameters or digest size. If you
-//!   want a keyed hash, then use the constuctor that accpts the key as a parameter.
+//!   want a keyed hash, then use the constructor that accpts the key as a parameter.
 //!   Once a key and digest size are selected, its effectively immutable. The Restart()
 //!   method that accepts a ParameterBlock does not allow you to change it.
 //! \sa Aumasson, Neves, Wilcox-O'Hearn and Winnerlein's
@@ -276,7 +276,7 @@ public:
 //! \brief The BLAKE2s cryptographic hash function
 //! \details BLAKE2s can function as both a hash and keyed hash. If you want only the hash,
 //!   then use the BLAKE2s constructor that accepts no parameters or digest size. If you
-//!   want a keyed hash, then use the constuctor that accpts the key as a parameter.
+//!   want a keyed hash, then use the constructor that accpts the key as a parameter.
 //!   Once a key and digest size are selected, its effectively immutable. The Restart()
 //!   method that accepts a ParameterBlock does not allow you to change it.
 //! \sa Aumasson, Neves, Wilcox-O'Hearn and Winnerlein's

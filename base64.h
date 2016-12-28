@@ -20,7 +20,7 @@ public:
 	//! \brief Construct a Base64Encoder
 	//! \param attachment a BufferedTrasformation to attach to this object
 	//! \param insertLineBreaks a BufferedTrasformation to attach to this object
-	//! \param maxLineLength the lenght of a line if line breaks are used
+	//! \param maxLineLength the length of a line if line breaks are used
 	//! \details Base64Encoder constructs a default encoder. The constructor lacks a parameter for padding, and you must
 	//!   use IsolatedInitialize() to modify the Base64Encoder after construction.
 	//! \sa IsolatedInitialize() for an example of modifying an encoder after construction.
@@ -100,7 +100,7 @@ public:
 	//! \brief Construct a Base64URLEncoder
 	//! \param attachment a BufferedTrasformation to attach to this object
 	//! \param insertLineBreaks a BufferedTrasformation to attach to this object
-	//! \param maxLineLength the lenght of a line if line breaks are used
+	//! \param maxLineLength the length of a line if line breaks are used
 	//! \details Base64URLEncoder() constructs a default encoder using a web safe alphabet. The constructor ignores
 	//!   insertLineBreaks and maxLineLength because the web and URL safe specifications don't use them. They are
 	//!   present in the constructor for API compatibility with Base64Encoder so it is a drop-in replacement. The

@@ -98,7 +98,7 @@ HuffmanEncoder::HuffmanEncoder(const unsigned int *codeBits, unsigned int nCodes
 
 struct HuffmanNode
 {
-	// Coverity finding on uninitalized 'symbol' member
+	// Coverity finding on uninitialized 'symbol' member
 	HuffmanNode()
 		: symbol(0), parent(0) {}
 	HuffmanNode(const HuffmanNode& rhs)
@@ -300,7 +300,7 @@ void Deflator::Reset(bool forceReset)
 	m_detectCount = 1;
 	m_detectSkip = 0;
 
-	// m_prev will be initialized automaticly in InsertString
+	// m_prev will be initialized automatically in InsertString
 	std::fill(m_head.begin(), m_head.end(), byte(0));
 
 	std::fill(m_literalCounts.begin(), m_literalCounts.end(), byte(0));

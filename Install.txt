@@ -156,7 +156,7 @@ Second is the compiler warning system. The code must clean compile under the equ
 
 Third, the code must pass cleanly though GCC and Clang's Undefined Behavior sanitizer (UBsan) and Address sanitizer (Asan) with CRYPTOPP_NO_UNALIGNED_DATA_ACCESS defined in config.h. See DYNAMIC ANALYSIS above on how to execute them.
 
-Fourth, the test harness provides a "validation" option which performs basic system checks (like endianess and word sizes) and exercises algorithms (like AES and SHA). You run the validation suite as shown below. The tail of the output should indicate 0 failed tests.
+Fourth, the test harness provides a "validation" option which performs basic system checks (like endianness and word sizes) and exercises algorithms (like AES and SHA). You run the validation suite as shown below. The tail of the output should indicate 0 failed tests.
 
     ./cryptest.exe v
     ...

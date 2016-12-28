@@ -41,7 +41,7 @@ public:
 
 	//! \brief Provides input and output data alignment for optimal performance.
 	//! \return the input data alignment that provides optimal performance
-	//! \details OptimalDataAlignment returnes the natural alignment of the hash word.
+	//! \details OptimalDataAlignment returns the natural alignment of the hash word.
 	unsigned int OptimalDataAlignment() const {return GetAlignmentOf<T>();}
 
 	//! \brief Updates a hash with additional input

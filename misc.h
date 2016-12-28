@@ -1796,7 +1796,7 @@ inline T BitReverse(T value)
 	}
 }
 
-//! \brief Reverses bytes in a value depending upon endianess
+//! \brief Reverses bytes in a value depending upon endianness
 //! \tparam T the class or type
 //! \param order the ByteOrder of the data
 //! \param value the value to conditionally reverse
@@ -1860,7 +1860,7 @@ void ByteReverse(T *out, const T *in, size_t byteCount)
 //! \param in the input array of elements
 //! \param byteCount the byte count of the arrays
 //! \details Internally, ByteReverse visits each element in the in array
-//!   calls ByteReverse on it depending on the desired endianess, and writes the result to out.
+//!   calls ByteReverse on it depending on the desired endianness, and writes the result to out.
 //! \details ByteReverse does not process tail byes, or bytes that are
 //!   \a not part of a full element. If T is int (and int is 4 bytes), then
 //!   <tt>byteCount = 10</tt> means only the first 2 elements or 8 bytes are
@@ -2136,7 +2136,7 @@ inline void PutWord(bool assumeAligned, ByteOrder order, byte *block, T value, c
 //! \class GetBlock
 //! \brief Access a block of memory
 //! \tparam T class or type
-//! \tparam B enumeration indicating endianess
+//! \tparam B enumeration indicating endianness
 //! \tparam A flag indicating alignment
 //! \details GetBlock() provides alternate read access to a block of memory. The enumeration B is
 //!   BigEndian or LittleEndian. The flag A indicates if the memory block is aligned for class or type T.
@@ -2178,7 +2178,7 @@ private:
 //! \class PutBlock
 //! \brief Access a block of memory
 //! \tparam T class or type
-//! \tparam B enumeration indicating endianess
+//! \tparam B enumeration indicating endianness
 //! \tparam A flag indicating alignment
 //! \details PutBlock() provides alternate write access to a block of memory. The enumeration B is
 //!   BigEndian or LittleEndian. The flag A indicates if the memory block is aligned for class or type T.
@@ -2223,7 +2223,7 @@ private:
 //! \class BlockGetAndPut
 //! \brief Access a block of memory
 //! \tparam T class or type
-//! \tparam B enumeration indicating endianess
+//! \tparam B enumeration indicating endianness
 //! \tparam GA flag indicating alignment for the Get operation
 //! \tparam PA flag indicating alignment for the Put operation
 //! \details GetBlock() provides alternate write access to a block of memory. The enumeration B is

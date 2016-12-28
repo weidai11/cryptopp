@@ -26,7 +26,7 @@
 # Using 'fast' is shorthand for HAVE_VALGRIND=0 WANT_BENCHMARKS=0:
 #     ./cryptest.sh fast
 
-# You can reduce CPU load with the folowing. It will use half the number of CPU cores
+# You can reduce CPU load with the following. It will use half the number of CPU cores
 # rather than all of them. Its useful at places like the GCC Compile Farm, where being nice is policy.
 #     ./cryptest.sh nice
 
@@ -928,7 +928,7 @@ echo "Pathname: $CXX_PATH" | tee -a "$TEST_RESULTS"
 
 ############################################
 
-# Calcualte these once. They handle Clang, GCC, ICC, etc
+# Calculate these once. They handle Clang, GCC, ICC, etc
 DEBUG_CXXFLAGS="-DDEBUG $OPT_G3 $OPT_O0"
 RELEASE_CXXFLAGS="-DNDEBUG $OPT_G2 $OPT_O2"
 VALGRIND_CXXFLAGS="-DNDEBUG $OPT_G3 $OPT_O1"

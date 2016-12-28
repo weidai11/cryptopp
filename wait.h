@@ -18,7 +18,7 @@
 #include <sys/select.h>
 #endif
 
-// For defintions of VOID, PVOID, HANDLE, PHANDLE, etc.
+// For definitions of VOID, PVOID, HANDLE, PHANDLE, etc.
 #if defined(CRYPTOPP_WIN32_AVAILABLE)
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>

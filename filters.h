@@ -371,7 +371,7 @@ protected:
 	virtual void NextPutSingle(const byte *inString)
 		{CRYPTOPP_UNUSED(inString); CRYPTOPP_ASSERT(false);}
 	// Same as NextPut() except length can be a multiple of blockSize
-	// Either NextPut() or NextPutMultiple() must be overriden
+	// Either NextPut() or NextPutMultiple() must be overridden
 	virtual void NextPutMultiple(const byte *inString, size_t length);
 	// Same as NextPutMultiple(), but inString can be modified
 	virtual void NextPutModifiable(byte *inString, size_t length)

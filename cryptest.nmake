@@ -71,7 +71,7 @@ LDLIBS =
 # Release build
 CXXFLAGS = $(CXXFLAGS) /DNDEBUG /D_NDEBUG /Oi /Oy /O2 /MT
 
-# Attempt to detect when <sdkddkver.h> and <winapifamily.h> are avilable
+# Attempt to detect when <sdkddkver.h> and <winapifamily.h> are available
 #   http://stackoverflow.com/q/40577415 ?
 !IF "$(WINDOWSSDKDIR)" != "" || "$(WINDOWSSDKLIBVERSION)" != ""
 CXXFLAGS = $(CXXFLAGS) /FI sdkddkver.h

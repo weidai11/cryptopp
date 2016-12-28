@@ -37,7 +37,7 @@
 //! \details <tt>CRYPTOPP_ASSERT</tt> is the library's debugging and diagnostic assertion. <tt>CRYPTOPP_ASSERT</tt>
 //!   is enabled by the preprocessor macros <tt>CRYPTOPP_DEBUG</tt>, <tt>DEBUG</tt> or <tt>_DEBUG</tt>.
 //! \details <tt>CRYPTOPP_ASSERT</tt> raises a <tt>SIGTRAP</tt> (Unix) or calls <tt>DebugBreak()</tt> (Windows).
-//!   <tt>CRYPTOPP_ASSERT</tt> is only in effect when the user explictly requests a debug configuration.
+//!   <tt>CRYPTOPP_ASSERT</tt> is only in effect when the user explicitly requests a debug configuration.
 //! \details If you want to ensure <tt>CRYPTOPP_ASSERT</tt> is inert, then <em>do not</em> define
 //!   <tt>CRYPTOPP_DEBUG</tt>, <tt>DEBUG</tt> or <tt>_DEBUG</tt>. Avoiding the defines means <tt>CRYPTOPP_ASSERT</tt>
 //!   is processed into <tt>((void)(exp))</tt>.
@@ -106,7 +106,7 @@ NAMESPACE_BEGIN(CryptoPP)
 //!   some Linuxes terminate the program.
 //! \details If DebugTrapHandler detects another handler in place, then it will not install a handler. This
 //!   ensures a debugger can gain control of the <tt>SIGTRAP</tt> signal without contention. It also allows multiple
-//!   DebugTrapHandler to be created without contentious or unusual behavior. Though muliple DebugTrapHandler can be
+//!   DebugTrapHandler to be created without contentious or unusual behavior. Though multiple DebugTrapHandler can be
 //!   created, a program should only create one, if needed.
 //! \details A DebugTrapHandler is subject to C++ static initialization [dis]order. If you need to install a handler
 //!   and it must be installed early, then reference the code associated with <tt>CRYPTOPP_INIT_PRIORITY</tt> in

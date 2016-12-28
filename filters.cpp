@@ -432,7 +432,7 @@ size_t FilterWithBufferedInput::PutMaybeModifiable(byte *inString, size_t length
 		m_firstInputDone = false;
 		m_queue.ResetQueue(1, m_firstSize);
 
-		// Cast to void to supress Coverity finding
+		// Cast to void to suppress Coverity finding
 		(void)Output(1, NULL, 0, messageEnd, blocking);
 	}
 	return 0;

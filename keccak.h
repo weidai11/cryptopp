@@ -4,7 +4,7 @@
 //! \brief Classes for Keccak message digests
 //! \details The Crypto++ Keccak implementation uses F1600 with XOF d=0x01.
 //!   FIPS 202 conformance (XOF d=0x06) is available in SHA3 classes.
-//! \details Keccak will likely change in the future to accomodate extensibility of the
+//! \details Keccak will likely change in the future to accommodate extensibility of the
 //!   round function and the XOF functions.
 //! \sa <a href="http://en.wikipedia.org/wiki/Keccak">Keccak</a>
 //! \since Crypto++ 5.6.4
@@ -24,7 +24,7 @@ NAMESPACE_BEGIN(CryptoPP)
 //! \details Keccak is the base class for Keccak_224, Keccak_256, Keccak_384 and Keccak_512.
 //!   Library users should instantiate a derived class, and only use Keccak
 //!   as a base class reference or pointer.
-//! \details Keccak will likely change in the future to accomodate extensibility of the
+//! \details Keccak will likely change in the future to accommodate extensibility of the
 //!   round function and the XOF functions.
 //! \details Perform the following to specify a different digest size. The class will use F1600,
 //!   XOF d=0x01, and a new vaue for <tt>r()</tt> (which will be <tt>200-2*24 = 152</tt>).

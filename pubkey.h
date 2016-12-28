@@ -839,12 +839,12 @@ public:
 
 	//! \brief Retrieves the order of the group
 	//! \return the order of the group
-	//! \details Either GetGroupOrder() or GetCofactor() must be overriden in a derived class.
+	//! \details Either GetGroupOrder() or GetCofactor() must be overridden in a derived class.
 	virtual Integer GetGroupOrder() const {return GetSubgroupOrder()*GetCofactor();}
 
 	//! \brief Retrieves the cofactor
 	//! \return the cofactor
-	//! \details Either GetGroupOrder() or GetCofactor() must be overriden in a derived class.
+	//! \details Either GetGroupOrder() or GetCofactor() must be overridden in a derived class.
 	virtual Integer GetCofactor() const {return GetGroupOrder()/GetSubgroupOrder();}
 
 	//! \brief Retrieves the encoded element's size
@@ -939,7 +939,7 @@ private:
 	mutable unsigned int m_validationLevel;
 };
 
-//! \brief Base implmentation of Discrete Log (DL) group parameters
+//! \brief Base implementation of Discrete Log (DL) group parameters
 //! \tparam GROUP_PRECOMP group precomputation class
 //! \tparam BASE_PRECOMP fixed base precomputation class
 //! \tparam BASE class or type of an element
@@ -1692,7 +1692,7 @@ public:
 
 //! \brief Discrete Log (DL) scheme options
 //! \tparam T1 algorithm information
-//! \tparam T2 group paramters for the scheme
+//! \tparam T2 group parameters for the scheme
 template <class T1, class T2>
 struct DL_SchemeOptionsBase
 {
