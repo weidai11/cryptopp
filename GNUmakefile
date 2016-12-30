@@ -49,8 +49,6 @@ IS_X86 := $(shell isainfo -k 2>/dev/null | grep -i -c "i386")
 IS_X64 := $(shell isainfo -k 2>/dev/null | grep -i -c "amd64")
 endif
 
-DISABLE_CXXFLAGS_OPTIMIZATIONS := 0
-
 ###########################################################
 #####                General Variables                #####
 ###########################################################
@@ -130,6 +128,8 @@ endif
 # BEGIN MARCH_CXXFLAGS
 # Guard use of -march=native (or -m{32|64} on some platforms)
 # Don't add anything if -march=XXX or -mtune=XXX is specified
+# or DISABLE_CXXFLAGS_OPTIMIZATIONS is set.
+ifeq ($(DISABLE_CXXFLAGS_OPTIMIZATIONS),)
 ifeq ($(findstring -march,$(CXXFLAGS)),)
 ifeq ($(findstring -mtune,$(CXXFLAGS)),)
    ifeq ($(GCC42_OR_LATER)$(IS_NETBSD),10)
@@ -149,6 +149,7 @@ ifeq ($(findstring -mtune,$(CXXFLAGS)),)
    endif
 endif  # -mtune
 endif  # -march
+endif  # DISABLE_CXXFLAGS_OPTIMIZATIONS
 # END MARCH_CXXFLAGS
 
 # Aligned access required for -O3 and above due to vectorization
