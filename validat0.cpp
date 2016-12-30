@@ -80,11 +80,11 @@ bool RunASN1TestSet(const ASN1_TestTuple asnTuples[], size_t count)
 					break;
 
 				case UTF8_STRING: case PRINTABLE_STRING: case IA5_STRING:
-					BERDecodeTextString(as1, unused2, tag);
+					BERDecodeTextString(as1, unused2, (byte)tag);
 					break;
 
 				default:
-					BERGeneralDecoder(as1, tag);
+					BERGeneralDecoder(as1, (byte)tag);
 					break;
 			}
 
