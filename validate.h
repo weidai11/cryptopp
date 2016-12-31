@@ -8,6 +8,7 @@
 bool ValidateAll(bool thorough);
 bool TestSettings();
 bool TestOS_RNG();
+bool TestNIST_DRBG();
 bool TestAutoSeeded();
 bool TestAutoSeededX917();
 

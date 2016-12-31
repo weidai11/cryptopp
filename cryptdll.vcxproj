@@ -274,7 +274,6 @@
     <ClInclude Include="gf2n.h" />
     <ClInclude Include="gfpcrypt.h" />
     <ClInclude Include="hex.h" />
-    <ClInclude Include="hkdf.h" />
     <ClInclude Include="hmac.h" />
     <ClInclude Include="integer.h" />
     <ClInclude Include="iterhash.h" />

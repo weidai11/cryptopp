@@ -81,6 +81,7 @@ dlltest.cpp
 dlltest.vcxproj
 dlltest.vcxproj.filters
 dmac.h
+drbg.h
 dsa.cpp
 dsa.h
 eax.cpp

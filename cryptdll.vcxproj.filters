@@ -274,9 +274,6 @@
     <ClInclude Include="hex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="hkdf.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="hmac.h">
       <Filter>Header Files</Filter>
     </ClInclude>

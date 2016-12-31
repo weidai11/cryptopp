@@ -501,6 +501,9 @@
     <ClInclude Include="dmac.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="drbg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="dsa.h">
       <Filter>Header Files</Filter>
     </ClInclude>
