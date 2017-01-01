@@ -258,7 +258,7 @@ protected:
 		//  SP 800-90A, 8.6.3: The entropy input shall have entropy that is equal to or greater than the security
 		//  strength of the instantiation. Additional entropy may be provided in the nonce or the optional
 		//  personalization string during instantiation, or in the additional input during reseeding and generation,
-		//  but this is not required and does not increase the "official" security strength of the DRBG
+		//  but this is not required and does not increase the "official" security strength of the DRBG
 		//  instantiation that is recorded in the internal state.
 		CRYPTOPP_ASSERT(entropyLength >= MINIMUM_ENTROPY);
 		if (entropyLength < MINIMUM_ENTROPY)
@@ -285,7 +285,7 @@ protected:
 		//  SP 800-90A, 8.6.3: The entropy input shall have entropy that is equal to or greater than the security
 		//  strength of the instantiation. Additional entropy may be provided in the nonce or the optional
 		//  personalization string during instantiation, or in the additional input during reseeding and generation,
-		//  but this is not required and does not increase the "official" security strength of the DRBG
+		//  but this is not required and does not increase the "official" security strength of the DRBG
 		//  instantiation that is recorded in the internal state..
 		CRYPTOPP_ASSERT(entropyLength >= MINIMUM_ENTROPY);
 		if (entropyLength < MINIMUM_ENTROPY)
