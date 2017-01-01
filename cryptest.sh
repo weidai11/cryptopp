@@ -2667,13 +2667,13 @@ if true; then
 	# Debug build
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
-	echo "Testing: Debug, INIT_PRIORITY" | tee -a "$TEST_RESULTS"
+	echo "Testing: Debug, INIT_PRIORITY (0)" | tee -a "$TEST_RESULTS"
 	echo
 
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS -DCRYPTOPP_INIT_PRIORITY=250 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
+	CXXFLAGS="$DEBUG_CXXFLAGS -DCRYPTOPP_INIT_PRIORITY=0 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2693,13 +2693,13 @@ if true; then
 	# Release build
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
-	echo "Testing: Release, INIT_PRIORITY" | tee -a "$TEST_RESULTS"
+	echo "Testing: Release, INIT_PRIORITY (0)" | tee -a "$TEST_RESULTS"
 	echo
 
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -DCRYPTOPP_INIT_PRIORITY=250 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -DCRYPTOPP_INIT_PRIORITY=0 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
