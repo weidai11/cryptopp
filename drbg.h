@@ -44,9 +44,9 @@ public:
 	//! \param input the entropy to add to the generator
 	//! \param length the size of the input buffer
 	//! \throws NIST_DRBG::Err if the generator is reseeded with insufficient entropy
-	//! \details NIST instantiation and reseed requirements demand the generator is constructed with at least <tt>MINIMUM_ENTROPY</tt> entropy.
-	//!   The byte array for <tt>input</tt> must meet <A HREF ="http://csrc.nist.gov/publications/PubsSPs.html">NIST
-	//!   SP 800-90C</A> requirements.
+	//! \details NIST instantiation and reseed requirements demand the generator is constructed with at least <tt>MINIMUM_ENTROPY</tt>
+	//!   entropy. The byte array for <tt>input</tt> must meet <A HREF ="http://csrc.nist.gov/publications/PubsSPs.html">NIST
+	//!   SP 800-90B or SP 800-90C</A> requirements.
 	virtual void IncorporateEntropy(const byte *input, size_t length)=0;
 
 	//! \brief Update RNG state with additional unpredictable values
@@ -57,8 +57,8 @@ public:
 	//! \throws NIST_DRBG::Err if the generator is reseeded with insufficient entropy
 	//! \details IncorporateEntropy() is an overload provided to match NIST requirements. NIST instantiation and
 	//!   reseed requirements demand the generator is constructed with at least <tt>MINIMUM_ENTROPY</tt> entropy.
-	//!   The byte array for <tt>input</tt> must meet <A HREF ="http://csrc.nist.gov/publications/PubsSPs.html">NIST
-	//!   SP 800-90C</A> requirements.
+	//!   The byte array for <tt>entropy</tt> must meet <A HREF ="http://csrc.nist.gov/publications/PubsSPs.html">NIST
+	//!   SP 800-90B or SP 800-90C</A> requirements.
 	virtual void IncorporateEntropy(const byte *entropy, size_t entropyLength, const byte* additional, size_t additionaLength)=0;
 
 	//! \brief Generate random array of bytes
@@ -75,8 +75,8 @@ public:
 	//! \param size the length of the buffer, in bytes
 	//! \throws NIST_DRBG::Err if a reseed is required
 	//! \throws NIST_DRBG::Err if the size exceeds <tt>MAXIMUM_BYTES_PER_REQUEST</tt>
-	//! \details GenerateBlock() is an overload provided to match NIST requirements. The byte array for <tt>additional</tt> input is optional. If present
-	//!   the additional randomness is mixed before generating the output bytes.
+	//! \details GenerateBlock() is an overload provided to match NIST requirements. The byte array for <tt>additional</tt>
+	//!   input is optional. If present the additional randomness is mixed before generating the output bytes.
 	virtual void GenerateBlock(const byte* additional, size_t additionaLength, byte *output, size_t size)=0;
 
 	//! \brief Provides the security strength
@@ -90,28 +90,33 @@ public:
 	//!   used to maintain internal state of <tt>V</tt> and <tt>C</tt>.
 	virtual unsigned int GetSeedLength() const=0;
 
-	//! \brief Provides the minimum entropy
+	//! \brief Provides the minimum entropy size
 	//! \returns The minimum entropy size required by the generator, in bytes
 	//! \details The equivalent class constant is <tt>MINIMUM_ENTROPY</tt>. All NIST DRBGs must be instaniated with at least
 	//!   <tt>MINIMUM_ENTROPY</tt> bytes of entropy. The bytes must meet <A
-	//!   HREF="http://csrc.nist.gov/publications/PubsSPs.html">NIST SP 800-90C</A> requirements.
+	//!   HREF="http://csrc.nist.gov/publications/PubsSPs.html">NIST SP 800-90B or SP 800-90C</A> requirements.
 	virtual unsigned int GetMinEntropy() const=0;
 
-	//! \brief Provides the maximum entropy
+	//! \brief Provides the maximum entropy size
 	//! \returns The maximum entropy size that can be consumed by the generator, in bytes
-	//! \details The equivalent class constant is <tt>MAXIMUM_ENTROPY</tt>. <tt>MAXIMUM_ENTROPY</tt> has been reduced
-	//!   from 2<sup>35</sup> to <tt>UINT_MAX</tt> to fit the C++ unsigned int datatype.
+	//! \details The equivalent class constant is <tt>MAXIMUM_ENTROPY</tt>. The bytes must meet <A
+	//!   HREF="http://csrc.nist.gov/publications/PubsSPs.html">NIST SP 800-90B or SP 800-90C</A> requirements.
+	//!   <tt>MAXIMUM_ENTROPY</tt> has been reduced from 2<sup>35</sup> to <tt>INT_MAX</tt> to fit the underlying C++ datatype.
 	virtual unsigned int GetMaxEntropy() const=0;
 
-	//! \brief Provides the minimum nonce
+	//! \brief Provides the minimum nonce size
 	//! \returns The minimum nonce size recommended for the generator, in bytes
-	//! \details The equivalent class constant is <tt>MINIMUM_NONCE</tt>. The nonce is optional but recommended
+	//! \details The equivalent class constant is <tt>MINIMUM_NONCE</tt>. If a nonce is not required then
+	//!   <tt>MINIMUM_NONCE</tt> is 0. <tt>Hash_DRBG</tt> does not require a nonce, while <tt>HMAC_DRBG</tt>
+	//!   and <tt>CTR_DRBG</tt> require a nonce.
 	virtual unsigned int GetMinNonce() const=0;
 
-	//! \brief Provides the maximum nonce
+	//! \brief Provides the maximum nonce size
 	//! \returns The maximum nonce that can be consumed by the generator, in bytes
-	//! \details The equivalent class constant is <tt>MAXIMUM_NONCE</tt>. The nonce is optional but recommended.
-	//!   <tt>MAXIMUM_NONCE</tt> has been reduced from 2<sup>35</sup> to <tt>UINT_MAX</tt> to fit the C++ unsigned int datatype.
+	//! \details The equivalent class constant is <tt>MAXIMUM_NONCE</tt>. <tt>MAXIMUM_NONCE</tt> has been reduced from
+	//!   2<sup>35</sup> to <tt>INT_MAX</tt> to fit the underlying C++ datatype. If a nonce is not required then
+	//!   <tt>MINIMUM_NONCE</tt> is 0. <tt>Hash_DRBG</tt> does not require a nonce, while <tt>HMAC_DRBG</tt>
+	//!   and <tt>CTR_DRBG</tt> require a nonce.
 	virtual unsigned int GetMaxNonce() const=0;
 
 	//! \brief Provides the maximum size of a request to GenerateBlock
@@ -121,7 +126,9 @@ public:
 
 	//! \brief Provides the maximum number of requests before a reseed
 	//! \returns The the maximum number of requests before a reseed, in bytes
-	//! \details The equivalent class constant is <tt>MAXIMUM_REQUESTS_BEFORE_RESEED</tt>
+	//! \details The equivalent class constant is <tt>MAXIMUM_REQUESTS_BEFORE_RESEED</tt>.
+	//!   <tt>MAXIMUM_REQUESTS_BEFORE_RESEED</tt> has been reduced from 2<sup>48</sup> to <tt>INT_MAX</tt>
+	//!   to fit the underlying C++ datatype.
 	virtual unsigned int GetMaxRequestBeforeReseed() const=0;
 
 protected:
@@ -141,10 +148,9 @@ protected:
 //!   The remaining parameters are included in the class. The parameters and their values are listed
 //!   in NIST SP 800-90A Rev. 1, Table 2: Definitions for Hash-Based DRBG Mechanisms (p.38).
 //! \details Some parameters have been reduce to fit C++ datatypes. For example, NIST allows upto 2<sup>48</sup> requests
-//!   before a reseed. However, Hash_DRBG limits it to <tt>UINT_MAX</tt> due to the limited data range of an unsigned int.
+//!   before a reseed. However, Hash_DRBG limits it to <tt>INT_MAX</tt> due to the limited data range of an int.
 //! \sa <A HREF="http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-90Ar1.pdf">Recommendation
-//!   for Random Number Generation Using Deterministic Random Bit Generators,
-//!   Rev 1 (June 2015)</A>
+//!   for Random Number Generation Using Deterministic Random Bit Generators, Rev 1 (June 2015)</A>
 //! \since Crypto++ 5.7
 template <typename HASH=SHA256, unsigned int STRENGTH=128/8, unsigned int SEEDLENGTH=440/8>
 class Hash_DRBG : public NIST_DRBG
@@ -156,12 +162,12 @@ public:
 	CRYPTOPP_CONSTANT(MINIMUM_NONCE=0)
 	CRYPTOPP_CONSTANT(MINIMUM_ADDITIONAL=0)
 	CRYPTOPP_CONSTANT(MINIMUM_PERSONALIZATION=0)
-	CRYPTOPP_CONSTANT(MAXIMUM_ENTROPY=UINT_MAX)
-	CRYPTOPP_CONSTANT(MAXIMUM_NONCE=UINT_MAX)
-	CRYPTOPP_CONSTANT(MAXIMUM_ADDITIONAL=UINT_MAX)
-	CRYPTOPP_CONSTANT(MAXIMUM_PERSONALIZATION=UINT_MAX)
+	CRYPTOPP_CONSTANT(MAXIMUM_ENTROPY=INT_MAX)
+	CRYPTOPP_CONSTANT(MAXIMUM_NONCE=INT_MAX)
+	CRYPTOPP_CONSTANT(MAXIMUM_ADDITIONAL=INT_MAX)
+	CRYPTOPP_CONSTANT(MAXIMUM_PERSONALIZATION=INT_MAX)
 	CRYPTOPP_CONSTANT(MAXIMUM_BYTES_PER_REQUEST=65536)
-	CRYPTOPP_CONSTANT(MAXIMUM_REQUESTS_BEFORE_RESEED=UINT_MAX)
+	CRYPTOPP_CONSTANT(MAXIMUM_REQUESTS_BEFORE_RESEED=INT_MAX)
 
 	//! \brief Construct a Hash DRBG
 	//! \param entropy the entropy to instantiate the generator
@@ -169,14 +175,16 @@ public:
 	//! \param nonce additional input to instantiate the generator
 	//! \param nonceLength the size of the nonce buffer
 	//! \param personalization additional input to instantiate the generator
-	//! \param personalizationLength the size of the additional input buffer
+	//! \param personalizationLength the size of the personalization buffer
 	//! \throws NIST_DRBG::Err if the generator is instantiated with insufficient entropy
-	//! \details All NIST DRBGs must be instaniated with at least <tt>MINIMUM_ENTROPY</tt> bytes of entropy. The byte array for <tt>entropy</tt> must meet <A HREF ="http://csrc.nist.gov/publications/PubsSPs.html">NIST
-	//!   SP 800-90C</A> requirements.
-	//! \details The <tt>nonce</tt> and <tt>personalization</tt> are optional byte arrays. If <tt>nonce</tt> is supplied, then it should include <tt>MINIMUM_NONCE</tt> bytes of entropy.
+	//! \details All NIST DRBGs must be instaniated with at least <tt>MINIMUM_ENTROPY</tt> bytes of entropy.
+	//!   The byte array for <tt>entropy</tt> must meet <A HREF ="http://csrc.nist.gov/publications/PubsSPs.html">NIST
+	//!   SP 800-90B or SP 800-90C</A> requirements.
+	//! \details The <tt>nonce</tt> and <tt>personalization</tt> are optional byte arrays. If <tt>nonce</tt> is supplied,
+	//!   then it should be at least <tt>MINIMUM_NONCE</tt> bytes of entropy.
 	//! \details An example of instantiating a SHA256 generator is shown below.
 	//!   The example provides more entropy than required for SHA256. The <tt>NonblockingRng</tt> meets the
-	//!   requirements of <A HREF ="http://csrc.nist.gov/publications/PubsSPs.html">NIST SP 800-90C</A>.
+	//!   requirements of <A HREF ="http://csrc.nist.gov/publications/PubsSPs.html">NIST SP 800-90B or SP 800-90C</A>.
 	//!   RDRAND() and RDSEED() generators would work as well.
 	//! <pre>
 	//!    SecByteBlock entropy(48), result(128);
@@ -196,11 +204,11 @@ public:
 	unsigned int GetSecurityStrength() const {return SECURITY_STRENGTH;}
 	unsigned int GetSeedLength() const {return SEED_LENGTH;}
 	unsigned int GetMinEntropy() const {return MINIMUM_ENTROPY;}
-	unsigned int GetMaxEntropy() const {return static_cast<unsigned int>(MAXIMUM_ENTROPY);}
+	unsigned int GetMaxEntropy() const {return MAXIMUM_ENTROPY;}
 	unsigned int GetMinNonce() const {return MINIMUM_NONCE;}
-	unsigned int GetMaxNonce() const {return static_cast<unsigned int>(MAXIMUM_NONCE);}
-	unsigned int GetMaxBytesPerRequest() const {return MAXIMUM_BYTES_PER_REQUEST;} // 2^16 bytes per request
-	unsigned int GetMaxRequestBeforeReseed() const {return static_cast<unsigned int>(MAXIMUM_REQUESTS_BEFORE_RESEED);}
+	unsigned int GetMaxNonce() const {return MAXIMUM_NONCE;}
+	unsigned int GetMaxBytesPerRequest() const {return MAXIMUM_BYTES_PER_REQUEST;}
+	unsigned int GetMaxRequestBeforeReseed() const {return MAXIMUM_REQUESTS_BEFORE_RESEED;}
 
 	void IncorporateEntropy(const byte *input, size_t length)
 		{return DRBG_Reseed(input, length, NULL, 0);}
@@ -247,11 +255,11 @@ protected:
 	void DRBG_Instantiate(const byte* entropy, size_t entropyLength, const byte* nonce, size_t nonceLength,
 		const byte* personalization, size_t personalizationLength)
 	{
-		// 8.6.3: The entropy input shall have entropy that is equal to or greater than the security strength of the
-		//  instantiation. Additional entropy may be provided in the nonce or the optional personalization
-		//  string during instantiation, or in the additional input during reseeding and generation, but this is
-		//  not required and does not increase the “official” security strength of the DRBG instantiation that
-		//  is recorded in the internal state.
+		//  SP 800-90A, 8.6.3: The entropy input shall have entropy that is equal to or greater than the security
+		//  strength of the instantiation. Additional entropy may be provided in the nonce or the optional
+		//  personalization string during instantiation, or in the additional input during reseeding and generation,
+		//  but this is not required and does not increase the "official"� security strength of the DRBG
+		//  instantiation that is recorded in the internal state.
 		CRYPTOPP_ASSERT(entropyLength >= MINIMUM_ENTROPY);
 		if (entropyLength < MINIMUM_ENTROPY)
 			throw NIST_DRBG::Err("Hash_DRBG", "Insufficient entropy during instantiate");
@@ -274,11 +282,11 @@ protected:
 	// 10.1.1.3 Reseeding a Hash_DRBG Instantiation (p.49)
 	void DRBG_Reseed(const byte* entropy, size_t entropyLength, const byte* additional, size_t additionaLength)
 	{
-		// 8.6.3: The entropy input shall have entropy that is equal to or greater than the security strength of the
-		//  instantiation. Additional entropy may be provided in the nonce or the optional personalization
-		//  string during instantiation, or in the additional input during reseeding and generation, but this is
-		//  not required and does not increase the “official” security strength of the DRBG instantiation that
-		//  is recorded in the internal state.
+		//  SP 800-90A, 8.6.3: The entropy input shall have entropy that is equal to or greater than the security
+		//  strength of the instantiation. Additional entropy may be provided in the nonce or the optional
+		//  personalization string during instantiation, or in the additional input during reseeding and generation,
+		//  but this is not required and does not increase the "official"� security strength of the DRBG
+		//  instantiation that is recorded in the internal state..
 		CRYPTOPP_ASSERT(entropyLength >= MINIMUM_ENTROPY);
 		if (entropyLength < MINIMUM_ENTROPY)
 			throw NIST_DRBG::Err("Hash_DRBG", "Insufficient entropy during reseed");
