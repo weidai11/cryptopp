@@ -934,13 +934,6 @@ RELEASE_CXXFLAGS="-DNDEBUG $OPT_G2 $OPT_O2"
 VALGRIND_CXXFLAGS="-DNDEBUG $OPT_G3 $OPT_O1"
 PLATFORM_CXXFLAGS=()
 ELEVATED_CXXFLAGS=()
-DEPRECATED_CXXFLAGS=()
-
-# Keep noise to a minimum
-"$CXX" -DCRYPTOPP_ADHOC_MAIN -Wno-deprecated-declarations adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
-if [[ "$?" -eq "0" ]]; then
-	DEPRECATED_CXXFLAGS+=("-Wno-deprecated-declarations")
-fi
 
 # Clang {3.4|3.5|3.6} only advertises SSE2, http://bugs.launchpad.net/ubuntu/+bug/1616723,
 #   http://bugs.launchpad.net/ubuntu/+bug/1616729 and http://bugs.launchpad.net/ubuntu/+bug/1616731
@@ -1627,7 +1620,7 @@ if true; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -1653,7 +1646,7 @@ if true; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -1685,7 +1678,7 @@ if [[ ("${#PLATFORM_CXXFLAGS[@]}" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS ${PLATFORM_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS ${PLATFORM_CXXFLAGS[@]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -1711,7 +1704,7 @@ if [[ ("${#PLATFORM_CXXFLAGS[@]}" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS ${PLATFORM_CXXFLAGS[@]} ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS ${PLATFORM_CXXFLAGS[@]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -1744,7 +1737,7 @@ if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0" || "$INTEL_COMPILER"
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="$DEBUG_CXXFLAGS -march=i586 $OPT_PIC ${DEPRECATED_CXXFLAGS[@]}"
+		CXXFLAGS="$DEBUG_CXXFLAGS -march=i586 $OPT_PIC"
 		CXX="$CXX" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="$CXXFLAGS" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -1770,7 +1763,7 @@ if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0" || "$INTEL_COMPILER"
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="$RELEASE_CXXFLAGS -march=i586 $OPT_PIC ${DEPRECATED_CXXFLAGS[@]}"
+		CXXFLAGS="$RELEASE_CXXFLAGS -march=i586 $OPT_PIC"
 		CXX="$CXX" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="$CXXFLAGS" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -1799,7 +1792,7 @@ if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0" || "$INTEL_COMPILER"
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="$DEBUG_CXXFLAGS -march=x86-64 $OPT_PIC ${DEPRECATED_CXXFLAGS[@]}"
+		CXXFLAGS="$DEBUG_CXXFLAGS -march=x86-64 $OPT_PIC"
 		CXX="$CXX" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="$CXXFLAGS" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -1825,7 +1818,7 @@ if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0" || "$INTEL_COMPILER"
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="$RELEASE_CXXFLAGS -march=x86-64 $OPT_PIC ${DEPRECATED_CXXFLAGS[@]}"
+		CXXFLAGS="$RELEASE_CXXFLAGS -march=x86-64 $OPT_PIC"
 		CXX="$CXX" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="$CXXFLAGS" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -1870,7 +1863,7 @@ if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0" || "$INTEL_COMPILER"
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="$DEBUG_CXXFLAGS -march=i586 ${X86_OPTS[@]} $OPT_PIC ${DEPRECATED_CXXFLAGS[@]}"
+		CXXFLAGS="$DEBUG_CXXFLAGS -march=i586 ${X86_OPTS[@]} $OPT_PIC"
 		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -1896,7 +1889,7 @@ if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0" || "$INTEL_COMPILER"
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="$RELEASE_CXXFLAGS -march=i586 ${X86_OPTS[@]} $OPT_PIC ${DEPRECATED_CXXFLAGS[@]}"
+		CXXFLAGS="$RELEASE_CXXFLAGS -march=i586 ${X86_OPTS[@]} $OPT_PIC"
 		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -1925,7 +1918,7 @@ if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0" || "$INTEL_COMPILER"
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="$DEBUG_CXXFLAGS -march=x86-64 ${X86_OPTS[@]} $OPT_PIC ${DEPRECATED_CXXFLAGS[@]}"
+		CXXFLAGS="$DEBUG_CXXFLAGS -march=x86-64 ${X86_OPTS[@]} $OPT_PIC"
 		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -1951,7 +1944,7 @@ if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0" || "$INTEL_COMPILER"
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="$RELEASE_CXXFLAGS -march=x86-64 ${X86_OPTS[@]} $OPT_PIC ${DEPRECATED_CXXFLAGS[@]}"
+		CXXFLAGS="$RELEASE_CXXFLAGS -march=x86-64 ${X86_OPTS[@]} $OPT_PIC"
 		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -1985,10 +1978,10 @@ if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0" || "$INTEL_COMPILER"
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="$DEBUG_CXXFLAGS -march=i586 $OPT_PIC ${DEPRECATED_CXXFLAGS[@]}"
+		CXXFLAGS="$DEBUG_CXXFLAGS -march=i586 $OPT_PIC"
 		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static 2>&1 | tee -a "$TEST_RESULTS"
 
-		CXXFLAGS="$DEBUG_CXXFLAGS -march=native $OPT_PIC ${DEPRECATED_CXXFLAGS[@]}"
+		CXXFLAGS="$DEBUG_CXXFLAGS -march=native $OPT_PIC"
 		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2014,10 +2007,10 @@ if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0" || "$INTEL_COMPILER"
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="$RELEASE_CXXFLAGS -march=i586 $OPT_PIC ${DEPRECATED_CXXFLAGS[@]}"
+		CXXFLAGS="$RELEASE_CXXFLAGS -march=i586 $OPT_PIC"
 		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static 2>&1 | tee -a "$TEST_RESULTS"
 
-		CXXFLAGS="$RELEASE_CXXFLAGS -march=native $OPT_PIC ${DEPRECATED_CXXFLAGS[@]}"
+		CXXFLAGS="$RELEASE_CXXFLAGS -march=native $OPT_PIC"
 		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2046,10 +2039,10 @@ if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0" || "$INTEL_COMPILER"
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="$DEBUG_CXXFLAGS -march=x86-64 $OPT_PIC ${DEPRECATED_CXXFLAGS[@]}"
+		CXXFLAGS="$DEBUG_CXXFLAGS -march=x86-64 $OPT_PIC"
 		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static 2>&1 | tee -a "$TEST_RESULTS"
 
-		CXXFLAGS="$DEBUG_CXXFLAGS -march=native $OPT_PIC ${DEPRECATED_CXXFLAGS[@]}"
+		CXXFLAGS="$DEBUG_CXXFLAGS -march=native $OPT_PIC"
 		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2075,10 +2068,10 @@ if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0" || "$INTEL_COMPILER"
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="$RELEASE_CXXFLAGS -march=x86-64 $OPT_PIC ${DEPRECATED_CXXFLAGS[@]}"
+		CXXFLAGS="$RELEASE_CXXFLAGS -march=x86-64 $OPT_PIC"
 		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static 2>&1 | tee -a "$TEST_RESULTS"
 
-		CXXFLAGS="$RELEASE_CXXFLAGS -march=native $OPT_PIC ${DEPRECATED_CXXFLAGS[@]}"
+		CXXFLAGS="$RELEASE_CXXFLAGS -march=native $OPT_PIC"
 		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2110,7 +2103,7 @@ if true; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS -DCRYPTOPP_DISABLE_ASM ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS -DCRYPTOPP_DISABLE_ASM"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2136,7 +2129,7 @@ if true; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -DCRYPTOPP_DISABLE_ASM ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -DCRYPTOPP_DISABLE_ASM"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2167,7 +2160,7 @@ if [[ "$HAVE_CXX03" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++03 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++03 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2193,7 +2186,7 @@ if [[ "$HAVE_CXX03" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2224,7 +2217,7 @@ if [[ "$HAVE_GNU03" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS -std=gnu++03 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=gnu++03 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2250,7 +2243,7 @@ if [[ "$HAVE_GNU03" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=gnu++03 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=gnu++03 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2281,7 +2274,7 @@ if [[ "$HAVE_CXX11" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++11 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++11 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2307,7 +2300,7 @@ if [[ "$HAVE_CXX11" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2338,7 +2331,7 @@ if [[ "$HAVE_GNU11" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS -std=gnu++11 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=gnu++11 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2364,7 +2357,7 @@ if [[ "$HAVE_GNU11" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=gnu++11 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=gnu++11 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2395,7 +2388,7 @@ if [[ "$HAVE_CXX14" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++14 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++14 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2421,7 +2414,7 @@ if [[ "$HAVE_CXX14" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2452,7 +2445,7 @@ if [[ "$HAVE_GNU14" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS -std=gnu++14 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=gnu++14 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2478,7 +2471,7 @@ if [[ "$HAVE_GNU14" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=gnu++14 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=gnu++14 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2509,7 +2502,7 @@ if [[ "$HAVE_CXX17" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++17 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++17 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2535,7 +2528,7 @@ if [[ "$HAVE_CXX17" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2566,7 +2559,7 @@ if [[ "$HAVE_GNU17" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS -std=gnu++17 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=gnu++17 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2592,7 +2585,7 @@ if [[ "$HAVE_GNU17" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=gnu++17 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=gnu++17 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2623,7 +2616,7 @@ if [[ "$HAVE_X32" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS -mx32 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS -mx32 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2649,7 +2642,7 @@ if [[ "$HAVE_X32" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -mx32 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -mx32 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2680,7 +2673,7 @@ if true; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS -DCRYPTOPP_INIT_PRIORITY=250 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS -DCRYPTOPP_INIT_PRIORITY=250 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2706,7 +2699,7 @@ if true; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -DCRYPTOPP_INIT_PRIORITY=250 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -DCRYPTOPP_INIT_PRIORITY=250 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2737,7 +2730,7 @@ if true; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS -DNO_OS_DEPENDENCE ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS -DNO_OS_DEPENDENCE ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2763,7 +2756,7 @@ if true; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -DNO_OS_DEPENDENCE ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -DNO_OS_DEPENDENCE ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2794,7 +2787,7 @@ if [[ "$HAVE_LDGOLD" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" LD="ld.gold" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2820,7 +2813,7 @@ if [[ "$HAVE_LDGOLD" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" LD="ld.gold" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2851,7 +2844,7 @@ if [[ "$HAVE_UNIFIED_ASM" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS ${PLATFORM_CXXFLAGS[@]} -masm-syntax-unified $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS ${PLATFORM_CXXFLAGS[@]} -masm-syntax-unified $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2877,7 +2870,7 @@ if [[ "$HAVE_UNIFIED_ASM" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS ${PLATFORM_CXXFLAGS[@]} -masm-syntax-unified $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS ${PLATFORM_CXXFLAGS[@]} -masm-syntax-unified $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2908,7 +2901,7 @@ if [[ "$HAVE_O3" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="-DDEBUG $OPT_O3 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="-DDEBUG $OPT_O3 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2934,7 +2927,7 @@ if [[ "$HAVE_O3" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="-DNDEBUG $OPT_O3 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="-DNDEBUG $OPT_O3 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2965,7 +2958,7 @@ if [[ "$HAVE_O5" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="-DDEBUG $OPT_O5 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="-DDEBUG $OPT_O5 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -2991,7 +2984,7 @@ if [[ "$HAVE_O5" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="-DNDEBUG $OPT_O5 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="-DNDEBUG $OPT_O5 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -3022,7 +3015,7 @@ if [[ "$HAVE_OS" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="-DDEBUG $OPT_OS ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="-DDEBUG $OPT_OS ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -3048,7 +3041,7 @@ if [[ "$HAVE_OS" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="-DNDEBUG $OPT_OS ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="-DNDEBUG $OPT_OS ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -3079,7 +3072,7 @@ if [[ "$HAVE_OFAST" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="-DDEBUG $OPT_OFAST ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="-DDEBUG $OPT_OFAST ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -3105,7 +3098,7 @@ if [[ "$HAVE_OFAST" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="-DNDEBUG $OPT_OFAST ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="-DNDEBUG $OPT_OFAST ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -3136,7 +3129,7 @@ if [[ ("$SUN_COMPILER" -eq "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" lean 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -3162,7 +3155,7 @@ if [[ ("$SUN_COMPILER" -eq "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" lean 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -3190,7 +3183,7 @@ if [[ ("$HAVE_OMP" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="-DDEBUG ${OMP_FLAGS[@]} ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="-DDEBUG ${OMP_FLAGS[@]} ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -3214,7 +3207,7 @@ if [[ ("$HAVE_OMP" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="-DNDEBUG ${OMP_FLAGS[@]} ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="-DNDEBUG ${OMP_FLAGS[@]} ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -3245,7 +3238,7 @@ if [[ ("$HAVE_CXX03" -ne "0" && "$HAVE_UBSAN" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++03 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++03 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" ubsan | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -3271,7 +3264,7 @@ if [[ ("$HAVE_CXX03" -ne "0" && "$HAVE_UBSAN" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" ubsan | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -3302,7 +3295,7 @@ if [[ ("$HAVE_CXX03" -ne "0" && "$HAVE_ASAN" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++03 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++03 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" asan | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -3340,7 +3333,7 @@ if [[ ("$HAVE_CXX03" -ne "0" && "$HAVE_ASAN" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" asan | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -3382,7 +3375,7 @@ if [[ ("$HAVE_CXX03" -ne "0" && "$HAVE_BOUNDS_SAN" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++03 -fsanitize=bounds-strict ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++03 -fsanitize=bounds-strict ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -3420,7 +3413,7 @@ if [[ ("$HAVE_CXX03" -ne "0" && "$HAVE_BOUNDS_SAN" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 -fsanitize=bounds-strict ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 -fsanitize=bounds-strict ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -3462,7 +3455,7 @@ if [[ ("$HAVE_CXX11" -ne "0" && "$HAVE_UBSAN" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++11 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++11 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" ubsan | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -3488,7 +3481,7 @@ if [[ ("$HAVE_CXX11" -ne "0" && "$HAVE_UBSAN" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" ubsan | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -3519,7 +3512,7 @@ if [[ ("$HAVE_CXX11" -ne "0" && "$HAVE_ASAN" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++11 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++11 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" asan | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -3557,7 +3550,7 @@ if [[ ("$HAVE_CXX11" -ne "0" && "$HAVE_ASAN" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" asan | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -3599,7 +3592,7 @@ if [[ ("$HAVE_CXX11" -ne "0" && "$HAVE_BOUNDS_SAN" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++11 -fsanitize=bounds-strict ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++11 -fsanitize=bounds-strict ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -3637,7 +3630,7 @@ if [[ ("$HAVE_CXX11" -ne "0" && "$HAVE_BOUNDS_SAN" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 -fsanitize=bounds-strict ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 -fsanitize=bounds-strict ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -3676,7 +3669,7 @@ if [[ ("$HAVE_CXX14" -ne "0" && "$HAVE_UBSAN" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" ubsan | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -3704,7 +3697,7 @@ if [[ ("$HAVE_CXX14" -ne "0" && "$HAVE_ASAN" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" asan | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -3743,7 +3736,7 @@ if [[ ("$HAVE_CXX14" -ne "0" && "$HAVE_BOUNDS_SAN" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 -fsanitize=bounds-strict ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 -fsanitize=bounds-strict ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -3771,7 +3764,7 @@ if [[ ("$HAVE_CXX17" -ne "0" && "$HAVE_UBSAN" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" ubsan | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -3799,7 +3792,7 @@ if [[ ("$HAVE_CXX17" -ne "0" && "$HAVE_ASAN" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" asan | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -3838,7 +3831,7 @@ if [[ ("$HAVE_CXX17" -ne "0" && "$HAVE_BOUNDS_SAN" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 -fsanitize=bounds-strict ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 -fsanitize=bounds-strict ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -4194,7 +4187,7 @@ if [[ ("$IS_DARWIN" -ne "0") && ("$HAVE_CXX03" -ne "0" && "$CLANG_COMPILER" -ne 
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 -stdlib=libc++ ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 -stdlib=libc++ ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -4222,7 +4215,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$HAVE_CXX03" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 -stdlib=libstdc++ ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 -stdlib=libstdc++ ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -4250,7 +4243,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$HAVE_CXX11" -ne "0" && "$CLANG_COMPILER" -ne "0
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 -stdlib=libc++ ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 -stdlib=libc++ ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -4278,7 +4271,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$HAVE_CXX11" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 -stdlib=libstdc++ ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 -stdlib=libstdc++ ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -4306,7 +4299,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$HAVE_CXX14" -ne "0" && "$CLANG_COMPILER" -ne "0
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 -stdlib=libc++ ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 -stdlib=libc++ ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -4334,7 +4327,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$HAVE_CXX14" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 -stdlib=libstdc++ ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 -stdlib=libstdc++ ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -4362,7 +4355,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$HAVE_CXX17" -ne "0" && "$CLANG_COMPILER" -ne "0
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 -stdlib=libc++ ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 -stdlib=libc++ ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -4390,7 +4383,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$HAVE_CXX17" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 -stdlib=libstdc++ ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 -stdlib=libstdc++ ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -4418,7 +4411,7 @@ if [[ "$IS_DARWIN" -ne "0" && "$HAVE_INTEL_MULTIARCH" -ne "0" && "$HAVE_CXX03" -
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -arch i386 -arch x86_64 -std=c++03 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -arch i386 -arch x86_64 -std=c++03 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -4457,7 +4450,7 @@ if [[ "$IS_DARWIN" -ne "0" && "$HAVE_INTEL_MULTIARCH" -ne "0" && "$HAVE_CXX11" -
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -arch i386 -arch x86_64 -std=c++11 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -arch i386 -arch x86_64 -std=c++11 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -4496,7 +4489,7 @@ if [[ "$IS_DARWIN" -ne "0" && "$HAVE_INTEL_MULTIARCH" -ne "0" && "$HAVE_CXX14" -
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -arch i386 -arch x86_64 -std=c++14 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -arch i386 -arch x86_64 -std=c++14 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -4535,7 +4528,7 @@ if [[ "$IS_DARWIN" -ne "0" && "$HAVE_INTEL_MULTIARCH" -ne "0" && "$HAVE_CXX17" -
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -arch i386 -arch x86_64 -std=c++17 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -arch i386 -arch x86_64 -std=c++17 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -4574,7 +4567,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$HAVE_PPC_MULTIARCH" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -arch ppc -arch ppc64 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -arch ppc -arch ppc64 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -4613,7 +4606,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$HAVE_CXX03" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -4647,7 +4640,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$HAVE_CXX11" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -4681,7 +4674,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$HAVE_CXX14" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -4715,7 +4708,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$HAVE_CXX17" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -4767,7 +4760,7 @@ if [[ ("$HAVE_X86_AES" -ne "0" || "$HAVE_X86_RDRAND" -ne "0" || "$HAVE_X86_RDSEE
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS ${OPTS[@]} ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS ${OPTS[@]} ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -4797,7 +4790,7 @@ if [[ "$WANT_BENCHMARKS" -ne "0" ]]; then
 
 		"$MAKE" clean > /dev/null 2>&1
 
-		CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+		CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -4822,7 +4815,7 @@ if [[ "$WANT_BENCHMARKS" -ne "0" ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+		CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -4847,7 +4840,7 @@ if [[ "$WANT_BENCHMARKS" -ne "0" ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+		CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -4876,7 +4869,7 @@ if [[ "$IS_MINGW" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -DPREFER_BERKELEY_STYLE_SOCKETS -DNO_WINDOWS_STYLE_SOCKETS ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -DPREFER_BERKELEY_STYLE_SOCKETS -DNO_WINDOWS_STYLE_SOCKETS ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -4904,7 +4897,7 @@ if [[ "$IS_MINGW" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -DPREFER_WINDOWS_STYLE_SOCKETS -DNO_BERKELEY_STYLE_SOCKETS ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -DPREFER_WINDOWS_STYLE_SOCKETS -DNO_BERKELEY_STYLE_SOCKETS ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -4932,7 +4925,7 @@ if [[ "$HAVE_CXX03" -ne "0" && "$HAVE_VALGRIND" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$VALGRIND_CXXFLAGS -std=c++03 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$VALGRIND_CXXFLAGS -std=c++03 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -4954,7 +4947,7 @@ if [[ ("$HAVE_VALGRIND" -ne "0" && "$HAVE_CXX11" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$VALGRIND_CXXFLAGS -std=c++11 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$VALGRIND_CXXFLAGS -std=c++11 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -4976,7 +4969,7 @@ if [[ ("$HAVE_VALGRIND" -ne "0" && "$HAVE_CXX14" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$VALGRIND_CXXFLAGS -std=c++14 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$VALGRIND_CXXFLAGS -std=c++14 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -4998,7 +4991,7 @@ if [[ ("$HAVE_VALGRIND" -ne "0" && "$HAVE_CXX17" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$VALGRIND_CXXFLAGS -std=c++17 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$VALGRIND_CXXFLAGS -std=c++17 ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -5023,7 +5016,7 @@ if [[ ("$HAVE_CXX03" -ne "0" && ("$HAVE_GCC" -ne "0" || "$HAVE_CLANG" -ne "0")) 
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++03 ${DEPRECATED_CXXFLAGS[@]} ${ELEVATED_CXXFLAGS[@]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++03 ${ELEVATED_CXXFLAGS[@]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -5040,7 +5033,7 @@ if [[ ("$HAVE_CXX03" -ne "0" && ("$HAVE_GCC" -ne "0" || "$HAVE_CLANG" -ne "0")) 
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 ${DEPRECATED_CXXFLAGS[@]} $RELEASE_CXXFLAGS_ELEVATED"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 $RELEASE_CXXFLAGS_ELEVATED"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 	if [[ "$?" -ne "0" ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$WARN_RESULTS"
@@ -5061,7 +5054,7 @@ if [[ ("$HAVE_CXX11" -ne "0" && ("$HAVE_GCC" -ne "0" || "$HAVE_CLANG" -ne "0")) 
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++11 ${DEPRECATED_CXXFLAGS[@]} ${ELEVATED_CXXFLAGS[@]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++11 ${ELEVATED_CXXFLAGS[@]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -5078,7 +5071,7 @@ if [[ ("$HAVE_CXX11" -ne "0" && ("$HAVE_GCC" -ne "0" || "$HAVE_CLANG" -ne "0")) 
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 ${DEPRECATED_CXXFLAGS[@]} ${ELEVATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 ${ELEVATED_CXXFLAGS[@]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 	if [[ "$?" -ne "0" ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$WARN_RESULTS"
@@ -5099,7 +5092,7 @@ if [[ ("$HAVE_CXX14" -ne "0" && ("$HAVE_GCC" -ne "0" || "$HAVE_CLANG" -ne "0")) 
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++14 ${DEPRECATED_CXXFLAGS[@]} ${ELEVATED_CXXFLAGS[@]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++14 ${ELEVATED_CXXFLAGS[@]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -5116,7 +5109,7 @@ if [[ ("$HAVE_CXX14" -ne "0" && ("$HAVE_GCC" -ne "0" || "$HAVE_CLANG" -ne "0")) 
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 ${DEPRECATED_CXXFLAGS[@]} ${ELEVATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 ${ELEVATED_CXXFLAGS[@]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 	if [[ "$?" -ne "0" ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$WARN_RESULTS"
@@ -5137,7 +5130,7 @@ if [[ ("$HAVE_CXX17" -ne "0" && ("$HAVE_GCC" -ne "0" || "$HAVE_CLANG" -ne "0")) 
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++17 ${DEPRECATED_CXXFLAGS[@]} ${ELEVATED_CXXFLAGS[@]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++17 ${ELEVATED_CXXFLAGS[@]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -5154,7 +5147,7 @@ if [[ ("$HAVE_CXX17" -ne "0" && ("$HAVE_GCC" -ne "0" || "$HAVE_CLANG" -ne "0")) 
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 ${DEPRECATED_CXXFLAGS[@]} ${ELEVATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 ${ELEVATED_CXXFLAGS[@]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 
 	if [[ "$?" -ne "0" ]]; then
@@ -5181,7 +5174,7 @@ if [[ ("$CLANG_COMPILER" -eq "0") ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="-DNDEBUG -g2 -O2 ${DEPRECATED_CXXFLAGS[@]}"
+		CXXFLAGS="-DNDEBUG -g2 -O2"
 		CXX="$CLANG_CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -5216,7 +5209,7 @@ if [[ ("$GCC_COMPILER" -eq "0") ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="-DNDEBUG -g2 -O2 ${DEPRECATED_CXXFLAGS[@]}"
+		CXXFLAGS="-DNDEBUG -g2 -O2"
 		CXX="$GCC_CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -5254,7 +5247,7 @@ if [[ ("$INTEL_COMPILER" -eq "0") ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="-DNDEBUG -g2 -O2 ${DEPRECATED_CXXFLAGS[@]}"
+		CXXFLAGS="-DNDEBUG -g2 -O2"
 		CXX="$INTEL_CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -5291,7 +5284,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 			rm -f adhoc.cpp > /dev/null 2>&1
 
 			# We want to use -stdlib=libstdc++ below, but it causes a compile error. Maybe MacPorts hardwired libc++.
-			CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 ${DEPRECATED_CXXFLAGS[@]}"
+			CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11"
 			CXX="$MACPORTS_CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 				echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -5324,7 +5317,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 			rm -f adhoc.cpp > /dev/null 2>&1
 
 			# We want to use -stdlib=libstdc++ below, but it causes a compile error. Maybe MacPorts hardwired libc++.
-			CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 ${DEPRECATED_CXXFLAGS[@]}"
+			CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11"
 			CXX="$MACPORTS_CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 				echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -5357,7 +5350,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 			rm -f adhoc.cpp > /dev/null 2>&1
 
 			# We want to use -stdlib=libstdc++ below, but it causes a compile error. Maybe MacPorts hardwired libc++.
-			CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 ${DEPRECATED_CXXFLAGS[@]}"
+			CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11"
 			CXX="$MACPORTS_CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 				echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -5390,7 +5383,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 			rm -f adhoc.cpp > /dev/null 2>&1
 
 			# We want to use -stdlib=libstdc++ below, but it causes a compile error. Maybe MacPorts hardwired libc++.
-			CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 ${DEPRECATED_CXXFLAGS[@]}"
+			CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11"
 			CXX="$MACPORTS_CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 				echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -5422,7 +5415,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 			"$MAKE" clean > /dev/null 2>&1
 			rm -f adhoc.cpp > /dev/null 2>&1
 
-			CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 -stdlib=libc++ ${DEPRECATED_CXXFLAGS[@]}"
+			CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 -stdlib=libc++"
 			CXX="$MACPORTS_CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 				echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -5454,7 +5447,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 			"$MAKE" clean > /dev/null 2>&1
 			rm -f adhoc.cpp > /dev/null 2>&1
 
-			CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 -stdlib=libc++ ${DEPRECATED_CXXFLAGS[@]}"
+			CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 -stdlib=libc++"
 			CXX="$MACPORTS_CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 				echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -5486,7 +5479,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 			"$MAKE" clean > /dev/null 2>&1
 			rm -f adhoc.cpp > /dev/null 2>&1
 
-			CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 -stdlib=libc++ ${DEPRECATED_CXXFLAGS[@]}"
+			CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 -stdlib=libc++"
 			CXX="$MACPORTS_CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 				echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -5518,7 +5511,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 			"$MAKE" clean > /dev/null 2>&1
 			rm -f adhoc.cpp > /dev/null 2>&1
 
-			CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 -stdlib=libc++ ${DEPRECATED_CXXFLAGS[@]}"
+			CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 -stdlib=libc++"
 			CXX="$MACPORTS_CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 				echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -5553,7 +5546,7 @@ if [[ "$IS_DARWIN" -ne "0" ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="-DNDEBUG -g2 -O2 ${DEPRECATED_CXXFLAGS[@]}"
+		CXXFLAGS="-DNDEBUG -g2 -O2"
 		CXX="$XCODE_CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -5586,7 +5579,7 @@ if [[ ("$IS_CYGWIN" -eq "0") && ("$IS_MINGW" -eq "0") ]]; then
 	INSTALL_DIR="/tmp/cryptopp_test"
 	rm -rf "$INSTALL_DIR" > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -DCRYPTOPP_DATA_DIR='\"$INSTALL_DIR/share/cryptopp/\"' ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS ${DEPRECATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -DCRYPTOPP_DATA_DIR='\"$INSTALL_DIR/share/cryptopp/\"' ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
