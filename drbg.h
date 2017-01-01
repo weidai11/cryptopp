@@ -4,8 +4,7 @@
 //! \file drbg.h
 //! \brief Classes for NIST DRBGs from SP 800-90A
 //! \sa <A HREF="http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-90Ar1.pdf">Recommendation
-//!   for Random Number Generation Using Deterministic Random Bit Generators,
-//!   Rev 1 (June 2015)</A>
+//!   for Random Number Generation Using Deterministic Random Bit Generators, Rev 1 (June 2015)</A>
 //! \since Crypto++ 5.7
 
 #ifndef CRYPTOPP_NIST_DRBG_H
@@ -20,11 +19,19 @@ NAMESPACE_BEGIN(CryptoPP)
 //! \brief Interface for NIST DRBGs from SP 800-90A
 //! \details NIST_DRBG is the base class interface for NIST DRBGs from SP 800-90A Rev 1 (June 2015)
 //! \sa <A HREF="http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-90Ar1.pdf">Recommendation
-//!   for Random Number Generation Using Deterministic Random Bit Generators,
-//!   Rev 1 (June 2015)</A>
+//!   for Random Number Generation Using Deterministic Random Bit Generators, Rev 1 (June 2015)</A>
 //! \since Crypto++ 5.7
 class NIST_DRBG : public RandomNumberGenerator
 {
+public:
+	//! \brief Exception thrown when a NIST DRBG encounters an error
+	class Err : public Exception
+	{
+	public:
+		explicit Err(const std::string &c, const std::string &m)
+		: Exception(OTHER_ERROR, c + ": " + m) {}
+	};
+
 public:
 	virtual ~NIST_DRBG() {}
 
@@ -36,33 +43,39 @@ public:
 	//! \brief Update RNG state with additional unpredictable values
 	//! \param input the entropy to add to the generator
 	//! \param length the size of the input buffer
+	//! \throws NIST_DRBG::Err if the generator is reseeded with insufficient entropy
 	//! \details NIST instantiation and reseed requirements demand the generator is constructed with at least <tt>MINIMUM_ENTROPY</tt> entropy.
 	//!   The byte array for <tt>input</tt> must meet <A HREF ="http://csrc.nist.gov/publications/PubsSPs.html">NIST
-	//!   SP 800-90B</A> requirements.
+	//!   SP 800-90C</A> requirements.
 	virtual void IncorporateEntropy(const byte *input, size_t length)=0;
 
 	//! \brief Update RNG state with additional unpredictable values
 	//! \param entropy the entropy to add to the generator
 	//! \param entropyLength the size of the input buffer
-	//! \param additional additional entropy to add to the generator
-	//! \param additionaLength the size of the additional entropy buffer
+	//! \param additional additional input to add to the generator
+	//! \param additionaLength the size of the additional input buffer
+	//! \throws NIST_DRBG::Err if the generator is reseeded with insufficient entropy
 	//! \details IncorporateEntropy() is an overload provided to match NIST requirements. NIST instantiation and
 	//!   reseed requirements demand the generator is constructed with at least <tt>MINIMUM_ENTROPY</tt> entropy.
 	//!   The byte array for <tt>input</tt> must meet <A HREF ="http://csrc.nist.gov/publications/PubsSPs.html">NIST
-	//!   SP 800-90B</A> requirements.
+	//!   SP 800-90C</A> requirements.
 	virtual void IncorporateEntropy(const byte *entropy, size_t entropyLength, const byte* additional, size_t additionaLength)=0;
 
 	//! \brief Generate random array of bytes
 	//! \param output the byte buffer
 	//! \param size the length of the buffer, in bytes
+	//! \throws NIST_DRBG::Err if a reseed is required
+	//! \throws NIST_DRBG::Err if the size exceeds <tt>MAXIMUM_BYTES_PER_REQUEST</tt>
 	virtual void GenerateBlock(byte *output, size_t size)=0;
 
 	//! \brief Generate random array of bytes
-	//! \param additional additional entropy to add to the generator
-	//! \param additionaLength the size of the additional entropy buffer
+	//! \param additional additional input to add to the generator
+	//! \param additionaLength the size of the additional input buffer
 	//! \param output the byte buffer
 	//! \param size the length of the buffer, in bytes
-	//! \details GenerateBlock() is an overload provided to match NIST requirements. The byte array for <tt>additional</tt> is optional. If present
+	//! \throws NIST_DRBG::Err if a reseed is required
+	//! \throws NIST_DRBG::Err if the size exceeds <tt>MAXIMUM_BYTES_PER_REQUEST</tt>
+	//! \details GenerateBlock() is an overload provided to match NIST requirements. The byte array for <tt>additional</tt> input is optional. If present
 	//!   the additional randomness is mixed before generating the output bytes.
 	virtual void GenerateBlock(const byte* additional, size_t additionaLength, byte *output, size_t size)=0;
 
@@ -81,7 +94,7 @@ public:
 	//! \returns The minimum entropy size required by the generator, in bytes
 	//! \details The equivalent class constant is <tt>MINIMUM_ENTROPY</tt>. All NIST DRBGs must be instaniated with at least
 	//!   <tt>MINIMUM_ENTROPY</tt> bytes of entropy. The bytes must meet <A
-	//!   HREF="http://csrc.nist.gov/publications/PubsSPs.html">NIST SP 800-90B</A> requirements.
+	//!   HREF="http://csrc.nist.gov/publications/PubsSPs.html">NIST SP 800-90C</A> requirements.
 	virtual unsigned int GetMinEntropy() const=0;
 
 	//! \brief Provides the maximum entropy
@@ -140,7 +153,7 @@ public:
 	CRYPTOPP_CONSTANT(SECURITY_STRENGTH=STRENGTH)
 	CRYPTOPP_CONSTANT(SEED_LENGTH=SEEDLENGTH)
 	CRYPTOPP_CONSTANT(MINIMUM_ENTROPY=STRENGTH)
-	CRYPTOPP_CONSTANT(MINIMUM_NONCE=STRENGTH/2)
+	CRYPTOPP_CONSTANT(MINIMUM_NONCE=0)
 	CRYPTOPP_CONSTANT(MINIMUM_ADDITIONAL=0)
 	CRYPTOPP_CONSTANT(MINIMUM_PERSONALIZATION=0)
 	CRYPTOPP_CONSTANT(MAXIMUM_ENTROPY=UINT_MAX)
@@ -153,32 +166,30 @@ public:
 	//! \brief Construct a Hash DRBG
 	//! \param entropy the entropy to instantiate the generator
 	//! \param entropyLength the size of the entropy buffer
-	//! \param nonce additional entropy to instantiate the generator
+	//! \param nonce additional input to instantiate the generator
 	//! \param nonceLength the size of the nonce buffer
-	//! \param personalization additional entropy to instantiate the generator
-	//! \param personalizationLength the size of the additional buffer
+	//! \param personalization additional input to instantiate the generator
+	//! \param personalizationLength the size of the additional input buffer
+	//! \throws NIST_DRBG::Err if the generator is instantiated with insufficient entropy
 	//! \details All NIST DRBGs must be instaniated with at least <tt>MINIMUM_ENTROPY</tt> bytes of entropy. The byte array for <tt>entropy</tt> must meet <A HREF ="http://csrc.nist.gov/publications/PubsSPs.html">NIST
-	//!   SP 800-90B</A> requirements.
+	//!   SP 800-90C</A> requirements.
 	//! \details The <tt>nonce</tt> and <tt>personalization</tt> are optional byte arrays. If <tt>nonce</tt> is supplied, then it should include <tt>MINIMUM_NONCE</tt> bytes of entropy.
-	//! \details NIST instantiation requirements demand the generator is constructed with at least <tt>MINIMUM_ENTROPY</tt> entropy.
-	//!   The generator has the same requirements during reseed operations.
 	//! \details An example of instantiating a SHA256 generator is shown below.
 	//!   The example provides more entropy than required for SHA256. The <tt>NonblockingRng</tt> meets the
-	//!   requirements of <A HREF ="http://csrc.nist.gov/publications/PubsSPs.html">NIST SP 800-90B</A>.
+	//!   requirements of <A HREF ="http://csrc.nist.gov/publications/PubsSPs.html">NIST SP 800-90C</A>.
 	//!   RDRAND() and RDSEED() generators would work as well.
 	//! <pre>
 	//!    SecByteBlock entropy(48), result(128);
 	//!    NonblockingRng prng;
 	//!    RandomNumberSource rns(prng, entropy.size(), new ArraySink(entropy, entropy.size()));
 	//!
-	//!    Hash_DRBG<SHA256, 256/8, 440/8> drbg(entropy, 32, entropy+32, 16);
+	//!    Hash_DRBG<SHA256, 128/8, 440/8> drbg(entropy, 32, entropy+32, 16);
 	//!    drbg.GenerateBlock(result, result.size());
 	//! </pre>
 	Hash_DRBG(const byte* entropy, size_t entropyLength=STRENGTH, const byte* nonce=NULL,
 		size_t nonceLength=0, const byte* personalization=NULL, size_t personalizationLength=0)
 		: NIST_DRBG(), m_c(SEEDLENGTH), m_v(SEEDLENGTH)
 	{
-		CRYPTOPP_ASSERT(entropyLength + nonceLength/2 >= GetMinEntropy());
 		DRBG_Instantiate(entropy, entropyLength, nonce, nonceLength, personalization, personalizationLength);
 	}
 
@@ -236,7 +247,20 @@ protected:
 	void DRBG_Instantiate(const byte* entropy, size_t entropyLength, const byte* nonce, size_t nonceLength,
 		const byte* personalization, size_t personalizationLength)
 	{
-		CRYPTOPP_ASSERT(entropyLength+nonceLength+personalizationLength >= GetMinEntropy());
+		// 8.6.3: The entropy input shall have entropy that is equal to or greater than the security strength of the
+		//  instantiation. Additional entropy may be provided in the nonce or the optional personalization
+		//  string during instantiation, or in the additional input during reseeding and generation, but this is
+		//  not required and does not increase the “official” security strength of the DRBG instantiation that
+		//  is recorded in the internal state.
+		CRYPTOPP_ASSERT(entropyLength >= MINIMUM_ENTROPY);
+		if (entropyLength < MINIMUM_ENTROPY)
+			throw NIST_DRBG::Err("Hash_DRBG", "Insufficient entropy during instantiate");
+
+		// SP 800-90A, Section 9, says we should throw if we have too much entropy, too large a nonce,
+		// or too large a persoanlization string. We warn in Debug builds, but do nothing in Release builds.
+		CRYPTOPP_ASSERT(entropyLength <= MAXIMUM_ENTROPY);
+		CRYPTOPP_ASSERT(nonceLength <= MAXIMUM_NONCE);
+		CRYPTOPP_ASSERT(personalizationLength <= MAXIMUM_PERSONALIZATION);
 
 		const byte zero = 0;
 		SecByteBlock t1(SEEDLENGTH), t2(SEEDLENGTH);
@@ -250,6 +274,20 @@ protected:
 	// 10.1.1.3 Reseeding a Hash_DRBG Instantiation (p.49)
 	void DRBG_Reseed(const byte* entropy, size_t entropyLength, const byte* additional, size_t additionaLength)
 	{
+		// 8.6.3: The entropy input shall have entropy that is equal to or greater than the security strength of the
+		//  instantiation. Additional entropy may be provided in the nonce or the optional personalization
+		//  string during instantiation, or in the additional input during reseeding and generation, but this is
+		//  not required and does not increase the “official” security strength of the DRBG instantiation that
+		//  is recorded in the internal state.
+		CRYPTOPP_ASSERT(entropyLength >= MINIMUM_ENTROPY);
+		if (entropyLength < MINIMUM_ENTROPY)
+			throw NIST_DRBG::Err("Hash_DRBG", "Insufficient entropy during reseed");
+
+		// SP 800-90A, Section 9, says we should throw if we have too much entropy, too large a nonce,
+		// or too large a persoanlization string. We warn in Debug builds, but do nothing in Release builds.
+		CRYPTOPP_ASSERT(entropyLength <= MAXIMUM_ENTROPY);
+		CRYPTOPP_ASSERT(additionaLength <= MAXIMUM_ADDITIONAL);
+
 		const byte zero = 0, one = 1;
 		SecByteBlock t1(SEEDLENGTH), t2(SEEDLENGTH);
 		Hash_df(&one, 1, m_v, m_v.size(), entropy, entropyLength, additional, additionaLength, t1, t1.size());
@@ -264,7 +302,14 @@ protected:
 	{
 		// Step 1
 		if (static_cast<word64>(m_reseed) >= static_cast<word64>(GetMaxRequestBeforeReseed()))
-			throw Exception(Exception::OTHER_ERROR, "Reseed required");
+			throw NIST_DRBG::Err("Hash_DRBG", "Reseed required");
+
+		if (size > GetMaxBytesPerRequest())
+			throw NIST_DRBG::Err("Hash_DRBG", "Request size exceeds limit");
+
+		// SP 800-90A, Section 9, says we should throw if we have too much entropy, too large a nonce,
+		// or too large a persoanlization string. We warn in Debug builds, but do nothing in Release builds.
+		CRYPTOPP_ASSERT(additionaLength <= MAXIMUM_ADDITIONAL);
 
 		// Step 2
 		if (additional && additionaLength)

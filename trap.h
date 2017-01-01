@@ -40,7 +40,7 @@
 //!   <tt>CRYPTOPP_ASSERT</tt> is only in effect when the user explicitly requests a debug configuration.
 //! \details If you want to ensure <tt>CRYPTOPP_ASSERT</tt> is inert, then <em>do not</em> define
 //!   <tt>CRYPTOPP_DEBUG</tt>, <tt>DEBUG</tt> or <tt>_DEBUG</tt>. Avoiding the defines means <tt>CRYPTOPP_ASSERT</tt>
-//!   is processed into <tt>((void)(exp))</tt>.
+//!   is preprocessed into an empty string.
 //! \details The traditional Posix define <tt>NDEBUG</tt> has no effect on <tt>CRYPTOPP_DEBUG</tt>, <tt>CRYPTOPP_ASSERT</tt>
 //!   or DebugTrapHandler.
 //! \details An example of using \ref CRYPTOPP_ASSERT "CRYPTOPP_ASSERT" and DebugTrapHandler is shown below. The library's
@@ -89,7 +89,7 @@
 // Remove CRYPTOPP_ASSERT in non-debug builds.
 //  Can't use CRYPTOPP_UNUSED due to circular dependency
 #ifndef CRYPTOPP_ASSERT
-#  define CRYPTOPP_ASSERT(exp) ((void)0)
+#  define CRYPTOPP_ASSERT(exp)
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)

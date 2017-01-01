@@ -986,7 +986,7 @@ bool TestNIST_DRBG()
 		const byte additional2[] = "\x77\xfd\x1d\x68\xd6\xa4\xdd\xd5\xf3\x27\x25\x2d\x3f\x6b\xdf\xee\x8c\x35\xce\xd3\x83\xbe\xaf\xc9\x32\x77\xef\xf2\x1b\x6f\xf4\x1b";
 		const byte additional3[] = "\x59\xa0\x1f\xf8\x6a\x58\x72\x1e\x85\xd2\xf8\x3f\x73\x99\xf1\x96\x4e\x27\xf8\x7f\xcd\x1b\xf5\xc1\xeb\xf3\x37\x10\x9b\x13\xbd\x24";
 
-		Hash_DRBG<SHA256, 256/8, 440/8> drbg(entropy1, 32, nonce, 16, personalization, 32);
+		Hash_DRBG<SHA256, 128/8, 440/8> drbg(entropy1, 32, nonce, 16, personalization, 32);
 		drbg.IncorporateEntropy(entropy2, 32, additional1, 32);
 
 		SecByteBlock result(128);
@@ -1004,7 +1004,7 @@ bool TestNIST_DRBG()
 		fail = !!memcmp(result, expected, 1024/8);
 		pass = !fail && pass;
 
-		cout << (fail ? "FAILED   " : "passed   ") << "Hash_DRBG SHA256/256/440 (C0UNT=0, E=32, N=16, A=32, P=32)" << endl;
+		cout << (fail ? "FAILED   " : "passed   ") << "Hash_DRBG SHA256/128/440 (C0UNT=0, E=32, N=16, A=32, P=32)" << endl;
 	}
 
 	{
@@ -1018,7 +1018,7 @@ bool TestNIST_DRBG()
 		const byte additional2[] = "\xaf\x25\xc4\x6e\x21\xfc\xc3\xaf\x1f\xbb\xf8\x76\xb4\x57\xab\x1a\x94\x0a\x85\x16\x47\x81\xa4\xab\xda\xc8\xab\xca\xd0\x84\xda\xae";
 		const byte additional3[] = "\x59\x5b\x44\x94\x38\x86\x36\xff\x8e\x45\x1a\x0c\x42\xc8\xcc\x21\x06\x38\x3a\xc5\xa6\x30\x96\xb9\x14\x81\xb3\xa1\x2b\xc8\xcd\xf6";
 
-		Hash_DRBG<SHA256, 256/8, 440/8> drbg(entropy1, 32, nonce, 16, personalization, 32);
+		Hash_DRBG<SHA256, 128/8, 440/8> drbg(entropy1, 32, nonce, 16, personalization, 32);
 		drbg.IncorporateEntropy(entropy2, 32, additional1, 32);
 
 		SecByteBlock result(128);
@@ -1036,7 +1036,7 @@ bool TestNIST_DRBG()
 		fail = !!memcmp(result, expected, 1024/8);
 		pass = !fail && pass;
 
-		cout << (fail ? "FAILED   " : "passed   ") << "Hash_DRBG SHA256/256/440 (C0UNT=1, E=32, N=16, A=32, P=32)" << endl;
+		cout << (fail ? "FAILED   " : "passed   ") << "Hash_DRBG SHA256/128/440 (C0UNT=1, E=32, N=16, A=32, P=32)" << endl;
 	}
 
 	{
