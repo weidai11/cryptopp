@@ -89,7 +89,7 @@
 // Remove CRYPTOPP_ASSERT in non-debug builds.
 //  Can't use CRYPTOPP_UNUSED due to circular dependency
 #ifndef CRYPTOPP_ASSERT
-#  define CRYPTOPP_ASSERT(exp)
+#  define CRYPTOPP_ASSERT(exp) (void)0
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
