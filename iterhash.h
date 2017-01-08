@@ -24,7 +24,7 @@ public:
 //! \details IteratedHashBase provides an interface for block-based iterated hashes
 //! \sa HashTransformation, MessageAuthenticationCode
 template <class T, class BASE>
-class CRYPTOPP_NO_VTABLE IteratedHashBase : public BASE
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE IteratedHashBase : public BASE
 {
 public:
 	typedef T HashWordType;
@@ -98,7 +98,7 @@ private:
 //! \details IteratedHash provides a default implementation for block-based iterated hashes
 //! \sa HashTransformation, MessageAuthenticationCode
 template <class T_HashWordType, class T_Endianness, unsigned int T_BlockSize, class T_Base = HashTransformation>
-class CRYPTOPP_NO_VTABLE IteratedHash : public IteratedHashBase<T_HashWordType, T_Base>
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE IteratedHash : public IteratedHashBase<T_HashWordType, T_Base>
 {
 public:
 	typedef T_Endianness ByteOrderClass;
@@ -147,7 +147,7 @@ protected:
 //! \tparam T_StateAligned Flag indicating if state is 16-byte aligned
 //! \sa HashTransformation, MessageAuthenticationCode
 template <class T_HashWordType, class T_Endianness, unsigned int T_BlockSize, unsigned int T_StateSize, class T_Transform, unsigned int T_DigestSize = 0, bool T_StateAligned = false>
-class CRYPTOPP_NO_VTABLE IteratedHashWithStaticTransform
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE IteratedHashWithStaticTransform
 	: public ClonableImpl<T_Transform, AlgorithmImpl<IteratedHash<T_HashWordType, T_Endianness, T_BlockSize>, T_Transform> >
 {
 public:
