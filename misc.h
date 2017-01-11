@@ -904,7 +904,7 @@ inline T1 RoundDownToMultipleOf(const T1 &n, const T2 &m)
 template <class T1, class T2>
 inline T1 RoundUpToMultipleOf(const T1 &n, const T2 &m)
 {
-	if (n > (SIZE_MAX/sizeof(T1))-m-1)
+	if (std::numeric_limits<T1>::max() - m + 1 < n)
 		throw InvalidArgument("RoundUpToMultipleOf: integer overflow");
 	return RoundDownToMultipleOf(T1(n+m-1), m);
 }
