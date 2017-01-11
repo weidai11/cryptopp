@@ -101,6 +101,8 @@ bool TestSecBlock();
 bool TestPolynomialMod2();
 // http://github.com/weidai11/cryptopp/issues/336
 bool TestIntegerBitops();
+// http://github.com/weidai11/cryptopp/issues/360
+bool TestRounding();
 // http://github.com/weidai11/cryptopp/issues/242
 bool TestHuffmanCodes();
 // http://github.com/weidai11/cryptopp/issues/346

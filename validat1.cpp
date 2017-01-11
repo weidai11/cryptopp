@@ -87,6 +87,8 @@ bool ValidateAll(bool thorough)
 	pass=TestIntegerBitops() && pass;
 	// http://github.com/weidai11/cryptopp/issues/64
 	pass=TestPolynomialMod2() && pass;
+	// http://github.com/weidai11/cryptopp/issues/360
+	pass=TestRounding() && pass;
 	// http://github.com/weidai11/cryptopp/issues/242
 	pass=TestHuffmanCodes() && pass;
 	// http://github.com/weidai11/cryptopp/issues/346

@@ -27,6 +27,452 @@
 USING_NAMESPACE(CryptoPP)
 
 #if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_IMPORTS)
+bool TestRounding()
+{
+	std::cout << "\nTesting RoundUpToMultipleOf/RoundDownToMultipleOf...\n\n";
+	bool pass=true, fail;
+
+	// ********** byte **********//
+	try
+	{
+		const byte v=0, b=0x08;
+		byte r=RoundUpToMultipleOf(v, b);
+		fail = (r != v);
+	}
+	catch(const Exception&)
+	{
+		fail = true;
+	}
+
+	pass = !fail && pass;
+	std::cout << (fail ? "FAILED:  " : "passed:  ") << "RoundUpToMultipleOf, byte, no overflow\n";
+
+	try
+	{
+		const byte v=1, b=0x08;
+		byte r=RoundUpToMultipleOf(v, b);
+		fail = (r != b);
+	}
+	catch(const Exception&)
+	{
+		fail = true;
+	}
+
+	pass = !fail && pass;
+	std::cout << (fail ? "FAILED:  " : "passed:  ") << "RoundUpToMultipleOf, byte, no overflow\n";
+
+	try
+	{
+		const byte v=0x08, b=0x08;
+		byte r=RoundUpToMultipleOf(v, b);
+		fail = (r != v);
+	}
+	catch(const Exception&)
+	{
+		fail = true;
+	}
+
+	pass = !fail && pass;
+	std::cout << (fail ? "FAILED:  " : "passed:  ") << "RoundUpToMultipleOf, byte, no overflow\n";
+
+	try
+	{
+		const byte v=0xf7, b=0x08;
+		byte r=RoundUpToMultipleOf(v, b);
+		fail = (r != 0xf8);
+	}
+	catch(const Exception&)
+	{
+		fail = true;
+	}
+
+	pass = !fail && pass;
+	std::cout << (fail ? "FAILED:  " : "passed:  ") << "RoundUpToMultipleOf, byte, no overflow\n";
+
+	try
+	{
+		const byte v=0xf8, b=0x08;
+		byte r=RoundUpToMultipleOf(v, b);
+		fail = (r != 0xf8);
+	}
+	catch(const Exception&)
+	{
+		fail = true;
+	}
+
+	pass = !fail && pass;
+	std::cout << (fail ? "FAILED:  " : "passed:  ") << "RoundUpToMultipleOf, byte, no overflow\n";
+
+	try
+	{
+		const byte v=0xf9, b=0x08;
+		byte r=RoundUpToMultipleOf(v, b);
+		CRYPTOPP_UNUSED(r);
+		fail = true;
+	}
+	catch(const Exception&)
+	{
+		fail = false;
+	}
+
+	pass = !fail && pass;
+	std::cout << (fail ? "FAILED:  " : "passed:  ") << "RoundUpToMultipleOf, byte, overflow\n";
+
+	// ********** word16 **********//
+	try
+	{
+		const word16 v=0, b=0x08;
+		word16 r=RoundUpToMultipleOf(v, b);
+		fail = (r != v);
+	}
+	catch(const Exception&)
+	{
+		fail = true;
+	}
+
+	pass = !fail && pass;
+	std::cout << (fail ? "FAILED:  " : "passed:  ") << "RoundUpToMultipleOf, word16, no overflow\n";
+
+	try
+	{
+		const word16 v=1, b=0x08;
+		word16 r=RoundUpToMultipleOf(v, b);
+		fail = (r != b);
+	}
+	catch(const Exception&)
+	{
+		fail = true;
+	}
+
+	pass = !fail && pass;
+	std::cout << (fail ? "FAILED:  " : "passed:  ") << "RoundUpToMultipleOf, word16, no overflow\n";
+
+	try
+	{
+		const word16 v=0x08, b=0x08;
+		word16 r=RoundUpToMultipleOf(v, b);
+		fail = (r != v);
+	}
+	catch(const Exception&)
+	{
+		fail = true;
+	}
+
+	pass = !fail && pass;
+	std::cout << (fail ? "FAILED:  " : "passed:  ") << "RoundUpToMultipleOf, word16, no overflow\n";
+
+	try
+	{
+		const word16 v=0xfff7, b=0x08;
+		word16 r=RoundUpToMultipleOf(v, b);
+		fail = (r != 0xfff8);
+	}
+	catch(const Exception&)
+	{
+		fail = true;
+	}
+
+	pass = !fail && pass;
+	std::cout << (fail ? "FAILED:  " : "passed:  ") << "RoundUpToMultipleOf, word16, no overflow\n";
+
+	try
+	{
+		const word16 v=0xfff8, b=0x08;
+		word16 r=RoundUpToMultipleOf(v, b);
+		fail = (r != 0xfff8);
+	}
+	catch(const Exception&)
+	{
+		fail = true;
+	}
+
+	pass = !fail && pass;
+	std::cout << (fail ? "FAILED:  " : "passed:  ") << "RoundUpToMultipleOf, word16, no overflow\n";
+
+	try
+	{
+		const word16 v=0xfff9, b=0x08;
+		word16 r=RoundUpToMultipleOf(v, b);
+		CRYPTOPP_UNUSED(r);
+		fail = true;
+	}
+	catch(const Exception&)
+	{
+		fail = false;
+	}
+
+	pass = !fail && pass;
+	std::cout << (fail ? "FAILED:  " : "passed:  ") << "RoundUpToMultipleOf, word16, overflow\n";
+
+	// ********** word32 **********//
+	try
+	{
+		const word32 v=0, b=0x08;
+		word32 r=RoundUpToMultipleOf(v, b);
+		fail = (r != v);
+	}
+	catch(const Exception&)
+	{
+		fail = true;
+	}
+
+	pass = !fail && pass;
+	std::cout << (fail ? "FAILED:  " : "passed:  ") << "RoundUpToMultipleOf, word32, no overflow\n";
+
+	try
+	{
+		const word32 v=1, b=0x08;
+		word32 r=RoundUpToMultipleOf(v, b);
+		fail = (r != b);
+	}
+	catch(const Exception&)
+	{
+		fail = true;
+	}
+
+	pass = !fail && pass;
+	std::cout << (fail ? "FAILED:  " : "passed:  ") << "RoundUpToMultipleOf, word32, no overflow\n";
+
+	try
+	{
+		const word32 v=0x08, b=0x08;
+		word32 r=RoundUpToMultipleOf(v, b);
+		fail = (r != v);
+	}
+	catch(const Exception&)
+	{
+		fail = true;
+	}
+
+	pass = !fail && pass;
+	std::cout << (fail ? "FAILED:  " : "passed:  ") << "RoundUpToMultipleOf, word32, no overflow\n";
+
+	try
+	{
+		const word32 v=0xfffffff7, b=0x08;
+		word32 r=RoundUpToMultipleOf(v, b);
+		fail = (r != 0xfffffff8);
+	}
+	catch(const Exception&)
+	{
+		fail = true;
+	}
+
+	pass = !fail && pass;
+	std::cout << (fail ? "FAILED:  " : "passed:  ") << "RoundUpToMultipleOf, word32, no overflow\n";
+
+	try
+	{
+		const word32 v=0xfffffff8, b=0x08;
+		word32 r=RoundUpToMultipleOf(v, b);
+		fail = (r != 0xfffffff8);
+	}
+	catch(const Exception&)
+	{
+		fail = true;
+	}
+
+	pass = !fail && pass;
+	std::cout << (fail ? "FAILED:  " : "passed:  ") << "RoundUpToMultipleOf, word32, no overflow\n";
+
+	try
+	{
+		const word32 v=0xfffffff9, b=0x08;
+		word32 r=RoundUpToMultipleOf(v, b);
+		CRYPTOPP_UNUSED(r);
+		fail = true;
+	}
+	catch(const Exception&)
+	{
+		fail = false;
+	}
+
+	pass = !fail && pass;
+	std::cout << (fail ? "FAILED:  " : "passed:  ") << "RoundUpToMultipleOf, word32, overflow\n";
+
+	// ********** word64 **********//
+	try
+	{
+		const word64 v=0, b=0x08;
+		word64 r=RoundUpToMultipleOf(v, b);
+		fail = (r != v);
+	}
+	catch(const Exception&)
+	{
+		fail = true;
+	}
+
+	pass = !fail && pass;
+	std::cout << (fail ? "FAILED:  " : "passed:  ") << "RoundUpToMultipleOf, word64, no overflow\n";
+
+	try
+	{
+		const word64 v=1, b=0x08;
+		word64 r=RoundUpToMultipleOf(v, b);
+		fail = (r != b);
+	}
+	catch(const Exception&)
+	{
+		fail = true;
+	}
+
+	pass = !fail && pass;
+	std::cout << (fail ? "FAILED:  " : "passed:  ") << "RoundUpToMultipleOf, word64, no overflow\n";
+
+	try
+	{
+		const word64 v=0x08, b=0x08;
+		word64 r=RoundUpToMultipleOf(v, b);
+		fail = (r != v);
+	}
+	catch(const Exception&)
+	{
+		fail = true;
+	}
+
+	pass = !fail && pass;
+	std::cout << (fail ? "FAILED:  " : "passed:  ") << "RoundUpToMultipleOf, word64, no overflow\n";
+
+	try
+	{
+		const word64 v=W64LIT(0xffffffffffffff7), b=0x08;
+		word64 r=RoundUpToMultipleOf(v, b);
+		fail = (r != W64LIT(0xffffffffffffff8));
+	}
+	catch(const Exception&)
+	{
+		fail = true;
+	}
+
+	pass = !fail && pass;
+	std::cout << (fail ? "FAILED:  " : "passed:  ") << "RoundUpToMultipleOf, word64, no overflow\n";
+
+	try
+	{
+		const word64 v=W64LIT(0xffffffffffffff8), b=0x08;
+		word64 r=RoundUpToMultipleOf(v, b);
+		fail = (r != W64LIT(0xffffffffffffff8));
+	}
+	catch(const Exception&)
+	{
+		fail = true;
+	}
+
+	pass = !fail && pass;
+	std::cout << (fail ? "FAILED:  " : "passed:  ") << "RoundUpToMultipleOf, word64, no overflow\n";
+
+	try
+	{
+		const word64 v=W64LIT(0xfffffffffffffff9), b=0x08;
+		word64 r=RoundUpToMultipleOf(v, b);
+		CRYPTOPP_UNUSED(r);
+		fail = true;
+	}
+	catch(const Exception&)
+	{
+		fail = false;
+	}
+
+	pass = !fail && pass;
+	std::cout << (fail ? "FAILED:  " : "passed:  ") << "RoundUpToMultipleOf, word64, overflow\n";
+
+#if defined(CRYPTOPP_WORD128_AVAILABLE)
+	// ********** word128 **********//
+	try
+	{
+		const word128 v=0, b=0x08;
+		word128 r=RoundUpToMultipleOf(v, b);
+		fail = (r != v);
+	}
+	catch(const Exception&)
+	{
+		fail = true;
+	}
+
+	pass = !fail && pass;
+	std::cout << (fail ? "FAILED:  " : "passed:  ") << "RoundUpToMultipleOf, word128, no overflow\n";
+
+	try
+	{
+		const word128 v=1, b=0x08;
+		word128 r=RoundUpToMultipleOf(v, b);
+		fail = (r != b);
+	}
+	catch(const Exception&)
+	{
+		fail = true;
+	}
+
+	pass = !fail && pass;
+	std::cout << (fail ? "FAILED:  " : "passed:  ") << "RoundUpToMultipleOf, word128, no overflow\n";
+
+	try
+	{
+		const word128 v=0x08, b=0x08;
+		word128 r=RoundUpToMultipleOf(v, b);
+		fail = (r != v);
+	}
+	catch(const Exception&)
+	{
+		fail = true;
+	}
+
+	pass = !fail && pass;
+	std::cout << (fail ? "FAILED:  " : "passed:  ") << "RoundUpToMultipleOf, word128, no overflow\n";
+
+	try
+	{
+		// http://stackoverflow.com/q/31461318/608639
+		const word128 h = ((word128)W64LIT(0xffffffffffffffff)) << 64U;
+		const word128 v = h | (word128)W64LIT(0xfffffffffffffff7), b=0x08;
+		word128 r=RoundUpToMultipleOf(v, b);
+		fail = (r != (h | (word128)W64LIT(0xfffffffffffffff8)));
+	}
+	catch(const Exception&)
+	{
+		fail = true;
+	}
+
+	pass = !fail && pass;
+	std::cout << (fail ? "FAILED:  " : "passed:  ") << "RoundUpToMultipleOf, word128, no overflow\n";
+
+	try
+	{
+		const word128 h = ((word128)W64LIT(0xffffffffffffffff)) << 64U;
+		const word128 v = h | (word128)W64LIT(0xfffffffffffffff8), b=0x08;
+		word128 r=RoundUpToMultipleOf(v, b);
+		fail = (r != (h | (word128)W64LIT(0xfffffffffffffff8)));
+	}
+	catch(const Exception&)
+	{
+		fail = true;
+	}
+
+	pass = !fail && pass;
+	std::cout << (fail ? "FAILED:  " : "passed:  ") << "RoundUpToMultipleOf, word128, no overflow\n";
+
+	try
+	{
+		const word128 h = ((word128)W64LIT(0xffffffffffffffff)) << 64U;
+		const word128 v = h | (word128)W64LIT(0xfffffffffffffff9), b=0x08;
+		word128 r=RoundUpToMultipleOf(v, b);
+		CRYPTOPP_UNUSED(r);
+		fail = true;
+	}
+	catch(const Exception&)
+	{
+		fail = false;
+	}
+
+	pass = !fail && pass;
+	std::cout << (fail ? "FAILED:  " : "passed:  ") << "RoundUpToMultipleOf, word128, overflow\n";
+#endif
+
+	return pass;
+}
+#endif
+
+#if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_IMPORTS)
 struct ASN1_TestTuple
 {
 	int disposition;
