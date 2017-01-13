@@ -1,8 +1,9 @@
 // cpu.h - written and placed in the public domain by Wei Dai
+//         updated for ARM by Jeffrey Walton
 
 //! \file cpu.h
 //! \brief Functions for CPU features and intrinsics
-//! \details The functions are used in X86/X32/X64 and NEON code paths
+//! \details The functions are used in X86/X32/X64 and ARM code paths
 
 #ifndef CRYPTOPP_CPU_H
 #define CRYPTOPP_CPU_H
@@ -21,11 +22,13 @@
 # if defined(__GNUC__)
 #  include <stdint.h>
 # endif
-# if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE || defined(__ARM_NEON)
+# if defined(__ARM_NEON)
 #  include <arm_neon.h>
 # endif
-# if (CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE || CRYPTOPP_BOOL_ARM_CRC32_INTRINSICS_AVAILABLE) || defined(__ARM_ACLE)
-#  include <arm_acle.h>
+# if defined(__GNUC__) && !defined(__clang__)
+#  if defined(__ARM_ACLE) || defined(__ARM_FEATURE_CRC32) || defined(__ARM_FEATURE_CRYPTO)
+# 	include <arm_acle.h>
+#  endif
 # endif
 #endif  // ARM32 and ARM64 Headers
 
