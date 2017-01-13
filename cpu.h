@@ -25,7 +25,7 @@
 # if defined(__ARM_NEON)
 #  include <arm_neon.h>
 # endif
-# if defined(__GNUC__) && !defined(__clang__)
+# if defined(__GNUC__) && !defined(__apple_build_version__)
 #  if defined(__ARM_ACLE) || defined(__ARM_FEATURE_CRC32) || defined(__ARM_FEATURE_CRYPTO)
 # 	include <arm_acle.h>
 #  endif
