@@ -78,22 +78,22 @@ do
   fi
 
   # ARM64
-  if [ "$CL" == "arm64" ]; then
+  if [[ ("$CL" == "arm64" || "$CL" == "armv8" || "$CL" == "aarch64") ]]; then
     IOS_ARCH=arm64
   fi
 
   # iPhone
-  if [ "$CL" == "iphone" ] || [ "$CL" == "iphoneos" ]; then
+  if [[ ("$CL" == "iphone" || "$CL" == "iphoneos") ]]; then
     APPLE_SDK=iPhoneOS
   fi
 
   # iPhone Simulator
-  if [ "$CL" == "simulator" ] || [ "$CL" == "iphonesimulator" ]; then
+  if [[ ("$CL" == "simulator" || "$CL" == "iphonesimulator") ]]; then
     APPLE_SDK=iPhoneSimulator
   fi
 
   # Watch
-  if [ "$CL" == "watch" ] || [ "$CL" == "watchos" ] || [ "$CL" == "applewatch" ]; then
+  if [[ ("$CL" == "watch" || "$CL" == "watchos" || "$CL" == "applewatch") ]]; then
     APPLE_SDK=WatchOS
   fi
 
@@ -103,12 +103,12 @@ do
   fi
 
   # Apple TV
-  if [ "$CL" == "tv" ] || [ "$CL" == "appletv" ] || [ "$CL" == "appletvos" ]; then
+  if [[ ("$CL" == "tv" || "$CL" == "appletv" || "$CL" == "appletvos") ]]; then
     APPLE_SDK=AppleTVOS
   fi
 
   # Apple TV Simulator
-  if [ "$CL" == "tvsimulator" ] || [ "$CL" == "appletvsimulator" ]; then
+  if [[ ("$CL" == "tvsimulator" || "$CL" == "appletvsimulator") ]]; then
     APPLE_SDK=AppleTVSimulator
   fi
 
@@ -213,7 +213,7 @@ if [ "$IOS_ARCH" == "x86_64" ]; then
   IOS_FLAGS=-miphoneos-version-min=8
 fi
 
-# Simulator uses i386 or x86_64, Device uses ARMv5, ARMv6, ARMv7, or ARMv7s
+# Simulator uses i386 or x86_64, Device uses ARMv5, ARMv6, ARMv7, ARMv7s or ARMv8
 #
 # Apple deprecated ARMv5 at iOS 4.0, and ARMv6 at iOS 5.0
 # http://stackoverflow.com/questions/7488657/how-to-build-for-armv6-and-armv7-architectures-with-ios-5
