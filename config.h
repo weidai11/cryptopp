@@ -481,20 +481,22 @@ NAMESPACE_END
 # endif
 #endif
 
-// Requires ARMv8 and ACLE 2.0. For GCC, requires 4.8 and above.
+// Requires ARMv8 and ACLE 2.0. GCC requires 4.8 and above.
+// LLVM Clang requires 3.5. Apple Clang is unknown at the moment.
 // Microsoft plans to support ARM-64, but its not clear how to detect it.
 // TODO: Add MSC_VER and ARM-64 platform define when available
 #if !defined(CRYPTOPP_BOOL_ARM_CRC32_INTRINSICS_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
-# if defined(__ARM_FEATURE_CRC32) || defined(_M_ARM64)
+# if defined(__ARM_FEATURE_CRC32)
 #  define CRYPTOPP_BOOL_ARM_CRC32_INTRINSICS_AVAILABLE 1
 # endif
 #endif
 
-// Requires ARMv8 and ACLE 2.0. For GCC, requires 4.8 and above.
+// Requires ARMv8 and ACLE 2.0. GCC requires 4.8 and above.
+// LLVM Clang requires 3.5. Apple Clang is unknown at the moment.
 // Microsoft plans to support ARM-64, but its not clear how to detect it.
 // TODO: Add MSC_VER and ARM-64 platform define when available
 #if !defined(CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
-# if defined(__ARM_FEATURE_CRYPTO) || defined(_M_ARM64)
+# if defined(__ARM_FEATURE_CRYPTO)
 #  define CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE 1
 # endif
 #endif
