@@ -3,7 +3,8 @@
 // Steve Reid implemented SHA-1. Wei Dai implemented SHA-2. Jeffrey Walton
 //    implemented Intel SHA extensions based on Intel articles and code by
 //    Sean Gulley. Jeffrey Walton implemented ARM SHA based on ARM ARM and
-//    code from Johannes Schneiders. All code is in the public domain.
+//    code from Johannes Schneiders and Barry O'Rourke. All code is in the
+//    public domain.
 
 // use "cl /EP /P /DCRYPTOPP_GENERATE_X64_MASM sha.cpp" to generate MASM code
 
@@ -294,9 +295,9 @@ static void SHA1_SSE_SHA_Transform(word32 *state, const word32 *data)
 // end of Walton/Gulley's code //
 /////////////////////////////////
 
-//////////////////////////////////////
-// start of Walton/Schneiders' code //
-//////////////////////////////////////
+////////////////////////////////////////////////
+// start of Walton/Schneiders/O'Rourke's code //
+////////////////////////////////////////////////
 
 #if CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
 static void SHA1_ARM_SHA_Transform(word32 *state, const word32 *data)
@@ -343,7 +344,7 @@ static void SHA1_ARM_SHA_Transform(word32 *state, const word32 *data)
 
     // Rounds 8-11
     E1 = vsha1h_u32(vgetq_lane_u32(ABCD, 0));
-    ABCD = vsha1cq_u32(ABCD, E0, TMP0); /* 2 */
+    ABCD = vsha1cq_u32(ABCD, E0, TMP0);
     TMP0 = vaddq_u32(MSG0, C0);
     MSG1 = vsha1su1q_u32(MSG1, MSG0);
     MSG2 = vsha1su0q_u32(MSG2, MSG3, MSG0);
@@ -467,7 +468,7 @@ static void SHA1_ARM_SHA_Transform(word32 *state, const word32 *data)
     vst1q_u32(&state[0], ABCD);
     state[4] = E0;
 }
-#endif
+#endif  // CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
 
 ////////////////////////////////////
 // end of Walton/Schneiders' code //
@@ -517,7 +518,7 @@ void SHA256::InitState(HashWordType *state)
     memcpy(state, s, sizeof(s));
 }
 
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
 CRYPTOPP_ALIGN_DATA(16) extern const word32 SHA256_K[64] CRYPTOPP_SECTION_ALIGN16 = {
 #else
 extern const word32 SHA256_K[64] = {
@@ -875,6 +876,8 @@ void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 *data, 
 
 #if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
 static void CRYPTOPP_FASTCALL SHA256_SSE_SHA_HashBlocks(word32 *state, const word32 *data, size_t length);
+#elif CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
+static void CRYPTOPP_FASTCALL SHA256_ARM_SHA_HashBlocks(word32 *state, const word32 *data, size_t length);
 #endif
 
 #if (defined(CRYPTOPP_X86_ASM_AVAILABLE) || defined(CRYPTOPP_X32_ASM_AVAILABLE) || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_SHA_ASM)
@@ -884,6 +887,11 @@ pfnSHAHashBlocks InitializeSHA256HashBlocks()
 #if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
     if (HasSHA())
         return &SHA256_SSE_SHA_HashBlocks;
+    else
+#endif
+#if CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
+    if (HasSHA2())
+        return &SHA256_ARM_SHA_HashBlocks;
     else
 #endif
 
@@ -1050,6 +1058,13 @@ static void SHA256_SSE_SHA_Transform(word32 *state, const word32 *data)
 }
 #endif  // CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
 
+#if CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
+static void SHA256_ARM_SHA_Transform(word32 *state, const word32 *data)
+{
+    return SHA256_ARM_SHA_HashBlocks(state, data, SHA256::BLOCKSIZE);
+}
+#endif  // CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
+
 ///////////////////////////////////
 // start of Walton/Gulley's code //
 ///////////////////////////////////
@@ -1076,7 +1091,7 @@ static void CRYPTOPP_FASTCALL SHA256_SSE_SHA_HashBlocks(word32 *state, const wor
     STATE0 = _mm_alignr_epi8(TMP, STATE1, 8); // ABEF
     STATE1 = _mm_blend_epi16(STATE1, TMP, 0xF0); // CDGH
 
-    while (length)
+    while (length >- SHA256::BLOCKSIZE)
     {
         // Save current hash
         ABEF_SAVE = STATE0;
@@ -1238,7 +1253,7 @@ static void CRYPTOPP_FASTCALL SHA256_SSE_SHA_HashBlocks(word32 *state, const wor
         STATE0 = _mm_add_epi32(STATE0, ABEF_SAVE);
         STATE1 = _mm_add_epi32(STATE1, CDGH_SAVE);
 
-        data += 16;
+        data += SHA256::BLOCKSIZE/sizeof(word32);
         length -= SHA256::BLOCKSIZE;
     }
 
@@ -1257,6 +1272,172 @@ static void CRYPTOPP_FASTCALL SHA256_SSE_SHA_HashBlocks(word32 *state, const wor
 // end of Walton/Gulley's code //
 /////////////////////////////////
 
+////////////////////////////////////////////////
+// start of Walton/Schneiders/O'Rourke's code //
+////////////////////////////////////////////////
+
+#if CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
+static void CRYPTOPP_FASTCALL SHA256_ARM_SHA_HashBlocks(word32 *state, const word32 *data, size_t length)
+{
+    uint32x4_t STATE0, STATE1, ABEF_SAVE, CDGH_SAVE;
+    uint32x4_t MSG0, MSG1, MSG2, MSG3;
+    uint32x4_t TMP0, TMP1, TMP2;
+
+    // Load initial values
+    STATE0 = vld1q_u32(&state[0]);
+    STATE1 = vld1q_u32(&state[4]);
+
+    while (length >= SHA256::BLOCKSIZE)
+    {
+        // Save current hash
+        ABEF_SAVE = STATE0;
+        CDGH_SAVE = STATE1;
+
+        // Load message
+        MSG0 = vld1q_u32(data +  0);
+        MSG1 = vld1q_u32(data +  4);
+        MSG2 = vld1q_u32(data +  8);
+        MSG3 = vld1q_u32(data + 12);
+
+        TMP0 = vaddq_u32(MSG0, vld1q_u32(&SHA256_K[0x00]));
+
+        // Rounds 0-3
+        MSG0 = vsha256su0q_u32(MSG0, MSG1);
+        TMP2 = STATE0;
+        TMP1 = vaddq_u32(MSG1, vld1q_u32(&SHA256_K[0x04]));
+        STATE0 = vsha256hq_u32(STATE0, STATE1, TMP0);
+        STATE1 = vsha256h2q_u32(STATE1, TMP2, TMP0);
+        MSG0 = vsha256su1q_u32(MSG0, MSG2, MSG3);;
+
+        // Rounds 4-7
+        MSG1 = vsha256su0q_u32(MSG1, MSG2);
+        TMP2 = STATE0;
+        TMP0 = vaddq_u32(MSG2, vld1q_u32(&SHA256_K[0x08]));
+        STATE0 = vsha256hq_u32(STATE0, STATE1, TMP1);
+        STATE1 = vsha256h2q_u32(STATE1, TMP2, TMP1);
+        MSG1 = vsha256su1q_u32(MSG1, MSG3, MSG0);;
+
+        // Rounds 8-11
+        MSG2 = vsha256su0q_u32(MSG2, MSG3);
+        TMP2 = STATE0;
+        TMP1 = vaddq_u32(MSG3, vld1q_u32(&SHA256_K[0x0c]));
+        STATE0 = vsha256hq_u32(STATE0, STATE1, TMP0);
+        STATE1 = vsha256h2q_u32(STATE1, TMP2, TMP0);
+        MSG2 = vsha256su1q_u32(MSG2, MSG0, MSG1);;
+
+        // Rounds 12-15
+        MSG3 = vsha256su0q_u32(MSG3, MSG0);
+        TMP2 = STATE0;
+        TMP0 = vaddq_u32(MSG0, vld1q_u32(&SHA256_K[0x10]));
+        STATE0 = vsha256hq_u32(STATE0, STATE1, TMP1);
+        STATE1 = vsha256h2q_u32(STATE1, TMP2, TMP1);
+        MSG3 = vsha256su1q_u32(MSG3, MSG1, MSG2);;
+
+        // Rounds 16-19
+        MSG0 = vsha256su0q_u32(MSG0, MSG1);
+        TMP2 = STATE0;
+        TMP1 = vaddq_u32(MSG1, vld1q_u32(&SHA256_K[0x14]));
+        STATE0 = vsha256hq_u32(STATE0, STATE1, TMP0);
+        STATE1 = vsha256h2q_u32(STATE1, TMP2, TMP0);
+        MSG0 = vsha256su1q_u32(MSG0, MSG2, MSG3);;
+
+        // Rounds 20-23
+        MSG1 = vsha256su0q_u32(MSG1, MSG2);
+        TMP2 = STATE0;
+        TMP0 = vaddq_u32(MSG2, vld1q_u32(&SHA256_K[0x18]));
+        STATE0 = vsha256hq_u32(STATE0, STATE1, TMP1);
+        STATE1 = vsha256h2q_u32(STATE1, TMP2, TMP1);
+        MSG1 = vsha256su1q_u32(MSG1, MSG3, MSG0);;
+
+        // Rounds 24-27
+        MSG2 = vsha256su0q_u32(MSG2, MSG3);
+        TMP2 = STATE0;
+        TMP1 = vaddq_u32(MSG3, vld1q_u32(&SHA256_K[0x1c]));
+        STATE0 = vsha256hq_u32(STATE0, STATE1, TMP0);
+        STATE1 = vsha256h2q_u32(STATE1, TMP2, TMP0);
+        MSG2 = vsha256su1q_u32(MSG2, MSG0, MSG1);;
+
+        // Rounds 28-31
+        MSG3 = vsha256su0q_u32(MSG3, MSG0);
+        TMP2 = STATE0;
+        TMP0 = vaddq_u32(MSG0, vld1q_u32(&SHA256_K[0x20]));
+        STATE0 = vsha256hq_u32(STATE0, STATE1, TMP1);
+        STATE1 = vsha256h2q_u32(STATE1, TMP2, TMP1);
+        MSG3 = vsha256su1q_u32(MSG3, MSG1, MSG2);;
+
+        // Rounds 32-35
+        MSG0 = vsha256su0q_u32(MSG0, MSG1);
+        TMP2 = STATE0;
+        TMP1 = vaddq_u32(MSG1, vld1q_u32(&SHA256_K[0x24]));
+        STATE0 = vsha256hq_u32(STATE0, STATE1, TMP0);
+        STATE1 = vsha256h2q_u32(STATE1, TMP2, TMP0);
+        MSG0 = vsha256su1q_u32(MSG0, MSG2, MSG3);;
+
+        // Rounds 36-39
+        MSG1 = vsha256su0q_u32(MSG1, MSG2);
+        TMP2 = STATE0;
+        TMP0 = vaddq_u32(MSG2, vld1q_u32(&SHA256_K[0x28]));
+        STATE0 = vsha256hq_u32(STATE0, STATE1, TMP1);
+        STATE1 = vsha256h2q_u32(STATE1, TMP2, TMP1);
+        MSG1 = vsha256su1q_u32(MSG1, MSG3, MSG0);;
+
+        // Rounds 40-43
+        MSG2 = vsha256su0q_u32(MSG2, MSG3);
+        TMP2 = STATE0;
+        TMP1 = vaddq_u32(MSG3, vld1q_u32(&SHA256_K[0x2c]));
+        STATE0 = vsha256hq_u32(STATE0, STATE1, TMP0);
+        STATE1 = vsha256h2q_u32(STATE1, TMP2, TMP0);
+        MSG2 = vsha256su1q_u32(MSG2, MSG0, MSG1);;
+
+        // Rounds 44-47
+        MSG3 = vsha256su0q_u32(MSG3, MSG0);
+        TMP2 = STATE0;
+        TMP0 = vaddq_u32(MSG0, vld1q_u32(&SHA256_K[0x30]));
+        STATE0 = vsha256hq_u32(STATE0, STATE1, TMP1);
+        STATE1 = vsha256h2q_u32(STATE1, TMP2, TMP1);
+        MSG3 = vsha256su1q_u32(MSG3, MSG1, MSG2);;
+
+        // Rounds 48-51
+        TMP2 = STATE0;
+        TMP1 = vaddq_u32(MSG1, vld1q_u32(&SHA256_K[0x34]));
+        STATE0 = vsha256hq_u32(STATE0, STATE1, TMP0);
+        STATE1 = vsha256h2q_u32(STATE1, TMP2, TMP0);;
+
+        // Rounds 52-55
+        TMP2 = STATE0;
+        TMP0 = vaddq_u32(MSG2, vld1q_u32(&SHA256_K[0x38]));
+        STATE0 = vsha256hq_u32(STATE0, STATE1, TMP1);
+        STATE1 = vsha256h2q_u32(STATE1, TMP2, TMP1);;
+
+        // Rounds 56-59
+        TMP2 = STATE0;
+        TMP1 = vaddq_u32(MSG3, vld1q_u32(&SHA256_K[0x3c]));
+        STATE0 = vsha256hq_u32(STATE0, STATE1, TMP0);
+        STATE1 = vsha256h2q_u32(STATE1, TMP2, TMP0);;
+
+        // Rounds 60-63
+        TMP2 = STATE0;
+        STATE0 = vsha256hq_u32(STATE0, STATE1, TMP1);
+        STATE1 = vsha256h2q_u32(STATE1, TMP2, TMP1);;
+
+        // Add back to state
+        STATE0 = vaddq_u32(STATE0, ABEF_SAVE);
+        STATE1 = vaddq_u32(STATE1, CDGH_SAVE);
+
+        data += SHA256::BLOCKSIZE/sizeof(word32);
+        length -= SHA256::BLOCKSIZE;
+    }
+
+    // Save state
+    vst1q_u32(&state[0], STATE0);
+    vst1q_u32(&state[4], STATE1);
+}
+#endif
+
+//////////////////////////////////////////////
+// end of Walton/Schneiders/O'Rourke's code //
+//////////////////////////////////////////////
+
 pfnSHATransform InitializeSHA256Transform()
 {
 #if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
@@ -1267,6 +1448,11 @@ pfnSHATransform InitializeSHA256Transform()
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
     if (HasSSE2())
         return &SHA256_SSE2_Transform;
+    else
+#endif
+#if CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
+    if (HasSHA2())
+        return &SHA256_ARM_SHA_Transform;
     else
 #endif
 
