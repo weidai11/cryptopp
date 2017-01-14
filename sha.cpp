@@ -1091,7 +1091,7 @@ static void CRYPTOPP_FASTCALL SHA256_SSE_SHA_HashBlocks(word32 *state, const wor
     STATE0 = _mm_alignr_epi8(TMP, STATE1, 8); // ABEF
     STATE1 = _mm_blend_epi16(STATE1, TMP, 0xF0); // CDGH
 
-    while (length >- SHA256::BLOCKSIZE)
+    while (length >= SHA256::BLOCKSIZE)
     {
         // Save current hash
         ABEF_SAVE = STATE0;
