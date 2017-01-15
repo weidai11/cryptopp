@@ -256,11 +256,11 @@ const lword LWORD_MAX = W64LIT(0xffffffffffffffff);
 #endif
 
 // Apple and LLVM's Clang. Apple Clang version 7.0 roughly equals LLVM Clang version 3.7
-#if defined(__clang__ ) && !defined(__apple_build_version__)
-	#define CRYPTOPP_LLVM_CLANG_VERSION (__clang_major__ * 10000 + __clang_minor__ * 100 + __clang_patchlevel__)
-	#define CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER 1
-#elif defined(__clang__ ) && defined(__apple_build_version__)
+#if defined(__clang__ ) && defined(__apple_build_version__)
 	#define CRYPTOPP_APPLE_CLANG_VERSION (__clang_major__ * 10000 + __clang_minor__ * 100 + __clang_patchlevel__)
+	#define CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER 1
+#elif defined(__clang__ )
+	#define CRYPTOPP_LLVM_CLANG_VERSION (__clang_major__ * 10000 + __clang_minor__ * 100 + __clang_patchlevel__)
 	#define CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER 1
 #endif
 
@@ -488,6 +488,16 @@ NAMESPACE_END
 #if !defined(CRYPTOPP_BOOL_ARM_CRC32_INTRINSICS_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
 # if defined(__ARM_FEATURE_CRC32)
 #  define CRYPTOPP_BOOL_ARM_CRC32_INTRINSICS_AVAILABLE 1
+# endif
+#endif
+
+// Requires ARMv8 and ACLE 2.0. GCC requires 4.8 and above.
+// LLVM Clang requires 3.5. Apple Clang does not support it at the moment.
+// Microsoft plans to support ARM-64, but its not clear how to detect it.
+// TODO: Add MSC_VER and ARM-64 platform define when available
+#if !defined(CRYPTOPP_BOOL_ARM_PMULL_INTRINSICS_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
+# if defined(__ARM_FEATURE_CRYPTO) && !defined(__apple_build_version__)
+#  define CRYPTOPP_BOOL_ARM_PMULL_INTRINSICS_AVAILABLE 1
 # endif
 #endif
 
