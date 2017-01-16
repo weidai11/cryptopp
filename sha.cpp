@@ -2,9 +2,9 @@
 
 // Steve Reid implemented SHA-1. Wei Dai implemented SHA-2. Jeffrey Walton
 //    implemented Intel SHA extensions based on Intel articles and code by
-//    Sean Gulley. Jeffrey Walton implemented ARM SHA based on ARM ARM and
-//    code from Johannes Schneiders and Barry O'Rourke. All code is in the
-//    public domain.
+//    Sean Gulley. Jeffrey Walton implemented ARM SHA based on ARM code and
+//    code from Johannes Schneiders, Skip Hovsmith and Barry O'Rourke.
+//    All code is in the public domain.
 
 // use "cl /EP /P /DCRYPTOPP_GENERATE_X64_MASM sha.cpp" to generate MASM code
 
@@ -295,9 +295,9 @@ static void SHA1_SSE_SHA_Transform(word32 *state, const word32 *data)
 // end of Walton/Gulley's code //
 /////////////////////////////////
 
-////////////////////////////////////////////////
-// start of Walton/Schneiders/O'Rourke's code //
-////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+// start of Walton/Schneiders/O'Rourke/Skip Hovsmith's code //
+//////////////////////////////////////////////////////////////
 
 #if CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
 static void SHA1_ARM_SHA_Transform(word32 *state, const word32 *data)
@@ -470,9 +470,9 @@ static void SHA1_ARM_SHA_Transform(word32 *state, const word32 *data)
 }
 #endif  // CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
 
-////////////////////////////////////
-// end of Walton/Schneiders' code //
-////////////////////////////////////
+///////////////////////////////////////////////////////
+// end of Walton/Schneiders/O'Rourke/Hovsmith's code //
+///////////////////////////////////////////////////////
 
 pfnSHATransform InitializeSHA1Transform()
 {
@@ -1272,9 +1272,9 @@ static void CRYPTOPP_FASTCALL SHA256_SSE_SHA_HashBlocks(word32 *state, const wor
 // end of Walton/Gulley's code //
 /////////////////////////////////
 
-////////////////////////////////////////////////
-// start of Walton/Schneiders/O'Rourke's code //
-////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
+// start of Walton/Schneiders/O'Rourke/Hovsmith's code //
+/////////////////////////////////////////////////////////
 
 #if CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
 static void CRYPTOPP_FASTCALL SHA256_ARM_SHA_HashBlocks(word32 *state, const word32 *data, size_t length)
@@ -1434,9 +1434,9 @@ static void CRYPTOPP_FASTCALL SHA256_ARM_SHA_HashBlocks(word32 *state, const wor
 }
 #endif
 
-//////////////////////////////////////////////
-// end of Walton/Schneiders/O'Rourke's code //
-//////////////////////////////////////////////
+///////////////////////////////////////////////////////
+// end of Walton/Schneiders/O'Rourke/Hovsmith's code //
+///////////////////////////////////////////////////////
 
 pfnSHATransform InitializeSHA256Transform()
 {
