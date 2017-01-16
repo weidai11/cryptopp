@@ -116,6 +116,34 @@
 
 #endif // CRYPTOPP_DOXYGEN_PROCESSING
 
+// http://github.com/weidai11/cryptopp/issues/364
+#if defined(CRYPTOPP_WORD128_AVAILABLE)
+ANONYMOUS_NAMESPACE_BEGIN
+template<class T>
+T NumericLimitsMin()
+{
+	CRYPTOPP_ASSERT(std::numeric_limits<T>::is_specialized);
+	return std::numeric_limits<T>::min();
+};
+template<class T>
+T NumericLimitsMax()
+{
+	CRYPTOPP_ASSERT(std::numeric_limits<T>::is_specialized);
+	return std::numeric_limits<T>::max();
+};
+template<>
+CryptoPP::word128 NumericLimitsMin()
+{
+	return 0;
+}
+template<>
+CryptoPP::word128 NumericLimitsMax()
+{
+	return (((CryptoPP::word128)W64LIT(0xffffffffffffffff)) << 64U) | (CryptoPP::word128)W64LIT(0xffffffffffffffff);
+}
+ANONYMOUS_NAMESPACE_END
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 // Forward declaration for IntToString specialization
@@ -885,9 +913,21 @@ inline T2 ModPowerOf2(const T1 &a, const T2 &b)
 //! \returns the possibly unmodified value \n
 //! \details RoundDownToMultipleOf is effectively a floor function based on m. The function returns
 //!   the value <tt>n - n\%m</tt>. If n is a multiple of m, then the original value is returned.
+//! \note <tt>T1</tt> and <tt>T2</tt> should be usigned arithmetic types. If <tt>T1</tt> or
+//!   <tt>T2</tt> is signed, then the value should be non-negative. The library asserts in
+//!   debug builds when practical, but allows you to perform the operation in release builds.
 template <class T1, class T2>
 inline T1 RoundDownToMultipleOf(const T1 &n, const T2 &m)
 {
+	// http://github.com/weidai11/cryptopp/issues/364
+#if !defined(CRYPTOPP_APPLE_CLANG_VERSION) || (CRYPTOPP_APPLE_CLANG_VERSION >= 80000)
+	CRYPTOPP_ASSERT(std::numeric_limits<T1>::is_integer);
+	CRYPTOPP_ASSERT(std::numeric_limits<T2>::is_integer);
+#endif
+
+	CRYPTOPP_ASSERT(!std::numeric_limits<T1>::is_signed || n > 0);
+	CRYPTOPP_ASSERT(!std::numeric_limits<T2>::is_signed || m > 0);
+
 	if (IsPowerOf2(m))
 		return n - ModPowerOf2(n, m);
 	else
@@ -901,10 +941,22 @@ inline T1 RoundDownToMultipleOf(const T1 &n, const T2 &m)
 //! \details RoundUpToMultipleOf is effectively a ceiling function based on m. The function
 //!   returns the value <tt>n + n\%m</tt>. If n is a multiple of m, then the original value is
 //!   returned. If the value n would overflow, then an InvalidArgument exception is thrown.
+//! \note <tt>T1</tt> and <tt>T2</tt> should be usigned arithmetic types. If <tt>T1</tt> or
+//!   <tt>T2</tt> is signed, then the value should be non-negative. The library asserts in
+//!   debug builds when practical, but allows you to perform the operation in release builds.
 template <class T1, class T2>
 inline T1 RoundUpToMultipleOf(const T1 &n, const T2 &m)
 {
-	if (std::numeric_limits<T1>::max() - m + 1 < n)
+	// http://github.com/weidai11/cryptopp/issues/364
+#if !defined(CRYPTOPP_APPLE_CLANG_VERSION) || (CRYPTOPP_APPLE_CLANG_VERSION >= 80000)
+	CRYPTOPP_ASSERT(std::numeric_limits<T1>::is_integer);
+	CRYPTOPP_ASSERT(std::numeric_limits<T2>::is_integer);
+#endif
+
+	CRYPTOPP_ASSERT(!std::numeric_limits<T1>::is_signed || n > 0);
+	CRYPTOPP_ASSERT(!std::numeric_limits<T2>::is_signed || m > 0);
+
+	if (NumericLimitsMax<T1>() - m + 1 < n)
 		throw InvalidArgument("RoundUpToMultipleOf: integer overflow");
 	return RoundDownToMultipleOf(T1(n+m-1), m);
 }
@@ -1075,7 +1127,7 @@ inline void ConditionalSwapPointers(bool c, T &a, T &b)
 }
 
 // see http://www.dwheeler.com/secure-programs/Secure-Programs-HOWTO/protect-secrets.html
-// and https://www.securecoding.cert.org/confluence/display/cplusplus/MSC06-CPP.+Be+aware+of+compiler+optimization+when+dealing+with+sensitive+data
+// and http://www.securecoding.cert.org/confluence/display/cplusplus/MSC06-CPP.+Be+aware+of+compiler+optimization+when+dealing+with+sensitive+data
 
 //! \brief Sets each element of an array to 0
 //! \param buf an array of elements
@@ -1263,9 +1315,9 @@ CRYPTOPP_DLL void CRYPTOPP_API UnalignedDeallocate(void *ptr);
 template <class T> inline T rotlFixed(T x, unsigned int y)
 {
 	// Portable rotate that reduces to single instruction...
-	// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=57157,
-	// https://software.intel.com/en-us/forums/topic/580884
-	// and https://llvm.org/bugs/show_bug.cgi?id=24226
+	// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=57157,
+	// http://software.intel.com/en-us/forums/topic/580884
+	// and http://llvm.org/bugs/show_bug.cgi?id=24226
 	static const unsigned int THIS_SIZE = sizeof(T)*8;
 	static const unsigned int MASK = THIS_SIZE-1;
 	CRYPTOPP_ASSERT(y < THIS_SIZE);
@@ -1285,9 +1337,9 @@ template <class T> inline T rotlFixed(T x, unsigned int y)
 template <class T> inline T rotrFixed(T x, unsigned int y)
 {
 	// Portable rotate that reduces to single instruction...
-	// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=57157,
-	// https://software.intel.com/en-us/forums/topic/580884
-	// and https://llvm.org/bugs/show_bug.cgi?id=24226
+	// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=57157,
+	// http://software.intel.com/en-us/forums/topic/580884
+	// and http://llvm.org/bugs/show_bug.cgi?id=24226
 	static const unsigned int THIS_SIZE = sizeof(T)*8;
 	static const unsigned int MASK = THIS_SIZE-1;
 	CRYPTOPP_ASSERT(y < THIS_SIZE);
