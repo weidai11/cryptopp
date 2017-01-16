@@ -195,17 +195,14 @@ static const unsigned int s_clmulTableSizeInBlocks = 8;
 inline uint64x2_t PMULL_Reduce(uint64x2_t c0, uint64x2_t c1, uint64x2_t c2, const uint64x2_t &r)
 {
 	// See comments fo CLMUL_Reduce
-
-	c1 = veorq_u64(c1, (uint64x2_t)vextq_u8(vdupq_n_u8(0), (uint8x16_t)c0, 8));
+	c1 = veorq_u64(c1, vreinterpretq_u64_u8(vextq_u8(vdupq_n_u8(0), vreinterpretq_u8_u64(c0), 8)));
 	c1 = veorq_u64(c1, (uint64x2_t)vmull_p64(vgetq_lane_u64(c0, 0), vgetq_lane_u64(r, 1)));
-	c0 = (uint64x2_t)vextq_u8((uint8x16_t)c0, vdupq_n_u8(0), 8);
-	c0 = veorq_u64(c0, c1);
-	c0 = vshlq_n_u64(c0, 1);
+	c0 = vreinterpretq_u64_u8(vextq_u8(vreinterpretq_u8_u64(c0), vdupq_n_u8(0), 8));
+	c0 = vshlq_n_u64(veorq_u64(c0, c1), 1);
 	c0 = (uint64x2_t)vmull_p64(vgetq_lane_u64(c0, 0), vgetq_lane_u64(r, 0));
 	c2 = veorq_u64(c2, c0);
-	c2 = veorq_u64(c2, (uint64x2_t)vextq_u8((uint8x16_t)c1, vdupq_n_u8(0), 8));
-	c1 = vcombine_u64(vget_low_u64(c1), vget_low_u64(c2));
-	c1 = vshrq_n_u64(c1, 63);
+	c2 = veorq_u64(c2, (uint64x2_t)vextq_u8(vreinterpretq_u8_u64(c1), vdupq_n_u8(0), 8));
+	c1 = vshrq_n_u64(vcombine_u64(vget_low_u64(c1), vget_low_u64(c2)), 63);
 	c2 = vshlq_n_u64(c2, 1);
 
 	return veorq_u64(c2, c1);
@@ -214,9 +211,10 @@ inline uint64x2_t PMULL_Reduce(uint64x2_t c0, uint64x2_t c1, uint64x2_t c2, cons
 inline uint64x2_t PMULL_GF_Mul(const uint64x2_t &x, const uint64x2_t &h, const uint64x2_t &r)
 {
 	const uint64x2_t c0 = (uint64x2_t)vmull_p64(vgetq_lane_u64(x, 0), vgetq_lane_u64(h, 0));
-	const uint64x2_t c1 = veorq_u64((uint64x2_t)vmull_p64(vgetq_lane_u64(x, 1), vgetq_lane_u64(h,0)),
-								(uint64x2_t)vmull_p64(vgetq_lane_u64(x, 0), vgetq_lane_u64(h, 1)));
-	const uint64x2_t c2 = (uint64x2_t)vmull_high_p64((poly64x2_t)x, (poly64x2_t)h);
+	const uint64x2_t c1 = veorq_u64(
+							(uint64x2_t)vmull_p64(vgetq_lane_u64(x, 1), vgetq_lane_u64(h,0)),
+							(uint64x2_t)vmull_p64(vgetq_lane_u64(x, 0), vgetq_lane_u64(h, 1)));
+	const uint64x2_t c2 = (uint64x2_t)vmull_p64(vgetq_lane_u64(x, 1), vgetq_lane_u64(h, 1));
 
 	return PMULL_Reduce(c0, c1, c2, r);
 }
@@ -290,8 +288,8 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
 	if (HasPMULL())
 	{
 		const uint64x2_t r = s_clmulConstants[0];
-		const uint64x2_t t = vld1q_u64((uint64_t *)hashKey);
-		const uint64x2_t h0 = (uint64x2_t)vrev64q_u8((uint8x16_t)vcombine_u64(vget_high_u64(t), vget_low_u64(t)));
+		const uint64x2_t t = vld1q_u64((const uint64_t *)hashKey);
+		const uint64x2_t h0 = vreinterpretq_u64_u8(vrev64q_u8(vreinterpretq_u8_u64(vcombine_u64(vget_high_u64(t), vget_low_u64(t)))));
 
 		uint64x2_t h = h0;
 		for (i=0; i<tableSize-32; i+=32)
@@ -427,8 +425,8 @@ inline void GCM_Base::ReverseHashBufferIfNeeded()
 	{
 		if (GetNativeByteOrder() != BIG_ENDIAN_ORDER)
 		{
-			const uint8x16_t x = vrev64q_u8(vld1q_u8(HashBuffer()));
-			vst1q_u8(HashBuffer(), (uint8x16_t)vcombine_u64(vget_high_u64((uint64x2_t)x), vget_low_u64((uint64x2_t)x)));
+			const uint64x2_t x = vreinterpretq_u64_u8(vrev64q_u8(vld1q_u8(HashBuffer())));
+			vst1q_u8(HashBuffer(), vreinterpretq_u8_u64(vcombine_u64(vget_high_u64(x), vget_low_u64(x))));
 		}
 	}
 #endif
@@ -517,7 +515,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 		while (len >= 16)
 		{
 			size_t s = UnsignedMin(len/16, s_clmulTableSizeInBlocks), i=0;
-			__m128i d, d2 = _mm_shuffle_epi8(_mm_loadu_si128((const __m128i *)(const void *)(data+(s-1)*16)), mask2);;
+			__m128i d1, d2 = _mm_shuffle_epi8(_mm_loadu_si128((const __m128i *)(const void *)(data+(s-1)*16)), mask2);
 			__m128i c0 = _mm_setzero_si128();
 			__m128i c1 = _mm_setzero_si128();
 			__m128i c2 = _mm_setzero_si128();
@@ -530,37 +528,37 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 
 				if (++i == s)
 				{
-					d = _mm_shuffle_epi8(_mm_loadu_si128((const __m128i *)(const void *)data), mask1);
-					d = _mm_xor_si128(d, x);
-					c0 = _mm_xor_si128(c0, _mm_clmulepi64_si128(d, h0, 0));
-					c2 = _mm_xor_si128(c2, _mm_clmulepi64_si128(d, h1, 1));
-					d = _mm_xor_si128(d, _mm_shuffle_epi32(d, _MM_SHUFFLE(1, 0, 3, 2)));
-					c1 = _mm_xor_si128(c1, _mm_clmulepi64_si128(d, h2, 0));
+					d1 = _mm_shuffle_epi8(_mm_loadu_si128((const __m128i *)(const void *)data), mask1);
+					d1 = _mm_xor_si128(d1, x);
+					c0 = _mm_xor_si128(c0, _mm_clmulepi64_si128(d1, h0, 0));
+					c2 = _mm_xor_si128(c2, _mm_clmulepi64_si128(d1, h1, 1));
+					d1 = _mm_xor_si128(d1, _mm_shuffle_epi32(d1, _MM_SHUFFLE(1, 0, 3, 2)));
+					c1 = _mm_xor_si128(c1, _mm_clmulepi64_si128(d1, h2, 0));
 					break;
 				}
 
-				d = _mm_shuffle_epi8(_mm_loadu_si128((const __m128i *)(const void *)(data+(s-i)*16-8)), mask2);
+				d1 = _mm_shuffle_epi8(_mm_loadu_si128((const __m128i *)(const void *)(data+(s-i)*16-8)), mask2);
 				c0 = _mm_xor_si128(c0, _mm_clmulepi64_si128(d2, h0, 1));
-				c2 = _mm_xor_si128(c2, _mm_clmulepi64_si128(d, h1, 1));
-				d2 = _mm_xor_si128(d2, d);
+				c2 = _mm_xor_si128(c2, _mm_clmulepi64_si128(d1, h1, 1));
+				d2 = _mm_xor_si128(d2, d1);
 				c1 = _mm_xor_si128(c1, _mm_clmulepi64_si128(d2, h2, 1));
 
 				if (++i == s)
 				{
-					d = _mm_shuffle_epi8(_mm_loadu_si128((const __m128i *)(const void *)data), mask1);
-					d = _mm_xor_si128(d, x);
-					c0 = _mm_xor_si128(c0, _mm_clmulepi64_si128(d, h0, 0x10));
-					c2 = _mm_xor_si128(c2, _mm_clmulepi64_si128(d, h1, 0x11));
-					d = _mm_xor_si128(d, _mm_shuffle_epi32(d, _MM_SHUFFLE(1, 0, 3, 2)));
-					c1 = _mm_xor_si128(c1, _mm_clmulepi64_si128(d, h2, 0x10));
+					d1 = _mm_shuffle_epi8(_mm_loadu_si128((const __m128i *)(const void *)data), mask1);
+					d1 = _mm_xor_si128(d1, x);
+					c0 = _mm_xor_si128(c0, _mm_clmulepi64_si128(d1, h0, 0x10));
+					c2 = _mm_xor_si128(c2, _mm_clmulepi64_si128(d1, h1, 0x11));
+					d1 = _mm_xor_si128(d1, _mm_shuffle_epi32(d1, _MM_SHUFFLE(1, 0, 3, 2)));
+					c1 = _mm_xor_si128(c1, _mm_clmulepi64_si128(d1, h2, 0x10));
 					break;
 				}
 
 				d2 = _mm_shuffle_epi8(_mm_loadu_si128((const __m128i *)(const void *)(data+(s-i)*16-8)), mask1);
-				c0 = _mm_xor_si128(c0, _mm_clmulepi64_si128(d, h0, 0x10));
+				c0 = _mm_xor_si128(c0, _mm_clmulepi64_si128(d1, h0, 0x10));
 				c2 = _mm_xor_si128(c2, _mm_clmulepi64_si128(d2, h1, 0x10));
-				d = _mm_xor_si128(d, d2);
-				c1 = _mm_xor_si128(c1, _mm_clmulepi64_si128(d, h2, 0x10));
+				d1 = _mm_xor_si128(d1, d2);
+				c1 = _mm_xor_si128(c1, _mm_clmulepi64_si128(d1, h2, 0x10));
 			}
 			data += s*16;
 			len -= s*16;
@@ -582,7 +580,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 		while (len >= 16)
 		{
 			size_t s = UnsignedMin(len/16, s_clmulTableSizeInBlocks), i=0;
-			uint64x2_t d, d2 = (uint64x2_t)vrev64q_u8((uint8x16_t)vld1q_u64((const uint64_t *)(data+(s-1)*16)));
+			uint64x2_t d1, d2 = vreinterpretq_u64_u8(vrev64q_u8(vld1q_u8(data+(s-1)*16)));
 			uint64x2_t c0 = vdupq_n_u64(0);
 			uint64x2_t c1 = vdupq_n_u64(0);
 			uint64x2_t c2 = vdupq_n_u64(0);
@@ -596,40 +594,39 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 				if (++i == s)
 				{
 					const uint64x2_t t1 = vld1q_u64((const uint64_t *)data);
-					 d = veorq_u64((uint64x2_t)vrev64q_u8((uint8x16_t)vcombine_u64(vget_high_u64(t1), vget_low_u64(t1))), x);
-					c0 = veorq_u64(c0, (uint64x2_t)vmull_p64(vgetq_lane_u64(d, 0), vgetq_lane_u64(h0, 0)));
-					c2 = veorq_u64(c2, (uint64x2_t)vmull_p64(vgetq_lane_u64(d, 1), vgetq_lane_u64(h1, 0)));
-					 d = veorq_u64(d, (uint64x2_t)vcombine_u32(vget_high_u32((uint32x4_t)d), vget_low_u32((uint32x4_t)d)));
-					c1 = veorq_u64(c1, (uint64x2_t)vmull_p64(vgetq_lane_u64(d, 0), vgetq_lane_u64(h2, 0)));
+					d1 = veorq_u64(vreinterpretq_u64_u8(vrev64q_u8(vreinterpretq_u8_u64(vcombine_u64(vget_high_u64(t1), vget_low_u64(t1))))), x);
+					c0 = veorq_u64(c0, (uint64x2_t)vmull_p64(vgetq_lane_u64(d1, 0), vgetq_lane_u64(h0, 0)));
+					c2 = veorq_u64(c2, (uint64x2_t)vmull_p64(vgetq_lane_u64(d1, 1), vgetq_lane_u64(h1, 0)));
+					d1 = veorq_u64(d1, (uint64x2_t)vcombine_u32(vget_high_u32(vreinterpretq_u32_u64(d1)), vget_low_u32(vreinterpretq_u32_u64(d1))));
+					c1 = veorq_u64(c1, (uint64x2_t)vmull_p64(vgetq_lane_u64(d1, 0), vgetq_lane_u64(h2, 0)));
 
 					break;
 				}
 
-				 d = (uint64x2_t)vrev64q_u8((uint8x16_t)vld1q_u64((const uint64_t *)(data+(s-i)*16-8)));
+				d1 = vreinterpretq_u64_u8(vrev64q_u8(vreinterpretq_u8_u64(vld1q_u64((const uint64_t *)(data+(s-i)*16-8)))));
 				c0 = veorq_u64(c0, (uint64x2_t)vmull_p64(vgetq_lane_u64(d2, 1), vgetq_lane_u64(h0, 0)));
-				c2 = veorq_u64(c2, (uint64x2_t)vmull_p64(vgetq_lane_u64(d, 1), vgetq_lane_u64(h1, 0)));
-				d2 = veorq_u64(d2, d);
+				c2 = veorq_u64(c2, (uint64x2_t)vmull_p64(vgetq_lane_u64(d1, 1), vgetq_lane_u64(h1, 0)));
+				d2 = veorq_u64(d2, d1);
 				c1 = veorq_u64(c1, (uint64x2_t)vmull_p64(vgetq_lane_u64(d2, 1), vgetq_lane_u64(h2, 0)));
 
 				if (++i == s)
 				{
-
 					const uint64x2_t t2 = vld1q_u64((const uint64_t *)data);
-					 d = veorq_u64((uint64x2_t)vrev64q_u8((uint8x16_t)vcombine_u64(vget_high_u64(t2), vget_low_u64(t2))), x);
-					c0 = veorq_u64(c0, (uint64x2_t)vmull_p64(vgetq_lane_u64(d, 0), vgetq_lane_u64(h0, 1)));
-					c2 = veorq_u64(c2, (uint64x2_t)vmull_high_p64((poly64x2_t)d, (poly64x2_t)h1));
-					 d = veorq_u64(d, (uint64x2_t)vcombine_u32(vget_high_u32((uint32x4_t)d), vget_low_u32((uint32x4_t)d)));
-					c1 = veorq_u64(c1, (uint64x2_t)vmull_p64(vgetq_lane_u64(d, 0), vgetq_lane_u64(h2, 1)));
+					d1 = veorq_u64((uint64x2_t)vrev64q_u8(vreinterpretq_u8_u64(vcombine_u64(vget_high_u64(t2), vget_low_u64(t2)))), x);
+					c0 = veorq_u64(c0, (uint64x2_t)vmull_p64(vgetq_lane_u64(d1, 0), vgetq_lane_u64(h0, 1)));
+					c2 = veorq_u64(c2, (uint64x2_t)vmull_p64(vgetq_lane_u64(d1, 1), vgetq_lane_u64(h1, 1)));
+					d1 = veorq_u64(d1, (uint64x2_t)vcombine_u32(vget_high_u32(vreinterpretq_u32_u64(d1)), vget_low_u32(vreinterpretq_u32_u64(d1))));
+					c1 = veorq_u64(c1, (uint64x2_t)vmull_p64(vgetq_lane_u64(d1, 0), vgetq_lane_u64(h2, 1)));
 
 					break;
 				}
 
 				const uint64x2_t t3 = vld1q_u64((uint64_t *)(data+(s-i)*16-8));
-				d2 = (uint64x2_t)vrev64q_u8((uint8x16_t)vcombine_u64(vget_high_u64(t3), vget_low_u64(t3)));
-				c0 = veorq_u64(c0, (uint64x2_t)vmull_p64(vgetq_lane_u64(d, 0), vgetq_lane_u64(h0, 1)));
+				d2 = vreinterpretq_u64_u8(vrev64q_u8(vreinterpretq_u8_u64(vcombine_u64(vget_high_u64(t3), vget_low_u64(t3)))));
+				c0 = veorq_u64(c0, (uint64x2_t)vmull_p64(vgetq_lane_u64(d1, 0), vgetq_lane_u64(h0, 1)));
 				c2 = veorq_u64(c2, (uint64x2_t)vmull_p64(vgetq_lane_u64(d2, 0), vgetq_lane_u64(h1, 1)));
-				 d = veorq_u64(d, d2);
-				c1 = veorq_u64(c1, (uint64x2_t)vmull_p64(vgetq_lane_u64(d, 0), vgetq_lane_u64(h2, 1)));
+				d1 = veorq_u64(d1, d2);
+				c1 = veorq_u64(c1, (uint64x2_t)vmull_p64(vgetq_lane_u64(d1, 0), vgetq_lane_u64(h2, 1)));
 			}
 			data += s*16;
 			len -= s*16;
