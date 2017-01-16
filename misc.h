@@ -116,8 +116,8 @@
 
 #endif // CRYPTOPP_DOXYGEN_PROCESSING
 
-// http://github.com/weidai11/cryptopp/issues/364
-#if defined(CRYPTOPP_WORD128_AVAILABLE)
+// NumericLimitsMin and NumericLimitsMax added for word128 types,
+//   see http://github.com/weidai11/cryptopp/issues/364
 ANONYMOUS_NAMESPACE_BEGIN
 template<class T>
 T NumericLimitsMin()
@@ -131,6 +131,7 @@ T NumericLimitsMax()
 	CRYPTOPP_ASSERT(std::numeric_limits<T>::is_specialized);
 	return std::numeric_limits<T>::max();
 };
+#if defined(CRYPTOPP_WORD128_AVAILABLE)
 template<>
 CryptoPP::word128 NumericLimitsMin()
 {
@@ -141,8 +142,8 @@ CryptoPP::word128 NumericLimitsMax()
 {
 	return (((CryptoPP::word128)W64LIT(0xffffffffffffffff)) << 64U) | (CryptoPP::word128)W64LIT(0xffffffffffffffff);
 }
-ANONYMOUS_NAMESPACE_END
 #endif
+ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
 
