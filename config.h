@@ -491,13 +491,15 @@ NAMESPACE_END
 # endif
 #endif
 
-// Requires ARMv8 and ACLE 2.0. GCC requires 4.8 and above.
+// Requires ARMv8, ACLE 2.0 and Aarch64. GCC requires 4.8 and above.
 // LLVM Clang requires 3.5. Apple Clang does not support it at the moment.
 // Microsoft plans to support ARM-64, but its not clear how to detect it.
 // TODO: Add MSC_VER and ARM-64 platform define when available
 #if !defined(CRYPTOPP_BOOL_ARM_PMULL_INTRINSICS_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
 # if defined(__ARM_FEATURE_CRYPTO) && !defined(__apple_build_version__)
-#  define CRYPTOPP_BOOL_ARM_PMULL_INTRINSICS_AVAILABLE 1
+#  if defined(__arm64__) || defined(__aarch64__)
+#   define CRYPTOPP_BOOL_ARM_PMULL_INTRINSICS_AVAILABLE 1
+#  endif
 # endif
 #endif
 
