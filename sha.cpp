@@ -1647,6 +1647,7 @@ CRYPTOPP_NAKED static void CRYPTOPP_FASTCALL SHA512_SSE2_Transform(word64 *state
 
     // first 16 rounds
     ASL(0)
+    AS2(	movq	mm0, [edx+eax*8])
     AS2(    movq     [esi+eax*8], mm0)
     AS2(    movq     [esi+eax*8+16*8], mm0)
     AS2(    paddq    mm0, [ebx+eax*8])
