@@ -440,7 +440,7 @@ static bool TryNEON()
 
 static bool TryPMULL()
 {
-#if (CRYPTOPP_BOOL_ARM_PMULL_INTRINSICS_AVAILABLE)
+#if (CRYPTOPP_BOOL_ARM_PMULL_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
 	volatile bool result = true;
 	__try
