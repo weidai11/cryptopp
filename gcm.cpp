@@ -367,8 +367,8 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
 	if (HasPMULL())
 	{
 		const uint64x2_t r = s_clmulConstants[0];
-		const uint64x2_t t = vld1q_u64((const uint64_t *)hashKey);
-		const uint64x2_t h0 = vrev64q_u8(vextq_u64(t, t, 1));
+		const uint64x2_t t = vreinterpretq_u64_u8(vrev64q_u8(vld1q_u8(hashKey)));
+		const uint64x2_t h0 = vextq_u64(t, t, 1);
 
 		uint64x2_t h = h0;
 		for (i=0; i<tableSize-32; i+=32)
@@ -504,8 +504,8 @@ inline void GCM_Base::ReverseHashBufferIfNeeded()
 	{
 		if (GetNativeByteOrder() != BIG_ENDIAN_ORDER)
 		{
-			const uint8x16_t x = vld1q_u8(HashBuffer());
-			vst1q_u8(HashBuffer(), vrev64q_u8(vextq_u8(x, x, 8)));
+			const uint8x16_t x = vrev64q_u8(vld1q_u8(HashBuffer()));
+			vst1q_u8(HashBuffer(), vextq_u8(x, x, 8));
 		}
 	}
 #endif
@@ -653,7 +653,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 	if (HasPMULL())
 	{
 		const uint64x2_t *table = (const uint64x2_t *)MulTable();
-		uint64x2_t x = vld1q_u64((const uint64_t*)HashBuffer());
+		uint64x2_t x = vreinterpretq_u64_u8(vld1q_u8(HashBuffer()));
 		const uint64x2_t r = s_clmulConstants[0];
 
 		while (len >= 16)
@@ -672,8 +672,8 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 
 				if (++i == s)
 				{
-					const uint64x2_t t1 = vld1q_u64((const uint64_t *)data);
-					d1 = veorq_u64(vrev64q_u8(vextq_u64(t1, t1, 1)), x);
+					const uint64x2_t t1 = vreinterpretq_u64_u8(vrev64q_u8(vld1q_u8(data)));
+					d1 = veorq_u64(vextq_u64(t1, t1, 1), x);
 					c0 = veorq_u64(c0, PMULL_00(d1, h0));
 					c2 = veorq_u64(c2, PMULL_10(d1, h1));
 					d1 = veorq_u64(d1, (uint64x2_t)vcombine_u32(vget_high_u32(vreinterpretq_u32_u64(d1)),
@@ -691,8 +691,8 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 
 				if (++i == s)
 				{
-					const uint64x2_t t2 = vld1q_u64((const uint64_t *)data);
-					d1 = veorq_u64(vrev64q_u8(vextq_u64(t2, t2, 1)), x);
+					const uint64x2_t t2 = vreinterpretq_u64_u8(vrev64q_u8(vld1q_u8(data)));
+					d1 = veorq_u64(vextq_u64(t2, t2, 1), x);
 					c0 = veorq_u64(c0, PMULL_01(d1, h0));
 					c2 = veorq_u64(c2, PMULL_11(d1, h1));
 					d1 = veorq_u64(d1, (uint64x2_t)vcombine_u32(vget_high_u32(vreinterpretq_u32_u64(d1)),
@@ -702,8 +702,8 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 					break;
 				}
 
-				const uint64x2_t t3 = vld1q_u64((uint64_t *)(data+(s-i)*16-8));
-				d2 = vrev64q_u8(vextq_u64(t3, t3, 1));
+				const uint64x2_t t3 = vreinterpretq_u64_u8(vrev64q_u8(vld1q_u8(data+(s-i)*16-8)));
+				d2 = vextq_u64(t3, t3, 1);
 				c0 = veorq_u64(c0, PMULL_01(d1, h0));
 				c2 = veorq_u64(c2, PMULL_01(d2, h1));
 				d1 = veorq_u64(d1, d2);
