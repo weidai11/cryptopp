@@ -586,17 +586,23 @@ template <class EC>
 bool DL_GroupParameters_EC<EC>::ValidateGroup(RandomNumberGenerator &rng, unsigned int level) const
 {
 	bool pass = GetCurve().ValidateParameters(rng, level);
+	CRYPTOPP_ASSERT(pass);
 
 	Integer q = GetCurve().FieldSize();
 	pass = pass && m_n!=q;
+	CRYPTOPP_ASSERT(pass);
 
 	if (level >= 2)
 	{
 		Integer qSqrt = q.SquareRoot();
 		pass = pass && m_n>4*qSqrt;
+		CRYPTOPP_ASSERT(pass);
 		pass = pass && VerifyPrime(rng, m_n, level-2);
+		CRYPTOPP_ASSERT(pass);
 		pass = pass && (m_k.IsZero() || m_k == (q+2*qSqrt+1)/m_n);
+		CRYPTOPP_ASSERT(pass);
 		pass = pass && CheckMOVCondition(q, m_n);
+		CRYPTOPP_ASSERT(pass);
 	}
 
 	return pass;
@@ -605,17 +611,25 @@ bool DL_GroupParameters_EC<EC>::ValidateGroup(RandomNumberGenerator &rng, unsign
 template <class EC>
 bool DL_GroupParameters_EC<EC>::ValidateElement(unsigned int level, const Element &g, const DL_FixedBasePrecomputation<Element> *gpc) const
 {
-	bool pass = !IsIdentity(g) && GetCurve().VerifyPoint(g);
+	bool pass = !IsIdentity(g);
+	CRYPTOPP_ASSERT(pass);
+	pass = pass && GetCurve().VerifyPoint(g);
+	CRYPTOPP_ASSERT(pass);
+
 	if (level >= 1)
 	{
 		if (gpc)
+		{
 			pass = pass && gpc->Exponentiate(this->GetGroupPrecomputation(), Integer::One()) == g;
+			CRYPTOPP_ASSERT(pass);
+		}
 	}
 	if (level >= 2 && pass)
 	{
 		const Integer &q = GetSubgroupOrder();
 		Element gq = gpc ? gpc->Exponentiate(this->GetGroupPrecomputation(), q) : this->ExponentiateElement(g, q);
 		pass = pass && IsIdentity(gq);
+		CRYPTOPP_ASSERT(pass);
 	}
 	return pass;
 }

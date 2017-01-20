@@ -1,11 +1,12 @@
 // bench2.cpp - written and placed in the public domain by Wei Dai
 
 #include "cryptlib.h"
+#include "bench.h"
+#include "validate.h"
+
 #include "pubkey.h"
 #include "gfpcrypt.h"
 #include "eccrypto.h"
-#include "bench.h"
-#include "validate.h"
 
 #include "files.h"
 #include "filters.h"
@@ -15,7 +16,6 @@
 #include "dsa.h"
 #include "luc.h"
 #include "rw.h"
-#include "eccrypto.h"
 #include "ecp.h"
 #include "ec2n.h"
 #include "asn.h"

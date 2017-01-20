@@ -70,8 +70,12 @@ void DL_GroupParameters_DSA::GenerateRandom(RandomNumberGenerator &rng, const Na
 bool DL_GroupParameters_DSA::ValidateGroup(RandomNumberGenerator &rng, unsigned int level) const
 {
 	bool pass = DL_GroupParameters_GFP::ValidateGroup(rng, level);
-	int pSize = GetModulus().BitCount(), qSize = GetSubgroupOrder().BitCount();
+	CRYPTOPP_ASSERT(pass);
+
+	const int pSize = GetModulus().BitCount(), qSize = GetSubgroupOrder().BitCount();
 	pass = pass && ((pSize==1024 && qSize==160) || (pSize==2048 && qSize==224) || (pSize==2048 && qSize==256) || (pSize==3072 && qSize==256));
+	CRYPTOPP_ASSERT(pass);
+
 	return pass;
 }
 
@@ -132,12 +136,20 @@ bool DL_GroupParameters_IntegerBased::ValidateGroup(RandomNumberGenerator &rng, 
 
 	bool pass = true;
 	pass = pass && p > Integer::One() && p.IsOdd();
+	CRYPTOPP_ASSERT(pass);
 	pass = pass && q > Integer::One() && q.IsOdd();
+	CRYPTOPP_ASSERT(pass);
 
 	if (level >= 1)
+	{
 		pass = pass && GetCofactor() > Integer::One() && GetGroupOrder() % q == Integer::Zero();
+		CRYPTOPP_ASSERT(pass);
+	}
 	if (level >= 2)
+	{
 		pass = pass && VerifyPrime(rng, q, level-2) && VerifyPrime(rng, p, level-2);
+		CRYPTOPP_ASSERT(pass);
+	}
 
 	return pass;
 }
@@ -148,17 +160,26 @@ bool DL_GroupParameters_IntegerBased::ValidateElement(unsigned int level, const 
 
 	bool pass = true;
 	pass = pass && GetFieldType() == 1 ? g.IsPositive() : g.NotNegative();
+	CRYPTOPP_ASSERT(pass);
+
 	pass = pass && g < p && !IsIdentity(g);
+	CRYPTOPP_ASSERT(pass);
 
 	if (level >= 1)
 	{
 		if (gpc)
+		{
 			pass = pass && gpc->Exponentiate(GetGroupPrecomputation(), Integer::One()) == g;
+			CRYPTOPP_ASSERT(pass);
+		}
 	}
 	if (level >= 2)
 	{
 		if (GetFieldType() == 2)
+		{
 			pass = pass && Jacobi(g*g-4, p)==-1;
+			CRYPTOPP_ASSERT(pass);
+		}
 
 		// verifying that Lucas((p+1)/2, w, p)==2 is omitted because it's too costly
 		// and at most 1 bit is leaked if it's false
@@ -168,9 +189,13 @@ bool DL_GroupParameters_IntegerBased::ValidateElement(unsigned int level, const 
 		{
 			Integer gp = gpc ? gpc->Exponentiate(GetGroupPrecomputation(), q) : ExponentiateElement(g, q);
 			pass = pass && IsIdentity(gp);
+			CRYPTOPP_ASSERT(pass);
 		}
 		else if (GetFieldType() == 1)
+		{
 			pass = pass && Jacobi(g, p) == 1;
+			CRYPTOPP_ASSERT(pass);
+		}
 	}
 
 	return pass;

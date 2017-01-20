@@ -428,7 +428,11 @@ public:
 	//! \param x the private exponent
 	//! \details This Initialize() function overload initializes a private key from existing parameters.
 	void Initialize(const DL_GroupParameters_EC<EC> &params, const Integer &x)
-		{this->AccessGroupParameters() = params; this->SetPrivateExponent(x);}
+	{
+		this->AccessGroupParameters() = params;
+		this->SetPrivateExponent(x);
+		CRYPTOPP_ASSERT(x>=1 && x<=params.GetSubgroupOrder()-1);
+	}
 
 	//! \brief Initialize an EC Private Key using {EC,G,n,x}
 	//! \param ec the elliptic curve
@@ -437,7 +441,13 @@ public:
 	//! \param x the private exponent
 	//! \details This Initialize() function overload initializes a private key from existing parameters.
 	void Initialize(const EC &ec, const Element &G, const Integer &n, const Integer &x)
-		{this->AccessGroupParameters().Initialize(ec, G, n); this->SetPrivateExponent(x);}
+	{
+		this->AccessGroupParameters().Initialize(ec, G, n);
+		this->SetPrivateExponent(x);
+
+		DL_GroupParameters_EC<EC> &params = this->AccessGroupParameters();
+		CRYPTOPP_ASSERT(x>=1 && x<=params.GetSubgroupOrder()-1);
+	}
 
 	//! \brief Create an EC private key
 	//! \param rng a RandomNumberGenerator derived class
@@ -463,8 +473,9 @@ public:
 	{
 		const DL_GroupParameters<Element>& params = this->GetAbstractGroupParameters();
 		pub.AccessAbstractGroupParameters().AssignFrom(params);
-		const Integer &xInv = this->GetPrivateExponent().InverseMod(params.GetGroupOrder());
+		const Integer &xInv = this->GetPrivateExponent().InverseMod(params.GetSubgroupOrder());
 		pub.SetPublicElement(params.ExponentiateBase(xInv));
+		CRYPTOPP_ASSERT(xInv.NotZero());
 	}
 
 	virtual bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
