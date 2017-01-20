@@ -90,6 +90,16 @@ inline uint64x2_t VEXT_8(uint64x2_t a, uint64x2_t b, unsigned int c)
         :"=w" (r) : "w" (a), "w" (b), "I" (c) );
 	return r;
 }
+
+// https://github.com/weidai11/cryptopp/issues/366
+template <unsigned int C>
+inline uint64x2_t VEXT_8(uint64x2_t a, uint64x2_t b)
+{
+	uint64x2_t r;
+    __asm __volatile("ext   %0.16b, %1.16b, %2.16b, %3 \n\t"
+        :"=w" (r) : "w" (a), "w" (b), "I" (C) );
+	return r;
+}
 #endif // GCC and compatibles
 
 #if defined(_MSC_VER)
@@ -120,6 +130,13 @@ inline uint64x2_t PMULL_11(const uint64x2_t a, const uint64x2_t b)
 inline uint64x2_t VEXT_8(uint64x2_t a, uint64x2_t b, unsigned int c)
 {
 	return (uint64x2_t)vextq_u8(vreinterpretq_u8_u64(a), vreinterpretq_u8_u64(b), c);
+}
+
+// https://github.com/weidai11/cryptopp/issues/366
+template <unsigned int C>
+inline uint64x2_t VEXT_8(uint64x2_t a, uint64x2_t b)
+{
+	return (uint64x2_t)vextq_u8(vreinterpretq_u8_u64(a), vreinterpretq_u8_u64(b), C);
 }
 #endif // Microsoft and compatibles
 #endif // CRYPTOPP_BOOL_ARM_PMULL_AVAILABLE
@@ -276,13 +293,13 @@ static const unsigned int s_clmulTableSizeInBlocks = 8;
 inline uint64x2_t PMULL_Reduce(uint64x2_t c0, uint64x2_t c1, uint64x2_t c2, const uint64x2_t &r)
 {
 	// See comments fo CLMUL_Reduce
-	c1 = veorq_u64(c1, VEXT_8(vdupq_n_u64(0), c0, 8));
+	c1 = veorq_u64(c1, VEXT_8<8>(vdupq_n_u64(0), c0));
 	c1 = veorq_u64(c1, PMULL_01(c0, r));
-	c0 = VEXT_8(c0, vdupq_n_u64(0), 8);
+	c0 = VEXT_8<8>(c0, vdupq_n_u64(0));
 	c0 = vshlq_n_u64(veorq_u64(c0, c1), 1);
 	c0 = PMULL_00(c0, r);
 	c2 = veorq_u64(c2, c0);
-	c2 = veorq_u64(c2, VEXT_8(c1, vdupq_n_u64(0), 8));
+	c2 = veorq_u64(c2, VEXT_8<8>(c1, vdupq_n_u64(0)));
 	c1 = vshrq_n_u64(vcombine_u64(vget_low_u64(c1), vget_low_u64(c2)), 63);
 	c2 = vshlq_n_u64(c2, 1);
 
