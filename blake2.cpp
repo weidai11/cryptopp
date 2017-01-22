@@ -53,6 +53,7 @@ static void BLAKE2_SSE4_Compress32(const byte* input, BLAKE2_State<word32, false
 static void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64, true>& state);
 #endif
 
+// Disable NEON for Cortex-A53 and A57. Also see http://github.com/weidai11/cryptopp/issues/367
 #if CRYPTOPP_BOOL_ARM32 && CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
 static void BLAKE2_NEON_Compress32(const byte* input, BLAKE2_State<word32, false>& state);
 static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>& state);
@@ -3461,341 +3462,341 @@ static void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64, true>
 }
 #endif  // CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
 
+// Disable NEON for Cortex-A53 and A57. Also see http://github.com/weidai11/cryptopp/issues/367
 #if CRYPTOPP_BOOL_ARM32 && CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
-
 static void BLAKE2_NEON_Compress32(const byte* input, BLAKE2_State<word32, false>& state)
 {
-	#undef LOAD_MSG_0_1
+    #undef LOAD_MSG_0_1
     #define LOAD_MSG_0_1(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_low_u32(m0), vget_high_u32(m0)).val[0]; \
     t1 = vzip_u32(vget_low_u32(m1), vget_high_u32(m1)).val[0]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-	#undef LOAD_MSG_0_2
+    #undef LOAD_MSG_0_2
     #define LOAD_MSG_0_2(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_low_u32(m0), vget_high_u32(m0)).val[1]; \
     t1 = vzip_u32(vget_low_u32(m1), vget_high_u32(m1)).val[1]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-	#undef LOAD_MSG_0_3
+    #undef LOAD_MSG_0_3
     #define LOAD_MSG_0_3(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_low_u32(m2), vget_high_u32(m2)).val[0]; \
     t1 = vzip_u32(vget_low_u32(m3), vget_high_u32(m3)).val[0]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-	#undef LOAD_MSG_0_4
+    #undef LOAD_MSG_0_4
     #define LOAD_MSG_0_4(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_low_u32(m2), vget_high_u32(m2)).val[1]; \
     t1 = vzip_u32(vget_low_u32(m3), vget_high_u32(m3)).val[1]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-	#undef LOAD_MSG_1_1
+    #undef LOAD_MSG_1_1
     #define LOAD_MSG_1_1(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_high_u32(m3), vget_low_u32(m1)).val[0]; \
     t1 = vzip_u32(vget_low_u32(m2), vget_low_u32(m3)).val[1]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-	#undef LOAD_MSG_1_2
+    #undef LOAD_MSG_1_2
     #define LOAD_MSG_1_2(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_high_u32(m2), vget_low_u32(m2)).val[0]; \
     t1 = vext_u32(vget_high_u32(m3), vget_high_u32(m1), 1); \
     buf = vcombine_u32(t0, t1); } while(0)
 
-	#undef LOAD_MSG_1_3
+    #undef LOAD_MSG_1_3
     #define LOAD_MSG_1_3(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vext_u32(vget_low_u32(m0), vget_low_u32(m0), 1); \
     t1 = vzip_u32(vget_high_u32(m2), vget_low_u32(m1)).val[1]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-	#undef LOAD_MSG_1_4
+    #undef LOAD_MSG_1_4
     #define LOAD_MSG_1_4(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_low_u32(m3), vget_high_u32(m0)).val[0]; \
     t1 = vzip_u32(vget_high_u32(m1), vget_high_u32(m0)).val[1]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-	#undef LOAD_MSG_2_1
+    #undef LOAD_MSG_2_1
     #define LOAD_MSG_2_1(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vext_u32(vget_high_u32(m2), vget_low_u32(m3), 1); \
     t1 = vzip_u32(vget_low_u32(m1), vget_high_u32(m3)).val[1]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-	#undef LOAD_MSG_2_2
+    #undef LOAD_MSG_2_2
     #define LOAD_MSG_2_2(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_low_u32(m2), vget_low_u32(m0)).val[0]; \
     t1 = vbsl_u32(vcreate_u32(0xFFFFFFFF), vget_high_u32(m0), vget_low_u32(m3)); \
     buf = vcombine_u32(t0, t1); } while(0)
 
-	#undef LOAD_MSG_2_3
+    #undef LOAD_MSG_2_3
     #define LOAD_MSG_2_3(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vbsl_u32(vcreate_u32(0xFFFFFFFF), vget_high_u32(m2), vget_high_u32(m0)); \
     t1 = vzip_u32(vget_high_u32(m1), vget_low_u32(m2)).val[1]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-	#undef LOAD_MSG_2_4
+    #undef LOAD_MSG_2_4
     #define LOAD_MSG_2_4(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_high_u32(m3), vget_high_u32(m1)).val[0]; \
     t1 = vext_u32(vget_low_u32(m0), vget_low_u32(m1), 1); \
     buf = vcombine_u32(t0, t1); } while(0)
 
-	#undef LOAD_MSG_3_1
+    #undef LOAD_MSG_3_1
     #define LOAD_MSG_3_1(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_high_u32(m1), vget_high_u32(m0)).val[1]; \
     t1 = vzip_u32(vget_low_u32(m3), vget_high_u32(m2)).val[1]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-	#undef LOAD_MSG_3_2
+    #undef LOAD_MSG_3_2
     #define LOAD_MSG_3_2(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_low_u32(m2), vget_low_u32(m0)).val[1]; \
     t1 = vzip_u32(vget_low_u32(m3), vget_high_u32(m3)).val[0]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-	#undef LOAD_MSG_3_3
+    #undef LOAD_MSG_3_3
     #define LOAD_MSG_3_3(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vbsl_u32(vcreate_u32(0xFFFFFFFF), vget_high_u32(m0), vget_low_u32(m1)); \
     t1 = vbsl_u32(vcreate_u32(0xFFFFFFFF), vget_low_u32(m1), vget_high_u32(m3)); \
     buf = vcombine_u32(t0, t1); } while(0)
 
-	#undef LOAD_MSG_3_4
+    #undef LOAD_MSG_3_4
     #define LOAD_MSG_3_4(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_high_u32(m1), vget_high_u32(m2)).val[0]; \
     t1 = vzip_u32(vget_low_u32(m0), vget_low_u32(m2)).val[0]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-	#undef LOAD_MSG_4_1
+    #undef LOAD_MSG_4_1
     #define LOAD_MSG_4_1(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_low_u32(m2), vget_low_u32(m1)).val[1]; \
     t1 = vzip_u32((vget_high_u32(m0)), vget_high_u32(m2)).val[0]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-	#undef LOAD_MSG_4_2
+    #undef LOAD_MSG_4_2
     #define LOAD_MSG_4_2(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vbsl_u32(vcreate_u32(0xFFFFFFFF), vget_low_u32(m0), vget_high_u32(m1)); \
     t1 = vbsl_u32(vcreate_u32(0xFFFFFFFF), vget_low_u32(m1), vget_high_u32(m3)); \
     buf = vcombine_u32(t0, t1); } while(0)
 
-	#undef LOAD_MSG_4_3
+    #undef LOAD_MSG_4_3
     #define LOAD_MSG_4_3(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vbsl_u32(vcreate_u32(0xFFFFFFFF), vget_high_u32(m3), vget_high_u32(m2)); \
     t1 = vbsl_u32(vcreate_u32(0xFFFFFFFF), vget_high_u32(m1), vget_high_u32(m0)); \
     buf = vcombine_u32(t0, t1); } while(0)
 
-	#undef LOAD_MSG_4_4
+    #undef LOAD_MSG_4_4
     #define LOAD_MSG_4_4(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vext_u32(vget_low_u32(m0), vget_low_u32(m3), 1); \
     t1 = vbsl_u32(vcreate_u32(0xFFFFFFFF), vget_low_u32(m2), vget_low_u32(m3)); \
     buf = vcombine_u32(t0, t1); } while(0)
 
-	#undef LOAD_MSG_5_1
+    #undef LOAD_MSG_5_1
     #define LOAD_MSG_5_1(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32((vget_high_u32(m0)), vget_high_u32(m1)).val[0]; \
     t1 = vzip_u32(vget_low_u32(m0), vget_low_u32(m2)).val[0]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-	#undef LOAD_MSG_5_2
+    #undef LOAD_MSG_5_2
     #define LOAD_MSG_5_2(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_low_u32(m3), vget_high_u32(m2)).val[0]; \
     t1 = vzip_u32(vget_high_u32(m2), vget_high_u32(m0)).val[1]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-	#undef LOAD_MSG_5_3
+    #undef LOAD_MSG_5_3
     #define LOAD_MSG_5_3(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vbsl_u32(vcreate_u32(0xFFFFFFFF), vget_low_u32(m1), vget_high_u32(m1)); \
     t1 = vzip_u32(vget_high_u32(m3), vget_low_u32(m0)).val[1]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-	#undef LOAD_MSG_5_4
+    #undef LOAD_MSG_5_4
     #define LOAD_MSG_5_4(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_low_u32(m3), vget_low_u32(m1)).val[1]; \
     t1 = vbsl_u32(vcreate_u32(0xFFFFFFFF), vget_high_u32(m3), vget_low_u32(m2)); \
     buf = vcombine_u32(t0, t1); } while(0)
 
-	#undef LOAD_MSG_6_1
+    #undef LOAD_MSG_6_1
     #define LOAD_MSG_6_1(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vbsl_u32(vcreate_u32(0xFFFFFFFF), vget_low_u32(m3), vget_low_u32(m0)); \
     t1 = vzip_u32(vget_high_u32(m3), vget_low_u32(m1)).val[0]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-	#undef LOAD_MSG_6_2
+    #undef LOAD_MSG_6_2
     #define LOAD_MSG_6_2(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_low_u32(m1), vget_high_u32(m3)).val[1]; \
     t1 = vext_u32(vget_low_u32(m3), vget_high_u32(m2), 1); \
     buf = vcombine_u32(t0, t1); } while(0)
 
-	#undef LOAD_MSG_6_3
+    #undef LOAD_MSG_6_3
     #define LOAD_MSG_6_3(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_low_u32(m0), vget_high_u32(m1)).val[0]; \
     t1 = vext_u32(vget_low_u32(m2), vget_low_u32(m2), 1); \
     buf = vcombine_u32(t0, t1); } while(0)
 
-	#undef LOAD_MSG_6_4
+    #undef LOAD_MSG_6_4
     #define LOAD_MSG_6_4(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_high_u32(m1), vget_high_u32(m0)).val[1]; \
     t1 = vbsl_u32(vcreate_u32(0xFFFFFFFF), vget_high_u32(m0), vget_high_u32(m2)); \
     buf = vcombine_u32(t0, t1); } while(0)
 
-	#undef LOAD_MSG_7_1
+    #undef LOAD_MSG_7_1
     #define LOAD_MSG_7_1(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_low_u32(m3), vget_high_u32(m1)).val[1]; \
     t1 = vbsl_u32(vcreate_u32(0xFFFFFFFF), vget_low_u32(m3), vget_high_u32(m0)); \
     buf = vcombine_u32(t0, t1); } while(0)
 
-	#undef LOAD_MSG_7_2
+    #undef LOAD_MSG_7_2
     #define LOAD_MSG_7_2(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vext_u32(vget_high_u32(m2), vget_high_u32(m3), 1); \
     t1 = vzip_u32(vget_low_u32(m0), vget_low_u32(m2)).val[1]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-	#undef LOAD_MSG_7_3
+    #undef LOAD_MSG_7_3
     #define LOAD_MSG_7_3(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_low_u32(m1), vget_high_u32(m3)).val[1]; \
     t1 = vzip_u32(vget_low_u32(m2), vget_high_u32(m0)).val[0]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-	#undef LOAD_MSG_7_4
+    #undef LOAD_MSG_7_4
     #define LOAD_MSG_7_4(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_low_u32(m0), vget_low_u32(m1)).val[0]; \
     t1 = vzip_u32(vget_high_u32(m1), vget_high_u32(m2)).val[0]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-	#undef LOAD_MSG_8_1
+    #undef LOAD_MSG_8_1
     #define LOAD_MSG_8_1(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_high_u32(m1), vget_high_u32(m3)).val[0]; \
     t1 = vext_u32(vget_high_u32(m2), vget_low_u32(m0), 1); \
     buf = vcombine_u32(t0, t1); } while(0)
 
-	#undef LOAD_MSG_8_2
+    #undef LOAD_MSG_8_2
     #define LOAD_MSG_8_2(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_high_u32(m3), vget_low_u32(m2)).val[1]; \
     t1 = vext_u32(vget_high_u32(m0), vget_low_u32(m2), 1); \
     buf = vcombine_u32(t0, t1); } while(0)
-		
-	#undef LOAD_MSG_8_3
+        
+    #undef LOAD_MSG_8_3
     #define LOAD_MSG_8_3(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vbsl_u32(vcreate_u32(0xFFFFFFFF), vget_low_u32(m3), vget_low_u32(m3)); \
     t1 = vext_u32(vget_low_u32(m0), vget_high_u32(m2), 1); \
     buf = vcombine_u32(t0, t1); } while(0)
 
-	#undef LOAD_MSG_8_4
+    #undef LOAD_MSG_8_4
     #define LOAD_MSG_8_4(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vbsl_u32(vcreate_u32(0xFFFFFFFF), vget_high_u32(m0), vget_high_u32(m1)); \
     t1 = vbsl_u32(vcreate_u32(0xFFFFFFFF), vget_low_u32(m1), vget_low_u32(m1)); \
     buf = vcombine_u32(t0, t1); } while(0)
 
-	#undef LOAD_MSG_9_1
+    #undef LOAD_MSG_9_1
     #define LOAD_MSG_9_1(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_high_u32(m2), vget_low_u32(m2)).val[0]; \
     t1 = vzip_u32(vget_high_u32(m1), vget_low_u32(m0)).val[1]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-	#undef LOAD_MSG_9_2
+    #undef LOAD_MSG_9_2
     #define LOAD_MSG_9_2(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32((vget_high_u32(m0)), vget_low_u32(m1)).val[0]; \
     t1 = vbsl_u32(vcreate_u32(0xFFFFFFFF), vget_high_u32(m1), vget_low_u32(m1)); \
     buf = vcombine_u32(t0, t1); } while(0)
 
-	#undef LOAD_MSG_9_3
+    #undef LOAD_MSG_9_3
     #define LOAD_MSG_9_3(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_high_u32(m3), vget_low_u32(m2)).val[1]; \
     t1 = vzip_u32((vget_high_u32(m0)), vget_low_u32(m3)).val[1]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-	#undef LOAD_MSG_9_4
+    #undef LOAD_MSG_9_4
     #define LOAD_MSG_9_4(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vext_u32(vget_high_u32(m2), vget_high_u32(m3), 1); \
     t1 = vzip_u32(vget_low_u32(m3), vget_low_u32(m0)).val[0]; \
     buf = vcombine_u32(t0, t1); } while(0)
-							  
-	#define vrorq_n_u32_16(x) vreinterpretq_u32_u16(vrev32q_u16(vreinterpretq_u16_u32(x)))
+                              
+    #define vrorq_n_u32_16(x) vreinterpretq_u32_u16(vrev32q_u16(vreinterpretq_u16_u32(x)))
 
-	#define vrorq_n_u32_8(x) vsriq_n_u32(vshlq_n_u32((x), 24), (x), 8)
+    #define vrorq_n_u32_8(x) vsriq_n_u32(vshlq_n_u32((x), 24), (x), 8)
 
-	#define vrorq_n_u32(x, c) vsriq_n_u32(vshlq_n_u32((x), 32-(c)), (x), (c))
-		
-	#undef G1
-	#define G1(row1,row2,row3,row4,buf) \
-	do { \
-	  row1 = vaddq_u32(vaddq_u32(row1, buf), row2); row4 = veorq_u32(row4, row1); \
-	  row4 = vrorq_n_u32_16(row4); row3 = vaddq_u32(row3, row4); \
-	  row2 = veorq_u32(row2, row3); row2 = vrorq_n_u32(row2, 12); \
-	} while(0)
+    #define vrorq_n_u32(x, c) vsriq_n_u32(vshlq_n_u32((x), 32-(c)), (x), (c))
+        
+    #undef G1
+    #define G1(row1,row2,row3,row4,buf) \
+    do { \
+      row1 = vaddq_u32(vaddq_u32(row1, buf), row2); row4 = veorq_u32(row4, row1); \
+      row4 = vrorq_n_u32_16(row4); row3 = vaddq_u32(row3, row4); \
+      row2 = veorq_u32(row2, row3); row2 = vrorq_n_u32(row2, 12); \
+    } while(0)
 
-	#undef G2
-	#define G2(row1,row2,row3,row4,buf) \
-	do { \
-	  row1 = vaddq_u32(vaddq_u32(row1, buf), row2); row4 = veorq_u32(row4, row1); \
-	  row4 = vrorq_n_u32_8(row4); row3 = vaddq_u32(row3, row4); \
-	  row2 = veorq_u32(row2, row3); row2 = vrorq_n_u32(row2, 7); \
-	} while(0)
+    #undef G2
+    #define G2(row1,row2,row3,row4,buf) \
+    do { \
+      row1 = vaddq_u32(vaddq_u32(row1, buf), row2); row4 = veorq_u32(row4, row1); \
+      row4 = vrorq_n_u32_8(row4); row3 = vaddq_u32(row3, row4); \
+      row2 = veorq_u32(row2, row3); row2 = vrorq_n_u32(row2, 7); \
+    } while(0)
 
-	#undef DIAGONALIZE
-	#define DIAGONALIZE(row1,row2,row3,row4) \
-	do { \
-	  row4 = vextq_u32(row4, row4, 3); row3 = vextq_u32(row3, row3, 2); row2 = vextq_u32(row2, row2, 1); \
-	} while(0)
+    #undef DIAGONALIZE
+    #define DIAGONALIZE(row1,row2,row3,row4) \
+    do { \
+      row4 = vextq_u32(row4, row4, 3); row3 = vextq_u32(row3, row3, 2); row2 = vextq_u32(row2, row2, 1); \
+    } while(0)
 
-	#undef UNDIAGONALIZE
-	#define UNDIAGONALIZE(row1,row2,row3,row4) \
-	do { \
-	  row4 = vextq_u32(row4, row4, 1); \
-	  row3 = vextq_u32(row3, row3, 2); \
-	  row2 = vextq_u32(row2, row2, 3); \
-	} while(0)
+    #undef UNDIAGONALIZE
+    #define UNDIAGONALIZE(row1,row2,row3,row4) \
+    do { \
+      row4 = vextq_u32(row4, row4, 1); \
+      row3 = vextq_u32(row3, row3, 2); \
+      row2 = vextq_u32(row2, row2, 3); \
+    } while(0)
 
-	#undef ROUND
-	#define ROUND(r)  \
-	do { \
-	  uint32x4_t buf1, buf2, buf3, buf4; \
-	  LOAD_MSG_ ##r ##_1(buf1); \
-	  G1(row1,row2,row3,row4,buf1); \
-	  LOAD_MSG_ ##r ##_2(buf2); \
-	  G2(row1,row2,row3,row4,buf2); \
-	  DIAGONALIZE(row1,row2,row3,row4); \
-	  LOAD_MSG_ ##r ##_3(buf3); \
-	  G1(row1,row2,row3,row4,buf3); \
-	  LOAD_MSG_ ##r ##_4(buf4); \
-	  G2(row1,row2,row3,row4,buf4); \
-	  UNDIAGONALIZE(row1,row2,row3,row4); \
-	} while(0)
+    #undef ROUND
+    #define ROUND(r)  \
+    do { \
+      uint32x4_t buf1, buf2, buf3, buf4; \
+      LOAD_MSG_ ##r ##_1(buf1); \
+      G1(row1,row2,row3,row4,buf1); \
+      LOAD_MSG_ ##r ##_2(buf2); \
+      G2(row1,row2,row3,row4,buf2); \
+      DIAGONALIZE(row1,row2,row3,row4); \
+      LOAD_MSG_ ##r ##_3(buf3); \
+      G1(row1,row2,row3,row4,buf3); \
+      LOAD_MSG_ ##r ##_4(buf4); \
+      G2(row1,row2,row3,row4,buf4); \
+      UNDIAGONALIZE(row1,row2,row3,row4); \
+    } while(0)
 
     CRYPTOPP_ASSERT(IsAlignedOn(&state.h[0],GetAlignmentOf<uint32x4_t>()));
     CRYPTOPP_ASSERT(IsAlignedOn(&state.t[0],GetAlignmentOf<uint32x4_t>()));
@@ -4058,7 +4059,7 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
       row2l = vrorq_n_u64_63(row2l); row2h = vrorq_n_u64_63(row2h); \
     } while(0)
 
-	#undef DIAGONALIZE
+    #undef DIAGONALIZE
     #define DIAGONALIZE(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h) \
     do { \
       uint64x2_t t0 = vextq_u64(row2l, row2h, 1); \
@@ -4068,7 +4069,7 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
       row4l = t0; row4h = t1; \
     } while(0)
 
-	#undef UNDIAGONALIZE
+    #undef UNDIAGONALIZE
     #define UNDIAGONALIZE(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h) \
     do { \
       uint64x2_t t0 = vextq_u64(row2h, row2l, 1); \
