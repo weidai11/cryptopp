@@ -3466,281 +3466,241 @@ static void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64, true>
 #if CRYPTOPP_BOOL_ARM32 && CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
 static void BLAKE2_NEON_Compress32(const byte* input, BLAKE2_State<word32, false>& state)
 {
-    #undef LOAD_MSG_0_1
-    #define LOAD_MSG_0_1(buf) \
+    #define BLAKE2S_LOAD_MSG_0_1(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_low_u32(m0), vget_high_u32(m0)).val[0]; \
     t1 = vzip_u32(vget_low_u32(m1), vget_high_u32(m1)).val[0]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-    #undef LOAD_MSG_0_2
-    #define LOAD_MSG_0_2(buf) \
+    #define BLAKE2S_LOAD_MSG_0_2(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_low_u32(m0), vget_high_u32(m0)).val[1]; \
     t1 = vzip_u32(vget_low_u32(m1), vget_high_u32(m1)).val[1]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-    #undef LOAD_MSG_0_3
-    #define LOAD_MSG_0_3(buf) \
+    #define BLAKE2S_LOAD_MSG_0_3(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_low_u32(m2), vget_high_u32(m2)).val[0]; \
     t1 = vzip_u32(vget_low_u32(m3), vget_high_u32(m3)).val[0]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-    #undef LOAD_MSG_0_4
-    #define LOAD_MSG_0_4(buf) \
+    #define BLAKE2S_LOAD_MSG_0_4(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_low_u32(m2), vget_high_u32(m2)).val[1]; \
     t1 = vzip_u32(vget_low_u32(m3), vget_high_u32(m3)).val[1]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-    #undef LOAD_MSG_1_1
-    #define LOAD_MSG_1_1(buf) \
+    #define BLAKE2S_LOAD_MSG_1_1(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_high_u32(m3), vget_low_u32(m1)).val[0]; \
     t1 = vzip_u32(vget_low_u32(m2), vget_low_u32(m3)).val[1]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-    #undef LOAD_MSG_1_2
-    #define LOAD_MSG_1_2(buf) \
+    #define BLAKE2S_LOAD_MSG_1_2(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_high_u32(m2), vget_low_u32(m2)).val[0]; \
     t1 = vext_u32(vget_high_u32(m3), vget_high_u32(m1), 1); \
     buf = vcombine_u32(t0, t1); } while(0)
 
-    #undef LOAD_MSG_1_3
-    #define LOAD_MSG_1_3(buf) \
+    #define BLAKE2S_LOAD_MSG_1_3(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vext_u32(vget_low_u32(m0), vget_low_u32(m0), 1); \
     t1 = vzip_u32(vget_high_u32(m2), vget_low_u32(m1)).val[1]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-    #undef LOAD_MSG_1_4
-    #define LOAD_MSG_1_4(buf) \
+    #define BLAKE2S_LOAD_MSG_1_4(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_low_u32(m3), vget_high_u32(m0)).val[0]; \
     t1 = vzip_u32(vget_high_u32(m1), vget_high_u32(m0)).val[1]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-    #undef LOAD_MSG_2_1
-    #define LOAD_MSG_2_1(buf) \
+    #define BLAKE2S_LOAD_MSG_2_1(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vext_u32(vget_high_u32(m2), vget_low_u32(m3), 1); \
     t1 = vzip_u32(vget_low_u32(m1), vget_high_u32(m3)).val[1]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-    #undef LOAD_MSG_2_2
-    #define LOAD_MSG_2_2(buf) \
+    #define BLAKE2S_LOAD_MSG_2_2(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_low_u32(m2), vget_low_u32(m0)).val[0]; \
     t1 = vbsl_u32(vcreate_u32(0xFFFFFFFF), vget_high_u32(m0), vget_low_u32(m3)); \
     buf = vcombine_u32(t0, t1); } while(0)
 
-    #undef LOAD_MSG_2_3
-    #define LOAD_MSG_2_3(buf) \
+    #define BLAKE2S_LOAD_MSG_2_3(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vbsl_u32(vcreate_u32(0xFFFFFFFF), vget_high_u32(m2), vget_high_u32(m0)); \
     t1 = vzip_u32(vget_high_u32(m1), vget_low_u32(m2)).val[1]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-    #undef LOAD_MSG_2_4
-    #define LOAD_MSG_2_4(buf) \
+    #define BLAKE2S_LOAD_MSG_2_4(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_high_u32(m3), vget_high_u32(m1)).val[0]; \
     t1 = vext_u32(vget_low_u32(m0), vget_low_u32(m1), 1); \
     buf = vcombine_u32(t0, t1); } while(0)
 
-    #undef LOAD_MSG_3_1
-    #define LOAD_MSG_3_1(buf) \
+    #define BLAKE2S_LOAD_MSG_3_1(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_high_u32(m1), vget_high_u32(m0)).val[1]; \
     t1 = vzip_u32(vget_low_u32(m3), vget_high_u32(m2)).val[1]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-    #undef LOAD_MSG_3_2
-    #define LOAD_MSG_3_2(buf) \
+    #define BLAKE2S_LOAD_MSG_3_2(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_low_u32(m2), vget_low_u32(m0)).val[1]; \
     t1 = vzip_u32(vget_low_u32(m3), vget_high_u32(m3)).val[0]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-    #undef LOAD_MSG_3_3
-    #define LOAD_MSG_3_3(buf) \
+    #define BLAKE2S_LOAD_MSG_3_3(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vbsl_u32(vcreate_u32(0xFFFFFFFF), vget_high_u32(m0), vget_low_u32(m1)); \
     t1 = vbsl_u32(vcreate_u32(0xFFFFFFFF), vget_low_u32(m1), vget_high_u32(m3)); \
     buf = vcombine_u32(t0, t1); } while(0)
 
-    #undef LOAD_MSG_3_4
-    #define LOAD_MSG_3_4(buf) \
+    #define BLAKE2S_LOAD_MSG_3_4(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_high_u32(m1), vget_high_u32(m2)).val[0]; \
     t1 = vzip_u32(vget_low_u32(m0), vget_low_u32(m2)).val[0]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-    #undef LOAD_MSG_4_1
-    #define LOAD_MSG_4_1(buf) \
+    #define BLAKE2S_LOAD_MSG_4_1(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_low_u32(m2), vget_low_u32(m1)).val[1]; \
     t1 = vzip_u32((vget_high_u32(m0)), vget_high_u32(m2)).val[0]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-    #undef LOAD_MSG_4_2
-    #define LOAD_MSG_4_2(buf) \
+    #define BLAKE2S_LOAD_MSG_4_2(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vbsl_u32(vcreate_u32(0xFFFFFFFF), vget_low_u32(m0), vget_high_u32(m1)); \
     t1 = vbsl_u32(vcreate_u32(0xFFFFFFFF), vget_low_u32(m1), vget_high_u32(m3)); \
     buf = vcombine_u32(t0, t1); } while(0)
 
-    #undef LOAD_MSG_4_3
-    #define LOAD_MSG_4_3(buf) \
+    #define BLAKE2S_LOAD_MSG_4_3(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vbsl_u32(vcreate_u32(0xFFFFFFFF), vget_high_u32(m3), vget_high_u32(m2)); \
     t1 = vbsl_u32(vcreate_u32(0xFFFFFFFF), vget_high_u32(m1), vget_high_u32(m0)); \
     buf = vcombine_u32(t0, t1); } while(0)
 
-    #undef LOAD_MSG_4_4
-    #define LOAD_MSG_4_4(buf) \
+    #define BLAKE2S_LOAD_MSG_4_4(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vext_u32(vget_low_u32(m0), vget_low_u32(m3), 1); \
     t1 = vbsl_u32(vcreate_u32(0xFFFFFFFF), vget_low_u32(m2), vget_low_u32(m3)); \
     buf = vcombine_u32(t0, t1); } while(0)
 
-    #undef LOAD_MSG_5_1
-    #define LOAD_MSG_5_1(buf) \
+    #define BLAKE2S_LOAD_MSG_5_1(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32((vget_high_u32(m0)), vget_high_u32(m1)).val[0]; \
     t1 = vzip_u32(vget_low_u32(m0), vget_low_u32(m2)).val[0]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-    #undef LOAD_MSG_5_2
-    #define LOAD_MSG_5_2(buf) \
+    #define BLAKE2S_LOAD_MSG_5_2(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_low_u32(m3), vget_high_u32(m2)).val[0]; \
     t1 = vzip_u32(vget_high_u32(m2), vget_high_u32(m0)).val[1]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-    #undef LOAD_MSG_5_3
-    #define LOAD_MSG_5_3(buf) \
+    #define BLAKE2S_LOAD_MSG_5_3(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vbsl_u32(vcreate_u32(0xFFFFFFFF), vget_low_u32(m1), vget_high_u32(m1)); \
     t1 = vzip_u32(vget_high_u32(m3), vget_low_u32(m0)).val[1]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-    #undef LOAD_MSG_5_4
-    #define LOAD_MSG_5_4(buf) \
+    #define BLAKE2S_LOAD_MSG_5_4(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_low_u32(m3), vget_low_u32(m1)).val[1]; \
     t1 = vbsl_u32(vcreate_u32(0xFFFFFFFF), vget_high_u32(m3), vget_low_u32(m2)); \
     buf = vcombine_u32(t0, t1); } while(0)
 
-    #undef LOAD_MSG_6_1
-    #define LOAD_MSG_6_1(buf) \
+    #define BLAKE2S_LOAD_MSG_6_1(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vbsl_u32(vcreate_u32(0xFFFFFFFF), vget_low_u32(m3), vget_low_u32(m0)); \
     t1 = vzip_u32(vget_high_u32(m3), vget_low_u32(m1)).val[0]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-    #undef LOAD_MSG_6_2
-    #define LOAD_MSG_6_2(buf) \
+    #define BLAKE2S_LOAD_MSG_6_2(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_low_u32(m1), vget_high_u32(m3)).val[1]; \
     t1 = vext_u32(vget_low_u32(m3), vget_high_u32(m2), 1); \
     buf = vcombine_u32(t0, t1); } while(0)
 
-    #undef LOAD_MSG_6_3
-    #define LOAD_MSG_6_3(buf) \
+    #define BLAKE2S_LOAD_MSG_6_3(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_low_u32(m0), vget_high_u32(m1)).val[0]; \
     t1 = vext_u32(vget_low_u32(m2), vget_low_u32(m2), 1); \
     buf = vcombine_u32(t0, t1); } while(0)
 
-    #undef LOAD_MSG_6_4
-    #define LOAD_MSG_6_4(buf) \
+    #define BLAKE2S_LOAD_MSG_6_4(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_high_u32(m1), vget_high_u32(m0)).val[1]; \
     t1 = vbsl_u32(vcreate_u32(0xFFFFFFFF), vget_high_u32(m0), vget_high_u32(m2)); \
     buf = vcombine_u32(t0, t1); } while(0)
 
-    #undef LOAD_MSG_7_1
-    #define LOAD_MSG_7_1(buf) \
+    #define BLAKE2S_LOAD_MSG_7_1(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_low_u32(m3), vget_high_u32(m1)).val[1]; \
     t1 = vbsl_u32(vcreate_u32(0xFFFFFFFF), vget_low_u32(m3), vget_high_u32(m0)); \
     buf = vcombine_u32(t0, t1); } while(0)
 
-    #undef LOAD_MSG_7_2
-    #define LOAD_MSG_7_2(buf) \
+    #define BLAKE2S_LOAD_MSG_7_2(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vext_u32(vget_high_u32(m2), vget_high_u32(m3), 1); \
     t1 = vzip_u32(vget_low_u32(m0), vget_low_u32(m2)).val[1]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-    #undef LOAD_MSG_7_3
-    #define LOAD_MSG_7_3(buf) \
+    #define BLAKE2S_LOAD_MSG_7_3(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_low_u32(m1), vget_high_u32(m3)).val[1]; \
     t1 = vzip_u32(vget_low_u32(m2), vget_high_u32(m0)).val[0]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-    #undef LOAD_MSG_7_4
-    #define LOAD_MSG_7_4(buf) \
+    #define BLAKE2S_LOAD_MSG_7_4(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_low_u32(m0), vget_low_u32(m1)).val[0]; \
     t1 = vzip_u32(vget_high_u32(m1), vget_high_u32(m2)).val[0]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-    #undef LOAD_MSG_8_1
-    #define LOAD_MSG_8_1(buf) \
+    #define BLAKE2S_LOAD_MSG_8_1(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_high_u32(m1), vget_high_u32(m3)).val[0]; \
     t1 = vext_u32(vget_high_u32(m2), vget_low_u32(m0), 1); \
     buf = vcombine_u32(t0, t1); } while(0)
 
-    #undef LOAD_MSG_8_2
-    #define LOAD_MSG_8_2(buf) \
+    #define BLAKE2S_LOAD_MSG_8_2(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_high_u32(m3), vget_low_u32(m2)).val[1]; \
     t1 = vext_u32(vget_high_u32(m0), vget_low_u32(m2), 1); \
     buf = vcombine_u32(t0, t1); } while(0)
-        
-    #undef LOAD_MSG_8_3
-    #define LOAD_MSG_8_3(buf) \
+
+    #define BLAKE2S_LOAD_MSG_8_3(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vbsl_u32(vcreate_u32(0xFFFFFFFF), vget_low_u32(m3), vget_low_u32(m3)); \
     t1 = vext_u32(vget_low_u32(m0), vget_high_u32(m2), 1); \
     buf = vcombine_u32(t0, t1); } while(0)
 
-    #undef LOAD_MSG_8_4
-    #define LOAD_MSG_8_4(buf) \
+    #define BLAKE2S_LOAD_MSG_8_4(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vbsl_u32(vcreate_u32(0xFFFFFFFF), vget_high_u32(m0), vget_high_u32(m1)); \
     t1 = vbsl_u32(vcreate_u32(0xFFFFFFFF), vget_low_u32(m1), vget_low_u32(m1)); \
     buf = vcombine_u32(t0, t1); } while(0)
 
-    #undef LOAD_MSG_9_1
-    #define LOAD_MSG_9_1(buf) \
+    #define BLAKE2S_LOAD_MSG_9_1(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_high_u32(m2), vget_low_u32(m2)).val[0]; \
     t1 = vzip_u32(vget_high_u32(m1), vget_low_u32(m0)).val[1]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-    #undef LOAD_MSG_9_2
-    #define LOAD_MSG_9_2(buf) \
+    #define BLAKE2S_LOAD_MSG_9_2(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32((vget_high_u32(m0)), vget_low_u32(m1)).val[0]; \
     t1 = vbsl_u32(vcreate_u32(0xFFFFFFFF), vget_high_u32(m1), vget_low_u32(m1)); \
     buf = vcombine_u32(t0, t1); } while(0)
 
-    #undef LOAD_MSG_9_3
-    #define LOAD_MSG_9_3(buf) \
+    #define BLAKE2S_LOAD_MSG_9_3(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_high_u32(m3), vget_low_u32(m2)).val[1]; \
     t1 = vzip_u32((vget_high_u32(m0)), vget_low_u32(m3)).val[1]; \
     buf = vcombine_u32(t0, t1); } while(0)
 
-    #undef LOAD_MSG_9_4
-    #define LOAD_MSG_9_4(buf) \
+    #define BLAKE2S_LOAD_MSG_9_4(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vext_u32(vget_high_u32(m2), vget_high_u32(m3), 1); \
     t1 = vzip_u32(vget_low_u32(m3), vget_low_u32(m0)).val[0]; \
@@ -3751,51 +3711,46 @@ static void BLAKE2_NEON_Compress32(const byte* input, BLAKE2_State<word32, false
     #define vrorq_n_u32_8(x) vsriq_n_u32(vshlq_n_u32((x), 24), (x), 8)
 
     #define vrorq_n_u32(x, c) vsriq_n_u32(vshlq_n_u32((x), 32-(c)), (x), (c))
-        
-    #undef G1
-    #define G1(row1,row2,row3,row4,buf) \
+     
+    #define BLAKE2S_G1(row1,row2,row3,row4,buf) \
     do { \
       row1 = vaddq_u32(vaddq_u32(row1, buf), row2); row4 = veorq_u32(row4, row1); \
       row4 = vrorq_n_u32_16(row4); row3 = vaddq_u32(row3, row4); \
       row2 = veorq_u32(row2, row3); row2 = vrorq_n_u32(row2, 12); \
     } while(0)
 
-    #undef G2
-    #define G2(row1,row2,row3,row4,buf) \
+    #define BLAKE2S_G2(row1,row2,row3,row4,buf) \
     do { \
       row1 = vaddq_u32(vaddq_u32(row1, buf), row2); row4 = veorq_u32(row4, row1); \
       row4 = vrorq_n_u32_8(row4); row3 = vaddq_u32(row3, row4); \
       row2 = veorq_u32(row2, row3); row2 = vrorq_n_u32(row2, 7); \
     } while(0)
 
-    #undef DIAGONALIZE
-    #define DIAGONALIZE(row1,row2,row3,row4) \
+    #define BLAKE2S_DIAGONALIZE(row1,row2,row3,row4) \
     do { \
       row4 = vextq_u32(row4, row4, 3); row3 = vextq_u32(row3, row3, 2); row2 = vextq_u32(row2, row2, 1); \
     } while(0)
 
-    #undef UNDIAGONALIZE
-    #define UNDIAGONALIZE(row1,row2,row3,row4) \
+    #define BLAKE2S_UNDIAGONALIZE(row1,row2,row3,row4) \
     do { \
       row4 = vextq_u32(row4, row4, 1); \
       row3 = vextq_u32(row3, row3, 2); \
       row2 = vextq_u32(row2, row2, 3); \
     } while(0)
 
-    #undef ROUND
-    #define ROUND(r)  \
+    #define BLAKE2S_ROUND(r)  \
     do { \
       uint32x4_t buf1, buf2, buf3, buf4; \
-      LOAD_MSG_ ##r ##_1(buf1); \
-      G1(row1,row2,row3,row4,buf1); \
-      LOAD_MSG_ ##r ##_2(buf2); \
-      G2(row1,row2,row3,row4,buf2); \
-      DIAGONALIZE(row1,row2,row3,row4); \
-      LOAD_MSG_ ##r ##_3(buf3); \
-      G1(row1,row2,row3,row4,buf3); \
-      LOAD_MSG_ ##r ##_4(buf4); \
-      G2(row1,row2,row3,row4,buf4); \
-      UNDIAGONALIZE(row1,row2,row3,row4); \
+      BLAKE2S_LOAD_MSG_ ##r ##_1(buf1); \
+      BLAKE2S_G1(row1,row2,row3,row4,buf1); \
+      BLAKE2S_LOAD_MSG_ ##r ##_2(buf2); \
+      BLAKE2S_G2(row1,row2,row3,row4,buf2); \
+      BLAKE2S_DIAGONALIZE(row1,row2,row3,row4); \
+      BLAKE2S_LOAD_MSG_ ##r ##_3(buf3); \
+      BLAKE2S_G1(row1,row2,row3,row4,buf3); \
+      BLAKE2S_LOAD_MSG_ ##r ##_4(buf4); \
+      BLAKE2S_G2(row1,row2,row3,row4,buf4); \
+      BLAKE2S_UNDIAGONALIZE(row1,row2,row3,row4); \
     } while(0)
 
     CRYPTOPP_ASSERT(IsAlignedOn(&state.h[0],GetAlignmentOf<uint32x4_t>()));
@@ -3814,16 +3769,16 @@ static void BLAKE2_NEON_Compress32(const byte* input, BLAKE2_State<word32, false
     row3 = vld1q_u32(&BLAKE2S_IV(0));
     row4 = veorq_u32(vld1q_u32(&BLAKE2S_IV(4)), vld1q_u32(&state.t[0]));
 
-    ROUND(0);
-    ROUND(1);
-    ROUND(2);
-    ROUND(3);
-    ROUND(4);
-    ROUND(5);
-    ROUND(6);
-    ROUND(7);
-    ROUND(8);
-    ROUND(9);
+    BLAKE2S_ROUND(0);
+    BLAKE2S_ROUND(1);
+    BLAKE2S_ROUND(2);
+    BLAKE2S_ROUND(3);
+    BLAKE2S_ROUND(4);
+    BLAKE2S_ROUND(5);
+    BLAKE2S_ROUND(6);
+    BLAKE2S_ROUND(7);
+    BLAKE2S_ROUND(8);
+    BLAKE2S_ROUND(9);
 
     vst1q_u32(&state.h[0], veorq_u32(f0, veorq_u32(row1, row3)));
     vst1q_u32(&state.h[4], veorq_u32(f1, veorq_u32(row2, row4)));
@@ -3831,196 +3786,149 @@ static void BLAKE2_NEON_Compress32(const byte* input, BLAKE2_State<word32, false
 
 static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>& state)
 {
-    #undef LOAD_MSG_0_1
-    #define LOAD_MSG_0_1(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_0_1(b0, b1) \
     do { b0 = vcombine_u64(vget_low_u64(m0), vget_low_u64(m1)); b1 = vcombine_u64(vget_low_u64(m2), vget_low_u64(m3)); } while(0)
 
-    #undef LOAD_MSG_0_2
-    #define LOAD_MSG_0_2(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_0_2(b0, b1) \
     do { b0 = vcombine_u64(vget_high_u64(m0), vget_high_u64(m1)); b1 = vcombine_u64(vget_high_u64(m2), vget_high_u64(m3)); } while(0)
 
-    #undef LOAD_MSG_0_3
-    #define LOAD_MSG_0_3(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_0_3(b0, b1) \
     do { b0 = vcombine_u64(vget_low_u64(m4), vget_low_u64(m5)); b1 = vcombine_u64(vget_low_u64(m6), vget_low_u64(m7)); } while(0)
 
-    #undef LOAD_MSG_0_4
-    #define LOAD_MSG_0_4(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_0_4(b0, b1) \
     do { b0 = vcombine_u64(vget_high_u64(m4), vget_high_u64(m5)); b1 = vcombine_u64(vget_high_u64(m6), vget_high_u64(m7)); } while(0)
 
-    #undef LOAD_MSG_1_1
-    #define LOAD_MSG_1_1(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_1_1(b0, b1) \
     do { b0 = vcombine_u64(vget_low_u64(m7), vget_low_u64(m2)); b1 = vcombine_u64(vget_high_u64(m4), vget_high_u64(m6)); } while(0)
 
-    #undef LOAD_MSG_1_2
-    #define LOAD_MSG_1_2(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_1_2(b0, b1) \
     do { b0 = vcombine_u64(vget_low_u64(m5), vget_low_u64(m4)); b1 = vextq_u64(m7, m3, 1); } while(0)
 
-    #undef LOAD_MSG_1_3
-    #define LOAD_MSG_1_3(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_1_3(b0, b1) \
     do { b0 = vextq_u64(m0, m0, 1); b1 = vcombine_u64(vget_high_u64(m5), vget_high_u64(m2)); } while(0)
 
-    #undef LOAD_MSG_1_4
-    #define LOAD_MSG_1_4(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_1_4(b0, b1) \
     do { b0 = vcombine_u64(vget_low_u64(m6), vget_low_u64(m1)); b1 = vcombine_u64(vget_high_u64(m3), vget_high_u64(m1)); } while(0)
 
-    #undef LOAD_MSG_2_1
-    #define LOAD_MSG_2_1(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_2_1(b0, b1) \
     do { b0 = vextq_u64(m5, m6, 1); b1 = vcombine_u64(vget_high_u64(m2), vget_high_u64(m7)); } while(0)
 
-    #undef LOAD_MSG_2_2
-    #define LOAD_MSG_2_2(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_2_2(b0, b1) \
     do { b0 = vcombine_u64(vget_low_u64(m4), vget_low_u64(m0)); b1 = vcombine_u64(vget_low_u64(m1), vget_high_u64(m6)); } while(0)
 
-    #undef LOAD_MSG_2_3
-    #define LOAD_MSG_2_3(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_2_3(b0, b1) \
     do { b0 = vcombine_u64(vget_low_u64(m5), vget_high_u64(m1)); b1 = vcombine_u64(vget_high_u64(m3), vget_high_u64(m4)); } while(0)
 
-    #undef LOAD_MSG_2_4
-    #define LOAD_MSG_2_4(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_2_4(b0, b1) \
     do { b0 = vcombine_u64(vget_low_u64(m7), vget_low_u64(m3)); b1 = vextq_u64(m0, m2, 1); } while(0)
 
-    #undef LOAD_MSG_3_1
-    #define LOAD_MSG_3_1(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_3_1(b0, b1) \
     do { b0 = vcombine_u64(vget_high_u64(m3), vget_high_u64(m1)); b1 = vcombine_u64(vget_high_u64(m6), vget_high_u64(m5)); } while(0)
 
-    #undef LOAD_MSG_3_2
-    #define LOAD_MSG_3_2(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_3_2(b0, b1) \
     do { b0 = vcombine_u64(vget_high_u64(m4), vget_high_u64(m0)); b1 = vcombine_u64(vget_low_u64(m6), vget_low_u64(m7)); } while(0)
 
-    #undef LOAD_MSG_3_3
-    #define LOAD_MSG_3_3(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_3_3(b0, b1) \
     do { b0 = vcombine_u64(vget_low_u64(m1), vget_high_u64(m2)); b1 = vcombine_u64(vget_low_u64(m2), vget_high_u64(m7)); } while(0)
 
-    #undef LOAD_MSG_3_4
-    #define LOAD_MSG_3_4(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_3_4(b0, b1) \
     do { b0 = vcombine_u64(vget_low_u64(m3), vget_low_u64(m5)); b1 = vcombine_u64(vget_low_u64(m0), vget_low_u64(m4)); } while(0)
 
-    #undef LOAD_MSG_4_1
-    #define LOAD_MSG_4_1(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_4_1(b0, b1) \
     do { b0 = vcombine_u64(vget_high_u64(m4), vget_high_u64(m2)); b1 = vcombine_u64(vget_low_u64(m1), vget_low_u64(m5)); } while(0)
 
-    #undef LOAD_MSG_4_2
-    #define LOAD_MSG_4_2(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_4_2(b0, b1) \
     do { b0 = vcombine_u64(vget_low_u64(m0), vget_high_u64(m3)); b1 = vcombine_u64(vget_low_u64(m2), vget_high_u64(m7)); } while(0)
 
-    #undef LOAD_MSG_4_3
-    #define LOAD_MSG_4_3(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_4_3(b0, b1) \
     do { b0 = vcombine_u64(vget_low_u64(m7), vget_high_u64(m5)); b1 = vcombine_u64(vget_low_u64(m3), vget_high_u64(m1)); } while(0)
 
-    #undef LOAD_MSG_4_4
-    #define LOAD_MSG_4_4(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_4_4(b0, b1) \
     do { b0 = vextq_u64(m0, m6, 1); b1 = vcombine_u64(vget_low_u64(m4), vget_high_u64(m6)); } while(0)
 
-    #undef LOAD_MSG_5_1
-    #define LOAD_MSG_5_1(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_5_1(b0, b1) \
     do { b0 = vcombine_u64(vget_low_u64(m1), vget_low_u64(m3)); b1 = vcombine_u64(vget_low_u64(m0), vget_low_u64(m4)); } while(0)
 
-    #undef LOAD_MSG_5_2
-    #define LOAD_MSG_5_2(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_5_2(b0, b1) \
     do { b0 = vcombine_u64(vget_low_u64(m6), vget_low_u64(m5)); b1 = vcombine_u64(vget_high_u64(m5), vget_high_u64(m1)); } while(0)
 
-    #undef LOAD_MSG_5_3
-    #define LOAD_MSG_5_3(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_5_3(b0, b1) \
     do { b0 = vcombine_u64(vget_low_u64(m2), vget_high_u64(m3)); b1 = vcombine_u64(vget_high_u64(m7), vget_high_u64(m0)); } while(0)
 
-    #undef LOAD_MSG_5_4
-    #define LOAD_MSG_5_4(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_5_4(b0, b1) \
     do { b0 = vcombine_u64(vget_high_u64(m6), vget_high_u64(m2)); b1 = vcombine_u64(vget_low_u64(m7), vget_high_u64(m4)); } while(0)
 
-    #undef LOAD_MSG_6_1
-    #define LOAD_MSG_6_1(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_6_1(b0, b1) \
     do { b0 = vcombine_u64(vget_low_u64(m6), vget_high_u64(m0)); b1 = vcombine_u64(vget_low_u64(m7), vget_low_u64(m2)); } while(0)
 
-    #undef LOAD_MSG_6_2
-    #define LOAD_MSG_6_2(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_6_2(b0, b1) \
     do { b0 = vcombine_u64(vget_high_u64(m2), vget_high_u64(m7)); b1 = vextq_u64(m6, m5, 1); } while(0)
 
-    #undef LOAD_MSG_6_3
-    #define LOAD_MSG_6_3(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_6_3(b0, b1) \
     do { b0 = vcombine_u64(vget_low_u64(m0), vget_low_u64(m3)); b1 = vextq_u64(m4, m4, 1); } while(0)
 
-    #undef LOAD_MSG_6_4
-    #define LOAD_MSG_6_4(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_6_4(b0, b1) \
     do { b0 = vcombine_u64(vget_high_u64(m3), vget_high_u64(m1)); b1 = vcombine_u64(vget_low_u64(m1), vget_high_u64(m5)); } while(0)
 
-    #undef LOAD_MSG_7_1
-    #define LOAD_MSG_7_1(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_7_1(b0, b1) \
     do { b0 = vcombine_u64(vget_high_u64(m6), vget_high_u64(m3)); b1 = vcombine_u64(vget_low_u64(m6), vget_high_u64(m1)); } while(0)
 
-    #undef LOAD_MSG_7_2
-    #define LOAD_MSG_7_2(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_7_2(b0, b1) \
     do { b0 = vextq_u64(m5, m7, 1); b1 = vcombine_u64(vget_high_u64(m0), vget_high_u64(m4)); } while(0)
 
-    #undef LOAD_MSG_7_3
-    #define LOAD_MSG_7_3(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_7_3(b0, b1) \
     do { b0 = vcombine_u64(vget_high_u64(m2), vget_high_u64(m7)); b1 = vcombine_u64(vget_low_u64(m4), vget_low_u64(m1)); } while(0)
 
-    #undef LOAD_MSG_7_4
-    #define LOAD_MSG_7_4(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_7_4(b0, b1) \
     do { b0 = vcombine_u64(vget_low_u64(m0), vget_low_u64(m2)); b1 = vcombine_u64(vget_low_u64(m3), vget_low_u64(m5)); } while(0)
 
-    #undef LOAD_MSG_8_1
-    #define LOAD_MSG_8_1(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_8_1(b0, b1) \
     do { b0 = vcombine_u64(vget_low_u64(m3), vget_low_u64(m7)); b1 = vextq_u64(m5, m0, 1); } while(0)
 
-    #undef LOAD_MSG_8_2
-    #define LOAD_MSG_8_2(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_8_2(b0, b1) \
     do { b0 = vcombine_u64(vget_high_u64(m7), vget_high_u64(m4)); b1 = vextq_u64(m1, m4, 1); } while(0)
 
-    #undef LOAD_MSG_8_3
-    #define LOAD_MSG_8_3(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_8_3(b0, b1) \
     do { b0 = m6; b1 = vextq_u64(m0, m5, 1); } while(0)
 
-    #undef LOAD_MSG_8_4
-    #define LOAD_MSG_8_4(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_8_4(b0, b1) \
     do { b0 = vcombine_u64(vget_low_u64(m1), vget_high_u64(m3)); b1 = m2; } while(0)
 
-    #undef LOAD_MSG_9_1
-    #define LOAD_MSG_9_1(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_9_1(b0, b1) \
     do { b0 = vcombine_u64(vget_low_u64(m5), vget_low_u64(m4)); b1 = vcombine_u64(vget_high_u64(m3), vget_high_u64(m0)); } while(0)
 
-    #undef LOAD_MSG_9_2
-    #define LOAD_MSG_9_2(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_9_2(b0, b1) \
     do { b0 = vcombine_u64(vget_low_u64(m1), vget_low_u64(m2)); b1 = vcombine_u64(vget_low_u64(m3), vget_high_u64(m2)); } while(0)
 
-    #undef LOAD_MSG_9_3
-    #define LOAD_MSG_9_3(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_9_3(b0, b1) \
     do { b0 = vcombine_u64(vget_high_u64(m7), vget_high_u64(m4)); b1 = vcombine_u64(vget_high_u64(m1), vget_high_u64(m6)); } while(0)
 
-    #undef LOAD_MSG_9_4
-    #define LOAD_MSG_9_4(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_9_4(b0, b1) \
     do { b0 = vextq_u64(m5, m7, 1); b1 = vcombine_u64(vget_low_u64(m6), vget_low_u64(m0)); } while(0)
 
-    #undef LOAD_MSG_10_1
-    #define LOAD_MSG_10_1(b0, b1) \
+    #undef BLAKE2B_LOAD_MSG_10_1
+    #define BLAKE2B_LOAD_MSG_10_1(b0, b1) \
     do { b0 = vcombine_u64(vget_low_u64(m0), vget_low_u64(m1)); b1 = vcombine_u64(vget_low_u64(m2), vget_low_u64(m3)); } while(0)
 
-    #undef LOAD_MSG_10_2
-    #define LOAD_MSG_10_2(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_10_2(b0, b1) \
     do { b0 = vcombine_u64(vget_high_u64(m0), vget_high_u64(m1)); b1 = vcombine_u64(vget_high_u64(m2), vget_high_u64(m3)); } while(0)
 
-    #undef LOAD_MSG_10_3
-    #define LOAD_MSG_10_3(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_10_3(b0, b1) \
     do { b0 = vcombine_u64(vget_low_u64(m4), vget_low_u64(m5)); b1 = vcombine_u64(vget_low_u64(m6), vget_low_u64(m7)); } while(0)
 
-    #undef LOAD_MSG_10_4
-    #define LOAD_MSG_10_4(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_10_4(b0, b1) \
     do { b0 = vcombine_u64(vget_high_u64(m4), vget_high_u64(m5)); b1 = vcombine_u64(vget_high_u64(m6), vget_high_u64(m7)); } while(0)
 
-    #undef LOAD_MSG_11_1
-    #define LOAD_MSG_11_1(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_11_1(b0, b1) \
     do { b0 = vcombine_u64(vget_low_u64(m7), vget_low_u64(m2)); b1 = vcombine_u64(vget_high_u64(m4), vget_high_u64(m6)); } while(0)
 
-    #undef LOAD_MSG_11_2
-    #define LOAD_MSG_11_2(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_11_2(b0, b1) \
     do { b0 = vcombine_u64(vget_low_u64(m5), vget_low_u64(m4)); b1 = vextq_u64(m7, m3, 1); } while(0)
 
-    #undef LOAD_MSG_11_3
-    #define LOAD_MSG_11_3(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_11_3(b0, b1) \
     do { b0 = vextq_u64(m0, m0, 1); b1 = vcombine_u64(vget_high_u64(m5), vget_high_u64(m2)); } while(0)
 
-    #undef LOAD_MSG_11_4
-    #define LOAD_MSG_11_4(b0, b1) \
+    #define BLAKE2B_LOAD_MSG_11_4(b0, b1) \
     do { b0 = vcombine_u64(vget_low_u64(m6), vget_low_u64(m1)); b1 = vcombine_u64(vget_high_u64(m3), vget_high_u64(m1)); } while(0)
 
     #define vrorq_n_u64_32(x) vreinterpretq_u64_u32(vrev64q_u32(vreinterpretq_u32_u64((x))))
@@ -4035,8 +3943,7 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
 
     #define vrorq_n_u64_63(x) veorq_u64(vaddq_u64(x, x), vshrq_n_u64(x, 63))
 
-    #undef BLAKE2_G1
-    #define BLAKE2_G1(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1) \
+    #define BLAKE2B_G1(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1) \
     do { \
       row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l); \
       row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h); \
@@ -4047,8 +3954,7 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
       row2l = vrorq_n_u64_24(row2l); row2h = vrorq_n_u64_24(row2h); \
     } while(0)
 
-    #undef BLAKE2_G2
-    #define BLAKE2_G2(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1) \
+    #define BLAKE2B_G2(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1) \
     do { \
       row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l); \
       row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h); \
@@ -4059,8 +3965,7 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
       row2l = vrorq_n_u64_63(row2l); row2h = vrorq_n_u64_63(row2h); \
     } while(0)
 
-    #undef DIAGONALIZE
-    #define DIAGONALIZE(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h) \
+    #define BLAKE2B_DIAGONALIZE(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h) \
     do { \
       uint64x2_t t0 = vextq_u64(row2l, row2h, 1); \
       uint64x2_t t1 = vextq_u64(row2h, row2l, 1); \
@@ -4069,8 +3974,7 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
       row4l = t0; row4h = t1; \
     } while(0)
 
-    #undef UNDIAGONALIZE
-    #define UNDIAGONALIZE(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h) \
+    #define BLAKE2B_UNDIAGONALIZE(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h) \
     do { \
       uint64x2_t t0 = vextq_u64(row2h, row2l, 1); \
       uint64x2_t t1 = vextq_u64(row2l, row2h, 1); \
@@ -4079,20 +3983,19 @@ static void BLAKE2_NEON_Compress64(const byte* input, BLAKE2_State<word64, true>
       row4l = t0; row4h = t1; \
     } while(0)
 
-    #undef BLAKE2B_ROUND
     #define BLAKE2B_ROUND(r) \
     do { \
       uint64x2_t b0, b1; \
-      LOAD_MSG_ ##r ##_1(b0, b1); \
-      BLAKE2_G1(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1); \
-      LOAD_MSG_ ##r ##_2(b0, b1); \
-      BLAKE2_G2(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1); \
-      DIAGONALIZE(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h); \
-      LOAD_MSG_ ##r ##_3(b0, b1); \
-      BLAKE2_G1(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1); \
-      LOAD_MSG_ ##r ##_4(b0, b1); \
-      BLAKE2_G2(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1); \
-      UNDIAGONALIZE(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h); \
+      BLAKE2B_LOAD_MSG_ ##r ##_1(b0, b1); \
+      BLAKE2B_G1(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1); \
+      BLAKE2B_LOAD_MSG_ ##r ##_2(b0, b1); \
+      BLAKE2B_G2(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1); \
+      BLAKE2B_DIAGONALIZE(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h); \
+      BLAKE2B_LOAD_MSG_ ##r ##_3(b0, b1); \
+      BLAKE2B_G1(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1); \
+      BLAKE2B_LOAD_MSG_ ##r ##_4(b0, b1); \
+      BLAKE2B_G2(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1); \
+      BLAKE2B_UNDIAGONALIZE(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h); \
     } while(0)
 
     CRYPTOPP_ASSERT(IsAlignedOn(&state.h[0],GetAlignmentOf<uint64x2_t>()));
