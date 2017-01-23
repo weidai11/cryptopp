@@ -415,7 +415,7 @@ public:
         const Integer &q = params.GetSubgroupOrder();
         // r = x(k * G) mod q
         r = params.ConvertElementToInteger(params.ExponentiateBase(k)) % q;
-        // s = (k * r − h(m)) * d_A mod q
+        // s = (k * r - h(m)) * d_A mod q
         s = (k * r - e) * x % q;
         CRYPTOPP_ASSERT(!!r && !!s);
     }
