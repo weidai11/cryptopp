@@ -444,9 +444,7 @@ public:
 	{
 		this->AccessGroupParameters().Initialize(ec, G, n);
 		this->SetPrivateExponent(x);
-
-		DL_GroupParameters_EC<EC> &params = this->AccessGroupParameters();
-		CRYPTOPP_ASSERT(x>=1 && x<=params.GetSubgroupOrder()-1);
+		CRYPTOPP_ASSERT(x>=1 && x<=this->AccessGroupParameters().GetSubgroupOrder()-1);
 	}
 
 	//! \brief Create an EC private key
