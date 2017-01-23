@@ -17,7 +17,7 @@
 # pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
 
-// ARM32/ARM64 Headers
+// ARM32 and ARM64 Headers
 #if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
 # if defined(__GNUC__)
 #  include <stdint.h>
