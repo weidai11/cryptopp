@@ -1724,7 +1724,10 @@ inline byte ByteReverse(byte value)
 //! \details ByteReverse calls bswap if available. Otherwise the function performs a 8-bit rotate on the word16
 inline word16 ByteReverse(word16 value)
 {
-#ifdef CRYPTOPP_BYTESWAP_AVAILABLE
+#if defined(CRYPTOPP_X86_ASM_AVAILABLE) && defined(CRYPTOPP_MOVBE_AVAILABLE)
+	__asm__ ("movbe %1, %0" : "=m" (value) : "q" (value));
+	return value;
+#elif defined(CRYPTOPP_BYTESWAP_AVAILABLE)
 	return bswap_16(value);
 #elif (_MSC_VER >= 1400) || (defined(_MSC_VER) && !defined(_DLL))
 	return _byteswap_ushort(value);
@@ -1739,7 +1742,10 @@ inline word16 ByteReverse(word16 value)
 //! \details ByteReverse calls bswap if available. Otherwise the function uses a combination of rotates on the word32
 inline word32 ByteReverse(word32 value)
 {
-#if defined(__GNUC__) && defined(CRYPTOPP_X86_ASM_AVAILABLE)
+#if defined(CRYPTOPP_X86_ASM_AVAILABLE) && defined(CRYPTOPP_MOVBE_AVAILABLE)
+	__asm__ ("movbe %1, %0" : "=m" (value) : "q" (value));
+	return value;
+#elif defined(__GNUC__) && defined(CRYPTOPP_X86_ASM_AVAILABLE)
 	__asm__ ("bswap %0" : "=r" (value) : "0" (value));
 	return value;
 #elif defined(CRYPTOPP_BYTESWAP_AVAILABLE)
@@ -1764,7 +1770,10 @@ inline word32 ByteReverse(word32 value)
 //! \details ByteReverse calls bswap if available. Otherwise the function uses a combination of rotates on the word64
 inline word64 ByteReverse(word64 value)
 {
-#if defined(__GNUC__) && defined(CRYPTOPP_X86_ASM_AVAILABLE) && defined(__x86_64__)
+#if defined(CRYPTOPP_X86_ASM_AVAILABLE) && defined(CRYPTOPP_MOVBE_AVAILABLE) && defined(__x86_64__)
+	__asm__ ("movbe %1, %0" : "=m" (value) : "q" (value));
+	return value;
+#elif defined(__GNUC__) && defined(CRYPTOPP_X86_ASM_AVAILABLE) && defined(__x86_64__)
 	__asm__ ("bswap %0" : "=r" (value) : "0" (value));
 	return value;
 #elif defined(CRYPTOPP_BYTESWAP_AVAILABLE)
