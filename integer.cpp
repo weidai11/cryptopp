@@ -353,17 +353,7 @@ private:
 class Word
 {
 public:
-	// Converity finding on default ctor. We've isntrumented the code,
-	//   and cannot uncover a case where it affects a result.
-#if defined(__COVERITY__)
 	Word() : m_whole(0) {}
-#elif CRYPTOPP_DEBUG
-	// Repeating pattern of 1010 for debug builds to break things...
-	Word() : m_whole(0) {memset(&m_whole, 0xaa, sizeof(m_whole));}
-#else
-	Word() {}
-#endif
-
 	Word(word value) : m_whole(value) {}
 	Word(hword low, hword high) : m_whole(low | (word(high) << (WORD_BITS/2))) {}
 
