@@ -234,7 +234,7 @@ public:
 		//! \param output big-endian byte array
 		//! \param bufferSize length of the byte array
 		//! \returns length of the output
-		//! \details OpenPGPEncode places result into a BufferedTransformation object and returns the
+		//! \details OpenPGPEncode places result into the buffer and returns the
 		//!   number of bytes used for the encoding
 		size_t OpenPGPEncode(byte *output, size_t bufferSize) const;
 

@@ -2971,6 +2971,7 @@ Integer::Integer(BufferedTransformation &encodedInteger, size_t byteCount, Signe
 
 Integer::Integer(const byte *encodedInteger, size_t byteCount, Signedness s, ByteOrder o)
 {
+	CRYPTOPP_ASSERT(encodedInteger && byteCount); // NULL buffer
 	CRYPTOPP_ASSERT(o == BIG_ENDIAN_ORDER || o == LITTLE_ENDIAN_ORDER);
 
 	if (o == LITTLE_ENDIAN_ORDER)
@@ -3313,6 +3314,7 @@ unsigned int Integer::BitCount() const
 
 void Integer::Decode(const byte *input, size_t inputLen, Signedness s)
 {
+	CRYPTOPP_ASSERT(input && inputLen); // NULL buffer
 	StringStore store(input, inputLen);
 	Decode(store, inputLen, s);
 }
@@ -3368,7 +3370,8 @@ size_t Integer::MinEncodedSize(Signedness signedness) const
 
 void Integer::Encode(byte *output, size_t outputLen, Signedness signedness) const
 {
-	CRYPTOPP_ASSERT(output && outputLen);
+	CRYPTOPP_ASSERT(output && outputLen);            // NULL buffer
+	CRYPTOPP_ASSERT(outputLen >= MinEncodedSize());  // Undersized buffer
 	ArraySink sink(output, outputLen);
 	Encode(sink, outputLen, signedness);
 }
@@ -3397,6 +3400,7 @@ void Integer::DEREncode(BufferedTransformation &bt) const
 
 void Integer::BERDecode(const byte *input, size_t len)
 {
+	CRYPTOPP_ASSERT(input && len); // NULL buffer
 	StringStore store(input, len);
 	BERDecode(store);
 }
@@ -3426,9 +3430,11 @@ void Integer::BERDecodeAsOctetString(BufferedTransformation &bt, size_t length)
 	dec.MessageEnd();
 }
 
-size_t Integer::OpenPGPEncode(byte *output, size_t len) const
+size_t Integer::OpenPGPEncode(byte *output, size_t bufferSize) const
 {
-	ArraySink sink(output, len);
+	CRYPTOPP_ASSERT(output && bufferSize);            // NULL buffer
+	CRYPTOPP_ASSERT(bufferSize >= MinEncodedSize());  // Undersized buffer
+	ArraySink sink(output, bufferSize);
 	return OpenPGPEncode(sink);
 }
 
@@ -3443,6 +3449,7 @@ size_t Integer::OpenPGPEncode(BufferedTransformation &bt) const
 
 void Integer::OpenPGPDecode(const byte *input, size_t len)
 {
+	CRYPTOPP_ASSERT(input && len);  // NULL buffer
 	StringStore store(input, len);
 	OpenPGPDecode(store);
 }
@@ -3498,6 +3505,7 @@ public:
 
 	void GenerateBlock(byte *output, size_t size)
 	{
+		CRYPTOPP_ASSERT(output && size); // NULL buffer
 		PutWord(false, BIG_ENDIAN_ORDER, m_counterAndSeed, m_counter);
 		++m_counter;
 		P1363_KDF2<SHA1>::DeriveKey(output, size, m_counterAndSeed, m_counterAndSeed.size(), NULL, 0);
