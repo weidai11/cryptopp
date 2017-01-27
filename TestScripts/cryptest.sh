@@ -503,13 +503,13 @@ fi
 
 # GCC 6.0; maybe Clang
 rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
-if [[ (-z "$HAVE_BOUNDS_SAN") ]]; then
-	HAVE_BOUNDS_SAN=0
+if [[ (-z "$HAVE_BSAN") ]]; then
+	HAVE_BSAN=0
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -fsanitize=bounds-strict adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
 	if [[ ("$?" -eq "0") ]]; then
 		"$TMP/adhoc.exe" > /dev/null 2>&1
 		if [[ ("$?" -eq "0") ]]; then
-			HAVE_BOUNDS_SAN=1
+			HAVE_BSAN=1
 		fi
 	fi
 fi
@@ -827,7 +827,7 @@ if [[ ((! -z "$HAVE_OMP") && ("$HAVE_OMP" -ne "0")) ]]; then echo "HAVE_OMP: $HA
 echo "HAVE_ASAN: $HAVE_ASAN" | tee -a "$TEST_RESULTS"
 if [[ ("$HAVE_ASAN" -ne "0") && (! -z "$ASAN_SYMBOLIZE") ]]; then echo "ASAN_SYMBOLIZE: $ASAN_SYMBOLIZE" | tee -a "$TEST_RESULTS"; fi
 echo "HAVE_UBSAN: $HAVE_UBSAN" | tee -a "$TEST_RESULTS"
-echo "HAVE_BOUNDS_SAN: $HAVE_BOUNDS_SAN" | tee -a "$TEST_RESULTS"
+echo "HAVE_BSAN: $HAVE_BSAN" | tee -a "$TEST_RESULTS"
 echo "HAVE_VALGRIND: $HAVE_VALGRIND" | tee -a "$TEST_RESULTS"
 
 if [[ "$HAVE_INTEL_MULTIARCH" -ne "0" ]]; then
@@ -933,7 +933,7 @@ DEBUG_CXXFLAGS="-DDEBUG $OPT_G3 $OPT_O0"
 RELEASE_CXXFLAGS="-DNDEBUG $OPT_G2 $OPT_O2"
 VALGRIND_CXXFLAGS="-DNDEBUG $OPT_G3 $OPT_O1"
 PLATFORM_CXXFLAGS=()
-ELEVATED_CXXFLAGS=()
+WARNING_CXXFLAGS=()
 
 # Clang {3.4|3.5|3.6} only advertises SSE2, http://bugs.launchpad.net/ubuntu/+bug/1616723,
 #   http://bugs.launchpad.net/ubuntu/+bug/1616729 and http://bugs.launchpad.net/ubuntu/+bug/1616731
@@ -1065,19 +1065,19 @@ if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 fi
 
 if [[ ("$GCC_COMPILER" -ne "0") ]]; then
-	ELEVATED_CXXFLAGS+=("-Wall" "-Wextra" "-Wno-unknown-pragmas" "-Wstrict-aliasing=3" "-Wstrict-overflow" "-Wcast-align"
+	WARNING_CXXFLAGS+=("-Wall" "-Wextra" "-Wno-unknown-pragmas" "-Wstrict-aliasing=3" "-Wstrict-overflow" "-Wcast-align"
                         "-Waggressive-loop-optimizations" "-Wwrite-strings" "-Wformat=2" "-Wformat-security" "-Wtrampolines")
 
 	if [[ ("$GCC_60_OR_ABOVE" -ne "0") ]]; then
-		ELEVATED_CXXFLAGS+=("-Wshift-negative-value -Wshift-overflow=2 -Wnull-dereference -Wduplicated-cond -Wodr-type-mismatch")
+		WARNING_CXXFLAGS+=("-Wshift-negative-value -Wshift-overflow=2 -Wnull-dereference -Wduplicated-cond -Wodr-type-mismatch")
 	fi
 	if [[ ("$GCC_51_OR_ABOVE" -ne "0") ]]; then
-		ELEVATED_CXXFLAGS+=("-Wabi" "-Wodr")
+		WARNING_CXXFLAGS+=("-Wabi" "-Wodr")
 	fi
 fi
 
 if [[ ("$CLANG_COMPILER" -ne "0") ]]; then
-	ELEVATED_CXXFLAGS+=("-Wall" "-Wextra" "-Wno-unknown-pragmas" "-Wstrict-overflow" "-Wcast-align" "-Wwrite-strings"
+	WARNING_CXXFLAGS+=("-Wall" "-Wextra" "-Wno-unknown-pragmas" "-Wstrict-overflow" "-Wcast-align" "-Wwrite-strings"
                         "-Wformat=2" "-Wformat-security")
 fi
 
@@ -3363,7 +3363,7 @@ fi
 
 ############################################
 # Bounds Sanitizer, c++03
-if [[ ("$HAVE_CXX03" -ne "0" && "$HAVE_BOUNDS_SAN" -ne "0") ]]; then
+if [[ ("$HAVE_CXX03" -ne "0" && "$HAVE_BSAN" -ne "0") ]]; then
 
 	############################################
 	# Debug build, Bounds Sanitizer, c++03
@@ -3580,7 +3580,7 @@ fi
 
 ############################################
 # Bounds Sanitizer, c++11
-if [[ ("$HAVE_CXX11" -ne "0" && "$HAVE_BOUNDS_SAN" -ne "0") ]]; then
+if [[ ("$HAVE_CXX11" -ne "0" && "$HAVE_BSAN" -ne "0") ]]; then
 
 	############################################
 	# Debug build, Bounds Sanitizer, c++11
@@ -3727,7 +3727,7 @@ fi
 
 ############################################
 # Release build, Bounds Sanitizer, c++14
-if [[ ("$HAVE_CXX14" -ne "0" && "$HAVE_BOUNDS_SAN" -ne "0") ]]; then
+if [[ ("$HAVE_CXX14" -ne "0" && "$HAVE_BSAN" -ne "0") ]]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: Release, c++14, Bounds Sanitizer" | tee -a "$TEST_RESULTS"
@@ -3822,7 +3822,7 @@ fi
 
 ############################################
 # Release build, Bounds Sanitizer, c++17
-if [[ ("$HAVE_CXX17" -ne "0" && "$HAVE_BOUNDS_SAN" -ne "0") ]]; then
+if [[ ("$HAVE_CXX17" -ne "0" && "$HAVE_BSAN" -ne "0") ]]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
 	echo "Testing: Release, c++17, Bounds Sanitizer" | tee -a "$TEST_RESULTS"
@@ -5016,7 +5016,7 @@ if [[ ("$HAVE_CXX03" -ne "0" && ("$HAVE_GCC" -ne "0" || "$HAVE_CLANG" -ne "0")) 
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++03 ${ELEVATED_CXXFLAGS[@]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++03 ${WARNING_CXXFLAGS[@]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -5054,7 +5054,7 @@ if [[ ("$HAVE_CXX11" -ne "0" && ("$HAVE_GCC" -ne "0" || "$HAVE_CLANG" -ne "0")) 
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++11 ${ELEVATED_CXXFLAGS[@]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++11 ${WARNING_CXXFLAGS[@]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -5071,7 +5071,7 @@ if [[ ("$HAVE_CXX11" -ne "0" && ("$HAVE_GCC" -ne "0" || "$HAVE_CLANG" -ne "0")) 
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 ${ELEVATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 ${WARNING_CXXFLAGS[@]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 	if [[ "$?" -ne "0" ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$WARN_RESULTS"
@@ -5092,7 +5092,7 @@ if [[ ("$HAVE_CXX14" -ne "0" && ("$HAVE_GCC" -ne "0" || "$HAVE_CLANG" -ne "0")) 
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++14 ${ELEVATED_CXXFLAGS[@]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++14 ${WARNING_CXXFLAGS[@]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -5109,7 +5109,7 @@ if [[ ("$HAVE_CXX14" -ne "0" && ("$HAVE_GCC" -ne "0" || "$HAVE_CLANG" -ne "0")) 
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 ${ELEVATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 ${WARNING_CXXFLAGS[@]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 	if [[ "$?" -ne "0" ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$WARN_RESULTS"
@@ -5130,7 +5130,7 @@ if [[ ("$HAVE_CXX17" -ne "0" && ("$HAVE_GCC" -ne "0" || "$HAVE_CLANG" -ne "0")) 
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++17 ${ELEVATED_CXXFLAGS[@]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++17 ${WARNING_CXXFLAGS[@]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -5147,7 +5147,7 @@ if [[ ("$HAVE_CXX17" -ne "0" && ("$HAVE_GCC" -ne "0" || "$HAVE_CLANG" -ne "0")) 
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 ${ELEVATED_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 ${WARNING_CXXFLAGS[@]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 
 	if [[ "$?" -ne "0" ]]; then
