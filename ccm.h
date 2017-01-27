@@ -1,4 +1,4 @@
-// ccm.h - written and placed in the public domain by Wei Dai
+// ccm.h - originally written and placed in the public domain by Wei Dai
 
 //! \file ccm.h
 //! \brief CCM block cipher mode of operation

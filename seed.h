@@ -1,4 +1,4 @@
-// seed.h - written and placed in the public domain by Wei Dai
+// seed.h - originally written and placed in the public domain by Wei Dai
 
 //! \file seed.h
 //! \brief Classes for the SEED block cipher

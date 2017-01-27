@@ -1,4 +1,4 @@
-// algebra.h - written and placed in the public domain by Wei Dai
+// algebra.h - originally written and placed in the public domain by Wei Dai
 
 //! \file algebra.h
 //! \brief Classes for performing mathematics over different fields

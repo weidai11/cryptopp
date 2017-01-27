@@ -1,4 +1,4 @@
-// 3way.h - written and placed in the public domain by Wei Dai
+// 3way.h - originally written and placed in the public domain by Wei Dai
 
 //! \file 3way.h
 //! \brief Classes for the 3-Way block cipher

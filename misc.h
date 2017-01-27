@@ -1,5 +1,5 @@
 
-// misc.h - written and placed in the public domain by Wei Dai
+// misc.h - originally written and placed in the public domain by Wei Dai
 
 //! \file misc.h
 //! \brief Utility functions for the Crypto++ library.

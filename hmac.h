@@ -1,4 +1,4 @@
-// hmac.h - written and placed in the public domain by Wei Dai
+// hmac.h - originally written and placed in the public domain by Wei Dai
 
 //! \file hmac.h
 //! \brief Classes for HMAC message authentication codes

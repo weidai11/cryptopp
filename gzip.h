@@ -1,4 +1,4 @@
-// gzip.h - written and placed in the public domain by Wei Dai
+// gzip.h - originally written and placed in the public domain by Wei Dai
 
 //! \file gzip.h
 //! \brief GZIP compression and decompression (RFC 1952)

@@ -1,4 +1,4 @@
-// bench.h - written and placed in the public domain by Wei Dai
+// bench.h - originally written and placed in the public domain by Wei Dai
 
 #ifndef CRYPTOPP_BENCH_H
 #define CRYPTOPP_BENCH_H

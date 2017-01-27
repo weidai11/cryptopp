@@ -1,4 +1,4 @@
-// salsa.h - written and placed in the public domain by Wei Dai
+// salsa.h - originally written and placed in the public domain by Wei Dai
 
 //! \file salsa.h
 //! \brief Classes for Salsa and Salsa20 stream ciphers

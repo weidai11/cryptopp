@@ -1,4 +1,4 @@
-// cmac.h - written and placed in the public domain by Wei Dai
+// cmac.h - originally written and placed in the public domain by Wei Dai
 
 //! \file cmac.h
 //! \brief Classes for CMAC message authentication code

@@ -1,4 +1,4 @@
-// regtest.cpp - written and placed in the public domain by Wei Dai
+// regtest.cpp - originally written and placed in the public domain by Wei Dai
 
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
 

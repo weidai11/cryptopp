@@ -1,4 +1,4 @@
-// dh2.cpp - written and placed in the public domain by Wei Dai
+// dh2.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
 #include "dh2.h"

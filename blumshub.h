@@ -1,4 +1,4 @@
-// blumshub.h - written and placed in the public domain by Wei Dai
+// blumshub.h - originally written and placed in the public domain by Wei Dai
 
 //! \file
 //! \headerfile blumshub.h

@@ -1,4 +1,4 @@
-// basecode.h - written and placed in the public domain by Wei Dai
+// basecode.h - originally written and placed in the public domain by Wei Dai
 
 //! \file
 //! \brief Base classes for working with encoders and decoders.

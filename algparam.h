@@ -1,4 +1,4 @@
-// algparam.h - written and placed in the public domain by Wei Dai
+// algparam.h - originally written and placed in the public domain by Wei Dai
 
 //! \file
 //! \headerfile algparam.h

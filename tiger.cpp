@@ -1,4 +1,4 @@
-// tiger.cpp - written and placed in the public domain by Wei Dai
+// tiger.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
 #include "config.h"

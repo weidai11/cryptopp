@@ -1,4 +1,4 @@
-// cmac.cpp - written and placed in the public domain by Wei Dai
+// cmac.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
 

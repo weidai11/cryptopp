@@ -1,4 +1,4 @@
-// elgamal.h - written and placed in the public domain by Wei Dai
+// elgamal.h - originally written and placed in the public domain by Wei Dai
 
 //! \file elgamal.h
 //! \brief Classes and functions for ElGamal key agreement and encryption schemes

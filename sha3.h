@@ -1,4 +1,4 @@
-// sha3.h - written and placed in the public domain by Wei Dai
+// sha3.h - originally written and placed in the public domain by Wei Dai
 
 //! \file sha3.h
 //! \brief Classes for SHA3 message digests

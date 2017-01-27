@@ -1,4 +1,4 @@
-// rsa.h - written and placed in the public domain by Wei Dai
+// rsa.h - originally written and placed in the public domain by Wei Dai
 
 //! \file rsa.h
 //! \brief Classes for the RSA cryptosystem

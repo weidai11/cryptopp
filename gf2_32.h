@@ -1,4 +1,4 @@
-// gf2_32.h - written and placed in the public domain by Wei Dai
+// gf2_32.h - originally written and placed in the public domain by Wei Dai
 
 //! \file gf2_32.h
 //! \brief Classes and functions for schemes over GF(2^32)

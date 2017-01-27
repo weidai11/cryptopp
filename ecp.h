@@ -1,4 +1,4 @@
-// ecp.h - written and placed in the public domain by Wei Dai
+// ecp.h - originally written and placed in the public domain by Wei Dai
 
 //! \file ecp.h
 //! \brief Classes for Elliptic Curves over prime fields

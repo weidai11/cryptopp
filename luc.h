@@ -1,4 +1,4 @@
-// luc.h - written and placed in the public domain by Wei Dai
+// luc.h - originally written and placed in the public domain by Wei Dai
 
 //! \file luc.h
 //! \brief Classes for the LUC cryptosystem

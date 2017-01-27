@@ -1,4 +1,4 @@
-// mdc.h - written and placed in the public domain by Wei Dai
+// mdc.h - originally written and placed in the public domain by Wei Dai
 
 #ifndef CRYPTOPP_MDC_H
 #define CRYPTOPP_MDC_H

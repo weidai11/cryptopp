@@ -1,4 +1,4 @@
-// default.h - written and placed in the public domain by Wei Dai
+// default.h - originally written and placed in the public domain by Wei Dai
 
 //! \file default.h
 //! \brief Classes for DefaultEncryptor, DefaultDecryptor, DefaultEncryptorWithMAC and DefaultDecryptorWithMAC

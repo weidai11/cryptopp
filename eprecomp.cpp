@@ -1,4 +1,4 @@
-// eprecomp.cpp - written and placed in the public domain by Wei Dai
+// eprecomp.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
 

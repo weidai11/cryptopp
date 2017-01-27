@@ -1,4 +1,4 @@
-// smartptr.h - written and placed in the public domain by Wei Dai
+// smartptr.h - originally written and placed in the public domain by Wei Dai
 
 //! \file
 //! \headerfile smartptr.h

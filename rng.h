@@ -1,4 +1,4 @@
-// rng.h - written and placed in the public domain by Wei Dai
+// rng.h - originally written and placed in the public domain by Wei Dai
 
 //! \file rng.h
 //! \brief Miscellaneous classes for RNGs

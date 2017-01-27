@@ -1,4 +1,4 @@
-// cbcmac.h - written and placed in the public domain by Wei Dai
+// cbcmac.h - originally written and placed in the public domain by Wei Dai
 
 //! \file
 //! \headerfile cbcmac.h

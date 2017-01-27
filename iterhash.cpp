@@ -1,4 +1,4 @@
-// iterhash.cpp - written and placed in the public domain by Wei Dai
+// iterhash.cpp - originally written and placed in the public domain by Wei Dai
 
 #ifndef __GNUC__
 #define CRYPTOPP_MANUALLY_INSTANTIATE_TEMPLATES

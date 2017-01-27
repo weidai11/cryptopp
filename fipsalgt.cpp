@@ -1,4 +1,4 @@
-// fipsalgt.cpp - written and placed in the public domain by Wei Dai
+// fipsalgt.cpp - originally written and placed in the public domain by Wei Dai
 
 // This file implements the various algorithm tests needed to pass FIPS 140 validation.
 // They're preserved here (commented out) in case Crypto++ needs to be revalidated.

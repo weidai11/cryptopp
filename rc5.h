@@ -1,4 +1,4 @@
-// rc5.h - written and placed in the public domain by Wei Dai
+// rc5.h - originally written and placed in the public domain by Wei Dai
 
 //! \file rc5.h
 //! \brief Classes for the RC5 block cipher

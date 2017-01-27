@@ -1,4 +1,4 @@
-// eax.h - written and placed in the public domain by Wei Dai
+// eax.h - originally written and placed in the public domain by Wei Dai
 
 //! \file eax.h
 //! \brief EAX block cipher mode of operation

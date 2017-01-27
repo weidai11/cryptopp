@@ -1,4 +1,4 @@
-// base64.h - written and placed in the public domain by Wei Dai
+// base64.h - originally written and placed in the public domain by Wei Dai
 
 //! \file base64.h
 //! \brief Classes for the Base64Encoder, Base64Decoder, Base64URLEncoder and Base64URLDecoder

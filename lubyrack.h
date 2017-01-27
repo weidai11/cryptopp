@@ -1,4 +1,4 @@
-// lubyrack.h - written and placed in the public domain by Wei Dai
+// lubyrack.h - originally written and placed in the public domain by Wei Dai
 
 //! \file lubyrack.h
 //! \brief Classes for the Luby-Rackoff block cipher

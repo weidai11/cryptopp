@@ -1,4 +1,4 @@
-// pubkey.h - written and placed in the public domain by Wei Dai
+// pubkey.h - originally written and placed in the public domain by Wei Dai
 
 //! \file pubkey.h
 //! \brief This file contains helper classes/functions for implementing public key algorithms.

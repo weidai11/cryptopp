@@ -1,4 +1,4 @@
-// authenc.cpp - written and placed in the public domain by Wei Dai
+// authenc.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
 

@@ -1,4 +1,4 @@
-// eccrypto.h - written and placed in the public domain by Wei Dai
+// eccrypto.h - originally written and placed in the public domain by Wei Dai
 //              deterministic signatures added by by Douglas Roark
 
 //! \file eccrypto.h

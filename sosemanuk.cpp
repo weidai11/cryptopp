@@ -1,4 +1,4 @@
-// sosemanuk.cpp - written and placed in the public domain by Wei Dai
+// sosemanuk.cpp - originally written and placed in the public domain by Wei Dai
 
 // use "cl /EP /P /DCRYPTOPP_GENERATE_X64_MASM sosemanuk.cpp" to generate MASM code
 

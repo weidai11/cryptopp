@@ -1,4 +1,4 @@
-// simple.h - written and placed in the public domain by Wei Dai
+// simple.h - originally written and placed in the public domain by Wei Dai
 
 //! \file simple.h
 //! \brief Classes providing basic library services.

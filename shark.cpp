@@ -1,4 +1,4 @@
-// shark.cpp - written and placed in the public domain by Wei Dai
+// shark.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
 #include "shark.h"

@@ -1,4 +1,4 @@
-// rc2.h - written and placed in the public domain by Wei Dai
+// rc2.h - originally written and placed in the public domain by Wei Dai
 
 //! \file rc2.h
 //! \brief Classes for the RC2 block cipher

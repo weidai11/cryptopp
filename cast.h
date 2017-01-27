@@ -1,4 +1,4 @@
-// cast.h - written and placed in the public domain by Wei Dai
+// cast.h - originally written and placed in the public domain by Wei Dai
 
 //! \file cast.h
 //! \brief Classes for the CAST-128 and CAST-256 block ciphers

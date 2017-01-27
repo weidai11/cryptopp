@@ -1,4 +1,4 @@
-// integer.h - written and placed in the public domain by Wei Dai
+// integer.h - originally written and placed in the public domain by Wei Dai
 
 //! \file integer.h
 //! \brief Multiple precision integer with arithmetic operations

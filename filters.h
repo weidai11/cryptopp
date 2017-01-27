@@ -1,4 +1,4 @@
-// filters.h - written and placed in the public domain by Wei Dai
+// filters.h - originally written and placed in the public domain by Wei Dai
 
 //! \file filters.h
 //! \brief Implementation of BufferedTransformation's attachment interface.

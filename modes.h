@@ -1,4 +1,4 @@
-// modes.h - written and placed in the public domain by Wei Dai
+// modes.h - originally written and placed in the public domain by Wei Dai
 
 //! \file modes.h
 //! \brief Class file for modes of operation.

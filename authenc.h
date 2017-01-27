@@ -1,4 +1,4 @@
-// authenc.h - written and placed in the public domain by Wei Dai
+// authenc.h - originally written and placed in the public domain by Wei Dai
 
 //! \file
 //! \headerfile authenc.h

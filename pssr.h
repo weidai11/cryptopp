@@ -1,4 +1,4 @@
-// pssr.h - written and placed in the public domain by Wei Dai
+// pssr.h - originally written and placed in the public domain by Wei Dai
 
 //! \file pssr.h
 //! \brief Classes for probablistic signature schemes

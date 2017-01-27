@@ -1,4 +1,4 @@
-// panama.h - written and placed in the public domain by Wei Dai
+// panama.h - originally written and placed in the public domain by Wei Dai
 
 //! \file panama.h
 //! \brief Classes for Panama hash and stream cipher

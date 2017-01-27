@@ -1,4 +1,4 @@
-// pkcspad.h - written and placed in the public domain by Wei Dai
+// pkcspad.h - originally written and placed in the public domain by Wei Dai
 
 //! \file pkcspad.h
 //! \brief Classes for PKCS padding schemes

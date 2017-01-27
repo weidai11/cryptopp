@@ -1,4 +1,4 @@
-// mqv.cpp - written and placed in the public domain by Wei Dai
+// mqv.cpp - originally written and placed in the public domain by Wei Dai
 //           HMQV provided by Jeffrey Walton, Ray Clayton and Uri Blumenthal.
 //           FHMQV provided by Uri Blumenthal.
 

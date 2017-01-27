@@ -1,4 +1,4 @@
-// cpu.h - written and placed in the public domain by Wei Dai
+// cpu.h - originally written and placed in the public domain by Wei Dai
 //         updated for ARM by Jeffrey Walton
 
 //! \file cpu.h

@@ -1,4 +1,4 @@
-// serpent.h - written and placed in the public domain by Wei Dai
+// serpent.h - originally written and placed in the public domain by Wei Dai
 
 //! \file serpent.h
 //! \brief Classes for the Serpent block cipher

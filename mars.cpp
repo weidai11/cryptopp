@@ -1,4 +1,4 @@
-// mars.cpp - written and placed in the public domain by Wei Dai
+// mars.cpp - originally written and placed in the public domain by Wei Dai
 
 // includes IBM's key setup "tweak" proposed in August 1999 (http://www.research.ibm.com/security/key-setup.txt)
 

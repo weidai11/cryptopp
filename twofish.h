@@ -1,4 +1,4 @@
-// twofish.h - written and placed in the public domain by Wei Dai
+// twofish.h - originally written and placed in the public domain by Wei Dai
 
 //! \file twofish.h
 //! \brief Classes for the Twofish block cipher

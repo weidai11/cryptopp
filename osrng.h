@@ -1,4 +1,4 @@
-// osrng.h - written and placed in the public domain by Wei Dai
+// osrng.h - originally written and placed in the public domain by Wei Dai
 
 //! \file osrng.h
 //! \brief Classes for access to the operating system's random number generators

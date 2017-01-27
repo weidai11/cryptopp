@@ -1,4 +1,4 @@
-// rijndael.h - written and placed in the public domain by Wei Dai
+// rijndael.h - originally written and placed in the public domain by Wei Dai
 
 //! \file rijndael.h
 //! \brief Classes for Rijndael encryption algorithm

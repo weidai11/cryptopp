@@ -1,4 +1,4 @@
-// wait.h - written and placed in the public domain by Wei Dai
+// wait.h - originally written and placed in the public domain by Wei Dai
 
 #ifndef CRYPTOPP_WAIT_H
 #define CRYPTOPP_WAIT_H

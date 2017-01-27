@@ -1,4 +1,4 @@
-// gcm.cpp - written and placed in the public domain by Wei Dai
+// gcm.cpp - originally written and placed in the public domain by Wei Dai
 //           ARM and Aarch64 added by Jeffrey Walton. The ARM carryless
 //           multiply routines are less efficient because they shadowed x86.
 //           The precomputed key table integration makes it tricky to use the

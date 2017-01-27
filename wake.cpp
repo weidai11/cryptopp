@@ -1,4 +1,4 @@
-// wake.cpp - written and placed in the public domain by Wei Dai
+// wake.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
 

@@ -1,4 +1,4 @@
-// dsa.h - written and placed in the public domain by Wei Dai
+// dsa.h - originally written and placed in the public domain by Wei Dai
 
 //! \file dsa.h
 //! \brief Classes for the DSA signature algorithm

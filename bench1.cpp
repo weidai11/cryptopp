@@ -1,4 +1,4 @@
-// bench1.cpp - written and placed in the public domain by Wei Dai
+// bench1.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "cryptlib.h"
 #include "bench.h"

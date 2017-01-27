@@ -1,4 +1,4 @@
-// idea.h - written and placed in the public domain by Wei Dai
+// idea.h - originally written and placed in the public domain by Wei Dai
 
 //! \file idea.h
 //! \brief Classes for the IDEA block cipher

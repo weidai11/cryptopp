@@ -1,4 +1,4 @@
-// zinflate.cpp - written and placed in the public domain by Wei Dai
+// zinflate.cpp - originally written and placed in the public domain by Wei Dai
 
 // This is a complete reimplementation of the DEFLATE decompression algorithm.
 // It should not be affected by any security vulnerabilities in the zlib

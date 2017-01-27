@@ -1,4 +1,4 @@
-// gf2n.cpp - written and placed in the public domain by Wei Dai
+// gf2n.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
 #include "config.h"

@@ -1,4 +1,4 @@
-// hex.h - written and placed in the public domain by Wei Dai
+// hex.h - originally written and placed in the public domain by Wei Dai
 
 //! \file hex.h
 //! \brief Classes for HexEncoder and HexDecoder

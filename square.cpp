@@ -1,4 +1,4 @@
-// square.cpp - written and placed in the public domain by Wei Dai
+// square.cpp - originally written and placed in the public domain by Wei Dai
 // Based on Paulo S.L.M. Barreto's public domain implementation
 
 #include "pch.h"

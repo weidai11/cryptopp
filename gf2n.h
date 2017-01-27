@@ -1,4 +1,4 @@
-// gf2n.h - written and placed in the public domain by Wei Dai
+// gf2n.h - originally written and placed in the public domain by Wei Dai
 
 //! \file gf2n.h
 //! \brief Classes and functions for schemes over GF(2^n)

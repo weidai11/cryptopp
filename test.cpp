@@ -1,4 +1,4 @@
-// test.cpp - written and placed in the public domain by Wei Dai
+// test.cpp - originally written and placed in the public domain by Wei Dai
 
 #define CRYPTOPP_DEFAULT_NO_DLL
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1

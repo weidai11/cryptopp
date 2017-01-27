@@ -1,4 +1,4 @@
-// pch.h - written and placed in the public domain by Wei Dai
+// pch.h - originally written and placed in the public domain by Wei Dai
 
 //! \headerfile pch.h
 //! \brief Precompiled header file

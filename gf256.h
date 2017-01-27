@@ -1,4 +1,4 @@
-// gf256.h - written and placed in the public domain by Wei Dai
+// gf256.h - originally written and placed in the public domain by Wei Dai
 
 //! \file gf256.h
 //! \brief Classes and functions for schemes over GF(256)

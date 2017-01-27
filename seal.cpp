@@ -1,4 +1,4 @@
-// seal.cpp - written and placed in the public domain by Wei Dai
+// seal.cpp - originally written and placed in the public domain by Wei Dai
 // updated to SEAL 3.0 by Leonard Janke
 
 #include "pch.h"

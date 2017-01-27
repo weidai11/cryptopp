@@ -1,4 +1,4 @@
-// ec2n.h - written and placed in the public domain by Wei Dai
+// ec2n.h - originally written and placed in the public domain by Wei Dai
 
 //! \file
 //! \headerfile ec2n.h

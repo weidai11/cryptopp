@@ -1,4 +1,4 @@
-// seal.h - written and placed in the public domain by Wei Dai
+// seal.h - originally written and placed in the public domain by Wei Dai
 
 //! \file seal.h
 //! \brief Classes for SEAL stream cipher

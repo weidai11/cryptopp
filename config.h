@@ -1,4 +1,4 @@
-// config.h - written and placed in the public domain by Wei Dai
+// config.h - originally written and placed in the public domain by Wei Dai
 
 //! \file config.h
 //! \brief Library configuration file

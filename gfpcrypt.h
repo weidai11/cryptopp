@@ -1,4 +1,4 @@
-// gfpcrypt.h - written and placed in the public domain by Wei Dai
+// gfpcrypt.h - originally written and placed in the public domain by Wei Dai
 //              RFC6979 deterministic signatures (DL_Algorithm_DSA_RFC6979) added by by Douglas Roark
 //              ECGDSA (DL_Algorithm_GDSA_ISO15946) added by Jeffrey Walton
 

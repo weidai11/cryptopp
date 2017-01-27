@@ -1,4 +1,4 @@
-// gost.h - written and placed in the public domain by Wei Dai
+// gost.h - originally written and placed in the public domain by Wei Dai
 
 //! \file gost.h
 //! \brief Classes for the GIST block cipher

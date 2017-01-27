@@ -1,4 +1,4 @@
-// dh.h - written and placed in the public domain by Wei Dai
+// dh.h - originally written and placed in the public domain by Wei Dai
 
 //! \file dh.h
 //! \brief Classes for Diffie-Hellman key exchange

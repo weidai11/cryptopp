@@ -1,4 +1,4 @@
-// arc4.cpp - written and placed in the public domain by Wei Dai
+// arc4.cpp - originally written and placed in the public domain by Wei Dai
 
 // The ARC4 algorithm was first revealed in an anonymous email to the
 // cypherpunks mailing list. This file originally contained some

@@ -1,4 +1,4 @@
-// oids.h - written and placed in the public domain by Wei Dai
+// oids.h - originally written and placed in the public domain by Wei Dai
 
 //! \file oids.h
 //! \brief ASN.1 object identifiers for algorthms and schemes

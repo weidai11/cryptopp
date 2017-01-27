@@ -1,4 +1,4 @@
-// camellia.h - written and placed in the public domain by Wei Dai
+// camellia.h - originally written and placed in the public domain by Wei Dai
 
 //! \file camellia.h
 //! \brief Classes for the Cameliia block cipher

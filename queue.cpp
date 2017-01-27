@@ -1,4 +1,4 @@
-// queue.cpp - written and placed in the public domain by Wei Dai
+// queue.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
 

@@ -1,4 +1,4 @@
-// pwdbased.h - written and placed in the public domain by Wei Dai
+// pwdbased.h - originally written and placed in the public domain by Wei Dai
 
 //! \file pwdbased.h
 //! \brief Password based key derivation functions

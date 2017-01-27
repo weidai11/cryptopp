@@ -1,4 +1,4 @@
-// esign.h - written and placed in the public domain by Wei Dai
+// esign.h - originally written and placed in the public domain by Wei Dai
 
 //! \file esign.h
 //! \brief Classes providing ESIGN signature schemes as defined in IEEE P1363a

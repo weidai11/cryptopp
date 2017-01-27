@@ -1,4 +1,4 @@
-// des.h - written and placed in the public domain by Wei Dai
+// des.h - originally written and placed in the public domain by Wei Dai
 
 //! \file des.h
 //! \brief Classes for DES, 2-key Triple-DES, 3-key Triple-DES and DESX

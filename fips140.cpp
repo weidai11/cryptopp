@@ -1,4 +1,4 @@
-// fips140.cpp - written and placed in the public domain by Wei Dai
+// fips140.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
 

@@ -1,4 +1,4 @@
-// gcm.h - written and placed in the public domain by Wei Dai
+// gcm.h - originally written and placed in the public domain by Wei Dai
 
 //! \file gcm.h
 //! \brief GCM block cipher mode of operation

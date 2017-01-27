@@ -1,4 +1,4 @@
-// adler32.h - written and placed in the public domain by Wei Dai
+// adler32.h - originally written and placed in the public domain by Wei Dai
 
 //! \file
 //! \headerfile adler32.h

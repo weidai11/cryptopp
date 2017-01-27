@@ -1,4 +1,4 @@
-// crc.h - written and placed in the public domain by Wei Dai
+// crc.h - originally written and placed in the public domain by Wei Dai
 
 //! \file
 //! \headerfile crc.h

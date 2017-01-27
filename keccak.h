@@ -1,4 +1,4 @@
-// keccak.h - written and placed in the public domain by Wei Dai
+// keccak.h - originally written and placed in the public domain by Wei Dai
 
 //! \file keccak.h
 //! \brief Classes for Keccak message digests

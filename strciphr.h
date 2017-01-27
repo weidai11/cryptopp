@@ -1,4 +1,4 @@
-// strciphr.h - written and placed in the public domain by Wei Dai
+// strciphr.h - originally written and placed in the public domain by Wei Dai
 
 //! \file strciphr.h
 //! \brief Classes for implementing stream ciphers

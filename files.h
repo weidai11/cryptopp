@@ -1,4 +1,4 @@
-// files.h - written and placed in the public domain by Wei Dai
+// files.h - originally written and placed in the public domain by Wei Dai
 
 //! \file files.h
 //! \brief Classes providing file-based library services

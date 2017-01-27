@@ -1,4 +1,4 @@
-// safer.h - written and placed in the public domain by Wei Dai
+// safer.h - originally written and placed in the public domain by Wei Dai
 
 //! \file safer.h
 //! \brief Classes for the SAFER and SAFER-K block ciphers

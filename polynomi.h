@@ -1,4 +1,4 @@
-// polynomi.h - written and placed in the public domain by Wei Dai
+// polynomi.h - originally written and placed in the public domain by Wei Dai
 
 //! \file
 //! \headerfile polynomi.h

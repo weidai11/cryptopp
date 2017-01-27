@@ -1,4 +1,4 @@
-// fips140.h - written and placed in the public domain by Wei Dai
+// fips140.h - originally written and placed in the public domain by Wei Dai
 
 //! \file fips140.h
 //! \brief Classes and functions for the FIPS 140-2 validated library

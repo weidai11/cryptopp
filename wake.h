@@ -1,4 +1,4 @@
-// wake.h - written and placed in the public domain by Wei Dai
+// wake.h - originally written and placed in the public domain by Wei Dai
 
 //! \file wake.h
 //! \brief Classes for WAKE stream cipher

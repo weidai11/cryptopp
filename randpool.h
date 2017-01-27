@@ -1,4 +1,4 @@
-// randpool.h - written and placed in the public domain by Wei Dai
+// randpool.h - originally written and placed in the public domain by Wei Dai
 
 //! \file randpool.h
 //! \brief Class file for Randomness Pool

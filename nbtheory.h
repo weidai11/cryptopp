@@ -1,4 +1,4 @@
-// nbtheory.h - written and placed in the public domain by Wei Dai
+// nbtheory.h - originally written and placed in the public domain by Wei Dai
 
 //! \file nbtheory.h
 //! \brief Classes and functions  for number theoretic operations

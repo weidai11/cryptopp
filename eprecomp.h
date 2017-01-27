@@ -1,4 +1,4 @@
-// eprecomp.h - written and placed in the public domain by Wei Dai
+// eprecomp.h - originally written and placed in the public domain by Wei Dai
 
 //! \file eprecomp.h
 //! \brief Classes for precomputation in a group

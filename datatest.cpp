@@ -1,4 +1,4 @@
-// datatest.cpp - written and placed in the public domain by Wei Dai
+// datatest.cpp - originally written and placed in the public domain by Wei Dai
 
 #define CRYPTOPP_DEFAULT_NO_DLL
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1

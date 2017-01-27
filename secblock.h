@@ -1,4 +1,4 @@
-// secblock.h - written and placed in the public domain by Wei Dai
+// secblock.h - originally written and placed in the public domain by Wei Dai
 
 //! \file secblock.h
 //! \brief Classes and functions for secure memory allocations.

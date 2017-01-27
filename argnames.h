@@ -1,4 +1,4 @@
-// argnames.h - written and placed in the public domain by Wei Dai
+// argnames.h - originally written and placed in the public domain by Wei Dai
 
 //! \file argnames.h
 //! \brief Standard names for retrieving values by name when working with \p NameValuePairs

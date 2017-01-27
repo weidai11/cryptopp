@@ -1,4 +1,4 @@
-// asn.h - written and placed in the public domain by Wei Dai
+// asn.h - originally written and placed in the public domain by Wei Dai
 
 //! \file asn.h
 //! \brief Classes and functions for working with ANS.1 objects

@@ -1,4 +1,4 @@
-// queue.h - written and placed in the public domain by Wei Dai
+// queue.h - originally written and placed in the public domain by Wei Dai
 
 //! \file
 //! \headerfile queue.h

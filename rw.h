@@ -1,4 +1,4 @@
-// rw.h - written and placed in the public domain by Wei Dai
+// rw.h - originally written and placed in the public domain by Wei Dai
 
 //! \file rw.h
 //! \brief Classes for Rabin-Williams signature scheme

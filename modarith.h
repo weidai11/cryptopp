@@ -1,4 +1,4 @@
-// modarith.h - written and placed in the public domain by Wei Dai
+// modarith.h - originally written and placed in the public domain by Wei Dai
 
 //! \file modarith.h
 //! \brief Class file for performing modular arithmetic.

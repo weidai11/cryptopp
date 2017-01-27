@@ -1,4 +1,4 @@
-// integer.cpp - written and placed in the public domain by Wei Dai
+// integer.cpp - originally written and placed in the public domain by Wei Dai
 // contains public domain code contributed by Alister Lee and Leonard Janke
 
 #include "pch.h"

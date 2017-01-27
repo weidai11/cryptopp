@@ -1,4 +1,4 @@
-// vmac.h - written and placed in the public domain by Wei Dai
+// vmac.h - originally written and placed in the public domain by Wei Dai
 
 //! \file vmac.h
 //! \brief Classes for the VMAC message authentication code

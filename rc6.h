@@ -1,4 +1,4 @@
-// rc6.h - written and placed in the public domain by Wei Dai
+// rc6.h - originally written and placed in the public domain by Wei Dai
 
 //! \file rc6.h
 //! \brief Classes for the RC6 block cipher

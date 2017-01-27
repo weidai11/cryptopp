@@ -1,4 +1,4 @@
-// ida.h - written and placed in the public domain by Wei Dai
+// ida.h - originally written and placed in the public domain by Wei Dai
 
 //! \file ida.h
 //! \brief Classes for Rabin's Information Dispersal and Shamir's Secret Sharing algorithms

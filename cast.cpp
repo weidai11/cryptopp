@@ -1,4 +1,4 @@
-// cast.cpp - written and placed in the public domain by Wei Dai and Leonard Janke
+// cast.cpp - originally written and placed in the public domain by Wei Dai and Leonard Janke
 // based on Steve Reid's public domain cast.c
 
 #include "pch.h"

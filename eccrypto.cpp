@@ -1,4 +1,4 @@
-// eccrypto.cpp - written and placed in the public domain by Wei Dai
+// eccrypto.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
 

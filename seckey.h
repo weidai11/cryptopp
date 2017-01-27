@@ -1,4 +1,4 @@
-// seckey.h - written and placed in the public domain by Wei Dai
+// seckey.h - originally written and placed in the public domain by Wei Dai
 
 //! \file seckey.h
 //! \brief Classes and functions for implementing secret key algorithms.

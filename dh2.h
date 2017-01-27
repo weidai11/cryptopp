@@ -1,4 +1,4 @@
-// dh2.h - written and placed in the public domain by Wei Dai
+// dh2.h - originally written and placed in the public domain by Wei Dai
 
 //! \file dh2.h
 //! \brief Classes for Unified Diffie-Hellman key exchange

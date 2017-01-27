@@ -1,4 +1,4 @@
-// zdeflate.cpp - written and placed in the public domain by Wei Dai
+// zdeflate.cpp - originally written and placed in the public domain by Wei Dai
 
 // Many of the algorithms and tables used here came from the deflate implementation
 // by Jean-loup Gailly, which was included in Crypto++ 4.0 and earlier. I completely

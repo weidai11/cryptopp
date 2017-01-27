@@ -1,4 +1,4 @@
-// shark.h - written and placed in the public domain by Wei Dai
+// shark.h - originally written and placed in the public domain by Wei Dai
 
 //! \file shark.h
 //! \brief Classes for the SHARK block cipher

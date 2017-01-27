@@ -1,4 +1,4 @@
-// tea.h - written and placed in the public domain by Wei Dai
+// tea.h - originally written and placed in the public domain by Wei Dai
 
 //! \file tea.h
 //! \brief Classes for the TEA, BTEA and XTEA block ciphers

@@ -1,4 +1,4 @@
-// modes.cpp - written and placed in the public domain by Wei Dai
+// modes.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
 

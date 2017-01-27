@@ -1,4 +1,4 @@
-// randpool.cpp - written and placed in the public domain by Wei Dai
+// randpool.cpp - originally written and placed in the public domain by Wei Dai
 // RandomPool used to follow the design of randpool in PGP 2.6.x,
 // but as of version 5.5 it has been redesigned to reduce the risk
 // of reusing random numbers after state rollback (which may occur

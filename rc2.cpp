@@ -1,4 +1,4 @@
-// rc2.cpp - written and placed in the public domain by Wei Dai
+// rc2.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
 #include "rc2.h"

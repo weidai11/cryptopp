@@ -1,4 +1,4 @@
-// emsa2.h - written and placed in the public domain by Wei Dai
+// emsa2.h - originally written and placed in the public domain by Wei Dai
 
 //! \file emsa2.h
 //! \brief Classes and functions for various padding schemes used in public key algorithms

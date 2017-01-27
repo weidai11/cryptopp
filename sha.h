@@ -1,4 +1,4 @@
-// sha.h - written and placed in the public domain by Wei Dai
+// sha.h - originally written and placed in the public domain by Wei Dai
 
 //! \file sha.h
 //! \brief Classes for SHA-1 and SHA-2 family of message digests

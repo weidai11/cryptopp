@@ -1,4 +1,4 @@
-// factory.h - written and placed in the public domain by Wei Dai
+// factory.h - originally written and placed in the public domain by Wei Dai
 
 //! \file factory.h
 //! \brief Classes and functions for registering and locating library objects
