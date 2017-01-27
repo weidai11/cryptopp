@@ -62,7 +62,10 @@
 
 // ***************** Less Important Settings ***************
 
-// Library version
+// Library version macro. Since this macro is in a header, it reflects
+//   the version of the library the headers came from. It is not
+//   necessarily the version of the library built as a shared object if
+//   versions are inadvertently mixed and matched.
 #define CRYPTOPP_VERSION 570
 
 // Define this if you want to set a prefix for TestData/ and TestVectors/
@@ -71,9 +74,6 @@
 #ifndef CRYPTOPP_DATA_DIR
 # define CRYPTOPP_DATA_DIR ""
 #endif
-
-// define this to retain (as much as possible) old deprecated function and class names
-// #define CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
 
 // Define this if you want or need the library's memcpy_s and memmove_s.
 //   See http://github.com/weidai11/cryptopp/issues/28.
