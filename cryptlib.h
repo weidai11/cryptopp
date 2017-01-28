@@ -2916,69 +2916,69 @@ public:
 
 //! \brief Specifies the build-time version of the library
 //! \returns integer representing the build-time version
-//! \details BuildVersion can help detect inadvertent mixing and matching of library
-//!   versions. When using Crypto++ distributed by a third party, BuildVersion()
+//! \details LibraryVersion can help detect inadvertent mixing and matching of library
+//!   versions. When using Crypto++ distributed by a third party, LibraryVersion()
 //!   records the version of the shared object that was built by the third party.
-//!   The BuildVersion() record resides in <tt>cryptlib.o</tt> on Unix compatibles
+//!   The LibraryVersion() record resides in <tt>cryptlib.o</tt> on Unix compatibles
 //!   and <tt>cryptlib.obj</tt> on Windows. It does not change when an app links
 //!   to the library.
-//! \details BuildVersion() is declared with C linkage (<tt>extern "C"</tt>) within the
+//! \details LibraryVersion() is declared with C linkage (<tt>extern "C"</tt>) within the
 //!   CryptoPP namespace to help programs locate the symbol. If the symbol is present, then
 //!   the library version is 5.7 or above. If it is missing, then the library version is
 //!   5.6.5 or below.
 //! \details The function could be used as shown below.
 //! <pre>
-//!     if (BuildVersion() != RuntimeVersion())
+//!     if (LibraryVersion() != HeaderVersion())
 //!     {
 //!         cout << "Potential version mismatch" << endl;
 //!
-//!         const int bmaj = (BuildVersion() / 100U) % 10;
-//!         const int bmin = (BuildVersion() / 10U) % 10;
-//!         const int rmaj = (RuntimeVersion() / 100U) % 10;
-//!         const int rmin = (RuntimeVersion() / 10U) % 10;
+//!         const int lmaj = (LibraryVersion() / 100U) % 10;
+//!         const int lmin = (LibraryVersion() / 10U) % 10;
+//!         const int hmaj = (HeaderVersion() / 100U) % 10;
+//!         const int hmin = (HeaderVersion() / 10U) % 10;
 //!
-//!         if(bmaj != rmaj)
+//!         if(lmaj != hmaj)
 //!             cout << "Major version mismatch" << endl;
-//!         else if(bmin != rmin)
+//!         else if(lmin != hmin)
 //!             cout << "Minor version mismatch" << endl;
 //!      }
 //! </pre>
-//! \sa RuntimeVersion(), <A HREF="http://github.com/weidai11/cryptopp/issues/371">GitHub Issue 371</A>.
+//! \sa HeaderVersion(), <A HREF="http://github.com/weidai11/cryptopp/issues/371">GitHub Issue 371</A>.
 //! \since Crypto++ 5.7
 extern "C" {
-	int BuildVersion();
+	int LibraryVersion();
 } // C linkage
 
 //! \brief Specifies the runtime version of the library
 //! \returns integer representing the runtime version
-//! \details RuntimeVersion() can help detect inadvertent mixing and matching of library
-//!   versions. When using Crypto++ distributed by a third party, RuntimeVersion()
+//! \details HeaderVersion() can help detect inadvertent mixing and matching of library
+//!   versions. When using Crypto++ distributed by a third party, HeaderVersion()
 //!   records the version of the headers used by the app when the app is compiled.
-//! \details RuntimeVersion() is declared with C linkage (<tt>extern "C"</tt>) within the
+//! \details HeaderVersion() is declared with C linkage (<tt>extern "C"</tt>) within the
 //!   CryptoPP namespace to help programs locate the symbol. If the symbol is present, then
 //!   the library version is 5.7 or above. If it is missing, then the library version is
 //!   5.6.5 or below.
 //! \details The function could be used as shown below.
 //! <pre>
-//!     if (BuildVersion() != RuntimeVersion())
+//!     if (LibraryVersion() != HeaderVersion())
 //!     {
 //!         cout << "Potential version mismatch" << endl;
 //!
-//!         const int bmaj = (BuildVersion() / 100U) % 10;
-//!         const int bmin = (BuildVersion() / 10U) % 10;
-//!         const int rmaj = (RuntimeVersion() / 100U) % 10;
-//!         const int rmin = (RuntimeVersion() / 10U) % 10;
+//!         const int lmaj = (LibraryVersion() / 100U) % 10;
+//!         const int lmin = (LibraryVersion() / 10U) % 10;
+//!         const int hmaj = (HeaderVersion() / 100U) % 10;
+//!         const int hmin = (HeaderVersion() / 10U) % 10;
 //!
-//!         if(bmaj != rmaj)
+//!         if(lmaj != hmaj)
 //!             cout << "Major version mismatch" << endl;
-//!         else if(bmin != rmin)
+//!         else if(lmin != hmin)
 //!             cout << "Minor version mismatch" << endl;
 //!      }
 //! </pre>
-//! \sa BuildVersion(), <A HREF="http://github.com/weidai11/cryptopp/issues/371">GitHub Issue 371</A>.
+//! \sa LibraryVersion(), <A HREF="http://github.com/weidai11/cryptopp/issues/371">GitHub Issue 371</A>.
 //! \since Crypto++ 5.7
 extern "C" {
-inline int RuntimeVersion()
+inline int HeaderVersion()
 {
 	return CRYPTOPP_VERSION;
 }

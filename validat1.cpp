@@ -226,16 +226,16 @@ bool TestSettings()
 	}
 
 	// App and library versions, http://github.com/weidai11/cryptopp/issues/371
-	const int bver = BuildVersion();
-	const int rver = RuntimeVersion();
-	if(bver/10 == rver/10)
+	const int v1 = LibraryVersion();
+	const int v2 = HeaderVersion();
+	if(v1/10 == v2/10)
 		cout << "passed:  ";
 	else
 	{
 		cout << "FAILED:  ";
 		pass = false;
 	}
-	cout << "Build version (library): " << bver << ", runtime version (app): " << rver << "\n";
+	cout << "Library version (library): " << v1 << ", header version (app): " << v2 << "\n";
 
 #ifdef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
 	// Don't assert the alignment of testvals. That's what this test is for.
