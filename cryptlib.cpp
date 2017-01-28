@@ -313,7 +313,7 @@ word32 RandomNumberGenerator::GenerateWord32(word32 min, word32 max)
 
 // Stack recursion below... GenerateIntoBufferedTransformation calls GenerateBlock,
 // and GenerateBlock calls GenerateIntoBufferedTransformation. Ad infinitum. Also
-// see https://github.com/weidai11/cryptopp/issues/38.
+// see http://github.com/weidai11/cryptopp/issues/38.
 //
 // According to Wei, RandomNumberGenerator is an interface, and it should not
 // be instantiable. Its now spilt milk, and we are going to CRYPTOPP_ASSERT it in Debug
@@ -945,6 +945,15 @@ void AuthenticatedKeyAgreementDomain::GenerateEphemeralKeyPair(RandomNumberGener
 	GenerateEphemeralPublicKey(rng, privateKey, publicKey);
 }
 
+// Allow a distro or packager to override the build-time version
+//  http://github.com/weidai11/cryptopp/issues/371
+#ifndef CRYPTOPP_BUILD_VERSION
+# define CRYPTOPP_BUILD_VERSION CRYPTOPP_VERSION
+#endif
+int BuildVersion()
+{
+	return CRYPTOPP_BUILD_VERSION;
+}
 NAMESPACE_END
 
 #endif

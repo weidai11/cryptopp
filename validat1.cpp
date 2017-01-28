@@ -225,6 +225,18 @@ bool TestSettings()
 		pass = false;
 	}
 
+	// App and library versions, http://github.com/weidai11/cryptopp/issues/371
+	const int bver = BuildVersion();
+	const int rver = RuntimeVersion();
+	if(bver/10 == rver/10)
+		cout << "passed:  ";
+	else
+	{
+		cout << "FAILED:  ";
+		pass = false;
+	}
+	cout << "Build version (library): " << bver << ", runtime version (app): " << rver << "\n";
+
 #ifdef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
 	// Don't assert the alignment of testvals. That's what this test is for.
 	byte testvals[10] = {1,2,2,3,3,3,3,2,2,1};
