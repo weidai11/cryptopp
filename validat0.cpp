@@ -7,6 +7,7 @@
 #include "integer.h"
 #include "zdeflate.h"
 #include "filters.h"
+#include "stdcpp.h"
 #include "hex.h"
 #include "asn.h"
 
@@ -730,6 +731,18 @@ bool TestSecBlock()
 
 	bool pass1=true, pass2=true, pass3=true, pass4=true, pass5=true, pass6=true, pass7=true, temp=false;
 
+	//************ Allocators ************//
+
+	{
+		std::basic_string<char, std::char_traits<char>, AllocatorWithCleanup<char, false> > s1;
+		std::basic_string<char, std::char_traits<char>, AllocatorWithCleanup<char, true> > s2;
+		s1.resize(1024); s2.resize(1024);
+
+		std::vector<byte, AllocatorWithCleanup<byte, false> > v1;
+		std::vector<byte, AllocatorWithCleanup<byte, true> > v2;
+		v1.resize(1024); v2.resize(1024);
+	}
+
 	//********** Zeroized block **********//
 
 	{
@@ -742,10 +755,10 @@ bool TestSecBlock()
 
 		pass1 &= temp;
 		if (!temp)
-			std::cout << "FAILED:";
+			std::cout << "FAILED:  ";
 		else
-			std::cout << "passed:";
-		std::cout << "  Zeroized byte array" << std::endl;
+			std::cout << "passed:  ";
+		std::cout << "Zeroized byte array" << std::endl;
 
 		SecBlock<word32> z2(NULL, 256);
 		temp = true;
@@ -755,10 +768,10 @@ bool TestSecBlock()
 
 		pass1 &= temp;
 		if (!temp)
-			std::cout << "FAILED:";
+			std::cout << "FAILED:  ";
 		else
-			std::cout << "passed:";
-		std::cout << "  Zeroized word32 array" << std::endl;
+			std::cout << "passed:  ";
+		std::cout << "Zeroized word32 array" << std::endl;
 
 		SecBlock<word64> z3(NULL, 256);
 		temp = true;
@@ -768,10 +781,10 @@ bool TestSecBlock()
 
 		pass1 &= temp;
 		if (!temp)
-			std::cout << "FAILED:";
+			std::cout << "FAILED:  ";
 		else
-			std::cout << "passed:";
-		std::cout << "  Zeroized word64 array" << std::endl;
+			std::cout << "passed:  ";
+		std::cout << "Zeroized word64 array" << std::endl;
 
 #if defined(CRYPTOPP_WORD128_AVAILABLE)
 		SecBlock<word128> z4(NULL, 256);
@@ -782,10 +795,28 @@ bool TestSecBlock()
 
 		pass1 &= temp;
 		if (!temp)
-			std::cout << "FAILED:";
+			std::cout << "FAILED:  ";
 		else
-			std::cout << "passed:";
-		std::cout << "  Zeroized word128 array" << std::endl;
+			std::cout << "passed:  ";
+		std::cout << "Zeroized word128 array" << std::endl;
+#endif
+	}
+
+	//********** Non-zero'd block **********//
+
+	{
+		SecByteBlock z1(NULL, 256);
+		z1.SetMark(0);
+
+		SecBlock<word32> z2(NULL, 256);
+		z2.SetMark(0);
+
+		SecBlock<word64> z3(NULL, 256);
+		z3.SetMark(0);
+
+#if defined(CRYPTOPP_WORD128_AVAILABLE)
+		SecBlock<word128> z4(NULL, 256);
+		z4.SetMark(0);
 #endif
 	}
 
@@ -819,10 +850,10 @@ bool TestSecBlock()
 
 	pass2 &= temp;
 	if (!temp)
-		std::cout << "FAILED:";
+		std::cout << "FAILED:  ";
 	else
-		std::cout << "passed:";
-	std::cout << "  Assign byte" << std::endl;
+		std::cout << "passed:  ";
+	std::cout << "Assign byte" << std::endl;
 
 	try
 	{
@@ -854,10 +885,10 @@ bool TestSecBlock()
 
 	pass2 &= temp;
 	if (!temp)
-		std::cout << "FAILED:";
+		std::cout << "FAILED:  ";
 	else
-		std::cout << "passed:";
-	std::cout << "  Assign word32" << std::endl;
+		std::cout << "passed:  ";
+	std::cout << "Assign word32" << std::endl;
 
 	try
 	{
@@ -889,10 +920,10 @@ bool TestSecBlock()
 
 	pass2 &= temp;
 	if (!temp)
-		std::cout << "FAILED:";
+		std::cout << "FAILED:  ";
 	else
-		std::cout << "passed:";
-	std::cout << "  Assign word64" << std::endl;
+		std::cout << "passed:  ";
+	std::cout << "Assign word64" << std::endl;
 
 #if defined(CRYPTOPP_WORD128_AVAILABLE)
 	try
@@ -925,10 +956,10 @@ bool TestSecBlock()
 
 	pass2 &= temp;
 	if (!temp)
-		std::cout << "FAILED:";
+		std::cout << "FAILED:  ";
 	else
-		std::cout << "passed:";
-	std::cout << "  Assign word128" << std::endl;
+		std::cout << "passed:  ";
+	std::cout << "Assign word128" << std::endl;
 #endif
 
 	//********** Append **********//
@@ -971,10 +1002,10 @@ bool TestSecBlock()
 
 	pass3 &= temp;
 	if (!temp)
-		std::cout << "FAILED:";
+		std::cout << "FAILED:  ";
 	else
-		std::cout << "passed:";
-	std::cout << "  Append byte" << std::endl;
+		std::cout << "passed:  ";
+	std::cout << "Append byte" << std::endl;
 
 	try
 	{
@@ -1016,10 +1047,10 @@ bool TestSecBlock()
 
 	pass3 &= temp;
 	if (!temp)
-		std::cout << "FAILED:";
+		std::cout << "FAILED:  ";
 	else
-		std::cout << "passed:";
-	std::cout << "  Append word32" << std::endl;
+		std::cout << "passed:  ";
+	std::cout << "Append word32" << std::endl;
 
 	try
 	{
@@ -1061,10 +1092,10 @@ bool TestSecBlock()
 
 	pass3 &= temp;
 	if (!temp)
-		std::cout << "FAILED:";
+		std::cout << "FAILED:  ";
 	else
-		std::cout << "passed:";
-	std::cout << "  Append word64" << std::endl;
+		std::cout << "passed:  ";
+	std::cout << "Append word64" << std::endl;
 
 #if defined(CRYPTOPP_WORD128_AVAILABLE)
 	try
@@ -1107,10 +1138,10 @@ bool TestSecBlock()
 
 	pass3 &= temp;
 	if (!temp)
-		std::cout << "FAILED:";
+		std::cout << "FAILED:  ";
 	else
-		std::cout << "passed:";
-	std::cout << "  Append word128" << std::endl;
+		std::cout << "passed:  ";
+	std::cout << "Append word128" << std::endl;
 #endif
 
 	//********** Concatenate **********//
@@ -1146,10 +1177,10 @@ bool TestSecBlock()
 
 	pass4 &= temp;
 	if (!temp)
-		std::cout << "FAILED:";
+		std::cout << "FAILED:  ";
 	else
-		std::cout << "passed:";
-	std::cout << "  Concatenate byte" << std::endl;
+		std::cout << "passed:  ";
+	std::cout << "Concatenate byte" << std::endl;
 
 	// word32
 	try
@@ -1184,10 +1215,10 @@ bool TestSecBlock()
 
 	pass4 &= temp;
 	if (!temp)
-		std::cout << "FAILED:";
+		std::cout << "FAILED:  ";
 	else
-		std::cout << "passed:";
-	std::cout << "  Concatenate word32" << std::endl;
+		std::cout << "passed:  ";
+	std::cout << "Concatenate word32" << std::endl;
 
 	// word64
 	try
@@ -1222,10 +1253,10 @@ bool TestSecBlock()
 
 	pass4 &= temp;
 	if (!temp)
-		std::cout << "FAILED:";
+		std::cout << "FAILED:  ";
 	else
-		std::cout << "passed:";
-	std::cout << "  Concatenate word64" << std::endl;
+		std::cout << "passed:  ";
+	std::cout << "Concatenate word64" << std::endl;
 
 #if defined(CRYPTOPP_WORD128_AVAILABLE)
 	try
@@ -1260,10 +1291,10 @@ bool TestSecBlock()
 
 	pass4 &= temp;
 	if (!temp)
-		std::cout << "FAILED:";
+		std::cout << "FAILED:  ";
 	else
-		std::cout << "passed:";
-	std::cout << "  Concatenate word128" << std::endl;
+		std::cout << "passed:  ";
+	std::cout << "Concatenate word128" << std::endl;
 #endif
 
 	//********** Equality **********//
@@ -1301,10 +1332,10 @@ bool TestSecBlock()
 
 	pass5 &= temp;
 	if (!temp)
-		std::cout << "FAILED:";
+		std::cout << "FAILED:  ";
 	else
-		std::cout << "passed:";
-	std::cout << "  Equality byte" << std::endl;
+		std::cout << "passed:  ";
+	std::cout << "Equality byte" << std::endl;
 
 	// word32
 	try
@@ -1339,10 +1370,10 @@ bool TestSecBlock()
 
 	pass5 &= temp;
 	if (!temp)
-		std::cout << "FAILED:";
+		std::cout << "FAILED:  ";
 	else
-		std::cout << "passed:";
-	std::cout << "  Equality word32" << std::endl;
+		std::cout << "passed:  ";
+	std::cout << "Equality word32" << std::endl;
 
 	// word64
 	try
@@ -1377,10 +1408,10 @@ bool TestSecBlock()
 
 	pass5 &= temp;
 	if (!temp)
-		std::cout << "FAILED:";
+		std::cout << "FAILED:  ";
 	else
-		std::cout << "passed:";
-	std::cout << "  Equality word64" << std::endl;
+		std::cout << "passed:  ";
+	std::cout << "Equality word64" << std::endl;
 
 #if defined(CRYPTOPP_WORD128_AVAILABLE)
 	// word128
@@ -1416,10 +1447,10 @@ bool TestSecBlock()
 
 	pass5 &= temp;
 	if (!temp)
-		std::cout << "FAILED:";
+		std::cout << "FAILED:  ";
 	else
-		std::cout << "passed:";
-	std::cout << "  Equality word128" << std::endl;
+		std::cout << "passed:  ";
+	std::cout << "Equality word128" << std::endl;
 #endif
 
 	//********** Allocator Size/Overflow **********//
@@ -1443,10 +1474,10 @@ bool TestSecBlock()
 
 	pass6 &= temp;
 	if (!temp)
-		std::cout << "FAILED:";
+		std::cout << "FAILED:  ";
 	else
-		std::cout << "passed:";
-	std::cout << "  Overflow word32" << std::endl;
+		std::cout << "passed:  ";
+	std::cout << "Overflow word32" << std::endl;
 
 	try
 	{
@@ -1467,10 +1498,10 @@ bool TestSecBlock()
 
 	pass6 &= temp;
 	if (!temp)
-		std::cout << "FAILED:";
+		std::cout << "FAILED:  ";
 	else
-		std::cout << "passed:";
-	std::cout << "  Overflow word64" << std::endl;
+		std::cout << "passed:  ";
+	std::cout << "Overflow word64" << std::endl;
 
 #if defined(CRYPTOPP_WORD128_AVAILABLE)
 	try
@@ -1492,10 +1523,10 @@ bool TestSecBlock()
 
 	pass6 &= temp;
 	if (!temp)
-		std::cout << "FAILED:";
+		std::cout << "FAILED:  ";
 	else
-		std::cout << "passed:";
-	std::cout << "  Overflow word128" << std::endl;
+		std::cout << "passed:  ";
+	std::cout << "Overflow word128" << std::endl;
 #endif
 
 	//********** FixedSizeAllocatorWithCleanup and Grow **********//
@@ -1532,10 +1563,10 @@ bool TestSecBlock()
 
 	pass7 &= temp;
 	if (!temp)
-		std::cout << "FAILED:";
+		std::cout << "FAILED:  ";
 	else
-		std::cout << "passed:";
-	std::cout << "  FixedSizeAllocator Grow with byte" << std::endl;
+		std::cout << "passed:  ";
+	std::cout << "FixedSizeAllocator Grow with byte" << std::endl;
 
 	// word32
 	try
@@ -1570,10 +1601,10 @@ bool TestSecBlock()
 
 	pass7 &= temp;
 	if (!temp)
-		std::cout << "FAILED:";
+		std::cout << "FAILED:  ";
 	else
-		std::cout << "passed:";
-	std::cout << "  FixedSizeAllocator Grow with word32" << std::endl;
+		std::cout << "passed:  ";
+	std::cout << "FixedSizeAllocator Grow with word32" << std::endl;
 
 	// word64
 	try
@@ -1608,10 +1639,10 @@ bool TestSecBlock()
 
 	pass7 &= temp;
 	if (!temp)
-		std::cout << "FAILED:";
+		std::cout << "FAILED:  ";
 	else
-		std::cout << "passed:";
-	std::cout << "  FixedSizeAllocator Grow with word64" << std::endl;
+		std::cout << "passed:  ";
+	std::cout << "FixedSizeAllocator Grow with word64" << std::endl;
 
 #if defined(CRYPTOPP_WORD128_AVAILABLE)
 	// word128
@@ -1647,10 +1678,10 @@ bool TestSecBlock()
 
 	pass7 &= temp;
 	if (!temp)
-		std::cout << "FAILED:";
+		std::cout << "FAILED:  ";
 	else
-		std::cout << "passed:";
-	std::cout << "  FixedSizeAllocator Grow with word128" << std::endl;
+		std::cout << "passed:  ";
+	std::cout << "FixedSizeAllocator Grow with word128" << std::endl;
 #endif
 
 	return pass1 && pass2 && pass3 && pass4 && pass5 && pass6 && pass7;
@@ -1686,10 +1717,10 @@ bool TestHuffmanCodes()
     }
 
 	if (!pass)
-		std::cout << "FAILED:";
+		std::cout << "FAILED:  ";
 	else
-		std::cout << "passed:";
-	std::cout << "  GenerateCodeLengths" << std::endl;
+		std::cout << "passed:  ";
+	std::cout << "GenerateCodeLengths" << std::endl;
 
     return pass;
 }
