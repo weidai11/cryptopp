@@ -61,7 +61,9 @@ bool ESIGNFunction::Validate(RandomNumberGenerator& rng, unsigned int level) con
 	CRYPTOPP_UNUSED(rng), CRYPTOPP_UNUSED(level);
 	bool pass = true;
 	pass = pass && m_n > Integer::One() && m_n.IsOdd();
+	CRYPTOPP_ASSERT(pass);
 	pass = pass && m_e >= 8 && m_e < m_n;
+	CRYPTOPP_ASSERT(pass);
 	return pass;
 }
 
@@ -192,13 +194,23 @@ Integer InvertibleESIGNFunction::CalculateRandomizedInverse(RandomNumberGenerato
 bool InvertibleESIGNFunction::Validate(RandomNumberGenerator &rng, unsigned int level) const
 {
 	bool pass = ESIGNFunction::Validate(rng, level);
+	CRYPTOPP_ASSERT(pass);
 	pass = pass && m_p > Integer::One() && m_p.IsOdd() && m_p < m_n;
+	CRYPTOPP_ASSERT(pass);
 	pass = pass && m_q > Integer::One() && m_q.IsOdd() && m_q < m_n;
+	CRYPTOPP_ASSERT(pass);
 	pass = pass && m_p.BitCount() == m_q.BitCount();
+	CRYPTOPP_ASSERT(pass);
 	if (level >= 1)
+	{
 		pass = pass && m_p * m_p * m_q == m_n;
+		CRYPTOPP_ASSERT(pass);
+	}
 	if (level >= 2)
+	{
 		pass = pass && VerifyPrime(rng, m_p, level-2) && VerifyPrime(rng, m_q, level-2);
+		CRYPTOPP_ASSERT(pass);
+	}
 	return pass;
 }
 

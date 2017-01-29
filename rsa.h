@@ -115,7 +115,7 @@ public:
 
 	// GeneratableCryptoMaterial
 	bool Validate(RandomNumberGenerator &rng, unsigned int level) const;
-	/*! parameters: (ModulusSize, PublicExponent (default 17)) */
+	// parameters: (ModulusSize, PublicExponent (default 17))
 	void GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &alg);
 	bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const;
 	void AssignFrom(const NameValuePairs &source);

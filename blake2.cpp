@@ -3705,13 +3705,13 @@ static void BLAKE2_NEON_Compress32(const byte* input, BLAKE2_State<word32, false
     t0 = vext_u32(vget_high_u32(m2), vget_high_u32(m3), 1); \
     t1 = vzip_u32(vget_low_u32(m3), vget_low_u32(m0)).val[0]; \
     buf = vcombine_u32(t0, t1); } while(0)
-                              
+
     #define vrorq_n_u32_16(x) vreinterpretq_u32_u16(vrev32q_u16(vreinterpretq_u16_u32(x)))
 
     #define vrorq_n_u32_8(x) vsriq_n_u32(vshlq_n_u32((x), 24), (x), 8)
 
     #define vrorq_n_u32(x, c) vsriq_n_u32(vshlq_n_u32((x), 32-(c)), (x), (c))
-     
+
     #define BLAKE2S_G1(row1,row2,row3,row4,buf) \
     do { \
       row1 = vaddq_u32(vaddq_u32(row1, buf), row2); row4 = veorq_u32(row4, row1); \

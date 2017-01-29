@@ -73,7 +73,9 @@ bool RSAFunction::Validate(RandomNumberGenerator& rng, unsigned int level) const
 
 	bool pass = true;
 	pass = pass && m_n > Integer::One() && m_n.IsOdd();
+	CRYPTOPP_ASSERT(pass);
 	pass = pass && m_e > Integer::One() && m_e.IsOdd() && m_e < m_n;
+	CRYPTOPP_ASSERT(pass);
 	return pass;
 }
 
@@ -247,21 +249,35 @@ Integer InvertibleRSAFunction::CalculateInverse(RandomNumberGenerator &rng, cons
 bool InvertibleRSAFunction::Validate(RandomNumberGenerator &rng, unsigned int level) const
 {
 	bool pass = RSAFunction::Validate(rng, level);
+	CRYPTOPP_ASSERT(pass);
 	pass = pass && m_p > Integer::One() && m_p.IsOdd() && m_p < m_n;
+	CRYPTOPP_ASSERT(pass);
 	pass = pass && m_q > Integer::One() && m_q.IsOdd() && m_q < m_n;
+	CRYPTOPP_ASSERT(pass);
 	pass = pass && m_d > Integer::One() && m_d.IsOdd() && m_d < m_n;
+	CRYPTOPP_ASSERT(pass);
 	pass = pass && m_dp > Integer::One() && m_dp.IsOdd() && m_dp < m_p;
+	CRYPTOPP_ASSERT(pass);
 	pass = pass && m_dq > Integer::One() && m_dq.IsOdd() && m_dq < m_q;
+	CRYPTOPP_ASSERT(pass);
 	pass = pass && m_u.IsPositive() && m_u < m_p;
+	CRYPTOPP_ASSERT(pass);
 	if (level >= 1)
 	{
 		pass = pass && m_p * m_q == m_n;
+		CRYPTOPP_ASSERT(pass);
 		pass = pass && m_e*m_d % LCM(m_p-1, m_q-1) == 1;
+		CRYPTOPP_ASSERT(pass);
 		pass = pass && m_dp == m_d%(m_p-1) && m_dq == m_d%(m_q-1);
+		CRYPTOPP_ASSERT(pass);
 		pass = pass && m_u * m_q % m_p == 1;
+		CRYPTOPP_ASSERT(pass);
 	}
 	if (level >= 2)
+	{
 		pass = pass && VerifyPrime(rng, m_p, level-2) && VerifyPrime(rng, m_q, level-2);
+		CRYPTOPP_ASSERT(pass);
+	}
 	return pass;
 }
 
