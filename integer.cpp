@@ -3356,10 +3356,10 @@ size_t Integer::MinEncodedSize(Signedness signedness) const
 	return outputLen;
 }
 
+// PKCS12_PBKDF and other classes use undersized buffers
 void Integer::Encode(byte *output, size_t outputLen, Signedness signedness) const
 {
 	CRYPTOPP_ASSERT(output && outputLen);            // NULL buffer
-	CRYPTOPP_ASSERT(outputLen >= MinEncodedSize());  // Undersized buffer
 	ArraySink sink(output, outputLen);
 	Encode(sink, outputLen, signedness);
 }
