@@ -3312,6 +3312,8 @@ void Integer::Decode(const byte *input, size_t inputLen, Signedness s)
 void Integer::Decode(BufferedTransformation &bt, size_t inputLen, Signedness s)
 {
 	CRYPTOPP_ASSERT(bt.MaxRetrievable() >= inputLen);
+	if (bt.MaxRetrievable() < inputLen)
+		throw InvalidArgument("Integer: input length is too small");
 
 	byte b;
 	bt.Peek(b);
@@ -3324,11 +3326,7 @@ void Integer::Decode(BufferedTransformation &bt, size_t inputLen, Signedness s)
 		bt.Peek(b);
 	}
 
-	// The call to CleanNew is optimized away above -O0/-Og.
-	const size_t size = RoundupSize(BytesToWords(inputLen));
-	reg.CleanNew(size);
-
-	CRYPTOPP_ASSERT(reg.SizeInBytes() >= inputLen);
+	reg.CleanNew(RoundupSize(BytesToWords(inputLen)));
 	for (size_t i=inputLen; i > 0; i--)
 	{
 		bt.Get(b);
@@ -3704,8 +3702,7 @@ Integer& Integer::operator++()
 	else
 	{
 		word borrow = Decrement(reg, reg.size());
-		CRYPTOPP_ASSERT(!borrow);
-		CRYPTOPP_UNUSED(borrow);
+		CRYPTOPP_ASSERT(!borrow); CRYPTOPP_UNUSED(borrow);
 
 		if (WordCount()==0)
 			*this = Zero();
