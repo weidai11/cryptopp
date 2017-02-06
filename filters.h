@@ -480,7 +480,7 @@ struct BlockPaddingSchemeDef
 		PKCS_PADDING,
 		//! \brief 1 and 0's padding added to a block
 		ONE_AND_ZEROS_PADDING,
-		//! \brief [Random bytes (0 ~ N-2) and padding's length (N-1)]'s padding to a block
+		//! \brief W3C padding added to a block
 		W3C_PADDING,
 		//! \brief Default padding scheme
 		DEFAULT_PADDING

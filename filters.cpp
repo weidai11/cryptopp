@@ -700,8 +700,8 @@ void StreamTransformationFilter::LastPut(const byte *inString, size_t length)
 		break;
 
 	case PKCS_PADDING:
-	case ONE_AND_ZEROS_PADDING:
 	case W3C_PADDING:
+	case ONE_AND_ZEROS_PADDING:
 		unsigned int s;
 		s = m_cipher.MandatoryBlockSize();
 		CRYPTOPP_ASSERT(s > 1);
@@ -713,8 +713,14 @@ void StreamTransformationFilter::LastPut(const byte *inString, size_t length)
 			if (m_padding == PKCS_PADDING)
 			{
 				CRYPTOPP_ASSERT(s < 256);
-				byte pad = byte(s-length);
+				byte pad = static_cast<byte>(s-length);
 				memset(space+length, pad, s-length);
+			}
+			else if (m_padding == W3C_PADDING)
+			{
+				CRYPTOPP_ASSERT(s < 256);
+				memset(space+length, 0, s-length-1);
+				space[s-1] = static_cast<byte>(s-length);
 			}
 			else
 			{
