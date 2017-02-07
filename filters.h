@@ -481,6 +481,9 @@ struct BlockPaddingSchemeDef
 		//! \brief 1 and 0's padding added to a block
 		ONE_AND_ZEROS_PADDING,
 		//! \brief W3C padding added to a block
+		//! \sa <A HREF="http://www.w3.org/TR/2002/REC-xmlenc-core-20021210/Overview.html">XML
+		//!   Encryption Syntax and Processing</A>
+		//! \since Crypto++ 5.7
 		W3C_PADDING,
 		//! \brief Default padding scheme
 		DEFAULT_PADDING
