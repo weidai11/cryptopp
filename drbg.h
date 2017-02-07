@@ -256,7 +256,7 @@ private:
 //! \tparam STRENGTH security strength, in bytes
 //! \tparam SEEDLENGTH seed length, in bytes
 //! \brief HMAC_DRBG from SP 800-90A Rev 1 (June 2015)
-//! \details The NIST Hash DRBG is instantiated with a number of parameters. Two of the parameters,
+//! \details The NIST HMAC DRBG is instantiated with a number of parameters. Two of the parameters,
 //!   Security Strength and Seed Length, depend on the hash and are specified as template parameters.
 //!   The remaining parameters are included in the class. The parameters and their values are listed
 //!   in NIST SP 800-90A Rev. 1, Table 2: Definitions for Hash-Based DRBG Mechanisms (p.38).
@@ -282,7 +282,7 @@ public:
     CRYPTOPP_CONSTANT(MAXIMUM_BYTES_PER_REQUEST=65536)
     CRYPTOPP_CONSTANT(MAXIMUM_REQUESTS_BEFORE_RESEED=INT_MAX)
 
-    //! \brief Construct a Hash DRBG
+    //! \brief Construct a HMAC DRBG
     //! \param entropy the entropy to instantiate the generator
     //! \param entropyLength the size of the entropy buffer
     //! \param nonce additional input to instantiate the generator
@@ -521,8 +521,7 @@ void Hash_DRBG<HASH, STRENGTH, SEEDLENGTH>::Hash_Update(const byte* input1, size
     byte counter = 1;
     word32 bits = ConditionalByteReverse(BIG_ENDIAN_ORDER, static_cast<word32>(outlen*8));
 
-    size_t count;
-    for (count=0; outlen; outlen -= count, output += count, counter++)
+    while (outlen)
     {
         hash.Update(&counter, 1);
         hash.Update(reinterpret_cast<const byte*>(&bits), 4);
@@ -536,8 +535,11 @@ void Hash_DRBG<HASH, STRENGTH, SEEDLENGTH>::Hash_Update(const byte* input1, size
         if (input4 && inlen4)
             hash.Update(input4, inlen4);
 
-        count = STDMIN(outlen, (size_t)HASH::DIGESTSIZE);
+        size_t count = STDMIN(outlen, (size_t)HASH::DIGESTSIZE);
         hash.TruncatedFinal(output, count);
+
+		output += count; outlen -= count;
+		counter++;
     }
 }
 
@@ -685,4 +687,3 @@ void HMAC_DRBG<HASH, STRENGTH, SEEDLENGTH>::HMAC_Update(const byte* input1, size
 NAMESPACE_END
 
 #endif  // CRYPTOPP_NIST_DRBG_H
-
