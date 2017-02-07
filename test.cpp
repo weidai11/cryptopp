@@ -900,7 +900,7 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 	case 0: result = ValidateAll(thorough); break;
 	case 1: result = TestSettings(); break;
 	case 2: result = TestOS_RNG(); break;
-	case 3: result = TestNIST_DRBG(); break;
+//	case 3: result = TestSecRandom(); break;
 	case 4: result = ValidateMD5(); break;
 	case 5: result = ValidateSHA(); break;
 	case 6: result = ValidateDES(); break;
@@ -974,6 +974,8 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 	case 74: result = ValidateBLAKE2b(); break;
 	case 75: result = ValidatePoly1305(); break;
 	case 76: result = ValidateSipHash(); break;
+	case 77: result = ValidateHashDRBG(); break;
+	case 78: result = ValidateHmacDRBG(); break;
 
 #if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_IMPORTS)
 	// http://github.com/weidai11/cryptopp/issues/92

@@ -8,7 +8,7 @@
 bool ValidateAll(bool thorough);
 bool TestSettings();
 bool TestOS_RNG();
-bool TestNIST_DRBG();
+// bool TestSecRandom();
 bool TestAutoSeeded();
 bool TestAutoSeededX917();
 
@@ -93,6 +93,9 @@ bool ValidateEC2N();
 bool ValidateECDSA();
 bool ValidateECGDSA();
 bool ValidateESIGN();
+
+bool ValidateHashDRBG();
+bool ValidateHmacDRBG();
 
 #if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_IMPORTS)
 // http://github.com/weidai11/cryptopp/issues/92
