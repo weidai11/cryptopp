@@ -250,7 +250,7 @@ void TestSignatureScheme(TestData &v)
 
 		if (test == "Verify" || test == "NotVerify")
 		{
-			VerifierFilter verifierFilter(*verifier, NULL, VerifierFilter::SIGNATURE_AT_BEGIN);
+			SignatureVerificationFilter verifierFilter(*verifier, NULL, SignatureVerificationFilter::SIGNATURE_AT_BEGIN);
 			PutDecodedDatumInto(v, "Signature", verifierFilter);
 			PutDecodedDatumInto(v, "Message", verifierFilter);
 			verifierFilter.MessageEnd();
@@ -274,7 +274,7 @@ void TestSignatureScheme(TestData &v)
 	if (test == "GenerateKey" || test == "KeyPairValidAndConsistent")
 	{
 		TestKeyPairValidAndConsistent(verifier->AccessMaterial(), signer->GetMaterial());
-		VerifierFilter verifierFilter(*verifier, NULL, VerifierFilter::THROW_EXCEPTION);
+		SignatureVerificationFilter verifierFilter(*verifier, NULL, SignatureVerificationFilter::THROW_EXCEPTION);
 		verifierFilter.Put((const byte *)"abc", 3);
 		StringSource ss("abc", true, new SignerFilter(GlobalRNG(), *signer, new Redirector(verifierFilter)));
 	}

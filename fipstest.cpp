@@ -197,7 +197,7 @@ void SignatureKnownAnswerTest(const char *key, const char *message, const char *
 	comparison.ChannelMessageSeriesEnd("0");
 	comparison.ChannelMessageSeriesEnd("1");
 
-	VerifierFilter verifierFilter(verifier, NULL, VerifierFilter::SIGNATURE_AT_BEGIN | VerifierFilter::THROW_EXCEPTION);
+	SignatureVerificationFilter verifierFilter(verifier, NULL, SignatureVerificationFilter::SIGNATURE_AT_BEGIN | SignatureVerificationFilter::THROW_EXCEPTION);
 	StringSource(signature, true, new HexDecoder(new Redirector(verifierFilter, Redirector::DATA_ONLY)));
 	StringSource(message, true, new Redirector(verifierFilter));
 }
@@ -250,7 +250,7 @@ void SignaturePairwiseConsistencyTest(const PK_Signer &signer, const PK_Verifier
 			new SignerFilter(
 				rng,
 				signer,
-				new VerifierFilter(verifier, NULL, VerifierFilter::THROW_EXCEPTION),
+				new SignatureVerificationFilter(verifier, NULL, SignatureVerificationFilter::THROW_EXCEPTION),
 				true));
 	}
 	catch (...)

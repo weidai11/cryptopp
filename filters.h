@@ -462,6 +462,7 @@ protected:
 
 //! \struct BlockPaddingSchemeDef
 //! \brief Padding schemes used for block ciphers
+//! \since Crypto++ 5.0
 struct BlockPaddingSchemeDef
 {
 	//! \enum BlockPaddingScheme
@@ -471,14 +472,19 @@ struct BlockPaddingSchemeDef
 	//!   NO_PADDING for modes like OFB, CFB, CTR, CBC-CTS.
 	//! \sa <A HREF="http://www.weidai.com/scan-mirror/csp.html">Block Cipher Padding</A> for
 	//!   additional details.
+	//! \since Crypto++ 5.0
 	enum BlockPaddingScheme {
 		//! \brief No padding added to a block
+		//! \since Crypto++ 5.0
 		NO_PADDING,
 		//! \brief 0's padding added to a block
+		//! \since Crypto++ 5.0
 		ZEROS_PADDING,
 		//! \brief PKCS #5 padding added to a block
+		//! \since Crypto++ 5.0
 		PKCS_PADDING,
 		//! \brief 1 and 0's padding added to a block
+		//! \since Crypto++ 5.0
 		ONE_AND_ZEROS_PADDING,
 		//! \brief W3C padding added to a block
 		//! \sa <A HREF="http://www.w3.org/TR/2002/REC-xmlenc-core-20021210/Overview.html">XML
@@ -486,6 +492,7 @@ struct BlockPaddingSchemeDef
 		//! \since Crypto++ 5.7
 		W3C_PADDING,
 		//! \brief Default padding scheme
+		//! \since Crypto++ 5.0
 		DEFAULT_PADDING
 	};
 };
@@ -493,6 +500,7 @@ struct BlockPaddingSchemeDef
 //! \class StreamTransformationFilter
 //! \brief Filter wrapper for StreamTransformation
 //! \details StreamTransformationFilter is a filter wrapper for StreamTransformation. The filter will optionally handle padding/unpadding when needed
+//! \since Crypto++ 5.0
 class CRYPTOPP_DLL StreamTransformationFilter : public FilterWithBufferedInput, public BlockPaddingSchemeDef, private FilterPutSpaceHelper
 {
 public:
@@ -523,6 +531,7 @@ protected:
 
 //! \class HashFilter
 //! \brief Filter wrapper for HashTransformation
+//! \since Crypto++ 1.0
 class CRYPTOPP_DLL HashFilter : public Bufferless<Filter>, private FilterPutSpaceHelper
 {
 public:
@@ -552,6 +561,7 @@ private:
 
 //! \class HashVerificationFilter
 //! \brief Filter wrapper for HashTransformation
+//! \since Crypto++ 4.0
 class CRYPTOPP_DLL HashVerificationFilter : public FilterWithBufferedInput
 {
 public:
@@ -719,6 +729,7 @@ protected:
 
 //! \class SignerFilter
 //! \brief Filter wrapper for PK_Signer
+//! \since Crypto++ 4.0
 class CRYPTOPP_DLL SignerFilter : public Unflushable<Filter>
 {
 public:
@@ -747,6 +758,8 @@ private:
 
 //! \class SignatureVerificationFilter
 //! \brief Filter wrapper for PK_Verifier
+//! \details This filter was formerly named <tt>VerifierFilter</tt>. The name changed at Crypto++ 5.0.
+//! \since Crypto++ 4.0
 class CRYPTOPP_DLL SignatureVerificationFilter : public FilterWithBufferedInput
 {
 public:
@@ -806,10 +819,9 @@ private:
 	bool m_verified;
 };
 
-typedef SignatureVerificationFilter VerifierFilter;	// for backwards compatibility
-
 //! \class Redirector
 //! \brief Redirect input to another BufferedTransformation without owning it
+//! \since Crypto++ 4.0
 class CRYPTOPP_DLL Redirector : public CustomSignalPropagation<Sink>
 {
 public:
@@ -905,6 +917,7 @@ private:
 //! \class OutputProxy
 //! \brief Filter class that is a proxy for a sink
 //! \details Used By ProxyFilter
+//! \since Crypto++ 4.0
 class CRYPTOPP_DLL OutputProxy : public CustomSignalPropagation<Sink>
 {
 public:
@@ -953,6 +966,7 @@ private:
 
 //! \class ProxyFilter
 //! \brief Base class for Filter classes that are proxies for a chain of other filters
+//! \since Crypto++ 4.0
 class CRYPTOPP_DLL ProxyFilter : public FilterWithBufferedInput
 {
 public:
@@ -979,6 +993,7 @@ protected:
 
 //! \class SimpleProxyFilter
 //! \brief Proxy filter that doesn't modify the underlying filter's input or output
+//! \since Crypto++ 5.0
 class CRYPTOPP_DLL SimpleProxyFilter : public ProxyFilter
 {
 public:
@@ -1009,6 +1024,7 @@ public:
 //! \brief Filter wrapper for PK_Encryptor
 //! \details PK_DecryptorFilter is a proxy for the filter created by PK_Encryptor::CreateEncryptionFilter.
 //!   This class provides symmetry with VerifierFilter.
+//! \since Crypto++ 5.0
 class CRYPTOPP_DLL PK_EncryptorFilter : public SimpleProxyFilter
 {
 public:
@@ -1024,6 +1040,7 @@ public:
 //! \brief Filter wrapper for PK_Decryptor
 //! \details PK_DecryptorFilter is a proxy for the filter created by PK_Decryptor::CreateDecryptionFilter.
 //!   This class provides symmetry with SignerFilter.
+//! \since Crypto++ 5.0
 class CRYPTOPP_DLL PK_DecryptorFilter : public SimpleProxyFilter
 {
 public:
@@ -1039,6 +1056,7 @@ public:
 //! \brief Append input to a string object
 //! \tparam T std::basic_string<char> type
 //! \details \ref StringSinkTemplate "StringSink" is a StringSinkTemplate typedef
+//! \since Crypto++ 5.0
 template <class T>
 class StringSinkTemplate : public Bufferless<Sink>
 {
@@ -1080,6 +1098,7 @@ CRYPTOPP_DLL_TEMPLATE_CLASS StringSinkTemplate<std::string>;
 
 //! \class RandomNumberSink
 //! \brief Incorporates input into RNG as additional entropy
+//! \since Crypto++ 4.0
 class RandomNumberSink : public Bufferless<Sink>
 {
 public:
@@ -1103,6 +1122,7 @@ private:
 
 //! \class ArraySink
 //! \brief Copy input to a memory buffer
+//! \since Crypto++ 4.0
 class CRYPTOPP_DLL ArraySink : public Bufferless<Sink>
 {
 public:
@@ -1140,6 +1160,7 @@ protected:
 
 //! \class ArrayXorSink
 //! \brief Xor input to a memory buffer
+//! \since Crypto++ 4.0
 class CRYPTOPP_DLL ArrayXorSink : public ArraySink
 {
 public:
@@ -1157,6 +1178,7 @@ public:
 
 //! \class StringStore
 //! \brief String-based implementation of Store interface
+//! \since Crypto++ 4.0
 class StringStore : public Store
 {
 public:
@@ -1187,7 +1209,9 @@ private:
 	size_t m_length, m_count;
 };
 
-//! RNG-based implementation of Source interface
+//! \class RandomNumberStore
+//! \brief RNG-based implementation of Source interface
+//! \since Crypto++ 4.0
 class CRYPTOPP_DLL RandomNumberStore : public Store
 {
 public:
@@ -1216,7 +1240,8 @@ private:
 	lword m_length, m_count;
 };
 
-//! empty store
+//! \brief Empty store
+//! \since Crypto++ 5.0
 class CRYPTOPP_DLL NullStore : public Store
 {
 public:
@@ -1241,6 +1266,7 @@ private:
 //! \details See the discussion of BufferedTransformation in cryptlib.h for
 //!   more details.
 //! \sa Store and SourceTemplate
+//! \since Crypto++ 1.0
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Source : public InputRejecting<Filter>
 {
 public:
@@ -1313,6 +1339,7 @@ protected:
 //! \class SourceTemplate
 //! \brief Transform a Store into a Source
 //! \tparam T the class or type
+//! \since Crypto++ 5.0
 template <class T>
 class SourceTemplate : public Source
 {
@@ -1345,6 +1372,7 @@ protected:
 
 //! \class SourceTemplate
 //! \brief String-based implementation of the Source interface
+//! \since Crypto++ 4.0
 class CRYPTOPP_DLL StringSource : public SourceTemplate<StringStore>
 {
 public:
@@ -1383,7 +1411,8 @@ public:
 //! \since Crypto++ 5.6.0
 DOCUMENTED_TYPEDEF(StringSource, ArraySource);
 
-//! RNG-based implementation of Source interface
+//! \brief RNG-based implementation of Source interface
+//! \since Crypto++ 4.0
 class CRYPTOPP_DLL RandomNumberSource : public SourceTemplate<RandomNumberStore>
 {
 public:

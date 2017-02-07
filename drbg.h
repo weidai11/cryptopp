@@ -662,7 +662,7 @@ void HMAC_DRBG<HASH, STRENGTH, SEEDLENGTH>::HMAC_Update(const byte* input1, size
     // Step 3
     if ((inlen1 | inlen2 | inlen3) == 0)
         return;
-    
+
     // Step 4
     hmac.SetKey(m_k, m_k.size());
     hmac.Update(m_v, m_v.size());

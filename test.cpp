@@ -547,7 +547,7 @@ bool RSAVerifyFile(const char *pubFilename, const char *messageFilename, const c
 	SecByteBlock signature(pub.SignatureLength());
 	signatureFile.Get(signature, signature.size());
 
-	VerifierFilter *verifierFilter = new VerifierFilter(pub);
+	SignatureVerificationFilter *verifierFilter = new SignatureVerificationFilter(pub);
 	verifierFilter->Put(signature, pub.SignatureLength());
 	FileSource f(messageFilename, true, verifierFilter);
 
