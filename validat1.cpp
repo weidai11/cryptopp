@@ -228,6 +228,7 @@ bool TestSettings()
 		pass = false;
 	}
 
+#if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_IMPORTS)
 	// App and library versions, http://github.com/weidai11/cryptopp/issues/371
 	const int v1 = LibraryVersion();
 	const int v2 = HeaderVersion();
@@ -239,6 +240,7 @@ bool TestSettings()
 		pass = false;
 	}
 	cout << "Library version (library): " << v1 << ", header version (app): " << v2 << "\n";
+#endif
 
 #ifdef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
 	// Don't assert the alignment of testvals. That's what this test is for.
