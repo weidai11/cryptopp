@@ -16,7 +16,7 @@
 # pragma warning(disable: 4146 4514)
 # if (CRYPTOPP_MSC_VERSION >= 1400)
 #  pragma warning(disable: 6326)
-# endif
+# endif`
 #endif
 
 // Issue 340
@@ -123,13 +123,13 @@ template<class T>
 T NumericLimitsMin()
 {
 	CRYPTOPP_ASSERT(std::numeric_limits<T>::is_specialized);
-	return std::numeric_limits<T>::min();
+	return (std::numeric_limits<T>::min)();
 };
 template<class T>
 T NumericLimitsMax()
 {
 	CRYPTOPP_ASSERT(std::numeric_limits<T>::is_specialized);
-	return std::numeric_limits<T>::max();
+	return (std::numeric_limits<T>::max)();
 };
 #if defined(CRYPTOPP_WORD128_AVAILABLE)
 template<>
