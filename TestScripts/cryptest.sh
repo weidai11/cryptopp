@@ -83,6 +83,7 @@ IS_LINUX=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c linux)
 IS_CYGWIN=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c cygwin)
 IS_MINGW=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c mingw)
 IS_OPENBSD=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c openbsd)
+IS_DRAGONFLY=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c dragonfly)
 IS_FREEBSD=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c freebsd)
 IS_NETBSD=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c netbsd)
 IS_SOLARIS=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c sunos)
@@ -130,7 +131,7 @@ if [[ "$IS_DARWIN" -ne 0 ]]; then
 fi
 
 # Fixup
-if [[ ("$IS_FREEBSD" -ne "0" || "$IS_OPENBSD" -ne "0" || "$IS_NETBSD" -ne "0") ]]; then
+if [[ ("$IS_FREEBSD" -ne "0" || "$IS_OPENBSD" -ne "0" || "$IS_NETBSD" -ne "0" || "$IS_DRAGONFLY" -ne "0") ]]; then
 	MAKE=gmake
 elif [[ ("$IS_SOLARIS" -ne "0") ]]; then
 	MAKE=$(which gmake 2>/dev/null | "$GREP" -v "no gmake" | head -1)
@@ -149,6 +150,8 @@ if [[ ("$IS_X86" -ne "0" || "$IS_X64" -ne "0") ]]; then
 		X86_CPU_FLAGS=$(isainfo -v 2>/dev/null)
 	elif [[ ("$IS_FREEBSD" -ne "0") ]]; then
 		X86_CPU_FLAGS=$(grep Features /var/run/dmesg.boot)
+	elif [[ ("$IS_DRAGONFLY" -ne "0") ]]; then
+		X86_CPU_FLAGS=$(dmesg | grep Features)
 	else
 		X86_CPU_FLAGS=$(cat /proc/cpuinfo 2>&1 | "$AWK" '{IGNORECASE=1}{if ($1 == "flags"){print;exit}}' | cut -f 2 -d ':')
 	fi
