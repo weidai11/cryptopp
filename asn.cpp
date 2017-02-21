@@ -1,4 +1,5 @@
 // asn.cpp - originally written and placed in the public domain by Wei Dai
+//           CryptoPP::Test namespace added by JW in February 2017
 
 #include "pch.h"
 #include "config.h"
@@ -11,7 +12,6 @@
 #include <time.h>
 
 NAMESPACE_BEGIN(CryptoPP)
-USING_NAMESPACE(std)
 
 /// DER Length
 size_t DERLengthEncode(BufferedTransformation &bt, lword length)

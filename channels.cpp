@@ -1,4 +1,5 @@
 // channels.cpp - originally written and placed in the public domain by Wei Dai
+//                CryptoPP::Test namespace added by JW in February 2017
 
 #include "pch.h"
 
@@ -8,7 +9,6 @@
 #include "channels.h"
 
 NAMESPACE_BEGIN(CryptoPP)
-USING_NAMESPACE(std)
 
 #if 0
 void MessageSwitch::AddDefaultRoute(BufferedTransformation &destination, const std::string &channel)
@@ -37,7 +37,7 @@ public:
 	MessageRouteIterator(MessageSwitch &ms, const std::string &channel)
 		: m_channel(channel)
 	{
-		pair<MapIterator, MapIterator> range = cs.m_routeMap.equal_range(channel);
+		std::pair<MapIterator, MapIterator> range = cs.m_routeMap.equal_range(channel);
 		if (range.first == range.second)
 		{
 			m_useDefault = true;
@@ -97,7 +97,7 @@ void MessageSwitch::MessageSeriesEnd(int propagation=-1);
 void ChannelRouteIterator::Reset(const std::string &channel)
 {
 	m_channel = channel;
-	pair<MapIterator, MapIterator> range = m_cs.m_routeMap.equal_range(channel);
+	std::pair<MapIterator, MapIterator> range = m_cs.m_routeMap.equal_range(channel);
 	if (range.first == range.second)
 	{
 		m_useDefault = true;
@@ -297,7 +297,7 @@ void ChannelSwitch::AddRoute(const std::string &inChannel, BufferedTransformatio
 void ChannelSwitch::RemoveRoute(const std::string &inChannel, BufferedTransformation &destination, const std::string &outChannel)
 {
 	typedef ChannelSwitch::RouteMap::iterator MapIterator;
-	pair<MapIterator, MapIterator> range = m_routeMap.equal_range(inChannel);
+	std::pair<MapIterator, MapIterator> range = m_routeMap.equal_range(inChannel);
 
 	for (MapIterator it = range.first; it != range.second; ++it)
 		if (it->second.first == &destination && it->second.second == outChannel)

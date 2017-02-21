@@ -1,4 +1,5 @@
 // validat3.cpp - originally written and placed in the public domain by Wei Dai
+//                CryptoPP::Test namespace added by JW in February 2017
 
 #include "pch.h"
 
@@ -43,12 +44,8 @@
 # pragma strict_gs_check (on)
 #endif
 
-#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
-# pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-
-USING_NAMESPACE(CryptoPP)
-USING_NAMESPACE(std)
+NAMESPACE_BEGIN(CryptoPP)
+NAMESPACE_BEGIN(Test)
 
 struct HashTestTuple
 {
@@ -69,7 +66,7 @@ bool HashModuleTest(HashTransformation &md, const HashTestTuple *testSet, unsign
 	SecByteBlock digest(md.DigestSize());
 
 	// Coverity finding, also see http://stackoverflow.com/a/34509163/608639.
-	StreamState ss(cout);
+	StreamState ss(std::cout);
 	for (unsigned int i=0; i<testSetSize; i++)
 	{
 		unsigned j;
@@ -80,13 +77,13 @@ bool HashModuleTest(HashTransformation &md, const HashTestTuple *testSet, unsign
 		fail = !!memcmp(digest, testSet[i].output, md.DigestSize()) != 0;
 		pass = pass && !fail;
 
-		cout << (fail ? "FAILED   " : "passed   ");
+		std::cout << (fail ? "FAILED   " : "passed   ");
 		for (j=0; j<md.DigestSize(); j++)
-			cout << setw(2) << setfill('0') << hex << (int)digest[j];
-		cout << "   \"" << (char *)testSet[i].input << '\"';
+			std::cout << std::setw(2) << std::setfill('0') << std::hex << (int)digest[j];
+		std::cout << "   \"" << (char *)testSet[i].input << '\"';
 		if (testSet[i].repeatTimes != 1)
-			cout << " repeated " << dec << testSet[i].repeatTimes << " times";
-		cout  << endl;
+			std::cout << " repeated " << std::dec << testSet[i].repeatTimes << " times";
+		std::cout  << std::endl;
 	}
 
 	return pass;
@@ -108,7 +105,7 @@ bool ValidateCRC32()
 
 	CRC32 crc;
 
-	cout << "\nCRC-32 validation suite running...\n\n";
+	std::cout << "\nCRC-32 validation suite running...\n\n";
 	return HashModuleTest(crc, testSet, sizeof(testSet)/sizeof(testSet[0]));
 }
 
@@ -128,7 +125,7 @@ bool ValidateCRC32C()
 
 	CRC32C crc;
 
-	cout << "\nCRC-32C validation suite running...\n\n";
+	std::cout << "\nCRC-32C validation suite running...\n\n";
 	return HashModuleTest(crc, testSet, sizeof(testSet)/sizeof(testSet[0]));
 }
 
@@ -147,7 +144,7 @@ bool ValidateAdler32()
 
 	Adler32 md;
 
-	cout << "\nAdler-32 validation suite running...\n\n";
+	std::cout << "\nAdler-32 validation suite running...\n\n";
 	return HashModuleTest(md, testSet, sizeof(testSet)/sizeof(testSet[0]));
 }
 
@@ -166,7 +163,7 @@ bool ValidateMD2()
 
 	Weak::MD2 md2;
 
-	cout << "\nMD2 validation suite running...\n\n";
+	std::cout << "\nMD2 validation suite running...\n\n";
 	return HashModuleTest(md2, testSet, sizeof(testSet)/sizeof(testSet[0]));
 }
 
@@ -185,7 +182,7 @@ bool ValidateMD4()
 
 	Weak::MD4 md4;
 
-	cout << "\nMD4 validation suite running...\n\n";
+	std::cout << "\nMD4 validation suite running...\n\n";
 	return HashModuleTest(md4, testSet, sizeof(testSet)/sizeof(testSet[0]));
 }
 
@@ -204,25 +201,25 @@ bool ValidateMD5()
 
 	Weak::MD5 md5;
 
-	cout << "\nMD5 validation suite running...\n\n";
+	std::cout << "\nMD5 validation suite running...\n\n";
 	return HashModuleTest(md5, testSet, sizeof(testSet)/sizeof(testSet[0]));
 }
 
 bool ValidateSHA()
 {
-	cout << "\nSHA validation suite running...\n\n";
+	std::cout << "\nSHA validation suite running...\n\n";
 	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/sha.txt");
 }
 
 bool ValidateSHA2()
 {
-	cout << "\nSHA validation suite running...\n\n";
+	std::cout << "\nSHA validation suite running...\n\n";
 	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/sha.txt");
 }
 
 bool ValidateTiger()
 {
-	cout << "\nTiger validation suite running...\n\n";
+	std::cout << "\nTiger validation suite running...\n\n";
 
 	HashTestTuple testSet[] =
 	{
@@ -298,19 +295,19 @@ bool ValidateRIPEMD()
 
 	bool pass = true;
 
-	cout << "\nRIPEMD-128 validation suite running...\n\n";
+	std::cout << "\nRIPEMD-128 validation suite running...\n\n";
 	RIPEMD128 md128;
 	pass = HashModuleTest(md128, testSet128, sizeof(testSet128)/sizeof(testSet128[0])) && pass;
 
-	cout << "\nRIPEMD-160 validation suite running...\n\n";
+	std::cout << "\nRIPEMD-160 validation suite running...\n\n";
 	RIPEMD160 md160;
 	pass = HashModuleTest(md160, testSet160, sizeof(testSet160)/sizeof(testSet160[0])) && pass;
 
-	cout << "\nRIPEMD-256 validation suite running...\n\n";
+	std::cout << "\nRIPEMD-256 validation suite running...\n\n";
 	RIPEMD256 md256;
 	pass = HashModuleTest(md256, testSet256, sizeof(testSet256)/sizeof(testSet256[0])) && pass;
 
-	cout << "\nRIPEMD-320 validation suite running...\n\n";
+	std::cout << "\nRIPEMD-320 validation suite running...\n\n";
 	RIPEMD320 md320;
 	pass = HashModuleTest(md320, testSet320, sizeof(testSet320)/sizeof(testSet320[0])) && pass;
 
@@ -332,7 +329,7 @@ bool ValidateHAVAL()
 
 	bool pass=true;
 
-	cout << "\nHAVAL validation suite running...\n\n";
+	std::cout << "\nHAVAL validation suite running...\n\n";
 	{
 		HAVAL3 md(16);
 		pass = HashModuleTest(md, testSet+0, 1) && pass;
@@ -405,20 +402,20 @@ bool ValidateMD5MAC()
 		{0xf2,0xb9,0x06,0xa5,0xb8,0x4b,0x9b,0x4b,0xbe,0x95,0xed,0x32,0x56,0x4e,0xe7,0xeb}}};
 
 	// Coverity finding, also see http://stackoverflow.com/a/34509163/608639.
-	StreamState ss(cout);
+	StreamState ss(std::cout);
 
 	byte digest[MD5MAC::DIGESTSIZE];
 	bool pass=true, fail;
 
-	cout << "\nMD5MAC validation suite running...\n";
+	std::cout << "\nMD5MAC validation suite running...\n";
 
 	for (int k=0; k<2; k++)
 	{
 		MD5MAC mac(keys[k]);
-		cout << "\nKEY: ";
+		std::cout << "\nKEY: ";
 		for (int j=0;j<MD5MAC::KEYLENGTH;j++)
-			cout << setw(2) << setfill('0') << hex << (int)keys[k][j];
-		cout << endl << endl;
+			std::cout << std::setw(2) << std::setfill('0') << std::hex << (int)keys[k][j];
+		std::cout << std::endl << std::endl;
 		for (int i=0;i<7;i++)
 		{
 			mac.Update((byte *)TestVals[i], strlen(TestVals[i]));
@@ -426,10 +423,10 @@ bool ValidateMD5MAC()
 			fail = !!memcmp(digest, output[k][i], MD5MAC::DIGESTSIZE)
 				 || !mac.VerifyDigest(output[k][i], (byte *)TestVals[i], strlen(TestVals[i]));
 			pass = pass && !fail;
-			cout << (fail ? "FAILED   " : "passed   ");
+			std::cout << (fail ? "FAILED   " : "passed   ");
 			for (int j=0;j<MD5MAC::DIGESTSIZE;j++)
-				cout << setw(2) << setfill('0') << hex << (int)digest[j];
-			cout << "   \"" << TestVals[i] << '\"' << endl;
+				std::cout << std::setw(2) << std::setfill('0') << std::hex << (int)digest[j];
+			std::cout << "   \"" << TestVals[i] << '\"' << std::endl;
 		}
 	}
 
@@ -479,20 +476,20 @@ bool ValidateXMACC()
 		{0x76,0x54,0x32,0x17,0xc6,0xfe,0xe6,0x5f,0xb1,0x35,0x8a,0xf5,0x32,0x7a,0x80,0xbd,0xb8,0x72,0xee,0xae}}};
 
 	// Coverity finding, also see http://stackoverflow.com/a/34509163/608639.
-	StreamState ss(cout);
+	StreamState ss(std::cout);
 
 	byte digest[XMACC_MD5::DIGESTSIZE];
 	bool pass=true, fail;
 
-	cout << "\nXMACC/MD5 validation suite running...\n";
+	std::cout << "\nXMACC/MD5 validation suite running...\n";
 
 	for (int k=0; k<2; k++)
 	{
 		XMACC_MD5 mac(keys[k], counters[k]);
-		cout << "\nKEY: ";
+		std::cout << "\nKEY: ";
 		for (int j=0;j<XMACC_MD5::KEYLENGTH;j++)
-			cout << setw(2) << setfill('0') << hex << (int)keys[k][j];
-		cout << "    COUNTER: 0x" << hex << counters[k] << endl << endl;
+			std::cout << std::setw(2) << std::setfill('0') << std::hex << (int)keys[k][j];
+		std::cout << "    COUNTER: 0x" << std::hex << counters[k] << std::endl << std::endl;
 		for (int i=0;i<7;i++)
 		{
 			mac.Update((byte *)TestVals[i], strlen(TestVals[i]));
@@ -500,10 +497,10 @@ bool ValidateXMACC()
 			fail = !!memcmp(digest, output[k][i], XMACC_MD5::DIGESTSIZE)
 				 || !mac.VerifyDigest(output[k][i], (byte *)TestVals[i], strlen(TestVals[i]));
 			pass = pass && !fail;
-			cout << (fail ? "FAILED   " : "passed   ");
+			std::cout << (fail ? "FAILED   " : "passed   ");
 			for (int j=0;j<XMACC_MD5::DIGESTSIZE;j++)
-				cout << setw(2) << setfill('0') << hex << (int)digest[j];
-			cout << "   \"" << TestVals[i] << '\"' << endl;
+				std::cout << std::setw(2) << std::setfill('0') << std::hex << (int)digest[j];
+			std::cout << "   \"" << TestVals[i] << '\"' << std::endl;
 		}
 	}
 
@@ -538,12 +535,12 @@ bool ValidateTTMAC()
 		{0x0c,0xed,0x2c,0x9f,0x8f,0x0d,0x9d,0x03,0x98,0x1a,0xb5,0xc8,0x18,0x4b,0xac,0x43,0xdd,0x54,0xc4,0x84}};
 
 	// Coverity finding, also see http://stackoverflow.com/a/34509163/608639.
-	StreamState ss(cout);
+	StreamState ss(std::cout);
 
 	byte digest[TTMAC::DIGESTSIZE];
 	bool pass=true, fail;
 
-	cout << "\nTwo-Track-MAC validation suite running...\n";
+	std::cout << "\nTwo-Track-MAC validation suite running...\n";
 
 	TTMAC mac(key, sizeof(key));
 	for (unsigned int k=0; k<sizeof(TestVals)/sizeof(TestVals[0]); k++)
@@ -553,10 +550,10 @@ bool ValidateTTMAC()
 		fail = !!memcmp(digest, output[k], TTMAC::DIGESTSIZE)
 			|| !mac.VerifyDigest(output[k], (byte *)TestVals[k], strlen(TestVals[k]));
 		pass = pass && !fail;
-		cout << (fail ? "FAILED   " : "passed   ");
+		std::cout << (fail ? "FAILED   " : "passed   ");
 		for (int j=0;j<TTMAC::DIGESTSIZE;j++)
-			cout << setw(2) << setfill('0') << hex << (int)digest[j];
-		cout << "   \"" << TestVals[k] << '\"' << endl;
+			std::cout << std::setw(2) << std::setfill('0') << std::hex << (int)digest[j];
+		std::cout << "   \"" << TestVals[k] << '\"' << std::endl;
 	}
 
 	return true;
@@ -577,7 +574,7 @@ bool TestPBKDF(PasswordBasedKeyDerivationFunction &pbkdf, const PBKDF_TestTuple 
 	{
 		const PBKDF_TestTuple &tuple = testSet[i];
 
-		string password, salt, derivedKey;
+		std::string password, salt, derivedKey;
 		StringSource(tuple.hexPassword, true, new HexDecoder(new StringSink(password)));
 		StringSource(tuple.hexSalt, true, new HexDecoder(new StringSink(salt)));
 		StringSource(tuple.hexDerivedKey, true, new HexDecoder(new StringSink(derivedKey)));
@@ -587,13 +584,13 @@ bool TestPBKDF(PasswordBasedKeyDerivationFunction &pbkdf, const PBKDF_TestTuple 
 		bool fail = !!memcmp(derived, derivedKey.data(), derived.size()) != 0;
 		pass = pass && !fail;
 
-		HexEncoder enc(new FileSink(cout));
-		cout << (fail ? "FAILED   " : "passed   ");
+		HexEncoder enc(new FileSink(std::cout));
+		std::cout << (fail ? "FAILED   " : "passed   ");
 		enc.Put(tuple.purpose);
-		cout << " " << tuple.iterations;
-		cout << " " << tuple.hexPassword << " " << tuple.hexSalt << " ";
+		std::cout << " " << tuple.iterations;
+		std::cout << " " << tuple.hexPassword << " " << tuple.hexSalt << " ";
 		enc.Put(derived, derived.size());
-		cout << endl;
+		std::cout << std::endl;
 	}
 
 	return pass;
@@ -621,7 +618,7 @@ bool ValidatePBKDF()
 
 	PKCS12_PBKDF<SHA1> pbkdf;
 
-	cout << "\nPKCS #12 PBKDF validation suite running...\n\n";
+	std::cout << "\nPKCS #12 PBKDF validation suite running...\n\n";
 	pass = TestPBKDF(pbkdf, testSet, sizeof(testSet)/sizeof(testSet[0])) && pass;
 	}
 
@@ -635,7 +632,7 @@ bool ValidatePBKDF()
 
 	PKCS5_PBKDF2_HMAC<SHA1> pbkdf;
 
-	cout << "\nPKCS #5 PBKDF2 validation suite running...\n\n";
+	std::cout << "\nPKCS #5 PBKDF2 validation suite running...\n\n";
 	pass = TestPBKDF(pbkdf, testSet, sizeof(testSet)/sizeof(testSet[0])) && pass;
 	}
 
@@ -781,12 +778,12 @@ struct Poly1305_TestTuples
 
 bool ValidatePoly1305()
 {
-	cout << "\nPoly1305 validation suite running...\n\n";
+	std::cout << "\nPoly1305 validation suite running...\n\n";
 	bool fail, pass = true;
 
 	{
 		fail = (Poly1305<AES>::StaticAlgorithmName() != "Poly1305(AES)");
-		cout << (fail ? "FAILED   " : "passed   ") << "algorithm name\n";
+		std::cout << (fail ? "FAILED   " : "passed   ") << "algorithm name\n";
 		pass = pass && !fail;
 	}
 
@@ -849,7 +846,7 @@ bool ValidatePoly1305()
 		fail = !!memcmp(digest, tests[i].digest, tests[i].dlen) != 0;
 		if (fail)
 		{
-			cout << "FAILED   " << "Poly1305 test set " << count << endl;
+			std::cout << "FAILED   " << "Poly1305 test set " << count << std::endl;
 		}
 
 		count++;
@@ -866,7 +863,7 @@ bool ValidatePoly1305()
 		fail = !!memcmp(digest, tests[i].digest, tests[i].dlen) != 0;
 		if (fail)
 		{
-			cout << "FAILED   " << "Poly1305 test set " << count << endl;
+			std::cout << "FAILED   " << "Poly1305 test set " << count << std::endl;
 		}
 
 		count++;
@@ -885,46 +882,46 @@ bool ValidatePoly1305()
 		fail = !!memcmp(digest, tests[next].digest, tests[next].dlen) == 0;
 		if (fail)
 		{
-			cout << "FAILED   " << "Poly1305 test set " << count << endl;
+			std::cout << "FAILED   " << "Poly1305 test set " << count << std::endl;
 		}
 
 		count++;
 		pass = pass && !fail;
 	}
 
-	cout << (!pass ? "FAILED   " : "passed   ") << count << " message authentication codes" << endl;
+	std::cout << (!pass ? "FAILED   " : "passed   ") << count << " message authentication codes" << std::endl;
 
 	return pass;
 }
 
 bool ValidateSipHash()
 {
-	cout << "\nSipHash validation suite running...\n\n";
+	std::cout << "\nSipHash validation suite running...\n\n";
 	bool fail, pass = true, pass1=true, pass2=true, pass3=true, pass4=true;
 
 	{
 		fail = (SipHash<2,4>::StaticAlgorithmName() != "SipHash-2-4");
-		cout << (fail ? "FAILED   " : "passed   ") << "SipHash-2-4 algorithm name\n";
+		std::cout << (fail ? "FAILED   " : "passed   ") << "SipHash-2-4 algorithm name\n";
 		pass = pass && !fail;
 
 		fail = (SipHash<2,4, false>::DIGESTSIZE != 8);
-		cout << (fail ? "FAILED   " : "passed   ") << "SipHash-2-4 64-bit digest size\n";
+		std::cout << (fail ? "FAILED   " : "passed   ") << "SipHash-2-4 64-bit digest size\n";
 		pass = pass && !fail;
 
 		fail = (SipHash<2,4, true>::DIGESTSIZE != 16);
-		cout << (fail ? "FAILED   " : "passed   ") << "SipHash-2-4 128-bit digest size\n";
+		std::cout << (fail ? "FAILED   " : "passed   ") << "SipHash-2-4 128-bit digest size\n";
 		pass = pass && !fail;
 
 		fail = (SipHash<4,8>::StaticAlgorithmName() != "SipHash-4-8");
-		cout << (fail ? "FAILED   " : "passed   ") << "SipHash-4-8 algorithm name\n";
+		std::cout << (fail ? "FAILED   " : "passed   ") << "SipHash-4-8 algorithm name\n";
 		pass = pass && !fail;
 
 		fail = (SipHash<4,8, false>::DIGESTSIZE != 8);
-		cout << (fail ? "FAILED   " : "passed   ") << "SipHash-4-8 64-bit digest size\n";
+		std::cout << (fail ? "FAILED   " : "passed   ") << "SipHash-4-8 64-bit digest size\n";
 		pass = pass && !fail;
 
 		fail = (SipHash<4,8, true>::DIGESTSIZE != 16);
-		cout << (fail ? "FAILED   " : "passed   ") << "SipHash-4-8 128-bit digest size\n";
+		std::cout << (fail ? "FAILED   " : "passed   ") << "SipHash-4-8 128-bit digest size\n";
 		pass = pass && !fail;
 	}
 
@@ -959,7 +956,7 @@ bool ValidateSipHash()
 		fail = !!memcmp("\xB0\xE4\xA9\x0B\xDF\x82\x00\x9E", digest, COUNTOF(digest));
 		pass1 = !fail && pass1;
 
-		cout << (pass1 ? "passed   " : "FAILED   ") << "SipHash-2-4 64-bit MAC\n";
+		std::cout << (pass1 ? "passed   " : "FAILED   ") << "SipHash-2-4 64-bit MAC\n";
 		pass = pass1 && pass;
 	}
 
@@ -994,7 +991,7 @@ bool ValidateSipHash()
 		fail = !!memcmp("\x26\x44\x99\x06\x0A\xD9\xBA\xAB\xC4\x7F\x8B\x02\xBB\x6D\x71\xED", digest, COUNTOF(digest));
 		pass3 = !fail && pass3;
 
-		cout << (pass3 ? "passed   " : "FAILED   ") << "SipHash-2-4 128-bit MAC\n";
+		std::cout << (pass3 ? "passed   " : "FAILED   ") << "SipHash-2-4 128-bit MAC\n";
 		pass = pass3 && pass;
 	}
 
@@ -1029,7 +1026,7 @@ bool ValidateSipHash()
 		fail = !!memcmp("\x36\x31\x9A\xF3\x5E\xE1\x12\x53", digest, COUNTOF(digest));
 		pass2 = !fail && pass2;
 
-		cout << (pass2 ? "passed   " : "FAILED   ") << "SipHash-4-8 64-bit MAC\n";
+		std::cout << (pass2 ? "passed   " : "FAILED   ") << "SipHash-4-8 64-bit MAC\n";
 		pass = pass2 && pass;
 	}
 
@@ -1064,7 +1061,7 @@ bool ValidateSipHash()
 		fail = !!memcmp("\x9E\x73\x14\xB7\x54\x5C\xEC\xA3\x8B\x9A\x55\x49\xE4\xFB\x0B\xE8", digest, COUNTOF(digest));
 		pass4 = !fail && pass4;
 
-		cout << (pass4 ? "passed   " : "FAILED   ") << "SipHash-4-8 128-bit MAC\n";
+		std::cout << (pass4 ? "passed   " : "FAILED   ") << "SipHash-4-8 128-bit MAC\n";
 		pass = pass4 && pass;
 	}
 
@@ -1079,12 +1076,12 @@ struct BLAKE2_TestTuples
 
 bool ValidateBLAKE2s()
 {
-	cout << "\nBLAKE2s validation suite running...\n\n";
+	std::cout << "\nBLAKE2s validation suite running...\n\n";
 	bool fail, pass = true;
 
 	{
 		fail = strcmp(BLAKE2s::StaticAlgorithmName(), "BLAKE2s") != 0;
-		cout << (fail ? "FAILED   " : "passed   ") << "algorithm name\n";
+		std::cout << (fail ? "FAILED   " : "passed   ") << "algorithm name\n";
 		pass = pass && !fail;
 	}
 
@@ -1461,25 +1458,25 @@ bool ValidateBLAKE2s()
 		fail = !!memcmp(digest, tests[i].digest, sizeof(digest)) != 0;
 		if (fail)
 		{
-			cout << "FAILED   " << "BLAKE2s test set " << i << endl;
+			std::cout << "FAILED   " << "BLAKE2s test set " << i << std::endl;
 		}
 
 		pass = pass && !fail;
 	}
 
-	cout << (!pass ? "FAILED   " : "passed   ") << COUNTOF(tests) << " hashes and keyed hashes" << endl;
+	std::cout << (!pass ? "FAILED   " : "passed   ") << COUNTOF(tests) << " hashes and keyed hashes" << std::endl;
 
 	return pass;
 }
 
 bool ValidateBLAKE2b()
 {
-	cout << "\nBLAKE2b validation suite running...\n\n";
+	std::cout << "\nBLAKE2b validation suite running...\n\n";
 	bool fail, pass = true;
 
 	{
 		fail = strcmp(BLAKE2b::StaticAlgorithmName(), "BLAKE2b") != 0;
-		cout << (fail ? "FAILED   " : "passed   ") << "algorithm name\n";
+		std::cout << (fail ? "FAILED   " : "passed   ") << "algorithm name\n";
 		pass = pass && !fail;
 	}
 
@@ -1856,13 +1853,16 @@ bool ValidateBLAKE2b()
 		fail = !!memcmp(digest, tests[i].digest, sizeof(digest)) != 0;
 		if (fail)
 		{
-			cout << "FAILED   " << "BLAKE2b test set " << i << endl;
+			std::cout << "FAILED   " << "BLAKE2b test set " << i << std::endl;
 		}
 
 		pass = pass && !fail;
 	}
 
-	cout << (!pass ? "FAILED   " : "passed   ") << COUNTOF(tests) << " hashes and keyed hashes" << endl;
+	std::cout << (!pass ? "FAILED   " : "passed   ") << COUNTOF(tests) << " hashes and keyed hashes" << std::endl;
 
 	return pass;
 }
+
+NAMESPACE_END  // Test
+NAMESPACE_END  // CryptoPP

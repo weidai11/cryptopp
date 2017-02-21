@@ -5,6 +5,9 @@
 #include <iostream>
 #include <iomanip>
 
+NAMESPACE_BEGIN(CryptoPP)
+NAMESPACE_BEGIN(Test)
+
 bool ValidateAll(bool thorough);
 bool TestSettings();
 bool TestOS_RNG();
@@ -145,5 +148,8 @@ private:
 CryptoPP::RandomNumberGenerator & GlobalRNG();
 
 bool RunTestDataFile(const char *filename, const CryptoPP::NameValuePairs &overrideParameters=CryptoPP::g_nullNameValuePairs, bool thorough=true);
+
+NAMESPACE_END  // Test
+NAMESPACE_END  // CryptoPP
 
 #endif

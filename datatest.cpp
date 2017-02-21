@@ -1,4 +1,5 @@
 // datatest.cpp - originally written and placed in the public domain by Wei Dai
+//                CryptoPP::Test namespace added by JW in February 2017
 
 #define CRYPTOPP_DEFAULT_NO_DLL
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
@@ -27,8 +28,8 @@
 extern "C" void __coverity_tainted_data_sanitize__(void *);
 #endif
 
-USING_NAMESPACE(CryptoPP)
-USING_NAMESPACE(std)
+NAMESPACE_BEGIN(CryptoPP)
+NAMESPACE_BEGIN(Test)
 
 typedef std::map<std::string, std::string> TestData;
 static bool s_thorough = false;
@@ -45,7 +46,7 @@ static void OutputTestData(const TestData &v)
 {
 	for (TestData::const_iterator i = v.begin(); i != v.end(); ++i)
 	{
-		cerr << i->first << ": " << i->second << endl;
+		std::cerr << i->first << ": " << i->second << std::endl;
 	}
 }
 
@@ -86,8 +87,8 @@ void RandomizedTransfer(BufferedTransformation &source, BufferedTransformation &
 	while (source.MaxRetrievable() > (finish ? 0 : 4096))
 	{
 		byte buf[4096+64];
-		size_t start = GlobalRNG().GenerateWord32(0, 63);
-		size_t len = GlobalRNG().GenerateWord32(1, UnsignedMin(4096U, 3*source.MaxRetrievable()/2));
+		size_t start = Test::GlobalRNG().GenerateWord32(0, 63);
+		size_t len = Test::GlobalRNG().GenerateWord32(1, UnsignedMin(4096U, 3*source.MaxRetrievable()/2));
 		len = source.Get(buf+start, len);
 		target.ChannelPut(channel, buf+start, len);
 	}
@@ -176,7 +177,7 @@ public:
 				if (i == m_data.end())
 					return false;
 
-				m_temp.resize(0);
+				m_temp.clear();
 				PutDecodedDatumInto(m_data, i->first.c_str(), StringSink(m_temp).Ref());
 				*reinterpret_cast<int *>(pValue) = (int)m_temp.size();
 				return true;
@@ -193,7 +194,7 @@ public:
 			*reinterpret_cast<Integer *>(pValue) = Integer((std::string(value) + "h").c_str());
 		else if (valueType == typeid(ConstByteArrayParameter))
 		{
-			m_temp.resize(0);
+			m_temp.clear();
 			PutDecodedDatumInto(m_data, name, StringSink(m_temp).Ref());
 			reinterpret_cast<ConstByteArrayParameter *>(pValue)->Assign((const byte *)m_temp.data(), m_temp.size(), false);
 		}
@@ -211,9 +212,9 @@ private:
 void TestKeyPairValidAndConsistent(CryptoMaterial &pub, const CryptoMaterial &priv)
 {
 	// "!!" converts between bool <-> integral.
-	if (!pub.Validate(GlobalRNG(), 2U+!!s_thorough))
+	if (!pub.Validate(Test::GlobalRNG(), 2U+!!s_thorough))
 		SignalTestFailure();
-	if (!priv.Validate(GlobalRNG(), 2U+!!s_thorough))
+	if (!priv.Validate(Test::GlobalRNG(), 2U+!!s_thorough))
 		SignalTestFailure();
 
 	ByteQueue bq1, bq2;
@@ -236,7 +237,7 @@ void TestSignatureScheme(TestData &v)
 
 	if (test == "GenerateKey")
 	{
-		signer->AccessPrivateKey().GenerateRandom(GlobalRNG(), pairs);
+		signer->AccessPrivateKey().GenerateRandom(Test::GlobalRNG(), pairs);
 		verifier->AccessPublicKey().AssignFrom(signer->AccessPrivateKey());
 	}
 	else
@@ -260,7 +261,7 @@ void TestSignatureScheme(TestData &v)
 		}
 		else if (test == "PublicKeyValid")
 		{
-			if (!verifier->GetMaterial().Validate(GlobalRNG(), 3))
+			if (!verifier->GetMaterial().Validate(Test::GlobalRNG(), 3))
 				SignalTestFailure();
 			return;
 		}
@@ -276,11 +277,11 @@ void TestSignatureScheme(TestData &v)
 		TestKeyPairValidAndConsistent(verifier->AccessMaterial(), signer->GetMaterial());
 		SignatureVerificationFilter verifierFilter(*verifier, NULL, SignatureVerificationFilter::THROW_EXCEPTION);
 		verifierFilter.Put((const byte *)"abc", 3);
-		StringSource ss("abc", true, new SignerFilter(GlobalRNG(), *signer, new Redirector(verifierFilter)));
+		StringSource ss("abc", true, new SignerFilter(Test::GlobalRNG(), *signer, new Redirector(verifierFilter)));
 	}
 	else if (test == "Sign")
 	{
-		SignerFilter f(GlobalRNG(), *signer, new HexEncoder(new FileSink(cout)));
+		SignerFilter f(Test::GlobalRNG(), *signer, new HexEncoder(new FileSink(std::cout)));
 		StringSource ss(GetDecodedDatum(v, "Message"), true, new Redirector(f));
 		SignalTestFailure();
 	}
@@ -290,8 +291,8 @@ void TestSignatureScheme(TestData &v)
 		// for DSA and ECDSA, and access to the seed or secret is not needed. If
 		// additional determinsitic signatures are added, then the test harness will
 		// likely need to be extended.
-		string signature;
-		SignerFilter f(GlobalRNG(), *signer, new StringSink(signature));
+		std::string signature;
+		SignerFilter f(Test::GlobalRNG(), *signer, new StringSink(signature));
 		StringSource ss(GetDecodedDatum(v, "Message"), true, new Redirector(f));
 
 		if (GetDecodedDatum(v, "Signature") != signature)
@@ -336,7 +337,7 @@ void TestAsymmetricCipher(TestData &v)
 	if (test == "DecryptMatch")
 	{
 		std::string decrypted, expected = GetDecodedDatum(v, "Plaintext");
-		StringSource ss(GetDecodedDatum(v, "Ciphertext"), true, new PK_DecryptorFilter(GlobalRNG(), *decryptor, new StringSink(decrypted)));
+		StringSource ss(GetDecodedDatum(v, "Ciphertext"), true, new PK_DecryptorFilter(Test::GlobalRNG(), *decryptor, new StringSink(decrypted)));
 		if (decrypted != expected)
 			SignalTestFailure();
 	}
@@ -510,7 +511,7 @@ void TestAuthenticatedSymmetricCipher(TestData &v, const NameValuePairs &overrid
 
 		std::string encrypted, decrypted;
 		AuthenticatedEncryptionFilter ef(*asc1, new StringSink(encrypted));
-		bool macAtBegin = !mac.empty() && !GlobalRNG().GenerateBit();	// test both ways randomly
+		bool macAtBegin = !mac.empty() && !Test::GlobalRNG().GenerateBit();	// test both ways randomly
 		AuthenticatedDecryptionFilter df(*asc2, new StringSink(decrypted), macAtBegin ? AuthenticatedDecryptionFilter::MAC_AT_BEGIN : 0);
 
 		if (asc1->NeedsPrespecifiedDataLengths())
@@ -646,7 +647,7 @@ void TestKeyDerivationFunction(TestData &v)
 
 bool GetField(std::istream &is, std::string &name, std::string &value)
 {
-	name.resize(0);		// GCC workaround: 2.95.3 doesn't have clear()
+	name.clear();
 	is >> name;
 
 	if (name.empty())
@@ -655,7 +656,7 @@ bool GetField(std::istream &is, std::string &name, std::string &value)
 	if (name[name.size()-1] != ':')
 	{
 		char c;
-		is >> skipws >> c;
+		is >> std::skipws >> c;
 		if (c != ':')
 			SignalTestError();
 	}
@@ -667,7 +668,7 @@ bool GetField(std::istream &is, std::string &name, std::string &value)
 
 	// VC60 workaround: getline bug
 	char buffer[128];
-	value.resize(0);	// GCC workaround: 2.95.3 doesn't have clear()
+	value.clear();
 	bool continueLine, space = false;
 
 	do
@@ -704,7 +705,7 @@ bool GetField(std::istream &is, std::string &name, std::string &value)
 	if (space && (name == "Modulus" || name == "SubgroupOrder" || name == "SubgroupGenerator" ||
 		name == "PublicElement" || name == "PrivateExponent" || name == "Signature"))
 	{
-		string temp;
+		std::string temp;
 		temp.reserve(value.size());
 
 		std::string::const_iterator it;
@@ -725,25 +726,25 @@ void OutputPair(const NameValuePairs &v, const char *name)
 	Integer x;
 	bool b = v.GetValue(name, x);
 	CRYPTOPP_UNUSED(b); CRYPTOPP_ASSERT(b);
-	cout << name << ": \\\n    ";
-	x.Encode(HexEncoder(new FileSink(cout), false, 64, "\\\n    ").Ref(), x.MinEncodedSize());
-	cout << endl;
+	std::cout << name << ": \\\n    ";
+	x.Encode(HexEncoder(new FileSink(std::cout), false, 64, "\\\n    ").Ref(), x.MinEncodedSize());
+	std::cout << std::endl;
 }
 
 void OutputNameValuePairs(const NameValuePairs &v)
 {
 	std::string names = v.GetValueNames();
-	string::size_type i = 0;
+	std::string::size_type i = 0;
 	while (i < names.size())
 	{
-		string::size_type j = names.find_first_of (';', i);
+		std::string::size_type j = names.find_first_of (';', i);
 
-		if (j == string::npos)
+		if (j == std::string::npos)
 			return;
 		else
 		{
 			std::string name = names.substr(i, j-i);
-			if (name.find(':') == string::npos)
+			if (name.find(':') == std::string::npos)
 				OutputPair(v, name.c_str());
 		}
 
@@ -787,7 +788,7 @@ void TestDataFile(std::string filename, const NameValuePairs &overrideParameters
 			if (lastAlgName != GetRequiredDatum(v, "Name"))
 			{
 				lastAlgName = GetRequiredDatum(v, "Name");
-				cout << "\nTesting " << algType.c_str() << " algorithm " << lastAlgName.c_str() << ".\n";
+				std::cout << "\nTesting " << algType.c_str() << " algorithm " << lastAlgName.c_str() << ".\n";
 			}
 
 			try
@@ -814,24 +815,24 @@ void TestDataFile(std::string filename, const NameValuePairs &overrideParameters
 			}
 			catch (const TestFailure &)
 			{
-				cout << "\nTest failed.\n";
+				std::cout << "\nTest failed.\n";
 			}
 			catch (const CryptoPP::Exception &e)
 			{
-				cout << "\nCryptoPP::Exception caught: " << e.what() << endl;
+				std::cout << "\nCryptoPP::Exception caught: " << e.what() << std::endl;
 			}
 			catch (const std::exception &e)
 			{
-				cout << "\nstd::exception caught: " << e.what() << endl;
+				std::cout << "\nstd::exception caught: " << e.what() << std::endl;
 			}
 
 			if (failed)
 			{
-				cout << "Skipping to next test.\n";
+				std::cout << "Skipping to next test.\n";
 				failedTests++;
 			}
 			else
-				cout << "." << flush;
+				std::cout << "." << std::flush;
 
 			totalTests++;
 		}
@@ -843,9 +844,11 @@ bool RunTestDataFile(const char *filename, const NameValuePairs &overrideParamet
 	s_thorough = thorough;
 	unsigned int totalTests = 0, failedTests = 0;
 	TestDataFile((filename ? filename : ""), overrideParameters, totalTests, failedTests);
-	cout << dec << "\nTests complete. Total tests = " << totalTests << ". Failed tests = " << failedTests << "." << endl;
+	std::cout << std::dec << "\nTests complete. Total tests = " << totalTests << ". Failed tests = " << failedTests << "." << std::endl;
 	if (failedTests != 0)
-		cout << "SOME TESTS FAILED!\n";
+		std::cout << "SOME TESTS FAILED!\n";
 	return failedTests == 0;
 }
 
+NAMESPACE_END  // Test
+NAMESPACE_END  // CryptoPP

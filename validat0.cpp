@@ -21,11 +21,8 @@
 # pragma strict_gs_check (on)
 #endif
 
-#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
-# pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-
-USING_NAMESPACE(CryptoPP)
+NAMESPACE_BEGIN(CryptoPP)
+NAMESPACE_BEGIN(Test)
 
 #if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_IMPORTS)
 bool TestRounding()
@@ -735,11 +732,11 @@ bool TestSecBlock()
 
 	{
 		std::basic_string<char, std::char_traits<char>, AllocatorWithCleanup<char, false> > s1;
-		std::basic_string<char, std::char_traits<char>, AllocatorWithCleanup<char, true> > s2;
+		std::basic_string<char, std::char_traits<char>, AllocatorWithCleanup<char,  true> > s2;
 		s1.resize(1024); s2.resize(1024);
 
 		std::vector<byte, AllocatorWithCleanup<byte, false> > v1;
-		std::vector<byte, AllocatorWithCleanup<byte, true> > v2;
+		std::vector<byte, AllocatorWithCleanup<byte,  true> > v2;
 		v1.resize(1024); v2.resize(1024);
 	}
 
@@ -2366,3 +2363,6 @@ bool TestIntegerBitops()
     return opa && opo && opx;
 }
 #endif
+
+NAMESPACE_END  // Test
+NAMESPACE_END  // CryptoPP
