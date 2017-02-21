@@ -1,5 +1,4 @@
 // rdrand.h - written and placed in public domain by Jeffrey Walton and Uri Blumenthal.
-//            Copyright assigned to Crypto++ project.
 
 //! \file rdrand.h
 //! \brief Classes for RDRAND and RDSEED

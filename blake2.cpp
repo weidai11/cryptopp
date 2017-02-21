@@ -1,7 +1,6 @@
 // blake2.cpp - written and placed in the public domain by Jeffrey Walton and Zooko
-//              Wilcox-O'Hearn. Copyright assigned to the Crypto++ project.
-//              Based on Aumasson, Neves, Wilcox-O'Hearn and Winnerlein's reference BLAKE2
-//              implementation at http://github.com/BLAKE2/BLAKE2.
+//              Wilcox-O'Hearn. Based on Aumasson, Neves, Wilcox-O'Hearn and Winnerlein's
+//              reference BLAKE2 implementation at http://github.com/BLAKE2/BLAKE2.
 
 #include "pch.h"
 #include "config.h"

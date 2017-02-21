@@ -1,5 +1,4 @@
 // siphash.h - written and placed in public domain by Jeffrey Walton.
-//             Copyright assigned to Crypto++ project.
 
 //! \file siphash.h
 //! \brief Classes for SipHash message authentication code

@@ -1,5 +1,4 @@
 // trap.h - written and placed in public domain by Jeffrey Walton.
-//          Copyright assigned to Crypto++ project
 
 //! \file trap.h
 //! \brief Debugging and diagnostic assertions

@@ -1,6 +1,5 @@
 // poly1305.h - written and placed in the public domain by Jeffrey Walton and Jean-Pierre Munch
 //              Based on Andy Polyakov's Base-2^26 scalar multiplication implementation for OpenSSL.
-//              Copyright assigned to the Crypto++ project
 
 //! \file poly1305.h
 //! \brief Classes for Poly1305 message authentication code

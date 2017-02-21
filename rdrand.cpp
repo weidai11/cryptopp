@@ -1,5 +1,4 @@
 // rdrand.cpp - written and placed in public domain by Jeffrey Walton and Uri Blumenthal.
-//              Copyright assigned to Crypto++ project.
 
 #include "pch.h"
 #include "config.h"

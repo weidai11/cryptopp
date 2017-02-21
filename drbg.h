@@ -1,5 +1,4 @@
 // drbg.h - written and placed in public domain by Jeffrey Walton.
-//          Copyright assigned to Crypto++ project.
 
 //! \file drbg.h
 //! \brief Classes for NIST DRBGs from SP 800-90A

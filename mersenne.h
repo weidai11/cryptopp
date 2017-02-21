@@ -1,5 +1,4 @@
 // mersenne.h - written and placed in public domain by Jeffrey Walton.
-//              Copyright assigned to Crypto++ project.
 
 //! \file mersenne.h
 //! \brief Class file for Mersenne Twister
