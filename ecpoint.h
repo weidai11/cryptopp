@@ -3,7 +3,7 @@
 
 //! \file ecpoint.h
 //! \brief Classes for Elliptic Curve points
-//! \since Crypto++ 5.7
+//! \since Crypto++ 6.0
 
 #ifndef CRYPTOPP_ECPOINT_H
 #define CRYPTOPP_ECPOINT_H
@@ -88,7 +88,7 @@ CRYPTOPP_DLL_TEMPLATE_CLASS AbstractGroup<EC2NPoint>;
 //! \tparam Point ellicptic curve point
 //! \details EncodedPoint is an interface for encoding and decoding elliptic curve points.
 //!   The template parameter <tt>Point</tt> should be a class like ECP or EC2N.
-//! \since Crypto++ 5.7
+//! \since Crypto++ 6.0
 template <class Point>
 class EncodedPoint
 {

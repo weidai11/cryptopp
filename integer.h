@@ -383,7 +383,7 @@ public:
 		//!   does not attempt to interpret bits, and the result is always POSITIVE. If needed,
 		//!   the integer should be converted to a 2's compliment representation before performing
 		//!   the operation.
-		//! \since Crypto++ 5.7
+		//! \since Crypto++ 6.0
 		Integer& operator&=(const Integer& t);
 		//! \brief Bitwise OR Assignment
 		//! \param t the second Integer
@@ -395,7 +395,7 @@ public:
 		//!   does not attempt to interpret bits, and the result is always POSITIVE. If needed,
 		//!   the integer should be converted to a 2's compliment representation before performing
 		//!   the operation.
-		//! \since Crypto++ 5.7
+		//! \since Crypto++ 6.0
 		Integer& operator|=(const Integer& t);
 		//! \brief Bitwise XOR Assignment
 		//! \param t the other Integer
@@ -407,7 +407,7 @@ public:
 		//!   does not attempt to interpret bits, and the result is always POSITIVE. If needed,
 		//!   the integer should be converted to a 2's compliment representation before performing
 		//!   the operation.
-		//! \since Crypto++ 5.7
+		//! \since Crypto++ 6.0
 		Integer& operator^=(const Integer& t);
 
 		//! \brief Set this Integer to random integer
@@ -524,7 +524,7 @@ public:
 		//!   does not attempt to interpret bits, and the result is always POSITIVE. If needed,
 		//!   the integer should be converted to a 2's compliment representation before performing
 		//!   the operation.
-		//! \since Crypto++ 5.7
+		//! \since Crypto++ 6.0
 		Integer And(const Integer&) const;
 
 		//! \brief Bitwise OR
@@ -537,7 +537,7 @@ public:
 		//!   does not attempt to interpret bits, and the result is always POSITIVE. If needed,
 		//!   the integer should be converted to a 2's compliment representation before performing
 		//!   the operation.
-		//! \since Crypto++ 5.7
+		//! \since Crypto++ 6.0
 		Integer Or(const Integer&) const;
 
 		//! \brief Bitwise XOR
@@ -550,7 +550,7 @@ public:
 		//!   does not attempt to interpret bits, and the result is always POSITIVE. If needed,
 		//!   the integer should be converted to a 2's compliment representation before performing
 		//!   the operation.
-		//! \since Crypto++ 5.7
+		//! \since Crypto++ 6.0
 		Integer Xor(const Integer&) const;
 
 		//! \brief Right-shift
@@ -685,7 +685,7 @@ inline CryptoPP::word    operator%(const CryptoPP::Integer &a, CryptoPP::word b)
 //!   does not attempt to interpret bits, and the result is always POSITIVE. If needed,
 //!   the integer should be converted to a 2's compliment representation before performing
 //!   the operation.
-//! \since Crypto++ 5.7
+//! \since Crypto++ 6.0
 inline CryptoPP::Integer operator&(const CryptoPP::Integer &a, const CryptoPP::Integer &b) {return a.And(b);}
 
 //! \brief Bitwise OR
@@ -699,7 +699,7 @@ inline CryptoPP::Integer operator&(const CryptoPP::Integer &a, const CryptoPP::I
 //!   does not attempt to interpret bits, and the result is always POSITIVE. If needed,
 //!   the integer should be converted to a 2's compliment representation before performing
 //!   the operation.
-//! \since Crypto++ 5.7
+//! \since Crypto++ 6.0
 inline CryptoPP::Integer operator|(const CryptoPP::Integer &a, const CryptoPP::Integer &b) {return a.Or(b);}
 
 //! \brief Bitwise XOR
@@ -713,7 +713,7 @@ inline CryptoPP::Integer operator|(const CryptoPP::Integer &a, const CryptoPP::I
 //!   does not attempt to interpret bits, and the result is always POSITIVE. If needed,
 //!   the integer should be converted to a 2's compliment representation before performing
 //!   the operation.
-//! \since Crypto++ 5.7
+//! \since Crypto++ 6.0
 inline CryptoPP::Integer operator^(const CryptoPP::Integer &a, const CryptoPP::Integer &b) {return a.Xor(b);}
 
 NAMESPACE_END

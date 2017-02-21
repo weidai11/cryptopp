@@ -4,7 +4,7 @@
 //! \brief Classes for NIST DRBGs from SP 800-90A
 //! \sa <A HREF="http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-90Ar1.pdf">Recommendation
 //!   for Random Number Generation Using Deterministic Random Bit Generators, Rev 1 (June 2015)</A>
-//! \since Crypto++ 5.7
+//! \since Crypto++ 6.0
 
 #ifndef CRYPTOPP_NIST_DRBG_H
 #define CRYPTOPP_NIST_DRBG_H
@@ -19,7 +19,7 @@ NAMESPACE_BEGIN(CryptoPP)
 //! \details NIST_DRBG is the base class interface for NIST DRBGs from SP 800-90A Rev 1 (June 2015)
 //! \sa <A HREF="http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-90Ar1.pdf">Recommendation
 //!   for Random Number Generation Using Deterministic Random Bit Generators, Rev 1 (June 2015)</A>
-//! \since Crypto++ 5.7
+//! \since Crypto++ 6.0
 class NIST_DRBG : public RandomNumberGenerator
 {
 public:
@@ -152,7 +152,7 @@ protected:
 //!   before a reseed. However, Hash_DRBG limits it to <tt>INT_MAX</tt> due to the limited data range of an int.
 //! \sa <A HREF="http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-90Ar1.pdf">Recommendation
 //!   for Random Number Generation Using Deterministic Random Bit Generators, Rev 1 (June 2015)</A>
-//! \since Crypto++ 5.7
+//! \since Crypto++ 6.0
 template <typename HASH=SHA256, unsigned int STRENGTH=128/8, unsigned int SEEDLENGTH=440/8>
 class Hash_DRBG : public NIST_DRBG, public NotCopyable
 {
@@ -263,7 +263,7 @@ private:
 //!   before a reseed. However, HMAC_DRBG limits it to <tt>INT_MAX</tt> due to the limited data range of an int.
 //! \sa <A HREF="http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-90Ar1.pdf">Recommendation
 //!   for Random Number Generation Using Deterministic Random Bit Generators, Rev 1 (June 2015)</A>
-//! \since Crypto++ 5.7
+//! \since Crypto++ 6.0
 template <typename HASH=SHA256, unsigned int STRENGTH=128/8, unsigned int SEEDLENGTH=440/8>
 class HMAC_DRBG : public NIST_DRBG, public NotCopyable
 {

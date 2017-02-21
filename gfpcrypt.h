@@ -232,7 +232,7 @@ public:
 //! \tparam H HashTransformation derived class
 //! \sa <a href="http://tools.ietf.org/rfc/rfc6979.txt">RFC 6979, Deterministic Usage of the
 //!   Digital Signature Algorithm (DSA) and Elliptic Curve Digital Signature Algorithm (ECDSA)</a>
-//! \since Crypto++ 5.7
+//! \since Crypto++ 6.0
 template <class T, class H>
 class DL_Algorithm_DSA_RFC6979 : public DL_Algorithm_GDSA<T>, public DeterministicSignatureAlgorithm
 {

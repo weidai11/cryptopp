@@ -2,7 +2,7 @@
 
 //! \file sha.h
 //! \brief Classes for SHA-1 and SHA-2 family of message digests
-//! \since SHA1 since Crypto++ 1.0, SHA2 since Crypto++ 4.0, Intel SHA extensions since Crypto++ 5.7
+//! \since SHA1 since Crypto++ 1.0, SHA2 since Crypto++ 4.0, Intel SHA extensions since Crypto++ 6.0
 
 #ifndef CRYPTOPP_SHA_H
 #define CRYPTOPP_SHA_H
@@ -21,7 +21,7 @@ NAMESPACE_BEGIN(CryptoPP)
 //! \class SHA1
 //! \brief SHA-1 message digest
 //! \sa <a href="http://www.weidai.com/scan-mirror/md.html#SHA-1">SHA-1</a>
-//! \since Crypto++ 1.0, Intel SHA extensions since Crypto++ 5.7
+//! \since Crypto++ 1.0, Intel SHA extensions since Crypto++ 6.0
 class CRYPTOPP_DLL SHA1 : public IteratedHashWithStaticTransform<word32, BigEndian, 64, 20, SHA1>
 {
 public:
@@ -35,7 +35,7 @@ typedef SHA1 SHA;	// for backwards compatibility
 //! \class SHA256
 //! \brief SHA-256 message digest
 //! \sa <a href="http://www.weidai.com/scan-mirror/md.html#SHA-256">SHA-256</a>
-//! \since Crypto++ 4.0, Intel SHA extensions since Crypto++ 5.7
+//! \since Crypto++ 4.0, Intel SHA extensions since Crypto++ 6.0
 class CRYPTOPP_DLL SHA256 : public IteratedHashWithStaticTransform<word32, BigEndian, 64, 32, SHA256, 32, true>
 {
 public:
@@ -50,7 +50,7 @@ public:
 //! \class SHA224
 //! \brief SHA-224 message digest
 //! \sa <a href="http://www.weidai.com/scan-mirror/md.html#SHA-224">SHA-224</a>
-//! \since Crypto++ 4.0, Intel SHA extensions since Crypto++ 5.7
+//! \since Crypto++ 4.0, Intel SHA extensions since Crypto++ 6.0
 class CRYPTOPP_DLL SHA224 : public IteratedHashWithStaticTransform<word32, BigEndian, 64, 32, SHA224, 28, true>
 {
 public:

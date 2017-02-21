@@ -39,7 +39,7 @@
 //! \sa Daniel J. Bernstein <A HREF="http://cr.yp.to/mac/poly1305-20050329.pdf">The Poly1305-AES
 //!   Message-Authentication Code (20050329)</A> and Andy Polyakov <A
 //!   HREF="http://www.openssl.org/blog/blog/2016/02/15/poly1305-revised/">Poly1305 Revised</A>
-//! \since Crypto++ 5.7
+//! \since Crypto++ 6.0
 
 #ifndef CRYPTOPP_POLY1305_H
 #define CRYPTOPP_POLY1305_H
@@ -55,7 +55,7 @@ NAMESPACE_BEGIN(CryptoPP)
 //! \class Poly1305_Base
 //! \brief Poly1305 message authentication code base class
 //! \tparam T class derived from BlockCipherDocumentation with 16-byte key and 16-byte blocksize
-//! \since Crypto++ 5.7
+//! \since Crypto++ 6.0
 template <class T>
 class CRYPTOPP_NO_VTABLE Poly1305_Base : public FixedKeyLength<32, SimpleKeyingInterface::UNIQUE_IV, 16>, public MessageAuthenticationCode
 {
@@ -141,7 +141,7 @@ protected:
 //! \sa Daniel J. Bernstein <A HREF="http://cr.yp.to/mac/poly1305-20050329.pdf">The Poly1305-AES
 //!   Message-Authentication Code (20050329)</A> and Andy Polyakov <A
 //!   HREF="http://www.openssl.org/blog/blog/2016/02/15/poly1305-revised/">Poly1305 Revised</A>
-//! \since Crypto++ 5.7
+//! \since Crypto++ 6.0
 template <class T>
 class Poly1305 : public MessageAuthenticationCodeFinal<Poly1305_Base<T> >
 {

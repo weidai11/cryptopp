@@ -38,6 +38,8 @@ public:
 class RDRAND : public RandomNumberGenerator
 {
 public:
+	virtual ~RDRAND() {}
+
 	std::string AlgorithmName() const {return "RDRAND";}
 
 	//! \brief Construct a RDRAND generator
@@ -46,13 +48,9 @@ public:
 	//!   for failed generation attempts.
 	//! \details According to DJ of Intel, the Intel RDRAND circuit does not underflow.
 	//!   If it did hypothetically underflow, then it would return 0 for the random value.
-	//!   Its not clear what AMD's behavior will be, and what the returned value will be if
-	//!   underflow occurs.
-	//!   Also see <A HREF="https://lists.randombit.net/pipermail/cryptography/2016-June/007702.html">RDRAND
-	//!   not really random with Oracle Studio 12.3 + patches</A>
+	//!   AMD's RDRAND implementation appears to provide the same behavior except the
+	//!   values are not generated consistent with FIPS 140.
 	RDRAND(unsigned int retries = 4) : m_retries(retries) {}
-
-	virtual ~RDRAND() {}
 
 	//! \brief Retrieve the number of retries used by the generator
 	//! \returns the number of times GenerateBlock() will attempt to recover from a failed generation
@@ -125,6 +123,8 @@ public:
 class RDSEED : public RandomNumberGenerator
 {
 public:
+	virtual ~RDSEED() {}
+
 	std::string AlgorithmName() const {return "RDSEED";}
 
 	//! \brief Construct a RDSEED generator
@@ -132,11 +132,9 @@ public:
 	//! \details RDSEED() constructs a generator with a maximum number of retires
 	//!   for failed generation attempts.
 	//! \details Empirical testing under a 6th generaton i7 (6200U) shows RDSEED fails
-	//!   to fulfill requests at about 6 to 8 times the rate of RDRAND. The default
-	//!   retries reflects the difference.
+	//!   to fulfill requests at about once every for every 256 bytes requested.
+	//!   The default retries reflects the expected ceiling when requesting 10,000 bytes.
 	RDSEED(unsigned int retries = 64) : m_retries(retries) {}
-
-	virtual ~RDSEED() {}
 
 	//! \brief Retrieve the number of retries used by the generator
 	//! \returns the number of times GenerateBlock() will attempt to recover from a failed generation

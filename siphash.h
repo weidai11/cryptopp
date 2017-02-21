@@ -21,7 +21,7 @@
 //!   hash.Final(...);</pre>
 //! \sa Jean-Philippe Aumasson and Daniel J. Bernstein <A HREF="http://131002.net/siphash/siphash.pdf">SipHash:
 //!   a fast short-input PRF</A>
-//! \since Crypto++ 5.7
+//! \since Crypto++ 6.0
 
 #ifndef CRYPTOPP_SIPHASH_H
 #define CRYPTOPP_SIPHASH_H
@@ -135,7 +135,7 @@ private:
 //!   hash.Final(...);</pre>
 //! \sa Jean-Philippe Aumasson and Daniel J. Bernstein <A HREF="http://131002.net/siphash/siphash.pdf">SipHash:
 //!   a fast short-input PRF</A>
-//! \since Crypto++ 5.7
+//! \since Crypto++ 6.0
 template <unsigned int C=2, unsigned int D=4, bool T_128bit=false>
 class SipHash : public SipHash_Base<C, D, T_128bit>
 {

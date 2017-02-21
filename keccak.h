@@ -69,7 +69,7 @@ protected:
 //! \class Keccak_224
 //! \tparam DigestSize controls the digest size as a template parameter instead of a per-class constant
 //! \brief Keccak-X message digest, template for more fine-grained typedefs
-//! \since Crypto++ 5.7.0
+//! \since Crypto++ 6.0.0
 template<unsigned int T_DigestSize>
 class Keccak_Final : public Keccak
 {

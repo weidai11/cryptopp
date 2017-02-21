@@ -603,7 +603,7 @@ public:
 	//!    occur as CPU cycles are spent zeroizing unintialized memory.
 	//! \details If Assign(), New(), Grow(), CleanNew(), CleanGrow() are called, then the
 	//!    count is reset to its default state, which is the maxmimum number of elements.
-	//! \since Crypto++ 5.7
+	//! \since Crypto++ 6.0
 	void SetMark(size_t count) {m_mark = count;}
 
 	//! \brief Set contents and size from an array

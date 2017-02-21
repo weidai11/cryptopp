@@ -349,7 +349,7 @@ public:
 //! \tparam EC elliptic curve field
 //! \sa <a href="http://tools.ietf.org/rfc/rfc6979.txt">RFC 6979, Deterministic Usage of the
 //!   Digital Signature Algorithm (DSA) and Elliptic Curve Digital Signature Algorithm (ECDSA)</a>
-//! \since Crypto++ 5.7
+//! \since Crypto++ 6.0
 template <class EC, class H>
 class DL_Algorithm_ECDSA_RFC6979 : public DL_Algorithm_DSA_RFC6979<typename EC::Point, H>
 {
@@ -414,7 +414,7 @@ class DL_PrivateKey_ECGDSA_ISO15946;
 //! \brief Elliptic Curve German DSA key for ISO/IEC 15946
 //! \tparam EC elliptic curve field
 //! \sa ECGDSA_ISO15946
-//! \since Crypto++ 5.7
+//! \since Crypto++ 6.0
 template <class EC>
 class DL_PrivateKey_ECGDSA_ISO15946 : public DL_PrivateKeyImpl<DL_GroupParameters_EC<EC> >
 {
@@ -497,7 +497,7 @@ public:
 //! \brief Elliptic Curve German DSA key for ISO/IEC 15946
 //! \tparam EC elliptic curve field
 //! \sa ECGDSA_ISO15946
-//! \since Crypto++ 5.7
+//! \since Crypto++ 6.0
 template <class EC>
 class DL_PublicKey_ECGDSA_ISO15946 : public DL_PublicKeyImpl<DL_GroupParameters_EC<EC> >
 {
@@ -550,7 +550,7 @@ public:
 //! \brief Elliptic Curve German DSA keys for ISO/IEC 15946
 //! \tparam EC elliptic curve field
 //! \sa ECGDSA_ISO15946
-//! \since Crypto++ 5.7
+//! \since Crypto++ 6.0
 template <class EC>
 struct DL_Keys_ECGDSA_ISO15946
 {
@@ -562,7 +562,7 @@ struct DL_Keys_ECGDSA_ISO15946
 //! \brief Elliptic Curve German DSA signature algorithm
 //! \tparam EC elliptic curve field
 //! \sa ECGDSA_ISO15946
-//! \since Crypto++ 5.7
+//! \since Crypto++ 6.0
 template <class EC>
 class DL_Algorithm_ECGDSA_ISO15946 : public DL_Algorithm_GDSA_ISO15946<typename EC::Point>
 {
@@ -576,7 +576,7 @@ public:
 //! \tparam H HashTransformation derived class
 //! \sa Erwin Hess, Marcus Schafheutle, and Pascale Serf <A HREF="http://www.teletrust.de/fileadmin/files/oid/ecgdsa_final.pdf">The
 //!   Digital Signature Scheme ECGDSA (October 24, 2006)</A>
-//! \since Crypto++ 5.7
+//! \since Crypto++ 6.0
 template <class EC, class H>
 struct ECGDSA : public DL_SS<
 	DL_Keys_ECGDSA_ISO15946<EC>,

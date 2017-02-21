@@ -3,7 +3,7 @@
 //! \file cryptlib.h
 //! \brief Abstract base classes that provide a uniform interface to this library.
 
-/*!	\mainpage Crypto++ Library 5.7 API Reference
+/*!	\mainpage Crypto++ Library 6.0 API Reference
 <dl>
 <dt>Abstract Base Classes<dd>
 	cryptlib.h
@@ -2944,7 +2944,7 @@ public:
 //!      }
 //! </pre>
 //! \sa HeaderVersion(), <A HREF="http://github.com/weidai11/cryptopp/issues/371">GitHub Issue 371</A>.
-//! \since Crypto++ 5.7
+//! \since Crypto++ 6.0
 extern "C" {
 	int LibraryVersion();
 } // C linkage
@@ -2976,7 +2976,7 @@ extern "C" {
 //!      }
 //! </pre>
 //! \sa LibraryVersion(), <A HREF="http://github.com/weidai11/cryptopp/issues/371">GitHub Issue 371</A>.
-//! \since Crypto++ 5.7
+//! \since Crypto++ 6.0
 extern "C" {
 inline int HeaderVersion()
 {
