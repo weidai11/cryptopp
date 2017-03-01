@@ -31,11 +31,7 @@ class AllocatorBase
 public:
 	typedef T value_type;
 	typedef size_t size_type;
-#ifdef CRYPTOPP_MSVCRT6
-	typedef ptrdiff_t difference_type;
-#else
 	typedef std::ptrdiff_t difference_type;
-#endif
 	typedef T * pointer;
 	typedef const T * const_pointer;
 	typedef T & reference;
