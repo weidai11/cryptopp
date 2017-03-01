@@ -46,19 +46,16 @@ CRYPTOPP_COMPILE_ASSERT(sizeof(dword) == 2*sizeof(word));
 CRYPTOPP_COMPILE_ASSERT(CRYPTOPP_INIT_PRIORITY >= 101);
 const std::string DEFAULT_CHANNEL __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 25))) = "";
 const std::string AAD_CHANNEL __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 26))) = "AAD";
-const std::string &BufferedTransformation::NULL_CHANNEL = DEFAULT_CHANNEL;
 #elif HAVE_MSC_INIT_PRIORITY
 #pragma warning(disable: 4073)
 #pragma init_seg(lib)
 const std::string DEFAULT_CHANNEL = "";
 const std::string AAD_CHANNEL = "AAD";
-const std::string &BufferedTransformation::NULL_CHANNEL = DEFAULT_CHANNEL;
 #pragma warning(default: 4073)
 #else
 static const std::string s1(""), s2("AAD");
 const std::string DEFAULT_CHANNEL = s1;
 const std::string AAD_CHANNEL = s2;
-const std::string &BufferedTransformation::NULL_CHANNEL = DEFAULT_CHANNEL;
 #endif
 
 class NullNameValuePairs : public NameValuePairs

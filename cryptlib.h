@@ -1335,9 +1335,6 @@ extern CRYPTOPP_DLL const std::string AAD_CHANNEL;
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE BufferedTransformation : public Algorithm, public Waitable
 {
 public:
-	// placed up here for CW8
-	static const std::string &NULL_CHANNEL;	// same as DEFAULT_CHANNEL, for backwards compatibility
-
 	virtual ~BufferedTransformation() {}
 
 	//! \brief Construct a BufferedTransformation
