@@ -23,7 +23,7 @@ class CRYPTOPP_NO_VTABLE Panama
 {
 public:
 	void Reset();
-	void Iterate(size_t count, const word32 *p=NULL, byte *output=NULL, const byte *input=NULL, KeystreamOperation operation=WRITE_KEYSTREAM);
+	void Iterate(size_t count, const word32 *p=NULLPTR, byte *output=NULLPTR, const byte *input=NULLPTR, KeystreamOperation operation=WRITE_KEYSTREAM);
 
 protected:
 	typedef word32 Stage[8];
@@ -50,7 +50,7 @@ protected:
 	void Init() {Panama<B>::Reset();}
 	void HashEndianCorrectedBlock(const word32 *data) {this->Iterate(1, data);}	// push
 	size_t HashMultipleBlocks(const word32 *input, size_t length);
-	word32* StateBuf() {return NULL;}
+	word32* StateBuf() {return NULLPTR;}
 };
 }
 

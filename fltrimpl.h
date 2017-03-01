@@ -30,7 +30,7 @@
 /*
 #define FILTER_END	\
 	case -1:	\
-		if (messageEnd && Output(-1, NULL, 0, messageEnd, blocking))	\
+		if (messageEnd && Output(-1, NULLPTR, 0, messageEnd, blocking))	\
 			return 1;	\
 	FILTER_END_NO_MESSAGE_END
 */

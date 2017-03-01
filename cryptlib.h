@@ -698,8 +698,8 @@ protected:
 	//! \brief Validates the IV
 	//! \param iv the IV with a length of  IVSize, in bytes
 	//! \throws InvalidArgument on failure
-	//! \details Internally, the default implementation checks the  iv. If  iv is not  NULL,
-	//!   then the function succeeds. If  iv is  NULL, then  IVRequirement is checked against
+	//! \details Internally, the default implementation checks the  iv. If  iv is not  NULLPTR,
+	//!   then the function succeeds. If  iv is  NULLPTR, then  IVRequirement is checked against
 	//!    UNPREDICTABLE_RANDOM_IV. If  IVRequirement is  UNPREDICTABLE_RANDOM_IV, then
 	//!   then the function succeeds. Otherwise, an exception is thrown.
 	void ThrowIfInvalidIV(const byte *iv);
@@ -752,7 +752,7 @@ public:
 	//! \sa FixedBlockSize, BlockCipherFinal from seckey.h and BlockSize()
 	//! \note The message can be transformed in-place, or the buffers must \a not overlap
 	void ProcessBlock(const byte *inBlock, byte *outBlock) const
-		{ProcessAndXorBlock(inBlock, NULL, outBlock);}
+		{ProcessAndXorBlock(inBlock, NULLPTR, outBlock);}
 
 	//! \brief Encrypt or decrypt a block in place
 	//! \param inoutBlock the input message before processing
@@ -761,7 +761,7 @@ public:
 	//!    Use BLOCKSIZE at compile time, or BlockSize() at runtime.
 	//! \sa FixedBlockSize, BlockCipherFinal from seckey.h and BlockSize()
 	void ProcessBlock(byte *inoutBlock) const
-		{ProcessAndXorBlock(inoutBlock, NULL, inoutBlock);}
+		{ProcessAndXorBlock(inoutBlock, NULLPTR, inoutBlock);}
 
 	//! Provides the block size of the cipher
 	//! \return the block size of the cipher, in bytes
@@ -946,7 +946,7 @@ public:
 	//!   the array returned to the caller.
 	//! \details The base class implementation sets  size to 0 and returns  NULL.
 	//! \note Some objects, like ArraySink, cannot create a space because its fixed.
-	virtual byte * CreateUpdateSpace(size_t &size) {size=0; return NULL;}
+	virtual byte * CreateUpdateSpace(size_t &size) {size=0; return NULLPTR;}
 
 	//! \brief Computes the hash of the current message
 	//! \param digest a pointer to the buffer to receive the hash
@@ -959,7 +959,7 @@ public:
 	//! \brief Restart the hash
 	//! \details Discards the current state, and restart for a new message
 	virtual void Restart()
-		{TruncatedFinal(NULL, 0);}
+		{TruncatedFinal(NULLPTR, 0);}
 
 	//! Provides the digest size of the hash
 	//! \return the digest size of the hash.
@@ -1385,11 +1385,11 @@ public:
 		//! \details size is an \a IN and \a OUT parameter and used as a hint. When the call is made,
 		//!    size is the requested size of the buffer. When the call returns,  size is the size of
 		//!   the array returned to the caller.
-		//! \details The base class implementation sets  size to 0 and returns  NULL.
+		//! \details The base class implementation sets size to 0 and returns NULL.
 		//! \note Some objects, like ArraySink, cannot create a space because its fixed. In the case of
 		//! an ArraySink, the pointer to the array is returned and the  size is remaining size.
 		virtual byte * CreatePutSpace(size_t &size)
-			{size=0; return NULL;}
+			{size=0; return NULLPTR;}
 
 		//! \brief Determines whether input can be modified by the callee
 		//! \return true if input can be modified, false otherwise
@@ -1412,7 +1412,7 @@ public:
 		//! \details propagation count includes this object. Setting propagation to <tt>1</tt> means this
 		//!   object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
 		bool MessageEnd(int propagation=-1, bool blocking=true)
-			{return !!Put2(NULL, 0, propagation < 0 ? -1 : propagation+1, blocking);}
+			{return !!Put2(NULLPTR, 0, propagation < 0 ? -1 : propagation+1, blocking);}
 
 		//! \brief Input multiple bytes for processing and signal the end of a message
 		//! \param inString the byte buffer to process
@@ -1882,7 +1882,7 @@ public:
 		//! \details propagation count includes this object. Setting propagation to <tt>1</tt> means this
 		//!   object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
 		bool ChannelMessageEnd(const std::string &channel, int propagation=-1, bool blocking=true)
-			{return !!ChannelPut2(channel, NULL, 0, propagation < 0 ? -1 : propagation+1, blocking);}
+			{return !!ChannelPut2(channel, NULLPTR, 0, propagation < 0 ? -1 : propagation+1, blocking);}
 
 		//! \brief Input multiple bytes for processing and signal the end of a message
 		//! \param channel the channel to process the data.
@@ -1969,7 +1969,7 @@ public:
 		//! \return the attached transformation
 		//! \details AttachedTransformation() returns NULL if there is no attachment. The non-const
 		//!   version of AttachedTransformation() always returns NULL.
-		virtual BufferedTransformation *AttachedTransformation() {CRYPTOPP_ASSERT(!Attachable()); return 0;}
+		virtual BufferedTransformation *AttachedTransformation() {CRYPTOPP_ASSERT(!Attachable()); return NULLPTR;}
 
 		//! \brief Returns the object immediately attached to this object
 		//! \return the attached transformation
@@ -1984,7 +1984,7 @@ public:
 		//! \details Detach delete the current attachment chain and replace it with an optional  newAttachment
 		//! \details If a derived class does not override  Detach, then the base class throws
 		//!   NotImplemented.
-		virtual void Detach(BufferedTransformation *newAttachment = 0) {
+		virtual void Detach(BufferedTransformation *newAttachment = NULLPTR) {
 			CRYPTOPP_UNUSED(newAttachment); CRYPTOPP_ASSERT(!Attachable());
 			throw NotImplemented("BufferedTransformation: this object is not attachable");
 		}
@@ -2330,7 +2330,7 @@ public:
 	//! \details \p attachment can be \p NULL. The caller is responsible for deleting the returned pointer.
 	//!   Encoding parameters should be passed in the "EP" channel.
 	virtual BufferedTransformation * CreateEncryptionFilter(RandomNumberGenerator &rng,
-		BufferedTransformation *attachment=NULL, const NameValuePairs &parameters = g_nullNameValuePairs) const;
+		BufferedTransformation *attachment=NULLPTR, const NameValuePairs &parameters = g_nullNameValuePairs) const;
 };
 
 //! \class PK_Decryptor
@@ -2365,7 +2365,7 @@ public:
 	//! \return the newly created decryption filter
 	//! \note the caller is responsible for deleting the returned pointer
 	virtual BufferedTransformation * CreateDecryptionFilter(RandomNumberGenerator &rng,
-		BufferedTransformation *attachment=NULL, const NameValuePairs &parameters = g_nullNameValuePairs) const;
+		BufferedTransformation *attachment=NULLPTR, const NameValuePairs &parameters = g_nullNameValuePairs) const;
 
 	//! \brief Decrypt a fixed size ciphertext
 	//! \param rng a RandomNumberGenerator derived class
@@ -2811,7 +2811,7 @@ public:
 
 	virtual ~ProtocolSession() {}
 
-	ProtocolSession() : m_rng(NULL), m_throwOnProtocolError(true), m_validState(false) {}
+	ProtocolSession() : m_rng(NULLPTR), m_throwOnProtocolError(true), m_validState(false) {}
 
 	virtual void InitializeSession(RandomNumberGenerator &rng, const NameValuePairs &parameters) =0;
 

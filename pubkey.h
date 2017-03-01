@@ -391,7 +391,7 @@ public:
 		{
 			static HashIdentifier CRYPTOPP_API Lookup()
 			{
-				return HashIdentifier((const byte *)NULL, 0);
+				return HashIdentifier((const byte *)NULLPTR, 0);
 			}
 		};
 	};
@@ -609,7 +609,7 @@ class TF_ObjectImplExtRef : public TF_ObjectImplBase<BASE, SCHEME_OPTIONS, KEY>
 public:
 	virtual ~TF_ObjectImplExtRef() {}
 
-	TF_ObjectImplExtRef(const KEY *pKey = NULL) : m_pKey(pKey) {}
+	TF_ObjectImplExtRef(const KEY *pKey = NULLPTR) : m_pKey(pKey) {}
 	void SetKeyPtr(const KEY *pKey) {m_pKey = pKey;}
 
 	const KEY & GetKey() const {return *m_pKey;}
@@ -699,7 +699,7 @@ public:
 	CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "MGF1";}
 	void GenerateAndMask(HashTransformation &hash, byte *output, size_t outputLength, const byte *input, size_t inputLength, bool mask = true) const
 	{
-		P1363_MGF1KDF2_Common(hash, output, outputLength, input, inputLength, NULL, 0, mask, 0);
+		P1363_MGF1KDF2_Common(hash, output, outputLength, input, inputLength, NULLPTR, 0, mask, 0);
 	}
 };
 
@@ -1061,7 +1061,7 @@ public:
 template <class T>
 void DL_PublicKey<T>::AssignFrom(const NameValuePairs &source)
 {
-	DL_PrivateKey<T> *pPrivateKey = NULL;
+	DL_PrivateKey<T> *pPrivateKey = NULLPTR;
 	if (source.GetThisPointer(pPrivateKey))
 		pPrivateKey->MakePublicKey(*this);
 	else
@@ -1965,7 +1965,7 @@ public:
 
 			if (params.FastSubgroupCheckAvailable())
 			{
-				if (!params.ValidateElement(2, publicElement, NULL))
+				if (!params.ValidateElement(2, publicElement, NULLPTR))
 					throw DL_BadElement();
 				return params.ExponentiateElement(publicElement, privateExponent);
 			}

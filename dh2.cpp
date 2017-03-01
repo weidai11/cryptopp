@@ -8,7 +8,7 @@ NAMESPACE_BEGIN(CryptoPP)
 #if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
 void DH2_TestInstantiations()
 {
-	DH2 dh(*(SimpleKeyAgreementDomain*)NULL);
+	DH2 dh(*(SimpleKeyAgreementDomain*)NULLPTR);
 }
 #endif
 

@@ -22,7 +22,7 @@ public:
 	virtual size_t MaxDerivedKeyLength() const =0;
 	virtual bool Usesinfo() const =0;
 	//! derive a key from secret
-	virtual unsigned int DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen, const byte *salt, size_t saltLen, const byte* info=NULL, size_t infoLen=0) const =0;
+	virtual unsigned int DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen, const byte *salt, size_t saltLen, const byte* info=NULLPTR, size_t infoLen=0) const =0;
 
 	virtual ~KeyDerivationFunction() {}
 };
@@ -47,7 +47,7 @@ public:
 	unsigned int DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen, const byte *salt, size_t saltLen, const byte* info, size_t infoLen) const;
 
 protected:
-	// If salt is missing (NULL), then use the NULL vector. Missing is different than EMPTY (0 length). The length
+	// If salt is missing (NULLPTR), then use the NULL vector. Missing is different than EMPTY (0 length). The length
 	// of s_NullVector used depends on the Hash function. SHA-256 will use 32 bytes of s_NullVector.
 	typedef byte NullVectorType[SALTSIZE];
 	static const NullVectorType& GetNullVector() {

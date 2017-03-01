@@ -67,7 +67,7 @@ struct SignalHandler
     //!   because the destructor may not run. <tt>setjmp</tt> is why cpu.cpp does not use SignalHandler
     //!   during CPU feature testing.
     //! \since Crypto++ 5.6.5
-    SignalHandler(SignalHandlerFn pfn = NULL, int flags = 0) : m_installed(false)
+    SignalHandler(SignalHandlerFn pfn = NULLPTR, int flags = 0) : m_installed(false)
     {
         // http://pubs.opengroup.org/onlinepubs/007908799/xsh/sigaction.html
         struct sigaction new_handler;

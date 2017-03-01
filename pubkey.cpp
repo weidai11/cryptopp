@@ -30,7 +30,7 @@ bool PK_DeterministicSignatureMessageEncodingMethod::VerifyMessageRepresentative
 	byte *representative, size_t representativeBitLength) const
 {
 	SecByteBlock computedRepresentative(BitsToBytes(representativeBitLength));
-	ComputeMessageRepresentative(NullRNG(), NULL, 0, hash, hashIdentifier, messageEmpty, computedRepresentative, representativeBitLength);
+	ComputeMessageRepresentative(NullRNG(), NULLPTR, 0, hash, hashIdentifier, messageEmpty, computedRepresentative, representativeBitLength);
 	return VerifyBufsEqual(representative, computedRepresentative, computedRepresentative.size());
 }
 
@@ -64,7 +64,7 @@ void TF_SignerBase::InputRecoverableMessage(PK_MessageAccumulator &messageAccumu
 	encoding.ProcessRecoverableMessage(
 		ma.AccessHash(),
 		recoverableMessage, recoverableMessageLength,
-		NULL, 0, ma.m_semisignature);
+		NULLPTR, 0, ma.m_semisignature);
 }
 
 size_t TF_SignerBase::SignAndRestart(RandomNumberGenerator &rng, PK_MessageAccumulator &messageAccumulator, byte *signature, bool restart) const

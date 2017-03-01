@@ -440,7 +440,7 @@ void PanamaHash<B>::TruncatedFinal(byte *hash, size_t size)
 	this->Iterate(32);	// pull
 
 	FixedSizeSecBlock<word32, 8> buf;
-	this->Iterate(1, NULL, buf.BytePtr(), NULL);
+	this->Iterate(1, NULLPTR, buf.BytePtr(), NULLPTR);
 
 	memcpy(hash, buf, size);
 
@@ -479,7 +479,7 @@ void PanamaCipherPolicy<B>::CipherResynchronize(byte *keystreamBuffer, const byt
 
 #if (CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_PANAMA_ASM)
 	if (B::ToEnum() == LITTLE_ENDIAN_ORDER && HasSSE2() && !IsP4())		// SSE2 code is slower on P4 Prescott
-		Panama_SSE2_Pull(32, this->m_state, NULL, NULL);
+		Panama_SSE2_Pull(32, this->m_state, NULLPTR, NULLPTR);
 	else
 #endif
 		this->Iterate(32);
@@ -504,7 +504,7 @@ void PanamaCipherPolicy<B>::OperateKeystream(KeystreamOperation operation, byte 
 		Panama_SSE2_Pull(iterationCount, this->m_state, (word32 *)(void *)output, (const word32 *)(void *)input);
 	else
 #endif
-		this->Iterate(iterationCount, NULL, output, input, operation);
+		this->Iterate(iterationCount, NULLPTR, output, input, operation);
 }
 
 template class Panama<BigEndian>;

@@ -94,7 +94,7 @@ void BenchMark(const char *name, BlockTransformation &cipher, double timeTotal)
 	{
 		blocks *= 2;
 		for (; i<blocks; i++)
-			cipher.ProcessAndXorMultipleBlocks(buf, NULL, buf, nBlocks);
+			cipher.ProcessAndXorMultipleBlocks(buf, NULLPTR, buf, nBlocks);
 		timeTaken = double(clock() - start) / CLOCK_TICKS_PER_SECOND;
 	}
 	while (timeTaken < 2.0/3*timeTotal);
@@ -192,7 +192,7 @@ void BenchMarkKeying(SimpleKeyingInterface &c, size_t keyLength, const NameValue
 }
 
 template <class T_FactoryOutput, class T_Interface>
-void BenchMarkByName2(const char *factoryName, size_t keyLength = 0, const char *displayName=NULL, const NameValuePairs &params = g_nullNameValuePairs)
+void BenchMarkByName2(const char *factoryName, size_t keyLength = 0, const char *displayName=NULLPTR, const NameValuePairs &params = g_nullNameValuePairs)
 {
 	CRYPTOPP_UNUSED(params);
 	std::string name(factoryName ? factoryName : "");
@@ -212,14 +212,14 @@ void BenchMarkByName2(const char *factoryName, size_t keyLength = 0, const char 
 }
 
 template <class T_FactoryOutput>
-void BenchMarkByName(const char *factoryName, size_t keyLength = 0, const char *displayName=NULL, const NameValuePairs &params = g_nullNameValuePairs)
+void BenchMarkByName(const char *factoryName, size_t keyLength = 0, const char *displayName=NULLPTR, const NameValuePairs &params = g_nullNameValuePairs)
 {
 	CRYPTOPP_UNUSED(params);
 	BenchMarkByName2<T_FactoryOutput, T_FactoryOutput>(factoryName, keyLength, displayName, params);
 }
 
 template <class T>
-void BenchMarkByNameKeyLess(const char *factoryName, const char *displayName=NULL, const NameValuePairs &params = g_nullNameValuePairs)
+void BenchMarkByNameKeyLess(const char *factoryName, const char *displayName=NULLPTR, const NameValuePairs &params = g_nullNameValuePairs)
 {
 	CRYPTOPP_UNUSED(params);
 	std::string name = factoryName;
@@ -373,7 +373,7 @@ void BenchmarkAll(double t, double hertz)
 	char timeBuf[64];
 	errno_t err;
 
-	const time_t endTime = time(NULL);
+	const time_t endTime = time(NULLPTR);
 	err = localtime_s(&localTime, &endTime);
 	CRYPTOPP_ASSERT(err == 0);
 	err = asctime_s(timeBuf, sizeof(timeBuf), &localTime);
@@ -381,7 +381,7 @@ void BenchmarkAll(double t, double hertz)
 
 	std::cout << "\nTest ended at " << timeBuf;
 #else
-	const time_t endTime = time(NULL);
+	const time_t endTime = time(NULLPTR);
 	std::cout << "\nTest ended at " << asctime(localtime(&endTime));
 #endif
 #endif

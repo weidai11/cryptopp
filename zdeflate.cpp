@@ -538,7 +538,7 @@ size_t Deflator::Put2(const byte *str, size_t length, int messageEnd, bool block
 		Reset();
 	}
 
-	Output(0, NULL, 0, messageEnd, blocking);
+	Output(0, NULLPTR, 0, messageEnd, blocking);
 	return 0;
 }
 

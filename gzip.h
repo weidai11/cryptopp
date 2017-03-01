@@ -26,13 +26,13 @@ public:
 	//! \details detectUncompressible makes it faster to process uncompressible files, but
 	//!   if a file has both compressible and uncompressible parts, it may fail to compress
 	//!   some of the compressible parts.
-	Gzip(BufferedTransformation *attachment=NULL, unsigned int deflateLevel=DEFAULT_DEFLATE_LEVEL, unsigned int log2WindowSize=DEFAULT_LOG2_WINDOW_SIZE, bool detectUncompressible=true)
+	Gzip(BufferedTransformation *attachment=NULLPTR, unsigned int deflateLevel=DEFAULT_DEFLATE_LEVEL, unsigned int log2WindowSize=DEFAULT_LOG2_WINDOW_SIZE, bool detectUncompressible=true)
 		: Deflator(attachment, deflateLevel, log2WindowSize, detectUncompressible), m_totalLen(0) {}
 	//! \brief Construct a Gzip compressor
 	//! \param parameters a set of NameValuePairs to initialize this object
 	//! \param attachment an attached transformation
 	//! \details Possible parameter names: Log2WindowSize, DeflateLevel, DetectUncompressible
-	Gzip(const NameValuePairs &parameters, BufferedTransformation *attachment=NULL)
+	Gzip(const NameValuePairs &parameters, BufferedTransformation *attachment=NULLPTR)
 		: Deflator(parameters, attachment), m_totalLen(0) {}
 
 protected:
@@ -71,7 +71,7 @@ public:
 	//! \param attachment an attached transformation
 	//! \param repeat decompress multiple compressed streams in series
 	//! \param autoSignalPropagation 0 to turn off MessageEnd signal
-	Gunzip(BufferedTransformation *attachment = NULL, bool repeat = false, int autoSignalPropagation = -1);
+	Gunzip(BufferedTransformation *attachment = NULLPTR, bool repeat = false, int autoSignalPropagation = -1);
 
 protected:
 	enum {

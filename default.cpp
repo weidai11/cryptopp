@@ -78,7 +78,7 @@ static void GenerateKeyIV(const byte *passphrase, size_t passphraseLength, const
 
 template <class BC, class H, class Info>
 DataEncryptor<BC,H,Info>::DataEncryptor(const char *passphrase, BufferedTransformation *attachment)
-	: ProxyFilter(NULL, 0, 0, attachment), m_passphrase((const byte *)passphrase, strlen(passphrase))
+	: ProxyFilter(NULLPTR, 0, 0, attachment), m_passphrase((const byte *)passphrase, strlen(passphrase))
 {
 	CRYPTOPP_COMPILE_ASSERT(SALTLENGTH <= DIGESTSIZE);
 	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE <= DIGESTSIZE);
@@ -86,7 +86,7 @@ DataEncryptor<BC,H,Info>::DataEncryptor(const char *passphrase, BufferedTransfor
 
 template <class BC, class H, class Info>
 DataEncryptor<BC,H,Info>::DataEncryptor(const byte *passphrase, size_t passphraseLength, BufferedTransformation *attachment)
-	: ProxyFilter(NULL, 0, 0, attachment), m_passphrase(passphrase, passphraseLength)
+	: ProxyFilter(NULLPTR, 0, 0, attachment), m_passphrase(passphrase, passphraseLength)
 {
 	CRYPTOPP_COMPILE_ASSERT(SALTLENGTH <= DIGESTSIZE);
 	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE <= DIGESTSIZE);
@@ -100,7 +100,7 @@ void DataEncryptor<BC,H,Info>::FirstPut(const byte *)
 
 	// use hash(passphrase | time | clock) as salt
 	hash.Update(m_passphrase, m_passphrase.size());
-	time_t t=time(0);
+	time_t t=time(NULLPTR);
 	hash.Update((byte *)&t, sizeof(t));
 	clock_t c=clock();
 	hash.Update((byte *)&c, sizeof(c));
@@ -135,7 +135,7 @@ void DataEncryptor<BC,H,Info>::LastPut(const byte *inString, size_t length)
 
 template <class BC, class H, class Info>
 DataDecryptor<BC,H,Info>::DataDecryptor(const char *p, BufferedTransformation *attachment, bool throwException)
-	: ProxyFilter(NULL, SALTLENGTH+BLOCKSIZE, 0, attachment)
+	: ProxyFilter(NULLPTR, SALTLENGTH+BLOCKSIZE, 0, attachment)
 	, m_state(WAITING_FOR_KEYCHECK)
 	, m_passphrase((const byte *)p, strlen(p))
 	, m_throwException(throwException)
@@ -146,7 +146,7 @@ DataDecryptor<BC,H,Info>::DataDecryptor(const char *p, BufferedTransformation *a
 
 template <class BC, class H, class Info>
 DataDecryptor<BC,H,Info>::DataDecryptor(const byte *passphrase, size_t passphraseLength, BufferedTransformation *attachment, bool throwException)
-	: ProxyFilter(NULL, SALTLENGTH+BLOCKSIZE, 0, attachment)
+	: ProxyFilter(NULLPTR, SALTLENGTH+BLOCKSIZE, 0, attachment)
 	, m_state(WAITING_FOR_KEYCHECK)
 	, m_passphrase(passphrase, passphraseLength)
 	, m_throwException(throwException)
@@ -165,7 +165,7 @@ template <class BC, class H, class Info>
 void DataDecryptor<BC,H,Info>::LastPut(const byte *inString, size_t length)
 {
 	CRYPTOPP_UNUSED(inString); CRYPTOPP_UNUSED(length);
-	if (m_filter.get() == NULL)
+	if (m_filter.get() == NULLPTR)
 	{
 		m_state = KEY_BAD;
 		if (m_throwException)
@@ -225,7 +225,7 @@ static MAC* NewDataEncryptorMAC(const byte *passphrase, size_t passphraseLength)
 
 template <class BC, class H, class MAC, class Info>
 DataEncryptorWithMAC<BC,H,MAC,Info>::DataEncryptorWithMAC(const char *passphrase, BufferedTransformation *attachment)
-	: ProxyFilter(NULL, 0, 0, attachment)
+	: ProxyFilter(NULLPTR, 0, 0, attachment)
 	, m_mac(NewDataEncryptorMAC<H,MAC>((const byte *)passphrase, strlen(passphrase)))
 {
 	SetFilter(new HashFilter(*m_mac, new DataEncryptor<BC,H,Info>(passphrase), true));
@@ -233,7 +233,7 @@ DataEncryptorWithMAC<BC,H,MAC,Info>::DataEncryptorWithMAC(const char *passphrase
 
 template <class BC, class H, class MAC, class Info>
 DataEncryptorWithMAC<BC,H,MAC,Info>::DataEncryptorWithMAC(const byte *passphrase, size_t passphraseLength, BufferedTransformation *attachment)
-	: ProxyFilter(NULL, 0, 0, attachment)
+	: ProxyFilter(NULLPTR, 0, 0, attachment)
 	, m_mac(NewDataEncryptorMAC<H,MAC>(passphrase, passphraseLength))
 {
 	SetFilter(new HashFilter(*m_mac, new DataEncryptor<BC,H,Info>(passphrase, passphraseLength), true));
@@ -250,20 +250,20 @@ void DataEncryptorWithMAC<BC,H,MAC,Info>::LastPut(const byte *inString, size_t l
 
 template <class BC, class H, class MAC, class Info>
 DataDecryptorWithMAC<BC,H,MAC,Info>::DataDecryptorWithMAC(const char *passphrase, BufferedTransformation *attachment, bool throwException)
-	: ProxyFilter(NULL, 0, 0, attachment)
+	: ProxyFilter(NULLPTR, 0, 0, attachment)
 	, m_mac(NewDataEncryptorMAC<H,MAC>((const byte *)passphrase, strlen(passphrase)))
 	, m_throwException(throwException)
 {
-	SetFilter(new DataDecryptor<BC,H,Info>(passphrase, m_hashVerifier=new HashVerificationFilter(*m_mac, NULL, HashVerificationFilter::PUT_MESSAGE), throwException));
+	SetFilter(new DataDecryptor<BC,H,Info>(passphrase, m_hashVerifier=new HashVerificationFilter(*m_mac, NULLPTR, HashVerificationFilter::PUT_MESSAGE), throwException));
 }
 
 template <class BC, class H, class MAC, class Info>
 DataDecryptorWithMAC<BC,H,MAC,Info>::DataDecryptorWithMAC(const byte *passphrase, size_t passphraseLength, BufferedTransformation *attachment, bool throwException)
-	: ProxyFilter(NULL, 0, 0, attachment)
+	: ProxyFilter(NULLPTR, 0, 0, attachment)
 	, m_mac(NewDataEncryptorMAC<H,MAC>(passphrase, passphraseLength))
 	, m_throwException(throwException)
 {
-	SetFilter(new DataDecryptor<BC,H,Info>(passphrase, passphraseLength, m_hashVerifier=new HashVerificationFilter(*m_mac, NULL, HashVerificationFilter::PUT_MESSAGE), throwException));
+	SetFilter(new DataDecryptor<BC,H,Info>(passphrase, passphraseLength, m_hashVerifier=new HashVerificationFilter(*m_mac, NULLPTR, HashVerificationFilter::PUT_MESSAGE), throwException));
 }
 
 template <class BC, class H, class MAC, class Info>

@@ -44,7 +44,7 @@ public:
 	//! \brief Construct a Filter
 	//! \param attachment an optional attached transformation
 	//! \details attachment can be \p NULL.
-	Filter(BufferedTransformation *attachment = NULL);
+	Filter(BufferedTransformation *attachment = NULLPTR);
 
 	//! \brief Determine if attachable
 	//! \returns \p true if the object allows attached transformations, \p false otherwise.
@@ -63,7 +63,7 @@ public:
 	//! \param newAttachment an optional attached transformation
 	//! \details newAttachment can be a single filter, a chain of filters or \p NULL.
 	//!    Pass \p NULL to remove an existing BufferedTransformation or chain of filters
-	void Detach(BufferedTransformation *newAttachment = NULL);
+	void Detach(BufferedTransformation *newAttachment = NULLPTR);
 
 	//@}
 
@@ -227,10 +227,10 @@ public:
 	//! \param transparent flag indicating if the filter should function transparently
 	//! \details \p attachment can be \p NULL. The filter is transparent by default. If the filter is
 	//!   transparent, then PutMaybeModifiable() does not process a request and always returns 0.
-	MeterFilter(BufferedTransformation *attachment=NULL, bool transparent=true)
+	MeterFilter(BufferedTransformation *attachment=NULLPTR, bool transparent=true)
 		: m_transparent(transparent), m_currentMessageBytes(0), m_totalBytes(0)
 		, m_currentSeriesMessages(0), m_totalMessages(0), m_totalMessageSeries(0)
-		, m_begin(NULL), m_length(0) {Detach(attachment); ResetMeter();}
+		, m_begin(NULLPTR), m_length(0) {Detach(attachment); ResetMeter();}
 
 	//! \brief Set or change the transparent mode of this object
 	//! \param transparent the new transparent mode
@@ -293,7 +293,7 @@ class CRYPTOPP_DLL TransparentFilter : public MeterFilter
 public:
 	//! \brief Construct a TransparentFilter
 	//! \param attachment an optional attached transformation
-	TransparentFilter(BufferedTransformation *attachment=NULL) : MeterFilter(attachment, true) {}
+	TransparentFilter(BufferedTransformation *attachment=NULLPTR) : MeterFilter(attachment, true) {}
 };
 
 //! \class OpaqueFilter
@@ -304,7 +304,7 @@ class CRYPTOPP_DLL OpaqueFilter : public MeterFilter
 public:
 	//! \brief Construct an OpaqueFilter
 	//! \param attachment an optional attached transformation
-	OpaqueFilter(BufferedTransformation *attachment=NULL) : MeterFilter(attachment, false) {}
+	OpaqueFilter(BufferedTransformation *attachment=NULLPTR) : MeterFilter(attachment, false) {}
 };
 
 //! \class FilterWithBufferedInput
@@ -436,7 +436,7 @@ public:
 
 	//! \brief Construct a FilterWithInputQueue
 	//! \param attachment an optional attached transformation
-	FilterWithInputQueue(BufferedTransformation *attachment=NULL) : Filter(attachment) {}
+	FilterWithInputQueue(BufferedTransformation *attachment=NULLPTR) : Filter(attachment) {}
 
 	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
 	{
@@ -447,7 +447,7 @@ public:
 		if (messageEnd)
 		{
 			IsolatedMessageEnd(blocking);
-			Output(0, NULL, 0, messageEnd, blocking);
+			Output(0, NULLPTR, 0, messageEnd, blocking);
 		}
 		return 0;
 	}
@@ -511,7 +511,7 @@ public:
 	//! \param attachment an optional attached transformation
 	//! \param padding the \ref BlockPaddingSchemeDef "padding scheme"
 	//! \param allowAuthenticatedSymmetricCipher flag indicating whether the filter should allow authenticated encryption schemes
-	StreamTransformationFilter(StreamTransformation &c, BufferedTransformation *attachment = NULL, BlockPaddingScheme padding = DEFAULT_PADDING, bool allowAuthenticatedSymmetricCipher = false);
+	StreamTransformationFilter(StreamTransformation &c, BufferedTransformation *attachment = NULLPTR, BlockPaddingScheme padding = DEFAULT_PADDING, bool allowAuthenticatedSymmetricCipher = false);
 
 	std::string AlgorithmName() const {return m_cipher.AlgorithmName();}
 
@@ -544,7 +544,7 @@ public:
 	//! \param truncatedDigestSize the size of the digest
 	//! \param messagePutChannel the channel on which the message should be output
 	//! \param hashPutChannel the channel on which the digest should be output
-	HashFilter(HashTransformation &hm, BufferedTransformation *attachment = NULL, bool putMessage=false, int truncatedDigestSize=-1, const std::string &messagePutChannel=DEFAULT_CHANNEL, const std::string &hashPutChannel=DEFAULT_CHANNEL);
+	HashFilter(HashTransformation &hm, BufferedTransformation *attachment = NULLPTR, bool putMessage=false, int truncatedDigestSize=-1, const std::string &messagePutChannel=DEFAULT_CHANNEL, const std::string &hashPutChannel=DEFAULT_CHANNEL);
 
 	std::string AlgorithmName() const {return m_hashModule.AlgorithmName();}
 	void IsolatedInitialize(const NameValuePairs &parameters);
@@ -602,7 +602,7 @@ public:
 	//! \param flags flags indicating behaviors for the filter
 	//! \param truncatedDigestSize the size of the digest
 	//! \details <tt>truncatedDigestSize = -1</tt> indicates \ref HashTransformation::DigestSize() "DigestSize" should be used.
-	HashVerificationFilter(HashTransformation &hm, BufferedTransformation *attachment = NULL, word32 flags = DEFAULT_FLAGS, int truncatedDigestSize=-1);
+	HashVerificationFilter(HashTransformation &hm, BufferedTransformation *attachment = NULLPTR, word32 flags = DEFAULT_FLAGS, int truncatedDigestSize=-1);
 
 	std::string AlgorithmName() const {return m_hashModule.AlgorithmName();}
 	bool GetLastResult() const {return m_verified;}
@@ -643,7 +643,7 @@ public:
 	//! \param padding the \ref BlockPaddingSchemeDef "padding scheme"
 	//! \details <tt>truncatedDigestSize = -1</tt> indicates \ref HashTransformation::DigestSize() "DigestSize" should be used.
 	//! \since Crypto++ 5.6.0
-	AuthenticatedEncryptionFilter(AuthenticatedSymmetricCipher &c, BufferedTransformation *attachment = NULL, bool putAAD=false, int truncatedDigestSize=-1, const std::string &macChannel=DEFAULT_CHANNEL, BlockPaddingScheme padding = DEFAULT_PADDING);
+	AuthenticatedEncryptionFilter(AuthenticatedSymmetricCipher &c, BufferedTransformation *attachment = NULLPTR, bool putAAD=false, int truncatedDigestSize=-1, const std::string &macChannel=DEFAULT_CHANNEL, BlockPaddingScheme padding = DEFAULT_PADDING);
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
 	byte * ChannelCreatePutSpace(const std::string &channel, size_t &size);
@@ -699,7 +699,7 @@ public:
 	//! \details Additional authenticated data should be given in channel "AAD".
 	//! \details <tt>truncatedDigestSize = -1</tt> indicates \ref HashTransformation::DigestSize() "DigestSize" should be used.
 	//! \since Crypto++ 5.6.0
-	AuthenticatedDecryptionFilter(AuthenticatedSymmetricCipher &c, BufferedTransformation *attachment = NULL, word32 flags = DEFAULT_FLAGS, int truncatedDigestSize=-1, BlockPaddingScheme padding = DEFAULT_PADDING);
+	AuthenticatedDecryptionFilter(AuthenticatedSymmetricCipher &c, BufferedTransformation *attachment = NULLPTR, word32 flags = DEFAULT_FLAGS, int truncatedDigestSize=-1, BlockPaddingScheme padding = DEFAULT_PADDING);
 
 	std::string AlgorithmName() const {return m_hashVerifier.AlgorithmName();}
 	byte * ChannelCreatePutSpace(const std::string &channel, size_t &size);
@@ -740,7 +740,7 @@ public:
 	//! \param signer a PK_Signer derived class
 	//! \param attachment an optional attached transformation
 	//! \param putMessage flag indicating whether the original message should be passed to an attached transformation
-	SignerFilter(RandomNumberGenerator &rng, const PK_Signer &signer, BufferedTransformation *attachment = NULL, bool putMessage=false)
+	SignerFilter(RandomNumberGenerator &rng, const PK_Signer &signer, BufferedTransformation *attachment = NULLPTR, bool putMessage=false)
 		: m_rng(rng), m_signer(signer), m_messageAccumulator(signer.NewSignatureAccumulator(rng)), m_putMessage(putMessage) {Detach(attachment);}
 
 	std::string AlgorithmName() const {return m_signer.AlgorithmName();}
@@ -797,7 +797,7 @@ public:
 	//! \param verifier a PK_Verifier derived class
 	//! \param attachment an optional attached transformation
 	//! \param flags flags indicating behaviors for the filter
-	SignatureVerificationFilter(const PK_Verifier &verifier, BufferedTransformation *attachment = NULL, word32 flags = DEFAULT_FLAGS);
+	SignatureVerificationFilter(const PK_Verifier &verifier, BufferedTransformation *attachment = NULLPTR, word32 flags = DEFAULT_FLAGS);
 
 	std::string AlgorithmName() const {return m_verifier.AlgorithmName();}
 
@@ -843,7 +843,7 @@ public:
 	virtual ~Redirector() {}
 
 	//! \brief Construct a Redirector
-	Redirector() : m_target(NULL), m_behavior(PASS_EVERYTHING) {}
+	Redirector() : m_target(NULLPTR), m_behavior(PASS_EVERYTHING) {}
 
 	//! \brief Construct a Redirector
 	//! \param target the destination BufferedTransformation
@@ -855,7 +855,7 @@ public:
 	//! \param target the destination BufferedTransformation
 	void Redirect(BufferedTransformation &target) {m_target = &target;}
 	//! \brief Stop redirecting input
-	void StopRedirection() {m_target = NULL;}
+	void StopRedirection() {m_target = NULLPTR;}
 
 	Behavior GetBehavior() {return (Behavior) m_behavior;}
 	void SetBehavior(Behavior behavior) {m_behavior=behavior;}
@@ -875,7 +875,7 @@ public:
 		else
 		{
 			size = 0;
-			return NULL;
+			return NULLPTR;
 		}
 	}
 	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
@@ -892,7 +892,7 @@ public:
 		else
 		{
 			size = 0;
-			return NULL;
+			return NULLPTR;
 		}
 	}
 	size_t ChannelPut2(const std::string &channel, const byte *begin, size_t length, int messageEnd, bool blocking)
@@ -1032,7 +1032,7 @@ public:
 	//! \param rng a RandomNumberGenerator derived class
 	//! \param encryptor a PK_Encryptor derived class
 	//! \param attachment an optional attached transformation
-	PK_EncryptorFilter(RandomNumberGenerator &rng, const PK_Encryptor &encryptor, BufferedTransformation *attachment = NULL)
+	PK_EncryptorFilter(RandomNumberGenerator &rng, const PK_Encryptor &encryptor, BufferedTransformation *attachment = NULLPTR)
 		: SimpleProxyFilter(encryptor.CreateEncryptionFilter(rng), attachment) {}
 };
 
@@ -1048,7 +1048,7 @@ public:
 	//! \param rng a RandomNumberGenerator derived class
 	//! \param decryptor a PK_Decryptor derived class
 	//! \param attachment an optional attached transformation
-	PK_DecryptorFilter(RandomNumberGenerator &rng, const PK_Decryptor &decryptor, BufferedTransformation *attachment = NULL)
+	PK_DecryptorFilter(RandomNumberGenerator &rng, const PK_Decryptor &decryptor, BufferedTransformation *attachment = NULLPTR)
 		: SimpleProxyFilter(decryptor.CreateDecryptionFilter(rng), attachment) {}
 };
 
@@ -1106,7 +1106,7 @@ public:
 
 	//! \brief Construct a RandomNumberSink
 	RandomNumberSink()
-		: m_rng(NULL) {}
+		: m_rng(NULLPTR) {}
 
 	//! \brief Construct a RandomNumberSink
 	//! \param rng a RandomNumberGenerator derived class
@@ -1132,7 +1132,7 @@ public:
 	//! \param parameters a set of NameValuePairs to initialize this object
 	//! \details Name::OutputBuffer() is a mandatory parameter using this constructor.
 	ArraySink(const NameValuePairs &parameters = g_nullNameValuePairs)
-		: m_buf(NULL), m_size(0), m_total(0) {IsolatedInitialize(parameters);}
+		: m_buf(NULLPTR), m_size(0), m_total(0) {IsolatedInitialize(parameters);}
 
 	//! \brief Construct an ArraySink
 	//! \param buf pointer to a memory buffer
@@ -1184,7 +1184,7 @@ class StringStore : public Store
 public:
 	//! \brief Construct a StringStore
 	//! \param string pointer to a C-String
-	StringStore(const char *string = NULL)
+	StringStore(const char *string = NULLPTR)
 		{StoreInitialize(MakeParameters("InputBuffer", ConstByteArrayParameter(string)));}
 
 	//! \brief Construct a StringStore
@@ -1218,7 +1218,7 @@ public:
 	virtual ~RandomNumberStore() {}
 
 	RandomNumberStore()
-		: m_rng(NULL), m_length(0), m_count(0) {}
+		: m_rng(NULLPTR), m_length(0), m_count(0) {}
 
 	RandomNumberStore(RandomNumberGenerator &rng, lword length)
 		: m_rng(&rng), m_length(length), m_count(0) {}
@@ -1274,7 +1274,7 @@ public:
 
 	//! \brief Construct a Source
 	//! \param attachment an optional attached transformation
-	Source(BufferedTransformation *attachment = NULL)
+	Source(BufferedTransformation *attachment = NULLPTR)
 		{Source::Detach(attachment);}
 
 	//!	\name PIPELINE
@@ -1378,14 +1378,14 @@ class CRYPTOPP_DLL StringSource : public SourceTemplate<StringStore>
 public:
 	//! \brief Construct a StringSource
 	//! \param attachment an optional attached transformation
-	StringSource(BufferedTransformation *attachment = NULL)
+	StringSource(BufferedTransformation *attachment = NULLPTR)
 		: SourceTemplate<StringStore>(attachment) {}
 
 	//! \brief Construct a StringSource
 	//! \param string C-String
 	//! \param pumpAll flag indicating if source data should be pumped to its attached transformation
 	//! \param attachment an optional attached transformation
-	StringSource(const char *string, bool pumpAll, BufferedTransformation *attachment = NULL)
+	StringSource(const char *string, bool pumpAll, BufferedTransformation *attachment = NULLPTR)
 		: SourceTemplate<StringStore>(attachment) {SourceInitialize(pumpAll, MakeParameters("InputBuffer", ConstByteArrayParameter(string)));}
 
 	//! \brief Construct a StringSource
@@ -1393,14 +1393,14 @@ public:
 	//! \param length size of the byte array
 	//! \param pumpAll flag indicating if source data should be pumped to its attached transformation
 	//! \param attachment an optional attached transformation
-	StringSource(const byte *string, size_t length, bool pumpAll, BufferedTransformation *attachment = NULL)
+	StringSource(const byte *string, size_t length, bool pumpAll, BufferedTransformation *attachment = NULLPTR)
 		: SourceTemplate<StringStore>(attachment) {SourceInitialize(pumpAll, MakeParameters("InputBuffer", ConstByteArrayParameter(string, length)));}
 
 	//! \brief Construct a StringSource
 	//! \param string std::string
 	//! \param pumpAll flag indicating if source data should be pumped to its attached transformation
 	//! \param attachment an optional attached transformation
-	StringSource(const std::string &string, bool pumpAll, BufferedTransformation *attachment = NULL)
+	StringSource(const std::string &string, bool pumpAll, BufferedTransformation *attachment = NULLPTR)
 		: SourceTemplate<StringStore>(attachment) {SourceInitialize(pumpAll, MakeParameters("InputBuffer", ConstByteArrayParameter(string)));}
 };
 
@@ -1416,7 +1416,7 @@ DOCUMENTED_TYPEDEF(StringSource, ArraySource);
 class CRYPTOPP_DLL RandomNumberSource : public SourceTemplate<RandomNumberStore>
 {
 public:
-	RandomNumberSource(RandomNumberGenerator &rng, int length, bool pumpAll, BufferedTransformation *attachment = NULL)
+	RandomNumberSource(RandomNumberGenerator &rng, int length, bool pumpAll, BufferedTransformation *attachment = NULLPTR)
 		: SourceTemplate<RandomNumberStore>(attachment)
 		{SourceInitialize(pumpAll, MakeParameters("RandomNumberGeneratorPointer", &rng)("RandomNumberStoreSize", length));}
 };

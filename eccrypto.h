@@ -117,7 +117,7 @@ public:
 		Point result;
 		if (!GetCurve().DecodePoint(result, encoded, GetEncodedElementSize(true)))
 			throw DL_BadElement();
-		if (checkForGroupMembership && !ValidateElement(1, result, NULL))
+		if (checkForGroupMembership && !ValidateElement(1, result, NULLPTR))
 			throw DL_BadElement();
 		return result;
 	}
@@ -526,7 +526,7 @@ public:
 
 	virtual void AssignFrom(const NameValuePairs &source)
 	{
-		DL_PrivateKey_ECGDSA_ISO15946<EC> *pPrivateKey = NULL;
+		DL_PrivateKey_ECGDSA_ISO15946<EC> *pPrivateKey = NULLPTR;
 		if (source.GetThisPointer(pPrivateKey))
 			pPrivateKey->MakePublicKey(*this);
 		else

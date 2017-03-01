@@ -40,7 +40,7 @@ public:
 	TestFailure() : Exception(OTHER_ERROR, "Validation test failed") {}
 };
 
-static const TestData *s_currentTestData = NULL;
+static const TestData *s_currentTestData = NULLPTR;
 
 static void OutputTestData(const TestData &v)
 {
@@ -251,7 +251,7 @@ void TestSignatureScheme(TestData &v)
 
 		if (test == "Verify" || test == "NotVerify")
 		{
-			SignatureVerificationFilter verifierFilter(*verifier, NULL, SignatureVerificationFilter::SIGNATURE_AT_BEGIN);
+			SignatureVerificationFilter verifierFilter(*verifier, NULLPTR, SignatureVerificationFilter::SIGNATURE_AT_BEGIN);
 			PutDecodedDatumInto(v, "Signature", verifierFilter);
 			PutDecodedDatumInto(v, "Message", verifierFilter);
 			verifierFilter.MessageEnd();
@@ -275,7 +275,7 @@ void TestSignatureScheme(TestData &v)
 	if (test == "GenerateKey" || test == "KeyPairValidAndConsistent")
 	{
 		TestKeyPairValidAndConsistent(verifier->AccessMaterial(), signer->GetMaterial());
-		SignatureVerificationFilter verifierFilter(*verifier, NULL, SignatureVerificationFilter::THROW_EXCEPTION);
+		SignatureVerificationFilter verifierFilter(*verifier, NULLPTR, SignatureVerificationFilter::THROW_EXCEPTION);
 		verifierFilter.Put((const byte *)"abc", 3);
 		StringSource ss("abc", true, new SignerFilter(Test::GlobalRNG(), *signer, new Redirector(verifierFilter)));
 	}
@@ -579,7 +579,7 @@ void TestDigestOrMAC(TestData &v, bool testDigest)
 
 	member_ptr<MessageAuthenticationCode> mac;
 	member_ptr<HashTransformation> hash;
-	HashTransformation *pHash = NULL;
+	HashTransformation *pHash = NULLPTR;
 
 	TestDataNameValuePairs pairs(v);
 
@@ -601,7 +601,7 @@ void TestDigestOrMAC(TestData &v, bool testDigest)
 		int digestSize = -1;
 		if (test == "VerifyTruncated")
 			digestSize = pairs.GetIntValueWithDefault(Name::DigestSize(), digestSize);
-		HashVerificationFilter verifierFilter(*pHash, NULL, HashVerificationFilter::HASH_AT_BEGIN, digestSize);
+		HashVerificationFilter verifierFilter(*pHash, NULLPTR, HashVerificationFilter::HASH_AT_BEGIN, digestSize);
 		PutDecodedDatumInto(v, digestName, verifierFilter);
 		PutDecodedDatumInto(v, "Message", verifierFilter);
 		verifierFilter.MessageEnd();

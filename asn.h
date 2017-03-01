@@ -220,7 +220,7 @@ public:
 	//! \param attachment a BufferedTrasformation to attach to this object
 	//! \param nObjects
 	//! \param flags bitwise OR of EncodedObjectFilter::Flag
-	EncodedObjectFilter(BufferedTransformation *attachment = NULL, unsigned int nObjects = 1, word32 flags = 0);
+	EncodedObjectFilter(BufferedTransformation *attachment = NULLPTR, unsigned int nObjects = 1, word32 flags = 0);
 
 	//! \brief Input a byte buffer for processing
 	//! \param inString the byte buffer to process
@@ -361,7 +361,7 @@ public:
 	//! \param out BufferedTransformation object
 	void DEREncode(BufferedTransformation &out)
 	{
-		if (this->get() != NULL)
+		if (this->get() != NULLPTR)
 			this->get()->DEREncode(out);
 	}
 };

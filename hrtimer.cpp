@@ -97,7 +97,7 @@ TimerWord Timer::GetCurrentTimerValue()
 	return now.QuadPart;
 #elif defined(CRYPTOPP_UNIX_AVAILABLE)
 	timeval now;
-	gettimeofday(&now, NULL);
+	gettimeofday(&now, NULLPTR);
 	return (TimerWord)now.tv_sec * 1000000 + now.tv_usec;
 #else
 	// clock_t now;

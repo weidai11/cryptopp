@@ -744,7 +744,7 @@ bool TestSecBlock()
 
 	{
 		// NULL ptr with a size means to create a new SecBlock with all elements zero'd
-		SecByteBlock z1(NULL, 256);
+		SecByteBlock z1(NULLPTR, 256);
 		temp = true;
 
 		for (size_t i = 0; i < z1.size(); i++)
@@ -757,7 +757,7 @@ bool TestSecBlock()
 			std::cout << "passed:  ";
 		std::cout << "Zeroized byte array" << std::endl;
 
-		SecBlock<word32> z2(NULL, 256);
+		SecBlock<word32> z2(NULLPTR, 256);
 		temp = true;
 
 		for (size_t i = 0; i < z2.size(); i++)
@@ -770,7 +770,7 @@ bool TestSecBlock()
 			std::cout << "passed:  ";
 		std::cout << "Zeroized word32 array" << std::endl;
 
-		SecBlock<word64> z3(NULL, 256);
+		SecBlock<word64> z3(NULLPTR, 256);
 		temp = true;
 
 		for (size_t i = 0; i < z3.size(); i++)
@@ -784,7 +784,7 @@ bool TestSecBlock()
 		std::cout << "Zeroized word64 array" << std::endl;
 
 #if defined(CRYPTOPP_WORD128_AVAILABLE)
-		SecBlock<word128> z4(NULL, 256);
+		SecBlock<word128> z4(NULLPTR, 256);
 		temp = true;
 
 		for (size_t i = 0; i < z4.size(); i++)
@@ -802,17 +802,17 @@ bool TestSecBlock()
 	//********** Non-zero'd block **********//
 
 	{
-		SecByteBlock z1(NULL, 256);
+		SecByteBlock z1(NULLPTR, 256);
 		z1.SetMark(0);
 
-		SecBlock<word32> z2(NULL, 256);
+		SecBlock<word32> z2(NULLPTR, 256);
 		z2.SetMark(0);
 
-		SecBlock<word64> z3(NULL, 256);
+		SecBlock<word64> z3(NULLPTR, 256);
 		z3.SetMark(0);
 
 #if defined(CRYPTOPP_WORD128_AVAILABLE)
-		SecBlock<word128> z4(NULL, 256);
+		SecBlock<word128> z4(NULLPTR, 256);
 		z4.SetMark(0);
 #endif
 	}

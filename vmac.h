@@ -44,7 +44,7 @@ protected:
 	void HashEndianCorrectedBlock(const word64 *data);
 	size_t HashMultipleBlocks(const word64 *input, size_t length);
 	void Init() {}
-	word64* StateBuf() {return NULL;}
+	word64* StateBuf() {return NULLPTR;}
 	word64* DataBuf() {return (word64 *)(void*)m_data();}
 
 	void VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWord64, int tagPart);

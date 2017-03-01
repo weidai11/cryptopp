@@ -12,9 +12,9 @@ NAMESPACE_BEGIN(CryptoPP)
 class ZlibCompressor : public Deflator
 {
 public:
-	ZlibCompressor(BufferedTransformation *attachment=NULL, unsigned int deflateLevel=DEFAULT_DEFLATE_LEVEL, unsigned int log2WindowSize=DEFAULT_LOG2_WINDOW_SIZE, bool detectUncompressible=true)
+	ZlibCompressor(BufferedTransformation *attachment=NULLPTR, unsigned int deflateLevel=DEFAULT_DEFLATE_LEVEL, unsigned int log2WindowSize=DEFAULT_LOG2_WINDOW_SIZE, bool detectUncompressible=true)
 		: Deflator(attachment, deflateLevel, log2WindowSize, detectUncompressible) {}
-	ZlibCompressor(const NameValuePairs &parameters, BufferedTransformation *attachment=NULL)
+	ZlibCompressor(const NameValuePairs &parameters, BufferedTransformation *attachment=NULLPTR)
 		: Deflator(parameters, attachment) {}
 
 	unsigned int GetCompressionLevel() const;
@@ -41,7 +41,7 @@ public:
 	//! \param attachment a \ BufferedTransformation to attach to this object
 	//! \param repeat decompress multiple compressed streams in series
 	//! \param autoSignalPropagation 0 to turn off MessageEnd signal
-	ZlibDecompressor(BufferedTransformation *attachment = NULL, bool repeat = false, int autoSignalPropagation = -1);
+	ZlibDecompressor(BufferedTransformation *attachment = NULLPTR, bool repeat = false, int autoSignalPropagation = -1);
 	unsigned int GetLog2WindowSize() const {return m_log2WindowSize;}
 
 private:

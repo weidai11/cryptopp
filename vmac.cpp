@@ -76,7 +76,7 @@ void VMAC_Base::UncheckedSetKey(const byte *userKey, unsigned int keylength, con
 
 	/* Fill nh key */
 	in[0] = 0x80;
-	cipher.AdvancedProcessBlocks(in, NULL, (byte *)m_nhKey(), m_nhKeySize()*sizeof(word64), cipher.BT_InBlockIsCounter);
+	cipher.AdvancedProcessBlocks(in, NULLPTR, (byte *)m_nhKey(), m_nhKeySize()*sizeof(word64), cipher.BT_InBlockIsCounter);
 	ConditionalByteReverse<word64>(BIG_ENDIAN_ORDER, m_nhKey(), m_nhKey(), m_nhKeySize()*sizeof(word64));
 
 	/* Fill poly key */

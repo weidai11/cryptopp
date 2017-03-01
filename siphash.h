@@ -142,7 +142,7 @@ class SipHash : public SipHash_Base<C, D, T_128bit>
 public:
 	//! \brief Create a SipHash
 	SipHash()
-		{this->UncheckedSetKey(NULL, 0, g_nullNameValuePairs);}
+		{this->UncheckedSetKey(NULLPTR, 0, g_nullNameValuePairs);}
 	//! \brief Create a SipHash
 	//! \param key a byte array used to key the cipher
 	//! \param length the size of the byte array, in bytes

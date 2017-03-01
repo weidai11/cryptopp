@@ -279,9 +279,9 @@ size_t SecretSharing::Put2(const byte *begin, size_t length, int messageEnd, boo
 			while (m_ida.InputBuffered(0xffffffff) > 0)
 				SecretSharing::Put(0);
 		}
-		m_ida.ChannelData(0xffffffff, NULL, 0, true);
+		m_ida.ChannelData(0xffffffff, NULLPTR, 0, true);
 		for (unsigned int i=0; i<m_ida.GetThreshold()-1; i++)
-			m_ida.ChannelData(i, NULL, 0, true);
+			m_ida.ChannelData(i, NULLPTR, 0, true);
 	}
 
 	return 0;
@@ -342,7 +342,7 @@ size_t InformationDispersal::Put2(const byte *begin, size_t length, int messageE
 		if (m_pad)
 			InformationDispersal::Put(1);
 		for (word32 i=0; i<m_ida.GetThreshold(); i++)
-			m_ida.ChannelData(i, NULL, 0, true);
+			m_ida.ChannelData(i, NULLPTR, 0, true);
 	}
 
 	return 0;

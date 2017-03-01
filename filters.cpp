@@ -35,14 +35,14 @@ BufferedTransformation * Filter::NewDefaultAttachment() const
 
 BufferedTransformation * Filter::AttachedTransformation()
 {
-	if (m_attachment.get() == NULL)
+	if (m_attachment.get() == NULLPTR)
 		m_attachment.reset(NewDefaultAttachment());
 	return m_attachment.get();
 }
 
 const BufferedTransformation *Filter::AttachedTransformation() const
 {
-	if (m_attachment.get() == NULL)
+	if (m_attachment.get() == NULLPTR)
 		const_cast<Filter *>(this)->m_attachment.reset(NewDefaultAttachment());
 	return m_attachment.get();
 }
@@ -270,7 +270,7 @@ byte *FilterWithBufferedInput::BlockQueue::GetBlock()
 		return ptr;
 	}
 	else
-		return NULL;
+		return NULLPTR;
 }
 
 byte *FilterWithBufferedInput::BlockQueue::GetContigousBlocks(size_t &numberOfBytes)
@@ -423,7 +423,7 @@ size_t FilterWithBufferedInput::PutMaybeModifiable(byte *inString, size_t length
 	if (messageEnd)
 	{
 		if (!m_firstInputDone && m_firstSize==0)
-			FirstPut(NULL);
+			FirstPut(NULLPTR);
 
 		SecByteBlock temp(m_queue.CurrentSize());
 		m_queue.GetAll(temp);
@@ -433,7 +433,7 @@ size_t FilterWithBufferedInput::PutMaybeModifiable(byte *inString, size_t length
 		m_queue.ResetQueue(1, m_firstSize);
 
 		// Cast to void to suppress Coverity finding
-		(void)Output(1, NULL, 0, messageEnd, blocking);
+		(void)Output(1, NULLPTR, 0, messageEnd, blocking);
 	}
 	return 0;
 }
@@ -472,7 +472,7 @@ void FilterWithBufferedInput::NextPutMultiple(const byte *inString, size_t lengt
 
 void Redirector::Initialize(const NameValuePairs &parameters, int propagation)
 {
-	m_target = parameters.GetValueWithDefault("RedirectionTargetPointer", (BufferedTransformation*)NULL);
+	m_target = parameters.GetValueWithDefault("RedirectionTargetPointer", (BufferedTransformation*)NULLPTR);
 	m_behavior = parameters.GetIntValueWithDefault("RedirectionBehavior", PASS_EVERYTHING);
 
 	if (m_target && GetPassSignals())
@@ -585,7 +585,7 @@ StreamTransformationFilter::StreamTransformationFilter(StreamTransformation &c, 
 {
 	CRYPTOPP_ASSERT(c.MinLastBlockSize() == 0 || c.MinLastBlockSize() > c.MandatoryBlockSize());
 
-	if (!allowAuthenticatedSymmetricCipher && dynamic_cast<AuthenticatedSymmetricCipher *>(&c) != 0)
+	if (!allowAuthenticatedSymmetricCipher && dynamic_cast<AuthenticatedSymmetricCipher *>(&c) != NULLPTR)
 		throw InvalidArgument("StreamTransformationFilter: please use AuthenticatedEncryptionFilter and AuthenticatedDecryptionFilter for AuthenticatedSymmetricCipher");
 
 	IsolatedInitialize(MakeParameters(Name::BlockPaddingScheme(), padding));
@@ -661,7 +661,7 @@ void StreamTransformationFilter::NextPutModifiable(byte *inString, size_t length
 
 void StreamTransformationFilter::LastPut(const byte *inString, size_t length)
 {
-	byte *space = NULL;
+	byte *space = NULLPTR;
 
 	switch (m_padding)
 	{
@@ -768,7 +768,7 @@ void StreamTransformationFilter::LastPut(const byte *inString, size_t length)
 // *************************************************************
 
 HashFilter::HashFilter(HashTransformation &hm, BufferedTransformation *attachment, bool putMessage, int truncatedDigestSize, const std::string &messagePutChannel, const std::string &hashPutChannel)
-	: m_hashModule(hm), m_putMessage(putMessage), m_digestSize(0), m_space(NULL)
+	: m_hashModule(hm), m_putMessage(putMessage), m_digestSize(0), m_space(NULLPTR)
 	, m_messagePutChannel(messagePutChannel), m_hashPutChannel(hashPutChannel)
 {
 	m_digestSize = truncatedDigestSize < 0 ? m_hashModule.DigestSize() : truncatedDigestSize;

@@ -902,7 +902,7 @@ GF2NP * BERDecodeGF2NP(BufferedTransformation &bt)
 			else
 			{
 				BERDecodeError();
-				return NULL;
+				return NULLPTR;
 			}
 		parameters.MessageEnd();
 	seq.MessageEnd();

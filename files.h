@@ -35,16 +35,16 @@ public:
 	class ReadErr : public Err {public: ReadErr() : Err("FileStore: error reading file") {}};
 
 	//! \brief Construct a FileStore
-	FileStore() : m_stream(NULL), m_space(NULL), m_len(0), m_waiting(0) {}
+	FileStore() : m_stream(NULLPTR), m_space(NULLPTR), m_len(0), m_waiting(0) {}
 
 	//! \brief Construct a FileStore
 	//! \param in an existing stream
-	FileStore(std::istream &in) : m_stream(NULL), m_space(NULL), m_len(0), m_waiting(0)
+	FileStore(std::istream &in) : m_stream(NULLPTR), m_space(NULLPTR), m_len(0), m_waiting(0)
 		{StoreInitialize(MakeParameters(Name::InputStreamPointer(), &in));}
 
 	//! \brief Construct a FileStore
 	//! \param filename the narrow name of the file to open
-	FileStore(const char *filename) : m_stream(NULL), m_space(NULL), m_len(0), m_waiting(0)
+	FileStore(const char *filename) : m_stream(NULLPTR), m_space(NULLPTR), m_len(0), m_waiting(0)
 		{StoreInitialize(MakeParameters(Name::InputFileName(), filename ? filename : ""));}
 
 #if defined(CRYPTOPP_UNIX_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING) || _MSC_VER >= 1400
@@ -85,14 +85,14 @@ public:
 	typedef FileStore::ReadErr ReadErr;
 
 	//! \brief Construct a FileSource
-	FileSource(BufferedTransformation *attachment = NULL)
+	FileSource(BufferedTransformation *attachment = NULLPTR)
 		: SourceTemplate<FileStore>(attachment) {}
 
 	//! \brief Construct a FileSource
 	//! \param in an existing stream
 	//! \param pumpAll flag indicating if source data should be pumped to its attached transformation
 	//! \param attachment an optional attached transformation
-	FileSource(std::istream &in, bool pumpAll, BufferedTransformation *attachment = NULL)
+	FileSource(std::istream &in, bool pumpAll, BufferedTransformation *attachment = NULLPTR)
 		: SourceTemplate<FileStore>(attachment) {SourceInitialize(pumpAll, MakeParameters(Name::InputStreamPointer(), &in));}
 
 	//! \brief Construct a FileSource
@@ -100,7 +100,7 @@ public:
 	//! \param pumpAll flag indicating if source data should be pumped to its attached transformation
 	//! \param attachment an optional attached transformation
 	//! \param binary flag indicating if the file is binary
-	FileSource(const char *filename, bool pumpAll, BufferedTransformation *attachment = NULL, bool binary=true)
+	FileSource(const char *filename, bool pumpAll, BufferedTransformation *attachment = NULLPTR, bool binary=true)
 		: SourceTemplate<FileStore>(attachment) {SourceInitialize(pumpAll, MakeParameters(Name::InputFileName(), filename)(Name::InputBinaryMode(), binary));}
 
 #if defined(CRYPTOPP_UNIX_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING) || _MSC_VER >= 1400
@@ -110,7 +110,7 @@ public:
 	//! \param attachment an optional attached transformation
 	//! \param binary flag indicating if the file is binary
 	//! \details On non-Windows OS, this function assumes that setlocale() has been called.
-	FileSource(const wchar_t *filename, bool pumpAll, BufferedTransformation *attachment = NULL, bool binary=true)
+	FileSource(const wchar_t *filename, bool pumpAll, BufferedTransformation *attachment = NULLPTR, bool binary=true)
 		: SourceTemplate<FileStore>(attachment) {SourceInitialize(pumpAll, MakeParameters(Name::InputFileNameWide(), filename)(Name::InputBinaryMode(), binary));}
 #endif
 
@@ -137,7 +137,7 @@ public:
 	class WriteErr : public Err {public: WriteErr() : Err("FileSink: error writing file") {}};
 
 	//! \brief Construct a FileSink
-	FileSink() : m_stream(NULL) {}
+	FileSink() : m_stream(NULLPTR) {}
 
 	//! \brief Construct a FileSink
 	//! \param out an existing stream

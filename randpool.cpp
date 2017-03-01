@@ -46,7 +46,7 @@ void RandomPool::GenerateIntoBufferedTransformation(BufferedTransformation &targ
 		TimerWord tw = timer.GetCurrentTimerValue();
 
 		*(TimerWord *)(void*)m_seed.data() += tw;
-		time_t t = time(NULL);
+		time_t t = time(NULLPTR);
 
 		// UBsan finding: signed integer overflow: 1876017710 + 1446085457 cannot be represented in type 'long int'
 		// *(time_t *)(m_seed.data()+8) += t;

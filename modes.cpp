@@ -90,7 +90,7 @@ void OFB_ModePolicy::WriteKeystream(byte *keystreamBuffer, size_t iterationCount
 	unsigned int s = BlockSize();
 	m_cipher->ProcessBlock(m_register, keystreamBuffer);
 	if (iterationCount > 1)
-		m_cipher->AdvancedProcessBlocks(keystreamBuffer, NULL, keystreamBuffer+s, s*(iterationCount-1), 0);
+		m_cipher->AdvancedProcessBlocks(keystreamBuffer, NULLPTR, keystreamBuffer+s, s*(iterationCount-1), 0);
 	memcpy(m_register, keystreamBuffer+s*(iterationCount-1), s);
 }
 
@@ -169,7 +169,7 @@ void BlockOrientedCipherModeBase::ResizeBuffers()
 void ECB_OneWay::ProcessData(byte *outString, const byte *inString, size_t length)
 {
 	CRYPTOPP_ASSERT(length%BlockSize()==0);
-	m_cipher->AdvancedProcessBlocks(inString, NULL, outString, length, BlockTransformation::BT_AllowParallel);
+	m_cipher->AdvancedProcessBlocks(inString, NULLPTR, outString, length, BlockTransformation::BT_AllowParallel);
 }
 
 void CBC_Encryption::ProcessData(byte *outString, const byte *inString, size_t length)

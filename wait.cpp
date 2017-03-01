@@ -248,8 +248,8 @@ void WaitObjectContainer::CreateThreads(unsigned int count)
 	size_t currentCount = m_threads.size();
 	if (currentCount == 0)
 	{
-		m_startWaiting = ::CreateEvent(NULL, TRUE, FALSE, NULL);
-		m_stopWaiting = ::CreateEvent(NULL, TRUE, FALSE, NULL);
+		m_startWaiting = ::CreateEvent(NULLPTR, TRUE, FALSE, NULLPTR);
+		m_stopWaiting = ::CreateEvent(NULLPTR, TRUE, FALSE, NULLPTR);
 	}
 
 	if (currentCount < count)
@@ -266,7 +266,7 @@ void WaitObjectContainer::CreateThreads(unsigned int count)
 			thread.startWaiting = m_startWaiting;
 			thread.stopWaiting = m_stopWaiting;
 			thread.waitingToWait = false;
-			thread.threadHandle = CreateThread(NULL, 0, &WaitingThread, &thread, 0, &thread.threadId);
+			thread.threadHandle = CreateThread(NULLPTR, 0, &WaitingThread, &thread, 0, &thread.threadId);
 		}
 	}
 }
@@ -434,7 +434,7 @@ bool WaitObjectContainer::Wait(unsigned long milliseconds)
 	timeval tv, *timeout;
 
 	if (milliseconds == INFINITE_TIME)
-		timeout = NULL;
+		timeout = NULLPTR;
 	else
 	{
 		tv.tv_sec = milliseconds / 1000;
@@ -442,7 +442,7 @@ bool WaitObjectContainer::Wait(unsigned long milliseconds)
 		timeout = &tv;
 	}
 
-	int result = select(m_maxFd+1, &m_readfds, &m_writefds, NULL, timeout);
+	int result = select(m_maxFd+1, &m_readfds, &m_writefds, NULLPTR, timeout);
 
 	if (result > 0)
 		return true;

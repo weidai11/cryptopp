@@ -113,7 +113,7 @@ void FIPS140_GenerateRandomFiles();
 bool Validate(int, bool, const char *);
 void PrintSeedAndThreads(const std::string& seed);
 
-int (*AdhocTest)(int argc, char *argv[]) = NULL;
+int (*AdhocTest)(int argc, char *argv[]) = NULLPTR;
 
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(Test)
@@ -153,7 +153,7 @@ int CRYPTOPP_API main(int argc, char *argv[])
 		RegisterFactories();
 
 		// Some editors have problems with the '\0' character when redirecting output.
-		std::string seed = IntToString(time(NULL));
+		std::string seed = IntToString(time(NULLPTR));
 		seed.resize(16, ' ');
 
 		// Fetch the SymmetricCipher interface, not the RandomNumberGenerator interface, to key the underlying cipher
@@ -366,7 +366,7 @@ int CRYPTOPP_API main(int argc, char *argv[])
 		else if (command == "ir")
 			InformationRecoverFile(argc-3, argv[2], argv+3);
 		else if (command == "v" || command == "vv")
-			return !Validate(argc>2 ? Test::StringToValue<int, true>(argv[2]) : 0, argv[1][1] == 'v', argc>3 ? argv[3] : NULL);
+			return !Validate(argc>2 ? Test::StringToValue<int, true>(argv[2]) : 0, argv[1][1] == 'v', argc>3 ? argv[3] : NULLPTR);
 		else if (command == "b")
 			Test::BenchmarkAll(argc<3 ? 1 : Test::StringToValue<float, true>(argv[2]), argc<4 ? 0.0f : Test::StringToValue<float, true>(argv[3])*1e9);
 		else if (command == "b2")
@@ -657,7 +657,7 @@ void SecretShareFile(int threshold, int nShares, const char *filename, const cha
 	RandomPool rng;
 	rng.IncorporateEntropy((byte *)seed, strlen(seed));
 
-	ChannelSwitch *channelSwitch = NULL;
+	ChannelSwitch *channelSwitch = NULLPTR;
 	FileSource source(filename, false, new SecretSharing(rng, threshold, nShares, channelSwitch = new ChannelSwitch));
 
 	vector_member_ptrs<FileSink> fileSinks(nShares);
@@ -711,7 +711,7 @@ void InformationDisperseFile(int threshold, int nShares, const char *filename)
 	if (threshold < 1 || threshold > 1000)
 		throw InvalidArgument("InformationDisperseFile: " + IntToString(nShares) + " is not in range [1, 1000]");
 
-	ChannelSwitch *channelSwitch = NULL;
+	ChannelSwitch *channelSwitch = NULLPTR;
 	FileSource source(filename, false, new InformationDispersal(threshold, nShares, channelSwitch = new ChannelSwitch));
 
 	vector_member_ptrs<FileSink> fileSinks(nShares);
@@ -860,8 +860,8 @@ void ForwardTcpPort(const char *sourcePortName, const char *destinationHost, con
 	{
 		waitObjects.Clear();
 
-		out.GetWaitObjects(waitObjects, CallStack("ForwardTcpPort - out", NULL));
-		in.GetWaitObjects(waitObjects, CallStack("ForwardTcpPort - in", NULL));
+		out.GetWaitObjects(waitObjects, CallStack("ForwardTcpPort - out", NULLPTR));
+		in.GetWaitObjects(waitObjects, CallStack("ForwardTcpPort - in", NULLPTR));
 
 		waitObjects.Wait(INFINITE_TIME);
 
@@ -893,7 +893,7 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 
 	// Some editors have problems with the '\0' character when redirecting output.
 	//   seedInput is argv[3] when issuing 'cryptest.exe v all <seed>'
-	std::string seed = (seedInput ? seedInput : IntToString(time(NULL)));
+	std::string seed = (seedInput ? seedInput : IntToString(time(NULLPTR)));
 	seed.resize(16, ' ');
 
 	OFB_Mode<AES>::Encryption& prng = dynamic_cast<OFB_Mode<AES>::Encryption&>(Test::GlobalRNG());
@@ -1007,7 +1007,7 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 	char timeBuf[64];
 	errno_t err;
 
-	const time_t endTime = time(NULL);
+	const time_t endTime = time(NULLPTR);
 	err = localtime_s(&localTime, &endTime);
 	CRYPTOPP_ASSERT(err == 0);
 	err = asctime_s(timeBuf, sizeof(timeBuf), &localTime);
@@ -1015,7 +1015,7 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 
 	std::cout << "\nTest ended at " << timeBuf;
 #else
-	const time_t endTime = time(NULL);
+	const time_t endTime = time(NULLPTR);
 	std::cout << "\nTest ended at " << asctime(localtime(&endTime));
 #endif
 

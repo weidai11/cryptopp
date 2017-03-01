@@ -22,7 +22,7 @@ NAMESPACE_BEGIN(CryptoPP)
 class RawIDA : public AutoSignaling<Unflushable<Multichannel<Filter> > >
 {
 public:
-	RawIDA(BufferedTransformation *attachment=NULL)
+	RawIDA(BufferedTransformation *attachment=NULLPTR)
 		: m_threshold (0), m_channelsReady(0), m_channelsFinished(0)
 			{Detach(attachment);}
 
@@ -72,7 +72,7 @@ class SecretSharing : public CustomFlushPropagation<Filter>
 {
 public:
 	//! \brief Construct a SecretSharing
-	SecretSharing(RandomNumberGenerator &rng, int threshold, int nShares, BufferedTransformation *attachment=NULL, bool addPadding=true)
+	SecretSharing(RandomNumberGenerator &rng, int threshold, int nShares, BufferedTransformation *attachment=NULLPTR, bool addPadding=true)
 		: m_rng(rng), m_ida(new OutputProxy(*this, true))
 	{
 		Detach(attachment);
@@ -98,7 +98,7 @@ class SecretRecovery : public RawIDA
 {
 public:
 	//! \brief Construct a SecretRecovery
-	SecretRecovery(int threshold, BufferedTransformation *attachment=NULL, bool removePadding=true)
+	SecretRecovery(int threshold, BufferedTransformation *attachment=NULLPTR, bool removePadding=true)
 		: RawIDA(attachment)
 		{IsolatedInitialize(MakeParameters("RecoveryThreshold", threshold)("RemovePadding", removePadding));}
 
@@ -122,7 +122,7 @@ class InformationDispersal : public CustomFlushPropagation<Filter>
 {
 public:
 	//! \brief Construct a InformationDispersal
-	InformationDispersal(int threshold, int nShares, BufferedTransformation *attachment=NULL, bool addPadding=true)
+	InformationDispersal(int threshold, int nShares, BufferedTransformation *attachment=NULLPTR, bool addPadding=true)
 		: m_ida(new OutputProxy(*this, true)), m_pad(false), m_nextChannel(0)
 	{
 		Detach(attachment);
@@ -148,7 +148,7 @@ class InformationRecovery : public RawIDA
 {
 public:
 	//! \brief Construct a InformationRecovery
-	InformationRecovery(int threshold, BufferedTransformation *attachment=NULL, bool removePadding=true)
+	InformationRecovery(int threshold, BufferedTransformation *attachment=NULLPTR, bool removePadding=true)
 		: RawIDA(attachment), m_pad(false)
 		{IsolatedInitialize(MakeParameters("RecoveryThreshold", threshold)("RemovePadding", removePadding));}
 
@@ -165,7 +165,7 @@ protected:
 class PaddingRemover : public Unflushable<Filter>
 {
 public:
-	PaddingRemover(BufferedTransformation *attachment=NULL)
+	PaddingRemover(BufferedTransformation *attachment=NULLPTR)
 		: m_possiblePadding(false), m_zeroCount(0) {Detach(attachment);}
 
 	void IsolatedInitialize(const NameValuePairs &parameters)

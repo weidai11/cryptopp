@@ -91,7 +91,7 @@ WindowsPipe::Err::Err(HANDLE s, const std::string& operation, int error)
 WindowsPipeReceiver::WindowsPipeReceiver()
 	: m_lastResult(0), m_resultPending(false), m_eofReceived(false)
 {
-	m_event.AttachHandle(CreateEvent(NULL, true, false, NULL), true);
+	m_event.AttachHandle(CreateEvent(NULLPTR, true, false, NULLPTR), true);
 	CheckAndHandleError("CreateEvent", m_event.HandleValid());
 	memset(&m_overlapped, 0, sizeof(m_overlapped));
 	m_overlapped.hEvent = m_event;
@@ -172,7 +172,7 @@ unsigned int WindowsPipeReceiver::GetReceiveResult()
 WindowsPipeSender::WindowsPipeSender()
 	: m_lastResult(0), m_resultPending(false)
 {
-	m_event.AttachHandle(CreateEvent(NULL, true, false, NULL), true);
+	m_event.AttachHandle(CreateEvent(NULLPTR, true, false, NULLPTR), true);
 	CheckAndHandleError("CreateEvent", m_event.HandleValid());
 	memset(&m_overlapped, 0, sizeof(m_overlapped));
 	m_overlapped.hEvent = m_event;

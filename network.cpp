@@ -134,7 +134,7 @@ size_t NonblockingSource::GeneralPump2(
 		}
 
 		WaitObjectContainer container;
-		LimitedBandwidth::GetWaitObjects(container, CallStack("NonblockingSource::GeneralPump2() - speed limit", 0));
+		LimitedBandwidth::GetWaitObjects(container, CallStack("NonblockingSource::GeneralPump2() - speed limit", NULLPTR));
 		container.Wait((unsigned long)waitTime);
 	}
 
@@ -156,7 +156,7 @@ size_t NonblockingSource::PumpMessages2(unsigned int &messageCount, bool blockin
 
 	if (!m_messageEndSent && SourceExhausted())
 	{
-		RETURN_IF_NONZERO(AttachedTransformation()->Put2(NULL, 0, GetAutoSignalPropagation(), true));
+		RETURN_IF_NONZERO(AttachedTransformation()->Put2(NULLPTR, 0, GetAutoSignalPropagation(), true));
 		m_messageEndSent = true;
 		messageCount = 1;
 	}
@@ -214,7 +214,7 @@ lword NonblockingSink::TimedFlush(unsigned long maxTime, size_t targetSize)
 		}
 
 		WaitObjectContainer container;
-		LimitedBandwidth::GetWaitObjects(container, CallStack("NonblockingSink::TimedFlush() - speed limit", 0));
+		LimitedBandwidth::GetWaitObjects(container, CallStack("NonblockingSink::TimedFlush() - speed limit", NULLPTR));
 		container.Wait((unsigned long)waitTime);
 	}
 
@@ -282,7 +282,7 @@ size_t NetworkSource::DoPump(lword &byteCount, bool blockingOutput, unsigned lon
 			{
 				if (receiver.MustWaitForResult() &&
 					!receiver.Wait(SaturatingSubtract(maxTime, timer.ElapsedTime()),
-						CallStack("NetworkSource::DoPump() - wait receive result", 0)))
+						CallStack("NetworkSource::DoPump() - wait receive result", NULLPTR)))
 					break;
 
 				unsigned int recvResult = receiver.GetReceiveResult();
@@ -302,7 +302,7 @@ size_t NetworkSource::DoPump(lword &byteCount, bool blockingOutput, unsigned lon
 				if (receiver.MustWaitToReceive())
 				{
 					if (!receiver.Wait(SaturatingSubtract(maxTime, timer.ElapsedTime()),
-							CallStack("NetworkSource::DoPump() - wait receive", 0)))
+							CallStack("NetworkSource::DoPump() - wait receive", NULLPTR)))
 						break;
 
 					receiver.Receive(m_buf+m_dataEnd, m_buf.size()-m_dataEnd);
@@ -345,7 +345,7 @@ DoOutput:
 			if (result)
 			{
 				if (t->Wait(SaturatingSubtract(maxTime, timer.ElapsedTime()),
-						CallStack("NetworkSource::DoPump() - wait attachment", 0)))
+						CallStack("NetworkSource::DoPump() - wait attachment", NULLPTR)))
 					goto DoOutput;
 				else
 				{
@@ -492,7 +492,7 @@ lword NetworkSink::DoFlush(unsigned long maxTime, size_t targetSize)
 		{
 			if (sender.MustWaitForResult() &&
 				!sender.Wait(SaturatingSubtract(maxTime, timer.ElapsedTime()),
-					CallStack("NetworkSink::DoFlush() - wait send result", 0)))
+					CallStack("NetworkSink::DoFlush() - wait send result", NULLPTR)))
 				break;
 
 			unsigned int sendResult = sender.GetSendResult();
@@ -508,7 +508,7 @@ lword NetworkSink::DoFlush(unsigned long maxTime, size_t targetSize)
 		}
 
 		unsigned long timeOut = maxTime ? SaturatingSubtract(maxTime, timer.ElapsedTime()) : 0;
-		if (sender.MustWaitToSend() && !sender.Wait(timeOut, CallStack("NetworkSink::DoFlush() - wait send", 0)))
+		if (sender.MustWaitToSend() && !sender.Wait(timeOut, CallStack("NetworkSink::DoFlush() - wait send", NULLPTR)))
 			break;
 
 		size_t contiguousSize = 0;
@@ -538,7 +538,7 @@ lword NetworkSink::DoFlush(unsigned long maxTime, size_t targetSize)
 		while (m_eofState == EOF_PENDING_DELIVERY)
 		{
 			unsigned long timeOut = maxTime ? SaturatingSubtract(maxTime, timer.ElapsedTime()) : 0;
-			if (!sender.Wait(timeOut, CallStack("NetworkSink::DoFlush() - wait EOF", 0)))
+			if (!sender.Wait(timeOut, CallStack("NetworkSink::DoFlush() - wait EOF", NULLPTR)))
 				break;
 
 			if (sender.EofSent())

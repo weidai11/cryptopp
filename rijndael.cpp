@@ -1298,7 +1298,7 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 			return length;
 
 		static const byte *zeros = (const byte*)(Te+256);
-		byte *space = NULL, *originalSpace = const_cast<byte*>(m_aliasBlock.data());
+		byte *space = NULLPTR, *originalSpace = const_cast<byte*>(m_aliasBlock.data());
 
 		// round up to nearest 256 byte boundary
 		space = originalSpace +	(s_aliasBlockSize - (uintptr_t)originalSpace % s_aliasBlockSize) % s_aliasBlockSize;

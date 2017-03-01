@@ -73,7 +73,7 @@ public:
 	}
 
 protected:
-	CipherModeBase() : m_cipher(NULL) {}
+	CipherModeBase() : m_cipher(NULLPTR) {}
 	inline unsigned int BlockSize() const {CRYPTOPP_ASSERT(m_register.size() > 0); return (unsigned int)m_register.size();}
 	virtual void SetFeedbackSize(unsigned int feedbackSize)
 	{
@@ -172,7 +172,7 @@ protected:
 	unsigned int GetBytesPerIteration() const {return BlockSize();}
 	unsigned int GetIterationsToBuffer() const {return m_cipher->OptimalNumberOfParallelBlocks();}
 	void WriteKeystream(byte *buffer, size_t iterationCount)
-		{OperateKeystream(WRITE_KEYSTREAM, buffer, NULL, iterationCount);}
+		{OperateKeystream(WRITE_KEYSTREAM, buffer, NULLPTR, iterationCount);}
 	bool CanOperateKeystream() const {return true;}
 	void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount);
 	void CipherResynchronize(byte *keystreamBuffer, const byte *iv, size_t length);
@@ -250,7 +250,7 @@ protected:
 	void UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params)
 	{
 		CBC_Encryption::UncheckedSetKey(key, length, params);
-		m_stolenIV = params.GetValueWithDefault(Name::StolenIV(), (byte *)NULL);
+		m_stolenIV = params.GetValueWithDefault(Name::StolenIV(), (byte *)NULLPTR);
 	}
 
 	byte *m_stolenIV;

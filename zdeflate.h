@@ -104,12 +104,12 @@ public:
 	//! \details detectUncompressible makes it faster to process uncompressible files, but
 	//!   if a file has both compressible and uncompressible parts, it may fail to compress
 	//!   some of the compressible parts.
-	Deflator(BufferedTransformation *attachment=NULL, int deflateLevel=DEFAULT_DEFLATE_LEVEL, int log2WindowSize=DEFAULT_LOG2_WINDOW_SIZE, bool detectUncompressible=true);
+	Deflator(BufferedTransformation *attachment=NULLPTR, int deflateLevel=DEFAULT_DEFLATE_LEVEL, int log2WindowSize=DEFAULT_LOG2_WINDOW_SIZE, bool detectUncompressible=true);
 	//! \brief Construct a Deflator compressor
 	//! \param parameters a set of NameValuePairs to initialize this object
 	//! \param attachment an attached transformation
 	//! \details Possible parameter names: Log2WindowSize, DeflateLevel, DetectUncompressible
-	Deflator(const NameValuePairs &parameters, BufferedTransformation *attachment=NULL);
+	Deflator(const NameValuePairs &parameters, BufferedTransformation *attachment=NULLPTR);
 
 	//! \brief Sets the deflation level
 	//! \param deflateLevel the level of deflation

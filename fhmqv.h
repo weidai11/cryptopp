@@ -126,7 +126,7 @@ public:
     const byte *staticOtherPublicKey, const byte *ephemeralOtherPublicKey,
     bool validateStaticOtherPublicKey=true) const
   {
-    byte *XX = NULL, *YY = NULL, *AA = NULL, *BB = NULL;
+    byte *XX = NULLPTR, *YY = NULLPTR, *AA = NULLPTR, *BB = NULLPTR;
     size_t xxs = 0, yys = 0, aas = 0, bbs = 0;
 
     // Depending on the role, this will hold either A's or B's static
@@ -177,13 +177,13 @@ public:
       // VerifyPoint to ensure the element is in G*. If the other's PublicKey is
       // requested to be validated, we manually call ValidateElement at level 3.
       Element VV1 = params.DecodeElement(staticOtherPublicKey, false);
-      if(!params.ValidateElement(validateStaticOtherPublicKey ? 3 : 1, VV1, NULL))
+      if(!params.ValidateElement(validateStaticOtherPublicKey ? 3 : 1, VV1, NULLPTR))
         return false;
 
       // DecodeElement calls ValidateElement at level 1. Level 1 only calls
       // VerifyPoint to ensure the element is in G*. Crank it up.
       Element VV2 = params.DecodeElement(ephemeralOtherPublicKey, false);
-      if(!params.ValidateElement(3, VV2, NULL))
+      if(!params.ValidateElement(3, VV2, NULLPTR))
         return false;
 
       const Integer& q = params.GetSubgroupOrder();
@@ -192,10 +192,10 @@ public:
       Integer d, e;
       SecByteBlock dd(len), ee(len);
 
-      Hash(NULL, XX, xxs, YY, yys, AA, aas, BB, bbs, dd.BytePtr(), dd.SizeInBytes());
+      Hash(NULLPTR, XX, xxs, YY, yys, AA, aas, BB, bbs, dd.BytePtr(), dd.SizeInBytes());
       d.Decode(dd.BytePtr(), dd.SizeInBytes());
 
-      Hash(NULL, YY, yys, XX, xxs, AA, aas, BB, bbs, ee.BytePtr(), ee.SizeInBytes());
+      Hash(NULLPTR, YY, yys, XX, xxs, AA, aas, BB, bbs, ee.BytePtr(), ee.SizeInBytes());
       e.Decode(ee.BytePtr(), ee.SizeInBytes());
 
       Element sigma;

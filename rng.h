@@ -62,9 +62,9 @@ public:
 	//!   SecByteBlock key(AES::DEFAULT_KEYLENGTH), seed(AES::BLOCKSIZE);
 	//!   OS_GenerateRandomBlock(false, key, key.size());
 	//!   OS_GenerateRandomBlock(false, seed, seed.size());
-	//!   X917RNG prng(new AES::Encryption(key, AES::DEFAULT_KEYLENGTH), seed, NULL);</pre>
+	//!   X917RNG prng(new AES::Encryption(key, AES::DEFAULT_KEYLENGTH), seed, NULLPTR);</pre>
 	//! \sa AutoSeededX917RNG
-	X917RNG(BlockTransformation *cipher, const byte *seed, const byte *deterministicTimeVector = 0);
+	X917RNG(BlockTransformation *cipher, const byte *seed, const byte *deterministicTimeVector = NULLPTR);
 
 	void GenerateIntoBufferedTransformation(BufferedTransformation &target, const std::string &channel, lword size);
 

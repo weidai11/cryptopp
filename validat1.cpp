@@ -376,7 +376,7 @@ bool TestOS_RNG()
 		MeterFilter meter(new Redirector(TheBitBucket()));
 		RandomNumberSource test(*rng, UINT_MAX, false, new Deflator(new Redirector(meter)));
 		unsigned long total=0, length=0;
-		time_t t = time(NULL), t1 = 0;
+		time_t t = time(NULLPTR), t1 = 0;
 		CRYPTOPP_UNUSED(length);
 
 		// check that it doesn't take too long to generate a reasonable amount of randomness
@@ -384,7 +384,7 @@ bool TestOS_RNG()
 		{
 			test.Pump(1);
 			total += 1;
-			t1 = time(NULL) - t;
+			t1 = time(NULLPTR) - t;
 		}
 
 		if (total < 16)
@@ -401,8 +401,8 @@ bool TestOS_RNG()
 		{
 			// that was fast, are we really blocking?
 			// first exhaust the extropy reserve
-			t = time(NULL);
-			while (time(NULL) - t < 2)
+			t = time(NULLPTR);
+			while (time(NULLPTR) - t < 2)
 			{
 				test.Pump(1);
 				total += 1;
@@ -410,8 +410,8 @@ bool TestOS_RNG()
 
 			// if it generates too many bytes in a certain amount of time,
 			// something's probably wrong
-			t = time(NULL);
-			while (time(NULL) - t < 2)
+			t = time(NULLPTR);
+			while (time(NULLPTR) - t < 2)
 			{
 				test.Pump(1);
 				total += 1;
@@ -424,7 +424,7 @@ bool TestOS_RNG()
 			}
 			else
 				std::cout << "passed:";
-			std::cout << "  it generated " << length << " bytes in " << long(time(NULL) - t) << " seconds" << std::endl;
+			std::cout << "  it generated " << length << " bytes in " << long(time(NULLPTR) - t) << " seconds" << std::endl;
 		}
 #endif
 
@@ -442,7 +442,7 @@ bool TestOS_RNG()
 	else
 		std::cout << "\nNo operating system provided blocking random number generator, skipping test." << std::endl;
 
-	rng.reset(NULL);
+	rng.reset(NULLPTR);
 #ifdef NONBLOCKING_RNG_AVAILABLE
 	try {rng.reset(new NonblockingRng);}
 	catch (OS_RNG_Err &) {}
@@ -678,7 +678,7 @@ bool TestRDRAND()
 	(void)rdrand.AlgorithmName();
 	(void)rdrand.CanIncorporateEntropy();
 	rdrand.SetRetries(rdrand.GetRetries());
-	rdrand.IncorporateEntropy(NULL, 0);
+	rdrand.IncorporateEntropy(NULLPTR, 0);
 
 	if (!(entropy && compress && discard))
 		std::cout.flush();
@@ -757,7 +757,7 @@ bool TestRDSEED()
 	(void)rdseed.AlgorithmName();
 	(void)rdseed.CanIncorporateEntropy();
 	rdseed.SetRetries(rdseed.GetRetries());
-	rdseed.IncorporateEntropy(NULL, 0);
+	rdseed.IncorporateEntropy(NULLPTR, 0);
 
 	if (!(entropy && compress && discard))
 		std::cout.flush();
@@ -1453,13 +1453,13 @@ bool ValidateCipherModes()
 			0x89, 0x3d, 0x51, 0xec, 0x4b, 0x56, 0x3b, 0x53};
 
 		ECB_Mode_ExternalCipher::Encryption modeE(desE);
-		fail = !TestFilter(StreamTransformationFilter(modeE, NULL, StreamTransformationFilter::NO_PADDING).Ref(),
+		fail = !TestFilter(StreamTransformationFilter(modeE, NULLPTR, StreamTransformationFilter::NO_PADDING).Ref(),
 			plain, sizeof(plain), encrypted, sizeof(encrypted));
 		pass = pass && !fail;
 		std::cout << (fail ? "FAILED   " : "passed   ") << "ECB encryption" << std::endl;
 
 		ECB_Mode_ExternalCipher::Decryption modeD(desD);
-		fail = !TestFilter(StreamTransformationFilter(modeD, NULL, StreamTransformationFilter::NO_PADDING).Ref(),
+		fail = !TestFilter(StreamTransformationFilter(modeD, NULLPTR, StreamTransformationFilter::NO_PADDING).Ref(),
 			encrypted, sizeof(encrypted), plain, sizeof(plain));
 		pass = pass && !fail;
 		std::cout << (fail ? "FAILED   " : "passed   ") << "ECB decryption" << std::endl;
@@ -1472,13 +1472,13 @@ bool ValidateCipherModes()
 			0x68, 0x37, 0x88, 0x49, 0x9A, 0x7C, 0x05, 0xF6};
 
 		CBC_Mode_ExternalCipher::Encryption modeE(desE, iv);
-		fail = !TestFilter(StreamTransformationFilter(modeE, NULL, StreamTransformationFilter::NO_PADDING).Ref(),
+		fail = !TestFilter(StreamTransformationFilter(modeE, NULLPTR, StreamTransformationFilter::NO_PADDING).Ref(),
 			plain, sizeof(plain), encrypted, sizeof(encrypted));
 		pass = pass && !fail;
 		std::cout << (fail ? "FAILED   " : "passed   ") << "CBC encryption with no padding" << std::endl;
 
 		CBC_Mode_ExternalCipher::Decryption modeD(desD, iv);
-		fail = !TestFilter(StreamTransformationFilter(modeD, NULL, StreamTransformationFilter::NO_PADDING).Ref(),
+		fail = !TestFilter(StreamTransformationFilter(modeD, NULLPTR, StreamTransformationFilter::NO_PADDING).Ref(),
 			encrypted, sizeof(encrypted), plain, sizeof(plain));
 		pass = pass && !fail;
 		std::cout << (fail ? "FAILED   " : "passed   ") << "CBC decryption with no padding" << std::endl;
@@ -1518,13 +1518,13 @@ bool ValidateCipherModes()
 			0xcf, 0xb7, 0xc7, 0x64, 0x0e, 0x7c, 0xd9, 0xa7};
 
 		CBC_Mode_ExternalCipher::Encryption modeE(desE, iv);
-		fail = !TestFilter(StreamTransformationFilter(modeE, NULL, StreamTransformationFilter::ONE_AND_ZEROS_PADDING).Ref(),
+		fail = !TestFilter(StreamTransformationFilter(modeE, NULLPTR, StreamTransformationFilter::ONE_AND_ZEROS_PADDING).Ref(),
 			plain, sizeof(plain), encrypted, sizeof(encrypted));
 		pass = pass && !fail;
 		std::cout << (fail ? "FAILED   " : "passed   ") << "CBC encryption with one-and-zeros padding" << std::endl;
 
 		CBC_Mode_ExternalCipher::Decryption modeD(desD, iv);
-		fail = !TestFilter(StreamTransformationFilter(modeD, NULL, StreamTransformationFilter::ONE_AND_ZEROS_PADDING).Ref(),
+		fail = !TestFilter(StreamTransformationFilter(modeD, NULLPTR, StreamTransformationFilter::ONE_AND_ZEROS_PADDING).Ref(),
 			encrypted, sizeof(encrypted), plain, sizeof(plain));
 		pass = pass && !fail;
 		std::cout << (fail ? "FAILED   " : "passed   ") << "CBC decryption with one-and-zeros padding" << std::endl;
@@ -1536,13 +1536,13 @@ bool ValidateCipherModes()
 			0x9B, 0x47, 0x57, 0x59, 0xD6, 0x9C, 0xF6, 0xD0};
 
 		CBC_Mode_ExternalCipher::Encryption modeE(desE, iv);
-		fail = !TestFilter(StreamTransformationFilter(modeE, NULL, StreamTransformationFilter::ZEROS_PADDING).Ref(),
+		fail = !TestFilter(StreamTransformationFilter(modeE, NULLPTR, StreamTransformationFilter::ZEROS_PADDING).Ref(),
 			plain_1, 1, encrypted, sizeof(encrypted));
 		pass = pass && !fail;
 		std::cout << (fail ? "FAILED   " : "passed   ") << "CBC encryption with zeros padding" << std::endl;
 
 		CBC_Mode_ExternalCipher::Decryption modeD(desD, iv);
-		fail = !TestFilter(StreamTransformationFilter(modeD, NULL, StreamTransformationFilter::ZEROS_PADDING).Ref(),
+		fail = !TestFilter(StreamTransformationFilter(modeD, NULLPTR, StreamTransformationFilter::ZEROS_PADDING).Ref(),
 			encrypted, sizeof(encrypted), plain_1, sizeof(plain_1));
 		pass = pass && !fail;
 		std::cout << (fail ? "FAILED   " : "passed   ") << "CBC decryption with zeros padding" << std::endl;

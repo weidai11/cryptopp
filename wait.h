@@ -178,7 +178,7 @@ public:
 
 	static unsigned int MaxWaitObjects();
 
-	WaitObjectContainer(WaitObjectsTracer* tracer = 0);
+	WaitObjectContainer(WaitObjectsTracer* tracer = NULLPTR);
 
 	void Clear();
 	void SetNoWait(CallStack const& callStack);

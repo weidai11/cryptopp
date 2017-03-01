@@ -309,7 +309,7 @@ size_t Inflator::Put2(const byte *inString, size_t length, int messageEnd, bool 
 		if (!(m_state == PRE_STREAM || m_state == AFTER_END))
 			throw UnexpectedEndErr();
 
-	Output(0, NULL, 0, messageEnd, blocking);
+	Output(0, NULLPTR, 0, messageEnd, blocking);
 	return 0;
 }
 
@@ -359,7 +359,7 @@ void Inflator::ProcessInput(bool flush)
 				return;
 			ProcessPoststreamTail();
 			m_state = m_repeat ? PRE_STREAM : AFTER_END;
-			Output(0, NULL, 0, GetAutoSignalPropagation(), true);	// TODO: non-blocking
+			Output(0, NULLPTR, 0, GetAutoSignalPropagation(), true);	// TODO: non-blocking
 			if (m_inQueue.IsEmpty())
 				return;
 			break;

@@ -133,7 +133,7 @@ struct CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AdditiveCipherAbstractPolicy
 	//! \param iterationCount the number of iterations to generate the key stream
 	//! \sa CanOperateKeystream(), OperateKeystream(), WriteKeystream()
 	virtual void WriteKeystream(byte *keystream, size_t iterationCount)
-		{OperateKeystream(KeystreamOperation(INPUT_NULL | (KeystreamOperationFlags)IsAlignedOn(keystream, GetAlignment())), keystream, NULL, iterationCount);}
+		{OperateKeystream(KeystreamOperation(INPUT_NULL | (KeystreamOperationFlags)IsAlignedOn(keystream, GetAlignment())), keystream, NULLPTR, iterationCount);}
 
 	//! \brief Flag indicating
 	//! \returns true if the stream can be generated independent of the transformation input, false otherwise
@@ -423,7 +423,7 @@ struct CRYPTOPP_NO_VTABLE CFB_CipherConcretePolicy : public BASE
 	bool CanIterate() const {return true;}
 
 	//! \brief Perform one iteration in the forward direction
-	void TransformRegister() {this->Iterate(NULL, NULL, ENCRYPTION, 1);}
+	void TransformRegister() {this->Iterate(NULLPTR, NULLPTR, ENCRYPTION, 1);}
 
 	//! \brief
 	//! \tparam B enumeration indicating endianness
@@ -449,9 +449,9 @@ struct CRYPTOPP_NO_VTABLE CFB_CipherConcretePolicy : public BASE
 
 			if (m_dir == ENCRYPTION)
 			{
-				if (m_input == NULL)
+				if (m_input == NULLPTR)
 				{
-					CRYPTOPP_ASSERT(m_output == NULL);
+					CRYPTOPP_ASSERT(m_output == NULLPTR);
 				}
 				else
 				{

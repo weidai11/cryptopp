@@ -35,7 +35,7 @@ ThreadLocalStorage::ThreadLocalStorage()
 		throw Err("TlsAlloc", GetLastError());
 #else
 	m_index = 0;
-	int error = pthread_key_create(&m_index, NULL);
+	int error = pthread_key_create(&m_index, NULLPTR);
 	CRYPTOPP_ASSERT(!error);
 	if (error)
 		throw Err("pthread_key_create", error);

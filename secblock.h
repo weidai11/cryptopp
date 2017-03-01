@@ -124,7 +124,7 @@ typename A::pointer StandardReallocate(A& alloc, T *oldPtr, typename A::size_typ
 
 	if (preserve)
 	{
-		typename A::pointer newPointer = alloc.allocate(newSize, NULL);
+		typename A::pointer newPointer = alloc.allocate(newSize, NULLPTR);
 		const size_t copySize = STDMIN(oldSize, newSize) * sizeof(T);
 
 		if (oldPtr && newPointer) {memcpy_s(newPointer, copySize, oldPtr, copySize);}
@@ -134,7 +134,7 @@ typename A::pointer StandardReallocate(A& alloc, T *oldPtr, typename A::size_typ
 	else
 	{
 		alloc.deallocate(oldPtr, oldSize);
-		return alloc.allocate(newSize, NULL);
+		return alloc.allocate(newSize, NULLPTR);
 	}
 }
 
@@ -168,12 +168,12 @@ public:
 	//! \sa CallNewHandler() for the methods used to recover from a failed
 	//!   allocation attempt.
 	//! \note size is the count of elements, and not the number of bytes
-	pointer allocate(size_type size, const void *ptr = NULL)
+	pointer allocate(size_type size, const void *ptr = NULLPTR)
 	{
-		CRYPTOPP_UNUSED(ptr); CRYPTOPP_ASSERT(ptr == NULL);
+		CRYPTOPP_UNUSED(ptr); CRYPTOPP_ASSERT(ptr == NULLPTR);
 		this->CheckSize(size);
 		if (size == 0)
-			return NULL;
+			return NULLPTR;
 
 #if CRYPTOPP_BOOL_ALIGN16
 		// TODO: should this need the test 'size*sizeof(T) >= 16'?
@@ -291,10 +291,10 @@ public:
 	// TODO: should this return NULL or throw bad_alloc? Non-Windows C++ standard
 	// libraries always throw. And late mode Windows throws. Early model Windows
 	// (circa VC++ 6.0) returned NULL.
-	pointer allocate(size_type n, const void* unused = NULL)
+	pointer allocate(size_type n, const void* unused = NULLPTR)
 	{
 		CRYPTOPP_UNUSED(n); CRYPTOPP_UNUSED(unused);
-		CRYPTOPP_ASSERT(false); return NULL;
+		CRYPTOPP_ASSERT(false); return NULLPTR;
 	}
 
 	void deallocate(void *p, size_type n)
@@ -453,7 +453,7 @@ public:
 			return oldPtr;
 		}
 
-		pointer newPointer = allocate(newSize, NULL);
+		pointer newPointer = allocate(newSize, NULLPTR);
 		if (preserve && newSize)
 		{
 			const size_t copySize = STDMIN(oldSize, newSize);
@@ -498,13 +498,13 @@ public:
 	//! \details The elements are not initialized.
 	//! \note size is the count of elements, and not the number of bytes
 	explicit SecBlock(size_type size=0)
-		: m_mark(SIZE_MAX/sizeof(T)), m_size(size), m_ptr(m_alloc.allocate(size, NULL)) { }
+		: m_mark(SIZE_MAX/sizeof(T)), m_size(size), m_ptr(m_alloc.allocate(size, NULLPTR)) { }
 
 	//! \brief Copy construct a SecBlock from another SecBlock
 	//! \param t the other SecBlock
 	//! \throws std::bad_alloc
 	SecBlock(const SecBlock<T, A> &t)
-		: m_mark(t.m_mark), m_size(t.m_size), m_ptr(m_alloc.allocate(t.m_size, NULL)) {
+		: m_mark(t.m_mark), m_size(t.m_size), m_ptr(m_alloc.allocate(t.m_size, NULLPTR)) {
 			CRYPTOPP_ASSERT((!t.m_ptr && !m_size) || (t.m_ptr && m_size));
 			if (t.m_ptr) {memcpy_s(m_ptr, m_size*sizeof(T), t.m_ptr, t.m_size*sizeof(T));}
 		}
@@ -518,7 +518,7 @@ public:
 	//!    Otherwise, the block is empty and not initialized.
 	//! \note size is the count of elements, and not the number of bytes
 	SecBlock(const T *ptr, size_type len)
-		: m_mark(SIZE_MAX/sizeof(T)), m_size(len), m_ptr(m_alloc.allocate(len, NULL)) {
+		: m_mark(SIZE_MAX/sizeof(T)), m_size(len), m_ptr(m_alloc.allocate(len, NULLPTR)) {
 			CRYPTOPP_ASSERT((!m_ptr && !m_size) || (m_ptr && m_size));
 			if (ptr && m_ptr)
 				memcpy_s(m_ptr, m_size*sizeof(T), ptr, len*sizeof(T));

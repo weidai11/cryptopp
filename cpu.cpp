@@ -94,7 +94,7 @@ bool CpuId(word32 input, word32 output[4])
 
 # ifndef __MINGW32__
 	volatile sigset_t oldMask;
-	if (sigprocmask(0, NULL, (sigset_t*)&oldMask))
+	if (sigprocmask(0, NULLPTR, (sigset_t*)&oldMask))
 		return false;
 # endif
 
@@ -118,7 +118,7 @@ bool CpuId(word32 input, word32 output[4])
 	}
 
 # ifndef __MINGW32__
-	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULL);
+	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
 # endif
 
 	signal(SIGILL, oldHandler);
@@ -159,7 +159,7 @@ static bool TrySSE2()
 
 # ifndef __MINGW32__
 	volatile sigset_t oldMask;
-	if (sigprocmask(0, NULL, (sigset_t*)&oldMask))
+	if (sigprocmask(0, NULLPTR, (sigset_t*)&oldMask))
 		return false;
 # endif
 
@@ -176,7 +176,7 @@ static bool TrySSE2()
 	}
 
 # ifndef __MINGW32__
-	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULL);
+	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
 # endif
 
 	signal(SIGILL, oldHandler);
@@ -406,7 +406,7 @@ static bool TryNEON()
 		return false;
 
 	volatile sigset_t oldMask;
-	if (sigprocmask(0, NULL, (sigset_t*)&oldMask))
+	if (sigprocmask(0, NULLPTR, (sigset_t*)&oldMask))
 		return false;
 
 	if (setjmp(s_jmpNoNEON))
@@ -429,7 +429,7 @@ static bool TryNEON()
 		result = !!(vgetq_lane_u32(x3,0) | vgetq_lane_u64(x4,1));
 	}
 
-	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULL);
+	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
 	signal(SIGILL, oldHandler);
 	return result;
 # endif
@@ -474,7 +474,7 @@ static bool TryPMULL()
 		return false;
 
 	volatile sigset_t oldMask;
-	if (sigprocmask(0, NULL, (sigset_t*)&oldMask))
+	if (sigprocmask(0, NULLPTR, (sigset_t*)&oldMask))
 		return false;
 
 	if (setjmp(s_jmpNoPMULL))
@@ -496,7 +496,7 @@ static bool TryPMULL()
 		            vgetq_lane_u64(t2,0) == 0x6c006c006c006c00 && vgetq_lane_u64(t2,1) == 0x6c006c006c006c00);
 	}
 
-	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULL);
+	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
 	signal(SIGILL, oldHandler);
 	return result;
 # endif
@@ -534,7 +534,7 @@ static bool TryCRC32()
 		return false;
 
 	volatile sigset_t oldMask;
-	if (sigprocmask(0, NULL, (sigset_t*)&oldMask))
+	if (sigprocmask(0, NULLPTR, (sigset_t*)&oldMask))
 		return false;
 
 	if (setjmp(s_jmpNoCRC32))
@@ -550,7 +550,7 @@ static bool TryCRC32()
 		result = !!w;
 	}
 
-	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULL);
+	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
 	signal(SIGILL, oldHandler);
 	return result;
 # endif
@@ -588,7 +588,7 @@ static bool TryAES()
 		return false;
 
 	volatile sigset_t oldMask;
-	if (sigprocmask(0, NULL, (sigset_t*)&oldMask))
+	if (sigprocmask(0, NULLPTR, (sigset_t*)&oldMask))
 		return false;
 
 	if (setjmp(s_jmpNoAES))
@@ -603,7 +603,7 @@ static bool TryAES()
 		result = !!(vgetq_lane_u8(r1,0) | vgetq_lane_u8(r2,7));
 	}
 
-	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULL);
+	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
 	signal(SIGILL, oldHandler);
 	return result;
 # endif
@@ -644,7 +644,7 @@ static bool TrySHA1()
 		return false;
 
 	volatile sigset_t oldMask;
-	if (sigprocmask(0, NULL, (sigset_t*)&oldMask))
+	if (sigprocmask(0, NULLPTR, (sigset_t*)&oldMask))
 		return false;
 
 	if (setjmp(s_jmpNoSHA1))
@@ -663,7 +663,7 @@ static bool TrySHA1()
 		result = !!(vgetq_lane_u32(r1,0) | vgetq_lane_u32(r2,1) | vgetq_lane_u32(r3,2) | vgetq_lane_u32(r4,3) | vgetq_lane_u32(r5,0));
 	}
 
-	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULL);
+	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
 	signal(SIGILL, oldHandler);
 	return result;
 # endif
@@ -703,7 +703,7 @@ static bool TrySHA2()
 		return false;
 
 	volatile sigset_t oldMask;
-	if (sigprocmask(0, NULL, (sigset_t*)&oldMask))
+	if (sigprocmask(0, NULLPTR, (sigset_t*)&oldMask))
 		return false;
 
 	if (setjmp(s_jmpNoSHA2))
@@ -721,7 +721,7 @@ static bool TrySHA2()
 		result = !!(vgetq_lane_u32(r1,0) | vgetq_lane_u32(r2,1) | vgetq_lane_u32(r3,2) | vgetq_lane_u32(r4,3));
 	}
 
-	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULL);
+	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
 	signal(SIGILL, oldHandler);
 	return result;
 # endif

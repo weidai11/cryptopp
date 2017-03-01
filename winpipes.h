@@ -109,7 +109,7 @@ private:
 class WindowsPipeSource : public WindowsHandle, public NetworkSource, public WindowsPipeReceiver
 {
 public:
-	WindowsPipeSource(HANDLE h=INVALID_HANDLE_VALUE, bool pumpAll=false, BufferedTransformation *attachment=NULL)
+	WindowsPipeSource(HANDLE h=INVALID_HANDLE_VALUE, bool pumpAll=false, BufferedTransformation *attachment=NULLPTR)
 		: WindowsHandle(h), NetworkSource(attachment)
 	{
 		if (pumpAll)

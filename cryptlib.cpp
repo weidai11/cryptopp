@@ -163,7 +163,7 @@ const byte * SimpleKeyingInterface::GetIVAndThrowIfInvalid(const NameValuePairs 
 	{
 		ThrowIfResynchronizable();
 		size = 0;
-		return NULL;
+		return NULLPTR;
 	}
 }
 
@@ -392,7 +392,7 @@ public:
 	void Shuffle (IT begin, IT end) {}
 
 private:
-	Clonable* Clone () const { return NULL; }
+	Clonable* Clone () const { return NULLPTR; }
 #endif
 };
 

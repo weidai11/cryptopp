@@ -86,7 +86,7 @@ int inet_pton(int af, const char *src, void *dst)
 
 
 	int size = sizeof(ss);
-	if (WSAStringToAddress(temp, af, NULL, (struct sockaddr *)&ss, &size) == 0) {
+	if (WSAStringToAddress(temp, af, NULLPTR, (struct sockaddr *)&ss, &size) == 0) {
 		switch (af) {
 		case AF_INET:
 			*(struct in_addr *)dst = ((struct sockaddr_in *)&ss)->sin_addr;
@@ -160,7 +160,7 @@ void Socket::CloseSocket()
 	{
 #ifdef USE_WINDOWS_STYLE_SOCKETS
 # if defined(USE_WINDOWS8_API)
-		BOOL result = CancelIoEx((HANDLE) m_s, NULL);
+		BOOL result = CancelIoEx((HANDLE) m_s, NULLPTR);
 		CRYPTOPP_ASSERT(result || (!result && GetLastError() == ERROR_NOT_FOUND));
 		CheckAndHandleError_int("closesocket", closesocket(m_s));
 		CRYPTOPP_UNUSED(result);	// Used by CRYPTOPP_ASSERT in debug builds
@@ -184,7 +184,7 @@ void Socket::Bind(unsigned int port, const char *addr)
 	memset(&sa, 0, sizeof(sa));
 	sa.sin_family = AF_INET;
 
-	if (addr == NULL)
+	if (addr == NULLPTR)
 		sa.sin_addr.s_addr = htonl(INADDR_ANY);
 	else
 	{
@@ -218,7 +218,7 @@ void Socket::Listen(int backlog)
 
 bool Socket::Connect(const char *addr, unsigned int port)
 {
-	CRYPTOPP_ASSERT(addr != NULL);
+	CRYPTOPP_ASSERT(addr != NULLPTR);
 
 	sockaddr_in sa;
 	memset(&sa, 0, sizeof(sa));
@@ -230,13 +230,13 @@ bool Socket::Connect(const char *addr, unsigned int port)
 
 	if (sa.sin_addr.s_addr == INADDR_NONE)
 	{
-		addrinfo hints, *result = NULL;
+		addrinfo hints, *result = NULLPTR;
 		memset(&hints, 0, sizeof(hints));
 
 		hints.ai_socktype = SOCK_STREAM;
 		hints.ai_family = AF_INET;
 
-		if (getaddrinfo(addr, NULL, &hints, &result) != 0 || result == NULL)
+		if (getaddrinfo(addr, NULLPTR, &hints, &result) != 0 || result == NULLPTR)
 		{
 			freeaddrinfo(result);
 			SetLastError(SOCKET_EINVAL);
@@ -331,12 +331,12 @@ bool Socket::SendReady(const timeval *timeout)
 #endif
 
 	int ready;
-	if (timeout == NULL)
-		ready = select((int)m_s+1, NULL, &fds, NULL, NULL);
+	if (timeout == NULLPTR)
+		ready = select((int)m_s+1, NULLPTR, &fds, NULLPTR, NULLPTR);
 	else
 	{
 		timeval timeoutCopy = *timeout;	// select() modified timeout on Linux
-		ready = select((int)m_s+1, NULL, &fds, NULL, &timeoutCopy);
+		ready = select((int)m_s+1, NULLPTR, &fds, NULLPTR, &timeoutCopy);
 	}
 	CheckAndHandleError_int("select", ready);
 	return ready > 0;
@@ -352,12 +352,12 @@ bool Socket::ReceiveReady(const timeval *timeout)
 #endif
 
 	int ready;
-	if (timeout == NULL)
-		ready = select((int)m_s+1, &fds, NULL, NULL, NULL);
+	if (timeout == NULLPTR)
+		ready = select((int)m_s+1, &fds, NULLPTR, NULLPTR, NULLPTR);
 	else
 	{
 		timeval timeoutCopy = *timeout;	// select() modified timeout on Linux
-		ready = select((int)m_s+1, &fds, NULL, NULL, &timeoutCopy);
+		ready = select((int)m_s+1, &fds, NULLPTR, NULLPTR, &timeoutCopy);
 	}
 	CheckAndHandleError_int("select", ready);
 	return ready > 0;
@@ -423,7 +423,7 @@ void Socket::HandleError(const char *operation) const
 SocketReceiver::SocketReceiver(Socket &s)
 	: m_s(s), m_lastResult(0), m_resultPending(false), m_eofReceived(false)
 {
-	m_event.AttachHandle(CreateEvent(NULL, true, false, NULL), true);
+	m_event.AttachHandle(CreateEvent(NULLPTR, true, false, NULLPTR), true);
 	m_s.CheckAndHandleError("CreateEvent", m_event.HandleValid());
 	memset(&m_overlapped, 0, sizeof(m_overlapped));
 	m_overlapped.hEvent = m_event;
@@ -433,7 +433,7 @@ SocketReceiver::~SocketReceiver()
 {
 #ifdef USE_WINDOWS_STYLE_SOCKETS
 # if defined(USE_WINDOWS8_API)
-	BOOL result = CancelIoEx((HANDLE) m_s.GetSocket(), NULL);
+	BOOL result = CancelIoEx((HANDLE) m_s.GetSocket(), NULLPTR);
 	CRYPTOPP_ASSERT(result || (!result && GetLastError() == ERROR_NOT_FOUND));
 	CRYPTOPP_UNUSED(result);	// Used by CRYPTOPP_ASSERT in debug builds
 # else
@@ -451,7 +451,7 @@ bool SocketReceiver::Receive(byte* buf, size_t bufLen)
 	DWORD flags = 0;
 	// don't queue too much at once, or we might use up non-paged memory
 	WSABUF wsabuf = {UnsignedMin((u_long)128*1024, bufLen), (char *)buf};
-	if (WSARecv(m_s, &wsabuf, 1, &m_lastResult, &flags, &m_overlapped, NULL) == 0)
+	if (WSARecv(m_s, &wsabuf, 1, &m_lastResult, &flags, &m_overlapped, NULLPTR) == 0)
 	{
 		if (m_lastResult == 0)
 			m_eofReceived = true;
@@ -514,7 +514,7 @@ unsigned int SocketReceiver::GetReceiveResult()
 SocketSender::SocketSender(Socket &s)
 	: m_s(s), m_lastResult(0), m_resultPending(false)
 {
-	m_event.AttachHandle(CreateEvent(NULL, true, false, NULL), true);
+	m_event.AttachHandle(CreateEvent(NULLPTR, true, false, NULLPTR), true);
 	m_s.CheckAndHandleError("CreateEvent", m_event.HandleValid());
 	memset(&m_overlapped, 0, sizeof(m_overlapped));
 	m_overlapped.hEvent = m_event;
@@ -525,7 +525,7 @@ SocketSender::~SocketSender()
 {
 #ifdef USE_WINDOWS_STYLE_SOCKETS
 # if defined(USE_WINDOWS8_API)
-	BOOL result = CancelIoEx((HANDLE) m_s.GetSocket(), NULL);
+	BOOL result = CancelIoEx((HANDLE) m_s.GetSocket(), NULLPTR);
 	CRYPTOPP_ASSERT(result || (!result && GetLastError() == ERROR_NOT_FOUND));
 	CRYPTOPP_UNUSED(result);	// Used by CRYPTOPP_ASSERT in debug builds
 # else
@@ -542,7 +542,7 @@ void SocketSender::Send(const byte* buf, size_t bufLen)
 	DWORD written = 0;
 	// don't queue too much at once, or we might use up non-paged memory
 	WSABUF wsabuf = {UnsignedMin((u_long)128*1024, bufLen), (char *)buf};
-	if (WSASend(m_s, &wsabuf, 1, &written, 0, &m_overlapped, NULL) == 0)
+	if (WSASend(m_s, &wsabuf, 1, &written, 0, &m_overlapped, NULLPTR) == 0)
 	{
 		m_resultPending = false;
 		m_lastResult = written;

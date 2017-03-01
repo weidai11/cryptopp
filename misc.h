@@ -397,7 +397,7 @@ inline void memcpy_s(void *dest, size_t sizeInBytes, const void *src, size_t cou
 	// Safer functions on Windows for C&A, http://github.com/weidai11/cryptopp/issues/55
 
 	// Pointers must be valid; otherwise undefined behavior
-	CRYPTOPP_ASSERT(dest != NULL); CRYPTOPP_ASSERT(src != NULL);
+	CRYPTOPP_ASSERT(dest != NULLPTR); CRYPTOPP_ASSERT(src != NULLPTR);
 	// Destination buffer must be large enough to satsify request
 	CRYPTOPP_ASSERT(sizeInBytes >= count);
 	if (count > sizeInBytes)
@@ -439,7 +439,7 @@ inline void memmove_s(void *dest, size_t sizeInBytes, const void *src, size_t co
 	// Safer functions on Windows for C&A, http://github.com/weidai11/cryptopp/issues/55
 
 	// Pointers must be valid; otherwise undefined behavior
-	CRYPTOPP_ASSERT(dest != NULL); CRYPTOPP_ASSERT(src != NULL);
+	CRYPTOPP_ASSERT(dest != NULLPTR); CRYPTOPP_ASSERT(src != NULLPTR);
 	// Destination buffer must be large enough to satsify request
 	CRYPTOPP_ASSERT(sizeInBytes >= count);
 	if (count > sizeInBytes)
@@ -1067,7 +1067,7 @@ inline CipherDir GetCipherDir(const T &obj)
 //! \throws bad_alloc
 //! \details In the normal course of running a program, a request for memory normally succeeds. If a
 //!   call to AlignedAllocate or UnalignedAllocate fails, then CallNewHandler is called in
-//!   an effort to recover. Internally, CallNewHandler calls set_new_handler(NULL) in an effort
+//!   an effort to recover. Internally, CallNewHandler calls set_new_handler(NULLPTR) in an effort
 //!   to free memory. There is no guarantee CallNewHandler will be able to procure more memory so
 //!   an allocation succeeds. If the call to set_new_handler fails, then CallNewHandler throws
 //!   a bad_alloc exception.
@@ -1081,7 +1081,7 @@ CRYPTOPP_DLL void CRYPTOPP_API CallNewHandler();
 //! \note The function is not constant time because it stops processing when the carry is 0.
 inline void IncrementCounterByOne(byte *inout, unsigned int size)
 {
-	CRYPTOPP_ASSERT(inout != NULL); CRYPTOPP_ASSERT(size < INT_MAX);
+	CRYPTOPP_ASSERT(inout != NULLPTR); CRYPTOPP_ASSERT(size < INT_MAX);
 	for (int i=int(size-1), carry=1; i>=0 && carry; i--)
 		carry = !++inout[i];
 }
@@ -1095,7 +1095,7 @@ inline void IncrementCounterByOne(byte *inout, unsigned int size)
 //! \details The function is \a close to near-constant time because it operates on all the bytes in the blocks.
 inline void IncrementCounterByOne(byte *output, const byte *input, unsigned int size)
 {
-	CRYPTOPP_ASSERT(output != NULL); CRYPTOPP_ASSERT(input != NULL); CRYPTOPP_ASSERT(size < INT_MAX);
+	CRYPTOPP_ASSERT(output != NULLPTR); CRYPTOPP_ASSERT(input != NULLPTR); CRYPTOPP_ASSERT(size < INT_MAX);
 
 	int i, carry;
 	for (i=int(size-1), carry=1; i>=0 && carry; i--)
@@ -2182,7 +2182,7 @@ inline void GetWord(bool assumeAligned, ByteOrder order, T &result, const byte *
 //!   if the memory block is aligned for class or type T. The enumeration ByteOrder is BIG_ENDIAN_ORDER or
 //!   LITTLE_ENDIAN_ORDER.
 template <class T>
-inline void PutWord(bool assumeAligned, ByteOrder order, byte *block, T value, const byte *xorBlock = NULL)
+inline void PutWord(bool assumeAligned, ByteOrder order, byte *block, T value, const byte *xorBlock = NULLPTR)
 {
 	CRYPTOPP_UNUSED(assumeAligned);
 #ifdef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
@@ -2250,7 +2250,7 @@ private:
 //! <pre>
 //!    word32 w1=0x03020100, w2=0x07060504;
 //!    byte buffer[8];
-//!    PutBlock<word32, LittleEndian> block(NULL, buffer);
+//!    PutBlock<word32, LittleEndian> block(NULLPTR, buffer);
 //!    block(w1)(w2);
 //! </pre>
 template <class T, class B, bool A=false>

@@ -26,7 +26,7 @@ public:
 	//! \details Base32Encoder() constructs a default encoder. The constructor lacks fields for padding and
 	//!   line breaks. You must use IsolatedInitialize() to change the default padding character or suppress it.
 	//! \sa IsolatedInitialize() for an example of modifying a Base32Encoder after construction.
-	Base32Encoder(BufferedTransformation *attachment = NULL, bool uppercase = true, int groupSize = 0, const std::string &separator = ":", const std::string &terminator = "")
+	Base32Encoder(BufferedTransformation *attachment = NULLPTR, bool uppercase = true, int groupSize = 0, const std::string &separator = ":", const std::string &terminator = "")
 		: SimpleProxyFilter(new BaseN_Encoder(new Grouper), attachment)
 	{
 		IsolatedInitialize(MakeParameters(Name::Uppercase(), uppercase)(Name::GroupSize(), groupSize)(Name::Separator(), ConstByteArrayParameter(separator))(Name::Terminator(), ConstByteArrayParameter(terminator)));
@@ -64,7 +64,7 @@ public:
 	//! \brief Construct a Base32Decoder
 	//! \param attachment a BufferedTrasformation to attach to this object
 	//! \sa IsolatedInitialize() for an example of modifying a Base32Decoder after construction.
-	Base32Decoder(BufferedTransformation *attachment = NULL)
+	Base32Decoder(BufferedTransformation *attachment = NULLPTR)
 		: BaseN_Decoder(GetDefaultDecodingLookupArray(), 5, attachment) {}
 
 	//! \brief Initialize or reinitialize this object, without signal propagation

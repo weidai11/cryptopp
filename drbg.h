@@ -195,8 +195,8 @@ public:
     //!    Hash_DRBG<SHA256, 128/8, 440/8> drbg(entropy, 32, entropy+32, 16);
     //!    drbg.GenerateBlock(result, result.size());
     //! </pre>
-    Hash_DRBG(const byte* entropy, size_t entropyLength=STRENGTH, const byte* nonce=NULL,
-        size_t nonceLength=0, const byte* personalization=NULL, size_t personalizationLength=0)
+    Hash_DRBG(const byte* entropy, size_t entropyLength=STRENGTH, const byte* nonce=NULLPTR,
+        size_t nonceLength=0, const byte* personalization=NULLPTR, size_t personalizationLength=0)
         : NIST_DRBG(), m_c(SEEDLENGTH), m_v(SEEDLENGTH)
     {
         DRBG_Instantiate(entropy, entropyLength, nonce, nonceLength, personalization, personalizationLength);
@@ -212,13 +212,13 @@ public:
     unsigned int GetMaxRequestBeforeReseed() const {return MAXIMUM_REQUESTS_BEFORE_RESEED;}
 
     void IncorporateEntropy(const byte *input, size_t length)
-        {return DRBG_Reseed(input, length, NULL, 0);}
+        {return DRBG_Reseed(input, length, NULLPTR, 0);}
 
     void IncorporateEntropy(const byte *entropy, size_t entropyLength, const byte* additional, size_t additionaLength)
         {return DRBG_Reseed(entropy, entropyLength, additional, additionaLength);}
 
     void GenerateBlock(byte *output, size_t size)
-        {return Hash_Generate(NULL, 0, output, size);}
+        {return Hash_Generate(NULLPTR, 0, output, size);}
 
     void GenerateBlock(const byte* additional, size_t additionaLength, byte *output, size_t size)
         {return Hash_Generate(additional, additionaLength, output, size);}
@@ -306,8 +306,8 @@ public:
     //!    HMAC_DRBG<SHA256, 128/8, 440/8> drbg(entropy, 32, entropy+32, 16);
     //!    drbg.GenerateBlock(result, result.size());
     //! </pre>
-    HMAC_DRBG(const byte* entropy, size_t entropyLength=STRENGTH, const byte* nonce=NULL,
-        size_t nonceLength=0, const byte* personalization=NULL, size_t personalizationLength=0)
+    HMAC_DRBG(const byte* entropy, size_t entropyLength=STRENGTH, const byte* nonce=NULLPTR,
+        size_t nonceLength=0, const byte* personalization=NULLPTR, size_t personalizationLength=0)
         : NIST_DRBG(), m_k(HASH::DIGESTSIZE), m_v(HASH::DIGESTSIZE)
     {
         DRBG_Instantiate(entropy, entropyLength, nonce, nonceLength, personalization, personalizationLength);
@@ -323,13 +323,13 @@ public:
     unsigned int GetMaxRequestBeforeReseed() const {return MAXIMUM_REQUESTS_BEFORE_RESEED;}
 
     void IncorporateEntropy(const byte *input, size_t length)
-        {return DRBG_Reseed(input, length, NULL, 0);}
+        {return DRBG_Reseed(input, length, NULLPTR, 0);}
 
     void IncorporateEntropy(const byte *entropy, size_t entropyLength, const byte* additional, size_t additionaLength)
         {return DRBG_Reseed(entropy, entropyLength, additional, additionaLength);}
 
     void GenerateBlock(byte *output, size_t size)
-        {return HMAC_Generate(NULL, 0, output, size);}
+        {return HMAC_Generate(NULLPTR, 0, output, size);}
 
     void GenerateBlock(const byte* additional, size_t additionaLength, byte *output, size_t size)
         {return HMAC_Generate(additional, additionaLength, output, size);}
@@ -382,8 +382,8 @@ void Hash_DRBG<HASH, STRENGTH, SEEDLENGTH>::DRBG_Instantiate(const byte* entropy
 
     const byte zero = 0;
     SecByteBlock t1(SEEDLENGTH), t2(SEEDLENGTH);
-    Hash_Update(entropy, entropyLength, nonce, nonceLength, personalization, personalizationLength, NULL, 0, t1, t1.size());
-    Hash_Update(&zero, 1, t1, t1.size(), NULL, 0, NULL, 0, t2, t2.size());
+    Hash_Update(entropy, entropyLength, nonce, nonceLength, personalization, personalizationLength, NULLPTR, 0, t1, t1.size());
+    Hash_Update(&zero, 1, t1, t1.size(), NULLPTR, 0, NULLPTR, 0, t2, t2.size());
 
     m_v.swap(t1); m_c.swap(t2);
     m_reseed = 1;
@@ -410,7 +410,7 @@ void Hash_DRBG<HASH, STRENGTH, SEEDLENGTH>::DRBG_Reseed(const byte* entropy, siz
     const byte zero = 0, one = 1;
     SecByteBlock t1(SEEDLENGTH), t2(SEEDLENGTH);
     Hash_Update(&one, 1, m_v, m_v.size(), entropy, entropyLength, additional, additionaLength, t1, t1.size());
-    Hash_Update(&zero, 1, t1, t1.size(), NULL, 0, NULL, 0, t2, t2.size());
+    Hash_Update(&zero, 1, t1, t1.size(), NULLPTR, 0, NULLPTR, 0, t2, t2.size());
 
     m_v.swap(t1); m_c.swap(t2);
     m_reseed = 1;
@@ -589,7 +589,7 @@ void HMAC_DRBG<HASH, STRENGTH, SEEDLENGTH>::DRBG_Reseed(const byte* entropy, siz
     CRYPTOPP_ASSERT(entropyLength <= MAXIMUM_ENTROPY);
     CRYPTOPP_ASSERT(additionaLength <= MAXIMUM_ADDITIONAL);
 
-    HMAC_Update(entropy, entropyLength, additional, additionaLength, NULL, 0);
+    HMAC_Update(entropy, entropyLength, additional, additionaLength, NULLPTR, 0);
     m_reseed = 1;
 }
 
@@ -610,7 +610,7 @@ void HMAC_DRBG<HASH, STRENGTH, SEEDLENGTH>::HMAC_Generate(const byte* additional
 
     // Step 2
     if (additional && additionaLength)
-        HMAC_Update(additional, additionaLength, NULL, 0, NULL, 0);
+        HMAC_Update(additional, additionaLength, NULLPTR, 0, NULLPTR, 0);
 
     // Step 3
     HMAC<HASH> hmac;
@@ -627,7 +627,7 @@ void HMAC_DRBG<HASH, STRENGTH, SEEDLENGTH>::HMAC_Generate(const byte* additional
         size -= count; output += count;
     }
 
-    HMAC_Update(additional, additionaLength, NULL, 0, NULL, 0);
+    HMAC_Update(additional, additionaLength, NULLPTR, 0, NULLPTR, 0);
     m_reseed++;
 }
 

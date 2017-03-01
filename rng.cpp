@@ -76,7 +76,7 @@ X917RNG::X917RNG(BlockTransformation *c, const byte *seed, const byte *determini
 
 	if (!deterministicTimeVector)
 	{
-		time_t tstamp1 = time(0);
+		time_t tstamp1 = time(NULLPTR);
 		xorbuf(m_datetime, (byte *)&tstamp1, UnsignedMin(sizeof(tstamp1), m_size));
 		m_cipher->ProcessBlock(m_datetime);
 		clock_t tstamp2 = clock();
@@ -102,7 +102,7 @@ void X917RNG::GenerateIntoBufferedTransformation(BufferedTransformation &target,
 		{
 			clock_t c = clock();
 			xorbuf(m_datetime, (byte *)&c, UnsignedMin(sizeof(c), m_size));
-			time_t t = time(NULL);
+			time_t t = time(NULLPTR);
 			xorbuf(m_datetime+m_size-UnsignedMin(sizeof(t), m_size), (byte *)&t, UnsignedMin(sizeof(t), m_size));
 			m_cipher->ProcessBlock(m_datetime);
 		}

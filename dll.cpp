@@ -58,13 +58,13 @@ USING_NAMESPACE(CryptoPP)
 
 using std::set_new_handler;
 
-static PNew s_pNew = NULL;
-static PDelete s_pDelete = NULL;
+static PNew s_pNew = NULLPTR;
+static PDelete s_pDelete = NULLPTR;
 
 static void * New (size_t size)
 {
 	void *p;
-	while ((p = malloc(size)) == NULL)
+	while ((p = malloc(size)) == NULLPTR)
 		CallNewHandler();
 
 	return p;
@@ -75,8 +75,8 @@ static void * New (size_t size)
 
 static void SetNewAndDeleteFunctionPointers()
 {
-	void *p = NULL;
-	HMODULE hModule = NULL;
+	void *p = NULLPTR;
+	HMODULE hModule = NULLPTR;
 	MEMORY_BASIC_INFORMATION mbi;
 
 	while (true)

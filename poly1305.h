@@ -160,7 +160,7 @@ public:
 	//!   bytes used for <tt>r</tt>.
 	//! \details Each message requires a unique security context. You can use GetNextIV() and
 	//!   Resynchronize() to set a new nonce under a key for a message.
-	Poly1305(const byte *key, size_t keyLength=DEFAULT_KEYLENGTH, const byte *nonce=NULL, size_t nonceLength=0)
+	Poly1305(const byte *key, size_t keyLength=DEFAULT_KEYLENGTH, const byte *nonce=NULLPTR, size_t nonceLength=0)
 		{this->SetKey(key, keyLength, MakeParameters(Name::IV(), ConstByteArrayParameter(nonce, nonceLength)));}
 };
 

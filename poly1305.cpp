@@ -243,7 +243,7 @@ void Poly1305_Base<T>::Resynchronize(const byte *nonce, int nonceLength)
 {
 	CRYPTOPP_ASSERT(nonceLength == -1 || nonceLength == (int)BLOCKSIZE);
 	nonceLength == -1 ? nonceLength = BLOCKSIZE : nonceLength;
-	this->UncheckedSetKey(NULL, 0, MakeParameters(Name::IV(), ConstByteArrayParameter(nonce, nonceLength)));
+	this->UncheckedSetKey(NULLPTR, 0, MakeParameters(Name::IV(), ConstByteArrayParameter(nonce, nonceLength)));
 }
 
 template <class T>

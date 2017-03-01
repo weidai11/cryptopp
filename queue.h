@@ -1,7 +1,6 @@
 // queue.h - originally written and placed in the public domain by Wei Dai
 
 //! \file
-//! \headerfile queue.h
 //! \brief Classes for an unlimited queue to store bytes
 
 #ifndef CRYPTOPP_QUEUE_H
@@ -82,7 +81,7 @@ public:
 		//! \brief Construct a ByteQueue Walker
 		//! \param queue a ByteQueue
 		Walker(const ByteQueue &queue)
-			: m_queue(queue), m_node(NULL), m_position(0), m_offset(0), m_lazyString(NULL), m_lazyLength(0)
+			: m_queue(queue), m_node(NULLPTR), m_position(0), m_offset(0), m_lazyString(NULLPTR), m_lazyLength(0)
 				{Initialize();}
 
 		lword GetCurrentPosition() {return m_position;}

@@ -885,6 +885,22 @@ NAMESPACE_END
 #  define CRYPTOPP_CXX11_CONSTEXPR 1
 #endif // constexpr compilers
 
+// nullptr_t: MS at VS2010 (16.00); GCC at 4.6; Clang at 3.3; Intel 12.0; SunCC 12.4.
+// Intel has upported the feature since at least ICPC 12.00
+#if (CRYPTOPP_MSC_VERSION >= 1600)
+#  define CRYPTOPP_CXX11_NULLPTR 1
+#elif (__INTEL_COMPILER >= 1200)
+#  define CRYPTOPP_CXX11_NULLPTR 1
+#elif defined(__clang__)
+#  if __has_feature(cxx_nullptr)
+#    define CRYPTOPP_CXX11_NULLPTR 1
+#  endif
+#elif (CRYPTOPP_GCC_VERSION >= 40600)
+#  define CRYPTOPP_CXX11_NULLPTR 1
+#elif (__SUNPRO_CC >= 0x5130)
+#  define CRYPTOPP_CXX11_NULLPTR 1
+#endif // nullptr_t compilers
+
 // TODO: Emplacement, R-values and Move semantics
 // Needed because we are catching warnings with GCC and MSC
 
@@ -919,6 +935,13 @@ NAMESPACE_END
 # undef CRYPTOPP_CONSTANT
 # define CRYPTOPP_CONSTANT(x) constexpr static int x;
 #endif
+
+// Hack... C++11 nullptr_t type safety and analysis
+#if defined(CRYPTOPP_CXX11_NULLPTR) && !defined(NULLPTR)
+# define NULLPTR nullptr
+#elif !defined(NULLPTR)
+# define NULLPTR NULL
+#endif // CRYPTOPP_CXX11_NULLPTR
 
 // OK to comment the following out, but please report it so we can fix it.
 // C++17 value taken from http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4567.pdf.

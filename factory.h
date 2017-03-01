@@ -56,7 +56,7 @@ public:
 		for (typename Map::iterator i = m_map.begin(); i != m_map.end(); ++i)
 		{
 			delete (ObjectFactory<AbstractClass> *)i->second;
-			i->second = NULL;
+			i->second = NULLPTR;
 		}
 	}
 
@@ -68,7 +68,7 @@ public:
 	const ObjectFactory<AbstractClass> * GetFactory(const char *name) const
 	{
 		typename Map::const_iterator i = m_map.find(name);
-		return i == m_map.end() ? NULL : (ObjectFactory<AbstractClass> *)i->second;
+		return i == m_map.end() ? NULLPTR : (ObjectFactory<AbstractClass> *)i->second;
 	}
 
 	AbstractClass *CreateObject(const char *name) const
@@ -113,7 +113,7 @@ ObjectFactoryRegistry<AbstractClass, instance> & ObjectFactoryRegistry<AbstractC
 template <class AbstractClass, class ConcreteClass, int instance = 0>
 struct RegisterDefaultFactoryFor
 {
-	RegisterDefaultFactoryFor(const char *name=NULL)
+	RegisterDefaultFactoryFor(const char *name=NULLPTR)
 	{
 		// BCB2006 workaround
 		std::string n = name ? std::string(name) : std::string(ConcreteClass::StaticAlgorithmName());
@@ -130,7 +130,7 @@ struct RegisterDefaultFactoryFor
 //!   symmetric ciphers (registers <tt>SchemeClass::Encryptor</tt> and <tt>SchemeClass::Decryptor</tt>),
 //!   authenticated symmetric ciphers (registers <tt>SchemeClass::Encryptor</tt> and <tt>SchemeClass::Decryptor</tt>), etc.
 template <class SchemeClass>
-void RegisterAsymmetricCipherDefaultFactories(const char *name=NULL)
+void RegisterAsymmetricCipherDefaultFactories(const char *name=NULLPTR)
 {
 	RegisterDefaultFactoryFor<PK_Encryptor, typename SchemeClass::Encryptor>((const char *)name);
 	RegisterDefaultFactoryFor<PK_Decryptor, typename SchemeClass::Decryptor>((const char *)name);
@@ -144,7 +144,7 @@ void RegisterAsymmetricCipherDefaultFactories(const char *name=NULL)
 //!   symmetric ciphers (registers <tt>SchemeClass::Encryptor</tt> and <tt>SchemeClass::Decryptor</tt>),
 //!   authenticated symmetric ciphers (registers <tt>SchemeClass::Encryptor</tt> and <tt>SchemeClass::Decryptor</tt>), etc.
 template <class SchemeClass>
-void RegisterSignatureSchemeDefaultFactories(const char *name=NULL)
+void RegisterSignatureSchemeDefaultFactories(const char *name=NULLPTR)
 {
 	RegisterDefaultFactoryFor<PK_Signer, typename SchemeClass::Signer>((const char *)name);
 	RegisterDefaultFactoryFor<PK_Verifier, typename SchemeClass::Verifier>((const char *)name);
@@ -158,7 +158,7 @@ void RegisterSignatureSchemeDefaultFactories(const char *name=NULL)
 //!   symmetric ciphers (registers <tt>SchemeClass::Encryptor</tt> and <tt>SchemeClass::Decryptor</tt>),
 //!   authenticated symmetric ciphers (registers <tt>SchemeClass::Encryptor</tt> and <tt>SchemeClass::Decryptor</tt>), etc.
 template <class SchemeClass>
-void RegisterSymmetricCipherDefaultFactories(const char *name=NULL)
+void RegisterSymmetricCipherDefaultFactories(const char *name=NULLPTR)
 {
 	RegisterDefaultFactoryFor<SymmetricCipher, typename SchemeClass::Encryption, ENCRYPTION>((const char *)name);
 	RegisterDefaultFactoryFor<SymmetricCipher, typename SchemeClass::Decryption, DECRYPTION>((const char *)name);
@@ -172,7 +172,7 @@ void RegisterSymmetricCipherDefaultFactories(const char *name=NULL)
 //!   symmetric ciphers (registers <tt>SchemeClass::Encryptor</tt> and <tt>SchemeClass::Decryptor</tt>),
 //!   authenticated symmetric ciphers (registers <tt>SchemeClass::Encryptor</tt> and <tt>SchemeClass::Decryptor</tt>), etc.
 template <class SchemeClass>
-void RegisterAuthenticatedSymmetricCipherDefaultFactories(const char *name=NULL)
+void RegisterAuthenticatedSymmetricCipherDefaultFactories(const char *name=NULLPTR)
 {
 	RegisterDefaultFactoryFor<AuthenticatedSymmetricCipher, typename SchemeClass::Encryption, ENCRYPTION>((const char *)name);
 	RegisterDefaultFactoryFor<AuthenticatedSymmetricCipher, typename SchemeClass::Decryption, DECRYPTION>((const char *)name);

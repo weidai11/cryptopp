@@ -34,8 +34,8 @@ public:
 	//! \param deepCopy flag indicating whether the data should be copied
 	//! \details The deepCopy option is used when the NameValuePairs object can't
 	//!   keep a copy of the data available
-	ConstByteArrayParameter(const char *data = NULL, bool deepCopy = false)
-		: m_deepCopy(false), m_data(NULL), m_size(0)
+	ConstByteArrayParameter(const char *data = NULLPTR, bool deepCopy = false)
+		: m_deepCopy(false), m_data(NULLPTR), m_size(0)
 	{
 		Assign((const byte *)data, data ? strlen(data) : 0, deepCopy);
 	}
@@ -47,7 +47,7 @@ public:
 	//! \details The deepCopy option is used when the NameValuePairs object can't
 	//!   keep a copy of the data available
 	ConstByteArrayParameter(const byte *data, size_t size, bool deepCopy = false)
-		: m_deepCopy(false), m_data(NULL), m_size(0)
+		: m_deepCopy(false), m_data(NULLPTR), m_size(0)
 	{
 		Assign(data, size, deepCopy);
 	}
@@ -59,7 +59,7 @@ public:
 	//! \details The deepCopy option is used when the NameValuePairs object can't
 	//!   keep a copy of the data available
 	template <class T> ConstByteArrayParameter(const T &string, bool deepCopy = false)
-		: m_deepCopy(false), m_data(NULL), m_size(0)
+		: m_deepCopy(false), m_data(NULLPTR), m_size(0)
 	{
 		CRYPTOPP_COMPILE_ASSERT(sizeof(typename T::value_type) == 1);
 		Assign((const byte *)string.data(), string.size(), deepCopy);
@@ -107,7 +107,7 @@ public:
 	//! \brief Construct a ByteArrayParameter
 	//! \param data a memory buffer
 	//! \param size the length of the memory buffer
-	ByteArrayParameter(byte *data = NULL, unsigned int size = 0)
+	ByteArrayParameter(byte *data = NULLPTR, unsigned int size = 0)
 		: m_data(data), m_size(size) {}
 
 	//! \brief Construct a ByteArrayParameter
@@ -221,13 +221,13 @@ private:
 };
 
 template <class BASE, class T>
-GetValueHelperClass<T, BASE> GetValueHelper(const T *pObject, const char *name, const std::type_info &valueType, void *pValue, const NameValuePairs *searchFirst=NULL)
+GetValueHelperClass<T, BASE> GetValueHelper(const T *pObject, const char *name, const std::type_info &valueType, void *pValue, const NameValuePairs *searchFirst=NULLPTR)
 {
 	return GetValueHelperClass<T, BASE>(pObject, name, valueType, pValue, searchFirst);
 }
 
 template <class T>
-GetValueHelperClass<T, T> GetValueHelper(const T *pObject, const char *name, const std::type_info &valueType, void *pValue, const NameValuePairs *searchFirst=NULL)
+GetValueHelperClass<T, T> GetValueHelper(const T *pObject, const char *name, const std::type_info &valueType, void *pValue, const NameValuePairs *searchFirst=NULLPTR)
 {
 	return GetValueHelperClass<T, T>(pObject, name, valueType, pValue, searchFirst);
 }
@@ -387,7 +387,7 @@ public:
 	void AssignValue(const char *name, const std::type_info &valueType, void *pValue) const
 	{
 		// special case for retrieving an Integer parameter when an int was passed in
-		if (!(g_pAssignIntToInteger != NULL && typeid(T) == typeid(int) && g_pAssignIntToInteger(valueType, pValue, &m_value)))
+		if (!(g_pAssignIntToInteger != NULLPTR && typeid(T) == typeid(int) && g_pAssignIntToInteger(valueType, pValue, &m_value)))
 		{
 			NameValuePairs::ThrowIfTypeMismatch(name, typeid(T), valueType);
 			*reinterpret_cast<T *>(pValue) = m_value;

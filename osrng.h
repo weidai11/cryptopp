@@ -194,7 +194,7 @@ public:
 	//! \details Internally, the generator uses SHA256 to extract the entropy from
 	//!   from the seed and then stretch the material for the block cipher's key
 	//!   and initialization vector.
-	void Reseed(bool blocking = false, const byte *additionalEntropy = NULL, size_t length = 0);
+	void Reseed(bool blocking = false, const byte *additionalEntropy = NULLPTR, size_t length = 0);
 
 	//! \brief Deterministically reseed an AutoSeededX917RNG for testing
 	//! \param key the key to use for the deterministic reseeding
@@ -239,7 +239,7 @@ void AutoSeededX917RNG<BLOCK_CIPHER>::Reseed(bool blocking, const byte *input, s
 	}	// check that seed and key don't have same value
 	while (memcmp(key, seed, STDMIN((unsigned int)BLOCK_CIPHER::BLOCKSIZE, (unsigned int)BLOCK_CIPHER::DEFAULT_KEYLENGTH)) == 0);
 
-	Reseed(key, BLOCK_CIPHER::DEFAULT_KEYLENGTH, seed, NULL);
+	Reseed(key, BLOCK_CIPHER::DEFAULT_KEYLENGTH, seed, NULLPTR);
 }
 
 CRYPTOPP_DLL_TEMPLATE_CLASS AutoSeededX917RNG<AES>;

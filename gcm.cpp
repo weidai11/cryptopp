@@ -174,7 +174,7 @@ void gcm_gf_mult(const unsigned char *a, const unsigned char *b, unsigned char *
             V0 = (V0>>1) ^ (x ? W64LIT(0xe1) << 56 : 0);
         }
     }
-    Block::Put(NULL, c)(Z0)(Z1);
+    Block::Put(NULLPTR, c)(Z0)(Z1);
 }
 
 __m128i _mm_clmulepi64_si128(const __m128i &a, const __m128i &b, int i)
@@ -421,7 +421,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
         for (i=0; i<128; i++)
         {
             k = i%8;
-            Block::Put(NULL, table+(i/8)*256*16+(size_t(1)<<(11-k)))(V0)(V1);
+            Block::Put(NULLPTR, table+(i/8)*256*16+(size_t(1)<<(11-k)))(V0)(V1);
 
             int x = (int)V1 & 1;
             V1 = (V1>>1) | (V0<<63);
@@ -470,9 +470,9 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
         {
             k = i%32;
             if (k < 4)
-                Block::Put(NULL, table+1024+(i/32)*256+(size_t(1)<<(7-k)))(V0)(V1);
+                Block::Put(NULLPTR, table+1024+(i/32)*256+(size_t(1)<<(7-k)))(V0)(V1);
             else if (k < 8)
-                Block::Put(NULL, table+(i/32)*256+(size_t(1)<<(11-k)))(V0)(V1);
+                Block::Put(NULLPTR, table+(i/32)*256+(size_t(1)<<(11-k)))(V0)(V1);
 
             int x = (int)V1 & 1;
             V1 = (V1>>1) | (V0<<63);
@@ -561,7 +561,7 @@ void GCM_Base::Resync(const byte *iv, size_t len)
             GCM_Base::AuthenticateBlocks(m_buffer, HASH_BLOCKSIZE);
         }
 
-        PutBlock<word64, BigEndian, true>(NULL, m_buffer)(0)(origLen*8);
+        PutBlock<word64, BigEndian, true>(NULLPTR, m_buffer)(0)(origLen*8);
         GCM_Base::AuthenticateBlocks(m_buffer, HASH_BLOCKSIZE);
 
         ReverseHashBufferIfNeeded();
@@ -1172,7 +1172,7 @@ void GCM_Base::AuthenticateLastHeaderBlock()
 void GCM_Base::AuthenticateLastConfidentialBlock()
 {
     GCM_Base::AuthenticateLastHeaderBlock();
-    PutBlock<word64, BigEndian, true>(NULL, m_buffer)(m_totalHeaderLength*8)(m_totalMessageLength*8);
+    PutBlock<word64, BigEndian, true>(NULLPTR, m_buffer)(m_totalHeaderLength*8)(m_totalMessageLength*8);
     GCM_Base::AuthenticateBlocks(m_buffer, HASH_BLOCKSIZE);
 }
 

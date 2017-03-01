@@ -20,8 +20,8 @@ class CRYPTOPP_DLL BaseN_Encoder : public Unflushable<Filter>
 public:
 	//! \brief Construct a BaseN_Encoder
 	//! \param attachment a BufferedTransformation to attach to this object
-	BaseN_Encoder(BufferedTransformation *attachment=NULL)
-		: m_alphabet(NULL), m_padding(0), m_bitsPerChar(0)
+	BaseN_Encoder(BufferedTransformation *attachment=NULLPTR)
+		: m_alphabet(NULLPTR), m_padding(0), m_bitsPerChar(0)
 		, m_outputBlockSize(0), m_bytePos(0), m_bitPos(0)
 			{Detach(attachment);}
 
@@ -32,8 +32,8 @@ public:
 	//! \param padding the character to use as padding
 	//! \pre log2base must be between 1 and 7 inclusive
 	//! \throws InvalidArgument if log2base is not between 1 and 7
-	BaseN_Encoder(const byte *alphabet, int log2base, BufferedTransformation *attachment=NULL, int padding=-1)
-		: m_alphabet(NULL), m_padding(0), m_bitsPerChar(0)
+	BaseN_Encoder(const byte *alphabet, int log2base, BufferedTransformation *attachment=NULLPTR, int padding=-1)
+		: m_alphabet(NULLPTR), m_padding(0), m_bitsPerChar(0)
 		, m_outputBlockSize(0), m_bytePos(0), m_bitPos(0)
 	{
 		Detach(attachment);
@@ -62,8 +62,8 @@ public:
 	//! \param attachment a BufferedTransformation to attach to this object
 	//! \details padding is set to -1, which means use default padding. If not
 	//!   required, then the value must be set via IsolatedInitialize().
-	BaseN_Decoder(BufferedTransformation *attachment=NULL)
-		: m_lookup(0), m_padding(0), m_bitsPerChar(0)
+	BaseN_Decoder(BufferedTransformation *attachment=NULLPTR)
+		: m_lookup(NULLPTR), m_padding(0), m_bitsPerChar(0)
 		, m_outputBlockSize(0), m_bytePos(0), m_bitPos(0)
 			{Detach(attachment);}
 
@@ -75,8 +75,8 @@ public:
 	//!   the number of elements (like 32).
 	//! \details padding is set to -1, which means use default padding. If not
 	//!   required, then the value must be set via IsolatedInitialize().
-	BaseN_Decoder(const int *lookup, int log2base, BufferedTransformation *attachment=NULL)
-		: m_lookup(0), m_padding(0), m_bitsPerChar(0)
+	BaseN_Decoder(const int *lookup, int log2base, BufferedTransformation *attachment=NULLPTR)
+		: m_lookup(NULLPTR), m_padding(0), m_bitsPerChar(0)
 		, m_outputBlockSize(0), m_bytePos(0), m_bitPos(0)
 	{
 		Detach(attachment);
@@ -112,7 +112,7 @@ class CRYPTOPP_DLL Grouper : public Bufferless<Filter>
 public:
 	//! \brief Construct a Grouper
 	//! \param attachment a BufferedTransformation to attach to this object
-	Grouper(BufferedTransformation *attachment=NULL)
+	Grouper(BufferedTransformation *attachment=NULLPTR)
 		: m_groupSize(0), m_counter(0) {Detach(attachment);}
 
 	//! \brief Construct a Grouper
@@ -120,7 +120,7 @@ public:
 	//! \param separator the separator to use between groups
 	//! \param terminator the terminator appeand after processing
 	//! \param attachment a BufferedTransformation to attach to this object
-	Grouper(int groupSize, const std::string &separator, const std::string &terminator, BufferedTransformation *attachment=NULL)
+	Grouper(int groupSize, const std::string &separator, const std::string &terminator, BufferedTransformation *attachment=NULLPTR)
 		: m_groupSize(0), m_counter(0)
 	{
 		Detach(attachment);

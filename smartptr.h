@@ -20,11 +20,11 @@ NAMESPACE_BEGIN(CryptoPP)
 template <class T> class simple_ptr
 {
 public:
-	simple_ptr(T *p = NULL) : m_p(p) {}
+	simple_ptr(T *p = NULLPTR) : m_p(p) {}
 	~simple_ptr()
 	{
 		delete m_p;
-		*((volatile T**)&m_p) = NULL;
+		m_p = NULLPTR;
 	}
 
 	T *m_p;
@@ -39,7 +39,7 @@ public:
 template <class T> class member_ptr
 {
 public:
-	explicit member_ptr(T *p = NULL) : m_p(p) {}
+	explicit member_ptr(T *p = NULLPTR) : m_p(p) {}
 
 	~member_ptr();
 
@@ -55,7 +55,7 @@ public:
 	T* release()
 	{
 		T *old_p = m_p;
-		*((volatile T**)&m_p) = NULL;
+		m_p = NULLPTR;
 		return old_p;
 	}
 
@@ -80,9 +80,9 @@ template<class T> class value_ptr : public member_ptr<T>
 {
 public:
 	value_ptr(const T &obj) : member_ptr<T>(new T(obj)) {}
-	value_ptr(T *p = NULL) : member_ptr<T>(p) {}
+	value_ptr(T *p = NULLPTR) : member_ptr<T>(p) {}
 	value_ptr(const value_ptr<T>& rhs)
-		: member_ptr<T>(rhs.m_p ? new T(*rhs.m_p) : NULL) {}
+		: member_ptr<T>(rhs.m_p ? new T(*rhs.m_p) : NULLPTR) {}
 
 	value_ptr<T>& operator=(const value_ptr<T>& rhs);
 	bool operator==(const value_ptr<T>& rhs)
@@ -94,7 +94,7 @@ public:
 template <class T> value_ptr<T>& value_ptr<T>::operator=(const value_ptr<T>& rhs)
 {
 	T *old_p = this->m_p;
-	this->m_p = rhs.m_p ? new T(*rhs.m_p) : NULL;
+	this->m_p = rhs.m_p ? new T(*rhs.m_p) : NULLPTR;
 	delete old_p;
 	return *this;
 }
@@ -109,9 +109,9 @@ template<class T> class clonable_ptr : public member_ptr<T>
 {
 public:
 	clonable_ptr(const T &obj) : member_ptr<T>(obj.Clone()) {}
-	clonable_ptr(T *p = NULL) : member_ptr<T>(p) {}
+	clonable_ptr(T *p = NULLPTR) : member_ptr<T>(p) {}
 	clonable_ptr(const clonable_ptr<T>& rhs)
-		: member_ptr<T>(rhs.m_p ? rhs.m_p->Clone() : NULL) {}
+		: member_ptr<T>(rhs.m_p ? rhs.m_p->Clone() : NULLPTR) {}
 
 	clonable_ptr<T>& operator=(const clonable_ptr<T>& rhs);
 };
@@ -119,7 +119,7 @@ public:
 template <class T> clonable_ptr<T>& clonable_ptr<T>::operator=(const clonable_ptr<T>& rhs)
 {
 	T *old_p = this->m_p;
-	this->m_p = rhs.m_p ? rhs.m_p->Clone() : NULL;
+	this->m_p = rhs.m_p ? rhs.m_p->Clone() : NULLPTR;
 	delete old_p;
 	return *this;
 }

@@ -19,7 +19,7 @@ public:
 		: buf(maxSize)
 	{
 		m_head = m_tail = 0;
-		next = 0;
+		next = NULLPTR;
 	}
 
 	inline size_t MaxSize() const {return buf.size();}
@@ -132,7 +132,7 @@ public:
 
 ByteQueue::ByteQueue(size_t nodeSize)
 	: Bufferless<BufferedTransformation>(), m_autoNodeSize(!nodeSize), m_nodeSize(nodeSize)
-	, m_head(NULL), m_tail(NULL), m_lazyString(NULL), m_lazyLength(0), m_lazyStringModifiable(false)
+	, m_head(NULLPTR), m_tail(NULLPTR), m_lazyString(NULLPTR), m_lazyLength(0), m_lazyStringModifiable(false)
 {
 	SetNodeSize(nodeSize);
 	m_head = m_tail = new ByteQueueNode(m_nodeSize);
@@ -145,7 +145,7 @@ void ByteQueue::SetNodeSize(size_t nodeSize)
 }
 
 ByteQueue::ByteQueue(const ByteQueue &copy)
-	: Bufferless<BufferedTransformation>(copy), m_lazyString(NULL), m_lazyLength(0)
+	: Bufferless<BufferedTransformation>(copy), m_lazyString(NULLPTR), m_lazyLength(0)
 {
 	CopyFrom(copy);
 }
@@ -163,7 +163,7 @@ void ByteQueue::CopyFrom(const ByteQueue &copy)
 		m_tail = m_tail->next;
 	}
 
-	m_tail->next = NULL;
+	m_tail->next = NULLPTR;
 
 	Put(copy.m_lazyString, copy.m_lazyLength);
 }
@@ -213,7 +213,7 @@ void ByteQueue::Clear()
 
 	m_tail = m_head;
 	m_head->Clear();
-	m_head->next = NULL;
+	m_head->next = NULLPTR;
 	m_lazyLength = 0;
 }
 

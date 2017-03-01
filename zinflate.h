@@ -105,7 +105,7 @@ public:
 	//! \param attachment the filter's attached transformation
 	//! \param repeat decompress multiple compressed streams in series
 	//! \param autoSignalPropagation 0 to turn off MessageEnd signal
-	Inflator(BufferedTransformation *attachment = NULL, bool repeat = false, int autoSignalPropagation = -1);
+	Inflator(BufferedTransformation *attachment = NULLPTR, bool repeat = false, int autoSignalPropagation = -1);
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
 	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking);

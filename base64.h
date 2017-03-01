@@ -24,7 +24,7 @@ public:
 	//! \details Base64Encoder constructs a default encoder. The constructor lacks a parameter for padding, and you must
 	//!   use IsolatedInitialize() to modify the Base64Encoder after construction.
 	//! \sa IsolatedInitialize() for an example of modifying an encoder after construction.
-	Base64Encoder(BufferedTransformation *attachment = NULL, bool insertLineBreaks = true, int maxLineLength = 72)
+	Base64Encoder(BufferedTransformation *attachment = NULLPTR, bool insertLineBreaks = true, int maxLineLength = 72)
 		: SimpleProxyFilter(new BaseN_Encoder(new Grouper), attachment)
 	{
 		IsolatedInitialize(MakeParameters(Name::InsertLineBreaks(), insertLineBreaks)(Name::MaxLineLength(), maxLineLength));
@@ -62,7 +62,7 @@ public:
 	//! \brief Construct a Base64Decoder
 	//! \param attachment a BufferedTrasformation to attach to this object
 	//! \sa IsolatedInitialize() for an example of modifying an encoder after construction.
-	Base64Decoder(BufferedTransformation *attachment = NULL)
+	Base64Decoder(BufferedTransformation *attachment = NULLPTR)
 		: BaseN_Decoder(GetDecodingLookupArray(), 6, attachment) {}
 
 	//! \brief Initialize or reinitialize this object, without signal propagation
@@ -109,7 +109,7 @@ public:
 	//!   after constructing a Base64URLEncoder.
 	//! \sa Base64Encoder for an encoder that provides a classic alphabet, and Base64URLEncoder::IsolatedInitialize
 	//!   for an example of modifying an encoder after construction.
-	Base64URLEncoder(BufferedTransformation *attachment = NULL, bool insertLineBreaks = false, int maxLineLength = -1)
+	Base64URLEncoder(BufferedTransformation *attachment = NULLPTR, bool insertLineBreaks = false, int maxLineLength = -1)
 		: SimpleProxyFilter(new BaseN_Encoder(new Grouper), attachment)
 	{
 		CRYPTOPP_UNUSED(insertLineBreaks), CRYPTOPP_UNUSED(maxLineLength);
@@ -139,7 +139,7 @@ public:
 	//! \param attachment a BufferedTrasformation to attach to this object
 	//! \details Base64URLDecoder() constructs a default decoder using a web safe alphabet.
 	//! \sa Base64Decoder for a decoder that provides a classic alphabet.
-	Base64URLDecoder(BufferedTransformation *attachment = NULL)
+	Base64URLDecoder(BufferedTransformation *attachment = NULLPTR)
 		: BaseN_Decoder(GetDecodingLookupArray(), 6, attachment) {}
 
 	//! \brief Initialize or reinitialize this object, without signal propagation

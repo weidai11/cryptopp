@@ -342,7 +342,7 @@ void BLAKE2_Base<W, T_64bit>::UncheckedSetKey(const byte *key, unsigned int leng
 template <class W, bool T_64bit>
 BLAKE2_Base<W, T_64bit>::BLAKE2_Base() : m_state(1), m_block(1), m_digestSize(DIGESTSIZE), m_treeMode(false)
 {
-    UncheckedSetKey(NULL, 0, g_nullNameValuePairs);
+    UncheckedSetKey(NULLPTR, 0, g_nullNameValuePairs);
     Restart();
 }
 
@@ -351,7 +351,7 @@ BLAKE2_Base<W, T_64bit>::BLAKE2_Base(bool treeMode, unsigned int digestSize) : m
 {
     CRYPTOPP_ASSERT(digestSize <= DIGESTSIZE);
 
-    UncheckedSetKey(NULL, 0, g_nullNameValuePairs);
+    UncheckedSetKey(NULLPTR, 0, g_nullNameValuePairs);
     Restart();
 }
 
@@ -392,7 +392,7 @@ void BLAKE2_Base<W, T_64bit>::Restart(const BLAKE2_ParameterBlock<T_64bit>& bloc
     State& state = *m_state.data();
     state.t[0] = state.t[1] = 0, state.f[0] = state.f[1] = 0, state.length = 0;
 
-    if (counter != NULL)
+    if (counter != NULLPTR)
     {
         state.t[0] = counter[0];
         state.t[1] = counter[1];

@@ -22,7 +22,7 @@ public:
 	//! \param groupSize the size of the output grouping
 	//! \param separator the separator to use between groups
 	//! \param terminator the terminator append after processing
-	HexEncoder(BufferedTransformation *attachment = NULL, bool uppercase = true, int groupSize = 0, const std::string &separator = ":", const std::string &terminator = "")
+	HexEncoder(BufferedTransformation *attachment = NULLPTR, bool uppercase = true, int groupSize = 0, const std::string &separator = ":", const std::string &terminator = "")
 		: SimpleProxyFilter(new BaseN_Encoder(new Grouper), attachment)
 	{
 		IsolatedInitialize(MakeParameters(Name::Uppercase(), uppercase)(Name::GroupSize(), groupSize)(Name::Separator(), ConstByteArrayParameter(separator))(Name::Terminator(), ConstByteArrayParameter(terminator)));
@@ -38,7 +38,7 @@ class CRYPTOPP_DLL HexDecoder : public BaseN_Decoder
 public:
 	//! \brief Construct a HexDecoder
 	//! \param attachment a BufferedTrasformation to attach to this object
-	HexDecoder(BufferedTransformation *attachment = NULL)
+	HexDecoder(BufferedTransformation *attachment = NULLPTR)
 		: BaseN_Decoder(GetDefaultDecodingLookupArray(), 4, attachment) {}
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
