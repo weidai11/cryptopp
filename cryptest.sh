@@ -229,6 +229,7 @@ fi
 
 # Now that the compiler is fixed, determine the compiler version for fixups
 CLANG_37_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'clang version (3\.[7-9]|[4-9]\.[0-9])')
+GCC_70_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version (7\.[0-9]|[8-9])')
 GCC_60_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version (6\.[0-9]|[7-9])')
 GCC_51_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version (5\.[1-9]|[6-9])')
 GCC_48_COMPILER=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version 4\.8')
@@ -1073,6 +1074,9 @@ if [[ ("$GCC_COMPILER" -ne "0") ]]; then
 	WARNING_CXXFLAGS+=("-Wall" "-Wextra" "-Wno-unknown-pragmas" "-Wstrict-aliasing=3" "-Wstrict-overflow" "-Wcast-align"
                         "-Waggressive-loop-optimizations" "-Wwrite-strings" "-Wformat=2" "-Wformat-security" "-Wtrampolines")
 
+	if [[ ("$GCC_70_OR_ABOVE" -ne "0") ]]; then
+		WARNING_CXXFLAGS+=("-Wrestrict -Wduplicated-branches -Wregister")
+	fi
 	if [[ ("$GCC_60_OR_ABOVE" -ne "0") ]]; then
 		WARNING_CXXFLAGS+=("-Wshift-negative-value -Wshift-overflow=2 -Wnull-dereference -Wduplicated-cond -Wodr-type-mismatch")
 	fi
