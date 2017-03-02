@@ -90,6 +90,8 @@ bool ValidateAll(bool thorough)
 	pass=TestHuffmanCodes() && pass;
 	// http://github.com/weidai11/cryptopp/issues/346
 	pass=TestASN1Parse() && pass;
+	// Enable during debug for code coverage
+	pass=ValidateBaseCode() && pass;
 #endif
 
 	pass=ValidateCRC32() && pass;
