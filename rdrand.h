@@ -128,9 +128,6 @@ public:
         // Override to avoid the base class' throw.
         CRYPTOPP_UNUSED(input); CRYPTOPP_UNUSED(length);
     }
-
-private:
-    unsigned int m_retries;
 };
 
 NAMESPACE_END
