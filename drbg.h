@@ -11,6 +11,8 @@
 
 #include "cryptlib.h"
 #include "secblock.h"
+#include "hmac.h"
+#include "sha.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -170,6 +172,8 @@ public:
     CRYPTOPP_CONSTANT(MAXIMUM_BYTES_PER_REQUEST=65536)
     CRYPTOPP_CONSTANT(MAXIMUM_REQUESTS_BEFORE_RESEED=INT_MAX)
 
+    static std::string StaticAlgorithmName() { return std::string("Hash_DRBG(") + HASH::StaticAlgorithmName() + std::string(")"); }
+
     //! \brief Construct a Hash DRBG
     //! \param entropy the entropy to instantiate the generator
     //! \param entropyLength the size of the entropy buffer
@@ -280,6 +284,8 @@ public:
     CRYPTOPP_CONSTANT(MAXIMUM_PERSONALIZATION=INT_MAX)
     CRYPTOPP_CONSTANT(MAXIMUM_BYTES_PER_REQUEST=65536)
     CRYPTOPP_CONSTANT(MAXIMUM_REQUESTS_BEFORE_RESEED=INT_MAX)
+
+    static std::string StaticAlgorithmName() { return std::string("HMAC_DRBG(") + HASH::StaticAlgorithmName() + std::string(")"); }
 
     //! \brief Construct a HMAC DRBG
     //! \param entropy the entropy to instantiate the generator
@@ -537,8 +543,8 @@ void Hash_DRBG<HASH, STRENGTH, SEEDLENGTH>::Hash_Update(const byte* input1, size
         size_t count = STDMIN(outlen, (size_t)HASH::DIGESTSIZE);
         hash.TruncatedFinal(output, count);
 
-		output += count; outlen -= count;
-		counter++;
+        output += count; outlen -= count;
+        counter++;
     }
 }
 

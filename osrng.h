@@ -87,9 +87,12 @@ private:
 class CRYPTOPP_DLL NonblockingRng : public RandomNumberGenerator
 {
 public:
+	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() { return "NonblockingRng"; }
+
+	~NonblockingRng();
+
 	//! \brief Construct a NonblockingRng
 	NonblockingRng();
-	~NonblockingRng();
 
 	//! \brief Generate random array of bytes
 	//! \param output the byte buffer
@@ -115,9 +118,12 @@ protected:
 class CRYPTOPP_DLL BlockingRng : public RandomNumberGenerator
 {
 public:
+	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() { return "BlockingRng"; }
+
+	~BlockingRng();
+
 	//! \brief Construct a BlockingRng
 	BlockingRng();
-	~BlockingRng();
 
 	//! \brief Generate random array of bytes
 	//! \param output the byte buffer
@@ -143,7 +149,6 @@ protected:
 //!  by way of BlockingRng, if available.
 CRYPTOPP_DLL void CRYPTOPP_API OS_GenerateRandomBlock(bool blocking, byte *output, size_t size);
 
-
 //! \class AutoSeededRandomPool
 //! \brief Automatically Seeded Randomness Pool
 //! \details This class seeds itself using an operating system provided RNG.
@@ -151,6 +156,10 @@ CRYPTOPP_DLL void CRYPTOPP_API OS_GenerateRandomBlock(bool blocking, byte *outpu
 class CRYPTOPP_DLL AutoSeededRandomPool : public RandomPool
 {
 public:
+	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() { return "AutoSeededRandomPool"; }
+
+	~AutoSeededRandomPool() {}
+
 	//! \brief Construct an AutoSeededRandomPool
 	//! \param blocking controls seeding with BlockingRng or NonblockingRng
 	//! \param seedSize the size of the seed, in bytes
@@ -178,6 +187,10 @@ template <class BLOCK_CIPHER>
 class AutoSeededX917RNG : public RandomNumberGenerator, public NotCopyable
 {
 public:
+	static std::string StaticAlgorithmName() { return std::string("AutoSeededX917RNG(") + BLOCK_CIPHER::StaticAlgorithmName() + std::string(")"); }
+
+	~AutoSeededX917RNG() {}
+
 	//! \brief Construct an AutoSeededX917RNG
 	//! \param blocking controls seeding with BlockingRng or NonblockingRng
 	//! \param autoSeed controls auto seeding of the generator

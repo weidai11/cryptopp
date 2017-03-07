@@ -20,9 +20,6 @@
 #include "rng.h"
 
 #ifdef CRYPTOPP_WIN32_AVAILABLE
-//#ifndef _WIN32_WINNT
-//#define _WIN32_WINNT 0x0400
-//#endif
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #if defined(USE_MS_CRYPTOAPI)
@@ -34,7 +31,6 @@
 # define CRYPT_MACHINE_KEYSET 0x00000020
 #endif
 #elif defined(USE_MS_CNGAPI)
-//#include <ntdef.h>
 #include <bcrypt.h>
 #ifndef BCRYPT_SUCCESS
 # define BCRYPT_SUCCESS(Status) (((NTSTATUS)(Status)) >= 0)

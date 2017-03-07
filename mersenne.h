@@ -30,6 +30,10 @@ template <unsigned int K, unsigned int M, unsigned int N, unsigned int F, unsign
 class MersenneTwister : public RandomNumberGenerator
 {
 public:
+	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() { return "MT19937"; }
+
+	~MersenneTwister() {}
+
 	//! \brief Construct a Mersenne Twister
 	//! \param seed 32-bit seed
 	//! \details Defaults to template parameter S due to changing algorithm
