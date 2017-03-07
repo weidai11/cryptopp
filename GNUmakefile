@@ -686,10 +686,10 @@ endif
 .PHONY: trim
 trim:
 ifneq ($(IS_DARWIN),0)
-	sed -i '' -e's/[[:space:]]*$$//' *.sh *.h *.cpp *.sln *.vcxproj GNUmakefile GNUmakefile-cross
+	sed -i '' -e's/[[:space:]]*$$//' *.sh *.h *.cpp *.asm *.S *.sln *.vcxproj GNUmakefile GNUmakefile-cross
 	make convert
 else
-	sed -i -e's/[[:space:]]*$$//' *.sh *.h *.cpp *.sln *.vcxproj GNUmakefile GNUmakefile-cross
+	sed -i -e's/[[:space:]]*$$//' *.sh *.h *.cpp *.asm *.S *.sln *.vcxproj GNUmakefile GNUmakefile-cross
 	make convert
 endif
 
