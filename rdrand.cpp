@@ -15,13 +15,14 @@
 
 // This file (and friends) provides both RDRAND and RDSEED. They were added at
 //   Crypto++ 5.6.3. At compile time, it uses CRYPTOPP_BOOL_{X86|X32|X64}
-//   to select an implementation or "throw NotImplemented". At runtime, the
-//   class uses the result of CPUID to determine if RDRAND or RDSEED are
-//   available. If not available, then a SIGILL will result.
+//   to select an implementation or "throw NotImplemented". The class does not
+//   use CPUID to determine if RDRAND or RDSEED are available. If not available,
+//   then a SIGILL will result. Users of the classes should call HasRDRAND() or
+//   HasRDSEED() to determine if a generator is available.
 // The original classes accepted a retry count. Retries were superflous for
 //   RDRAND, and RDSEED encountered a failure about 1 in 256 bytes depending
-//   on the processor. Retries were removed at Crypto++ 6.0 because the
-//   functions always fulfill the request.
+//   on the processor. Retries were removed at Crypto++ 6.0 because
+//   GenerateBlock unconditionally retries and always fulfills the request.
 
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
@@ -69,9 +70,13 @@
 #  endif
 # elif defined(CRYPTOPP_GCC_VERSION)
 #  if defined(__RDRND__) || (CRYPTOPP_GCC_VERSION >= 40600)
+#    define ALL_RDRAND_INTRIN_AVAILABLE 1
+#  else
 #    define GCC_RDRAND_ASM_AVAILABLE 1
 #  endif
 #  if defined(__RDSEED__) || (CRYPTOPP_GCC_VERSION >= 40600)
+#    define ALL_RDSEED_INTRIN_AVAILABLE 1
+#  else
 #    define GCC_RDSEED_ASM_AVAILABLE 1
 #  endif
 # endif
@@ -143,7 +148,7 @@ inline void RDRAND32(void* output)
         : "=a" (*reinterpret_cast<word32*>(output))
         : : "cc"
     );
-#elif defined(GCC_RDRAND_ASM_AVAILABLE)
+#elif defined(GCC_RDRAND_ASM_AVAILABLE) && (CRYPTOPP_GCC_VERSION >= 40600)
     __asm__ __volatile__
     (
         INTEL_NOPREFIX
@@ -151,6 +156,14 @@ inline void RDRAND32(void* output)
         AS1(rdrand eax)
         ASJ(jnc,   1, b)
         ATT_NOPREFIX
+        : "=a" (*reinterpret_cast<word32*>(output))
+        : : "cc"
+    );
+#elif defined(GCC_RDRAND_ASM_AVAILABLE) && (CRYPTOPP_GCC_VERSION >= 30200)
+    __asm__ __volatile__
+    (
+        ".byte 0x0f, 0xc7, 0xf0;\n"
+        ".byte 0x73, 0xfb;\n"
         : "=a" (*reinterpret_cast<word32*>(output))
         : : "cc"
     );
@@ -174,7 +187,7 @@ inline void RDRAND64(void* output)
         : "=a" (*reinterpret_cast<word64*>(output))
         : : "cc"
     );
-#elif defined(GCC_RDRAND_ASM_AVAILABLE)
+#elif defined(GCC_RDRAND_ASM_AVAILABLE) && (CRYPTOPP_GCC_VERSION >= 40600)
     __asm__ __volatile__
     (
         INTEL_NOPREFIX
@@ -182,6 +195,14 @@ inline void RDRAND64(void* output)
         AS1(rdrand rax)
         ASJ(jnc,   1, b)
         ATT_NOPREFIX
+        : "=a" (*reinterpret_cast<word64*>(output))
+        : : "cc"
+    );
+#elif defined(GCC_RDRAND_ASM_AVAILABLE) && (CRYPTOPP_GCC_VERSION >= 30200)
+    __asm__ __volatile__
+    (
+        ".byte 0x48, 0x0f, 0xc7, 0xf0;\n"
+        ".byte 0x73, 0xfa;\n"
         : "=a" (*reinterpret_cast<word64*>(output))
         : : "cc"
     );
@@ -274,7 +295,7 @@ inline void RDSEED32(void* output)
         : "=a" (*reinterpret_cast<word32*>(output))
         : : "cc"
     );
-#elif defined(GCC_RDSEED_ASM_AVAILABLE)
+#elif defined(GCC_RDSEED_ASM_AVAILABLE) && (CRYPTOPP_GCC_VERSION >= 40600)
     __asm__ __volatile__
     (
         INTEL_NOPREFIX
@@ -285,8 +306,16 @@ inline void RDSEED32(void* output)
         : "=a" (*reinterpret_cast<word32*>(output))
         : : "cc"
     );
+#elif defined(GCC_RDSEED_ASM_AVAILABLE) && (CRYPTOPP_GCC_VERSION >= 30200)
+    __asm__ __volatile__
+    (
+        ".byte 0x0f, 0xc7, 0xf8;\n"
+        ".byte 0x73, 0xfb;\n"
+        : "=a" (*reinterpret_cast<word32*>(output))
+        : : "cc"
+    );
 #elif defined(ALL_RDSEED_INTRIN_AVAILABLE)
-    while(!_rdseed32_step(reinterpret_cast<unsigned long long*>(output))) {}
+    while(!_rdseed32_step(reinterpret_cast<word32*>(output))) {}
 #else
     // RDSEED not detected at compile time, or no suitable compiler found
     throw NotImplemented("RDSEED: failed to find an implementation");
@@ -304,7 +333,7 @@ inline void RDSEED64(void* output)
         : "=a" (*reinterpret_cast<word64*>(output))
         : : "cc"
     );
-#elif defined(GCC_RDSEED_ASM_AVAILABLE)
+#elif defined(GCC_RDSEED_ASM_AVAILABLE) && (CRYPTOPP_GCC_VERSION >= 40600)
     __asm__ __volatile__
     (
         INTEL_NOPREFIX
@@ -312,6 +341,14 @@ inline void RDSEED64(void* output)
         AS1(rdseed rax)
         ASJ(jnc,   1, b)
         ATT_NOPREFIX
+        : "=a" (*reinterpret_cast<word64*>(output))
+        : : "cc"
+    );
+#elif defined(GCC_RDSEED_ASM_AVAILABLE) && (CRYPTOPP_GCC_VERSION >= 30200)
+    __asm__ __volatile__
+    (
+        ".byte 0x48, 0x0f, 0xc7, 0xf8;\n"
+        ".byte 0x73, 0xfa;\n"
         : "=a" (*reinterpret_cast<word64*>(output))
         : : "cc"
     );

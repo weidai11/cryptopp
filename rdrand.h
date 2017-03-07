@@ -11,18 +11,21 @@
 
 // This file (and friends) provides both RDRAND and RDSEED. They were added at
 //   Crypto++ 5.6.3. At compile time, it uses CRYPTOPP_BOOL_{X86|X32|X64}
-//   to select an implementation or "throw NotImplemented". At runtime, the
-//   class uses the result of CPUID to determine if RDRAND or RDSEED are
-//   available. If not available, then a SIGILL will result.
+//   to select an implementation or "throw NotImplemented". The class does not
+//   use CPUID to determine if RDRAND or RDSEED are available. If not available,
+//   then a SIGILL will result. Users of the classes should call HasRDRAND() or
+//   HasRDSEED() to determine if a generator is available.
 // The original classes accepted a retry count. Retries were superflous for
 //   RDRAND, and RDSEED encountered a failure about 1 in 256 bytes depending
-//   on the processor. Retries were removed at Crypto++ 6.0 because the
-//   functions always fulfill the request.
+//   on the processor. Retries were removed at Crypto++ 6.0 because
+//   GenerateBlock unconditionally retries and always fulfills the request.
 
 // Throughput varies wildly depending on processor and manufacturer. A Core i5 or
-//   Core i7 RDRAND can generate at over 200 MiB/s. A low end Celeron may perform
-//   RDRAND at 7 MiB/s. RDSEED performs at about 1/4 to 1/2 the rate of RDRAND.
-//   AMD RDRAND performed poorly during testing with Athlon X4 845 (Bulldozer v4).
+//   Core i7 RDRAND can generate at over 200 MiB/s. Its below the theroetical
+//    maximum, but it takes about 5 instructions to generate, retry and store a
+//   result. A low-end Celeron may perform RDRAND at about 7 MiB/s. RDSEED
+//   performs at about 1/4 to 1/2 the rate of RDRAND. AMD RDRAND performed poorly
+//   during testing with Athlon X4 845. The Bulldozer v4 only performed at 1 MiB/s.
 
 // Microsoft added RDRAND in August 2012, VS2012; RDSEED in October 2013, VS2013.
 // GCC added RDRAND in December 2010, GCC 4.6. LLVM added RDRAND in July 2012, Clang 3.2.
