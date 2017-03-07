@@ -679,7 +679,6 @@ bool TestRDRAND()
 	// Squash code coverage warnings on unused functions
 	(void)rdrand.AlgorithmName();
 	(void)rdrand.CanIncorporateEntropy();
-	rdrand.SetRetries(rdrand.GetRetries());
 	rdrand.IncorporateEntropy(NULLPTR, 0);
 
 	if (!(entropy && compress && discard))
@@ -694,7 +693,7 @@ bool TestRDSEED()
 {
 	// Testing on 5th generation i5 shows RDSEED needs about 128 retries for 10K bytes
 	//  on 64-bit/amd64 VM, and it needs more for an 32-bit/i686 VM.
-	RDSEED rdseed(256);
+	RDSEED rdseed;
 	bool entropy = true, compress = true, discard = true;
 	static const unsigned int SIZE = 10000;
 
@@ -758,7 +757,6 @@ bool TestRDSEED()
 	// Squash code coverage warnings on unused functions
 	(void)rdseed.AlgorithmName();
 	(void)rdseed.CanIncorporateEntropy();
-	rdseed.SetRetries(rdseed.GetRetries());
 	rdseed.IncorporateEntropy(NULLPTR, 0);
 
 	if (!(entropy && compress && discard))
@@ -1410,8 +1408,9 @@ bool TestModeIV(SymmetricCipher &e, SymmetricCipher &d)
 	SecByteBlock lastIV, iv(e.IVSize());
 	StreamTransformationFilter filter(e, new StreamTransformationFilter(d));
 
-	// vector_ptr<byte> due to Enterprise Analysis finding on the stack based array.
-	vector_ptr<byte> plaintext(20480);
+	// Enterprise Analysis finding on the stack based array
+	const int BUF_SIZE=20480U;
+	AlignedSecByteBlock plaintext(BUF_SIZE);
 
 	for (unsigned int i=1; i<20480; i*=2)
 	{

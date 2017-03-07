@@ -13,23 +13,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-TITLE    MASM_RRA_GenerateBlock and MASM_RSA_GenerateBlock
+TITLE    MASM_RDRAND_GenerateBlock and MASM_RDSEED_GenerateBlock
 SUBTITLE Microsoft specific ASM code to utilize RDRAND and RDSEED for down level Microsoft toolchains
 
-PUBLIC MASM_RRA_GenerateBlock
-PUBLIC MASM_RSA_GenerateBlock
+PUBLIC MASM_RDRAND_GenerateBlock
+PUBLIC MASM_RDSEED_GenerateBlock
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;; Naming convention used in rdrand.{h|cpp|asm}
-;;   MSC = Microsoft Compiler (and compatibles)
-;;   GCC = GNU Compiler (and compatibles)
-;;   ALL = MSC and GCC (and compatibles)
-;;   RRA = RDRAND, Assembly
-;;   RSA = RDSEED, Assembly
-;;   RRI = RDRAND, Intrinsic
-;;   RSA = RDSEED, Intrinsic
 
 ;;  Caller/Callee Saved Registers
 ;;    https://msdn.microsoft.com/en-us/library/6t169e9c.aspx
@@ -39,19 +30,9 @@ PUBLIC MASM_RSA_GenerateBlock
 
 ;; C/C++ Function prototypes
 ;;   X86:
-;;      extern "C" int MASM_RRA_GenerateBlock(byte* ptr, size_t size, unsigned int safety);
+;;      extern "C" void MASM_RDRAND_GenerateBlock(byte* ptr, size_t size);
 ;;   X64:
-;;      extern "C" int __fastcall MASM_RRA_GenerateBlock(byte* ptr, size_t size, unsigned int safety);
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;; Return values
-RDRAND_SUCCESS EQU 1
-RDRAND_FAILURE EQU 0
-
-RDSEED_SUCCESS EQU 1
-RDSEED_FAILURE EQU 0
+;;      extern "C" void __fastcall MASM_RDRAND_GenerateBlock(byte* ptr, size_t size);
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -77,109 +58,80 @@ OPTION EPILOGUE:NONE
 ;; Caller pushes on stack following CDECL (right to left)
 ;; arg1: byte* buffer
 ;; arg2: size_t bsize
-;; arg3: unsigned int safety
-;; EAX (out): success (1), failure (0)
 
-MASM_RRA_GenerateBlock PROC   ;; arg1:DWORD, arg2:DWORD, arg3:DWORD
+MASM_RDRAND_GenerateBlock PROC   ;; arg1:DWORD, arg2:DWORD
 
-	MWSIZE EQU 04h    ;; machine word size
-	buffer EQU edi
-	bsize  EQU edx
-	safety EQU ecx
+    MWSIZE EQU 04h    ;; machine word size
+    buffer EQU edi
+    bsize  EQU edx
 
 Load_Arguments:
 
-	mov		buffer, DWORD PTR [esp+04h]    ;; arg1
-	mov		bsize,  DWORD PTR [esp+08h]    ;; arg2
-	mov		safety, DWORD PTR [esp+0Ch]    ;; arg3
+    mov     buffer, DWORD PTR [esp+04h]    ;; arg1
+    mov     bsize,  DWORD PTR [esp+08h]    ;; arg2
 
-Validate_Pointer:
-
-	cmp 	buffer, 0
-	je 		GenerateBlock_PreRet
-
-			;; Top of While loop
+            ;; Top of While loop
 GenerateBlock_Top:
 
-			;; Check remaining size
-	cmp 	bsize, 0
-	je		GenerateBlock_Success
+            ;; Check remaining size
+    cmp     bsize, 0
+    je      GenerateBlock_Return
 
 Call_RDRAND_EAX:
-			;; RDRAND is not available prior to VS2012. Just emit
-			;;   the byte codes using DB. This is `rdrand eax`.
-	DB		0Fh, 0C7h, 0F0h
+            ;; RDRAND is not available prior to VS2012. Just emit
+            ;;   the byte codes using DB. This is `rdrand eax`.
+    DB      0Fh, 0C7h, 0F0h
 
-			;; If CF=1, the number returned by RDRAND is valid.
-			;; If CF=0, a random number was not available.
-	jc 		RDRAND_succeeded
+            ;; If CF=1, the number returned by RDRAND is valid.
+            ;; If CF=0, a random number was not available.
 
-RDRAND_failed:
-
-			;; Exit if we've reached the limit
-	cmp		safety, 0
-	je		GenerateBlock_Failure
-
-	dec 	safety
-	jmp		GenerateBlock_Top
+            ;; Retry immediately
+    jnc     Call_RDRAND_EAX
 
 RDRAND_succeeded:
 
-	cmp		bsize, MWSIZE
-	jb		Partial_Machine_Word
+    cmp     bsize, MWSIZE
+    jb      Partial_Machine_Word
 
 Full_Machine_Word:
 
-	mov		DWORD PTR [buffer], eax
-	add		buffer, MWSIZE		;; No need for Intel Core 2 slow workarounds, like
-	sub		bsize, MWSIZE		;;   `lea buffer,[buffer+MWSIZE]` for faster adds
+    mov     DWORD PTR [buffer], eax
+    add     buffer, MWSIZE        ;; No need for Intel Core 2 slow workarounds, like
+    sub     bsize, MWSIZE         ;;   `lea buffer,[buffer+MWSIZE]` for faster adds
 
-			;; Continue
-	jmp		GenerateBlock_Top
+            ;; Continue
+    jmp     GenerateBlock_Top
 
-			;; 1,2,3 bytes remain
+            ;; 1,2,3 bytes remain
 Partial_Machine_Word:
 
-			;; Test bit 1 to see if size is at least 2
-	test	bsize, 2
-	jz		Bit_1_Not_Set
+            ;; Test bit 1 to see if size is at least 2
+    test    bsize, 2
+    jz      Bit_1_Not_Set
 
-	mov		WORD PTR [buffer], ax
-	shr		eax, 16
-	add 	buffer, 2
+    mov     WORD PTR [buffer], ax
+    shr     eax, 16
+    add     buffer, 2
 
 Bit_1_Not_Set:
 
-			;; Test bit 0 to see if size is at least 1
-	test	bsize, 1
-	jz  	GenerateBlock_Success
+            ;; Test bit 0 to see if size is at least 1
+    test    bsize, 1
+    jz      Bit_0_Not_Set
 
-	mov		BYTE PTR [buffer], al
+    mov     BYTE PTR [buffer], al
 
 Bit_0_Not_Set:
 
-			;; We've hit all the bits
-	jmp 	GenerateBlock_Success
+            ;; We've hit all the bits
 
-GenerateBlock_PreRet:
+GenerateBlock_Return:
 
-			;; Test for success (was the request completely fulfilled?)
-	cmp 	bsize, 0
-	je 		GenerateBlock_Success
+            ;; Clear artifacts
+    xor     eax, eax
+    ret
 
-GenerateBlock_Failure:
-
-	xor		eax, eax
-	mov		al, RDRAND_FAILURE
-	ret
-
-GenerateBlock_Success:
-
-	xor		eax, eax
-	mov		al, RDRAND_SUCCESS
-	ret
-
-MASM_RRA_GenerateBlock ENDP
+MASM_RDRAND_GenerateBlock ENDP
 
 ENDIF    ;; _M_X86
 
@@ -198,116 +150,87 @@ OPTION EPILOGUE:NONE
 
 ;; RCX (in): arg1, byte* buffer
 ;; RDX (in): arg2, size_t bsize
-;; R8d (in): arg3, unsigned int safety
-;; RAX (out): success (1), failure (0)
 
-MASM_RRA_GenerateBlock PROC
+MASM_RDRAND_GenerateBlock PROC
 
-	MWSIZE EQU 08h    ;; machine word size
-	buffer EQU rcx
-	bsize  EQU rdx
-	safety EQU r8d
+    MWSIZE EQU 08h    ;; machine word size
+    buffer EQU rcx
+    bsize  EQU rdx
 
-	;; No need for Load_Arguments due to fastcall
+    ;; No need for Load_Arguments due to fastcall
 
-Validate_Pointer:
-
-			;; Validate pointer
-	cmp 	buffer, 0
-	je 		GenerateBlock_PreRet
-
-			;; Top of While loop
+            ;; Top of While loop
 GenerateBlock_Top:
 
-			;; Check remaining size
-	cmp 	bsize, 0
-	je		GenerateBlock_Success
+            ;; Check remaining size
+    cmp     bsize, 0
+    je      GenerateBlock_Return
 
 Call_RDRAND_RAX:
-			;; RDRAND is not available prior to VS2012. Just emit
-			;;   the byte codes using DB. This is `rdrand rax`.
-	DB		048h, 0Fh, 0C7h, 0F0h
+            ;; RDRAND is not available prior to VS2012. Just emit
+            ;;   the byte codes using DB. This is `rdrand rax`.
+    DB      048h, 0Fh, 0C7h, 0F0h
 
-			;; If CF=1, the number returned by RDRAND is valid.
-			;; If CF=0, a random number was not available.
-	jc 		RDRAND_succeeded
+            ;; If CF=1, the number returned by RDRAND is valid.
+            ;; If CF=0, a random number was not available.
 
-RDRAND_failed:
-
-			;; Exit if we've reached the limit
-	cmp		safety, 0
-	je		GenerateBlock_Failure
-
-	dec 	safety
-	jmp		GenerateBlock_Top
+            ;; Retry immediately
+    jnc     Call_RDRAND_RAX
 
 RDRAND_succeeded:
 
-	cmp		bsize, MWSIZE
-	jb		Partial_Machine_Word
+    cmp     bsize, MWSIZE
+    jb      Partial_Machine_Word
 
 Full_Machine_Word:
 
-	mov		QWORD PTR [buffer], rax
-	add		buffer, MWSIZE
-	sub		bsize, MWSIZE
+    mov     QWORD PTR [buffer], rax
+    add     buffer, MWSIZE
+    sub     bsize, MWSIZE
 
-			;; Continue
-	jmp		GenerateBlock_Top
+            ;; Continue
+    jmp     GenerateBlock_Top
 
-			;; 1,2,3,4,5,6,7 bytes remain
+            ;; 1,2,3,4,5,6,7 bytes remain
 Partial_Machine_Word:
 
-			;; Test bit 2 to see if size is at least 4
-	test	bsize, 4
-	jz		Bit_2_Not_Set
+            ;; Test bit 2 to see if size is at least 4
+    test    bsize, 4
+    jz      Bit_2_Not_Set
 
-	mov		DWORD PTR [buffer], eax
-	shr		rax, 32
-	add		buffer, 4
+    mov     DWORD PTR [buffer], eax
+    shr     rax, 32
+    add     buffer, 4
 
 Bit_2_Not_Set:
 
-			;; Test bit 1 to see if size is at least 2
-	test	bsize, 2
-	jz		Bit_1_Not_Set
+            ;; Test bit 1 to see if size is at least 2
+    test    bsize, 2
+    jz      Bit_1_Not_Set
 
-	mov		WORD PTR [buffer], ax
-	shr		eax, 16
-	add 	buffer, 2
+    mov     WORD PTR [buffer], ax
+    shr     eax, 16
+    add     buffer, 2
 
 Bit_1_Not_Set:
 
-			;; Test bit 0 to see if size is at least 1
-	test	bsize, 1
-	jz  	GenerateBlock_Success
+            ;; Test bit 0 to see if size is at least 1
+    test    bsize, 1
+    jz      Bit_0_Not_Set
 
-	mov		BYTE PTR [buffer], al
+    mov     BYTE PTR [buffer], al
 
 Bit_0_Not_Set:
 
-			;; We've hit all the bits
-	jmp		GenerateBlock_Success
+            ;; We've hit all the bits
 
-GenerateBlock_PreRet:
+GenerateBlock_Return:
 
-			;; Test for success (was the request completely fulfilled?)
-	cmp 	bsize, 0
-	je 		GenerateBlock_Success
-
-GenerateBlock_Failure:
-
-	xor		rax, rax
-	mov		al, RDRAND_FAILURE
+            ;; Clear artifacts
+    xor     rax, rax
 	ret
 
-GenerateBlock_Success:
-
-	xor		rax, rax
-	mov		al, RDRAND_SUCCESS
-	ret
-
-MASM_RRA_GenerateBlock ENDP
+MASM_RDRAND_GenerateBlock ENDP
 
 ENDIF    ;; _M_X64
 
@@ -328,109 +251,80 @@ OPTION EPILOGUE:NONE
 ;; Caller pushes on stack following CDECL (right to left)
 ;; arg1: byte* buffer
 ;; arg2: size_t bsize
-;; arg3: unsigned int safety
-;; EAX (out): success (1), failure (0)
 
-MASM_RSA_GenerateBlock PROC   ;; arg1:DWORD, arg2:DWORD, arg3:DWORD
+MASM_RDSEED_GenerateBlock PROC   ;; arg1:DWORD, arg2:DWORD
 
-	MWSIZE EQU 04h    ;; machine word size
-	buffer EQU edi
-	bsize  EQU edx
-	safety EQU ecx
+    MWSIZE EQU 04h    ;; machine word size
+    buffer EQU edi
+    bsize  EQU edx
 
 Load_Arguments:
 
-	mov		buffer, DWORD PTR [esp+04h]    ;; arg1
-	mov		bsize,  DWORD PTR [esp+08h]    ;; arg2
-	mov		safety, DWORD PTR [esp+0Ch]    ;; arg3
+    mov     buffer, DWORD PTR [esp+04h]    ;; arg1
+    mov     bsize,  DWORD PTR [esp+08h]    ;; arg2
 
-Validate_Pointer:
-
-	cmp		buffer, 0
-	je		GenerateBlock_PreRet
-
-			;; Top of While loop
+            ;; Top of While loop
 GenerateBlock_Top:
 
-			;; Check remaining size
-	cmp		bsize, 0
-	je		GenerateBlock_Success
+            ;; Check remaining size
+    cmp     bsize, 0
+    je      GenerateBlock_Return
 
 Call_RDSEED_EAX:
-			;; RDSEED is not available prior to VS2012. Just emit
-			;;   the byte codes using DB. This is `rdseed eax`.
-	DB		0Fh, 0C7h, 0F8h
+            ;; RDSEED is not available prior to VS2012. Just emit
+            ;;   the byte codes using DB. This is `rdseed eax`.
+    DB      0Fh, 0C7h, 0F8h
 
-			;; If CF=1, the number returned by RDSEED is valid.
-			;; If CF=0, a random number was not available.
-	jc 		RDSEED_succeeded
+            ;; If CF=1, the number returned by RDSEED is valid.
+            ;; If CF=0, a random number was not available.
 
-RDSEED_failed:
-
-			;; Exit if we've reached the limit
-	cmp		safety, 0
-	je		GenerateBlock_Failure
-
-	dec 	safety
-	jmp		GenerateBlock_Top
+            ;; Retry immediately
+    jnc     Call_RDSEED_EAX
 
 RDSEED_succeeded:
 
-	cmp		bsize, MWSIZE
-	jb		Partial_Machine_Word
+    cmp     bsize, MWSIZE
+    jb      Partial_Machine_Word
 
 Full_Machine_Word:
 
-	mov		DWORD PTR [buffer], eax
-	add		buffer, MWSIZE		;; No need for Intel Core 2 slow workarounds, like
-	sub		bsize, MWSIZE		;;   `lea buffer,[buffer+MWSIZE]` for faster adds
+    mov     DWORD PTR [buffer], eax
+    add     buffer, MWSIZE        ;; No need for Intel Core 2 slow workarounds, like
+    sub     bsize, MWSIZE         ;;   `lea buffer,[buffer+MWSIZE]` for faster adds
 
-			;; Continue
-	jmp		GenerateBlock_Top
+            ;; Continue
+    jmp     GenerateBlock_Top
 
-			;; 1,2,3 bytes remain
+            ;; 1,2,3 bytes remain
 Partial_Machine_Word:
 
-			;; Test bit 1 to see if size is at least 2
-	test	bsize, 2
-	jz		Bit_1_Not_Set
+            ;; Test bit 1 to see if size is at least 2
+    test    bsize, 2
+    jz      Bit_1_Not_Set
 
-	mov		WORD PTR [buffer], ax
-	shr		eax, 16
-	add 	buffer, 2
+    mov     WORD PTR [buffer], ax
+    shr     eax, 16
+    add     buffer, 2
 
 Bit_1_Not_Set:
 
-			;; Test bit 0 to see if size is at least 1
-	test	bsize, 1
-	jz  	GenerateBlock_Success
+            ;; Test bit 0 to see if size is at least 1
+    test    bsize, 1
+    jz      Bit_0_Not_Set
 
-	mov		BYTE PTR [buffer], al
+    mov     BYTE PTR [buffer], al
 
 Bit_0_Not_Set:
 
-			;; We've hit all the bits
-	jmp 	GenerateBlock_Success
+            ;; We've hit all the bits
 
-GenerateBlock_PreRet:
+GenerateBlock_Return:
 
-			;; Test for success (was the request completely fulfilled?)
-	cmp 	bsize, 0
-	je 		GenerateBlock_Success
-
-GenerateBlock_Failure:
-
-	xor		eax, eax
-	mov		al, RDSEED_FAILURE
+            ;; Clear artifacts
+    xor     eax, eax
 	ret
 
-GenerateBlock_Success:
-
-	xor		eax, eax
-	mov		al, RDSEED_SUCCESS
-	ret
-
-MASM_RSA_GenerateBlock ENDP
+MASM_RDSEED_GenerateBlock ENDP
 
 ENDIF    ;; _M_X86
 
@@ -449,116 +343,87 @@ OPTION EPILOGUE:NONE
 
 ;; RCX (in): arg1, byte* buffer
 ;; RDX (in): arg2, size_t bsize
-;; R8d (in): arg3, unsigned int safety
-;; RAX (out): success (1), failure (0)
 
-MASM_RSA_GenerateBlock PROC ;; arg1:QWORD,arg2:QWORD,arg3:DWORD
+MASM_RDSEED_GenerateBlock PROC ;; arg1:QWORD,arg2:QWORD
 
-	MWSIZE EQU 08h    ;; machine word size
-	buffer EQU rcx
-	bsize  EQU rdx
-	safety EQU r8d
+    MWSIZE EQU 08h    ;; machine word size
+    buffer EQU rcx
+    bsize  EQU rdx
 
-	;; No need for Load_Arguments due to fastcall
+    ;; No need for Load_Arguments due to fastcall
 
-Validate_Pointer:
-
-			;; Validate pointer
-	cmp 	buffer, 0
-	je 		GenerateBlock_PreRet
-
-			;; Top of While loop
+            ;; Top of While loop
 GenerateBlock_Top:
 
-			;; Check remaining size
-	cmp 	bsize, 0
-	je		GenerateBlock_Success
+            ;; Check remaining size
+    cmp     bsize, 0
+    je      GenerateBlock_Return
 
 Call_RDSEED_RAX:
-			;; RDSEED is not available prior to VS2012. Just emit
-			;;   the byte codes using DB. This is `rdseed rax`.
-	DB 048h, 0Fh, 0C7h, 0F8h
+            ;; RDSEED is not available prior to VS2012. Just emit
+            ;;   the byte codes using DB. This is `rdseed rax`.
+    DB      048h, 0Fh, 0C7h, 0F8h
 
-			;; If CF=1, the number returned by RDSEED is valid.
-			;; If CF=0, a random number was not available.
-	jc 		RDSEED_succeeded
+            ;; If CF=1, the number returned by RDSEED is valid.
+            ;; If CF=0, a random number was not available.
 
-RDSEED_failed:
-
-			;; Exit if we've reached the limit
-	cmp		safety, 0
-	je		GenerateBlock_Failure
-
-	dec 	safety
-	jmp		GenerateBlock_Top
+            ;; Retry immediately
+    jnc     Call_RDSEED_RAX
 
 RDSEED_succeeded:
 
-	cmp		bsize, MWSIZE
-	jb		Partial_Machine_Word
+    cmp     bsize, MWSIZE
+    jb      Partial_Machine_Word
 
 Full_Machine_Word:
 
-	mov		QWORD PTR [buffer], rax
-	add		buffer, MWSIZE
-	sub		bsize, MWSIZE
+    mov     QWORD PTR [buffer], rax
+    add     buffer, MWSIZE
+    sub     bsize, MWSIZE
 
-			;; Continue
-	jmp		GenerateBlock_Top
+            ;; Continue
+    jmp     GenerateBlock_Top
 
-			;; 1,2,3,4,5,6,7 bytes remain
+            ;; 1,2,3,4,5,6,7 bytes remain
 Partial_Machine_Word:
 
-			;; Test bit 2 to see if size is at least 4
-	test	bsize, 4
-	jz		Bit_2_Not_Set
+            ;; Test bit 2 to see if size is at least 4
+    test    bsize, 4
+    jz      Bit_2_Not_Set
 
-	mov		DWORD PTR [buffer], eax
-	shr		rax, 32
-	add		buffer, 4
+    mov     DWORD PTR [buffer], eax
+    shr     rax, 32
+    add     buffer, 4
 
 Bit_2_Not_Set:
 
-			;; Test bit 1 to see if size is at least 2
-	test	bsize, 2
-	jz		Bit_1_Not_Set
+            ;; Test bit 1 to see if size is at least 2
+    test    bsize, 2
+    jz      Bit_1_Not_Set
 
-	mov		WORD PTR [buffer], ax
-	shr		eax, 16
-	add 	buffer, 2
+    mov     WORD PTR [buffer], ax
+    shr     eax, 16
+    add     buffer, 2
 
 Bit_1_Not_Set:
 
-			;; Test bit 0 to see if size is at least 1
-	test	bsize, 1
-	jz  	GenerateBlock_Success
+            ;; Test bit 0 to see if size is at least 1
+    test    bsize, 1
+    jz      Bit_0_Not_Set
 
-	mov		BYTE PTR [buffer], al
+    mov     BYTE PTR [buffer], al
 
 Bit_0_Not_Set:
 
-			;; We've hit all the bits
-	jmp		GenerateBlock_Success
+            ;; We've hit all the bits
 
-GenerateBlock_PreRet:
+GenerateBlock_Return:
 
-			;; Test for success (was the request completely fulfilled?)
-	cmp 	bsize, 0
-	je 		GenerateBlock_Success
+            ;; Clear artifacts
+    xor     rax, rax
+    ret
 
-GenerateBlock_Failure:
-
-	xor		rax, rax
-	mov		al, RDSEED_FAILURE
-	ret
-
-GenerateBlock_Success:
-
-	xor		rax, rax
-	mov		al, RDSEED_SUCCESS
-	ret
-
-MASM_RSA_GenerateBlock ENDP
+MASM_RDSEED_GenerateBlock ENDP
 
 ENDIF    ;; _M_X64
 
