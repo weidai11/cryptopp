@@ -43,20 +43,26 @@
 #if defined(CRYPTOPP_CPUID_AVAILABLE)
 # if defined(CRYPTOPP_MSC_VERSION)
 #  if (CRYPTOPP_MSC_VERSION >= 1700)
-// #    define MASM_RDRAND_ASM_AVAILABLE 1
 #    define ALL_RDRAND_INTRIN_AVAILABLE 1
 #  else
 #    define MASM_RDRAND_ASM_AVAILABLE 1
 #  endif
 #  if (CRYPTOPP_MSC_VERSION >= 1800)
-// #    define MASM_RDSEED_ASM_AVAILABLE 1
 #    define ALL_RDSEED_INTRIN_AVAILABLE 1
 #  else
 #    define MASM_RDSEED_ASM_AVAILABLE 1
 #  endif
 # elif defined(CRYPTOPP_LLVM_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION)
-#  define GCC_RDRAND_ASM_AVAILABLE 1
-#  define GCC_RDSEED_ASM_AVAILABLE 1
+#  if defined(__RDRND__)
+#    define ALL_RDRAND_INTRIN_AVAILABLE 1
+#  else
+#    define GCC_RDRAND_ASM_AVAILABLE 1
+#  endif
+#  if defined(__RDSEED__)
+#    define ALL_RDSEED_INTRIN_AVAILABLE 1
+#  else
+#    define GCC_RDSEED_ASM_AVAILABLE 1
+#  endif
 # elif defined(__SUNPRO_CC)
 #  if defined(__RDRND__) && (__SUNPRO_CC >= 0x5130)
 #    define ALL_RDRAND_INTRIN_AVAILABLE 1
@@ -69,12 +75,12 @@
 #    define GCC_RDSEED_ASM_AVAILABLE 1
 #  endif
 # elif defined(CRYPTOPP_GCC_VERSION)
-#  if defined(__RDRND__) || (CRYPTOPP_GCC_VERSION >= 40600)
+#  if defined(__RDRND__) && (CRYPTOPP_GCC_VERSION >= 40600)
 #    define ALL_RDRAND_INTRIN_AVAILABLE 1
 #  else
 #    define GCC_RDRAND_ASM_AVAILABLE 1
 #  endif
-#  if defined(__RDSEED__) || (CRYPTOPP_GCC_VERSION >= 40600)
+#  if defined(__RDSEED__) && (CRYPTOPP_GCC_VERSION >= 40600)
 #    define ALL_RDSEED_INTRIN_AVAILABLE 1
 #  else
 #    define GCC_RDSEED_ASM_AVAILABLE 1
@@ -102,7 +108,7 @@
 extern "C" void CRYPTOPP_FASTCALL MASM_RDRAND_GenerateBlock(byte*, size_t);
 // #  pragma comment(lib, "rdrand-x64.lib")
 # else
-extern "C" void MASM_RDRAND_GenerateBlock(byte*, size_t);
+extern "C" void CRYPTOPP_FASTCALL MASM_RDRAND_GenerateBlock(byte*, size_t);
 // #  pragma comment(lib, "rdrand-x86.lib")
 # endif
 #endif
@@ -112,7 +118,7 @@ extern "C" void MASM_RDRAND_GenerateBlock(byte*, size_t);
 extern "C" void CRYPTOPP_FASTCALL MASM_RDSEED_GenerateBlock(byte*, size_t);
 // #  pragma comment(lib, "rdrand-x64.lib")
 # else
-extern "C" void MASM_RDSEED_GenerateBlock(byte*, size_t);
+extern "C" void CRYPTOPP_FASTCALL MASM_RDSEED_GenerateBlock(byte*, size_t);
 // #  pragma comment(lib, "rdrand-x86.lib")
 # endif
 #endif
@@ -129,8 +135,8 @@ extern "C" void NASM_RDSEED_GenerateBlock(byte*, size_t);
 /////////////////////////////////////////////////////////////////////
 
 ANONYMOUS_NAMESPACE_BEGIN
-// GCC, MSVC and SunCC has optimized calls to RDRAND away. We experieced it
-//   under GCC and MSVC. Other have reported it for SunCC. This attempts
+// GCC, MSVC and SunCC have optimized calls to RDRAND away. We experieced
+//   it under GCC and MSVC. Other have reported it for SunCC. This attempts
 //   to tame the optimizer even though it abuses the volatile keyword.
 static volatile int s_unused;
 ANONYMOUS_NAMESPACE_END

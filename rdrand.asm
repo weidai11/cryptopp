@@ -28,9 +28,9 @@ PUBLIC MASM_RDSEED_GenerateBlock
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; C/C++ Function prototypes
+;; C/C++ Function prototypes (both are fastcall)
 ;;   X86:
-;;      extern "C" void MASM_RDRAND_GenerateBlock(byte* ptr, size_t size);
+;;      extern "C" void __fastcall MASM_RDRAND_GenerateBlock(byte* ptr, size_t size);
 ;;   X64:
 ;;      extern "C" void __fastcall MASM_RDRAND_GenerateBlock(byte* ptr, size_t size);
 
@@ -42,6 +42,9 @@ IFDEF _M_X86    ;; Set via the command line
 .486
 .MODEL FLAT
 
+ALIAS <@MASM_RDRAND_GenerateBlock@8> = <MASM_RDRAND_GenerateBlock>
+ALIAS <@MASM_RDSEED_GenerateBlock@8> = <MASM_RDSEED_GenerateBlock>
+
 ENDIF
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -51,24 +54,18 @@ IFDEF _M_X86    ;; Set via the command line
 
 .CODE
 ALIGN   8
-OPTION LANGUAGE:C
 OPTION PROLOGUE:NONE
 OPTION EPILOGUE:NONE
 
-;; Caller pushes on stack following CDECL (right to left)
-;; arg1: byte* buffer
-;; arg2: size_t bsize
+;; No need for Load_Arguments due to fastcall
+;;   ECX (in): arg1, byte* buffer
+;;   EDX (in): arg2, size_t bsize
 
 MASM_RDRAND_GenerateBlock PROC   ;; arg1:DWORD, arg2:DWORD
 
     MWSIZE EQU 04h    ;; machine word size
-    buffer EQU edi
+    buffer EQU ecx
     bsize  EQU edx
-
-Load_Arguments:
-
-    mov     buffer, DWORD PTR [esp+04h]    ;; arg1
-    mov     bsize,  DWORD PTR [esp+08h]    ;; arg2
 
             ;; Top of While loop
 GenerateBlock_Top:
@@ -148,16 +145,15 @@ ALIGN   16
 OPTION PROLOGUE:NONE
 OPTION EPILOGUE:NONE
 
-;; RCX (in): arg1, byte* buffer
-;; RDX (in): arg2, size_t bsize
+;; No need for Load_Arguments due to fastcall
+;;   RCX (in): arg1, byte* buffer
+;;   RDX (in): arg2, size_t bsize
 
 MASM_RDRAND_GenerateBlock PROC
 
     MWSIZE EQU 08h    ;; machine word size
     buffer EQU rcx
     bsize  EQU rdx
-
-    ;; No need for Load_Arguments due to fastcall
 
             ;; Top of While loop
 GenerateBlock_Top:
@@ -244,24 +240,18 @@ IFDEF _M_X86    ;; Set via the command line
 
 .CODE
 ALIGN   8
-OPTION LANGUAGE:C
 OPTION PROLOGUE:NONE
 OPTION EPILOGUE:NONE
 
-;; Caller pushes on stack following CDECL (right to left)
-;; arg1: byte* buffer
-;; arg2: size_t bsize
+;; No need for Load_Arguments due to fastcall
+;;   ECX (in): arg1, byte* buffer
+;;   EDX (in): arg2, size_t bsize
 
 MASM_RDSEED_GenerateBlock PROC   ;; arg1:DWORD, arg2:DWORD
 
     MWSIZE EQU 04h    ;; machine word size
-    buffer EQU edi
+    buffer EQU ecx
     bsize  EQU edx
-
-Load_Arguments:
-
-    mov     buffer, DWORD PTR [esp+04h]    ;; arg1
-    mov     bsize,  DWORD PTR [esp+08h]    ;; arg2
 
             ;; Top of While loop
 GenerateBlock_Top:
@@ -341,16 +331,15 @@ ALIGN   16
 OPTION PROLOGUE:NONE
 OPTION EPILOGUE:NONE
 
-;; RCX (in): arg1, byte* buffer
-;; RDX (in): arg2, size_t bsize
+;; No need for Load_Arguments due to fastcall
+;;   RCX (in): arg1, byte* buffer
+;;   RDX (in): arg2, size_t bsize
 
-MASM_RDSEED_GenerateBlock PROC ;; arg1:QWORD,arg2:QWORD
+MASM_RDSEED_GenerateBlock PROC ;; arg1:QWORD, arg2:QWORD
 
     MWSIZE EQU 08h    ;; machine word size
     buffer EQU rcx
     bsize  EQU rdx
-
-    ;; No need for Load_Arguments due to fastcall
 
             ;; Top of While loop
 GenerateBlock_Top:
