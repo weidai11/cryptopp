@@ -86,7 +86,7 @@ int inet_pton(int af, const char *src, void *dst)
 
 
 	int size = sizeof(ss);
-	if (WSAStringToAddress(temp, af, NULLPTR, (struct sockaddr *)&ss, &size) == 0) {
+	if (WSAStringToAddressA(temp, af, NULLPTR, (struct sockaddr *)&ss, &size) == 0) {
 		switch (af) {
 		case AF_INET:
 			*(struct in_addr *)dst = ((struct sockaddr_in *)&ss)->sin_addr;
