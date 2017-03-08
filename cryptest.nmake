@@ -138,7 +138,7 @@ cryptlib.lib: $(LIB_OBJS)
 	$(AR) $(ARFLAGS) $(LIB_OBJS) /out:$@
 
 clean:
-	$(RM) /F /Q pch.pch $(LIB_OBJS) rdrand-x86.obj rdrand-x64.obj x64masm.obj x64dll.obj cryptlib.lib $(TEST_OBJS) cryptest.exe *.pdb
+	$(RM) /F /Q pch.pch $(LIB_OBJS) pch.obj rdrand-x86.obj rdrand-x64.obj x64masm.obj x64dll.obj cryptlib.lib $(TEST_OBJS) cryptest.exe *.pdb
 
 # Precompiled header
 pch.pch: pch.h pch.cpp
