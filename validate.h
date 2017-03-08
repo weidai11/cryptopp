@@ -1,9 +1,15 @@
+// validate.h - originally written and placed in the public domain by Wei Dai
+//              CryptoPP::Test namespace added by JW in February 2017
+
 #ifndef CRYPTOPP_VALIDATE_H
 #define CRYPTOPP_VALIDATE_H
 
 #include "cryptlib.h"
+
 #include <iostream>
 #include <iomanip>
+#include <ctime>
+#include <cctype>
 
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(Test)
@@ -115,15 +121,7 @@ bool TestHuffmanCodes();
 bool TestASN1Parse();
 #endif
 
-// Coverity finding
-template <class T, bool NON_NEGATIVE>
-T StringToValue(const std::string& str);
-
-// Coverity finding
-template<>
-int StringToValue<int, true>(const std::string& str);
-
-// Coverity finding
+// Coverity findings in benchmark and validation routines
 class StreamState
 {
 public:
@@ -143,6 +141,34 @@ private:
 	std::ios_base::fmtflags m_fmt;
 	std::streamsize m_prec;
 };
+
+// Safer functions on Windows for C&A, https://github.com/weidai11/cryptopp/issues/55
+static std::string TimeToString(const time_t& t)
+{
+#if (CRYPTOPP_MSC_VERSION >= 1400)
+	tm localTime = {};
+	char timeBuf[64];
+	errno_t err;
+
+	err = ::localtime_s(&localTime, &t);
+	CRYPTOPP_ASSERT(err == 0);
+	err = ::asctime_s(timeBuf, sizeof(timeBuf), &localTime);
+	CRYPTOPP_ASSERT(err == 0);
+
+	std::string str(timeBuf);
+#else
+	std::string str(::asctime(::localtime(&t)));
+#endif
+
+	// Cleanup whitespace
+	std::string::size_type pos = 0;
+	while (!str.empty() && std::isspace(*(str.end()-1)))
+		{str.erase(str.end()-1);}
+	while (!str.empty() && std::string::npos != (pos = str.find("  ", pos)))
+		{ str.erase(pos, 1); }
+
+	return str;
+}
 
 // Functions that need a RNG; uses AES inf CFB mode with Seed.
 CryptoPP::RandomNumberGenerator & GlobalRNG();
