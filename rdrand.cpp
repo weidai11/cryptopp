@@ -7,8 +7,6 @@
 #include "rdrand.h"
 #include "cpu.h"
 
-#include <iostream>
-
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(disable: 4100)
 #endif
@@ -16,9 +14,9 @@
 // This file (and friends) provides both RDRAND and RDSEED. They were added at
 //   Crypto++ 5.6.3. At compile time, it uses CRYPTOPP_BOOL_{X86|X32|X64}
 //   to select an implementation or "throw NotImplemented". The class does not
-//   use CPUID to determine if RDRAND or RDSEED are available. If not available,
-//   then a SIGILL will result. Users of the classes should call HasRDRAND() or
-//   HasRDSEED() to determine if a generator is available.
+//   determine if RDRAND or RDSEED are available at runtime. If not available,
+//   then a SIGILL will result. Users of the classes should call HasRDRAND()
+//   or HasRDSEED() to determine if a generator is available.
 // The original classes accepted a retry count. Retries were superflous for
 //   RDRAND, and RDSEED encountered a failure about 1 in 256 bytes depending
 //   on the processor. Retries were removed at Crypto++ 6.0 because
@@ -104,23 +102,11 @@
 #endif
 
 #if MASM_RDRAND_ASM_AVAILABLE
-# ifdef _M_X64
 extern "C" void CRYPTOPP_FASTCALL MASM_RDRAND_GenerateBlock(byte*, size_t);
-// #  pragma comment(lib, "rdrand-x64.lib")
-# else
-extern "C" void CRYPTOPP_FASTCALL MASM_RDRAND_GenerateBlock(byte*, size_t);
-// #  pragma comment(lib, "rdrand-x86.lib")
-# endif
 #endif
 
 #if MASM_RDSEED_ASM_AVAILABLE
-# ifdef _M_X64
 extern "C" void CRYPTOPP_FASTCALL MASM_RDSEED_GenerateBlock(byte*, size_t);
-// #  pragma comment(lib, "rdrand-x64.lib")
-# else
-extern "C" void CRYPTOPP_FASTCALL MASM_RDSEED_GenerateBlock(byte*, size_t);
-// #  pragma comment(lib, "rdrand-x86.lib")
-# endif
 #endif
 
 #if NASM_RDRAND_ASM_AVAILABLE
@@ -133,13 +119,6 @@ extern "C" void NASM_RDSEED_GenerateBlock(byte*, size_t);
 
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
-
-ANONYMOUS_NAMESPACE_BEGIN
-// GCC, MSVC and SunCC have optimized calls to RDRAND away. We experieced
-//   it under GCC and MSVC. Other have reported it for SunCC. This attempts
-//   to tame the optimizer even though it abuses the volatile keyword.
-static volatile int s_unused;
-ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -266,9 +245,6 @@ void RDRAND::GenerateBlock(byte *output, size_t size)
     // RDRAND not detected at compile time, or no suitable compiler found
     throw NotImplemented("RDRAND: failed to find a suitable implementation");
 #endif
-
-    // Size is not 0
-    s_unused ^= output[0];
 }
 
 void RDRAND::DiscardBytes(size_t n)
@@ -328,6 +304,7 @@ inline void RDSEED32(void* output)
 #endif
 }
 
+#if CRYPTOPP_BOOL_X64
 // Fills 8 bytes
 inline void RDSEED64(void* output)
 {
@@ -365,6 +342,7 @@ inline void RDSEED64(void* output)
     throw NotImplemented("RDSEED: failed to find an implementation");
 #endif
 }
+#endif  // CRYPTOPP_BOOL_X64 and RDSEED64
 
 void RDSEED::GenerateBlock(byte *output, size_t size)
 {
@@ -408,9 +386,6 @@ void RDSEED::GenerateBlock(byte *output, size_t size)
         std::memcpy(output, &val, size);
     }
 #endif
-
-    // Size is not 0
-    s_unused ^= output[0];
 }
 
 void RDSEED::DiscardBytes(size_t n)

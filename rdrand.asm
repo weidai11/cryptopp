@@ -22,12 +22,6 @@ PUBLIC MASM_RDSEED_GenerateBlock
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;  Caller/Callee Saved Registers
-;;    https://msdn.microsoft.com/en-us/library/6t169e9c.aspx
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 ;; C/C++ Function prototypes (both are fastcall)
 ;;   X86:
 ;;      extern "C" void __fastcall MASM_RDRAND_GenerateBlock(byte* ptr, size_t size);
@@ -42,6 +36,7 @@ IFDEF _M_X86    ;; Set via the command line
 .486
 .MODEL FLAT
 
+;; Fastcall calling conventions exports
 ALIAS <@MASM_RDRAND_GenerateBlock@8> = <MASM_RDRAND_GenerateBlock>
 ALIAS <@MASM_RDSEED_GenerateBlock@8> = <MASM_RDSEED_GenerateBlock>
 
@@ -149,7 +144,7 @@ OPTION EPILOGUE:NONE
 ;;   RCX (in): arg1, byte* buffer
 ;;   RDX (in): arg2, size_t bsize
 
-MASM_RDRAND_GenerateBlock PROC
+MASM_RDRAND_GenerateBlock PROC   ;; arg1:QWORD, arg2:QWORD
 
     MWSIZE EQU 08h    ;; machine word size
     buffer EQU rcx
@@ -335,7 +330,7 @@ OPTION EPILOGUE:NONE
 ;;   RCX (in): arg1, byte* buffer
 ;;   RDX (in): arg2, size_t bsize
 
-MASM_RDSEED_GenerateBlock PROC ;; arg1:QWORD, arg2:QWORD
+MASM_RDSEED_GenerateBlock PROC   ;; arg1:QWORD, arg2:QWORD
 
     MWSIZE EQU 08h    ;; machine word size
     buffer EQU rcx
