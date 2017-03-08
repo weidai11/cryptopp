@@ -5,8 +5,8 @@
 #include "rng.h"
 #include "fips140.h"
 
-#include <time.h>
-#include <math.h>
+#include <ctime>
+#include <cmath>
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -76,7 +76,7 @@ X917RNG::X917RNG(BlockTransformation *c, const byte *seed, const byte *determini
 
 	if (!deterministicTimeVector)
 	{
-		time_t tstamp1 = time(NULLPTR);
+		time_t tstamp1 = std::time(NULLPTR);
 		xorbuf(m_datetime, (byte *)&tstamp1, UnsignedMin(sizeof(tstamp1), m_size));
 		m_cipher->ProcessBlock(m_datetime);
 		clock_t tstamp2 = clock();
@@ -102,7 +102,7 @@ void X917RNG::GenerateIntoBufferedTransformation(BufferedTransformation &target,
 		{
 			clock_t c = clock();
 			xorbuf(m_datetime, (byte *)&c, UnsignedMin(sizeof(c), m_size));
-			time_t t = time(NULLPTR);
+			time_t t = std::time(NULLPTR);
 			xorbuf(m_datetime+m_size-UnsignedMin(sizeof(t), m_size), (byte *)&t, UnsignedMin(sizeof(t), m_size));
 			m_cipher->ProcessBlock(m_datetime);
 		}
@@ -142,7 +142,7 @@ size_t MaurerRandomnessTest::Put2(const byte *inString, size_t length, int /*mes
 	{
 		byte inByte = *inString++;
 		if (n >= Q)
-			sum += log(double(n - tab[inByte]));
+			sum += std::log(double(n - tab[inByte]));
 		tab[inByte] = n;
 		n++;
 	}
@@ -154,7 +154,7 @@ double MaurerRandomnessTest::GetTestValue() const
 	if (BytesNeeded() > 0)
 		throw Exception(Exception::OTHER_ERROR, "MaurerRandomnessTest: " + IntToString(BytesNeeded()) + " more bytes of input needed");
 
-	double fTu = (sum/(n-Q))/log(2.0);	// this is the test value defined by Maurer
+	double fTu = (sum/(n-Q))/std::log(2.0);	// this is the test value defined by Maurer
 
 	double value = fTu * 0.1392;		// arbitrarily normalize it to
 	return value > 1.0 ? 1.0 : value;	// a number between 0 and 1

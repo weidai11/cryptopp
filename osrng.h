@@ -78,7 +78,7 @@ private:
 # pragma comment(lib, "bcrypt.lib")
 #endif
 
-#endif //CRYPTOPP_WIN32_AVAILABLE
+#endif // CRYPTOPP_WIN32_AVAILABLE
 
 //! \class NonblockingRng
 //! \brief Wrapper class for /dev/random and /dev/srandom

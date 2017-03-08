@@ -6,26 +6,36 @@
 
 #include "cryptlib.h"
 
+#include <iostream>
+#include <iomanip>
+#include <cmath>
+#include <ctime>
+
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(Test)
 
-ANONYMOUS_NAMESPACE_BEGIN
-#ifdef CLOCKS_PER_SEC
-const double CLOCK_TICKS_PER_SECOND = (double)CLOCKS_PER_SEC;
-#elif defined(CLK_TCK)
-const double CLOCK_TICKS_PER_SECOND = (double)CLK_TCK;
-#else
-const double CLOCK_TICKS_PER_SECOND = 1000000.0;
-#endif
+extern const double CLOCK_TICKS_PER_SECOND;
+extern double g_allocatedTime;
+extern double g_hertz;
+extern double g_logTotal;
+extern unsigned int g_logCount;
+extern const byte defaultKey[];
 
-static const byte defaultKey[] = "0123456789" // 168 + NULL
-	"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	"00000000000000000000000000000000000000000000000000000"
-	"00000000000000000000000000000000000000000000000000000";
-NAMESPACE_END
+// Test book keeping
+extern time_t g_testBegin;
+extern time_t g_testEnd;
 
-void BenchmarkAll(double t, double hertz);
-void BenchmarkAll2(double t, double hertz);
+// Top level, prints preamble and postamble
+void Benchmark(int suites, double t, double hertz);
+// Unkeyed systems
+void Benchmark1(double t, double hertz);
+// Shared key systems
+void Benchmark2(double t, double hertz);
+// Public key systems
+void Benchmark3(double t, double hertz);
+
+void OutputResultBytes(const char *name, double length, double timeTaken);
+void OutputResultOperations(const char *name, const char *operation, bool pc, unsigned long iterations, double timeTaken);
 
 NAMESPACE_END  // Test
 NAMESPACE_END  // CryptoPP

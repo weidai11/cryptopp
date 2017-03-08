@@ -45,9 +45,10 @@ public:
     //! \param input the entropy to add to the generator
     //! \param length the size of the input buffer
     //! \throws NIST_DRBG::Err if the generator is reseeded with insufficient entropy
-    //! \details NIST instantiation and reseed requirements demand the generator is constructed with at least <tt>MINIMUM_ENTROPY</tt>
-    //!   entropy. The byte array for <tt>input</tt> must meet <A HREF ="http://csrc.nist.gov/publications/PubsSPs.html">NIST
-    //!   SP 800-90B or SP 800-90C</A> requirements.
+    //! \details NIST instantiation and reseed requirements demand the generator is constructed
+    //!   with at least <tt>MINIMUM_ENTROPY</tt> entropy. The byte array for <tt>input</tt> must
+    //!   meet <A HREF ="http://csrc.nist.gov/publications/PubsSPs.html">NIST SP 800-90B or
+    //!   SP 800-90C</A> requirements.
     virtual void IncorporateEntropy(const byte *input, size_t length)=0;
 
     //! \brief Update RNG state with additional unpredictable values
@@ -56,10 +57,11 @@ public:
     //! \param additional additional input to add to the generator
     //! \param additionaLength the size of the additional input buffer
     //! \throws NIST_DRBG::Err if the generator is reseeded with insufficient entropy
-    //! \details IncorporateEntropy() is an overload provided to match NIST requirements. NIST instantiation and
-    //!   reseed requirements demand the generator is constructed with at least <tt>MINIMUM_ENTROPY</tt> entropy.
-    //!   The byte array for <tt>entropy</tt> must meet <A HREF ="http://csrc.nist.gov/publications/PubsSPs.html">NIST
-    //!   SP 800-90B or SP 800-90C</A> requirements.
+    //! \details IncorporateEntropy() is an overload provided to match NIST requirements. NIST
+    //!   instantiation and reseed requirements demand the generator is constructed with at least
+    //!   <tt>MINIMUM_ENTROPY</tt> entropy. The byte array for <tt>entropy</tt> must meet
+    //!   <A HREF ="http://csrc.nist.gov/publications/PubsSPs.html">NIST SP 800-90B or
+    //!!  SP 800-90C</A> requirements.
     virtual void IncorporateEntropy(const byte *entropy, size_t entropyLength, const byte* additional, size_t additionaLength)=0;
 
     //! \brief Generate random array of bytes
@@ -76,8 +78,9 @@ public:
     //! \param size the length of the buffer, in bytes
     //! \throws NIST_DRBG::Err if a reseed is required
     //! \throws NIST_DRBG::Err if the size exceeds <tt>MAXIMUM_BYTES_PER_REQUEST</tt>
-    //! \details GenerateBlock() is an overload provided to match NIST requirements. The byte array for <tt>additional</tt>
-    //!   input is optional. If present the additional randomness is mixed before generating the output bytes.
+    //! \details GenerateBlock() is an overload provided to match NIST requirements. The byte
+    //!   array for <tt>additional</tt> input is optional. If present the additional randomness
+    //!   is mixed before generating the output bytes.
     virtual void GenerateBlock(const byte* additional, size_t additionaLength, byte *output, size_t size)=0;
 
     //! \brief Provides the security strength
@@ -93,31 +96,33 @@ public:
 
     //! \brief Provides the minimum entropy size
     //! \returns The minimum entropy size required by the generator, in bytes
-    //! \details The equivalent class constant is <tt>MINIMUM_ENTROPY</tt>. All NIST DRBGs must be instaniated with at least
-    //!   <tt>MINIMUM_ENTROPY</tt> bytes of entropy. The bytes must meet <A
-    //!   HREF="http://csrc.nist.gov/publications/PubsSPs.html">NIST SP 800-90B or SP 800-90C</A> requirements.
+    //! \details The equivalent class constant is <tt>MINIMUM_ENTROPY</tt>. All NIST DRBGs must
+    //!   be instaniated with at least <tt>MINIMUM_ENTROPY</tt> bytes of entropy. The bytes must
+    //!   meet <A HREF="http://csrc.nist.gov/publications/PubsSPs.html">NIST SP 800-90B or
+    //!   SP 800-90C</A> requirements.
     virtual unsigned int GetMinEntropy() const=0;
 
     //! \brief Provides the maximum entropy size
     //! \returns The maximum entropy size that can be consumed by the generator, in bytes
-    //! \details The equivalent class constant is <tt>MAXIMUM_ENTROPY</tt>. The bytes must meet <A
-    //!   HREF="http://csrc.nist.gov/publications/PubsSPs.html">NIST SP 800-90B or SP 800-90C</A> requirements.
-    //!   <tt>MAXIMUM_ENTROPY</tt> has been reduced from 2<sup>35</sup> to <tt>INT_MAX</tt> to fit the underlying C++ datatype.
+    //! \details The equivalent class constant is <tt>MAXIMUM_ENTROPY</tt>. The bytes must
+    //!   meet <A HREF="http://csrc.nist.gov/publications/PubsSPs.html">NIST SP 800-90B or
+    //!   SP 800-90C</A> requirements. <tt>MAXIMUM_ENTROPY</tt> has been reduced from
+    //!   2<sup>35</sup> to <tt>INT_MAX</tt> to fit the underlying C++ datatype.
     virtual unsigned int GetMaxEntropy() const=0;
 
     //! \brief Provides the minimum nonce size
     //! \returns The minimum nonce size recommended for the generator, in bytes
-    //! \details The equivalent class constant is <tt>MINIMUM_NONCE</tt>. If a nonce is not required then
-    //!   <tt>MINIMUM_NONCE</tt> is 0. <tt>Hash_DRBG</tt> does not require a nonce, while <tt>HMAC_DRBG</tt>
-    //!   and <tt>CTR_DRBG</tt> require a nonce.
+    //! \details The equivalent class constant is <tt>MINIMUM_NONCE</tt>. If a nonce is not
+    //!   required then <tt>MINIMUM_NONCE</tt> is 0. <tt>Hash_DRBG</tt> does not require a
+    //!   nonce, while <tt>HMAC_DRBG</tt> and <tt>CTR_DRBG</tt> require a nonce.
     virtual unsigned int GetMinNonce() const=0;
 
     //! \brief Provides the maximum nonce size
     //! \returns The maximum nonce that can be consumed by the generator, in bytes
-    //! \details The equivalent class constant is <tt>MAXIMUM_NONCE</tt>. <tt>MAXIMUM_NONCE</tt> has been reduced from
-    //!   2<sup>35</sup> to <tt>INT_MAX</tt> to fit the underlying C++ datatype. If a nonce is not required then
-    //!   <tt>MINIMUM_NONCE</tt> is 0. <tt>Hash_DRBG</tt> does not require a nonce, while <tt>HMAC_DRBG</tt>
-    //!   and <tt>CTR_DRBG</tt> require a nonce.
+    //! \details The equivalent class constant is <tt>MAXIMUM_NONCE</tt>. <tt>MAXIMUM_NONCE</tt>
+    //!   has been reduced from 2<sup>35</sup> to <tt>INT_MAX</tt> to fit the underlying C++ datatype.
+    //!   If a nonce is not required then <tt>MINIMUM_NONCE</tt> is 0. <tt>Hash_DRBG</tt> does not
+    //!   require a nonce, while <tt>HMAC_DRBG</tt> and <tt>CTR_DRBG</tt> require a nonce.
     virtual unsigned int GetMaxNonce() const=0;
 
     //! \brief Provides the maximum size of a request to GenerateBlock
@@ -150,8 +155,9 @@ protected:
 //!   Security Strength and Seed Length, depend on the hash and are specified as template parameters.
 //!   The remaining parameters are included in the class. The parameters and their values are listed
 //!   in NIST SP 800-90A Rev. 1, Table 2: Definitions for Hash-Based DRBG Mechanisms (p.38).
-//! \details Some parameters have been reduce to fit C++ datatypes. For example, NIST allows upto 2<sup>48</sup> requests
-//!   before a reseed. However, Hash_DRBG limits it to <tt>INT_MAX</tt> due to the limited data range of an int.
+//! \details Some parameters have been reduce to fit C++ datatypes. For example, NIST allows upto
+//!   2<sup>48</sup> requests before a reseed. However, Hash_DRBG limits it to <tt>INT_MAX</tt> due
+//!   to the limited data range of an int.
 //! \sa <A HREF="http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-90Ar1.pdf">Recommendation
 //!   for Random Number Generation Using Deterministic Random Bit Generators, Rev 1 (June 2015)</A>
 //! \since Crypto++ 6.0
@@ -199,11 +205,12 @@ public:
     //!    Hash_DRBG<SHA256, 128/8, 440/8> drbg(entropy, 32, entropy+32, 16);
     //!    drbg.GenerateBlock(result, result.size());
     //! </pre>
-    Hash_DRBG(const byte* entropy, size_t entropyLength=STRENGTH, const byte* nonce=NULLPTR,
+    Hash_DRBG(const byte* entropy=NULLPTR, size_t entropyLength=STRENGTH, const byte* nonce=NULLPTR,
         size_t nonceLength=0, const byte* personalization=NULLPTR, size_t personalizationLength=0)
         : NIST_DRBG(), m_c(SEEDLENGTH), m_v(SEEDLENGTH)
     {
-        DRBG_Instantiate(entropy, entropyLength, nonce, nonceLength, personalization, personalizationLength);
+        if (entropy != NULLPTR && entropyLength != 0)
+            DRBG_Instantiate(entropy, entropyLength, nonce, nonceLength, personalization, personalizationLength);
     }
 
     unsigned int GetSecurityStrength() const {return SECURITY_STRENGTH;}
@@ -312,11 +319,12 @@ public:
     //!    HMAC_DRBG<SHA256, 128/8, 440/8> drbg(entropy, 32, entropy+32, 16);
     //!    drbg.GenerateBlock(result, result.size());
     //! </pre>
-    HMAC_DRBG(const byte* entropy, size_t entropyLength=STRENGTH, const byte* nonce=NULLPTR,
+    HMAC_DRBG(const byte* entropy=NULLPTR, size_t entropyLength=STRENGTH, const byte* nonce=NULLPTR,
         size_t nonceLength=0, const byte* personalization=NULLPTR, size_t personalizationLength=0)
         : NIST_DRBG(), m_k(HASH::DIGESTSIZE), m_v(HASH::DIGESTSIZE)
     {
-        DRBG_Instantiate(entropy, entropyLength, nonce, nonceLength, personalization, personalizationLength);
+        if (entropy != NULLPTR && entropyLength != 0)
+            DRBG_Instantiate(entropy, entropyLength, nonce, nonceLength, personalization, personalizationLength);
     }
 
     unsigned int GetSecurityStrength() const {return SECURITY_STRENGTH;}

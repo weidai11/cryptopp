@@ -4,6 +4,7 @@
 
 #include "cryptlib.h"
 #include "factory.h"
+#include "cpu.h"
 #include "modes.h"
 #include "dh.h"
 #include "esign.h"
@@ -57,13 +58,14 @@
 #include "hkdf.h"
 #include "siphash.h"
 
+#include "osrng.h"
+#include "drbg.h"
+#include "mersenne.h"
+#include "rdrand.h"
+
 // Aggressive stack checking with VS2005 SP1 and above.
 #if (CRYPTOPP_MSC_VERSION >= 1410)
 # pragma strict_gs_check (on)
-#endif
-
-#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
-# pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
 USING_NAMESPACE(CryptoPP)
@@ -190,6 +192,26 @@ void RegisterFactories()
 	RegisterDefaultFactoryFor<KeyDerivationFunction, HKDF<SHA256> >();
 	RegisterDefaultFactoryFor<KeyDerivationFunction, HKDF<SHA512> >();
 	RegisterDefaultFactoryFor<KeyDerivationFunction, HKDF<Whirlpool> >();
+
+#ifdef BLOCKING_RNG_AVAILABLE
+	RegisterDefaultFactoryFor<RandomNumberGenerator, BlockingRng>();
+#endif
+#ifdef NONBLOCKING_RNG_AVAILABLE
+	RegisterDefaultFactoryFor<RandomNumberGenerator, NonblockingRng>();
+#endif
+#ifdef OS_RNG_AVAILABLE
+	RegisterDefaultFactoryFor<RandomNumberGenerator, AutoSeededRandomPool>();
+	RegisterDefaultFactoryFor<RandomNumberGenerator, AutoSeededX917RNG<AES> >();
+#endif
+	RegisterDefaultFactoryFor<RandomNumberGenerator, MT19937>();
+#if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
+	if (HasRDRAND())
+		RegisterDefaultFactoryFor<RandomNumberGenerator, RDRAND>();
+	if (HasRDSEED())
+		RegisterDefaultFactoryFor<RandomNumberGenerator, RDSEED>();
+#endif
+	RegisterDefaultFactoryFor<NIST_DRBG, Hash_DRBG<SHA1> >("Hash_DRBG(SHA1)");
+	RegisterDefaultFactoryFor<NIST_DRBG, HMAC_DRBG<SHA1> >("HMAC_DRBG(SHA1)");
 
 	s_registered = true;
 }

@@ -22,18 +22,17 @@
 #include "whrlpool.h"
 #include "tiger.h"
 #include "smartptr.h"
+#include "stdcpp.h"
 #include "ossig.h"
 #include "trap.h"
 
 #include "validate.h"
 #include "bench.h"
 
-#include <algorithm>
 #include <iostream>
 #include <sstream>
-#include <string>
 #include <locale>
-#include <time.h>
+#include <ctime>
 
 #ifdef CRYPTOPP_WIN32_AVAILABLE
 #define WIN32_LEAN_AND_MEAN
@@ -117,6 +116,43 @@ int (*AdhocTest)(int argc, char *argv[]) = NULLPTR;
 
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(Test)
+
+// Coverity finding
+template <class T, bool NON_NEGATIVE>
+T StringToValue(const std::string& str)
+{
+	std::istringstream iss(str);
+
+	// Arbitrary, but we need to clear a Coverity finding TAINTED_SCALAR
+	if (iss.str().length() > 25)
+		throw InvalidArgument(str + "' is too long");
+
+	T value;
+	iss >> std::noskipws >> value;
+
+	// Use fail(), not bad()
+	if (iss.fail() || !iss.eof())
+		throw InvalidArgument(str + "' is not a value");
+
+	if (NON_NEGATIVE && value < 0)
+		throw InvalidArgument(str + "' is negative");
+
+	return value;
+}
+
+// Coverity finding
+template<>
+int StringToValue<int, true>(const std::string& str)
+{
+	Integer n(str.c_str());
+	long l = n.ConvertToLong();
+
+	int r;
+	if (!SafeConvert(l, r))
+		throw InvalidArgument(str + "' is not an integer value");
+
+	return r;
+}
 
 ANONYMOUS_NAMESPACE_BEGIN
 OFB_Mode<AES>::Encryption s_globalRNG;
@@ -367,10 +403,14 @@ int CRYPTOPP_API main(int argc, char *argv[])
 			InformationRecoverFile(argc-3, argv[2], argv+3);
 		else if (command == "v" || command == "vv")
 			return !Validate(argc>2 ? Test::StringToValue<int, true>(argv[2]) : 0, argv[1][1] == 'v', argc>3 ? argv[3] : NULLPTR);
-		else if (command == "b")
-			Test::BenchmarkAll(argc<3 ? 1 : Test::StringToValue<float, true>(argv[2]), argc<4 ? 0.0f : Test::StringToValue<float, true>(argv[3])*1e9);
-		else if (command == "b2")
-			Test::BenchmarkAll2(argc<3 ? 1 : Test::StringToValue<float, true>(argv[2]), argc<4 ? 0.0f : Test::StringToValue<float, true>(argv[3])*1e9);
+		else if (command == "b")  // All benchmarks
+			Test::Benchmark(7, argc<3 ? 1 : Test::StringToValue<float, true>(argv[2]), argc<4 ? 0.0f : Test::StringToValue<float, true>(argv[3])*1e9);
+		else if (command == "b3")  // Public key algorithms
+			Test::Benchmark(4, argc<3 ? 1 : Test::StringToValue<float, true>(argv[2]), argc<4 ? 0.0f : Test::StringToValue<float, true>(argv[3])*1e9);
+		else if (command == "b2")  // Shared key algorithms
+			Test::Benchmark(2, argc<3 ? 1 : Test::StringToValue<float, true>(argv[2]), argc<4 ? 0.0f : Test::StringToValue<float, true>(argv[3])*1e9);
+		else if (command == "b1")  // Unkeyed algorithms
+			Test::Benchmark(1, argc<3 ? 1 : Test::StringToValue<float, true>(argv[2]), argc<4 ? 0.0f : Test::StringToValue<float, true>(argv[3])*1e9);
 		else if (command == "z")
 			GzipFile(argv[3], argv[4], argv[2][0]-'0');
 		else if (command == "u")
@@ -435,41 +475,6 @@ void FIPS140_GenerateRandomFiles()
 	std::cout << "OS provided RNG not available.\n";
 	exit(-1);
 #endif
-}
-
-template <class T, bool NON_NEGATIVE>
-T Test::StringToValue(const std::string& str)
-{
-	std::istringstream iss(str);
-
-	// Arbitrary, but we need to clear a Coverity finding TAINTED_SCALAR
-	if(iss.str().length() > 25)
-		throw InvalidArgument("cryptest.exe: '" + str +"' is too long");
-
-	T value;
-	iss >> std::noskipws >> value;
-
-	// Use fail(), not bad()
-	if (iss.fail() || !iss.eof())
-		throw InvalidArgument("cryptest.exe: '" + str +"' is not a value");
-
-	if (NON_NEGATIVE && value < 0)
-		throw InvalidArgument("cryptest.exe: '" + str +"' is negative");
-
-	return value;
-}
-
-template<>
-int Test::StringToValue<int, true>(const std::string& str)
-{
-	Integer n(str.c_str());
-	long l = n.ConvertToLong();
-
-	int r;
-	if(!SafeConvert(l, r))
-		throw InvalidArgument("cryptest.exe: '" + str +"' is not an integer value");
-
-	return r;
 }
 
 void PrintSeedAndThreads(const std::string& seed)
@@ -893,12 +898,12 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 
 	// Some editors have problems with the '\0' character when redirecting output.
 	//   seedInput is argv[3] when issuing 'cryptest.exe v all <seed>'
-	std::string seed = (seedInput ? seedInput : IntToString(time(NULLPTR)));
+	std::string seed = (seedInput ? seedInput : IntToString(std::time(NULLPTR)));
 	seed.resize(16, ' ');
-
 	OFB_Mode<AES>::Encryption& prng = dynamic_cast<OFB_Mode<AES>::Encryption&>(Test::GlobalRNG());
 	prng.SetKeyWithIV((byte *)seed.data(), 16, (byte *)seed.data());
 
+	Test::g_testBegin = std::time(NULLPTR);
 	PrintSeedAndThreads(seed);
 
 	switch (alg)
@@ -1001,25 +1006,11 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 	default: return false;
 	}
 
-// Safer functions on Windows for C&A, https://github.com/weidai11/cryptopp/issues/55
-#if (CRYPTOPP_MSC_VERSION >= 1400)
-	tm localTime = {};
-	char timeBuf[64];
-	errno_t err;
+	Test::g_testEnd = std::time(NULLPTR);
 
-	const time_t endTime = time(NULLPTR);
-	err = localtime_s(&localTime, &endTime);
-	CRYPTOPP_ASSERT(err == 0);
-	err = asctime_s(timeBuf, sizeof(timeBuf), &localTime);
-	CRYPTOPP_ASSERT(err == 0);
-
-	std::cout << "\nTest ended at " << timeBuf;
-#else
-	const time_t endTime = time(NULLPTR);
-	std::cout << "\nTest ended at " << asctime(localtime(&endTime));
-#endif
-
-	std::cout << "Seed used was: " << seed << std::endl;
+	std::cout << "\nSeed used was " << seed << std::endl;
+	std::cout << "Test started at " << Test::TimeToString(Test::g_testBegin) << std::endl;
+	std::cout << "Test ended at " << Test::TimeToString(Test::g_testEnd) << std::endl;
 
 	return result;
 }
