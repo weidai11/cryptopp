@@ -61,13 +61,4 @@ namespace std {
 # include <vector.cc>
 #endif
 
-// for alloca
-#if defined(CRYPTOPP_BSD_AVAILABLE)
-# include <stdlib.h>
-#elif defined(CRYPTOPP_UNIX_AVAILABLE) || defined(__sun) || defined(QNX)
-# include <alloca.h>
-#elif defined(CRYPTOPP_WIN32_AVAILABLE) || defined(__MINGW32__) || defined(__BORLANDC__)
-# include <malloc.h>
-#endif
-
 #endif
