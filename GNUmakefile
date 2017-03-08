@@ -725,22 +725,12 @@ else ifneq ($(IS_LINUX),0)
 	-$(RM) -r $(PWD)/cryptopp$(LIB_VER)
 endif
 
-# CRYPTOPP_CPU_SPEED in GHz
-CRYPTOPP_CPU_SPEED ?= 2.4
+# CRYPTOPP_CPU_FREQ in GHz
+CRYPTOPP_CPU_FREQ ?= 0.0
 .PHONY: bench benchmark benchmarks
 bench benchmark benchmarks: cryptest.exe
 	rm -f benchmarks.html
-	echo "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" \"http://www.w3.org/TR/REC-html40/loose.dtd\">" >> benchmarks.html
-	echo "<HTML>" >> benchmarks.html
-	echo "<HEAD>" >> benchmarks.html
-	echo "<TITLE>Speed Comparison of Popular Crypto Algorithms</TITLE>" >> benchmarks.html
-	echo "</HEAD>" >> benchmarks.html
-	echo "<BODY>" >> benchmarks.html
-	echo "<H1><a href=\"http://www.cryptopp.com\">Crypto++</a>" $(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH) "Benchmarks</H1>" >> benchmarks.html
-	echo "<P>Here are speed benchmarks for some commonly used cryptographic algorithms.</P>"  >> benchmarks.html
-	./cryptest.exe b 3 $(CRYPTOPP_CPU_SPEED) >> benchmarks.html
-	echo "</BODY>" >> benchmarks.html
-	echo "</HTML>" >> benchmarks.html
+	./cryptest.exe b 2 $(CRYPTOPP_CPU_FREQ)
 
 adhoc.cpp: adhoc.cpp.proto
 ifeq ($(wildcard adhoc.cpp),)
