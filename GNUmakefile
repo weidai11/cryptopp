@@ -487,12 +487,12 @@ lean: static dynamic cryptest.exe
 # May want to export CXXFLAGS="-g3 -O1"
 .PHONY: coverage
 coverage: libcryptopp.a cryptest.exe
+	@-$(RM) -rf ./TestCoverage/
 	lcov --base-directory . --directory . --zerocounters -q
 	./cryptest.exe v
 	./cryptest.exe tv all
 	lcov --base-directory . --directory . -c -o cryptest.info
 	lcov --remove cryptest.info "*test.*" "bench*.cpp" "validat*.*" "/usr/*" -o cryptest.info
-	rm -rf ./TestCoverage/
 	genhtml -o ./TestCoverage/ -t "cryptest.exe test coverage" --num-spaces 4 cryptest.info
 
 .PHONY: test check
@@ -520,62 +520,39 @@ endif
 # Builds the documentation. Directory name is ref563, ref570, etc.
 .PHONY: docs html
 docs html:
-	-$(RM) -r $(DOXYGEN_DIRECTORY)/ $(DOCUMENT_DIRECTORY)/ html-docs/
+	@-$(RM) -r $(DOXYGEN_DIRECTORY)/ $(DOCUMENT_DIRECTORY)/ html-docs/
+	@-$(RM) CryptoPPRef.zip
 	doxygen Doxyfile -d CRYPTOPP_DOXYGEN_PROCESSING
 	$(MV) $(DOXYGEN_DIRECTORY)/ $(DOCUMENT_DIRECTORY)/
-	-$(RM) CryptoPPRef.zip
 	zip -9 CryptoPPRef.zip -x ".*" -x "*/.*" -r $(DOCUMENT_DIRECTORY)/
 
 .PHONY: clean
 clean:
-	-$(RM) libcryptopp.a libcryptopp.so$(SOLIB_VERSION_SUFFIX) libcryptopp.dylib cryptopp.dll libcryptopp.dll.a libcryptopp.import.a
-ifeq ($(HAS_SOLIB_VERSION),1)
-	-$(RM) libcryptopp.so libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
-endif
 	-$(RM) adhoc.cpp.o adhoc.cpp.proto.o $(LIBOBJS) $(TESTOBJS) $(DLLOBJS) $(LIBIMPORTOBJS) $(TESTIMPORTOBJS) $(DLLTESTOBJS)
-	-$(RM) cryptest.exe dlltest.exe cryptest.import.exe cryptest.info ct rdrand-???.o
-	-$(RM) *.gcno *.gcda *.stackdump core-*
-	-$(RM) /tmp/adhoc.exe
-ifneq ($(wildcard /tmp/cryptopp_test/),)
-	-$(RM) -r /tmp/cryptopp_test/
-endif
-ifneq ($(wildcard *.exe.dSYM),)
-	-$(RM) -r *.exe.dSYM/
-endif
-ifneq ($(wildcard *.dylib.dSYM),)
-	-$(RM) -r *.dylib.dSYM/
-endif
-ifneq ($(wildcard cov-int/),)
-	-$(RM) -r cov-int/
-endif
+	@-$(RM) libcryptopp.a libcryptopp.dylib cryptopp.dll libcryptopp.dll.a libcryptopp.import.a
+	@-$(RM) libcryptopp.so libcryptopp.so$(SOLIB_COMPAT_SUFFIX) libcryptopp.so$(SOLIB_VERSION_SUFFIX)
+	@-$(RM) cryptest.exe dlltest.exe cryptest.import.exe cryptest.info ct rdrand-???.o
+	@-$(RM) *.gcno *.gcda *.stackdump core-*
+	@-$(RM) /tmp/adhoc.exe
+	@-$(RM) -r /tmp/cryptopp_test/
+	@-$(RM) -r *.exe.dSYM/
+	@-$(RM) -r *.dylib.dSYM/
+	@-$(RM) -r cov-int/
 
 .PHONY: distclean
 distclean: clean
 	-$(RM) adhoc.cpp adhoc.cpp.copied GNUmakefile.deps benchmarks.html cryptest.txt cryptest-*.txt
-	-$(RM) CMakeCache.txt Makefile CTestTestfile.cmake cmake_install.cmake cryptopp-config-version.cmake
-	-$(RM) cryptopp.tgz *.o *.bc *.ii *.s *~
-ifneq ($(wildcard CMakeFiles/),)
-	-$(RM) -r CMakeFiles/
-endif
-ifneq ($(wildcard $(DOCUMENT_DIRECTORY)/),)
-	-$(RM) -r $(DOCUMENT_DIRECTORY)/
-endif
-ifneq ($(wildcard TestCoverage/),)
-	-$(RM) -r TestCoverage/
-endif
-ifneq ($(wildcard cryptopp$(LIB_VER)\.*),)
-	-$(RM) cryptopp$(LIB_VER)\.*
-endif
-ifneq ($(wildcard $(DOC_DIRECTORY)),)
-	-$(RM) -r $(DOC_DIRECTORY)
-endif
-ifneq ($(wildcard CryptoPPRef.zip),)
-	-$(RM) CryptoPPRef.zip
-endif
+	@-$(RM) CMakeCache.txt Makefile CTestTestfile.cmake cmake_install.cmake cryptopp-config-version.cmake
+	@-$(RM) cryptopp.tgz *.o *.bc *.ii *.s *~
+	@-$(RM) -r CMakeFiles/
+	@-$(RM) -r $(DOCUMENT_DIRECTORY)/
+	@-$(RM) -r TestCoverage/
+	@-$(RM) cryptopp$(LIB_VER)\.*
+	@-$(RM) CryptoPPRef.zip
 
 .PHONY: install
 install:
-	$(MKDIR) -p $(DESTDIR)$(INCLUDEDIR)/cryptopp
+	@-$(MKDIR) -p $(DESTDIR)$(INCLUDEDIR)/cryptopp
 	$(CP) *.h $(DESTDIR)$(INCLUDEDIR)/cryptopp
 	-$(CHMOD) 0755 $(DESTDIR)$(INCLUDEDIR)/cryptopp
 	-$(CHMOD) 0644 $(DESTDIR)$(INCLUDEDIR)/cryptopp/*.h
@@ -585,7 +562,7 @@ ifneq ($(wildcard libcryptopp.a),)
 	-$(CHMOD) 0644 $(DESTDIR)$(LIBDIR)/libcryptopp.a
 endif
 ifneq ($(wildcard cryptest.exe),)
-	$(MKDIR) -p $(DESTDIR)$(BINDIR)
+	@-$(MKDIR) -p $(DESTDIR)$(BINDIR)
 	$(CP) cryptest.exe $(DESTDIR)$(BINDIR)
 	-$(CHMOD) 0755 $(DESTDIR)$(BINDIR)/cryptest.exe
 	$(MKDIR) -p $(DESTDIR)$(DATADIR)/cryptopp
@@ -606,7 +583,7 @@ endif
 ifneq ($(wildcard libcryptopp.so$(SOLIB_VERSION_SUFFIX)),)
 	$(MKDIR) -p $(DESTDIR)$(LIBDIR)
 	$(CP) libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(DESTDIR)$(LIBDIR)
-	-$(CHMOD) 0755 $(DESTDIR)$(LIBDIR)/libcryptopp.so$(SOLIB_VERSION_SUFFIX)
+	@-$(CHMOD) 0755 $(DESTDIR)$(LIBDIR)/libcryptopp.so$(SOLIB_VERSION_SUFFIX)
 ifeq ($(HAS_SOLIB_VERSION),1)
 	-$(LN) -sf libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(DESTDIR)$(LIBDIR)/libcryptopp.so
 	$(LDCONF) $(DESTDIR)$(LIBDIR)
@@ -618,17 +595,11 @@ remove uninstall:
 	-$(RM) -r $(DESTDIR)$(INCLUDEDIR)/cryptopp
 	-$(RM) $(DESTDIR)$(LIBDIR)/libcryptopp.a
 	-$(RM) $(DESTDIR)$(BINDIR)/cryptest.exe
-	-$(RM) -r $(DESTDIR)$(DATADIR)/cryptopp
-ifneq ($(IS_DARWIN),0)
-	-$(RM) $(DESTDIR)$(LIBDIR)/libcryptopp.dylib
-else
-	-$(RM) $(DESTDIR)$(LIBDIR)/libcryptopp.so$(SOLIB_VERSION_SUFFIX)
-ifeq ($(HAS_SOLIB_VERSION),1)
-	-$(RM) $(DESTDIR)$(LIBDIR)/libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
-	-$(RM) $(DESTDIR)$(LIBDIR)/libcryptopp.so
-	$(LDCONF) $(DESTDIR)$(LIBDIR)
-endif
-endif
+	@-$(RM) $(DESTDIR)$(LIBDIR)/libcryptopp.dylib
+	@-$(RM) $(DESTDIR)$(LIBDIR)/libcryptopp.so$(SOLIB_VERSION_SUFFIX)
+	@-$(RM) $(DESTDIR)$(LIBDIR)/libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
+	@-$(RM) $(DESTDIR)$(LIBDIR)/libcryptopp.so
+	@-$(RM) -r $(DESTDIR)$(DATADIR)/cryptopp
 
 libcryptopp.a: $(LIBOBJS)
 	$(AR) $(ARFLAGS) $@ $(LIBOBJS)
@@ -686,23 +657,23 @@ endif
 .PHONY: trim
 trim:
 ifneq ($(IS_DARWIN),0)
-	sed -i '' -e's/[[:space:]]*$$//' *.sh *.h *.cpp *.asm *.S *.sln *.vcxproj GNUmakefile GNUmakefile-cross
+	sed -i '' -e's/[[:space:]]*$$//' *.sh *.h *.cpp *.asm *.S *.sln *.vcxproj *.filters GNUmakefile GNUmakefile-cross
 	make convert
 else
-	sed -i -e's/[[:space:]]*$$//' *.sh *.h *.cpp *.asm *.S *.sln *.vcxproj GNUmakefile GNUmakefile-cross
+	sed -i -e's/[[:space:]]*$$//' *.sh *.h *.cpp *.asm *.S *.sln *.vcxproj *.filters GNUmakefile GNUmakefile-cross
 	make convert
 endif
 
 .PHONY: convert
 convert:
-	-$(CHMOD) 0700 TestVectors/ TestData/ TestScripts/
-	-$(CHMOD) 0600 $(TEXT_FILES) *.asm *.S *.zip *.cmake TestVectors/*.txt TestData/*.dat
-	-$(CHMOD) 0700 $(EXEC_FILES) *.sh *.cmd TestScripts/*.sh TestScripts/*.pl TestScripts/*.cmd
-	-$(CHMOD) 0700 *.cmd *.sh GNUmakefile GNUmakefile-cross TestScripts/*.sh TestScripts/*.pl
+	@-$(CHMOD) 0700 TestVectors/ TestData/ TestScripts/
+	@-$(CHMOD) 0600 $(TEXT_FILES) *.asm *.S *.zip *.cmake TestVectors/*.txt TestData/*.dat
+	@-$(CHMOD) 0700 $(EXEC_FILES) *.sh *.cmd TestScripts/*.sh TestScripts/*.pl TestScripts/*.cmd
+	@-$(CHMOD) 0700 *.cmd *.sh GNUmakefile GNUmakefile-cross TestScripts/*.sh TestScripts/*.pl
 	-unix2dos --keepdate --quiet $(TEXT_FILES) *.asm *.cmd *.cmake TestScripts/*.pl TestScripts/*.cmd
 	-dos2unix --keepdate --quiet GNUmakefile GNUmakefile-cross *.S *.sh TestScripts/*.sh
 ifneq ($(IS_DARWIN),0)
-	-xattr -c *
+	@-xattr -c *
 endif
 
 # Build the ZIP file with source files. No documentation.
@@ -717,19 +688,19 @@ ifneq ($(IS_DARWIN),0)
 	$(MKDIR) -p $(PWD)/cryptopp$(LIB_VER)
 	$(CP) cryptopp$(LIB_VER).zip $(PWD)/cryptopp$(LIB_VER)
 	hdiutil makehybrid -iso -joliet -o cryptopp$(LIB_VER).iso $(PWD)/cryptopp$(LIB_VER)
-	-$(RM) -r $(PWD)/cryptopp$(LIB_VER)
+	@-$(RM) -r $(PWD)/cryptopp$(LIB_VER)
 else ifneq ($(IS_LINUX),0)
 	$(MKDIR) -p $(PWD)/cryptopp$(LIB_VER)
 	$(CP) cryptopp$(LIB_VER).zip $(PWD)/cryptopp$(LIB_VER)
 	genisoimage -q -o cryptopp$(LIB_VER).iso $(PWD)/cryptopp$(LIB_VER)
-	-$(RM) -r $(PWD)/cryptopp$(LIB_VER)
+	@-$(RM) -r $(PWD)/cryptopp$(LIB_VER)
 endif
 
 # CRYPTOPP_CPU_FREQ in GHz
 CRYPTOPP_CPU_FREQ ?= 0.0
 .PHONY: bench benchmark benchmarks
 bench benchmark benchmarks: cryptest.exe
-	rm -f benchmarks.html
+	@-$(RM) -f benchmarks.html
 	./cryptest.exe b 2 $(CRYPTOPP_CPU_FREQ)
 
 adhoc.cpp: adhoc.cpp.proto
