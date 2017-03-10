@@ -668,9 +668,8 @@ NAMESPACE_END
 #	define THREADS_AVAILABLE
 #endif
 
-// Newlib on Cygwin is a problem. __NEWLIB__ is not defined yet; use __CYGWIN__ as a proxy
-//   Also see https://github.com/weidai11/cryptopp/issues/315
-#if defined(CRYPTOPP_UNIX_AVAILABLE) && !defined(__CYGWIN__)
+// Cygwin/Newlib requires _XOPEN_SOURCE=700
+#if defined(CRYPTOPP_UNIX_AVAILABLE)
 # define UNIX_SIGNALS_AVAILABLE 1
 #endif
 

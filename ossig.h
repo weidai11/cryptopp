@@ -33,7 +33,7 @@ extern "C" {
 //!   external "C++" linkage.
 //! \sa SignalHandler, SignalHandlerFn
 extern "C" {
-	inline void NullSignalHandler(int unused) {CRYPTOPP_UNUSED(unused);}
+    inline void NullSignalHandler(int unused) {CRYPTOPP_UNUSED(unused);}
 };
 
 //! Signal handler for Linux and Unix compatibles
@@ -82,13 +82,9 @@ struct SignalHandler
             // Don't step on another's handler if Overwrite=false
             if (m_old.sa_handler != 0 && !O) break;
 
-#if defined __CYGWIN__
-            // http://github.com/weidai11/cryptopp/issues/315
-            memset(&new_handler, 0x00, sizeof(new_handler));
-#else
+            // Cygwin/Newlib requires -D_XOPEN_SOURCE=700
             ret = sigemptyset (&new_handler.sa_mask);
             if (ret != 0) break; // Failed
-#endif
 
             new_handler.sa_handler = (pfn ? pfn : &NullSignalHandler);
             new_handler.sa_flags = (pfn ? flags : 0);

@@ -8,6 +8,7 @@ RANLIB ?= ranlib
 
 CP ?= cp
 MV ?= mv
+RM ?= rm -f
 EGREP ?= egrep
 CHMOD ?= chmod
 MKDIR ?= mkdir
@@ -150,6 +151,13 @@ ifeq ($(findstring -mtune,$(CXXFLAGS)),)
 endif  # -mtune
 endif  # -march
 # END MARCH_CXXFLAGS
+
+# Cygwin needs _XOPEN_SOURCE for signals
+ifeq ($(IS_CYGWIN),1)
+ ifeq ($(findstring -D_XOPEN_SOURCE,$(CXXFLAGS)),)
+   CXXFLAGS += -D_XOPEN_SOURCE=700
+ endif
+endif
 
 # Aligned access required for -O3 and above due to vectorization
 UNALIGNED_ACCESS := $(shell $(EGREP) -c "^[[:space:]]*//[[:space:]]*\#[[:space:]]*define[[:space:]]*CRYPTOPP_NO_UNALIGNED_DATA_ACCESS" config.h)
@@ -487,7 +495,7 @@ lean: static dynamic cryptest.exe
 # May want to export CXXFLAGS="-g3 -O1"
 .PHONY: coverage
 coverage: libcryptopp.a cryptest.exe
-	@-$(RM) -rf ./TestCoverage/
+	@-$(RM) -r ./TestCoverage/
 	lcov --base-directory . --directory . --zerocounters -q
 	./cryptest.exe v
 	./cryptest.exe tv all
@@ -528,10 +536,10 @@ docs html:
 
 .PHONY: clean
 clean:
-	-$(RM) adhoc.cpp.o adhoc.cpp.proto.o $(LIBOBJS) $(TESTOBJS) $(DLLOBJS) $(LIBIMPORTOBJS) $(TESTIMPORTOBJS) $(DLLTESTOBJS)
+	-$(RM) adhoc.cpp.o adhoc.cpp.proto.o $(LIBOBJS) rdrand-*.o $(TESTOBJS) $(DLLOBJS) $(LIBIMPORTOBJS) $(TESTIMPORTOBJS) $(DLLTESTOBJS)
 	@-$(RM) libcryptopp.a libcryptopp.dylib cryptopp.dll libcryptopp.dll.a libcryptopp.import.a
 	@-$(RM) libcryptopp.so libcryptopp.so$(SOLIB_COMPAT_SUFFIX) libcryptopp.so$(SOLIB_VERSION_SUFFIX)
-	@-$(RM) cryptest.exe dlltest.exe cryptest.import.exe cryptest.info ct rdrand-???.o
+	@-$(RM) cryptest.exe dlltest.exe cryptest.import.exe cryptest.info ct
 	@-$(RM) *.gcno *.gcda *.stackdump core-*
 	@-$(RM) /tmp/adhoc.exe
 	@-$(RM) -r /tmp/cryptopp_test/
@@ -544,6 +552,7 @@ distclean: clean
 	-$(RM) adhoc.cpp adhoc.cpp.copied GNUmakefile.deps benchmarks.html cryptest.txt cryptest-*.txt
 	@-$(RM) CMakeCache.txt Makefile CTestTestfile.cmake cmake_install.cmake cryptopp-config-version.cmake
 	@-$(RM) cryptopp.tgz *.o *.bc *.ii *.s *~
+	@-$(RM) -r $(SRCS:.cpp=.obj) *.suo *.sdf *.pdb Win32/ x64/ ipch/
 	@-$(RM) -r CMakeFiles/
 	@-$(RM) -r $(DOCUMENT_DIRECTORY)/
 	@-$(RM) -r TestCoverage/
@@ -557,7 +566,7 @@ install:
 	-$(CHMOD) 0755 $(DESTDIR)$(INCLUDEDIR)/cryptopp
 	-$(CHMOD) 0644 $(DESTDIR)$(INCLUDEDIR)/cryptopp/*.h
 ifneq ($(wildcard libcryptopp.a),)
-	$(MKDIR) -p $(DESTDIR)$(LIBDIR)
+	@-$(MKDIR) -p $(DESTDIR)$(LIBDIR)
 	$(CP) libcryptopp.a $(DESTDIR)$(LIBDIR)
 	-$(CHMOD) 0644 $(DESTDIR)$(LIBDIR)/libcryptopp.a
 endif
@@ -575,13 +584,13 @@ ifneq ($(wildcard cryptest.exe),)
 	-$(CHMOD) 0644 $(DESTDIR)$(DATADIR)/cryptopp/TestVectors/*.txt
 endif
 ifneq ($(wildcard libcryptopp.dylib),)
-	$(MKDIR) -p $(DESTDIR)$(LIBDIR)
+	@-$(MKDIR) -p $(DESTDIR)$(LIBDIR)
 	$(CP) libcryptopp.dylib $(DESTDIR)$(LIBDIR)
 	-install_name_tool -id $(DESTDIR)$(LIBDIR)/libcryptopp.dylib $(DESTDIR)$(LIBDIR)/libcryptopp.dylib
 	-$(CHMOD) 0755 $(DESTDIR)$(LIBDIR)/libcryptopp.dylib
 endif
 ifneq ($(wildcard libcryptopp.so$(SOLIB_VERSION_SUFFIX)),)
-	$(MKDIR) -p $(DESTDIR)$(LIBDIR)
+	@-$(MKDIR) -p $(DESTDIR)$(LIBDIR)
 	$(CP) libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(DESTDIR)$(LIBDIR)
 	@-$(CHMOD) 0755 $(DESTDIR)$(LIBDIR)/libcryptopp.so$(SOLIB_VERSION_SUFFIX)
 ifeq ($(HAS_SOLIB_VERSION),1)
