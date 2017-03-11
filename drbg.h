@@ -458,18 +458,18 @@ void Hash_DRBG<HASH, STRENGTH, SEEDLENGTH>::Hash_Generate(const byte* additional
         hash.Final(w);
 
         CRYPTOPP_ASSERT(SEEDLENGTH >= HASH::DIGESTSIZE);
-        int carry=0, i=SEEDLENGTH-1, j=HASH::DIGESTSIZE-1;
-        while(i>=0 && j>=0)
+        int carry=0, j=HASH::DIGESTSIZE-1, i=SEEDLENGTH-1;
+        while (j>=0)
         {
             carry = m_v[i] + w[j] + carry;
             m_v[i] = static_cast<byte>(carry);
-            carry >>= 8; i--; j--;
+            j--; i--; carry >>= 8;
         }
-        while (carry && i>=0)
+        while (i>=0)
         {
             carry = m_v[i] + carry;
             m_v[i] = static_cast<byte>(carry);
-            carry >>= 8; i--;
+            i--; carry >>= 8;
         }
     }
 
@@ -485,7 +485,7 @@ void Hash_DRBG<HASH, STRENGTH, SEEDLENGTH>::Hash_Generate(const byte* additional
             hash.TruncatedFinal(output, count);
 
             IncrementCounterByOne(data, static_cast<unsigned int>(data.size()));
-            output += count; size -= count;
+            size -= count; output += count;
         }
     }
 
@@ -501,25 +501,47 @@ void Hash_DRBG<HASH, STRENGTH, SEEDLENGTH>::Hash_Generate(const byte* additional
 
         CRYPTOPP_ASSERT(SEEDLENGTH >= HASH::DIGESTSIZE);
         CRYPTOPP_ASSERT(HASH::DIGESTSIZE >= sizeof(m_reseed));
-        int carry=0, i=SEEDLENGTH-1, j=HASH::DIGESTSIZE-1, k=sizeof(m_reseed)-1;
-        while(i>=0 && j>=0 && k>=0)
+        int carry=0, k=sizeof(m_reseed)-1, j=HASH::DIGESTSIZE-1, i=SEEDLENGTH-1;
+
+		// Using Integer class slows things down by about 8 cpb.		
+		// Using word128 and word64 benefits the first loop only by about 2 cpb.
+#if defined(CRYPTOPP_WORD128_AVAILABLE)
+		byte* p1 = m_v.begin()+SEEDLENGTH-8;
+		byte* p2 = m_c.begin()+SEEDLENGTH-8;
+		byte* p3 = h.begin()+HASH::DIGESTSIZE-8;
+
+		word64 w1 = GetWord<word64>(false, BIG_ENDIAN_ORDER, p1);
+		word64 w2 = GetWord<word64>(false, BIG_ENDIAN_ORDER, p2);
+		word64 w3 = GetWord<word64>(false, BIG_ENDIAN_ORDER, p3);
+		word64 w4 = m_reseed;
+
+		word128 r = static_cast<word128>(w1) + w2 + w3 + w4;
+		PutWord(false, BIG_ENDIAN_ORDER, p1, static_cast<word64>(r));
+		j -= 8; i -= 8; k=0; carry = static_cast<int>(r >> 64);
+#else
+        while (k>=0)
         {
             carry = m_v[i] + m_c[i] + h[j] + GetByte<word64>(BIG_ENDIAN_ORDER, m_reseed, k) + carry;
             m_v[i] = static_cast<byte>(carry);
-            carry >>= 8; i--; j--; k--;
+            k--; j--; i--; carry >>= 8;
         }
-        while(i>=0 && j>=0)
+#endif
+
+        while (j>=0)
         {
             carry = m_v[i] + m_c[i] + h[j] + carry;
             m_v[i] = static_cast<byte>(carry);
-            carry >>= 8; i--; j--;
+            j--; i--; carry >>= 8;
         }
+
         while (i>=0)
         {
             carry = m_v[i] + m_c[i] + carry;
             m_v[i] = static_cast<byte>(carry);
-            carry >>= 8; i--;
+            i--;
+			carry >>= 8;
         }
+
     }
 
     m_reseed++;

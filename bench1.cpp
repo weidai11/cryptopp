@@ -407,7 +407,9 @@ void Benchmark1(double t, double hertz)
 			BenchMarkByNameKeyLess<RandomNumberGenerator>("RDSEED");
 #endif
 		BenchMarkByNameKeyLess<NIST_DRBG>("Hash_DRBG(SHA1)");
+		BenchMarkByNameKeyLess<NIST_DRBG>("Hash_DRBG(SHA256)");
 		BenchMarkByNameKeyLess<NIST_DRBG>("HMAC_DRBG(SHA1)");
+		BenchMarkByNameKeyLess<NIST_DRBG>("HMAC_DRBG(SHA256)");
 	}
 
 	std::cout << "\n<TBODY style=\"background: yellow;\">";
