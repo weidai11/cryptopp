@@ -254,6 +254,7 @@ private:
 
 //! \class NewObject
 //! \brief An object factory function
+//! \tparam T class or type
 //! \details NewObject overloads operator()().
 template <class T>
 struct NewObject
@@ -313,6 +314,8 @@ private:
 };
 
 //! \brief Return a reference to the inner Singleton object
+//! \tparam T the class or type
+//! \tparam F the object factory for T
 //! \details Ref() is used to create the object using the object factory. The
 //!   object is only created once with the limitations discussed in the class documentation.
 //! \sa <A HREF="http://preshing.com/20130930/double-checked-locking-is-fixed-in-cpp11/">Double-Checked Locking is Fixed In C++11</A>
@@ -467,6 +470,7 @@ inline void memmove_s(void *dest, size_t sizeInBytes, const void *src, size_t co
 #endif // __STDC_WANT_SECURE_LIB__
 
 //! \brief Swaps two variables which are arrays
+//! \tparam T class or type
 //! \param a the first value
 //! \param b the second value
 //! \details C++03 does not provide support for <tt>std::swap(__m128i a, __m128i b)</tt>
@@ -499,6 +503,7 @@ inline void * memset_z(void *ptr, int value, size_t num)
 }
 
 //! \brief Replacement function for std::min
+//! \tparam T class or type
 //! \param a the first value
 //! \param b the second value
 //! \returns the minimum value based on a comparison of <tt>b \< a</tt> using <tt>operator\<</tt>
@@ -509,6 +514,7 @@ template <class T> inline const T& STDMIN(const T& a, const T& b)
 }
 
 //! \brief Replacement function for std::max
+//! \tparam T class or type
 //! \param a the first value
 //! \param b the second value
 //! \returns the minimum value based on a comparison of <tt>a \< b</tt> using <tt>operator\<</tt>
@@ -534,6 +540,8 @@ template <class T> inline const T& STDMAX(const T& a, const T& b)
 #endif
 
 //! \brief Safe comparison of values that could be neagtive and incorrectly promoted
+//! \tparam T1 class or type
+//! \tparam T2 class or type
 //! \param a the first value
 //! \param b the second value
 //! \returns the minimum value based on a comparison a and b using <tt>operator&lt;</tt>.
@@ -548,6 +556,8 @@ template <class T1, class T2> inline const T1 UnsignedMin(const T1& a, const T2&
 }
 
 //! \brief Tests whether a conversion from -> to is safe to perform
+//! \tparam T1 class or type
+//! \tparam T2 class or type
 //! \param from the first value
 //! \param to the second value
 //! \returns true if its safe to convert from into to, false otherwise.
@@ -561,6 +571,7 @@ inline bool SafeConvert(T1 from, T2 &to)
 }
 
 //! \brief Converts a value to a string
+//! \tparam T class or type
 //! \param value the value to convert
 //! \param base the base to use during the conversion
 //! \returns the string representation of value in base.
@@ -644,6 +655,7 @@ std::string IntToString<Integer>(Integer value, unsigned int base);
 #define CRYPTOPP_GET_BYTE_AS_BYTE(x, y) byte((x)>>(8*(y)))
 
 //! \brief Returns the parity of a value
+//! \tparam T class or type
 //! \param value the value to provide the parity
 //! \returns 1 if the number 1-bits in the value is odd, 0 otherwise
 template <class T>
@@ -655,6 +667,7 @@ unsigned int Parity(T value)
 }
 
 //! \brief Returns the number of 8-bit bytes or octets required for a value
+//! \tparam T class or type
 //! \param value the value to test
 //! \returns the minimum number of 8-bit bytes or octets required to represent a value
 template <class T>
@@ -677,6 +690,7 @@ unsigned int BytePrecision(const T &value)
 }
 
 //! \brief Returns the number of bits required for a value
+//! \tparam T class or type
 //! \param value the value to test
 //! \returns the maximum number of bits required to represent a value.
 template <class T>
@@ -756,6 +770,7 @@ inline unsigned int TrailingZeros(word64 v)
 }
 
 //! \brief Truncates the value to the specified number of bits.
+//! \tparam T class or type
 //! \param value the value to truncate or mask
 //! \param bits the number of bits to truncate or mask
 //! \returns the value truncated to the specified number of bits, starting at the least
@@ -866,6 +881,8 @@ inline bool IsPowerOf2<word64>(const word64 &value)
 #endif
 
 //! \brief Performs a saturating subtract clamped at 0
+//! \tparam T1 class or type
+//! \tparam T2 class or type
 //! \param a the minuend
 //! \param b the subtrahend
 //! \returns the difference produced by the saturating subtract
@@ -880,6 +897,8 @@ inline T1 SaturatingSubtract(const T1 &a, const T2 &b)
 }
 
 //! \brief Performs a saturating subtract clamped at 1
+//! \tparam T1 class or type
+//! \tparam T2 class or type
 //! \param a the minuend
 //! \param b the subtrahend
 //! \returns the difference produced by the saturating subtract
@@ -895,6 +914,8 @@ inline T1 SaturatingSubtract1(const T1 &a, const T2 &b)
 }
 
 //! \brief Reduces a value to a power of 2
+//! \tparam T1 class or type
+//! \tparam T2 class or type
 //! \param a the first value
 //! \param b the second value
 //! \returns ModPowerOf2() returns <tt>a & (b-1)</tt>. <tt>b</tt> must be a power of 2.
@@ -909,6 +930,8 @@ inline T2 ModPowerOf2(const T1 &a, const T2 &b)
 }
 
 //! \brief Rounds a value down to a multiple of a second value
+//! \tparam T1 class or type
+//! \tparam T2 class or type
 //! \param n the value to reduce
 //! \param m the value to reduce \n to to a multiple
 //! \returns the possibly unmodified value \n
@@ -936,6 +959,8 @@ inline T1 RoundDownToMultipleOf(const T1 &n, const T2 &m)
 }
 
 //! \brief Rounds a value up to a multiple of a second value
+//! \tparam T1 class or type
+//! \tparam T2 class or type
 //! \param n the value to reduce
 //! \param m the value to reduce \n to to a multiple
 //! \returns the possibly unmodified value \n
@@ -963,7 +988,8 @@ inline T1 RoundUpToMultipleOf(const T1 &n, const T2 &m)
 }
 
 //! \brief Returns the minimum alignment requirements of a type
-//! \returns the minimum alignment requirements of a type, in bytes
+//! \tparam T class or type
+//! \returns the minimum alignment requirements of <tt>T</tt>, in bytes
 //! \details Internally the function calls C++11's <tt>alignof</tt> if available. If not available,
 //!   then the function uses compiler specific extensions such as <tt>__alignof</tt> and
 //!   <tt>_alignof_</tt>. If an extension is not available, then the function uses
@@ -1001,7 +1027,7 @@ inline unsigned int GetAlignmentOf()
 //! \brief Determines whether ptr is aligned to a minimum value
 //! \param ptr the pointer being checked for alignment
 //! \param alignment the alignment value to test the pointer against
-//! \returns true if ptr is aligned on at least align boundary
+//! \returns true if <tt>ptr</tt> is aligned on at least <tt>alignment</tt> boundary, false otherwise
 //! \details Internally the function tests whether alignment is 1. If so, the function returns true.
 //!   If not, then the function effectively performs a modular reduction and returns true if the residue is 0
 inline bool IsAlignedOn(const void *ptr, unsigned int alignment)
@@ -1010,8 +1036,9 @@ inline bool IsAlignedOn(const void *ptr, unsigned int alignment)
 }
 
 //! \brief Determines whether ptr is minimally aligned
+//! \tparam T class or type
 //! \param ptr the pointer to check for alignment
-//! \returns true if ptr follows native byte ordering, false otherwise
+//! \returns true if <tt>ptr</tt> is aligned to at least <tt>T</tt> boundary, false otherwise
 //! \details Internally the function calls IsAlignedOn with a second parameter of GetAlignmentOf<T>
 template <class T>
 inline bool IsAligned(const void *ptr)
@@ -1029,12 +1056,13 @@ inline bool IsAligned(const void *ptr)
 
 //! \brief Returns NativeByteOrder as an enumerated ByteOrder value
 //! \returns LittleEndian if the native byte order is little-endian, and BigEndian if the
-	//!   native byte order is big-endian
+//!   native byte order is big-endian
 //! \details NativeByteOrder is a typedef depending on the platform. If IS_LITTLE_ENDIAN is
-	//!   set in config.h, then GetNativeByteOrder returns LittleEndian. If
-	//!   IS_BIG_ENDIAN is set, then GetNativeByteOrder returns BigEndian.
+//!   set in config.h, then GetNativeByteOrder returns LittleEndian. If
+//!   IS_BIG_ENDIAN is set, then GetNativeByteOrder returns BigEndian.
 //! \note There are other byte orders besides little- and big-endian, and they include bi-endian
-	//!   and PDP-endian. If a system is neither little-endian nor big-endian, then a compile time error occurs.
+//!   and PDP-endian. If a system is neither little-endian nor big-endian, then a compile time
+//!   error occurs.
 inline ByteOrder GetNativeByteOrder()
 {
 	return NativeByteOrder::ToEnum();
@@ -1049,6 +1077,7 @@ inline bool NativeByteOrderIs(ByteOrder order)
 }
 
 //! \brief Returns the direction the cipher is being operated
+//! \tparam T class or type
 //! \param obj the cipher object being queried
 //! \returns \p ENCRYPTION if the cipher obj is being operated in its forward direction,
 //!   \p DECRYPTION otherwise
@@ -1104,6 +1133,7 @@ inline void IncrementCounterByOne(byte *output, const byte *input, unsigned int 
 }
 
 //! \brief Performs a branchless swap of values a and b if condition c is true
+//! \tparam T class or type
 //! \param c the condition to perform the swap
 //! \param a the first value
 //! \param b the second value
@@ -1116,6 +1146,7 @@ inline void ConditionalSwap(bool c, T &a, T &b)
 }
 
 //! \brief Performs a branchless swap of pointers a and b if condition c is true
+//! \tparam T class or type
 //! \param c the condition to perform the swap
 //! \param a the first pointer
 //! \param b the second pointer
@@ -1131,6 +1162,7 @@ inline void ConditionalSwapPointers(bool c, T &a, T &b)
 // and http://www.securecoding.cert.org/confluence/display/cplusplus/MSC06-CPP.+Be+aware+of+compiler+optimization+when+dealing+with+sensitive+data
 
 //! \brief Sets each element of an array to 0
+//! \tparam T class or type
 //! \param buf an array of elements
 //! \param n the number of elements in the array
 //! \details The operation performs a wipe or zeroization. The function attempts to survive optimizations and dead code removal
@@ -1238,6 +1270,7 @@ template<> inline void SecureWipeBuffer(word64 *buf, size_t n)
 #endif
 
 //! \brief Sets each element of an array to 0
+//! \tparam T class or type
 //! \param buf an array of elements
 //! \param n the number of elements in the array
 //! \details The operation performs a wipe or zeroization. The function attempts to survive optimizations and dead code removal.

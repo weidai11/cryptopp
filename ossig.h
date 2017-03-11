@@ -46,7 +46,7 @@ extern "C" {
 //!   using sigaction flags set to 0. The default handler only returns from the call.
 //! \details Upon destruction the previous signal handler is restored if the former signal handler
 //!   was replaced.
-//! \details On Cygwin systems using Newlib, you need to ensure you define <tt>_XOPEN_SOURCE=700</tt>,
+//! \details On Cygwin systems using Newlib, you should define <tt>_XOPEN_SOURCE=700</tt> or
 //!   <tt>_GNU_SOURCE</tt>; or use <tt>-std=gnu++03</tt>, <tt>-std=gnu++11</tt>, or similar. If
 //!   you compile with <tt>-std=c++03</tt>, <tt>-std=c++11</tt> or similar, then define
 //!   <tt>_XOPEN_SOURCE=700</tt>.
@@ -67,7 +67,7 @@ struct SignalHandler
     //!   using sigaction flags set to 0. The default handler only returns from the call.
     //! \details Upon destruction the previous signal handler is restored if the former signal handler
     //!   was overwritten.
-    //! \details On Cygwin systems using Newlib, you need to ensure you define <tt>_XOPEN_SOURCE=700</tt>,
+    //! \details On Cygwin systems using Newlib, you should define <tt>_XOPEN_SOURCE=700</tt> or
     //!   <tt>_GNU_SOURCE</tt>; or use <tt>-std=gnu++03</tt>, <tt>-std=gnu++11</tt>, or similar. If
     //!   you compile with <tt>-std=c++03</tt>, <tt>-std=c++11</tt> or similar, then define
     //!   <tt>_XOPEN_SOURCE=700</tt>.

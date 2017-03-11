@@ -54,7 +54,6 @@ public:
     virtual ~RDRAND() {}
 
     //! \brief Construct a RDRAND generator
-    //! \param retries the number of retries for failed calls to the hardware
     //! \details According to DJ of Intel, the Intel RDRAND circuit does not underflow.
     //!   If it did hypothetically underflow, then it would return 0 for the random value.
     //!   AMD's RDRAND implementation appears to provide the same behavior except the
