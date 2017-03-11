@@ -200,6 +200,16 @@ void BenchMark(const char *name, RandomNumberGenerator &rng, double timeTotal)
 	Test::GlobalRNG().GenerateBlock(buf, BUF_SIZE);
 	buf.SetMark(16);
 
+	SymmetricCipher * cipher = dynamic_cast<SymmetricCipher*>(&rng);
+	if (cipher != NULLPTR)
+	{
+		const size_t size = cipher->DefaultKeyLength();
+		if (cipher->IsResynchronizable())
+			cipher->SetKeyWithIV(buf, size, buf+size);
+		else
+			cipher->SetKey(buf, size);
+	}
+
 	unsigned long long blocks = 1;
 	double timeTaken;
 
@@ -406,6 +416,7 @@ void Benchmark1(double t, double hertz)
 		if (HasRDSEED())
 			BenchMarkByNameKeyLess<RandomNumberGenerator>("RDSEED");
 #endif
+		BenchMarkByNameKeyLess<RandomNumberGenerator>("AES/OFB RNG");
 		BenchMarkByNameKeyLess<NIST_DRBG>("Hash_DRBG(SHA1)");
 		BenchMarkByNameKeyLess<NIST_DRBG>("Hash_DRBG(SHA256)");
 		BenchMarkByNameKeyLess<NIST_DRBG>("HMAC_DRBG(SHA1)");
