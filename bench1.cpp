@@ -395,7 +395,7 @@ void Benchmark1(double t, double hertz)
 	else
 		cpb = "";
 
-	std::cout << "\n<TABLE style=\"border:1px solid\">";
+	std::cout << "\n<TABLE>";
 	std::cout << "\n<COLGROUP><COL style=\"text-align: left;\"><COL style=\"text-align: right;\">";
 	std::cout << "<COL style=\"text-align: right;\">";
 	std::cout << "\n<THEAD style=\"background: #F0F0F0\"><TR><TH>Algorithm<TH>MiB/Second" << cpb;
@@ -469,7 +469,7 @@ void Benchmark2(double t, double hertz)
 		cpb = cpk = "";
 	}
 
-	std::cout << "\n<TABLE style=\"border:1px solid\">";
+	std::cout << "\n<TABLE>";
 	std::cout << "\n<COLGROUP><COL style=\"text-align: left;\"><COL style=\"text-align: right;\"><COL style=";
 	std::cout << "\"text-align: right;\"><COL style=\"text-align: right;\"><COL style=\"text-align: right;\">";
 	std::cout << "\n<THEAD style=\"background: #F0F0F0\"><TR><TH>Algorithm<TH>MiB/Second" << cpb;

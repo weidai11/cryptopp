@@ -238,7 +238,7 @@ void Benchmark3(double t, double hertz)
 	g_allocatedTime = t;
 	g_hertz = hertz;
 
-	std::cout << "\n<TABLE style=\"border:1px solid\">";
+	std::cout << "\n<TABLE>";
 	std::cout << "\n<COLGROUP><COL style=\"text-align: left;\"><COL style=";
 	std::cout << "\"text-align: right;\"><COL style=\"text-align: right;\">";
 	std::cout << "\n<THEAD style=\"background: #F0F0F0\"><TR><TH>Operation<TH>Milliseconds/Operation";
