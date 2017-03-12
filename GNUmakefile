@@ -50,8 +50,6 @@ IS_X86 := $(shell isainfo -k 2>/dev/null | grep -i -c "i386")
 IS_X64 := $(shell isainfo -k 2>/dev/null | grep -i -c "amd64")
 endif
 
-DISABLE_CXXFLAGS_OPTIMIZATIONS := 0
-
 ###########################################################
 #####                General Variables                #####
 ###########################################################
@@ -131,6 +129,8 @@ endif
 # BEGIN MARCH_CXXFLAGS
 # Guard use of -march=native (or -m{32|64} on some platforms)
 # Don't add anything if -march=XXX or -mtune=XXX is specified
+# or DISABLE_CXXFLAGS_OPTIMIZATIONS is set.
+ifeq ($(DISABLE_CXXFLAGS_OPTIMIZATIONS),)
 ifeq ($(findstring -march,$(CXXFLAGS)),)
 ifeq ($(findstring -mtune,$(CXXFLAGS)),)
    ifeq ($(GCC42_OR_LATER)$(IS_NETBSD),10)
@@ -150,6 +150,7 @@ ifeq ($(findstring -mtune,$(CXXFLAGS)),)
    endif
 endif  # -mtune
 endif  # -march
+endif  # DISABLE_CXXFLAGS_OPTIMIZATIONS
 # END MARCH_CXXFLAGS
 
 # Cygwin needs _XOPEN_SOURCE for signals
@@ -594,7 +595,8 @@ ifneq ($(wildcard libcryptopp.so$(SOLIB_VERSION_SUFFIX)),)
 	$(CP) libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(DESTDIR)$(LIBDIR)
 	@-$(CHMOD) 0755 $(DESTDIR)$(LIBDIR)/libcryptopp.so$(SOLIB_VERSION_SUFFIX)
 ifeq ($(HAS_SOLIB_VERSION),1)
-	-$(LN) -sf libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(DESTDIR)$(LIBDIR)/libcryptopp.so
+	-$(LN) libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(DESTDIR)$(LIBDIR)/libcryptopp.so
+	-$(LN) libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(DESTDIR)$(LIBDIR)/libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
 	$(LDCONF) $(DESTDIR)$(LIBDIR)
 endif
 endif
