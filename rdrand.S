@@ -1,9 +1,10 @@
 ;; rdrand.asm - written and placed in public domain by Jeffrey Walton and Uri Blumenthal.
 ;;              Copyright assigned to the Crypto++ project.
 
-;; This ASM file provides RDRAND and RDSEED to downlevel Unix and Linux tool chains.
-;; Additionally, the inline assembly code produced by GCC and Clang is not that
-;; impressive. However, using this code requires NASM and an edit to the GNUmakefile.
+;; This ASM file provides RDRAND and RDSEED to downlevel Unix and Linux tool
+;; chains. You will need a modern Nasm, however. You can also use it in place
+;; of intrinsics. The routines below run a little faster than the intrinsic
+;; based routines.
 
 ;; nasm -f elf32 rdrand.S -DX86 -g -o rdrand-x86.o
 ;; nasm -f elfx32 rdrand.S -DX32 -g -o rdrand-x32.o
@@ -20,214 +21,192 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-%ifdef X86 or X32   ;; Set via the command line
-
-;; Arg1, byte* buffer
-;; Arg2, size_t bsize
-
-global       NASM_RDRAND_GenerateBlock
-section      .text
-
-%ifdef X86
-align        8
-cpu          486
+%ifdef X86             ;; Set via the command line
+%define arg1    [esp+04h]
+%define arg2    [esp+08h]
+%ifdef CYGWIN          ;; Cygwin follows Windows ABI here, not Linux ABI
+%define buffer  ecx
+%define bsize   edx
 %else
-align        16
+%define buffer  edi
+%define bsize   esi
 %endif
+%define MWSIZE  04h    ;; machine word size
+
+%elifdef X32           ;; Set via the command line
+%define buffer  edi
+%define bsize   esi
+%define MWSIZE  04h    ;; machine word size
+
+%elifdef X64           ;; Set via the command line
+%ifdef CYGWIN          ;; Cygwin follows Windows ABI here, not Linux ABI
+%define buffer  rcx
+%define bsize   rdx
+%else
+%define buffer  rdi
+%define bsize   rsi
+%endif
+%define MWSIZE  08h    ;; machine word size
+
+%else
+%error Missing or unknown architecture
+%endif
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Fixups
+
+%ifdef DARWIN
+%define NASM_RDRAND_GenerateBlock _NASM_RDRAND_GenerateBlock
+%define NASM_RDSEED_GenerateBlock _NASM_RDSEED_GenerateBlock
+%endif
+
+%ifdef CYGWIN and X86
+%define NASM_RDRAND_GenerateBlock _NASM_RDRAND_GenerateBlock
+%define NASM_RDSEED_GenerateBlock _NASM_RDSEED_GenerateBlock
+%endif
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+%ifdef X86         ;; Set via the command line
+
+global        NASM_RDRAND_GenerateBlock
+section       .text
+align         8
 
 NASM_RDRAND_GenerateBlock:
 
-%ifdef X86
-%define arg1 [ebp+04h]
-%define arg2 [ebp+08h]
-%define MWSIZE 04h    ;; machine word size
-%else
-%define MWSIZE 08h    ;; machine word size
-%endif
-
-%define buffer edi
-%define bsize  esi
-
-%ifdef X86
 .Load_Arguments:
 
-    mov     buffer, arg1
-    mov     bsize,  arg2
-%endif
+    mov       buffer, arg1
+    mov       bsize,  arg2
 
-            ;; Top of While loop
 .GenerateBlock_Top:
 
-            ;; Check remaining size
-    cmp     bsize, 0
-    je      .GenerateBlock_Return
+    cmp       bsize, 0
+    je        .GenerateBlock_Return
 
-.Call_RDRAND:
-%ifdef X86
-.Call_RDRAND_EAX:
-%else
-.Call_RDRAND_RAX:
-    DB      48h    ;; X32 can use the full register, issue the REX.w prefix
-%endif
-            ;; RDRAND is not available prior to VS2012. Just emit
-            ;;   the byte codes using DB. This is `rdrand eax`.
-    DB      0Fh, 07h, 0F0h
+.Call_RDRAND_EAX_0:
 
-            ;; If CF=1, the number returned by RDRAND is valid.
-            ;; If CF=0, a random number was not available.
-    jnc     .Call_RDRAND
+    rdrand    eax
+    jnc       .Call_RDRAND_EAX_0
 
 .RDRAND_succeeded:
 
-    cmp     bsize, MWSIZE
-    jb      .Partial_Machine_Word
+    cmp       bsize, MWSIZE
+    jb        .Partial_Machine_Word
 
 .Full_Machine_Word:
 
-%ifdef X32
-    mov     [buffer+4], eax        ;; We can only move 4 at a time
-    DB      048h                   ;; Combined, these result in
-    shr     eax, 32                ;;   `shr rax, 32`
-%endif
+    mov       [buffer], eax
+    add       buffer,   MWSIZE
+    sub       bsize,    MWSIZE
 
-    mov     [buffer], eax
-    add     buffer, MWSIZE         ;; No need for Intel Core 2 slow word workarounds,
-    sub     bsize,  MWSIZE         ;;   like `lea buffer,[buffer+MWSIZE]` for faster adds
+              ;; Continue
+    jmp       .GenerateBlock_Top
 
-            ;; Continue
-    jmp     .GenerateBlock_Top
-
-            ;; 1,2,3 bytes remain for X86
-            ;; 1,2,3,4,5,6,7 remain for X32
+              ;; 1,2,3 bytes remain for X86
 .Partial_Machine_Word:
 
-%ifdef X32
-            ;; Test bit 2 to see if size is at least 4
-    test    bsize, 4
-    jz      .Bit_2_Not_Set
+              ;; Test bit 1 to see if size is at least 2
+    test      bsize, 2
+    jz        .Bit_1_Not_Set
 
-    mov     [buffer], eax
-    add     buffer, 4
-
-    DB      048h            ;; Combined, these result in
-    shr     eax, 32         ;;   `shr rax, 32`
-
-.Bit_2_Not_Set:
-%endif
-
-            ;; Test bit 1 to see if size is at least 2
-    test    bsize, 2
-    jz      .Bit_1_Not_Set
-
-    mov     [buffer], ax
-    shr     eax, 16
-    add     buffer, 2
+    mov       [buffer], ax
+    shr       eax, 16
+    add       buffer, 2
 
 .Bit_1_Not_Set:
 
-            ;; Test bit 0 to see if size is at least 1
-    test    bsize, 1
-    jz      .Bit_0_Not_Set
+              ;; Test bit 0 to see if size is at least 1
+    test      bsize, 1
+    jz        .Bit_0_Not_Set
 
-    mov     [buffer], al
+    mov       [buffer], al
 
 .Bit_0_Not_Set:
 
-            ;; We've hit all the bits
+              ;; We've hit all the bits
 
 .GenerateBlock_Return:
 
-    xor     eax, eax
+    xor       eax, eax
     ret
 
-%endif      ;; X86 and X32
+%endif        ;; X86
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-%ifdef X64  ;; Set via the command line
+%ifdef X64 or X32  ;; Set via the command line
 
-global      NASM_RDRAND_GenerateBlock
-section     .text
-align       16
-
-;; Arg1, byte* buffer
-;; Arg2, size_t bsize
+global        NASM_RDRAND_GenerateBlock
+section       .text
+align         16
 
 NASM_RDRAND_GenerateBlock:
-
-%define MWSIZE  08h    ;; machine word size
-%define buffer  rdi
-%define bsize   rsi
 
     ;; No need for Load_Arguments due to fastcall
 
-            ;; Top of While loop
 .GenerateBlock_Top:
 
-            ;; Check remaining size
-    cmp     bsize, 0
-    je      .GenerateBlock_Return
+    cmp       bsize, 0
+    je        .GenerateBlock_Return
 
-.Call_RDRAND_RAX:
-            ;; RDRAND is not available prior to VS2012. Just emit
-            ;;   the byte codes using DB. This is `rdrand rax`.
-    DB      048h, 0Fh, 0C7h, 0F0h
+.Call_RDRAND_RAX_0:
+    rdrand    rax
+    jnc       .Call_RDRAND_RAX_0
 
-            ;; If CF=1, the number returned by RDRAND is valid.
-            ;; If CF=0, a random number was not available.
-    jnc     .Call_RDRAND_RAX
-
-.RDRAND_succeeded:
-
-    cmp     bsize, MWSIZE
-    jb      .Partial_Machine_Word
+    cmp       bsize, MWSIZE
+    jb        .Partial_Machine_Word
 
 .Full_Machine_Word:
 
-    mov     [buffer], rax
-    add     buffer, MWSIZE
-    sub     bsize, MWSIZE
+    mov       [buffer], rax
+    add       buffer,   MWSIZE
+    sub       bsize,    MWSIZE
 
-            ;; Continue
-    jmp     .GenerateBlock_Top
+              ;; Continue
+    jmp       .GenerateBlock_Top
 
-            ;; 1,2,3,4,5,6,7 bytes remain
+              ;; 1,2,3,4,5,6,7 bytes remain
 .Partial_Machine_Word:
 
-            ;; Test bit 2 to see if size is at least 4
-    test    bsize, 4
-    jz      .Bit_2_Not_Set
+              ;; Test bit 2 to see if size is at least 4
+    test      bsize, 4
+    jz        .Bit_2_Not_Set
 
-    mov     [buffer], eax
-    shr     rax, 32
-    add     buffer, 4
+    mov       [buffer], eax
+    shr       rax, 32
+    add       buffer, 4
 
 .Bit_2_Not_Set:
 
-            ;; Test bit 1 to see if size is at least 2
-    test    bsize, 2
-    jz      .Bit_1_Not_Set
+              ;; Test bit 1 to see if size is at least 2
+    test      bsize, 2
+    jz        .Bit_1_Not_Set
 
-    mov     [buffer], ax
-    shr     eax, 16
-    add     buffer, 2
+    mov       [buffer], ax
+    shr       eax, 16
+    add       buffer, 2
 
 .Bit_1_Not_Set:
 
-            ;; Test bit 0 to see if size is at least 1
-    test    bsize, 1
-    jz      .Bit_0_Not_Set
+              ;; Test bit 0 to see if size is at least 1
+    test      bsize, 1
+    jz        .Bit_0_Not_Set
 
-    mov     [buffer], al
+    mov       [buffer], al
 
 .Bit_0_Not_Set:
 
-            ;; We've hit all the bits
+              ;; We've hit all the bits
 
 .GenerateBlock_Return:
 
-    xor     rax, rax
+    xor       rax, rax
     ret
 
 %endif    ;; X64
@@ -235,212 +214,146 @@ NASM_RDRAND_GenerateBlock:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-%ifdef X86 or X32   ;; Set via the command line
+%ifdef X86         ;; Set via the command line
 
-;; Arg1, byte* buffer
-;; Arg2, size_t bsize
-
-global      NASM_RDSEED_GenerateBlock
-section     .text
-align       8
-
-%ifdef X86
-align       8
-cpu         486
-%else
-align       16
-%endif
+global        NASM_RDSEED_GenerateBlock
+section       .text
+align         8
 
 NASM_RDSEED_GenerateBlock:
 
-%ifdef X86
-%define arg1 [ebp+04h]
-%define arg2 [ebp+08h]
-%define MWSIZE 04h    ;; machine word size
-%else
-%define MWSIZE 08h    ;; machine word size
-%endif
-
-%define buffer edi
-%define bsize  esi
-
-%ifdef X86
 .Load_Arguments:
 
-    mov     buffer, arg1
-    mov     bsize,  arg2
-%endif
+    mov       buffer, arg1
+    mov       bsize,  arg2
 
-            ;; Top of While loop
 .GenerateBlock_Top:
 
-            ;; Check remaining size
-    cmp     bsize, 0
-    je      .GenerateBlock_Return
+    cmp       bsize, 0
+    je        .GenerateBlock_Return
 
-.Call_RDSEED:
-%ifdef X86
-.Call_RDSEED_EAX:
-%else
-.Call_RDSEED_RAX:
-    DB      48h        ;; X32 can use the full register, issue the REX.w prefix
-%endif
-            ;; RDSEED is not available prior to VS2012. Just emit
-            ;;   the byte codes using DB. This is `rdseed eax`.
-    DB      0Fh, 0C7h, 0F8h
+.Call_RDSEED_EAX_0:
 
-            ;; If CF=1, the number returned by RDSEED is valid.
-            ;; If CF=0, a random number was not available.
-    jnc     .Call_RDSEED
+    rdseed    eax
+    jnc       .Call_RDSEED_EAX_0
 
 .RDSEED_succeeded:
 
-    cmp     bsize, MWSIZE
-    jb      .Partial_Machine_Word
+    cmp       bsize, MWSIZE
+    jb        .Partial_Machine_Word
 
 .Full_Machine_Word:
 
-    mov     [buffer], eax
-    add     buffer, MWSIZE        ;; No need for Intel Core 2 slow word workarounds,
-    sub     bsize,  MWSIZE        ;;   like `lea buffer,[buffer+MWSIZE]` for faster adds
+    mov       [buffer], eax
+    add       buffer,   MWSIZE
+    sub       bsize,    MWSIZE
 
-            ;; Continue
-    jmp     .GenerateBlock_Top
+              ;; Continue
+    jmp       .GenerateBlock_Top
 
-            ;; 1,2,3 bytes remain for X86
-            ;; 1,2,3,4,5,6,7 remain for X32
+              ;; 1,2,3 bytes remain for X86
 .Partial_Machine_Word:
 
-%ifdef X32
-            ;; Test bit 2 to see if size is at least 4
-    test    bsize, 4
-    jz      .Bit_2_Not_Set
+              ;; Test bit 1 to see if size is at least 2
+    test      bsize, 2
+    jz        .Bit_1_Not_Set
 
-    mov     [buffer], eax
-    add     buffer, 4
-
-    DB      048h            ;; Combined, these result in
-    shr     eax, 32         ;;   `shr rax, 32`
-
-.Bit_2_Not_Set:
-%endif
-
-            ;; Test bit 1 to see if size is at least 2
-    test    bsize, 2
-    jz      .Bit_1_Not_Set
-
-    mov     [buffer], ax
-    shr     eax, 16
-    add     buffer, 2
+    mov       [buffer], ax
+    shr       eax, 16
+    add       buffer, 2
 
 .Bit_1_Not_Set:
 
-            ;; Test bit 0 to see if size is at least 1
-    test    bsize, 1
-    jz      .Bit_0_Not_Set
+              ;; Test bit 0 to see if size is at least 1
+    test      bsize, 1
+    jz        .Bit_0_Not_Set
 
-    mov     [buffer], al
+    mov       [buffer], al
 
 .Bit_0_Not_Set:
 
-            ;; We've hit all the bits
+              ;; We've hit all the bits
 
 .GenerateBlock_Return:
 
-    xor     eax, eax
+    xor       eax, eax
     ret
 
-%endif    ;; X86 and X32
+%endif        ;; X86
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-%ifdef X64  ;; Set via the command line
+%ifdef X64 or X32  ;; Set via the command line
 
-global      NASM_RDSEED_GenerateBlock
-section     .text
-align       16
-
-;; Arg1, byte* buffer
-;; Arg2, size_t bsize
+global        NASM_RDSEED_GenerateBlock
+section       .text
+align         16
 
 NASM_RDSEED_GenerateBlock:
-
-%define MWSIZE  08h    ;; machine word size
-%define buffer  rdi
-%define bsize   rsi
 
     ;; No need for Load_Arguments due to fastcall
 
-            ;; Top of While loop
 .GenerateBlock_Top:
 
-            ;; Check remaining size
-    cmp     bsize, 0
-    je      .GenerateBlock_Return
+    cmp       bsize, 0
+    je        .GenerateBlock_Return
 
-.Call_RDSEED_RAX:
-            ;; RDSEED is not available prior to VS2012. Just emit
-            ;;   the byte codes using DB. This is `rdseed rax`.
-    DB      048h, 0Fh, 0C7h, 0F8h
+.Call_RDSEED_RAX_0:
+    rdseed    rax
+    jnc       .Call_RDSEED_RAX_0
 
-            ;; If CF=1, the number returned by RDSEED is valid.
-            ;; If CF=0, a random number was not available.
-    jnc     .Call_RDSEED_RAX
-
-.RDSEED_succeeded:
-
-    cmp     bsize, MWSIZE
-    jb      .Partial_Machine_Word
+    cmp       bsize, MWSIZE
+    jb        .Partial_Machine_Word
 
 .Full_Machine_Word:
 
-    mov     [buffer], rax
-    add     buffer, MWSIZE
-    sub     bsize, MWSIZE
+    mov       [buffer], rax
+    add       buffer,   MWSIZE
+    sub       bsize,    MWSIZE
 
-            ;; Continue
-    jmp     .GenerateBlock_Top
+              ;; Continue
+    jmp       .GenerateBlock_Top
 
-            ;; 1,2,3,4,5,6,7 bytes remain
+              ;; 1,2,3,4,5,6,7 bytes remain
 .Partial_Machine_Word:
 
-            ;; Test bit 2 to see if size is at least 4
-    test    bsize, 4
-    jz      .Bit_2_Not_Set
+              ;; Test bit 2 to see if size is at least 4
+    test      bsize, 4
+    jz        .Bit_2_Not_Set
 
-    mov     [buffer], eax
-    shr     rax, 32
-    add     buffer, 4
+    mov       [buffer], eax
+    shr       rax, 32
+    add       buffer, 4
 
 .Bit_2_Not_Set:
 
-            ;; Test bit 1 to see if size is at least 2
-    test    bsize, 2
-    jz      .Bit_1_Not_Set
+              ;; Test bit 1 to see if size is at least 2
+    test      bsize, 2
+    jz        .Bit_1_Not_Set
 
-    mov     [buffer], ax
-    shr     eax, 16
-    add     buffer, 2
+    mov       [buffer], ax
+    shr       eax, 16
+    add       buffer, 2
 
 .Bit_1_Not_Set:
 
-            ;; Test bit 0 to see if size is at least 1
-    test    bsize, 1
-    jz      .Bit_0_Not_Set
+              ;; Test bit 0 to see if size is at least 1
+    test      bsize, 1
+    jz        .Bit_0_Not_Set
 
-    mov     [buffer], al
+    mov       [buffer], al
 
 .Bit_0_Not_Set:
 
-            ;; We've hit all the bits
+              ;; We've hit all the bits
 
 .GenerateBlock_Return:
 
-    xor     rax, rax
+    xor       rax, rax
     ret
 
-%endif      ;; _M_X64
+%endif    ;; X64
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

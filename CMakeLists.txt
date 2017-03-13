@@ -19,8 +19,8 @@ if (NOT CMAKE_CONFIGURATION_TYPES AND
 	set(CMAKE_BUILD_TYPE RelWithDebInfo)
 endif()
 
-set(cryptopp_VERSION_MAJOR 5)
-set(cryptopp_VERSION_MINOR 7)
+set(cryptopp_VERSION_MAJOR 6)
+set(cryptopp_VERSION_MINOR 0)
 set(cryptopp_VERSION_PATCH 0)
 
 include(GNUInstallDirs)
@@ -45,7 +45,7 @@ endif()
 option(DISABLE_ASM "Disable ASM" OFF)
 option(DISABLE_SSSE3 "Disable SSSE3" OFF)
 option(DISABLE_AESNI "Disable AES-NI" OFF)
-option(DISABLE_CXXFLAGS_OPTIMIZATIONS "Disable CXXFLAGS optimizations" OFF)
+option(DISABLE_NATIVE_ARCH "Disable the addition of -march=native" OFF)
 set(CRYPTOPP_DATA_DIR "" CACHE PATH "Crypto++ test data directory")
 
 #============================================================================
@@ -54,6 +54,14 @@ set(CRYPTOPP_DATA_DIR "" CACHE PATH "Crypto++ test data directory")
 
 # Stop hiding the damn output...
 # set(CMAKE_VERBOSE_MAKEFILE on)
+
+# Previous variable name. Deprecated because (1) it controls the addition of
+#  -march=native (2) its not related to optimizations, like -O3 or -Os, and
+#  (3) DISABLE_NATIVE_ARCH is documented on the wiki.
+if (DISABLE_CXXFLAGS_OPTIMIZATIONS)
+	set(DISABLE_NATIVE_ARCH 1)
+	unset(DISABLE_CXXFLAGS_OPTIMIZATIONS)
+endif()
 
 # Always 1 ahead in Master. Also see http://groups.google.com/forum/#!topic/cryptopp-users/SFhqLDTQPG4
 set(LIB_VER ${cryptopp_VERSION_MAJOR}${cryptopp_VERSION_MINOR}${cryptopp_VERSION_PATCH})
@@ -132,7 +140,7 @@ if ((NOT CRYPTOPP_CROSS_COMPILE) AND (NOT (WINDOWS OR WINDOWS_STORE OR WINDOWS_P
 endif()
 
 # -march=native for GCC, Clang and ICC in any version that does support it.
-if ((NOT DISABLE_CXXFLAGS_OPTIMIZATIONS) AND (NOT CRYPTOPP_CROSS_COMPILE) AND (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU|Intel"))
+if ((NOT DISABLE_NATIVE_ARCH) AND (NOT CRYPTOPP_CROSS_COMPILE) AND (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU|Intel"))
 	CHECK_CXX_COMPILER_FLAG("-march=native" COMPILER_OPT_ARCH_NATIVE_SUPPORTED)
 	if (COMPILER_OPT_ARCH_NATIVE_SUPPORTED AND NOT CMAKE_CXX_FLAGS MATCHES "-march=")
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
@@ -141,7 +149,7 @@ endif()
 
 # Solaris specific 
 if ((NOT CRYPTOPP_CROSS_COMPILE) AND "${UNAME_SYSTEM}" STREQUAL "SunOS")
-	if (NOT DISABLE_CXXFLAGS_OPTIMIZATIONS)
+	if (NOT DISABLE_NATIVE_ARCH)
 		# SunCC needs -native
 		if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "SunPro")
 			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -native")

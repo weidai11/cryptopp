@@ -17,7 +17,6 @@ LDCONF ?= /sbin/ldconfig -n
 UNAME := $(shell uname)
 
 IS_X86 := $(shell uname -m | $(EGREP) -v "x86_64" | $(EGREP) -i -c "i.86|x86|i86")
-IS_X32 ?= 0
 IS_X64 := $(shell uname -m | $(EGREP) -i -c "(_64|d64)")
 IS_PPC := $(shell uname -m | $(EGREP) -i -c "ppc|power")
 IS_ARM32 := $(shell uname -m | $(EGREP) -i -c "arm")
@@ -42,7 +41,27 @@ SUNCC_511_OR_LATER := $(shell $(CXX) -V 2>&1 | $(EGREP) -c "CC: (Sun|Studio) .* 
 SUNCC_512_OR_LATER := $(shell $(CXX) -V 2>&1 | $(EGREP) -c "CC: (Sun|Studio) .* (5\.1[2-9]|5\.[2-9]|6\.)")
 SUNCC_513_OR_LATER := $(shell $(CXX) -V 2>&1 | $(EGREP) -c "CC: (Sun|Studio) .* (5\.1[3-9]|5\.[2-9]|6\.)")
 
+# Set this to 1 to avoid -march=native
+DISABLE_NATIVE_ARCH ?= 0
+# Check CXXFLAGS for -DDISABLE_NATIVE_ARCH
+ifneq ($(findstring -DDISABLE_NATIVE_ARCH,$(CXXFLAGS)),)
+DISABLE_NATIVE_ARCH := 1
+endif
+
+# Enable shared object versioning for Linux
 HAS_SOLIB_VERSION := $(IS_LINUX)
+
+# Set to 1 if you want to use X32 on X64
+IS_X32 ?= 0
+
+# Set to 1 if you used NASM to build rdrand-{x86|x32|x64}
+HAS_NASM ?= 0
+
+# Fixup for X32
+ifeq ($(IS_X32),1)
+IS_X86 = 0
+IS_X64 = 0
+endif
 
 # Fixup SunOS
 ifeq ($(IS_SUN),1)
@@ -50,7 +69,8 @@ IS_X86 := $(shell isainfo -k 2>/dev/null | grep -i -c "i386")
 IS_X64 := $(shell isainfo -k 2>/dev/null | grep -i -c "amd64")
 endif
 
-DISABLE_CXXFLAGS_OPTIMIZATIONS := 0
+# Newlib needs _XOPEN_SOURCE=700 for signals
+HAS_NEWLIB := $(shell $(CXX) -x c++ $(CXXFLAGS) -dM -E adhoc.cpp.proto 2>&1 | $(EGREP) -i -c "__NEWLIB__")
 
 ###########################################################
 #####                General Variables                #####
@@ -96,6 +116,12 @@ ifeq ($(ARFLAGS),rv)
 ARFLAGS = r
 endif
 
+ifneq ($(HAS_NEWLIB),0)
+ ifeq ($(findstring -D_XOPEN_SOURCE,$(CXXFLAGS)),)
+   CXXFLAGS += -D_XOPEN_SOURCE=700
+ endif
+endif
+
 ###########################################################
 #####               X86/X32/X64 Options               #####
 ###########################################################
@@ -128,9 +154,10 @@ ifeq ($(IS_X86)$(IS_X32)$(IS_CYGWIN)$(IS_MINGW)$(SUN_COMPILER),00000)
  endif
 endif
 
-# BEGIN MARCH_CXXFLAGS
+# BEGIN NATIVE_ARCH
 # Guard use of -march=native (or -m{32|64} on some platforms)
 # Don't add anything if -march=XXX or -mtune=XXX is specified
+ifneq ($(DISABLE_NATIVE_ARCH),1)
 ifeq ($(findstring -march,$(CXXFLAGS)),)
 ifeq ($(findstring -mtune,$(CXXFLAGS)),)
    ifeq ($(GCC42_OR_LATER)$(IS_NETBSD),10)
@@ -150,14 +177,8 @@ ifeq ($(findstring -mtune,$(CXXFLAGS)),)
    endif
 endif  # -mtune
 endif  # -march
-# END MARCH_CXXFLAGS
-
-# Cygwin needs _XOPEN_SOURCE for signals
-ifeq ($(IS_CYGWIN),1)
- ifeq ($(findstring -D_XOPEN_SOURCE,$(CXXFLAGS)),)
-   CXXFLAGS += -D_XOPEN_SOURCE=700
- endif
-endif
+endif  # DISABLE_NATIVE_ARCH
+# END NATIVE_ARCH
 
 # Aligned access required for -O3 and above due to vectorization
 UNALIGNED_ACCESS := $(shell $(EGREP) -c "^[[:space:]]*//[[:space:]]*\#[[:space:]]*define[[:space:]]*CRYPTOPP_NO_UNALIGNED_DATA_ACCESS" config.h)
@@ -381,12 +402,11 @@ endif # GCC code coverage
 ifneq ($(filter -DDEBUG -DDEBUG=1,$(CXXFLAGS)),)
 USING_GLIBCXX := $(shell $(CXX) -x c++ $(CXXFLAGS) -E adhoc.cpp.proto 2>&1 | $(EGREP) -i -c "__GLIBCXX__")
 ifneq ($(USING_GLIBCXX),0)
-HAS_NEWLIB := $(shell $(CXX) -x c++ $(CXXFLAGS) -E adhoc.cpp.proto 2>&1 | $(EGREP) -i -c "__NEWLIB__")
 ifeq ($(HAS_NEWLIB),0)
 ifeq ($(findstring -D_GLIBCXX_DEBUG,$(CXXFLAGS)),)
 CXXFLAGS += -D_GLIBCXX_DEBUG
 endif # CXXFLAGS
-endif # NAS_NEWLIB
+endif # HAS_NEWLIB
 endif # USING_GLIBCXX
 endif # GNU Debug build
 
@@ -435,11 +455,11 @@ endif # HAS_SOLIB_VERSION
 SRCS := cryptlib.cpp cpu.cpp integer.cpp $(filter-out cryptlib.cpp cpu.cpp integer.cpp pch.cpp simple.cpp winpipes.cpp cryptlib_bds.cpp,$(wildcard *.cpp))
 
 # Need CPU for X86/X64/X32 and ARM
-ifeq ($(IS_X86)$(IS_X64)$(IS_ARM32)$(IS_ARM64),0000)
+ifeq ($(IS_X86)$(IS_X32)$(IS_X64)$(IS_ARM32)$(IS_ARM64),00000)
   SRCS := $(filter-out cpu.cpp, $(SRCS))
 endif
 # Need RDRAND for X86/X64/X32
-ifeq ($(IS_X86)$(IS_X64),00)
+ifeq ($(IS_X86)$(IS_X32)$(IS_X64),000)
   SRCS := $(filter-out rdrand.cpp, $(SRCS))
 endif
 
@@ -449,6 +469,16 @@ endif
 
 # List cryptlib.cpp first, then cpu.cpp, then integer.cpp to tame C++ static initialization problems.
 OBJS := $(SRCS:.cpp=.o)
+
+ifeq ($(HAS_NASM),1)
+ifeq ($(IS_X64),1)
+OBJS += rdrand-x64.o
+else ifeq ($(IS_X32),1)
+OBJS += rdrand-x32.o
+else ifeq ($(IS_X86),1)
+OBJS += rdrand-x86.o
+endif
+endif # Nasm
 
 # List test.cpp first to tame C++ static initialization problems.
 TESTSRCS := adhoc.cpp test.cpp bench1.cpp bench2.cpp validat0.cpp validat1.cpp validat2.cpp validat3.cpp datatest.cpp regtest.cpp fipsalgt.cpp dlltest.cpp
@@ -636,7 +666,7 @@ cryptest.exe: libcryptopp.a $(TESTOBJS)
 
 # Makes it faster to test changes
 nolib: $(OBJS)
-	$(CXX) -o ct  $(strip $(CXXFLAGS)) $(OBJS) $(LDFLAGS) $(LDLIBS)
+	$(CXX) -o ct $(strip $(CXXFLAGS)) $(OBJS) $(LDFLAGS) $(LDLIBS)
 
 dll: cryptest.import.exe dlltest.exe
 
@@ -733,6 +763,15 @@ cryptlib.o:
 cpu.o:
 	$(CXX) $(strip $(CXXFLAGS)) -DMACPORTS_GCC_COMPILER=1 -c cpu.cpp
 endif
+endif
+
+# Run rdrand-nasm.sh to create the object files
+ifeq ($(HAS_NASM),1)
+rdrand.o: rdrand.h rdrand.cpp rdrand.S
+	$(CXX) $(strip $(CXXFLAGS)) -DNASM_RDRAND_ASM_AVAILABLE=1 -DNASM_RDSEED_ASM_AVAILABLE=1 -c rdrand.cpp
+rdrand-x86.o: ;
+rdrand-x32.o: ;
+rdrand-x64.o: ;
 endif
 
 # Only use CRYPTOPP_DATA_DIR if its not set in CXXFLAGS
