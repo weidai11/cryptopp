@@ -55,7 +55,7 @@ HAS_SOLIB_VERSION := $(IS_LINUX)
 IS_X32 ?= 0
 
 # Set to 1 if you used NASM to build rdrand-{x86|x32|x64}
-HAS_NASM ?= 0
+USE_NASM ?= 0
 
 # Fixup for X32
 ifeq ($(IS_X32),1)
@@ -470,7 +470,7 @@ endif
 # List cryptlib.cpp first, then cpu.cpp, then integer.cpp to tame C++ static initialization problems.
 OBJS := $(SRCS:.cpp=.o)
 
-ifeq ($(HAS_NASM),1)
+ifeq ($(USE_NASM),1)
 ifeq ($(IS_X64),1)
 OBJS += rdrand-x64.o
 else ifeq ($(IS_X32),1)
@@ -766,7 +766,7 @@ endif
 endif
 
 # Run rdrand-nasm.sh to create the object files
-ifeq ($(HAS_NASM),1)
+ifeq ($(USE_NASM),1)
 rdrand.o: rdrand.h rdrand.cpp rdrand.S
 	$(CXX) $(strip $(CXXFLAGS)) -DNASM_RDRAND_ASM_AVAILABLE=1 -DNASM_RDSEED_ASM_AVAILABLE=1 -c rdrand.cpp
 rdrand-x86.o: ;

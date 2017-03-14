@@ -25,10 +25,10 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
-// For Linux, install NASM, run rdrand-nasm.asm, add the apppropriate
-// object file to the Makefile's LIBOBJS (rdrand-x{86|32|64}.o). After
-// that, define these. They are not enabled by default because they
-// are not easy to cut-in in the Makefile.
+// For Linux, NASM is optional. Run rdrand-nasm.sh, and then make
+//   with "USE_NASM" like so: USE_NASM=1 make -j 4. The makefile
+//   will add the appropriate defines when building rdrand.cpp, 
+//   and add the appropriate object file during link.
 
 #if 0
 #define NASM_RDRAND_ASM_AVAILABLE 1
