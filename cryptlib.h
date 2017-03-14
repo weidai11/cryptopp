@@ -2943,7 +2943,7 @@ public:
 //! \sa HeaderVersion(), <A HREF="http://github.com/weidai11/cryptopp/issues/371">GitHub Issue 371</A>.
 //! \since Crypto++ 6.0
 extern "C" {
-	int LibraryVersion();
+	int LibraryVersion(CRYPTOPP_NOINLINE_DOTDOTDOT);
 } // C linkage
 
 //! \brief Specifies the runtime version of the library

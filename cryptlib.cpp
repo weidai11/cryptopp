@@ -947,7 +947,7 @@ void AuthenticatedKeyAgreementDomain::GenerateEphemeralKeyPair(RandomNumberGener
 #ifndef CRYPTOPP_BUILD_VERSION
 # define CRYPTOPP_BUILD_VERSION CRYPTOPP_VERSION
 #endif
-int LibraryVersion()
+int LibraryVersion(CRYPTOPP_NOINLINE_DOTDOTDOT)
 {
 	return CRYPTOPP_BUILD_VERSION;
 }
