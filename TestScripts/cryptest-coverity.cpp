@@ -1,6 +1,5 @@
 // cryptest-coverity.cpp - Coverity modeling file.
 //                         Written and placed in public domain by Jeffrey Walton and Uri Blumenthal.
-//                         Copyright assigned to Crypto++ project.
 //
 // For more information see http://cryptopp.com/wiki/Coverity_Scan.
 //
