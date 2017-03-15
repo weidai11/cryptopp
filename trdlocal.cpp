@@ -3,11 +3,6 @@
 #include "pch.h"
 #include "config.h"
 
-// TODO: fix this when more complete C++11 support is cut-in
-#if CRYPTOPP_MSC_VERSION
-# pragma warning(disable: 4297)
-#endif
-
 #ifndef CRYPTOPP_IMPORTS
 
 #if !defined(NO_OS_DEPENDENCE) && defined(THREADS_AVAILABLE)
