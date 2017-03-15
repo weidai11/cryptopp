@@ -26,6 +26,8 @@ ThreadLocalStorage::Err::Err(const std::string& operation, int error)
 {
 }
 
+// Windows: "a process may have up to TLS_MINIMUM_AVAILABLE indexes (guaranteed to be greater than
+// or equal to 64)", https://support.microsoft.com/en-us/help/94804/info-thread-local-storage-overview
 ThreadLocalStorage::ThreadLocalStorage()
 {
 #ifdef HAS_WINTHREADS

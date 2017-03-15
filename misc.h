@@ -290,7 +290,7 @@ struct NewObject
 //! \brief Restricts the instantiation of a class to one static object without locks
 //! \tparam T the class or type
 //! \tparam F the object factory for T
-//! \tparam instance the initiali instance count
+//! \tparam instance an instance counter for the class object
 //! \details This class safely initializes a static object in a multithreaded environment. For C++03
 //!   and below it will do so without using locks for portability. If two threads call Ref() at the same
 //!   time, they may get back different references, and one object may end up being memory leaked. This
@@ -298,8 +298,14 @@ struct NewObject
 //!   local storage on early Windows platforms, like Windows XP and Windows 2003.
 //! \details For C++11 and above, a standard double-checked locking pattern with thread fences
 //!   are used. The locks and fences are standard and do not hinder portability.
-//! \sa <A HREF="http://preshing.com/20130930/double-checked-locking-is-fixed-in-cpp11/">Double-Checked
-//!   Locking is Fixed In C++11</A>
+//! \details Microsoft's C++11 implementation provides the necessary primitive support on Windows Vista and
+//!   above when using Visual Studio 2015 (<tt>cl.exe</tt> version 19.00). If C++11 is desired, you should
+//!   set <tt>WINVER</tt> or <tt>_WIN32_WINNT</tt> to 0x600 (or above), and compile with Visual Studio 2015.
+//! \sa <A HREF="http://preshing.com/20130930/double-checked-locking-is-fixed-in-cpp11/">Double-Checked Locking
+//!   is Fixed In C++11</A>, <A HREF="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2008/n2660.htm">Dynamic
+//!   Initialization and Destruction with Concurrency</A> and
+//!   <A HREF="http://msdn.microsoft.com/en-us/library/6yh4a9k1.aspx">Thread Local Storage (TLS)</A> on MSDN.
+//! \since Crypto++ 5.2
 template <class T, class F = NewObject<T>, int instance=0>
 class Singleton
 {
@@ -316,13 +322,15 @@ private:
 //! \brief Return a reference to the inner Singleton object
 //! \tparam T the class or type
 //! \tparam F the object factory for T
+//! \tparam instance an instance counter for the class object
 //! \details Ref() is used to create the object using the object factory. The
 //!   object is only created once with the limitations discussed in the class documentation.
 //! \sa <A HREF="http://preshing.com/20130930/double-checked-locking-is-fixed-in-cpp11/">Double-Checked Locking is Fixed In C++11</A>
-#if defined(CRYPTOPP_CXX11_ATOMICS) && defined(CRYPTOPP_CXX11_SYNCHRONIZATION)
+//! \since Crypto++ 5.2
 template <class T, class F, int instance>
   const T & Singleton<T, F, instance>::Ref(CRYPTOPP_NOINLINE_DOTDOTDOT) const
 {
+#if defined(CRYPTOPP_CXX11_ATOMICS) && defined(CRYPTOPP_CXX11_SYNCHRONIZATION) && defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
 	static std::mutex s_mutex;
 	static std::atomic<T*> s_pObject;
 
@@ -344,11 +352,7 @@ template <class T, class F, int instance>
 	std::atomic_thread_fence(std::memory_order_release);
 
 	return *newObject;
-}
 #else
-template <class T, class F, int instance>
-const T & Singleton<T, F, instance>::Ref(CRYPTOPP_NOINLINE_DOTDOTDOT) const
-{
 	static volatile simple_ptr<T> s_pObject;
 	T *p = s_pObject.m_p;
 	MEMORY_BARRIER();
@@ -370,8 +374,8 @@ const T & Singleton<T, F, instance>::Ref(CRYPTOPP_NOINLINE_DOTDOTDOT) const
 	MEMORY_BARRIER();
 
 	return *newObject;
-}
 #endif
+}
 
 // ************** misc functions ***************
 

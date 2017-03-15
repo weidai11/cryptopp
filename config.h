@@ -787,28 +787,31 @@ NAMESPACE_END
 // C++11 or C++14 is available
 #if defined(CRYPTOPP_CXX11)
 
-// atomics: MS at VS2012 (17.00); GCC at 4.4; Clang at 3.1/3.2; Intel 13.0; SunCC 12.5.
+// Compatibility with non-clang compilers.
+#ifndef __has_feature
+#  define __has_feature(x) 0
+#endif
+
+// atomics: MS at VS2012 (17.00); GCC at 4.4; Clang at 3.1/3.2; Intel 13.0; SunCC 5.14.
 #if (CRYPTOPP_MSC_VERSION >= 1700)
+#  define CRYPTOPP_CXX11_ATOMICS 1
+#elif __has_feature(cxx_atomic)
 #  define CRYPTOPP_CXX11_ATOMICS 1
 #elif (__INTEL_COMPILER >= 1300)
 #  define CRYPTOPP_CXX11_ATOMICS 1
-#elif defined(__clang__)
-#  if __has_feature(cxx_atomic)
-#    define CRYPTOPP_CXX11_ATOMICS 1
-#  endif
 #elif (CRYPTOPP_GCC_VERSION >= 40400)
 #  define CRYPTOPP_CXX11_ATOMICS 1
 #elif (__SUNPRO_CC >= 0x5140)
 #  define CRYPTOPP_CXX11_ATOMICS 1
 #endif // atomics
 
-// synchronization: MS at VS2012 (17.00); GCC at 4.4; Clang at 3.3; Xcode 5.0; Intel 12.0; SunCC 12.4.
+// synchronization: MS at VS2012 (17.00); GCC at 4.4; Clang at 3.3; Xcode 5.0; Intel 12.0; SunCC 5.13.
 // TODO: verify Clang and Intel versions; find __has_feature(x) extension for Clang
 #if (CRYPTOPP_MSC_VERSION >= 1700)
 #  define CRYPTOPP_CXX11_SYNCHRONIZATION 1
-#elif (__INTEL_COMPILER >= 1200)
-#  define CRYPTOPP_CXX11_SYNCHRONIZATION 1
 #elif (CRYPTOPP_LLVM_CLANG_VERSION >= 30300) || (CRYPTOPP_APPLE_CLANG_VERSION >= 50000)
+#  define CRYPTOPP_CXX11_SYNCHRONIZATION 1
+#elif (__INTEL_COMPILER >= 1200)
 #  define CRYPTOPP_CXX11_SYNCHRONIZATION 1
 #elif (CRYPTOPP_GCC_VERSION >= 40400)
 #  define CRYPTOPP_CXX11_SYNCHRONIZATION 1
@@ -816,84 +819,95 @@ NAMESPACE_END
 #  define CRYPTOPP_CXX11_SYNCHRONIZATION 1
 #endif // synchronization
 
-// alignof/alignas: MS at VS2015 (19.00); GCC at 4.8; Clang at 3.3; Intel 15.0; SunCC 12.4.
+// Dynamic Initialization and Destruction with Concurrency ("Magic Statics")
+// MS at VS2015 (19.00); GCC at 4.3; LLVM Clang at 2.9; Apple Clang at 4.0; Intel 11.1; SunCC 5.13.
+// Microsoft's implementation only works for Vista and above, so its further
+// limited. http://connect.microsoft.com/VisualStudio/feedback/details/1789709
+#if (CRYPTOPP_MSC_VERSION >= 1900) && ((WINVER >= 0x0600 /*_WIN32_WINNT_VISTA*/) || (_WIN32_WINNT >= 0x0600 /*_WIN32_WINNT_VISTA*/))
+#  define CRYPTOPP_CXX11_DYNAMIC_INIT 1
+#elif (CRYPTOPP_LLVM_CLANG_VERSION >= 20900) || (CRYPTOPP_APPLE_CLANG_VERSION >= 40000)
+#  define CRYPTOPP_CXX11_DYNAMIC_INIT 1
+#elif (__INTEL_COMPILER >= 1110)
+#  define CRYPTOPP_CXX11_DYNAMIC_INIT 1
+#elif (CRYPTOPP_GCC_VERSION >= 40300)
+#  define CRYPTOPP_CXX11_DYNAMIC_INIT 1
+#elif (__SUNPRO_CC >= 0x5130)
+#  define CRYPTOPP_CXX11_DYNAMIC_INIT 1
+#endif // Dynamic Initialization compilers
+
+// alignof/alignas: MS at VS2015 (19.00); GCC at 4.8; Clang at 3.0; Intel 15.0; SunCC 5.13.
 #if (CRYPTOPP_MSC_VERSION >= 1900)
 #  define CRYPTOPP_CXX11_ALIGNAS 1
-#  define CRYPTOPP_CXX11_ALIGNOF 1
+#elif __has_feature(cxx_alignas)
+#  define CRYPTOPP_CXX11_ALIGNAS 1
 #elif (__INTEL_COMPILER >= 1500)
 #  define CRYPTOPP_CXX11_ALIGNAS 1
-#  define CRYPTOPP_CXX11_ALIGNOF 1
-#elif defined(__clang__)
-#  if __has_feature(cxx_alignas)
-#  define CRYPTOPP_CXX11_ALIGNAS 1
-#  endif
-#  if __has_feature(cxx_alignof)
-#  define CRYPTOPP_CXX11_ALIGNOF 1
-#  endif
 #elif (CRYPTOPP_GCC_VERSION >= 40800)
 #  define CRYPTOPP_CXX11_ALIGNAS 1
-#  define CRYPTOPP_CXX11_ALIGNOF 1
 #elif (__SUNPRO_CC >= 0x5130)
 #  define CRYPTOPP_CXX11_ALIGNAS 1
-#  define CRYPTOPP_CXX11_ALIGNOF 1
-#endif // alignof/alignas
+#endif // alignas
 
-// noexcept: MS at VS2015 (19.00); GCC at 4.6; Clang at 3.0; Intel 14.0; SunCC 12.4.
+// alignof: MS at VS2015 (19.00); GCC at 4.5; Clang at 2.9; Intel 15.0; SunCC 5.13.
 #if (CRYPTOPP_MSC_VERSION >= 1900)
+#  define CRYPTOPP_CXX11_ALIGNOF 1
+#elif __has_feature(cxx_alignof)
+#  define CRYPTOPP_CXX11_ALIGNOF 1
+#elif (__INTEL_COMPILER >= 1500)
+#  define CRYPTOPP_CXX11_ALIGNOF 1
+#elif (CRYPTOPP_GCC_VERSION >= 40500)
+#  define CRYPTOPP_CXX11_ALIGNOF 1
+#elif (__SUNPRO_CC >= 0x5130)
+#  define CRYPTOPP_CXX11_ALIGNOF 1
+#endif // alignof
+
+// noexcept: MS at VS2015 (19.00); GCC at 4.6; Clang at 3.0; Intel 14.0; SunCC 5.13.
+#if (CRYPTOPP_MSC_VERSION >= 1900)
+#  define CRYPTOPP_CXX11_NOEXCEPT 1
+#elif __has_feature(cxx_noexcept)
 #  define CRYPTOPP_CXX11_NOEXCEPT 1
 #elif (__INTEL_COMPILER >= 1400)
 #  define CRYPTOPP_CXX11_NOEXCEPT 1
-#elif defined(__clang__)
-#  if __has_feature(cxx_noexcept)
-#    define CRYPTOPP_CXX11_NOEXCEPT 1
-#  endif
 #elif (CRYPTOPP_GCC_VERSION >= 40600)
 #  define CRYPTOPP_CXX11_NOEXCEPT 1
 #elif (__SUNPRO_CC >= 0x5130)
 #  define CRYPTOPP_CXX11_NOEXCEPT 1
 #endif // noexcept compilers
 
-// variadic templates: MS at VS2013 (18.00); GCC at 4.3; Clang at 2.9; Intel 12.1; SunCC 12.4.
+// variadic templates: MS at VS2013 (18.00); GCC at 4.3; Clang at 2.9; Intel 12.1; SunCC 5.13.
 #if (CRYPTOPP_MSC_VERSION >= 1800)
+#  define CRYPTOPP_CXX11_VARIADIC_TEMPLATES 1
+#elif __has_feature(cxx_variadic_templates)
 #  define CRYPTOPP_CXX11_VARIADIC_TEMPLATES 1
 #elif (__INTEL_COMPILER >= 1210)
 #  define CRYPTOPP_CXX11_VARIADIC_TEMPLATES 1
-#elif defined(__clang__)
-#  if __has_feature(cxx_variadic_templates)
-#    define CRYPTOPP_CXX11_VARIADIC_TEMPLATES 1
-#  endif
 #elif (CRYPTOPP_GCC_VERSION >= 40300)
 #  define CRYPTOPP_CXX11_VARIADIC_TEMPLATES 1
 #elif (__SUNPRO_CC >= 0x5130)
 #  define CRYPTOPP_CXX11_VARIADIC_TEMPLATES 1
 #endif // variadic templates
 
-// constexpr: MS at VS2015 (19.00); GCC at 4.6; Clang at 3.0; Intel 16.0; SunCC 12.4.
+// constexpr: MS at VS2015 (19.00); GCC at 4.6; Clang at 3.1; Intel 16.0; SunCC 5.13.
 // Intel has mis-supported the feature since at least ICPC 13.00
 #if (CRYPTOPP_MSC_VERSION >= 1900)
 #  define CRYPTOPP_CXX11_CONSTEXPR 1
+#elif __has_feature(cxx_constexpr)
+#  define CRYPTOPP_CXX11_CONSTEXPR 1
 #elif (__INTEL_COMPILER >= 1600)
 #  define CRYPTOPP_CXX11_CONSTEXPR 1
-#elif defined(__clang__)
-#  if __has_feature(cxx_constexpr)
-#    define CRYPTOPP_CXX11_CONSTEXPR 1
-#  endif
 #elif (CRYPTOPP_GCC_VERSION >= 40600)
 #  define CRYPTOPP_CXX11_CONSTEXPR 1
 #elif (__SUNPRO_CC >= 0x5130)
 #  define CRYPTOPP_CXX11_CONSTEXPR 1
 #endif // constexpr compilers
 
-// nullptr_t: MS at VS2010 (16.00); GCC at 4.6; Clang at 3.3; Intel 12.0; SunCC 12.4.
-// Intel has upported the feature since at least ICPC 12.00
+// nullptr_t: MS at VS2010 (16.00); GCC at 4.6; Clang at 3.3; Intel 10.0; SunCC 5.13.
 #if (CRYPTOPP_MSC_VERSION >= 1600)
 #  define CRYPTOPP_CXX11_NULLPTR 1
-#elif (__INTEL_COMPILER >= 1200)
+#elif __has_feature(cxx_nullptr)
 #  define CRYPTOPP_CXX11_NULLPTR 1
-#elif defined(__clang__)
-#  if __has_feature(cxx_nullptr)
-#    define CRYPTOPP_CXX11_NULLPTR 1
-#  endif
+#elif (__INTEL_COMPILER >= 1000)
+#  define CRYPTOPP_CXX11_NULLPTR 1
 #elif (CRYPTOPP_GCC_VERSION >= 40600)
 #  define CRYPTOPP_CXX11_NULLPTR 1
 #elif (__SUNPRO_CC >= 0x5130)
