@@ -197,6 +197,70 @@ std::string StringNarrow(const wchar_t *str, bool throwOnError)
 	return result;
 }
 
+std::wstring StringWiden(const char *str, bool throwOnError)
+{
+	CRYPTOPP_ASSERT(str);
+	std::wstring result;
+
+	// Safer functions on Windows for C&A, https://github.com/weidai11/cryptopp/issues/55
+#if (CRYPTOPP_MSC_VERSION >= 1400)
+	size_t len=0, size=0;
+	errno_t err = 0;
+
+	//const char* ptr = str;
+	//while (*ptr++) len++;
+	len = std::strlen(str)+1;
+
+	err = mbstowcs_s(&size, NULLPTR, 0, str, len);
+	CRYPTOPP_ASSERT(err == 0);
+	if (err != 0)
+	{
+		if (throwOnError)
+			throw InvalidArgument("StringWiden: wcstombs_s() call failed with error " + IntToString(err));
+		else
+			return std::wstring();
+	}
+
+	result.resize(size);
+	err = mbstowcs_s(&size, &result[0], size, str, len);
+	CRYPTOPP_ASSERT(err == 0);
+	if (err != 0)
+	{
+		if (throwOnError)
+			throw InvalidArgument("StringWiden: wcstombs_s() call failed with error " + IntToString(err));
+		else
+			return std::wstring();
+	}
+
+	// The safe routine's size includes the NULL.
+	if (!result.empty() && result[size - 1] == '\0')
+		result.erase(size - 1);
+#else
+	size_t size = mbstowcs(NULLPTR, str, 0);
+	CRYPTOPP_ASSERT(size != (size_t)-1);
+	if (size == (size_t)-1)
+	{
+		if (throwOnError)
+			throw InvalidArgument("StringWiden: mbstowcs() call failed");
+		else
+			return std::wstring();
+	}
+
+	result.resize(size);
+	size = mbstowcs(&result[0], str, size);
+	CRYPTOPP_ASSERT(size != (size_t)-1);
+	if (size == (size_t)-1)
+	{
+		if (throwOnError)
+			throw InvalidArgument("StringWiden: mbstowcs() call failed");
+		else
+			return std::wstring();
+	}
+#endif
+
+	return result;
+}
+
 void CallNewHandler()
 {
 	using std::new_handler;

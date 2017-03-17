@@ -163,7 +163,6 @@ struct CompileAssert
 {
 	static char dummy[2*b-1];
 };
-//! \endif
 
 #define CRYPTOPP_COMPILE_ASSERT(assertion) CRYPTOPP_COMPILE_ASSERT_INSTANCE(assertion, __LINE__)
 #if defined(CRYPTOPP_EXPORTS) || defined(CRYPTOPP_IMPORTS)
@@ -1293,9 +1292,9 @@ inline void SecureWipeArray(T *buf, size_t n)
 
 //! \brief Converts a wide character C-string to a multibyte string
 //! \param str C-string consisting of wide characters
-//! \param throwOnError flag indication the function should throw on error
+//! \param throwOnError flag indicating the function should throw on error
 //! \returns str converted to a multibyte string or an empty string.
-//! \details StringNarrow converts a wide string to a narrow string using C++ std::wcstombs() under
+//! \details StringNarrow() converts a wide string to a narrow string using C++ std::wcstombs() under
 //!   the executing thread's locale. A locale must be set before using this function, and it can be
 //!   set with std::setlocale() if needed. Upon success, the converted string is returned.
 //! \details Upon failure with throwOnError as false, the function returns an empty string. If
@@ -1304,6 +1303,20 @@ inline void SecureWipeArray(T *buf, size_t n)
 //!   (0xE9 0xAA 0xA8), then you must ensure the locale is available. If the locale is not available,
 //!   then a 0x21 error is returned on Windows which eventually results in an InvalidArgument() exception.
 std::string StringNarrow(const wchar_t *str, bool throwOnError = true);
+
+//! \brief Converts a multibyte C-string to a wide character string
+//! \param str C-string consisting of wide characters
+//! \param throwOnError flag indicating the function should throw on error
+//! \returns str converted to a multibyte string or an empty string.
+//! \details StringWiden() converts a narrow string to a wide string using C++ std::mbstowcs() under
+//!   the executing thread's locale. A locale must be set before using this function, and it can be
+//!   set with std::setlocale() if needed. Upon success, the converted string is returned.
+//! \details Upon failure with throwOnError as false, the function returns an empty string. If
+//!   throwOnError as true, the function throws an InvalidArgument() exception.
+//! \note If you try to convert, say, the Chinese character for "bone" from UTF-8 (0xE9 0xAA 0xA8)
+//!   to UTF-16 (0x9AA8), then you must ensure the locale is available. If the locale is not available,
+//!   then a 0x21 error is returned on Windows which eventually results in an InvalidArgument() exception.
+std::wstring StringWiden(const char *str, bool throwOnError = true);
 
 #ifdef CRYPTOPP_DOXYGEN_PROCESSING
 
