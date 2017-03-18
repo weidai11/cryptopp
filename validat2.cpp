@@ -1016,8 +1016,10 @@ bool ValidateECDSA()
 	EC2N ec(gf2n, PolynomialMod2(a,24), PolynomialMod2(b,24));
 
 	EC2N::Point P;
-	ec.DecodePoint(P, (byte *)"\x04\x36\xB3\xDA\xF8\xA2\x32\x06\xF9\xC4\xF2\x99\xD7\xB2\x1A\x9C\x36\x91\x37\xF2\xC8\x4A\xE1\xAA\x0D"
+	bool result = ec.DecodePoint(P, (byte *)"\x04\x36\xB3\xDA\xF8\xA2\x32\x06\xF9\xC4\xF2\x99\xD7\xB2\x1A\x9C\x36\x91\x37\xF2\xC8\x4A\xE1\xAA\x0D"
 		"\x76\x5B\xE7\x34\x33\xB3\xF9\x5E\x33\x29\x32\xE7\x0E\xA2\x45\xCA\x24\x18\xEA\x0E\xF9\x80\x18\xFB", ec.EncodedPointSize());
+	CRYPTOPP_ASSERT(result); CRYPTOPP_UNUSED(result);
+
 	Integer n("40000000000000000000000004a20e90c39067c893bbb9a5H");
 	Integer d("340562e1dda332f9d2aec168249b5696ee39d0ed4d03760fH");
 	EC2N::Point Q(ec.Multiply(d, P));
