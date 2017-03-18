@@ -27,7 +27,7 @@
 
 // For Linux, NASM is optional. Run rdrand-nasm.sh, and then make
 //   with "USE_NASM" like so: USE_NASM=1 make -j 4. The makefile
-//   will add the appropriate defines when building rdrand.cpp, 
+//   will add the appropriate defines when building rdrand.cpp,
 //   and add the appropriate object file during link.
 
 #if 0

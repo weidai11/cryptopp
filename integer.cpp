@@ -49,10 +49,10 @@
 // "Error: The operand ___LKDB cannot be assigned to", http://github.com/weidai11/cryptopp/issues/188
 #if (__SUNPRO_CC >= 0x5130)
 # define MAYBE_CONST
-# define MAYBE_UNCONST_CAST const_cast<word*>
+# define MAYBE_UNCONST_CAST(x) const_cast<word*>(x)
 #else
 # define MAYBE_CONST const
-# define MAYBE_UNCONST_CAST
+# define MAYBE_UNCONST_CAST(x) x
 #endif
 
 // "Inline assembly operands don't work with .intel_syntax",
@@ -68,6 +68,51 @@
 #else
 # define CRYPTOPP_INTEGER_SSE2 (CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && (CRYPTOPP_BOOL_X86))
 #endif
+
+NAMESPACE_BEGIN(CryptoPP)
+template <long i>
+struct NewInteger
+{
+	Integer * operator()() const
+	{
+		return new Integer(i);
+	}
+};
+
+static void SetFunctionPointers();
+bool AssignIntToInteger(const std::type_info &valueType, void *pInteger, const void *pInt);
+NAMESPACE_END
+
+ANONYMOUS_NAMESPACE_BEGIN
+struct InitializeInteger
+{
+	InitializeInteger()
+	{
+		CryptoPP::SetFunctionPointers();
+		CryptoPP::g_pAssignIntToInteger = (CryptoPP::PAssignIntToInteger)CryptoPP::AssignIntToInteger;
+	}
+};
+
+#if HAVE_GCC_INIT_PRIORITY
+const InitializeInteger s_init __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 30))) = InitializeInteger();
+const CryptoPP::Integer s_zero __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 31))) = CryptoPP::Integer(0L);
+const CryptoPP::Integer  s_one __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 32))) = CryptoPP::Integer(1L);
+const CryptoPP::Integer  s_two __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 33))) = CryptoPP::Integer(2L);
+#elif HAVE_MSC_INIT_PRIORITY
+#pragma warning(disable: 4073)
+#pragma init_seg(lib)
+const InitializeInteger s_init;
+const CryptoPP::Integer s_zero(0L);
+const CryptoPP::Integer  s_one(1L);
+const CryptoPP::Integer  s_two(2L);
+#pragma warning(default: 4073)
+#else
+const InitializeInteger& s_init = CryptoPP::Singleton<InitializeInteger>().Ref();
+const CryptoPP::Integer& s_zero = CryptoPP::Singleton<CryptoPP::Integer, CryptoPP::NewInteger<0L> >().Ref();
+const CryptoPP::Integer&  s_one = CryptoPP::Singleton<CryptoPP::Integer, CryptoPP::NewInteger<1L> >().Ref();
+const CryptoPP::Integer&  s_two = CryptoPP::Singleton<CryptoPP::Integer, CryptoPP::NewInteger<2L> >().Ref();
+#endif
+ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -2069,7 +2114,13 @@ static PMul s_pMul[9], s_pBot[9];
 static PSqu s_pSqu[9];
 static PMulTop s_pTop[9];
 
-static void SetFunctionPointers()
+#if HAVE_GCC_CONSTRUCTOR1
+void __attribute__ ((constructor (CRYPTOPP_INIT_PRIORITY + 35))) SetFunctionPointers()
+#elif HAVE_GCC_CONSTRUCTOR0
+void __attribute__ ((constructor)) SetFunctionPointers()
+#else
+void SetFunctionPointers()
+#endif
 {
 	s_pMul[0] = &Baseline_Multiply2;
 	s_pBot[0] = &Baseline_MultiplyBottom2;
@@ -2854,15 +2905,6 @@ void MultiplyByPower2Mod(word *R, const word *A, size_t k, const word *M, size_t
 
 // ******************************************************************
 
-InitializeInteger::InitializeInteger()
-{
-	if (!g_pAssignIntToInteger)
-	{
-		SetFunctionPointers();
-		g_pAssignIntToInteger = (CryptoPP::PAssignIntToInteger)AssignIntToInteger;
-	}
-}
-
 static const unsigned int RoundupSizeTable[] = {2, 2, 2, 4, 4, 8, 8, 8, 8};
 
 static inline size_t RoundupSize(size_t n)
@@ -3003,34 +3045,16 @@ Integer Integer::Power2(size_t e)
 	return r;
 }
 
-template <long i>
-struct NewInteger
-{
-	Integer * operator()() const
-	{
-		return new Integer(i);
-	}
-};
-
-// File scope static due to subtle initialization problems in a threaded
-//   Windows environment. See the comments for Singleton. Thanks DB.
-namespace { const Integer& s_zero = Singleton<Integer>().Ref(); }
 const Integer &Integer::Zero()
 {
 	return s_zero;
 }
 
-// File scope static due to subtle initialization problems in a threaded
-//   Windows environment. See the comments for Singleton. Thanks DB.
-namespace { const Integer& s_one = Singleton<Integer, NewInteger<1> >().Ref(); }
 const Integer &Integer::One()
 {
 	return s_one;
 }
 
-// File scope static due to subtle initialization problems in a threaded
-//   Windows environment. See the comments for Singleton. Thanks DB.
-namespace { const Integer& s_two = Singleton<Integer, NewInteger<2> >().Ref(); }
 const Integer &Integer::Two()
 {
 	return s_two;

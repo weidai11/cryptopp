@@ -42,33 +42,30 @@ CRYPTOPP_COMPILE_ASSERT(sizeof(word64) == 8);
 CRYPTOPP_COMPILE_ASSERT(sizeof(dword) == 2*sizeof(word));
 #endif
 
-#if HAVE_GCC_INIT_PRIORITY
-CRYPTOPP_COMPILE_ASSERT(CRYPTOPP_INIT_PRIORITY >= 101);
-const std::string DEFAULT_CHANNEL __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 25))) = "";
-const std::string AAD_CHANNEL __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 26))) = "AAD";
-#elif HAVE_MSC_INIT_PRIORITY
-#pragma warning(disable: 4073)
-#pragma init_seg(lib)
-const std::string DEFAULT_CHANNEL = "";
-const std::string AAD_CHANNEL = "AAD";
-#pragma warning(default: 4073)
-#else
-static const std::string s1(""), s2("AAD");
-const std::string DEFAULT_CHANNEL = s1;
-const std::string AAD_CHANNEL = s2;
-#endif
-
 class NullNameValuePairs : public NameValuePairs
 {
 public:
+	NullNameValuePairs() {}    //  Clang complaint a default ctor must be avilable
 	bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
 		{CRYPTOPP_UNUSED(name); CRYPTOPP_UNUSED(valueType); CRYPTOPP_UNUSED(pValue); return false;}
 };
 
 #if HAVE_GCC_INIT_PRIORITY
-const simple_ptr<NullNameValuePairs> s_pNullNameValuePairs __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 30))) = new NullNameValuePairs;
-const NameValuePairs &g_nullNameValuePairs = *s_pNullNameValuePairs.m_p;
+const std::string DEFAULT_CHANNEL __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 10))) = "";
+const std::string AAD_CHANNEL __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 11))) = "AAD";
+const NullNameValuePairs s_nullNameValuePairs __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 12)));
+const NameValuePairs &g_nullNameValuePairs = dynamic_cast<const NameValuePairs&>(s_nullNameValuePairs);
+#elif HAVE_MSC_INIT_PRIORITY
+#pragma warning(disable: 4073)
+#pragma init_seg(lib)
+const std::string DEFAULT_CHANNEL = "";
+const std::string AAD_CHANNEL = "AAD";
+const NullNameValuePairs s_nullNameValuePairs;
+const NameValuePairs &g_nullNameValuePairs = dynamic_cast<const NameValuePairs&>(s_nullNameValuePairs);
+#pragma warning(default: 4073)
 #else
+const std::string DEFAULT_CHANNEL = "";
+const std::string AAD_CHANNEL = "AAD";
 const simple_ptr<NullNameValuePairs> s_pNullNameValuePairs(new NullNameValuePairs);
 const NameValuePairs &g_nullNameValuePairs = *s_pNullNameValuePairs.m_p;
 #endif

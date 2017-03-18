@@ -149,11 +149,13 @@
 
 // __attribute__(init_priority(250)) is supported
 #if (__GNUC__ && (CRYPTOPP_INIT_PRIORITY > 0) && ((CRYPTOPP_GCC_VERSION >= 40300) || (CRYPTOPP_LLVM_CLANG_VERSION >= 20900) || (_INTEL_COMPILER >= 300)) && !(MACPORTS_GCC_COMPILER > 0) && !defined(__sun__))
+# define HAVE_GCC_INIT_PRIORITY 1
 # define HAVE_GCC_CONSTRUCTOR1 1
 #endif
 
 // __attribute__(init_priority()) is supported
 #if (__GNUC__ && (CRYPTOPP_INIT_PRIORITY > 0) && !HAVE_GCC_CONSTRUCTOR1 && !(MACPORTS_GCC_COMPILER > 0) && !defined(__sun__))
+# define HAVE_GCC_INIT_PRIORITY 1
 # define HAVE_GCC_CONSTRUCTOR0 1
 #endif
 

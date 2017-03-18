@@ -71,7 +71,6 @@ being unloaded from L1 cache, until that round is finished.
 #ifndef CRYPTOPP_GENERATE_X64_MASM
 
 #include "rijndael.h"
-#include "stdcpp.h"		// alloca
 #include "misc.h"
 #include "cpu.h"
 

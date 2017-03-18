@@ -217,7 +217,7 @@ static inline bool IsVIA(const word32 output[4])
 }
 
 #if HAVE_GCC_CONSTRUCTOR1
-void __attribute__ ((constructor (CRYPTOPP_INIT_PRIORITY + 50))) DetectX86Features()
+void __attribute__ ((constructor (CRYPTOPP_INIT_PRIORITY + 20))) DetectX86Features()
 #elif HAVE_GCC_CONSTRUCTOR0
 void __attribute__ ((constructor)) DetectX86Features()
 #else
@@ -305,7 +305,7 @@ void DetectX86Features()
 	if (!g_cacheLineSize)
 		g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
 
-	*((volatile bool*)&g_x86DetectionDone) = true;
+	g_x86DetectionDone = true;
 }
 
 #elif (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
@@ -731,7 +731,7 @@ static bool TrySHA2()
 }
 
 #if HAVE_GCC_CONSTRUCTOR1
-void __attribute__ ((constructor (CRYPTOPP_INIT_PRIORITY + 50))) DetectArmFeatures()
+void __attribute__ ((constructor (CRYPTOPP_INIT_PRIORITY + 20))) DetectArmFeatures()
 #elif HAVE_GCC_CONSTRUCTOR0
 void __attribute__ ((constructor)) DetectArmFeatures()
 #else
