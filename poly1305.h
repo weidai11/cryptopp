@@ -68,7 +68,7 @@ public:
 	CRYPTOPP_CONSTANT(DIGESTSIZE=T::BLOCKSIZE)
 	CRYPTOPP_CONSTANT(BLOCKSIZE=T::BLOCKSIZE)
 
-	Poly1305_Base() : m_used(true) {}
+	Poly1305_Base() : m_idx(0), m_used(true) {}
 
 	void Resynchronize (const byte *iv, int ivLength=-1);
 	void GetNextIV (RandomNumberGenerator &rng, byte *iv);
