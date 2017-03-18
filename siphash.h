@@ -56,6 +56,10 @@ public:
 		return std::string(SipHash_Info<T_128bit>::StaticAlgorithmName())+"-"+IntToString(C)+"-"+IntToString(D);
 	}
 
+	virtual ~SipHash_Base() {}
+
+	SipHash_Base() : m_idx(0) {}
+
 	virtual unsigned int DigestSize() const
 		{return SipHash_Info<T_128bit>::DIGESTSIZE;}
 	virtual size_t MinKeyLength() const
