@@ -225,7 +225,7 @@ void DetectX86Features()
 #endif
 {
 	// Coverity finding CID 171239...
-	word32 cpuid1[4]={0}, cpuid2[4]={0}, cpuid3[4]={0};;
+	word32 cpuid1[4]={0}, cpuid2[4]={0}, cpuid3[4]={0};
 	if (!CpuId(0, cpuid1))
 		return;
 	if (!CpuId(1, cpuid2))
@@ -263,7 +263,6 @@ void DetectX86Features()
 
 		if (cpuid1[0] /*EAX*/ >= 7)
 		{
-			word32 cpuid3[4];
 			if (CpuId(7, cpuid3))
 			{
 				g_hasRDSEED = !!(cpuid3[1] /*EBX*/ & RDSEED_FLAG);
