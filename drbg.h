@@ -207,7 +207,7 @@ public:
     //! </pre>
     Hash_DRBG(const byte* entropy=NULLPTR, size_t entropyLength=STRENGTH, const byte* nonce=NULLPTR,
         size_t nonceLength=0, const byte* personalization=NULLPTR, size_t personalizationLength=0)
-        : NIST_DRBG(), m_c(SEEDLENGTH), m_v(SEEDLENGTH)
+        : NIST_DRBG(), m_reseed(0), m_c(SEEDLENGTH), m_v(SEEDLENGTH)
     {
         if (entropy != NULLPTR && entropyLength != 0)
             DRBG_Instantiate(entropy, entropyLength, nonce, nonceLength, personalization, personalizationLength);
@@ -321,7 +321,7 @@ public:
     //! </pre>
     HMAC_DRBG(const byte* entropy=NULLPTR, size_t entropyLength=STRENGTH, const byte* nonce=NULLPTR,
         size_t nonceLength=0, const byte* personalization=NULLPTR, size_t personalizationLength=0)
-        : NIST_DRBG(), m_k(HASH::DIGESTSIZE), m_v(HASH::DIGESTSIZE)
+        : NIST_DRBG(), m_reseed(0), m_k(HASH::DIGESTSIZE), m_v(HASH::DIGESTSIZE)
     {
         if (entropy != NULLPTR && entropyLength != 0)
             DRBG_Instantiate(entropy, entropyLength, nonce, nonceLength, personalization, personalizationLength);
