@@ -194,7 +194,7 @@ bool TestSettings()
 	word32 w;
 	const byte s[] = "\x01\x02\x03\x04";
 
-#if (CRYPTOPP_MSC_VERSION >= 1400)
+#if (CRYPTOPP_MSC_VERSION >= 1410)
 	std::copy(s, s+4,
 		stdext::make_checked_array_iterator(reinterpret_cast<byte*>(&w), sizeof(w)));
 #else
