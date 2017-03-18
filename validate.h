@@ -126,7 +126,7 @@ class StreamState
 {
 public:
 	StreamState(std::ostream& out)
-		: m_out(out), m_fmt(out.flags()), m_prec(out.precision()), m_fill(out.fill())
+		: m_out(out), m_prec(out.precision()), m_fmt(out.flags()), m_fill(out.fill())
 	{
 	}
 
@@ -139,9 +139,9 @@ public:
 
 private:
 	std::ostream& m_out;
-	std::ios_base::fmtflags m_fmt;
 	std::streamsize m_prec;
-	char m_fill;
+	std::ios_base::fmtflags m_fmt;
+	std::ostream::char_type m_fill;
 };
 
 // Safer functions on Windows for C&A, https://github.com/weidai11/cryptopp/issues/55
