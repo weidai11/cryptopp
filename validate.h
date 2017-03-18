@@ -126,20 +126,22 @@ class StreamState
 {
 public:
 	StreamState(std::ostream& out)
-		: m_out(out), m_prec(out.precision()), m_fmt(out.flags()), m_fill(out.fill())
+		: m_out(out), m_prec(out.precision()), m_width(out.width()), m_fmt(out.flags()), m_fill(out.fill())
 	{
 	}
 
 	~StreamState()
 	{
-		m_out.precision(m_prec);
-		m_out.flags(m_fmt);
 		m_out.fill(m_fill);
+		m_out.flags(m_fmt);
+		m_out.width(m_width);
+		m_out.precision(m_prec);
 	}
 
 private:
 	std::ostream& m_out;
 	std::streamsize m_prec;
+	std::streamsize m_width;
 	std::ios_base::fmtflags m_fmt;
 	std::ostream::char_type m_fill;
 };
