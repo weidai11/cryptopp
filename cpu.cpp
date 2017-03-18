@@ -224,44 +224,44 @@ void __attribute__ ((constructor)) DetectX86Features()
 void DetectX86Features()
 #endif
 {
-	word32 cpuid[4], cpuid1[4];
-	if (!CpuId(0, cpuid))
+	// Coverity finding CID 171239...
+	word32 cpuid1[4]={0}, cpuid2[4]={0}, cpuid3[4]={0};;
+	if (!CpuId(0, cpuid1))
 		return;
-	if (!CpuId(1, cpuid1))
+	if (!CpuId(1, cpuid2))
 		return;
 
-	g_hasMMX = (cpuid1[3] & (1 << 23)) != 0;
-	if ((cpuid1[3] & (1 << 26)) != 0)
+	g_hasMMX = (cpuid2[3] & (1 << 23)) != 0;
+	if ((cpuid2[3] & (1 << 26)) != 0)
 		g_hasSSE2 = TrySSE2();
-	g_hasSSSE3 = g_hasSSE2 && (cpuid1[2] & (1<<9));
-	g_hasSSE4 = g_hasSSE2 && ((cpuid1[2] & (1<<19)) && (cpuid1[2] & (1<<20)));
-	g_hasAESNI = g_hasSSE2 && (cpuid1[2] & (1<<25));
-	g_hasCLMUL = g_hasSSE2 && (cpuid1[2] & (1<<1));
+	g_hasSSSE3 = g_hasSSE2 && (cpuid2[2] & (1<<9));
+	g_hasSSE4 = g_hasSSE2 && ((cpuid2[2] & (1<<19)) && (cpuid2[2] & (1<<20)));
+	g_hasAESNI = g_hasSSE2 && (cpuid2[2] & (1<<25));
+	g_hasCLMUL = g_hasSSE2 && (cpuid2[2] & (1<<1));
 
-	if ((cpuid1[3] & (1 << 25)) != 0)
+	if ((cpuid2[3] & (1 << 25)) != 0)
 		g_hasISSE = true;
 	else
 	{
-		word32 cpuid2[4];
-		CpuId(0x080000000, cpuid2);
-		if (cpuid2[0] >= 0x080000001)
+		CpuId(0x080000000, cpuid3);
+		if (cpuid3[0] >= 0x080000001)
 		{
-			CpuId(0x080000001, cpuid2);
-			g_hasISSE = (cpuid2[3] & (1 << 22)) != 0;
+			CpuId(0x080000001, cpuid3);
+			g_hasISSE = (cpuid3[3] & (1 << 22)) != 0;
 		}
 	}
 
-	if (IsIntel(cpuid))
+	if (IsIntel(cpuid1))
 	{
 		static const unsigned int RDRAND_FLAG = (1 << 30);
 		static const unsigned int RDSEED_FLAG = (1 << 18);
 		static const unsigned int    SHA_FLAG = (1 << 29);
 
-		g_isP4 = ((cpuid1[0] >> 8) & 0xf) == 0xf;
-		g_cacheLineSize = 8 * GETBYTE(cpuid1[1], 1);
-		g_hasRDRAND = !!(cpuid1[2] /*ECX*/ & RDRAND_FLAG);
+		g_isP4 = ((cpuid2[0] >> 8) & 0xf) == 0xf;
+		g_cacheLineSize = 8 * GETBYTE(cpuid2[1], 1);
+		g_hasRDRAND = !!(cpuid2[2] /*ECX*/ & RDRAND_FLAG);
 
-		if (cpuid[0] /*EAX*/ >= 7)
+		if (cpuid1[0] /*EAX*/ >= 7)
 		{
 			word32 cpuid3[4];
 			if (CpuId(7, cpuid3))
@@ -271,17 +271,17 @@ void DetectX86Features()
 			}
 		}
 	}
-	else if (IsAMD(cpuid))
+	else if (IsAMD(cpuid1))
 	{
 		static const unsigned int RDRAND_FLAG = (1 << 30);
 
-		CpuId(0x01, cpuid);
-		g_hasRDRAND = !!(cpuid[2] /*ECX*/ & RDRAND_FLAG);
+		CpuId(0x01, cpuid1);
+		g_hasRDRAND = !!(cpuid1[2] /*ECX*/ & RDRAND_FLAG);
 
-		CpuId(0x80000005, cpuid);
-		g_cacheLineSize = GETBYTE(cpuid[2], 0);
+		CpuId(0x80000005, cpuid1);
+		g_cacheLineSize = GETBYTE(cpuid1[2], 0);
 	}
-	else if (IsVIA(cpuid))
+	else if (IsVIA(cpuid1))
 	{
 		static const unsigned int  RNG_FLAGS = (0x3 << 2);
 		static const unsigned int  ACE_FLAGS = (0x3 << 6);
@@ -289,16 +289,16 @@ void DetectX86Features()
 		static const unsigned int  PHE_FLAGS = (0x3 << 10);
 		static const unsigned int  PMM_FLAGS = (0x3 << 12);
 
-		CpuId(0xC0000000, cpuid);
-		if (cpuid[0] >= 0xC0000001)
+		CpuId(0xC0000000, cpuid1);
+		if (cpuid1[0] >= 0xC0000001)
 		{
 			// Extended features available
-			CpuId(0xC0000001, cpuid);
-			g_hasPadlockRNG  = !!(cpuid[3] /*EDX*/ & RNG_FLAGS);
-			g_hasPadlockACE  = !!(cpuid[3] /*EDX*/ & ACE_FLAGS);
-			g_hasPadlockACE2 = !!(cpuid[3] /*EDX*/ & ACE2_FLAGS);
-			g_hasPadlockPHE  = !!(cpuid[3] /*EDX*/ & PHE_FLAGS);
-			g_hasPadlockPMM  = !!(cpuid[3] /*EDX*/ & PMM_FLAGS);
+			CpuId(0xC0000001, cpuid1);
+			g_hasPadlockRNG  = !!(cpuid1[3] /*EDX*/ & RNG_FLAGS);
+			g_hasPadlockACE  = !!(cpuid1[3] /*EDX*/ & ACE_FLAGS);
+			g_hasPadlockACE2 = !!(cpuid1[3] /*EDX*/ & ACE2_FLAGS);
+			g_hasPadlockPHE  = !!(cpuid1[3] /*EDX*/ & PHE_FLAGS);
+			g_hasPadlockPMM  = !!(cpuid1[3] /*EDX*/ & PMM_FLAGS);
 		}
 	}
 
