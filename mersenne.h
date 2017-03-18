@@ -30,7 +30,7 @@ template <unsigned int K, unsigned int M, unsigned int N, unsigned int F, unsign
 class MersenneTwister : public RandomNumberGenerator
 {
 public:
-	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() { return (S==5489 ? "MT19937ar" : (S==4537 ? "MT19937" : "MT19937")); }
+	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() { return (S==5489 ? "MT19937ar" : (S==4537 ? "MT19937" : "MT19937x")); }
 
 	~MersenneTwister() {}
 
