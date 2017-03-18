@@ -121,6 +121,7 @@ bool TestHuffmanCodes();
 bool TestASN1Parse();
 #endif
 
+#if 0
 // Coverity findings in benchmark and validation routines
 class StreamState
 {
@@ -144,6 +145,26 @@ private:
 	std::streamsize m_width;
 	std::ios_base::fmtflags m_fmt;
 	std::ostream::char_type m_fill;
+};
+#endif
+
+class StreamState
+{
+public:
+	StreamState(std::ostream& out)
+		: m_out(out), m_state(NULLPTR)
+	{
+		m_state.copyfmt(m_out);
+	}
+
+	~StreamState()
+	{
+		m_out.copyfmt(m_state);
+	}
+
+private:
+	std::ostream& m_out;
+	std::ios m_state;
 };
 
 // Safer functions on Windows for C&A, https://github.com/weidai11/cryptopp/issues/55
