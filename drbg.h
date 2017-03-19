@@ -519,9 +519,11 @@ void Hash_DRBG<HASH, STRENGTH, SEEDLENGTH>::Hash_Generate(const byte* additional
         PutWord(false, BIG_ENDIAN_ORDER, p1, static_cast<word64>(r));
         i -= 8; j -= 8; k=0; carry = static_cast<int>(r >> 64);
 #else
+        byte t[8];
+        PutWord<word64>(false, BIG_ENDIAN_ORDER, t, m_reseed);
         while (k>=0)
         {
-            carry = m_v[i] + m_c[i] + h[j] + GetByte<word64>(BIG_ENDIAN_ORDER, m_reseed, k) + carry;
+            carry = m_v[i] + m_c[i] + h[j] + t[k] + carry;
             m_v[i] = static_cast<byte>(carry);
             i--; j--; k--; carry >>= 8;
         }
