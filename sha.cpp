@@ -28,6 +28,7 @@
 # undef CRYPTOPP_X32_ASM_AVAILABLE
 # undef CRYPTOPP_X64_ASM_AVAILABLE
 # undef CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+# undef CRYPTOPP_BOOL_ALTIVEC_AVAILABLE
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -518,7 +519,7 @@ void SHA256::InitState(HashWordType *state)
     memcpy(state, s, sizeof(s));
 }
 
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE || CRYPTOPP_BOOL_ALTIVEC_AVAILABLE
 CRYPTOPP_ALIGN_DATA(16) extern const word32 SHA256_K[64] CRYPTOPP_SECTION_ALIGN16 = {
 #else
 extern const word32 SHA256_K[64] = {
@@ -878,6 +879,8 @@ void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 *data, 
 static void CRYPTOPP_FASTCALL SHA256_SSE_SHA_HashBlocks(word32 *state, const word32 *data, size_t length);
 #elif CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
 static void CRYPTOPP_FASTCALL SHA256_ARM_SHA_HashBlocks(word32 *state, const word32 *data, size_t length);
+#elif CRYPTOPP_BOOL_ALTIVEC_AVAILABLE
+static void CRYPTOPP_FASTCALL SHA256_Altivec_SHA_HashBlocks(word32 *state, const word32 *data, size_t length);
 #endif
 
 #if (defined(CRYPTOPP_X86_ASM_AVAILABLE) || defined(CRYPTOPP_X32_ASM_AVAILABLE) || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_SHA_ASM)
@@ -893,6 +896,10 @@ pfnSHAHashBlocks InitializeSHA256HashBlocks()
     if (HasSHA2())
         return &SHA256_ARM_SHA_HashBlocks;
     else
+#endif
+
+#if CRYPTOPP_BOOL_ALTIVEC_AVAILABLE
+    return &SHA256_Altivec_SHA_HashBlocks;
 #endif
 
     return &X86_SHA256_HashBlocks;
@@ -1064,6 +1071,13 @@ static void SHA256_ARM_SHA_Transform(word32 *state, const word32 *data)
     return SHA256_ARM_SHA_HashBlocks(state, data, SHA256::BLOCKSIZE);
 }
 #endif  // CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
+
+#if CRYPTOPP_BOOL_ALTIVEC_AVAILABLE
+static void SHA256_Altivec_SHA_Transform(word32 *state, const word32 *data)
+{
+    return SHA256_Altivec_SHA_HashBlocks(state, data, SHA256::BLOCKSIZE);
+}
+#endif  // CRYPTOPP_BOOL_ALTIVEC_AVAILABLE
 
 ///////////////////////////////////
 // start of Walton/Gulley's code //
@@ -1438,6 +1452,18 @@ static void CRYPTOPP_FASTCALL SHA256_ARM_SHA_HashBlocks(word32 *state, const wor
 // end of Walton/Schneiders/O'Rourke/Hovsmith's code //
 ///////////////////////////////////////////////////////
 
+#if CRYPTOPP_BOOL_ALTIVEC_AVAILABLE
+
+// Function to be found on sha256_compress_ppc.s
+extern "C" void sha256_compress_ppc(word32 *STATE, const word32 *input, const uint32_t *k);
+
+static void CRYPTOPP_FASTCALL SHA256_Altivec_SHA_HashBlocks(word32 *state, const word32 *data, size_t length)
+{
+    for (size_t i = 0; i < length; i += SHA256::BLOCKSIZE)
+        sha256_compress_ppc(state, data + i, SHA256_K);
+}
+#endif
+
 pfnSHATransform InitializeSHA256Transform()
 {
 #if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
@@ -1454,6 +1480,9 @@ pfnSHATransform InitializeSHA256Transform()
     if (HasSHA2())
         return &SHA256_ARM_SHA_Transform;
     else
+#endif
+#if CRYPTOPP_BOOL_ALTIVEC_AVAILABLE
+    return &SHA256_Altivec_SHA_Transform;
 #endif
 
     return &SHA256_CXX_Transform;

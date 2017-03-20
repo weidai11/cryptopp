@@ -57,6 +57,9 @@ IS_X32 ?= 0
 # Set to 1 if you used NASM to build rdrand-{x86|x32|x64}
 USE_NASM ?= 0
 
+# Set to 0 if you don't want acceleration on SHA on PPC64le
+USE_ALTIVEC ?= $(IS_PPC)
+
 # Fixup for X32
 ifeq ($(IS_X32),1)
 IS_X86 = 0
@@ -480,6 +483,10 @@ OBJS += rdrand-x86.o
 endif
 endif # Nasm
 
+ifeq ($(USE_ALTIVEC),1)
+OBJS += sha256_compress_ppc.o
+endif
+
 # List test.cpp first to tame C++ static initialization problems.
 TESTSRCS := adhoc.cpp test.cpp bench1.cpp bench2.cpp validat0.cpp validat1.cpp validat2.cpp validat3.cpp datatest.cpp regtest.cpp fipsalgt.cpp dlltest.cpp
 TESTOBJS := $(TESTSRCS:.cpp=.o)
@@ -772,6 +779,17 @@ rdrand.o: rdrand.h rdrand.cpp rdrand.S
 rdrand-x86.o: ;
 rdrand-x32.o: ;
 rdrand-x64.o: ;
+endif
+
+ifeq ($(IS_PPC),1)
+ifeq ($(USE_ALTIVEC),1)
+sha256_compress_ppc.o: sha256_compress_ppc.s
+	$(CXX) $(strip $(CXXFLAGS)) -c $<
+else
+# PPC without altivec. Correctly fallback to C implementation
+sha.o : sha.cpp
+	$(CXX) $(strip $(CXXFLAGS)) -c $< -DCRYPTOPP_DISABLE_ALTIVEC
+endif
 endif
 
 # Only use CRYPTOPP_DATA_DIR if its not set in CXXFLAGS

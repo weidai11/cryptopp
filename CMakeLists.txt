@@ -45,6 +45,7 @@ endif()
 option(DISABLE_ASM "Disable ASM" OFF)
 option(DISABLE_SSSE3 "Disable SSSE3" OFF)
 option(DISABLE_AESNI "Disable AES-NI" OFF)
+option(DISABLE_ALTIVEC "Disable PPC64's Altivec registers for SHA-2" OFF)
 option(DISABLE_NATIVE_ARCH "Disable the addition of -march=native" OFF)
 set(CRYPTOPP_DATA_DIR "" CACHE PATH "Crypto++ test data directory")
 
@@ -96,6 +97,9 @@ if(DISABLE_SSSE3)
 endif()
 if(DISABLE_AESNI)
 	add_definitions(-DCRYPTOPP_DISABLE_AESNI)
+endif()
+if(DISABLE_ALTIVEC)
+  add_definitions(-DCRYPTOPP_DISABLE_ALTIVEC)
 endif()
 if(NOT CRYPTOPP_DATA_DIR STREQUAL "")
 	add_definitions(-DCRYPTOPP_DATA_DIR="${CRYPTOPP_DATA_DIR}")
@@ -240,6 +244,15 @@ if(MSVC AND NOT DISABLE_ASM)
 		list(APPEND cryptopp_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/rdrand.asm)
 		enable_language(ASM_MASM)
 	endif()
+endif()
+
+if (${UNAME_MACHINE} MATCHES "ppc64le" AND NOT ${DISABLE_ALTIVEC})
+	message(STATUS "Enabling SHA-2 acceleration for ppc64le.")
+	set(cryptopp_SOURCES
+			${CMAKE_CURRENT_SOURCE_DIR}/sha256_compress_ppc.s
+			${cryptopp_SOURCES}
+			)
+	enable_language(ASM)
 endif()
 
 #============================================================================
