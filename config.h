@@ -125,44 +125,6 @@
 # define CRYPTOPP_DEBUG 1
 #endif
 
-// ***************** Initialization and Constructor priorities ********************
-
-// MacPorts/GCC and Solaris/GCC does not provide constructor(priority). Apple/GCC and Fink/GCC do provide it.
-// See http://cryptopp.com/wiki/Static_Initialization_Order_Fiasco
-
-// CRYPTOPP_INIT_PRIORITY attempts to manage initialization of C++ static objects.
-// Under GCC, the library uses init_priority attribute in the range
-// [CRYPTOPP_INIT_PRIORITY, CRYPTOPP_INIT_PRIORITY+100]. Under Windows,
-// CRYPTOPP_INIT_PRIORITY enlists "#pragma init_seg(lib)".
-#ifndef CRYPTOPP_INIT_PRIORITY
-# define CRYPTOPP_INIT_PRIORITY 250
-#endif
-
-// CRYPTOPP_USER_PRIORITY is for other libraries and user code that is using Crypto++
-// and managing C++ static object creation. It is guaranteed not to conflict with
-// values used by (or would be used by) the Crypto++ library.
-#if defined(CRYPTOPP_INIT_PRIORITY) && (CRYPTOPP_INIT_PRIORITY > 0)
-# define CRYPTOPP_USER_PRIORITY (CRYPTOPP_INIT_PRIORITY + 101)
-#else
-# define CRYPTOPP_USER_PRIORITY 350
-#endif
-
-// __attribute__(init_priority(250)) is supported
-#if (__GNUC__ && (CRYPTOPP_INIT_PRIORITY > 0) && ((CRYPTOPP_GCC_VERSION >= 40300) || (CRYPTOPP_LLVM_CLANG_VERSION >= 20900) || (_INTEL_COMPILER >= 300)) && !(MACPORTS_GCC_COMPILER > 0) && !defined(__sun__))
-# define HAVE_GCC_INIT_PRIORITY 1
-# define HAVE_GCC_CONSTRUCTOR1 1
-#endif
-
-// __attribute__(init_priority()) is supported
-#if (__GNUC__ && (CRYPTOPP_INIT_PRIORITY > 0) && !HAVE_GCC_CONSTRUCTOR1 && !(MACPORTS_GCC_COMPILER > 0) && !defined(__sun__))
-# define HAVE_GCC_INIT_PRIORITY 1
-# define HAVE_GCC_CONSTRUCTOR0 1
-#endif
-
-#if (_MSC_VER && (CRYPTOPP_INIT_PRIORITY > 0))
-# define HAVE_MSC_INIT_PRIORITY 1
-#endif
-
 // ***************** Important Settings Again ********************
 // But the defaults should be ok.
 
@@ -604,6 +566,36 @@ NAMESPACE_END
 	#define CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
 #endif
 #endif
+
+// ***************** Initialization and Constructor priorities ********************
+
+// CRYPTOPP_INIT_PRIORITY attempts to manage initialization of C++ static objects.
+// Under GCC, the library uses init_priority attribute in the range
+// [CRYPTOPP_INIT_PRIORITY, CRYPTOPP_INIT_PRIORITY+100]. Under Windows,
+// CRYPTOPP_INIT_PRIORITY enlists "#pragma init_seg(lib)". The platforms
+// with gaps are Apple and Sun because they require linker scripts. Apple and
+// Sun will use the library's Singletons to initialize and acquire resources.
+// Also see http://cryptopp.com/wiki/Static_Initialization_Order_Fiasco
+#ifndef CRYPTOPP_INIT_PRIORITY
+# define CRYPTOPP_INIT_PRIORITY 250
+#endif
+
+// CRYPTOPP_USER_PRIORITY is for other libraries and user code that is using Crypto++
+// and managing C++ static object creation. It is guaranteed not to conflict with
+// values used by (or would be used by) the Crypto++ library.
+#if defined(CRYPTOPP_INIT_PRIORITY) && (CRYPTOPP_INIT_PRIORITY > 0)
+# define CRYPTOPP_USER_PRIORITY (CRYPTOPP_INIT_PRIORITY + 101)
+#else
+# define CRYPTOPP_USER_PRIORITY 350
+#endif
+
+#if (CRYPTOPP_INIT_PRIORITY > 0) && !(defined(__APPLE__) || defined(__sun__))
+# if (CRYPTOPP_GCC_VERSION >= 30000) || (CRYPTOPP_LLVM_CLANG_VERSION >= 20900) || (_INTEL_COMPILER >= 800)
+#  define HAVE_GCC_INIT_PRIORITY 1
+# elif (CRYPTOPP_MSC_VERSION >= 1310)
+#  define HAVE_MSC_INIT_PRIORITY 1
+# endif
+#endif  // CRYPTOPP_INIT_PRIORITY, Sun, Darwin
 
 // ***************** determine availability of OS features ********************
 

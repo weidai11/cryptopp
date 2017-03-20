@@ -69,6 +69,8 @@
 # define CRYPTOPP_INTEGER_SSE2 (CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && (CRYPTOPP_BOOL_X86))
 #endif
 
+// ***************** C++ Static Initialization ********************
+
 NAMESPACE_BEGIN(CryptoPP)
 template <long i>
 struct NewInteger
@@ -99,13 +101,13 @@ const CryptoPP::Integer s_zero __attribute__ ((init_priority (CRYPTOPP_INIT_PRIO
 const CryptoPP::Integer  s_one __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 32))) = CryptoPP::Integer(1L);
 const CryptoPP::Integer  s_two __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 33))) = CryptoPP::Integer(2L);
 #elif HAVE_MSC_INIT_PRIORITY
-#pragma warning(disable: 4073)
-#pragma init_seg(lib)
+#pragma warning(disable: 4075)
+#pragma init_seg(".CRT$XCU-030")
 const InitializeInteger s_init;
 const CryptoPP::Integer s_zero(0L);
 const CryptoPP::Integer  s_one(1L);
 const CryptoPP::Integer  s_two(2L);
-#pragma warning(default: 4073)
+#pragma warning(default: 4075)
 #else
 const InitializeInteger& s_init = CryptoPP::Singleton<InitializeInteger>().Ref();
 const CryptoPP::Integer& s_zero = CryptoPP::Singleton<CryptoPP::Integer, CryptoPP::NewInteger<0L> >().Ref();
@@ -113,6 +115,8 @@ const CryptoPP::Integer&  s_one = CryptoPP::Singleton<CryptoPP::Integer, CryptoP
 const CryptoPP::Integer&  s_two = CryptoPP::Singleton<CryptoPP::Integer, CryptoPP::NewInteger<2L> >().Ref();
 #endif
 ANONYMOUS_NAMESPACE_END
+
+// ***************** Library code ********************
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -2114,13 +2118,7 @@ static PMul s_pMul[9], s_pBot[9];
 static PSqu s_pSqu[9];
 static PMulTop s_pTop[9];
 
-#if HAVE_GCC_CONSTRUCTOR1
-void __attribute__ ((constructor (CRYPTOPP_INIT_PRIORITY + 35))) SetFunctionPointers()
-#elif HAVE_GCC_CONSTRUCTOR0
-void __attribute__ ((constructor)) SetFunctionPointers()
-#else
 void SetFunctionPointers()
-#endif
 {
 	s_pMul[0] = &Baseline_Multiply2;
 	s_pBot[0] = &Baseline_MultiplyBottom2;

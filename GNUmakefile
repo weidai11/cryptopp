@@ -122,15 +122,18 @@ ifneq ($(HAS_NEWLIB),0)
  endif
 endif
 
+# Clang integrated assembler will be used with -Wa,-q
+CLANG_INTEGRATED_ASSEMBLER ?= 0
+
 ###########################################################
 #####               X86/X32/X64 Options               #####
 ###########################################################
 
 ifneq ($(IS_X86)$(IS_X32)$(IS_X64),000)
 
-# Fixup. Clang integrated assembler will be used (-Wa,-q)
+# Fixup. Clang reports an error rather than "LLVM assembler" or similar.
 ifneq ($(MACPORTS_COMPILER),1)
-  IS_GAS := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler")
+  HAVE_GAS := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler")
 endif
 
 ifneq ($(GCC_COMPILER),0)
@@ -139,7 +142,7 @@ ifneq ($(GCC_COMPILER),0)
   GCC46_OR_LATER := $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "gcc version (4\.[6-9]|[5-9]\.)")
 endif
 
-ifneq ($(IS_GAS),0)
+ifneq ($(HAVE_GAS),0)
   GAS210_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.[1-9][0-9]|[3-9])")
   GAS217_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.1[7-9]|2\.[2-9]|[3-9])")
   GAS219_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.19|2\.[2-9]|[3-9])")
@@ -205,19 +208,6 @@ CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
 endif
 endif
 
-# .intel_syntax wasn't supported until GNU assembler 2.10
-ifeq ($(GCC_COMPILER)$(MACPORTS_COMPILER)$(GAS210_OR_LATER),100)
-CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
-else
-ifeq ($(GCC_COMPILER)$(MACPORTS_COMPILER)$(GAS217_OR_LATER),100)
-CXXFLAGS += -DCRYPTOPP_DISABLE_SSSE3
-else
-ifeq ($(GCC_COMPILER)$(MACPORTS_COMPILER)$(GAS219_OR_LATER),100)
-CXXFLAGS += -DCRYPTOPP_DISABLE_AESNI
-endif
-endif
-endif
-
 # Tell MacPorts GCC to use Clang integrated assembler
 #   http://github.com/weidai11/cryptopp/issues/190
 ifeq ($(GCC_COMPILER)$(MACPORTS_COMPILER),11)
@@ -225,7 +215,21 @@ ifeq ($(findstring -Wa,-q,$(CXXFLAGS)),)
 CXXFLAGS += -Wa,-q
 endif
 ifeq ($(findstring -DCRYPTOPP_CLANG_INTEGRATED_ASSEMBLER,$(CXXFLAGS)),)
+CLANG_INTEGRATED_ASSEMBLER := 1
 CXXFLAGS += -DCRYPTOPP_CLANG_INTEGRATED_ASSEMBLER=1
+endif
+endif
+
+# .intel_syntax wasn't supported until GNU assembler 2.10
+ifeq ($(HAVE_GAS)$(GAS210_OR_LATER),10)
+CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
+else
+ifeq ($(HAVE_GAS)$(GAS217_OR_LATER),10)
+CXXFLAGS += -DCRYPTOPP_DISABLE_SSSE3
+else
+ifeq ($(HAVE_GAS)$(GAS219_OR_LATER),10)
+CXXFLAGS += -DCRYPTOPP_DISABLE_AESNI
+endif
 endif
 endif
 
@@ -753,17 +757,6 @@ endif
 ifeq ($(wildcard GNUmakefile.deps),GNUmakefile.deps)
 -include GNUmakefile.deps
 endif # Dependencies
-
-# MacPorts/GCC issue with init_priority. Apple/GCC and Fink/GCC are fine; limit to MacPorts.
-#   Also see http://lists.macosforge.org/pipermail/macports-users/2015-September/039223.html
-ifeq ($(GCC_COMPILER)$(MACPORTS_COMPILER),11)
-ifeq ($(findstring -DMACPORTS_GCC_COMPILER, $(strip $(CXXFLAGS))),)
-cryptlib.o:
-	$(CXX) $(strip $(CXXFLAGS)) -DMACPORTS_GCC_COMPILER=1 -c cryptlib.cpp
-cpu.o:
-	$(CXX) $(strip $(CXXFLAGS)) -DMACPORTS_GCC_COMPILER=1 -c cpu.cpp
-endif
-endif
 
 # Run rdrand-nasm.sh to create the object files
 ifeq ($(USE_NASM),1)

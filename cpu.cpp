@@ -216,13 +216,7 @@ static inline bool IsVIA(const word32 output[4])
 		(output[3] /*EDX*/ == 0x48727561);
 }
 
-#if HAVE_GCC_CONSTRUCTOR1
-void __attribute__ ((constructor (CRYPTOPP_INIT_PRIORITY + 20))) DetectX86Features()
-#elif HAVE_GCC_CONSTRUCTOR0
-void __attribute__ ((constructor)) DetectX86Features()
-#else
 void DetectX86Features()
-#endif
 {
 	// Coverity finding CID 171239...
 	word32 cpuid1[4]={0}, cpuid2[4]={0}, cpuid3[4]={0};
@@ -729,13 +723,7 @@ static bool TrySHA2()
 #endif  // CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
 }
 
-#if HAVE_GCC_CONSTRUCTOR1
-void __attribute__ ((constructor (CRYPTOPP_INIT_PRIORITY + 20))) DetectArmFeatures()
-#elif HAVE_GCC_CONSTRUCTOR0
-void __attribute__ ((constructor)) DetectArmFeatures()
-#else
 void DetectArmFeatures()
-#endif
 {
 	g_hasNEON = TryNEON();
 	g_hasPMULL = TryPMULL();
@@ -744,11 +732,37 @@ void DetectArmFeatures()
 	g_hasSHA1 = TrySHA1();
 	g_hasSHA2 = TrySHA2();
 
-	*((volatile bool*)&g_ArmDetectionDone) = true;
+	g_ArmDetectionDone = true;
 }
 
 #endif
-
 NAMESPACE_END
 
+// ***************** C++ Static Initialization ********************
+
+ANONYMOUS_NAMESPACE_BEGIN
+struct InitializeCpu
+{
+	InitializeCpu()
+	{
+#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64
+		CryptoPP::DetectX86Features();
+#elif CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64
+		CryptoPP::DetectArmFeatures();
 #endif
+	}
+};
+
+#if HAVE_GCC_INIT_PRIORITY
+const InitializeCpu s_init __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 20))) = InitializeCpu();
+#elif HAVE_MSC_INIT_PRIORITY
+#pragma warning(disable: 4075)
+#pragma init_seg(".CRT$XCU-020")
+const InitializeCpu s_init;
+#pragma warning(default: 4075)
+#else
+const InitializeCpu& s_init = CryptoPP::Singleton<InitializeCpu>().Ref();
+#endif
+ANONYMOUS_NAMESPACE_END
+
+#endif  // CRYPTOPP_IMPORTS
