@@ -78,6 +78,8 @@ CXXFLAGS = $(CXXFLAGS) /FI sdkddkver.h
 !ENDIF
 !IF "$(WINDOWSPHONEKITDIR)" != "" || "$(UNIVERSALCRTSDKDIR)" != "" || "$(UCRTVERSION)" != ""
 CXXFLAGS = $(CXXFLAGS) /FI winapifamily.h
+!ELSEIF "$(PLATFORM)" == "ARM" || "$(PLATFORM)" == "arm" || "$(PLATFORM)" == "ARM64" || "$(PLATFORM)" == "arm64"
+CXXFLAGS = $(CXXFLAGS) /FI winapifamily.h
 !ENDIF
 
 # Check for empty Platform and Processor
@@ -122,7 +124,8 @@ LDFLAGS = $(LDFLAGS) /MACHINE:X64
 LDLIBS = $(LDLIBS) ws2_32.lib kernel32.lib
 !ENDIF
 
-!IF "$(PLATFORM)" == "ARM" || "$(PLATFORM)" == "arm"
+# We still don't know what we need for ARM64 on Windows. ARM64 and arm64 may be incorrect
+!IF "$(PLATFORM)" == "ARM" || "$(PLATFORM)" == "arm" || "$(PLATFORM)" == "ARM64" || "$(PLATFORM)" == "arm64"
 # CXXFLAGS = $(CXXFLAGS) /D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1 /DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP
 CXXFLAGS = $(CXXFLAGS) /DWINAPI_FAMILY=WINAPI_FAMILY_PHONE_APP
 # CXXFLAGS = $(CXXFLAGS) /DWINAPI_FAMILY=WINAPI_FAMILY_APP
