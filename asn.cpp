@@ -171,7 +171,10 @@ size_t BERDecodeTextString(BufferedTransformation &bt, std::string &str, byte as
 	SecByteBlock temp(bc);
 	if (bc != bt.Get(temp, bc))
 		BERDecodeError();
-	str.assign((char *)temp.begin(), bc);
+	if (bc)
+		str.assign((char *)temp.begin(), bc);
+	else
+		str.clear();
 	return bc;
 }
 
