@@ -88,14 +88,18 @@ if(IS_BIG_ENDIAN)
 	add_definitions(-DIS_BIG_ENDIAN)
 endif()
 
+# No DISABLE_NATIVE_ARCH with DISABLE_ASM for now
+#  See http://github.com/weidai11/cryptopp/issues/395
 if(DISABLE_ASM)
 	add_definitions(-DCRYPTOPP_DISABLE_ASM)
 endif()
 if(DISABLE_SSSE3)
 	add_definitions(-DCRYPTOPP_DISABLE_SSSE3)
+	set(DISABLE_NATIVE_ARCH 1)
 endif()
 if(DISABLE_AESNI)
 	add_definitions(-DCRYPTOPP_DISABLE_AESNI)
+	set(DISABLE_NATIVE_ARCH 1)
 endif()
 if(NOT CRYPTOPP_DATA_DIR STREQUAL "")
 	add_definitions(-DCRYPTOPP_DATA_DIR="${CRYPTOPP_DATA_DIR}")

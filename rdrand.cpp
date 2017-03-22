@@ -160,7 +160,7 @@ inline void RDRAND32(void* output)
 #endif
 }
 
-#if CRYPTOPP_BOOL_X64
+#if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32
 // Fills 8 bytes
 inline void RDRAND64(void* output)
 {
@@ -198,7 +198,7 @@ inline void RDRAND64(void* output)
     throw NotImplemented("RDRAND: failed to find an implementation");
 #endif
 }
-#endif  // CRYPTOPP_BOOL_X64 and RDRAND64
+#endif  // CRYPTOPP_BOOL_X64, CRYPTOPP_BOOL_X32 and RDRAND64
 
 void RDRAND::GenerateBlock(byte *output, size_t size)
 {
@@ -213,7 +213,7 @@ void RDRAND::GenerateBlock(byte *output, size_t size)
 
     MASM_RDRAND_GenerateBlock(output, size);
 
-#elif CRYPTOPP_BOOL_X64
+#elif CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32
     size_t i = 0;
     for (i = 0; i < size/8; i++)
         RDRAND64(reinterpret_cast<word64*>(output)+i);
@@ -227,7 +227,7 @@ void RDRAND::GenerateBlock(byte *output, size_t size)
         RDRAND64(&val);
         std::memcpy(output, &val, size);
     }
-#elif (CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86)
+#elif CRYPTOPP_BOOL_X86
     size_t i = 0;
     for (i = 0; i < size/4; i++)
         RDRAND32(reinterpret_cast<word32*>(output)+i);
@@ -304,7 +304,7 @@ inline void RDSEED32(void* output)
 #endif
 }
 
-#if CRYPTOPP_BOOL_X64
+#if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32
 // Fills 8 bytes
 inline void RDSEED64(void* output)
 {
@@ -357,7 +357,7 @@ void RDSEED::GenerateBlock(byte *output, size_t size)
 
     MASM_RDSEED_GenerateBlock(output, size);
 
-#elif CRYPTOPP_BOOL_X64
+#elif CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32
     size_t i = 0;
     for (i = 0; i < size/8; i++)
         RDSEED64(reinterpret_cast<word64*>(output)+i);
@@ -371,7 +371,7 @@ void RDSEED::GenerateBlock(byte *output, size_t size)
         RDSEED64(&val);
         std::memcpy(output, &val, size);
     }
-#elif (CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86)
+#elif CRYPTOPP_BOOL_X86
     size_t i = 0;
     for (i = 0; i < size/4; i++)
         RDSEED32(reinterpret_cast<word32*>(output)+i);
@@ -385,7 +385,7 @@ void RDSEED::GenerateBlock(byte *output, size_t size)
         RDSEED32(&val);
         std::memcpy(output, &val, size);
     }
-#endif
+#endif  // CRYPTOPP_BOOL_X64, CRYPTOPP_BOOL_X32 and RDSEED64
 }
 
 void RDSEED::DiscardBytes(size_t n)
