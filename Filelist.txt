@@ -210,7 +210,7 @@ rc6.cpp
 rc6.h
 rdrand-masm.cmd
 rdrand-nasm.sh
-rdrand.S
+rdrand.s
 rdrand.asm
 rdrand.cpp
 rdrand.h
