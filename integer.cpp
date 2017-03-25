@@ -72,6 +72,12 @@
 // ***************** C++ Static Initialization ********************
 
 NAMESPACE_BEGIN(CryptoPP)
+static void SetFunctionPointers();
+InitializeInteger::InitializeInteger()
+{
+	SetFunctionPointers();
+}
+
 template <long i>
 struct NewInteger
 {
@@ -80,54 +86,28 @@ struct NewInteger
 		return new Integer(i);
 	}
 };
-
-static void SetFunctionPointers();
-bool AssignIntToInteger(const std::type_info &valueType, void *pInteger, const void *pInt);
 NAMESPACE_END
 
 ANONYMOUS_NAMESPACE_BEGIN
-struct InitializeInteger
-{
-	InitializeInteger()
-	{
-		CryptoPP::SetFunctionPointers();
-		CryptoPP::g_pAssignIntToInteger = (CryptoPP::PAssignIntToInteger)CryptoPP::AssignIntToInteger;
-	}
-};
-
 #if HAVE_GCC_INIT_PRIORITY
-const InitializeInteger s_init __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 30))) = InitializeInteger();
+const CryptoPP::InitializeInteger s_init __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 30))) = CryptoPP::InitializeInteger();
 const CryptoPP::Integer s_zero __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 31))) = CryptoPP::Integer(0L);
 const CryptoPP::Integer  s_one __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 32))) = CryptoPP::Integer(1L);
 const CryptoPP::Integer  s_two __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 33))) = CryptoPP::Integer(2L);
 #elif HAVE_MSC_INIT_PRIORITY
 #pragma warning(disable: 4075)
 #pragma init_seg(".CRT$XCU-030")
-const InitializeInteger s_init;
+const CryptoPP::InitializeInteger s_init;
 const CryptoPP::Integer s_zero(0L);
 const CryptoPP::Integer  s_one(1L);
 const CryptoPP::Integer  s_two(2L);
 #pragma warning(default: 4075)
-#else
-const InitializeInteger& s_init = CryptoPP::Singleton<InitializeInteger>().Ref();
-const CryptoPP::Integer& s_zero = CryptoPP::Singleton<CryptoPP::Integer, CryptoPP::NewInteger<0L> >().Ref();
-const CryptoPP::Integer&  s_one = CryptoPP::Singleton<CryptoPP::Integer, CryptoPP::NewInteger<1L> >().Ref();
-const CryptoPP::Integer&  s_two = CryptoPP::Singleton<CryptoPP::Integer, CryptoPP::NewInteger<2L> >().Ref();
 #endif
 ANONYMOUS_NAMESPACE_END
 
 // ***************** Library code ********************
 
 NAMESPACE_BEGIN(CryptoPP)
-
-bool AssignIntToInteger(const std::type_info &valueType, void *pInteger, const void *pInt)
-{
-	if (valueType != typeid(Integer))
-		return false;
-	*reinterpret_cast<Integer *>(pInteger) = *reinterpret_cast<const int *>(pInt);
-	return true;
-}
-
 inline static int Compare(const word *A, const word *B, size_t N)
 {
 	while (N--)
@@ -3045,17 +3025,29 @@ Integer Integer::Power2(size_t e)
 
 const Integer &Integer::Zero()
 {
+#if HAVE_GCC_INIT_PRIORITY || HAVE_MSC_INIT_PRIORITY
 	return s_zero;
+#else
+	return Singleton<Integer, NewInteger<0L> >().Ref();
+#endif
 }
 
 const Integer &Integer::One()
 {
+#if HAVE_GCC_INIT_PRIORITY || HAVE_MSC_INIT_PRIORITY
 	return s_one;
+#else
+	return Singleton<Integer, NewInteger<1L> >().Ref();
+#endif
 }
 
 const Integer &Integer::Two()
 {
+#if HAVE_GCC_INIT_PRIORITY || HAVE_MSC_INIT_PRIORITY
 	return s_two;
+#else
+	return Singleton<Integer, NewInteger<2L> >().Ref();
+#endif
 }
 
 bool Integer::operator!() const
@@ -4748,6 +4740,18 @@ std::string IntToString<word64>(word64 value, unsigned int base)
 	}
 	return result;
 }
+
+#ifndef CRYPTOPP_NO_ASSIGN_TO_INTEGER
+// Allow the linker to discard Integer code if not needed.
+// Also see http://github.com/weidai11/cryptopp/issues/389.
+bool AssignIntToInteger(const std::type_info &valueType, void *pInteger, const void *pInt)
+{
+	if (valueType != typeid(Integer))
+		return false;
+	*reinterpret_cast<Integer *>(pInteger) = *reinterpret_cast<const int *>(pInt);
+	return true;
+}
+#endif
 
 NAMESPACE_END
 

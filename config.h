@@ -103,6 +103,13 @@
 // of 'b', 'o', 'h' or '.' (the last for decimal).
 // #define CRYPTOPP_USE_STD_SHOWBASE
 
+// Define this if you want to decouple AlgorithmParameters and Integer
+// The decoupling should make it easier for the linker to remove Integer
+// related code for those who do not need Integer, and avoid a potential
+// race during AssignIntToInteger pointer initialization. Also
+// see http://github.com/weidai11/cryptopp/issues/389.
+// #define CRYPTOPP_NO_ASSIGN_TO_INTEGER
+
 // choose which style of sockets to wrap (mostly useful for MinGW which has both)
 #if !defined(NO_BERKELEY_STYLE_SOCKETS) && !defined(PREFER_BERKELEY_STYLE_SOCKETS)
 # define PREFER_BERKELEY_STYLE_SOCKETS
