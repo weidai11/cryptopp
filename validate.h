@@ -121,7 +121,7 @@ bool TestHuffmanCodes();
 bool TestASN1Parse();
 #endif
 
-#if 0
+#if 1
 // Coverity findings in benchmark and validation routines
 class StreamState
 {
@@ -148,6 +148,7 @@ private:
 };
 #endif
 
+#if 0
 class StreamState
 {
 public:
@@ -166,6 +167,7 @@ private:
 	std::ostream& m_out;
 	std::ios m_state;
 };
+#endif
 
 // Safer functions on Windows for C&A, https://github.com/weidai11/cryptopp/issues/55
 static std::string TimeToString(const time_t& t)
