@@ -589,7 +589,7 @@ clean:
 distclean: clean
 	-$(RM) adhoc.cpp adhoc.cpp.copied GNUmakefile.deps benchmarks.html cryptest.txt cryptest-*.txt
 	@-$(RM) CMakeCache.txt Makefile CTestTestfile.cmake cmake_install.cmake cryptopp-config-version.cmake
-	@-$(RM) cryptopp.tgz *.o *.bc *.ii *.s *~
+	@-$(RM) cryptopp.tgz *.o *.bc *.ii *~
 	@-$(RM) -r $(SRCS:.cpp=.obj) *.suo *.sdf *.pdb Win32/ x64/ ipch/
 	@-$(RM) -r CMakeFiles/
 	@-$(RM) -r $(DOCUMENT_DIRECTORY)/
