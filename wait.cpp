@@ -373,7 +373,7 @@ bool WaitObjectContainer::Wait(unsigned long milliseconds)
 		if (milliseconds > 0)
 		{
 			unsigned long timeAfterWait = t.ElapsedTime();
-			OutputDebugString(("Handles " + IntToString(m_handles.size()) + ", Woke up by " + IntToString(result-WAIT_OBJECT_0) + ", Busied for " + IntToString(timeBeforeWait-lastTime) + " us, Waited for " + IntToString(timeAfterWait-timeBeforeWait) + " us, max " + IntToString(milliseconds) + "ms\n").c_str());
+			OutputDebugStringA(("Handles " + IntToString(m_handles.size()) + ", Woke up by " + IntToString(result-WAIT_OBJECT_0) + ", Busied for " + IntToString(timeBeforeWait-lastTime) + " us, Waited for " + IntToString(timeAfterWait-timeBeforeWait) + " us, max " + IntToString(milliseconds) + "ms\n").c_str());
 			lastTime = timeAfterWait;
 		}
 #endif

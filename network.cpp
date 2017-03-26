@@ -287,7 +287,7 @@ size_t NetworkSource::DoPump(lword &byteCount, bool blockingOutput, unsigned lon
 
 				unsigned int recvResult = receiver.GetReceiveResult();
 #if CRYPTOPP_TRACE_NETWORK
-				OutputDebugString((IntToString((unsigned int)this) + ": Received " + IntToString(recvResult) + " bytes\n").c_str());
+				OutputDebugStringA((IntToString((unsigned int)this) + ": Received " + IntToString(recvResult) + " bytes\n").c_str());
 #endif
 				m_dataEnd += recvResult;
 				m_waitingForResult = false;
@@ -315,13 +315,13 @@ ReceiveNoWait:
 					// call Receive repeatedly as long as data is immediately available,
 					// because some receivers tend to return data in small pieces
 #if CRYPTOPP_TRACE_NETWORK
-					OutputDebugString((IntToString((unsigned int)this) + ": Receiving " + IntToString(m_buf.size()-m_dataEnd) + " bytes\n").c_str());
+					OutputDebugStringA((IntToString((unsigned int)this) + ": Receiving " + IntToString(m_buf.size()-m_dataEnd) + " bytes\n").c_str());
 #endif
 					while (receiver.Receive(m_buf+m_dataEnd, m_buf.size()-m_dataEnd))
 					{
 						unsigned int recvResult = receiver.GetReceiveResult();
 #if CRYPTOPP_TRACE_NETWORK
-						OutputDebugString((IntToString((unsigned int)this) + ": Received " + IntToString(recvResult) + " bytes\n").c_str());
+						OutputDebugStringA((IntToString((unsigned int)this) + ": Received " + IntToString(recvResult) + " bytes\n").c_str());
 #endif
 						m_dataEnd += recvResult;
 						if (receiver.EofReceived() || m_dataEnd > m_buf.size() /2)
@@ -391,7 +391,7 @@ float NetworkSink::ComputeCurrentSpeed()
 		m_maxObservedSpeed = STDMAX(m_currentSpeed, m_maxObservedSpeed * 0.98f);
 		m_byteCountSinceLastTimerReset = 0;
 		m_speedTimer.StartTimer();
-//		OutputDebugString(("max speed: " + IntToString((int)m_maxObservedSpeed) + " current speed: " + IntToString((int)m_currentSpeed) + "\n").c_str());
+//		OutputDebugStringA(("max speed: " + IntToString((int)m_maxObservedSpeed) + " current speed: " + IntToString((int)m_currentSpeed) + "\n").c_str());
 	}
 	return m_currentSpeed;
 }
@@ -497,7 +497,7 @@ lword NetworkSink::DoFlush(unsigned long maxTime, size_t targetSize)
 
 			unsigned int sendResult = sender.GetSendResult();
 #if CRYPTOPP_TRACE_NETWORK
-			OutputDebugString((IntToString((unsigned int)this) + ": Sent " + IntToString(sendResult) + " bytes\n").c_str());
+			OutputDebugStringA((IntToString((unsigned int)this) + ": Sent " + IntToString(sendResult) + " bytes\n").c_str());
 #endif
 			m_buffer.Skip(sendResult);
 			totalFlushSize += sendResult;
@@ -515,7 +515,7 @@ lword NetworkSink::DoFlush(unsigned long maxTime, size_t targetSize)
 		const byte *block = m_buffer.Spy(contiguousSize);
 
 #if CRYPTOPP_TRACE_NETWORK
-		OutputDebugString((IntToString((unsigned int)this) + ": Sending " + IntToString(contiguousSize) + " bytes\n").c_str());
+		OutputDebugStringA((IntToString((unsigned int)this) + ": Sending " + IntToString(contiguousSize) + " bytes\n").c_str());
 #endif
 		sender.Send(block, contiguousSize);
 		m_needSendResult = true;
