@@ -152,6 +152,14 @@ inline void RDRAND32(void* output)
         : "=a" (*reinterpret_cast<word32*>(output))
         : : "cc"
     );
+#elif defined(CRYPTOPP_MSC_VERSION) && defined(CRYPTOPP_LLVM_CLANG_VERSION)
+    __asm__ __volatile__
+    (
+        ".byte 0x0f, 0xc7, 0xf0;\n"
+        ".byte 0x73, 0xfb;\n"
+        : "=a" (*reinterpret_cast<word32*>(output))
+        : : "cc"
+    );
 #elif defined(ALL_RDRAND_INTRIN_AVAILABLE)
     while(!_rdrand32_step(reinterpret_cast<word32*>(output))) {}
 #else
@@ -184,6 +192,14 @@ inline void RDRAND64(void* output)
         : : "cc"
     );
 #elif defined(GCC_RDRAND_ASM_AVAILABLE) && (CRYPTOPP_GCC_VERSION >= 30200)
+    __asm__ __volatile__
+    (
+        ".byte 0x48, 0x0f, 0xc7, 0xf0;\n"
+        ".byte 0x73, 0xfa;\n"
+        : "=a" (*reinterpret_cast<word64*>(output))
+        : : "cc"
+    );
+#elif defined(CRYPTOPP_MSC_VERSION) && defined(CRYPTOPP_LLVM_CLANG_VERSION)
     __asm__ __volatile__
     (
         ".byte 0x48, 0x0f, 0xc7, 0xf0;\n"
@@ -296,6 +312,14 @@ inline void RDSEED32(void* output)
         : "=a" (*reinterpret_cast<word32*>(output))
         : : "cc"
     );
+#elif defined(CRYPTOPP_MSC_VERSION) && defined(CRYPTOPP_LLVM_CLANG_VERSION)
+    __asm__ __volatile__
+    (
+        ".byte 0x0f, 0xc7, 0xf8;\n"
+        ".byte 0x73, 0xfb;\n"
+        : "=a" (*reinterpret_cast<word32*>(output))
+        : : "cc"
+    );
 #elif defined(ALL_RDSEED_INTRIN_AVAILABLE)
     while(!_rdseed32_step(reinterpret_cast<word32*>(output))) {}
 #else
@@ -328,6 +352,14 @@ inline void RDSEED64(void* output)
         : : "cc"
     );
 #elif defined(GCC_RDSEED_ASM_AVAILABLE) && (CRYPTOPP_GCC_VERSION >= 30200)
+    __asm__ __volatile__
+    (
+        ".byte 0x48, 0x0f, 0xc7, 0xf8;\n"
+        ".byte 0x73, 0xfa;\n"
+        : "=a" (*reinterpret_cast<word64*>(output))
+        : : "cc"
+    );
+#elif defined(CRYPTOPP_MSC_VERSION) && defined(CRYPTOPP_LLVM_CLANG_VERSION)
     __asm__ __volatile__
     (
         ".byte 0x48, 0x0f, 0xc7, 0xf8;\n"
