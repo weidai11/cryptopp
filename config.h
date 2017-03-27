@@ -596,13 +596,14 @@ NAMESPACE_END
 # define CRYPTOPP_USER_PRIORITY 350
 #endif
 
-#if (CRYPTOPP_INIT_PRIORITY > 0) && !(defined(__APPLE__) || defined(__sun__))
+// Most platforms allow us to specify when to create C++ objects. Apple and Sun do not.
+#if (CRYPTOPP_INIT_PRIORITY > 0) && !(defined(NO_OS_DEPENDENCE) || defined(__APPLE__) || defined(__sun__))
 # if (CRYPTOPP_GCC_VERSION >= 30000) || (CRYPTOPP_LLVM_CLANG_VERSION >= 20900) || (_INTEL_COMPILER >= 800)
 #  define HAVE_GCC_INIT_PRIORITY 1
 # elif (CRYPTOPP_MSC_VERSION >= 1310)
 #  define HAVE_MSC_INIT_PRIORITY 1
 # endif
-#endif  // CRYPTOPP_INIT_PRIORITY, Sun, Darwin
+#endif  // CRYPTOPP_INIT_PRIORITY, NO_OS_DEPENDENCE, Apple, Sun
 
 // ***************** determine availability of OS features ********************
 
