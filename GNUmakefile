@@ -391,13 +391,6 @@ endif # ELF/ELF64
 endif # CXXFLAGS
 endif # Gold
 
-# Aligned access testing. Issue 'make aligned'.
-ifneq ($(filter align aligned,$(MAKECMDGOALS)),)
-ifeq ($(findstring -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS,$(CXXFLAGS)),)
-CXXFLAGS += -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS
-endif # CXXFLAGS
-endif # Aligned access
-
 # GCC code coverage. Issue 'make coverage'.
 ifneq ($(filter coverage,$(MAKECMDGOALS)),)
 ifeq ($(findstring -coverage,$(CXXFLAGS)),)
@@ -522,8 +515,8 @@ deps GNUmakefile.deps:
 	$(CXX) $(strip $(CXXFLAGS)) -MM *.cpp > GNUmakefile.deps
 
 # CXXFLAGS are tuned earlier.
-.PHONY: asan ubsan align aligned
-asan ubsan align aligned: libcryptopp.a cryptest.exe
+.PHONY: asan ubsan
+asan ubsan: libcryptopp.a cryptest.exe
 
 # CXXFLAGS are tuned earlier. Applications must use linker flags
 #  -Wl,--gc-sections (Linux and Unix) or -Wl,-dead_strip (OS X)
