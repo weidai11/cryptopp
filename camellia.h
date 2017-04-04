@@ -1,7 +1,7 @@
 // camellia.h - originally written and placed in the public domain by Wei Dai
 
 //! \file camellia.h
-//! \brief Classes for the Cameliia block cipher
+//! \brief Classes for the Camellia block cipher
 
 #ifndef CRYPTOPP_CAMELLIA_H
 #define CRYPTOPP_CAMELLIA_H
