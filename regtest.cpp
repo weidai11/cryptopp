@@ -17,6 +17,7 @@
 #include "seal.h"
 #include "whrlpool.h"
 #include "ttmac.h"
+#include "aria.h"
 #include "camellia.h"
 #include "shacal2.h"
 #include "tea.h"
@@ -145,6 +146,7 @@ void RegisterFactories()
 	RegisterSignatureSchemeDefaultFactories<RSASS<PSS, SHA1> >("RSA/PSS-MGF1(SHA-1)");
 	RegisterSymmetricCipherDefaultFactories<SEAL<> >();
 	RegisterSymmetricCipherDefaultFactories<ECB_Mode<SHACAL2> >();
+	RegisterSymmetricCipherDefaultFactories<ECB_Mode<ARIA> >();
 	RegisterSymmetricCipherDefaultFactories<ECB_Mode<Camellia> >();
 	RegisterSymmetricCipherDefaultFactories<ECB_Mode<TEA> >();
 	RegisterSymmetricCipherDefaultFactories<ECB_Mode<XTEA> >();
@@ -168,6 +170,8 @@ void RegisterFactories()
 	RegisterAuthenticatedSymmetricCipherDefaultFactories<CCM<AES> >();
 	RegisterAuthenticatedSymmetricCipherDefaultFactories<GCM<AES> >();
 	RegisterAuthenticatedSymmetricCipherDefaultFactories<EAX<AES> >();
+	RegisterSymmetricCipherDefaultFactories<CBC_Mode<ARIA> >();  // For test vectors
+	RegisterSymmetricCipherDefaultFactories<CTR_Mode<ARIA> >();
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<Camellia> >();
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<Twofish> >();
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<Serpent> >();

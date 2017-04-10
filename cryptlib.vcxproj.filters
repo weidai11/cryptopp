@@ -29,6 +29,9 @@
     <ClCompile Include="arc4.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="aria.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="asn.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -427,6 +430,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="arc4.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="aria.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="argnames.h">

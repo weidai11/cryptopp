@@ -25,6 +25,7 @@
 #include "stdcpp.h"
 #include "ossig.h"
 #include "trap.h"
+#include "aria.h"
 
 #include "validate.h"
 #include "bench.h"
@@ -971,22 +972,23 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 	case 60: result = Test::ValidateDLIES(); break;
 	case 61: result = Test::ValidateBaseCode(); break;
 	case 62: result = Test::ValidateSHACAL2(); break;
-	case 63: result = Test::ValidateCamellia(); break;
-	case 64: result = Test::ValidateWhirlpool(); break;
-	case 65: result = Test::ValidateTTMAC(); break;
-	case 66: result = Test::ValidateSalsa(); break;
-	case 67: result = Test::ValidateSosemanuk(); break;
-	case 68: result = Test::ValidateVMAC(); break;
-	case 69: result = Test::ValidateCCM(); break;
-	case 70: result = Test::ValidateGCM(); break;
-	case 71: result = Test::ValidateCMAC(); break;
-	case 72: result = Test::ValidateHKDF(); break;
-	case 73: result = Test::ValidateBLAKE2s(); break;
-	case 74: result = Test::ValidateBLAKE2b(); break;
-	case 75: result = Test::ValidatePoly1305(); break;
-	case 76: result = Test::ValidateSipHash(); break;
-	case 77: result = Test::ValidateHashDRBG(); break;
-	case 78: result = Test::ValidateHmacDRBG(); break;
+	case 63: result = Test::ValidateARIA(); break;
+	case 64: result = Test::ValidateCamellia(); break;
+	case 65: result = Test::ValidateWhirlpool(); break;
+	case 66: result = Test::ValidateTTMAC(); break;
+	case 67: result = Test::ValidateSalsa(); break;
+	case 68: result = Test::ValidateSosemanuk(); break;
+	case 69: result = Test::ValidateVMAC(); break;
+	case 70: result = Test::ValidateCCM(); break;
+	case 71: result = Test::ValidateGCM(); break;
+	case 72: result = Test::ValidateCMAC(); break;
+	case 73: result = Test::ValidateHKDF(); break;
+	case 74: result = Test::ValidateBLAKE2s(); break;
+	case 75: result = Test::ValidateBLAKE2b(); break;
+	case 76: result = Test::ValidatePoly1305(); break;
+	case 77: result = Test::ValidateSipHash(); break;
+	case 78: result = Test::ValidateHashDRBG(); break;
+	case 79: result = Test::ValidateHmacDRBG(); break;
 
 #if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_IMPORTS)
 	// http://github.com/weidai11/cryptopp/issues/92

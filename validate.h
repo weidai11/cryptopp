@@ -73,6 +73,7 @@ bool ValidateRijndael();
 bool ValidateTwofish();
 bool ValidateSerpent();
 bool ValidateSHACAL2();
+bool ValidateARIA();
 bool ValidateCamellia();
 bool ValidateSalsa();
 bool ValidateSosemanuk();

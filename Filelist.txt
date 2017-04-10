@@ -10,6 +10,8 @@ algparam.cpp
 algparam.h
 arc4.cpp
 arc4.h
+aria.cpp
+aria.h
 argnames.h
 asn.cpp
 asn.h
@@ -318,6 +320,7 @@ Install.txt
 Filelist.txt
 TestData/3desval.dat
 TestData/3wayval.dat
+TestData/aria.dat
 TestData/camellia.dat
 TestData/cast128v.dat
 TestData/cast256v.dat
@@ -385,6 +388,7 @@ TestVectors/all.txt
 TestVectors/blake2.txt
 TestVectors/blake2b.txt
 TestVectors/blake2s.txt
+TestVectors/aria.txt
 TestVectors/camellia.txt
 TestVectors/ccm.txt
 TestVectors/chacha.txt

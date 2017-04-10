@@ -180,7 +180,7 @@
   <!-- FIPS Validated Warning -->
   <ItemDefinitionGroup Label="FIPS Warning">
     <PreBuildEvent Condition="'$(Configuration)'=='DLL-Import Debug' Or '$(Configuration)'=='DLL-Import Release'">
-	  <Command>
+      <Command>
         echo *************************************************************************
         echo This configuration requires cryptopp.dll. You can build it yourself using
         echo the cryptdll project, or obtain a pre-built, FIPS 140-2 validated DLL. If
@@ -221,6 +221,7 @@
     <None Include="TestVectors\blake2.txt" />
     <None Include="TestVectors\blake2b.txt" />
     <None Include="TestVectors\blake2s.txt" />
+    <None Include="TestVectors\aria.txt" />
     <None Include="TestVectors\camellia.txt" />
     <None Include="TestVectors\ccm.txt" />
     <None Include="TestVectors\chacha.txt" />
@@ -257,6 +258,7 @@
     <None Include="TestVectors\whrlpool.txt" />
     <None Include="TestData\3desval.dat" />
     <None Include="TestData\3wayval.dat" />
+    <None Include="TestData\aria.dat" />
     <None Include="TestData\camellia.dat" />
     <None Include="TestData\cast128v.dat" />
     <None Include="TestData\cast256v.dat" />

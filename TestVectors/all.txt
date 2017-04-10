@@ -2,6 +2,7 @@ AlgorithmType: FileList
 Name: all.txt collection
 Test: TestVectors/tea.txt
 Test: TestVectors/wake.txt
+Test: TestVectors/aria.txt
 Test: TestVectors/camellia.txt
 Test: TestVectors/shacal2.txt
 Test: TestVectors/ttmac.txt
