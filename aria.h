@@ -2,6 +2,10 @@
 
 //! \file aria.h
 //! \brief Classes for the ARIA block cipher
+//! \details The Crypto++ ARIA implementation is based on the 32-bit implementation by Aaram Yun
+//!   from the National Security Research Institute, KOREA. Aaram Yun's implementation is based on
+//!   the 8-bit implementation provided by Jin Hong. The source files are available in ARIA.zip
+//!   from the Korea Internet & Security Agency website.
 //! \sa <A HREF="http://tools.ietf.org/html/rfc5794">RFC 5794, A Description of the ARIA Encryption Algorithm</A>,
 //!   <A HREF="http://seed.kisa.or.kr/iwt/ko/bbs/EgovReferenceList.do?bbsId=BBSMSTR_000000000002">Korea
 //!   Internet & Security Agency homepage</A>
@@ -34,15 +38,10 @@ public:
 		void UncheckedSetKey(const byte *key, unsigned int keylen, const NameValuePairs &params);
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
 
-	protected:
-		CRYPTOPP_ALIGN_DATA(16)
-		static const byte S[4][256];
-
-		CRYPTOPP_ALIGN_DATA(16)
-		static const byte KRK[3][16];
-
-		FixedSizeAlignedSecBlock<byte, 16*17> m_rkey;  // round keys
-		FixedSizeAlignedSecBlock<byte, 16*6>  m_w;     // scratch, w0, w1, w2, w3 and t
+	private:
+		// Reference implementation allocates a table for 17 sub-keys
+		FixedSizeAlignedSecBlock<byte, 16*17> m_rk;  // round keys
+		FixedSizeAlignedSecBlock<word32, 4*6> m_w;   // w0, w1, w2, w3 and t
 		unsigned int m_rounds;
 	};
 
