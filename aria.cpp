@@ -14,10 +14,6 @@
 #include "misc.h"
 #include "cpu.h"
 
-#include <iostream>
-#include "files.h"
-#include "hex.h"
-
 ANONYMOUS_NAMESPACE_BEGIN
 
 CRYPTOPP_ALIGN_DATA(16)
@@ -175,12 +171,14 @@ ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#define ARIA_BY(X,Y) (((byte *)(&X))[Y])
-#define ARIA_BRF(T,R) ((byte)((T)>>(R)))
 #define ARIA_WO(X,Y) (((word32 *)(X))[Y])
 
+inline byte ARIA_BRF(const word32 x, int y) {
+	return GETBYTE(x, y);
+}
+
 inline word32 ReverseWord(const word32 w) {
-    return ByteReverse(w);
+	return ByteReverse(w);
 }
 
 inline word32 LoadWord(const word32 x) {
@@ -190,23 +188,22 @@ inline word32 LoadWord(const word32 x) {
 // Key XOR Layer
 #define ARIA_KXL {  \
     t[0]^=ARIA_WO(rk,0); t[1]^=ARIA_WO(rk,1); t[2]^=ARIA_WO(rk,2); t[3]^=ARIA_WO(rk,3);  \
-    rk += 16;  \
   }
 
 // S-Box Layer 1 + M
 #define SBL1_M(T0,T1,T2,T3) {  \
-    T0=S1[ARIA_BRF(T0,24)]^S2[ARIA_BRF(T0,16)]^X1[ARIA_BRF(T0,8)]^X2[ARIA_BRF(T0,0)];  \
-    T1=S1[ARIA_BRF(T1,24)]^S2[ARIA_BRF(T1,16)]^X1[ARIA_BRF(T1,8)]^X2[ARIA_BRF(T1,0)];  \
-    T2=S1[ARIA_BRF(T2,24)]^S2[ARIA_BRF(T2,16)]^X1[ARIA_BRF(T2,8)]^X2[ARIA_BRF(T2,0)];  \
-    T3=S1[ARIA_BRF(T3,24)]^S2[ARIA_BRF(T3,16)]^X1[ARIA_BRF(T3,8)]^X2[ARIA_BRF(T3,0)];  \
+    T0=S1[ARIA_BRF(T0,3)]^S2[ARIA_BRF(T0,2)]^X1[ARIA_BRF(T0,1)]^X2[ARIA_BRF(T0,0)];  \
+    T1=S1[ARIA_BRF(T1,3)]^S2[ARIA_BRF(T1,2)]^X1[ARIA_BRF(T1,1)]^X2[ARIA_BRF(T1,0)];  \
+    T2=S1[ARIA_BRF(T2,3)]^S2[ARIA_BRF(T2,2)]^X1[ARIA_BRF(T2,1)]^X2[ARIA_BRF(T2,0)];  \
+    T3=S1[ARIA_BRF(T3,3)]^S2[ARIA_BRF(T3,2)]^X1[ARIA_BRF(T3,1)]^X2[ARIA_BRF(T3,0)];  \
   }
 
 // S-Box Layer 2 + M
 #define SBL2_M(T0,T1,T2,T3) {  \
-    T0=X1[ARIA_BRF(T0,24)]^X2[ARIA_BRF(T0,16)]^S1[ARIA_BRF(T0,8)]^S2[ARIA_BRF(T0,0)];  \
-    T1=X1[ARIA_BRF(T1,24)]^X2[ARIA_BRF(T1,16)]^S1[ARIA_BRF(T1,8)]^S2[ARIA_BRF(T1,0)];  \
-    T2=X1[ARIA_BRF(T2,24)]^X2[ARIA_BRF(T2,16)]^S1[ARIA_BRF(T2,8)]^S2[ARIA_BRF(T2,0)];  \
-    T3=X1[ARIA_BRF(T3,24)]^X2[ARIA_BRF(T3,16)]^S1[ARIA_BRF(T3,8)]^S2[ARIA_BRF(T3,0)];  \
+    T0=X1[ARIA_BRF(T0,3)]^X2[ARIA_BRF(T0,2)]^S1[ARIA_BRF(T0,1)]^S2[ARIA_BRF(T0,0)];  \
+    T1=X1[ARIA_BRF(T1,3)]^X2[ARIA_BRF(T1,2)]^S1[ARIA_BRF(T1,1)]^S2[ARIA_BRF(T1,0)];  \
+    T2=X1[ARIA_BRF(T2,3)]^X2[ARIA_BRF(T2,2)]^S1[ARIA_BRF(T2,1)]^S2[ARIA_BRF(T2,0)];  \
+    T3=X1[ARIA_BRF(T3,3)]^X2[ARIA_BRF(T3,2)]^S1[ARIA_BRF(T3,1)]^S2[ARIA_BRF(T3,0)];  \
   }
 
 #define ARIA_MM(T0,T1,T2,T3) {           \
@@ -224,20 +221,19 @@ inline word32 LoadWord(const word32 x) {
 #define ARIA_FE {SBL2_M(t[0],t[1],t[2],t[3]) ARIA_MM(t[0],t[1],t[2],t[3]) ARIA_P(t[2],t[3],t[0],t[1]) ARIA_MM(t[0],t[1],t[2],t[3])}
 
 // n-bit right shift of Y XORed to X
-#define ARIA_GSRK(X, Y, n) { \
+#define ARIA_GSRK(RK, X, Y, n) { \
     q = 4-((n)/32);          \
     r = (n) % 32;            \
-    ARIA_WO(rk,0) = ((X)[0]) ^ (((Y)[(q  )%4])>>r) ^ (((Y)[(q+3)%4])<<(32-r));  \
-    ARIA_WO(rk,1) = ((X)[1]) ^ (((Y)[(q+1)%4])>>r) ^ (((Y)[(q  )%4])<<(32-r));  \
-    ARIA_WO(rk,2) = ((X)[2]) ^ (((Y)[(q+2)%4])>>r) ^ (((Y)[(q+1)%4])<<(32-r));  \
-    ARIA_WO(rk,3) = ((X)[3]) ^ (((Y)[(q+3)%4])>>r) ^ (((Y)[(q+2)%4])<<(32-r));  \
-    rk += 16;                \
+    ARIA_WO((RK),0) = ((X)[0]) ^ (((Y)[(q  )%4])>>r) ^ (((Y)[(q+3)%4])<<(32-r));  \
+    ARIA_WO((RK),1) = ((X)[1]) ^ (((Y)[(q+1)%4])>>r) ^ (((Y)[(q  )%4])<<(32-r));  \
+    ARIA_WO((RK),2) = ((X)[2]) ^ (((Y)[(q+2)%4])>>r) ^ (((Y)[(q+1)%4])<<(32-r));  \
+    ARIA_WO((RK),3) = ((X)[3]) ^ (((Y)[(q+3)%4])>>r) ^ (((Y)[(q+2)%4])<<(32-r));  \
   }
 
 #if defined(_MSC_VER)
-#define ARIA_M1(X,Y) {        \
-    w=_lrotr((X), 8);         \
-    (Y)=w^_lrotr((X)^w, 16);  \
+#define ARIA_M1(X,Y) {           \
+    w=rotrFixed((X), 8);         \
+    (Y)=w^rotrFixed((X)^w, 16);  \
   }
 #else
 #define ARIA_M1(X,Y) {						\
@@ -321,29 +317,29 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 	ARIA_FO;
 	w3[0]=t[0]^w1[0]; w3[1]=t[1]^w1[1]; w3[2]=t[2]^w1[2]; w3[3]=t[3]^w1[3];
 
-	ARIA_GSRK(w0, w1, 19);
-	ARIA_GSRK(w1, w2, 19);
-	ARIA_GSRK(w2, w3, 19);
-	ARIA_GSRK(w3, w0, 19);
-	ARIA_GSRK(w0, w1, 31);
-	ARIA_GSRK(w1, w2, 31);
-	ARIA_GSRK(w2, w3, 31);
-	ARIA_GSRK(w3, w0, 31);
-	ARIA_GSRK(w0, w1, 67);
-	ARIA_GSRK(w1, w2, 67);
-	ARIA_GSRK(w2, w3, 67);
-	ARIA_GSRK(w3, w0, 67);
-	ARIA_GSRK(w0, w1, 97);
+	ARIA_GSRK(rk +   0, w0, w1, 19);
+	ARIA_GSRK(rk +  16, w1, w2, 19);
+	ARIA_GSRK(rk +  32, w2, w3, 19);
+	ARIA_GSRK(rk +  48, w3, w0, 19);
+	ARIA_GSRK(rk +  64, w0, w1, 31);
+	ARIA_GSRK(rk +  80, w1, w2, 31);
+	ARIA_GSRK(rk +  96, w2, w3, 31);
+	ARIA_GSRK(rk + 112, w3, w0, 31);
+	ARIA_GSRK(rk + 128, w0, w1, 67);
+	ARIA_GSRK(rk + 144, w1, w2, 67);
+	ARIA_GSRK(rk + 160, w2, w3, 67);
+	ARIA_GSRK(rk + 176, w3, w0, 67);
+	ARIA_GSRK(rk + 192, w0, w1, 97);
 
 	if (keyBits > 128)
 	{
-		ARIA_GSRK(w1, w2, 97);
-		ARIA_GSRK(w2, w3, 97);
+		ARIA_GSRK(rk + 208, w1, w2, 97);
+		ARIA_GSRK(rk + 224, w2, w3, 97);
 
 		if (keyBits > 192)
 		{
-			ARIA_GSRK(w3, w0,  97);
-			ARIA_GSRK(w0, w1, 109);
+			ARIA_GSRK(rk + 240, w3, w0,  97);
+			ARIA_GSRK(rk + 256, w0, w1, 109);
 		}
 	}
 
@@ -391,51 +387,56 @@ void ARIA::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
 	t[2] = LoadWord(ARIA_WO(i,2)); t[3] = LoadWord(ARIA_WO(i,3));
 
 	if (m_rounds > 12) {
-		ARIA_KXL ARIA_FO ARIA_KXL ARIA_FE
+		ARIA_KXL rk+= 16; ARIA_FO
+		ARIA_KXL rk+= 16; ARIA_FE
 	}
 
 	if (m_rounds > 14) {
-		ARIA_KXL ARIA_FO ARIA_KXL ARIA_FE
+		ARIA_KXL rk+= 16; ARIA_FO
+		ARIA_KXL rk+= 16; ARIA_FE
 	}
 
-	ARIA_KXL ARIA_FO ARIA_KXL ARIA_FE ARIA_KXL ARIA_FO ARIA_KXL ARIA_FE
-	ARIA_KXL ARIA_FO ARIA_KXL ARIA_FE ARIA_KXL ARIA_FO ARIA_KXL ARIA_FE
-	ARIA_KXL ARIA_FO ARIA_KXL ARIA_FE ARIA_KXL ARIA_FO ARIA_KXL
+	ARIA_KXL rk+= 16; ARIA_FO ARIA_KXL rk+= 16; ARIA_FE
+	ARIA_KXL rk+= 16; ARIA_FO ARIA_KXL rk+= 16; ARIA_FE
+	ARIA_KXL rk+= 16; ARIA_FO ARIA_KXL rk+= 16; ARIA_FE
+	ARIA_KXL rk+= 16; ARIA_FO ARIA_KXL rk+= 16; ARIA_FE
+	ARIA_KXL rk+= 16; ARIA_FO ARIA_KXL rk+= 16; ARIA_FE
+	ARIA_KXL rk+= 16; ARIA_FO ARIA_KXL rk+= 16;
 
 #ifdef IS_LITTLE_ENDIAN
-	o[ 0] = (byte)(X1[ARIA_BRF(t[0],24)]   ) ^ rk[ 3];
-	o[ 1] = (byte)(X2[ARIA_BRF(t[0],16)]>>8) ^ rk[ 2];
-	o[ 2] = (byte)(S1[ARIA_BRF(t[0], 8)]   ) ^ rk[ 1];
-	o[ 3] = (byte)(S2[ARIA_BRF(t[0], 0)]   ) ^ rk[ 0];
-	o[ 4] = (byte)(X1[ARIA_BRF(t[1],24)]   ) ^ rk[ 7];
-	o[ 5] = (byte)(X2[ARIA_BRF(t[1],16)]>>8) ^ rk[ 6];
-	o[ 6] = (byte)(S1[ARIA_BRF(t[1], 8)]   ) ^ rk[ 5];
-	o[ 7] = (byte)(S2[ARIA_BRF(t[1], 0)]   ) ^ rk[ 4];
-	o[ 8] = (byte)(X1[ARIA_BRF(t[2],24)]   ) ^ rk[11];
-	o[ 9] = (byte)(X2[ARIA_BRF(t[2],16)]>>8) ^ rk[10];
-	o[10] = (byte)(S1[ARIA_BRF(t[2], 8)]   ) ^ rk[ 9];
-	o[11] = (byte)(S2[ARIA_BRF(t[2], 0)]   ) ^ rk[ 8];
-	o[12] = (byte)(X1[ARIA_BRF(t[3],24)]   ) ^ rk[15];
-	o[13] = (byte)(X2[ARIA_BRF(t[3],16)]>>8) ^ rk[14];
-	o[14] = (byte)(S1[ARIA_BRF(t[3], 8)]   ) ^ rk[13];
-	o[15] = (byte)(S2[ARIA_BRF(t[3], 0)]   ) ^ rk[12];
+	o[ 0] = (byte)(X1[ARIA_BRF(t[0],3)]   ) ^ rk[ 3];
+	o[ 1] = (byte)(X2[ARIA_BRF(t[0],2)]>>8) ^ rk[ 2];
+	o[ 2] = (byte)(S1[ARIA_BRF(t[0],1)]   ) ^ rk[ 1];
+	o[ 3] = (byte)(S2[ARIA_BRF(t[0],0)]   ) ^ rk[ 0];
+	o[ 4] = (byte)(X1[ARIA_BRF(t[1],3)]   ) ^ rk[ 7];
+	o[ 5] = (byte)(X2[ARIA_BRF(t[1],2)]>>8) ^ rk[ 6];
+	o[ 6] = (byte)(S1[ARIA_BRF(t[1],1)]   ) ^ rk[ 5];
+	o[ 7] = (byte)(S2[ARIA_BRF(t[1],0)]   ) ^ rk[ 4];
+	o[ 8] = (byte)(X1[ARIA_BRF(t[2],3)]   ) ^ rk[11];
+	o[ 9] = (byte)(X2[ARIA_BRF(t[2],2)]>>8) ^ rk[10];
+	o[10] = (byte)(S1[ARIA_BRF(t[2],1)]   ) ^ rk[ 9];
+	o[11] = (byte)(S2[ARIA_BRF(t[2],0)]   ) ^ rk[ 8];
+	o[12] = (byte)(X1[ARIA_BRF(t[3],3)]   ) ^ rk[15];
+	o[13] = (byte)(X2[ARIA_BRF(t[3],2)]>>8) ^ rk[14];
+	o[14] = (byte)(S1[ARIA_BRF(t[3],1)]   ) ^ rk[13];
+	o[15] = (byte)(S2[ARIA_BRF(t[3],0)]   ) ^ rk[12];
 #else
-	o[ 0] = (byte)(X1[ARIA_BRF(t[0],24)]   );
-	o[ 1] = (byte)(X2[ARIA_BRF(t[0],16)]>>8);
-	o[ 2] = (byte)(S1[ARIA_BRF(t[0], 8)]   );
-	o[ 3] = (byte)(S2[ARIA_BRF(t[0], 0)]   );
-	o[ 4] = (byte)(X1[ARIA_BRF(t[1],24)]   );
-	o[ 5] = (byte)(X2[ARIA_BRF(t[1],16)]>>8);
-	o[ 6] = (byte)(S1[ARIA_BRF(t[1], 8)]   );
-	o[ 7] = (byte)(S2[ARIA_BRF(t[1], 0)]   );
-	o[ 8] = (byte)(X1[ARIA_BRF(t[2],24)]   );
-	o[ 9] = (byte)(X2[ARIA_BRF(t[2],16)]>>8);
-	o[10] = (byte)(S1[ARIA_BRF(t[2], 8)]   );
-	o[11] = (byte)(S2[ARIA_BRF(t[2], 0)]   );
-	o[12] = (byte)(X1[ARIA_BRF(t[3],24)]   );
-	o[13] = (byte)(X2[ARIA_BRF(t[3],16)]>>8);
-	o[14] = (byte)(S1[ARIA_BRF(t[3], 8)]   );
-	o[15] = (byte)(S2[ARIA_BRF(t[3], 0)]   );
+	o[ 0] = (byte)(X1[ARIA_BRF(t[0],3)]   );
+	o[ 1] = (byte)(X2[ARIA_BRF(t[0],2)]>>8);
+	o[ 2] = (byte)(S1[ARIA_BRF(t[0],1)]   );
+	o[ 3] = (byte)(S2[ARIA_BRF(t[0],0)]   );
+	o[ 4] = (byte)(X1[ARIA_BRF(t[1],3)]   );
+	o[ 5] = (byte)(X2[ARIA_BRF(t[1],2)]>>8);
+	o[ 6] = (byte)(S1[ARIA_BRF(t[1],1)]   );
+	o[ 7] = (byte)(S2[ARIA_BRF(t[1],0)]   );
+	o[ 8] = (byte)(X1[ARIA_BRF(t[2],3)]   );
+	o[ 9] = (byte)(X2[ARIA_BRF(t[2],2)]>>8);
+	o[10] = (byte)(S1[ARIA_BRF(t[2],1)]   );
+	o[11] = (byte)(S2[ARIA_BRF(t[2],0)]   );
+	o[12] = (byte)(X1[ARIA_BRF(t[3],3)]   );
+	o[13] = (byte)(X2[ARIA_BRF(t[3],2)]>>8);
+	o[14] = (byte)(S1[ARIA_BRF(t[3],1)]   );
+	o[15] = (byte)(S2[ARIA_BRF(t[3],0)]   );
 	ARIA_WO(o,0)^=ARIA_WO(rk,0); ARIA_WO(o,1)^=ARIA_WO(rk,1);
 	ARIA_WO(o,2)^=ARIA_WO(rk,2); ARIA_WO(o,3)^=ARIA_WO(rk,3);
 #endif
