@@ -14,6 +14,8 @@
 #include "misc.h"
 #include "cpu.h"
 
+#include <stdio.h>
+
 ANONYMOUS_NAMESPACE_BEGIN
 
 CRYPTOPP_ALIGN_DATA(16)
@@ -162,9 +164,9 @@ const CryptoPP::word32 X2[256]={
 
 CRYPTOPP_ALIGN_DATA(16)
 const CryptoPP::word32 KRK[3][4] = {
-  {0x517cc1b7, 0x27220a94, 0xfe13abe8, 0xfa9a6ee0},
-  {0x6db14acc, 0x9e21c820, 0xff28b1d5, 0xef5de2b0},
-  {0xdb92371d, 0x2126e970, 0x03249775, 0x04e8c90e}
+	{0x517cc1b7, 0x27220a94, 0xfe13abe8, 0xfa9a6ee0},
+	{0x6db14acc, 0x9e21c820, 0xff28b1d5, 0xef5de2b0},
+	{0xdb92371d, 0x2126e970, 0x03249775, 0x04e8c90e}
 };
 
 ANONYMOUS_NAMESPACE_END
@@ -248,14 +250,34 @@ inline word32 LoadWord(const byte x[16], const unsigned int i) {
 template <unsigned int N>
 inline void ARIA_GSRK(const word32 X[4], const word32 Y[4], byte RK[16])
 {
-	// MSVC is not generating a "rotate immediate". Unroll and constify to help it along.
-    static const unsigned int Q = 4-(N/32);
-    static const unsigned int R = N % 32;
-    reinterpret_cast<word32*>(RK)[0] = (X[0]) ^ ((Y[(Q  )%4])>>R) ^ ((Y[(Q+3)%4])<<(32-R));
-    reinterpret_cast<word32*>(RK)[1] = (X[1]) ^ ((Y[(Q+1)%4])>>R) ^ ((Y[(Q  )%4])<<(32-R));
-    reinterpret_cast<word32*>(RK)[2] = (X[2]) ^ ((Y[(Q+2)%4])>>R) ^ ((Y[(Q+1)%4])<<(32-R));
-    reinterpret_cast<word32*>(RK)[3] = (X[3]) ^ ((Y[(Q+3)%4])>>R) ^ ((Y[(Q+2)%4])<<(32-R));
-  }
+	// MSVC is not generating a "rotate immediate". Constify to help it along.
+	static const unsigned int Q = 4-(N/32);
+	static const unsigned int R = N % 32;
+	reinterpret_cast<word32*>(RK)[0] = (X[0]) ^ ((Y[(Q  )%4])>>R) ^ ((Y[(Q+3)%4])<<(32-R));
+	reinterpret_cast<word32*>(RK)[1] = (X[1]) ^ ((Y[(Q+1)%4])>>R) ^ ((Y[(Q  )%4])<<(32-R));
+	reinterpret_cast<word32*>(RK)[2] = (X[2]) ^ ((Y[(Q+2)%4])>>R) ^ ((Y[(Q+1)%4])<<(32-R));
+	reinterpret_cast<word32*>(RK)[3] = (X[3]) ^ ((Y[(Q+3)%4])>>R) ^ ((Y[(Q+2)%4])<<(32-R));
+}
+
+#if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
+template <unsigned int N>
+inline void ARIA_GSRK_NEON(const word32 X[4], const word32 Y[4], byte RK[16])
+{
+	static const unsigned int Q1 = (4-(N/32)) % 4;
+	static const unsigned int Q2 = (3-(N/32)) % 4;
+	static const unsigned int R = N % 32;
+
+	const uint32x4_t a = vld1q_u32((const uint32_t*)X);
+	const uint32x4_t t = vld1q_u32((const uint32_t*)Y);
+	const uint32x4_t b = vextq_u32(t, t, Q1);
+	const uint32x4_t c = vextq_u32(t, t, Q2);
+
+	vst1q_u32(reinterpret_cast<word32*>(RK),
+		veorq_u32(a, veorq_u32(
+			vshrq_n_u32(b, R),
+			vshlq_n_u32(c, 32-R))));
+}
+#endif
 
 void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const NameValuePairs &params)
 {
@@ -332,29 +354,62 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 	ARIA_FO;
 	w3[0]=t[0]^w1[0]; w3[1]=t[1]^w1[1]; w3[2]=t[2]^w1[2]; w3[3]=t[3]^w1[3];
 
-	ARIA_GSRK<19>(w0, w1, rk +   0);
-	ARIA_GSRK<19>(w1, w2, rk +  16);
-	ARIA_GSRK<19>(w2, w3, rk +  32);
-	ARIA_GSRK<19>(w3, w0, rk +  48);
-	ARIA_GSRK<31>(w0, w1, rk +  64);
-	ARIA_GSRK<31>(w1, w2, rk +  80);
-	ARIA_GSRK<31>(w2, w3, rk +  96);
-	ARIA_GSRK<31>(w3, w0, rk + 112);
-	ARIA_GSRK<67>(w0, w1, rk + 128);
-	ARIA_GSRK<67>(w1, w2, rk + 144);
-	ARIA_GSRK<67>(w2, w3, rk + 160);
-	ARIA_GSRK<67>(w3, w0, rk + 176);
-	ARIA_GSRK<97>(w0, w1, rk + 192);
-
-	if (keyBits > 128)
+#if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
+	if (HasNEON())
 	{
-		ARIA_GSRK<97>(w1, w2, rk + 208);
-		ARIA_GSRK<97>(w2, w3, rk + 224);
+		ARIA_GSRK_NEON<19>(w0, w1, rk +   0);
+		ARIA_GSRK_NEON<19>(w1, w2, rk +  16);
+		ARIA_GSRK_NEON<19>(w2, w3, rk +  32);
+		ARIA_GSRK_NEON<19>(w3, w0, rk +  48);
+		ARIA_GSRK_NEON<31>(w0, w1, rk +  64);
+		ARIA_GSRK_NEON<31>(w1, w2, rk +  80);
+		ARIA_GSRK_NEON<31>(w2, w3, rk +  96);
+		ARIA_GSRK_NEON<31>(w3, w0, rk + 112);
+		ARIA_GSRK_NEON<67>(w0, w1, rk + 128);
+		ARIA_GSRK_NEON<67>(w1, w2, rk + 144);
+		ARIA_GSRK_NEON<67>(w2, w3, rk + 160);
+		ARIA_GSRK_NEON<67>(w3, w0, rk + 176);
+		ARIA_GSRK_NEON<97>(w0, w1, rk + 192);
 
-		if (keyBits > 192)
+		if (keyBits > 128)
 		{
-			ARIA_GSRK< 97>(w3, w0, rk + 240);
-			ARIA_GSRK<109>(w0, w1, rk + 256);
+			ARIA_GSRK_NEON<97>(w1, w2, rk + 208);
+			ARIA_GSRK_NEON<97>(w2, w3, rk + 224);
+
+			if (keyBits > 192)
+			{
+				ARIA_GSRK_NEON< 97>(w3, w0, rk + 240);
+				ARIA_GSRK_NEON<109>(w0, w1, rk + 256);
+			}
+		}
+	}
+	else
+#endif
+	{
+		ARIA_GSRK<19>(w0, w1, rk +   0);
+		ARIA_GSRK<19>(w1, w2, rk +  16);
+		ARIA_GSRK<19>(w2, w3, rk +  32);
+		ARIA_GSRK<19>(w3, w0, rk +  48);
+		ARIA_GSRK<31>(w0, w1, rk +  64);
+		ARIA_GSRK<31>(w1, w2, rk +  80);
+		ARIA_GSRK<31>(w2, w3, rk +  96);
+		ARIA_GSRK<31>(w3, w0, rk + 112);
+		ARIA_GSRK<67>(w0, w1, rk + 128);
+		ARIA_GSRK<67>(w1, w2, rk + 144);
+		ARIA_GSRK<67>(w2, w3, rk + 160);
+		ARIA_GSRK<67>(w3, w0, rk + 176);
+		ARIA_GSRK<97>(w0, w1, rk + 192);
+
+		if (keyBits > 128)
+		{
+			ARIA_GSRK<97>(w1, w2, rk + 208);
+			ARIA_GSRK<97>(w2, w3, rk + 224);
+
+			if (keyBits > 192)
+			{
+				ARIA_GSRK< 97>(w3, w0, rk + 240);
+				ARIA_GSRK<109>(w0, w1, rk + 256);
+			}
 		}
 	}
 
