@@ -171,9 +171,7 @@ ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#define ARIA_WO(X,Y) (((word32 *)(X))[Y])
-
-inline byte ARIA_BRF(const word32 x, int y) {
+inline byte ARIA_BRF(const word32 x, const int y) {
 	return GETBYTE(x, y);
 }
 
@@ -181,13 +179,28 @@ inline word32 ReverseWord(const word32 w) {
 	return ByteReverse(w);
 }
 
-inline word32 LoadWord(const word32 x) {
-	return ConditionalByteReverse(BIG_ENDIAN_ORDER, x);
+// Retireve the i-th word, optionally in Big Endian
+template <bool big_endian>
+inline word32 LoadWord(const word32 x[4], const unsigned int i) {
+	if (big_endian)
+		return ConditionalByteReverse(BIG_ENDIAN_ORDER, x[i]);
+	else
+		return x[i];
+}
+
+// Reinterpret x as a word32[], and retireve the i-th word, optionally in Big Endian
+template <bool big_endian>
+inline word32 LoadWord(const byte x[16], const unsigned int i) {
+	if (big_endian)
+		return ConditionalByteReverse(BIG_ENDIAN_ORDER, reinterpret_cast<const word32*>(x)[i]);
+	else
+		return reinterpret_cast<const word32*>(x)[i];
 }
 
 // Key XOR Layer
 #define ARIA_KXL {  \
-    t[0]^=ARIA_WO(rk,0); t[1]^=ARIA_WO(rk,1); t[2]^=ARIA_WO(rk,2); t[3]^=ARIA_WO(rk,3);  \
+    t[0]^=LoadWord<false>(rk,0); t[1]^=LoadWord<false>(rk,1);  \
+	t[2]^=LoadWord<false>(rk,2); t[3]^=LoadWord<false>(rk,3);  \
   }
 
 // S-Box Layer 1 + M
@@ -217,19 +230,6 @@ inline word32 LoadWord(const word32 x) {
     (T3) = ReverseWord((T3));                                  \
   }
 
-#define ARIA_FO {SBL1_M(t[0],t[1],t[2],t[3]) ARIA_MM(t[0],t[1],t[2],t[3]) ARIA_P(t[0],t[1],t[2],t[3]) ARIA_MM(t[0],t[1],t[2],t[3])}
-#define ARIA_FE {SBL2_M(t[0],t[1],t[2],t[3]) ARIA_MM(t[0],t[1],t[2],t[3]) ARIA_P(t[2],t[3],t[0],t[1]) ARIA_MM(t[0],t[1],t[2],t[3])}
-
-// n-bit right shift of Y XORed to X
-#define ARIA_GSRK(RK, X, Y, n) { \
-    q = 4-((n)/32);          \
-    r = (n) % 32;            \
-    ARIA_WO((RK),0) = ((X)[0]) ^ (((Y)[(q  )%4])>>r) ^ (((Y)[(q+3)%4])<<(32-r));  \
-    ARIA_WO((RK),1) = ((X)[1]) ^ (((Y)[(q+1)%4])>>r) ^ (((Y)[(q  )%4])<<(32-r));  \
-    ARIA_WO((RK),2) = ((X)[2]) ^ (((Y)[(q+2)%4])>>r) ^ (((Y)[(q+1)%4])<<(32-r));  \
-    ARIA_WO((RK),3) = ((X)[3]) ^ (((Y)[(q+3)%4])>>r) ^ (((Y)[(q+2)%4])<<(32-r));  \
-  }
-
 #if defined(_MSC_VER)
 #define ARIA_M1(X,Y) {           \
     w=rotrFixed((X), 8);         \
@@ -240,6 +240,22 @@ inline word32 LoadWord(const word32 x) {
     Y=(X)<<8 ^ (X)>>8 ^ (X)<<16 ^ (X)>>16 ^ (X)<<24 ^ (X)>>24;	\
   }
 #endif
+
+#define ARIA_FO {SBL1_M(t[0],t[1],t[2],t[3]) ARIA_MM(t[0],t[1],t[2],t[3]) ARIA_P(t[0],t[1],t[2],t[3]) ARIA_MM(t[0],t[1],t[2],t[3])}
+#define ARIA_FE {SBL2_M(t[0],t[1],t[2],t[3]) ARIA_MM(t[0],t[1],t[2],t[3]) ARIA_P(t[2],t[3],t[0],t[1]) ARIA_MM(t[0],t[1],t[2],t[3])}
+
+// n-bit right shift of Y XORed to X
+template <unsigned int N>
+inline void ARIA_GSRK(const word32 X[4], const word32 Y[4], byte RK[16])
+{
+	// MSVC is not generating a "rotate immediate". Unroll and constify to help it along.
+    static const unsigned int Q = 4-(N/32);
+    static const unsigned int R = N % 32;
+    reinterpret_cast<word32*>(RK)[0] = (X[0]) ^ ((Y[(Q  )%4])>>R) ^ ((Y[(Q+3)%4])<<(32-R));
+    reinterpret_cast<word32*>(RK)[1] = (X[1]) ^ ((Y[(Q+1)%4])>>R) ^ ((Y[(Q  )%4])<<(32-R));
+    reinterpret_cast<word32*>(RK)[2] = (X[2]) ^ ((Y[(Q+2)%4])>>R) ^ ((Y[(Q+1)%4])<<(32-R));
+    reinterpret_cast<word32*>(RK)[3] = (X[3]) ^ ((Y[(Q+3)%4])>>R) ^ ((Y[(Q+2)%4])<<(32-R));
+  }
 
 void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const NameValuePairs &params)
 {
@@ -275,9 +291,8 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 	// w0 has room for 32 bytes. w1-w3 each has room for 16 bytes. t is a 16 byte temp area.
 	word32 *w0 = m_w.data(), *w1 = m_w.data()+8, *w2 = m_w.data()+12, *w3 = m_w.data()+16, *t = m_w.data()+20;
 
-	w0[0] = LoadWord(ARIA_WO(mk,0)); w0[1] = LoadWord(ARIA_WO(mk,1));
-	w0[0] = LoadWord(ARIA_WO(mk,0)); w0[1] = LoadWord(ARIA_WO(mk,1));
-	w0[2] = LoadWord(ARIA_WO(mk,2)); w0[3] = LoadWord(ARIA_WO(mk,3));
+	w0[0] = LoadWord<true>(mk,0); w0[1] = LoadWord<true>(mk,1);
+	w0[2] = LoadWord<true>(mk,2); w0[3] = LoadWord<true>(mk,3);
 
 	t[0]=w0[0]^KRK[q][0]; t[1]=w0[1]^KRK[q][1];
 	t[2]=w0[2]^KRK[q][2]; t[3]=w0[3]^KRK[q][3];
@@ -285,13 +300,13 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 
 	if (keyBits > 128)
 	{
-		w1[0] = LoadWord(ARIA_WO(mk,4));
-		w1[1] = LoadWord(ARIA_WO(mk,5));
+		w1[0] = LoadWord<true>(mk,4);
+		w1[1] = LoadWord<true>(mk,5);
 
 		if (keyBits > 192)
 		{
-			w1[2] = LoadWord(ARIA_WO(mk,6));
-			w1[3] = LoadWord(ARIA_WO(mk,7));
+			w1[2] = LoadWord<true>(mk,6);
+			w1[3] = LoadWord<true>(mk,7);
 		}
 		else
 		{
@@ -317,29 +332,29 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 	ARIA_FO;
 	w3[0]=t[0]^w1[0]; w3[1]=t[1]^w1[1]; w3[2]=t[2]^w1[2]; w3[3]=t[3]^w1[3];
 
-	ARIA_GSRK(rk +   0, w0, w1, 19);
-	ARIA_GSRK(rk +  16, w1, w2, 19);
-	ARIA_GSRK(rk +  32, w2, w3, 19);
-	ARIA_GSRK(rk +  48, w3, w0, 19);
-	ARIA_GSRK(rk +  64, w0, w1, 31);
-	ARIA_GSRK(rk +  80, w1, w2, 31);
-	ARIA_GSRK(rk +  96, w2, w3, 31);
-	ARIA_GSRK(rk + 112, w3, w0, 31);
-	ARIA_GSRK(rk + 128, w0, w1, 67);
-	ARIA_GSRK(rk + 144, w1, w2, 67);
-	ARIA_GSRK(rk + 160, w2, w3, 67);
-	ARIA_GSRK(rk + 176, w3, w0, 67);
-	ARIA_GSRK(rk + 192, w0, w1, 97);
+	ARIA_GSRK<19>(w0, w1, rk +   0);
+	ARIA_GSRK<19>(w1, w2, rk +  16);
+	ARIA_GSRK<19>(w2, w3, rk +  32);
+	ARIA_GSRK<19>(w3, w0, rk +  48);
+	ARIA_GSRK<31>(w0, w1, rk +  64);
+	ARIA_GSRK<31>(w1, w2, rk +  80);
+	ARIA_GSRK<31>(w2, w3, rk +  96);
+	ARIA_GSRK<31>(w3, w0, rk + 112);
+	ARIA_GSRK<67>(w0, w1, rk + 128);
+	ARIA_GSRK<67>(w1, w2, rk + 144);
+	ARIA_GSRK<67>(w2, w3, rk + 160);
+	ARIA_GSRK<67>(w3, w0, rk + 176);
+	ARIA_GSRK<97>(w0, w1, rk + 192);
 
 	if (keyBits > 128)
 	{
-		ARIA_GSRK(rk + 208, w1, w2, 97);
-		ARIA_GSRK(rk + 224, w2, w3, 97);
+		ARIA_GSRK<97>(w1, w2, rk + 208);
+		ARIA_GSRK<97>(w2, w3, rk + 224);
 
 		if (keyBits > 192)
 		{
-			ARIA_GSRK(rk + 240, w3, w0,  97);
-			ARIA_GSRK(rk + 256, w0, w1, 109);
+			ARIA_GSRK< 97>(w3, w0, rk + 240);
+			ARIA_GSRK<109>(w0, w1, rk + 256);
 		}
 	}
 
@@ -383,8 +398,8 @@ void ARIA::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
 	const byte *rk = reinterpret_cast<const byte*>(m_rk.data());
 	word32 *t = const_cast<word32*>(m_w.data()+20);
 
-	t[0] = LoadWord(ARIA_WO(i,0)); t[1] = LoadWord(ARIA_WO(i,1));
-	t[2] = LoadWord(ARIA_WO(i,2)); t[3] = LoadWord(ARIA_WO(i,3));
+	t[0] = LoadWord<true>(i,0); t[1] = LoadWord<true>(i,1);
+	t[2] = LoadWord<true>(i,2); t[3] = LoadWord<true>(i,3);
 
 	if (m_rounds > 12) {
 		ARIA_KXL rk+= 16; ARIA_FO
@@ -421,6 +436,7 @@ void ARIA::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
 	o[14] = (byte)(S1[ARIA_BRF(t[3],1)]   ) ^ rk[13];
 	o[15] = (byte)(S2[ARIA_BRF(t[3],0)]   ) ^ rk[12];
 #else
+	#define ARIA_WORD(X,Y) (((word32 *)(X))[Y])
 	o[ 0] = (byte)(X1[ARIA_BRF(t[0],3)]   );
 	o[ 1] = (byte)(X2[ARIA_BRF(t[0],2)]>>8);
 	o[ 2] = (byte)(S1[ARIA_BRF(t[0],1)]   );
@@ -437,12 +453,12 @@ void ARIA::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
 	o[13] = (byte)(X2[ARIA_BRF(t[3],2)]>>8);
 	o[14] = (byte)(S1[ARIA_BRF(t[3],1)]   );
 	o[15] = (byte)(S2[ARIA_BRF(t[3],0)]   );
-	ARIA_WO(o,0)^=ARIA_WO(rk,0); ARIA_WO(o,1)^=ARIA_WO(rk,1);
-	ARIA_WO(o,2)^=ARIA_WO(rk,2); ARIA_WO(o,3)^=ARIA_WO(rk,3);
+	ARIA_WORD(o,0)^=LoadWord<true>(rk,0); ARIA_WORD(o,1)^=LoadWord<true>(rk,1);
+	ARIA_WORD(o,2)^=LoadWord<true>(rk,2); ARIA_WORD(o,3)^=LoadWord<true>(rk,3);
 #endif
 
 	if (x)
-		for (size_t n=0; n<16; ++n)
+		for (unsigned int n=0; n<16; ++n)
 			o[n] ^= x[n];
 }
 
