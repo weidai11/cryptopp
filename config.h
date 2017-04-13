@@ -402,7 +402,7 @@ NAMESPACE_END
 		#define CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE 0
 	#endif
 
-	#if !defined(CRYPTOPP_DISABLE_SSE3) && (_MSC_VER >= 1500 || (defined(__SSE3__) && defined(__SSSE3__)))
+	#if !defined(CRYPTOPP_DISABLE_SSSE3) && (_MSC_VER >= 1500 || (defined(__SSSE3__) && defined(__SSSE3__)))
 		#define CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE 1
 	#else
 		#define CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE 0
@@ -421,6 +421,12 @@ NAMESPACE_END
 	#define CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE 1
 #else
 	#define CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE 0
+#endif
+
+#if !defined(CRYPTOPP_DISABLE_SSSE3) && (_MSC_VER >= 1500 || defined(__GNUC__) || (defined(__SSSE3__) && defined(__SSSE3__)))
+	#define CRYPTOPP_BOOL_SSSE3_INTRINSICS_AVAILABLE 1
+#else
+	#define CRYPTOPP_BOOL_SSSE3_INTRINSICS_AVAILABLE 0
 #endif
 
 // Intrinsics availible in GCC 4.3 (http://gcc.gnu.org/gcc-4.3/changes.html) and
