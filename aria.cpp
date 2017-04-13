@@ -640,6 +640,20 @@ void ARIA::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
 	const byte *rk = reinterpret_cast<const byte*>(m_rk.data());
 	word32 *t = const_cast<word32*>(m_w.data()+20);
 
+	// Timing attack countermeasure. See comments in Rijndael for more details.
+	// We used Yun's 32-bit implementation, so we don't want to walk elements.
+	// In this case, we still want the byte oriented pointer to induce the flush.
+	const int cacheLineSize = GetCacheLineSize();
+	const byte *p = reinterpret_cast<const byte*>(S1);
+	unsigned int i;
+	volatile word32 _u = 0;
+	word32 u = _u;
+
+	for (i=0; i<256; i+=cacheLineSize)
+		u &= *(const word32 *)(void*)(p+i);
+	u &= *(const word32 *)(void*)(p+252);
+	t[0] |= u; t[1] |= u;
+
 #if CRYPTOPP_ENABLE_ARIA_SSSE3_INTRINSICS
 	if (HasSSSE3())
 	{
