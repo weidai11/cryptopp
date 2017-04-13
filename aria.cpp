@@ -14,6 +14,8 @@
 #include "misc.h"
 #include "cpu.h"
 
+#include <iostream>
+
 // Enable SSE intrinsics for Visual Studio. It reduces key schedule setup by 150
 // to 200 cycles. GCC does fine on its own, and it slows things down a small bit.
 #if CRYPTOPP_BOOL_SSSE3_INTRINSICS_AVAILABLE && _MSC_VER
@@ -206,7 +208,7 @@ inline word32 LoadWord(const byte x[16], const unsigned int i) {
 // Key XOR Layer
 #define ARIA_KXL {  \
     t[0]^=LoadWord<false>(rk,0); t[1]^=LoadWord<false>(rk,1);  \
-	t[2]^=LoadWord<false>(rk,2); t[3]^=LoadWord<false>(rk,3);  \
+    t[2]^=LoadWord<false>(rk,2); t[3]^=LoadWord<false>(rk,3);  \
   }
 
 // S-Box Layer 1 + M
@@ -290,43 +292,40 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 
 	const byte *mk = key;
 	byte *rk = m_rk.data();
-	int keyBits, Q, q, R, r;
+	int Q, q, R, r;
 
 	switch (keylen)
 	{
 	case 16:
 		R = r = m_rounds = 12;
-		keyBits = 128;
 		Q = q = 0;
 		break;
 	case 32:
 		R = r = m_rounds = 16;
-		keyBits = 256;
 		Q = q = 2;
 		break;
 	case 24:
 		R = r = m_rounds = 14;
-		keyBits = 192;
 		Q = q = 1;
 		break;
 	default:
-		Q = q = R = r = keyBits = m_rounds = 0;
+		Q = q = R = r = m_rounds = 0;
 		CRYPTOPP_ASSERT(0);
 	}
 
-	// w0 has room for 32 bytes. w1-w3 each has room for 16 bytes. t is a 16 byte temp area.
+	// w0 has room for 32 bytes. w1-w3 each has room for 16 bytes. t and u are 16 byte temp areas.
 	word32 *w0 = m_w.data(), *w1 = m_w.data()+8, *w2 = m_w.data()+12, *w3 = m_w.data()+16, *t = m_w.data()+20;
 
 #if CRYPTOPP_ENABLE_ARIA_INTRINSICS
 	if (HasSSSE3())
 	{
-		// 7 SSE instructions
+		// 7 SSE instructions. 'mk' may be unaligned.
 		const __m128i m = _mm_set_epi8(12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3);
-		const __m128i w = _mm_shuffle_epi8(_mm_load_si128((const __m128i*)mk), m);
+		const __m128i w = _mm_shuffle_epi8(_mm_loadu_si128((const __m128i*)(mk)), m);
 		_mm_store_si128((__m128i*)w0, w);
 
 		_mm_store_si128((__m128i*)t, _mm_xor_si128(w,
-				_mm_load_si128((const __m128i*)KRK[q])));
+				_mm_load_si128((const __m128i*)(KRK[q]))));
 	}
 	else
 #endif  // CRYPTOPP_ENABLE_ARIA_INTRINSICS
@@ -342,15 +341,15 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 	// 24 integer instructions
 	ARIA_FO;
 
-	if (keyBits == 256)
+	if (keylen == 32)
 	{
 #if CRYPTOPP_ENABLE_ARIA_INTRINSICS
 		if (HasSSSE3())
 		{
-			// 3 SSE instructions
+			// 3 SSE instructions. 'mk' may be unaligned.
 			const __m128i m = _mm_set_epi8(12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3);
 			_mm_store_si128(reinterpret_cast<__m128i*>(w1),
-				_mm_shuffle_epi8(_mm_load_si128((const __m128i*)(mk+16)), m));
+				_mm_shuffle_epi8(_mm_loadu_si128((const __m128i*)(mk+16)), m));
 		}
 #endif  // CRYPTOPP_ENABLE_ARIA_INTRINSICS
 		{
@@ -361,7 +360,7 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 			w1[3] = LoadWord<true>(mk,7);
 		}
 	}
-	else if (keyBits == 192)
+	else if (keylen == 24)
 	{
 		w1[0] = LoadWord<true>(mk,4);
 		w1[1] = LoadWord<true>(mk,5);
@@ -404,7 +403,8 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 	{
 		// 23 integer instructions
 		w1[0]^=t[0]; w1[1]^=t[1]; w1[2]^=t[2]; w1[3]^=t[3];
-		t[0]=w1[0];  t[1]=w1[1];  t[2]=w1[2];  t[3]=w1[3];
+		// t[0]=w1[0];  t[1]=w1[1];  t[2]=w1[2];  t[3]=w1[3];
+		memcpy(t, w1, 16);
 
 		q = (q==2) ? 0 : (q+1);
 		t[0]^=KRK[q][0]; t[1]^=KRK[q][1]; t[2]^=KRK[q][2]; t[3]^=KRK[q][3];
@@ -435,7 +435,8 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 	{
 		// 23 integer instructions
 		t[0]^=w0[0]; t[1]^=w0[1]; t[2]^=w0[2]; t[3]^=w0[3];
-		w2[0]=t[0]; w2[1]=t[1]; w2[2]=t[2]; w2[3]=t[3];
+		// w2[0]=t[0]; w2[1]=t[1]; w2[2]=t[2]; w2[3]=t[3];
+		memcpy(w2, t, 16);
 
 		q = (q==2) ? 0 : (q+1);
 		t[0]^=KRK[q][0]; t[1]^=KRK[q][1]; t[2]^=KRK[q][2]; t[3]^=KRK[q][3];
@@ -506,12 +507,12 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 		ARIA_GSRK<67>(w3, w0, rk + 176);
 		ARIA_GSRK<97>(w0, w1, rk + 192);
 
-		if (keyBits > 128)
+		if (keylen > 16)
 		{
 			ARIA_GSRK<97>(w1, w2, rk + 208);
 			ARIA_GSRK<97>(w2, w3, rk + 224);
 
-			if (keyBits > 192)
+			if (keylen > 24)
 			{
 				ARIA_GSRK< 97>(w3, w0, rk + 240);
 				ARIA_GSRK<109>(w0, w1, rk + 256);
@@ -522,33 +523,40 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 	// Decryption operation
 	if (!IsForwardTransformation())
 	{
-		word32 *a, *z, w;
-		word32 s0, s1, s2, s3;
+		word32 *a, *z, *s, w;
 
 		mk = key;
 		rk = m_rk.data();
 		r = R; q = Q;
 
-		// 32 integer intructions
-		a=reinterpret_cast<word32*>(rk);  z=a+r*4;
-		t[0]=a[0]; t[1]=a[1]; t[2]=a[2]; t[3]=a[3];
-		a[0]=z[0]; a[1]=z[1]; a[2]=z[2]; a[3]=z[3];
-		z[0]=t[0]; z[1]=t[1]; z[2]=t[2]; z[3]=t[3];
+		// 32 integer intructions. Memcpy is faster
+		a=reinterpret_cast<word32*>(rk);  s=m_w.data()+24; z=a+r*4;
+		// t[0]=a[0]; t[1]=a[1]; t[2]=a[2]; t[3]=a[3];
+		// a[0]=z[0]; a[1]=z[1]; a[2]=z[2]; a[3]=z[3];
+		// z[0]=t[0]; z[1]=t[1]; z[2]=t[2]; z[3]=t[3];
+		memcpy(t, a, 16);
+		memcpy(a, z, 16);
+		memcpy(z, t, 16);
 		a+=4; z-=4;
 
 		for (; a<z; a+=4, z-=4)
 		{
 			ARIA_M1(a[0],t[0]); ARIA_M1(a[1],t[1]); ARIA_M1(a[2],t[2]); ARIA_M1(a[3],t[3]);
 			ARIA_MM(t[0],t[1],t[2],t[3]); ARIA_P(t[0],t[1],t[2],t[3]); ARIA_MM(t[0],t[1],t[2],t[3]);
-			s0=t[0]; s1=t[1]; s2=t[2]; s3=t[3];
+			// s[0]=t[0]; s[1]=t[1]; s[2]=t[2]; s[3]=t[3];
+			memcpy(s, t, 16);
+
 			ARIA_M1(z[0],t[0]); ARIA_M1(z[1],t[1]); ARIA_M1(z[2],t[2]); ARIA_M1(z[3],t[3]);
 			ARIA_MM(t[0],t[1],t[2],t[3]); ARIA_P(t[0],t[1],t[2],t[3]); ARIA_MM(t[0],t[1],t[2],t[3]);
-			a[0]=t[0]; a[1]=t[1]; a[2]=t[2]; a[3]=t[3];
-			z[0]=s0; z[1]=s1; z[2]=s2; z[3]=s3;
+			// a[0]=t[0]; a[1]=t[1]; a[2]=t[2]; a[3]=t[3];
+			// z[0]=s[0]; z[1]=s[1]; z[2]=s[2]; z[3]=s[3];
+			memcpy(a, t, 16);
+			memcpy(z, s, 16);
 		}
 		ARIA_M1(a[0],t[0]); ARIA_M1(a[1],t[1]); ARIA_M1(a[2],t[2]); ARIA_M1(a[3],t[3]);
 		ARIA_MM(t[0],t[1],t[2],t[3]); ARIA_P(t[0],t[1],t[2],t[3]); ARIA_MM(t[0],t[1],t[2],t[3]);
-		z[0]=t[0]; z[1]=t[1]; z[2]=t[2]; z[3]=t[3];
+		// z[0]=t[0]; z[1]=t[1]; z[2]=t[2]; z[3]=t[3];
+		memcpy(z, t, 16);
 	}
 }
 
@@ -557,12 +565,21 @@ void ARIA::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
 	const byte *rk = reinterpret_cast<const byte*>(m_rk.data());
 	word32 *t = const_cast<word32*>(m_w.data()+20);
 
-	// Visual Studio is generating bad code within the SSSE3 code block. It is
-	//   providing a NULL pointer or a pointer set to a constant like 0x1000.
-	//   It looks like some leftover garbage in the XMM register rather than
-	//   the pointer loaded into the integer register for the non-SSE code path.
-	t[0] = LoadWord<true>(inBlock,0); t[1] = LoadWord<true>(inBlock,1);
-	t[2] = LoadWord<true>(inBlock,2); t[3] = LoadWord<true>(inBlock,3);
+#if CRYPTOPP_ENABLE_ARIA_INTRINSICS
+	if (HasSSSE3())
+	{
+		// 3 SSE instructions. 'inBlock' may be unaligned.
+		const __m128i m = _mm_set_epi8(12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3);
+		const __m128i w = _mm_shuffle_epi8(_mm_loadu_si128((const __m128i*)(inBlock)), m);
+		_mm_store_si128((__m128i*)t, w);
+	}
+	else
+#endif  // CRYPTOPP_ENABLE_ARIA_INTRINSICS
+	{
+		// 13 integer instructions
+		t[0] = LoadWord<true>(inBlock,0); t[1] = LoadWord<true>(inBlock,1);
+		t[2] = LoadWord<true>(inBlock,2); t[3] = LoadWord<true>(inBlock,3);
+	}
 
 	if (m_rounds > 12) {
 		ARIA_KXL; rk+= 16; ARIA_FO;
@@ -622,9 +639,24 @@ void ARIA::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
 	ARIA_WORD(outBlock,3)^=LoadWord<true>(rk,3);
 #endif
 
-	if (xorBlock)
-		for (unsigned int n=0; n<16; ++n)
-			outBlock[n] ^= xorBlock[n];
+#if CRYPTOPP_ENABLE_ARIA_INTRINSICS
+	if (xorBlock != NULLPTR && HasSSSE3())
+	{
+		// 3 SSE instructions
+		_mm_storeu_si128((__m128i*)(outBlock),
+			_mm_xor_si128(
+				// 'outBlock' and 'xorBlock' may be unaligned.
+				_mm_loadu_si128((const __m128i*)(outBlock)),
+				_mm_loadu_si128((const __m128i*)(xorBlock))));
+	}
+	else
+#endif  // CRYPTOPP_ENABLE_ARIA_INTRINSICS
+	{
+		// 15 integer instructions
+		if (xorBlock)
+			for (unsigned int n=0; n<16; ++n)
+				outBlock[n] ^= xorBlock[n];
+	}
 }
 
 NAMESPACE_END

@@ -48,9 +48,9 @@ public:
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
 
 	private:
-		// Reference implementation allocates a table for 17 sub-keys
+		// Reference implementation allocates a table of 17 sub-keys.
 		FixedSizeAlignedSecBlock<byte, 16*17> m_rk;  // round keys
-		FixedSizeAlignedSecBlock<word32, 4*6> m_w;   // w0, w1, w2, w3 and t
+		FixedSizeAlignedSecBlock<word32, 4*7> m_w;   // w0, w1, w2, w3, t and u
 		unsigned int m_rounds;
 	};
 
