@@ -529,16 +529,28 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 		rk = m_rk.data();
 		r = R; q = Q;
 
-		// 32 integer intructions. Memcpy is faster
-		a=reinterpret_cast<word32*>(rk);  s=m_w.data()+24; z=a+r*4;
-		// t[0]=a[0]; t[1]=a[1]; t[2]=a[2]; t[3]=a[3];
-		// a[0]=z[0]; a[1]=z[1]; a[2]=z[2]; a[3]=z[3];
-		// z[0]=t[0]; z[1]=t[1]; z[2]=t[2]; z[3]=t[3];
-		memcpy(t, a, 16);
-		memcpy(a, z, 16);
-		memcpy(z, t, 16);
-		a+=4; z-=4;
+		// 32 integer intructions. memcpy is faster for some compilers.
+#if CRYPTOPP_ENABLE_ARIA_INTRINSICS
+		if (HasSSE2())
+		{
+			// 6 SSE instructions
+			a=reinterpret_cast<word32*>(rk);  s=m_w.data()+24; z=a+r*4;
+			_mm_store_si128((__m128i*)t, _mm_load_si128((const __m128i*)a));
+			_mm_store_si128((__m128i*)a, _mm_load_si128((const __m128i*)z));
+			_mm_store_si128((__m128i*)z, _mm_load_si128((const __m128i*)t));
+		}
+		else
+#endif
+		{
+			// 32 integer instructions
+			a=reinterpret_cast<word32*>(rk);  s=m_w.data()+24; z=a+r*4;
+			// t[0]=a[0]; t[1]=a[1]; t[2]=a[2]; t[3]=a[3];
+			// a[0]=z[0]; a[1]=z[1]; a[2]=z[2]; a[3]=z[3];
+			// z[0]=t[0]; z[1]=t[1]; z[2]=t[2]; z[3]=t[3];
+			memcpy(t, a, 16); memcpy(a, z, 16); memcpy(z, t, 16);
+		}
 
+		a+=4; z-=4;
 		for (; a<z; a+=4, z-=4)
 		{
 			ARIA_M1(a[0],t[0]); ARIA_M1(a[1],t[1]); ARIA_M1(a[2],t[2]); ARIA_M1(a[3],t[3]);
@@ -550,8 +562,7 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 			ARIA_MM(t[0],t[1],t[2],t[3]); ARIA_P(t[0],t[1],t[2],t[3]); ARIA_MM(t[0],t[1],t[2],t[3]);
 			// a[0]=t[0]; a[1]=t[1]; a[2]=t[2]; a[3]=t[3];
 			// z[0]=s[0]; z[1]=s[1]; z[2]=s[2]; z[3]=s[3];
-			memcpy(a, t, 16);
-			memcpy(z, s, 16);
+			memcpy(a, t, 16); memcpy(z, s, 16);
 		}
 		ARIA_M1(a[0],t[0]); ARIA_M1(a[1],t[1]); ARIA_M1(a[2],t[2]); ARIA_M1(a[3],t[3]);
 		ARIA_MM(t[0],t[1],t[2],t[3]); ARIA_P(t[0],t[1],t[2],t[3]); ARIA_MM(t[0],t[1],t[2],t[3]);
@@ -570,8 +581,7 @@ void ARIA::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
 	{
 		// 3 SSE instructions. 'inBlock' may be unaligned.
 		const __m128i m = _mm_set_epi8(12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3);
-		const __m128i w = _mm_shuffle_epi8(_mm_loadu_si128((const __m128i*)(inBlock)), m);
-		_mm_store_si128((__m128i*)t, w);
+		_mm_store_si128((__m128i*)t, _mm_shuffle_epi8(_mm_loadu_si128((const __m128i*)(inBlock)), m));
 	}
 	else
 #endif  // CRYPTOPP_ENABLE_ARIA_INTRINSICS
@@ -599,24 +609,67 @@ void ARIA::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
 	ARIA_KXL; rk+= 16; ARIA_FO; ARIA_KXL; rk+= 16;
 
 #ifdef IS_LITTLE_ENDIAN
-	outBlock[ 0] = (byte)(X1[ARIA_BRF(t[0],3)]   ) ^ rk[ 3];
-	outBlock[ 1] = (byte)(X2[ARIA_BRF(t[0],2)]>>8) ^ rk[ 2];
-	outBlock[ 2] = (byte)(S1[ARIA_BRF(t[0],1)]   ) ^ rk[ 1];
-	outBlock[ 3] = (byte)(S2[ARIA_BRF(t[0],0)]   ) ^ rk[ 0];
-	outBlock[ 4] = (byte)(X1[ARIA_BRF(t[1],3)]   ) ^ rk[ 7];
-	outBlock[ 5] = (byte)(X2[ARIA_BRF(t[1],2)]>>8) ^ rk[ 6];
-	outBlock[ 6] = (byte)(S1[ARIA_BRF(t[1],1)]   ) ^ rk[ 5];
-	outBlock[ 7] = (byte)(S2[ARIA_BRF(t[1],0)]   ) ^ rk[ 4];
-	outBlock[ 8] = (byte)(X1[ARIA_BRF(t[2],3)]   ) ^ rk[11];
-	outBlock[ 9] = (byte)(X2[ARIA_BRF(t[2],2)]>>8) ^ rk[10];
-	outBlock[10] = (byte)(S1[ARIA_BRF(t[2],1)]   ) ^ rk[ 9];
-	outBlock[11] = (byte)(S2[ARIA_BRF(t[2],0)]   ) ^ rk[ 8];
-	outBlock[12] = (byte)(X1[ARIA_BRF(t[3],3)]   ) ^ rk[15];
-	outBlock[13] = (byte)(X2[ARIA_BRF(t[3],2)]>>8) ^ rk[14];
-	outBlock[14] = (byte)(S1[ARIA_BRF(t[3],1)]   ) ^ rk[13];
-	outBlock[15] = (byte)(S2[ARIA_BRF(t[3],0)]   ) ^ rk[12];
+# if CRYPTOPP_ENABLE_ARIA_INTRINSICS || defined(__SSSE3__)
+	if (HasSSSE3())  // Include GCC and Clang in this code path
+	{
+		// This code path saves about 30 instructions
+		outBlock[ 0] = (byte)(X1[ARIA_BRF(t[0],3)]   );
+		outBlock[ 1] = (byte)(X2[ARIA_BRF(t[0],2)]>>8);
+		outBlock[ 2] = (byte)(S1[ARIA_BRF(t[0],1)]   );
+		outBlock[ 3] = (byte)(S2[ARIA_BRF(t[0],0)]   );
+		outBlock[ 4] = (byte)(X1[ARIA_BRF(t[1],3)]   );
+		outBlock[ 5] = (byte)(X2[ARIA_BRF(t[1],2)]>>8);
+		outBlock[ 6] = (byte)(S1[ARIA_BRF(t[1],1)]   );
+		outBlock[ 7] = (byte)(S2[ARIA_BRF(t[1],0)]   );
+		outBlock[ 8] = (byte)(X1[ARIA_BRF(t[2],3)]   );
+		outBlock[ 9] = (byte)(X2[ARIA_BRF(t[2],2)]>>8);
+		outBlock[10] = (byte)(S1[ARIA_BRF(t[2],1)]   );
+		outBlock[11] = (byte)(S2[ARIA_BRF(t[2],0)]   );
+		outBlock[12] = (byte)(X1[ARIA_BRF(t[3],3)]   );
+		outBlock[13] = (byte)(X2[ARIA_BRF(t[3],2)]>>8);
+		outBlock[14] = (byte)(S1[ARIA_BRF(t[3],1)]   );
+		outBlock[15] = (byte)(S2[ARIA_BRF(t[3],0)]   );
+
+		// 4 SSE instructions. 'outBlock' may be unaligned.
+		const __m128i m = _mm_set_epi8(12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3);
+		_mm_storeu_si128(reinterpret_cast<__m128i*>(outBlock),
+			_mm_xor_si128(_mm_loadu_si128((const __m128i*)(outBlock)),
+				_mm_shuffle_epi8(_mm_load_si128((const __m128i*)(rk)), m)));
+
+		if (xorBlock != NULLPTR)
+		{
+			// 3 SSE instructions
+			_mm_storeu_si128((__m128i*)(outBlock),
+				_mm_xor_si128(
+					// 'outBlock' and 'xorBlock' may be unaligned.
+					_mm_loadu_si128((const __m128i*)(outBlock)),
+					_mm_loadu_si128((const __m128i*)(xorBlock))));
+		}
+
+		return;
+	}
+	else
+# endif  // CRYPTOPP_ENABLE_ARIA_INTRINSICS
+	{
+		// 13 additional integer instructions
+		outBlock[ 0] = (byte)(X1[ARIA_BRF(t[0],3)]   ) ^ rk[ 3];
+		outBlock[ 1] = (byte)(X2[ARIA_BRF(t[0],2)]>>8) ^ rk[ 2];
+		outBlock[ 2] = (byte)(S1[ARIA_BRF(t[0],1)]   ) ^ rk[ 1];
+		outBlock[ 3] = (byte)(S2[ARIA_BRF(t[0],0)]   ) ^ rk[ 0];
+		outBlock[ 4] = (byte)(X1[ARIA_BRF(t[1],3)]   ) ^ rk[ 7];
+		outBlock[ 5] = (byte)(X2[ARIA_BRF(t[1],2)]>>8) ^ rk[ 6];
+		outBlock[ 6] = (byte)(S1[ARIA_BRF(t[1],1)]   ) ^ rk[ 5];
+		outBlock[ 7] = (byte)(S2[ARIA_BRF(t[1],0)]   ) ^ rk[ 4];
+		outBlock[ 8] = (byte)(X1[ARIA_BRF(t[2],3)]   ) ^ rk[11];
+		outBlock[ 9] = (byte)(X2[ARIA_BRF(t[2],2)]>>8) ^ rk[10];
+		outBlock[10] = (byte)(S1[ARIA_BRF(t[2],1)]   ) ^ rk[ 9];
+		outBlock[11] = (byte)(S2[ARIA_BRF(t[2],0)]   ) ^ rk[ 8];
+		outBlock[12] = (byte)(X1[ARIA_BRF(t[3],3)]   ) ^ rk[15];
+		outBlock[13] = (byte)(X2[ARIA_BRF(t[3],2)]>>8) ^ rk[14];
+		outBlock[14] = (byte)(S1[ARIA_BRF(t[3],1)]   ) ^ rk[13];
+		outBlock[15] = (byte)(S2[ARIA_BRF(t[3],0)]   ) ^ rk[12];
+	}
 #else
-	#define ARIA_WORD(X,Y) (((word32 *)(X))[Y])
 	outBlock[ 0] = (byte)(X1[ARIA_BRF(t[0],3)]   );
 	outBlock[ 1] = (byte)(X2[ARIA_BRF(t[0],2)]>>8);
 	outBlock[ 2] = (byte)(S1[ARIA_BRF(t[0],1)]   );
@@ -633,30 +686,18 @@ void ARIA::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
 	outBlock[13] = (byte)(X2[ARIA_BRF(t[3],2)]>>8);
 	outBlock[14] = (byte)(S1[ARIA_BRF(t[3],1)]   );
 	outBlock[15] = (byte)(S2[ARIA_BRF(t[3],0)]   );
+
+	#define ARIA_WORD(X,Y) (((word32 *)(X))[Y])
 	ARIA_WORD(outBlock,0)^=LoadWord<true>(rk,0);
 	ARIA_WORD(outBlock,1)^=LoadWord<true>(rk,1);
 	ARIA_WORD(outBlock,2)^=LoadWord<true>(rk,2);
 	ARIA_WORD(outBlock,3)^=LoadWord<true>(rk,3);
 #endif
 
-#if CRYPTOPP_ENABLE_ARIA_INTRINSICS
-	if (xorBlock != NULLPTR && HasSSSE3())
-	{
-		// 3 SSE instructions
-		_mm_storeu_si128((__m128i*)(outBlock),
-			_mm_xor_si128(
-				// 'outBlock' and 'xorBlock' may be unaligned.
-				_mm_loadu_si128((const __m128i*)(outBlock)),
-				_mm_loadu_si128((const __m128i*)(xorBlock))));
-	}
-	else
-#endif  // CRYPTOPP_ENABLE_ARIA_INTRINSICS
-	{
-		// 15 integer instructions
-		if (xorBlock)
-			for (unsigned int n=0; n<16; ++n)
-				outBlock[n] ^= xorBlock[n];
-	}
+	// 15 integer instructions
+	if (xorBlock != NULLPTR)
+		for (unsigned int n=0; n<16; ++n)
+			outBlock[n] ^= xorBlock[n];
 }
 
 NAMESPACE_END
