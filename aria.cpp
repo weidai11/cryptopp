@@ -14,13 +14,21 @@
 #include "misc.h"
 #include "cpu.h"
 
-#include <iostream>
-
-// Enable SSE intrinsics for Visual Studio. It reduces key schedule setup by 150
-// to 200 cycles. GCC does fine on its own, and it slows things down a small bit.
-#if CRYPTOPP_BOOL_SSSE3_INTRINSICS_AVAILABLE && _MSC_VER
-# define CRYPTOPP_ENABLE_ARIA_INTRINSICS 1
+// Enable SSE2 and NEON for all platforms which have the intrinsics. Enable SSSE3 intrinsics
+// for Visual Studio and older GCCs. It reduces key schedule setup by 150 to 250 cycles.
+// Modern GCC does fine on its own, and it slows things down a small bit.
+#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+# define CRYPTOPP_ENABLE_ARIA_SSE2_INTRINSICS 1
 #endif
+
+#if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
+# define CRYPTOPP_ENABLE_ARIA_NEON_INTRINSICS 1
+#endif
+
+#if CRYPTOPP_ENABLE_ARIA_SSSE3_INTRINSICS && (CRYPTOPP_MSC_VERSION || (defined(CRYPTOPP_GCC_VERSION) && CRYPTOPP_GCC_VERSION < 50000))
+# define CRYPTOPP_ENABLE_ARIA_SSSE3_INTRINSICS 1
+#endif
+
 
 ANONYMOUS_NAMESPACE_BEGIN
 
@@ -265,7 +273,7 @@ inline void ARIA_GSRK(const word32 X[4], const word32 Y[4], byte RK[16])
 	reinterpret_cast<word32*>(RK)[3] = (X[3]) ^ ((Y[(Q+3)%4])>>R) ^ ((Y[(Q+2)%4])<<(32-R));
 }
 
-#if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
+#if CRYPTOPP_ENABLE_ARIA_NEON_INTRINSICS
 template <unsigned int N>
 inline void ARIA_GSRK_NEON(const word32 X[4], const word32 Y[4], byte RK[16])
 {
@@ -278,7 +286,7 @@ inline void ARIA_GSRK_NEON(const word32 X[4], const word32 Y[4], byte RK[16])
 	const uint32x4_t b = vextq_u32(t, t, Q1);
 	const uint32x4_t c = vextq_u32(t, t, Q2);
 
-	vst1q_u32(reinterpret_cast<word32*>(RK),
+	vst1q_u32(reinterpret_cast<uint32_t*>(RK),
 		veorq_u32(a, veorq_u32(
 			vshrq_n_u32(b, R),
 			vshlq_n_u32(c, 32-R))));
@@ -316,19 +324,17 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 	// w0 has room for 32 bytes. w1-w3 each has room for 16 bytes. t and u are 16 byte temp areas.
 	word32 *w0 = m_w.data(), *w1 = m_w.data()+8, *w2 = m_w.data()+12, *w3 = m_w.data()+16, *t = m_w.data()+20;
 
-#if CRYPTOPP_ENABLE_ARIA_INTRINSICS
+#if CRYPTOPP_ENABLE_ARIA_SSSE3_INTRINSICS
 	if (HasSSSE3())
 	{
 		// 7 SSE instructions. 'mk' may be unaligned.
 		const __m128i m = _mm_set_epi8(12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3);
 		const __m128i w = _mm_shuffle_epi8(_mm_loadu_si128((const __m128i*)(mk)), m);
 		_mm_store_si128((__m128i*)w0, w);
-
-		_mm_store_si128((__m128i*)t, _mm_xor_si128(w,
-				_mm_load_si128((const __m128i*)(KRK[q]))));
+		_mm_store_si128((__m128i*)t, _mm_xor_si128(w, _mm_load_si128((const __m128i*)(KRK[q]))));
 	}
 	else
-#endif  // CRYPTOPP_ENABLE_ARIA_INTRINSICS
+#endif  // CRYPTOPP_ENABLE_ARIA_SSSE3_INTRINSICS
 	{
 		// 27 integer instructions
 		w0[0] = LoadWord<true>(mk,0); w0[1] = LoadWord<true>(mk,1);
@@ -343,7 +349,7 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 
 	if (keylen == 32)
 	{
-#if CRYPTOPP_ENABLE_ARIA_INTRINSICS
+#if CRYPTOPP_ENABLE_ARIA_SSSE3_INTRINSICS
 		if (HasSSSE3())
 		{
 			// 3 SSE instructions. 'mk' may be unaligned.
@@ -351,7 +357,7 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 			_mm_store_si128(reinterpret_cast<__m128i*>(w1),
 				_mm_shuffle_epi8(_mm_loadu_si128((const __m128i*)(mk+16)), m));
 		}
-#endif  // CRYPTOPP_ENABLE_ARIA_INTRINSICS
+#endif  // CRYPTOPP_ENABLE_ARIA_SSSE3_INTRINSICS
 		{
 			// 14 integer instructions
 			w1[0] = LoadWord<true>(mk,4);
@@ -368,20 +374,20 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 	}
 	else
 	{
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+#if CRYPTOPP_ENABLE_ARIA_SSE2_INTRINSICS
 		if (HasSSE2())
 		{
 			_mm_store_si128(reinterpret_cast<__m128i*>(w1), _mm_setzero_si128());
 		}
 		else
-#endif  // CRYPTOPP_ENABLE_ARIA_INTRINSICS
+#endif  // CRYPTOPP_ENABLE_ARIA_SSE2_INTRINSICS
 		{
 			w1[0]=w1[1]=w1[2]=w1[3]=0;
 		}
 	}
 
-#if CRYPTOPP_ENABLE_ARIA_INTRINSICS
-	if (HasSSSE3())
+#if CRYPTOPP_ENABLE_ARIA_SSE2_INTRINSICS
+	if (HasSSE2())
 	{
 		// 4 integer, 7 SSE instructions
 		const __m128i x = _mm_xor_si128(
@@ -399,7 +405,7 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 		_mm_store_si128((__m128i*)(t), y);
 	}
 	else
-#endif  // CRYPTOPP_ENABLE_ARIA_INTRINSICS
+#endif  // CRYPTOPP_ENABLE_ARIA_SSE2_INTRINSICS
 	{
 		// 23 integer instructions
 		w1[0]^=t[0]; w1[1]^=t[1]; w1[2]^=t[2]; w1[3]^=t[3];
@@ -412,8 +418,8 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 
 	ARIA_FE;
 
-#if CRYPTOPP_ENABLE_ARIA_INTRINSICS
-	if (HasSSSE3())
+#if CRYPTOPP_ENABLE_ARIA_SSE2_INTRINSICS
+	if (HasSSE2())
 	{
 		// 4 integer, 7 SSE instructions
 		const __m128i x = _mm_xor_si128(
@@ -431,7 +437,7 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 		_mm_store_si128((__m128i*)(t), y);
 	}
 	else
-#endif  // CRYPTOPP_ENABLE_ARIA_INTRINSICS
+#endif  // CRYPTOPP_ENABLE_ARIA_SSE2_INTRINSICS
 	{
 		// 23 integer instructions
 		t[0]^=w0[0]; t[1]^=w0[1]; t[2]^=w0[2]; t[3]^=w0[3];
@@ -444,8 +450,8 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 
 	ARIA_FO;
 
-#if CRYPTOPP_ENABLE_ARIA_INTRINSICS
-	if (HasSSSE3())
+#if CRYPTOPP_ENABLE_ARIA_SSE2_INTRINSICS
+	if (HasSSE2())
 	{
 		// 3 SSE instructions
 		const __m128i x = _mm_xor_si128(
@@ -455,13 +461,13 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 		_mm_store_si128((__m128i*)(w3), x);
 	}
 	else
-#endif  // CRYPTOPP_ENABLE_ARIA_INTRINSICS
+#endif  // CRYPTOPP_ENABLE_ARIA_SSE2_INTRINSICS
 	{
 		// 14 integer instructions
 		w3[0]=t[0]^w1[0]; w3[1]=t[1]^w1[1]; w3[2]=t[2]^w1[2]; w3[3]=t[3]^w1[3];
 	}
 
-#if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
+#if CRYPTOPP_ENABLE_ARIA_NEON_INTRINSICS
 	if (HasNEON())
 	{
 		ARIA_GSRK_NEON<19>(w0, w1, rk +   0);
@@ -478,12 +484,12 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 		ARIA_GSRK_NEON<67>(w3, w0, rk + 176);
 		ARIA_GSRK_NEON<97>(w0, w1, rk + 192);
 
-		if (keyBits > 128)
+		if (keylen > 16)
 		{
 			ARIA_GSRK_NEON<97>(w1, w2, rk + 208);
 			ARIA_GSRK_NEON<97>(w2, w3, rk + 224);
 
-			if (keyBits > 192)
+			if (keylen > 24)
 			{
 				ARIA_GSRK_NEON< 97>(w3, w0, rk + 240);
 				ARIA_GSRK_NEON<109>(w0, w1, rk + 256);
@@ -491,7 +497,7 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 		}
 	}
 	else
-#endif  // CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
+#endif  // CRYPTOPP_ENABLE_ARIA_NEON_INTRINSICS
 	{
 		ARIA_GSRK<19>(w0, w1, rk +   0);
 		ARIA_GSRK<19>(w1, w2, rk +  16);
@@ -529,18 +535,75 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 		rk = m_rk.data();
 		r = R; q = Q;
 
-		// 32 integer intructions. memcpy is faster for some compilers.
-#if CRYPTOPP_ENABLE_ARIA_INTRINSICS
+#if CRYPTOPP_ENABLE_ARIA_SSE2_INTRINSICS
 		if (HasSSE2())
 		{
 			// 6 SSE instructions
 			a=reinterpret_cast<word32*>(rk);  s=m_w.data()+24; z=a+r*4;
+			// t[0]=a[0]; t[1]=a[1]; t[2]=a[2]; t[3]=a[3];
+			// a[0]=z[0]; a[1]=z[1]; a[2]=z[2]; a[3]=z[3];
+			// z[0]=t[0]; z[1]=t[1]; z[2]=t[2]; z[3]=t[3];
 			_mm_store_si128((__m128i*)t, _mm_load_si128((const __m128i*)a));
 			_mm_store_si128((__m128i*)a, _mm_load_si128((const __m128i*)z));
 			_mm_store_si128((__m128i*)z, _mm_load_si128((const __m128i*)t));
+
+			a+=4; z-=4;
+			for (; a<z; a+=4, z-=4)
+			{
+				ARIA_M1(a[0],t[0]); ARIA_M1(a[1],t[1]); ARIA_M1(a[2],t[2]); ARIA_M1(a[3],t[3]);
+				ARIA_MM(t[0],t[1],t[2],t[3]); ARIA_P(t[0],t[1],t[2],t[3]); ARIA_MM(t[0],t[1],t[2],t[3]);
+				// s[0]=t[0]; s[1]=t[1]; s[2]=t[2]; s[3]=t[3];
+				_mm_store_si128((__m128i*)s, _mm_load_si128((const __m128i*)t));
+
+				ARIA_M1(z[0],t[0]); ARIA_M1(z[1],t[1]); ARIA_M1(z[2],t[2]); ARIA_M1(z[3],t[3]);
+				ARIA_MM(t[0],t[1],t[2],t[3]); ARIA_P(t[0],t[1],t[2],t[3]); ARIA_MM(t[0],t[1],t[2],t[3]);
+				// a[0]=t[0]; a[1]=t[1]; a[2]=t[2]; a[3]=t[3];
+				// z[0]=s[0]; z[1]=s[1]; z[2]=s[2]; z[3]=s[3];
+				_mm_store_si128((__m128i*)a, _mm_load_si128((const __m128i*)t));
+				_mm_store_si128((__m128i*)z, _mm_load_si128((const __m128i*)s));
+			}
+
+			ARIA_M1(a[0],t[0]); ARIA_M1(a[1],t[1]); ARIA_M1(a[2],t[2]); ARIA_M1(a[3],t[3]);
+			ARIA_MM(t[0],t[1],t[2],t[3]); ARIA_P(t[0],t[1],t[2],t[3]); ARIA_MM(t[0],t[1],t[2],t[3]);
+			// z[0]=t[0]; z[1]=t[1]; z[2]=t[2]; z[3]=t[3];
+			_mm_store_si128((__m128i*)z, _mm_load_si128((const __m128i*)t));
 		}
 		else
-#endif
+#elif CRYPTOPP_ENABLE_ARIA_NEON_INTRINSICS
+		if (HasNEON())
+		{
+			// 6 NEON instructions
+			a=reinterpret_cast<word32*>(rk);  s=m_w.data()+24; z=a+r*4;
+			// t[0]=a[0]; t[1]=a[1]; t[2]=a[2]; t[3]=a[3];
+			// a[0]=z[0]; a[1]=z[1]; a[2]=z[2]; a[3]=z[3];
+			// z[0]=t[0]; z[1]=t[1]; z[2]=t[2]; z[3]=t[3];
+			vst1q_u32(reinterpret_cast<uint32_t*>(t), vld1q_u32(reinterpret_cast<uint32_t*>(a)));
+			vst1q_u32(reinterpret_cast<uint32_t*>(a), vld1q_u32(reinterpret_cast<uint32_t*>(z)));
+			vst1q_u32(reinterpret_cast<uint32_t*>(z), vld1q_u32(reinterpret_cast<uint32_t*>(t)));
+
+			a+=4; z-=4;
+			for (; a<z; a+=4, z-=4)
+			{
+				ARIA_M1(a[0],t[0]); ARIA_M1(a[1],t[1]); ARIA_M1(a[2],t[2]); ARIA_M1(a[3],t[3]);
+				ARIA_MM(t[0],t[1],t[2],t[3]); ARIA_P(t[0],t[1],t[2],t[3]); ARIA_MM(t[0],t[1],t[2],t[3]);
+				// s[0]=t[0]; s[1]=t[1]; s[2]=t[2]; s[3]=t[3];
+				vst1q_u32(reinterpret_cast<uint32_t*>(s), vld1q_u32(reinterpret_cast<uint32_t*>(t)));
+
+				ARIA_M1(z[0],t[0]); ARIA_M1(z[1],t[1]); ARIA_M1(z[2],t[2]); ARIA_M1(z[3],t[3]);
+				ARIA_MM(t[0],t[1],t[2],t[3]); ARIA_P(t[0],t[1],t[2],t[3]); ARIA_MM(t[0],t[1],t[2],t[3]);
+				// a[0]=t[0]; a[1]=t[1]; a[2]=t[2]; a[3]=t[3];
+				// z[0]=s[0]; z[1]=s[1]; z[2]=s[2]; z[3]=s[3];
+				vst1q_u32(reinterpret_cast<uint32_t*>(a), vld1q_u32(reinterpret_cast<uint32_t*>(t)));
+				vst1q_u32(reinterpret_cast<uint32_t*>(z), vld1q_u32(reinterpret_cast<uint32_t*>(s)));
+			}
+
+			ARIA_M1(a[0],t[0]); ARIA_M1(a[1],t[1]); ARIA_M1(a[2],t[2]); ARIA_M1(a[3],t[3]);
+			ARIA_MM(t[0],t[1],t[2],t[3]); ARIA_P(t[0],t[1],t[2],t[3]); ARIA_MM(t[0],t[1],t[2],t[3]);
+			// z[0]=t[0]; z[1]=t[1]; z[2]=t[2]; z[3]=t[3];
+			vst1q_u32(reinterpret_cast<uint32_t*>(z), vld1q_u32(reinterpret_cast<uint32_t*>(t)));
+		}
+		else
+#endif  // CRYPTOPP_ENABLE_ARIA_SSE2_INTRINSICS
 		{
 			// 32 integer instructions
 			a=reinterpret_cast<word32*>(rk);  s=m_w.data()+24; z=a+r*4;
@@ -548,26 +611,27 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 			// a[0]=z[0]; a[1]=z[1]; a[2]=z[2]; a[3]=z[3];
 			// z[0]=t[0]; z[1]=t[1]; z[2]=t[2]; z[3]=t[3];
 			memcpy(t, a, 16); memcpy(a, z, 16); memcpy(z, t, 16);
-		}
 
-		a+=4; z-=4;
-		for (; a<z; a+=4, z-=4)
-		{
+			a+=4; z-=4;
+			for (; a<z; a+=4, z-=4)
+			{
+				ARIA_M1(a[0],t[0]); ARIA_M1(a[1],t[1]); ARIA_M1(a[2],t[2]); ARIA_M1(a[3],t[3]);
+				ARIA_MM(t[0],t[1],t[2],t[3]); ARIA_P(t[0],t[1],t[2],t[3]); ARIA_MM(t[0],t[1],t[2],t[3]);
+				// s[0]=t[0]; s[1]=t[1]; s[2]=t[2]; s[3]=t[3];
+				memcpy(s, t, 16);
+
+				ARIA_M1(z[0],t[0]); ARIA_M1(z[1],t[1]); ARIA_M1(z[2],t[2]); ARIA_M1(z[3],t[3]);
+				ARIA_MM(t[0],t[1],t[2],t[3]); ARIA_P(t[0],t[1],t[2],t[3]); ARIA_MM(t[0],t[1],t[2],t[3]);
+				// a[0]=t[0]; a[1]=t[1]; a[2]=t[2]; a[3]=t[3];
+				// z[0]=s[0]; z[1]=s[1]; z[2]=s[2]; z[3]=s[3];
+				memcpy(a, t, 16); memcpy(z, s, 16);
+			}
+
 			ARIA_M1(a[0],t[0]); ARIA_M1(a[1],t[1]); ARIA_M1(a[2],t[2]); ARIA_M1(a[3],t[3]);
 			ARIA_MM(t[0],t[1],t[2],t[3]); ARIA_P(t[0],t[1],t[2],t[3]); ARIA_MM(t[0],t[1],t[2],t[3]);
-			// s[0]=t[0]; s[1]=t[1]; s[2]=t[2]; s[3]=t[3];
-			memcpy(s, t, 16);
-
-			ARIA_M1(z[0],t[0]); ARIA_M1(z[1],t[1]); ARIA_M1(z[2],t[2]); ARIA_M1(z[3],t[3]);
-			ARIA_MM(t[0],t[1],t[2],t[3]); ARIA_P(t[0],t[1],t[2],t[3]); ARIA_MM(t[0],t[1],t[2],t[3]);
-			// a[0]=t[0]; a[1]=t[1]; a[2]=t[2]; a[3]=t[3];
-			// z[0]=s[0]; z[1]=s[1]; z[2]=s[2]; z[3]=s[3];
-			memcpy(a, t, 16); memcpy(z, s, 16);
+			// z[0]=t[0]; z[1]=t[1]; z[2]=t[2]; z[3]=t[3];
+			memcpy(z, t, 16);
 		}
-		ARIA_M1(a[0],t[0]); ARIA_M1(a[1],t[1]); ARIA_M1(a[2],t[2]); ARIA_M1(a[3],t[3]);
-		ARIA_MM(t[0],t[1],t[2],t[3]); ARIA_P(t[0],t[1],t[2],t[3]); ARIA_MM(t[0],t[1],t[2],t[3]);
-		// z[0]=t[0]; z[1]=t[1]; z[2]=t[2]; z[3]=t[3];
-		memcpy(z, t, 16);
 	}
 }
 
@@ -576,7 +640,7 @@ void ARIA::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
 	const byte *rk = reinterpret_cast<const byte*>(m_rk.data());
 	word32 *t = const_cast<word32*>(m_w.data()+20);
 
-#if CRYPTOPP_ENABLE_ARIA_INTRINSICS
+#if CRYPTOPP_ENABLE_ARIA_SSSE3_INTRINSICS
 	if (HasSSSE3())
 	{
 		// 3 SSE instructions. 'inBlock' may be unaligned.
@@ -584,7 +648,7 @@ void ARIA::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
 		_mm_store_si128((__m128i*)t, _mm_shuffle_epi8(_mm_loadu_si128((const __m128i*)(inBlock)), m));
 	}
 	else
-#endif  // CRYPTOPP_ENABLE_ARIA_INTRINSICS
+#endif  // CRYPTOPP_ENABLE_ARIA_SSSE3_INTRINSICS
 	{
 		// 13 integer instructions
 		t[0] = LoadWord<true>(inBlock,0); t[1] = LoadWord<true>(inBlock,1);
@@ -609,7 +673,7 @@ void ARIA::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
 	ARIA_KXL; rk+= 16; ARIA_FO; ARIA_KXL; rk+= 16;
 
 #ifdef IS_LITTLE_ENDIAN
-# if CRYPTOPP_ENABLE_ARIA_INTRINSICS || defined(__SSSE3__)
+# if CRYPTOPP_ENABLE_ARIA_SSSE3_INTRINSICS || defined(__SSSE3__)
 	if (HasSSSE3())  // Include GCC and Clang in this code path
 	{
 		// This code path saves about 30 instructions
@@ -636,12 +700,12 @@ void ARIA::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
 			_mm_xor_si128(_mm_loadu_si128((const __m128i*)(outBlock)),
 				_mm_shuffle_epi8(_mm_load_si128((const __m128i*)(rk)), m)));
 
+		// 'outBlock' and 'xorBlock' may be unaligned.
 		if (xorBlock != NULLPTR)
 		{
 			// 3 SSE instructions
 			_mm_storeu_si128((__m128i*)(outBlock),
 				_mm_xor_si128(
-					// 'outBlock' and 'xorBlock' may be unaligned.
 					_mm_loadu_si128((const __m128i*)(outBlock)),
 					_mm_loadu_si128((const __m128i*)(xorBlock))));
 		}
@@ -649,7 +713,7 @@ void ARIA::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
 		return;
 	}
 	else
-# endif  // CRYPTOPP_ENABLE_ARIA_INTRINSICS
+# endif  // CRYPTOPP_ENABLE_ARIA_SSSE3_INTRINSICS
 	{
 		// 13 additional integer instructions
 		outBlock[ 0] = (byte)(X1[ARIA_BRF(t[0],3)]   ) ^ rk[ 3];
@@ -694,10 +758,27 @@ void ARIA::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
 	ARIA_WORD(outBlock,3)^=LoadWord<true>(rk,3);
 #endif
 
-	// 15 integer instructions
-	if (xorBlock != NULLPTR)
-		for (unsigned int n=0; n<16; ++n)
-			outBlock[n] ^= xorBlock[n];
+#if CRYPTOPP_ENABLE_ARIA_NEON_INTRINSICS
+	if (HasNEON())
+	{
+		if (xorBlock != NULLPTR)
+		{
+			// 4 NEON instructions
+			vst1q_u32(reinterpret_cast<uint32_t*>(outBlock),
+				veorq_u32(
+					vld1q_u32((const uint32_t*)outBlock),
+					vld1q_u32((const uint32_t*)xorBlock)));
+		}
+
+	}
+	else
+#endif  // CRYPTOPP_ENABLE_ARIA_NEON_INTRINSICS
+	{
+		// 15 integer instructions
+		if (xorBlock != NULLPTR)
+			for (unsigned int n=0; n<16; ++n)
+				outBlock[n] ^= xorBlock[n];
+	}
 }
 
 NAMESPACE_END
