@@ -25,10 +25,9 @@
 # define CRYPTOPP_ENABLE_ARIA_NEON_INTRINSICS 1
 #endif
 
-#if CRYPTOPP_ENABLE_ARIA_SSSE3_INTRINSICS && (CRYPTOPP_MSC_VERSION || (defined(CRYPTOPP_GCC_VERSION) && CRYPTOPP_GCC_VERSION < 50000))
+#if CRYPTOPP_BOOL_SSSE3_INTRINSICS_AVAILABLE && (CRYPTOPP_MSC_VERSION || (defined(CRYPTOPP_GCC_VERSION) && CRYPTOPP_GCC_VERSION < 50000))
 # define CRYPTOPP_ENABLE_ARIA_SSSE3_INTRINSICS 1
 #endif
-
 
 ANONYMOUS_NAMESPACE_BEGIN
 
@@ -195,7 +194,7 @@ inline word32 ReverseWord(const word32 w) {
 	return ByteReverse(w);
 }
 
-// Retireve the i-th word, optionally in Big Endian
+// Retrieve the i-th word, optionally in Big Endian
 template <bool big_endian>
 inline word32 LoadWord(const word32 x[4], const unsigned int i) {
 	if (big_endian)
@@ -204,7 +203,7 @@ inline word32 LoadWord(const word32 x[4], const unsigned int i) {
 		return x[i];
 }
 
-// Reinterpret x as a word32[], and retireve the i-th word, optionally in Big Endian
+// Reinterpret x as a word32[], and retrieve the i-th word, optionally in Big Endian
 template <bool big_endian>
 inline word32 LoadWord(const byte x[16], const unsigned int i) {
 	if (big_endian)
@@ -641,18 +640,15 @@ void ARIA::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
 	word32 *t = const_cast<word32*>(m_w.data()+20);
 
 	// Timing attack countermeasure. See comments in Rijndael for more details.
-	// We used Yun's 32-bit implementation, so we don't want to walk elements.
-	// In this case, we still want the byte oriented pointer to induce the flush.
+	// We used Yun's 32-bit implementation, so we use words rather than bytes.
 	const int cacheLineSize = GetCacheLineSize();
-	const byte *p = reinterpret_cast<const byte*>(S1);
 	unsigned int i;
 	volatile word32 _u = 0;
 	word32 u = _u;
 
-	for (i=0; i<256; i+=cacheLineSize)
-		u &= *(const word32 *)(void*)(p+i);
-	u &= *(const word32 *)(void*)(p+252);
-	t[0] |= u; t[1] |= u;
+	for (i=0; i<COUNTOF(S1); i+=cacheLineSize/(sizeof(S1[0])))
+		u |= *(S1+i);
+	t[0] |= u;
 
 #if CRYPTOPP_ENABLE_ARIA_SSSE3_INTRINSICS
 	if (HasSSSE3())
