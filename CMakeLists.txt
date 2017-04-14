@@ -106,6 +106,57 @@ if(NOT CRYPTOPP_DATA_DIR STREQUAL "")
 	add_definitions(-DCRYPTOPP_DATA_DIR="${CRYPTOPP_DATA_DIR}")
 endif()
 
+if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+	# TODO(unassigned): should we avoid these (for cross-platform compatability)?
+	set(SHELL_CMD sh -c)
+	set(GREP_CMD egrep -c)
+
+	execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} --version 2>&1"
+		COMMAND ${GREP_CMD} -i macports
+		OUTPUT_VARIABLE MACPORTS
+		OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+	if (MACPORTS EQUAL 0)
+		# Get GAS version, add defs + set as appropriate
+		set(GAS_CMD ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -xc -c /dev/null -Wa,-v -o/dev/null 2>&1")
+
+		execute_process(COMMAND ${GAS_CMD}
+			OUTPUT_VARIABLE GAS_STRING
+			OUTPUT_STRIP_TRAILING_WHITESPACE)
+		string(FIND ${GAS_STRING} "GNU assumbler" GAS_OUTPUT)
+
+		if (GAS_OUTPUT)
+			#.intel_syntax wasn't supported until GNU assembler 2.10
+			# No DISABLE_NATIVE_ARCH with CRYPTOPP_DISABLE_ASM for now
+			# See http://github.com/weidai11/cryptopp/issues/395
+
+			# TODO(unassigned): string() REGEX was not cooperating at time of writing. Re-implement as needed.
+			execute_process(COMMAND echo ${GAS_STRING}
+				COMMAND ${GREP_CMD} "GNU assembler version (2\\.[1-9][0-9]|[3-9])"
+				OUTPUT_VARIABLE GAS210_OR_LATER)
+			if (GAS210_OR_LATER EQUAL 0)
+				add_definitions(-DCRYPTOPP_DISABLE_ASM)
+			endif()
+
+			execute_process(COMMAND echo ${GAS_STRING}
+				COMMAND ${GREP_CMD} "GNU assembler version (2\\.1[7-9]|2\\.[2-9]|[3-9])"
+				OUTPUT_VARIABLE GAS217_OR_LATER)
+			if (GAS217_OR_LATER EQUAL 0)
+				add_definitions(-DCRYPTOPP_DISABLE_SSSE3)
+				set(DISABLE_NATIVE_ARCH 1)
+			endif()
+
+			execute_process(COMMAND echo ${GAS_STRING}
+				COMMAND ${GREP_CMD} "GNU assembler version (2\\.19|2\\.[2-9]|[3-9])"
+				OUTPUT_VARIABLE GAS219_OR_LATER)
+			if (GAS219_OR_LATER EQUAL 0)
+				add_definitions(-DCRYPTOPP_DISABLE_AESNI)
+				set(DISABLE_NATIVE_ARCH 1)
+			endif()
+		endif()
+	endif()
+endif()
+
 # We need the output 'uname -s' for Unix and Linux system detection
 if (NOT CRYPTOPP_CROSS_COMPILE)
 	set (UNAME_CMD "uname")
