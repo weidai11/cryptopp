@@ -666,6 +666,8 @@ void SecretShareFile(int threshold, int nShares, const char *filename, const cha
 	ChannelSwitch *channelSwitch = NULLPTR;
 	FileSource source(filename, false, new SecretSharing(rng, threshold, nShares, channelSwitch = new ChannelSwitch));
 
+	// Be careful of the type of Sink used. An ArraySink will stop writing data once the array
+	//    is full. Also see http://groups.google.com/forum/#!topic/cryptopp-users/XEKKLCEFH3Y.
 	vector_member_ptrs<FileSink> fileSinks(nShares);
 	std::string channel;
 	for (int i=0; i<nShares; i++)
@@ -720,6 +722,8 @@ void InformationDisperseFile(int threshold, int nShares, const char *filename)
 	ChannelSwitch *channelSwitch = NULLPTR;
 	FileSource source(filename, false, new InformationDispersal(threshold, nShares, channelSwitch = new ChannelSwitch));
 
+	// Be careful of the type of Sink used. An ArraySink will stop writing data once the array
+	//    is full. Also see http://groups.google.com/forum/#!topic/cryptopp-users/XEKKLCEFH3Y.
 	vector_member_ptrs<FileSink> fileSinks(nShares);
 	std::string channel;
 	for (int i=0; i<nShares; i++)
