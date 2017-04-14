@@ -1,4 +1,4 @@
-// regtest1.cpp - originally written and placed in the public domain by Wei Dai
+// regtest2.cpp - originally written and placed in the public domain by Wei Dai
 //                regtest.cpp split into 3 files due to OOM kills by JW in April 2017
 
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
