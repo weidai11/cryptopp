@@ -347,7 +347,13 @@
     <ClCompile Include="dlltest.cpp">
       <Filter>Source Code</Filter>
     </ClCompile>
-    <ClCompile Include="regtest.cpp">
+    <ClCompile Include="regtest1.cpp">
+      <Filter>Source Code</Filter>
+    </ClCompile>
+    <ClCompile Include="regtest2.cpp">
+      <Filter>Source Code</Filter>
+    </ClCompile>
+    <ClCompile Include="regtest3.cpp">
       <Filter>Source Code</Filter>
     </ClCompile>
     <ClCompile Include="test.cpp">

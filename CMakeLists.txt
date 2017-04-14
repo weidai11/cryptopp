@@ -1,4 +1,5 @@
 # Please ensure your changes or patch meets minimum requirements.
+# Please ensure your changes or patch meets minimum requirements.
 #   The minimum requirements are 2.8.5. They roughly equate to Ubuntu 12.04 LTS
 #   Please do not check in something for 2.8.12 or 3.5.0. To test your changes,
 #   please set up a Ubuntu 12.04 LTS system. Then, manually install Cmake 2.8.5
@@ -201,7 +202,7 @@ endif()
 file(GLOB cryptopp_HEADERS *.h)
 
 # Test sources. You can use the GNUmakefile to generate the list: `make sources`.
-file(GLOB cryptopp_SOURCES_TEST test.cpp bench1.cpp bench2.cpp validat0.cpp validat1.cpp validat2.cpp validat3.cpp adhoc.cpp datatest.cpp regtest.cpp fipsalgt.cpp dlltest.cpp fipstest.cpp)
+file(GLOB cryptopp_SOURCES_TEST test.cpp bench1.cpp bench2.cpp validat0.cpp validat1.cpp validat2.cpp validat3.cpp adhoc.cpp datatest.cpp regtest1.cpp regtest2.cpp regtest3.cpp fipsalgt.cpp dlltest.cpp fipstest.cpp)
 
 # Library sources. You can use the GNUmakefile to generate the list: `make sources`.
 file(GLOB cryptopp_SOURCES *.cpp)

@@ -199,7 +199,9 @@
     <ClCompile Include="datatest.cpp" />
     <ClCompile Include="dlltest.cpp" />
     <ClCompile Include="fipsalgt.cpp" />
-    <ClCompile Include="regtest.cpp" />
+    <ClCompile Include="regtest1.cpp" />
+    <ClCompile Include="regtest2.cpp" />
+    <ClCompile Include="regtest3.cpp" />
     <ClCompile Include="test.cpp" />
     <ClCompile Include="validat0.cpp" />
     <ClCompile Include="validat1.cpp" />

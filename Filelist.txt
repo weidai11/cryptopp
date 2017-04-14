@@ -217,7 +217,9 @@ rdrand.asm
 rdrand.cpp
 rdrand.h
 rdtables.cpp
-regtest.cpp
+regtest1.cpp
+regtest2.cpp
+regtest3.cpp
 resource.h
 rijndael.cpp
 rijndael.h
@@ -385,6 +387,7 @@ TestData/xtrdh342.dat
 TestVectors/Readme.txt
 TestVectors/aes.txt
 TestVectors/all.txt
+TestVectors/aria.txt
 TestVectors/blake2.txt
 TestVectors/blake2b.txt
 TestVectors/blake2s.txt

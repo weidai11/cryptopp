@@ -1,34 +1,25 @@
-// regtest.cpp - originally written and placed in the public domain by Wei Dai
+// regtest1.cpp - originally written and placed in the public domain by Wei Dai
+//                regtest.cpp split into 3 files due to OOM kills by JW in April 2017
 
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
 
 #include "cryptlib.h"
 #include "factory.h"
+#include "bench.h"
 #include "cpu.h"
+
 #include "modes.h"
-#include "dh.h"
-#include "esign.h"
-#include "md2.h"
-#include "rw.h"
-#include "md5.h"
-#include "rsa.h"
-#include "ripemd.h"
-#include "dsa.h"
 #include "seal.h"
-#include "whrlpool.h"
 #include "ttmac.h"
 #include "aria.h"
 #include "camellia.h"
 #include "shacal2.h"
 #include "tea.h"
-#include "panama.h"
-#include "pssr.h"
 #include "aes.h"
 #include "salsa.h"
 #include "chacha.h"
 #include "vmac.h"
 #include "tiger.h"
-#include "md5.h"
 #include "sosemanuk.h"
 #include "arc4.h"
 #include "ccm.h"
@@ -50,19 +41,19 @@
 #include "seed.h"
 #include "wake.h"
 #include "seal.h"
-#include "crc.h"
-#include "adler32.h"
+#include "hkdf.h"
+
+// For HMAC's
+#include "md5.h"
 #include "keccak.h"
+#include "sha.h"
 #include "sha3.h"
 #include "blake2.h"
+#include "ripemd.h"
 #include "poly1305.h"
-#include "hkdf.h"
 #include "siphash.h"
-
-#include "osrng.h"
-#include "drbg.h"
-#include "mersenne.h"
-#include "rdrand.h"
+#include "whrlpool.h"
+#include "panama.h"
 
 // Aggressive stack checking with VS2005 SP1 and above.
 #if (CRYPTOPP_MSC_VERSION >= 1410)
@@ -71,40 +62,9 @@
 
 USING_NAMESPACE(CryptoPP)
 
-void RegisterFactories()
+// Shared key ciphers
+void RegisterFactories2()
 {
-	static bool s_registered = false;
-	if (s_registered)
-		return;
-
-	RegisterDefaultFactoryFor<SimpleKeyAgreementDomain, DH>();
-	RegisterDefaultFactoryFor<HashTransformation, CRC32>();
-	RegisterDefaultFactoryFor<HashTransformation, CRC32C>();
-	RegisterDefaultFactoryFor<HashTransformation, Adler32>();
-	RegisterDefaultFactoryFor<HashTransformation, Weak::MD5>();
-	RegisterDefaultFactoryFor<HashTransformation, SHA1>();
-	RegisterDefaultFactoryFor<HashTransformation, SHA224>();
-	RegisterDefaultFactoryFor<HashTransformation, SHA256>();
-	RegisterDefaultFactoryFor<HashTransformation, SHA384>();
-	RegisterDefaultFactoryFor<HashTransformation, SHA512>();
-	RegisterDefaultFactoryFor<HashTransformation, Whirlpool>();
-	RegisterDefaultFactoryFor<HashTransformation, Tiger>();
-	RegisterDefaultFactoryFor<HashTransformation, RIPEMD160>();
-	RegisterDefaultFactoryFor<HashTransformation, RIPEMD320>();
-	RegisterDefaultFactoryFor<HashTransformation, RIPEMD128>();
-	RegisterDefaultFactoryFor<HashTransformation, RIPEMD256>();
-	RegisterDefaultFactoryFor<HashTransformation, Weak::PanamaHash<LittleEndian> >();
-	RegisterDefaultFactoryFor<HashTransformation, Weak::PanamaHash<BigEndian> >();
-	RegisterDefaultFactoryFor<HashTransformation, Keccak_224>();
-	RegisterDefaultFactoryFor<HashTransformation, Keccak_256>();
-	RegisterDefaultFactoryFor<HashTransformation, Keccak_384>();
-	RegisterDefaultFactoryFor<HashTransformation, Keccak_512>();
-	RegisterDefaultFactoryFor<HashTransformation, SHA3_224>();
-	RegisterDefaultFactoryFor<HashTransformation, SHA3_256>();
-	RegisterDefaultFactoryFor<HashTransformation, SHA3_384>();
-	RegisterDefaultFactoryFor<HashTransformation, SHA3_512>();
-	RegisterDefaultFactoryFor<HashTransformation, BLAKE2s>();
-	RegisterDefaultFactoryFor<HashTransformation, BLAKE2b>();
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, HMAC<Weak::MD5> >();
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, HMAC<SHA1> >();
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, HMAC<RIPEMD160> >();
@@ -125,25 +85,7 @@ void RegisterFactories()
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, BLAKE2b>();
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, SipHash<2,4> >();
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, SipHash<4,8> >();
-	RegisterAsymmetricCipherDefaultFactories<RSAES<OAEP<SHA1> > >("RSA/OAEP-MGF1(SHA-1)");
-	RegisterAsymmetricCipherDefaultFactories<DLIES<> >("DLIES(NoCofactorMultiplication, KDF2(SHA-1), XOR, HMAC(SHA-1), DHAES)");
-	RegisterSignatureSchemeDefaultFactories<DSA>();
-	RegisterSignatureSchemeDefaultFactories<DSA2<SHA224> >();
-	RegisterSignatureSchemeDefaultFactories<DSA2<SHA256> >();
-	RegisterSignatureSchemeDefaultFactories<DSA2<SHA384> >();
-	RegisterSignatureSchemeDefaultFactories<DSA2<SHA512> >();
-	RegisterSignatureSchemeDefaultFactories<DSA_RFC6979<SHA1> >();
-	RegisterSignatureSchemeDefaultFactories<DSA_RFC6979<SHA224> >();
-	RegisterSignatureSchemeDefaultFactories<DSA_RFC6979<SHA256> >();
-	RegisterSignatureSchemeDefaultFactories<DSA_RFC6979<SHA384> >();
-	RegisterSignatureSchemeDefaultFactories<DSA_RFC6979<SHA512> >();
-	RegisterSignatureSchemeDefaultFactories<NR<SHA1> >("NR(1363)/EMSA1(SHA-1)");
-	RegisterSignatureSchemeDefaultFactories<GDSA<SHA1> >("DSA-1363/EMSA1(SHA-1)");
-	RegisterSignatureSchemeDefaultFactories<RSASS<PKCS1v15, Weak::MD2> >("RSA/PKCS1-1.5(MD2)");
-	RegisterSignatureSchemeDefaultFactories<RSASS<PKCS1v15, SHA1> >("RSA/PKCS1-1.5(SHA-1)");
-	RegisterSignatureSchemeDefaultFactories<ESIGN<SHA1> >("ESIGN/EMSA5-MGF1(SHA-1)");
-	RegisterSignatureSchemeDefaultFactories<RWSS<P1363_EMSA2, SHA1> >("RW/EMSA2(SHA-1)");
-	RegisterSignatureSchemeDefaultFactories<RSASS<PSS, SHA1> >("RSA/PSS-MGF1(SHA-1)");
+
 	RegisterSymmetricCipherDefaultFactories<SEAL<> >();
 	RegisterSymmetricCipherDefaultFactories<ECB_Mode<SHACAL2> >();
 	RegisterSymmetricCipherDefaultFactories<ECB_Mode<ARIA> >();
@@ -192,33 +134,9 @@ void RegisterFactories()
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<Blowfish> >();
 	RegisterSymmetricCipherDefaultFactories<ECB_Mode<SEED> >();
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<SEED> >();
+
 	RegisterDefaultFactoryFor<KeyDerivationFunction, HKDF<SHA1> >();
 	RegisterDefaultFactoryFor<KeyDerivationFunction, HKDF<SHA256> >();
 	RegisterDefaultFactoryFor<KeyDerivationFunction, HKDF<SHA512> >();
 	RegisterDefaultFactoryFor<KeyDerivationFunction, HKDF<Whirlpool> >();
-
-#ifdef BLOCKING_RNG_AVAILABLE
-	RegisterDefaultFactoryFor<RandomNumberGenerator, BlockingRng>();
-#endif
-#ifdef NONBLOCKING_RNG_AVAILABLE
-	RegisterDefaultFactoryFor<RandomNumberGenerator, NonblockingRng>();
-#endif
-#ifdef OS_RNG_AVAILABLE
-	RegisterDefaultFactoryFor<RandomNumberGenerator, AutoSeededRandomPool>();
-	RegisterDefaultFactoryFor<RandomNumberGenerator, AutoSeededX917RNG<AES> >();
-#endif
-	RegisterDefaultFactoryFor<RandomNumberGenerator, MT19937>();
-#if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
-	if (HasRDRAND())
-		RegisterDefaultFactoryFor<RandomNumberGenerator, RDRAND>();
-	if (HasRDSEED())
-		RegisterDefaultFactoryFor<RandomNumberGenerator, RDSEED>();
-#endif
-	RegisterDefaultFactoryFor<RandomNumberGenerator, OFB_Mode<AES>::Encryption >("AES/OFB RNG");
-	RegisterDefaultFactoryFor<NIST_DRBG, Hash_DRBG<SHA1> >("Hash_DRBG(SHA1)");
-	RegisterDefaultFactoryFor<NIST_DRBG, Hash_DRBG<SHA256> >("Hash_DRBG(SHA256)");
-	RegisterDefaultFactoryFor<NIST_DRBG, HMAC_DRBG<SHA1> >("HMAC_DRBG(SHA1)");
-	RegisterDefaultFactoryFor<NIST_DRBG, HMAC_DRBG<SHA256> >("HMAC_DRBG(SHA256)");
-
-	s_registered = true;
 }

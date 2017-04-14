@@ -14,6 +14,8 @@
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(Test)
 
+enum TestClass {Unkeyed=1,SharedKey=2,PublicKey=4, All=Unkeyed|SharedKey|PublicKey};
+
 extern const double CLOCK_TICKS_PER_SECOND;
 extern double g_allocatedTime;
 extern double g_hertz;
@@ -26,7 +28,7 @@ extern time_t g_testBegin;
 extern time_t g_testEnd;
 
 // Top level, prints preamble and postamble
-void Benchmark(int suites, double t, double hertz);
+void Benchmark(Test::TestClass suites, double t, double hertz);
 // Unkeyed systems
 void Benchmark1(double t, double hertz);
 // Shared key systems

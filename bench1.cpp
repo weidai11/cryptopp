@@ -339,34 +339,34 @@ void AddHtmlFooter()
 	std::cout << "\n</HTML>" << std::endl;
 }
 
-void Benchmark(int suites, double t, double hertz)
+void Benchmark(Test::TestClass suites, double t, double hertz)
 {
 	g_allocatedTime = t;
 	g_hertz = hertz;
 
-	g_testBegin = std::time(NULLPTR);
-
 	AddHtmlHeader();
 
-	if (suites > 7)
-		suites = 7;
+	g_testBegin = std::time(NULLPTR);
+
+	if (static_cast<int>(suites) > 7 || static_cast<int>(suites) == 0)
+		suites = Test::All;
 
 	// Unkeyed algorithms
-	if (suites & 1)
+	if (suites & Test::Unkeyed)
 		Benchmark1(t, hertz);
 
-	if (suites > 1)
+	if (static_cast<int>(suites) > 1)
 		std::cout << "\n<BR>";
 
 	// Shared key algorithms
-	if (suites & 2)
+	if (suites & Test::SharedKey)
 		Benchmark2(t, hertz);
 
-	if (suites > 2)
+	if (static_cast<int>(suites) > 2)
 		std::cout << "\n<BR>";
 
 	// Public key algorithms
-	if (suites & 4)
+	if (suites & Test::PublicKey)
 		Benchmark3(t, hertz);
 
 	g_testEnd = std::time(NULLPTR);

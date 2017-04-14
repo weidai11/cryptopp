@@ -71,7 +71,7 @@ USING_NAMESPACE(CryptoPP)
 
 const int MAX_PHRASE_LENGTH=250;
 
-void RegisterFactories();
+void RegisterFactories(Test::TestClass suites);
 void PrintSeedAndThreads(const std::string& seed);
 
 void GenerateRSAKey(unsigned int keyLength, const char *privFilename, const char *pubFilename, const char *seed);
@@ -187,7 +187,7 @@ int CRYPTOPP_API main(int argc, char *argv[])
 
 	try
 	{
-		RegisterFactories();
+		RegisterFactories(Test::All);
 
 		// Some editors have problems with the '\0' character when redirecting output.
 		std::string seed = IntToString(time(NULLPTR));
@@ -405,13 +405,13 @@ int CRYPTOPP_API main(int argc, char *argv[])
 		else if (command == "v" || command == "vv")
 			return !Validate(argc>2 ? Test::StringToValue<int, true>(argv[2]) : 0, argv[1][1] == 'v', argc>3 ? argv[3] : NULLPTR);
 		else if (command == "b")  // All benchmarks
-			Test::Benchmark(7, argc<3 ? 1 : Test::StringToValue<float, true>(argv[2]), argc<4 ? 0.0f : Test::StringToValue<float, true>(argv[3])*1e9);
+			Test::Benchmark(Test::All, argc<3 ? 1 : Test::StringToValue<float, true>(argv[2]), argc<4 ? 0.0f : Test::StringToValue<float, true>(argv[3])*1e9);
 		else if (command == "b3")  // Public key algorithms
-			Test::Benchmark(4, argc<3 ? 1 : Test::StringToValue<float, true>(argv[2]), argc<4 ? 0.0f : Test::StringToValue<float, true>(argv[3])*1e9);
+			Test::Benchmark(Test::PublicKey, argc<3 ? 1 : Test::StringToValue<float, true>(argv[2]), argc<4 ? 0.0f : Test::StringToValue<float, true>(argv[3])*1e9);
 		else if (command == "b2")  // Shared key algorithms
-			Test::Benchmark(2, argc<3 ? 1 : Test::StringToValue<float, true>(argv[2]), argc<4 ? 0.0f : Test::StringToValue<float, true>(argv[3])*1e9);
+			Test::Benchmark(Test::SharedKey, argc<3 ? 1 : Test::StringToValue<float, true>(argv[2]), argc<4 ? 0.0f : Test::StringToValue<float, true>(argv[3])*1e9);
 		else if (command == "b1")  // Unkeyed algorithms
-			Test::Benchmark(1, argc<3 ? 1 : Test::StringToValue<float, true>(argv[2]), argc<4 ? 0.0f : Test::StringToValue<float, true>(argv[3])*1e9);
+			Test::Benchmark(Test::Unkeyed, argc<3 ? 1 : Test::StringToValue<float, true>(argv[2]), argc<4 ? 0.0f : Test::StringToValue<float, true>(argv[3])*1e9);
 		else if (command == "z")
 			GzipFile(argv[3], argv[4], argv[2][0]-'0');
 		else if (command == "u")
