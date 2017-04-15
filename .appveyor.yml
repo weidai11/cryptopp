@@ -5,6 +5,16 @@
 version: 1.0.{build}
 clone_depth: 3
 
+configuration:
+
+- Debug
+- Release
+
+platform:
+
+- Win32
+- Win64
+
 build:
 
   project: cryptest.sln
