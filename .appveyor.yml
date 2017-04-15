@@ -25,7 +25,7 @@ test_script:
 - cmd: >-
 
     msbuild /t:CopyCryptestToRoot cryptest.vcxproj
-	
+    
     cryptest.exe v
-	
+    
     cryptest.exe tv all
