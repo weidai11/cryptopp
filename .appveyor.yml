@@ -1,0 +1,18 @@
+# Appveyor's documentation is at https://www.appveyor.com/docs/build-phase/,
+#  and a sample configuration file is at https://www.appveyor.com/docs/appveyor-yml/.
+#  I have to admit its a bit complex and I don't fully understand it.
+
+version: 1.0.{build}
+
+build:
+
+  project: cryptest.sln
+  verbosity: minimal
+
+test_script:
+
+- cmd: >-
+
+    msbuild /t:CopyCryptestToRoot cryptest.vcxproj
+    cryptest.exe v
+    cryptest.exe tv all
