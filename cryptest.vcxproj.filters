@@ -111,6 +111,12 @@
     <None Include="TestVectors\sha.txt">
       <Filter>TestVectors</Filter>
     </None>
+    <None Include="TestVectors\sha2.txt">
+      <Filter>TestVectors</Filter>
+    </None>
+    <None Include="TestVectors\sha3.txt">
+      <Filter>TestVectors</Filter>
+    </None>
     <None Include="TestVectors\sha3.txt">
       <Filter>TestVectors</Filter>
     </None>

@@ -256,6 +256,7 @@
     <None Include="TestVectors\seal.txt" />
     <None Include="TestVectors\seed.txt" />
     <None Include="TestVectors\sha.txt" />
+    <None Include="TestVectors\sha2.txt" />
     <None Include="TestVectors\sha3.txt" />
     <None Include="TestVectors\shacal2.txt" />
     <None Include="TestVectors\siphash.txt" />
