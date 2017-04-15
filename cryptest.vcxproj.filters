@@ -117,9 +117,6 @@
     <None Include="TestVectors\sha3.txt">
       <Filter>TestVectors</Filter>
     </None>
-    <None Include="TestVectors\sha3.txt">
-      <Filter>TestVectors</Filter>
-    </None>
     <None Include="TestVectors\shacal2.txt">
       <Filter>TestVectors</Filter>
     </None>
