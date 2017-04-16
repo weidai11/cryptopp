@@ -15,6 +15,14 @@ platform:
 - Win32
 - Win64
 
+image:
+
+- Visual Studio 2017
+- Visual Studio 2015
+- Visual Studio 2013
+- Visual Studio 2012
+- Visual Studio 2010
+
 build:
 
   project: cryptest.sln
