@@ -7,8 +7,6 @@
 #include "misc.h"
 #include "cpu.h"
 
-#include <stdio.h>
-
 #if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
 # define CRYPTOPP_ENABLE_ARIA_SSE2_INTRINSICS 1
 #endif
@@ -579,7 +577,6 @@ void ARIA::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
 		// 'outBlock' and 'xorBlock' may be unaligned.
 		if (xorBlock != NULLPTR)
 		{
-			// 3 SSE instructions
 			_mm_storeu_si128((__m128i*)(outBlock),
 				_mm_xor_si128(
 					_mm_loadu_si128((const __m128i*)(outBlock)),
@@ -626,7 +623,7 @@ void ARIA::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
 		outBlock[15] = (byte)(S2[ARIA_BRF(t[3],0)]   );
 
 		t = reinterpret_cast<word32*>(outBlock);
-		AlignedBigEndianBlock::Put(rk, t)(t[0])(t[1])(t[2])(t[3]);
+		BigEndianBlock::Put(rk, t)(t[0])(t[1])(t[2])(t[3]);
 #endif
 
 #if CRYPTOPP_ENABLE_ARIA_NEON_INTRINSICS
@@ -634,7 +631,6 @@ void ARIA::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
 	{
 		if (xorBlock != NULLPTR)
 		{
-			// 4 NEON instructions
 			vst1q_u32(reinterpret_cast<uint32_t*>(outBlock),
 				veorq_u32(
 					vld1q_u32((const uint32_t*)outBlock),
