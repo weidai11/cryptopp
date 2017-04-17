@@ -353,21 +353,24 @@ void Benchmark(Test::TestClass suites, double t, double hertz)
 
 	// Unkeyed algorithms
 	if (suites & Test::Unkeyed)
-		Benchmark1(t, hertz);
-
-	if (static_cast<int>(suites) > 1)
+	{
 		std::cout << "\n<BR>";
+		Benchmark1(t, hertz);
+	}
 
 	// Shared key algorithms
 	if (suites & Test::SharedKey)
-		Benchmark2(t, hertz);
-
-	if (static_cast<int>(suites) > 2)
+	{
 		std::cout << "\n<BR>";
+		Benchmark2(t, hertz);
+	}
 
 	// Public key algorithms
 	if (suites & Test::PublicKey)
+	{
+		std::cout << "\n<BR>";
 		Benchmark3(t, hertz);
+	}
 
 	g_testEnd = std::time(NULLPTR);
 
@@ -536,6 +539,9 @@ void Benchmark2(double t, double hertz)
 		BenchMarkByName<SymmetricCipher>("Camellia/CTR", 16);
 		BenchMarkByName<SymmetricCipher>("Camellia/CTR", 32);
 		BenchMarkByName<SymmetricCipher>("Twofish/CTR");
+//		BenchMarkByName<SymmetricCipher>("Threefish256/CTR");
+//		BenchMarkByName<SymmetricCipher>("Threefish512/CTR");
+//		BenchMarkByName<SymmetricCipher>("Threefish1024/CTR");
 		BenchMarkByName<SymmetricCipher>("Serpent/CTR");
 		BenchMarkByName<SymmetricCipher>("CAST-256/CTR");
 		BenchMarkByName<SymmetricCipher>("RC6/CTR");
