@@ -360,6 +360,13 @@ ARFLAGS = -xar -o
 RANLIB = true
 endif
 
+# No ASM for Travis testing
+ifeq ($(findstring no-asm,$(MAKECMDGOALS)),no-asm)
+ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
+CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
+endif # CXXFLAGS
+endif # No ASM
+
 # Undefined Behavior Sanitizer (UBsan) testing. There's no sense in
 #   allowing unaligned data access. There will too many findings.
 ifeq ($(findstring ubsan,$(MAKECMDGOALS)),ubsan)
@@ -515,8 +522,8 @@ deps GNUmakefile.deps:
 	$(CXX) $(strip $(CXXFLAGS)) -MM *.cpp > GNUmakefile.deps
 
 # CXXFLAGS are tuned earlier.
-.PHONY: asan ubsan
-asan ubsan: libcryptopp.a cryptest.exe
+.PHONY: asan ubsan no-asm
+no-asm asan ubsan: libcryptopp.a cryptest.exe
 
 # CXXFLAGS are tuned earlier. Applications must use linker flags
 #  -Wl,--gc-sections (Linux and Unix) or -Wl,-dead_strip (OS X)
