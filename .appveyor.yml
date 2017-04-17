@@ -44,7 +44,9 @@ test_script:
 #  - https://stackoverflow.com/questions/43423761/cant-perform-64-bit-testing-under-appveyor
 # Appveyor also complains that it can't find VS2010 tools even though the docs state they are there.
 matrix:
-  allow_failures:
+#  allow_failures:
+
+  exclude:
     - platform: Win64
       configuration: Debug
     - platform: Win64
