@@ -7,10 +7,11 @@ os:
 dist: trusty
 sudo: false
 
+# OS X only supports one image. Us the latest.
 osx_image:
-  - xcode6.4
-  - xcode7.3
   - xcode8.2
+#  - xcode7.3
+#  - xcode6.4
 
 git:
   depth: 3
@@ -30,11 +31,6 @@ env:
     - BUILD_MODE="asan"
     - BUILD_MODE="ubsan"
     - BUILD_MODE="valgrind"
-
-#matrix:
-#  allow_failures:
-#    - os: linux
-#      env: BUILD_MODE="lint"
 
   exclude:
     # Skip GCC on OS X entirely
