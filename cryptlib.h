@@ -10,29 +10,35 @@
 <dt>Authenticated Encryption Modes<dd>
 	CCM, EAX, \ref GCM "GCM (2K tables)", \ref GCM "GCM (64K tables)"
 <dt>Block Ciphers<dd>
-	\ref Rijndael "AES", Weak::ARC4, Blowfish, BTEA, Camellia, CAST128, CAST256, DES, \ref DES_EDE2 "2-key Triple-DES", \ref DES_EDE3 "3-key Triple-DES",
-	\ref DES_XEX3 "DESX", GOST, IDEA, \ref LR "Luby-Rackoff", MARS, RC2, RC5, RC6, \ref SAFER_K "SAFER-K", \ref SAFER_SK "SAFER-SK", SEED, Serpent,
-	\ref SHACAL2 "SHACAL-2", SHARK, SKIPJACK,
-Square, TEA, \ref ThreeWay "3-Way", Twofish, XTEA
+	\ref Rijndael "AES", ARIA, Weak::ARC4, Blowfish, BTEA, Camellia, CAST128, CAST256, DES,
+	\ref DES_EDE2 "2-key Triple-DES", \ref DES_EDE3 "3-key Triple-DES",	\ref DES_XEX3 "DESX",
+	GOST, IDEA, \ref LR "Luby-Rackoff", MARS, RC2, RC5, RC6, \ref SAFER_K "SAFER-K",
+	\ref SAFER_SK "SAFER-SK", SEED, Serpent, \ref SHACAL2 "SHACAL-2", SHARK, SKIPJACK,
+Square, TEA, \ref ThreeWay "3-Way", Threefish, Twofish, XTEA
 <dt>Stream Ciphers<dd>
-	ChaCha8, ChaCha12, ChaCha20, \ref Panama "Panama-LE", \ref Panama "Panama-BE", Salsa20, \ref SEAL "SEAL-LE", \ref SEAL "SEAL-BE", WAKE, XSalsa20
+	ChaCha8, ChaCha12, ChaCha20, \ref Panama "Panama-LE", \ref Panama "Panama-BE", Salsa20,
+	\ref SEAL "SEAL-LE", \ref SEAL "SEAL-BE", WAKE, XSalsa20
 <dt>Hash Functions<dd>
-	BLAKE2s, BLAKE2b, \ref Keccak "Keccak (F1600)", SHA1, SHA224, SHA256, SHA384, SHA512, \ref SHA3 "SHA-3", Tiger, Whirlpool, RIPEMD160, RIPEMD320, RIPEMD128, RIPEMD256, Weak::MD2, Weak::MD4, Weak::MD5
+	BLAKE2s, BLAKE2b, \ref Keccak "Keccak (F1600)", SHA1, SHA224, SHA256, SHA384, SHA512,
+	\ref SHA3 "SHA-3", Tiger, Whirlpool, RIPEMD160, RIPEMD320, RIPEMD128, RIPEMD256, SipHash,
+	Weak::MD2, Weak::MD4, Weak::MD5
 <dt>Non-Cryptographic Checksums<dd>
 	CRC32, Adler32
 <dt>Message Authentication Codes<dd>
 	VMAC, HMAC, CBC_MAC, CMAC, DMAC, TTMAC, \ref GCM "GCM (GMAC)", BLAKE2 (BLAKE2b and BLAKE2s), Poly1305
 <dt>Random Number Generators<dd>
 	NullRNG(), LC_RNG, RandomPool, BlockingRng, NonblockingRng, AutoSeededRandomPool, AutoSeededX917RNG,
-	\ref MersenneTwister "MersenneTwister (MT19937 and MT19937-AR)", RDRAND, RDSEED
+	NIST Hash_DRBG and HMAC_DRBG, \ref MersenneTwister "MersenneTwister (MT19937 and MT19937-AR)", RDRAND, RDSEED
 <dt>Key Derivation and Password-based Cryptography<dd>
-	HKDF, \ref PKCS12_PBKDF "PBKDF (PKCS #12)", \ref PKCS5_PBKDF1 "PBKDF-1 (PKCS #5)", \ref PKCS5_PBKDF2_HMAC "PBKDF-2/HMAC (PKCS #5)"
+	HKDF, \ref PKCS12_PBKDF "PBKDF (PKCS #12)", \ref PKCS5_PBKDF1 "PBKDF-1 (PKCS #5)",
+	\ref PKCS5_PBKDF2_HMAC "PBKDF-2/HMAC (PKCS #5)"
 <dt>Public Key Cryptosystems<dd>
 	DLIES, ECIES, LUCES, RSAES, RabinES, LUC_IES
 <dt>Public Key Signature Schemes<dd>
 	DSA2, GDSA, ECDSA, NR, ECNR, LUCSS, RSASS, RSASS_ISO, RabinSS, RWSS, ESIGN
 <dt>Key Agreement<dd>
-	DH, DH2, \ref MQV_Domain "MQV", \ref HMQV_Domain "HMQV", \ref FHMQV_Domain "FHMQV", ECDH, ECMQV, ECHMQV, ECFHMQV, XTR_DH
+	DH, DH2, \ref MQV_Domain "MQV", \ref HMQV_Domain "HMQV", \ref FHMQV_Domain "FHMQV", ECDH, ECMQV, ECHMQV,
+	ECFHMQV, XTR_DH
 <dt>Algebraic Structures<dd>
 	Integer, PolynomialMod2, PolynomialOver, RingOfPolynomialsOver,
 	ModularArithmetic, MontgomeryRepresentation, GFP2_ONB, GF2NP, GF256, GF2_32, EC2N, ECP
@@ -45,9 +51,11 @@ Square, TEA, \ref ThreeWay "3-Way", Twofish, XTEA
 <dt>Output Sink Classes<dd>
 	StringSinkTemplate, StringSink, ArraySink, FileSink, SocketSink, WindowsPipeSink, RandomNumberSink
 <dt>Filter Wrappers<dd>
-	StreamTransformationFilter, AuthenticatedEncryptionFilter, AuthenticatedDecryptionFilter, HashFilter, HashVerificationFilter, SignerFilter, SignatureVerificationFilter
+	StreamTransformationFilter, AuthenticatedEncryptionFilter, AuthenticatedDecryptionFilter, HashFilter,
+	HashVerificationFilter, SignerFilter, SignatureVerificationFilter
 <dt>Binary to Text Encoders and Decoders<dd>
-	HexEncoder, HexDecoder, Base64Encoder, Base64Decoder, Base64URLEncoder, Base64URLDecoder, Base32Encoder, Base32Decoder
+	HexEncoder, HexDecoder, Base64Encoder, Base64Decoder, Base64URLEncoder, Base64URLDecoder, Base32Encoder,
+	Base32Decoder
 <dt>Wrappers for OS features<dd>
 	Timer, Socket, WindowsHandle, ThreadLocalStorage, ThreadUserTimer
 <dt>FIPS 140 validated cryptography<dd>
@@ -59,11 +67,13 @@ In the DLL version of Crypto++, only the following implementation class are avai
 <dt>Block Ciphers<dd>
 	AES, \ref DES_EDE2 "2-key Triple-DES", \ref DES_EDE3 "3-key Triple-DES", SKIPJACK
 <dt>Cipher Modes (replace template parameter BC with one of the block ciphers above)<dd>
-	\ref ECB_Mode "ECB_Mode<BC>", \ref CTR_Mode "CTR_Mode<BC>", \ref CBC_Mode "CBC_Mode<BC>", \ref CFB_FIPS_Mode "CFB_FIPS_Mode<BC>", \ref OFB_Mode "OFB_Mode<BC>", \ref GCM "GCM<AES>"
+	\ref ECB_Mode "ECB_Mode<BC>", \ref CTR_Mode "CTR_Mode<BC>", \ref CBC_Mode "CBC_Mode<BC>",
+	\ref CFB_FIPS_Mode "CFB_FIPS_Mode<BC>", \ref OFB_Mode "OFB_Mode<BC>", \ref GCM "GCM<AES>"
 <dt>Hash Functions<dd>
 	SHA1, SHA224, SHA256, SHA384, SHA512
 <dt>Public Key Signature Schemes (replace template parameter H with one of the hash functions above)<dd>
-	RSASS\<PKCS1v15, H\>, RSASS\<PSS, H\>, RSASS_ISO\<H\>, RWSS\<P1363_EMSA2, H\>, DSA, ECDSA\<ECP, H\>, ECDSA\<EC2N, H\>
+	RSASS\<PKCS1v15, H\>, RSASS\<PSS, H\>, RSASS_ISO\<H\>, RWSS\<P1363_EMSA2, H\>, DSA, ECDSA\<ECP, H\>,
+	ECDSA\<EC2N, H\>
 <dt>Message Authentication Codes (replace template parameter H with one of the hash functions above)<dd>
 	HMAC\<H\>, CBC_MAC\<DES_EDE2\>, CBC_MAC\<DES_EDE3\>, GCM\<AES\>
 <dt>Random Number Generators<dd>
