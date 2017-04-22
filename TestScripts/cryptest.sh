@@ -1194,7 +1194,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 		echo
 
 		OBJFILE=sha.o; rm -f "$OBJFILE" 2>/dev/null
-		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS ${PLATFORM_CXXFLAGS[@]}" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
+		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS -msse -msse2" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
 
 		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
 
@@ -1231,7 +1231,11 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 	############################################
 	# Test AES-NI code generation
 
-	X86_AESNI=$(echo -n "$X86_CPU_FLAGS" | "$GREP" -i -c aes)
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -maes adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	if [[ "$?" -eq "0" ]]; then
+		X86_AESNI=1
+	fi
+
 	if [[ ("$X86_AESNI" -ne "0") ]]; then
 		echo
 		echo "************************************" | tee -a "$TEST_RESULTS"
@@ -1239,7 +1243,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 		echo
 
 		OBJFILE=rijndael.o; rm -f "$OBJFILE" 2>/dev/null
-		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS ${PLATFORM_CXXFLAGS[@]}" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
+		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS -msse -msse2" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
 
 		COUNT=0
 		FAILED=0
@@ -1293,7 +1297,11 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 	############################################
 	# X86 carryless multiply code generation
 
-	X86_PCLMUL=$(echo -n "$X86_CPU_FLAGS" | "$GREP" -i -c pclmulq)
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -mpclmul adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	if [[ "$?" -eq "0" ]]; then
+		X86_PCLMUL=1
+	fi
+
 	if [[ ("$X86_PCLMUL" -ne "0") ]]; then
 		echo
 		echo "************************************" | tee -a "$TEST_RESULTS"
@@ -1301,7 +1309,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 		echo
 
 		OBJFILE=gcm.o; rm -f "$OBJFILE" 2>/dev/null
-		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS ${PLATFORM_CXXFLAGS[@]}" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
+		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS -msse -msse2" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
 
 		COUNT=0
 		FAILED=0
@@ -1331,8 +1339,15 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 	############################################
 	# Test RDRAND and RDSEED code generation
 
-	X86_RDRAND=$(echo -n "$X86_CPU_FLAGS" | "$GREP" -i -c rdrand)
-	X86_RDSEED=$(echo -n "$X86_CPU_FLAGS" | "$GREP" -i -c rdseed)
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -mrdrnd adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	if [[ "$?" -eq "0" ]]; then
+		X86_RDRAND=1
+	fi
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -mrdseed adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	if [[ "$?" -eq "0" ]]; then
+		X86_RDSEED=1
+	fi
+
 	if [[ ("$X86_RDRAND" -ne "0" || "$X86_RDSEED" -ne "0") ]]; then
 		echo
 		echo "************************************" | tee -a "$TEST_RESULTS"
@@ -1340,7 +1355,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 		echo
 
 		OBJFILE=rdrand.o; rm -f "$OBJFILE" 2>/dev/null
-		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS ${PLATFORM_CXXFLAGS[@]}" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
+		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS -msse -msse2" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
 
 		COUNT=0
 		FAILED=0
@@ -1374,7 +1389,11 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 	############################################
 	# X86 CRC32 code generation
 
-	X86_CRC32=$(echo -n "$X86_CPU_FLAGS" | "$EGREP" -i -c '(sse4.2|sse4_2)')
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -msse4.2 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	if [[ "$?" -eq "0" ]]; then
+		X86_CRC32=1
+	fi
+
 	if [[ ("$X86_CRC32" -ne "0") ]]; then
 		echo
 		echo "************************************" | tee -a "$TEST_RESULTS"
@@ -1382,7 +1401,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 		echo
 
 		OBJFILE=crc.o; rm -f "$OBJFILE" 2>/dev/null
-		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS ${PLATFORM_CXXFLAGS[@]}" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
+		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS -msse -msse2" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
 
 		COUNT=0
 		FAILED=0
@@ -1412,7 +1431,11 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 	############################################
 	# X86 SHA code generation
 
-	X86_SHA=$(echo -n "$X86_CPU_FLAGS" | "$EGREP" -i -c '(sha_ni)')
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -msha adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	if [[ "$?" -eq "0" ]]; then
+		X86_SHA=1
+	fi
+
 	if [[ ("$X86_SHA" -ne "0") ]]; then
 		echo
 		echo "************************************" | tee -a "$TEST_RESULTS"
@@ -1420,7 +1443,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 		echo
 
 		OBJFILE=sha.o; rm -f "$OBJFILE" 2>/dev/null
-		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS ${PLATFORM_CXXFLAGS[@]}" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
+		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS -msse -msse2" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
 
 		COUNT=0
 		FAILED=0
@@ -1580,7 +1603,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 		echo
 
 		OBJFILE=crc.o; rm -f "$OBJFILE" 2>/dev/null
-		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS ${PLATFORM_CXXFLAGS[@]}" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
+		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS -DDISABLE_NATIVE_ARCH=1" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
 
 		COUNT=0
 		FAILED=0
