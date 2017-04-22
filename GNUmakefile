@@ -148,6 +148,7 @@ ifneq ($(HAVE_GAS),0)
   GAS210_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.[1-9][0-9]|[3-9])")
   GAS217_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.1[7-9]|2\.[2-9]|[3-9])")
   GAS219_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.19|2\.[2-9]|[3-9])")
+  GAS223_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.2[3-9]|2\.[3-9]|[3-9])")
 endif
 
 ICC111_OR_LATER := $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(ICC\) ([2-9][0-9]|1[2-9]|11\.[1-9])")
@@ -172,6 +173,11 @@ else
 ifeq ($(HAVE_GAS)$(GAS219_OR_LATER),10)
 CXXFLAGS += -DCRYPTOPP_DISABLE_AESNI
 DISABLE_NATIVE_ARCH := 1
+else
+ifeq ($(HAVE_GAS)$(GAS223_OR_LATER),10)
+CXXFLAGS += -DCRYPTOPP_DISABLE_SHA
+DISABLE_NATIVE_ARCH := 1
+endif
 endif
 endif
 endif

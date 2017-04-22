@@ -46,6 +46,7 @@ endif()
 option(DISABLE_ASM "Disable ASM" OFF)
 option(DISABLE_SSSE3 "Disable SSSE3" OFF)
 option(DISABLE_AESNI "Disable AES-NI" OFF)
+option(DISABLE_SHA "Disable SHA" OFF)
 option(DISABLE_NATIVE_ARCH "Disable the addition of -march=native" OFF)
 set(CRYPTOPP_DATA_DIR "" CACHE PATH "Crypto++ test data directory")
 
@@ -102,6 +103,10 @@ if(DISABLE_AESNI)
 	add_definitions(-DCRYPTOPP_DISABLE_AESNI)
 	set(DISABLE_NATIVE_ARCH 1)
 endif()
+if(DISABLE_SHA)
+	add_definitions(-DCRYPTOPP_DISABLE_SHA)
+	set(DISABLE_NATIVE_ARCH 1)
+endif()
 if(NOT CRYPTOPP_DATA_DIR STREQUAL "")
 	add_definitions(-DCRYPTOPP_DATA_DIR="${CRYPTOPP_DATA_DIR}")
 endif()
@@ -151,6 +156,14 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 				OUTPUT_VARIABLE GAS219_OR_LATER)
 			if (GAS219_OR_LATER EQUAL 0)
 				add_definitions(-DCRYPTOPP_DISABLE_AESNI)
+				set(DISABLE_NATIVE_ARCH 1)
+			endif()
+
+			execute_process(COMMAND echo ${GAS_STRING}
+				COMMAND ${GREP_CMD} "GNU assembler version (2\\.2[3-9]|2\\.[3-9]|[3-9])"
+				OUTPUT_VARIABLE GAS223_OR_LATER)
+			if (GAS223_OR_LATER EQUAL 0)
+				add_definitions(-DCRYPTOPP_DISABLE_SHA)
 				set(DISABLE_NATIVE_ARCH 1)
 			endif()
 		endif()
@@ -238,9 +251,8 @@ if ((NOT CRYPTOPP_CROSS_COMPILE) AND "${UNAME_SYSTEM}" STREQUAL "SunOS")
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -template=no%extdef")
 	endif()
 
-	# Try this if you are encountering unexplained SIGBUS'es
-	# even when DBX reports the memory is aligned.
-	# SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -xmemalign=8i")
+	# Try this if you are encountering unexplained SIGBUS'es on SPARC
+	# SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -xmemalign=4i")
 
 endif()
 
