@@ -237,6 +237,11 @@ if ((NOT CRYPTOPP_CROSS_COMPILE) AND "${UNAME_SYSTEM}" STREQUAL "SunOS")
 	if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "SunPro")
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -template=no%extdef")
 	endif()
+
+	# Try this if you are encountering unexplained SIGBUS'es
+	# even when DBX reports the memory is aligned.
+	# SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -xmemalign=8i")
+
 endif()
 
 # Link is driven through the compiler, but CXXFLAGS are not used. Also see
