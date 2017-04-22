@@ -451,6 +451,12 @@ NAMESPACE_END
 	#define CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE 0
 #endif
 
+#if !defined(CRYPTOPP_BOOL_ALTIVEC_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ALTIVEC)
+# if defined(__powerpc64__) && defined(__POWER8_VECTOR__) && __POWER8_VECTOR__ == 1
+#  define CRYPTOPP_BOOL_ALTIVEC_AVAILABLE 1
+# endif
+#endif
+
 // Requires ARMv7 and ACLE 1.0. Testing shows ARMv7 is really ARMv7a under most toolchains.
 #if !defined(CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
 # if defined(__ARM_NEON__) || defined(__ARM_NEON) || defined(_M_ARM)
@@ -572,6 +578,13 @@ NAMESPACE_END
 	#define CRYPTOPP_BOOL_ARM64 1
 #else
 	#define CRYPTOPP_BOOL_ARM64 0
+#endif
+
+// Using a SIMD altivec approach on machines that supports so
+#if defined(__powerpc64__) && defined(__POWER8_VECTOR__) && __POWER8_VECTOR__ == 1
+	#define CRYPTOPP_BOOL_PPC64LE 1
+#else
+	#define CRYPTOPP_BOOL_PPC64LE 0
 #endif
 
 #if !defined(CRYPTOPP_NO_UNALIGNED_DATA_ACCESS) && !defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS)
