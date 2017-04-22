@@ -47,7 +47,7 @@
 #if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
 #  include <emmintrin.h>    // __m64, __m128i, _mm_set_epi64x
 #endif
-#if CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE
+#if CRYPTOPP_BOOL_SSSE3_INTRINSICS_AVAILABLE
 #  include <tmmintrin.h>    // _mm_shuffle_pi8, _mm_shuffle_epi8
 #endif // tmmintrin.h
 #if CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
