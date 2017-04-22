@@ -9,13 +9,13 @@
 // ***************** Important Settings ********************
 
 // define this if running on a big-endian CPU
-#if !defined(IS_LITTLE_ENDIAN) && (defined(__BIG_ENDIAN__) || (defined(__s390__) || defined(__s390x__) || defined(__zarch__)) || (defined(__m68k__) || defined(__MC68K__)) || defined(__sparc) || defined(__sparc__) || defined(__hppa__) || defined(__MIPSEB__) || defined(__ARMEB__) || (defined(__MWERKS__) && !defined(__INTEL__)))
+#if !defined(IS_LITTLE_ENDIAN) && !defined(IS_BIG_ENDIAN) && (defined(__BIG_ENDIAN__) || (defined(__s390__) || defined(__s390x__) || defined(__zarch__)) || (defined(__m68k__) || defined(__MC68K__)) || defined(__sparc) || defined(__sparc__) || defined(__hppa__) || defined(__MIPSEB__) || defined(__ARMEB__) || (defined(__MWERKS__) && !defined(__INTEL__)))
 #	define IS_BIG_ENDIAN
 #endif
 
 // define this if running on a little-endian CPU
 // big endian will be assumed if IS_LITTLE_ENDIAN is not defined
-#ifndef IS_BIG_ENDIAN
+#if !defined(IS_BIG_ENDIAN) && !defined(IS_LITTLE_ENDIAN)
 #	define IS_LITTLE_ENDIAN
 #endif
 
