@@ -40,7 +40,21 @@ typedef void (CRYPTOPP_FASTCALL *pfnSHAHashBlocks)(word32 *state, const word32 *
 // start of Steve Reid's code //
 ////////////////////////////////
 
-#define blk0(i) (W[i] = data[i])
+
+template <typename T>
+inline T BLK0_TEMPLATE(const T* y, const int i)
+{
+    T t;
+    memcpy(&t, y+i, sizeof(t));
+    return t;
+}
+
+#if defined(__SUNPRO_CC)
+#  define blk0(i) (W[i] = BLK0_TEMPLATE(data,i))
+#else
+#  define blk0(i) (W[i] = data[i])
+#endif
+
 #define blk1(i) (W[i&15] = rotlFixed(W[(i+13)&15]^W[(i+8)&15]^W[(i+2)&15]^W[i&15],1))
 
 #define f1(x,y,z) (z^(x&(y^z)))
