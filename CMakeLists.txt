@@ -152,7 +152,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 				set(DISABLE_NATIVE_ARCH 1)
 			endif()
 
-			# OpenBSD, CentOS 5 needed this one due to ARIA and BLAKE2
+			# OpenBSD and CentOS 5 needed this one due to ARIA and BLAKE2
 			execute_process(COMMAND echo ${GAS_STRING}
 				COMMAND ${GREP_CMD} "GNU assembler version (2\\.1[8-9]|2\\.[2-9]|[3-9])"
 				OUTPUT_VARIABLE GAS218_OR_LATER)

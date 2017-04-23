@@ -581,6 +581,16 @@ if [[ (-z "$HAVE_X32") ]]; then
 	fi
 fi
 
+# Hit or miss, mostly hit
+if [[ (-z "$HAVE_NATIVE_ARCH") ]]; then
+	HAVE_NATIVE_ARCH=0
+	rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -march=native adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	if [[ ("$?" -eq "0") ]]; then
+		HAVE_NATIVE_ARCH=1
+	fi
+fi
+
 # ld-gold linker testing
 if [[ (-z "$HAVE_LDGOLD") ]]; then
 	HAVE_LDGOLD=0
@@ -1829,7 +1839,7 @@ fi
 
 ############################################
 # Mismatched arch capabilities
-if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0" || "$INTEL_COMPILER" -ne "0") ]]; then
+if [[ ( ("$IS_X86" -ne "0" || "$IS_X32" -ne "0" || "$IS_X64" -ne "0") && "$HAVE_NATIVE_ARCH" -ne "0") ]]; then
 
 	# i586 (lacks MMX, SSE and SSE2)
 	if [[ "$IS_X86" -ne "0" ]]; then
@@ -1846,7 +1856,8 @@ if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0" || "$INTEL_COMPILER"
 		CXXFLAGS="$DEBUG_CXXFLAGS -march=i586 $OPT_PIC"
 		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static 2>&1 | tee -a "$TEST_RESULTS"
 
-		CXXFLAGS="$DEBUG_CXXFLAGS -march=native $OPT_PIC"
+		# The makefile may add -DCRYPTOPP_DISABLE_XXX, so we can't add -march=native
+		CXXFLAGS="$DEBUG_CXXFLAGS $OPT_PIC"
 		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -1875,7 +1886,8 @@ if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0" || "$INTEL_COMPILER"
 		CXXFLAGS="$RELEASE_CXXFLAGS -march=i586 $OPT_PIC"
 		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static 2>&1 | tee -a "$TEST_RESULTS"
 
-		CXXFLAGS="$RELEASE_CXXFLAGS -march=native $OPT_PIC"
+		# The makefile may add -DCRYPTOPP_DISABLE_XXX, so we can't add -march=native
+		CXXFLAGS="$RELEASE_CXXFLAGS $OPT_PIC"
 		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -1907,7 +1919,8 @@ if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0" || "$INTEL_COMPILER"
 		CXXFLAGS="$DEBUG_CXXFLAGS -march=x86-64 $OPT_PIC"
 		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static 2>&1 | tee -a "$TEST_RESULTS"
 
-		CXXFLAGS="$DEBUG_CXXFLAGS -march=native $OPT_PIC"
+		# The makefile may add -DCRYPTOPP_DISABLE_XXX, so we can't add -march=native
+		CXXFLAGS="$DEBUG_CXXFLAGS $OPT_PIC"
 		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -1936,7 +1949,8 @@ if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0" || "$INTEL_COMPILER"
 		CXXFLAGS="$RELEASE_CXXFLAGS -march=x86-64 $OPT_PIC"
 		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static 2>&1 | tee -a "$TEST_RESULTS"
 
-		CXXFLAGS="$RELEASE_CXXFLAGS -march=native $OPT_PIC"
+		# The makefile may add -DCRYPTOPP_DISABLE_XXX, so we can't add -march=native
+		CXXFLAGS="$RELEASE_CXXFLAGS $OPT_PIC"
 		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then

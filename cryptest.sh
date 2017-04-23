@@ -1856,7 +1856,8 @@ if [[ ( ("$IS_X86" -ne "0" || "$IS_X32" -ne "0" || "$IS_X64" -ne "0") && "$HAVE_
 		CXXFLAGS="$DEBUG_CXXFLAGS -march=i586 $OPT_PIC"
 		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static 2>&1 | tee -a "$TEST_RESULTS"
 
-		CXXFLAGS="$DEBUG_CXXFLAGS -march=native $OPT_PIC"
+		# The makefile may add -DCRYPTOPP_DISABLE_XXX, so we can't add -march=native
+		CXXFLAGS="$DEBUG_CXXFLAGS $OPT_PIC"
 		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -1885,7 +1886,8 @@ if [[ ( ("$IS_X86" -ne "0" || "$IS_X32" -ne "0" || "$IS_X64" -ne "0") && "$HAVE_
 		CXXFLAGS="$RELEASE_CXXFLAGS -march=i586 $OPT_PIC"
 		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static 2>&1 | tee -a "$TEST_RESULTS"
 
-		CXXFLAGS="$RELEASE_CXXFLAGS -march=native $OPT_PIC"
+		# The makefile may add -DCRYPTOPP_DISABLE_XXX, so we can't add -march=native
+		CXXFLAGS="$RELEASE_CXXFLAGS $OPT_PIC"
 		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -1917,7 +1919,8 @@ if [[ ( ("$IS_X86" -ne "0" || "$IS_X32" -ne "0" || "$IS_X64" -ne "0") && "$HAVE_
 		CXXFLAGS="$DEBUG_CXXFLAGS -march=x86-64 $OPT_PIC"
 		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static 2>&1 | tee -a "$TEST_RESULTS"
 
-		CXXFLAGS="$DEBUG_CXXFLAGS -march=native $OPT_PIC"
+		# The makefile may add -DCRYPTOPP_DISABLE_XXX, so we can't add -march=native
+		CXXFLAGS="$DEBUG_CXXFLAGS $OPT_PIC"
 		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -1946,7 +1949,8 @@ if [[ ( ("$IS_X86" -ne "0" || "$IS_X32" -ne "0" || "$IS_X64" -ne "0") && "$HAVE_
 		CXXFLAGS="$RELEASE_CXXFLAGS -march=x86-64 $OPT_PIC"
 		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static 2>&1 | tee -a "$TEST_RESULTS"
 
-		CXXFLAGS="$RELEASE_CXXFLAGS -march=native $OPT_PIC"
+		# The makefile may add -DCRYPTOPP_DISABLE_XXX, so we can't add -march=native
+		CXXFLAGS="$RELEASE_CXXFLAGS $OPT_PIC"
 		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
