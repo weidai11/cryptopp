@@ -45,6 +45,7 @@ endif()
 
 option(DISABLE_ASM "Disable ASM" OFF)
 option(DISABLE_SSSE3 "Disable SSSE3" OFF)
+option(DISABLE_SSE4 "Disable SSE4" OFF)
 option(DISABLE_AESNI "Disable AES-NI" OFF)
 option(DISABLE_SHA "Disable SHA" OFF)
 option(DISABLE_NATIVE_ARCH "Disable the addition of -march=native" OFF)
@@ -151,6 +152,15 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 				set(DISABLE_NATIVE_ARCH 1)
 			endif()
 
+			# OpenBSD, CentOS 5 needed this one due to ARIA and BLAKE2
+			execute_process(COMMAND echo ${GAS_STRING}
+				COMMAND ${GREP_CMD} "GNU assembler version (2\\.1[8-9]|2\\.[2-9]|[3-9])"
+				OUTPUT_VARIABLE GAS218_OR_LATER)
+			if (GAS218_OR_LATER EQUAL 0)
+				add_definitions(-DCRYPTOPP_DISABLE_SSE4)
+				set(DISABLE_NATIVE_ARCH 1)
+			endif()
+
 			execute_process(COMMAND echo ${GAS_STRING}
 				COMMAND ${GREP_CMD} "GNU assembler version (2\\.19|2\\.[2-9]|[3-9])"
 				OUTPUT_VARIABLE GAS219_OR_LATER)
@@ -159,6 +169,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 				set(DISABLE_NATIVE_ARCH 1)
 			endif()
 
+			# Ubuntu 10 and Ubuntu 12 needed this one
 			execute_process(COMMAND echo ${GAS_STRING}
 				COMMAND ${GREP_CMD} "GNU assembler version (2\\.2[3-9]|2\\.[3-9]|[3-9])"
 				OUTPUT_VARIABLE GAS223_OR_LATER)

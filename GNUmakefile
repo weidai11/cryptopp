@@ -147,6 +147,7 @@ endif
 ifneq ($(HAVE_GAS),0)
   GAS210_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.[1-9][0-9]|[3-9])")
   GAS217_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.1[7-9]|2\.[2-9]|[3-9])")
+  GAS218_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.1[8-9]|2\.[2-9]|[3-9])")
   GAS219_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.19|2\.[2-9]|[3-9])")
   GAS223_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.2[3-9]|2\.[3-9]|[3-9])")
 endif
@@ -163,11 +164,17 @@ endif
 # .intel_syntax wasn't supported until GNU assembler 2.10
 # No DISABLE_NATIVE_ARCH with CRYPTOPP_DISABLE_ASM for now
 #  See http://github.com/weidai11/cryptopp/issues/395
+ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
 ifeq ($(HAVE_GAS)$(GAS210_OR_LATER),10)
 CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
+DISABLE_NATIVE_ARCH := 1
 else
 ifeq ($(HAVE_GAS)$(GAS217_OR_LATER),10)
 CXXFLAGS += -DCRYPTOPP_DISABLE_SSSE3
+DISABLE_NATIVE_ARCH := 1
+else
+ifeq ($(HAVE_GAS)$(GAS218_OR_LATER),10)
+CXXFLAGS += -DCRYPTOPP_DISABLE_SSE4
 DISABLE_NATIVE_ARCH := 1
 else
 ifeq ($(HAVE_GAS)$(GAS219_OR_LATER),10)
@@ -177,15 +184,17 @@ else
 ifeq ($(HAVE_GAS)$(GAS223_OR_LATER),10)
 CXXFLAGS += -DCRYPTOPP_DISABLE_SHA
 DISABLE_NATIVE_ARCH := 1
-endif
-endif
-endif
-endif
+endif  # -DCRYPTOPP_DISABLE_SHA
+endif  # -DCRYPTOPP_DISABLE_AESNI
+endif  # -DCRYPTOPP_DISABLE_SSE4
+endif  # -DCRYPTOPP_DISABLE_SSSE3
+endif  # -DCRYPTOPP_DISABLE_ASM
+endif  # CXXFLAGS
 
-# BEGIN NATIVE_ARCH
+# BEGIN_NATIVE_ARCH
 # Guard use of -march=native (or -m{32|64} on some platforms)
 # Don't add anything if -march=XXX or -mtune=XXX is specified
-ifneq ($(DISABLE_NATIVE_ARCH),1)
+ifeq ($(DISABLE_NATIVE_ARCH),0)
 ifeq ($(findstring -march,$(CXXFLAGS)),)
 ifeq ($(findstring -mtune,$(CXXFLAGS)),)
    ifeq ($(GCC42_OR_LATER)$(IS_NETBSD),10)
@@ -206,7 +215,7 @@ ifeq ($(findstring -mtune,$(CXXFLAGS)),)
 endif  # -mtune
 endif  # -march
 endif  # DISABLE_NATIVE_ARCH
-# END NATIVE_ARCH
+# END_NATIVE_ARCH
 
 # Aligned access required for -O3 and above due to vectorization
 UNALIGNED_ACCESS := $(shell $(EGREP) -c "^[[:space:]]*//[[:space:]]*\#[[:space:]]*define[[:space:]]*CRYPTOPP_NO_UNALIGNED_DATA_ACCESS" config.h)
