@@ -318,6 +318,21 @@ endif	# IS_X86
 #####                      Common                     #####
 ###########################################################
 
+# For SunOS, create a Mapfile that allows our object files
+# to cantain additional bits (like SSE4 and AES on old Xeon)
+# http://www.oracle.com/technetwork/server-storage/solaris/hwcap-modification-139536.html
+ifeq ($(IS_SUN)$(SUN_COMPILER),11)
+ifneq ($(IS_X86)$(IS_X32)$(IS_X64),000)
+ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
+ifeq ($(wildcard cryptopp.mapfile),)
+$(shell echo "hwcap_1 = SSE SSE2 OVERRIDE;" > cryptopp.mapfile)
+$(shell echo "" >> cryptopp.mapfile)
+endif  # Write mapfile
+LDFLAGS += -M cryptopp.mapfile
+endif  # No CRYPTOPP_DISABLE_ASM
+endif  # X86/X32/X64
+endif  # SunOS
+
 ifneq ($(IS_MINGW),0)
 LDLIBS += -lws2_32
 endif
@@ -608,7 +623,7 @@ clean:
 
 .PHONY: distclean
 distclean: clean
-	-$(RM) adhoc.cpp adhoc.cpp.copied GNUmakefile.deps benchmarks.html cryptest.txt cryptest-*.txt
+	-$(RM) adhoc.cpp adhoc.cpp.copied cryptopp.mapfile GNUmakefile.deps benchmarks.html cryptest.txt cryptest-*.txt
 	@-$(RM) CMakeCache.txt Makefile CTestTestfile.cmake cmake_install.cmake cryptopp-config-version.cmake
 	@-$(RM) cryptopp.tgz *.o *.bc *.ii *~
 	@-$(RM) -r $(SRCS:.cpp=.obj) *.suo *.sdf *.pdb Win32/ x64/ ipch/
