@@ -19,7 +19,7 @@ NAMESPACE_BEGIN(CryptoPP)
 //! \brief Legacy block cipher for LegacyEncryptor, LegacyDecryptor, LegacyEncryptorWithMAC and LegacyDecryptorWithMAC
 typedef DES_EDE2 LegacyBlockCipher;
 //! \brief Legacy hash for use with LegacyEncryptorWithMAC and LegacyDecryptorWithMAC
-typedef SHA LegacyHashModule;
+typedef SHA1 LegacyHashModule;
 //! \brief Legacy HMAC for use withLegacyEncryptorWithMAC and LegacyDecryptorWithMAC
 typedef HMAC<LegacyHashModule> LegacyMAC;
 

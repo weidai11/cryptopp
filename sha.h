@@ -30,8 +30,6 @@ public:
 	CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "SHA-1";}
 };
 
-typedef SHA1 SHA;	// for backwards compatibility
-
 //! \class SHA256
 //! \brief SHA-256 message digest
 //! \sa <a href="http://www.weidai.com/scan-mirror/md.html#SHA-256">SHA-256</a>

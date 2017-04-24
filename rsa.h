@@ -217,22 +217,22 @@ DOCUMENTED_TYPEDEF(RSAES<PKCS1v15>::Decryptor, RSAES_PKCS1v15_Decryptor);
 //! \details RSA encryption scheme defined in PKCS #1 v2.0
 DOCUMENTED_TYPEDEF(RSAES<PKCS1v15>::Encryptor, RSAES_PKCS1v15_Encryptor);
 
-//! \brief \ref RSAES<STANDARD> "RSAES<OAEP<SHA>>::Decryptor" typedef
+//! \brief \ref RSAES<STANDARD> "RSAES<OAEP<SHA1>>::Decryptor" typedef
 //! \details RSA encryption scheme defined in PKCS #1 v2.0
-DOCUMENTED_TYPEDEF(RSAES<OAEP<SHA> >::Decryptor, RSAES_OAEP_SHA_Decryptor);
-//! \brief \ref RSAES<STANDARD> "RSAES<OAEP<SHA>>::Encryptor" typedef
+DOCUMENTED_TYPEDEF(RSAES<OAEP<SHA1> >::Decryptor, RSAES_OAEP_SHA_Decryptor);
+//! \brief \ref RSAES<STANDARD> "RSAES<OAEP<SHA1>>::Encryptor" typedef
 //! \details RSA encryption scheme defined in PKCS #1 v2.0
-DOCUMENTED_TYPEDEF(RSAES<OAEP<SHA> >::Encryptor, RSAES_OAEP_SHA_Encryptor);
+DOCUMENTED_TYPEDEF(RSAES<OAEP<SHA1> >::Encryptor, RSAES_OAEP_SHA_Encryptor);
 
 #ifdef CRYPTOPP_DOXYGEN_PROCESSING
-//! \brief \ref RSASS<STANDARD,HASH> "RSASS<PKCS1v15,SHA>::Signer" typedef
+//! \brief \ref RSASS<STANDARD,HASH> "RSASS<PKCS1v15,SHA1>::Signer" typedef
 //! \details RSA signature schemes defined in PKCS #1 v2.0
 //! \since Crypto++ 1.0
-class RSASSA_PKCS1v15_SHA_Signer : public RSASS<PKCS1v15,SHA>::Signer {};
-//! \brief \ref RSASS<STANDARD,HASH> "RSASS<PKCS1v15,SHA>::Verifier" typedef
+class RSASSA_PKCS1v15_SHA_Signer : public RSASS<PKCS1v15,SHA1>::Signer {};
+//! \brief \ref RSASS<STANDARD,HASH> "RSASS<PKCS1v15,SHA1>::Verifier" typedef
 //! \details RSA signature schemes defined in PKCS #1 v2.0
 //! \since Crypto++ 1.0
-class RSASSA_PKCS1v15_SHA_Verifier : public RSASS<PKCS1v15,SHA>::Verifier {};
+class RSASSA_PKCS1v15_SHA_Verifier : public RSASS<PKCS1v15,SHA1>::Verifier {};
 
 namespace Weak {
 
@@ -256,8 +256,8 @@ class RSASSA_PKCS1v15_MD5_Verifier : public RSASS<PKCS1v15, Weak1::MD5>::Verifie
 }
 
 #else
-typedef RSASS<PKCS1v15,SHA>::Signer RSASSA_PKCS1v15_SHA_Signer;
-typedef RSASS<PKCS1v15,SHA>::Verifier RSASSA_PKCS1v15_SHA_Verifier;
+typedef RSASS<PKCS1v15,SHA1>::Signer RSASSA_PKCS1v15_SHA_Signer;
+typedef RSASS<PKCS1v15,SHA1>::Verifier RSASSA_PKCS1v15_SHA_Verifier;
 
 namespace Weak {
 	typedef RSASS<PKCS1v15, Weak1::MD2>::Signer RSASSA_PKCS1v15_MD2_Signer;

@@ -457,7 +457,7 @@ protected:
 					Integer p, q, h, g;
 					int counter;
 
-					SecByteBlock seed(SHA::DIGESTSIZE);
+					SecByteBlock seed(SHA1::DIGESTSIZE);
 					do
 					{
 						m_rng.GenerateBlock(seed, seed.size());

@@ -543,14 +543,14 @@ std::string RSADecryptString(const char *privFilename, const char *ciphertext)
 void RSASignFile(const char *privFilename, const char *messageFilename, const char *signatureFilename)
 {
 	FileSource privFile(privFilename, true, new HexDecoder);
-	RSASS<PKCS1v15, SHA>::Signer priv(privFile);
+	RSASS<PKCS1v15, SHA1>::Signer priv(privFile);
 	FileSource f(messageFilename, true, new SignerFilter(Test::GlobalRNG(), priv, new HexEncoder(new FileSink(signatureFilename))));
 }
 
 bool RSAVerifyFile(const char *pubFilename, const char *messageFilename, const char *signatureFilename)
 {
 	FileSource pubFile(pubFilename, true, new HexDecoder);
-	RSASS<PKCS1v15, SHA>::Verifier pub(pubFile);
+	RSASS<PKCS1v15, SHA1>::Verifier pub(pubFile);
 
 	FileSource signatureFile(signatureFilename, true, new HexDecoder);
 	if (signatureFile.MaxRetrievable() != pub.SignatureLength())
