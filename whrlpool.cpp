@@ -609,15 +609,7 @@ void Whirlpool::Transform(word64 *digest, const word64 *block)
 	// Compute and apply K^0 to the cipher state
 	// Also apply part of the Miyaguchi-Preneel compression function
 	for (int i=0; i<8; i++)
-	{
-#if defined (__SUNPRO_CC)
-		word64 block_i = 0;
-		memcpy(&block_i, &block[i], sizeof(block_i));
-		digest[i] = s[i] = block_i ^ (k[i] = digest[i]);
-#else
 		digest[i] = s[i] = block[i] ^ (k[i] = digest[i]);
-#endif
-	}
 
 #define KSL(op, i, a, b, c, d)	\
 	t = (word32)k[i];\
