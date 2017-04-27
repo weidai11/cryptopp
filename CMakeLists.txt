@@ -262,9 +262,12 @@ if ((NOT CRYPTOPP_CROSS_COMPILE) AND "${UNAME_SYSTEM}" STREQUAL "SunOS")
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -template=no%extdef")
 	endif()
 
-	# Try this if you are encountering unexplained SIGBUS'es on SPARC
-	# SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -xmemalign=4i")
-
+	execute_process(COMMAND "uname" "-p" OUTPUT_VARIABLE PLATFORM_SUNOS_ARCH OUTPUT_STRIP_TRAILING_WHITESPACE)
+	string(TOUPPER "${PLATFORM_SUNOS_ARCH}" PLATFORM_SUNOS_ARCH)
+	message(STATUS "SunOS platform arch: ${PLATFORM_SUNOS_ARCH}")
+	if (${PLATFORM_SUNOS_ARCH} MATCHES SPARC)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -xmemalign=4i")
+	endif ()
 endif()
 
 # Link is driven through the compiler, but CXXFLAGS are not used. Also see
