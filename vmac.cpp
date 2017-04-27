@@ -546,23 +546,9 @@ void VMAC_Base::VHASH_Update_Template(const word64 *data, size_t blocksRemaining
 	CRYPTOPP_ASSERT(IsAlignedOn(m_polyState(),GetAlignmentOf<word64>()));
 	CRYPTOPP_ASSERT(IsAlignedOn(m_nhKey(),GetAlignmentOf<word64>()));
 
-#if defined(__SUNPRO_CC)
-	#define PREPARE_D0_D1(j) \
-		word64 d0_original = 0;\
-		memcpy(&d0_original, data + i + 2*j + 0, sizeof(d0_original));\
-		word64 d1_original = 0;\
-		memcpy(&d1_original, data + i + 2*j + 1, sizeof(d1_original));\
-		\
-		word64 d0 = ConditionalByteReverse(LITTLE_ENDIAN_ORDER, d0_original);\
-		word64 d1 = ConditionalByteReverse(LITTLE_ENDIAN_ORDER, d1_original)
-#else
-	#define PREPARE_D0_D1(j) \
-		word64 d0 = ConditionalByteReverse(LITTLE_ENDIAN_ORDER, data[i+2*j+0]);\
-		word64 d1 = ConditionalByteReverse(LITTLE_ENDIAN_ORDER, data[i+2*j+1])
-#endif
-
 	#define INNER_LOOP_ITERATION(j)	{\
-		PREPARE_D0_D1(j);\
+		word64 d0 = ConditionalByteReverse(LITTLE_ENDIAN_ORDER, data[i+2*j+0]);\
+		word64 d1 = ConditionalByteReverse(LITTLE_ENDIAN_ORDER, data[i+2*j+1]);\
 		AccumulateNH(nhA, d0+nhK[i+2*j+0], d1+nhK[i+2*j+1]);\
 		if (T_128BitTag)\
 			AccumulateNH(nhB, d0+nhK[i+2*j+2], d1+nhK[i+2*j+3]);\
