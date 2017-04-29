@@ -176,17 +176,8 @@ ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#if defined(IS_LITTLE_ENDIAN)
-typedef BlockGetAndPut<word32, BigEndian, true, true> AlignedBigEndianBlock;
 typedef BlockGetAndPut<word32, BigEndian, false, false> BigEndianBlock;
-typedef BlockGetAndPut<word32, LittleEndian, true, true>  AlignedNativeEndianBlock;
-typedef BlockGetAndPut<word32, LittleEndian, false, false> NativeEndianBlock;
-#else
-typedef BlockGetAndPut<word32, BigEndian, true, true> AlignedBigEndianBlock;
-typedef BlockGetAndPut<word32, BigEndian, false, false> BigEndianBlock;
-typedef BlockGetAndPut<word32, BigEndian, true, true> AlignedNativeEndianBlock;
-typedef BlockGetAndPut<word32, BigEndian, false, false> NativeEndianBlock;
-#endif
+typedef BlockGetAndPut<word32, NativeByteOrder, true, true>  NativeEndianBlock;
 
 inline byte ARIA_BRF(const word32 x, const int y) {
 	return GETBYTE(x, y);
@@ -194,7 +185,7 @@ inline byte ARIA_BRF(const word32 x, const int y) {
 
 // Key XOR Layer
 #define ARIA_KXL {  \
-    AlignedNativeEndianBlock::Put(rk, t)(t[0])(t[1])(t[2])(t[3]); \
+    NativeEndianBlock::Put(rk, t)(t[0])(t[1])(t[2])(t[3]); \
   }
 
 // S-Box Layer 1 + M
@@ -313,7 +304,7 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 		}
 		else
 		{
-			_mm_store_si128(reinterpret_cast<__m128i*>(w1), _mm_setzero_si128());
+			w1[0]=w1[1]=w1[2]=w1[3]=0;
 		}
 	}
 	else
