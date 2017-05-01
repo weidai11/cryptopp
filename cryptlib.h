@@ -1094,8 +1094,6 @@ protected:
 	void ThrowIfInvalidTruncatedSize(size_t size) const;
 };
 
-typedef HashTransformation HashFunction;
-
 //! \brief Interface for one direction (encryption or decryption) of a block cipher
 //! \details These objects usually should not be used directly. See BlockTransformation for more details.
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE BlockCipher : public SimpleKeyingInterface, public BlockTransformation
