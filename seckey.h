@@ -138,8 +138,8 @@ public:
 	//! \details keylength is unused in the default implementation.
 	CRYPTOPP_STATIC_CONSTEXPR unsigned int StaticGetDefaultBlockSize(size_t keylength)
 	{
-		return (keylength >= 64) ? 64 :
-			(keylength >= 32) ? 32 : 16;
+		return (keylength >= MAX_BLOCKSIZE) ? MAX_BLOCKSIZE :
+			(keylength >= DEFAULT_BLOCKSIZE) ? DEFAULT_BLOCKSIZE : MIN_BLOCKSIZE;
 	}
 
 protected:
