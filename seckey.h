@@ -451,7 +451,7 @@ public:
 	//! \returns the initialization vector length, in bytes
 	unsigned int IVSize() const {
 		if (!this->IsResynchronizable())
-			throw NotImplemented(GetAlgorithm().AlgorithmName() + ": this object doesn't support resynchronization");
+			throw NotImplemented(this->GetAlgorithm().AlgorithmName() + ": this object doesn't support resynchronization");
 		return m_blocksize ? m_blocksize : this->IV_LENGTH;
 	}
 
