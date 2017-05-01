@@ -58,6 +58,14 @@ public:
 	explicit InvalidRounds(const std::string &algorithm, unsigned int rounds) : InvalidArgument(algorithm + ": " + IntToString(rounds) + " is not a valid number of rounds") {}
 };
 
+//! \class InvalidBlockSize
+//! \brief Exception thrown when an invalid block size is encountered
+class CRYPTOPP_DLL InvalidBlockSize : public InvalidArgument
+{
+public:
+	explicit InvalidBlockSize(const std::string &algorithm, size_t length) : InvalidArgument(algorithm + ": " + IntToString(length) + " is not a valid block size") {}
+};
+
 //! \class InvalidPersonalizationLength
 //! \brief Exception thrown when an invalid personalization string length is encountered
 class CRYPTOPP_DLL InvalidPersonalizationLength : public InvalidArgument

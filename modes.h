@@ -130,12 +130,15 @@ protected:
 	unsigned int m_feedbackSize;
 };
 
-inline void CopyOrZero(void *dest, const void *src, size_t s)
+inline void CopyOrZero(void *dest, size_t d, const void *src, size_t s)
 {
+	CRYPTOPP_ASSERT(dest);
+	CRYPTOPP_ASSERT(d >= s);
+
 	if (src)
-		memcpy_s(dest, s, src, s);
+		memcpy_s(dest, d, src, s);
 	else
-		memset(dest, 0, s);
+		memset(dest, 0, d);
 }
 
 //! \class OFB_ModePolicy
