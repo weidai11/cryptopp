@@ -125,7 +125,7 @@ class VariableBlockSize
 {
 public:
 	//! \brief The default blocksize for the algorithm provided as a constant.
-	CRYPTOPP_CONSTANT(BLOCKSIZE = D)
+	// CRYPTOPP_CONSTANT(BLOCKSIZE = D)
 	//! \brief The default blocksize for the algorithm provided as a constant.
 	CRYPTOPP_CONSTANT(DEFAULT_BLOCKSIZE = D)
 	//! \brief The minimum blocksize for the algorithm provided as a constant.
@@ -438,13 +438,14 @@ template <class INFO, class BASE = BlockCipher>
 class CRYPTOPP_NO_VTABLE VariableBlockCipherImpl : public AlgorithmImpl<SimpleKeyingInterfaceImpl<TwoBases<BASE, INFO> > >
 {
 public:
-	VariableBlockCipherImpl() : m_blocksize(0) {}
-	VariableBlockCipherImpl(unsigned int blocksize) : m_blocksize(blocksize) {}
+	VariableBlockCipherImpl() : m_blocksize(0), m_ivlength(0) {}
+	VariableBlockCipherImpl(unsigned int blockSize) : m_blocksize(blockSize), m_ivlength(blockSize) {}
+	VariableBlockCipherImpl(unsigned int blockSize, unsigned int ivLength) : m_blocksize(blocksize), m_ivlength(ivLength) {}
 
 	//! Provides the block size of the algorithm
 	//! \returns the block size, in bytes
 	unsigned int BlockSize() const {
-		return m_blocksize ? m_blocksize : this->BLOCKSIZE;
+		return m_blocksize ? m_blocksize : this->DEFAULT_BLOCKSIZE;
 	}
 
 	//! Provides the initialization vector length of the algorithm
@@ -452,11 +453,11 @@ public:
 	unsigned int IVSize() const {
 		if (!this->IsResynchronizable())
 			throw NotImplemented(this->GetAlgorithm().AlgorithmName() + ": this object doesn't support resynchronization");
-		return m_blocksize ? m_blocksize : this->IV_LENGTH;
+		return m_ivlength ? m_ivlength : this->IV_LENGTH;
 	}
 
 protected:
-	unsigned int m_blocksize;
+	unsigned int m_blocksize, m_ivlength;
 };
 
 //! \class BlockCipherFinal
