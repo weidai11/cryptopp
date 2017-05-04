@@ -78,7 +78,7 @@ bool ValidateAll(bool thorough)
 	pass=TestRDSEED() && pass;
 #endif
 
-#if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_IMPORTS)
+#if (defined(CRYPTOPP_DEBUG) || defined(CRYPTOPP_COVERAGE)) && !defined(CRYPTOPP_IMPORTS)
 	// http://github.com/weidai11/cryptopp/issues/92
 	pass=TestSecBlock() && pass;
 	// http://github.com/weidai11/cryptopp/issues/336
@@ -229,7 +229,7 @@ bool TestSettings()
 		pass = false;
 	}
 
-#if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_IMPORTS)
+#if (defined(CRYPTOPP_DEBUG) || defined(CRYPTOPP_COVERAGE)) && !defined(CRYPTOPP_IMPORTS)
 	// App and library versions, http://github.com/weidai11/cryptopp/issues/371
 	const int v1 = LibraryVersion();
 	const int v2 = HeaderVersion();

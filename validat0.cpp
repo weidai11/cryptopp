@@ -24,7 +24,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(Test)
 
-#if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_IMPORTS)
+#if (defined(CRYPTOPP_DEBUG) || defined(CRYPTOPP_COVERAGE)) && !defined(CRYPTOPP_IMPORTS)
 bool TestRounding()
 {
 	std::cout << "\nTesting RoundUpToMultipleOf/RoundDownToMultipleOf...\n\n";
@@ -470,7 +470,7 @@ bool TestRounding()
 }
 #endif
 
-#if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_IMPORTS)
+#if (defined(CRYPTOPP_DEBUG) || defined(CRYPTOPP_COVERAGE)) && !defined(CRYPTOPP_IMPORTS)
 struct ASN1_TestTuple
 {
 	int disposition;
@@ -721,7 +721,7 @@ bool TestASN1Parse()
 }
 #endif
 
-#if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_IMPORTS)
+#if (defined(CRYPTOPP_DEBUG) || defined(CRYPTOPP_COVERAGE)) && !defined(CRYPTOPP_IMPORTS)
 bool TestSecBlock()
 {
 	std::cout << "\nTesting SecBlock...\n\n";
@@ -1685,7 +1685,7 @@ bool TestSecBlock()
 }
 #endif
 
-#if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_IMPORTS)
+#if (defined(CRYPTOPP_DEBUG) || defined(CRYPTOPP_COVERAGE)) && !defined(CRYPTOPP_IMPORTS)
 bool TestHuffmanCodes()
 {
     std::cout << "\nTesting Huffman codes...\n\n";
@@ -1723,7 +1723,7 @@ bool TestHuffmanCodes()
 }
 #endif
 
-#if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_IMPORTS)
+#if (defined(CRYPTOPP_DEBUG) || defined(CRYPTOPP_COVERAGE)) && !defined(CRYPTOPP_IMPORTS)
 bool TestIntegerBitops()
 {
     std::cout << "\nTesting Integer bitops...\n\n";

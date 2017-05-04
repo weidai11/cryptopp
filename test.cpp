@@ -25,7 +25,6 @@
 #include "stdcpp.h"
 #include "ossig.h"
 #include "trap.h"
-#include "aria.h"
 
 #include "validate.h"
 #include "bench.h"
@@ -179,10 +178,6 @@ int CRYPTOPP_API main(int argc, char *argv[])
 	int tempflag = _CrtSetDbgFlag( _CRTDBG_REPORT_FLAG );
 	tempflag |= _CRTDBG_LEAK_CHECK_DF;
 	_CrtSetDbgFlag( tempflag );
-#endif
-
-#if defined(__MWERKS__) && defined(macintosh)
-	argc = ccommand(&argv);
 #endif
 
 	try
@@ -462,7 +457,7 @@ int CRYPTOPP_API main(int argc, char *argv[])
 		std::cout << "\nstd::exception caught: " << e.what() << std::endl;
 		return -2;
 	}
-} // End main()
+} // main()
 
 void FIPS140_GenerateRandomFiles()
 {
@@ -994,7 +989,7 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 	case 78: result = Test::ValidateHashDRBG(); break;
 	case 79: result = Test::ValidateHmacDRBG(); break;
 
-#if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_IMPORTS)
+#if (defined(CRYPTOPP_DEBUG) || defined(CRYPTOPP_COVERAGE)) && !defined(CRYPTOPP_IMPORTS)
 	// http://github.com/weidai11/cryptopp/issues/92
 	case 9999: result = Test::TestSecBlock(); break;
 	// http://github.com/weidai11/cryptopp/issues/64

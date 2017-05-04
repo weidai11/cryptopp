@@ -271,7 +271,6 @@ void BenchMarkKeying(SimpleKeyingInterface &c, size_t keyLength, const NameValue
 template <class T_FactoryOutput, class T_Interface>
 void BenchMarkByName2(const char *factoryName, size_t keyLength = 0, const char *displayName=NULLPTR, const NameValuePairs &params = g_nullNameValuePairs)
 {
-	CRYPTOPP_UNUSED(params);
 	std::string name(factoryName ? factoryName : "");
 	member_ptr<T_FactoryOutput> obj(ObjectFactoryRegistry<T_FactoryOutput>::Registry().CreateObject(name.c_str()));
 
@@ -283,9 +282,10 @@ void BenchMarkByName2(const char *factoryName, size_t keyLength = 0, const char 
 	else if (keyLength)
 		name += " (" + IntToString(keyLength * 8) + "-bit key)";
 
-	obj->SetKey(defaultKey, keyLength, CombinedNameValuePairs(params, MakeParameters(Name::IV(), ConstByteArrayParameter(defaultKey, obj->IVSize()), false)));
+	const int blockSize = params.GetIntValueWithDefault(Name::BlockSize(), 0);
+	obj->SetKey(defaultKey, keyLength, CombinedNameValuePairs(params, MakeParameters(Name::IV(), ConstByteArrayParameter(defaultKey, blockSize ? blockSize : obj->IVSize()), false)));
 	BenchMark(name.c_str(), *static_cast<T_Interface *>(obj.get()), g_allocatedTime);
-	BenchMarkKeying(*obj, keyLength, CombinedNameValuePairs(params, MakeParameters(Name::IV(), ConstByteArrayParameter(defaultKey, obj->IVSize()), false)));
+	BenchMarkKeying(*obj, keyLength, CombinedNameValuePairs(params, MakeParameters(Name::IV(), ConstByteArrayParameter(defaultKey, blockSize ? blockSize : obj->IVSize()), false)));
 }
 
 template <class T_FactoryOutput>
@@ -559,6 +559,11 @@ void Benchmark2(double t, double hertz)
 		BenchMarkByName<SymmetricCipher>("CAST-128/CTR");
 		BenchMarkByName<SymmetricCipher>("SKIPJACK/CTR");
 		BenchMarkByName<SymmetricCipher>("SEED/CTR", 0, "SEED/CTR (1/2 K table)");
+//		BenchMarkByName<SymmetricCipher>("Kalyna/CTR", 16, "Kalyna-128(128)", MakeParameters(Name::BlockSize(), 16));
+//		BenchMarkByName<SymmetricCipher>("Kalyna/CTR", 32, "Kalyna-256(128)", MakeParameters(Name::BlockSize(), 16));
+//		BenchMarkByName<SymmetricCipher>("Kalyna/CTR", 32, "Kalyna-256(256)", MakeParameters(Name::BlockSize(), 32));
+//		BenchMarkByName<SymmetricCipher>("Kalyna/CTR", 64, "Kalyna-512(256)", MakeParameters(Name::BlockSize(), 32));
+//		BenchMarkByName<SymmetricCipher>("Kalyna/CTR", 64, "Kalyna-512(512)", MakeParameters(Name::BlockSize(), 64));
 	}
 
 	std::cout << "\n<TBODY style=\"background: yellow;\">";

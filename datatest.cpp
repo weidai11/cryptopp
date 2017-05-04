@@ -363,7 +363,7 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 	TestDataNameValuePairs testDataPairs(v);
 	CombinedNameValuePairs pairs(overrideParameters, testDataPairs);
 
-	if (test == "Encrypt" || test == "EncryptXorDigest" || test == "Resync" || test == "EncryptionMCT" || test == "DecryptionMCT")
+	if (test == "Encrypt" || test == "EncryptBlockSize" || test == "EncryptXorDigest" || test == "Resync" || test == "EncryptionMCT" || test == "DecryptionMCT")
 	{
 		static member_ptr<SymmetricCipher> encryptor, decryptor;
 		static std::string lastName;
@@ -375,8 +375,12 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 			lastName = name;
 		}
 
+		int blockSize = 0;
+		if (test == "EncryptBlockSize" && !pairs.GetValue(Name::BlockSize(), blockSize))
+			SignalTestFailure();
+
 		ConstByteArrayParameter iv;
-		if (pairs.GetValue(Name::IV(), iv) && iv.size() != encryptor->IVSize())
+		if (pairs.GetValue(Name::IV(), iv) && iv.size() != encryptor->IVSize() && iv.size() != blockSize)
 			SignalTestFailure();
 
 		if (test == "Resync")
@@ -427,7 +431,7 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 			ciphertext = GetDecodedDatum(v, test == "EncryptionMCT" ? "Ciphertext" : "Plaintext");
 			if (encrypted != ciphertext)
 			{
-				std::cout << "incorrectly encrypted: ";
+				std::cout << "\nincorrectly encrypted: ";
 				StringSource xx(encrypted, false, new HexEncoder(new FileSink(std::cout)));
 				xx.Pump(256); xx.Flush(false);
 				std::cout << "\n";
@@ -459,7 +463,7 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 		}
 		if (test != "EncryptXorDigest" ? encrypted != ciphertext : xorDigest != ciphertextXorDigest)
 		{
-			std::cout << "incorrectly encrypted: ";
+			std::cout << "\nincorrectly encrypted: ";
 			StringSource xx(encrypted, false, new HexEncoder(new FileSink(std::cout)));
 			xx.Pump(2048); xx.Flush(false);
 			std::cout << "\n";
@@ -471,7 +475,7 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 		decFilter.MessageEnd();
 		if (decrypted != plaintext)
 		{
-			std::cout << "incorrectly decrypted: ";
+			std::cout << "\nincorrectly decrypted: ";
 			StringSource xx(decrypted, false, new HexEncoder(new FileSink(std::cout)));
 			xx.Pump(256); xx.Flush(false);
 			std::cout << "\n";
@@ -480,7 +484,7 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 	}
 	else
 	{
-		std::cout << "unexpected test name\n";
+		std::cout << "\nunexpected test name\n";
 		SignalTestError();
 	}
 }
@@ -538,7 +542,7 @@ void TestAuthenticatedSymmetricCipher(TestData &v, const NameValuePairs &overrid
 
 		if (test == "Encrypt" && encrypted != ciphertext+mac)
 		{
-			std::cout << "incorrectly encrypted: ";
+			std::cout << "\nincorrectly encrypted: ";
 			StringSource xx(encrypted, false, new HexEncoder(new FileSink(std::cout)));
 			xx.Pump(2048); xx.Flush(false);
 			std::cout << "\n";
@@ -546,7 +550,7 @@ void TestAuthenticatedSymmetricCipher(TestData &v, const NameValuePairs &overrid
 		}
 		if (test == "Encrypt" && decrypted != plaintext)
 		{
-			std::cout << "incorrectly decrypted: ";
+			std::cout << "\nincorrectly decrypted: ";
 			StringSource xx(decrypted, false, new HexEncoder(new FileSink(std::cout)));
 			xx.Pump(256); xx.Flush(false);
 			std::cout << "\n";
@@ -555,18 +559,18 @@ void TestAuthenticatedSymmetricCipher(TestData &v, const NameValuePairs &overrid
 
 		if (ciphertext.size()+mac.size()-plaintext.size() != asc1->DigestSize())
 		{
-			std::cout << "bad MAC size\n";
+			std::cout << "\nbad MAC size\n";
 			SignalTestFailure();
 		}
 		if (df.GetLastResult() != (test == "Encrypt"))
 		{
-			std::cout << "MAC incorrectly verified\n";
+			std::cout << "\nMAC incorrectly verified\n";
 			SignalTestFailure();
 		}
 	}
 	else
 	{
-		std::cout << "unexpected test name\n";
+		std::cout << "\nunexpected test name\n";
 		SignalTestError();
 	}
 }

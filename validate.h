@@ -107,7 +107,7 @@ bool ValidateESIGN();
 bool ValidateHashDRBG();
 bool ValidateHmacDRBG();
 
-#if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_IMPORTS)
+#if (defined(CRYPTOPP_DEBUG) || defined(CRYPTOPP_COVERAGE)) && !defined(CRYPTOPP_IMPORTS)
 // http://github.com/weidai11/cryptopp/issues/92
 bool TestSecBlock();
 // http://github.com/weidai11/cryptopp/issues/64
