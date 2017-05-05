@@ -120,6 +120,14 @@ bool TestRounding();
 bool TestHuffmanCodes();
 // http://github.com/weidai11/cryptopp/issues/346
 bool TestASN1Parse();
+// Additional tests due to no coverage
+bool TestGzip();
+bool TestZinflate();
+bool TestMersenne();
+bool TestDefaultEncryptor();
+bool TestDefaultEncryptorWithMAC();
+bool TestLegacyEncryptor();
+bool TestLegacyEncryptorWithMAC();
 #endif
 
 #if 1

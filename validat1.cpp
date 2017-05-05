@@ -93,6 +93,14 @@ bool ValidateAll(bool thorough)
 	pass=TestASN1Parse() && pass;
 	// Enable during debug for code coverage
 	pass=ValidateBaseCode() && pass;
+    // Additional tests due to no coverage
+	pass=TestGzip() && pass;
+	pass=TestZinflate() && pass;
+	pass=TestMersenne() && pass;
+	pass=TestDefaultEncryptor() && pass;
+	pass=TestDefaultEncryptorWithMAC() && pass;
+	pass=TestLegacyEncryptor() && pass;
+	pass=TestLegacyEncryptorWithMAC() && pass;
 #endif
 
 	pass=ValidateCRC32() && pass;

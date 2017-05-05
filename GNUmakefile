@@ -577,7 +577,7 @@ coverage: libcryptopp.a cryptest.exe
 	./cryptest.exe v
 	./cryptest.exe tv all
 	lcov --base-directory . --directory . -c -o cryptest.info
-	lcov --remove cryptest.info "fips140.*" "*test.*" "bench*.cpp" "validat*.*" "/usr/*" -o cryptest.info
+	lcov --remove cryptest.info "adhoc.cpp" "wait.*" "network.*" "socketft.*" "fips140.*" "*test.*" "bench*.cpp" "validat*.*" "/usr/*" -o cryptest.info
 	genhtml -o ./TestCoverage/ -t "cryptest.exe test coverage" --num-spaces 4 cryptest.info
 
 .PHONY: test check
