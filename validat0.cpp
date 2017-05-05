@@ -98,11 +98,6 @@ bool TestZinflate()
     return !fail;
 }
 
-bool TestMersenne()
-{
-    return true;
-}
-
 bool TestDefaultEncryptor()
 {
     std::cout << "\nTesting DefaultEncryptor...\n\n";
