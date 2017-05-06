@@ -94,15 +94,10 @@ bool ValidateAll(bool thorough)
 	pass=TestHuffmanCodes() && pass;
 	// http://github.com/weidai11/cryptopp/issues/346
 	pass=TestASN1Parse() && pass;
-	// Enable during debug for code coverage
-	pass=ValidateBaseCode() && pass;
 	// Additional tests due to no coverage
-	pass=TestGzip() && pass;
-	pass=TestZinflate() && pass;
-	pass=TestDefaultEncryptor() && pass;
-	pass=TestDefaultEncryptorWithMAC() && pass;
-	pass=TestLegacyEncryptor() && pass;
-	pass=TestLegacyEncryptorWithMAC() && pass;
+	pass=ValidateBaseCode() && pass;
+	pass=TestCompressors() && pass;
+	pass=TestEncryptors() && pass;
 #endif
 
 	pass=ValidateCRC32() && pass;
@@ -2731,56 +2726,56 @@ bool ValidateBaseCode()
 	try {HexEncoder().IsolatedInitialize(g_nullNameValuePairs);}
 	catch(const Exception&) {fail=true;}
 	std::cout << (fail ? "FAILED:" : "passed:");
-	std::cout << "   Hex Encoding\n";
+	std::cout << "  Hex Encoding\n";
 	pass = pass && !fail;
 
 	fail = !TestFilter(HexDecoder().Ref(), (const byte *)hexEncoded, strlen(hexEncoded), data, 255);
 	try {HexDecoder().IsolatedInitialize(g_nullNameValuePairs);}
 	catch(const Exception&) {fail=true;}
 	std::cout << (fail ? "FAILED:" : "passed:");
-	std::cout << "   Hex Decoding\n";
+	std::cout << "  Hex Decoding\n";
 	pass = pass && !fail;
 
 	fail = !TestFilter(Base32Encoder().Ref(), data, 255, (const byte *)base32Encoded, strlen(base32Encoded));
 	try {Base32Encoder().IsolatedInitialize(g_nullNameValuePairs);}
 	catch(const Exception&) {fail=true;}
 	std::cout << (fail ? "FAILED:" : "passed:");
-	std::cout << "   Base32 Encoding\n";
+	std::cout << "  Base32 Encoding\n";
 	pass = pass && !fail;
 
 	fail = !TestFilter(Base32Decoder().Ref(), (const byte *)base32Encoded, strlen(base32Encoded), data, 255);
 	try {Base32Decoder().IsolatedInitialize(g_nullNameValuePairs);}
 	catch(const Exception&) {fail=true;}
 	std::cout << (fail ? "FAILED:" : "passed:");
-	std::cout << "   Base32 Decoding\n";
+	std::cout << "  Base32 Decoding\n";
 	pass = pass && !fail;
 
 	fail = !TestFilter(Base64Encoder(new HexEncoder).Ref(), data, 255, (const byte *)base64AndHexEncoded, strlen(base64AndHexEncoded));
 	try {Base64Encoder().IsolatedInitialize(g_nullNameValuePairs);}
 	catch(const Exception&) {fail=true;}
 	std::cout << (fail ? "FAILED:" : "passed:");
-	std::cout << "   Base64 Encoding\n";
+	std::cout << "  Base64 Encoding\n";
 	pass = pass && !fail;
 
 	fail = !TestFilter(HexDecoder(new Base64Decoder).Ref(), (const byte *)base64AndHexEncoded, strlen(base64AndHexEncoded), data, 255);
 	try {Base64Decoder().IsolatedInitialize(g_nullNameValuePairs);}
 	catch(const Exception&) {fail=true;}
 	std::cout << (fail ? "FAILED:" : "passed:");
-	std::cout << "   Base64 Decoding\n";
+	std::cout << "  Base64 Decoding\n";
 	pass = pass && !fail;
 
 	fail = !TestFilter(Base64URLEncoder(new HexEncoder).Ref(), data, 255, (const byte *)base64URLAndHexEncoded, strlen(base64URLAndHexEncoded));
 	try {Base64URLEncoder().IsolatedInitialize(g_nullNameValuePairs);}
 	catch(const Exception&) {fail=true;}
 	std::cout << (fail ? "FAILED:" : "passed:");
-	std::cout << "   Base64 URL Encoding\n";
+	std::cout << "  Base64 URL Encoding\n";
 	pass = pass && !fail;
 
 	fail = !TestFilter(HexDecoder(new Base64URLDecoder).Ref(), (const byte *)base64URLAndHexEncoded, strlen(base64URLAndHexEncoded), data, 255);
 	try {Base64URLDecoder().IsolatedInitialize(g_nullNameValuePairs);}
 	catch(const Exception&) {fail=true;}
 	std::cout << (fail ? "FAILED:" : "passed:");
-	std::cout << "   Base64 URL Decoding\n";
+	std::cout << "  Base64 URL Decoding\n";
 	pass = pass && !fail;
 
 	return pass;

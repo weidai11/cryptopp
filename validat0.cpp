@@ -28,10 +28,10 @@ NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(Test)
 
 #if defined(CRYPTOPP_EXTENDED_VALIDATION)
-bool TestGzip()
+bool TestCompressors()
 {
-    std::cout << "\nTesting Gzip and Gunzip...\n\n";
-    bool fail = false;
+    std::cout << "\nTesting Compressors and Decompressors...\n\n";
+    bool fail1 = false, fail2 = false;
 
     try
     {
@@ -57,8 +57,10 @@ bool TestGzip()
     }
     catch(const Exception&)
     {
-        fail = true;
+        fail1 = true;
     }
+
+    // **************************************************************
 
     // Unzip random data. See if we can induce a crash
     for (unsigned int i=0; i<128; i++)
@@ -84,19 +86,13 @@ bool TestGzip()
         } catch(const Exception&) {    }
     }
 
-    if (!fail)
+    if (!fail1)
        std::cout << "passed:";
     else
        std::cout << "FAILED:";
-    std::cout << "  256 zips and unzips" << std::endl;
+    std::cout << "  128 zips and unzips" << std::endl;
 
-    return !fail;
-}
-
-bool TestZinflate()
-{
-    std::cout << "\nTesting Deflate and Inflate...\n\n";
-    bool fail = false;
+    // **************************************************************
 
     try
     {
@@ -117,14 +113,16 @@ bool TestZinflate()
             try {
                 StringSource(dest.substr(0, len-2), true, new Inflator(new StringSink(rec)));
                 std::cout << "Deflate failed to detect a truncated stream\n";
-                fail = true;
+                fail2 = true;
             } catch(const Exception& ex) { }
         }
     }
     catch(const Exception&)
     {
-        fail = true;
+        fail2 = true;
     }
+
+    // **************************************************************
 
     for (unsigned int i=0; i<128; i++)
     {
@@ -164,20 +162,20 @@ bool TestZinflate()
         } catch(const Exception&) {    }
     }
 
-    if (!fail)
+    if (!fail2)
        std::cout << "passed:";
     else
        std::cout << "FAILED:";
-    std::cout << "  256 deflates and inflates\n";
+    std::cout << "  128 deflates and inflates\n";
 
     std::cout.flush();
-    return !fail;
+    return !fail1 && !fail2;
 }
 
-bool TestDefaultEncryptor()
+bool TestEncryptors()
 {
-    std::cout << "\nTesting DefaultEncryptor...\n\n";
-    bool fail = false;
+    std::cout << "\nTesting Default Encryptors and Decryptors...\n\n";
+    bool fail1 = false, fail2 = false, fail3 = false, fail4 = false;
 
     try
     {
@@ -201,22 +199,16 @@ bool TestDefaultEncryptor()
     }
     catch(const Exception&)
     {
-        fail = true;
+        fail1 = true;
     }
 
-    if (!fail)
+    if (!fail1)
        std::cout << "passed:";
     else
        std::cout << "FAILED:";
     std::cout << "  128 default encryptions and decryptions" << std::endl;
 
-    return !fail;
-}
-
-bool TestDefaultEncryptorWithMAC()
-{
-    std::cout << "\nTesting DefaultEncryptorWithMAC...\n\n";
-    bool fail = false;
+    // **************************************************************
 
     try
     {
@@ -241,14 +233,14 @@ bool TestDefaultEncryptorWithMAC()
             try {
                 StringSource(dest.substr(0, len-2), true, new DefaultDecryptorWithMAC(pwd.c_str(), new StringSink(rec)));
                 std::cout << "FAILED:  DefaultDecryptorWithMAC failed to detect a truncated stream\n";
-                fail = true;
+                fail2 = true;
             } catch(const Exception& ex) { }
             try {
                 // tamper salt
                 dest[DefaultDecryptorWithMAC::SALTLENGTH/2] ^= 0x01;
                 StringSource(dest, true, new DefaultDecryptorWithMAC(pwd.c_str(), new StringSink(rec)));
                 std::cout << "FAILED:  DefaultDecryptorWithMAC failed to detect a tampered salt\n";
-                fail = true;
+                fail2 = true;
             } catch(const Exception& ex) { }
             try {
                 // undo previous tamper
@@ -257,7 +249,7 @@ bool TestDefaultEncryptorWithMAC()
                 dest[DefaultDecryptorWithMAC::SALTLENGTH+DefaultDecryptorWithMAC::KEYLENGTH/2] ^= 0x01;
                 StringSource(dest, true, new DefaultDecryptorWithMAC(pwd.c_str(), new StringSink(rec)));
                 std::cout << "FAILED:  DefaultDecryptorWithMAC failed to detect a tampered keycheck\n";
-                fail = true;
+                fail2 = true;
             } catch(const Exception& ex) { }
             try {
                 // undo previous tamper
@@ -266,28 +258,22 @@ bool TestDefaultEncryptorWithMAC()
                 dest[dest.length()-2] ^= 0x01;
                 StringSource(dest, true, new DefaultDecryptorWithMAC(pwd.c_str(), new StringSink(rec)));
                 std::cout << "FAILED:  DefaultDecryptorWithMAC failed to detect a tampered data\n";
-                fail = true;
+                fail2 = true;
             } catch(const Exception& ex) { }
         }
     }
     catch(const Exception&)
     {
-        fail = true;
+        fail2 = true;
     }
 
-    if (!fail)
+    if (!fail2)
        std::cout << "passed:";
     else
        std::cout << "FAILED:";
-    std::cout << "  256 default encryptions and decryptions with MAC" << std::endl;
+    std::cout << "  128 default encryptions and decryptions with MAC" << std::endl;
 
-    return !fail;
-}
-
-bool TestLegacyEncryptor()
-{
-    std::cout << "\nTesting LegacyEncryptor...\n\n";
-    bool fail = false;
+    // **************************************************************
 
     try
     {
@@ -311,22 +297,16 @@ bool TestLegacyEncryptor()
     }
     catch(const Exception&)
     {
-        fail = true;
+        fail3 = true;
     }
 
-    if (!fail)
+    if (!fail3)
        std::cout << "passed:";
     else
        std::cout << "FAILED:";
     std::cout << "  128 legacy encryptions and decryptions" << std::endl;
 
-    return !fail;
-}
-
-bool TestLegacyEncryptorWithMAC()
-{
-    std::cout << "\nTesting LegacyEncryptorWithMAC...\n\n";
-    bool fail = false;
+    // **************************************************************
 
     try
     {
@@ -351,14 +331,14 @@ bool TestLegacyEncryptorWithMAC()
             try {
                 StringSource(dest.substr(0, len-2), true, new LegacyDecryptorWithMAC(pwd.c_str(), new StringSink(rec)));
                 std::cout << "FAILED:  LegacyEncryptorWithMAC failed to detect a truncated stream\n";
-                fail = true;
+                fail4 = true;
             } catch(const Exception& ex) { }
             try {
                 // tamper salt
                 dest[LegacyEncryptorWithMAC::SALTLENGTH/2] ^= 0x01;
                 StringSource(dest, true, new LegacyDecryptorWithMAC(pwd.c_str(), new StringSink(rec)));
                 std::cout << "FAILED:  LegacyEncryptorWithMAC failed to detect a tampered salt\n";
-                fail = true;
+                fail4 = true;
             } catch(const Exception& ex) { }
             try {
                 // undo previous tamper
@@ -367,7 +347,7 @@ bool TestLegacyEncryptorWithMAC()
                 dest[LegacyEncryptorWithMAC::SALTLENGTH+LegacyEncryptorWithMAC::KEYLENGTH/2] ^= 0x01;
                 StringSource(dest, true, new LegacyDecryptorWithMAC(pwd.c_str(), new StringSink(rec)));
                 std::cout << "FAILED:  LegacyEncryptorWithMAC failed to detect a tampered keycheck\n";
-                fail = true;
+                fail4 = true;
             } catch(const Exception& ex) { }
             try {
                 // undo previous tamper
@@ -376,22 +356,22 @@ bool TestLegacyEncryptorWithMAC()
                 dest[dest.length()-2] ^= 0x01;
                 StringSource(dest, true, new LegacyDecryptorWithMAC(pwd.c_str(), new StringSink(rec)));
                 std::cout << "FAILED:  LegacyEncryptorWithMAC failed to detect a tampered data\n";
-                fail = true;
+                fail4 = true;
             } catch(const Exception& ex) { }
         }
     }
     catch(const Exception&)
     {
-        fail = true;
+        fail4 = true;
     }
 
-    if (!fail)
+    if (!fail4)
        std::cout << "passed:";
     else
        std::cout << "FAILED:";
     std::cout << "  128 legacy encryptions and decryptions with MAC" << std::endl;
 
-    return !fail;
+    return !fail1 && !fail2 && !fail3 && !fail4;
 }
 
 bool TestRounding()
