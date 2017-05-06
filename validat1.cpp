@@ -2656,9 +2656,9 @@ bool ValidateSKIPJACK()
 
 bool ValidateSEAL()
 {
-	static const byte input[] = {0x37,0xa0,0x05,0x95,0x9b,0x84,0xc4,0x9c,0xa4,0xbe,0x1e,0x05,0x06,0x73,0x53,0x0f,0x5f,0xb0,0x97,0xfd,0xf6,0xa1,0x3f,0xbd,0x6c,0x2c,0xde,0xcd,0x81,0xfd,0xee,0x7c};
-	static const byte key[] = {0x67, 0x45, 0x23, 0x01, 0xef, 0xcd, 0xab, 0x89, 0x98, 0xba, 0xdc, 0xfe, 0x10, 0x32, 0x54, 0x76, 0xc3, 0xd2, 0xe1, 0xf0};
-	static const byte iv[] = {0x01, 0x35, 0x77, 0xaf};
+	const byte input[] = {0x37,0xa0,0x05,0x95,0x9b,0x84,0xc4,0x9c,0xa4,0xbe,0x1e,0x05,0x06,0x73,0x53,0x0f,0x5f,0xb0,0x97,0xfd,0xf6,0xa1,0x3f,0xbd,0x6c,0x2c,0xde,0xcd,0x81,0xfd,0xee,0x7c};
+	const byte key[] = {0x67, 0x45, 0x23, 0x01, 0xef, 0xcd, 0xab, 0x89, 0x98, 0xba, 0xdc, 0xfe, 0x10, 0x32, 0x54, 0x76, 0xc3, 0xd2, 0xe1, 0xf0};
+	const byte iv[] = {0x01, 0x35, 0x77, 0xaf};
 	byte output[32];
 
 	std::cout << "\nSEAL validation suite running...\n\n";
@@ -2689,7 +2689,7 @@ bool ValidateBaseCode()
 	for (unsigned int i=0; i<255; i++)
 		data[i] = byte(i);
 
-	static const char hexEncoded[] =
+	const char hexEncoded[] =
 		"000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F2021222324252627"
 		"28292A2B2C2D2E2F303132333435363738393A3B3C3D3E3F404142434445464748494A4B4C4D4E4F"
 		"505152535455565758595A5B5C5D5E5F606162636465666768696A6B6C6D6E6F7071727374757677"
@@ -2697,14 +2697,14 @@ bool ValidateBaseCode()
 		"A0A1A2A3A4A5A6A7A8A9AAABACADAEAFB0B1B2B3B4B5B6B7B8B9BABBBCBDBEBFC0C1C2C3C4C5C6C7"
 		"C8C9CACBCCCDCECFD0D1D2D3D4D5D6D7D8D9DADBDCDDDEDFE0E1E2E3E4E5E6E7E8E9EAEBECEDEEEF"
 		"F0F1F2F3F4F5F6F7F8F9FAFBFCFDFE";
-	static const char base32Encoded[] =
+	const char base32Encoded[] =
 		"AAASEA2EAWDAQCAJBIFS2DIQB6IBCESVCSKTNF22DEPBYHA7D2RUAIJCENUCKJTHFAWUWK3NFWZC8NBT"
 		"GI3VIPJYG66DUQT5HS8V6R4AIFBEGTCFI3DWSUKKJPGE4VURKBIXEW4WKXMFQYC3MJPX2ZK8M7SGC2VD"
 		"NTUYN35IPFXGY5DPP3ZZA6MUQP4HK7VZRB6ZW856RX9H9AEBSKB2JBNGS8EIVCWMTUG27D6SUGJJHFEX"
 		"U4M3TGN4VQQJ5HW9WCS4FI7EWYVKRKFJXKX43MPQX82MDNXVYU45PP72ZG7MZRF7Z496BSQC2RCNMTYH"
 		"3DE6XU8N3ZHN9WGT4MJ7JXQY49NPVYY55VQ77Z9A6HTQH3HF65V8T4RK7RYQ55ZR8D29F69W8Z5RR8H3"
 		"9M7939R8";
-	static const char base64AndHexEncoded[] =
+	const char base64AndHexEncoded[] =
 		"41414543417751464267634943516F4C4441304F4478415245684D554652595847426B6147787764"
 		"486838674953496A4A43556D4A7967704B6973734C5334764D4445794D7A51310A4E6A63344F546F"
 		"375044302B50304242516B4E4552555A4853456C4B5330784E546B395155564A5456465657563168"
@@ -2714,7 +2714,7 @@ bool ValidateBaseCode()
 		"624B7A744C573274376935757275387662362F774D484377385446787366497963724C7A4D334F7A"
 		"39445230745055316462580A324E6E6132397A6433742F6734654C6A354F586D352B6A7036757673"
 		"3765377638504879382F5431397666342B6672372F50332B0A";
-	static const char base64URLAndHexEncoded[] =
+	const char base64URLAndHexEncoded[] =
 		"41414543417751464267634943516F4C4441304F4478415245684D554652595847426B6147787764"
 		"486838674953496A4A43556D4A7967704B6973734C5334764D4445794D7A51314E6A63344F546F37"
 		"5044302D50304242516B4E4552555A4853456C4B5330784E546B395155564A54564656575631685A"
@@ -2728,41 +2728,57 @@ bool ValidateBaseCode()
 	std::cout << "\nBase64, Base64URL, Base32 and Base16 coding validation suite running...\n\n";
 
 	fail = !TestFilter(HexEncoder().Ref(), data, 255, (const byte *)hexEncoded, strlen(hexEncoded));
+	try {HexEncoder().IsolatedInitialize(g_nullNameValuePairs);}
+	catch(const Exception&) {fail=true;}
 	std::cout << (fail ? "FAILED:" : "passed:");
 	std::cout << "   Hex Encoding\n";
 	pass = pass && !fail;
 
 	fail = !TestFilter(HexDecoder().Ref(), (const byte *)hexEncoded, strlen(hexEncoded), data, 255);
+	try {HexDecoder().IsolatedInitialize(g_nullNameValuePairs);}
+	catch(const Exception&) {fail=true;}
 	std::cout << (fail ? "FAILED:" : "passed:");
 	std::cout << "   Hex Decoding\n";
 	pass = pass && !fail;
 
 	fail = !TestFilter(Base32Encoder().Ref(), data, 255, (const byte *)base32Encoded, strlen(base32Encoded));
+	try {Base32Encoder().IsolatedInitialize(g_nullNameValuePairs);}
+	catch(const Exception&) {fail=true;}
 	std::cout << (fail ? "FAILED:" : "passed:");
 	std::cout << "   Base32 Encoding\n";
 	pass = pass && !fail;
 
 	fail = !TestFilter(Base32Decoder().Ref(), (const byte *)base32Encoded, strlen(base32Encoded), data, 255);
+	try {Base32Decoder().IsolatedInitialize(g_nullNameValuePairs);}
+	catch(const Exception&) {fail=true;}
 	std::cout << (fail ? "FAILED:" : "passed:");
 	std::cout << "   Base32 Decoding\n";
 	pass = pass && !fail;
 
 	fail = !TestFilter(Base64Encoder(new HexEncoder).Ref(), data, 255, (const byte *)base64AndHexEncoded, strlen(base64AndHexEncoded));
+	try {Base64Encoder().IsolatedInitialize(g_nullNameValuePairs);}
+	catch(const Exception&) {fail=true;}
 	std::cout << (fail ? "FAILED:" : "passed:");
 	std::cout << "   Base64 Encoding\n";
 	pass = pass && !fail;
 
 	fail = !TestFilter(HexDecoder(new Base64Decoder).Ref(), (const byte *)base64AndHexEncoded, strlen(base64AndHexEncoded), data, 255);
+	try {Base64Decoder().IsolatedInitialize(g_nullNameValuePairs);}
+	catch(const Exception&) {fail=true;}
 	std::cout << (fail ? "FAILED:" : "passed:");
 	std::cout << "   Base64 Decoding\n";
 	pass = pass && !fail;
 
 	fail = !TestFilter(Base64URLEncoder(new HexEncoder).Ref(), data, 255, (const byte *)base64URLAndHexEncoded, strlen(base64URLAndHexEncoded));
+	try {Base64URLEncoder().IsolatedInitialize(g_nullNameValuePairs);}
+	catch(const Exception&) {fail=true;}
 	std::cout << (fail ? "FAILED:" : "passed:");
 	std::cout << "   Base64 URL Encoding\n";
 	pass = pass && !fail;
 
 	fail = !TestFilter(HexDecoder(new Base64URLDecoder).Ref(), (const byte *)base64URLAndHexEncoded, strlen(base64URLAndHexEncoded), data, 255);
+	try {Base64URLDecoder().IsolatedInitialize(g_nullNameValuePairs);}
+	catch(const Exception&) {fail=true;}
 	std::cout << (fail ? "FAILED:" : "passed:");
 	std::cout << "   Base64 URL Decoding\n";
 	pass = pass && !fail;
