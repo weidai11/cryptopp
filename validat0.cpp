@@ -27,7 +27,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(Test)
 
-#if (defined(CRYPTOPP_DEBUG) || defined(CRYPTOPP_COVERAGE)) && !defined(CRYPTOPP_IMPORTS)
+#if defined(CRYPTOPP_EXTENDED_VALIDATION)
 bool TestGzip()
 {
     std::cout << "\nTesting Gzip and Gunzip...\n\n";
@@ -46,7 +46,13 @@ bool TestGzip()
             StringSource(src, true, new Gzip(new StringSink(dest)));
             StringSource(dest, true, new Gunzip(new StringSink(rec)));
             if (src != rec)
-                throw Exception(Exception::OTHER_ERROR, "Gzip failed a self test");
+                throw Exception(Exception::OTHER_ERROR, "Gzip failed to decompress stream");
+
+            // Tamper
+            try {
+                StringSource(dest.substr(0, len-2), true, new Gunzip(new StringSink(rec)));
+                throw Exception(Exception::OTHER_ERROR, "Gzip failed to detect a truncated stream");
+            } catch(const Exception&) {}
         }
     }
     catch(const Exception&)
@@ -105,7 +111,13 @@ bool TestZinflate()
             StringSource(src, true, new Deflator(new StringSink(dest)));
             StringSource(dest, true, new Inflator(new StringSink(rec)));
             if (src != rec)
-                throw Exception(Exception::OTHER_ERROR, "Deflate failed a self test");
+                throw Exception(Exception::OTHER_ERROR, "Deflate failed to decompress stream");
+
+            // Tamper
+            try {
+                StringSource(dest.substr(0, len-2), true, new Inflator(new StringSink(rec)));
+                throw Exception(Exception::OTHER_ERROR, "Deflate failed to detect a truncated stream");
+            } catch(const Exception&) {}
         }
     }
     catch(const Exception&)
@@ -127,7 +139,7 @@ bool TestZinflate()
         } catch(const Exception&) {    }
     }
 
-    // Unzip random data. See if we can induce a crash
+    // Inflate random data. See if we can induce a crash
     for (unsigned int i=0; i<128; i++)
     {
         std::string src, dest;
@@ -223,6 +235,27 @@ bool TestDefaultEncryptorWithMAC()
             StringSource(dest, true, new DefaultDecryptorWithMAC(pwd.c_str(), new StringSink(rec)));
             if (src != rec)
                 throw Exception(Exception::OTHER_ERROR, "DefaultEncryptorWithMAC failed a self test");
+
+            // Tamper. Data format is [SALT][KEYCHECK][ENCRYPTED DATA].
+            try {
+                StringSource(dest.substr(0, len-2), true, new Inflator(new StringSink(rec)));
+                throw Exception(Exception::OTHER_ERROR, "DefaultEncryptorWithMAC failed to detect a truncated stream");
+            } catch(const Exception&) {}
+            try {
+                dest[4] ^= 0x01;
+                StringSource(dest, true, new Inflator(new StringSink(rec)));
+                throw Exception(Exception::OTHER_ERROR, "DefaultEncryptorWithMAC failed to detect a tampered salt");
+            } catch(const Exception&) {}
+            try {
+                dest[4] ^= 0x01; dest[20] ^= 0x01;  // undo previous tamper
+                StringSource(dest, true, new Inflator(new StringSink(rec)));
+                throw Exception(Exception::OTHER_ERROR, "DefaultEncryptorWithMAC failed to detect a tampered keycheck");
+            } catch(const Exception&) {}
+            try {
+                dest[20] ^= 0x01; dest[dest.length()-2] ^= 0x01;  // undo previous tamper
+                StringSource(dest, true, new Inflator(new StringSink(rec)));
+                throw Exception(Exception::OTHER_ERROR, "DefaultEncryptorWithMAC failed to detect a tampered data");
+            } catch(const Exception&) {}
         }
     }
     catch(const Exception&)
@@ -234,7 +267,7 @@ bool TestDefaultEncryptorWithMAC()
        std::cout << "passed:";
     else
        std::cout << "FAILED:";
-    std::cout << "  128 default encryptions and decryptions with MAC" << std::endl;
+    std::cout << "  256 default encryptions and decryptions with MAC" << std::endl;
 
     return !fail;
 }
@@ -301,6 +334,27 @@ bool TestLegacyEncryptorWithMAC()
             StringSource(dest, true, new LegacyDecryptorWithMAC(pwd.c_str(), new StringSink(rec)));
             if (src != rec)
                 throw Exception(Exception::OTHER_ERROR, "LegacyEncryptorWithMAC failed a self test");
+
+            // Tamper. Data format is [SALT][KEYCHECK][ENCRYPTED DATA].
+            try {
+                StringSource(dest.substr(0, len-2), true, new Inflator(new StringSink(rec)));
+                throw Exception(Exception::OTHER_ERROR, "LegacyEncryptorWithMAC failed to detect a truncated stream");
+            } catch(const Exception&) {}
+            try {
+                dest[4] ^= 0x01;
+                StringSource(dest, true, new Inflator(new StringSink(rec)));
+                throw Exception(Exception::OTHER_ERROR, "LegacyEncryptorWithMAC failed to detect a tampered salt");
+            } catch(const Exception&) {}
+            try {
+                dest[4] ^= 0x01; dest[20] ^= 0x01;  // undo previous tamper
+                StringSource(dest, true, new Inflator(new StringSink(rec)));
+                throw Exception(Exception::OTHER_ERROR, "LegacyEncryptorWithMAC failed to detect a tampered keycheck");
+            } catch(const Exception&) {}
+            try {
+                dest[20] ^= 0x01; dest[dest.length()-2] ^= 0x01;  // undo previous tamper
+                StringSource(dest, true, new Inflator(new StringSink(rec)));
+                throw Exception(Exception::OTHER_ERROR, "LegacyEncryptorWithMAC failed to detect a tampered data");
+            } catch(const Exception&) {}
         }
     }
     catch(const Exception&)
@@ -763,7 +817,7 @@ bool TestRounding()
 }
 #endif
 
-#if (defined(CRYPTOPP_DEBUG) || defined(CRYPTOPP_COVERAGE)) && !defined(CRYPTOPP_IMPORTS)
+#if defined(CRYPTOPP_EXTENDED_VALIDATION)
 struct ASN1_TestTuple
 {
     int disposition;
@@ -1016,7 +1070,7 @@ bool TestASN1Parse()
 }
 #endif
 
-#if (defined(CRYPTOPP_DEBUG) || defined(CRYPTOPP_COVERAGE)) && !defined(CRYPTOPP_IMPORTS)
+#if defined(CRYPTOPP_EXTENDED_VALIDATION)
 bool TestSecBlock()
 {
     std::cout << "\nTesting SecBlock...\n\n";
@@ -1981,7 +2035,7 @@ bool TestSecBlock()
 }
 #endif
 
-#if (defined(CRYPTOPP_DEBUG) || defined(CRYPTOPP_COVERAGE)) && !defined(CRYPTOPP_IMPORTS)
+#if defined(CRYPTOPP_EXTENDED_VALIDATION)
 bool TestHuffmanCodes()
 {
     std::cout << "\nTesting Huffman codes...\n\n";
@@ -2019,11 +2073,54 @@ bool TestHuffmanCodes()
 }
 #endif
 
-#if (defined(CRYPTOPP_DEBUG) || defined(CRYPTOPP_COVERAGE)) && !defined(CRYPTOPP_IMPORTS)
+#if defined(CRYPTOPP_EXTENDED_VALIDATION)
 bool TestIntegerBitops()
 {
-    std::cout << "\nTesting Integer bitops...\n\n";
+    std::cout << "\nTesting Integer operations...\n\n";
+    bool pass;
 
+    // Integer is missing a couple of tests...
+    try {
+        Integer x = Integer::Two().Power2(128) / Integer::Zero();
+        pass=false;
+    } catch (const Exception&) {
+        pass=true;
+    }
+
+    if (pass)
+        std::cout << "passed:";
+    else
+        std::cout << "FAILED:";
+    std::cout << "  Integer DivideByZero\n";
+
+    // Integer is missing a couple of tests...
+    try {
+        // All in range [90, 96] are composite
+        Integer x = Integer(GlobalRNG(), 90, 96, Integer::PRIME);
+        pass=false;
+    } catch (const Exception&) {
+        pass=true;
+    }
+
+    if (pass)
+        std::cout << "passed:";
+    else
+        std::cout << "FAILED:";
+    std::cout << "  Integer RandomNumberNotFound\n";
+
+    // Integer is missing a couple of tests...
+    try {
+        // All in range [90, 96] are composite
+        Integer x = Integer::One().Doubled();
+        pass=(x == Integer::Two());
+    } catch (const Exception&) {
+        pass=false;
+    }
+
+    if (!pass)
+        std::cout << "FAILED:  Integer Doubled\n";
+
+    // Now onto the meat and potatoes...
     struct Bitops_TestTuple
     {
         // m,n are operands; a,o,x are and,or,xor results

@@ -73,7 +73,7 @@ bool ValidateAll(bool thorough)
 	pass=TestAutoSeeded() && pass;
 	pass=TestAutoSeededX917() && pass;
 	// pass=TestSecRandom() && pass;
-#if (defined(CRYPTOPP_DEBUG) || defined(CRYPTOPP_COVERAGE)) && !defined(CRYPTOPP_IMPORTS)
+#if defined(CRYPTOPP_EXTENDED_VALIDATION)
 	pass=TestMersenne() && pass;
 #endif
 #if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
@@ -81,7 +81,7 @@ bool ValidateAll(bool thorough)
 	pass=TestRDSEED() && pass;
 #endif
 
-#if (defined(CRYPTOPP_DEBUG) || defined(CRYPTOPP_COVERAGE)) && !defined(CRYPTOPP_IMPORTS)
+#if defined(CRYPTOPP_EXTENDED_VALIDATION)
 	// http://github.com/weidai11/cryptopp/issues/92
 	pass=TestSecBlock() && pass;
 	// http://github.com/weidai11/cryptopp/issues/336
@@ -159,12 +159,13 @@ bool ValidateAll(bool thorough)
 	pass=ValidateCamellia() && pass;
 	pass=ValidateSalsa() && pass;
 	pass=ValidateSosemanuk() && pass;
+	pass=RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/seed.txt") && pass;
+	pass=RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/kalyna.txt") && pass;
 	pass=ValidateVMAC() && pass;
 	pass=ValidateCCM() && pass;
 	pass=ValidateGCM() && pass;
 	pass=ValidateCMAC() && pass;
 	pass=RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/eax.txt") && pass;
-	pass=RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/seed.txt") && pass;
 
 	pass=ValidateBBS() && pass;
 	pass=ValidateDH() && pass;
@@ -239,7 +240,7 @@ bool TestSettings()
 		pass = false;
 	}
 
-#if (defined(CRYPTOPP_DEBUG) || defined(CRYPTOPP_COVERAGE)) && !defined(CRYPTOPP_IMPORTS)
+#if defined(CRYPTOPP_EXTENDED_VALIDATION)
 	// App and library versions, http://github.com/weidai11/cryptopp/issues/371
 	const int v1 = LibraryVersion();
 	const int v2 = HeaderVersion();
@@ -623,7 +624,7 @@ bool TestAutoSeededX917()
 }
 #endif // NO_OS_DEPENDENCE
 
-#if (defined(CRYPTOPP_DEBUG) || defined(CRYPTOPP_COVERAGE)) && !defined(CRYPTOPP_IMPORTS)
+#if defined(CRYPTOPP_EXTENDED_VALIDATION)
 bool TestMersenne()
 {
 	std::cout << "\nTesting Mersenne Twister...\n\n";

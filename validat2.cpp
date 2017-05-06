@@ -793,7 +793,7 @@ bool ValidateBlumGoldwasser()
 }
 */
 
-#if (defined(CRYPTOPP_DEBUG) || defined(CRYPTOPP_COVERAGE)) && !defined(CRYPTOPP_IMPORTS)
+#if defined(CRYPTOPP_EXTENDED_VALIDATION)
 // Issue 64: "PolynomialMod2::operator<<=", http://github.com/weidai11/cryptopp/issues/64
 bool TestPolynomialMod2()
 {
