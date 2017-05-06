@@ -116,8 +116,9 @@ bool TestZinflate()
             // Tamper
             try {
                 StringSource(dest.substr(0, len-2), true, new Inflator(new StringSink(rec)));
-                throw Exception(Exception::OTHER_ERROR, "Deflate failed to detect a truncated stream");
-            } catch(const Exception&) {}
+                std::cout << "Deflate failed to detect a truncated stream\n";
+                fail = true;
+            } catch(const Exception& ex) { }
         }
     }
     catch(const Exception&)
@@ -136,7 +137,7 @@ bool TestZinflate()
 
         try {
             StringSource(src, true, new Inflator(new StringSink(dest)));
-        } catch(const Exception&) {    }
+        } catch(const Exception&) {}
     }
 
     // Inflate random data. See if we can induce a crash
@@ -236,26 +237,37 @@ bool TestDefaultEncryptorWithMAC()
             if (src != rec)
                 throw Exception(Exception::OTHER_ERROR, "DefaultEncryptorWithMAC failed a self test");
 
-            // Tamper. Data format is [SALT][KEYCHECK][ENCRYPTED DATA].
+            // Tamper with the stream. Data format is [SALT][KEYCHECK][ENCRYPTED DATA].
             try {
-                StringSource(dest.substr(0, len-2), true, new Inflator(new StringSink(rec)));
-                throw Exception(Exception::OTHER_ERROR, "DefaultEncryptorWithMAC failed to detect a truncated stream");
-            } catch(const Exception&) {}
+                StringSource(dest.substr(0, len-2), true, new DefaultDecryptorWithMAC(pwd.c_str(), new StringSink(rec)));
+                std::cout << "FAILED:  DefaultDecryptorWithMAC failed to detect a truncated stream\n";
+                fail = true;
+            } catch(const Exception& ex) { }
             try {
-                dest[4] ^= 0x01;
-                StringSource(dest, true, new Inflator(new StringSink(rec)));
-                throw Exception(Exception::OTHER_ERROR, "DefaultEncryptorWithMAC failed to detect a tampered salt");
-            } catch(const Exception&) {}
+                // tamper salt
+                dest[DefaultDecryptorWithMAC::SALTLENGTH/2] ^= 0x01;
+                StringSource(dest, true, new DefaultDecryptorWithMAC(pwd.c_str(), new StringSink(rec)));
+                std::cout << "FAILED:  DefaultDecryptorWithMAC failed to detect a tampered salt\n";
+                fail = true;
+            } catch(const Exception& ex) { }
             try {
-                dest[4] ^= 0x01; dest[20] ^= 0x01;  // undo previous tamper
-                StringSource(dest, true, new Inflator(new StringSink(rec)));
-                throw Exception(Exception::OTHER_ERROR, "DefaultEncryptorWithMAC failed to detect a tampered keycheck");
-            } catch(const Exception&) {}
+                // undo previous tamper
+                dest[DefaultDecryptorWithMAC::SALTLENGTH/2] ^= 0x01;
+                // tamper keycheck
+                dest[DefaultDecryptorWithMAC::SALTLENGTH+DefaultDecryptorWithMAC::KEYLENGTH/2] ^= 0x01;
+                StringSource(dest, true, new DefaultDecryptorWithMAC(pwd.c_str(), new StringSink(rec)));
+                std::cout << "FAILED:  DefaultDecryptorWithMAC failed to detect a tampered keycheck\n";
+                fail = true;
+            } catch(const Exception& ex) { }
             try {
-                dest[20] ^= 0x01; dest[dest.length()-2] ^= 0x01;  // undo previous tamper
-                StringSource(dest, true, new Inflator(new StringSink(rec)));
-                throw Exception(Exception::OTHER_ERROR, "DefaultEncryptorWithMAC failed to detect a tampered data");
-            } catch(const Exception&) {}
+                // undo previous tamper
+                dest[DefaultDecryptorWithMAC::SALTLENGTH+DefaultDecryptorWithMAC::KEYLENGTH/2] ^= 0x01;
+                // tamper encrypted data
+                dest[dest.length()-2] ^= 0x01;
+                StringSource(dest, true, new DefaultDecryptorWithMAC(pwd.c_str(), new StringSink(rec)));
+                std::cout << "FAILED:  DefaultDecryptorWithMAC failed to detect a tampered data\n";
+                fail = true;
+            } catch(const Exception& ex) { }
         }
     }
     catch(const Exception&)
@@ -335,26 +347,37 @@ bool TestLegacyEncryptorWithMAC()
             if (src != rec)
                 throw Exception(Exception::OTHER_ERROR, "LegacyEncryptorWithMAC failed a self test");
 
-            // Tamper. Data format is [SALT][KEYCHECK][ENCRYPTED DATA].
+            // Tamper with the stream. Data format is [SALT][KEYCHECK][ENCRYPTED DATA].
             try {
-                StringSource(dest.substr(0, len-2), true, new Inflator(new StringSink(rec)));
-                throw Exception(Exception::OTHER_ERROR, "LegacyEncryptorWithMAC failed to detect a truncated stream");
-            } catch(const Exception&) {}
+                StringSource(dest.substr(0, len-2), true, new LegacyDecryptorWithMAC(pwd.c_str(), new StringSink(rec)));
+                std::cout << "FAILED:  LegacyEncryptorWithMAC failed to detect a truncated stream\n";
+                fail = true;
+            } catch(const Exception& ex) { }
             try {
-                dest[4] ^= 0x01;
-                StringSource(dest, true, new Inflator(new StringSink(rec)));
-                throw Exception(Exception::OTHER_ERROR, "LegacyEncryptorWithMAC failed to detect a tampered salt");
-            } catch(const Exception&) {}
+                // tamper salt
+                dest[LegacyEncryptorWithMAC::SALTLENGTH/2] ^= 0x01;
+                StringSource(dest, true, new LegacyDecryptorWithMAC(pwd.c_str(), new StringSink(rec)));
+                std::cout << "FAILED:  LegacyEncryptorWithMAC failed to detect a tampered salt\n";
+                fail = true;
+            } catch(const Exception& ex) { }
             try {
-                dest[4] ^= 0x01; dest[20] ^= 0x01;  // undo previous tamper
-                StringSource(dest, true, new Inflator(new StringSink(rec)));
-                throw Exception(Exception::OTHER_ERROR, "LegacyEncryptorWithMAC failed to detect a tampered keycheck");
-            } catch(const Exception&) {}
+                // undo previous tamper
+                dest[LegacyEncryptorWithMAC::SALTLENGTH/2] ^= 0x01;
+                // tamper keycheck
+                dest[LegacyEncryptorWithMAC::SALTLENGTH+LegacyEncryptorWithMAC::KEYLENGTH/2] ^= 0x01;
+                StringSource(dest, true, new LegacyDecryptorWithMAC(pwd.c_str(), new StringSink(rec)));
+                std::cout << "FAILED:  LegacyEncryptorWithMAC failed to detect a tampered keycheck\n";
+                fail = true;
+            } catch(const Exception& ex) { }
             try {
-                dest[20] ^= 0x01; dest[dest.length()-2] ^= 0x01;  // undo previous tamper
-                StringSource(dest, true, new Inflator(new StringSink(rec)));
-                throw Exception(Exception::OTHER_ERROR, "LegacyEncryptorWithMAC failed to detect a tampered data");
-            } catch(const Exception&) {}
+                // undo previous tamper
+                dest[LegacyEncryptorWithMAC::SALTLENGTH+LegacyEncryptorWithMAC::KEYLENGTH/2] ^= 0x01;
+                // tamper encrypted data
+                dest[dest.length()-2] ^= 0x01;
+                StringSource(dest, true, new LegacyDecryptorWithMAC(pwd.c_str(), new StringSink(rec)));
+                std::cout << "FAILED:  LegacyEncryptorWithMAC failed to detect a tampered data\n";
+                fail = true;
+            } catch(const Exception& ex) { }
         }
     }
     catch(const Exception&)

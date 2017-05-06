@@ -180,6 +180,12 @@ template <class BC, class H, class MAC, class Info>
 class DataEncryptorWithMAC : public ProxyFilter
 {
 public:
+	CRYPTOPP_CONSTANT(BLOCKSIZE  = Info::BLOCKSIZE)
+	CRYPTOPP_CONSTANT(KEYLENGTH  = Info::KEYLENGTH)
+	CRYPTOPP_CONSTANT(SALTLENGTH = Info::SALTLENGTH)
+	CRYPTOPP_CONSTANT(DIGESTSIZE = Info::DIGESTSIZE)
+	CRYPTOPP_CONSTANT(ITERATIONS = Info::ITERATIONS)
+
 	//! \brief Constructs a DataEncryptorWithMAC
 	//! \param passphrase a C-String password
 	//! \param attachment a BufferedTransformation to attach to this object
@@ -220,6 +226,12 @@ template <class BC, class H, class MAC, class Info>
 class DataDecryptorWithMAC : public ProxyFilter
 {
 public:
+	CRYPTOPP_CONSTANT(BLOCKSIZE  = Info::BLOCKSIZE)
+	CRYPTOPP_CONSTANT(KEYLENGTH  = Info::KEYLENGTH)
+	CRYPTOPP_CONSTANT(SALTLENGTH = Info::SALTLENGTH)
+	CRYPTOPP_CONSTANT(DIGESTSIZE = Info::DIGESTSIZE)
+	CRYPTOPP_CONSTANT(ITERATIONS = Info::ITERATIONS)
+
 	//! \brief Constructs a DataDecryptor
 	//! \param passphrase a C-String password
 	//! \param attachment a BufferedTransformation to attach to this object
