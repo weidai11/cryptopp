@@ -96,7 +96,7 @@ bool ValidateAll(bool thorough)
 	pass=TestASN1Parse() && pass;
 	// Enable during debug for code coverage
 	pass=ValidateBaseCode() && pass;
-    // Additional tests due to no coverage
+	// Additional tests due to no coverage
 	pass=TestGzip() && pass;
 	pass=TestZinflate() && pass;
 	pass=TestDefaultEncryptor() && pass;
@@ -586,7 +586,7 @@ bool TestAutoSeeded()
 		if(prng.CanIncorporateEntropy())
 		{
 			SecByteBlock entropy(ENTROPY_SIZE);
-			OS_GenerateRandomBlock(false, entropy, entropy.SizeInBytes());
+			GlobalRNG().GenerateBlock(entropy, entropy.SizeInBytes());
 
 			prng.IncorporateEntropy(entropy, entropy.SizeInBytes());
 			prng.IncorporateEntropy(entropy, entropy.SizeInBytes());
@@ -674,7 +674,7 @@ bool TestAutoSeededX917()
 		if(prng.CanIncorporateEntropy())
 		{
 			SecByteBlock entropy(ENTROPY_SIZE);
-			OS_GenerateRandomBlock(false, entropy, entropy.SizeInBytes());
+			GlobalRNG().GenerateBlock(entropy, entropy.SizeInBytes());
 
 			prng.IncorporateEntropy(entropy, entropy.SizeInBytes());
 			prng.IncorporateEntropy(entropy, entropy.SizeInBytes());
@@ -730,14 +730,14 @@ bool TestMersenne()
 	static const unsigned int ENTROPY_SIZE = 32;
 	bool equal = true, generate = true, discard = true, incorporate = false, crop = false;
 
-    // First 10; http://create.stephan-brumme.com/mersenne-twister/
+	// First 10; http://create.stephan-brumme.com/mersenne-twister/
 	word32 result[10], expected[10] = {0xD091BB5C, 0x22AE9EF6,
 		0xE7E1FAEE, 0xD5C31F79, 0x2082352C, 0xF807B7DF, 0xE9D30005,
 		0x3895AFE1, 0xA1E24BBA, 0x4EE4092B};
 
 	MT19937ar prng;
 	prng.GenerateBlock(reinterpret_cast<byte*>(result), sizeof(result));
-    equal = (0 == ::memcmp(result, expected, sizeof(expected)));
+	equal = (0 == ::memcmp(result, expected, sizeof(expected)));
 
 	if (equal)
 	{
@@ -746,9 +746,9 @@ bool TestMersenne()
 	else
 	{
 		std::cout << "FAILED:";
-        equal = false;
+		equal = false;
 	}
-    std::cout << "  Expected sequence from MT19937ar (2002 version)\n";
+	std::cout << "  Expected sequence from MT19937ar (2002 version)\n";
 
 	MeterFilter meter(new Redirector(TheBitBucket()));
 	RandomNumberSource test(prng, 100000, true, new Deflator(new Redirector(meter)));
@@ -782,7 +782,7 @@ bool TestMersenne()
 		if(prng.CanIncorporateEntropy())
 		{
 			SecByteBlock entropy(ENTROPY_SIZE);
-			OS_GenerateRandomBlock(false, entropy, entropy.SizeInBytes());
+			GlobalRNG().GenerateBlock(entropy, entropy.SizeInBytes());
 
 			prng.IncorporateEntropy(entropy, entropy.SizeInBytes());
 			prng.IncorporateEntropy(entropy, entropy.SizeInBytes());
@@ -891,36 +891,36 @@ bool TestRDRAND()
 		else
 			std::cout << "passed:";
 		std::cout << "  discarded " << SIZE << " bytes\n";
+
+		try
+		{
+			// Miscellaneous for code coverage
+			(void)rdrand.AlgorithmName();
+			(void)rdrand.CanIncorporateEntropy();
+			rdrand.IncorporateEntropy(NULLPTR, 0);
+
+			word32 result = rdrand.GenerateWord32();
+			result = rdrand.GenerateWord32(21, 0xffffffff - 21);
+			rdrand.GenerateBlock(reinterpret_cast<byte*>(&result), 4);
+			rdrand.GenerateBlock(reinterpret_cast<byte*>(&result), 3);
+			rdrand.GenerateBlock(reinterpret_cast<byte*>(&result), 2);
+			rdrand.GenerateBlock(reinterpret_cast<byte*>(&result), 1);
+			rdrand.GenerateBlock(reinterpret_cast<byte*>(&result), 0);
+			crop = true;
+		}
+		catch (const Exception&)
+		{
+			crop = false;
+		}
+
+		if (!crop)
+			std::cout << "FAILED:";
+		else
+			std::cout << "passed:";
+		std::cout << "  GenerateWord32 and Crop\n";
 	}
 	else
 		std::cout << "\nRDRAND generator not available, skipping test.\n";
-
-	try
-	{
-		// Miscellaneous for code coverage
-		(void)rdrand.AlgorithmName();
-		(void)rdrand.CanIncorporateEntropy();
-		rdrand.IncorporateEntropy(NULLPTR, 0);
-
-		word32 result = rdrand.GenerateWord32();
-		result = rdrand.GenerateWord32(21, 0xffffffff - 21);
-		rdrand.GenerateBlock(reinterpret_cast<byte*>(&result), 4);
-		rdrand.GenerateBlock(reinterpret_cast<byte*>(&result), 3);
-		rdrand.GenerateBlock(reinterpret_cast<byte*>(&result), 2);
-		rdrand.GenerateBlock(reinterpret_cast<byte*>(&result), 1);
-		rdrand.GenerateBlock(reinterpret_cast<byte*>(&result), 0);
-		crop = true;
-	}
-	catch (const Exception&)
-	{
-		crop = false;
-	}
-
-	if (!crop)
-		std::cout << "FAILED:";
-	else
-		std::cout << "passed:";
-	std::cout << "  GenerateWord32 and Crop\n";
 
 	return entropy && compress && discard && crop;
 }
@@ -988,36 +988,36 @@ bool TestRDSEED()
 		else
 			std::cout << "passed:";
 		std::cout << "  discarded " << SIZE << " bytes\n";
+
+		try
+		{
+			// Miscellaneous for code coverage
+			(void)rdseed.AlgorithmName();
+			(void)rdseed.CanIncorporateEntropy();
+			rdseed.IncorporateEntropy(NULLPTR, 0);
+
+			word32 result = rdseed.GenerateWord32();
+			result = rdseed.GenerateWord32(21, 0xffffffff - 21);
+			rdseed.GenerateBlock(reinterpret_cast<byte*>(&result), 4);
+			rdseed.GenerateBlock(reinterpret_cast<byte*>(&result), 3);
+			rdseed.GenerateBlock(reinterpret_cast<byte*>(&result), 2);
+			rdseed.GenerateBlock(reinterpret_cast<byte*>(&result), 1);
+			rdseed.GenerateBlock(reinterpret_cast<byte*>(&result), 0);
+			crop = true;
+		}
+		catch (const Exception&)
+		{
+			crop = false;
+		}
+
+		if (!crop)
+			std::cout << "FAILED:";
+		else
+			std::cout << "passed:";
+		std::cout << "  GenerateWord32 and Crop\n";
 	}
 	else
 		std::cout << "\nRDSEED generator not available, skipping test.\n";
-
-	try
-	{
-		// Miscellaneous for code coverage
-		(void)rdseed.AlgorithmName();
-		(void)rdseed.CanIncorporateEntropy();
-		rdseed.IncorporateEntropy(NULLPTR, 0);
-
-		word32 result = rdseed.GenerateWord32();
-		result = rdseed.GenerateWord32(21, 0xffffffff - 21);
-		rdseed.GenerateBlock(reinterpret_cast<byte*>(&result), 4);
-		rdseed.GenerateBlock(reinterpret_cast<byte*>(&result), 3);
-		rdseed.GenerateBlock(reinterpret_cast<byte*>(&result), 2);
-		rdseed.GenerateBlock(reinterpret_cast<byte*>(&result), 1);
-		rdseed.GenerateBlock(reinterpret_cast<byte*>(&result), 0);
-		crop = true;
-	}
-	catch (const Exception&)
-	{
-		crop = false;
-	}
-
-	if (!crop)
-		std::cout << "FAILED:";
-	else
-		std::cout << "passed:";
-	std::cout << "  GenerateWord32 and Crop\n";
 
 	return entropy && compress && discard;
 }
@@ -2190,34 +2190,34 @@ bool ValidateARC4()
 	arc4.reset(new Weak::ARC4(Key0, sizeof(Key0)));
 	arc4->ProcessString(Input0, sizeof(Input0));
 	fail = memcmp(Input0, Output0, sizeof(Input0)) != 0;
-	std::cout << (fail ? "FAILED" : "passed") << "    Test 0" << std::endl;
+	std::cout << (fail ? "FAILED" : "passed") << "   Test 0" << std::endl;
 	pass = pass && !fail;
 
 	arc4.reset(new Weak::ARC4(Key1, sizeof(Key1)));
 	arc4->ProcessString(Key1, Input1, sizeof(Key1));
 	fail = memcmp(Output1, Key1, sizeof(Key1)) != 0;
-	std::cout << (fail ? "FAILED" : "passed") << "    Test 1" << std::endl;
+	std::cout << (fail ? "FAILED" : "passed") << "   Test 1" << std::endl;
 	pass = pass && !fail;
 
 	arc4.reset(new Weak::ARC4(Key2, sizeof(Key2)));
 	for (i=0, fail=false; i<sizeof(Input2); i++)
 		if (arc4->ProcessByte(Input2[i]) != Output2[i])
 			fail = true;
-	std::cout << (fail ? "FAILED" : "passed") << "    Test 2" << std::endl;
+	std::cout << (fail ? "FAILED" : "passed") << "   Test 2" << std::endl;
 	pass = pass && !fail;
 
 	arc4.reset(new Weak::ARC4(Key3, sizeof(Key3)));
 	for (i=0, fail=false; i<sizeof(Input3); i++)
 		if (arc4->ProcessByte(Input3[i]) != Output3[i])
 			fail = true;
-	std::cout << (fail ? "FAILED" : "passed") << "    Test 3" << std::endl;
+	std::cout << (fail ? "FAILED" : "passed") << "   Test 3" << std::endl;
 	pass = pass && !fail;
 
 	arc4.reset(new Weak::ARC4(Key4, sizeof(Key4)));
 	for (i=0, fail=false; i<sizeof(Input4); i++)
 		if (arc4->ProcessByte(Input4[i]) != Output4[i])
 			fail = true;
-	std::cout << (fail ? "FAILED" : "passed") << "    Test 4" << std::endl;
+	std::cout << (fail ? "FAILED" : "passed") << "   Test 4" << std::endl;
 	pass = pass && !fail;
 
 	return pass;
@@ -2461,7 +2461,7 @@ bool ValidateBlowfish()
 		fail = fail || memcmp(outplain, plain[i], 8);
 		pass3 = pass3 && !fail;
 
-		std::cout << (fail ? "FAILED    " : "passed    ");
+		std::cout << (fail ? "FAILED   " : "passed   ");
 		std::cout << '\"' << key[i] << '\"';
 		for (int j=0; j<(signed int)(30-strlen(key[i])); j++)
 			std::cout << ' ';
@@ -2728,43 +2728,43 @@ bool ValidateBaseCode()
 	std::cout << "\nBase64, Base64URL, Base32 and Base16 coding validation suite running...\n\n";
 
 	fail = !TestFilter(HexEncoder().Ref(), data, 255, (const byte *)hexEncoded, strlen(hexEncoded));
-	std::cout << (fail ? "FAILED    " : "passed    ");
-	std::cout << "Hex Encoding\n";
+	std::cout << (fail ? "FAILED:" : "passed:");
+	std::cout << "   Hex Encoding\n";
 	pass = pass && !fail;
 
 	fail = !TestFilter(HexDecoder().Ref(), (const byte *)hexEncoded, strlen(hexEncoded), data, 255);
-	std::cout << (fail ? "FAILED    " : "passed    ");
-	std::cout << "Hex Decoding\n";
+	std::cout << (fail ? "FAILED:" : "passed:");
+	std::cout << "   Hex Decoding\n";
 	pass = pass && !fail;
 
 	fail = !TestFilter(Base32Encoder().Ref(), data, 255, (const byte *)base32Encoded, strlen(base32Encoded));
-	std::cout << (fail ? "FAILED    " : "passed    ");
-	std::cout << "Base32 Encoding\n";
+	std::cout << (fail ? "FAILED:" : "passed:");
+	std::cout << "   Base32 Encoding\n";
 	pass = pass && !fail;
 
 	fail = !TestFilter(Base32Decoder().Ref(), (const byte *)base32Encoded, strlen(base32Encoded), data, 255);
-	std::cout << (fail ? "FAILED    " : "passed    ");
-	std::cout << "Base32 Decoding\n";
+	std::cout << (fail ? "FAILED:" : "passed:");
+	std::cout << "   Base32 Decoding\n";
 	pass = pass && !fail;
 
 	fail = !TestFilter(Base64Encoder(new HexEncoder).Ref(), data, 255, (const byte *)base64AndHexEncoded, strlen(base64AndHexEncoded));
-	std::cout << (fail ? "FAILED    " : "passed    ");
-	std::cout << "Base64 Encoding\n";
+	std::cout << (fail ? "FAILED:" : "passed:");
+	std::cout << "   Base64 Encoding\n";
 	pass = pass && !fail;
 
 	fail = !TestFilter(HexDecoder(new Base64Decoder).Ref(), (const byte *)base64AndHexEncoded, strlen(base64AndHexEncoded), data, 255);
-	std::cout << (fail ? "FAILED    " : "passed    ");
-	std::cout << "Base64 Decoding\n";
+	std::cout << (fail ? "FAILED:" : "passed:");
+	std::cout << "   Base64 Decoding\n";
 	pass = pass && !fail;
 
 	fail = !TestFilter(Base64URLEncoder(new HexEncoder).Ref(), data, 255, (const byte *)base64URLAndHexEncoded, strlen(base64URLAndHexEncoded));
-	std::cout << (fail ? "FAILED    " : "passed    ");
-	std::cout << "Base64 URL Encoding\n";
+	std::cout << (fail ? "FAILED:" : "passed:");
+	std::cout << "   Base64 URL Encoding\n";
 	pass = pass && !fail;
 
 	fail = !TestFilter(HexDecoder(new Base64URLDecoder).Ref(), (const byte *)base64URLAndHexEncoded, strlen(base64URLAndHexEncoded), data, 255);
-	std::cout << (fail ? "FAILED    " : "passed    ");
-	std::cout << "Base64 URL Decoding\n";
+	std::cout << (fail ? "FAILED:" : "passed:");
+	std::cout << "   Base64 URL Decoding\n";
 	pass = pass && !fail;
 
 	return pass;
