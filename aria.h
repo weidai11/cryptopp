@@ -43,7 +43,7 @@ class ARIA : public ARIA_Info, public BlockCipherDocumentation
 public:
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<ARIA_Info>
 	{
-	public:
+	protected:
 		void UncheckedSetKey(const byte *key, unsigned int keylen, const NameValuePairs &params);
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
 
