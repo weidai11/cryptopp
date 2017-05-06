@@ -191,6 +191,12 @@
     <ClCompile Include="iterhash.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="kalyna.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="kalynatab.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="keccak.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -601,6 +607,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="iterhash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="kalyna.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="keccak.h">

@@ -229,6 +229,8 @@
     <ClCompile Include="iterhash.cpp">
       <PrecompiledHeader />
     </ClCompile>
+    <ClCompile Include="kalyna.cpp" />
+    <ClCompile Include="kalynatab.cpp" />
     <ClCompile Include="keccak.cpp" />
     <ClCompile Include="luc.cpp" />
     <ClCompile Include="mars.cpp" />
@@ -401,6 +403,7 @@
     <ClInclude Include="idea.h" />
     <ClInclude Include="integer.h" />
     <ClInclude Include="iterhash.h" />
+    <ClInclude Include="kalyna.h" />
     <ClInclude Include="keccak.h" />
     <ClInclude Include="lubyrack.h" />
     <ClInclude Include="luc.h" />

@@ -989,7 +989,7 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 	case 78: result = Test::ValidateHashDRBG(); break;
 	case 79: result = Test::ValidateHmacDRBG(); break;
 
-#if (defined(CRYPTOPP_DEBUG) || defined(CRYPTOPP_COVERAGE)) && !defined(CRYPTOPP_IMPORTS)
+#if defined(CRYPTOPP_EXTENDED_VALIDATION)
 	// http://github.com/weidai11/cryptopp/issues/92
 	case 9999: result = Test::TestSecBlock(); break;
 	// http://github.com/weidai11/cryptopp/issues/64

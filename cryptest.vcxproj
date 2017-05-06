@@ -195,7 +195,7 @@
   <!-- The rule copies cryptest.exe to the project   -->
   <!-- root directory so it can be executed in place -->
   <Target Name="CopyCryptestToRoot">
-    <Exec Command="copy $(Platform)\Output\$(Configuration)\cryptest.exe ."/>
+    <Exec Command="copy $(Platform)\Output\$(Configuration)\cryptest.exe $(SolutionDir)" />
   </Target>
 
   <!-- Source Files -->

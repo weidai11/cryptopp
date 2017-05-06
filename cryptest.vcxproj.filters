@@ -75,6 +75,9 @@
     <None Include="TestVectors\hmac.txt">
       <Filter>TestVectors</Filter>
     </None>
+    <None Include="TestVectors\kalyna.txt">
+      <Filter>TestVectors</Filter>
+    </None>
     <None Include="TestVectors\mars.txt">
       <Filter>TestVectors</Filter>
     </None>

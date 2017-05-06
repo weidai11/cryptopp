@@ -30,6 +30,7 @@
 #include "cast.h"
 #include "rc6.h"
 #include "mars.h"
+#include "kalyna.h"
 #include "des.h"
 #include "idea.h"
 #include "rc5.h"
@@ -40,7 +41,6 @@
 #include "blowfish.h"
 #include "seed.h"
 #include "wake.h"
-#include "seal.h"
 #include "hkdf.h"
 
 // For HMAC's
@@ -134,8 +134,8 @@ void RegisterFactories2()
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<Blowfish> >();
 	RegisterSymmetricCipherDefaultFactories<ECB_Mode<SEED> >();
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<SEED> >();
-//	RegisterSymmetricCipherDefaultFactories<ECB_Mode<Kalyna> >();  // Test Vectors
-//	RegisterSymmetricCipherDefaultFactories<CTR_Mode<Kalyna> >();  // Benchmarks
+	RegisterSymmetricCipherDefaultFactories<ECB_Mode<Kalyna> >();  // Test Vectors
+	RegisterSymmetricCipherDefaultFactories<CTR_Mode<Kalyna> >();  // Benchmarks
 
 	RegisterDefaultFactoryFor<KeyDerivationFunction, HKDF<SHA1> >();
 	RegisterDefaultFactoryFor<KeyDerivationFunction, HKDF<SHA256> >();

@@ -146,6 +146,9 @@ integer.cpp
 integer.h
 iterhash.cpp
 iterhash.h
+kalynatab.cpp
+kalyna.cpp
+kalyna.h
 keccak.cpp
 keccak.h
 lubyrack.h
@@ -404,6 +407,7 @@ TestVectors/esign.txt
 TestVectors/gcm.txt
 TestVectors/hkdf.txt
 TestVectors/hmac.txt
+TestVectors/kalyna.txt
 TestVectors/keccak.txt
 TestVectors/mars.txt
 TestVectors/nr.txt

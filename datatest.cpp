@@ -380,7 +380,7 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 			SignalTestFailure();
 
 		ConstByteArrayParameter iv;
-		if (pairs.GetValue(Name::IV(), iv) && iv.size() != encryptor->IVSize() && iv.size() != blockSize)
+		if (pairs.GetValue(Name::IV(), iv) && iv.size() != encryptor->IVSize() && (int)iv.size() != blockSize)
 			SignalTestFailure();
 
 		if (test == "Resync")
