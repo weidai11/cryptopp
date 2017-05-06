@@ -97,10 +97,20 @@ public:
     class CRYPTOPP_NO_VTABLE Base : public VariableBlockCipherImpl<Kalyna_Info>
     {
     public:
-        // Naming follows DSTU 7624:2014, where blocksize is specified first and then key length.
-        // DSTU is a little more complex with more parameters, dashes, underscores. (Thanks RO).
-        std::string AlgorithmName() const {return !BlockSize() ? StaticAlgorithmName() :
-            "Kalyna-" + IntToString(BlockSize())+"("+IntToString(m_kl*8)+")";}
+        //! \brief Provides the name of this algorithm
+        //! \return the standard algorithm name
+        //! \details If the object is unkeyed, then the generic name "Kalyna" is returned
+        //!   to the caller. If the algorithm is keyed, then a two or three part name is
+        //!   returned to the caller. The name follows DSTU 7624:2014, where block size is
+        //!   provided first and then key length. The library uses a dash to identify block size
+        //!   and parenthesis to identify key length. For example, Kalyna-128(256) is Kalyna
+        //!   with a 128-bit block size and a 256-bit key length. If a mode is associated
+        //!   with the object, then it follows as expected. For example, Kalyna-128(256)/ECB.
+		//!   DSTU is a little more complex with more parameters, dashes, underscores, but the
+		//!   library does not use the delimiters or full convention.
+        std::string AlgorithmName() const {
+            return m_blocksize ? "Kalyna-" + IntToString(m_blocksize*8) + "(" + IntToString(m_kl*8) + ")" : StaticAlgorithmName();
+        }
 
         unsigned int OptimalDataAlignment() const {
             return GetAlignmentOf<word64>();
