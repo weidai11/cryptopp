@@ -1227,6 +1227,15 @@ void Kalyna::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const N
 
 void Kalyna::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
+	// Timing attack countermeasure. see comments in Rijndael for more details
+	const int cacheLineSize = GetCacheLineSize();
+	volatile word32 _u = 0;
+	word32 u = _u;
+
+	for (unsigned int i=0; i<COUNTOF(KalynaTab::S); i+=cacheLineSize)
+		u &= *reinterpret_cast<const word32*>(KalynaTab::S+i);
+	m_wspace[0] = u;
+
     switch ((m_nb << 8) | m_nk)
     {
     case (2 << 8) | 2:
