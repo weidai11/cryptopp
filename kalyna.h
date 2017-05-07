@@ -1,4 +1,5 @@
 // kalyna.h - written and placed in the public domain by Jeffrey Walton
+//            Based on public domain code by Keru Kuro.
 
 //! \file kalyna.h
 //! \brief Classes for the Kalyna block cipher

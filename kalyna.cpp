@@ -362,31 +362,17 @@ inline void G512(const word64 x[8], word64 y[8], const word64 k[8])
         T[4][(byte)(x[3] >> 32)] ^ T[5][(byte)(x[2] >> 40)] ^ T[6][(byte)(x[1] >> 48)] ^ T[7][(byte)(x[0] >> 56)];
 }
 
-inline void make_odd_key128(const word64 evenkey[2], word64 oddkey[2])
+template <unsigned int NB>
+inline void MakeOddKey(const word64 evenkey[NB], word64 oddkey[NB])
 {
+	static const unsigned int S = (NB == 2) ? 16 : (NB == 4) ? 32 : (NB == 8) ? 64 : -1;
+	static const unsigned int T = (NB == 2) ?  7 : (NB == 4) ? 11 : (NB == 8) ? 19 : -1;
+
     const byte* even = reinterpret_cast<const byte*>(evenkey);
     byte* odd = reinterpret_cast<byte*>(oddkey);
 
-    memcpy(odd, even + 7, 16 - 7);
-    memcpy(odd + 16 - 7, even, 7);
-}
-
-inline void make_odd_key256(const word64 evenkey[4], word64 oddkey[4])
-{
-    const byte* even = reinterpret_cast<const byte*>(evenkey);
-    byte* odd = reinterpret_cast<byte*>(oddkey);
-
-    memcpy(odd, even + 11, 32 - 11);
-    memcpy(odd + 32 - 11, even, 11);
-}
-
-inline void make_odd_key(const word64 evenkey[8], word64 oddkey[8])
-{
-    const byte* even = reinterpret_cast<const byte*>(evenkey);
-    byte* odd = reinterpret_cast<byte*>(oddkey);
-
-    memcpy(odd, even + 19, 64 - 19);
-    memcpy(odd + 64 - 19, even, 19);
+    memcpy(odd, even + T, S - T);
+    memcpy(odd + S - T, even, T);
 }
 
 ANONYMOUS_NAMESPACE_END
@@ -419,7 +405,7 @@ void Kalyna::Base::SetKey_22(const word64 key[2])
     AddKey<2>(k, t2, ksc);
     G128(t2, t1, ksc);
     GL128(t1, &m_rkeys[0], ksc);
-    make_odd_key128(&m_rkeys[0], &m_rkeys[2]);
+    MakeOddKey<2>(&m_rkeys[0], &m_rkeys[2]);
 
     // round 2
     constant <<= 1;
@@ -427,7 +413,7 @@ void Kalyna::Base::SetKey_22(const word64 key[2])
     AddKey<2>(kswapped, t2, ksc);
     G128(t2, t1, ksc);
     GL128(t1, &m_rkeys[4], ksc);
-    make_odd_key128(&m_rkeys[4], &m_rkeys[6]);
+    MakeOddKey<2>(&m_rkeys[4], &m_rkeys[6]);
 
     // round 4
     constant <<= 1;
@@ -435,7 +421,7 @@ void Kalyna::Base::SetKey_22(const word64 key[2])
     AddKey<2>(k, t2, ksc);
     G128(t2, t1, ksc);
     GL128(t1, &m_rkeys[8], ksc);
-    make_odd_key128(&m_rkeys[8], &m_rkeys[10]);
+    MakeOddKey<2>(&m_rkeys[8], &m_rkeys[10]);
 
     // round 6
     constant <<= 1;
@@ -443,7 +429,7 @@ void Kalyna::Base::SetKey_22(const word64 key[2])
     AddKey<2>(kswapped, t2, ksc);
     G128(t2, t1, ksc);
     GL128(t1, &m_rkeys[12], ksc);
-    make_odd_key128(&m_rkeys[12], &m_rkeys[14]);
+    MakeOddKey<2>(&m_rkeys[12], &m_rkeys[14]);
 
     // round 8
     constant <<= 1;
@@ -451,7 +437,7 @@ void Kalyna::Base::SetKey_22(const word64 key[2])
     AddKey<2>(k, t2, ksc);
     G128(t2, t1, ksc);
     GL128(t1, &m_rkeys[16], ksc);
-    make_odd_key128(&m_rkeys[16], &m_rkeys[18]);
+    MakeOddKey<2>(&m_rkeys[16], &m_rkeys[18]);
 
     // round 10
     constant <<= 1;
@@ -493,7 +479,7 @@ void Kalyna::Base::SetKey_24(const word64 key[4])
     AddKey<2>(k, t2, ksc);
     G128(t2, t1, ksc);
     GL128(t1, &m_rkeys[0], ksc);
-    make_odd_key128(&m_rkeys[0], &m_rkeys[2]);
+    MakeOddKey<2>(&m_rkeys[0], &m_rkeys[2]);
 
     // round 2
     constant <<= 1;
@@ -501,7 +487,7 @@ void Kalyna::Base::SetKey_24(const word64 key[4])
     AddKey<2>(k + 2, t2, ksc);
     G128(t2, t1, ksc);
     GL128(t1, &m_rkeys[4], ksc);
-    make_odd_key128(&m_rkeys[4], &m_rkeys[6]);
+    MakeOddKey<2>(&m_rkeys[4], &m_rkeys[6]);
 
     // round 4
     SwapBlocks<4>(k);
@@ -510,7 +496,7 @@ void Kalyna::Base::SetKey_24(const word64 key[4])
     AddKey<2>(k, t2, ksc);
     G128(t2, t1, ksc);
     GL128(t1, &m_rkeys[8], ksc);
-    make_odd_key128(&m_rkeys[8], &m_rkeys[10]);
+    MakeOddKey<2>(&m_rkeys[8], &m_rkeys[10]);
 
     // round 6
     constant <<= 1;
@@ -518,7 +504,7 @@ void Kalyna::Base::SetKey_24(const word64 key[4])
     AddKey<2>(k + 2, t2, ksc);
     G128(t2, t1, ksc);
     GL128(t1, &m_rkeys[12], ksc);
-    make_odd_key128(&m_rkeys[12], &m_rkeys[14]);
+    MakeOddKey<2>(&m_rkeys[12], &m_rkeys[14]);
 
     // round 8
     SwapBlocks<4>(k);
@@ -527,7 +513,7 @@ void Kalyna::Base::SetKey_24(const word64 key[4])
     AddKey<2>(k, t2, ksc);
     G128(t2, t1, ksc);
     GL128(t1, &m_rkeys[16], ksc);
-    make_odd_key128(&m_rkeys[16], &m_rkeys[18]);
+    MakeOddKey<2>(&m_rkeys[16], &m_rkeys[18]);
 
     // round 10
     constant <<= 1;
@@ -535,7 +521,7 @@ void Kalyna::Base::SetKey_24(const word64 key[4])
     AddKey<2>(k + 2, t2, ksc);
     G128(t2, t1, ksc);
     GL128(t1, &m_rkeys[20], ksc);
-    make_odd_key128(&m_rkeys[20], &m_rkeys[22]);
+    MakeOddKey<2>(&m_rkeys[20], &m_rkeys[22]);
 
     // round 12
     SwapBlocks<4>(k);
@@ -544,7 +530,7 @@ void Kalyna::Base::SetKey_24(const word64 key[4])
     AddKey<2>(k, t2, ksc);
     G128(t2, t1, ksc);
     GL128(t1, &m_rkeys[24], ksc);
-    make_odd_key128(&m_rkeys[24], &m_rkeys[26]);
+    MakeOddKey<2>(&m_rkeys[24], &m_rkeys[26]);
 
     // round 14
     constant <<= 1;
@@ -592,7 +578,7 @@ void Kalyna::Base::SetKey_44(const word64 key[4])
     AddKey<4>(k, t2, ksc);
     G256(t2, t1, ksc);
     GL256(t1, &m_rkeys[0], ksc);
-    make_odd_key256(&m_rkeys[0], &m_rkeys[4]);
+    MakeOddKey<4>(&m_rkeys[0], &m_rkeys[4]);
 
     // round 2
     SwapBlocks<4>(k);
@@ -601,7 +587,7 @@ void Kalyna::Base::SetKey_44(const word64 key[4])
     AddKey<4>(k, t2, ksc);
     G256(t2, t1, ksc);
     GL256(t1, &m_rkeys[8], ksc);
-    make_odd_key256(&m_rkeys[8], &m_rkeys[12]);
+    MakeOddKey<4>(&m_rkeys[8], &m_rkeys[12]);
 
     // round 4
     SwapBlocks<4>(k);
@@ -610,7 +596,7 @@ void Kalyna::Base::SetKey_44(const word64 key[4])
     AddKey<4>(k, t2, ksc);
     G256(t2, t1, ksc);
     GL256(t1, &m_rkeys[16], ksc);
-    make_odd_key256(&m_rkeys[16], &m_rkeys[20]);
+    MakeOddKey<4>(&m_rkeys[16], &m_rkeys[20]);
 
     // round 6
     SwapBlocks<4>(k);
@@ -619,7 +605,7 @@ void Kalyna::Base::SetKey_44(const word64 key[4])
     AddKey<4>(k, t2, ksc);
     G256(t2, t1, ksc);
     GL256(t1, &m_rkeys[24], ksc);
-    make_odd_key256(&m_rkeys[24], &m_rkeys[28]);
+    MakeOddKey<4>(&m_rkeys[24], &m_rkeys[28]);
 
     // round 8
     SwapBlocks<4>(k);
@@ -628,7 +614,7 @@ void Kalyna::Base::SetKey_44(const word64 key[4])
     AddKey<4>(k, t2, ksc);
     G256(t2, t1, ksc);
     GL256(t1, &m_rkeys[32], ksc);
-    make_odd_key256(&m_rkeys[32], &m_rkeys[36]);
+    MakeOddKey<4>(&m_rkeys[32], &m_rkeys[36]);
 
     // round 10
     SwapBlocks<4>(k);
@@ -637,7 +623,7 @@ void Kalyna::Base::SetKey_44(const word64 key[4])
     AddKey<4>(k, t2, ksc);
     G256(t2, t1, ksc);
     GL256(t1, &m_rkeys[40], ksc);
-    make_odd_key256(&m_rkeys[40], &m_rkeys[44]);
+    MakeOddKey<4>(&m_rkeys[40], &m_rkeys[44]);
 
     // round 12
     SwapBlocks<4>(k);
@@ -646,7 +632,7 @@ void Kalyna::Base::SetKey_44(const word64 key[4])
     AddKey<4>(k, t2, ksc);
     G256(t2, t1, ksc);
     GL256(t1, &m_rkeys[48], ksc);
-    make_odd_key256(&m_rkeys[48], &m_rkeys[52]);
+    MakeOddKey<4>(&m_rkeys[48], &m_rkeys[52]);
 
     // round 14
     SwapBlocks<4>(k);
@@ -697,7 +683,7 @@ void Kalyna::Base::SetKey_48(const word64 key[8])
     AddKey<4>(k, t2, ksc);
     G256(t2, t1, ksc);
     GL256(t1, &m_rkeys[0], ksc);
-    make_odd_key256(&m_rkeys[0], &m_rkeys[4]);
+    MakeOddKey<4>(&m_rkeys[0], &m_rkeys[4]);
 
     // round 2
     constant <<= 1;
@@ -705,7 +691,7 @@ void Kalyna::Base::SetKey_48(const word64 key[8])
     AddKey<4>(k+4, t2, ksc);
     G256(t2, t1, ksc);
     GL256(t1, &m_rkeys[8], ksc);
-    make_odd_key256(&m_rkeys[8], &m_rkeys[12]);
+    MakeOddKey<4>(&m_rkeys[8], &m_rkeys[12]);
 
     // round 4
     SwapBlocks<8>(k);
@@ -714,7 +700,7 @@ void Kalyna::Base::SetKey_48(const word64 key[8])
     AddKey<4>(k, t2, ksc);
     G256(t2, t1, ksc);
     GL256(t1, &m_rkeys[16], ksc);
-    make_odd_key256(&m_rkeys[16], &m_rkeys[20]);
+    MakeOddKey<4>(&m_rkeys[16], &m_rkeys[20]);
 
     // round 6
     constant <<= 1;
@@ -722,7 +708,7 @@ void Kalyna::Base::SetKey_48(const word64 key[8])
     AddKey<4>(k+4, t2, ksc);
     G256(t2, t1, ksc);
     GL256(t1, &m_rkeys[24], ksc);
-    make_odd_key256(&m_rkeys[24], &m_rkeys[28]);
+    MakeOddKey<4>(&m_rkeys[24], &m_rkeys[28]);
 
     // round 8
     SwapBlocks<8>(k);
@@ -731,7 +717,7 @@ void Kalyna::Base::SetKey_48(const word64 key[8])
     AddKey<4>(k, t2, ksc);
     G256(t2, t1, ksc);
     GL256(t1, &m_rkeys[32], ksc);
-    make_odd_key256(&m_rkeys[32], &m_rkeys[36]);
+    MakeOddKey<4>(&m_rkeys[32], &m_rkeys[36]);
 
     // round 10
     constant <<= 1;
@@ -739,7 +725,7 @@ void Kalyna::Base::SetKey_48(const word64 key[8])
     AddKey<4>(k+4, t2, ksc);
     G256(t2, t1, ksc);
     GL256(t1, &m_rkeys[40], ksc);
-    make_odd_key256(&m_rkeys[40], &m_rkeys[44]);
+    MakeOddKey<4>(&m_rkeys[40], &m_rkeys[44]);
 
     // round 12
     SwapBlocks<8>(k);
@@ -748,7 +734,7 @@ void Kalyna::Base::SetKey_48(const word64 key[8])
     AddKey<4>(k, t2, ksc);
     G256(t2, t1, ksc);
     GL256(t1, &m_rkeys[48], ksc);
-    make_odd_key256(&m_rkeys[48], &m_rkeys[52]);
+    MakeOddKey<4>(&m_rkeys[48], &m_rkeys[52]);
 
     // round 14
     constant <<= 1;
@@ -756,7 +742,7 @@ void Kalyna::Base::SetKey_48(const word64 key[8])
     AddKey<4>(k+4, t2, ksc);
     G256(t2, t1, ksc);
     GL256(t1, &m_rkeys[56], ksc);
-    make_odd_key256(&m_rkeys[56], &m_rkeys[60]);
+    MakeOddKey<4>(&m_rkeys[56], &m_rkeys[60]);
 
     // round 16
     SwapBlocks<8>(k);
@@ -765,7 +751,7 @@ void Kalyna::Base::SetKey_48(const word64 key[8])
     AddKey<4>(k, t2, ksc);
     G256(t2, t1, ksc);
     GL256(t1, &m_rkeys[64], ksc);
-    make_odd_key256(&m_rkeys[64], &m_rkeys[68]);
+    MakeOddKey<4>(&m_rkeys[64], &m_rkeys[68]);
 
     // round 18
     constant <<= 1;
@@ -817,7 +803,7 @@ void Kalyna::Base::SetKey_88(const word64 key[8])
     AddKey<8>(k, t2, ksc);
     G512(t2, t1, ksc);
     GL512(t1, &m_rkeys[0], ksc);
-    make_odd_key(&m_rkeys[0], &m_rkeys[8]);
+    MakeOddKey<8>(&m_rkeys[0], &m_rkeys[8]);
 
     // round 2
     SwapBlocks<8>(k);
@@ -826,7 +812,7 @@ void Kalyna::Base::SetKey_88(const word64 key[8])
     AddKey<8>(k, t2, ksc);
     G512(t2, t1, ksc);
     GL512(t1, &m_rkeys[16], ksc);
-    make_odd_key(&m_rkeys[16], &m_rkeys[24]);
+    MakeOddKey<8>(&m_rkeys[16], &m_rkeys[24]);
 
     // round 4
     SwapBlocks<8>(k);
@@ -835,7 +821,7 @@ void Kalyna::Base::SetKey_88(const word64 key[8])
     AddKey<8>(k, t2, ksc);
     G512(t2, t1, ksc);
     GL512(t1, &m_rkeys[32], ksc);
-    make_odd_key(&m_rkeys[32], &m_rkeys[40]);
+    MakeOddKey<8>(&m_rkeys[32], &m_rkeys[40]);
 
     // round 6
     SwapBlocks<8>(k);
@@ -844,7 +830,7 @@ void Kalyna::Base::SetKey_88(const word64 key[8])
     AddKey<8>(k, t2, ksc);
     G512(t2, t1, ksc);
     GL512(t1, &m_rkeys[48], ksc);
-    make_odd_key(&m_rkeys[48], &m_rkeys[56]);
+    MakeOddKey<8>(&m_rkeys[48], &m_rkeys[56]);
 
     // round 8
     SwapBlocks<8>(k);
@@ -853,7 +839,7 @@ void Kalyna::Base::SetKey_88(const word64 key[8])
     AddKey<8>(k, t2, ksc);
     G512(t2, t1, ksc);
     GL512(t1, &m_rkeys[64], ksc);
-    make_odd_key(&m_rkeys[64], &m_rkeys[72]);
+    MakeOddKey<8>(&m_rkeys[64], &m_rkeys[72]);
 
     // round 10
     SwapBlocks<8>(k);
@@ -862,7 +848,7 @@ void Kalyna::Base::SetKey_88(const word64 key[8])
     AddKey<8>(k, t2, ksc);
     G512(t2, t1, ksc);
     GL512(t1, &m_rkeys[80], ksc);
-    make_odd_key(&m_rkeys[80], &m_rkeys[88]);
+    MakeOddKey<8>(&m_rkeys[80], &m_rkeys[88]);
 
     // round 12
     SwapBlocks<8>(k);
@@ -871,7 +857,7 @@ void Kalyna::Base::SetKey_88(const word64 key[8])
     AddKey<8>(k, t2, ksc);
     G512(t2, t1, ksc);
     GL512(t1, &m_rkeys[96], ksc);
-    make_odd_key(&m_rkeys[96], &m_rkeys[104]);
+    MakeOddKey<8>(&m_rkeys[96], &m_rkeys[104]);
 
     // round 14
     SwapBlocks<8>(k);
@@ -880,7 +866,7 @@ void Kalyna::Base::SetKey_88(const word64 key[8])
     AddKey<8>(k, t2, ksc);
     G512(t2, t1, ksc);
     GL512(t1, &m_rkeys[112], ksc);
-    make_odd_key(&m_rkeys[112], &m_rkeys[120]);
+    MakeOddKey<8>(&m_rkeys[112], &m_rkeys[120]);
 
     // round 16
     SwapBlocks<8>(k);
@@ -889,7 +875,7 @@ void Kalyna::Base::SetKey_88(const word64 key[8])
     AddKey<8>(k, t2, ksc);
     G512(t2, t1, ksc);
     GL512(t1, &m_rkeys[128], ksc);
-    make_odd_key(&m_rkeys[128], &m_rkeys[136]);
+    MakeOddKey<8>(&m_rkeys[128], &m_rkeys[136]);
 
     // round 18
     SwapBlocks<8>(k);
