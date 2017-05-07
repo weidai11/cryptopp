@@ -154,7 +154,7 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::TruncatedFinal(by
 	this->Restart();		// reinit for next use
 }
 
-#ifdef __GNUC__
+#if defined(__GNUC__) || defined(__clang__)
 	template class IteratedHashBase<word64, HashTransformation>;
 	template class IteratedHashBase<word64, MessageAuthenticationCode>;
 
