@@ -444,6 +444,17 @@ CXXFLAGS += -coverage
 endif # -coverage
 endif # GCC code coverage
 
+# Valgrind testing. Issue 'make valgrind'.
+ifneq ($(filter valgrind,$(MAKECMDGOALS)),)
+# Tune flags; see http://valgrind.org/docs/manual/quick-start.html
+CXXFLAGS := $(CXXFLAGS:-g%=-g3)
+CXXFLAGS := $(CXXFLAGS:-O%=-O1)
+CXXFLAGS := $(CXXFLAGS:-xO%=-xO1)
+ifeq ($(findstring -DCRYPTOPP_VALGRIND,$(CXXFLAGS)),)
+CXXFLAGS += -DCRYPTOPP_VALGRIND
+endif # -DCRYPTOPP_VALGRIND
+endif # Valgrind
+
 # Debug testing on GNU systems. Triggered by -DDEBUG.
 #   Newlib test due to http://sourceware.org/bugzilla/show_bug.cgi?id=20268
 ifneq ($(filter -DDEBUG -DDEBUG=1,$(CXXFLAGS)),)
@@ -579,6 +590,11 @@ coverage: libcryptopp.a cryptest.exe
 	lcov --base-directory . --directory . -c -o cryptest.info
 	lcov --remove cryptest.info "adhoc.cpp" "wait.*" "network.*" "socketft.*" "fips140.*" "*test.*" "bench*.cpp" "validat*.*" "/usr/*" -o cryptest.info
 	genhtml -o ./TestCoverage/ -t "cryptest.exe test coverage" --num-spaces 4 cryptest.info
+
+# SHould use CXXFLAGS="-g3 -O1"
+.PHONY: valgrind
+valgrind: libcryptopp.a cryptest.exe
+	valgrind ./cryptest.exe v
 
 .PHONY: test check
 test check: cryptest.exe
