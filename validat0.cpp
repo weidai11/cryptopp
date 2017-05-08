@@ -2152,8 +2152,8 @@ bool TestIntegerBitops()
 
     // Integer is missing a couple of tests...
     try {
-        // All in range [90, 96] are composite
-        Integer x = Integer(GlobalRNG(), 90, 96, Integer::PRIME);
+        // A run of 71 composites; see http://en.wikipedia.org/wiki/Prime_gap
+        Integer x = Integer(GlobalRNG(), 31398, 31468, Integer::PRIME);
         pass=false;
     } catch (const Exception&) {
         pass=true;
