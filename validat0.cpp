@@ -11,6 +11,7 @@
 #include "default.h"
 #include "zinflate.h"
 #include "gzip.h"
+#include "zlib.h"
 #include "hex.h"
 #include "asn.h"
 
@@ -31,7 +32,7 @@ NAMESPACE_BEGIN(Test)
 bool TestCompressors()
 {
     std::cout << "\nTesting Compressors and Decompressors...\n\n";
-    bool fail1 = false, fail2 = false;
+    bool fail1 = false, fail2 = false, fail3 = false;
 
     try
     {
@@ -168,8 +169,61 @@ bool TestCompressors()
        std::cout << "FAILED:";
     std::cout << "  128 deflates and inflates\n";
 
+    // **************************************************************
+
+    try
+    {
+        for (unsigned int i=0; i<128; ++i)
+        {
+            std::string src, dest, rec;
+            unsigned int len = GlobalRNG().GenerateWord32() & 0xffff;
+
+            src.resize(len);
+            GlobalRNG().GenerateBlock(reinterpret_cast<byte*>(&src[0]), src.size());
+
+            StringSource(src, true, new ZlibCompressor(new StringSink(dest)));
+            StringSource(dest, true, new ZlibDecompressor (new StringSink(rec)));
+            if (src != rec)
+                throw Exception(Exception::OTHER_ERROR, "ZlibCompressor failed to decompress stream");
+
+            // Tamper
+            try {
+                StringSource(dest.substr(0, len-2), true, new ZlibDecompressor (new StringSink(rec)));
+                throw Exception(Exception::OTHER_ERROR, "ZlibCompressor failed to detect a truncated stream");
+            } catch(const Exception&) {}
+        }
+    }
+    catch(const Exception&)
+    {
+        fail3 = true;
+    }
+
+    // **************************************************************
+
+    // Unzip random data. See if we can induce a crash
+    for (unsigned int i=0; i<128; i++)
+    {
+        std::string src, dest;
+        unsigned int len = GlobalRNG().GenerateWord32() & 0xffff;
+
+        src.resize(len);
+        GlobalRNG().GenerateBlock(reinterpret_cast<byte*>(&src[0]), src.size());
+
+        try {
+            StringSource(src, true, new ZlibDecompressor(new StringSink(dest)));
+        } catch(const Exception&) {    }
+    }
+
+    if (!fail3)
+       std::cout << "passed:";
+    else
+       std::cout << "FAILED:";
+    std::cout << "  128 zlib decompress and compress" << std::endl;
+
+    // **************************************************************
+
     std::cout.flush();
-    return !fail1 && !fail2;
+    return !fail1 && !fail2 && !fail3;
 }
 
 bool TestEncryptors()
