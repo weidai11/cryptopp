@@ -6,7 +6,7 @@
 //              (http://github.com/Roman-Oliynykov/Kalyna-reference). The third and most utilized resource
 //              was Keru Kuro's public domain implementation of Kalyna in CppCrypto
 //              (http://sourceforge.net/projects/cppcrypto/). Kuro has an outstanding implementation that
-//              performed better than the reference implementation and out intial attempts. The only downside
+//              performed better than the reference implementation and our initial attempts. The only downside
 //              was the missing big endian port.
 
 #include "pch.h"
@@ -927,11 +927,6 @@ void Kalyna::Base::SetKey_88(const word64 key[8])
     }
 }
 
-//template <unsigned int NB, unsigned int NK>
-//void Kalyna::Base::SetKey_Template(const word64 key[NK])
-//{
-//}
-
 // *********************** ProcessAndXorBlock specializations *********************** //
 
 void Kalyna::Base::ProcessBlock_22(const word64 inBlock[2], word64 outBlock[2]) const
@@ -1103,7 +1098,8 @@ void Kalyna::Base::ProcessBlock_44(const word64 inBlock[4], word64 outBlock[4]) 
 #if defined(IS_BIG_ENDIAN)
     {
         typedef GetBlock<word64, LittleEndian, false> Block;
-        Block block(t1); block(outBlock[0])(outBlock[1])(outBlock[2])(outBlock[3]);
+        Block block(t1);
+        block(outBlock[0])(outBlock[1])(outBlock[2])(outBlock[3]);
     }
 #endif
 }

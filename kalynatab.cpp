@@ -9,8 +9,6 @@ NAMESPACE_BEGIN(KalynaTab)
 
 #define EXPORT_TABLE extern
 
-#if defined(IS_LITTLE_ENDIAN)
-
 EXPORT_TABLE
 const word64 T[8][256] =
 {
@@ -1076,10 +1074,6 @@ const word64 IT[8][256] =
         0x386d5eb62d2293ea, 0xe65b3014f7b978cb, 0x9424bf376719b23e, 0x30c392e32295701a
     }
 };
-
-#else
-# error "Only little endian is supported at the moment"
-#endif
 
 EXPORT_TABLE
 const byte S[4][256] =

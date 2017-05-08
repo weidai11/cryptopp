@@ -9,7 +9,7 @@
 //!   Oliynykov and Oleksandr Kazymyrov's GitHub with the reference implementation
 //!   (http://github.com/Roman-Oliynykov/Kalyna-reference). The third resource was Keru Kuro's implementation
 //!   of Kalyna in CppCrypto (http://sourceforge.net/projects/cppcrypto/). Kuro has an outstanding
-//!   implementation that performed better than the reference implementation and out intial attempts.
+//!   implementation that performed better than the reference implementation and our initial attempts.
 
 #ifndef CRYPTOPP_KALYNA_H
 #define CRYPTOPP_KALYNA_H
