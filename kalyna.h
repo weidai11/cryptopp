@@ -7,7 +7,7 @@
 //!   Ruzhentsev, Kuznetsov, Gorbenko, Dyrda, Dolgov, Pushkaryov, Mordvinov and Kaidalov's "A New Encryption
 //!   Standard of Ukraine: The Kalyna Block Cipher" (http://eprint.iacr.org/2015/650.pdf). Second was Roman
 //!   Oliynykov and Oleksandr Kazymyrov's GitHub with the reference implementation
-//!  (http://github.com/Roman-Oliynykov/Kalyna-reference). The third resource was Keru Kuro's implementation
+//!   (http://github.com/Roman-Oliynykov/Kalyna-reference). The third resource was Keru Kuro's implementation
 //!   of Kalyna in CppCrypto (http://sourceforge.net/projects/cppcrypto/). Kuro has an outstanding
 //!   implementation that performed better than the reference implementation and out intial attempts.
 
@@ -107,8 +107,8 @@ public:
         //!   and parenthesis to identify key length. For example, Kalyna-128(256) is Kalyna
         //!   with a 128-bit block size and a 256-bit key length. If a mode is associated
         //!   with the object, then it follows as expected. For example, Kalyna-128(256)/ECB.
-		//!   DSTU is a little more complex with more parameters, dashes, underscores, but the
-		//!   library does not use the delimiters or full convention.
+        //!   DSTU is a little more complex with more parameters, dashes, underscores, but the
+        //!   library does not use the delimiters or full convention.
         std::string AlgorithmName() const {
             return m_blocksize ? "Kalyna-" + IntToString(m_blocksize*8) + "(" + IntToString(m_kl*8) + ")" : StaticAlgorithmName();
         }

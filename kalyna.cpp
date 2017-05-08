@@ -4,9 +4,10 @@
 //              Standard of Ukraine: The Kalyna Block Cipher" (http://eprint.iacr.org/2015/650.pdf). Second
 //              was Roman Oliynykov and Oleksandr Kazymyrov's GitHub with the reference implementation
 //              (http://github.com/Roman-Oliynykov/Kalyna-reference). The third and most utilized resource
-//              was Keru Kuro's implementation of Kalyna in CppCrypto (http://sourceforge.net/projects/cppcrypto/).
-//              Kuro has an outstanding implementation that performed better than the reference implementation
-//              and out intial attempts.
+//              was Keru Kuro's public domain implementation of Kalyna in CppCrypto
+//              (http://sourceforge.net/projects/cppcrypto/). Kuro has an outstanding implementation that
+//              performed better than the reference implementation and out intial attempts. The only downside
+//              was the missing big endian port.
 
 #include "pch.h"
 #include "config.h"
@@ -20,7 +21,7 @@ NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(KalynaTab)
 
 // T can be shared between Kupyna and Kalyna; IT, S and IS are Kalyna specific
-extern const word64 T[8][256];  // Substitution
+extern const word64 T[8][256];  // Columns
 extern const word64 IT[8][256]; // Inverse
 extern const byte S[4][256];    // Substitution
 extern const byte IS[4][256];   // Inverse
@@ -31,10 +32,54 @@ NAMESPACE_END
 ANONYMOUS_NAMESPACE_BEGIN
 
 using CryptoPP::word64;
-using CryptoPP::KalynaTab::S;
 using CryptoPP::KalynaTab::T;
-using CryptoPP::KalynaTab::IS;
+using CryptoPP::KalynaTab::S;
 using CryptoPP::KalynaTab::IT;
+using CryptoPP::KalynaTab::IS;
+
+template <unsigned int NB>
+inline void MakeOddKey(const word64 evenkey[NB], word64 oddkey[NB])
+{
+#if defined(IS_BIG_ENDIAN)
+    if (NB == 2)
+    {
+        oddkey[0] = (evenkey[1] << 8) | (evenkey[0] >> 56);
+        oddkey[1] = (evenkey[0] << 8) | (evenkey[1] >> 56);
+    }
+    else if (NB == 4)
+    {
+        oddkey[0] = (evenkey[2] << 40) | (evenkey[1] >> 24);
+        oddkey[1] = (evenkey[3] << 40) | (evenkey[2] >> 24);
+        oddkey[2] = (evenkey[0] << 40) | (evenkey[3] >> 24);
+        oddkey[3] = (evenkey[1] << 40) | (evenkey[0] >> 24);
+    }
+    else if (NB == 8)
+    {
+        oddkey[0] = (evenkey[3] << 40) | (evenkey[2] >> 24);
+        oddkey[1] = (evenkey[4] << 40) | (evenkey[3] >> 24);
+        oddkey[2] = (evenkey[5] << 40) | (evenkey[4] >> 24);
+        oddkey[3] = (evenkey[6] << 40) | (evenkey[5] >> 24);
+
+        oddkey[4] = (evenkey[7] << 40) | (evenkey[6] >> 24);
+        oddkey[5] = (evenkey[0] << 40) | (evenkey[7] >> 24);
+        oddkey[6] = (evenkey[1] << 40) | (evenkey[0] >> 24);
+        oddkey[7] = (evenkey[2] << 40) | (evenkey[1] >> 24);
+    }
+    else
+    {
+        CRYPTOPP_ASSERT(0);
+    }
+#else
+    static const unsigned int S = (NB == 2) ? 16 : (NB == 4) ? 32 : (NB == 8) ? 64 : -1;
+    static const unsigned int T = (NB == 2) ?  7 : (NB == 4) ? 11 : (NB == 8) ? 19 : -1;
+
+    const byte* even = reinterpret_cast<const byte*>(evenkey);
+    byte* odd = reinterpret_cast<byte*>(oddkey);
+
+    memcpy(odd, even + T, S - T);
+    memcpy(odd + S - T, even, T);
+#endif
+}
 
 template <unsigned int NB>
 inline void SwapBlocks(word64 k[NB])
@@ -362,19 +407,6 @@ inline void G512(const word64 x[8], word64 y[8], const word64 k[8])
         T[4][(byte)(x[3] >> 32)] ^ T[5][(byte)(x[2] >> 40)] ^ T[6][(byte)(x[1] >> 48)] ^ T[7][(byte)(x[0] >> 56)];
 }
 
-template <unsigned int NB>
-inline void MakeOddKey(const word64 evenkey[NB], word64 oddkey[NB])
-{
-	static const unsigned int S = (NB == 2) ? 16 : (NB == 4) ? 32 : (NB == 8) ? 64 : -1;
-	static const unsigned int T = (NB == 2) ?  7 : (NB == 4) ? 11 : (NB == 8) ? 19 : -1;
-
-    const byte* even = reinterpret_cast<const byte*>(evenkey);
-    byte* odd = reinterpret_cast<byte*>(oddkey);
-
-    memcpy(odd, even + T, S - T);
-    memcpy(odd + S - T, even, T);
-}
-
 ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -562,7 +594,7 @@ void Kalyna::Base::SetKey_44(const word64 key[4])
     word64 *ks = m_wspace+0, *ksc = m_wspace+4, *t1 = m_wspace+8;
     word64 *t2 = m_wspace+12, *k = m_wspace+16;
 
-    memset(t1, 0, 4*8);
+    memset(t1, 0, 32);
     t1[0] = (256 + 256 + 64) / 64;
 
     AddKey<4>(t1, t2, key);
@@ -904,7 +936,18 @@ void Kalyna::Base::SetKey_88(const word64 key[8])
 
 void Kalyna::Base::ProcessBlock_22(const word64 inBlock[2], word64 outBlock[2]) const
 {
-    word64 *t1 = m_wspace+0, *t2 = m_wspace+2;
+#if defined(IS_BIG_ENDIAN)
+    word64 *t1 = m_wspace+0, *t2 = m_wspace+2, *msg = m_wspace+4;
+    {
+        typedef GetBlock<word64, LittleEndian, false> Block;
+        Block block(inBlock);
+        block(msg[0])(msg[1]);
+        inBlock = msg;
+    }
+#else
+    word64 *t1 = outBlock, *t2 = m_wspace+2;
+#endif
+
     if (IsForwardTransformation())
     {
         AddKey<2>(inBlock, t1, m_rkeys);
@@ -935,12 +978,29 @@ void Kalyna::Base::ProcessBlock_22(const word64 inBlock[2], word64 outBlock[2]) 
         IGL128(t2, t1, &m_rkeys[0]);
     }
 
-    memcpy(outBlock, t1, 16);
+#if defined(IS_BIG_ENDIAN)
+    {
+        typedef GetBlock<word64, LittleEndian, false> Block;
+        Block block(t1);
+        block(outBlock[0])(outBlock[1]);
+    }
+#endif
 }
 
 void Kalyna::Base::ProcessBlock_24(const word64 inBlock[2], word64 outBlock[2]) const
 {
-    word64 *t1 = m_wspace+0, *t2 = m_wspace+2;
+#if defined(IS_BIG_ENDIAN)
+    word64 *t1 = m_wspace+0, *t2 = m_wspace+2, *msg = m_wspace+4;
+    {
+        typedef GetBlock<word64, LittleEndian, false> Block;
+        Block block(inBlock);
+        block(msg[0])(msg[1]);
+        inBlock = msg;
+    }
+#else
+    word64 *t1 = outBlock, *t2 = m_wspace+2;
+#endif
+
     if (IsForwardTransformation())
     {
         AddKey<2>(inBlock, t1, m_rkeys);
@@ -979,12 +1039,29 @@ void Kalyna::Base::ProcessBlock_24(const word64 inBlock[2], word64 outBlock[2]) 
         IGL128(t2, t1, &m_rkeys[0]);
     }
 
-    memcpy(outBlock, t1, 16);
+#if defined(IS_BIG_ENDIAN)
+    {
+        typedef GetBlock<word64, LittleEndian, false> Block;
+        Block block(t1);
+        block(outBlock[0])(outBlock[1]);
+    }
+#endif
 }
 
 void Kalyna::Base::ProcessBlock_44(const word64 inBlock[4], word64 outBlock[4]) const
 {
-    word64 *t1 = m_wspace+0, *t2 = m_wspace+4;
+#if defined(IS_BIG_ENDIAN)
+    word64 *t1 = m_wspace+0, *t2 = m_wspace+4, *msg = m_wspace+8;
+    {
+        typedef GetBlock<word64, LittleEndian, false> Block;
+        Block block(inBlock);
+        block(msg[0])(msg[1])(msg[2])(msg[3]);
+        inBlock = msg;
+    }
+#else
+    word64 *t1 = outBlock, *t2 = m_wspace+4;
+#endif
+
     if (IsForwardTransformation())
     {
         AddKey<4>(inBlock, t1, m_rkeys);
@@ -1023,13 +1100,27 @@ void Kalyna::Base::ProcessBlock_44(const word64 inBlock[4], word64 outBlock[4]) 
         IGL256(t2, t1, &m_rkeys[0]);
     }
 
-    memcpy(outBlock, t1, 32);
+#if defined(IS_BIG_ENDIAN)
+    {
+        typedef GetBlock<word64, LittleEndian, false> Block;
+        Block block(t1); block(outBlock[0])(outBlock[1])(outBlock[2])(outBlock[3]);
+    }
+#endif
 }
 
 void Kalyna::Base::ProcessBlock_48(const word64 inBlock[4], word64 outBlock[4]) const
 {
-    // word64 t1[4], t2[4];
-    word64 *t1 = m_wspace+0, *t2 = m_wspace+4;
+#if defined(IS_BIG_ENDIAN)
+    word64 *t1 = m_wspace+0, *t2 = m_wspace+4, *msg = m_wspace+8;
+    {
+        typedef GetBlock<word64, LittleEndian, false> Block;
+        Block block(inBlock);
+        block(msg[0])(msg[1])(msg[2])(msg[3]);
+        inBlock = msg;
+    }
+#else
+    word64 *t1 = outBlock, *t2 = m_wspace+4;
+#endif
 
     if (IsForwardTransformation())
     {
@@ -1077,13 +1168,28 @@ void Kalyna::Base::ProcessBlock_48(const word64 inBlock[4], word64 outBlock[4]) 
         IGL256(t2, t1, &m_rkeys[0]);
     }
 
-    memcpy(outBlock, t1, 32);
+#if defined(IS_BIG_ENDIAN)
+    {
+        typedef GetBlock<word64, LittleEndian, false> Block;
+        Block block(t1);
+        block(outBlock[0])(outBlock[1])(outBlock[2])(outBlock[3]);
+    }
+#endif
 }
 
 void Kalyna::Base::ProcessBlock_88(const word64 inBlock[8], word64 outBlock[8]) const
 {
-    // word64 t1[8], t2[8];
-    word64 *t1 = m_wspace+0, *t2 = m_wspace+8;
+#if defined(IS_BIG_ENDIAN)
+    word64 *t1 = m_wspace+0, *t2 = m_wspace+8, *msg = m_wspace+16;
+    {
+        typedef GetBlock<word64, LittleEndian, false> Block;
+        Block block(inBlock);
+        block(msg[0])(msg[1])(msg[2])(msg[3])(msg[4])(msg[5])(msg[6])(msg[7]);
+        inBlock = msg;
+    }
+#else
+    word64 *t1 = outBlock, *t2 = m_wspace+8;
+#endif
 
     if (IsForwardTransformation())
     {
@@ -1131,7 +1237,14 @@ void Kalyna::Base::ProcessBlock_88(const word64 inBlock[8], word64 outBlock[8]) 
         IGL512(t2, t1, &m_rkeys[0]);
     }
 
-    memcpy(outBlock, t1, 64);
+#if defined(IS_BIG_ENDIAN)
+    {
+        typedef GetBlock<word64, LittleEndian, false> Block;
+        Block block(t1);
+        block(outBlock[0])(outBlock[1])(outBlock[2])(outBlock[3])
+             (outBlock[4])(outBlock[5])(outBlock[6])(outBlock[7]);
+    }
+#endif
 }
 
 // *********************** Library routines *********************** //
@@ -1139,7 +1252,7 @@ void Kalyna::Base::ProcessBlock_88(const word64 inBlock[8], word64 outBlock[8]) 
 void Kalyna::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const NameValuePairs &params)
 {
     typedef GetBlock<word64, LittleEndian, false> Block;
-    Block userkey(key);
+    Block block(key);
 
     switch (keylen)
     {
@@ -1169,7 +1282,7 @@ void Kalyna::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const N
         m_rkeys.New(11*2);
         m_wspace.New(2*6);
 
-        userkey(m_mkey[0])(m_mkey[1]);
+        block(m_mkey[0])(m_mkey[1]);
         SetKey_22(m_mkey.data());
         break;
     case (2 << 8) | 4:  // 256 key, 128 block
@@ -1177,7 +1290,7 @@ void Kalyna::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const N
         m_rkeys.New(15*2);
         m_wspace.New(6*2+4);
 
-        userkey(m_mkey[0])(m_mkey[1])(m_mkey[2])(m_mkey[3]);
+        block(m_mkey[0])(m_mkey[1])(m_mkey[2])(m_mkey[3]);
         SetKey_24(m_mkey.data());
         break;
     case (4 << 8) | 4:  // 256 key, 256 block
@@ -1185,7 +1298,7 @@ void Kalyna::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const N
         m_rkeys.New(15*4);
         m_wspace.New(5*4);
 
-        userkey(m_mkey[0])(m_mkey[1])(m_mkey[2])(m_mkey[3]);
+        block(m_mkey[0])(m_mkey[1])(m_mkey[2])(m_mkey[3]);
         SetKey_44(m_mkey.data());
         break;
     case (4 << 8) | 8:  // 512 key, 256 block
@@ -1193,8 +1306,8 @@ void Kalyna::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const N
         m_rkeys.New(19*4);
         m_wspace.New(6*4+8);
 
-        userkey(m_mkey[0])(m_mkey[1])(m_mkey[2])(m_mkey[3])
-               (m_mkey[4])(m_mkey[5])(m_mkey[6])(m_mkey[7]);
+        block(m_mkey[0])(m_mkey[1])(m_mkey[2])(m_mkey[3])
+             (m_mkey[4])(m_mkey[5])(m_mkey[6])(m_mkey[7]);
         SetKey_48(m_mkey.data());
         break;
     case (8 << 8) | 8:  // 512 key, 512 block
@@ -1202,8 +1315,8 @@ void Kalyna::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const N
         m_rkeys.New(19*8);
         m_wspace.New(5*8);
 
-        userkey(m_mkey[0])(m_mkey[1])(m_mkey[2])(m_mkey[3])
-               (m_mkey[4])(m_mkey[5])(m_mkey[6])(m_mkey[7]);
+        block(m_mkey[0])(m_mkey[1])(m_mkey[2])(m_mkey[3])
+             (m_mkey[4])(m_mkey[5])(m_mkey[6])(m_mkey[7]);
         SetKey_88(m_mkey.data());
         break;
     default:
@@ -1213,14 +1326,14 @@ void Kalyna::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const N
 
 void Kalyna::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
-	// Timing attack countermeasure. see comments in Rijndael for more details
-	const int cacheLineSize = GetCacheLineSize();
-	volatile word32 _u = 0;
-	word32 u = _u;
+    // Timing attack countermeasure. see comments in Rijndael for more details
+    const int cacheLineSize = GetCacheLineSize();
+    volatile word32 _u = 0;
+    word32 u = _u;
 
-	for (unsigned int i=0; i<COUNTOF(KalynaTab::S); i+=cacheLineSize)
-		u &= *reinterpret_cast<const word32*>(KalynaTab::S+i);
-	m_wspace[0] = u;
+    for (unsigned int i=0; i<256; i+=cacheLineSize)
+        u &= *reinterpret_cast<const word32*>(KalynaTab::S+i);
+    m_wspace[0] = u;
 
     switch ((m_nb << 8) | m_nk)
     {
