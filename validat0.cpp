@@ -70,7 +70,7 @@ bool TestCompressors()
 
         src.resize(len);
         GlobalRNG().GenerateBlock(reinterpret_cast<byte*>(&src[0]), src.size());
-        src[0] = 0x1f; src[1] = 0x8b;  // magic Header
+        src[0] = (byte)0x1f; src[1] = (byte)0x8b;  // magic header
         src[2] = 0x00;  // extra flags
         src[3] = src[3] & (2|4|8|16|32);  // flags
 
@@ -114,7 +114,7 @@ bool TestCompressors()
                 StringSource(dest.substr(0, len-2), true, new Inflator(new StringSink(rec)));
                 std::cout << "Deflate failed to detect a truncated stream\n";
                 fail2 = true;
-            } catch(const Exception& ex) { }
+            } catch(const Exception&) { }
         }
     }
     catch(const Exception&)
@@ -146,7 +146,7 @@ bool TestCompressors()
 
         src.resize(len);
         GlobalRNG().GenerateBlock(reinterpret_cast<byte*>(&src[0]), src.size());
-        src[0] = 0x1f; src[1] = 0x8b;  // magic Header
+        src[0] = (byte)0x1f; src[1] = (byte)0x8b;  // magic Header
         src[2] = 0x00;  // extra flags
         src[3] = src[3] & (2|4|8|16|32);  // flags
 
@@ -234,14 +234,14 @@ bool TestEncryptors()
                 StringSource(dest.substr(0, len-2), true, new DefaultDecryptorWithMAC(pwd.c_str(), new StringSink(rec)));
                 std::cout << "FAILED:  DefaultDecryptorWithMAC failed to detect a truncated stream\n";
                 fail2 = true;
-            } catch(const Exception& ex) { }
+            } catch(const Exception&) { }
             try {
                 // tamper salt
                 dest[DefaultDecryptorWithMAC::SALTLENGTH/2] ^= 0x01;
                 StringSource(dest, true, new DefaultDecryptorWithMAC(pwd.c_str(), new StringSink(rec)));
                 std::cout << "FAILED:  DefaultDecryptorWithMAC failed to detect a tampered salt\n";
                 fail2 = true;
-            } catch(const Exception& ex) { }
+            } catch(const Exception&) { }
             try {
                 // undo previous tamper
                 dest[DefaultDecryptorWithMAC::SALTLENGTH/2] ^= 0x01;
@@ -250,7 +250,7 @@ bool TestEncryptors()
                 StringSource(dest, true, new DefaultDecryptorWithMAC(pwd.c_str(), new StringSink(rec)));
                 std::cout << "FAILED:  DefaultDecryptorWithMAC failed to detect a tampered keycheck\n";
                 fail2 = true;
-            } catch(const Exception& ex) { }
+            } catch(const Exception&) { }
             try {
                 // undo previous tamper
                 dest[DefaultDecryptorWithMAC::SALTLENGTH+DefaultDecryptorWithMAC::KEYLENGTH/2] ^= 0x01;
@@ -259,7 +259,7 @@ bool TestEncryptors()
                 StringSource(dest, true, new DefaultDecryptorWithMAC(pwd.c_str(), new StringSink(rec)));
                 std::cout << "FAILED:  DefaultDecryptorWithMAC failed to detect a tampered data\n";
                 fail2 = true;
-            } catch(const Exception& ex) { }
+            } catch(const Exception&) { }
         }
     }
     catch(const Exception&)
@@ -332,14 +332,14 @@ bool TestEncryptors()
                 StringSource(dest.substr(0, len-2), true, new LegacyDecryptorWithMAC(pwd.c_str(), new StringSink(rec)));
                 std::cout << "FAILED:  LegacyEncryptorWithMAC failed to detect a truncated stream\n";
                 fail4 = true;
-            } catch(const Exception& ex) { }
+            } catch(const Exception&) { }
             try {
                 // tamper salt
                 dest[LegacyEncryptorWithMAC::SALTLENGTH/2] ^= 0x01;
                 StringSource(dest, true, new LegacyDecryptorWithMAC(pwd.c_str(), new StringSink(rec)));
                 std::cout << "FAILED:  LegacyEncryptorWithMAC failed to detect a tampered salt\n";
                 fail4 = true;
-            } catch(const Exception& ex) { }
+            } catch(const Exception&) { }
             try {
                 // undo previous tamper
                 dest[LegacyEncryptorWithMAC::SALTLENGTH/2] ^= 0x01;
@@ -348,7 +348,7 @@ bool TestEncryptors()
                 StringSource(dest, true, new LegacyDecryptorWithMAC(pwd.c_str(), new StringSink(rec)));
                 std::cout << "FAILED:  LegacyEncryptorWithMAC failed to detect a tampered keycheck\n";
                 fail4 = true;
-            } catch(const Exception& ex) { }
+            } catch(const Exception&) { }
             try {
                 // undo previous tamper
                 dest[LegacyEncryptorWithMAC::SALTLENGTH+LegacyEncryptorWithMAC::KEYLENGTH/2] ^= 0x01;
@@ -357,7 +357,7 @@ bool TestEncryptors()
                 StringSource(dest, true, new LegacyDecryptorWithMAC(pwd.c_str(), new StringSink(rec)));
                 std::cout << "FAILED:  LegacyEncryptorWithMAC failed to detect a tampered data\n";
                 fail4 = true;
-            } catch(const Exception& ex) { }
+            } catch(const Exception&) { }
         }
     }
     catch(const Exception&)
