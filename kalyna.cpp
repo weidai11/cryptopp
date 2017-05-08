@@ -1319,11 +1319,12 @@ void Kalyna::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
 {
     // Timing attack countermeasure. see comments in Rijndael for more details
     const int cacheLineSize = GetCacheLineSize();
-    volatile word32 _u = 0;
-    word32 u = _u;
+    volatile word64 _u = 0;
+    word64 u = _u;
 
+    const byte* p = reinterpret_cast<const byte*>(KalynaTab::S);
     for (unsigned int i=0; i<256; i+=cacheLineSize)
-        u &= *reinterpret_cast<const word32*>(KalynaTab::S+i);
+        u &= *reinterpret_cast<const word64*>(p+i);
     m_wspace[0] = u;
 
     switch ((m_nb << 8) | m_nk)
