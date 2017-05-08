@@ -1247,9 +1247,6 @@ void Kalyna::Base::ProcessBlock_88(const word64 inBlock[8], word64 outBlock[8]) 
 
 void Kalyna::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const NameValuePairs &params)
 {
-    typedef GetBlock<word64, LittleEndian, false> Block;
-    Block block(key);
-
     switch (keylen)
     {
     case 16:  // 128
@@ -1278,42 +1275,40 @@ void Kalyna::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const N
         m_rkeys.New(11*2);
         m_wspace.New(2*6);
 
-        block(m_mkey[0])(m_mkey[1]);
-        SetKey_22(m_mkey.data());
+        GetUserKey(LITTLE_ENDIAN_ORDER, m_mkey.begin(), 2, key, 16);
+        SetKey_22(m_mkey.begin());
         break;
     case (2 << 8) | 4:  // 256 key, 128 block
         m_mkey.New(4);
         m_rkeys.New(15*2);
         m_wspace.New(6*2+4);
 
-        block(m_mkey[0])(m_mkey[1])(m_mkey[2])(m_mkey[3]);
-        SetKey_24(m_mkey.data());
+        GetUserKey(LITTLE_ENDIAN_ORDER, m_mkey.begin(), 4, key, 32);
+        SetKey_24(m_mkey.begin());
         break;
     case (4 << 8) | 4:  // 256 key, 256 block
         m_mkey.New(4);
         m_rkeys.New(15*4);
         m_wspace.New(5*4);
 
-        block(m_mkey[0])(m_mkey[1])(m_mkey[2])(m_mkey[3]);
-        SetKey_44(m_mkey.data());
+        GetUserKey(LITTLE_ENDIAN_ORDER, m_mkey.begin(), 4, key, 32);
+        SetKey_44(m_mkey.begin());
         break;
     case (4 << 8) | 8:  // 512 key, 256 block
         m_mkey.New(8);
         m_rkeys.New(19*4);
         m_wspace.New(6*4+8);
 
-        block(m_mkey[0])(m_mkey[1])(m_mkey[2])(m_mkey[3])
-             (m_mkey[4])(m_mkey[5])(m_mkey[6])(m_mkey[7]);
-        SetKey_48(m_mkey.data());
+        GetUserKey(LITTLE_ENDIAN_ORDER, m_mkey.begin(), 8, key, 64);
+        SetKey_48(m_mkey.begin());
         break;
     case (8 << 8) | 8:  // 512 key, 512 block
         m_mkey.New(8);
         m_rkeys.New(19*8);
         m_wspace.New(5*8);
 
-        block(m_mkey[0])(m_mkey[1])(m_mkey[2])(m_mkey[3])
-             (m_mkey[4])(m_mkey[5])(m_mkey[6])(m_mkey[7]);
-        SetKey_88(m_mkey.data());
+        GetUserKey(LITTLE_ENDIAN_ORDER, m_mkey.begin(), 8, key, 64);
+        SetKey_88(m_mkey.begin());
         break;
     default:
         CRYPTOPP_ASSERT(0);
