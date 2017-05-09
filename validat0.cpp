@@ -5,6 +5,7 @@
 
 #include "secblock.h"
 #include "integer.h"
+#include "nbtheory.h"
 #include "zdeflate.h"
 #include "filters.h"
 #include "stdcpp.h"
@@ -2151,13 +2152,12 @@ bool TestIntegerBitops()
     std::cout << "  Integer DivideByZero\n";
 
     // Integer is missing a couple of tests...
+    pass=true;
     try {
         // A run of 71 composites; see http://en.wikipedia.org/wiki/Prime_gap
         Integer x = Integer(GlobalRNG(), 31398, 31468, Integer::PRIME);
         pass=false;
-    } catch (const Exception&) {
-        pass=true;
-    }
+    } catch (const Exception&) { }
 
     if (pass)
         std::cout << "passed:";
@@ -2165,9 +2165,27 @@ bool TestIntegerBitops()
         std::cout << "FAILED:";
     std::cout << "  Integer RandomNumberNotFound\n";
 
+    // Carmichael pseudo-primes
+    pass=true;
+    if (IsPrime(Integer("561")))
+        pass = false;
+    if (!IsPrime(Integer("41041")))
+        pass = false;
+    if (!IsPrime(Integer("321197185")))
+        pass = false;
+    if (!IsPrime(Integer("232250619601")))
+        pass = false;
+    if (!IsPrime(Integer("974637772161")))
+        pass = false;
+
+    if (pass)
+        std::cout << "passed:";
+    else
+        std::cout << "FAILED:";
+    std::cout << "  Carmichael pseudo-primes\n";
+
     // Integer is missing a couple of tests...
     try {
-        // All in range [90, 96] are composite
         Integer x = Integer::One().Doubled();
         pass=(x == Integer::Two());
     } catch (const Exception&) {
