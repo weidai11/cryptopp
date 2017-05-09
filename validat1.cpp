@@ -920,7 +920,7 @@ bool TestRDRAND()
 		std::cout << "  GenerateWord32 and Crop\n";
 	}
 	else
-		std::cout << "\nRDRAND generator not available, skipping test.\n";
+		std::cout << "RDRAND generator not available, skipping test.\n";
 
 	return entropy && compress && discard && crop;
 }
@@ -1021,7 +1021,7 @@ bool TestRDSEED()
 		std::cout << "  GenerateWord32 and Crop\n";
 	}
 	else
-		std::cout << "\nRDSEED generator not available, skipping test.\n";
+		std::cout << "RDSEED generator not available, skipping test.\n";
 
 	return entropy && compress && discard && crop;
 }
