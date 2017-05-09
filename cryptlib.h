@@ -716,7 +716,7 @@ protected:
 
 	//! \brief Validates the IV length
 	//! \param length the size of an IV, in bytes
-	//! \throws InvalidArgument if the number of rounds are invalid
+	//! \throws InvalidArgument if the IV length is invalid
 	size_t ThrowIfInvalidIVLength(int length);
 
 	//! \brief Retrieves and validates the IV
