@@ -104,11 +104,14 @@ bool ValidateAll(bool thorough)
 	pass=ValidateCRC32C() && pass;
 	pass=ValidateAdler32() && pass;
 	pass=ValidateMD2() && pass;
+#if defined(CRYPTOPP_EXTENDED_VALIDATION)
+	pass=ValidateMD4() && pass;
+#endif
 	pass=ValidateMD5() && pass;
 	pass=ValidateSHA() && pass;
 
 	pass=RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/keccak.txt") && pass;
-	pass=RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/sha3_fips_202.txt") && pass;
+	pass=RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/sha3.txt") && pass;
 
 	pass=ValidateHashDRBG() && pass;
 	pass=ValidateHmacDRBG() && pass;
