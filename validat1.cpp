@@ -376,7 +376,7 @@ bool TestOS_RNG()
 
 #ifdef BLOCKING_RNG_AVAILABLE
 	try {rng.reset(new BlockingRng);}
-	catch (OS_RNG_Err &) {}
+	catch (const OS_RNG_Err &) {}
 #endif
 
 	if (rng.get())
@@ -565,7 +565,7 @@ bool TestAutoSeeded()
 	{
 		prng.DiscardBytes(100000);
 	}
-	catch(const Exception&)
+	catch (const Exception&)
 	{
 		discard = false;
 	}
@@ -591,7 +591,7 @@ bool TestAutoSeeded()
 			incorporate = true;
 		}
 	}
-	catch(const Exception& /*ex*/)
+	catch (const Exception& /*ex*/)
 	{
 	}
 
@@ -653,7 +653,7 @@ bool TestAutoSeededX917()
 	{
 		prng.DiscardBytes(100000);
 	}
-	catch(const Exception&)
+	catch (const Exception&)
 	{
 		discard = false;
 	}
@@ -679,7 +679,7 @@ bool TestAutoSeededX917()
 			incorporate = true;
 		}
 	}
-	catch(const Exception& /*ex*/)
+	catch (const Exception& /*ex*/)
 	{
 	}
 
@@ -761,7 +761,7 @@ bool TestMersenne()
 	{
 		prng.DiscardBytes(100000);
 	}
-	catch(const Exception&)
+	catch (const Exception&)
 	{
 		discard = false;
 	}
@@ -787,7 +787,7 @@ bool TestMersenne()
 			incorporate = true;
 		}
 	}
-	catch(const Exception& /*ex*/)
+	catch (const Exception& /*ex*/)
 	{
 	}
 
@@ -828,14 +828,20 @@ bool TestMersenne()
 #if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
 bool TestRDRAND()
 {
-	// Testing on 6th generation i7 shows RDRAND needs less than 8 retries for 10K bytes.
-	RDRAND rdrand;
-	bool entropy = true, compress = true, discard = true, crop = true;
-	static const unsigned int SIZE = 10000;
+	std::cout << "\nTesting RDRAND generator...\n\n";
 
-	if (HasRDRAND())
+	bool entropy = true, compress = true, discard = true, crop = true;
+	member_ptr<RandomNumberGenerator> rng;
+
+#ifdef BLOCKING_RNG_AVAILABLE
+	try {rng.reset(new RDRAND);}
+	catch (const RDRAND_Err &) {}
+#endif
+
+	if (rng.get())
 	{
-		std::cout << "\nTesting RDRAND generator...\n\n";
+		RDRAND& rdrand = dynamic_cast<RDRAND&>(*rng.get());
+		static const unsigned int SIZE = 10000;
 
 		MeterFilter meter(new Redirector(TheBitBucket()));
 		Deflator deflator(new Redirector(meter));
@@ -876,7 +882,7 @@ bool TestRDRAND()
 		{
 			rdrand.DiscardBytes(SIZE);
 		}
-		catch(const Exception&)
+		catch (const Exception&)
 		{
 			discard = false;
 		}
@@ -900,7 +906,6 @@ bool TestRDRAND()
 			rdrand.GenerateBlock(reinterpret_cast<byte*>(&result), 3);
 			rdrand.GenerateBlock(reinterpret_cast<byte*>(&result), 2);
 			rdrand.GenerateBlock(reinterpret_cast<byte*>(&result), 1);
-			rdrand.GenerateBlock(reinterpret_cast<byte*>(&result), 0);
 			crop = true;
 		}
 		catch (const Exception&)
@@ -924,15 +929,20 @@ bool TestRDRAND()
 #if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
 bool TestRDSEED()
 {
-	// Testing on 5th generation i5 shows RDSEED needs about 128 retries for 10K bytes
-	//  on 64-bit/amd64 VM, and it needs more for an 32-bit/i686 VM.
-	RDSEED rdseed;
-	bool entropy = true, compress = true, discard = true, crop = true;
-	static const unsigned int SIZE = 10000;
+	std::cout << "\nTesting RDSEED generator...\n\n";
 
-	if (HasRDSEED())
+	bool entropy = true, compress = true, discard = true, crop = true;
+	member_ptr<RandomNumberGenerator> rng;
+
+#ifdef BLOCKING_RNG_AVAILABLE
+	try {rng.reset(new RDSEED);}
+	catch (const RDSEED_Err &) {}
+#endif
+
+	if (rng.get())
 	{
-		std::cout << "\nTesting RDSEED generator...\n\n";
+		RDSEED& rdseed = dynamic_cast<RDSEED&>(*rng.get());
+		static const unsigned int SIZE = 10000;
 
 		MeterFilter meter(new Redirector(TheBitBucket()));
 		Deflator deflator(new Redirector(meter));
@@ -958,7 +968,7 @@ bool TestRDSEED()
 		// Coverity finding, also see http://stackoverflow.com/a/34509163/608639.
 		StreamState ss(std::cout);
 		std::cout << std::setiosflags(std::ios::fixed) << std::setprecision(6);
-		std::cout << "  Maurer Randomness Test returned value " << mv << std::endl;
+		std::cout << "  Maurer Randomness Test returned value " << mv << "\n";
 
 		if (meter.GetTotalBytes() < SIZE)
 		{
@@ -973,7 +983,7 @@ bool TestRDSEED()
 		{
 			rdseed.DiscardBytes(SIZE);
 		}
-		catch(const Exception&)
+		catch (const Exception&)
 		{
 			discard = false;
 		}
@@ -997,7 +1007,6 @@ bool TestRDSEED()
 			rdseed.GenerateBlock(reinterpret_cast<byte*>(&result), 3);
 			rdseed.GenerateBlock(reinterpret_cast<byte*>(&result), 2);
 			rdseed.GenerateBlock(reinterpret_cast<byte*>(&result), 1);
-			rdseed.GenerateBlock(reinterpret_cast<byte*>(&result), 0);
 			crop = true;
 		}
 		catch (const Exception&)
@@ -1014,7 +1023,7 @@ bool TestRDSEED()
 	else
 		std::cout << "\nRDSEED generator not available, skipping test.\n";
 
-	return entropy && compress && discard;
+	return entropy && compress && discard && crop;
 }
 #endif
 
@@ -2724,56 +2733,56 @@ bool ValidateBaseCode()
 
 	fail = !TestFilter(HexEncoder().Ref(), data, 255, (const byte *)hexEncoded, strlen(hexEncoded));
 	try {HexEncoder().IsolatedInitialize(g_nullNameValuePairs);}
-	catch(const Exception&) {fail=true;}
+	catch (const Exception&) {fail=true;}
 	std::cout << (fail ? "FAILED:" : "passed:");
 	std::cout << "  Hex Encoding\n";
 	pass = pass && !fail;
 
 	fail = !TestFilter(HexDecoder().Ref(), (const byte *)hexEncoded, strlen(hexEncoded), data, 255);
 	try {HexDecoder().IsolatedInitialize(g_nullNameValuePairs);}
-	catch(const Exception&) {fail=true;}
+	catch (const Exception&) {fail=true;}
 	std::cout << (fail ? "FAILED:" : "passed:");
 	std::cout << "  Hex Decoding\n";
 	pass = pass && !fail;
 
 	fail = !TestFilter(Base32Encoder().Ref(), data, 255, (const byte *)base32Encoded, strlen(base32Encoded));
 	try {Base32Encoder().IsolatedInitialize(g_nullNameValuePairs);}
-	catch(const Exception&) {fail=true;}
+	catch (const Exception&) {fail=true;}
 	std::cout << (fail ? "FAILED:" : "passed:");
 	std::cout << "  Base32 Encoding\n";
 	pass = pass && !fail;
 
 	fail = !TestFilter(Base32Decoder().Ref(), (const byte *)base32Encoded, strlen(base32Encoded), data, 255);
 	try {Base32Decoder().IsolatedInitialize(g_nullNameValuePairs);}
-	catch(const Exception&) {fail=true;}
+	catch (const Exception&) {fail=true;}
 	std::cout << (fail ? "FAILED:" : "passed:");
 	std::cout << "  Base32 Decoding\n";
 	pass = pass && !fail;
 
 	fail = !TestFilter(Base64Encoder(new HexEncoder).Ref(), data, 255, (const byte *)base64AndHexEncoded, strlen(base64AndHexEncoded));
 	try {Base64Encoder().IsolatedInitialize(g_nullNameValuePairs);}
-	catch(const Exception&) {fail=true;}
+	catch (const Exception&) {fail=true;}
 	std::cout << (fail ? "FAILED:" : "passed:");
 	std::cout << "  Base64 Encoding\n";
 	pass = pass && !fail;
 
 	fail = !TestFilter(HexDecoder(new Base64Decoder).Ref(), (const byte *)base64AndHexEncoded, strlen(base64AndHexEncoded), data, 255);
 	try {Base64Decoder().IsolatedInitialize(g_nullNameValuePairs);}
-	catch(const Exception&) {fail=true;}
+	catch (const Exception&) {fail=true;}
 	std::cout << (fail ? "FAILED:" : "passed:");
 	std::cout << "  Base64 Decoding\n";
 	pass = pass && !fail;
 
 	fail = !TestFilter(Base64URLEncoder(new HexEncoder).Ref(), data, 255, (const byte *)base64URLAndHexEncoded, strlen(base64URLAndHexEncoded));
 	try {Base64URLEncoder().IsolatedInitialize(g_nullNameValuePairs);}
-	catch(const Exception&) {fail=true;}
+	catch (const Exception&) {fail=true;}
 	std::cout << (fail ? "FAILED:" : "passed:");
 	std::cout << "  Base64 URL Encoding\n";
 	pass = pass && !fail;
 
 	fail = !TestFilter(HexDecoder(new Base64URLDecoder).Ref(), (const byte *)base64URLAndHexEncoded, strlen(base64URLAndHexEncoded), data, 255);
 	try {Base64URLDecoder().IsolatedInitialize(g_nullNameValuePairs);}
-	catch(const Exception&) {fail=true;}
+	catch (const Exception&) {fail=true;}
 	std::cout << (fail ? "FAILED:" : "passed:");
 	std::cout << "  Base64 URL Decoding\n";
 	pass = pass && !fail;

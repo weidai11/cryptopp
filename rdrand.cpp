@@ -126,15 +126,16 @@ NAMESPACE_BEGIN(CryptoPP)
 inline void RDRAND32(void* output)
 {
 #if defined(__SUNPRO_CC)
-    __asm__ __volatile__
+    __asm__
     (
+        "1:\n"
         ".byte 0x0f, 0xc7, 0xf0;\n"
-        ".byte 0x73, 0xfb;\n"
+        "jnc 1b;\n"
         : "=a" (*reinterpret_cast<word32*>(output))
         : : "cc"
     );
 #elif defined(GCC_RDRAND_ASM_AVAILABLE) && (CRYPTOPP_GCC_VERSION >= 40600)
-    __asm__ __volatile__
+    __asm__
     (
         INTEL_NOPREFIX
         ASL(1)
@@ -145,10 +146,11 @@ inline void RDRAND32(void* output)
         : : "cc"
     );
 #elif defined(GCC_RDRAND_ASM_AVAILABLE) && (CRYPTOPP_GCC_VERSION >= 30200)
-    __asm__ __volatile__
+    __asm__
     (
+        "1:\n"
         ".byte 0x0f, 0xc7, 0xf0;\n"
-        ".byte 0x73, 0xfb;\n"
+        "jnc 1b;\n"
         : "=a" (*reinterpret_cast<word32*>(output))
         : : "cc"
     );
@@ -165,15 +167,16 @@ inline void RDRAND32(void* output)
 inline void RDRAND64(void* output)
 {
 #if defined(__SUNPRO_CC) && (__SUNPRO_CC >= 0x5100)
-    __asm__ __volatile__
+    __asm__
     (
+        "1:\n"
         ".byte 0x48, 0x0f, 0xc7, 0xf0;\n"
-        ".byte 0x73, 0xfa;\n"
+        "jnc 1b;\n"
         : "=a" (*reinterpret_cast<word64*>(output))
         : : "cc"
     );
 #elif defined(GCC_RDRAND_ASM_AVAILABLE) && (CRYPTOPP_GCC_VERSION >= 40600)
-    __asm__ __volatile__
+    __asm__
     (
         INTEL_NOPREFIX
         ASL(1)
@@ -184,10 +187,11 @@ inline void RDRAND64(void* output)
         : : "cc"
     );
 #elif defined(GCC_RDRAND_ASM_AVAILABLE) && (CRYPTOPP_GCC_VERSION >= 30200)
-    __asm__ __volatile__
+    __asm__
     (
+        "1:\n"
         ".byte 0x48, 0x0f, 0xc7, 0xf0;\n"
-        ".byte 0x73, 0xfa;\n"
+        "jnc 1b;\n"
         : "=a" (*reinterpret_cast<word64*>(output))
         : : "cc"
     );
@@ -199,6 +203,12 @@ inline void RDRAND64(void* output)
 #endif
 }
 #endif  // CRYPTOPP_BOOL_X64, CRYPTOPP_BOOL_X32 and RDRAND64
+
+RDRAND::RDRAND()
+{
+    if (!HasRDRAND())
+        throw RDRAND_Err("HasRDRAND");
+}
 
 void RDRAND::GenerateBlock(byte *output, size_t size)
 {
@@ -225,7 +235,7 @@ void RDRAND::GenerateBlock(byte *output, size_t size)
     {
         word64 val;
         RDRAND64(&val);
-        std::memcpy(output, &val, size);
+        ::memcpy(output, &val, size);
     }
 #elif CRYPTOPP_BOOL_X86
     size_t i = 0;
@@ -239,7 +249,7 @@ void RDRAND::GenerateBlock(byte *output, size_t size)
     {
         word32 val;
         RDRAND32(&val);
-        std::memcpy(output, &val, size);
+        ::memcpy(output, &val, size);
     }
 #else
     // RDRAND not detected at compile time, or no suitable compiler found
@@ -270,15 +280,16 @@ void RDRAND::DiscardBytes(size_t n)
 inline void RDSEED32(void* output)
 {
 #if defined(__SUNPRO_CC)
-    __asm__ __volatile__
+    __asm__
     (
+        "1:\n"
         ".byte 0x0f, 0xc7, 0xf8;\n"
-        ".byte 0x73, 0xfb;\n"
+        "jnc 1b;\n"
         : "=a" (*reinterpret_cast<word32*>(output))
         : : "cc"
     );
 #elif defined(GCC_RDSEED_ASM_AVAILABLE) && (CRYPTOPP_GCC_VERSION >= 40600)
-    __asm__ __volatile__
+    __asm__
     (
         INTEL_NOPREFIX
         ASL(1)
@@ -289,10 +300,11 @@ inline void RDSEED32(void* output)
         : : "cc"
     );
 #elif defined(GCC_RDSEED_ASM_AVAILABLE) && (CRYPTOPP_GCC_VERSION >= 30200)
-    __asm__ __volatile__
+    __asm__
     (
+        "1:\n"
         ".byte 0x0f, 0xc7, 0xf8;\n"
-        ".byte 0x73, 0xfb;\n"
+        "jnc 1b;\n"
         : "=a" (*reinterpret_cast<word32*>(output))
         : : "cc"
     );
@@ -309,15 +321,16 @@ inline void RDSEED32(void* output)
 inline void RDSEED64(void* output)
 {
 #if defined(__SUNPRO_CC) && (__SUNPRO_CC >= 0x5100)
-    __asm__ __volatile__
+    __asm__
     (
+        "1:\n"
         ".byte 0x48, 0x0f, 0xc7, 0xf8;\n"
-        ".byte 0x73, 0xfa;\n"
+        "jnc 1b;\n"
         : "=a" (*reinterpret_cast<word64*>(output))
         : : "cc"
     );
 #elif defined(GCC_RDSEED_ASM_AVAILABLE) && (CRYPTOPP_GCC_VERSION >= 40600)
-    __asm__ __volatile__
+    __asm__
     (
         INTEL_NOPREFIX
         ASL(1)
@@ -328,10 +341,11 @@ inline void RDSEED64(void* output)
         : : "cc"
     );
 #elif defined(GCC_RDSEED_ASM_AVAILABLE) && (CRYPTOPP_GCC_VERSION >= 30200)
-    __asm__ __volatile__
+    __asm__
     (
+        "1:\n"
         ".byte 0x48, 0x0f, 0xc7, 0xf8;\n"
-        ".byte 0x73, 0xfa;\n"
+        "jnc 1b;\n"
         : "=a" (*reinterpret_cast<word64*>(output))
         : : "cc"
     );
@@ -343,6 +357,12 @@ inline void RDSEED64(void* output)
 #endif
 }
 #endif  // CRYPTOPP_BOOL_X64 and RDSEED64
+
+RDSEED::RDSEED()
+{
+    if (!HasRDSEED())
+        throw RDSEED_Err("HasRDSEED");
+}
 
 void RDSEED::GenerateBlock(byte *output, size_t size)
 {
@@ -369,7 +389,7 @@ void RDSEED::GenerateBlock(byte *output, size_t size)
     {
         word64 val;
         RDSEED64(&val);
-        std::memcpy(output, &val, size);
+        ::memcpy(output, &val, size);
     }
 #elif CRYPTOPP_BOOL_X86
     size_t i = 0;
@@ -383,7 +403,7 @@ void RDSEED::GenerateBlock(byte *output, size_t size)
     {
         word32 val;
         RDSEED32(&val);
-        std::memcpy(output, &val, size);
+        ::memcpy(output, &val, size);
     }
 #endif  // CRYPTOPP_BOOL_X64, CRYPTOPP_BOOL_X32 and RDSEED64
 }

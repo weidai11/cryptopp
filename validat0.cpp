@@ -2169,13 +2169,15 @@ bool TestIntegerBitops()
     pass=true;
     if (IsPrime(Integer("561")))
         pass = false;
-    if (!IsPrime(Integer("41041")))
+    if (IsPrime(Integer("41041")))
         pass = false;
-    if (!IsPrime(Integer("321197185")))
+    if (IsPrime(Integer("321197185")))
         pass = false;
-    if (!IsPrime(Integer("232250619601")))
+    if (IsPrime(Integer("5394826801")))
         pass = false;
-    if (!IsPrime(Integer("974637772161")))
+    if (IsPrime(Integer("232250619601")))
+        pass = false;
+    if (IsPrime(Integer("974637772161")))
         pass = false;
 
     if (pass)
