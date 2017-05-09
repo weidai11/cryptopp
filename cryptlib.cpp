@@ -177,9 +177,6 @@ size_t BlockTransformation::AdvancedProcessBlocks(const byte *inBlocks, const by
 		{
 			// Coverity finding. However, xorBlocks is never NULL if BT_XorInput.
 			CRYPTOPP_ASSERT(xorBlocks);
-#if defined(__COVERITY__)
-			if (xorBlocks)
-#endif
 			xorbuf(outBlocks, xorBlocks, inBlocks, blockSize);
 			ProcessBlock(outBlocks);
 		}

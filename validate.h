@@ -129,6 +129,7 @@ bool TestASN1Parse();
 bool TestCompressors();
 bool TestEncryptors();
 bool TestMersenne();
+bool TestSharing();
 #endif
 
 #if 1

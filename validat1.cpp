@@ -97,6 +97,7 @@ bool ValidateAll(bool thorough)
 	// Additional tests due to no coverage
 	pass=ValidateBaseCode() && pass;
 	pass=TestCompressors() && pass;
+	pass=TestSharing() && pass;
 	pass=TestEncryptors() && pass;
 #endif
 

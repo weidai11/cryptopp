@@ -11,8 +11,11 @@
 #include "stdcpp.h"
 #include "default.h"
 #include "zinflate.h"
+#include "channels.h"
+#include "files.h"
 #include "gzip.h"
 #include "zlib.h"
+#include "ida.h"
 #include "hex.h"
 #include "asn.h"
 
@@ -40,7 +43,7 @@ bool TestCompressors()
         for (unsigned int i=0; i<128; ++i)
         {
             std::string src, dest, rec;
-            unsigned int len = GlobalRNG().GenerateWord32() & 0xffff;
+            unsigned int len = GlobalRNG().GenerateWord32(0, 0xffff);
 
             src.resize(len);
             GlobalRNG().GenerateBlock(reinterpret_cast<byte*>(&src[0]), src.size());
@@ -68,7 +71,7 @@ bool TestCompressors()
     for (unsigned int i=0; i<128; i++)
     {
         std::string src, dest;
-        unsigned int len = GlobalRNG().GenerateWord32() & 0xffff;
+        unsigned int len = GlobalRNG().GenerateWord32(0, 0xffff);
 
         src.resize(len);
         GlobalRNG().GenerateBlock(reinterpret_cast<byte*>(&src[0]), src.size());
@@ -101,7 +104,7 @@ bool TestCompressors()
         for (unsigned int i=0; i<128; ++i)
         {
             std::string src, dest, rec;
-            unsigned int len = GlobalRNG().GenerateWord32() & 0xffff;
+            unsigned int len = GlobalRNG().GenerateWord32(0, 0xffff);
 
             src.resize(len);
             GlobalRNG().GenerateBlock(reinterpret_cast<byte*>(&src[0]), src.size());
@@ -130,7 +133,7 @@ bool TestCompressors()
     {
         // See if we can induce a crash
         std::string src, dest;
-        unsigned int len = GlobalRNG().GenerateWord32() & 0xffff;
+        unsigned int len = GlobalRNG().GenerateWord32(0, 0xffff);
 
         src.resize(len);
         GlobalRNG().GenerateBlock(reinterpret_cast<byte*>(&src[0]), src.size());
@@ -144,7 +147,7 @@ bool TestCompressors()
     for (unsigned int i=0; i<128; i++)
     {
         std::string src, dest;
-        unsigned int len = GlobalRNG().GenerateWord32() & 0xffff;
+        unsigned int len = GlobalRNG().GenerateWord32(0, 0xffff);
 
         src.resize(len);
         GlobalRNG().GenerateBlock(reinterpret_cast<byte*>(&src[0]), src.size());
@@ -177,7 +180,7 @@ bool TestCompressors()
         for (unsigned int i=0; i<128; ++i)
         {
             std::string src, dest, rec;
-            unsigned int len = GlobalRNG().GenerateWord32() & 0xffff;
+            unsigned int len = GlobalRNG().GenerateWord32(0, 0xffff);
 
             src.resize(len);
             GlobalRNG().GenerateBlock(reinterpret_cast<byte*>(&src[0]), src.size());
@@ -205,7 +208,7 @@ bool TestCompressors()
     for (unsigned int i=0; i<128; i++)
     {
         std::string src, dest;
-        unsigned int len = GlobalRNG().GenerateWord32() & 0xffff;
+        unsigned int len = GlobalRNG().GenerateWord32(0, 0xffff);
 
         src.resize(len);
         GlobalRNG().GenerateBlock(reinterpret_cast<byte*>(&src[0]), src.size());
@@ -237,7 +240,7 @@ bool TestEncryptors()
         for (unsigned int i=0; i<128; ++i)
         {
             std::string pwd, src, dest, rec;
-            unsigned int len = (GlobalRNG().GenerateWord32() & 0xffff) + 8;
+            unsigned int len = GlobalRNG().GenerateWord32(0, 0xffff) + 8;
 
             src.resize(len);
             GlobalRNG().GenerateBlock(reinterpret_cast<byte*>(&src[0]), src.size());
@@ -270,7 +273,7 @@ bool TestEncryptors()
         for (unsigned int i=0; i<128; ++i)
         {
             std::string pwd, src, dest, rec;
-            unsigned int len = (GlobalRNG().GenerateWord32() & 0xffff) + 8;
+            unsigned int len = GlobalRNG().GenerateWord32(0, 0xffff) + 8;
 
             src.resize(len);
             GlobalRNG().GenerateBlock(reinterpret_cast<byte*>(&src[0]), src.size());
@@ -335,7 +338,7 @@ bool TestEncryptors()
         for (unsigned int i=0; i<128; ++i)
         {
             std::string pwd, src, dest, rec;
-            unsigned int len = (GlobalRNG().GenerateWord32() & 0xffff) + 8;
+            unsigned int len = GlobalRNG().GenerateWord32(0, 0xffff) + 8;
 
             src.resize(len);
             GlobalRNG().GenerateBlock(reinterpret_cast<byte*>(&src[0]), src.size());
@@ -368,7 +371,7 @@ bool TestEncryptors()
         for (unsigned int i=0; i<128; ++i)
         {
             std::string pwd, src, dest, rec;
-            unsigned int len = (GlobalRNG().GenerateWord32() & 0xffff) + 8;
+            unsigned int len = GlobalRNG().GenerateWord32(0, 0xffff) + 8;
 
             src.resize(len);
             GlobalRNG().GenerateBlock(reinterpret_cast<byte*>(&src[0]), src.size());
@@ -427,6 +430,156 @@ bool TestEncryptors()
     std::cout << "  128 legacy encryptions and decryptions with MAC" << std::endl;
 
     return !fail1 && !fail2 && !fail3 && !fail4;
+}
+
+// Information Dispesal and Secret Sharing
+bool TestSharing()
+{
+    std::cout << "\nInformation Dispersal and Secret Sharing...\n\n";
+    static const unsigned int INFORMATION_SHARES = 128;
+    static const unsigned int SECRET_SHARES = 64;
+    static const unsigned int CHID_LENGTH = 4;
+    bool pass=true, fail=false;
+
+    // ********** Infrmation Dispersal **********//
+
+    for (unsigned int shares=3; shares<INFORMATION_SHARES; ++shares)
+    {
+        std::string message;
+        unsigned int len = GlobalRNG().GenerateWord32(0, 0xff);
+        unsigned int threshold = GlobalRNG().GenerateWord32(2, shares-1);
+
+        message.resize(len);
+        GlobalRNG().GenerateBlock(reinterpret_cast<byte*>(&message[0]), message.size());
+
+        ChannelSwitch *channelSwitch = NULLPTR;
+        StringSource source(message, false, new InformationDispersal(threshold, shares, channelSwitch = new ChannelSwitch));
+
+        std::vector<std::string> strShares(shares);
+        vector_member_ptrs<StringSink> strSinks(shares);
+        std::string channel;
+
+        // ********** Create Shares
+        for (unsigned int i=0; i<shares; i++)
+        {
+            strSinks[i].reset(new StringSink(strShares[i]));
+            channel = WordToString<word32>(i);
+            strSinks[i]->Put((const byte *)channel.data(), CHID_LENGTH);
+            channelSwitch->AddRoute(channel, *strSinks[i], DEFAULT_CHANNEL);
+        }
+        source.PumpAll();
+
+        // ********** Randomize shares
+
+        GlobalRNG().Shuffle(strShares.begin(), strShares.end());
+
+        // ********** Recover secret
+        try
+        {
+            std::string recovered;
+            InformationRecovery recovery(threshold, new StringSink(recovered));
+
+            vector_member_ptrs<StringSource> strSources(threshold);
+            channel.resize(CHID_LENGTH);
+            for (unsigned int i=0; i<threshold; i++)
+            {
+                strSources[i].reset(new StringSource(strShares[i], false));
+                strSources[i]->Pump(CHID_LENGTH);
+                strSources[i]->Get((byte*)&channel[0], CHID_LENGTH);
+                strSources[i]->Attach(new ChannelSwitch(recovery, channel));
+            }
+
+            while (strSources[0]->Pump(256))
+            {
+                for (unsigned int i=1; i<threshold; i++)
+                    strSources[i]->Pump(256);
+            }
+
+            for (unsigned int i=0; i<threshold; i++)
+                strSources[i]->PumpAll();
+
+            fail = (message != recovered);
+        }
+        catch (const Exception&)
+        {
+            fail = true;
+        }
+
+        pass &= !fail;
+    }
+
+    std::cout << (fail ? "FAILED:" : "passed:") << "  64 information dispersals\n";
+
+    // ********** Secret Sharing **********//
+
+    for (unsigned int shares=3; shares<SECRET_SHARES; ++shares)
+    {
+        std::string message;
+        unsigned int len = GlobalRNG().GenerateWord32(0, 0xff);
+        unsigned int threshold = GlobalRNG().GenerateWord32(2, shares-1);
+
+        message.resize(len);
+        GlobalRNG().GenerateBlock(reinterpret_cast<byte*>(&message[0]), message.size());
+
+        ChannelSwitch *channelSwitch = NULLPTR;
+        StringSource source(message, false, new SecretSharing(GlobalRNG(), threshold, shares, channelSwitch = new ChannelSwitch));
+
+        std::vector<std::string> strShares(shares);
+        vector_member_ptrs<StringSink> strSinks(shares);
+        std::string channel;
+
+        // ********** Create Shares
+        for (unsigned int i=0; i<shares; i++)
+        {
+            strSinks[i].reset(new StringSink(strShares[i]));
+            channel = WordToString<word32>(i);
+            strSinks[i]->Put((const byte *)channel.data(), CHID_LENGTH);
+            channelSwitch->AddRoute(channel, *strSinks[i], DEFAULT_CHANNEL);
+        }
+        source.PumpAll();
+
+        // ********** Randomize shares
+
+        GlobalRNG().Shuffle(strShares.begin(), strShares.end());
+
+        // ********** Recover secret
+        try
+        {
+            std::string recovered;
+            SecretRecovery recovery(threshold, new StringSink(recovered));
+
+            vector_member_ptrs<StringSource> strSources(threshold);
+            channel.resize(CHID_LENGTH);
+            for (unsigned int i=0; i<threshold; i++)
+            {
+                strSources[i].reset(new StringSource(strShares[i], false));
+                strSources[i]->Pump(CHID_LENGTH);
+                strSources[i]->Get((byte*)&channel[0], CHID_LENGTH);
+                strSources[i]->Attach(new ChannelSwitch(recovery, channel));
+            }
+
+            while (strSources[0]->Pump(256))
+            {
+                for (unsigned int i=1; i<threshold; i++)
+                    strSources[i]->Pump(256);
+            }
+
+            for (unsigned int i=0; i<threshold; i++)
+                strSources[i]->PumpAll();
+
+            fail = (message != recovered);
+        }
+        catch (const Exception&)
+        {
+            fail = true;
+        }
+
+        pass &= !fail;
+    }
+
+    std::cout << (fail ? "FAILED:" : "passed:") << "  64 secret sharings\n";
+
+    return pass;
 }
 
 bool TestRounding()

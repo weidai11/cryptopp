@@ -1265,7 +1265,7 @@ public:
 	{
 		// TODO: What happens if there are more than 2^32 elements?
 		for (; begin != end; ++begin)
-			std::iter_swap(begin, begin + GenerateWord32(0, end-begin-1));
+			std::iter_swap(begin, begin + GenerateWord32(0, static_cast<word32>(end-begin-1)));
 	}
 };
 
