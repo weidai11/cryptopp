@@ -833,11 +833,8 @@ bool TestRDRAND()
 	bool entropy = true, compress = true, discard = true, crop = true;
 	member_ptr<RandomNumberGenerator> rng;
 
-#ifdef BLOCKING_RNG_AVAILABLE
 	try {rng.reset(new RDRAND);}
 	catch (const RDRAND_Err &) {}
-#endif
-
 	if (rng.get())
 	{
 		RDRAND& rdrand = dynamic_cast<RDRAND&>(*rng.get());
@@ -934,11 +931,8 @@ bool TestRDSEED()
 	bool entropy = true, compress = true, discard = true, crop = true;
 	member_ptr<RandomNumberGenerator> rng;
 
-#ifdef BLOCKING_RNG_AVAILABLE
 	try {rng.reset(new RDSEED);}
 	catch (const RDSEED_Err &) {}
-#endif
-
 	if (rng.get())
 	{
 		RDSEED& rdseed = dynamic_cast<RDSEED&>(*rng.get());

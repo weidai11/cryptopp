@@ -154,7 +154,7 @@ inline void RDRAND32(void* output)
     while(!_rdrand32_step(reinterpret_cast<word32*>(output))) {}
 #else
     // RDRAND not detected at compile time, or no suitable compiler found
-	CRYPTOPP_UNUSED(output);
+    CRYPTOPP_UNUSED(output);
     throw NotImplemented("RDRAND: failed to find an implementation");
 #endif
 }
@@ -196,7 +196,7 @@ inline void RDRAND64(void* output)
     while(!_rdrand64_step(reinterpret_cast<unsigned long long*>(output))) {}
 #else
     // RDRAND not detected at compile time, or no suitable compiler found
-	CRYPTOPP_UNUSED(output);
+    CRYPTOPP_UNUSED(output);
     throw NotImplemented("RDRAND: failed to find an implementation");
 #endif
 }
@@ -251,7 +251,7 @@ void RDRAND::GenerateBlock(byte *output, size_t size)
     }
 #else
     // RDRAND not detected at compile time, or no suitable compiler found
-	CRYPTOPP_UNUSED(output);
+    CRYPTOPP_UNUSED(output);
     throw NotImplemented("RDRAND: failed to find a suitable implementation");
 #endif
 }
@@ -311,7 +311,7 @@ inline void RDSEED32(void* output)
     while(!_rdseed32_step(reinterpret_cast<word32*>(output))) {}
 #else
     // RDSEED not detected at compile time, or no suitable compiler found
-	CRYPTOPP_UNUSED(output);
+    CRYPTOPP_UNUSED(output);
     throw NotImplemented("RDSEED: failed to find an implementation");
 #endif
 }
@@ -353,7 +353,7 @@ inline void RDSEED64(void* output)
     while(!_rdseed64_step(reinterpret_cast<unsigned long long*>(output))) {}
 #else
     // RDSEED not detected at compile time, or no suitable compiler found
-	CRYPTOPP_UNUSED(output);
+    CRYPTOPP_UNUSED(output);
     throw NotImplemented("RDSEED: failed to find an implementation");
 #endif
 }
