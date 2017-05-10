@@ -134,11 +134,11 @@ public:
         // Visual Studio and C2910: 'Kalyna::Base::ProcessBlock_Template': cannot be explicitly specialized
         //template <unsigned int NB, unsigned int NK>
         //  void ProcessBlock_Template(const word64 inBlock[NB], const word64 outBlock[NB]) const;
-        void ProcessBlock_22(const word64 inBlock[2], word64 outBlock[2]) const;
-        void ProcessBlock_24(const word64 inBlock[2], word64 outBlock[2]) const;
-        void ProcessBlock_44(const word64 inBlock[4], word64 outBlock[4]) const;
-        void ProcessBlock_48(const word64 inBlock[4], word64 outBlock[4]) const;
-        void ProcessBlock_88(const word64 inBlock[8], word64 outBlock[8]) const;
+        void ProcessBlock_22(const word64 inBlock[2], const word64 xorBlock[2], word64 outBlock[2]) const;
+        void ProcessBlock_24(const word64 inBlock[2], const word64 xorBlock[2] ,word64 outBlock[2]) const;
+        void ProcessBlock_44(const word64 inBlock[4], const word64 xorBlock[4], word64 outBlock[4]) const;
+        void ProcessBlock_48(const word64 inBlock[4], const word64 xorBlock[4], word64 outBlock[4]) const;
+        void ProcessBlock_88(const word64 inBlock[8], const word64 xorBlock[8], word64 outBlock[8]) const;
 
     private:
         typedef SecBlock<word64, AllocatorWithCleanup<word64, true> > AlignedSecBlock64;
