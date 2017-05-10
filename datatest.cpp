@@ -363,7 +363,7 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 	TestDataNameValuePairs testDataPairs(v);
 	CombinedNameValuePairs pairs(overrideParameters, testDataPairs);
 
-	if (test == "Encrypt" || test == "EncryptBlockSize" || test == "EncryptXorDigest" || test == "Resync" || test == "EncryptionMCT" || test == "DecryptionMCT")
+	if (test == "Encrypt" || test == "EncryptXorDigest" || test == "Resync" || test == "EncryptionMCT" || test == "DecryptionMCT")
 	{
 		static member_ptr<SymmetricCipher> encryptor, decryptor;
 		static std::string lastName;
@@ -375,9 +375,8 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 			lastName = name;
 		}
 
-		int blockSize = 0;
-		if (test == "EncryptBlockSize" && !pairs.GetValue(Name::BlockSize(), blockSize))
-			SignalTestFailure();
+		// Most block ciphers don't specify this. Kalyna and Threefish use it.
+		int blockSize = pairs.GetIntValueWithDefault(Name::BlockSize(), 0);
 
 		ConstByteArrayParameter iv;
 		if (pairs.GetValue(Name::IV(), iv) && iv.size() != encryptor->IVSize() && (int)iv.size() != blockSize)

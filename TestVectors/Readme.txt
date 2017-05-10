@@ -82,6 +82,5 @@ NotVerify - signature/digest/MAC verification should not pass
 DeterministicSign - sign message using given seed, and the resulting
     signature should equal the given signature
 Encrypt - plaintext encrypts to ciphertext
-EncryptBlockSize - plaintext encrypts to ciphertext under a key and blocksize
 DecryptMatch - ciphertext decrypts to plaintext
 (more to come here)
