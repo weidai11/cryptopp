@@ -122,7 +122,7 @@ NAMESPACE_BEGIN(CryptoPP)
 inline void RDRAND32(void* output)
 {
 #if defined(__SUNPRO_CC)
-    __asm__
+    __asm__ __volatile__
     (
         "1:\n"
         ".byte 0x0f, 0xc7, 0xf0;\n"
@@ -131,7 +131,7 @@ inline void RDRAND32(void* output)
         : : "cc"
     );
 #elif defined(GCC_RDRAND_ASM_AVAILABLE) && (CRYPTOPP_GCC_VERSION >= 40600)
-    __asm__
+    __asm__ __volatile__
     (
         INTEL_NOPREFIX
         ASL(1)
@@ -142,7 +142,7 @@ inline void RDRAND32(void* output)
         : : "cc"
     );
 #elif defined(GCC_RDRAND_ASM_AVAILABLE) && (CRYPTOPP_GCC_VERSION >= 30200)
-    __asm__
+    __asm__ __volatile__
     (
         "1:\n"
         ".byte 0x0f, 0xc7, 0xf0;\n"
@@ -164,7 +164,7 @@ inline void RDRAND32(void* output)
 inline void RDRAND64(void* output)
 {
 #if defined(__SUNPRO_CC) && (__SUNPRO_CC >= 0x5100)
-    __asm__
+    __asm__ __volatile__
     (
         "1:\n"
         ".byte 0x48, 0x0f, 0xc7, 0xf0;\n"
@@ -173,7 +173,7 @@ inline void RDRAND64(void* output)
         : : "cc"
     );
 #elif defined(GCC_RDRAND_ASM_AVAILABLE) && (CRYPTOPP_GCC_VERSION >= 40600)
-    __asm__
+    __asm__ __volatile__
     (
         INTEL_NOPREFIX
         ASL(1)
@@ -184,7 +184,7 @@ inline void RDRAND64(void* output)
         : : "cc"
     );
 #elif defined(GCC_RDRAND_ASM_AVAILABLE) && (CRYPTOPP_GCC_VERSION >= 30200)
-    __asm__
+    __asm__ __volatile__
     (
         "1:\n"
         ".byte 0x48, 0x0f, 0xc7, 0xf0;\n"
@@ -279,7 +279,7 @@ void RDRAND::DiscardBytes(size_t n)
 inline void RDSEED32(void* output)
 {
 #if defined(__SUNPRO_CC)
-    __asm__
+    __asm__ __volatile__
     (
         "1:\n"
         ".byte 0x0f, 0xc7, 0xf8;\n"
@@ -288,7 +288,7 @@ inline void RDSEED32(void* output)
         : : "cc"
     );
 #elif defined(GCC_RDSEED_ASM_AVAILABLE) && (CRYPTOPP_GCC_VERSION >= 40600)
-    __asm__
+    __asm__ __volatile__
     (
         INTEL_NOPREFIX
         ASL(1)
@@ -299,7 +299,7 @@ inline void RDSEED32(void* output)
         : : "cc"
     );
 #elif defined(GCC_RDSEED_ASM_AVAILABLE) && (CRYPTOPP_GCC_VERSION >= 30200)
-    __asm__
+    __asm__ __volatile__
     (
         "1:\n"
         ".byte 0x0f, 0xc7, 0xf8;\n"
@@ -321,7 +321,7 @@ inline void RDSEED32(void* output)
 inline void RDSEED64(void* output)
 {
 #if defined(__SUNPRO_CC) && (__SUNPRO_CC >= 0x5100)
-    __asm__
+    __asm__ __volatile__
     (
         "1:\n"
         ".byte 0x48, 0x0f, 0xc7, 0xf8;\n"
@@ -330,7 +330,7 @@ inline void RDSEED64(void* output)
         : : "cc"
     );
 #elif defined(GCC_RDSEED_ASM_AVAILABLE) && (CRYPTOPP_GCC_VERSION >= 40600)
-    __asm__
+    __asm__ __volatile__
     (
         INTEL_NOPREFIX
         ASL(1)
@@ -341,7 +341,7 @@ inline void RDSEED64(void* output)
         : : "cc"
     );
 #elif defined(GCC_RDSEED_ASM_AVAILABLE) && (CRYPTOPP_GCC_VERSION >= 30200)
-    __asm__
+    __asm__ __volatile__
     (
         "1:\n"
         ".byte 0x48, 0x0f, 0xc7, 0xf8;\n"
