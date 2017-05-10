@@ -46,6 +46,7 @@
 #include "drbg.h"
 #include "rdrand.h"
 #include "mersenne.h"
+#include "randpool.h"
 #include "zdeflate.h"
 #include "smartptr.h"
 #include "channels.h"
@@ -71,7 +72,9 @@ bool ValidateAll(bool thorough)
 	bool pass=TestSettings();
 	pass=TestOS_RNG() && pass;
 	pass=TestRandomPool() && pass;
+#if !defined(NO_OS_DEPENDENCE)
 	pass=TestAutoSeededX917() && pass;
+#endif
 	// pass=TestSecRandom() && pass;
 #if defined(CRYPTOPP_EXTENDED_VALIDATION)
 	pass=TestMersenne() && pass;
@@ -534,7 +537,6 @@ bool TestOS_RNG()
 	return pass;
 }
 
-#if !defined(NO_OS_DEPENDENCE)
 bool TestRandomPool()
 {
 	std::cout << "\nTesting RandomPool generator...\n\n";
@@ -624,6 +626,7 @@ bool TestRandomPool()
 		std::cout << "  GenerateWord32 and Crop\n";	
 	}
 
+#if !defined(NO_OS_DEPENDENCE)
 	std::cout << "\nTesting AutoSeeded RandomPool generator...\n\n";
 	{
 		AutoSeededRandomPool prng;
@@ -710,11 +713,13 @@ bool TestRandomPool()
 			std::cout << "passed:";
 		std::cout << "  GenerateWord32 and Crop\n";	
 	}
+#endif
 
 	std::cout.flush();
 	return pass;
 }
 
+#if !defined(NO_OS_DEPENDENCE)
 bool TestAutoSeededX917()
 {
 	// This tests Auto-Seeding and GenerateIntoBufferedTransformation.
@@ -808,7 +813,7 @@ bool TestAutoSeededX917()
 	std::cout.flush();
 	return pass;
 }
-#endif // NO_OS_DEPENDENCE
+#endif
 
 #if defined(CRYPTOPP_EXTENDED_VALIDATION)
 bool TestMersenne()
