@@ -550,7 +550,9 @@ bool Inflator::DecodeBody()
 						break;
 					}
 		case DISTANCE_BITS:
-					bits = distanceExtraBits[m_distance];
+					// TODO: this surfaced during fuzzing. What do we do???
+					CRYPTOPP_ASSERT(m_distance < COUNTOF(distanceExtraBits));
+					bits = (m_distance >= COUNTOF(distanceExtraBits)) ? distanceExtraBits[29] : distanceExtraBits[m_distance];
 					if (!m_reader.FillBuffer(bits))
 					{
 						m_nextDecode = DISTANCE_BITS;
