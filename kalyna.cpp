@@ -929,16 +929,20 @@ void Kalyna::Base::SetKey_88(const word64 key[8])
 
 // *********************** ProcessAndXorBlock specializations *********************** //
 
-void Kalyna::Base::ProcessBlock_22(const word64 inBlock[2], const word64 xorBlock[2], word64 outBlock[2]) const
+void Kalyna::Base::ProcessBlock_22(const word64 inBlock[2], word64 outBlock[2]) const
 {
+#if defined(IS_BIG_ENDIAN)
     word64 *t1 = m_wspace+0, *t2 = m_wspace+2, *msg = m_wspace+4;
+    {
+        typedef GetBlock<word64, LittleEndian, false> Block;
+        Block block(inBlock);
+        block(msg[0])(msg[1]);
+        inBlock = msg;
+    }
+#else
+    word64 *t1 = outBlock, *t2 = m_wspace+2;
+#endif
 
-    // Reverse bytes on BigEndian; Align pointer on LittleEndian
-    typedef GetBlock<word64, LittleEndian, false> InBlock;
-    InBlock iblk(inBlock);
-    iblk(msg[0])(msg[1]);
-
-    inBlock = msg;
     if (IsForwardTransformation())
     {
         AddKey<2>(inBlock, t1, m_rkeys);
@@ -969,22 +973,29 @@ void Kalyna::Base::ProcessBlock_22(const word64 inBlock[2], const word64 xorBloc
         IGL128(t2, t1, &m_rkeys[0]);
     }
 
-    // Reverse bytes on BigEndian; Align pointer on LittleEndian
-    typedef PutBlock<word64, LittleEndian, false> OutBlock;
-    OutBlock oblk(xorBlock, outBlock);
-    oblk(t1[0])(t1[1]);
+#if defined(IS_BIG_ENDIAN)
+    {
+        typedef GetBlock<word64, LittleEndian, false> Block;
+        Block block(t1);
+        block(outBlock[0])(outBlock[1]);
+    }
+#endif
 }
 
-void Kalyna::Base::ProcessBlock_24(const word64 inBlock[2], const word64 xorBlock[2], word64 outBlock[2]) const
+void Kalyna::Base::ProcessBlock_24(const word64 inBlock[2], word64 outBlock[2]) const
 {
+#if defined(IS_BIG_ENDIAN)
     word64 *t1 = m_wspace+0, *t2 = m_wspace+2, *msg = m_wspace+4;
+    {
+        typedef GetBlock<word64, LittleEndian, false> Block;
+        Block block(inBlock);
+        block(msg[0])(msg[1]);
+        inBlock = msg;
+    }
+#else
+    word64 *t1 = outBlock, *t2 = m_wspace+2;
+#endif
 
-    // Reverse bytes on BigEndian; Align pointer on LittleEndian
-    typedef GetBlock<word64, LittleEndian, false> InBlock;
-    InBlock iblk(inBlock);
-    iblk(msg[0])(msg[1]);
-
-    inBlock = msg;
     if (IsForwardTransformation())
     {
         AddKey<2>(inBlock, t1, m_rkeys);
@@ -1023,22 +1034,29 @@ void Kalyna::Base::ProcessBlock_24(const word64 inBlock[2], const word64 xorBloc
         IGL128(t2, t1, &m_rkeys[0]);
     }
 
-    // Reverse bytes on BigEndian; Align pointer on LittleEndian
-    typedef PutBlock<word64, LittleEndian, false> OutBlock;
-    OutBlock oblk(xorBlock, outBlock);
-    oblk(t1[0])(t1[1]);
+#if defined(IS_BIG_ENDIAN)
+    {
+        typedef GetBlock<word64, LittleEndian, false> Block;
+        Block block(t1);
+        block(outBlock[0])(outBlock[1]);
+    }
+#endif
 }
 
-void Kalyna::Base::ProcessBlock_44(const word64 inBlock[4], const word64 xorBlock[4], word64 outBlock[4]) const
+void Kalyna::Base::ProcessBlock_44(const word64 inBlock[4], word64 outBlock[4]) const
 {
+#if defined(IS_BIG_ENDIAN)
     word64 *t1 = m_wspace+0, *t2 = m_wspace+4, *msg = m_wspace+8;
+    {
+        typedef GetBlock<word64, LittleEndian, false> Block;
+        Block block(inBlock);
+        block(msg[0])(msg[1])(msg[2])(msg[3]);
+        inBlock = msg;
+    }
+#else
+    word64 *t1 = outBlock, *t2 = m_wspace+4;
+#endif
 
-    // Reverse bytes on BigEndian; Align pointer on LittleEndian
-    typedef GetBlock<word64, LittleEndian, false> InBlock;
-    InBlock iblk(inBlock);
-    iblk(msg[0])(msg[1])(msg[2])(msg[3]);
-
-    inBlock = msg;
     if (IsForwardTransformation())
     {
         AddKey<4>(inBlock, t1, m_rkeys);
@@ -1077,25 +1095,32 @@ void Kalyna::Base::ProcessBlock_44(const word64 inBlock[4], const word64 xorBloc
         IGL256(t2, t1, &m_rkeys[0]);
     }
 
-    // Reverse bytes on BigEndian; Align pointer on LittleEndian
-    typedef PutBlock<word64, LittleEndian, false> OutBlock;
-    OutBlock oblk(xorBlock, outBlock);
-    oblk(t1[0])(t1[1])(t1[2])(t1[3]);
+#if defined(IS_BIG_ENDIAN)
+    {
+        typedef GetBlock<word64, LittleEndian, false> Block;
+        Block block(t1);
+        block(outBlock[0])(outBlock[1])(outBlock[2])(outBlock[3]);
+    }
+#endif
 }
 
-void Kalyna::Base::ProcessBlock_48(const word64 inBlock[4], const word64 xorBlock[4], word64 outBlock[4]) const
+void Kalyna::Base::ProcessBlock_48(const word64 inBlock[4], word64 outBlock[4]) const
 {
+#if defined(IS_BIG_ENDIAN)
     word64 *t1 = m_wspace+0, *t2 = m_wspace+4, *msg = m_wspace+8;
+    {
+        typedef GetBlock<word64, LittleEndian, false> Block;
+        Block block(inBlock);
+        block(msg[0])(msg[1])(msg[2])(msg[3]);
+        inBlock = msg;
+    }
+#else
+    word64 *t1 = outBlock, *t2 = m_wspace+4;
+#endif
 
-    // Reverse bytes on BigEndian; Align pointer on LittleEndian
-    typedef GetBlock<word64, LittleEndian, false> InBlock;
-    InBlock iblk(inBlock);
-    iblk(msg[0])(msg[1])(msg[2])(msg[3]);
-
-    inBlock = msg;
     if (IsForwardTransformation())
     {
-        AddKey<4>(inBlock, t1, m_rkeys);
+        AddKey<4>((const word64*)inBlock, t1, m_rkeys);
         G256(t1, t2, &m_rkeys[4]); // 1
         G256(t2, t1, &m_rkeys[8]); // 2
         G256(t1, t2, &m_rkeys[12]); // 3
@@ -1139,22 +1164,29 @@ void Kalyna::Base::ProcessBlock_48(const word64 inBlock[4], const word64 xorBloc
         IGL256(t2, t1, &m_rkeys[0]);
     }
 
-    // Reverse bytes on BigEndian; Align pointer on LittleEndian
-    typedef PutBlock<word64, LittleEndian, false> OutBlock;
-    OutBlock oblk(xorBlock, outBlock);
-    oblk(t1[0])(t1[1])(t1[2])(t1[3]);
+#if defined(IS_BIG_ENDIAN)
+    {
+        typedef GetBlock<word64, LittleEndian, false> Block;
+        Block block(t1);
+        block(outBlock[0])(outBlock[1])(outBlock[2])(outBlock[3]);
+    }
+#endif
 }
 
-void Kalyna::Base::ProcessBlock_88(const word64 inBlock[8], const word64 xorBlock[8], word64 outBlock[8]) const
+void Kalyna::Base::ProcessBlock_88(const word64 inBlock[8], word64 outBlock[8]) const
 {
+#if defined(IS_BIG_ENDIAN)
     word64 *t1 = m_wspace+0, *t2 = m_wspace+8, *msg = m_wspace+16;
+    {
+        typedef GetBlock<word64, LittleEndian, false> Block;
+        Block block(inBlock);
+        block(msg[0])(msg[1])(msg[2])(msg[3])(msg[4])(msg[5])(msg[6])(msg[7]);
+        inBlock = msg;
+    }
+#else
+    word64 *t1 = outBlock, *t2 = m_wspace+8;
+#endif
 
-    // Reverse bytes on BigEndian; Align pointer on LittleEndian
-    typedef GetBlock<word64, LittleEndian, false> InBlock;
-    InBlock iblk(inBlock);
-    iblk(msg[0])(msg[1])(msg[2])(msg[3])(msg[4])(msg[5])(msg[6])(msg[7]);
-
-    inBlock = msg;
     if (IsForwardTransformation())
     {
         AddKey<8>(inBlock, t1, m_rkeys);
@@ -1201,10 +1233,14 @@ void Kalyna::Base::ProcessBlock_88(const word64 inBlock[8], const word64 xorBloc
         IGL512(t2, t1, &m_rkeys[0]);
     }
 
-    // Reverse bytes on BigEndian; Align pointer on LittleEndian
-    typedef PutBlock<word64, LittleEndian, false> OutBlock;
-    OutBlock oblk(xorBlock, outBlock);
-    oblk(t1[0])(t1[1])(t1[2])(t1[3])(t1[4])(t1[5])(t1[6])(t1[7]);
+#if defined(IS_BIG_ENDIAN)
+    {
+        typedef GetBlock<word64, LittleEndian, false> Block;
+        Block block(t1);
+        block(outBlock[0])(outBlock[1])(outBlock[2])(outBlock[3])
+             (outBlock[4])(outBlock[5])(outBlock[6])(outBlock[7]);
+    }
+#endif
 }
 
 // *********************** Library routines *********************** //
@@ -1288,34 +1324,32 @@ void Kalyna::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
 
     const byte* p = reinterpret_cast<const byte*>(KalynaTab::S);
     for (unsigned int i=0; i<256; i+=cacheLineSize)
-        u ^= *reinterpret_cast<const word64*>(p+i);
+        u &= *reinterpret_cast<const word64*>(p+i);
     m_wspace[0] = u;
 
     switch ((m_nb << 8) | m_nk)
     {
     case (2 << 8) | 2:
-        ProcessBlock_22(reinterpret_cast<const word64*>(inBlock),
-            reinterpret_cast<const word64*>(xorBlock), reinterpret_cast<word64*>(outBlock));
+        ProcessBlock_22(reinterpret_cast<const word64*>(inBlock), reinterpret_cast<word64*>(outBlock));
         break;
     case (2 << 8) | 4:
-        ProcessBlock_24(reinterpret_cast<const word64*>(inBlock),
-            reinterpret_cast<const word64*>(xorBlock), reinterpret_cast<word64*>(outBlock));
+        ProcessBlock_24(reinterpret_cast<const word64*>(inBlock), reinterpret_cast<word64*>(outBlock));
         break;
     case (4 << 8) | 4:
-        ProcessBlock_44(reinterpret_cast<const word64*>(inBlock),
-            reinterpret_cast<const word64*>(xorBlock), reinterpret_cast<word64*>(outBlock));
+        ProcessBlock_44(reinterpret_cast<const word64*>(inBlock), reinterpret_cast<word64*>(outBlock));
         break;
     case (4 << 8) | 8:
-        ProcessBlock_48(reinterpret_cast<const word64*>(inBlock),
-            reinterpret_cast<const word64*>(xorBlock), reinterpret_cast<word64*>(outBlock));
+        ProcessBlock_48(reinterpret_cast<const word64*>(inBlock), reinterpret_cast<word64*>(outBlock));
         break;
     case (8 << 8) | 8:
-        ProcessBlock_88(reinterpret_cast<const word64*>(inBlock),
-            reinterpret_cast<const word64*>(xorBlock), reinterpret_cast<word64*>(outBlock));
+        ProcessBlock_88(reinterpret_cast<const word64*>(inBlock), reinterpret_cast<word64*>(outBlock));
         break;
     default:
         CRYPTOPP_ASSERT(0);
     }
+
+    for (size_t i=0; xorBlock && i<m_nb; ++i)
+        outBlock[i] ^= xorBlock[i];
 }
 
 NAMESPACE_END
