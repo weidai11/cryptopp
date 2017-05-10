@@ -685,10 +685,21 @@ bool GetField(std::istream &is, std::string &name, std::string &value)
 
 	do
 	{
+		continueLine = false;
 		do
 		{
 			is.get(buffer, sizeof(buffer));
-			value += buffer;
+
+			// Eat leading whispace on line continuation
+			if (continueLine == true)
+			{
+				size_t pos = 0;
+				while (buffer[pos] != '\0' && buffer[pos] != ' ')
+					pos++;
+				value += &buffer[pos];
+			}
+			else
+				value += buffer;
 			if (buffer[0] == ' ')
 				space = true;
 		}
