@@ -623,7 +623,7 @@ bool TestRandomPool()
 			std::cout << "FAILED:";
 		else
 			std::cout << "passed:";
-		std::cout << "  GenerateWord32 and Crop\n";	
+		std::cout << "  GenerateWord32 and Crop\n";
 	}
 
 #if !defined(NO_OS_DEPENDENCE)
@@ -711,7 +711,7 @@ bool TestRandomPool()
 			std::cout << "FAILED:";
 		else
 			std::cout << "passed:";
-		std::cout << "  GenerateWord32 and Crop\n";	
+		std::cout << "  GenerateWord32 and Crop\n";
 	}
 #endif
 
@@ -808,7 +808,7 @@ bool TestAutoSeededX917()
 		std::cout << "FAILED:";
 	else
 		std::cout << "passed:";
-	std::cout << "  GenerateWord32 and Crop\n";	
+	std::cout << "  GenerateWord32 and Crop\n";
 
 	std::cout.flush();
 	return pass;
