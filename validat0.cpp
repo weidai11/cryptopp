@@ -233,14 +233,15 @@ bool TestCompressors()
 bool TestEncryptors()
 {
     std::cout << "\nTesting Default Encryptors and Decryptors...\n\n";
+    static const unsigned int ENCRYPT_COUNT = 128, ENCRYPT_MAC_COUNT = 64;
     bool fail1 = false, fail2 = false, fail3 = false, fail4 = false;
 
     try
     {
-        for (unsigned int i=0; i<128; ++i)
+        for (unsigned int i=0; i<ENCRYPT_COUNT; ++i)
         {
             std::string pwd, src, dest, rec;
-            unsigned int len = GlobalRNG().GenerateWord32(0, 0xffff) + 8;
+            unsigned int len = GlobalRNG().GenerateWord32(16, 0xffff);
 
             src.resize(len);
             GlobalRNG().GenerateBlock(reinterpret_cast<byte*>(&src[0]), src.size());
@@ -264,16 +265,16 @@ bool TestEncryptors()
        std::cout << "passed:";
     else
        std::cout << "FAILED:";
-    std::cout << "  128 default encryptions and decryptions" << std::endl;
+    std::cout << "  " << ENCRYPT_COUNT << " default encryptions and decryptions" << std::endl;
 
     // **************************************************************
 
     try
     {
-        for (unsigned int i=0; i<128; ++i)
+        for (unsigned int i=0; i<ENCRYPT_MAC_COUNT; ++i)
         {
             std::string pwd, src, dest, rec;
-            unsigned int len = GlobalRNG().GenerateWord32(0, 0xffff) + 8;
+            unsigned int len = GlobalRNG().GenerateWord32(16, 0xffff);
 
             src.resize(len);
             GlobalRNG().GenerateBlock(reinterpret_cast<byte*>(&src[0]), src.size());
@@ -329,16 +330,16 @@ bool TestEncryptors()
        std::cout << "passed:";
     else
        std::cout << "FAILED:";
-    std::cout << "  128 default encryptions and decryptions with MAC" << std::endl;
+    std::cout << "  " << ENCRYPT_MAC_COUNT << " default encryptions and decryptions with MAC" << std::endl;
 
     // **************************************************************
 
     try
     {
-        for (unsigned int i=0; i<128; ++i)
+        for (unsigned int i=0; i<ENCRYPT_COUNT; ++i)
         {
             std::string pwd, src, dest, rec;
-            unsigned int len = GlobalRNG().GenerateWord32(0, 0xffff) + 8;
+            unsigned int len = GlobalRNG().GenerateWord32(16, 0xffff);
 
             src.resize(len);
             GlobalRNG().GenerateBlock(reinterpret_cast<byte*>(&src[0]), src.size());
@@ -362,16 +363,16 @@ bool TestEncryptors()
        std::cout << "passed:";
     else
        std::cout << "FAILED:";
-    std::cout << "  128 legacy encryptions and decryptions" << std::endl;
+    std::cout << "  " << ENCRYPT_COUNT << " legacy encryptions and decryptions" << std::endl;
 
     // **************************************************************
 
     try
     {
-        for (unsigned int i=0; i<128; ++i)
+        for (unsigned int i=0; i<ENCRYPT_MAC_COUNT; ++i)
         {
             std::string pwd, src, dest, rec;
-            unsigned int len = GlobalRNG().GenerateWord32(0, 0xffff) + 8;
+            unsigned int len = GlobalRNG().GenerateWord32(16, 0xffff);
 
             src.resize(len);
             GlobalRNG().GenerateBlock(reinterpret_cast<byte*>(&src[0]), src.size());
@@ -427,7 +428,7 @@ bool TestEncryptors()
        std::cout << "passed:";
     else
        std::cout << "FAILED:";
-    std::cout << "  128 legacy encryptions and decryptions with MAC" << std::endl;
+    std::cout << "  " << ENCRYPT_MAC_COUNT << " legacy encryptions and decryptions with MAC" << std::endl;
 
     return !fail1 && !fail2 && !fail3 && !fail4;
 }
@@ -508,7 +509,7 @@ bool TestSharing()
         pass &= !fail;
     }
 
-    std::cout << (fail ? "FAILED:" : "passed:") << "  64 information dispersals\n";
+    std::cout << (fail ? "FAILED:" : "passed:") << "  " << INFORMATION_SHARES << " information dispersals\n";
 
     // ********** Secret Sharing **********//
 
@@ -577,7 +578,7 @@ bool TestSharing()
         pass &= !fail;
     }
 
-    std::cout << (fail ? "FAILED:" : "passed:") << "  64 secret sharings\n";
+    std::cout << (fail ? "FAILED:" : "passed:") << "  " << SECRET_SHARES << " secret sharings\n";
 
     return pass;
 }
