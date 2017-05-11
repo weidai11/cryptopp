@@ -106,7 +106,7 @@ bool ValidateCRC32()
 	CRC32 crc;
 
 	std::cout << "\nCRC-32 validation suite running...\n\n";
-	return HashModuleTest(crc, testSet, sizeof(testSet)/sizeof(testSet[0]));
+	return HashModuleTest(crc, testSet, COUNTOF(testSet));
 }
 
 bool ValidateCRC32C()
@@ -126,7 +126,7 @@ bool ValidateCRC32C()
 	CRC32C crc;
 
 	std::cout << "\nCRC-32C validation suite running...\n\n";
-	return HashModuleTest(crc, testSet, sizeof(testSet)/sizeof(testSet[0]));
+	return HashModuleTest(crc, testSet, COUNTOF(testSet));
 }
 
 bool ValidateAdler32()
@@ -145,7 +145,7 @@ bool ValidateAdler32()
 	Adler32 md;
 
 	std::cout << "\nAdler-32 validation suite running...\n\n";
-	return HashModuleTest(md, testSet, sizeof(testSet)/sizeof(testSet[0]));
+	return HashModuleTest(md, testSet, COUNTOF(testSet));
 }
 
 bool ValidateMD2()
@@ -164,7 +164,7 @@ bool ValidateMD2()
 	Weak::MD2 md2;
 
 	std::cout << "\nMD2 validation suite running...\n\n";
-	return HashModuleTest(md2, testSet, sizeof(testSet)/sizeof(testSet[0]));
+	return HashModuleTest(md2, testSet, COUNTOF(testSet));
 }
 
 bool ValidateMD4()
@@ -183,7 +183,7 @@ bool ValidateMD4()
 	Weak::MD4 md4;
 
 	std::cout << "\nMD4 validation suite running...\n\n";
-	return HashModuleTest(md4, testSet, sizeof(testSet)/sizeof(testSet[0]));
+	return HashModuleTest(md4, testSet, COUNTOF(testSet));
 }
 
 bool ValidateMD5()
@@ -202,7 +202,7 @@ bool ValidateMD5()
 	Weak::MD5 md5;
 
 	std::cout << "\nMD5 validation suite running...\n\n";
-	return HashModuleTest(md5, testSet, sizeof(testSet)/sizeof(testSet[0]));
+	return HashModuleTest(md5, testSet, COUNTOF(testSet));
 }
 
 bool ValidateSHA()
@@ -236,7 +236,7 @@ bool ValidateTiger()
 
 	Tiger tiger;
 
-	return HashModuleTest(tiger, testSet, sizeof(testSet)/sizeof(testSet[0]));
+	return HashModuleTest(tiger, testSet, COUNTOF(testSet));
 }
 
 bool ValidateRIPEMD()
@@ -297,19 +297,19 @@ bool ValidateRIPEMD()
 
 	std::cout << "\nRIPEMD-128 validation suite running...\n\n";
 	RIPEMD128 md128;
-	pass = HashModuleTest(md128, testSet128, sizeof(testSet128)/sizeof(testSet128[0])) && pass;
+	pass = HashModuleTest(md128, testSet128, COUNTOF(testSet128)) && pass;
 
 	std::cout << "\nRIPEMD-160 validation suite running...\n\n";
 	RIPEMD160 md160;
-	pass = HashModuleTest(md160, testSet160, sizeof(testSet160)/sizeof(testSet160[0])) && pass;
+	pass = HashModuleTest(md160, testSet160, COUNTOF(testSet160)) && pass;
 
 	std::cout << "\nRIPEMD-256 validation suite running...\n\n";
 	RIPEMD256 md256;
-	pass = HashModuleTest(md256, testSet256, sizeof(testSet256)/sizeof(testSet256[0])) && pass;
+	pass = HashModuleTest(md256, testSet256, COUNTOF(testSet256)) && pass;
 
 	std::cout << "\nRIPEMD-320 validation suite running...\n\n";
 	RIPEMD320 md320;
-	pass = HashModuleTest(md320, testSet320, sizeof(testSet320)/sizeof(testSet320[0])) && pass;
+	pass = HashModuleTest(md320, testSet320, COUNTOF(testSet320)) && pass;
 
 	return pass;
 }
@@ -543,7 +543,7 @@ bool ValidateTTMAC()
 	std::cout << "\nTwo-Track-MAC validation suite running...\n";
 
 	TTMAC mac(key, sizeof(key));
-	for (unsigned int k=0; k<sizeof(TestVals)/sizeof(TestVals[0]); k++)
+	for (unsigned int k = 0; k<COUNTOF(TestVals); k++)
 	{
 		mac.Update((byte *)TestVals[k], strlen(TestVals[k]));
 		mac.Final(digest);
@@ -619,7 +619,7 @@ bool ValidatePBKDF()
 	PKCS12_PBKDF<SHA1> pbkdf;
 
 	std::cout << "\nPKCS #12 PBKDF validation suite running...\n\n";
-	pass = TestPBKDF(pbkdf, testSet, sizeof(testSet)/sizeof(testSet[0])) && pass;
+	pass = TestPBKDF(pbkdf, testSet, COUNTOF(testSet)) && pass;
 	}
 
 	{
@@ -633,7 +633,7 @@ bool ValidatePBKDF()
 	PKCS5_PBKDF2_HMAC<SHA1> pbkdf;
 
 	std::cout << "\nPKCS #5 PBKDF2 validation suite running...\n\n";
-	pass = TestPBKDF(pbkdf, testSet, sizeof(testSet)/sizeof(testSet[0])) && pass;
+	pass = TestPBKDF(pbkdf, testSet, COUNTOF(testSet)) && pass;
 	}
 
 	return pass;
