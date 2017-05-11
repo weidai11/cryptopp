@@ -1479,13 +1479,13 @@ bool ValidateBLAKE2s()
 		// See https://github.com/weidai11/cryptopp/issues/415
 		if (tests[i].dlen < BLAKE2s::DIGESTSIZE && tests[i].key == NULLPTR)
 		{
-			BLAKE2s blake2s(false, unsigned int(tests[i].dlen));
+			BLAKE2s blake2s(false, (unsigned int)tests[i].dlen);
 			blake2s.Update((const byte*)tests[i].message, tests[i].mlen);
 			blake2s.Final(digest);
 		}
 		else
 		{
-			BLAKE2s blake2s((const byte*)tests[i].key, tests[i].klen, NULLPTR, 0, NULLPTR, 0, false, unsigned int(tests[i].dlen));
+			BLAKE2s blake2s((const byte*)tests[i].key, tests[i].klen, NULLPTR, 0, NULLPTR, 0, false, (unsigned int)tests[i].dlen);
 			blake2s.Update((const byte*)tests[i].message, tests[i].mlen);
 			blake2s.Final(digest);
 		}
@@ -1910,13 +1910,13 @@ bool ValidateBLAKE2b()
 		// See https://github.com/weidai11/cryptopp/issues/415
 		if (tests[i].dlen < BLAKE2b::DIGESTSIZE && tests[i].key == NULLPTR)
 		{
-			BLAKE2b blake2b(false, unsigned int(tests[i].dlen));
+			BLAKE2b blake2b(false, (unsigned int)tests[i].dlen);
 			blake2b.Update((const byte*)tests[i].message, tests[i].mlen);
 			blake2b.Final(digest);
 		}
 		else
 		{
-			BLAKE2b blake2b((const byte*)tests[i].key, tests[i].klen, NULLPTR, 0, NULLPTR, 0, false, unsigned int(tests[i].dlen));
+			BLAKE2b blake2b((const byte*)tests[i].key, tests[i].klen, NULLPTR, 0, NULLPTR, 0, false, (unsigned int)tests[i].dlen);
 			blake2b.Update((const byte*)tests[i].message, tests[i].mlen);
 			blake2b.Final(digest);
 		}
