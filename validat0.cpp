@@ -172,13 +172,15 @@ bool TestCompressors()
             // Tamper
             try {
                 StringSource(dest.substr(0, len - 2), true, new Gunzip(new StringSink(rec)));
-                throw Exception(Exception::OTHER_ERROR, "Gzip failed to detect a truncated stream");
+                std::cout << "FAILED:   Gzip failed to detect a truncated stream\n";
+                fail1 = true;
             }
             catch (const Exception&) {}
         }
     }
-    catch (const Exception&)
+    catch (const Exception& ex)
     {
+        std::cout << "FAILED:   " << ex.what() << "\n";
         fail1 = true;
     }
 
@@ -209,7 +211,7 @@ bool TestCompressors()
         GlobalRNG().GenerateBlock(reinterpret_cast<byte*>(&src[0]), src.size());
         src[0] = (byte)0x1f; src[1] = (byte)0x8b;  // magic header
         src[2] = 0x00;  // extra flags
-        src[3] = src[3] & (2 | 4 | 8 | 16 | 32);  // flags
+        src[3] = src[3] & (2 | 4 | 8 | 16 | 32);   // flags
 
         // Don't allow ENCRYPTED|CONTINUED to over-run tests
         if (src[3] & (2 | 32)) {
@@ -245,21 +247,20 @@ bool TestCompressors()
             StringSource(src, true, new Deflator(new StringSink(dest)));
             StringSource(dest, true, new Inflator(new StringSink(rec)));
             if (src != rec)
-                throw Exception(Exception::OTHER_ERROR, "Deflate failed to decompress stream");
+                throw Exception(Exception::OTHER_ERROR, "Inflate failed to decompress stream");
 
             // Tamper
             try {
-                // If this fails once, its likely due to a collision on Adler32. A re-run should
-                // not witness another failure. If it fails more than once, then there's a problem.
-                StringSource(dest.substr(0, len - 2), true, new Inflator(new StringSink(rec)));
-                std::cout << "Deflate failed to detect a truncated stream\n";
+                StringSource(dest.substr(0, len - 2), true, new Gunzip(new StringSink(rec)));
+                std::cout << "FAILED:   Inflate failed to detect a truncated stream\n";
                 fail2 = true;
             }
             catch (const Exception&) {}
         }
     }
-    catch (const Exception&)
+    catch (const Exception& ex)
     {
+        std::cout << "FAILED:   " << ex.what() << "\n";
         fail2 = true;
     }
 
@@ -275,7 +276,7 @@ bool TestCompressors()
         GlobalRNG().GenerateBlock(reinterpret_cast<byte*>(&src[0]), src.size());
         src[0] = (byte)0x1f; src[1] = (byte)0x8b;  // magic Header
         src[2] = 0x00;  // extra flags
-        src[3] = src[3] & (2 | 4 | 8 | 16 | 32);  // flags
+        src[3] = src[3] & (2 | 4 | 8 | 16 | 32);   // flags
 
         // Don't allow ENCRYPTED|CONTINUED to over-run tests
         if (src[3] & (2 | 32)) {
@@ -327,18 +328,20 @@ bool TestCompressors()
             StringSource(src, true, new ZlibCompressor(new StringSink(dest)));
             StringSource(dest, true, new ZlibDecompressor(new StringSink(rec)));
             if (src != rec)
-                throw Exception(Exception::OTHER_ERROR, "ZlibCompressor failed to decompress stream");
+                throw Exception(Exception::OTHER_ERROR, "Zlib failed to decompress stream");
 
             // Tamper
             try {
-                StringSource(dest.substr(0, len - 2), true, new ZlibDecompressor(new StringSink(rec)));
-                throw Exception(Exception::OTHER_ERROR, "ZlibCompressor failed to detect a truncated stream");
+                StringSource(dest.substr(0, len - 2), true, new Gunzip(new StringSink(rec)));
+                std::cout << "FAILED:   Zlib failed to detect a truncated stream\n";
+                fail3 = true;
             }
             catch (const Exception&) {}
         }
     }
-    catch (const Exception&)
+    catch (const Exception& ex)
     {
+        std::cout << "FAILED:   " << ex.what() << "\n";
         fail3 = true;
     }
 
