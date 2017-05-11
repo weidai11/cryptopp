@@ -2281,6 +2281,32 @@ bool TestHuffmanCodes()
         std::cout << "passed:";
     std::cout << "  GenerateCodeLengths" << std::endl;
 
+    // Try to crash the HuffmanDecoder
+    for (unsigned int i=0; i<128; ++i)
+    {
+        try
+        {
+            byte data1[0xfff];  // Place on stack, avoid new
+            unsigned int data2[0xff];
+
+            unsigned int len1 = GlobalRNG().GenerateWord32(0, 0xfff);
+            GlobalRNG().GenerateBlock(data1, len1);
+            unsigned int len2 = GlobalRNG().GenerateWord32(0, 0xff);
+            GlobalRNG().GenerateBlock((byte*)data2, len2*sizeof(unsigned int));
+
+            ArraySource source(data1, len1, false);
+            HuffmanDecoder decoder(data2, len2);
+
+            LowFirstBitReader reader(source);
+            unsigned int val;
+            for (unsigned int j=0; !source.AnyRetrievable(); ++j)
+                decoder.Decode(reader, val);
+        }
+        catch (const Exception&) {}
+    }
+
+    std::cout << "passed:  HuffmanDecoder decode" << std::endl;
+
     return pass;
 }
 #endif

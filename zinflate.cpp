@@ -128,6 +128,7 @@ void HuffmanDecoder::Initialize(const unsigned int *codeBits, unsigned int nCode
 		unsigned int len = codeBits[i];
 		if (len != 0)
 		{
+			CRYPTOPP_ASSERT(j < m_codeToValue.size());
 			code = NormalizeCode(nextCode[len]++, len);
 			m_codeToValue[j].code = code;
 			m_codeToValue[j].len = len;
@@ -181,7 +182,7 @@ void HuffmanDecoder::FillCacheEntry(LookupEntry &entry, code_t normalizedCode) c
 
 inline unsigned int HuffmanDecoder::Decode(code_t code, /* out */ value_t &value) const
 {
-	CRYPTOPP_ASSERT(m_codeToValue.size() > 0);
+	CRYPTOPP_ASSERT(((int)(code & m_cacheMask)) < m_cache.size());
 	LookupEntry &entry = m_cache[code & m_cacheMask];
 
 	code_t normalizedCode = 0;
@@ -406,7 +407,10 @@ void Inflator::DecodeHeader()
 			16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15};
 		std::fill(codeLengths.begin(), codeLengths+19, 0);
 		for (i=0; i<hclen+4; i++)
+		{
+			CRYPTOPP_ASSERT(border[i] < codeLengths.size());
 			codeLengths[border[i]] = m_reader.GetBits(3);
+		}
 
 		try
 		{
@@ -536,12 +540,14 @@ bool Inflator::DecodeBody()
 						throw BadBlockErr();
 					unsigned int bits;
 		case LENGTH_BITS:
+					CRYPTOPP_ASSERT(m_literal-257 < COUNTOF(lengthExtraBits));
 					bits = lengthExtraBits[m_literal-257];
 					if (!m_reader.FillBuffer(bits))
 					{
 						m_nextDecode = LENGTH_BITS;
 						break;
 					}
+					CRYPTOPP_ASSERT(m_literal-257 < COUNTOF(lengthStarts));
 					m_literal = m_reader.GetBits(bits) + lengthStarts[m_literal-257];
 		case DISTANCE:
 					if (!distanceDecoder.Decode(m_reader, m_distance))
