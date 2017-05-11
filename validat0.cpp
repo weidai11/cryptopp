@@ -71,7 +71,7 @@ bool TestCompressors()
     for (unsigned int i=0; i<128; i++)
     {
         std::string src, dest;
-        unsigned int len = GlobalRNG().GenerateWord32(0, 0xfff);
+        unsigned int len = GlobalRNG().GenerateWord32(8, 0xfff);
 
         src.resize(len);
         GlobalRNG().GenerateBlock(reinterpret_cast<byte*>(&src[0]), src.size());
