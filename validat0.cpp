@@ -13,6 +13,7 @@
 #include "zinflate.h"
 #include "channels.h"
 #include "files.h"
+#include "gf2n.h"
 #include "gzip.h"
 #include "zlib.h"
 #include "ida.h"
@@ -31,6 +32,120 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(Test)
+
+#if defined(CRYPTOPP_EXTENDED_VALIDATION)
+// Issue 64: "PolynomialMod2::operator<<=", http://github.com/weidai11/cryptopp/issues/64
+bool TestPolynomialMod2()
+{
+    bool pass1 = true, pass2 = true, pass3 = true;
+
+    std::cout << "\nTesting PolynomialMod2 bit operations...\n\n";
+
+    static const unsigned int start = 0;
+    static const unsigned int stop = 4 * WORD_BITS + 1;
+
+    for (unsigned int i = start; i < stop; i++)
+    {
+        PolynomialMod2 p(1);
+        p <<= i;
+
+        Integer n(Integer::One());
+        n <<= i;
+
+        std::ostringstream oss1;
+        oss1 << p;
+
+        std::string str1, str2;
+
+        // str1 needs the commas removed used for grouping
+        str1 = oss1.str();
+        str1.erase(std::remove(str1.begin(), str1.end(), ','), str1.end());
+
+        // str1 needs the trailing 'b' removed
+        str1.erase(str1.end() - 1);
+
+        // str2 is fine as-is
+        str2 = IntToString(n, 2);
+
+        pass1 &= (str1 == str2);
+    }
+
+    for (unsigned int i = start; i < stop; i++)
+    {
+        const word w((word)SIZE_MAX);
+
+        PolynomialMod2 p(w);
+        p <<= i;
+
+        Integer n(Integer::POSITIVE, static_cast<lword>(w));
+        n <<= i;
+
+        std::ostringstream oss1;
+        oss1 << p;
+
+        std::string str1, str2;
+
+        // str1 needs the commas removed used for grouping
+        str1 = oss1.str();
+        str1.erase(std::remove(str1.begin(), str1.end(), ','), str1.end());
+
+        // str1 needs the trailing 'b' removed
+        str1.erase(str1.end() - 1);
+
+        // str2 is fine as-is
+        str2 = IntToString(n, 2);
+
+        pass2 &= (str1 == str2);
+    }
+
+    RandomNumberGenerator& prng = GlobalRNG();
+    for (unsigned int i = start; i < stop; i++)
+    {
+        word w;     // Cast to lword due to Visual Studio
+        prng.GenerateBlock((byte*)&w, sizeof(w));
+
+        PolynomialMod2 p(w);
+        p <<= i;
+
+        Integer n(Integer::POSITIVE, static_cast<lword>(w));
+        n <<= i;
+
+        std::ostringstream oss1;
+        oss1 << p;
+
+        std::string str1, str2;
+
+        // str1 needs the commas removed used for grouping
+        str1 = oss1.str();
+        str1.erase(std::remove(str1.begin(), str1.end(), ','), str1.end());
+
+        // str1 needs the trailing 'b' removed
+        str1.erase(str1.end() - 1);
+
+        // str2 is fine as-is
+        str2 = IntToString(n, 2);
+
+        if (str1 != str2)
+        {
+            std::cout << "  Oops..." << "\n";
+            std::cout << "     random: " << std::hex << n << std::dec << "\n";
+            std::cout << "     str1: " << str1 << "\n";
+            std::cout << "     str2: " << str2 << "\n";
+        }
+
+        pass3 &= (str1 == str2);
+    }
+
+    std::cout << (!pass1 ? "FAILED" : "passed") << ":  " << "1 shifted over range [" << std::dec << start << "," << stop << "]" << "\n";
+    std::cout << (!pass2 ? "FAILED" : "passed") << ":  " << "0x" << std::hex << word(SIZE_MAX) << std::dec << " shifted over range [" << start << "," << stop << "]" << "\n";
+    std::cout << (!pass3 ? "FAILED" : "passed") << ":  " << "random values shifted over range [" << std::dec << start << "," << stop << "]" << "\n";
+
+    if (!(pass1 && pass2 && pass3))
+        std::cout.flush();
+
+    return pass1 && pass2 && pass3;
+}
+#endif
 
 #if defined(CRYPTOPP_EXTENDED_VALIDATION)
 bool TestCompressors()
