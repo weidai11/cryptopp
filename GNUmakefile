@@ -409,6 +409,9 @@ ifeq ($(findstring ubsan,$(MAKECMDGOALS)),ubsan)
 ifeq ($(findstring -fsanitize=undefined,$(CXXFLAGS)),)
 CXXFLAGS += -fsanitize=undefined
 endif # CXXFLAGS
+ifeq ($(findstring -DCRYPTOPP_COVERAGE,$(CXXFLAGS)),)
+CXXFLAGS += -DCRYPTOPP_COVERAGE
+endif # CXXFLAGS
 ifeq ($(findstring -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS,$(CXXFLAGS)),)
 CXXFLAGS += -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS
 endif # CXXFLAGS
@@ -418,6 +421,9 @@ endif # UBsan
 ifeq ($(findstring asan,$(MAKECMDGOALS)),asan)
 ifeq ($(findstring -fsanitize=address,$(CXXFLAGS)),)
 CXXFLAGS += -fsanitize=address
+endif # CXXFLAGS
+ifeq ($(findstring -DCRYPTOPP_COVERAGE,$(CXXFLAGS)),)
+CXXFLAGS += -DCRYPTOPP_COVERAGE
 endif # CXXFLAGS
 ifeq ($(findstring -fno-omit-frame-pointer,$(CXXFLAGS)),)
 CXXFLAGS += -fno-omit-frame-pointer
