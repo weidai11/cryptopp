@@ -74,7 +74,7 @@ public:
 		for (size_t i=0; i < size/4; i++, output += 4)
 		{
 			temp = NextMersenneWord();
-			PutWord<word32>(false, LITTLE_ENDIAN_ORDER, output, temp);
+			memcpy(output, &temp, 4);
 		}
 
 		// No tail bytes
