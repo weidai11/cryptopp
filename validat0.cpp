@@ -22,6 +22,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <sstream>
 
 #include "validate.h"
 
