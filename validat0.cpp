@@ -43,7 +43,7 @@ bool TestCompressors()
         for (unsigned int i=0; i<128; ++i)
         {
             std::string src, dest, rec;
-            unsigned int len = GlobalRNG().GenerateWord32(0, 0xffff);
+            unsigned int len = GlobalRNG().GenerateWord32(0, 0xfff);
 
             src.resize(len);
             GlobalRNG().GenerateBlock(reinterpret_cast<byte*>(&src[0]), src.size());
@@ -71,7 +71,7 @@ bool TestCompressors()
     for (unsigned int i=0; i<128; i++)
     {
         std::string src, dest;
-        unsigned int len = GlobalRNG().GenerateWord32(0, 0xffff);
+        unsigned int len = GlobalRNG().GenerateWord32(0, 0xfff);
 
         src.resize(len);
         GlobalRNG().GenerateBlock(reinterpret_cast<byte*>(&src[0]), src.size());
@@ -104,7 +104,7 @@ bool TestCompressors()
         for (unsigned int i=0; i<128; ++i)
         {
             std::string src, dest, rec;
-            unsigned int len = GlobalRNG().GenerateWord32(0, 0xffff);
+            unsigned int len = GlobalRNG().GenerateWord32(0, 0xfff);
 
             src.resize(len);
             GlobalRNG().GenerateBlock(reinterpret_cast<byte*>(&src[0]), src.size());
@@ -133,7 +133,7 @@ bool TestCompressors()
     {
         // See if we can induce a crash
         std::string src, dest;
-        unsigned int len = GlobalRNG().GenerateWord32(0, 0xffff);
+        unsigned int len = GlobalRNG().GenerateWord32(0, 0xfff);
 
         src.resize(len);
         GlobalRNG().GenerateBlock(reinterpret_cast<byte*>(&src[0]), src.size());
@@ -147,7 +147,7 @@ bool TestCompressors()
     for (unsigned int i=0; i<128; i++)
     {
         std::string src, dest;
-        unsigned int len = GlobalRNG().GenerateWord32(0, 0xffff);
+        unsigned int len = GlobalRNG().GenerateWord32(0, 0xfff);
 
         src.resize(len);
         GlobalRNG().GenerateBlock(reinterpret_cast<byte*>(&src[0]), src.size());
@@ -180,7 +180,7 @@ bool TestCompressors()
         for (unsigned int i=0; i<128; ++i)
         {
             std::string src, dest, rec;
-            unsigned int len = GlobalRNG().GenerateWord32(0, 0xffff);
+            unsigned int len = GlobalRNG().GenerateWord32(0, 0xfff);
 
             src.resize(len);
             GlobalRNG().GenerateBlock(reinterpret_cast<byte*>(&src[0]), src.size());
@@ -208,7 +208,7 @@ bool TestCompressors()
     for (unsigned int i=0; i<128; i++)
     {
         std::string src, dest;
-        unsigned int len = GlobalRNG().GenerateWord32(0, 0xffff);
+        unsigned int len = GlobalRNG().GenerateWord32(0, 0xfff);
 
         src.resize(len);
         GlobalRNG().GenerateBlock(reinterpret_cast<byte*>(&src[0]), src.size());
@@ -241,7 +241,7 @@ bool TestEncryptors()
         for (unsigned int i=0; i<ENCRYPT_COUNT; ++i)
         {
             std::string pwd, src, dest, rec;
-            unsigned int len = GlobalRNG().GenerateWord32(16, 0xffff);
+            unsigned int len = GlobalRNG().GenerateWord32(16, 0xfff);
 
             src.resize(len);
             GlobalRNG().GenerateBlock(reinterpret_cast<byte*>(&src[0]), src.size());
@@ -274,7 +274,7 @@ bool TestEncryptors()
         for (unsigned int i=0; i<ENCRYPT_MAC_COUNT; ++i)
         {
             std::string pwd, src, dest, rec;
-            unsigned int len = GlobalRNG().GenerateWord32(16, 0xffff);
+            unsigned int len = GlobalRNG().GenerateWord32(16, 0xfff);
 
             src.resize(len);
             GlobalRNG().GenerateBlock(reinterpret_cast<byte*>(&src[0]), src.size());
@@ -339,7 +339,7 @@ bool TestEncryptors()
         for (unsigned int i=0; i<ENCRYPT_COUNT; ++i)
         {
             std::string pwd, src, dest, rec;
-            unsigned int len = GlobalRNG().GenerateWord32(16, 0xffff);
+            unsigned int len = GlobalRNG().GenerateWord32(16, 0xfff);
 
             src.resize(len);
             GlobalRNG().GenerateBlock(reinterpret_cast<byte*>(&src[0]), src.size());
@@ -372,7 +372,7 @@ bool TestEncryptors()
         for (unsigned int i=0; i<ENCRYPT_MAC_COUNT; ++i)
         {
             std::string pwd, src, dest, rec;
-            unsigned int len = GlobalRNG().GenerateWord32(16, 0xffff);
+            unsigned int len = GlobalRNG().GenerateWord32(16, 0xfff);
 
             src.resize(len);
             GlobalRNG().GenerateBlock(reinterpret_cast<byte*>(&src[0]), src.size());
