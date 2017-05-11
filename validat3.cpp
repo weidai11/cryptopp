@@ -1477,7 +1477,7 @@ bool ValidateBLAKE2s()
 		// the condition is written in a way which for non-default digest sizes
 		// tests the BLAKE2_Base(bool treeMode, unsigned int digestSize) constructor.
 		// See https://github.com/weidai11/cryptopp/issues/415
-		if (tests[i].dlen < BLAKE2s::DIGESTSIZE && tests[i].key == NULL)
+		if (tests[i].dlen < BLAKE2s::DIGESTSIZE && tests[i].key == NULLPTR)
 		{
 			BLAKE2s blake2s(false, unsigned int(tests[i].dlen));
 			blake2s.Update((const byte*)tests[i].message, tests[i].mlen);
@@ -1908,7 +1908,7 @@ bool ValidateBLAKE2b()
 		// the condition is written in a way which for non-default digest sizes
 		// tests the BLAKE2_Base(bool treeMode, unsigned int digestSize) constructor.
 		// See https://github.com/weidai11/cryptopp/issues/415
-		if (tests[i].dlen < BLAKE2b::DIGESTSIZE && tests[i].key == NULL)
+		if (tests[i].dlen < BLAKE2b::DIGESTSIZE && tests[i].key == NULLPTR)
 		{
 			BLAKE2b blake2b(false, unsigned int(tests[i].dlen));
 			blake2b.Update((const byte*)tests[i].message, tests[i].mlen);
