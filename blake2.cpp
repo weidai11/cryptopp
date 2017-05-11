@@ -351,7 +351,7 @@ BLAKE2_Base<W, T_64bit>::BLAKE2_Base(bool treeMode, unsigned int digestSize) : m
 {
     CRYPTOPP_ASSERT(digestSize <= DIGESTSIZE);
 
-    UncheckedSetKey(NULLPTR, 0, g_nullNameValuePairs);
+    UncheckedSetKey(NULLPTR, 0, MakeParameters(Name::DigestSize(), (int)digestSize)(Name::TreeMode(), treeMode, false));
     Restart();
 }
 

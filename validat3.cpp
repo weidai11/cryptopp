@@ -1088,6 +1088,30 @@ bool ValidateBLAKE2s()
 	    {
 	        NULLPTR,
 	        NULLPTR,
+	        "\x8F\x38",
+	        0, 0, 2
+	    },
+	    {
+	        NULLPTR,
+	        NULLPTR,
+	        "\x36\xE9\xD2\x46",
+	        0, 0, 4
+	    },
+	    {
+	        NULLPTR,
+	        NULLPTR,
+	        "\xEF\x2A\x8B\x78\xDD\x80\xDA\x9C",
+	        0, 0, 8
+	    },
+	    {
+	        NULLPTR,
+	        NULLPTR,
+	        "\x64\x55\x0D\x6F\xFE\x2C\x0A\x01\xA1\x4A\xBA\x1E\xAD\xE0\x20\x0C",
+	        0, 0, 16
+	    },
+	    {
+	        NULLPTR,
+	        NULLPTR,
 	        "\x69\x21\x7A\x30\x79\x90\x80\x94\xE1\x11\x21\xD0\x42\x35\x4A\x7C\x1F\x55\xB6\x48\x2C\xA1\xA5\x1E\x1B\x25\x0D\xFD\x1E\xD0\xEE\xF9",
 	        0, 0, 32
 	    },
@@ -1450,11 +1474,23 @@ bool ValidateBLAKE2s()
 	byte digest[BLAKE2s::DIGESTSIZE];
 	for (unsigned int i=0; i<COUNTOF(tests); ++i)
 	{
-		BLAKE2s blake2s((const byte*)tests[i].key, tests[i].klen);
-		blake2s.Update((const byte*)tests[i].message, tests[i].mlen);
-		blake2s.Final(digest);
+		// the condition is written in a way which for non-default digest sizes
+		// tests the BLAKE2_Base(bool treeMode, unsigned int digestSize) constructor.
+		// See https://github.com/weidai11/cryptopp/issues/415
+		if (tests[i].dlen < BLAKE2s::DIGESTSIZE && tests[i].key == NULL)
+		{
+			BLAKE2s blake2s(false, unsigned int(tests[i].dlen));
+			blake2s.Update((const byte*)tests[i].message, tests[i].mlen);
+			blake2s.Final(digest);
+		}
+		else
+		{
+			BLAKE2s blake2s((const byte*)tests[i].key, tests[i].klen, NULLPTR, 0, NULLPTR, 0, false, unsigned int(tests[i].dlen));
+			blake2s.Update((const byte*)tests[i].message, tests[i].mlen);
+			blake2s.Final(digest);
+		}
 
-		fail = !!memcmp(digest, tests[i].digest, sizeof(digest)) != 0;
+		fail = !!memcmp(digest, tests[i].digest, tests[i].dlen) != 0;
 		if (fail)
 		{
 			std::cout << "FAILED   " << "BLAKE2s test set " << i << std::endl;
@@ -1480,6 +1516,30 @@ bool ValidateBLAKE2b()
 	}
 
 	static const BLAKE2_TestTuples tests[] = {
+	    {
+	        NULLPTR,
+	        NULLPTR,
+	        "\x12\x71\xCF\x25",
+	        0, 0, 4
+	    },
+	    {
+	        NULLPTR,
+	        NULLPTR,
+	        "\xE4\xA6\xA0\x57\x74\x79\xB2\xB4",
+	        0, 0, 8
+	    },
+	    {
+	        NULLPTR,
+	        NULLPTR,
+	        "\xCA\xE6\x69\x41\xD9\xEF\xBD\x40\x4E\x4D\x88\x75\x8E\xA6\x76\x70",
+	        0, 0, 16
+	    },
+	    {
+	        NULLPTR,
+	        NULLPTR,
+	        "\x0E\x57\x51\xC0\x26\xE5\x43\xB2\xE8\xAB\x2E\xB0\x60\x99\xDA\xA1\xD1\xE5\xDF\x47\x77\x8F\x77\x87\xFA\xAB\x45\xCD\xF1\x2F\xE3\xA8",
+	        0, 0, 32
+	    },
 	    {
 	        NULLPTR,
 	        NULLPTR,
@@ -1845,11 +1905,23 @@ bool ValidateBLAKE2b()
 	byte digest[BLAKE2b::DIGESTSIZE];
 	for (unsigned int i=0; i<COUNTOF(tests); ++i)
 	{
-		BLAKE2b blake2b((const byte*)tests[i].key, tests[i].klen);
-		blake2b.Update((const byte*)tests[i].message, tests[i].mlen);
-		blake2b.Final(digest);
+		// the condition is written in a way which for non-default digest sizes
+		// tests the BLAKE2_Base(bool treeMode, unsigned int digestSize) constructor.
+		// See https://github.com/weidai11/cryptopp/issues/415
+		if (tests[i].dlen < BLAKE2b::DIGESTSIZE && tests[i].key == NULL)
+		{
+			BLAKE2b blake2b(false, unsigned int(tests[i].dlen));
+			blake2b.Update((const byte*)tests[i].message, tests[i].mlen);
+			blake2b.Final(digest);
+		}
+		else
+		{
+			BLAKE2b blake2b((const byte*)tests[i].key, tests[i].klen, NULLPTR, 0, NULLPTR, 0, false, unsigned int(tests[i].dlen));
+			blake2b.Update((const byte*)tests[i].message, tests[i].mlen);
+			blake2b.Final(digest);
+		}
 
-		fail = !!memcmp(digest, tests[i].digest, sizeof(digest)) != 0;
+		fail = !!memcmp(digest, tests[i].digest, tests[i].dlen) != 0;
 		if (fail)
 		{
 			std::cout << "FAILED   " << "BLAKE2b test set " << i << std::endl;
