@@ -73,6 +73,9 @@ public:
 	//! \param autoSignalPropagation 0 to turn off MessageEnd signal
 	Gunzip(BufferedTransformation *attachment = NULLPTR, bool repeat = false, int autoSignalPropagation = -1);
 
+	const std::string& GetFilename() const { return m_filename; }
+	const std::string& GetComment() const { return m_comment; }
+
 protected:
 	enum {
 		//! \brief First header magic value
@@ -94,6 +97,8 @@ protected:
 
 	word32 m_length;
 	CRC32 m_crc;
+	std::string m_filename;
+	std::string m_comment;
 };
 
 NAMESPACE_END

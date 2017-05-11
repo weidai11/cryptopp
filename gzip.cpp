@@ -63,15 +63,19 @@ void Gunzip::ProcessPrestreamHeader()
 		if (m_inQueue.Skip(length)!=length) throw HeaderErr();
 	}
 
-	if (flags & FILENAME)	// skip filename
-		do
+	m_filename.clear();
+	if (flags & FILENAME)	// read filename
+		do {
 			if(!m_inQueue.Get(b)) throw HeaderErr();
-		while (b);
+			if (b) m_filename += char(b);
+		} while (b);
 
-	if (flags & COMMENTS)	// skip comments
-		do
+	m_comment.clear();
+	if (flags & COMMENTS)	// read comments
+		do {
 			if(!m_inQueue.Get(b)) throw HeaderErr();
-		while (b);
+			if (b) m_comment += char(b);
+        } while (b);
 }
 
 void Gunzip::ProcessDecompressedData(const byte *inString, size_t length)
