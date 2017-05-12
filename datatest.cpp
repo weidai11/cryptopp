@@ -690,7 +690,8 @@ bool GetField(std::istream &is, std::string &name, std::string &value)
 		if (!line.empty() && line[0] == '\\') { continue; }
 
 		// Leading, trailing and temp position. The leading iterator moves right, and trailing
-		// iterator moves left.The sub-string in the middle is the value for the name.
+		// iterator moves left. The sub-string in the middle is the value for the name. The
+		// value can be an empty string. One Plaintext is often empty for algorithm testing.
 		std::string::size_type l, t, p;
 		const std::string whitespace = " \r\n\t\v\f";
 
