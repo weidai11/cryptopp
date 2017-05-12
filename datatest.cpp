@@ -656,6 +656,10 @@ void TestKeyDerivationFunction(TestData &v)
 		SignalTestFailure();
 }
 
+// GetField parses the name/value pairs. The tricky part is the insertion operator
+// because Unix&Linux uses LF, OS X uses CR, and Windows uses CRLF. If this function
+// is modified, then run 'cryptest.exe tv rsa_pkcs1_1_5' as a test. Its the parser
+// file from hell. If it can be parsed without error, then things are likely OK.
 bool GetField(std::istream &is, std::string &name, std::string &value)
 {
 	// ***** Name *****
@@ -685,31 +689,59 @@ bool GetField(std::istream &is, std::string &name, std::string &value)
 
 	while (continueLine && std::getline(is, line))
 	{
-		// Early out for immediately continuing a line
-		if (!line.empty() && line[0] == '\\') { continue; }
+		// Unix and Linux may have a stray \r because of Windows
+		if (!line.empty() && (line[line.size() - 1] == '\r' || line[line.size() - 1] == '\n')) {
+			line.erase(line.size()-1);
+		}
 
-		// Leading, trailing and temp position. The leading iterator moves right, and trailing
-		// iterator moves left. The sub-string in the middle is the value for the name. The
-		// value can be an empty string. One Plaintext is often empty for algorithm testing.
+		continueLine = false;
+		if (!line.empty())
+		{
+			// Early out for immediate line continuation
+			if (line[0] == '\\') {
+				continueLine = true;
+				continue;
+			}
+			// Check end of line. It must be last character
+			if (line[line.size() - 1] == '\\') {
+				continueLine = true;
+			}
+		}
+
+		// Leading, trailing and temp position. The leading position moves right, and
+		// trailing position moves left. The sub-string in the middle is the value for
+		// the name. We leave one space when line continuation is in effect, (and if
+		// present). The value can be an empty string. One Plaintext value is often
+		// empty for algorithm testing.
 		std::string::size_type l, t, p;
 		const std::string whitespace = " \r\n\t\v\f";
 
 		l = line.find_first_not_of(whitespace);
-		if (l == std::string::npos) { break; }
-		t = line.find_last_not_of(whitespace);
+		if (l == std::string::npos) { l = 0; }
+		t = line.find_last_not_of(whitespace+"\\");
+		if (l == std::string::npos) { t = line.size(); }
 
-		continueLine = false;
-		if (t != std::string::npos && line[t] == '\\') {
-			continueLine = true;
-			t = line.find_last_not_of(whitespace, t-1);
-		}
-
+		// Chop comment. Perform after setting continueLine
 		p = line.find('#', l);
 		if (p < t) {
 			t = p;
-			t = line.find_last_not_of(whitespace, t-1);
+			if (t) t--;
 		}
 
+		// Leave one whitespace if line continuation is in effect
+		if (continueLine)
+		{
+			if (l > 0 && ::isspace(line[l - 1]))
+			{
+				l--;
+			}
+			else if (t < line.size()-1 && ::isspace(line[t + 1]))
+			{
+				t++;
+			}
+		}
+
+		CRYPTOPP_ASSERT(t >= l);
 		value += line.substr(l, t - l + 1);
 	}
 
