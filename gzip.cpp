@@ -26,7 +26,7 @@ void Gzip::WritePrestreamHeader()
 	AttachedTransformation()->Put(MAGIC2);
 	AttachedTransformation()->Put(DEFLATED);
 	AttachedTransformation()->Put((byte)flags);		// general flag
-	AttachedTransformation()->PutWord32(m_filetime, LITTLE_ENDIAN_ORDER);	// time stamp
+	AttachedTransformation()->PutWord32(m_filetime, BIG_ENDIAN_ORDER);	// time stamp
 	byte extra = (GetDeflateLevel() == 1) ? FAST : ((GetDeflateLevel() == 9) ? SLOW : 0);
 	AttachedTransformation()->Put(extra);
 	AttachedTransformation()->Put(GZIP_OS_CODE);
@@ -51,7 +51,7 @@ void Gzip::WritePoststreamTail()
 	SecByteBlock crc(4);
 	m_crc.Final(crc);
 	AttachedTransformation()->Put(crc, 4);
-	AttachedTransformation()->PutWord32(m_totalLen, LITTLE_ENDIAN_ORDER);
+	AttachedTransformation()->PutWord32(m_totalLen, BIG_ENDIAN_ORDER);
 
 	m_filetime = 0;
 	m_filename.clear();
