@@ -172,7 +172,7 @@ bool TestCompressors()
             // Tamper
             try {
                 StringSource(dest.substr(0, len - 2), true, new Gunzip(new StringSink(rec)));
-                std::cout << "FAILED:   Gzip failed to detect a truncated stream\n";
+                std::cout << "FAILED:  Gzip failed to detect a truncated stream\n";
                 fail1 = true;
             }
             catch (const Exception&) {}
@@ -185,6 +185,42 @@ bool TestCompressors()
     }
 
     // **************************************************************
+
+    // Gzip Filename, Filetime and Comment
+    try
+    {
+        std::string filename = "test.txt";
+        std::string comment = "This is a test";
+        word32 filetime = GlobalRNG().GenerateWord32(0, 0xffffff);
+
+        AlgorithmParameters params = MakeParameters(Name::FileTime(), (int)filetime)
+            (Name::FileName(), ConstByteArrayParameter(filename.c_str(), false))
+            (Name::Comment(), ConstByteArrayParameter(comment.c_str(), false));
+
+        std::string src, dest;
+        unsigned int len = GlobalRNG().GenerateWord32(0, 0xfff);
+
+        src.resize(len);
+        GlobalRNG().GenerateBlock(reinterpret_cast<byte*>(&src[0]), src.size());
+
+        Gunzip unzip(new StringSink(dest));
+        StringSource(src, true, new Gzip(params, new Redirector(unzip)));
+
+        if (filename != unzip.GetFilename())
+            throw Exception(Exception::OTHER_ERROR, "Failed to retrieve filename");
+
+        if (filetime != unzip.GetFiletime())
+            throw Exception(Exception::OTHER_ERROR, "Failed to retrieve filetime");
+
+        if (comment != unzip.GetComment())
+            throw Exception(Exception::OTHER_ERROR, "Failed to retrieve comment");
+
+        std::cout << "passed:  filenames, filetimes and comments\n";
+    }
+    catch (const Exception& ex)
+    {
+        std::cout << "FAILED:  " << ex.what() << "\n";
+    }
 
     // Unzip random data. See if we can induce a crash
     for (unsigned int i = 0; i<128; i++)
@@ -213,11 +249,17 @@ bool TestCompressors()
         src[2] = 0x00;  // extra flags
         src[3] = src[3] & (2 | 4 | 8 | 16 | 32);   // flags
 
-        // Don't allow ENCRYPTED|CONTINUED to over-run tests
-        if (src[3] & (2 | 32)) {
-            if (i % 3 == 0) { src[3] &= ~2; }
-            if (i % 3 == 1) { src[3] &= ~32; }
-        }
+        // Commit d901ecd9a4de added Filenames, Filetimes and Comments. Gzip does
+        // not specify a length for them; rather, they are NULL terminated. We add
+        // a couple of NULLs in random places near filenames and comments to ensure
+        // we are getting coverage in areas beyond the header.
+        len = GlobalRNG().GenerateWord32(12, 24);
+        if (len < src.size())  // guard it to ensure in-bounds
+            src[len] = (byte)0x00;
+        len = GlobalRNG().GenerateWord32(12+len, 24+len);
+        if (len < src.size())  // guard it to ensure in-bounds
+            src[len] = (byte)0x00;
+
         // The remainder are extra headers and the payload
 
         try {
@@ -252,7 +294,7 @@ bool TestCompressors()
             // Tamper
             try {
                 StringSource(dest.substr(0, len - 2), true, new Gunzip(new StringSink(rec)));
-                std::cout << "FAILED:   Inflate failed to detect a truncated stream\n";
+                std::cout << "FAILED:  Inflate failed to detect a truncated stream\n";
                 fail2 = true;
             }
             catch (const Exception&) {}
@@ -333,7 +375,7 @@ bool TestCompressors()
             // Tamper
             try {
                 StringSource(dest.substr(0, len - 2), true, new Gunzip(new StringSink(rec)));
-                std::cout << "FAILED:   Zlib failed to detect a truncated stream\n";
+                std::cout << "FAILED:  Zlib failed to detect a truncated stream\n";
                 fail3 = true;
             }
             catch (const Exception&) {}

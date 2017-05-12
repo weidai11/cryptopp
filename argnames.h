@@ -88,6 +88,9 @@ CRYPTOPP_DEFINE_NAME_STRING(Salt)				//!< ConstByteArrayParameter
 CRYPTOPP_DEFINE_NAME_STRING(Tweak)				//!< ConstByteArrayParameter
 CRYPTOPP_DEFINE_NAME_STRING(SaltSize)			//!< int, in bytes
 CRYPTOPP_DEFINE_NAME_STRING(TreeMode)			//< byte
+CRYPTOPP_DEFINE_NAME_STRING(FileName)			//!< const char *
+CRYPTOPP_DEFINE_NAME_STRING(FileTime)			//!< int
+CRYPTOPP_DEFINE_NAME_STRING(Comment)			//!< const char *
 DOCUMENTED_NAMESPACE_END
 
 NAMESPACE_END

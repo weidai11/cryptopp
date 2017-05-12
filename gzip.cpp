@@ -2,6 +2,7 @@
 
 #include "pch.h"
 #include "gzip.h"
+#include "argnames.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -9,6 +10,16 @@ NAMESPACE_BEGIN(CryptoPP)
 static inline bool Is8859Character(char c) {
 	const unsigned char cc = static_cast<unsigned char>(c);
 	return (cc >= 32 && cc <= 126) || (cc >= 160 && cc <= 255);
+}
+
+void Gzip::IsolatedInitialize(const NameValuePairs &parameters)
+{
+	ConstByteArrayParameter v;
+	if (parameters.GetValue(Name::FileName(), v))
+		m_filename.assign(reinterpret_cast<const char*>(v.begin()), v.size());
+	if (parameters.GetValue(Name::Comment(), v))
+		m_comment.assign(reinterpret_cast<const char*>(v.begin()), v.size());
+	m_filetime = parameters.GetIntValueWithDefault(Name::FileTime(), 0);
 }
 
 void Gzip::WritePrestreamHeader()
