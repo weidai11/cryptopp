@@ -659,6 +659,7 @@ void TestKeyDerivationFunction(TestData &v)
 
 bool GetField(std::istream &is, std::string &name, std::string &value)
 {
+	// ***** Name *****
 	name.clear();
 	is >> name;
 
@@ -678,67 +679,35 @@ bool GetField(std::istream &is, std::string &name, std::string &value)
 	while (is.peek() == ' ')
 		is.ignore(1);
 
-	// VC60 workaround: getline bug
-	char buffer[128];
+	// ***** Value *****
 	value.clear();
-	bool continueLine, space = false;
+	std::string line;
+	bool continueLine = true;
 
-	do
+	while (continueLine && std::getline(is, line))
 	{
+		// Leading, trailing and position. The leading iterator moves right, and trailing iterator
+		// moves left. When finished, the sub-string in the middle is the value for the name.
+		std::string::size_type l, t, p;
+		const std::string whitespace = " \r\n\t\v\f";
+
+		l = line.find_first_not_of(whitespace);
+		if (l == std::string::npos) { break; }
+		t = line.find_last_not_of(whitespace);
+
 		continueLine = false;
-		do
-		{
-			is.get(buffer, sizeof(buffer));
-
-			// Eat leading whispace on line continuation
-			if (continueLine == true)
-			{
-				size_t pos = 0;
-				while (buffer[pos] != '\0' && buffer[pos] != ' ')
-					pos++;
-				value += &buffer[pos];
-			}
-			else
-				value += buffer;
-			if (buffer[0] == ' ')
-				space = true;
-		}
-		while (buffer[0] != 0);
-		is.clear();
-		is.ignore();
-
-		if (!value.empty() && value[value.size()-1] == '\r')
-			value.resize(value.size()-1);
-
-		if (!value.empty() && value[value.size()-1] == '\\')
-		{
-			value.resize(value.size()-1);
+		if (t != std::string::npos && line[t] == '\\') {
 			continueLine = true;
-		}
-		else
-			continueLine = false;
-
-		std::string::size_type i = value.find('#');
-		if (i != std::string::npos)
-			value.erase(i);
-	}
-	while (continueLine);
-
-	// Strip intermediate spaces for some values.
-	if (space && (name == "Modulus" || name == "SubgroupOrder" || name == "SubgroupGenerator" ||
-		name == "PublicElement" || name == "PrivateExponent" || name == "Signature"))
-	{
-		std::string temp;
-		temp.reserve(value.size());
-
-		std::string::const_iterator it;
-		for(it = value.begin(); it != value.end(); it++)
-		{
-			if(*it != ' ')
-				temp.push_back(*it);
+			t = line.find_last_not_of(whitespace, t);
 		}
 
-		std::swap(temp, value);
+		p = line.find('#', l);
+		if (p < t) {
+			t = p;
+			t = line.find_last_not_of(whitespace, t);
+		}
+
+		value += line.substr(l, t - l + 1);
 	}
 
 	return true;
