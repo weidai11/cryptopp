@@ -686,8 +686,11 @@ bool GetField(std::istream &is, std::string &name, std::string &value)
 
 	while (continueLine && std::getline(is, line))
 	{
-		// Leading, trailing and position. The leading iterator moves right, and trailing iterator
-		// moves left. When finished, the sub-string in the middle is the value for the name.
+		// Early out for immediately continuing a line
+		if (!line.empty() && line[0] == '\\') { continue; }
+
+		// Leading, trailing and temp position. The leading iterator moves right, and trailing
+		// iterator moves left.The sub-string in the middle is the value for the name.
 		std::string::size_type l, t, p;
 		const std::string whitespace = " \r\n\t\v\f";
 
@@ -698,7 +701,7 @@ bool GetField(std::istream &is, std::string &name, std::string &value)
 		continueLine = false;
 		if (t != std::string::npos && line[t] == '\\') {
 			continueLine = true;
-			t = line.find_last_not_of(whitespace, t);
+			t = line.find_last_not_of(whitespace, t-1);
 		}
 
 		p = line.find('#', l);
@@ -770,6 +773,9 @@ void TestDataFile(std::string filename, const NameValuePairs &overrideParameters
 
 		if (!GetField(file, name, value))
 			break;
+
+		// Can't assert value. Plaintext is sometimes empty.
+		// CRYPTOPP_ASSERT(!value.empty());
 		v[name] = value;
 
 		if (name == "Test" && (s_thorough || v["SlowTest"] != "1"))
