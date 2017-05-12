@@ -111,12 +111,11 @@ void PutDecodedDatumInto(const TestData &data, const char *name, BufferedTransfo
 		int repeat = 1;
 		if (s1[0] == 'r')
 		{
-			repeat = atoi(s1.c_str()+1);
+			repeat = ::atoi(s1.c_str()+1);
 			s1 = s1.substr(s1.find(' ')+1);
 		}
 
-		s2 = ""; // MSVC 6 doesn't have clear();
-
+		s2.clear();
 		if (s1[0] == '\"')
 		{
 			s2 = s1.substr(1, s1.find('\"', 1)-1);
@@ -708,7 +707,7 @@ bool GetField(std::istream &is, std::string &name, std::string &value)
 		p = line.find('#', l);
 		if (p < t) {
 			t = p;
-			t = line.find_last_not_of(whitespace, t);
+			t = line.find_last_not_of(whitespace, t-1);
 		}
 
 		value += line.substr(l, t - l + 1);
@@ -760,6 +759,7 @@ void TestDataFile(std::string filename, const NameValuePairs &overrideParameters
 	std::ifstream file(filename.c_str());
 	if (!file.good())
 		throw Exception(Exception::OTHER_ERROR, "Can not open file " + filename + " for reading");
+
 	TestData v;
 	s_currentTestData = &v;
 	std::string name, value, lastAlgName;
