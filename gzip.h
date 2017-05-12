@@ -37,14 +37,14 @@ public:
 
 	//! \param filetime the filetime to set in the header. The application is responsible for setting it.
 	void SetFiletime(word32 filetime) { m_filetime = filetime; }
-
+    
 	//! \param filename the original filename to set in the header. The application is responsible for setting it.
 	//!        RFC 1952 requires a ISO/IEC 8859-1 encoding.
 	//! \param throwOnEncodingError if throwOnEncodingError is true, then the filename is checked to ensure it is
 	//!        ISO/IEC 8859-1 encoded. If the filename does not adhere to ISO/IEC 8859-1, then a InvalidDataFormat
 	//!        is thrown. If throwOnEncodingError is false then the filename is not checked.
 	void SetFilename(const std::string& filename, bool throwOnEncodingError = false);
-
+    
 	//! \param comment the comment to set in the header. The application is responsible for setting it.
 	//!        RFC 1952 requires a ISO/IEC 8859-1 encoding.
 	//! \param throwOnEncodingError if throwOnEncodingError is true, then the comment is checked to ensure it is
@@ -55,7 +55,7 @@ public:
 protected:
 	enum {MAGIC1=0x1f, MAGIC2=0x8b,   // flags for the header
 		  DEFLATED=8, FAST=4, SLOW=2};
-
+    
 	enum FLAG_MASKS {
 		FILENAME=8, COMMENTS=16};
 
@@ -65,7 +65,7 @@ protected:
 
 	word32 m_totalLen;
 	CRC32 m_crc;
-
+    
 	word32 m_filetime;
 	std::string m_filename;
 	std::string m_comment;
@@ -99,13 +99,13 @@ public:
 
 	//! \return the filetime of the stream as set in the header. The application is responsible for setting it on the decompressed file.
 	word32 GetFiletime() const { return m_filetime; }
-
+    
 	//! \return the filename of the stream as set in the header. The application is responsible for setting it on the decompressed file.
 	//! \param throwOnEncodingError if throwOnEncodingError is true, then the filename is checked to ensure it is
 	//!        ISO/IEC 8859-1 encoded. If the filename does not adhere to ISO/IEC 8859-1, then a InvalidDataFormat is thrown.
 	//!        If throwOnEncodingError is false then the filename is not checked.
 	const std::string& GetFilename(bool throwOnEncodingError = false) const;
-
+    
 	//! \return the comment of the stream as set in the header.
 	//! \param throwOnEncodingError if throwOnEncodingError is true, then the comment is checked to ensure it is
 	//!        ISO/IEC 8859-1 encoded. If the comment does not adhere to ISO/IEC 8859-1, then a InvalidDataFormat is thrown.
