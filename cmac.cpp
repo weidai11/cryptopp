@@ -31,8 +31,14 @@ static void MulU(byte *k, unsigned int length)
 			k[15] ^= 0x87;
 			break;
 		case 32:
+			// Should this be 0x425?
 			k[30] ^= 4;
 			k[31] ^= 0x23;
+			break;
+		case 64:
+			// https://crypto.stackexchange.com/q/9815/10496
+			k[62] ^= 1;
+			k[63] ^= 0x25;
 			break;
 		default:
 			throw InvalidArgument("CMAC: " + IntToString(length) + " is not a supported cipher block size");
