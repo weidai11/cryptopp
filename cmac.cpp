@@ -31,14 +31,23 @@ static void MulU(byte *k, unsigned int length)
 			k[15] ^= 0x87;
 			break;
 		case 32:
-			// Should this be 0x425?
+			// https://crypto.stackexchange.com/q/9815/10496
+			// Polynomial x^256 + x^10 + x^5 + x + 1
 			k[30] ^= 4;
 			k[31] ^= 0x23;
 			break;
 		case 64:
 			// https://crypto.stackexchange.com/q/9815/10496
+			// Polynomial x^512 + x^8 + x^5 + x^2 + 1
 			k[62] ^= 1;
 			k[63] ^= 0x25;
+			break;
+		case 128:
+			// https://crypto.stackexchange.com/q/9815/10496
+			// Polynomial x^1024 + x^19 + x^6 + x + 1
+			k[126] ^= 8;
+			k[126] ^= 0x00;
+			k[127] ^= 0x43;
 			break;
 		default:
 			throw InvalidArgument("CMAC: " + IntToString(length) + " is not a supported cipher block size");
