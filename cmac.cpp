@@ -43,9 +43,9 @@ static void MulU(byte *k, unsigned int length)
 void CMAC_Base::UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params)
 {
 	BlockCipher &cipher = AccessCipher();
-	unsigned int blockSize = cipher.BlockSize();
-
 	cipher.SetKey(key, length, params);
+
+	unsigned int blockSize = cipher.BlockSize();
 	m_reg.CleanNew(3*blockSize);
 	m_counter = 0;
 
