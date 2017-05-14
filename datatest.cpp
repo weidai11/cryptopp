@@ -706,6 +706,10 @@ bool GetField(std::istream &is, std::string &name, std::string &value)
 			if (line[line.size() - 1] == '\\') {
 				continueLine = true;
 			}
+			// Check for comment. It can be first character
+			if (line[0] == '#') {
+				continue;
+			}
 		}
 
 		// Leading, trailing and temp position. The leading position moves right, and
@@ -713,36 +717,22 @@ bool GetField(std::istream &is, std::string &name, std::string &value)
 		// the name. We leave one space when line continuation is in effect, (and if
 		// present). The value can be an empty string. One Plaintext value is often
 		// empty for algorithm testing.
-		std::string::size_type l, t, p;
+		std::string::size_type l=0, t=std::string::npos;
 		const std::string whitespace = " \r\n\t\v\f";
 
-		l = line.find_first_not_of(whitespace);
+		l = line.find_first_not_of(whitespace, l);
 		if (l == std::string::npos) { l = 0; }
-		t = line.find_last_not_of(whitespace+"\\");
-		if (l == std::string::npos) { t = line.size(); }
+		t = line.find('#', l);
+		if (t != std::string::npos) { t--; }
 
-		// Chop comment. Perform after setting continueLine
-		p = line.find('#', l);
-		if (p < t) {
-			t = p;
-			if (t) t--;
-		}
-
-		// Leave one whitespace if line continuation is in effect
-		if (continueLine)
-		{
-			if (l > 0 && ::isspace(line[l - 1]))
-			{
-				l--;
-			}
-			else if (t < line.size()-1 && ::isspace(line[t + 1]))
-			{
-				t++;
-			}
-		}
+		t = line.find_last_not_of(whitespace+"\\", t);
+		if (t != std::string::npos) { t++; }
 
 		CRYPTOPP_ASSERT(t >= l);
-		value += line.substr(l, t - l + 1);
+		value += line.substr(l, t - l);
+
+		if (continueLine)
+			value.append(1, ' ');
 	}
 
 	return true;
