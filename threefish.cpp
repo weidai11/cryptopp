@@ -347,42 +347,10 @@ void Threefish::Base::ProcessAndXorBlock_512(const byte *inBlock, const byte *xo
 
     if (IsForwardTransformation())
     {
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE && 0
-        const bool s_sse2 = HasSSE2();
-        if (s_sse2)
-        {
-            const word64 *ky = m_rkey.begin(), *tw = m_tweak.begin();
-            word64 *ws = m_wspace.begin();
-
-            // 15 SSE instructions
-            _mm_store_si128((__m128i*)ws,
-                _mm_add_epi64(
-                    _mm_load_si128((const __m128i*)ws),
-                    _mm_load_si128((const __m128i*)ky)));
-            _mm_store_si128((__m128i*)(ws+2),
-                _mm_add_epi64(
-                    _mm_load_si128((const __m128i*)(ws+2)),
-                    _mm_load_si128((const __m128i*)(ky+2))));
-            _mm_store_si128((__m128i*)(ws+4),
-                _mm_add_epi64(
-                    _mm_load_si128((const __m128i*)(ws+4)),
-                    _mm_load_si128((const __m128i*)(ky+4))));
-            _mm_store_si128((__m128i*)(ws+6),
-                _mm_add_epi64(
-                    _mm_load_si128((const __m128i*)(ws+6)),
-                    _mm_load_si128((const __m128i*)(ky+6))));
-            _mm_storeu_si128((__m128i*)(ws+5),
-                _mm_add_epi64(
-                    _mm_loadu_si128((const __m128i*)(ws+5)),
-                    _mm_load_si128((const __m128i*)(tw))));
-        }
-#endif
-        {
-            // 34 integer instructions total
-            G0 += m_rkey[0]; G1 += m_rkey[1]; G2 += m_rkey[2]; G3 += m_rkey[3];
-            G4 += m_rkey[4]; G5 += m_rkey[5]; G6 += m_rkey[6]; G7 += m_rkey[7];
-            G5 += m_tweak[0]; G6 += m_tweak[1];
-        }
+        // 34 integer instructions total
+        G0 += m_rkey[0]; G1 += m_rkey[1]; G2 += m_rkey[2]; G3 += m_rkey[3];
+        G4 += m_rkey[4]; G5 += m_rkey[5]; G6 += m_rkey[6]; G7 += m_rkey[7];
+        G5 += m_tweak[0]; G6 += m_tweak[1];
 
         G8512(0); G8512(2); G8512(4); G8512(6); G8512(8);
         G8512(10); G8512(12); G8512(14); G8512(16);
@@ -417,59 +385,11 @@ void Threefish::Base::ProcessAndXorBlock_1024(const byte *inBlock, const byte *x
 
     if (IsForwardTransformation())
     {
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE && 0
-        const bool s_sse2 = HasSSE2();
-        if (s_sse2)
-        {
-            const word64 *ky = m_rkey.begin(), *tw = m_tweak.begin();
-            word64 *ws = m_wspace.begin();
-
-            _mm_store_si128((__m128i*)ws,
-                _mm_add_epi64(
-                    _mm_load_si128((const __m128i*)ws),
-                    _mm_load_si128((const __m128i*)ky)));
-            _mm_store_si128((__m128i*)(ws+2),
-                _mm_add_epi64(
-                    _mm_load_si128((const __m128i*)(ws+2)),
-                    _mm_load_si128((const __m128i*)(ky+2))));
-            _mm_store_si128((__m128i*)(ws+4),
-                _mm_add_epi64(
-                    _mm_load_si128((const __m128i*)(ws+4)),
-                    _mm_load_si128((const __m128i*)(ky+4))));
-            _mm_store_si128((__m128i*)(ws+6),
-                _mm_add_epi64(
-                    _mm_load_si128((const __m128i*)(ws+6)),
-                    _mm_load_si128((const __m128i*)(ky+6))));
-            _mm_store_si128((__m128i*)(ws+8),
-                _mm_add_epi64(
-                    _mm_load_si128((const __m128i*)(ws+8)),
-                    _mm_load_si128((const __m128i*)(ky+8))));
-            _mm_store_si128((__m128i*)(ws+10),
-                _mm_add_epi64(
-                    _mm_load_si128((const __m128i*)(ws+10)),
-                    _mm_load_si128((const __m128i*)(ky+10))));
-            _mm_store_si128((__m128i*)(ws+12),
-                _mm_add_epi64(
-                    _mm_load_si128((const __m128i*)(ws+12)),
-                    _mm_load_si128((const __m128i*)(ky+12))));
-            _mm_store_si128((__m128i*)(ws+14),
-                _mm_add_epi64(
-                    _mm_load_si128((const __m128i*)(ws+14)),
-                    _mm_load_si128((const __m128i*)(ky+14))));
-            _mm_storeu_si128((__m128i*)(ws+13),
-                _mm_add_epi64(
-                    _mm_loadu_si128((const __m128i*)(ws+13)),
-                    _mm_load_si128((const __m128i*)(tw))));
-        }
-        else
-#endif
-        {
-            G0 += m_rkey[0]; G1 += m_rkey[1]; G2 += m_rkey[2]; G3 += m_rkey[3];
-            G4 += m_rkey[4]; G5 += m_rkey[5]; G6 += m_rkey[6]; G7 += m_rkey[7];
-            G8 += m_rkey[8]; G9 += m_rkey[9]; G10 += m_rkey[10]; G11 += m_rkey[11];
-            G12 += m_rkey[12]; G13 += m_rkey[13]; G14 += m_rkey[14]; G15 += m_rkey[15];
-            G13 += m_tweak[0]; G14 += m_tweak[1];
-        }
+        G0 += m_rkey[0]; G1 += m_rkey[1]; G2 += m_rkey[2]; G3 += m_rkey[3];
+        G4 += m_rkey[4]; G5 += m_rkey[5]; G6 += m_rkey[6]; G7 += m_rkey[7];
+        G8 += m_rkey[8]; G9 += m_rkey[9]; G10 += m_rkey[10]; G11 += m_rkey[11];
+        G12 += m_rkey[12]; G13 += m_rkey[13]; G14 += m_rkey[14]; G15 += m_rkey[15];
+        G13 += m_tweak[0]; G14 += m_tweak[1];
 
         G81024(0); G81024(2); G81024(4); G81024(6); G81024(8);
         G81024(10); G81024(12); G81024(14); G81024(16); G81024(18);
