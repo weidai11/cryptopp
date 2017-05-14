@@ -244,6 +244,7 @@
     <None Include="TestVectors\gcm.txt" />
     <None Include="TestVectors\hkdf.txt" />
     <None Include="TestVectors\hmac.txt" />
+    <None Include="TestVectors\kalyna.txt" />
     <None Include="TestVectors\mars.txt" />
     <None Include="TestVectors\nr.txt" />
     <None Include="TestVectors\panama.txt" />
@@ -262,6 +263,7 @@
     <None Include="TestVectors\siphash.txt" />
     <None Include="TestVectors\sosemanuk.txt" />
     <None Include="TestVectors\tea.txt" />
+    <None Include="TestVectors\threefish.txt" />
     <None Include="TestVectors\ttmac.txt" />
     <None Include="TestVectors\vmac.txt" />
     <None Include="TestVectors\wake.txt" />

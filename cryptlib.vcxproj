@@ -287,6 +287,7 @@
     <ClCompile Include="strciphr.cpp" />
     <ClCompile Include="tea.cpp" />
     <ClCompile Include="tftables.cpp" />
+    <ClCompile Include="threefish.cpp" />
     <ClCompile Include="tiger.cpp" />
     <ClCompile Include="tigertab.cpp" />
     <ClCompile Include="trdlocal.cpp" />
@@ -465,6 +466,7 @@
     <ClInclude Include="stdcpp.h" />
     <ClInclude Include="strciphr.h" />
     <ClInclude Include="tea.h" />
+    <ClInclude Include="threefish.h" />
     <ClInclude Include="tiger.h" />
     <ClInclude Include="trap.h" />
     <ClInclude Include="trdlocal.h" />

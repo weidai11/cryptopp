@@ -359,6 +359,9 @@
     <ClCompile Include="tftables.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="threefish.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="tiger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -793,6 +796,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tea.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="threefish.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tiger.h">

@@ -132,6 +132,9 @@
     <None Include="TestVectors\tea.txt">
       <Filter>TestVectors</Filter>
     </None>
+    <None Include="TestVectors\threefish.txt">
+      <Filter>TestVectors</Filter>
+    </None>
     <None Include="TestVectors\ttmac.txt">
       <Filter>TestVectors</Filter>
     </None>

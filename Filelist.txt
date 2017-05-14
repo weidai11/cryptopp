@@ -277,6 +277,8 @@ tea.h
 test.cpp
 trap.h
 tftables.cpp
+threefish.cpp
+threefish.h
 tiger.cpp
 tiger.h
 tigertab.cpp
