@@ -732,14 +732,14 @@ bool GetField(std::istream &is, std::string &name, std::string &value)
 		if (l == std::string::npos) { l = 0; }
 		t = line.find('#', l);
 		if (t != std::string::npos) { t--; }
-		t = line.find_last_not_of(whitespace, t);
+		t = line.find_last_not_of(whitespace+"\\", t);
 		if (t != std::string::npos) { t++; }
 
 		CRYPTOPP_ASSERT(t >= l);
 		value += line.substr(l, t - l);
 
 		if (continueLine)
-			value.append(1, ' ');
+			value += ' ';
 	}
 
 	return true;

@@ -539,9 +539,9 @@ void Benchmark2(double t, double hertz)
 		BenchMarkByName<SymmetricCipher>("Camellia/CTR", 16);
 		BenchMarkByName<SymmetricCipher>("Camellia/CTR", 32);
 		BenchMarkByName<SymmetricCipher>("Twofish/CTR");
-//		BenchMarkByName<SymmetricCipher>("Threefish256/CTR");
-//		BenchMarkByName<SymmetricCipher>("Threefish512/CTR");
-//		BenchMarkByName<SymmetricCipher>("Threefish1024/CTR");
+		BenchMarkByName<SymmetricCipher>("Threefish/CTR", 32, "Threefish/CTR (256-bit key)", MakeParameters(Name::BlockSize(), 32));
+		BenchMarkByName<SymmetricCipher>("Threefish/CTR", 64, "Threefish/CTR (512-bit key)", MakeParameters(Name::BlockSize(), 64));
+		BenchMarkByName<SymmetricCipher>("Threefish/CTR", 128, "Threefish/CTR (1024-bit key)", MakeParameters(Name::BlockSize(), 128));
 		BenchMarkByName<SymmetricCipher>("Serpent/CTR");
 		BenchMarkByName<SymmetricCipher>("CAST-256/CTR");
 		BenchMarkByName<SymmetricCipher>("RC6/CTR");
