@@ -712,20 +712,19 @@ bool GetField(std::istream &is, std::string &name, std::string &value)
 			}
 		}
 
-		// Leading, trailing and temp position. The leading position moves right, and
-		// trailing position moves left. The sub-string in the middle is the value for
-		// the name. We leave one space when line continuation is in effect, (and if
-		// present). The value can be an empty string. One Plaintext value is often
-		// empty for algorithm testing.
+		// Leading and trailing position. The leading position moves right, and
+		// trailing position moves left. The sub-string in the middle is the value
+		// for the name. We leave one space when line continuation is in effect.
+		// The value can be an empty string. One Plaintext value is often empty
+		// for algorithm testing.
 		std::string::size_type l=0, t=std::string::npos;
-		const std::string whitespace = " \r\n\t\v\f";
+		const std::string whitespace = "\t \r\n";
 
 		l = line.find_first_not_of(whitespace, l);
 		if (l == std::string::npos) { l = 0; }
 		t = line.find('#', l);
 		if (t != std::string::npos) { t--; }
-
-		t = line.find_last_not_of(whitespace+"\\", t);
+		t = line.find_last_not_of(whitespace, t);
 		if (t != std::string::npos) { t++; }
 
 		CRYPTOPP_ASSERT(t >= l);
