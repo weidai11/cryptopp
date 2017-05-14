@@ -488,6 +488,14 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 			std::cout << "\n";
 			SignalTestFailure();
 		}
+
+		// If BlockSize or BlockPaddingScheme was set for a test, then it becomes latched
+		// in testDataPairs. The old value is used in subsequent tests, and it could cause a
+		// self test failure in the next test. The behavior surfaced under Kalyna, where the
+		// official test vectors use NO_PADDING for all tests excpet one. For BlockSize or
+		// BlockPaddingScheme, unlatch them now. Also note we only unlatch from testDataPairs.
+		// If overrideParameters are specified, then the caller is responsible.
+		v.erase("BlockSize"); v.erase("BlockPaddingScheme");
 	}
 	else
 	{
