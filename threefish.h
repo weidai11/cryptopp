@@ -22,42 +22,39 @@ NAMESPACE_BEGIN(CryptoPP)
 //! \since Crypto++ 6.0
 struct Threefish_Info : public VariableBlockSize<32, 32, 128>
 {
-	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "Threefish";}
+    CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "Threefish";}
 
-	//! \brief The minimum key length used by the algorithm provided as a constant
-	//! \details MIN_KEYLENGTH is provided in bytes, not bits
-	CRYPTOPP_CONSTANT(MIN_KEYLENGTH=32)
-	//! \brief The maximum key length used by the algorithm provided as a constant
-	//! \details MIN_KEYLENGTH is provided in bytes, not bits
-	CRYPTOPP_CONSTANT(MAX_KEYLENGTH=128)
-	//! \brief The default key length used by the algorithm provided as a constant
-	//! \details MIN_KEYLENGTH is provided in bytes, not bits
-	CRYPTOPP_CONSTANT(DEFAULT_KEYLENGTH=32)
-	//! \brief The default IV requirements for the algorithm provided as a constant
-	//! \details The default value is NOT_RESYNCHRONIZABLE. See IV_Requirement
-	//!  in cryptlib.h for allowed values.
-	CRYPTOPP_CONSTANT(IV_REQUIREMENT=SimpleKeyingInterface::UNIQUE_IV)
-	//! \brief The default initialization vector length for the algorithm provided as a constant
-	//! \details IV_LENGTH is provided in bytes, not bits.
-	CRYPTOPP_CONSTANT(IV_LENGTH=32)
-	//! \brief Provides a valid key length for the algorithm provided by a static function.
-	//! \param keylength the size of the key, in bytes
-	//! \details The key length depends on the block size. For each block size, 128, 256 and 512,
-	//!   the key length can be either the block size or twice the block size. That means the
-	//!   valid key lengths are 126, 256, 512 and 1024. Additionally, it means a key length of,
-	//!   say, 32 could be used with either 128-block size or 256-block size.
-	CRYPTOPP_STATIC_CONSTEXPR size_t CRYPTOPP_API StaticGetValidKeyLength(size_t keylength)
-	{
-		// Valid key lengths are 256, 512 and 1024 bits
-		return (keylength >= 128) ? 128 :
-			(keylength >= 64) ? 64 : 32;
-	}
+    //! \brief The minimum key length used by the algorithm provided as a constant
+    //! \details MIN_KEYLENGTH is provided in bytes, not bits
+    CRYPTOPP_CONSTANT(MIN_KEYLENGTH=32)
+    //! \brief The maximum key length used by the algorithm provided as a constant
+    //! \details MIN_KEYLENGTH is provided in bytes, not bits
+    CRYPTOPP_CONSTANT(MAX_KEYLENGTH=128)
+    //! \brief The default key length used by the algorithm provided as a constant
+    //! \details MIN_KEYLENGTH is provided in bytes, not bits
+    CRYPTOPP_CONSTANT(DEFAULT_KEYLENGTH=32)
+    //! \brief The default IV requirements for the algorithm provided as a constant
+    //! \details The default value is NOT_RESYNCHRONIZABLE. See IV_Requirement
+    //!  in cryptlib.h for allowed values.
+    CRYPTOPP_CONSTANT(IV_REQUIREMENT=SimpleKeyingInterface::UNIQUE_IV)
+    //! \brief The default initialization vector length for the algorithm provided as a constant
+    //! \details IV_LENGTH is provided in bytes, not bits.
+    CRYPTOPP_CONSTANT(IV_LENGTH=32)
+    //! \brief Provides a valid key length for the algorithm provided by a static function.
+    //! \param keylength the size of the key, in bytes
+    //! \details Threefish uses 256, 512 and 1024-bit keys. The block size follows key length.
+    CRYPTOPP_STATIC_CONSTEXPR size_t CRYPTOPP_API StaticGetValidKeyLength(size_t keylength)
+    {
+        // Valid key lengths are 256, 512 and 1024 bits
+        return (keylength >= 128) ? 128 :
+            (keylength >= 64) ? 64 : 32;
+    }
 
-	CRYPTOPP_STATIC_CONSTEXPR size_t CRYPTOPP_API StaticGetValidBlockSize(size_t keylength)
-	{
-		return (keylength >= 128) ? 128 :
-			(keylength >= 64) ? 64 : 32;
-	}
+    CRYPTOPP_STATIC_CONSTEXPR size_t CRYPTOPP_API StaticGetValidBlockSize(size_t keylength)
+    {
+        return (keylength >= 128) ? 128 :
+            (keylength >= 64) ? 64 : 32;
+    }
 };
 
 //! \class Threefish1024
@@ -67,35 +64,35 @@ struct Threefish_Info : public VariableBlockSize<32, 32, 128>
 class Threefish : public Threefish_Info, public BlockCipherDocumentation
 {
 public:
-	class CRYPTOPP_NO_VTABLE Base : public VariableBlockCipherImpl<Threefish_Info>
-	{
-	public:
-		std::string AlgorithmName() const {
-			return m_blocksize ? "Threefish-" + IntToString(m_blocksize*8) + "(" + IntToString((m_rkey.size()-1)*8) + ")" : StaticAlgorithmName();
-		}
+    class CRYPTOPP_NO_VTABLE Base : public VariableBlockCipherImpl<Threefish_Info>
+    {
+    public:
+        std::string AlgorithmName() const {
+            return m_blocksize ? "Threefish-" + IntToString(m_blocksize*8) + "(" + IntToString((m_rkey.size()-1)*8) + ")" : StaticAlgorithmName();
+        }
 
-		unsigned int OptimalDataAlignment() const {
-			return GetAlignmentOf<word64>();
-		}
+        unsigned int OptimalDataAlignment() const {
+            return GetAlignmentOf<word64>();
+        }
 
-	protected:
-		void UncheckedSetKey(const byte *key, unsigned int keylen, const NameValuePairs &params);
-		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+    protected:
+        void UncheckedSetKey(const byte *key, unsigned int keylen, const NameValuePairs &params);
+        void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
 
-		void ProcessAndXorBlock_256(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
-		void ProcessAndXorBlock_512(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
-		void ProcessAndXorBlock_1024(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+        void ProcessAndXorBlock_256(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+        void ProcessAndXorBlock_512(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+        void ProcessAndXorBlock_1024(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
 
-	private:
+    private:
         typedef SecBlock<word64, AllocatorWithCleanup<word64, true> > AlignedSecBlock64;
         mutable AlignedSecBlock64 m_wspace;   // workspace
-		AlignedSecBlock64         m_rkey;     // keys
-		AlignedSecBlock64         m_tweak;
-	};
+        AlignedSecBlock64         m_rkey;     // keys
+        AlignedSecBlock64         m_tweak;
+    };
 
 public:
-	typedef BlockCipherFinal<ENCRYPTION, Base> Encryption;
-	typedef BlockCipherFinal<DECRYPTION, Base> Decryption;
+    typedef BlockCipherFinal<ENCRYPTION, Base> Encryption;
+    typedef BlockCipherFinal<DECRYPTION, Base> Decryption;
 };
 
 typedef Threefish::Encryption ThreefishEncryption;
