@@ -272,7 +272,17 @@ void Threefish::Base::UncheckedSetKey(const byte *key, unsigned int keylen, cons
     }
 
     m_tweak.New(3);
-    ::memset(m_tweak.begin(), 0x00, 24);
+    ConstByteArrayParameter t;
+    if (params.GetValue(Name::Tweak(), t))
+    {
+        CRYPTOPP_ASSERT(t.size() == 16);
+        GetUserKey(LITTLE_ENDIAN_ORDER, m_tweak.begin(), 2, t.begin(), 16);
+        m_tweak[2] = m_tweak[0] ^ m_tweak[1];
+    }
+    else
+    {
+        ::memset(m_tweak.begin(), 0x00, 24);
+    }
 }
 
 void Threefish::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
