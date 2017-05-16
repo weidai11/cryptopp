@@ -354,7 +354,7 @@ NAMESPACE_END
 	// 4786: identifier was truncated in debug information
 	// 4355: 'this' : used in base member initializer list
 	// 4910: '__declspec(dllexport)' and 'extern' are incompatible on an explicit instantiation
-#	pragma warning(disable: 4127 4231 4250 4251 4275 4505 4512 4660 4661 4786 4355 4910)
+#	pragma warning(disable: 4127 4512 4661)
 	// Security related, possible defects
 	// http://blogs.msdn.com/b/vcblog/archive/2010/12/14/off-by-default-compiler-warnings-in-visual-c.aspx
 #	pragma warning(once: 4191 4242 4263 4264 4266 4302 4826 4905 4906 4928)

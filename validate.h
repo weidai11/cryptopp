@@ -182,7 +182,7 @@ private:
 #endif
 
 // Safer functions on Windows for C&A, https://github.com/weidai11/cryptopp/issues/55
-static std::string TimeToString(const time_t& t)
+inline std::string TimeToString(const time_t& t)
 {
 #if (CRYPTOPP_MSC_VERSION >= 1400)
 	tm localTime = {};

@@ -5,15 +5,10 @@
 
 #include "dll.h"
 #include "config.h"
+#include "iterhash.h"
 
-// TODO: fix the C4589 warnings
-#if CRYPTOPP_MSC_VERSION
-# pragma warning(disable: 4589)
-#endif
-
-#if CRYPTOPP_MSC_VERSION
-# pragma warning(default: 4660)
-#endif
+// Cast from FARPROC to funcptr with args, http://stackoverflow.com/q/4192058/608639
+#pragma warning(disable: 4191)
 
 #if defined(CRYPTOPP_EXPORTS) && defined(CRYPTOPP_WIN32_AVAILABLE)
 #include <windows.h>
@@ -69,9 +64,6 @@ static void * New (size_t size)
 
 	return p;
 }
-
-// Cast from FARPROC to funcptr with args, http://stackoverflow.com/q/4192058/608639
-#pragma warning(disable: 4191)
 
 static void SetNewAndDeleteFunctionPointers()
 {
