@@ -766,9 +766,13 @@ endif
 trim:
 ifneq ($(IS_DARWIN),0)
 	sed -i '' -e's/[[:space:]]*$$//' *.sh *.h *.cpp *.asm *.s *.sln *.vcxproj *.filters GNUmakefile GNUmakefile-cross
+	sed -i '' -e's/[[:space:]]*$$//' *.sh TestData/*.dat
+	sed -i '' -e's/[[:space:]]*$$//' *.sh TestVectors/*.txt
 	make convert
 else
 	sed -i -e's/[[:space:]]*$$//' *.sh *.h *.cpp *.asm *.s *.sln *.vcxproj *.filters GNUmakefile GNUmakefile-cross
+	sed -i -e's/[[:space:]]*$$//' *.sh TestData/*.dat
+	sed -i -e's/[[:space:]]*$$//' *.sh TestVectors/*.txt
 	make convert
 endif
 
