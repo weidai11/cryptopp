@@ -294,6 +294,7 @@ list(REMOVE_ITEM cryptopp_SOURCES
 		${CMAKE_CURRENT_SOURCE_DIR}/integer.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/pch.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/simple.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/rdrand.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/winpipes.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/cryptlib_bds.cpp
 		${cryptopp_SOURCES_TEST}
@@ -304,6 +305,12 @@ set(cryptopp_SOURCES
 		${CMAKE_CURRENT_SOURCE_DIR}/integer.cpp
 		${cryptopp_SOURCES}
 		)
+
+string(REGEX MATCH "i.86|x86|i86|_64|d64" PROCESSOR ${CMAKE_SYSTEM_PROCESSOR})
+
+if (NOT "${PROCESSOR}" STREQUAL "")
+  list(APPEND cryptopp_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/rdrand.cpp)
+endif()
 
 if(MINGW OR WIN32)
 	list(APPEND cryptopp_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/winpipes.cpp)
