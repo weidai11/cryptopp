@@ -119,7 +119,7 @@ void PutDecodedDatumInto(const TestData &data, const char *name, BufferedTransfo
 		// Use like this (from Threefish test vectors, which supplies byte-reversed values):
 		//   Key: ce BC2560EFC6BBA2B1 E3361F162238EB40 FB8631EE0ABBD175 7B9479D4C5479ED1
 		// The 'ce' means BC2560EFC6BBA2B1 will be processed into B1A2BBC6EF6025BC.
-		if (s1.length() >= 3 && s1.substr(0,2) == "ce ")
+		if (s1.length() >= 3 && s1.substr(0,3) == "ce ")
 		{
 			word64 value;
 			std::istringstream iss(s1.substr(3));
