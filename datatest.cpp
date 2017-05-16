@@ -117,16 +117,32 @@ void PutDecodedDatumInto(const TestData &data, const char *name, BufferedTransfo
 		}
 
 		// Convert endian order. Use it with 64-bit words like this:
-		//   Key: cvt BC2560EFC6BBA2B1 E3361F162238EB40 FB8631EE0ABBD175 7B9479D4C5479ED1
-		// BC2560EFC6BBA2B1 will be processed into B1A2BBC6EF6025BC.
-		if (s1.length() >= 3 && s1.substr(0,3) == "cvt")
+		//   Key: word64 BC2560EFC6BBA2B1 E3361F162238EB40 FB8631EE0ABBD175 7B9479D4C5479ED1
+		//   BC2560EFC6BBA2B1 will be processed into B1A2BBC6EF6025BC.
+		// or:
+		//   Key: word32 BC2560EF E3361F16 FB8631EE 7B9479D4
+		//   BC2560EF will be processed into EF6025BC.
+		if (s1.length() >= 6 && (s1.substr(0,6) == "word32" || s1.substr(0,6) == "word64"))
 		{
-			word64 value;
-			std::istringstream iss(s1.substr(3));
-			while (iss >> std::hex >> value)
-				q.Put((const byte *)&value, 8);
-
-			s1.clear(); s2.clear();
+			std::istringstream iss(s1.substr(6));
+			if (s1.substr(0,6) == "word64")
+			{
+				word64 value;
+				while (iss >> std::skipws >> std::hex >> value)
+				{
+					value = ConditionalByteReverse(LITTLE_ENDIAN_ORDER, value);
+					q.Put((const byte *)&value, 8);
+				}
+			}
+			else
+			{
+				word32 value;
+				while (iss >> std::skipws >> std::hex >> value)
+				{
+					value = ConditionalByteReverse(LITTLE_ENDIAN_ORDER, value);
+					q.Put((const byte *)&value, 4);
+				}
+			}
 			goto end;
 		}
 
