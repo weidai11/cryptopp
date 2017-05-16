@@ -441,6 +441,7 @@ TestVectors/shacal2.txt
 TestVectors/siphash.txt
 TestVectors/sosemanuk.txt
 TestVectors/tea.txt
+TestVectors/threefish.txt
 TestVectors/ttmac.txt
 TestVectors/vmac.txt
 TestVectors/wake.txt
