@@ -85,6 +85,14 @@ public:
 	void Initialize(RandomNumberGenerator &rng, unsigned int modulusBits)
 		{GenerateRandomWithKeySize(rng, modulusBits);}
 
+	// Squash Visual Studio C4250 warning
+	void Save(BufferedTransformation &bt) const
+		{BEREncode(bt);}
+
+	// Squash Visual Studio C4250 warning
+	void Load(BufferedTransformation &bt)
+		{BERDecode(bt);}
+
 	void BERDecode(BufferedTransformation &bt);
 	void DEREncode(BufferedTransformation &bt) const;
 
