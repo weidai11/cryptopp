@@ -79,10 +79,8 @@ bool ValidateAll(bool thorough)
 #if defined(CRYPTOPP_EXTENDED_VALIDATION)
 	pass=TestMersenne() && pass;
 #endif
-#if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
 	pass=TestRDRAND() && pass;
 	pass=TestRDSEED() && pass;
-#endif
 
 #if defined(CRYPTOPP_EXTENDED_VALIDATION)
 	// http://github.com/weidai11/cryptopp/issues/92
@@ -927,7 +925,6 @@ bool TestMersenne()
 }
 #endif
 
-#if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
 bool TestRDRAND()
 {
 	std::cout << "\nTesting RDRAND generator...\n\n";
@@ -1030,9 +1027,7 @@ bool TestRDRAND()
 	std::cout.flush();
 	return pass;
 }
-#endif
 
-#if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
 bool TestRDSEED()
 {
 	std::cout << "\nTesting RDSEED generator...\n\n";
@@ -1135,7 +1130,6 @@ bool TestRDSEED()
 	std::cout.flush();
 	return pass;
 }
-#endif
 
 bool ValidateHashDRBG()
 {

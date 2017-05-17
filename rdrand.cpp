@@ -69,12 +69,12 @@
 #    define GCC_RDSEED_ASM_AVAILABLE 1
 #  endif
 # elif defined(CRYPTOPP_GCC_VERSION)
-#  if defined(__RDRND__) && (CRYPTOPP_GCC_VERSION >= 40600) && !defined(__OPTIMIZE_SIZE__)
+#  if defined(__RDRND__) && (CRYPTOPP_GCC_VERSION >= 40600) && !defined(__OPTIMIZE__)
 #    define ALL_RDRAND_INTRIN_AVAILABLE 1
 #  else
 #    define GCC_RDRAND_ASM_AVAILABLE 1
 #  endif
-#  if defined(__RDSEED__) && (CRYPTOPP_GCC_VERSION >= 40600) && !defined(__OPTIMIZE_SIZE__)
+#  if defined(__RDSEED__) && (CRYPTOPP_GCC_VERSION >= 40600) && !defined(__OPTIMIZE__)
 #    define ALL_RDSEED_INTRIN_AVAILABLE 1
 #  else
 #    define GCC_RDSEED_ASM_AVAILABLE 1
@@ -117,6 +117,8 @@ extern "C" void NASM_RDSEED_GenerateBlock(byte*, size_t);
 /////////////////////////////////////////////////////////////////////
 
 NAMESPACE_BEGIN(CryptoPP)
+
+#if defined(CRYPTOPP_CPUID_AVAILABLE)
 
 // Fills 4 bytes
 inline void RDRAND32(void* output)
@@ -424,5 +426,39 @@ void RDSEED::DiscardBytes(size_t n)
         count = STDMIN(n, discard.SizeInBytes());
     }
 }
+
+#else  // CRYPTOPP_CPUID_AVAILABLE
+
+RDRAND::RDRAND()
+{
+    throw RDRAND_Err("HasRDRAND");
+}
+
+void RDRAND::GenerateBlock(byte *output, size_t size)
+{
+    CRYPTOPP_UNUSED(output); CRYPTOPP_UNUSED(size);
+}
+
+void RDRAND::DiscardBytes(size_t n)
+{
+    CRYPTOPP_UNUSED(n);
+}
+
+RDSEED::RDSEED()
+{
+    throw RDSEED_Err("HasRDSEED");
+}
+
+void RDSEED::GenerateBlock(byte *output, size_t size)
+{
+    CRYPTOPP_UNUSED(output); CRYPTOPP_UNUSED(size);
+}
+
+void RDSEED::DiscardBytes(size_t n)
+{
+    CRYPTOPP_UNUSED(n);
+}
+
+#endif
 
 NAMESPACE_END

@@ -522,10 +522,6 @@ SRCS := cryptlib.cpp cpu.cpp integer.cpp $(filter-out cryptlib.cpp cpu.cpp integ
 ifeq ($(IS_X86)$(IS_X32)$(IS_X64)$(IS_ARM32)$(IS_ARM64),00000)
   SRCS := $(filter-out cpu.cpp, $(SRCS))
 endif
-# Need RDRAND for X86/X64/X32
-ifeq ($(IS_X86)$(IS_X32)$(IS_X64),000)
-  SRCS := $(filter-out rdrand.cpp, $(SRCS))
-endif
 
 ifneq ($(IS_MINGW),0)
 SRCS += winpipes.cpp
@@ -766,13 +762,11 @@ endif
 trim:
 ifneq ($(IS_DARWIN),0)
 	sed -i '' -e's/[[:space:]]*$$//' *.sh *.h *.cpp *.asm *.s *.sln *.vcxproj *.filters GNUmakefile GNUmakefile-cross
-	sed -i '' -e's/[[:space:]]*$$//' *.sh TestData/*.dat
-	sed -i '' -e's/[[:space:]]*$$//' *.sh TestVectors/*.txt
+	sed -i '' -e's/[[:space:]]*$$//' TestData/*.dat TestVectors/*.txt TestScripts/*.sh
 	make convert
 else
 	sed -i -e's/[[:space:]]*$$//' *.sh *.h *.cpp *.asm *.s *.sln *.vcxproj *.filters GNUmakefile GNUmakefile-cross
-	sed -i -e's/[[:space:]]*$$//' *.sh TestData/*.dat
-	sed -i -e's/[[:space:]]*$$//' *.sh TestVectors/*.txt
+	sed -i -e's/[[:space:]]*$$//' TestData/*.dat TestVectors/*.txt TestScripts/*.sh
 	make convert
 endif
 
