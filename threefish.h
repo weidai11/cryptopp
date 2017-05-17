@@ -68,7 +68,8 @@ public:
     {
     public:
         std::string AlgorithmName() const {
-            return m_blocksize ? "Threefish-" + IntToString(m_blocksize*8) + "(" + IntToString((m_rkey.size()-1)*8) + ")" : StaticAlgorithmName();
+            // Key length is the same as blocksize
+            return m_blocksize ? "Threefish-" + IntToString(m_blocksize*8) : StaticAlgorithmName();
         }
 
         unsigned int OptimalDataAlignment() const {
@@ -77,22 +78,36 @@ public:
 
     protected:
         void UncheckedSetKey(const byte *key, unsigned int keylen, const NameValuePairs &params);
-        void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
 
-        void ProcessAndXorBlock_256(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
-        void ProcessAndXorBlock_512(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
-        void ProcessAndXorBlock_1024(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
-
-    private:
         typedef SecBlock<word64, AllocatorWithCleanup<word64, true> > AlignedSecBlock64;
         mutable AlignedSecBlock64 m_wspace;   // workspace
         AlignedSecBlock64         m_rkey;     // keys
         AlignedSecBlock64         m_tweak;
     };
 
+    class CRYPTOPP_NO_VTABLE Enc : public Base
+    {
+    protected:
+        void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+
+        void ProcessAndXorBlock_256(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+        void ProcessAndXorBlock_512(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+        void ProcessAndXorBlock_1024(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+    };
+
+    class CRYPTOPP_NO_VTABLE Dec : public Base
+    {
+    protected:
+        void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+
+        void ProcessAndXorBlock_256(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+        void ProcessAndXorBlock_512(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+        void ProcessAndXorBlock_1024(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+    };
+
 public:
-    typedef BlockCipherFinal<ENCRYPTION, Base> Encryption;
-    typedef BlockCipherFinal<DECRYPTION, Base> Decryption;
+    typedef BlockCipherFinal<ENCRYPTION, Enc> Encryption;
+    typedef BlockCipherFinal<DECRYPTION, Dec> Decryption;
 };
 
 typedef Threefish::Encryption ThreefishEncryption;

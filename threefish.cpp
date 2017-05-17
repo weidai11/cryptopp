@@ -45,7 +45,7 @@ ANONYMOUS_NAMESPACE_BEGIN
     G2 -= (m_rkey[(r + 3) % 5] + m_tweak[(r + 2) % 3]); \
     G3 -= (m_rkey[(r + 4) % 5] + r + 1);
 
-#define G8256(r) \
+#define G256x8(r) \
     G256(G0, G1, G2, G3, 14, 16); \
     G256(G0, G3, G2, G1, 52, 57); \
     G256(G0, G1, G2, G3, 23, 40); \
@@ -57,7 +57,7 @@ ANONYMOUS_NAMESPACE_BEGIN
     G256(G0, G3, G2, G1, 32, 32); \
     KS256(r + 1);
 
-#define IG8256(r) \
+#define IG256x8(r) \
     IG256(G0, G3, G2, G1, 32, 32); \
     IG256(G0, G1, G2, G3, 58, 22); \
     IG256(G0, G3, G2, G1, 46, 12); \
@@ -109,7 +109,7 @@ ANONYMOUS_NAMESPACE_BEGIN
     G6 += m_rkey[(r + 7) % 9] + m_tweak[(r + 2) % 3]; \
     G7 += m_rkey[(r + 8) % 9] + r + 1;
 
-#define IG8512(r) \
+#define IG512x8(r) \
     IG512(G6, G1, G0, G7, G2, G5, G4, G3, 8, 35, 56, 22); \
     IG512(G4, G1, G6, G3, G0, G5, G2, G7, 25, 29, 39, 43); \
     IG512(G2, G1, G4, G7, G6, G5, G0, G3, 13, 50, 10, 17); \
@@ -121,7 +121,7 @@ ANONYMOUS_NAMESPACE_BEGIN
     IG512(G0, G1, G2, G3, G4, G5, G6, G7, 46, 36, 19, 37); \
     IKS512(r - 1)
 
-#define G8512(r) \
+#define G512x8(r) \
     G512(G0, G1, G2, G3, G4, G5, G6, G7, 46, 36, 19, 37); \
     G512(G2, G1, G4, G7, G6, G5, G0, G3, 33, 27, 14, 42); \
     G512(G4, G1, G6, G3, G0, G5, G2, G7, 17, 49, 36, 39); \
@@ -205,7 +205,7 @@ ANONYMOUS_NAMESPACE_BEGIN
     G14 += m_rkey[(r + 15) % 17] + m_tweak[(r + 2) % 3]; \
     G15 += m_rkey[(r + 16) % 17] + r + 1;
 
-#define IG81024(r) \
+#define IG1024x8(r) \
     IG1024(G0, G15, G2, G11, G6, G13, G4, G9, G14, G1, G8, G5, G10, G3, G12, G7, 9, 48, 35, 52, 23, 31, 37, 20); \
     IG1024(G0, G7, G2, G5, G4, G3, G6, G1, G12, G15, G14, G13, G8, G11, G10, G9, 31, 44, 47, 46, 19, 42, 44, 25); \
     IG1024(G0, G9, G2, G13, G6, G11, G4, G15, G10, G7, G12, G3, G14, G5, G8, G1, 16, 34, 56, 51, 4, 53, 42, 41); \
@@ -217,7 +217,7 @@ ANONYMOUS_NAMESPACE_BEGIN
     IG1024(G0, G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12, G13, G14, G15, 24, 13, 8, 47, 8, 17, 22, 37); \
     IKS1024(r - 1);
 
-#define G81024(r) \
+#define G1024x8(r) \
     G1024(G0, G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12, G13, G14, G15, 24, 13, 8, 47, 8, 17, 22, 37); \
     G1024(G0, G9, G2, G13, G6, G11, G4, G15, G10, G7, G12, G3, G14, G5, G8, G1, 38, 19, 10, 55, 49, 18, 23, 52); \
     G1024(G0, G7, G2, G5, G4, G3, G6, G1, G12, G15, G14, G13, G8, G11, G10, G9, 33, 4, 51, 13, 34, 41, 59, 17); \
@@ -285,7 +285,7 @@ void Threefish::Base::UncheckedSetKey(const byte *key, unsigned int keylen, cons
     }
 }
 
-void Threefish::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+void Threefish::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
     switch(m_blocksize)
     {
@@ -303,7 +303,7 @@ void Threefish::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlo
     }
 }
 
-void Threefish::Base::ProcessAndXorBlock_256(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+void Threefish::Enc::ProcessAndXorBlock_256(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
     word64 &G0=m_wspace[0], &G1=m_wspace[1], &G2=m_wspace[2], &G3=m_wspace[3];
 
@@ -312,22 +312,11 @@ void Threefish::Base::ProcessAndXorBlock_256(const byte *inBlock, const byte *xo
     InBlock iblk(inBlock);
     iblk(G0)(G1)(G2)(G3);
 
-    if (IsForwardTransformation())
-    {
-        G0 += m_rkey[0]; G1 += m_rkey[1]; G2 += m_rkey[2]; G3 += m_rkey[3];
-        G1 += m_tweak[0]; G2 += m_tweak[1];
+    G0 += m_rkey[0]; G1 += m_rkey[1]; G2 += m_rkey[2]; G3 += m_rkey[3];
+    G1 += m_tweak[0]; G2 += m_tweak[1];
 
-        G8256(0); G8256(2); G8256(4); G8256(6); G8256(8);
-        G8256(10); G8256(12); G8256(14); G8256(16);
-    }
-    else
-    {
-        G0 -= m_rkey[3]; G1 -= m_rkey[4]; G2 -= m_rkey[0]; G3 -= m_rkey[1];
-        G1 -= m_tweak[0]; G2 -= m_tweak[1]; G3 -= 18;
-
-        IG8256(16); IG8256(14); IG8256(12); IG8256(10);
-        IG8256(8); IG8256(6); IG8256(4); IG8256(2); IG8256(0);
-    }
+    G256x8(0); G256x8(2); G256x8(4); G256x8(6); G256x8(8);
+    G256x8(10); G256x8(12); G256x8(14); G256x8(16);
 
     // Reverse bytes on BigEndian; Align pointer on LittleEndian
     typedef PutBlock<word64, LittleEndian, false> OutBlock;
@@ -335,7 +324,7 @@ void Threefish::Base::ProcessAndXorBlock_256(const byte *inBlock, const byte *xo
     oblk(G0)(G1)(G2)(G3);
 }
 
-void Threefish::Base::ProcessAndXorBlock_512(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+void Threefish::Enc::ProcessAndXorBlock_512(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
     word64 &G0=m_wspace[0],   &G1=m_wspace[1],   &G2=m_wspace[2],   &G3=m_wspace[3];
     word64 &G4=m_wspace[4],   &G5=m_wspace[5],   &G6=m_wspace[6],   &G7=m_wspace[7];
@@ -345,25 +334,13 @@ void Threefish::Base::ProcessAndXorBlock_512(const byte *inBlock, const byte *xo
     InBlock iblk(inBlock);
     iblk(G0)(G1)(G2)(G3)(G4)(G5)(G6)(G7);
 
-    if (IsForwardTransformation())
-    {
-        // 34 integer instructions total
-        G0 += m_rkey[0]; G1 += m_rkey[1]; G2 += m_rkey[2]; G3 += m_rkey[3];
-        G4 += m_rkey[4]; G5 += m_rkey[5]; G6 += m_rkey[6]; G7 += m_rkey[7];
-        G5 += m_tweak[0]; G6 += m_tweak[1];
+    // 34 integer instructions total
+    G0 += m_rkey[0]; G1 += m_rkey[1]; G2 += m_rkey[2]; G3 += m_rkey[3];
+    G4 += m_rkey[4]; G5 += m_rkey[5]; G6 += m_rkey[6]; G7 += m_rkey[7];
+    G5 += m_tweak[0]; G6 += m_tweak[1];
 
-        G8512(0); G8512(2); G8512(4); G8512(6); G8512(8);
-        G8512(10); G8512(12); G8512(14); G8512(16);
-    }
-    else
-    {
-        G0 -= m_rkey[0]; G1 -= m_rkey[1]; G2 -= m_rkey[2]; G3 -= m_rkey[3];
-        G4 -= m_rkey[4]; G5 -= m_rkey[5]; G6 -= m_rkey[6]; G7 -= m_rkey[7];
-        G5 -= m_tweak[0]; G6 -= m_tweak[1];    G7 -= 18;
-
-        IG8512(16); IG8512(14); IG8512(12); IG8512(10);
-        IG8512(8); IG8512(6); IG8512(4); IG8512(2); IG8512(0);
-    }
+    G512x8(0); G512x8(2); G512x8(4); G512x8(6); G512x8(8);
+    G512x8(10); G512x8(12); G512x8(14); G512x8(16);
 
     // Reverse bytes on BigEndian; Align pointer on LittleEndian
     typedef PutBlock<word64, LittleEndian, false> OutBlock;
@@ -371,7 +348,7 @@ void Threefish::Base::ProcessAndXorBlock_512(const byte *inBlock, const byte *xo
     oblk(G0)(G1)(G2)(G3)(G4)(G5)(G6)(G7);
 }
 
-void Threefish::Base::ProcessAndXorBlock_1024(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+void Threefish::Enc::ProcessAndXorBlock_1024(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
     word64  &G0=m_wspace[0],   &G1=m_wspace[1],   &G2=m_wspace[2],   &G3=m_wspace[3];
     word64  &G4=m_wspace[4],   &G5=m_wspace[5],   &G6=m_wspace[6],   &G7=m_wspace[7];
@@ -383,28 +360,103 @@ void Threefish::Base::ProcessAndXorBlock_1024(const byte *inBlock, const byte *x
     InBlock iblk(inBlock);
     iblk(G0)(G1)(G2)(G3)(G4)(G5)(G6)(G7)(G8)(G9)(G10)(G11)(G12)(G13)(G14)(G15);
 
-    if (IsForwardTransformation())
-    {
-        G0 += m_rkey[0]; G1 += m_rkey[1]; G2 += m_rkey[2]; G3 += m_rkey[3];
-        G4 += m_rkey[4]; G5 += m_rkey[5]; G6 += m_rkey[6]; G7 += m_rkey[7];
-        G8 += m_rkey[8]; G9 += m_rkey[9]; G10 += m_rkey[10]; G11 += m_rkey[11];
-        G12 += m_rkey[12]; G13 += m_rkey[13]; G14 += m_rkey[14]; G15 += m_rkey[15];
-        G13 += m_tweak[0]; G14 += m_tweak[1];
+    G0 += m_rkey[0]; G1 += m_rkey[1]; G2 += m_rkey[2]; G3 += m_rkey[3];
+    G4 += m_rkey[4]; G5 += m_rkey[5]; G6 += m_rkey[6]; G7 += m_rkey[7];
+    G8 += m_rkey[8]; G9 += m_rkey[9]; G10 += m_rkey[10]; G11 += m_rkey[11];
+    G12 += m_rkey[12]; G13 += m_rkey[13]; G14 += m_rkey[14]; G15 += m_rkey[15];
+    G13 += m_tweak[0]; G14 += m_tweak[1];
 
-        G81024(0); G81024(2); G81024(4); G81024(6); G81024(8);
-        G81024(10); G81024(12); G81024(14); G81024(16); G81024(18);
-    }
-    else
-    {
-        G0 -= m_rkey[3]; G1 -= m_rkey[4]; G2 -= m_rkey[5]; G3 -= m_rkey[6];
-        G4 -= m_rkey[7]; G5 -= m_rkey[8]; G6 -= m_rkey[9]; G7 -= m_rkey[10];
-        G8 -= m_rkey[11]; G9 -= m_rkey[12]; G10 -= m_rkey[13]; G11 -= m_rkey[14];
-        G12 -= m_rkey[15]; G13 -= m_rkey[16]; G14 -= m_rkey[0]; G15 -= m_rkey[1];
-        G13 -= m_tweak[2]; G14 -= m_tweak[0]; G15 -= 20;
+    G1024x8(0); G1024x8(2); G1024x8(4); G1024x8(6); G1024x8(8);
+    G1024x8(10); G1024x8(12); G1024x8(14); G1024x8(16); G1024x8(18);
 
-        IG81024(18); IG81024(16); IG81024(14); IG81024(12); IG81024(10);
-        IG81024(8); IG81024(6); IG81024(4); IG81024(2); IG81024(0);
+    // Reverse bytes on BigEndian; Align pointer on LittleEndian
+    typedef PutBlock<word64, LittleEndian, false> OutBlock;
+    OutBlock oblk(xorBlock, outBlock);
+    oblk(G0)(G1)(G2)(G3)(G4)(G5)(G6)(G7)(G8)(G9)(G10)(G11)(G12)(G13)(G14)(G15);
+}
+
+void Threefish::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+{
+    switch(m_blocksize)
+    {
+    case 32:
+        ProcessAndXorBlock_256(inBlock, xorBlock, outBlock);
+        break;
+    case 64:
+        ProcessAndXorBlock_512(inBlock, xorBlock, outBlock);
+        break;
+    case 128:
+        ProcessAndXorBlock_1024(inBlock, xorBlock, outBlock);
+        break;
+    default:
+        CRYPTOPP_ASSERT(0);
     }
+}
+
+void Threefish::Dec::ProcessAndXorBlock_256(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+{
+    word64 &G0=m_wspace[0], &G1=m_wspace[1], &G2=m_wspace[2], &G3=m_wspace[3];
+
+    // Reverse bytes on BigEndian; Align pointer on LittleEndian
+    typedef GetBlock<word64, LittleEndian, false> InBlock;
+    InBlock iblk(inBlock);
+    iblk(G0)(G1)(G2)(G3);
+
+    G0 -= m_rkey[3]; G1 -= m_rkey[4]; G2 -= m_rkey[0]; G3 -= m_rkey[1];
+    G1 -= m_tweak[0]; G2 -= m_tweak[1]; G3 -= 18;
+
+    IG256x8(16); IG256x8(14); IG256x8(12); IG256x8(10);
+    IG256x8(8); IG256x8(6); IG256x8(4); IG256x8(2); IG256x8(0);
+
+    // Reverse bytes on BigEndian; Align pointer on LittleEndian
+    typedef PutBlock<word64, LittleEndian, false> OutBlock;
+    OutBlock oblk(xorBlock, outBlock);
+    oblk(G0)(G1)(G2)(G3);
+}
+
+void Threefish::Dec::ProcessAndXorBlock_512(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+{
+    word64 &G0=m_wspace[0],   &G1=m_wspace[1],   &G2=m_wspace[2],   &G3=m_wspace[3];
+    word64 &G4=m_wspace[4],   &G5=m_wspace[5],   &G6=m_wspace[6],   &G7=m_wspace[7];
+
+    // Reverse bytes on BigEndian; Align pointer on LittleEndian
+    typedef GetBlock<word64, LittleEndian, false> InBlock;
+    InBlock iblk(inBlock);
+    iblk(G0)(G1)(G2)(G3)(G4)(G5)(G6)(G7);
+
+    G0 -= m_rkey[0]; G1 -= m_rkey[1]; G2 -= m_rkey[2]; G3 -= m_rkey[3];
+    G4 -= m_rkey[4]; G5 -= m_rkey[5]; G6 -= m_rkey[6]; G7 -= m_rkey[7];
+    G5 -= m_tweak[0]; G6 -= m_tweak[1];    G7 -= 18;
+
+    IG512x8(16); IG512x8(14); IG512x8(12); IG512x8(10);
+    IG512x8(8); IG512x8(6); IG512x8(4); IG512x8(2); IG512x8(0);
+
+    // Reverse bytes on BigEndian; Align pointer on LittleEndian
+    typedef PutBlock<word64, LittleEndian, false> OutBlock;
+    OutBlock oblk(xorBlock, outBlock);
+    oblk(G0)(G1)(G2)(G3)(G4)(G5)(G6)(G7);
+}
+
+void Threefish::Dec::ProcessAndXorBlock_1024(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+{
+    word64  &G0=m_wspace[0],   &G1=m_wspace[1],   &G2=m_wspace[2],   &G3=m_wspace[3];
+    word64  &G4=m_wspace[4],   &G5=m_wspace[5],   &G6=m_wspace[6],   &G7=m_wspace[7];
+    word64  &G8=m_wspace[8],   &G9=m_wspace[9],  &G10=m_wspace[10], &G11=m_wspace[11];
+    word64 &G12=m_wspace[12], &G13=m_wspace[13], &G14=m_wspace[14], &G15=m_wspace[15];
+
+    // Reverse bytes on BigEndian; Align pointer on LittleEndian
+    typedef GetBlock<word64, LittleEndian, false> InBlock;
+    InBlock iblk(inBlock);
+    iblk(G0)(G1)(G2)(G3)(G4)(G5)(G6)(G7)(G8)(G9)(G10)(G11)(G12)(G13)(G14)(G15);
+
+    G0 -= m_rkey[3]; G1 -= m_rkey[4]; G2 -= m_rkey[5]; G3 -= m_rkey[6];
+    G4 -= m_rkey[7]; G5 -= m_rkey[8]; G6 -= m_rkey[9]; G7 -= m_rkey[10];
+    G8 -= m_rkey[11]; G9 -= m_rkey[12]; G10 -= m_rkey[13]; G11 -= m_rkey[14];
+    G12 -= m_rkey[15]; G13 -= m_rkey[16]; G14 -= m_rkey[0]; G15 -= m_rkey[1];
+    G13 -= m_tweak[2]; G14 -= m_tweak[0]; G15 -= 20;
+
+    IG1024x8(18); IG1024x8(16); IG1024x8(14); IG1024x8(12); IG1024x8(10);
+    IG1024x8(8); IG1024x8(6); IG1024x8(4); IG1024x8(2); IG1024x8(0);
 
     // Reverse bytes on BigEndian; Align pointer on LittleEndian
     typedef PutBlock<word64, LittleEndian, false> OutBlock;
