@@ -30,8 +30,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#ifndef CRYPTOPP_IMPORTS
-
 #if defined(CRYPTOPP_WIN32_AVAILABLE)
 static TimerWord InitializePerformanceCounterFrequency()
 {
@@ -47,6 +45,8 @@ inline TimerWord PerformanceCounterFrequency()
 	return freq;
 }
 #endif
+
+#ifndef CRYPTOPP_IMPORTS
 
 double TimerBase::ConvertTo(TimerWord t, Unit unit)
 {
