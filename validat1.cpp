@@ -72,7 +72,7 @@ bool ValidateAll(bool thorough)
 	bool pass=TestSettings();
 	pass=TestOS_RNG() && pass;
 	pass=TestRandomPool() && pass;
-#if !defined(NO_OS_DEPENDENCE)
+#if !defined(NO_OS_DEPENDENCE) && defined(OS_RNG_AVAILABLE)
 	pass=TestAutoSeededX917() && pass;
 #endif
 	// pass=TestSecRandom() && pass;
