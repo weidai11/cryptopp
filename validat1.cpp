@@ -625,7 +625,7 @@ bool TestRandomPool()
 		std::cout << "  GenerateWord32 and Crop\n";
 	}
 
-#if !defined(NO_OS_DEPENDENCE)
+#if !defined(NO_OS_DEPENDENCE) && defined(OS_RNG_AVAILABLE)
 	std::cout << "\nTesting AutoSeeded RandomPool generator...\n\n";
 	{
 		AutoSeededRandomPool prng;
@@ -718,7 +718,7 @@ bool TestRandomPool()
 	return pass;
 }
 
-#if !defined(NO_OS_DEPENDENCE)
+#if !defined(NO_OS_DEPENDENCE) && defined(OS_RNG_AVAILABLE)
 bool TestAutoSeededX917()
 {
 	// This tests Auto-Seeding and GenerateIntoBufferedTransformation.
