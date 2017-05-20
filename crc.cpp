@@ -13,9 +13,8 @@ NAMESPACE_BEGIN(CryptoPP)
 # undef CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
 #endif
 
-
-// Use inline ASM to provide the instructions when the user omits -march=native
-#if (CRYPTOPP_GCC_VERSION >= 40300 || CRYPTOPP_LLVM_CLANG_VERSION >= 30200 || CRYPTOPP_APPLE_CLANG_VERSION >= 30200) && !defined(__SSE4_2__)
+// Use inline ASM to provide the instructions when the user omits -march=native or -msse4.2
+#if (CRYPTOPP_GCC_VERSION >= 40300 || __INTEL_COMPILER >= 1000 || __SUNPRO_CC >= 0x5110 || CRYPTOPP_LLVM_CLANG_VERSION >= 20300 || CRYPTOPP_APPLE_CLANG_VERSION >= 40000) && !defined(__SSE4_2__)
 GCC_INLINE unsigned int GCC_INLINE_ATTRIB
 MM_CRC32_U8(unsigned int crc, unsigned char val)
 {
