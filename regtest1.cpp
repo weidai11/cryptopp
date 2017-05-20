@@ -52,7 +52,9 @@ void RegisterFactories(Test::TestClass suites)
 	if ((suites & Test::Unkeyed) == Test::Unkeyed)
 		RegisterFactories1();
 
-	if ((suites & Test::SharedKey) == Test::SharedKey)
+	if ((suites & Test::SharedKeyMAC) == Test::SharedKeyMAC ||
+		(suites & Test::SharedKeyMAC) == Test::SharedKeyStream ||
+		(suites & Test::SharedKeyMAC) == Test::SharedKeyBlock)
 		RegisterFactories2();
 
 	if ((suites & Test::PublicKey) == Test::PublicKey)

@@ -14,7 +14,14 @@
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(Test)
 
-enum TestClass {Unkeyed=1,SharedKey=2,PublicKey=4, All=Unkeyed|SharedKey|PublicKey};
+// More granular control over benchmarks
+enum TestClass {
+	Unkeyed=1,SharedKeyMAC=2,SharedKeyStream=4,SharedKeyBlock=8,SharedKeyOther=16,
+	PublicKeyAgreement=32,PublicKeyEncryption=64,PublicKeySignature=128,PublicKeyOther=256,
+	SharedKey=SharedKeyMAC|SharedKeyStream|SharedKeyBlock|SharedKeyOther,
+	PublicKey=PublicKeyAgreement|PublicKeyEncryption|PublicKeySignature|PublicKeyOther,
+	All=Unkeyed|SharedKey|PublicKey
+};
 
 extern const double CLOCK_TICKS_PER_SECOND;
 extern double g_allocatedTime;
@@ -27,6 +34,8 @@ extern const byte defaultKey[];
 extern time_t g_testBegin;
 extern time_t g_testEnd;
 
+// Command handler
+void BenchmarkWithCommand(int argc, const char* const argv[]);
 // Top level, prints preamble and postamble
 void Benchmark(Test::TestClass suites, double t, double hertz);
 // Unkeyed systems

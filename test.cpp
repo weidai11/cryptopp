@@ -117,43 +117,6 @@ int (*AdhocTest)(int argc, char *argv[]) = NULLPTR;
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(Test)
 
-// Coverity finding
-template <class T, bool NON_NEGATIVE>
-T StringToValue(const std::string& str)
-{
-	std::istringstream iss(str);
-
-	// Arbitrary, but we need to clear a Coverity finding TAINTED_SCALAR
-	if (iss.str().length() > 25)
-		throw InvalidArgument(str + "' is too long");
-
-	T value;
-	iss >> std::noskipws >> value;
-
-	// Use fail(), not bad()
-	if (iss.fail() || !iss.eof())
-		throw InvalidArgument(str + "' is not a value");
-
-	if (NON_NEGATIVE && value < 0)
-		throw InvalidArgument(str + "' is negative");
-
-	return value;
-}
-
-// Coverity finding
-template<>
-int StringToValue<int, true>(const std::string& str)
-{
-	Integer n(str.c_str());
-	long l = n.ConvertToLong();
-
-	int r;
-	if (!SafeConvert(l, r))
-		throw InvalidArgument(str + "' is not an integer value");
-
-	return r;
-}
-
 ANONYMOUS_NAMESPACE_BEGIN
 OFB_Mode<AES>::Encryption s_globalRNG;
 NAMESPACE_END
@@ -399,14 +362,8 @@ int CRYPTOPP_API main(int argc, char *argv[])
 			InformationRecoverFile(argc-3, argv[2], argv+3);
 		else if (command == "v" || command == "vv")
 			return !Validate(argc>2 ? Test::StringToValue<int, true>(argv[2]) : 0, argv[1][1] == 'v', argc>3 ? argv[3] : NULLPTR);
-		else if (command == "b")  // All benchmarks
-			Test::Benchmark(Test::All, argc<3 ? 1 : Test::StringToValue<float, true>(argv[2]), argc<4 ? 0.0f : Test::StringToValue<float, true>(argv[3])*1e9);
-		else if (command == "b3")  // Public key algorithms
-			Test::Benchmark(Test::PublicKey, argc<3 ? 1 : Test::StringToValue<float, true>(argv[2]), argc<4 ? 0.0f : Test::StringToValue<float, true>(argv[3])*1e9);
-		else if (command == "b2")  // Shared key algorithms
-			Test::Benchmark(Test::SharedKey, argc<3 ? 1 : Test::StringToValue<float, true>(argv[2]), argc<4 ? 0.0f : Test::StringToValue<float, true>(argv[3])*1e9);
-		else if (command == "b1")  // Unkeyed algorithms
-			Test::Benchmark(Test::Unkeyed, argc<3 ? 1 : Test::StringToValue<float, true>(argv[2]), argc<4 ? 0.0f : Test::StringToValue<float, true>(argv[3])*1e9);
+		else if (command.substr(0,1) == "b") // "b", "b1", "b2", ...
+			Test::BenchmarkWithCommand(argc, argv);
 		else if (command == "z")
 			GzipFile(argv[3], argv[4], argv[2][0]-'0');
 		else if (command == "u")
@@ -434,6 +391,7 @@ int CRYPTOPP_API main(int argc, char *argv[])
 		else if (command == "h")
 		{
 			FileSource usage(CRYPTOPP_DATA_DIR "TestData/usage.dat", true, new FileSink(std::cout));
+			return 1;
 			return 1;
 		}
 		else if (command == "V")

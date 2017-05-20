@@ -5,6 +5,8 @@
 #define CRYPTOPP_VALIDATE_H
 
 #include "cryptlib.h"
+#include "integer.h"
+#include "misc.h"
 
 #include <iostream>
 #include <iomanip>
@@ -205,6 +207,43 @@ inline std::string TimeToString(const time_t& t)
 		{ str.erase(pos, 1); }
 
 	return str;
+}
+
+// Coverity finding
+template <class T, bool NON_NEGATIVE>
+inline T StringToValue(const std::string& str)
+{
+	std::istringstream iss(str);
+
+	// Arbitrary, but we need to clear a Coverity finding TAINTED_SCALAR
+	if (iss.str().length() > 25)
+		throw InvalidArgument(str + "' is too long");
+
+	T value;
+	iss >> std::noskipws >> value;
+
+	// Use fail(), not bad()
+	if (iss.fail() || !iss.eof())
+		throw InvalidArgument(str + "' is not a value");
+
+	if (NON_NEGATIVE && value < 0)
+		throw InvalidArgument(str + "' is negative");
+
+	return value;
+}
+
+// Coverity finding
+template<>
+inline int StringToValue<int, true>(const std::string& str)
+{
+	Integer n(str.c_str());
+	long l = n.ConvertToLong();
+
+	int r;
+	if (!SafeConvert(l, r))
+		throw InvalidArgument(str + "' is not an integer value");
+
+	return r;
 }
 
 // Functions that need a RNG; uses AES inf CFB mode with Seed.

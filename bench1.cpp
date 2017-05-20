@@ -339,6 +339,23 @@ void AddHtmlFooter()
 	std::cout << "\n</HTML>" << std::endl;
 }
 
+void BenchmarkWithCommand(int argc, const char* const argv[])
+{
+	std::string command(argv[1]);
+	float runningTime(argc >= 3 ? Test::StringToValue<float, true>(argv[2]) : 1.0f);
+	float cpuFreq(argc >= 4 ? Test::StringToValue<float, true>(argv[3])*float(1e9) : 0.0f);
+	std::string algoName(argc >= 5 ? argv[4] : "");
+
+	if (command == "b")  // All benchmarks
+		Benchmark(Test::All, runningTime, cpuFreq);
+	else if (command == "b3")  // Public key algorithms
+		Test::Benchmark(Test::PublicKey, runningTime, cpuFreq);
+	else if (command == "b2")  // Shared key algorithms
+		Test::Benchmark(Test::SharedKey, runningTime, cpuFreq);
+	else if (command == "b1")  // Unkeyed algorithms
+		Test::Benchmark(Test::Unkeyed, runningTime, cpuFreq);
+}
+
 void Benchmark(Test::TestClass suites, double t, double hertz)
 {
 	g_allocatedTime = t;
@@ -348,7 +365,7 @@ void Benchmark(Test::TestClass suites, double t, double hertz)
 
 	g_testBegin = std::time(NULLPTR);
 
-	if (static_cast<int>(suites) > 7 || static_cast<int>(suites) == 0)
+	if (static_cast<int>(suites) > 256 || static_cast<int>(suites) == 0)
 		suites = Test::All;
 
 	// Unkeyed algorithms
@@ -358,8 +375,22 @@ void Benchmark(Test::TestClass suites, double t, double hertz)
 		Benchmark1(t, hertz);
 	}
 
-	// Shared key algorithms
-	if (suites & Test::SharedKey)
+	// Shared key algorithms (MACs)
+	if (suites & Test::SharedKeyMAC)
+	{
+		std::cout << "\n<BR>";
+		Benchmark2(t, hertz);
+	}
+
+	// Shared key algorithms (stream ciphers)
+	if (suites & Test::SharedKeyStream)
+	{
+		std::cout << "\n<BR>";
+		Benchmark2(t, hertz);
+	}
+
+	// Shared key algorithms (block ciphers)
+	if (suites & Test::SharedKeyBlock)
 	{
 		std::cout << "\n<BR>";
 		Benchmark2(t, hertz);
@@ -399,6 +430,7 @@ void Benchmark1(double t, double hertz)
 		cpb = "";
 
 	std::cout << "\n<TABLE>";
+
 	std::cout << "\n<COLGROUP><COL style=\"text-align: left;\"><COL style=\"text-align: right;\">";
 	std::cout << "<COL style=\"text-align: right;\">";
 	std::cout << "\n<THEAD style=\"background: #F0F0F0\"><TR><TH>Algorithm<TH>MiB/Second" << cpb;
