@@ -91,8 +91,7 @@ if(IS_BIG_ENDIAN)
 	add_definitions(-DIS_BIG_ENDIAN)
 endif()
 
-# No DISABLE_NATIVE_ARCH with DISABLE_ASM for now
-#  See http://github.com/weidai11/cryptopp/issues/395
+# Also see http://github.com/weidai11/cryptopp/issues/395
 if(DISABLE_ASM)
 	add_definitions(-DCRYPTOPP_DISABLE_ASM)
 endif()
@@ -287,7 +286,9 @@ file(GLOB cryptopp_HEADERS *.h)
 file(GLOB cryptopp_SOURCES_TEST test.cpp bench1.cpp bench2.cpp validat0.cpp validat1.cpp validat2.cpp validat3.cpp adhoc.cpp datatest.cpp regtest1.cpp regtest2.cpp regtest3.cpp fipsalgt.cpp dlltest.cpp fipstest.cpp)
 
 # Library sources. You can use the GNUmakefile to generate the list: `make sources`.
+# Makefile sorted them at http://github.com/weidai11/cryptopp/pull/426.
 file(GLOB cryptopp_SOURCES *.cpp)
+list(SORT cryptopp_SOURCES)
 list(REMOVE_ITEM cryptopp_SOURCES
 		${CMAKE_CURRENT_SOURCE_DIR}/cryptlib.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/cpu.cpp
