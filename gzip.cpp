@@ -9,7 +9,7 @@ NAMESPACE_BEGIN(CryptoPP)
 // Checks whether the character is valid for ISO/IEC 8859-1 as required by RFC 1952
 static inline bool Is8859Character(char c) {
 	const unsigned char cc = static_cast<unsigned char>(c);
-	return (cc >= 32 && cc <= 126) || (cc >= 160 && cc <= 255);
+	return (cc >= 32 && cc <= 126) || (cc >= 160);
 }
 
 void Gzip::IsolatedInitialize(const NameValuePairs &parameters)
