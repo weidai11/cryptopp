@@ -32,6 +32,18 @@
 # endif
 #endif  // ARM32 and ARM64 Headers
 
+// Used when supplying ASM due to missing intrinsics
+#if defined(__clang__)
+#  define GCC_INLINE inline
+#  define GCC_INLINE_ATTRIB __attribute__((__gnu_inline__, __always_inline__))
+#elif (CRYPTOPP_GCC_VERSION >= 30300) || defined(__INTEL_COMPILER)
+#  define GCC_INLINE __inline
+#  define GCC_INLINE_ATTRIB __attribute__((__gnu_inline__, __always_inline__, __artificial__))
+#else
+#  define GCC_INLINE inline
+#  define GCC_INLINE_ATTRIB
+# endif
+
 // X86/X64/X32 Headers
 #if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64
 
