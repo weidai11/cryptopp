@@ -9,6 +9,7 @@
 #include "misc.h"
 
 #include <iostream>
+#include <sstream>
 #include <iomanip>
 #include <ctime>
 #include <cctype>
