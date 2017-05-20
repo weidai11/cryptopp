@@ -3404,7 +3404,7 @@ void Integer::Decode(BufferedTransformation &bt, size_t inputLen, Signedness s)
 	reg.CleanNew(RoundupSize(BytesToWords(inputLen)));
 	for (size_t i=inputLen; i > 0; i--)
 	{
-		bt.Get(b);
+		(void)bt.Get(b);
 		reg[(i-1)/WORD_SIZE] |= word(b) << ((i-1)%WORD_SIZE)*8;
 	}
 
