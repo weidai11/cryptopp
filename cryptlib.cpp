@@ -171,18 +171,19 @@ size_t BlockTransformation::AdvancedProcessBlocks(const byte *inBlocks, const by
 		outIncrement = 0-outIncrement;
 	}
 
+	// Coverity finding.
+	bool xorFlag = xorBlocks && (flags & BT_XorInput);
 	while (length >= blockSize)
 	{
-		if (flags & BT_XorInput)
+		if (xorFlag)
 		{
-			// Coverity finding. However, xorBlocks is never NULL if BT_XorInput.
-			CRYPTOPP_ASSERT(xorBlocks);
+			// xorBlocks non-NULL and with BT_XorInput.
 			xorbuf(outBlocks, xorBlocks, inBlocks, blockSize);
 			ProcessBlock(outBlocks);
 		}
 		else
 		{
-			// xorBlocks can be NULL. See, for example, ECB_OneWay::ProcessData.
+			// xorBlocks may be non-NULL and without BT_XorInput.
 			ProcessAndXorBlock(inBlocks, xorBlocks, outBlocks);
 		}
 
