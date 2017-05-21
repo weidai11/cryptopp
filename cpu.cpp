@@ -267,9 +267,20 @@ void DetectX86Features()
 	else if (IsAMD(cpuid1))
 	{
 		static const unsigned int RDRAND_FLAG = (1 << 30);
+		static const unsigned int RDSEED_FLAG = (1 << 18);
+		static const unsigned int    SHA_FLAG = (1 << 29);
 
 		CpuId(0x01, cpuid1);
 		g_hasRDRAND = !!(cpuid1[2] /*ECX*/ & RDRAND_FLAG);
+
+		if (cpuid1[0] /*EAX*/ >= 7)
+		{
+			if (CpuId(7, cpuid3))
+			{
+				g_hasRDSEED = !!(cpuid3[1] /*EBX*/ & RDSEED_FLAG);
+				g_hasSHA = !!(cpuid3[1] /*EBX*/ & SHA_FLAG);
+			}
+		}
 
 		CpuId(0x80000005, cpuid1);
 		g_cacheLineSize = GETBYTE(cpuid1[2], 0);
