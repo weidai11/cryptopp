@@ -41,7 +41,9 @@
 
 #if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
 # pragma GCC diagnostic ignored "-Wunused"
+#if !defined(__clang__)
 # pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#endif
 #endif
 
 // Issue 340
