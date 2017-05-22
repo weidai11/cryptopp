@@ -217,22 +217,6 @@ endif  # -march
 endif  # DISABLE_NATIVE_ARCH
 # END_NATIVE_ARCH
 
-# Aligned access required for -O3 and above due to vectorization
-UNALIGNED_ACCESS := $(shell $(EGREP) -c "^[[:space:]]*//[[:space:]]*\#[[:space:]]*define[[:space:]]*CRYPTOPP_NO_UNALIGNED_DATA_ACCESS" config.h)
-ifneq ($(UNALIGNED_ACCESS),0)
-ifeq ($(findstring -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS,$(CXXFLAGS)),)
-ifeq ($(findstring -O3,$(CXXFLAGS)),-O3)
-CXXFLAGS += -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS
-endif # -O3
-ifeq ($(findstring -O5,$(CXXFLAGS)),-O5)
-CXXFLAGS += -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS
-endif # -O5
-ifeq ($(findstring -Ofast,$(CXXFLAGS)),-Ofast)
-CXXFLAGS += -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS
-endif # -Ofast
-endif # CRYPTOPP_NO_UNALIGNED_DATA_ACCESS
-endif # UNALIGNED_ACCESS
-
 ifneq ($(INTEL_COMPILER),0)
 CXXFLAGS += -wd68 -wd186 -wd279 -wd327 -wd161 -wd3180
 ifeq ($(ICC111_OR_LATER),0)
@@ -295,22 +279,6 @@ ifeq ($(findstring -save-temps,$(CXXFLAGS)),)
 CXXFLAGS += -pipe
 endif
 endif
-
-# Aligned access required for -O3 and above due to vectorization
-UNALIGNED_ACCESS := $(shell $(EGREP) -c "^[[:space:]]*//[[:space:]]*\#[[:space:]]*define[[:space:]]*CRYPTOPP_NO_UNALIGNED_DATA_ACCESS" config.h)
-ifneq ($(UNALIGNED_ACCESS),0)
-ifeq ($(findstring -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS,$(CXXFLAGS)),)
-ifeq ($(findstring -O3,$(CXXFLAGS)),-O3)
-CXXFLAGS += -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS
-endif # -O3
-ifeq ($(findstring -O5,$(CXXFLAGS)),-O5)
-CXXFLAGS += -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS
-endif # -O5
-ifeq ($(findstring -Ofast,$(CXXFLAGS)),-Ofast)
-CXXFLAGS += -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS
-endif # -Ofast
-endif # CRYPTOPP_NO_UNALIGNED_DATA_ACCESS
-endif # UNALIGNED_ACCESS
 
 endif	# IS_X86
 
@@ -403,17 +371,13 @@ CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
 endif # CXXFLAGS
 endif # No ASM
 
-# Undefined Behavior Sanitizer (UBsan) testing. There's no sense in
-#   allowing unaligned data access. There will too many findings.
+# Undefined Behavior Sanitizer (UBsan) testing. Issue 'make ubsan'.
 ifeq ($(findstring ubsan,$(MAKECMDGOALS)),ubsan)
 ifeq ($(findstring -fsanitize=undefined,$(CXXFLAGS)),)
 CXXFLAGS += -fsanitize=undefined
 endif # CXXFLAGS
 ifeq ($(findstring -DCRYPTOPP_COVERAGE,$(CXXFLAGS)),)
 CXXFLAGS += -DCRYPTOPP_COVERAGE
-endif # CXXFLAGS
-ifeq ($(findstring -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS,$(CXXFLAGS)),)
-CXXFLAGS += -DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS
 endif # CXXFLAGS
 endif # UBsan
 
@@ -827,6 +791,18 @@ rdrand.o: rdrand.h rdrand.cpp rdrand.s
 	$(CXX) $(strip $(CXXFLAGS)) -DNASM_RDRAND_ASM_AVAILABLE=1 -DNASM_RDSEED_ASM_AVAILABLE=1 -c rdrand.cpp
 rdrand-%.o:
 	./rdrand-nasm.sh
+endif
+
+# Don't build Rijndael with UBsan. Too much noise due to unaligned data accesses.
+ifneq ($(findstring -fsanitize=undefined,$(CXXFLAGS)),)
+rijndael.o : rijndael.cpp
+	$(CXX) $(strip $(subst -fsanitize=undefined,,$(CXXFLAGS))) -c $<
+endif
+
+# Don't build VMAC and friends with Asan. Too many false positives.
+ifneq ($(findstring -fsanitize=address,$(CXXFLAGS)),)
+vmac.o : vmac.cpp
+	$(CXX) $(strip $(subst -fsanitize=address,,$(CXXFLAGS))) -c $<
 endif
 
 # Only use CRYPTOPP_DATA_DIR if its not set in CXXFLAGS
