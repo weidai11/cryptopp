@@ -453,7 +453,7 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 		rk = m_rk.data();
 		r = R; q = Q;
 
-#if CRYPTOPP_ENABLE_ARIA_SSE2_INTRINSICS
+#if CRYPTOPP_ENABLE_ARIA_SSE2_INTRINSICS && !defined(__SUNPRO_CC)
 		if (HasSSE2())
 		{
 			a=reinterpret_cast<word32*>(rk); s=m_w.data()+24; z=a+r*4;
