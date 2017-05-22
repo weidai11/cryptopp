@@ -764,12 +764,21 @@ NAMESPACE_END
 
 // ************** Deprecated ***************
 
-#if (CRYPTOPP_GCC_VERSION >= 40500) || (CRYPTOPP_LLVM_CLANG_VERSION >= 20800)
-# define CRYPTOPP_DEPRECATED(msg) __attribute__((deprecated (msg)));
+#if (CRYPTOPP_GCC_VERSION >= 40500) || (CRYPTOPP_LLVM_CLANG_VERSION >= 20800) || (CRYPTOPP_APPLE_CLANG_VERSION >= 40200)
+# define CRYPTOPP_DEPRECATED(msg) __attribute__((deprecated (msg)))
 #elif (CRYPTOPP_GCC_VERSION)
-# define CRYPTOPP_DEPRECATED(msg) __attribute__((deprecated));
+# define CRYPTOPP_DEPRECATED(msg) __attribute__((deprecated))
 #else
 # define CRYPTOPP_DEPRECATED(msg)
+#endif
+
+// ************** Instrumentation ***************
+
+// GCC does not support; see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=78204
+#if (CRYPTOPP_LLVM_CLANG_VERSION >= 30700) || (CRYPTOPP_APPLE_CLANG_VERSION >= 70000)
+# define CRYPTOPP_NO_SANITIZE(x) __attribute__((no_sanitize(x)))
+#else
+# define CRYPTOPP_NO_SANITIZE(x)
 #endif
 
 // ***************** C++11 related ********************
