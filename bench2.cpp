@@ -246,40 +246,40 @@ void Benchmark3(double t, double hertz)
 
 	std::cout << "\n<TBODY style=\"background: white;\">";
 	{
-		BenchMarkCrypto<RSAES<OAEP<SHA> > >(CRYPTOPP_DATA_DIR "TestData/rsa1024.dat", "RSA 1024", t);
-		BenchMarkCrypto<LUCES<OAEP<SHA> > >(CRYPTOPP_DATA_DIR "TestData/luc1024.dat", "LUC 1024", t);
+		BenchMarkCrypto<RSAES<OAEP<SHA1> > >(CRYPTOPP_DATA_DIR "TestData/rsa1024.dat", "RSA 1024", t);
+		BenchMarkCrypto<LUCES<OAEP<SHA1> > >(CRYPTOPP_DATA_DIR "TestData/luc1024.dat", "LUC 1024", t);
 		BenchMarkCrypto<DLIES<> >(CRYPTOPP_DATA_DIR "TestData/dlie1024.dat", "DLIES 1024", t);
 		BenchMarkCrypto<LUC_IES<> >(CRYPTOPP_DATA_DIR "TestData/lucc512.dat", "LUCELG 512", t);
 	}
 
 	std::cout << "\n<TBODY style=\"background: yellow;\">";
 	{
-		BenchMarkCrypto<RSAES<OAEP<SHA> > >(CRYPTOPP_DATA_DIR "TestData/rsa2048.dat", "RSA 2048", t);
-		BenchMarkCrypto<LUCES<OAEP<SHA> > >(CRYPTOPP_DATA_DIR "TestData/luc2048.dat", "LUC 2048", t);
+		BenchMarkCrypto<RSAES<OAEP<SHA1> > >(CRYPTOPP_DATA_DIR "TestData/rsa2048.dat", "RSA 2048", t);
+		BenchMarkCrypto<LUCES<OAEP<SHA1> > >(CRYPTOPP_DATA_DIR "TestData/luc2048.dat", "LUC 2048", t);
 		BenchMarkCrypto<DLIES<> >(CRYPTOPP_DATA_DIR "TestData/dlie2048.dat", "DLIES 2048", t);
 		BenchMarkCrypto<LUC_IES<> >(CRYPTOPP_DATA_DIR "TestData/lucc1024.dat", "LUCELG 1024", t);
 	}
 
 	std::cout << "\n<TBODY style=\"background: white;\">";
 	{
-		BenchMarkSignature<RSASS<PSSR, SHA> >(CRYPTOPP_DATA_DIR "TestData/rsa1024.dat", "RSA 1024", t);
-		BenchMarkSignature<RWSS<PSSR, SHA> >(CRYPTOPP_DATA_DIR "TestData/rw1024.dat", "RW 1024", t);
-		BenchMarkSignature<LUCSS<PSSR, SHA> >(CRYPTOPP_DATA_DIR "TestData/luc1024.dat", "LUC 1024", t);
-		BenchMarkSignature<NR<SHA> >(CRYPTOPP_DATA_DIR "TestData/nr1024.dat", "NR 1024", t);
+		BenchMarkSignature<RSASS<PSSR, SHA1> >(CRYPTOPP_DATA_DIR "TestData/rsa1024.dat", "RSA 1024", t);
+		BenchMarkSignature<RWSS<PSSR, SHA1> >(CRYPTOPP_DATA_DIR "TestData/rw1024.dat", "RW 1024", t);
+		BenchMarkSignature<LUCSS<PSSR, SHA1> >(CRYPTOPP_DATA_DIR "TestData/luc1024.dat", "LUC 1024", t);
+		BenchMarkSignature<NR<SHA1> >(CRYPTOPP_DATA_DIR "TestData/nr1024.dat", "NR 1024", t);
 		BenchMarkSignature<DSA>(CRYPTOPP_DATA_DIR "TestData/dsa1024.dat", "DSA 1024", t);
-		BenchMarkSignature<LUC_HMP<SHA> >(CRYPTOPP_DATA_DIR "TestData/lucs512.dat", "LUC-HMP 512", t);
-		BenchMarkSignature<ESIGN<SHA> >(CRYPTOPP_DATA_DIR "TestData/esig1023.dat", "ESIGN 1023", t);
-		BenchMarkSignature<ESIGN<SHA> >(CRYPTOPP_DATA_DIR "TestData/esig1536.dat", "ESIGN 1536", t);
+		BenchMarkSignature<LUC_HMP<SHA1> >(CRYPTOPP_DATA_DIR "TestData/lucs512.dat", "LUC-HMP 512", t);
+		BenchMarkSignature<ESIGN<SHA1> >(CRYPTOPP_DATA_DIR "TestData/esig1023.dat", "ESIGN 1023", t);
+		BenchMarkSignature<ESIGN<SHA1> >(CRYPTOPP_DATA_DIR "TestData/esig1536.dat", "ESIGN 1536", t);
 	}
 
 	std::cout << "\n<TBODY style=\"background: yellow;\">";
 	{
-		BenchMarkSignature<RSASS<PSSR, SHA> >(CRYPTOPP_DATA_DIR "TestData/rsa2048.dat", "RSA 2048", t);
-		BenchMarkSignature<RWSS<PSSR, SHA> >(CRYPTOPP_DATA_DIR "TestData/rw2048.dat", "RW 2048", t);
-		BenchMarkSignature<LUCSS<PSSR, SHA> >(CRYPTOPP_DATA_DIR "TestData/luc2048.dat", "LUC 2048", t);
-		BenchMarkSignature<NR<SHA> >(CRYPTOPP_DATA_DIR "TestData/nr2048.dat", "NR 2048", t);
-		BenchMarkSignature<LUC_HMP<SHA> >(CRYPTOPP_DATA_DIR "TestData/lucs1024.dat", "LUC-HMP 1024", t);
-		BenchMarkSignature<ESIGN<SHA> >(CRYPTOPP_DATA_DIR "TestData/esig2046.dat", "ESIGN 2046", t);
+		BenchMarkSignature<RSASS<PSSR, SHA1> >(CRYPTOPP_DATA_DIR "TestData/rsa2048.dat", "RSA 2048", t);
+		BenchMarkSignature<RWSS<PSSR, SHA1> >(CRYPTOPP_DATA_DIR "TestData/rw2048.dat", "RW 2048", t);
+		BenchMarkSignature<LUCSS<PSSR, SHA1> >(CRYPTOPP_DATA_DIR "TestData/luc2048.dat", "LUC 2048", t);
+		BenchMarkSignature<NR<SHA1> >(CRYPTOPP_DATA_DIR "TestData/nr2048.dat", "NR 2048", t);
+		BenchMarkSignature<LUC_HMP<SHA1> >(CRYPTOPP_DATA_DIR "TestData/lucs1024.dat", "LUC-HMP 1024", t);
+		BenchMarkSignature<ESIGN<SHA1> >(CRYPTOPP_DATA_DIR "TestData/esig2046.dat", "ESIGN 2046", t);
 	}
 
 	std::cout << "\n<TBODY style=\"background: white;\">";
@@ -310,12 +310,12 @@ void Benchmark3(double t, double hertz)
 	{
 		ECIES<ECP>::Decryptor cpriv(Test::GlobalRNG(), ASN1::secp256k1());
 		ECIES<ECP>::Encryptor cpub(cpriv);
-		ECDSA<ECP, SHA>::Signer spriv(cpriv);
-		ECDSA<ECP, SHA>::Verifier spub(spriv);
-		ECDSA_RFC6979<ECP, SHA>::Signer spriv2(cpriv);
-		ECDSA_RFC6979<ECP, SHA>::Verifier spub2(spriv);
-		ECGDSA<ECP, SHA>::Signer spriv3(Test::GlobalRNG(), ASN1::secp256k1());
-		ECGDSA<ECP, SHA>::Verifier spub3(spriv3);
+		ECDSA<ECP, SHA1>::Signer spriv(cpriv);
+		ECDSA<ECP, SHA1>::Verifier spub(spriv);
+		ECDSA_RFC6979<ECP, SHA1>::Signer spriv2(cpriv);
+		ECDSA_RFC6979<ECP, SHA1>::Verifier spub2(spriv);
+		ECGDSA<ECP, SHA1>::Signer spriv3(Test::GlobalRNG(), ASN1::secp256k1());
+		ECGDSA<ECP, SHA1>::Verifier spub3(spriv3);
 		ECDH<ECP>::Domain ecdhc(ASN1::secp256k1());
 		ECMQV<ECP>::Domain ecmqvc(ASN1::secp256k1());
 
@@ -337,12 +337,12 @@ void Benchmark3(double t, double hertz)
 	{
 		ECIES<EC2N>::Decryptor cpriv(Test::GlobalRNG(), ASN1::sect233r1());
 		ECIES<EC2N>::Encryptor cpub(cpriv);
-		ECDSA<EC2N, SHA>::Signer spriv(cpriv);
-		ECDSA<EC2N, SHA>::Verifier spub(spriv);
-		ECDSA_RFC6979<EC2N, SHA>::Signer spriv2(cpriv);
-		ECDSA_RFC6979<EC2N, SHA>::Verifier spub2(spriv);
-		ECGDSA<EC2N, SHA>::Signer spriv3(Test::GlobalRNG(), ASN1::sect233r1());
-		ECGDSA<EC2N, SHA>::Verifier spub3(spriv3);
+		ECDSA<EC2N, SHA1>::Signer spriv(cpriv);
+		ECDSA<EC2N, SHA1>::Verifier spub(spriv);
+		ECDSA_RFC6979<EC2N, SHA1>::Signer spriv2(cpriv);
+		ECDSA_RFC6979<EC2N, SHA1>::Verifier spub2(spriv);
+		ECGDSA<EC2N, SHA1>::Signer spriv3(Test::GlobalRNG(), ASN1::sect233r1());
+		ECGDSA<EC2N, SHA1>::Verifier spub3(spriv3);
 		ECDH<EC2N>::Domain ecdhc(ASN1::sect233r1());
 		ECMQV<EC2N>::Domain ecmqvc(ASN1::sect233r1());
 

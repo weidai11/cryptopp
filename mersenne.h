@@ -26,7 +26,7 @@ NAMESPACE_BEGIN(CryptoPP)
 //!   required quickly. It should not be used for cryptographic purposes.
 //! \sa MT19937, MT19937ar
 //! \since Crypto++ 5.6.3
-template <unsigned int K, unsigned int M, unsigned int N, unsigned int F, unsigned long S>
+template <unsigned int K, unsigned int M, unsigned int N, unsigned int F, word32 S>
 class MersenneTwister : public RandomNumberGenerator
 {
 public:
@@ -38,11 +38,26 @@ public:
 	//! \param seed 32-bit seed
 	//! \details Defaults to template parameter S due to changing algorithm
 	//!   parameters over time
-	MersenneTwister(unsigned long seed = S) : m_seed(seed), m_idx(N)
+	MersenneTwister(word32 seed = S) : m_seed(seed), m_idx(N)
 	{
-		m_state[0] = seed;
-		for (unsigned int i = 1; i < N+1; i++)
-			m_state[i] = word32(F * (m_state[i-1] ^ (m_state[i-1] >> 30)) + i);
+		Reset(seed);
+	}
+
+	bool CanIncorporateEntropy() const {return true;}
+
+	//! \brief Update RNG state with additional unpredictable values
+	//! \param input the entropy to add to the generator
+	//! \param length the size of the input buffer
+	//! \details MersenneTwister uses the first 32-bits of <tt>input</tt> to reseed the
+    //!   generator. If fewer bytes are provided, then the seed is padded with 0's.
+	void IncorporateEntropy(const byte *input, size_t length)
+	{
+		word32 temp = 0;
+		::memcpy(&temp, input, STDMIN(sizeof(temp), length));
+		Reset(temp);
+
+		// Wipe temp
+		SecureWipeArray(&temp, 1);
 	}
 
 	//! \brief Generate random array of bytes
@@ -58,24 +73,15 @@ public:
 		word32 temp;
 		for (size_t i=0; i < size/4; i++, output += 4)
 		{
-#if defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS) && defined(IS_LITTLE_ENDIAN)
-			*((word32*)output) = ByteReverse(NextMersenneWord());
-#elif defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS)
-			*((word32*)output) = NextMersenneWord();
-#else
 			temp = NextMersenneWord();
-			output[3] = CRYPTOPP_GET_BYTE_AS_BYTE(temp, 0);
-			output[2] = CRYPTOPP_GET_BYTE_AS_BYTE(temp, 1);
-			output[1] = CRYPTOPP_GET_BYTE_AS_BYTE(temp, 2);
-			output[0] = CRYPTOPP_GET_BYTE_AS_BYTE(temp, 3);
-#endif
+			memcpy(output, &temp, 4);
 		}
 
 		// No tail bytes
 		if (size%4 == 0)
 		{
 			// Wipe temp
-			*((volatile word32*)&temp) = 0;
+			SecureWipeArray(&temp, 1);
 			return;
 		}
 
@@ -91,7 +97,7 @@ public:
 		}
 
 		// Wipe temp
-		*((volatile word32*)&temp) = 0;
+		SecureWipeArray(&temp, 1);
 	}
 
 	//! \brief Generate a random 32-bit word in the range min to max, inclusive
@@ -128,6 +134,16 @@ public:
 
 protected:
 
+	void Reset(word32 seed)
+	{
+		m_seed = seed;
+		m_idx = N;
+
+		m_state[0] = seed;
+		for (unsigned int i = 1; i < N+1; i++)
+			m_state[i] = word32(F * (m_state[i-1] ^ (m_state[i-1] >> 30)) + i);
+	}
+
 	//! \brief Returns the next 32-bit word from the state array
 	//! \returns the next 32-bit word from the state array
 	//! \details fetches the next word frm the state array, performs bit operations on
@@ -148,7 +164,7 @@ protected:
 	//! \brief Performs the twist operaton on the state array
 	void Twist()
 	{
-		static const unsigned long magic[2]={0x0UL, K};
+		static const word32 magic[2]={0x0UL, K};
 		word32 kk, temp;
 
 		CRYPTOPP_ASSERT(N >= M);
@@ -171,7 +187,7 @@ protected:
 		m_idx = 0;
 
 		// Wipe temp
-		*((volatile word32*)&temp) = 0;
+		SecureWipeArray(&temp, 1);
 	}
 
 private:
@@ -179,9 +195,9 @@ private:
 	//! \brief 32-bit word state array of size N
 	FixedSizeSecBlock<word32, N+1> m_state;
 	//! \brief the value used to seed the generator
-	unsigned int m_seed;
+	word32 m_seed;
 	//! \brief the current index into the state array
-	unsigned int m_idx;
+	word32 m_idx;
 };
 
 //! \class MT19937

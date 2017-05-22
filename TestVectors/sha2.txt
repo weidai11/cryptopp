@@ -1,0 +1,6 @@
+AlgorithmType: FileList
+Name: SHA2 FIPS 180 collection
+Test: TestVectors/sha2_224_fips_180.txt
+Test: TestVectors/sha2_256_fips_180.txt
+Test: TestVectors/sha2_384_fips_180.txt
+Test: TestVectors/sha2_512_fips_180.txt

@@ -1,0 +1,56 @@
+language: cpp
+
+os:
+  - linux
+  - osx
+
+dist: trusty
+sudo: false
+
+# OS X only supports one image. Us the latest.
+osx_image:
+  - xcode8.2
+#  - xcode7.3
+#  - xcode6.4
+
+git:
+  depth: 3
+
+compiler:
+  - clang
+  - gcc
+
+env:
+  global:
+    - BUILD_JOBS=2
+
+  matrix:
+    - BUILD_MODE="shared"
+    - BUILD_MODE="static"
+    - BUILD_MODE="no-asm"
+    - BUILD_MODE="asan"
+    - BUILD_MODE="ubsan"
+    - BUILD_MODE="valgrind"
+
+  exclude:
+    # Skip GCC on OS X entirely
+    - os: osx
+      compiler: gcc
+
+    # The sanitizer builds under Clang run the tests very
+    # slowly and cause CI timeouts.
+
+    - compiler: clang
+      env: BUILD_MODE="asan"
+    - compiler: clang
+      env: BUILD_MODE="ubsan"
+    - compiler: clang
+      env: BUILD_MODE="valgrind"
+
+# whitelist branches to avoid testing feature branches twice
+branches:
+  only:
+    - master
+
+#notifications:
+#  email: jdoe@example.com

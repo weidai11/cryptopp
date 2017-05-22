@@ -37,7 +37,7 @@ protected:
 	MaskGeneratingFunction * NewMGF() const {return new MGF;}
 };
 
-CRYPTOPP_DLL_TEMPLATE_CLASS OAEP<SHA>;
+CRYPTOPP_DLL_TEMPLATE_CLASS OAEP<SHA1>;
 
 NAMESPACE_END
 

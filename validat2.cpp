@@ -47,7 +47,7 @@
 #include "validate.h"
 
 // Aggressive stack checking with VS2005 SP1 and above.
-#if (CRYPTOPP_MSC_VERSION >= 1410)
+#if (_MSC_FULL_VER >= 140050727)
 # pragma strict_gs_check (on)
 #endif
 
@@ -322,8 +322,8 @@ bool ValidateRSA()
 		pass = CryptoSystemValidate(rsaPriv, rsaPub) && pass;
 	}
 	{
-		RSAES<OAEP<SHA> >::Decryptor rsaPriv(GlobalRNG(), 512);
-		RSAES<OAEP<SHA> >::Encryptor rsaPub(rsaPriv);
+		RSAES<OAEP<SHA1> >::Decryptor rsaPriv(GlobalRNG(), 512);
+		RSAES<OAEP<SHA1> >::Encryptor rsaPub(rsaPriv);
 
 		pass = CryptoSystemValidate(rsaPriv, rsaPub) && pass;
 	}
@@ -679,16 +679,16 @@ bool ValidateNR()
 	bool pass = true;
 	{
 		FileSource f(CRYPTOPP_DATA_DIR "TestData/nr2048.dat", true, new HexDecoder);
-		NR<SHA>::Signer privS(f);
+		NR<SHA1>::Signer privS(f);
 		privS.AccessKey().Precompute();
-		NR<SHA>::Verifier pubS(privS);
+		NR<SHA1>::Verifier pubS(privS);
 
 		pass = SignatureValidate(privS, pubS) && pass;
 	}
 	{
 		std::cout << "Generating new signature key..." << std::endl;
-		NR<SHA>::Signer privS(GlobalRNG(), 256);
-		NR<SHA>::Verifier pubS(privS);
+		NR<SHA1>::Signer privS(GlobalRNG(), 256);
+		NR<SHA1>::Verifier pubS(privS);
 
 		pass = SignatureValidate(privS, pubS) && pass;
 	}
@@ -736,8 +736,8 @@ bool ValidateLUC_DL()
 	std::cout << "\nLUC-HMP validation suite running...\n\n";
 
 	FileSource f(CRYPTOPP_DATA_DIR "TestData/lucs512.dat", true, new HexDecoder);
-	LUC_HMP<SHA>::Signer privS(f);
-	LUC_HMP<SHA>::Verifier pubS(privS);
+	LUC_HMP<SHA1>::Signer privS(f);
+	LUC_HMP<SHA1>::Verifier pubS(privS);
 	bool pass = SignatureValidate(privS, pubS);
 
 	std::cout << "\nLUC-IES validation suite running...\n\n";
@@ -757,13 +757,13 @@ bool ValidateRabin()
 
 	{
 		FileSource f(CRYPTOPP_DATA_DIR "TestData/rabi1024.dat", true, new HexDecoder);
-		RabinSS<PSSR, SHA>::Signer priv(f);
-		RabinSS<PSSR, SHA>::Verifier pub(priv);
+		RabinSS<PSSR, SHA1>::Signer priv(f);
+		RabinSS<PSSR, SHA1>::Verifier pub(priv);
 		pass = SignatureValidate(priv, pub) && pass;
 	}
 	{
-		RabinES<OAEP<SHA> >::Decryptor priv(GlobalRNG(), 512);
-		RabinES<OAEP<SHA> >::Encryptor pub(priv);
+		RabinES<OAEP<SHA1> >::Decryptor priv(GlobalRNG(), 512);
+		RabinES<OAEP<SHA1> >::Encryptor pub(priv);
 		pass = CryptoSystemValidate(priv, pub) && pass;
 	}
 	return pass;
@@ -774,8 +774,8 @@ bool ValidateRW()
 	std::cout << "\nRW validation suite running...\n\n";
 
 	FileSource f(CRYPTOPP_DATA_DIR "TestData/rw1024.dat", true, new HexDecoder);
-	RWSS<PSSR, SHA>::Signer priv(f);
-	RWSS<PSSR, SHA>::Verifier pub(priv);
+	RWSS<PSSR, SHA1>::Signer priv(f);
+	RWSS<PSSR, SHA1>::Verifier pub(priv);
 
 	return SignatureValidate(priv, pub);
 }
@@ -793,120 +793,6 @@ bool ValidateBlumGoldwasser()
 }
 */
 
-#if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_IMPORTS)
-// Issue 64: "PolynomialMod2::operator<<=", http://github.com/weidai11/cryptopp/issues/64
-bool TestPolynomialMod2()
-{
-	bool pass1 = true, pass2 = true, pass3 = true;
-
-	std::cout << "\nTesting PolynomialMod2 bit operations...\n\n";
-
-	static const unsigned int start = 0;
-	static const unsigned int stop = 4 * WORD_BITS + 1;
-
-	for (unsigned int i=start; i < stop; i++)
-	{
-		PolynomialMod2 p(1);
-		p <<= i;
-
-		Integer n(Integer::One());
-		n <<= i;
-
-		std::ostringstream oss1;
-		oss1 << p;
-
-		std::string str1, str2;
-
-		// str1 needs the commas removed used for grouping
-		str1 = oss1.str();
-		str1.erase(std::remove(str1.begin(), str1.end(), ','), str1.end());
-
-		// str1 needs the trailing 'b' removed
-		str1.erase(str1.end() - 1);
-
-		// str2 is fine as-is
-		str2 = IntToString(n, 2);
-
-		pass1 &= (str1 == str2);
-	}
-
-	for (unsigned int i=start; i < stop; i++)
-	{
-		const word w((word)SIZE_MAX);
-
-		PolynomialMod2 p(w);
-		p <<= i;
-
-		Integer n(Integer::POSITIVE, static_cast<lword>(w));
-		n <<= i;
-
-		std::ostringstream oss1;
-		oss1 << p;
-
-		std::string str1, str2;
-
-		// str1 needs the commas removed used for grouping
-		str1 = oss1.str();
-		str1.erase(std::remove(str1.begin(), str1.end(), ','), str1.end());
-
-		// str1 needs the trailing 'b' removed
-		str1.erase(str1.end() - 1);
-
-		// str2 is fine as-is
-		str2 = IntToString(n, 2);
-
-		pass2 &= (str1 == str2);
-	}
-
-	RandomNumberGenerator& prng = GlobalRNG();
-	for (unsigned int i=start; i < stop; i++)
-	{
-		word w; 	// Cast to lword due to Visual Studio
-		prng.GenerateBlock((byte*)&w, sizeof(w));
-
-		PolynomialMod2 p(w);
-		p <<= i;
-
-		Integer n(Integer::POSITIVE, static_cast<lword>(w));
-		n <<= i;
-
-		std::ostringstream oss1;
-		oss1 << p;
-
-		std::string str1, str2;
-
-		// str1 needs the commas removed used for grouping
-		str1 = oss1.str();
-		str1.erase(std::remove(str1.begin(), str1.end(), ','), str1.end());
-
-		// str1 needs the trailing 'b' removed
-		str1.erase(str1.end() - 1);
-
-		// str2 is fine as-is
-		str2 = IntToString(n, 2);
-
-		if (str1 != str2)
-		{
-			std::cout << "  Oops..." << "\n";
-			std::cout << "     random: " << std::hex << n << std::dec << "\n";
-			std::cout << "     str1: " << str1 << "\n";
-			std::cout << "     str2: " << str2 << "\n";
-		}
-
-		pass3 &= (str1 == str2);
-	}
-
-	std::cout << (!pass1 ? "FAILED" : "passed") << ":  " << "1 shifted over range [" << std::dec << start << "," << stop << "]" << "\n";
-	std::cout << (!pass2 ? "FAILED" : "passed") << ":  " << "0x" << std::hex << word(SIZE_MAX) << std::dec << " shifted over range [" << start << "," << stop << "]" << "\n";
-	std::cout << (!pass3 ? "FAILED" : "passed") << ":  " << "random values shifted over range [" << std::dec << start << "," << stop << "]" << "\n";
-
-	if (!(pass1 && pass2 && pass3))
-		std::cout.flush();
-
-	return pass1 && pass2 && pass3;
-}
-#endif
-
 bool ValidateECP()
 {
 	std::cout << "\nECP validation suite running...\n\n";
@@ -917,8 +803,8 @@ bool ValidateECP()
 	cpriv.GetKey().DEREncode(bq);
 	cpub.AccessKey().AccessGroupParameters().SetEncodeAsOID(true);
 	cpub.GetKey().DEREncode(bq);
-	ECDSA<ECP, SHA>::Signer spriv(bq);
-	ECDSA<ECP, SHA>::Verifier spub(bq);
+	ECDSA<ECP, SHA1>::Signer spriv(bq);
+	ECDSA<ECP, SHA1>::Verifier spub(bq);
 	ECDH<ECP>::Domain ecdhc(ASN1::secp192r1());
 	ECMQV<ECP>::Domain ecmqvc(ASN1::secp192r1());
 
@@ -966,8 +852,8 @@ bool ValidateEC2N()
 	cpriv.DEREncode(bq);
 	cpub.AccessKey().AccessGroupParameters().SetEncodeAsOID(true);
 	cpub.DEREncode(bq);
-	ECDSA<EC2N, SHA>::Signer spriv(bq);
-	ECDSA<EC2N, SHA>::Verifier spub(bq);
+	ECDSA<EC2N, SHA1>::Signer spriv(bq);
+	ECDSA<EC2N, SHA1>::Verifier spub(bq);
 	ECDH<EC2N>::Domain ecdhc(ASN1::sect193r1());
 	ECMQV<EC2N>::Domain ecmqvc(ASN1::sect193r1());
 
@@ -1023,8 +909,8 @@ bool ValidateECDSA()
 	Integer n("40000000000000000000000004a20e90c39067c893bbb9a5H");
 	Integer d("340562e1dda332f9d2aec168249b5696ee39d0ed4d03760fH");
 	EC2N::Point Q(ec.Multiply(d, P));
-	ECDSA<EC2N, SHA>::Signer priv(ec, P, n, d);
-	ECDSA<EC2N, SHA>::Verifier pub(priv);
+	ECDSA<EC2N, SHA1>::Signer priv(ec, P, n, d);
+	ECDSA<EC2N, SHA1>::Verifier pub(priv);
 
 	Integer h("A9993E364706816ABA3E25717850C26C9CD0D89DH");
 	Integer k("3eeace72b4919d991738d521879f787cb590aff8189d2b69H");
@@ -1416,8 +1302,8 @@ bool ValidateESIGN()
 		"\x79\xA2\xE5\x52\x20\x5D\x97\x5E\xFE\x39\xAE\x21\x10\xFB\x35\xF4\x80\x81\x41\x13\xDD\xE8\x5F\xCA\x1E\x4F\xF8\x9B\xB2\x68\xFB\x28";
 
 	FileSource keys(CRYPTOPP_DATA_DIR "TestData/esig1536.dat", true, new HexDecoder);
-	ESIGN<SHA>::Signer signer(keys);
-	ESIGN<SHA>::Verifier verifier(signer);
+	ESIGN<SHA1>::Signer signer(keys);
+	ESIGN<SHA1>::Verifier verifier(signer);
 
 	fail = !SignatureValidate(signer, verifier);
 	pass = pass && !fail;

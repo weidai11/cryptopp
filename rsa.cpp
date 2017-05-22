@@ -15,13 +15,13 @@
 NAMESPACE_BEGIN(CryptoPP)
 void RSA_TestInstantiations()
 {
-	RSASS<PKCS1v15, SHA>::Verifier x1(1, 1);
-	RSASS<PKCS1v15, SHA>::Signer x2(NullRNG(), 1);
-	RSASS<PKCS1v15, SHA>::Verifier x3(x2);
-	RSASS<PKCS1v15, SHA>::Verifier x4(x2.GetKey());
-	RSASS<PSS, SHA>::Verifier x5(x3);
+	RSASS<PKCS1v15, SHA1>::Verifier x1(1, 1);
+	RSASS<PKCS1v15, SHA1>::Signer x2(NullRNG(), 1);
+	RSASS<PKCS1v15, SHA1>::Verifier x3(x2);
+	RSASS<PKCS1v15, SHA1>::Verifier x4(x2.GetKey());
+	RSASS<PSS, SHA1>::Verifier x5(x3);
 #ifndef __MWERKS__
-	RSASS<PSSR, SHA>::Signer x6 = x2;
+	RSASS<PSSR, SHA1>::Signer x6 = x2;
 	x3 = x2;
 	x6 = x2;
 #endif
@@ -29,7 +29,7 @@ void RSA_TestInstantiations()
 #ifndef __GNUC__
 	RSAES<PKCS1v15>::Encryptor x8(x3);
 #endif
-	RSAES<OAEP<SHA> >::Encryptor x9(x2);
+	RSAES<OAEP<SHA1> >::Encryptor x9(x2);
 
 	x4 = x2.GetKey();
 }
@@ -136,12 +136,12 @@ void InvertibleRSAFunction::GenerateRandom(RandomNumberGenerator &rng, const Nam
 
 	if (FIPS_140_2_ComplianceEnabled())
 	{
-		RSASS<PKCS1v15, SHA>::Signer signer(*this);
-		RSASS<PKCS1v15, SHA>::Verifier verifier(signer);
+		RSASS<PKCS1v15, SHA1>::Signer signer(*this);
+		RSASS<PKCS1v15, SHA1>::Verifier verifier(signer);
 		SignaturePairwiseConsistencyTest_FIPS_140_Only(signer, verifier);
 
-		RSAES<OAEP<SHA> >::Decryptor decryptor(*this);
-		RSAES<OAEP<SHA> >::Encryptor encryptor(decryptor);
+		RSAES<OAEP<SHA1> >::Decryptor decryptor(*this);
+		RSAES<OAEP<SHA1> >::Encryptor encryptor(decryptor);
 		EncryptionPairwiseConsistencyTest_FIPS_140_Only(encryptor, decryptor);
 	}
 }

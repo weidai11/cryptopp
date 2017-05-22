@@ -1,6 +1,37 @@
 // integer.cpp - originally written and placed in the public domain by Wei Dai
 // contains public domain code contributed by Alister Lee and Leonard Janke
 
+// Notes by JW: The Integer class needs to do two things. First, it needs to set function
+//  pointers on some platforms, like X86 and X64. The function pointers select a fast multiply
+//  and addition based on the cpu. Second, it wants to create Integer::Zero(), Integer::One()
+//  and Integer::Two(). The function pointers are initialized in the class InitializeInteger.
+// Wei's original code was much simpler. It uses the Singleton pattern, but it always produced
+//  memory findings. The Singleton generates memory findings because it used for a Create on
+//  First Use pattern. Resource destruction effectivley requires running resource acquisition
+//  with dependencies in reverse. For resources provided through the Singletons, there is no way
+//  to express the dependency order to safely destroy resources.
+// The difference in the changes below is we use platform and language specific remediations
+//  if they are available. If not available, then we fall back to Wei's original code. If
+//  NO_OS_DEPENDENCE is defined, then the library uses Wei's original code.
+// Under all versions of C++ on Linux and Microsoft platforms, we can use GCC's init_priority
+//  or MSVC's init_seg(lib) to initialize the function pointers and create the Integers 0, 1 and 2
+//  after CRT startup. This avoids the Singletons and clears over half the reports of memory
+//  leaks. However, it does not apply to Apple or Sun platforms.
+// C++11 allows us to use call_once to set the function pointers, and Integer does so when
+//  init_priority and init_seg(lib) are not available. The class also uses the Singleton pattern
+//  to ensure integers 0, 1 and 2 are available. The Singleton will produce memory findings, but
+//  we don't have anything else to use in this case.
+// C++03 on platforms like Apple and Sun, we use a boolean flag to track when the function pointers
+//  have been set based on the cpu. Its just a Nifty Counter in disguise, and its similar to using
+//  the g_pAssignToInteger to track initialization. It has concurrency issues, but a race is not a
+//  problem. It does not matter if two threads both set the same pointers. The Singleton pattern
+//  is also used to ensure integers 0, 1 and 2 are available. The Singleton will produce memory
+//  findings, but we don't have anything else to use in this case.
+// While not readily apparent, Integer does not need to inherit from InitializeInteger when
+//  init_priority and init_seg(lib) are available. They just create an InitializePointers object
+//  at the right time after CRT initialization. The additional class avoids the small runtime
+//  overhead associated with checking the flags, and hides the detail from the interface.
+
 #include "pch.h"
 #include "config.h"
 
@@ -30,6 +61,7 @@
 #include "smartptr.h"
 #include "algparam.h"
 #include "filters.h"
+#include "stdcpp.h"
 #include "asn.h"
 #include "oids.h"
 #include "words.h"
@@ -74,6 +106,41 @@
 // ***************** C++ Static Initialization ********************
 
 NAMESPACE_BEGIN(CryptoPP)
+static void SetFunctionPointers();
+#if defined(HAVE_GCC_INIT_PRIORITY) || defined(HAVE_MSC_INIT_PRIORITY)
+// Add InitializePointers to perform the work of setting pointers once.
+struct InitializePointers
+{
+	InitializePointers()
+	{
+		SetFunctionPointers();
+	}
+};
+// Leave InitializeInteger empty so no work is done.
+InitializeInteger::InitializeInteger()
+{
+}
+#elif defined(CRYPTOPP_CXX11_SYNCHRONIZATION) && defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
+std::once_flag s_flag;
+InitializeInteger::InitializeInteger()
+{
+	std::call_once(s_flag, []() {
+		SetFunctionPointers();
+	});
+}
+#else
+static bool s_flag;
+InitializeInteger::InitializeInteger()
+{
+	MEMORY_BARRIER();
+	if (s_flag == false)
+	{
+		SetFunctionPointers();
+		s_flag = true;
+		MEMORY_BARRIER();
+	}
+}
+#endif
 template <long i>
 struct NewInteger
 {
@@ -82,54 +149,28 @@ struct NewInteger
 		return new Integer(i);
 	}
 };
-
-static void SetFunctionPointers();
-bool AssignIntToInteger(const std::type_info &valueType, void *pInteger, const void *pInt);
 NAMESPACE_END
 
 ANONYMOUS_NAMESPACE_BEGIN
-struct InitializeInteger
-{
-	InitializeInteger()
-	{
-		CryptoPP::SetFunctionPointers();
-		CryptoPP::g_pAssignIntToInteger = (CryptoPP::PAssignIntToInteger)CryptoPP::AssignIntToInteger;
-	}
-};
-
-#if HAVE_GCC_INIT_PRIORITY
-const InitializeInteger s_init __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 30))) = InitializeInteger();
+#if defined(HAVE_GCC_INIT_PRIORITY)
+const CryptoPP::InitializePointers s_init __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 30))) = CryptoPP::InitializePointers();
 const CryptoPP::Integer s_zero __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 31))) = CryptoPP::Integer(0L);
 const CryptoPP::Integer  s_one __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 32))) = CryptoPP::Integer(1L);
 const CryptoPP::Integer  s_two __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 33))) = CryptoPP::Integer(2L);
-#elif HAVE_MSC_INIT_PRIORITY
+#elif defined(HAVE_MSC_INIT_PRIORITY)
 #pragma warning(disable: 4075)
 #pragma init_seg(".CRT$XCU-030")
-const InitializeInteger s_init;
+const CryptoPP::InitializePointers s_init;
 const CryptoPP::Integer s_zero(0L);
 const CryptoPP::Integer  s_one(1L);
 const CryptoPP::Integer  s_two(2L);
 #pragma warning(default: 4075)
-#else
-const InitializeInteger& s_init = CryptoPP::Singleton<InitializeInteger>().Ref();
-const CryptoPP::Integer& s_zero = CryptoPP::Singleton<CryptoPP::Integer, CryptoPP::NewInteger<0L> >().Ref();
-const CryptoPP::Integer&  s_one = CryptoPP::Singleton<CryptoPP::Integer, CryptoPP::NewInteger<1L> >().Ref();
-const CryptoPP::Integer&  s_two = CryptoPP::Singleton<CryptoPP::Integer, CryptoPP::NewInteger<2L> >().Ref();
 #endif
 ANONYMOUS_NAMESPACE_END
 
 // ***************** Library code ********************
 
 NAMESPACE_BEGIN(CryptoPP)
-
-bool AssignIntToInteger(const std::type_info &valueType, void *pInteger, const void *pInt)
-{
-	if (valueType != typeid(Integer))
-		return false;
-	*reinterpret_cast<Integer *>(pInteger) = *reinterpret_cast<const int *>(pInt);
-	return true;
-}
-
 inline static int Compare(const word *A, const word *B, size_t N)
 {
 	while (N--)
@@ -3009,7 +3050,7 @@ Integer::Integer(const byte *encodedInteger, size_t byteCount, Signedness s, Byt
 	if (o == LITTLE_ENDIAN_ORDER)
 	{
 		SecByteBlock block(byteCount);
-#if (CRYPTOPP_MSC_VERSION >= 1410)
+#if (_MSC_FULL_VER >= 140050727)
 		std::reverse_copy(encodedInteger, encodedInteger+byteCount,
 			stdext::make_checked_array_iterator(block.begin(), block.size()));
 #else
@@ -3047,17 +3088,29 @@ Integer Integer::Power2(size_t e)
 
 const Integer &Integer::Zero()
 {
+#if defined(HAVE_GCC_INIT_PRIORITY) || defined(HAVE_MSC_INIT_PRIORITY)
 	return s_zero;
+#else
+	return Singleton<Integer, NewInteger<0L> >().Ref();
+#endif
 }
 
 const Integer &Integer::One()
 {
+#if defined(HAVE_GCC_INIT_PRIORITY) || defined(HAVE_MSC_INIT_PRIORITY)
 	return s_one;
+#else
+	return Singleton<Integer, NewInteger<1L> >().Ref();
+#endif
 }
 
 const Integer &Integer::Two()
 {
+#if defined(HAVE_GCC_INIT_PRIORITY) || defined(HAVE_MSC_INIT_PRIORITY)
 	return s_two;
+#else
+	return Singleton<Integer, NewInteger<2L> >().Ref();
+#endif
 }
 
 bool Integer::operator!() const
@@ -3353,7 +3406,7 @@ void Integer::Decode(BufferedTransformation &bt, size_t inputLen, Signedness s)
 	reg.CleanNew(RoundupSize(BytesToWords(inputLen)));
 	for (size_t i=inputLen; i > 0; i--)
 	{
-		bt.Get(b);
+		(void)bt.Get(b);
 		reg[(i-1)/WORD_SIZE] |= word(b) << ((i-1)%WORD_SIZE)*8;
 	}
 
@@ -4750,6 +4803,18 @@ std::string IntToString<word64>(word64 value, unsigned int base)
 	}
 	return result;
 }
+
+#ifndef CRYPTOPP_NO_ASSIGN_TO_INTEGER
+// Allow the linker to discard Integer code if not needed.
+// Also see http://github.com/weidai11/cryptopp/issues/389.
+bool AssignIntToInteger(const std::type_info &valueType, void *pInteger, const void *pInt)
+{
+	if (valueType != typeid(Integer))
+		return false;
+	*reinterpret_cast<Integer *>(pInteger) = *reinterpret_cast<const int *>(pInt);
+	return true;
+}
+#endif
 
 NAMESPACE_END
 

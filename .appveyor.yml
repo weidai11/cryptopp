@@ -1,0 +1,55 @@
+# Appveyor's documentation is at https://www.appveyor.com/docs/build-phase/,
+#  and a sample configuration file is at https://www.appveyor.com/docs/appveyor-yml/.
+#  I have to admit its a bit complex and I don't fully understand it.
+
+version: 1.0.{build}
+clone_depth: 3
+
+configuration:
+
+- Debug
+- Release
+
+platform:
+
+- Win32
+- Win64
+
+image:
+
+- Visual Studio 2017
+- Visual Studio 2015
+- Visual Studio 2013
+- Visual Studio 2012
+- Visual Studio 2010
+
+build:
+
+  project: cryptest.sln
+  verbosity: minimal
+  parallel: true
+
+test_script:
+
+- cmd: >-
+
+    msbuild /t:CopyCryptestToRoot cryptest.vcxproj
+    
+    cryptest.exe v
+    
+    cryptest.exe tv all
+
+# Right now, we have a few failures that we don't know how to workaround.
+#  - https://stackoverflow.com/questions/43441273/how-to-run-vcupgrade-before-appveyor-build
+#  - https://stackoverflow.com/questions/43423761/cant-perform-64-bit-testing-under-appveyor
+# Appveyor also complains that it can't find VS2010 tools even though the docs state they are there.
+matrix:
+#  allow_failures:
+
+  exclude:
+    - platform: Win64
+      configuration: Debug
+    - platform: Win64
+      configuration: Release
+    - image: Visual Studio 2010
+    - image: Visual Studio 2017

@@ -23,12 +23,12 @@ NAMESPACE_BEGIN(CryptoPP)
 #if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
 void TestInstantiations_gfpcrypt()
 {
-	GDSA<SHA>::Signer test;
-	GDSA<SHA>::Verifier test1;
+	GDSA<SHA1>::Signer test;
+	GDSA<SHA1>::Verifier test1;
 	DSA::Signer test5(NullRNG(), 100);
 	DSA::Signer test2(test5);
-	NR<SHA>::Signer test3;
-	NR<SHA>::Verifier test4;
+	NR<SHA1>::Signer test3;
+	NR<SHA1>::Verifier test4;
 	DLIES<>::Encryptor test6;
 	DLIES<>::Decryptor test7;
 }

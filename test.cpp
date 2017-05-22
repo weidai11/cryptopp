@@ -62,7 +62,7 @@
 #endif
 
 // Aggressive stack checking with VS2005 SP1 and above.
-#if (CRYPTOPP_MSC_VERSION >= 1410)
+#if (_MSC_FULL_VER >= 140050727)
 # pragma strict_gs_check (on)
 #endif
 
@@ -70,7 +70,7 @@ USING_NAMESPACE(CryptoPP)
 
 const int MAX_PHRASE_LENGTH=250;
 
-void RegisterFactories();
+void RegisterFactories(Test::TestClass suites);
 void PrintSeedAndThreads(const std::string& seed);
 
 void GenerateRSAKey(unsigned int keyLength, const char *privFilename, const char *pubFilename, const char *seed);
@@ -117,43 +117,6 @@ int (*AdhocTest)(int argc, char *argv[]) = NULLPTR;
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(Test)
 
-// Coverity finding
-template <class T, bool NON_NEGATIVE>
-T StringToValue(const std::string& str)
-{
-	std::istringstream iss(str);
-
-	// Arbitrary, but we need to clear a Coverity finding TAINTED_SCALAR
-	if (iss.str().length() > 25)
-		throw InvalidArgument(str + "' is too long");
-
-	T value;
-	iss >> std::noskipws >> value;
-
-	// Use fail(), not bad()
-	if (iss.fail() || !iss.eof())
-		throw InvalidArgument(str + "' is not a value");
-
-	if (NON_NEGATIVE && value < 0)
-		throw InvalidArgument(str + "' is negative");
-
-	return value;
-}
-
-// Coverity finding
-template<>
-int StringToValue<int, true>(const std::string& str)
-{
-	Integer n(str.c_str());
-	long l = n.ConvertToLong();
-
-	int r;
-	if (!SafeConvert(l, r))
-		throw InvalidArgument(str + "' is not an integer value");
-
-	return r;
-}
-
 ANONYMOUS_NAMESPACE_BEGIN
 OFB_Mode<AES>::Encryption s_globalRNG;
 NAMESPACE_END
@@ -180,13 +143,9 @@ int CRYPTOPP_API main(int argc, char *argv[])
 	_CrtSetDbgFlag( tempflag );
 #endif
 
-#if defined(__MWERKS__) && defined(macintosh)
-	argc = ccommand(&argv);
-#endif
-
 	try
 	{
-		RegisterFactories();
+		RegisterFactories(Test::All);
 
 		// Some editors have problems with the '\0' character when redirecting output.
 		std::string seed = IntToString(time(NULLPTR));
@@ -403,14 +362,8 @@ int CRYPTOPP_API main(int argc, char *argv[])
 			InformationRecoverFile(argc-3, argv[2], argv+3);
 		else if (command == "v" || command == "vv")
 			return !Validate(argc>2 ? Test::StringToValue<int, true>(argv[2]) : 0, argv[1][1] == 'v', argc>3 ? argv[3] : NULLPTR);
-		else if (command == "b")  // All benchmarks
-			Test::Benchmark(7, argc<3 ? 1 : Test::StringToValue<float, true>(argv[2]), argc<4 ? 0.0f : Test::StringToValue<float, true>(argv[3])*1e9);
-		else if (command == "b3")  // Public key algorithms
-			Test::Benchmark(4, argc<3 ? 1 : Test::StringToValue<float, true>(argv[2]), argc<4 ? 0.0f : Test::StringToValue<float, true>(argv[3])*1e9);
-		else if (command == "b2")  // Shared key algorithms
-			Test::Benchmark(2, argc<3 ? 1 : Test::StringToValue<float, true>(argv[2]), argc<4 ? 0.0f : Test::StringToValue<float, true>(argv[3])*1e9);
-		else if (command == "b1")  // Unkeyed algorithms
-			Test::Benchmark(1, argc<3 ? 1 : Test::StringToValue<float, true>(argv[2]), argc<4 ? 0.0f : Test::StringToValue<float, true>(argv[3])*1e9);
+		else if (command.substr(0,1) == "b") // "b", "b1", "b2", ...
+			Test::BenchmarkWithCommand(argc, argv);
 		else if (command == "z")
 			GzipFile(argv[3], argv[4], argv[2][0]-'0');
 		else if (command == "u")
@@ -439,6 +392,7 @@ int CRYPTOPP_API main(int argc, char *argv[])
 		{
 			FileSource usage(CRYPTOPP_DATA_DIR "TestData/usage.dat", true, new FileSink(std::cout));
 			return 1;
+			return 1;
 		}
 		else if (command == "V")
 		{
@@ -461,7 +415,7 @@ int CRYPTOPP_API main(int argc, char *argv[])
 		std::cout << "\nstd::exception caught: " << e.what() << std::endl;
 		return -2;
 	}
-} // End main()
+} // main()
 
 void FIPS140_GenerateRandomFiles()
 {
@@ -542,14 +496,14 @@ std::string RSADecryptString(const char *privFilename, const char *ciphertext)
 void RSASignFile(const char *privFilename, const char *messageFilename, const char *signatureFilename)
 {
 	FileSource privFile(privFilename, true, new HexDecoder);
-	RSASS<PKCS1v15, SHA>::Signer priv(privFile);
+	RSASS<PKCS1v15, SHA1>::Signer priv(privFile);
 	FileSource f(messageFilename, true, new SignerFilter(Test::GlobalRNG(), priv, new HexEncoder(new FileSink(signatureFilename))));
 }
 
 bool RSAVerifyFile(const char *pubFilename, const char *messageFilename, const char *signatureFilename)
 {
 	FileSource pubFile(pubFilename, true, new HexDecoder);
-	RSASS<PKCS1v15, SHA>::Verifier pub(pubFile);
+	RSASS<PKCS1v15, SHA1>::Verifier pub(pubFile);
 
 	FileSource signatureFile(signatureFilename, true, new HexDecoder);
 	if (signatureFile.MaxRetrievable() != pub.SignatureLength())
@@ -665,6 +619,8 @@ void SecretShareFile(int threshold, int nShares, const char *filename, const cha
 	ChannelSwitch *channelSwitch = NULLPTR;
 	FileSource source(filename, false, new SecretSharing(rng, threshold, nShares, channelSwitch = new ChannelSwitch));
 
+	// Be careful of the type of Sink used. An ArraySink will stop writing data once the array
+	//    is full. Also see http://groups.google.com/forum/#!topic/cryptopp-users/XEKKLCEFH3Y.
 	vector_member_ptrs<FileSink> fileSinks(nShares);
 	std::string channel;
 	for (int i=0; i<nShares; i++)
@@ -719,6 +675,8 @@ void InformationDisperseFile(int threshold, int nShares, const char *filename)
 	ChannelSwitch *channelSwitch = NULLPTR;
 	FileSource source(filename, false, new InformationDispersal(threshold, nShares, channelSwitch = new ChannelSwitch));
 
+	// Be careful of the type of Sink used. An ArraySink will stop writing data once the array
+	//    is full. Also see http://groups.google.com/forum/#!topic/cryptopp-users/XEKKLCEFH3Y.
 	vector_member_ptrs<FileSink> fileSinks(nShares);
 	std::string channel;
 	for (int i=0; i<nShares; i++)
@@ -971,24 +929,25 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 	case 60: result = Test::ValidateDLIES(); break;
 	case 61: result = Test::ValidateBaseCode(); break;
 	case 62: result = Test::ValidateSHACAL2(); break;
-	case 63: result = Test::ValidateCamellia(); break;
-	case 64: result = Test::ValidateWhirlpool(); break;
-	case 65: result = Test::ValidateTTMAC(); break;
-	case 66: result = Test::ValidateSalsa(); break;
-	case 67: result = Test::ValidateSosemanuk(); break;
-	case 68: result = Test::ValidateVMAC(); break;
-	case 69: result = Test::ValidateCCM(); break;
-	case 70: result = Test::ValidateGCM(); break;
-	case 71: result = Test::ValidateCMAC(); break;
-	case 72: result = Test::ValidateHKDF(); break;
-	case 73: result = Test::ValidateBLAKE2s(); break;
-	case 74: result = Test::ValidateBLAKE2b(); break;
-	case 75: result = Test::ValidatePoly1305(); break;
-	case 76: result = Test::ValidateSipHash(); break;
-	case 77: result = Test::ValidateHashDRBG(); break;
-	case 78: result = Test::ValidateHmacDRBG(); break;
+	case 63: result = Test::ValidateARIA(); break;
+	case 64: result = Test::ValidateCamellia(); break;
+	case 65: result = Test::ValidateWhirlpool(); break;
+	case 66: result = Test::ValidateTTMAC(); break;
+	case 67: result = Test::ValidateSalsa(); break;
+	case 68: result = Test::ValidateSosemanuk(); break;
+	case 69: result = Test::ValidateVMAC(); break;
+	case 70: result = Test::ValidateCCM(); break;
+	case 71: result = Test::ValidateGCM(); break;
+	case 72: result = Test::ValidateCMAC(); break;
+	case 73: result = Test::ValidateHKDF(); break;
+	case 74: result = Test::ValidateBLAKE2s(); break;
+	case 75: result = Test::ValidateBLAKE2b(); break;
+	case 76: result = Test::ValidatePoly1305(); break;
+	case 77: result = Test::ValidateSipHash(); break;
+	case 78: result = Test::ValidateHashDRBG(); break;
+	case 79: result = Test::ValidateHmacDRBG(); break;
 
-#if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_IMPORTS)
+#if defined(CRYPTOPP_EXTENDED_VALIDATION)
 	// http://github.com/weidai11/cryptopp/issues/92
 	case 9999: result = Test::TestSecBlock(); break;
 	// http://github.com/weidai11/cryptopp/issues/64

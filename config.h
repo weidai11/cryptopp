@@ -9,13 +9,13 @@
 // ***************** Important Settings ********************
 
 // define this if running on a big-endian CPU
-#if !defined(IS_LITTLE_ENDIAN) && (defined(__BIG_ENDIAN__) || (defined(__s390__) || defined(__s390x__) || defined(__zarch__)) || (defined(__m68k__) || defined(__MC68K__)) || defined(__sparc) || defined(__sparc__) || defined(__hppa__) || defined(__MIPSEB__) || defined(__ARMEB__) || (defined(__MWERKS__) && !defined(__INTEL__)))
+#if !defined(IS_LITTLE_ENDIAN) && !defined(IS_BIG_ENDIAN) && (defined(__BIG_ENDIAN__) || (defined(__s390__) || defined(__s390x__) || defined(__zarch__)) || (defined(__m68k__) || defined(__MC68K__)) || defined(__sparc) || defined(__sparc__) || defined(__hppa__) || defined(__MIPSEB__) || defined(__ARMEB__) || (defined(__MWERKS__) && !defined(__INTEL__)))
 #	define IS_BIG_ENDIAN
 #endif
 
 // define this if running on a little-endian CPU
 // big endian will be assumed if IS_LITTLE_ENDIAN is not defined
-#ifndef IS_BIG_ENDIAN
+#if !defined(IS_BIG_ENDIAN) && !defined(IS_LITTLE_ENDIAN)
 #	define IS_LITTLE_ENDIAN
 #endif
 
@@ -102,6 +102,13 @@
 // not defined, existing behavior is preserved and Integer will use a suffix
 // of 'b', 'o', 'h' or '.' (the last for decimal).
 // #define CRYPTOPP_USE_STD_SHOWBASE
+
+// Define this if you want to decouple AlgorithmParameters and Integer
+// The decoupling should make it easier for the linker to remove Integer
+// related code for those who do not need Integer, and avoid a potential
+// race during AssignIntToInteger pointer initialization. Also
+// see http://github.com/weidai11/cryptopp/issues/389.
+// #define CRYPTOPP_NO_ASSIGN_TO_INTEGER
 
 // choose which style of sockets to wrap (mostly useful for MinGW which has both)
 #if !defined(NO_BERKELEY_STYLE_SOCKETS) && !defined(PREFER_BERKELEY_STYLE_SOCKETS)
@@ -245,8 +252,9 @@ const lword LWORD_MAX = W64LIT(0xffffffffffffffff);
 #else
 	#define CRYPTOPP_NATIVE_DWORD_AVAILABLE 1
 	#if defined(__alpha__) || defined(__ia64__) || defined(_ARCH_PPC64) || defined(__x86_64__) || defined(__mips64) || defined(__sparc64__)
-		#if defined(__GNUC__) && !defined(__INTEL_COMPILER) && !(CRYPTOPP_GCC_VERSION == 40001 && defined(__APPLE__)) && CRYPTOPP_GCC_VERSION >= 30400
+#if defined(__GNUC__) && !defined(__INTEL_COMPILER) && !(CRYPTOPP_GCC_VERSION == 40001 && defined(__APPLE__)) && !(defined(__GNUC__) && CRYPTOPP_GCC_VERSION < 50000 && defined(_ARCH_PPC64)) && CRYPTOPP_GCC_VERSION >= 30400
 			// GCC 4.0.1 on MacOS X is missing __umodti3 and __udivti3
+			// GCC 4.8.3 and bad uint128_t ops on PPC64/POWER7 (Issue 421)
 			// mode(TI) division broken on amd64 with GCC earlier than GCC 3.4
 			typedef word32 hword;
 			typedef word64 word;
@@ -340,7 +348,7 @@ NAMESPACE_END
 	// 4786: identifier was truncated in debug information
 	// 4355: 'this' : used in base member initializer list
 	// 4910: '__declspec(dllexport)' and 'extern' are incompatible on an explicit instantiation
-#	pragma warning(disable: 4127 4231 4250 4251 4275 4505 4512 4660 4661 4786 4355 4910)
+#	pragma warning(disable: 4127 4512 4661)
 	// Security related, possible defects
 	// http://blogs.msdn.com/b/vcblog/archive/2010/12/14/off-by-default-compiler-warnings-in-visual-c.aspx
 #	pragma warning(once: 4191 4242 4263 4264 4266 4302 4826 4905 4906 4928)
@@ -389,7 +397,7 @@ NAMESPACE_END
 		#define CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE 0
 	#endif
 
-	#if !defined(CRYPTOPP_DISABLE_SSE3) && (_MSC_VER >= 1500 || (defined(__SSE3__) && defined(__SSSE3__)))
+	#if !defined(CRYPTOPP_DISABLE_SSSE3) && (_MSC_VER >= 1500 || (defined(__SSE3__) && defined(__SSSE3__)))
 		#define CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE 1
 	#else
 		#define CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE 0
@@ -408,6 +416,12 @@ NAMESPACE_END
 	#define CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE 1
 #else
 	#define CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE 0
+#endif
+
+#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_SSSE3) && !defined(_M_ARM) && (_MSC_VER >= 1500 || (defined(__SSSE3__) && defined(__SSSE3__)))
+	#define CRYPTOPP_BOOL_SSSE3_INTRINSICS_AVAILABLE 1
+#else
+	#define CRYPTOPP_BOOL_SSSE3_INTRINSICS_AVAILABLE 0
 #endif
 
 // Intrinsics availible in GCC 4.3 (http://gcc.gnu.org/gcc-4.3/changes.html) and
@@ -583,13 +597,14 @@ NAMESPACE_END
 # define CRYPTOPP_USER_PRIORITY 350
 #endif
 
-#if (CRYPTOPP_INIT_PRIORITY > 0) && !(defined(__APPLE__) || defined(__sun__))
+// Most platforms allow us to specify when to create C++ objects. Apple and Sun do not.
+#if (CRYPTOPP_INIT_PRIORITY > 0) && !(defined(NO_OS_DEPENDENCE) || defined(__APPLE__) || defined(__sun__))
 # if (CRYPTOPP_GCC_VERSION >= 30000) || (CRYPTOPP_LLVM_CLANG_VERSION >= 20900) || (_INTEL_COMPILER >= 800)
 #  define HAVE_GCC_INIT_PRIORITY 1
 # elif (CRYPTOPP_MSC_VERSION >= 1310)
 #  define HAVE_MSC_INIT_PRIORITY 1
 # endif
-#endif  // CRYPTOPP_INIT_PRIORITY, Sun, Darwin
+#endif  // CRYPTOPP_INIT_PRIORITY, NO_OS_DEPENDENCE, Apple, Sun
 
 // ***************** determine availability of OS features ********************
 
@@ -743,12 +758,21 @@ NAMESPACE_END
 
 // ************** Deprecated ***************
 
-#if (CRYPTOPP_GCC_VERSION >= 40500) || (CRYPTOPP_LLVM_CLANG_VERSION >= 20800)
-# define CRYPTOPP_DEPRECATED(msg) __attribute__((deprecated (msg)));
+#if (CRYPTOPP_GCC_VERSION >= 40500) || (CRYPTOPP_LLVM_CLANG_VERSION >= 20800) || (CRYPTOPP_APPLE_CLANG_VERSION >= 40200)
+# define CRYPTOPP_DEPRECATED(msg) __attribute__((deprecated (msg)))
 #elif (CRYPTOPP_GCC_VERSION)
-# define CRYPTOPP_DEPRECATED(msg) __attribute__((deprecated));
+# define CRYPTOPP_DEPRECATED(msg) __attribute__((deprecated))
 #else
 # define CRYPTOPP_DEPRECATED(msg)
+#endif
+
+// ************** Instrumentation ***************
+
+// GCC does not support; see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=78204
+#if (CRYPTOPP_LLVM_CLANG_VERSION >= 30700) || (CRYPTOPP_APPLE_CLANG_VERSION >= 70000)
+# define CRYPTOPP_NO_SANITIZE(x) __attribute__((no_sanitize(x)))
+#else
+# define CRYPTOPP_NO_SANITIZE(x)
 #endif
 
 // ***************** C++11 related ********************

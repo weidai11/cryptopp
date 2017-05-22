@@ -39,7 +39,7 @@ word32 SEAL_Gamma::Apply(word32 i)
 	{
 		memcpy(Z, H, 20);
 		D[0] = shaIndex;
-		SHA::Transform(Z, D);
+		SHA1::Transform(Z, D);
 		lastIndex = shaIndex;
 	}
 	return Z[i%5];

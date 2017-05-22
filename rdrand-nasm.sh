@@ -20,39 +20,39 @@ fi
 
 if [ "$IS_LINUX" -eq "1" ]; then
     echo "Building rdrand and rdseed modules for Linux"
-    nasm -f elf32 rdrand.S -DX86 -g -o rdrand-x86.o
-    nasm -f elfx32 rdrand.S -DX32 -g -o rdrand-x32.o
-    nasm -f elf64 rdrand.S -DX64 -g -o rdrand-x64.o
+    nasm -f elf32 rdrand.s -DX86 -g -o rdrand-x86.o
+    nasm -f elfx32 rdrand.s -DX32 -g -o rdrand-x32.o
+    nasm -f elf64 rdrand.s -DX64 -g -o rdrand-x64.o
     SUCCESS=1
 fi
 
 if [ "$IS_OPENBSD" -eq "1" ] || [ "$IS_NETBSD" -eq "1" ] || [ "$IS_FREEBSD" -eq "1" ] || [ "$IS_DRAGONFLY" -eq "1" ]; then
     echo "Building rdrand and rdseed modules for BSD"
-    nasm -f elf32 rdrand.S -DX86 -g -o rdrand-x86.o
-    nasm -f elfx32 rdrand.S -DX32 -g -o rdrand-x32.o
-    nasm -f elf64 rdrand.S -DX64 -g -o rdrand-x64.o
+    nasm -f elf32 rdrand.s -DX86 -g -o rdrand-x86.o
+    nasm -f elfx32 rdrand.s -DX32 -g -o rdrand-x32.o
+    nasm -f elf64 rdrand.s -DX64 -g -o rdrand-x64.o
     SUCCESS=1
 fi
 
 if [ "$IS_SOLARIS" -eq "1" ]; then
     echo "Building rdrand and rdseed modules for Solaris"
-    nasm -f elf32 rdrand.S -DX86 -o rdrand-x86.o
-    nasm -f elfx32 rdrand.S -DX32 -o rdrand-x32.o
-    nasm -f elf64 rdrand.S -DX64 -o rdrand-x64.o
+    nasm -f elf32 rdrand.s -DX86 -o rdrand-x86.o
+    nasm -f elfx32 rdrand.s -DX32 -o rdrand-x32.o
+    nasm -f elf64 rdrand.s -DX64 -o rdrand-x64.o
     SUCCESS=1
 fi
 
 if [ "$IS_DARWIN" -eq "1" ]; then
     echo "Building rdrand and rdseed modules for Darwin"
-    nasm -f macho32 rdrand.S -DDARWIN -DX86 -g -o rdrand-x86.o
-    nasm -f macho64 rdrand.S -DDARWIN -DX64 -g -o rdrand-x64.o
+    nasm -f macho32 rdrand.s -DDARWIN -DX86 -g -o rdrand-x86.o
+    nasm -f macho64 rdrand.s -DDARWIN -DX64 -g -o rdrand-x64.o
     SUCCESS=1
 fi
 
 if [ "$IS_CYGWIN" -eq "1" ]; then
     echo "Building rdrand and rdseed modules for Cygwin"
-    nasm -f win32 rdrand.S -DCYGWIN -DX86 -g -o rdrand-x86.o
-    nasm -f win64 rdrand.S -DCYGWIN -DX64 -g -o rdrand-x64.o
+    nasm -f win32 rdrand.s -DCYGWIN -DX86 -g -o rdrand-x86.o
+    nasm -f win64 rdrand.s -DCYGWIN -DX64 -g -o rdrand-x64.o
     SUCCESS=1
 fi
 

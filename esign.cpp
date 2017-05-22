@@ -21,15 +21,15 @@ NAMESPACE_BEGIN(CryptoPP)
 #if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
 void ESIGN_TestInstantiations()
 {
-	ESIGN<SHA>::Verifier x1(1, 1);
-	ESIGN<SHA>::Signer x2(NullRNG(), 1);
-	ESIGN<SHA>::Verifier x3(x2);
-	ESIGN<SHA>::Verifier x4(x2.GetKey());
-	ESIGN<SHA>::Verifier x5(x3);
-	ESIGN<SHA>::Signer x6 = x2;
+	ESIGN<SHA1>::Verifier x1(1, 1);
+	ESIGN<SHA1>::Signer x2(NullRNG(), 1);
+	ESIGN<SHA1>::Verifier x3(x2);
+	ESIGN<SHA1>::Verifier x4(x2.GetKey());
+	ESIGN<SHA1>::Verifier x5(x3);
+	ESIGN<SHA1>::Signer x6 = x2;
 
 	x6 = x2;
-	x3 = ESIGN<SHA>::Verifier(x2);
+	x3 = ESIGN<SHA1>::Verifier(x2);
 	x4 = x2.GetKey();
 }
 #endif

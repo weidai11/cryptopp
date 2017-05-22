@@ -46,7 +46,7 @@ extern "C" {void __cdecl _CRT_DEBUGGER_HOOK(int); }
 #include <iostream>
 
 #if CRYPTOPP_MSC_VERSION
-# pragma warning(disable: 4100)
+# pragma warning(disable: 4100 4702)
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)

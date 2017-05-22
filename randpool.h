@@ -20,8 +20,8 @@
 //!    # Go back one more
 //!    git checkout HEAD~1
 //!
-//!    $ grep 'MDC<SHA>' *.h *.cpp
-//!    randpool.cpp:typedef MDC<SHA> RandomPoolCipher;
+//!    $ grep 'MDC<SHA1>' *.h *.cpp
+//!    randpool.cpp:typedef MDC<SHA1> RandomPoolCipher;
 //! </pre>
 //! \since Crypto++ 4.0 (PGP 2.6.x style), Crypto++ 5.5 (AES-256 based)
 

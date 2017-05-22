@@ -398,7 +398,7 @@ struct ECDSA_RFC6979 : public DL_SS<
 //! \brief Elliptic Curve NR (ECNR) signature scheme
 //! \tparam EC elliptic curve field
 //! \tparam H HashTransformation derived class
-template <class EC, class H = SHA>
+template <class EC, class H = SHA1>
 struct ECNR : public DL_SS<DL_Keys_EC<EC>, DL_Algorithm_ECNR<EC>, DL_SignatureMessageEncodingMethod_NR, H>
 {
 };

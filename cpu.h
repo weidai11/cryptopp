@@ -32,6 +32,18 @@
 # endif
 #endif  // ARM32 and ARM64 Headers
 
+// Used when supplying ASM due to missing intrinsics
+#if defined(__clang__)
+#  define GCC_INLINE inline
+#  define GCC_INLINE_ATTRIB __attribute__((__gnu_inline__, __always_inline__))
+#elif (CRYPTOPP_GCC_VERSION >= 30300) || defined(__INTEL_COMPILER)
+#  define GCC_INLINE __inline
+#  define GCC_INLINE_ATTRIB __attribute__((__gnu_inline__, __always_inline__, __artificial__))
+#else
+#  define GCC_INLINE inline
+#  define GCC_INLINE_ATTRIB
+# endif
+
 // X86/X64/X32 Headers
 #if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64
 
@@ -47,7 +59,7 @@
 #if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
 #  include <emmintrin.h>    // __m64, __m128i, _mm_set_epi64x
 #endif
-#if CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE
+#if CRYPTOPP_BOOL_SSSE3_INTRINSICS_AVAILABLE
 #  include <tmmintrin.h>    // _mm_shuffle_pi8, _mm_shuffle_epi8
 #endif // tmmintrin.h
 #if CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE

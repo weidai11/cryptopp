@@ -9,12 +9,11 @@
 
 #include "cryptlib.h"
 
-// This file (and friends) provides both RDRAND and RDSEED. They were added at
+// This class file provides both RDRAND and RDSEED. They were added at
 //   Crypto++ 5.6.3. At compile time, it uses CRYPTOPP_BOOL_{X86|X32|X64}
-//   to select an implementation or "throw NotImplemented". The class does not
-//   use CPUID to determine if RDRAND or RDSEED are available. If not available,
-//   then a SIGILL will result. Users of the classes should call HasRDRAND() or
-//   HasRDSEED() to determine if a generator is available.
+//   to select an implementation or "throw NotImplemented". At runtime the
+//   constructor will throw RDRAND_Err or RDSEED_Err if a generator is
+//   is not available.
 // The original classes accepted a retry count. Retries were superflous for
 //   RDRAND, and RDSEED encountered a failure about 1 in 256 bytes depending
 //   on the processor. Retries were removed at Crypto++ 6.0 because
@@ -28,8 +27,8 @@
 //   during testing with Athlon X4 845. The Bulldozer v4 only performed at 1 MiB/s.
 
 // Microsoft added RDRAND in August 2012, VS2012; RDSEED in October 2013, VS2013.
-// GCC added RDRAND in December 2010, GCC 4.6. LLVM added RDRAND in July 2012, Clang 3.2.
-// Intel added RDRAND in September 2011, ICC 12.1.
+// GCC added RDRAND in December 2010, GCC 4.6. LLVM added RDRAND in July 2012,
+// Clang 3.2. Intel added RDRAND in September 2011, ICC 12.1.
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -56,9 +55,9 @@ public:
     //! \brief Construct a RDRAND generator
     //! \details According to DJ of Intel, the Intel RDRAND circuit does not underflow.
     //!   If it did hypothetically underflow, then it would return 0 for the random value.
-    //!   AMD's RDRAND implementation appears to provide the same behavior except the
-    //!   values are not generated consistent with FIPS 140.
-    RDRAND() {}
+    //!   AMD's RDRAND implementation appears to provide the same behavior.
+     //! \throws RDRAND_Err if the random number generator is not available
+    RDRAND();
 
     //! \brief Generate random array of bytes
     //! \param output the byte buffer
@@ -107,7 +106,8 @@ public:
     //! \details Empirical testing under a 6th generaton i7 (6200U) shows RDSEED fails
     //!   to fulfill requests at about once every for every 256 bytes requested.
     //!   The generator runs about 4 times slower than RDRAND.
-    RDSEED() {}
+     //! \throws RDSEED_Err if the random number generator is not available
+    RDSEED();
 
     //! \brief Generate random array of bytes
     //! \param output the byte buffer

@@ -67,7 +67,7 @@ void CFB_ModePolicy::TransformRegister()
 void CFB_ModePolicy::CipherResynchronize(const byte *iv, size_t length)
 {
 	CRYPTOPP_ASSERT(length == BlockSize());
-	CopyOrZero(m_register, iv, length);
+	CopyOrZero(m_register, m_register.size(), iv, length);
 	TransformRegister();
 }
 
@@ -99,7 +99,7 @@ void OFB_ModePolicy::CipherResynchronize(byte *keystreamBuffer, const byte *iv, 
 	CRYPTOPP_UNUSED(keystreamBuffer), CRYPTOPP_UNUSED(length);
 	CRYPTOPP_ASSERT(length == BlockSize());
 
-	CopyOrZero(m_register, iv, length);
+	CopyOrZero(m_register, m_register.size(), iv, length);
 }
 
 void CTR_ModePolicy::SeekToIteration(lword iterationCount)
@@ -144,7 +144,7 @@ void CTR_ModePolicy::CipherResynchronize(byte *keystreamBuffer, const byte *iv, 
 	CRYPTOPP_UNUSED(keystreamBuffer), CRYPTOPP_UNUSED(length);
 	CRYPTOPP_ASSERT(length == BlockSize());
 
-	CopyOrZero(m_register, iv, length);
+	CopyOrZero(m_register, m_register.size(), iv, length);
 	m_counterArray = m_register;
 }
 

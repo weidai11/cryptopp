@@ -180,7 +180,7 @@
   <!-- FIPS Validated Warning -->
   <ItemDefinitionGroup Label="FIPS Warning">
     <PreBuildEvent Condition="'$(Configuration)'=='DLL-Import Debug' Or '$(Configuration)'=='DLL-Import Release'">
-	  <Command>
+      <Command>
         echo *************************************************************************
         echo This configuration requires cryptopp.dll. You can build it yourself using
         echo the cryptdll project, or obtain a pre-built, FIPS 140-2 validated DLL. If
@@ -191,6 +191,13 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
 
+  <!-- Target for Appvoyer                           -->
+  <!-- The rule copies cryptest.exe to the project   -->
+  <!-- root directory so it can be executed in place -->
+  <Target Name="CopyCryptestToRoot">
+    <Exec Command="copy $(Platform)\Output\$(Configuration)\cryptest.exe $(SolutionDir)" />
+  </Target>
+
   <!-- Source Files -->
   <ItemGroup>
     <ClCompile Include="adhoc.cpp" />
@@ -199,7 +206,9 @@
     <ClCompile Include="datatest.cpp" />
     <ClCompile Include="dlltest.cpp" />
     <ClCompile Include="fipsalgt.cpp" />
-    <ClCompile Include="regtest.cpp" />
+    <ClCompile Include="regtest1.cpp" />
+    <ClCompile Include="regtest2.cpp" />
+    <ClCompile Include="regtest3.cpp" />
     <ClCompile Include="test.cpp" />
     <ClCompile Include="validat0.cpp" />
     <ClCompile Include="validat1.cpp" />
@@ -221,6 +230,7 @@
     <None Include="TestVectors\blake2.txt" />
     <None Include="TestVectors\blake2b.txt" />
     <None Include="TestVectors\blake2s.txt" />
+    <None Include="TestVectors\aria.txt" />
     <None Include="TestVectors\camellia.txt" />
     <None Include="TestVectors\ccm.txt" />
     <None Include="TestVectors\chacha.txt" />
@@ -234,6 +244,7 @@
     <None Include="TestVectors\gcm.txt" />
     <None Include="TestVectors\hkdf.txt" />
     <None Include="TestVectors\hmac.txt" />
+    <None Include="TestVectors\kalyna.txt" />
     <None Include="TestVectors\mars.txt" />
     <None Include="TestVectors\nr.txt" />
     <None Include="TestVectors\panama.txt" />
@@ -246,17 +257,20 @@
     <None Include="TestVectors\seal.txt" />
     <None Include="TestVectors\seed.txt" />
     <None Include="TestVectors\sha.txt" />
+    <None Include="TestVectors\sha2.txt" />
     <None Include="TestVectors\sha3.txt" />
     <None Include="TestVectors\shacal2.txt" />
     <None Include="TestVectors\siphash.txt" />
     <None Include="TestVectors\sosemanuk.txt" />
     <None Include="TestVectors\tea.txt" />
+    <None Include="TestVectors\threefish.txt" />
     <None Include="TestVectors\ttmac.txt" />
     <None Include="TestVectors\vmac.txt" />
     <None Include="TestVectors\wake.txt" />
     <None Include="TestVectors\whrlpool.txt" />
     <None Include="TestData\3desval.dat" />
     <None Include="TestData\3wayval.dat" />
+    <None Include="TestData\aria.dat" />
     <None Include="TestData\camellia.dat" />
     <None Include="TestData\cast128v.dat" />
     <None Include="TestData\cast256v.dat" />

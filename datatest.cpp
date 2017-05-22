@@ -18,9 +18,10 @@
 #include "hkdf.h"
 #include "stdcpp.h"
 #include <iostream>
+#include <sstream>
 
 // Aggressive stack checking with VS2005 SP1 and above.
-#if (CRYPTOPP_MSC_VERSION >= 1410)
+#if (_MSC_FULL_VER >= 140050727)
 # pragma strict_gs_check (on)
 #endif
 
@@ -111,12 +112,41 @@ void PutDecodedDatumInto(const TestData &data, const char *name, BufferedTransfo
 		int repeat = 1;
 		if (s1[0] == 'r')
 		{
-			repeat = atoi(s1.c_str()+1);
+			repeat = ::atoi(s1.c_str()+1);
 			s1 = s1.substr(s1.find(' ')+1);
 		}
 
-		s2 = ""; // MSVC 6 doesn't have clear();
+		// Convert endian order. Use it with 64-bit words like this:
+		//   Key: word64 BC2560EFC6BBA2B1 E3361F162238EB40 FB8631EE0ABBD175 7B9479D4C5479ED1
+		//   BC2560EFC6BBA2B1 will be processed into B1A2BBC6EF6025BC.
+		// or:
+		//   Key: word32 BC2560EF E3361F16 FB8631EE 7B9479D4
+		//   BC2560EF will be processed into EF6025BC.
+		if (s1.length() >= 6 && (s1.substr(0,6) == "word32" || s1.substr(0,6) == "word64"))
+		{
+			std::istringstream iss(s1.substr(6));
+			if (s1.substr(0,6) == "word64")
+			{
+				word64 value;
+				while (iss >> std::skipws >> std::hex >> value)
+				{
+					value = ConditionalByteReverse(LITTLE_ENDIAN_ORDER, value);
+					q.Put((const byte *)&value, 8);
+				}
+			}
+			else
+			{
+				word32 value;
+				while (iss >> std::skipws >> std::hex >> value)
+				{
+					value = ConditionalByteReverse(LITTLE_ENDIAN_ORDER, value);
+					q.Put((const byte *)&value, 4);
+				}
+			}
+			goto end;
+		}
 
+		s2.clear();
 		if (s1[0] == '\"')
 		{
 			s2 = s1.substr(1, s1.find('\"', 1)-1);
@@ -375,8 +405,17 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 			lastName = name;
 		}
 
+		// Most block ciphers don't specify BlockSize. Kalyna and Threefish use it.
+		int blockSize = pairs.GetIntValueWithDefault(Name::BlockSize(), 0);
+
+		// Most block ciphers don't specify BlockPaddingScheme. Kalyna uses it in test vectors.
+		// 0 is NoPadding, 1 is ZerosPadding, 2 is PkcsPadding, 3 is OneAndZerosPadding, etc
+		// Note: The machinery is wired such that paddingScheme is effectively latched. An
+		//   old paddingScheme may be unintentionally used in a subsequent test.
+		int paddingScheme = pairs.GetIntValueWithDefault(Name::BlockPaddingScheme(), 0);
+
 		ConstByteArrayParameter iv;
-		if (pairs.GetValue(Name::IV(), iv) && iv.size() != encryptor->IVSize())
+		if (pairs.GetValue(Name::IV(), iv) && iv.size() != encryptor->IVSize() && (int)iv.size() != blockSize)
 			SignalTestFailure();
 
 		if (test == "Resync")
@@ -396,6 +435,16 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 			encryptor->Seek(seek);
 			decryptor->Seek(seek);
 		}
+
+		// If a per-test vector parameter was set for a test, like BlockPadding, BlockSize or Tweak,
+		// then it becomes latched in testDataPairs. The old value is used in subsequent tests, and
+		// it could cause a self test failure in the next test. The behavior surfaced under Kalyna
+		// and Threefish. The Kalyna test vectors use NO_PADDING for all tests excpet one. For
+		// Threefish, using (and not using) a Tweak caused problems as we marched through test
+		// vectors. For BlockPadding, BlockSize or Tweak, unlatch them now, after the key has been
+		// set and NameValuePairs have been processed. Also note we only unlatch from testDataPairs.
+		// If overrideParameters are specified, the caller is responsible for managing the parameter.
+		v.erase("Tweak"); v.erase("BlockSize"); v.erase("BlockPaddingScheme");
 
 		std::string encrypted, xorDigest, ciphertext, ciphertextXorDigest;
 		if (test == "EncryptionMCT" || test == "DecryptionMCT")
@@ -427,7 +476,7 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 			ciphertext = GetDecodedDatum(v, test == "EncryptionMCT" ? "Ciphertext" : "Plaintext");
 			if (encrypted != ciphertext)
 			{
-				std::cout << "incorrectly encrypted: ";
+				std::cout << "\nincorrectly encrypted: ";
 				StringSource xx(encrypted, false, new HexEncoder(new FileSink(std::cout)));
 				xx.Pump(256); xx.Flush(false);
 				std::cout << "\n";
@@ -436,13 +485,15 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 			return;
 		}
 
-		StreamTransformationFilter encFilter(*encryptor, new StringSink(encrypted), StreamTransformationFilter::NO_PADDING);
+		StreamTransformationFilter encFilter(*encryptor, new StringSink(encrypted),
+				static_cast<BlockPaddingSchemeDef::BlockPaddingScheme>(paddingScheme));
 		RandomizedTransfer(StringStore(plaintext).Ref(), encFilter, true);
 		encFilter.MessageEnd();
 		/*{
 			std::string z;
 			encryptor->Seek(seek);
-			StringSource ss(plaintext, false, new StreamTransformationFilter(*encryptor, new StringSink(z), StreamTransformationFilter::NO_PADDING));
+			StringSource ss(plaintext, false, new StreamTransformationFilter(*encryptor, new StringSink(z),
+					static_cast<BlockPaddingSchemeDef::BlockPaddingScheme>(paddingScheme)));
 			while (ss.Pump(64)) {}
 			ss.PumpAll();
 			for (int i=0; i<z.length(); i++)
@@ -459,19 +510,20 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 		}
 		if (test != "EncryptXorDigest" ? encrypted != ciphertext : xorDigest != ciphertextXorDigest)
 		{
-			std::cout << "incorrectly encrypted: ";
+			std::cout << "\nincorrectly encrypted: ";
 			StringSource xx(encrypted, false, new HexEncoder(new FileSink(std::cout)));
 			xx.Pump(2048); xx.Flush(false);
 			std::cout << "\n";
 			SignalTestFailure();
 		}
 		std::string decrypted;
-		StreamTransformationFilter decFilter(*decryptor, new StringSink(decrypted), StreamTransformationFilter::NO_PADDING);
+		StreamTransformationFilter decFilter(*decryptor, new StringSink(decrypted),
+				static_cast<BlockPaddingSchemeDef::BlockPaddingScheme>(paddingScheme));
 		RandomizedTransfer(StringStore(encrypted).Ref(), decFilter, true);
 		decFilter.MessageEnd();
 		if (decrypted != plaintext)
 		{
-			std::cout << "incorrectly decrypted: ";
+			std::cout << "\nincorrectly decrypted: ";
 			StringSource xx(decrypted, false, new HexEncoder(new FileSink(std::cout)));
 			xx.Pump(256); xx.Flush(false);
 			std::cout << "\n";
@@ -480,7 +532,7 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 	}
 	else
 	{
-		std::cout << "unexpected test name\n";
+		std::cout << "\nunexpected test name\n";
 		SignalTestError();
 	}
 }
@@ -538,7 +590,7 @@ void TestAuthenticatedSymmetricCipher(TestData &v, const NameValuePairs &overrid
 
 		if (test == "Encrypt" && encrypted != ciphertext+mac)
 		{
-			std::cout << "incorrectly encrypted: ";
+			std::cout << "\nincorrectly encrypted: ";
 			StringSource xx(encrypted, false, new HexEncoder(new FileSink(std::cout)));
 			xx.Pump(2048); xx.Flush(false);
 			std::cout << "\n";
@@ -546,7 +598,7 @@ void TestAuthenticatedSymmetricCipher(TestData &v, const NameValuePairs &overrid
 		}
 		if (test == "Encrypt" && decrypted != plaintext)
 		{
-			std::cout << "incorrectly decrypted: ";
+			std::cout << "\nincorrectly decrypted: ";
 			StringSource xx(decrypted, false, new HexEncoder(new FileSink(std::cout)));
 			xx.Pump(256); xx.Flush(false);
 			std::cout << "\n";
@@ -555,18 +607,18 @@ void TestAuthenticatedSymmetricCipher(TestData &v, const NameValuePairs &overrid
 
 		if (ciphertext.size()+mac.size()-plaintext.size() != asc1->DigestSize())
 		{
-			std::cout << "bad MAC size\n";
+			std::cout << "\nbad MAC size\n";
 			SignalTestFailure();
 		}
 		if (df.GetLastResult() != (test == "Encrypt"))
 		{
-			std::cout << "MAC incorrectly verified\n";
+			std::cout << "\nMAC incorrectly verified\n";
 			SignalTestFailure();
 		}
 	}
 	else
 	{
-		std::cout << "unexpected test name\n";
+		std::cout << "\nunexpected test name\n";
 		SignalTestError();
 	}
 }
@@ -645,8 +697,13 @@ void TestKeyDerivationFunction(TestData &v)
 		SignalTestFailure();
 }
 
+// GetField parses the name/value pairs. The tricky part is the insertion operator
+// because Unix&Linux uses LF, OS X uses CR, and Windows uses CRLF. If this function
+// is modified, then run 'cryptest.exe tv rsa_pkcs1_1_5' as a test. Its the parser
+// file from hell. If it can be parsed without error, then things are likely OK.
 bool GetField(std::istream &is, std::string &name, std::string &value)
 {
+	// ***** Name *****
 	name.clear();
 	is >> name;
 
@@ -666,56 +723,56 @@ bool GetField(std::istream &is, std::string &name, std::string &value)
 	while (is.peek() == ' ')
 		is.ignore(1);
 
-	// VC60 workaround: getline bug
-	char buffer[128];
+	// ***** Value *****
 	value.clear();
-	bool continueLine, space = false;
+	std::string line;
+	bool continueLine = true;
 
-	do
+	while (continueLine && std::getline(is, line))
 	{
-		do
-		{
-			is.get(buffer, sizeof(buffer));
-			value += buffer;
-			if (buffer[0] == ' ')
-				space = true;
-		}
-		while (buffer[0] != 0);
-		is.clear();
-		is.ignore();
-
-		if (!value.empty() && value[value.size()-1] == '\r')
-			value.resize(value.size()-1);
-
-		if (!value.empty() && value[value.size()-1] == '\\')
-		{
-			value.resize(value.size()-1);
-			continueLine = true;
-		}
-		else
-			continueLine = false;
-
-		std::string::size_type i = value.find('#');
-		if (i != std::string::npos)
-			value.erase(i);
-	}
-	while (continueLine);
-
-	// Strip intermediate spaces for some values.
-	if (space && (name == "Modulus" || name == "SubgroupOrder" || name == "SubgroupGenerator" ||
-		name == "PublicElement" || name == "PrivateExponent" || name == "Signature"))
-	{
-		std::string temp;
-		temp.reserve(value.size());
-
-		std::string::const_iterator it;
-		for(it = value.begin(); it != value.end(); it++)
-		{
-			if(*it != ' ')
-				temp.push_back(*it);
+		// Unix and Linux may have a stray \r because of Windows
+		if (!line.empty() && (line[line.size() - 1] == '\r' || line[line.size() - 1] == '\n')) {
+			line.erase(line.size()-1);
 		}
 
-		std::swap(temp, value);
+		continueLine = false;
+		if (!line.empty())
+		{
+			// Early out for immediate line continuation
+			if (line[0] == '\\') {
+				continueLine = true;
+				continue;
+			}
+			// Check end of line. It must be last character
+			if (line[line.size() - 1] == '\\') {
+				continueLine = true;
+			}
+			// Check for comment. It can be first character
+			if (line[0] == '#') {
+				continue;
+			}
+		}
+
+		// Leading and trailing position. The leading position moves right, and
+		// trailing position moves left. The sub-string in the middle is the value
+		// for the name. We leave one space when line continuation is in effect.
+		// The value can be an empty string. One Plaintext value is often empty
+		// for algorithm testing.
+		std::string::size_type l=0, t=std::string::npos;
+		const std::string whitespace = "\t \r\n";
+
+		l = line.find_first_not_of(whitespace, l);
+		if (l == std::string::npos) { l = 0; }
+		t = line.find('#', l);
+		if (t != std::string::npos) { t--; }
+		t = line.find_last_not_of(whitespace+"\\", t);
+		if (t != std::string::npos) { t++; }
+
+		CRYPTOPP_ASSERT(t >= l);
+		value += line.substr(l, t - l);
+
+		if (continueLine)
+			value += ' ';
 	}
 
 	return true;
@@ -764,6 +821,7 @@ void TestDataFile(std::string filename, const NameValuePairs &overrideParameters
 	std::ifstream file(filename.c_str());
 	if (!file.good())
 		throw Exception(Exception::OTHER_ERROR, "Can not open file " + filename + " for reading");
+
 	TestData v;
 	s_currentTestData = &v;
 	std::string name, value, lastAlgName;
@@ -778,6 +836,9 @@ void TestDataFile(std::string filename, const NameValuePairs &overrideParameters
 
 		if (!GetField(file, name, value))
 			break;
+
+		// Can't assert value. Plaintext is sometimes empty.
+		// CRYPTOPP_ASSERT(!value.empty());
 		v[name] = value;
 
 		if (name == "Test" && (s_thorough || v["SlowTest"] != "1"))

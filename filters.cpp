@@ -611,8 +611,15 @@ void StreamTransformationFilter::InitializeDerivedAndReturnNewSizes(const NameVa
 	else
 		m_padding = padding;
 
-	if (!isBlockCipher && (m_padding == PKCS_PADDING || m_padding == ONE_AND_ZEROS_PADDING))
-		throw InvalidArgument("StreamTransformationFilter: PKCS_PADDING and ONE_AND_ZEROS_PADDING cannot be used with " + m_cipher.AlgorithmName());
+	if (!isBlockCipher)
+	{
+		if (m_padding == PKCS_PADDING)
+			throw InvalidArgument("StreamTransformationFilter: PKCS_PADDING cannot be used with " + m_cipher.AlgorithmName());
+		else if (m_padding == W3C_PADDING)
+			throw InvalidArgument("StreamTransformationFilter: W3C_PADDING cannot be used with " + m_cipher.AlgorithmName());
+		else if (m_padding == ONE_AND_ZEROS_PADDING)
+			throw InvalidArgument("StreamTransformationFilter: ONE_AND_ZEROS_PADDING cannot be used with " + m_cipher.AlgorithmName());
+	}
 
 	firstSize = 0;
 	blockSize = m_cipher.MandatoryBlockSize();

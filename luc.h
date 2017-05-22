@@ -152,11 +152,11 @@ struct LUCSS : public TF_SS<LUC, STANDARD, H>
 };
 
 // analogous to the RSA schemes defined in PKCS #1 v2.0
-typedef LUCES<OAEP<SHA> >::Decryptor LUCES_OAEP_SHA_Decryptor;
-typedef LUCES<OAEP<SHA> >::Encryptor LUCES_OAEP_SHA_Encryptor;
+typedef LUCES<OAEP<SHA1> >::Decryptor LUCES_OAEP_SHA_Decryptor;
+typedef LUCES<OAEP<SHA1> >::Encryptor LUCES_OAEP_SHA_Encryptor;
 
-typedef LUCSS<PKCS1v15, SHA>::Signer LUCSSA_PKCS1v15_SHA_Signer;
-typedef LUCSS<PKCS1v15, SHA>::Verifier LUCSSA_PKCS1v15_SHA_Verifier;
+typedef LUCSS<PKCS1v15, SHA1>::Signer LUCSSA_PKCS1v15_SHA_Signer;
+typedef LUCSS<PKCS1v15, SHA1>::Verifier LUCSSA_PKCS1v15_SHA_Verifier;
 
 // ********************************************************
 

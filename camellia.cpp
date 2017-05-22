@@ -216,13 +216,12 @@ void Camellia::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBloc
 	rh ^= KS(0,2);
 	rl ^= KS(0,3);
 
-	// timing attack countermeasure. see comments at top for more details
+	// Timing attack countermeasure. see comments in Rijndael for more details
 	const int cacheLineSize = GetCacheLineSize();
 	unsigned int i;
 	volatile word32 _u = 0;
 	word32 u = _u;
 
-	CRYPTOPP_ASSERT(IsAlignedOn(s1,GetAlignmentOf<word32>()));
 	for (i=0; i<256; i+=cacheLineSize)
 		u &= *(const word32 *)(void*)(s1+i);
 	u &= *(const word32 *)(void*)(s1+252);

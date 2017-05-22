@@ -108,17 +108,11 @@ static void SHA1_SSE_SHA_Transform(word32 *state, const word32 *data)
     __m128i ABCD, ABCD_SAVE, E0, E0_SAVE, E1;
     __m128i MASK, MSG0, MSG1, MSG2, MSG3;
 
-    // IteratedHashBase<T> has code to perform this step before HashEndianCorrectedBlock()
-    //  is called, but the design does not lend itself to optional hardware components
-    //  where SHA1 needs reversing, but SHA256 does not.
-    word32* dataBuf = const_cast<word32*>(data);
-    ByteReverse(dataBuf, dataBuf, 64);
-
     // Load initial values
     ABCD = _mm_loadu_si128((__m128i*) state);
     E0 = _mm_set_epi32(state[4], 0, 0, 0);
     ABCD = _mm_shuffle_epi32(ABCD, 0x1B);
-    MASK = _mm_set_epi64x(W64LIT(0x0001020304050607), W64LIT(0x08090a0b0c0d0e0f));
+    MASK = _mm_set_epi8(3,2,1,0, 7,6,5,4, 11,10,9,8, 15,14,13,12);
 
     // Save current hash
     ABCD_SAVE = ABCD;

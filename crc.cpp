@@ -13,6 +13,32 @@ NAMESPACE_BEGIN(CryptoPP)
 # undef CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
 #endif
 
+// Use inline ASM to provide the instructions when the user omits -march=native or -msse4.2
+#if (CRYPTOPP_GCC_VERSION >= 40300 || __INTEL_COMPILER >= 1000 || __SUNPRO_CC >= 0x5110 || CRYPTOPP_LLVM_CLANG_VERSION >= 20300 || CRYPTOPP_APPLE_CLANG_VERSION >= 40000) && !defined(__SSE4_2__)
+GCC_INLINE unsigned int GCC_INLINE_ATTRIB
+MM_CRC32_U8(unsigned int crc, unsigned char val)
+{
+	asm ("crc32 %1, %0" : "+r"(crc) : "r"(val));
+	return crc;
+}
+GCC_INLINE unsigned int GCC_INLINE_ATTRIB
+MM_CRC32_U16(unsigned int crc, unsigned short val)
+{
+	asm ("crc32 %1, %0" : "+r"(crc) : "r"(val));
+	return crc;
+}
+GCC_INLINE unsigned int GCC_INLINE_ATTRIB
+MM_CRC32_U32(unsigned int crc, unsigned int val)
+{
+	asm ("crc32 %1, %0" : "+r"(crc) : "r"(val));
+	return crc;
+}
+#else
+	#define MM_CRC32_U8(a,b)  _mm_crc32_u8(a,b)
+	#define MM_CRC32_U16(a,b) _mm_crc32_u16(a,b)
+	#define MM_CRC32_U32(a,b) _mm_crc32_u32(a,b)
+#endif
+
 /* Table of CRC-32's of all single byte values (made by makecrc.c) */
 const word32 CRC32::m_tab[] = {
 #ifdef IS_LITTLE_ENDIAN
@@ -303,13 +329,13 @@ void CRC32C::Update(const byte *s, size_t n)
 	if (HasSSE4())
 	{
 		for(; !IsAligned<word32>(s) && n > 0; s++, n--)
-			m_crc = _mm_crc32_u8(m_crc, *s);
+			m_crc = MM_CRC32_U8(m_crc, *s);
 
 		for(; n > 4; s+=4, n-=4)
-			m_crc = _mm_crc32_u32(m_crc, *(const word32 *)(void*)s);
+			m_crc = MM_CRC32_U32(m_crc, *(const word32 *)(void*)s);
 
 		for(; n > 0; s++, n--)
-			m_crc = _mm_crc32_u8(m_crc, *s);
+			m_crc = MM_CRC32_U8(m_crc, *s);
 
 		return;
 	}

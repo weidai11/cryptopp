@@ -8,6 +8,9 @@
 //!   has two data members. The first is a IntegerSecBlock (a SecBlock<word>) and it is
 //!   used to hold the representation. The second is a Sign (an enumeration), and it is
 //!   used to track the sign of the Integer.
+//! \details For details on how the Integer class initializes its function pointers using
+//!   InitializeInteger and how it creates Integer::Zero(), Integer::One(), and
+//!   Integer::Two(), then see the comments at the top of <tt>integer.cpp</tt>.
 //! \since Crypto++ 1.0
 
 #ifndef CRYPTOPP_INTEGER_H
@@ -38,9 +41,12 @@ typedef SecBlock<word, AllocatorWithCleanup<word, true> > IntegerSecBlock;
 //!   has two data members. The first is a IntegerSecBlock (a SecBlock<word>) and it is
 //!   used to hold the representation. The second is a Sign (an enumeration), and it is
 //!   used to track the sign of the Integer.
+//! \details For details on how the Integer class initializes its function pointers using
+//!   InitializeInteger and how it creates Integer::Zero(), Integer::One(), and
+//!   Integer::Two(), then see the comments at the top of <tt>integer.cpp</tt>.
 //! \since Crypto++ 1.0
 //! \nosubgrouping
-class CRYPTOPP_DLL Integer : public ASN1Object
+class CRYPTOPP_DLL Integer : private InitializeInteger, public ASN1Object
 {
 public:
 	//! \name ENUMS, EXCEPTIONS, and TYPEDEFS

@@ -33,6 +33,9 @@
     <None Include="TestVectors\blake2s.txt">
       <Filter>TestVectors</Filter>
     </None>
+    <None Include="TestVectors\aria.txt">
+      <Filter>TestVectors</Filter>
+    </None>
     <None Include="TestVectors\camellia.txt">
       <Filter>TestVectors</Filter>
     </None>
@@ -72,6 +75,9 @@
     <None Include="TestVectors\hmac.txt">
       <Filter>TestVectors</Filter>
     </None>
+    <None Include="TestVectors\kalyna.txt">
+      <Filter>TestVectors</Filter>
+    </None>
     <None Include="TestVectors\mars.txt">
       <Filter>TestVectors</Filter>
     </None>
@@ -108,6 +114,9 @@
     <None Include="TestVectors\sha.txt">
       <Filter>TestVectors</Filter>
     </None>
+    <None Include="TestVectors\sha2.txt">
+      <Filter>TestVectors</Filter>
+    </None>
     <None Include="TestVectors\sha3.txt">
       <Filter>TestVectors</Filter>
     </None>
@@ -121,6 +130,9 @@
       <Filter>TestVectors</Filter>
     </None>
     <None Include="TestVectors\tea.txt">
+      <Filter>TestVectors</Filter>
+    </None>
+    <None Include="TestVectors\threefish.txt">
       <Filter>TestVectors</Filter>
     </None>
     <None Include="TestVectors\ttmac.txt">
@@ -139,6 +151,9 @@
       <Filter>TestData</Filter>
     </None>
     <None Include="TestData\3wayval.dat">
+      <Filter>TestData</Filter>
+    </None>
+    <None Include="TestData\aria.dat">
       <Filter>TestData</Filter>
     </None>
     <None Include="TestData\camellia.dat">
@@ -341,7 +356,13 @@
     <ClCompile Include="dlltest.cpp">
       <Filter>Source Code</Filter>
     </ClCompile>
-    <ClCompile Include="regtest.cpp">
+    <ClCompile Include="regtest1.cpp">
+      <Filter>Source Code</Filter>
+    </ClCompile>
+    <ClCompile Include="regtest2.cpp">
+      <Filter>Source Code</Filter>
+    </ClCompile>
+    <ClCompile Include="regtest3.cpp">
       <Filter>Source Code</Filter>
     </ClCompile>
     <ClCompile Include="test.cpp">

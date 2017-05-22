@@ -29,6 +29,9 @@
     <ClCompile Include="arc4.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="aria.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="asn.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -186,6 +189,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="iterhash.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="kalyna.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="kalynatab.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="keccak.cpp">
@@ -350,6 +359,9 @@
     <ClCompile Include="tftables.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="threefish.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="tiger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -427,6 +439,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="arc4.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="aria.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="argnames.h">
@@ -595,6 +610,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="iterhash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="kalyna.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="keccak.h">
@@ -778,6 +796,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tea.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="threefish.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tiger.h">

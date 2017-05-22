@@ -6,9 +6,9 @@
 ;; of intrinsics. The routines below run a little faster than the intrinsic
 ;; based routines.
 
-;; nasm -f elf32 rdrand.S -DX86 -g -o rdrand-x86.o
-;; nasm -f elfx32 rdrand.S -DX32 -g -o rdrand-x32.o
-;; nasm -f elf64 rdrand.S -DX64 -g -o rdrand-x64.o
+;; nasm -f elf32 rdrand.s -DX86 -g -o rdrand-x86.o
+;; nasm -f elfx32 rdrand.s -DX32 -g -o rdrand-x32.o
+;; nasm -f elf64 rdrand.s -DX64 -g -o rdrand-x64.o
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

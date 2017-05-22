@@ -14,23 +14,24 @@ Currently the library contains the following algorithms:
            AES and AES candidates  AES (Rijndael), RC6, MARS, Twofish, Serpent,
                                    CAST-256
 
-                                   IDEA, Triple-DES (DES-EDE2 and DES-EDE3),
-              other block ciphers  Camellia, SEED, RC5, Blowfish, TEA, XTEA,
-                                   Skipjack, SHACAL-2
+                                   ARIA, IDEA, Triple-DES (DES-EDE2 and DES-EDE3),
+              other block ciphers  Camellia, SEED, Kalyna RC5, Blowfish, TEA, XTEA,
+                                   Threefish, Skipjack, SHACAL-2
 
   block cipher modes of operation  ECB, CBC, CBC ciphertext stealing (CTS),
                                    CFB, OFB, counter mode (CTR)
 
      message authentication codes  VMAC, HMAC, GMAC, CMAC, CBC-MAC, DMAC,
-                                   Two-Track-MAC, BLAKE2 (BLAKE2b, BLAKE2s)
+                                   Two-Track-MAC, BLAKE2s, BLAKE2b
 
-                                   BLAKE2 (BLAKE2b, BLAKE2s), SHA-1, SHA-2 (SHA-224,
-                   hash functions  SHA-256, SHA-384, and SHA-512), SHA-3, Tiger,
-                                   WHIRLPOOL, RIPEMD-128, RIPEMD-256, RIPEMD-160,
-                                   RIPEMD-320
+                                   BLAKE2s, BLAKE2b, Keccack (F1600) SHA-1, SHA-2 
+                   hash functions  (SHA-224, SHA-256, SHA-384, and SHA-512), SHA-3,
+                                   Tiger,WHIRLPOOL, RIPEMD-128, RIPEMD-256,
+                                   RIPEMD-160, RIPEMD-320
 
-                                   RSA, DSA, ElGamal, Nyberg-Rueppel (NR),
-          public-key cryptography  Rabin-Williams (RW), LUC, LUCELG,
+                                   RSA, DSA, Determinsitic DSA, ElGamal, 
+          public-key cryptography  Nyberg-Rueppel (NR), Rabin-Williams (RW), LUC,
+                                   LUCELG, EC-based German Digital Signature (ECGDSA),
                                    DLIES (variants of DHAES), ESIGN
 
    padding schemes for public-key  PKCS#1 v2.0, OAEP, PSS, PSSR, IEEE P1363
@@ -40,7 +41,7 @@ Currently the library contains the following algorithms:
             key agreement schemes  (DH2), Menezes-Qu-Vanstone (MQV), Hashed MQV (HMQV),
                                    Fully Hashed MQV (FHMQV), LUCDIF, XTR-DH
 
-      elliptic curve cryptography  ECDSA, ECNR, ECIES, ECDH, ECMQV
+      elliptic curve cryptography  ECDSA, Determinsitic ECDSA, ECNR, ECIES, ECDH, ECMQV
 
           insecure or obsolescent  MD2, MD4, MD5, Panama Hash, DES, ARC4, SEAL
 algorithms retained for backwards  3.0, WAKE-OFB, DESX (DES-XEX3), RC2,
@@ -49,7 +50,8 @@ algorithms retained for backwards  3.0, WAKE-OFB, DESX (DES-XEX3), RC2,
 
 Other features include:
 
-  * pseudo random number generators (PRNG): ANSI X9.17 appendix C, RandomPool
+  * pseudo random number generators (PRNG): ANSI X9.17 appendix C, RandomPool,
+    RDRAND, RDSEED, NIST Hash DRBG, NIST HMAC DRBG
   * password based key derivation functions: PBKDF1 and PBKDF2 from PKCS #5,
     PBKDF from PKCS #12 appendix B, HKDF from RFC 5869
   * Shamir's secret sharing scheme and Rabin's information dispersal algorithm

@@ -71,7 +71,7 @@ Algorithm::Algorithm(bool checkSelfTestStatus)
 void SimpleKeyingInterface::SetKey(const byte *key, size_t length, const NameValuePairs &params)
 {
 	this->ThrowIfInvalidKeyLength(length);
-	this->UncheckedSetKey(key, (unsigned int)length, params);
+	this->UncheckedSetKey(key, static_cast<unsigned int>(length), params);
 }
 
 void SimpleKeyingInterface::SetKeyWithRounds(const byte *key, size_t length, int rounds)
@@ -127,7 +127,7 @@ const byte * SimpleKeyingInterface::GetIVAndThrowIfInvalid(const NameValuePairs 
 	{
 		iv = ivWithLength.begin();
 		ThrowIfInvalidIV(iv);
-		size = ThrowIfInvalidIVLength((int)ivWithLength.size());
+		size = ThrowIfInvalidIVLength(static_cast<int>(ivWithLength.size()));
 		return iv;
 	}
 	else if (params.GetValue(Name::IV(), iv))
@@ -171,21 +171,19 @@ size_t BlockTransformation::AdvancedProcessBlocks(const byte *inBlocks, const by
 		outIncrement = 0-outIncrement;
 	}
 
+	// Coverity finding.
+	bool xorFlag = xorBlocks && (flags & BT_XorInput);
 	while (length >= blockSize)
 	{
-		if (flags & BT_XorInput)
+		if (xorFlag)
 		{
-			// Coverity finding. However, xorBlocks is never NULL if BT_XorInput.
-			CRYPTOPP_ASSERT(xorBlocks);
-#if defined(__COVERITY__)
-			if (xorBlocks)
-#endif
+			// xorBlocks non-NULL and with BT_XorInput.
 			xorbuf(outBlocks, xorBlocks, inBlocks, blockSize);
 			ProcessBlock(outBlocks);
 		}
 		else
 		{
-			// xorBlocks can be NULL. See, for example, ECB_OneWay::ProcessData.
+			// xorBlocks may be non-NULL and without BT_XorInput.
 			ProcessAndXorBlock(inBlocks, xorBlocks, outBlocks);
 		}
 

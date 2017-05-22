@@ -155,12 +155,16 @@ void PolynomialMod2::Encode(byte *output, size_t outputLen) const
 
 void PolynomialMod2::Decode(BufferedTransformation &bt, size_t inputLen)
 {
+	CRYPTOPP_ASSERT(bt.MaxRetrievable() >= inputLen);
+	if (bt.MaxRetrievable() < inputLen)
+		throw InvalidArgument("PolynomialMod2: input length is too small");
+
 	reg.CleanNew(BytesToWords(inputLen));
 
 	for (size_t i=inputLen; i > 0; i--)
 	{
 		byte b;
-		bt.Get(b);
+		(void)bt.Get(b);
 		reg[(i-1)/WORD_SIZE] |= word(b) << ((i-1)%WORD_SIZE)*8;
 	}
 }

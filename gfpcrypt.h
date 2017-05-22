@@ -737,7 +737,7 @@ class DSA2;
 struct DL_Keys_DSA
 {
     typedef DL_PublicKey_GFP<DL_GroupParameters_DSA> PublicKey;
-    typedef DL_PrivateKey_WithSignaturePairwiseConsistencyTest<DL_PrivateKey_GFP<DL_GroupParameters_DSA>, DSA2<SHA> > PrivateKey;
+    typedef DL_PrivateKey_WithSignaturePairwiseConsistencyTest<DL_PrivateKey_GFP<DL_GroupParameters_DSA>, DSA2<SHA1> > PrivateKey;
 };
 
 //! \class DSA2
@@ -779,7 +779,7 @@ typedef DSA2<SHA1> DSA;
 
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_PublicKey_GFP<DL_GroupParameters_DSA>;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_GFP<DL_GroupParameters_DSA>;
-CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_WithSignaturePairwiseConsistencyTest<DL_PrivateKey_GFP<DL_GroupParameters_DSA>, DSA2<SHA> >;
+CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_WithSignaturePairwiseConsistencyTest<DL_PrivateKey_GFP<DL_GroupParameters_DSA>, DSA2<SHA1> >;
 
 //! \class DL_EncryptionAlgorithm_Xor
 //! \brief P1363 based XOR Encryption Method

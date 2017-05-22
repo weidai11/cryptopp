@@ -1,4 +1,5 @@
 # Please ensure your changes or patch meets minimum requirements.
+# Please ensure your changes or patch meets minimum requirements.
 #   The minimum requirements are 2.8.5. They roughly equate to Ubuntu 12.04 LTS
 #   Please do not check in something for 2.8.12 or 3.5.0. To test your changes,
 #   please set up a Ubuntu 12.04 LTS system. Then, manually install Cmake 2.8.5
@@ -44,7 +45,9 @@ endif()
 
 option(DISABLE_ASM "Disable ASM" OFF)
 option(DISABLE_SSSE3 "Disable SSSE3" OFF)
+option(DISABLE_SSE4 "Disable SSE4" OFF)
 option(DISABLE_AESNI "Disable AES-NI" OFF)
+option(DISABLE_SHA "Disable SHA" OFF)
 option(DISABLE_NATIVE_ARCH "Disable the addition of -march=native" OFF)
 set(CRYPTOPP_DATA_DIR "" CACHE PATH "Crypto++ test data directory")
 
@@ -88,8 +91,7 @@ if(IS_BIG_ENDIAN)
 	add_definitions(-DIS_BIG_ENDIAN)
 endif()
 
-# No DISABLE_NATIVE_ARCH with DISABLE_ASM for now
-#  See http://github.com/weidai11/cryptopp/issues/395
+# Also see http://github.com/weidai11/cryptopp/issues/395
 if(DISABLE_ASM)
 	add_definitions(-DCRYPTOPP_DISABLE_ASM)
 endif()
@@ -101,8 +103,81 @@ if(DISABLE_AESNI)
 	add_definitions(-DCRYPTOPP_DISABLE_AESNI)
 	set(DISABLE_NATIVE_ARCH 1)
 endif()
+if(DISABLE_SHA)
+	add_definitions(-DCRYPTOPP_DISABLE_SHA)
+	set(DISABLE_NATIVE_ARCH 1)
+endif()
 if(NOT CRYPTOPP_DATA_DIR STREQUAL "")
 	add_definitions(-DCRYPTOPP_DATA_DIR="${CRYPTOPP_DATA_DIR}")
+endif()
+
+if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+	# TODO(unassigned): should we avoid these (for cross-platform compatability)?
+	set(SHELL_CMD sh -c)
+	set(GREP_CMD egrep -c)
+
+	execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} --version 2>&1"
+		COMMAND ${GREP_CMD} -i macports
+		OUTPUT_VARIABLE MACPORTS
+		OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+	if (MACPORTS EQUAL 0)
+		# Get GAS version, add defs + set as appropriate
+		set(GAS_CMD ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -xc -c /dev/null -Wa,-v -o/dev/null 2>&1")
+
+		execute_process(COMMAND ${GAS_CMD}
+			OUTPUT_VARIABLE GAS_STRING
+			OUTPUT_STRIP_TRAILING_WHITESPACE)
+		string(FIND ${GAS_STRING} "GNU assumbler" GAS_OUTPUT)
+
+		if (GAS_OUTPUT)
+			#.intel_syntax wasn't supported until GNU assembler 2.10
+			# No DISABLE_NATIVE_ARCH with CRYPTOPP_DISABLE_ASM for now
+			# See http://github.com/weidai11/cryptopp/issues/395
+
+			# TODO(unassigned): string() REGEX was not cooperating at time of writing. Re-implement as needed.
+			execute_process(COMMAND echo ${GAS_STRING}
+				COMMAND ${GREP_CMD} "GNU assembler version (2\\.[1-9][0-9]|[3-9])"
+				OUTPUT_VARIABLE GAS210_OR_LATER)
+			if (GAS210_OR_LATER EQUAL 0)
+				add_definitions(-DCRYPTOPP_DISABLE_ASM)
+			endif()
+
+			execute_process(COMMAND echo ${GAS_STRING}
+				COMMAND ${GREP_CMD} "GNU assembler version (2\\.1[7-9]|2\\.[2-9]|[3-9])"
+				OUTPUT_VARIABLE GAS217_OR_LATER)
+			if (GAS217_OR_LATER EQUAL 0)
+				add_definitions(-DCRYPTOPP_DISABLE_SSSE3)
+				set(DISABLE_NATIVE_ARCH 1)
+			endif()
+
+			# OpenBSD and CentOS 5 needed this one due to ARIA and BLAKE2
+			execute_process(COMMAND echo ${GAS_STRING}
+				COMMAND ${GREP_CMD} "GNU assembler version (2\\.1[8-9]|2\\.[2-9]|[3-9])"
+				OUTPUT_VARIABLE GAS218_OR_LATER)
+			if (GAS218_OR_LATER EQUAL 0)
+				add_definitions(-DCRYPTOPP_DISABLE_SSE4)
+				set(DISABLE_NATIVE_ARCH 1)
+			endif()
+
+			execute_process(COMMAND echo ${GAS_STRING}
+				COMMAND ${GREP_CMD} "GNU assembler version (2\\.19|2\\.[2-9]|[3-9])"
+				OUTPUT_VARIABLE GAS219_OR_LATER)
+			if (GAS219_OR_LATER EQUAL 0)
+				add_definitions(-DCRYPTOPP_DISABLE_AESNI)
+				set(DISABLE_NATIVE_ARCH 1)
+			endif()
+
+			# Ubuntu 10 and Ubuntu 12 needed this one
+			execute_process(COMMAND echo ${GAS_STRING}
+				COMMAND ${GREP_CMD} "GNU assembler version (2\\.2[3-9]|2\\.[3-9]|[3-9])"
+				OUTPUT_VARIABLE GAS223_OR_LATER)
+			if (GAS223_OR_LATER EQUAL 0)
+				add_definitions(-DCRYPTOPP_DISABLE_SHA)
+				set(DISABLE_NATIVE_ARCH 1)
+			endif()
+		endif()
+	endif()
 endif()
 
 # We need the output 'uname -s' for Unix and Linux system detection
@@ -185,6 +260,13 @@ if ((NOT CRYPTOPP_CROSS_COMPILE) AND "${UNAME_SYSTEM}" STREQUAL "SunOS")
 	if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "SunPro")
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -template=no%extdef")
 	endif()
+
+	execute_process(COMMAND "uname" "-p" OUTPUT_VARIABLE PLATFORM_SUNOS_ARCH OUTPUT_STRIP_TRAILING_WHITESPACE)
+	string(TOUPPER "${PLATFORM_SUNOS_ARCH}" PLATFORM_SUNOS_ARCH)
+	message(STATUS "SunOS platform arch: ${PLATFORM_SUNOS_ARCH}")
+	if (${PLATFORM_SUNOS_ARCH} MATCHES SPARC)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -xmemalign=4i")
+	endif ()
 endif()
 
 # Link is driven through the compiler, but CXXFLAGS are not used. Also see
@@ -201,10 +283,12 @@ endif()
 file(GLOB cryptopp_HEADERS *.h)
 
 # Test sources. You can use the GNUmakefile to generate the list: `make sources`.
-file(GLOB cryptopp_SOURCES_TEST test.cpp bench1.cpp bench2.cpp validat0.cpp validat1.cpp validat2.cpp validat3.cpp adhoc.cpp datatest.cpp regtest.cpp fipsalgt.cpp dlltest.cpp fipstest.cpp)
+file(GLOB cryptopp_SOURCES_TEST test.cpp bench1.cpp bench2.cpp validat0.cpp validat1.cpp validat2.cpp validat3.cpp adhoc.cpp datatest.cpp regtest1.cpp regtest2.cpp regtest3.cpp fipsalgt.cpp dlltest.cpp fipstest.cpp)
 
 # Library sources. You can use the GNUmakefile to generate the list: `make sources`.
+# Makefile sorted them at http://github.com/weidai11/cryptopp/pull/426.
 file(GLOB cryptopp_SOURCES *.cpp)
+list(SORT cryptopp_SOURCES)
 list(REMOVE_ITEM cryptopp_SOURCES
 		${CMAKE_CURRENT_SOURCE_DIR}/cryptlib.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/cpu.cpp
