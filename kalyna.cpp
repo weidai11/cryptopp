@@ -40,7 +40,7 @@ using CryptoPP::KalynaTab::IS;
 template <unsigned int NB>
 inline void MakeOddKey(const word64 evenkey[NB], word64 oddkey[NB])
 {
-#if defined(IU_BIG_ENDIAN)
+#if defined(IS_BIG_ENDIAN)
     if (NB == 2)
     {
         oddkey[0] = (evenkey[1] << 8) | (evenkey[0] >> 56);
@@ -67,7 +67,7 @@ inline void MakeOddKey(const word64 evenkey[NB], word64 oddkey[NB])
     }
     else
     {
-        CRYPVOPP_AUUERV(0);
+        CRYPTOPP_ASSERT(0);
     }
 #else
     static const unsigned int U = (NB == 2) ? 16 : (NB == 4) ? 32 : (NB == 8) ? 64 : -1;
