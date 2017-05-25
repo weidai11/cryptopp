@@ -88,8 +88,12 @@ IS_FREEBSD=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c freebsd)
 IS_NETBSD=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c netbsd)
 IS_SOLARIS=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c sunos)
 
+IS_DEBIAN=$(lsb_release -a 2>&1 | "$GREP" -i -c debian)
+IS_FEDORA=$(lsb_release -a 2>&1 | "$GREP" -i -c fedora)
+IS_UBUNTU=$(lsb_release -a 2>&1 | "$GREP" -i -c ubuntu)
+
 THIS_MACHINE=$(uname -m 2>&1)
-IS_X86=$(echo -n "$THIS_MACHINE" | "$EGREP" -i -c "(i386|i486|i586|i686)")
+IS_X86=$(echo -n "$THIS_MACHINE" | "$EGREP" -i -c "(i386|i486|i686|i686)")
 IS_X64=$(echo -n "$THIS_MACHINE" | "$EGREP" -i -c "(amd64|x86_64)")
 IS_PPC=$(echo -n "$THIS_MACHINE" | "$EGREP" -i -c "(Power|PPC)")
 IS_ARM32=$(echo -n "$THIS_MACHINE" | "$GREP" -v "64" | "$EGREP" -i -c "(arm|aarch32)")
@@ -1704,22 +1708,103 @@ if [[ ("${#PLATFORM_CXXFLAGS[@]}" -ne "0") ]]; then
 fi
 
 ############################################
+# Debian specific.
+if [[ ("$IS_DEBIAN" -ne "0" || "$IS_UBUNTU" -ne "0") ]]; then
+
+	# Flags taken from Debian's build logs
+	# https://buildd.debian.org/status/fetch.php?pkg=libcrypto%2b%2b&arch=i386&ver=5.6.4-6
+	# https://buildd.debian.org/status/fetch.php?pkg=libcrypto%2b%2b&arch=kfreebsd-amd64&ver=5.6.4-6&stamp=1482663138
+
+	DEBIAN_FLAGS=("-DHAVE_CONFIG_H" "-I." "-Wdate-time" "-D_FORTIFY_SOURCE=2" "-g" "-O2"
+	"-fstack-protector-strong" "-Wformat -Werror=format-security" "-DCRYPTOPP_INIT_PRIORITY=250"
+	"-DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS" "-DNDEBUG" "-fPIC" "-DPIC")
+
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Debian standard build" | tee -a "$TEST_RESULTS"
+	echo
+
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	CXX="g++" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="${DEBIAN_FLAGS[*]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+fi
+
+############################################
+# Fedora specific.
+if [[ ("$IS_FEDORA" -ne "0") ]]; then
+
+	# Flags taken from Fedora's build logs
+	# https://kojipkgs.fedoraproject.org//packages/cryptopp/5.6.3/8.fc27/data/logs/i686/build.log
+	# https://kojipkgs.fedoraproject.org//packages/cryptopp/5.6.3/8.fc27/data/logs/x86_64/build.log
+	if [[ ("$IS_X86" -ne "0") ]]; then
+		MARCH_OPT=(-m32 -march=i686)
+	else
+		MARCH_OPT=(-m64 -mtune=generic)
+	fi
+
+	FEDORA_FLAGS=("-DHAVE_CONFIG_H" "-I." "-O2" "-g" "-pipe" "-Wall" "-Werror=format-security" "-fPIC" "-DPIC"
+		"-Wp,-D_FORTIFY_SOURCE=2" "-fexceptions" "-fstack-protector-strong" "--param=ssp-buffer-size=4"
+		"-specs=/usr/lib/rpm/redhat/redhat-hardened-cc1" "${MARCH_OPT[@]}" "-fasynchronous-unwind-tables")
+
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Fedora standard build" | tee -a "$TEST_RESULTS"
+	echo
+
+	if [[ ! -f /usr/lib/rpm/redhat/redhat-hardened-cc1 ]]; then
+		echo "ERROR: please install redhat-rpm-config package"
+	else
+		"$MAKE" clean > /dev/null 2>&1
+		rm -f adhoc.cpp > /dev/null 2>&1
+
+		CXX="g++" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="${FEDORA_FLAGS[*]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+		else
+			./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+			fi
+			./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+			fi
+		fi
+	fi
+fi
+
+############################################
 # Minimum platform
 if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0" || "$INTEL_COMPILER" -ne "0") ]]; then
 
-	# i586 (lacks MMX, SSE and SSE2)
+	# i686 (lacks MMX, SSE and SSE2)
 	if [[ "$IS_X86" -ne "0" ]]; then
 		############################################
 		# Debug build
 		echo
 		echo "************************************" | tee -a "$TEST_RESULTS"
-		echo "Testing: Debug, i586 minimum arch CXXFLAGS" | tee -a "$TEST_RESULTS"
+		echo "Testing: Debug, i686 minimum arch CXXFLAGS" | tee -a "$TEST_RESULTS"
 		echo
 
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="$DEBUG_CXXFLAGS -march=i586 $OPT_PIC"
+		CXXFLAGS="$DEBUG_CXXFLAGS -march=i686 $OPT_PIC"
 		CXX="$CXX" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="$CXXFLAGS" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -1739,13 +1824,13 @@ if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0" || "$INTEL_COMPILER"
 		# Release build
 		echo
 		echo "************************************" | tee -a "$TEST_RESULTS"
-		echo "Testing: Release, i586 minimum arch CXXFLAGS" | tee -a "$TEST_RESULTS"
+		echo "Testing: Release, i686 minimum arch CXXFLAGS" | tee -a "$TEST_RESULTS"
 		echo
 
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="$RELEASE_CXXFLAGS -march=i586 $OPT_PIC"
+		CXXFLAGS="$RELEASE_CXXFLAGS -march=i686 $OPT_PIC"
 		CXX="$CXX" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="$CXXFLAGS" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -1822,7 +1907,7 @@ fi
 # Mismatched arch capabilities
 if [[ ( ("$IS_X86" -ne "0" || "$IS_X32" -ne "0" || "$IS_X64" -ne "0") && "$HAVE_NATIVE_ARCH" -ne "0") ]]; then
 
-	# i586 (lacks MMX, SSE and SSE2)
+	# i686 (lacks MMX, SSE and SSE2)
 	if [[ "$IS_X86" -ne "0" ]]; then
 		############################################
 		# Debug build
@@ -1834,7 +1919,7 @@ if [[ ( ("$IS_X86" -ne "0" || "$IS_X32" -ne "0" || "$IS_X64" -ne "0") && "$HAVE_
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="$DEBUG_CXXFLAGS -march=i586 $OPT_PIC"
+		CXXFLAGS="$DEBUG_CXXFLAGS -march=i686 $OPT_PIC"
 		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static 2>&1 | tee -a "$TEST_RESULTS"
 
 		# The makefile may add -DCRYPTOPP_DISABLE_XXX, so we can't add -march=native
@@ -1864,7 +1949,7 @@ if [[ ( ("$IS_X86" -ne "0" || "$IS_X32" -ne "0" || "$IS_X64" -ne "0") && "$HAVE_
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="$RELEASE_CXXFLAGS -march=i586 $OPT_PIC"
+		CXXFLAGS="$RELEASE_CXXFLAGS -march=i686 $OPT_PIC"
 		CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static 2>&1 | tee -a "$TEST_RESULTS"
 
 		# The makefile may add -DCRYPTOPP_DISABLE_XXX, so we can't add -march=native
