@@ -82,11 +82,14 @@ template <class T, class BASE> byte * IteratedHashBase<T, BASE>::CreateUpdateSpa
 
 template <class T, class BASE> size_t IteratedHashBase<T, BASE>::HashMultipleBlocks(const T *input, size_t length)
 {
-	// Hardware based SHA1 and SHA256 correct blocks themselves due to hardware requirements.
-	//  For Intel, SHA1 will effectively call ByteReverse(). SHA256 formats data to Intel
-	//  requirements, which means eight words ABCD EFGH are transformed to ABEF CDGH.
+#if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
+	// SHA-1 and SHA-256 only
+	static const bool noReverse = HasSHA() && this->BlockSize() <= 64;
+#else
+	const bool noReverse = NativeByteOrderIs(this->GetByteOrder());
+#endif
+
 	unsigned int blockSize = this->BlockSize();
-	bool noReverse = NativeByteOrderIs(this->GetByteOrder());
 	T* dataBuf = this->DataBuf();
 	do
 	{
