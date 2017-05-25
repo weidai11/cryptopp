@@ -112,7 +112,7 @@ static void SHA1_SSE_SHA_Transform(word32 *state, const word32 *data)
     ABCD = _mm_loadu_si128((__m128i*) state);
     E0 = _mm_set_epi32(state[4], 0, 0, 0);
     ABCD = _mm_shuffle_epi32(ABCD, 0x1B);
-    MASK = _mm_set_epi8(0,1,2,3, 4,5,6,7, 8,9,10,11, 12,13,14,15);
+    MASK = _mm_set_epi8(3,2,1,0, 7,6,5,4, 11,10,9,8, 15,14,13,12);
 
     // Save current hash
     ABCD_SAVE = ABCD;
