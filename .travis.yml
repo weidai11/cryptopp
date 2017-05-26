@@ -8,10 +8,7 @@ dist: trusty
 sudo: false
 
 # OS X only supports one image. Us the latest.
-osx_image:
-  - xcode8.2
-#  - xcode7.3
-#  - xcode6.4
+osx_image: xcode8.2
 
 git:
   depth: 3
