@@ -34,9 +34,9 @@ test_script:
 - cmd: >-
 
     msbuild /t:CopyCryptestToRoot cryptest.vcxproj
-    
+
     cryptest.exe v
-    
+
     cryptest.exe tv all
 
 # Right now, we have a few failures that we don't know how to workaround.
