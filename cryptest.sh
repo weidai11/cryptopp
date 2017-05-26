@@ -1752,7 +1752,7 @@ if [[ ("$IS_FEDORA" -ne "0") ]]; then
 	# https://kojipkgs.fedoraproject.org//packages/cryptopp/5.6.3/8.fc27/data/logs/x86_64/build.log
 	if [[ ("$IS_X86" -ne "0") ]]; then
 		MARCH_OPT=(-m32 -march=i686)
-	if [[ ("$IS_X64" -ne "0") ]]; then
+	elif [[ ("$IS_X64" -ne "0") ]]; then
 		MARCH_OPT=(-m64 -mtune=generic)
 	fi
 
