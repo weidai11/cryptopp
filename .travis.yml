@@ -7,7 +7,7 @@ os:
 dist: trusty
 sudo: false
 
-# OS X only supports one image. Us the latest.
+# OS X only supports one image. Use the latest.
 osx_image: xcode8.2
 
 git:
@@ -36,7 +36,6 @@ env:
 
     # The sanitizer builds under Clang run the tests very
     # slowly and cause CI timeouts.
-
     - compiler: clang
       env: BUILD_MODE="asan"
     - compiler: clang
@@ -44,10 +43,22 @@ env:
     - compiler: clang
       env: BUILD_MODE="valgrind"
 
+script:
+  - make clean &>/dev/null && make
+  - ./cryptest.exe v && ./cryptest.exe tv all
+
 # whitelist branches to avoid testing feature branches twice
 branches:
   only:
     - master
+
+addons:
+  sonarqube: true
+
+  coverity_scan:
+    project:
+      name: "cryptopp"
+    build_command: "make -j 2"
 
 #notifications:
 #  email: jdoe@example.com
