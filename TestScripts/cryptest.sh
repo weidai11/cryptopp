@@ -5566,7 +5566,7 @@ if (( "$ECOUNT" == "0" )); then
 else
 	echo "$ECOUNT errors detected. See $TEST_RESULTS for details" | tee -a "$TEST_RESULTS"
 	if (( "$ECOUNT" < 16 )); then
-		"$EGREP" -n '(Error|ERROR|error|FAILED|Illegal|Conditional|CryptoPP::Exception)' "$TEST_RESULTS" | "$EGREP" -v '( 0 errors|suppressed errors|error detector)'
+		"$EGREP" -n '(Error|ERROR|error|FAILED|Illegal|Conditional|CryptoPP::Exception)' "$TEST_RESULTS" | "$EGREP" -v '( 0 errors|suppressed errors|error detector|Assertion|format-security)'
 	fi
 fi
 
