@@ -579,7 +579,7 @@ gcov codecov: libcryptopp.a cryptest.exe
 	@-$(RM) -r ./TestCoverage/
 	./cryptest.exe v
 	./cryptest.exe tv all
-	gcov $(SRCS)
+	gcov -r $(SRCS)
 
 # Should use CXXFLAGS="-g3 -O1"
 .PHONY: valgrind
