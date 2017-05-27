@@ -160,7 +160,7 @@ ifeq ($(findstring lean,$(MAKECMDGOALS)),lean)
   ifeq ($(findstring -fdata-sections,$(CXXFLAGS)),)
     CXXFLAGS += -fdata-sections
   endif # CXXFLAGS
-  ifneq ($(IS_DARWIN),0)
+  ifneq ($(IS_IOS),0)
     ifeq ($(findstring -Wl,-dead_strip,$(LDFLAGS)),)
       LDFLAGS += -Wl,-dead_strip
     endif # CXXFLAGS
