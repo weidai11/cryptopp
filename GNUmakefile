@@ -405,7 +405,7 @@ endif # CXXFLAGS
 endif # Gold
 
 # lcov code coverage. Issue 'make coverage'.
-ifneq ($(filter coverage,$(MAKECMDGOALS)),)
+ifneq ($(filter lcov coverage,$(MAKECMDGOALS)),)
 CXXFLAGS := $(CXXFLAGS:-g%=-g3)
 CXXFLAGS := $(CXXFLAGS:-O%=-O1)
 CXXFLAGS := $(CXXFLAGS:-xO%=-xO1)
@@ -418,7 +418,7 @@ endif # -coverage
 endif # GCC code coverage
 
 # gcov code coverage for Travis. Issue 'make codecov'.
-ifneq ($(filter codecov,$(MAKECMDGOALS)),)
+ifneq ($(filter gcov codecov,$(MAKECMDGOALS)),)
 CXXFLAGS := $(CXXFLAGS:-g%=-g3)
 CXXFLAGS := $(CXXFLAGS:-O%=-O1)
 CXXFLAGS := $(CXXFLAGS:-xO%=-xO1)
@@ -563,8 +563,8 @@ no-asm asan ubsan: libcryptopp.a cryptest.exe
 lean: static dynamic cryptest.exe
 
 # May want to export CXXFLAGS="-g3 -O1"
-.PHONY: coverage
-coverage: libcryptopp.a cryptest.exe
+.PHONY: lcov coverage
+lcov coverage: libcryptopp.a cryptest.exe
 	@-$(RM) -r ./TestCoverage/
 	lcov --base-directory . --directory . --zerocounters -q
 	./cryptest.exe v
@@ -574,8 +574,8 @@ coverage: libcryptopp.a cryptest.exe
 	genhtml -o ./TestCoverage/ -t "cryptest.exe test coverage" --num-spaces 4 cryptest.info
 
 # Travis CI and CodeCov rule
-.PHONY: codecov
-codecov: libcryptopp.a cryptest.exe
+.PHONY: gcov codecov
+gcov codecov: libcryptopp.a cryptest.exe
 	@-$(RM) -r ./TestCoverage/
 	./cryptest.exe v
 	./cryptest.exe tv all
@@ -623,7 +623,7 @@ clean:
 	@-$(RM) libcryptopp.a libcryptopp.dylib cryptopp.dll libcryptopp.dll.a libcryptopp.import.a
 	@-$(RM) libcryptopp.so libcryptopp.so$(SOLIB_COMPAT_SUFFIX) libcryptopp.so$(SOLIB_VERSION_SUFFIX)
 	@-$(RM) cryptest.exe dlltest.exe cryptest.import.exe cryptest.info ct
-	@-$(RM) *.gcno *.gcda *.stackdump core-*
+	@-$(RM) *.gcov *.gcno *.gcda *.stackdump core-*
 	@-$(RM) /tmp/adhoc.exe
 	@-$(RM) -r /tmp/cryptopp_test/
 	@-$(RM) -r *.exe.dSYM/
