@@ -22,30 +22,24 @@ env:
     - BUILD_JOBS=2
 
   matrix:
-    - BUILD_MODE="shared"
-    - BUILD_MODE="static"
+    - BUILD_MODE="all"
     - BUILD_MODE="no-asm"
     - BUILD_MODE="asan"
     - BUILD_MODE="ubsan"
-    - BUILD_MODE="valgrind"
 
   exclude:
     # Skip GCC on OS X entirely
     - os: osx
       compiler: gcc
 
-    # The sanitizer builds under Clang run the tests very
-    # slowly and cause CI timeouts.
+    # The sanitizer builds under Clang are very slow.
     - compiler: clang
       env: BUILD_MODE="asan"
     - compiler: clang
       env: BUILD_MODE="ubsan"
-    - compiler: clang
-      env: BUILD_MODE="valgrind"
 
 script:
-  - make clean &>/dev/null && make
-  - ./cryptest.exe v && ./cryptest.exe tv all
+  - make "$BUILD_MODE" && ./cryptest.exe v && ./cryptest.exe tv all
 
 # whitelist branches to avoid testing feature branches twice
 branches:
