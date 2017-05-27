@@ -33,11 +33,13 @@ env:
     - os: osx
       compiler: gcc
 
-    # The sanitizer builds under Clang run slowly
+    # The sanitizer builds run slowly under Clang. CodeCov crashes under Clang.
     - compiler: clang
       env: BUILD_MODE="asan"
     - compiler: clang
       env: BUILD_MODE="ubsan"
+    - compiler: clang
+      env: BUILD_MODE="codecov"
 
 script:
   - make "$BUILD_MODE" && ./cryptest.exe v && ./cryptest.exe tv all
