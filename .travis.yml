@@ -26,7 +26,7 @@ env:
     - BUILD_MODE="no-asm"
     - BUILD_MODE="asan"
     - BUILD_MODE="ubsan"
-    - BUILD_MODE="coverage"
+    - BUILD_MODE="codecov"
 
   exclude:
     # Skip GCC on OS X entirely
@@ -43,7 +43,7 @@ script:
   - make "$BUILD_MODE" && ./cryptest.exe v && ./cryptest.exe tv all
 
 after_success:
-  - if [[ "$BUILD_MODE" = "coverage" ]]; then bash <(curl -s https://codecov.io/bash) fi;
+  - if [[ ( ("$BUILD_MODE" = "coverage") && ("$CC" = "gcc") ) ]]; then bash <(curl -s https://codecov.io/bash) fi;
 
 # whitelist branches to avoid testing feature branches twice
 branches:

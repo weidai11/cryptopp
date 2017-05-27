@@ -404,11 +404,21 @@ endif # ELF/ELF64
 endif # CXXFLAGS
 endif # Gold
 
-# GCC code coverage. Issue 'make coverage'.
+# lcov code coverage. Issue 'make coverage'.
 ifneq ($(filter coverage,$(MAKECMDGOALS)),)
 ifeq ($(findstring -DCRYPTOPP_COVERAGE,$(CXXFLAGS)),)
 CXXFLAGS += -DCRYPTOPP_COVERAGE
+endif # CRYPTOPP_COVERAGE
+ifeq ($(findstring -coverage,$(CXXFLAGS)),)
+CXXFLAGS += -coverage
 endif # -coverage
+endif # GCC code coverage
+
+# gcov code coverage for Travis. Issue 'make codecov'.
+ifneq ($(filter codecov,$(MAKECMDGOALS)),)
+ifeq ($(findstring -DCRYPTOPP_COVERAGE,$(CXXFLAGS)),)
+CXXFLAGS += -DCRYPTOPP_COVERAGE
+endif # CRYPTOPP_COVERAGE
 ifeq ($(findstring -coverage,$(CXXFLAGS)),)
 CXXFLAGS += -coverage
 endif # -coverage
@@ -557,7 +567,14 @@ coverage: libcryptopp.a cryptest.exe
 	lcov --remove cryptest.info "adhoc.cpp" "wait.*" "network.*" "socketft.*" "fips140.*" "*test.*" "bench*.cpp" "validat*.*" "/usr/*" -o cryptest.info
 	genhtml -o ./TestCoverage/ -t "cryptest.exe test coverage" --num-spaces 4 cryptest.info
 
-# SHould use CXXFLAGS="-g3 -O1"
+# Travis CI and CodeCov rule
+.PHONY: codecov
+coverage: libcryptopp.a cryptest.exe
+	@-$(RM) -r ./TestCoverage/
+	./cryptest.exe v
+	./cryptest.exe tv all
+
+# Should use CXXFLAGS="-g3 -O1"
 .PHONY: valgrind
 valgrind: libcryptopp.a cryptest.exe
 	valgrind ./cryptest.exe v
