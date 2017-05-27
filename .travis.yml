@@ -45,7 +45,7 @@ script:
   - make "$BUILD_MODE" && ./cryptest.exe v && ./cryptest.exe tv all
 
 after_success:
-  - if [[ ( ("$BUILD_MODE" = "coverage") && ("$CC" = "gcc") ) ]]; then bash <(curl -s https://codecov.io/bash); fi;
+  - if [[ ( ("$BUILD_MODE" = "coverage") && ("$CC" = "gcc") ) ]]; then CODECOV_TOKEN="5c7bc59c-e95f-4594-82c3-33e7a1942592" bash <(curl -s https://codecov.io/bash); fi;
 
 # whitelist branches to avoid testing feature branches twice
 branches:
