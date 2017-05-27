@@ -406,6 +406,9 @@ endif # Gold
 
 # lcov code coverage. Issue 'make coverage'.
 ifneq ($(filter coverage,$(MAKECMDGOALS)),)
+CXXFLAGS := $(CXXFLAGS:-g%=-g3)
+CXXFLAGS := $(CXXFLAGS:-O%=-O1)
+CXXFLAGS := $(CXXFLAGS:-xO%=-xO1)
 ifeq ($(findstring -DCRYPTOPP_COVERAGE,$(CXXFLAGS)),)
 CXXFLAGS += -DCRYPTOPP_COVERAGE
 endif # CRYPTOPP_COVERAGE
@@ -416,6 +419,9 @@ endif # GCC code coverage
 
 # gcov code coverage for Travis. Issue 'make codecov'.
 ifneq ($(filter codecov,$(MAKECMDGOALS)),)
+CXXFLAGS := $(CXXFLAGS:-g%=-g3)
+CXXFLAGS := $(CXXFLAGS:-O%=-O1)
+CXXFLAGS := $(CXXFLAGS:-xO%=-xO1)
 ifeq ($(findstring -DCRYPTOPP_COVERAGE,$(CXXFLAGS)),)
 CXXFLAGS += -DCRYPTOPP_COVERAGE
 endif # CRYPTOPP_COVERAGE
