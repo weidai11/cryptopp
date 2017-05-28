@@ -817,6 +817,13 @@ rdrand-%.o:
 	./rdrand-nasm.sh
 endif
 
+# Don't build Threefish with UBsan on Travis CI. Timeouts cause the build to fail.
+#   Also see https://stackoverflow.com/q/12983137/608639.
+ifeq ($(findstring true,$(CI)),true)
+threefish.o : threefish.cpp
+	$(CXX) $(strip $(subst -fsanitize=undefined,,$(CXXFLAGS))) -c $<
+endif
+
 # Don't build Rijndael with UBsan. Too much noise due to unaligned data accesses.
 ifneq ($(findstring -fsanitize=undefined,$(CXXFLAGS)),)
 rijndael.o : rijndael.cpp
