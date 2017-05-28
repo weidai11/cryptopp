@@ -27,7 +27,7 @@ env:
     - BUILD_MODE="asan"
     - BUILD_MODE="ubsan"
     - BUILD_MODE="codecov"
-
+matrix:
   exclude:
     # Skip GCC on OS X entirely
     - os: osx
