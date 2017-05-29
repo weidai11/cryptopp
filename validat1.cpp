@@ -79,9 +79,10 @@ bool ValidateAll(bool thorough)
 #if defined(CRYPTOPP_EXTENDED_VALIDATION)
 	pass=TestMersenne() && pass;
 #endif
+#if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
 	pass=TestRDRAND() && pass;
 	pass=TestRDSEED() && pass;
-
+#endif
 #if defined(CRYPTOPP_EXTENDED_VALIDATION)
 	// http://github.com/weidai11/cryptopp/issues/92
 	pass=TestSecBlock() && pass;
@@ -714,7 +715,6 @@ bool TestRandomPool()
 	}
 #endif
 
-	std::cout.flush();
 	return pass;
 }
 
@@ -809,7 +809,6 @@ bool TestAutoSeededX917()
 		std::cout << "passed:";
 	std::cout << "  GenerateWord32 and Crop\n";
 
-	std::cout.flush();
 	return pass;
 }
 #endif
@@ -920,11 +919,11 @@ bool TestMersenne()
 		std::cout << "passed:";
 	std::cout << "  GenerateWord32 and Crop\n";
 
-	std::cout.flush();
 	return pass;
 }
 #endif
 
+#if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
 bool TestRDRAND()
 {
 	std::cout << "\nTesting RDRAND generator...\n\n";
@@ -1024,7 +1023,6 @@ bool TestRDRAND()
 	else
 		std::cout << "RDRAND generator not available, skipping test.\n";
 
-	std::cout.flush();
 	return pass;
 }
 
@@ -1127,9 +1125,9 @@ bool TestRDSEED()
 	else
 		std::cout << "RDSEED generator not available, skipping test.\n";
 
-	std::cout.flush();
 	return pass;
 }
+#endif
 
 bool ValidateHashDRBG()
 {
