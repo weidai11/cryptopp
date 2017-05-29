@@ -235,7 +235,7 @@ void BenchMark(const char *name, NIST_DRBG &rng, double timeTotal)
 	Test::GlobalRNG().GenerateBlock(buf, BUF_SIZE);
 	buf.SetMark(16);
 
-	rng.IncorporateEntropy(buf, rng.GetMinEntropy());
+	rng.IncorporateEntropy(buf, rng.MinEntropyLength());
 	unsigned long long blocks = 1;
 	double timeTaken;
 
