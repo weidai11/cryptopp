@@ -301,7 +301,7 @@ AssignFromHelperClass<T, T> AssignFromHelper(T *pObject, const NameValuePairs &s
 #ifndef CRYPTOPP_NO_ASSIGN_TO_INTEGER
 // Allow the linker to discard Integer code if not needed.
 // Also see http://github.com/weidai11/cryptopp/issues/389.
-bool AssignIntToInteger(const std::type_info &valueType, void *pInteger, const void *pInt);
+CRYPTOPP_DLL bool AssignIntToInteger(const std::type_info &valueType, void *pInteger, const void *pInt);
 #endif
 
 CRYPTOPP_DLL const std::type_info & CRYPTOPP_API IntegerTypeId();
