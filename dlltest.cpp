@@ -6,6 +6,10 @@
 #include "cryptlib.h"
 #include "filters.h"
 
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(disable: 4505 4355)
+#endif
+
 USING_NAMESPACE(CryptoPP)
 USING_NAMESPACE(std)
 

@@ -20,6 +20,14 @@
 # pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
 
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(push)
+# pragma warning(disable: 4231 4275)
+# if (CRYPTOPP_MSC_VERSION >= 1400)
+#  pragma warning(disable: 6011 6386 28193)
+# endif
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 //! \class CipherModeDocumentation
@@ -475,6 +483,10 @@ struct CBC_CTS_Mode_ExternalCipher : public CipherModeDocumentation
 NAMESPACE_END
 
 // Issue 340
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(pop)
+#endif
+
 #if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
 # pragma GCC diagnostic pop
 #endif

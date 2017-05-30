@@ -8,6 +8,10 @@
 #include "cryptlib.h"
 #include "channels.h"
 
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(disable: 4355)
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 #if 0

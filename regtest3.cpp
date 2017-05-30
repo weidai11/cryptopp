@@ -26,6 +26,10 @@
 # pragma strict_gs_check (on)
 #endif
 
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(disable: 4505 4355)
+#endif
+
 USING_NAMESPACE(CryptoPP)
 
 void RegisterFactories3()
