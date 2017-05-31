@@ -63,4 +63,8 @@ addons:
     build_command: "make -j 2"
 
 notifications:
-  email: cryptopp-build@googlegroups.com
+  email:
+    recipients:
+      - cryptopp-build@googlegroups.com
+    on_success: always # default: change
+    on_failure: always # default: always
