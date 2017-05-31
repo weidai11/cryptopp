@@ -62,5 +62,5 @@ addons:
       name: "cryptopp"
     build_command: "make -j 2"
 
-#notifications:
-#  email: jdoe@example.com
+notifications:
+  email: cryptopp-build@googlegroups.com

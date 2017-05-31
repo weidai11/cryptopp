@@ -51,3 +51,6 @@ matrix:
       configuration: Release
     - image: Visual Studio 2010
     - image: Visual Studio 2017
+
+notifications:
+  email: cryptopp-build@googlegroups.com
