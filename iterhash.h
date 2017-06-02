@@ -1,5 +1,3 @@
-// strciphr.h - originally written and placed in the public domain by Wei Dai
-
 #ifndef CRYPTOPP_ITERHASH_H
 #define CRYPTOPP_ITERHASH_H
 
@@ -7,14 +5,6 @@
 #include "secblock.h"
 #include "misc.h"
 #include "simple.h"
-
-#if CRYPTOPP_MSC_VERSION
-# pragma warning(push)
-# pragma warning(disable: 4231 4275)
-# if (CRYPTOPP_MSC_VERSION >= 1400)
-#  pragma warning(disable: 6011 6386 28193)
-# endif
-#endif
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -188,9 +178,5 @@ protected:
 #endif
 
 NAMESPACE_END
-
-#if CRYPTOPP_MSC_VERSION
-# pragma warning(pop)
-#endif
 
 #endif

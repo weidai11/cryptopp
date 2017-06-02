@@ -11,12 +11,10 @@
 #include "config.h"
 #include "cryptlib.h"
 
-#if CRYPTOPP_MSC_VERSION
+// TODO: fix 6011 when the API/ABI can change
+#if (CRYPTOPP_MSC_VERSION >= 1400)
 # pragma warning(push)
-# pragma warning(disable: 4231 4275)
-# if (CRYPTOPP_MSC_VERSION >= 1400)
-#  pragma warning(disable: 6011 6386 28193)
-# endif
+# pragma warning(disable: 6011 28193)
 #endif
 
 #include "smartptr.h"

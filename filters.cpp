@@ -4,7 +4,7 @@
 #include "config.h"
 
 #if CRYPTOPP_MSC_VERSION
-# pragma warning(disable: 4100 4189 4355)
+# pragma warning(disable: 4100 4189)
 #endif
 
 #if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE

@@ -9,11 +9,6 @@
 #include "smartptr.h"
 #include "pubkey.h"
 
-#if CRYPTOPP_MSC_VERSION
-# pragma warning(push)
-# pragma warning(disable: 4231 4275)
-#endif
-
 NAMESPACE_BEGIN(CryptoPP)
 
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_FixedBasePrecomputationImpl<Integer>;
@@ -40,9 +35,5 @@ private:
 };
 
 NAMESPACE_END
-
-#if CRYPTOPP_MSC_VERSION
-# pragma warning(pop)
-#endif
 
 #endif

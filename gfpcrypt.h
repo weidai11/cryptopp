@@ -12,7 +12,7 @@
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(push)
-# pragma warning(disable: 4189 4231 4275)
+# pragma warning(disable: 4189)
 #endif
 
 #include "cryptlib.h"

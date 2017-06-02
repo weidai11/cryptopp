@@ -16,14 +16,6 @@
 #include "cpu.h"
 #include "drbg.h"
 
-#if CRYPTOPP_MSC_VERSION
-# pragma warning(disable: 4355)
-#endif
-
-#if CRYPTOPP_MSC_VERSION
-# pragma warning(disable: 4505 4355)
-#endif
-
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(Test)
 
