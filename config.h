@@ -732,8 +732,6 @@ NAMESPACE_END
 #define CRYPTOPP_EXTERN_DLL_TEMPLATE_CLASS extern class CRYPTOPP_DLL
 #elif defined(__BORLANDC__) || defined(__SUNPRO_CC)
 #define CRYPTOPP_EXTERN_DLL_TEMPLATE_CLASS template class CRYPTOPP_DLL
-#elif !defined(CRYPTOPP_IMPORTS) && !defined(CRYPTOPP_EXPORTS)
-#define CRYPTOPP_EXTERN_DLL_TEMPLATE_CLASS template class CRYPTOPP_DLL
 #else
 #define CRYPTOPP_EXTERN_DLL_TEMPLATE_CLASS extern template class CRYPTOPP_DLL
 #endif
@@ -747,8 +745,6 @@ NAMESPACE_END
 #if defined(__MWERKS__)
 #define CRYPTOPP_EXTERN_STATIC_TEMPLATE_CLASS extern class
 #elif defined(__BORLANDC__) || defined(__SUNPRO_CC)
-#define CRYPTOPP_EXTERN_STATIC_TEMPLATE_CLASS template class
-#elif !defined(CRYPTOPP_IMPORTS) && !defined(CRYPTOPP_EXPORTS)
 #define CRYPTOPP_EXTERN_STATIC_TEMPLATE_CLASS template class
 #else
 #define CRYPTOPP_EXTERN_STATIC_TEMPLATE_CLASS extern template class

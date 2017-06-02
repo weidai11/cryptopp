@@ -1,4 +1,4 @@
-// strciphr.h - originally written and placed in the public domain by Wei Dai
+// iterhash.h - originally written and placed in the public domain by Wei Dai
 
 #ifndef CRYPTOPP_ITERHASH_H
 #define CRYPTOPP_ITERHASH_H
