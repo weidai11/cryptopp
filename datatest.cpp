@@ -25,8 +25,8 @@
 # pragma strict_gs_check (on)
 #endif
 
-#if defined(__COVERITY__)
-extern "C" void __coverity_tainted_data_sanitize__(void *);
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(disable: 4505 4355)
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
