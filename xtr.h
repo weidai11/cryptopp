@@ -18,7 +18,7 @@ class GFP2Element
 {
 public:
 	GFP2Element() {}
-	GFP2Element(const Integer &c1, const Integer &c2) : c1(c1), c2(c2) {}
+	GFP2Element(const Integer &_c1, const Integer &_c2) : c1(_c1), c2(_c2) {}
 	GFP2Element(const byte *encodedElement, unsigned int size)
 		: c1(encodedElement, size/2), c2(encodedElement+size/2, size/2) {}
 

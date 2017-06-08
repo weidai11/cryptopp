@@ -205,9 +205,9 @@ template <class Element, class Iterator> Element GeneralCascadeMultiplication(co
 
 struct WindowSlider
 {
-	WindowSlider(const Integer &expIn, bool fastNegate, unsigned int windowSizeIn=0)
+	WindowSlider(const Integer &expIn, bool _fastNegate, unsigned int windowSizeIn=0)
 		: exp(expIn), windowModulus(Integer::One()), windowSize(windowSizeIn), windowBegin(0), expWindow(0)
-		, fastNegate(fastNegate), negateNext(false), firstTime(true), finished(false)
+		, fastNegate(_fastNegate), negateNext(false), firstTime(true), finished(false)
 	{
 		if (windowSize == 0)
 		{

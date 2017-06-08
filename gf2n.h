@@ -356,8 +356,8 @@ class CRYPTOPP_DLL GF2NPP : public GF2NP
 {
 public:
 	// polynomial modulus = x^t0 + x^t1 + x^t2 + x^t3 + x^t4, t0 > t1 > t2 > t3 > t4
-	GF2NPP(unsigned int t0, unsigned int t1, unsigned int t2, unsigned int t3, unsigned int t4)
-		: GF2NP(PolynomialMod2::Pentanomial(t0, t1, t2, t3, t4)), t0(t0), t1(t1), t2(t2), t3(t3) {}
+	GF2NPP(unsigned int _t0, unsigned int _t1, unsigned int _t2, unsigned int _t3, unsigned int t4)
+		: GF2NP(PolynomialMod2::Pentanomial(_t0, _t1, _t2, _t3, t4)), t0(_t0), t1(_t1), t2(_t2), t3(_t3) {}
 
 	GF2NP * Clone() const {return new GF2NPP(*this);}
 	void DEREncode(BufferedTransformation &bt) const;

@@ -289,8 +289,8 @@ template <class T, class Iterator> void ParallelInvert(const AbstractRing<T> &ri
 struct ProjectivePoint
 {
 	ProjectivePoint() {}
-	ProjectivePoint(const Integer &x, const Integer &y, const Integer &z)
-		: x(x), y(y), z(z)	{}
+	ProjectivePoint(const Integer &_x, const Integer &_y, const Integer &_z)
+		: x(_x), y(_y), z(_z)	{}
 
 	Integer x,y,z;
 };
@@ -343,7 +343,7 @@ public:
 struct ZIterator
 {
 	ZIterator() {}
-	ZIterator(std::vector<ProjectivePoint>::iterator it) : it(it) {}
+	ZIterator(std::vector<ProjectivePoint>::iterator _it) : it(_it) {}
 	Integer& operator*() {return it->z;}
 	int operator-(ZIterator it2) {return int(it-it2.it);}
 	ZIterator operator+(int i) {return ZIterator(it+i);}

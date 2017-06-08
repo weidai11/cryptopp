@@ -28,8 +28,8 @@ struct CRYPTOPP_DLL ECPPoint
 
 	//! \brief Construct an ECPPoint from coordinates
 	//! \details identity is set to <tt>false</tt>
-	ECPPoint(const Integer &x, const Integer &y)
-		: x(x), y(y), identity(false) {}
+	ECPPoint(const Integer &_x, const Integer &_y)
+		: x(_x), y(_y), identity(false) {}
 
 	//! \brief Tests points for equality
 	//! \param t the other point
@@ -62,8 +62,8 @@ struct CRYPTOPP_DLL EC2NPoint
 
 	//! \brief Construct an EC2NPoint from coordinates
 	//! \details identity is set to <tt>false</tt>
-	EC2NPoint(const PolynomialMod2 &x, const PolynomialMod2 &y)
-		: x(x), y(y), identity(false) {}
+	EC2NPoint(const PolynomialMod2 &_x, const PolynomialMod2 &_y)
+		: x(_x), y(_y), identity(false) {}
 
 	//! \brief Tests points for equality
 	//! \param t the other point

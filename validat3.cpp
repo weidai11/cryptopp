@@ -53,11 +53,11 @@ NAMESPACE_BEGIN(Test)
 
 struct HashTestTuple
 {
-	HashTestTuple(const char *input, const char *output, unsigned int repeatTimes=1)
-		: input((byte *)input), output((byte *)output), inputLen(strlen(input)), repeatTimes(repeatTimes) {}
+	HashTestTuple(const char *_input, const char *_output, unsigned int _repeatTimes=1)
+		: input((byte *)_input), output((byte *)_output), inputLen(strlen(_input)), repeatTimes(_repeatTimes) {}
 
-	HashTestTuple(const char *input, unsigned int inputLen, const char *output, unsigned int repeatTimes)
-		: input((byte *)input), output((byte *)output), inputLen(inputLen), repeatTimes(repeatTimes) {}
+	HashTestTuple(const char *_input, unsigned int _inputLen, const char *_output, unsigned int _repeatTimes)
+		: input((byte *)_input), output((byte *)_output), inputLen(_inputLen), repeatTimes(_repeatTimes) {}
 
 	const byte *input, *output;
 	size_t inputLen;

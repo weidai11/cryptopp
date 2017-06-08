@@ -56,7 +56,7 @@ private:
 
 	struct CodeInfo
 	{
-		CodeInfo(code_t code=0, unsigned int len=0, value_t value=0) : code(code), len(len), value(value) {}
+		CodeInfo(code_t _code=0, unsigned int _len=0, value_t _value=0) : code(_code), len(_len), value(_value) {}
 		inline bool operator<(const CodeInfo &rhs) const {return code < rhs.code;}
 		code_t code;
 		unsigned int len;

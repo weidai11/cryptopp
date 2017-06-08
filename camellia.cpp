@@ -50,11 +50,11 @@ NAMESPACE_BEGIN(CryptoPP)
 	word32 th = lh ^ kh;					\
 	word32 tl = ll ^ kl;					\
 	word32 d = SP[0][GETBYTE(tl,0)] ^ SP[1][GETBYTE(tl,3)] ^ SP[2][GETBYTE(tl,2)] ^ SP[3][GETBYTE(tl,1)];	\
-	word32 u = SP[0][GETBYTE(th,3)] ^ SP[1][GETBYTE(th,2)] ^ SP[2][GETBYTE(th,1)] ^ SP[3][GETBYTE(th,0)];	\
-	d ^= u;									\
+	word32 __u = SP[0][GETBYTE(th,3)] ^ SP[1][GETBYTE(th,2)] ^ SP[2][GETBYTE(th,1)] ^ SP[3][GETBYTE(th,0)];	\
+	d ^= __u;									\
 	rh ^= d;								\
 	rl ^= d;								\
-	rl ^= rotrFixed(u, 8);}
+	rl ^= rotrFixed(__u, 8);}
 
 #define DOUBLE_ROUND(lh, ll, rh, rl, k0, k1, k2, k3)	\
 	ROUND(lh, ll, rh, rl, k0, k1)						\
