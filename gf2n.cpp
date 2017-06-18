@@ -53,7 +53,7 @@ void PolynomialMod2::Randomize(RandomNumberGenerator &rng, size_t nbits)
 	const size_t nbytes = nbits/8 + 1;
 	SecByteBlock buf(nbytes);
 	rng.GenerateBlock(buf, nbytes);
-	buf[0] = (byte)Crop(buf[0], nbits % 8);
+	buf[0] = (::byte)Crop(buf[0], nbits % 8);
 	Decode(buf, nbytes);
 }
 
@@ -80,15 +80,15 @@ void PolynomialMod2::SetBit(size_t n, int value)
 	}
 }
 
-byte PolynomialMod2::GetByte(size_t n) const
+::byte PolynomialMod2::GetByte(size_t n) const
 {
 	if (n/WORD_SIZE >= reg.size())
 		return 0;
 	else
-		return byte(reg[n/WORD_SIZE] >> ((n%WORD_SIZE)*8));
+		return ::byte(reg[n/WORD_SIZE] >> ((n%WORD_SIZE)*8));
 }
 
-void PolynomialMod2::SetByte(size_t n, byte value)
+void PolynomialMod2::SetByte(size_t n, ::byte value)
 {
 	reg.CleanGrow(BytesToWords(n+1));
 	reg[n/WORD_SIZE] &= ~(word(0xff) << 8*(n%WORD_SIZE));
@@ -141,13 +141,13 @@ const PolynomialMod2 &PolynomialMod2::One()
 	return Singleton<PolynomialMod2, NewPolynomialMod2<1> >().Ref();
 }
 
-void PolynomialMod2::Decode(const byte *input, size_t inputLen)
+void PolynomialMod2::Decode(const ::byte *input, size_t inputLen)
 {
 	StringStore store(input, inputLen);
 	Decode(store, inputLen);
 }
 
-void PolynomialMod2::Encode(byte *output, size_t outputLen) const
+void PolynomialMod2::Encode(::byte *output, size_t outputLen) const
 {
 	ArraySink sink(output, outputLen);
 	Encode(sink, outputLen);
@@ -163,7 +163,7 @@ void PolynomialMod2::Decode(BufferedTransformation &bt, size_t inputLen)
 
 	for (size_t i=inputLen; i > 0; i--)
 	{
-		byte b;
+		::byte b;
 		(void)bt.Get(b);
 		reg[(i-1)/WORD_SIZE] |= word(b) << ((i-1)%WORD_SIZE)*8;
 	}

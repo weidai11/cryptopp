@@ -98,11 +98,11 @@ public:
 	//! \param passphrase a byte string password
 	//! \param passphraseLength the length of the byte string password
 	//! \param attachment a BufferedTransformation to attach to this object
-	DataEncryptor(const byte *passphrase, size_t passphraseLength, BufferedTransformation *attachment = NULLPTR);
+	DataEncryptor(const ::byte *passphrase, size_t passphraseLength, BufferedTransformation *attachment = NULLPTR);
 
 protected:
-	void FirstPut(const byte *);
-	void LastPut(const byte *inString, size_t length);
+	void FirstPut(const ::byte *);
+	void LastPut(const ::byte *inString, size_t length);
 
 private:
 	SecByteBlock m_passphrase;
@@ -139,19 +139,19 @@ public:
 	//! \param passphraseLength the length of the byte string password
 	//! \param attachment a BufferedTransformation to attach to this object
 	//! \param throwException a flag specifiying whether an Exception should be thrown on error
-	DataDecryptor(const byte *passphrase, size_t passphraseLength, BufferedTransformation *attachment = NULLPTR, bool throwException=true);
+	DataDecryptor(const ::byte *passphrase, size_t passphraseLength, BufferedTransformation *attachment = NULLPTR, bool throwException=true);
 
 	enum State {WAITING_FOR_KEYCHECK, KEY_GOOD, KEY_BAD};
 	State CurrentState() const {return m_state;}
 
 protected:
-	void FirstPut(const byte *inString);
-	void LastPut(const byte *inString, size_t length);
+	void FirstPut(const ::byte *inString);
+	void LastPut(const ::byte *inString, size_t length);
 
 	State m_state;
 
 private:
-	void CheckKey(const byte *salt, const byte *keyCheck);
+	void CheckKey(const ::byte *salt, const ::byte *keyCheck);
 
 	SecByteBlock m_passphrase;
 	typename CBC_Mode<BC>::Decryption m_cipher;
@@ -195,11 +195,11 @@ public:
 	//! \param passphrase a byte string password
 	//! \param passphraseLength the length of the byte string password
 	//! \param attachment a BufferedTransformation to attach to this object
-	DataEncryptorWithMAC(const byte *passphrase, size_t passphraseLength, BufferedTransformation *attachment = NULLPTR);
+	DataEncryptorWithMAC(const ::byte *passphrase, size_t passphraseLength, BufferedTransformation *attachment = NULLPTR);
 
 protected:
-	void FirstPut(const byte *inString) {CRYPTOPP_UNUSED(inString);}
-	void LastPut(const byte *inString, size_t length);
+	void FirstPut(const ::byte *inString) {CRYPTOPP_UNUSED(inString);}
+	void LastPut(const ::byte *inString, size_t length);
 
 private:
 	member_ptr<MAC> m_mac;
@@ -243,14 +243,14 @@ public:
 	//! \param passphraseLength the length of the byte string password
 	//! \param attachment a BufferedTransformation to attach to this object
 	//! \param throwException a flag specifiying whether an Exception should be thrown on error
-	DataDecryptorWithMAC(const byte *passphrase, size_t passphraseLength, BufferedTransformation *attachment = NULLPTR, bool throwException=true);
+	DataDecryptorWithMAC(const ::byte *passphrase, size_t passphraseLength, BufferedTransformation *attachment = NULLPTR, bool throwException=true);
 
 	typename DataDecryptor<BC,H,Info>::State CurrentState() const;
 	bool CheckLastMAC() const;
 
 protected:
-	void FirstPut(const byte *inString) {CRYPTOPP_UNUSED(inString);}
-	void LastPut(const byte *inString, size_t length);
+	void FirstPut(const ::byte *inString) {CRYPTOPP_UNUSED(inString);}
+	void LastPut(const ::byte *inString, size_t length);
 
 private:
 	member_ptr<MAC> m_mac;

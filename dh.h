@@ -132,7 +132,7 @@ public:
 	//!   builds of the library do not provide FIPS validated cryptography, so the code should be
 	//!   removed by the optimizer.
 	//! \pre <tt>COUNTOF(publicKey) == PublicKeyLength()</tt>
-	void GeneratePublicKey(RandomNumberGenerator &rng, const byte *privateKey, byte *publicKey) const
+	void GeneratePublicKey(RandomNumberGenerator &rng, const ::byte *privateKey, ::byte *publicKey) const
 	{
 		Base::GeneratePublicKey(rng, privateKey, publicKey);
 

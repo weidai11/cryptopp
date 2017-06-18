@@ -8,11 +8,11 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-void AuthenticatedSymmetricCipherBase::AuthenticateData(const byte *input, size_t len)
+void AuthenticatedSymmetricCipherBase::AuthenticateData(const ::byte *input, size_t len)
 {
 	unsigned int blockSize = AuthenticationBlockSize();
 	unsigned int &num = m_bufferedDataLength;
-	byte* data = m_buffer.begin();
+	::byte* data = m_buffer.begin();
 
 	if (num != 0)	// process left over data
 	{
@@ -45,7 +45,7 @@ void AuthenticatedSymmetricCipherBase::AuthenticateData(const byte *input, size_
 	num = (unsigned int)len;
 }
 
-void AuthenticatedSymmetricCipherBase::SetKey(const byte *userKey, size_t keylength, const NameValuePairs &params)
+void AuthenticatedSymmetricCipherBase::SetKey(const ::byte *userKey, size_t keylength, const NameValuePairs &params)
 {
 	m_bufferedDataLength = 0;
 	m_state = State_Start;
@@ -54,12 +54,12 @@ void AuthenticatedSymmetricCipherBase::SetKey(const byte *userKey, size_t keylen
 	m_state = State_KeySet;
 
 	size_t length;
-	const byte *iv = GetIVAndThrowIfInvalid(params, length);
+	const ::byte *iv = GetIVAndThrowIfInvalid(params, length);
 	if (iv)
 		Resynchronize(iv, (int)length);
 }
 
-void AuthenticatedSymmetricCipherBase::Resynchronize(const byte *iv, int length)
+void AuthenticatedSymmetricCipherBase::Resynchronize(const ::byte *iv, int length)
 {
 	if (m_state < State_KeySet)
 		throw BadState(AlgorithmName(), "Resynchronize", "key is set");
@@ -72,7 +72,7 @@ void AuthenticatedSymmetricCipherBase::Resynchronize(const byte *iv, int length)
 	m_state = State_IVSet;
 }
 
-void AuthenticatedSymmetricCipherBase::Update(const byte *input, size_t length)
+void AuthenticatedSymmetricCipherBase::Update(const ::byte *input, size_t length)
 {
 	if (length == 0)
 		return;
@@ -101,7 +101,7 @@ void AuthenticatedSymmetricCipherBase::Update(const byte *input, size_t length)
 	}
 }
 
-void AuthenticatedSymmetricCipherBase::ProcessData(byte *outString, const byte *inString, size_t length)
+void AuthenticatedSymmetricCipherBase::ProcessData(::byte *outString, const ::byte *inString, size_t length)
 {
 	m_totalMessageLength += length;
 	if (m_state >= State_IVSet && m_totalMessageLength > MaxMessageLength())
@@ -133,7 +133,7 @@ reswitch:
 	}
 }
 
-void AuthenticatedSymmetricCipherBase::TruncatedFinal(byte *mac, size_t macSize)
+void AuthenticatedSymmetricCipherBase::TruncatedFinal(::byte *mac, size_t macSize)
 {
 	if (m_totalHeaderLength > MaxHeaderLength())
 		throw InvalidArgument(AlgorithmName() + ": header length of " + IntToString(m_totalHeaderLength) + " exceeds the maximum of " + IntToString(MaxHeaderLength()));

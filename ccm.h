@@ -61,19 +61,19 @@ protected:
 		{return true;}
 	unsigned int AuthenticationBlockSize() const
 		{return GetBlockCipher().BlockSize();}
-	void SetKeyWithoutResync(const byte *userKey, size_t keylength, const NameValuePairs &params);
-	void Resync(const byte *iv, size_t len);
-	size_t AuthenticateBlocks(const byte *data, size_t len);
+	void SetKeyWithoutResync(const ::byte *userKey, size_t keylength, const NameValuePairs &params);
+	void Resync(const ::byte *iv, size_t len);
+	size_t AuthenticateBlocks(const ::byte *data, size_t len);
 	void AuthenticateLastHeaderBlock();
 	void AuthenticateLastConfidentialBlock();
-	void AuthenticateLastFooterBlock(byte *mac, size_t macSize);
+	void AuthenticateLastFooterBlock(::byte *mac, size_t macSize);
 	SymmetricCipher & AccessSymmetricCipher() {return m_ctr;}
 
 	virtual BlockCipher & AccessBlockCipher() =0;
 	virtual int DefaultDigestSize() const =0;
 
 	const BlockCipher & GetBlockCipher() const {return const_cast<CCM_Base *>(this)->AccessBlockCipher();};
-	byte *CBC_Buffer() {return m_buffer+REQUIRED_BLOCKSIZE;}
+	::byte *CBC_Buffer() {return m_buffer+REQUIRED_BLOCKSIZE;}
 
 	enum {REQUIRED_BLOCKSIZE = 16};
 	int m_digestSize, m_L;

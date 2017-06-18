@@ -9,7 +9,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 template <class S>
-void AdditiveCipherTemplate<S>::UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params)
+void AdditiveCipherTemplate<S>::UncheckedSetKey(const ::byte *key, unsigned int length, const NameValuePairs &params)
 {
 	PolicyInterface &policy = this->AccessPolicy();
 	policy.CipherSetKey(params, key, length);
@@ -20,13 +20,13 @@ void AdditiveCipherTemplate<S>::UncheckedSetKey(const byte *key, unsigned int le
 	if (this->IsResynchronizable())
 	{
 		size_t ivLength;
-		const byte *iv = this->GetIVAndThrowIfInvalid(params, ivLength);
+		const ::byte *iv = this->GetIVAndThrowIfInvalid(params, ivLength);
 		policy.CipherResynchronize(m_buffer, iv, ivLength);
 	}
 }
 
 template <class S>
-void AdditiveCipherTemplate<S>::GenerateBlock(byte *outString, size_t length)
+void AdditiveCipherTemplate<S>::GenerateBlock(::byte *outString, size_t length)
 {
 	if (m_leftOver > 0)
 	{
@@ -64,7 +64,7 @@ void AdditiveCipherTemplate<S>::GenerateBlock(byte *outString, size_t length)
 }
 
 template <class S>
-void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inString, size_t length)
+void AdditiveCipherTemplate<S>::ProcessData(::byte *outString, const ::byte *inString, size_t length)
 {
 	if (m_leftOver > 0)
 	{
@@ -123,7 +123,7 @@ void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inStrin
 }
 
 template <class S>
-void AdditiveCipherTemplate<S>::Resynchronize(const byte *iv, int length)
+void AdditiveCipherTemplate<S>::Resynchronize(const ::byte *iv, int length)
 {
 	PolicyInterface &policy = this->AccessPolicy();
 	m_leftOver = 0;
@@ -150,7 +150,7 @@ void AdditiveCipherTemplate<BASE>::Seek(lword position)
 }
 
 template <class BASE>
-void CFB_CipherTemplate<BASE>::UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params)
+void CFB_CipherTemplate<BASE>::UncheckedSetKey(const ::byte *key, unsigned int length, const NameValuePairs &params)
 {
 	PolicyInterface &policy = this->AccessPolicy();
 	policy.CipherSetKey(params, key, length);
@@ -158,7 +158,7 @@ void CFB_CipherTemplate<BASE>::UncheckedSetKey(const byte *key, unsigned int len
 	if (this->IsResynchronizable())
 	{
 		size_t ivLength;
-		const byte *iv = this->GetIVAndThrowIfInvalid(params, ivLength);
+		const ::byte *iv = this->GetIVAndThrowIfInvalid(params, ivLength);
 		policy.CipherResynchronize(iv, ivLength);
 	}
 
@@ -166,7 +166,7 @@ void CFB_CipherTemplate<BASE>::UncheckedSetKey(const byte *key, unsigned int len
 }
 
 template <class BASE>
-void CFB_CipherTemplate<BASE>::Resynchronize(const byte *iv, int length)
+void CFB_CipherTemplate<BASE>::Resynchronize(const ::byte *iv, int length)
 {
 	PolicyInterface &policy = this->AccessPolicy();
 	policy.CipherResynchronize(iv, this->ThrowIfInvalidIVLength(length));
@@ -174,14 +174,14 @@ void CFB_CipherTemplate<BASE>::Resynchronize(const byte *iv, int length)
 }
 
 template <class BASE>
-void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString, size_t length)
+void CFB_CipherTemplate<BASE>::ProcessData(::byte *outString, const ::byte *inString, size_t length)
 {
 	CRYPTOPP_ASSERT(length % this->MandatoryBlockSize() == 0);
 
 	PolicyInterface &policy = this->AccessPolicy();
 	unsigned int bytesPerIteration = policy.GetBytesPerIteration();
 	unsigned int alignment = policy.GetAlignment();
-	byte *reg = policy.GetRegisterBegin();
+	::byte *reg = policy.GetRegisterBegin();
 
 	if (m_leftOver)
 	{
@@ -230,18 +230,18 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 }
 
 template <class BASE>
-void CFB_EncryptionTemplate<BASE>::CombineMessageAndShiftRegister(byte *output, byte *reg, const byte *message, size_t length)
+void CFB_EncryptionTemplate<BASE>::CombineMessageAndShiftRegister(::byte *output, ::byte *reg, const ::byte *message, size_t length)
 {
 	xorbuf(reg, message, length);
 	memcpy(output, reg, length);
 }
 
 template <class BASE>
-void CFB_DecryptionTemplate<BASE>::CombineMessageAndShiftRegister(byte *output, byte *reg, const byte *message, size_t length)
+void CFB_DecryptionTemplate<BASE>::CombineMessageAndShiftRegister(::byte *output, ::byte *reg, const ::byte *message, size_t length)
 {
 	for (unsigned int i=0; i<length; i++)
 	{
-		byte b = message[i];
+		::byte b = message[i];
 		output[i] = reg[i] ^ b;
 		reg[i] = b;
 	}

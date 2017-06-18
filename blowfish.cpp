@@ -6,7 +6,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-void Blowfish::Base::UncheckedSetKey(const byte *key_string, unsigned int keylength, const NameValuePairs &)
+void Blowfish::Base::UncheckedSetKey(const ::byte *key_string, unsigned int keylength, const NameValuePairs &)
 {
 	AssertValidKeyLength(keylength);
 
@@ -68,7 +68,7 @@ void Blowfish::Base::crypt_block(const word32 in[2], word32 out[2]) const
 	out[1] = left;
 }
 
-void Blowfish::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+void Blowfish::Base::ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const
 {
 	typedef BlockGetAndPut<word32, BigEndian> Block;
 

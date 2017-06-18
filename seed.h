@@ -29,8 +29,8 @@ class SEED : public SEED_Info, public BlockCipherDocumentation
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<SEED_Info>
 	{
 	public:
-		void UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params);
-		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+		void UncheckedSetKey(const ::byte *key, unsigned int length, const NameValuePairs &params);
+		void ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const;
 
 	protected:
 		FixedSizeSecBlock<word32, 32> m_k;

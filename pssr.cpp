@@ -9,9 +9,9 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 // more in dll.cpp
-template<> const byte EMSA2HashId<RIPEMD160>::id = 0x31;
-template<> const byte EMSA2HashId<RIPEMD128>::id = 0x32;
-template<> const byte EMSA2HashId<Whirlpool>::id = 0x37;
+template<> const ::byte EMSA2HashId<RIPEMD160>::id = 0x31;
+template<> const ::byte EMSA2HashId<RIPEMD128>::id = 0x32;
+template<> const ::byte EMSA2HashId<Whirlpool>::id = 0x37;
 
 #ifndef CRYPTOPP_IMPORTS
 
@@ -45,9 +45,9 @@ bool PSSR_MEM_Base::RecoverablePartFirst() const
 }
 
 void PSSR_MEM_Base::ComputeMessageRepresentative(RandomNumberGenerator &rng,
-	const byte *recoverableMessage, size_t recoverableMessageLength,
+	const ::byte *recoverableMessage, size_t recoverableMessageLength,
 	HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
-	byte *representative, size_t representativeBitLength) const
+	::byte *representative, size_t representativeBitLength) const
 {
 	CRYPTOPP_UNUSED(rng), CRYPTOPP_UNUSED(recoverableMessage), CRYPTOPP_UNUSED(recoverableMessageLength);
 	CRYPTOPP_UNUSED(messageEmpty), CRYPTOPP_UNUSED(hashIdentifier);
@@ -57,14 +57,14 @@ void PSSR_MEM_Base::ComputeMessageRepresentative(RandomNumberGenerator &rng,
 	const size_t representativeByteLength = BitsToBytes(representativeBitLength);
 	const size_t digestSize = hash.DigestSize();
 	const size_t saltSize = SaltLen(digestSize);
-	byte *const h = representative + representativeByteLength - u - digestSize;
+	::byte *const h = representative + representativeByteLength - u - digestSize;
 
 	SecByteBlock digest(digestSize), salt(saltSize);
 	hash.Final(digest);
 	rng.GenerateBlock(salt, saltSize);
 
 	// compute H = hash of M'
-	byte c[8];
+	::byte c[8];
 	PutWord(false, BIG_ENDIAN_ORDER, c, (word32)SafeRightShift<29>(recoverableMessageLength));
 	PutWord(false, BIG_ENDIAN_ORDER, c+4, word32(recoverableMessageLength << 3));
 	hash.Update(c, 8);
@@ -75,7 +75,7 @@ void PSSR_MEM_Base::ComputeMessageRepresentative(RandomNumberGenerator &rng,
 
 	// compute representative
 	GetMGF().GenerateAndMask(hash, representative, representativeByteLength - u - digestSize, h, digestSize, false);
-	byte *xorStart = representative + representativeByteLength - u - digestSize - salt.size() - recoverableMessageLength - 1;
+	::byte *xorStart = representative + representativeByteLength - u - digestSize - salt.size() - recoverableMessageLength - 1;
 	xorStart[0] ^= 1;
 	if (recoverableMessage && recoverableMessageLength)
 		xorbuf(xorStart + 1, recoverableMessage, recoverableMessageLength);
@@ -90,13 +90,13 @@ void PSSR_MEM_Base::ComputeMessageRepresentative(RandomNumberGenerator &rng,
 		representative[representativeByteLength - 1] = 0xbc;
 	}
 	if (representativeBitLength % 8 != 0)
-		representative[0] = (byte)Crop(representative[0], representativeBitLength % 8);
+		representative[0] = (::byte)Crop(representative[0], representativeBitLength % 8);
 }
 
 DecodingResult PSSR_MEM_Base::RecoverMessageFromRepresentative(
 	HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
-	byte *representative, size_t representativeBitLength,
-	byte *recoverableMessage) const
+	::byte *representative, size_t representativeBitLength,
+	::byte *recoverableMessage) const
 {
 	CRYPTOPP_UNUSED(recoverableMessage), CRYPTOPP_UNUSED(messageEmpty), CRYPTOPP_UNUSED(hashIdentifier);
 	CRYPTOPP_ASSERT(representativeBitLength >= MinRepresentativeBitLength(hashIdentifier.second, hash.DigestSize()));
@@ -105,7 +105,7 @@ DecodingResult PSSR_MEM_Base::RecoverMessageFromRepresentative(
 	const size_t representativeByteLength = BitsToBytes(representativeBitLength);
 	const size_t digestSize = hash.DigestSize();
 	const size_t saltSize = SaltLen(digestSize);
-	const byte *const h = representative + representativeByteLength - u - digestSize;
+	const ::byte *const h = representative + representativeByteLength - u - digestSize;
 
 	SecByteBlock digest(digestSize);
 	hash.Final(digest);
@@ -121,11 +121,11 @@ DecodingResult PSSR_MEM_Base::RecoverMessageFromRepresentative(
 
 	GetMGF().GenerateAndMask(hash, representative, representativeByteLength - u - digestSize, h, digestSize);
 	if (representativeBitLength % 8 != 0)
-		representative[0] = (byte)Crop(representative[0], representativeBitLength % 8);
+		representative[0] = (::byte)Crop(representative[0], representativeBitLength % 8);
 
 	// extract salt and recoverableMessage from DB = 00 ... || 01 || M || salt
-	byte *salt = representative + representativeByteLength - u - digestSize - saltSize;
-	byte *M = std::find_if(representative, salt-1, std::bind2nd(std::not_equal_to<byte>(), byte(0)));
+	::byte *salt = representative + representativeByteLength - u - digestSize - saltSize;
+	::byte *M = std::find_if(representative, salt-1, std::bind2nd(std::not_equal_to< ::byte>(), ::byte(0)));
 	recoverableMessageLength = salt-M-1;
 	if (*M == 0x01 &&
 	   (size_t)(M - representative - (representativeBitLength % 8 != 0)) >= MinPadLen(digestSize) &&
@@ -141,7 +141,7 @@ DecodingResult PSSR_MEM_Base::RecoverMessageFromRepresentative(
 	}
 
 	// verify H = hash of M'
-	byte c[8];
+	::byte c[8];
 	PutWord(false, BIG_ENDIAN_ORDER, c, (word32)SafeRightShift<29>(recoverableMessageLength));
 	PutWord(false, BIG_ENDIAN_ORDER, c+4, word32(recoverableMessageLength << 3));
 	hash.Update(c, 8);

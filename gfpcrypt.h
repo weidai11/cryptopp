@@ -84,10 +84,10 @@ public:
     bool FastSubgroupCheckAvailable() const {return GetCofactor() == 2;}
 
     // Cygwin i386 crash at -O3; see http://github.com/weidai11/cryptopp/issues/40.
-    void EncodeElement(bool reversible, const Element &element, byte *encoded) const;
+    void EncodeElement(bool reversible, const Element &element, ::byte *encoded) const;
     unsigned int GetEncodedElementSize(bool reversible) const;
 
-    Integer DecodeElement(const byte *encoded, bool checkForGroupMembership) const;
+    Integer DecodeElement(const ::byte *encoded, bool checkForGroupMembership) const;
     Integer ConvertElementToInteger(const Element &element) const
         {return element;}
     Integer GetMaxExponent() const;
@@ -249,7 +249,7 @@ public:
     // Deterministic K
     Integer GenerateRandom(const Integer &x, const Integer &q, const Integer &e) const
     {
-        static const byte zero = 0, one = 1;
+        static const ::byte zero = 0, one = 1;
         const size_t qlen = q.BitCount();
         const size_t rlen = BitsToBytes(qlen);
 
@@ -808,10 +808,10 @@ public:
         {return plaintextLength + static_cast<size_t>(MAC::DIGESTSIZE);}
     size_t GetMaxSymmetricPlaintextLength(size_t ciphertextLength) const
         {return SaturatingSubtract(ciphertextLength, static_cast<size_t>(MAC::DIGESTSIZE));}
-    void SymmetricEncrypt(RandomNumberGenerator &rng, const byte *key, const byte *plaintext, size_t plaintextLength, byte *ciphertext, const NameValuePairs &parameters) const
+    void SymmetricEncrypt(RandomNumberGenerator &rng, const ::byte *key, const ::byte *plaintext, size_t plaintextLength, ::byte *ciphertext, const NameValuePairs &parameters) const
     {
         CRYPTOPP_UNUSED(rng);
-        const byte *cipherKey = NULLPTR, *macKey = NULLPTR;
+        const ::byte *cipherKey = NULLPTR, *macKey = NULLPTR;
         if (DHAES_MODE)
         {
             macKey = key;
@@ -834,16 +834,16 @@ public:
         mac.Update(encodingParameters.begin(), encodingParameters.size());
         if (DHAES_MODE)
         {
-            byte L[8];
+            ::byte L[8];
             PutWord(false, BIG_ENDIAN_ORDER, L, (LABEL_OCTETS ? word64(encodingParameters.size()) : 8 * word64(encodingParameters.size())));
             mac.Update(L, 8);
         }
         mac.Final(ciphertext + plaintextLength);
     }
-    DecodingResult SymmetricDecrypt(const byte *key, const byte *ciphertext, size_t ciphertextLength, byte *plaintext, const NameValuePairs &parameters) const
+    DecodingResult SymmetricDecrypt(const ::byte *key, const ::byte *ciphertext, size_t ciphertextLength, ::byte *plaintext, const NameValuePairs &parameters) const
     {
         size_t plaintextLength = GetMaxSymmetricPlaintextLength(ciphertextLength);
-        const byte *cipherKey, *macKey;
+        const ::byte *cipherKey, *macKey;
         if (DHAES_MODE)
         {
             macKey = key;
@@ -863,7 +863,7 @@ public:
         mac.Update(encodingParameters.begin(), encodingParameters.size());
         if (DHAES_MODE)
         {
-            byte L[8];
+            ::byte L[8];
             PutWord(false, BIG_ENDIAN_ORDER, L, (LABEL_OCTETS ? word64(encodingParameters.size()) : 8 * word64(encodingParameters.size())));
             mac.Update(L, 8);
         }
@@ -885,7 +885,7 @@ public:
     virtual ~DL_KeyDerivationAlgorithm_P1363() {}
 
     bool ParameterSupported(const char *name) const {return strcmp(name, Name::KeyDerivationParameters()) == 0;}
-    void Derive(const DL_GroupParameters<T> &params, byte *derivedKey, size_t derivedLength, const T &agreedElement, const T &ephemeralPublicKey, const NameValuePairs &parameters) const
+    void Derive(const DL_GroupParameters<T> &params, ::byte *derivedKey, size_t derivedLength, const T &agreedElement, const T &ephemeralPublicKey, const NameValuePairs &parameters) const
     {
         SecByteBlock agreedSecret;
         if (DHAES_MODE)

@@ -28,13 +28,13 @@ class SKIPJACK : public SKIPJACK_Info, public BlockCipherDocumentation
 	class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<SKIPJACK_Info>
 	{
 	public:
-		void UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &params);
+		void UncheckedSetKey(const ::byte *userKey, unsigned int length, const NameValuePairs &params);
 		unsigned int OptimalDataAlignment() const {return GetAlignmentOf<word16>();}
 
 	protected:
-		static const byte fTable[256];
+		static const ::byte fTable[256];
 
-		FixedSizeSecBlock<byte, 10*256> tab;
+		FixedSizeSecBlock< ::byte, 10*256> tab;
 	};
 
 	//! \class Enc
@@ -42,9 +42,9 @@ class SKIPJACK : public SKIPJACK_Info, public BlockCipherDocumentation
 	class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Enc : public Base
 	{
 	public:
-		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+		void ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const;
 	private:
-		static const byte Se[256];
+		static const ::byte Se[256];
 		static const word32 Te[4][256];
 	};
 
@@ -53,9 +53,9 @@ class SKIPJACK : public SKIPJACK_Info, public BlockCipherDocumentation
 	class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Dec : public Base
 	{
 	public:
-		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+		void ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const;
 	private:
-		static const byte Sd[256];
+		static const ::byte Sd[256];
 		static const word32 Td[4][256];
 	};
 

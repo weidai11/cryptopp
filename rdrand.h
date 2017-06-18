@@ -62,7 +62,7 @@ public:
     //! \brief Generate random array of bytes
     //! \param output the byte buffer
     //! \param size the length of the buffer, in bytes
-    virtual void GenerateBlock(byte *output, size_t size);
+    virtual void GenerateBlock(::byte *output, size_t size);
 
     //! \brief Generate and discard n bytes
     //! \param n the number of bytes to generate and discard
@@ -75,7 +75,7 @@ public:
     //! \param input unused
     //! \param length unused
     //! \details The operation is a nop for this generator.
-    virtual void IncorporateEntropy(const byte *input, size_t length)
+    virtual void IncorporateEntropy(const ::byte *input, size_t length)
     {
         // Override to avoid the base class' throw.
         CRYPTOPP_UNUSED(input); CRYPTOPP_UNUSED(length);
@@ -112,7 +112,7 @@ public:
     //! \brief Generate random array of bytes
     //! \param output the byte buffer
     //! \param size the length of the buffer, in bytes
-    virtual void GenerateBlock(byte *output, size_t size);
+    virtual void GenerateBlock(::byte *output, size_t size);
 
     //! \brief Generate and discard n bytes
     //! \param n the number of bytes to generate and discard
@@ -125,7 +125,7 @@ public:
     //! \param input unused
     //! \param length unused
     //! \details The operation is a nop for this generator.
-    virtual void IncorporateEntropy(const byte *input, size_t length)
+    virtual void IncorporateEntropy(const ::byte *input, size_t length)
     {
         // Override to avoid the base class' throw.
         CRYPTOPP_UNUSED(input); CRYPTOPP_UNUSED(length);

@@ -18,11 +18,11 @@ NAMESPACE_BEGIN(CryptoPP)
 
 #if (defined(_MSC_VER) && (_MSC_VER < 1400)) && !defined(__MWERKS__)
 	// VC60 and VC7 workaround: built-in reverse_iterator has two template parameters, Dinkumware only has one
-	typedef std::reverse_bidirectional_iterator<const byte *, const byte> RevIt;
+	typedef std::reverse_bidirectional_iterator<const ::byte *, const ::byte> RevIt;
 #elif defined(_RWSTD_NO_CLASS_PARTIAL_SPEC)
-	typedef std::reverse_iterator<const byte *, std::random_access_iterator_tag, const byte> RevIt;
+	typedef std::reverse_iterator<const ::byte *, std::random_access_iterator_tag, const ::byte> RevIt;
 #else
-	typedef std::reverse_iterator<const byte *> RevIt;
+	typedef std::reverse_iterator<const ::byte *> RevIt;
 #endif
 
 void RawIDA::IsolatedInitialize(const NameValuePairs &parameters)
@@ -95,7 +95,7 @@ unsigned int RawIDA::LookupInputChannel(word32 channelId) const
 		return it->second;
 }
 
-void RawIDA::ChannelData(word32 channelId, const byte *inString, size_t length, bool messageEnd)
+void RawIDA::ChannelData(word32 channelId, const ::byte *inString, size_t length, bool messageEnd)
 {
 	int i = InsertInputChannel(channelId);
 	if (i < m_threshold)
@@ -250,7 +250,7 @@ void SecretSharing::IsolatedInitialize(const NameValuePairs &parameters)
 	m_ida.IsolatedInitialize(parameters);
 }
 
-size_t SecretSharing::Put2(const byte *begin, size_t length, int messageEnd, bool blocking)
+size_t SecretSharing::Put2(const ::byte *begin, size_t length, int messageEnd, bool blocking)
 {
 	if (!blocking)
 		throw BlockingInputOnly("SecretSharing");
@@ -322,7 +322,7 @@ void InformationDispersal::IsolatedInitialize(const NameValuePairs &parameters)
 	m_ida.IsolatedInitialize(parameters);
 }
 
-size_t InformationDispersal::Put2(const byte *begin, size_t length, int messageEnd, bool blocking)
+size_t InformationDispersal::Put2(const ::byte *begin, size_t length, int messageEnd, bool blocking)
 {
 	if (!blocking)
 		throw BlockingInputOnly("InformationDispersal");
@@ -380,16 +380,16 @@ void InformationRecovery::OutputMessageEnds()
 		AttachedTransformation()->MessageEnd(GetAutoSignalPropagation()-1);
 }
 
-size_t PaddingRemover::Put2(const byte *begin, size_t length, int messageEnd, bool blocking)
+size_t PaddingRemover::Put2(const ::byte *begin, size_t length, int messageEnd, bool blocking)
 {
 	if (!blocking)
 		throw BlockingInputOnly("PaddingRemover");
 
-	const byte *const end = begin + length;
+	const ::byte *const end = begin + length;
 
 	if (m_possiblePadding)
 	{
-		size_t len = std::find_if(begin, end, std::bind2nd(std::not_equal_to<byte>(), byte(0))) - begin;
+		size_t len = std::find_if(begin, end, std::bind2nd(std::not_equal_to< ::byte>(), ::byte(0))) - begin;
 		m_zeroCount += len;
 		begin += len;
 		if (begin == end)
@@ -402,7 +402,7 @@ size_t PaddingRemover::Put2(const byte *begin, size_t length, int messageEnd, bo
 		m_possiblePadding = false;
 	}
 
-	const byte *x = std::find_if(RevIt(end), RevIt(begin), std::bind2nd(std::not_equal_to<byte>(), byte(0))).base();
+	const ::byte *x = std::find_if(RevIt(end), RevIt(begin), std::bind2nd(std::not_equal_to< ::byte>(), ::byte(0))).base();
 	if (x != begin && *(x-1) == 1)
 	{
 		AttachedTransformation()->Put(begin, x-begin-1);

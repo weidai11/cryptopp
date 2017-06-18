@@ -16,7 +16,7 @@ NAMESPACE_BEGIN(CryptoPP)
 class CRYPTOPP_DLL RawDES
 {
 public:
-	void RawSetKey(CipherDir direction, const byte *userKey);
+	void RawSetKey(CipherDir direction, const ::byte *userKey);
 	void RawProcessBlock(word32 &l, word32 &r) const;
 
 protected:
@@ -47,15 +47,15 @@ class DES : public DES_Info, public BlockCipherDocumentation
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<DES_Info>, public RawDES
 	{
 	public:
-		void UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &params);
-		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+		void UncheckedSetKey(const ::byte *userKey, unsigned int length, const NameValuePairs &params);
+		void ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const;
 	};
 
 public:
 	//! check DES key parity bits
-	static bool CheckKeyParityBits(const byte *key);
+	static bool CheckKeyParityBits(const ::byte *key);
 	//! correct DES key parity bits
-	static void CorrectKeyParityBits(byte *key);
+	static void CorrectKeyParityBits(::byte *key);
 
 	typedef BlockCipherFinal<ENCRYPTION, Base> Encryption;
 	typedef BlockCipherFinal<DECRYPTION, Base> Decryption;
@@ -79,8 +79,8 @@ class DES_EDE2 : public DES_EDE2_Info, public BlockCipherDocumentation
 	class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<DES_EDE2_Info>
 	{
 	public:
-		void UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &params);
-		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+		void UncheckedSetKey(const ::byte *userKey, unsigned int length, const NameValuePairs &params);
+		void ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const;
 
 	protected:
 		RawDES m_des1, m_des2;
@@ -109,8 +109,8 @@ class DES_EDE3 : public DES_EDE3_Info, public BlockCipherDocumentation
 	class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<DES_EDE3_Info>
 	{
 	public:
-		void UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &params);
-		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+		void UncheckedSetKey(const ::byte *userKey, unsigned int length, const NameValuePairs &params);
+		void ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const;
 
 	protected:
 		RawDES m_des1, m_des2, m_des3;
@@ -139,11 +139,11 @@ class DES_XEX3 : public DES_XEX3_Info, public BlockCipherDocumentation
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<DES_XEX3_Info>
 	{
 	public:
-		void UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &params);
-		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+		void UncheckedSetKey(const ::byte *userKey, unsigned int length, const NameValuePairs &params);
+		void ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const;
 
 	protected:
-		FixedSizeSecBlock<byte, BLOCKSIZE> m_x1, m_x3;
+		FixedSizeSecBlock< ::byte, BLOCKSIZE> m_x1, m_x3;
 		// VS2005 workaround: calling modules compiled with /clr gets unresolved external symbol DES::Base::ProcessAndXorBlock
 		// if we use DES::Encryption here directly without value_ptr.
 		value_ptr<DES::Encryption> m_des;

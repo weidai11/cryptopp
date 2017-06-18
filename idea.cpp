@@ -77,7 +77,7 @@ inline void IDEA::Base::LookupMUL(IDEA::Word &a, IDEA::Word b)
 }
 #endif // IDEA_LARGECACHE
 
-void IDEA::Base::UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &)
+void IDEA::Base::UncheckedSetKey(const ::byte *userKey, unsigned int length, const NameValuePairs &)
 {
 	AssertValidKeyLength(length);
 
@@ -95,7 +95,7 @@ void IDEA::Base::UncheckedSetKey(const byte *userKey, unsigned int length, const
 #endif
 }
 
-void IDEA::Base::EnKey (const byte *userKey)
+void IDEA::Base::EnKey (const ::byte *userKey)
 {
 	unsigned int i;
 
@@ -154,7 +154,7 @@ void IDEA::Base::DeKey()
 #define MUL(a,b) DirectMUL(a,b)
 #endif
 
-void IDEA::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+void IDEA::Base::ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const
 {
 	typedef BlockGetAndPut<word16, BigEndian> Block;
 

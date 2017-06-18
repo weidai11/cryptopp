@@ -520,7 +520,7 @@ void DL_GroupParameters_EC<EC>::GenerateRandom(RandomNumberGenerator &rng, const
 template <class EC>
 void DL_GroupParameters_EC<EC>::BERDecode(BufferedTransformation &bt)
 {
-	byte b;
+	::byte b;
 	if (!bt.Peek(b))
 		BERDecodeError();
 	if (b == OBJECT_IDENTIFIER)

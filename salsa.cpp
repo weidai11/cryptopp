@@ -40,7 +40,7 @@ void Salsa20_TestInstantiations()
 }
 #endif
 
-void Salsa20_Policy::CipherSetKey(const NameValuePairs &params, const byte *key, size_t length)
+void Salsa20_Policy::CipherSetKey(const NameValuePairs &params, const ::byte *key, size_t length)
 {
 	m_rounds = params.GetIntValueWithDefault(Name::Rounds(), 20);
 
@@ -60,7 +60,7 @@ void Salsa20_Policy::CipherSetKey(const NameValuePairs &params, const byte *key,
 	m_state[3] = 0x6b206574;
 }
 
-void Salsa20_Policy::CipherResynchronize(byte *keystreamBuffer, const byte *IV, size_t length)
+void Salsa20_Policy::CipherResynchronize(::byte *keystreamBuffer, const ::byte *IV, size_t length)
 {
 	CRYPTOPP_UNUSED(keystreamBuffer), CRYPTOPP_UNUSED(length);
 	CRYPTOPP_ASSERT(length==8);
@@ -108,7 +108,7 @@ void Salsa20_OperateKeystream(byte *output, const byte *input, size_t iterationC
 # pragma warning(disable: 4731)	// frame pointer register 'ebp' modified by inline assembly code
 #endif
 
-void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount)
+void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, ::byte *output, const ::byte *input, size_t iterationCount)
 {
 #endif	// #ifdef CRYPTOPP_GENERATE_X64_MASM
 
@@ -571,7 +571,7 @@ Salsa20_OperateKeystream ENDP
 	}
 }	// see comment above if an internal compiler error occurs here
 
-void XSalsa20_Policy::CipherSetKey(const NameValuePairs &params, const byte *key, size_t length)
+void XSalsa20_Policy::CipherSetKey(const NameValuePairs &params, const ::byte *key, size_t length)
 {
 	m_rounds = params.GetIntValueWithDefault(Name::Rounds(), 20);
 
@@ -589,7 +589,7 @@ void XSalsa20_Policy::CipherSetKey(const NameValuePairs &params, const byte *key
 	m_state[3] = 0x6b206574;
 }
 
-void XSalsa20_Policy::CipherResynchronize(byte *keystreamBuffer, const byte *IV, size_t length)
+void XSalsa20_Policy::CipherResynchronize(::byte *keystreamBuffer, const ::byte *IV, size_t length)
 {
 	CRYPTOPP_UNUSED(keystreamBuffer), CRYPTOPP_UNUSED(length);
 	CRYPTOPP_ASSERT(length==24);

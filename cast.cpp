@@ -33,7 +33,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 typedef BlockGetAndPut<word32, BigEndian> Block;
 
-void CAST128::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+void CAST128::Enc::ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const
 {
 	word32 t, l, r;
 
@@ -63,7 +63,7 @@ void CAST128::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
 	Block::Put(xorBlock, outBlock)(r)(l);
 }
 
-void CAST128::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+void CAST128::Dec::ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const
 {
 	word32 t, l, r;
 
@@ -94,7 +94,7 @@ void CAST128::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
 	t = l = r = 0;
 }
 
-void CAST128::Base::UncheckedSetKey(const byte *userKey, unsigned int keylength, const NameValuePairs &)
+void CAST128::Base::UncheckedSetKey(const ::byte *userKey, unsigned int keylength, const NameValuePairs &)
 {
 	AssertValidKeyLength(keylength);
 
@@ -211,7 +211,7 @@ const unsigned int CAST256::Base::t_r[8][24]={
 /* CAST256's encrypt/decrypt functions  are identical except for the order that
 the keys are used */
 
-void CAST256::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+void CAST256::Base::ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const
 {
 	word32 t, block[4];
 	Block::Get(inBlock)(block[0])(block[1])(block[2])(block[3]);
@@ -251,7 +251,7 @@ void CAST256::Base::Omega(int i, word32 kappa[8])
 	f2(kappa[7],kappa[0],t_m[7][i],t_r[7][i]);
 }
 
-void CAST256::Base::UncheckedSetKey(const byte *userKey, unsigned int keylength, const NameValuePairs &)
+void CAST256::Base::UncheckedSetKey(const ::byte *userKey, unsigned int keylength, const NameValuePairs &)
 {
 	AssertValidKeyLength(keylength);
 

@@ -25,13 +25,13 @@ NAMESPACE_BEGIN(CryptoPP)
 // the amount of entropy in the input string, whichever is smaller.
 
 template <class H>
-static void Mash(const byte *in, size_t inLen, byte *out, size_t outLen, int iterations)
+static void Mash(const ::byte *in, size_t inLen, ::byte *out, size_t outLen, int iterations)
 {
 	if (BytePrecision(outLen) > 2)
 		throw InvalidArgument("Mash: output legnth too large");
 
 	size_t bufSize = RoundUpToMultipleOf(outLen, (size_t)H::DIGESTSIZE);
-	byte b[2];
+	::byte b[2];
 	SecByteBlock buf(bufSize);
 	SecByteBlock outBuf(bufSize);
 	H hash;
@@ -39,8 +39,8 @@ static void Mash(const byte *in, size_t inLen, byte *out, size_t outLen, int ite
 	unsigned int i;
 	for(i=0; i<outLen; i+=H::DIGESTSIZE)
 	{
-		b[0] = (byte) (i >> 8);
-		b[1] = (byte) i;
+		b[0] = (::byte) (i >> 8);
+		b[1] = (::byte) i;
 		hash.Update(b, 2);
 		hash.Update(in, inLen);
 		hash.Final(outBuf+i);
@@ -51,8 +51,8 @@ static void Mash(const byte *in, size_t inLen, byte *out, size_t outLen, int ite
 		memcpy(buf, outBuf, bufSize);
 		for (i=0; i<bufSize; i+=H::DIGESTSIZE)
 		{
-			b[0] = (byte) (i >> 8);
-			b[1] = (byte) i;
+			b[0] = (::byte) (i >> 8);
+			b[1] = (::byte) i;
 			hash.Update(b, 2);
 			hash.Update(buf, bufSize);
 			hash.Final(outBuf+i);
@@ -63,7 +63,7 @@ static void Mash(const byte *in, size_t inLen, byte *out, size_t outLen, int ite
 }
 
 template <class BC, class H, class Info>
-static void GenerateKeyIV(const byte *passphrase, size_t passphraseLength, const byte *salt, size_t saltLength, unsigned int iterations, byte *key, byte *IV)
+static void GenerateKeyIV(const ::byte *passphrase, size_t passphraseLength, const ::byte *salt, size_t saltLength, unsigned int iterations, ::byte *key, ::byte *IV)
 {
 	SecByteBlock temp(passphraseLength+saltLength);
 	memcpy(temp, passphrase, passphraseLength);
@@ -78,14 +78,14 @@ static void GenerateKeyIV(const byte *passphrase, size_t passphraseLength, const
 
 template <class BC, class H, class Info>
 DataEncryptor<BC,H,Info>::DataEncryptor(const char *passphrase, BufferedTransformation *attachment)
-	: ProxyFilter(NULLPTR, 0, 0, attachment), m_passphrase((const byte *)passphrase, strlen(passphrase))
+	: ProxyFilter(NULLPTR, 0, 0, attachment), m_passphrase((const ::byte *)passphrase, strlen(passphrase))
 {
 	CRYPTOPP_COMPILE_ASSERT(SALTLENGTH <= DIGESTSIZE);
 	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE <= DIGESTSIZE);
 }
 
 template <class BC, class H, class Info>
-DataEncryptor<BC,H,Info>::DataEncryptor(const byte *passphrase, size_t passphraseLength, BufferedTransformation *attachment)
+DataEncryptor<BC,H,Info>::DataEncryptor(const ::byte *passphrase, size_t passphraseLength, BufferedTransformation *attachment)
 	: ProxyFilter(NULLPTR, 0, 0, attachment), m_passphrase(passphrase, passphraseLength)
 {
 	CRYPTOPP_COMPILE_ASSERT(SALTLENGTH <= DIGESTSIZE);
@@ -93,7 +93,7 @@ DataEncryptor<BC,H,Info>::DataEncryptor(const byte *passphrase, size_t passphras
 }
 
 template <class BC, class H, class Info>
-void DataEncryptor<BC,H,Info>::FirstPut(const byte *)
+void DataEncryptor<BC,H,Info>::FirstPut(const ::byte *)
 {
 	SecByteBlock salt(DIGESTSIZE), keyCheck(DIGESTSIZE);
 	H hash;
@@ -101,9 +101,9 @@ void DataEncryptor<BC,H,Info>::FirstPut(const byte *)
 	// use hash(passphrase | time | clock) as salt
 	hash.Update(m_passphrase, m_passphrase.size());
 	time_t t=time(NULLPTR);
-	hash.Update((byte *)&t, sizeof(t));
+	hash.Update((::byte *)&t, sizeof(t));
 	clock_t c=clock();
-	hash.Update((byte *)&c, sizeof(c));
+	hash.Update((::byte *)&c, sizeof(c));
 	hash.Final(salt);
 
 	// use hash(passphrase | salt) as key check
@@ -125,7 +125,7 @@ void DataEncryptor<BC,H,Info>::FirstPut(const byte *)
 }
 
 template <class BC, class H, class Info>
-void DataEncryptor<BC,H,Info>::LastPut(const byte *inString, size_t length)
+void DataEncryptor<BC,H,Info>::LastPut(const ::byte *inString, size_t length)
 {
 	CRYPTOPP_UNUSED(inString); CRYPTOPP_UNUSED(length);
 	m_filter->MessageEnd();
@@ -137,7 +137,7 @@ template <class BC, class H, class Info>
 DataDecryptor<BC,H,Info>::DataDecryptor(const char *p, BufferedTransformation *attachment, bool throwException)
 	: ProxyFilter(NULLPTR, SALTLENGTH+BLOCKSIZE, 0, attachment)
 	, m_state(WAITING_FOR_KEYCHECK)
-	, m_passphrase((const byte *)p, strlen(p))
+	, m_passphrase((const ::byte *)p, strlen(p))
 	, m_throwException(throwException)
 {
 	CRYPTOPP_COMPILE_ASSERT(SALTLENGTH <= DIGESTSIZE);
@@ -145,7 +145,7 @@ DataDecryptor<BC,H,Info>::DataDecryptor(const char *p, BufferedTransformation *a
 }
 
 template <class BC, class H, class Info>
-DataDecryptor<BC,H,Info>::DataDecryptor(const byte *passphrase, size_t passphraseLength, BufferedTransformation *attachment, bool throwException)
+DataDecryptor<BC,H,Info>::DataDecryptor(const ::byte *passphrase, size_t passphraseLength, BufferedTransformation *attachment, bool throwException)
 	: ProxyFilter(NULLPTR, SALTLENGTH+BLOCKSIZE, 0, attachment)
 	, m_state(WAITING_FOR_KEYCHECK)
 	, m_passphrase(passphrase, passphraseLength)
@@ -156,13 +156,13 @@ DataDecryptor<BC,H,Info>::DataDecryptor(const byte *passphrase, size_t passphras
 }
 
 template <class BC, class H, class Info>
-void DataDecryptor<BC,H,Info>::FirstPut(const byte *inString)
+void DataDecryptor<BC,H,Info>::FirstPut(const ::byte *inString)
 {
 	CheckKey(inString, inString+SALTLENGTH);
 }
 
 template <class BC, class H, class Info>
-void DataDecryptor<BC,H,Info>::LastPut(const byte *inString, size_t length)
+void DataDecryptor<BC,H,Info>::LastPut(const ::byte *inString, size_t length)
 {
 	CRYPTOPP_UNUSED(inString); CRYPTOPP_UNUSED(length);
 	if (m_filter.get() == NULLPTR)
@@ -179,7 +179,7 @@ void DataDecryptor<BC,H,Info>::LastPut(const byte *inString, size_t length)
 }
 
 template <class BC, class H, class Info>
-void DataDecryptor<BC,H,Info>::CheckKey(const byte *salt, const byte *keyCheck)
+void DataDecryptor<BC,H,Info>::CheckKey(const ::byte *salt, const ::byte *keyCheck)
 {
 	SecByteBlock check(STDMAX((unsigned int)2*BLOCKSIZE, (unsigned int)DIGESTSIZE));
 
@@ -214,7 +214,7 @@ void DataDecryptor<BC,H,Info>::CheckKey(const byte *salt, const byte *keyCheck)
 // ********************************************************
 
 template <class H, class MAC>
-static MAC* NewDataEncryptorMAC(const byte *passphrase, size_t passphraseLength)
+static MAC* NewDataEncryptorMAC(const ::byte *passphrase, size_t passphraseLength)
 {
 	size_t macKeyLength = MAC::StaticGetValidKeyLength(16);
 	SecByteBlock macKey(macKeyLength);
@@ -226,13 +226,13 @@ static MAC* NewDataEncryptorMAC(const byte *passphrase, size_t passphraseLength)
 template <class BC, class H, class MAC, class Info>
 DataEncryptorWithMAC<BC,H,MAC,Info>::DataEncryptorWithMAC(const char *passphrase, BufferedTransformation *attachment)
 	: ProxyFilter(NULLPTR, 0, 0, attachment)
-	, m_mac(NewDataEncryptorMAC<H,MAC>((const byte *)passphrase, strlen(passphrase)))
+	, m_mac(NewDataEncryptorMAC<H,MAC>((const ::byte *)passphrase, strlen(passphrase)))
 {
 	SetFilter(new HashFilter(*m_mac, new DataEncryptor<BC,H,Info>(passphrase), true));
 }
 
 template <class BC, class H, class MAC, class Info>
-DataEncryptorWithMAC<BC,H,MAC,Info>::DataEncryptorWithMAC(const byte *passphrase, size_t passphraseLength, BufferedTransformation *attachment)
+DataEncryptorWithMAC<BC,H,MAC,Info>::DataEncryptorWithMAC(const ::byte *passphrase, size_t passphraseLength, BufferedTransformation *attachment)
 	: ProxyFilter(NULLPTR, 0, 0, attachment)
 	, m_mac(NewDataEncryptorMAC<H,MAC>(passphrase, passphraseLength))
 {
@@ -240,7 +240,7 @@ DataEncryptorWithMAC<BC,H,MAC,Info>::DataEncryptorWithMAC(const byte *passphrase
 }
 
 template <class BC, class H, class MAC, class Info>
-void DataEncryptorWithMAC<BC,H,MAC,Info>::LastPut(const byte *inString, size_t length)
+void DataEncryptorWithMAC<BC,H,MAC,Info>::LastPut(const ::byte *inString, size_t length)
 {
 	CRYPTOPP_UNUSED(inString); CRYPTOPP_UNUSED(length);
 	m_filter->MessageEnd();
@@ -251,14 +251,14 @@ void DataEncryptorWithMAC<BC,H,MAC,Info>::LastPut(const byte *inString, size_t l
 template <class BC, class H, class MAC, class Info>
 DataDecryptorWithMAC<BC,H,MAC,Info>::DataDecryptorWithMAC(const char *passphrase, BufferedTransformation *attachment, bool throwException)
 	: ProxyFilter(NULLPTR, 0, 0, attachment)
-	, m_mac(NewDataEncryptorMAC<H,MAC>((const byte *)passphrase, strlen(passphrase)))
+	, m_mac(NewDataEncryptorMAC<H,MAC>((const ::byte *)passphrase, strlen(passphrase)))
 	, m_throwException(throwException)
 {
 	SetFilter(new DataDecryptor<BC,H,Info>(passphrase, m_hashVerifier=new HashVerificationFilter(*m_mac, NULLPTR, HashVerificationFilter::PUT_MESSAGE), throwException));
 }
 
 template <class BC, class H, class MAC, class Info>
-DataDecryptorWithMAC<BC,H,MAC,Info>::DataDecryptorWithMAC(const byte *passphrase, size_t passphraseLength, BufferedTransformation *attachment, bool throwException)
+DataDecryptorWithMAC<BC,H,MAC,Info>::DataDecryptorWithMAC(const ::byte *passphrase, size_t passphraseLength, BufferedTransformation *attachment, bool throwException)
 	: ProxyFilter(NULLPTR, 0, 0, attachment)
 	, m_mac(NewDataEncryptorMAC<H,MAC>(passphrase, passphraseLength))
 	, m_throwException(throwException)
@@ -279,7 +279,7 @@ bool DataDecryptorWithMAC<BC,H,MAC,Info>::CheckLastMAC() const
 }
 
 template <class BC, class H, class MAC, class Info>
-void DataDecryptorWithMAC<BC,H,MAC,Info>::LastPut(const byte *inString, size_t length)
+void DataDecryptorWithMAC<BC,H,MAC,Info>::LastPut(const ::byte *inString, size_t length)
 {
 	CRYPTOPP_UNUSED(inString); CRYPTOPP_UNUSED(length);
 	m_filter->MessageEnd();

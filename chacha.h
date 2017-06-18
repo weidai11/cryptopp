@@ -38,9 +38,9 @@ class CRYPTOPP_NO_VTABLE ChaCha_Policy : public AdditiveCipherConcretePolicy<wor
 protected:
 	CRYPTOPP_CONSTANT(ROUNDS=FixedRounds<R>::ROUNDS)
 
-	void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length);
-	void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount);
-	void CipherResynchronize(byte *keystreamBuffer, const byte *IV, size_t length);
+	void CipherSetKey(const NameValuePairs &params, const ::byte *key, size_t length);
+	void OperateKeystream(KeystreamOperation operation, ::byte *output, const ::byte *input, size_t iterationCount);
+	void CipherResynchronize(::byte *keystreamBuffer, const ::byte *IV, size_t length);
 	bool CipherIsRandomAccess() const {return false;} // TODO
 	void SeekToIteration(lword iterationCount);
 	unsigned int GetAlignment() const;

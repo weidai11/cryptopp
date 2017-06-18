@@ -8,7 +8,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-void RC6::Base::UncheckedSetKey(const byte *k, unsigned int keylen, const NameValuePairs &params)
+void RC6::Base::UncheckedSetKey(const ::byte *k, unsigned int keylen, const NameValuePairs &params)
 {
 	AssertValidKeyLength(keylen);
 
@@ -40,7 +40,7 @@ void RC6::Base::UncheckedSetKey(const byte *k, unsigned int keylen, const NameVa
 
 typedef BlockGetAndPut<RC6::RC6_WORD, LittleEndian> Block;
 
-void RC6::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+void RC6::Enc::ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const
 {
 	const RC6_WORD *sptr = sTable;
 	RC6_WORD a, b, c, d, t, u;
@@ -66,7 +66,7 @@ void RC6::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byt
 	Block::Put(xorBlock, outBlock)(a)(b)(c)(d);
 }
 
-void RC6::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+void RC6::Dec::ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const
 {
 	const RC6_WORD *sptr = sTable.end();
 	RC6_WORD a, b, c, d, t, u;

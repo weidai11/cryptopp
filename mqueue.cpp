@@ -62,9 +62,9 @@ void MessageQueue::swap(MessageQueue &rhs)
 	m_lengths.swap(rhs.m_lengths);
 }
 
-const byte * MessageQueue::Spy(size_t &contiguousSize) const
+const ::byte * MessageQueue::Spy(size_t &contiguousSize) const
 {
-	const byte *result = m_queue.Spy(contiguousSize);
+	const ::byte *result = m_queue.Spy(contiguousSize);
 	contiguousSize = UnsignedMin(contiguousSize, MaxRetrievable());
 	return result;
 }
@@ -81,7 +81,7 @@ unsigned int EqualityComparisonFilter::MapChannel(const std::string &channel) co
 		return 2;
 }
 
-size_t EqualityComparisonFilter::ChannelPut2(const std::string &channel, const byte *inString, size_t length, int messageEnd, bool blocking)
+size_t EqualityComparisonFilter::ChannelPut2(const std::string &channel, const ::byte *inString, size_t length, int messageEnd, bool blocking)
 {
 	if (!blocking)
 		throw BlockingInputOnly("EqualityComparisonFilter");
@@ -102,7 +102,7 @@ size_t EqualityComparisonFilter::ChannelPut2(const std::string &channel, const b
 		while (length > 0 && q2.AnyRetrievable())
 		{
 			size_t len = length;
-			const byte *data = q2.Spy(len);
+			const ::byte *data = q2.Spy(len);
 			len = STDMIN(len, length);
 			if (memcmp(inString, data, len) != 0)
 				goto mismatch;
@@ -150,7 +150,7 @@ bool EqualityComparisonFilter::ChannelMessageSeriesEnd(const std::string &channe
 		if (q2.AnyRetrievable() || q2.AnyMessages())
 			goto mismatch;
 		else if (q2.NumberOfMessageSeries() > 0)
-			return Output(2, (const byte *)"\1", 1, 0, blocking) != 0;
+			return Output(2, (const ::byte *)"\1", 1, 0, blocking) != 0;
 		else
 			q1.MessageSeriesEnd();
 
@@ -166,7 +166,7 @@ bool EqualityComparisonFilter::HandleMismatchDetected(bool blocking)
 	m_mismatchDetected = true;
 	if (m_throwIfNotEqual)
 		throw MismatchDetected();
-	return Output(1, (const byte *)"\0", 1, 0, blocking) != 0;
+	return Output(1, (const ::byte *)"\0", 1, 0, blocking) != 0;
 }
 
 NAMESPACE_END

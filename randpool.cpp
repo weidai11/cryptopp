@@ -23,7 +23,7 @@ RandomPool::RandomPool()
 	memset(m_seed, 0, m_seed.SizeInBytes());
 }
 
-void RandomPool::IncorporateEntropy(const byte *input, size_t length)
+void RandomPool::IncorporateEntropy(const ::byte *input, size_t length)
 {
 	SHA256 hash;
 	hash.Update(m_key, 32);

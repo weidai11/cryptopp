@@ -11,7 +11,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-void P1363_MGF1KDF2_Common(HashTransformation &hash, byte *output, size_t outputLength, const byte *input, size_t inputLength, const byte *derivationParams, size_t derivationParamsLength, bool mask, unsigned int counterStart)
+void P1363_MGF1KDF2_Common(HashTransformation &hash, ::byte *output, size_t outputLength, const ::byte *input, size_t inputLength, const ::byte *derivationParams, size_t derivationParamsLength, bool mask, unsigned int counterStart)
 {
 	ArraySink *sink;
 	HashFilter filter(hash, sink = mask ? new ArrayXorSink(output, outputLength) : new ArraySink(output, outputLength));
@@ -27,7 +27,7 @@ void P1363_MGF1KDF2_Common(HashTransformation &hash, byte *output, size_t output
 
 bool PK_DeterministicSignatureMessageEncodingMethod::VerifyMessageRepresentative(
 	HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
-	byte *representative, size_t representativeBitLength) const
+	::byte *representative, size_t representativeBitLength) const
 {
 	SecByteBlock computedRepresentative(BitsToBytes(representativeBitLength));
 	ComputeMessageRepresentative(NullRNG(), NULLPTR, 0, hash, hashIdentifier, messageEmpty, computedRepresentative, representativeBitLength);
@@ -36,7 +36,7 @@ bool PK_DeterministicSignatureMessageEncodingMethod::VerifyMessageRepresentative
 
 bool PK_RecoverableSignatureMessageEncodingMethod::VerifyMessageRepresentative(
 	HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
-	byte *representative, size_t representativeBitLength) const
+	::byte *representative, size_t representativeBitLength) const
 {
 	SecByteBlock recoveredMessage(MaxRecoverableLength(representativeBitLength, hashIdentifier.second, hash.DigestSize()));
 	DecodingResult result = RecoverMessageFromRepresentative(
@@ -44,7 +44,7 @@ bool PK_RecoverableSignatureMessageEncodingMethod::VerifyMessageRepresentative(
 	return result.isValidCoding && result.messageLength == 0;
 }
 
-void TF_SignerBase::InputRecoverableMessage(PK_MessageAccumulator &messageAccumulator, const byte *recoverableMessage, size_t recoverableMessageLength) const
+void TF_SignerBase::InputRecoverableMessage(PK_MessageAccumulator &messageAccumulator, const ::byte *recoverableMessage, size_t recoverableMessageLength) const
 {
 	PK_MessageAccumulatorBase &ma = static_cast<PK_MessageAccumulatorBase &>(messageAccumulator);
 	HashIdentifier id = GetHashIdentifier();
@@ -67,7 +67,7 @@ void TF_SignerBase::InputRecoverableMessage(PK_MessageAccumulator &messageAccumu
 		NULLPTR, 0, ma.m_semisignature);
 }
 
-size_t TF_SignerBase::SignAndRestart(RandomNumberGenerator &rng, PK_MessageAccumulator &messageAccumulator, byte *signature, bool restart) const
+size_t TF_SignerBase::SignAndRestart(RandomNumberGenerator &rng, PK_MessageAccumulator &messageAccumulator, ::byte *signature, bool restart) const
 {
 	CRYPTOPP_UNUSED(restart);
 
@@ -91,7 +91,7 @@ size_t TF_SignerBase::SignAndRestart(RandomNumberGenerator &rng, PK_MessageAccum
 	return signatureLength;
 }
 
-void TF_VerifierBase::InputSignature(PK_MessageAccumulator &messageAccumulator, const byte *signature, size_t signatureLength) const
+void TF_VerifierBase::InputSignature(PK_MessageAccumulator &messageAccumulator, const ::byte *signature, size_t signatureLength) const
 {
 	PK_MessageAccumulatorBase &ma = static_cast<PK_MessageAccumulatorBase &>(messageAccumulator);
 	HashIdentifier id = GetHashIdentifier();
@@ -122,7 +122,7 @@ bool TF_VerifierBase::VerifyAndRestart(PK_MessageAccumulator &messageAccumulator
 	return result;
 }
 
-DecodingResult TF_VerifierBase::RecoverAndRestart(byte *recoveredMessage, PK_MessageAccumulator &messageAccumulator) const
+DecodingResult TF_VerifierBase::RecoverAndRestart(::byte *recoveredMessage, PK_MessageAccumulator &messageAccumulator) const
 {
 	PK_MessageAccumulatorBase &ma = static_cast<PK_MessageAccumulatorBase &>(messageAccumulator);
 	HashIdentifier id = GetHashIdentifier();
@@ -137,7 +137,7 @@ DecodingResult TF_VerifierBase::RecoverAndRestart(byte *recoveredMessage, PK_Mes
 	return result;
 }
 
-DecodingResult TF_DecryptorBase::Decrypt(RandomNumberGenerator &rng, const byte *ciphertext, size_t ciphertextLength, byte *plaintext, const NameValuePairs &parameters) const
+DecodingResult TF_DecryptorBase::Decrypt(RandomNumberGenerator &rng, const ::byte *ciphertext, size_t ciphertextLength, ::byte *plaintext, const NameValuePairs &parameters) const
 {
 	if (ciphertextLength != FixedCiphertextLength())
 			throw InvalidArgument(AlgorithmName() + ": ciphertext length of " + IntToString(ciphertextLength) + " doesn't match the required length of " + IntToString(FixedCiphertextLength()) + " for this key");
@@ -150,7 +150,7 @@ DecodingResult TF_DecryptorBase::Decrypt(RandomNumberGenerator &rng, const byte 
 	return GetMessageEncodingInterface().Unpad(paddedBlock, PaddedBlockBitLength(), plaintext, parameters);
 }
 
-void TF_EncryptorBase::Encrypt(RandomNumberGenerator &rng, const byte *plaintext, size_t plaintextLength, byte *ciphertext, const NameValuePairs &parameters) const
+void TF_EncryptorBase::Encrypt(RandomNumberGenerator &rng, const ::byte *plaintext, size_t plaintextLength, ::byte *ciphertext, const NameValuePairs &parameters) const
 {
 	if (plaintextLength > FixedMaxPlaintextLength())
 	{

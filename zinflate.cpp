@@ -26,7 +26,7 @@ inline bool LowFirstBitReader::FillBuffer(unsigned int length)
 {
 	while (m_bitsBuffered < length)
 	{
-		byte b;
+		::byte b;
 		if (!m_store.Get(b))
 			return false;
 		m_buffer |= (unsigned long)b << m_bitsBuffered;
@@ -238,7 +238,7 @@ void Inflator::IsolatedInitialize(const NameValuePairs &parameters)
 	m_reader.SkipBits(m_reader.BitsBuffered());
 }
 
-void Inflator::OutputByte(byte b)
+void Inflator::OutputByte(::byte b)
 {
 	m_window[m_current++] = b;
 	if (m_current == m_window.size())
@@ -250,7 +250,7 @@ void Inflator::OutputByte(byte b)
 	}
 }
 
-void Inflator::OutputString(const byte *string, size_t length)
+void Inflator::OutputString(const ::byte *string, size_t length)
 {
 	while (length)
 	{
@@ -298,7 +298,7 @@ void Inflator::OutputPast(unsigned int length, unsigned int distance)
 	}
 }
 
-size_t Inflator::Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
+size_t Inflator::Put2(const ::byte *inString, size_t length, int messageEnd, bool blocking)
 {
 	if (!blocking)
 		throw BlockingInputOnly("Inflator");
@@ -376,7 +376,7 @@ void Inflator::DecodeHeader()
 	if (!m_reader.FillBuffer(3))
 		throw UnexpectedEndErr();
 	m_eof = m_reader.GetBits(1) != 0;
-	m_blockType = (byte)m_reader.GetBits(2);
+	m_blockType = (::byte)m_reader.GetBits(2);
 	switch (m_blockType)
 	{
 	case 0:	// stored
@@ -486,7 +486,7 @@ bool Inflator::DecodeBody()
 		while (!m_inQueue.IsEmpty() && !blockEnd)
 		{
 			size_t size;
-			const byte *block = m_inQueue.Spy(size);
+			const ::byte *block = m_inQueue.Spy(size);
 			size = UnsignedMin(m_storedLen, size);
 			CRYPTOPP_ASSERT(size <= 0xffff);
 
@@ -528,7 +528,7 @@ bool Inflator::DecodeBody()
 					break;
 				}
 				if (m_literal < 256)
-					OutputByte((byte)m_literal);
+					OutputByte((::byte)m_literal);
 				else if (m_literal == 256)	// end of block
 				{
 					blockEnd = true;
@@ -588,9 +588,9 @@ bool Inflator::DecodeBody()
 			if (m_reader.BitsBuffered())
 			{
 				// undo too much lookahead
-				SecBlockWithHint<byte, 4> buffer(m_reader.BitsBuffered() / 8);
+				SecBlockWithHint< ::byte, 4> buffer(m_reader.BitsBuffered() / 8);
 				for (unsigned int i=0; i<buffer.size(); i++)
-					buffer[i] = (byte)m_reader.GetBits(8);
+					buffer[i] = (::byte)m_reader.GetBits(8);
 				m_inQueue.Unget(buffer, buffer.size());
 			}
 			m_state = POST_STREAM;

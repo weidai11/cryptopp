@@ -179,7 +179,7 @@ NAMESPACE_BEGIN(CryptoPP)
 typedef BlockGetAndPut<word32, BigEndian, false, false> BigEndianBlock;
 typedef BlockGetAndPut<word32, NativeByteOrder, true, true>  NativeEndianBlock;
 
-inline byte ARIA_BRF(const word32 x, const int y) {
+inline ::byte ARIA_BRF(const word32 x, const int y) {
 	return GETBYTE(x, y);
 }
 
@@ -224,7 +224,7 @@ inline byte ARIA_BRF(const word32 x, const int y) {
 
 // n-bit right shift of Y XORed to X
 template <unsigned int N>
-inline void ARIA_GSRK(const word32 X[4], const word32 Y[4], byte RK[16])
+inline void ARIA_GSRK(const word32 X[4], const word32 Y[4], ::byte RK[16])
 {
 	// MSVC is not generating a "rotate immediate". Constify to help it along.
 	static const unsigned int Q = 4-(N/32);
@@ -250,12 +250,12 @@ inline void ARIA_GSRK_NEON(const uint32x4_t X, const uint32x4_t Y, byte RK[16])
 }
 #endif
 
-void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const NameValuePairs &params)
+void ARIA::Base::UncheckedSetKey(const ::byte *key, unsigned int keylen, const NameValuePairs &params)
 {
 	CRYPTOPP_UNUSED(params);
 
-	const byte *mk = key;
-	byte *rk = m_rk.data();
+	const ::byte *mk = key;
+	::byte *rk = m_rk.data();
 	int Q, q, R, r;
 
 	switch (keylen)
@@ -503,9 +503,9 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 	}
 }
 
-void ARIA::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+void ARIA::Base::ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const
 {
-	const byte *rk = reinterpret_cast<const byte*>(m_rk.data());
+	const ::byte *rk = reinterpret_cast<const ::byte*>(m_rk.data());
 	word32 *t = const_cast<word32*>(m_w.data()+20);
 
 	// Timing attack countermeasure. See comments in Rijndael for more details.
@@ -543,22 +543,22 @@ void ARIA::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
 	const __m128i MASK = _mm_set_epi8(12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3);
 	if (HasSSSE3())
 	{
-		outBlock[ 0] = (byte)(X1[ARIA_BRF(t[0],3)]   );
-		outBlock[ 1] = (byte)(X2[ARIA_BRF(t[0],2)]>>8);
-		outBlock[ 2] = (byte)(S1[ARIA_BRF(t[0],1)]   );
-		outBlock[ 3] = (byte)(S2[ARIA_BRF(t[0],0)]   );
-		outBlock[ 4] = (byte)(X1[ARIA_BRF(t[1],3)]   );
-		outBlock[ 5] = (byte)(X2[ARIA_BRF(t[1],2)]>>8);
-		outBlock[ 6] = (byte)(S1[ARIA_BRF(t[1],1)]   );
-		outBlock[ 7] = (byte)(S2[ARIA_BRF(t[1],0)]   );
-		outBlock[ 8] = (byte)(X1[ARIA_BRF(t[2],3)]   );
-		outBlock[ 9] = (byte)(X2[ARIA_BRF(t[2],2)]>>8);
-		outBlock[10] = (byte)(S1[ARIA_BRF(t[2],1)]   );
-		outBlock[11] = (byte)(S2[ARIA_BRF(t[2],0)]   );
-		outBlock[12] = (byte)(X1[ARIA_BRF(t[3],3)]   );
-		outBlock[13] = (byte)(X2[ARIA_BRF(t[3],2)]>>8);
-		outBlock[14] = (byte)(S1[ARIA_BRF(t[3],1)]   );
-		outBlock[15] = (byte)(S2[ARIA_BRF(t[3],0)]   );
+		outBlock[ 0] = (::byte)(X1[ARIA_BRF(t[0],3)]   );
+		outBlock[ 1] = (::byte)(X2[ARIA_BRF(t[0],2)]>>8);
+		outBlock[ 2] = (::byte)(S1[ARIA_BRF(t[0],1)]   );
+		outBlock[ 3] = (::byte)(S2[ARIA_BRF(t[0],0)]   );
+		outBlock[ 4] = (::byte)(X1[ARIA_BRF(t[1],3)]   );
+		outBlock[ 5] = (::byte)(X2[ARIA_BRF(t[1],2)]>>8);
+		outBlock[ 6] = (::byte)(S1[ARIA_BRF(t[1],1)]   );
+		outBlock[ 7] = (::byte)(S2[ARIA_BRF(t[1],0)]   );
+		outBlock[ 8] = (::byte)(X1[ARIA_BRF(t[2],3)]   );
+		outBlock[ 9] = (::byte)(X2[ARIA_BRF(t[2],2)]>>8);
+		outBlock[10] = (::byte)(S1[ARIA_BRF(t[2],1)]   );
+		outBlock[11] = (::byte)(S2[ARIA_BRF(t[2],0)]   );
+		outBlock[12] = (::byte)(X1[ARIA_BRF(t[3],3)]   );
+		outBlock[13] = (::byte)(X2[ARIA_BRF(t[3],2)]>>8);
+		outBlock[14] = (::byte)(S1[ARIA_BRF(t[3],1)]   );
+		outBlock[15] = (::byte)(S2[ARIA_BRF(t[3],0)]   );
 
 		// 'outBlock' may be unaligned.
 		_mm_storeu_si128(reinterpret_cast<__m128i*>(outBlock),
@@ -578,22 +578,22 @@ void ARIA::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
 	else
 # endif  // CRYPTOPP_ENABLE_ARIA_SSSE3_INTRINSICS
 	{
-		outBlock[ 0] = (byte)(X1[ARIA_BRF(t[0],3)]   ) ^ rk[ 3];
-		outBlock[ 1] = (byte)(X2[ARIA_BRF(t[0],2)]>>8) ^ rk[ 2];
-		outBlock[ 2] = (byte)(S1[ARIA_BRF(t[0],1)]   ) ^ rk[ 1];
-		outBlock[ 3] = (byte)(S2[ARIA_BRF(t[0],0)]   ) ^ rk[ 0];
-		outBlock[ 4] = (byte)(X1[ARIA_BRF(t[1],3)]   ) ^ rk[ 7];
-		outBlock[ 5] = (byte)(X2[ARIA_BRF(t[1],2)]>>8) ^ rk[ 6];
-		outBlock[ 6] = (byte)(S1[ARIA_BRF(t[1],1)]   ) ^ rk[ 5];
-		outBlock[ 7] = (byte)(S2[ARIA_BRF(t[1],0)]   ) ^ rk[ 4];
-		outBlock[ 8] = (byte)(X1[ARIA_BRF(t[2],3)]   ) ^ rk[11];
-		outBlock[ 9] = (byte)(X2[ARIA_BRF(t[2],2)]>>8) ^ rk[10];
-		outBlock[10] = (byte)(S1[ARIA_BRF(t[2],1)]   ) ^ rk[ 9];
-		outBlock[11] = (byte)(S2[ARIA_BRF(t[2],0)]   ) ^ rk[ 8];
-		outBlock[12] = (byte)(X1[ARIA_BRF(t[3],3)]   ) ^ rk[15];
-		outBlock[13] = (byte)(X2[ARIA_BRF(t[3],2)]>>8) ^ rk[14];
-		outBlock[14] = (byte)(S1[ARIA_BRF(t[3],1)]   ) ^ rk[13];
-		outBlock[15] = (byte)(S2[ARIA_BRF(t[3],0)]   ) ^ rk[12];
+		outBlock[ 0] = (::byte)(X1[ARIA_BRF(t[0],3)]   ) ^ rk[ 3];
+		outBlock[ 1] = (::byte)(X2[ARIA_BRF(t[0],2)]>>8) ^ rk[ 2];
+		outBlock[ 2] = (::byte)(S1[ARIA_BRF(t[0],1)]   ) ^ rk[ 1];
+		outBlock[ 3] = (::byte)(S2[ARIA_BRF(t[0],0)]   ) ^ rk[ 0];
+		outBlock[ 4] = (::byte)(X1[ARIA_BRF(t[1],3)]   ) ^ rk[ 7];
+		outBlock[ 5] = (::byte)(X2[ARIA_BRF(t[1],2)]>>8) ^ rk[ 6];
+		outBlock[ 6] = (::byte)(S1[ARIA_BRF(t[1],1)]   ) ^ rk[ 5];
+		outBlock[ 7] = (::byte)(S2[ARIA_BRF(t[1],0)]   ) ^ rk[ 4];
+		outBlock[ 8] = (::byte)(X1[ARIA_BRF(t[2],3)]   ) ^ rk[11];
+		outBlock[ 9] = (::byte)(X2[ARIA_BRF(t[2],2)]>>8) ^ rk[10];
+		outBlock[10] = (::byte)(S1[ARIA_BRF(t[2],1)]   ) ^ rk[ 9];
+		outBlock[11] = (::byte)(S2[ARIA_BRF(t[2],0)]   ) ^ rk[ 8];
+		outBlock[12] = (::byte)(X1[ARIA_BRF(t[3],3)]   ) ^ rk[15];
+		outBlock[13] = (::byte)(X2[ARIA_BRF(t[3],2)]>>8) ^ rk[14];
+		outBlock[14] = (::byte)(S1[ARIA_BRF(t[3],1)]   ) ^ rk[13];
+		outBlock[15] = (::byte)(S2[ARIA_BRF(t[3],0)]   ) ^ rk[12];
 	}
 #else
 		outBlock[ 0] = (byte)(X1[ARIA_BRF(t[0],3)]   );

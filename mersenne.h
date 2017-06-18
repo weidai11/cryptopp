@@ -50,7 +50,7 @@ public:
 	//! \param length the size of the input buffer
 	//! \details MersenneTwister uses the first 32-bits of <tt>input</tt> to reseed the
     //!   generator. If fewer bytes are provided, then the seed is padded with 0's.
-	void IncorporateEntropy(const byte *input, size_t length)
+	void IncorporateEntropy(const ::byte *input, size_t length)
 	{
 		word32 temp = 0;
 		::memcpy(&temp, input, STDMIN(sizeof(temp), length));
@@ -67,7 +67,7 @@ public:
 	//!   is not a multiple of word32, then unused bytes are not accumulated for subsequent
 	//!   calls to GenerateBlock. Rather, the unused tail bytes are discarded, and the
 	//!   stream is continued at the next word32 boundary from the state array.
-	void GenerateBlock(byte *output, size_t size)
+	void GenerateBlock(::byte *output, size_t size)
 	{
 		// Handle word32 size blocks
 		word32 temp;

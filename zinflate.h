@@ -112,7 +112,7 @@ public:
 	Inflator(BufferedTransformation *attachment = NULLPTR, bool repeat = false, int autoSignalPropagation = -1);
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
-	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking);
+	size_t Put2(const ::byte *inString, size_t length, int messageEnd, bool blocking);
 	bool IsolatedFlush(bool hardFlush, bool blocking);
 
 	virtual unsigned int GetLog2WindowSize() const {return 15;}
@@ -123,7 +123,7 @@ protected:
 private:
 	virtual unsigned int MaxPrestreamHeaderSize() const {return 0;}
 	virtual void ProcessPrestreamHeader() {}
-	virtual void ProcessDecompressedData(const byte *string, size_t length)
+	virtual void ProcessDecompressedData(const ::byte *string, size_t length)
 		{AttachedTransformation()->Put(string, length);}
 	virtual unsigned int MaxPoststreamTailSize() const {return 0;}
 	virtual void ProcessPoststreamTail() {}
@@ -132,8 +132,8 @@ private:
 	void DecodeHeader();
 	bool DecodeBody();
 	void FlushOutput();
-	void OutputByte(byte b);
-	void OutputString(const byte *string, size_t length);
+	void OutputByte(::byte b);
+	void OutputString(const ::byte *string, size_t length);
 	void OutputPast(unsigned int length, unsigned int distance);
 
 	static const HuffmanDecoder *FixedLiteralDecoder();
@@ -145,7 +145,7 @@ private:
 	enum State {PRE_STREAM, WAIT_HEADER, DECODING_BODY, POST_STREAM, AFTER_END};
 	State m_state;
 	bool m_repeat, m_eof, m_wrappedAround;
-	byte m_blockType;
+	::byte m_blockType;
 	word16 m_storedLen;
 	enum NextDecode {LITERAL, LENGTH_BITS, DISTANCE, DISTANCE_BITS};
 	NextDecode m_nextDecode;

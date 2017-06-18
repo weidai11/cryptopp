@@ -70,20 +70,20 @@ public:
 
 	Poly1305_Base() : m_idx(0), m_used(true) {}
 
-	void Resynchronize (const byte *iv, int ivLength=-1);
-	void GetNextIV (RandomNumberGenerator &rng, byte *iv);
+	void Resynchronize (const ::byte *iv, int ivLength=-1);
+	void GetNextIV (RandomNumberGenerator &rng, ::byte *iv);
 
-	void UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params);
-	void Update(const byte *input, size_t length);
-	void TruncatedFinal(byte *mac, size_t size);
+	void UncheckedSetKey(const ::byte *key, unsigned int length, const NameValuePairs &params);
+	void Update(const ::byte *input, size_t length);
+	void TruncatedFinal(::byte *mac, size_t size);
 	void Restart();
 
 	unsigned int BlockSize() const {return BLOCKSIZE;}
 	unsigned int DigestSize() const {return DIGESTSIZE;}
 
 protected:
-	void HashBlocks(const byte *input, size_t length, word32 padbit);
-	void HashFinal(byte *mac, size_t length);
+	void HashBlocks(const ::byte *input, size_t length, word32 padbit);
+	void HashFinal(::byte *mac, size_t length);
 
 	typename T::Encryption m_cipher;
 
@@ -93,7 +93,7 @@ protected:
 	FixedSizeAlignedSecBlock<word32, 4> m_n;
 
 	// Accumulated message bytes and index
-	FixedSizeAlignedSecBlock<byte, BLOCKSIZE> m_acc;
+	FixedSizeAlignedSecBlock< ::byte, BLOCKSIZE> m_acc;
 	size_t m_idx;
 
 	// Track nonce reuse; assert in debug but continue
@@ -160,7 +160,7 @@ public:
 	//!   bytes used for <tt>r</tt>.
 	//! \details Each message requires a unique security context. You can use GetNextIV() and
 	//!   Resynchronize() to set a new nonce under a key for a message.
-	Poly1305(const byte *key, size_t keyLength=DEFAULT_KEYLENGTH, const byte *nonce=NULLPTR, size_t nonceLength=0)
+	Poly1305(const ::byte *key, size_t keyLength=DEFAULT_KEYLENGTH, const ::byte *nonce=NULLPTR, size_t nonceLength=0)
 		{this->SetKey(key, keyLength, MakeParameters(Name::IV(), ConstByteArrayParameter(nonce, nonceLength)));}
 };
 

@@ -7,9 +7,9 @@ NAMESPACE_BEGIN(CryptoPP)
 
 namespace
 {
-	const byte s_stdVec[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-	const byte s_urlVec[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
-	const byte s_padding = '=';
+	const ::byte s_stdVec[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+	const ::byte s_urlVec[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+	const ::byte s_padding = '=';
 }
 
 void Base64Encoder::IsolatedInitialize(const NameValuePairs &parameters)

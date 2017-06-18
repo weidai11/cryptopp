@@ -8,7 +8,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-void CCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const NameValuePairs &params)
+void CCM_Base::SetKeyWithoutResync(const ::byte *userKey, size_t keylength, const NameValuePairs &params)
 {
 	BlockCipher &blockCipher = AccessBlockCipher();
 
@@ -25,7 +25,7 @@ void CCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
 	m_L = 8;
 }
 
-void CCM_Base::Resync(const byte *iv, size_t len)
+void CCM_Base::Resync(const ::byte *iv, size_t len)
 {
 	BlockCipher &cipher = AccessBlockCipher();
 
@@ -34,7 +34,7 @@ void CCM_Base::Resync(const byte *iv, size_t len)
 	if (m_L > 8)
 		m_L = 8;
 
-	m_buffer[0] = byte(m_L-1);	// flag
+	m_buffer[0] = ::byte(m_L-1);	// flag
 	memcpy(m_buffer+1, iv, len);
 	memset(m_buffer+1+len, 0, REQUIRED_BLOCKSIZE-1-len);
 
@@ -56,10 +56,10 @@ void CCM_Base::UncheckedSpecifyDataLengths(lword headerLength, lword messageLeng
 	m_aadLength = headerLength;
 	m_messageLength = messageLength;
 
-	byte *cbcBuffer = CBC_Buffer();
+	::byte *cbcBuffer = CBC_Buffer();
 	const BlockCipher &cipher = GetBlockCipher();
 
-	cbcBuffer[0] = byte(64*(headerLength>0) + 8*((m_digestSize-2)/2) + (m_L-1));	// flag
+	cbcBuffer[0] = ::byte(64*(headerLength>0) + 8*((m_digestSize-2)/2) + (m_L-1));	// flag
 	PutWord<word64>(true, BIG_ENDIAN_ORDER, cbcBuffer+REQUIRED_BLOCKSIZE-8, m_messageLength);
 	memcpy(cbcBuffer+1, m_buffer+1, REQUIRED_BLOCKSIZE-1-m_L);
 	cipher.ProcessBlock(cbcBuffer);
@@ -90,16 +90,16 @@ void CCM_Base::UncheckedSpecifyDataLengths(lword headerLength, lword messageLeng
 	}
 }
 
-size_t CCM_Base::AuthenticateBlocks(const byte *data, size_t len)
+size_t CCM_Base::AuthenticateBlocks(const ::byte *data, size_t len)
 {
-	byte *cbcBuffer = CBC_Buffer();
+	::byte *cbcBuffer = CBC_Buffer();
 	const BlockCipher &cipher = GetBlockCipher();
 	return cipher.AdvancedProcessBlocks(cbcBuffer, data, cbcBuffer, len, BlockTransformation::BT_DontIncrementInOutPointers|BlockTransformation::BT_XorInput);
 }
 
 void CCM_Base::AuthenticateLastHeaderBlock()
 {
-	byte *cbcBuffer = CBC_Buffer();
+	::byte *cbcBuffer = CBC_Buffer();
 	const BlockCipher &cipher = GetBlockCipher();
 
 	if (m_aadLength != m_totalHeaderLength)
@@ -115,7 +115,7 @@ void CCM_Base::AuthenticateLastHeaderBlock()
 
 void CCM_Base::AuthenticateLastConfidentialBlock()
 {
-	byte *cbcBuffer = CBC_Buffer();
+	::byte *cbcBuffer = CBC_Buffer();
 	const BlockCipher &cipher = GetBlockCipher();
 
 	if (m_messageLength != m_totalMessageLength)
@@ -129,7 +129,7 @@ void CCM_Base::AuthenticateLastConfidentialBlock()
 	}
 }
 
-void CCM_Base::AuthenticateLastFooterBlock(byte *mac, size_t macSize)
+void CCM_Base::AuthenticateLastFooterBlock(::byte *mac, size_t macSize)
 {
 	m_ctr.Seek(0);
 	m_ctr.ProcessData(mac, CBC_Buffer(), macSize);

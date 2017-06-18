@@ -66,7 +66,7 @@ NAMESPACE_BEGIN(CryptoPP)
 #define EFI(i) (i)
 #endif
 
-void Camellia::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const NameValuePairs &)
+void Camellia::Base::UncheckedSetKey(const ::byte *key, unsigned int keylen, const NameValuePairs &)
 {
 	m_rounds = (keylen >= 24) ? 4 : 3;
 	unsigned int kslen = (8 * m_rounds + 2);
@@ -81,7 +81,7 @@ void Camellia::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const
 	getBlock(kl0)(kl1)(kl2)(kl3);
 	word32 k0=kl0, k1=kl1, k2=kl2, k3=kl3;
 
-#define CALC_ADDR2(base, i, j)	((byte *)(base)+8*(i)+4*(j)+((-16*(i))&m))
+#define CALC_ADDR2(base, i, j)	((::byte *)(base)+8*(i)+4*(j)+((-16*(i))&m))
 #define CALC_ADDR(base, i)	CALC_ADDR2(base, i, 0)
 
 #if 1
@@ -197,7 +197,7 @@ void Camellia::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const
 	}
 }
 
-void Camellia::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+void Camellia::Base::ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const
 {
 #define KS(i, j) ks[i*4 + EFI(j/2)*2 + EFI(j%2)]
 
@@ -250,7 +250,7 @@ void Camellia::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBloc
 // The Camellia s-boxes
 
 CRYPTOPP_ALIGN_DATA(4)
-const byte Camellia::Base::s1[256] =
+const ::byte Camellia::Base::s1[256] =
 {
 	112,130,44,236,179,39,192,229,228,133,87,53,234,12,174,65,
 	35,239,107,147,69,25,165,33,237,14,79,78,29,101,146,189,

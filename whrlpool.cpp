@@ -97,7 +97,7 @@ void Whirlpool::InitState(HashWordType *state)
 	memset(state, 0, 8*sizeof(state[0]));
 }
 
-void Whirlpool::TruncatedFinal(byte *hash, size_t size)
+void Whirlpool::TruncatedFinal(::byte *hash, size_t size)
 {
 	ThrowIfInvalidTruncatedSize(size);
 
@@ -613,23 +613,23 @@ void Whirlpool::Transform(word64 *digest, const word64 *block)
 
 #define KSL(op, i, a, b, c, d)	\
 	t = (word32)k[i];\
-	w##a = Whirlpool_C[3*256 + (byte)t] ^ (op ? w##a : 0);\
+	w##a = Whirlpool_C[3*256 + (::byte)t] ^ (op ? w##a : 0);\
 	t >>= 8;\
-	w##b = Whirlpool_C[2*256 + (byte)t] ^ (op ? w##b : 0);\
+	w##b = Whirlpool_C[2*256 + (::byte)t] ^ (op ? w##b : 0);\
 	t >>= 8;\
-	w##c = Whirlpool_C[1*256 + (byte)t] ^ (op ? w##c : 0);\
+	w##c = Whirlpool_C[1*256 + (::byte)t] ^ (op ? w##c : 0);\
 	t >>= 8;\
 	w##d = Whirlpool_C[0*256 + t]       ^ (op ? w##d : 0);
 
 #define KSH(op, i, a, b, c, d)	\
 	t = (word32)(k[(i+4)%8]>>32);\
-	w##a = Whirlpool_C[3*256 + (byte)t] ^ (op ? w##a : rotrFixed(w##a, 32));\
+	w##a = Whirlpool_C[3*256 + (::byte)t] ^ (op ? w##a : rotrFixed(w##a, 32));\
 	if (op==2) k[a] = w##a;\
 	t >>= 8;\
-	w##b = Whirlpool_C[2*256 + (byte)t] ^ (op ? w##b : rotrFixed(w##b, 32));\
+	w##b = Whirlpool_C[2*256 + (::byte)t] ^ (op ? w##b : rotrFixed(w##b, 32));\
 	if (op==2) k[b] = w##b;\
 	t >>= 8;\
-	w##c = Whirlpool_C[1*256 + (byte)t] ^ (op ? w##c : rotrFixed(w##c, 32));\
+	w##c = Whirlpool_C[1*256 + (::byte)t] ^ (op ? w##c : rotrFixed(w##c, 32));\
 	if (op==2) k[c] = w##c;\
 	t >>= 8;\
 	w##d = Whirlpool_C[0*256 + t]       ^ (op ? w##d : rotrFixed(w##d, 32));\
@@ -637,16 +637,16 @@ void Whirlpool::Transform(word64 *digest, const word64 *block)
 
 #define TSL(op, i, a, b, c, d)	\
 	t = (word32)s[i];\
-	w##a = Whirlpool_C[3*256 + (byte)t] ^ (op ? w##a : 0);\
+	w##a = Whirlpool_C[3*256 + (::byte)t] ^ (op ? w##a : 0);\
 	t >>= 8;\
-	w##b = Whirlpool_C[2*256 + (byte)t] ^ (op ? w##b : 0);\
+	w##b = Whirlpool_C[2*256 + (::byte)t] ^ (op ? w##b : 0);\
 	t >>= 8;\
-	w##c = Whirlpool_C[1*256 + (byte)t] ^ (op ? w##c : 0);\
+	w##c = Whirlpool_C[1*256 + (::byte)t] ^ (op ? w##c : 0);\
 	t >>= 8;\
 	w##d = Whirlpool_C[0*256 + t]       ^ (op ? w##d : 0);
 
 #define TSH_OP(op, a, b)	\
-	w##a = Whirlpool_C[b*256 + (byte)t] ^ (op ? w##a : rotrFixed(w##a, 32) ^ k[a]);\
+	w##a = Whirlpool_C[b*256 + (::byte)t] ^ (op ? w##a : rotrFixed(w##a, 32) ^ k[a]);\
 	if (op==2) s[a] = w##a;\
 	if (op==3) digest[a] ^= w##a;\
 

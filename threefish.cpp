@@ -236,7 +236,7 @@ ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
 
-void Threefish::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const NameValuePairs &params)
+void Threefish::Base::UncheckedSetKey(const ::byte *key, unsigned int keylen, const NameValuePairs &params)
 {
     switch (keylen)
     {
@@ -285,7 +285,7 @@ void Threefish::Base::UncheckedSetKey(const byte *key, unsigned int keylen, cons
     }
 }
 
-void Threefish::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+void Threefish::Enc::ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const
 {
     switch(m_blocksize)
     {
@@ -303,7 +303,7 @@ void Threefish::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBloc
     }
 }
 
-void Threefish::Enc::ProcessAndXorBlock_256(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+void Threefish::Enc::ProcessAndXorBlock_256(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const
 {
     word64 &G0=m_wspace[0], &G1=m_wspace[1], &G2=m_wspace[2], &G3=m_wspace[3];
 
@@ -324,7 +324,7 @@ void Threefish::Enc::ProcessAndXorBlock_256(const byte *inBlock, const byte *xor
     oblk(G0)(G1)(G2)(G3);
 }
 
-void Threefish::Enc::ProcessAndXorBlock_512(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+void Threefish::Enc::ProcessAndXorBlock_512(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const
 {
     word64 &G0=m_wspace[0],   &G1=m_wspace[1],   &G2=m_wspace[2],   &G3=m_wspace[3];
     word64 &G4=m_wspace[4],   &G5=m_wspace[5],   &G6=m_wspace[6],   &G7=m_wspace[7];
@@ -348,7 +348,7 @@ void Threefish::Enc::ProcessAndXorBlock_512(const byte *inBlock, const byte *xor
     oblk(G0)(G1)(G2)(G3)(G4)(G5)(G6)(G7);
 }
 
-void Threefish::Enc::ProcessAndXorBlock_1024(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+void Threefish::Enc::ProcessAndXorBlock_1024(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const
 {
     word64  &G0=m_wspace[0],   &G1=m_wspace[1],   &G2=m_wspace[2],   &G3=m_wspace[3];
     word64  &G4=m_wspace[4],   &G5=m_wspace[5],   &G6=m_wspace[6],   &G7=m_wspace[7];
@@ -375,7 +375,7 @@ void Threefish::Enc::ProcessAndXorBlock_1024(const byte *inBlock, const byte *xo
     oblk(G0)(G1)(G2)(G3)(G4)(G5)(G6)(G7)(G8)(G9)(G10)(G11)(G12)(G13)(G14)(G15);
 }
 
-void Threefish::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+void Threefish::Dec::ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const
 {
     switch(m_blocksize)
     {
@@ -393,7 +393,7 @@ void Threefish::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBloc
     }
 }
 
-void Threefish::Dec::ProcessAndXorBlock_256(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+void Threefish::Dec::ProcessAndXorBlock_256(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const
 {
     word64 &G0=m_wspace[0], &G1=m_wspace[1], &G2=m_wspace[2], &G3=m_wspace[3];
 
@@ -414,7 +414,7 @@ void Threefish::Dec::ProcessAndXorBlock_256(const byte *inBlock, const byte *xor
     oblk(G0)(G1)(G2)(G3);
 }
 
-void Threefish::Dec::ProcessAndXorBlock_512(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+void Threefish::Dec::ProcessAndXorBlock_512(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const
 {
     word64 &G0=m_wspace[0],   &G1=m_wspace[1],   &G2=m_wspace[2],   &G3=m_wspace[3];
     word64 &G4=m_wspace[4],   &G5=m_wspace[5],   &G6=m_wspace[6],   &G7=m_wspace[7];
@@ -437,7 +437,7 @@ void Threefish::Dec::ProcessAndXorBlock_512(const byte *inBlock, const byte *xor
     oblk(G0)(G1)(G2)(G3)(G4)(G5)(G6)(G7);
 }
 
-void Threefish::Dec::ProcessAndXorBlock_1024(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+void Threefish::Dec::ProcessAndXorBlock_1024(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const
 {
     word64  &G0=m_wspace[0],   &G1=m_wspace[1],   &G2=m_wspace[2],   &G3=m_wspace[3];
     word64  &G4=m_wspace[4],   &G5=m_wspace[5],   &G6=m_wspace[6],   &G7=m_wspace[7];

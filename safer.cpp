@@ -11,7 +11,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-const byte SAFER::Base::exp_tab[256] =
+const ::byte SAFER::Base::exp_tab[256] =
 	{1, 45, 226, 147, 190, 69, 21, 174, 120, 3, 135, 164, 184, 56, 207, 63,
 	8, 103, 9, 148, 235, 38, 168, 107, 189, 24, 52, 27, 187, 191, 114, 247,
 	64, 53, 72, 156, 81, 47, 59, 85, 227, 192, 159, 216, 211, 243, 141, 177,
@@ -29,7 +29,7 @@ const byte SAFER::Base::exp_tab[256] =
 	253, 77, 124, 183, 11, 238, 173, 75, 34, 245, 231, 115, 35, 33, 200, 5,
 	225, 102, 221, 179, 88, 105, 99, 86, 15, 161, 49, 149, 23, 7, 58, 40};
 
-const byte SAFER::Base::log_tab[256] =
+const ::byte SAFER::Base::log_tab[256] =
 	{128, 0, 176, 9, 96, 239, 185, 253, 16, 18, 159, 228, 105, 186, 173, 248,
 	192, 56, 194, 101, 79, 6, 148, 252, 25, 222, 106, 27, 93, 78, 168, 130,
 	112, 237, 232, 236, 114, 179, 21, 195, 255, 171, 182, 71, 68, 1, 172, 37,
@@ -55,16 +55,16 @@ const byte SAFER::Base::log_tab[256] =
 static const unsigned int BLOCKSIZE = 8;
 static const unsigned int MAX_ROUNDS = 13;
 
-void SAFER::Base::UncheckedSetKey(const byte *userkey_1, unsigned int length, const NameValuePairs &params)
+void SAFER::Base::UncheckedSetKey(const ::byte *userkey_1, unsigned int length, const NameValuePairs &params)
 {
 	bool strengthened = Strengthened();
 	unsigned int nof_rounds = params.GetIntValueWithDefault(Name::Rounds(), length == 8 ? (strengthened ? 8 : 6) : 10);
 
-	const byte *userkey_2 = length == 8 ? userkey_1 : userkey_1 + 8;
+	const ::byte *userkey_2 = length == 8 ? userkey_1 : userkey_1 + 8;
 	keySchedule.New(1 + BLOCKSIZE * (1 + 2 * nof_rounds));
 
 	unsigned int i, j;
-	byte *key = keySchedule;
+	::byte *key = keySchedule;
 	SecByteBlock ka(BLOCKSIZE + 1), kb(BLOCKSIZE + 1);
 
 	if (MAX_ROUNDS < nof_rounds)
@@ -100,12 +100,12 @@ void SAFER::Base::UncheckedSetKey(const byte *userkey_1, unsigned int length, co
 	}
 }
 
-typedef BlockGetAndPut<byte, BigEndian> Block;
+typedef BlockGetAndPut< ::byte, BigEndian> Block;
 
-void SAFER::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+void SAFER::Enc::ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const
 {
-	byte a, b, c, d, e, f, g, h, t;
-	const byte *key = keySchedule+1;
+	::byte a, b, c, d, e, f, g, h, t;
+	const ::byte *key = keySchedule+1;
 	unsigned int round = keySchedule[0];
 
 	Block::Get(inBlock)(a)(b)(c)(d)(e)(f)(g)(h);
@@ -128,11 +128,11 @@ void SAFER::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
 	Block::Put(xorBlock, outBlock)(a)(b)(c)(d)(e)(f)(g)(h);
 }
 
-void SAFER::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+void SAFER::Dec::ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const
 {
-	byte a, b, c, d, e, f, g, h, t;
+	::byte a, b, c, d, e, f, g, h, t;
 	unsigned int round = keySchedule[0];
-	const byte *key = keySchedule + BLOCKSIZE * (1 + 2 * round) - 7;
+	const ::byte *key = keySchedule + BLOCKSIZE * (1 + 2 * round) - 7;
 
 	Block::Get(inBlock)(a)(b)(c)(d)(e)(f)(g)(h);
 	h ^= key[7]; g -= key[6]; f -= key[5]; e ^= key[4];

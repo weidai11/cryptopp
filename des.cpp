@@ -117,7 +117,7 @@ static inline void FPERM(word32 &left, word32 &right)
 	left = rotrFixed(left^work, 4U);
 }
 
-void DES::Base::UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &)
+void DES::Base::UncheckedSetKey(const ::byte *userKey, unsigned int length, const NameValuePairs &)
 {
 	AssertValidKeyLength(length);
 
@@ -237,7 +237,7 @@ namespace {
 
 /* permuted choice table (key) */
 namespace {
-	const byte pc1[] = {
+	const ::byte pc1[] = {
 	   57, 49, 41, 33, 25, 17,  9,
 		1, 58, 50, 42, 34, 26, 18,
 	   10,  2, 59, 51, 43, 35, 27,
@@ -252,14 +252,14 @@ namespace {
 
 /* number left rotations of pc1 */
 namespace {
-	const byte totrot[] = {
+	const ::byte totrot[] = {
 	   1,2,4,6,8,10,12,14,15,17,19,21,23,25,27,28
 	};
 }
 
 /* permuted choice key (table) */
 namespace {
-	const byte pc2[] = {
+	const ::byte pc2[] = {
 	   14, 17, 11, 24,  1,  5,
 		3, 28, 15,  6, 21, 10,
 	   23, 19, 12,  4, 26,  8,
@@ -281,16 +281,16 @@ namespace {
 }
 
 /* Set key (initialize key schedule array) */
-void RawDES::RawSetKey(CipherDir dir, const byte *key)
+void RawDES::RawSetKey(CipherDir dir, const ::byte *key)
 {
 #if (_MSC_VER >= 1600) || (__cplusplus >= 201103L)
 # define register /* Define to nothing for C++11 and above */
 #endif
 
 	SecByteBlock buffer(56+56+8);
-	byte *const pc1m=buffer;                 /* place to modify pc1 into */
-	byte *const pcr=pc1m+56;                 /* place to rotate pc1 into */
-	byte *const ks=pcr+56;
+	::byte *const pc1m=buffer;                 /* place to modify pc1 into */
+	::byte *const pcr=pc1m+56;                 /* place to rotate pc1 into */
+	::byte *const ks=pcr+56;
 	register int i,j,l;
 	int m;
 
@@ -366,7 +366,7 @@ void RawDES::RawProcessBlock(word32 &l_, word32 &r_) const
 	l_ = l; r_ = r;
 }
 
-void DES_EDE2::Base::UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &)
+void DES_EDE2::Base::UncheckedSetKey(const ::byte *userKey, unsigned int length, const NameValuePairs &)
 {
 	AssertValidKeyLength(length);
 
@@ -374,7 +374,7 @@ void DES_EDE2::Base::UncheckedSetKey(const byte *userKey, unsigned int length, c
 	m_des2.RawSetKey(ReverseCipherDir(GetCipherDirection()), userKey+8);
 }
 
-void DES_EDE2::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+void DES_EDE2::Base::ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const
 {
 	word32 l,r;
 	Block::Get(inBlock)(l)(r);
@@ -386,7 +386,7 @@ void DES_EDE2::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBloc
 	Block::Put(xorBlock, outBlock)(r)(l);
 }
 
-void DES_EDE3::Base::UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &)
+void DES_EDE3::Base::UncheckedSetKey(const ::byte *userKey, unsigned int length, const NameValuePairs &)
 {
 	AssertValidKeyLength(length);
 
@@ -395,7 +395,7 @@ void DES_EDE3::Base::UncheckedSetKey(const byte *userKey, unsigned int length, c
 	m_des3.RawSetKey(GetCipherDirection(), userKey + (IsForwardTransformation() ? 16 : 0));
 }
 
-void DES_EDE3::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+void DES_EDE3::Base::ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const
 {
 	word32 l,r;
 	Block::Get(inBlock)(l)(r);
@@ -409,13 +409,13 @@ void DES_EDE3::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBloc
 
 #endif	// #ifndef CRYPTOPP_IMPORTS
 
-static inline bool CheckParity(byte b)
+static inline bool CheckParity(::byte b)
 {
 	unsigned int a = b ^ (b >> 4);
 	return ((a ^ (a>>1) ^ (a>>2) ^ (a>>3)) & 1) == 1;
 }
 
-bool DES::CheckKeyParityBits(const byte *key)
+bool DES::CheckKeyParityBits(const ::byte *key)
 {
 	for (unsigned int i=0; i<8; i++)
 		if (!CheckParity(key[i]))
@@ -423,7 +423,7 @@ bool DES::CheckKeyParityBits(const byte *key)
 	return true;
 }
 
-void DES::CorrectKeyParityBits(byte *key)
+void DES::CorrectKeyParityBits(::byte *key)
 {
 	for (unsigned int i=0; i<8; i++)
 		if (!CheckParity(key[i]))
@@ -431,7 +431,7 @@ void DES::CorrectKeyParityBits(byte *key)
 }
 
 // Encrypt or decrypt a block of data in ECB mode
-void DES::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+void DES::Base::ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const
 {
 	word32 l,r;
 	Block::Get(inBlock)(l)(r);
@@ -441,7 +441,7 @@ void DES::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, by
 	Block::Put(xorBlock, outBlock)(r)(l);
 }
 
-void DES_XEX3::Base::UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &)
+void DES_XEX3::Base::UncheckedSetKey(const ::byte *key, unsigned int length, const NameValuePairs &)
 {
 	AssertValidKeyLength(length);
 
@@ -453,7 +453,7 @@ void DES_XEX3::Base::UncheckedSetKey(const byte *key, unsigned int length, const
 	memcpy(m_x3, key + (IsForwardTransformation() ? 16 : 0), BLOCKSIZE);
 }
 
-void DES_XEX3::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+void DES_XEX3::Base::ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const
 {
 	xorbuf(outBlock, inBlock, m_x1, BLOCKSIZE);
 	m_des->ProcessAndXorBlock(outBlock, xorBlock, outBlock);

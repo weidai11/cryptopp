@@ -22,7 +22,7 @@ public:
 	virtual size_t MaxDerivedKeyLength() const =0;
 	virtual bool Usesinfo() const =0;
 	//! derive a key from secret
-	virtual unsigned int DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen, const byte *salt, size_t saltLen, const byte* info=NULLPTR, size_t infoLen=0) const =0;
+	virtual unsigned int DeriveKey(::byte *derived, size_t derivedLen, const ::byte *secret, size_t secretLen, const ::byte *salt, size_t saltLen, const ::byte* info=NULLPTR, size_t infoLen=0) const =0;
 
 	virtual ~KeyDerivationFunction() {}
 };
@@ -44,12 +44,12 @@ public:
 	}
 	size_t MaxDerivedKeyLength() const {return static_cast<size_t>(T::DIGESTSIZE) * 255;}
 	bool Usesinfo() const {return true;}
-	unsigned int DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen, const byte *salt, size_t saltLen, const byte* info, size_t infoLen) const;
+	unsigned int DeriveKey(::byte *derived, size_t derivedLen, const ::byte *secret, size_t secretLen, const ::byte *salt, size_t saltLen, const ::byte* info, size_t infoLen) const;
 
 protected:
 	// If salt is missing (NULLPTR), then use the NULL vector. Missing is different than EMPTY (0 length). The length
 	// of s_NullVector used depends on the Hash function. SHA-256 will use 32 bytes of s_NullVector.
-	typedef byte NullVectorType[SALTSIZE];
+	typedef ::byte NullVectorType[SALTSIZE];
 	static const NullVectorType& GetNullVector() {
 		static const NullVectorType s_NullVector = {0};
 		return s_NullVector;
@@ -57,7 +57,7 @@ protected:
 };
 
 template <class T>
-unsigned int HKDF<T>::DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen, const byte *salt, size_t saltLen, const byte* info, size_t infoLen) const
+unsigned int HKDF<T>::DeriveKey(::byte *derived, size_t derivedLen, const ::byte *secret, size_t secretLen, const ::byte *salt, size_t saltLen, const ::byte* info, size_t infoLen) const
 {
 	static const size_t DIGEST_SIZE = static_cast<size_t>(T::DIGESTSIZE);
 	const unsigned int req = static_cast<unsigned int>(derivedLen);
@@ -70,10 +70,10 @@ unsigned int HKDF<T>::DeriveKey(byte *derived, size_t derivedLen, const byte *se
 		throw InvalidArgument("HKDF: derivedLen must be less than or equal to MaxDerivedKeyLength");
 
 	HMAC<T> hmac;
-	FixedSizeSecBlock<byte, DIGEST_SIZE> prk, buffer;
+	FixedSizeSecBlock< ::byte, DIGEST_SIZE> prk, buffer;
 
 	// Extract
-	const byte* key = (salt ? salt : GetNullVector());
+	const ::byte* key = (salt ? salt : GetNullVector());
 	const size_t klen = (salt ? saltLen : DIGEST_SIZE);
 
 	hmac.SetKey(key, klen);
@@ -81,7 +81,7 @@ unsigned int HKDF<T>::DeriveKey(byte *derived, size_t derivedLen, const byte *se
 
 	// Expand
 	hmac.SetKey(prk.data(), prk.size());
-	byte block = 0;
+	::byte block = 0;
 
 	while (derivedLen > 0)
 	{

@@ -25,7 +25,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-void xorbuf(byte *buf, const byte *mask, size_t count)
+void xorbuf(::byte *buf, const ::byte *mask, size_t count)
 {
 	CRYPTOPP_ASSERT(buf != NULLPTR);
 	CRYPTOPP_ASSERT(mask != NULLPTR);
@@ -58,7 +58,7 @@ void xorbuf(byte *buf, const byte *mask, size_t count)
 		buf[i] ^= mask[i];
 }
 
-void xorbuf(byte *output, const byte *input, const byte *mask, size_t count)
+void xorbuf(::byte *output, const ::byte *input, const ::byte *mask, size_t count)
 {
 	CRYPTOPP_ASSERT(output != NULLPTR);
 	CRYPTOPP_ASSERT(input != NULLPTR);
@@ -93,14 +93,14 @@ void xorbuf(byte *output, const byte *input, const byte *mask, size_t count)
 		output[i] = input[i] ^ mask[i];
 }
 
-bool VerifyBufsEqual(const byte *buf, const byte *mask, size_t count)
+bool VerifyBufsEqual(const ::byte *buf, const ::byte *mask, size_t count)
 {
 	CRYPTOPP_ASSERT(buf != NULLPTR);
 	CRYPTOPP_ASSERT(mask != NULLPTR);
 	CRYPTOPP_ASSERT(count > 0);
 
 	size_t i=0;
-	byte acc8 = 0;
+	::byte acc8 = 0;
 
 	if (IsAligned<word32>(buf) && IsAligned<word32>(mask))
 	{
@@ -125,7 +125,7 @@ bool VerifyBufsEqual(const byte *buf, const byte *mask, size_t count)
 			return acc32 == 0;
 		buf += 4*i;
 		mask += 4*i;
-		acc8 = byte(acc32) | byte(acc32>>8) | byte(acc32>>16) | byte(acc32>>24);
+		acc8 = ::byte(acc32) | ::byte(acc32>>8) | ::byte(acc32>>16) | ::byte(acc32>>24);
 	}
 
 	for (i=0; i<count; i++)
@@ -280,13 +280,13 @@ void CallNewHandler()
 
 void * AlignedAllocate(size_t size)
 {
-	byte *p;
+	::byte *p;
 #if defined(CRYPTOPP_APPLE_ALLOC_AVAILABLE)
 	while ((p = (byte *)calloc(1, size)) == NULLPTR)
 #elif defined(CRYPTOPP_MM_MALLOC_AVAILABLE)
 	while ((p = (byte *)_mm_malloc(size, 16)) == NULLPTR)
 #elif defined(CRYPTOPP_MEMALIGN_AVAILABLE)
-	while ((p = (byte *)memalign(16, size)) == NULLPTR)
+	while ((p = (::byte *)memalign(16, size)) == NULLPTR)
 #elif defined(CRYPTOPP_MALLOC_ALIGNMENT_IS_16)
 	while ((p = (byte *)malloc(size)) == NULLPTR)
 #else

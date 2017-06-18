@@ -87,13 +87,13 @@ void XTR_DH::AssignFrom(const NameValuePairs &source)
 		;
 }
 
-void XTR_DH::GeneratePrivateKey(RandomNumberGenerator &rng, byte *privateKey) const
+void XTR_DH::GeneratePrivateKey(RandomNumberGenerator &rng, ::byte *privateKey) const
 {
 	Integer x(rng, Integer::Zero(), m_q-1);
 	x.Encode(privateKey, PrivateKeyLength());
 }
 
-void XTR_DH::GeneratePublicKey(RandomNumberGenerator &rng, const byte *privateKey, byte *publicKey) const
+void XTR_DH::GeneratePublicKey(RandomNumberGenerator &rng, const ::byte *privateKey, ::byte *publicKey) const
 {
 	CRYPTOPP_UNUSED(rng);
 	Integer x(privateKey, PrivateKeyLength());
@@ -101,7 +101,7 @@ void XTR_DH::GeneratePublicKey(RandomNumberGenerator &rng, const byte *privateKe
 	y.Encode(publicKey, PublicKeyLength());
 }
 
-bool XTR_DH::Agree(byte *agreedValue, const byte *privateKey, const byte *otherPublicKey, bool validateOtherPublicKey) const
+bool XTR_DH::Agree(::byte *agreedValue, const ::byte *privateKey, const ::byte *otherPublicKey, bool validateOtherPublicKey) const
 {
 	GFP2Element w(otherPublicKey, PublicKeyLength());
 	if (validateOtherPublicKey)

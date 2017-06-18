@@ -63,7 +63,7 @@ class FixedRNG : public RandomNumberGenerator
 public:
 	FixedRNG(BufferedTransformation &source) : m_source(source) {}
 
-	void GenerateBlock(byte *output, size_t size)
+	void GenerateBlock(::byte *output, size_t size)
 	{
 		m_source.Get(output, size);
 	}
@@ -83,16 +83,16 @@ bool ValidateBBS()
 	bool pass = true, fail;
 	int j;
 
-	static const byte output1[] = {
+	static const ::byte output1[] = {
 		0x49,0xEA,0x2C,0xFD,0xB0,0x10,0x64,0xA0,0xBB,0xB9,
 		0x2A,0xF1,0x01,0xDA,0xC1,0x8A,0x94,0xF7,0xB7,0xCE};
-	static const byte output2[] = {
+	static const ::byte output2[] = {
 		0x74,0x45,0x48,0xAE,0xAC,0xB7,0x0E,0xDF,0xAF,0xD7,
 		0xD5,0x0E,0x8E,0x29,0x83,0x75,0x6B,0x27,0x46,0xA1};
 
 	// Coverity finding, also see http://stackoverflow.com/a/34509163/608639.
 	StreamState ss(std::cout);
-	byte buf[20];
+	::byte buf[20];
 
 	bbs.GenerateBlock(buf, 20);
 	fail = memcmp(output1, buf, 20) != 0;
@@ -136,7 +136,7 @@ bool SignatureValidate(PK_Signer &priv, PK_Verifier &pub, bool thorough = false)
 	std::cout << (fail ? "FAILED    " : "passed    ");
 	std::cout << "signature key validation\n";
 
-	const byte *message = (byte *)"test message";
+	const ::byte *message = (::byte *)"test message";
 	const int messageLen = 12;
 
 	SecByteBlock signature(priv.MaxSignatureLength());
@@ -187,7 +187,7 @@ bool CryptoSystemValidate(PK_Decryptor &priv, PK_Encryptor &pub, bool thorough =
 	std::cout << (fail ? "FAILED    " : "passed    ");
 	std::cout << "cryptosystem key validation\n";
 
-	const byte *message = (byte *)"test message";
+	const ::byte *message = (::byte *)"test message";
 	const int messageLen = 12;
 	SecByteBlock ciphertext(priv.CiphertextLength(messageLen));
 	SecByteBlock plaintext(priv.MaxPlaintextLength(ciphertext.size()));
@@ -283,12 +283,12 @@ bool ValidateRSA()
 {
 	std::cout << "\nRSA validation suite running...\n\n";
 
-	byte out[100], outPlain[100];
+	::byte out[100], outPlain[100];
 	bool pass = true, fail;
 
 	{
 		const char *plain = "Everyone gets Friday off.";
-		static const byte signature[] =
+		static const ::byte signature[] =
 			"\x05\xfa\x6a\x81\x2f\xc7\xdf\x8b\xf4\xf2\x54\x25\x09\xe0\x3e\x84"
 			"\x6e\x11\xb9\xc6\x20\xbe\x20\x09\xef\xb4\x40\xef\xbc\xc6\x69\x21"
 			"\x69\x94\xac\x04\xf3\x41\xb5\x7d\x05\x20\x2d\x42\x8f\xb2\xa2\x7b"
@@ -298,21 +298,21 @@ bool ValidateRSA()
 		Weak::RSASSA_PKCS1v15_MD2_Signer rsaPriv(keys);
 		Weak::RSASSA_PKCS1v15_MD2_Verifier rsaPub(rsaPriv);
 
-		size_t signatureLength = rsaPriv.SignMessage(GlobalRNG(), (byte *)plain, strlen(plain), out);
+		size_t signatureLength = rsaPriv.SignMessage(GlobalRNG(), (::byte *)plain, strlen(plain), out);
 		fail = memcmp(signature, out, 64) != 0;
 		pass = pass && !fail;
 
 		std::cout << (fail ? "FAILED    " : "passed    ");
 		std::cout << "signature check against test vector\n";
 
-		fail = !rsaPub.VerifyMessage((byte *)plain, strlen(plain), out, signatureLength);
+		fail = !rsaPub.VerifyMessage((::byte *)plain, strlen(plain), out, signatureLength);
 		pass = pass && !fail;
 
 		std::cout << (fail ? "FAILED    " : "passed    ");
 		std::cout << "verification check against test vector\n";
 
 		out[10]++;
-		fail = rsaPub.VerifyMessage((byte *)plain, strlen(plain), out, signatureLength);
+		fail = rsaPub.VerifyMessage((::byte *)plain, strlen(plain), out, signatureLength);
 		pass = pass && !fail;
 
 		std::cout << (fail ? "FAILED    " : "passed    ");
@@ -332,14 +332,14 @@ bool ValidateRSA()
 		pass = CryptoSystemValidate(rsaPriv, rsaPub) && pass;
 	}
 	{
-		byte *plain = (byte *)
+		::byte *plain = (::byte *)
 			"\x54\x85\x9b\x34\x2c\x49\xea\x2a";
-		static const byte encrypted[] =
+		static const ::byte encrypted[] =
 			"\x14\xbd\xdd\x28\xc9\x83\x35\x19\x23\x80\xe8\xe5\x49\xb1\x58\x2a"
 			"\x8b\x40\xb4\x48\x6d\x03\xa6\xa5\x31\x1f\x1f\xd5\xf0\xa1\x80\xe4"
 			"\x17\x53\x03\x29\xa9\x34\x90\x74\xb1\x52\x13\x54\x29\x08\x24\x52"
 			"\x62\x51";
-		static const byte oaepSeed[] =
+		static const ::byte oaepSeed[] =
 			"\xaa\xfd\x12\xf6\x59\xca\xe6\x34\x89\xb4\x79\xe5\x07\x6d\xde\xc2"
 			"\xf0\x6c\xb5\x8f";
 		ByteQueue bq;
@@ -901,12 +901,12 @@ bool ValidateECDSA()
 
 	// from Sample Test Vectors for P1363
 	GF2NT gf2n(191, 9, 0);
-	byte a[]="\x28\x66\x53\x7B\x67\x67\x52\x63\x6A\x68\xF5\x65\x54\xE1\x26\x40\x27\x6B\x64\x9E\xF7\x52\x62\x67";
-	byte b[]="\x2E\x45\xEF\x57\x1F\x00\x78\x6F\x67\xB0\x08\x1B\x94\x95\xA3\xD9\x54\x62\xF5\xDE\x0A\xA1\x85\xEC";
+	::byte a[]="\x28\x66\x53\x7B\x67\x67\x52\x63\x6A\x68\xF5\x65\x54\xE1\x26\x40\x27\x6B\x64\x9E\xF7\x52\x62\x67";
+	::byte b[]="\x2E\x45\xEF\x57\x1F\x00\x78\x6F\x67\xB0\x08\x1B\x94\x95\xA3\xD9\x54\x62\xF5\xDE\x0A\xA1\x85\xEC";
 	EC2N ec(gf2n, PolynomialMod2(a,24), PolynomialMod2(b,24));
 
 	EC2N::Point P;
-	bool result = ec.DecodePoint(P, (byte *)"\x04\x36\xB3\xDA\xF8\xA2\x32\x06\xF9\xC4\xF2\x99\xD7\xB2\x1A\x9C\x36\x91\x37\xF2\xC8\x4A\xE1\xAA\x0D"
+	bool result = ec.DecodePoint(P, (::byte *)"\x04\x36\xB3\xDA\xF8\xA2\x32\x06\xF9\xC4\xF2\x99\xD7\xB2\x1A\x9C\x36\x91\x37\xF2\xC8\x4A\xE1\xAA\x0D"
 		"\x76\x5B\xE7\x34\x33\xB3\xF9\x5E\x33\x29\x32\xE7\x0E\xA2\x45\xCA\x24\x18\xEA\x0E\xF9\x80\x18\xFB", ec.EncodedPointSize());
 	CRYPTOPP_ASSERT(result); CRYPTOPP_UNUSED(result);
 
@@ -918,7 +918,7 @@ bool ValidateECDSA()
 
 	Integer h("A9993E364706816ABA3E25717850C26C9CD0D89DH");
 	Integer k("3eeace72b4919d991738d521879f787cb590aff8189d2b69H");
-	static const byte sig[]="\x03\x8e\x5a\x11\xfb\x55\xe4\xc6\x54\x71\xdc\xd4\x99\x84\x52\xb1\xe0\x2d\x8a\xf7\x09\x9b\xb9\x30"
+	static const ::byte sig[]="\x03\x8e\x5a\x11\xfb\x55\xe4\xc6\x54\x71\xdc\xd4\x99\x84\x52\xb1\xe0\x2d\x8a\xf7\x09\x9b\xb9\x30"
 		"\x0c\x9a\x08\xc3\x44\x68\xc2\x44\xb4\xe5\xd6\xb2\x1b\x3c\x68\x36\x28\x07\x41\x60\x20\x32\x8b\x6e";
 	Integer r(sig, 24);
 	Integer s(sig+24, 24);
@@ -933,13 +933,13 @@ bool ValidateECDSA()
 	std::cout << (fail ? "FAILED    " : "passed    ");
 	std::cout << "signature check against test vector\n";
 
-	fail = !pub.VerifyMessage((byte *)"abc", 3, sig, sizeof(sig));
+	fail = !pub.VerifyMessage((::byte *)"abc", 3, sig, sizeof(sig));
 	pass = pass && !fail;
 
 	std::cout << (fail ? "FAILED    " : "passed    ");
 	std::cout << "verification check against test vector\n";
 
-	fail = pub.VerifyMessage((byte *)"xyz", 3, sig, sizeof(sig));
+	fail = pub.VerifyMessage((::byte *)"xyz", 3, sig, sizeof(sig));
 	pass = pass && !fail;
 
 	pass = SignatureValidate(priv, pub) && pass;
@@ -974,10 +974,10 @@ bool ValidateECGDSA()
 		fail = (r != rExp) || (s != sExp);
 		pass = pass && !fail;
 
-		const byte msg[] = "Example of ECGDSA with the hash function RIPEMD-160";
+		const ::byte msg[] = "Example of ECGDSA with the hash function RIPEMD-160";
 		const size_t len = strlen((char*)msg);
 
-		byte signature[48];
+		::byte signature[48];
 		r.Encode(signature+0, 24);
 		s.Encode(signature+24, 24);
 
@@ -1011,10 +1011,10 @@ bool ValidateECGDSA()
 		fail = (r != rExp) || (s != sExp);
 		pass = pass && !fail;
 
-		const byte msg[] = "Example of ECGDSA with the hash function RIPEMD-160";
+		const ::byte msg[] = "Example of ECGDSA with the hash function RIPEMD-160";
 		const size_t len = strlen((char*)msg);
 
-		byte signature[64];
+		::byte signature[64];
 		r.Encode(signature+0, 32);
 		s.Encode(signature+32, 32);
 
@@ -1048,10 +1048,10 @@ bool ValidateECGDSA()
 		fail = (r != rExp) || (s != sExp);
 		pass = pass && !fail;
 
-		const byte msg[] = "Example of ECGDSA with the hash function RIPEMD-160";
+		const ::byte msg[] = "Example of ECGDSA with the hash function RIPEMD-160";
 		const size_t len = strlen((char*)msg);
 
-		byte signature[80];
+		::byte signature[80];
 		r.Encode(signature+0, 40);
 		s.Encode(signature+40, 40);
 
@@ -1085,10 +1085,10 @@ bool ValidateECGDSA()
 		fail = (r != rExp) || (s != sExp);
 		pass = pass && !fail;
 
-		const byte msg[] = "Example of ECGDSA with the hash function SHA-1";
+		const ::byte msg[] = "Example of ECGDSA with the hash function SHA-1";
 		const size_t len = strlen((char*)msg);
 
-		byte signature[48];
+		::byte signature[48];
 		r.Encode(signature+0, 24);
 		s.Encode(signature+24, 24);
 
@@ -1122,10 +1122,10 @@ bool ValidateECGDSA()
 		fail = (r != rExp) || (s != sExp);
 		pass = pass && !fail;
 
-		const byte msg[] = "Example of ECGDSA with the hash function SHA-224";
+		const ::byte msg[] = "Example of ECGDSA with the hash function SHA-224";
 		const size_t len = strlen((char*)msg);
 
-		byte signature[64];
+		::byte signature[64];
 		r.Encode(signature+0, 32);
 		s.Encode(signature+32, 32);
 
@@ -1159,10 +1159,10 @@ bool ValidateECGDSA()
 		fail = (r != rExp) || (s != sExp);
 		pass = pass && !fail;
 
-		const byte msg[] = "Example of ECGDSA with the hash function SHA-224";
+		const ::byte msg[] = "Example of ECGDSA with the hash function SHA-224";
 		const size_t len = strlen((char*)msg);
 
-		byte signature[80];
+		::byte signature[80];
 		r.Encode(signature+0, 40);
 		s.Encode(signature+40, 40);
 
@@ -1196,10 +1196,10 @@ bool ValidateECGDSA()
 		fail = (r != rExp) || (s != sExp);
 		pass = pass && !fail;
 
-		const byte msg[] = "Example of ECGDSA with the hash function SHA-256";
+		const ::byte msg[] = "Example of ECGDSA with the hash function SHA-256";
 		const size_t len = strlen((char*)msg);
 
-		byte signature[80];
+		::byte signature[80];
 		r.Encode(signature+0, 40);
 		s.Encode(signature+40, 40);
 
@@ -1233,10 +1233,10 @@ bool ValidateECGDSA()
 		fail = (r != rExp) || (s != sExp);
 		pass = pass && !fail;
 
-		const byte msg[] = "Example of ECGDSA with the hash function SHA-384";
+		const ::byte msg[] = "Example of ECGDSA with the hash function SHA-384";
 		const size_t len = strlen((char*)msg);
 
-		byte signature[128];
+		::byte signature[128];
 		r.Encode(signature+0, 64);
 		s.Encode(signature+64, 64);
 
@@ -1270,10 +1270,10 @@ bool ValidateECGDSA()
 		fail = (r != rExp) || (s != sExp);
 		pass = pass && !fail;
 
-		const byte msg[] = "Example of ECGDSA with the hash function SHA-512";
+		const ::byte msg[] = "Example of ECGDSA with the hash function SHA-512";
 		const size_t len = strlen((char*)msg);
 
-		byte signature[128];
+		::byte signature[128];
 		r.Encode(signature+0, 64);
 		s.Encode(signature+64, 64);
 
@@ -1297,7 +1297,7 @@ bool ValidateESIGN()
 	bool pass = true, fail;
 
 	static const char plain[] = "test";
-	static const byte signature[] =
+	static const ::byte signature[] =
 		"\xA3\xE3\x20\x65\xDE\xDA\xE7\xEC\x05\xC1\xBF\xCD\x25\x79\x7D\x99\xCD\xD5\x73\x9D\x9D\xF3\xA4\xAA\x9A\xA4\x5A\xC8\x23\x3D\x0D\x37"
 		"\xFE\xBC\x76\x3F\xF1\x84\xF6\x59\x14\x91\x4F\x0C\x34\x1B\xAE\x9A\x5C\x2E\x2E\x38\x08\x78\x77\xCB\xDC\x3C\x7E\xA0\x34\x44\x5B\x0F"
 		"\x67\xD9\x35\x2A\x79\x47\x1A\x52\x37\x71\xDB\x12\x67\xC1\xB6\xC6\x66\x73\xB3\x40\x2E\xD6\xF2\x1A\x84\x0A\xB6\x7B\x0F\xEB\x8B\x88"
@@ -1312,14 +1312,14 @@ bool ValidateESIGN()
 	fail = !SignatureValidate(signer, verifier);
 	pass = pass && !fail;
 
-	fail = !verifier.VerifyMessage((byte *)plain, strlen(plain), signature, verifier.SignatureLength());
+	fail = !verifier.VerifyMessage((::byte *)plain, strlen(plain), signature, verifier.SignatureLength());
 	pass = pass && !fail;
 
 	std::cout << (fail ? "FAILED    " : "passed    ");
 	std::cout << "verification check against test vector\n";
 
 	std::cout << "Generating signature key from seed..." << std::endl;
-	signer.AccessKey().GenerateRandom(GlobalRNG(), MakeParameters("Seed", ConstByteArrayParameter((const byte *)"test", 4))("KeySize", 3*512));
+	signer.AccessKey().GenerateRandom(GlobalRNG(), MakeParameters("Seed", ConstByteArrayParameter((const ::byte *)"test", 4))("KeySize", 3*512));
 	verifier = signer;
 
 	fail = !SignatureValidate(signer, verifier);

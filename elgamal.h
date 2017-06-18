@@ -26,7 +26,7 @@ class CRYPTOPP_NO_VTABLE ElGamalBase : public DL_KeyAgreementAlgorithm_DH<Intege
 public:
 	virtual ~ElGamalBase() {}
 
-	void Derive(const DL_GroupParameters<Integer> &groupParams, byte *derivedKey, size_t derivedLength, const Integer &agreedElement, const Integer &ephemeralPublicKey, const NameValuePairs &derivationParams) const
+	void Derive(const DL_GroupParameters<Integer> &groupParams, ::byte *derivedKey, size_t derivedLength, const Integer &agreedElement, const Integer &ephemeralPublicKey, const NameValuePairs &derivationParams) const
 	{
 		CRYPTOPP_UNUSED(groupParams), CRYPTOPP_UNUSED(ephemeralPublicKey), CRYPTOPP_UNUSED(derivationParams);
 		agreedElement.Encode(derivedKey, derivedLength);
@@ -56,7 +56,7 @@ public:
 			return 0;
 	}
 
-	void SymmetricEncrypt(RandomNumberGenerator &rng, const byte *key, const byte *plainText, size_t plainTextLength, byte *cipherText, const NameValuePairs &parameters) const
+	void SymmetricEncrypt(RandomNumberGenerator &rng, const ::byte *key, const ::byte *plainText, size_t plainTextLength, ::byte *cipherText, const NameValuePairs &parameters) const
 	{
 		CRYPTOPP_UNUSED(parameters);
 		const Integer &p = GetGroupParameters().GetModulus();
@@ -65,12 +65,12 @@ public:
 		SecByteBlock block(modulusLen-1);
 		rng.GenerateBlock(block, modulusLen-2-plainTextLength);
 		memcpy(block+modulusLen-2-plainTextLength, plainText, plainTextLength);
-		block[modulusLen-2] = (byte)plainTextLength;
+		block[modulusLen-2] = (::byte)plainTextLength;
 
 		a_times_b_mod_c(Integer(key, modulusLen), Integer(block, modulusLen-1), p).Encode(cipherText, modulusLen);
 	}
 
-	DecodingResult SymmetricDecrypt(const byte *key, const byte *cipherText, size_t cipherTextLength, byte *plainText, const NameValuePairs &parameters) const
+	DecodingResult SymmetricDecrypt(const ::byte *key, const ::byte *cipherText, size_t cipherTextLength, ::byte *plainText, const NameValuePairs &parameters) const
 	{
 		CRYPTOPP_UNUSED(parameters);
 		const Integer &p = GetGroupParameters().GetModulus();
@@ -107,7 +107,7 @@ public:
 
 	const DL_GroupParameters_GFP & GetGroupParameters() const {return this->GetKey().GetGroupParameters();}
 
-	DecodingResult FixedLengthDecrypt(RandomNumberGenerator &rng, const byte *cipherText, byte *plainText) const
+	DecodingResult FixedLengthDecrypt(RandomNumberGenerator &rng, const ::byte *cipherText, ::byte *plainText) const
 		{return Decrypt(rng, cipherText, FixedCiphertextLength(), plainText);}
 
 protected:

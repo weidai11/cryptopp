@@ -118,8 +118,8 @@ public:
         }
 
     protected:
-        void UncheckedSetKey(const byte *key, unsigned int keylen, const NameValuePairs &params);
-        void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+        void UncheckedSetKey(const ::byte *key, unsigned int keylen, const NameValuePairs &params);
+        void ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const;
 
     protected:
         // Visual Studio and C2910: 'Kalyna::Base::SetKey_Template': cannot be explicitly specialized

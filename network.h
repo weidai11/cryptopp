@@ -62,16 +62,16 @@ public:
 
 	//! pump up to maxSize bytes using at most maxTime milliseconds
 	/*! If checkDelimiter is true, pump up to delimiter, which itself is not extracted or pumped. */
-	size_t GeneralPump2(lword &byteCount, bool blockingOutput=true, unsigned long maxTime=INFINITE_TIME, bool checkDelimiter=false, byte delimiter='\n');
+	size_t GeneralPump2(lword &byteCount, bool blockingOutput=true, unsigned long maxTime=INFINITE_TIME, bool checkDelimiter=false, ::byte delimiter='\n');
 
-	lword GeneralPump(lword maxSize=LWORD_MAX, unsigned long maxTime=INFINITE_TIME, bool checkDelimiter=false, byte delimiter='\n')
+	lword GeneralPump(lword maxSize=LWORD_MAX, unsigned long maxTime=INFINITE_TIME, bool checkDelimiter=false, ::byte delimiter='\n')
 	{
 		GeneralPump2(maxSize, true, maxTime, checkDelimiter, delimiter);
 		return maxSize;
 	}
 	lword TimedPump(unsigned long maxTime)
 		{return GeneralPump(LWORD_MAX, maxTime);}
-	lword PumpLine(byte delimiter='\n', lword maxSize=1024)
+	lword PumpLine(::byte delimiter='\n', lword maxSize=1024)
 		{return GeneralPump(maxSize, INFINITE_TIME, true, delimiter);}
 
 	size_t Pump2(lword &byteCount, bool blocking=true)
@@ -81,7 +81,7 @@ public:
 
 protected:
 	virtual size_t DoPump(lword &byteCount, bool blockingOutput,
-		unsigned long maxTime, bool checkDelimiter, byte delimiter) =0;
+		unsigned long maxTime, bool checkDelimiter, ::byte delimiter) =0;
 
 	bool BlockedBySpeedLimit() const { return m_blockedBySpeedLimit; }
 
@@ -96,7 +96,7 @@ public:
 	virtual bool MustWaitToReceive() {return false;}
 	virtual bool MustWaitForResult() {return false;}
 	//! receive data from network source, returns whether result is immediately available
-	virtual bool Receive(byte* buf, size_t bufLen) =0;
+	virtual bool Receive(::byte* buf, size_t bufLen) =0;
 	virtual unsigned int GetReceiveResult() =0;
 	virtual bool EofReceived() const =0;
 };
@@ -153,7 +153,7 @@ class CRYPTOPP_NO_VTABLE NetworkSender : public Waitable
 public:
 	virtual bool MustWaitToSend() {return false;}
 	virtual bool MustWaitForResult() {return false;}
-	virtual void Send(const byte* buf, size_t bufLen) =0;
+	virtual void Send(const ::byte* buf, size_t bufLen) =0;
 	virtual unsigned int GetSendResult() =0;
 	virtual bool MustWaitForEof() {return false;}
 	virtual void SendEof() =0;
@@ -172,7 +172,7 @@ public:
 	bool SourceExhausted() const {return m_dataBegin == m_dataEnd && GetReceiver().EofReceived();}
 
 protected:
-	size_t DoPump(lword &byteCount, bool blockingOutput, unsigned long maxTime, bool checkDelimiter, byte delimiter);
+	size_t DoPump(lword &byteCount, bool blockingOutput, unsigned long maxTime, bool checkDelimiter, ::byte delimiter);
 
 	virtual NetworkReceiver & AccessReceiver() =0;
 	const NetworkReceiver & GetReceiver() const {return const_cast<NetworkSource *>(this)->AccessReceiver();}
@@ -192,7 +192,7 @@ public:
 	unsigned int GetMaxWaitObjectCount() const;
 	void GetWaitObjects(WaitObjectContainer &container, CallStack const& callStack);
 
-	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking);
+	size_t Put2(const ::byte *inString, size_t length, int messageEnd, bool blocking);
 
 	void SetMaxBufferSize(size_t maxBufferSize) {m_maxBufferSize = maxBufferSize; m_buffer.SetNodeSize(UnsignedMin(maxBufferSize, 16U*1024U+256U));}
 	void SetAutoFlushBound(size_t bound) {m_autoFlushBound = bound;}

@@ -32,7 +32,7 @@ public:
 	//! \param padding the character to use as padding
 	//! \pre log2base must be between 1 and 7 inclusive
 	//! \throws InvalidArgument if log2base is not between 1 and 7
-	BaseN_Encoder(const byte *alphabet, int log2base, BufferedTransformation *attachment=NULLPTR, int padding=-1)
+	BaseN_Encoder(const ::byte *alphabet, int log2base, BufferedTransformation *attachment=NULLPTR, int padding=-1)
 		: m_alphabet(NULLPTR), m_padding(0), m_bitsPerChar(0)
 		, m_outputBlockSize(0), m_bytePos(0), m_bitPos(0)
 	{
@@ -40,14 +40,14 @@ public:
 		IsolatedInitialize(MakeParameters(Name::EncodingLookupArray(), alphabet)
 			(Name::Log2Base(), log2base)
 			(Name::Pad(), padding != -1)
-			(Name::PaddingByte(), byte(padding)));
+			(Name::PaddingByte(), ::byte(padding)));
 	}
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
-	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking);
+	size_t Put2(const ::byte *begin, size_t length, int messageEnd, bool blocking);
 
 private:
-	const byte *m_alphabet;
+	const ::byte *m_alphabet;
 	int m_padding, m_bitsPerChar, m_outputBlockSize;
 	int m_bytePos, m_bitPos;
 	SecByteBlock m_outBuf;
@@ -84,7 +84,7 @@ public:
 	}
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
-	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking);
+	size_t Put2(const ::byte *begin, size_t length, int messageEnd, bool blocking);
 
 	//! \brief Initializes BaseN lookup array
 	//! \param lookup table of values
@@ -96,7 +96,7 @@ public:
 	//! \details Internally, the function sets the first 256 elements in the lookup table to
 	//!  their value from the alphabet array or -1. base is the number of element (like 32),
 	//!  and not an exponent (like 5 in 2<sup>5</sup>)
-	static void CRYPTOPP_API InitializeDecodingLookupArray(int *lookup, const byte *alphabet, unsigned int base, bool caseInsensitive);
+	static void CRYPTOPP_API InitializeDecodingLookupArray(int *lookup, const ::byte *alphabet, unsigned int base, bool caseInsensitive);
 
 private:
 	const int *m_lookup;
@@ -130,7 +130,7 @@ public:
 	}
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
-	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking);
+	size_t Put2(const ::byte *begin, size_t length, int messageEnd, bool blocking);
 
 private:
 	SecByteBlock m_separator, m_terminator;

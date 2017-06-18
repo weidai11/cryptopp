@@ -19,19 +19,19 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE HMAC_Base : public VariableKeyLength<16, 0
 public:
 	//! \brief Construct a HMAC_Base
 	HMAC_Base() : m_innerHashKeyed(false) {}
-	void UncheckedSetKey(const byte *userKey, unsigned int keylength, const NameValuePairs &params);
+	void UncheckedSetKey(const ::byte *userKey, unsigned int keylength, const NameValuePairs &params);
 
 	void Restart();
-	void Update(const byte *input, size_t length);
-	void TruncatedFinal(byte *mac, size_t size);
+	void Update(const ::byte *input, size_t length);
+	void TruncatedFinal(::byte *mac, size_t size);
 	unsigned int OptimalBlockSize() const {return const_cast<HMAC_Base*>(this)->AccessHash().OptimalBlockSize();}
 	unsigned int DigestSize() const {return const_cast<HMAC_Base*>(this)->AccessHash().DigestSize();}
 
 protected:
 	virtual HashTransformation & AccessHash() =0;
-	byte * AccessIpad() {return m_buf;}
-	byte * AccessOpad() {return m_buf + AccessHash().BlockSize();}
-	byte * AccessInnerHash() {return m_buf + 2*AccessHash().BlockSize();}
+	::byte * AccessIpad() {return m_buf;}
+	::byte * AccessOpad() {return m_buf + AccessHash().BlockSize();}
+	::byte * AccessInnerHash() {return m_buf + 2*AccessHash().BlockSize();}
 
 private:
 	void KeyInnerHash();
@@ -58,7 +58,7 @@ public:
 	//! \brief Construct a HMAC
 	//! \param key the HMAC key
 	//! \param length the size of the HMAC key
-	HMAC(const byte *key, size_t length=HMAC_Base::DEFAULT_KEYLENGTH)
+	HMAC(const ::byte *key, size_t length=HMAC_Base::DEFAULT_KEYLENGTH)
 		{this->SetKey(key, length);}
 
 	static std::string StaticAlgorithmName() {return std::string("HMAC(") + T::StaticAlgorithmName() + ")";}

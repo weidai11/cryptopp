@@ -675,7 +675,7 @@ static void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 
 
 #if defined(__GNUC__)
     #if CRYPTOPP_BOOL_X64
-        FixedSizeAlignedSecBlock<byte, LOCALS_SIZE> workspace;
+        FixedSizeAlignedSecBlock< ::byte, LOCALS_SIZE> workspace;
     #endif
     __asm__ __volatile__
     (

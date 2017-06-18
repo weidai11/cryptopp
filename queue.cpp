@@ -39,7 +39,7 @@ public:
 		m_head = m_tail = 0;
 	}
 
-	inline size_t Put(const byte *begin, size_t length)
+	inline size_t Put(const ::byte *begin, size_t length)
 	{
 		// Avoid passing NULL to memcpy
 		if (!begin || !length) return length;
@@ -50,7 +50,7 @@ public:
 		return l;
 	}
 
-	inline size_t Peek(byte &outByte) const
+	inline size_t Peek(::byte &outByte) const
 	{
 		if (m_tail==m_head)
 			return 0;
@@ -59,7 +59,7 @@ public:
 		return 1;
 	}
 
-	inline size_t Peek(byte *target, size_t copyMax) const
+	inline size_t Peek(::byte *target, size_t copyMax) const
 	{
 		size_t len = STDMIN(copyMax, m_tail-m_head);
 		memcpy(target, buf+m_head, len);
@@ -80,14 +80,14 @@ public:
 		return len;
 	}
 
-	inline size_t Get(byte &outByte)
+	inline size_t Get(::byte &outByte)
 	{
 		size_t len = Peek(outByte);
 		m_head += len;
 		return len;
 	}
 
-	inline size_t Get(byte *outString, size_t getMax)
+	inline size_t Get(::byte *outString, size_t getMax)
 	{
 		size_t len = Peek(outString, getMax);
 		m_head += len;
@@ -117,7 +117,7 @@ public:
 		return len;
 	}
 
-	inline byte operator[](size_t i) const
+	inline ::byte operator[](size_t i) const
 	{
 		return buf[m_head+i];
 	}
@@ -217,7 +217,7 @@ void ByteQueue::Clear()
 	m_lazyLength = 0;
 }
 
-size_t ByteQueue::Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
+size_t ByteQueue::Put2(const ::byte *inString, size_t length, int messageEnd, bool blocking)
 {
 	CRYPTOPP_UNUSED(messageEnd), CRYPTOPP_UNUSED(blocking);
 
@@ -257,7 +257,7 @@ void ByteQueue::CleanupUsedNodes()
 		m_head->Clear();
 }
 
-void ByteQueue::LazyPut(const byte *inString, size_t size)
+void ByteQueue::LazyPut(const ::byte *inString, size_t size)
 {
 	if (m_lazyLength > 0)
 		FinalizeLazyPut();
@@ -266,13 +266,13 @@ void ByteQueue::LazyPut(const byte *inString, size_t size)
 		Put(inString, size);
 	else
 	{
-		m_lazyString = const_cast<byte *>(inString);
+		m_lazyString = const_cast< ::byte *>(inString);
 		m_lazyLength = size;
 		m_lazyStringModifiable = false;
 	}
 }
 
-void ByteQueue::LazyPutModifiable(byte *inString, size_t size)
+void ByteQueue::LazyPutModifiable(::byte *inString, size_t size)
 {
 	if (m_lazyLength > 0)
 		FinalizeLazyPut();
@@ -297,7 +297,7 @@ void ByteQueue::FinalizeLazyPut()
 		Put(m_lazyString, len);
 }
 
-size_t ByteQueue::Get(byte &outByte)
+size_t ByteQueue::Get(::byte &outByte)
 {
 	if (m_head->Get(outByte))
 	{
@@ -315,13 +315,13 @@ size_t ByteQueue::Get(byte &outByte)
 		return 0;
 }
 
-size_t ByteQueue::Get(byte *outString, size_t getMax)
+size_t ByteQueue::Get(::byte *outString, size_t getMax)
 {
 	ArraySink sink(outString, getMax);
 	return (size_t)TransferTo(sink, getMax);
 }
 
-size_t ByteQueue::Peek(byte &outByte) const
+size_t ByteQueue::Peek(::byte &outByte) const
 {
 	if (m_head->Peek(outByte))
 		return 1;
@@ -334,7 +334,7 @@ size_t ByteQueue::Peek(byte &outByte) const
 		return 0;
 }
 
-size_t ByteQueue::Peek(byte *outString, size_t peekMax) const
+size_t ByteQueue::Peek(::byte *outString, size_t peekMax) const
 {
 	ArraySink sink(outString, peekMax);
 	return (size_t)CopyTo(sink, peekMax);
@@ -382,12 +382,12 @@ size_t ByteQueue::CopyRangeTo2(BufferedTransformation &target, lword &begin, lwo
 	return blockedBytes;
 }
 
-void ByteQueue::Unget(byte inByte)
+void ByteQueue::Unget(::byte inByte)
 {
 	Unget(&inByte, 1);
 }
 
-void ByteQueue::Unget(const byte *inString, size_t length)
+void ByteQueue::Unget(const ::byte *inString, size_t length)
 {
 	size_t len = STDMIN(length, m_head->m_head);
 	length -= len;
@@ -403,7 +403,7 @@ void ByteQueue::Unget(const byte *inString, size_t length)
 	}
 }
 
-const byte * ByteQueue::Spy(size_t &contiguousSize) const
+const ::byte * ByteQueue::Spy(size_t &contiguousSize) const
 {
 	contiguousSize = m_head->m_tail - m_head->m_head;
 	if (contiguousSize == 0 && m_lazyLength > 0)
@@ -415,7 +415,7 @@ const byte * ByteQueue::Spy(size_t &contiguousSize) const
 		return m_head->buf + m_head->m_head;
 }
 
-byte * ByteQueue::CreatePutSpace(size_t &size)
+::byte * ByteQueue::CreatePutSpace(size_t &size)
 {
 	if (m_lazyLength > 0)
 		FinalizeLazyPut();
@@ -445,7 +445,7 @@ bool ByteQueue::operator==(const ByteQueue &rhs) const
 		return false;
 
 	Walker walker1(*this), walker2(rhs);
-	byte b1, b2;
+	::byte b1, b2;
 
 	while (walker1.Get(b1) && walker2.Get(b2))
 		if (b1 != b2)
@@ -454,7 +454,7 @@ bool ByteQueue::operator==(const ByteQueue &rhs) const
 	return true;
 }
 
-byte ByteQueue::operator[](lword i) const
+::byte ByteQueue::operator[](lword i) const
 {
 	for (ByteQueueNode *current=m_head; current; current=current->next)
 	{
@@ -492,25 +492,25 @@ void ByteQueue::Walker::IsolatedInitialize(const NameValuePairs &parameters)
 	m_lazyLength = m_queue.m_lazyLength;
 }
 
-size_t ByteQueue::Walker::Get(byte &outByte)
+size_t ByteQueue::Walker::Get(::byte &outByte)
 {
 	ArraySink sink(&outByte, 1);
 	return (size_t)TransferTo(sink, 1);
 }
 
-size_t ByteQueue::Walker::Get(byte *outString, size_t getMax)
+size_t ByteQueue::Walker::Get(::byte *outString, size_t getMax)
 {
 	ArraySink sink(outString, getMax);
 	return (size_t)TransferTo(sink, getMax);
 }
 
-size_t ByteQueue::Walker::Peek(byte &outByte) const
+size_t ByteQueue::Walker::Peek(::byte &outByte) const
 {
 	ArraySink sink(&outByte, 1);
 	return (size_t)CopyTo(sink, 1);
 }
 
-size_t ByteQueue::Walker::Peek(byte *outString, size_t peekMax) const
+size_t ByteQueue::Walker::Peek(::byte *outString, size_t peekMax) const
 {
 	ArraySink sink(outString, peekMax);
 	return (size_t)CopyTo(sink, peekMax);

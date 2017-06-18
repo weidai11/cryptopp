@@ -57,7 +57,7 @@ public:
 	//! \brief Updates a hash with additional input
 	//! \param input the additional input as a buffer
 	//! \param length the size of the buffer, in bytes
-	void Update(const byte *input, size_t length);
+	void Update(const ::byte *input, size_t length);
 
 	//! \brief Requests space which can be written into by the caller
 	//! \param size the requested size of the buffer
@@ -67,7 +67,7 @@ public:
 	//!   the array returned to the caller.
 	//! \details The base class implementation sets  size to 0 and returns  NULL.
 	//! \note Some objects, like ArraySink, cannot create a space because its fixed.
-	byte * CreateUpdateSpace(size_t &size);
+	::byte * CreateUpdateSpace(size_t &size);
 
 	//! \brief Restart the hash
 	//! \details Discards the current state, and restart for a new message
@@ -78,13 +78,13 @@ public:
 	//! \param digestSize the size of the truncated digest, in bytes
 	//! \details TruncatedFinal() call Final() and then copies digestSize bytes to digest.
 	//!   The hash is restarted the hash for the next message.
-	void TruncatedFinal(byte *digest, size_t digestSize);
+	void TruncatedFinal(::byte *digest, size_t digestSize);
 
 protected:
 	inline T GetBitCountHi() const {return (m_countLo >> (8*sizeof(T)-3)) + (m_countHi << 3);}
 	inline T GetBitCountLo() const {return m_countLo << 3;}
 
-	void PadLastBlock(unsigned int lastBlockSize, byte padFirst=0x80);
+	void PadLastBlock(unsigned int lastBlockSize, ::byte padFirst=0x80);
 	virtual void Init() =0;
 
 	virtual ByteOrder GetByteOrder() const =0;

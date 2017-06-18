@@ -80,8 +80,8 @@ public:
 	bool Accept(Socket& s, sockaddr *psa=NULLPTR, socklen_t *psaLen=NULLPTR);
 	void GetSockName(sockaddr *psa, socklen_t *psaLen);
 	void GetPeerName(sockaddr *psa, socklen_t *psaLen);
-	unsigned int Send(const byte* buf, size_t bufLen, int flags=0);
-	unsigned int Receive(byte* buf, size_t bufLen, int flags=0);
+	unsigned int Send(const ::byte* buf, size_t bufLen, int flags=0);
+	unsigned int Receive(::byte* buf, size_t bufLen, int flags=0);
 	void ShutDown(int how = SD_SEND);
 
 	void IOCtl(long cmd, unsigned long *argp);
@@ -136,7 +136,7 @@ public:
 	~SocketReceiver();
 	bool MustWaitForResult() {return true;}
 #endif
-	bool Receive(byte* buf, size_t bufLen);
+	bool Receive(::byte* buf, size_t bufLen);
 	unsigned int GetReceiveResult();
 	bool EofReceived() const {return m_eofReceived;}
 
@@ -171,7 +171,7 @@ public:
 	bool MustWaitForEof() { return true; }
 	bool EofSent();
 #endif
-	void Send(const byte* buf, size_t bufLen);
+	void Send(const ::byte* buf, size_t bufLen);
 	unsigned int GetSendResult();
 	void SendEof();
 

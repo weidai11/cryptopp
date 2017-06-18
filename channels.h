@@ -109,13 +109,13 @@ public:
 
 	void IsolatedInitialize(const NameValuePairs &parameters=g_nullNameValuePairs);
 
-	size_t ChannelPut2(const std::string &channel, const byte *begin, size_t length, int messageEnd, bool blocking);
-	size_t ChannelPutModifiable2(const std::string &channel, byte *begin, size_t length, int messageEnd, bool blocking);
+	size_t ChannelPut2(const std::string &channel, const ::byte *begin, size_t length, int messageEnd, bool blocking);
+	size_t ChannelPutModifiable2(const std::string &channel, ::byte *begin, size_t length, int messageEnd, bool blocking);
 
 	bool ChannelFlush(const std::string &channel, bool completeFlush, int propagation=-1, bool blocking=true);
 	bool ChannelMessageSeriesEnd(const std::string &channel, int propagation=-1, bool blocking=true);
 
-	byte * ChannelCreatePutSpace(const std::string &channel, size_t &size);
+	::byte * ChannelCreatePutSpace(const std::string &channel, size_t &size);
 
 	void AddDefaultRoute(BufferedTransformation &destination);
 	void RemoveDefaultRoute(BufferedTransformation &destination);

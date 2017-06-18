@@ -147,7 +147,7 @@ const std::string & ChannelRouteIterator::Channel()
 // ChannelSwitch
 ///////////////////
 
-size_t ChannelSwitch::ChannelPut2(const std::string &channel, const byte *begin, size_t length, int messageEnd, bool blocking)
+size_t ChannelSwitch::ChannelPut2(const std::string &channel, const ::byte *begin, size_t length, int messageEnd, bool blocking)
 {
 	if (m_blocked)
 	{
@@ -231,7 +231,7 @@ bool ChannelSwitch::ChannelMessageSeriesEnd(const std::string &channel, int prop
 	return false;
 }
 
-byte * ChannelSwitch::ChannelCreatePutSpace(const std::string &channel, size_t &size)
+::byte * ChannelSwitch::ChannelCreatePutSpace(const std::string &channel, size_t &size)
 {
 	m_it.Reset(channel);
 	if (!m_it.End())
@@ -246,7 +246,7 @@ byte * ChannelSwitch::ChannelCreatePutSpace(const std::string &channel, size_t &
 	return NULLPTR;
 }
 
-size_t ChannelSwitch::ChannelPutModifiable2(const std::string &channel, byte *inString, size_t length, int messageEnd, bool blocking)
+size_t ChannelSwitch::ChannelPutModifiable2(const std::string &channel, ::byte *inString, size_t length, int messageEnd, bool blocking)
 {
 	ChannelRouteIterator it(*this);
 	it.Reset(channel);

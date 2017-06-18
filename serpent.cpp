@@ -10,7 +10,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-void Serpent_KeySchedule(word32 *k, unsigned int rounds, const byte *userKey, size_t keylen)
+void Serpent_KeySchedule(word32 *k, unsigned int rounds, const ::byte *userKey, size_t keylen)
 {
 	FixedSizeSecBlock<word32, 8> k0;
 	GetUserKey(LITTLE_ENDIAN_ORDER, k0.begin(), 8, userKey, keylen);
@@ -41,7 +41,7 @@ void Serpent_KeySchedule(word32 *k, unsigned int rounds, const byte *userKey, si
 	afterS2(LK); afterS2(S3); afterS3(SK);
 }
 
-void Serpent::Base::UncheckedSetKey(const byte *userKey, unsigned int keylen, const NameValuePairs &)
+void Serpent::Base::UncheckedSetKey(const ::byte *userKey, unsigned int keylen, const NameValuePairs &)
 {
 	AssertValidKeyLength(keylen);
 	Serpent_KeySchedule(m_key, 32, userKey, keylen);
@@ -49,7 +49,7 @@ void Serpent::Base::UncheckedSetKey(const byte *userKey, unsigned int keylen, co
 
 typedef BlockGetAndPut<word32, LittleEndian> Block;
 
-void Serpent::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+void Serpent::Enc::ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const
 {
 	word32 a, b, c, d, e;
 
@@ -88,7 +88,7 @@ void Serpent::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
 	Block::Put(xorBlock, outBlock)(d)(e)(b)(a);
 }
 
-void Serpent::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+void Serpent::Dec::ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const
 {
 	word32 a, b, c, d, e;
 

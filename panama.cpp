@@ -324,14 +324,14 @@ void CRYPTOPP_NOINLINE Panama_SSE2_Pull(size_t count, word32 *state, word32 *z, 
 #ifndef CRYPTOPP_GENERATE_X64_MASM
 
 template <class B>
-void Panama<B>::Iterate(size_t count, const word32 *p, byte *output, const byte *input, KeystreamOperation operation)
+void Panama<B>::Iterate(size_t count, const word32 *p, ::byte *output, const ::byte *input, KeystreamOperation operation)
 {
 	CRYPTOPP_ASSERT(IsAlignedOn(m_state,GetAlignmentOf<word32>()));
 	word32 bstart = m_state[17];
 	word32 *const aPtr = m_state;
 	word32 cPtr[17];
 
-#define bPtr ((byte *)(aPtr+20))
+#define bPtr ((::byte *)(aPtr+20))
 
 // reorder the state for SSE2
 // a and c: 4 8 12 16 | 3 7 11 15 | 2 6 10 14 | 1 5 9 13 | 0
@@ -429,7 +429,7 @@ size_t PanamaHash<B>::HashMultipleBlocks(const word32 *input, size_t length)
 }
 
 template <class B>
-void PanamaHash<B>::TruncatedFinal(byte *hash, size_t size)
+void PanamaHash<B>::TruncatedFinal(::byte *hash, size_t size)
 {
 	this->ThrowIfInvalidTruncatedSize(size);
 
@@ -449,7 +449,7 @@ void PanamaHash<B>::TruncatedFinal(byte *hash, size_t size)
 }
 
 template <class B>
-void PanamaCipherPolicy<B>::CipherSetKey(const NameValuePairs &params, const byte *key, size_t length)
+void PanamaCipherPolicy<B>::CipherSetKey(const NameValuePairs &params, const ::byte *key, size_t length)
 {
 	CRYPTOPP_UNUSED(params); CRYPTOPP_UNUSED(length);
 	CRYPTOPP_ASSERT(length==32);
@@ -457,7 +457,7 @@ void PanamaCipherPolicy<B>::CipherSetKey(const NameValuePairs &params, const byt
 }
 
 template <class B>
-void PanamaCipherPolicy<B>::CipherResynchronize(byte *keystreamBuffer, const byte *iv, size_t length)
+void PanamaCipherPolicy<B>::CipherResynchronize(::byte *keystreamBuffer, const ::byte *iv, size_t length)
 {
 	CRYPTOPP_UNUSED(keystreamBuffer); CRYPTOPP_UNUSED(iv); CRYPTOPP_UNUSED(length);
 	CRYPTOPP_ASSERT(IsAlignedOn(iv,GetAlignmentOf<word32>()));
@@ -497,7 +497,7 @@ unsigned int PanamaCipherPolicy<B>::GetAlignment() const
 }
 
 template <class B>
-void PanamaCipherPolicy<B>::OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount)
+void PanamaCipherPolicy<B>::OperateKeystream(KeystreamOperation operation, ::byte *output, const ::byte *input, size_t iterationCount)
 {
 #if (CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_PANAMA_ASM)
 	if (B::ToEnum() == LITTLE_ENDIAN_ORDER && HasSSE2())

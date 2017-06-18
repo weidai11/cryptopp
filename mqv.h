@@ -116,7 +116,7 @@ public:
 	//! \param privateKey a byte buffer for the generated private key in this domain
 	//! \details The private key is a random scalar used as an exponent in the range <tt>[1,MaxExponent()]</tt>.
 	//! \pre <tt>COUNTOF(privateKey) == PrivateStaticKeyLength()</tt>
-	void GenerateStaticPrivateKey(RandomNumberGenerator &rng, byte *privateKey) const
+	void GenerateStaticPrivateKey(RandomNumberGenerator &rng, ::byte *privateKey) const
 	{
 		Integer x(rng, Integer::One(), GetAbstractGroupParameters().GetMaxExponent());
 		x.Encode(privateKey, StaticPrivateKeyLength());
@@ -129,7 +129,7 @@ public:
 	//! \details The public key is an element or point on the curve, and its stored in a revrsible format.
 	//!    A reversible format means it has a presentation format, and its an ANS.1 encoded element or point.
 	//! \pre <tt>COUNTOF(publicKey) == PublicStaticKeyLength()</tt>
-	void GenerateStaticPublicKey(RandomNumberGenerator &rng, const byte *privateKey, byte *publicKey) const
+	void GenerateStaticPublicKey(RandomNumberGenerator &rng, const ::byte *privateKey, ::byte *publicKey) const
 	{
 		CRYPTOPP_UNUSED(rng);
 		const DL_GroupParameters<Element> &params = GetAbstractGroupParameters();
@@ -141,7 +141,7 @@ public:
 	unsigned int EphemeralPrivateKeyLength() const {return StaticPrivateKeyLength() + StaticPublicKeyLength();}
 	unsigned int EphemeralPublicKeyLength() const {return StaticPublicKeyLength();}
 
-	void GenerateEphemeralPrivateKey(RandomNumberGenerator &rng, byte *privateKey) const
+	void GenerateEphemeralPrivateKey(RandomNumberGenerator &rng, ::byte *privateKey) const
 	{
 		const DL_GroupParameters<Element> &params = GetAbstractGroupParameters();
 		Integer x(rng, Integer::One(), params.GetMaxExponent());
@@ -150,15 +150,15 @@ public:
 		params.EncodeElement(true, y, privateKey+StaticPrivateKeyLength());
 	}
 
-	void GenerateEphemeralPublicKey(RandomNumberGenerator &rng, const byte *privateKey, byte *publicKey) const
+	void GenerateEphemeralPublicKey(RandomNumberGenerator &rng, const ::byte *privateKey, ::byte *publicKey) const
 	{
 		CRYPTOPP_UNUSED(rng);
 		memcpy(publicKey, privateKey+StaticPrivateKeyLength(), EphemeralPublicKeyLength());
 	}
 
-	bool Agree(byte *agreedValue,
-		const byte *staticPrivateKey, const byte *ephemeralPrivateKey,
-		const byte *staticOtherPublicKey, const byte *ephemeralOtherPublicKey,
+	bool Agree(::byte *agreedValue,
+		const ::byte *staticPrivateKey, const ::byte *ephemeralPrivateKey,
+		const ::byte *staticOtherPublicKey, const ::byte *ephemeralOtherPublicKey,
 		bool validateStaticOtherPublicKey=true) const
 	{
 		try

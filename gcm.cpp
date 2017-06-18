@@ -194,7 +194,7 @@ __m128i _mm_clmulepi64_si128(const __m128i &a, const __m128i &b, int i)
 #endif
 
 #if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE || CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
-inline static void SSE2_Xor16(byte *a, const byte *b, const byte *c)
+inline static void SSE2_Xor16(::byte *a, const ::byte *b, const ::byte *c)
 {
 // SunCC 5.14 crash (bewildering since asserts are not in effect in release builds)
 //   Also see http://github.com/weidai11/cryptopp/issues/226 and http://github.com/weidai11/cryptopp/issues/284
@@ -221,7 +221,7 @@ inline static void NEON_Xor16(byte *a, const byte *b, const byte *c)
 }
 #endif
 
-inline static void Xor16(byte *a, const byte *b, const byte *c)
+inline static void Xor16(::byte *a, const ::byte *b, const ::byte *c)
 {
     CRYPTOPP_ASSERT(IsAlignedOn(a,GetAlignmentOf<word64>()));
     CRYPTOPP_ASSERT(IsAlignedOn(b,GetAlignmentOf<word64>()));
@@ -320,7 +320,7 @@ inline uint64x2_t PMULL_GF_Mul(const uint64x2_t &x, const uint64x2_t &h, const u
 }
 #endif
 
-void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const NameValuePairs &params)
+void GCM_Base::SetKeyWithoutResync(const ::byte *userKey, size_t keylength, const NameValuePairs &params)
 {
     BlockCipher &blockCipher = AccessBlockCipher();
     blockCipher.SetKey(userKey, keylength, params);
@@ -360,8 +360,8 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
     }
 
     m_buffer.resize(3*REQUIRED_BLOCKSIZE + tableSize);
-    byte *table = MulTable();
-    byte *hashKey = HashKey();
+    ::byte *table = MulTable();
+    ::byte *hashKey = HashKey();
     memset(hashKey, 0, REQUIRED_BLOCKSIZE);
     blockCipher.ProcessBlock(hashKey);
 
@@ -532,10 +532,10 @@ inline void GCM_Base::ReverseHashBufferIfNeeded()
 #endif
 }
 
-void GCM_Base::Resync(const byte *iv, size_t len)
+void GCM_Base::Resync(const ::byte *iv, size_t len)
 {
     BlockCipher &cipher = AccessBlockCipher();
-    byte *hashBuffer = HashBuffer();
+    ::byte *hashBuffer = HashBuffer();
 
     if (len == 12)
     {
@@ -603,7 +603,7 @@ void GCM_AuthenticateBlocks_64K(const byte *data, size_t blocks, word64 *hashBuf
 
 #ifndef CRYPTOPP_GENERATE_X64_MASM
 
-size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
+size_t GCM_Base::AuthenticateBlocks(const ::byte *data, size_t len)
 {
 #if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
     if (HasCLMUL())
@@ -756,7 +756,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
     {
     case 0:        // non-SSE2 and 2K tables
         {
-        byte *table = MulTable();
+        ::byte *table = MulTable();
         word64 x0 = hashBuffer[0], x1 = hashBuffer[1];
 
         do
@@ -824,7 +824,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 
     case 2:        // non-SSE2 and 64K tables
         {
-        byte *table = MulTable();
+        ::byte *table = MulTable();
         word64 x0 = hashBuffer[0], x1 = hashBuffer[1];
 
         do
@@ -1176,7 +1176,7 @@ void GCM_Base::AuthenticateLastConfidentialBlock()
     GCM_Base::AuthenticateBlocks(m_buffer, HASH_BLOCKSIZE);
 }
 
-void GCM_Base::AuthenticateLastFooterBlock(byte *mac, size_t macSize)
+void GCM_Base::AuthenticateLastFooterBlock(::byte *mac, size_t macSize)
 {
     m_ctr.Seek(0);
     ReverseHashBufferIfNeeded();

@@ -76,10 +76,10 @@ public:
 		PolynomialOver(const char *str, const Ring &ring) {FromStr(str, ring);}
 
 		//! convert from big-endian byte array
-		PolynomialOver(const byte *encodedPolynomialOver, unsigned int byteCount);
+		PolynomialOver(const ::byte *encodedPolynomialOver, unsigned int byteCount);
 
 		//! convert from Basic Encoding Rules encoded byte array
-		explicit PolynomialOver(const byte *BEREncodedPolynomialOver);
+		explicit PolynomialOver(const ::byte *BEREncodedPolynomialOver);
 
 		//! convert from BER encoded byte array stored in a BufferedTransformation object
 		explicit PolynomialOver(BufferedTransformation &bt);
@@ -196,10 +196,10 @@ public:
 		explicit PolynomialOverFixedRing(const char *str) : B(str, ms_fixedRing) {}
 
 		//! convert from big-endian byte array
-		PolynomialOverFixedRing(const byte *encodedPoly, unsigned int byteCount) : B(encodedPoly, byteCount) {}
+		PolynomialOverFixedRing(const ::byte *encodedPoly, unsigned int byteCount) : B(encodedPoly, byteCount) {}
 
 		//! convert from Basic Encoding Rules encoded byte array
-		explicit PolynomialOverFixedRing(const byte *BEREncodedPoly) : B(BEREncodedPoly) {}
+		explicit PolynomialOverFixedRing(const ::byte *BEREncodedPoly) : B(BEREncodedPoly) {}
 
 		//! convert from BER encoded byte array stored in a BufferedTransformation object
 		explicit PolynomialOverFixedRing(BufferedTransformation &bt) : B(bt) {}

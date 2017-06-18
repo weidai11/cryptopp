@@ -29,7 +29,7 @@ class RC5 : public RC5_Info, public BlockCipherDocumentation
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<RC5_Info>
 	{
 	public:
-		void UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &params);
+		void UncheckedSetKey(const ::byte *userKey, unsigned int length, const NameValuePairs &params);
 
 	protected:
 		unsigned int r;       // number of rounds
@@ -39,13 +39,13 @@ class RC5 : public RC5_Info, public BlockCipherDocumentation
 	class CRYPTOPP_NO_VTABLE Enc : public Base
 	{
 	public:
-		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+		void ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const;
 	};
 
 	class CRYPTOPP_NO_VTABLE Dec : public Base
 	{
 	public:
-		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+		void ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const;
 	};
 
 public:

@@ -35,9 +35,9 @@ void MD2::Init()
 	m_count = 0;
 }
 
-void MD2::Update(const byte *buf, size_t len)
+void MD2::Update(const ::byte *buf, size_t len)
 {
-	static const byte S[256] = {
+	static const ::byte S[256] = {
 		41, 46, 67, 201, 162, 216, 124, 1, 61, 54, 84, 161, 236, 240, 6,
 		19, 98, 167, 5, 243, 192, 199, 115, 140, 152, 147, 43, 217, 188,
 		76, 130, 202, 30, 155, 87, 60, 253, 212, 224, 22, 103, 66, 111, 24,
@@ -67,7 +67,7 @@ void MD2::Update(const byte *buf, size_t len)
 		len-=L;
 		if (m_count==16)
 		{
-			byte t;
+			::byte t;
 			int i,j;
 
 			m_count=0;
@@ -93,22 +93,22 @@ void MD2::Update(const byte *buf, size_t len)
 					t=m_X[j+6]^=S[t];
 					t=m_X[j+7]^=S[t];
 				}
-				t = byte((t+i) & 0xFF);
+				t = ::byte((t+i) & 0xFF);
 			}
 		}
     }
 }
 
-void MD2::TruncatedFinal(byte *hash, size_t size)
+void MD2::TruncatedFinal(::byte *hash, size_t size)
 {
 	ThrowIfInvalidTruncatedSize(size);
 
-	byte padding[16];
+	::byte padding[16];
 	word32 padlen;
 	unsigned int i;
 
 	padlen= 16-m_count;
-	for(i=0; i<padlen; i++) padding[i]=(byte)padlen;
+	for(i=0; i<padlen; i++) padding[i]=(::byte)padlen;
 	Update(padding, padlen);
 	Update(m_C, 16);
 	memcpy(hash, m_X, size);

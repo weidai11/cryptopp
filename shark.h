@@ -29,7 +29,7 @@ class SHARK : public SHARK_Info, public BlockCipherDocumentation
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<SHARK_Info>
 	{
 	public:
-		void UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &param);
+		void UncheckedSetKey(const ::byte *key, unsigned int length, const NameValuePairs &param);
 
 	protected:
 		unsigned int m_rounds;
@@ -41,13 +41,13 @@ class SHARK : public SHARK_Info, public BlockCipherDocumentation
 	class CRYPTOPP_NO_VTABLE Enc : public Base
 	{
 	public:
-		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+		void ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const;
 
 		// used by Base to do key setup
 		void InitForKeySetup();
 
 	private:
-		static const byte sbox[256];
+		static const ::byte sbox[256];
 		static const word64 cbox[8][256];
 	};
 
@@ -56,10 +56,10 @@ class SHARK : public SHARK_Info, public BlockCipherDocumentation
 	class CRYPTOPP_NO_VTABLE Dec : public Base
 	{
 	public:
-		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+		void ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const;
 
 	private:
-		static const byte sbox[256];
+		static const ::byte sbox[256];
 		static const word64 cbox[8][256];
 	};
 

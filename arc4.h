@@ -26,10 +26,10 @@ public:
 
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "ARC4";}
 
-	void GenerateBlock(byte *output, size_t size);
+	void GenerateBlock(::byte *output, size_t size);
 	void DiscardBytes(size_t n);
 
-    void ProcessData(byte *outString, const byte *inString, size_t length);
+    void ProcessData(::byte *outString, const ::byte *inString, size_t length);
 
 	bool IsRandomAccess() const {return false;}
 	bool IsSelfInverting() const {return true;}
@@ -39,11 +39,11 @@ public:
 	typedef SymmetricCipherFinal<ARC4_Base> Decryption;
 
 protected:
-	void UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params);
+	void UncheckedSetKey(const ::byte *key, unsigned int length, const NameValuePairs &params);
 	virtual unsigned int GetDefaultDiscardBytes() const {return 0;}
 
-    FixedSizeSecBlock<byte, 256> m_state;
-    byte m_x, m_y;
+    FixedSizeSecBlock< ::byte, 256> m_state;
+    ::byte m_x, m_y;
 };
 
 //! \class ARC4

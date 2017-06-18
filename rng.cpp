@@ -36,7 +36,7 @@ const word16 LC_RNG::a=16807;
 const word16 LC_RNG::r=2836;
 #endif
 
-void LC_RNG::GenerateBlock(byte *output, size_t size)
+void LC_RNG::GenerateBlock(::byte *output, size_t size)
 {
 	while (size--)
 	{
@@ -50,7 +50,7 @@ void LC_RNG::GenerateBlock(byte *output, size_t size)
 		else
 			seed = test+ m;
 
-		*output++ = byte((GETBYTE(seed, 0) ^ GETBYTE(seed, 1) ^ GETBYTE(seed, 2) ^ GETBYTE(seed, 3)));
+		*output++ = ::byte((GETBYTE(seed, 0) ^ GETBYTE(seed, 1) ^ GETBYTE(seed, 2) ^ GETBYTE(seed, 3)));
 	}
 }
 
@@ -58,7 +58,7 @@ void LC_RNG::GenerateBlock(byte *output, size_t size)
 
 #ifndef CRYPTOPP_IMPORTS
 
-X917RNG::X917RNG(BlockTransformation *c, const byte *seed, const byte *deterministicTimeVector)
+X917RNG::X917RNG(BlockTransformation *c, const ::byte *seed, const ::byte *deterministicTimeVector)
 	: m_cipher(c),
 	  m_size(m_cipher->BlockSize()),
 	  m_datetime(m_size),
@@ -77,10 +77,10 @@ X917RNG::X917RNG(BlockTransformation *c, const byte *seed, const byte *determini
 	if (!deterministicTimeVector)
 	{
 		time_t tstamp1 = std::time(NULLPTR);
-		xorbuf(m_datetime, (byte *)&tstamp1, UnsignedMin(sizeof(tstamp1), m_size));
+		xorbuf(m_datetime, (::byte *)&tstamp1, UnsignedMin(sizeof(tstamp1), m_size));
 		m_cipher->ProcessBlock(m_datetime);
 		clock_t tstamp2 = clock();
-		xorbuf(m_datetime, (byte *)&tstamp2, UnsignedMin(sizeof(tstamp2), m_size));
+		xorbuf(m_datetime, (::byte *)&tstamp2, UnsignedMin(sizeof(tstamp2), m_size));
 		m_cipher->ProcessBlock(m_datetime);
 	}
 
@@ -101,9 +101,9 @@ void X917RNG::GenerateIntoBufferedTransformation(BufferedTransformation &target,
 		else
 		{
 			clock_t c = clock();
-			xorbuf(m_datetime, (byte *)&c, UnsignedMin(sizeof(c), m_size));
+			xorbuf(m_datetime, (::byte *)&c, UnsignedMin(sizeof(c), m_size));
 			time_t t = std::time(NULLPTR);
-			xorbuf(m_datetime+m_size-UnsignedMin(sizeof(t), m_size), (byte *)&t, UnsignedMin(sizeof(t), m_size));
+			xorbuf(m_datetime+m_size-UnsignedMin(sizeof(t), m_size), (::byte *)&t, UnsignedMin(sizeof(t), m_size));
 			m_cipher->ProcessBlock(m_datetime);
 		}
 
@@ -136,11 +136,11 @@ MaurerRandomnessTest::MaurerRandomnessTest()
 		tab[i] = 0;
 }
 
-size_t MaurerRandomnessTest::Put2(const byte *inString, size_t length, int /*messageEnd*/, bool /*blocking*/)
+size_t MaurerRandomnessTest::Put2(const ::byte *inString, size_t length, int /*messageEnd*/, bool /*blocking*/)
 {
 	while (length--)
 	{
-		byte inByte = *inString++;
+		::byte inByte = *inString++;
 		if (n >= Q)
 			sum += std::log(double(n - tab[inByte]));
 		tab[inByte] = n;

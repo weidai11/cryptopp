@@ -18,9 +18,9 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CBC_MAC_Base : public MessageAuthenticatio
 public:
 	CBC_MAC_Base() : m_counter(0) {}
 
-	void UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params);
-	void Update(const byte *input, size_t length);
-	void TruncatedFinal(byte *mac, size_t size);
+	void UncheckedSetKey(const ::byte *key, unsigned int length, const NameValuePairs &params);
+	void Update(const ::byte *input, size_t length);
+	void TruncatedFinal(::byte *mac, size_t size);
 	unsigned int DigestSize() const {return const_cast<CBC_MAC_Base*>(this)->AccessCipher().BlockSize();}
 
 protected:
@@ -41,7 +41,7 @@ class CBC_MAC : public MessageAuthenticationCodeImpl<CBC_MAC_Base, CBC_MAC<T> >,
 {
 public:
 	CBC_MAC() {}
-	CBC_MAC(const byte *key, size_t length=SameKeyLengthAs<T>::DEFAULT_KEYLENGTH)
+	CBC_MAC(const ::byte *key, size_t length=SameKeyLengthAs<T>::DEFAULT_KEYLENGTH)
 		{this->SetKey(key, length);}
 
 	static std::string StaticAlgorithmName() {return std::string("CBC-MAC(") + T::StaticAlgorithmName() + ")";}

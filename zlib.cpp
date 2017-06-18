@@ -13,8 +13,8 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-static const byte DEFLATE_METHOD = 8;
-static const byte FDICT_FLAG = (1 << 5);
+static const ::byte DEFLATE_METHOD = 8;
+static const ::byte FDICT_FLAG = (1 << 5);
 
 // *************************************************************
 
@@ -22,20 +22,20 @@ void ZlibCompressor::WritePrestreamHeader()
 {
 	m_adler32.Restart();
 	CRYPTOPP_ASSERT(((GetLog2WindowSize()-8) << 4) <= 255);
-	byte cmf = byte(DEFLATE_METHOD | ((GetLog2WindowSize()-8) << 4));
+	::byte cmf = ::byte(DEFLATE_METHOD | ((GetLog2WindowSize()-8) << 4));
 	CRYPTOPP_ASSERT((GetCompressionLevel() << 6) <= 255);
-	byte flags = byte(GetCompressionLevel() << 6);
+	::byte flags = ::byte(GetCompressionLevel() << 6);
 	AttachedTransformation()->PutWord16(RoundUpToMultipleOf(word16(cmf*256+flags), word16(31)));
 }
 
-void ZlibCompressor::ProcessUncompressedData(const byte *inString, size_t length)
+void ZlibCompressor::ProcessUncompressedData(const ::byte *inString, size_t length)
 {
 	m_adler32.Update(inString, length);
 }
 
 void ZlibCompressor::WritePoststreamTail()
 {
-	FixedSizeSecBlock<byte, 4> adler32;
+	FixedSizeSecBlock< ::byte, 4> adler32;
 	m_adler32.Final(adler32);
 	AttachedTransformation()->Put(adler32, 4);
 }
@@ -57,8 +57,8 @@ void ZlibDecompressor::ProcessPrestreamHeader()
 {
 	m_adler32.Restart();
 
-	byte cmf;
-	byte flags;
+	::byte cmf;
+	::byte flags;
 
 	if (!m_inQueue.Get(cmf) || !m_inQueue.Get(flags))
 		throw HeaderErr();
@@ -75,7 +75,7 @@ void ZlibDecompressor::ProcessPrestreamHeader()
 	m_log2WindowSize = 8 + (cmf >> 4);
 }
 
-void ZlibDecompressor::ProcessDecompressedData(const byte *inString, size_t length)
+void ZlibDecompressor::ProcessDecompressedData(const ::byte *inString, size_t length)
 {
 	AttachedTransformation()->Put(inString, length);
 	m_adler32.Update(inString, length);
@@ -83,7 +83,7 @@ void ZlibDecompressor::ProcessDecompressedData(const byte *inString, size_t leng
 
 void ZlibDecompressor::ProcessPoststreamTail()
 {
-	FixedSizeSecBlock<byte, 4> adler32;
+	FixedSizeSecBlock< ::byte, 4> adler32;
 	if (m_inQueue.Get(adler32, 4) != 4)
 		throw Adler32Err();
 	if (!m_adler32.Verify(adler32))

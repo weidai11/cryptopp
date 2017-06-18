@@ -20,9 +20,9 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CMAC_Base : public MessageAuthenticationCo
 public:
 	CMAC_Base() : m_counter(0) {}
 
-	void UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params);
-	void Update(const byte *input, size_t length);
-	void TruncatedFinal(byte *mac, size_t size);
+	void UncheckedSetKey(const ::byte *key, unsigned int length, const NameValuePairs &params);
+	void Update(const ::byte *input, size_t length);
+	void TruncatedFinal(::byte *mac, size_t size);
 	unsigned int DigestSize() const {return GetCipher().BlockSize();}
 	unsigned int OptimalBlockSize() const {return GetCipher().BlockSize();}
 	unsigned int OptimalDataAlignment() const {return GetCipher().OptimalDataAlignment();}
@@ -52,7 +52,7 @@ public:
 	//! \brief Construct a CMAC
 	//! \param key the MAC key
 	//! \param length the key size, in bytes
-	CMAC(const byte *key, size_t length=SameKeyLengthAs<T>::DEFAULT_KEYLENGTH)
+	CMAC(const ::byte *key, size_t length=SameKeyLengthAs<T>::DEFAULT_KEYLENGTH)
 		{this->SetKey(key, length);}
 
 	static std::string StaticAlgorithmName() {return std::string("CMAC(") + T::StaticAlgorithmName() + ")";}

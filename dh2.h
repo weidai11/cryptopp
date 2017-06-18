@@ -38,27 +38,27 @@ public:
 		{return d1.PrivateKeyLength();}
 	unsigned int StaticPublicKeyLength() const
 		{return d1.PublicKeyLength();}
-	void GenerateStaticPrivateKey(RandomNumberGenerator &rng, byte *privateKey) const
+	void GenerateStaticPrivateKey(RandomNumberGenerator &rng, ::byte *privateKey) const
 		{d1.GeneratePrivateKey(rng, privateKey);}
-	void GenerateStaticPublicKey(RandomNumberGenerator &rng, const byte *privateKey, byte *publicKey) const
+	void GenerateStaticPublicKey(RandomNumberGenerator &rng, const ::byte *privateKey, ::byte *publicKey) const
 		{d1.GeneratePublicKey(rng, privateKey, publicKey);}
-	void GenerateStaticKeyPair(RandomNumberGenerator &rng, byte *privateKey, byte *publicKey) const
+	void GenerateStaticKeyPair(RandomNumberGenerator &rng, ::byte *privateKey, ::byte *publicKey) const
 		{d1.GenerateKeyPair(rng, privateKey, publicKey);}
 
 	unsigned int EphemeralPrivateKeyLength() const
 		{return d2.PrivateKeyLength();}
 	unsigned int EphemeralPublicKeyLength() const
 		{return d2.PublicKeyLength();}
-	void GenerateEphemeralPrivateKey(RandomNumberGenerator &rng, byte *privateKey) const
+	void GenerateEphemeralPrivateKey(RandomNumberGenerator &rng, ::byte *privateKey) const
 		{d2.GeneratePrivateKey(rng, privateKey);}
-	void GenerateEphemeralPublicKey(RandomNumberGenerator &rng, const byte *privateKey, byte *publicKey) const
+	void GenerateEphemeralPublicKey(RandomNumberGenerator &rng, const ::byte *privateKey, ::byte *publicKey) const
 		{d2.GeneratePublicKey(rng, privateKey, publicKey);}
-	void GenerateEphemeralKeyPair(RandomNumberGenerator &rng, byte *privateKey, byte *publicKey) const
+	void GenerateEphemeralKeyPair(RandomNumberGenerator &rng, ::byte *privateKey, ::byte *publicKey) const
 		{d2.GenerateKeyPair(rng, privateKey, publicKey);}
 
-	bool Agree(byte *agreedValue,
-		const byte *staticPrivateKey, const byte *ephemeralPrivateKey,
-		const byte *staticOtherPublicKey, const byte *ephemeralOtherPublicKey,
+	bool Agree(::byte *agreedValue,
+		const ::byte *staticPrivateKey, const ::byte *ephemeralPrivateKey,
+		const ::byte *staticOtherPublicKey, const ::byte *ephemeralOtherPublicKey,
 		bool validateStaticOtherPublicKey=true) const;
 
 protected:

@@ -142,7 +142,7 @@ NonblockingRng::~NonblockingRng()
 #endif
 }
 
-void NonblockingRng::GenerateBlock(byte *output, size_t size)
+void NonblockingRng::GenerateBlock(::byte *output, size_t size)
 {
 #ifdef CRYPTOPP_WIN32_AVAILABLE
 	// Acquiring a provider is expensive. Do it once and retain the reference.
@@ -204,7 +204,7 @@ BlockingRng::~BlockingRng()
 	close(m_fd);
 }
 
-void BlockingRng::GenerateBlock(byte *output, size_t size)
+void BlockingRng::GenerateBlock(::byte *output, size_t size)
 {
 	while (size)
 	{
@@ -231,7 +231,7 @@ void BlockingRng::GenerateBlock(byte *output, size_t size)
 
 // *************************************************************
 
-void OS_GenerateRandomBlock(bool blocking, byte *output, size_t size)
+void OS_GenerateRandomBlock(bool blocking, ::byte *output, size_t size)
 {
 #ifdef NONBLOCKING_RNG_AVAILABLE
 	if (blocking)
