@@ -11,23 +11,22 @@
 #endif
 
 USING_NAMESPACE(CryptoPP)
-USING_NAMESPACE(std)
 
 void FIPS140_SampleApplication()
 {
 	if (!FIPS_140_2_ComplianceEnabled())
 	{
-		cerr << "FIPS 140-2 compliance was turned off at compile time.\n";
+		std::cerr << "FIPS 140-2 compliance was turned off at compile time.\n";
 		abort();
 	}
 
 	// check self test status
 	if (GetPowerUpSelfTestStatus() != POWER_UP_SELF_TEST_PASSED)
 	{
-		cerr << "Automatic power-up self test failed.\n";
+		std::cerr << "Automatic power-up self test failed.\n";
 		abort();
 	}
-	cout << "0. Automatic power-up self test passed.\n";
+	std::cout << "0. Automatic power-up self test passed.\n";
 
 	// simulate a power-up self test error
 	SimulatePowerUpSelfTestFailure();
@@ -37,23 +36,23 @@ void FIPS140_SampleApplication()
 		AES::Encryption aes;
 
 		// should not be here
-		cerr << "Use of AES failed to cause an exception after power-up self test error.\n";
+		std::cerr << "Use of AES failed to cause an exception after power-up self test error.\n";
 		abort();
 	}
 	catch (SelfTestFailure &e)
 	{
-		cout << "1. Caught expected exception when simulating self test failure. Exception message follows: ";
-		cout << e.what() << endl;
+		std::cout << "1. Caught expected exception when simulating self test failure. Exception message follows: ";
+		std::cout << e.what() << std::endl;
 	}
 
 	// clear the self test error state and redo power-up self test
 	DoDllPowerUpSelfTest();
 	if (GetPowerUpSelfTestStatus() != POWER_UP_SELF_TEST_PASSED)
 	{
-		cerr << "Re-do power-up self test failed.\n";
+		std::cerr << "Re-do power-up self test failed.\n";
 		abort();
 	}
-	cout << "2. Re-do power-up self test passed.\n";
+	std::cout << "2. Re-do power-up self test passed.\n";
 
 	// encrypt and decrypt
 	const byte key[] = {0x01,0x23,0x45,0x67,0x89,0xab,0xcd,0xef, 0x01,0x23,0x45,0x67,0x89,0xab,0xcd,0xef, 0x01,0x23,0x45,0x67,0x89,0xab,0xcd,0xef};
@@ -75,10 +74,10 @@ void FIPS140_SampleApplication()
 
 	if (memcmp(plaintext, decrypted, 24) != 0)
 	{
-		cerr << "DES-EDE3-CFB Encryption/decryption failed.\n";
+		std::cerr << "DES-EDE3-CFB Encryption/decryption failed.\n";
 		abort();
 	}
-	cout << "3. DES-EDE3-CFB Encryption/decryption succeeded.\n";
+	std::cout << "3. DES-EDE3-CFB Encryption/decryption succeeded.\n";
 
 	// hash
 	const byte message[] = {'a', 'b', 'c'};
@@ -91,10 +90,10 @@ void FIPS140_SampleApplication()
 
 	if (memcmp(digest, expectedDigest, 20) != 0)
 	{
-		cerr << "SHA-1 hash failed.\n";
+		std::cerr << "SHA-1 hash failed.\n";
 		abort();
 	}
-	cout << "4. SHA-1 hash succeeded.\n";
+	std::cout << "4. SHA-1 hash succeeded.\n";
 
 	// create auto-seeded X9.17 RNG object, if available
 #ifdef OS_RNG_AVAILABLE
@@ -111,10 +110,10 @@ void FIPS140_SampleApplication()
 	dsaPublicKey.AssignFrom(dsaPrivateKey);
 	if (!dsaPrivateKey.Validate(rng, 3) || !dsaPublicKey.Validate(rng, 3))
 	{
-		cerr << "DSA key generation failed.\n";
+		std::cerr << "DSA key generation failed.\n";
 		abort();
 	}
-	cout << "5. DSA key generation succeeded.\n";
+	std::cout << "5. DSA key generation succeeded.\n";
 
 	// encode DSA key
 	std::string encodedDsaPublicKey, encodedDsaPrivateKey;
@@ -129,10 +128,10 @@ void FIPS140_SampleApplication()
 
 	if (!decodedDsaPrivateKey.Validate(rng, 3) || !decodedDsaPublicKey.Validate(rng, 3))
 	{
-		cerr << "DSA key encode/decode failed.\n";
+		std::cerr << "DSA key encode/decode failed.\n";
 		abort();
 	}
-	cout << "6. DSA key encode/decode succeeded.\n";
+	std::cout << "6. DSA key encode/decode succeeded.\n";
 
 	// sign and verify
 	byte signature[40];
@@ -143,20 +142,20 @@ void FIPS140_SampleApplication()
 	DSA::Verifier verifier(dsaPublicKey);
 	if (!verifier.VerifyMessage(message, 3, signature, sizeof(signature)))
 	{
-		cerr << "DSA signature and verification failed.\n";
+		std::cerr << "DSA signature and verification failed.\n";
 		abort();
 	}
-	cout << "7. DSA signature and verification succeeded.\n";
+	std::cout << "7. DSA signature and verification succeeded.\n";
 
 
 	// try to verify an invalid signature
 	signature[0] ^= 1;
 	if (verifier.VerifyMessage(message, 3, signature, sizeof(signature)))
 	{
-		cerr << "DSA signature verification failed to detect bad signature.\n";
+		std::cerr << "DSA signature verification failed to detect bad signature.\n";
 		abort();
 	}
-	cout << "8. DSA signature verification successfully detected bad signature.\n";
+	std::cout << "8. DSA signature verification successfully detected bad signature.\n";
 
 	// try to use an invalid key length
 	try
@@ -165,16 +164,16 @@ void FIPS140_SampleApplication()
 		encryption_DES_EDE3_ECB.SetKey(key, 5);
 
 		// should not be here
-		cerr << "DES-EDE3 implementation did not detect use of invalid key length.\n";
+		std::cerr << "DES-EDE3 implementation did not detect use of invalid key length.\n";
 		abort();
 	}
 	catch (InvalidArgument &e)
 	{
-		cout << "9. Caught expected exception when using invalid key length. Exception message follows: ";
-		cout << e.what() << endl;
+		std::cout << "9. Caught expected exception when using invalid key length. Exception message follows: ";
+		std::cout << e.what() << std::endl;
 	}
 
-	cout << "\nFIPS 140-2 Sample Application completed normally.\n";
+	std::cout << "\nFIPS 140-2 Sample Application completed normally.\n";
 }
 
 #ifdef CRYPTOPP_IMPORTS
