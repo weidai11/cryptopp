@@ -99,7 +99,7 @@ and getting us started on the manual.
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(push)
-# pragma warning(disable: 4127 4189 4702)
+# pragma warning(disable: 4127 4189 4505 4702)
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)

@@ -4,6 +4,7 @@
 #include "pch.h"
 
 #include "seal.h"
+#include "cpu.h"
 #include "sha.h"
 #include "misc.h"
 #include "secblock.h"
@@ -37,11 +38,16 @@ word32 SEAL_Gamma::Apply(word32 i)
 	word32 shaIndex = i/5;
 	if (shaIndex != lastIndex)
 	{
-		memcpy(Z, H, 20);
+#if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
+		D[0] = ConditionalByteReverse(HasSHA() ? BIG_ENDIAN_ORDER : LITTLE_ENDIAN_ORDER, shaIndex);
+#else
 		D[0] = shaIndex;
+#endif
+		memcpy(Z, H, 20);
 		SHA1::Transform(Z, D);
 		lastIndex = shaIndex;
 	}
+
 	return Z[i%5];
 }
 

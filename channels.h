@@ -12,6 +12,11 @@
 #include "smartptr.h"
 #include "stdcpp.h"
 
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(push)
+# pragma warning(disable: 4355)
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 #if 0
@@ -130,5 +135,9 @@ private:
 };
 
 NAMESPACE_END
+
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(pop)
+#endif
 
 #endif

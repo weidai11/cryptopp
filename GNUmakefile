@@ -404,11 +404,27 @@ endif # ELF/ELF64
 endif # CXXFLAGS
 endif # Gold
 
-# GCC code coverage. Issue 'make coverage'.
-ifneq ($(filter coverage,$(MAKECMDGOALS)),)
+# lcov code coverage. Issue 'make coverage'.
+ifneq ($(filter lcov coverage,$(MAKECMDGOALS)),)
+CXXFLAGS := $(CXXFLAGS:-g%=-g3)
+CXXFLAGS := $(CXXFLAGS:-O%=-O1)
+CXXFLAGS := $(CXXFLAGS:-xO%=-xO1)
 ifeq ($(findstring -DCRYPTOPP_COVERAGE,$(CXXFLAGS)),)
 CXXFLAGS += -DCRYPTOPP_COVERAGE
+endif # CRYPTOPP_COVERAGE
+ifeq ($(findstring -coverage,$(CXXFLAGS)),)
+CXXFLAGS += -coverage
 endif # -coverage
+endif # GCC code coverage
+
+# gcov code coverage for Travis. Issue 'make codecov'.
+ifneq ($(filter gcov codecov,$(MAKECMDGOALS)),)
+CXXFLAGS := $(CXXFLAGS:-g%=-g3)
+CXXFLAGS := $(CXXFLAGS:-O%=-O1)
+CXXFLAGS := $(CXXFLAGS:-xO%=-xO1)
+ifeq ($(findstring -DCRYPTOPP_COVERAGE,$(CXXFLAGS)),)
+CXXFLAGS += -DCRYPTOPP_COVERAGE
+endif # CRYPTOPP_COVERAGE
 ifeq ($(findstring -coverage,$(CXXFLAGS)),)
 CXXFLAGS += -coverage
 endif # -coverage
@@ -547,8 +563,8 @@ no-asm asan ubsan: libcryptopp.a cryptest.exe
 lean: static dynamic cryptest.exe
 
 # May want to export CXXFLAGS="-g3 -O1"
-.PHONY: coverage
-coverage: libcryptopp.a cryptest.exe
+.PHONY: lcov coverage
+lcov coverage: libcryptopp.a cryptest.exe
 	@-$(RM) -r ./TestCoverage/
 	lcov --base-directory . --directory . --zerocounters -q
 	./cryptest.exe v
@@ -557,7 +573,15 @@ coverage: libcryptopp.a cryptest.exe
 	lcov --remove cryptest.info "adhoc.cpp" "wait.*" "network.*" "socketft.*" "fips140.*" "*test.*" "bench*.cpp" "validat*.*" "/usr/*" -o cryptest.info
 	genhtml -o ./TestCoverage/ -t "cryptest.exe test coverage" --num-spaces 4 cryptest.info
 
-# SHould use CXXFLAGS="-g3 -O1"
+# Travis CI and CodeCov rule
+.PHONY: gcov codecov
+gcov codecov: libcryptopp.a cryptest.exe
+	@-$(RM) -r ./TestCoverage/
+	./cryptest.exe v
+	./cryptest.exe tv all
+	gcov -r $(SRCS)
+
+# Should use CXXFLAGS="-g3 -O1"
 .PHONY: valgrind
 valgrind: libcryptopp.a cryptest.exe
 	valgrind ./cryptest.exe v
@@ -599,7 +623,7 @@ clean:
 	@-$(RM) libcryptopp.a libcryptopp.dylib cryptopp.dll libcryptopp.dll.a libcryptopp.import.a
 	@-$(RM) libcryptopp.so libcryptopp.so$(SOLIB_COMPAT_SUFFIX) libcryptopp.so$(SOLIB_VERSION_SUFFIX)
 	@-$(RM) cryptest.exe dlltest.exe cryptest.import.exe cryptest.info ct
-	@-$(RM) *.gcno *.gcda *.stackdump core-*
+	@-$(RM) *.gcov *.gcno *.gcda *.stackdump core-*
 	@-$(RM) /tmp/adhoc.exe
 	@-$(RM) -r /tmp/cryptopp_test/
 	@-$(RM) -r *.exe.dSYM/
@@ -725,22 +749,22 @@ endif
 .PHONY: trim
 trim:
 ifneq ($(IS_DARWIN),0)
-	sed -i '' -e's/[[:space:]]*$$//' *.sh *.h *.cpp *.asm *.s *.sln *.vcxproj *.filters GNUmakefile GNUmakefile-cross
-	sed -i '' -e's/[[:space:]]*$$//' TestData/*.dat TestVectors/*.txt TestScripts/*.sh
+	sed -i '' -e's/[[:space:]]*$$//' *.sh .*.yml *.h *.cpp *.asm *.s *.sln *.vcxproj *.filters GNUmakefile GNUmakefile-cross
+	sed -i '' -e's/[[:space:]]*$$//' TestData/*.dat TestVectors/*.txt TestScripts/*.*
 	make convert
 else
-	sed -i -e's/[[:space:]]*$$//' *.sh *.h *.cpp *.asm *.s *.sln *.vcxproj *.filters GNUmakefile GNUmakefile-cross
-	sed -i -e's/[[:space:]]*$$//' TestData/*.dat TestVectors/*.txt TestScripts/*.sh
+	sed -i -e's/[[:space:]]*$$//' *.sh .*.yml *.h *.cpp *.asm *.s *.sln *.vcxproj *.filters GNUmakefile GNUmakefile-cross
+	sed -i -e's/[[:space:]]*$$//' TestData/*.dat TestVectors/*.txt TestScripts/*.*
 	make convert
 endif
 
 .PHONY: convert
 convert:
 	@-$(CHMOD) 0700 TestVectors/ TestData/ TestScripts/
-	@-$(CHMOD) 0600 $(TEXT_FILES) *.asm *.s *.zip *.cmake TestVectors/*.txt TestData/*.dat
+	@-$(CHMOD) 0600 $(TEXT_FILES) .*.yml *.asm *.s *.zip *.cmake TestVectors/*.txt TestData/*.dat TestScripts/*.*
 	@-$(CHMOD) 0700 $(EXEC_FILES) *.sh *.cmd TestScripts/*.sh TestScripts/*.pl TestScripts/*.cmd
 	@-$(CHMOD) 0700 *.cmd *.sh GNUmakefile GNUmakefile-cross TestScripts/*.sh TestScripts/*.pl
-	-unix2dos --keepdate --quiet $(TEXT_FILES) *.asm *.cmd *.cmake TestScripts/*.pl TestScripts/*.cmd
+	-unix2dos --keepdate --quiet $(TEXT_FILES) .*.yml *.asm *.cmd *.cmake TestScripts/*.*
 	-dos2unix --keepdate --quiet GNUmakefile GNUmakefile-cross *.s *.sh TestScripts/*.sh
 ifneq ($(IS_DARWIN),0)
 	@-xattr -c *
@@ -791,6 +815,13 @@ rdrand.o: rdrand.h rdrand.cpp rdrand.s
 	$(CXX) $(strip $(CXXFLAGS)) -DNASM_RDRAND_ASM_AVAILABLE=1 -DNASM_RDSEED_ASM_AVAILABLE=1 -c rdrand.cpp
 rdrand-%.o:
 	./rdrand-nasm.sh
+endif
+
+# Don't build Threefish with UBsan on Travis CI. Timeouts cause the build to fail.
+#   Also see https://stackoverflow.com/q/12983137/608639.
+ifeq ($(findstring true,$(CI)),true)
+threefish.o : threefish.cpp
+	$(CXX) $(strip $(subst -fsanitize=undefined,,$(CXXFLAGS))) -c $<
 endif
 
 # Don't build Rijndael with UBsan. Too much noise due to unaligned data accesses.

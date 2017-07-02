@@ -23,9 +23,8 @@
 #  if defined(UNIX_SIGNALS_AVAILABLE)
 #    include "ossig.h"
 #  elif defined(CRYPTOPP_WIN32_AVAILABLE) && !defined(__CYGWIN__)
-#    if (_MSC_VER >= 1400)
-#      include <intrin.h>
-#    endif
+     extern "C" __declspec(dllimport) void __stdcall DebugBreak();
+     extern "C" __declspec(dllimport)  int __stdcall IsDebuggerPresent();
 #  endif
 #endif // CRYPTOPP_DEBUG
 
@@ -80,7 +79,7 @@
           << (int)(__LINE__) << "): " << (char*)(__FUNCTION__)    \
           << std::endl;                                           \
       std::cerr << oss.str();                                     \
-      __debugbreak();                                             \
+      if (IsDebuggerPresent()) {DebugBreak();}                    \
     }                                                             \
   }
 #endif // DEBUG and Unix or Windows

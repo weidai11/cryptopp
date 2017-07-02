@@ -7,11 +7,8 @@ os:
 dist: trusty
 sudo: false
 
-# OS X only supports one image. Us the latest.
-osx_image:
-  - xcode8.2
-#  - xcode7.3
-#  - xcode6.4
+# OS X only supports one image. Use the latest.
+osx_image: xcode8.2
 
 git:
   depth: 3
@@ -25,32 +22,49 @@ env:
     - BUILD_JOBS=2
 
   matrix:
-    - BUILD_MODE="shared"
-    - BUILD_MODE="static"
+    - BUILD_MODE="all"
     - BUILD_MODE="no-asm"
     - BUILD_MODE="asan"
     - BUILD_MODE="ubsan"
-    - BUILD_MODE="valgrind"
+    - BUILD_MODE="codecov"
+
+matrix:
 
   exclude:
     # Skip GCC on OS X entirely
     - os: osx
       compiler: gcc
+    # CodeCov crashes under Clang
+    - compiler: clang
+      env: BUILD_MODE="codecov"
 
-    # The sanitizer builds under Clang run the tests very
-    # slowly and cause CI timeouts.
+  allow_failures:
+    # Ignore problems with old toolchains
+    - env: BUILD_MODE="ubsan"
+    - env: BUILD_MODE="asan"
 
-    - compiler: clang
-      env: BUILD_MODE="asan"
-    - compiler: clang
-      env: BUILD_MODE="ubsan"
-    - compiler: clang
-      env: BUILD_MODE="valgrind"
+script:
+  - make "$BUILD_MODE" && ./cryptest.exe v && ./cryptest.exe tv all
+
+after_success:
+  - if [[ ( ("$BUILD_MODE" = "coverage") && ("$CC" = "gcc") ) ]]; then CODECOV_TOKEN="5c7bc59c-e95f-4594-82c3-33e7a1942592" bash <(curl -s https://codecov.io/bash); fi;
 
 # whitelist branches to avoid testing feature branches twice
 branches:
   only:
     - master
 
-#notifications:
-#  email: jdoe@example.com
+addons:
+  sonarqube: true
+
+  coverity_scan:
+    project:
+      name: "cryptopp"
+    build_command: "make -j 2"
+
+notifications:
+  email:
+    recipients:
+      - cryptopp-build@googlegroups.com
+    on_success: always # default: change
+    on_failure: always # default: always

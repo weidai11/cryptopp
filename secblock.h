@@ -12,9 +12,9 @@
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(push)
-# pragma warning(disable: 4700)
+# pragma warning(disable: 4231 4275 4700)
 # if (CRYPTOPP_MSC_VERSION >= 1400)
-#  pragma warning(disable: 6386)
+#  pragma warning(disable: 6011 6386 28193)
 # endif
 #endif
 

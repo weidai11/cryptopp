@@ -1,8 +1,5 @@
-CXXFLAGS ?= -DNDEBUG -g2 -Os -fPIC -pipe
-
-# The following options reduce code size, but breaks link or makes link very slow on some systems
-# CXXFLAGS += -ffunction-sections -fdata-sections
-# LDFLAGS += -Wl,--gc-sections
+# Default CXXFLAGS if none were provided
+CXXFLAGS ?= -DNDEBUG -g2 -O3 -fPIC -pipe
 
 AR ?= ar
 ARFLAGS ?= cr
@@ -91,6 +88,70 @@ ifeq ($(IS_ARM_EMBEDDED),1)
   CXXFLAGS += $(ARM_EMBEDDED_FLAGS) --sysroot=$(ARM_EMBEDDED_SYSROOT)
 endif
 
+# No ASM for Travis testing
+ifeq ($(findstring no-asm,$(MAKECMDGOALS)),no-asm)
+  ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
+    CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
+  endif # CXXFLAGS
+endif # No ASM
+
+# Undefined Behavior Sanitizer (UBsan) testing. Issue 'make ubsan'.
+ifeq ($(findstring ubsan,$(MAKECMDGOALS)),ubsan)
+  ifeq ($(findstring -fsanitize=undefined,$(CXXFLAGS)),)
+    CXXFLAGS += -fsanitize=undefined
+  endif # CXXFLAGS
+  ifeq ($(findstring -DCRYPTOPP_COVERAGE,$(CXXFLAGS)),)
+    CXXFLAGS += -DCRYPTOPP_COVERAGE
+  endif # CXXFLAGS
+endif # UBsan
+
+# Address Sanitizer (Asan) testing. Issue 'make asan'.
+ifeq ($(findstring asan,$(MAKECMDGOALS)),asan)
+  ifeq ($(findstring -fsanitize=address,$(CXXFLAGS)),)
+    CXXFLAGS += -fsanitize=address
+  endif # CXXFLAGS
+  ifeq ($(findstring -DCRYPTOPP_COVERAGE,$(CXXFLAGS)),)
+    CXXFLAGS += -DCRYPTOPP_COVERAGE
+  endif # CXXFLAGS
+  ifeq ($(findstring -fno-omit-frame-pointer,$(CXXFLAGS)),)
+    CXXFLAGS += -fno-omit-frame-pointer
+  endif # CXXFLAGS
+endif # Asan
+
+# LD gold linker testing. Triggered by 'LD=ld.gold'.
+ifeq ($(findstring ld.gold,$(LD)),ld.gold)
+  ifeq ($(findstring -fuse-ld=gold,$(CXXFLAGS)),)
+    ELF_FORMAT := $(shell file `which ld.gold` 2>&1 | cut -d":" -f 2 | $(EGREP) -i -c "elf")
+    ifneq ($(ELF_FORMAT),0)
+      LDFLAGS += -fuse-ld=gold
+    endif # ELF/ELF64
+  endif # CXXFLAGS
+endif # Gold
+
+# Valgrind testing. Issue 'make valgrind'.
+ifneq ($(filter valgrind,$(MAKECMDGOALS)),)
+  # Tune flags; see http://valgrind.org/docs/manual/quick-start.html
+  CXXFLAGS := $(CXXFLAGS:-g%=-g3)
+  CXXFLAGS := $(CXXFLAGS:-O%=-O1)
+  CXXFLAGS := $(CXXFLAGS:-xO%=-xO1)
+  ifeq ($(findstring -DCRYPTOPP_VALGRIND,$(CXXFLAGS)),)
+    CXXFLAGS += -DCRYPTOPP_VALGRIND
+  endif # -DCRYPTOPP_VALGRIND
+endif # Valgrind
+
+# Debug testing on GNU systems. Triggered by -DDEBUG.
+#   Newlib test due to http://sourceware.org/bugzilla/show_bug.cgi?id=20268
+ifneq ($(filter -DDEBUG -DDEBUG=1,$(CXXFLAGS)),)
+  USING_GLIBCXX := $(shell $(CXX) -x c++ $(CXXFLAGS) -E adhoc.cpp.proto 2>&1 | $(EGREP) -i -c "__GLIBCXX__")
+  ifneq ($(USING_GLIBCXX),0)
+    ifeq ($(HAS_NEWLIB),0)
+      ifeq ($(findstring -D_GLIBCXX_DEBUG,$(CXXFLAGS)),)
+        CXXFLAGS += -D_GLIBCXX_DEBUG
+      endif # CXXFLAGS
+    endif # HAS_NEWLIB
+  endif # USING_GLIBCXX
+endif # GNU Debug build
+
 # Dead code stripping. Issue 'make lean'.
 ifeq ($(findstring lean,$(MAKECMDGOALS)),lean)
   ifeq ($(findstring -ffunction-sections,$(CXXFLAGS)),)
@@ -99,7 +160,7 @@ ifeq ($(findstring lean,$(MAKECMDGOALS)),lean)
   ifeq ($(findstring -fdata-sections,$(CXXFLAGS)),)
     CXXFLAGS += -fdata-sections
   endif # CXXFLAGS
-  ifeq ($(IS_IOS),1)
+  ifneq ($(IS_IOS),0)
     ifeq ($(findstring -Wl,-dead_strip,$(LDFLAGS)),)
       LDFLAGS += -Wl,-dead_strip
     endif # CXXFLAGS
@@ -111,7 +172,7 @@ ifeq ($(findstring lean,$(MAKECMDGOALS)),lean)
 endif # Dead code stripping
 
 # List cryptlib.cpp first, then cpu.cpp, then integer.cpp to tame C++ static initialization problems.
-SRCS := cryptlib.cpp cpu.cpp integer.cpp $(filter-out cryptlib.cpp cpu.cpp integer.cpp pch.cpp simple.cpp winpipes.cpp cryptlib_bds.cpp,$(wildcard *.cpp))
+SRCS := cryptlib.cpp cpu.cpp integer.cpp $(filter-out cryptlib.cpp cpu.cpp integer.cpp pch.cpp simple.cpp winpipes.cpp cryptlib_bds.cpp,$(sort $(wildcard *.cpp)))
 
 # List cryptlib.cpp first, then cpu.cpp, then integer.cpp to tame C++ static initialization problems.
 OBJS := $(SRCS:.cpp=.o)

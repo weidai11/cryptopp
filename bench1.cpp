@@ -16,6 +16,14 @@
 #include "cpu.h"
 #include "drbg.h"
 
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(disable: 4355)
+#endif
+
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(disable: 4505 4355)
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(Test)
 
@@ -235,7 +243,7 @@ void BenchMark(const char *name, NIST_DRBG &rng, double timeTotal)
 	Test::GlobalRNG().GenerateBlock(buf, BUF_SIZE);
 	buf.SetMark(16);
 
-	rng.IncorporateEntropy(buf, rng.GetMinEntropy());
+	rng.IncorporateEntropy(buf, rng.MinEntropyLength());
 	unsigned long long blocks = 1;
 	double timeTaken;
 

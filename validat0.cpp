@@ -31,6 +31,10 @@
 # pragma strict_gs_check (on)
 #endif
 
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(disable: 4505 4355)
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(Test)
 
@@ -140,9 +144,6 @@ bool TestPolynomialMod2()
     std::cout << (!pass1 ? "FAILED" : "passed") << ":  " << "1 shifted over range [" << std::dec << start << "," << stop << "]" << "\n";
     std::cout << (!pass2 ? "FAILED" : "passed") << ":  " << "0x" << std::hex << word(SIZE_MAX) << std::dec << " shifted over range [" << start << "," << stop << "]" << "\n";
     std::cout << (!pass3 ? "FAILED" : "passed") << ":  " << "random values shifted over range [" << std::dec << start << "," << stop << "]" << "\n";
-
-    if (!(pass1 && pass2 && pass3))
-        std::cout.flush();
 
     return pass1 && pass2 && pass3;
 }
@@ -428,7 +429,6 @@ bool TestCompressors()
 
     // **************************************************************
 
-    std::cout.flush();
     return !fail1 && !fail2 && !fail3;
 }
 
@@ -684,6 +684,7 @@ bool TestSharing()
 
             vector_member_ptrs<StringSource> strSources(threshold);
             channel.resize(CHID_LENGTH);
+
             for (unsigned int i=0; i<threshold; i++)
             {
                 strSources[i].reset(new StringSource(strShares[i], false));
@@ -717,6 +718,7 @@ bool TestSharing()
 
     for (unsigned int shares=3; shares<SECRET_SHARES; ++shares)
     {
+
         std::string message;
         unsigned int len = GlobalRNG().GenerateWord32(0, 0xff);
         unsigned int threshold = GlobalRNG().GenerateWord32(2, shares-1);
@@ -1226,7 +1228,6 @@ bool TestRounding()
     std::cout << (fail ? "FAILED:" : "passed:") << "  RoundUpToMultipleOf, word128, overflow\n";
 #endif
 
-    std::cout.flush();
     return pass;
 }
 #endif
@@ -1305,7 +1306,6 @@ bool RunASN1TestSet(const ASN1_TestTuple asnTuples[], size_t count)
         pass = !fail && pass;
     }
 
-    std::cout.flush();
     return pass;
 }
 
@@ -1479,7 +1479,6 @@ bool TestASN1Parse()
 
     pass = RunASN1TestSet(integerValues, COUNTOF(integerValues)) && pass;
 
-    std::cout.flush();
     return pass;
 }
 #endif
@@ -2444,7 +2443,6 @@ bool TestSecBlock()
     std::cout << "  FixedSizeAllocator Grow with word128\n";
 #endif
 
-    std::cout.flush();
     return pass1 && pass2 && pass3 && pass4 && pass5 && pass6 && pass7;
 }
 #endif
@@ -3212,7 +3210,6 @@ bool TestIntegerBitops()
        std::cout << "FAILED:";
     std::cout << "  Bitwise XOR over 32-bits to 1024-bits\n";
 
-    std::cout.flush();
     return opa && opo && opx;
 }
 #endif

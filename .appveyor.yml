@@ -20,8 +20,6 @@ image:
 - Visual Studio 2017
 - Visual Studio 2015
 - Visual Studio 2013
-- Visual Studio 2012
-- Visual Studio 2010
 
 build:
 
@@ -34,9 +32,9 @@ test_script:
 - cmd: >-
 
     msbuild /t:CopyCryptestToRoot cryptest.vcxproj
-    
+
     cryptest.exe v
-    
+
     cryptest.exe tv all
 
 # Right now, we have a few failures that we don't know how to workaround.
@@ -53,3 +51,10 @@ matrix:
       configuration: Release
     - image: Visual Studio 2010
     - image: Visual Studio 2017
+
+notifications:
+  email:
+    recipients:
+      - cryptopp-build@googlegroups.com
+    on_success: always # default: change
+    on_failure: always # default: always

@@ -392,7 +392,6 @@ int CRYPTOPP_API main(int argc, char *argv[])
 		{
 			FileSource usage(CRYPTOPP_DATA_DIR "TestData/usage.dat", true, new FileSink(std::cout));
 			return 1;
-			return 1;
 		}
 		else if (command == "V")
 		{

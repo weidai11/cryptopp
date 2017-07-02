@@ -44,10 +44,10 @@
 // This macro will be ignored if NO_OS_DEPENDENCE is defined.
 // #define USE_MS_CNGAPI
 
-// If the user did not make a choice, then select CryptoNG if either
-// Visual Studio 2015 is available, or Windows 10 or above is available.
+// If the user did not make a choice, then select CryptoNG if
+// targeting Windows 8 or above.
 #if !defined(USE_MS_CRYPTOAPI) && !defined(USE_MS_CNGAPI)
-# if (_MSC_VER >= 1900) || ((WINVER >= 0x0A00 /*_WIN32_WINNT_WIN10*/) || (_WIN32_WINNT >= 0x0A00 /*_WIN32_WINNT_WIN10*/))
+# if !defined(_USING_V110_SDK71_) && ((WINVER >= 0x0602 /*_WIN32_WINNT_WIN8*/) || (_WIN32_WINNT >= 0x0602 /*_WIN32_WINNT_WIN8*/))
 #  define USE_MS_CNGAPI
 # else
 #  define USE_MS_CRYPTOAPI

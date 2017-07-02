@@ -14,6 +14,11 @@
 
 #include <iosfwd>
 
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(push)
+# pragma warning(disable: 4231 4275)
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 //! \brief Polynomial with Coefficients in GF(2)
@@ -373,6 +378,10 @@ template<> inline void swap(CryptoPP::PolynomialMod2 &a, CryptoPP::PolynomialMod
 	a.swap(b);
 }
 NAMESPACE_END
+#endif
+
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(pop)
 #endif
 
 #endif

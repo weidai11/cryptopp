@@ -11,10 +11,12 @@
 #include "config.h"
 #include "cryptlib.h"
 
-// TODO: fix 6011 when the API/ABI can change
-#if (CRYPTOPP_MSC_VERSION >= 1400)
+#if CRYPTOPP_MSC_VERSION
 # pragma warning(push)
-# pragma warning(disable: 6011 28193)
+# pragma warning(disable: 4231 4275)
+# if (CRYPTOPP_MSC_VERSION >= 1400)
+#  pragma warning(disable: 6011 6386 28193)
+# endif
 #endif
 
 #include "smartptr.h"
@@ -301,7 +303,7 @@ AssignFromHelperClass<T, T> AssignFromHelper(T *pObject, const NameValuePairs &s
 #ifndef CRYPTOPP_NO_ASSIGN_TO_INTEGER
 // Allow the linker to discard Integer code if not needed.
 // Also see http://github.com/weidai11/cryptopp/issues/389.
-bool AssignIntToInteger(const std::type_info &valueType, void *pInteger, const void *pInt);
+CRYPTOPP_DLL bool AssignIntToInteger(const std::type_info &valueType, void *pInteger, const void *pInt);
 #endif
 
 CRYPTOPP_DLL const std::type_info & CRYPTOPP_API IntegerTypeId();

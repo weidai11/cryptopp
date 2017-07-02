@@ -25,9 +25,10 @@ bool TestRandomPool();
 #if !defined(NO_OS_DEPENDENCE)
 bool TestAutoSeededX917();
 #endif
+#if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
 bool TestRDRAND();
 bool TestRDSEED();
-
+#endif
 bool ValidateBaseCode();
 bool ValidateCRC32();
 bool ValidateCRC32C();
