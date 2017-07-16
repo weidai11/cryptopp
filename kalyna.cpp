@@ -31,6 +31,9 @@ NAMESPACE_END
 
 ANONYMOUS_NAMESPACE_BEGIN
 
+// The typedef here is to sidestep problems with byte in the global namespace
+typedef unsigned char byte;
+
 using CryptoPP::word64;
 using CryptoPP::KalynaTab::T;
 using CryptoPP::KalynaTab::S;
