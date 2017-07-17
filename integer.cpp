@@ -238,7 +238,7 @@ static word AtomicInverseModPower2(word A)
 	#define HighWord(a)					a##1
 	#ifdef _MSC_VER
 		#define MultiplyWordsLoHi(p0, p1, a, b)		p0 = _umul128(a, b, &p1);
-		#ifndef __INTEL_COMPILER
+		#if !defined(__INTEL_COMPILER) && !defined(__clang__)
 			#define Double3Words(c, d)		d##1 = __shiftleft128(d##0, d##1, 1); d##0 = __shiftleft128(c, d##0, 1); c *= 2;
 		#endif
 	#elif defined(__DECCXX)
