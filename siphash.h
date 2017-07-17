@@ -214,21 +214,27 @@ void SipHash_Base<C,D,T_128bit>::TruncatedFinal(byte *digest, size_t digestSize)
 	m_b[0] += m_idx; m_b[0] <<= 56U;
 	switch (m_idx)
 	{
-		// all fall through
 		case 7:
 			m_b[0] |= ((word64)m_acc[6]) << 48;
+			// fall through
 		case 6:
 			m_b[0] |= ((word64)m_acc[5]) << 40;
+			// fall through
 		case 5:
 			m_b[0] |= ((word64)m_acc[4]) << 32;
+			// fall through
 		case 4:
 			m_b[0] |= ((word64)m_acc[3]) << 24;
+			// fall through
 		case 3:
 			m_b[0] |= ((word64)m_acc[2]) << 16;
+			// fall through
 		case 2:
 			m_b[0] |= ((word64)m_acc[1]) << 8;
+			// fall through
 		case 1:
 			m_b[0] |= ((word64)m_acc[0]);
+			// fall through
 		case 0:
 			break;
 	}

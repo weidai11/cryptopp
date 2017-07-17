@@ -54,6 +54,7 @@
 
 #define FILTER_OUTPUT2_MODIFIABLE(site, statement, output, length, messageEnd)	\
 	{\
+	/* fall through */ \
 	case site:	\
 	statement;	\
 	if (OutputModifiable(site, output, length, messageEnd, blocking))	\
@@ -65,6 +66,7 @@
 
 #define FILTER_OUTPUT2_MAYBE_MODIFIABLE(site, statement, output, length, messageEnd, modifiable)	\
 	{\
+	/* fall through */ \
 	case site:	\
 	statement;	\
 	if (modifiable ? OutputModifiable(site, output, length, messageEnd, blocking) : Output(site, output, length, messageEnd, blocking))	\

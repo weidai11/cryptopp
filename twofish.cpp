@@ -37,7 +37,9 @@ inline word32 Twofish::Base::h0(word32 x, const word32 *key, unsigned int kLen)
 	{
 #define Q(a, b, c, d, t) q[a][GETBYTE(t,0)] ^ (q[b][GETBYTE(t,1)] << 8) ^ (q[c][GETBYTE(t,2)] << 16) ^ (q[d][GETBYTE(t,3)] << 24)
 	case 4: x = Q(1, 0, 0, 1, x) ^ key[6];
+	// fall through
 	case 3: x = Q(1, 1, 0, 0, x) ^ key[4];
+	// fall through
 	case 2: x = Q(0, 1, 0, 1, x) ^ key[2];
 			x = Q(0, 0, 1, 1, x) ^ key[0];
 	}
