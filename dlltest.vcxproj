@@ -24,17 +24,14 @@
     <PlatformToolset>v100</PlatformToolset>
     <ConfigurationType>Application</ConfigurationType>
   </PropertyGroup>
-
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-
   <ImportGroup Label="ExtensionSettings" />
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <!-- End of Visual Studio boilerplate -->
-
   <!-- All Configurations -->
   <PropertyGroup Label="All Configurations">
     <ConfigurationType>Application</ConfigurationType>
@@ -44,7 +41,6 @@
     <OutDir>$(Platform)\DLL_Output\$(Configuration)\</OutDir>
     <IntDir>$(Platform)\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
-
   <!-- All Configurations -->
   <ItemDefinitionGroup Label="All Configurations">
     <ClCompile>
@@ -61,7 +57,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-
   <!-- Debug Configurations -->
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'" Label="Debug Configuration">
     <ClCompile>
@@ -77,7 +72,6 @@
       <Culture>0x0409</Culture>
     </ResourceCompile>
   </ItemDefinitionGroup>
-
   <!-- Release Configurations -->
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'" Label="Release Configuration">
     <ClCompile>
@@ -99,7 +93,6 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
     </Link>
   </ItemDefinitionGroup>
-
   <!-- X86 Configurations -->
   <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'" Label="X86 Configuration">
     <ClCompile>
@@ -110,22 +103,16 @@
       <ImageHasSafeExceptionHandlers>true</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
-
   <!-- X64 Configurations -->
   <ItemDefinitionGroup Condition="'$(Platform)'=='x64'" Label="X64 Configuration">
-    <ClCompile>
-      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
-    </ClCompile>
     <Link>
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
   </ItemDefinitionGroup>
-
   <!-- Source Files -->
   <ItemGroup>
     <ClCompile Include="dlltest.cpp" />
   </ItemGroup>
-
   <!-- Back to Visual Studio boilerplate -->
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -50,7 +50,6 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <!-- End of Visual Studio boilerplate -->
-
   <!-- All Configurations -->
   <PropertyGroup Label="All Configurations">
     <ConfigurationType>StaticLibrary</ConfigurationType>
@@ -60,7 +59,6 @@
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
-
   <!-- Intermediate and Output directories -->
   <!-- Cryptlib and Cryptest need extra care due to Non-DLL/DLL configs -->
   <PropertyGroup Condition="'$(Configuration)'=='Debug' Or '$(Configuration)'=='Release'" Label="Non-DLL Directories">
@@ -75,7 +73,6 @@
     <OutDir>$(Platform)\DLL_Output\Release\</OutDir>
     <IntDir>$(Platform)\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
-
   <!-- All Configurations -->
   <ItemDefinitionGroup Label="All Configurations">
     <ClCompile>
@@ -89,7 +86,6 @@
       <ErrorReporting>NoErrorReport</ErrorReporting>
     </Lib>
   </ItemDefinitionGroup>
-
   <!-- Debug Configurations -->
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug' Or '$(Configuration)'=='DLL-Import Debug'" Label="Debug Configuration">
     <ClCompile>
@@ -105,7 +101,6 @@
       <Culture>0x0409</Culture>
     </ResourceCompile>
   </ItemDefinitionGroup>
-
   <!-- Release Configurations -->
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release' Or '$(Configuration)'=='DLL-Import Release'" Label="Release Configuration">
     <ClCompile>
@@ -123,7 +118,6 @@
       <Culture>0x0409</Culture>
     </ResourceCompile>
   </ItemDefinitionGroup>
-
   <!-- DLL-Import Overrides for Preprocessor -->
   <ItemDefinitionGroup Condition="'$(Configuration)'=='DLL-Import Debug'" Label="DLL Debug Configuration">
     <ClCompile>
@@ -135,7 +129,6 @@
       <PreprocessorDefinitions>NDEBUG;USE_PRECOMPILED_HEADERS;CRYPTOPP_IMPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
-
   <!-- X86 Configurations -->
   <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'" Label="X86 Configuration">
     <ClCompile>
@@ -146,19 +139,13 @@
       <ImageHasSafeExceptionHandlers>true</ImageHasSafeExceptionHandlers>
     </Lib>
   </ItemDefinitionGroup>
-
   <!-- X64 Configurations -->
   <ItemDefinitionGroup Condition="'$(Platform)'=='x64'" Label="X64 Configuration">
-    <ClCompile>
-      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
-    </ClCompile>
     <Lib>
       <TargetMachine>MachineX64</TargetMachine>
     </Lib>
   </ItemDefinitionGroup>
-
   <!-- Original File with special treatment -->
-
   <!-- Source Files -->
   <!-- The order of the first three matters -->
   <ItemGroup>
