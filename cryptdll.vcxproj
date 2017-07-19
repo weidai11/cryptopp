@@ -24,17 +24,14 @@
     <PlatformToolset>v100</PlatformToolset>
     <ConfigurationType>DynamicLibrary</ConfigurationType>
   </PropertyGroup>
-
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-
   <ImportGroup Label="ExtensionSettings" />
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <!-- End of Visual Studio boilerplate -->
-
   <!-- All Configurations -->
   <PropertyGroup Label="All Configurations">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -46,7 +43,6 @@
     <OutDir>$(Platform)\DLL_Output\$(Configuration)\</OutDir>
     <IntDir>$(Platform)\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
-
   <!-- All Configurations -->
   <ItemDefinitionGroup Label="All Configurations">
     <ClCompile>
@@ -67,7 +63,6 @@
       <ImportLibrary>$(TargetDir)\cryptopp.lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
-
   <!-- Debug Configurations -->
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'" Label="Debug Configuration">
     <ClCompile>
@@ -83,7 +78,6 @@
       <Culture>0x0409</Culture>
     </ResourceCompile>
   </ItemDefinitionGroup>
-
   <!-- Release Configurations -->
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'" Label="Release Configuration">
     <ClCompile>
@@ -105,7 +99,6 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
     </Link>
   </ItemDefinitionGroup>
-
   <!-- X86 Configurations -->
   <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'" Label="X86 Configuration">
     <ClCompile>
@@ -116,17 +109,12 @@
       <ImageHasSafeExceptionHandlers>true</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
-
   <!-- X64 Configurations -->
   <ItemDefinitionGroup Condition="'$(Platform)'=='x64'" Label="X64 Configuration">
-    <ClCompile>
-      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
-    </ClCompile>
     <Link>
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
   </ItemDefinitionGroup>
-
   <!-- Win32/Debug cryptest.exe for DLL MAC'ing -->
   <!-- Broken at the moment; see http://stackoverflow.com/q/39900437 -->
   <!--   and http://stackoverflow.com/q/39929817/608639              -->
@@ -142,7 +130,6 @@
       Properties="Configuration=Debug;Platform=Win32;"/>
   </Target>
   -->
-
   <ItemDefinitionGroup Condition="!Exists('Win32\Output\Debug\cryptest.exe')" Label="MAC tool">
     <PreBuildEvent>
       <Message>Creating Win32/Debug cryptest.exe for MAC computation</Message>
@@ -152,7 +139,6 @@
       </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
-
   <!-- DLL MAC'ing performed by cryptest.exe -->
   <ItemDefinitionGroup Label="DLL MAC">
     <PostBuildEvent>
@@ -165,7 +151,6 @@
       <Outputs>$(OutDir)cryptopp.mac.done;%(Outputs)</Outputs>
     </PostBuildEvent>
   </ItemDefinitionGroup>
-
   <!-- Original File with special treatment -->
   <ItemGroup>
     <CustomBuild Condition="'$(Platform)'=='x64' AND ('$(Configuration)'=='Debug' Or '$(Configuration)'=='Release')" Include="x64dll.asm">
@@ -174,7 +159,6 @@
       <Outputs>$(IntDir)x64dll.obj;%(Outputs)</Outputs>
     </CustomBuild>
   </ItemGroup>
-
   <!-- Source Files -->
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -239,7 +223,6 @@
     <ClCompile Include="strciphr.cpp" />
     <ClCompile Include="trdlocal.cpp" />
   </ItemGroup>
-
   <!-- Header Files -->
   <ItemGroup>
     <ClInclude Include="aes.h" />
@@ -310,7 +293,6 @@
     <ClInclude Include="trdlocal.h" />
     <ClInclude Include="words.h" />
   </ItemGroup>
-
   <!-- Back to Visual Studio boilerplate -->
   <ItemGroup>
     <ResourceCompile Include="cryptopp.rc" />
