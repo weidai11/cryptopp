@@ -8,7 +8,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-void HMAC_Base::UncheckedSetKey(const byte *userKey, unsigned int keylength, const NameValuePairs &)
+void HMAC_Base::UncheckedSetKey(const ::byte *userKey, unsigned int keylength, const NameValuePairs &)
 {
 	AssertValidKeyLength(keylength);
 
@@ -57,14 +57,14 @@ void HMAC_Base::Restart()
 	}
 }
 
-void HMAC_Base::Update(const byte *input, size_t length)
+void HMAC_Base::Update(const ::byte *input, size_t length)
 {
 	if (!m_innerHashKeyed)
 		KeyInnerHash();
 	AccessHash().Update(input, length);
 }
 
-void HMAC_Base::TruncatedFinal(byte *mac, size_t size)
+void HMAC_Base::TruncatedFinal(::byte *mac, size_t size)
 {
 	ThrowIfInvalidTruncatedSize(size);
 

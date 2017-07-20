@@ -122,7 +122,7 @@ size_t FileStore::CopyRangeTo2(BufferedTransformation &target, lword &begin, lwo
 			return 0;
 		else
 		{
-			size_t blockedBytes = target.ChannelPut(channel, byte(result), blocking);
+			size_t blockedBytes = target.ChannelPut(channel, ::byte(result), blocking);
 			begin += 1-blockedBytes;
 			return blockedBytes;
 		}
@@ -228,7 +228,7 @@ bool FileSink::IsolatedFlush(bool hardFlush, bool blocking)
 	return false;
 }
 
-size_t FileSink::Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
+size_t FileSink::Put2(const ::byte *inString, size_t length, int messageEnd, bool blocking)
 {
 	CRYPTOPP_UNUSED(blocking);
 	if (!m_stream)

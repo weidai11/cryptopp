@@ -77,7 +77,7 @@ public:
         }
 
     protected:
-        void UncheckedSetKey(const byte *key, unsigned int keylen, const NameValuePairs &params);
+        void UncheckedSetKey(const ::byte *key, unsigned int keylen, const NameValuePairs &params);
 
         typedef SecBlock<word64, AllocatorWithCleanup<word64, true> > AlignedSecBlock64;
         mutable AlignedSecBlock64 m_wspace;   // workspace
@@ -88,21 +88,21 @@ public:
     class CRYPTOPP_NO_VTABLE Enc : public Base
     {
     protected:
-        void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+        void ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const;
 
-        void ProcessAndXorBlock_256(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
-        void ProcessAndXorBlock_512(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
-        void ProcessAndXorBlock_1024(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+        void ProcessAndXorBlock_256(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const;
+        void ProcessAndXorBlock_512(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const;
+        void ProcessAndXorBlock_1024(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const;
     };
 
     class CRYPTOPP_NO_VTABLE Dec : public Base
     {
     protected:
-        void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+        void ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const;
 
-        void ProcessAndXorBlock_256(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
-        void ProcessAndXorBlock_512(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
-        void ProcessAndXorBlock_1024(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+        void ProcessAndXorBlock_256(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const;
+        void ProcessAndXorBlock_512(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const;
+        void ProcessAndXorBlock_1024(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const;
     };
 
 public:

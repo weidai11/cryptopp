@@ -23,7 +23,7 @@ class CRYPTOPP_NO_VTABLE Panama
 {
 public:
 	void Reset();
-	void Iterate(size_t count, const word32 *p=NULLPTR, byte *output=NULLPTR, const byte *input=NULLPTR, KeystreamOperation operation=WRITE_KEYSTREAM);
+	void Iterate(size_t count, const word32 *p=NULLPTR, ::byte *output=NULLPTR, const ::byte *input=NULLPTR, KeystreamOperation operation=WRITE_KEYSTREAM);
 
 protected:
 	typedef word32 Stage[8];
@@ -43,7 +43,7 @@ public:
 	CRYPTOPP_CONSTANT(DIGESTSIZE = 32)
 	PanamaHash() {Panama<B>::Reset();}
 	unsigned int DigestSize() const {return DIGESTSIZE;}
-	void TruncatedFinal(byte *hash, size_t size);
+	void TruncatedFinal(::byte *hash, size_t size);
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return B::ToEnum() == BIG_ENDIAN_ORDER ? "Panama-BE" : "Panama-LE";}
 
 protected:
@@ -60,7 +60,7 @@ template <class T_Hash, class T_Info = T_Hash>
 class HermeticHashFunctionMAC : public AlgorithmImpl<SimpleKeyingInterfaceImpl<TwoBases<MessageAuthenticationCode, VariableKeyLength<32, 0, INT_MAX> > >, T_Info>
 {
 public:
-	void UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params)
+	void UncheckedSetKey(const ::byte *key, unsigned int length, const NameValuePairs &params)
 	{
 		CRYPTOPP_UNUSED(params);
 
@@ -74,14 +74,14 @@ public:
 		m_keyed = false;
 	}
 
-	void Update(const byte *input, size_t length)
+	void Update(const ::byte *input, size_t length)
 	{
 		if (!m_keyed)
 			KeyHash();
 		m_hash.Update(input, length);
 	}
 
-	void TruncatedFinal(byte *digest, size_t digestSize)
+	void TruncatedFinal(::byte *digest, size_t digestSize)
 	{
 		if (!m_keyed)
 			KeyHash();
@@ -118,7 +118,7 @@ class PanamaMAC : public HermeticHashFunctionMAC<PanamaHash<B> >
 {
 public:
  	PanamaMAC() {}
-	PanamaMAC(const byte *key, unsigned int length)
+	PanamaMAC(const ::byte *key, unsigned int length)
 		{this->SetKey(key, length);}
 };
 }
@@ -139,10 +139,10 @@ class PanamaCipherPolicy : public AdditiveCipherConcretePolicy<word32, 8>,
 							protected Panama<B>
 {
 protected:
-	void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length);
-	void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount);
+	void CipherSetKey(const NameValuePairs &params, const ::byte *key, size_t length);
+	void OperateKeystream(KeystreamOperation operation, ::byte *output, const ::byte *input, size_t iterationCount);
 	bool CipherIsRandomAccess() const {return false;}
-	void CipherResynchronize(byte *keystreamBuffer, const byte *iv, size_t length);
+	void CipherResynchronize(::byte *keystreamBuffer, const ::byte *iv, size_t length);
 	unsigned int GetAlignment() const;
 
 	FixedSizeSecBlock<word32, 8> m_key;

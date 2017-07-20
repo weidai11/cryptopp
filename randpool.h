@@ -53,15 +53,15 @@ public:
 	RandomPool();
 
 	bool CanIncorporateEntropy() const {return true;}
-	void IncorporateEntropy(const byte *input, size_t length);
+	void IncorporateEntropy(const ::byte *input, size_t length);
 	void GenerateIntoBufferedTransformation(BufferedTransformation &target, const std::string &channel, lword size);
 
 	// for backwards compatibility. use RandomNumberSource, RandomNumberStore, and RandomNumberSink for other BufferTransformation functionality
-	void Put(const byte *input, size_t length) {IncorporateEntropy(input, length);}
+	void Put(const ::byte *input, size_t length) {IncorporateEntropy(input, length);}
 
 private:
-	FixedSizeAlignedSecBlock<byte, 16, true> m_seed;
-	FixedSizeAlignedSecBlock<byte, 32> m_key;
+	FixedSizeAlignedSecBlock< ::byte, 16, true> m_seed;
+	FixedSizeAlignedSecBlock< ::byte, 32> m_key;
 	member_ptr<BlockCipher> m_pCipher;
 	bool m_keySet;
 };

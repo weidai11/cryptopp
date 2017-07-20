@@ -32,9 +32,9 @@ struct SosemanukInfo : public VariableKeyLength<16, 1, 32, 1, SimpleKeyingInterf
 class SosemanukPolicy : public AdditiveCipherConcretePolicy<word32, 20>, public SosemanukInfo
 {
 protected:
-	void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length);
-	void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount);
-	void CipherResynchronize(byte *keystreamBuffer, const byte *iv, size_t length);
+	void CipherSetKey(const NameValuePairs &params, const ::byte *key, size_t length);
+	void OperateKeystream(KeystreamOperation operation, ::byte *output, const ::byte *input, size_t iterationCount);
+	void CipherResynchronize(::byte *keystreamBuffer, const ::byte *iv, size_t length);
 	bool CipherIsRandomAccess() const {return false;}
 #if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64) && !defined(CRYPTOPP_DISABLE_SOSEMANUK_ASM)
 	unsigned int GetAlignment() const;

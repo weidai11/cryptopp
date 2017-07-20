@@ -35,13 +35,13 @@ private:
 	bool AllowNonrecoverablePart() const;
 	bool RecoverablePartFirst() const;
 	void ComputeMessageRepresentative(RandomNumberGenerator &rng,
-		const byte *recoverableMessage, size_t recoverableMessageLength,
+		const ::byte *recoverableMessage, size_t recoverableMessageLength,
 		HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
-		byte *representative, size_t representativeBitLength) const;
+		::byte *representative, size_t representativeBitLength) const;
 	DecodingResult RecoverMessageFromRepresentative(
 		HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
-		byte *representative, size_t representativeBitLength,
-		byte *recoverableMessage) const;
+		::byte *representative, size_t representativeBitLength,
+		::byte *recoverableMessage) const;
 };
 
 //! \brief PSSR Message Encoding Method with Hash Identifier

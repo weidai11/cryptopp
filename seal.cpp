@@ -20,7 +20,7 @@ void SEAL_TestInstantiations()
 
 struct SEAL_Gamma
 {
-	SEAL_Gamma(const byte *key)
+	SEAL_Gamma(const ::byte *key)
 		: H(5), Z(5), D(16), lastIndex(0xffffffff)
 	{
 		GetUserKey(BIG_ENDIAN_ORDER, H.begin(), 5, key, 20);
@@ -52,7 +52,7 @@ word32 SEAL_Gamma::Apply(word32 i)
 }
 
 template <class B>
-void SEAL_Policy<B>::CipherSetKey(const NameValuePairs &params, const byte *key, size_t length)
+void SEAL_Policy<B>::CipherSetKey(const NameValuePairs &params, const ::byte *key, size_t length)
 {
 	CRYPTOPP_UNUSED(length);
 	m_insideCounter = m_outsideCounter = m_startCount = 0;
@@ -76,7 +76,7 @@ void SEAL_Policy<B>::CipherSetKey(const NameValuePairs &params, const byte *key,
 }
 
 template <class B>
-void SEAL_Policy<B>::CipherResynchronize(byte *keystreamBuffer, const byte *IV, size_t length)
+void SEAL_Policy<B>::CipherResynchronize(::byte *keystreamBuffer, const ::byte *IV, size_t length)
 {
 	CRYPTOPP_UNUSED(keystreamBuffer), CRYPTOPP_UNUSED(IV), CRYPTOPP_UNUSED(length);
 	CRYPTOPP_ASSERT(length==4);
@@ -94,7 +94,7 @@ void SEAL_Policy<B>::SeekToIteration(lword iterationCount)
 }
 
 template <class B>
-void SEAL_Policy<B>::OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount)
+void SEAL_Policy<B>::OperateKeystream(KeystreamOperation operation, ::byte *output, const ::byte *input, size_t iterationCount)
 {
 	word32 a, b, c, d, n1, n2, n3, n4;
 	unsigned int p, q;
@@ -102,7 +102,7 @@ void SEAL_Policy<B>::OperateKeystream(KeystreamOperation operation, byte *output
 	CRYPTOPP_ASSERT(IsAlignedOn(m_T.begin(),GetAlignmentOf<word32>()));
 	for (size_t iteration = 0; iteration < iterationCount; ++iteration)
 	{
-		#define Ttab(x) *(word32 *)(void*)((byte *)m_T.begin()+x)
+		#define Ttab(x) *(word32 *)(void*)((::byte *)m_T.begin()+x)
 
 		a = m_outsideCounter ^ m_R[4*m_insideCounter];
 		b = rotrFixed(m_outsideCounter, 8U) ^ m_R[4*m_insideCounter+1];

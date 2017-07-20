@@ -103,7 +103,7 @@ public:
 	bool ValidateGroup(RandomNumberGenerator &rng, unsigned int level) const;
 	bool ValidateElement(unsigned int level, const Element &element, const DL_FixedBasePrecomputation<Element> *precomp) const;
 	bool FastSubgroupCheckAvailable() const {return false;}
-	void EncodeElement(bool reversible, const Element &element, byte *encoded) const
+	void EncodeElement(bool reversible, const Element &element, ::byte *encoded) const
 	{
 		if (reversible)
 			GetCurve().EncodePoint(encoded, element, m_compress);
@@ -117,7 +117,7 @@ public:
 		else
 			return GetCurve().GetField().MaxElementByteLength();
 	}
-	Element DecodeElement(const byte *encoded, bool checkForGroupMembership) const
+	Element DecodeElement(const ::byte *encoded, bool checkForGroupMembership) const
 	{
 		Point result;
 		if (!GetCurve().DecodePoint(result, encoded, GetEncodedElementSize(true)))

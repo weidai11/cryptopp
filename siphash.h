@@ -79,12 +79,12 @@ public:
 	virtual unsigned int OptimalDataAlignment () const
 		{return GetAlignmentOf<word64>();}
 
-	virtual void Update(const byte *input, size_t length);
-	virtual void TruncatedFinal(byte *digest, size_t digestSize);
+	virtual void Update(const ::byte *input, size_t length);
+	virtual void TruncatedFinal(::byte *digest, size_t digestSize);
 
 protected:
 
-	virtual void UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params);
+	virtual void UncheckedSetKey(const ::byte *key, unsigned int length, const NameValuePairs &params);
 	virtual void Restart();
 
 	inline void SIPROUND()
@@ -111,7 +111,7 @@ private:
 	FixedSizeSecBlock<word64, 2> m_b;
 
 	// Tail bytes
-	FixedSizeSecBlock<byte, 8> m_acc;
+	FixedSizeSecBlock< ::byte, 8> m_acc;
 	size_t m_idx;
 };
 
@@ -150,12 +150,12 @@ public:
 	//! \brief Create a SipHash
 	//! \param key a byte array used to key the cipher
 	//! \param length the size of the byte array, in bytes
-	SipHash(const byte *key, unsigned int length)
+	SipHash(const ::byte *key, unsigned int length)
 		{this->UncheckedSetKey(key, length, g_nullNameValuePairs);}
 };
 
 template <unsigned int C, unsigned int D, bool T_128bit>
-void SipHash_Base<C,D,T_128bit>::Update(const byte *input, size_t length)
+void SipHash_Base<C,D,T_128bit>::Update(const ::byte *input, size_t length)
 {
 	CRYPTOPP_ASSERT((input && length) || !length);
 	if (!length) return;
@@ -204,7 +204,7 @@ void SipHash_Base<C,D,T_128bit>::Update(const byte *input, size_t length)
 }
 
 template <unsigned int C, unsigned int D, bool T_128bit>
-void SipHash_Base<C,D,T_128bit>::TruncatedFinal(byte *digest, size_t digestSize)
+void SipHash_Base<C,D,T_128bit>::TruncatedFinal(::byte *digest, size_t digestSize)
 {
 	CRYPTOPP_ASSERT(digest);      // Pointer is valid
 
@@ -272,7 +272,7 @@ void SipHash_Base<C,D,T_128bit>::TruncatedFinal(byte *digest, size_t digestSize)
 }
 
 template <unsigned int C, unsigned int D, bool T_128bit>
-void SipHash_Base<C,D,T_128bit>::UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params)
+void SipHash_Base<C,D,T_128bit>::UncheckedSetKey(const ::byte *key, unsigned int length, const NameValuePairs &params)
 {
 	CRYPTOPP_UNUSED(params);
 	if (key && length)

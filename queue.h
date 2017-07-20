@@ -37,14 +37,14 @@ public:
 		{return !IsEmpty();}
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
-	byte * CreatePutSpace(size_t &size);
-	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking);
+	::byte * CreatePutSpace(size_t &size);
+	size_t Put2(const ::byte *inString, size_t length, int messageEnd, bool blocking);
 
-	size_t Get(byte &outByte);
-	size_t Get(byte *outString, size_t getMax);
+	size_t Get(::byte &outByte);
+	size_t Get(::byte *outString, size_t getMax);
 
-	size_t Peek(byte &outByte) const;
-	size_t Peek(byte *outString, size_t peekMax) const;
+	size_t Peek(::byte &outByte) const;
+	size_t Peek(::byte *outString, size_t peekMax) const;
 
 	size_t TransferTo2(BufferedTransformation &target, lword &transferBytes, const std::string &channel=DEFAULT_CHANNEL, bool blocking=true);
 	size_t CopyRangeTo2(BufferedTransformation &target, lword &begin, lword end=LWORD_MAX, const std::string &channel=DEFAULT_CHANNEL, bool blocking=true) const;
@@ -57,20 +57,20 @@ public:
 
 	void Clear();
 
-	void Unget(byte inByte);
-	void Unget(const byte *inString, size_t length);
+	void Unget(::byte inByte);
+	void Unget(const ::byte *inString, size_t length);
 
-	const byte * Spy(size_t &contiguousSize) const;
+	const ::byte * Spy(size_t &contiguousSize) const;
 
-	void LazyPut(const byte *inString, size_t size);
-	void LazyPutModifiable(byte *inString, size_t size);
+	void LazyPut(const ::byte *inString, size_t size);
+	void LazyPutModifiable(::byte *inString, size_t size);
 	void UndoLazyPut(size_t size);
 	void FinalizeLazyPut();
 
 	ByteQueue & operator=(const ByteQueue &rhs);
 	bool operator==(const ByteQueue &rhs) const;
 	bool operator!=(const ByteQueue &rhs) const {return !operator==(rhs);}
-	byte operator[](lword i) const;
+	::byte operator[](lword i) const;
 	void swap(ByteQueue &rhs);
 
 	//! \class Walker
@@ -91,11 +91,11 @@ public:
 
 		void IsolatedInitialize(const NameValuePairs &parameters);
 
-		size_t Get(byte &outByte);
-		size_t Get(byte *outString, size_t getMax);
+		size_t Get(::byte &outByte);
+		size_t Get(::byte *outString, size_t getMax);
 
-		size_t Peek(byte &outByte) const;
-		size_t Peek(byte *outString, size_t peekMax) const;
+		size_t Peek(::byte &outByte) const;
+		size_t Peek(::byte *outString, size_t peekMax) const;
 
 		size_t TransferTo2(BufferedTransformation &target, lword &transferBytes, const std::string &channel=DEFAULT_CHANNEL, bool blocking=true);
 		size_t CopyRangeTo2(BufferedTransformation &target, lword &begin, lword end=LWORD_MAX, const std::string &channel=DEFAULT_CHANNEL, bool blocking=true) const;
@@ -105,7 +105,7 @@ public:
 		const ByteQueueNode *m_node;
 		lword m_position;
 		size_t m_offset;
-		const byte *m_lazyString;
+		const ::byte *m_lazyString;
 		size_t m_lazyLength;
 	};
 
@@ -119,7 +119,7 @@ private:
 	bool m_autoNodeSize;
 	size_t m_nodeSize;
 	ByteQueueNode *m_head, *m_tail;
-	byte *m_lazyString;
+	::byte *m_lazyString;
 	size_t m_lazyLength;
 	bool m_lazyStringModifiable;
 };
@@ -128,7 +128,7 @@ private:
 class CRYPTOPP_DLL LazyPutter
 {
 public:
-	LazyPutter(ByteQueue &bq, const byte *inString, size_t size)
+	LazyPutter(ByteQueue &bq, const ::byte *inString, size_t size)
 		: m_bq(bq) {bq.LazyPut(inString, size);}
 	~LazyPutter()
 		{try {m_bq.FinalizeLazyPut();} catch(const Exception&) {CRYPTOPP_ASSERT(0);}}
@@ -142,7 +142,7 @@ private:
 class LazyPutterModifiable : public LazyPutter
 {
 public:
-	LazyPutterModifiable(ByteQueue &bq, byte *inString, size_t size)
+	LazyPutterModifiable(ByteQueue &bq, ::byte *inString, size_t size)
 		: LazyPutter(bq) {bq.LazyPutModifiable(inString, size);}
 };
 

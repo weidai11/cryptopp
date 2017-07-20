@@ -32,9 +32,9 @@ public:
 	unsigned int PrivateKeyLength() const {return m_q.ByteCount();}
 	unsigned int PublicKeyLength() const {return 2*m_p.ByteCount();}
 
-	void GeneratePrivateKey(RandomNumberGenerator &rng, byte *privateKey) const;
-	void GeneratePublicKey(RandomNumberGenerator &rng, const byte *privateKey, byte *publicKey) const;
-	bool Agree(byte *agreedValue, const byte *privateKey, const byte *otherPublicKey, bool validateOtherPublicKey=true) const;
+	void GeneratePrivateKey(RandomNumberGenerator &rng, ::byte *privateKey) const;
+	void GeneratePublicKey(RandomNumberGenerator &rng, const ::byte *privateKey, ::byte *publicKey) const;
+	bool Agree(::byte *agreedValue, const ::byte *privateKey, const ::byte *otherPublicKey, bool validateOtherPublicKey=true) const;
 
 	const Integer &GetModulus() const {return m_p;}
 	const Integer &GetSubgroupOrder() const {return m_q;}

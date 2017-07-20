@@ -132,7 +132,7 @@ struct CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AdditiveCipherAbstractPolicy
 	//! \param keystream the key stream
 	//! \param iterationCount the number of iterations to generate the key stream
 	//! \sa CanOperateKeystream(), OperateKeystream(), WriteKeystream()
-	virtual void WriteKeystream(byte *keystream, size_t iterationCount)
+	virtual void WriteKeystream(::byte *keystream, size_t iterationCount)
 		{OperateKeystream(KeystreamOperation(INPUT_NULL | (KeystreamOperationFlags)IsAlignedOn(keystream, GetAlignment())), keystream, NULLPTR, iterationCount);}
 
 	//! \brief Flag indicating
@@ -148,20 +148,20 @@ struct CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AdditiveCipherAbstractPolicy
 	//! \details OperateKeystream() will attempt to operate upon GetOptimalBlockSize() buffer,
 	//!   which will be derived from GetBytesPerIteration().
 	//! \sa CanOperateKeystream(), OperateKeystream(), WriteKeystream(), KeystreamOperation()
-	virtual void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount)
+	virtual void OperateKeystream(KeystreamOperation operation, ::byte *output, const ::byte *input, size_t iterationCount)
 		{CRYPTOPP_UNUSED(operation); CRYPTOPP_UNUSED(output); CRYPTOPP_UNUSED(input); CRYPTOPP_UNUSED(iterationCount); CRYPTOPP_ASSERT(false);}
 
 	//! \brief Key the cipher
 	//! \param params set of NameValuePairs use to initialize this object
 	//! \param key a byte array used to key the cipher
 	//! \param length the size of the key array
-	virtual void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length) =0;
+	virtual void CipherSetKey(const NameValuePairs &params, const ::byte *key, size_t length) =0;
 
 	//! \brief Resynchronize the cipher
 	//! \param keystreamBuffer the keystream buffer
 	//! \param iv a byte array used to resynchronize the cipher
 	//! \param length the size of the IV array
-	virtual void CipherResynchronize(byte *keystreamBuffer, const byte *iv, size_t length)
+	virtual void CipherResynchronize(::byte *keystreamBuffer, const ::byte *iv, size_t length)
 		{CRYPTOPP_UNUSED(keystreamBuffer); CRYPTOPP_UNUSED(iv); CRYPTOPP_UNUSED(length); throw NotImplemented("SimpleKeyingInterface: this object doesn't support resynchronization");}
 
 	//! \brief Flag indicating random access
@@ -218,7 +218,7 @@ struct CRYPTOPP_NO_VTABLE AdditiveCipherConcretePolicy : public BASE
 	//! \details OperateKeystream() will attempt to operate upon GetOptimalBlockSize() buffer,
 	//!   which will be derived from GetBytesPerIteration().
 	//! \sa CanOperateKeystream(), OperateKeystream(), WriteKeystream(), KeystreamOperation()
-	virtual void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount) =0;
+	virtual void OperateKeystream(KeystreamOperation operation, ::byte *output, const ::byte *input, size_t iterationCount) =0;
 };
 
 //! \brief Helper macro to implement OperateKeystream
@@ -274,7 +274,7 @@ public:
 	//! \param size the length of the buffer, in bytes
 	//! \details All generated values are uniformly distributed over the range specified within the
 	//!   the constraints of a particular generator.
-	void GenerateBlock(byte *output, size_t size);
+	void GenerateBlock(::byte *output, size_t size);
 
 	//! \brief Apply keystream to data
 	//! \param outString a buffer to write the transformed data
@@ -289,12 +289,12 @@ public:
 	//!     ChaCha20 chacha(key, keySize);
 	//!     chacha.ProcessData(cipher, plain, size);
 	//! </pre>
-    void ProcessData(byte *outString, const byte *inString, size_t length);
+    void ProcessData(::byte *outString, const ::byte *inString, size_t length);
 
 	//! \brief Resynchronize the cipher
 	//! \param iv a byte array used to resynchronize the cipher
 	//! \param length the size of the IV array
-	void Resynchronize(const byte *iv, int length=-1);
+	void Resynchronize(const ::byte *iv, int length=-1);
 
 	//! \brief Provides number of ideal bytes to process
 	//! \returns the ideal number of bytes to process
@@ -334,12 +334,12 @@ public:
 	typedef typename BASE::PolicyInterface PolicyInterface;
 
 protected:
-	void UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params);
+	void UncheckedSetKey(const ::byte *key, unsigned int length, const NameValuePairs &params);
 
 	unsigned int GetBufferByteSize(const PolicyInterface &policy) const {return policy.GetBytesPerIteration() * policy.GetIterationsToBuffer();}
 
-	inline byte * KeystreamBufferBegin() {return this->m_buffer.data();}
-	inline byte * KeystreamBufferEnd() {return (this->m_buffer.data() + this->m_buffer.size());}
+	inline ::byte * KeystreamBufferBegin() {return this->m_buffer.data();}
+	inline ::byte * KeystreamBufferEnd() {return (this->m_buffer.data() + this->m_buffer.size());}
 
 	SecByteBlock m_buffer;
 	size_t m_leftOver;
@@ -365,7 +365,7 @@ public:
 
 	//! \brief Access the feedback register
 	//! \returns pointer to the first byte of the feedback register
-	virtual byte * GetRegisterBegin() =0;
+	virtual ::byte * GetRegisterBegin() =0;
 
 	//! \brief TODO
 	virtual void TransformRegister() =0;
@@ -380,7 +380,7 @@ public:
 	//! \param dir the direction of the cipher
 	//! \param iterationCount the number of iterations to perform on the input
 	//! \sa IsSelfInverting() and IsForwardTransformation()
-	virtual void Iterate(byte *output, const byte *input, CipherDir dir, size_t iterationCount)
+	virtual void Iterate(::byte *output, const ::byte *input, CipherDir dir, size_t iterationCount)
 		{CRYPTOPP_UNUSED(output); CRYPTOPP_UNUSED(input); CRYPTOPP_UNUSED(dir); CRYPTOPP_UNUSED(iterationCount);
 		 CRYPTOPP_ASSERT(false); /*throw 0;*/ throw Exception(Exception::OTHER_ERROR, "SimpleKeyingInterface: unexpected error");}
 
@@ -388,12 +388,12 @@ public:
 	//! \param params set of NameValuePairs use to initialize this object
 	//! \param key a byte array used to key the cipher
 	//! \param length the size of the key array
-	virtual void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length) =0;
+	virtual void CipherSetKey(const NameValuePairs &params, const ::byte *key, size_t length) =0;
 
 	//! \brief Resynchronize the cipher
 	//! \param iv a byte array used to resynchronize the cipher
 	//! \param length the size of the IV array
-	virtual void CipherResynchronize(const byte *iv, size_t length)
+	virtual void CipherResynchronize(const ::byte *iv, size_t length)
 		{CRYPTOPP_UNUSED(iv); CRYPTOPP_UNUSED(length); throw NotImplemented("SimpleKeyingInterface: this object doesn't support resynchronization");}
 };
 
@@ -433,7 +433,7 @@ struct CRYPTOPP_NO_VTABLE CFB_CipherConcretePolicy : public BASE
 	template <class B>
 	struct RegisterOutput
 	{
-		RegisterOutput(byte *output, const byte *input, CipherDir dir)
+		RegisterOutput(::byte *output, const ::byte *input, CipherDir dir)
 			: m_output(output), m_input(input), m_dir(dir) {}
 
 		//! \brief XOR feedback register with data
@@ -476,8 +476,8 @@ struct CRYPTOPP_NO_VTABLE CFB_CipherConcretePolicy : public BASE
 			return *this;
 		}
 
-		byte *m_output;
-		const byte *m_input;
+		::byte *m_output;
+		const ::byte *m_input;
 		CipherDir m_dir;
 	};
 };
@@ -502,12 +502,12 @@ public:
 	//!     ChaCha20 chacha(key, keySize);
 	//!     chacha.ProcessData(cipher, plain, size);
 	//! </pre>
-	void ProcessData(byte *outString, const byte *inString, size_t length);
+	void ProcessData(::byte *outString, const ::byte *inString, size_t length);
 
 	//! \brief Resynchronize the cipher
 	//! \param iv a byte array used to resynchronize the cipher
 	//! \param length the size of the IV array
-	void Resynchronize(const byte *iv, int length=-1);
+	void Resynchronize(const ::byte *iv, int length=-1);
 
 	//! \brief Provides number of ideal bytes to process
 	//! \returns the ideal number of bytes to process
@@ -538,9 +538,9 @@ public:
 	typedef typename BASE::PolicyInterface PolicyInterface;
 
 protected:
-	virtual void CombineMessageAndShiftRegister(byte *output, byte *reg, const byte *message, size_t length) =0;
+	virtual void CombineMessageAndShiftRegister(::byte *output, ::byte *reg, const ::byte *message, size_t length) =0;
 
-	void UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params);
+	void UncheckedSetKey(const ::byte *key, unsigned int length, const NameValuePairs &params);
 
 	size_t m_leftOver;
 };
@@ -552,7 +552,7 @@ template <class BASE = AbstractPolicyHolder<CFB_CipherAbstractPolicy, SymmetricC
 class CRYPTOPP_NO_VTABLE CFB_EncryptionTemplate : public CFB_CipherTemplate<BASE>
 {
 	bool IsForwardTransformation() const {return true;}
-	void CombineMessageAndShiftRegister(byte *output, byte *reg, const byte *message, size_t length);
+	void CombineMessageAndShiftRegister(::byte *output, ::byte *reg, const ::byte *message, size_t length);
 };
 
 //! \class CFB_DecryptionTemplate
@@ -562,7 +562,7 @@ template <class BASE = AbstractPolicyHolder<CFB_CipherAbstractPolicy, SymmetricC
 class CRYPTOPP_NO_VTABLE CFB_DecryptionTemplate : public CFB_CipherTemplate<BASE>
 {
 	bool IsForwardTransformation() const {return false;}
-	void CombineMessageAndShiftRegister(byte *output, byte *reg, const byte *message, size_t length);
+	void CombineMessageAndShiftRegister(::byte *output, ::byte *reg, const ::byte *message, size_t length);
 };
 
 //! \class CFB_RequireFullDataBlocks
@@ -592,20 +592,20 @@ public:
 	//! \brief Construct a stream cipher
 	//! \param key a byte array used to key the cipher
 	//! \details This overload uses DEFAULT_KEYLENGTH
-	SymmetricCipherFinal(const byte *key)
+	SymmetricCipherFinal(const ::byte *key)
 		{this->SetKey(key, this->DEFAULT_KEYLENGTH);}
 
 	//! \brief Construct a stream cipher
 	//! \param key a byte array used to key the cipher
 	//! \param length the size of the key array
-	SymmetricCipherFinal(const byte *key, size_t length)
+	SymmetricCipherFinal(const ::byte *key, size_t length)
 		{this->SetKey(key, length);}
 
 	//! \brief Construct a stream cipher
 	//! \param key a byte array used to key the cipher
 	//! \param length the size of the key array
 	//! \param iv a byte array used as an initialization vector
-	SymmetricCipherFinal(const byte *key, size_t length, const byte *iv)
+	SymmetricCipherFinal(const ::byte *key, size_t length, const ::byte *iv)
 		{this->SetKeyWithIV(key, length, iv);}
 
 	//! \brief Clone a SymmetricCipher

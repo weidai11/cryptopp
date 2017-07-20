@@ -32,7 +32,7 @@ class RC2 : public RC2_Info, public BlockCipherDocumentation
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<RC2_Info>
 	{
 	public:
-		void UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &params);
+		void UncheckedSetKey(const ::byte *userKey, unsigned int length, const NameValuePairs &params);
 		unsigned int OptimalDataAlignment() const {return GetAlignmentOf<word16>();}
 
 	protected:
@@ -45,7 +45,7 @@ class RC2 : public RC2_Info, public BlockCipherDocumentation
 	class CRYPTOPP_NO_VTABLE Enc : public Base
 	{
 	public:
-		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+		void ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const;
 	};
 
 	//! \class Dec
@@ -54,7 +54,7 @@ class RC2 : public RC2_Info, public BlockCipherDocumentation
 	class CRYPTOPP_NO_VTABLE Dec : public Base
 	{
 	public:
-		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+		void ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const;
 	};
 
 public:
@@ -66,9 +66,9 @@ public:
 	{
 	public:
 		Encryption() {}
-		Encryption(const byte *key, size_t keyLen=DEFAULT_KEYLENGTH)
+		Encryption(const ::byte *key, size_t keyLen=DEFAULT_KEYLENGTH)
 			{SetKey(key, keyLen);}
-		Encryption(const byte *key, size_t keyLen, int effectiveKeyLen)
+		Encryption(const ::byte *key, size_t keyLen, int effectiveKeyLen)
 			{SetKey(key, keyLen, MakeParameters("EffectiveKeyLength", effectiveKeyLen));}
 	};
 
@@ -79,9 +79,9 @@ public:
 	{
 	public:
 		Decryption() {}
-		Decryption(const byte *key, size_t keyLen=DEFAULT_KEYLENGTH)
+		Decryption(const ::byte *key, size_t keyLen=DEFAULT_KEYLENGTH)
 			{SetKey(key, keyLen);}
-		Decryption(const byte *key, size_t keyLen, int effectiveKeyLen)
+		Decryption(const ::byte *key, size_t keyLen, int effectiveKeyLen)
 			{SetKey(key, keyLen, MakeParameters("EffectiveKeyLength", effectiveKeyLen));}
 	};
 };

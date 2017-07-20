@@ -80,9 +80,9 @@ bool DL_GroupParameters_DSA::ValidateGroup(RandomNumberGenerator &rng, unsigned 
 }
 
 void DL_SignatureMessageEncodingMethod_DSA::ComputeMessageRepresentative(RandomNumberGenerator &rng,
-	const byte *recoverableMessage, size_t recoverableMessageLength,
+	const ::byte *recoverableMessage, size_t recoverableMessageLength,
 	HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
-	byte *representative, size_t representativeBitLength) const
+	::byte *representative, size_t representativeBitLength) const
 {
 	CRYPTOPP_UNUSED(rng), CRYPTOPP_UNUSED(recoverableMessage), CRYPTOPP_UNUSED(recoverableMessageLength);
 	CRYPTOPP_UNUSED(messageEmpty), CRYPTOPP_UNUSED(hashIdentifier);
@@ -105,9 +105,9 @@ void DL_SignatureMessageEncodingMethod_DSA::ComputeMessageRepresentative(RandomN
 }
 
 void DL_SignatureMessageEncodingMethod_NR::ComputeMessageRepresentative(RandomNumberGenerator &rng,
-	const byte *recoverableMessage, size_t recoverableMessageLength,
+	const ::byte *recoverableMessage, size_t recoverableMessageLength,
 	HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
-	byte *representative, size_t representativeBitLength) const
+	::byte *representative, size_t representativeBitLength) const
 {
 	CRYPTOPP_UNUSED(rng);CRYPTOPP_UNUSED(recoverableMessage); CRYPTOPP_UNUSED(recoverableMessageLength);
 	CRYPTOPP_UNUSED(hash); CRYPTOPP_UNUSED(hashIdentifier); CRYPTOPP_UNUSED(messageEmpty);
@@ -229,7 +229,7 @@ void DL_GroupParameters_IntegerBased::GenerateRandom(RandomNumberGenerator &rng,
 	Initialize(p, q, g);
 }
 
-void DL_GroupParameters_IntegerBased::EncodeElement(bool reversible, const Element &element, byte *encoded) const
+void DL_GroupParameters_IntegerBased::EncodeElement(bool reversible, const Element &element, ::byte *encoded) const
 {
 	CRYPTOPP_UNUSED(reversible);
 	element.Encode(encoded, GetModulus().ByteCount());
@@ -241,7 +241,7 @@ unsigned int DL_GroupParameters_IntegerBased::GetEncodedElementSize(bool reversi
 	return GetModulus().ByteCount();
 }
 
-Integer DL_GroupParameters_IntegerBased::DecodeElement(const byte *encoded, bool checkForGroupMembership) const
+Integer DL_GroupParameters_IntegerBased::DecodeElement(const ::byte *encoded, bool checkForGroupMembership) const
 {
 	CRYPTOPP_UNUSED(checkForGroupMembership);
 	Integer g(encoded, GetModulus().ByteCount());

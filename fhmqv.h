@@ -75,7 +75,7 @@ public:
 
   //! generate static private key
   /*! \pre size of privateKey == PrivateStaticKeyLength() */
-  void GenerateStaticPrivateKey(RandomNumberGenerator &rng, byte *privateKey) const
+  void GenerateStaticPrivateKey(RandomNumberGenerator &rng, ::byte *privateKey) const
   {
     Integer x(rng, Integer::One(), GetAbstractGroupParameters().GetMaxExponent());
     x.Encode(privateKey, StaticPrivateKeyLength());
@@ -83,7 +83,7 @@ public:
 
   //! generate static public key
   /*! \pre size of publicKey == PublicStaticKeyLength() */
-  void GenerateStaticPublicKey(RandomNumberGenerator &rng, const byte *privateKey, byte *publicKey) const
+  void GenerateStaticPublicKey(RandomNumberGenerator &rng, const ::byte *privateKey, ::byte *publicKey) const
   {
     CRYPTOPP_UNUSED(rng);
     const DL_GroupParameters<Element> &params = GetAbstractGroupParameters();
@@ -96,7 +96,7 @@ public:
   unsigned int EphemeralPublicKeyLength() const{return StaticPublicKeyLength();}
 
   //! return length of ephemeral private keys in this domain
-  void GenerateEphemeralPrivateKey(RandomNumberGenerator &rng, byte *privateKey) const
+  void GenerateEphemeralPrivateKey(RandomNumberGenerator &rng, ::byte *privateKey) const
   {
     const DL_GroupParameters<Element> &params = GetAbstractGroupParameters();
     Integer x(rng, Integer::One(), params.GetMaxExponent());
@@ -106,7 +106,7 @@ public:
   }
 
   //! return length of ephemeral public keys in this domain
-  void GenerateEphemeralPublicKey(RandomNumberGenerator &rng, const byte *privateKey, byte *publicKey) const
+  void GenerateEphemeralPublicKey(RandomNumberGenerator &rng, const ::byte *privateKey, ::byte *publicKey) const
   {
     CRYPTOPP_UNUSED(rng);
     memcpy(publicKey, privateKey+StaticPrivateKeyLength(), EphemeralPublicKeyLength());
@@ -121,12 +121,12 @@ public:
   \pre length of staticOtherPublicKey == StaticPublicKeyLength()
   \pre length of ephemeralOtherPublicKey == EphemeralPublicKeyLength()
   */
-  bool Agree(byte *agreedValue,
-    const byte *staticPrivateKey, const byte *ephemeralPrivateKey,
-    const byte *staticOtherPublicKey, const byte *ephemeralOtherPublicKey,
+  bool Agree(::byte *agreedValue,
+    const ::byte *staticPrivateKey, const ::byte *ephemeralPrivateKey,
+    const ::byte *staticOtherPublicKey, const ::byte *ephemeralOtherPublicKey,
     bool validateStaticOtherPublicKey=true) const
   {
-    byte *XX = NULLPTR, *YY = NULLPTR, *AA = NULLPTR, *BB = NULLPTR;
+    ::byte *XX = NULLPTR, *YY = NULLPTR, *AA = NULLPTR, *BB = NULLPTR;
     size_t xxs = 0, yys = 0, aas = 0, bbs = 0;
 
     // Depending on the role, this will hold either A's or B's static
@@ -143,11 +143,11 @@ public:
         Element B = params.ExponentiateBase(b);
         params.EncodeElement(true, B, tt);
 
-        XX = const_cast<byte*>(ephemeralOtherPublicKey);
+        XX = const_cast< ::byte*>(ephemeralOtherPublicKey);
         xxs = EphemeralPublicKeyLength();
-        YY = const_cast<byte*>(ephemeralPrivateKey) + StaticPrivateKeyLength();
+        YY = const_cast< ::byte*>(ephemeralPrivateKey) + StaticPrivateKeyLength();
         yys = EphemeralPublicKeyLength();
-        AA = const_cast<byte*>(staticOtherPublicKey);
+        AA = const_cast< ::byte*>(staticOtherPublicKey);
         aas = StaticPublicKeyLength();
         BB = tt.BytePtr();
         bbs = tt.SizeInBytes();
@@ -158,13 +158,13 @@ public:
         Element A = params.ExponentiateBase(a);
         params.EncodeElement(true, A, tt);
 
-        XX = const_cast<byte*>(ephemeralPrivateKey) + StaticPrivateKeyLength();
+        XX = const_cast< ::byte*>(ephemeralPrivateKey) + StaticPrivateKeyLength();
         xxs = EphemeralPublicKeyLength();
-        YY = const_cast<byte*>(ephemeralOtherPublicKey);
+        YY = const_cast< ::byte*>(ephemeralOtherPublicKey);
         yys = EphemeralPublicKeyLength();
         AA = tt.BytePtr();
         aas = tt.SizeInBytes();
-        BB = const_cast<byte*>(staticOtherPublicKey);
+        BB = const_cast< ::byte*>(staticOtherPublicKey);
         bbs = StaticPublicKeyLength();
       }
       else
@@ -240,9 +240,9 @@ public:
 protected:
 
   inline void Hash(const Element* sigma,
-    const byte* e1, size_t e1len, const byte* e2, size_t e2len,
-    const byte* s1, size_t s1len, const byte* s2, size_t s2len,
-    byte* digest, size_t dlen) const
+    const ::byte* e1, size_t e1len, const ::byte* e2, size_t e2len,
+    const ::byte* s1, size_t s1len, const ::byte* s2, size_t s2len,
+    ::byte* digest, size_t dlen) const
   {
     HASH hash;
     size_t idx = 0, req = dlen;

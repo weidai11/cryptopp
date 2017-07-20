@@ -62,21 +62,21 @@ protected:
 		{return false;}
 	unsigned int AuthenticationBlockSize() const
 		{return HASH_BLOCKSIZE;}
-	void SetKeyWithoutResync(const byte *userKey, size_t keylength, const NameValuePairs &params);
-	void Resync(const byte *iv, size_t len);
-	size_t AuthenticateBlocks(const byte *data, size_t len);
+	void SetKeyWithoutResync(const ::byte *userKey, size_t keylength, const NameValuePairs &params);
+	void Resync(const ::byte *iv, size_t len);
+	size_t AuthenticateBlocks(const ::byte *data, size_t len);
 	void AuthenticateLastHeaderBlock();
 	void AuthenticateLastConfidentialBlock();
-	void AuthenticateLastFooterBlock(byte *mac, size_t macSize);
+	void AuthenticateLastFooterBlock(::byte *mac, size_t macSize);
 	SymmetricCipher & AccessSymmetricCipher() {return m_ctr;}
 
 	virtual BlockCipher & AccessBlockCipher() =0;
 	virtual GCM_TablesOption GetTablesOption() const =0;
 
 	const BlockCipher & GetBlockCipher() const {return const_cast<GCM_Base *>(this)->AccessBlockCipher();};
-	byte *HashBuffer() {return m_buffer+REQUIRED_BLOCKSIZE;}
-	byte *HashKey() {return m_buffer+2*REQUIRED_BLOCKSIZE;}
-	byte *MulTable() {return m_buffer+3*REQUIRED_BLOCKSIZE;}
+	::byte *HashBuffer() {return m_buffer+REQUIRED_BLOCKSIZE;}
+	::byte *HashKey() {return m_buffer+2*REQUIRED_BLOCKSIZE;}
+	::byte *MulTable() {return m_buffer+3*REQUIRED_BLOCKSIZE;}
 	inline void ReverseHashBufferIfNeeded();
 
 	class CRYPTOPP_DLL GCTR : public CTR_Mode_ExternalCipher::Encryption

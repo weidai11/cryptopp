@@ -10,7 +10,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte *input, size_t len)
+template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const ::byte *input, size_t len)
 {
 	HashWordType oldCountLo = m_countLo, oldCountHi = m_countHi;
 	if ((m_countLo = oldCountLo + HashWordType(len)) < oldCountLo)
@@ -23,7 +23,7 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte
 	unsigned int num = ModPowerOf2(oldCountLo, blockSize);
 
 	T* dataBuf = this->DataBuf();
-	byte* data = (byte *)dataBuf;
+	::byte* data = (::byte *)dataBuf;
 	CRYPTOPP_ASSERT(dataBuf && data);
 
 	if (num != 0)	// process left over data
@@ -73,12 +73,12 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte
 		memcpy(data, input, len);
 }
 
-template <class T, class BASE> byte * IteratedHashBase<T, BASE>::CreateUpdateSpace(size_t &size)
+template <class T, class BASE> ::byte * IteratedHashBase<T, BASE>::CreateUpdateSpace(size_t &size)
 {
 	unsigned int blockSize = this->BlockSize();
 	unsigned int num = ModPowerOf2(m_countLo, blockSize);
 	size = blockSize - num;
-	return (byte *)DataBuf() + num;
+	return (::byte *)DataBuf() + num;
 }
 
 template <class T, class BASE> size_t IteratedHashBase<T, BASE>::HashMultipleBlocks(const T *input, size_t length)
@@ -103,12 +103,12 @@ template <class T, class BASE> size_t IteratedHashBase<T, BASE>::HashMultipleBlo
 	return length;
 }
 
-template <class T, class BASE> void IteratedHashBase<T, BASE>::PadLastBlock(unsigned int lastBlockSize, byte padFirst)
+template <class T, class BASE> void IteratedHashBase<T, BASE>::PadLastBlock(unsigned int lastBlockSize, ::byte padFirst)
 {
 	unsigned int blockSize = this->BlockSize();
 	unsigned int num = ModPowerOf2(m_countLo, blockSize);
 	T* dataBuf = this->DataBuf();
-	byte* data = (byte *)dataBuf;
+	::byte* data = (::byte *)dataBuf;
 	data[num++] = padFirst;
 	if (num <= lastBlockSize)
 		memset(data+num, 0, lastBlockSize-num);
@@ -126,7 +126,7 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::Restart()
 	Init();
 }
 
-template <class T, class BASE> void IteratedHashBase<T, BASE>::TruncatedFinal(byte *digest, size_t size)
+template <class T, class BASE> void IteratedHashBase<T, BASE>::TruncatedFinal(::byte *digest, size_t size)
 {
 	this->ThrowIfInvalidTruncatedSize(size);
 

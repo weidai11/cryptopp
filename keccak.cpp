@@ -249,7 +249,7 @@ static void KeccakF1600(word64 *state)
     }
 }
 
-void Keccak::Update(const byte *input, size_t length)
+void Keccak::Update(const ::byte *input, size_t length)
 {
     CRYPTOPP_ASSERT((input && length) || !(input || length));
     if (!length) { return; }
@@ -276,7 +276,7 @@ void Keccak::Restart()
     m_counter = 0;
 }
 
-void Keccak::TruncatedFinal(byte *hash, size_t size)
+void Keccak::TruncatedFinal(::byte *hash, size_t size)
 {
     ThrowIfInvalidTruncatedSize(size);
 

@@ -19,7 +19,7 @@ NAMESPACE_BEGIN(CryptoPP)
 template <class H> class EMSA2HashId
 {
 public:
-	static const byte id;
+	static const ::byte id;
 };
 
 template <class BASE>
@@ -67,9 +67,9 @@ public:
 		{CRYPTOPP_UNUSED(hashIdentifierLength); return 8*digestLength + 31;}
 
 	void ComputeMessageRepresentative(RandomNumberGenerator &rng,
-		const byte *recoverableMessage, size_t recoverableMessageLength,
+		const ::byte *recoverableMessage, size_t recoverableMessageLength,
 		HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
-		byte *representative, size_t representativeBitLength) const;
+		::byte *representative, size_t representativeBitLength) const;
 };
 
 //! EMSA2, for use with RWSS and RSA_ISO

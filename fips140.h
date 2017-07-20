@@ -54,7 +54,7 @@ enum PowerUpSelfTestStatus {
 //!   POWER_UP_SELF_TEST_PASSED or POWER_UP_SELF_TEST_FAILED.
 //! \details The self tests for an algorithm are performed by the Algortihm class
 //!   when CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2 is defined.
-CRYPTOPP_DLL void CRYPTOPP_API DoPowerUpSelfTest(const char *moduleFilename, const byte *expectedModuleMac);
+CRYPTOPP_DLL void CRYPTOPP_API DoPowerUpSelfTest(const char *moduleFilename, const ::byte *expectedModuleMac);
 
 //! \brief Performs the power-up self test on the DLL
 //! \details Performs the power-up self test using the filename of this DLL and the
@@ -86,7 +86,7 @@ CRYPTOPP_DLL MessageAuthenticationCode * CRYPTOPP_API NewIntegrityCheckingMAC();
 //! \param pActualMac the actual MAC of the components calculated by the integrity check
 //! \param pMacFileLocation the offest of the MAC in the PE/PE+ module
 //! \returns true if the MAC is valid, false otherwise
-CRYPTOPP_DLL bool CRYPTOPP_API IntegrityCheckModule(const char *moduleFilename, const byte *expectedModuleMac, SecByteBlock *pActualMac = NULLPTR, unsigned long *pMacFileLocation = NULLPTR);
+CRYPTOPP_DLL bool CRYPTOPP_API IntegrityCheckModule(const char *moduleFilename, const ::byte *expectedModuleMac, SecByteBlock *pActualMac = NULLPTR, unsigned long *pMacFileLocation = NULLPTR);
 
 #ifndef CRYPTOPP_DOXYGEN_PROCESSING
 // this is used by Algorithm constructor to allow Algorithm objects to be constructed for the self test

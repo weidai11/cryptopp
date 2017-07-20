@@ -36,7 +36,7 @@ class CAST128 : public CAST128_Info, public BlockCipherDocumentation
 	class CRYPTOPP_NO_VTABLE Base : public CAST, public BlockCipherImpl<CAST128_Info>
 	{
 	public:
-		void UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &params);
+		void UncheckedSetKey(const ::byte *userKey, unsigned int length, const NameValuePairs &params);
 
 	protected:
 		bool reduced;
@@ -48,7 +48,7 @@ class CAST128 : public CAST128_Info, public BlockCipherDocumentation
 	class CRYPTOPP_NO_VTABLE Enc : public Base
 	{
 	public:
-		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+		void ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const;
 	};
 
 	//! \class Dec
@@ -56,7 +56,7 @@ class CAST128 : public CAST128_Info, public BlockCipherDocumentation
 	class CRYPTOPP_NO_VTABLE Dec : public Base
 	{
 	public:
-		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+		void ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const;
 	};
 
 public:
@@ -81,8 +81,8 @@ class CAST256 : public CAST256_Info, public BlockCipherDocumentation
 	class CRYPTOPP_NO_VTABLE Base : public CAST, public BlockCipherImpl<CAST256_Info>
 	{
 	public:
-		void UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &params);
-		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+		void UncheckedSetKey(const ::byte *userKey, unsigned int length, const NameValuePairs &params);
+		void ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const;
 
 	protected:
 		static const word32 t_m[8][24];

@@ -52,7 +52,7 @@ void LowFirstBitWriter::PutBits(unsigned long value, unsigned int length)
 		CRYPTOPP_ASSERT(m_bitsBuffered <= sizeof(unsigned long)*8);
 		while (m_bitsBuffered >= 8)
 		{
-			m_outputBuffer[m_bytesBuffered++] = (byte)m_buffer;
+			m_outputBuffer[m_bytesBuffered++] = (::byte)m_buffer;
 			if (m_bytesBuffered == m_outputBuffer.size())
 			{
 				AttachedTransformation()->PutModifiable(m_outputBuffer, m_bytesBuffered);
@@ -77,7 +77,7 @@ void LowFirstBitWriter::FlushBitBuffer()
 		}
 		if (m_bitsBuffered > 0)
 		{
-			AttachedTransformation()->Put((byte)m_buffer);
+			AttachedTransformation()->Put((::byte)m_buffer);
 			m_buffer = 0;
 			m_bitsBuffered = 0;
 		}
@@ -301,10 +301,10 @@ void Deflator::Reset(bool forceReset)
 	m_detectSkip = 0;
 
 	// m_prev will be initialized automatically in InsertString
-	std::fill(m_head.begin(), m_head.end(), byte(0));
+	std::fill(m_head.begin(), m_head.end(), ::byte(0));
 
-	std::fill(m_literalCounts.begin(), m_literalCounts.end(), byte(0));
-	std::fill(m_distanceCounts.begin(), m_distanceCounts.end(), byte(0));
+	std::fill(m_literalCounts.begin(), m_literalCounts.end(), ::byte(0));
+	std::fill(m_distanceCounts.begin(), m_distanceCounts.end(), ::byte(0));
 }
 
 void Deflator::SetDeflateLevel(int deflateLevel)
@@ -337,7 +337,7 @@ void Deflator::SetDeflateLevel(int deflateLevel)
 	m_deflateLevel = deflateLevel;
 }
 
-unsigned int Deflator::FillWindow(const byte *str, size_t length)
+unsigned int Deflator::FillWindow(const ::byte *str, size_t length)
 {
 	unsigned int maxBlockSize = (unsigned int)STDMIN(2UL*DSIZE, 0xffffUL);
 
@@ -376,7 +376,7 @@ unsigned int Deflator::FillWindow(const byte *str, size_t length)
 	return accepted;
 }
 
-inline unsigned int Deflator::ComputeHash(const byte *str) const
+inline unsigned int Deflator::ComputeHash(const ::byte *str) const
 {
 	CRYPTOPP_ASSERT(str+3 <= m_byteBuffer + m_stringStart + m_lookahead);
 	return ((str[0] << 10) ^ (str[1] << 5) ^ str[2]) & HMASK;
@@ -391,7 +391,7 @@ unsigned int Deflator::LongestMatch(unsigned int &bestMatch) const
 	if (m_lookahead <= bestLength)
 		return 0;
 
-	const byte *scan = m_byteBuffer + m_stringStart, *scanEnd = scan + STDMIN((unsigned int)MAX_MATCH, m_lookahead);
+	const ::byte *scan = m_byteBuffer + m_stringStart, *scanEnd = scan + STDMIN((unsigned int)MAX_MATCH, m_lookahead);
 	unsigned int limit = m_stringStart > (DSIZE-MAX_MATCH) ? m_stringStart - (DSIZE-MAX_MATCH) : 0;
 	unsigned int current = m_head[ComputeHash(scan)];
 
@@ -401,7 +401,7 @@ unsigned int Deflator::LongestMatch(unsigned int &bestMatch) const
 
 	while (current > limit && --chainLength > 0)
 	{
-		const byte *match = m_byteBuffer + current;
+		const ::byte *match = m_byteBuffer + current;
 		CRYPTOPP_ASSERT(scan + bestLength < m_byteBuffer + m_stringStart + m_lookahead);
 		if (scan[bestLength-1] == match[bestLength-1] && scan[bestLength] == match[bestLength] && scan[0] == match[0] && scan[1] == match[1])
 		{
@@ -512,7 +512,7 @@ void Deflator::ProcessBuffer()
 	}
 }
 
-size_t Deflator::Put2(const byte *str, size_t length, int messageEnd, bool blocking)
+size_t Deflator::Put2(const ::byte *str, size_t length, int messageEnd, bool blocking)
 {
 	if (!blocking)
 		throw BlockingInputOnly("Deflator");
@@ -556,7 +556,7 @@ bool Deflator::IsolatedFlush(bool hardFlush, bool blocking)
 	return false;
 }
 
-void Deflator::LiteralByte(byte b)
+void Deflator::LiteralByte(::byte b)
 {
 	if (m_matchBufferEnd == m_matchBuffer.size())
 		EndBlock(false);

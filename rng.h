@@ -27,7 +27,7 @@ public:
 	LC_RNG(word32 init_seed)
 		: seed(init_seed) {}
 
-	void GenerateBlock(byte *output, size_t size);
+	void GenerateBlock(::byte *output, size_t size);
 
 	word32 GetSeed() {return seed;}
 
@@ -64,7 +64,7 @@ public:
 	//!   OS_GenerateRandomBlock(false, seed, seed.size());
 	//!   X917RNG prng(new AES::Encryption(key, AES::DEFAULT_KEYLENGTH), seed, NULLPTR);</pre>
 	//! \sa AutoSeededX917RNG
-	X917RNG(BlockTransformation *cipher, const byte *seed, const byte *deterministicTimeVector = NULLPTR);
+	X917RNG(BlockTransformation *cipher, const ::byte *seed, const ::byte *deterministicTimeVector = NULLPTR);
 
 	void GenerateIntoBufferedTransformation(BufferedTransformation &target, const std::string &channel, lword size);
 
@@ -87,7 +87,7 @@ public:
 	//! \brief Construct a MaurerRandomnessTest
 	MaurerRandomnessTest();
 
-	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking);
+	size_t Put2(const ::byte *inString, size_t length, int messageEnd, bool blocking);
 
 	//! \brief Provides the number of bytes of input is needed by the test
 	//! \returns how many more bytes of input is needed by the test

@@ -142,7 +142,7 @@ public:
 		//! \param order the ByteOrder of the array to be processed
 		//! \details Byte order was added at Crypto++ 5.7 to allow use of little-endian
 		//!   integers with curve25519, Poly1305 and Microsoft CAPI.
-		Integer(const byte *encodedInteger, size_t byteCount, Signedness sign=UNSIGNED, ByteOrder order = BIG_ENDIAN_ORDER);
+		Integer(const ::byte *encodedInteger, size_t byteCount, Signedness sign=UNSIGNED, ByteOrder order = BIG_ENDIAN_ORDER);
 
 		//! \brief Convert from a big-endian array
 		//! \param bt BufferedTransformation object with big-endian byte array
@@ -214,7 +214,7 @@ public:
 		//! \details Unsigned means encode absolute value, signed means encode two's complement if negative.
 		//! \details outputLen can be used to ensure an Integer is encoded to an exact size (rather than a
 		//!   minimum size). An exact size is useful, for example, when encoding to a field element size.
-		void Encode(byte *output, size_t outputLen, Signedness sign=UNSIGNED) const;
+		void Encode(::byte *output, size_t outputLen, Signedness sign=UNSIGNED) const;
 
 		//! \brief Encode in big-endian format
 		//! \param bt BufferedTransformation object
@@ -242,7 +242,7 @@ public:
 		//! \returns length of the output
 		//! \details OpenPGPEncode places result into the buffer and returns the
 		//!   number of bytes used for the encoding
-		size_t OpenPGPEncode(byte *output, size_t bufferSize) const;
+		size_t OpenPGPEncode(::byte *output, size_t bufferSize) const;
 
 		//! \brief Encode absolute value in OpenPGP format
 		//! \param bt BufferedTransformation object
@@ -255,7 +255,7 @@ public:
 		//! \param input big-endian byte array
 		//! \param inputLen length of the byte array
 		//! \param sign enumeration indicating Signedness
-		void Decode(const byte *input, size_t inputLen, Signedness sign=UNSIGNED);
+		void Decode(const ::byte *input, size_t inputLen, Signedness sign=UNSIGNED);
 
 		//! \brief Decode nonnegative value from big-endian byte array
 		//! \param bt BufferedTransformation object
@@ -267,7 +267,7 @@ public:
 		//! \brief Decode from BER format
 		//! \param input big-endian byte array
 		//! \param inputLen length of the byte array
-		void BERDecode(const byte *input, size_t inputLen);
+		void BERDecode(const ::byte *input, size_t inputLen);
 
 		//! \brief Decode from BER format
 		//! \param bt BufferedTransformation object
@@ -288,7 +288,7 @@ public:
 		//! \brief Decode from OpenPGP format
 		//! \param input big-endian byte array
 		//! \param inputLen length of the byte array
-		void OpenPGPDecode(const byte *input, size_t inputLen);
+		void OpenPGPDecode(const ::byte *input, size_t inputLen);
 		//! \brief Decode from OpenPGP format
 		//! \param bt BufferedTransformation object
 		void OpenPGPDecode(BufferedTransformation &bt);
@@ -320,7 +320,7 @@ public:
 		bool GetBit(size_t i) const;
 		//! \brief Provides the i-th byte of the Integer
 		//! \returns the i-th byte
-		byte GetByte(size_t i) const;
+		::byte GetByte(size_t i) const;
 		//! \brief Provides the low order bits of the Integer
 		//! \returns n lowest bits of *this >> i
 		lword GetBits(size_t i, size_t n) const;
@@ -460,7 +460,7 @@ public:
 
 		//! \brief Set the n-th byte to value
 		//! \details 0-based numbering.
-		void SetByte(size_t n, byte value);
+		void SetByte(size_t n, ::byte value);
 
 		//! \brief Reverse the Sign of the Integer
 		void Negate();

@@ -5,13 +5,13 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-void EAX_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const NameValuePairs &params)
+void EAX_Base::SetKeyWithoutResync(const ::byte *userKey, size_t keylength, const NameValuePairs &params)
 {
 	AccessMAC().SetKey(userKey, keylength, params);
 	m_buffer.New(2*AccessMAC().TagSize());
 }
 
-void EAX_Base::Resync(const byte *iv, size_t len)
+void EAX_Base::Resync(const ::byte *iv, size_t len)
 {
 	MessageAuthenticationCode &mac = AccessMAC();
 	unsigned int blockSize = mac.TagSize();
@@ -26,7 +26,7 @@ void EAX_Base::Resync(const byte *iv, size_t len)
 	m_ctr.SetCipherWithIV(AccessMAC().AccessCipher(), m_buffer+blockSize, blockSize);
 }
 
-size_t EAX_Base::AuthenticateBlocks(const byte *data, size_t len)
+size_t EAX_Base::AuthenticateBlocks(const ::byte *data, size_t len)
 {
 	AccessMAC().Update(data, len);
 	return 0;
@@ -46,7 +46,7 @@ void EAX_Base::AuthenticateLastHeaderBlock()
 	mac.Update(m_buffer, blockSize);
 }
 
-void EAX_Base::AuthenticateLastFooterBlock(byte *tag, size_t macSize)
+void EAX_Base::AuthenticateLastFooterBlock(::byte *tag, size_t macSize)
 {
 	CRYPTOPP_ASSERT(m_bufferedDataLength == 0);
 	MessageAuthenticationCode &mac = AccessMAC();

@@ -28,7 +28,7 @@ extern double g_allocatedTime;
 extern double g_hertz;
 extern double g_logTotal;
 extern unsigned int g_logCount;
-extern const byte defaultKey[];
+extern const ::byte defaultKey[];
 
 // Test book keeping
 extern time_t g_testBegin;

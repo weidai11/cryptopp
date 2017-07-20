@@ -25,7 +25,7 @@ ARC4_Base::~ARC4_Base()
 	m_x = m_y = 0;
 }
 
-void ARC4_Base::UncheckedSetKey(const byte *key, unsigned int keyLen, const NameValuePairs &params)
+void ARC4_Base::UncheckedSetKey(const ::byte *key, unsigned int keyLen, const NameValuePairs &params)
 {
 	AssertValidKeyLength(keyLen);
 
@@ -34,7 +34,7 @@ void ARC4_Base::UncheckedSetKey(const byte *key, unsigned int keyLen, const Name
 
 	unsigned int i;
 	for (i=0; i<256; i++)
-		m_state[i] = byte(i);
+		m_state[i] = ::byte(i);
 
 	unsigned int keyIndex = 0, stateIndex = 0;
 	for (i=0; i<256; i++)
@@ -43,7 +43,7 @@ void ARC4_Base::UncheckedSetKey(const byte *key, unsigned int keyLen, const Name
 		stateIndex += key[keyIndex] + a;
 		stateIndex &= 0xff;
 		m_state[i] = m_state[stateIndex];
-		m_state[stateIndex] = byte(a);
+		m_state[stateIndex] = ::byte(a);
 		if (++keyIndex >= keyLen)
 			keyIndex = 0;
 	}
@@ -53,29 +53,29 @@ void ARC4_Base::UncheckedSetKey(const byte *key, unsigned int keyLen, const Name
 }
 
 template <class T>
-static inline unsigned int MakeByte(T &x, T &y, byte *s)
+static inline unsigned int MakeByte(T &x, T &y, ::byte *s)
 {
 	unsigned int a = s[x];
-	y = byte((y+a) & 0xff);
+	y = ::byte((y+a) & 0xff);
 	unsigned int b = s[y];
-	s[x] = byte(b);
-	s[y] = byte(a);
-	x = byte((x+1) & 0xff);
+	s[x] = ::byte(b);
+	s[y] = ::byte(a);
+	x = ::byte((x+1) & 0xff);
 	return s[(a+b) & 0xff];
 }
 
-void ARC4_Base::GenerateBlock(byte *output, size_t size)
+void ARC4_Base::GenerateBlock(::byte *output, size_t size)
 {
 	while (size--)
-		*output++ = static_cast<byte>(MakeByte(m_x, m_y, m_state));
+		*output++ = static_cast< ::byte>(MakeByte(m_x, m_y, m_state));
 }
 
-void ARC4_Base::ProcessData(byte *outString, const byte *inString, size_t length)
+void ARC4_Base::ProcessData(::byte *outString, const ::byte *inString, size_t length)
 {
 	if (length == 0)
 		return;
 
-	byte *const s = m_state;
+	::byte *const s = m_state;
 	unsigned int x = m_x;
 	unsigned int y = m_y;
 
@@ -90,13 +90,13 @@ void ARC4_Base::ProcessData(byte *outString, const byte *inString, size_t length
 	{
 		do
 		{
-			*outString++ = *inString++ ^ byte(MakeByte(x, y, s));
+			*outString++ = *inString++ ^ ::byte(MakeByte(x, y, s));
 		}
 		while(--length);
 	}
 
-	m_x = byte(x);
-	m_y = byte(y);
+	m_x = ::byte(x);
+	m_y = ::byte(y);
 }
 
 void ARC4_Base::DiscardBytes(size_t length)
@@ -104,7 +104,7 @@ void ARC4_Base::DiscardBytes(size_t length)
 	if (length == 0)
 		return;
 
-	byte *const s = m_state;
+	::byte *const s = m_state;
 	unsigned int x = m_x;
 	unsigned int y = m_y;
 
@@ -114,8 +114,8 @@ void ARC4_Base::DiscardBytes(size_t length)
 	}
 	while(--length);
 
-	m_x = byte(x);
-	m_y = byte(y);
+	m_x = ::byte(x);
+	m_y = ::byte(y);
 }
 
 }

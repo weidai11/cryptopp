@@ -7,7 +7,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-void RC2::Base::UncheckedSetKey(const byte *key, unsigned int keyLen, const NameValuePairs &params)
+void RC2::Base::UncheckedSetKey(const ::byte *key, unsigned int keyLen, const NameValuePairs &params)
 {
 	AssertValidKeyLength(keyLen);
 
@@ -41,7 +41,7 @@ void RC2::Base::UncheckedSetKey(const byte *key, unsigned int keyLen, const Name
 		L[i] = PITABLE[(L[i-1] + L[i-keyLen]) & 255];
 
 	unsigned int T8 = (effectiveLen+7) / 8;
-	byte TM = byte((int)255 >> ((8-(effectiveLen%8))%8));
+	::byte TM = ::byte((int)255 >> ((8-(effectiveLen%8))%8));
 	L[128-T8] = PITABLE[L[128-T8] & TM];
 
 	for (i=127-T8; i>=0; i--)
@@ -53,7 +53,7 @@ void RC2::Base::UncheckedSetKey(const byte *key, unsigned int keyLen, const Name
 
 typedef BlockGetAndPut<word16, LittleEndian> Block;
 
-void RC2::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+void RC2::Enc::ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const
 {
 	word16 R0, R1, R2, R3;
 	Block::Get(inBlock)(R0)(R1)(R2)(R3);
@@ -84,7 +84,7 @@ void RC2::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byt
 	Block::Put(xorBlock, outBlock)(R0)(R1)(R2)(R3);
 }
 
-void RC2::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+void RC2::Dec::ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const
 {
 	word16 R0, R1, R2, R3;
 	Block::Get(inBlock)(R0)(R1)(R2)(R3);

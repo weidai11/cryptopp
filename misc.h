@@ -650,12 +650,12 @@ std::string IntToString<Integer>(Integer value, unsigned int base);
 #define RETURN_IF_NONZERO(x) size_t returnedValue = x; if (returnedValue) return returnedValue
 
 // this version of the macro is fastest on Pentium 3 and Pentium 4 with MSVC 6 SP5 w/ Processor Pack
-#define GETBYTE(x, y) (unsigned int)byte((x)>>(8*(y)))
+#define GETBYTE(x, y) (unsigned int)::byte((x)>>(8*(y)))
 // these may be faster on other CPUs/compilers
 // #define GETBYTE(x, y) (unsigned int)(((x)>>(8*(y)))&255)
-// #define GETBYTE(x, y) (((byte *)&(x))[y])
+// #define GETBYTE(x, y) (((::byte *)&(x))[y])
 
-#define CRYPTOPP_GET_BYTE_AS_BYTE(x, y) byte((x)>>(8*(y)))
+#define CRYPTOPP_GET_BYTE_AS_BYTE(x, y) ::byte((x)>>(8*(y)))
 
 //! \brief Returns the parity of a value
 //! \tparam T class or type
@@ -834,7 +834,7 @@ inline size_t BitsToDwords(size_t bitCount)
 //! \param count the size of the buffers, in bytes
 //! \details The function effectively visits each element in the buffers and performs
 //!   <tt>buf[i] ^= mask[i]</tt>. buf and mask must be of equal size.
-CRYPTOPP_DLL void CRYPTOPP_API xorbuf(byte *buf, const byte *mask, size_t count);
+CRYPTOPP_DLL void CRYPTOPP_API xorbuf(::byte *buf, const ::byte *mask, size_t count);
 
 //! Performs an XOR of an input buffer with a mask and stores the result in an output buffer
 //! \param output the destination buffer
@@ -843,7 +843,7 @@ CRYPTOPP_DLL void CRYPTOPP_API xorbuf(byte *buf, const byte *mask, size_t count)
 //! \param count the size of the buffers, in bytes
 //! \details The function effectively visits each element in the buffers and performs
 //!   <tt>output[i] = input[i] ^ mask[i]</tt>. output, input and mask must be of equal size.
-CRYPTOPP_DLL void CRYPTOPP_API xorbuf(byte *output, const byte *input, const byte *mask, size_t count);
+CRYPTOPP_DLL void CRYPTOPP_API xorbuf(::byte *output, const ::byte *input, const ::byte *mask, size_t count);
 
 //! \brief Performs a near constant-time comparison of two equally sized buffers
 //! \param buf1 the first buffer
@@ -854,7 +854,7 @@ CRYPTOPP_DLL void CRYPTOPP_API xorbuf(byte *output, const byte *input, const byt
 //!   CPU micro-code timings could affect the "constant-ness". Calling code is responsible for
 //!   mitigating timing attacks if the buffers are \a not equally sized.
 //! \sa ModPowerOf2
-CRYPTOPP_DLL bool CRYPTOPP_API VerifyBufsEqual(const byte *buf1, const byte *buf2, size_t count);
+CRYPTOPP_DLL bool CRYPTOPP_API VerifyBufsEqual(const ::byte *buf1, const ::byte *buf2, size_t count);
 
 //! \brief Tests whether a value is a power of 2
 //! \param value the value to test
@@ -1111,7 +1111,7 @@ CRYPTOPP_DLL void CRYPTOPP_API CallNewHandler();
 //! \details Performs an addition with carry by adding 1 on a block of bytes starting at the least
 //!   significant byte. Once carry is 0, the function terminates and returns to the caller.
 //! \note The function is not constant time because it stops processing when the carry is 0.
-inline void IncrementCounterByOne(byte *inout, unsigned int size)
+inline void IncrementCounterByOne(::byte *inout, unsigned int size)
 {
 	CRYPTOPP_ASSERT(inout != NULLPTR); CRYPTOPP_ASSERT(size < INT_MAX);
 	for (int i=int(size-1), carry=1; i>=0 && carry; i--)
@@ -1125,7 +1125,7 @@ inline void IncrementCounterByOne(byte *inout, unsigned int size)
 //! \details Performs an addition with carry on a block of bytes starting at the least significant
 //!   byte. Once carry is 0, the remaining bytes from input are copied to output using memcpy.
 //! \details The function is \a close to near-constant time because it operates on all the bytes in the blocks.
-inline void IncrementCounterByOne(byte *output, const byte *input, unsigned int size)
+inline void IncrementCounterByOne(::byte *output, const ::byte *input, unsigned int size)
 {
 	CRYPTOPP_ASSERT(output != NULLPTR); CRYPTOPP_ASSERT(input != NULLPTR); CRYPTOPP_ASSERT(size < INT_MAX);
 
@@ -1184,13 +1184,13 @@ void SecureWipeBuffer(T *buf, size_t n)
 //! \param buf an array of bytes
 //! \param n the number of elements in the array
 //! \details The operation performs a wipe or zeroization. The function attempts to survive optimizations and dead code removal.
-template<> inline void SecureWipeBuffer(byte *buf, size_t n)
+template<> inline void SecureWipeBuffer(::byte *buf, size_t n)
 {
-	volatile byte *p = buf;
+	volatile ::byte *p = buf;
 #ifdef __GNUC__
 	asm volatile("rep stosb" : "+c"(n), "+D"(p) : "a"(0) : "memory");
 #else
-	__stosb((byte *)(size_t)p, 0, n);
+	__stosb((::byte *)(size_t)p, 0, n);
 #endif
 }
 
@@ -1243,7 +1243,7 @@ template<> inline void SecureWipeBuffer(word64 *buf, size_t n)
 #endif	// #if (_MSC_VER >= 1400 || defined(__GNUC__)) && (CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X86)
 
 #if (_MSC_VER >= 1700) && defined(_M_ARM)
-template<> inline void SecureWipeBuffer(byte *buf, size_t n)
+template<> inline void SecureWipeBuffer(::byte *buf, size_t n)
 {
 	char *p = reinterpret_cast<char*>(buf+n);
 	while (n--)
@@ -1287,7 +1287,7 @@ inline void SecureWipeArray(T *buf, size_t n)
 	else if (sizeof(T) % 2 == 0 && GetAlignmentOf<T>() % GetAlignmentOf<word16>() == 0)
 		SecureWipeBuffer((word16 *)(void *)buf, n * (sizeof(T)/2));
 	else
-		SecureWipeBuffer((byte *)(void *)buf, n * sizeof(T));
+		SecureWipeBuffer((::byte *)(void *)buf, n * sizeof(T));
 }
 
 //! \brief Converts a wide character C-string to a multibyte string
@@ -1475,7 +1475,7 @@ template<> inline word32 rotlFixed<word32>(word32 x, unsigned int y)
 {
 	// Uses Microsoft <stdlib.h> call, bound to C/C++ language rules.
 	CRYPTOPP_ASSERT(y < 8*sizeof(x));
-	return y ? _lrotl(x, static_cast<byte>(y)) : x;
+	return y ? _lrotl(x, static_cast< ::byte>(y)) : x;
 }
 
 //! \brief Performs a right rotate
@@ -1490,7 +1490,7 @@ template<> inline word32 rotrFixed<word32>(word32 x, unsigned int y)
 {
 	// Uses Microsoft <stdlib.h> call, bound to C/C++ language rules.
 	CRYPTOPP_ASSERT(y < 8*sizeof(x));
-	return y ? _lrotr(x, static_cast<byte>(y)) : x;
+	return y ? _lrotr(x, static_cast< ::byte>(y)) : x;
 }
 
 //! \brief Performs a left rotate
@@ -1504,7 +1504,7 @@ template<> inline word32 rotrFixed<word32>(word32 x, unsigned int y)
 template<> inline word32 rotlVariable<word32>(word32 x, unsigned int y)
 {
 	CRYPTOPP_ASSERT(y < 8*sizeof(x));
-	return _lrotl(x, static_cast<byte>(y));
+	return _lrotl(x, static_cast< ::byte>(y));
 }
 
 //! \brief Performs a right rotate
@@ -1518,7 +1518,7 @@ template<> inline word32 rotlVariable<word32>(word32 x, unsigned int y)
 template<> inline word32 rotrVariable<word32>(word32 x, unsigned int y)
 {
 	CRYPTOPP_ASSERT(y < 8*sizeof(x));
-	return _lrotr(x, static_cast<byte>(y));
+	return _lrotr(x, static_cast< ::byte>(y));
 }
 
 //! \brief Performs a left rotate
@@ -1531,7 +1531,7 @@ template<> inline word32 rotrVariable<word32>(word32 x, unsigned int y)
 template<> inline word32 rotlMod<word32>(word32 x, unsigned int y)
 {
 	y %= 8*sizeof(x);
-	return _lrotl(x, static_cast<byte>(y));
+	return _lrotl(x, static_cast< ::byte>(y));
 }
 
 //! \brief Performs a right rotate
@@ -1544,7 +1544,7 @@ template<> inline word32 rotlMod<word32>(word32 x, unsigned int y)
 template<> inline word32 rotrMod<word32>(word32 x, unsigned int y)
 {
 	y %= 8*sizeof(x);
-	return _lrotr(x, static_cast<byte>(y));
+	return _lrotr(x, static_cast< ::byte>(y));
 }
 
 #endif // #ifdef _MSC_VER
@@ -1564,7 +1564,7 @@ template<> inline word64 rotlFixed<word64>(word64 x, unsigned int y)
 {
 	// Uses Microsoft <stdlib.h> call, bound to C/C++ language rules.
 	CRYPTOPP_ASSERT(y < 8*sizeof(x));
-	return y ? _rotl64(x, static_cast<byte>(y)) : x;
+	return y ? _rotl64(x, static_cast< ::byte>(y)) : x;
 }
 
 //! \brief Performs a right rotate
@@ -1579,7 +1579,7 @@ template<> inline word64 rotrFixed<word64>(word64 x, unsigned int y)
 {
 	// Uses Microsoft <stdlib.h> call, bound to C/C++ language rules.
 	CRYPTOPP_ASSERT(y < 8*sizeof(x));
-	return y ? _rotr64(x, static_cast<byte>(y)) : x;
+	return y ? _rotr64(x, static_cast< ::byte>(y)) : x;
 }
 
 //! \brief Performs a left rotate
@@ -1593,7 +1593,7 @@ template<> inline word64 rotrFixed<word64>(word64 x, unsigned int y)
 template<> inline word64 rotlVariable<word64>(word64 x, unsigned int y)
 {
 	CRYPTOPP_ASSERT(y < 8*sizeof(x));
-	return _rotl64(x, static_cast<byte>(y));
+	return _rotl64(x, static_cast< ::byte>(y));
 }
 
 //! \brief Performs a right rotate
@@ -1607,7 +1607,7 @@ template<> inline word64 rotlVariable<word64>(word64 x, unsigned int y)
 template<> inline word64 rotrVariable<word64>(word64 x, unsigned int y)
 {
 	CRYPTOPP_ASSERT(y < 8*sizeof(x));
-	return y ? _rotr64(x, static_cast<byte>(y)) : x;
+	return y ? _rotr64(x, static_cast< ::byte>(y)) : x;
 }
 
 //! \brief Performs a left rotate
@@ -1620,7 +1620,7 @@ template<> inline word64 rotrVariable<word64>(word64 x, unsigned int y)
 template<> inline word64 rotlMod<word64>(word64 x, unsigned int y)
 {
 	CRYPTOPP_ASSERT(y < 8*sizeof(x));
-	return y ? _rotl64(x, static_cast<byte>(y)) : x;
+	return y ? _rotl64(x, static_cast< ::byte>(y)) : x;
 }
 
 //! \brief Performs a right rotate
@@ -1633,7 +1633,7 @@ template<> inline word64 rotlMod<word64>(word64 x, unsigned int y)
 template<> inline word64 rotrMod<word64>(word64 x, unsigned int y)
 {
 	CRYPTOPP_ASSERT(y < 8*sizeof(x));
-	return y ? _rotr64(x, static_cast<byte>(y)) : x;
+	return y ? _rotr64(x, static_cast< ::byte>(y)) : x;
 }
 
 #endif // #if _MSC_VER >= 1310
@@ -1644,65 +1644,65 @@ template<> inline word64 rotrMod<word64>(word64 x, unsigned int y)
 template<> inline word16 rotlFixed<word16>(word16 x, unsigned int y)
 {
 	// Intrinsic, not bound to C/C++ language rules.
-	return _rotl16(x, static_cast<byte>(y));
+	return _rotl16(x, static_cast< ::byte>(y));
 }
 
 template<> inline word16 rotrFixed<word16>(word16 x, unsigned int y)
 {
 	// Intrinsic, not bound to C/C++ language rules.
-	return _rotr16(x, static_cast<byte>(y));
+	return _rotr16(x, static_cast< ::byte>(y));
 }
 
 template<> inline word16 rotlVariable<word16>(word16 x, unsigned int y)
 {
-	return _rotl16(x, static_cast<byte>(y));
+	return _rotl16(x, static_cast< ::byte>(y));
 }
 
 template<> inline word16 rotrVariable<word16>(word16 x, unsigned int y)
 {
-	return _rotr16(x, static_cast<byte>(y));
+	return _rotr16(x, static_cast< ::byte>(y));
 }
 
 template<> inline word16 rotlMod<word16>(word16 x, unsigned int y)
 {
-	return _rotl16(x, static_cast<byte>(y));
+	return _rotl16(x, static_cast< ::byte>(y));
 }
 
 template<> inline word16 rotrMod<word16>(word16 x, unsigned int y)
 {
-	return _rotr16(x, static_cast<byte>(y));
+	return _rotr16(x, static_cast< ::byte>(y));
 }
 
-template<> inline byte rotlFixed<byte>(byte x, unsigned int y)
+template<> inline ::byte rotlFixed< ::byte>(::byte x, unsigned int y)
 {
 	// Intrinsic, not bound to C/C++ language rules.
-	return _rotl8(x, static_cast<byte>(y));
+	return _rotl8(x, static_cast< ::byte>(y));
 }
 
-template<> inline byte rotrFixed<byte>(byte x, unsigned int y)
+template<> inline ::byte rotrFixed< ::byte>(::byte x, unsigned int y)
 {
 	// Intrinsic, not bound to C/C++ language rules.
-	return _rotr8(x, static_cast<byte>(y));
+	return _rotr8(x, static_cast< ::byte>(y));
 }
 
-template<> inline byte rotlVariable<byte>(byte x, unsigned int y)
+template<> inline ::byte rotlVariable< ::byte>(::byte x, unsigned int y)
 {
-	return _rotl8(x, static_cast<byte>(y));
+	return _rotl8(x, static_cast< ::byte>(y));
 }
 
-template<> inline byte rotrVariable<byte>(byte x, unsigned int y)
+template<> inline ::byte rotrVariable< ::byte>(::byte x, unsigned int y)
 {
-	return _rotr8(x, static_cast<byte>(y));
+	return _rotr8(x, static_cast< ::byte>(y));
 }
 
-template<> inline byte rotlMod<byte>(byte x, unsigned int y)
+template<> inline ::byte rotlMod< ::byte>(::byte x, unsigned int y)
 {
-	return _rotl8(x, static_cast<byte>(y));
+	return _rotl8(x, static_cast< ::byte>(y));
 }
 
-template<> inline byte rotrMod<byte>(byte x, unsigned int y)
+template<> inline ::byte rotrMod< ::byte>(::byte x, unsigned int y)
 {
-	return _rotr8(x, static_cast<byte>(y));
+	return _rotr8(x, static_cast< ::byte>(y));
 }
 
 #endif // #if _MSC_VER >= 1400
@@ -1763,7 +1763,7 @@ inline unsigned int GetByte(ByteOrder order, T value, unsigned int index)
 //! \brief Reverses bytes in a 8-bit value
 //! \param value the 8-bit value to reverse
 //! \note ByteReverse returns the value passed to it since there is nothing to reverse
-inline byte ByteReverse(byte value)
+inline ::byte ByteReverse(::byte value)
 {
 	return value;
 }
@@ -1842,10 +1842,10 @@ inline word64 ByteReverse(word64 value)
 //! \brief Reverses bits in a 8-bit value
 //! \param value the 8-bit value to reverse
 //! \details BitReverse performs a combination of shifts on the byte
-inline byte BitReverse(byte value)
+inline ::byte BitReverse(::byte value)
 {
-	value = byte((value & 0xAA) >> 1) | byte((value & 0x55) << 1);
-	value = byte((value & 0xCC) >> 2) | byte((value & 0x33) << 2);
+	value = ::byte((value & 0xAA) >> 1) | ::byte((value & 0x55) << 1);
+	value = ::byte((value & 0xCC) >> 2) | ::byte((value & 0x33) << 2);
 	return rotlFixed(value, 4U);
 }
 
@@ -1896,7 +1896,7 @@ template <class T>
 inline T BitReverse(T value)
 {
 	if (sizeof(T) == 1)
-		return (T)BitReverse((byte)value);
+		return (T)BitReverse((::byte)value);
 	else if (sizeof(T) == 2)
 		return (T)BitReverse((word16)value);
 	else if (sizeof(T) == 4)
@@ -1988,37 +1988,37 @@ inline void ConditionalByteReverse(ByteOrder order, T *out, const T *in, size_t 
 }
 
 template <class T>
-inline void GetUserKey(ByteOrder order, T *out, size_t outlen, const byte *in, size_t inlen)
+inline void GetUserKey(ByteOrder order, T *out, size_t outlen, const ::byte *in, size_t inlen)
 {
 	const size_t U = sizeof(T);
 	CRYPTOPP_ASSERT(inlen <= outlen*U);
 	memcpy_s(out, outlen*U, in, inlen);
-	memset_z((byte *)out+inlen, 0, outlen*U-inlen);
+	memset_z((::byte *)out+inlen, 0, outlen*U-inlen);
 	ConditionalByteReverse(order, out, out, RoundUpToMultipleOf(inlen, U));
 }
 
 #ifndef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
-inline byte UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, const byte *)
+inline ::byte UnalignedGetWordNonTemplate(ByteOrder order, const ::byte *block, const ::byte *)
 {
 	CRYPTOPP_UNUSED(order);
 	return block[0];
 }
 
-inline word16 UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, const word16 *)
+inline word16 UnalignedGetWordNonTemplate(ByteOrder order, const ::byte *block, const word16 *)
 {
 	return (order == BIG_ENDIAN_ORDER)
 		? block[1] | (block[0] << 8)
 		: block[0] | (block[1] << 8);
 }
 
-inline word32 UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, const word32 *)
+inline word32 UnalignedGetWordNonTemplate(ByteOrder order, const ::byte *block, const word32 *)
 {
 	return (order == BIG_ENDIAN_ORDER)
 		? word32(block[3]) | (word32(block[2]) << 8) | (word32(block[1]) << 16) | (word32(block[0]) << 24)
 		: word32(block[0]) | (word32(block[1]) << 8) | (word32(block[2]) << 16) | (word32(block[3]) << 24);
 }
 
-inline word64 UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, const word64 *)
+inline word64 UnalignedGetWordNonTemplate(ByteOrder order, const ::byte *block, const word64 *)
 {
 	return (order == BIG_ENDIAN_ORDER)
 		?
@@ -2041,13 +2041,13 @@ inline word64 UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, co
 		(word64(block[7]) << 56));
 }
 
-inline void UnalignedbyteNonTemplate(ByteOrder order, byte *block, byte value, const byte *xorBlock)
+inline void UnalignedbyteNonTemplate(ByteOrder order, ::byte *block, ::byte value, const ::byte *xorBlock)
 {
 	CRYPTOPP_UNUSED(order);
-	block[0] = (byte)(xorBlock ? (value ^ xorBlock[0]) : value);
+	block[0] = (::byte)(xorBlock ? (value ^ xorBlock[0]) : value);
 }
 
-inline void UnalignedbyteNonTemplate(ByteOrder order, byte *block, word16 value, const byte *xorBlock)
+inline void UnalignedbyteNonTemplate(ByteOrder order, ::byte *block, word16 value, const ::byte *xorBlock)
 {
 	if (order == BIG_ENDIAN_ORDER)
 	{
@@ -2077,7 +2077,7 @@ inline void UnalignedbyteNonTemplate(ByteOrder order, byte *block, word16 value,
 	}
 }
 
-inline void UnalignedbyteNonTemplate(ByteOrder order, byte *block, word32 value, const byte *xorBlock)
+inline void UnalignedbyteNonTemplate(ByteOrder order, ::byte *block, word32 value, const ::byte *xorBlock)
 {
 	if (order == BIG_ENDIAN_ORDER)
 	{
@@ -2115,7 +2115,7 @@ inline void UnalignedbyteNonTemplate(ByteOrder order, byte *block, word32 value,
 	}
 }
 
-inline void UnalignedbyteNonTemplate(ByteOrder order, byte *block, word64 value, const byte *xorBlock)
+inline void UnalignedbyteNonTemplate(ByteOrder order, ::byte *block, word64 value, const ::byte *xorBlock)
 {
 	if (order == BIG_ENDIAN_ORDER)
 	{
@@ -2187,7 +2187,7 @@ inline void UnalignedbyteNonTemplate(ByteOrder order, byte *block, word64 value,
 //!    w = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, buffer);
 //! </pre>
 template <class T>
-inline T GetWord(bool assumeAligned, ByteOrder order, const byte *block)
+inline T GetWord(bool assumeAligned, ByteOrder order, const ::byte *block)
 {
 	CRYPTOPP_UNUSED(assumeAligned);
 #ifdef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
@@ -2216,7 +2216,7 @@ inline T GetWord(bool assumeAligned, ByteOrder order, const byte *block)
 //!    w = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, buffer);
 //! </pre>
 template <class T>
-inline void GetWord(bool assumeAligned, ByteOrder order, T &result, const byte *block)
+inline void GetWord(bool assumeAligned, ByteOrder order, T &result, const ::byte *block)
 {
 	result = GetWord<T>(assumeAligned, order, block);
 }
@@ -2232,7 +2232,7 @@ inline void GetWord(bool assumeAligned, ByteOrder order, T &result, const byte *
 //!   if the memory block is aligned for class or type T. The enumeration ByteOrder is BIG_ENDIAN_ORDER or
 //!   LITTLE_ENDIAN_ORDER.
 template <class T>
-inline void PutWord(bool assumeAligned, ByteOrder order, byte *block, T value, const byte *xorBlock = NULLPTR)
+inline void PutWord(bool assumeAligned, ByteOrder order, ::byte *block, T value, const ::byte *xorBlock = NULLPTR)
 {
 	CRYPTOPP_UNUSED(assumeAligned);
 #ifdef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
@@ -2268,7 +2268,7 @@ public:
 	//! \brief Construct a GetBlock
 	//! \param block the memory block
 	GetBlock(const void *block)
-		: m_block((const byte *)block) {}
+		: m_block((const ::byte *)block) {}
 
 	//! \brief Access a block of memory
 	//! \tparam U class or type
@@ -2284,7 +2284,7 @@ public:
 	}
 
 private:
-	const byte *m_block;
+	const ::byte *m_block;
 };
 
 //! \class PutBlock
@@ -2311,7 +2311,7 @@ public:
 	//! \param block the memory block
 	//! \param xorBlock optional mask
 	PutBlock(const void *xorBlock, void *block)
-		: m_xorBlock((const byte *)xorBlock), m_block((byte *)block) {}
+		: m_xorBlock((const ::byte *)xorBlock), m_block((::byte *)block) {}
 
 	//! \brief Access a block of memory
 	//! \tparam U class or type
@@ -2328,8 +2328,8 @@ public:
 	}
 
 private:
-	const byte *m_xorBlock;
-	byte *m_block;
+	const ::byte *m_xorBlock;
+	::byte *m_block;
 };
 
 //! \class BlockGetAndPut

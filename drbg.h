@@ -49,7 +49,7 @@ public:
     //!   with at least <tt>MINIMUM_ENTROPY</tt> entropy. The byte array for <tt>input</tt> must
     //!   meet <A HREF ="http://csrc.nist.gov/publications/PubsSPs.html">NIST SP 800-90B or
     //!   SP 800-90C</A> requirements.
-    virtual void IncorporateEntropy(const byte *input, size_t length)=0;
+    virtual void IncorporateEntropy(const ::byte *input, size_t length)=0;
 
     //! \brief Update RNG state with additional unpredictable values
     //! \param entropy the entropy to add to the generator
@@ -62,14 +62,14 @@ public:
     //!   <tt>MINIMUM_ENTROPY</tt> entropy. The byte array for <tt>entropy</tt> must meet
     //!   <A HREF ="http://csrc.nist.gov/publications/PubsSPs.html">NIST SP 800-90B or
     //!!  SP 800-90C</A> requirements.
-    virtual void IncorporateEntropy(const byte *entropy, size_t entropyLength, const byte* additional, size_t additionaLength)=0;
+    virtual void IncorporateEntropy(const ::byte *entropy, size_t entropyLength, const ::byte* additional, size_t additionaLength)=0;
 
     //! \brief Generate random array of bytes
     //! \param output the byte buffer
     //! \param size the length of the buffer, in bytes
     //! \throws NIST_DRBG::Err if a reseed is required
     //! \throws NIST_DRBG::Err if the size exceeds <tt>MAXIMUM_BYTES_PER_REQUEST</tt>
-    virtual void GenerateBlock(byte *output, size_t size)=0;
+    virtual void GenerateBlock(::byte *output, size_t size)=0;
 
     //! \brief Generate random array of bytes
     //! \param additional additional input to add to the generator
@@ -81,7 +81,7 @@ public:
     //! \details GenerateBlock() is an overload provided to match NIST requirements. The byte
     //!   array for <tt>additional</tt> input is optional. If present the additional randomness
     //!   is mixed before generating the output bytes.
-    virtual void GenerateBlock(const byte* additional, size_t additionaLength, byte *output, size_t size)=0;
+    virtual void GenerateBlock(const ::byte* additional, size_t additionaLength, ::byte *output, size_t size)=0;
 
     //! \brief Provides the security strength
     //! \returns The security strength of the generator, in bytes
@@ -138,10 +138,10 @@ public:
     virtual unsigned int MaxRequestBeforeReseed() const=0;
 
 protected:
-    virtual void DRBG_Instantiate(const byte* entropy, size_t entropyLength,
-        const byte* nonce, size_t nonceLength, const byte* personalization, size_t personalizationLength)=0;
+    virtual void DRBG_Instantiate(const ::byte* entropy, size_t entropyLength,
+        const ::byte* nonce, size_t nonceLength, const ::byte* personalization, size_t personalizationLength)=0;
 
-    virtual void DRBG_Reseed(const byte* entropy, size_t entropyLength, const byte* additional, size_t additionaLength)=0;
+    virtual void DRBG_Reseed(const ::byte* entropy, size_t entropyLength, const ::byte* additional, size_t additionaLength)=0;
 };
 
 // *************************************************************
@@ -205,8 +205,8 @@ public:
     //!    Hash_DRBG<SHA256, 128/8, 440/8> drbg(entropy, 32, entropy+32, 16);
     //!    drbg.GenerateBlock(result, result.size());
     //! </pre>
-    Hash_DRBG(const byte* entropy=NULLPTR, size_t entropyLength=STRENGTH, const byte* nonce=NULLPTR,
-        size_t nonceLength=0, const byte* personalization=NULLPTR, size_t personalizationLength=0)
+    Hash_DRBG(const ::byte* entropy=NULLPTR, size_t entropyLength=STRENGTH, const ::byte* nonce=NULLPTR,
+        size_t nonceLength=0, const ::byte* personalization=NULLPTR, size_t personalizationLength=0)
         : NIST_DRBG(), m_c(SEEDLENGTH), m_v(SEEDLENGTH), m_reseed(0)
     {
         if (entropy != NULLPTR && entropyLength != 0)
@@ -222,32 +222,32 @@ public:
     unsigned int MaxBytesPerRequest() const {return MAXIMUM_BYTES_PER_REQUEST;}
     unsigned int MaxRequestBeforeReseed() const {return MAXIMUM_REQUESTS_BEFORE_RESEED;}
 
-    void IncorporateEntropy(const byte *input, size_t length)
+    void IncorporateEntropy(const ::byte *input, size_t length)
         {return DRBG_Reseed(input, length, NULLPTR, 0);}
 
-    void IncorporateEntropy(const byte *entropy, size_t entropyLength, const byte* additional, size_t additionaLength)
+    void IncorporateEntropy(const ::byte *entropy, size_t entropyLength, const ::byte* additional, size_t additionaLength)
         {return DRBG_Reseed(entropy, entropyLength, additional, additionaLength);}
 
-    void GenerateBlock(byte *output, size_t size)
+    void GenerateBlock(::byte *output, size_t size)
         {return Hash_Generate(NULLPTR, 0, output, size);}
 
-    void GenerateBlock(const byte* additional, size_t additionaLength, byte *output, size_t size)
+    void GenerateBlock(const ::byte* additional, size_t additionaLength, ::byte *output, size_t size)
         {return Hash_Generate(additional, additionaLength, output, size);}
 
 protected:
     // 10.1.1.2 Instantiation of Hash_DRBG (p.39)
-    void DRBG_Instantiate(const byte* entropy, size_t entropyLength, const byte* nonce, size_t nonceLength,
-        const byte* personalization, size_t personalizationLength);
+    void DRBG_Instantiate(const ::byte* entropy, size_t entropyLength, const ::byte* nonce, size_t nonceLength,
+        const ::byte* personalization, size_t personalizationLength);
 
     // 10.1.1.3 Reseeding a Hash_DRBG Instantiation (p.40)
-    void DRBG_Reseed(const byte* entropy, size_t entropyLength, const byte* additional, size_t additionaLength);
+    void DRBG_Reseed(const ::byte* entropy, size_t entropyLength, const ::byte* additional, size_t additionaLength);
 
     // 10.1.1.4 Generating Pseudorandom Bits Using Hash_DRBG (p.41)
-    void Hash_Generate(const byte* additional, size_t additionaLength, byte *output, size_t size);
+    void Hash_Generate(const ::byte* additional, size_t additionaLength, ::byte *output, size_t size);
 
     // 10.3.1 Derivation Function Using a Hash Function (Hash_df) (p.49)
-    void Hash_Update(const byte* input1, size_t inlen1, const byte* input2, size_t inlen2,
-        const byte* input3, size_t inlen3, const byte* input4, size_t inlen4, byte* output, size_t outlen);
+    void Hash_Update(const ::byte* input1, size_t inlen1, const ::byte* input2, size_t inlen2,
+        const ::byte* input3, size_t inlen3, const ::byte* input4, size_t inlen4, ::byte* output, size_t outlen);
 
 private:
     SecByteBlock m_c, m_v;
@@ -319,8 +319,8 @@ public:
     //!    HMAC_DRBG<SHA256, 128/8, 440/8> drbg(entropy, 32, entropy+32, 16);
     //!    drbg.GenerateBlock(result, result.size());
     //! </pre>
-    HMAC_DRBG(const byte* entropy=NULLPTR, size_t entropyLength=STRENGTH, const byte* nonce=NULLPTR,
-        size_t nonceLength=0, const byte* personalization=NULLPTR, size_t personalizationLength=0)
+    HMAC_DRBG(const ::byte* entropy=NULLPTR, size_t entropyLength=STRENGTH, const ::byte* nonce=NULLPTR,
+        size_t nonceLength=0, const ::byte* personalization=NULLPTR, size_t personalizationLength=0)
         : NIST_DRBG(), m_k(HASH::DIGESTSIZE), m_v(HASH::DIGESTSIZE), m_reseed(0)
     {
         if (entropy != NULLPTR && entropyLength != 0)
@@ -336,31 +336,31 @@ public:
     unsigned int MaxBytesPerRequest() const {return MAXIMUM_BYTES_PER_REQUEST;}
     unsigned int MaxRequestBeforeReseed() const {return MAXIMUM_REQUESTS_BEFORE_RESEED;}
 
-    void IncorporateEntropy(const byte *input, size_t length)
+    void IncorporateEntropy(const ::byte *input, size_t length)
         {return DRBG_Reseed(input, length, NULLPTR, 0);}
 
-    void IncorporateEntropy(const byte *entropy, size_t entropyLength, const byte* additional, size_t additionaLength)
+    void IncorporateEntropy(const ::byte *entropy, size_t entropyLength, const ::byte* additional, size_t additionaLength)
         {return DRBG_Reseed(entropy, entropyLength, additional, additionaLength);}
 
-    void GenerateBlock(byte *output, size_t size)
+    void GenerateBlock(::byte *output, size_t size)
         {return HMAC_Generate(NULLPTR, 0, output, size);}
 
-    void GenerateBlock(const byte* additional, size_t additionaLength, byte *output, size_t size)
+    void GenerateBlock(const ::byte* additional, size_t additionaLength, ::byte *output, size_t size)
         {return HMAC_Generate(additional, additionaLength, output, size);}
 
 protected:
     // 10.1.2.3 Instantiation of HMAC_DRBG (p.45)
-    void DRBG_Instantiate(const byte* entropy, size_t entropyLength, const byte* nonce, size_t nonceLength,
-        const byte* personalization, size_t personalizationLength);
+    void DRBG_Instantiate(const ::byte* entropy, size_t entropyLength, const ::byte* nonce, size_t nonceLength,
+        const ::byte* personalization, size_t personalizationLength);
 
     // 10.1.2.4 Reseeding a HMAC_DRBG Instantiation (p.46)
-    void DRBG_Reseed(const byte* entropy, size_t entropyLength, const byte* additional, size_t additionaLength);
+    void DRBG_Reseed(const ::byte* entropy, size_t entropyLength, const ::byte* additional, size_t additionaLength);
 
     // 10.1.2.5 Generating Pseudorandom Bits Using HMAC_DRBG (p.46)
-    void HMAC_Generate(const byte* additional, size_t additionaLength, byte *output, size_t size);
+    void HMAC_Generate(const ::byte* additional, size_t additionaLength, ::byte *output, size_t size);
 
     // 10.1.2.2 Derivation Function Using a HMAC Function (HMAC_Update) (p.44)
-    void HMAC_Update(const byte* input1, size_t inlen1, const byte* input2, size_t inlen2, const byte* input3, size_t inlen3);
+    void HMAC_Update(const ::byte* input1, size_t inlen1, const ::byte* input2, size_t inlen2, const ::byte* input3, size_t inlen3);
 
 private:
     SecByteBlock m_k, m_v;
@@ -376,8 +376,8 @@ private:
 
 // 10.1.1.2 Instantiation of Hash_DRBG (p.39)
 template <typename HASH, unsigned int STRENGTH, unsigned int SEEDLENGTH>
-void Hash_DRBG<HASH, STRENGTH, SEEDLENGTH>::DRBG_Instantiate(const byte* entropy, size_t entropyLength, const byte* nonce, size_t nonceLength,
-    const byte* personalization, size_t personalizationLength)
+void Hash_DRBG<HASH, STRENGTH, SEEDLENGTH>::DRBG_Instantiate(const ::byte* entropy, size_t entropyLength, const ::byte* nonce, size_t nonceLength,
+    const ::byte* personalization, size_t personalizationLength)
 {
     //  SP 800-90A, 8.6.3: The entropy input shall have entropy that is equal to or greater than the security
     //  strength of the instantiation. Additional entropy may be provided in the nonce or the optional
@@ -394,7 +394,7 @@ void Hash_DRBG<HASH, STRENGTH, SEEDLENGTH>::DRBG_Instantiate(const byte* entropy
     CRYPTOPP_ASSERT(nonceLength <= MAXIMUM_NONCE);
     CRYPTOPP_ASSERT(personalizationLength <= MAXIMUM_PERSONALIZATION);
 
-    const byte zero = 0;
+    const ::byte zero = 0;
     SecByteBlock t1(SEEDLENGTH), t2(SEEDLENGTH);
     Hash_Update(entropy, entropyLength, nonce, nonceLength, personalization, personalizationLength, NULLPTR, 0, t1, t1.size());
     Hash_Update(&zero, 1, t1, t1.size(), NULLPTR, 0, NULLPTR, 0, t2, t2.size());
@@ -405,7 +405,7 @@ void Hash_DRBG<HASH, STRENGTH, SEEDLENGTH>::DRBG_Instantiate(const byte* entropy
 
 // 10.1.1.3 Reseeding a Hash_DRBG Instantiation (p.40)
 template <typename HASH, unsigned int STRENGTH, unsigned int SEEDLENGTH>
-void Hash_DRBG<HASH, STRENGTH, SEEDLENGTH>::DRBG_Reseed(const byte* entropy, size_t entropyLength, const byte* additional, size_t additionaLength)
+void Hash_DRBG<HASH, STRENGTH, SEEDLENGTH>::DRBG_Reseed(const ::byte* entropy, size_t entropyLength, const ::byte* additional, size_t additionaLength)
 {
     //  SP 800-90A, 8.6.3: The entropy input shall have entropy that is equal to or greater than the security
     //  strength of the instantiation. Additional entropy may be provided in the nonce or the optional
@@ -421,7 +421,7 @@ void Hash_DRBG<HASH, STRENGTH, SEEDLENGTH>::DRBG_Reseed(const byte* entropy, siz
     CRYPTOPP_ASSERT(entropyLength <= MAXIMUM_ENTROPY);
     CRYPTOPP_ASSERT(additionaLength <= MAXIMUM_ADDITIONAL);
 
-    const byte zero = 0, one = 1;
+    const ::byte zero = 0, one = 1;
     SecByteBlock t1(SEEDLENGTH), t2(SEEDLENGTH);
     Hash_Update(&one, 1, m_v, m_v.size(), entropy, entropyLength, additional, additionaLength, t1, t1.size());
     Hash_Update(&zero, 1, t1, t1.size(), NULLPTR, 0, NULLPTR, 0, t2, t2.size());
@@ -432,7 +432,7 @@ void Hash_DRBG<HASH, STRENGTH, SEEDLENGTH>::DRBG_Reseed(const byte* entropy, siz
 
 // 10.1.1.4 Generating Pseudorandom Bits Using Hash_DRBG (p.41)
 template <typename HASH, unsigned int STRENGTH, unsigned int SEEDLENGTH>
-void Hash_DRBG<HASH, STRENGTH, SEEDLENGTH>::Hash_Generate(const byte* additional, size_t additionaLength, byte *output, size_t size)
+void Hash_DRBG<HASH, STRENGTH, SEEDLENGTH>::Hash_Generate(const ::byte* additional, size_t additionaLength, ::byte *output, size_t size)
 {
     // Step 1
     if (static_cast<word64>(m_reseed) >= static_cast<word64>(MaxRequestBeforeReseed()))
@@ -449,7 +449,7 @@ void Hash_DRBG<HASH, STRENGTH, SEEDLENGTH>::Hash_Generate(const byte* additional
     if (additional && additionaLength)
     {
         HASH hash;
-        const byte two = 2;
+        const ::byte two = 2;
         SecByteBlock w(HASH::DIGESTSIZE);
 
         hash.Update(&two, 1);
@@ -462,13 +462,13 @@ void Hash_DRBG<HASH, STRENGTH, SEEDLENGTH>::Hash_Generate(const byte* additional
         while (j>=0)
         {
             carry = m_v[i] + w[j] + carry;
-            m_v[i] = static_cast<byte>(carry);
+            m_v[i] = static_cast< ::byte>(carry);
             i--; j--; carry >>= 8;
         }
         while (i>=0)
         {
             carry = m_v[i] + carry;
-            m_v[i] = static_cast<byte>(carry);
+            m_v[i] = static_cast< ::byte>(carry);
             i--; carry >>= 8;
         }
     }
@@ -492,7 +492,7 @@ void Hash_DRBG<HASH, STRENGTH, SEEDLENGTH>::Hash_Generate(const byte* additional
     // Steps 4-7
     {
         HASH hash;
-        const byte three = 3;
+        const ::byte three = 3;
         SecByteBlock h(HASH::DIGESTSIZE);
 
         hash.Update(&three, 1);
@@ -506,9 +506,9 @@ void Hash_DRBG<HASH, STRENGTH, SEEDLENGTH>::Hash_Generate(const byte* additional
         // Using Integer class slows things down by about 8 cpb.
         // Using word128 and word64 benefits the first loop only by about 2 cpb.
 #if defined(CRYPTOPP_WORD128_AVAILABLE)
-        byte* p1 = m_v.begin()+SEEDLENGTH-8;
-        byte* p2 = m_c.begin()+SEEDLENGTH-8;
-        byte* p3 = h.begin()+HASH::DIGESTSIZE-8;
+        ::byte* p1 = m_v.begin()+SEEDLENGTH-8;
+        ::byte* p2 = m_c.begin()+SEEDLENGTH-8;
+        ::byte* p3 = h.begin()+HASH::DIGESTSIZE-8;
 
         const word64 w1 = GetWord<word64>(false, BIG_ENDIAN_ORDER, p1);
         const word64 w2 = GetWord<word64>(false, BIG_ENDIAN_ORDER, p2);
@@ -553,14 +553,14 @@ void Hash_DRBG<HASH, STRENGTH, SEEDLENGTH>::Hash_Generate(const byte* additional
         while (j>=0)
         {
             carry = m_v[i] + m_c[i] + h[j] + carry;
-            m_v[i] = static_cast<byte>(carry);
+            m_v[i] = static_cast< ::byte>(carry);
             i--; j--; carry >>= 8;
         }
 
         while (i>=0)
         {
             carry = m_v[i] + m_c[i] + carry;
-            m_v[i] = static_cast<byte>(carry);
+            m_v[i] = static_cast< ::byte>(carry);
             i--; carry >>= 8;
         }
 
@@ -573,17 +573,17 @@ void Hash_DRBG<HASH, STRENGTH, SEEDLENGTH>::Hash_Generate(const byte* additional
 
 // 10.3.1 Derivation Function Using a Hash Function (Hash_df) (p.49)
 template <typename HASH, unsigned int STRENGTH, unsigned int SEEDLENGTH>
-void Hash_DRBG<HASH, STRENGTH, SEEDLENGTH>::Hash_Update(const byte* input1, size_t inlen1, const byte* input2, size_t inlen2,
-    const byte* input3, size_t inlen3, const byte* input4, size_t inlen4, byte* output, size_t outlen)
+void Hash_DRBG<HASH, STRENGTH, SEEDLENGTH>::Hash_Update(const ::byte* input1, size_t inlen1, const ::byte* input2, size_t inlen2,
+    const ::byte* input3, size_t inlen3, const ::byte* input4, size_t inlen4, ::byte* output, size_t outlen)
 {
     HASH hash;
-    byte counter = 1;
+    ::byte counter = 1;
     word32 bits = ConditionalByteReverse(BIG_ENDIAN_ORDER, static_cast<word32>(outlen*8));
 
     while (outlen)
     {
         hash.Update(&counter, 1);
-        hash.Update(reinterpret_cast<const byte*>(&bits), 4);
+        hash.Update(reinterpret_cast<const ::byte*>(&bits), 4);
 
         if (input1 && inlen1)
             hash.Update(input1, inlen1);
@@ -606,8 +606,8 @@ void Hash_DRBG<HASH, STRENGTH, SEEDLENGTH>::Hash_Update(const byte* input1, size
 
 // 10.1.2.3 Instantiation of HMAC_DRBG (p.45)
 template <typename HASH, unsigned int STRENGTH, unsigned int SEEDLENGTH>
-void HMAC_DRBG<HASH, STRENGTH, SEEDLENGTH>::DRBG_Instantiate(const byte* entropy, size_t entropyLength, const byte* nonce, size_t nonceLength,
-    const byte* personalization, size_t personalizationLength)
+void HMAC_DRBG<HASH, STRENGTH, SEEDLENGTH>::DRBG_Instantiate(const ::byte* entropy, size_t entropyLength, const ::byte* nonce, size_t nonceLength,
+    const ::byte* personalization, size_t personalizationLength)
 {
     //  SP 800-90A, 8.6.3: The entropy input shall have entropy that is equal to or greater than the security
     //  strength of the instantiation. Additional entropy may be provided in the nonce or the optional
@@ -624,8 +624,8 @@ void HMAC_DRBG<HASH, STRENGTH, SEEDLENGTH>::DRBG_Instantiate(const byte* entropy
     CRYPTOPP_ASSERT(nonceLength <= MAXIMUM_NONCE);
     CRYPTOPP_ASSERT(personalizationLength <= MAXIMUM_PERSONALIZATION);
 
-    std::fill(m_k.begin(), m_k.begin()+m_k.size(), byte(0));
-    std::fill(m_v.begin(), m_v.begin()+m_v.size(), byte(1));
+    std::fill(m_k.begin(), m_k.begin()+m_k.size(), ::byte(0));
+    std::fill(m_v.begin(), m_v.begin()+m_v.size(), ::byte(1));
 
     HMAC_Update(entropy, entropyLength, nonce, nonceLength, personalization, personalizationLength);
     m_reseed = 1;
@@ -633,7 +633,7 @@ void HMAC_DRBG<HASH, STRENGTH, SEEDLENGTH>::DRBG_Instantiate(const byte* entropy
 
 // 10.1.2.4 Reseeding a HMAC_DRBG Instantiation (p.46)
 template <typename HASH, unsigned int STRENGTH, unsigned int SEEDLENGTH>
-void HMAC_DRBG<HASH, STRENGTH, SEEDLENGTH>::DRBG_Reseed(const byte* entropy, size_t entropyLength, const byte* additional, size_t additionaLength)
+void HMAC_DRBG<HASH, STRENGTH, SEEDLENGTH>::DRBG_Reseed(const ::byte* entropy, size_t entropyLength, const ::byte* additional, size_t additionaLength)
 {
     //  SP 800-90A, 8.6.3: The entropy input shall have entropy that is equal to or greater than the security
     //  strength of the instantiation. Additional entropy may be provided in the nonce or the optional
@@ -655,7 +655,7 @@ void HMAC_DRBG<HASH, STRENGTH, SEEDLENGTH>::DRBG_Reseed(const byte* entropy, siz
 
 // 10.1.2.5 Generating Pseudorandom Bits Using HMAC_DRBG (p.46)
 template <typename HASH, unsigned int STRENGTH, unsigned int SEEDLENGTH>
-void HMAC_DRBG<HASH, STRENGTH, SEEDLENGTH>::HMAC_Generate(const byte* additional, size_t additionaLength, byte *output, size_t size)
+void HMAC_DRBG<HASH, STRENGTH, SEEDLENGTH>::HMAC_Generate(const ::byte* additional, size_t additionaLength, ::byte *output, size_t size)
 {
     // Step 1
     if (static_cast<word64>(m_reseed) >= static_cast<word64>(MaxRequestBeforeReseed()))
@@ -693,9 +693,9 @@ void HMAC_DRBG<HASH, STRENGTH, SEEDLENGTH>::HMAC_Generate(const byte* additional
 
 // 10.1.2.2 Derivation Function Using a HMAC Function (HMAC_Update) (p.44)
 template <typename HASH, unsigned int STRENGTH, unsigned int SEEDLENGTH>
-void HMAC_DRBG<HASH, STRENGTH, SEEDLENGTH>::HMAC_Update(const byte* input1, size_t inlen1, const byte* input2, size_t inlen2, const byte* input3, size_t inlen3)
+void HMAC_DRBG<HASH, STRENGTH, SEEDLENGTH>::HMAC_Update(const ::byte* input1, size_t inlen1, const ::byte* input2, size_t inlen2, const ::byte* input3, size_t inlen3)
 {
-    const byte zero = 0, one = 1;
+    const ::byte zero = 0, one = 1;
     HMAC<HASH> hmac;
 
     // Step 1

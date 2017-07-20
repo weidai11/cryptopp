@@ -27,7 +27,7 @@ void ChaCha_TestInstantiations()
 #endif
 
 template <unsigned int R>
-void ChaCha_Policy<R>::CipherSetKey(const NameValuePairs &params, const byte *key, size_t length)
+void ChaCha_Policy<R>::CipherSetKey(const NameValuePairs &params, const ::byte *key, size_t length)
 {
 	CRYPTOPP_UNUSED(params);
 	CRYPTOPP_ASSERT(length == 16 || length == 32);
@@ -46,7 +46,7 @@ void ChaCha_Policy<R>::CipherSetKey(const NameValuePairs &params, const byte *ke
 }
 
 template <unsigned int R>
-void ChaCha_Policy<R>::CipherResynchronize(byte *keystreamBuffer, const byte *IV, size_t length)
+void ChaCha_Policy<R>::CipherResynchronize(::byte *keystreamBuffer, const ::byte *IV, size_t length)
 {
 	CRYPTOPP_UNUSED(keystreamBuffer), CRYPTOPP_UNUSED(length);
 	CRYPTOPP_ASSERT(length==8);
@@ -92,7 +92,7 @@ unsigned int ChaCha_Policy<R>::GetOptimalBlockSize() const
 }
 
 template<unsigned int R>
-void ChaCha_Policy<R>::OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount)
+void ChaCha_Policy<R>::OperateKeystream(KeystreamOperation operation, ::byte *output, const ::byte *input, size_t iterationCount)
 {
 	word32 x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15;
 

@@ -258,7 +258,7 @@ public:
 #endif
 };
 
-CRYPTOPP_DLL_TEMPLATE_CLASS AllocatorWithCleanup<byte>;
+CRYPTOPP_DLL_TEMPLATE_CLASS AllocatorWithCleanup< ::byte>;
 CRYPTOPP_DLL_TEMPLATE_CLASS AllocatorWithCleanup<word16>;
 CRYPTOPP_DLL_TEMPLATE_CLASS AllocatorWithCleanup<word32>;
 CRYPTOPP_DLL_TEMPLATE_CLASS AllocatorWithCleanup<word64>;
@@ -467,7 +467,7 @@ private:
 	T* GetAlignedArray() {return m_array;}
 	T m_array[S];
 #else
-	T* GetAlignedArray() {return (CRYPTOPP_BOOL_ALIGN16 && T_Align16) ? (T*)(void *)(((byte *)m_array) + (0-(size_t)m_array)%16) : m_array;}
+	T* GetAlignedArray() {return (CRYPTOPP_BOOL_ALIGN16 && T_Align16) ? (T*)(void *)(((::byte *)m_array) + (0-(size_t)m_array)%16) : m_array;}
 	CRYPTOPP_ALIGN_DATA(8) T m_array[(CRYPTOPP_BOOL_ALIGN16 && T_Align16) ? S+8/sizeof(T) : S];
 #endif
 
@@ -574,10 +574,10 @@ public:
 
 	//! \brief Provides a byte pointer to the first element in the memory block
 	//! \returns byte pointer to the first element in the memory block
-	byte * BytePtr() {return (byte *)m_ptr;}
+	::byte * BytePtr() {return (::byte *)m_ptr;}
 	//! \brief Return a byte pointer to the first element in the memory block
 	//! \returns constant byte pointer to the first element in the memory block
-	const byte * BytePtr() const {return (const byte *)m_ptr;}
+	const ::byte * BytePtr() const {return (const ::byte *)m_ptr;}
 	//! \brief Provides the number of bytes in the SecBlock
 	//! \return the number of bytes in the memory block
 	//! \note the return value is the number of bytes, and not count of elements.
@@ -691,7 +691,7 @@ public:
 	bool operator==(const SecBlock<T, A> &t) const
 	{
 		return m_size == t.m_size &&
-			VerifyBufsEqual(reinterpret_cast<const byte*>(m_ptr), reinterpret_cast<const byte*>(t.m_ptr), m_size*sizeof(T));
+			VerifyBufsEqual(reinterpret_cast<const ::byte*>(m_ptr), reinterpret_cast<const ::byte*>(t.m_ptr), m_size*sizeof(T));
 	}
 
 	//! \brief Bitwise compare two SecBlocks
@@ -807,17 +807,17 @@ public:
 #ifdef CRYPTOPP_DOXYGEN_PROCESSING
 //! \class SecByteBlock
 //! \brief \ref SecBlock "SecBlock<byte>" typedef.
-class SecByteBlock : public SecBlock<byte> {};
+class SecByteBlock : public SecBlock< ::byte> {};
 //! \class SecWordBlock
 //! \brief \ref SecBlock "SecBlock<word>" typedef.
 class SecWordBlock : public SecBlock<word> {};
 //! \class AlignedSecByteBlock
-//! \brief SecBlock using \ref AllocatorWithCleanup "AllocatorWithCleanup<byte, true>" typedef
-class AlignedSecByteBlock : public SecBlock<byte, AllocatorWithCleanup<byte, true> > {};
+//! \brief SecBlock using \ref AllocatorWithCleanup "AllocatorWithCleanup< ::byte, true>" typedef
+class AlignedSecByteBlock : public SecBlock< ::byte, AllocatorWithCleanup< ::byte, true> > {};
 #else
-typedef SecBlock<byte> SecByteBlock;
+typedef SecBlock< ::byte> SecByteBlock;
 typedef SecBlock<word> SecWordBlock;
-typedef SecBlock<byte, AllocatorWithCleanup<byte, true> > AlignedSecByteBlock;
+typedef SecBlock< ::byte, AllocatorWithCleanup< ::byte, true> > AlignedSecByteBlock;
 #endif
 
 // No need for move semantics on derived class *if* the class does not add any

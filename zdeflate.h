@@ -34,7 +34,7 @@ protected:
 	unsigned long m_bitCount;
 	unsigned long m_buffer;
 	unsigned int m_bitsBuffered, m_bytesBuffered;
-	FixedSizeSecBlock<byte, 256> m_outputBuffer;
+	FixedSizeSecBlock< ::byte, 256> m_outputBuffer;
 };
 
 //! \class HuffmanEncoder
@@ -125,12 +125,12 @@ public:
 	int GetLog2WindowSize() const {return m_log2WindowSize;}
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
-	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking);
+	size_t Put2(const ::byte *inString, size_t length, int messageEnd, bool blocking);
 	bool IsolatedFlush(bool hardFlush, bool blocking);
 
 protected:
 	virtual void WritePrestreamHeader() {}
-	virtual void ProcessUncompressedData(const byte *string, size_t length)
+	virtual void ProcessUncompressedData(const ::byte *string, size_t length)
 		{CRYPTOPP_UNUSED(string), CRYPTOPP_UNUSED(length);}
 	virtual void WritePoststreamTail() {}
 
@@ -139,13 +139,13 @@ protected:
 
 	void InitializeStaticEncoders();
 	void Reset(bool forceReset = false);
-	unsigned int FillWindow(const byte *str, size_t length);
-	unsigned int ComputeHash(const byte *str) const;
+	unsigned int FillWindow(const ::byte *str, size_t length);
+	unsigned int ComputeHash(const ::byte *str) const;
 	unsigned int LongestMatch(unsigned int &bestMatch) const;
 	void InsertString(unsigned int start);
 	void ProcessBuffer();
 
-	void LiteralByte(byte b);
+	void LiteralByte(::byte b);
 	void MatchFound(unsigned int distance, unsigned int length);
 	void EncodeBlock(bool eof, unsigned int blockType);
 	void EndBlock(bool eof);

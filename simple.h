@@ -143,7 +143,7 @@ public:
 	//! \throws InputRejected
 	//! \returns the number of bytes that remain in the block (i.e., bytes not processed)
 	//! \details Internally, the default implementation throws InputRejected.
-	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
+	size_t Put2(const ::byte *inString, size_t length, int messageEnd, bool blocking)
 		{CRYPTOPP_UNUSED(inString); CRYPTOPP_UNUSED(length); CRYPTOPP_UNUSED(messageEnd); CRYPTOPP_UNUSED(blocking); throw InputRejected();}
 	//@}
 
@@ -153,7 +153,7 @@ public:
 		{CRYPTOPP_UNUSED(hardFlush); CRYPTOPP_UNUSED(blocking); return false;}
 	bool IsolatedMessageSeriesEnd(bool blocking)
 		{CRYPTOPP_UNUSED(blocking); throw InputRejected();}
-	size_t ChannelPut2(const std::string &channel, const byte *inString, size_t length, int messageEnd, bool blocking)
+	size_t ChannelPut2(const std::string &channel, const ::byte *inString, size_t length, int messageEnd, bool blocking)
 		{CRYPTOPP_UNUSED(channel); CRYPTOPP_UNUSED(inString); CRYPTOPP_UNUSED(length); CRYPTOPP_UNUSED(messageEnd); CRYPTOPP_UNUSED(blocking); throw InputRejected();}
 	bool ChannelMessageSeriesEnd(const std::string& channel, int messageEnd, bool blocking)
 		{CRYPTOPP_UNUSED(channel); CRYPTOPP_UNUSED(messageEnd); CRYPTOPP_UNUSED(blocking); throw InputRejected();}
@@ -246,7 +246,7 @@ public:
 	//! \details The base class implementation sets  size to 0 and returns  NULL.
 	//! \note Some objects, like ArraySink, cannot create a space because its fixed. In the case of
 	//! an ArraySink, the pointer to the array is returned and the  size is remaining size.
-	byte * CreatePutSpace(size_t &size)
+	::byte * CreatePutSpace(size_t &size)
 		{return this->ChannelCreatePutSpace(DEFAULT_CHANNEL, size);}
 
 	//! \brief Input multiple bytes for processing
@@ -255,7 +255,7 @@ public:
 	//! \param messageEnd means how many filters to signal MessageEnd() to, including this one
 	//! \param blocking specifies whether the object should block when processing input
 	//! \details Derived classes must implement Put2().
-	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
+	size_t Put2(const ::byte *inString, size_t length, int messageEnd, bool blocking)
 		{return this->ChannelPut2(DEFAULT_CHANNEL, inString, length, messageEnd, blocking);}
 
 	//! \brief Input multiple bytes that may be modified by callee.
@@ -264,18 +264,18 @@ public:
 	//! \param messageEnd means how many filters to signal MessageEnd() to, including this one.
 	//! \param blocking specifies whether the object should block when processing input.
 	//! \details Internally, PutModifiable2() calls Put2().
-	size_t PutModifiable2(byte *inString, size_t length, int messageEnd, bool blocking)
+	size_t PutModifiable2(::byte *inString, size_t length, int messageEnd, bool blocking)
 		{return this->ChannelPutModifiable2(DEFAULT_CHANNEL, inString, length, messageEnd, blocking);}
 
 //	void ChannelMessageSeriesEnd(const std::string &channel, int propagation=-1)
 //		{PropagateMessageSeriesEnd(propagation, channel);}
-	byte * ChannelCreatePutSpace(const std::string &channel, size_t &size)
+	::byte * ChannelCreatePutSpace(const std::string &channel, size_t &size)
 		{CRYPTOPP_UNUSED(channel); size = 0; return NULLPTR;}
-	bool ChannelPutModifiable(const std::string &channel, byte *inString, size_t length)
+	bool ChannelPutModifiable(const std::string &channel, ::byte *inString, size_t length)
 		{this->ChannelPut(channel, inString, length); return false;}
 
-	virtual size_t ChannelPut2(const std::string &channel, const byte *begin, size_t length, int messageEnd, bool blocking) =0;
-	size_t ChannelPutModifiable2(const std::string &channel, byte *begin, size_t length, int messageEnd, bool blocking)
+	virtual size_t ChannelPut2(const std::string &channel, const ::byte *begin, size_t length, int messageEnd, bool blocking) =0;
+	size_t ChannelPutModifiable2(const std::string &channel, ::byte *begin, size_t length, int messageEnd, bool blocking)
 		{return ChannelPut2(channel, begin, length, messageEnd, blocking);}
 
 	virtual bool ChannelFlush(const std::string &channel, bool hardFlush, int propagation=-1, bool blocking=true) =0;
@@ -356,7 +356,7 @@ public:
 	std::string AlgorithmName() const {return "BitBucket";}
 	void IsolatedInitialize(const NameValuePairs &params)
 		{CRYPTOPP_UNUSED(params);}
-	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
+	size_t Put2(const ::byte *inString, size_t length, int messageEnd, bool blocking)
 		{CRYPTOPP_UNUSED(inString); CRYPTOPP_UNUSED(length); CRYPTOPP_UNUSED(messageEnd); CRYPTOPP_UNUSED(blocking); return 0;}
 };
 

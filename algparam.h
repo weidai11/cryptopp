@@ -39,7 +39,7 @@ public:
 	ConstByteArrayParameter(const char *data = NULLPTR, bool deepCopy = false)
 		: m_deepCopy(false), m_data(NULLPTR), m_size(0)
 	{
-		Assign((const byte *)data, data ? strlen(data) : 0, deepCopy);
+		Assign((const ::byte *)data, data ? strlen(data) : 0, deepCopy);
 	}
 
 	//! \brief Construct a ConstByteArrayParameter
@@ -48,7 +48,7 @@ public:
 	//! \param deepCopy flag indicating whether the data should be copied
 	//! \details The deepCopy option is used when the NameValuePairs object can't
 	//!   keep a copy of the data available
-	ConstByteArrayParameter(const byte *data, size_t size, bool deepCopy = false)
+	ConstByteArrayParameter(const ::byte *data, size_t size, bool deepCopy = false)
 		: m_deepCopy(false), m_data(NULLPTR), m_size(0)
 	{
 		Assign(data, size, deepCopy);
@@ -64,7 +64,7 @@ public:
 		: m_deepCopy(false), m_data(NULLPTR), m_size(0)
 	{
 		CRYPTOPP_COMPILE_ASSERT(sizeof(typename T::value_type) == 1);
-		Assign((const byte *)string.data(), string.size(), deepCopy);
+		Assign((const ::byte *)string.data(), string.size(), deepCopy);
 	}
 
 	//! \brief Assign contents from a memory buffer
@@ -73,7 +73,7 @@ public:
 	//! \param deepCopy flag indicating whether the data should be copied
 	//! \details The deepCopy option is used when the NameValuePairs object can't
 	//!   keep a copy of the data available
-	void Assign(const byte *data, size_t size, bool deepCopy)
+	void Assign(const ::byte *data, size_t size, bool deepCopy)
 	{
 		// This fires, which means: no data with a size, or data with no size.
 		// CRYPTOPP_ASSERT((data && size) || !(data || size));
@@ -88,15 +88,15 @@ public:
 	}
 
 	//! \brief Pointer to the first byte in the memory block
-	const byte *begin() const {return m_deepCopy ? m_block.begin() : m_data;}
+	const ::byte *begin() const {return m_deepCopy ? m_block.begin() : m_data;}
 	//! \brief Pointer beyond the last byte in the memory block
-	const byte *end() const {return m_deepCopy ? m_block.end() : m_data + m_size;}
+	const ::byte *end() const {return m_deepCopy ? m_block.end() : m_data + m_size;}
 	//! \brief Length of the memory block
 	size_t size() const {return m_deepCopy ? m_block.size() : m_size;}
 
 private:
 	bool m_deepCopy;
-	const byte *m_data;
+	const ::byte *m_data;
 	size_t m_size;
 	SecByteBlock m_block;
 };
@@ -109,7 +109,7 @@ public:
 	//! \brief Construct a ByteArrayParameter
 	//! \param data a memory buffer
 	//! \param size the length of the memory buffer
-	ByteArrayParameter(byte *data = NULLPTR, unsigned int size = 0)
+	ByteArrayParameter(::byte *data = NULLPTR, unsigned int size = 0)
 		: m_data(data), m_size(size) {}
 
 	//! \brief Construct a ByteArrayParameter
@@ -118,14 +118,14 @@ public:
 		: m_data(block.begin()), m_size(block.size()) {}
 
 	//! \brief Pointer to the first byte in the memory block
-	byte *begin() const {return m_data;}
+	::byte *begin() const {return m_data;}
 	//! \brief Pointer beyond the last byte in the memory block
-	byte *end() const {return m_data + m_size;}
+	::byte *end() const {return m_data + m_size;}
 	//! \brief Length of the memory block
 	size_t size() const {return m_size;}
 
 private:
-	byte *m_data;
+	::byte *m_data;
 	size_t m_size;
 };
 

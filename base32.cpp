@@ -7,8 +7,8 @@ NAMESPACE_BEGIN(CryptoPP)
 
 namespace
 {
-	const byte s_vecUpper[] = "ABCDEFGHIJKMNPQRSTUVWXYZ23456789";
-	const byte s_vecLower[] = "abcdefghijkmnpqrstuvwxyz23456789";
+	const ::byte s_vecUpper[] = "ABCDEFGHIJKMNPQRSTUVWXYZ23456789";
+	const ::byte s_vecLower[] = "abcdefghijkmnpqrstuvwxyz23456789";
 }
 
 void Base32Encoder::IsolatedInitialize(const NameValuePairs &parameters)

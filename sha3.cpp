@@ -249,7 +249,7 @@ static void KeccakF1600(word64 *state)
     }
 }
 
-void SHA3::Update(const byte *input, size_t length)
+void SHA3::Update(const ::byte *input, size_t length)
 {
     CRYPTOPP_ASSERT((input && length) || !(input || length));
     if (!length) { return; }
@@ -276,7 +276,7 @@ void SHA3::Restart()
     m_counter = 0;
 }
 
-void SHA3::TruncatedFinal(byte *hash, size_t size)
+void SHA3::TruncatedFinal(::byte *hash, size_t size)
 {
     ThrowIfInvalidTruncatedSize(size);
 

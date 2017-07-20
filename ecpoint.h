@@ -107,7 +107,7 @@ public:
 	//! \param encodedPoint byte array with the encoded point
 	//! \param len the size of the array
 	//! \returns true if a point was decoded, false otherwise
-	virtual bool DecodePoint(Point &P, const byte *encodedPoint, size_t len) const =0;
+	virtual bool DecodePoint(Point &P, const ::byte *encodedPoint, size_t len) const =0;
 
 	//! \brief Verifies points on elliptic curve
 	//! \param P point to verify
@@ -124,7 +124,7 @@ public:
 	//! \param encodedPoint byte array for the encoded point
 	//! \param compressed flag indicating if the point is compressed
 	//! \details <tt>encodedPoint</tt> must be at least EncodedPointSize() in length
-	virtual void EncodePoint(byte *encodedPoint, const Point &P, bool compressed) const =0;
+	virtual void EncodePoint(::byte *encodedPoint, const Point &P, bool compressed) const =0;
 
 	//! \brief Encodes an elliptic curve point
 	//! \param bt target BufferedTransformation

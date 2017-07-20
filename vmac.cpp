@@ -52,7 +52,7 @@ static const word128 m126 = (word128(m62)<<64)|m64;		 /* 126-bit mask      */
 #endif
 #endif
 
-void VMAC_Base::UncheckedSetKey(const byte *userKey, unsigned int keylength, const NameValuePairs &params)
+void VMAC_Base::UncheckedSetKey(const ::byte *userKey, unsigned int keylength, const NameValuePairs &params)
 {
 	int digestLength = params.GetIntValueWithDefault(Name::DigestSize(), DefaultDigestSize());
 	if (digestLength != 8 && digestLength != 16)
@@ -76,7 +76,7 @@ void VMAC_Base::UncheckedSetKey(const byte *userKey, unsigned int keylength, con
 
 	/* Fill nh key */
 	in[0] = 0x80;
-	cipher.AdvancedProcessBlocks(in, NULLPTR, (byte *)m_nhKey(), m_nhKeySize()*sizeof(word64), cipher.BT_InBlockIsCounter);
+	cipher.AdvancedProcessBlocks(in, NULLPTR, (::byte *)m_nhKey(), m_nhKeySize()*sizeof(word64), cipher.BT_InBlockIsCounter);
 	ConditionalByteReverse<word64>(BIG_ENDIAN_ORDER, m_nhKey(), m_nhKey(), m_nhKeySize()*sizeof(word64));
 
 	/* Fill poly key */
@@ -107,21 +107,21 @@ void VMAC_Base::UncheckedSetKey(const byte *userKey, unsigned int keylength, con
 
 	m_padCached = false;
 	size_t nonceLength;
-	const byte *nonce = GetIVAndThrowIfInvalid(params, nonceLength);
+	const ::byte *nonce = GetIVAndThrowIfInvalid(params, nonceLength);
 	Resynchronize(nonce, (int)nonceLength);
 }
 
-void VMAC_Base::GetNextIV(RandomNumberGenerator &rng, byte *IV)
+void VMAC_Base::GetNextIV(RandomNumberGenerator &rng, ::byte *IV)
 {
 	SimpleKeyingInterface::GetNextIV(rng, IV);
 	IV[0] &= 0x7f;
 }
 
-void VMAC_Base::Resynchronize(const byte *nonce, int len)
+void VMAC_Base::Resynchronize(const ::byte *nonce, int len)
 {
 	size_t length = ThrowIfInvalidIVLength(len);
 	size_t s = IVSize();
-	byte *storedNonce = m_nonce();
+	::byte *storedNonce = m_nonce();
 
 	if (m_is128)
 	{
@@ -866,7 +866,7 @@ static word64 L3Hash(const word64 *input, const word64 *l3Key, size_t len)
     return rl;
 }
 
-void VMAC_Base::TruncatedFinal(byte *mac, size_t size)
+void VMAC_Base::TruncatedFinal(::byte *mac, size_t size)
 {
 	CRYPTOPP_ASSERT(IsAlignedOn(DataBuf(),GetAlignmentOf<word64>()));
 	CRYPTOPP_ASSERT(IsAlignedOn(m_polyState(),GetAlignmentOf<word64>()));

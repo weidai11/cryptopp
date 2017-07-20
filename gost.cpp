@@ -5,7 +5,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 // these are the S-boxes given in Applied Cryptography 2nd Ed., p. 333
-const byte GOST::Base::sBox[8][16]={
+const ::byte GOST::Base::sBox[8][16]={
 	{4, 10, 9, 2, 13, 8, 0, 14, 6, 11, 1, 12, 7, 15, 5, 3},
 	{14, 11, 4, 12, 6, 13, 15, 10, 2, 3, 8, 1, 0, 7, 5, 9},
 	{5, 8, 1, 13, 10, 3, 4, 2, 14, 15, 12, 7, 6, 0, 9, 11},
@@ -30,7 +30,7 @@ const byte GOST::Base::sBox[8][16]={
 volatile bool GOST::Base::sTableCalculated = false;
 word32 GOST::Base::sTable[4][256];
 
-void GOST::Base::UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &)
+void GOST::Base::UncheckedSetKey(const ::byte *userKey, unsigned int length, const NameValuePairs &)
 {
 	AssertValidKeyLength(length);
 
@@ -60,7 +60,7 @@ void GOST::Base::PrecalculateSTable()
 
 typedef BlockGetAndPut<word32, LittleEndian> Block;
 
-void GOST::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+void GOST::Enc::ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const
 {
 	word32 n1, n2, t;
 
@@ -90,7 +90,7 @@ void GOST::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, by
 	Block::Put(xorBlock, outBlock)(n2)(n1);
 }
 
-void GOST::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+void GOST::Dec::ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const
 {
 	word32 n1, n2, t;
 

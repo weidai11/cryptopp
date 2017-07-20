@@ -12,7 +12,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-size_t DSAConvertSignatureFormat(byte *buffer, size_t bufferSize, DSASignatureFormat toFormat, const byte *signature, size_t signatureLen, DSASignatureFormat fromFormat)
+size_t DSAConvertSignatureFormat(::byte *buffer, size_t bufferSize, DSASignatureFormat toFormat, const ::byte *signature, size_t signatureLen, DSASignatureFormat fromFormat)
 {
 	Integer r, s;
 	StringStore store(signature, signatureLen);

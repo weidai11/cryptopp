@@ -73,7 +73,7 @@ private:
 
 	member_ptr<std::ifstream> m_file;
 	std::istream *m_stream;
-	byte *m_space;
+	::byte *m_space;
 	size_t m_len;
 	bool m_waiting;
 };
@@ -167,7 +167,7 @@ public:
 	std::ostream* GetStream() {return m_stream;}
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
-	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking);
+	size_t Put2(const ::byte *inString, size_t length, int messageEnd, bool blocking);
 	bool IsolatedFlush(bool hardFlush, bool blocking);
 
 private:

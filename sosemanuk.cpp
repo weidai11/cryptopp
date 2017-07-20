@@ -19,13 +19,13 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-void SosemanukPolicy::CipherSetKey(const NameValuePairs &params, const byte *userKey, size_t keylen)
+void SosemanukPolicy::CipherSetKey(const NameValuePairs &params, const ::byte *userKey, size_t keylen)
 {
 	CRYPTOPP_UNUSED(params);
 	Serpent_KeySchedule(m_key, 24, userKey, keylen);
 }
 
-void SosemanukPolicy::CipherResynchronize(byte *keystreamBuffer, const byte *iv, size_t length)
+void SosemanukPolicy::CipherResynchronize(::byte *keystreamBuffer, const ::byte *iv, size_t length)
 {
 	CRYPTOPP_UNUSED(keystreamBuffer), CRYPTOPP_UNUSED(iv), CRYPTOPP_UNUSED(length);
 	CRYPTOPP_ASSERT(length==16);
@@ -324,7 +324,7 @@ void Sosemanuk_OperateKeystream(size_t iterationCount, const byte *input, byte *
 }
 #endif
 
-void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount)
+void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, ::byte *output, const ::byte *input, size_t iterationCount)
 {
 #endif	// #ifdef CRYPTOPP_GENERATE_X64_MASM
 
@@ -354,7 +354,7 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 	{
 #ifdef __GNUC__
 	#if CRYPTOPP_BOOL_X64
-		FixedSizeAlignedSecBlock<byte, 80*4*2+12*4+8*WORD_SZ> workspace;
+		FixedSizeAlignedSecBlock< ::byte, 80*4*2+12*4+8*WORD_SZ> workspace;
 	#endif
 		__asm__ __volatile__
 		(
@@ -626,12 +626,12 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 #ifndef CRYPTOPP_GENERATE_X64_MASM
 	{
 #if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64) && !defined(CRYPTOPP_DISABLE_SOSEMANUK_ASM)
-#define MUL_A(x)    (x = rotlFixed(x, 8), x ^ s_sosemanukMulTables[byte(x)])
+#define MUL_A(x)    (x = rotlFixed(x, 8), x ^ s_sosemanukMulTables[::byte(x)])
 #else
 #define MUL_A(x)    (((x) << 8) ^ s_sosemanukMulTables[(x) >> 24])
 #endif
 
-#define DIV_A(x)    (((x) >> 8) ^ s_sosemanukMulTables[256 + byte(x)])
+#define DIV_A(x)    (((x) >> 8) ^ s_sosemanukMulTables[256 + ::byte(x)])
 
 #define r1(i) ((i%2) ? reg2 : reg1)
 #define r2(i) ((i%2) ? reg1 : reg2)

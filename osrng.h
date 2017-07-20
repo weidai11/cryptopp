@@ -98,7 +98,7 @@ public:
 	//! \param output the byte buffer
 	//! \param size the length of the buffer, in bytes
 	//! \details GenerateIntoBufferedTransformation() calls are routed to GenerateBlock().
-	void GenerateBlock(byte *output, size_t size);
+	void GenerateBlock(::byte *output, size_t size);
 
 protected:
 #ifdef CRYPTOPP_WIN32_AVAILABLE
@@ -129,7 +129,7 @@ public:
 	//! \param output the byte buffer
 	//! \param size the length of the buffer, in bytes
 	//! \details GenerateIntoBufferedTransformation() calls are routed to GenerateBlock().
-	void GenerateBlock(byte *output, size_t size);
+	void GenerateBlock(::byte *output, size_t size);
 
 protected:
 	int m_fd;
@@ -147,7 +147,7 @@ protected:
 //! \details On Unix and compatibles, /dev/urandom is called if blocking is false using
 //!   NonblockingRng. If blocking is true, then either /dev/randomd or /dev/srandom is used
 //!  by way of BlockingRng, if available.
-CRYPTOPP_DLL void CRYPTOPP_API OS_GenerateRandomBlock(bool blocking, byte *output, size_t size);
+CRYPTOPP_DLL void CRYPTOPP_API OS_GenerateRandomBlock(bool blocking, ::byte *output, size_t size);
 
 //! \class AutoSeededRandomPool
 //! \brief Automatically Seeded Randomness Pool
@@ -207,7 +207,7 @@ public:
 	//! \details Internally, the generator uses SHA256 to extract the entropy from
 	//!   from the seed and then stretch the material for the block cipher's key
 	//!   and initialization vector.
-	void Reseed(bool blocking = false, const byte *additionalEntropy = NULLPTR, size_t length = 0);
+	void Reseed(bool blocking = false, const ::byte *additionalEntropy = NULLPTR, size_t length = 0);
 
 	//! \brief Deterministically reseed an AutoSeededX917RNG for testing
 	//! \param key the key to use for the deterministic reseeding
@@ -216,10 +216,10 @@ public:
 	//! \param timeVector a time vector to use for deterministic reseeding
 	//! \details This is a testing interface for testing purposes, and should \a NOT
 	//!   be used in production.
-	void Reseed(const byte *key, size_t keylength, const byte *seed, const byte *timeVector);
+	void Reseed(const ::byte *key, size_t keylength, const ::byte *seed, const ::byte *timeVector);
 
 	bool CanIncorporateEntropy() const {return true;}
-	void IncorporateEntropy(const byte *input, size_t length) {Reseed(false, input, length);}
+	void IncorporateEntropy(const ::byte *input, size_t length) {Reseed(false, input, length);}
 	void GenerateIntoBufferedTransformation(BufferedTransformation &target, const std::string &channel, lword length)
 		{m_rng->GenerateIntoBufferedTransformation(target, channel, length);}
 
@@ -228,16 +228,16 @@ private:
 };
 
 template <class BLOCK_CIPHER>
-void AutoSeededX917RNG<BLOCK_CIPHER>::Reseed(const byte *key, size_t keylength, const byte *seed, const byte *timeVector)
+void AutoSeededX917RNG<BLOCK_CIPHER>::Reseed(const ::byte *key, size_t keylength, const ::byte *seed, const ::byte *timeVector)
 {
 	m_rng.reset(new X917RNG(new typename BLOCK_CIPHER::Encryption(key, keylength), seed, timeVector));
 }
 
 template <class BLOCK_CIPHER>
-void AutoSeededX917RNG<BLOCK_CIPHER>::Reseed(bool blocking, const byte *input, size_t length)
+void AutoSeededX917RNG<BLOCK_CIPHER>::Reseed(bool blocking, const ::byte *input, size_t length)
 {
 	SecByteBlock seed(BLOCK_CIPHER::BLOCKSIZE + BLOCK_CIPHER::DEFAULT_KEYLENGTH);
-	const byte *key;
+	const ::byte *key;
 	do
 	{
 		OS_GenerateRandomBlock(blocking, seed, seed.size());

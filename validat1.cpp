@@ -211,13 +211,13 @@ bool TestSettings()
 	std::cout << "\nTesting Settings...\n\n";
 
 	word32 w;
-	const byte s[] = "\x01\x02\x03\x04";
+	const ::byte s[] = "\x01\x02\x03\x04";
 
 #if (_MSC_FULL_VER >= 140050727)
 	std::copy(s, s+4,
-		stdext::make_checked_array_iterator(reinterpret_cast<byte*>(&w), sizeof(w)));
+		stdext::make_checked_array_iterator(reinterpret_cast< ::byte*>(&w), sizeof(w)));
 #else
-	std::copy(s, s+4, reinterpret_cast<byte*>(&w));
+	std::copy(s, s+4, reinterpret_cast< ::byte*>(&w));
 #endif
 
 	if (w == 0x04030201L)
@@ -274,14 +274,14 @@ bool TestSettings()
 	std::cout << "passed:  CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS is not defined. Will restrict to aligned data access.\n";
 #endif
 
-	if (sizeof(byte) == 1)
+	if (sizeof(::byte) == 1)
 		std::cout << "passed:  ";
 	else
 	{
 		std::cout << "FAILED:  ";
 		pass = false;
 	}
-	std::cout << "sizeof(byte) == " << sizeof(byte) << std::endl;
+	std::cout << "sizeof(::byte) == " << sizeof(::byte) << std::endl;
 
 	if (sizeof(word16) == 2)
 		std::cout << "passed:  ";
@@ -467,11 +467,11 @@ bool TestOS_RNG()
 			(void)prng.AlgorithmName();
 			word32 result = prng.GenerateWord32();
 			result = prng.GenerateWord32((result & 0xff), 0xffffffff - (result & 0xff));
-			prng.GenerateBlock(reinterpret_cast<byte*>(&result), 4);
-			prng.GenerateBlock(reinterpret_cast<byte*>(&result), 3);
-			prng.GenerateBlock(reinterpret_cast<byte*>(&result), 2);
-			prng.GenerateBlock(reinterpret_cast<byte*>(&result), 1);
-			prng.GenerateBlock(reinterpret_cast<byte*>(&result), 0);
+			prng.GenerateBlock(reinterpret_cast< ::byte*>(&result), 4);
+			prng.GenerateBlock(reinterpret_cast< ::byte*>(&result), 3);
+			prng.GenerateBlock(reinterpret_cast< ::byte*>(&result), 2);
+			prng.GenerateBlock(reinterpret_cast< ::byte*>(&result), 1);
+			prng.GenerateBlock(reinterpret_cast< ::byte*>(&result), 0);
 			pass = true;
 		}
 		catch (const Exception&)
@@ -517,11 +517,11 @@ bool TestOS_RNG()
 			(void)prng.AlgorithmName();
 			word32 result = prng.GenerateWord32();
 			result = prng.GenerateWord32((result & 0xff), 0xffffffff - (result & 0xff));
-			prng.GenerateBlock(reinterpret_cast<byte*>(&result), 4);
-			prng.GenerateBlock(reinterpret_cast<byte*>(&result), 3);
-			prng.GenerateBlock(reinterpret_cast<byte*>(&result), 2);
-			prng.GenerateBlock(reinterpret_cast<byte*>(&result), 1);
-			prng.GenerateBlock(reinterpret_cast<byte*>(&result), 0);
+			prng.GenerateBlock(reinterpret_cast< ::byte*>(&result), 4);
+			prng.GenerateBlock(reinterpret_cast< ::byte*>(&result), 3);
+			prng.GenerateBlock(reinterpret_cast< ::byte*>(&result), 2);
+			prng.GenerateBlock(reinterpret_cast< ::byte*>(&result), 1);
+			prng.GenerateBlock(reinterpret_cast< ::byte*>(&result), 0);
 			pass = true;
 		}
 		catch (const Exception&)
@@ -612,10 +612,10 @@ bool TestRandomPool()
 			(void)prng.AlgorithmName();  // "unknown"
 			word32 result = prng.GenerateWord32();
 			result = prng.GenerateWord32((result & 0xff), 0xffffffff - (result & 0xff));
-			prng.GenerateBlock(reinterpret_cast<byte*>(&result), 4);
-			prng.GenerateBlock(reinterpret_cast<byte*>(&result), 3);
-			prng.GenerateBlock(reinterpret_cast<byte*>(&result), 2);
-			prng.GenerateBlock(reinterpret_cast<byte*>(&result), 1);
+			prng.GenerateBlock(reinterpret_cast< ::byte*>(&result), 4);
+			prng.GenerateBlock(reinterpret_cast< ::byte*>(&result), 3);
+			prng.GenerateBlock(reinterpret_cast< ::byte*>(&result), 2);
+			prng.GenerateBlock(reinterpret_cast< ::byte*>(&result), 1);
 		}
 		catch (const Exception&)
 		{
@@ -700,10 +700,10 @@ bool TestRandomPool()
 			(void)prng.AlgorithmName();  // "unknown"
 			word32 result = prng.GenerateWord32();
 			result = prng.GenerateWord32((result & 0xff), 0xffffffff - (result & 0xff));
-			prng.GenerateBlock(reinterpret_cast<byte*>(&result), 4);
-			prng.GenerateBlock(reinterpret_cast<byte*>(&result), 3);
-			prng.GenerateBlock(reinterpret_cast<byte*>(&result), 2);
-			prng.GenerateBlock(reinterpret_cast<byte*>(&result), 1);
+			prng.GenerateBlock(reinterpret_cast< ::byte*>(&result), 4);
+			prng.GenerateBlock(reinterpret_cast< ::byte*>(&result), 3);
+			prng.GenerateBlock(reinterpret_cast< ::byte*>(&result), 2);
+			prng.GenerateBlock(reinterpret_cast< ::byte*>(&result), 1);
 		}
 		catch (const Exception&)
 		{
@@ -796,10 +796,10 @@ bool TestAutoSeededX917()
 		(void)prng.AlgorithmName();  // "unknown"
 		word32 result = prng.GenerateWord32();
 		result = prng.GenerateWord32((result & 0xff), 0xffffffff - (result & 0xff));
-		prng.GenerateBlock(reinterpret_cast<byte*>(&result), 4);
-		prng.GenerateBlock(reinterpret_cast<byte*>(&result), 3);
-		prng.GenerateBlock(reinterpret_cast<byte*>(&result), 2);
-		prng.GenerateBlock(reinterpret_cast<byte*>(&result), 1);
+		prng.GenerateBlock(reinterpret_cast< ::byte*>(&result), 4);
+		prng.GenerateBlock(reinterpret_cast< ::byte*>(&result), 3);
+		prng.GenerateBlock(reinterpret_cast< ::byte*>(&result), 2);
+		prng.GenerateBlock(reinterpret_cast< ::byte*>(&result), 1);
 	}
 	catch (const Exception&)
 	{
@@ -1006,10 +1006,10 @@ bool TestRDRAND()
 
 			word32 result = rdrand.GenerateWord32();
 			result = rdrand.GenerateWord32((result & 0xff), 0xffffffff - (result & 0xff));
-			rdrand.GenerateBlock(reinterpret_cast<byte*>(&result), 4);
-			rdrand.GenerateBlock(reinterpret_cast<byte*>(&result), 3);
-			rdrand.GenerateBlock(reinterpret_cast<byte*>(&result), 2);
-			rdrand.GenerateBlock(reinterpret_cast<byte*>(&result), 1);
+			rdrand.GenerateBlock(reinterpret_cast< ::byte*>(&result), 4);
+			rdrand.GenerateBlock(reinterpret_cast< ::byte*>(&result), 3);
+			rdrand.GenerateBlock(reinterpret_cast< ::byte*>(&result), 2);
+			rdrand.GenerateBlock(reinterpret_cast< ::byte*>(&result), 1);
 			fail = false;
 		}
 		catch (const Exception&)
@@ -1108,10 +1108,10 @@ bool TestRDSEED()
 
 			word32 result = rdseed.GenerateWord32();
 			result = rdseed.GenerateWord32((result & 0xff), 0xffffffff - (result & 0xff));
-			rdseed.GenerateBlock(reinterpret_cast<byte*>(&result), 4);
-			rdseed.GenerateBlock(reinterpret_cast<byte*>(&result), 3);
-			rdseed.GenerateBlock(reinterpret_cast<byte*>(&result), 2);
-			rdseed.GenerateBlock(reinterpret_cast<byte*>(&result), 1);
+			rdseed.GenerateBlock(reinterpret_cast< ::byte*>(&result), 4);
+			rdseed.GenerateBlock(reinterpret_cast< ::byte*>(&result), 3);
+			rdseed.GenerateBlock(reinterpret_cast< ::byte*>(&result), 2);
+			rdseed.GenerateBlock(reinterpret_cast< ::byte*>(&result), 1);
 			fail = false;
 		}
 		catch (const Exception&)
@@ -1145,9 +1145,9 @@ bool ValidateHashDRBG()
 	{
 		// [SHA-1], [PredictionResistance = False], [EntropyInputLen = 128], [NonceLen = 64]
 		// [PersonalizationStringLen = 0], [AdditionalInputLen = 0], [ReturnedBitsLen = 640]
-		const byte entropy1[] = "\x16\x10\xb8\x28\xcc\xd2\x7d\xe0\x8c\xee\xa0\x32\xa2\x0e\x92\x08";
-		const byte entropy2[] = "\x72\xd2\x8c\x90\x8e\xda\xf9\xa4\xd1\xe5\x26\xd8\xf2\xde\xd5\x44";
-		const byte nonce[] = "\x49\x2c\xf1\x70\x92\x42\xf6\xb5";
+		const ::byte entropy1[] = "\x16\x10\xb8\x28\xcc\xd2\x7d\xe0\x8c\xee\xa0\x32\xa2\x0e\x92\x08";
+		const ::byte entropy2[] = "\x72\xd2\x8c\x90\x8e\xda\xf9\xa4\xd1\xe5\x26\xd8\xf2\xde\xd5\x44";
+		const ::byte nonce[] = "\x49\x2c\xf1\x70\x92\x42\xf6\xb5";
 
 		Hash_DRBG<SHA1, 128/8, 440/8> drbg(entropy1, 16, nonce, 8);
 		drbg.IncorporateEntropy(entropy2, 16);
@@ -1156,7 +1156,7 @@ bool ValidateHashDRBG()
 		drbg.GenerateBlock(result, result.size());
 		drbg.GenerateBlock(result, result.size());
 
-		const byte expected[] = "\x56\xF3\x3D\x4F\xDB\xB9\xA5\xB6\x4D\x26\x23\x44\x97\xE9\xDC\xB8\x77\x98\xC6\x8D"
+		const ::byte expected[] = "\x56\xF3\x3D\x4F\xDB\xB9\xA5\xB6\x4D\x26\x23\x44\x97\xE9\xDC\xB8\x77\x98\xC6\x8D"
 			"\x08\xF7\xC4\x11\x99\xD4\xBD\xDF\x97\xEB\xBF\x6C\xB5\x55\x0E\x5D\x14\x9F\xF4\xD5"
 			"\xBD\x0F\x05\xF2\x5A\x69\x88\xC1\x74\x36\x39\x62\x27\x18\x4A\xF8\x4A\x56\x43\x35"
 			"\x65\x8E\x2F\x85\x72\xBE\xA3\x33\xEE\xE2\xAB\xFF\x22\xFF\xA6\xDE\x3E\x22\xAC\xA2";
@@ -1170,9 +1170,9 @@ bool ValidateHashDRBG()
 	{
 		// [SHA-1], [PredictionResistance = False], [EntropyInputLen = 128], [NonceLen = 64]
 		// [PersonalizationStringLen = 0], [AdditionalInputLen = 0], [ReturnedBitsLen = 640]
-		const byte entropy1[] = "\x55\x08\x75\xb7\x4e\xc1\x1f\x90\x67\x78\xa3\x1a\x37\xa3\x29\xfd";
-		const byte entropy2[] = "\x96\xc6\x39\xec\x14\x9f\x6b\x28\xe2\x79\x3b\xb9\x37\x9e\x60\x67";
-		const byte nonce[] = "\x08\xdd\x8c\xd3\x5b\xfa\x00\x94";
+		const ::byte entropy1[] = "\x55\x08\x75\xb7\x4e\xc1\x1f\x90\x67\x78\xa3\x1a\x37\xa3\x29\xfd";
+		const ::byte entropy2[] = "\x96\xc6\x39\xec\x14\x9f\x6b\x28\xe2\x79\x3b\xb9\x37\x9e\x60\x67";
+		const ::byte nonce[] = "\x08\xdd\x8c\xd3\x5b\xfa\x00\x94";
 
 		Hash_DRBG<SHA1, 128/8, 440/8> drbg(entropy1, 16, nonce, 8);
 		drbg.IncorporateEntropy(entropy2, 16);
@@ -1181,7 +1181,7 @@ bool ValidateHashDRBG()
 		drbg.GenerateBlock(result, result.size());
 		drbg.GenerateBlock(result, result.size());
 
-		const byte expected[] = "\xEE\x44\xC6\xCF\x2C\x0C\x73\xA8\xAC\x4C\xA5\x6C\x0E\x71\x2C\xA5\x50\x9A\x19\x5D"
+		const ::byte expected[] = "\xEE\x44\xC6\xCF\x2C\x0C\x73\xA8\xAC\x4C\xA5\x6C\x0E\x71\x2C\xA5\x50\x9A\x19\x5D"
 			"\xE4\x5B\x8D\x2B\xC9\x40\xA7\xDB\x66\xC3\xEB\x2A\xA1\xBD\xB4\xDD\x76\x85\x12\x45"
 			"\x80\x2E\x68\x05\x4A\xAB\xA8\x7C\xD6\x3A\xD3\xE5\xC9\x7C\x06\xE7\xA3\x9F\xF6\xF9"
 			"\x8E\xB3\xD9\x72\xD4\x11\x35\xE5\xE7\x46\x1B\x49\x9C\x56\x45\x6A\xBE\x7F\x77\xD4";
@@ -1195,12 +1195,12 @@ bool ValidateHashDRBG()
 	{
 		// [SHA-1], [PredictionResistance = False], [EntropyInputLen = 128], [NonceLen = 64]
 		// [PersonalizationStringLen = 0], [AdditionalInputLen = 128], [ReturnedBitsLen = 640]
-		const byte entropy1[] = "\xd9\xba\xb5\xce\xdc\xa9\x6f\x61\x78\xd6\x45\x09\xa0\xdf\xdc\x5e";
-		const byte entropy2[] = "\xc6\xba\xd0\x74\xc5\x90\x67\x86\xf5\xe1\xf3\x20\x99\xf5\xb4\x91";
-		const byte nonce[] = "\xda\xd8\x98\x94\x14\x45\x0e\x01";
-		const byte additional1[] = "\x3e\x6b\xf4\x6f\x4d\xaa\x38\x25\xd7\x19\x4e\x69\x4e\x77\x52\xf7";
-		const byte additional2[] = "\x04\xfa\x28\x95\xaa\x5a\x6f\x8c\x57\x43\x34\x3b\x80\x5e\x5e\xa4";
-		const byte additional3[] = "\xdf\x5d\xc4\x59\xdf\xf0\x2a\xa2\xf0\x52\xd7\x21\xec\x60\x72\x30";
+		const ::byte entropy1[] = "\xd9\xba\xb5\xce\xdc\xa9\x6f\x61\x78\xd6\x45\x09\xa0\xdf\xdc\x5e";
+		const ::byte entropy2[] = "\xc6\xba\xd0\x74\xc5\x90\x67\x86\xf5\xe1\xf3\x20\x99\xf5\xb4\x91";
+		const ::byte nonce[] = "\xda\xd8\x98\x94\x14\x45\x0e\x01";
+		const ::byte additional1[] = "\x3e\x6b\xf4\x6f\x4d\xaa\x38\x25\xd7\x19\x4e\x69\x4e\x77\x52\xf7";
+		const ::byte additional2[] = "\x04\xfa\x28\x95\xaa\x5a\x6f\x8c\x57\x43\x34\x3b\x80\x5e\x5e\xa4";
+		const ::byte additional3[] = "\xdf\x5d\xc4\x59\xdf\xf0\x2a\xa2\xf0\x52\xd7\x21\xec\x60\x72\x30";
 
 		Hash_DRBG<SHA1, 128/8, 440/8> drbg(entropy1, 16, nonce, 8);
 		drbg.IncorporateEntropy(entropy2, 16, additional1, 16);
@@ -1209,7 +1209,7 @@ bool ValidateHashDRBG()
 		drbg.GenerateBlock(additional2, 16, result, result.size());
 		drbg.GenerateBlock(additional3, 16, result, result.size());
 
-		const byte expected[] = "\xC4\x8B\x89\xF9\xDA\x3F\x74\x82\x45\x55\x5D\x5D\x03\x3B\x69\x3D\xD7\x1A\x4D\xF5"
+		const ::byte expected[] = "\xC4\x8B\x89\xF9\xDA\x3F\x74\x82\x45\x55\x5D\x5D\x03\x3B\x69\x3D\xD7\x1A\x4D\xF5"
 			"\x69\x02\x05\xCE\xFC\xD7\x20\x11\x3C\xC2\x4E\x09\x89\x36\xFF\x5E\x77\xB5\x41\x53"
 			"\x58\x70\xB3\x39\x46\x8C\xDD\x8D\x6F\xAF\x8C\x56\x16\x3A\x70\x0A\x75\xB2\x3E\x59"
 			"\x9B\x5A\xEC\xF1\x6F\x3B\xAF\x6D\x5F\x24\x19\x97\x1F\x24\xF4\x46\x72\x0F\xEA\xBE";
@@ -1223,12 +1223,12 @@ bool ValidateHashDRBG()
 	{
 		// [SHA-1], [PredictionResistance = False], [EntropyInputLen = 128], [NonceLen = 64]
 		// [PersonalizationStringLen = 0], [AdditionalInputLen = 128], [ReturnedBitsLen = 640]
-		const byte entropy1[] = "\x28\x00\x0f\xbf\xf0\x57\x22\xc8\x89\x93\x06\xc2\x9b\x50\x78\x0a";
-		const byte entropy2[] = "\xd9\x95\x8e\x8c\x08\xaf\x5a\x41\x0e\x91\x9b\xdf\x40\x8e\x5a\x0a";
-		const byte nonce[] = "\x11\x2f\x6e\x20\xc0\x29\xed\x3f";
-		const byte additional1[] = "\x91\x1d\x96\x5b\x6e\x77\xa9\x6c\xfe\x3f\xf2\xd2\xe3\x0e\x2a\x86";
-		const byte additional2[] = "\xcd\x44\xd9\x96\xab\x05\xef\xe8\x27\xd3\x65\x83\xf1\x43\x18\x2c";
-		const byte additional3[] = "\x9f\x6a\x31\x82\x12\x18\x4e\x70\xaf\x5d\x00\x14\x1f\x42\x82\xf6";
+		const ::byte entropy1[] = "\x28\x00\x0f\xbf\xf0\x57\x22\xc8\x89\x93\x06\xc2\x9b\x50\x78\x0a";
+		const ::byte entropy2[] = "\xd9\x95\x8e\x8c\x08\xaf\x5a\x41\x0e\x91\x9b\xdf\x40\x8e\x5a\x0a";
+		const ::byte nonce[] = "\x11\x2f\x6e\x20\xc0\x29\xed\x3f";
+		const ::byte additional1[] = "\x91\x1d\x96\x5b\x6e\x77\xa9\x6c\xfe\x3f\xf2\xd2\xe3\x0e\x2a\x86";
+		const ::byte additional2[] = "\xcd\x44\xd9\x96\xab\x05\xef\xe8\x27\xd3\x65\x83\xf1\x43\x18\x2c";
+		const ::byte additional3[] = "\x9f\x6a\x31\x82\x12\x18\x4e\x70\xaf\x5d\x00\x14\x1f\x42\x82\xf6";
 
 		Hash_DRBG<SHA1, 128/8, 440/8> drbg(entropy1, 16, nonce, 8);
 		drbg.IncorporateEntropy(entropy2, 16, additional1, 16);
@@ -1237,7 +1237,7 @@ bool ValidateHashDRBG()
 		drbg.GenerateBlock(additional2, 16, result, result.size());
 		drbg.GenerateBlock(additional3, 16, result, result.size());
 
-		const byte expected[] = "\x54\x61\x65\x92\x1E\x71\x4A\xD1\x39\x02\x2F\x97\xD2\x65\x3F\x0D\x47\x69\xB1\x4A"
+		const ::byte expected[] = "\x54\x61\x65\x92\x1E\x71\x4A\xD1\x39\x02\x2F\x97\xD2\x65\x3F\x0D\x47\x69\xB1\x4A"
 			"\x3E\x6E\xEF\xA1\xA0\x16\xD6\x9E\xA9\x7F\x51\xD5\x81\xDC\xAA\xCF\x66\xF9\xB1\xE8"
 			"\x06\x94\x41\xD6\xB5\xC5\x44\x60\x54\x07\xE8\xE7\xDC\x1C\xD8\xE4\x70\xAD\x84\x77"
 			"\x5A\x65\x31\xBE\xE0\xFC\x81\x36\xE2\x8F\x0B\xFE\xEB\xE1\x98\x62\x7E\x98\xE0\xC1";
@@ -1251,10 +1251,10 @@ bool ValidateHashDRBG()
 	{
 		// [SHA-1], [PredictionResistance = False], [EntropyInputLen = 128], [NonceLen = 64]
 		// [PersonalizationStringLen = 128], [AdditionalInputLen = 0], [ReturnedBitsLen = 640]
-		const byte entropy1[] = "\x0e\xd5\x4c\xef\x44\x5c\x61\x7d\x58\x86\xe0\x34\xc0\x97\x36\xd4";
-		const byte entropy2[] = "\x0b\x90\x27\xb8\x01\xe7\xf7\x2e\xe6\xec\x50\x2b\x8b\x6b\xd7\x11";
-		const byte nonce[] = "\x2c\x8b\x07\x13\x55\x6c\x91\x6f";
-		const byte personalization[] = "\xf3\x37\x8e\xa1\x45\x34\x30\x41\x12\xe0\xee\x57\xe9\xb3\x4a\x4b";
+		const ::byte entropy1[] = "\x0e\xd5\x4c\xef\x44\x5c\x61\x7d\x58\x86\xe0\x34\xc0\x97\x36\xd4";
+		const ::byte entropy2[] = "\x0b\x90\x27\xb8\x01\xe7\xf7\x2e\xe6\xec\x50\x2b\x8b\x6b\xd7\x11";
+		const ::byte nonce[] = "\x2c\x8b\x07\x13\x55\x6c\x91\x6f";
+		const ::byte personalization[] = "\xf3\x37\x8e\xa1\x45\x34\x30\x41\x12\xe0\xee\x57\xe9\xb3\x4a\x4b";
 
 		Hash_DRBG<SHA1, 128/8, 440/8> drbg(entropy1, 16, nonce, 8, personalization, 16);
 		drbg.IncorporateEntropy(entropy2, 16);
@@ -1263,7 +1263,7 @@ bool ValidateHashDRBG()
 		drbg.GenerateBlock(result, result.size());
 		drbg.GenerateBlock(result, result.size());
 
-		const byte expected[] = "\x55\x37\x0E\xD4\xB7\xCA\xA4\xBB\x67\x3A\x0F\x58\x40\xB3\x9F\x76\x4E\xDA\xD2\x85"
+		const ::byte expected[] = "\x55\x37\x0E\xD4\xB7\xCA\xA4\xBB\x67\x3A\x0F\x58\x40\xB3\x9F\x76\x4E\xDA\xD2\x85"
 			"\xD5\x6F\x01\x8F\x2D\xA7\x54\x4B\x0E\x66\x39\x62\x35\x96\x1D\xB7\xF6\xDA\xFB\x30"
 			"\xB6\xC5\x68\xD8\x40\x6E\x2B\xD4\x3D\x23\xEB\x0F\x10\xBA\x5F\x24\x9C\xC9\xE9\x4A"
 			"\xD3\xA5\xF1\xDF\xA4\xF2\xB4\x80\x40\x91\xED\x8C\xD6\x6D\xE7\xB7\x53\xB2\x09\xD5";
@@ -1277,10 +1277,10 @@ bool ValidateHashDRBG()
 	{
 		// [SHA-1], [PredictionResistance = False], [EntropyInputLen = 128], [NonceLen = 64]
 		// [PersonalizationStringLen = 128], [AdditionalInputLen = 0], [ReturnedBitsLen = 640]
-		const byte entropy1[] = "\x8f\x2a\x33\x9f\x5f\x45\x21\x30\xa4\x57\xa9\x6f\xcb\xe2\xe6\x36";
-		const byte entropy2[] = "\x1f\xff\x9e\x4f\x4d\x66\x3a\x1f\x9e\x85\x4a\x15\x7d\xad\x97\xe0";
-		const byte nonce[] = "\x0e\xd0\xe9\xa5\xa4\x54\x8a\xd0";
-		const byte personalization[] = "\x45\xe4\xb3\xe2\x63\x87\x62\x57\x2c\x99\xe4\x03\x45\xd6\x32\x6f";
+		const ::byte entropy1[] = "\x8f\x2a\x33\x9f\x5f\x45\x21\x30\xa4\x57\xa9\x6f\xcb\xe2\xe6\x36";
+		const ::byte entropy2[] = "\x1f\xff\x9e\x4f\x4d\x66\x3a\x1f\x9e\x85\x4a\x15\x7d\xad\x97\xe0";
+		const ::byte nonce[] = "\x0e\xd0\xe9\xa5\xa4\x54\x8a\xd0";
+		const ::byte personalization[] = "\x45\xe4\xb3\xe2\x63\x87\x62\x57\x2c\x99\xe4\x03\x45\xd6\x32\x6f";
 
 		Hash_DRBG<SHA1, 128/8, 440/8> drbg(entropy1, 16, nonce, 8, personalization, 16);
 		drbg.IncorporateEntropy(entropy2, 16);
@@ -1289,7 +1289,7 @@ bool ValidateHashDRBG()
 		drbg.GenerateBlock(result, result.size());
 		drbg.GenerateBlock(result, result.size());
 
-		const byte expected[] = "\x4F\xE8\x96\x41\xF8\xD3\x95\xC4\x43\x6E\xFB\xF8\x05\x75\xA7\x69\x74\x6E\x0C\x5F"
+		const ::byte expected[] = "\x4F\xE8\x96\x41\xF8\xD3\x95\xC4\x43\x6E\xFB\xF8\x05\x75\xA7\x69\x74\x6E\x0C\x5F"
 			"\x54\x14\x35\xB4\xE6\xA6\xB3\x40\x7C\xA2\xC4\x42\xA2\x2F\x66\x28\x28\xCF\x4A\xA8"
 			"\xDC\x16\xBC\x5F\x69\xE5\xBB\x05\xD1\x43\x8F\x80\xAB\xC5\x8F\x9C\x3F\x75\x57\xEB"
 			"\x44\x0D\xF5\x0C\xF4\x95\x23\x94\x67\x11\x55\x98\x14\x43\xFF\x13\x14\x85\x5A\xBC";
@@ -1303,13 +1303,13 @@ bool ValidateHashDRBG()
 	{
 		// [SHA-1], [PredictionResistance = False], [EntropyInputLen = 128], [NonceLen = 64]
 		// [PersonalizationStringLen = 128], [AdditionalInputLen = 16], [ReturnedBitsLen = 640]
-		const byte entropy1[] = "\x48\xa1\xa9\x7c\xcc\x49\xd7\xcc\xf6\xe3\x78\xa2\xf1\x6b\x0f\xcd";
-		const byte entropy2[] = "\xba\x5d\xa6\x79\x12\x37\x24\x3f\xea\x60\x50\xf5\xb9\x9e\xcd\xf5";
-		const byte nonce[] = "\xb0\x91\xd2\xec\x12\xa8\x39\xfe";
-		const byte personalization[] = "\x3d\xc1\x6c\x1a\xdd\x9c\xac\x4e\xbb\xb0\xb8\x89\xe4\x3b\x9e\x12";
-		const byte additional1[] = "\xd1\x23\xe3\x8e\x4c\x97\xe8\x29\x94\xa9\x71\x7a\xc6\xf1\x7c\x08";
-		const byte additional2[] = "\x80\x0b\xed\x97\x29\xcf\xad\xe6\x68\x0d\xfe\x53\xba\x0c\x1e\x28";
-		const byte additional3[] = "\x25\x1e\x66\xb9\xe3\x85\xac\x1c\x17\xfb\x77\x1b\x5d\xc7\x6c\xf2";
+		const ::byte entropy1[] = "\x48\xa1\xa9\x7c\xcc\x49\xd7\xcc\xf6\xe3\x78\xa2\xf1\x6b\x0f\xcd";
+		const ::byte entropy2[] = "\xba\x5d\xa6\x79\x12\x37\x24\x3f\xea\x60\x50\xf5\xb9\x9e\xcd\xf5";
+		const ::byte nonce[] = "\xb0\x91\xd2\xec\x12\xa8\x39\xfe";
+		const ::byte personalization[] = "\x3d\xc1\x6c\x1a\xdd\x9c\xac\x4e\xbb\xb0\xb8\x89\xe4\x3b\x9e\x12";
+		const ::byte additional1[] = "\xd1\x23\xe3\x8e\x4c\x97\xe8\x29\x94\xa9\x71\x7a\xc6\xf1\x7c\x08";
+		const ::byte additional2[] = "\x80\x0b\xed\x97\x29\xcf\xad\xe6\x68\x0d\xfe\x53\xba\x0c\x1e\x28";
+		const ::byte additional3[] = "\x25\x1e\x66\xb9\xe3\x85\xac\x1c\x17\xfb\x77\x1b\x5d\xc7\x6c\xf2";
 
 		Hash_DRBG<SHA1, 128/8, 440/8> drbg(entropy1, 16, nonce, 8, personalization, 16);
 		drbg.IncorporateEntropy(entropy2, 16, additional1, 16);
@@ -1318,7 +1318,7 @@ bool ValidateHashDRBG()
 		drbg.GenerateBlock(additional2, 16, result, result.size());
 		drbg.GenerateBlock(additional3, 16, result, result.size());
 
-		const byte expected[] = "\xA1\xB2\xEE\x86\xA0\xF1\xDA\xB7\x93\x83\x13\x3A\x62\x27\x99\x08\x95\x3A\x1C\x9A"
+		const ::byte expected[] = "\xA1\xB2\xEE\x86\xA0\xF1\xDA\xB7\x93\x83\x13\x3A\x62\x27\x99\x08\x95\x3A\x1C\x9A"
 			"\x98\x77\x60\x12\x11\x19\xCC\x78\xB8\x51\x2B\xD5\x37\xA1\x9D\xB9\x73\xCA\x39\x7A"
 			"\xDD\x92\x33\x78\x6D\x5D\x41\xFF\xFA\xE9\x80\x59\x04\x85\x21\xE2\x52\x84\xBC\x6F"
 			"\xDB\x97\xF3\x4E\x6A\x12\x7A\xCD\x41\x0F\x50\x68\x28\x46\xBE\x56\x9E\x9A\x6B\xC8";
@@ -1332,13 +1332,13 @@ bool ValidateHashDRBG()
 	{
 		// [SHA-1], [PredictionResistance = False], [EntropyInputLen = 128], [NonceLen = 64]
 		// [PersonalizationStringLen = 128], [AdditionalInputLen = 16], [ReturnedBitsLen = 640]
-		const byte entropy1[] = "\x3b\xcb\xa8\x3b\x6d\xfb\x06\x79\x80\xef\xc3\x1e\xd2\x9e\x68\x57";
-		const byte entropy2[] = "\x2f\xc9\x87\x49\x19\xcb\x52\x4a\x5b\xac\xf0\xcd\x96\x4e\xf8\x6e";
-		const byte nonce[] = "\x23\xfe\x20\x9f\xac\x70\x45\xde";
-		const byte personalization[] = "\xf2\x25\xf4\xd9\x6b\x9c\xab\x49\x1e\xab\x18\x14\xb2\x5e\x78\xef";
-		const byte additional1[] = "\x57\x5b\x9a\x11\x32\x7a\xab\x89\x08\xfe\x46\x11\x9a\xed\x14\x5d";
-		const byte additional2[] = "\x5d\x19\xcd\xed\xb7\xe3\x44\x66\x8e\x11\x42\x96\xa0\x38\xb1\x7f";
-		const byte additional3[] = "\x2b\xaf\xa0\x15\xed\xdd\x5c\x76\x32\x75\x34\x35\xd1\x37\x72\xfb";
+		const ::byte entropy1[] = "\x3b\xcb\xa8\x3b\x6d\xfb\x06\x79\x80\xef\xc3\x1e\xd2\x9e\x68\x57";
+		const ::byte entropy2[] = "\x2f\xc9\x87\x49\x19\xcb\x52\x4a\x5b\xac\xf0\xcd\x96\x4e\xf8\x6e";
+		const ::byte nonce[] = "\x23\xfe\x20\x9f\xac\x70\x45\xde";
+		const ::byte personalization[] = "\xf2\x25\xf4\xd9\x6b\x9c\xab\x49\x1e\xab\x18\x14\xb2\x5e\x78\xef";
+		const ::byte additional1[] = "\x57\x5b\x9a\x11\x32\x7a\xab\x89\x08\xfe\x46\x11\x9a\xed\x14\x5d";
+		const ::byte additional2[] = "\x5d\x19\xcd\xed\xb7\xe3\x44\x66\x8e\x11\x42\x96\xa0\x38\xb1\x7f";
+		const ::byte additional3[] = "\x2b\xaf\xa0\x15\xed\xdd\x5c\x76\x32\x75\x34\x35\xd1\x37\x72\xfb";
 
 		Hash_DRBG<SHA1, 128/8, 440/8> drbg(entropy1, 16, nonce, 8, personalization, 16);
 		drbg.IncorporateEntropy(entropy2, 16, additional1, 16);
@@ -1347,7 +1347,7 @@ bool ValidateHashDRBG()
 		drbg.GenerateBlock(additional2, 16, result, result.size());
 		drbg.GenerateBlock(additional3, 16, result, result.size());
 
-		const byte expected[] = "\x1D\x12\xEB\x6D\x42\x60\xBD\xFB\xA7\x99\xB8\x53\xCC\x6F\x19\xB1\x64\xFE\x2F\x55"
+		const ::byte expected[] = "\x1D\x12\xEB\x6D\x42\x60\xBD\xFB\xA7\x99\xB8\x53\xCC\x6F\x19\xB1\x64\xFE\x2F\x55"
 			"\xBA\xA2\x1C\x89\xD4\xD0\xE9\xB4\xBA\xD4\xE5\xF8\xC5\x30\x06\x41\xBA\xC4\x3D\x2B"
 			"\x73\x91\x27\xE9\x31\xC0\x55\x55\x11\xE8\xB6\x57\x02\x0D\xCE\x90\xAC\x31\xB9\x00"
 			"\x31\xC1\xD4\x4F\xE7\x12\x3B\xCC\x85\x16\x2F\x12\x8F\xB2\xDF\x84\x4E\xF7\x06\xBE";
@@ -1361,13 +1361,13 @@ bool ValidateHashDRBG()
 	{
 		// [SHA-256], [PredictionResistance = False], [EntropyInputLen = 256], [NonceLen = 128]
 		// [PersonalizationStringLen = 256], [AdditionalInputLen = 256], [ReturnedBitsLen = 1024]
-		const byte entropy1[] = "\xf0\x5b\xab\x56\xc7\xac\x6e\xeb\x31\xa0\xcf\x8a\x8a\x06\x2a\x49\x17\x9a\xcf\x3c\x5b\x20\x4d\x60\xdd\x7a\x3e\xb7\x8f\x5d\x8e\x3b";
-		const byte entropy2[] = "\x72\xd4\x02\xa2\x59\x7b\x98\xa3\xb8\xf5\x0b\x71\x6c\x63\xc6\xdb\xa7\x3a\x07\xe6\x54\x89\x06\x3f\x02\xc5\x32\xf5\xda\xc4\xd4\x18";
-		const byte nonce[] = "\xa1\x45\x08\x53\x41\x68\xb6\x88\xf0\x5f\x1e\x41\x9c\x88\xcc\x30";
-		const byte personalization[] = "\xa0\x34\x72\xf4\x04\x59\xe2\x87\xea\xcb\x21\x32\xc0\xb6\x54\x02\x7d\xa3\xe6\x69\x25\xb4\x21\x25\x54\xc4\x48\x18\x8c\x0e\x86\x01";
-		const byte additional1[] = "\xb3\x0d\x28\xaf\xa4\x11\x6b\xbc\x13\x6e\x65\x09\xb5\x82\xa6\x93\xbc\x91\x71\x40\x46\xaa\x3c\x66\xb6\x77\xb3\xef\xf9\xad\xfd\x49";
-		const byte additional2[] = "\x77\xfd\x1d\x68\xd6\xa4\xdd\xd5\xf3\x27\x25\x2d\x3f\x6b\xdf\xee\x8c\x35\xce\xd3\x83\xbe\xaf\xc9\x32\x77\xef\xf2\x1b\x6f\xf4\x1b";
-		const byte additional3[] = "\x59\xa0\x1f\xf8\x6a\x58\x72\x1e\x85\xd2\xf8\x3f\x73\x99\xf1\x96\x4e\x27\xf8\x7f\xcd\x1b\xf5\xc1\xeb\xf3\x37\x10\x9b\x13\xbd\x24";
+		const ::byte entropy1[] = "\xf0\x5b\xab\x56\xc7\xac\x6e\xeb\x31\xa0\xcf\x8a\x8a\x06\x2a\x49\x17\x9a\xcf\x3c\x5b\x20\x4d\x60\xdd\x7a\x3e\xb7\x8f\x5d\x8e\x3b";
+		const ::byte entropy2[] = "\x72\xd4\x02\xa2\x59\x7b\x98\xa3\xb8\xf5\x0b\x71\x6c\x63\xc6\xdb\xa7\x3a\x07\xe6\x54\x89\x06\x3f\x02\xc5\x32\xf5\xda\xc4\xd4\x18";
+		const ::byte nonce[] = "\xa1\x45\x08\x53\x41\x68\xb6\x88\xf0\x5f\x1e\x41\x9c\x88\xcc\x30";
+		const ::byte personalization[] = "\xa0\x34\x72\xf4\x04\x59\xe2\x87\xea\xcb\x21\x32\xc0\xb6\x54\x02\x7d\xa3\xe6\x69\x25\xb4\x21\x25\x54\xc4\x48\x18\x8c\x0e\x86\x01";
+		const ::byte additional1[] = "\xb3\x0d\x28\xaf\xa4\x11\x6b\xbc\x13\x6e\x65\x09\xb5\x82\xa6\x93\xbc\x91\x71\x40\x46\xaa\x3c\x66\xb6\x77\xb3\xef\xf9\xad\xfd\x49";
+		const ::byte additional2[] = "\x77\xfd\x1d\x68\xd6\xa4\xdd\xd5\xf3\x27\x25\x2d\x3f\x6b\xdf\xee\x8c\x35\xce\xd3\x83\xbe\xaf\xc9\x32\x77\xef\xf2\x1b\x6f\xf4\x1b";
+		const ::byte additional3[] = "\x59\xa0\x1f\xf8\x6a\x58\x72\x1e\x85\xd2\xf8\x3f\x73\x99\xf1\x96\x4e\x27\xf8\x7f\xcd\x1b\xf5\xc1\xeb\xf3\x37\x10\x9b\x13\xbd\x24";
 
 		Hash_DRBG<SHA256, 128/8, 440/8> drbg(entropy1, 32, nonce, 16, personalization, 32);
 		drbg.IncorporateEntropy(entropy2, 32, additional1, 32);
@@ -1376,7 +1376,7 @@ bool ValidateHashDRBG()
 		drbg.GenerateBlock(additional2, 32, result, result.size());
 		drbg.GenerateBlock(additional3, 32, result, result.size());
 
-		const byte expected[] = "\xFF\x27\x96\x38\x5C\x32\xBF\x84\x3D\xFA\xBB\xF0\x3E\x70\x5A\x39\xCB\xA3\x4C\xF1"
+		const ::byte expected[] = "\xFF\x27\x96\x38\x5C\x32\xBF\x84\x3D\xFA\xBB\xF0\x3E\x70\x5A\x39\xCB\xA3\x4C\xF1"
 			"\x4F\xAE\xC3\x05\x63\xDF\x5A\xDD\xBD\x2D\x35\x83\xF5\x7E\x05\xF9\x40\x30\x56\x18"
 			"\xF2\x00\x88\x14\x03\xC2\xD9\x81\x36\x39\xE6\x67\x55\xDC\xFC\x4E\x88\xEA\x71\xDD"
 			"\xB2\x25\x2E\x09\x91\x49\x40\xEB\xE2\x3D\x63\x44\xA0\xF4\xDB\x5E\xE8\x39\xE6\x70"
@@ -1393,13 +1393,13 @@ bool ValidateHashDRBG()
 	{
 		// [SHA-256], [PredictionResistance = False], [EntropyInputLen = 256], [NonceLen = 128]
 		// [PersonalizationStringLen = 256], [AdditionalInputLen = 256], [ReturnedBitsLen = 1024]
-		const byte entropy1[] = "\xfe\x61\x50\x79\xf1\xad\x2a\x71\xea\x7f\x0f\x5a\x14\x34\xee\xc8\x46\x35\x54\x4a\x95\x6a\x4f\xbd\x64\xff\xba\xf6\x1d\x34\x61\x83";
-		const byte entropy2[] = "\x18\x89\x7b\xd8\x3e\xff\x38\xab\xb5\x6e\x82\xa8\x1b\x8c\x5e\x59\x3c\x3d\x85\x62\x2a\xe2\x88\xe5\xb2\xc6\xc5\xd2\xad\x7d\xc9\x45";
-		const byte nonce[] = "\x9d\xa7\x87\x56\xb7\x49\x17\x02\x4c\xd2\x00\x65\x11\x9b\xe8\x7e";
-		const byte personalization[] = "\x77\x5d\xbf\x32\xf3\x5c\xf3\x51\xf4\xb8\x1c\xd3\xfa\x7f\x65\x0b\xcf\x31\x88\xa1\x25\x57\x0c\xdd\xac\xaa\xfe\xa1\x7b\x3b\x29\xbc";
-		const byte additional1[] = "\xef\x96\xc7\x9c\xb1\x73\x1d\x82\x85\x0a\x6b\xca\x9b\x5c\x34\x39\xba\xd3\x4e\x4d\x82\x6f\x35\x9f\x61\x5c\xf6\xf2\xa3\x3e\x91\x05";
-		const byte additional2[] = "\xaf\x25\xc4\x6e\x21\xfc\xc3\xaf\x1f\xbb\xf8\x76\xb4\x57\xab\x1a\x94\x0a\x85\x16\x47\x81\xa4\xab\xda\xc8\xab\xca\xd0\x84\xda\xae";
-		const byte additional3[] = "\x59\x5b\x44\x94\x38\x86\x36\xff\x8e\x45\x1a\x0c\x42\xc8\xcc\x21\x06\x38\x3a\xc5\xa6\x30\x96\xb9\x14\x81\xb3\xa1\x2b\xc8\xcd\xf6";
+		const ::byte entropy1[] = "\xfe\x61\x50\x79\xf1\xad\x2a\x71\xea\x7f\x0f\x5a\x14\x34\xee\xc8\x46\x35\x54\x4a\x95\x6a\x4f\xbd\x64\xff\xba\xf6\x1d\x34\x61\x83";
+		const ::byte entropy2[] = "\x18\x89\x7b\xd8\x3e\xff\x38\xab\xb5\x6e\x82\xa8\x1b\x8c\x5e\x59\x3c\x3d\x85\x62\x2a\xe2\x88\xe5\xb2\xc6\xc5\xd2\xad\x7d\xc9\x45";
+		const ::byte nonce[] = "\x9d\xa7\x87\x56\xb7\x49\x17\x02\x4c\xd2\x00\x65\x11\x9b\xe8\x7e";
+		const ::byte personalization[] = "\x77\x5d\xbf\x32\xf3\x5c\xf3\x51\xf4\xb8\x1c\xd3\xfa\x7f\x65\x0b\xcf\x31\x88\xa1\x25\x57\x0c\xdd\xac\xaa\xfe\xa1\x7b\x3b\x29\xbc";
+		const ::byte additional1[] = "\xef\x96\xc7\x9c\xb1\x73\x1d\x82\x85\x0a\x6b\xca\x9b\x5c\x34\x39\xba\xd3\x4e\x4d\x82\x6f\x35\x9f\x61\x5c\xf6\xf2\xa3\x3e\x91\x05";
+		const ::byte additional2[] = "\xaf\x25\xc4\x6e\x21\xfc\xc3\xaf\x1f\xbb\xf8\x76\xb4\x57\xab\x1a\x94\x0a\x85\x16\x47\x81\xa4\xab\xda\xc8\xab\xca\xd0\x84\xda\xae";
+		const ::byte additional3[] = "\x59\x5b\x44\x94\x38\x86\x36\xff\x8e\x45\x1a\x0c\x42\xc8\xcc\x21\x06\x38\x3a\xc5\xa6\x30\x96\xb9\x14\x81\xb3\xa1\x2b\xc8\xcd\xf6";
 
 		Hash_DRBG<SHA256, 128/8, 440/8> drbg(entropy1, 32, nonce, 16, personalization, 32);
 		drbg.IncorporateEntropy(entropy2, 32, additional1, 32);
@@ -1408,7 +1408,7 @@ bool ValidateHashDRBG()
 		drbg.GenerateBlock(additional2, 32, result, result.size());
 		drbg.GenerateBlock(additional3, 32, result, result.size());
 
-		const byte expected[] = "\x8B\x1C\x9C\x76\xC4\x9B\x3B\xAE\xFD\x6E\xEB\x6C\xFF\xA3\xA1\x03\x3A\x8C\xAF\x09"
+		const ::byte expected[] = "\x8B\x1C\x9C\x76\xC4\x9B\x3B\xAE\xFD\x6E\xEB\x6C\xFF\xA3\xA1\x03\x3A\x8C\xAF\x09"
 			"\xFE\xBD\x44\x00\xFC\x0F\xD3\xA8\x26\x9C\xEE\x01\xAC\xE3\x73\x0E\xBE\xDA\x9A\xC6"
 			"\x23\x44\x6D\xA1\x56\x94\x29\xEC\x4B\xCD\x01\x84\x32\x25\xEF\x00\x91\x0B\xCC\xF3"
 			"\x06\x3B\x80\xF5\x46\xAC\xD2\xED\x5F\x70\x2B\x56\x2F\x21\x0A\xE9\x80\x87\x38\xAD"
@@ -1425,13 +1425,13 @@ bool ValidateHashDRBG()
 	{
 		// [SHA-512], [PredictionResistance = False], [EntropyInputLen = 256], [NonceLen = 128]
 		// [PersonalizationStringLen = 256], [AdditionalInputLen = 256], [ReturnedBitsLen = 2048]
-		const byte entropy1[] = "\x55\x4e\x8f\xfd\xc4\x9a\xd8\xf9\x9a\xe5\xd5\xf8\x1a\xf5\xda\xfb\x7f\x75\x53\xd7\xcb\x56\x8e\xa7\x3c\xc0\x82\xdd\x80\x76\x25\xc0";
-		const byte entropy2[] = "\x78\x07\x3e\x86\x79\x4b\x10\x95\x88\xf4\x22\xf9\xbd\x04\x7e\xc0\xce\xab\xd6\x78\x6b\xdf\xe2\x89\xb3\x16\x43\x9c\x32\x2d\xb2\x59";
-		const byte nonce[] = "\xf0\x89\x78\xde\x2d\xc2\xcd\xd9\xc0\xfd\x3d\x84\xd9\x8b\x8e\x8e";
-		const byte personalization[] = "\x3e\x52\x7a\xb5\x81\x2b\x0c\x0e\x98\x2a\x95\x78\x93\x98\xd9\xeb\xf1\xb9\xeb\xd6\x1d\x02\x05\xed\x42\x21\x2d\x24\xb8\x37\xf8\x41";
-		const byte additional1[] = "\xf2\x6b\xb1\xef\x30\xca\x8f\x97\xc0\x19\xd0\x79\xe5\xc6\x5e\xae\xd1\xa3\x9a\x52\xaf\x12\xe8\x28\xde\x03\x70\x79\x9a\x70\x11\x8b";
-		const byte additional2[] = "\xb0\x9d\xb5\xa8\x45\xec\x79\x7a\x4b\x60\x7e\xe4\xd5\x58\x56\x70\x35\x20\x9b\xd8\xe5\x01\x6c\x78\xff\x1f\x6b\x93\xbf\x7c\x34\xca";
-		const byte additional3[] = "\x45\x92\x2f\xb3\x5a\xd0\x6a\x84\x5f\xc9\xca\x16\x4a\x42\xbb\x59\x84\xb4\x38\x57\xa9\x16\x23\x48\xf0\x2f\x51\x61\x24\x35\xb8\x62";
+		const ::byte entropy1[] = "\x55\x4e\x8f\xfd\xc4\x9a\xd8\xf9\x9a\xe5\xd5\xf8\x1a\xf5\xda\xfb\x7f\x75\x53\xd7\xcb\x56\x8e\xa7\x3c\xc0\x82\xdd\x80\x76\x25\xc0";
+		const ::byte entropy2[] = "\x78\x07\x3e\x86\x79\x4b\x10\x95\x88\xf4\x22\xf9\xbd\x04\x7e\xc0\xce\xab\xd6\x78\x6b\xdf\xe2\x89\xb3\x16\x43\x9c\x32\x2d\xb2\x59";
+		const ::byte nonce[] = "\xf0\x89\x78\xde\x2d\xc2\xcd\xd9\xc0\xfd\x3d\x84\xd9\x8b\x8e\x8e";
+		const ::byte personalization[] = "\x3e\x52\x7a\xb5\x81\x2b\x0c\x0e\x98\x2a\x95\x78\x93\x98\xd9\xeb\xf1\xb9\xeb\xd6\x1d\x02\x05\xed\x42\x21\x2d\x24\xb8\x37\xf8\x41";
+		const ::byte additional1[] = "\xf2\x6b\xb1\xef\x30\xca\x8f\x97\xc0\x19\xd0\x79\xe5\xc6\x5e\xae\xd1\xa3\x9a\x52\xaf\x12\xe8\x28\xde\x03\x70\x79\x9a\x70\x11\x8b";
+		const ::byte additional2[] = "\xb0\x9d\xb5\xa8\x45\xec\x79\x7a\x4b\x60\x7e\xe4\xd5\x58\x56\x70\x35\x20\x9b\xd8\xe5\x01\x6c\x78\xff\x1f\x6b\x93\xbf\x7c\x34\xca";
+		const ::byte additional3[] = "\x45\x92\x2f\xb3\x5a\xd0\x6a\x84\x5f\xc9\xca\x16\x4a\x42\xbb\x59\x84\xb4\x38\x57\xa9\x16\x23\x48\xf0\x2f\x51\x61\x24\x35\xb8\x62";
 
 		Hash_DRBG<SHA512, 256/8, 888/8> drbg(entropy1, 32, nonce, 16, personalization, 32);
 		drbg.IncorporateEntropy(entropy2, 32, additional1, 32);
@@ -1440,7 +1440,7 @@ bool ValidateHashDRBG()
 		drbg.GenerateBlock(additional2, 32, result, result.size());
 		drbg.GenerateBlock(additional3, 32, result, result.size());
 
-		const byte expected[] = "\x1F\x20\x83\x9E\x22\x55\x3B\x1E\x6C\xD4\xF6\x3A\x47\xC3\x99\x54\x0F\x69\xA3\xBB"
+		const ::byte expected[] = "\x1F\x20\x83\x9E\x22\x55\x3B\x1E\x6C\xD4\xF6\x3A\x47\xC3\x99\x54\x0F\x69\xA3\xBB"
 			"\x37\x47\xA0\x2A\x12\xAC\xC7\x00\x85\xC5\xCC\xF4\x7B\x12\x5A\x4A\xEA\xED\x2F\xE5"
 			"\x31\x51\x0D\xC1\x8E\x50\x29\xE2\xA6\xCB\x8F\x34\xBA\xDA\x8B\x47\x32\x33\x81\xF1"
 			"\x2D\xF6\x8B\x73\x8C\xFF\x15\xC8\x8E\x8C\x31\x48\xFA\xC3\xC4\x9F\x52\x81\x23\xC2"
@@ -1463,13 +1463,13 @@ bool ValidateHashDRBG()
 	{
 		// [SHA-512], [PredictionResistance = False], [EntropyInputLen = 256], [NonceLen = 128]
 		// [PersonalizationStringLen = 256], [AdditionalInputLen = 256], [ReturnedBitsLen = 2048]
-		const byte entropy1[] = "\x0c\x9f\xcd\x06\x21\x3c\xb2\xf6\x3c\xdf\x79\x76\x4b\x46\x74\xfc\xdf\x68\xb0\xff\xae\xc7\x21\x8a\xa2\xaf\x4e\x4c\xb9\xe6\x60\x78";
-		const byte entropy2[] = "\x75\xb8\x49\x54\xdf\x30\x10\x16\x2c\x06\x8c\x12\xeb\x6c\x1d\x03\x64\x5c\xad\x10\x5c\xc3\x17\x69\xb2\x5a\xc1\x7c\xb8\x33\x5b\x45";
-		const byte nonce[] = "\x43\x1c\x4d\x65\x93\x96\xad\xdc\xc1\x6d\x17\x9f\x7f\x57\x24\x4d";
-		const byte personalization[] = "\x7e\x54\xbd\x87\xd2\x0a\x95\xd7\xc4\x0c\x3b\x1b\x32\x15\x26\xd2\x06\x67\xa4\xac\xc1\xaa\xfb\x55\x91\x68\x2c\xb5\xc9\xcd\x66\x05";
-		const byte additional1[] = "\xd5\x74\x9e\x56\xfb\x5f\xf3\xf8\x2c\x73\x2b\x7a\x83\xe0\xde\x06\x85\x0b\xf0\x57\x50\xc8\x55\x60\x4a\x41\x4f\x86\xb1\x68\x14\x03";
-		const byte additional2[] = "\x9a\x83\xbb\x06\xdf\x4d\x53\x89\xf5\x3f\x24\xff\xf7\xcd\x0c\xcf\x4f\xbe\x46\x79\x8e\xce\x82\xa8\xc4\x6b\x5f\x8e\x58\x32\x62\x23";
-		const byte additional3[] = "\x48\x13\xc4\x95\x10\x99\xdd\x7f\xd4\x77\x3c\x9b\x8a\xa4\x1c\x3d\xb0\x93\x92\x50\xba\x23\x98\xef\x4b\x1b\xd2\x53\xc1\x61\xda\xc6";
+		const ::byte entropy1[] = "\x0c\x9f\xcd\x06\x21\x3c\xb2\xf6\x3c\xdf\x79\x76\x4b\x46\x74\xfc\xdf\x68\xb0\xff\xae\xc7\x21\x8a\xa2\xaf\x4e\x4c\xb9\xe6\x60\x78";
+		const ::byte entropy2[] = "\x75\xb8\x49\x54\xdf\x30\x10\x16\x2c\x06\x8c\x12\xeb\x6c\x1d\x03\x64\x5c\xad\x10\x5c\xc3\x17\x69\xb2\x5a\xc1\x7c\xb8\x33\x5b\x45";
+		const ::byte nonce[] = "\x43\x1c\x4d\x65\x93\x96\xad\xdc\xc1\x6d\x17\x9f\x7f\x57\x24\x4d";
+		const ::byte personalization[] = "\x7e\x54\xbd\x87\xd2\x0a\x95\xd7\xc4\x0c\x3b\x1b\x32\x15\x26\xd2\x06\x67\xa4\xac\xc1\xaa\xfb\x55\x91\x68\x2c\xb5\xc9\xcd\x66\x05";
+		const ::byte additional1[] = "\xd5\x74\x9e\x56\xfb\x5f\xf3\xf8\x2c\x73\x2b\x7a\x83\xe0\xde\x06\x85\x0b\xf0\x57\x50\xc8\x55\x60\x4a\x41\x4f\x86\xb1\x68\x14\x03";
+		const ::byte additional2[] = "\x9a\x83\xbb\x06\xdf\x4d\x53\x89\xf5\x3f\x24\xff\xf7\xcd\x0c\xcf\x4f\xbe\x46\x79\x8e\xce\x82\xa8\xc4\x6b\x5f\x8e\x58\x32\x62\x23";
+		const ::byte additional3[] = "\x48\x13\xc4\x95\x10\x99\xdd\x7f\xd4\x77\x3c\x9b\x8a\xa4\x1c\x3d\xb0\x93\x92\x50\xba\x23\x98\xef\x4b\x1b\xd2\x53\xc1\x61\xda\xc6";
 
 		Hash_DRBG<SHA512, 256/8, 888/8> drbg(entropy1, 32, nonce, 16, personalization, 32);
 		drbg.IncorporateEntropy(entropy2, 32, additional1, 32);
@@ -1478,7 +1478,7 @@ bool ValidateHashDRBG()
 		drbg.GenerateBlock(additional2, 32, result, result.size());
 		drbg.GenerateBlock(additional3, 32, result, result.size());
 
-		const byte expected[] = "\xE1\x7E\x4B\xEE\xD1\x65\x4F\xB2\xFC\xC8\xE8\xD7\xC6\x72\x7D\xD2\xE3\x15\x73\xC0"
+		const ::byte expected[] = "\xE1\x7E\x4B\xEE\xD1\x65\x4F\xB2\xFC\xC8\xE8\xD7\xC6\x72\x7D\xD2\xE3\x15\x73\xC0"
 			"\x23\xC8\x55\x5D\x2B\xD8\x28\xD8\x31\xE4\xC9\x87\x42\x51\x87\x66\x43\x1F\x2C\xA4"
 			"\x73\xED\x4E\x50\x12\xC4\x50\x0E\x4C\xDD\x14\x73\xA2\xFB\xB3\x07\x0C\x66\x97\x4D"
 			"\x89\xDE\x35\x1C\x93\xE7\xE6\x8F\x20\x3D\x84\xE6\x73\x46\x0F\x7C\xF4\x3B\x6C\x02"
@@ -1513,9 +1513,9 @@ bool ValidateHmacDRBG()
 	{
 		// [SHA-1], [PredictionResistance = False], [EntropyInputLen = 128], [NonceLen = 64]
 		// [PersonalizationStringLen = 0], [AdditionalInputLen = 0], [ReturnedBitsLen = 640]
-		const byte entropy1[] = "\x79\x34\x9b\xbf\x7c\xdd\xa5\x79\x95\x57\x86\x66\x21\xc9\x13\x83";
-		const byte entropy2[] = "\xc7\x21\x5b\x5b\x96\xc4\x8e\x9b\x33\x8c\x74\xe3\xe9\x9d\xfe\xdf";
-		const byte nonce[] = "\x11\x46\x73\x3a\xbf\x8c\x35\xc8";
+		const ::byte entropy1[] = "\x79\x34\x9b\xbf\x7c\xdd\xa5\x79\x95\x57\x86\x66\x21\xc9\x13\x83";
+		const ::byte entropy2[] = "\xc7\x21\x5b\x5b\x96\xc4\x8e\x9b\x33\x8c\x74\xe3\xe9\x9d\xfe\xdf";
+		const ::byte nonce[] = "\x11\x46\x73\x3a\xbf\x8c\x35\xc8";
 
 		HMAC_DRBG<SHA1, 128/8, 440/8> drbg(entropy1, 16, nonce, 8);
 		drbg.IncorporateEntropy(entropy2, 16);
@@ -1524,7 +1524,7 @@ bool ValidateHmacDRBG()
 		drbg.GenerateBlock(result, result.size());
 		drbg.GenerateBlock(result, result.size());
 
-		const byte expected[] = "\xc6\xa1\x6a\xb8\xd4\x20\x70\x6f\x0f\x34\xab\x7f\xec\x5a\xdc\xa9\xd8\xca\x3a\x13"
+		const ::byte expected[] = "\xc6\xa1\x6a\xb8\xd4\x20\x70\x6f\x0f\x34\xab\x7f\xec\x5a\xdc\xa9\xd8\xca\x3a\x13"
 			"\x3e\x15\x9c\xa6\xac\x43\xc6\xf8\xa2\xbe\x22\x83\x4a\x4c\x0a\x0a\xff\xb1\x0d\x71"
 			"\x94\xf1\xc1\xa5\xcf\x73\x22\xec\x1a\xe0\x96\x4e\xd4\xbf\x12\x27\x46\xe0\x87\xfd"
 			"\xb5\xb3\xe9\x1b\x34\x93\xd5\xbb\x98\xfa\xed\x49\xe8\x5f\x13\x0f\xc8\xa4\x59\xb7";
@@ -1538,9 +1538,9 @@ bool ValidateHmacDRBG()
 	{
 		// [SHA-1], [PredictionResistance = False], [EntropyInputLen = 128], [NonceLen = 64]
 		// [PersonalizationStringLen = 0], [AdditionalInputLen = 0], [ReturnedBitsLen = 640]
-		const byte entropy1[] = "\xee\x57\xfc\x23\x60\x0f\xb9\x02\x9a\x9e\xc6\xc8\x2e\x7b\x51\xe4";
-		const byte entropy2[] = "\x84\x1d\x27\x6c\xa9\x51\x90\x61\xd9\x2d\x7d\xdf\xa6\x62\x8c\xa3";
-		const byte nonce[] = "\x3e\x97\x21\xe4\x39\x3e\xf9\xad";
+		const ::byte entropy1[] = "\xee\x57\xfc\x23\x60\x0f\xb9\x02\x9a\x9e\xc6\xc8\x2e\x7b\x51\xe4";
+		const ::byte entropy2[] = "\x84\x1d\x27\x6c\xa9\x51\x90\x61\xd9\x2d\x7d\xdf\xa6\x62\x8c\xa3";
+		const ::byte nonce[] = "\x3e\x97\x21\xe4\x39\x3e\xf9\xad";
 
 		HMAC_DRBG<SHA1, 128/8, 440/8> drbg(entropy1, 16, nonce, 8);
 		drbg.IncorporateEntropy(entropy2, 16);
@@ -1549,7 +1549,7 @@ bool ValidateHmacDRBG()
 		drbg.GenerateBlock(result, result.size());
 		drbg.GenerateBlock(result, result.size());
 
-		const byte expected[] = "\xee\x26\xa5\xc8\xef\x08\xa1\xca\x8f\x14\x15\x4d\x67\xc8\x8f\x5e\x7e\xd8\x21\x9d"
+		const ::byte expected[] = "\xee\x26\xa5\xc8\xef\x08\xa1\xca\x8f\x14\x15\x4d\x67\xc8\x8f\x5e\x7e\xd8\x21\x9d"
 			"\x93\x1b\x98\x42\xac\x00\x39\xf2\x14\x55\x39\xf2\x14\x2b\x44\x11\x7a\x99\x8c\x22"
 			"\xf5\x90\xf6\xc9\xb3\x8b\x46\x5b\x78\x3e\xcf\xf1\x3a\x77\x50\x20\x1f\x7e\xcf\x1b"
 			"\x8a\xb3\x93\x60\x4c\x73\xb2\x38\x93\x36\x60\x9a\xf3\x44\x0c\xde\x43\x29\x8b\x84";
@@ -1565,12 +1565,12 @@ bool ValidateHmacDRBG()
 	{
 		// [SHA-1], [PredictionResistance = False], [EntropyInputLen = 128], [NonceLen = 64]
 		// [PersonalizationStringLen = 0], [AdditionalInputLen = 16], [ReturnedBitsLen = 640]
-		const byte entropy1[] = "\x7d\x70\x52\xa7\x76\xfd\x2f\xb3\xd7\x19\x1f\x73\x33\x04\xee\x8b";
-		const byte entropy2[] = "\x49\x04\x7e\x87\x9d\x61\x09\x55\xee\xd9\x16\xe4\x06\x0e\x00\xc9";
-		const byte nonce[] = "\xbe\x4a\x0c\xee\xdc\xa8\x02\x07";
-		const byte additional1[] = "\xfd\x8b\xb3\x3a\xab\x2f\x6c\xdf\xbc\x54\x18\x11\x86\x1d\x51\x8d";
-		const byte additional2[] = "\x99\xaf\xe3\x47\x54\x04\x61\xdd\xf6\xab\xeb\x49\x1e\x07\x15\xb4";
-		const byte additional3[] = "\x02\xf7\x73\x48\x2d\xd7\xae\x66\xf7\x6e\x38\x15\x98\xa6\x4e\xf0";
+		const ::byte entropy1[] = "\x7d\x70\x52\xa7\x76\xfd\x2f\xb3\xd7\x19\x1f\x73\x33\x04\xee\x8b";
+		const ::byte entropy2[] = "\x49\x04\x7e\x87\x9d\x61\x09\x55\xee\xd9\x16\xe4\x06\x0e\x00\xc9";
+		const ::byte nonce[] = "\xbe\x4a\x0c\xee\xdc\xa8\x02\x07";
+		const ::byte additional1[] = "\xfd\x8b\xb3\x3a\xab\x2f\x6c\xdf\xbc\x54\x18\x11\x86\x1d\x51\x8d";
+		const ::byte additional2[] = "\x99\xaf\xe3\x47\x54\x04\x61\xdd\xf6\xab\xeb\x49\x1e\x07\x15\xb4";
+		const ::byte additional3[] = "\x02\xf7\x73\x48\x2d\xd7\xae\x66\xf7\x6e\x38\x15\x98\xa6\x4e\xf0";
 
 		HMAC_DRBG<SHA1, 128/8, 440/8> drbg(entropy1, 16, nonce, 8);
 		drbg.IncorporateEntropy(entropy2, 16, additional1, 16);
@@ -1579,7 +1579,7 @@ bool ValidateHmacDRBG()
 		drbg.GenerateBlock(additional2, 16, result, result.size());
 		drbg.GenerateBlock(additional3, 16, result, result.size());
 
-		const byte expected[] = "\xa7\x36\x34\x38\x44\xfc\x92\x51\x13\x91\xdb\x0a\xdd\xd9\x06\x4d\xbe\xe2\x4c\x89"
+		const ::byte expected[] = "\xa7\x36\x34\x38\x44\xfc\x92\x51\x13\x91\xdb\x0a\xdd\xd9\x06\x4d\xbe\xe2\x4c\x89"
 			"\x76\xaa\x25\x9a\x9e\x3b\x63\x68\xaa\x6d\xe4\xc9\xbf\x3a\x0e\xff\xcd\xa9\xcb\x0e"
 			"\x9d\xc3\x36\x52\xab\x58\xec\xb7\x65\x0e\xd8\x04\x67\xf7\x6a\x84\x9f\xb1\xcf\xc1"
 			"\xed\x0a\x09\xf7\x15\x50\x86\x06\x4d\xb3\x24\xb1\xe1\x24\xf3\xfc\x9e\x61\x4f\xcb";
@@ -1593,12 +1593,12 @@ bool ValidateHmacDRBG()
 	{
 		// [SHA-1], [PredictionResistance = False], [EntropyInputLen = 128], [NonceLen = 64]
 		// [PersonalizationStringLen = 0], [AdditionalInputLen = 16], [ReturnedBitsLen = 640]
-		const byte entropy1[] = "\x29\xc6\x2a\xfa\x3c\x52\x20\x8a\x3f\xde\xcb\x43\xfa\x61\x3f\x15";
-		const byte entropy2[] = "\xbd\x87\xbe\x99\xd1\x84\x16\x54\x12\x31\x41\x40\xd4\x02\x71\x41";
-		const byte nonce[] = "\x6c\x9e\xb5\x9a\xc3\xc2\xd4\x8b";
-		const byte additional1[] = "\x43\x3d\xda\xf2\x59\xd1\x4b\xcf\x89\x76\x30\xcc\xaa\x27\x33\x8c";
-		const byte additional2[] = "\x14\x11\x46\xd4\x04\xf2\x84\xc2\xd0\x2b\x6a\x10\x15\x6e\x33\x82";
-		const byte additional3[] = "\xed\xc3\x43\xdb\xff\xe7\x1a\xb4\x11\x4a\xc3\x63\x9d\x44\x5b\x65";
+		const ::byte entropy1[] = "\x29\xc6\x2a\xfa\x3c\x52\x20\x8a\x3f\xde\xcb\x43\xfa\x61\x3f\x15";
+		const ::byte entropy2[] = "\xbd\x87\xbe\x99\xd1\x84\x16\x54\x12\x31\x41\x40\xd4\x02\x71\x41";
+		const ::byte nonce[] = "\x6c\x9e\xb5\x9a\xc3\xc2\xd4\x8b";
+		const ::byte additional1[] = "\x43\x3d\xda\xf2\x59\xd1\x4b\xcf\x89\x76\x30\xcc\xaa\x27\x33\x8c";
+		const ::byte additional2[] = "\x14\x11\x46\xd4\x04\xf2\x84\xc2\xd0\x2b\x6a\x10\x15\x6e\x33\x82";
+		const ::byte additional3[] = "\xed\xc3\x43\xdb\xff\xe7\x1a\xb4\x11\x4a\xc3\x63\x9d\x44\x5b\x65";
 
 		HMAC_DRBG<SHA1, 128/8, 440/8> drbg(entropy1, 16, nonce, 8);
 		drbg.IncorporateEntropy(entropy2, 16, additional1, 16);
@@ -1607,7 +1607,7 @@ bool ValidateHmacDRBG()
 		drbg.GenerateBlock(additional2, 16, result, result.size());
 		drbg.GenerateBlock(additional3, 16, result, result.size());
 
-		const byte expected[] = "\x8c\x73\x0f\x05\x26\x69\x4d\x5a\x9a\x45\xdb\xab\x05\x7a\x19\x75\x35\x7d\x65\xaf"
+		const ::byte expected[] = "\x8c\x73\x0f\x05\x26\x69\x4d\x5a\x9a\x45\xdb\xab\x05\x7a\x19\x75\x35\x7d\x65\xaf"
 			"\xd3\xef\xf3\x03\x32\x0b\xd1\x40\x61\xf9\xad\x38\x75\x91\x02\xb6\xc6\x01\x16\xf6"
 			"\xdb\x7a\x6e\x8e\x7a\xb9\x4c\x05\x50\x0b\x4d\x1e\x35\x7d\xf8\xe9\x57\xac\x89\x37"
 			"\xb0\x5f\xb3\xd0\x80\xa0\xf9\x06\x74\xd4\x4d\xe1\xbd\x6f\x94\xd2\x95\xc4\x51\x9d";
@@ -1627,8 +1627,8 @@ public:
 	virtual unsigned int BlockSize() const =0;
 	virtual unsigned int KeyLength() const =0;
 
-	virtual BlockTransformation* NewEncryption(const byte *keyStr) const =0;
-	virtual BlockTransformation* NewDecryption(const byte *keyStr) const =0;
+	virtual BlockTransformation* NewEncryption(const ::byte *keyStr) const =0;
+	virtual BlockTransformation* NewDecryption(const ::byte *keyStr) const =0;
 };
 
 template <class E, class D> class FixedRoundsCipherFactory : public CipherFactory
@@ -1638,9 +1638,9 @@ public:
 	unsigned int BlockSize() const {return E::BLOCKSIZE;}
 	unsigned int KeyLength() const {return m_keylen;}
 
-	BlockTransformation* NewEncryption(const byte *keyStr) const
+	BlockTransformation* NewEncryption(const ::byte *keyStr) const
 		{return new E(keyStr, m_keylen);}
-	BlockTransformation* NewDecryption(const byte *keyStr) const
+	BlockTransformation* NewDecryption(const ::byte *keyStr) const
 		{return new D(keyStr, m_keylen);}
 
 	unsigned int m_keylen;
@@ -1654,9 +1654,9 @@ public:
 	unsigned int BlockSize() const {return E::BLOCKSIZE;}
 	unsigned int KeyLength() const {return m_keylen;}
 
-	BlockTransformation* NewEncryption(const byte *keyStr) const
+	BlockTransformation* NewEncryption(const ::byte *keyStr) const
 		{return new E(keyStr, m_keylen, m_rounds);}
-	BlockTransformation* NewDecryption(const byte *keyStr) const
+	BlockTransformation* NewDecryption(const ::byte *keyStr) const
 		{return new D(keyStr, m_keylen, m_rounds);}
 
 	unsigned int m_keylen, m_rounds;
@@ -1699,9 +1699,9 @@ bool BlockTransformationTest(const CipherFactory &cg, BufferedTransformation &va
 class FilterTester : public Unflushable<Sink>
 {
 public:
-	FilterTester(const byte *validOutput, size_t outputLen)
+	FilterTester(const ::byte *validOutput, size_t outputLen)
 		: validOutput(validOutput), outputLen(outputLen), counter(0), fail(false) {}
-	void PutByte(byte inByte)
+	void PutByte(::byte inByte)
 	{
 		if (counter >= outputLen || validOutput[counter] != inByte)
 		{
@@ -1711,7 +1711,7 @@ public:
 		}
 		counter++;
 	}
-	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
+	size_t Put2(const ::byte *inString, size_t length, int messageEnd, bool blocking)
 	{
 		CRYPTOPP_UNUSED(messageEnd), CRYPTOPP_UNUSED(blocking);
 
@@ -1732,12 +1732,12 @@ public:
 		return !fail;
 	}
 
-	const byte *validOutput;
+	const ::byte *validOutput;
 	size_t outputLen, counter;
 	bool fail;
 };
 
-bool TestFilter(BufferedTransformation &bt, const byte *in, size_t inLen, const byte *out, size_t outLen)
+bool TestFilter(BufferedTransformation &bt, const ::byte *in, size_t inLen, const ::byte *out, size_t outLen)
 {
 	FilterTester *ft;
 	bt.Attach(ft = new FilterTester(out, outLen));
@@ -1803,9 +1803,9 @@ bool TestModeIV(SymmetricCipher &e, SymmetricCipher &d)
 bool ValidateCipherModes()
 {
 	std::cout << "\nTesting DES modes...\n\n";
-	const byte key[] = {0x01,0x23,0x45,0x67,0x89,0xab,0xcd,0xef};
-	const byte iv[] = {0x12,0x34,0x56,0x78,0x90,0xab,0xcd,0xef};
-	const byte plain[] = {	// "Now is the time for all " without tailing 0
+	const ::byte key[] = {0x01,0x23,0x45,0x67,0x89,0xab,0xcd,0xef};
+	const ::byte iv[] = {0x12,0x34,0x56,0x78,0x90,0xab,0xcd,0xef};
+	const ::byte plain[] = {	// "Now is the time for all " without tailing 0
 		0x4e,0x6f,0x77,0x20,0x69,0x73,0x20,0x74,
 		0x68,0x65,0x20,0x74,0x69,0x6d,0x65,0x20,
 		0x66,0x6f,0x72,0x20,0x61,0x6c,0x6c,0x20};
@@ -1815,7 +1815,7 @@ bool ValidateCipherModes()
 
 	{
 		// from FIPS 81
-		const byte encrypted[] = {
+		const ::byte encrypted[] = {
 			0x3f, 0xa4, 0x0e, 0x8a, 0x98, 0x4d, 0x48, 0x15,
 			0x6a, 0x27, 0x17, 0x87, 0xab, 0x88, 0x83, 0xf9,
 			0x89, 0x3d, 0x51, 0xec, 0x4b, 0x56, 0x3b, 0x53};
@@ -1834,7 +1834,7 @@ bool ValidateCipherModes()
 	}
 	{
 		// from FIPS 81
-		const byte encrypted[] = {
+		const ::byte encrypted[] = {
 			0xE5, 0xC7, 0xCD, 0xDE, 0x87, 0x2B, 0xF2, 0x7C,
 			0x43, 0xE9, 0x34, 0x00, 0x8C, 0x38, 0x9C, 0x0F,
 			0x68, 0x37, 0x88, 0x49, 0x9A, 0x7C, 0x05, 0xF6};
@@ -1858,7 +1858,7 @@ bool ValidateCipherModes()
 	{
 		// generated with Crypto++, matches FIPS 81
 		// but has extra 8 bytes as result of padding
-		const byte encrypted[] = {
+		const ::byte encrypted[] = {
 			0xE5, 0xC7, 0xCD, 0xDE, 0x87, 0x2B, 0xF2, 0x7C,
 			0x43, 0xE9, 0x34, 0x00, 0x8C, 0x38, 0x9C, 0x0F,
 			0x68, 0x37, 0x88, 0x49, 0x9A, 0x7C, 0x05, 0xF6,
@@ -1879,7 +1879,7 @@ bool ValidateCipherModes()
 	{
 		// generated with Crypto++ 5.2, matches FIPS 81
 		// but has extra 8 bytes as result of padding
-		const byte encrypted[] = {
+		const ::byte encrypted[] = {
 			0xE5, 0xC7, 0xCD, 0xDE, 0x87, 0x2B, 0xF2, 0x7C,
 			0x43, 0xE9, 0x34, 0x00, 0x8C, 0x38, 0x9C, 0x0F,
 			0x68, 0x37, 0x88, 0x49, 0x9A, 0x7C, 0x05, 0xF6,
@@ -1898,9 +1898,9 @@ bool ValidateCipherModes()
 		std::cout << (fail ? "FAILED   " : "passed   ") << "CBC decryption with one-and-zeros padding" << std::endl;
 	}
 	{
-		const byte plain_1[] = {'a', 0, 0, 0, 0, 0, 0, 0};
+		const ::byte plain_1[] = {'a', 0, 0, 0, 0, 0, 0, 0};
 		// generated with Crypto++
-		const byte encrypted[] = {
+		const ::byte encrypted[] = {
 			0x9B, 0x47, 0x57, 0x59, 0xD6, 0x9C, 0xF6, 0xD0};
 
 		CBC_Mode_ExternalCipher::Encryption modeE(desE, iv);
@@ -1918,7 +1918,7 @@ bool ValidateCipherModes()
 	{
 		// generated with Crypto++, matches FIPS 81
 		// but with last two blocks swapped as result of CTS
-		const byte encrypted[] = {
+		const ::byte encrypted[] = {
 			0xE5, 0xC7, 0xCD, 0xDE, 0x87, 0x2B, 0xF2, 0x7C,
 			0x68, 0x37, 0x88, 0x49, 0x9A, 0x7C, 0x05, 0xF6,
 			0x43, 0xE9, 0x34, 0x00, 0x8C, 0x38, 0x9C, 0x0F};
@@ -1941,10 +1941,10 @@ bool ValidateCipherModes()
 	}
 	{
 		// generated with Crypto++
-		const byte decryptionIV[] = {0x4D, 0xD0, 0xAC, 0x8F, 0x47, 0xCF, 0x79, 0xCE};
-		const byte encrypted[] = {0x12, 0x34, 0x56};
+		const ::byte decryptionIV[] = {0x4D, 0xD0, 0xAC, 0x8F, 0x47, 0xCF, 0x79, 0xCE};
+		const ::byte encrypted[] = {0x12, 0x34, 0x56};
 
-		byte stolenIV[8];
+		::byte stolenIV[8];
 
 		CBC_CTS_Mode_ExternalCipher::Encryption modeE(desE, iv);
 		modeE.SetStolenIV(stolenIV);
@@ -1961,7 +1961,7 @@ bool ValidateCipherModes()
 		std::cout << (fail ? "FAILED   " : "passed   ") << "CBC decryption with ciphertext and IV stealing" << std::endl;
 	}
 	{
-		const byte encrypted[] = {	// from FIPS 81
+		const ::byte encrypted[] = {	// from FIPS 81
 			0xF3,0x09,0x62,0x49,0xC7,0xF4,0x6E,0x51,
 			0xA6,0x9E,0x83,0x9B,0x1A,0x92,0xF7,0x84,
 			0x03,0x46,0x71,0x33,0x89,0x8E,0xA6,0x22};
@@ -1983,9 +1983,9 @@ bool ValidateCipherModes()
 		std::cout << (fail ? "FAILED   " : "passed   ") << "CFB mode IV generation" << std::endl;
 	}
 	{
-		const byte plain_2[] = {	// "Now is the." without tailing 0
+		const ::byte plain_2[] = {	// "Now is the." without tailing 0
 			0x4e,0x6f,0x77,0x20,0x69,0x73,0x20,0x74,0x68,0x65};
-		const byte encrypted[] = {	// from FIPS 81
+		const ::byte encrypted[] = {	// from FIPS 81
 			0xf3,0x1f,0xda,0x07,0x01,0x14,0x62,0xee,0x18,0x7f};
 
 		CFB_Mode_ExternalCipher::Encryption modeE(desE, iv, 1);
@@ -2005,7 +2005,7 @@ bool ValidateCipherModes()
 		std::cout << (fail ? "FAILED   " : "passed   ") << "CFB (8-bit feedback) IV generation" << std::endl;
 	}
 	{
-		const byte encrypted[] = {	// from Eric Young's libdes
+		const ::byte encrypted[] = {	// from Eric Young's libdes
 			0xf3,0x09,0x62,0x49,0xc7,0xf4,0x6e,0x51,
 			0x35,0xf2,0x4a,0x24,0x2e,0xeb,0x3d,0x3f,
 			0x3d,0x6d,0x5b,0xe3,0x25,0x5a,0xf8,0xc3};
@@ -2027,7 +2027,7 @@ bool ValidateCipherModes()
 		std::cout << (fail ? "FAILED   " : "passed   ") << "OFB IV generation" << std::endl;
 	}
 	{
-		const byte encrypted[] = {	// generated with Crypto++
+		const ::byte encrypted[] = {	// generated with Crypto++
 			0xF3, 0x09, 0x62, 0x49, 0xC7, 0xF4, 0x6E, 0x51,
 			0x16, 0x3A, 0x8C, 0xA0, 0xFF, 0xC9, 0x4C, 0x27,
 			0xFA, 0x2F, 0x80, 0xF4, 0x80, 0xB8, 0x6F, 0x75};
@@ -2049,14 +2049,14 @@ bool ValidateCipherModes()
 		std::cout << (fail ? "FAILED   " : "passed   ") << "Counter Mode IV generation" << std::endl;
 	}
 	{
-		const byte plain_3[] = {	// "7654321 Now is the time for "
+		const ::byte plain_3[] = {	// "7654321 Now is the time for "
 			0x37, 0x36, 0x35, 0x34, 0x33, 0x32, 0x31, 0x20,
 			0x4e, 0x6f, 0x77, 0x20, 0x69, 0x73, 0x20, 0x74,
 			0x68, 0x65, 0x20, 0x74, 0x69, 0x6d, 0x65, 0x20,
 			0x66, 0x6f, 0x72, 0x20};
-		const byte mac1[] = {	// from FIPS 113
+		const ::byte mac1[] = {	// from FIPS 113
 			0xf1, 0xd3, 0x0f, 0x68, 0x49, 0x31, 0x2c, 0xa4};
-		const byte mac2[] = {	// generated with Crypto++
+		const ::byte mac2[] = {	// generated with Crypto++
 			0x35, 0x80, 0xC5, 0xC4, 0x6B, 0x81, 0x24, 0xE2};
 
 		CBC_MAC<DES> cbcmac(key);
@@ -2136,7 +2136,7 @@ bool ValidateRC2()
 
 	while (valdata.MaxRetrievable())
 	{
-		byte keyLen, effectiveLen;
+		::byte keyLen, effectiveLen;
 
 		valdata.Get(keyLen);
 		valdata.Get(effectiveLen);
@@ -2556,17 +2556,17 @@ bool ValidateBlowfish()
 
 	HexEncoder output(new FileSink(std::cout));
 	const char *key[]={"abcdefghijklmnopqrstuvwxyz", "Who is John Galt?"};
-	byte *plain[]={(byte *)"BLOWFISH", (byte *)"\xfe\xdc\xba\x98\x76\x54\x32\x10"};
-	byte *cipher[]={(byte *)"\x32\x4e\xd0\xfe\xf4\x13\xa2\x03", (byte *)"\xcc\x91\x73\x2b\x80\x22\xf6\x84"};
-	byte out[8], outplain[8];
+	::byte *plain[]={(::byte *)"BLOWFISH", (::byte *)"\xfe\xdc\xba\x98\x76\x54\x32\x10"};
+	::byte *cipher[]={(::byte *)"\x32\x4e\xd0\xfe\xf4\x13\xa2\x03", (::byte *)"\xcc\x91\x73\x2b\x80\x22\xf6\x84"};
+	::byte out[8], outplain[8];
 
 	for (int i=0; i<2; i++)
 	{
-		ECB_Mode<Blowfish>::Encryption enc2((byte *)key[i], strlen(key[i]));
+		ECB_Mode<Blowfish>::Encryption enc2((::byte *)key[i], strlen(key[i]));
 		enc2.ProcessData(out, plain[i], 8);
 		fail = memcmp(out, cipher[i], 8) != 0;
 
-		ECB_Mode<Blowfish>::Decryption dec2((byte *)key[i], strlen(key[i]));
+		ECB_Mode<Blowfish>::Decryption dec2((::byte *)key[i], strlen(key[i]));
 		dec2.ProcessData(outplain, cipher[i], 8);
 		fail = fail || memcmp(outplain, plain[i], 8);
 		pass3 = pass3 && !fail;
@@ -2766,10 +2766,10 @@ bool ValidateSKIPJACK()
 
 bool ValidateSEAL()
 {
-	const byte input[] = {0x37,0xa0,0x05,0x95,0x9b,0x84,0xc4,0x9c,0xa4,0xbe,0x1e,0x05,0x06,0x73,0x53,0x0f,0x5f,0xb0,0x97,0xfd,0xf6,0xa1,0x3f,0xbd,0x6c,0x2c,0xde,0xcd,0x81,0xfd,0xee,0x7c};
-	const byte key[] = {0x67, 0x45, 0x23, 0x01, 0xef, 0xcd, 0xab, 0x89, 0x98, 0xba, 0xdc, 0xfe, 0x10, 0x32, 0x54, 0x76, 0xc3, 0xd2, 0xe1, 0xf0};
-	const byte iv[] = {0x01, 0x35, 0x77, 0xaf};
-	byte output[32];
+	const ::byte input[] = {0x37,0xa0,0x05,0x95,0x9b,0x84,0xc4,0x9c,0xa4,0xbe,0x1e,0x05,0x06,0x73,0x53,0x0f,0x5f,0xb0,0x97,0xfd,0xf6,0xa1,0x3f,0xbd,0x6c,0x2c,0xde,0xcd,0x81,0xfd,0xee,0x7c};
+	const ::byte key[] = {0x67, 0x45, 0x23, 0x01, 0xef, 0xcd, 0xab, 0x89, 0x98, 0xba, 0xdc, 0xfe, 0x10, 0x32, 0x54, 0x76, 0xc3, 0xd2, 0xe1, 0xf0};
+	const ::byte iv[] = {0x01, 0x35, 0x77, 0xaf};
+	::byte output[32];
 
 	std::cout << "\nSEAL validation suite running...\n\n";
 
@@ -2795,9 +2795,9 @@ bool ValidateSEAL()
 bool ValidateBaseCode()
 {
 	bool pass = true, fail;
-	byte data[255];
+	::byte data[255];
 	for (unsigned int i=0; i<255; i++)
-		data[i] = byte(i);
+		data[i] = ::byte(i);
 
 	const char hexEncoded[] =
 		"000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F2021222324252627"
@@ -2837,56 +2837,56 @@ bool ValidateBaseCode()
 
 	std::cout << "\nBase64, Base64URL, Base32 and Base16 coding validation suite running...\n\n";
 
-	fail = !TestFilter(HexEncoder().Ref(), data, 255, (const byte *)hexEncoded, strlen(hexEncoded));
+	fail = !TestFilter(HexEncoder().Ref(), data, 255, (const ::byte *)hexEncoded, strlen(hexEncoded));
 	try {HexEncoder().IsolatedInitialize(g_nullNameValuePairs);}
 	catch (const Exception&) {fail=true;}
 	std::cout << (fail ? "FAILED:" : "passed:");
 	std::cout << "  Hex Encoding\n";
 	pass = pass && !fail;
 
-	fail = !TestFilter(HexDecoder().Ref(), (const byte *)hexEncoded, strlen(hexEncoded), data, 255);
+	fail = !TestFilter(HexDecoder().Ref(), (const ::byte *)hexEncoded, strlen(hexEncoded), data, 255);
 	try {HexDecoder().IsolatedInitialize(g_nullNameValuePairs);}
 	catch (const Exception&) {fail=true;}
 	std::cout << (fail ? "FAILED:" : "passed:");
 	std::cout << "  Hex Decoding\n";
 	pass = pass && !fail;
 
-	fail = !TestFilter(Base32Encoder().Ref(), data, 255, (const byte *)base32Encoded, strlen(base32Encoded));
+	fail = !TestFilter(Base32Encoder().Ref(), data, 255, (const ::byte *)base32Encoded, strlen(base32Encoded));
 	try {Base32Encoder().IsolatedInitialize(g_nullNameValuePairs);}
 	catch (const Exception&) {fail=true;}
 	std::cout << (fail ? "FAILED:" : "passed:");
 	std::cout << "  Base32 Encoding\n";
 	pass = pass && !fail;
 
-	fail = !TestFilter(Base32Decoder().Ref(), (const byte *)base32Encoded, strlen(base32Encoded), data, 255);
+	fail = !TestFilter(Base32Decoder().Ref(), (const ::byte *)base32Encoded, strlen(base32Encoded), data, 255);
 	try {Base32Decoder().IsolatedInitialize(g_nullNameValuePairs);}
 	catch (const Exception&) {fail=true;}
 	std::cout << (fail ? "FAILED:" : "passed:");
 	std::cout << "  Base32 Decoding\n";
 	pass = pass && !fail;
 
-	fail = !TestFilter(Base64Encoder(new HexEncoder).Ref(), data, 255, (const byte *)base64AndHexEncoded, strlen(base64AndHexEncoded));
+	fail = !TestFilter(Base64Encoder(new HexEncoder).Ref(), data, 255, (const ::byte *)base64AndHexEncoded, strlen(base64AndHexEncoded));
 	try {Base64Encoder().IsolatedInitialize(g_nullNameValuePairs);}
 	catch (const Exception&) {fail=true;}
 	std::cout << (fail ? "FAILED:" : "passed:");
 	std::cout << "  Base64 Encoding\n";
 	pass = pass && !fail;
 
-	fail = !TestFilter(HexDecoder(new Base64Decoder).Ref(), (const byte *)base64AndHexEncoded, strlen(base64AndHexEncoded), data, 255);
+	fail = !TestFilter(HexDecoder(new Base64Decoder).Ref(), (const ::byte *)base64AndHexEncoded, strlen(base64AndHexEncoded), data, 255);
 	try {Base64Decoder().IsolatedInitialize(g_nullNameValuePairs);}
 	catch (const Exception&) {fail=true;}
 	std::cout << (fail ? "FAILED:" : "passed:");
 	std::cout << "  Base64 Decoding\n";
 	pass = pass && !fail;
 
-	fail = !TestFilter(Base64URLEncoder(new HexEncoder).Ref(), data, 255, (const byte *)base64URLAndHexEncoded, strlen(base64URLAndHexEncoded));
+	fail = !TestFilter(Base64URLEncoder(new HexEncoder).Ref(), data, 255, (const ::byte *)base64URLAndHexEncoded, strlen(base64URLAndHexEncoded));
 	try {Base64URLEncoder().IsolatedInitialize(g_nullNameValuePairs);}
 	catch (const Exception&) {fail=true;}
 	std::cout << (fail ? "FAILED:" : "passed:");
 	std::cout << "  Base64 URL Encoding\n";
 	pass = pass && !fail;
 
-	fail = !TestFilter(HexDecoder(new Base64URLDecoder).Ref(), (const byte *)base64URLAndHexEncoded, strlen(base64URLAndHexEncoded), data, 255);
+	fail = !TestFilter(HexDecoder(new Base64URLDecoder).Ref(), (const ::byte *)base64URLAndHexEncoded, strlen(base64URLAndHexEncoded), data, 255);
 	try {Base64URLDecoder().IsolatedInitialize(g_nullNameValuePairs);}
 	catch (const Exception&) {fail=true;}
 	std::cout << (fail ? "FAILED:" : "passed:");

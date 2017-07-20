@@ -8,9 +8,9 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 void EMSA2Pad::ComputeMessageRepresentative(RandomNumberGenerator& /*rng*/,
-	const byte* recoverableMessage, size_t recoverableMessageLength,
+	const ::byte* recoverableMessage, size_t recoverableMessageLength,
 	HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
-	byte *representative, size_t representativeBitLength) const
+	::byte *representative, size_t representativeBitLength) const
 {
 	CRYPTOPP_UNUSED(recoverableMessage), CRYPTOPP_UNUSED(recoverableMessageLength), CRYPTOPP_UNUSED(representativeBitLength);
 	CRYPTOPP_ASSERT(representativeBitLength >= MinRepresentativeBitLength(hashIdentifier.second, hash.DigestSize()));
@@ -23,7 +23,7 @@ void EMSA2Pad::ComputeMessageRepresentative(RandomNumberGenerator& /*rng*/,
 
 	representative[0] = messageEmpty ? 0x4b : 0x6b;
 	memset(representative+1, 0xbb, representativeByteLength-digestSize-4);	// pad with 0xbb
-	byte *afterP2 = representative+representativeByteLength-digestSize-3;
+	::byte *afterP2 = representative+representativeByteLength-digestSize-3;
 	afterP2[0] = 0xba;
 	hash.Final(afterP2+1);
 	representative[representativeByteLength-2] = *hashIdentifier.first;

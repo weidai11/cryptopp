@@ -8,7 +8,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-void MARS::Base::UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &)
+void MARS::Base::UncheckedSetKey(const ::byte *userKey, unsigned int length, const NameValuePairs &)
 {
 	AssertValidKeyLength(length);
 
@@ -53,7 +53,7 @@ void MARS::Base::UncheckedSetKey(const byte *userKey, unsigned int length, const
 
 typedef BlockGetAndPut<word32, LittleEndian> Block;
 
-void MARS::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+void MARS::Enc::ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const
 {
 	unsigned int i;
 	word32 a, b, c, d, l, m, r, t;
@@ -102,7 +102,7 @@ void MARS::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, by
 	Block::Put(xorBlock, outBlock)(a)(b)(c)(d);
 }
 
-void MARS::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+void MARS::Dec::ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const
 {
 	unsigned int i;
 	word32 a, b, c, d, l, m, r, t;

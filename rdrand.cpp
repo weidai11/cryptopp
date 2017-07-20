@@ -210,7 +210,7 @@ RDRAND::RDRAND()
         throw RDRAND_Err("HasRDRAND");
 }
 
-void RDRAND::GenerateBlock(byte *output, size_t size)
+void RDRAND::GenerateBlock(::byte *output, size_t size)
 {
     CRYPTOPP_ASSERT((output && size) || !(output || size));
     if (size == 0) return;
@@ -367,7 +367,7 @@ RDSEED::RDSEED()
         throw RDSEED_Err("HasRDSEED");
 }
 
-void RDSEED::GenerateBlock(byte *output, size_t size)
+void RDSEED::GenerateBlock(::byte *output, size_t size)
 {
     CRYPTOPP_ASSERT((output && size) || !(output || size));
     if (size == 0) return;

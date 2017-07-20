@@ -93,7 +93,7 @@ protected:
 	//! \param blocking specifies whether the object should block when processing input
 	//! \param channel the channel to process the data
 	//! \returns the number of bytes that remain in the block (i.e., bytes not processed)
-	size_t Output(int outputSite, const byte *inString, size_t length, int messageEnd, bool blocking, const std::string &channel=DEFAULT_CHANNEL);
+	size_t Output(int outputSite, const ::byte *inString, size_t length, int messageEnd, bool blocking, const std::string &channel=DEFAULT_CHANNEL);
 
 	//! \brief Output multiple bytes that may be modified by callee.
 	//! \param outputSite unknown, system crash between keyboard and chair...
@@ -103,7 +103,7 @@ protected:
 	//! \param blocking specifies whether the object should block when processing input
 	//! \param channel the channel to process the data
 	//! \returns the number of bytes that remain in the block (i.e., bytes not processed)
-	size_t OutputModifiable(int outputSite, byte *inString, size_t length, int messageEnd, bool blocking, const std::string &channel=DEFAULT_CHANNEL);
+	size_t OutputModifiable(int outputSite, ::byte *inString, size_t length, int messageEnd, bool blocking, const std::string &channel=DEFAULT_CHANNEL);
 
 	//! \brief Signals the end of messages to the object
 	//! \param outputSite unknown, system crash between keyboard and chair...
@@ -174,12 +174,12 @@ struct CRYPTOPP_DLL FilterPutSpaceHelper
 	//!   "ChannelCreatePutSpace()" using \p desiredSize. If the target returns \p desiredSize with a size less
 	//!   than \p minSize (i.e., the request could not be fulfilled), then an internal SecByteBlock
 	//!   called \p m_tempSpace is resized and used for the caller.
-	byte *HelpCreatePutSpace(BufferedTransformation &target, const std::string &channel, size_t minSize, size_t desiredSize, size_t &bufferSize)
+	::byte *HelpCreatePutSpace(BufferedTransformation &target, const std::string &channel, size_t minSize, size_t desiredSize, size_t &bufferSize)
 	{
 		CRYPTOPP_ASSERT(desiredSize >= minSize && bufferSize >= minSize);
 		if (m_tempSpace.size() < minSize)
 		{
-			byte *result = target.ChannelCreatePutSpace(channel, desiredSize);
+			::byte *result = target.ChannelCreatePutSpace(channel, desiredSize);
 			if (desiredSize >= minSize)
 			{
 				bufferSize = desiredSize;
@@ -197,7 +197,7 @@ struct CRYPTOPP_DLL FilterPutSpaceHelper
 	//! \param channel channel for the working space
 	//! \param minSize minimum size of the allocation, in bytes
 	//! \details Internally, the overload calls HelpCreatePutSpace(BufferedTransformation &target, const std::string &channel, size_t minSize, size_t desiredSize, size_t &bufferSize) using \p minSize for missing arguments.
-	byte *HelpCreatePutSpace(BufferedTransformation &target, const std::string &channel, size_t minSize)
+	::byte *HelpCreatePutSpace(BufferedTransformation &target, const std::string &channel, size_t minSize)
 		{return HelpCreatePutSpace(target, channel, minSize, minSize, minSize);}
 
 	//! \brief Create a working space in a BufferedTransformation
@@ -206,7 +206,7 @@ struct CRYPTOPP_DLL FilterPutSpaceHelper
 	//! \param minSize minimum size of the allocation, in bytes
 	//! \param bufferSize the actual size of the allocation, in bytes
 	//! \details Internally, the overload calls HelpCreatePutSpace(BufferedTransformation &target, const std::string &channel, size_t minSize, size_t desiredSize, size_t &bufferSize) using \p minSize for missing arguments.
-	byte *HelpCreatePutSpace(BufferedTransformation &target, const std::string &channel, size_t minSize, size_t bufferSize)
+	::byte *HelpCreatePutSpace(BufferedTransformation &target, const std::string &channel, size_t minSize, size_t bufferSize)
 		{return HelpCreatePutSpace(target, channel, minSize, minSize, bufferSize);}
 
 	//! \brief Temporay working space
@@ -259,14 +259,14 @@ public:
 	unsigned int GetTotalMessages() const {return m_totalMessages;}
 	unsigned int GetTotalMessageSeries() const {return m_totalMessageSeries;}
 
-	byte * CreatePutSpace(size_t &size)
+	::byte * CreatePutSpace(size_t &size)
 		{return AttachedTransformation()->CreatePutSpace(size);}
-	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking);
-	size_t PutModifiable2(byte *inString, size_t length, int messageEnd, bool blocking);
+	size_t Put2(const ::byte *inString, size_t length, int messageEnd, bool blocking);
+	size_t PutModifiable2(::byte *inString, size_t length, int messageEnd, bool blocking);
 	bool IsolatedMessageSeriesEnd(bool blocking);
 
 private:
-	size_t PutMaybeModifiable(byte *inString, size_t length, int messageEnd, bool blocking, bool modifiable);
+	size_t PutMaybeModifiable(::byte *inString, size_t length, int messageEnd, bool blocking, bool modifiable);
 	bool ShouldPropagateMessageEnd() const {return m_transparent;}
 	bool ShouldPropagateMessageSeriesEnd() const {return m_transparent;}
 
@@ -281,7 +281,7 @@ private:
 	lword m_currentMessageBytes, m_totalBytes;
 	unsigned int m_currentSeriesMessages, m_totalMessages, m_totalMessageSeries;
 	std::deque<MessageRange> m_rangesToSkip;
-	byte *m_begin;
+	::byte *m_begin;
 	size_t m_length;
 };
 
@@ -332,11 +332,11 @@ public:
 	FilterWithBufferedInput(size_t firstSize, size_t blockSize, size_t lastSize, BufferedTransformation *attachment);
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
-	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
+	size_t Put2(const ::byte *inString, size_t length, int messageEnd, bool blocking)
 	{
-		return PutMaybeModifiable(const_cast<byte *>(inString), length, messageEnd, blocking, false);
+		return PutMaybeModifiable(const_cast< ::byte *>(inString), length, messageEnd, blocking, false);
 	}
-	size_t PutModifiable2(byte *inString, size_t length, int messageEnd, bool blocking)
+	size_t PutModifiable2(::byte *inString, size_t length, int messageEnd, bool blocking)
 	{
 		return PutMaybeModifiable(inString, length, messageEnd, blocking, true);
 	}
@@ -366,15 +366,15 @@ protected:
 	// FirstPut() is called if (firstSize != 0 and totalLength >= firstSize)
 	// or (firstSize == 0 and (totalLength > 0 or a MessageEnd() is received)).
 	// inString is m_firstSize in length.
-	virtual void FirstPut(const byte *inString) =0;
+	virtual void FirstPut(const ::byte *inString) =0;
 	// NextPut() is called if totalLength >= firstSize+blockSize+lastSize
-	virtual void NextPutSingle(const byte *inString)
+	virtual void NextPutSingle(const ::byte *inString)
 		{CRYPTOPP_UNUSED(inString); CRYPTOPP_ASSERT(false);}
 	// Same as NextPut() except length can be a multiple of blockSize
 	// Either NextPut() or NextPutMultiple() must be overridden
-	virtual void NextPutMultiple(const byte *inString, size_t length);
+	virtual void NextPutMultiple(const ::byte *inString, size_t length);
 	// Same as NextPutMultiple(), but inString can be modified
-	virtual void NextPutModifiable(byte *inString, size_t length)
+	virtual void NextPutModifiable(::byte *inString, size_t length)
 		{NextPutMultiple(inString, length);}
 	//! \brief Input the last block of data
 	//! \param inString the input byte buffer
@@ -386,12 +386,12 @@ protected:
 	//!     else if totalLength <= firstSize+lastSize then length == totalLength-firstSize
 	//!     else lastSize <= length < lastSize+blockSize
 	//! </pre>
-	virtual void LastPut(const byte *inString, size_t length) =0;
+	virtual void LastPut(const ::byte *inString, size_t length) =0;
 	virtual void FlushDerived() {}
 
 protected:
-	size_t PutMaybeModifiable(byte *begin, size_t length, int messageEnd, bool blocking, bool modifiable);
-	void NextPutMaybeModifiable(byte *inString, size_t length, bool modifiable)
+	size_t PutMaybeModifiable(::byte *begin, size_t length, int messageEnd, bool blocking, bool modifiable);
+	void NextPutMaybeModifiable(::byte *inString, size_t length, bool modifiable)
 	{
 		if (modifiable) NextPutModifiable(inString, length);
 		else NextPutMultiple(inString, length);
@@ -399,24 +399,24 @@ protected:
 
 	// This function should no longer be used, put this here to cause a compiler error
 	// if someone tries to override NextPut().
-	virtual int NextPut(const byte *inString, size_t length)
+	virtual int NextPut(const ::byte *inString, size_t length)
 		{CRYPTOPP_UNUSED(inString); CRYPTOPP_UNUSED(length); CRYPTOPP_ASSERT(false); return 0;}
 
 	class BlockQueue
 	{
 	public:
 		void ResetQueue(size_t blockSize, size_t maxBlocks);
-		byte *GetBlock();
-		byte *GetContigousBlocks(size_t &numberOfBytes);
-		size_t GetAll(byte *outString);
-		void Put(const byte *inString, size_t length);
+		::byte *GetBlock();
+		::byte *GetContigousBlocks(size_t &numberOfBytes);
+		size_t GetAll(::byte *outString);
+		void Put(const ::byte *inString, size_t length);
 		size_t CurrentSize() const {return m_size;}
 		size_t MaxSize() const {return m_buffer.size();}
 
 	private:
 		SecByteBlock m_buffer;
 		size_t m_blockSize, m_maxBlocks, m_size;
-		byte *m_begin;
+		::byte *m_begin;
 	};
 
 	size_t m_firstSize, m_blockSize, m_lastSize;
@@ -438,7 +438,7 @@ public:
 	//! \param attachment an optional attached transformation
 	FilterWithInputQueue(BufferedTransformation *attachment=NULLPTR) : Filter(attachment) {}
 
-	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
+	size_t Put2(const ::byte *inString, size_t length, int messageEnd, bool blocking)
 	{
 		if (!blocking)
 			throw BlockingInputOnly("FilterWithInputQueue");
@@ -517,10 +517,10 @@ public:
 
 protected:
 	void InitializeDerivedAndReturnNewSizes(const NameValuePairs &parameters, size_t &firstSize, size_t &blockSize, size_t &lastSize);
-	void FirstPut(const byte *inString);
-	void NextPutMultiple(const byte *inString, size_t length);
-	void NextPutModifiable(byte *inString, size_t length);
-	void LastPut(const byte *inString, size_t length);
+	void FirstPut(const ::byte *inString);
+	void NextPutMultiple(const ::byte *inString, size_t length);
+	void NextPutModifiable(::byte *inString, size_t length);
+	void LastPut(const ::byte *inString, size_t length);
 
 	static size_t LastBlockSize(StreamTransformation &c, BlockPaddingScheme padding);
 
@@ -548,14 +548,14 @@ public:
 
 	std::string AlgorithmName() const {return m_hashModule.AlgorithmName();}
 	void IsolatedInitialize(const NameValuePairs &parameters);
-	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking);
-	byte * CreatePutSpace(size_t &size) {return m_hashModule.CreateUpdateSpace(size);}
+	size_t Put2(const ::byte *inString, size_t length, int messageEnd, bool blocking);
+	::byte * CreatePutSpace(size_t &size) {return m_hashModule.CreateUpdateSpace(size);}
 
 private:
 	HashTransformation &m_hashModule;
 	bool m_putMessage;
 	unsigned int m_digestSize;
-	byte *m_space;
+	::byte *m_space;
 	std::string m_messagePutChannel, m_hashPutChannel;
 };
 
@@ -609,9 +609,9 @@ public:
 
 protected:
 	void InitializeDerivedAndReturnNewSizes(const NameValuePairs &parameters, size_t &firstSize, size_t &blockSize, size_t &lastSize);
-	void FirstPut(const byte *inString);
-	void NextPutMultiple(const byte *inString, size_t length);
-	void LastPut(const byte *inString, size_t length);
+	void FirstPut(const ::byte *inString);
+	void NextPutMultiple(const ::byte *inString, size_t length);
+	void LastPut(const ::byte *inString, size_t length);
 
 private:
 	friend class AuthenticatedDecryptionFilter;
@@ -646,8 +646,8 @@ public:
 	AuthenticatedEncryptionFilter(AuthenticatedSymmetricCipher &c, BufferedTransformation *attachment = NULLPTR, bool putAAD=false, int truncatedDigestSize=-1, const std::string &macChannel=DEFAULT_CHANNEL, BlockPaddingScheme padding = DEFAULT_PADDING);
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
-	byte * ChannelCreatePutSpace(const std::string &channel, size_t &size);
-	size_t ChannelPut2(const std::string &channel, const byte *begin, size_t length, int messageEnd, bool blocking);
+	::byte * ChannelCreatePutSpace(const std::string &channel, size_t &size);
+	size_t ChannelPut2(const std::string &channel, const ::byte *begin, size_t length, int messageEnd, bool blocking);
 
 	//! \brief Input the last block of data
 	//! \param inString the input byte buffer
@@ -659,7 +659,7 @@ public:
 	//!     else if totalLength <= firstSize+lastSize then length == totalLength-firstSize
 	//!     else lastSize <= length < lastSize+blockSize
 	//! </pre>
-	void LastPut(const byte *inString, size_t length);
+	void LastPut(const ::byte *inString, size_t length);
 
 protected:
 	HashFilter m_hf;
@@ -702,14 +702,14 @@ public:
 	AuthenticatedDecryptionFilter(AuthenticatedSymmetricCipher &c, BufferedTransformation *attachment = NULLPTR, word32 flags = DEFAULT_FLAGS, int truncatedDigestSize=-1, BlockPaddingScheme padding = DEFAULT_PADDING);
 
 	std::string AlgorithmName() const {return m_hashVerifier.AlgorithmName();}
-	byte * ChannelCreatePutSpace(const std::string &channel, size_t &size);
-	size_t ChannelPut2(const std::string &channel, const byte *begin, size_t length, int messageEnd, bool blocking);
+	::byte * ChannelCreatePutSpace(const std::string &channel, size_t &size);
+	size_t ChannelPut2(const std::string &channel, const ::byte *begin, size_t length, int messageEnd, bool blocking);
 	bool GetLastResult() const {return m_hashVerifier.GetLastResult();}
 
 protected:
 	void InitializeDerivedAndReturnNewSizes(const NameValuePairs &parameters, size_t &firstSize, size_t &blockSize, size_t &lastSize);
-	void FirstPut(const byte *inString);
-	void NextPutMultiple(const byte *inString, size_t length);
+	void FirstPut(const ::byte *inString);
+	void NextPutMultiple(const ::byte *inString, size_t length);
 
 	//! \brief Input the last block of data
 	//! \param inString the input byte buffer
@@ -721,7 +721,7 @@ protected:
 	//!     else if totalLength <= firstSize+lastSize then length == totalLength-firstSize
 	//!     else lastSize <= length < lastSize+blockSize
 	//! </pre>
-	void LastPut(const byte *inString, size_t length);
+	void LastPut(const ::byte *inString, size_t length);
 
 	HashVerificationFilter m_hashVerifier;
 	StreamTransformationFilter m_streamFilter;
@@ -746,7 +746,7 @@ public:
 	std::string AlgorithmName() const {return m_signer.AlgorithmName();}
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
-	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking);
+	size_t Put2(const ::byte *inString, size_t length, int messageEnd, bool blocking);
 
 private:
 	RandomNumberGenerator &m_rng;
@@ -807,9 +807,9 @@ public:
 
 protected:
 	void InitializeDerivedAndReturnNewSizes(const NameValuePairs &parameters, size_t &firstSize, size_t &blockSize, size_t &lastSize);
-	void FirstPut(const byte *inString);
-	void NextPutMultiple(const byte *inString, size_t length);
-	void LastPut(const byte *inString, size_t length);
+	void FirstPut(const ::byte *inString);
+	void NextPutMultiple(const ::byte *inString, size_t length);
+	void LastPut(const ::byte *inString, size_t length);
 
 private:
 	const PK_Verifier &m_verifier;
@@ -868,7 +868,7 @@ public:
 		{return m_target ? m_target->CanModifyInput() : false;}
 
 	void Initialize(const NameValuePairs &parameters, int propagation);
-	byte * CreatePutSpace(size_t &size)
+	::byte * CreatePutSpace(size_t &size)
 	{
 		if (m_target)
 			return m_target->CreatePutSpace(size);
@@ -878,14 +878,14 @@ public:
 			return NULLPTR;
 		}
 	}
-	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
+	size_t Put2(const ::byte *inString, size_t length, int messageEnd, bool blocking)
 		{return m_target ? m_target->Put2(inString, length, GetPassSignals() ? messageEnd : 0, blocking) : 0;}
 	bool Flush(bool hardFlush, int propagation=-1, bool blocking=true)
 		{return m_target && GetPassSignals() ? m_target->Flush(hardFlush, propagation, blocking) : false;}
 	bool MessageSeriesEnd(int propagation=-1, bool blocking=true)
 		{return m_target && GetPassSignals() ? m_target->MessageSeriesEnd(propagation, blocking) : false;}
 
-	byte * ChannelCreatePutSpace(const std::string &channel, size_t &size)
+	::byte * ChannelCreatePutSpace(const std::string &channel, size_t &size)
 	{
 		if (m_target)
 			return m_target->ChannelCreatePutSpace(channel, size);
@@ -895,9 +895,9 @@ public:
 			return NULLPTR;
 		}
 	}
-	size_t ChannelPut2(const std::string &channel, const byte *begin, size_t length, int messageEnd, bool blocking)
+	size_t ChannelPut2(const std::string &channel, const ::byte *begin, size_t length, int messageEnd, bool blocking)
 		{return m_target ? m_target->ChannelPut2(channel, begin, length, GetPassSignals() ? messageEnd : 0, blocking) : 0;}
-	size_t ChannelPutModifiable2(const std::string &channel, byte *begin, size_t length, int messageEnd, bool blocking)
+	size_t ChannelPutModifiable2(const std::string &channel, ::byte *begin, size_t length, int messageEnd, bool blocking)
 		{return m_target ? m_target->ChannelPutModifiable2(channel, begin, length, GetPassSignals() ? messageEnd : 0, blocking) : 0;}
 	bool ChannelFlush(const std::string &channel, bool completeFlush, int propagation=-1, bool blocking=true)
 		{return m_target && GetPassSignals() ? m_target->ChannelFlush(channel, completeFlush, propagation, blocking) : false;}
@@ -935,11 +935,11 @@ public:
 	//! \param passSignal flag indicating if signals should be passed
 	void SetPassSignal(bool passSignal) {m_passSignal = passSignal;}
 
-	byte * CreatePutSpace(size_t &size)
+	::byte * CreatePutSpace(size_t &size)
 		{return m_owner.AttachedTransformation()->CreatePutSpace(size);}
-	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
+	size_t Put2(const ::byte *inString, size_t length, int messageEnd, bool blocking)
 		{return m_owner.AttachedTransformation()->Put2(inString, length, m_passSignal ? messageEnd : 0, blocking);}
-	size_t PutModifiable2(byte *begin, size_t length, int messageEnd, bool blocking)
+	size_t PutModifiable2(::byte *begin, size_t length, int messageEnd, bool blocking)
 		{return m_owner.AttachedTransformation()->PutModifiable2(begin, length, m_passSignal ? messageEnd : 0, blocking);}
 	void Initialize(const NameValuePairs &parameters=g_nullNameValuePairs, int propagation=-1)
 		{if (m_passSignal) m_owner.AttachedTransformation()->Initialize(parameters, propagation);}
@@ -948,11 +948,11 @@ public:
 	bool MessageSeriesEnd(int propagation=-1, bool blocking=true)
 		{return m_passSignal ? m_owner.AttachedTransformation()->MessageSeriesEnd(propagation, blocking) : false;}
 
-	byte * ChannelCreatePutSpace(const std::string &channel, size_t &size)
+	::byte * ChannelCreatePutSpace(const std::string &channel, size_t &size)
 		{return m_owner.AttachedTransformation()->ChannelCreatePutSpace(channel, size);}
-	size_t ChannelPut2(const std::string &channel, const byte *begin, size_t length, int messageEnd, bool blocking)
+	size_t ChannelPut2(const std::string &channel, const ::byte *begin, size_t length, int messageEnd, bool blocking)
 		{return m_owner.AttachedTransformation()->ChannelPut2(channel, begin, length, m_passSignal ? messageEnd : 0, blocking);}
-	size_t ChannelPutModifiable2(const std::string &channel, byte *begin, size_t length, int messageEnd, bool blocking)
+	size_t ChannelPutModifiable2(const std::string &channel, ::byte *begin, size_t length, int messageEnd, bool blocking)
 		{return m_owner.AttachedTransformation()->ChannelPutModifiable2(channel, begin, length, m_passSignal ? messageEnd : 0, blocking);}
 	bool ChannelFlush(const std::string &channel, bool completeFlush, int propagation=-1, bool blocking=true)
 		{return m_passSignal ? m_owner.AttachedTransformation()->ChannelFlush(channel, completeFlush, propagation, blocking) : false;}
@@ -984,8 +984,8 @@ public:
 	//! \brief Sets the OutputProxy filter
 	//! \param filter an OutputProxy filter
 	void SetFilter(Filter *filter);
-	void NextPutMultiple(const byte *s, size_t len);
-	void NextPutModifiable(byte *inString, size_t length);
+	void NextPutMultiple(const ::byte *s, size_t len);
+	void NextPutModifiable(::byte *inString, size_t length);
 
 protected:
 	member_ptr<BufferedTransformation> m_filter;
@@ -1003,7 +1003,7 @@ public:
 	SimpleProxyFilter(BufferedTransformation *filter, BufferedTransformation *attachment)
 		: ProxyFilter(filter, 0, 0, attachment) {}
 
-	void FirstPut(const byte * inString)
+	void FirstPut(const ::byte * inString)
 		{CRYPTOPP_UNUSED(inString);}
 
 	//! \brief Input the last block of data
@@ -1016,7 +1016,7 @@ public:
 	//!     else if totalLength <= firstSize+lastSize then length == totalLength-firstSize
 	//!     else lastSize <= length < lastSize+blockSize
 	//! </pre>
-	void LastPut(const byte *inString, size_t length)
+	void LastPut(const ::byte *inString, size_t length)
 		{CRYPTOPP_UNUSED(inString), CRYPTOPP_UNUSED(length); m_filter->MessageEnd();}
 };
 
@@ -1071,7 +1071,7 @@ public:
 	void IsolatedInitialize(const NameValuePairs &parameters)
 		{if (!parameters.GetValue("OutputStringPointer", m_output)) throw InvalidArgument("StringSink: OutputStringPointer not specified");}
 
-	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
+	size_t Put2(const ::byte *inString, size_t length, int messageEnd, bool blocking)
 	{
 		CRYPTOPP_UNUSED(messageEnd); CRYPTOPP_UNUSED(blocking);
 		typedef typename T::traits_type::char_type char_type;
@@ -1114,7 +1114,7 @@ public:
 		: m_rng(&rng) {}
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
-	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking);
+	size_t Put2(const ::byte *inString, size_t length, int messageEnd, bool blocking);
 
 private:
 	RandomNumberGenerator *m_rng;
@@ -1137,7 +1137,7 @@ public:
 	//! \brief Construct an ArraySink
 	//! \param buf pointer to a memory buffer
 	//! \param size length of the memory buffer
-	ArraySink(byte *buf, size_t size)
+	ArraySink(::byte *buf, size_t size)
 		: m_buf(buf), m_size(size), m_total(0) {}
 
 	//! \brief Provides the size remaining in the Sink
@@ -1149,11 +1149,11 @@ public:
 	lword TotalPutLength() {return m_total;}
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
-	byte * CreatePutSpace(size_t &size);
-	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking);
+	::byte * CreatePutSpace(size_t &size);
+	size_t Put2(const ::byte *inString, size_t length, int messageEnd, bool blocking);
 
 protected:
-	byte *m_buf;
+	::byte *m_buf;
 	size_t m_size;
 	lword m_total;
 };
@@ -1169,11 +1169,11 @@ public:
 	//! \brief Construct an ArrayXorSink
 	//! \param buf pointer to a memory buffer
 	//! \param size length of the memory buffer
-	ArrayXorSink(byte *buf, size_t size)
+	ArrayXorSink(::byte *buf, size_t size)
 		: ArraySink(buf, size) {}
 
-	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking);
-	byte * CreatePutSpace(size_t &size) {return BufferedTransformation::CreatePutSpace(size);}
+	size_t Put2(const ::byte *inString, size_t length, int messageEnd, bool blocking);
+	::byte * CreatePutSpace(size_t &size) {return BufferedTransformation::CreatePutSpace(size);}
 };
 
 //! \class StringStore
@@ -1190,7 +1190,7 @@ public:
 	//! \brief Construct a StringStore
 	//! \param string pointer to a memory buffer
 	//! \param length size of the memory buffer
-	StringStore(const byte *string, size_t length)
+	StringStore(const ::byte *string, size_t length)
 		{StoreInitialize(MakeParameters("InputBuffer", ConstByteArrayParameter(string, length)));}
 
 	//! \brief Construct a StringStore
@@ -1205,7 +1205,7 @@ public:
 private:
 	CRYPTOPP_DLL void StoreInitialize(const NameValuePairs &parameters);
 
-	const byte *m_store;
+	const ::byte *m_store;
 	size_t m_length, m_count;
 };
 
@@ -1393,7 +1393,7 @@ public:
 	//! \param length size of the byte array
 	//! \param pumpAll flag indicating if source data should be pumped to its attached transformation
 	//! \param attachment an optional attached transformation
-	StringSource(const byte *string, size_t length, bool pumpAll, BufferedTransformation *attachment = NULLPTR)
+	StringSource(const ::byte *string, size_t length, bool pumpAll, BufferedTransformation *attachment = NULLPTR)
 		: SourceTemplate<StringStore>(attachment) {SourceInitialize(pumpAll, MakeParameters("InputBuffer", ConstByteArrayParameter(string, length)));}
 
 	//! \brief Construct a StringSource

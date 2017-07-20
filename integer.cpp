@@ -3042,7 +3042,7 @@ Integer::Integer(BufferedTransformation &encodedInteger, size_t byteCount, Signe
 	Decode(encodedInteger, byteCount, s);
 }
 
-Integer::Integer(const byte *encodedInteger, size_t byteCount, Signedness s, ByteOrder o)
+Integer::Integer(const ::byte *encodedInteger, size_t byteCount, Signedness s, ByteOrder o)
 {
 	CRYPTOPP_ASSERT(encodedInteger && byteCount); // NULL buffer
 	CRYPTOPP_ASSERT(o == BIG_ENDIAN_ORDER || o == LITTLE_ENDIAN_ORDER);
@@ -3154,17 +3154,17 @@ void Integer::SetBit(size_t n, bool value)
 	}
 }
 
-byte Integer::GetByte(size_t n) const
+::byte Integer::GetByte(size_t n) const
 {
 	// Profiling tells us the original Else was dominant, so it was promoted to the first If statement.
 	// The code change occurred at Commit dc99266599a0e72d.
 	if (n/WORD_SIZE < reg.size())
-		return byte(reg[n/WORD_SIZE] >> ((n%WORD_SIZE)*8));
+		return ::byte(reg[n/WORD_SIZE] >> ((n%WORD_SIZE)*8));
 	else
 		return 0;
 }
 
-void Integer::SetByte(size_t n, byte value)
+void Integer::SetByte(size_t n, ::byte value)
 {
 	reg.CleanGrow(RoundupSize(BytesToWords(n+1)));
 	reg[n/WORD_SIZE] &= ~(word(0xff) << 8*(n%WORD_SIZE));
@@ -3379,7 +3379,7 @@ unsigned int Integer::BitCount() const
 		return 0;
 }
 
-void Integer::Decode(const byte *input, size_t inputLen, Signedness s)
+void Integer::Decode(const ::byte *input, size_t inputLen, Signedness s)
 {
 	CRYPTOPP_ASSERT(input && inputLen); // NULL buffer
 	StringStore store(input, inputLen);
@@ -3392,7 +3392,7 @@ void Integer::Decode(BufferedTransformation &bt, size_t inputLen, Signedness s)
 	if (bt.MaxRetrievable() < inputLen)
 		throw InvalidArgument("Integer: input length is too small");
 
-	byte b;
+	::byte b;
 	bt.Peek(b);
 	sign = ((s==SIGNED) && (b & 0x80)) ? NEGATIVE : POSITIVE;
 
@@ -3434,7 +3434,7 @@ size_t Integer::MinEncodedSize(Signedness signedness) const
 }
 
 // PKCS12_PBKDF and other classes use undersized buffers
-void Integer::Encode(byte *output, size_t outputLen, Signedness signedness) const
+void Integer::Encode(::byte *output, size_t outputLen, Signedness signedness) const
 {
 	CRYPTOPP_ASSERT(output && outputLen);            // NULL buffer
 	ArraySink sink(output, outputLen);
@@ -3463,7 +3463,7 @@ void Integer::DEREncode(BufferedTransformation &bt) const
 	enc.MessageEnd();
 }
 
-void Integer::BERDecode(const byte *input, size_t len)
+void Integer::BERDecode(const ::byte *input, size_t len)
 {
 	CRYPTOPP_ASSERT(input && len); // NULL buffer
 	StringStore store(input, len);
@@ -3495,7 +3495,7 @@ void Integer::BERDecodeAsOctetString(BufferedTransformation &bt, size_t length)
 	dec.MessageEnd();
 }
 
-size_t Integer::OpenPGPEncode(byte *output, size_t bufferSize) const
+size_t Integer::OpenPGPEncode(::byte *output, size_t bufferSize) const
 {
 	CRYPTOPP_ASSERT(output && bufferSize);            // NULL buffer
 	CRYPTOPP_ASSERT(bufferSize >= MinEncodedSize());  // Undersized buffer
@@ -3512,7 +3512,7 @@ size_t Integer::OpenPGPEncode(BufferedTransformation &bt) const
 	return 2 + byteCount;
 }
 
-void Integer::OpenPGPDecode(const byte *input, size_t len)
+void Integer::OpenPGPDecode(const ::byte *input, size_t len)
 {
 	CRYPTOPP_ASSERT(input && len);  // NULL buffer
 	StringStore store(input, len);
@@ -3533,7 +3533,7 @@ void Integer::Randomize(RandomNumberGenerator &rng, size_t nbits)
 	SecByteBlock buf(nbytes);
 	rng.GenerateBlock(buf, nbytes);
 	if (nbytes)
-		buf[0] = (byte)Crop(buf[0], nbits % 8);
+		buf[0] = (::byte)Crop(buf[0], nbits % 8);
 	Decode(buf, nbytes, UNSIGNED);
 }
 
@@ -3562,13 +3562,13 @@ bool Integer::Randomize(RandomNumberGenerator &rng, const Integer &min, const In
 class KDF2_RNG : public RandomNumberGenerator
 {
 public:
-	KDF2_RNG(const byte *seed, size_t seedSize)
+	KDF2_RNG(const ::byte *seed, size_t seedSize)
 		: m_counter(0), m_counterAndSeed(seedSize + 4)
 	{
 		memcpy(m_counterAndSeed + 4, seed, seedSize);
 	}
 
-	void GenerateBlock(byte *output, size_t size)
+	void GenerateBlock(::byte *output, size_t size)
 	{
 		CRYPTOPP_ASSERT(output && size); // NULL buffer
 		PutWord(false, BIG_ENDIAN_ORDER, m_counterAndSeed, m_counter);

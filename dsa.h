@@ -34,8 +34,8 @@ enum DSASignatureFormat {
 //!   of signature in the target format. If <tt>toFormat == DSA_P1363</tt>, then
 //!   <tt>bufferSize</tt> must equal <tt>publicKey.SignatureLength()</tt>
 //! \since Crypto++ 1.0
-size_t DSAConvertSignatureFormat(byte *buffer, size_t bufferSize, DSASignatureFormat toFormat,
-	const byte *signature, size_t signatureLen, DSASignatureFormat fromFormat);
+size_t DSAConvertSignatureFormat(::byte *buffer, size_t bufferSize, DSASignatureFormat toFormat,
+	const ::byte *signature, size_t signatureLen, DSASignatureFormat fromFormat);
 
 NAMESPACE_END
 

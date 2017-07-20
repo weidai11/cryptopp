@@ -126,9 +126,9 @@ public:
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "EMSA5";}
 
 	void ComputeMessageRepresentative(RandomNumberGenerator &rng,
-		const byte *recoverableMessage, size_t recoverableMessageLength,
+		const ::byte *recoverableMessage, size_t recoverableMessageLength,
 		HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
-		byte *representative, size_t representativeBitLength) const
+		::byte *representative, size_t representativeBitLength) const
 	{
 		CRYPTOPP_UNUSED(rng), CRYPTOPP_UNUSED(recoverableMessage), CRYPTOPP_UNUSED(recoverableMessageLength);
 		CRYPTOPP_UNUSED(messageEmpty), CRYPTOPP_UNUSED(hashIdentifier);
@@ -138,7 +138,7 @@ public:
 		T mgf;
 		mgf.GenerateAndMask(hash, representative, representativeByteLength, digest, digest.size(), false);
 		if (representativeBitLength % 8 != 0)
-			representative[0] = (byte)Crop(representative[0], representativeBitLength % 8);
+			representative[0] = (::byte)Crop(representative[0], representativeBitLength % 8);
 	}
 };
 

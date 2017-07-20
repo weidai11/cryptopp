@@ -288,7 +288,7 @@ void Socket::GetPeerName(sockaddr *psa, socklen_t *psaLen)
 	CheckAndHandleError_int("getpeername", getpeername(m_s, psa, psaLen));
 }
 
-unsigned int Socket::Send(const byte* buf, size_t bufLen, int flags)
+unsigned int Socket::Send(const ::byte* buf, size_t bufLen, int flags)
 {
 	CRYPTOPP_ASSERT(m_s != INVALID_SOCKET);
 	int result = send(m_s, (const char *)buf, UnsignedMin(INT_MAX, bufLen), flags);
@@ -296,7 +296,7 @@ unsigned int Socket::Send(const byte* buf, size_t bufLen, int flags)
 	return result;
 }
 
-unsigned int Socket::Receive(byte* buf, size_t bufLen, int flags)
+unsigned int Socket::Receive(::byte* buf, size_t bufLen, int flags)
 {
 	CRYPTOPP_ASSERT(m_s != INVALID_SOCKET);
 	int result = recv(m_s, (char *)buf, UnsignedMin(INT_MAX, bufLen), flags);
@@ -615,7 +615,7 @@ void SocketReceiver::GetWaitObjects(WaitObjectContainer &container, CallStack co
 		container.AddReadFd(m_s, CallStack("SocketReceiver::GetWaitObjects()", &callStack));
 }
 
-bool SocketReceiver::Receive(byte* buf, size_t bufLen)
+bool SocketReceiver::Receive(::byte* buf, size_t bufLen)
 {
 	m_lastResult = m_s.Receive(buf, bufLen);
 	if (bufLen > 0 && m_lastResult == 0)
@@ -633,7 +633,7 @@ SocketSender::SocketSender(Socket &s)
 {
 }
 
-void SocketSender::Send(const byte* buf, size_t bufLen)
+void SocketSender::Send(const ::byte* buf, size_t bufLen)
 {
 	m_lastResult = m_s.Send(buf, bufLen);
 }

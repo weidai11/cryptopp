@@ -38,7 +38,7 @@ void EC2N::DEREncode(BufferedTransformation &bt) const
 	seq.MessageEnd();
 }
 
-bool EC2N::DecodePoint(EC2N::Point &P, const byte *encodedPoint, size_t encodedPointLen) const
+bool EC2N::DecodePoint(EC2N::Point &P, const ::byte *encodedPoint, size_t encodedPointLen) const
 {
 	StringStore store(encodedPoint, encodedPointLen);
 	return DecodePoint(P, store, encodedPointLen);
@@ -46,7 +46,7 @@ bool EC2N::DecodePoint(EC2N::Point &P, const byte *encodedPoint, size_t encodedP
 
 bool EC2N::DecodePoint(EC2N::Point &P, BufferedTransformation &bt, size_t encodedPointLen) const
 {
-	byte type;
+	::byte type;
 	if (encodedPointLen < 1 || !bt.Get(type))
 		return false;
 
@@ -115,7 +115,7 @@ void EC2N::EncodePoint(BufferedTransformation &bt, const Point &P, bool compress
 	}
 }
 
-void EC2N::EncodePoint(byte *encodedPoint, const Point &P, bool compressed) const
+void EC2N::EncodePoint(::byte *encodedPoint, const Point &P, bool compressed) const
 {
 	ArraySink sink(encodedPoint, EncodedPointSize(compressed));
 	EncodePoint(sink, P, compressed);

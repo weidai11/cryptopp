@@ -63,14 +63,14 @@ unsigned long g_macFileLocation = 0;
 const void* g_BaseAddressOfMAC = reinterpret_cast<void*>(0x42900000);
 
 // use a random dummy string here, to be searched/replaced later with the real MAC
-static const byte s_moduleMac[CryptoPP::HMAC<CryptoPP::SHA1>::DIGESTSIZE] = CRYPTOPP_DUMMY_DLL_MAC;
+static const ::byte s_moduleMac[CryptoPP::HMAC<CryptoPP::SHA1>::DIGESTSIZE] = CRYPTOPP_DUMMY_DLL_MAC;
 CRYPTOPP_COMPILE_ASSERT(sizeof(s_moduleMac) == CryptoPP::SHA1::DIGESTSIZE);
 
 #ifdef CRYPTOPP_WIN32_AVAILABLE
 static HMODULE s_hModule = NULLPTR;
 #endif
 
-const byte * CRYPTOPP_API GetActualMacAndLocation(unsigned int &macSize, unsigned int &fileLocation)
+const ::byte * CRYPTOPP_API GetActualMacAndLocation(unsigned int &macSize, unsigned int &fileLocation)
 {
 	macSize = (unsigned int)g_actualMac.size();
 	fileLocation = g_macFileLocation;
@@ -102,7 +102,7 @@ void X917RNG_KnownAnswerTest(
 	StringSource(deterministicTimeVector, true, new HexDecoder(new StringSink(decodedDeterministicTimeVector)));
 
 	AutoSeededX917RNG<CIPHER> rng(false, false);
-	rng.Reseed((const byte *)decodedKey.data(), decodedKey.size(), (const byte *)decodedSeed.data(), (const byte *)decodedDeterministicTimeVector.data());
+	rng.Reseed((const ::byte *)decodedKey.data(), decodedKey.size(), (const ::byte *)decodedSeed.data(), (const ::byte *)decodedDeterministicTimeVector.data());
 	KnownAnswerTest(rng, output);
 #else
 	throw 0;
@@ -137,8 +137,8 @@ void SymmetricEncryptionKnownAnswerTest(
 	std::string decodedKey;
 	StringSource(key, true, new HexDecoder(new StringSink(decodedKey)));
 
-	typename CIPHER::Encryption encryption((const byte *)decodedKey.data(), decodedKey.size());
-	typename CIPHER::Decryption decryption((const byte *)decodedKey.data(), decodedKey.size());
+	typename CIPHER::Encryption encryption((const ::byte *)decodedKey.data(), decodedKey.size());
+	typename CIPHER::Decryption decryption((const ::byte *)decodedKey.data(), decodedKey.size());
 
 	SecByteBlock iv(encryption.BlockSize());
 	StringSource(hexIV, true, new HexDecoder(new ArraySink(iv, iv.size())));
@@ -178,7 +178,7 @@ void MAC_KnownAnswerTest(const char *key, const char *message, const char *diges
 	std::string decodedKey;
 	StringSource(key, true, new HexDecoder(new StringSink(decodedKey)));
 
-	MAC mac((const byte *)decodedKey.data(), decodedKey.size());
+	MAC mac((const ::byte *)decodedKey.data(), decodedKey.size());
 	KnownAnswerTest(mac, message, digest);
 }
 
@@ -270,11 +270,11 @@ void SignaturePairwiseConsistencyTest(const char *key)
 
 MessageAuthenticationCode * NewIntegrityCheckingMAC()
 {
-	byte key[] = {0x47, 0x1E, 0x33, 0x96, 0x65, 0xB1, 0x6A, 0xED, 0x0B, 0xF8, 0x6B, 0xFD, 0x01, 0x65, 0x05, 0xCC};
+	::byte key[] = {0x47, 0x1E, 0x33, 0x96, 0x65, 0xB1, 0x6A, 0xED, 0x0B, 0xF8, 0x6B, 0xFD, 0x01, 0x65, 0x05, 0xCC};
 	return new HMAC<SHA1>(key, sizeof(key));
 }
 
-bool IntegrityCheckModule(const char *moduleFilename, const byte *expectedModuleMac, SecByteBlock *pActualMac, unsigned long *pMacFileLocation)
+bool IntegrityCheckModule(const char *moduleFilename, const ::byte *expectedModuleMac, SecByteBlock *pActualMac, unsigned long *pMacFileLocation)
 {
 	member_ptr<MessageAuthenticationCode> mac(NewIntegrityCheckingMAC());
 	unsigned int macSize = mac->DigestSize();
@@ -350,16 +350,16 @@ bool IntegrityCheckModule(const char *moduleFilename, const byte *expectedModule
 
 #ifdef CRYPTOPP_WIN32_AVAILABLE
 	// try to hash from memory first
-	const byte *memBase = (const byte *)h;
+	const ::byte *memBase = (const ::byte *)h;
 	const IMAGE_DOS_HEADER *ph = (IMAGE_DOS_HEADER *)memBase;
 	const IMAGE_NT_HEADERS *phnt = (IMAGE_NT_HEADERS *)(memBase + ph->e_lfanew);
 	const IMAGE_SECTION_HEADER *phs = IMAGE_FIRST_SECTION(phnt);
 	DWORD nSections = phnt->FileHeader.NumberOfSections;
 	size_t currentFilePos = 0;
 
-	size_t checksumPos = (byte *)&phnt->OptionalHeader.CheckSum - memBase;
+	size_t checksumPos = (::byte *)&phnt->OptionalHeader.CheckSum - memBase;
 	size_t checksumSize = sizeof(phnt->OptionalHeader.CheckSum);
-	size_t certificateTableDirectoryPos = (byte *)&phnt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY] - memBase;
+	size_t certificateTableDirectoryPos = (::byte *)&phnt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY] - memBase;
 	size_t certificateTableDirectorySize = sizeof(phnt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY]);
 	size_t certificateTablePos = phnt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY].VirtualAddress;
 	size_t certificateTableSize = phnt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY].Size;
@@ -377,13 +377,13 @@ bool IntegrityCheckModule(const char *moduleFilename, const byte *expectedModule
 		case IMAGE_SCN_CNT_CODE | IMAGE_SCN_MEM_EXECUTE | IMAGE_SCN_MEM_READ:
 		case IMAGE_SCN_CNT_INITIALIZED_DATA | IMAGE_SCN_MEM_READ:
 			unsigned int sectionSize = STDMIN(phs->SizeOfRawData, phs->Misc.VirtualSize);
-			const byte *sectionMemStart = memBase + phs->VirtualAddress;
+			const ::byte *sectionMemStart = memBase + phs->VirtualAddress;
 			unsigned int sectionFileStart = phs->PointerToRawData;
 			size_t subSectionStart = 0, nextSubSectionStart;
 
 			do
 			{
-				const byte *subSectionMemStart = sectionMemStart + subSectionStart;
+				const ::byte *subSectionMemStart = sectionMemStart + subSectionStart;
 				size_t subSectionFileStart = sectionFileStart + subSectionStart;
 				size_t subSectionSize = sectionSize - subSectionStart;
 				nextSubSectionStart = 0;
@@ -392,7 +392,7 @@ bool IntegrityCheckModule(const char *moduleFilename, const byte *expectedModule
 				for (unsigned int i=0; i<sizeof(entriesToReadFromDisk)/sizeof(entriesToReadFromDisk[0]); i++)
 				{
 					const IMAGE_DATA_DIRECTORY &entry = phnt->OptionalHeader.DataDirectory[entriesToReadFromDisk[i]];
-					const byte *entryMemStart = memBase + entry.VirtualAddress;
+					const ::byte *entryMemStart = memBase + entry.VirtualAddress;
 					if (subSectionMemStart <= entryMemStart && entryMemStart < subSectionMemStart + subSectionSize)
 					{
 						subSectionSize = entryMemStart - subSectionMemStart;
@@ -404,10 +404,10 @@ bool IntegrityCheckModule(const char *moduleFilename, const byte *expectedModule
 				// first byte of _CRT_DEBUGGER_HOOK gets modified in memory by the debugger invisibly, so read it from file
 				if (IsDebuggerPresent())
 				{
-					if (subSectionMemStart <= (byte *)&_CRT_DEBUGGER_HOOK && (byte *)&_CRT_DEBUGGER_HOOK < subSectionMemStart + subSectionSize)
+					if (subSectionMemStart <= (::byte *)&_CRT_DEBUGGER_HOOK && (::byte *)&_CRT_DEBUGGER_HOOK < subSectionMemStart + subSectionSize)
 					{
-						subSectionSize = (byte *)&_CRT_DEBUGGER_HOOK - subSectionMemStart;
-						nextSubSectionStart = (byte *)&_CRT_DEBUGGER_HOOK - sectionMemStart + 1;
+						subSectionSize = (::byte *)&_CRT_DEBUGGER_HOOK - subSectionMemStart;
+						nextSubSectionStart = (::byte *)&_CRT_DEBUGGER_HOOK - sectionMemStart + 1;
 					}
 				}
 #endif
@@ -460,7 +460,7 @@ bool IntegrityCheckModule(const char *moduleFilename, const byte *expectedModule
 	return false;
 }
 
-void DoPowerUpSelfTest(const char *moduleFilename, const byte *expectedModuleMac)
+void DoPowerUpSelfTest(const char *moduleFilename, const ::byte *expectedModuleMac)
 {
 	g_powerUpSelfTestStatus = POWER_UP_SELF_TEST_NOT_DONE;
 	SetPowerUpSelfTestInProgressOnThisThread(true);

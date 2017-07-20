@@ -28,11 +28,11 @@ public:
 	std::string AlgorithmName() const {return std::string("VMAC(") + GetCipher().AlgorithmName() + ")-" + IntToString(DigestSize()*8);}
 	unsigned int IVSize() const {return GetCipher().BlockSize();}
 	unsigned int MinIVLength() const {return 1;}
-	void Resynchronize(const byte *nonce, int length=-1);
-	void GetNextIV(RandomNumberGenerator &rng, byte *IV);
+	void Resynchronize(const ::byte *nonce, int length=-1);
+	void GetNextIV(RandomNumberGenerator &rng, ::byte *IV);
 	unsigned int DigestSize() const {return m_is128 ? 16 : 8;};
-	void UncheckedSetKey(const byte *userKey, unsigned int keylength, const NameValuePairs &params);
-	void TruncatedFinal(byte *mac, size_t size);
+	void UncheckedSetKey(const ::byte *userKey, unsigned int keylength, const NameValuePairs &params);
+	void TruncatedFinal(::byte *mac, size_t size);
 	unsigned int BlockSize() const {return m_L1KeyLength;}
 	ByteOrder GetByteOrder() const {return LITTLE_ENDIAN_ORDER;}
 	unsigned int OptimalDataAlignment() const;
@@ -54,10 +54,10 @@ protected:
 
 	CRYPTOPP_BLOCK_1(polyState, word64, 4*(m_is128+1))
 	CRYPTOPP_BLOCK_2(nhKey, word64, m_L1KeyLength/sizeof(word64) + 2*m_is128)
-	CRYPTOPP_BLOCK_3(data, byte, m_L1KeyLength)
+	CRYPTOPP_BLOCK_3(data, ::byte, m_L1KeyLength)
 	CRYPTOPP_BLOCK_4(l3Key, word64, 2*(m_is128+1))
-	CRYPTOPP_BLOCK_5(nonce, byte, IVSize())
-	CRYPTOPP_BLOCK_6(pad, byte, IVSize())
+	CRYPTOPP_BLOCK_5(nonce, ::byte, IVSize())
+	CRYPTOPP_BLOCK_6(pad, ::byte, IVSize())
 	CRYPTOPP_BLOCKS_END(6)
 
 	bool m_is128, m_padCached, m_isFirstBlock;

@@ -26,7 +26,7 @@ class Square : public Square_Info, public BlockCipherDocumentation
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<Square_Info>
 	{
 	public:
-		void UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &params);
+		void UncheckedSetKey(const ::byte *userKey, unsigned int length, const NameValuePairs &params);
 
 	protected:
 		FixedSizeSecBlock<word32, 4*(ROUNDS+1)> m_roundkeys;
@@ -35,18 +35,18 @@ class Square : public Square_Info, public BlockCipherDocumentation
 	class CRYPTOPP_NO_VTABLE Enc : public Base
 	{
 	public:
-		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+		void ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const;
 	private:
-		static const byte Se[256];
+		static const ::byte Se[256];
 		static const word32 Te[4][256];
 	};
 
 	class CRYPTOPP_NO_VTABLE Dec : public Base
 	{
 	public:
-		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+		void ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const;
 	private:
-		static const byte Sd[256];
+		static const ::byte Sd[256];
 		static const word32 Td[4][256];
 	};
 

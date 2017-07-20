@@ -19,10 +19,10 @@ class GFP2Element
 public:
 	GFP2Element() {}
 	GFP2Element(const Integer &c1, const Integer &c2) : c1(c1), c2(c2) {}
-	GFP2Element(const byte *encodedElement, unsigned int size)
+	GFP2Element(const ::byte *encodedElement, unsigned int size)
 		: c1(encodedElement, size/2), c2(encodedElement+size/2, size/2) {}
 
-	void Encode(byte *encodedElement, unsigned int size)
+	void Encode(::byte *encodedElement, unsigned int size)
 	{
 		c1.Encode(encodedElement, size/2);
 		c2.Encode(encodedElement+size/2, size/2);

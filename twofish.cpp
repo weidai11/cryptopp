@@ -52,7 +52,7 @@ inline word32 Twofish::Base::h(word32 x, const word32 *key, unsigned int kLen)
 	return mds[0][GETBYTE(x,0)] ^ mds[1][GETBYTE(x,1)] ^ mds[2][GETBYTE(x,2)] ^ mds[3][GETBYTE(x,3)];
 }
 
-void Twofish::Base::UncheckedSetKey(const byte *userKey, unsigned int keylength, const NameValuePairs &)
+void Twofish::Base::UncheckedSetKey(const ::byte *userKey, unsigned int keylength, const NameValuePairs &)
 {
 	AssertValidKeyLength(keylength);
 
@@ -110,7 +110,7 @@ void Twofish::Base::UncheckedSetKey(const byte *userKey, unsigned int keylength,
 
 typedef BlockGetAndPut<word32, LittleEndian> Block;
 
-void Twofish::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+void Twofish::Enc::ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const
 {
 	word32 x, y, a, b, c, d;
 
@@ -139,7 +139,7 @@ void Twofish::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
 	Block::Put(xorBlock, outBlock)(c)(d)(a)(b);
 }
 
-void Twofish::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+void Twofish::Dec::ProcessAndXorBlock(const ::byte *inBlock, const ::byte *xorBlock, ::byte *outBlock) const
 {
 	word32 x, y, a, b, c, d;
 

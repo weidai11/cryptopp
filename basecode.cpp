@@ -27,7 +27,7 @@ void BaseN_Encoder::IsolatedInitialize(const NameValuePairs &parameters)
 	if (m_bitsPerChar <= 0 || m_bitsPerChar >= 8)
 		throw InvalidArgument("BaseN_Encoder: Log2Base must be between 1 and 7 inclusive");
 
-	byte padding;
+	::byte padding;
 	bool pad;
 	if (parameters.GetValue(Name::PaddingByte(), padding))
 		pad = parameters.GetValueWithDefault(Name::Pad(), true);
@@ -45,7 +45,7 @@ void BaseN_Encoder::IsolatedInitialize(const NameValuePairs &parameters)
 	m_outBuf.New(m_outputBlockSize);
 }
 
-size_t BaseN_Encoder::Put2(const byte *begin, size_t length, int messageEnd, bool blocking)
+size_t BaseN_Encoder::Put2(const ::byte *begin, size_t length, int messageEnd, bool blocking)
 {
 	FILTER_BEGIN;
 	while (m_inputPosition < length)
@@ -130,7 +130,7 @@ void BaseN_Decoder::IsolatedInitialize(const NameValuePairs &parameters)
 	m_outBuf.New(m_outputBlockSize);
 }
 
-size_t BaseN_Decoder::Put2(const byte *begin, size_t length, int messageEnd, bool blocking)
+size_t BaseN_Decoder::Put2(const ::byte *begin, size_t length, int messageEnd, bool blocking)
 {
 	FILTER_BEGIN;
 	while (m_inputPosition < length)
@@ -175,7 +175,7 @@ size_t BaseN_Decoder::Put2(const byte *begin, size_t length, int messageEnd, boo
 	FILTER_END_NO_MESSAGE_END;
 }
 
-void BaseN_Decoder::InitializeDecodingLookupArray(int *lookup, const byte *alphabet, unsigned int base, bool caseInsensitive)
+void BaseN_Decoder::InitializeDecodingLookupArray(int *lookup, const ::byte *alphabet, unsigned int base, bool caseInsensitive)
 {
 	std::fill(lookup, lookup+256, -1);
 
@@ -211,7 +211,7 @@ void Grouper::IsolatedInitialize(const NameValuePairs &parameters)
 	m_counter = 0;
 }
 
-size_t Grouper::Put2(const byte *begin, size_t length, int messageEnd, bool blocking)
+size_t Grouper::Put2(const ::byte *begin, size_t length, int messageEnd, bool blocking)
 {
 	FILTER_BEGIN;
 	if (m_groupSize)

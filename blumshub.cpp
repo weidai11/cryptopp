@@ -25,21 +25,21 @@ unsigned int PublicBlumBlumShub::GenerateBit()
 	return current.GetBit(--bitsLeft);
 }
 
-byte PublicBlumBlumShub::GenerateByte()
+::byte PublicBlumBlumShub::GenerateByte()
 {
-	byte b=0;
+	::byte b=0;
 	for (int i=0; i<8; i++)
-		b = byte((b << 1) | PublicBlumBlumShub::GenerateBit());
+		b = ::byte((b << 1) | PublicBlumBlumShub::GenerateBit());
 	return b;
 }
 
-void PublicBlumBlumShub::GenerateBlock(byte *output, size_t size)
+void PublicBlumBlumShub::GenerateBlock(::byte *output, size_t size)
 {
 	while (size--)
 		*output++ = PublicBlumBlumShub::GenerateByte();
 }
 
-void PublicBlumBlumShub::ProcessData(byte *outString, const byte *inString, size_t length)
+void PublicBlumBlumShub::ProcessData(::byte *outString, const ::byte *inString, size_t length)
 {
 	while (length--)
 		*outString++ = *inString++ ^ PublicBlumBlumShub::GenerateByte();

@@ -12,9 +12,9 @@ void DH2_TestInstantiations()
 }
 #endif
 
-bool DH2::Agree(byte *agreedValue,
-		const byte *staticSecretKey, const byte *ephemeralSecretKey,
-		const byte *staticOtherPublicKey, const byte *ephemeralOtherPublicKey,
+bool DH2::Agree(::byte *agreedValue,
+		const ::byte *staticSecretKey, const ::byte *ephemeralSecretKey,
+		const ::byte *staticOtherPublicKey, const ::byte *ephemeralOtherPublicKey,
 		bool validateStaticOtherPublicKey) const
 {
 	return d1.Agree(agreedValue, staticSecretKey, staticOtherPublicKey, validateStaticOtherPublicKey)

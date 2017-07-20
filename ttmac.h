@@ -21,8 +21,8 @@ public:
 	CRYPTOPP_CONSTANT(DIGESTSIZE=20)
 
 	unsigned int DigestSize() const {return DIGESTSIZE;};
-	void UncheckedSetKey(const byte *userKey, unsigned int keylength, const NameValuePairs &params);
-	void TruncatedFinal(byte *mac, size_t size);
+	void UncheckedSetKey(const ::byte *userKey, unsigned int keylength, const NameValuePairs &params);
+	void TruncatedFinal(::byte *mac, size_t size);
 
 protected:
 	static void Transform (word32 *digest, const word32 *X, bool last);

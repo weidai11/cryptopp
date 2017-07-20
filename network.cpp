@@ -79,7 +79,7 @@ void LimitedBandwidth::GetWaitObjects(WaitObjectContainer &container, const Call
 
 size_t NonblockingSource::GeneralPump2(
 	lword& byteCount, bool blockingOutput,
-	unsigned long maxTime, bool checkDelimiter, byte delimiter)
+	unsigned long maxTime, bool checkDelimiter, ::byte delimiter)
 {
 	m_blockedBySpeedLimit = false;
 
@@ -258,7 +258,7 @@ void NetworkSource::GetWaitObjects(WaitObjectContainer &container, CallStack con
 	AttachedTransformation()->GetWaitObjects(container, CallStack("NetworkSource::GetWaitObjects() - attachment", &callStack));
 }
 
-size_t NetworkSource::DoPump(lword &byteCount, bool blockingOutput, unsigned long maxTime, bool checkDelimiter, byte delimiter)
+size_t NetworkSource::DoPump(lword &byteCount, bool blockingOutput, unsigned long maxTime, bool checkDelimiter, ::byte delimiter)
 {
 	NetworkReceiver &receiver = AccessReceiver();
 
@@ -419,7 +419,7 @@ void NetworkSink::GetWaitObjects(WaitObjectContainer &container, CallStack const
 		AccessSender().GetWaitObjects(container, CallStack("NetworkSink::GetWaitObjects() - EOF pending", &callStack));
 }
 
-size_t NetworkSink::Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
+size_t NetworkSink::Put2(const ::byte *inString, size_t length, int messageEnd, bool blocking)
 {
 	if (m_eofState == EOF_DONE)
 	{
@@ -512,7 +512,7 @@ lword NetworkSink::DoFlush(unsigned long maxTime, size_t targetSize)
 			break;
 
 		size_t contiguousSize = 0;
-		const byte *block = m_buffer.Spy(contiguousSize);
+		const ::byte *block = m_buffer.Spy(contiguousSize);
 
 #if CRYPTOPP_TRACE_NETWORK
 		OutputDebugStringA((IntToString((unsigned int)this) + ": Sending " + IntToString(contiguousSize) + " bytes\n").c_str());

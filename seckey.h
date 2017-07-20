@@ -505,7 +505,7 @@ public:
 	//! \param key a byte array used to key the cipher
 	//! \details key must be at least DEFAULT_KEYLENGTH in length. Internally, the function calls
 	//!    SimpleKeyingInterface::SetKey.
-	BlockCipherFinal(const byte *key)
+	BlockCipherFinal(const ::byte *key)
 		{this->SetKey(key, this->DEFAULT_KEYLENGTH);}
 
 	//! \brief Construct a BlockCipherFinal
@@ -513,7 +513,7 @@ public:
 	//! \param length the length of the byte array
 	//! \details key must be at least DEFAULT_KEYLENGTH in length. Internally, the function calls
 	//!    SimpleKeyingInterface::SetKey.
-	BlockCipherFinal(const byte *key, size_t length)
+	BlockCipherFinal(const ::byte *key, size_t length)
 		{this->SetKey(key, length);}
 
 	//! \brief Construct a BlockCipherFinal
@@ -522,7 +522,7 @@ public:
 	//! \param rounds the number of rounds
 	//! \details key must be at least DEFAULT_KEYLENGTH in length. Internally, the function calls
 	//!    SimpleKeyingInterface::SetKeyWithRounds.
-	BlockCipherFinal(const byte *key, size_t length, unsigned int rounds)
+	BlockCipherFinal(const ::byte *key, size_t length, unsigned int rounds)
 		{this->SetKeyWithRounds(key, length, rounds);}
 
 	//! \brief Provides the direction of the cipher
@@ -559,14 +559,14 @@ public:
 	//! \param key a byte array used to key the algorithm
 	//! \details key must be at least DEFAULT_KEYLENGTH in length. Internally, the function calls
 	//!    SimpleKeyingInterface::SetKey.
-	MessageAuthenticationCodeFinal(const byte *key)
+	MessageAuthenticationCodeFinal(const ::byte *key)
 		{this->SetKey(key, this->DEFAULT_KEYLENGTH);}
 	//! \brief Construct a BlockCipherFinal
 	//! \param key a byte array used to key the algorithm
 	//! \param length the length of the byte array
 	//! \details key must be at least DEFAULT_KEYLENGTH in length. Internally, the function calls
 	//!    SimpleKeyingInterface::SetKey.
-	MessageAuthenticationCodeFinal(const byte *key, size_t length)
+	MessageAuthenticationCodeFinal(const ::byte *key, size_t length)
 		{this->SetKey(key, length);}
 };
 

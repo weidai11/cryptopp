@@ -18,7 +18,7 @@ public:
 
 	void IsolatedInitialize(const NameValuePairs &parameters)
 		{m_queue.IsolatedInitialize(parameters); m_lengths.assign(1, 0U); m_messageCounts.assign(1, 0U);}
-	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking)
+	size_t Put2(const ::byte *begin, size_t length, int messageEnd, bool blocking)
 	{
 		CRYPTOPP_UNUSED(blocking);
 		m_queue.Put(begin, length);
@@ -56,7 +56,7 @@ public:
 
 	unsigned int CopyMessagesTo(BufferedTransformation &target, unsigned int count=UINT_MAX, const std::string &channel=DEFAULT_CHANNEL) const;
 
-	const byte * Spy(size_t &contiguousSize) const;
+	const ::byte * Spy(size_t &contiguousSize) const;
 
 	void swap(MessageQueue &rhs);
 
@@ -79,7 +79,7 @@ public:
 		, m_firstChannel(firstChannel), m_secondChannel(secondChannel)
 		{Detach(attachment);}
 
-	size_t ChannelPut2(const std::string &channel, const byte *begin, size_t length, int messageEnd, bool blocking);
+	size_t ChannelPut2(const std::string &channel, const ::byte *begin, size_t length, int messageEnd, bool blocking);
 	bool ChannelMessageSeriesEnd(const std::string &channel, int propagation=-1, bool blocking=true);
 
 private:

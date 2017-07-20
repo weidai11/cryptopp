@@ -12,7 +12,7 @@ NAMESPACE_BEGIN(CryptoPP)
 #define CONSTANT_TIME_CARRY(a,b) ((a ^ ((a ^ b) | ((a - b) ^ b))) >> (sizeof(a) * 8 - 1))
 
 template <class T>
-void Poly1305_Base<T>::UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params)
+void Poly1305_Base<T>::UncheckedSetKey(const ::byte *key, unsigned int length, const NameValuePairs &params)
 {
 	if (key && length)
 	{
@@ -48,7 +48,7 @@ void Poly1305_Base<T>::UncheckedSetKey(const byte *key, unsigned int length, con
 }
 
 template <class T>
-void Poly1305_Base<T>::Update(const byte *input, size_t length)
+void Poly1305_Base<T>::Update(const ::byte *input, size_t length)
 {
 	CRYPTOPP_ASSERT((input && length) || !length);
 	if (!length) return;
@@ -89,7 +89,7 @@ void Poly1305_Base<T>::Update(const byte *input, size_t length)
 }
 
 template <class T>
-void Poly1305_Base<T>::HashBlocks(const byte *input, size_t length, word32 padbit)
+void Poly1305_Base<T>::HashBlocks(const ::byte *input, size_t length, word32 padbit)
 {
 	word32 r0, r1, r2, r3;
 	word32 s1, s2, s3;
@@ -162,7 +162,7 @@ void Poly1305_Base<T>::HashBlocks(const byte *input, size_t length, word32 padbi
 }
 
 template <class T>
-void Poly1305_Base<T>::TruncatedFinal(byte *mac, size_t size)
+void Poly1305_Base<T>::TruncatedFinal(::byte *mac, size_t size)
 {
 	CRYPTOPP_ASSERT(mac);      // Pointer is valid
 	CRYPTOPP_ASSERT(!m_used);  // Nonce is fresh
@@ -186,7 +186,7 @@ void Poly1305_Base<T>::TruncatedFinal(byte *mac, size_t size)
 }
 
 template <class T>
-void Poly1305_Base<T>::HashFinal(byte *mac, size_t size)
+void Poly1305_Base<T>::HashFinal(::byte *mac, size_t size)
 {
 	word32 h0, h1, h2, h3, h4;
 	word32 g0, g1, g2, g3, g4;
@@ -229,7 +229,7 @@ void Poly1305_Base<T>::HashFinal(byte *mac, size_t size)
 	}
 	else
 	{
-		FixedSizeAlignedSecBlock<byte, BLOCKSIZE> m;
+		FixedSizeAlignedSecBlock< ::byte, BLOCKSIZE> m;
 		PutWord<word32>(false, LITTLE_ENDIAN_ORDER, m +  0, h0);
 		PutWord<word32>(false, LITTLE_ENDIAN_ORDER, m +  4, h1);
 		PutWord<word32>(false, LITTLE_ENDIAN_ORDER, m +  8, h2);
@@ -239,7 +239,7 @@ void Poly1305_Base<T>::HashFinal(byte *mac, size_t size)
 }
 
 template <class T>
-void Poly1305_Base<T>::Resynchronize(const byte *nonce, int nonceLength)
+void Poly1305_Base<T>::Resynchronize(const ::byte *nonce, int nonceLength)
 {
 	CRYPTOPP_ASSERT(nonceLength == -1 || nonceLength == (int)BLOCKSIZE);
 	nonceLength == -1 ? nonceLength = BLOCKSIZE : nonceLength;
@@ -247,7 +247,7 @@ void Poly1305_Base<T>::Resynchronize(const byte *nonce, int nonceLength)
 }
 
 template <class T>
-void Poly1305_Base<T>::GetNextIV(RandomNumberGenerator &rng, byte *iv)
+void Poly1305_Base<T>::GetNextIV(RandomNumberGenerator &rng, ::byte *iv)
 {
 	rng.GenerateBlock(iv, BLOCKSIZE);
 }
