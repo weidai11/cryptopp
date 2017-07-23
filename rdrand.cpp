@@ -97,6 +97,8 @@
 # endif
 #endif
 
+typedef unsigned char byte;
+
 #if MASM_RDRAND_ASM_AVAILABLE
 extern "C" void CRYPTOPP_FASTCALL MASM_RDRAND_GenerateBlock(byte*, size_t);
 #endif

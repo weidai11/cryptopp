@@ -145,6 +145,7 @@ int CRYPTOPP_API main(int argc, char *argv[])
 
 	try
 	{
+		using CryptoPP::byte;
 		RegisterFactories(Test::All);
 
 		// Some editors have problems with the '\0' character when redirecting output.
@@ -455,6 +456,7 @@ SecByteBlock HexDecodeString(const char *hex)
 
 void GenerateRSAKey(unsigned int keyLength, const char *privFilename, const char *pubFilename, const char *seed)
 {
+	using CryptoPP::byte;
 	RandomPool randPool;
 	randPool.IncorporateEntropy((byte *)seed, strlen(seed));
 
@@ -471,6 +473,7 @@ void GenerateRSAKey(unsigned int keyLength, const char *privFilename, const char
 
 std::string RSAEncryptString(const char *pubFilename, const char *seed, const char *message)
 {
+	using CryptoPP::byte;
 	FileSource pubFile(pubFilename, true, new HexDecoder);
 	RSAES_OAEP_SHA_Encryptor pub(pubFile);
 
@@ -551,6 +554,7 @@ void DigestFile(const char *filename)
 
 void HmacFile(const char *hexKey, const char *file)
 {
+	using CryptoPP::byte;
 	member_ptr<MessageAuthenticationCode> mac;
 	if (strcmp(hexKey, "selftest") == 0)
 	{
@@ -576,6 +580,7 @@ void AES_CTR_Encrypt(const char *hexKey, const char *hexIV, const char *infile, 
 
 std::string EncryptString(const char *instr, const char *passPhrase)
 {
+	using CryptoPP::byte;
 	std::string outstr;
 
 	DefaultEncryptorWithMAC encryptor(passPhrase, new HexEncoder(new StringSink(outstr)));
@@ -587,6 +592,7 @@ std::string EncryptString(const char *instr, const char *passPhrase)
 
 std::string DecryptString(const char *instr, const char *passPhrase)
 {
+	using CryptoPP::byte;
 	std::string outstr;
 
 	HexDecoder decryptor(new DefaultDecryptorWithMAC(passPhrase, new StringSink(outstr)));
@@ -608,6 +614,7 @@ void DecryptFile(const char *in, const char *out, const char *passPhrase)
 
 void SecretShareFile(int threshold, int nShares, const char *filename, const char *seed)
 {
+	using CryptoPP::byte;
 	CRYPTOPP_ASSERT(nShares >= 1 && nShares<=1000);
 	if (nShares < 1 || nShares > 1000)
 		throw InvalidArgument("SecretShareFile: " + IntToString(nShares) + " is not in range [1, 1000]");
@@ -640,6 +647,7 @@ void SecretShareFile(int threshold, int nShares, const char *filename, const cha
 
 void SecretRecoverFile(int threshold, const char *outFilename, char *const *inFilenames)
 {
+	using CryptoPP::byte;
 	CRYPTOPP_ASSERT(threshold >= 1 && threshold <=1000);
 	if (threshold < 1 || threshold > 1000)
 		throw InvalidArgument("SecretRecoverFile: " + IntToString(threshold) + " is not in range [1, 1000]");
@@ -667,6 +675,7 @@ void SecretRecoverFile(int threshold, const char *outFilename, char *const *inFi
 
 void InformationDisperseFile(int threshold, int nShares, const char *filename)
 {
+	using CryptoPP::byte;
 	CRYPTOPP_ASSERT(threshold >= 1 && threshold <=1000);
 	if (threshold < 1 || threshold > 1000)
 		throw InvalidArgument("InformationDisperseFile: " + IntToString(nShares) + " is not in range [1, 1000]");
@@ -851,6 +860,7 @@ void ForwardTcpPort(const char *sourcePortName, const char *destinationHost, con
 
 bool Validate(int alg, bool thorough, const char *seedInput)
 {
+	using CryptoPP::byte;
 	bool result;
 
 	// Some editors have problems with the '\0' character when redirecting output.
