@@ -54,11 +54,9 @@
 # endif
 #endif
 
-// Define this to ensure C/C++ standard compliance and respect for GCC aliasing rules and other alignment fodder. If you
-// experience a break with GCC at -O3, you should try this first. Guard it in case its set on the command line (and it differs).
-#ifndef CRYPTOPP_NO_UNALIGNED_DATA_ACCESS
-# define CRYPTOPP_NO_UNALIGNED_DATA_ACCESS
-#endif
+// Define this to allow unaligned data access. If you experience a break with
+// GCC at -O3, you should immediately suspect unaligned data accesses.
+// #define CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
 
 // ***************** Less Important Settings ***************
 
@@ -578,12 +576,6 @@ NAMESPACE_END
 	#define CRYPTOPP_BOOL_ARM64 1
 #else
 	#define CRYPTOPP_BOOL_ARM64 0
-#endif
-
-#if !defined(CRYPTOPP_NO_UNALIGNED_DATA_ACCESS) && !defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS)
-#if (CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || defined(__powerpc__) || (__ARM_FEATURE_UNALIGNED >= 1))
-	#define CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
-#endif
 #endif
 
 // ***************** Initialization and Constructor priorities ********************
