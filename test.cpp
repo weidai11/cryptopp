@@ -1,5 +1,7 @@
 // test.cpp - originally written and placed in the public domain by Wei Dai
 //            CryptoPP::Test namespace added by JW in February 2017
+//            scoped_main added to CryptoPP::Test namespace by JW in July 2017
+//            Also see http://github.com/weidai11/cryptopp/issues/447
 
 #define CRYPTOPP_DEFAULT_NO_DLL
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
@@ -66,11 +68,16 @@
 # pragma strict_gs_check (on)
 #endif
 
-USING_NAMESPACE(CryptoPP)
+// Global namespace, provided by other source files
+void FIPS140_SampleApplication();
+void RegisterFactories(CryptoPP::Test::TestClass suites);
+int (*AdhocTest)(int argc, char *argv[]) = NULLPTR;
+
+NAMESPACE_BEGIN(CryptoPP)
+NAMESPACE_BEGIN(Test)
 
 const int MAX_PHRASE_LENGTH=250;
 
-void RegisterFactories(Test::TestClass suites);
 void PrintSeedAndThreads(const std::string& seed);
 
 void GenerateRSAKey(unsigned int keyLength, const char *privFilename, const char *pubFilename, const char *seed);
@@ -106,16 +113,10 @@ void HexDecode(const char *infile, const char *outfile);
 
 void ForwardTcpPort(const char *sourcePort, const char *destinationHost, const char *destinationPort);
 
-void FIPS140_SampleApplication();
 void FIPS140_GenerateRandomFiles();
 
 bool Validate(int, bool, const char *);
 void PrintSeedAndThreads(const std::string& seed);
-
-int (*AdhocTest)(int argc, char *argv[]) = NULLPTR;
-
-NAMESPACE_BEGIN(CryptoPP)
-NAMESPACE_BEGIN(Test)
 
 ANONYMOUS_NAMESPACE_BEGIN
 OFB_Mode<AES>::Encryption s_globalRNG;
@@ -125,8 +126,6 @@ RandomNumberGenerator & GlobalRNG()
 {
 	return dynamic_cast<RandomNumberGenerator&>(s_globalRNG);
 }
-NAMESPACE_END  // Test
-NAMESPACE_END  // CryptoPP
 
 // See misc.h and trap.h for comments and usage
 #if defined(CRYPTOPP_DEBUG) && defined(UNIX_SIGNALS_AVAILABLE)
@@ -134,7 +133,7 @@ static const SignalHandler<SIGTRAP, false> s_dummyHandler;
 // static const DebugTrapHandler s_dummyHandler;
 #endif
 
-int CRYPTOPP_API main(int argc, char *argv[])
+int scoped_main(int argc, char *argv[])
 {
 #ifdef _CRTDBG_LEAK_CHECK_DF
 	// Turn on leak-checking
@@ -145,15 +144,14 @@ int CRYPTOPP_API main(int argc, char *argv[])
 
 	try
 	{
-		using CryptoPP::byte;
-		RegisterFactories(Test::All);
+		RegisterFactories(All);
 
 		// Some editors have problems with the '\0' character when redirecting output.
 		std::string seed = IntToString(time(NULLPTR));
 		seed.resize(16, ' ');
 
 		// Fetch the SymmetricCipher interface, not the RandomNumberGenerator interface, to key the underlying cipher
-		OFB_Mode<AES>::Encryption& aesg = dynamic_cast<OFB_Mode<AES>::Encryption&>(Test::GlobalRNG());
+		OFB_Mode<AES>::Encryption& aesg = dynamic_cast<OFB_Mode<AES>::Encryption&>(GlobalRNG());
 		aesg.SetKeyWithIV((byte *)seed.data(), 16, (byte *)seed.data());
 
 		std::string command, executableName, macFilename;
@@ -308,7 +306,7 @@ int CRYPTOPP_API main(int argc, char *argv[])
 				fname = "TestVectors/" + fname + ".txt";
 
 			PrintSeedAndThreads(seed);
-			return !Test::RunTestDataFile(fname.c_str());
+			return !RunTestDataFile(fname.c_str());
 		}
 		else if (command == "t")
 		{
@@ -353,18 +351,18 @@ int CRYPTOPP_API main(int argc, char *argv[])
 			std::cout << "\nRandom Seed: ";
 			std::ws(std::cin);
 			std::cin.getline(thisSeed, 1024);
-			SecretShareFile(Test::StringToValue<int, true>(argv[2]), Test::StringToValue<int, true>(argv[3]), argv[4], thisSeed);
+			SecretShareFile(StringToValue<int, true>(argv[2]), StringToValue<int, true>(argv[3]), argv[4], thisSeed);
 		}
 		else if (command == "sr")
 			SecretRecoverFile(argc-3, argv[2], argv+3);
 		else if (command == "id")
-			InformationDisperseFile(Test::StringToValue<int, true>(argv[2]), Test::StringToValue<int, true>(argv[3]), argv[4]);
+			InformationDisperseFile(StringToValue<int, true>(argv[2]), StringToValue<int, true>(argv[3]), argv[4]);
 		else if (command == "ir")
 			InformationRecoverFile(argc-3, argv[2], argv+3);
 		else if (command == "v" || command == "vv")
-			return !Validate(argc>2 ? Test::StringToValue<int, true>(argv[2]) : 0, argv[1][1] == 'v', argc>3 ? argv[3] : NULLPTR);
+			return !Validate(argc>2 ? StringToValue<int, true>(argv[2]) : 0, argv[1][1] == 'v', argc>3 ? argv[3] : NULLPTR);
 		else if (command.substr(0,1) == "b") // "b", "b1", "b2", ...
-			Test::BenchmarkWithCommand(argc, argv);
+			BenchmarkWithCommand(argc, argv);
 		else if (command == "z")
 			GzipFile(argv[3], argv[4], argv[2][0]-'0');
 		else if (command == "u")
@@ -405,9 +403,9 @@ int CRYPTOPP_API main(int argc, char *argv[])
 		}
 		return 0;
 	}
-	catch(const CryptoPP::Exception &e)
+	catch(const Exception &e)
 	{
-		std::cout << "\nCryptoPP::Exception caught: " << e.what() << std::endl;
+		std::cout << "\nException caught: " << e.what() << std::endl;
 		return -1;
 	}
 	catch(const std::exception &e)
@@ -456,7 +454,6 @@ SecByteBlock HexDecodeString(const char *hex)
 
 void GenerateRSAKey(unsigned int keyLength, const char *privFilename, const char *pubFilename, const char *seed)
 {
-	using CryptoPP::byte;
 	RandomPool randPool;
 	randPool.IncorporateEntropy((byte *)seed, strlen(seed));
 
@@ -473,7 +470,6 @@ void GenerateRSAKey(unsigned int keyLength, const char *privFilename, const char
 
 std::string RSAEncryptString(const char *pubFilename, const char *seed, const char *message)
 {
-	using CryptoPP::byte;
 	FileSource pubFile(pubFilename, true, new HexDecoder);
 	RSAES_OAEP_SHA_Encryptor pub(pubFile);
 
@@ -491,7 +487,7 @@ std::string RSADecryptString(const char *privFilename, const char *ciphertext)
 	RSAES_OAEP_SHA_Decryptor priv(privFile);
 
 	std::string result;
-	StringSource(ciphertext, true, new HexDecoder(new PK_DecryptorFilter(Test::GlobalRNG(), priv, new StringSink(result))));
+	StringSource(ciphertext, true, new HexDecoder(new PK_DecryptorFilter(GlobalRNG(), priv, new StringSink(result))));
 	return result;
 }
 
@@ -499,7 +495,7 @@ void RSASignFile(const char *privFilename, const char *messageFilename, const ch
 {
 	FileSource privFile(privFilename, true, new HexDecoder);
 	RSASS<PKCS1v15, SHA1>::Signer priv(privFile);
-	FileSource f(messageFilename, true, new SignerFilter(Test::GlobalRNG(), priv, new HexEncoder(new FileSink(signatureFilename))));
+	FileSource f(messageFilename, true, new SignerFilter(GlobalRNG(), priv, new HexEncoder(new FileSink(signatureFilename))));
 }
 
 bool RSAVerifyFile(const char *pubFilename, const char *messageFilename, const char *signatureFilename)
@@ -554,7 +550,6 @@ void DigestFile(const char *filename)
 
 void HmacFile(const char *hexKey, const char *file)
 {
-	using CryptoPP::byte;
 	member_ptr<MessageAuthenticationCode> mac;
 	if (strcmp(hexKey, "selftest") == 0)
 	{
@@ -580,7 +575,6 @@ void AES_CTR_Encrypt(const char *hexKey, const char *hexIV, const char *infile, 
 
 std::string EncryptString(const char *instr, const char *passPhrase)
 {
-	using CryptoPP::byte;
 	std::string outstr;
 
 	DefaultEncryptorWithMAC encryptor(passPhrase, new HexEncoder(new StringSink(outstr)));
@@ -592,7 +586,6 @@ std::string EncryptString(const char *instr, const char *passPhrase)
 
 std::string DecryptString(const char *instr, const char *passPhrase)
 {
-	using CryptoPP::byte;
 	std::string outstr;
 
 	HexDecoder decryptor(new DefaultDecryptorWithMAC(passPhrase, new StringSink(outstr)));
@@ -614,7 +607,6 @@ void DecryptFile(const char *in, const char *out, const char *passPhrase)
 
 void SecretShareFile(int threshold, int nShares, const char *filename, const char *seed)
 {
-	using CryptoPP::byte;
 	CRYPTOPP_ASSERT(nShares >= 1 && nShares<=1000);
 	if (nShares < 1 || nShares > 1000)
 		throw InvalidArgument("SecretShareFile: " + IntToString(nShares) + " is not in range [1, 1000]");
@@ -647,7 +639,6 @@ void SecretShareFile(int threshold, int nShares, const char *filename, const cha
 
 void SecretRecoverFile(int threshold, const char *outFilename, char *const *inFilenames)
 {
-	using CryptoPP::byte;
 	CRYPTOPP_ASSERT(threshold >= 1 && threshold <=1000);
 	if (threshold < 1 || threshold > 1000)
 		throw InvalidArgument("SecretRecoverFile: " + IntToString(threshold) + " is not in range [1, 1000]");
@@ -675,7 +666,6 @@ void SecretRecoverFile(int threshold, const char *outFilename, char *const *inFi
 
 void InformationDisperseFile(int threshold, int nShares, const char *filename)
 {
-	using CryptoPP::byte;
 	CRYPTOPP_ASSERT(threshold >= 1 && threshold <=1000);
 	if (threshold < 1 || threshold > 1000)
 		throw InvalidArgument("InformationDisperseFile: " + IntToString(nShares) + " is not in range [1, 1000]");
@@ -860,125 +850,136 @@ void ForwardTcpPort(const char *sourcePortName, const char *destinationHost, con
 
 bool Validate(int alg, bool thorough, const char *seedInput)
 {
-	using CryptoPP::byte;
 	bool result;
 
 	// Some editors have problems with the '\0' character when redirecting output.
 	//   seedInput is argv[3] when issuing 'cryptest.exe v all <seed>'
 	std::string seed = (seedInput ? seedInput : IntToString(std::time(NULLPTR)));
 	seed.resize(16, ' ');
-	OFB_Mode<AES>::Encryption& prng = dynamic_cast<OFB_Mode<AES>::Encryption&>(Test::GlobalRNG());
+	OFB_Mode<AES>::Encryption& prng = dynamic_cast<OFB_Mode<AES>::Encryption&>(GlobalRNG());
 	prng.SetKeyWithIV((byte *)seed.data(), 16, (byte *)seed.data());
 
-	Test::g_testBegin = std::time(NULLPTR);
+	g_testBegin = std::time(NULLPTR);
 	PrintSeedAndThreads(seed);
 
 	switch (alg)
 	{
-	case 0: result = Test::ValidateAll(thorough); break;
-	case 1: result = Test::TestSettings(); break;
-	case 2: result = Test::TestOS_RNG(); break;
-//	case 3: result = Test::TestSecRandom(); break;
-	case 4: result = Test::ValidateMD5(); break;
-	case 5: result = Test::ValidateSHA(); break;
-	case 6: result = Test::ValidateDES(); break;
-	case 7: result = Test::ValidateIDEA(); break;
-	case 8: result = Test::ValidateARC4(); break;
-	case 9: result = Test::ValidateRC5(); break;
-	case 10: result = Test::ValidateBlowfish(); break;
-//	case 11: result = Test::ValidateDiamond2(); break;
-	case 12: result = Test::ValidateThreeWay(); break;
-	case 13: result = Test::ValidateBBS(); break;
-	case 14: result = Test::ValidateDH(); break;
-	case 15: result = Test::ValidateRSA(); break;
-	case 16: result = Test::ValidateElGamal(); break;
-	case 17: result = Test::ValidateDSA(thorough); break;
-//	case 18: result = Test::ValidateHAVAL(); break;
-	case 19: result = Test::ValidateSAFER(); break;
-	case 20: result = Test::ValidateLUC(); break;
-	case 21: result = Test::ValidateRabin(); break;
-//	case 22: result = Test::ValidateBlumGoldwasser(); break;
-	case 23: result = Test::ValidateECP(); break;
-	case 24: result = Test::ValidateEC2N(); break;
-//	case 25: result = Test::ValidateMD5MAC(); break;
-	case 26: result = Test::ValidateGOST(); break;
-	case 27: result = Test::ValidateTiger(); break;
-	case 28: result = Test::ValidateRIPEMD(); break;
-	case 29: result = Test::ValidateHMAC(); break;
-//	case 30: result = Test::ValidateXMACC(); break;
-	case 31: result = Test::ValidateSHARK(); break;
-	case 32: result = Test::ValidateLUC_DH(); break;
-	case 33: result = Test::ValidateLUC_DL(); break;
-	case 34: result = Test::ValidateSEAL(); break;
-	case 35: result = Test::ValidateCAST(); break;
-	case 36: result = Test::ValidateSquare(); break;
-	case 37: result = Test::ValidateRC2(); break;
-	case 38: result = Test::ValidateRC6(); break;
-	case 39: result = Test::ValidateMARS(); break;
-	case 40: result = Test::ValidateRW(); break;
-	case 41: result = Test::ValidateMD2(); break;
-	case 42: result = Test::ValidateNR(); break;
-	case 43: result = Test::ValidateMQV(); break;
-	case 44: result = Test::ValidateRijndael(); break;
-	case 45: result = Test::ValidateTwofish(); break;
-	case 46: result = Test::ValidateSerpent(); break;
-	case 47: result = Test::ValidateCipherModes(); break;
-	case 48: result = Test::ValidateCRC32(); break;
-	case 49: result = Test::ValidateCRC32C(); break;
-	case 50: result = Test::ValidateECDSA(); break;
-	case 51: result = Test::ValidateECGDSA(); break;
-	case 52: result = Test::ValidateXTR_DH(); break;
-	case 53: result = Test::ValidateSKIPJACK(); break;
-	case 54: result = Test::ValidateSHA2(); break;
-	case 55: result = Test::ValidatePanama(); break;
-	case 56: result = Test::ValidateAdler32(); break;
-	case 57: result = Test::ValidateMD4(); break;
-	case 58: result = Test::ValidatePBKDF(); break;
-	case 59: result = Test::ValidateESIGN(); break;
-	case 60: result = Test::ValidateDLIES(); break;
-	case 61: result = Test::ValidateBaseCode(); break;
-	case 62: result = Test::ValidateSHACAL2(); break;
-	case 63: result = Test::ValidateARIA(); break;
-	case 64: result = Test::ValidateCamellia(); break;
-	case 65: result = Test::ValidateWhirlpool(); break;
-	case 66: result = Test::ValidateTTMAC(); break;
-	case 67: result = Test::ValidateSalsa(); break;
-	case 68: result = Test::ValidateSosemanuk(); break;
-	case 69: result = Test::ValidateVMAC(); break;
-	case 70: result = Test::ValidateCCM(); break;
-	case 71: result = Test::ValidateGCM(); break;
-	case 72: result = Test::ValidateCMAC(); break;
-	case 73: result = Test::ValidateHKDF(); break;
-	case 74: result = Test::ValidateBLAKE2s(); break;
-	case 75: result = Test::ValidateBLAKE2b(); break;
-	case 76: result = Test::ValidatePoly1305(); break;
-	case 77: result = Test::ValidateSipHash(); break;
-	case 78: result = Test::ValidateHashDRBG(); break;
-	case 79: result = Test::ValidateHmacDRBG(); break;
+	case 0: result = ValidateAll(thorough); break;
+	case 1: result = TestSettings(); break;
+	case 2: result = TestOS_RNG(); break;
+//	case 3: result = TestSecRandom(); break;
+	case 4: result = ValidateMD5(); break;
+	case 5: result = ValidateSHA(); break;
+	case 6: result = ValidateDES(); break;
+	case 7: result = ValidateIDEA(); break;
+	case 8: result = ValidateARC4(); break;
+	case 9: result = ValidateRC5(); break;
+	case 10: result = ValidateBlowfish(); break;
+//	case 11: result = ValidateDiamond2(); break;
+	case 12: result = ValidateThreeWay(); break;
+	case 13: result = ValidateBBS(); break;
+	case 14: result = ValidateDH(); break;
+	case 15: result = ValidateRSA(); break;
+	case 16: result = ValidateElGamal(); break;
+	case 17: result = ValidateDSA(thorough); break;
+//	case 18: result = ValidateHAVAL(); break;
+	case 19: result = ValidateSAFER(); break;
+	case 20: result = ValidateLUC(); break;
+	case 21: result = ValidateRabin(); break;
+//	case 22: result = ValidateBlumGoldwasser(); break;
+	case 23: result = ValidateECP(); break;
+	case 24: result = ValidateEC2N(); break;
+//	case 25: result = ValidateMD5MAC(); break;
+	case 26: result = ValidateGOST(); break;
+	case 27: result = ValidateTiger(); break;
+	case 28: result = ValidateRIPEMD(); break;
+	case 29: result = ValidateHMAC(); break;
+//	case 30: result = ValidateXMACC(); break;
+	case 31: result = ValidateSHARK(); break;
+	case 32: result = ValidateLUC_DH(); break;
+	case 33: result = ValidateLUC_DL(); break;
+	case 34: result = ValidateSEAL(); break;
+	case 35: result = ValidateCAST(); break;
+	case 36: result = ValidateSquare(); break;
+	case 37: result = ValidateRC2(); break;
+	case 38: result = ValidateRC6(); break;
+	case 39: result = ValidateMARS(); break;
+	case 40: result = ValidateRW(); break;
+	case 41: result = ValidateMD2(); break;
+	case 42: result = ValidateNR(); break;
+	case 43: result = ValidateMQV(); break;
+	case 44: result = ValidateRijndael(); break;
+	case 45: result = ValidateTwofish(); break;
+	case 46: result = ValidateSerpent(); break;
+	case 47: result = ValidateCipherModes(); break;
+	case 48: result = ValidateCRC32(); break;
+	case 49: result = ValidateCRC32C(); break;
+	case 50: result = ValidateECDSA(); break;
+	case 51: result = ValidateECGDSA(); break;
+	case 52: result = ValidateXTR_DH(); break;
+	case 53: result = ValidateSKIPJACK(); break;
+	case 54: result = ValidateSHA2(); break;
+	case 55: result = ValidatePanama(); break;
+	case 56: result = ValidateAdler32(); break;
+	case 57: result = ValidateMD4(); break;
+	case 58: result = ValidatePBKDF(); break;
+	case 59: result = ValidateESIGN(); break;
+	case 60: result = ValidateDLIES(); break;
+	case 61: result = ValidateBaseCode(); break;
+	case 62: result = ValidateSHACAL2(); break;
+	case 63: result = ValidateARIA(); break;
+	case 64: result = ValidateCamellia(); break;
+	case 65: result = ValidateWhirlpool(); break;
+	case 66: result = ValidateTTMAC(); break;
+	case 67: result = ValidateSalsa(); break;
+	case 68: result = ValidateSosemanuk(); break;
+	case 69: result = ValidateVMAC(); break;
+	case 70: result = ValidateCCM(); break;
+	case 71: result = ValidateGCM(); break;
+	case 72: result = ValidateCMAC(); break;
+	case 73: result = ValidateHKDF(); break;
+	case 74: result = ValidateBLAKE2s(); break;
+	case 75: result = ValidateBLAKE2b(); break;
+	case 76: result = ValidatePoly1305(); break;
+	case 77: result = ValidateSipHash(); break;
+	case 78: result = ValidateHashDRBG(); break;
+	case 79: result = ValidateHmacDRBG(); break;
 
 #if defined(CRYPTOPP_EXTENDED_VALIDATION)
 	// http://github.com/weidai11/cryptopp/issues/92
-	case 9999: result = Test::TestSecBlock(); break;
+	case 9999: result = TestSecBlock(); break;
 	// http://github.com/weidai11/cryptopp/issues/64
-	case 9998: result = Test::TestPolynomialMod2(); break;
+	case 9998: result = TestPolynomialMod2(); break;
 	// http://github.com/weidai11/cryptopp/issues/336
-	case 9997: result = Test::TestIntegerBitops(); break;
+	case 9997: result = TestIntegerBitops(); break;
 	// http://github.com/weidai11/cryptopp/issues/360
-	case 9996: result = Test::TestRounding(); break;
+	case 9996: result = TestRounding(); break;
 	// http://github.com/weidai11/cryptopp/issues/242
-	case 9995: result = Test::TestHuffmanCodes(); break;
+	case 9995: result = TestHuffmanCodes(); break;
 	// http://github.com/weidai11/cryptopp/issues/346
-	case 9994: result = Test::TestASN1Parse(); break;
+	case 9994: result = TestASN1Parse(); break;
 #endif
 
 	default: return false;
 	}
 
-	Test::g_testEnd = std::time(NULLPTR);
+	g_testEnd = std::time(NULLPTR);
 
 	std::cout << "\nSeed used was " << seed << std::endl;
-	std::cout << "Test started at " << Test::TimeToString(Test::g_testBegin) << std::endl;
-	std::cout << "Test ended at " << Test::TimeToString(Test::g_testEnd) << std::endl;
+	std::cout << "Test started at " << TimeToString(g_testBegin) << std::endl;
+	std::cout << "Test ended at " << TimeToString(g_testEnd) << std::endl;
 
 	return result;
+}
+
+NAMESPACE_END  // Test
+NAMESPACE_END  // CryptoPP
+
+// Microsoft puts a byte in global namespace. Combined with
+// a 'using namespace CryptoPP', it causes compile failures.
+// Also see http://github.com/weidai11/cryptopp/issues/442
+// and http://github.com/weidai11/cryptopp/issues/447.
+int CRYPTOPP_API main(int argc, char *argv[])
+{
+	return CryptoPP::Test::scoped_main(argc, argv);
 }
