@@ -16,8 +16,10 @@ NAMESPACE_BEGIN(Test)
 
 // More granular control over benchmarks
 enum TestClass {
-	Unkeyed=1,SharedKeyMAC=2,SharedKeyStream=4,SharedKeyBlock=8,SharedKeyOther=16,
-	PublicKeyAgreement=32,PublicKeyEncryption=64,PublicKeySignature=128,PublicKeyOther=256,
+	UnkeyedRNG=1,UnkeyedHash=2,UnkeyedOther=4,
+	SharedKeyMAC=8,SharedKeyStream=16,SharedKeyBlock=32,SharedKeyOther=64,
+	PublicKeyAgreement=128,PublicKeyEncryption=256,PublicKeySignature=512,PublicKeyOther=1024,
+	Unkeyed=UnkeyedRNG|UnkeyedHash|UnkeyedOther,
 	SharedKey=SharedKeyMAC|SharedKeyStream|SharedKeyBlock|SharedKeyOther,
 	PublicKey=PublicKeyAgreement|PublicKeyEncryption|PublicKeySignature|PublicKeyOther,
 	All=Unkeyed|SharedKey|PublicKey
