@@ -383,22 +383,8 @@ void Benchmark(Test::TestClass suites, double t, double hertz)
 		Benchmark1(t, hertz);
 	}
 
-	// Shared key algorithms (MACs)
-	if (suites & Test::SharedKeyMAC)
-	{
-		std::cout << "\n<BR>";
-		Benchmark2(t, hertz);
-	}
-
-	// Shared key algorithms (stream ciphers)
-	if (suites & Test::SharedKeyStream)
-	{
-		std::cout << "\n<BR>";
-		Benchmark2(t, hertz);
-	}
-
-	// Shared key algorithms (block ciphers)
-	if (suites & Test::SharedKeyBlock)
+	// Shared key algorithms
+	if (suites & Test::SharedKey)
 	{
 		std::cout << "\n<BR>";
 		Benchmark2(t, hertz);
