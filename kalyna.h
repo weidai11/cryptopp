@@ -61,7 +61,6 @@ struct Kalyna_Info : public VariableBlockSize<16, 16, 64>
     }
 
     //! \brief Validates the blocksize for Kalyna.
-    //! \param keylength the key length of the cipher
     //! \param blocksize the candidate blocksize
     //! \param alg an Algorithm object used if the blocksize is invalid
     //! \throws InvalidBlockSize if the blocksize is invalid

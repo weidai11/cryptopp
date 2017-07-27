@@ -17,7 +17,6 @@ NAMESPACE_BEGIN(CryptoPP)
 
 //! \class Threefish_Info
 //! \brief Threefish block cipher information
-//! \tparam SIZE block and key size, in bytes
 //! \note Crypto++ provides a byte oriented implementation
 //! \since Crypto++ 6.0
 struct Threefish_Info : public VariableBlockSize<32, 32, 128>

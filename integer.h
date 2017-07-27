@@ -531,7 +531,7 @@ public:
 		//!   the integer should be converted to a 2's compliment representation before performing
 		//!   the operation.
 		//! \since Crypto++ 6.0
-		Integer And(const Integer&) const;
+		Integer And(const Integer& t) const;
 
 		//! \brief Bitwise OR
 		//! \param t the other Integer
@@ -544,7 +544,7 @@ public:
 		//!   the integer should be converted to a 2's compliment representation before performing
 		//!   the operation.
 		//! \since Crypto++ 6.0
-		Integer Or(const Integer&) const;
+		Integer Or(const Integer& t) const;
 
 		//! \brief Bitwise XOR
 		//! \param t the other Integer
@@ -557,7 +557,7 @@ public:
 		//!   the integer should be converted to a 2's compliment representation before performing
 		//!   the operation.
 		//! \since Crypto++ 6.0
-		Integer Xor(const Integer&) const;
+		Integer Xor(const Integer& t) const;
 
 		//! \brief Right-shift
 		Integer operator>>(size_t n) const	{return Integer(*this)>>=n;}

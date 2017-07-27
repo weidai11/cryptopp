@@ -261,8 +261,8 @@ public:
 //! \class ECDH
 //! \brief Elliptic Curve Diffie-Hellman
 //! \tparam EC elliptic curve field
-//! \tparam COFACTOR_OPTION \ref CofactorMultiplicationOption "cofactor multiplication option"
-//! \sa <a href="http://www.weidai.com/scan-mirror/ka.html#ECDH">Elliptic Curve Diffie-Hellman, AKA ECDH</a>
+//! \tparam COFACTOR_OPTION cofactor multiplication option
+//! \sa CofactorMultiplicationOption, <a href="http://www.weidai.com/scan-mirror/ka.html#ECDH">Elliptic Curve Diffie-Hellman, AKA ECDH</a>
 template <class EC, class COFACTOR_OPTION = typename DL_GroupParameters_EC<EC>::DefaultCofactorOption>
 struct ECDH
 {
@@ -272,8 +272,8 @@ struct ECDH
 //! \class ECMQV
 //! \brief Elliptic Curve Menezes-Qu-Vanstone
 //! \tparam EC elliptic curve field
-//! \tparam COFACTOR_OPTION \ref CofactorMultiplicationOption "cofactor multiplication option"
-/// \sa <a href="http://www.weidai.com/scan-mirror/ka.html#ECMQV">Elliptic Curve Menezes-Qu-Vanstone, AKA ECMQV</a>
+//! \tparam COFACTOR_OPTION cofactor multiplication option
+/// \sa CofactorMultiplicationOption, <a href="http://www.weidai.com/scan-mirror/ka.html#ECMQV">Elliptic Curve Menezes-Qu-Vanstone, AKA ECMQV</a>
 template <class EC, class COFACTOR_OPTION = typename DL_GroupParameters_EC<EC>::DefaultCofactorOption>
 struct ECMQV
 {
@@ -283,9 +283,10 @@ struct ECMQV
 //! \class ECHMQV
 //! \brief Hashed Elliptic Curve Menezes-Qu-Vanstone
 //! \tparam EC elliptic curve field
-//! \tparam COFACTOR_OPTION \ref CofactorMultiplicationOption "cofactor multiplication option"
+//! \tparam COFACTOR_OPTION cofactor multiplication option
 //! \details This implementation follows Hugo Krawczyk's <a href="http://eprint.iacr.org/2005/176">HMQV: A High-Performance
 //!   Secure Diffie-Hellman Protocol</a>. Note: this implements HMQV only. HMQV-C with Key Confirmation is not provided.
+//! \sa CofactorMultiplicationOption
 template <class EC, class COFACTOR_OPTION = typename DL_GroupParameters_EC<EC>::DefaultCofactorOption, class HASH = SHA256>
 struct ECHMQV
 {
@@ -300,10 +301,11 @@ typedef ECHMQV< ECP, DL_GroupParameters_EC< ECP >::DefaultCofactorOption, SHA512
 //! \class ECFHMQV
 //! \brief Fully Hashed Elliptic Curve Menezes-Qu-Vanstone
 //! \tparam EC elliptic curve field
-//! \tparam COFACTOR_OPTION \ref CofactorMultiplicationOption "cofactor multiplication option"
+//! \tparam COFACTOR_OPTION cofactor multiplication option
 //! \details This implementation follows Augustin P. Sarr and Philippe Elbaz–Vincent, and Jean–Claude Bajard's
 //!   <a href="http://eprint.iacr.org/2009/408">A Secure and Efficient Authenticated Diffie-Hellman Protocol</a>.
 //!   Note: this is FHMQV, Protocol 5, from page 11; and not FHMQV-C.
+//! \sa CofactorMultiplicationOption
 template <class EC, class COFACTOR_OPTION = typename DL_GroupParameters_EC<EC>::DefaultCofactorOption, class HASH = SHA256>
 struct ECFHMQV
 {
@@ -596,7 +598,7 @@ struct ECGDSA : public DL_SS<
 
 //! \class ECIES
 //! \brief Elliptic Curve Integrated Encryption Scheme
-//! \tparam COFACTOR_OPTION \ref CofactorMultiplicationOption "cofactor multiplication option"
+//! \tparam COFACTOR_OPTION cofactor multiplication option
 //! \tparam HASH HashTransformation derived class used for key drivation and MAC computation
 //! \tparam DHAES_MODE flag indicating if the MAC includes additional context parameters such as <em>u·V</em>, <em>v·U</em> and label
 //! \tparam LABEL_OCTETS flag indicating if the label size is specified in octets or bits

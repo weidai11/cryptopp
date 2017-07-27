@@ -323,7 +323,7 @@ public:
 
 //! \class CipherModeFinalTemplate_ExternalCipher
 //! \tparam BASE CipherModeFinalTemplate_CipherHolder base class
-//! \details
+//! \details Base class for external mode cipher combinations
 template <class BASE>
 class CipherModeFinalTemplate_ExternalCipher : public BASE
 {

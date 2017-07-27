@@ -546,8 +546,8 @@ class MessageAuthenticationCodeImpl : public AlgorithmImpl<SimpleKeyingInterface
 
 //! \class MessageAuthenticationCodeFinal
 //! \brief Provides class member functions to key a message authentication code
-//! \tparam DIR a CipherDir
 //! \tparam BASE a BlockCipherImpl derived class
+//! \details A default implementation for MessageAuthenticationCode
 template <class BASE>
 class MessageAuthenticationCodeFinal : public ClonableImpl<MessageAuthenticationCodeFinal<BASE>, MessageAuthenticationCodeImpl<BASE> >
 {

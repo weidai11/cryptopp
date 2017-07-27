@@ -218,7 +218,7 @@ public:
 
 	//! \brief Construct an EncodedObjectFilter
 	//! \param attachment a BufferedTrasformation to attach to this object
-	//! \param nObjects
+	//! \param nObjects the number of objects
 	//! \param flags bitwise OR of EncodedObjectFilter::Flag
 	EncodedObjectFilter(BufferedTransformation *attachment = NULLPTR, unsigned int nObjects = 1, word32 flags = 0);
 

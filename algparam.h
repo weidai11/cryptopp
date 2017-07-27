@@ -425,12 +425,6 @@ CRYPTOPP_DLL_TEMPLATE_CLASS AlgorithmParametersTemplate<ConstByteArrayParameter>
 
 //! \class AlgorithmParameters
 //! \brief An object that implements NameValuePairs
-//! \tparam T the class or type
-//! \param name the name of the object or value to retrieve
-//! \param value reference to a variable that receives the value
-//! \param throwIfNotUsed if true, the object will throw an exception if the value is not accessed
-//! \note throwIfNotUsed is ignored if using a compiler that does not support std::uncaught_exception(),
-//!   such as MSVC 7.0 and earlier.
 //! \note A NameValuePairs object containing an arbitrary number of name value pairs may be constructed by
 //!   repeatedly using operator() on the object returned by MakeParameters, for example:
 //!   <pre>
@@ -439,9 +433,27 @@ CRYPTOPP_DLL_TEMPLATE_CLASS AlgorithmParametersTemplate<ConstByteArrayParameter>
 class CRYPTOPP_DLL AlgorithmParameters : public NameValuePairs
 {
 public:
+	//! \brief Construct a AlgorithmParameters
+	//! \note A NameValuePairs object containing an arbitrary number of name value pairs may be constructed by
+	//!   repeatedly using operator() on the object returned by MakeParameters, for example:
+	//!   <pre>
+	//!     AlgorithmParameters parameters = MakeParameters(name1, value1)(name2, value2)(name3, value3);
+	//!   </pre>
 	AlgorithmParameters();
 
 #ifdef __BORLANDC__
+	//! \brief Construct a AlgorithmParameters
+	//! \tparam T the class or type
+	//! \param name the name of the object or value to retrieve
+	//! \param value reference to a variable that receives the value
+	//! \param throwIfNotUsed if true, the object will throw an exception if the value is not accessed
+	//! \note throwIfNotUsed is ignored if using a compiler that does not support std::uncaught_exception(),
+	//!   such as MSVC 7.0 and earlier.
+	//! \note A NameValuePairs object containing an arbitrary number of name value pairs may be constructed by
+	//!   repeatedly using operator() on the object returned by MakeParameters, for example:
+	//!   <pre>
+	//!     AlgorithmParameters parameters = MakeParameters(name1, value1)(name2, value2)(name3, value3);
+	//!   </pre>
 	template <class T>
 	AlgorithmParameters(const char *name, const T &value, bool throwIfNotUsed=true)
 		: m_next(new AlgorithmParametersTemplate<T>(name, value, throwIfNotUsed))

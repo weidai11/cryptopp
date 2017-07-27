@@ -65,17 +65,17 @@ CRYPTOPP_DEFINE_NAME_STRING(OutputStreamPointer)	//!< std::ostream *
 CRYPTOPP_DEFINE_NAME_STRING(OutputBinaryMode)	//!< bool
 CRYPTOPP_DEFINE_NAME_STRING(EncodingParameters)	//!< ConstByteArrayParameter
 CRYPTOPP_DEFINE_NAME_STRING(KeyDerivationParameters)	//!< ConstByteArrayParameter
-CRYPTOPP_DEFINE_NAME_STRING(Separator)			//< ConstByteArrayParameter
-CRYPTOPP_DEFINE_NAME_STRING(Terminator)			//< ConstByteArrayParameter
-CRYPTOPP_DEFINE_NAME_STRING(Uppercase)			//< bool
-CRYPTOPP_DEFINE_NAME_STRING(GroupSize)			//< int
-CRYPTOPP_DEFINE_NAME_STRING(Pad)				//< bool
-CRYPTOPP_DEFINE_NAME_STRING(PaddingByte)		//< byte
-CRYPTOPP_DEFINE_NAME_STRING(Log2Base)			//< int
-CRYPTOPP_DEFINE_NAME_STRING(EncodingLookupArray)	//< const byte *
-CRYPTOPP_DEFINE_NAME_STRING(DecodingLookupArray)	//< const byte *
-CRYPTOPP_DEFINE_NAME_STRING(InsertLineBreaks)	//< bool
-CRYPTOPP_DEFINE_NAME_STRING(MaxLineLength)		//< int
+CRYPTOPP_DEFINE_NAME_STRING(Separator)			//!< ConstByteArrayParameter
+CRYPTOPP_DEFINE_NAME_STRING(Terminator)			//!< ConstByteArrayParameter
+CRYPTOPP_DEFINE_NAME_STRING(Uppercase)			//!< bool
+CRYPTOPP_DEFINE_NAME_STRING(GroupSize)			//!< int
+CRYPTOPP_DEFINE_NAME_STRING(Pad)				//!< bool
+CRYPTOPP_DEFINE_NAME_STRING(PaddingByte)		//!< byte
+CRYPTOPP_DEFINE_NAME_STRING(Log2Base)			//!< int
+CRYPTOPP_DEFINE_NAME_STRING(EncodingLookupArray)	//!< const byte *
+CRYPTOPP_DEFINE_NAME_STRING(DecodingLookupArray)	//!< const byte *
+CRYPTOPP_DEFINE_NAME_STRING(InsertLineBreaks)	//!< bool
+CRYPTOPP_DEFINE_NAME_STRING(MaxLineLength)		//!< int
 CRYPTOPP_DEFINE_NAME_STRING(DigestSize)			//!< int, in bytes
 CRYPTOPP_DEFINE_NAME_STRING(L1KeyLength)		//!< int, in bytes
 CRYPTOPP_DEFINE_NAME_STRING(TableSize)			//!< int, in bytes
@@ -87,7 +87,7 @@ CRYPTOPP_DEFINE_NAME_STRING(PersonalizationSize)	//!< int, in bytes
 CRYPTOPP_DEFINE_NAME_STRING(Salt)				//!< ConstByteArrayParameter
 CRYPTOPP_DEFINE_NAME_STRING(Tweak)				//!< ConstByteArrayParameter
 CRYPTOPP_DEFINE_NAME_STRING(SaltSize)			//!< int, in bytes
-CRYPTOPP_DEFINE_NAME_STRING(TreeMode)			//< byte
+CRYPTOPP_DEFINE_NAME_STRING(TreeMode)			//!< byte
 CRYPTOPP_DEFINE_NAME_STRING(FileName)			//!< const char *
 CRYPTOPP_DEFINE_NAME_STRING(FileTime)			//!< int
 CRYPTOPP_DEFINE_NAME_STRING(Comment)			//!< const char *

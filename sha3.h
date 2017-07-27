@@ -52,7 +52,7 @@ protected:
 };
 
 //! \class SHA3_224
-//! \tparam DigestSize controls the digest size as a template parameter instead of a per-class constant
+//! \tparam T_DigestSize controls the digest size as a template parameter instead of a per-class constant
 //! \brief SHA3-X message digest, template for more fine-grained typedefs
 //! \since Crypto++ 6.0.0
 template<unsigned int T_DigestSize>
@@ -71,19 +71,18 @@ private:
 	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE > (int)T_DigestSize); // this is a general expectation by HMAC
 };
 
-//! \class SHA3_224
 //! \brief SHA3-224 message digest
 //! \since Crypto++ 5.6.2
 typedef SHA3_Final<28> SHA3_224;
-//! \class SHA3_256
+
 //! \brief SHA3-256 message digest
 //! \since Crypto++ 5.6.2
 typedef SHA3_Final<32> SHA3_256;
-//! \class SHA3_384
+
 //! \brief SHA3-384 message digest
 //! \since Crypto++ 5.6.2
 typedef SHA3_Final<48> SHA3_384;
-//! \class SHA3_512
+
 //! \brief SHA3-512 message digest
 //! \since Crypto++ 5.6.2
 typedef SHA3_Final<64> SHA3_512;

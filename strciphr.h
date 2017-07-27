@@ -170,7 +170,6 @@ struct CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AdditiveCipherAbstractPolicy
 	virtual bool CipherIsRandomAccess() const =0;
 
 	//! \brief Seeks to a random position in the stream
-	//! \returns iterationCount
 	//! \sa CipherIsRandomAccess()
 	virtual void SeekToIteration(lword iterationCount)
 		{CRYPTOPP_UNUSED(iterationCount); CRYPTOPP_ASSERT(!CipherIsRandomAccess()); throw NotImplemented("StreamTransformation: this object doesn't support random access");}
@@ -425,7 +424,7 @@ struct CRYPTOPP_NO_VTABLE CFB_CipherConcretePolicy : public BASE
 	//! \brief Perform one iteration in the forward direction
 	void TransformRegister() {this->Iterate(NULLPTR, NULLPTR, ENCRYPTION, 1);}
 
-	//! \brief
+	//! \brief Provides alternate access to a feedback register
 	//! \tparam B enumeration indicating endianness
 	//! \details RegisterOutput() provides alternate access to the feedback register. The
 	//!   enumeration B is BigEndian or LittleEndian. Repeatedly applying operator()

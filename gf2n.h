@@ -60,7 +60,7 @@ public:
 			{Decode(encodedPoly, byteCount);}
 
 		//! \brief Create a uniformly distributed random polynomial
-		//! \brief Create a random polynomial uniformly distributed over all polynomials with degree less than bitcount
+		//! \details Create a random polynomial uniformly distributed over all polynomials with degree less than bitcount
 		PolynomialMod2(RandomNumberGenerator &rng, size_t bitcount)
 			{Randomize(rng, bitcount);}
 

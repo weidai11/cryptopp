@@ -15,10 +15,11 @@ NAMESPACE_BEGIN(CryptoPP)
 //! \class DH_Domain
 //! \brief Diffie-Hellman domain
 //! \tparam GROUP_PARAMETERS group parameters
-//! \tparam COFACTOR_OPTION \ref CofactorMultiplicationOption "cofactor multiplication option"
+//! \tparam COFACTOR_OPTION cofactor multiplication option
 //! \details A Diffie-Hellman domain is a set of parameters that must be shared
 //!   by two parties in a key agreement protocol, along with the algorithms
 //!   for generating key pairs and deriving agreed values.
+//! \details For COFACTOR_OPTION, see CofactorMultiplicationOption.
 //! \sa DL_SimpleKeyAgreementDomainBase
 //! \since Crypto++ 1.0
 template <class GROUP_PARAMETERS, class COFACTOR_OPTION = typename GROUP_PARAMETERS::DefaultCofactorOption>

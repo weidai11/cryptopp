@@ -226,7 +226,7 @@ class CRYPTOPP_NO_VTABLE ThreeBases : public BASE1, public BASE2, public BASE3
 #endif // CRYPTOPP_DOXYGEN_PROCESSING
 
 //! \class ObjectHolder
-//! \tparam the class or type
+//! \tparam T class or type
 //! \brief Uses encapsulation to hide an object in derived classes
 //! \details The object T is declared as protected.
 template <class T>
@@ -1769,7 +1769,6 @@ inline byte ByteReverse(byte value)
 }
 
 //! \brief Reverses bytes in a 16-bit value
-//! \brief Performs an endian reversal
 //! \param value the 16-bit value to reverse
 //! \details ByteReverse calls bswap if available. Otherwise the function performs a 8-bit rotate on the word16
 inline word16 ByteReverse(word16 value)
@@ -1787,7 +1786,6 @@ inline word16 ByteReverse(word16 value)
 }
 
 //! \brief Reverses bytes in a 32-bit value
-//! \brief Performs an endian reversal
 //! \param value the 32-bit value to reverse
 //! \details ByteReverse calls bswap if available. Otherwise the function uses a combination of rotates on the word32
 inline word32 ByteReverse(word32 value)
@@ -1815,7 +1813,6 @@ inline word32 ByteReverse(word32 value)
 }
 
 //! \brief Reverses bytes in a 64-bit value
-//! \brief Performs an endian reversal
 //! \param value the 64-bit value to reverse
 //! \details ByteReverse calls bswap if available. Otherwise the function uses a combination of rotates on the word64
 inline word64 ByteReverse(word64 value)
@@ -2437,7 +2434,6 @@ template<> struct SafeShifter<false>
 	}
 };
 
-//! \class SafeRightShift
 //! \brief Safely right shift values when undefined behavior could occur
 //! \tparam bits the number of bit positions to shift the value
 //! \tparam T class or type
@@ -2452,7 +2448,6 @@ inline T SafeRightShift(T value)
 	return SafeShifter<(bits>=(8*sizeof(T)))>::RightShift(value, bits);
 }
 
-//! \class SafeLeftShift
 //! \brief Safely left shift values when undefined behavior could occur
 //! \tparam bits the number of bit positions to shift the value
 //! \tparam T class or type

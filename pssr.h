@@ -49,11 +49,11 @@ private:
 template <bool USE_HASH_ID> class PSSR_MEM_BaseWithHashId;
 
 //! \brief PSSR Message Encoding Method with Hash Identifier
-//! \tparam true flag indicating HashId is used
+//! \details If USE_HASH_ID is true, then EMSA2HashIdLookup<PSSR_MEM_Base> is used for the base class
 template<> class PSSR_MEM_BaseWithHashId<true> : public EMSA2HashIdLookup<PSSR_MEM_Base> {};
 
 //! \brief PSSR Message Encoding Method without Hash Identifier
-//! \tparam false flag indicating HashId is not used
+//! \details If USE_HASH_ID is false, then PSSR_MEM_Base is used for the base class
 template<> class PSSR_MEM_BaseWithHashId<false> : public PSSR_MEM_Base {};
 
 //! \brief PSSR Message Encoding Method

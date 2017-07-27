@@ -244,7 +244,7 @@ private:
 
 //! \brief Base and exponent
 //! \tparam T base class or type
-//! \tparam T exponent class or type
+//! \tparam E exponent class or type
 template <class T, class E = Integer>
 struct BaseAndExponent
 {

@@ -1346,7 +1346,7 @@ protected:
 
 //! \brief Discrete Log (DL) signature scheme base implementation
 //! \tparam INTFACE PK_Signer or PK_Verifier derived class
-//! \tparam DL_Base key base used in the scheme
+//! \tparam KEY_INTFACE DL_Base key base used in the scheme
 //! \details DL_SignatureSchemeBase provides common functions for signers and verifiers.
 //!   DL_Base<DL_PrivateKey> is used for signers, and DL_Base<DL_PublicKey> is used for verifiers.
 template <class INTFACE, class KEY_INTFACE>
@@ -1405,7 +1405,7 @@ protected:
 };
 
 //! \brief Discrete Log (DL) signature scheme signer base implementation
-//! \tparam T
+//! \tparam T class or type
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_SignerBase : public DL_SignatureSchemeBase<PK_Signer, DL_PrivateKey<T> >
 {

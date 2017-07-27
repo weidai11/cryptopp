@@ -847,7 +847,7 @@ public:
 
 	//! \brief Construct a Redirector
 	//! \param target the destination BufferedTransformation
-	//! \param behavior \ref Behavior "flags" specifying signal propagation
+	//! \param behavior Behavior "flags" specifying signal propagation
 	Redirector(BufferedTransformation &target, Behavior behavior=PASS_EVERYTHING)
 		: m_target(&target), m_behavior(behavior) {}
 
@@ -1055,7 +1055,7 @@ public:
 //! \class StringSinkTemplate
 //! \brief Append input to a string object
 //! \tparam T std::basic_string<char> type
-//! \details \ref StringSinkTemplate "StringSink" is a StringSinkTemplate typedef
+//! \details StringSinkTemplate is a StringSinkTemplate typedef
 //! \since Crypto++ 5.0
 template <class T>
 class StringSinkTemplate : public Bufferless<Sink>
@@ -1347,7 +1347,6 @@ public:
 	virtual ~SourceTemplate() {}
 
 	//! \brief Construct a SourceTemplate
-	//! \tparam T the class or type
 	//! \param attachment an attached transformation
 	SourceTemplate<T>(BufferedTransformation *attachment)
 		: Source(attachment) {}

@@ -137,7 +137,7 @@ typename A::pointer StandardReallocate(A& alloc, T *oldPtr, typename A::size_typ
 //! \class AllocatorWithCleanup
 //! \brief Allocates a block of memory with cleanup
 //! \tparam T class or type
-//! \tparam T_Align16 boolean that determines whether allocations should be aligned on 16-byte boundaries
+//! \tparam T_Align16 boolean that determines whether allocations should be aligned on a 16-byte boundary
 //! \details If T_Align16 is true, then AllocatorWithCleanup calls AlignedAllocate()
 //!    for memory allocations. If T_Align16 is false, then AllocatorWithCleanup() calls
 //!    UnalignedAllocate() for memory allocations.
@@ -243,8 +243,6 @@ public:
 	}
 
 	//! \brief Template class memeber Rebind
-	//! \tparam T allocated class or type
-	//! \tparam T_Align16 boolean that determines whether allocations should be aligned on 16-byte boundaries
 	//! \tparam U bound class or type
 	//! \details Rebind allows a container class to allocate a different type of object
 	//!   to store elements. For example, a std::list will allocate std::list_node to
@@ -313,7 +311,7 @@ public:
 //! \brief Static secure memory block with cleanup
 //! \tparam T class or type
 //! \tparam S fixed-size of the stack-based memory block, in elements
-//! \tparam A AllocatorBase derived class for allocation and cleanup
+//! \tparam T_Align16 boolean that determines whether allocations should be aligned on a 16-byte boundary
 //! \details FixedSizeAllocatorWithCleanup provides a fixed-size, stack-
 //!    based allocation at compile time. The class can grow its memory
 //!    block at runtime if a suitable allocator is available. If size
@@ -840,7 +838,7 @@ public:
 //! \brief Fixed size stack-based SecBlock with 16-byte alignment
 //! \tparam T class or type
 //! \tparam S fixed-size of the stack-based memory block, in elements
-//! \tparam A AllocatorBase derived class for allocation and cleanup
+//! \tparam T_Align16 boolean that determines whether allocations should be aligned on a 16-byte boundary
 template <class T, unsigned int S, bool T_Align16 = true>
 class FixedSizeAlignedSecBlock : public FixedSizeSecBlock<T, S, FixedSizeAllocatorWithCleanup<T, S, NullAllocator<T>, T_Align16> >
 {

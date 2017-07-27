@@ -303,7 +303,6 @@ private:
 
 //! \class Store
 //! \brief Acts as a Source for pre-existing, static data
-//! \tparam T BufferedTransformation that only contains pre-existing data as "output"
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Store : public AutoSignaling<InputRejecting<BufferedTransformation> >
 {
 public:
@@ -347,7 +346,6 @@ public:
 
 //! \class BitBucket
 //! \brief Acts as an input discarding Filter or Sink
-//! \tparam T the class or type
 //! \details The BitBucket discards all input and returns 0 to the caller
 //!   to indicate all data was processed.
 class CRYPTOPP_DLL BitBucket : public Bufferless<Sink>

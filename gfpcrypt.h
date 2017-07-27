@@ -908,7 +908,7 @@ public:
 
 //! \class DLIES
 //! \brief Discrete Log Integrated Encryption Scheme
-//! \tparam COFACTOR_OPTION \ref CofactorMultiplicationOption "cofactor multiplication option"
+//! \tparam COFACTOR_OPTION cofactor multiplication option
 //! \tparam HASH HashTransformation derived class used for key drivation and MAC computation
 //! \tparam DHAES_MODE flag indicating if the MAC includes addition context parameters such as the label
 //! \tparam LABEL_OCTETS flag indicating if the label size is specified in octets or bits

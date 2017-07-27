@@ -800,11 +800,11 @@ public:
 		BT_InBlockIsCounter=1,
 		//! \brief should not modify block pointers
 		BT_DontIncrementInOutPointers=2,
-		//! \brief
+		//! \brief Xor inputs before transformation
 		BT_XorInput=4,
 		//! \brief perform the transformation in reverse
 		BT_ReverseDirection=8,
-		//! \brief
+		//! \brief Allow parallel transformations
 		BT_AllowParallel=16};
 
 	//! \brief Encrypt and xor multiple blocks using additional flags
@@ -1157,7 +1157,6 @@ public:
 	//! \sa NeedsPrespecifiedDataLengths()
 	void SpecifyDataLengths(lword headerLength, lword messageLength, lword footerLength=0);
 	//! \brief Encrypts and calculates a MAC in one call
-	//! \return true if the authenticated encryption succeeded, false otherwise
 	//! \details EncryptAndAuthenticate() encrypts and generates the MAC in one call. The function will truncate MAC if
 	//!   <tt>macSize < TagSize()</tt>.
 	virtual void EncryptAndAuthenticate(byte *ciphertext, byte *mac, size_t macSize, const byte *iv, int ivLength, const byte *header, size_t headerLength, const byte *message, size_t messageLength);
@@ -1736,7 +1735,6 @@ public:
 		//! \brief Transfer all bytes from this object to another BufferedTransformation
 		//! \param target the destination BufferedTransformation
 		//! \param channel the channel on which the transfer should occur
-		//! \return the number of bytes that remain in the current transfer block (i.e., bytes not transferred)
 		//! \details TransferMessagesTo2() removes messages from this object and moves them to the destination.
 		//!   Internally TransferAllTo() calls TransferAllTo2().
 		void TransferAllTo(BufferedTransformation &target, const std::string &channel=DEFAULT_CHANNEL)

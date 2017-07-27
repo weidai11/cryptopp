@@ -67,7 +67,7 @@ protected:
 };
 
 //! \class Keccak_224
-//! \tparam DigestSize controls the digest size as a template parameter instead of a per-class constant
+//! \tparam T_DigestSize controls the digest size as a template parameter instead of a per-class constant
 //! \brief Keccak-X message digest, template for more fine-grained typedefs
 //! \since Crypto++ 6.0.0
 template<unsigned int T_DigestSize>
@@ -86,19 +86,18 @@ private:
 	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE > (int)T_DigestSize); // this is a general expectation by HMAC
 };
 
-//! \class Keccak_224
 //! \brief Keccak-224 message digest
 //! \since Crypto++ 5.6.4
 typedef Keccak_Final<28> Keccak_224;
-//! \class Keccak_256
+
 //! \brief Keccak-256 message digest
 //! \since Crypto++ 5.6.4
 typedef Keccak_Final<32> Keccak_256;
-//! \class Keccak_384
+
 //! \brief Keccak-384 message digest
 //! \since Crypto++ 5.6.4
 typedef Keccak_Final<48> Keccak_384;
-//! \class Keccak_512
+
 //! \brief Keccak-512 message digest
 //! \since Crypto++ 5.6.4
 typedef Keccak_Final<64> Keccak_512;
