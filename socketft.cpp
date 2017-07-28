@@ -30,8 +30,11 @@
 # include <sanitizer/msan_interface.h>
 #endif
 
-#ifdef PREFER_WINDOWS_STYLE_SOCKETS
+#ifdef USE_WINDOWS_STYLE_SOCKETS
 # pragma comment(lib, "ws2_32.lib")
+# if defined(_WIN32_WINNT) && (_WIN32_WINNT < 0x501)
+#  include <wspiapi.h>
+# endif
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
