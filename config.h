@@ -151,6 +151,7 @@
 //!   the namespace, there are two additional namespaces.
 //!   <ul>
 //!     <li>Name - namespace for names used with \p NameValuePairs and documented in argnames.h
+//!     <li>Test - namespace for testing and benchmarks classes
 //!     <li>Weak - namespace for weak and wounded algorithms, like ARC4, MD5 and Pananma
 //!   </ul>
 namespace CryptoPP { }

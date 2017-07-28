@@ -476,6 +476,13 @@ DOCUMENTED_NAMESPACE_BEGIN(Weak)
 DOCUMENTED_NAMESPACE_END
 #endif
 
+//! \brief Namespace containing testing and benchmark classes.
+//! \details Source files for classes in the Test namespaces include
+//!   <tt>test.cpp</tt>, <tt>validat#.cpp</tt> and <tt>bench#.cpp</tt>.
+DOCUMENTED_NAMESPACE_BEGIN(Test)
+// testing and benchmark classes
+DOCUMENTED_NAMESPACE_END
+
 //! \brief An empty set of name-value pairs
 extern CRYPTOPP_DLL const NameValuePairs &g_nullNameValuePairs;
 
@@ -1847,7 +1854,7 @@ public:
 		//! \param inByte the 8-bit byte (octet) to be processed.
 		//! \param blocking specifies whether the object should block when processing input.
 		//! \return 0 indicates all bytes were processed during the call. Non-0 indicates the
-		//!   number of bytes that were \a not processed.
+		//!   number of bytes that were not processed.
 		size_t ChannelPut(const std::string &channel, byte inByte, bool blocking=true)
 			{return ChannelPut(channel, &inByte, 1, blocking);}
 
@@ -1857,7 +1864,7 @@ public:
 		//! \param length the size of the string, in bytes
 		//! \param blocking specifies whether the object should block when processing input
 		//! \return 0 indicates all bytes were processed during the call. Non-0 indicates the
-		//!   number of bytes that were \a not processed.
+		//!   number of bytes that were not processed.
 		size_t ChannelPut(const std::string &channel, const byte *inString, size_t length, bool blocking=true)
 			{return ChannelPut2(channel, inString, length, 0, blocking);}
 
@@ -1867,7 +1874,7 @@ public:
 		//! \param length the size of the string, in bytes
 		//! \param blocking specifies whether the object should block when processing input
 		//! \return 0 indicates all bytes were processed during the call. Non-0 indicates the
-		//!   number of bytes that were \a not processed.
+		//!   number of bytes that were not processed.
 		size_t ChannelPutModifiable(const std::string &channel, byte *inString, size_t length, bool blocking=true)
 			{return ChannelPutModifiable2(channel, inString, length, 0, blocking);}
 
@@ -1877,7 +1884,7 @@ public:
 		//! \param order the ByteOrder of the value to be processed.
 		//! \param blocking specifies whether the object should block when processing input.
 		//! \return 0 indicates all bytes were processed during the call. Non-0 indicates the
-		//!   number of bytes that were \a not processed.
+		//!   number of bytes that were not processed.
 		size_t ChannelPutWord16(const std::string &channel, word16 value, ByteOrder order=BIG_ENDIAN_ORDER, bool blocking=true);
 
 		//! \brief Input a 32-bit word for processing on a channel.
@@ -1886,7 +1893,7 @@ public:
 		//! \param order the ByteOrder of the value to be processed.
 		//! \param blocking specifies whether the object should block when processing input.
 		//! \return 0 indicates all bytes were processed during the call. Non-0 indicates the
-		//!   number of bytes that were \a not processed.
+		//!   number of bytes that were not processed.
 		size_t ChannelPutWord32(const std::string &channel, word32 value, ByteOrder order=BIG_ENDIAN_ORDER, bool blocking=true);
 
 		//! \brief Signal the end of a message
@@ -1894,7 +1901,7 @@ public:
 		//! \param propagation the number of attached transformations the ChannelMessageEnd() signal should be passed
 		//! \param blocking specifies whether the object should block when processing input
 		//! \return 0 indicates all bytes were processed during the call. Non-0 indicates the
-		//!   number of bytes that were \a not processed.
+		//!   number of bytes that were not processed.
 		//! \details propagation count includes this object. Setting propagation to <tt>1</tt> means this
 		//!   object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
 		bool ChannelMessageEnd(const std::string &channel, int propagation=-1, bool blocking=true)
