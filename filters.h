@@ -1093,6 +1093,8 @@ private:
 //! \class StringSink
 //! \brief Append input to a string object
 //! \details StringSink is a typedef for StringSinkTemplate<std::string>.
+//! \sa ArraySink, ArrayXorSink
+//! \since Crypto++ 4.0
 DOCUMENTED_TYPEDEF(StringSinkTemplate<std::string>, StringSink);
 CRYPTOPP_DLL_TEMPLATE_CLASS StringSinkTemplate<std::string>;
 
@@ -1122,6 +1124,11 @@ private:
 
 //! \class ArraySink
 //! \brief Copy input to a memory buffer
+//! \details ArraySink wraps a fixed size buffer. The buffer is full once Put returns non-0.
+//!   When used in a pipleline, ArraySink silently discards input if the buffer is full.
+//!   AvailableSize() can be used to determine how much space remains in the buffer.
+//!   TotalPutLength() can be used to determine how many bytes were processed.
+//! \sa StringSink, ArrayXorSink
 //! \since Crypto++ 4.0
 class CRYPTOPP_DLL ArraySink : public Bufferless<Sink>
 {
@@ -1160,6 +1167,11 @@ protected:
 
 //! \class ArrayXorSink
 //! \brief Xor input to a memory buffer
+//! \details ArrayXorSink wraps a fixed size buffer. The buffer is full once Put returns non-0.
+//!   When used in a pipleline, ArrayXorSink silently discards input if the buffer is full.
+//!   AvailableSize() can be used to determine how much space remains in the buffer.
+//!   TotalPutLength() can be used to determine how many bytes were processed.
+//! \sa StringSink, ArraySink
 //! \since Crypto++ 4.0
 class CRYPTOPP_DLL ArrayXorSink : public ArraySink
 {

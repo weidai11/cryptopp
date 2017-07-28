@@ -1358,7 +1358,8 @@ public:
 		//! \brief Input a byte for processing
 		//! \param inByte the 8-bit byte (octet) to be processed.
 		//! \param blocking specifies whether the object should block when processing input.
-		//! \return the number of bytes that remain in the block (i.e., bytes not processed)
+		//! \return the number of bytes that remain in the block (i.e., bytes not processed). 0 indicates all
+		//!   bytes were processed.
 		//! \details <tt>Put(byte)</tt> calls <tt>Put(byte*, size_t)</tt>.
 		size_t Put(byte inByte, bool blocking=true)
 			{return Put(&inByte, 1, blocking);}
@@ -1367,7 +1368,8 @@ public:
 		//! \param inString the byte buffer to process
 		//! \param length the size of the string, in bytes
 		//! \param blocking specifies whether the object should block when processing input
-		//! \return the number of bytes that remain in the block (i.e., bytes not processed)
+		//! \return the number of bytes that remain in the block (i.e., bytes not processed). 0 indicates all
+		//!   bytes were processed.
 		//! \details Internally, Put() calls Put2().
 		size_t Put(const byte *inString, size_t length, bool blocking=true)
 			{return Put2(inString, length, 0, blocking);}
@@ -1376,18 +1378,21 @@ public:
 		//! \param value the 16-bit value to be processed
 		//! \param order the ByteOrder of the value to be processed.
 		//! \param blocking specifies whether the object should block when processing input
-		//! \return the number of bytes that remain in the block (i.e., bytes not processed)
+		//! \return the number of bytes that remain in the block (i.e., bytes not processed). 0 indicates all
+		//!   bytes were processed.
 		size_t PutWord16(word16 value, ByteOrder order=BIG_ENDIAN_ORDER, bool blocking=true);
 
 		//! Input a 32-bit word for processing.
 		//! \param value the 32-bit value to be processed.
 		//! \param order the ByteOrder of the value to be processed.
 		//! \param blocking specifies whether the object should block when processing input.
-		//! \return the number of bytes that remain in the block (i.e., bytes not processed)
+		//! \return the number of bytes that remain in the block (i.e., bytes not processed). 0 indicates all
+		//!   bytes were processed.
 		size_t PutWord32(word32 value, ByteOrder order=BIG_ENDIAN_ORDER, bool blocking=true);
 
 		//! \brief Request space which can be written into by the caller
 		//! \param size the requested size of the buffer
+		//! \return byte pointer to the space to input data
 		//! \details The purpose of this method is to help avoid extra memory allocations.
 		//! \details size is an \a IN and \a OUT parameter and used as a hint. When the call is made,
 		//!   size is the requested size of the buffer. When the call returns, size is the size of
@@ -1408,8 +1413,8 @@ public:
 		//! \param inString the byte buffer to process
 		//! \param length the size of the string, in bytes
 		//! \param blocking specifies whether the object should block when processing input
-		//! \return 0 indicates all bytes were processed during the call. Non-0 indicates the
-		//!   number of bytes that were \a not processed
+		//! \return the number of bytes that remain in the block (i.e., bytes not processed). 0 indicates all
+		//!   bytes were processed.
 		size_t PutModifiable(byte *inString, size_t length, bool blocking=true)
 			{return PutModifiable2(inString, length, 0, blocking);}
 
@@ -1426,7 +1431,8 @@ public:
 		//! \param length the size of the string, in bytes
 		//! \param propagation the number of attached transformations the MessageEnd() signal should be passed
 		//! \param blocking specifies whether the object should block when processing input
-		//! \return the number of bytes that remain in the block (i.e., bytes not processed)
+		//! \return the number of bytes that remain in the block (i.e., bytes not processed). 0 indicates all
+		//!   bytes were processed.
 		//! \details Internally, PutMessageEnd() calls Put2() with a modified propagation to
 		//!    ensure all attached transformations finish processing the message.
 		//! \details propagation count includes this object. Setting propagation to <tt>1</tt> means this
@@ -1439,6 +1445,8 @@ public:
 		//! \param length the size of the string, in bytes
 		//! \param messageEnd means how many filters to signal MessageEnd() to, including this one
 		//! \param blocking specifies whether the object should block when processing input
+		//! \return the number of bytes that remain in the block (i.e., bytes not processed). 0 indicates all
+		//!   bytes were processed.
 		//! \details Derived classes must implement Put2().
 		virtual size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking) =0;
 
@@ -1447,6 +1455,8 @@ public:
 		//! \param length the size of the string, in bytes.
 		//! \param messageEnd means how many filters to signal MessageEnd() to, including this one.
 		//! \param blocking specifies whether the object should block when processing input.
+		//! \return the number of bytes that remain in the block (i.e., bytes not processed). 0 indicates all
+		//!   bytes were processed.
 		//! \details Internally, PutModifiable2() calls Put2().
 		virtual size_t PutModifiable2(byte *inString, size_t length, int messageEnd, bool blocking)
 			{return Put2(inString, length, messageEnd, blocking);}
