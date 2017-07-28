@@ -796,7 +796,7 @@ public:
 		std::swap(m_ptr, b.m_ptr);
 	}
 
-// protected:
+protected:
 	A m_alloc;
 	size_type m_mark, m_size;
 	T *m_ptr;

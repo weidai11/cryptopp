@@ -601,9 +601,9 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 		AS_POP_IF86(	bx)
 		ATT_PREFIX
 			:
-			: "a" (m_state.m_ptr), "c" (iterationCount), "S" (s_sosemanukMulTables), "D" (output), "d" (input)
+			: "a" (m_state.data()), "c" (iterationCount), "S" (s_sosemanukMulTables), "D" (output), "d" (input)
 	#if CRYPTOPP_BOOL_X64
-			, "r" (workspace.m_ptr)
+			, "r" (workspace.data())
 			: "memory", "cc", "%r9", "%r10", "%xmm0", "%xmm1", "%xmm2", "%xmm3", "%xmm4", "%xmm5", "%xmm6", "%xmm7"
 	#else
 			: "memory", "cc"
