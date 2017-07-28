@@ -639,7 +639,8 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 #define STEP(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, v, u)	\
 		u = (s##x9 + r2(x0)) ^ r1(x0);\
 		v = s##x0;\
-		s##x0 = MUL_A(s##x0) ^ DIV_A(s##x3) ^ s##x9;\
+		w = s##x0;\
+		s##x0 = MUL_A(w) ^ DIV_A(s##x3) ^ s##x9;\
 		r1(x0) += XMUX(r2(x0), s##x2, s##x9);\
 		r2(x0) = rotlFixed(r2(x0) * 0x54655307, 7);\
 
@@ -665,7 +666,7 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 	word32 s9 = m_state[9];
 	word32 reg1 = m_state[10];
 	word32 reg2 = m_state[11];
-	word32 u0, u1, u2, u3, u4, v0, v1, v2, v3;
+	word32 u0, u1, u2, u3, u4, v0, v1, v2, v3, w;
 
 	do
 	{
