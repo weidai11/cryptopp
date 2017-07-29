@@ -431,6 +431,12 @@ NAMESPACE_END
 	#define CRYPTOPP_BOOL_ARM64 0
 #endif
 
+#if defined(_MSC_VER) || defined(__BORLANDC__)
+# define CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY 1
+#else
+# define CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY 1
+#endif
+
 // ***************** IA32 CPU features ********************
 
 #if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
@@ -521,7 +527,7 @@ NAMESPACE_END
 // Microsoft plans to support ARM-64, but its not clear how to detect it.
 // TODO: Add MSC_VER and ARM-64 platform define when available
 #if !defined(CRYPTOPP_ARMV8A_CRC32_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
-# if defined(__ARM_FEATURE_CRC32)
+# if defined(__ARM_FEATURE_CRC32) || (CRYPTOPP_GCC_VERSION >= 40800) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30500)
 #  define CRYPTOPP_ARMV8A_CRC32_AVAILABLE 1
 # endif
 #endif
@@ -530,11 +536,9 @@ NAMESPACE_END
 // LLVM Clang requires 3.5. Apple Clang does not support it at the moment.
 // Microsoft plans to support ARM-64, but its not clear how to detect it.
 // TODO: Add MSC_VER and ARM-64 platform define when available
-#if !defined(CRYPTOPP_BOOL_ARM_PMULL_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
-# if defined(__ARM_FEATURE_CRYPTO) && !defined(__apple_build_version__)
-#  if defined(__arm64__) || defined(__aarch64__)
-#   define CRYPTOPP_BOOL_ARM_PMULL_AVAILABLE 1
-#  endif
+#if !defined(CRYPTOPP_ARMV8A_PMULL_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM) && !defined(__apple_build_version__)
+# if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_GCC_VERSION >= 40800) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30500)
+#  define CRYPTOPP_ARMV8A_PMULL_AVAILABLE 1
 # endif
 #endif
 
@@ -542,11 +546,19 @@ NAMESPACE_END
 // LLVM Clang requires 3.5. Apple Clang is unknown at the moment.
 // Microsoft plans to support ARM-64, but its not clear how to detect it.
 // TODO: Add MSC_VER and ARM-64 platform define when available
-#if !defined(CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
-# if defined(__ARM_FEATURE_CRYPTO)
-#  define CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE 1
+#if !defined(CRYPTOPP_ARMV8A_CRYPTO_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
+# if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_GCC_VERSION >= 40800) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30500)
+#  define CRYPTOPP_ARMV8A_AES_AVAILABLE 1
+#  define CRYPTOPP_ARMV8A_SHA_AVAILABLE 1
+#  define CRYPTOPP_ARMV8A_CRYPTO_AVAILABLE 1
 # endif
 #endif
+
+// ARM CRC testing
+#undef CRYPTOPP_ARMV8A_AES_AVAILABLE
+#undef CRYPTOPP_ARMV8A_SHA_AVAILABLE
+#undef CRYPTOPP_ARMV8A_PMULL_AVAILABLE
+#undef CRYPTOPP_ARMV8A_CRYPTO_AVAILABLE
 
 #endif  // ARM32, ARM64
 

@@ -74,13 +74,6 @@
 #endif // immintrin.h
 #endif  // X86/X64/X32 Headers
 
-// Applies to both X86/X32/X64 and ARM32/ARM64. And we've got MIPS devices on the way.
-#if defined(_MSC_VER) || defined(__BORLANDC__)
-# define CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
-#else
-# define CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
-#endif
-
 // Applies to both X86/X32/X64 and ARM32/ARM64
 #if defined(CRYPTOPP_LLVM_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION) || defined(CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER)
 	#define NEW_LINE "\n"
@@ -457,7 +450,6 @@ inline int GetCacheLineSize()
 	#define ASC(x, y) x label##y*newline*
 	#define AS_HEX(y) 0##y##h
 #elif defined(_MSC_VER) || defined(__BORLANDC__)
-	#define CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
 	#define AS1(x) __asm {x}
 	#define AS2(x, y) __asm {x, y}
 	#define AS3(x, y, z) __asm {x, y, z}
@@ -468,8 +460,6 @@ inline int GetCacheLineSize()
 	#define CRYPTOPP_NAKED __declspec(naked)
 	#define AS_HEX(y) 0x##y
 #else
-	#define CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
-
 	// define these in two steps to allow arguments to be expanded
 	#define GNU_AS1(x) #x ";" NEW_LINE
 	#define GNU_AS2(x, y) #x ", " #y ";" NEW_LINE

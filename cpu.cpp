@@ -348,12 +348,6 @@ extern "C"
 		longjmp(s_jmpNoPMULL, 1);
 	}
 
-	static jmp_buf s_jmpNoCRC32;
-	static void SigIllHandlerCRC32(int)
-	{
-		longjmp(s_jmpNoCRC32, 1);
-	}
-
 	static jmp_buf s_jmpNoAES;
 	static void SigIllHandlerAES(int)
 	{
@@ -444,7 +438,7 @@ static bool TryNEON()
 
 static bool TryPMULL()
 {
-#if (CRYPTOPP_BOOL_ARM_PMULL_AVAILABLE)
+#if (CRYPTOPP_ARMV8A_PMULL_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
 	volatile bool result = true;
 	__try
@@ -506,66 +500,23 @@ static bool TryPMULL()
 # endif
 #else
 	return false;
-#endif  // CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
+#endif  // CRYPTOPP_ARMV8A_CRYPTO_AVAILABLE
 }
+
+extern bool CPU_TryCRC32_ARMV8();
 
 static bool TryCRC32()
 {
 #if (CRYPTOPP_ARMV8A_CRC32_AVAILABLE)
-# if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
-	volatile bool result = true;
-	__try
-	{
-		word32 w=0, x=1; word16 y=2; byte z=3;
-		w = __crc32cw(w,x);
-		w = __crc32ch(w,y);
-		w = __crc32cb(w,z);
-
-		result = !!w;
-	}
-	__except (EXCEPTION_EXECUTE_HANDLER)
-	{
-		return false;
-	}
-	return result;
-# else
-	// longjmp and clobber warnings. Volatile is required.
-	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
-	volatile bool result = true;
-
-	volatile SigHandler oldHandler = signal(SIGILL, SigIllHandlerCRC32);
-	if (oldHandler == SIG_ERR)
-		return false;
-
-	volatile sigset_t oldMask;
-	if (sigprocmask(0, NULLPTR, (sigset_t*)&oldMask))
-		return false;
-
-	if (setjmp(s_jmpNoCRC32))
-		result = false;
-	else
-	{
-		word32 w=0, x=1; word16 y=2; byte z=3;
-		w = __crc32cw(w,x);
-		w = __crc32ch(w,y);
-		w = __crc32cb(w,z);
-
-		// Hack... GCC optimizes away the code and returns true
-		result = !!w;
-	}
-
-	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
-	signal(SIGILL, oldHandler);
-	return result;
-# endif
+	return CPU_TryCRC32_ARMV8();
 #else
 	return false;
-#endif  // CRYPTOPP_ARMV8A_CRC32_AVAILABLE
+#endif
 }
 
 static bool TryAES()
 {
-#if (CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE)
+#if (CRYPTOPP_ARMV8A_CRYPTO_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
 	volatile bool result = true;
 	__try
@@ -613,12 +564,12 @@ static bool TryAES()
 # endif
 #else
 	return false;
-#endif  // CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
+#endif  // CRYPTOPP_ARMV8A_CRYPTO_AVAILABLE
 }
 
 static bool TrySHA1()
 {
-#if (CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE)
+#if (CRYPTOPP_ARMV8A_CRYPTO_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
 	volatile bool result = true;
 	__try
@@ -673,12 +624,12 @@ static bool TrySHA1()
 # endif
 #else
 	return false;
-#endif  // CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
+#endif  // CRYPTOPP_ARMV8A_CRYPTO_AVAILABLE
 }
 
 static bool TrySHA2()
 {
-#if (CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE)
+#if (CRYPTOPP_ARMV8A_CRYPTO_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
 	volatile bool result = true;
 	__try
@@ -731,7 +682,7 @@ static bool TrySHA2()
 # endif
 #else
 	return false;
-#endif  // CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
+#endif  // CRYPTOPP_ARMV8A_CRYPTO_AVAILABLE
 }
 
 void DetectArmFeatures()

@@ -103,7 +103,7 @@ static void SHA1_CXX_Transform(word32 *state, const word32 *data)
 
 #if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
 // Based on http://software.intel.com/en-us/articles/intel-sha-extensions and code by Sean Gulley.
-static void SHA1_SSE_SHA_Transform(word32 *state, const word32 *data)
+static void SHA1_Transform_SHANI(word32 *state, const word32 *data)
 {
     __m128i ABCD, ABCD_SAVE, E0, E0_SAVE, E1;
     __m128i MASK, MSG0, MSG1, MSG2, MSG3;
@@ -293,8 +293,8 @@ static void SHA1_SSE_SHA_Transform(word32 *state, const word32 *data)
 // start of Walton/Schneiders/O'Rourke/Skip Hovsmith's code //
 //////////////////////////////////////////////////////////////
 
-#if CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
-static void SHA1_ARM_SHA_Transform(word32 *state, const word32 *data)
+#if CRYPTOPP_ARMV8A_SHA_AVAILABLE
+static void SHA1_Transform_ARMV8A(word32 *state, const word32 *data)
 {
     uint32x4_t C0, C1, C2, C3;
     uint32x4_t ABCD, ABCD_SAVED;
@@ -462,7 +462,7 @@ static void SHA1_ARM_SHA_Transform(word32 *state, const word32 *data)
     vst1q_u32(&state[0], ABCD);
     state[4] = E0;
 }
-#endif  // CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
+#endif  // CRYPTOPP_ARMV8A_SHA_AVAILABLE
 
 ///////////////////////////////////////////////////////
 // end of Walton/Schneiders/O'Rourke/Hovsmith's code //
@@ -472,12 +472,12 @@ pfnSHATransform InitializeSHA1Transform()
 {
 #if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
     if (HasSHA())
-        return &SHA1_SSE_SHA_Transform;
+        return &SHA1_Transform_SHANI;
     else
 #endif
-#if CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
+#if CRYPTOPP_ARMV8A_SHA_AVAILABLE
     if (HasSHA1())
-        return &SHA1_ARM_SHA_Transform;
+        return &SHA1_Transform_ARMV8A;
     else
 #endif
     return &SHA1_CXX_Transform;
@@ -536,7 +536,7 @@ void SHA256::InitState(HashWordType *state)
     memcpy(state, s, sizeof(s));
 }
 
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || CRYPTOPP_ARMV8A_SHA_AVAILABLE
 CRYPTOPP_ALIGN_DATA(16) extern const word32 SHA256_K[64] CRYPTOPP_SECTION_ALIGN16 = {
 #else
 extern const word32 SHA256_K[64] = {
@@ -893,9 +893,9 @@ void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 *data, 
 #endif
 
 #if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
-static void CRYPTOPP_FASTCALL SHA256_SSE_SHA_HashBlocks(word32 *state, const word32 *data, size_t length);
-#elif CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
-static void CRYPTOPP_FASTCALL SHA256_ARM_SHA_HashBlocks(word32 *state, const word32 *data, size_t length);
+static void CRYPTOPP_FASTCALL SHA256_HashBlocks_SHANI(word32 *state, const word32 *data, size_t length);
+#elif CRYPTOPP_ARMV8A_SHA_AVAILABLE
+static void CRYPTOPP_FASTCALL SHA256_HashBlocks_ARMV8A(word32 *state, const word32 *data, size_t length);
 #endif
 
 #if (defined(CRYPTOPP_X86_ASM_AVAILABLE) || defined(CRYPTOPP_X32_ASM_AVAILABLE) || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_SHA_ASM)
@@ -904,12 +904,12 @@ pfnSHAHashBlocks InitializeSHA256HashBlocks()
 {
 #if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
     if (HasSHA())
-        return &SHA256_SSE_SHA_HashBlocks;
+        return &SHA256_HashBlocks_SHANI;
     else
 #endif
-#if CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
+#if CRYPTOPP_ARMV8A_SHA_AVAILABLE
     if (HasSHA2())
-        return &SHA256_ARM_SHA_HashBlocks;
+        return &SHA256_HashBlocks_ARMV8A;
     else
 #endif
 
@@ -956,7 +956,7 @@ size_t SHA224::HashMultipleBlocks(const word32 *input, size_t length)
 
 #if defined(__OPTIMIZE_SIZE__)
 // Smaller but slower
-void SHA256_CXX_Transform(word32 *state, const word32 *data)
+void SHA256_Transform_CXX(word32 *state, const word32 *data)
 {
     word32 W[32], T[20];
     unsigned int i = 0, j = 0;
@@ -1028,7 +1028,7 @@ void SHA256_CXX_Transform(word32 *state, const word32 *data)
 }
 #else
 // Bigger but faster
-void SHA256_CXX_Transform(word32 *state, const word32 *data)
+void SHA256_Transform_CXX(word32 *state, const word32 *data)
 {
     word32 W[16], T[8];
     /* Copy context->state[] to working vars */
@@ -1060,7 +1060,7 @@ void SHA256_CXX_Transform(word32 *state, const word32 *data)
 #undef R
 
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
-static void SHA256_SSE2_Transform(word32 *state, const word32 *data)
+static void SHA256_Transform_SSE2(word32 *state, const word32 *data)
 {
     // this byte reverse is a waste of time, but this function is only called by MDC
     word32 W[16];
@@ -1070,18 +1070,18 @@ static void SHA256_SSE2_Transform(word32 *state, const word32 *data)
 #endif  // CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
 
 #if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
-static void SHA256_SSE_SHA_Transform(word32 *state, const word32 *data)
+static void SHA256_Transform_SHANI(word32 *state, const word32 *data)
 {
-    return SHA256_SSE_SHA_HashBlocks(state, data, SHA256::BLOCKSIZE);
+    return SHA256_HashBlocks_SHANI(state, data, SHA256::BLOCKSIZE);
 }
 #endif  // CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
 
-#if CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
-static void SHA256_ARM_SHA_Transform(word32 *state, const word32 *data)
+#if CRYPTOPP_ARMV8A_SHA_AVAILABLE
+static void SHA256_Transform_ARMV8A(word32 *state, const word32 *data)
 {
-    return SHA256_ARM_SHA_HashBlocks(state, data, SHA256::BLOCKSIZE);
+    return SHA256_HashBlocks_ARMV8A(state, data, SHA256::BLOCKSIZE);
 }
-#endif  // CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
+#endif  // CRYPTOPP_ARMV8A_SHA_AVAILABLE
 
 ///////////////////////////////////
 // start of Walton/Gulley's code //
@@ -1089,7 +1089,7 @@ static void SHA256_ARM_SHA_Transform(word32 *state, const word32 *data)
 
 #if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
 // Based on http://software.intel.com/en-us/articles/intel-sha-extensions and code by Sean Gulley.
-static void CRYPTOPP_FASTCALL SHA256_SSE_SHA_HashBlocks(word32 *state, const word32 *data, size_t length)
+static void CRYPTOPP_FASTCALL SHA256_HashBlocks_SHANI(word32 *state, const word32 *data, size_t length)
 {
     CRYPTOPP_ASSERT(state);    CRYPTOPP_ASSERT(data);
     CRYPTOPP_ASSERT(length % SHA256::BLOCKSIZE == 0);
@@ -1275,10 +1275,10 @@ static void CRYPTOPP_FASTCALL SHA256_SSE_SHA_HashBlocks(word32 *state, const wor
         length -= SHA256::BLOCKSIZE;
     }
 
-    TMP = _mm_shuffle_epi32(STATE0, 0x1B); // FEBA
-    STATE1 = _mm_shuffle_epi32(STATE1, 0xB1); // DCHG
+    TMP = _mm_shuffle_epi32(STATE0, 0x1B);       // FEBA
+    STATE1 = _mm_shuffle_epi32(STATE1, 0xB1);    // DCHG
     STATE0 = _mm_blend_epi16(TMP, STATE1, 0xF0); // DCBA
-    STATE1 = _mm_alignr_epi8(STATE1, TMP, 8); // ABEF
+    STATE1 = _mm_alignr_epi8(STATE1, TMP, 8);    // ABEF
 
     // Save state
     _mm_storeu_si128((__m128i*) &state[0], STATE0);
@@ -1294,8 +1294,8 @@ static void CRYPTOPP_FASTCALL SHA256_SSE_SHA_HashBlocks(word32 *state, const wor
 // start of Walton/Schneiders/O'Rourke/Hovsmith's code //
 /////////////////////////////////////////////////////////
 
-#if CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
-static void CRYPTOPP_FASTCALL SHA256_ARM_SHA_HashBlocks(word32 *state, const word32 *data, size_t length)
+#if CRYPTOPP_ARMV8A_SHA_AVAILABLE
+static void CRYPTOPP_FASTCALL SHA256_HashBlocks_ARMV8A(word32 *state, const word32 *data, size_t length)
 {
     uint32x4_t STATE0, STATE1, ABEF_SAVE, CDGH_SAVE;
     uint32x4_t MSG0, MSG1, MSG2, MSG3;
@@ -1460,21 +1460,21 @@ pfnSHATransform InitializeSHA256Transform()
 {
 #if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
     if (HasSHA())
-        return &SHA256_SSE_SHA_Transform;
+        return &SHA256_Transform_SHANI;
     else
 #endif
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
     if (HasSSE2())
-        return &SHA256_SSE2_Transform;
+        return &SHA256_Transform_SSE2;
     else
 #endif
-#if CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
+#if CRYPTOPP_ARMV8A_SHA_AVAILABLE
     if (HasSHA2())
-        return &SHA256_ARM_SHA_Transform;
+        return &SHA256_Transform_ARMV8A;
     else
 #endif
 
-    return &SHA256_CXX_Transform;
+    return &SHA256_Transform_CXX;
 }
 
 void SHA256::Transform(word32 *state, const word32 *data)

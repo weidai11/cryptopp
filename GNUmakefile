@@ -194,9 +194,14 @@ endif  # -DCRYPTOPP_DISABLE_SSSE3
 endif  # -DCRYPTOPP_DISABLE_ASM
 endif  # CXXFLAGS
 
-HAS_CRC := $(shell $(CXX) $(CXXFLAGS) -msse4.2 -o $(TEMPDIR)/t.o -c crc-simd.cpp 2>/dev/null; echo $$?)
+HAS_CRC := $(shell $(CXX) $(CXXFLAGS) -msse4.2 -o $(TEMPDIR)/t.o -c crc-simd.cpp; echo $$?)
 ifeq ($(HAS_CRC),0)
 CRC_FLAG := -msse4.2
+endif
+
+HAS_SHA := $(shell $(CXX) $(CXXFLAGS) -msse4.2 -msha -o $(TEMPDIR)/t.o -c sha.cpp; echo $$?)
+ifeq ($(HAS_SHA),0)
+SHA_FLAG := -msse4.2 -msha
 endif
 
 # BEGIN_NATIVE_ARCH
@@ -289,9 +294,13 @@ endif
 endif
 
 ifeq ($(IS_ARMV8),1)
-  HAS_CRC := $(shell $(CXX) $(CXXFLAGS) -march=armv8-a+crc -o $(TEMPDIR)/t.o -c crc-simd.cpp 2>/dev/null; echo $$?)
+  HAS_CRC := $(shell $(CXX) $(CXXFLAGS) -march=armv8-a+crc -o $(TEMPDIR)/t.o -c crc-simd.cpp; echo $$?)
   ifeq ($(HAS_CRC),0)
     CRC_FLAG := -march=armv8-a+crc
+  endif
+  HAS_SHA := $(shell $(CXX) $(CXXFLAGS) -march=armv8-a+crc -o $(TEMPDIR)/t.o -c sha.cpp; echo $$?)
+  ifeq ($(HAS_SHA),0)
+    SHA_FLAG := -march=armv8-a+crypto
   endif
 endif
 
@@ -832,9 +841,13 @@ rdrand-%.o:
 	./rdrand-nasm.sh
 endif
 
-# crc.cpp may have SSE4.2 or ARMv8a available
+# SSE4.2 or ARMv8a available
 crc-simd.o : crc-simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(CRC_FLAG) -c) $<
+
+# SSE4.2/SHANI or ARMv8a available
+sha.o : sha.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(SHA_FLAG) -c) $<
 
 # Don't build Threefish with UBsan on Travis CI. Timeouts cause the build to fail.
 #   Also see https://stackoverflow.com/q/12983137/608639.

@@ -510,7 +510,7 @@ void Benchmark2(double t, double hertz)
 		if (HasCLMUL())
 			BenchMarkByName2<AuthenticatedSymmetricCipher, MessageAuthenticationCode>("AES/GCM", 0, "GMAC(AES)");
 		else
-#elif CRYPTOPP_BOOL_ARM_PMULL_AVAILABLE
+#elif CRYPTOPP_ARMV8A_PMULL_AVAILABLE
 		if (HasPMULL())
 			BenchMarkByName2<AuthenticatedSymmetricCipher, MessageAuthenticationCode>("AES/GCM", 0, "GMAC(AES)");
 		else
@@ -598,7 +598,7 @@ void Benchmark2(double t, double hertz)
 		if (HasCLMUL())
 			BenchMarkByName2<AuthenticatedSymmetricCipher, AuthenticatedSymmetricCipher>("AES/GCM", 0, "AES/GCM");
 		else
-#elif CRYPTOPP_BOOL_ARM_PMULL_AVAILABLE
+#elif CRYPTOPP_ARMV8A_PMULL_AVAILABLE
 		if (HasPMULL())
 			BenchMarkByName2<AuthenticatedSymmetricCipher, AuthenticatedSymmetricCipher>("AES/GCM", 0, "AES/GCM");
 		else

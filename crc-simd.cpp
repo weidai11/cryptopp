@@ -19,7 +19,82 @@
 # include "arm_acle.h"
 #endif
 
+#ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
+# include <signal.h>
+# include <setjmp.h>
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
+
+#ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
+extern "C" {
+    typedef void (*SigHandler)(int);
+	
+	static jmp_buf s_jmpNoCRC32;
+	static void SigIllHandlerCRC32(int)
+	{
+		longjmp(s_jmpNoCRC32, 1);
+	}	
+};
+#endif  // Not CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
+
+#if (CRYPTOPP_ARMV8A_CRC32_AVAILABLE)
+bool CPU_TryCRC32_ARMV8()
+{
+# if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
+	volatile bool result = true;
+	__try
+	{
+		word32 w=0, x=1; word16 y=2; byte z=3;
+		w = __crc32w(w,x);
+		w = __crc32h(w,y);
+		w = __crc32b(w,z);
+		w = __crc32cw(w,x);
+		w = __crc32ch(w,y);
+		w = __crc32cb(w,z);
+
+		result = !!w;
+	}
+	__except (EXCEPTION_EXECUTE_HANDLER)
+	{
+		return false;
+	}
+	return result;
+#else
+	// longjmp and clobber warnings. Volatile is required.
+	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
+	volatile bool result = true;
+
+	volatile SigHandler oldHandler = signal(SIGILL, SigIllHandlerCRC32);
+	if (oldHandler == SIG_ERR)
+		return false;
+
+	volatile sigset_t oldMask;
+	if (sigprocmask(0, NULLPTR, (sigset_t*)&oldMask))
+		return false;
+
+	if (setjmp(s_jmpNoCRC32))
+		result = false;
+	else
+	{
+		word32 w=0, x=1; word16 y=2; byte z=3;
+		w = __crc32w(w,x);
+		w = __crc32h(w,y);
+		w = __crc32b(w,z);
+		w = __crc32cw(w,x);
+		w = __crc32ch(w,y);
+		w = __crc32cb(w,z);
+
+		// Hack... GCC optimizes away the code and returns true
+		result = !!w;
+	}
+
+	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
+	signal(SIGILL, oldHandler);
+	return result;
+# endif
+}
+#endif  // CRYPTOPP_ARMV8A_CRC32_AVAILABLE
 
 #if (CRYPTOPP_ARMV8A_CRC32_AVAILABLE)
 void CRC32_Update_ARMV8(const byte *s, size_t n, word32& c)

@@ -49,7 +49,7 @@ NAMESPACE_BEGIN(CryptoPP)
 #endif
 #endif
 
-#if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64) && CRYPTOPP_BOOL_ARM_PMULL_AVAILABLE
+#if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64) && CRYPTOPP_ARMV8A_PMULL_AVAILABLE
 #if defined(__GNUC__)
 // Schneiders, Hovsmith and O'Rourke used this trick.
 // It results in much better code generation in production code
@@ -143,7 +143,7 @@ inline uint64x2_t VEXT_U8(uint64x2_t a, uint64x2_t b)
     return (uint64x2_t)vextq_u8(vreinterpretq_u8_u64(a), vreinterpretq_u8_u64(b), C);
 }
 #endif // Microsoft and compatibles
-#endif // CRYPTOPP_BOOL_ARM_PMULL_AVAILABLE
+#endif // CRYPTOPP_ARMV8A_PMULL_AVAILABLE
 
 word16 GCM_Base::s_reductionTable[256];
 volatile bool GCM_Base::s_reductionTableInitialized = false;
@@ -282,7 +282,7 @@ inline __m128i CLMUL_GF_Mul(const __m128i &x, const __m128i &h, const __m128i &r
 }
 #endif
 
-#if CRYPTOPP_BOOL_ARM_PMULL_AVAILABLE
+#if CRYPTOPP_ARMV8A_PMULL_AVAILABLE
 
 CRYPTOPP_ALIGN_DATA(16)
 static const word64 s_clmulConstants64[] = {
@@ -338,7 +338,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
         tableSize = s_clmulTableSizeInBlocks * REQUIRED_BLOCKSIZE;
     }
     else
-#elif CRYPTOPP_BOOL_ARM_PMULL_AVAILABLE
+#elif CRYPTOPP_ARMV8A_PMULL_AVAILABLE
     if (HasPMULL())
     {
         // Avoid "parameter not used" error and suppress Coverity finding
@@ -384,7 +384,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
 
         return;
     }
-#elif CRYPTOPP_BOOL_ARM_PMULL_AVAILABLE
+#elif CRYPTOPP_ARMV8A_PMULL_AVAILABLE
     if (HasPMULL())
     {
         const uint64x2_t r = s_clmulConstants[0];
@@ -520,7 +520,7 @@ inline void GCM_Base::ReverseHashBufferIfNeeded()
         __m128i &x = *(__m128i *)(void *)HashBuffer();
         x = _mm_shuffle_epi8(x, s_clmulConstants[1]);
     }
-#elif CRYPTOPP_BOOL_ARM_PMULL_AVAILABLE
+#elif CRYPTOPP_ARMV8A_PMULL_AVAILABLE
     if (HasPMULL())
     {
         if (GetNativeByteOrder() != BIG_ENDIAN_ORDER)
@@ -670,7 +670,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
         _mm_store_si128((__m128i *)(void *)HashBuffer(), x);
         return len;
     }
-#elif CRYPTOPP_BOOL_ARM_PMULL_AVAILABLE
+#elif CRYPTOPP_ARMV8A_PMULL_AVAILABLE
     if (HasPMULL())
     {
         const uint64x2_t *table = (const uint64x2_t *)MulTable();
