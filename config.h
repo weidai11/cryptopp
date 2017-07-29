@@ -433,7 +433,7 @@ NAMESPACE_END
 
 // ***************** IA32 CPU features ********************
 
-#if defined(CRYPTOPP_BOOL_X86) || defined(CRYPTOPP_BOOL_X32) || defined(CRYPTOPP_BOOL_X64)
+#if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
 
 // Apple Clang prior to 5.0 cannot handle SSE2
 #if defined(CRYPTOPP_APPLE_CLANG_VERSION) && (CRYPTOPP_APPLE_CLANG_VERSION < 50000)
@@ -507,7 +507,7 @@ NAMESPACE_END
 
 // ***************** ARM CPU features ********************
 
-#if defined(CRYPTOPP_BOOL_ARM32) || defined(CRYPTOPP_BOOL_ARM64)
+#if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
 
 // Requires ARMv7 and ACLE 1.0. Testing shows ARMv7 is really ARMv7a under most toolchains.
 #if !defined(CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)

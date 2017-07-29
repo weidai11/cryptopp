@@ -1,20 +1,20 @@
 // crc-simd.cpp - written and placed in the public domain by
 //                Jeffrey Walton, Uri Blumenthal and Marcel Raad.
 //
-//    The source file uses intrinsics to gain access to SSE4.2 and
+//    This source file uses intrinsics to gain access to SSE4.2 and
 //    ARMv8a CRC-32 and CRC-32C instructions. A separate source file
-//    is needed because we need additional CXXFLAGS to enable the
-//    appropriate instructions sets.
+//    is needed because additional CXXFLAGS are required to enable
+//    the appropriate instructions sets in some build configurations.
 
 #include "pch.h"
 #include "config.h"
 #include "misc.h"
 
-#if defined(CRYPTOPP_SSE42_AVAILABLE)
+#if (CRYPTOPP_SSE42_AVAILABLE)
 # include "nmmintrin.h"
 #endif
 
-#if defined(CRYPTOPP_ARMV8A_CRC32_AVAILABLE) && defined(__GNUC__)
+#if (CRYPTOPP_ARMV8A_CRC32_AVAILABLE) && defined(__GNUC__)
 # include "arm_neon.h"
 # include "arm_acle.h"
 #endif
@@ -47,7 +47,7 @@ void CRC32C_Update_ARMV8(const byte *s, size_t n, word32& c)
 }
 #endif
 
-#if CRYPTOPP_SSE42_AVAILABLE
+#if (CRYPTOPP_SSE42_AVAILABLE)
 void CRC32C_Update_SSE42(const byte *s, size_t n, word32& c)
 {
 	for(; !IsAligned<word32>(s) && n > 0; s++, n--)
