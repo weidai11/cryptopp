@@ -262,6 +262,7 @@
     <ClCompile Include="seed.cpp" />
     <ClCompile Include="serpent.cpp" />
     <ClCompile Include="sha.cpp" />
+    <ClCompile Include="sha-simd.cpp" />
     <ClCompile Include="sha3.cpp" />
     <ClCompile Include="shacal2.cpp" />
     <ClCompile Include="shark.cpp" />

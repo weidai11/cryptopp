@@ -248,6 +248,7 @@ seed.h
 serpent.cpp
 serpent.h
 serpentp.h
+sha-simd.cpp
 sha.cpp
 sha.h
 sha3.cpp

@@ -846,7 +846,7 @@ crc-simd.o : crc-simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(CRC_FLAG) -c) $<
 
 # SSE4.2/SHANI or ARMv8a available
-sha.o : sha.cpp
+sha-simd.o : sha-simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(SHA_FLAG) -c) $<
 
 # Don't build Threefish with UBsan on Travis CI. Timeouts cause the build to fail.

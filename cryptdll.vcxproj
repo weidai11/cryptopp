@@ -218,6 +218,7 @@
     <ClCompile Include="rsa.cpp" />
     <ClCompile Include="rw.cpp" />
     <ClCompile Include="sha.cpp" />
+    <ClCompile Include="sha-simd.cpp" />
     <ClCompile Include="simple.cpp" />
     <ClCompile Include="skipjack.cpp" />
     <ClCompile Include="strciphr.cpp" />

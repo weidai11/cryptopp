@@ -69,7 +69,7 @@
 #if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
 #  include <wmmintrin.h>    // aesenc, aesdec, etc
 #endif // wmmintrin.h
-#if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
+#if CRYPTOPP_SHANI_SHA_AVAILABLE
 #  include <immintrin.h>    // RDRAND, RDSEED, AVX, SHA
 #endif // immintrin.h
 #endif  // X86/X64/X32 Headers

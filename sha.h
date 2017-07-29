@@ -25,7 +25,7 @@ NAMESPACE_BEGIN(CryptoPP)
 class CRYPTOPP_DLL SHA1 : public IteratedHashWithStaticTransform<word32, BigEndian, 64, 20, SHA1>
 {
 public:
-#if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
+#if CRYPTOPP_SHANI_SHA_AVAILABLE
 	size_t HashMultipleBlocks(const word32 *input, size_t length);
 #endif
 	static void CRYPTOPP_API InitState(HashWordType *state);

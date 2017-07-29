@@ -29,12 +29,12 @@ NAMESPACE_BEGIN(CryptoPP)
 #ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
 extern "C" {
     typedef void (*SigHandler)(int);
-	
-	static jmp_buf s_jmpNoCRC32;
-	static void SigIllHandlerCRC32(int)
+
+	static jmp_buf s_jmpSIGILL;
+	static void SigIllHandler(int)
 	{
-		longjmp(s_jmpNoCRC32, 1);
-	}	
+		longjmp(s_jmpSIGILL, 1);
+	}
 };
 #endif  // Not CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
 
@@ -65,7 +65,7 @@ bool CPU_TryCRC32_ARMV8()
 	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
 	volatile bool result = true;
 
-	volatile SigHandler oldHandler = signal(SIGILL, SigIllHandlerCRC32);
+	volatile SigHandler oldHandler = signal(SIGILL, SigIllHandler);
 	if (oldHandler == SIG_ERR)
 		return false;
 
@@ -73,7 +73,7 @@ bool CPU_TryCRC32_ARMV8()
 	if (sigprocmask(0, NULLPTR, (sigset_t*)&oldMask))
 		return false;
 
-	if (setjmp(s_jmpNoCRC32))
+	if (setjmp(s_jmpSIGILL))
 		result = false;
 	else
 	{

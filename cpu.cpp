@@ -11,9 +11,9 @@
 
 #include "cpu.h"
 #include "misc.h"
-#include <algorithm>
+#include "stdcpp.h"
 
-#ifndef CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
+#ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
 #include <signal.h>
 #include <setjmp.h>
 #endif
@@ -314,8 +314,8 @@ void DetectX86Features()
 
 #elif (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
 
-// The ARM equivalent of CPUID probing is reading a MSR. The code requires Exception Level 1 (EL1) and above, but user space runs at EL0.
-//   Attempting to run the code results in a SIGILL and termination.
+// The ARM equivalent of CPUID probing is reading a MSR. The code requires Exception Level 1 (EL1)
+//   and above, but user space runs at EL0. Attempting to run the code results in a SIGILL and termination.
 //
 //     #if defined(__arm64__) || defined(__aarch64__)
 //	     word64 caps = 0;  // Read ID_AA64ISAR0_EL1
@@ -325,8 +325,9 @@ void DetectX86Features()
 //	     __asm __volatile("mrs %0, " "id_isar5_el1" : "=r" (caps));
 //     #endif
 //
-// The following does not work well either. Its appears to be missing constants, and it does not detect Aarch32 execution environments on Aarch64
-// http://community.arm.com/groups/android-community/blog/2014/10/10/runtime-detection-of-cpu-features-on-an-armv8-a-cpu
+// The following does not work well either. Its appears to be missing constants, and it does not detect
+//   Aarch32 execution environments on Aarch64
+//   http://community.arm.com/groups/android-community/blog/2014/10/10/runtime-detection-of-cpu-features-on-an-armv8-a-cpu
 //
 bool CRYPTOPP_SECTION_INIT g_ArmDetectionDone = false;
 bool CRYPTOPP_SECTION_INIT g_hasNEON = false, CRYPTOPP_SECTION_INIT g_hasPMULL = false, CRYPTOPP_SECTION_INIT g_hasCRC32 = false;
@@ -352,18 +353,6 @@ extern "C"
 	static void SigIllHandlerAES(int)
 	{
 		longjmp(s_jmpNoAES, 1);
-	}
-
-	static jmp_buf s_jmpNoSHA1;
-	static void SigIllHandlerSHA1(int)
-	{
-		longjmp(s_jmpNoSHA1, 1);
-	}
-
-	static jmp_buf s_jmpNoSHA2;
-	static void SigIllHandlerSHA2(int)
-	{
-		longjmp(s_jmpNoSHA2, 1);
 	}
 };
 #endif  // Not CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
@@ -504,6 +493,8 @@ static bool TryPMULL()
 }
 
 extern bool CPU_TryCRC32_ARMV8();
+extern bool CPU_TrySHA1_ARMV8();
+extern bool CPU_TrySHA2_ARMV8();
 
 static bool TryCRC32()
 {
@@ -569,120 +560,20 @@ static bool TryAES()
 
 static bool TrySHA1()
 {
-#if (CRYPTOPP_ARMV8A_CRYPTO_AVAILABLE)
-# if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
-	volatile bool result = true;
-	__try
-	{
-		uint32x4_t data1 = {1,2,3,4}, data2 = {5,6,7,8}, data3 = {9,10,11,12};
-
-		uint32x4_t r1 = vsha1cq_u32 (data1, 0, data2);
-		uint32x4_t r2 = vsha1mq_u32 (data1, 0, data2);
-		uint32x4_t r3 = vsha1pq_u32 (data1, 0, data2);
-		uint32x4_t r4 = vsha1su0q_u32 (data1, data2, data3);
-		uint32x4_t r5 = vsha1su1q_u32 (data1, data2);
-
-		result = !!(vgetq_lane_u32(r1,0) | vgetq_lane_u32(r2,1) | vgetq_lane_u32(r3,2) | vgetq_lane_u32(r4,3) | vgetq_lane_u32(r5,0));
-	}
-	__except (EXCEPTION_EXECUTE_HANDLER)
-	{
-		return false;
-	}
-	return result;
-# else
-	// longjmp and clobber warnings. Volatile is required.
-	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
-	volatile bool result = true;
-
-	volatile SigHandler oldHandler = signal(SIGILL, SigIllHandlerSHA1);
-	if (oldHandler == SIG_ERR)
-		return false;
-
-	volatile sigset_t oldMask;
-	if (sigprocmask(0, NULLPTR, (sigset_t*)&oldMask))
-		return false;
-
-	if (setjmp(s_jmpNoSHA1))
-		result = false;
-	else
-	{
-		uint32x4_t data1 = {1,2,3,4}, data2 = {5,6,7,8}, data3 = {9,10,11,12};
-
-		uint32x4_t r1 = vsha1cq_u32 (data1, 0, data2);
-		uint32x4_t r2 = vsha1mq_u32 (data1, 0, data2);
-		uint32x4_t r3 = vsha1pq_u32 (data1, 0, data2);
-		uint32x4_t r4 = vsha1su0q_u32 (data1, data2, data3);
-		uint32x4_t r5 = vsha1su1q_u32 (data1, data2);
-
-		// Hack... GCC optimizes away the code and returns true
-		result = !!(vgetq_lane_u32(r1,0) | vgetq_lane_u32(r2,1) | vgetq_lane_u32(r3,2) | vgetq_lane_u32(r4,3) | vgetq_lane_u32(r5,0));
-	}
-
-	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
-	signal(SIGILL, oldHandler);
-	return result;
-# endif
+#if (CRYPTOPP_ARMV8A_SHA_AVAILABLE)
+	return CPU_TrySHA1_ARMV8();
 #else
 	return false;
-#endif  // CRYPTOPP_ARMV8A_CRYPTO_AVAILABLE
+#endif
 }
 
 static bool TrySHA2()
 {
-#if (CRYPTOPP_ARMV8A_CRYPTO_AVAILABLE)
-# if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
-	volatile bool result = true;
-	__try
-	{
-		uint32x4_t data1 = {1,2,3,4}, data2 = {5,6,7,8}, data3 = {9,10,11,12};
-
-		uint32x4_t r1 = vsha256hq_u32 (data1, data2, data3);
-		uint32x4_t r2 = vsha256h2q_u32 (data1, data2, data3);
-		uint32x4_t r3 = vsha256su0q_u32 (data1, data2);
-		uint32x4_t r4 = vsha256su1q_u32 (data1, data2, data3);
-
-		result = !!(vgetq_lane_u32(r1,0) | vgetq_lane_u32(r2,1) | vgetq_lane_u32(r3,2) | vgetq_lane_u32(r4,3));
-	}
-	__except (EXCEPTION_EXECUTE_HANDLER)
-	{
-		return false;
-	}
-	return result;
-# else
-	// longjmp and clobber warnings. Volatile is required.
-	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
-	volatile bool result = true;
-
-	volatile SigHandler oldHandler = signal(SIGILL, SigIllHandlerSHA2);
-	if (oldHandler == SIG_ERR)
-		return false;
-
-	volatile sigset_t oldMask;
-	if (sigprocmask(0, NULLPTR, (sigset_t*)&oldMask))
-		return false;
-
-	if (setjmp(s_jmpNoSHA2))
-		result = false;
-	else
-	{
-		uint32x4_t data1 = {1,2,3,4}, data2 = {5,6,7,8}, data3 = {9,10,11,12};
-
-		uint32x4_t r1 = vsha256hq_u32 (data1, data2, data3);
-		uint32x4_t r2 = vsha256h2q_u32 (data1, data2, data3);
-		uint32x4_t r3 = vsha256su0q_u32 (data1, data2);
-		uint32x4_t r4 = vsha256su1q_u32 (data1, data2, data3);
-
-		// Hack... GCC optimizes away the code and returns true
-		result = !!(vgetq_lane_u32(r1,0) | vgetq_lane_u32(r2,1) | vgetq_lane_u32(r3,2) | vgetq_lane_u32(r4,3));
-	}
-
-	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
-	signal(SIGILL, oldHandler);
-	return result;
-# endif
+#if (CRYPTOPP_ARMV8A_SHA_AVAILABLE)
+	return CPU_TrySHA2_ARMV8();
 #else
 	return false;
-#endif  // CRYPTOPP_ARMV8A_CRYPTO_AVAILABLE
+#endif
 }
 
 void DetectArmFeatures()

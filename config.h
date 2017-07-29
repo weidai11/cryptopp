@@ -477,13 +477,13 @@ NAMESPACE_END
 	#define CRYPTOPP_X64_ASM_AVAILABLE
 #endif
 
-#if !defined(CRYPTOPP_DISABLE_ASM) && (defined(_MSC_VER) || defined(__SSE2__)) && !defined(_M_ARM)
+#if !defined(CRYPTOPP_DISABLE_ASM) && (defined(_MSC_VER) || defined(__SSE2__))
 	#define CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE 1
 #else
 	#define CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE 0
 #endif
 
-#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_SSSE3) && !defined(_M_ARM) && (_MSC_VER >= 1500 || (defined(__SSSE3__) && defined(__SSSE3__)))
+#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_SSSE3) && (_MSC_VER >= 1500 || (defined(__SSSE3__) && defined(__SSSE3__)))
 	#define CRYPTOPP_BOOL_SSSE3_INTRINSICS_AVAILABLE 1
 #else
 	#define CRYPTOPP_BOOL_SSSE3_INTRINSICS_AVAILABLE 0
@@ -492,21 +492,21 @@ NAMESPACE_END
 // Intrinsics availible in GCC 4.3 (http://gcc.gnu.org/gcc-4.3/changes.html) and
 //   MSVC 2008 (http://msdn.microsoft.com/en-us/library/bb892950%28v=vs.90%29.aspx)
 //   SunCC could generate SSE4 at 12.1, but the intrinsics are missing until 12.4.
-#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_SSE4) && !defined(_M_ARM) && ((_MSC_VER >= 1500) || (defined(__SSE4_1__) && defined(__SSE4_2__)))
+#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_SSE4) && ((_MSC_VER >= 1500) || (defined(__SSE4_1__) && defined(__SSE4_2__)))
 	#define CRYPTOPP_SSE42_AVAILABLE 1
 #endif
 
 // Don't disgorge AES-NI from CLMUL. There will be two to four subtle breaks
-#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_AESNI) && !defined(_M_ARM) && (_MSC_FULL_VER >= 150030729 || __INTEL_COMPILER >= 1110 || (defined(__AES__) && defined(__PCLMUL__)))
+#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_AESNI) && (_MSC_FULL_VER >= 150030729 || __INTEL_COMPILER >= 1110 || (defined(__AES__) && defined(__PCLMUL__)))
 	#define CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE 1
 #else
 	#define CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE 0
 #endif
 
-#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_SHA) && !defined(_M_ARM) && ((_MSC_VER >= 1900) || defined(__SHA__))
-	#define CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE 1
+#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_SHA) && ((_MSC_VER >= 1900) || defined(__SHA__))
+	#define CRYPTOPP_SHANI_SHA_AVAILABLE 1
 #else
-	#define CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE 0
+	#define CRYPTOPP_SHANI_SHA_AVAILABLE 0
 #endif
 
 #endif  // X86, X32, X64
@@ -556,7 +556,6 @@ NAMESPACE_END
 
 // ARM CRC testing
 #undef CRYPTOPP_ARMV8A_AES_AVAILABLE
-#undef CRYPTOPP_ARMV8A_SHA_AVAILABLE
 #undef CRYPTOPP_ARMV8A_PMULL_AVAILABLE
 #undef CRYPTOPP_ARMV8A_CRYPTO_AVAILABLE
 
