@@ -386,7 +386,56 @@ NAMESPACE_END
 #define CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE
 #endif
 
-// Apple's Clang prior to 5.0 cannot handle SSE2 (and Apple does not use LLVM Clang numbering...)
+// ***************** Platform and CPU features ********************
+
+// Linux provides X32, which is 32-bit integers, longs and pointers on x86_64 using the full x86_64 register set.
+// Detect via __ILP32__ (http://wiki.debian.org/X32Port). However, __ILP32__ shows up in more places than
+// the System V ABI specs calls out, like on some Solaris installations and just about any 32-bit system with Clang.
+#if (defined(__ILP32__) || defined(_ILP32)) && defined(__x86_64__)
+	#define CRYPTOPP_BOOL_X32 1
+#else
+	#define CRYPTOPP_BOOL_X32 0
+#endif
+
+// see http://predef.sourceforge.net/prearch.html
+#if (defined(_M_IX86) || defined(__i386__) || defined(__i386) || defined(_X86_) || defined(__I86__) || defined(__INTEL__)) && !CRYPTOPP_BOOL_X32
+	#define CRYPTOPP_BOOL_X86 1
+#else
+	#define CRYPTOPP_BOOL_X86 0
+#endif
+
+#if (defined(_M_X64) || defined(__x86_64__)) && !CRYPTOPP_BOOL_X32
+	#define CRYPTOPP_BOOL_X64 1
+#else
+	#define CRYPTOPP_BOOL_X64 0
+#endif
+
+// Undo the ASM and Intrinsic related defines due to X32.
+#if CRYPTOPP_BOOL_X32
+# undef CRYPTOPP_BOOL_X64
+# undef CRYPTOPP_X64_ASM_AVAILABLE
+# undef CRYPTOPP_X64_MASM_AVAILABLE
+#endif
+
+#if defined(__arm__) || defined(__aarch32__) || defined(_M_ARM)
+	#define CRYPTOPP_BOOL_ARM32 1
+#else
+	#define CRYPTOPP_BOOL_ARM32 0
+#endif
+
+// Microsoft plans to support ARM-64, but its not clear how to detect it.
+// TODO: Add MSC_VER and ARM-64 platform define when available
+#if defined(__arm64__) || defined(__aarch64__) || defined(_M_ARM64)
+	#define CRYPTOPP_BOOL_ARM64 1
+#else
+	#define CRYPTOPP_BOOL_ARM64 0
+#endif
+
+// ***************** IA32 CPU features ********************
+
+#if defined(CRYPTOPP_BOOL_X86) || defined(CRYPTOPP_BOOL_X32) || defined(CRYPTOPP_BOOL_X64)
+
+// Apple Clang prior to 5.0 cannot handle SSE2
 #if defined(CRYPTOPP_APPLE_CLANG_VERSION) && (CRYPTOPP_APPLE_CLANG_VERSION < 50000)
 # define CRYPTOPP_DISABLE_ASM
 #endif
@@ -438,9 +487,7 @@ NAMESPACE_END
 //   MSVC 2008 (http://msdn.microsoft.com/en-us/library/bb892950%28v=vs.90%29.aspx)
 //   SunCC could generate SSE4 at 12.1, but the intrinsics are missing until 12.4.
 #if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_SSE4) && !defined(_M_ARM) && ((_MSC_VER >= 1500) || (defined(__SSE4_1__) && defined(__SSE4_2__)))
-	#define CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE 1
-#else
-	#define CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE 0
+	#define CRYPTOPP_SSE42_AVAILABLE 1
 #endif
 
 // Don't disgorge AES-NI from CLMUL. There will be two to four subtle breaks
@@ -456,6 +503,12 @@ NAMESPACE_END
 	#define CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE 0
 #endif
 
+#endif  // X86, X32, X64
+
+// ***************** ARM CPU features ********************
+
+#if defined(CRYPTOPP_BOOL_ARM32) || defined(CRYPTOPP_BOOL_ARM64)
+
 // Requires ARMv7 and ACLE 1.0. Testing shows ARMv7 is really ARMv7a under most toolchains.
 #if !defined(CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
 # if defined(__ARM_NEON__) || defined(__ARM_NEON) || defined(_M_ARM)
@@ -467,9 +520,9 @@ NAMESPACE_END
 // LLVM Clang requires 3.5. Apple Clang is unknown at the moment.
 // Microsoft plans to support ARM-64, but its not clear how to detect it.
 // TODO: Add MSC_VER and ARM-64 platform define when available
-#if !defined(CRYPTOPP_BOOL_ARM_CRC32_INTRINSICS_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
+#if !defined(CRYPTOPP_ARMV8A_CRC32_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
 # if defined(__ARM_FEATURE_CRC32)
-#  define CRYPTOPP_BOOL_ARM_CRC32_INTRINSICS_AVAILABLE 1
+#  define CRYPTOPP_ARMV8A_CRC32_AVAILABLE 1
 # endif
 #endif
 
@@ -494,6 +547,10 @@ NAMESPACE_END
 #  define CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE 1
 # endif
 #endif
+
+#endif  // ARM32, ARM64
+
+// ***************** Miscellaneous ********************
 
 #if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE || CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)
 	#define CRYPTOPP_BOOL_ALIGN16 1
@@ -534,49 +591,6 @@ NAMESPACE_END
 #	define CRYPTOPP_CONSTANT(x) enum {x};
 #else
 #	define CRYPTOPP_CONSTANT(x) static const int x;
-#endif
-
-// Linux provides X32, which is 32-bit integers, longs and pointers on x86_64 using the full x86_64 register set.
-// Detect via __ILP32__ (http://wiki.debian.org/X32Port). However, __ILP32__ shows up in more places than
-// the System V ABI specs calls out, like on some Solaris installations and just about any 32-bit system with Clang.
-#if (defined(__ILP32__) || defined(_ILP32)) && defined(__x86_64__)
-	#define CRYPTOPP_BOOL_X32 1
-#else
-	#define CRYPTOPP_BOOL_X32 0
-#endif
-
-// see http://predef.sourceforge.net/prearch.html
-#if (defined(_M_IX86) || defined(__i386__) || defined(__i386) || defined(_X86_) || defined(__I86__) || defined(__INTEL__)) && !CRYPTOPP_BOOL_X32
-	#define CRYPTOPP_BOOL_X86 1
-#else
-	#define CRYPTOPP_BOOL_X86 0
-#endif
-
-#if (defined(_M_X64) || defined(__x86_64__)) && !CRYPTOPP_BOOL_X32
-	#define CRYPTOPP_BOOL_X64 1
-#else
-	#define CRYPTOPP_BOOL_X64 0
-#endif
-
-// Undo the ASM and Intrinsic related defines due to X32.
-#if CRYPTOPP_BOOL_X32
-# undef CRYPTOPP_BOOL_X64
-# undef CRYPTOPP_X64_ASM_AVAILABLE
-# undef CRYPTOPP_X64_MASM_AVAILABLE
-#endif
-
-#if defined(__arm__) || defined(__aarch32__) || defined(_M_ARM)
-	#define CRYPTOPP_BOOL_ARM32 1
-#else
-	#define CRYPTOPP_BOOL_ARM32 0
-#endif
-
-// Microsoft plans to support ARM-64, but its not clear how to detect it.
-// TODO: Add MSC_VER and ARM-64 platform define when available
-#if defined(__arm64__) || defined(__aarch64__) || defined(_M_ARM64)
-	#define CRYPTOPP_BOOL_ARM64 1
-#else
-	#define CRYPTOPP_BOOL_ARM64 0
 #endif
 
 // ***************** Initialization and Constructor priorities ********************

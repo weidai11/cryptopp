@@ -62,7 +62,7 @@
 #if CRYPTOPP_BOOL_SSSE3_INTRINSICS_AVAILABLE
 #  include <tmmintrin.h>    // _mm_shuffle_pi8, _mm_shuffle_epi8
 #endif // tmmintrin.h
-#if CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
+#if CRYPTOPP_SSE42_AVAILABLE
 #  include <smmintrin.h>    // _mm_blend_epi16
 #  include <nmmintrin.h>    // _mm_crc32_u{8|16|32}
 #endif // smmintrin.h

@@ -53,6 +53,7 @@ config.h
 cpu.cpp
 cpu.h
 crc.cpp
+crc-simd.cpp
 crc.h
 cryptdll.vcxproj
 cryptdll.vcxproj.filters

@@ -223,7 +223,7 @@ void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keylen, c
 
 	word32 *rk = m_key;
 
-#if (CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE && CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE && (!defined(_MSC_VER) || _MSC_VER >= 1600 || CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32))
+#if (CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE && CRYPTOPP_SSE42_AVAILABLE && (!defined(_MSC_VER) || _MSC_VER >= 1600 || CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32))
 	// MSVC 2008 SP1 generates bad code for _mm_extract_epi32() when compiling for X64
 	if (HasAESNI() && HasSSE4())
 	{

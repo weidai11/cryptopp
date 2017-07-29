@@ -2,6 +2,8 @@
 #####        System Attributes and Programs           #####
 ###########################################################
 
+TEMPDIR ?= /tmp
+
 AR ?= ar
 ARFLAGS ?= -cr # ar needs the dash on OpenBSD
 RANLIB ?= ranlib
@@ -19,8 +21,9 @@ UNAME := $(shell uname)
 IS_X86 := $(shell uname -m | $(EGREP) -v "x86_64" | $(EGREP) -i -c "i.86|x86|i86")
 IS_X64 := $(shell uname -m | $(EGREP) -i -c "(_64|d64)")
 IS_PPC := $(shell uname -m | $(EGREP) -i -c "ppc|power")
-IS_ARM32 := $(shell uname -m | $(EGREP) -i -c "arm")
+IS_ARM32 := $(shell uname -m | $(EGREP) -v "arm64" | $(EGREP) -i -c "arm")
 IS_ARM64 := $(shell uname -m | $(EGREP) -i -c "aarch64")
+IS_ARMV8 ?= $(shell uname -m | $(EGREP) -i -c 'aarch32|aarch64')
 IS_SPARC := $(shell uname -m | $(EGREP) -i -c "sparc")
 IS_SPARC64 := $(shell uname -m | $(EGREP) -i -c "sparc64")
 
@@ -81,12 +84,12 @@ HAS_NEWLIB := $(shell $(CXX) -x c++ $(CXXFLAGS) -dM -E adhoc.cpp.proto 2>&1 | $(
 # Base CXXFLAGS used if the user did not specify them
 ifeq ($(SUN_COMPILER),1)
   ifeq ($(SUNCC_512_OR_LATER),1)
-    CXXFLAGS ?= -DNDEBUG -g3 -xO2
+    CXXFLAGS ?= -DNDEBUG -g3 -xO3
   else
-    CXXFLAGS ?= -DNDEBUG -g -xO2
+    CXXFLAGS ?= -DNDEBUG -g -xO3
   endif
 else
-  CXXFLAGS ?= -DNDEBUG -g2 -O2
+  CXXFLAGS ?= -DNDEBUG -g2 -O3
 endif
 
 # Default prefix for make install
@@ -191,6 +194,11 @@ endif  # -DCRYPTOPP_DISABLE_SSSE3
 endif  # -DCRYPTOPP_DISABLE_ASM
 endif  # CXXFLAGS
 
+HAS_CRC := $(shell $(CXX) $(CXXFLAGS) -msse4.2 -o $(TEMPDIR)/t.o -c crc-simd.cpp 2>/dev/null; echo $$?)
+ifeq ($(HAS_CRC),0)
+CRC_FLAG := -msse4.2
+endif
+
 # BEGIN_NATIVE_ARCH
 # Guard use of -march=native (or -m{32|64} on some platforms)
 # Don't add anything if -march=XXX or -mtune=XXX is specified
@@ -280,6 +288,13 @@ CXXFLAGS += -pipe
 endif
 endif
 
+ifeq ($(IS_ARMV8),1)
+  HAS_CRC := $(shell $(CXX) $(CXXFLAGS) -march=armv8-a+crc -o $(TEMPDIR)/t.o -c crc-simd.cpp 2>/dev/null; echo $$?)
+  ifeq ($(HAS_CRC),0)
+    CRC_FLAG := -march=armv8-a+crc
+  endif
+endif
+
 endif	# IS_X86
 
 ###########################################################
@@ -287,7 +302,7 @@ endif	# IS_X86
 ###########################################################
 
 # For SunOS, create a Mapfile that allows our object files
-# to cantain additional bits (like SSE4 and AES on old Xeon)
+# to contain additional bits (like SSE4 and AES on old Xeon)
 # http://www.oracle.com/technetwork/server-storage/solaris/hwcap-modification-139536.html
 ifeq ($(IS_SUN)$(SUN_COMPILER),11)
 ifneq ($(IS_X86)$(IS_X32)$(IS_X64),000)
@@ -526,7 +541,7 @@ TESTOBJS := $(TESTSRCS:.cpp=.o)
 LIBOBJS := $(filter-out $(TESTOBJS),$(OBJS))
 
 # List cryptlib.cpp first, then cpu.cpp, then integer.cpp to tame C++ static initialization problems.
-DLLSRCS := cryptlib.cpp cpu.cpp integer.cpp shacal2.cpp md5.cpp shark.cpp zinflate.cpp gf2n.cpp salsa.cpp xtr.cpp oaep.cpp poly1305.cpp polynomi.cpp rc2.cpp default.cpp wait.cpp wake.cpp twofish.cpp iterhash.cpp adler32.cpp elgamal.cpp marss.cpp blowfish.cpp ecp.cpp filters.cpp strciphr.cpp camellia.cpp ida.cpp zlib.cpp des.cpp crc.cpp algparam.cpp dessp.cpp tea.cpp eax.cpp network.cpp emsa2.cpp pkcspad.cpp squaretb.cpp idea.cpp authenc.cpp kalyna.cpp threefish.cpp hmac.cpp zdeflate.cpp xtrcrypt.cpp queue.cpp mars.cpp rc5.cpp blake2.cpp hrtimer.cpp eprecomp.cpp hex.cpp dsa.cpp sha.cpp fips140.cpp gzip.cpp seal.cpp files.cpp base32.cpp vmac.cpp tigertab.cpp sharkbox.cpp safer.cpp randpool.cpp esign.cpp arc4.cpp osrng.cpp skipjack.cpp seed.cpp sha3.cpp sosemanuk.cpp bfinit.cpp rabin.cpp 3way.cpp rw.cpp rdrand.cpp rsa.cpp rdtables.cpp gost.cpp socketft.cpp tftables.cpp nbtheory.cpp panama.cpp modes.cpp rijndael.cpp casts.cpp chacha.cpp gfpcrypt.cpp poly1305.cpp dll.cpp ec2n.cpp blumshub.cpp algebra.cpp basecode.cpp base64.cpp cbcmac.cpp rc6.cpp dh2.cpp gf256.cpp mqueue.cpp misc.cpp pssr.cpp channels.cpp tiger.cpp cast.cpp rng.cpp square.cpp asn.cpp whrlpool.cpp md4.cpp dh.cpp ccm.cpp md2.cpp mqv.cpp gf2_32.cpp ttmac.cpp luc.cpp trdlocal.cpp pubkey.cpp gcm.cpp ripemd.cpp eccrypto.cpp serpent.cpp cmac.cpp
+DLLSRCS := cryptlib.cpp cpu.cpp integer.cpp shacal2.cpp md5.cpp shark.cpp zinflate.cpp gf2n.cpp salsa.cpp xtr.cpp oaep.cpp poly1305.cpp polynomi.cpp rc2.cpp default.cpp wait.cpp wake.cpp twofish.cpp iterhash.cpp adler32.cpp elgamal.cpp marss.cpp blowfish.cpp ecp.cpp filters.cpp strciphr.cpp camellia.cpp ida.cpp zlib.cpp des.cpp crc.cpp crc-simd.cpp algparam.cpp dessp.cpp tea.cpp eax.cpp network.cpp emsa2.cpp pkcspad.cpp squaretb.cpp idea.cpp authenc.cpp kalyna.cpp threefish.cpp hmac.cpp zdeflate.cpp xtrcrypt.cpp queue.cpp mars.cpp rc5.cpp blake2.cpp hrtimer.cpp eprecomp.cpp hex.cpp dsa.cpp sha.cpp fips140.cpp gzip.cpp seal.cpp files.cpp base32.cpp vmac.cpp tigertab.cpp sharkbox.cpp safer.cpp randpool.cpp esign.cpp arc4.cpp osrng.cpp skipjack.cpp seed.cpp sha3.cpp sosemanuk.cpp bfinit.cpp rabin.cpp 3way.cpp rw.cpp rdrand.cpp rsa.cpp rdtables.cpp gost.cpp socketft.cpp tftables.cpp nbtheory.cpp panama.cpp modes.cpp rijndael.cpp casts.cpp chacha.cpp gfpcrypt.cpp poly1305.cpp dll.cpp ec2n.cpp blumshub.cpp algebra.cpp basecode.cpp base64.cpp cbcmac.cpp rc6.cpp dh2.cpp gf256.cpp mqueue.cpp misc.cpp pssr.cpp channels.cpp tiger.cpp cast.cpp rng.cpp square.cpp asn.cpp whrlpool.cpp md4.cpp dh.cpp ccm.cpp md2.cpp mqv.cpp gf2_32.cpp ttmac.cpp luc.cpp trdlocal.cpp pubkey.cpp gcm.cpp ripemd.cpp eccrypto.cpp serpent.cpp cmac.cpp
 DLLOBJS := $(DLLSRCS:.cpp=.export.o)
 
 # Import lib testing
@@ -816,6 +831,10 @@ rdrand.o: rdrand.h rdrand.cpp rdrand.s
 rdrand-%.o:
 	./rdrand-nasm.sh
 endif
+
+# crc.cpp may have SSE4.2 or ARMv8a available
+crc-simd.o : crc-simd.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(CRC_FLAG) -c) $<
 
 # Don't build Threefish with UBsan on Travis CI. Timeouts cause the build to fail.
 #   Also see https://stackoverflow.com/q/12983137/608639.

@@ -176,6 +176,7 @@
     <ClCompile Include="channels.cpp" />
     <ClCompile Include="cmac.cpp" />
     <ClCompile Include="crc.cpp" />
+    <ClCompile Include="crc-simd.cpp" />
     <ClCompile Include="default.cpp" />
     <ClCompile Include="des.cpp" />
     <ClCompile Include="dessp.cpp" />

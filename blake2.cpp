@@ -13,13 +13,13 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 // Uncomment for benchmarking C++ against SSE2 or NEON
-// #undef CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
+// #undef CRYPTOPP_SSE42_AVAILABLE
 // #undef CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
 
 // Apple Clang 6.0/Clang 3.5 does not have SSSE3 intrinsics
 //   http://llvm.org/bugs/show_bug.cgi?id=20213
 #if (defined(CRYPTOPP_APPLE_CLANG_VERSION) && (CRYPTOPP_APPLE_CLANG_VERSION <= 60000)) || (defined(CRYPTOPP_LLVM_CLANG_VERSION) && (CRYPTOPP_LLVM_CLANG_VERSION <= 30500))
-# undef CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
+# undef CRYPTOPP_SSE42_AVAILABLE
 #endif
 
 // Sun Studio 12.3 and earlier lack SSE2's _mm_set_epi64x. Win32 lacks _mm_set_epi64x, Win64 supplies it except for VS2008.
@@ -47,7 +47,7 @@ static void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64, true>
 # endif
 #endif
 
-#if CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
+#if CRYPTOPP_SSE42_AVAILABLE
 static void BLAKE2_SSE4_Compress32(const byte* input, BLAKE2_State<word32, false>& state);
 static void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64, true>& state);
 #endif
@@ -155,7 +155,7 @@ typedef void (*pfnCompress64)(const byte*, BLAKE2_State<word64, true>&);
 
 pfnCompress64 InitializeCompress64Fn()
 {
-#if CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
+#if CRYPTOPP_SSE42_AVAILABLE
     if (HasSSE4())
         return &BLAKE2_SSE4_Compress64;
     else
@@ -177,7 +177,7 @@ pfnCompress64 InitializeCompress64Fn()
 
 pfnCompress32 InitializeCompress32Fn()
 {
-#if CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
+#if CRYPTOPP_SSE42_AVAILABLE
     if (HasSSE4())
         return &BLAKE2_SSE4_Compress32;
     else
@@ -1929,7 +1929,7 @@ static void BLAKE2_SSE2_Compress64(const byte* input, BLAKE2_State<word64, true>
 # endif // (__SUNPRO_CC != 0x5120)
 #endif  // CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
 
-#if CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
+#if CRYPTOPP_SSE42_AVAILABLE
 static void BLAKE2_SSE4_Compress32(const byte* input, BLAKE2_State<word32, false>& state)
 {
   __m128i row1, row2, row3, row4;
@@ -3459,7 +3459,7 @@ static void BLAKE2_SSE4_Compress64(const byte* input, BLAKE2_State<word64, true>
   _mm_storeu_si128((__m128i *)(void*)(&state.h[4]), _mm_xor_si128(_mm_loadu_si128((const __m128i*)(const void*)(&state.h[4])), row2l));
   _mm_storeu_si128((__m128i *)(void*)(&state.h[6]), _mm_xor_si128(_mm_loadu_si128((const __m128i*)(const void*)(&state.h[6])), row2h));
 }
-#endif  // CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
+#endif  // CRYPTOPP_SSE42_AVAILABLE
 
 // Disable NEON for Cortex-A53 and A57. Also see http://github.com/weidai11/cryptopp/issues/367
 #if CRYPTOPP_BOOL_ARM32 && CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE

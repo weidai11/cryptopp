@@ -511,7 +511,7 @@ static bool TryPMULL()
 
 static bool TryCRC32()
 {
-#if (CRYPTOPP_BOOL_ARM_CRC32_INTRINSICS_AVAILABLE)
+#if (CRYPTOPP_ARMV8A_CRC32_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
 	volatile bool result = true;
 	__try
@@ -560,7 +560,7 @@ static bool TryCRC32()
 # endif
 #else
 	return false;
-#endif  // CRYPTOPP_BOOL_ARM_CRC32_INTRINSICS_AVAILABLE
+#endif  // CRYPTOPP_ARMV8A_CRC32_AVAILABLE
 }
 
 static bool TryAES()
