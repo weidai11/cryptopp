@@ -200,7 +200,7 @@ extern const word32 SHA256_K[64] = {
 
 #if (defined(CRYPTOPP_X86_ASM_AVAILABLE) || defined(CRYPTOPP_X32_ASM_AVAILABLE) || defined(CRYPTOPP_GENERATE_X64_MASM))
 
-static void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 *data, size_t len)
+static void CRYPTOPP_FASTCALL SHA256_HashBlocks_SSE2(word32 *state, const word32 *data, size_t len)
 {
     #define LOCALS_SIZE  8*4 + 16*4 + 4*WORD_SZ
     #define H(i)         [BASE+ASM_MOD(1024+7-(i),8)*4]
@@ -322,7 +322,7 @@ static void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 
     INTEL_NOPREFIX
 #elif defined(CRYPTOPP_GENERATE_X64_MASM)
         ALIGN   8
-    X86_SHA256_HashBlocks    PROC FRAME
+    SHA256_HashBlocks_SSE2    PROC FRAME
         rex_push_reg rsi
         push_reg rdi
         push_reg rbx
@@ -501,7 +501,7 @@ INTEL_NOPREFIX
     pop        rdi
     pop        rsi
     ret
-    X86_SHA256_HashBlocks ENDP
+    SHA256_HashBlocks_SSE2 ENDP
 #endif
 
 #ifdef __GNUC__
@@ -525,7 +525,7 @@ INTEL_NOPREFIX
 
 #ifdef CRYPTOPP_X64_MASM_AVAILABLE
 extern "C" {
-void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 *data, size_t len);
+void CRYPTOPP_FASTCALL SHA256_HashBlocks_SSE2(word32 *state, const word32 *data, size_t len);
 }
 #endif
 
@@ -544,7 +544,7 @@ static pfnSHAHashBlocks InitializeSHA256HashBlocks()
     else
 #endif
 
-    return &X86_SHA256_HashBlocks;
+    return &SHA256_HashBlocks_SSE2;
 }
 
 size_t SHA256::HashMultipleBlocks(const word32 *input, size_t length)
@@ -696,7 +696,7 @@ static void SHA256_Transform_SSE2(word32 *state, const word32 *data)
     // this byte reverse is a waste of time, but this function is only called by MDC
     word32 W[16];
     ByteReverse(W, data, SHA256::BLOCKSIZE);
-    X86_SHA256_HashBlocks(state, W, SHA256::BLOCKSIZE - !HasSSE2());
+    SHA256_HashBlocks_SSE2(state, W, SHA256::BLOCKSIZE - !HasSSE2());
 }
 #endif  // CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
 
