@@ -53,102 +53,6 @@ NAMESPACE_BEGIN(CryptoPP)
 extern void GCM_Xor16_NEON(byte *a, const byte *b, const byte *c);
 #endif
 
-#if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64) && CRYPTOPP_ARMV8A_PMULL_AVAILABLE
-#if defined(__GNUC__)
-// Schneiders, Hovsmith and O'Rourke used this trick.
-// It results in much better code generation in production code
-// by avoiding D-register spills when using vgetq_lane_u64. The
-// problem does not surface under minimal test cases.
-inline uint64x2_t PMULL_00(const uint64x2_t a, const uint64x2_t b)
-{
-    uint64x2_t r;
-    __asm __volatile("pmull    %0.1q, %1.1d, %2.1d \n\t"
-        :"=w" (r) : "w" (a), "w" (b) );
-    return r;
-}
-
-inline uint64x2_t PMULL_01(const uint64x2_t a, const uint64x2_t b)
-{
-    uint64x2_t r;
-    __asm __volatile("pmull    %0.1q, %1.1d, %2.1d \n\t"
-        :"=w" (r) : "w" (a), "w" (vget_high_u64(b)) );
-    return r;
-}
-
-inline uint64x2_t PMULL_10(const uint64x2_t a, const uint64x2_t b)
-{
-    uint64x2_t r;
-    __asm __volatile("pmull    %0.1q, %1.1d, %2.1d \n\t"
-        :"=w" (r) : "w" (vget_high_u64(a)), "w" (b) );
-    return r;
-}
-
-inline uint64x2_t PMULL_11(const uint64x2_t a, const uint64x2_t b)
-{
-    uint64x2_t r;
-    __asm __volatile("pmull2   %0.1q, %1.2d, %2.2d \n\t"
-        :"=w" (r) : "w" (a), "w" (b) );
-    return r;
-}
-
-inline uint64x2_t VEXT_U8(uint64x2_t a, uint64x2_t b, unsigned int c)
-{
-    uint64x2_t r;
-    __asm __volatile("ext   %0.16b, %1.16b, %2.16b, %3 \n\t"
-        :"=w" (r) : "w" (a), "w" (b), "I" (c) );
-    return r;
-}
-
-// https://github.com/weidai11/cryptopp/issues/366
-template <unsigned int C>
-inline uint64x2_t VEXT_U8(uint64x2_t a, uint64x2_t b)
-{
-    uint64x2_t r;
-    __asm __volatile("ext   %0.16b, %1.16b, %2.16b, %3 \n\t"
-        :"=w" (r) : "w" (a), "w" (b), "I" (C) );
-    return r;
-}
-#endif // GCC and compatibles
-
-#if defined(_MSC_VER)
-inline uint64x2_t PMULL_00(const uint64x2_t a, const uint64x2_t b)
-{
-    return (uint64x2_t)(vmull_p64(vgetq_lane_u64(vreinterpretq_u64_u8(a),0),
-                                  vgetq_lane_u64(vreinterpretq_u64_u8(b),0)));
-}
-
-inline uint64x2_t PMULL_01(const uint64x2_t a, const uint64x2_t b)
-{
-    return (uint64x2_t)(vmull_p64(vgetq_lane_u64(vreinterpretq_u64_u8(a),0),
-                                  vgetq_lane_u64(vreinterpretq_u64_u8(b),1)));
-}
-
-inline uint64x2_t PMULL_10(const uint64x2_t a, const uint64x2_t b)
-{
-    return (uint64x2_t)(vmull_p64(vgetq_lane_u64(vreinterpretq_u64_u8(a),1),
-                                  vgetq_lane_u64(vreinterpretq_u64_u8(b),0)));
-}
-
-inline uint64x2_t PMULL_11(const uint64x2_t a, const uint64x2_t b)
-{
-    return (uint64x2_t)(vmull_p64(vgetq_lane_u64(vreinterpretq_u64_u8(a),1),
-                                  vgetq_lane_u64(vreinterpretq_u64_u8(b),1)));
-}
-
-inline uint64x2_t VEXT_U8(uint64x2_t a, uint64x2_t b, unsigned int c)
-{
-    return (uint64x2_t)vextq_u8(vreinterpretq_u8_u64(a), vreinterpretq_u8_u64(b), c);
-}
-
-// https://github.com/weidai11/cryptopp/issues/366
-template <unsigned int C>
-inline uint64x2_t VEXT_U8(uint64x2_t a, uint64x2_t b)
-{
-    return (uint64x2_t)vextq_u8(vreinterpretq_u8_u64(a), vreinterpretq_u8_u64(b), C);
-}
-#endif // Microsoft and compatibles
-#endif // CRYPTOPP_ARMV8A_PMULL_AVAILABLE
-
 word16 GCM_Base::s_reductionTable[256];
 volatile bool GCM_Base::s_reductionTableInitialized = false;
 
@@ -278,6 +182,9 @@ inline __m128i CLMUL_GF_Mul(const __m128i &x, const __m128i &h, const __m128i &r
 
 #if CRYPTOPP_ARMV8A_PMULL_AVAILABLE
 
+extern size_t GCM_AuthenticateBlocks_ARMV8(const byte *data, size_t len, const byte *mtable, byte *hbuffer);
+extern uint64x2_t GCM_Multiply_ARMV8A(const uint64x2_t &x, const uint64x2_t &h, const uint64x2_t &r);
+
 CRYPTOPP_ALIGN_DATA(16)
 static const word64 s_clmulConstants64[] = {
     W64LIT(0xe100000000000000), W64LIT(0xc200000000000000),  // Used for ARM and x86; polynomial coefficients
@@ -287,31 +194,6 @@ static const word64 s_clmulConstants64[] = {
 
 static const uint64x2_t *s_clmulConstants = (const uint64x2_t *)s_clmulConstants64;
 static const unsigned int s_clmulTableSizeInBlocks = 8;
-
-inline uint64x2_t PMULL_Reduce(uint64x2_t c0, uint64x2_t c1, uint64x2_t c2, const uint64x2_t &r)
-{
-    // See comments fo CLMUL_Reduce
-    c1 = veorq_u64(c1, VEXT_U8<8>(vdupq_n_u64(0), c0));
-    c1 = veorq_u64(c1, PMULL_01(c0, r));
-    c0 = VEXT_U8<8>(c0, vdupq_n_u64(0));
-    c0 = vshlq_n_u64(veorq_u64(c0, c1), 1);
-    c0 = PMULL_00(c0, r);
-    c2 = veorq_u64(c2, c0);
-    c2 = veorq_u64(c2, VEXT_U8<8>(c1, vdupq_n_u64(0)));
-    c1 = vshrq_n_u64(vcombine_u64(vget_low_u64(c1), vget_low_u64(c2)), 63);
-    c2 = vshlq_n_u64(c2, 1);
-
-    return veorq_u64(c2, c1);
-}
-
-inline uint64x2_t PMULL_GF_Mul(const uint64x2_t &x, const uint64x2_t &h, const uint64x2_t &r)
-{
-    const uint64x2_t c0 = PMULL_00(x, h);
-    const uint64x2_t c1 = veorq_u64(PMULL_10(x, h), PMULL_01(x, h));
-    const uint64x2_t c2 = PMULL_11(x, h);
-
-    return PMULL_Reduce(c0, c1, c2, r);
-}
 #endif
 
 void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const NameValuePairs &params)
@@ -388,15 +270,15 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
         uint64x2_t h = h0;
         for (i=0; i<tableSize-32; i+=32)
         {
-            const uint64x2_t h1 = PMULL_GF_Mul(h, h0, r);
+            const uint64x2_t h1 = GCM_Multiply_ARMV8A(h, h0, r);
             vst1_u64((uint64_t *)(table+i), vget_low_u64(h));
             vst1q_u64((uint64_t *)(table+i+16), h1);
             vst1q_u64((uint64_t *)(table+i+8), h);
             vst1_u64((uint64_t *)(table+i+8), vget_low_u64(h1));
-            h = PMULL_GF_Mul(h1, h0, r);
+            h = GCM_Multiply_ARMV8A(h1, h0, r);
         }
 
-        const uint64x2_t h1 = PMULL_GF_Mul(h, h0, r);
+        const uint64x2_t h1 = GCM_Multiply_ARMV8A(h, h0, r);
         vst1_u64((uint64_t *)(table+i), vget_low_u64(h));
         vst1q_u64((uint64_t *)(table+i+16), h1);
         vst1q_u64((uint64_t *)(table+i+8), h);
@@ -667,73 +549,8 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 #elif CRYPTOPP_ARMV8A_PMULL_AVAILABLE
     if (HasPMULL())
     {
-        const uint64x2_t *table = (const uint64x2_t *)MulTable();
-        uint64x2_t x = vreinterpretq_u64_u8(vld1q_u8(HashBuffer()));
-        const uint64x2_t r = s_clmulConstants[0];
-
-        while (len >= 16)
-        {
-            size_t s = UnsignedMin(len/16, s_clmulTableSizeInBlocks), i=0;
-            uint64x2_t d1, d2 = vreinterpretq_u64_u8(vrev64q_u8(vld1q_u8(data+(s-1)*16)));
-            uint64x2_t c0 = vdupq_n_u64(0);
-            uint64x2_t c1 = vdupq_n_u64(0);
-            uint64x2_t c2 = vdupq_n_u64(0);
-
-            while (true)
-            {
-                const uint64x2_t h0 = vld1q_u64((const uint64_t*)(table+i));
-                const uint64x2_t h1 = vld1q_u64((const uint64_t*)(table+i+1));
-                const uint64x2_t h2 = veorq_u64(h0, h1);
-
-                if (++i == s)
-                {
-                    const uint64x2_t t1 = vreinterpretq_u64_u8(vrev64q_u8(vld1q_u8(data)));
-                    d1 = veorq_u64(vextq_u64(t1, t1, 1), x);
-                    c0 = veorq_u64(c0, PMULL_00(d1, h0));
-                    c2 = veorq_u64(c2, PMULL_10(d1, h1));
-                    d1 = veorq_u64(d1, (uint64x2_t)vcombine_u32(vget_high_u32(vreinterpretq_u32_u64(d1)),
-                                                                vget_low_u32(vreinterpretq_u32_u64(d1))));
-                    c1 = veorq_u64(c1, PMULL_00(d1, h2));
-
-                    break;
-                }
-
-                d1 = vreinterpretq_u64_u8(vrev64q_u8(vld1q_u8(data+(s-i)*16-8)));
-                c0 = veorq_u64(c0, PMULL_10(d2, h0));
-                c2 = veorq_u64(c2, PMULL_10(d1, h1));
-                d2 = veorq_u64(d2, d1);
-                c1 = veorq_u64(c1, PMULL_10(d2, h2));
-
-                if (++i == s)
-                {
-                    const uint64x2_t t2 = vreinterpretq_u64_u8(vrev64q_u8(vld1q_u8(data)));
-                    d1 = veorq_u64(vextq_u64(t2, t2, 1), x);
-                    c0 = veorq_u64(c0, PMULL_01(d1, h0));
-                    c2 = veorq_u64(c2, PMULL_11(d1, h1));
-                    d1 = veorq_u64(d1, (uint64x2_t)vcombine_u32(vget_high_u32(vreinterpretq_u32_u64(d1)),
-                                                                vget_low_u32(vreinterpretq_u32_u64(d1))));
-                    c1 = veorq_u64(c1, PMULL_01(d1, h2));
-
-                    break;
-                }
-
-                const uint64x2_t t3 = vreinterpretq_u64_u8(vrev64q_u8(vld1q_u8(data+(s-i)*16-8)));
-                d2 = vextq_u64(t3, t3, 1);
-                c0 = veorq_u64(c0, PMULL_01(d1, h0));
-                c2 = veorq_u64(c2, PMULL_01(d2, h1));
-                d1 = veorq_u64(d1, d2);
-                c1 = veorq_u64(c1, PMULL_01(d1, h2));
-            }
-            data += s*16;
-            len -= s*16;
-
-            c1 = veorq_u64(veorq_u64(c1, c0), c2);
-            x = PMULL_Reduce(c0, c1, c2, r);
-        }
-
-        vst1q_u64((uint64_t *)HashBuffer(), x);
-        return len;
-}
+		return GCM_AuthenticateBlocks_ARMV8(data, len, MulTable(), HashBuffer());
+	}
 #endif
 
     typedef BlockGetAndPut<word64, NativeByteOrder> Block;

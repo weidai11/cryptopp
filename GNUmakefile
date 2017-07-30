@@ -202,6 +202,7 @@ endif  # CXXFLAGS
 ifeq ($(findstring -DCRYPTOPP_DISABLE_SSE4,$(CXXFLAGS)),)
 SSE42_FLAG = $(shell echo | $(CXX) $(CXXFLAGS) -msse4.2 -dM -E - | grep -i -c -q __SSE4_2__ && echo "-msse4.2")
 ifeq ($(findstring -DCRYPTOPP_DISABLE_AESNI,$(CXXFLAGS)),)
+GCM_FLAG = $(shell echo | $(CXX) $(CXXFLAGS) -mpclmul -dM -E - | grep -i -c -q __PCLMUL__ && echo "-mpclmul")
 AES_FLAG = $(shell echo | $(CXX) $(CXXFLAGS) -maes -dM -E - | grep -i -c -q __AES__ && echo "-maes")
 ifeq ($(findstring -DCRYPTOPP_DISABLE_SHA,$(CXXFLAGS)),)
 SHA_FLAG = $(shell echo | $(CXX) $(CXXFLAGS) -msse4.2 -msha -dM -E - | grep -i -c -q __SHA__ && echo "-msse4.2 -msha")
@@ -308,14 +309,16 @@ ifeq ($(IS_NEON),1)
 endif
 
 ifeq ($(IS_ARMV8),1)
-	ARMV8A_FLAG = $(shell echo | $(CXX) $(CXXFLAGS) -march=armv8-a -dM -E - | grep -i -c -q __ARM_NEON && echo "-march=armv8-a")
-	CRC_FLAG = $(shell echo | $(CXX) $(CXXFLAGS) -march=armv8-a+crc -dM -E - | grep -i -c -q __ARM_FEATURE_CRC32 && echo "-march=armv8-a+crc")
-	AES_FLAG = $(shell echo | $(CXX) $(CXXFLAGS) -march=armv8-a+crypto -dM -E - | grep -i -c -q __ARM_FEATURE_CRYPTO && echo "-march=armv8-a+crypto")
-	SHA_FLAG = $(shell echo | $(CXX) $(CXXFLAGS) -march=armv8-a+crypto -dM -E - | grep -i -c -q __ARM_FEATURE_CRYPTO && echo "-march=armv8-a+crypto")
-	GCM_FLAG = $(ARMV8A_FLAG)
-	ARIA_FLAG = $(ARMV8A_FLAG)
-	BLAKE2_FLAG = $(ARMV8A_FLAG)
-	NEON_FLAG = $(ARMV8A_FLAG)
+	ARMV8A_NEON_FLAG = $(shell echo | $(CXX) $(CXXFLAGS) -march=armv8-a -dM -E - | grep -i -c -q __ARM_NEON && echo "-march=armv8-a")
+	ARMV8A_CRC_FLAG = $(shell echo | $(CXX) $(CXXFLAGS) -march=armv8-a+crc -dM -E - | grep -i -c -q __ARM_FEATURE_CRC32 && echo "-march=armv8-a+crc")
+	ARMV8A_CRYPTO_FLAG = $(shell echo | $(CXX) $(CXXFLAGS) -march=armv8-a+crypto -dM -E - | grep -i -c -q __ARM_FEATURE_CRYPTO && echo "-march=armv8-a+crypto")
+	CRC_FLAG = $(ARMV8A_CRC_FLAG)
+	AES_FLAG = $(ARMV8A_CRYPTO_FLAG)
+	GCM_FLAG = $(ARMV8A_CRYPTO_FLAG)
+	SHA_FLAG = $(ARMV8A_CRYPTO_FLAG)
+	ARIA_FLAG = $(ARMV8A_NEON_FLAG)
+	BLAKE2_FLAG = $(ARMV8A_NEON_FLAG)
+	NEON_FLAG = $(ARMV8A_NEON_FLAG)
 endif
 
 endif	# IS_X86
@@ -851,7 +854,7 @@ endif # Dependencies
 # Run rdrand-nasm.sh to create the object files
 ifeq ($(USE_NASM),1)
 rdrand.o: rdrand.h rdrand.cpp rdrand.s
-	$(CXX) $(strip $(CXXFLAGS)) -DNASM_RDRAND_ASM_AVAILABLE=1 -DNASM_RDSEED_ASM_AVAILABLE=1 -c rdrand.cpp
+	$(CXX) $(strip $(CXXFLAGS) -DNASM_RDRAND_ASM_AVAILABLE=1 -DNASM_RDSEED_ASM_AVAILABLE=1 -c rdrand.cpp)
 rdrand-%.o:
 	./rdrand-nasm.sh
 endif
@@ -884,49 +887,49 @@ sha-simd.o : sha-simd.cpp
 #   Also see https://stackoverflow.com/q/12983137/608639.
 ifeq ($(findstring true,$(CI)),true)
 threefish.o : threefish.cpp
-	$(CXX) $(strip $(subst -fsanitize=undefined,,$(CXXFLAGS))) -c $<
+	$(CXX) $(strip $(subst -fsanitize=undefined,,$(CXXFLAGS)) -c) $<
 endif
 
 # Don't build Rijndael with UBsan. Too much noise due to unaligned data accesses.
 ifneq ($(findstring -fsanitize=undefined,$(CXXFLAGS)),)
 rijndael.o : rijndael.cpp
-	$(CXX) $(strip $(subst -fsanitize=undefined,,$(CXXFLAGS))) -c $<
+	$(CXX) $(strip $(subst -fsanitize=undefined,,$(CXXFLAGS)) -c) $<
 endif
 
 # Don't build VMAC and friends with Asan. Too many false positives.
 ifneq ($(findstring -fsanitize=address,$(CXXFLAGS)),)
 vmac.o : vmac.cpp
-	$(CXX) $(strip $(subst -fsanitize=address,,$(CXXFLAGS))) -c $<
+	$(CXX) $(strip $(subst -fsanitize=address,,$(CXXFLAGS)) -c) $<
 endif
 
 # Only use CRYPTOPP_DATA_DIR if its not set in CXXFLAGS
 ifeq ($(findstring -DCRYPTOPP_DATA_DIR, $(strip $(CXXFLAGS))),)
 ifneq ($(strip $(CRYPTOPP_DATA_DIR)),)
 validat%.o : validat%.cpp
-	$(CXX) $(strip $(CXXFLAGS)) -DCRYPTOPP_DATA_DIR=\"$(CRYPTOPP_DATA_DIR)\" -c $<
+	$(CXX) $(strip $(CXXFLAGS) -DCRYPTOPP_DATA_DIR=\"$(CRYPTOPP_DATA_DIR)\" -c) $<
 bench%.o : bench%.cpp
-	$(CXX) $(strip $(CXXFLAGS)) -DCRYPTOPP_DATA_DIR=\"$(CRYPTOPP_DATA_DIR)\" -c $<
+	$(CXX) $(strip $(CXXFLAGS) -DCRYPTOPP_DATA_DIR=\"$(CRYPTOPP_DATA_DIR)\" -c) $<
 datatest.o : datatest.cpp
-	$(CXX) $(strip $(CXXFLAGS)) -DCRYPTOPP_DATA_DIR=\"$(CRYPTOPP_DATA_DIR)\" -c $<
+	$(CXX) $(strip $(CXXFLAGS) -DCRYPTOPP_DATA_DIR=\"$(CRYPTOPP_DATA_DIR)\" -c) $<
 test.o : test.cpp
-	$(CXX) $(strip $(CXXFLAGS)) -DCRYPTOPP_DATA_DIR=\"$(CRYPTOPP_DATA_DIR)\" -c $<
+	$(CXX) $(strip $(CXXFLAGS) -DCRYPTOPP_DATA_DIR=\"$(CRYPTOPP_DATA_DIR)\" -c) $<
 endif
 endif
 
 %.dllonly.o : %.cpp
-	$(CXX) $(strip $(CXXFLAGS)) -DCRYPTOPP_DLL_ONLY -c $< -o $@
+	$(CXX) $(strip $(CXXFLAGS) -DCRYPTOPP_DLL_ONLY -c) $< -o $@
 
 %.import.o : %.cpp
-	$(CXX) $(strip $(CXXFLAGS)) -DCRYPTOPP_IMPORTS -c $< -o $@
+	$(CXX) $(strip $(CXXFLAGS) -DCRYPTOPP_IMPORTS -c) $< -o $@
 
 %.export.o : %.cpp
-	$(CXX) $(strip $(CXXFLAGS)) -DCRYPTOPP_EXPORTS -c $< -o $@
+	$(CXX) $(strip $(CXXFLAGS) -DCRYPTOPP_EXPORTS -c) $< -o $@
 
 %.bc : %.cpp
-	$(CXX) $(strip $(CXXFLAGS)) -c $<
+	$(CXX) $(strip $(CXXFLAGS) -c) $<
 
 %.o : %.cpp
-	$(CXX) $(strip $(CXXFLAGS)) -c $<
+	$(CXX) $(strip $(CXXFLAGS) -c) $<
 
 .PHONY: so_warning
 so_warning:

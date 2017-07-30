@@ -1312,7 +1312,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 		echo "Testing: X86 carryless multiply code generation" | tee -a "$TEST_RESULTS"
 		echo
 
-		OBJFILE=gcm.o; rm -f "$OBJFILE" 2>/dev/null
+		OBJFILE=gcm-simd.o; rm -f "$OBJFILE" 2>/dev/null
 		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS -DDISABLE_NATIVE_ARCH=1" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
 
 		COUNT=0
@@ -1576,7 +1576,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 		echo "Testing: ARM carryless multiply code generation" | tee -a "$TEST_RESULTS"
 		echo
 
-		OBJFILE=gcm.o; rm -f "$OBJFILE" 2>/dev/null
+		OBJFILE=gcm-simd.o; rm -f "$OBJFILE" 2>/dev/null
 		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS -DDISABLE_NATIVE_ARCH=1" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
 
 		COUNT=0

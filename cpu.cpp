@@ -352,36 +352,9 @@ extern "C"
 };
 #endif  // Not CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
 
-static bool TryNEON()
-{
-#if (CRYPTOPP_ARM_NEON_AVAILABLE)
-	return CPU_TryNEON_ARM();
-#else
-	return false;
-#endif
-}
-
-static bool TryCRC32()
-{
-#if (CRYPTOPP_ARMV8A_CRC32_AVAILABLE)
-	return CPU_TryCRC32_ARMV8();
-#else
-	return false;
-#endif
-}
-
-static bool TryPMULL()
-{
-#if (CRYPTOPP_ARMV8A_PMULL_AVAILABLE)
-	return CPU_TryPMULL_ARMV8();
-#else
-	return false;
-#endif
-}
-
 static bool TryAES()
 {
-#if (CRYPTOPP_ARMV8A_CRYPTO_AVAILABLE)
+#if (CRYPTOPP_ARMV8A_AES_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
 	volatile bool result = true;
 	__try
@@ -432,32 +405,14 @@ static bool TryAES()
 #endif  // CRYPTOPP_ARMV8A_CRYPTO_AVAILABLE
 }
 
-static bool TrySHA1()
-{
-#if (CRYPTOPP_ARMV8A_SHA_AVAILABLE)
-	return CPU_TrySHA1_ARMV8();
-#else
-	return false;
-#endif
-}
-
-static bool TrySHA2()
-{
-#if (CRYPTOPP_ARMV8A_SHA_AVAILABLE)
-	return CPU_TrySHA2_ARMV8();
-#else
-	return false;
-#endif
-}
-
 void DetectArmFeatures()
 {
-	g_hasNEON = TryNEON();
-	g_hasPMULL = TryPMULL();
-	g_hasCRC32 = TryCRC32();
-	g_hasAES = TryAES();
-	g_hasSHA1 = TrySHA1();
-	g_hasSHA2 = TrySHA2();
+	g_hasNEON = CPU_TryNEON_ARM();
+	g_hasPMULL = CPU_TryPMULL_ARMV8();
+	g_hasCRC32 = CPU_TryCRC32_ARMV8();
+	g_hasAES = TryAES(); // TODO
+	g_hasSHA1 = CPU_TrySHA1_ARMV8();
+	g_hasSHA2 = CPU_TrySHA2_ARMV8();
 
 	g_ArmDetectionDone = true;
 }
