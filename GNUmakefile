@@ -2,7 +2,7 @@
 #####        System Attributes and Programs           #####
 ###########################################################
 
-TEMPDIR ?= /tmp
+TMPDIR ?= /tmp
 
 AR ?= ar
 ARFLAGS ?= -cr # ar needs the dash on OpenBSD
@@ -24,6 +24,7 @@ IS_PPC := $(shell uname -m | $(EGREP) -i -c "ppc|power")
 IS_ARM32 := $(shell uname -m | $(EGREP) -v "arm64" | $(EGREP) -i -c "arm")
 IS_ARM64 := $(shell uname -m | $(EGREP) -i -c "aarch64")
 IS_ARMV8 ?= $(shell uname -m | $(EGREP) -i -c 'aarch32|aarch64')
+IS_NEON ?= $(shell uname -m | $(EGREP) -i -c 'armv7|armv8|aarch32|aarch64')
 IS_SPARC := $(shell uname -m | $(EGREP) -i -c "sparc")
 IS_SPARC64 := $(shell uname -m | $(EGREP) -i -c "sparc64")
 
@@ -194,14 +195,16 @@ endif  # -DCRYPTOPP_DISABLE_SSSE3
 endif  # -DCRYPTOPP_DISABLE_ASM
 endif  # CXXFLAGS
 
-HAS_CRC := $(shell $(CXX) $(CXXFLAGS) -msse4.2 -o $(TEMPDIR)/t.o -c crc-simd.cpp; echo $$?)
-ifeq ($(HAS_CRC),0)
-CRC_FLAG := -msse4.2
+ifeq ($(findstring -DCRYPTOPP_DISABLE_SSE4,$(CXXFLAGS)),)
+SSE42_FLAG = $(shell echo | $(CXX) $(CXXFLAGS) -msse4.2 -dM -E - | grep -i -c -q __SSE4_2__ && echo "-msse4.2")
+ifeq ($(findstring -DCRYPTOPP_DISABLE_AESNI,$(CXXFLAGS)),)
+AES_FLAG = $(shell echo | $(CXX) $(CXXFLAGS) -maes -dM -E - | grep -i -c -q __AES__ && echo "-maes")
+ifeq ($(findstring -DCRYPTOPP_DISABLE_SHA,$(CXXFLAGS)),)
+SHA_FLAG = $(shell echo | $(CXX) $(CXXFLAGS) -msse4.2 -msha -dM -E - | grep -i -c -q __SHA__ && echo "-msse4.2 -msha")
+BLAKE2_FLAG = $(SSE42_FLAG)
+CRC_FLAG = $(SSE42_FLAG)
 endif
-
-HAS_SHA := $(shell $(CXX) $(CXXFLAGS) -msse4.2 -msha -o $(TEMPDIR)/t.o -c sha.cpp; echo $$?)
-ifeq ($(HAS_SHA),0)
-SHA_FLAG := -msse4.2 -msha
+endif
 endif
 
 # BEGIN_NATIVE_ARCH
@@ -293,15 +296,23 @@ CXXFLAGS += -pipe
 endif
 endif
 
+ifeq ($(IS_NEON),1)
+	NEON_FLAG = $(shell echo | $(CXX) $(CXXFLAGS) -mfpu=neon -dM -E - | grep -i -c -q __SSE4_2__  && echo "-mfpu=neon")
+	GCM_FLAG = $(NEON_FLAG)
+	ARIA_FLAG = $(NEON_FLAG)
+	BLAKE2_FLAG = $(NEON_FLAG)
+	NEON_FLAG = $(NEON_FLAG)
+endif
+
 ifeq ($(IS_ARMV8),1)
-  HAS_CRC := $(shell $(CXX) $(CXXFLAGS) -march=armv8-a+crc -o $(TEMPDIR)/t.o -c crc-simd.cpp; echo $$?)
-  ifeq ($(HAS_CRC),0)
-    CRC_FLAG := -march=armv8-a+crc
-  endif
-  HAS_SHA := $(shell $(CXX) $(CXXFLAGS) -march=armv8-a+crc -o $(TEMPDIR)/t.o -c sha.cpp; echo $$?)
-  ifeq ($(HAS_SHA),0)
-    SHA_FLAG := -march=armv8-a+crypto
-  endif
+	ARMV8A_FLAG = $(shell echo | $(CXX) $(CXXFLAGS) -march=armv8-a -dM -E - | grep -i -c -q __ARM_NEON && echo "-march=armv8-a")
+	CRC_FLAG = $(shell echo | $(CXX) $(CXXFLAGS) -march=armv8-a+crc -dM -E - | grep -i -c -q __ARM_FEATURE_CRC32 && echo "-march=armv8-a+crc")
+	AES_FLAG = $(shell echo | $(CXX) $(CXXFLAGS) -march=armv8-a+crypto -dM -E - | grep -i -c -q __ARM_FEATURE_CRYPTO && echo "-march=armv8-a+crypto")
+	SHA_FLAG = $(shell echo | $(CXX) $(CXXFLAGS) -march=armv8-a+crypto -dM -E - | grep -i -c -q __ARM_FEATURE_CRYPTO && echo "-march=armv8-a+crypto")
+	GCM_FLAG = $(ARMV8A_FLAG)
+	ARIA_FLAG = $(ARMV8A_FLAG)
+	BLAKE2_FLAG = $(ARMV8A_FLAG)
+	NEON_FLAG = $(ARMV8A_FLAG)
 endif
 
 endif	# IS_X86
@@ -545,12 +556,13 @@ endif
 endif # Nasm
 
 # List test.cpp first to tame C++ static initialization problems.
-TESTSRCS := adhoc.cpp test.cpp bench1.cpp bench2.cpp validat0.cpp validat1.cpp validat2.cpp validat3.cpp datatest.cpp regtest1.cpp regtest2.cpp regtest3.cpp fipsalgt.cpp dlltest.cpp
+TESTSRCS := adhoc.cpp test.cpp bench1.cpp bench2.cpp validat0.cpp validat1.cpp validat2.cpp validat3.cpp datatest.cpp regtest1.cpp regtest2.cpp regtest3.cpp dlltest.cpp fipsalgt.cpp
 TESTOBJS := $(TESTSRCS:.cpp=.o)
 LIBOBJS := $(filter-out $(TESTOBJS),$(OBJS))
 
 # List cryptlib.cpp first, then cpu.cpp, then integer.cpp to tame C++ static initialization problems.
-DLLSRCS := cryptlib.cpp cpu.cpp integer.cpp shacal2.cpp md5.cpp shark.cpp zinflate.cpp gf2n.cpp salsa.cpp xtr.cpp oaep.cpp poly1305.cpp polynomi.cpp rc2.cpp default.cpp wait.cpp wake.cpp twofish.cpp iterhash.cpp adler32.cpp elgamal.cpp marss.cpp blowfish.cpp ecp.cpp filters.cpp strciphr.cpp camellia.cpp ida.cpp zlib.cpp des.cpp crc.cpp crc-simd.cpp algparam.cpp dessp.cpp tea.cpp eax.cpp network.cpp emsa2.cpp pkcspad.cpp squaretb.cpp idea.cpp authenc.cpp kalyna.cpp threefish.cpp hmac.cpp zdeflate.cpp xtrcrypt.cpp queue.cpp mars.cpp rc5.cpp blake2.cpp hrtimer.cpp eprecomp.cpp hex.cpp dsa.cpp sha.cpp fips140.cpp gzip.cpp seal.cpp files.cpp base32.cpp vmac.cpp tigertab.cpp sharkbox.cpp safer.cpp randpool.cpp esign.cpp arc4.cpp osrng.cpp skipjack.cpp seed.cpp sha3.cpp sosemanuk.cpp bfinit.cpp rabin.cpp 3way.cpp rw.cpp rdrand.cpp rsa.cpp rdtables.cpp gost.cpp socketft.cpp tftables.cpp nbtheory.cpp panama.cpp modes.cpp rijndael.cpp casts.cpp chacha.cpp gfpcrypt.cpp poly1305.cpp dll.cpp ec2n.cpp blumshub.cpp algebra.cpp basecode.cpp base64.cpp cbcmac.cpp rc6.cpp dh2.cpp gf256.cpp mqueue.cpp misc.cpp pssr.cpp channels.cpp tiger.cpp cast.cpp rng.cpp square.cpp asn.cpp whrlpool.cpp md4.cpp dh.cpp ccm.cpp md2.cpp mqv.cpp gf2_32.cpp ttmac.cpp luc.cpp trdlocal.cpp pubkey.cpp gcm.cpp ripemd.cpp eccrypto.cpp serpent.cpp cmac.cpp
+DLLSRCS := cryptlib.cpp cpu.cpp integer.cpp 3way.cpp adler32.cpp algebra.cpp algparam.cpp arc4.cpp aria.cpp asn.cpp authenc.cpp base32.cpp base64.cpp basecode.cpp bfinit.cpp blake2-simd.cpp blake2.cpp blowfish.cpp blumshub.cpp camellia.cpp cast.cpp casts.cpp cbcmac.cpp ccm.cpp chacha.cpp channels.cpp cmac.cpp crc-simd.cpp crc.cpp default.cpp des.cpp dessp.cpp dh.cpp dh2.cpp dll.cpp dsa.cpp eax.cpp ec2n.cpp eccrypto.cpp ecp.cpp elgamal.cpp emsa2.cpp eprecomp.cpp esign.cpp files.cpp filters.cpp fips140.cpp fipstest.cpp gcm.cpp gf256.cpp gf2_32.cpp gf2n.cpp gfpcrypt.cpp gost.cpp gzip.cpp hex.cpp hmac.cpp hrtimer.cpp ida.cpp idea.cpp iterhash.cpp kalyna.cpp kalynatab.cpp keccak.cpp luc.cpp mars.cpp marss.cpp md2.cpp md4.cpp md5.cpp misc.cpp modes.cpp mqueue.cpp mqv.cpp nbtheory.cpp neon.cpp network.cpp oaep.cpp ospstore.cpp osrng.cpp panama.cpp pkcspad.cpp poly1305.cpp polynomi.cpp pssr.cpp pubkey.cpp queue.cpp rabin.cpp randpool.cpp rc2.cpp rc5.cpp rc6.cpp rdrand.cpp rdtables.cpp rijndael.cpp ripemd.cpp rng.cpp rsa.cpp rw.cpp safer.cpp salsa.cpp seal.cpp seed.cpp serpent.cpp sha-simd.cpp sha.cpp sha3.cpp shacal2.cpp shark.cpp sharkbox.cpp skipjack.cpp socketft.cpp sosemanuk.cpp square.cpp squaretb.cpp strciphr.cpp tea.cpp tftables.cpp threefish.cpp tiger.cpp tigertab.cpp trdlocal.cpp ttmac.cpp twofish.cpp vmac.cpp wait.cpp wake.cpp whrlpool.cpp xtr.cpp xtrcrypt.cpp zdeflate.cpp zinflate.cpp zlib.cpp
+
 DLLOBJS := $(DLLSRCS:.cpp=.export.o)
 
 # Import lib testing
@@ -573,8 +585,8 @@ static: libcryptopp.a
 shared dynamic: libcryptopp.so$(SOLIB_VERSION_SUFFIX)
 endif
 
-.PHONY: deps
-deps GNUmakefile.deps:
+.PHONY: dep deps depend
+dep deps depend GNUmakefile.deps:
 	$(CXX) $(strip $(CXXFLAGS)) -MM *.cpp > GNUmakefile.deps
 
 # CXXFLAGS are tuned earlier.
@@ -841,11 +853,23 @@ rdrand-%.o:
 	./rdrand-nasm.sh
 endif
 
+# SSE4.2 or NEON available
+aria-simd.o : aria-simd.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(ARIA_FLAG) -c) $<
+
+# SSE4.2 or NEON available
+neon.o : neon.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(NEON_FLAG) -c) $<
+
+# SSE4.2 or ARMv8a available
+blake2-simd.o : blake2-simd.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(BLAKE2_FLAG) -c) $<
+
 # SSE4.2 or ARMv8a available
 crc-simd.o : crc-simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(CRC_FLAG) -c) $<
 
-# SSE4.2/SHANI or ARMv8a available
+# SSE4.2/SHA-NI or ARMv8a available
 sha-simd.o : sha-simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(SHA_FLAG) -c) $<
 

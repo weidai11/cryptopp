@@ -730,7 +730,7 @@ void CRYPTOPP_FASTCALL SHA256_HashBlocks_ARMV8A(word32 *state, const word32 *dat
     STATE0 = vld1q_u32(&state[0]);
     STATE1 = vld1q_u32(&state[4]);
 
-	const size_t BLOCKSIZE = 6;
+	const size_t BLOCKSIZE = 64;
     while (length >= BLOCKSIZE)
     {
         // Save current hash

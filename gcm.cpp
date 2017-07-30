@@ -211,7 +211,7 @@ inline static void SSE2_Xor16(byte *a, const byte *b, const byte *c)
 }
 #endif
 
-#if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
+#if CRYPTOPP_ARM_NEON_AVAILABLE
 inline static void NEON_Xor16(byte *a, const byte *b, const byte *c)
 {
     CRYPTOPP_ASSERT(IsAlignedOn(a,GetAlignmentOf<uint64x2_t>()));
@@ -437,7 +437,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
                     for (k=1; k<j; k++)
                         SSE2_Xor16(table+i*256*16+(j+k)*16, table+i*256*16+j*16, table+i*256*16+k*16);
             else
-#elif CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
+#elif CRYPTOPP_ARM_NEON_AVAILABLE
             if (HasNEON())
                 for (j=2; j<=0x80; j*=2)
                     for (k=1; k<j; k++)
@@ -492,7 +492,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
                         SSE2_Xor16(table+1024+i*256+(j+k)*16, table+1024+i*256+j*16, table+1024+i*256+k*16);
                     }
             else
-#elif CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
+#elif CRYPTOPP_ARM_NEON_AVAILABLE
             if (HasNEON())
                 for (j=2; j<=8; j*=2)
                     for (k=1; k<j; k++)
@@ -582,7 +582,7 @@ unsigned int GCM_Base::OptimalDataAlignment() const
     return
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)
         HasSSE2() ? 16 :
-#elif CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
+#elif CRYPTOPP_ARM_NEON_AVAILABLE
         HasNEON() ? 16 :
 #endif
         GetBlockCipher().OptimalDataAlignment();
@@ -749,7 +749,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
     switch (2*(m_buffer.size()>=64*1024)
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)
         + HasSSE2()
-//#elif CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
+//#elif CRYPTOPP_ARM_NEON_AVAILABLE
 //      + HasNEON()
 #endif
         )

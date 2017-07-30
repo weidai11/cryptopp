@@ -15,7 +15,7 @@
 # define CRYPTOPP_ENABLE_ARIA_SSSE3_INTRINSICS 1
 #endif
 
-#if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
+#if CRYPTOPP_ARM_NEON_AVAILABLE
 # define CRYPTOPP_ENABLE_ARIA_NEON_INTRINSICS 1
 #endif
 
@@ -222,6 +222,11 @@ inline byte ARIA_BRF(const word32 x, const int y) {
 #define ARIA_FO {SBL1_M(t[0],t[1],t[2],t[3]) ARIA_MM(t[0],t[1],t[2],t[3]) ARIA_P(t[0],t[1],t[2],t[3]) ARIA_MM(t[0],t[1],t[2],t[3])}
 #define ARIA_FE {SBL2_M(t[0],t[1],t[2],t[3]) ARIA_MM(t[0],t[1],t[2],t[3]) ARIA_P(t[2],t[3],t[0],t[1]) ARIA_MM(t[0],t[1],t[2],t[3])}
 
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
+extern void ARIA_UncheckedSetKey_Schedule_NEON(byte* rk, word32* ws, unsigned int keylen);
+extern void ARIA_ProcessAndXorBlock_Xor_NEON(const byte* xorBlock, byte* outblock);
+#endif
+
 // n-bit right shift of Y XORed to X
 template <unsigned int N>
 inline void ARIA_GSRK(const word32 X[4], const word32 Y[4], byte RK[16])
@@ -234,21 +239,6 @@ inline void ARIA_GSRK(const word32 X[4], const word32 Y[4], byte RK[16])
 	reinterpret_cast<word32*>(RK)[2] = (X[2]) ^ ((Y[(Q+2)%4])>>R) ^ ((Y[(Q+1)%4])<<(32-R));
 	reinterpret_cast<word32*>(RK)[3] = (X[3]) ^ ((Y[(Q+3)%4])>>R) ^ ((Y[(Q+2)%4])<<(32-R));
 }
-
-#if CRYPTOPP_ENABLE_ARIA_NEON_INTRINSICS
-template <unsigned int N>
-inline void ARIA_GSRK_NEON(const uint32x4_t X, const uint32x4_t Y, byte RK[16])
-{
-	static const unsigned int Q1 = (4-(N/32)) % 4;
-	static const unsigned int Q2 = (3-(N/32)) % 4;
-	static const unsigned int R = N % 32;
-
-	vst1q_u32(reinterpret_cast<uint32_t*>(RK),
-		veorq_u32(X, veorq_u32(
-			vshrq_n_u32(vextq_u32(Y, Y, Q1), R),
-			vshlq_n_u32(vextq_u32(Y, Y, Q2), 32-R))));
-}
-#endif
 
 void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const NameValuePairs &params)
 {
@@ -385,36 +375,7 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 #if CRYPTOPP_ENABLE_ARIA_NEON_INTRINSICS
 	if (HasNEON())
 	{
-		const uint32x4_t w0 = vld1q_u32((const uint32_t*)(m_w.data()+0));
-		const uint32x4_t w1 = vld1q_u32((const uint32_t*)(m_w.data()+8));
-		const uint32x4_t w2 = vld1q_u32((const uint32_t*)(m_w.data()+12));
-		const uint32x4_t w3 = vld1q_u32((const uint32_t*)(m_w.data()+16));
-
-		ARIA_GSRK_NEON<19>(w0, w1, rk +   0);
-		ARIA_GSRK_NEON<19>(w1, w2, rk +  16);
-		ARIA_GSRK_NEON<19>(w2, w3, rk +  32);
-		ARIA_GSRK_NEON<19>(w3, w0, rk +  48);
-		ARIA_GSRK_NEON<31>(w0, w1, rk +  64);
-		ARIA_GSRK_NEON<31>(w1, w2, rk +  80);
-		ARIA_GSRK_NEON<31>(w2, w3, rk +  96);
-		ARIA_GSRK_NEON<31>(w3, w0, rk + 112);
-		ARIA_GSRK_NEON<67>(w0, w1, rk + 128);
-		ARIA_GSRK_NEON<67>(w1, w2, rk + 144);
-		ARIA_GSRK_NEON<67>(w2, w3, rk + 160);
-		ARIA_GSRK_NEON<67>(w3, w0, rk + 176);
-		ARIA_GSRK_NEON<97>(w0, w1, rk + 192);
-
-		if (keylen > 16)
-		{
-			ARIA_GSRK_NEON<97>(w1, w2, rk + 208);
-			ARIA_GSRK_NEON<97>(w2, w3, rk + 224);
-
-			if (keylen > 24)
-			{
-				ARIA_GSRK_NEON< 97>(w3, w0, rk + 240);
-				ARIA_GSRK_NEON<109>(w0, w1, rk + 256);
-			}
-		}
+		ARIA_UncheckedSetKey_Schedule_NEON(rk, m_w, keylen);
 	}
 	else
 #endif  // CRYPTOPP_ENABLE_ARIA_NEON_INTRINSICS
@@ -621,18 +582,13 @@ void ARIA::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
 	if (HasNEON())
 	{
 		if (xorBlock != NULLPTR)
-		{
-			vst1q_u32(reinterpret_cast<uint32_t*>(outBlock),
-				veorq_u32(
-					vld1q_u32((const uint32_t*)outBlock),
-					vld1q_u32((const uint32_t*)xorBlock)));
-		}
+			ARIA_ProcessAndXorBlock_Xor_NEON(xorBlock, outBlock);
 	}
 	else
 #endif  // CRYPTOPP_ENABLE_ARIA_NEON_INTRINSICS
 	{
 		if (xorBlock != NULLPTR)
-			for (unsigned int n=0; n<16; ++n)
+			for (unsigned int n=0; n<ARIA::BLOCKSIZE; ++n)
 				outBlock[n] ^= xorBlock[n];
 	}
 }

@@ -158,6 +158,7 @@
     <ClCompile Include="algparam.cpp" />
     <ClCompile Include="arc4.cpp" />
     <ClCompile Include="aria.cpp" />
+    <ClCompile Include="aria-simd.cpp" />
     <ClCompile Include="asn.cpp" />
     <ClCompile Include="authenc.cpp" />
     <ClCompile Include="base32.cpp" />
@@ -165,6 +166,7 @@
     <ClCompile Include="basecode.cpp" />
     <ClCompile Include="bfinit.cpp" />
     <ClCompile Include="blake2.cpp" />
+    <ClCompile Include="blake2-simd.cpp" />
     <ClCompile Include="blowfish.cpp" />
     <ClCompile Include="blumshub.cpp" />
     <ClCompile Include="camellia.cpp" />

@@ -11,6 +11,7 @@ algparam.h
 arc4.cpp
 arc4.h
 aria.cpp
+aria-simd.cpp
 aria.h
 argnames.h
 asn.cpp
@@ -29,6 +30,7 @@ bench1.cpp
 bench2.cpp
 bfinit.cpp
 blake2.cpp
+blake2-simd.cpp
 blake2.h
 blowfish.cpp
 blowfish.h
@@ -178,6 +180,7 @@ mqv.cpp
 mqv.h
 nbtheory.cpp
 nbtheory.h
+neon.cpp
 network.cpp
 network.h
 nr.h
@@ -248,8 +251,8 @@ seed.h
 serpent.cpp
 serpent.h
 serpentp.h
-sha-simd.cpp
 sha.cpp
+sha-simd.cpp
 sha.h
 sha3.cpp
 sha3.h
