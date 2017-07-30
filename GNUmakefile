@@ -2,8 +2,12 @@
 #####        System Attributes and Programs           #####
 ###########################################################
 
+# If needed
 TMPDIR ?= /tmp
+# Used for ARMv7 and NEON.
+FP_ABI ?= hard
 
+# Command ard arguments
 AR ?= ar
 ARFLAGS ?= -cr # ar needs the dash on OpenBSD
 RANLIB ?= ranlib
@@ -297,7 +301,7 @@ endif
 endif
 
 ifeq ($(IS_NEON),1)
-	NEON_FLAG = $(shell echo | $(CXX) $(CXXFLAGS) -march=armv7-a -mfloat-abi=softfp -mfpu=neon -dM -E - | grep -i -c -q __ARM_NEON && echo "-march=armv7-a -mfloat-abi=softfp -mfpu=neon")
+	NEON_FLAG = $(shell echo | $(CXX) $(CXXFLAGS) -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon -dM -E - | grep -i -c -q __ARM_NEON && echo "-march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon")
 	GCM_FLAG = $(NEON_FLAG)
 	ARIA_FLAG = $(NEON_FLAG)
 	BLAKE2_FLAG = $(NEON_FLAG)
@@ -867,6 +871,10 @@ blake2-simd.o : blake2-simd.cpp
 # SSE4.2 or ARMv8a available
 crc-simd.o : crc-simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(CRC_FLAG) -c) $<
+
+# PCLMUL or ARMv7a/ARMv8a available
+gcm-simd.o : gcm-simd.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(GCM_FLAG) -c) $<
 
 # SSE4.2/SHA-NI or ARMv8a available
 sha-simd.o : sha-simd.cpp

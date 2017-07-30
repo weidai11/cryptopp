@@ -49,6 +49,10 @@ NAMESPACE_BEGIN(CryptoPP)
 #endif
 #endif
 
+#if CRYPTOPP_ARM_NEON_AVAILABLE
+extern void GCM_Xor16_NEON(byte *a, const byte *b, const byte *c);
+#endif
+
 #if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64) && CRYPTOPP_ARMV8A_PMULL_AVAILABLE
 #if defined(__GNUC__)
 // Schneiders, Hovsmith and O'Rourke used this trick.
@@ -193,6 +197,15 @@ __m128i _mm_clmulepi64_si128(const __m128i &a, const __m128i &b, int i)
 }
 #endif
 
+inline static void Xor16(byte *a, const byte *b, const byte *c)
+{
+    CRYPTOPP_ASSERT(IsAlignedOn(a,GetAlignmentOf<word64>()));
+    CRYPTOPP_ASSERT(IsAlignedOn(b,GetAlignmentOf<word64>()));
+    CRYPTOPP_ASSERT(IsAlignedOn(c,GetAlignmentOf<word64>()));
+    ((word64 *)(void *)a)[0] = ((word64 *)(void *)b)[0] ^ ((word64 *)(void *)c)[0];
+    ((word64 *)(void *)a)[1] = ((word64 *)(void *)b)[1] ^ ((word64 *)(void *)c)[1];
+}
+
 #if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE || CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
 inline static void SSE2_Xor16(byte *a, const byte *b, const byte *c)
 {
@@ -210,25 +223,6 @@ inline static void SSE2_Xor16(byte *a, const byte *b, const byte *c)
 # endif
 }
 #endif
-
-#if CRYPTOPP_ARM_NEON_AVAILABLE
-inline static void NEON_Xor16(byte *a, const byte *b, const byte *c)
-{
-    CRYPTOPP_ASSERT(IsAlignedOn(a,GetAlignmentOf<uint64x2_t>()));
-    CRYPTOPP_ASSERT(IsAlignedOn(b,GetAlignmentOf<uint64x2_t>()));
-    CRYPTOPP_ASSERT(IsAlignedOn(c,GetAlignmentOf<uint64x2_t>()));
-    *(uint64x2_t*)a = veorq_u64(*(uint64x2_t*)b, *(uint64x2_t*)c);
-}
-#endif
-
-inline static void Xor16(byte *a, const byte *b, const byte *c)
-{
-    CRYPTOPP_ASSERT(IsAlignedOn(a,GetAlignmentOf<word64>()));
-    CRYPTOPP_ASSERT(IsAlignedOn(b,GetAlignmentOf<word64>()));
-    CRYPTOPP_ASSERT(IsAlignedOn(c,GetAlignmentOf<word64>()));
-    ((word64 *)(void *)a)[0] = ((word64 *)(void *)b)[0] ^ ((word64 *)(void *)c)[0];
-    ((word64 *)(void *)a)[1] = ((word64 *)(void *)b)[1] ^ ((word64 *)(void *)c)[1];
-}
 
 #if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
 CRYPTOPP_ALIGN_DATA(16)
@@ -441,7 +435,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
             if (HasNEON())
                 for (j=2; j<=0x80; j*=2)
                     for (k=1; k<j; k++)
-                        NEON_Xor16(table+i*256*16+(j+k)*16, table+i*256*16+j*16, table+i*256*16+k*16);
+                        GCM_Xor16_NEON(table+i*256*16+(j+k)*16, table+i*256*16+j*16, table+i*256*16+k*16);
             else
 #endif
                 for (j=2; j<=0x80; j*=2)
@@ -497,8 +491,8 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
                 for (j=2; j<=8; j*=2)
                     for (k=1; k<j; k++)
                     {
-                        NEON_Xor16(table+i*256+(j+k)*16, table+i*256+j*16, table+i*256+k*16);
-                        NEON_Xor16(table+1024+i*256+(j+k)*16, table+1024+i*256+j*16, table+1024+i*256+k*16);
+                        GCM_Xor16_NEON(table+i*256+(j+k)*16, table+i*256+j*16, table+i*256+k*16);
+                        GCM_Xor16_NEON(table+1024+i*256+(j+k)*16, table+1024+i*256+j*16, table+1024+i*256+k*16);
                     }
             else
 #endif

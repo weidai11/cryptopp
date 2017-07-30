@@ -264,14 +264,14 @@ bool TestSettings()
 	// Don't assert the alignment of testvals. That's what this test is for.
 	byte testvals[10] = {1,2,2,3,3,3,3,2,2,1};
 	if (*(word32 *)(void *)(testvals+3) == 0x03030303 && *(word64 *)(void *)(testvals+1) == W64LIT(0x0202030303030202))
-		std::cout << "passed:  Your machine allows unaligned data access.\n";
+		std::cout << "passed:  Unaligned data access (CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS).\n";
 	else
 	{
 		std::cout << "FAILED:  Unaligned data access gave incorrect results.\n";
 		pass = false;
 	}
 #else
-	std::cout << "passed:  CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS is not defined. Will restrict to aligned data access.\n";
+	std::cout << "passed:  Aligned data access (no CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS).\n";
 #endif
 
 	if (sizeof(byte) == 1)

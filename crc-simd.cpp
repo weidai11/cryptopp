@@ -14,9 +14,11 @@
 # include "nmmintrin.h"
 #endif
 
-#if (CRYPTOPP_ARMV8A_CRC32_AVAILABLE) && defined(__GNUC__)
+#if (CRYPTOPP_ARMV8A_CRC32_AVAILABLE)
 # include "arm_neon.h"
+#if defined(__GNUC__)
 # include "arm_acle.h"
+#endif
 #endif
 
 #ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
