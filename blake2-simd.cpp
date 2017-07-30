@@ -1580,8 +1580,6 @@ void BLAKE2_Compress64_SSE4(const byte* input, BLAKE2_State<word64, true>& state
 #if CRYPTOPP_BOOL_ARM32 && CRYPTOPP_ARM_NEON_AVAILABLE
 void BLAKE2_Compress32_NEON(const byte* input, BLAKE2_State<word32, false>& state)
 {
-	XXX
-	
     #define BLAKE2S_LOAD_MSG_0_1(buf) \
     do { uint32x2_t t0, t1; \
     t0 = vzip_u32(vget_low_u32(m0), vget_high_u32(m0)).val[0]; \

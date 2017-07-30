@@ -297,11 +297,10 @@ endif
 endif
 
 ifeq ($(IS_NEON),1)
-	NEON_FLAG = $(shell echo | $(CXX) $(CXXFLAGS) -mfpu=neon -dM -E - | grep -i -c -q __SSE4_2__  && echo "-mfpu=neon")
+	NEON_FLAG = $(shell echo | $(CXX) $(CXXFLAGS) -march=armv7-a -mfloat-abi=softfp -mfpu=neon -dM -E - | grep -i -c -q __ARM_NEON && echo "-march=armv7-a -mfloat-abi=softfp -mfpu=neon")
 	GCM_FLAG = $(NEON_FLAG)
 	ARIA_FLAG = $(NEON_FLAG)
 	BLAKE2_FLAG = $(NEON_FLAG)
-	NEON_FLAG = $(NEON_FLAG)
 endif
 
 ifeq ($(IS_ARMV8),1)
