@@ -44,6 +44,8 @@ extern "C" {
 };
 #endif  // Not CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
 
+#if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
+
 bool CPU_TryCRC32_ARMV8()
 {
 #if (CRYPTOPP_ARM_CRC32_AVAILABLE)
@@ -103,6 +105,7 @@ bool CPU_TryCRC32_ARMV8()
     return false;
 #endif  // CRYPTOPP_ARM_CRC32_AVAILABLE
 }
+#endif  // ARM32 or ARM64
 
 #if (CRYPTOPP_ARM_CRC32_AVAILABLE)
 void CRC32_Update_ARMV8(const byte *s, size_t n, word32& c)

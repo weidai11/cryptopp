@@ -160,6 +160,7 @@ extern "C" {
 };
 #endif  // Not CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
 
+#if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
 bool CPU_TryPMULL_ARMV8()
 {
 #if (CRYPTOPP_ARM_PMULL_AVAILABLE)
@@ -226,6 +227,7 @@ bool CPU_TryPMULL_ARMV8()
     return false;
 #endif  // CRYPTOPP_ARM_SHA_AVAILABLE
 }
+#endif  // ARM32 or ARM64
 
 #if CRYPTOPP_ARM_NEON_AVAILABLE
 void GCM_Xor16_NEON(byte *a, const byte *b, const byte *c)

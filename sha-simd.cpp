@@ -48,8 +48,7 @@ extern "C" {
 };
 #endif  // Not CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
 
-extern const word32 SHA256_K[64];
-
+#if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
 bool CPU_TrySHA1_ARMV8()
 {
 #if (CRYPTOPP_ARM_SHA_AVAILABLE)
@@ -165,6 +164,9 @@ bool CPU_TrySHA2_ARMV8()
 	return false;
 #endif  // CRYPTOPP_ARM_SHA_AVAILABLE
 }
+#endif  // ARM32 or ARM64
+
+extern const word32 SHA256_K[64];
 
 ///////////////////////////////////
 // start of Walton/Gulley's code //
