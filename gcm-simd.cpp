@@ -279,7 +279,7 @@ uint64x2_t GCM_Multiply_PMULL(const uint64x2_t &x, const uint64x2_t &h, const ui
     return GCM_Reduce_PMULL(c0, c1, c2, r);
 }
 
-void GCM_SetKeyWithoutResync_PMULL(byte *mulTable, byte *hashKey, unsigned int tableSize)
+void GCM_SetKeyWithoutResync_PMULL(const byte *hashKey, byte *mulTable, unsigned int tableSize)
 {
 	const uint64x2_t r = s_clmulConstants[0];
 	const uint64x2_t t = vreinterpretq_u64_u8(vrev64q_u8(vld1q_u8(hashKey)));
@@ -472,10 +472,10 @@ __m128i GCM_Multiply_CLMUL(const __m128i &x, const __m128i &h, const __m128i &r)
     return GCM_Reduce_CLMUL(c0, c1, c2, r);
 }
 
-void GCM_SetKeyWithoutResync_CLMUL(byte *mulTable, byte *hashKey, unsigned int tableSize)
+void GCM_SetKeyWithoutResync_CLMUL(const byte *hashKey, byte *mulTable, unsigned int tableSize)
 {
     const __m128i r = s_clmulConstants[0];
-    const __m128i h0 = _mm_shuffle_epi8(_mm_load_si128((__m128i *)(void *)hashKey), s_clmulConstants[1]);
+    const __m128i h0 = _mm_shuffle_epi8(_mm_load_si128((const __m128i *)(const void *)hashKey), s_clmulConstants[1]);
 
     __m128i h = h0;
 	unsigned int i;

@@ -89,10 +89,9 @@ inline static void SSE2_Xor16(byte *a, const byte *b, const byte *c)
 #endif
 
 #if CRYPTOPP_CLMUL_AVAILABLE
-
 extern __m128i GCM_Multiply_CLMUL(const __m128i &x, const __m128i &h, const __m128i &r);
 extern __m128i GCM_Reduce_CLMUL(__m128i c0, __m128i c1, __m128i c2, const __m128i &r);
-extern void GCM_SetKeyWithoutResync_CLMUL(byte *mulTable, byte *hashKey, unsigned int tableSize);
+extern void GCM_SetKeyWithoutResync_CLMUL(const byte *hashKey, byte *mulTable, unsigned int tableSize);
 extern void GCM_ReverseHashBufferIfNeeded_CLMUL(byte *hashBuffer);
 extern size_t GCM_AuthenticateBlocks_CLMUL(const byte *data, size_t len, const byte *mtable, byte *hbuffer);
 
@@ -104,14 +103,12 @@ const word64 s_clmulConstants64[] = {
 
 const __m128i *s_clmulConstants = (const __m128i *)(const void *)s_clmulConstants64;
 const unsigned int s_cltableSizeInBlocks = 8;
-
-#endif
+#endif  // CRYPTOPP_CLMUL_AVAILABLE
 
 #if CRYPTOPP_ARM_PMULL_AVAILABLE
-
 extern size_t GCM_AuthenticateBlocks_PMULL(const byte *data, size_t len, const byte *mtable, byte *hbuffer);
 extern uint64x2_t GCM_Multiply_PMULL(const uint64x2_t &x, const uint64x2_t &h, const uint64x2_t &r);
-extern void GCM_SetKeyWithoutResync_PMULL(byte *mulTable, byte *hashKey, unsigned int tableSize);
+extern void GCM_SetKeyWithoutResync_PMULL(const byte *hashKey, byte *mulTable, unsigned int tableSize);
 
 CRYPTOPP_ALIGN_DATA(16)
 const word64 s_clmulConstants64[] = {
@@ -122,7 +119,7 @@ const word64 s_clmulConstants64[] = {
 
 const uint64x2_t *s_clmulConstants = (const uint64x2_t *)s_clmulConstants64;
 const unsigned int s_cltableSizeInBlocks = 8;
-#endif
+#endif  // CRYPTOPP_ARM_PMULL_AVAILABLE
 
 void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const NameValuePairs &params)
 {
@@ -172,13 +169,13 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
 #if CRYPTOPP_CLMUL_AVAILABLE
     if (HasCLMUL())
     {
-        GCM_SetKeyWithoutResync_CLMUL(mulTable, hashKey, tableSize);
+        GCM_SetKeyWithoutResync_CLMUL(hashKey, mulTable, tableSize);
         return;
     }
 #elif CRYPTOPP_ARM_PMULL_AVAILABLE
     if (HasPMULL())
     {
-        GCM_SetKeyWithoutResync_PMULL(mulTable, hashKey, tableSize);
+        GCM_SetKeyWithoutResync_PMULL(hashKey, mulTable, tableSize);
         return;
     }
 #endif
