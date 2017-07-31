@@ -402,7 +402,7 @@ static bool TryAES()
 # endif
 #else
 	return false;
-#endif  // CRYPTOPP_ARMV8A_CRYPTO_AVAILABLE
+#endif  // CRYPTOPP_ARM_CRYPTO_AVAILABLE
 }
 
 void DetectArmFeatures()

@@ -15,13 +15,17 @@
 # include "nmmintrin.h"
 #endif
 
-#if (CRYPTOPP_ARM_NEON_AVAILABLE) && defined(__GNUC__)
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
 # include "arm_neon.h"
 #endif
 
 #ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
 # include <signal.h>
 # include <setjmp.h>
+#endif
+
+#ifndef EXCEPTION_EXECUTE_HANDLER
+# define EXCEPTION_EXECUTE_HANDLER 1
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)

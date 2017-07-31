@@ -9,10 +9,6 @@
 #include "pch.h"
 #include "config.h"
 
-#ifndef EXCEPTION_EXECUTE_HANDLER
-# define EXCEPTION_EXECUTE_HANDLER 1
-#endif
-
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
 # include "arm_neon.h"
 #endif
@@ -20,6 +16,10 @@
 #ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
 # include <signal.h>
 # include <setjmp.h>
+#endif
+
+#ifndef EXCEPTION_EXECUTE_HANDLER
+# define EXCEPTION_EXECUTE_HANDLER 1
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -36,9 +36,9 @@ extern "C" {
 };
 #endif  // Not CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
 
-#if (CRYPTOPP_ARM_NEON_AVAILABLE)
 bool CPU_TryNEON_ARM()
 {
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
 	volatile bool result = true;
 	__try
@@ -99,7 +99,9 @@ bool CPU_TryNEON_ARM()
 	signal(SIGILL, oldHandler);
 	return result;
 # endif
-}
+#else
+	return false;
 #endif  // CRYPTOPP_ARM_NEON_AVAILABLE
+}
 
 NAMESPACE_END

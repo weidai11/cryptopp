@@ -17,14 +17,18 @@
 
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
 # include "arm_neon.h"
-#if (CRYPTOPP_ARM_PMULL_AVAILABLE)
+# if (CRYPTOPP_ARM_PMULL_AVAILABLE)
 # include "arm_acle.h"
-#endif
+# endif
 #endif
 
 #ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
 # include <signal.h>
 # include <setjmp.h>
+#endif
+
+#ifndef EXCEPTION_EXECUTE_HANDLER
+# define EXCEPTION_EXECUTE_HANDLER 1
 #endif
 
 ANONYMOUS_NAMESPACE_BEGIN
@@ -216,12 +220,12 @@ bool CPU_TryPMULL_ARMV8()
 
     sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
     signal(SIGILL, oldHandler);
-	return result;
+    return result;
 # endif
 #else
-	return false;
+    return false;
+#endif  // CRYPTOPP_ARM_SHA_AVAILABLE
 }
-#endif  // CRYPTOPP_ARMV8A_SHA_AVAILABLE
 
 #if CRYPTOPP_ARM_NEON_AVAILABLE
 void GCM_Xor16_NEON(byte *a, const byte *b, const byte *c)

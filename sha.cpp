@@ -100,7 +100,7 @@ static void SHA1_Transform_CXX(word32 *state, const word32 *data)
 #if CRYPTOPP_SHANI_AVAILABLE
 extern void SHA1_Transform_SHANI(word32 *state, const word32 *data);
 extern void CRYPTOPP_FASTCALL SHA256_HashBlocks_SHANI(word32 *state, const word32 *data, size_t length);
-#elif CRYPTOPP_ARMV8A_SHA_AVAILABLE
+#elif CRYPTOPP_ARM_SHA_AVAILABLE
 extern void SHA1_Transform_ARMV8A(word32 *state, const word32 *data);
 extern void CRYPTOPP_FASTCALL SHA256_HashBlocks_ARMV8A(word32 *state, const word32 *data, size_t length);
 #endif
@@ -112,7 +112,7 @@ static pfnSHATransform InitializeSHA1Transform()
         return &SHA1_Transform_SHANI;
     else
 #endif
-#if CRYPTOPP_ARMV8A_SHA_AVAILABLE
+#if CRYPTOPP_ARM_SHA_AVAILABLE
     if (HasSHA1())
         return &SHA1_Transform_ARMV8A;
     else
@@ -173,7 +173,7 @@ void SHA256::InitState(HashWordType *state)
     memcpy(state, s, sizeof(s));
 }
 
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || CRYPTOPP_ARMV8A_SHA_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || CRYPTOPP_ARM_SHA_AVAILABLE
 CRYPTOPP_ALIGN_DATA(16) extern const word32 SHA256_K[64] CRYPTOPP_SECTION_ALIGN16 = {
 #else
 extern const word32 SHA256_K[64] = {
@@ -538,7 +538,7 @@ static pfnSHAHashBlocks InitializeSHA256HashBlocks()
         return &SHA256_HashBlocks_SHANI;
     else
 #endif
-#if CRYPTOPP_ARMV8A_SHA_AVAILABLE
+#if CRYPTOPP_ARM_SHA_AVAILABLE
     if (HasSHA2())
         return &SHA256_HashBlocks_ARMV8A;
     else
@@ -707,12 +707,12 @@ static void SHA256_Transform_SHANI(word32 *state, const word32 *data)
 }
 #endif  // CRYPTOPP_SHANI_AVAILABLE
 
-#if CRYPTOPP_ARMV8A_SHA_AVAILABLE
+#if CRYPTOPP_ARM_SHA_AVAILABLE
 static void SHA256_Transform_ARMV8A(word32 *state, const word32 *data)
 {
     return SHA256_HashBlocks_ARMV8A(state, data, SHA256::BLOCKSIZE);
 }
-#endif  // CRYPTOPP_ARMV8A_SHA_AVAILABLE
+#endif  // CRYPTOPP_ARM_SHA_AVAILABLE
 
 ///////////////////////////////////
 // start of Walton/Gulley's code //
@@ -730,7 +730,7 @@ static pfnSHATransform InitializeSHA256Transform()
         return &SHA256_Transform_SSE2;
     else
 #endif
-#if CRYPTOPP_ARMV8A_SHA_AVAILABLE
+#if CRYPTOPP_ARM_SHA_AVAILABLE
     if (HasSHA2())
         return &SHA256_Transform_ARMV8A;
     else

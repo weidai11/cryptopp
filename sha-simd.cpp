@@ -18,14 +18,20 @@
 # include "immintrin.h"
 #endif
 
-#if (CRYPTOPP_ARMV8A_SHA_AVAILABLE) && defined(__GNUC__)
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
 # include "arm_neon.h"
+# if (CRYPTOPP_ARM_SHA_AVAILABLE)
 # include "arm_acle.h"
+# endif
 #endif
 
 #ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
 # include <signal.h>
 # include <setjmp.h>
+#endif
+
+#ifndef EXCEPTION_EXECUTE_HANDLER
+# define EXCEPTION_EXECUTE_HANDLER 1
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -46,7 +52,7 @@ extern const word32 SHA256_K[64];
 
 bool CPU_TrySHA1_ARMV8()
 {
-#if (CRYPTOPP_ARMV8A_SHA_AVAILABLE)
+#if (CRYPTOPP_ARM_SHA_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
 	volatile bool result = true;
 	__try
@@ -100,12 +106,12 @@ bool CPU_TrySHA1_ARMV8()
 # endif
 #else
 	return false;
+#endif  // CRYPTOPP_ARM_SHA_AVAILABLE
 }
-#endif  // CRYPTOPP_ARMV8A_SHA_AVAILABLE
 
 bool CPU_TrySHA2_ARMV8()
 {
-#if (CRYPTOPP_ARMV8A_SHA_AVAILABLE)
+#if (CRYPTOPP_ARM_SHA_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
 	volatile bool result = true;
 	__try
@@ -157,8 +163,8 @@ bool CPU_TrySHA2_ARMV8()
 # endif
 #else
 	return false;
+#endif  // CRYPTOPP_ARM_SHA_AVAILABLE
 }
-#endif  // CRYPTOPP_ARMV8A_SHA_AVAILABLE
 
 ///////////////////////////////////
 // start of Walton/Gulley's code //
@@ -554,7 +560,7 @@ void CRYPTOPP_FASTCALL SHA256_HashBlocks_SHANI(word32 *state, const word32 *data
 // start of Walton/Schneiders/O'Rourke/Hovsmith's code //
 /////////////////////////////////////////////////////////
 
-#if CRYPTOPP_ARMV8A_SHA_AVAILABLE
+#if CRYPTOPP_ARM_SHA_AVAILABLE
 void SHA1_Transform_ARMV8A(word32 *state, const word32 *data)
 {
     uint32x4_t C0, C1, C2, C3;
