@@ -1,6 +1,7 @@
 // crc.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
+#include "config.h"
 #include "crc.h"
 #include "misc.h"
 #include "cpu.h"

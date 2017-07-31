@@ -11,7 +11,7 @@
 #include "misc.h"
 
 // Clang and GCC hoops...
-#if !(defined(__ARM_FEATURE_CRYPTO) || defined(__aarch32__) || defined(__aarch64__) || defined(_MSC_VER))
+#if !(defined(__ARM_FEATURE_CRYPTO) || defined(_MSC_VER))
 # undef CRYPTOPP_ARM_SHA_AVAILABLE
 #endif
 
@@ -23,11 +23,9 @@
 # include "immintrin.h"
 #endif
 
-#if (CRYPTOPP_ARM_NEON_AVAILABLE)
+#if (CRYPTOPP_ARM_SHA_AVAILABLE)
 # include "arm_neon.h"
-# if (CRYPTOPP_ARM_SHA_AVAILABLE)
 # include "arm_acle.h"
-# endif
 #endif
 
 #ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY

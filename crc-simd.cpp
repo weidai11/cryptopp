@@ -11,7 +11,7 @@
 #include "misc.h"
 
 // Clang and GCC hoops...
-#if !(defined(__ARM_FEATURE_CRC32) || defined(__aarch32__) || defined(__aarch64__) || defined(_MSC_VER))
+#if !(defined(__ARM_FEATURE_CRC32) || defined(_MSC_VER))
 # undef CRYPTOPP_ARM_CRC32_AVAILABLE
 #endif
 
@@ -20,7 +20,6 @@
 #endif
 
 #if (CRYPTOPP_ARM_CRC32_AVAILABLE)
-# include "arm_neon.h"
 # include "arm_acle.h"
 #endif
 

@@ -9,10 +9,6 @@
 #include "pch.h"
 #include "config.h"
 
-#if CRYPTOPP_MSC_VERSION
-# pragma warning(disable: 4189)
-#endif
-
 #ifndef CRYPTOPP_IMPORTS
 #ifndef CRYPTOPP_GENERATE_X64_MASM
 
@@ -23,9 +19,9 @@
 
 // SunCC 5.13 and below crash with AES-NI/CLMUL and C++{03|11}. Disable one or the other.
 //   Also see http://github.com/weidai11/cryptopp/issues/226
-#if defined(__SUNPRO_CC) && (__SUNPRO_CC <= 0x513)
-# undef CRYPTOPP_CLMUL_AVAILABLE
-#endif
+// #if defined(__SUNPRO_CC) && (__SUNPRO_CC <= 0x513)
+// # undef CRYPTOPP_CLMUL_AVAILABLE
+// #endif
 
 #include "gcm.h"
 #include "cpu.h"
@@ -71,7 +67,7 @@ inline static void Xor16(byte *a, const byte *b, const byte *c)
 }
 
 #if CRYPTOPP_SSE2_AVAILABLE || CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
-inline static void SSE2_Xor16(byte *a, const byte *b, const byte *c)
+inline static void GCM_Xor16_SSE2(byte *a, const byte *b, const byte *c)
 {
 // SunCC 5.14 crash (bewildering since asserts are not in effect in release builds)
 //   Also see http://github.com/weidai11/cryptopp/issues/226 and http://github.com/weidai11/cryptopp/issues/284
@@ -88,11 +84,13 @@ inline static void SSE2_Xor16(byte *a, const byte *b, const byte *c)
 }
 #endif
 
+#if CRYPTOPP_SSSE3_AVAILABLE
+extern void GCM_ReverseHashBufferIfNeeded_SSSE3(byte *hashBuffer);
+#endif
+
 #if CRYPTOPP_CLMUL_AVAILABLE
 extern __m128i GCM_Multiply_CLMUL(const __m128i &x, const __m128i &h, const __m128i &r);
-extern __m128i GCM_Reduce_CLMUL(__m128i c0, __m128i c1, __m128i c2, const __m128i &r);
 extern void GCM_SetKeyWithoutResync_CLMUL(const byte *hashKey, byte *mulTable, unsigned int tableSize);
-extern void GCM_ReverseHashBufferIfNeeded_CLMUL(byte *hashBuffer);
 extern size_t GCM_AuthenticateBlocks_CLMUL(const byte *data, size_t len, const byte *mtable, byte *hbuffer);
 
 CRYPTOPP_ALIGN_DATA(16)
@@ -105,10 +103,14 @@ const __m128i *s_clmulConstants = (const __m128i *)(const void *)s_clmulConstant
 const unsigned int s_cltableSizeInBlocks = 8;
 #endif  // CRYPTOPP_CLMUL_AVAILABLE
 
+#if CRYPTOPP_ARM_NEON_AVAILABLE
+extern void GCM_ReverseHashBufferIfNeeded_NEON(byte *hashBuffer);
+#endif
+
 #if CRYPTOPP_ARM_PMULL_AVAILABLE
-extern size_t GCM_AuthenticateBlocks_PMULL(const byte *data, size_t len, const byte *mtable, byte *hbuffer);
 extern uint64x2_t GCM_Multiply_PMULL(const uint64x2_t &x, const uint64x2_t &h, const uint64x2_t &r);
 extern void GCM_SetKeyWithoutResync_PMULL(const byte *hashKey, byte *mulTable, unsigned int tableSize);
+extern size_t GCM_AuthenticateBlocks_PMULL(const byte *data, size_t len, const byte *mtable, byte *hbuffer);
 
 CRYPTOPP_ALIGN_DATA(16)
 const word64 s_clmulConstants64[] = {
@@ -203,7 +205,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
             if (HasSSE2())
                 for (j=2; j<=0x80; j*=2)
                     for (k=1; k<j; k++)
-                        SSE2_Xor16(mulTable+i*256*16+(j+k)*16, mulTable+i*256*16+j*16, mulTable+i*256*16+k*16);
+                        GCM_Xor16_SSE2(mulTable+i*256*16+(j+k)*16, mulTable+i*256*16+j*16, mulTable+i*256*16+k*16);
             else
 #elif CRYPTOPP_ARM_NEON_AVAILABLE
             if (HasNEON())
@@ -256,8 +258,8 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
                 for (j=2; j<=8; j*=2)
                     for (k=1; k<j; k++)
                     {
-                        SSE2_Xor16(mulTable+i*256+(j+k)*16, mulTable+i*256+j*16, mulTable+i*256+k*16);
-                        SSE2_Xor16(mulTable+1024+i*256+(j+k)*16, mulTable+1024+i*256+j*16, mulTable+1024+i*256+k*16);
+                        GCM_Xor16_SSE2(mulTable+i*256+(j+k)*16, mulTable+i*256+j*16, mulTable+i*256+k*16);
+                        GCM_Xor16_SSE2(mulTable+1024+i*256+(j+k)*16, mulTable+1024+i*256+j*16, mulTable+1024+i*256+k*16);
                     }
             else
 #elif CRYPTOPP_ARM_NEON_AVAILABLE
@@ -285,16 +287,12 @@ inline void GCM_Base::ReverseHashBufferIfNeeded()
 #if CRYPTOPP_CLMUL_AVAILABLE
     if (HasCLMUL())
     {
-        GCM_ReverseHashBufferIfNeeded_CLMUL(HashBuffer());
+        GCM_ReverseHashBufferIfNeeded_SSSE3(HashBuffer());
     }
-#elif CRYPTOPP_ARM_PMULL_AVAILABLE
-    if (HasPMULL())
+#elif CRYPTOPP_ARM_NEON_AVAILABLE
+    if (HasNEON())
     {
-        if (GetNativeByteOrder() != BIG_ENDIAN_ORDER)
-        {
-            const uint8x16_t x = vrev64q_u8(vld1q_u8(HashBuffer()));
-            vst1q_u8(HashBuffer(), vextq_u8(x, x, 8));
-        }
+		GCM_ReverseHashBufferIfNeeded_NEON(HashBuffer());
     }
 #endif
 }

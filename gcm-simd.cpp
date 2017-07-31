@@ -11,7 +11,7 @@
 #include "misc.h"
 
 // Clang and GCC hoops...
-#if !(defined(__ARM_FEATURE_CRYPTO) || defined(__aarch32__) || defined(__aarch64__) || defined(_MSC_VER))
+#if !(defined(__ARM_FEATURE_CRYPTO) || defined(_MSC_VER))
 # undef CRYPTOPP_ARM_PMULL_AVAILABLE
 #endif
 
@@ -20,8 +20,11 @@
 # include "wmmintrin.h"
 #endif
 
-#if (CRYPTOPP_ARM_PMULL_AVAILABLE)
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
 # include "arm_neon.h"
+#endif
+
+#if (CRYPTOPP_ARM_PMULL_AVAILABLE)
 # include "arm_acle.h"
 #endif
 
@@ -307,6 +310,15 @@ void GCM_SetKeyWithoutResync_PMULL(const byte *hashKey, byte *mulTable, unsigned
 	vst1_u64((uint64_t *)(mulTable+i+8), vget_low_u64(h1));
 }
 
+void GCM_ReverseHashBufferIfNeeded_NEON(byte *hashBuffer)
+{
+	if (GetNativeByteOrder() != BIG_ENDIAN_ORDER)
+	{
+		const uint8x16_t x = vrev64q_u8(vld1q_u8(hashBuffer));
+		vst1q_u8(hashBuffer, vextq_u8(x, x, 8));
+	}
+}
+
 size_t GCM_AuthenticateBlocks_PMULL(const byte *data, size_t len, const byte *mtable, byte *hbuffer)
 {
     const uint64x2_t* table = reinterpret_cast<const uint64x2_t*>(mtable);
@@ -499,12 +511,6 @@ void GCM_SetKeyWithoutResync_CLMUL(const byte *hashKey, byte *mulTable, unsigned
 	_mm_storel_epi64((__m128i *)(void *)(mulTable+i+8), h1);
 }
 
-void GCM_ReverseHashBufferIfNeeded_CLMUL(byte *hashBuffer)
-{
-    __m128i &x = *(__m128i *)(void *)hashBuffer;
-    x = _mm_shuffle_epi8(x, s_clmulConstants[1]);
-}
-
 size_t GCM_AuthenticateBlocks_CLMUL(const byte *data, size_t len, const byte *mtable, byte *hbuffer)
 {
     const __m128i *table = (const __m128i *)(const void *)mtable;
@@ -521,9 +527,9 @@ size_t GCM_AuthenticateBlocks_CLMUL(const byte *data, size_t len, const byte *mt
 
         while (true)
         {
-            __m128i h0 = _mm_load_si128(table+i);
-            __m128i h1 = _mm_load_si128(table+i+1);
-            __m128i h2 = _mm_xor_si128(h0, h1);
+            const __m128i h0 = _mm_load_si128(table+i);
+            const __m128i h1 = _mm_load_si128(table+i+1);
+            const __m128i h2 = _mm_xor_si128(h0, h1);
 
             if (++i == s)
             {
@@ -569,7 +575,14 @@ size_t GCM_AuthenticateBlocks_CLMUL(const byte *data, size_t len, const byte *mt
     _mm_store_si128((__m128i *)(void *)hbuffer, x);
     return len;
 }
+#endif
 
+#if CRYPTOPP_SSSE3_AVAILABLE
+void GCM_ReverseHashBufferIfNeeded_SSSE3(byte *hashBuffer)
+{
+    __m128i &x = *(__m128i *)(void *)hashBuffer;
+    x = _mm_shuffle_epi8(x, s_clmulConstants[1]);
+}
 #endif
 
 NAMESPACE_END
