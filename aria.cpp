@@ -270,40 +270,6 @@ void ARIA::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
 	const __m128i MASK = _mm_set_epi8(12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3);
 	if (HasSSSE3())
 	{
-	#if 0
-		outBlock[ 0] = (byte)(X1[ARIA_BRF(t[0],3)]   );
-		outBlock[ 1] = (byte)(X2[ARIA_BRF(t[0],2)]>>8);
-		outBlock[ 2] = (byte)(S1[ARIA_BRF(t[0],1)]   );
-		outBlock[ 3] = (byte)(S2[ARIA_BRF(t[0],0)]   );
-		outBlock[ 4] = (byte)(X1[ARIA_BRF(t[1],3)]   );
-		outBlock[ 5] = (byte)(X2[ARIA_BRF(t[1],2)]>>8);
-		outBlock[ 6] = (byte)(S1[ARIA_BRF(t[1],1)]   );
-		outBlock[ 7] = (byte)(S2[ARIA_BRF(t[1],0)]   );
-		outBlock[ 8] = (byte)(X1[ARIA_BRF(t[2],3)]   );
-		outBlock[ 9] = (byte)(X2[ARIA_BRF(t[2],2)]>>8);
-		outBlock[10] = (byte)(S1[ARIA_BRF(t[2],1)]   );
-		outBlock[11] = (byte)(S2[ARIA_BRF(t[2],0)]   );
-		outBlock[12] = (byte)(X1[ARIA_BRF(t[3],3)]   );
-		outBlock[13] = (byte)(X2[ARIA_BRF(t[3],2)]>>8);
-		outBlock[14] = (byte)(S1[ARIA_BRF(t[3],1)]   );
-		outBlock[15] = (byte)(S2[ARIA_BRF(t[3],0)]   );
-
-		// 'outBlock' may be unaligned.
-		_mm_storeu_si128(reinterpret_cast<__m128i*>(outBlock),
-			_mm_xor_si128(_mm_loadu_si128((const __m128i*)(outBlock)),
-				_mm_shuffle_epi8(_mm_load_si128((const __m128i*)(rk)), MASK)));
-
-		// 'outBlock' and 'xorBlock' may be unaligned.
-		if (xorBlock != NULLPTR)
-		{
-			_mm_storeu_si128((__m128i*)(outBlock),
-				_mm_xor_si128(
-					_mm_loadu_si128((const __m128i*)(outBlock)),
-					_mm_loadu_si128((const __m128i*)(xorBlock))));
-		}
-		return;
-	#endif
-
 		ARIA_ProcessAndXorBlock_Xor_SSSE3(xorBlock, outBlock, rk, t);
 		return;
 	}

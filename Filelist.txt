@@ -10,6 +10,7 @@ algparam.cpp
 algparam.h
 arc4.cpp
 arc4.h
+ariatab.cpp
 aria.cpp
 aria-simd.cpp
 aria.h

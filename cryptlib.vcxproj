@@ -158,6 +158,7 @@
     <ClCompile Include="algparam.cpp" />
     <ClCompile Include="arc4.cpp" />
     <ClCompile Include="aria.cpp" />
+    <ClCompile Include="ariatab.cpp" />
     <ClCompile Include="aria-simd.cpp" />
     <ClCompile Include="asn.cpp" />
     <ClCompile Include="authenc.cpp" />
