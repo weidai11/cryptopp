@@ -310,15 +310,6 @@ void GCM_SetKeyWithoutResync_PMULL(const byte *hashKey, byte *mulTable, unsigned
 	vst1_u64((uint64_t *)(mulTable+i+8), vget_low_u64(h1));
 }
 
-void GCM_ReverseHashBufferIfNeeded_NEON(byte *hashBuffer)
-{
-	if (GetNativeByteOrder() != BIG_ENDIAN_ORDER)
-	{
-		const uint8x16_t x = vrev64q_u8(vld1q_u8(hashBuffer));
-		vst1q_u8(hashBuffer, vextq_u8(x, x, 8));
-	}
-}
-
 size_t GCM_AuthenticateBlocks_PMULL(const byte *data, size_t len, const byte *mtable, byte *hbuffer)
 {
     const uint64x2_t* table = reinterpret_cast<const uint64x2_t*>(mtable);
@@ -390,6 +381,17 @@ size_t GCM_AuthenticateBlocks_PMULL(const byte *data, size_t len, const byte *mt
     return len;
 }
 #endif  // CRYPTOPP_ARM_PMULL_AVAILABLE
+
+#if CRYPTOPP_ARM_NEON_AVAILABLE
+void GCM_ReverseHashBufferIfNeeded_NEON(byte *hashBuffer)
+{
+	if (GetNativeByteOrder() != BIG_ENDIAN_ORDER)
+	{
+		const uint8x16_t x = vrev64q_u8(vld1q_u8(hashBuffer));
+		vst1q_u8(hashBuffer, vextq_u8(x, x, 8));
+	}
+}
+#endif
 
 #if CRYPTOPP_CLMUL_AVAILABLE
 
