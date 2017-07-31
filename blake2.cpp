@@ -24,7 +24,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 // Sun Studio 12.3 and earlier lack SSE2's _mm_set_epi64x. Win32 lacks _mm_set_epi64x, Win64 supplies it except for VS2008.
 // Also see http://stackoverflow.com/a/38547909/608639
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE && ((__SUNPRO_CC >= 0x5100 && __SUNPRO_CC < 0x5130) || (defined(_MSC_VER) && _MSC_VER < 1600) || (defined(_M_IX86) && _MSC_VER >= 1600))
+#if CRYPTOPP_SSE2_AVAILABLE && ((__SUNPRO_CC >= 0x5100 && __SUNPRO_CC < 0x5130) || (defined(_MSC_VER) && _MSC_VER < 1600) || (defined(_M_IX86) && _MSC_VER >= 1600))
 inline __m128i MM_SET_EPI64X(const word64 a, const word64 b)
 {
     const word64 t[2] = {b,a}; __m128i r;
@@ -40,7 +40,7 @@ static void BLAKE2_Compress32_CXX(const byte* input, BLAKE2_State<word32, false>
 static void BLAKE2_Compress64_CXX(const byte* input, BLAKE2_State<word64, true>& state);
 
 // Also see http://github.com/weidai11/cryptopp/issues/247 for SunCC 5.12
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+#if CRYPTOPP_SSE2_AVAILABLE
 static void BLAKE2_Compress32_SSE2(const byte* input, BLAKE2_State<word32, false>& state);
 # if (__SUNPRO_CC != 0x5120)
 static void BLAKE2_Compress64_SSE2(const byte* input, BLAKE2_State<word64, true>& state);
@@ -114,7 +114,7 @@ pfnCompress64 InitializeCompress64Fn()
         return &BLAKE2_Compress64_SSE4;
     else
 #endif
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+#if CRYPTOPP_SSE2_AVAILABLE
 # if (__SUNPRO_CC != 0x5120)
     if (HasSSE2())
         return &BLAKE2_Compress64_SSE2;
@@ -136,7 +136,7 @@ pfnCompress32 InitializeCompress32Fn()
         return &BLAKE2_Compress32_SSE4;
     else
 #endif
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+#if CRYPTOPP_SSE2_AVAILABLE
     if (HasSSE2())
         return &BLAKE2_Compress32_SSE2;
     else
@@ -569,7 +569,7 @@ void BLAKE2_Compress32_CXX(const byte* input, BLAKE2_State<word32, false>& state
         state.h[i] = state.h[i] ^ ConditionalByteReverse(LittleEndian::ToEnum(), v[i] ^ v[i + 8]);
 }
 
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+#if CRYPTOPP_SSE2_AVAILABLE
 static void BLAKE2_Compress32_SSE2(const byte* input, BLAKE2_State<word32, false>& state)
 {
   word32 m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15;
@@ -1881,7 +1881,7 @@ static void BLAKE2_Compress64_SSE2(const byte* input, BLAKE2_State<word64, true>
   _mm_storeu_si128((__m128i *)(void*)(&state.h[6]), _mm_xor_si128(_mm_loadu_si128((const __m128i*)(const void*)(&state.h[6])), row2h));
 }
 # endif // (__SUNPRO_CC != 0x5120)
-#endif  // CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+#endif  // CRYPTOPP_SSE2_AVAILABLE
 
 template class BLAKE2_Base<word32, false>;
 template class BLAKE2_Base<word64, true>;

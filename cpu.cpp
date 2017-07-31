@@ -137,7 +137,7 @@ static bool TrySSE2()
 	{
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
 		AS2(por xmm0, xmm0)        // executing SSE2 instruction
-#elif CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+#elif CRYPTOPP_SSE2_AVAILABLE
 		__m128i x = _mm_setzero_si128();
 		return _mm_cvtsi128_si32(x) == 0;
 #endif
@@ -169,7 +169,7 @@ static bool TrySSE2()
 	{
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
 		__asm __volatile ("por %xmm0, %xmm0");
-#elif CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+#elif CRYPTOPP_SSE2_AVAILABLE
 		__m128i x = _mm_setzero_si128();
 		result = _mm_cvtsi128_si32(x) == 0;
 #endif
@@ -354,7 +354,7 @@ extern "C"
 
 static bool TryAES()
 {
-#if (CRYPTOPP_ARMV8A_AES_AVAILABLE)
+#if (CRYPTOPP_ARMV_AES_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
 	volatile bool result = true;
 	__try

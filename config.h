@@ -80,8 +80,15 @@
 // #endif
 
 // File system code to write to GZIP archive.
+//   http://www.gzip.org/format.txt
 #if !defined(GZIP_OS_CODE)
-# define GZIP_OS_CODE 0
+# if defined(__macintosh__)
+#  define GZIP_OS_CODE 7
+# elif defined(__unix__) || defined(__linux__)
+#  define GZIP_OS_CODE 3
+# else
+#  define GZIP_OS_CODE 0
+# endif
 #endif
 
 // Try this if your CPU has 256K internal cache or a slow multiply instruction
@@ -458,55 +465,55 @@ NAMESPACE_END
 
 	#if !defined(CRYPTOPP_DISABLE_SSE2) && (defined(_MSC_VER) || CRYPTOPP_GCC_VERSION >= 30300 || defined(__SSE2__))
 		#define CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE 1
-	#else
-		#define CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE 0
 	#endif
 
-	#if !defined(CRYPTOPP_DISABLE_SSSE3) && (_MSC_VER >= 1500 || (defined(__SSE3__) && defined(__SSSE3__)))
+	#if !defined(CRYPTOPP_DISABLE_SSSE3) && (_MSC_VER >= 1500 || defined(__SSSE3__))
 		#define CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE 1
-	#else
-		#define CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE 0
 	#endif
 #endif
 
 #if !defined(CRYPTOPP_DISABLE_ASM) && defined(_MSC_VER) && defined(_M_X64)
-	#define CRYPTOPP_X64_MASM_AVAILABLE
+	#define CRYPTOPP_X64_MASM_AVAILABLE 1
 #endif
 
 #if !defined(CRYPTOPP_DISABLE_ASM) && defined(__GNUC__) && defined(__x86_64__)
-	#define CRYPTOPP_X64_ASM_AVAILABLE
+	#define CRYPTOPP_X64_ASM_AVAILABLE 1
 #endif
 
 #if !defined(CRYPTOPP_DISABLE_ASM) && (defined(_MSC_VER) || defined(__SSE2__))
-	#define CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE 1
-#else
-	#define CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE 0
+	#define CRYPTOPP_SSE2_AVAILABLE 1
 #endif
 
-#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_SSSE3) && (_MSC_VER >= 1500 || (defined(__SSSE3__) && defined(__SSSE3__)))
-	#define CRYPTOPP_BOOL_SSSE3_INTRINSICS_AVAILABLE 1
-#else
-	#define CRYPTOPP_BOOL_SSSE3_INTRINSICS_AVAILABLE 0
+#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_SSSE3)
+# if defined(__SSSE3__) || (_MSC_VER >= 1500) || (CRYPTOPP_GCC_VERSION >= 40300)
+	#define CRYPTOPP_SSSE3_AVAILABLE 1
+# endif
 #endif
 
 // Intrinsics availible in GCC 4.3 (http://gcc.gnu.org/gcc-4.3/changes.html) and
 //   MSVC 2008 (http://msdn.microsoft.com/en-us/library/bb892950%28v=vs.90%29.aspx)
 //   SunCC could generate SSE4 at 12.1, but the intrinsics are missing until 12.4.
-#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_SSE4) && ((_MSC_VER >= 1500) || (defined(__SSE4_1__) && defined(__SSE4_2__)))
+#if !defined(CRYPTOPP_DISABLE_SSE4) && defined(CRYPTOPP_SSSE3_AVAILABLE) && \
+	(defined(__SSE4_1__) || (CRYPTOPP_MSC_VERSION >= 1500) || \
+	(CRYPTOPP_GCC_VERSION >= 40300) || (__INTEL_COMPILER >= 1000) || \
+	(CRYPTOPP_LLVM_CLANG_VERSION >= 20300) || (CRYPTOPP_APPLE_CLANG_VERSION >= 40000))
+	#define CRYPTOPP_SSE41_AVAILABLE 1
+#endif
+
+#if !defined(CRYPTOPP_DISABLE_SSE4) && defined(CRYPTOPP_SSSE3_AVAILABLE) && \
+	(defined(__SSE4_2__) || (CRYPTOPP_MSC_VERSION >= 1500) || \
+	(CRYPTOPP_GCC_VERSION >= 40300) || (__INTEL_COMPILER >= 1000) || \
+	(CRYPTOPP_LLVM_CLANG_VERSION >= 20300) || (CRYPTOPP_APPLE_CLANG_VERSION >= 40000))
 	#define CRYPTOPP_SSE42_AVAILABLE 1
 #endif
 
 // Don't disgorge AES-NI from CLMUL. There will be two to four subtle breaks
 #if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_AESNI) && (_MSC_FULL_VER >= 150030729 || __INTEL_COMPILER >= 1110 || (defined(__AES__) && defined(__PCLMUL__)))
-	#define CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE 1
-#else
-	#define CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE 0
+	#define CRYPTOPPL_AESNI_AES_AVAILABLE 1
 #endif
 
 #if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_SHA) && ((_MSC_VER >= 1900) || defined(__SHA__))
 	#define CRYPTOPP_SHANI_SHA_AVAILABLE 1
-#else
-	#define CRYPTOPP_SHANI_SHA_AVAILABLE 0
 #endif
 
 #endif  // X86, X32, X64
@@ -527,21 +534,21 @@ NAMESPACE_END
 // LLVM Clang requires 3.5. Apple Clang is unknown at the moment.
 // Microsoft plans to support ARM-64, but its not clear how to detect it.
 // TODO: Add MSC_VER and ARM-64 platform define when available
-#if !defined(CRYPTOPP_ARMV8A_CRC32_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
+#if !defined(CRYPTOPP_ARMV_CRC32_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
 # if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_MSC_VER >= 2000) || \
 	(CRYPTOPP_GCC_VERSION >= 40800) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30500)
-#  define CRYPTOPP_ARMV8A_CRC32_AVAILABLE 1
+#  define CRYPTOPP_ARMV_CRC32_AVAILABLE 1
 # endif
 #endif
 
-// Requires ARMv8, but we are not sure of the define because the ACLE does not discuss it.
-// GCC seems to requires 4.8 and above. LLVM Clang requires 3.5. Apple Clang does not support
-// it at the moment. Microsoft plans to support ARM-64, but its not clear how to detect it.
+// Requires ARMv8 and ACLE 2.0. GCC requires 4.8 and above.
+// LLVM Clang requires 3.5. Apple Clang is unknown at the moment.
+// Microsoft plans to support ARM-64, but its not clear how to detect it.
 // TODO: Add MSC_VER and ARM-64 platform define when available
-#if !defined(CRYPTOPP_ARMV8A_PMULL_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM) && !defined(__apple_build_version__)
+#if !defined(CRYPTOPP_ARMV_PMULL_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM) && !defined(__apple_build_version__)
 # if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_MSC_VER >= 2000) || \
 	(CRYPTOPP_GCC_VERSION >= 40800) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30500)
-#  define CRYPTOPP_ARMV8A_PMULL_AVAILABLE 1
+#  define CRYPTOPP_ARMV_PMULL_AVAILABLE 1
 # endif
 #endif
 
@@ -552,21 +559,21 @@ NAMESPACE_END
 #if !defined(CRYPTOPP_ARMV8A_CRYPTO_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
 # if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_MSC_VER >= 2000) || \
 	(CRYPTOPP_GCC_VERSION >= 40800) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30500)
-#  define CRYPTOPP_ARMV8A_AES_AVAILABLE 1
-#  define CRYPTOPP_ARMV8A_PMULL_AVAILABLE 1
+#  define CRYPTOPP_ARMV_AES_AVAILABLE 1
+#  define CRYPTOPP_ARMV_PMULL_AVAILABLE 1
 #  define CRYPTOPP_ARMV8A_SHA_AVAILABLE 1
 #  define CRYPTOPP_ARMV8A_CRYPTO_AVAILABLE 1
 # endif
 #endif
 
 // TODO...
-#undef CRYPTOPP_ARMV8A_AES_AVAILABLE
+#undef CRYPTOPP_ARMV_AES_AVAILABLE
 
 #endif  // ARM32, ARM64
 
 // ***************** Miscellaneous ********************
 
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE || CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || CRYPTOPP_ARM_NEON_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)
+#if CRYPTOPP_SSE2_AVAILABLE || CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || CRYPTOPP_ARM_NEON_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)
 	#define CRYPTOPP_BOOL_ALIGN16 1
 #else
 	#define CRYPTOPP_BOOL_ALIGN16 0

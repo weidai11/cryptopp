@@ -16,7 +16,7 @@
 
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
 # include "arm_neon.h"
-#if (CRYPTOPP_ARMV8A_PMULL_AVAILABLE)
+#if (CRYPTOPP_ARMV_PMULL_AVAILABLE)
 # include "arm_acle.h"
 #endif
 #endif
@@ -29,7 +29,7 @@
 ANONYMOUS_NAMESPACE_BEGIN
 
 // GCC 4.8 and 4.9 are missing PMULL gear
-#if (CRYPTOPP_ARMV8A_PMULL_AVAILABLE)
+#if (CRYPTOPP_ARMV_PMULL_AVAILABLE)
 # if (CRYPTOPP_GCC_VERSION >= 40800) && (CRYPTOPP_GCC_VERSION < 50000)
 inline poly128_t VMULL_P64(poly64_t a, poly64_t b)
 {
@@ -43,7 +43,7 @@ inline poly128_t VMULL_HIGH_P64(poly64x2_t a, poly64x2_t b)
 # endif
 #endif
 
-#if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64) && CRYPTOPP_ARMV8A_PMULL_AVAILABLE
+#if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64) && CRYPTOPP_ARMV_PMULL_AVAILABLE
 #if defined(__GNUC__)
 // Schneiders, Hovsmith and O'Rourke used this trick.
 // It results in much better code generation in production code
@@ -137,7 +137,7 @@ inline uint64x2_t VEXT_U8(uint64x2_t a, uint64x2_t b)
     return (uint64x2_t)vextq_u8(vreinterpretq_u8_u64(a), vreinterpretq_u8_u64(b), C);
 }
 #endif // Microsoft and compatibles
-#endif // CRYPTOPP_ARMV8A_PMULL_AVAILABLE
+#endif // CRYPTOPP_ARMV_PMULL_AVAILABLE
 
 ANONYMOUS_NAMESPACE_END
 
@@ -155,7 +155,7 @@ extern "C" {
 };
 #endif  // Not CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
 
-#if (CRYPTOPP_ARMV8A_PMULL_AVAILABLE)
+#if (CRYPTOPP_ARMV_PMULL_AVAILABLE)
 bool CPU_TryPMULL_ARMV8()
 {
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
@@ -218,7 +218,7 @@ bool CPU_TryPMULL_ARMV8()
 	return result;
 # endif
 }
-#endif  // CRYPTOPP_ARMV8A_PMULL_AVAILABLE
+#endif  // CRYPTOPP_ARMV_PMULL_AVAILABLE
 
 #if CRYPTOPP_ARM_NEON_AVAILABLE
 void GCM_Xor16_NEON(byte *a, const byte *b, const byte *c)
@@ -230,7 +230,7 @@ void GCM_Xor16_NEON(byte *a, const byte *b, const byte *c)
 }
 #endif
 
-#if CRYPTOPP_ARMV8A_PMULL_AVAILABLE
+#if CRYPTOPP_ARMV_PMULL_AVAILABLE
 
 ANONYMOUS_NAMESPACE_BEGIN
 

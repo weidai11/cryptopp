@@ -24,7 +24,7 @@
 // SunCC 5.13 and below crash with AES-NI/CLMUL and C++{03|11}. Disable one or the other.
 //   Also see http://github.com/weidai11/cryptopp/issues/226
 #if defined(__SUNPRO_CC) && (__SUNPRO_CC <= 0x513)
-# undef CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
+# undef CRYPTOPPL_AESNI_AES_AVAILABLE
 #endif
 
 #include "gcm.h"
@@ -110,14 +110,14 @@ inline static void Xor16(byte *a, const byte *b, const byte *c)
     ((word64 *)(void *)a)[1] = ((word64 *)(void *)b)[1] ^ ((word64 *)(void *)c)[1];
 }
 
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE || CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_SSE2_AVAILABLE || CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
 inline static void SSE2_Xor16(byte *a, const byte *b, const byte *c)
 {
 // SunCC 5.14 crash (bewildering since asserts are not in effect in release builds)
 //   Also see http://github.com/weidai11/cryptopp/issues/226 and http://github.com/weidai11/cryptopp/issues/284
 # if __SUNPRO_CC
     *(__m128i *)(void *)a = _mm_xor_si128(*(__m128i *)(void *)b, *(__m128i *)(void *)c);
-# elif CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+# elif CRYPTOPP_SSE2_AVAILABLE
     CRYPTOPP_ASSERT(IsAlignedOn(a,GetAlignmentOf<__m128i>()));
     CRYPTOPP_ASSERT(IsAlignedOn(b,GetAlignmentOf<__m128i>()));
     CRYPTOPP_ASSERT(IsAlignedOn(c,GetAlignmentOf<__m128i>()));
@@ -128,7 +128,7 @@ inline static void SSE2_Xor16(byte *a, const byte *b, const byte *c)
 }
 #endif
 
-#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
+#if CRYPTOPPL_AESNI_AES_AVAILABLE
 CRYPTOPP_ALIGN_DATA(16)
 static const word64 s_clmulConstants64[] = {
     W64LIT(0xe100000000000000), W64LIT(0xc200000000000000),
@@ -180,7 +180,7 @@ inline __m128i CLMUL_GF_Mul(const __m128i &x, const __m128i &h, const __m128i &r
 }
 #endif
 
-#if CRYPTOPP_ARMV8A_PMULL_AVAILABLE
+#if CRYPTOPP_ARMV_PMULL_AVAILABLE
 
 extern size_t GCM_AuthenticateBlocks_ARMV8(const byte *data, size_t len, const byte *mtable, byte *hbuffer);
 extern uint64x2_t GCM_Multiply_ARMV8A(const uint64x2_t &x, const uint64x2_t &h, const uint64x2_t &r);
@@ -206,7 +206,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
 
     int tableSize, i, j, k;
 
-#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
+#if CRYPTOPPL_AESNI_AES_AVAILABLE
     if (HasCLMUL())
     {
         // Avoid "parameter not used" error and suppress Coverity finding
@@ -214,7 +214,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
         tableSize = s_clmulTableSizeInBlocks * REQUIRED_BLOCKSIZE;
     }
     else
-#elif CRYPTOPP_ARMV8A_PMULL_AVAILABLE
+#elif CRYPTOPP_ARMV_PMULL_AVAILABLE
     if (HasPMULL())
     {
         // Avoid "parameter not used" error and suppress Coverity finding
@@ -241,7 +241,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
     memset(hashKey, 0, REQUIRED_BLOCKSIZE);
     blockCipher.ProcessBlock(hashKey);
 
-#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
+#if CRYPTOPPL_AESNI_AES_AVAILABLE
     if (HasCLMUL())
     {
         const __m128i r = s_clmulConstants[0];
@@ -260,7 +260,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
 
         return;
     }
-#elif CRYPTOPP_ARMV8A_PMULL_AVAILABLE
+#elif CRYPTOPP_ARMV_PMULL_AVAILABLE
     if (HasPMULL())
     {
         const uint64x2_t r = s_clmulConstants[0];
@@ -307,7 +307,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
         for (i=0; i<16; i++)
         {
             memset(table+i*256*16, 0, 16);
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE || CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_SSE2_AVAILABLE || CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
             if (HasSSE2())
                 for (j=2; j<=0x80; j*=2)
                     for (k=1; k<j; k++)
@@ -359,7 +359,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
         {
             memset(table+i*256, 0, 16);
             memset(table+1024+i*256, 0, 16);
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE || CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_SSE2_AVAILABLE || CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
             if (HasSSE2())
                 for (j=2; j<=8; j*=2)
                     for (k=1; k<j; k++)
@@ -390,13 +390,13 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
 
 inline void GCM_Base::ReverseHashBufferIfNeeded()
 {
-#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
+#if CRYPTOPPL_AESNI_AES_AVAILABLE
     if (HasCLMUL())
     {
         __m128i &x = *(__m128i *)(void *)HashBuffer();
         x = _mm_shuffle_epi8(x, s_clmulConstants[1]);
     }
-#elif CRYPTOPP_ARMV8A_PMULL_AVAILABLE
+#elif CRYPTOPP_ARMV_PMULL_AVAILABLE
     if (HasPMULL())
     {
         if (GetNativeByteOrder() != BIG_ENDIAN_ORDER)
@@ -481,7 +481,7 @@ void GCM_AuthenticateBlocks_64K(const byte *data, size_t blocks, word64 *hashBuf
 
 size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 {
-#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
+#if CRYPTOPPL_AESNI_AES_AVAILABLE
     if (HasCLMUL())
     {
         const __m128i *table = (const __m128i *)(const void *)MulTable();
@@ -546,7 +546,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
         _mm_store_si128((__m128i *)(void *)HashBuffer(), x);
         return len;
     }
-#elif CRYPTOPP_ARMV8A_PMULL_AVAILABLE
+#elif CRYPTOPP_ARMV_PMULL_AVAILABLE
     if (HasPMULL())
     {
 		return GCM_AuthenticateBlocks_ARMV8(data, len, MulTable(), HashBuffer());

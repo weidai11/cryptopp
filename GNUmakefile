@@ -199,6 +199,8 @@ endif  # -DCRYPTOPP_DISABLE_SSSE3
 endif  # -DCRYPTOPP_DISABLE_ASM
 endif  # CXXFLAGS
 
+SSSE3_FLAG = $(shell echo | $(CXX) $(CXXFLAGS) -mssse3 -dM -E - | grep -i -c -q __SSSE3__ && echo "-mssse3")
+ARIA_FLAG = $(SSSE3_FLAG)
 ifeq ($(findstring -DCRYPTOPP_DISABLE_SSE4,$(CXXFLAGS)),)
 SSE42_FLAG = $(shell echo | $(CXX) $(CXXFLAGS) -msse4.2 -dM -E - | grep -i -c -q __SSE4_2__ && echo "-msse4.2")
 ifeq ($(findstring -DCRYPTOPP_DISABLE_AESNI,$(CXXFLAGS)),)

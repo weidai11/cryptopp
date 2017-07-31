@@ -56,17 +56,17 @@
 #endif
 
 // Baseline include
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+#if CRYPTOPP_SSE2_AVAILABLE
 #  include <emmintrin.h>    // __m64, __m128i, _mm_set_epi64x
 #endif
-#if CRYPTOPP_BOOL_SSSE3_INTRINSICS_AVAILABLE
+#if CRYPTOPP_SSSE3_AVAILABLE
 #  include <tmmintrin.h>    // _mm_shuffle_pi8, _mm_shuffle_epi8
 #endif // tmmintrin.h
 #if CRYPTOPP_SSE42_AVAILABLE
 #  include <smmintrin.h>    // _mm_blend_epi16
 #  include <nmmintrin.h>    // _mm_crc32_u{8|16|32}
 #endif // smmintrin.h
-#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
+#if CRYPTOPPL_AESNI_AES_AVAILABLE
 #  include <wmmintrin.h>    // aesenc, aesdec, etc
 #endif // wmmintrin.h
 #if CRYPTOPP_SHANI_SHA_AVAILABLE
