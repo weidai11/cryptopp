@@ -14,7 +14,7 @@
 # include "nmmintrin.h"
 #endif
 
-#if (CRYPTOPP_SHANI_SHA_AVAILABLE)
+#if (CRYPTOPP_SHANI_AVAILABLE)
 # include "immintrin.h"
 #endif
 
@@ -160,7 +160,7 @@ bool CPU_TrySHA2_ARMV8()
 // start of Walton/Gulley's code //
 ///////////////////////////////////
 
-#if CRYPTOPP_SHANI_SHA_AVAILABLE
+#if CRYPTOPP_SHANI_AVAILABLE
 // Based on http://software.intel.com/en-us/articles/intel-sha-extensions and code by Sean Gulley.
 void SHA1_Transform_SHANI(word32 *state, const word32 *data)
 {
@@ -540,7 +540,7 @@ void CRYPTOPP_FASTCALL SHA256_HashBlocks_SHANI(word32 *state, const word32 *data
     _mm_storeu_si128((__m128i*) &state[0], STATE0);
     _mm_storeu_si128((__m128i*) &state[4], STATE1);
 }
-#endif  // CRYPTOPP_SHANI_SHA_AVAILABLE
+#endif  // CRYPTOPP_SHANI_AVAILABLE
 
 /////////////////////////////////
 // end of Walton/Gulley's code //

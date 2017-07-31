@@ -507,13 +507,25 @@ NAMESPACE_END
 	#define CRYPTOPP_SSE42_AVAILABLE 1
 #endif
 
-// Don't disgorge AES-NI from CLMUL. There will be two to four subtle breaks
-#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_AESNI) && (_MSC_FULL_VER >= 150030729 || __INTEL_COMPILER >= 1110 || (defined(__AES__) && defined(__PCLMUL__)))
-	#define CRYPTOPPL_AESNI_AES_AVAILABLE 1
+#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_CLMUL) && \
+	(defined(__PCLMUL__) || (_MSC_FULL_VER >= 150030729) || \
+	(CRYPTOPP_GCC_VERSION >= 40300) || (__INTEL_COMPILER >= 1110) || \
+	(CRYPTOPP_LLVM_CLANG_VERSION >= 30200) || (CRYPTOPP_APPLE_CLANG_VERSION >= 40300))
+	#define CRYPTOPP_CLMUL_AVAILABLE 1
 #endif
 
+#if !defined(CRYPTOPP_DISABLE_SSE4) && defined(CRYPTOPP_SSSE3_AVAILABLE) && \
+	(defined(__AES__) || (_MSC_FULL_VER >= 150030729) || \
+	(CRYPTOPP_GCC_VERSION >= 40300) || (__INTEL_COMPILER >= 1110) || \
+	(CRYPTOPP_LLVM_CLANG_VERSION >= 30200) || (CRYPTOPP_APPLE_CLANG_VERSION >= 40300))
+	#define CRYPTOPP_AESNI_AVAILABLE 1
+#endif
+
+// TODO:
+#undef CRYPTOPP_AESNI_AVAILABLE
+
 #if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_SHA) && ((_MSC_VER >= 1900) || defined(__SHA__))
-	#define CRYPTOPP_SHANI_SHA_AVAILABLE 1
+	#define CRYPTOPP_SHANI_AVAILABLE 1
 #endif
 
 #endif  // X86, X32, X64
@@ -534,10 +546,10 @@ NAMESPACE_END
 // LLVM Clang requires 3.5. Apple Clang is unknown at the moment.
 // Microsoft plans to support ARM-64, but its not clear how to detect it.
 // TODO: Add MSC_VER and ARM-64 platform define when available
-#if !defined(CRYPTOPP_ARMV_CRC32_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
+#if !defined(CRYPTOPP_ARM_CRC32_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
 # if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_MSC_VER >= 2000) || \
 	(CRYPTOPP_GCC_VERSION >= 40800) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30500)
-#  define CRYPTOPP_ARMV_CRC32_AVAILABLE 1
+#  define CRYPTOPP_ARM_CRC32_AVAILABLE 1
 # endif
 #endif
 
@@ -545,10 +557,10 @@ NAMESPACE_END
 // LLVM Clang requires 3.5. Apple Clang is unknown at the moment.
 // Microsoft plans to support ARM-64, but its not clear how to detect it.
 // TODO: Add MSC_VER and ARM-64 platform define when available
-#if !defined(CRYPTOPP_ARMV_PMULL_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM) && !defined(__apple_build_version__)
+#if !defined(CRYPTOPP_ARM_PMULL_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM) && !defined(__apple_build_version__)
 # if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_MSC_VER >= 2000) || \
 	(CRYPTOPP_GCC_VERSION >= 40800) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30500)
-#  define CRYPTOPP_ARMV_PMULL_AVAILABLE 1
+#  define CRYPTOPP_ARM_PMULL_AVAILABLE 1
 # endif
 #endif
 
@@ -559,15 +571,15 @@ NAMESPACE_END
 #if !defined(CRYPTOPP_ARMV8A_CRYPTO_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
 # if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_MSC_VER >= 2000) || \
 	(CRYPTOPP_GCC_VERSION >= 40800) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30500)
-#  define CRYPTOPP_ARMV_AES_AVAILABLE 1
-#  define CRYPTOPP_ARMV_PMULL_AVAILABLE 1
+#  define CRYPTOPP_ARM_AES_AVAILABLE 1
+#  define CRYPTOPP_ARM_PMULL_AVAILABLE 1
 #  define CRYPTOPP_ARMV8A_SHA_AVAILABLE 1
 #  define CRYPTOPP_ARMV8A_CRYPTO_AVAILABLE 1
 # endif
 #endif
 
 // TODO...
-#undef CRYPTOPP_ARMV_AES_AVAILABLE
+#undef CRYPTOPP_ARM_AES_AVAILABLE
 
 #endif  // ARM32, ARM64
 

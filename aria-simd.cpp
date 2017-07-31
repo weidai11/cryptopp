@@ -10,7 +10,7 @@
 #include "config.h"
 #include "misc.h"
 
-#if (CRYPTOPP_ARM_NEON_AVAILABLE) && defined(__GNUC__)
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
 # include "arm_neon.h"
 #endif
 

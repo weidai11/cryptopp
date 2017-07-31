@@ -267,7 +267,6 @@ void ARIA::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
 
 #ifdef IS_LITTLE_ENDIAN
 # if CRYPTOPP_ENABLE_ARIA_SSSE3_INTRINSICS
-	const __m128i MASK = _mm_set_epi8(12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3);
 	if (HasSSSE3())
 	{
 		ARIA_ProcessAndXorBlock_Xor_SSSE3(xorBlock, outBlock, rk, t);

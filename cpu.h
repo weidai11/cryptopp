@@ -66,10 +66,10 @@
 #  include <smmintrin.h>    // _mm_blend_epi16
 #  include <nmmintrin.h>    // _mm_crc32_u{8|16|32}
 #endif // smmintrin.h
-#if CRYPTOPPL_AESNI_AES_AVAILABLE
+#if CRYPTOPP_AESNI_AVAILABLE
 #  include <wmmintrin.h>    // aesenc, aesdec, etc
 #endif // wmmintrin.h
-#if CRYPTOPP_SHANI_SHA_AVAILABLE
+#if CRYPTOPP_SHANI_AVAILABLE
 #  include <immintrin.h>    // RDRAND, RDSEED, AVX, SHA
 #endif // immintrin.h
 #endif  // X86/X64/X32 Headers

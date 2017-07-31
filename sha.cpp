@@ -97,7 +97,7 @@ static void SHA1_Transform_CXX(word32 *state, const word32 *data)
 // end of Steve Reid's code //
 //////////////////////////////
 
-#if CRYPTOPP_SHANI_SHA_AVAILABLE
+#if CRYPTOPP_SHANI_AVAILABLE
 extern void SHA1_Transform_SHANI(word32 *state, const word32 *data);
 extern void CRYPTOPP_FASTCALL SHA256_HashBlocks_SHANI(word32 *state, const word32 *data, size_t length);
 #elif CRYPTOPP_ARMV8A_SHA_AVAILABLE
@@ -107,7 +107,7 @@ extern void CRYPTOPP_FASTCALL SHA256_HashBlocks_ARMV8A(word32 *state, const word
 
 static pfnSHATransform InitializeSHA1Transform()
 {
-#if CRYPTOPP_SHANI_SHA_AVAILABLE
+#if CRYPTOPP_SHANI_AVAILABLE
     if (HasSHA())
         return &SHA1_Transform_SHANI;
     else
@@ -135,7 +135,7 @@ void SHA1::Transform(word32 *state, const word32 *data)
     s_pfn(state, data);
 }
 
-#if CRYPTOPP_SHANI_SHA_AVAILABLE
+#if CRYPTOPP_SHANI_AVAILABLE
 size_t SHA1::HashMultipleBlocks(const word32 *input, size_t length)
 {
     const bool noReverse = HasSHA() || NativeByteOrderIs(this->GetByteOrder());
@@ -533,7 +533,7 @@ void CRYPTOPP_FASTCALL SHA256_HashBlocks_SSE2(word32 *state, const word32 *data,
 
 static pfnSHAHashBlocks InitializeSHA256HashBlocks()
 {
-#if CRYPTOPP_SHANI_SHA_AVAILABLE
+#if CRYPTOPP_SHANI_AVAILABLE
     if (HasSHA())
         return &SHA256_HashBlocks_SHANI;
     else
@@ -700,12 +700,12 @@ static void SHA256_Transform_SSE2(word32 *state, const word32 *data)
 }
 #endif  // CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
 
-#if CRYPTOPP_SHANI_SHA_AVAILABLE
+#if CRYPTOPP_SHANI_AVAILABLE
 static void SHA256_Transform_SHANI(word32 *state, const word32 *data)
 {
     return SHA256_HashBlocks_SHANI(state, data, SHA256::BLOCKSIZE);
 }
-#endif  // CRYPTOPP_SHANI_SHA_AVAILABLE
+#endif  // CRYPTOPP_SHANI_AVAILABLE
 
 #if CRYPTOPP_ARMV8A_SHA_AVAILABLE
 static void SHA256_Transform_ARMV8A(word32 *state, const word32 *data)
@@ -720,7 +720,7 @@ static void SHA256_Transform_ARMV8A(word32 *state, const word32 *data)
 
 static pfnSHATransform InitializeSHA256Transform()
 {
-#if CRYPTOPP_SHANI_SHA_AVAILABLE
+#if CRYPTOPP_SHANI_AVAILABLE
     if (HasSHA())
         return &SHA256_Transform_SHANI;
     else

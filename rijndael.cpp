@@ -223,7 +223,7 @@ void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keylen, c
 
 	word32 *rk = m_key;
 
-#if (CRYPTOPPL_AESNI_AES_AVAILABLE && CRYPTOPP_SSE42_AVAILABLE && (!defined(_MSC_VER) || _MSC_VER >= 1600 || CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32))
+#if (CRYPTOPP_AESNI_AVAILABLE && CRYPTOPP_SSE42_AVAILABLE && (!defined(_MSC_VER) || _MSC_VER >= 1600 || CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32))
 	// MSVC 2008 SP1 generates bad code for _mm_extract_epi32() when compiling for X64
 	if (HasAESNI() && HasSSE4())
 	{
@@ -379,7 +379,7 @@ void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keylen, c
 		temp = ConditionalByteReverse(BIG_ENDIAN_ORDER, rk[3]); rk[3] = ConditionalByteReverse(BIG_ENDIAN_ORDER, rk[4*m_rounds+3]); rk[4*m_rounds+3] = temp;
 	}
 
-#if CRYPTOPPL_AESNI_AES_AVAILABLE
+#if CRYPTOPP_AESNI_AVAILABLE
 	if (HasAESNI())
 		ConditionalByteReverse(BIG_ENDIAN_ORDER, rk+4, rk+4, (m_rounds-1)*16);
 #endif
@@ -387,7 +387,7 @@ void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keylen, c
 
 void Rijndael::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE) || CRYPTOPPL_AESNI_AES_AVAILABLE
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE) || CRYPTOPP_AESNI_AVAILABLE
 #if (CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
 	if (HasSSE2())
 #else
@@ -468,7 +468,7 @@ void Rijndael::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 
 void Rijndael::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
-#if CRYPTOPPL_AESNI_AES_AVAILABLE
+#if CRYPTOPP_AESNI_AVAILABLE
 	if (HasAESNI())
 	{
 		Rijndael::Dec::AdvancedProcessBlocks(inBlock, xorBlock, outBlock, 16, 0);
@@ -1082,7 +1082,7 @@ static inline bool AliasedWithTable(const byte *begin, const byte *end)
 		return (s0 < t1 || s1 <= t1) || (s0 >= t0 || s1 > t0);
 }
 
-#if CRYPTOPPL_AESNI_AES_AVAILABLE
+#if CRYPTOPP_AESNI_AVAILABLE
 
 inline void AESNI_Enc_Block(__m128i &block, MAYBE_CONST __m128i *subkeys, unsigned int rounds)
 {
@@ -1285,7 +1285,7 @@ Rijndael::Enc::Enc() : m_aliasBlock(s_sizeToAllocate) { }
 
 size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const
 {
-#if CRYPTOPPL_AESNI_AES_AVAILABLE
+#if CRYPTOPP_AESNI_AVAILABLE
 	if (HasAESNI())
 		return AESNI_AdvancedProcessBlocks(AESNI_Enc_Block, AESNI_Enc_4_Blocks, (MAYBE_CONST __m128i *)(const void *)m_key.begin(), m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 #endif
@@ -1347,7 +1347,7 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 #if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86
 size_t Rijndael::Dec::AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const
 {
-#if CRYPTOPPL_AESNI_AES_AVAILABLE
+#if CRYPTOPP_AESNI_AVAILABLE
 	if (HasAESNI())
 		return AESNI_AdvancedProcessBlocks(AESNI_Dec_Block, AESNI_Dec_4_Blocks, (MAYBE_CONST __m128i *)(const void *)m_key.begin(), m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 #endif

@@ -14,7 +14,7 @@
 # include "nmmintrin.h"
 #endif
 
-#if (CRYPTOPP_ARMV_CRC32_AVAILABLE)
+#if (CRYPTOPP_ARM_CRC32_AVAILABLE)
 # include "arm_neon.h"
 #if defined(__GNUC__)
 # include "arm_acle.h"
@@ -40,7 +40,7 @@ extern "C" {
 };
 #endif  // Not CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
 
-#if (CRYPTOPP_ARMV_CRC32_AVAILABLE)
+#if (CRYPTOPP_ARM_CRC32_AVAILABLE)
 bool CPU_TryCRC32_ARMV8()
 {
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
@@ -96,9 +96,9 @@ bool CPU_TryCRC32_ARMV8()
 	return result;
 # endif
 }
-#endif  // CRYPTOPP_ARMV_CRC32_AVAILABLE
+#endif  // CRYPTOPP_ARM_CRC32_AVAILABLE
 
-#if (CRYPTOPP_ARMV_CRC32_AVAILABLE)
+#if (CRYPTOPP_ARM_CRC32_AVAILABLE)
 void CRC32_Update_ARMV8(const byte *s, size_t n, word32& c)
 {
 	for(; !IsAligned<word32>(s) && n > 0; s++, n--)

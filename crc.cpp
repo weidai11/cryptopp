@@ -8,7 +8,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 // crc-simd.cpp
-#if (CRYPTOPP_ARMV_CRC32_AVAILABLE)
+#if (CRYPTOPP_ARM_CRC32_AVAILABLE)
 extern void CRC32_Update_ARMV8(const byte *s, size_t n, word32& c);
 extern void CRC32C_Update_ARMV8(const byte *s, size_t n, word32& c);
 #endif
@@ -136,7 +136,7 @@ CRC32::CRC32()
 
 void CRC32::Update(const byte *s, size_t n)
 {
-#if (CRYPTOPP_ARMV_CRC32_AVAILABLE)
+#if (CRYPTOPP_ARM_CRC32_AVAILABLE)
 	if (HasCRC32())
 	{
 		CRC32_Update_ARMV8(s, n, m_crc);
@@ -302,7 +302,7 @@ void CRC32C::Update(const byte *s, size_t n)
 		CRC32C_Update_SSE42(s, n, m_crc);
 		return;
 	}
-#elif (CRYPTOPP_ARMV_CRC32_AVAILABLE)
+#elif (CRYPTOPP_ARM_CRC32_AVAILABLE)
 	if (HasCRC32())
 	{
 		CRC32C_Update_ARMV8(s, n, m_crc);

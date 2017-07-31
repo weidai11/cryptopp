@@ -354,7 +354,7 @@ extern "C"
 
 static bool TryAES()
 {
-#if (CRYPTOPP_ARMV_AES_AVAILABLE)
+#if (CRYPTOPP_ARM_AES_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
 	volatile bool result = true;
 	__try
