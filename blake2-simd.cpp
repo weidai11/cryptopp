@@ -1,10 +1,10 @@
-// sha-simd.cpp - written and placed in the public domain by
-//                Jeffrey Walton, Uri Blumenthal and Marcel Raad.
+// blake2-simd.cpp - written and placed in the public domain by
+//                   Jeffrey Walton, Uri Blumenthal and Marcel Raad.
 //
-//    This source file uses intrinsics to gain access to SHA-NI and
-//    ARMv8a SHA instructions. A separate source file is needed
-//    because additional CXXFLAGS are required to enable the
-//    appropriate instructions sets in some build configurations.
+//    This source file uses intrinsics to gain access to ARMv7a/ARMv8a
+//    NEON and SSE4.2 instructions. A separate source file is needed
+//    because additional CXXFLAGS are required to enable the appropriate
+//    instructions sets in some build configurations.
 
 #include "pch.h"
 #include "config.h"

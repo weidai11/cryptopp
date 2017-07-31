@@ -1,5 +1,5 @@
-// crc-simd.cpp - written and placed in the public domain by
-//                Jeffrey Walton, Uri Blumenthal and Marcel Raad.
+// aria-simd.cpp - written and placed in the public domain by
+//                 Jeffrey Walton, Uri Blumenthal and Marcel Raad.
 //
 //    This source file uses intrinsics to gain access to ARMv7a and
 //    ARMv8a NEON instructions. A separate source file is needed
