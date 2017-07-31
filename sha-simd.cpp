@@ -44,9 +44,9 @@ extern "C" {
 
 extern const word32 SHA256_K[64];
 
-#if (CRYPTOPP_ARMV8A_SHA_AVAILABLE)
 bool CPU_TrySHA1_ARMV8()
 {
+#if (CRYPTOPP_ARMV8A_SHA_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
 	volatile bool result = true;
 	__try
@@ -66,7 +66,7 @@ bool CPU_TrySHA1_ARMV8()
 		return false;
 	}
 	return result;
-#else
+# else
 	// longjmp and clobber warnings. Volatile is required.
 	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
 	volatile bool result = true;
@@ -98,12 +98,14 @@ bool CPU_TrySHA1_ARMV8()
 	signal(SIGILL, oldHandler);
 	return result;
 # endif
+#else
+	return false;
 }
 #endif  // CRYPTOPP_ARMV8A_SHA_AVAILABLE
 
-#if (CRYPTOPP_ARMV8A_SHA_AVAILABLE)
 bool CPU_TrySHA2_ARMV8()
 {
+#if (CRYPTOPP_ARMV8A_SHA_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
 	volatile bool result = true;
 	__try
@@ -153,6 +155,8 @@ bool CPU_TrySHA2_ARMV8()
 	signal(SIGILL, oldHandler);
 	return result;
 # endif
+#else
+	return false;
 }
 #endif  // CRYPTOPP_ARMV8A_SHA_AVAILABLE
 

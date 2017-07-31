@@ -8,9 +8,12 @@
 
 #include "pch.h"
 #include "config.h"
-#include "misc.h"
 
-#if (CRYPTOPP_ARM_NEON_AVAILABLE) && defined(__GNUC__)
+#ifndef EXCEPTION_EXECUTE_HANDLER
+# define EXCEPTION_EXECUTE_HANDLER 1
+#endif
+
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
 # include "arm_neon.h"
 #endif
 

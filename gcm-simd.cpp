@@ -156,9 +156,9 @@ extern "C" {
 };
 #endif  // Not CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
 
-#if (CRYPTOPP_ARM_PMULL_AVAILABLE)
 bool CPU_TryPMULL_ARMV8()
 {
+#if (CRYPTOPP_ARM_PMULL_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
     volatile bool result = true;
     __try
@@ -216,10 +216,12 @@ bool CPU_TryPMULL_ARMV8()
 
     sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
     signal(SIGILL, oldHandler);
-    return result;
+	return result;
 # endif
+#else
+	return false;
 }
-#endif  // CRYPTOPP_ARM_PMULL_AVAILABLE
+#endif  // CRYPTOPP_ARMV8A_SHA_AVAILABLE
 
 #if CRYPTOPP_ARM_NEON_AVAILABLE
 void GCM_Xor16_NEON(byte *a, const byte *b, const byte *c)

@@ -536,7 +536,7 @@ NAMESPACE_END
 
 // Requires ARMv7 and ACLE 1.0. Testing shows ARMv7 is really ARMv7a under most toolchains.
 #if !defined(CRYPTOPP_ARM_NEON_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
-# if defined(__ARM_NEON__) || defined(__ARM_FEATURE_NEON) || (CRYPTOPP_MSC_VER >= 1900) || \
+# if defined(__ARM_NEON__) || defined(__ARM_FEATURE_NEON) || (CRYPTOPP_MSC_VERSION >= 1700) || \
 	(CRYPTOPP_GCC_VERSION >= 40800) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30500)
 #  define CRYPTOPP_ARM_NEON_AVAILABLE 1
 # endif
@@ -547,7 +547,7 @@ NAMESPACE_END
 // Microsoft plans to support ARM-64, but its not clear how to detect it.
 // TODO: Add MSC_VER and ARM-64 platform define when available
 #if !defined(CRYPTOPP_ARM_CRC32_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
-# if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_MSC_VER >= 2000) || \
+# if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_MSC_VERSION >= 2000) || \
 	(CRYPTOPP_GCC_VERSION >= 40800) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30500)
 #  define CRYPTOPP_ARM_CRC32_AVAILABLE 1
 # endif
@@ -558,7 +558,7 @@ NAMESPACE_END
 // Microsoft plans to support ARM-64, but its not clear how to detect it.
 // TODO: Add MSC_VER and ARM-64 platform define when available
 #if !defined(CRYPTOPP_ARM_PMULL_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM) && !defined(__apple_build_version__)
-# if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_MSC_VER >= 2000) || \
+# if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_MSC_VERSION >= 2000) || \
 	(CRYPTOPP_GCC_VERSION >= 40800) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30500)
 #  define CRYPTOPP_ARM_PMULL_AVAILABLE 1
 # endif
@@ -569,7 +569,7 @@ NAMESPACE_END
 // Microsoft plans to support ARM-64, but its not clear how to detect it.
 // TODO: Add MSC_VER and ARM-64 platform define when available
 #if !defined(CRYPTOPP_ARMV8A_CRYPTO_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
-# if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_MSC_VER >= 2000) || \
+# if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_MSC_VERSION >= 2000) || \
 	(CRYPTOPP_GCC_VERSION >= 40800) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30500)
 #  define CRYPTOPP_ARM_AES_AVAILABLE 1
 #  define CRYPTOPP_ARM_PMULL_AVAILABLE 1
