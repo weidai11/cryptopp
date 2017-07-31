@@ -101,8 +101,8 @@ static void SHA1_Transform_CXX(word32 *state, const word32 *data)
 extern void SHA1_Transform_SHANI(word32 *state, const word32 *data);
 extern void CRYPTOPP_FASTCALL SHA256_HashBlocks_SHANI(word32 *state, const word32 *data, size_t length);
 #elif CRYPTOPP_ARM_SHA_AVAILABLE
-extern void SHA1_Transform_ARMV8A(word32 *state, const word32 *data);
-extern void CRYPTOPP_FASTCALL SHA256_HashBlocks_ARMV8A(word32 *state, const word32 *data, size_t length);
+extern void SHA1_Transform_ARMV8(word32 *state, const word32 *data);
+extern void CRYPTOPP_FASTCALL SHA256_HashBlocks_ARMV8(word32 *state, const word32 *data, size_t length);
 #endif
 
 static pfnSHATransform InitializeSHA1Transform()
@@ -708,9 +708,9 @@ static void SHA256_Transform_SHANI(word32 *state, const word32 *data)
 #endif  // CRYPTOPP_SHANI_AVAILABLE
 
 #if CRYPTOPP_ARM_SHA_AVAILABLE
-static void SHA256_Transform_ARMV8A(word32 *state, const word32 *data)
+static void SHA256_Transform_ARMV8(word32 *state, const word32 *data)
 {
-    return SHA256_HashBlocks_ARMV8A(state, data, SHA256::BLOCKSIZE);
+    return SHA256_HashBlocks_ARMV8(state, data, SHA256::BLOCKSIZE);
 }
 #endif  // CRYPTOPP_ARM_SHA_AVAILABLE
 

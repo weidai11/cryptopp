@@ -566,7 +566,7 @@ void CRYPTOPP_FASTCALL SHA256_HashBlocks_SHANI(word32 *state, const word32 *data
 /////////////////////////////////////////////////////////
 
 #if CRYPTOPP_ARM_SHA_AVAILABLE
-void SHA1_Transform_ARMV8A(word32 *state, const word32 *data)
+void SHA1_Transform_ARMV8(word32 *state, const word32 *data)
 {
     uint32x4_t C0, C1, C2, C3;
     uint32x4_t ABCD, ABCD_SAVED;
@@ -735,7 +735,7 @@ void SHA1_Transform_ARMV8A(word32 *state, const word32 *data)
     state[4] = E0;
 }
 
-void CRYPTOPP_FASTCALL SHA256_HashBlocks_ARMV8A(word32 *state, const word32 *data, size_t length)
+void CRYPTOPP_FASTCALL SHA256_HashBlocks_ARMV8(word32 *state, const word32 *data, size_t length)
 {
     uint32x4_t STATE0, STATE1, ABEF_SAVE, CDGH_SAVE;
     uint32x4_t MSG0, MSG1, MSG2, MSG3;
