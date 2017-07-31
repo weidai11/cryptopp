@@ -1520,7 +1520,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 		ARM_CRC32=1
 	fi
 
-	if [[ ("$ARM_CRC32" -ne "0") ]]; then
+	if [[ ("$HAVE_ARMV8A" -ne "0" && "$ARM_CRC32" -ne "0") ]]; then
 		echo
 		echo "************************************" | tee -a "$TEST_RESULTS"
 		echo "Testing: ARM CRC32 code generation" | tee -a "$TEST_RESULTS"
@@ -1570,7 +1570,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 		ARM_PMULL=1
 	fi
 
-	if [[ ("$ARM_PMULL" -ne "0" || "$HAVE_ARM_CRYPTO" -ne "0") ]]; then
+	if [[ ("$HAVE_ARMV8A" -ne "0" && "$ARM_PMULL" -ne "0") ]]; then
 		echo
 		echo "************************************" | tee -a "$TEST_RESULTS"
 		echo "Testing: ARM carryless multiply code generation" | tee -a "$TEST_RESULTS"
@@ -1608,7 +1608,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 		ARM_SHA=1
 	fi
 
-	if [[ ("$ARM_SHA" -ne "0" || "$HAVE_ARM_CRYPTO" -ne "0") ]]; then
+	if [[ ("$HAVE_ARMV8A" -ne "0" && "$ARM_SHA" -ne "0") ]]; then
 		echo
 		echo "************************************" | tee -a "$TEST_RESULTS"
 		echo "Testing: ARM SHA generation" | tee -a "$TEST_RESULTS"
