@@ -29,7 +29,11 @@ NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
 
-using namespace ARIATab;
+using CryptoPP::ARIATab::S1;
+using CryptoPP::ARIATab::S2;
+using CryptoPP::ARIATab::X1;
+using CryptoPP::ARIATab::X2;
+using CryptoPP::ARIATab::KRK;
 
 typedef BlockGetAndPut<word32, BigEndian, false, false> BigEndianBlock;
 typedef BlockGetAndPut<word32, NativeByteOrder, true, true>  NativeEndianBlock;

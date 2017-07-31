@@ -32,7 +32,11 @@ NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
 
-using namespace ARIATab;
+using CryptoPP::ARIATab::S1;
+using CryptoPP::ARIATab::S2;
+using CryptoPP::ARIATab::X1;
+using CryptoPP::ARIATab::X2;
+using CryptoPP::ARIATab::KRK;
 
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
 

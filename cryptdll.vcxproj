@@ -195,6 +195,7 @@
     <ClCompile Include="fips140.cpp" />
     <ClCompile Include="fipstest.cpp" />
     <ClCompile Include="gcm.cpp" />
+    <ClCompile Include="gcm-simd.cpp" />
     <ClCompile Include="gf2n.cpp" />
     <ClCompile Include="gfpcrypt.cpp" />
     <ClCompile Include="hex.cpp" />
