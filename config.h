@@ -550,7 +550,7 @@ NAMESPACE_END
 // Microsoft plans to support ARM-64, but its not clear how to detect it.
 // TODO: Add MSC_VER and ARM-64 platform define when available
 #if !defined(CRYPTOPP_ARM_CRC32_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
-# if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_MSC_VERSION >= 2000) || \
+# if defined(__ARM_FEATURE_CRC32) || (CRYPTOPP_MSC_VERSION >= 2000) || \
 	(CRYPTOPP_GCC_VERSION >= 40800) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30500)
 #  define CRYPTOPP_ARM_CRC32_AVAILABLE 1
 # endif

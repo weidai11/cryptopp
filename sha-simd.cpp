@@ -10,6 +10,11 @@
 #include "config.h"
 #include "misc.h"
 
+// Clang and GCC hoops...
+#if !(defined(__ARM_FEATURE_CRYPTO) || defined(__aarch32__) || defined(__aarch64__) || defined(_MSC_VER))
+# undef CRYPTOPP_ARM_SHA_AVAILABLE
+#endif
+
 #if (CRYPTOPP_SSE42_AVAILABLE)
 # include "nmmintrin.h"
 #endif

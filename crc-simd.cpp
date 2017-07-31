@@ -10,15 +10,18 @@
 #include "config.h"
 #include "misc.h"
 
+// Clang and GCC hoops...
+#if !(defined(__ARM_FEATURE_CRC32) || defined(__aarch32__) || defined(__aarch64__) || defined(_MSC_VER))
+# undef CRYPTOPP_ARM_CRC32_AVAILABLE
+#endif
+
 #if (CRYPTOPP_SSE42_AVAILABLE)
 # include "nmmintrin.h"
 #endif
 
-#if (CRYPTOPP_ARM_NEON_AVAILABLE)
+#if (CRYPTOPP_ARM_CRC32_AVAILABLE)
 # include "arm_neon.h"
-# if (CRYPTOPP_ARM_CRC32_AVAILABLE)
 # include "arm_acle.h"
-# endif
 #endif
 
 #ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
