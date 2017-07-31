@@ -279,6 +279,31 @@ uint64x2_t GCM_Multiply_PMULL(const uint64x2_t &x, const uint64x2_t &h, const ui
     return GCM_Reduce_PMULL(c0, c1, c2, r);
 }
 
+void GCM_SetKeyWithoutResync_PMULL(byte *mulTable, byte *hashKey, unsigned int tableSize)
+{
+	const uint64x2_t r = s_clmulConstants[0];
+	const uint64x2_t t = vreinterpretq_u64_u8(vrev64q_u8(vld1q_u8(hashKey)));
+	const uint64x2_t h0 = vextq_u64(t, t, 1);
+
+	uint64x2_t h = h0;
+	unsigned int i;
+	for (i=0; i<tableSize-32; i+=32)
+	{
+		const uint64x2_t h1 = GCM_Multiply_PMULL(h, h0, r);
+		vst1_u64((uint64_t *)(mulTable+i), vget_low_u64(h));
+		vst1q_u64((uint64_t *)(mulTable+i+16), h1);
+		vst1q_u64((uint64_t *)(mulTable+i+8), h);
+		vst1_u64((uint64_t *)(mulTable+i+8), vget_low_u64(h1));
+		h = GCM_Multiply_PMULL(h1, h0, r);
+	}
+
+	const uint64x2_t h1 = GCM_Multiply_PMULL(h, h0, r);
+	vst1_u64((uint64_t *)(mulTable+i), vget_low_u64(h));
+	vst1q_u64((uint64_t *)(mulTable+i+16), h1);
+	vst1q_u64((uint64_t *)(mulTable+i+8), h);
+	vst1_u64((uint64_t *)(mulTable+i+8), vget_low_u64(h1));
+}
+
 size_t GCM_AuthenticateBlocks_PMULL(const byte *data, size_t len, const byte *mtable, byte *hbuffer)
 {
     const uint64x2_t* table = reinterpret_cast<const uint64x2_t*>(mtable);
@@ -366,6 +391,46 @@ const unsigned int s_cltableSizeInBlocks = 8;
 
 ANONYMOUS_NAMESPACE_END
 
+#if 0
+// preserved for testing
+void gcm_gf_mult(const unsigned char *a, const unsigned char *b, unsigned char *c)
+{
+    word64 Z0=0, Z1=0, V0, V1;
+
+    typedef BlockGetAndPut<word64, BigEndian> Block;
+    Block::Get(a)(V0)(V1);
+
+    for (int i=0; i<16; i++)
+    {
+        for (int j=0x80; j!=0; j>>=1)
+        {
+            int x = b[i] & j;
+            Z0 ^= x ? V0 : 0;
+            Z1 ^= x ? V1 : 0;
+            x = (int)V1 & 1;
+            V1 = (V1>>1) | (V0<<63);
+            V0 = (V0>>1) ^ (x ? W64LIT(0xe1) << 56 : 0);
+        }
+    }
+    Block::Put(NULLPTR, c)(Z0)(Z1);
+}
+
+__m128i _mm_clmulepi64_si128(const __m128i &a, const __m128i &b, int i)
+{
+    word64 A[1] = {ByteReverse(((word64*)&a)[i&1])};
+    word64 B[1] = {ByteReverse(((word64*)&b)[i>>4])};
+
+    PolynomialMod2 pa((byte *)A, 8);
+    PolynomialMod2 pb((byte *)B, 8);
+    PolynomialMod2 c = pa*pb;
+
+    __m128i output;
+    for (int i=0; i<16; i++)
+        ((byte *)&output)[i] = c.GetByte(i);
+    return output;
+}
+#endif
+
 __m128i GCM_Reduce_CLMUL(__m128i c0, __m128i c1, __m128i c2, const __m128i &r)
 {
     /*
@@ -410,18 +475,25 @@ __m128i GCM_Multiply_CLMUL(const __m128i &x, const __m128i &h, const __m128i &r)
 void GCM_SetKeyWithoutResync_CLMUL(byte *mulTable, byte *hashKey, unsigned int tableSize)
 {
     const __m128i r = s_clmulConstants[0];
-    __m128i h0 = _mm_shuffle_epi8(_mm_load_si128((__m128i *)(void *)hashKey), s_clmulConstants[1]);
-    __m128i h = h0;
+    const __m128i h0 = _mm_shuffle_epi8(_mm_load_si128((__m128i *)(void *)hashKey), s_clmulConstants[1]);
 
-    for (unsigned int i=0; i<tableSize; i+=32)
+    __m128i h = h0;
+	unsigned int i;
+    for (i=0; i<tableSize-32; i+=32)
     {
-        __m128i h1 = GCM_Multiply_CLMUL(h, h0, r);
+        const __m128i h1 = GCM_Multiply_CLMUL(h, h0, r);
         _mm_storel_epi64((__m128i *)(void *)(mulTable+i), h);
         _mm_storeu_si128((__m128i *)(void *)(mulTable+i+16), h1);
         _mm_storeu_si128((__m128i *)(void *)(mulTable+i+8), h);
         _mm_storel_epi64((__m128i *)(void *)(mulTable+i+8), h1);
         h = GCM_Multiply_CLMUL(h1, h0, r);
     }
+
+	const __m128i h1 = GCM_Multiply_CLMUL(h, h0, r);
+	_mm_storel_epi64((__m128i *)(void *)(mulTable+i), h);
+	_mm_storeu_si128((__m128i *)(void *)(mulTable+i+16), h1);
+	_mm_storeu_si128((__m128i *)(void *)(mulTable+i+8), h);
+	_mm_storel_epi64((__m128i *)(void *)(mulTable+i+8), h1);
 }
 
 void GCM_ReverseHashBufferIfNeeded_CLMUL(byte *hashBuffer)
