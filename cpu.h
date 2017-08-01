@@ -17,63 +17,6 @@
 # pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
 
-// ARM32 and ARM64 Headers
-#if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
-# if defined(__GNUC__)
-#  include <stdint.h>
-# endif
-# if defined(__ARM_NEON) || defined(_MSC_VER)
-#  include <arm_neon.h>
-# endif
-# if defined(__GNUC__) && !defined(__apple_build_version__)
-#  if defined(__ARM_ACLE) || defined(__ARM_FEATURE_CRC32) || defined(__ARM_FEATURE_CRYPTO)
-# 	include <arm_acle.h>
-#  endif
-# endif
-#endif  // ARM32 and ARM64 Headers
-
-// Used when supplying ASM due to missing intrinsics
-#if defined(__clang__)
-#  define GCC_INLINE inline
-#  define GCC_INLINE_ATTRIB __attribute__((__gnu_inline__, __always_inline__))
-#elif (CRYPTOPP_GCC_VERSION >= 30300) || defined(__INTEL_COMPILER)
-#  define GCC_INLINE __inline
-#  define GCC_INLINE_ATTRIB __attribute__((__gnu_inline__, __always_inline__, __artificial__))
-#else
-#  define GCC_INLINE inline
-#  define GCC_INLINE_ATTRIB
-# endif
-
-// X86/X64/X32 Headers
-#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64
-
-// GCC X86 super-include
-#if (CRYPTOPP_GCC_VERSION >= 40800)
-#  include <x86intrin.h>
-#endif
-#if (CRYPTOPP_MSC_VERSION >= 1400)
-#  include <intrin.h>
-#endif
-
-// Baseline include
-#if CRYPTOPP_SSE2_AVAILABLE
-#  include <emmintrin.h>    // __m64, __m128i, _mm_set_epi64x
-#endif
-#if CRYPTOPP_SSSE3_AVAILABLE
-#  include <tmmintrin.h>    // _mm_shuffle_pi8, _mm_shuffle_epi8
-#endif // tmmintrin.h
-#if CRYPTOPP_SSE42_AVAILABLE
-#  include <smmintrin.h>    // _mm_blend_epi16
-#  include <nmmintrin.h>    // _mm_crc32_u{8|16|32}
-#endif // smmintrin.h
-#if CRYPTOPP_AESNI_AVAILABLE
-#  include <wmmintrin.h>    // aesenc, aesdec, etc
-#endif // wmmintrin.h
-#if CRYPTOPP_SHANI_AVAILABLE
-#  include <immintrin.h>    // RDRAND, RDSEED, AVX, SHA
-#endif // immintrin.h
-#endif  // X86/X64/X32 Headers
-
 // Applies to both X86/X32/X64 and ARM32/ARM64
 #if defined(CRYPTOPP_LLVM_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION) || defined(CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER)
 	#define NEW_LINE "\n"

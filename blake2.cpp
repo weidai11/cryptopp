@@ -22,6 +22,10 @@ NAMESPACE_BEGIN(CryptoPP)
 # undef CRYPTOPP_SSE42_AVAILABLE
 #endif
 
+#if (CRYPTOPP_SSE42_AVAILABLE)
+# include "nmmintrin.h"
+#endif
+
 // Sun Studio 12.3 and earlier lack SSE2's _mm_set_epi64x. Win32 lacks _mm_set_epi64x, Win64 supplies it except for VS2008.
 // Also see http://stackoverflow.com/a/38547909/608639
 #if CRYPTOPP_SSE2_AVAILABLE && ((__SUNPRO_CC >= 0x5100 && __SUNPRO_CC < 0x5130) || (defined(_MSC_VER) && _MSC_VER < 1600) || (defined(_M_IX86) && _MSC_VER >= 1600))

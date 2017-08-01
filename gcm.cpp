@@ -28,6 +28,11 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+#if (CRYPTOPP_CLMUL_AVAILABLE)
+# include "wmmintrin.h"
+# include "tmmintrin.h"
+#endif
+
 #if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
 // Different assemblers accept different mnemonics: 'movd eax, xmm0' vs 'movd rax, xmm0' vs 'mov eax, xmm0' vs 'mov rax, xmm0'
 #if (CRYPTOPP_LLVM_CLANG_VERSION >= 30600) || (CRYPTOPP_APPLE_CLANG_VERSION >= 70000) || defined(CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER)
