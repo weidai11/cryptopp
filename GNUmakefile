@@ -205,7 +205,7 @@ ifeq ($(findstring -DCRYPTOPP_DISABLE_SSE4,$(CXXFLAGS)),)
 SSE42_FLAG = $(shell echo | $(CXX) $(CXXFLAGS) -msse4.2 -dM -E - | grep -i -c -q __SSE4_2__ && echo "-msse4.2")
 ifeq ($(findstring -DCRYPTOPP_DISABLE_AESNI,$(CXXFLAGS)),)
 GCM_FLAG = $(shell echo | $(CXX) $(CXXFLAGS) -mssse3 -mpclmul -dM -E - | grep -i -c -q __PCLMUL__ && echo "-mssse3 -mpclmul")
-AES_FLAG = $(shell echo | $(CXX) $(CXXFLAGS) -maes -dM -E - | grep -i -c -q __AES__ && echo "-maes")
+AES_FLAG = $(shell echo | $(CXX) $(CXXFLAGS) -msse4.1 -maes -dM -E - | grep -i -c -q __AES__ && echo "-msse4.1 -maes")
 ifeq ($(findstring -DCRYPTOPP_DISABLE_SHA,$(CXXFLAGS)),)
 SHA_FLAG = $(shell echo | $(CXX) $(CXXFLAGS) -msse4.2 -msha -dM -E - | grep -i -c -q __SHA__ && echo "-msse4.2 -msha")
 BLAKE2_FLAG = $(SSE42_FLAG)
@@ -880,6 +880,10 @@ crc-simd.o : crc-simd.cpp
 # PCLMUL or ARMv7a/ARMv8a available
 gcm-simd.o : gcm-simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(GCM_FLAG) -c) $<
+
+# AESNI or ARMv7a/ARMv8a available
+rijndael-simd.o : rijndael-simd.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(AES_FLAG) -c) $<
 
 # SSE4.2/SHA-NI or ARMv8a available
 sha-simd.o : sha-simd.cpp

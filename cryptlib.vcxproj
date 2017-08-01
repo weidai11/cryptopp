@@ -256,6 +256,7 @@
     <ClCompile Include="rdrand.cpp" />
     <ClCompile Include="rdtables.cpp" />
     <ClCompile Include="rijndael.cpp" />
+    <ClCompile Include="rijndael-simd.cpp" />
     <ClCompile Include="ripemd.cpp" />
     <ClCompile Include="rng.cpp" />
     <ClCompile Include="rsa.cpp" />

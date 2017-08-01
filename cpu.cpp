@@ -341,76 +341,12 @@ extern bool CPU_TrySHA2_ARMV8();
 extern bool CPU_TryCRC32_ARMV8();
 extern bool CPU_TryPMULL_ARMV8();
 
-#ifndef CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
-extern "C"
-{
-	static jmp_buf s_jmpNoAES;
-	static void SigIllHandlerAES(int)
-	{
-		longjmp(s_jmpNoAES, 1);
-	}
-};
-#endif  // Not CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
-
-static bool TryAES()
-{
-#if (CRYPTOPP_ARM_AES_AVAILABLE)
-# if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
-	volatile bool result = true;
-	__try
-	{
-		// AES encrypt and decrypt
-		uint8x16_t data = vdupq_n_u8(0), key = vdupq_n_u8(0);
-		uint8x16_t r1 = vaeseq_u8(data, key);
-		uint8x16_t r2 = vaesdq_u8(data, key);
-
-		result = !!(vgetq_lane_u8(r1,0) | vgetq_lane_u8(r2,7));
-	}
-	__except (EXCEPTION_EXECUTE_HANDLER)
-	{
-		return false;
-	}
-	return result;
-# else
-	// longjmp and clobber warnings. Volatile is required.
-	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
-	volatile bool result = true;
-
-	volatile SigHandler oldHandler = signal(SIGILL, SigIllHandlerAES);
-	if (oldHandler == SIG_ERR)
-		return false;
-
-	volatile sigset_t oldMask;
-	if (sigprocmask(0, NULLPTR, (sigset_t*)&oldMask))
-		return false;
-
-	if (setjmp(s_jmpNoAES))
-		result = false;
-	else
-	{
-		uint8x16_t data = vdupq_n_u8(0), key = vdupq_n_u8(0);
-		uint8x16_t r1 = vaeseq_u8(data, key);
-		uint8x16_t r2 = vaesdq_u8(data, key);
-
-		// Hack... GCC optimizes away the code and returns true
-		result = !!(vgetq_lane_u8(r1,0) | vgetq_lane_u8(r2,7));
-	}
-
-	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
-	signal(SIGILL, oldHandler);
-	return result;
-# endif
-#else
-	return false;
-#endif  // CRYPTOPP_ARM_CRYPTO_AVAILABLE
-}
-
 void DetectArmFeatures()
 {
 	g_hasNEON = CPU_TryNEON_ARM();
 	g_hasPMULL = CPU_TryPMULL_ARMV8();
 	g_hasCRC32 = CPU_TryCRC32_ARMV8();
-	g_hasAES = TryAES(); // TODO
+	g_hasAES = CPU_TryAES_ARMV8();
 	g_hasSHA1 = CPU_TrySHA1_ARMV8();
 	g_hasSHA2 = CPU_TrySHA2_ARMV8();
 

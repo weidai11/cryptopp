@@ -1250,7 +1250,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 		echo "Testing: X86 AES-NI code generation" | tee -a "$TEST_RESULTS"
 		echo
 
-		OBJFILE=rijndael.o; rm -f "$OBJFILE" 2>/dev/null
+		OBJFILE=rijndael-simd.o; rm -f "$OBJFILE" 2>/dev/null
 		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS -DDISABLE_NATIVE_ARCH=1" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
 
 		COUNT=0
@@ -1597,6 +1597,91 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 
 		if [[ ("$FAILED" -eq "0") ]]; then
 			echo "Verified pmull and pmull2 machine instructions" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+	############################################
+	# ARM SHA code generation
+
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -march=armv8-a+crypto adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+	if [[ "$?" -eq "0" ]]; then
+		ARM_AES=1
+	fi
+
+	if [[ ("$HAVE_ARMV8A" -ne "0" && "$ARM_AES" -ne "0") ]]; then
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS"
+		echo "Testing: ARM AES generation" | tee -a "$TEST_RESULTS"
+		echo
+
+		OBJFILE=rijndael-simd.o; rm -f "$OBJFILE" 2>/dev/null
+		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS -DDISABLE_NATIVE_ARCH=1" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
+
+		COUNT=0
+		FAILED=0
+		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
+
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha1c)
+		if [[ ("$COUNT" -eq "0") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate sha1c instruction" | tee -a "$TEST_RESULTS"
+		fi
+
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha1m)
+		if [[ ("$COUNT" -eq "0") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate sha1m instruction" | tee -a "$TEST_RESULTS"
+		fi
+
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha1p)
+		if [[ ("$COUNT" -eq "0") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate sha1p instruction" | tee -a "$TEST_RESULTS"
+		fi
+
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha1h)
+		if [[ ("$COUNT" -eq "0") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate sha1h instruction" | tee -a "$TEST_RESULTS"
+		fi
+
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha1su0)
+		if [[ ("$COUNT" -eq "0") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate sha1su0 instruction" | tee -a "$TEST_RESULTS"
+		fi
+
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha1su1)
+		if [[ ("$COUNT" -eq "0") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate sha1su1 instruction" | tee -a "$TEST_RESULTS"
+		fi
+
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -v sha256h2 | "$GREP" -i -c sha256h)
+		if [[ ("$COUNT" -eq "0") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate sha256h instruction" | tee -a "$TEST_RESULTS"
+		fi
+
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha256h2)
+		if [[ ("$COUNT" -eq "0") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate sha256h2 instruction" | tee -a "$TEST_RESULTS"
+		fi
+
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha256su0)
+		if [[ ("$COUNT" -eq "0") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate sha256su0 instruction" | tee -a "$TEST_RESULTS"
+		fi
+
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha256su1)
+		if [[ ("$COUNT" -eq "0") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate sha256su1 instruction" | tee -a "$TEST_RESULTS"
+		fi
+
+		if [[ ("$FAILED" -eq "0") ]]; then
+			echo "Verified sha1c, sha1m, sha1p, sha1su0, sha1su1, sha256h, sha256h2, sha256su0, sha256su1 machine instructions" | tee -a "$TEST_RESULTS"
 		fi
 	fi
 
