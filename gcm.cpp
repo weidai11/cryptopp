@@ -29,8 +29,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 #if (CRYPTOPP_CLMUL_AVAILABLE)
-# include "wmmintrin.h"
-# include "tmmintrin.h"
+# include "emmintrin.h"
 #endif
 
 #if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
@@ -94,17 +93,8 @@ extern void GCM_ReverseHashBufferIfNeeded_SSSE3(byte *hashBuffer);
 #endif
 
 #if CRYPTOPP_CLMUL_AVAILABLE
-extern __m128i GCM_Multiply_CLMUL(const __m128i &x, const __m128i &h, const __m128i &r);
 extern void GCM_SetKeyWithoutResync_CLMUL(const byte *hashKey, byte *mulTable, unsigned int tableSize);
 extern size_t GCM_AuthenticateBlocks_CLMUL(const byte *data, size_t len, const byte *mtable, byte *hbuffer);
-
-CRYPTOPP_ALIGN_DATA(16)
-const word64 s_clmulConstants64[] = {
-    W64LIT(0xe100000000000000), W64LIT(0xc200000000000000),
-    W64LIT(0x08090a0b0c0d0e0f), W64LIT(0x0001020304050607),
-    W64LIT(0x0001020304050607), W64LIT(0x08090a0b0c0d0e0f)};
-
-const __m128i *s_clmulConstants = (const __m128i *)(const void *)s_clmulConstants64;
 const unsigned int s_cltableSizeInBlocks = 8;
 #endif  // CRYPTOPP_CLMUL_AVAILABLE
 
@@ -113,18 +103,8 @@ extern void GCM_ReverseHashBufferIfNeeded_NEON(byte *hashBuffer);
 #endif
 
 #if CRYPTOPP_ARM_PMULL_AVAILABLE
-extern uint64x2_t GCM_Multiply_PMULL(const uint64x2_t &x, const uint64x2_t &h, const uint64x2_t &r);
 extern void GCM_SetKeyWithoutResync_PMULL(const byte *hashKey, byte *mulTable, unsigned int tableSize);
 extern size_t GCM_AuthenticateBlocks_PMULL(const byte *data, size_t len, const byte *mtable, byte *hbuffer);
-
-CRYPTOPP_ALIGN_DATA(16)
-const word64 s_clmulConstants64[] = {
-    W64LIT(0xe100000000000000), W64LIT(0xc200000000000000),  // Used for ARM and x86; polynomial coefficients
-    W64LIT(0x08090a0b0c0d0e0f), W64LIT(0x0001020304050607),  // Unused for ARM; used for x86 _mm_shuffle_epi8
-    W64LIT(0x0001020304050607), W64LIT(0x08090a0b0c0d0e0f)   // Unused for ARM; used for x86 _mm_shuffle_epi8
-};
-
-const uint64x2_t *s_clmulConstants = (const uint64x2_t *)s_clmulConstants64;
 const unsigned int s_cltableSizeInBlocks = 8;
 #endif  // CRYPTOPP_ARM_PMULL_AVAILABLE
 

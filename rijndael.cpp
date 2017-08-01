@@ -74,6 +74,17 @@ being unloaded from L1 cache, until that round is finished.
 #include "misc.h"
 #include "cpu.h"
 
+// TODO: remove...
+#if (CRYPTOPP_AESNI_AVAILABLE)
+# include "wmmintrin.h"
+#endif
+
+// TODO: remove...
+#if (CRYPTOPP_ARM_AES_AVAILABLE)
+# include "arm_neon.h"
+# include "arm_acle.h"
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 // Hack for http://github.com/weidai11/cryptopp/issues/42 and http://github.com/weidai11/cryptopp/issues/132
@@ -214,11 +225,16 @@ void Rijndael::Base::FillDecTable()
 	s_TdFilled = true;
 }
 
-void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keylen, const NameValuePairs &)
-{
-	AssertValidKeyLength(keylen);
+#if (CRYPTOPP_AESNI_AVAILABLE)
+extern void Rijndael_UncheckedSetKey_SSE4_AESNI(const byte *userKey, size_t keyLen, word32* rk);
+extern void Rijndael_UncheckedSetKeyRev_SSE4_AESNI(word32 *key, unsigned int rounds);
+#endif
 
-	m_rounds = keylen/4 + 6;
+void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLen, const NameValuePairs &)
+{
+	AssertValidKeyLength(keyLen);
+
+	m_rounds = keyLen/4 + 6;
 	m_key.New(4*(m_rounds+1));
 
 	word32 *rk = m_key;
@@ -227,110 +243,36 @@ void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keylen, c
 	// MSVC 2008 SP1 generates bad code for _mm_extract_epi32() when compiling for X64
 	if (HasAESNI() && HasSSE4())
 	{
-		static const word32 rcLE[] = {
-			0x01, 0x02, 0x04, 0x08,
-			0x10, 0x20, 0x40, 0x80,
-			0x1B, 0x36, /* for 128-bit blocks, Rijndael never uses more than 10 rcon values */
-		};
-
-		// Coverity finding, appears to be false positive. Assert the condition.
-		const word32 *ro = rcLE, *rc = rcLE;
-		CRYPTOPP_UNUSED(ro);
-
-		__m128i temp = _mm_loadu_si128((__m128i *)(void *)(userKey+keylen-16));
-		memcpy(rk, userKey, keylen);
-
-		while (true)
-		{
-			// Coverity finding, appears to be false positive. Assert the condition.
-			CRYPTOPP_ASSERT(rc < ro + COUNTOF(rcLE));
-			rk[keylen/4] = rk[0] ^ _mm_extract_epi32(_mm_aeskeygenassist_si128(temp, 0), 3) ^ *(rc++);
-			rk[keylen/4+1] = rk[1] ^ rk[keylen/4];
-			rk[keylen/4+2] = rk[2] ^ rk[keylen/4+1];
-			rk[keylen/4+3] = rk[3] ^ rk[keylen/4+2];
-
-			if (rk + keylen/4 + 4 == m_key.end())
-				break;
-
-			if (keylen == 24)
-			{
-				rk[10] = rk[ 4] ^ rk[ 9];
-				rk[11] = rk[ 5] ^ rk[10];
-				// Coverity finding, appears to be false positive. Assert the condition.
-				CRYPTOPP_ASSERT(m_key.size() >= 12);
-				temp = _mm_insert_epi32(temp, rk[11], 3);
-			}
-			else if (keylen == 32)
-			{
-				// Coverity finding, appears to be false positive. Assert the condition.
-				CRYPTOPP_ASSERT(m_key.size() >= 12);
-				temp = _mm_insert_epi32(temp, rk[11], 3);
-    			rk[12] = rk[ 4] ^ _mm_extract_epi32(_mm_aeskeygenassist_si128(temp, 0), 2);
-    			rk[13] = rk[ 5] ^ rk[12];
-    			rk[14] = rk[ 6] ^ rk[13];
-    			rk[15] = rk[ 7] ^ rk[14];
-				// Coverity finding, appears to be false positive. Assert the condition.
-				CRYPTOPP_ASSERT(m_key.size() >= 16);
-				temp = _mm_insert_epi32(temp, rk[15], 3);
-			}
-			else
-			{
-				// Coverity finding, appears to be false positive. Assert the condition.
-				CRYPTOPP_ASSERT(m_key.size() >= 8);
-				temp = _mm_insert_epi32(temp, rk[7], 3);
-			}
-
-			rk += keylen/4;
-		}
-
+		Rijndael_UncheckedSetKey_SSE4_AESNI(userKey, keyLen, rk);
 		if (!IsForwardTransformation())
-		{
-			rk = m_key;
-			unsigned int i, j;
-
-#if defined(__SUNPRO_CC) && (__SUNPRO_CC <= 0x5120)
-			// __m128i is an unsigned long long[2], and support for swapping it was not added until C++11.
-			// SunCC 12.1 - 12.3 fail to consume the swap; while SunCC 12.4 consumes it without -std=c++11.
-			vec_swap(*(__m128i *)(rk), *(__m128i *)(rk+4*m_rounds));
-#else
-			std::swap(*(__m128i *)(void *)(rk), *(__m128i *)(void *)(rk+4*m_rounds));
-#endif
-			for (i = 4, j = 4*m_rounds-4; i < j; i += 4, j -= 4)
-			{
-				temp = _mm_aesimc_si128(*(__m128i *)(void *)(rk+i));
-				*(__m128i *)(void *)(rk+i) = _mm_aesimc_si128(*(__m128i *)(void *)(rk+j));
-				*(__m128i *)(void *)(rk+j) = temp;
-			}
-
-			*(__m128i *)(void *)(rk+i) = _mm_aesimc_si128(*(__m128i *)(void *)(rk+i));
-		}
+			Rijndael_UncheckedSetKeyRev_SSE4_AESNI(m_key, m_rounds);
 
 		return;
 	}
 #endif
 
-	GetUserKey(BIG_ENDIAN_ORDER, rk, keylen/4, userKey, keylen);
+	GetUserKey(BIG_ENDIAN_ORDER, rk, keyLen/4, userKey, keyLen);
 	const word32 *rc = rcon;
 	word32 temp;
 
 	while (true)
 	{
-		temp  = rk[keylen/4-1];
+		temp  = rk[keyLen/4-1];
 		word32 x = (word32(Se[GETBYTE(temp, 2)]) << 24) ^ (word32(Se[GETBYTE(temp, 1)]) << 16) ^ (word32(Se[GETBYTE(temp, 0)]) << 8) ^ Se[GETBYTE(temp, 3)];
-		rk[keylen/4] = rk[0] ^ x ^ *(rc++);
-		rk[keylen/4+1] = rk[1] ^ rk[keylen/4];
-		rk[keylen/4+2] = rk[2] ^ rk[keylen/4+1];
-		rk[keylen/4+3] = rk[3] ^ rk[keylen/4+2];
+		rk[keyLen/4] = rk[0] ^ x ^ *(rc++);
+		rk[keyLen/4+1] = rk[1] ^ rk[keyLen/4];
+		rk[keyLen/4+2] = rk[2] ^ rk[keyLen/4+1];
+		rk[keyLen/4+3] = rk[3] ^ rk[keyLen/4+2];
 
-		if (rk + keylen/4 + 4 == m_key.end())
+		if (rk + keyLen/4 + 4 == m_key.end())
 			break;
 
-		if (keylen == 24)
+		if (keyLen == 24)
 		{
 			rk[10] = rk[ 4] ^ rk[ 9];
 			rk[11] = rk[ 5] ^ rk[10];
 		}
-		else if (keylen == 32)
+		else if (keyLen == 32)
 		{
     		temp = rk[11];
     		rk[12] = rk[ 4] ^ (word32(Se[GETBYTE(temp, 3)]) << 24) ^ (word32(Se[GETBYTE(temp, 2)]) << 16) ^ (word32(Se[GETBYTE(temp, 1)]) << 8) ^ Se[GETBYTE(temp, 0)];
@@ -338,7 +280,7 @@ void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keylen, c
     		rk[14] = rk[ 6] ^ rk[13];
     		rk[15] = rk[ 7] ^ rk[14];
 		}
-		rk += keylen/4;
+		rk += keyLen/4;
 	}
 
 	rk = m_key;
