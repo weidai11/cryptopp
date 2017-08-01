@@ -16,8 +16,16 @@
 #endif
 
 #if (CRYPTOPP_SSE41_AVAILABLE)
+// Hack... Apple conflates SSE4.1 and SSE4.2. Without __SSE4_2__,
+//   Apple fails the compile with "SSE4.2 instruction set not enabled"
+//   when "nmmintrin.h" is included. Its non-trivial for us to
+//   automatically add -msse4.2 for Apple Clang. We also want to
+//   avoid problems on low-end Atoms which have AES but lack SSE4.2.
+# if (CRYPTOPP_APPLE_CLANG_VERSION)
+#  define __SSE4_2__ 1
+# endif
 # include "nmmintrin.h"
-#endif
+#endif  // CRYPTOPP_SSE41_AVAILABLE
 
 #if (CRYPTOPP_AESNI_AVAILABLE)
 # include "wmmintrin.h"
@@ -129,7 +137,8 @@ void AESNI_Enc_Block(__m128i &block, MAYBE_CONST __m128i *subkeys, unsigned int 
 	block = _mm_aesenclast_si128(block, subkeys[rounds]);
 }
 
-inline void AESNI_Enc_4_Blocks(__m128i &block0, __m128i &block1, __m128i &block2, __m128i &block3, MAYBE_CONST __m128i *subkeys, unsigned int rounds)
+inline void AESNI_Enc_4_Blocks(__m128i &block0, __m128i &block1, __m128i &block2, __m128i &block3,
+                               MAYBE_CONST __m128i *subkeys, unsigned int rounds)
 {
 	__m128i rk = subkeys[0];
 	block0 = _mm_xor_si128(block0, rk);
@@ -163,7 +172,8 @@ void AESNI_Dec_Block(__m128i &block, MAYBE_CONST __m128i *subkeys, unsigned int 
 	block = _mm_aesdeclast_si128(block, subkeys[rounds]);
 }
 
-void AESNI_Dec_4_Blocks(__m128i &block0, __m128i &block1, __m128i &block2, __m128i &block3, MAYBE_CONST __m128i *subkeys, unsigned int rounds)
+void AESNI_Dec_4_Blocks(__m128i &block0, __m128i &block1, __m128i &block2, __m128i &block3,
+                        MAYBE_CONST __m128i *subkeys, unsigned int rounds)
 {
 	__m128i rk = subkeys[0];
 	block0 = _mm_xor_si128(block0, rk);
@@ -298,16 +308,18 @@ inline size_t Rijndael_AdvancedProcessBlocks_AESNI(F1 func1, F4 func4, MAYBE_CON
 	return length;
 }
 
-size_t Rijndael_AdvancedProcessBlocks_Enc_AESNI(MAYBE_CONST __m128i *subkeys, unsigned int rounds, const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
+size_t Rijndael_AdvancedProcessBlocks_Enc_AESNI(MAYBE_CONST word32 *subkeys, unsigned int rounds, const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
+	MAYBE_CONST __m128i* keys = reinterpret_cast<MAYBE_CONST __m128i*>(subkeys);
 	return Rijndael_AdvancedProcessBlocks_AESNI(AESNI_Enc_Block, AESNI_Enc_4_Blocks,
-		subkeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+		keys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 
-size_t Rijndael_AdvancedProcessBlocks_Dec_AESNI(MAYBE_CONST __m128i *subkeys, unsigned int rounds, const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
+size_t Rijndael_AdvancedProcessBlocks_Dec_AESNI(MAYBE_CONST word32 *subkeys, unsigned int rounds, const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
+	MAYBE_CONST __m128i* keys = reinterpret_cast<MAYBE_CONST __m128i*>(subkeys);
 	return Rijndael_AdvancedProcessBlocks_AESNI(AESNI_Dec_Block, AESNI_Dec_4_Blocks,
-		subkeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+		keys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 
 void Rijndael_UncheckedSetKey_SSE4_AESNI(const byte *userKey, size_t keyLen, word32 *rk)

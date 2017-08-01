@@ -75,11 +75,6 @@ being unloaded from L1 cache, until that round is finished.
 #include "cpu.h"
 
 // TODO: remove...
-#if (CRYPTOPP_AESNI_AVAILABLE)
-# include "wmmintrin.h"
-#endif
-
-// TODO: remove...
 #if (CRYPTOPP_ARM_AES_AVAILABLE)
 # include "arm_neon.h"
 # include "arm_acle.h"
@@ -229,9 +224,9 @@ void Rijndael::Base::FillDecTable()
 extern void Rijndael_UncheckedSetKey_SSE4_AESNI(const byte *userKey, size_t keyLen, word32* rk);
 extern void Rijndael_UncheckedSetKeyRev_SSE4_AESNI(word32 *key, unsigned int rounds);
 
-extern size_t Rijndael_AdvancedProcessBlocks_Enc_AESNI(MAYBE_CONST __m128i *subkeys, unsigned int rounds,
+extern size_t Rijndael_AdvancedProcessBlocks_Enc_AESNI(const word32 *subkeys, unsigned int rounds,
 		const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
-extern size_t Rijndael_AdvancedProcessBlocks_Dec_AESNI(MAYBE_CONST __m128i *subkeys, unsigned int rounds,
+extern size_t Rijndael_AdvancedProcessBlocks_Dec_AESNI(const word32 *subkeys, unsigned int rounds,
 		const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
 #endif
 
@@ -1053,8 +1048,7 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 {
 #if CRYPTOPP_AESNI_AVAILABLE
 	if (HasAESNI())
-		return Rijndael_AdvancedProcessBlocks_Enc_AESNI((MAYBE_CONST __m128i *)(const void *)m_key.begin(),
-			m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+		return Rijndael_AdvancedProcessBlocks_Enc_AESNI(m_key.begin(), m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 
 #endif
 
@@ -1117,8 +1111,7 @@ size_t Rijndael::Dec::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 {
 #if CRYPTOPP_AESNI_AVAILABLE
 	if (HasAESNI())
-		return Rijndael_AdvancedProcessBlocks_Dec_AESNI((MAYBE_CONST __m128i *)(const void *)m_key.begin(),
-			m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+		return Rijndael_AdvancedProcessBlocks_Dec_AESNI(m_key.begin(), m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 #endif
 
 	return BlockTransformation::AdvancedProcessBlocks(inBlocks, xorBlocks, outBlocks, length, flags);

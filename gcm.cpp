@@ -269,7 +269,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
 
 inline void GCM_Base::ReverseHashBufferIfNeeded()
 {
-#if CRYPTOPP_CLMUL_AVAILABLE
+#if CRYPTOPP_SSSE3_AVAILABLE
     if (HasCLMUL())
     {
         GCM_ReverseHashBufferIfNeeded_SSSE3(HashBuffer());
