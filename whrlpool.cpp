@@ -409,7 +409,7 @@ static const word64 Whirlpool_C[4*256+R] = {
 void Whirlpool::Transform(word64 *digest, const word64 *block)
 {
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
-	if (HasISSE())
+	if (HasSSE2())
 	{
 		// MMX version has the same structure as C version below
 #ifdef __GNUC__

@@ -114,7 +114,7 @@ typedef void (*pfnCompress64)(const byte*, BLAKE2_State<word64, true>&);
 pfnCompress64 InitializeCompress64Fn()
 {
 #if CRYPTOPP_SSE42_AVAILABLE
-    if (HasSSE4())
+    if (HasSSE42())
         return &BLAKE2_Compress64_SSE4;
     else
 #endif
@@ -136,7 +136,7 @@ pfnCompress64 InitializeCompress64Fn()
 pfnCompress32 InitializeCompress32Fn()
 {
 #if CRYPTOPP_SSE42_AVAILABLE
-    if (HasSSE4())
+    if (HasSSE42())
         return &BLAKE2_Compress32_SSE4;
     else
 #endif

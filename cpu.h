@@ -57,11 +57,10 @@ NAMESPACE_BEGIN(CryptoPP)
 #ifndef CRYPTOPP_DOXYGEN_PROCESSING
 // These should not be used directly
 extern CRYPTOPP_DLL bool g_x86DetectionDone;
-extern CRYPTOPP_DLL bool g_hasMMX;
-extern CRYPTOPP_DLL bool g_hasISSE;
 extern CRYPTOPP_DLL bool g_hasSSE2;
 extern CRYPTOPP_DLL bool g_hasSSSE3;
-extern CRYPTOPP_DLL bool g_hasSSE4;
+extern CRYPTOPP_DLL bool g_hasSSE41;
+extern CRYPTOPP_DLL bool g_hasSSE42;
 extern CRYPTOPP_DLL bool g_hasAESNI;
 extern CRYPTOPP_DLL bool g_hasCLMUL;
 extern CRYPTOPP_DLL bool g_hasSHA;
@@ -78,36 +77,6 @@ extern CRYPTOPP_DLL word32 g_cacheLineSize;
 CRYPTOPP_DLL void CRYPTOPP_API DetectX86Features();
 CRYPTOPP_DLL bool CRYPTOPP_API CpuId(word32 input, word32 output[4]);
 #endif // CRYPTOPP_DOXYGEN_PROCESSING
-
-//! \brief Determines MMX availability
-//! \returns true if MMX is determined to be available, false otherwise
-//! \details MMX, SSE and SSE2 are core processor features for x86_64, and
-//!   the function always returns true for the platform.
-inline bool HasMMX()
-{
-#if CRYPTOPP_BOOL_X64
-	return true;
-#else
-	if (!g_x86DetectionDone)
-		DetectX86Features();
-	return g_hasMMX;
-#endif
-}
-
-//! \brief Determines SSE availability
-//! \returns true if SSE is determined to be available, false otherwise
-//! \details MMX, SSE and SSE2 are core processor features for x86_64, and
-//!   the function always returns true for the platform.
-inline bool HasISSE()
-{
-#if CRYPTOPP_BOOL_X64
-	return true;
-#else
-	if (!g_x86DetectionDone)
-		DetectX86Features();
-	return g_hasISSE;
-#endif
-}
 
 //! \brief Determines SSE2 availability
 //! \returns true if SSE2 is determined to be available, false otherwise
@@ -135,14 +104,24 @@ inline bool HasSSSE3()
 	return g_hasSSSE3;
 }
 
-//! \brief Determines SSE4 availability
-//! \returns true if SSE4.1 and SSE4.2 are determined to be available, false otherwise
-//! \details HasSSE4() is a runtime check performed using CPUID which requires both SSE4.1 and SSE4.2
-inline bool HasSSE4()
+//! \brief Determines SSE4.1 availability
+//! \returns true if SSE4.1 is determined to be available, false otherwise
+//! \details HasSSE41() is a runtime check performed using CPUID
+inline bool HasSSE41()
 {
 	if (!g_x86DetectionDone)
 		DetectX86Features();
-	return g_hasSSE4;
+	return g_hasSSE41;
+}
+
+//! \brief Determines SSE4.2 availability
+//! \returns true if SSE4.2 is determined to be available, false otherwise
+//! \details HasSSE42() is a runtime check performed using CPUID
+inline bool HasSSE42()
+{
+	if (!g_x86DetectionDone)
+		DetectX86Features();
+	return g_hasSSE42;
 }
 
 //! \brief Determines AES-NI availability

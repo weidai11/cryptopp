@@ -882,8 +882,6 @@ gcm-simd.o : gcm-simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(GCM_FLAG) -c) $<
 
 # AESNI or ARMv7a/ARMv8a available
-rijndael.o : rijndael.cpp
-	$(CXX) $(strip $(CXXFLAGS) $(AES_FLAG) -c) $<
 rijndael-simd.o : rijndael-simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(AES_FLAG) -c) $<
 

@@ -15,7 +15,7 @@
 # undef CRYPTOPP_ARM_AES_AVAILABLE
 #endif
 
-#if (CRYPTOPP_SSE42_AVAILABLE)
+#if (CRYPTOPP_SSE41_AVAILABLE)
 # include "nmmintrin.h"
 #endif
 
@@ -35,6 +35,13 @@
 
 #ifndef EXCEPTION_EXECUTE_HANDLER
 # define EXCEPTION_EXECUTE_HANDLER 1
+#endif
+
+// Hack for SunCC, http://github.com/weidai11/cryptopp/issues/224
+#if (__SUNPRO_CC >= 0x5130)
+# define MAYBE_CONST
+#else
+# define MAYBE_CONST const
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -110,6 +117,199 @@ bool CPU_TryAES_ARMV8()
 #endif  // CRYPTOPP_ARM_AES_AVAILABLE
 
 #if (CRYPTOPP_AESNI_AVAILABLE)
+void AESNI_Enc_Block(__m128i &block, MAYBE_CONST __m128i *subkeys, unsigned int rounds)
+{
+	block = _mm_xor_si128(block, subkeys[0]);
+	for (unsigned int i=1; i<rounds-1; i+=2)
+	{
+		block = _mm_aesenc_si128(block, subkeys[i]);
+		block = _mm_aesenc_si128(block, subkeys[i+1]);
+	}
+	block = _mm_aesenc_si128(block, subkeys[rounds-1]);
+	block = _mm_aesenclast_si128(block, subkeys[rounds]);
+}
+
+inline void AESNI_Enc_4_Blocks(__m128i &block0, __m128i &block1, __m128i &block2, __m128i &block3, MAYBE_CONST __m128i *subkeys, unsigned int rounds)
+{
+	__m128i rk = subkeys[0];
+	block0 = _mm_xor_si128(block0, rk);
+	block1 = _mm_xor_si128(block1, rk);
+	block2 = _mm_xor_si128(block2, rk);
+	block3 = _mm_xor_si128(block3, rk);
+	for (unsigned int i=1; i<rounds; i++)
+	{
+		rk = subkeys[i];
+		block0 = _mm_aesenc_si128(block0, rk);
+		block1 = _mm_aesenc_si128(block1, rk);
+		block2 = _mm_aesenc_si128(block2, rk);
+		block3 = _mm_aesenc_si128(block3, rk);
+	}
+	rk = subkeys[rounds];
+	block0 = _mm_aesenclast_si128(block0, rk);
+	block1 = _mm_aesenclast_si128(block1, rk);
+	block2 = _mm_aesenclast_si128(block2, rk);
+	block3 = _mm_aesenclast_si128(block3, rk);
+}
+
+void AESNI_Dec_Block(__m128i &block, MAYBE_CONST __m128i *subkeys, unsigned int rounds)
+{
+	block = _mm_xor_si128(block, subkeys[0]);
+	for (unsigned int i=1; i<rounds-1; i+=2)
+	{
+		block = _mm_aesdec_si128(block, subkeys[i]);
+		block = _mm_aesdec_si128(block, subkeys[i+1]);
+	}
+	block = _mm_aesdec_si128(block, subkeys[rounds-1]);
+	block = _mm_aesdeclast_si128(block, subkeys[rounds]);
+}
+
+void AESNI_Dec_4_Blocks(__m128i &block0, __m128i &block1, __m128i &block2, __m128i &block3, MAYBE_CONST __m128i *subkeys, unsigned int rounds)
+{
+	__m128i rk = subkeys[0];
+	block0 = _mm_xor_si128(block0, rk);
+	block1 = _mm_xor_si128(block1, rk);
+	block2 = _mm_xor_si128(block2, rk);
+	block3 = _mm_xor_si128(block3, rk);
+	for (unsigned int i=1; i<rounds; i++)
+	{
+		rk = subkeys[i];
+		block0 = _mm_aesdec_si128(block0, rk);
+		block1 = _mm_aesdec_si128(block1, rk);
+		block2 = _mm_aesdec_si128(block2, rk);
+		block3 = _mm_aesdec_si128(block3, rk);
+	}
+	rk = subkeys[rounds];
+	block0 = _mm_aesdeclast_si128(block0, rk);
+	block1 = _mm_aesdeclast_si128(block1, rk);
+	block2 = _mm_aesdeclast_si128(block2, rk);
+	block3 = _mm_aesdeclast_si128(block3, rk);
+}
+
+CRYPTOPP_ALIGN_DATA(16)
+static const word32 s_one[] = {0, 0, 0, 1<<24};
+
+template <typename F1, typename F4>
+inline size_t Rijndael_AdvancedProcessBlocks_AESNI(F1 func1, F4 func4, MAYBE_CONST __m128i *subkeys, unsigned int rounds, const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
+{
+	size_t blockSize = 16;
+	size_t inIncrement = (flags & (BlockTransformation::BT_InBlockIsCounter|BlockTransformation::BT_DontIncrementInOutPointers)) ? 0 : blockSize;
+	size_t xorIncrement = xorBlocks ? blockSize : 0;
+	size_t outIncrement = (flags & BlockTransformation::BT_DontIncrementInOutPointers) ? 0 : blockSize;
+
+	if (flags & BlockTransformation::BT_ReverseDirection)
+	{
+		CRYPTOPP_ASSERT(length % blockSize == 0);
+		inBlocks += length - blockSize;
+		xorBlocks += length - blockSize;
+		outBlocks += length - blockSize;
+		inIncrement = 0-inIncrement;
+		xorIncrement = 0-xorIncrement;
+		outIncrement = 0-outIncrement;
+	}
+
+	if (flags & BlockTransformation::BT_AllowParallel)
+	{
+		while (length >= 4*blockSize)
+		{
+			__m128i block0 = _mm_loadu_si128((const __m128i *)(const void *)inBlocks), block1, block2, block3;
+			if (flags & BlockTransformation::BT_InBlockIsCounter)
+			{
+				const __m128i be1 = *(const __m128i *)(const void *)s_one;
+				block1 = _mm_add_epi32(block0, be1);
+				block2 = _mm_add_epi32(block1, be1);
+				block3 = _mm_add_epi32(block2, be1);
+				_mm_storeu_si128((__m128i *)(void *)inBlocks, _mm_add_epi32(block3, be1));
+			}
+			else
+			{
+				inBlocks += inIncrement;
+				block1 = _mm_loadu_si128((const __m128i *)(const void *)inBlocks);
+				inBlocks += inIncrement;
+				block2 = _mm_loadu_si128((const __m128i *)(const void *)inBlocks);
+				inBlocks += inIncrement;
+				block3 = _mm_loadu_si128((const __m128i *)(const void *)inBlocks);
+				inBlocks += inIncrement;
+			}
+
+			if (flags & BlockTransformation::BT_XorInput)
+			{
+				// Coverity finding, appears to be false positive. Assert the condition.
+				CRYPTOPP_ASSERT(xorBlocks);
+				block0 = _mm_xor_si128(block0, _mm_loadu_si128((const __m128i *)(const void *)xorBlocks));
+				xorBlocks += xorIncrement;
+				block1 = _mm_xor_si128(block1, _mm_loadu_si128((const __m128i *)(const void *)xorBlocks));
+				xorBlocks += xorIncrement;
+				block2 = _mm_xor_si128(block2, _mm_loadu_si128((const __m128i *)(const void *)xorBlocks));
+				xorBlocks += xorIncrement;
+				block3 = _mm_xor_si128(block3, _mm_loadu_si128((const __m128i *)(const void *)xorBlocks));
+				xorBlocks += xorIncrement;
+			}
+
+			func4(block0, block1, block2, block3, subkeys, rounds);
+
+			if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
+			{
+				block0 = _mm_xor_si128(block0, _mm_loadu_si128((const __m128i *)(const void *)xorBlocks));
+				xorBlocks += xorIncrement;
+				block1 = _mm_xor_si128(block1, _mm_loadu_si128((const __m128i *)(const void *)xorBlocks));
+				xorBlocks += xorIncrement;
+				block2 = _mm_xor_si128(block2, _mm_loadu_si128((const __m128i *)(const void *)xorBlocks));
+				xorBlocks += xorIncrement;
+				block3 = _mm_xor_si128(block3, _mm_loadu_si128((const __m128i *)(const void *)xorBlocks));
+				xorBlocks += xorIncrement;
+			}
+
+			_mm_storeu_si128((__m128i *)(void *)outBlocks, block0);
+			outBlocks += outIncrement;
+			_mm_storeu_si128((__m128i *)(void *)outBlocks, block1);
+			outBlocks += outIncrement;
+			_mm_storeu_si128((__m128i *)(void *)outBlocks, block2);
+			outBlocks += outIncrement;
+			_mm_storeu_si128((__m128i *)(void *)outBlocks, block3);
+			outBlocks += outIncrement;
+
+			length -= 4*blockSize;
+		}
+	}
+
+	while (length >= blockSize)
+	{
+		__m128i block = _mm_loadu_si128((const __m128i *)(const void *)inBlocks);
+
+		if (flags & BlockTransformation::BT_XorInput)
+			block = _mm_xor_si128(block, _mm_loadu_si128((const __m128i *)(const void *)xorBlocks));
+
+		if (flags & BlockTransformation::BT_InBlockIsCounter)
+			const_cast<byte *>(inBlocks)[15]++;
+
+		func1(block, subkeys, rounds);
+
+		if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
+			block = _mm_xor_si128(block, _mm_loadu_si128((const __m128i *)(const void *)xorBlocks));
+
+		_mm_storeu_si128((__m128i *)(void *)outBlocks, block);
+
+		inBlocks += inIncrement;
+		outBlocks += outIncrement;
+		xorBlocks += xorIncrement;
+		length -= blockSize;
+	}
+
+	return length;
+}
+
+size_t Rijndael_AdvancedProcessBlocks_Enc_AESNI(MAYBE_CONST __m128i *subkeys, unsigned int rounds, const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
+{
+	return Rijndael_AdvancedProcessBlocks_AESNI(AESNI_Enc_Block, AESNI_Enc_4_Blocks,
+		subkeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+}
+
+size_t Rijndael_AdvancedProcessBlocks_Dec_AESNI(MAYBE_CONST __m128i *subkeys, unsigned int rounds, const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
+{
+	return Rijndael_AdvancedProcessBlocks_AESNI(AESNI_Dec_Block, AESNI_Dec_4_Blocks,
+		subkeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+}
+
 void Rijndael_UncheckedSetKey_SSE4_AESNI(const byte *userKey, size_t keyLen, word32 *rk)
 {
 	const unsigned rounds = keyLen/4 + 6;
@@ -188,7 +388,7 @@ void Rijndael_UncheckedSetKeyRev_SSE4_AESNI(word32 *key, unsigned int rounds)
 		*(__m128i *)(void *)(key+j) = temp;
 	}
 
-	*(__m128i *)(void *)(key+i) = _mm_aesimc_si128(*(__m128i *)(void *)(key+i));	
+	*(__m128i *)(void *)(key+i) = _mm_aesimc_si128(*(__m128i *)(void *)(key+i));
 }
 #endif  // CRYPTOPP_AESNI_AVAILABLE
 

@@ -298,7 +298,7 @@ CRC32C::CRC32C()
 void CRC32C::Update(const byte *s, size_t n)
 {
 #if (CRYPTOPP_SSE42_AVAILABLE)
-	if (HasSSE4())
+	if (HasSSE42())
 	{
 		CRC32C_Update_SSE42(s, n, m_crc);
 		return;

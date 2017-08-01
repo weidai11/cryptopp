@@ -339,15 +339,14 @@ bool TestSettings()
 	std::cout << std::endl;
 
 #ifdef CRYPTOPP_CPUID_AVAILABLE
-	bool hasMMX = HasMMX();
-	bool hasISSE = HasISSE();
 	bool hasSSE2 = HasSSE2();
 	bool hasSSSE3 = HasSSSE3();
-	bool hasSSE4 = HasSSE4();
+	bool hasSSE41 = HasSSE41();
+	bool hasSSE42 = HasSSE42();
 	bool isP4 = IsP4();
 	int cacheLineSize = GetCacheLineSize();
 
-	if ((isP4 && (!hasMMX || !hasSSE2)) || (hasSSE2 && !hasMMX) || (cacheLineSize < 16 || cacheLineSize > 256 || !IsPowerOf2(cacheLineSize)))
+	if (cacheLineSize < 16 || cacheLineSize > 256 || !IsPowerOf2(cacheLineSize))
 	{
 		std::cout << "FAILED:  ";
 		pass = false;
@@ -355,7 +354,7 @@ bool TestSettings()
 	else
 		std::cout << "passed:  ";
 
-	std::cout << "hasMMX == " << hasMMX << ", hasISSE == " << hasISSE << ", hasSSE2 == " << hasSSE2 << ", hasSSSE3 == " << hasSSSE3 << ", hasSSE4 == " << hasSSE4;
+	std::cout << "hasSSE2 == " << hasSSE2 << ", hasSSSE3 == " << hasSSSE3 << ", hasSSE4.1 == " << hasSSE41 << ", hasSSE4.2 == " << hasSSE42;
 	std::cout << ", hasAESNI == " << HasAESNI() << ", hasCLMUL == " << HasCLMUL() << ", hasRDRAND == " << HasRDRAND() << ", hasRDSEED == " << HasRDSEED();
 	std::cout << ", hasSHA == " << HasSHA() << ", isP4 == " << isP4 << ", cacheLineSize == " << cacheLineSize << std::endl;
 

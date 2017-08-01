@@ -185,8 +185,9 @@ static bool TrySSE2()
 }
 
 bool CRYPTOPP_SECTION_INIT g_x86DetectionDone = false;
-bool CRYPTOPP_SECTION_INIT g_hasMMX = false, CRYPTOPP_SECTION_INIT g_hasISSE = false, CRYPTOPP_SECTION_INIT g_hasSSE2 = false, CRYPTOPP_SECTION_INIT g_hasSSSE3 = false;
-bool CRYPTOPP_SECTION_INIT g_hasSSE4 = false, CRYPTOPP_SECTION_INIT g_hasAESNI = false, CRYPTOPP_SECTION_INIT g_hasCLMUL = false, CRYPTOPP_SECTION_INIT g_hasSHA = false;
+bool CRYPTOPP_SECTION_INIT CRYPTOPP_SECTION_INIT g_hasSSE2 = false, CRYPTOPP_SECTION_INIT g_hasSSSE3 = false;
+bool CRYPTOPP_SECTION_INIT g_hasSSE41 = false, CRYPTOPP_SECTION_INIT g_hasSSE42 = false;
+bool CRYPTOPP_SECTION_INIT g_hasAESNI = false, CRYPTOPP_SECTION_INIT g_hasCLMUL = false, CRYPTOPP_SECTION_INIT g_hasSHA = false;
 bool CRYPTOPP_SECTION_INIT g_hasRDRAND = false, CRYPTOPP_SECTION_INIT g_hasRDSEED = false, CRYPTOPP_SECTION_INIT g_isP4 = false;
 bool CRYPTOPP_SECTION_INIT g_hasPadlockRNG = false, CRYPTOPP_SECTION_INIT g_hasPadlockACE = false, CRYPTOPP_SECTION_INIT g_hasPadlockACE2 = false;
 bool CRYPTOPP_SECTION_INIT g_hasPadlockPHE = false, CRYPTOPP_SECTION_INIT g_hasPadlockPMM = false;
@@ -225,25 +226,13 @@ void DetectX86Features()
 	if (!CpuId(1, cpuid2))
 		return;
 
-	g_hasMMX = (cpuid2[3] & (1 << 23)) != 0;
 	if ((cpuid2[3] & (1 << 26)) != 0)
 		g_hasSSE2 = TrySSE2();
 	g_hasSSSE3 = g_hasSSE2 && (cpuid2[2] & (1<<9));
-	g_hasSSE4 = g_hasSSE2 && ((cpuid2[2] & (1<<19)) && (cpuid2[2] & (1<<20)));
+	g_hasSSE41 = g_hasSSE2 && (cpuid2[2] & (1<<19));
+	g_hasSSE42 = g_hasSSE2 && (cpuid2[2] & (1<<20));
 	g_hasAESNI = g_hasSSE2 && (cpuid2[2] & (1<<25));
 	g_hasCLMUL = g_hasSSE2 && (cpuid2[2] & (1<<1));
-
-	if ((cpuid2[3] & (1 << 25)) != 0)
-		g_hasISSE = true;
-	else
-	{
-		CpuId(0x080000000, cpuid3);
-		if (cpuid3[0] >= 0x080000001)
-		{
-			CpuId(0x080000001, cpuid3);
-			g_hasISSE = (cpuid3[3] & (1 << 22)) != 0;
-		}
-	}
 
 	if (IsIntel(cpuid1))
 	{
