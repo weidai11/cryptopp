@@ -12,7 +12,13 @@
 #include "aes.h"
 #include "sha.h"
 #include "hrtimer.h"
-#include <time.h>
+#include "trap.h"
+
+// OldRandomPool
+#include "mdc.h"
+#include "modes.h"
+
+#include <ctime>
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -67,6 +73,88 @@ void RandomPool::GenerateIntoBufferedTransformation(BufferedTransformation &targ
 			size -= len;
 		} while (size > 0);
 	}
+}
+
+// OldRandomPool is provided for backwards compatibility for a migration path
+typedef MDC<SHA1> OldRandomPoolCipher;
+
+OldRandomPool::OldRandomPool(unsigned int poolSize)
+        : pool(poolSize), key(OldRandomPoolCipher::DEFAULT_KEYLENGTH), addPos(0), getPos(poolSize)
+{
+        CRYPTOPP_ASSERT(poolSize > key.size());
+        memset(pool, 0, poolSize);
+        memset(key, 0, key.size());
+}
+
+void OldRandomPool::Stir()
+{
+        CFB_Mode<OldRandomPoolCipher>::Encryption cipher;
+
+        for (int i=0; i<2; i++)
+        {
+                cipher.SetKeyWithIV(key, key.size(), pool.end()-cipher.IVSize());
+                cipher.ProcessString(pool, pool.size());
+                memcpy(key, pool, key.size());
+        }
+
+        addPos = 0;
+        getPos = key.size();
+}
+
+size_t OldRandomPool::Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
+{
+        size_t t;
+
+        while (length > (t = pool.size() - addPos))
+        {
+                xorbuf(pool+addPos, inString, t);
+                inString += t;
+                length -= t;
+                Stir();
+        }
+
+        if (length)
+        {
+                xorbuf(pool+addPos, inString, length);
+                addPos += length;
+                getPos = pool.size(); // Force stir on get
+        }
+
+        return 0;
+}
+
+size_t OldRandomPool::TransferTo2(BufferedTransformation &target, lword &transferBytes, const std::string &channel, bool blocking)
+{
+        if (!blocking)
+                throw NotImplemented("OldRandomPool: nonblocking transfer is not implemented by this object");
+
+        lword size = transferBytes;
+
+        while (size > 0)
+        {
+                if (getPos == pool.size())
+                        Stir();
+                size_t t = UnsignedMin(pool.size() - getPos, size);
+                target.ChannelPut(channel, pool+getPos, t);
+                size -= t;
+                getPos += t;
+        }
+
+        return 0;
+}
+
+byte OldRandomPool::GenerateByte()
+{
+        if (getPos == pool.size())
+                Stir();
+
+        return pool[getPos++];
+}
+
+void OldRandomPool::GenerateBlock(byte *outString, size_t size)
+{
+        ArraySink sink(outString, size);
+        TransferTo(sink, size);
 }
 
 NAMESPACE_END
