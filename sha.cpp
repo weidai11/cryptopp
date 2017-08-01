@@ -114,7 +114,7 @@ static pfnSHATransform InitializeSHA1Transform()
 #endif
 #if CRYPTOPP_ARM_SHA_AVAILABLE
     if (HasSHA1())
-        return &SHA1_Transform_ARMV8A;
+        return &SHA1_Transform_ARMV8;
     else
 #endif
     return &SHA1_Transform_CXX;
@@ -540,7 +540,7 @@ static pfnSHAHashBlocks InitializeSHA256HashBlocks()
 #endif
 #if CRYPTOPP_ARM_SHA_AVAILABLE
     if (HasSHA2())
-        return &SHA256_HashBlocks_ARMV8A;
+        return &SHA256_HashBlocks_ARMV8;
     else
 #endif
 
@@ -732,7 +732,7 @@ static pfnSHATransform InitializeSHA256Transform()
 #endif
 #if CRYPTOPP_ARM_SHA_AVAILABLE
     if (HasSHA2())
-        return &SHA256_Transform_ARMV8A;
+        return &SHA256_Transform_ARMV8;
     else
 #endif
 
