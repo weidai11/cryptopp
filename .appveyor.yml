@@ -5,6 +5,10 @@
 version: 1.0.{build}
 clone_depth: 3
 
+# Remote debugging through RDP
+# init:
+#  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+
 configuration:
 
 - Debug
@@ -13,7 +17,7 @@ configuration:
 platform:
 
 - Win32
-- Win64
+- x64
 
 image:
 
@@ -21,15 +25,19 @@ image:
 - Visual Studio 2015
 - Visual Studio 2013
 
-build:
+build: off
 
-  project: cryptest.sln
-  verbosity: minimal
-  parallel: true
+#  project: cryptest.sln
+#  verbosity: minimal
+#  parallel: true
 
 test_script:
 
 - cmd: >-
+
+    msbuild /t:Build cryptlib.vcxproj
+
+    msbuild /t:Build cryptest.vcxproj
 
     msbuild /t:CopyCryptestToRoot cryptest.vcxproj
 
@@ -45,10 +53,10 @@ matrix:
 #  allow_failures:
 
   exclude:
-    - platform: Win64
-      configuration: Debug
-    - platform: Win64
-      configuration: Release
+#    - platform: x64
+#      configuration: Debug
+#    - platform: x64
+#      configuration: Release
     - image: Visual Studio 2010
     - image: Visual Studio 2017
 
