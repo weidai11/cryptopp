@@ -49,8 +49,8 @@ test_script:
 #  - https://stackoverflow.com/questions/43441273/how-to-run-vcupgrade-before-appveyor-build
 #  - https://stackoverflow.com/questions/43423761/cant-perform-64-bit-testing-under-appveyor
 # Appveyor also complains that it can't find VS2010 tools even though the docs state they are there.
+
 matrix:
-#  allow_failures:
 
   exclude:
 #    - platform: x64
@@ -61,8 +61,9 @@ matrix:
     - image: Visual Studio 2017
 
 notifications:
-  email:
-    recipients:
-      - cryptopp-build@googlegroups.com
-    on_success: always # default: change
-    on_failure: always # default: always
+    - provider: Email
+      to:
+        - cryptopp-build@googlegroups.com
+      on_build_success: true
+      on_build_failure: true
+
