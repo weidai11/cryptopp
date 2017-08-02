@@ -72,8 +72,7 @@ private:
 //!   HKDF.
 //! \sa RandomPool, AutoSeededRandomPool, HKDF, P1363_KDF2, PKCS12_PBKDF, PKCS5_PBKDF2_HMAC
 //! \since Crypto++ 6.0 (PGP 2.6.x style)
-class CRYPTOPP_DLL OldRandomPool : public RandomNumberGenerator,
-                                   public Bufferless<BufferedTransformation>
+class CRYPTOPP_DLL OldRandomPool : public RandomNumberGenerator
 {
 public:
 	//! \brief Construct an OldRandomPool
@@ -84,25 +83,10 @@ public:
 	// RandomNumberGenerator interface (Crypto++ 5.5 and above)
 	bool CanIncorporateEntropy() const {return true;}
 	void IncorporateEntropy(const byte *input, size_t length);
-
-	// BufferedTransformation interface (Crypto++ 5.4 and below)
-	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking);
-
-	bool AnyRetrievable() const {return true;}
-	lword MaxRetrievable() const {return ULONG_MAX;}
-
-	size_t TransferTo2(BufferedTransformation &target, lword &transferBytes, const std::string &channel=DEFAULT_CHANNEL, bool blocking=true);
-	size_t CopyRangeTo2(BufferedTransformation &target, lword &begin, lword end=LWORD_MAX, const std::string &channel=DEFAULT_CHANNEL, bool blocking=true) const
-	{
-		CRYPTOPP_UNUSED(target); CRYPTOPP_UNUSED(begin); CRYPTOPP_UNUSED(end);
-		CRYPTOPP_UNUSED(channel); CRYPTOPP_UNUSED(blocking);
-		throw NotImplemented("OldRandomPool: CopyRangeTo2() is not supported by this store");
-	}
+	void GenerateIntoBufferedTransformation(BufferedTransformation &target, const std::string &channel, lword size);
 
 	byte GenerateByte();
 	void GenerateBlock(byte *output, size_t size);
-
-	void IsolatedInitialize(const NameValuePairs &parameters) {CRYPTOPP_UNUSED(parameters);}
 
 protected:
 	void Stir();
