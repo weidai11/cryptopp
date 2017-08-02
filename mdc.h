@@ -37,6 +37,7 @@ class MDC : public MDC_Info<H>
 	public:
 		void UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &params)
 		{
+			CRYPTOPP_UNUSED(params);
 			this->AssertValidKeyLength(length);
 			memcpy_s(m_key, m_key.size(), userKey, this->KEYLENGTH);
 			m_hash.CorrectEndianess(Key(), Key(), this->KEYLENGTH);

@@ -87,13 +87,15 @@ public:
 	size_t TransferTo2(BufferedTransformation &target, lword &transferBytes, const std::string &channel=DEFAULT_CHANNEL, bool blocking=true);
 	size_t CopyRangeTo2(BufferedTransformation &target, lword &begin, lword end=LWORD_MAX, const std::string &channel=DEFAULT_CHANNEL, bool blocking=true) const
 	{
+		CRYPTOPP_UNUSED(target); CRYPTOPP_UNUSED(begin); CRYPTOPP_UNUSED(end);
+		CRYPTOPP_UNUSED(channel); CRYPTOPP_UNUSED(blocking);
 		throw NotImplemented("OldRandomPool: CopyRangeTo2() is not supported by this store");
 	}
 
 	byte GenerateByte();
 	void GenerateBlock(byte *output, size_t size);
 
-	void IsolatedInitialize(const NameValuePairs &parameters) {}
+	void IsolatedInitialize(const NameValuePairs &parameters) {CRYPTOPP_UNUSED(parameters);}
 
 protected:
 	void Stir();

@@ -25,8 +25,8 @@ NAMESPACE_BEGIN(CryptoPP)
 RandomPool::RandomPool()
 	: m_pCipher(new AES::Encryption), m_keySet(false)
 {
-	memset(m_key, 0, m_key.SizeInBytes());
-	memset(m_seed, 0, m_seed.SizeInBytes());
+	::memset(m_key, 0, m_key.SizeInBytes());
+	::memset(m_seed, 0, m_seed.SizeInBytes());
 }
 
 void RandomPool::IncorporateEntropy(const byte *input, size_t length)
@@ -57,8 +57,8 @@ void RandomPool::GenerateIntoBufferedTransformation(BufferedTransformation &targ
 		// UBsan finding: signed integer overflow: 1876017710 + 1446085457 cannot be represented in type 'long int'
 		// *(time_t *)(m_seed.data()+8) += t;
 		word64 tt1 = 0, tt2 = (word64)t;
-		memcpy(&tt1, m_seed.data()+8, 8);
-		memcpy(m_seed.data()+8, &(tt2 += tt1), 8);
+		::memcpy(&tt1, m_seed.data()+8, 8);
+		::memcpy(m_seed.data()+8, &(tt2 += tt1), 8);
 
 		// Wipe the intermediates
 		*((volatile TimerWord*)&tw) = 0;
@@ -81,80 +81,81 @@ typedef MDC<SHA1> OldRandomPoolCipher;
 OldRandomPool::OldRandomPool(unsigned int poolSize)
         : pool(poolSize), key(OldRandomPoolCipher::DEFAULT_KEYLENGTH), addPos(0), getPos(poolSize)
 {
-        CRYPTOPP_ASSERT(poolSize > key.size());
-        memset(pool, 0, poolSize);
-        memset(key, 0, key.size());
+	CRYPTOPP_ASSERT(poolSize > key.size());
+	::memset(pool, 0, poolSize);
+	::memset(key, 0, key.size());
 }
 
 void OldRandomPool::Stir()
 {
-        CFB_Mode<OldRandomPoolCipher>::Encryption cipher;
+	CFB_Mode<OldRandomPoolCipher>::Encryption cipher;
 
-        for (int i=0; i<2; i++)
-        {
-                cipher.SetKeyWithIV(key, key.size(), pool.end()-cipher.IVSize());
-                cipher.ProcessString(pool, pool.size());
-                memcpy(key, pool, key.size());
-        }
+	for (int i=0; i<2; i++)
+	{
+		cipher.SetKeyWithIV(key, key.size(), pool.end()-cipher.IVSize());
+		cipher.ProcessString(pool, pool.size());
+		::memcpy(key, pool, key.size());
+	}
 
-        addPos = 0;
-        getPos = key.size();
+	addPos = 0;
+	getPos = key.size();
 }
 
 size_t OldRandomPool::Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
 {
-        size_t t;
+	CRYPTOPP_UNUSED(messageEnd); CRYPTOPP_UNUSED(blocking);
 
-        while (length > (t = pool.size() - addPos))
-        {
-                xorbuf(pool+addPos, inString, t);
-                inString += t;
-                length -= t;
-                Stir();
-        }
+	size_t t;
+	while (length > (t = pool.size() - addPos))
+	{
+		xorbuf(pool+addPos, inString, t);
+		inString += t;
+		length -= t;
+		Stir();
+	}
 
-        if (length)
-        {
-                xorbuf(pool+addPos, inString, length);
-                addPos += length;
-                getPos = pool.size(); // Force stir on get
-        }
+	if (length)
+	{
+		xorbuf(pool+addPos, inString, length);
+		addPos += length;
+		getPos = pool.size(); // Force stir on get
+	}
 
-        return 0;
+	return 0;
 }
 
 size_t OldRandomPool::TransferTo2(BufferedTransformation &target, lword &transferBytes, const std::string &channel, bool blocking)
 {
-        if (!blocking)
-                throw NotImplemented("OldRandomPool: nonblocking transfer is not implemented by this object");
+	if (!blocking)
+		throw NotImplemented("OldRandomPool: nonblocking transfer is not implemented by this object");
 
-        lword size = transferBytes;
+	lword size = transferBytes;
 
-        while (size > 0)
-        {
-                if (getPos == pool.size())
-                        Stir();
-                size_t t = UnsignedMin(pool.size() - getPos, size);
-                target.ChannelPut(channel, pool+getPos, t);
-                size -= t;
-                getPos += t;
-        }
+	while (size > 0)
+	{
+		if (getPos == pool.size())
+				Stir();
+		size_t t = UnsignedMin(pool.size() - getPos, size);
+		target.ChannelPut(channel, pool+getPos, t);
+		size -= t;
+		getPos += t;
+	}
 
-        return 0;
+	return 0;
 }
 
 byte OldRandomPool::GenerateByte()
 {
-        if (getPos == pool.size())
-                Stir();
+	if (getPos == pool.size())
+		Stir();
 
-        return pool[getPos++];
+	return pool[getPos++];
 }
 
 void OldRandomPool::GenerateBlock(byte *outString, size_t size)
 {
-        ArraySink sink(outString, size);
-        TransferTo(sink, size);
+	ArraySink sink(outString, size);
+	TransferTo(sink, size);
 }
 
 NAMESPACE_END
