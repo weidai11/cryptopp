@@ -27,7 +27,7 @@ image:
 
 build:
 
-  project: cryptest.sln
+#  project: cryptest.sln
   verbosity: minimal
   parallel: true
 
