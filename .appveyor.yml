@@ -25,11 +25,11 @@ image:
 - Visual Studio 2015
 - Visual Studio 2013
 
-build:
+build: off
 
 #  project: cryptest.sln
-  verbosity: minimal
-  parallel: true
+#  verbosity: minimal
+#  parallel: true
 
 test_script:
 
