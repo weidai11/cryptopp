@@ -33,11 +33,11 @@ NAMESPACE_BEGIN(CryptoPP)
 //!   AES-256 to produce the stream. Entropy is stirred in using SHA-256.
 //! \details RandomPool used to follow the design of randpool in PGP 2.6.x. At version 5.5
 //!   RandomPool was redesigned to reduce the risk of reusing random numbers after state
-//!   rollback (which may occur when running in a virtual machine like VMware or a hosted
-//!   environment).
+//!   rollback, which may occur when running in a virtual machine like VMware or a hosted
+//!   environment.
 //! \details If you need the pre-Crypto++ 5.5 generator then use OldRandomPool class. You
-//!   should migrate away from OldRandomPool at the earliest opportunity. Use RandomPool
-//!   or AutoSeededRandomPool instead.
+//!   should migrate away from OldRandomPool at the earliest opportunity.
+//! \sa OldRandomPool
 //! \since Crypto++ 4.0 (PGP 2.6.x style), Crypto++ 5.5 (AES-256 based)
 class CRYPTOPP_DLL RandomPool : public RandomNumberGenerator, public NotCopyable
 {
@@ -48,10 +48,6 @@ public:
 	bool CanIncorporateEntropy() const {return true;}
 	void IncorporateEntropy(const byte *input, size_t length);
 	void GenerateIntoBufferedTransformation(BufferedTransformation &target, const std::string &channel, lword size);
-
-	// for backwards compatibility. use RandomNumberSource, RandomNumberStore, and
-	//   RandomNumberSink for other BufferTransformation functionality
-	void Put(const byte *input, size_t length) {IncorporateEntropy(input, length);}
 
 private:
 	FixedSizeAlignedSecBlock<byte, 16, true> m_seed;
@@ -64,11 +60,17 @@ private:
 //! \brief Randomness Pool based on PGP 2.6.x with MDC
 //! \details If you need the pre-Crypto++ 5.5 generator then use OldRandomPool class. The
 //!   OldRandomPool class is always available so you dont need to define
-//!   CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY. However, you should migrate away from
-//!   OldRandomPool at the earliest opportunity. Use RandomPool or AutoSeededRandomPool instead.
+//!   CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY. OldRandomPool also provides the modern
+//!   interface, including <tt>CanIncorporateEntropy</tt>, <tt>IncorporateEntropy</tt> and
+//!   <tt>GenerateIntoBufferedTransformation</tt>.
+//! \details You should migrate away from OldRandomPool at the earliest opportunity. Use a
+//!   modern random number generator or key derivation function, like AutoSeededRandomPool or
+//!   HKDF.
 //! \deprecated This class uses an old style PGP 2.6.x with MDC. The generator risks reusing
-//!   random random numbers after state rollback. Migrate to RandomPool or AutoSeededRandomPool
+//!   random random numbers after state rollback. You should migrate away from OldRandomPool
 //!   at the earliest opportunity.
+//!   HKDF.
+//! \sa RandomPool, AutoSeededRandomPool, HKDF, P1363_KDF2, PKCS12_PBKDF, PKCS5_PBKDF2_HMAC
 //! \since Crypto++ 6.0 (PGP 2.6.x style)
 class CRYPTOPP_DLL OldRandomPool : public RandomNumberGenerator,
                                    public Bufferless<BufferedTransformation>
@@ -79,6 +81,11 @@ public:
 	//! \details poolSize must be greater than 16
 	OldRandomPool(unsigned int poolSize=384);
 
+	// RandomNumberGenerator interface (Crypto++ 5.5 and above)
+	bool CanIncorporateEntropy() const {return true;}
+	void IncorporateEntropy(const byte *input, size_t length);
+
+	// BufferedTransformation interface (Crypto++ 5.4 and below)
 	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking);
 
 	bool AnyRetrievable() const {return true;}

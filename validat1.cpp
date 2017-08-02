@@ -264,14 +264,14 @@ bool TestSettings()
 	// Don't assert the alignment of testvals. That's what this test is for.
 	byte testvals[10] = {1,2,2,3,3,3,3,2,2,1};
 	if (*(word32 *)(void *)(testvals+3) == 0x03030303 && *(word64 *)(void *)(testvals+1) == W64LIT(0x0202030303030202))
-		std::cout << "passed:  Your machine allows unaligned data access.\n";
+		std::cout << "passed:  Unaligned data access (CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS).\n";
 	else
 	{
 		std::cout << "FAILED:  Unaligned data access gave incorrect results.\n";
 		pass = false;
 	}
 #else
-	std::cout << "passed:  CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS is not defined. Will restrict to aligned data access.\n";
+	std::cout << "passed:  Aligned data access (no CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS).\n";
 #endif
 
 	if (sizeof(byte) == 1)
@@ -339,7 +339,6 @@ bool TestSettings()
 	std::cout << std::endl;
 
 #ifdef CRYPTOPP_CPUID_AVAILABLE
-	bool hasMMX = HasMMX();
 	bool hasISSE = HasISSE();
 	bool hasSSE2 = HasSSE2();
 	bool hasSSSE3 = HasSSSE3();
@@ -347,7 +346,7 @@ bool TestSettings()
 	bool isP4 = IsP4();
 	int cacheLineSize = GetCacheLineSize();
 
-	if ((isP4 && (!hasMMX || !hasSSE2)) || (hasSSE2 && !hasMMX) || (cacheLineSize < 16 || cacheLineSize > 256 || !IsPowerOf2(cacheLineSize)))
+	if (cacheLineSize < 16 || cacheLineSize > 256 || !IsPowerOf2(cacheLineSize))
 	{
 		std::cout << "FAILED:  ";
 		pass = false;
@@ -355,7 +354,7 @@ bool TestSettings()
 	else
 		std::cout << "passed:  ";
 
-	std::cout << "hasMMX == " << hasMMX << ", hasISSE == " << hasISSE << ", hasSSE2 == " << hasSSE2 << ", hasSSSE3 == " << hasSSSE3 << ", hasSSE4 == " << hasSSE4;
+	std::cout << "hasISSE == " << hasISSE << "hasSSE2 == " << hasSSE2 << ", hasSSSE3 == " << hasSSSE3 << ", hasSSE4 == " << hasSSE4;
 	std::cout << ", hasAESNI == " << HasAESNI() << ", hasCLMUL == " << HasCLMUL() << ", hasRDRAND == " << HasRDRAND() << ", hasRDSEED == " << HasRDSEED();
 	std::cout << ", hasSHA == " << HasSHA() << ", isP4 == " << isP4 << ", cacheLineSize == " << cacheLineSize << std::endl;
 
@@ -723,7 +722,7 @@ bool TestRandomPool()
 	//  with it in 2017. The missing functionality was a barrier to upgrades.
 	std::cout << "\nTesting OldRandomPool generator...\n\n";
 	{
-		OldRandomPool prng;
+		OldRandomPool old1;
 		static const unsigned int ENTROPY_SIZE = 32;
 
 		// https://github.com/weidai11/cryptopp/issues/452
@@ -735,9 +734,9 @@ bool TestRandomPool()
 		};
 
 		SecByteBlock seed(0x00, 384);
-		prng.Put(seed, seed.size());
+		old1.Put(seed, seed.size());
 
-		prng.GenerateBlock(result, sizeof(result));
+		old1.GenerateBlock(result, sizeof(result));
 		fail = (0 != ::memcmp(result, expected, sizeof(expected)));
 
 		pass &= !fail;
@@ -745,8 +744,23 @@ bool TestRandomPool()
 			std::cout << "FAILED:";
 		else
 			std::cout << "passed:";
-		std::cout << "  Expected sequence from PGP-style RandomPool (2007 version)\n";
+		std::cout << "  Expected sequence from PGP-style RandomPool (circa 2007)\n";
 
+		OldRandomPool old2;
+		old2.IncorporateEntropy(seed, seed.size());
+
+		ArraySink sink(result, sizeof(result));
+		old2.GenerateIntoBufferedTransformation(sink, DEFAULT_CHANNEL, sizeof(result));
+		fail = (0 != ::memcmp(result, expected, sizeof(expected)));
+
+		pass &= !fail;
+		if (fail)
+			std::cout << "FAILED:";
+		else
+			std::cout << "passed:";
+		std::cout << "  Expected sequence from PGP-style RandomPool new interface (circa 2007)\n";
+
+		OldRandomPool prng;
 		MeterFilter meter(new Redirector(TheBitBucket()));
 		RandomNumberSource test(prng, 100000, true, new Deflator(new Redirector(meter)));
 
