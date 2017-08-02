@@ -339,6 +339,7 @@ bool TestSettings()
 	std::cout << std::endl;
 
 #ifdef CRYPTOPP_CPUID_AVAILABLE
+	bool hasISSE = HasISSE();
 	bool hasSSE2 = HasSSE2();
 	bool hasSSSE3 = HasSSSE3();
 	bool hasSSE41 = HasSSE41();
@@ -354,7 +355,7 @@ bool TestSettings()
 	else
 		std::cout << "passed:  ";
 
-	std::cout << "hasSSE2 == " << hasSSE2 << ", hasSSSE3 == " << hasSSSE3 << ", hasSSE4.1 == " << hasSSE41 << ", hasSSE4.2 == " << hasSSE42;
+	std::cout << "hasISSE == " << hasISSE << "hasSSE2 == " << hasSSE2 << ", hasSSSE3 == " << hasSSSE3 << ", hasSSE4 == " << hasSSE4;
 	std::cout << ", hasAESNI == " << HasAESNI() << ", hasCLMUL == " << HasCLMUL() << ", hasRDRAND == " << HasRDRAND() << ", hasRDSEED == " << HasRDSEED();
 	std::cout << ", hasSHA == " << HasSHA() << ", isP4 == " << isP4 << ", cacheLineSize == " << cacheLineSize << std::endl;
 
@@ -722,7 +723,7 @@ bool TestRandomPool()
 	//  with it in 2017. The missing functionality was a barrier to upgrades.
 	std::cout << "\nTesting OldRandomPool generator...\n\n";
 	{
-		OldRandomPool prng;
+		OldRandomPool old1;
 		static const unsigned int ENTROPY_SIZE = 32;
 
 		// https://github.com/weidai11/cryptopp/issues/452
@@ -734,9 +735,9 @@ bool TestRandomPool()
 		};
 
 		SecByteBlock seed(0x00, 384);
-		prng.Put(seed, seed.size());
+		old1.Put(seed, seed.size());
 
-		prng.GenerateBlock(result, sizeof(result));
+		old1.GenerateBlock(result, sizeof(result));
 		fail = (0 != ::memcmp(result, expected, sizeof(expected)));
 
 		pass &= !fail;
@@ -744,8 +745,23 @@ bool TestRandomPool()
 			std::cout << "FAILED:";
 		else
 			std::cout << "passed:";
-		std::cout << "  Expected sequence from PGP-style RandomPool (2007 version)\n";
+		std::cout << "  Expected sequence from PGP-style RandomPool (circa 2007)\n";
 
+		OldRandomPool old2;
+		old2.IncorporateEntropy(seed, seed.size());
+
+		ArraySink sink(result, sizeof(result));
+		old2.GenerateIntoBufferedTransformation(sink, DEFAULT_CHANNEL, sizeof(result));
+		fail = (0 != ::memcmp(result, expected, sizeof(expected)));
+
+		pass &= !fail;
+		if (fail)
+			std::cout << "FAILED:";
+		else
+			std::cout << "passed:";
+		std::cout << "  Expected sequence from PGP-style RandomPool new interface (circa 2007)\n";
+
+		OldRandomPool prng;
 		MeterFilter meter(new Redirector(TheBitBucket()));
 		RandomNumberSource test(prng, 100000, true, new Deflator(new Redirector(meter)));
 

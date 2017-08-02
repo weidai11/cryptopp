@@ -86,6 +86,11 @@ OldRandomPool::OldRandomPool(unsigned int poolSize)
 	::memset(key, 0, key.size());
 }
 
+void OldRandomPool::IncorporateEntropy(const byte *input, size_t length)
+{
+	OldRandomPool::Put(input, length);
+}
+
 void OldRandomPool::Stir()
 {
 	CFB_Mode<OldRandomPoolCipher>::Encryption cipher;
