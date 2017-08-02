@@ -35,7 +35,9 @@ test_script:
 
 - cmd: >-
 
-    msbuild /t:CopyCryptestToRoot cryptest.vcxproj
+    msbuild /t:Build PlatformToolset=DefaultPlatformToolset cryptlib.vcxproj
+    msbuild /t:Build PlatformToolset=DefaultPlatformToolset cryptest.vcxproj
+    msbuild /t:CopyCryptestToRoot PlatformToolset=DefaultPlatformToolset cryptest.vcxproj
 
     cryptest.exe v
 
