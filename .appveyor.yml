@@ -25,19 +25,15 @@ image:
 - Visual Studio 2015
 - Visual Studio 2013
 
-build:
+build: off
 
-  project: cryptest.sln
-  verbosity: minimal
-  parallel: true
+#  project: cryptest.sln
+#  verbosity: minimal
+#  parallel: true
 
 test_script:
 
 - cmd: >-
-
-    vcupgrade.exe -nologo -overwrite cryptlib.vcxproj
-    
-    vcupgrade.exe -nologo -overwrite cryptest.vcxproj
 
     msbuild /t:Build cryptlib.vcxproj
 
