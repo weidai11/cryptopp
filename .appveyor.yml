@@ -35,6 +35,10 @@ test_script:
 
 - cmd: >-
 
+    vcupgrade.exe -nologo -overwrite cryptlib.vcxproj
+    
+    vcupgrade.exe -nologo -overwrite cryptest.vcxproj
+
     msbuild /t:Build cryptlib.vcxproj
 
     msbuild /t:Build cryptest.vcxproj
