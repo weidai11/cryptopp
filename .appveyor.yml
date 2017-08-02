@@ -49,10 +49,10 @@ matrix:
 #  allow_failures:
 
   exclude:
-    - platform: Win64
-      configuration: Debug
-    - platform: Win64
-      configuration: Release
+#    - platform: Win64
+#      configuration: Debug
+#    - platform: Win64
+#      configuration: Release
     - image: Visual Studio 2010
     - image: Visual Studio 2017
 
