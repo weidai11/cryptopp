@@ -50,14 +50,6 @@ test_script:
 #  - https://stackoverflow.com/questions/43441273/how-to-run-vcupgrade-before-appveyor-build
 #  - https://stackoverflow.com/questions/43423761/cant-perform-64-bit-testing-under-appveyor
 
-matrix:
-
-  exclude:
-#    - platform: x64
-#      configuration: Debug
-#    - platform: x64
-#      configuration: Release
-
 notifications:
     - provider: Email
       to:
