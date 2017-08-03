@@ -34,12 +34,18 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <!-- Undocumented MSbuild variable, set to a sane default value. -->
+  <!-- It may be changed later by Microsoft.Cpp.Default.props -->
+  <PropertyGroup Label="Globals">
+    <DefaultPlatformToolset>v100</DefaultPlatformToolset>
+  </PropertyGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{c39f4b46-6e89-4074-902e-ca57073044d2}</ProjectGuid>
     <RootNamespace>cryptlib</RootNamespace>
-    <PlatformToolset>v100</PlatformToolset>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
     <ConfigurationType>StaticLibrary</ConfigurationType>
   </PropertyGroup>
+  <!-- VCUpgrade leases a lot to be desired -->
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">

@@ -34,10 +34,15 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <!-- Undocumented MSbuild variable, set to a sane default value. -->
+  <!-- It may be changed later by Microsoft.Cpp.Default.props -->
+  <PropertyGroup Label="Globals">
+    <DefaultPlatformToolset>v100</DefaultPlatformToolset>
+  </PropertyGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{09cdac08-e6ae-48a9-8de7-0fbc779eebde}</ProjectGuid>
     <RootNamespace>cryptest</RootNamespace>
-    <PlatformToolset>v100</PlatformToolset>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
     <ConfigurationType>Application</ConfigurationType>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
