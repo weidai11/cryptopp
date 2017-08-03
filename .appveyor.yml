@@ -3,11 +3,8 @@
 #  I have to admit its a bit complex and I don't fully understand it.
 
 version: 1.0.{build}
-clone_depth: 3
-
-# Remote debugging through RDP
-# init:
-#  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+clone_depth: 1
+skip_tags: true
 
 configuration:
 
@@ -60,8 +57,6 @@ matrix:
 #      configuration: Debug
 #    - platform: x64
 #      configuration: Release
-    - image: Visual Studio 2010
-    - image: Visual Studio 2017
 
 notifications:
     - provider: Email
