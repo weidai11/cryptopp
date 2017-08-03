@@ -199,7 +199,9 @@ CRYPTOPP_ALIGN_DATA(16)
 static const word32 s_one[] = {0, 0, 0, 1<<24};
 
 template <typename F1, typename F4>
-inline size_t Rijndael_AdvancedProcessBlocks_AESNI(F1 func1, F4 func4, MAYBE_CONST __m128i *subkeys, unsigned int rounds, const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
+inline size_t Rijndael_AdvancedProcessBlocks_AESNI(F1 func1, F4 func4,
+        MAYBE_CONST __m128i *subkeys, unsigned int rounds, const byte *inBlocks,
+        const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
 	size_t blockSize = 16;
 	size_t inIncrement = (flags & (BlockTransformation::BT_InBlockIsCounter|BlockTransformation::BT_DontIncrementInOutPointers)) ? 0 : blockSize;
@@ -308,14 +310,16 @@ inline size_t Rijndael_AdvancedProcessBlocks_AESNI(F1 func1, F4 func4, MAYBE_CON
 	return length;
 }
 
-size_t Rijndael_AdvancedProcessBlocks_Enc_AESNI(MAYBE_CONST word32 *subkeys, unsigned int rounds, const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
+size_t Rijndael_AdvancedProcessBlocks_Enc_AESNI(MAYBE_CONST word32 *subkeys, unsigned int rounds,
+        const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
 	MAYBE_CONST __m128i* keys = reinterpret_cast<MAYBE_CONST __m128i*>(subkeys);
 	return Rijndael_AdvancedProcessBlocks_AESNI(AESNI_Enc_Block, AESNI_Enc_4_Blocks,
 		keys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 
-size_t Rijndael_AdvancedProcessBlocks_Dec_AESNI(MAYBE_CONST word32 *subkeys, unsigned int rounds, const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
+size_t Rijndael_AdvancedProcessBlocks_Dec_AESNI(MAYBE_CONST word32 *subkeys, unsigned int rounds,
+        const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
 	MAYBE_CONST __m128i* keys = reinterpret_cast<MAYBE_CONST __m128i*>(subkeys);
 	return Rijndael_AdvancedProcessBlocks_AESNI(AESNI_Dec_Block, AESNI_Dec_4_Blocks,
@@ -324,7 +328,7 @@ size_t Rijndael_AdvancedProcessBlocks_Dec_AESNI(MAYBE_CONST word32 *subkeys, uns
 
 void Rijndael_UncheckedSetKey_SSE4_AESNI(const byte *userKey, size_t keyLen, word32 *rk)
 {
-	const unsigned rounds = keyLen/4 + 6;
+	const unsigned rounds = static_cast<unsigned int>(keyLen/4 + 6);
 	static const word32 rcLE[] = {
 		0x01, 0x02, 0x04, 0x08,
 		0x10, 0x20, 0x40, 0x80,
