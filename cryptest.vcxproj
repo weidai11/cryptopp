@@ -45,6 +45,7 @@
     <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
     <ConfigurationType>Application</ConfigurationType>
   </PropertyGroup>
+  <!-- VCUpgrade leaves a lot to be desired -->
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
