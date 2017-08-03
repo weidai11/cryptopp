@@ -34,12 +34,7 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <PropertyGroup Label="Globals">
-    <ProjectGuid>{09cdac08-e6ae-48a9-8de7-0fbc779eebde}</ProjectGuid>
-    <RootNamespace>cryptest</RootNamespace>
-    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
-    <ConfigurationType>Application</ConfigurationType>
-  </PropertyGroup>
+  <!-- Import property sheets -->
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -50,6 +45,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <!-- End of Visual Studio boilerplate -->
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{09cdac08-e6ae-48a9-8de7-0fbc779eebde}</ProjectGuid>
+    <RootNamespace>cryptest</RootNamespace>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <ConfigurationType>Application</ConfigurationType>
+  </PropertyGroup>
   <!-- All Configurations -->
   <PropertyGroup Label="All Configurations">
     <ConfigurationType>Application</ConfigurationType>
