@@ -723,7 +723,7 @@ bool TestRandomPool()
 	//  with it in 2017. The missing functionality was a barrier to upgrades.
 	std::cout << "\nTesting OldRandomPool generator...\n\n";
 	{
-		OldRandomPool old1;
+		OldRandomPool old;
 		static const unsigned int ENTROPY_SIZE = 32;
 
 		// https://github.com/weidai11/cryptopp/issues/452
@@ -735,9 +735,9 @@ bool TestRandomPool()
 		};
 
 		SecByteBlock seed(0x00, 384);
-		old1.Put(seed, seed.size());
+		old.IncorporateEntropy(seed, seed.size());
 
-		old1.GenerateBlock(result, sizeof(result));
+		old.GenerateBlock(result, sizeof(result));
 		fail = (0 != ::memcmp(result, expected, sizeof(expected)));
 
 		pass &= !fail;
@@ -746,20 +746,6 @@ bool TestRandomPool()
 		else
 			std::cout << "passed:";
 		std::cout << "  Expected sequence from PGP-style RandomPool (circa 2007)\n";
-
-		OldRandomPool old2;
-		old2.IncorporateEntropy(seed, seed.size());
-
-		ArraySink sink(result, sizeof(result));
-		old2.GenerateIntoBufferedTransformation(sink, DEFAULT_CHANNEL, sizeof(result));
-		fail = (0 != ::memcmp(result, expected, sizeof(expected)));
-
-		pass &= !fail;
-		if (fail)
-			std::cout << "FAILED:";
-		else
-			std::cout << "passed:";
-		std::cout << "  Expected sequence from PGP-style RandomPool new interface (circa 2007)\n";
 
 		OldRandomPool prng;
 		MeterFilter meter(new Redirector(TheBitBucket()));

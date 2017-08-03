@@ -88,7 +88,21 @@ OldRandomPool::OldRandomPool(unsigned int poolSize)
 
 void OldRandomPool::IncorporateEntropy(const byte *input, size_t length)
 {
-	OldRandomPool::Put(input, length);
+	size_t t;
+	while (length > (t = pool.size() - addPos))
+	{
+		xorbuf(pool+addPos, input, t);
+		input += t;
+		length -= t;
+		Stir();
+	}
+
+	if (length)
+	{
+		xorbuf(pool+addPos, input, length);
+		addPos += length;
+		getPos = pool.size(); // Force stir on get
+	}
 }
 
 void OldRandomPool::Stir()
@@ -106,36 +120,8 @@ void OldRandomPool::Stir()
 	getPos = key.size();
 }
 
-size_t OldRandomPool::Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
+void OldRandomPool::GenerateIntoBufferedTransformation(BufferedTransformation &target, const std::string &channel, lword size)
 {
-	CRYPTOPP_UNUSED(messageEnd); CRYPTOPP_UNUSED(blocking);
-
-	size_t t;
-	while (length > (t = pool.size() - addPos))
-	{
-		xorbuf(pool+addPos, inString, t);
-		inString += t;
-		length -= t;
-		Stir();
-	}
-
-	if (length)
-	{
-		xorbuf(pool+addPos, inString, length);
-		addPos += length;
-		getPos = pool.size(); // Force stir on get
-	}
-
-	return 0;
-}
-
-size_t OldRandomPool::TransferTo2(BufferedTransformation &target, lword &transferBytes, const std::string &channel, bool blocking)
-{
-	if (!blocking)
-		throw NotImplemented("OldRandomPool: nonblocking transfer is not implemented by this object");
-
-	lword size = transferBytes;
-
 	while (size > 0)
 	{
 		if (getPos == pool.size())
@@ -144,10 +130,7 @@ size_t OldRandomPool::TransferTo2(BufferedTransformation &target, lword &transfe
 		target.ChannelPut(channel, pool+getPos, t);
 		size -= t;
 		getPos += t;
-	}
-
-	return 0;
-}
+	}}
 
 byte OldRandomPool::GenerateByte()
 {
@@ -160,7 +143,7 @@ byte OldRandomPool::GenerateByte()
 void OldRandomPool::GenerateBlock(byte *outString, size_t size)
 {
 	ArraySink sink(outString, size);
-	TransferTo(sink, size);
+	GenerateIntoBufferedTransformation(sink, DEFAULT_CHANNEL, size);
 }
 
 NAMESPACE_END
