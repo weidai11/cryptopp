@@ -35,13 +35,13 @@ test_script:
 
 - cmd: >-
 
-    copy /y TestScripts/cryptlib.vcxproj .
+    copy /y TestScripts\cryptlib.vcxproj .
 
-    copy /y TestScripts/cryptest.vcxproj .
+    copy /y TestScripts\cryptest.vcxproj .
 
     msbuild /t:Build cryptlib.vcxproj
 
-    msbuild /t:Build cryptest.vcxproj
+    msbuild /t:Build /p:platform=%platform%;configuration=%configuration% cryptest.vcxproj
 
     msbuild /t:CopyCryptestToRoot cryptest.vcxproj
 
@@ -52,7 +52,6 @@ test_script:
 # Right now, we have a few failures that we don't know how to workaround.
 #  - https://stackoverflow.com/questions/43441273/how-to-run-vcupgrade-before-appveyor-build
 #  - https://stackoverflow.com/questions/43423761/cant-perform-64-bit-testing-under-appveyor
-# Appveyor also complains that it can't find VS2010 tools even though the docs state they are there.
 
 matrix:
 
@@ -65,9 +64,8 @@ matrix:
     - image: Visual Studio 2017
 
 notifications:
-    - provider: Email
-      to:
-        - cryptopp-build@googlegroups.com
-      on_build_success: true
-      on_build_failure: true
-
+  - provider: Email
+    to:
+      - cryptopp-build@googlegroups.com
+        on_build_success: true
+        on_build_failure: true
