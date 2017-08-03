@@ -34,12 +34,7 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <PropertyGroup Label="Globals">
-    <ProjectGuid>{c39f4b46-6e89-4074-902e-ca57073044d2}</ProjectGuid>
-    <RootNamespace>cryptlib</RootNamespace>
-    <PlatformToolset>v100</PlatformToolset>
-    <ConfigurationType>StaticLibrary</ConfigurationType>
-  </PropertyGroup>
+  <!-- Relocated by JW in AUG 2017 -->
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -48,6 +43,14 @@
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <!-- Global property group must follow imports due to PlatformToolset -->
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{c39f4b46-6e89-4074-902e-ca57073044d2}</ProjectGuid>
+    <RootNamespace>cryptlib</RootNamespace>
+    <PlatformToolset>v100</PlatformToolset>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+  </PropertyGroup>
   <PropertyGroup Label="UserMacros" />
   <!-- End of Visual Studio boilerplate -->
   <!-- All Configurations -->

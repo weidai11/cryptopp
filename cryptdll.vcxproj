@@ -18,12 +18,7 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <PropertyGroup Label="Globals">
-    <ProjectGuid>{94a428a1-9ba8-4db2-b76e-bd2e3c08f257}</ProjectGuid>
-    <RootNamespace>cryptdll</RootNamespace>
-    <PlatformToolset>v100</PlatformToolset>
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-  </PropertyGroup>
+  <!-- Relocated by JW in AUG 2017 -->
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings" />
@@ -31,6 +26,13 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <!-- Global property group must follow imports due to PlatformToolset -->
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{94a428a1-9ba8-4db2-b76e-bd2e3c08f257}</ProjectGuid>
+    <RootNamespace>cryptdll</RootNamespace>
+    <PlatformToolset>v100</PlatformToolset>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+  </PropertyGroup>
   <!-- End of Visual Studio boilerplate -->
   <!-- All Configurations -->
   <PropertyGroup Label="All Configurations">
