@@ -48,7 +48,6 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{09cdac08-e6ae-48a9-8de7-0fbc779eebde}</ProjectGuid>
     <RootNamespace>cryptest</RootNamespace>
-    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
     <ConfigurationType>Application</ConfigurationType>
   </PropertyGroup>
   <!-- VCUpgrade leaves a lot to be desired -->

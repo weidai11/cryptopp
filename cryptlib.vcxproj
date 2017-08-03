@@ -48,7 +48,6 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{c39f4b46-6e89-4074-902e-ca57073044d2}</ProjectGuid>
     <RootNamespace>cryptlib</RootNamespace>
-    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
     <ConfigurationType>StaticLibrary</ConfigurationType>
   </PropertyGroup>
   <!-- VCUpgrade leaves a lot to be desired -->
