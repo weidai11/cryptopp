@@ -35,9 +35,9 @@ test_script:
 
 - cmd: >-
 
-    copy /y TestScripts/cryptlib.vcxproj .
+    copy /y TestScripts\cryptlib.vcxproj .
 
-    copy /y TestScripts/cryptest.vcxproj .
+    copy /y TestScripts\cryptest.vcxproj .
 
     msbuild /t:Build cryptlib.vcxproj
 
