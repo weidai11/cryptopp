@@ -790,8 +790,13 @@ ifeq ($(wildcard Filelist.txt),Filelist.txt)
 DIST_FILES := $(shell cat Filelist.txt)
 endif
 
+.PHONY: appveyor
+appveyor:
+	sed 's|Toolset>v100|Toolset>$$(DefaultPlatformToolset)|g' cryptlib.vcxproj > TestScripts/cryptlib.vcxproj
+	sed 's|Toolset>v100|Toolset>$$(DefaultPlatformToolset)|g' cryptest.vcxproj > TestScripts/cryptest.vcxproj
+
 .PHONY: trim
-trim:
+trim: appveyor
 ifneq ($(IS_DARWIN),0)
 	sed -i '' -e's/[[:space:]]*$$//' *.sh .*.yml *.h *.cpp *.asm *.s *.sln *.vcxproj *.filters GNUmakefile GNUmakefile-cross
 	sed -i '' -e's/[[:space:]]*$$//' TestData/*.dat TestVectors/*.txt TestScripts/*.*
