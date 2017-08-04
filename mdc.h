@@ -40,20 +40,23 @@ class MDC : public MDC_Info<H>
 			CRYPTOPP_UNUSED(params);
 			this->AssertValidKeyLength(length);
 			memcpy_s(m_key, m_key.size(), userKey, this->KEYLENGTH);
-			m_hash.CorrectEndianess(Key(), Key(), this->KEYLENGTH);
+			ConditionalByteReverse(BIG_ENDIAN_ORDER, Key(), Key(), this->KEYLENGTH);
 		}
 
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 		{
-			m_hash.CorrectEndianess(Buffer(), (HashWordType *)inBlock, this->BLOCKSIZE);
+			ConditionalByteReverse(BIG_ENDIAN_ORDER, Buffer(), (HashWordType *)inBlock, this->BLOCKSIZE);
 			H::Transform(Buffer(), Key());
+
 			if (xorBlock)
 			{
-				m_hash.CorrectEndianess(Buffer(), Buffer(), this->BLOCKSIZE);
+				ConditionalByteReverse(BIG_ENDIAN_ORDER, Buffer(), Buffer(), this->BLOCKSIZE);
 				xorbuf(outBlock, xorBlock, m_buffer, this->BLOCKSIZE);
 			}
 			else
-				m_hash.CorrectEndianess((HashWordType *)outBlock, Buffer(), this->BLOCKSIZE);
+			{
+				ConditionalByteReverse(BIG_ENDIAN_ORDER, (HashWordType *)outBlock, Buffer(), this->BLOCKSIZE);
+			}
 		}
 
 		bool IsPermutation() const {return false;}
@@ -68,7 +71,6 @@ class MDC : public MDC_Info<H>
 		// VC60 workaround: bug triggered if using FixedSizeAllocatorWithCleanup
 		FixedSizeSecBlock<byte, MDC_Info<H>::KEYLENGTH, AllocatorWithCleanup<byte> > m_key;
 		mutable FixedSizeSecBlock<byte, MDC_Info<H>::BLOCKSIZE, AllocatorWithCleanup<byte> > m_buffer;
-		mutable H m_hash;
 	};
 
 public:
