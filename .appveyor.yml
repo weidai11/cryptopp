@@ -15,6 +15,7 @@ platform:
 
 - Win32
 - x64
+- ARM
 
 image:
 
