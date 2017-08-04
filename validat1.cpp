@@ -726,7 +726,7 @@ bool TestRandomPool()
 		static const unsigned int ENTROPY_SIZE = 32;
 
 		// https://github.com/weidai11/cryptopp/issues/452
-		byte result[32], expected[32] = {
+		byte actual[32], expected[32] = {
 			0x58,0x3E,0x0A,0xAC,0x79,0x71,0x19,0x18,
 			0x51,0x97,0xC6,0x9B,0xEF,0x82,0x18,0x1E,
 			0x9C,0x0F,0x5C,0xEF,0xC7,0x89,0xB2,0x94,
@@ -736,8 +736,8 @@ bool TestRandomPool()
 		SecByteBlock seed(0x00, 384);
 		old.IncorporateEntropy(seed, seed.size());
 
-		old.GenerateBlock(result, sizeof(result));
-		fail = (0 != ::memcmp(result, expected, sizeof(expected)));
+		old.GenerateBlock(actual, sizeof(actual));
+		fail = (0 != ::memcmp(actual, expected, sizeof(expected)));
 
 		pass &= !fail;
 		if (fail)
