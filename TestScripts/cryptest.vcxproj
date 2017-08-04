@@ -49,7 +49,7 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <!-- Set DefaultPlatformToolset to v100 (VS2010) if not defined -->
   <PropertyGroup Label="EmptyDefaultPlatformToolset">
-    <DefaultPlatformToolset Condition=" '$(DefaultPlatformToolset)' == '' ">v100</PlatformToolset>
+    <DefaultPlatformToolset Condition=" '$(DefaultPlatformToolset)' == '' ">v100</DefaultPlatformToolset>
   </PropertyGroup>
   <PropertyGroup Label="PlatformToolset">
     <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
