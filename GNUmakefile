@@ -656,8 +656,8 @@ endif
 # https://stackoverflow.com/questions/45474857/why-does-appveyor-use-vs2010-tools-for-vs2015-image
 .PHONY: appveyor
 appveyor:
-	sed 's|Toolset>v100|Toolset>v140|g;s|ToolsVersion="4.0"|ToolsVersion="14.0"|g' cryptlib.vcxproj > TestScripts/cryptlib.vcxproj
-	sed 's|Toolset>v100|Toolset>v140|g;ToolsVersion="4.0"|ToolsVersion="14.0"|g' cryptest.vcxproj > TestScripts/cryptest.vcxproj
+	sed -e 's|v100|v140|g;s|ToolsVersion="4.0"|ToolsVersion="14.0"|g' cryptlib.vcxproj > TestScripts/cryptlib.vcxproj
+	sed -e 's|v100|v140|g;s|ToolsVersion="4.0"|ToolsVersion="14.0"|g' cryptest.vcxproj > TestScripts/cryptest.vcxproj
 
 # Builds the documentation. Directory name is ref563, ref570, etc.
 .PHONY: docs html
