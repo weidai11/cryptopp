@@ -25,9 +25,7 @@ image:
 # Disable build through solution file
 build: off
 
-# Extra copy gyrations due to broken MSbuild. Run 'make appveyor' to update the vcxproj files. Also see
-# https://stackoverflow.com/questions/45474857/why-does-appveyor-use-vs2010-tools-for-vs2015-image
-
+# Build through commands in script below
 test_script:
 
 - cmd: >-
