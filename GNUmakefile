@@ -81,12 +81,12 @@ HAS_NEWLIB := $(shell $(CXX) -x c++ $(CXXFLAGS) -dM -E adhoc.cpp.proto 2>&1 | $(
 # Base CXXFLAGS used if the user did not specify them
 ifeq ($(SUN_COMPILER),1)
   ifeq ($(SUNCC_512_OR_LATER),1)
-    CXXFLAGS ?= -DNDEBUG -g3 -xO2
+    CXXFLAGS ?= -DNDEBUG -g3 -xO3
   else
-    CXXFLAGS ?= -DNDEBUG -g -xO2
+    CXXFLAGS ?= -DNDEBUG -g -xO3
   endif
 else
-  CXXFLAGS ?= -DNDEBUG -g2 -O2
+  CXXFLAGS ?= -DNDEBUG -g2 -O3
 endif
 
 # Default prefix for make install
