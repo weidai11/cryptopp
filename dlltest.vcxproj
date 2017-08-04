@@ -21,10 +21,17 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{1974a53a-9863-41c9-886d-b2b8c2fc3c8b}</ProjectGuid>
     <RootNamespace>dlltest</RootNamespace>
-    <PlatformToolset>v100</PlatformToolset>
     <ConfigurationType>Application</ConfigurationType>
   </PropertyGroup>
+  <!-- Use DefaultPlatformToolset after Microsoft.Cpp.Default.props -->
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <!-- Set DefaultPlatformToolset to v100 (VS2010) if not defined -->
+  <PropertyGroup Label="EmptyDefaultPlatformToolset">
+    <DefaultPlatformToolset Condition=" '$(DefaultPlatformToolset)' == '' ">v100</DefaultPlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Label="PlatformToolset">
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings" />
   <ImportGroup Label="PropertySheets">
