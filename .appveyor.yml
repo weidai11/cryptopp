@@ -22,19 +22,13 @@ image:
 - Visual Studio 2015
 - Visual Studio 2013
 
+# Disable build through solution file
 build: off
 
-#  project: cryptest.sln
-#  verbosity: minimal
-#  parallel: true
-
+# Build through commands in script below
 test_script:
 
 - cmd: >-
-
-    copy /y TestScripts\cryptlib.vcxproj .
-
-    copy /y TestScripts\cryptest.vcxproj .
 
     msbuild /t:Build /p:platform=%platform%;configuration=%configuration% cryptlib.vcxproj
 
@@ -46,13 +40,9 @@ test_script:
 
     cryptest.exe tv all
 
-# Right now, we have a few failures that we don't know how to workaround.
-#  - https://stackoverflow.com/questions/43441273/how-to-run-vcupgrade-before-appveyor-build
-#  - https://stackoverflow.com/questions/43423761/cant-perform-64-bit-testing-under-appveyor
-
 notifications:
-    - provider: Email
-      to:
-        - cryptopp-build@googlegroups.com
-      on_build_success: true
-      on_build_failure: true
+  - provider: Email
+    to:
+      - cryptopp-build@googlegroups.com
+    on_build_success: true
+    on_build_failure: true
