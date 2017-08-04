@@ -39,9 +39,11 @@
   </ItemGroup>
   <!-- Undocumented MSbuild variable, set to a sane default value. -->
   <!-- It may be changed later by Microsoft.Cpp.Default.props -->
+  <!--
   <PropertyGroup Label="Globals">
     <DefaultPlatformToolset>v100</DefaultPlatformToolset>
   </PropertyGroup>
+  -->
   <!-- Microsoft documentation clearly shows the Global property group -->
   <!-- preceeds the import of Cpp.Default.props and Cpp.props -->
   <!-- https://msdn.microsoft.com/en-us/library/2208a1f2.aspx -->
