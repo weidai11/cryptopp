@@ -22,6 +22,7 @@ image:
 - Visual Studio 2015
 - Visual Studio 2013
 
+# Disable build through solution file
 build: off
 
 # Extra copy gyrations due to broken MSbuild. Run 'make appveyor' to update the vcxproj files. Also see
@@ -40,10 +41,6 @@ test_script:
     cryptest.exe v
 
     cryptest.exe tv all
-
-# Right now, we have a few failures that we don't know how to workaround.
-#  - https://stackoverflow.com/questions/43441273/how-to-run-vcupgrade-before-appveyor-build
-#  - https://stackoverflow.com/questions/43423761/cant-perform-64-bit-testing-under-appveyor
 
 notifications:
   - provider: Email
