@@ -39,13 +39,12 @@ class MDC : public MDC_Info<H>
 		{
 			CRYPTOPP_UNUSED(params);
 			this->AssertValidKeyLength(length);
-			memcpy_s(m_key, m_key.size(), userKey, this->KEYLENGTH);
-			ConditionalByteReverse(BIG_ENDIAN_ORDER, Key(), Key(), this->KEYLENGTH);
+			ConditionalByteReverse(BIG_ENDIAN_ORDER, Key(), reinterpret_cast<const HashWordType*>(userKey), this->KEYLENGTH);
 		}
 
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 		{
-			ConditionalByteReverse(BIG_ENDIAN_ORDER, Buffer(), (HashWordType *)inBlock, this->BLOCKSIZE);
+			ConditionalByteReverse(BIG_ENDIAN_ORDER, Buffer(), reinterpret_cast<const HashWordType*>(inBlock), this->BLOCKSIZE);
 			H::Transform(Buffer(), Key());
 
 			if (xorBlock)
@@ -55,7 +54,7 @@ class MDC : public MDC_Info<H>
 			}
 			else
 			{
-				ConditionalByteReverse(BIG_ENDIAN_ORDER, (HashWordType *)outBlock, Buffer(), this->BLOCKSIZE);
+				ConditionalByteReverse(BIG_ENDIAN_ORDER, reinterpret_cast<HashWordType*>(outBlock), Buffer(), this->BLOCKSIZE);
 			}
 		}
 
@@ -64,9 +63,9 @@ class MDC : public MDC_Info<H>
 		unsigned int OptimalDataAlignment() const {return sizeof(HashWordType);}
 
 	private:
-		HashWordType *Key() {return (HashWordType *)m_key.data();}
-		const HashWordType *Key() const {return (const HashWordType *)m_key.data();}
-		HashWordType *Buffer() const {return (HashWordType *)m_buffer.data();}
+		HashWordType *Key() {return reinterpret_cast<HashWordType*>(m_key.data());}
+		const HashWordType *Key() const {return reinterpret_cast<const HashWordType*>(m_key.data());}
+		HashWordType *Buffer() const {return reinterpret_cast<HashWordType*>(m_buffer.data());}
 
 		// VC60 workaround: bug triggered if using FixedSizeAllocatorWithCleanup
 		FixedSizeSecBlock<byte, MDC_Info<H>::KEYLENGTH, AllocatorWithCleanup<byte> > m_key;
