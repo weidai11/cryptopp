@@ -50,7 +50,7 @@ public:
 	//! \returns C-style string "SHA-1"
 	CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "SHA-1";}
 
-#if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
+#if CRYPTOPP_SHANI_AVAILABLE
 	size_t HashMultipleBlocks(const word32 *input, size_t length);
 #endif
 };
