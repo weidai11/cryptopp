@@ -723,8 +723,8 @@ static void CRYPTOPP_FASTCALL X86_SHA256_HashBlocks(word32 *state, const word32 
     ASJ(    jnz,    2, f)
     AS1(    dec        DWORD PTR K_END)
 #endif
-    AS2(    movdqa    xmm0, XMMWORD_PTR [WORD_REG(cx)+0*16])
-    AS2(    movdqa    xmm1, XMMWORD_PTR [WORD_REG(cx)+1*16])
+    AS2(    movdqu    xmm0, XMMWORD_PTR [WORD_REG(cx)+0*16])
+    AS2(    movdqu    xmm1, XMMWORD_PTR [WORD_REG(cx)+1*16])
 #endif
 
 #if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
@@ -744,8 +744,8 @@ INTEL_NOPREFIX
 
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
     ASL(0)
-    AS2(    movdqa    E(0), xmm1)
-    AS2(    movdqa    A(0), xmm0)
+    AS2(    movdqu    E(0), xmm1)
+    AS2(    movdqu    A(0), xmm0)
 #endif
 #if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
     ASL(3)
@@ -812,12 +812,12 @@ INTEL_NOPREFIX
     AS2(    test    DWORD PTR K_END, 1)
     ASJ(    jz,        4, f)
 #endif
-    AS2(    movdqa    xmm1, XMMWORD_PTR [AS_REG_7+1*16])
-    AS2(    movdqa    xmm0, XMMWORD_PTR [AS_REG_7+0*16])
+    AS2(    movdqu    xmm1, XMMWORD_PTR [AS_REG_7+1*16])
+    AS2(    movdqu    xmm0, XMMWORD_PTR [AS_REG_7+0*16])
     AS2(    paddd     xmm1, E(0))
     AS2(    paddd     xmm0, A(0))
-    AS2(    movdqa    [AS_REG_7+1*16], xmm1)
-    AS2(    movdqa    [AS_REG_7+0*16], xmm0)
+    AS2(    movdqu    [AS_REG_7+1*16], xmm1)
+    AS2(    movdqu    [AS_REG_7+0*16], xmm0)
     AS2(    cmp       WORD_REG(dx), DATA_END)
     ATT_NOPREFIX
     ASJ(    jb,        0, b)
@@ -1583,16 +1583,16 @@ CRYPTOPP_NAKED static void CRYPTOPP_FASTCALL SHA512_SSE2_Transform(word64 *state
     AS2(    lea      esi, [esp+4+20*8+8])    // 16-byte alignment, then add 8
 #endif
 
-    AS2(    movdqa   xmm0, [ecx+0*16])
+    AS2(    movdqu   xmm0, [ecx+0*16])
     AS2(    movdq2q  mm4, xmm0)
-    AS2(    movdqa   [edi+0*16], xmm0)
-    AS2(    movdqa   xmm0, [ecx+1*16])
-    AS2(    movdqa   [edi+1*16], xmm0)
-    AS2(    movdqa   xmm0, [ecx+2*16])
+    AS2(    movdqu   [edi+0*16], xmm0)
+    AS2(    movdqu   xmm0, [ecx+1*16])
+    AS2(    movdqu   [edi+1*16], xmm0)
+    AS2(    movdqu   xmm0, [ecx+2*16])
     AS2(    movdq2q  mm5, xmm0)
-    AS2(    movdqa   [edi+2*16], xmm0)
-    AS2(    movdqa   xmm0, [ecx+3*16])
-    AS2(    movdqa   [edi+3*16], xmm0)
+    AS2(    movdqu   [edi+2*16], xmm0)
+    AS2(    movdqu   xmm0, [ecx+3*16])
+    AS2(    movdqu   [edi+3*16], xmm0)
     ASJ(    jmp,     0, f)
 
 #define SSE2_S0_S1(r, a, b, c)    \
@@ -1611,9 +1611,9 @@ CRYPTOPP_NAKED static void CRYPTOPP_FASTCALL SHA512_SSE2_Transform(word64 *state
     AS2(    pxor     r, mm6)
 
 #define SSE2_s0(r, a, b, c)    \
-    AS2(    movdqa   xmm6, r)\
+    AS2(    movdqu   xmm6, r)\
     AS2(    psrlq    r, a)\
-    AS2(    movdqa   xmm7, r)\
+    AS2(    movdqu   xmm7, r)\
     AS2(    psllq    xmm6, 64-c)\
     AS2(    pxor     xmm7, xmm6)\
     AS2(    psrlq    r, b-a)\
@@ -1624,9 +1624,9 @@ CRYPTOPP_NAKED static void CRYPTOPP_FASTCALL SHA512_SSE2_Transform(word64 *state
     AS2(    pxor     r, xmm6)
 
 #define SSE2_s1(r, a, b, c)    \
-    AS2(    movdqa   xmm6, r)\
+    AS2(    movdqu   xmm6, r)\
     AS2(    psrlq    r, a)\
-    AS2(    movdqa   xmm7, r)\
+    AS2(    movdqu   xmm7, r)\
     AS2(    psllq    xmm6, 64-c)\
     AS2(    pxor     xmm7, xmm6)\
     AS2(    psrlq    r, b-a)\
@@ -1684,7 +1684,7 @@ CRYPTOPP_NAKED static void CRYPTOPP_FASTCALL SHA512_SSE2_Transform(word64 *state
     // data expansion, W[i-2] already in xmm0
     AS2(    movdqu   xmm3, [esi])
     AS2(    paddq    xmm3, [esi+(16-7)*8])
-    AS2(    movdqa   xmm2, [esi+(16-15)*8])
+    AS2(    movdqu   xmm2, [esi+(16-15)*8])
     SSE2_s1(xmm0, 6, 19, 61)
     AS2(    paddq    xmm0, xmm3)
     SSE2_s0(xmm2, 1, 7, 8)
@@ -1721,9 +1721,9 @@ CRYPTOPP_NAKED static void CRYPTOPP_FASTCALL SHA512_SSE2_Transform(word64 *state
     ASJ(    jne,     1, b)
 
 #define SSE2_CombineState(i)    \
-    AS2(    movdqa   xmm0, [edi+i*16])\
+    AS2(    movdqu   xmm0, [edi+i*16])\
     AS2(    paddq    xmm0, [ecx+i*16])\
-    AS2(    movdqa   [ecx+i*16], xmm0)
+    AS2(    movdqu   [ecx+i*16], xmm0)
 
     SSE2_CombineState(0)
     SSE2_CombineState(1)
