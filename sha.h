@@ -25,20 +25,25 @@ NAMESPACE_BEGIN(CryptoPP)
 class CRYPTOPP_DLL SHA1 : public IteratedHashWithStaticTransform<word32, BigEndian, 64, 20, SHA1>
 {
 public:
-#if CRYPTOPP_SHANI_AVAILABLE
-	size_t HashMultipleBlocks(const word32 *input, size_t length);
-#endif
+	//! \brief Initialize state array
+	//! \param state the state of the hash
+	//! \details InitState sets a state array to SHA1 initial values
+	//! \details Hashes which derive from IteratedHashWithStaticTransform provide static
+	//!   member functions InitState and Transform. External classes, like SEAL and MDC,
+	//!   can initialize state with a user provided key and operate the hash on the data
+	//!   with the user supplied state.
+	//! \note On Intel platforms the state array must be 16-byte aligned for SSE2.
 	static void CRYPTOPP_API InitState(HashWordType *state);
 	//! \brief Operate the hash
 	//! \param digest the state of the hash
 	//! \param data the data to be digested
 	//! \details Transform operates the hash on <tt>data</tt>. When the call is invoked
-	//!    <tt>data</tt> holds initial state. Upon return <tt>data</tt> holds the hash or
+	//!    <tt>digest</tt> holds initial state. Upon return <tt>digest</tt> holds the hash or
 	//!    updated state.
 	//! \details Hashes which derive from IteratedHashWithStaticTransform provide static
 	//!   member functions InitState and Transform. External classes, like SEAL and MDC,
 	//!   can initialize state with a user provided key and operate the hash on the data
-	//!   with the used supplied initial state.
+	//!   with the user supplied state.
 	//! \note On Intel platforms the state array and data must be 16-byte aligned for SSE2.
 	static void CRYPTOPP_API Transform(word32 *digest, const word32 *data);
 	//! \brief The algorithm name
@@ -63,19 +68,19 @@ public:
 	//! \details Hashes which derive from IteratedHashWithStaticTransform provide static
 	//!   member functions InitState and Transform. External classes, like SEAL and MDC,
 	//!   can initialize state with a user provided key and operate the hash on the data
-	//!   with the used supplied initial state.
+	//!   with the user supplied state.
 	//! \note On Intel platforms the state array must be 16-byte aligned for SSE2.
 	static void CRYPTOPP_API InitState(HashWordType *state);
 	//! \brief Operate the hash
 	//! \param digest the state of the hash
 	//! \param data the data to be digested
 	//! \details Transform operates the hash on <tt>data</tt>. When the call is invoked
-	//!    <tt>data</tt> holds initial state. Upon return <tt>data</tt> holds the hash or
+	//!    <tt>digest</tt> holds initial state. Upon return <tt>digest</tt> holds the hash or
 	//!    updated state.
 	//! \details Hashes which derive from IteratedHashWithStaticTransform provide static
 	//!   member functions InitState and Transform. External classes, like SEAL and MDC,
 	//!   can initialize state with a user provided key and operate the hash on the data
-	//!   with the used supplied initial state.
+	//!   with the user supplied state.
 	//! \note On Intel platforms the state array and data must be 16-byte aligned for SSE2.
 	static void CRYPTOPP_API Transform(word32 *digest, const word32 *data);
 	//! \brief The algorithm name
@@ -100,19 +105,19 @@ public:
 	//! \details Hashes which derive from IteratedHashWithStaticTransform provide static
 	//!   member functions InitState and Transform. External classes, like SEAL and MDC,
 	//!   can initialize state with a user provided key and operate the hash on the data
-	//!   with the used supplied initial state.
+	//!   with the user supplied state.
 	//! \note On Intel platforms the state array must be 16-byte aligned for SSE2.
 	static void CRYPTOPP_API InitState(HashWordType *state);
 	//! \brief Operate the hash
 	//! \param digest the state of the hash
 	//! \param data the data to be digested
 	//! \details Transform operates the hash on <tt>data</tt>. When the call is invoked
-	//!    <tt>data</tt> holds initial state. Upon return <tt>data</tt> holds the hash or
+	//!    <tt>digest</tt> holds initial state. Upon return <tt>digest</tt> holds the hash or
 	//!    updated state.
 	//! \details Hashes which derive from IteratedHashWithStaticTransform provide static
 	//!   member functions InitState and Transform. External classes, like SEAL and MDC,
 	//!   can initialize state with a user provided key and operate the hash on the data
-	//!   with the used supplied initial state.
+	//!   with the user supplied state.
 	//! \note On Intel platforms the state array and data must be 16-byte aligned for SSE2.
 	static void CRYPTOPP_API Transform(word32 *digest, const word32 *data) {SHA256::Transform(digest, data);}
 	//! \brief The algorithm name
@@ -137,19 +142,19 @@ public:
 	//! \details Hashes which derive from IteratedHashWithStaticTransform provide static
 	//!   member functions InitState and Transform. External classes, like SEAL and MDC,
 	//!   can initialize state with a user provided key and operate the hash on the data
-	//!   with the used supplied initial state.
+	//!   with the user supplied state.
 	//! \note On Intel platforms the state array must be 16-byte aligned for SSE2.
 	static void CRYPTOPP_API InitState(HashWordType *state);
 	//! \brief Operate the hash
 	//! \param digest the state of the hash
 	//! \param data the data to be digested
 	//! \details Transform operates the hash on <tt>data</tt>. When the call is invoked
-	//!    <tt>data</tt> holds initial state. Upon return <tt>data</tt> holds the hash or
+	//!    <tt>digest</tt> holds initial state. Upon return <tt>digest</tt> holds the hash or
 	//!    updated state.
 	//! \details Hashes which derive from IteratedHashWithStaticTransform provide static
 	//!   member functions InitState and Transform. External classes, like SEAL and MDC,
 	//!   can initialize state with a user provided key and operate the hash on the data
-	//!   with the used supplied initial state.
+	//!   with the user supplied state.
 	//! \note On Intel platforms the state array and data must be 16-byte aligned for SSE2.
 	static void CRYPTOPP_API Transform(word64 *digest, const word64 *data);
 	//! \brief The algorithm name
@@ -170,19 +175,19 @@ public:
 	//! \details Hashes which derive from IteratedHashWithStaticTransform provide static
 	//!   member functions InitState and Transform. External classes, like SEAL and MDC,
 	//!   can initialize state with a user provided key and operate the hash on the data
-	//!   with the used supplied initial state.
+	//!   with the user supplied state.
 	//! \note On Intel platforms the state array must be 16-byte aligned for SSE2.
 	static void CRYPTOPP_API InitState(HashWordType *state);
 	//! \brief Operate the hash
 	//! \param digest the state of the hash
 	//! \param data the data to be digested
 	//! \details Transform operates the hash on <tt>data</tt>. When the call is invoked
-	//!    <tt>data</tt> holds initial state. Upon return <tt>data</tt> holds the hash or
+	//!    <tt>digest</tt> holds initial state. Upon return <tt>digest</tt> holds the hash or
 	//!    updated state.
 	//! \details Hashes which derive from IteratedHashWithStaticTransform provide static
 	//!   member functions InitState and Transform. External classes, like SEAL and MDC,
 	//!   can initialize state with a user provided key and operate the hash on the data
-	//!   with the used supplied initial state.
+	//!   with the user supplied state.
 	//! \note On Intel platforms the state array and data must be 16-byte aligned for SSE2.
 	static void CRYPTOPP_API Transform(word64 *digest, const word64 *data) {SHA512::Transform(digest, data);}
 	//! \brief The algorithm name
