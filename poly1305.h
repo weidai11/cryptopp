@@ -93,7 +93,7 @@ protected:
 	FixedSizeAlignedSecBlock<word32, 4> m_n;
 
 	// Accumulated message bytes and index
-	FixedSizeAlignedSecBlock<byte, BLOCKSIZE> m_acc;
+	FixedSizeAlignedSecBlock<byte, BLOCKSIZE> m_acc, m_nk;
 	size_t m_idx;
 
 	// Track nonce reuse; assert in debug but continue

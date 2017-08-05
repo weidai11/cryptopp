@@ -33,13 +33,13 @@ void Poly1305_Base<T>::UncheckedSetKey(const byte *key, unsigned int length, con
 	ConstByteArrayParameter t;
 	if (params.GetValue(Name::IV(), t) && t.begin() && t.size())
 	{
-		SecByteBlock nk(16);
-		m_cipher.ProcessBlock(t.begin(), nk);
+		// Nonce key is a class member to avoid the zeroizer on a temporary
+		m_cipher.ProcessBlock(t.begin(), m_nk.begin());
 
-		m_n[0] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, nk +  0);
-		m_n[1] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, nk +  4);
-		m_n[2] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, nk +  8);
-		m_n[3] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, nk + 12);
+		m_n[0] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, m_nk +  0);
+		m_n[1] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, m_nk +  4);
+		m_n[2] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, m_nk +  8);
+		m_n[3] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, m_nk + 12);
 
 		m_used = false;
 	}
