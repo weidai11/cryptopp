@@ -38,7 +38,7 @@ public:
 	//! \param digest the state of the hash
 	//! \param data the data to be digested
 	//! \details Transform operates the hash on <tt>data</tt>. When the call is invoked
-	//!    <tt>data</tt> holds initial state. Upon return <tt>data</tt> holds the hash or
+	//!    <tt>digest</tt> holds initial state. Upon return <tt>digest</tt> holds the hash or
 	//!    updated state.
 	//! \details Hashes which derive from IteratedHashWithStaticTransform provide static
 	//!   member functions InitState and Transform. External classes, like SEAL and MDC,
@@ -75,7 +75,7 @@ public:
 	//! \param digest the state of the hash
 	//! \param data the data to be digested
 	//! \details Transform operates the hash on <tt>data</tt>. When the call is invoked
-	//!    <tt>data</tt> holds initial state. Upon return <tt>data</tt> holds the hash or
+	//!    <tt>digest</tt> holds initial state. Upon return <tt>digest</tt> holds the hash or
 	//!    updated state.
 	//! \details Hashes which derive from IteratedHashWithStaticTransform provide static
 	//!   member functions InitState and Transform. External classes, like SEAL and MDC,
@@ -112,7 +112,7 @@ public:
 	//! \param digest the state of the hash
 	//! \param data the data to be digested
 	//! \details Transform operates the hash on <tt>data</tt>. When the call is invoked
-	//!    <tt>data</tt> holds initial state. Upon return <tt>data</tt> holds the hash or
+	//!    <tt>digest</tt> holds initial state. Upon return <tt>digest</tt> holds the hash or
 	//!    updated state.
 	//! \details Hashes which derive from IteratedHashWithStaticTransform provide static
 	//!   member functions InitState and Transform. External classes, like SEAL and MDC,
@@ -149,7 +149,7 @@ public:
 	//! \param digest the state of the hash
 	//! \param data the data to be digested
 	//! \details Transform operates the hash on <tt>data</tt>. When the call is invoked
-	//!    <tt>data</tt> holds initial state. Upon return <tt>data</tt> holds the hash or
+	//!    <tt>digest</tt> holds initial state. Upon return <tt>digest</tt> holds the hash or
 	//!    updated state.
 	//! \details Hashes which derive from IteratedHashWithStaticTransform provide static
 	//!   member functions InitState and Transform. External classes, like SEAL and MDC,
@@ -182,7 +182,7 @@ public:
 	//! \param digest the state of the hash
 	//! \param data the data to be digested
 	//! \details Transform operates the hash on <tt>data</tt>. When the call is invoked
-	//!    <tt>data</tt> holds initial state. Upon return <tt>data</tt> holds the hash or
+	//!    <tt>digest</tt> holds initial state. Upon return <tt>digest</tt> holds the hash or
 	//!    updated state.
 	//! \details Hashes which derive from IteratedHashWithStaticTransform provide static
 	//!   member functions InitState and Transform. External classes, like SEAL and MDC,
