@@ -958,6 +958,8 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 	case 9995: result = TestHuffmanCodes(); break;
 	// http://github.com/weidai11/cryptopp/issues/346
 	case 9994: result = TestASN1Parse(); break;
+	// TODO: bug report it
+	case 9993: result = TestSHAStaticTransform(); break;
 #endif
 
 	default: return false;

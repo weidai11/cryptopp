@@ -115,6 +115,9 @@ bool ValidateAll(bool thorough)
 	pass=ValidateMD4() && pass;
 #endif
 	pass=ValidateMD5() && pass;
+#if defined(CRYPTOPP_EXTENDED_VALIDATION)
+	pass=TestSHAStaticTransform() && pass;
+#endif
 	pass=ValidateSHA() && pass;
 
 	pass=RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/keccak.txt") && pass;
