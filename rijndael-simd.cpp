@@ -91,7 +91,7 @@ bool CPU_TryAES_ARMV8()
 	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
 	volatile bool result = true;
 
-	volatile SigHandler oldHandler = signal(SIGILL, SigIllHandlerAES);
+	volatile SigHandler oldHandler = signal(SIGILL, SigIllHandler);
 	if (oldHandler == SIG_ERR)
 		return false;
 
@@ -99,7 +99,7 @@ bool CPU_TryAES_ARMV8()
 	if (sigprocmask(0, NULLPTR, (sigset_t*)&oldMask))
 		return false;
 
-	if (setjmp(s_jmpNoAES))
+	if (setjmp(s_jmpSIGILL))
 		result = false;
 	else
 	{
