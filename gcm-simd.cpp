@@ -39,9 +39,9 @@
 
 ANONYMOUS_NAMESPACE_BEGIN
 
-// GCC 4.8 and 4.9 are missing PMULL gear
+// GCC 4.8 is missing PMULL gear
 #if (CRYPTOPP_ARM_PMULL_AVAILABLE)
-# if (CRYPTOPP_GCC_VERSION >= 40800) && (CRYPTOPP_GCC_VERSION < 50000)
+# if (CRYPTOPP_GCC_VERSION >= 40800) && (CRYPTOPP_GCC_VERSION < 49000)
 inline poly128_t VMULL_P64(poly64_t a, poly64_t b)
 {
     return __builtin_aarch64_crypto_pmulldi_ppp (a, b);
@@ -50,6 +50,16 @@ inline poly128_t VMULL_P64(poly64_t a, poly64_t b)
 inline poly128_t VMULL_HIGH_P64(poly64x2_t a, poly64x2_t b)
 {
     return __builtin_aarch64_crypto_pmullv2di_ppp (a, b);
+}
+# else
+inline poly128_t VMULL_P64(poly64_t a, poly64_t b)
+{
+    return vmull_p64(a, b);
+}
+
+inline poly128_t VMULL_HIGH_P64(poly64x2_t a, poly64x2_t b)
+{
+    return vmull_high_p64(a, b);
 }
 # endif
 #endif
