@@ -23,6 +23,12 @@
 # ifndef HWCAP_SHA2
 # define HWCAP_SHA2 (1 << 6)
 # endif
+# ifndef HWCAP2_SHA1
+# define HWCAP2_SHA1 (1 << 2)
+# endif
+# ifndef HWCAP2_SHA2
+# define HWCAP2_SHA2 (1 << 3)
+# endif
 #endif
 
 #if (CRYPTOPP_SSE42_AVAILABLE)
@@ -85,8 +91,12 @@ bool CPU_TrySHA1_ARMV8()
 	}
 	return result;
 # else
-#   if defined(__linux__) && (defined(__aarch32__) || defined(__aarch64__))
+    // https://sourceware.org/ml/libc-help/2017-08/msg00012.html
+#   if defined(__linux__) && defined(__aarch64__)
 	if (getauxval(AT_HWCAP) & HWCAP_SHA1)
+		return true;
+#   elif defined(__linux__) && defined(__aarch32__)
+	if (getauxval(AT_HWCAP2) & HWCAP2_SHA1)
 		return true;
 #   endif
 
@@ -148,7 +158,10 @@ bool CPU_TrySHA2_ARMV8()
 	}
 	return result;
 #else
-#   if defined(__linux__) && (defined(__aarch32__) || defined(__aarch64__))
+#   if defined(__linux__) && defined(__aarch64__)
+	if (getauxval(AT_HWCAP) & HWCAP_SHA2)
+		return true;
+#   elif defined(__linux__) && defined(__aarch32__)
 	if (getauxval(AT_HWCAP) & HWCAP_SHA2)
 		return true;
 #   endif

@@ -20,6 +20,9 @@
 # ifndef HWCAP_PMULL
 # define HWCAP_PMULL (1 << 4)
 # endif
+# ifndef HWCAP2_PMULL
+# define HWCAP2_PMULL (1 << 1)
+# endif
 #endif
 
 #if (CRYPTOPP_CLMUL_AVAILABLE)
@@ -211,8 +214,12 @@ bool CPU_TryPMULL_ARMV8()
     }
     return result;
 # else
-#   if defined(__linux__) && (defined(__aarch32__) || defined(__aarch64__))
+    // https://sourceware.org/ml/libc-help/2017-08/msg00012.html
+#   if defined(__linux__) && defined(__aarch64__)
 	if (getauxval(AT_HWCAP) & HWCAP_PMULL)
+		return true;
+#   elif defined(__linux__) && defined(__aarch32__)
+	if (getauxval(AT_HWCAP2) & HWCAP2_PMULL)
 		return true;
 #   endif
 

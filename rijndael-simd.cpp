@@ -25,6 +25,9 @@
 # ifndef HWCAP_AES
 # define HWCAP_AES (1 << 3)
 # endif
+# ifndef HWCAP2_AES
+# define HWCAP2_AES (1 << 0)
+# endif
 #endif
 
 #if (CRYPTOPP_SSE41_AVAILABLE)
@@ -101,8 +104,12 @@ bool CPU_TryAES_ARMV8()
 	}
 	return result;
 # else
-#   if defined(__linux__) && (defined(__aarch32__) || defined(__aarch64__))
+    // https://sourceware.org/ml/libc-help/2017-08/msg00012.html
+#   if defined(__linux__) && defined(__aarch64__)
 	if (getauxval(AT_HWCAP) & HWCAP_AES)
+		return true;
+#   elif defined(__linux__) && defined(__aarch32__)
+	if (getauxval(AT_HWCAP2) & HWCAP2_AES)
 		return true;
 #   endif
 

@@ -20,6 +20,9 @@
 # ifndef HWCAP_CRC32
 # define HWCAP_CRC32 (1 << 7)
 # endif
+# ifndef HWCAP2_CRC32
+# define HWCAP2_CRC32 (1 << 4)
+# endif
 #endif
 
 #if (CRYPTOPP_SSE42_AVAILABLE)
@@ -78,8 +81,12 @@ bool CPU_TryCRC32_ARMV8()
     }
     return result;
 #else
-#   if defined(__linux__) && (defined(__aarch32__) || defined(__aarch64__))
+    // https://sourceware.org/ml/libc-help/2017-08/msg00012.html
+#   if defined(__linux__) && defined(__aarch64__)
 	if (getauxval(AT_HWCAP) & HWCAP_CRC32)
+		return true;
+#   elif defined(__linux__) && defined(__aarch32__)
+	if (getauxval(AT_HWCAP2) & HWCAP2_CRC32)
 		return true;
 #   endif
 
