@@ -9,6 +9,13 @@
 #include "pch.h"
 #include "config.h"
 
+#if defined(__linux__)
+# include <sys/auxv.h>
+# ifndef HWCAP_ASIMD
+# define HWCAP_ASIMD (1 << 1)
+# endif
+#endif
+
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
 # include "arm_neon.h"
 #endif
@@ -63,6 +70,11 @@ bool CPU_TryNEON_ARM()
 	}
 	return result;
 # else
+#   if defined(__linux__) && (defined(__aarch32__) || defined(__aarch64__))
+	if (getauxval(AT_HWCAP) & HWCAP_ASIMD)
+		return true;
+#   endif
+
 	// longjmp and clobber warnings. Volatile is required.
 	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
 	volatile bool result = true;

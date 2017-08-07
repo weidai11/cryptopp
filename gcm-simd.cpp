@@ -15,6 +15,13 @@
 # undef CRYPTOPP_ARM_PMULL_AVAILABLE
 #endif
 
+#if defined(__linux__)
+# include <sys/auxv.h>
+# ifndef HWCAP_PMULL
+# define HWCAP_PMULL (1 << 4)
+# endif
+#endif
+
 #if (CRYPTOPP_CLMUL_AVAILABLE)
 # include "tmmintrin.h"
 # include "wmmintrin.h"
@@ -204,6 +211,11 @@ bool CPU_TryPMULL_ARMV8()
     }
     return result;
 # else
+#   if defined(__linux__)
+	if (getauxval(AT_HWCAP) & HWCAP_PMULL)
+		return true;
+#   endif
+
     // longjmp and clobber warnings. Volatile is required.
     // http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
     volatile bool result = true;

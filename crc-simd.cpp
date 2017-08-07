@@ -15,6 +15,13 @@
 # undef CRYPTOPP_ARM_CRC32_AVAILABLE
 #endif
 
+#if defined(__linux__)
+# include <sys/auxv.h>
+# ifndef HWCAP_CRC32
+# define HWCAP_CRC32 (1 << 7)
+# endif
+#endif
+
 #if (CRYPTOPP_SSE42_AVAILABLE)
 # include "nmmintrin.h"
 #endif
@@ -71,6 +78,11 @@ bool CPU_TryCRC32_ARMV8()
     }
     return result;
 #else
+#   if defined(__linux__)
+	if (getauxval(AT_HWCAP) & HWCAP_CRC32)
+		return true;
+#   endif
+
     // longjmp and clobber warnings. Volatile is required.
     // http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
     volatile bool result = true;

@@ -20,6 +20,13 @@
 # undef CRYPTOPP_ARM_AES_AVAILABLE
 #endif
 
+#if defined(__linux__)
+# include <sys/auxv.h>
+# ifndef HWCAP_AES
+# define HWCAP_AES (1 << 3)
+# endif
+#endif
+
 #if (CRYPTOPP_SSE41_AVAILABLE)
 // Hack... Apple conflates SSE4.1 and SSE4.2. Without __SSE4_2__,
 //   Apple fails the compile with "SSE4.2 instruction set not enabled"
@@ -94,6 +101,11 @@ bool CPU_TryAES_ARMV8()
 	}
 	return result;
 # else
+#   if defined(__linux__)
+	if (getauxval(AT_HWCAP) & HWCAP_AES)
+		return true;
+#   endif
+
 	// longjmp and clobber warnings. Volatile is required.
 	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
 	volatile bool result = true;

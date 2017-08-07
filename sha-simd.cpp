@@ -15,6 +15,16 @@
 # undef CRYPTOPP_ARM_SHA_AVAILABLE
 #endif
 
+#if defined(__linux__)
+# include <sys/auxv.h>
+# ifndef HWCAP_SHA1
+# define HWCAP_SHA1 (1 << 5)
+# endif
+# ifndef HWCAP_SHA2
+# define HWCAP_SHA2 (1 << 6)
+# endif
+#endif
+
 #if (CRYPTOPP_SSE42_AVAILABLE)
 # include "nmmintrin.h"
 #endif
@@ -75,6 +85,11 @@ bool CPU_TrySHA1_ARMV8()
 	}
 	return result;
 # else
+#   if defined(__linux__)
+	if (getauxval(AT_HWCAP) & HWCAP_SHA1)
+		return true;
+#   endif
+
 	// longjmp and clobber warnings. Volatile is required.
 	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
 	volatile bool result = true;
@@ -133,6 +148,11 @@ bool CPU_TrySHA2_ARMV8()
 	}
 	return result;
 #else
+#   if defined(__linux__)
+	if (getauxval(AT_HWCAP) & HWCAP_SHA2)
+		return true;
+#   endif
+
 	// longjmp and clobber warnings. Volatile is required.
 	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
 	volatile bool result = true;
