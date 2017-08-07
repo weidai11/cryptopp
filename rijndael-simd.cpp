@@ -104,7 +104,7 @@ bool CPU_TryAES_ARMV8()
 	}
 	return result;
 # else
-#   if defined(__android__)
+#   if defined(__ANDROID__)
     if (android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_AES)
 		return true;
     // https://sourceware.org/ml/libc-help/2017-08/msg00012.html
