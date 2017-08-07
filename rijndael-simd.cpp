@@ -133,8 +133,29 @@ void Rijndael_Enc_ProcessAndXorBlock_ARMV8(const byte *inBlock, const byte *xorB
 	uint8x16_t data = vld1q_u8(inBlock);
 	const byte *keys = reinterpret_cast<const byte*>(subKeys);
 
-	unsigned int i;
-	for (i=0; i<rounds-1; ++i)
+	// Unroll the loop, profit 0.3 to 0.5 cpb.
+	data = vaeseq_u8(data, vld1q_u8(keys+0));
+	data = vaesmcq_u8(data);
+	data = vaeseq_u8(data, vld1q_u8(keys+16));
+	data = vaesmcq_u8(data);
+	data = vaeseq_u8(data, vld1q_u8(keys+32));
+	data = vaesmcq_u8(data);
+	data = vaeseq_u8(data, vld1q_u8(keys+48));
+	data = vaesmcq_u8(data);
+	data = vaeseq_u8(data, vld1q_u8(keys+64));
+	data = vaesmcq_u8(data);
+	data = vaeseq_u8(data, vld1q_u8(keys+80));
+	data = vaesmcq_u8(data);
+	data = vaeseq_u8(data, vld1q_u8(keys+96));
+	data = vaesmcq_u8(data);
+	data = vaeseq_u8(data, vld1q_u8(keys+112));
+	data = vaesmcq_u8(data);
+	data = vaeseq_u8(data, vld1q_u8(keys+128));
+	data = vaesmcq_u8(data);
+
+	// Unroll the loop, profit 0.3 cpb.
+	unsigned int i=9;
+	for ( ; i<rounds-1; ++i)
 	{
 		// AES single round encryption
 		data = vaeseq_u8(data, vld1q_u8(keys+i*16));
@@ -160,8 +181,28 @@ void Rijndael_Dec_ProcessAndXorBlock_ARMV8(const byte *inBlock, const byte *xorB
 	uint8x16_t data = vld1q_u8(inBlock);
 	const byte *keys = reinterpret_cast<const byte*>(subKeys);
 
-	unsigned int i;
-	for (i=0; i<rounds-1; ++i)
+	// Unroll the loop, profit 0.3 to 0.5 cpb.
+	data = vaesdq_u8(data, vld1q_u8(keys+0));
+	data = vaesimcq_u8(data);
+	data = vaesdq_u8(data, vld1q_u8(keys+16));
+	data = vaesimcq_u8(data);
+	data = vaesdq_u8(data, vld1q_u8(keys+32));
+	data = vaesimcq_u8(data);
+	data = vaesdq_u8(data, vld1q_u8(keys+48));
+	data = vaesimcq_u8(data);
+	data = vaesdq_u8(data, vld1q_u8(keys+64));
+	data = vaesimcq_u8(data);
+	data = vaesdq_u8(data, vld1q_u8(keys+80));
+	data = vaesimcq_u8(data);
+	data = vaesdq_u8(data, vld1q_u8(keys+96));
+	data = vaesimcq_u8(data);
+	data = vaesdq_u8(data, vld1q_u8(keys+112));
+	data = vaesimcq_u8(data);
+	data = vaesdq_u8(data, vld1q_u8(keys+128));
+	data = vaesimcq_u8(data);
+
+	unsigned int i=9;
+	for ( ; i<rounds-1; ++i)
 	{
 		// AES single round decryption
 		data = vaesdq_u8(data, vld1q_u8(keys+i*16));
