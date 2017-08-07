@@ -73,10 +73,10 @@ bool CPU_TryNEON_ARM()
 	}
 	return result;
 # else
-#   if defined(__ANDROID__) && (CRYPTOPP_BOOL_ARM64)
+#   if defined(__ANDROID__) && (defined(__aarch32__) || defined(__aarch64__))
 	if (android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_ASIMD)
 		return true;
-#   elif defined(__ANDROID__) && (CRYPTOPP_BOOL_ARM32)
+#   elif defined(__ANDROID__) && defined(__arm__)
 	if (android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_NEON)
 		return true;
 #   elif defined(__linux__) && defined(__aarch64__)
