@@ -78,7 +78,7 @@ bool CPU_TryCRC32_ARMV8()
     }
     return result;
 #else
-#   if defined(__linux__)
+#   if defined(__linux__) && (defined(__aarch32__) || defined(__aarch64__))
 	if (getauxval(AT_HWCAP) & HWCAP_CRC32)
 		return true;
 #   endif

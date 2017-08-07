@@ -85,7 +85,7 @@ bool CPU_TrySHA1_ARMV8()
 	}
 	return result;
 # else
-#   if defined(__linux__)
+#   if defined(__linux__) && (defined(__aarch32__) || defined(__aarch64__))
 	if (getauxval(AT_HWCAP) & HWCAP_SHA1)
 		return true;
 #   endif
@@ -148,7 +148,7 @@ bool CPU_TrySHA2_ARMV8()
 	}
 	return result;
 #else
-#   if defined(__linux__)
+#   if defined(__linux__) && (defined(__aarch32__) || defined(__aarch64__))
 	if (getauxval(AT_HWCAP) & HWCAP_SHA2)
 		return true;
 #   endif
