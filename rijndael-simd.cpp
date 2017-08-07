@@ -10,10 +10,6 @@
 #include "config.h"
 #include "misc.h"
 
-// TODO: Remove after debugging
-#include <stdio.h>
-#include <stdlib.h>
-
 // Clang and GCC hoops...
 #if !(defined(__ARM_FEATURE_CRYPTO) || defined(_MSC_VER))
 # undef CRYPTOPP_ARM_AES_AVAILABLE
@@ -82,6 +78,8 @@ bool CPU_TryAES_ARMV8()
 		uint8x16_t data = vdupq_n_u8(0), key = vdupq_n_u8(0);
 		uint8x16_t r1 = vaeseq_u8(data, key);
 		uint8x16_t r2 = vaesdq_u8(data, key);
+		r1 = vaesmcq_u8(r1);
+		r2 = vaesimcq_u8(r2);
 
 		result = !!(vgetq_lane_u8(r1,0) | vgetq_lane_u8(r2,7));
 	}
@@ -110,6 +108,8 @@ bool CPU_TryAES_ARMV8()
 		uint8x16_t data = vdupq_n_u8(0), key = vdupq_n_u8(0);
 		uint8x16_t r1 = vaeseq_u8(data, key);
 		uint8x16_t r2 = vaesdq_u8(data, key);
+		r1 = vaesmcq_u8(r1);
+		r2 = vaesimcq_u8(r2);
 
 		// Hack... GCC optimizes away the code and returns true
 		result = !!(vgetq_lane_u8(r1,0) | vgetq_lane_u8(r2,7));
@@ -127,40 +127,9 @@ bool CPU_TryAES_ARMV8()
 
 #if (CRYPTOPP_ARM_AES_AVAILABLE)
 
-void PrintMessage(const byte *inBlock)
-{
-	printf("M: ");
-	for (unsigned int j=0; j<16; ++j)
-		printf("%02X", inBlock[j]);
-	printf("\n");
-}
-
-void PrintCipher(const byte *outBlock)
-{
-	printf("C: ");
-	for (unsigned int j=0; j<16; ++j)
-		printf("%02X", outBlock[j]);
-	printf("\n");
-}
-
-void PrintSubKeys(const word32 *keys, unsigned int rounds)
-{
-	const byte* k = (const byte*)keys;
-	for (unsigned int i=0; i<rounds+1; ++i)
-	{
-		printf("R%d: ", i);
-		for (unsigned int j=0; j<16; ++j)
-			printf("%02X", *(k+(i*16)+j));
-		printf("\n");
-	}
-}
-
 void Rijndael_Enc_ProcessAndXorBlock_ARMV8(const byte *inBlock, const byte *xorBlock, byte *outBlock,
                                            const word32 *subKeys, unsigned int rounds)
 {
-	//PrintMessage(inBlock);
-	//PrintSubKeys(subKeys, rounds);
-
 	uint8x16_t data = vld1q_u8(inBlock);
 	const byte *keys = reinterpret_cast<const byte*>(subKeys);
 
@@ -175,6 +144,7 @@ void Rijndael_Enc_ProcessAndXorBlock_ARMV8(const byte *inBlock, const byte *xorB
 
 	// One round of encryption: AES, no Mix
 	data = vaeseq_u8(data, vld1q_u8(keys+i*16));
+
 	// Final Add (bitwise Xor)
 	data = veorq_u8(data, vld1q_u8(keys+(i+1)*16));
 
@@ -182,40 +152,33 @@ void Rijndael_Enc_ProcessAndXorBlock_ARMV8(const byte *inBlock, const byte *xorB
 		vst1q_u8(outBlock, veorq_u8(data, vld1q_u8(xorBlock)));
 	else
 		vst1q_u8(outBlock, data);
-
-	//PrintCipher(outBlock);
 }
 
 void Rijndael_Dec_ProcessAndXorBlock_ARMV8(const byte *inBlock, const byte *xorBlock, byte *outBlock,
                                            const word32 *subKeys, unsigned int rounds)
 {
-	//PrintSubKeys(subKeys, rounds);
-	//PrintSubKeys(subKeys, rounds);
-
 	uint8x16_t data = vld1q_u8(inBlock);
 	const byte *keys = reinterpret_cast<const byte*>(subKeys);
-
-	// AES single round decryption
-	data = vaesdq_u8(data, vld1q_u8(keys));
 
 	unsigned int i;
 	for (i=0; i<rounds-1; ++i)
 	{
-		// AES mix columns
-		data = vaesmcq_u8(data);
 		// AES single round decryption
 		data = vaesdq_u8(data, vld1q_u8(keys+i*16));
+		// AES inverse mix columns
+		data = vaesimcq_u8(data);
 	}
 
+	// AES single round decryption
+	data = vaesdq_u8(data, vld1q_u8(keys+i*16));
+
 	// Final Add (bitwise Xor)
-	data = veorq_u8(data, vld1q_u8(keys+i*16));
+	data = veorq_u8(data, vld1q_u8(keys+(i+1)*16));
 
 	if (xorBlock)
 		vst1q_u8(outBlock, veorq_u8(data, vld1q_u8(xorBlock)));
 	else
 		vst1q_u8(outBlock, data);
-
-	//PrintCipher(outBlock);
 }
 #endif  // CRYPTOPP_ARM_AES_AVAILABLE
 

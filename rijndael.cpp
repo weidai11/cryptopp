@@ -434,7 +434,7 @@ void Rijndael::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 	}
 #endif
 
-#if (CRYPTOPP_ARM_AES_AVAILABLE) && 0
+#if (CRYPTOPP_ARM_AES_AVAILABLE)
 	if (HasAES())
 	{
 		Rijndael_Dec_ProcessAndXorBlock_ARMV8(inBlock, xorBlock, outBlock, m_key.begin(), m_rounds);
