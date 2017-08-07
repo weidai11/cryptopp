@@ -14,6 +14,9 @@
 # ifndef HWCAP_ASIMD
 # define HWCAP_ASIMD (1 << 1)
 # endif
+# ifndef HWCAP_ARM_NEON
+# define HWCAP_ARM_NEON 4096
+# endif
 #endif
 
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
@@ -72,6 +75,9 @@ bool CPU_TryNEON_ARM()
 # else
 #   if defined(__linux__) && (defined(__aarch32__) || defined(__aarch64__))
 	if (getauxval(AT_HWCAP) & HWCAP_ASIMD)
+		return true;
+#   elif defined(__linux__) && defined(__arm__)
+	if (getauxval(AT_HWCAP) & HWCAP_ARM_NEON)
 		return true;
 #   endif
 

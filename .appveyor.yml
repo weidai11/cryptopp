@@ -3,7 +3,7 @@
 #  I have to admit its a bit complex and I don't fully understand it.
 
 version: 1.0.{build}
-clone_depth: 1
+clone_depth: 3
 skip_tags: true
 
 configuration:
