@@ -5,6 +5,11 @@
 //    ARMv8a AES instructions. A separate source file is needed
 //    because additional CXXFLAGS are required to enable the
 //    appropriate instructions sets in some build configurations.
+//
+//    ARMv8a AES code based on CriticalBlue code from Johannes Schneiders,
+//    Skip Hovsmith and Barry O'Rourke for the mbedTLS project. Stepping
+//    mbedTLS under a debugger was helped for us to determine problems
+//    with our subkey generation and scheduling.
 
 #include "pch.h"
 #include "config.h"
