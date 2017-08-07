@@ -315,7 +315,7 @@ inline size_t Rijndael_AdvancedProcessBlocks_AESNI(F1 func1, F4 func4,
 				xorBlocks += xorIncrement;
 			}
 
-			func4(block0, block1, block2, block3, subkeys, rounds);
+			func4(block0, block1, block2, block3, subkeys, static_cast<unsigned int>(rounds));
 
 			if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
 			{
@@ -352,7 +352,7 @@ inline size_t Rijndael_AdvancedProcessBlocks_AESNI(F1 func1, F4 func4,
 		if (flags & BlockTransformation::BT_InBlockIsCounter)
 			const_cast<byte *>(inBlocks)[15]++;
 
-		func1(block, subkeys, rounds);
+		func1(block, subkeys, static_cast<unsigned int>(rounds));
 
 		if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
 			block = _mm_xor_si128(block, _mm_loadu_si128((const __m128i *)(const void *)xorBlocks));
