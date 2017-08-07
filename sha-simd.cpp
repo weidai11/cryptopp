@@ -91,8 +91,11 @@ bool CPU_TrySHA1_ARMV8()
 	}
 	return result;
 # else
+#   if defined(__android__)
+    if (android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_SHA1)
+		return true;
     // https://sourceware.org/ml/libc-help/2017-08/msg00012.html
-#   if defined(__linux__) && defined(__aarch64__)
+#   elif defined(__linux__) && defined(__aarch64__)
 	if (getauxval(AT_HWCAP) & HWCAP_SHA1)
 		return true;
 #   elif defined(__linux__) && defined(__aarch32__)
@@ -158,11 +161,15 @@ bool CPU_TrySHA2_ARMV8()
 	}
 	return result;
 #else
-#   if defined(__linux__) && defined(__aarch64__)
+#   if defined(__android__)
+    if (android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_SHA2)
+		return true;
+    // https://sourceware.org/ml/libc-help/2017-08/msg00012.html
+#   elif defined(__linux__) && defined(__aarch64__)
 	if (getauxval(AT_HWCAP) & HWCAP_SHA2)
 		return true;
 #   elif defined(__linux__) && defined(__aarch32__)
-	if (getauxval(AT_HWCAP) & HWCAP_SHA2)
+	if (getauxval(AT_HWCAP2) & HWCAP2_SHA2)
 		return true;
 #   endif
 

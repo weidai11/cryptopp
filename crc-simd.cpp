@@ -81,8 +81,11 @@ bool CPU_TryCRC32_ARMV8()
     }
     return result;
 #else
+#   if defined(__android__)
+    if (android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_CRC32)
+		return true;
     // https://sourceware.org/ml/libc-help/2017-08/msg00012.html
-#   if defined(__linux__) && defined(__aarch64__)
+#   elif defined(__linux__) && defined(__aarch64__)
 	if (getauxval(AT_HWCAP) & HWCAP_CRC32)
 		return true;
 #   elif defined(__linux__) && defined(__aarch32__)
