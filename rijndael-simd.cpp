@@ -10,6 +10,10 @@
 #include "config.h"
 #include "misc.h"
 
+// TODO: Remove after debugging
+#include <stdio.h>
+#include <stdlib.h>
+
 // Clang and GCC hoops...
 #if !(defined(__ARM_FEATURE_CRYPTO) || defined(_MSC_VER))
 # undef CRYPTOPP_ARM_AES_AVAILABLE
@@ -122,6 +126,97 @@ bool CPU_TryAES_ARMV8()
 #endif  // ARM32 or ARM64
 
 #if (CRYPTOPP_ARM_AES_AVAILABLE)
+
+void PrintMessage(const byte *inBlock)
+{
+	printf("M: ");
+	for (unsigned int j=0; j<16; ++j)
+		printf("%02X", inBlock[j]);
+	printf("\n");
+}
+
+void PrintCipher(const byte *outBlock)
+{
+	printf("C: ");
+	for (unsigned int j=0; j<16; ++j)
+		printf("%02X", outBlock[j]);
+	printf("\n");
+}
+
+void PrintSubKeys(const word32 *keys, unsigned int rounds)
+{
+	const byte* k = (const byte*)keys;
+	for (unsigned int i=0; i<rounds+1; ++i)
+	{
+		printf("R%d: ", i);
+		for (unsigned int j=0; j<16; ++j)
+			printf("%02X", *(k+(i*16)+j));
+		printf("\n");
+	}
+}
+
+void Rijndael_Enc_ProcessAndXorBlock_ARMV8(const byte *inBlock, const byte *xorBlock, byte *outBlock,
+                                           const word32 *subKeys, unsigned int rounds)
+{
+	//PrintMessage(inBlock);
+	//PrintSubKeys(subKeys, rounds);
+
+	uint8x16_t data = vld1q_u8(inBlock);
+	const byte *keys = reinterpret_cast<const byte*>(subKeys);
+
+	unsigned int i;
+	for (i=0; i<rounds-1; ++i)
+	{
+		// AES single round encryption
+		data = vaeseq_u8(data, vld1q_u8(keys+i*16));
+		// AES mix columns
+		data = vaesmcq_u8(data);
+	}
+
+	// One round of encryption: AES, no Mix
+	data = vaeseq_u8(data, vld1q_u8(keys+i*16));
+	// Final Add (bitwise Xor)
+	data = veorq_u8(data, vld1q_u8(keys+(i+1)*16));
+
+	if (xorBlock)
+		vst1q_u8(outBlock, veorq_u8(data, vld1q_u8(xorBlock)));
+	else
+		vst1q_u8(outBlock, data);
+
+	//PrintCipher(outBlock);
+}
+
+void Rijndael_Dec_ProcessAndXorBlock_ARMV8(const byte *inBlock, const byte *xorBlock, byte *outBlock,
+                                           const word32 *subKeys, unsigned int rounds)
+{
+	//PrintSubKeys(subKeys, rounds);
+	//PrintSubKeys(subKeys, rounds);
+
+	uint8x16_t data = vld1q_u8(inBlock);
+	const byte *keys = reinterpret_cast<const byte*>(subKeys);
+
+	// AES single round decryption
+	data = vaesdq_u8(data, vld1q_u8(keys));
+
+	unsigned int i;
+	for (i=0; i<rounds-1; ++i)
+	{
+		// AES mix columns
+		data = vaesmcq_u8(data);
+		// AES single round decryption
+		data = vaesdq_u8(data, vld1q_u8(keys+i*16));
+	}
+
+	// Final Add (bitwise Xor)
+	data = veorq_u8(data, vld1q_u8(keys+i*16));
+
+	if (xorBlock)
+		vst1q_u8(outBlock, veorq_u8(data, vld1q_u8(xorBlock)));
+	else
+		vst1q_u8(outBlock, data);
+
+	//PrintCipher(outBlock);
+}
 #endif  // CRYPTOPP_ARM_AES_AVAILABLE
 
 #if (CRYPTOPP_AESNI_AVAILABLE)
@@ -200,7 +295,7 @@ static const word32 s_one[] = {0, 0, 0, 1<<24};
 
 template <typename F1, typename F4>
 inline size_t Rijndael_AdvancedProcessBlocks_AESNI(F1 func1, F4 func4,
-        MAYBE_CONST __m128i *subkeys, unsigned int rounds, const byte *inBlocks,
+        MAYBE_CONST __m128i *subkeys, size_t rounds, const byte *inBlocks,
         const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
 	size_t blockSize = 16;
@@ -310,20 +405,20 @@ inline size_t Rijndael_AdvancedProcessBlocks_AESNI(F1 func1, F4 func4,
 	return length;
 }
 
-size_t Rijndael_AdvancedProcessBlocks_Enc_AESNI(MAYBE_CONST word32 *subkeys, unsigned int rounds,
+size_t Rijndael_AdvancedProcessBlocks_Enc_AESNI(MAYBE_CONST word32 *subkeys, size_t rounds,
         const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
 	MAYBE_CONST __m128i* keys = reinterpret_cast<MAYBE_CONST __m128i*>(subkeys);
 	return Rijndael_AdvancedProcessBlocks_AESNI(AESNI_Enc_Block, AESNI_Enc_4_Blocks,
-		keys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+                keys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 
-size_t Rijndael_AdvancedProcessBlocks_Dec_AESNI(MAYBE_CONST word32 *subkeys, unsigned int rounds,
+size_t Rijndael_AdvancedProcessBlocks_Dec_AESNI(MAYBE_CONST word32 *subkeys, size_t rounds,
         const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
 	MAYBE_CONST __m128i* keys = reinterpret_cast<MAYBE_CONST __m128i*>(subkeys);
 	return Rijndael_AdvancedProcessBlocks_AESNI(AESNI_Dec_Block, AESNI_Dec_4_Blocks,
-		keys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+                keys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 
 void Rijndael_UncheckedSetKey_SSE4_AESNI(const byte *userKey, size_t keyLen, word32 *rk)

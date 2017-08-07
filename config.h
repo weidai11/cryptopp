@@ -578,9 +578,6 @@ NAMESPACE_END
 # endif
 #endif
 
-// TODO...
-#undef CRYPTOPP_ARM_AES_AVAILABLE
-
 #endif  // ARM32, ARM64
 
 // ***************** Miscellaneous ********************
