@@ -429,7 +429,7 @@ void Kalyna::Base::SetKey_22(const word64 key[2])
     GL128(t1, t2, key);
     G0128(t2, ks);
 
-    word64 constant = 0x0001000100010001;
+    word64 constant = W64LIT(0x0001000100010001);
 
     // round 0
     memcpy(k, key, 16);
@@ -506,7 +506,7 @@ void Kalyna::Base::SetKey_24(const word64 key[4])
     GL128(t1, t2, ka);
     G0128(t2, ks);
 
-    word64 constant = 0x0001000100010001;
+    word64 constant = W64LIT(0x0001000100010001);
 
     // round 0
     memcpy(k, key, 256 / 8);
@@ -605,7 +605,7 @@ void Kalyna::Base::SetKey_44(const word64 key[4])
     GL256(t1, t2, key);
     G0256(t2, ks);
 
-    word64 constant = 0x0001000100010001;
+    word64 constant = W64LIT(0x0001000100010001);
 
     // round 0
     memcpy(k, key, 32);
@@ -710,7 +710,7 @@ void Kalyna::Base::SetKey_48(const word64 key[8])
     GL256(t1, t2, ka);
     G0256(t2, ks);
 
-    word64 constant = 0x0001000100010001;
+    word64 constant = W64LIT(0x0001000100010001);
 
     // round 0
     memcpy(k, key, 512 / 8);
@@ -830,7 +830,7 @@ void Kalyna::Base::SetKey_88(const word64 key[8])
     GL512(t1, t2, key);
     G0512(t2, ks);
 
-    word64 constant = 0x0001000100010001;
+    word64 constant = W64LIT(0x0001000100010001);
 
     // round 0
     memcpy(k, key, 512 / 8);
