@@ -523,6 +523,7 @@ void Benchmark2(double t, double hertz)
 		BenchMarkByName<MessageAuthenticationCode>("VMAC(AES)-64");
 		BenchMarkByName<MessageAuthenticationCode>("VMAC(AES)-128");
 		BenchMarkByName<MessageAuthenticationCode>("HMAC(SHA-1)");
+		BenchMarkByName<MessageAuthenticationCode>("HMAC(SHA-256)");
 		BenchMarkByName<MessageAuthenticationCode>("Two-Track-MAC");
 		BenchMarkByName<MessageAuthenticationCode>("CMAC(AES)");
 		BenchMarkByName<MessageAuthenticationCode>("DMAC(AES)");

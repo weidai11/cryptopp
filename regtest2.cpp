@@ -71,8 +71,8 @@ USING_NAMESPACE(CryptoPP)
 void RegisterFactories2()
 {
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, HMAC<Weak::MD5> >();
-	RegisterDefaultFactoryFor<MessageAuthenticationCode, HMAC<SHA1> >();
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, HMAC<RIPEMD160> >();
+	RegisterDefaultFactoryFor<MessageAuthenticationCode, HMAC<SHA1> >();
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, HMAC<SHA224> >();
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, HMAC<SHA256> >();
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, HMAC<SHA384> >();
