@@ -1620,68 +1620,32 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 		FAILED=0
 		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
 
-		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha1c)
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c aese)
 		if [[ ("$COUNT" -eq "0") ]]; then
 			FAILED=1
-			echo "ERROR: failed to generate sha1c instruction" | tee -a "$TEST_RESULTS"
+			echo "ERROR: failed to generate aese instruction" | tee -a "$TEST_RESULTS"
 		fi
 
-		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha1m)
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c aesmc)
 		if [[ ("$COUNT" -eq "0") ]]; then
 			FAILED=1
-			echo "ERROR: failed to generate sha1m instruction" | tee -a "$TEST_RESULTS"
+			echo "ERROR: failed to generate aesmc instruction" | tee -a "$TEST_RESULTS"
 		fi
 
-		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha1p)
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c aesd)
 		if [[ ("$COUNT" -eq "0") ]]; then
 			FAILED=1
-			echo "ERROR: failed to generate sha1p instruction" | tee -a "$TEST_RESULTS"
+			echo "ERROR: failed to generate aesd instruction" | tee -a "$TEST_RESULTS"
 		fi
 
-		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha1h)
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c aesimc)
 		if [[ ("$COUNT" -eq "0") ]]; then
 			FAILED=1
-			echo "ERROR: failed to generate sha1h instruction" | tee -a "$TEST_RESULTS"
-		fi
-
-		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha1su0)
-		if [[ ("$COUNT" -eq "0") ]]; then
-			FAILED=1
-			echo "ERROR: failed to generate sha1su0 instruction" | tee -a "$TEST_RESULTS"
-		fi
-
-		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha1su1)
-		if [[ ("$COUNT" -eq "0") ]]; then
-			FAILED=1
-			echo "ERROR: failed to generate sha1su1 instruction" | tee -a "$TEST_RESULTS"
-		fi
-
-		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -v sha256h2 | "$GREP" -i -c sha256h)
-		if [[ ("$COUNT" -eq "0") ]]; then
-			FAILED=1
-			echo "ERROR: failed to generate sha256h instruction" | tee -a "$TEST_RESULTS"
-		fi
-
-		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha256h2)
-		if [[ ("$COUNT" -eq "0") ]]; then
-			FAILED=1
-			echo "ERROR: failed to generate sha256h2 instruction" | tee -a "$TEST_RESULTS"
-		fi
-
-		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha256su0)
-		if [[ ("$COUNT" -eq "0") ]]; then
-			FAILED=1
-			echo "ERROR: failed to generate sha256su0 instruction" | tee -a "$TEST_RESULTS"
-		fi
-
-		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha256su1)
-		if [[ ("$COUNT" -eq "0") ]]; then
-			FAILED=1
-			echo "ERROR: failed to generate sha256su1 instruction" | tee -a "$TEST_RESULTS"
+			echo "ERROR: failed to generate aesimc instruction" | tee -a "$TEST_RESULTS"
 		fi
 
 		if [[ ("$FAILED" -eq "0") ]]; then
-			echo "Verified sha1c, sha1m, sha1p, sha1su0, sha1su1, sha256h, sha256h2, sha256su0, sha256su1 machine instructions" | tee -a "$TEST_RESULTS"
+			echo "Verified aese, aesd, aesmc, aesimc machine instructions" | tee -a "$TEST_RESULTS"
 		fi
 	fi
 
