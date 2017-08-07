@@ -31,12 +31,12 @@
 #endif
 
 #if (CRYPTOPP_SSE41_AVAILABLE)
-// Hack... Apple conflates SSE4.1 and SSE4.2. Without __SSE4_2__,
-//   Apple fails the compile with "SSE4.2 instruction set not enabled"
-//   when "nmmintrin.h" is included. Its non-trivial for us to
-//   automatically add -msse4.2 for Apple Clang. We also want to
-//   avoid problems on low-end Atoms which have AES but lack SSE4.2.
-# if (CRYPTOPP_APPLE_CLANG_VERSION)
+// Hack... Clang conflates SSE4.1 and SSE4.2. Without __SSE4_2__,
+//   early Apple and LLVM compilers fail with "SSE4.2 instruction
+//   set not enabled" when "nmmintrin.h" is included. Its non-trivial
+//   for us to automatically add -msse4.2 for Apple Clang. We also want
+//   to avoid problems on low-end Atoms which have AES but lack SSE4.2.
+# if defined(__clang__)
 #  define __SSE4_2__ 1
 # endif
 # include "nmmintrin.h"
