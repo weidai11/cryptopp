@@ -91,7 +91,7 @@ bool CPU_TrySHA1_ARMV8()
 	}
 	return result;
 # else
-#   if defined(__ANDROID__)
+#   if defined(__ANDROID__) && (defined(__aarch64__) || defined(__aarch32__))
     if (android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_SHA1)
 		return true;
     // https://sourceware.org/ml/libc-help/2017-08/msg00012.html
@@ -161,7 +161,7 @@ bool CPU_TrySHA2_ARMV8()
 	}
 	return result;
 #else
-#   if defined(__ANDROID__)
+#   if defined(__ANDROID__) && (defined(__aarch64__) || defined(__aarch32__))
     if (android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_SHA2)
 		return true;
     // https://sourceware.org/ml/libc-help/2017-08/msg00012.html

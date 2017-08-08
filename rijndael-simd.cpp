@@ -104,7 +104,7 @@ bool CPU_TryAES_ARMV8()
 	}
 	return result;
 # else
-#   if defined(__ANDROID__)
+#   if defined(__ANDROID__) && (defined(__aarch64__) || defined(__aarch32__))
     if (android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_AES)
 		return true;
     // https://sourceware.org/ml/libc-help/2017-08/msg00012.html
@@ -180,7 +180,6 @@ void Rijndael_Enc_ProcessAndXorBlock_ARMV8(const byte *inBlock, const byte *xorB
 	data = vaeseq_u8(data, vld1q_u8(keys+128));
 	data = vaesmcq_u8(data);
 
-	// Unroll the loop, profit 0.3 cpb.
 	unsigned int i=9;
 	for ( ; i<rounds-1; ++i)
 	{
