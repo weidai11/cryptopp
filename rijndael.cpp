@@ -218,9 +218,9 @@ void Rijndael::Base::FillDecTable()
 extern void Rijndael_UncheckedSetKey_SSE4_AESNI(const byte *userKey, size_t keyLen, word32* rk);
 extern void Rijndael_UncheckedSetKeyRev_SSE4_AESNI(word32 *key, unsigned int rounds);
 
-extern size_t Rijndael_AdvancedProcessBlocks_Enc_AESNI(const word32 *subkeys, size_t rounds,
+extern size_t Rijndael_Enc_AdvancedProcessBlocks_AESNI(const word32 *subkeys, size_t rounds,
 		const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
-extern size_t Rijndael_AdvancedProcessBlocks_Dec_AESNI(const word32 *subkeys, size_t rounds,
+extern size_t Rijndael_Dec_AdvancedProcessBlocks_AESNI(const word32 *subkeys, size_t rounds,
 		const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
 #endif
 
@@ -1069,7 +1069,7 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 {
 #if CRYPTOPP_AESNI_AVAILABLE
 	if (HasAESNI())
-		return Rijndael_AdvancedProcessBlocks_Enc_AESNI(m_key.begin(), m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+		return Rijndael_Enc_AdvancedProcessBlocks_AESNI(m_key.begin(), m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 #endif
 
 #if (CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
@@ -1131,7 +1131,7 @@ size_t Rijndael::Dec::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 {
 #if CRYPTOPP_AESNI_AVAILABLE
 	if (HasAESNI())
-		return Rijndael_AdvancedProcessBlocks_Dec_AESNI(m_key.begin(), m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+		return Rijndael_Dec_AdvancedProcessBlocks_AESNI(m_key.begin(), m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 #endif
 
 	return BlockTransformation::AdvancedProcessBlocks(inBlocks, xorBlocks, outBlocks, length, flags);

@@ -189,7 +189,7 @@ void Rijndael_Enc_ProcessAndXorBlock_ARMV8(const byte *inBlock, const byte *xorB
 		data = vaesmcq_u8(data);
 	}
 
-	// One round of encryption: AES, no Mix
+	// AES single round encryption
 	data = vaeseq_u8(data, vld1q_u8(keys+i*16));
 
 	// Final Add (bitwise Xor)
@@ -435,7 +435,7 @@ inline size_t Rijndael_AdvancedProcessBlocks_AESNI(F1 func1, F4 func4,
 	return length;
 }
 
-size_t Rijndael_AdvancedProcessBlocks_Enc_AESNI(MAYBE_CONST word32 *subkeys, size_t rounds,
+size_t Rijndael_Enc_AdvancedProcessBlocks_AESNI(MAYBE_CONST word32 *subkeys, size_t rounds,
         const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
 	MAYBE_CONST __m128i* keys = reinterpret_cast<MAYBE_CONST __m128i*>(subkeys);
@@ -443,7 +443,7 @@ size_t Rijndael_AdvancedProcessBlocks_Enc_AESNI(MAYBE_CONST word32 *subkeys, siz
                 keys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 
-size_t Rijndael_AdvancedProcessBlocks_Dec_AESNI(MAYBE_CONST word32 *subkeys, size_t rounds,
+size_t Rijndael_Dec_AdvancedProcessBlocks_AESNI(MAYBE_CONST word32 *subkeys, size_t rounds,
         const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
 	MAYBE_CONST __m128i* keys = reinterpret_cast<MAYBE_CONST __m128i*>(subkeys);
