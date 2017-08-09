@@ -325,13 +325,14 @@ static const word32 s_one[] = {0, 0, 0, 1<<24};
 
 template <typename F1, typename F4>
 inline size_t Rijndael_AdvancedProcessBlocks_AESNI(F1 func1, F4 func4,
-        MAYBE_CONST __m128i *subkeys, size_t rounds, const byte *inBlocks,
+        MAYBE_CONST word32 *subKeys, size_t rounds, const byte *inBlocks,
         const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
 	size_t blockSize = 16;
 	size_t inIncrement = (flags & (BlockTransformation::BT_InBlockIsCounter|BlockTransformation::BT_DontIncrementInOutPointers)) ? 0 : blockSize;
 	size_t xorIncrement = xorBlocks ? blockSize : 0;
 	size_t outIncrement = (flags & BlockTransformation::BT_DontIncrementInOutPointers) ? 0 : blockSize;
+	MAYBE_CONST __m128i *subkeys = reinterpret_cast<MAYBE_CONST __m128i*>(subKeys);
 
 	if (flags & BlockTransformation::BT_ReverseDirection)
 	{
@@ -440,7 +441,7 @@ size_t Rijndael_Enc_AdvancedProcessBlocks_AESNI(MAYBE_CONST word32 *subkeys, siz
 {
 	MAYBE_CONST __m128i* keys = reinterpret_cast<MAYBE_CONST __m128i*>(subkeys);
 	return Rijndael_AdvancedProcessBlocks_AESNI(AESNI_Enc_Block, AESNI_Enc_4_Blocks,
-                keys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+                subkeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 
 size_t Rijndael_Dec_AdvancedProcessBlocks_AESNI(MAYBE_CONST word32 *subkeys, size_t rounds,
@@ -448,7 +449,7 @@ size_t Rijndael_Dec_AdvancedProcessBlocks_AESNI(MAYBE_CONST word32 *subkeys, siz
 {
 	MAYBE_CONST __m128i* keys = reinterpret_cast<MAYBE_CONST __m128i*>(subkeys);
 	return Rijndael_AdvancedProcessBlocks_AESNI(AESNI_Dec_Block, AESNI_Dec_4_Blocks,
-                keys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+                subkeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 
 void Rijndael_UncheckedSetKey_SSE4_AESNI(const byte *userKey, size_t keyLen, word32 *rk)
