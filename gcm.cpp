@@ -28,7 +28,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#if (CRYPTOPP_CLMUL_AVAILABLE)
+#if (CRYPTOPP_SSE2_AVAILABLE)
 # include "emmintrin.h"
 #endif
 

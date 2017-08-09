@@ -11,6 +11,10 @@
 #include "misc.h"
 #include "blake2.h"
 
+#if (CRYPTOPP_SSE2_AVAILABLE)
+# include "emmintrin.h"
+#endif
+
 #if (CRYPTOPP_SSE42_AVAILABLE)
 # include "nmmintrin.h"
 #endif
