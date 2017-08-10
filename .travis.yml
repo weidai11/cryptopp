@@ -42,9 +42,9 @@ matrix:
 
 script:
   - if [[ "$BUILD_MODE" == "ios" ]]; then
-        cp TestScritps/setenv-ios.sh .
-        . ./setenv-ios.sh
-        make -f GNUmakefile
+        cp TestScritps/setenv-ios.sh . ;
+        . ./setenv-ios.sh ;
+        make -f GNUmakefile ;
     else
         make "$BUILD_MODE" && ./cryptest.exe v && ./cryptest.exe tv all
     if
