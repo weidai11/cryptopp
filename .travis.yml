@@ -22,11 +22,11 @@ env:
     - BUILD_JOBS=2
 
   matrix:
-    - BUILD_MODE="all"
-    - BUILD_MODE="no-asm"
-    - BUILD_MODE="asan"
-    - BUILD_MODE="ubsan"
-    - BUILD_MODE="codecov"
+#    - BUILD_MODE="all"
+#    - BUILD_MODE="no-asm"
+#    - BUILD_MODE="asan"
+#    - BUILD_MODE="ubsan"
+    - BUILD_MODE="ios"
 
 matrix:
 
@@ -34,9 +34,6 @@ matrix:
     # Skip GCC on OS X entirely
     - os: osx
       compiler: gcc
-    # CodeCov crashes under Clang
-    - compiler: clang
-      env: BUILD_MODE="codecov"
 
   allow_failures:
     # Ignore problems with old toolchains
@@ -44,7 +41,12 @@ matrix:
     - env: BUILD_MODE="asan"
 
 script:
-  - make "$BUILD_MODE" && ./cryptest.exe v && ./cryptest.exe tv all
+  - if [[ "$BUILD_MODE" == "ios" ]]; then
+        . ./setenv-ios.sh
+        make -f GNUmakefile
+    else
+        make "$BUILD_MODE" && ./cryptest.exe v && ./cryptest.exe tv all
+    if
 
 after_success:
   - if [[ ( ("$BUILD_MODE" = "coverage") && ("$CC" = "gcc") ) ]]; then CODECOV_TOKEN="5c7bc59c-e95f-4594-82c3-33e7a1942592" bash <(curl -s https://codecov.io/bash); fi;
