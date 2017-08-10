@@ -41,12 +41,15 @@ matrix:
     - env: BUILD_MODE="asan"
 
 script:
-  - if [[ "$BUILD_MODE" == "ios" ]]; then
+  - |
+    if [[ "$BUILD_MODE" == "ios" ]]; then
         cp TestScritps/setenv-ios.sh .
         . ./setenv-ios.sh
         make -f GNUmakefile
     else
-        make "$BUILD_MODE" && ./cryptest.exe v && ./cryptest.exe tv all
+        make "$BUILD_MODE"
+        ./cryptest.exe v
+        ./cryptest.exe tv all
     fi
 
 # whitelist branches to avoid testing feature branches twice
