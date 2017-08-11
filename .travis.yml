@@ -26,7 +26,8 @@ env:
     - BUILD_MODE="no-asm"
     - BUILD_MODE="asan"
     - BUILD_MODE="ubsan"
-    - BUILD_MODE="codecov"
+    - BUILD_MODE="ios-arm"
+    - BUILD_MODE="ios-arm64"
 
 matrix:
 
@@ -34,9 +35,19 @@ matrix:
     # Skip GCC on OS X entirely
     - os: osx
       compiler: gcc
-    # CodeCov crashes under Clang
-    - compiler: clang
-      env: BUILD_MODE="codecov"
+    # Skip UBsan due to GCC 4.8
+    - os: linux
+      compiler: gcc
+      env: BUILD_MODE="ubsan"
+    # Skip UBsan due to Clang 3.4
+    - os: osx
+      compiler: clang
+      env: BUILD_MODE="ubsan"
+    # No iOS builds on Linux
+    - os: linux
+      env: BUILD_MODE="ios-arm"
+    - os: linux
+      env: BUILD_MODE="ios-arm64"
 
   allow_failures:
     # Ignore problems with old toolchains
@@ -44,10 +55,20 @@ matrix:
     - env: BUILD_MODE="asan"
 
 script:
-  - make "$BUILD_MODE" && ./cryptest.exe v && ./cryptest.exe tv all
-
-after_success:
-  - if [[ ( ("$BUILD_MODE" = "coverage") && ("$CC" = "gcc") ) ]]; then CODECOV_TOKEN="5c7bc59c-e95f-4594-82c3-33e7a1942592" bash <(curl -s https://codecov.io/bash); fi;
+  - |
+    if [[ "$BUILD_MODE" == "ios-arm" ]]; then
+        cp ./TestScripts/setenv-ios.sh .
+        . ./setenv-ios.sh arm
+        make -f GNUmakefile-cross
+    elif [[ "$BUILD_MODE" == "ios-arm64" ]]; then
+        cp ./TestScripts/setenv-ios.sh .
+        . ./setenv-ios.sh arm64
+        make -f GNUmakefile-cross
+    else
+        make "$BUILD_MODE"
+        ./cryptest.exe v
+        ./cryptest.exe tv all
+    fi
 
 # whitelist branches to avoid testing feature branches twice
 branches:
@@ -55,7 +76,7 @@ branches:
     - master
 
 addons:
-  sonarqube: true
+  sonarcloud: true
 
   coverity_scan:
     project:
