@@ -333,7 +333,7 @@ unsigned int GCM_Base::OptimalDataAlignment() const
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)
         HasSSE2() ? 16 :
 #elif CRYPTOPP_ARM_NEON_AVAILABLE
-        HasNEON() ? 16 :
+        HasNEON() ? 4 :
 #endif
         GetBlockCipher().OptimalDataAlignment();
 }

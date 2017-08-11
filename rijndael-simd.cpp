@@ -52,6 +52,10 @@
 # include <setjmp.h>
 #endif
 
+#if defined(__APPLE__) && defined(__aarch64__)
+# include <sys/utsname.h>
+#endif
+
 #ifndef EXCEPTION_EXECUTE_HANDLER
 # define EXCEPTION_EXECUTE_HANDLER 1
 #endif
@@ -110,6 +114,27 @@ bool CPU_TryAES_ARMV8()
 #   elif defined(__linux__) && defined(__aarch32__)
 	if (getauxval(AT_HWCAP2) & HWCAP2_AES)
 		return true;
+#   elif defined(__APPLE__)
+    {
+		// https://stackoverflow.com/a/11197770/608639
+		// https://gist.github.com/erkanyildiz/390a480f27e86f8cd6ba
+		struct utsname systemInfo;
+		systemInfo.machine[0] = '\0';
+		uname(&systemInfo);
+		const char* machine = systemInfo.machine;
+
+		if (0==strcmp(machine, "iPhone6,1") || 0==strcmp(machine, "iPhone6,2") ||
+			0==strcmp(machine, "iPhone7,1") || 0==strcmp(machine, "iPhone7,2") ||
+			0==strcmp(machine, "iPad4,1") || 0==strcmp(machine, "iPad4,2")  ||
+			0==strcmp(machine, "iPad4,3") || 0==strcmp(machine, "iPad4,4")  ||
+			0==strcmp(machine, "iPad4,5") || 0==strcmp(machine, "iPad4,6")  ||
+			0==strcmp(machine, "iPad4,7") || 0==strcmp(machine, "iPad4,8")  ||
+			0==strcmp(machine, "iPad4,9") ||
+			0==strcmp(machine, "iPad5,3") || 0==strcmp(machine, "iPad5,4") )
+			{
+				return true;
+			}
+	}
 #   endif
 
 	// longjmp and clobber warnings. Volatile is required.
