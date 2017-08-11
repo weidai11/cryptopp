@@ -26,7 +26,8 @@ env:
 #    - BUILD_MODE="no-asm"
 #    - BUILD_MODE="asan"
 #    - BUILD_MODE="ubsan"
-    - BUILD_MODE="ios"
+    - BUILD_MODE="ios-arm"
+    - BUILD_MODE="ios-arm64"
 
 matrix:
 
@@ -44,9 +45,13 @@ matrix:
 
 script:
   - |
-    if [[ "$BUILD_MODE" == "ios" ]]; then
+    if [[ "$BUILD_MODE" == "ios-arm" ]]; then
         cp ./TestScripts/setenv-ios.sh .
-        . ./setenv-ios.sh
+        . ./setenv-ios.sh arm
+        make -f GNUmakefile-cross
+    elif [[ "$BUILD_MODE" == "ios-arm64" ]]; then
+        cp ./TestScripts/setenv-ios.sh .
+        . ./setenv-ios.sh arm64
         make -f GNUmakefile-cross
     elif [[ "$BUILD_MODE" == "ios" ]]; then
         # TODO: How do we do the iOS test on just OS X once?
