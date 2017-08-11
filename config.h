@@ -574,9 +574,6 @@ NAMESPACE_END
 #  define CRYPTOPP_ARM_AES_AVAILABLE 1
 #  define CRYPTOPP_ARM_SHA_AVAILABLE 1
 #  define CRYPTOPP_ARM_CRYPTO_AVAILABLE 1
-#  if !defined(__apple_build_version__)
-#   define CRYPTOPP_ARM_PMULL_AVAILABLE 1
-#  endif
 # endif
 #endif
 
