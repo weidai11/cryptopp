@@ -50,6 +50,8 @@ script:
         make -f GNUmakefile-cross
     elif [[ "$BUILD_MODE" == "ios" ]]; then
         # TODO: How do we do the iOS test on just OS X once?
+        #  Until we figure it out, use a Bash NOP
+        :
     else
         make "$BUILD_MODE"
         ./cryptest.exe v
