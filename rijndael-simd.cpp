@@ -31,13 +31,11 @@
 #endif
 
 #if (CRYPTOPP_SSE41_AVAILABLE)
-// Hack... GCC 4.8, LLVM Clang 3.5 and Apple Clang 6.0 conflates SSE4.1
-//   and SSE4.2. Without __SSE4_2__, early compilers fail with "SSE4.2
-//   instruction set not enabled" when "nmmintrin.h" is included.
-# if defined(__clang__) || defined(__GNUC__)
-#  define __SSE4_2__ 1
-# endif
-# include "nmmintrin.h"
+// Hack... We are supposed to use <nmmintrin.h>. GCC 4.8, LLVM Clang 3.5
+//   and Apple Clang 6.0 conflates SSE4.1 and SSE4.2. If we use <nmmintrin.h>
+//   then compile fails with "SSE4.2 instruction set not enabled". Also see
+//   https://gcc.gnu.org/ml/gcc-help/2017-08/msg00015.html.
+# include "smmintrin.h"
 #endif  // CRYPTOPP_SSE41_AVAILABLE
 
 #if (CRYPTOPP_AESNI_AVAILABLE)
