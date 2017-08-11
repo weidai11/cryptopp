@@ -22,10 +22,10 @@ env:
     - BUILD_JOBS=2
 
   matrix:
-#    - BUILD_MODE="all"
-#    - BUILD_MODE="no-asm"
-#    - BUILD_MODE="asan"
-#    - BUILD_MODE="ubsan"
+    - BUILD_MODE="all"
+    - BUILD_MODE="no-asm"
+    - BUILD_MODE="asan"
+    - BUILD_MODE="ubsan"
     - BUILD_MODE="ios-arm"
     - BUILD_MODE="ios-arm64"
 
@@ -35,6 +35,15 @@ matrix:
     # Skip GCC on OS X entirely
     - os: osx
       compiler: gcc
+    # Skip UBsan due to GCC 4.8
+    - os: linux
+      compiler: gcc
+      env: BUILD_MODE="ubsan"
+    # Skip UBsan due to Clang 3.4
+    - os: osx
+      compiler: clang
+      env: BUILD_MODE="ubsan"
+    # No iOS builds on Linux
     - os: linux
       env: BUILD_MODE="ios-arm"
     - os: linux
@@ -55,10 +64,6 @@ script:
         cp ./TestScripts/setenv-ios.sh .
         . ./setenv-ios.sh arm64
         make -f GNUmakefile-cross
-    elif [[ "$BUILD_MODE" == "ios" ]]; then
-        # TODO: How do we do the iOS test on just OS X once?
-        #  Until we figure it out, use a Bash NOP
-        :
     else
         make "$BUILD_MODE"
         ./cryptest.exe v
