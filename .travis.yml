@@ -36,7 +36,9 @@ matrix:
     - os: osx
       compiler: gcc
     - os: linux
-      env: BUILD_MODE="ios"
+      env: BUILD_MODE="ios-arm"
+    - os: linux
+      env: BUILD_MODE="ios-arm64"
 
   allow_failures:
     # Ignore problems with old toolchains
