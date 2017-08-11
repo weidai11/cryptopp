@@ -80,16 +80,16 @@ template <class BC, class H, class Info>
 DataEncryptor<BC,H,Info>::DataEncryptor(const char *passphrase, BufferedTransformation *attachment)
 	: ProxyFilter(NULLPTR, 0, 0, attachment), m_passphrase((const byte *)passphrase, strlen(passphrase))
 {
-	CRYPTOPP_COMPILE_ASSERT(SALTLENGTH <= DIGESTSIZE);
-	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE <= DIGESTSIZE);
+	CRYPTOPP_COMPILE_ASSERT((int)SALTLENGTH <= DIGESTSIZE);
+	CRYPTOPP_COMPILE_ASSERT((int)BLOCKSIZE <= (int)DIGESTSIZE);
 }
 
 template <class BC, class H, class Info>
 DataEncryptor<BC,H,Info>::DataEncryptor(const byte *passphrase, size_t passphraseLength, BufferedTransformation *attachment)
 	: ProxyFilter(NULLPTR, 0, 0, attachment), m_passphrase(passphrase, passphraseLength)
 {
-	CRYPTOPP_COMPILE_ASSERT(SALTLENGTH <= DIGESTSIZE);
-	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE <= DIGESTSIZE);
+	CRYPTOPP_COMPILE_ASSERT((int)SALTLENGTH <= (int)DIGESTSIZE);
+	CRYPTOPP_COMPILE_ASSERT((int)BLOCKSIZE <= (int)DIGESTSIZE);
 }
 
 template <class BC, class H, class Info>
@@ -140,8 +140,8 @@ DataDecryptor<BC,H,Info>::DataDecryptor(const char *p, BufferedTransformation *a
 	, m_passphrase((const byte *)p, strlen(p))
 	, m_throwException(throwException)
 {
-	CRYPTOPP_COMPILE_ASSERT(SALTLENGTH <= DIGESTSIZE);
-	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE <= DIGESTSIZE);
+	CRYPTOPP_COMPILE_ASSERT((int)SALTLENGTH <= (int)DIGESTSIZE);
+	CRYPTOPP_COMPILE_ASSERT((int)BLOCKSIZE <= (int)DIGESTSIZE);
 }
 
 template <class BC, class H, class Info>
@@ -151,8 +151,8 @@ DataDecryptor<BC,H,Info>::DataDecryptor(const byte *passphrase, size_t passphras
 	, m_passphrase(passphrase, passphraseLength)
 	, m_throwException(throwException)
 {
-	CRYPTOPP_COMPILE_ASSERT(SALTLENGTH <= DIGESTSIZE);
-	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE <= DIGESTSIZE);
+	CRYPTOPP_COMPILE_ASSERT((int)SALTLENGTH <= (int)DIGESTSIZE);
+	CRYPTOPP_COMPILE_ASSERT((int)BLOCKSIZE <= (int)DIGESTSIZE);
 }
 
 template <class BC, class H, class Info>
