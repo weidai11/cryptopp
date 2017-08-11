@@ -546,7 +546,7 @@ NAMESPACE_END
 // LLVM Clang requires 3.5. Apple Clang is unknown at the moment.
 // Microsoft plans to support ARM-64, but its not clear how to detect it.
 // TODO: Add MSC_VER and ARM-64 platform define when available
-#if !defined(CRYPTOPP_ARM_CRC32_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
+#if !defined(CRYPTOPP_ARM_CRC32_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM) && !defined(__apple_build_version__)
 # if defined(__ARM_FEATURE_CRC32) || (CRYPTOPP_MSC_VERSION >= 1910) || \
 	defined(__aarch32__) || defined(__aarch64__)
 #  define CRYPTOPP_ARM_CRC32_AVAILABLE 1
