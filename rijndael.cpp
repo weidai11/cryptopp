@@ -81,6 +81,13 @@ NAMESPACE_BEGIN(CryptoPP)
 # define CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS 1
 #endif
 
+#if CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
+static void Rijndael_Enc_ProcessAndXorBlock_ARMV8(const byte *inBlock, const byte *xorBlock, byte *outBlock,
+        const word32 *subKeys, unsigned int rounds);
+static void Rijndael_Dec_ProcessAndXorBlock_ARMV8(const byte *inBlock, const byte *xorBlock, byte *outBlock,
+        const word32 *subKeys, unsigned int rounds);
+#endif
+
 // Hack for SunCC, http://github.com/weidai11/cryptopp/issues/224
 #if (__SUNPRO_CC >= 0x5130)
 # define MAYBE_CONST
@@ -383,6 +390,10 @@ void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keylen, c
 	if (HasAESNI())
 		ConditionalByteReverse(BIG_ENDIAN_ORDER, rk+4, rk+4, (m_rounds-1)*16);
 #endif
+#if CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
+	if (HasAES())
+		ConditionalByteReverse(BIG_ENDIAN_ORDER, rk+4, rk+4, (m_rounds-1)*16);
+#endif
 }
 
 void Rijndael::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
@@ -395,6 +406,13 @@ void Rijndael::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 #endif
 	{
 		return (void)Rijndael::Enc::AdvancedProcessBlocks(inBlock, xorBlock, outBlock, 16, 0);
+	}
+#endif
+#if CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
+	if (HasAES())
+	{
+		Rijndael_Enc_ProcessAndXorBlock_ARMV8(inBlock, xorBlock, outBlock, m_key.begin(), m_rounds);
+		return;
 	}
 #endif
 
@@ -472,6 +490,13 @@ void Rijndael::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 	if (HasAESNI())
 	{
 		Rijndael::Dec::AdvancedProcessBlocks(inBlock, xorBlock, outBlock, 16, 0);
+		return;
+	}
+#endif
+#if CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
+	if (HasAES())
+	{
+		Rijndael_Dec_ProcessAndXorBlock_ARMV8(inBlock, xorBlock, outBlock, m_key.begin(), m_rounds);
 		return;
 	}
 #endif
@@ -1355,6 +1380,103 @@ size_t Rijndael::Dec::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 	return BlockTransformation::AdvancedProcessBlocks(inBlocks, xorBlocks, outBlocks, length, flags);
 }
 #endif	// CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86
+
+#if CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
+
+void Rijndael_Enc_ProcessAndXorBlock_ARMV8(const byte *inBlock, const byte *xorBlock, byte *outBlock,
+                                           const word32 *subKeys, unsigned int rounds)
+{
+	uint8x16_t data = vld1q_u8(inBlock);
+	const byte *keys = reinterpret_cast<const byte*>(subKeys);
+
+	// Unroll the loop, profit 0.3 to 0.5 cpb.
+	data = vaeseq_u8(data, vld1q_u8(keys+0));
+	data = vaesmcq_u8(data);
+	data = vaeseq_u8(data, vld1q_u8(keys+16));
+	data = vaesmcq_u8(data);
+	data = vaeseq_u8(data, vld1q_u8(keys+32));
+	data = vaesmcq_u8(data);
+	data = vaeseq_u8(data, vld1q_u8(keys+48));
+	data = vaesmcq_u8(data);
+	data = vaeseq_u8(data, vld1q_u8(keys+64));
+	data = vaesmcq_u8(data);
+	data = vaeseq_u8(data, vld1q_u8(keys+80));
+	data = vaesmcq_u8(data);
+	data = vaeseq_u8(data, vld1q_u8(keys+96));
+	data = vaesmcq_u8(data);
+	data = vaeseq_u8(data, vld1q_u8(keys+112));
+	data = vaesmcq_u8(data);
+	data = vaeseq_u8(data, vld1q_u8(keys+128));
+	data = vaesmcq_u8(data);
+
+	unsigned int i=9;
+	for ( ; i<rounds-1; ++i)
+	{
+		// AES single round encryption
+		data = vaeseq_u8(data, vld1q_u8(keys+i*16));
+		// AES mix columns
+		data = vaesmcq_u8(data);
+	}
+
+	// AES single round encryption
+	data = vaeseq_u8(data, vld1q_u8(keys+i*16));
+
+	// Final Add (bitwise Xor)
+	data = veorq_u8(data, vld1q_u8(keys+(i+1)*16));
+
+	if (xorBlock)
+		vst1q_u8(outBlock, veorq_u8(data, vld1q_u8(xorBlock)));
+	else
+		vst1q_u8(outBlock, data);
+}
+
+void Rijndael_Dec_ProcessAndXorBlock_ARMV8(const byte *inBlock, const byte *xorBlock, byte *outBlock,
+                                           const word32 *subKeys, unsigned int rounds)
+{
+	uint8x16_t data = vld1q_u8(inBlock);
+	const byte *keys = reinterpret_cast<const byte*>(subKeys);
+
+	// Unroll the loop, profit 0.3 to 0.5 cpb.
+	data = vaesdq_u8(data, vld1q_u8(keys+0));
+	data = vaesimcq_u8(data);
+	data = vaesdq_u8(data, vld1q_u8(keys+16));
+	data = vaesimcq_u8(data);
+	data = vaesdq_u8(data, vld1q_u8(keys+32));
+	data = vaesimcq_u8(data);
+	data = vaesdq_u8(data, vld1q_u8(keys+48));
+	data = vaesimcq_u8(data);
+	data = vaesdq_u8(data, vld1q_u8(keys+64));
+	data = vaesimcq_u8(data);
+	data = vaesdq_u8(data, vld1q_u8(keys+80));
+	data = vaesimcq_u8(data);
+	data = vaesdq_u8(data, vld1q_u8(keys+96));
+	data = vaesimcq_u8(data);
+	data = vaesdq_u8(data, vld1q_u8(keys+112));
+	data = vaesimcq_u8(data);
+	data = vaesdq_u8(data, vld1q_u8(keys+128));
+	data = vaesimcq_u8(data);
+
+	unsigned int i=9;
+	for ( ; i<rounds-1; ++i)
+	{
+		// AES single round decryption
+		data = vaesdq_u8(data, vld1q_u8(keys+i*16));
+		// AES inverse mix columns
+		data = vaesimcq_u8(data);
+	}
+
+	// AES single round decryption
+	data = vaesdq_u8(data, vld1q_u8(keys+i*16));
+
+	// Final Add (bitwise Xor)
+	data = veorq_u8(data, vld1q_u8(keys+(i+1)*16));
+
+	if (xorBlock)
+		vst1q_u8(outBlock, veorq_u8(data, vld1q_u8(xorBlock)));
+	else
+		vst1q_u8(outBlock, data);
+}
+#endif // CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
 
 NAMESPACE_END
 
