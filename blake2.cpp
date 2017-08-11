@@ -22,17 +22,8 @@ NAMESPACE_BEGIN(CryptoPP)
 # undef CRYPTOPP_SSE42_AVAILABLE
 #endif
 
-// C/C++ implementation
-static void BLAKE2_Compress32_CXX(const byte* input, BLAKE2_State<word32, false>& state);
-static void BLAKE2_Compress64_CXX(const byte* input, BLAKE2_State<word64, true>& state);
-
-// Also see http://github.com/weidai11/cryptopp/issues/247 for SunCC 5.12
-#if CRYPTOPP_SSE2_AVAILABLE
-extern void BLAKE2_Compress32_SSE2(const byte* input, BLAKE2_State<word32, false>& state);
-# if (__SUNPRO_CC != 0x5120)
-extern void BLAKE2_Compress64_SSE2(const byte* input, BLAKE2_State<word64, true>& state);
-# endif
-#endif
+void BLAKE2_Compress32_CXX(const byte* input, BLAKE2_State<word32, false>& state);
+void BLAKE2_Compress64_CXX(const byte* input, BLAKE2_State<word64, true>& state);
 
 #if CRYPTOPP_SSE42_AVAILABLE
 extern void BLAKE2_Compress32_SSE4(const byte* input, BLAKE2_State<word32, false>& state);
@@ -101,13 +92,6 @@ pfnCompress64 InitializeCompress64Fn()
         return &BLAKE2_Compress64_SSE4;
     else
 #endif
-#if CRYPTOPP_SSE2_AVAILABLE
-# if (__SUNPRO_CC != 0x5120)
-    if (HasSSE2())
-        return &BLAKE2_Compress64_SSE2;
-    else
-# endif
-#endif
 #if CRYPTOPP_BOOL_ARM32 && CRYPTOPP_ARM_NEON_AVAILABLE
     if (HasNEON())
         return &BLAKE2_Compress64_NEON;
@@ -121,11 +105,6 @@ pfnCompress32 InitializeCompress32Fn()
 #if CRYPTOPP_SSE42_AVAILABLE
     if (HasSSE42())
         return &BLAKE2_Compress32_SSE4;
-    else
-#endif
-#if CRYPTOPP_SSE2_AVAILABLE
-    if (HasSSE2())
-        return &BLAKE2_Compress32_SSE2;
     else
 #endif
 #if CRYPTOPP_BOOL_ARM32 && CRYPTOPP_ARM_NEON_AVAILABLE
