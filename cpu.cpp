@@ -219,90 +219,88 @@ static inline bool IsVIA(const word32 output[4])
 void DetectX86Features()
 {
 	// Coverity finding CID 171239...
-	word32 cpuid1[4]={0}, cpuid2[4]={0}, cpuid3[4]={0};
-	if (!CpuId(0, cpuid1))
+	word32 cpuid0[4]={0}, cpuid1[4]={0}, cpuid2[4]={0};
+	if (!CpuId(0, cpuid0))
 		return;
-	if (!CpuId(1, cpuid2))
+	if (!CpuId(1, cpuid1))
 		return;
 
-	g_hasMMX = (cpuid2[3] & (1 << 23)) != 0;
-	if ((cpuid2[3] & (1 << 26)) != 0)
+	g_hasMMX = (cpuid1[3] & (1 << 23)) != 0;
+	if ((cpuid1[3] & (1 << 26)) != 0)
 		g_hasSSE2 = TrySSE2();
-	g_hasSSSE3 = g_hasSSE2 && (cpuid2[2] & (1<<9));
-	g_hasSSE4 = g_hasSSE2 && ((cpuid2[2] & (1<<19)) && (cpuid2[2] & (1<<20)));
-	g_hasAESNI = g_hasSSE2 && (cpuid2[2] & (1<<25));
-	g_hasCLMUL = g_hasSSE2 && (cpuid2[2] & (1<<1));
+	g_hasSSSE3 = g_hasSSE2 && (cpuid1[2] & (1<<9));
+	g_hasSSE4 = g_hasSSE2 && ((cpuid1[2] & (1<<19)) && (cpuid1[2] & (1<<20)));
+	g_hasAESNI = g_hasSSE2 && (cpuid1[2] & (1<<25));
+	g_hasCLMUL = g_hasSSE2 && (cpuid1[2] & (1<<1));
 
-	if ((cpuid2[3] & (1 << 25)) != 0)
+	if ((cpuid1[3] & (1 << 25)) != 0)
 		g_hasISSE = true;
 	else
 	{
-		CpuId(0x080000000, cpuid3);
-		if (cpuid3[0] >= 0x080000001)
+		CpuId(0x080000000, cpuid2);
+		if (cpuid2[0] >= 0x080000001)
 		{
-			CpuId(0x080000001, cpuid3);
-			g_hasISSE = (cpuid3[3] & (1 << 22)) != 0;
+			CpuId(0x080000001, cpuid2);
+			g_hasISSE = (cpuid2[3] & (1 << 22)) != 0;
 		}
 	}
 
-	if (IsIntel(cpuid1))
+	if (IsIntel(cpuid0))
 	{
-		static const unsigned int RDRAND_FLAG = (1 << 30);
-		static const unsigned int RDSEED_FLAG = (1 << 18);
-		static const unsigned int    SHA_FLAG = (1 << 29);
+		enum { RDRAND_FLAG = (1 << 30) };
+		enum { RDSEED_FLAG = (1 << 18) };
+		enum {    SHA_FLAG = (1 << 29) };
 
-		g_isP4 = ((cpuid2[0] >> 8) & 0xf) == 0xf;
-		g_cacheLineSize = 8 * GETBYTE(cpuid2[1], 1);
-		g_hasRDRAND = !!(cpuid2[2] /*ECX*/ & RDRAND_FLAG);
-
-		if (cpuid1[0] /*EAX*/ >= 7)
-		{
-			if (CpuId(7, cpuid3))
-			{
-				g_hasRDSEED = !!(cpuid3[1] /*EBX*/ & RDSEED_FLAG);
-				g_hasSHA = !!(cpuid3[1] /*EBX*/ & SHA_FLAG);
-			}
-		}
-	}
-	else if (IsAMD(cpuid1))
-	{
-		static const unsigned int RDRAND_FLAG = (1 << 30);
-		static const unsigned int RDSEED_FLAG = (1 << 18);
-		static const unsigned int    SHA_FLAG = (1 << 29);
-
-		CpuId(0x01, cpuid1);
+		g_isP4 = ((cpuid1[0] >> 8) & 0xf) == 0xf;
+		g_cacheLineSize = 8 * GETBYTE(cpuid1[1], 1);
 		g_hasRDRAND = !!(cpuid1[2] /*ECX*/ & RDRAND_FLAG);
 
-		if (cpuid1[0] /*EAX*/ >= 7)
+		if (cpuid0[0] /*EAX*/ >= 7)
 		{
-			if (CpuId(7, cpuid3))
+			if (CpuId(7, cpuid2))
 			{
-				g_hasRDSEED = !!(cpuid3[1] /*EBX*/ & RDSEED_FLAG);
-				g_hasSHA = !!(cpuid3[1] /*EBX*/ & SHA_FLAG);
+				g_hasRDSEED = !!(cpuid2[1] /*EBX*/ & RDSEED_FLAG);
+				g_hasSHA = !!(cpuid2[1] /*EBX*/ & SHA_FLAG);
 			}
 		}
-
-		CpuId(0x80000005, cpuid1);
-		g_cacheLineSize = GETBYTE(cpuid1[2], 0);
 	}
-	else if (IsVIA(cpuid1))
+	else if (IsAMD(cpuid0))
 	{
-		static const unsigned int  RNG_FLAGS = (0x3 << 2);
-		static const unsigned int  ACE_FLAGS = (0x3 << 6);
-		static const unsigned int ACE2_FLAGS = (0x3 << 8);
-		static const unsigned int  PHE_FLAGS = (0x3 << 10);
-		static const unsigned int  PMM_FLAGS = (0x3 << 12);
+		enum { RDRAND_FLAG = (1 << 30) };
+		enum { RDSEED_FLAG = (1 << 18) };
+		enum {    SHA_FLAG = (1 << 29) };
 
-		CpuId(0xC0000000, cpuid1);
-		if (cpuid1[0] >= 0xC0000001)
+		CpuId(0x80000005, cpuid2);
+		g_cacheLineSize = GETBYTE(cpuid2[2], 0);
+		g_hasRDRAND = !!(cpuid1[2] /*ECX*/ & RDRAND_FLAG);
+
+		if (cpuid0[0] /*EAX*/ >= 7)
+		{
+			if (CpuId(7, cpuid2))
+			{
+				g_hasRDSEED = !!(cpuid2[1] /*EBX*/ & RDSEED_FLAG);
+				g_hasSHA = !!(cpuid2[1] /*EBX*/ & SHA_FLAG);
+			}
+		}
+	}
+	else if (IsVIA(cpuid0))
+	{
+		enum {  RNG_FLAGS = (0x3 << 2) };
+		enum {  ACE_FLAGS = (0x3 << 6) };
+		enum { ACE2_FLAGS = (0x3 << 8) };
+		enum {  PHE_FLAGS = (0x3 << 10) };
+		enum {  PMM_FLAGS = (0x3 << 12) };
+
+		CpuId(0xC0000000, cpuid0);
+		if (cpuid0[0] >= 0xC0000001)
 		{
 			// Extended features available
-			CpuId(0xC0000001, cpuid1);
-			g_hasPadlockRNG  = !!(cpuid1[3] /*EDX*/ & RNG_FLAGS);
-			g_hasPadlockACE  = !!(cpuid1[3] /*EDX*/ & ACE_FLAGS);
-			g_hasPadlockACE2 = !!(cpuid1[3] /*EDX*/ & ACE2_FLAGS);
-			g_hasPadlockPHE  = !!(cpuid1[3] /*EDX*/ & PHE_FLAGS);
-			g_hasPadlockPMM  = !!(cpuid1[3] /*EDX*/ & PMM_FLAGS);
+			CpuId(0xC0000001, cpuid0);
+			g_hasPadlockRNG  = !!(cpuid0[3] /*EDX*/ & RNG_FLAGS);
+			g_hasPadlockACE  = !!(cpuid0[3] /*EDX*/ & ACE_FLAGS);
+			g_hasPadlockACE2 = !!(cpuid0[3] /*EDX*/ & ACE2_FLAGS);
+			g_hasPadlockPHE  = !!(cpuid0[3] /*EDX*/ & PHE_FLAGS);
+			g_hasPadlockPMM  = !!(cpuid0[3] /*EDX*/ & PMM_FLAGS);
 		}
 	}
 

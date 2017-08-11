@@ -490,7 +490,7 @@ NAMESPACE_END
 // Microsoft plans to support ARM-64, but its not clear how to detect it.
 // TODO: Add MSC_VER and ARM-64 platform define when available
 #if !defined(CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
-# if defined(__ARM_FEATURE_CRYPTO)
+# if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_MSC_VERSION >= 1910)
 #  define CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE 1
 # endif
 #endif
@@ -530,11 +530,12 @@ NAMESPACE_END
 #endif
 
 // How to declare class constants
-#if (_MSC_VER == 1300) || defined(__INTEL_COMPILER) || defined(__BORLANDC__)
-#	define CRYPTOPP_CONSTANT(x) enum {x};
-#else
-#	define CRYPTOPP_CONSTANT(x) static const int x;
-#endif
+//#if (_MSC_VER == 1300) || defined(__INTEL_COMPILER) || defined(__BORLANDC__)
+//#	define CRYPTOPP_CONSTANT(x) enum {x};
+//#else
+//#	define CRYPTOPP_CONSTANT(x) static const int x;
+//#endif
+#define CRYPTOPP_CONSTANT(x) enum {x};
 
 // Linux provides X32, which is 32-bit integers, longs and pointers on x86_64 using the full x86_64 register set.
 // Detect via __ILP32__ (http://wiki.debian.org/X32Port). However, __ILP32__ shows up in more places than

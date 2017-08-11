@@ -342,7 +342,6 @@ bool TestSettings()
 	std::cout << std::endl;
 
 #ifdef CRYPTOPP_CPUID_AVAILABLE
-	bool hasISSE = HasISSE();
 	bool hasSSE2 = HasSSE2();
 	bool hasSSSE3 = HasSSSE3();
 	bool hasSSE4 = HasSSE4();
@@ -357,8 +356,9 @@ bool TestSettings()
 	else
 		std::cout << "passed:  ";
 
-	std::cout << "hasISSE == " << hasISSE << "hasSSE2 == " << hasSSE2 << ", hasSSSE3 == " << hasSSSE3 << ", hasSSE4 == " << hasSSE4;
-	std::cout << ", hasAESNI == " << HasAESNI() << ", hasCLMUL == " << HasCLMUL() << ", hasRDRAND == " << HasRDRAND() << ", hasRDSEED == " << HasRDSEED();
+	std::cout << "hasSSE2 == " << hasSSE2 << ", hasSSSE3 == " << hasSSSE3 << ", hasSSE4 == " << hasSSE4;
+	std::cout << ", hasAESNI == " << HasAESNI() << ", hasCLMUL == " << HasCLMUL();
+	std::cout << ", hasRDRAND == " << HasRDRAND() << ", hasRDSEED == " << HasRDSEED();
 	std::cout << ", hasSHA == " << HasSHA() << ", isP4 == " << isP4 << ", cacheLineSize == " << cacheLineSize << std::endl;
 
 #elif (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
