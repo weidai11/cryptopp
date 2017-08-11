@@ -44,7 +44,7 @@ matrix:
 
 script:
   - |
-    if [[ ("$BUILD_MODE" == "ios" && "$os" == "osx") ]]; then
+    if [[ "$BUILD_MODE" == "ios" && "$os" == "osx" ]]; then
         cp ./TestScripts/setenv-ios.sh .
         . ./setenv-ios.sh
         make -f GNUmakefile
