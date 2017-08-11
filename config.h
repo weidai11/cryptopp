@@ -572,9 +572,11 @@ NAMESPACE_END
 # if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_MSC_VERSION >= 1910) || \
 	defined(__aarch32__) || defined(__aarch64__)
 #  define CRYPTOPP_ARM_AES_AVAILABLE 1
-#  define CRYPTOPP_ARM_PMULL_AVAILABLE 1
 #  define CRYPTOPP_ARM_SHA_AVAILABLE 1
 #  define CRYPTOPP_ARM_CRYPTO_AVAILABLE 1
+#  if !defined(__apple_build_version__)
+#   define CRYPTOPP_ARM_PMULL_AVAILABLE 1
+#  endif
 # endif
 #endif
 

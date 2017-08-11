@@ -39,8 +39,11 @@
 # include "immintrin.h"
 #endif
 
-#if (CRYPTOPP_ARM_SHA_AVAILABLE)
+#if (CRYPTOPP_ARM_AES_AVAILABLE)
 # include "arm_neon.h"
+#endif
+
+#if (CRYPTOPP_ARM_AES_AVAILABLE) && !defined(CRYPTOPP_APPLE_CLANG_VERSION)
 # include "arm_acle.h"
 #endif
 

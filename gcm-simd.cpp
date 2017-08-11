@@ -34,7 +34,7 @@
 # include "arm_neon.h"
 #endif
 
-#if (CRYPTOPP_ARM_PMULL_AVAILABLE)
+#if (CRYPTOPP_ARM_PMULL_AVAILABLE) && !defined(CRYPTOPP_APPLE_CLANG_VERSION)
 # include "arm_acle.h"
 #endif
 
