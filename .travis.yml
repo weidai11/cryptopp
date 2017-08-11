@@ -47,7 +47,7 @@ script:
     if [[ "$BUILD_MODE" == "ios" && "$os" == "osx" ]]; then
         cp ./TestScripts/setenv-ios.sh .
         . ./setenv-ios.sh
-        make -f GNUmakefile
+        make -f GNUmakefile-cross
     elif [[ "$BUILD_MODE" == "ios" ]]; then
         # TODO: How do we do the iOS test on just OS X once?
     else
@@ -62,7 +62,7 @@ branches:
     - master
 
 addons:
-  sonarqube: true
+  sonarcloud: true
 
   coverity_scan:
     project:
