@@ -8,6 +8,7 @@
 
 #include "pch.h"
 #include "config.h"
+#include "stdcpp.h"
 
 #if defined(__linux__)
 # include <sys/auxv.h>
