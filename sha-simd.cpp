@@ -31,11 +31,8 @@
 # endif
 #endif
 
-#if (CRYPTOPP_SSE42_AVAILABLE)
-# include "nmmintrin.h"
-#endif
-
 #if (CRYPTOPP_SHANI_AVAILABLE)
+# include "nmmintrin.h"
 # include "immintrin.h"
 #endif
 

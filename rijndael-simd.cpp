@@ -30,15 +30,12 @@
 # endif
 #endif
 
-#if (CRYPTOPP_SSE41_AVAILABLE)
+#if (CRYPTOPP_AESNI_AVAILABLE)
 // Hack... We are supposed to use <nmmintrin.h>. GCC 4.8, LLVM Clang 3.5
 //   and Apple Clang 6.0 conflates SSE4.1 and SSE4.2. If we use <nmmintrin.h>
 //   then compile fails with "SSE4.2 instruction set not enabled". Also see
 //   https://gcc.gnu.org/ml/gcc-help/2017-08/msg00015.html.
 # include "smmintrin.h"
-#endif  // CRYPTOPP_SSE41_AVAILABLE
-
-#if (CRYPTOPP_AESNI_AVAILABLE)
 # include "wmmintrin.h"
 #endif
 
