@@ -28,11 +28,22 @@ extern "C" {
 
 #ifdef CRYPTOPP_CPUID_AVAILABLE
 
-#if _MSC_VER >= 1400 && CRYPTOPP_BOOL_X64
+#if _MSC_VER >= 1500
 
-bool CpuId(word32 input, word32 output[4])
+static inline bool CpuId(word32 func, word32 subfunc, word32 output[4])
 {
-	__cpuid((int *)output, input);
+	__cpuidex((int *)output, func, subfunc);
+	return true;
+}
+
+#elif _MSC_VER >= 1400 && CRYPTOPP_BOOL_X64
+
+static inline bool CpuId(word32 func, word32 subfunc, word32 output[4])
+{
+	if (subfunc != 0)
+		return false;
+
+	__cpuid((int *)output, func);
 	return true;
 }
 
@@ -55,15 +66,15 @@ extern "C"
 }
 #endif
 
-bool CpuId(word32 input, word32 output[4])
+static inline bool CpuId(word32 func, word32 subfunc, word32 output[4])
 {
 #if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
     __try
 	{
 		__asm
 		{
-			mov eax, input
-			mov ecx, 0
+			mov eax, func
+			mov ecx, subfunc
 			cpuid
 			mov edi, output
 			mov [edi], eax
@@ -112,7 +123,7 @@ bool CpuId(word32 input, word32 output[4])
 			"push %%ebx; cpuid; mov %%ebx, %%edi; pop %%ebx"
 # endif
 			: "=a" (output[0]), "=D" (output[1]), "=c" (output[2]), "=d" (output[3])
-			: "a" (input), "c" (0)
+			: "a" (func), "c" (subfunc)
 			: "cc"
 		);
 	}
@@ -221,9 +232,9 @@ void DetectX86Features()
 {
 	// Coverity finding CID 171239...
 	word32 cpuid0[4]={0}, cpuid1[4]={0}, cpuid2[4]={0};
-	if (!CpuId(0, cpuid0))
+	if (!CpuId(0, 0, cpuid0))
 		return;
-	if (!CpuId(1, cpuid1))
+	if (!CpuId(1, 0, cpuid1))
 		return;
 
 	if ((cpuid1[3] & (1 << 26)) != 0)
@@ -244,9 +255,9 @@ void DetectX86Features()
 		g_cacheLineSize = 8 * GETBYTE(cpuid1[1], 1);
 		g_hasRDRAND = !!(cpuid1[2] /*ECX*/ & RDRAND_FLAG);
 
-		if (cpuid0[0] /*EAX*/ >= 7)
+		if (cpuid1[0] /*EAX*/ >= 7)
 		{
-			if (CpuId(7, cpuid2))
+			if (CpuId(7, 0, cpuid2))
 			{
 				g_hasRDSEED = !!(cpuid2[1] /*EBX*/ & RDSEED_FLAG);
 				g_hasSHA = !!(cpuid2[1] /*EBX*/ & SHA_FLAG);
@@ -259,13 +270,13 @@ void DetectX86Features()
 		enum { RDSEED_FLAG = (1 << 18) };
 		enum {    SHA_FLAG = (1 << 29) };
 
-		CpuId(0x80000005, cpuid2);
+		CpuId(0x80000005, 0, cpuid2);
 		g_cacheLineSize = GETBYTE(cpuid2[2], 0);
 		g_hasRDRAND = !!(cpuid1[2] /*ECX*/ & RDRAND_FLAG);
 
-		if (cpuid0[0] /*EAX*/ >= 7)
+		if (cpuid1[0] /*EAX*/ >= 7)
 		{
-			if (CpuId(7, cpuid2))
+			if (CpuId(7, 0, cpuid2))
 			{
 				g_hasRDSEED = !!(cpuid2[1] /*EBX*/ & RDSEED_FLAG);
 				g_hasSHA = !!(cpuid2[1] /*EBX*/ & SHA_FLAG);
@@ -280,16 +291,16 @@ void DetectX86Features()
 		enum {  PHE_FLAGS = (0x3 << 10) };
 		enum {  PMM_FLAGS = (0x3 << 12) };
 
-		CpuId(0xC0000000, cpuid0);
-		if (cpuid0[0] >= 0xC0000001)
+		CpuId(0xC0000000, 0, cpuid2);
+		if (cpuid2[0] >= 0xC0000001)
 		{
 			// Extended features available
-			CpuId(0xC0000001, cpuid0);
-			g_hasPadlockRNG  = !!(cpuid0[3] /*EDX*/ & RNG_FLAGS);
-			g_hasPadlockACE  = !!(cpuid0[3] /*EDX*/ & ACE_FLAGS);
-			g_hasPadlockACE2 = !!(cpuid0[3] /*EDX*/ & ACE2_FLAGS);
-			g_hasPadlockPHE  = !!(cpuid0[3] /*EDX*/ & PHE_FLAGS);
-			g_hasPadlockPMM  = !!(cpuid0[3] /*EDX*/ & PMM_FLAGS);
+			CpuId(0xC0000001, 0, cpuid2);
+			g_hasPadlockRNG  = !!(cpuid2[3] /*EDX*/ & RNG_FLAGS);
+			g_hasPadlockACE  = !!(cpuid2[3] /*EDX*/ & ACE_FLAGS);
+			g_hasPadlockACE2 = !!(cpuid2[3] /*EDX*/ & ACE2_FLAGS);
+			g_hasPadlockPHE  = !!(cpuid2[3] /*EDX*/ & PHE_FLAGS);
+			g_hasPadlockPMM  = !!(cpuid2[3] /*EDX*/ & PMM_FLAGS);
 		}
 	}
 
