@@ -325,7 +325,13 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
     BlockCipher &blockCipher = AccessBlockCipher();
     blockCipher.SetKey(userKey, keylength, params);
 
-    if (blockCipher.BlockSize() != REQUIRED_BLOCKSIZE)
+    // GCM is only defined for 16-byte block ciphers at the moment.
+    // However, variable blocksize support means we have to defer
+    // blocksize checks to runtime after the key is set. Also see
+    // https://github.com/weidai11/cryptopp/issues/408.
+    const unsigned int blockSize = blockCipher.BlockSize();
+    CRYPTOPP_ASSERT(blockSize == REQUIRED_BLOCKSIZE);
+    if (blockSize != REQUIRED_BLOCKSIZE)
         throw InvalidArgument(AlgorithmName() + ": block size of underlying block cipher is not 16");
 
     int tableSize, i, j, k;
@@ -335,7 +341,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
     {
         // Avoid "parameter not used" error and suppress Coverity finding
         (void)params.GetIntValue(Name::TableSize(), tableSize);
-        tableSize = s_clmulTableSizeInBlocks * REQUIRED_BLOCKSIZE;
+        tableSize = s_clmulTableSizeInBlocks * blockSize;
     }
     else
 #elif CRYPTOPP_BOOL_ARM_PMULL_AVAILABLE
@@ -343,7 +349,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
     {
         // Avoid "parameter not used" error and suppress Coverity finding
         (void)params.GetIntValue(Name::TableSize(), tableSize);
-        tableSize = s_clmulTableSizeInBlocks * REQUIRED_BLOCKSIZE;
+        tableSize = s_clmulTableSizeInBlocks * blockSize;
     }
     else
 #endif
@@ -359,10 +365,10 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
 #endif
     }
 
-    m_buffer.resize(3*REQUIRED_BLOCKSIZE + tableSize);
+    m_buffer.resize(3*blockSize + tableSize);
     byte *table = MulTable();
     byte *hashKey = HashKey();
-    memset(hashKey, 0, REQUIRED_BLOCKSIZE);
+    memset(hashKey, 0, blockSize);
     blockCipher.ProcessBlock(hashKey);
 
 #if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
@@ -537,6 +543,13 @@ void GCM_Base::Resync(const byte *iv, size_t len)
     BlockCipher &cipher = AccessBlockCipher();
     byte *hashBuffer = HashBuffer();
 
+    // GCM is only defined for 16-byte block ciphers at the moment.
+    // However, variable blocksize support means we have to defer
+    // blocksize checks to runtime after the key is set. Also see
+    // https://github.com/weidai11/cryptopp/issues/408.
+    const unsigned int blockSize = cipher.BlockSize();
+    CRYPTOPP_ASSERT(blockSize == REQUIRED_BLOCKSIZE);
+
     if (len == 12)
     {
         memcpy(hashBuffer, iv, len);
@@ -568,7 +581,7 @@ void GCM_Base::Resync(const byte *iv, size_t len)
     }
 
     if (m_state >= State_IVSet)
-        m_ctr.Resynchronize(hashBuffer, REQUIRED_BLOCKSIZE);
+        m_ctr.Resynchronize(hashBuffer, blockSize);
     else
         m_ctr.SetCipherWithIV(cipher, hashBuffer);
 

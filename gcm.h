@@ -74,9 +74,9 @@ protected:
 	virtual GCM_TablesOption GetTablesOption() const =0;
 
 	const BlockCipher & GetBlockCipher() const {return const_cast<GCM_Base *>(this)->AccessBlockCipher();};
-	byte *HashBuffer() {return m_buffer+REQUIRED_BLOCKSIZE;}
-	byte *HashKey() {return m_buffer+2*REQUIRED_BLOCKSIZE;}
-	byte *MulTable() {return m_buffer+3*REQUIRED_BLOCKSIZE;}
+	byte *HashBuffer() {return m_buffer+GetBlockCipher().BlockSize();}
+	byte *HashKey() {return m_buffer+2*GetBlockCipher().BlockSize();}
+	byte *MulTable() {return m_buffer+3*GetBlockCipher().BlockSize();}
 	inline void ReverseHashBufferIfNeeded();
 
 	class CRYPTOPP_DLL GCTR : public CTR_Mode_ExternalCipher::Encryption
