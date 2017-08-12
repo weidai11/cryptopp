@@ -219,14 +219,14 @@ bool CPU_TryPMULL_ARMV8()
 # else
 #   if defined(__ANDROID__) && (defined(__aarch64__) || defined(__aarch32__))
     if (android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_PMULL)
-		return true;
+        return true;
     // https://sourceware.org/ml/libc-help/2017-08/msg00012.html
 #   elif defined(__linux__) && defined(__aarch64__)
-	if (getauxval(AT_HWCAP) & HWCAP_PMULL)
-		return true;
+    if (getauxval(AT_HWCAP) & HWCAP_PMULL)
+        return true;
 #   elif defined(__linux__) && defined(__aarch32__)
-	if (getauxval(AT_HWCAP2) & HWCAP2_PMULL)
-		return true;
+    if (getauxval(AT_HWCAP2) & HWCAP2_PMULL)
+        return true;
 #   endif
 
     // longjmp and clobber warnings. Volatile is required.
@@ -322,27 +322,27 @@ uint64x2_t GCM_Multiply_PMULL(const uint64x2_t &x, const uint64x2_t &h, const ui
 
 void GCM_SetKeyWithoutResync_PMULL(const byte *hashKey, byte *mulTable, unsigned int tableSize)
 {
-	const uint64x2_t r = s_clmulConstants[0];
-	const uint64x2_t t = vreinterpretq_u64_u8(vrev64q_u8(vld1q_u8(hashKey)));
-	const uint64x2_t h0 = vextq_u64(t, t, 1);
+    const uint64x2_t r = s_clmulConstants[0];
+    const uint64x2_t t = vreinterpretq_u64_u8(vrev64q_u8(vld1q_u8(hashKey)));
+    const uint64x2_t h0 = vextq_u64(t, t, 1);
 
-	uint64x2_t h = h0;
-	unsigned int i;
-	for (i=0; i<tableSize-32; i+=32)
-	{
-		const uint64x2_t h1 = GCM_Multiply_PMULL(h, h0, r);
-		vst1_u64((uint64_t *)(mulTable+i), vget_low_u64(h));
-		vst1q_u64((uint64_t *)(mulTable+i+16), h1);
-		vst1q_u64((uint64_t *)(mulTable+i+8), h);
-		vst1_u64((uint64_t *)(mulTable+i+8), vget_low_u64(h1));
-		h = GCM_Multiply_PMULL(h1, h0, r);
-	}
+    uint64x2_t h = h0;
+    unsigned int i;
+    for (i=0; i<tableSize-32; i+=32)
+    {
+        const uint64x2_t h1 = GCM_Multiply_PMULL(h, h0, r);
+        vst1_u64((uint64_t *)(mulTable+i), vget_low_u64(h));
+        vst1q_u64((uint64_t *)(mulTable+i+16), h1);
+        vst1q_u64((uint64_t *)(mulTable+i+8), h);
+        vst1_u64((uint64_t *)(mulTable+i+8), vget_low_u64(h1));
+        h = GCM_Multiply_PMULL(h1, h0, r);
+    }
 
-	const uint64x2_t h1 = GCM_Multiply_PMULL(h, h0, r);
-	vst1_u64((uint64_t *)(mulTable+i), vget_low_u64(h));
-	vst1q_u64((uint64_t *)(mulTable+i+16), h1);
-	vst1q_u64((uint64_t *)(mulTable+i+8), h);
-	vst1_u64((uint64_t *)(mulTable+i+8), vget_low_u64(h1));
+    const uint64x2_t h1 = GCM_Multiply_PMULL(h, h0, r);
+    vst1_u64((uint64_t *)(mulTable+i), vget_low_u64(h));
+    vst1q_u64((uint64_t *)(mulTable+i+16), h1);
+    vst1q_u64((uint64_t *)(mulTable+i+8), h);
+    vst1_u64((uint64_t *)(mulTable+i+8), vget_low_u64(h1));
 }
 
 size_t GCM_AuthenticateBlocks_PMULL(const byte *data, size_t len, const byte *mtable, byte *hbuffer)
@@ -420,11 +420,11 @@ size_t GCM_AuthenticateBlocks_PMULL(const byte *data, size_t len, const byte *mt
 #if CRYPTOPP_ARM_NEON_AVAILABLE
 void GCM_ReverseHashBufferIfNeeded_NEON(byte *hashBuffer)
 {
-	if (GetNativeByteOrder() != BIG_ENDIAN_ORDER)
-	{
-		const uint8x16_t x = vrev64q_u8(vld1q_u8(hashBuffer));
-		vst1q_u8(hashBuffer, vextq_u8(x, x, 8));
-	}
+    if (GetNativeByteOrder() != BIG_ENDIAN_ORDER)
+    {
+        const uint8x16_t x = vrev64q_u8(vld1q_u8(hashBuffer));
+        vst1q_u8(hashBuffer, vextq_u8(x, x, 8));
+    }
 }
 #endif
 
@@ -530,7 +530,7 @@ void GCM_SetKeyWithoutResync_CLMUL(const byte *hashKey, byte *mulTable, unsigned
     const __m128i h0 = _mm_shuffle_epi8(_mm_load_si128((const __m128i *)(const void *)hashKey), s_clmulConstants[1]);
 
     __m128i h = h0;
-	unsigned int i;
+    unsigned int i;
     for (i=0; i<tableSize-32; i+=32)
     {
         const __m128i h1 = GCM_Multiply_CLMUL(h, h0, r);
@@ -541,11 +541,11 @@ void GCM_SetKeyWithoutResync_CLMUL(const byte *hashKey, byte *mulTable, unsigned
         h = GCM_Multiply_CLMUL(h1, h0, r);
     }
 
-	const __m128i h1 = GCM_Multiply_CLMUL(h, h0, r);
-	_mm_storel_epi64((__m128i *)(void *)(mulTable+i), h);
-	_mm_storeu_si128((__m128i *)(void *)(mulTable+i+16), h1);
-	_mm_storeu_si128((__m128i *)(void *)(mulTable+i+8), h);
-	_mm_storel_epi64((__m128i *)(void *)(mulTable+i+8), h1);
+    const __m128i h1 = GCM_Multiply_CLMUL(h, h0, r);
+    _mm_storel_epi64((__m128i *)(void *)(mulTable+i), h);
+    _mm_storeu_si128((__m128i *)(void *)(mulTable+i+16), h1);
+    _mm_storeu_si128((__m128i *)(void *)(mulTable+i+8), h);
+    _mm_storel_epi64((__m128i *)(void *)(mulTable+i+8), h1);
 }
 
 size_t GCM_AuthenticateBlocks_CLMUL(const byte *data, size_t len, const byte *mtable, byte *hbuffer)

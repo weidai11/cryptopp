@@ -50,7 +50,7 @@ void AuthenticatedSymmetricCipherBase::SetKey(const byte *userKey, size_t keylen
 	m_bufferedDataLength = 0;
 	m_state = State_Start;
 
-	SetKeyWithoutResync(userKey, keylength, params);
+	this->SetKeyWithoutResync(userKey, keylength, params);
 	m_state = State_KeySet;
 
 	size_t length;

@@ -119,7 +119,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
     // https://github.com/weidai11/cryptopp/issues/408.
     const unsigned int blockSize = blockCipher.BlockSize();
     CRYPTOPP_ASSERT(blockSize == REQUIRED_BLOCKSIZE);
-    if (blockSize != REQUIRED_BLOCKSIZE)
+    if (blockCipher.BlockSize() != REQUIRED_BLOCKSIZE)
         throw InvalidArgument(AlgorithmName() + ": block size of underlying block cipher is not 16");
 
     int tableSize, i, j, k;
@@ -129,7 +129,8 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
     {
         // Avoid "parameter not used" error and suppress Coverity finding
         (void)params.GetIntValue(Name::TableSize(), tableSize);
-        tableSize = s_cltableSizeInBlocks * REQUIRED_BLOCKSIZE;
+        tableSize = s_cltableSizeInBlocks * blockSize;
+        CRYPTOPP_ASSERT(tableSize > blockSize);
     }
     else
 #elif CRYPTOPP_ARM_PMULL_AVAILABLE
@@ -137,7 +138,8 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
     {
         // Avoid "parameter not used" error and suppress Coverity finding
         (void)params.GetIntValue(Name::TableSize(), tableSize);
-        tableSize = s_cltableSizeInBlocks * REQUIRED_BLOCKSIZE;
+        tableSize = s_cltableSizeInBlocks * blockSize;
+        CRYPTOPP_ASSERT(tableSize > blockSize);
     }
     else
 #endif
@@ -147,13 +149,13 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
         else
             tableSize = (GetTablesOption() == GCM_64K_Tables) ? 64*1024 : 2*1024;
 
-#if defined(_MSC_VER) && (_MSC_VER < 1400)
+        //#if defined(_MSC_VER) && (_MSC_VER < 1400)
         // VC 2003 workaround: compiler generates bad code for 64K tables
-        tableSize = 2*1024;
-#endif
+        //tableSize = 2*1024;
+        //#endif
     }
 
-    m_buffer.resize(3*REQUIRED_BLOCKSIZE + tableSize);
+    m_buffer.resize(3*blockSize + tableSize);
     byte *mulTable = MulTable();
     byte *hashKey = HashKey();
     memset(hashKey, 0, blockSize);
@@ -283,7 +285,7 @@ inline void GCM_Base::ReverseHashBufferIfNeeded()
 #elif CRYPTOPP_ARM_NEON_AVAILABLE
     if (HasNEON())
     {
-		GCM_ReverseHashBufferIfNeeded_NEON(HashBuffer());
+        GCM_ReverseHashBufferIfNeeded_NEON(HashBuffer());
     }
 #endif
 }
