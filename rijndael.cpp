@@ -95,7 +95,7 @@ static void Rijndael_Dec_ProcessAndXorBlock_ARMV8(const byte *inBlock, const byt
 # define MAYBE_CONST const
 #endif
 
-// Clang casts
+// Clang __m128i casts
 #define M128I_CAST(x) ((__m128i *)(void *)(x))
 #define CONST_M128I_CAST(x) ((const __m128i *)(const void *)(x))
 
