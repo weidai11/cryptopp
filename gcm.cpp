@@ -332,7 +332,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
     const unsigned int blockSize = blockCipher.BlockSize();
     CRYPTOPP_ASSERT(blockSize == REQUIRED_BLOCKSIZE);
     if (blockSize != REQUIRED_BLOCKSIZE)
-        throw InvalidArgument(AlgorithmName() + ": block size of underlying block cipher is not 16");
+        throw InvalidArgument(AlgorithmName() + ": block size of underlying block cipher is not " + IntToString(blockSize));
 
     int tableSize, i, j, k;
 
@@ -342,6 +342,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
         // Avoid "parameter not used" error and suppress Coverity finding
         (void)params.GetIntValue(Name::TableSize(), tableSize);
         tableSize = s_clmulTableSizeInBlocks * blockSize;
+        CRYPTOPP_ASSERT(tableSize > (int)blockSize);
     }
     else
 #elif CRYPTOPP_BOOL_ARM_PMULL_AVAILABLE
@@ -350,6 +351,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
         // Avoid "parameter not used" error and suppress Coverity finding
         (void)params.GetIntValue(Name::TableSize(), tableSize);
         tableSize = s_clmulTableSizeInBlocks * blockSize;
+        CRYPTOPP_ASSERT(tableSize > (int)blockSize);
     }
     else
 #endif
