@@ -50,6 +50,10 @@
 # define EXCEPTION_EXECUTE_HANDLER 1
 #endif
 
+// Clang __m128i casts
+#define M128_CAST(x) ((__m128i *)(void *)(x))
+#define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
+
 ANONYMOUS_NAMESPACE_BEGIN
 
 // GCC 4.8 is missing PMULL gear
@@ -438,7 +442,7 @@ const word64 s_clmulConstants64[] = {
     W64LIT(0x08090a0b0c0d0e0f), W64LIT(0x0001020304050607),
     W64LIT(0x0001020304050607), W64LIT(0x08090a0b0c0d0e0f)};
 
-const __m128i *s_clmulConstants = (const __m128i *)(const void *)s_clmulConstants64;
+const __m128i *s_clmulConstants = CONST_M128_CAST(s_clmulConstants64);
 const unsigned int s_cltableSizeInBlocks = 8;
 
 ANONYMOUS_NAMESPACE_END
@@ -497,11 +501,7 @@ __m128i GCM_Reduce_CLMUL(__m128i c0, __m128i c1, __m128i c2, const __m128i &r)
     c2t ^= c1b
     shift c2 left 1 bit and xor in lowest bit of c1t
     */
-#if 0    // MSVC 2010 workaround: see http://connect.microsoft.com/VisualStudio/feedback/details/575301
-    c2 = _mm_xor_si128(c2, _mm_move_epi64(c0));
-#else
     c1 = _mm_xor_si128(c1, _mm_slli_si128(c0, 8));
-#endif
     c1 = _mm_xor_si128(c1, _mm_clmulepi64_si128(c0, r, 0x10));
     c0 = _mm_srli_si128(c0, 8);
     c0 = _mm_xor_si128(c0, c1);
@@ -527,37 +527,37 @@ __m128i GCM_Multiply_CLMUL(const __m128i &x, const __m128i &h, const __m128i &r)
 void GCM_SetKeyWithoutResync_CLMUL(const byte *hashKey, byte *mulTable, unsigned int tableSize)
 {
     const __m128i r = s_clmulConstants[0];
-    const __m128i h0 = _mm_shuffle_epi8(_mm_load_si128((const __m128i *)(const void *)hashKey), s_clmulConstants[1]);
+    const __m128i h0 = _mm_shuffle_epi8(_mm_load_si128(CONST_M128_CAST(hashKey)), s_clmulConstants[1]);
 
     __m128i h = h0;
     unsigned int i;
     for (i=0; i<tableSize-32; i+=32)
     {
         const __m128i h1 = GCM_Multiply_CLMUL(h, h0, r);
-        _mm_storel_epi64((__m128i *)(void *)(mulTable+i), h);
-        _mm_storeu_si128((__m128i *)(void *)(mulTable+i+16), h1);
-        _mm_storeu_si128((__m128i *)(void *)(mulTable+i+8), h);
-        _mm_storel_epi64((__m128i *)(void *)(mulTable+i+8), h1);
+        _mm_storel_epi64(M128_CAST(mulTable+i), h);
+        _mm_storeu_si128(M128_CAST(mulTable+i+16), h1);
+        _mm_storeu_si128(M128_CAST(mulTable+i+8), h);
+        _mm_storel_epi64(M128_CAST(mulTable+i+8), h1);
         h = GCM_Multiply_CLMUL(h1, h0, r);
     }
 
     const __m128i h1 = GCM_Multiply_CLMUL(h, h0, r);
-    _mm_storel_epi64((__m128i *)(void *)(mulTable+i), h);
-    _mm_storeu_si128((__m128i *)(void *)(mulTable+i+16), h1);
-    _mm_storeu_si128((__m128i *)(void *)(mulTable+i+8), h);
-    _mm_storel_epi64((__m128i *)(void *)(mulTable+i+8), h1);
+    _mm_storel_epi64(M128_CAST(mulTable+i), h);
+    _mm_storeu_si128(M128_CAST(mulTable+i+16), h1);
+    _mm_storeu_si128(M128_CAST(mulTable+i+8), h);
+    _mm_storel_epi64(M128_CAST(mulTable+i+8), h1);
 }
 
 size_t GCM_AuthenticateBlocks_CLMUL(const byte *data, size_t len, const byte *mtable, byte *hbuffer)
 {
-    const __m128i *table = (const __m128i *)(const void *)mtable;
-    __m128i x = _mm_load_si128((__m128i *)(void *)hbuffer);
+    const __m128i *table = CONST_M128_CAST(mtable);
+    __m128i x = _mm_load_si128(M128_CAST(hbuffer));
     const __m128i r = s_clmulConstants[0], mask1 = s_clmulConstants[1], mask2 = s_clmulConstants[2];
 
     while (len >= 16)
     {
         size_t s = UnsignedMin(len/16, s_cltableSizeInBlocks), i=0;
-        __m128i d1, d2 = _mm_shuffle_epi8(_mm_loadu_si128((const __m128i *)(const void *)(data+(s-1)*16)), mask2);
+        __m128i d1, d2 = _mm_shuffle_epi8(_mm_loadu_si128(CONST_M128_CAST(data+(s-1)*16)), mask2);
         __m128i c0 = _mm_setzero_si128();
         __m128i c1 = _mm_setzero_si128();
         __m128i c2 = _mm_setzero_si128();
@@ -570,7 +570,7 @@ size_t GCM_AuthenticateBlocks_CLMUL(const byte *data, size_t len, const byte *mt
 
             if (++i == s)
             {
-                d1 = _mm_shuffle_epi8(_mm_loadu_si128((const __m128i *)(const void *)data), mask1);
+                d1 = _mm_shuffle_epi8(_mm_loadu_si128(CONST_M128_CAST(data)), mask1);
                 d1 = _mm_xor_si128(d1, x);
                 c0 = _mm_xor_si128(c0, _mm_clmulepi64_si128(d1, h0, 0));
                 c2 = _mm_xor_si128(c2, _mm_clmulepi64_si128(d1, h1, 1));
@@ -579,7 +579,7 @@ size_t GCM_AuthenticateBlocks_CLMUL(const byte *data, size_t len, const byte *mt
                 break;
             }
 
-            d1 = _mm_shuffle_epi8(_mm_loadu_si128((const __m128i *)(const void *)(data+(s-i)*16-8)), mask2);
+            d1 = _mm_shuffle_epi8(_mm_loadu_si128(CONST_M128_CAST(data+(s-i)*16-8)), mask2);
             c0 = _mm_xor_si128(c0, _mm_clmulepi64_si128(d2, h0, 1));
             c2 = _mm_xor_si128(c2, _mm_clmulepi64_si128(d1, h1, 1));
             d2 = _mm_xor_si128(d2, d1);
@@ -587,7 +587,7 @@ size_t GCM_AuthenticateBlocks_CLMUL(const byte *data, size_t len, const byte *mt
 
             if (++i == s)
             {
-                d1 = _mm_shuffle_epi8(_mm_loadu_si128((const __m128i *)(const void *)data), mask1);
+                d1 = _mm_shuffle_epi8(_mm_loadu_si128(CONST_M128_CAST(data)), mask1);
                 d1 = _mm_xor_si128(d1, x);
                 c0 = _mm_xor_si128(c0, _mm_clmulepi64_si128(d1, h0, 0x10));
                 c2 = _mm_xor_si128(c2, _mm_clmulepi64_si128(d1, h1, 0x11));
@@ -596,7 +596,7 @@ size_t GCM_AuthenticateBlocks_CLMUL(const byte *data, size_t len, const byte *mt
                 break;
             }
 
-            d2 = _mm_shuffle_epi8(_mm_loadu_si128((const __m128i *)(const void *)(data+(s-i)*16-8)), mask1);
+            d2 = _mm_shuffle_epi8(_mm_loadu_si128(CONST_M128_CAST(data+(s-i)*16-8)), mask1);
             c0 = _mm_xor_si128(c0, _mm_clmulepi64_si128(d1, h0, 0x10));
             c2 = _mm_xor_si128(c2, _mm_clmulepi64_si128(d2, h1, 0x10));
             d1 = _mm_xor_si128(d1, d2);
@@ -609,15 +609,15 @@ size_t GCM_AuthenticateBlocks_CLMUL(const byte *data, size_t len, const byte *mt
         x = GCM_Reduce_CLMUL(c0, c1, c2, r);
     }
 
-    _mm_store_si128((__m128i *)(void *)hbuffer, x);
+    _mm_store_si128(M128_CAST(hbuffer), x);
     return len;
 }
 #endif
 
-#if CRYPTOPP_SSSE3_AVAILABLE
+#if CRYPTOPP_CLMUL_AVAILABLE
 void GCM_ReverseHashBufferIfNeeded_SSSE3(byte *hashBuffer)
 {
-    __m128i &x = *(__m128i *)(void *)hashBuffer;
+    __m128i &x = *M128_CAST(hashBuffer);
     x = _mm_shuffle_epi8(x, s_clmulConstants[1]);
 }
 #endif
