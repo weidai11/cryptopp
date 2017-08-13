@@ -27,6 +27,10 @@
 # undef CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
 #endif
 
+// Clang casts
+#define M128I_CAST(x) ((__m128i *)(void *)(x))
+#define CONST_M128I_CAST(x) ((const __m128i *)(const void *)(x))
+
 #include "gcm.h"
 #include "cpu.h"
 
@@ -199,12 +203,12 @@ inline static void SSE2_Xor16(byte *a, const byte *b, const byte *c)
 // SunCC 5.14 crash (bewildering since asserts are not in effect in release builds)
 //   Also see http://github.com/weidai11/cryptopp/issues/226 and http://github.com/weidai11/cryptopp/issues/284
 # if __SUNPRO_CC
-    *(__m128i *)(void *)a = _mm_xor_si128(*(__m128i *)(void *)b, *(__m128i *)(void *)c);
+    *M128I_CAST(a) = _mm_xor_si128(*M128I_CAST(b), *M128I_CAST(c));
 # elif CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
     CRYPTOPP_ASSERT(IsAlignedOn(a,GetAlignmentOf<__m128i>()));
     CRYPTOPP_ASSERT(IsAlignedOn(b,GetAlignmentOf<__m128i>()));
     CRYPTOPP_ASSERT(IsAlignedOn(c,GetAlignmentOf<__m128i>()));
-    *(__m128i *)(void *)a = _mm_xor_si128(*(__m128i *)(void *)b, *(__m128i *)(void *)c);
+    *M128I_CAST(a) = _mm_xor_si128(*M128I_CAST(b), *M128I_CAST(c));
 # else
     asm ("movdqa %1, %%xmm0; pxor %2, %%xmm0; movdqa %%xmm0, %0;" : "=m" (a[0]) : "m"(b[0]), "m"(c[0]));
 # endif
@@ -237,7 +241,7 @@ static const word64 s_clmulConstants64[] = {
     W64LIT(0x08090a0b0c0d0e0f), W64LIT(0x0001020304050607),
     W64LIT(0x0001020304050607), W64LIT(0x08090a0b0c0d0e0f)};
 
-static const __m128i *s_clmulConstants = (const __m128i *)(const void *)s_clmulConstants64;
+static const __m128i *s_clmulConstants = CONST_M128I_CAST(s_clmulConstants64);
 static const unsigned int s_clmulTableSizeInBlocks = 8;
 
 inline __m128i CLMUL_Reduce(__m128i c0, __m128i c1, __m128i c2, const __m128i &r)
@@ -369,16 +373,16 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
     if (HasCLMUL())
     {
         const __m128i r = s_clmulConstants[0];
-        __m128i h0 = _mm_shuffle_epi8(_mm_load_si128((__m128i *)(void *)hashKey), s_clmulConstants[1]);
+        __m128i h0 = _mm_shuffle_epi8(_mm_load_si128(M128I_CAST(hashKey)), s_clmulConstants[1]);
         __m128i h = h0;
 
         for (i=0; i<tableSize; i+=32)
         {
             __m128i h1 = CLMUL_GF_Mul(h, h0, r);
-            _mm_storel_epi64((__m128i *)(void *)(mulTable+i), h);
-            _mm_storeu_si128((__m128i *)(void *)(mulTable+i+16), h1);
-            _mm_storeu_si128((__m128i *)(void *)(mulTable+i+8), h);
-            _mm_storel_epi64((__m128i *)(void *)(mulTable+i+8), h1);
+            _mm_storel_epi64(M128I_CAST(mulTable+i), h);
+            _mm_storeu_si128(M128I_CAST(mulTable+i+16), h1);
+            _mm_storeu_si128(M128I_CAST(mulTable+i+8), h);
+            _mm_storel_epi64(M128I_CAST(mulTable+i+8), h1);
             h = CLMUL_GF_Mul(h1, h0, r);
         }
 
@@ -517,7 +521,7 @@ inline void GCM_Base::ReverseHashBufferIfNeeded()
 #if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
     if (HasCLMUL())
     {
-        __m128i &x = *(__m128i *)(void *)HashBuffer();
+        __m128i &x = *M128I_CAST(HashBuffer());
         x = _mm_shuffle_epi8(x, s_clmulConstants[1]);
     }
 #elif CRYPTOPP_BOOL_ARM_PMULL_AVAILABLE
@@ -608,14 +612,14 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 #if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
     if (HasCLMUL())
     {
-        const __m128i *mulTable = (const __m128i *)(const void *)MulTable();
-        __m128i x = _mm_load_si128((__m128i *)(void *)HashBuffer());
+        const __m128i *mulTable = CONST_M128I_CAST(MulTable());
+        __m128i x = _mm_load_si128(M128I_CAST(HashBuffer()));
         const __m128i r = s_clmulConstants[0], mask1 = s_clmulConstants[1], mask2 = s_clmulConstants[2];
 
         while (len >= 16)
         {
             size_t s = UnsignedMin(len/16, s_clmulTableSizeInBlocks), i=0;
-            __m128i d1, d2 = _mm_shuffle_epi8(_mm_loadu_si128((const __m128i *)(const void *)(data+(s-1)*16)), mask2);
+            __m128i d1, d2 = _mm_shuffle_epi8(_mm_loadu_si128(CONST_M128I_CAST(data+(s-1)*16)), mask2);
             __m128i c0 = _mm_setzero_si128();
             __m128i c1 = _mm_setzero_si128();
             __m128i c2 = _mm_setzero_si128();
@@ -628,7 +632,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 
                 if (++i == s)
                 {
-                    d1 = _mm_shuffle_epi8(_mm_loadu_si128((const __m128i *)(const void *)data), mask1);
+                    d1 = _mm_shuffle_epi8(_mm_loadu_si128(CONST_M128I_CAST(data)), mask1);
                     d1 = _mm_xor_si128(d1, x);
                     c0 = _mm_xor_si128(c0, _mm_clmulepi64_si128(d1, h0, 0));
                     c2 = _mm_xor_si128(c2, _mm_clmulepi64_si128(d1, h1, 1));
@@ -637,7 +641,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
                     break;
                 }
 
-                d1 = _mm_shuffle_epi8(_mm_loadu_si128((const __m128i *)(const void *)(data+(s-i)*16-8)), mask2);
+                d1 = _mm_shuffle_epi8(_mm_loadu_si128(CONST_M128I_CAST(data+(s-i)*16-8)), mask2);
                 c0 = _mm_xor_si128(c0, _mm_clmulepi64_si128(d2, h0, 1));
                 c2 = _mm_xor_si128(c2, _mm_clmulepi64_si128(d1, h1, 1));
                 d2 = _mm_xor_si128(d2, d1);
@@ -645,7 +649,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 
                 if (++i == s)
                 {
-                    d1 = _mm_shuffle_epi8(_mm_loadu_si128((const __m128i *)(const void *)data), mask1);
+                    d1 = _mm_shuffle_epi8(_mm_loadu_si128(CONST_M128I_CAST(data)), mask1);
                     d1 = _mm_xor_si128(d1, x);
                     c0 = _mm_xor_si128(c0, _mm_clmulepi64_si128(d1, h0, 0x10));
                     c2 = _mm_xor_si128(c2, _mm_clmulepi64_si128(d1, h1, 0x11));
@@ -654,7 +658,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
                     break;
                 }
 
-                d2 = _mm_shuffle_epi8(_mm_loadu_si128((const __m128i *)(const void *)(data+(s-i)*16-8)), mask1);
+                d2 = _mm_shuffle_epi8(_mm_loadu_si128(CONST_M128I_CAST(data+(s-i)*16-8)), mask1);
                 c0 = _mm_xor_si128(c0, _mm_clmulepi64_si128(d1, h0, 0x10));
                 c2 = _mm_xor_si128(c2, _mm_clmulepi64_si128(d2, h1, 0x10));
                 d1 = _mm_xor_si128(d1, d2);
@@ -667,7 +671,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
             x = CLMUL_Reduce(c0, c1, c2, r);
         }
 
-        _mm_store_si128((__m128i *)(void *)HashBuffer(), x);
+        _mm_store_si128(M128I_CAST(HashBuffer()), x);
         return len;
     }
 #elif CRYPTOPP_BOOL_ARM_PMULL_AVAILABLE
