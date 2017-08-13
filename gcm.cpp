@@ -23,10 +23,6 @@
 // # undef CRYPTOPP_CLMUL_AVAILABLE
 // #endif
 
-// Clang casts
-#define M128I_CAST(x) ((__m128i *)(void *)(x))
-#define CONST_M128I_CAST(x) ((const __m128i *)(const void *)(x))
-
 #include "gcm.h"
 #include "cpu.h"
 
@@ -52,6 +48,10 @@ NAMESPACE_BEGIN(CryptoPP)
 # define USE_MOV_REG32_OR_REG64 1
 #endif
 #endif
+
+// Clang __m128i casts
+#define M128_CAST(x) ((__m128i *)(void *)(x))
+#define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
 
 #if CRYPTOPP_ARM_NEON_AVAILABLE
 extern void GCM_Xor16_NEON(byte *a, const byte *b, const byte *c);
@@ -80,12 +80,12 @@ inline static void GCM_Xor16_SSE2(byte *a, const byte *b, const byte *c)
 // SunCC 5.14 crash (bewildering since asserts are not in effect in release builds)
 //   Also see http://github.com/weidai11/cryptopp/issues/226 and http://github.com/weidai11/cryptopp/issues/284
 # if __SUNPRO_CC
-    *(__m128i *)(void *)a = _mm_xor_si128(*(__m128i *)(void *)b, *(__m128i *)(void *)c);
+    *M128_CAST(a) = _mm_xor_si128(*M128_CAST(b), *M128_CAST(c));
 # elif CRYPTOPP_SSE2_AVAILABLE
     CRYPTOPP_ASSERT(IsAlignedOn(a,GetAlignmentOf<__m128i>()));
     CRYPTOPP_ASSERT(IsAlignedOn(b,GetAlignmentOf<__m128i>()));
     CRYPTOPP_ASSERT(IsAlignedOn(c,GetAlignmentOf<__m128i>()));
-    *M128I_CAST(a) = _mm_xor_si128(*M128I_CAST(b), *M128I_CAST(c));
+    *M128_CAST(a) = _mm_xor_si128(*M128_CAST(b), *M128_CAST(c));
 # else
     asm ("movdqa %1, %%xmm0; pxor %2, %%xmm0; movdqa %%xmm0, %0;" : "=m" (a[0]) : "m"(b[0]), "m"(c[0]));
 # endif
