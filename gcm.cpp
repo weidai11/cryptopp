@@ -1,6 +1,6 @@
-// gcm.cpp - originally written and placed in the public domain by Wei Dai
+// gcm.cpp - originally written and placed in the public domain by Wei Dai.
 //           ARM and Aarch64 added by Jeffrey Walton. The ARM carryless
-//           multiply routines are less efficient because they shadowed x86.
+//           multiply routines are less efficient because they shadow x86.
 //           The precomputed key table integration makes it tricky to use the
 //           more efficient ARMv8 implementation of the multiply and reduce.
 
@@ -158,7 +158,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
     m_buffer.resize(3*blockSize + tableSize);
     byte *mulTable = MulTable();
     byte *hashKey = HashKey();
-    memset(hashKey, 0, blockSize);
+    memset(hashKey, 0, REQUIRED_BLOCKSIZE);
     blockCipher.ProcessBlock(hashKey);
 
 #if CRYPTOPP_CLMUL_AVAILABLE
@@ -295,13 +295,6 @@ void GCM_Base::Resync(const byte *iv, size_t len)
     BlockCipher &cipher = AccessBlockCipher();
     byte *hashBuffer = HashBuffer();
 
-    // GCM is only defined for 16-byte block ciphers at the moment.
-    // However, variable blocksize support means we have to defer
-    // blocksize checks to runtime after the key is set. Also see
-    // https://github.com/weidai11/cryptopp/issues/408.
-    const unsigned int blockSize = cipher.BlockSize();
-    CRYPTOPP_ASSERT(blockSize == REQUIRED_BLOCKSIZE);
-
     if (len == 12)
     {
         memcpy(hashBuffer, iv, len);
@@ -333,7 +326,7 @@ void GCM_Base::Resync(const byte *iv, size_t len)
     }
 
     if (m_state >= State_IVSet)
-        m_ctr.Resynchronize(hashBuffer, blockSize);
+        m_ctr.Resynchronize(hashBuffer, REQUIRED_BLOCKSIZE);
     else
         m_ctr.SetCipherWithIV(cipher, hashBuffer);
 
@@ -396,7 +389,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
     {
     case 0:        // non-SSE2 and 2K tables
         {
-        byte *table = MulTable();
+        byte *mulTable = MulTable();
         word64 x0 = hashBuffer[0], x1 = hashBuffer[1];
 
         do
@@ -409,7 +402,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
             data += HASH_BLOCKSIZE;
             len -= HASH_BLOCKSIZE;
 
-            #define READ_TABLE_WORD64_COMMON(a, b, c, d)    *(word64 *)(void *)(table+(a*1024)+(b*256)+c+d*8)
+            #define READ_TABLE_WORD64_COMMON(a, b, c, d)    *(word64 *)(void *)(mulTable+(a*1024)+(b*256)+c+d*8)
 
             #ifdef IS_LITTLE_ENDIAN
                 #if CRYPTOPP_BOOL_SLOW_WORD64
@@ -464,7 +457,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 
     case 2:        // non-SSE2 and 64K tables
         {
-        byte *table = MulTable();
+        byte *mulTable = MulTable();
         word64 x0 = hashBuffer[0], x1 = hashBuffer[1];
 
         do
@@ -480,7 +473,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
             #undef READ_TABLE_WORD64_COMMON
             #undef READ_TABLE_WORD64
 
-            #define READ_TABLE_WORD64_COMMON(a, c, d)    *(word64 *)(void *)(table+(a)*256*16+(c)+(d)*8)
+            #define READ_TABLE_WORD64_COMMON(a, c, d)    *(word64 *)(void *)(mulTable+(a)*256*16+(c)+(d)*8)
 
             #ifdef IS_LITTLE_ENDIAN
                 #if CRYPTOPP_BOOL_SLOW_WORD64
