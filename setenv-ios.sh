@@ -204,7 +204,7 @@ if [ "$IOS_ARCH" == "armv7s" ]; then
 fi
 
 # ARM64 fixup. Xcode 5/iOS 7
-if [ "$IOS_ARCH" == "arm64" ]; then
+if [ "$IOS_ARCH" == "arm64" ] && [ "$APPLE_SDK" != "AppleTVOS"]; then
   IOS_FLAGS=-miphoneos-version-min=7
 fi
 
