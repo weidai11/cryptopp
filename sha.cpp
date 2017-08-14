@@ -8,13 +8,21 @@
 
 // In August 2017 Walton reworked the internals to align all the implementations.
 //    Formerly all hashes were software based, IterHashBase handled endian conversions,
-//    IterHashBase repeatedly called the single block SHA{N}::Transform. The rework
-//    added SHA{N}::HashMultipleBlocks, and the SHA classes attempt to always use it.
-//    Now SHA{N}::Transform calls into SHA{N}::HashMultipleBlocks. An added wrinkle is
-//    hardware is little endian and software is big endian, so HashMultipleBlocks
-//    accepts a ByteOrder for the incoming data. Hardware based SHA{N}::HashMultipleBlocks
-//    can often perform the endian swap much easier by setting an EPI mask. The rework
-//    also removed the hacked-in pointers to implementations.
+//    and IterHashBase dispatched a single to block SHA{N}::Transform. SHA{N}::Transform
+//    then performed the single block hashing. It was repeated for multiple blocks.
+//
+//    The rework added SHA{N}::HashMultipleBlocks (class) and SHA{N}_HashMultipleBlocks
+//    (free standing). There are also hardware accelerated variations. Callers enter
+//    SHA{N}::HashMultipleBlocks (class), and the function calls SHA{N}_HashMultipleBlocks
+//    (free standing) or SHA{N}_HashBlock (free standing) as a fallback.
+//
+//    An added wrinkle is hardware is little endian, C++ is big endian, and callers use big endian,
+//    so SHA{N}_HashMultipleBlock accepts a ByteOrder for the incoming data arrangement. Hardware
+//    based SHA{N}_HashMultipleBlock can often perform the endian swap much easier by setting
+//    an EPI mask. Endian swap incurs no penalty on Intel SHA, and 4-instruction penaly on ARM SHA.
+//    Under C++ the full software based swap penalty is incurred due to use of ReverseBytes().
+//
+//    The rework also removed the hacked-in pointers to implementations.
 
 // use "cl /EP /P /DCRYPTOPP_GENERATE_X64_MASM sha.cpp" to generate MASM code
 
@@ -44,11 +52,16 @@
 #define M128_CAST(x) ((__m128i *)(void *)(x))
 #define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
 
+// C++ makes const internal linkage
+#define EXPORT_TABLE extern
+
 NAMESPACE_BEGIN(CryptoPP)
 
 ////////////////////////////////
 // start of Steve Reid's code //
 ////////////////////////////////
+
+ANONYMOUS_NAMESPACE_BEGIN
 
 #define blk0(i) (W[i] = data[i])
 #define blk1(i) (W[i&15] = rotlFixed(W[(i+13)&15]^W[(i+8)&15]^W[(i+2)&15]^W[i&15],1))
@@ -65,7 +78,7 @@ NAMESPACE_BEGIN(CryptoPP)
 #define R3(v,w,x,y,z,i) z+=f3(w,x,y)+blk1(i)+0x8F1BBCDC+rotlFixed(v,5);w=rotlFixed(w,30);
 #define R4(v,w,x,y,z,i) z+=f4(w,x,y)+blk1(i)+0xCA62C1D6+rotlFixed(v,5);w=rotlFixed(w,30);
 
-static void SHA1_CXX_HashBlock(word32 *state, const word32 *data)
+void SHA1_CXX_HashBlock(word32 *state, const word32 *data)
 {
     CRYPTOPP_ASSERT(state);
     CRYPTOPP_ASSERT(data);
@@ -106,6 +119,8 @@ static void SHA1_CXX_HashBlock(word32 *state, const word32 *data)
     state[4] += e;
 }
 
+ANONYMOUS_NAMESPACE_END
+
 //////////////////////////////
 // end of Steve Reid's code //
 //////////////////////////////
@@ -115,12 +130,15 @@ static void SHA1_CXX_HashBlock(word32 *state, const word32 *data)
 ///////////////////////////////////
 
 #if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
+
+ANONYMOUS_NAMESPACE_BEGIN
+
 // Based on http://software.intel.com/en-us/articles/intel-sha-extensions and code by Sean Gulley.
-static void SHA1_SHANI_HashMultipleBlocks(word32 *state, const word32 *data, size_t length, ByteOrder order)
+void SHA1_SHANI_HashMultipleBlocks(word32 *state, const word32 *data, size_t length, ByteOrder order)
 {
     CRYPTOPP_ASSERT(state);
     CRYPTOPP_ASSERT(data);
-    CRYPTOPP_ASSERT(length >= 64);
+    CRYPTOPP_ASSERT(length >= SHA1::BLOCKSIZE);
 
     __m128i ABCD, ABCD_SAVE, E0, E0_SAVE, E1;
     __m128i MASK, MSG0, MSG1, MSG2, MSG3;
@@ -137,7 +155,7 @@ static void SHA1_SHANI_HashMultipleBlocks(word32 *state, const word32 *data, siz
            _mm_set_epi8(0,1,2,3, 4,5,6,7, 8,9,10,11, 12,13,14,15) :
            _mm_set_epi8(3,2,1,0, 7,6,5,4, 11,10,9,8, 15,14,13,12) ;
 
-    while (length >= 64)
+    while (length >= SHA1::BLOCKSIZE)
     {
         // Save current hash
         ABCD_SAVE = ABCD;
@@ -303,8 +321,8 @@ static void SHA1_SHANI_HashMultipleBlocks(word32 *state, const word32 *data, siz
         E0 = _mm_sha1nexte_epu32(E0, E0_SAVE);
         ABCD = _mm_add_epi32(ABCD, ABCD_SAVE);
 
-        data += 16;
-        length -= 64;
+        data += SHA1::BLOCKSIZE/sizeof(word32);
+        length -= SHA1::BLOCKSIZE;
     }
 
     // Save state
@@ -312,7 +330,10 @@ static void SHA1_SHANI_HashMultipleBlocks(word32 *state, const word32 *data, siz
     _mm_storeu_si128(M128_CAST(state), ABCD);
     state[4] = _mm_extract_epi32(E0, 3);
 }
-#endif
+
+ANONYMOUS_NAMESPACE_END
+
+#endif  // CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
 
 /////////////////////////////////
 // end of Walton/Gulley's code //
@@ -323,11 +344,14 @@ static void SHA1_SHANI_HashMultipleBlocks(word32 *state, const word32 *data, siz
 //////////////////////////////////////////////////////////////
 
 #if CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
-static void SHA1_ARM_SHA_HashMultipleBlocks(word32 *state, const word32 *data, size_t length, ByteOrder order)
+
+ANONYMOUS_NAMESPACE_BEGIN
+
+void SHA1_ARM_SHA_HashMultipleBlocks(word32 *state, const word32 *data, size_t length, ByteOrder order)
 {
     CRYPTOPP_ASSERT(state);
     CRYPTOPP_ASSERT(data);
-    CRYPTOPP_ASSERT(length >= 64);
+    CRYPTOPP_ASSERT(length >= SHA1::BLOCKSIZE);
 
     uint32x4_t C0, C1, C2, C3;
     uint32x4_t ABCD, ABCD_SAVED;
@@ -344,7 +368,7 @@ static void SHA1_ARM_SHA_HashMultipleBlocks(word32 *state, const word32 *data, s
     ABCD = vld1q_u32(&state[0]);
     E0 = state[4];
 
-    while (length >= 64)
+    while (length >= SHA1::BLOCKSIZE)
     {
         // Save current hash
         ABCD_SAVED = ABCD;
@@ -501,14 +525,17 @@ static void SHA1_ARM_SHA_HashMultipleBlocks(word32 *state, const word32 *data, s
         E0 += E0_SAVED;
         ABCD = vaddq_u32(ABCD_SAVED, ABCD);
 
-        data += 16;
-        length -= 64;
+        data += SHA1::BLOCKSIZE/sizeof(word32);
+        length -= SHA1::BLOCKSIZE;
     }
 
     // Save state
     vst1q_u32(&state[0], ABCD);
     state[4] = E0;
 }
+
+ANONYMOUS_NAMESPACE_END
+
 #endif  // CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
 
 ///////////////////////////////////////////////////////
@@ -550,7 +577,7 @@ void SHA1::Transform(word32 *state, const word32 *data)
 size_t SHA1::HashMultipleBlocks(const word32 *input, size_t length)
 {
     CRYPTOPP_ASSERT(input);
-    CRYPTOPP_ASSERT(length >= 64);
+    CRYPTOPP_ASSERT(length >= SHA1::BLOCKSIZE);
 
 #if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
     if (HasSHA())
@@ -573,27 +600,25 @@ size_t SHA1::HashMultipleBlocks(const word32 *input, size_t length)
     {
         if (noReverse)
         {
-            // this->HashEndianCorrectedBlock(input);
             SHA1_CXX_HashBlock(m_state, input);
         }
         else
         {
-            ByteReverse(dataBuf, input, 64);
-            // this->HashEndianCorrectedBlock(dataBuf);
+            ByteReverse(dataBuf, input, SHA1::BLOCKSIZE);
             SHA1_CXX_HashBlock(m_state, dataBuf);
         }
 
-        input += 16;
-        length -= 64;
+        input += SHA1::BLOCKSIZE/sizeof(word32);
+        length -= SHA1::BLOCKSIZE;
     }
-    while (length >= 64);
+    while (length >= SHA1::BLOCKSIZE);
     return length;
 }
 
 // *************************************************************
 
-CRYPTOPP_ALIGN_DATA(16)
-extern const word32 SHA256_K[64] CRYPTOPP_SECTION_ALIGN16 = {
+CRYPTOPP_ALIGN_DATA(16) EXPORT_TABLE
+const word32 SHA256_K[64] CRYPTOPP_SECTION_ALIGN16 = {
 
     0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
     0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
@@ -612,6 +637,8 @@ extern const word32 SHA256_K[64] CRYPTOPP_SECTION_ALIGN16 = {
     0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
     0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
 };
+
+ANONYMOUS_NAMESPACE_BEGIN
 
 #define blk2(i) (W[i&15]+=s1(W[(i-2)&15])+W[(i-7)&15]+s0(W[(i-15)&15]))
 
@@ -636,7 +663,7 @@ extern const word32 SHA256_K[64] CRYPTOPP_SECTION_ALIGN16 = {
 #define s0(x) (rotrFixed(x,7)^rotrFixed(x,18)^(x>>3))
 #define s1(x) (rotrFixed(x,17)^rotrFixed(x,19)^(x>>10))
 
-static void SHA256_CXX_HashBlock(word32 *state, const word32 *data)
+void SHA256_CXX_HashBlock(word32 *state, const word32 *data)
 {
     word32 W[16], T[8];
     /* Copy context->state[] to working vars */
@@ -666,6 +693,8 @@ static void SHA256_CXX_HashBlock(word32 *state, const word32 *data)
 #undef s1
 #undef R
 
+ANONYMOUS_NAMESPACE_END
+
 void SHA224::InitState(HashWordType *state)
 {
     static const word32 s[8] = {0xc1059ed8, 0x367cd507, 0x3070dd17, 0xf70e5939, 0xffc00b31, 0x68581511, 0x64f98fa7, 0xbefa4fa4};
@@ -677,11 +706,13 @@ void SHA256::InitState(HashWordType *state)
     static const word32 s[8] = {0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19};
     memcpy(state, s, sizeof(s));
 }
-#endif // #ifndef CRYPTOPP_GENERATE_X64_MASM
+#endif // Not CRYPTOPP_GENERATE_X64_MASM
 
 #if (defined(CRYPTOPP_X86_ASM_AVAILABLE) || defined(CRYPTOPP_X32_ASM_AVAILABLE) || defined(CRYPTOPP_GENERATE_X64_MASM))
 
-static void CRYPTOPP_FASTCALL SHA256_SSE_HashMultipleBlocks(word32 *state, const word32 *data, size_t len)
+ANONYMOUS_NAMESPACE_BEGIN
+
+void CRYPTOPP_FASTCALL SHA256_SSE_HashMultipleBlocks(word32 *state, const word32 *data, size_t len)
 {
     #define LOCALS_SIZE  8*4 + 16*4 + 4*WORD_SZ
     #define H(i)         [BASE+ASM_MOD(1024+7-(i),8)*4]
@@ -1000,127 +1031,32 @@ INTEL_NOPREFIX
 #endif
 }
 
-#endif    // (defined(CRYPTOPP_X86_ASM_AVAILABLE) || defined(CRYPTOPP_GENERATE_X64_MASM))
+ANONYMOUS_NAMESPACE_END
+
+#endif    // CRYPTOPP_X86_ASM_AVAILABLE or CRYPTOPP_GENERATE_X64_MASM
 
 #ifndef CRYPTOPP_GENERATE_X64_MASM
 
 #ifdef CRYPTOPP_X64_MASM_AVAILABLE
-extern "C" {
+EXPORT_TABLE "C" {
 void CRYPTOPP_FASTCALL SHA256_SSE_HashMultipleBlocks(word32 *state, const word32 *data, size_t len);
 }
 #endif
-
-#if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
-static void SHA256_SHANI_HashMultipleBlocks(word32 *state, const word32 *data, size_t length, ByteOrder order);
-#elif CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
-static void SHA256_ARM_SHA_HashMultipleBlocks(word32 *state, const word32 *data, size_t length, ByteOrder order);
-#endif
-
-size_t SHA256::HashMultipleBlocks(const word32 *input, size_t length)
-{
-    CRYPTOPP_ASSERT(input);
-    CRYPTOPP_ASSERT(length >= 64);
-
-#if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
-    if (HasSHA())
-    {
-        SHA256_SHANI_HashMultipleBlocks(m_state, input, length, BIG_ENDIAN_ORDER);
-        return length & (SHA256::BLOCKSIZE - 1);
-    }
-#endif
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
-    if (HasSSE2())
-    {
-        const size_t res = length & (SHA256::BLOCKSIZE - 1);
-        SHA256_SSE_HashMultipleBlocks(m_state, input, length-res);
-        return res;
-    }
-#endif
-#if CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
-    if (HasSHA2())
-    {
-        SHA256_ARM_SHA_HashMultipleBlocks(m_state, input, length, BIG_ENDIAN_ORDER);
-        return length & (SHA256::BLOCKSIZE - 1);
-    }
-#endif
-
-    const bool noReverse = NativeByteOrderIs(this->GetByteOrder());
-    word32 *dataBuf = this->DataBuf();
-    do
-    {
-        if (noReverse)
-        {
-            // this->HashEndianCorrectedBlock(input);
-            SHA256_CXX_HashBlock(m_state, input);
-        }
-        else
-        {
-            ByteReverse(dataBuf, input, SHA256::BLOCKSIZE);
-            // this->HashEndianCorrectedBlock(dataBuf);
-            SHA256_CXX_HashBlock(m_state, dataBuf);
-        }
-
-        input += SHA256::BLOCKSIZE/sizeof(word32);
-        length -= SHA256::BLOCKSIZE;
-    }
-    while (length >= SHA256::BLOCKSIZE);
-    return length;
-}
-
-size_t SHA224::HashMultipleBlocks(const word32 *input, size_t length)
-{
-    CRYPTOPP_ASSERT(input);
-    CRYPTOPP_ASSERT(length >= 64);
-
-#if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
-    if (HasSHA())
-    {
-        SHA256_SHANI_HashMultipleBlocks(m_state, input, length, BIG_ENDIAN_ORDER);
-        return length & (SHA256::BLOCKSIZE - 1);
-    }
-#endif
-#if CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
-    if (HasSHA2())
-    {
-        SHA256_ARM_SHA_HashMultipleBlocks(m_state, input, length, BIG_ENDIAN_ORDER);
-        return length & (SHA256::BLOCKSIZE - 1);
-    }
-#endif
-
-    const bool noReverse = NativeByteOrderIs(this->GetByteOrder());
-    word32 *dataBuf = this->DataBuf();
-    do
-    {
-        if (noReverse)
-        {
-            // this->HashEndianCorrectedBlock(input);
-            SHA256_CXX_HashBlock(m_state, input);
-        }
-        else
-        {
-            ByteReverse(dataBuf, input, SHA256::BLOCKSIZE);
-            // this->HashEndianCorrectedBlock(dataBuf);
-            SHA256_CXX_HashBlock(m_state, dataBuf);
-        }
-
-        input += SHA256::BLOCKSIZE/sizeof(word32);
-        length -= SHA256::BLOCKSIZE;
-    }
-    while (length >= SHA256::BLOCKSIZE);
-    return length;
-}
 
 ///////////////////////////////////
 // start of Walton/Gulley's code //
 ///////////////////////////////////
 
 #if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
+
+ANONYMOUS_NAMESPACE_BEGIN
+
 // Based on http://software.intel.com/en-us/articles/intel-sha-extensions and code by Sean Gulley.
-static void SHA256_SHANI_HashMultipleBlocks(word32 *state, const word32 *data, size_t length, ByteOrder order)
+void SHA256_SHANI_HashMultipleBlocks(word32 *state, const word32 *data, size_t length, ByteOrder order)
 {
     CRYPTOPP_ASSERT(state);
     CRYPTOPP_ASSERT(data);
-    CRYPTOPP_ASSERT(length >= 64);
+    CRYPTOPP_ASSERT(length >= SHA256::BLOCKSIZE);
 
     __m128i STATE0, STATE1;
     __m128i MSG, TMP, MASK;
@@ -1138,9 +1074,9 @@ static void SHA256_SHANI_HashMultipleBlocks(word32 *state, const word32 *data, s
            _mm_set_epi8(12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3) :
            _mm_set_epi8(15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0) ;
 
-    TMP = _mm_shuffle_epi32(TMP, 0xB1); // CDAB
-    STATE1 = _mm_shuffle_epi32(STATE1, 0x1B); // EFGH
-    STATE0 = _mm_alignr_epi8(TMP, STATE1, 8); // ABEF
+    TMP = _mm_shuffle_epi32(TMP, 0xB1);          // CDAB
+    STATE1 = _mm_shuffle_epi32(STATE1, 0x1B);    // EFGH
+    STATE0 = _mm_alignr_epi8(TMP, STATE1, 8);    // ABEF
     STATE1 = _mm_blend_epi16(STATE1, TMP, 0xF0); // CDGH
 
     while (length >= SHA256::BLOCKSIZE)
@@ -1309,15 +1245,18 @@ static void SHA256_SHANI_HashMultipleBlocks(word32 *state, const word32 *data, s
         length -= SHA256::BLOCKSIZE;
     }
 
-    TMP = _mm_shuffle_epi32(STATE0, 0x1B); // FEBA
-    STATE1 = _mm_shuffle_epi32(STATE1, 0xB1); // DCHG
+    TMP = _mm_shuffle_epi32(STATE0, 0x1B);       // FEBA
+    STATE1 = _mm_shuffle_epi32(STATE1, 0xB1);    // DCHG
     STATE0 = _mm_blend_epi16(TMP, STATE1, 0xF0); // DCBA
-    STATE1 = _mm_alignr_epi8(STATE1, TMP, 8); // ABEF
+    STATE1 = _mm_alignr_epi8(STATE1, TMP, 8);    // ABEF
 
     // Save state
     _mm_storeu_si128(M128_CAST(&state[0]), STATE0);
     _mm_storeu_si128(M128_CAST(&state[4]), STATE1);
 }
+
+ANONYMOUS_NAMESPACE_END
+
 #endif  // CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
 
 /////////////////////////////////
@@ -1329,8 +1268,15 @@ static void SHA256_SHANI_HashMultipleBlocks(word32 *state, const word32 *data, s
 /////////////////////////////////////////////////////////
 
 #if CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
-static void SHA256_ARM_SHA_HashMultipleBlocks(word32 *state, const word32 *data, size_t length, ByteOrder order)
+
+ANONYMOUS_NAMESPACE_BEGIN
+
+void SHA256_ARM_SHA_HashMultipleBlocks(word32 *state, const word32 *data, size_t length, ByteOrder order)
 {
+    CRYPTOPP_ASSERT(state);
+    CRYPTOPP_ASSERT(data);
+    CRYPTOPP_ASSERT(length >= SHA256::BLOCKSIZE);
+
     uint32x4_t STATE0, STATE1, ABEF_SAVE, CDGH_SAVE;
     uint32x4_t MSG0, MSG1, MSG2, MSG3;
     uint32x4_t TMP0, TMP1, TMP2;
@@ -1492,7 +1438,10 @@ static void SHA256_ARM_SHA_HashMultipleBlocks(word32 *state, const word32 *data,
     vst1q_u32(&state[0], STATE0);
     vst1q_u32(&state[4], STATE1);
 }
-#endif
+
+ANONYMOUS_NAMESPACE_END
+
+#endif  // CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
 
 ///////////////////////////////////////////////////////
 // end of Walton/Schneiders/O'Rourke/Hovsmith's code //
@@ -1500,6 +1449,9 @@ static void SHA256_ARM_SHA_HashMultipleBlocks(word32 *state, const word32 *data,
 
 void SHA256::Transform(word32 *state, const word32 *data)
 {
+    CRYPTOPP_ASSERT(state);
+    CRYPTOPP_ASSERT(data);
+
 #if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
     if (HasSHA())
     {
@@ -1516,6 +1468,104 @@ void SHA256::Transform(word32 *state, const word32 *data)
 #endif
 
     SHA256_CXX_HashBlock(state, data);
+}
+
+size_t SHA256::HashMultipleBlocks(const word32 *input, size_t length)
+{
+    CRYPTOPP_ASSERT(input);
+    CRYPTOPP_ASSERT(length >= SHA256::BLOCKSIZE);
+
+#if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
+    if (HasSHA())
+    {
+        SHA256_SHANI_HashMultipleBlocks(m_state, input, length, BIG_ENDIAN_ORDER);
+        return length & (SHA256::BLOCKSIZE - 1);
+    }
+#endif
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+    if (HasSSE2())
+    {
+        const size_t res = length & (SHA256::BLOCKSIZE - 1);
+        SHA256_SSE_HashMultipleBlocks(m_state, input, length-res);
+        return res;
+    }
+#endif
+#if CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
+    if (HasSHA2())
+    {
+        SHA256_ARM_SHA_HashMultipleBlocks(m_state, input, length, BIG_ENDIAN_ORDER);
+        return length & (SHA256::BLOCKSIZE - 1);
+    }
+#endif
+
+    const bool noReverse = NativeByteOrderIs(this->GetByteOrder());
+    word32 *dataBuf = this->DataBuf();
+    do
+    {
+        if (noReverse)
+        {
+            SHA256_CXX_HashBlock(m_state, input);
+        }
+        else
+        {
+            ByteReverse(dataBuf, input, SHA256::BLOCKSIZE);
+            SHA256_CXX_HashBlock(m_state, dataBuf);
+        }
+
+        input += SHA256::BLOCKSIZE/sizeof(word32);
+        length -= SHA256::BLOCKSIZE;
+    }
+    while (length >= SHA256::BLOCKSIZE);
+    return length;
+}
+
+size_t SHA224::HashMultipleBlocks(const word32 *input, size_t length)
+{
+        CRYPTOPP_ASSERT(input);
+    CRYPTOPP_ASSERT(length >= SHA256::BLOCKSIZE);
+
+#if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
+    if (HasSHA())
+    {
+        SHA256_SHANI_HashMultipleBlocks(m_state, input, length, BIG_ENDIAN_ORDER);
+        return length & (SHA256::BLOCKSIZE - 1);
+    }
+#endif
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+    if (HasSSE2())
+    {
+        const size_t res = length & (SHA256::BLOCKSIZE - 1);
+        SHA256_SSE_HashMultipleBlocks(m_state, input, length-res);
+        return res;
+    }
+#endif
+#if CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
+    if (HasSHA2())
+    {
+        SHA256_ARM_SHA_HashMultipleBlocks(m_state, input, length, BIG_ENDIAN_ORDER);
+        return length & (SHA256::BLOCKSIZE - 1);
+    }
+#endif
+
+    const bool noReverse = NativeByteOrderIs(this->GetByteOrder());
+    word32 *dataBuf = this->DataBuf();
+    do
+    {
+        if (noReverse)
+        {
+            SHA256_CXX_HashBlock(m_state, input);
+        }
+        else
+        {
+            ByteReverse(dataBuf, input, SHA256::BLOCKSIZE);
+            SHA256_CXX_HashBlock(m_state, dataBuf);
+        }
+
+        input += SHA256::BLOCKSIZE/sizeof(word32);
+        length -= SHA256::BLOCKSIZE;
+    }
+    while (length >= SHA256::BLOCKSIZE);
+    return length;
 }
 
 // *************************************************************
@@ -1540,11 +1590,8 @@ void SHA512::InitState(HashWordType *state)
     memcpy(state, s, sizeof(s));
 }
 
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32)
-CRYPTOPP_ALIGN_DATA(16) static const word64 SHA512_K[80] CRYPTOPP_SECTION_ALIGN16 = {
-#else
-CRYPTOPP_ALIGN_DATA(16) static const word64 SHA512_K[80] CRYPTOPP_SECTION_ALIGN16 = {
-#endif
+CRYPTOPP_ALIGN_DATA(16)
+static const word64 SHA512_K[80] CRYPTOPP_SECTION_ALIGN16 = {
     W64LIT(0x428a2f98d728ae22), W64LIT(0x7137449123ef65cd),
     W64LIT(0xb5c0fbcfec4d3b2f), W64LIT(0xe9b5dba58189dbbc),
     W64LIT(0x3956c25bf348b538), W64LIT(0x59f111f1b605d019),
@@ -1588,8 +1635,10 @@ CRYPTOPP_ALIGN_DATA(16) static const word64 SHA512_K[80] CRYPTOPP_SECTION_ALIGN1
 };
 
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32)
-// put assembly version in separate function, otherwise MSVC 2005 SP1 doesn't generate correct code for the non-assembly version
-CRYPTOPP_NAKED static void CRYPTOPP_FASTCALL SHA512_SSE2_Transform(word64 *state, const word64 *data)
+
+ANONYMOUS_NAMESPACE_BEGIN
+
+CRYPTOPP_NAKED void CRYPTOPP_FASTCALL SHA512_SSE2_Transform(word64 *state, const word64 *data)
 {
 #ifdef __GNUC__
     __asm__ __volatile__
@@ -1782,28 +1831,25 @@ CRYPTOPP_NAKED static void CRYPTOPP_FASTCALL SHA512_SSE2_Transform(word64 *state
     AS1(    ret)
 #endif
 }
-#endif    // #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
 
-void SHA512::Transform(word64 *state, const word64 *data)
-{
-    CRYPTOPP_ASSERT(IsAlignedOn(state, GetAlignmentOf<word64>()));
-    CRYPTOPP_ASSERT(IsAlignedOn(data, GetAlignmentOf<word64>()));
+ANONYMOUS_NAMESPACE_END
 
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32)
-    if (HasSSE2())
-    {
-        SHA512_SSE2_Transform(state, data);
-        return;
-    }
-#endif
+#endif    // CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+
+ANONYMOUS_NAMESPACE_BEGIN
 
 #define S0(x) (rotrFixed(x,28)^rotrFixed(x,34)^rotrFixed(x,39))
 #define S1(x) (rotrFixed(x,14)^rotrFixed(x,18)^rotrFixed(x,41))
 #define s0(x) (rotrFixed(x,1)^rotrFixed(x,8)^(x>>7))
 #define s1(x) (rotrFixed(x,19)^rotrFixed(x,61)^(x>>6))
 
-#define R(i) h(i)+=S1(e(i))+Ch(e(i),f(i),g(i))+SHA512_K[i+j]+(j?blk2(i):blk0(i));\
-    d(i)+=h(i);h(i)+=S0(a(i))+Maj(a(i),b(i),c(i))
+#define R(i) h(i)+=S1(e(i))+Ch(e(i),f(i),g(i))+SHA512_K[i+j]+\
+	(j?blk2(i):blk0(i));d(i)+=h(i);h(i)+=S0(a(i))+Maj(a(i),b(i),c(i))
+
+void SHA512_CXX_HashBlock(word64 *state, const word64 *data)
+{
+    CRYPTOPP_ASSERT(state);
+    CRYPTOPP_ASSERT(data);
 
     word64 W[16];
     word64 T[8];
@@ -1828,7 +1874,25 @@ void SHA512::Transform(word64 *state, const word64 *data)
     state[7] += h(0);
 }
 
+ANONYMOUS_NAMESPACE_END
+
+void SHA512::Transform(word64 *state, const word64 *data)
+{
+    CRYPTOPP_ASSERT(state);
+    CRYPTOPP_ASSERT(data);
+
+#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32)
+    if (HasSSE2())
+    {
+        SHA512_SSE2_Transform(state, data);
+        return;
+    }
+#endif
+
+    SHA512_CXX_HashBlock(state, data);
+}
+
 NAMESPACE_END
 
-#endif    // #ifndef CRYPTOPP_GENERATE_X64_MASM
-#endif    // #ifndef CRYPTOPP_IMPORTS
+#endif    // Not CRYPTOPP_GENERATE_X64_MASM
+#endif    // Not CRYPTOPP_IMPORTS

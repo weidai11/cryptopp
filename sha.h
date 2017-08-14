@@ -2,7 +2,8 @@
 
 //! \file sha.h
 //! \brief Classes for SHA-1 and SHA-2 family of message digests
-//! \since SHA1 since Crypto++ 1.0, SHA2 since Crypto++ 4.0, Intel SHA extensions since Crypto++ 6.0
+//! \since SHA1 since Crypto++ 1.0, SHA2 since Crypto++ 4.0,
+//!   ARM SHA since Crypto++ 6.0, Intel SHA since Crypto++ 6.0
 
 #ifndef CRYPTOPP_SHA_H
 #define CRYPTOPP_SHA_H
