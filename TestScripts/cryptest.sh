@@ -5423,7 +5423,7 @@ if [[ ("$IS_CYGWIN" -eq "0") && ("$IS_MINGW" -eq "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	INSTALL_DIR="/tmp/cryptopp_test"
+	INSTALL_DIR="$TMPDIR/cryptopp_test"
 	rm -rf "$INSTALL_DIR" > /dev/null 2>&1
 
 	CXXFLAGS="$RELEASE_CXXFLAGS -DCRYPTOPP_DATA_DIR='\"$INSTALL_DIR/share/cryptopp/\"' ${PLATFORM_CXXFLAGS[@]} $USER_CXXFLAGS"
