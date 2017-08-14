@@ -373,6 +373,9 @@ endif # No ASM
 
 # Undefined Behavior Sanitizer (UBsan) testing. Issue 'make ubsan'.
 ifeq ($(findstring ubsan,$(MAKECMDGOALS)),ubsan)
+CXXFLAGS := $(CXXFLAGS:-g%=-g3)
+CXXFLAGS := $(CXXFLAGS:-O%=-O1)
+CXXFLAGS := $(CXXFLAGS:-xO%=-xO1)
 ifeq ($(findstring -fsanitize=undefined,$(CXXFLAGS)),)
 CXXFLAGS += -fsanitize=undefined
 endif # CXXFLAGS
@@ -383,6 +386,9 @@ endif # UBsan
 
 # Address Sanitizer (Asan) testing. Issue 'make asan'.
 ifeq ($(findstring asan,$(MAKECMDGOALS)),asan)
+CXXFLAGS := $(CXXFLAGS:-g%=-g3)
+CXXFLAGS := $(CXXFLAGS:-O%=-O1)
+CXXFLAGS := $(CXXFLAGS:-xO%=-xO1)
 ifeq ($(findstring -fsanitize=address,$(CXXFLAGS)),)
 CXXFLAGS += -fsanitize=address
 endif # CXXFLAGS
