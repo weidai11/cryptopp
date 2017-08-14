@@ -56,9 +56,9 @@ matrix:
       env: BUILD_MODE="ios-tv"
 
   allow_failures:
-    - os: linux
+    - os: osx
       env: BUILD_MODE="ios-watch"
-    - os: linux
+    - os: osx
       env: BUILD_MODE="ios-tv"
 
 script:
