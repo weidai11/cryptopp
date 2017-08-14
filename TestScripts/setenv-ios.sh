@@ -208,6 +208,11 @@ if [ "$IOS_ARCH" == "arm64" ]; then
   IOS_FLAGS=-miphoneos-version-min=7
 fi
 
+# Yet another ARM64 fixup.
+if [ "$APPLE_SDK" == "AppleTVOS" ]; then
+  IOS_FLAGS=""
+fi
+
 # ARM64 Simulator fixup. Under Xcode 6/iOS 8, it uses x86_64 and not i386
 if [ "$IOS_ARCH" == "x86_64" ]; then
   IOS_FLAGS=-miphoneos-version-min=8
