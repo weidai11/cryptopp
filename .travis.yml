@@ -48,6 +48,10 @@ matrix:
       env: BUILD_MODE="ios-arm"
     - os: linux
       env: BUILD_MODE="ios-arm64"
+    - os: linux
+      env: BUILD_MODE="ios-watch"
+    - os: linux
+      env: BUILD_MODE="ios-tv"
 
   allow_failures:
     # Ignore problems with old toolchains
@@ -63,6 +67,14 @@ script:
     elif [[ "$BUILD_MODE" == "ios-arm64" ]]; then
         cp ./TestScripts/setenv-ios.sh .
         . ./setenv-ios.sh arm64
+        make -f GNUmakefile-cross
+    elif [[ "$BUILD_MODE" == "ios-watch" ]]; then
+        cp ./TestScripts/setenv-ios.sh .
+        . ./setenv-ios.sh watch
+        make -f GNUmakefile-cross
+    elif [[ "$BUILD_MODE" == "ios-tv" ]]; then
+        cp ./TestScripts/setenv-ios.sh .
+        . ./setenv-ios.sh tv
         make -f GNUmakefile-cross
     else
         make "$BUILD_MODE"
