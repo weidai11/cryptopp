@@ -56,9 +56,10 @@ matrix:
       env: BUILD_MODE="ios-tv"
 
   allow_failures:
-    # Ignore problems with old toolchains
-    - env: BUILD_MODE="ubsan"
-    - env: BUILD_MODE="asan"
+    - os: linux
+      env: BUILD_MODE="ios-watch"
+    - os: linux
+      env: BUILD_MODE="ios-tv"
 
 script:
   - |

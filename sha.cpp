@@ -706,7 +706,7 @@ size_t SHA256::HashMultipleBlocks(const word32 *input, size_t length)
 
 size_t SHA224::HashMultipleBlocks(const word32 *input, size_t length)
 {
-        CRYPTOPP_ASSERT(input);
+    CRYPTOPP_ASSERT(input);
     CRYPTOPP_ASSERT(length >= SHA256::BLOCKSIZE);
 
 #if CRYPTOPP_SHANI_AVAILABLE
