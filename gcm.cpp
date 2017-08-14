@@ -134,7 +134,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
         // Avoid "parameter not used" error and suppress Coverity finding
         (void)params.GetIntValue(Name::TableSize(), tableSize);
         tableSize = s_cltableSizeInBlocks * blockSize;
-        CRYPTOPP_ASSERT(tableSize > blockSize);
+        CRYPTOPP_ASSERT(tableSize > static_cast<int>(blockSize));
     }
     else
 #elif CRYPTOPP_ARM_PMULL_AVAILABLE
@@ -143,7 +143,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
         // Avoid "parameter not used" error and suppress Coverity finding
         (void)params.GetIntValue(Name::TableSize(), tableSize);
         tableSize = s_cltableSizeInBlocks * blockSize;
-        CRYPTOPP_ASSERT(tableSize > blockSize);
+        CRYPTOPP_ASSERT(tableSize > static_cast<int>(blockSize));
     }
     else
 #endif
