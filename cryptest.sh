@@ -250,91 +250,95 @@ if [[ ("$SUNCC_510_OR_ABOVE" -ne "0") ]]; then
 	HAVE_OFAST=0
 fi
 
-if [[ (-z "$TMP") ]]; then
-	if [[ (-d "/tmp") ]]; then
-		TMP=/tmp
+# GCC compile farm is mounted RO
+if [[ (-z "$TMPDIR") ]]; then
+	if [[ (-d "/tmp") ]] && [[ `touch "/tmp/ok-to-delete" &>/dev/null` ]]; then
+		TMPDIR=/tmp
 	elif [[ (-d "/temp") ]]; then
-		TMP=/temp
+		TMPDIR=/temp
 	elif [[ (-d "$HOME/tmp") ]]; then
-		TMP="$HOME/tmp"
+		TMPDIR="$HOME/tmp"
 	else
-		echo "Please set TMP to a valid directory"
+		echo "Please set TMPDIR to a valid directory"
 		[[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
 	fi
 fi
+
+# Make temp if it does not exist
+mkdir -p "$TMPDIR" &>/dev/null
 
 # Sun Studio does not allow '-x c++'. Copy it here...
 rm -f adhoc.cpp > /dev/null 2>&1
 cp adhoc.cpp.proto adhoc.cpp
 
-rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
+rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_CXX17") ]]; then
 	HAVE_CXX17=0
-	rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=c++17 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=c++17 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	if [[ "$?" -eq "0" ]]; then
 		HAVE_CXX17=1
 	fi
 fi
 
-rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
+rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_GNU17") ]]; then
 	HAVE_GNU17=0
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=gnu++17 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=gnu++17 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	if [[ "$?" -eq "0" ]]; then
 		HAVE_GNU17=1
 	fi
 fi
 
-rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
+rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_CXX14") ]]; then
 	HAVE_CXX14=0
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=c++14 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=c++14 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	if [[ "$?" -eq "0" ]]; then
 		HAVE_CXX14=1
 	fi
 fi
 
-rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
+rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_GNU14") ]]; then
 	HAVE_GNU14=0
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=gnu++14 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=gnu++14 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	if [[ "$?" -eq "0" ]]; then
 		HAVE_GNU14=1
 	fi
 fi
 
-rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
+rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_CXX11") ]]; then
 	HAVE_CXX11=0
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=c++11 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=c++11 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	if [[ "$?" -eq "0" ]]; then
 		HAVE_CXX11=1
 	fi
 fi
 
-rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
+rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_GNU11") ]]; then
 	HAVE_GNU11=0
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=gnu++11 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=gnu++11 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	if [[ "$?" -eq "0" ]]; then
 		HAVE_GNU11=1
 	fi
 fi
 
-rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
+rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_CXX03") ]]; then
 	HAVE_CXX03=0
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=c++03 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=c++03 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	if [[ "$?" -eq "0" ]]; then
 		HAVE_CXX03=1
 	fi
 fi
 
-rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
+rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_GNU03") ]]; then
 	HAVE_GNU03=0
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=gnu++03 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=gnu++03 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	if [[ "$?" -eq "0" ]]; then
 		HAVE_GNU03=1
 	fi
@@ -342,13 +346,13 @@ fi
 
 # Use a fallback strategy so OPT_O0 can be used with DEBUG_CXXFLAGS
 OPT_O0=
-rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
-"$CXX" -DCRYPTOPP_ADHOC_MAIN -O0 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+"$CXX" -DCRYPTOPP_ADHOC_MAIN -O0 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ ("$?" -eq "0") ]]; then
 	OPT_O0=-O0
 else
-	rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -xO0 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -xO0 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	if [[ ("$?" -eq "0") ]]; then
 		OPT_O0=-xO0
 	fi
@@ -356,13 +360,13 @@ fi
 
 # Use a fallback strategy so OPT_O1 can be used with VALGRIND_CXXFLAGS
 OPT_O1=
-rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
-"$CXX" -DCRYPTOPP_ADHOC_MAIN -O1 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+"$CXX" -DCRYPTOPP_ADHOC_MAIN -O1 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ ("$?" -eq "0") ]]; then
 	OPT_O1=-O1
 else
-	rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -xO1 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -xO1 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	if [[ ("$?" -eq "0") ]]; then
 		OPT_O1=-xO1
 	fi
@@ -370,13 +374,13 @@ fi
 
 # Use a fallback strategy so OPT_O2 can be used with RELEASE_CXXFLAGS
 OPT_O2=
-rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
-"$CXX" -DCRYPTOPP_ADHOC_MAIN -O2 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+"$CXX" -DCRYPTOPP_ADHOC_MAIN -O2 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ ("$?" -eq "0") ]]; then
 	OPT_O2=-O2
 else
-	rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -xO2 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -xO2 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	if [[ ("$?" -eq "0") ]]; then
 		OPT_O2=-xO2
 	fi
@@ -385,14 +389,14 @@ fi
 if [[ (-z "$HAVE_O3") ]]; then
 	HAVE_O3=0
 	OPT_O3=
-	rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -O3 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -O3 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	if [[ ("$?" -eq "0") ]]; then
 		HAVE_O3=1
 		OPT_O3=-O3
 	else
-		rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
-		"$CXX" -DCRYPTOPP_ADHOC_MAIN -xO3 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+		rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+		"$CXX" -DCRYPTOPP_ADHOC_MAIN -xO3 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 		if [[ ("$?" -eq "0") ]]; then
 			HAVE_O3=1
 			OPT_O3=-xO3
@@ -404,14 +408,14 @@ fi
 if [[ ( (-z "$HAVE_O5") && ("$CLANG_COMPILER" -eq "0") ) ]]; then
 	HAVE_O5=0
 	OPT_O5=
-	rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -O5 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -O5 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	if [[ ("$?" -eq "0") ]]; then
 		HAVE_O5=1
 		OPT_O5=-O5
 	else
-		rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
-		"$CXX" -DCRYPTOPP_ADHOC_MAIN -xO5 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+		rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+		"$CXX" -DCRYPTOPP_ADHOC_MAIN -xO5 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 		if [[ ("$?" -eq "0") ]]; then
 			HAVE_O5=1
 			OPT_O5=-xO5
@@ -423,8 +427,8 @@ fi
 if [[ (-z "$HAVE_OS") ]]; then
 	HAVE_OS=0
 	OPT_OS=
-	rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -Os adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -Os adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	if [[ ("$?" -eq "0") ]]; then
 		HAVE_OS=1
 		OPT_OS=-Os
@@ -435,8 +439,8 @@ fi
 if [[ (-z "$HAVE_OFAST") ]]; then
 	HAVE_OFAST=0
 	OPT_OFAST=
-	rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -Ofast adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -Ofast adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	if [[ ("$?" -eq "0") ]]; then
 		HAVE_OFAST=1
 		OPT_OFAST=-Ofast
@@ -445,13 +449,13 @@ fi
 
 # Use a fallback strategy so OPT_G2 can be used with RELEASE_CXXFLAGS
 OPT_G2=
-rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
-"$CXX" -DCRYPTOPP_ADHOC_MAIN -g2 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+"$CXX" -DCRYPTOPP_ADHOC_MAIN -g2 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ ("$?" -eq "0") ]]; then
 	OPT_G2=-g2
 else
-	rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -g adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -g adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	if [[ ("$?" -eq "0") ]]; then
 		OPT_G2=-g
 	fi
@@ -459,13 +463,13 @@ fi
 
 # Use a fallback strategy so OPT_G3 can be used with DEBUG_CXXFLAGS
 OPT_G3=
-rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
-"$CXX" -DCRYPTOPP_ADHOC_MAIN -g3 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+"$CXX" -DCRYPTOPP_ADHOC_MAIN -g3 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ ("$?" -eq "0") ]]; then
 	OPT_G3=-g3
 else
-	rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -g adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -g adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	if [[ ("$?" -eq "0") ]]; then
 		OPT_G3=-g
 	fi
@@ -473,10 +477,10 @@ fi
 
 # Cygwin and noisy compiles
 OPT_PIC=
-rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
+rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_PIC") ]]; then
 	HAVE_PIC=0
-	PIC_PROBLEMS=$("$CXX" -DCRYPTOPP_ADHOC_MAIN -fPIC adhoc.cpp -o "$TMP/adhoc.exe" 2>&1 | "$EGREP" -ic '(warning|error)')
+	PIC_PROBLEMS=$("$CXX" -DCRYPTOPP_ADHOC_MAIN -fPIC adhoc.cpp -o "$TMPDIR/adhoc.exe" 2>&1 | "$EGREP" -ic '(warning|error)')
 	if [[ "$PIC_PROBLEMS" -eq "0" ]]; then
 		HAVE_PIC=1
 		OPT_PIC=-fPIC
@@ -484,12 +488,12 @@ if [[ (-z "$HAVE_PIC") ]]; then
 fi
 
 # GCC 4.8; Clang 3.4
-rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
+rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_UBSAN") ]]; then
 	HAVE_UBSAN=0
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -fsanitize=undefined adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -fsanitize=undefined adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	if [[ ("$?" -eq "0") ]]; then
-		"$TMP/adhoc.exe" > /dev/null 2>&1
+		"$TMPDIR/adhoc.exe" > /dev/null 2>&1
 		if [[ ("$?" -eq "0") ]]; then
 			HAVE_UBSAN=1
 		fi
@@ -497,12 +501,12 @@ if [[ (-z "$HAVE_UBSAN") ]]; then
 fi
 
 # GCC 4.8; Clang 3.4
-rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
+rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_ASAN") ]]; then
 	HAVE_ASAN=0
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -fsanitize=address adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -fsanitize=address adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	if [[ ("$?" -eq "0") ]]; then
-		"$TMP/adhoc.exe" > /dev/null 2>&1
+		"$TMPDIR/adhoc.exe" > /dev/null 2>&1
 		if [[ ("$?" -eq "0") ]]; then
 			HAVE_ASAN=1
 		fi
@@ -510,41 +514,41 @@ if [[ (-z "$HAVE_ASAN") ]]; then
 fi
 
 # GCC 6.0; maybe Clang
-rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
+rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_BSAN") ]]; then
 	HAVE_BSAN=0
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -fsanitize=bounds-strict adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -fsanitize=bounds-strict adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	if [[ ("$?" -eq "0") ]]; then
-		"$TMP/adhoc.exe" > /dev/null 2>&1
+		"$TMPDIR/adhoc.exe" > /dev/null 2>&1
 		if [[ ("$?" -eq "0") ]]; then
 			HAVE_BSAN=1
 		fi
 	fi
 fi
 
-rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
+rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_OMP") ]]; then
 	HAVE_OMP=0
 	if [[ "$GCC_COMPILER" -ne "0" ]]; then
-		"$CXX" -DCRYPTOPP_ADHOC_MAIN -fopenmp -O3 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+		"$CXX" -DCRYPTOPP_ADHOC_MAIN -fopenmp -O3 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 		if [[ "$?" -eq "0" ]]; then
 			HAVE_OMP=1
 			OMP_FLAGS=(-fopenmp -O3)
 		fi
 	elif [[ "$INTEL_COMPILER" -ne "0" ]]; then
-		"$CXX" -DCRYPTOPP_ADHOC_MAIN -openmp -O3 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+		"$CXX" -DCRYPTOPP_ADHOC_MAIN -openmp -O3 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 		if [[ "$?" -eq "0" ]]; then
 			HAVE_OMP=1
 			OMP_FLAGS=(-openmp -O3)
 		fi
 	elif [[ "$CLANG_COMPILER" -ne "0" ]]; then
-		"$CXX" -DCRYPTOPP_ADHOC_MAIN -fopenmp=libomp -O3 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+		"$CXX" -DCRYPTOPP_ADHOC_MAIN -fopenmp=libomp -O3 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 		if [[ "$?" -eq "0" ]]; then
 			HAVE_OMP=1
 			OMP_FLAGS=(-fopenmp=libomp -O3)
 		fi
 	elif [[ "$SUN_COMPILER" -ne "0" ]]; then
-		"$CXX" -DCRYPTOPP_ADHOC_MAIN -xopenmp=parallel -xO3 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+		"$CXX" -DCRYPTOPP_ADHOC_MAIN -xopenmp=parallel -xO3 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 		if [[ "$?" -eq "0" ]]; then
 			HAVE_OMP=1
 			OMP_FLAGS=(-xopenmp=parallel -xO3)
@@ -552,33 +556,33 @@ if [[ (-z "$HAVE_OMP") ]]; then
 	fi
 fi
 
-rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
+rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_INTEL_MULTIARCH") ]]; then
 	HAVE_INTEL_MULTIARCH=0
 	if [[ ("$IS_DARWIN" -ne "0") && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0") ]]; then
-		"$CXX" -DCRYPTOPP_ADHOC_MAIN -arch i386 -arch x86_64 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+		"$CXX" -DCRYPTOPP_ADHOC_MAIN -arch i386 -arch x86_64 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 		if [[ "$?" -eq "0" ]]; then
 			HAVE_INTEL_MULTIARCH=1
 		fi
 	fi
 fi
 
-rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
+rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_PPC_MULTIARCH") ]]; then
 	HAVE_PPC_MULTIARCH=0
 	if [[ ("$IS_DARWIN" -ne "0") && ("$IS_PPC" -ne "0") ]]; then
-		"$CXX" -DCRYPTOPP_ADHOC_MAIN -arch ppc -arch ppc64 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+		"$CXX" -DCRYPTOPP_ADHOC_MAIN -arch ppc -arch ppc64 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 		if [[ "$?" -eq "0" ]]; then
 			HAVE_PPC_MULTIARCH=1
 		fi
 	fi
 fi
 
-rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
+rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_X32") ]]; then
 	HAVE_X32=0
 	if [[ "$IS_X32" -ne "0" ]]; then
-		"$CXX" -DCRYPTOPP_ADHOC_MAIN -mx32 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+		"$CXX" -DCRYPTOPP_ADHOC_MAIN -mx32 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 		if [[ "$?" -eq "0" ]]; then
 			HAVE_X32=1
 		fi
@@ -588,8 +592,8 @@ fi
 # Hit or miss, mostly hit
 if [[ (-z "$HAVE_NATIVE_ARCH") ]]; then
 	HAVE_NATIVE_ARCH=0
-	rm -f "$TMP/adhoc.exe" > /dev/null 2>&1
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -march=native adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -march=native adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	if [[ ("$?" -eq "0") ]]; then
 		HAVE_NATIVE_ARCH=1
 	fi
@@ -603,7 +607,7 @@ if [[ (-z "$HAVE_LDGOLD") ]]; then
 	if [[ (! -z "$LD_GOLD") && (! -z "$ELF_FILE") ]]; then
 		LD_GOLD=$(file "$LD_GOLD" | cut -d":" -f 2 | "$EGREP" -i -c "elf")
 		if [[ ("$LD_GOLD" -ne "0") ]]; then
-			"$CXX" -DCRYPTOPP_ADHOC_MAIN -fuse-ld=gold adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+			"$CXX" -DCRYPTOPP_ADHOC_MAIN -fuse-ld=gold adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 			if [[ "$?" -eq "0" ]]; then
 				HAVE_LDGOLD=1
 			fi
@@ -688,10 +692,10 @@ fi
 
 # Used to disassemble object modules so we can verify some aspects of code generation
 if [[ (-z "$HAVE_DISASS") ]]; then
-	echo "int main(int argc, char* argv[]) {return 0;}" > "$TMP/test.cc"
-	"$CXX" "$TMP/test.cc" -o "$TMP/test.exe" > /dev/null 2>&1
+	echo "int main(int argc, char* argv[]) {return 0;}" > "$TMPDIR/test.cc"
+	"$CXX" "$TMPDIR/test.cc" -o "$TMPDIR/test.exe" > /dev/null 2>&1
 	if [[ "$?" -eq "0" ]]; then
-		"$DISASS" "${DISASSARGS[@]}" "$TMP/test.exe" > /dev/null 2>&1
+		"$DISASS" "${DISASSARGS[@]}" "$TMPDIR/test.exe" > /dev/null 2>&1
 		if [[ "$?" -eq "0" ]]; then
 			HAVE_DISASS=1
 		else
@@ -1201,7 +1205,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 	############################################
 	# Test AES-NI code generation
 
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -maes adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -maes adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	if [[ "$?" -eq "0" ]]; then
 		X86_AESNI=1
 	fi
@@ -1263,7 +1267,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 	############################################
 	# X86 carryless multiply code generation
 
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -mpclmul adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -mpclmul adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	if [[ "$?" -eq "0" ]]; then
 		X86_PCLMUL=1
 	fi
@@ -1301,11 +1305,11 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 	############################################
 	# Test RDRAND and RDSEED code generation
 
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -mrdrnd adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -mrdrnd adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	if [[ "$?" -eq "0" ]]; then
 		X86_RDRAND=1
 	fi
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -mrdseed adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -mrdseed adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	if [[ "$?" -eq "0" ]]; then
 		X86_RDSEED=1
 	fi
@@ -1347,7 +1351,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 	############################################
 	# X86 CRC32 code generation
 
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -msse4.2 adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -msse4.2 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	if [[ "$?" -eq "0" ]]; then
 		X86_CRC32=1
 	fi
@@ -1385,7 +1389,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 	############################################
 	# X86 SHA code generation
 
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -msha adhoc.cpp -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -msha adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	if [[ "$?" -eq "0" ]]; then
 		X86_SHA=1
 	fi
@@ -5004,7 +5008,7 @@ fi
 if [[ ("$CLANG_COMPILER" -eq "0") ]]; then
 
 	CLANG_CXX=$(which clang++ 2>&1 | "$GREP" -v "no clang++" | head -1)
-	"$CLANG_CXX" -x c++ -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	"$CLANG_CXX" -x c++ -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	if [[ "$?" -eq "0" ]]; then
 
 		############################################
@@ -5039,7 +5043,7 @@ fi
 if [[ ("$GCC_COMPILER" -eq "0") ]]; then
 
 	GCC_CXX=$(which g++ 2>&1 | "$GREP" -v "no g++" | head -1)
-	"$GCC_CXX" -x c++ -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	"$GCC_CXX" -x c++ -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	if [[ "$?" -eq "0" ]]; then
 
 		############################################
@@ -5077,7 +5081,7 @@ if [[ ("$INTEL_COMPILER" -eq "0") ]]; then
 	if [[ (-z "$INTEL_CXX") ]]; then
 		INTEL_CXX=$(find /opt/intel -name icpc 2>/dev/null | "$GREP" -iv composer | head -1)
 	fi
-	"$INTEL_CXX" -x c++ -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMP/adhoc.exe" > /dev/null 2>&1
+	"$INTEL_CXX" -x c++ -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	if [[ "$?" -eq "0" ]]; then
 
 		############################################
@@ -5113,7 +5117,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 
 	MACPORTS_CXX=$(find /opt/local/bin -name 'g++-mp-4*' 2>/dev/null | head -1)
 	if [[ (! -z "$MACPORTS_CXX") ]]; then
-		"$MACPORTS_CXX" -x c++ -std=c++11 -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMP/adhoc.exe" > /dev/null 2>&1
+		"$MACPORTS_CXX" -x c++ -std=c++11 -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 		if [[ "$?" -eq "0" ]]; then
 
 			############################################
@@ -5146,7 +5150,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 
 	MACPORTS_CXX=$(find /opt/local/bin -name 'g++-mp-5*' 2>/dev/null | head -1)
 	if [[ (! -z "$MACPORTS_CXX") ]]; then
-		"$MACPORTS_CXX" -x c++ -std=c++11 -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMP/adhoc.exe" > /dev/null 2>&1
+		"$MACPORTS_CXX" -x c++ -std=c++11 -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 		if [[ "$?" -eq "0" ]]; then
 
 			############################################
@@ -5179,7 +5183,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 
 	MACPORTS_CXX=$(find /opt/local/bin -name 'g++-mp-6*' 2>/dev/null | head -1)
 	if [[ (! -z "$MACPORTS_CXX") ]]; then
-		"$MACPORTS_CXX" -x c++ -std=c++11 -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMP/adhoc.exe" > /dev/null 2>&1
+		"$MACPORTS_CXX" -x c++ -std=c++11 -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 		if [[ "$?" -eq "0" ]]; then
 
 			############################################
@@ -5212,7 +5216,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 
 	MACPORTS_CXX=$(find /opt/local/bin -name 'g++-mp-7*' 2>/dev/null | head -1)
 	if [[ (! -z "$MACPORTS_CXX") ]]; then
-		"$MACPORTS_CXX" -x c++ -std=c++11 -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMP/adhoc.exe" > /dev/null 2>&1
+		"$MACPORTS_CXX" -x c++ -std=c++11 -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 		if [[ "$?" -eq "0" ]]; then
 
 			############################################
@@ -5245,7 +5249,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 
 	MACPORTS_CXX=$(find /opt/local/bin -name 'clang++-mp-3.7*' 2>/dev/null | head -1)
 	if [[ (! -z "$MACPORTS_CXX") ]]; then
-		"$MACPORTS_CXX" -x c++ -std=c++11 -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMP/adhoc.exe" > /dev/null 2>&1
+		"$MACPORTS_CXX" -x c++ -std=c++11 -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 		if [[ "$?" -eq "0" ]]; then
 
 			############################################
@@ -5277,7 +5281,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 
 	MACPORTS_CXX=$(find /opt/local/bin -name 'clang++-mp-3.8*' 2>/dev/null | head -1)
 	if [[ (! -z "$MACPORTS_CXX") ]]; then
-		"$MACPORTS_CXX" -x c++ -std=c++11 -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMP/adhoc.exe" > /dev/null 2>&1
+		"$MACPORTS_CXX" -x c++ -std=c++11 -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 		if [[ "$?" -eq "0" ]]; then
 
 			############################################
@@ -5309,7 +5313,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 
 	MACPORTS_CXX=$(find /opt/local/bin -name 'clang++-mp-3.9*' 2>/dev/null | head -1)
 	if [[ (! -z "$MACPORTS_CXX") ]]; then
-		"$MACPORTS_CXX" -x c++ -std=c++11 -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMP/adhoc.exe" > /dev/null 2>&1
+		"$MACPORTS_CXX" -x c++ -std=c++11 -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 		if [[ "$?" -eq "0" ]]; then
 
 			############################################
@@ -5341,7 +5345,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 
 	MACPORTS_CXX=$(find /opt/local/bin -name 'clang++-mp-4*' 2>/dev/null | head -1)
 	if [[ (! -z "$MACPORTS_CXX") ]]; then
-		"$MACPORTS_CXX" -x c++ -std=c++11 -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMP/adhoc.exe" > /dev/null 2>&1
+		"$MACPORTS_CXX" -x c++ -std=c++11 -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 		if [[ "$?" -eq "0" ]]; then
 
 			############################################
