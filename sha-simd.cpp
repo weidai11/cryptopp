@@ -37,14 +37,14 @@
 # include "immintrin.h"
 #endif
 
-#if (CRYPTOPP_ARM_AES_AVAILABLE)
+#if (CRYPTOPP_ARM_SHA_AVAILABLE)
 # include "arm_neon.h"
 #endif
 
 // Don't include <arm_acle.h> when using Apple Clang. Early Apple compilers
 //  fail to compile with <arm_acle.h> included. Later Apple compilers compile
 //  intrinsics without <arm_acle.h> included.
-#if (CRYPTOPP_ARM_AES_AVAILABLE) && !defined(CRYPTOPP_APPLE_CLANG_VERSION)
+#if (CRYPTOPP_ARM_SHA_AVAILABLE) && !defined(CRYPTOPP_APPLE_CLANG_VERSION)
 # include "arm_acle.h"
 #endif
 
