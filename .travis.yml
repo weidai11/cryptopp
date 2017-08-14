@@ -28,6 +28,8 @@ env:
     - BUILD_MODE="ubsan"
     - BUILD_MODE="ios-arm"
     - BUILD_MODE="ios-arm64"
+    - BUILD_MODE="ios-watch"
+    - BUILD_MODE="ios-tv"
 
 matrix:
 
