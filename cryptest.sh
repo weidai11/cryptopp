@@ -1176,27 +1176,27 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
 
 		X86_SSE2=$(echo -n "$X86_CPU_FLAGS" | "$GREP" -i -c sse2)
-		X86_SHA256_HASH_BLOCKS=$(echo -n "$DISASS_TEXT" | "$EGREP" -c 'SHA256_HashBlocks_SSE2')
+		X86_SHA256_HASH_BLOCKS=$(echo -n "$DISASS_TEXT" | "$EGREP" -c 'SHA256_HashMultipleBlocks_SSE2')
 		if [[ ("$X86_SHA256_HASH_BLOCKS" -ne "0") ]]; then
 			COUNT=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c '(rol.*0x|ror.*0x)')
-			if [[ ("$COUNT" -le "600") ]]; then
+			if [[ ("$COUNT" -le "250") ]]; then
 				FAILED=1
-				echo "ERROR: failed to generate rotate immediate instruction (SHA256_HashBlocks_SSE2)" | tee -a "$TEST_RESULTS"
+				echo "ERROR: failed to generate rotate immediate instruction (SHA256_HashMultipleBlocks_SSE2)" | tee -a "$TEST_RESULTS"
 			fi
 		else
 			COUNT=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c '(rol.*0x|ror.*0x)')
-			if [[ ("$COUNT" -le "1000") ]]; then
+			if [[ ("$COUNT" -le "500") ]]; then
 				FAILED=1
 				echo "ERROR: failed to generate rotate immediate instruction" | tee -a "$TEST_RESULTS"
 			fi
 		fi
 
 		if [[ ("$X86_SSE2" -ne "0" && "$X86_SHA256_HASH_BLOCKS" -eq "0") ]]; then
-			echo "ERROR: failed to use SHA256_HashBlocks_SSE2" | tee -a "$TEST_RESULTS"
+			echo "ERROR: failed to use SHA256_HashMultipleBlocks_SSE2" | tee -a "$TEST_RESULTS"
 		fi
 
 		if [[ ("$FAILED" -eq "0" && "$X86_SHA256_HASH_BLOCKS" -ne "0") ]]; then
-			echo "Verified rotate immediate machine instructions (SHA256_HashBlocks_SSE2)" | tee -a "$TEST_RESULTS"
+			echo "Verified rotate immediate machine instructions (SHA256_HashMultipleBlocks_SSE2)" | tee -a "$TEST_RESULTS"
 		elif [[ ("$FAILED" -eq "0") ]]; then
 			echo "Verified rotate immediate machine instructions" | tee -a "$TEST_RESULTS"
 		fi

@@ -210,7 +210,7 @@ fi
 
 # Yet another ARM64 fixup.
 if [ "$APPLE_SDK" == "AppleTVOS" ]; then
-  IOS_FLAGS=
+  IOS_FLAGS=""
 fi
 
 # ARM64 Simulator fixup. Under Xcode 6/iOS 8, it uses x86_64 and not i386
