@@ -250,8 +250,9 @@ if [[ ("$SUNCC_510_OR_ABOVE" -ne "0") ]]; then
 	HAVE_OFAST=0
 fi
 
+# GCC compile farm is mounted RO
 if [[ (-z "$TMPDIR") ]]; then
-	if [[ (-d "/tmp") ]]; then
+	if [[ (-d "/tmp") ]] && [[ `touch "/tmp/ok-to-delete" &>/dev/null` ]]; then
 		TMPDIR=/tmp
 	elif [[ (-d "/temp") ]]; then
 		TMPDIR=/temp
@@ -262,6 +263,9 @@ if [[ (-z "$TMPDIR") ]]; then
 		[[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
 	fi
 fi
+
+# Make temp if it does not exist
+mkdir -p "$TMPDIR" &>/dev/null
 
 # Sun Studio does not allow '-x c++'. Copy it here...
 rm -f adhoc.cpp > /dev/null 2>&1
@@ -1379,6 +1383,44 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 
 		if [[ ("$FAILED" -eq "0") ]]; then
 			echo "Verified rdrand and rdseed machine instructions" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+
+	############################################
+	# X86 CRC32 code generation
+
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -msse4.2 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+	if [[ "$?" -eq "0" ]]; then
+		X86_CRC32=1
+	fi
+
+	if [[ ("$X86_CRC32" -ne "0") ]]; then
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS"
+		echo "Testing: X86 CRC32 code generation" | tee -a "$TEST_RESULTS"
+		echo
+
+		OBJFILE=crc.o; rm -f "$OBJFILE" 2>/dev/null
+		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS -DDISABLE_NATIVE_ARCH=1 -msse -msse2" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
+
+		COUNT=0
+		FAILED=0
+		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
+
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c crc32l)
+		if [[ ("$COUNT" -eq "0") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate crc32l instruction" | tee -a "$TEST_RESULTS"
+		fi
+
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c crc32b)
+		if [[ ("$COUNT" -eq "0") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate crc32b instruction" | tee -a "$TEST_RESULTS"
+		fi
+
+		if [[ ("$FAILED" -eq "0") ]]; then
+			echo "Verified crc32l and crc32b machine instructions" | tee -a "$TEST_RESULTS"
 		fi
 	fi
 

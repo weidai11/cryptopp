@@ -92,6 +92,10 @@ NAMESPACE_BEGIN(CryptoPP)
 # define MAYBE_CONST const
 #endif
 
+// Clang __m128i casts
+#define M128I_CAST(x) ((__m128i *)(void *)(x))
+#define CONST_M128I_CAST(x) ((const __m128i *)(const void *)(x))
+
 #if defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS) || defined(CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS)
 # if (CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
 namespace rdtable {CRYPTOPP_ALIGN_DATA(16) word64 Te[256+2];}
