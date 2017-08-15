@@ -65,9 +65,14 @@ static void Mash(const byte *in, size_t inLen, byte *out, size_t outLen, int ite
 template <class BC, class H, class Info>
 static void GenerateKeyIV(const byte *passphrase, size_t passphraseLength, const byte *salt, size_t saltLength, unsigned int iterations, byte *key, byte *IV)
 {
+	// UBsan. User supplied params, may be NULL
 	SecByteBlock temp(passphraseLength+saltLength);
-	memcpy(temp, passphrase, passphraseLength);
-	memcpy(temp+passphraseLength, salt, saltLength);
+	if (passphrase != NULLPTR)
+		memcpy(temp, passphrase, passphraseLength);
+	if (salt != NULLPTR)
+		memcpy(temp+passphraseLength, salt, saltLength);
+
+	// OK. Derived params, cannot be NULL
 	SecByteBlock keyIV(Info::KEYLENGTH+Info::BLOCKSIZE);
 	Mash<H>(temp, passphraseLength + saltLength, keyIV, Info::KEYLENGTH+Info::BLOCKSIZE, iterations);
 	memcpy(key, keyIV, Info::KEYLENGTH);
