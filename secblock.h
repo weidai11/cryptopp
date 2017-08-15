@@ -43,12 +43,28 @@ public:
 	void destroy(pointer p) {CRYPTOPP_UNUSED(p); p->~T();}
 
 	//! \brief Returns the maximum number of elements the allocator can provide
+	//! \details <tt>ELEMS_MAX</tt> is the maximum number of elements the
+	//!   <tt>Allocator</tt> can provide.
+	//! \note In C++03 and below <tt>ELEMS_MAX</tt> is a static data member of type
+	//!   <tt>size_type</tt>. In C++11 and above <tt>ELEMS_MAX</tt> is an <tt>enum</tt>
+	//!   inheriting from <tt>size_type</tt>. In both cases <tt>ELEMS_MAX</tt> can be
+	//!   used before objects are fully constructed, and it does not suffer the
+	//!   limitations of class methods like <tt>max_size</tt>.
+	//! \sa <A HREF="http://github.com/weidai11/cryptopp/issues/346">Issue 346/CVE-2016-9939</A>
+	//! \since Crypto++ 6.0
+#if defined(CRYPTOPP_CXX11) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
+	enum : size_type {ELEMS_MAX = SIZE_MAX/sizeof(T)};
+#else
+	static const size_type ELEMS_MAX = SIZE_MAX/sizeof(T);
+#endif
+
+	//! \brief Returns the maximum number of elements the allocator can provide
 	//! \returns the maximum number of elements the allocator can provide
 	//! \details Internally, preprocessor macros are used rather than std::numeric_limits
 	//!   because the latter is not a constexpr. Some compilers, like Clang, do not
 	//!   optimize it well under all circumstances. Compilers like GCC, ICC and MSVC appear
 	//!   to optimize it well in either form.
-	CRYPTOPP_CONSTEXPR size_type max_size() const {return (SIZE_MAX/sizeof(T));}
+	CRYPTOPP_CONSTEXPR size_type max_size() const {return ELEMS_MAX;}
 
 #if defined(CRYPTOPP_CXX11_VARIADIC_TEMPLATES) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
@@ -87,7 +103,7 @@ protected:
 	static void CheckSize(size_t size)
 	{
 		// C++ throws std::bad_alloc (C++03) or std::bad_array_new_length (C++11) here.
-		if (size > (SIZE_MAX/sizeof(T)))
+		if (size > ELEMS_MAX)
 			throw InvalidArgument("AllocatorBase: requested size would cause integer overflow");
 	}
 };
@@ -486,13 +502,29 @@ public:
 	typedef typename A::const_pointer const_iterator;
 	typedef typename A::size_type size_type;
 
+	//! \brief Returns the maximum number of elements the block can hold
+	//! \details <tt>ELEMS_MAX</tt> is the maximum number of elements the
+	//!   <tt>SecBlock</tt> can hold.
+	//! \note In C++03 and below <tt>ELEMS_MAX</tt> is a static data member of type
+	//!   <tt>size_type</tt>. In C++11 and above <tt>ELEMS_MAX</tt> is an <tt>enum</tt>
+	//!   inheriting from <tt>size_type</tt>. In both cases <tt>ELEMS_MAX</tt> can be
+	//!   used before objects are fully constructed, and it does not suffer the
+	//!   limitations of class methods like <tt>max_size</tt>.
+	//! \sa <A HREF="http://github.com/weidai11/cryptopp/issues/346">Issue 346/CVE-2016-9939</A>
+	//! \since Crypto++ 6.0
+#if defined(CRYPTOPP_CXX11) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
+	enum : size_type { ELEMS_MAX = A::ELEMS_MAX };
+#else
+	static const size_type ELEMS_MAX = A::ELEMS_MAX;
+#endif
+
 	//! \brief Construct a SecBlock with space for size elements.
 	//! \param size the size of the allocation, in elements
 	//! \throws std::bad_alloc
 	//! \details The elements are not initialized.
 	//! \note size is the count of elements, and not the number of bytes
 	explicit SecBlock(size_type size=0)
-		: m_mark(SIZE_MAX/sizeof(T)), m_size(size), m_ptr(m_alloc.allocate(size, NULLPTR)) { }
+		: m_mark(ELEMS_MAX), m_size(size), m_ptr(m_alloc.allocate(size, NULLPTR)) { }
 
 	//! \brief Copy construct a SecBlock from another SecBlock
 	//! \param t the other SecBlock
@@ -512,7 +544,7 @@ public:
 	//!    Otherwise, the block is empty and not initialized.
 	//! \note size is the count of elements, and not the number of bytes
 	SecBlock(const T *ptr, size_type len)
-		: m_mark(SIZE_MAX/sizeof(T)), m_size(len), m_ptr(m_alloc.allocate(len, NULLPTR)) {
+		: m_mark(ELEMS_MAX), m_size(len), m_ptr(m_alloc.allocate(len, NULLPTR)) {
 			CRYPTOPP_ASSERT((!m_ptr && !m_size) || (m_ptr && m_size));
 			if (ptr && m_ptr)
 				memcpy_s(m_ptr, m_size*sizeof(T), ptr, len*sizeof(T));
@@ -587,17 +619,21 @@ public:
 	//!    preserving the streaming interface. The <tt>count</tt> controls the number of
 	//!    elements zeroized, which can be less than <tt>size</tt> or 0.
 	//! \details An internal variable, <tt>m_mark</tt>, is initialized to the maximum number
-	//!    of elements. Deallocation triggers a zeroization, and the number of elements
-	//!    zeroized is <tt>STDMIN(m_size, m_mark)</tt>. After zeroization, the memory is
-	//!    returned to the system.
+	//!    of elements. The maximum number of elements is <tt>ELEMS_MAX</tt>. Deallocation
+	//!    triggers a zeroization, and the number of elements zeroized is
+	//!    <tt>STDMIN(m_size, m_mark)</tt>. After zeroization, the memory is returned to the
+	//!    system.
 	//! \details The ASN.1 decoder uses SetMark() to set the element count to 0
 	//!    before throwing an exception. In this case, the attacker provides a large
 	//!    BER encoded length (say 64MB) but only a small number of content octets
 	//!    (say 16). If the allocator zeroized all 64MB, then a transient DoS could
 	//!    occur as CPU cycles are spent zeroizing unintialized memory.
-	//! \details If Assign(), New(), Grow(), CleanNew(), CleanGrow() are called, then the
-	//!    count is reset to its default state, which is the maxmimum number of elements.
+	//! \details Generally speaking, any operation which changes the size of the SecBlock
+	//!    results in the mark being reset to <tt>ELEMS_MAX</tt>. In particular, if Assign(),
+	//!    New(), Grow(), CleanNew(), CleanGrow() are called, then the count is reset to
+	//!    <tt>ELEMS_MAX</tt>. The list is not exhaustive.
 	//! \since Crypto++ 6.0
+	//! \sa <A HREF="http://github.com/weidai11/cryptopp/issues/346">Issue 346/CVE-2016-9939</A>
 	void SetMark(size_t count) {m_mark = count;}
 
 	//! \brief Set contents and size from an array
@@ -608,8 +644,9 @@ public:
 	void Assign(const T *ptr, size_type len)
 	{
 		New(len);
-		if (m_ptr && ptr && len)
+		if (m_ptr && ptr)
 			{memcpy_s(m_ptr, m_size*sizeof(T), ptr, len*sizeof(T));}
+		m_mark = ELEMS_MAX;
 	}
 
 	//! \brief Copy contents from another SecBlock
@@ -623,9 +660,10 @@ public:
 		if (this != &t)
 		{
 			New(t.m_size);
-			if (m_ptr && t.m_ptr && t.m_size)
+			if (m_ptr && t.m_ptr)
 				{memcpy_s(m_ptr, m_size*sizeof(T), t, t.m_size*sizeof(T));}
 		}
+		m_mark = ELEMS_MAX;
 	}
 
 	//! \brief Assign contents from another SecBlock
@@ -661,6 +699,7 @@ public:
 				memcpy_s(m_ptr+oldSize, (m_size-oldSize)*sizeof(T), m_ptr, oldSize*sizeof(T));
 			}
 		}
+		m_mark = ELEMS_MAX;
 		return *this;
 	}
 
@@ -716,7 +755,7 @@ public:
 	{
 		m_ptr = m_alloc.reallocate(m_ptr, m_size, newSize, false);
 		m_size = newSize;
-		m_mark = SIZE_MAX/sizeof(T);
+		m_mark = ELEMS_MAX;
 	}
 
 	//! \brief Change size without preserving contents
@@ -731,6 +770,7 @@ public:
 	{
 		New(newSize);
 		if (m_ptr) {memset_z(m_ptr, 0, m_size*sizeof(T));}
+		m_mark = ELEMS_MAX;
 	}
 
 	//! \brief Change size and preserve contents
@@ -747,8 +787,8 @@ public:
 		{
 			m_ptr = m_alloc.reallocate(m_ptr, m_size, newSize, true);
 			m_size = newSize;
-			m_mark = SIZE_MAX/sizeof(T);
 		}
+		m_mark = ELEMS_MAX;
 	}
 
 	//! \brief Change size and preserve contents
@@ -766,8 +806,8 @@ public:
 			m_ptr = m_alloc.reallocate(m_ptr, m_size, newSize, true);
 			memset_z(m_ptr+m_size, 0, (newSize-m_size)*sizeof(T));
 			m_size = newSize;
-			m_mark = SIZE_MAX/sizeof(T);
 		}
+		m_mark = ELEMS_MAX;
 	}
 
 	//! \brief Change size and preserve contents
@@ -781,7 +821,7 @@ public:
 	{
 		m_ptr = m_alloc.reallocate(m_ptr, m_size, newSize, true);
 		m_size = newSize;
-		m_mark = SIZE_MAX/sizeof(T);
+		m_mark = ELEMS_MAX;
 	}
 
 	//! \brief Swap contents with another SecBlock
