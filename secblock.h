@@ -53,7 +53,7 @@ public:
 	//! \sa <A HREF="http://github.com/weidai11/cryptopp/issues/346">Issue 346/CVE-2016-9939</A>
 	//! \since Crypto++ 6.0
 #if defined(CRYPTOPP_CXX11) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
-	enum : size_type {ELEMS_MAX=SIZE_MAX/sizeof(T)};
+	enum : size_type {ELEMS_MAX = SIZE_MAX/sizeof(T)};
 #else
 	static const size_type ELEMS_MAX = SIZE_MAX/sizeof(T);
 #endif
@@ -502,7 +502,7 @@ public:
 	typedef typename A::const_pointer const_iterator;
 	typedef typename A::size_type size_type;
 
-	//! \brief Returns the maximum number of elements the allocator can provide
+	//! \brief Returns the maximum number of elements the block can hold
 	//! \details <tt>ELEMS_MAX</tt> is the maximum number of elements the
 	//!   <tt>SecBlock</tt> can hold.
 	//! \note In C++03 and below <tt>ELEMS_MAX</tt> is a static data member of type
