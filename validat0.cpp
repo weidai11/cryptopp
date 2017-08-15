@@ -242,13 +242,13 @@ bool TestCompressors()
     // Unzip random data. See if we can induce a crash
     for (unsigned int i = 0; i<128; i++)
     {
-		SecByteBlock src;
+        SecByteBlock src;
         unsigned int len = GlobalRNG().GenerateWord32(4, 0xfff);
-		src.resize(len);
+        src.resize(len);
         RandomNumberSource(GlobalRNG(), len, true, new ArraySink(src, src.size()));
 
         src[0] = (byte)0x1f;  // magic header
-		src[1] = (byte)0x8b;
+        src[1] = (byte)0x8b;
         src[2] = 0x00;  // extra flags
         src[3] = src[3] & (2 | 4 | 8 | 16 | 32);   // flags
 
@@ -313,13 +313,13 @@ bool TestCompressors()
     // Inflate random data. See if we can induce a crash
     for (unsigned int i = 0; i<128; i++)
     {
-		SecByteBlock src;
+        SecByteBlock src;
         unsigned int len = GlobalRNG().GenerateWord32(4, 0xfff);
-		src.resize(len);
+        src.resize(len);
         RandomNumberSource(GlobalRNG(), len, true, new ArraySink(src, src.size()));
 
         src[0] = (byte)0x1f;  // magic header
-		src[1] = (byte)0x8b;
+        src[1] = (byte)0x8b;
         src[2] = 0x00;  // extra flags
         src[3] = src[3] & (2 | 4 | 8 | 16 | 32);   // flags
 
@@ -392,9 +392,9 @@ bool TestCompressors()
     // Decompress random data. See if we can induce a crash
     for (unsigned int i = 0; i<128; i++)
     {
-		SecByteBlock src;
+        SecByteBlock src;
         unsigned int len = GlobalRNG().GenerateWord32(4, 0xfff);
-		src.resize(len);
+        src.resize(len);
         RandomNumberSource(GlobalRNG(), len, true, new ArraySink(src, src.size()));
 
         // CMF byte
@@ -536,7 +536,7 @@ bool TestEncryptors()
 
             StringSource(src, true, new LegacyEncryptor(pwd.c_str(),new StringSink(dest)));
             StringSource(dest, true, new LegacyDecryptor(pwd.c_str(),new StringSink(rec)));
-			
+
             if (src != rec)
                 throw Exception(Exception::OTHER_ERROR, "LegacyEncryptor failed a self test");
         }
