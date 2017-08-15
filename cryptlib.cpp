@@ -320,8 +320,7 @@ void RandomNumberGenerator::GenerateIntoBufferedTransformation(BufferedTransform
 	{
 		size_t len = UnsignedMin(buffer.size(), length);
 		GenerateBlock(buffer, len);
-		size_t rem = target.ChannelPut(channel, buffer, len);
-		CRYPTOPP_UNUSED(rem); CRYPTOPP_ASSERT(rem == 0);
+		(void)target.ChannelPut(channel, buffer, len);
 		length -= len;
 	}
 }
