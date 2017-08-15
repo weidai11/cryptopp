@@ -128,19 +128,16 @@ bool CPU_TryAES_ARMV8()
 		struct utsname systemInfo;
 		systemInfo.machine[0] = '\0';
 		uname(&systemInfo);
-		const char* machine = systemInfo.machine;
 
-		if (0==strcmp(machine, "iPhone6,1") || 0==strcmp(machine, "iPhone6,2") ||
-			0==strcmp(machine, "iPhone7,1") || 0==strcmp(machine, "iPhone7,2") ||
-			0==strcmp(machine, "iPad4,1") || 0==strcmp(machine, "iPad4,2")  ||
-			0==strcmp(machine, "iPad4,3") || 0==strcmp(machine, "iPad4,4")  ||
-			0==strcmp(machine, "iPad4,5") || 0==strcmp(machine, "iPad4,6")  ||
-			0==strcmp(machine, "iPad4,7") || 0==strcmp(machine, "iPad4,8")  ||
-			0==strcmp(machine, "iPad4,9") ||
-			0==strcmp(machine, "iPad5,3") || 0==strcmp(machine, "iPad5,4") )
-			{
-				return true;
-			}
+		std::string machine(systemInfo.machine);
+
+		if (machine.substr(0, 7) == "iPhone6" || machine.substr(0, 7) == "iPhone7" ||
+			machine.substr(0, 7) == "iPhone8" || machine.substr(0, 7) == "iPhone9" ||
+			machine.substr(0, 5) == "iPad4" || machine.substr(0, 5) == "iPad5" ||
+			machine.substr(0, 5) == "iPad6" || machine.substr(0, 5) == "iPad7")
+		{
+			return true;
+		}
 	}
 #   endif
 
@@ -181,104 +178,293 @@ bool CPU_TryAES_ARMV8()
 #endif  // ARM32 or ARM64
 
 #if (CRYPTOPP_ARM_AES_AVAILABLE)
-
-void Rijndael_Enc_ProcessAndXorBlock_ARMV8(const byte *inBlock, const byte *xorBlock, byte *outBlock,
-                                           const word32 *subKeys, unsigned int rounds)
+inline void ARMV8_Enc_Block(uint8x16_t &block, const word32 *subkeys, unsigned int rounds)
 {
-	uint8x16_t data = vld1q_u8(inBlock);
-	const byte *keys = reinterpret_cast<const byte*>(subKeys);
+	const byte *keys = reinterpret_cast<const byte*>(subkeys);
 
 	// Unroll the loop, profit 0.3 to 0.5 cpb.
-	data = vaeseq_u8(data, vld1q_u8(keys+0));
-	data = vaesmcq_u8(data);
-	data = vaeseq_u8(data, vld1q_u8(keys+16));
-	data = vaesmcq_u8(data);
-	data = vaeseq_u8(data, vld1q_u8(keys+32));
-	data = vaesmcq_u8(data);
-	data = vaeseq_u8(data, vld1q_u8(keys+48));
-	data = vaesmcq_u8(data);
-	data = vaeseq_u8(data, vld1q_u8(keys+64));
-	data = vaesmcq_u8(data);
-	data = vaeseq_u8(data, vld1q_u8(keys+80));
-	data = vaesmcq_u8(data);
-	data = vaeseq_u8(data, vld1q_u8(keys+96));
-	data = vaesmcq_u8(data);
-	data = vaeseq_u8(data, vld1q_u8(keys+112));
-	data = vaesmcq_u8(data);
-	data = vaeseq_u8(data, vld1q_u8(keys+128));
-	data = vaesmcq_u8(data);
+	block = vaeseq_u8(block, vld1q_u8(keys+0));
+	block = vaesmcq_u8(block);
+	block = vaeseq_u8(block, vld1q_u8(keys+16));
+	block = vaesmcq_u8(block);
+	block = vaeseq_u8(block, vld1q_u8(keys+32));
+	block = vaesmcq_u8(block);
+	block = vaeseq_u8(block, vld1q_u8(keys+48));
+	block = vaesmcq_u8(block);
+	block = vaeseq_u8(block, vld1q_u8(keys+64));
+	block = vaesmcq_u8(block);
+	block = vaeseq_u8(block, vld1q_u8(keys+80));
+	block = vaesmcq_u8(block);
+	block = vaeseq_u8(block, vld1q_u8(keys+96));
+	block = vaesmcq_u8(block);
+	block = vaeseq_u8(block, vld1q_u8(keys+112));
+	block = vaesmcq_u8(block);
+	block = vaeseq_u8(block, vld1q_u8(keys+128));
+	block = vaesmcq_u8(block);
 
 	unsigned int i=9;
 	for ( ; i<rounds-1; ++i)
 	{
 		// AES single round encryption
-		data = vaeseq_u8(data, vld1q_u8(keys+i*16));
+		block = vaeseq_u8(block, vld1q_u8(keys+i*16));
 		// AES mix columns
-		data = vaesmcq_u8(data);
+		block = vaesmcq_u8(block);
 	}
 
 	// AES single round encryption
-	data = vaeseq_u8(data, vld1q_u8(keys+i*16));
-
+	block = vaeseq_u8(block, vld1q_u8(keys+i*16));
 	// Final Add (bitwise Xor)
-	data = veorq_u8(data, vld1q_u8(keys+(i+1)*16));
-
-	if (xorBlock)
-		vst1q_u8(outBlock, veorq_u8(data, vld1q_u8(xorBlock)));
-	else
-		vst1q_u8(outBlock, data);
+	block = veorq_u8(block, vld1q_u8(keys+(i+1)*16));
 }
 
-void Rijndael_Dec_ProcessAndXorBlock_ARMV8(const byte *inBlock, const byte *xorBlock, byte *outBlock,
-                                           const word32 *subKeys, unsigned int rounds)
+inline void ARMV8_Enc_4_Blocks(uint8x16_t &block0, uint8x16_t &block1, uint8x16_t &block2,
+            uint8x16_t &block3, const word32 *subkeys, unsigned int rounds)
 {
-	uint8x16_t data = vld1q_u8(inBlock);
-	const byte *keys = reinterpret_cast<const byte*>(subKeys);
+	const byte *keys = reinterpret_cast<const byte*>(subkeys);
+
+	unsigned int i=0;
+	for ( ; i<rounds-1; ++i)
+	{
+		// AES single round encryption
+		block0 = vaeseq_u8(block0, vld1q_u8(keys+i*16));
+		// AES mix columns
+		block0 = vaesmcq_u8(block0);
+		// AES single round encryption
+		block1 = vaeseq_u8(block1, vld1q_u8(keys+i*16));
+		// AES mix columns
+		block1 = vaesmcq_u8(block1);
+		// AES single round encryption
+		block2 = vaeseq_u8(block2, vld1q_u8(keys+i*16));
+		// AES mix columns
+		block2 = vaesmcq_u8(block2);
+		// AES single round encryption
+		block3 = vaeseq_u8(block3, vld1q_u8(keys+i*16));
+		// AES mix columns
+		block3 = vaesmcq_u8(block3);
+	}
+
+	// AES single round encryption
+	block0 = vaeseq_u8(block0, vld1q_u8(keys+i*16));
+	block1 = vaeseq_u8(block1, vld1q_u8(keys+i*16));
+	block2 = vaeseq_u8(block2, vld1q_u8(keys+i*16));
+	block3 = vaeseq_u8(block3, vld1q_u8(keys+i*16));
+
+	// Final Add (bitwise Xor)
+	block0 = veorq_u8(block0, vld1q_u8(keys+(i+1)*16));
+	block1 = veorq_u8(block1, vld1q_u8(keys+(i+1)*16));
+	block2 = veorq_u8(block2, vld1q_u8(keys+(i+1)*16));
+	block3 = veorq_u8(block3, vld1q_u8(keys+(i+1)*16));
+}
+
+inline void ARMV8_Dec_Block(uint8x16_t &block, const word32 *subkeys, unsigned int rounds)
+{
+	const byte *keys = reinterpret_cast<const byte*>(subkeys);
 
 	// Unroll the loop, profit 0.3 to 0.5 cpb.
-	data = vaesdq_u8(data, vld1q_u8(keys+0));
-	data = vaesimcq_u8(data);
-	data = vaesdq_u8(data, vld1q_u8(keys+16));
-	data = vaesimcq_u8(data);
-	data = vaesdq_u8(data, vld1q_u8(keys+32));
-	data = vaesimcq_u8(data);
-	data = vaesdq_u8(data, vld1q_u8(keys+48));
-	data = vaesimcq_u8(data);
-	data = vaesdq_u8(data, vld1q_u8(keys+64));
-	data = vaesimcq_u8(data);
-	data = vaesdq_u8(data, vld1q_u8(keys+80));
-	data = vaesimcq_u8(data);
-	data = vaesdq_u8(data, vld1q_u8(keys+96));
-	data = vaesimcq_u8(data);
-	data = vaesdq_u8(data, vld1q_u8(keys+112));
-	data = vaesimcq_u8(data);
-	data = vaesdq_u8(data, vld1q_u8(keys+128));
-	data = vaesimcq_u8(data);
+	block = vaesdq_u8(block, vld1q_u8(keys+0));
+	block = vaesimcq_u8(block);
+	block = vaesdq_u8(block, vld1q_u8(keys+16));
+	block = vaesimcq_u8(block);
+	block = vaesdq_u8(block, vld1q_u8(keys+32));
+	block = vaesimcq_u8(block);
+	block = vaesdq_u8(block, vld1q_u8(keys+48));
+	block = vaesimcq_u8(block);
+	block = vaesdq_u8(block, vld1q_u8(keys+64));
+	block = vaesimcq_u8(block);
+	block = vaesdq_u8(block, vld1q_u8(keys+80));
+	block = vaesimcq_u8(block);
+	block = vaesdq_u8(block, vld1q_u8(keys+96));
+	block = vaesimcq_u8(block);
+	block = vaesdq_u8(block, vld1q_u8(keys+112));
+	block = vaesimcq_u8(block);
+	block = vaesdq_u8(block, vld1q_u8(keys+128));
+	block = vaesimcq_u8(block);
 
 	unsigned int i=9;
 	for ( ; i<rounds-1; ++i)
 	{
 		// AES single round decryption
-		data = vaesdq_u8(data, vld1q_u8(keys+i*16));
+		block = vaesdq_u8(block, vld1q_u8(keys+i*16));
 		// AES inverse mix columns
-		data = vaesimcq_u8(data);
+		block = vaesimcq_u8(block);
 	}
 
 	// AES single round decryption
-	data = vaesdq_u8(data, vld1q_u8(keys+i*16));
+	block = vaesdq_u8(block, vld1q_u8(keys+i*16));
+	// Final Add (bitwise Xor)
+	block = veorq_u8(block, vld1q_u8(keys+(i+1)*16));
+}
+
+inline void ARMV8_Dec_4_Blocks(uint8x16_t &block0, uint8x16_t &block1, uint8x16_t &block2,
+            uint8x16_t &block3, const word32 *subkeys, unsigned int rounds)
+{
+	const byte *keys = reinterpret_cast<const byte*>(subkeys);
+
+	unsigned int i=0;
+	for ( ; i<rounds-1; ++i)
+	{
+		// AES single round decryption
+		block0 = vaesdq_u8(block0, vld1q_u8(keys+i*16));
+		// AES inverse mix columns
+		block0 = vaesimcq_u8(block0);
+		// AES single round decryption
+		block1 = vaesdq_u8(block1, vld1q_u8(keys+i*16));
+		// AES inverse mix columns
+		block1 = vaesimcq_u8(block1);
+		// AES single round decryption
+		block2 = vaesdq_u8(block2, vld1q_u8(keys+i*16));
+		// AES inverse mix columns
+		block2 = vaesimcq_u8(block2);
+		// AES single round decryption
+		block3 = vaesdq_u8(block3, vld1q_u8(keys+i*16));
+		// AES inverse mix columns
+		block3 = vaesimcq_u8(block3);
+	}
+
+	// AES single round decryption
+	block0 = vaesdq_u8(block0, vld1q_u8(keys+i*16));
+	block1 = vaesdq_u8(block1, vld1q_u8(keys+i*16));
+	block2 = vaesdq_u8(block2, vld1q_u8(keys+i*16));
+	block3 = vaesdq_u8(block3, vld1q_u8(keys+i*16));
 
 	// Final Add (bitwise Xor)
-	data = veorq_u8(data, vld1q_u8(keys+(i+1)*16));
-
-	if (xorBlock)
-		vst1q_u8(outBlock, veorq_u8(data, vld1q_u8(xorBlock)));
-	else
-		vst1q_u8(outBlock, data);
+	block0 = veorq_u8(block0, vld1q_u8(keys+(i+1)*16));
+	block1 = veorq_u8(block1, vld1q_u8(keys+(i+1)*16));
+	block2 = veorq_u8(block2, vld1q_u8(keys+(i+1)*16));
+	block3 = veorq_u8(block3, vld1q_u8(keys+(i+1)*16));
 }
+
+const word32 s_one[] = {0, 0, 0, 1<<24};
+
+template <typename F1, typename F4>
+size_t Rijndael_AdvancedProcessBlocks_ARMV8(F1 func1, F4 func4, const word32 *subkeys, unsigned int rounds,
+            const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
+{
+	size_t blockSize = 16;
+	size_t inIncrement = (flags & (BlockTransformation::BT_InBlockIsCounter|BlockTransformation::BT_DontIncrementInOutPointers)) ? 0 : blockSize;
+	size_t xorIncrement = xorBlocks ? blockSize : 0;
+	size_t outIncrement = (flags & BlockTransformation::BT_DontIncrementInOutPointers) ? 0 : blockSize;
+
+	if (flags & BlockTransformation::BT_ReverseDirection)
+	{
+		inBlocks += length - blockSize;
+		xorBlocks += length - blockSize;
+		outBlocks += length - blockSize;
+		inIncrement = 0-inIncrement;
+		xorIncrement = 0-xorIncrement;
+		outIncrement = 0-outIncrement;
+	}
+
+	if (flags & BlockTransformation::BT_AllowParallel)
+	{
+		while (length >= 4*blockSize)
+		{
+			uint8x16_t block0, block1, block2, block3, temp;
+			block0 = vld1q_u8(inBlocks);
+
+			if (flags & BlockTransformation::BT_InBlockIsCounter)
+			{
+				uint32x4_t be = vld1q_u32(s_one);
+				block1 = vaddq_u8(block0, vreinterpretq_u8_u32(be));
+				block2 = vaddq_u8(block1, vreinterpretq_u8_u32(be));
+				block3 = vaddq_u8(block2, vreinterpretq_u8_u32(be));
+				temp   = vaddq_u8(block3, vreinterpretq_u8_u32(be));
+				vst1q_u8(const_cast<byte*>(inBlocks), temp);
+			}
+			else
+			{
+				inBlocks += inIncrement;
+				block1 = vld1q_u8(inBlocks);
+				inBlocks += inIncrement;
+				block2 = vld1q_u8(inBlocks);
+				inBlocks += inIncrement;
+				block3 = vld1q_u8(inBlocks);
+				inBlocks += inIncrement;
+			}
+
+			if (flags & BlockTransformation::BT_XorInput)
+			{
+				block0 = veorq_u8(block0, vld1q_u8(xorBlocks));
+				xorBlocks += xorIncrement;
+				block1 = veorq_u8(block1, vld1q_u8(xorBlocks));
+				xorBlocks += xorIncrement;
+				block2 = veorq_u8(block2, vld1q_u8(xorBlocks));
+				xorBlocks += xorIncrement;
+				block3 = veorq_u8(block3, vld1q_u8(xorBlocks));
+				xorBlocks += xorIncrement;
+			}
+
+			func4(block0, block1, block2, block3, subkeys, rounds);
+
+			if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
+			{
+				block0 = veorq_u8(block0, vld1q_u8(xorBlocks));
+				xorBlocks += xorIncrement;
+				block1 = veorq_u8(block1, vld1q_u8(xorBlocks));
+				xorBlocks += xorIncrement;
+				block2 = veorq_u8(block2, vld1q_u8(xorBlocks));
+				xorBlocks += xorIncrement;
+				block3 = veorq_u8(block3, vld1q_u8(xorBlocks));
+				xorBlocks += xorIncrement;
+			}
+
+			vst1q_u8(outBlocks, block0);
+			outBlocks += outIncrement;
+			vst1q_u8(outBlocks, block1);
+			outBlocks += outIncrement;
+			vst1q_u8(outBlocks, block2);
+			outBlocks += outIncrement;
+			vst1q_u8(outBlocks, block3);
+			outBlocks += outIncrement;
+
+			length -= 4*blockSize;
+		}
+	}
+
+	while (length >= blockSize)
+	{
+		uint8x16_t block = vld1q_u8(inBlocks);
+
+		if (flags & BlockTransformation::BT_XorInput)
+			block = veorq_u8(block, vld1q_u8(xorBlocks));
+
+		if (flags & BlockTransformation::BT_InBlockIsCounter)
+			const_cast<byte *>(inBlocks)[15]++;
+
+		func1(block, subkeys, rounds);
+
+		if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
+			block = veorq_u8(block, vld1q_u8(xorBlocks));
+
+		vst1q_u8(outBlocks, block);
+
+		inBlocks += inIncrement;
+		outBlocks += outIncrement;
+		xorBlocks += xorIncrement;
+		length -= blockSize;
+	}
+
+	return length;
+}
+
+size_t Rijndael_Enc_AdvancedProcessBlocks_ARMV8(const word32 *subkeys, size_t rounds,
+            const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
+{
+	return Rijndael_AdvancedProcessBlocks_ARMV8(ARMV8_Enc_Block, ARMV8_Enc_4_Blocks,
+            subkeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+}
+
+size_t Rijndael_Dec_AdvancedProcessBlocks_ARMV8(const word32 *subkeys, size_t rounds,
+            const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
+{
+	return Rijndael_AdvancedProcessBlocks_ARMV8(ARMV8_Dec_Block, ARMV8_Dec_4_Blocks,
+            subkeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+}
+
 #endif  // CRYPTOPP_ARM_AES_AVAILABLE
 
 #if (CRYPTOPP_AESNI_AVAILABLE)
-void AESNI_Enc_Block(__m128i &block, MAYBE_CONST __m128i *subkeys, unsigned int rounds)
+inline void AESNI_Enc_Block(__m128i &block, MAYBE_CONST __m128i *subkeys, unsigned int rounds)
 {
 	block = _mm_xor_si128(block, subkeys[0]);
 	for (unsigned int i=1; i<rounds-1; i+=2)
@@ -313,7 +499,7 @@ inline void AESNI_Enc_4_Blocks(__m128i &block0, __m128i &block1, __m128i &block2
 	block3 = _mm_aesenclast_si128(block3, rk);
 }
 
-void AESNI_Dec_Block(__m128i &block, MAYBE_CONST __m128i *subkeys, unsigned int rounds)
+inline void AESNI_Dec_Block(__m128i &block, MAYBE_CONST __m128i *subkeys, unsigned int rounds)
 {
 	block = _mm_xor_si128(block, subkeys[0]);
 	for (unsigned int i=1; i<rounds-1; i+=2)
@@ -325,7 +511,7 @@ void AESNI_Dec_Block(__m128i &block, MAYBE_CONST __m128i *subkeys, unsigned int 
 	block = _mm_aesdeclast_si128(block, subkeys[rounds]);
 }
 
-void AESNI_Dec_4_Blocks(__m128i &block0, __m128i &block1, __m128i &block2, __m128i &block3,
+inline void AESNI_Dec_4_Blocks(__m128i &block0, __m128i &block1, __m128i &block2, __m128i &block3,
                         MAYBE_CONST __m128i *subkeys, unsigned int rounds)
 {
 	__m128i rk = subkeys[0];
@@ -364,7 +550,6 @@ inline size_t Rijndael_AdvancedProcessBlocks_AESNI(F1 func1, F4 func4,
 
 	if (flags & BlockTransformation::BT_ReverseDirection)
 	{
-		CRYPTOPP_ASSERT(length % blockSize == 0);
 		inBlocks += length - blockSize;
 		xorBlocks += length - blockSize;
 		outBlocks += length - blockSize;
