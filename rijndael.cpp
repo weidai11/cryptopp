@@ -5,6 +5,10 @@
 // use "cl /EP /P /DCRYPTOPP_GENERATE_X64_MASM rijndael.cpp" to generate MASM code
 
 /*
+August 2017: Added support for ARMv8 AES instructions via compiler intrinsics.
+*/
+
+/*
 July 2010: Added support for AES-NI instructions via compiler intrinsics.
 */
 
