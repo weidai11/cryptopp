@@ -199,15 +199,15 @@ endif  # -DCRYPTOPP_DISABLE_SSSE3
 endif  # -DCRYPTOPP_DISABLE_ASM
 endif  # CXXFLAGS
 
-SSSE3_FLAG = $(shell echo | $(CXX) $(CXXFLAGS) -mssse3 -dM -E - 2>/dev/null | grep -i -c -q __SSSE3__ && echo "-mssse3")
+SSSE3_FLAG = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -mssse3 -dM -E - 2>/dev/null | grep -i -c -q __SSSE3__ && echo "-mssse3")
 ARIA_FLAG = $(SSSE3_FLAG)
 ifeq ($(findstring -DCRYPTOPP_DISABLE_SSE4,$(CXXFLAGS)),)
-SSE42_FLAG = $(shell echo | $(CXX) $(CXXFLAGS) -msse4.2 -dM -E - 2>/dev/null | grep -i -c -q __SSE4_2__ && echo "-msse4.2")
+SSE42_FLAG = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -msse4.2 -dM -E - 2>/dev/null | grep -i -c -q __SSE4_2__ && echo "-msse4.2")
 ifeq ($(findstring -DCRYPTOPP_DISABLE_AESNI,$(CXXFLAGS)),)
-GCM_FLAG = $(shell echo | $(CXX) $(CXXFLAGS) -mssse3 -mpclmul -dM -E - 2>/dev/null | grep -i -c -q __PCLMUL__ && echo "-mssse3 -mpclmul")
-AES_FLAG = $(shell echo | $(CXX) $(CXXFLAGS) -msse4.1 -maes -dM -E - 2>/dev/null | grep -i -c -q __AES__ && echo "-msse4.1 -maes")
+GCM_FLAG = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -mssse3 -mpclmul -dM -E - 2>/dev/null | grep -i -c -q __PCLMUL__ && echo "-mssse3 -mpclmul")
+AES_FLAG = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -msse4.1 -maes -dM -E - 2>/dev/null | grep -i -c -q __AES__ && echo "-msse4.1 -maes")
 ifeq ($(findstring -DCRYPTOPP_DISABLE_SHA,$(CXXFLAGS)),)
-SHA_FLAG = $(shell echo | $(CXX) $(CXXFLAGS) -msse4.2 -msha -dM -E - 2>/dev/null | grep -i -c -q __SHA__ && echo "-msse4.2 -msha")
+SHA_FLAG = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -msse4.2 -msha -dM -E - 2>/dev/null | grep -i -c -q __SHA__ && echo "-msse4.2 -msha")
 BLAKE2_FLAG = $(SSE42_FLAG)
 CRC_FLAG = $(SSE42_FLAG)
 endif
@@ -304,16 +304,16 @@ endif
 endif
 
 ifeq ($(IS_NEON),1)
-	NEON_FLAG = $(shell echo | $(CXX) $(CXXFLAGS) -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon -dM -E - 2>/dev/null | grep -i -c -q __ARM_NEON && echo "-march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon")
+	NEON_FLAG = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon -dM -E - 2>/dev/null | grep -i -c -q __ARM_NEON && echo "-march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon")
 	GCM_FLAG = $(NEON_FLAG)
 	ARIA_FLAG = $(NEON_FLAG)
 	BLAKE2_FLAG = $(NEON_FLAG)
 endif
 
 ifeq ($(IS_ARMV8),1)
-	ARMV8A_NEON_FLAG = $(shell echo | $(CXX) $(CXXFLAGS) -march=armv8-a -dM -E - 2>/dev/null | grep -i -c -q __ARM_NEON && echo "-march=armv8-a")
-	ARMV8A_CRC_FLAG = $(shell echo | $(CXX) $(CXXFLAGS) -march=armv8-a+crc -dM -E - 2>/dev/null | grep -i -c -q __ARM_FEATURE_CRC32 && echo "-march=armv8-a+crc")
-	ARMV8A_CRYPTO_FLAG = $(shell echo | $(CXX) $(CXXFLAGS) -march=armv8-a+crypto -dM -E - 2>/dev/null | grep -i -c -q __ARM_FEATURE_CRYPTO && echo "-march=armv8-a+crypto")
+	ARMV8A_NEON_FLAG = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv8-a -dM -E - 2>/dev/null | grep -i -c -q __ARM_NEON && echo "-march=armv8-a")
+	ARMV8A_CRC_FLAG = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv8-a+crc -dM -E - 2>/dev/null | grep -i -c -q __ARM_FEATURE_CRC32 && echo "-march=armv8-a+crc")
+	ARMV8A_CRYPTO_FLAG = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv8-a+crypto -dM -E - 2>/dev/null | grep -i -c -q __ARM_FEATURE_CRYPTO && echo "-march=armv8-a+crypto")
 	CRC_FLAG = $(ARMV8A_CRC_FLAG)
 	AES_FLAG = $(ARMV8A_CRYPTO_FLAG)
 	GCM_FLAG = $(ARMV8A_CRYPTO_FLAG)
