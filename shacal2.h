@@ -33,7 +33,7 @@ class SHACAL2 : public SHACAL2_Info, public BlockCipherDocumentation
 		void UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &params);
 
 	protected:
-		FixedSizeSecBlock<word32, 64> m_key;
+		FixedSizeAlignedSecBlock<word32, 64> m_key;
 
 		static const word32 K[64];
 	};
