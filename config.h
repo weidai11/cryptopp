@@ -535,7 +535,11 @@ NAMESPACE_END
 //#else
 //#	define CRYPTOPP_CONSTANT(x) static const int x;
 //#endif
-#define CRYPTOPP_CONSTANT(x) enum {x};
+#if defined(CRYPTOPP_DOXYGEN_PROCESSING)
+# define CRYPTOPP_CONSTANT(x) static const int x;
+#else
+# define CRYPTOPP_CONSTANT(x) enum {x};
+#endif
 
 // Linux provides X32, which is 32-bit integers, longs and pointers on x86_64 using the full x86_64 register set.
 // Detect via __ILP32__ (http://wiki.debian.org/X32Port). However, __ILP32__ shows up in more places than
