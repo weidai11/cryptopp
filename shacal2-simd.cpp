@@ -47,19 +47,17 @@ NAMESPACE_BEGIN(CryptoPP)
 #if CRYPTOPP_SHANI_AVAILABLE
 void SHACAL2_Enc_ProcessAndXorBlock_SHANI(const word32* subKeys, const byte *inBlock, const byte *xorBlock, byte *outBlock)
 {
-    CRYPTOPP_ASSERT(subKeys);
-    CRYPTOPP_ASSERT(inBlock);
-    CRYPTOPP_ASSERT(outBlock);
+	CRYPTOPP_ASSERT(subKeys);
+	CRYPTOPP_ASSERT(inBlock);
+	CRYPTOPP_ASSERT(outBlock);
 
-	__m128i B0 = _mm_loadu_si128(CONST_M128_CAST(inBlock + 0));
-	__m128i B1 = _mm_loadu_si128(CONST_M128_CAST(inBlock + 16));
-	__m128i MASK = _mm_set_epi64x(0x0C0D0E0F08090A0B, 0x0405060700010203);
+	// MASK1 produces the CDAB arrangement
+	const __m128i MASK1 = _mm_set_epi8(8,9,10,11,  12,13,14,15,  0,1,2,3,  4,5,6,7);
+	__m128i B0 = _mm_shuffle_epi8(_mm_loadu_si128(CONST_M128_CAST(inBlock + 0)), MASK1);
 
-	B0 = _mm_shuffle_epi8(B0, MASK);
-	B1 = _mm_shuffle_epi8(B1, MASK);
-
-	B0 = _mm_shuffle_epi32(B0, 0xB1);  // CDAB
-	B1 = _mm_shuffle_epi32(B1, 0x1B);  // EFGH
+	// MASK2 produces the EFGH arrangement
+	const __m128i MASK2 = _mm_set_epi8(0,1,2,3,  4,5,6,7,  8,9,10,11,  12,13,14,15);
+	__m128i B1 = _mm_shuffle_epi8(_mm_loadu_si128(CONST_M128_CAST(inBlock + 16)), MASK2);
 
 	__m128i TMP  = _mm_alignr_epi8(B0, B1, 8);  // ABEF
 	B1 = _mm_blend_epi16(B1, B0, 0xF0);         // CDGH
@@ -78,12 +76,9 @@ void SHACAL2_Enc_ProcessAndXorBlock_SHANI(const word32* subKeys, const byte *inB
 	B0 = _mm_blend_epi16(TMP, B1, 0xF0);  // DCBA
 	B1 = _mm_alignr_epi8(B1, TMP, 8);     // ABEF
 
-	B0 = _mm_shuffle_epi8(B0, MASK);
-	B1 = _mm_shuffle_epi8(B1, MASK);
-
-	// Save state
-	//_mm_storeu_si128(M128_CAST(outBlock + 0), B0);
-	//_mm_storeu_si128(M128_CAST(outBlock + 16), B1);
+	const __m128i MASK3 = _mm_set_epi8(12,13,14,15,  8,9,10,11,  4,5,6,7,  0,1,2,3);
+	B0 = _mm_shuffle_epi8(B0, MASK3);
+	B1 = _mm_shuffle_epi8(B1, MASK3);
 
 	if (xorBlock)
 	{
