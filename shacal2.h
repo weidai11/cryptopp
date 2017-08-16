@@ -2,6 +2,7 @@
 
 //! \file shacal2.h
 //! \brief Classes for the SHACAL-2 block cipher
+//! \since Crypto++ 5.2, Intel SHA since Crypto++ 6.0
 
 #ifndef CRYPTOPP_SHACAL2_H
 #define CRYPTOPP_SHACAL2_H
@@ -20,9 +21,12 @@ struct SHACAL2_Info : public FixedBlockSize<32>, public VariableKeyLength<16, 16
 
 //! \class SHACAL2
 //! \brief SHACAL2 block cipher
+//! \since Crypto++ 5.2, Intel SHA since Crypto++ 6.0
 //! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#SHACAL-2">SHACAL-2</a>
 class SHACAL2 : public SHACAL2_Info, public BlockCipherDocumentation
 {
+	//! \brief SHACAL2 block cipher data processing functions
+	//! \details Provides implementation common to encryption and decryption
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<SHACAL2_Info>
 	{
 	public:
@@ -34,12 +38,16 @@ class SHACAL2 : public SHACAL2_Info, public BlockCipherDocumentation
 		static const word32 K[64];
 	};
 
+	//! \brief SHACAL2 block cipher data processing functions
+	//! \details Provides implementation for encryption transformation
 	class CRYPTOPP_NO_VTABLE Enc : public Base
 	{
 	public:
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
 	};
 
+	//! \brief SHACAL2 block cipher data processing functions
+	//! \details Provides implementation for decryption transformation
 	class CRYPTOPP_NO_VTABLE Dec : public Base
 	{
 	public:
