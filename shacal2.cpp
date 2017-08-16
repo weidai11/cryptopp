@@ -1,15 +1,88 @@
-// shacal2.cpp - by Kevin Springle, 2003
+// shacal2.cpp - written by Kevin Springle, 2003
 //
 // Portions of this code were derived from
 // Wei Dai's implementation of SHA-2
 //
+// Jack Lloyd is the author of Botan and allowed Crypto++ to use
+// parts of Botan's implementation under the same license as Crypto++
+// is released. The code for SHACAL2_Enc_ProcessAndXorBlock_SHANI
+// below is Botan's x86_encrypt_blocks with minor tweaks. Many thanks
+// to the Botan team. Also see http://github.com/randombit/botan/.
+//
 // The original code and all modifications are in the public domain.
 
 #include "pch.h"
+#include "config.h"
 #include "shacal2.h"
 #include "misc.h"
+#include "cpu.h"
+
+#if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
+#include <immintrin.h>
+#endif
+
+// Clang __m128i casts
+#define M128_CAST(x) ((__m128i *)(void *)(x))
+#define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
 
 NAMESPACE_BEGIN(CryptoPP)
+
+ANONYMOUS_NAMESPACE_BEGIN
+
+#if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
+void SHACAL2_Enc_ProcessAndXorBlock_SHANI(const word32* subKeys, const byte *inBlock, const byte *xorBlock, byte *outBlock)
+{
+	CRYPTOPP_ASSERT(subKeys);
+	CRYPTOPP_ASSERT(inBlock);
+	CRYPTOPP_ASSERT(outBlock);
+
+	__m128i MASK = _mm_set_epi64x(0x0C0D0E0F08090A0B, 0x0405060700010203);
+	__m128i B0 = _mm_loadu_si128(CONST_M128_CAST(inBlock + 0));
+	__m128i B1 = _mm_loadu_si128(CONST_M128_CAST(inBlock + 16));
+
+	B0 = _mm_shuffle_epi8(B0, MASK);
+	B1 = _mm_shuffle_epi8(B1, MASK);
+
+	B0 = _mm_shuffle_epi32(B0, 0xB1);  // CDAB
+	B1 = _mm_shuffle_epi32(B1, 0x1B);  // EFGH
+
+	__m128i TMP  = _mm_alignr_epi8(B0, B1, 8);  // ABEF
+	B1 = _mm_blend_epi16(B1, B0, 0xF0);         // CDGH
+	B0 = TMP;
+
+	for (size_t i = 0; i != 8; ++i)
+	{
+		B1 = _mm_sha256rnds2_epu32(B1, B0, _mm_set_epi32(0,0,subKeys[8*i+1],subKeys[8*i+0]));
+		B0 = _mm_sha256rnds2_epu32(B0, B1, _mm_set_epi32(0,0,subKeys[8*i+3],subKeys[8*i+2]));
+		B1 = _mm_sha256rnds2_epu32(B1, B0, _mm_set_epi32(0,0,subKeys[8*i+5],subKeys[8*i+4]));
+		B0 = _mm_sha256rnds2_epu32(B0, B1, _mm_set_epi32(0,0,subKeys[8*i+7],subKeys[8*i+6]));
+	}
+
+	TMP = _mm_shuffle_epi32(B0, 0x1B);    // FEBA
+	B1 = _mm_shuffle_epi32(B1, 0xB1);     // DCHG
+	B0 = _mm_blend_epi16(TMP, B1, 0xF0);  // DCBA
+	B1 = _mm_alignr_epi8(B1, TMP, 8);     // ABEF
+
+	B0 = _mm_shuffle_epi8(B0, MASK);
+	B1 = _mm_shuffle_epi8(B1, MASK);
+
+	if (xorBlock)
+	{
+		_mm_storeu_si128(M128_CAST(outBlock + 0),
+			_mm_xor_si128(B0, _mm_loadu_si128(CONST_M128_CAST(xorBlock + 0))));
+
+		_mm_storeu_si128(M128_CAST(outBlock + 16),
+			_mm_xor_si128(B1, _mm_loadu_si128(CONST_M128_CAST(xorBlock + 16))));
+	}
+	else
+	{
+		_mm_storeu_si128(M128_CAST(outBlock + 0), B0);
+		_mm_storeu_si128(M128_CAST(outBlock + 16), B1);
+	}
+}
+#endif
+
+ANONYMOUS_NAMESPACE_END
 
 // SHACAL-2 function and round definitions
 
@@ -54,6 +127,14 @@ typedef BlockGetAndPut<word32, BigEndian> Block;
 
 void SHACAL2::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
+#if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
+	if (HasSHA())
+	{
+		SHACAL2_Enc_ProcessAndXorBlock_SHANI(m_key, inBlock, xorBlock, outBlock);
+		return;
+	}
+#endif
+
 	word32 a, b, c, d, e, f, g, h;
 	const word32 *rk = m_key;
 
