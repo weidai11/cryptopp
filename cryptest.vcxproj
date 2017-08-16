@@ -86,7 +86,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <ErrorReporting>None</ErrorReporting>
       <WarningLevel>Level4</WarningLevel>
-      <DisableSpecificWarnings>4231; 4355; 4505</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4231; 4251; 4275; 4355; 4505</DisableSpecificWarnings>
       <PrecompiledHeader />
       <PrecompiledHeadeFile />
     </ClCompile>
