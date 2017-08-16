@@ -530,11 +530,6 @@ NAMESPACE_END
 #endif
 
 // How to declare class constants
-//#if (_MSC_VER == 1300) || defined(__INTEL_COMPILER) || defined(__BORLANDC__)
-//#	define CRYPTOPP_CONSTANT(x) enum {x};
-//#else
-//#	define CRYPTOPP_CONSTANT(x) static const int x;
-//#endif
 #if defined(CRYPTOPP_DOXYGEN_PROCESSING)
 # define CRYPTOPP_CONSTANT(x) static const int x;
 #else
