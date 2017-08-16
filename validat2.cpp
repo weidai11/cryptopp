@@ -39,6 +39,7 @@
 #include "sha.h"
 #include "ripemd.h"
 #include "smartptr.h"
+#include "pkcspad.h"
 
 #include <iostream>
 #include <sstream>

@@ -8,6 +8,7 @@
 #include "pubkey.h"
 #include "gfpcrypt.h"
 #include "eccrypto.h"
+#include "pkcspad.h"
 
 #include "files.h"
 #include "filters.h"

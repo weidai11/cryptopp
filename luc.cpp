@@ -7,6 +7,7 @@
 #include "integer.h"
 #include "nbtheory.h"
 #include "algparam.h"
+#include "pkcspad.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 

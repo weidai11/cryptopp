@@ -53,12 +53,19 @@ class MD5;
 }
 // end of list
 
-#ifdef CRYPTOPP_IS_DLL
+#if defined(CRYPTOPP_IS_DLL)
 CRYPTOPP_DLL_TEMPLATE_CLASS PKCS_DigestDecoration<SHA1>;
 CRYPTOPP_DLL_TEMPLATE_CLASS PKCS_DigestDecoration<SHA224>;
 CRYPTOPP_DLL_TEMPLATE_CLASS PKCS_DigestDecoration<SHA256>;
 CRYPTOPP_DLL_TEMPLATE_CLASS PKCS_DigestDecoration<SHA384>;
 CRYPTOPP_DLL_TEMPLATE_CLASS PKCS_DigestDecoration<SHA512>;
+#elif defined(__clang__)
+// Provide a default definition to avoid Clang warnings. CRTP will provide a
+// real definition later. The single element is due to MSVC compile failures
+// after adding the default definition. However, GCC produces multiple
+// definitions which result in link failures. I give up...
+template <class H>
+const byte PKCS_DigestDecoration<H>::decoration[1] = {0x00};
 #endif
 
 //! \class PKCS1v15_SignatureMessageEncodingMethod
