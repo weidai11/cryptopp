@@ -36,34 +36,46 @@ void SHACAL2_Enc_ProcessAndXorBlock_SHANI(const word32* subKeys, const byte *inB
 	CRYPTOPP_ASSERT(inBlock);
 	CRYPTOPP_ASSERT(outBlock);
 
-	// MASK1 produces the CDAB arrangement
 	const __m128i MASK1 = _mm_set_epi8(8,9,10,11,  12,13,14,15,  0,1,2,3,  4,5,6,7);
-	__m128i B0 = _mm_shuffle_epi8(_mm_loadu_si128(CONST_M128_CAST(inBlock + 0)), MASK1);
-
-	// MASK2 produces the EFGH arrangement
 	const __m128i MASK2 = _mm_set_epi8(0,1,2,3,  4,5,6,7,  8,9,10,11,  12,13,14,15);
+
+	__m128i B0 = _mm_shuffle_epi8(_mm_loadu_si128(CONST_M128_CAST(inBlock + 0)), MASK1);
 	__m128i B1 = _mm_shuffle_epi8(_mm_loadu_si128(CONST_M128_CAST(inBlock + 16)), MASK2);
 
-	__m128i TMP = _mm_alignr_epi8(B0, B1, 8);  // ABEF
-	B1 = _mm_blend_epi16(B1, B0, 0xF0);         // CDGH
+	__m128i TMP = _mm_alignr_epi8(B0, B1, 8);
+	B1 = _mm_blend_epi16(B1, B0, 0xF0);
 	B0 = TMP;
 
+#if 0
+	// SSE2 + SSSE3, but 0.2 cpb slower on a Celeraon J3455
+	const __m128i MASK1 = _mm_set_epi8(8,9,10,11,  12,13,14,15,  0,1,2,3,  4,5,6,7);
+	const __m128i MASK2 = _mm_set_epi8(0,1,2,3,  4,5,6,7,  8,9,10,11,  12,13,14,15);
+
+	__m128i B0 = _mm_loadu_si128(CONST_M128_CAST(inBlock + 0));
+	__m128i B1 = _mm_loadu_si128(CONST_M128_CAST(inBlock + 16));
+
+	__m128i TMP = _mm_shuffle_epi8(_mm_unpacklo_epi64(B0, B1), MASK2);
+	B1 = _mm_shuffle_epi8(_mm_unpackhi_epi64(B0, B1), MASK2);
+	B0 = TMP;
+#endif
+
+	const byte* keys = reinterpret_cast<const byte*>(subKeys);
 	for (size_t i = 0; i != 8; ++i)
 	{
-		B1 = _mm_sha256rnds2_epu32(B1, B0, _mm_set_epi32(0,0,subKeys[8*i+1],subKeys[8*i+0]));
-		B0 = _mm_sha256rnds2_epu32(B0, B1, _mm_set_epi32(0,0,subKeys[8*i+3],subKeys[8*i+2]));
-		B1 = _mm_sha256rnds2_epu32(B1, B0, _mm_set_epi32(0,0,subKeys[8*i+5],subKeys[8*i+4]));
-		B0 = _mm_sha256rnds2_epu32(B0, B1, _mm_set_epi32(0,0,subKeys[8*i+7],subKeys[8*i+6]));
+		const __m128i RK0 = _mm_load_si128(CONST_M128_CAST(keys + 32*i));
+		const __m128i RK2 = _mm_load_si128(CONST_M128_CAST(keys + 32*i+16));
+		const __m128i RK1 = _mm_srli_si128(RK0, 8);
+		const __m128i RK3 = _mm_srli_si128(RK2, 8);
+
+		B1 = _mm_sha256rnds2_epu32(B1, B0, RK0);
+		B0 = _mm_sha256rnds2_epu32(B0, B1, RK1);
+		B1 = _mm_sha256rnds2_epu32(B1, B0, RK2);
+		B0 = _mm_sha256rnds2_epu32(B0, B1, RK3);
 	}
 
-	TMP = _mm_shuffle_epi32(B0, 0x1B);    // FEBA
-	B1 = _mm_shuffle_epi32(B1, 0xB1);     // DCHG
-	B0 = _mm_blend_epi16(TMP, B1, 0xF0);  // DCBA
-	B1 = _mm_alignr_epi8(B1, TMP, 8);     // ABEF
-
-	const __m128i MASK3 = _mm_set_epi8(12,13,14,15,  8,9,10,11,  4,5,6,7,  0,1,2,3);
-	B0 = _mm_shuffle_epi8(B0, MASK3);
-	B1 = _mm_shuffle_epi8(B1, MASK3);
+	TMP = _mm_shuffle_epi8(_mm_unpackhi_epi64(B0, B1), MASK1);
+	B1 = _mm_shuffle_epi8(_mm_unpacklo_epi64(B0, B1), MASK1);
+	B0 = TMP;
 
 	if (xorBlock)
 	{
