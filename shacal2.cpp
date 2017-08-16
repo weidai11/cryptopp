@@ -7,6 +7,7 @@
 
 #include "pch.h"
 #include "shacal2.h"
+#include "cpu.h"
 #include "misc.h"
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -31,6 +32,11 @@ NAMESPACE_BEGIN(CryptoPP)
 #define P(a,b,c,d,e,f,g,h,k) \
 	h-=S0(a)+Maj(a,b,c);d-=h;h-=S1(e)+Ch(e,f,g)+*--k;
 
+#if CRYPTOPP_SHANI_AVAILABLE
+extern void SHACAL2_Enc_ProcessAndXorBlock_SHANI(const word32* subKeys,
+                const byte *inBlock, const byte *xorBlock, byte *outBlock);
+#endif
+
 void SHACAL2::Base::UncheckedSetKey(const byte *userKey, unsigned int keylen, const NameValuePairs &)
 {
 	AssertValidKeyLength(keylen);
@@ -54,6 +60,14 @@ typedef BlockGetAndPut<word32, BigEndian> Block;
 
 void SHACAL2::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
+#if CRYPTOPP_SHANI_AVAILABLE
+	if (HasSHA())
+	{
+		SHACAL2_Enc_ProcessAndXorBlock_SHANI(m_key, inBlock, xorBlock, outBlock);
+		return;
+	}
+#endif
+
 	word32 a, b, c, d, e, f, g, h;
 	const word32 *rk = m_key;
 

@@ -284,6 +284,7 @@
     <ClCompile Include="sha-simd.cpp" />
     <ClCompile Include="sha3.cpp" />
     <ClCompile Include="shacal2.cpp" />
+    <ClCompile Include="shacal2-simd.cpp" />
     <ClCompile Include="shark.cpp" />
     <ClCompile Include="sharkbox.cpp" />
     <ClCompile Include="simple.cpp" />

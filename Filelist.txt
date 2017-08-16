@@ -259,6 +259,7 @@ sha.h
 sha3.cpp
 sha3.h
 shacal2.cpp
+shacal2-simd.cpp
 shacal2.h
 shark.cpp
 shark.h
