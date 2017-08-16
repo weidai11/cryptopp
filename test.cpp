@@ -24,6 +24,7 @@
 #include "whrlpool.h"
 #include "tiger.h"
 #include "smartptr.h"
+#include "pkcspad.h"
 #include "stdcpp.h"
 #include "ossig.h"
 #include "trap.h"
