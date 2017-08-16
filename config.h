@@ -621,7 +621,11 @@ NAMESPACE_END
 //#else
 //#	define CRYPTOPP_CONSTANT(x) static const int x;
 //#endif
-#define CRYPTOPP_CONSTANT(x) enum {x};
+#if defined(CRYPTOPP_DOXYGEN_PROCESSING)
+# define CRYPTOPP_CONSTANT(x) static const int x;
+#else
+# define CRYPTOPP_CONSTANT(x) enum {x};
+#endif
 
 // ***************** Initialization and Constructor priorities ********************
 
