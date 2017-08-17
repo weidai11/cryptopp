@@ -8,6 +8,7 @@
 
 #include "pch.h"
 #include "config.h"
+#include "stdcpp.h"
 
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
 # include "arm_neon.h"

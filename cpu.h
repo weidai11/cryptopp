@@ -51,7 +51,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 #if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64 || CRYPTOPP_DOXYGEN_PROCESSING
 
-#define CRYPTOPP_CPUID_AVAILABLE
+#define CRYPTOPP_CPUID_AVAILABLE 1
 
 // Hide from Doxygen
 #ifndef CRYPTOPP_DOXYGEN_PROCESSING
@@ -82,6 +82,7 @@ CRYPTOPP_DLL bool CRYPTOPP_API CpuId(word32 func, word32 subfunc, word32 output[
 //! \returns true if SSE2 is determined to be available, false otherwise
 //! \details MMX, SSE and SSE2 are core processor features for x86_64, and
 //!   the function always returns true for the platform.
+//! \note This function is only available on Intel IA-32 platforms
 inline bool HasSSE2()
 {
 #if CRYPTOPP_BOOL_X64
@@ -96,7 +97,7 @@ inline bool HasSSE2()
 //! \brief Determines SSSE3 availability
 //! \returns true if SSSE3 is determined to be available, false otherwise
 //! \details HasSSSE3() is a runtime check performed using CPUID
-//! \note Some Clang compilers incorrectly omit SSSE3 even though its native to the processor.
+//! \note This function is only available on Intel IA-32 platforms
 inline bool HasSSSE3()
 {
 	if (!g_x86DetectionDone)
@@ -107,6 +108,7 @@ inline bool HasSSSE3()
 //! \brief Determines SSE4.1 availability
 //! \returns true if SSE4.1 is determined to be available, false otherwise
 //! \details HasSSE41() is a runtime check performed using CPUID
+//! \note This function is only available on Intel IA-32 platforms
 inline bool HasSSE41()
 {
 	if (!g_x86DetectionDone)
@@ -117,6 +119,7 @@ inline bool HasSSE41()
 //! \brief Determines SSE4.2 availability
 //! \returns true if SSE4.2 is determined to be available, false otherwise
 //! \details HasSSE42() is a runtime check performed using CPUID
+//! \note This function is only available on Intel IA-32 platforms
 inline bool HasSSE42()
 {
 	if (!g_x86DetectionDone)
@@ -127,6 +130,7 @@ inline bool HasSSE42()
 //! \brief Determines AES-NI availability
 //! \returns true if AES-NI is determined to be available, false otherwise
 //! \details HasAESNI() is a runtime check performed using CPUID
+//! \note This function is only available on Intel IA-32 platforms
 inline bool HasAESNI()
 {
 	if (!g_x86DetectionDone)
@@ -137,6 +141,7 @@ inline bool HasAESNI()
 //! \brief Determines Carryless Multiply availability
 //! \returns true if pclmulqdq is determined to be available, false otherwise
 //! \details HasCLMUL() is a runtime check performed using CPUID
+//! \note This function is only available on Intel IA-32 platforms
 inline bool HasCLMUL()
 {
 	if (!g_x86DetectionDone)
@@ -147,6 +152,7 @@ inline bool HasCLMUL()
 //! \brief Determines SHA availability
 //! \returns true if SHA is determined to be available, false otherwise
 //! \details HasSHA() is a runtime check performed using CPUID
+//! \note This function is only available on Intel IA-32 platforms
 inline bool HasSHA()
 {
 	if (!g_x86DetectionDone)
@@ -157,6 +163,7 @@ inline bool HasSHA()
 //! \brief Determines if the CPU is an Intel P4
 //! \returns true if the CPU is a P4, false otherwise
 //! \details IsP4() is a runtime check performed using CPUID
+//! \note This function is only available on Intel IA-32 platforms
 inline bool IsP4()
 {
 	if (!g_x86DetectionDone)
@@ -167,6 +174,7 @@ inline bool IsP4()
 //! \brief Determines RDRAND availability
 //! \returns true if RDRAND is determined to be available, false otherwise
 //! \details HasRDRAND() is a runtime check performed using CPUID
+//! \note This function is only available on Intel IA-32 platforms
 inline bool HasRDRAND()
 {
 	if (!g_x86DetectionDone)
@@ -177,6 +185,7 @@ inline bool HasRDRAND()
 //! \brief Determines RDSEED availability
 //! \returns true if RDSEED is determined to be available, false otherwise
 //! \details HasRDSEED() is a runtime check performed using CPUID
+//! \note This function is only available on Intel IA-32 platforms
 inline bool HasRDSEED()
 {
 	if (!g_x86DetectionDone)
@@ -187,6 +196,7 @@ inline bool HasRDSEED()
 //! \brief Determines Padlock RNG availability
 //! \returns true if VIA Padlock RNG is determined to be available, false otherwise
 //! \details HasPadlockRNG() is a runtime check performed using CPUID
+//! \note This function is only available on Intel IA-32 platforms
 inline bool HasPadlockRNG()
 {
 	if (!g_x86DetectionDone)
@@ -197,6 +207,7 @@ inline bool HasPadlockRNG()
 //! \brief Determines Padlock ACE availability
 //! \returns true if VIA Padlock ACE is determined to be available, false otherwise
 //! \details HasPadlockACE() is a runtime check performed using CPUID
+//! \note This function is only available on Intel IA-32 platforms
 inline bool HasPadlockACE()
 {
 	if (!g_x86DetectionDone)
@@ -207,6 +218,7 @@ inline bool HasPadlockACE()
 //! \brief Determines Padlock ACE2 availability
 //! \returns true if VIA Padlock ACE2 is determined to be available, false otherwise
 //! \details HasPadlockACE2() is a runtime check performed using CPUID
+//! \note This function is only available on Intel IA-32 platforms
 inline bool HasPadlockACE2()
 {
 	if (!g_x86DetectionDone)
@@ -217,6 +229,7 @@ inline bool HasPadlockACE2()
 //! \brief Determines Padlock PHE availability
 //! \returns true if VIA Padlock PHE is determined to be available, false otherwise
 //! \details HasPadlockPHE() is a runtime check performed using CPUID
+//! \note This function is only available on Intel IA-32 platforms
 inline bool HasPadlockPHE()
 {
 	if (!g_x86DetectionDone)
@@ -227,6 +240,7 @@ inline bool HasPadlockPHE()
 //! \brief Determines Padlock PMM availability
 //! \returns true if VIA Padlock PMM is determined to be available, false otherwise
 //! \details HasPadlockPMM() is a runtime check performed using CPUID
+//! \note This function is only available on Intel IA-32 platforms
 inline bool HasPadlockPMM()
 {
 	if (!g_x86DetectionDone)
@@ -247,12 +261,16 @@ inline int GetCacheLineSize()
 		DetectX86Features();
 	return g_cacheLineSize;
 }
+#endif  // CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64
 
-#elif (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
+#if CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64 || CRYPTOPP_DOXYGEN_PROCESSING
 
+// Hide from Doxygen
+#ifndef CRYPTOPP_DOXYGEN_PROCESSING
 extern bool g_ArmDetectionDone;
 extern bool g_hasNEON, g_hasPMULL, g_hasCRC32, g_hasAES, g_hasSHA1, g_hasSHA2;
 void CRYPTOPP_API DetectArmFeatures();
+#endif  // CRYPTOPP_DOXYGEN_PROCESSING
 
 //! \brief Determine if an ARM processor has Advanced SIMD available
 //! \returns true if the hardware is capable of Advanced SIMD at runtime, false otherwise.
@@ -260,6 +278,7 @@ void CRYPTOPP_API DetectArmFeatures();
 //! \details Runtime support requires compile time support. When compiling with GCC, you may
 //!   need to compile with <tt>-mfpu=neon</tt> (32-bit) or <tt>-march=armv8-a</tt>
 //!   (64-bit). Also see ARM's <tt>__ARM_NEON</tt> preprocessor macro.
+//! \note This function is only available on ARM-32, Aarch32 and Aarch64 platforms
 inline bool HasNEON()
 {
 	// ASIMD is a core feature on Aarch32 and Aarch64 like SSE2 is a core feature on x86_64
@@ -278,6 +297,7 @@ inline bool HasNEON()
 //! \details Runtime support requires compile time support. When compiling with GCC, you may
 //!   need to compile with <tt>-march=armv8-a+crypto</tt>; while Apple requires
 //!   <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRYPTO</tt> preprocessor macro.
+//! \note This function is only available on ARM-32, Aarch32 and Aarch64 platforms
 inline bool HasPMULL()
 {
 	if (!g_ArmDetectionDone)
@@ -292,6 +312,7 @@ inline bool HasPMULL()
 //! \details Runtime support requires compile time support. When compiling with GCC, you may
 //!   need to compile with <tt>-march=armv8-a+crc</tt>; while Apple requires
 //!   <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRC32</tt> preprocessor macro.
+//! \note This function is only available on ARM-32, Aarch32 and Aarch64 platforms
 inline bool HasCRC32()
 {
 #if defined(__aarch32__) || defined(__aarch64__)
@@ -310,6 +331,7 @@ inline bool HasCRC32()
 //! \details Runtime support requires compile time support. When compiling with GCC, you may
 //!   need to compile with <tt>-march=armv8-a+crypto</tt>; while Apple requires
 //!   <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRYPTO</tt> preprocessor macro.
+//! \note This function is only available on ARM-32, Aarch32 and Aarch64 platforms
 inline bool HasAES()
 {
 #if defined(__aarch32__) || defined(__aarch64__)
@@ -328,6 +350,7 @@ inline bool HasAES()
 //! \details Runtime support requires compile time support. When compiling with GCC, you may
 //!   need to compile with <tt>-march=armv8-a+crypto</tt>; while Apple requires
 //!   <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRYPTO</tt> preprocessor macro.
+//! \note This function is only available on ARM-32, Aarch32 and Aarch64 platforms
 inline bool HasSHA1()
 {
 #if defined(__aarch32__) || defined(__aarch64__)
@@ -346,6 +369,7 @@ inline bool HasSHA1()
 //! \details Runtime support requires compile time support. When compiling with GCC, you may
 //!   need to compile with <tt>-march=armv8-a+crypto</tt>; while Apple requires
 //!   <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRYPTO</tt> preprocessor macro.
+//! \note This function is only available on ARM-32, Aarch32 and Aarch64 platforms
 inline bool HasSHA2()
 {
 #if defined(__aarch32__) || defined(__aarch64__)
@@ -356,7 +380,10 @@ inline bool HasSHA2()
 	return false;
 #endif
 }
+#endif  // CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64
 
+// Non-Intel systems
+#if !(CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
 //! \brief Provides the cache line size at runtime
 //! \returns true if the hardware is capable of CRC32 at runtime, false otherwise.
 //! \details GetCacheLineSize() provides is an estimate using CRYPTOPP_L1_CACHE_LINE_SIZE.
@@ -365,17 +392,9 @@ inline int GetCacheLineSize()
 {
 	return CRYPTOPP_L1_CACHE_LINE_SIZE;
 }
+#endif  // Non-Intel systems
 
-#else
-
-inline int GetCacheLineSize()
-{
-	return CRYPTOPP_L1_CACHE_LINE_SIZE;
-}
-
-#endif  // X86/X32/X64 and ARM
-
-#endif
+#endif  // CRYPTOPP_GENERATE_X64_MASM
 
 #if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64
 
@@ -549,7 +568,7 @@ inline int GetCacheLineSize()
 	ASL(labelPrefix##9)\
 	AS2(	add		outputPtr, increment*16)
 
-#endif  //  X86/X32/X64
+#endif  // CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64
 
 NAMESPACE_END
 
