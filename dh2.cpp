@@ -11,11 +11,14 @@ NAMESPACE_BEGIN(CryptoPP)
 struct NullCryptoParameters : public CryptoParameters
 {
 	void AssignFrom(const NameValuePairs &source) {
+		CRYPTOPP_UNUSED(source);
 	}
 	bool Validate(RandomNumberGenerator &rng, unsigned int level) const {
+		CRYPTOPP_UNUSED(rng); CRYPTOPP_UNUSED(level);
 		return false;
 	}
 	bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const {
+		CRYPTOPP_UNUSED(name); CRYPTOPP_UNUSED(valueType); CRYPTOPP_UNUSED(pValue);
 		return false;
 	}
 };
@@ -35,10 +38,14 @@ struct NullSimpleKeyAgreementDomain : public TwoBases<NullCryptoParameters, Simp
 		return 1;
 	}
 	void GeneratePrivateKey(RandomNumberGenerator &rng, byte *privateKey) const {
+		CRYPTOPP_UNUSED(rng); CRYPTOPP_UNUSED(privateKey);
 	}
 	void GeneratePublicKey(RandomNumberGenerator &rng, const byte *privateKey, byte *publicKey) const {
+		CRYPTOPP_UNUSED(rng); CRYPTOPP_UNUSED(privateKey); CRYPTOPP_UNUSED(publicKey);
 	}
 	bool Agree(byte *agreedValue, const byte *privateKey, const byte *otherPublicKey, bool validateOtherPublicKey=true) const {
+		CRYPTOPP_UNUSED(agreedValue); CRYPTOPP_UNUSED(privateKey);
+		CRYPTOPP_UNUSED(otherPublicKey); CRYPTOPP_UNUSED(validateOtherPublicKey);
 		return false;
 	}
 };
