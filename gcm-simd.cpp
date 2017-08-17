@@ -10,6 +10,15 @@
 #include "config.h"
 #include "misc.h"
 
+// Clang 3.3 integrated assembler crash on Linux. Other versions produce incorrect results.
+//   Clang has never handled Intel ASM very well. I wish LLVM would fix it.
+#if defined(__clang__)
+# undef CRYPTOPP_X86_ASM_AVAILABLE
+# undef CRYPTOPP_X32_ASM_AVAILABLE
+# undef CRYPTOPP_X64_ASM_AVAILABLE
+# undef CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#endif
+
 // Clang and GCC hoops...
 #if !(defined(__ARM_FEATURE_CRYPTO) || defined(_MSC_VER))
 # undef CRYPTOPP_ARM_PMULL_AVAILABLE
@@ -419,10 +428,8 @@ size_t GCM_AuthenticateBlocks_PMULL(const byte *data, size_t len, const byte *mt
     vst1q_u64(reinterpret_cast<uint64_t *>(hbuffer), x);
     return len;
 }
-#endif  // CRYPTOPP_ARM_PMULL_AVAILABLE
 
-#if CRYPTOPP_ARM_NEON_AVAILABLE
-void GCM_ReverseHashBufferIfNeeded_NEON(byte *hashBuffer)
+void GCM_ReverseHashBufferIfNeeded_PMULL(byte *hashBuffer)
 {
     if (GetNativeByteOrder() != BIG_ENDIAN_ORDER)
     {
@@ -485,7 +492,7 @@ __m128i _mm_clmulepi64_si128(const __m128i &a, const __m128i &b, int i)
         ((byte *)&output)[i] = c.GetByte(i);
     return output;
 }
-#endif
+#endif  // Testing
 
 __m128i GCM_Reduce_CLMUL(__m128i c0, __m128i c1, __m128i c2, const __m128i &r)
 {
@@ -612,11 +619,10 @@ size_t GCM_AuthenticateBlocks_CLMUL(const byte *data, size_t len, const byte *mt
     _mm_store_si128(M128_CAST(hbuffer), x);
     return len;
 }
-#endif
 
-#if CRYPTOPP_CLMUL_AVAILABLE
-void GCM_ReverseHashBufferIfNeeded_SSSE3(byte *hashBuffer)
+void GCM_ReverseHashBufferIfNeeded_CLMUL(byte *hashBuffer)
 {
+	// SSSE3 instruction, but only used with CLMUL
     __m128i &x = *M128_CAST(hashBuffer);
     x = _mm_shuffle_epi8(x, s_clmulConstants[1]);
 }

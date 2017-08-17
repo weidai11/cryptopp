@@ -91,18 +91,15 @@ inline static void GCM_Xor16_SSE2(byte *a, const byte *b, const byte *c)
 }
 #endif
 
-#if CRYPTOPP_SSSE3_AVAILABLE
-extern void GCM_ReverseHashBufferIfNeeded_SSSE3(byte *hashBuffer);
-#endif
-
 #if CRYPTOPP_CLMUL_AVAILABLE
 extern void GCM_SetKeyWithoutResync_CLMUL(const byte *hashKey, byte *mulTable, unsigned int tableSize);
 extern size_t GCM_AuthenticateBlocks_CLMUL(const byte *data, size_t len, const byte *mtable, byte *hbuffer);
 const unsigned int s_cltableSizeInBlocks = 8;
+extern void GCM_ReverseHashBufferIfNeeded_CLMUL(byte *hashBuffer);
 #endif  // CRYPTOPP_CLMUL_AVAILABLE
 
-#if CRYPTOPP_ARM_NEON_AVAILABLE
-extern void GCM_ReverseHashBufferIfNeeded_NEON(byte *hashBuffer);
+#if CRYPTOPP_ARM_PMULL_AVAILABLE
+extern void GCM_ReverseHashBufferIfNeeded_PMULL(byte *hashBuffer);
 #endif
 
 #if CRYPTOPP_ARM_PMULL_AVAILABLE
@@ -280,15 +277,15 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
 
 inline void GCM_Base::ReverseHashBufferIfNeeded()
 {
-#if CRYPTOPP_SSSE3_AVAILABLE
+#if CRYPTOPP_CLMUL_AVAILABLE
     if (HasCLMUL())
     {
-        GCM_ReverseHashBufferIfNeeded_SSSE3(HashBuffer());
+        GCM_ReverseHashBufferIfNeeded_CLMUL(HashBuffer());
     }
-#elif CRYPTOPP_ARM_NEON_AVAILABLE
+#elif CRYPTOPP_ARM_PMULL_AVAILABLE
     if (HasNEON())
     {
-        GCM_ReverseHashBufferIfNeeded_NEON(HashBuffer());
+        GCM_ReverseHashBufferIfNeeded_PMULL(HashBuffer());
     }
 #endif
 }
