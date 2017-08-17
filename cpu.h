@@ -256,20 +256,25 @@ void CRYPTOPP_API DetectArmFeatures();
 
 //! \brief Determine if an ARM processor has Advanced SIMD available
 //! \returns true if the hardware is capable of Advanced SIMD at runtime, false otherwise.
-//! \details Advanced SIMD instructions are available under Aarch64 (ARM-64) and Aarch32 (ARM-32).
+//! \details Advanced SIMD instructions are available under most ARMv7, Aarch32 and Aarch64.
 //! \details Runtime support requires compile time support. When compiling with GCC, you may
 //!   need to compile with <tt>-mfpu=neon</tt> (32-bit) or <tt>-march=armv8-a</tt>
 //!   (64-bit). Also see ARM's <tt>__ARM_NEON</tt> preprocessor macro.
 inline bool HasNEON()
 {
+	// ASIMD is a core feature on Aarch32 and Aarch64 like SSE2 is a core feature on x86_64
+#if defined(__aarch32__) || defined(__aarch64__)
+	return true;
+#else
 	if (!g_ArmDetectionDone)
 		DetectArmFeatures();
 	return g_hasNEON;
+#endif
 }
 
 //! \brief Determine if an ARM processor provides Polynomial Multiplication (long)
 //! \returns true if the hardware is capable of polynomial multiplications at runtime, false otherwise.
-//! \details The multiplication instructions are available under Aarch64 (ARM-64) and Aarch32 (ARM-32).
+//! \details The multiplication instructions are available under Aarch32 and Aarch64.
 //! \details Runtime support requires compile time support. When compiling with GCC, you may
 //!   need to compile with <tt>-march=armv8-a+crypto</tt>; while Apple requires
 //!   <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRYPTO</tt> preprocessor macro.
@@ -282,62 +287,74 @@ inline bool HasPMULL()
 
 //! \brief Determine if an ARM processor has CRC32 available
 //! \returns true if the hardware is capable of CRC32 at runtime, false otherwise.
-//! \details CRC32 instructions provide access to the processor's CRC32 and CRC32-C instructions.
-//!   They are provided by ARM C Language Extensions 2.0 (ACLE 2.0) and available under Aarch64
-//!   (ARM-64) and Aarch32 (ARM-32) running on Aarch64 (i.e., an AArch32 execution environment).
+//! \details CRC32 instructions provide access to the processor's CRC-32 and CRC-32C instructions.
+//!   They are provided by ARM C Language Extensions 2.0 (ACLE 2.0) and available under Aarch32 and Aarch64.
 //! \details Runtime support requires compile time support. When compiling with GCC, you may
 //!   need to compile with <tt>-march=armv8-a+crc</tt>; while Apple requires
 //!   <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRC32</tt> preprocessor macro.
 inline bool HasCRC32()
 {
+#if defined(__aarch32__) || defined(__aarch64__)
 	if (!g_ArmDetectionDone)
 		DetectArmFeatures();
 	return g_hasCRC32;
+#else
+	return false;
+#endif
 }
 
 //! \brief Determine if an ARM processor has AES available
 //! \returns true if the hardware is capable of AES at runtime, false otherwise.
-//! \details AES is part of the Crypto extensions from ARM C Language Extensions 2.0 (ACLE 2.0)
-//!   and available under Aarch64 (ARM-64) and Aarch32 (ARM-32) running on Aarch64 (i.e., an
-//!   AArch32 execution environment).
+//! \details AES is part of the optional Crypto extensions on Aarch32 and Aarch64. They are
+//!   accessed using ARM C Language Extensions 2.0 (ACLE 2.0).
 //! \details Runtime support requires compile time support. When compiling with GCC, you may
 //!   need to compile with <tt>-march=armv8-a+crypto</tt>; while Apple requires
 //!   <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRYPTO</tt> preprocessor macro.
 inline bool HasAES()
 {
+#if defined(__aarch32__) || defined(__aarch64__)
 	if (!g_ArmDetectionDone)
 		DetectArmFeatures();
 	return g_hasAES;
+#else
+	return false;
+#endif
 }
 
 //! \brief Determine if an ARM processor has SHA1 available
 //! \returns true if the hardware is capable of SHA1 at runtime, false otherwise.
-//! \details SHA1 is part of the Crypto extensions from ARM C Language Extensions 2.0 (ACLE 2.0)
-//!   and available under Aarch64 (ARM-64) and Aarch32 (ARM-32) running on Aarch64 (i.e., an
-//!   AArch32 execution environment).
+//! \details SHA1 is part of the optional Crypto extensions on Aarch32 and Aarch64. They are
+//!   accessed using ARM C Language Extensions 2.0 (ACLE 2.0).
 //! \details Runtime support requires compile time support. When compiling with GCC, you may
 //!   need to compile with <tt>-march=armv8-a+crypto</tt>; while Apple requires
 //!   <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRYPTO</tt> preprocessor macro.
 inline bool HasSHA1()
 {
+#if defined(__aarch32__) || defined(__aarch64__)
 	if (!g_ArmDetectionDone)
 		DetectArmFeatures();
 	return g_hasSHA1;
+#else
+	return false;
+#endif
 }
 
 //! \brief Determine if an ARM processor has SHA2 available
 //! \returns true if the hardware is capable of SHA2 at runtime, false otherwise.
-//! \details SHA2 is part of the Crypto extensions from ARM C Language Extensions 2.0 (ACLE 2.0)
-//!   and available under Aarch64 (ARM-64) and Aarch32 (ARM-32) running on Aarch64 (i.e., an
-//!   AArch32 execution environment).
+//! \details SHA2 is part of the optional Crypto extensions on Aarch32 and Aarch64. They are
+//!   accessed using ARM C Language Extensions 2.0 (ACLE 2.0).
 //! \details Runtime support requires compile time support. When compiling with GCC, you may
 //!   need to compile with <tt>-march=armv8-a+crypto</tt>; while Apple requires
 //!   <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRYPTO</tt> preprocessor macro.
 inline bool HasSHA2()
 {
+#if defined(__aarch32__) || defined(__aarch64__)
 	if (!g_ArmDetectionDone)
 		DetectArmFeatures();
 	return g_hasSHA2;
+#else
+	return false;
+#endif
 }
 
 //! \brief Provides the cache line size at runtime
