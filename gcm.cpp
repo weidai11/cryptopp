@@ -283,7 +283,7 @@ inline void GCM_Base::ReverseHashBufferIfNeeded()
         GCM_ReverseHashBufferIfNeeded_CLMUL(HashBuffer());
     }
 #elif CRYPTOPP_ARM_PMULL_AVAILABLE
-    if (HasNEON())
+    if (HasPMULL())
     {
         GCM_ReverseHashBufferIfNeeded_PMULL(HashBuffer());
     }
