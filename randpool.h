@@ -69,7 +69,6 @@ private:
 //! \deprecated This class uses an old style PGP 2.6.x with MDC. The generator risks reusing
 //!   random random numbers after state rollback. You should migrate away from OldRandomPool
 //!   at the earliest opportunity.
-//!   HKDF.
 //! \sa RandomPool, AutoSeededRandomPool, HKDF, P1363_KDF2, PKCS12_PBKDF, PKCS5_PBKDF2_HMAC
 //! \since Crypto++ 6.0 (PGP 2.6.x style)
 class CRYPTOPP_DLL OldRandomPool : public RandomNumberGenerator
