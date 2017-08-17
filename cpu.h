@@ -75,7 +75,7 @@ extern CRYPTOPP_DLL bool g_hasPadlockPMM;
 extern CRYPTOPP_DLL word32 g_cacheLineSize;
 
 CRYPTOPP_DLL void CRYPTOPP_API DetectX86Features();
-CRYPTOPP_DLL bool CRYPTOPP_API CpuId(word32 input, word32 output[4]);
+CRYPTOPP_DLL bool CRYPTOPP_API CpuId(word32 func, word32 subfunc, word32 output[4]);
 #endif // CRYPTOPP_DOXYGEN_PROCESSING
 
 //! \brief Determines SSE2 availability
@@ -272,7 +272,7 @@ inline bool HasNEON()
 #endif
 }
 
-//! \brief Determine if an ARM processor provides Polynomial Multiplication (long)
+//! \brief Determine if an ARM processor provides Polynomial Multiplication
 //! \returns true if the hardware is capable of polynomial multiplications at runtime, false otherwise.
 //! \details The multiplication instructions are available under Aarch32 and Aarch64.
 //! \details Runtime support requires compile time support. When compiling with GCC, you may
