@@ -458,7 +458,7 @@ NAMESPACE_END
 
 // Requires ARMv7 and ACLE 1.0. Testing shows ARMv7 is really ARMv7a under most toolchains.
 #if !defined(CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
-# if defined(__ARM_NEON__) || defined(__ARM_NEON) || defined(_M_ARM)
+# if defined(__ARM_NEON__) || defined(__ARM_NEON) || defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM)
 #  define CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE 1
 # endif
 #endif

@@ -22,7 +22,7 @@
 # if defined(__GNUC__)
 #  include <stdint.h>
 # endif
-# if defined(__ARM_NEON) || defined(_MSC_VER)
+# if defined(__ARM_NEON) || defined(__aarch32__) || defined(__aarch64__) || defined(_MSC_VER)
 #  include <arm_neon.h>
 # endif
 # if defined(__GNUC__) && !defined(__apple_build_version__)
