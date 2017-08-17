@@ -1,11 +1,11 @@
 // shacla2-simd.cpp - written and placed in the public domain by
 //                    Jeffrey Walton and Jack Lloyd
 //
-//    Jack Lloyd is the author of Botan and allowed Crypto++ to use parts of
-//    Botan's implementation under the same license as Crypto++ is released.
-//    The code for SHACAL2_Enc_ProcessAndXorBlock_SHANI below is Botan's
-//    x86_encrypt_blocks with minor tweaks. Many thanks to the Botan team.
-//    Also see https://github.com/randombit/botan/pull/1151/files.
+//    Jack Lloyd and the Botan team allowed Crypto++ to use parts of
+//    Botan's implementation under the same license as Crypto++
+//    is released. The code for SHACAL2_Enc_ProcessAndXorBlock_SHANI
+//    below is Botan's x86_encrypt_blocks with minor tweaks. Many thanks
+//    to the Botan team. Also see http://github.com/randombit/botan/.
 //
 //    This source file uses intrinsics to gain access to SHA-NI and
 //    ARMv8a SHA instructions. A separate source file is needed because
