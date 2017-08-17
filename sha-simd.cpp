@@ -16,22 +16,6 @@
 # undef CRYPTOPP_ARM_SHA_AVAILABLE
 #endif
 
-#if defined(__linux__)
-# include <sys/auxv.h>
-# ifndef HWCAP_SHA1
-# define HWCAP_SHA1 (1 << 5)
-# endif
-# ifndef HWCAP_SHA2
-# define HWCAP_SHA2 (1 << 6)
-# endif
-# ifndef HWCAP2_SHA1
-# define HWCAP2_SHA1 (1 << 2)
-# endif
-# ifndef HWCAP2_SHA2
-# define HWCAP2_SHA2 (1 << 3)
-# endif
-#endif
-
 #if (CRYPTOPP_SHANI_AVAILABLE)
 # include "nmmintrin.h"
 # include "immintrin.h"
@@ -76,7 +60,7 @@ extern "C" {
 #endif  // Not CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
 
 #if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
-bool CPU_TrySHA1_ARMV8()
+bool CPU_ProbeSHA1()
 {
 #if (CRYPTOPP_ARM_SHA_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
@@ -99,17 +83,6 @@ bool CPU_TrySHA1_ARMV8()
     }
     return result;
 # else
-#   if defined(__ANDROID__) && (defined(__aarch64__) || defined(__aarch32__))
-    if (android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_SHA1)
-        return true;
-    // https://sourceware.org/ml/libc-help/2017-08/msg00012.html
-#   elif defined(__linux__) && defined(__aarch64__)
-    if (getauxval(AT_HWCAP) & HWCAP_SHA1)
-        return true;
-#   elif defined(__linux__) && defined(__aarch32__)
-    if (getauxval(AT_HWCAP2) & HWCAP2_SHA1)
-        return true;
-#   endif
 
     // longjmp and clobber warnings. Volatile is required.
     // http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
@@ -147,7 +120,7 @@ bool CPU_TrySHA1_ARMV8()
 #endif  // CRYPTOPP_ARM_SHA_AVAILABLE
 }
 
-bool CPU_TrySHA2_ARMV8()
+bool CPU_ProbeSHA2()
 {
 #if (CRYPTOPP_ARM_SHA_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
@@ -169,17 +142,6 @@ bool CPU_TrySHA2_ARMV8()
     }
     return result;
 #else
-#   if defined(__ANDROID__) && (defined(__aarch64__) || defined(__aarch32__))
-    if (android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_SHA2)
-        return true;
-    // https://sourceware.org/ml/libc-help/2017-08/msg00012.html
-#   elif defined(__linux__) && defined(__aarch64__)
-    if (getauxval(AT_HWCAP) & HWCAP_SHA2)
-        return true;
-#   elif defined(__linux__) && defined(__aarch32__)
-    if (getauxval(AT_HWCAP2) & HWCAP2_SHA2)
-        return true;
-#   endif
 
     // longjmp and clobber warnings. Volatile is required.
     // http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854

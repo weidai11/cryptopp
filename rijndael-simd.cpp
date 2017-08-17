@@ -20,16 +20,6 @@
 # undef CRYPTOPP_ARM_AES_AVAILABLE
 #endif
 
-#if defined(__linux__)
-# include <sys/auxv.h>
-# ifndef HWCAP_AES
-# define HWCAP_AES (1 << 3)
-# endif
-# ifndef HWCAP2_AES
-# define HWCAP2_AES (1 << 0)
-# endif
-#endif
-
 #if (CRYPTOPP_AESNI_AVAILABLE)
 // Hack... We are supposed to use <nmmintrin.h>. GCC 4.8, LLVM Clang 3.5
 //   and Apple Clang 6.0 conflates SSE4.1 and SSE4.2. If we use <nmmintrin.h>
@@ -53,10 +43,6 @@
 #ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
 # include <signal.h>
 # include <setjmp.h>
-#endif
-
-#if defined(__APPLE__) && defined(__aarch64__)
-# include <sys/utsname.h>
 #endif
 
 #ifndef EXCEPTION_EXECUTE_HANDLER
@@ -89,7 +75,7 @@ extern "C" {
 #endif  // Not CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
 
 #if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
-bool CPU_TryAES_ARMV8()
+bool CPU_ProbeAES()
 {
 #if (CRYPTOPP_ARM_AES_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
@@ -111,35 +97,6 @@ bool CPU_TryAES_ARMV8()
 	}
 	return result;
 # else
-#   if defined(__ANDROID__) && (defined(__aarch64__) || defined(__aarch32__))
-    if (android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_AES)
-		return true;
-    // https://sourceware.org/ml/libc-help/2017-08/msg00012.html
-#   elif defined(__linux__) && defined(__aarch64__)
-	if (getauxval(AT_HWCAP) & HWCAP_AES)
-		return true;
-#   elif defined(__linux__) && defined(__aarch32__)
-	if (getauxval(AT_HWCAP2) & HWCAP2_AES)
-		return true;
-#   elif defined(__APPLE__)
-    {
-		// https://stackoverflow.com/a/11197770/608639
-		// https://gist.github.com/erkanyildiz/390a480f27e86f8cd6ba
-		struct utsname systemInfo;
-		systemInfo.machine[0] = '\0';
-		uname(&systemInfo);
-
-		std::string machine(systemInfo.machine);
-
-		if (machine.substr(0, 7) == "iPhone6" || machine.substr(0, 7) == "iPhone7" ||
-			machine.substr(0, 7) == "iPhone8" || machine.substr(0, 7) == "iPhone9" ||
-			machine.substr(0, 5) == "iPad4" || machine.substr(0, 5) == "iPad5" ||
-			machine.substr(0, 5) == "iPad6" || machine.substr(0, 5) == "iPad7")
-		{
-			return true;
-		}
-	}
-#   endif
 
 	// longjmp and clobber warnings. Volatile is required.
 	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854

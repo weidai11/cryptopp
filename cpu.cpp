@@ -14,8 +14,8 @@
 #include "stdcpp.h"
 
 #ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
-#include <signal.h>
-#include <setjmp.h>
+# include <signal.h>
+# include <setjmp.h>
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -26,11 +26,13 @@ extern "C" {
 };
 #endif  // Not CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
 
+// ***************** IA-32 CPUs ********************
+
 #ifdef CRYPTOPP_CPUID_AVAILABLE
 
 #if _MSC_VER >= 1500
 
-static inline bool CpuId(word32 func, word32 subfunc, word32 output[4])
+inline bool CpuId(word32 func, word32 subfunc, word32 output[4])
 {
 	__cpuidex((int *)output, func, subfunc);
 	return true;
@@ -38,7 +40,7 @@ static inline bool CpuId(word32 func, word32 subfunc, word32 output[4])
 
 #elif _MSC_VER >= 1400 && CRYPTOPP_BOOL_X64
 
-static inline bool CpuId(word32 func, word32 subfunc, word32 output[4])
+inline bool CpuId(word32 func, word32 subfunc, word32 output[4])
 {
 	if (subfunc != 0)
 		return false;
@@ -66,7 +68,7 @@ extern "C"
 }
 #endif
 
-static inline bool CpuId(word32 func, word32 subfunc, word32 output[4])
+inline bool CpuId(word32 func, word32 subfunc, word32 output[4])
 {
 #if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
     __try
@@ -139,7 +141,7 @@ static inline bool CpuId(word32 func, word32 subfunc, word32 output[4])
 
 #endif
 
-static bool TrySSE2()
+static bool CPU_ProbeSSE2()
 {
 #if CRYPTOPP_BOOL_X64
 	return true;
@@ -238,7 +240,7 @@ void DetectX86Features()
 		return;
 
 	if ((cpuid1[3] & (1 << 26)) != 0)
-		g_hasSSE2 = TrySSE2();
+		g_hasSSE2 = CPU_ProbeSSE2();
 	g_hasSSSE3 = g_hasSSE2 && (cpuid1[2] & (1<<9));
 	g_hasSSE41 = g_hasSSE2 && (cpuid1[2] & (1<<19));
 	g_hasSSE42 = g_hasSSE2 && (cpuid1[2] & (1<<20));
@@ -310,43 +312,196 @@ void DetectX86Features()
 	g_x86DetectionDone = true;
 }
 
+// ***************** ARM-32, Aarch32 and Aarch64 CPUs ********************
+
 #elif (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
 
-// The ARM equivalent of CPUID probing is reading a MSR. The code requires Exception Level 1 (EL1)
-//   and above, but user space runs at EL0. Attempting to run the code results in a SIGILL and termination.
-//
-//     #if defined(__arm64__) || defined(__aarch64__)
-//	     word64 caps = 0;  // Read ID_AA64ISAR0_EL1
-//	     __asm __volatile("mrs %0, " "id_aa64isar0_el1" : "=r" (caps));
-//     #elif defined(__arm__) || defined(__aarch32__)
-//	     word32 caps = 0;  // Read ID_ISAR5_EL1
-//	     __asm __volatile("mrs %0, " "id_isar5_el1" : "=r" (caps));
-//     #endif
-//
-// The following does not work well either. Its appears to be missing constants, and it does not detect
-//   Aarch32 execution environments on Aarch64
-//   http://community.arm.com/groups/android-community/blog/2014/10/10/runtime-detection-of-cpu-features-on-an-armv8-a-cpu
-//
+#if defined(__linux__)
+# include <sys/auxv.h>
+# ifndef HWCAP_ASIMD
+# define HWCAP_ASIMD (1 << 1)
+# endif
+# ifndef HWCAP_ARM_NEON
+# define HWCAP_ARM_NEON 4096
+# endif
+# ifndef HWCAP_CRC32
+# define HWCAP_CRC32 (1 << 7)
+# endif
+# ifndef HWCAP2_CRC32
+# define HWCAP2_CRC32 (1 << 4)
+# endif
+# ifndef HWCAP_PMULL
+# define HWCAP_PMULL (1 << 4)
+# endif
+# ifndef HWCAP2_PMULL
+# define HWCAP2_PMULL (1 << 1)
+# endif
+# ifndef HWCAP_AES
+# define HWCAP_AES (1 << 3)
+# endif
+# ifndef HWCAP2_AES
+# define HWCAP2_AES (1 << 0)
+# endif
+# ifndef HWCAP_SHA1
+# define HWCAP_SHA1 (1 << 5)
+# endif
+# ifndef HWCAP_SHA2
+# define HWCAP_SHA2 (1 << 6)
+# endif
+# ifndef HWCAP2_SHA1
+# define HWCAP2_SHA1 (1 << 2)
+# endif
+# ifndef HWCAP2_SHA2
+# define HWCAP2_SHA2 (1 << 3)
+# endif
+#endif
+
+#if defined(__APPLE__) && defined(__aarch64__)
+# include <sys/utsname.h>
+#endif
+
 bool CRYPTOPP_SECTION_INIT g_ArmDetectionDone = false;
 bool CRYPTOPP_SECTION_INIT g_hasNEON = false, CRYPTOPP_SECTION_INIT g_hasPMULL = false, CRYPTOPP_SECTION_INIT g_hasCRC32 = false;
 bool CRYPTOPP_SECTION_INIT g_hasAES = false, CRYPTOPP_SECTION_INIT g_hasSHA1 = false, CRYPTOPP_SECTION_INIT g_hasSHA2 = false;
 word32 CRYPTOPP_SECTION_INIT g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
 
-extern bool CPU_TryNEON_ARM();
-extern bool CPU_TryAES_ARMV8();
-extern bool CPU_TrySHA1_ARMV8();
-extern bool CPU_TrySHA2_ARMV8();
-extern bool CPU_TryCRC32_ARMV8();
-extern bool CPU_TryPMULL_ARMV8();
+// ARM does not have an unprivliged equivalent to CPUID on IA-32. We have to jump through some
+//   hoops to detect features on a wide array of platforms. Our strategy is two part. First,
+//   attempt to *Query* the OS for a feature, like using getauxval on Linux. If that fails,
+//   then *Probe* the cpu executing an instruction and an observe a SIGILL if unsupported.
+// The probes are in source files where compilation options like -march=armv8-a+crc make
+//   intrinsics available. They are expensive when compared to a standard OS feature query.
+//   Always perform the feature quesry first. For Linux see
+//   http://sourceware.org/ml/libc-help/2017-08/msg00012.html
+// Avoid probes on Apple platforms because Apple's signal handling for SIGILLs appears broken.
+//   We are trying to figure out a way to feature test without probes. Also see
+//   http://stackoverflow.com/a/11197770/608639 and
+//   http://gist.github.com/erkanyildiz/390a480f27e86f8cd6ba
+
+extern bool CPU_ProbeNEON();
+extern bool CPU_ProbeCRC32();
+extern bool CPU_ProbeAES();
+extern bool CPU_ProbeSHA1();
+extern bool CPU_ProbeSHA2();
+extern bool CPU_ProbePMULL();
+
+inline bool CPU_QueryNEON()
+{
+#if defined(__ANDROID__) && (defined(__aarch32__) || defined(__aarch64__))
+	if (android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_ASIMD)
+		return true;
+#elif defined(__ANDROID__) && defined(__arm__)
+	if (android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_NEON)
+		return true;
+#elif defined(__linux__) && defined(__aarch64__)
+	if (getauxval(AT_HWCAP) & HWCAP_ASIMD)
+		return true;
+#elif defined(__linux__) && defined(__aarch32__)
+	if (getauxval(AT_HWCAP2) & HWCAP2_ASIMD)
+		return true;
+#elif defined(__linux__) && defined(__arm__)
+	if (getauxval(AT_HWCAP) & HWCAP_ARM_NEON)
+		return true;
+#endif
+	return false;
+}
+
+inline bool CPU_QueryCRC32()
+{
+#if defined(__ANDROID__) && (defined(__aarch64__) || defined(__aarch32__))
+	if (android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_CRC32)
+		return true;
+#elif defined(__linux__) && defined(__aarch64__)
+	if (getauxval(AT_HWCAP) & HWCAP_CRC32)
+		return true;
+#elif defined(__linux__) && defined(__aarch32__)
+	if (getauxval(AT_HWCAP2) & HWCAP2_CRC32)
+		return true;
+#endif
+	return false;
+}
+
+inline bool CPU_QueryPMULL()
+{
+#if defined(__ANDROID__) && (defined(__aarch64__) || defined(__aarch32__))
+	if (android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_PMULL)
+		return true;
+#elif defined(__linux__) && defined(__aarch64__)
+	if (getauxval(AT_HWCAP) & HWCAP_PMULL)
+		return true;
+#elif defined(__linux__) && defined(__aarch32__)
+	if (getauxval(AT_HWCAP2) & HWCAP2_PMULL)
+		return true;
+#endif
+	return false;
+}
+
+inline bool CPU_QueryAES()
+{
+#if defined(__ANDROID__) && (defined(__aarch64__) || defined(__aarch32__))
+	if (android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_AES)
+		return true;
+#elif defined(__linux__) && defined(__aarch64__)
+	if (getauxval(AT_HWCAP) & HWCAP_AES)
+		return true;
+#elif defined(__linux__) && defined(__aarch32__)
+	if (getauxval(AT_HWCAP2) & HWCAP2_AES)
+		return true;
+#elif defined(__APPLE__)
+	struct utsname systemInfo;
+	systemInfo.machine[0] = '\0';
+	uname(&systemInfo);
+
+	std::string machine(systemInfo.machine);
+	if (machine.substr(0, 7) == "iPhone6" || machine.substr(0, 7) == "iPhone7" ||
+		machine.substr(0, 7) == "iPhone8" || machine.substr(0, 7) == "iPhone9" ||
+		machine.substr(0, 5) == "iPad4" || machine.substr(0, 5) == "iPad5" ||
+		machine.substr(0, 5) == "iPad6" || machine.substr(0, 5) == "iPad7")
+	{
+		return true;
+	}
+#endif
+	return false;
+}
+
+inline bool CPU_QuerySHA1()
+{
+#if defined(__ANDROID__) && (defined(__aarch64__) || defined(__aarch32__))
+	if (android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_SHA1)
+		return true;
+#elif defined(__linux__) && defined(__aarch64__)
+	if (getauxval(AT_HWCAP) & HWCAP_SHA1)
+		return true;
+#elif defined(__linux__) && defined(__aarch32__)
+	if (getauxval(AT_HWCAP2) & HWCAP2_SHA1)
+		return true;
+#endif
+	return false;
+}
+
+inline bool CPU_QuerySHA2()
+{
+#if defined(__ANDROID__) && (defined(__aarch64__) || defined(__aarch32__))
+	if (android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_SHA2)
+		return true;
+#elif defined(__linux__) && defined(__aarch64__)
+	if (getauxval(AT_HWCAP) & HWCAP_SHA2)
+		return true;
+#elif defined(__linux__) && defined(__aarch32__)
+	if (getauxval(AT_HWCAP2) & HWCAP2_SHA2)
+		return true;
+#endif
+	return false;
+}
 
 void DetectArmFeatures()
 {
-	g_hasNEON = CPU_TryNEON_ARM();
-	g_hasPMULL = CPU_TryPMULL_ARMV8();
-	g_hasCRC32 = CPU_TryCRC32_ARMV8();
-	g_hasAES = CPU_TryAES_ARMV8();
-	g_hasSHA1 = CPU_TrySHA1_ARMV8();
-	g_hasSHA2 = CPU_TrySHA2_ARMV8();
+	g_hasNEON  = CPU_QueryNEON() || CPU_ProbeNEON();
+	g_hasCRC32 = CPU_QueryCRC32() || CPU_ProbeCRC32();
+	g_hasPMULL = CPU_QueryPMULL() || CPU_ProbePMULL();
+	g_hasAES  = CPU_QueryAES() || CPU_ProbeAES();
+	g_hasSHA1 = CPU_QuerySHA1() || CPU_ProbeSHA1();
+	g_hasSHA2 = CPU_QuerySHA2() || CPU_ProbeSHA2();
 
 	g_ArmDetectionDone = true;
 }

@@ -8,17 +8,6 @@
 
 #include "pch.h"
 #include "config.h"
-#include "stdcpp.h"
-
-#if defined(__linux__)
-# include <sys/auxv.h>
-# ifndef HWCAP_ASIMD
-# define HWCAP_ASIMD (1 << 1)
-# endif
-# ifndef HWCAP_ARM_NEON
-# define HWCAP_ARM_NEON 4096
-# endif
-#endif
 
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
 # include "arm_neon.h"
@@ -47,7 +36,7 @@ extern "C" {
 };
 #endif  // Not CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
 
-bool CPU_TryNEON_ARM()
+bool CPU_ProbeNEON()
 {
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
@@ -74,22 +63,6 @@ bool CPU_TryNEON_ARM()
 	}
 	return result;
 # else
-#   if defined(__ANDROID__) && (defined(__aarch32__) || defined(__aarch64__))
-	if (android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_ASIMD)
-		return true;
-#   elif defined(__ANDROID__) && defined(__arm__)
-	if (android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_NEON)
-		return true;
-#   elif defined(__linux__) && defined(__aarch64__)
-	if (getauxval(AT_HWCAP) & HWCAP_ASIMD)
-		return true;
-#   elif defined(__linux__) && defined(__aarch32__)
-	if (getauxval(AT_HWCAP2) & HWCAP2_ASIMD)
-		return true;
-#   elif defined(__linux__) && defined(__arm__)
-	if (getauxval(AT_HWCAP) & HWCAP_ARM_NEON)
-		return true;
-#   endif
 
 	// longjmp and clobber warnings. Volatile is required.
 	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854

@@ -15,16 +15,6 @@
 # undef CRYPTOPP_ARM_CRC32_AVAILABLE
 #endif
 
-#if defined(__linux__)
-# include <sys/auxv.h>
-# ifndef HWCAP_CRC32
-# define HWCAP_CRC32 (1 << 7)
-# endif
-# ifndef HWCAP2_CRC32
-# define HWCAP2_CRC32 (1 << 4)
-# endif
-#endif
-
 #if (CRYPTOPP_SSE42_AVAILABLE)
 # include "nmmintrin.h"
 #endif
@@ -61,7 +51,7 @@ extern "C" {
 
 #if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
 
-bool CPU_TryCRC32_ARMV8()
+bool CPU_ProbeCRC32()
 {
 #if (CRYPTOPP_ARM_CRC32_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
@@ -84,17 +74,6 @@ bool CPU_TryCRC32_ARMV8()
     }
     return result;
 #else
-#   if defined(__ANDROID__) && (defined(__aarch64__) || defined(__aarch32__))
-    if (android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_CRC32)
-		return true;
-    // https://sourceware.org/ml/libc-help/2017-08/msg00012.html
-#   elif defined(__linux__) && defined(__aarch64__)
-	if (getauxval(AT_HWCAP) & HWCAP_CRC32)
-		return true;
-#   elif defined(__linux__) && defined(__aarch32__)
-	if (getauxval(AT_HWCAP2) & HWCAP2_CRC32)
-		return true;
-#   endif
 
     // longjmp and clobber warnings. Volatile is required.
     // http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
