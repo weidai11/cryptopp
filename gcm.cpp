@@ -16,16 +16,20 @@
 #ifndef CRYPTOPP_IMPORTS
 #ifndef CRYPTOPP_GENERATE_X64_MASM
 
-// Clang 3.3 integrated assembler crash on Linux.
-#if (defined(CRYPTOPP_LLVM_CLANG_VERSION) && (CRYPTOPP_LLVM_CLANG_VERSION < 30400))
+// Clang 3.3 integrated assembler crash on Linux. Other versions produce incorrect results.
+//   Clang has never handled Intel ASM very well. I wish LLVM would fix it.
+#if defined(__clang__)
+# undef CRYPTOPP_X86_ASM_AVAILABLE
+# undef CRYPTOPP_X32_ASM_AVAILABLE
+# undef CRYPTOPP_X64_ASM_AVAILABLE
 # undef CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
 #endif
 
 // SunCC 5.13 and below crash with AES-NI/CLMUL and C++{03|11}. Disable one or the other.
 //   Also see http://github.com/weidai11/cryptopp/issues/226
-#if defined(__SUNPRO_CC) && (__SUNPRO_CC <= 0x513)
-# undef CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
-#endif
+// #if defined(__SUNPRO_CC) && (__SUNPRO_CC <= 0x513)
+// # undef CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
+// #endif
 
 // Clang casts
 #define M128I_CAST(x) ((__m128i *)(void *)(x))
@@ -37,21 +41,16 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 #if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
-// Different assemblers accept different mnemonics: 'movd eax, xmm0' vs 'movd rax, xmm0' vs 'mov eax, xmm0' vs 'mov rax, xmm0'
-#if (CRYPTOPP_LLVM_CLANG_VERSION >= 30600) || (CRYPTOPP_APPLE_CLANG_VERSION >= 70000) || defined(CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER)
-// 'movd eax, xmm0' only. REG_WORD() macro not used.
-# define USE_MOVD_REG32 1
-#elif (defined(CRYPTOPP_LLVM_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION)) && defined(CRYPTOPP_X64_ASM_AVAILABLE)
-// 'movd eax, xmm0' or 'movd rax, xmm0'. REG_WORD() macro supplies REG32 or REG64.
-# define USE_MOVD_REG32_OR_REG64 1
-#elif defined(__GNUC__) || defined(_MSC_VER)
+// Different assemblers accept different mnemonics: 'movd eax, xmm0' vs
+//   'movd rax, xmm0' vs 'mov eax, xmm0' vs 'mov rax, xmm0'
+#if defined(__GNUC__) || defined(_MSC_VER)
 // 'movd eax, xmm0' or 'movd rax, xmm0'. REG_WORD() macro supplies REG32 or REG64.
 # define USE_MOVD_REG32_OR_REG64 1
 #else
 // 'mov eax, xmm0' or 'mov rax, xmm0'. REG_WORD() macro supplies REG32 or REG64.
 # define USE_MOV_REG32_OR_REG64 1
 #endif
-#endif
+#endif  // CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64
 
 #if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64) && CRYPTOPP_BOOL_ARM_PMULL_AVAILABLE
 #if defined(__GNUC__)
