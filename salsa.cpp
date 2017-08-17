@@ -485,11 +485,11 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 		ATT_PREFIX
 	#if CRYPTOPP_BOOL_X64
 			: "+r" (input), "+r" (output), "+r" (iterationCount)
-			: "r" (m_rounds), "r" (m_state.m_ptr), "r" (workspace)
+			: "r" (m_rounds), "r" (m_state.begin()), "r" (workspace)
 			: "%eax", "%rdx", "memory", "cc", "%xmm0", "%xmm1", "%xmm2", "%xmm3", "%xmm4", "%xmm5", "%xmm6", "%xmm7", "%xmm8", "%xmm9", "%xmm10", "%xmm11", "%xmm12", "%xmm13", "%xmm14", "%xmm15"
 	#else
 			: "+a" (input), "+D" (output), "+c" (iterationCount)
-			: "d" (m_rounds), "S" (m_state.m_ptr)
+			: "d" (m_rounds), "S" (m_state.begin())
 			: "memory", "cc"
 	#endif
 		);
