@@ -447,7 +447,7 @@ inline bool CPU_QueryAES()
 #elif defined(__linux__) && defined(__aarch32__)
 	if (getauxval(AT_HWCAP2) & HWCAP2_AES)
 		return true;
-#elif defined(__APPLE__)
+#elif defined(__APPLE__) && defined(__aarch64__)
 	struct utsname systemInfo;
 	systemInfo.machine[0] = '\0';
 	uname(&systemInfo);
