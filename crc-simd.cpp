@@ -75,6 +75,11 @@ bool CPU_ProbeCRC32()
     return result;
 #else
 
+# if defined(__APPLE__)
+    // No SIGILL probes on Apple platforms.
+    return false;
+# endif
+
     // longjmp and clobber warnings. Volatile is required.
     // http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
     volatile bool result = true;

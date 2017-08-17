@@ -221,6 +221,11 @@ bool CPU_ProbePMULL()
     return result;
 # else
 
+# if defined(__APPLE__)
+    // No SIGILL probes on Apple platforms. Plus, Apple Clang does not have PMULL intrinsics.
+    return false;
+# endif
+
     // longjmp and clobber warnings. Volatile is required.
     // http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
     volatile bool result = true;
