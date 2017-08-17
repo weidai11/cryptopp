@@ -46,7 +46,7 @@ NAMESPACE_BEGIN(CryptoPP)
 // 'mov eax, xmm0' or 'mov rax, xmm0'. REG_WORD() macro supplies REG32 or REG64.
 # define USE_MOV_REG32_OR_REG64 1
 #endif
-#endif
+#endif  // CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64
 
 // Clang __m128i casts
 #define M128_CAST(x) ((__m128i *)(void *)(x))
