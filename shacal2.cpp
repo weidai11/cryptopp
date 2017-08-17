@@ -3,8 +3,8 @@
 // Portions of this code were derived from
 // Wei Dai's implementation of SHA-2
 //
-// Jack Lloyd is the author of Botan and allowed Crypto++ to use
-// parts of Botan's implementation under the same license as Crypto++
+// Jack Lloyd and the Botan team allowed Crypto++ to use parts of
+// Botan's implementation under the same license as Crypto++
 // is released. The code for SHACAL2_Enc_ProcessAndXorBlock_SHANI
 // below is Botan's x86_encrypt_blocks with minor tweaks. Many thanks
 // to the Botan team. Also see http://github.com/randombit/botan/.
